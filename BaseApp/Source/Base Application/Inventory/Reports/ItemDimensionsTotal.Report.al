@@ -385,28 +385,26 @@ report 7151 "Item Dimensions - Total"
                 MaxColumnsDisplayed := ArrayLen(ColumnValuesDisplayed);
                 NoOfCols := 0;
                 AnalysisReportMgt.CopyColumnsToTemp(AnalysisLine, AnalysisColumnTemplate, TempAnalysisColumn);
-                with TempAnalysisColumn do begin
-                    i := 0;
-                    if Find('-') then begin
-                        repeat
-                            if Show <> Show::Never then begin
-                                i := i + 1;
-                                if i <= MaxColumnsDisplayed then begin
-                                    Header[i] := "Column Header";
-                                    RoundingHeader[i] := '';
-                                    if "Rounding Factor" in ["Rounding Factor"::"1000", "Rounding Factor"::"1000000"] then
-                                        case "Rounding Factor" of
-                                            "Rounding Factor"::"1000":
-                                                RoundingHeader[i] := Text006;
-                                            "Rounding Factor"::"1000000":
-                                                RoundingHeader[i] := Text007;
-                                        end;
-                                end;
+                i := 0;
+                if TempAnalysisColumn.Find('-') then begin
+                    repeat
+                        if TempAnalysisColumn.Show <> TempAnalysisColumn.Show::Never then begin
+                            i := i + 1;
+                            if i <= MaxColumnsDisplayed then begin
+                                Header[i] := TempAnalysisColumn."Column Header";
+                                RoundingHeader[i] := '';
+                                if TempAnalysisColumn."Rounding Factor" in [TempAnalysisColumn."Rounding Factor"::"1000", TempAnalysisColumn."Rounding Factor"::"1000000"] then
+                                    case TempAnalysisColumn."Rounding Factor" of
+                                        TempAnalysisColumn."Rounding Factor"::"1000":
+                                            RoundingHeader[i] := Text006;
+                                        TempAnalysisColumn."Rounding Factor"::"1000000":
+                                            RoundingHeader[i] := Text007;
+                                    end;
                             end;
-                            NoOfCols := NoOfCols + 1;
-                        until (i >= MaxColumnsDisplayed) or (Next() = 0);
-                        MaxColumnsDisplayed := i;
-                    end;
+                        end;
+                        NoOfCols := NoOfCols + 1;
+                    until (i >= MaxColumnsDisplayed) or (TempAnalysisColumn.Next() = 0);
+                    MaxColumnsDisplayed := i;
                 end;
             end;
 
@@ -870,26 +868,24 @@ report 7151 "Item Dimensions - Total"
         if not ItemFilterSet then
             AnalysisLine.Range := ItemRange;
 
-        with TempAnalysisColumn do begin
-            SetRange("Analysis Column Template", AnalysisColumnTemplate);
-            i := 0;
-            if Find('-') then
-                repeat
-                    if Show <> Show::Never then begin
-                        i := i + 1;
-                        AnalysisLine."Line No." := AnalysisLine."Line No." + 1;
-                        ColumnValuesDisplayed[i] :=
-                          AnalysisReportMgt.CalcCell(AnalysisLine, TempAnalysisColumn, false);
-                        NonZero :=
-                          NonZero or (ColumnValuesDisplayed[i] <> 0) and
-                          ("Column Type" <> "Column Type"::Formula);
-                        if Level > 0 then
-                            ColumnValuesAsText[i, Level] :=
-                              MatrixMgt.FormatAmount(ColumnValuesDisplayed[i], "Rounding Factor", false);
-                    end;
-                    Finished := (NonZero and (Level = 0)) or (i >= MaxColumnsDisplayed) or (Next() = 0);
-                until Finished;
-        end;
+        TempAnalysisColumn.SetRange("Analysis Column Template", AnalysisColumnTemplate);
+        i := 0;
+        if TempAnalysisColumn.Find('-') then
+            repeat
+                if TempAnalysisColumn.Show <> TempAnalysisColumn.Show::Never then begin
+                    i := i + 1;
+                    AnalysisLine."Line No." := AnalysisLine."Line No." + 1;
+                    ColumnValuesDisplayed[i] :=
+                      AnalysisReportMgt.CalcCell(AnalysisLine, TempAnalysisColumn, false);
+                    NonZero :=
+                      NonZero or (ColumnValuesDisplayed[i] <> 0) and
+                      (TempAnalysisColumn."Column Type" <> TempAnalysisColumn."Column Type"::Formula);
+                    if Level > 0 then
+                        ColumnValuesAsText[i, Level] :=
+                          MatrixMgt.FormatAmount(ColumnValuesDisplayed[i], TempAnalysisColumn."Rounding Factor", false);
+                end;
+                Finished := (NonZero and (Level = 0)) or (i >= MaxColumnsDisplayed) or (TempAnalysisColumn.Next() = 0);
+            until Finished;
         exit(NonZero);
     end;
 

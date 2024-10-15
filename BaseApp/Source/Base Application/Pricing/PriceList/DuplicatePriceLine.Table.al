@@ -6,9 +6,8 @@ namespace Microsoft.Pricing.PriceList;
 
 table 7009 "Duplicate Price Line"
 {
-#pragma warning disable AS0034
     TableType = Temporary;
-#pragma warning restore AS0034
+    DataClassification = CustomerContent;
 
     fields
     {

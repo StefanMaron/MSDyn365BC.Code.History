@@ -3,9 +3,11 @@ namespace Microsoft.Service.Document;
 using Microsoft.Finance.Currency;
 using Microsoft.Finance.Dimension;
 using Microsoft.Foundation.Address;
+using Microsoft.Foundation.Attachment;
 using Microsoft.Foundation.Reporting;
 using Microsoft.Sales.Customer;
 using Microsoft.Service.Comment;
+using Microsoft.Utilities;
 using System.Security.User;
 
 page 5964 "Service Quote"
@@ -27,6 +29,7 @@ page 5964 "Service Quote"
                 {
                     ApplicationArea = Service;
                     Importance = Promoted;
+                    Visible = DocNoVisible;
                     ToolTip = 'Specifies the number of the involved entry or record, according to the specified number series.';
 
                     trigger OnAssistEdit()
@@ -62,6 +65,11 @@ page 5964 "Service Quote"
                             if Rec."Contact No." <> xRec."Contact No." then
                                 Rec.SetRange("Contact No.");
                     end;
+                }
+                field("External Document No."; Rec."External Document No.")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies a document number that refers to the customer''s or vendor''s numbering system.';
                 }
                 group("Sell-to")
                 {
@@ -616,6 +624,14 @@ page 5964 "Service Quote"
         }
         area(factboxes)
         {
+            part("Attached Documents"; "Document Attachment Factbox")
+            {
+                ApplicationArea = Service;
+                Caption = 'Attachments';
+                SubPageLink = "Table ID" = const(Database::"Service Header"),
+                              "No." = field("No."),
+                              "Document Type" = field("Document Type");
+            }
             part(Control1902018507; "Customer Statistics FactBox")
             {
                 ApplicationArea = Service;
@@ -726,6 +742,23 @@ page 5964 "Service Quote"
                     ShortCutKey = 'Shift+F7';
                     ToolTip = 'View or edit detailed information for the customer.';
                 }
+                action(DocAttach)
+                {
+                    ApplicationArea = Service;
+                    Caption = 'Attachments';
+                    Image = Attach;
+                    ToolTip = 'Add a file as an attachment. You can attach images as well as documents.';
+
+                    trigger OnAction()
+                    var
+                        DocumentAttachmentDetails: Page "Document Attachment Details";
+                        RecRef: RecordRef;
+                    begin
+                        RecRef.GetTable(Rec);
+                        DocumentAttachmentDetails.OpenForRecRef(RecRef);
+                        DocumentAttachmentDetails.RunModal();
+                    end;
+                }
                 action("Service Document Lo&g")
                 {
                     ApplicationArea = Service;
@@ -787,10 +820,28 @@ page 5964 "Service Quote"
 
                 trigger OnAction()
                 var
-                    DocPrint: Codeunit "Document-Print";
+                    DocumentPrint: Codeunit "Document-Print";
                 begin
                     CurrPage.Update(true);
-                    DocPrint.PrintServiceHeader(Rec);
+                    DocumentPrint.PrintServiceHeader(Rec);
+                end;
+            }
+            action(AttachAsPDF)
+            {
+                ApplicationArea = Service;
+                Caption = 'Attach as PDF';
+                Ellipsis = true;
+                Image = PrintAttachment;
+                ToolTip = 'Create a PDF file and attach it to the document.';
+
+                trigger OnAction()
+                var
+                    ServiceHeader: Record "Service Header";
+                    DocumentPrint: Codeunit "Document-Print";
+                begin
+                    ServiceHeader := Rec;
+                    ServiceHeader.SetRecFilter();
+                    DocumentPrint.PrintServiceHeaderToDocumentAttachment(ServiceHeader);
                 end;
             }
         }
@@ -803,8 +854,16 @@ page 5964 "Service Quote"
                 actionref("Make &Order_Promoted"; "Make &Order")
                 {
                 }
-                actionref("&Print_Promoted"; "&Print")
+                group(Category_CategoryPrint)
                 {
+                    ShowAs = SplitButton;
+
+                    actionref("&Print_Promoted"; "&Print")
+                    {
+                    }
+                    actionref(AttachAsPDF_Promoted; AttachAsPDF)
+                    {
+                    }
                 }
                 actionref("&Create Customer_Promoted"; "&Create Customer")
                 {
@@ -825,6 +884,9 @@ page 5964 "Service Quote"
                 {
                 }
                 actionref("Co&mments_Promoted"; "Co&mments")
+                {
+                }
+                actionref(DocAttach_Promoted; DocAttach)
                 {
                 }
                 actionref("Service Document Lo&g_Promoted"; "Service Document Lo&g")
@@ -849,14 +911,15 @@ page 5964 "Service Quote"
 
     trigger OnInsertRecord(BelowxRec: Boolean): Boolean
     begin
-        Rec.CheckCreditMaxBeforeInsert(false);
+        if DocNoVisible then
+            Rec.CheckCreditMaxBeforeInsert(false);
     end;
 
     trigger OnNewRecord(BelowxRec: Boolean)
     begin
         Rec."Document Type" := Rec."Document Type"::Quote;
         Rec."Responsibility Center" := UserMgt.GetServiceFilter();
-        if Rec."No." = '' then
+        if (not DocNoVisible) and (Rec."No." = '') then
             Rec.SetCustomerFromFilter();
     end;
 
@@ -865,6 +928,7 @@ page 5964 "Service Quote"
         Rec.SetSecurityFilterOnRespCenter();
 
         ActivateFields();
+        SetDocNoVisible();
     end;
 
     var
@@ -876,6 +940,7 @@ page 5964 "Service Quote"
         IsSellToCountyVisible: Boolean;
         IsShipToCountyVisible: Boolean;
         IsServiceLinesEditable: Boolean;
+        DocNoVisible: Boolean;
 
     local procedure ActivateFields()
     begin
@@ -883,6 +948,14 @@ page 5964 "Service Quote"
         IsBillToCountyVisible := FormatAddress.UseCounty(Rec."Bill-to Country/Region Code");
         IsShipToCountyVisible := FormatAddress.UseCounty(Rec."Ship-to Country/Region Code");
         IsServiceLinesEditable := Rec.ServiceLinesEditable();
+    end;
+
+    local procedure SetDocNoVisible()
+    var
+        DocumentNoVisibility: Codeunit DocumentNoVisibility;
+        DocType: Option Quote,"Order",Invoice,"Credit Memo",Contract;
+    begin
+        DocNoVisible := DocumentNoVisibility.ServiceDocumentNoIsVisible(DocType::Quote, Rec."No.");
     end;
 
     local procedure CustomerNoOnAfterValidate()

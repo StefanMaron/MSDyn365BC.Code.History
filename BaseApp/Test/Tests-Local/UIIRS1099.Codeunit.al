@@ -1,7 +1,11 @@
+#if not CLEAN25
 codeunit 142078 "UI IRS 1099"
 {
     Subtype = Test;
     TestPermissions = Disabled;
+    ObsoleteReason = 'Moved to IRS Forms App.';
+    ObsoleteState = Pending;
+    ObsoleteTag = '25.0';
 
     trigger OnRun()
     begin
@@ -29,31 +33,31 @@ codeunit 142078 "UI IRS 1099"
         Initialize();
 
         // [GIVEN] Application Area - Basic
-        LibraryApplicationArea.EnableBasicSetup;
+        LibraryApplicationArea.EnableBasicSetup();
 
         // [GIVEN] IRS 1099 Code "A"
         LibraryLocalFunctionality.CreateIRS1099FormBox(IRS1099FormBox, 0);
 
         // [GIVEN] IRS Adjustment "I" exists for code "A"
         LibraryLocalFunctionality.CreateIRS1099Adjustment(
-          IRS1099Adjustment, LibraryPurchase.CreateVendorNo, IRS1099FormBox.Code, 0, 0);
+          IRS1099Adjustment, LibraryPurchase.CreateVendorNo(), IRS1099FormBox.Code, 0, 0);
 
         // [GIVEN] Open IRS 1099 Form-Box page
-        IRS1099FormBoxPage.OpenEdit;
+        IRS1099FormBoxPage.OpenEdit();
 
         // [GIVEN] Focus on Code "A"
         IRS1099FormBoxPage.FILTER.SetFilter(Code, IRS1099FormBox.Code);
 
         // [WHEN] Stan press "Adjustments" action
-        IRS1099AdjustmentsPage.Trap;
-        IRS1099FormBoxPage.Adjustments.Invoke;
+        IRS1099AdjustmentsPage.Trap();
+        IRS1099FormBoxPage.Adjustments.Invoke();
 
         // [THEN] "IRS 1099 Adjustments" page shown with adjustment "I"
         IRS1099AdjustmentsPage."Vendor No.".AssertEquals(IRS1099Adjustment."Vendor No.");
 
         // Tear down
         IRS1099AdjustmentsPage.Close();
-        LibraryApplicationArea.DisableApplicationAreaSetup;
+        LibraryApplicationArea.DisableApplicationAreaSetup();
     end;
 
     [Test]
@@ -70,31 +74,31 @@ codeunit 142078 "UI IRS 1099"
         Initialize();
 
         // [GIVEN] Application Area - Basic
-        LibraryApplicationArea.EnableBasicSetup;
+        LibraryApplicationArea.EnableBasicSetup();
 
         // [GIVEN] IRS 1099 Code "A"
         LibraryLocalFunctionality.CreateIRS1099FormBox(IRS1099FormBox, 0);
 
         // [GIVEN] IRS Adjustment "I" exists for code "A"
         LibraryLocalFunctionality.CreateIRS1099Adjustment(
-          IRS1099Adjustment, LibraryPurchase.CreateVendorNo, IRS1099FormBox.Code, 0, 0);
+          IRS1099Adjustment, LibraryPurchase.CreateVendorNo(), IRS1099FormBox.Code, 0, 0);
 
         // [GIVEN] Open IRS 1099 Form-Box page
-        IRS1099FormBoxPage.OpenEdit;
+        IRS1099FormBoxPage.OpenEdit();
 
         // [GIVEN] Focus on Code "A"
         IRS1099FormBoxPage.FILTER.SetFilter(Code, IRS1099FormBox.Code);
 
         // [WHEN] Stan drill-down "Adjustments Exists" field
-        IRS1099AdjustmentsPage.Trap;
-        IRS1099FormBoxPage."Adjustment Exists".DrillDown;
+        IRS1099AdjustmentsPage.Trap();
+        IRS1099FormBoxPage."Adjustment Exists".DrillDown();
 
         // [THEN] "IRS 1099 Adjustments" page shown with adjustment "I"
         IRS1099AdjustmentsPage."Vendor No.".AssertEquals(IRS1099Adjustment."Vendor No.");
 
         // Tear down
         IRS1099AdjustmentsPage.Close();
-        LibraryApplicationArea.DisableApplicationAreaSetup;
+        LibraryApplicationArea.DisableApplicationAreaSetup();
     end;
 
     [Test]
@@ -111,7 +115,7 @@ codeunit 142078 "UI IRS 1099"
         Initialize();
 
         // [GIVEN] Application Area - Basic
-        LibraryApplicationArea.EnableBasicSetup;
+        LibraryApplicationArea.EnableBasicSetup();
 
         // [GIVEN] Two IRS 1099 Codes - "A" and "B"
         LibraryLocalFunctionality.CreateIRS1099FormBox(IRS1099FormBox[1], 0);
@@ -119,23 +123,23 @@ codeunit 142078 "UI IRS 1099"
 
         // [GIVEN] IRS Adjustment "I" exists for code "A"
         LibraryLocalFunctionality.CreateIRS1099Adjustment(
-          IRS1099Adjustment, LibraryPurchase.CreateVendorNo, IRS1099FormBox[1].Code, 0, 0);
+          IRS1099Adjustment, LibraryPurchase.CreateVendorNo(), IRS1099FormBox[1].Code, 0, 0);
 
         // [GIVEN] Open IRS 1099 Form-Box page
-        IRS1099FormBoxPage.OpenEdit;
+        IRS1099FormBoxPage.OpenEdit();
 
         // [GIVEN] Focus on Code "B"
         IRS1099FormBoxPage.FILTER.SetFilter(Code, IRS1099FormBox[2].Code);
 
         // [WHEN] Stan press "Adjustments" action
-        IRS1099AdjustmentsPage.Trap;
-        IRS1099FormBoxPage.Adjustments.Invoke;
+        IRS1099AdjustmentsPage.Trap();
+        IRS1099FormBoxPage.Adjustments.Invoke();
 
         // [THEN] "IRS 1099 Adjustments" page shown with no records
         IRS1099AdjustmentsPage."Vendor No.".AssertEquals('');
 
         // Tear down
-        LibraryApplicationArea.DisableApplicationAreaSetup;
+        LibraryApplicationArea.DisableApplicationAreaSetup();
     end;
 
     local procedure Initialize()
@@ -150,4 +154,4 @@ codeunit 142078 "UI IRS 1099"
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"UI IRS 1099");
     end;
 }
-
+#endif

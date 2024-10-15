@@ -32,7 +32,7 @@ codeunit 135403 "Assembly BOM Plan-based E2E"
 
         LibraryVariableStorage.Clear();
 
-        LibraryNotificationMgt.ClearTemporaryNotificationContext;
+        LibraryNotificationMgt.ClearTemporaryNotificationContext();
         ApplicationAreaMgmtFacade.SaveExperienceTierCurrentCompany(ExperienceTierSetup.FieldCaption(Essential));
 
         // Lazy Setup
@@ -41,7 +41,7 @@ codeunit 135403 "Assembly BOM Plan-based E2E"
 
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"Assembly BOM Plan-based E2E");
 
-        CreateCustomer;
+        CreateCustomer();
 
         IsInitialized := true;
         Commit();
@@ -65,7 +65,7 @@ codeunit 135403 "Assembly BOM Plan-based E2E"
         Initialize();
         CreateParentItemAndComponents(ParentItem, ComponentItem, ComponentResource);
 
-        LibraryE2EPlanPermissions.SetViralSignupPlan;
+        LibraryE2EPlanPermissions.SetViralSignupPlan();
 
         // [WHEN] Create a BOM with one of the Item and the Resource as Components
         CreateItemWithBOM(ParentItem, ComponentItem, ComponentResource);
@@ -92,7 +92,7 @@ codeunit 135403 "Assembly BOM Plan-based E2E"
         Initialize();
         CreateParentItemAndComponents(ParentItem, ComponentItem, ComponentResource);
 
-        LibraryE2EPlanPermissions.SetBusinessManagerPlan;
+        LibraryE2EPlanPermissions.SetBusinessManagerPlan();
 
         // [WHEN] Create a BOM with one of the Item and the Resource as Components
         CreateItemWithBOM(ParentItem, ComponentItem, ComponentResource);
@@ -119,7 +119,7 @@ codeunit 135403 "Assembly BOM Plan-based E2E"
         Initialize();
         CreateParentItemAndComponents(ParentItem, ComponentItem, ComponentResource);
 
-        LibraryE2EPlanPermissions.SetExternalAccountantPlan;
+        LibraryE2EPlanPermissions.SetExternalAccountantPlan();
 
         // [WHEN] Create a BOM with one of the Item and the Resource as Components
         CreateItemWithBOM(ParentItem, ComponentItem, ComponentResource);
@@ -146,7 +146,7 @@ codeunit 135403 "Assembly BOM Plan-based E2E"
         Initialize();
         CreateParentItemAndComponents(ParentItem, ComponentItem, ComponentResource);
 
-        LibraryE2EPlanPermissions.SetTeamMemberPlan;
+        LibraryE2EPlanPermissions.SetTeamMemberPlan();
 
         // [WHEN] Create a BOM with one of the Item and the Resource as Components
         asserterror CreateItemWithBOM(ParentItem, ComponentItem, ComponentResource);
@@ -171,7 +171,7 @@ codeunit 135403 "Assembly BOM Plan-based E2E"
         Initialize();
         CreateParentItemAndComponents(ParentItem, ComponentItem, ComponentResource);
 
-        LibraryE2EPlanPermissions.SetEssentialISVEmbUserPlan;
+        LibraryE2EPlanPermissions.SetEssentialISVEmbUserPlan();
 
         // [WHEN] Create a BOM with one of the Item and the Resource as Components
         CreateItemWithBOM(ParentItem, ComponentItem, ComponentResource);
@@ -198,7 +198,7 @@ codeunit 135403 "Assembly BOM Plan-based E2E"
         Initialize();
         CreateParentItemAndComponents(ParentItem, ComponentItem, ComponentResource);
 
-        LibraryE2EPlanPermissions.SetTeamMemberISVEmbPlan;
+        LibraryE2EPlanPermissions.SetTeamMemberISVEmbPlan();
 
         // [WHEN] Create a BOM with one of the Item and the Resource as Components
         asserterror CreateItemWithBOM(ParentItem, ComponentItem, ComponentResource);
@@ -223,7 +223,7 @@ codeunit 135403 "Assembly BOM Plan-based E2E"
         Initialize();
         CreateParentItemAndComponents(ParentItem, ComponentItem, ComponentResource);
 
-        LibraryE2EPlanPermissions.SetDeviceISVEmbUserPlan;
+        LibraryE2EPlanPermissions.SetDeviceISVEmbUserPlan();
 
         // [WHEN] Create a BOM with one of the Item and the Resource as Components
         CreateItemWithBOM(ParentItem, ComponentItem, ComponentResource);
@@ -245,22 +245,22 @@ codeunit 135403 "Assembly BOM Plan-based E2E"
     var
         ItemCard: TestPage "Item Card";
     begin
-        ItemCard.OpenEdit;
+        ItemCard.OpenEdit();
         ItemCard.GotoRecord(ParentItem);
         LibraryVariableStorage.Enqueue(CreateBOMTok);
         LibraryVariableStorage.Enqueue(ComponentItem."No.");
         LibraryVariableStorage.Enqueue(ComponentResource."No.");
-        ItemCard."Assembly BOM".Invoke;
+        ItemCard."Assembly BOM".Invoke();
     end;
 
     local procedure ShowItemBOMStructure(ParentItem: Record Item)
     var
         ItemCard: TestPage "Item Card";
     begin
-        ItemCard.OpenEdit;
+        ItemCard.OpenEdit();
         ItemCard.GotoRecord(ParentItem);
         LibraryVariableStorage.Enqueue(ShowBOMTok);
-        ItemCard."Assembly BOM".Invoke;
+        ItemCard."Assembly BOM".Invoke();
     end;
 
     local procedure CreateCustomer()
@@ -274,22 +274,22 @@ codeunit 135403 "Assembly BOM Plan-based E2E"
     var
         BOMComponent: Record "BOM Component";
     begin
-        case LibraryVariableStorage.DequeueText of
+        case LibraryVariableStorage.DequeueText() of
             CreateBOMTok:
                 begin
                     AssemblyBOM.Type.SetValue(BOMComponent.Type::Item);
-                    AssemblyBOM."No.".SetValue(LibraryVariableStorage.DequeueText);
+                    AssemblyBOM."No.".SetValue(LibraryVariableStorage.DequeueText());
                     AssemblyBOM."Quantity per".SetValue(LibraryRandom.RandIntInRange(1, 100));
                     AssemblyBOM.Next();
                     AssemblyBOM.Type.SetValue(BOMComponent.Type::Resource);
-                    AssemblyBOM."No.".SetValue(LibraryVariableStorage.DequeueText);
+                    AssemblyBOM."No.".SetValue(LibraryVariableStorage.DequeueText());
                     AssemblyBOM."Quantity per".SetValue(LibraryRandom.RandIntInRange(1, 100));
-                    AssemblyBOM.OK.Invoke;
+                    AssemblyBOM.OK().Invoke();
                 end;
             ShowBOMTok:
                 begin
-                    AssemblyBOM."Show BOM".Invoke;
-                    AssemblyBOM.OK.Invoke;
+                    AssemblyBOM."Show BOM".Invoke();
+                    AssemblyBOM.OK().Invoke();
                 end;
         end;
     end;

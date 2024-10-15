@@ -191,24 +191,22 @@ codeunit 483 "Change Global Dimensions"
     var
         ChangeGlobalDimLogEntry: Record "Change Global Dim. Log Entry";
     begin
-        with ChangeGlobalDimLogEntry do begin
-            Reset();
-            SetFilter("Table ID", '>0');
-            SetRange("Parent Table ID", 0);
-            if IsWindowOpen then begin
-                CurrRecord := 0;
-                CalcSums("Total Records");
-                NoOfRecords := "Total Records";
-            end;
-            if FindSet(true) then
-                repeat
-                    if IsWindowOpen then
-                        Window.Update(1, StrSubstNo('%1 %2', "Table ID", "Table Name"));
-                    if RunTask(ChangeGlobalDimLogEntry) then
-                        DeleteEntry(ChangeGlobalDimLogEntry);
-                until Next() = 0;
-            ResetIfAllCompleted();
+        ChangeGlobalDimLogEntry.Reset();
+        ChangeGlobalDimLogEntry.SetFilter("Table ID", '>0');
+        ChangeGlobalDimLogEntry.SetRange("Parent Table ID", 0);
+        if IsWindowOpen then begin
+            CurrRecord := 0;
+            ChangeGlobalDimLogEntry.CalcSums("Total Records");
+            NoOfRecords := ChangeGlobalDimLogEntry."Total Records";
         end;
+        if ChangeGlobalDimLogEntry.FindSet(true) then
+            repeat
+                if IsWindowOpen then
+                    Window.Update(1, StrSubstNo('%1 %2', ChangeGlobalDimLogEntry."Table ID", ChangeGlobalDimLogEntry."Table Name"));
+                if RunTask(ChangeGlobalDimLogEntry) then
+                    DeleteEntry(ChangeGlobalDimLogEntry);
+            until ChangeGlobalDimLogEntry.Next() = 0;
+        ResetIfAllCompleted();
     end;
 
     procedure RemoveHeader()
@@ -336,11 +334,9 @@ codeunit 483 "Change Global Dimensions"
 
     procedure FindTablesForScheduling(var ChangeGlobalDimLogEntry: Record "Change Global Dim. Log Entry"): Boolean
     begin
-        with ChangeGlobalDimLogEntry do begin
-            SetRange("Parent Table ID", 0);
-            SetFilter("Total Records", '>0');
-            exit(FindSet(true))
-        end;
+        ChangeGlobalDimLogEntry.SetRange("Parent Table ID", 0);
+        ChangeGlobalDimLogEntry.SetFilter("Total Records", '>0');
+        exit(ChangeGlobalDimLogEntry.FindSet(true))
     end;
 
     local procedure GetMinCommitSize(): Integer
@@ -471,29 +467,27 @@ codeunit 483 "Change Global Dimensions"
         OldDimValueCode: array[2] of Code[20];
         IsHandled: Boolean;
     begin
-        with ChangeGlobalDimLogEntry do begin
-            if ("Change Type 1" = "Change Type 1"::None) and ("Change Type 2" = "Change Type 2"::None) then
-                exit(false);
+        if (ChangeGlobalDimLogEntry."Change Type 1" = ChangeGlobalDimLogEntry."Change Type 1"::None) and (ChangeGlobalDimLogEntry."Change Type 2" = ChangeGlobalDimLogEntry."Change Type 2"::None) then
+            exit(false);
 
-            OnChangeDimsOnRecord(ChangeGlobalDimLogEntry, RecRef, IsHandled, Success);
-            if IsHandled then
-                exit(Success);
+        OnChangeDimsOnRecord(ChangeGlobalDimLogEntry, RecRef, IsHandled, Success);
+        if IsHandled then
+            exit(Success);
 
-            if ("Change Type 1" = "Change Type 1"::Replace) and ("Global Dim.2 Field No." = 0) then
-                "Change Type 1" := "Change Type 1"::New;
-            if ("Change Type 2" = "Change Type 2"::Replace) and ("Global Dim.1 Field No." = 0) then
-                "Change Type 2" := "Change Type 2"::New;
+        if (ChangeGlobalDimLogEntry."Change Type 1" = ChangeGlobalDimLogEntry."Change Type 1"::Replace) and (ChangeGlobalDimLogEntry."Global Dim.2 Field No." = 0) then
+            ChangeGlobalDimLogEntry."Change Type 1" := ChangeGlobalDimLogEntry."Change Type 1"::New;
+        if (ChangeGlobalDimLogEntry."Change Type 2" = ChangeGlobalDimLogEntry."Change Type 2"::Replace) and (ChangeGlobalDimLogEntry."Global Dim.1 Field No." = 0) then
+            ChangeGlobalDimLogEntry."Change Type 2" := ChangeGlobalDimLogEntry."Change Type 2"::New;
 
-            if "Global Dim.1 Field No." = 0 then
-                "Change Type 1" := "Change Type 1"::None;
-            if "Global Dim.2 Field No." = 0 then
-                "Change Type 2" := "Change Type 2"::None;
+        if ChangeGlobalDimLogEntry."Global Dim.1 Field No." = 0 then
+            ChangeGlobalDimLogEntry."Change Type 1" := ChangeGlobalDimLogEntry."Change Type 1"::None;
+        if ChangeGlobalDimLogEntry."Global Dim.2 Field No." = 0 then
+            ChangeGlobalDimLogEntry."Change Type 2" := ChangeGlobalDimLogEntry."Change Type 2"::None;
 
-            GetFieldRefValues(RecRef, GlobalDimFieldRef, OldDimValueCode);
-            ChangeDimOnRecord(RecRef, 1, GlobalDimFieldRef[1], OldDimValueCode[2]);
-            ChangeDimOnRecord(RecRef, 2, GlobalDimFieldRef[2], OldDimValueCode[1]);
-            Success := RecRef.Modify();
-        end;
+        ChangeGlobalDimLogEntry.GetFieldRefValues(RecRef, GlobalDimFieldRef, OldDimValueCode);
+        ChangeGlobalDimLogEntry.ChangeDimOnRecord(RecRef, 1, GlobalDimFieldRef[1], OldDimValueCode[2]);
+        ChangeGlobalDimLogEntry.ChangeDimOnRecord(RecRef, 2, GlobalDimFieldRef[2], OldDimValueCode[1]);
+        Success := RecRef.Modify();
     end;
 
     local procedure ChangeDependentRecords(ParentChangeGlobalDimLogEntry: Record "Change Global Dim. Log Entry"; ChangeGlobalDimLogEntry: Record "Change Global Dim. Log Entry"; ParentRecRef: RecordRef; var RecRef: RecordRef)
@@ -510,7 +504,7 @@ codeunit 483 "Change Global Dimensions"
 
         ParentChangeGlobalDimLogEntry.GetFieldRefValues(ParentRecRef, GlobalDimFieldRef, ParentDimValueCode);
         ChangeGlobalDimLogEntry.GetPrimaryKeyFieldRef(ParentRecRef, ParentKeyFieldRef);
-        ParentKeyValue := ParentKeyFieldRef.Value;
+        ParentKeyValue := ParentKeyFieldRef.Value();
 
         ParentKeyFieldRef := RecRef.Field(2);
         ParentKeyFieldRef.SetRange(ParentKeyValue);
@@ -531,14 +525,13 @@ codeunit 483 "Change Global Dimensions"
 
     local procedure RerunEntry(ChangeGlobalDimLogEntry: Record "Change Global Dim. Log Entry")
     begin
-        with ChangeGlobalDimLogEntry do
-            if Status in [Status::" ", Status::Incomplete, Status::Scheduled] then begin
-                SendTraceTagOnRerun();
-                if "Parent Table ID" <> 0 then
-                    RescheduleParentTable("Parent Table ID")
-                else
-                    ScheduleJobForTable(ChangeGlobalDimLogEntry, CurrentDateTime + 2000);
-            end;
+        if ChangeGlobalDimLogEntry.Status in [ChangeGlobalDimLogEntry.Status::" ", ChangeGlobalDimLogEntry.Status::Incomplete, ChangeGlobalDimLogEntry.Status::Scheduled] then begin
+            ChangeGlobalDimLogEntry.SendTraceTagOnRerun();
+            if ChangeGlobalDimLogEntry."Parent Table ID" <> 0 then
+                RescheduleParentTable(ChangeGlobalDimLogEntry."Parent Table ID")
+            else
+                ScheduleJobForTable(ChangeGlobalDimLogEntry, CurrentDateTime + 2000);
+        end;
     end;
 
     local procedure RescheduleParentTable(ParentTableID: Integer)
@@ -569,25 +562,23 @@ codeunit 483 "Change Global Dimensions"
         DoNotScheduleTask: Boolean;
         TaskID: Guid;
     begin
-        with ChangeGlobalDimLogEntry do begin
-            OnBeforeScheduleTask("Table ID", DoNotScheduleTask, TaskID);
-            if DoNotScheduleTask then
-                "Task ID" := TaskID
-            else begin
-                CancelTask();
-                "Task ID" :=
-                  TASKSCHEDULER.CreateTask(
-                    CODEUNIT::"Change Global Dimensions", CODEUNIT::"Change Global Dim Err. Handler",
-                    true, CompanyName, StartNotBefore, RecordId);
-            end;
-            if IsNullGuid("Task ID") then
-                Status := Status::" "
-            else
-                Status := Status::Scheduled;
-            "Earliest Start Date/Time" := StartNotBefore;
-            Modify();
-            SendTraceTagOnScheduling();
+        OnBeforeScheduleTask(ChangeGlobalDimLogEntry."Table ID", DoNotScheduleTask, TaskID);
+        if DoNotScheduleTask then
+            ChangeGlobalDimLogEntry."Task ID" := TaskID
+        else begin
+            ChangeGlobalDimLogEntry.CancelTask();
+            ChangeGlobalDimLogEntry."Task ID" :=
+              TASKSCHEDULER.CreateTask(
+                CODEUNIT::"Change Global Dimensions", CODEUNIT::"Change Global Dim Err. Handler",
+                true, CompanyName, StartNotBefore, ChangeGlobalDimLogEntry.RecordId);
         end;
+        if IsNullGuid(ChangeGlobalDimLogEntry."Task ID") then
+            ChangeGlobalDimLogEntry.Status := ChangeGlobalDimLogEntry.Status::" "
+        else
+            ChangeGlobalDimLogEntry.Status := ChangeGlobalDimLogEntry.Status::Scheduled;
+        ChangeGlobalDimLogEntry."Earliest Start Date/Time" := StartNotBefore;
+        ChangeGlobalDimLogEntry.Modify();
+        ChangeGlobalDimLogEntry.SendTraceTagOnScheduling();
         if ChangeGlobalDimLogEntry."Is Parent Table" then
             ScheduleDependentTables(ChangeGlobalDimLogEntry);
     end;
@@ -596,16 +587,14 @@ codeunit 483 "Change Global Dimensions"
     var
         DependentChangeGlobalDimLogEntry: Record "Change Global Dim. Log Entry";
     begin
-        with DependentChangeGlobalDimLogEntry do begin
-            SetRange("Parent Table ID", ChangeGlobalDimLogEntry."Table ID");
-            if FindSet() then
-                repeat
-                    "Task ID" := ChangeGlobalDimLogEntry."Task ID";
-                    Validate("Completed Records", 0);
-                    Status := ChangeGlobalDimLogEntry.Status;
-                    Modify();
-                until Next() = 0;
-        end;
+        DependentChangeGlobalDimLogEntry.SetRange("Parent Table ID", ChangeGlobalDimLogEntry."Table ID");
+        if DependentChangeGlobalDimLogEntry.FindSet() then
+            repeat
+                DependentChangeGlobalDimLogEntry."Task ID" := ChangeGlobalDimLogEntry."Task ID";
+                DependentChangeGlobalDimLogEntry.Validate("Completed Records", 0);
+                DependentChangeGlobalDimLogEntry.Status := ChangeGlobalDimLogEntry.Status;
+                DependentChangeGlobalDimLogEntry.Modify();
+            until DependentChangeGlobalDimLogEntry.Next() = 0;
     end;
 
     local procedure IsCurrentSessionActiveOnly() Result: Boolean
@@ -632,9 +621,8 @@ codeunit 483 "Change Global Dimensions"
 
     procedure IsPrepareEnabled(var ChangeGlobalDimHeader: Record "Change Global Dim. Header"): Boolean
     begin
-        with ChangeGlobalDimHeader do
-            exit(
-              (("Change Type 1" <> "Change Type 1"::None) or ("Change Type 2" <> "Change Type 2"::None)) and
+        exit(
+              ((ChangeGlobalDimHeader."Change Type 1" <> ChangeGlobalDimHeader."Change Type 1"::None) or (ChangeGlobalDimHeader."Change Type 2" <> ChangeGlobalDimHeader."Change Type 2"::None)) and
               ChangeGlobalDimLogMgt.IsBufferClear());
     end;
 
@@ -760,19 +748,17 @@ codeunit 483 "Change Global Dimensions"
     var
         DimensionValue: Record "Dimension Value";
     begin
-        with DimensionValue do begin
-            SetCurrentKey(Code, "Global Dimension No.");
-            SetRange("Global Dimension No.", 1, 2);
-            ModifyAll("Global Dimension No.", 0);
-            Reset();
-            if ChangeGlobalDimHeader."Global Dimension 1 Code" <> '' then begin
-                SetRange("Dimension Code", ChangeGlobalDimHeader."Global Dimension 1 Code");
-                ModifyAll("Global Dimension No.", 1);
-            end;
-            if ChangeGlobalDimHeader."Global Dimension 2 Code" <> '' then begin
-                SetRange("Dimension Code", ChangeGlobalDimHeader."Global Dimension 2 Code");
-                ModifyAll("Global Dimension No.", 2);
-            end;
+        DimensionValue.SetCurrentKey(Code, "Global Dimension No.");
+        DimensionValue.SetRange("Global Dimension No.", 1, 2);
+        DimensionValue.ModifyAll("Global Dimension No.", 0);
+        DimensionValue.Reset();
+        if ChangeGlobalDimHeader."Global Dimension 1 Code" <> '' then begin
+            DimensionValue.SetRange("Dimension Code", ChangeGlobalDimHeader."Global Dimension 1 Code");
+            DimensionValue.ModifyAll("Global Dimension No.", 1);
+        end;
+        if ChangeGlobalDimHeader."Global Dimension 2 Code" <> '' then begin
+            DimensionValue.SetRange("Dimension Code", ChangeGlobalDimHeader."Global Dimension 2 Code");
+            DimensionValue.ModifyAll("Global Dimension No.", 2);
         end;
     end;
 

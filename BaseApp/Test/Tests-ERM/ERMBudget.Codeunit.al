@@ -62,7 +62,7 @@ codeunit 134922 "ERM Budget"
 
         // Exercise.
         LibraryERM.CreateGLBudgetName(GLBudgetName);
-        LibraryLowerPermissions.SetFinancialReporting;
+        LibraryLowerPermissions.SetFinancialReporting();
 
         // Verify: Verify that GL Budget exists after creation.
         GLBudgetName.Get(GLBudgetName.Name);
@@ -100,7 +100,7 @@ codeunit 134922 "ERM Budget"
         GLAccountNo := LibraryERM.CreateGLAccountNo();  // Assign GL Account No. to global variable.
         CreateAndPostGeneralJournalLine(GLAccountNo, NewAmount);
         Amount := NewAmount;  // Assign Amount to global variable.
-        LibraryLowerPermissions.SetFinancialReporting;
+        LibraryLowerPermissions.SetFinancialReporting();
 
         // Exercise.
         OpenGLBudgetPage(GLBudgetName.Name);
@@ -118,7 +118,7 @@ codeunit 134922 "ERM Budget"
     begin
         // Check Budgeted Debit Amount for posted GL Budget Entry of GL Account.
         Initialize();
-        LibraryLowerPermissions.SetFinancialReporting;
+        LibraryLowerPermissions.SetFinancialReporting();
         GLBalanceBudgetBudgetedEntries(LibraryRandom.RandDec(100, 2));  // Take Random Amount.
     end;
 
@@ -128,7 +128,7 @@ codeunit 134922 "ERM Budget"
     begin
         // Check Budgeted Credit Amount for posted GL Budget Entry of GL Account.
         Initialize();
-        LibraryLowerPermissions.SetFinancialReporting;
+        LibraryLowerPermissions.SetFinancialReporting();
         GLBalanceBudgetBudgetedEntries(LibraryRandom.RandDec(100, 2));  // Take Random Amount.
     end;
 
@@ -161,10 +161,10 @@ codeunit 134922 "ERM Budget"
     begin
         // Check Line and Column Values for Sales Budget Overview Page when Show as Lines: Period and Show as Columns: Item and View By: Day.
         Initialize();
-        LibraryLowerPermissions.SetFinancialReporting;
+        LibraryLowerPermissions.SetFinancialReporting();
         LibraryLowerPermissions.AddO365Setup();
         SalesBudgetOverview(
-          Format(WorkDate()), FindItem, Format(DimensionValues::Period), Format(DimensionValues::Item), Format(PeriodType::Day), WorkDate());
+          Format(WorkDate()), FindItem(), Format(DimensionValues::Period), Format(DimensionValues::Item), Format(PeriodType::Day), WorkDate());
     end;
 
     [Test]
@@ -176,11 +176,11 @@ codeunit 134922 "ERM Budget"
     begin
         // Check Line and Column Values for Sales Budget Overview Page when Show as Lines: Period and Show as Columns: Item, View By Week.
         Initialize();
-        LibraryLowerPermissions.SetFinancialReporting;
+        LibraryLowerPermissions.SetFinancialReporting();
         LibraryLowerPermissions.AddO365Setup();
         FirstDate := CalcDate('<-CW>', WorkDate());  // To fetch First Day of Current Work Date's Week.
         SalesBudgetOverview(
-          Format(FirstDate), FindItem, Format(DimensionValues::Period), Format(DimensionValues::Item), Format(PeriodType::Week), FirstDate);
+          Format(FirstDate), FindItem(), Format(DimensionValues::Period), Format(DimensionValues::Item), Format(PeriodType::Week), FirstDate);
     end;
 
     [Test]
@@ -190,10 +190,10 @@ codeunit 134922 "ERM Budget"
     begin
         // Check Line and Column Values for Sales Budget Overview Page when Show as Lines: Item and Show as Columns: Period, View By Day.
         Initialize();
-        LibraryLowerPermissions.SetFinancialReporting;
+        LibraryLowerPermissions.SetFinancialReporting();
         LibraryLowerPermissions.AddO365Setup();
         SalesBudgetOverview(
-          FindItem, Format(WorkDate()), Format(DimensionValues::Item), Format(DimensionValues::Period), Format(PeriodType::Day), WorkDate());
+          FindItem(), Format(WorkDate()), Format(DimensionValues::Item), Format(DimensionValues::Period), Format(PeriodType::Day), WorkDate());
     end;
 
     [Test]
@@ -205,10 +205,10 @@ codeunit 134922 "ERM Budget"
     begin
         // Check Line and Column Values for Sales Budget Overview Page when Show as Lines: Item and Show as Columns: Period, View By Week.
         Initialize();
-        LibraryLowerPermissions.SetFinancialReporting;
+        LibraryLowerPermissions.SetFinancialReporting();
         LibraryLowerPermissions.AddO365Setup();
         WeekNo := StrSubstNo(WeekCaptionTxt, Date2DWY(WorkDate(), 2), Date2DWY(WorkDate(), 3));  // Using Text Constant to fetch column value.
-        SalesBudgetOverview(FindItem, WeekNo, Format(DimensionValues::Item), Format(DimensionValues::Period), Format(PeriodType::Week), 0D);  // 0D Used for Blank Date Filter.
+        SalesBudgetOverview(FindItem(), WeekNo, Format(DimensionValues::Item), Format(DimensionValues::Period), Format(PeriodType::Week), 0D);  // 0D Used for Blank Date Filter.
     end;
 
     local procedure SalesBudgetOverview(NewLineValue: Text[50]; NewColumnValue: Text[50]; NewLineDimension: Text[50]; NewColumnDimension: Text[50]; NewViewBy: Text[50]; NewDateFilter: Date)
@@ -217,7 +217,7 @@ codeunit 134922 "ERM Budget"
         AssignLineAndColumnValues(NewLineValue, NewColumnValue, NewLineDimension, NewColumnDimension, NewViewBy, NewDateFilter);
 
         // Exercise: Open Sales Budget Overview Page.
-        OpenSalesBudgetOverviewPage;
+        OpenSalesBudgetOverviewPage();
 
         // Verify: Verification Done in SalesBudgetOverviewPageHandler.
     end;
@@ -229,10 +229,10 @@ codeunit 134922 "ERM Budget"
     begin
         // Check Line and Column Values for Purchase Budget Overview Page when Show as Lines: Period and Show as Columns: Item, View By: Day.
         Initialize();
-        LibraryLowerPermissions.SetFinancialReporting;
+        LibraryLowerPermissions.SetFinancialReporting();
         LibraryLowerPermissions.AddO365Setup();
         PurchaseBudgetOverview(
-          Format(WorkDate()), FindItem, Format(DimensionValues::Period), Format(DimensionValues::Item), Format(PeriodType::Day), WorkDate());
+          Format(WorkDate()), FindItem(), Format(DimensionValues::Period), Format(DimensionValues::Item), Format(PeriodType::Day), WorkDate());
     end;
 
     [Test]
@@ -244,11 +244,11 @@ codeunit 134922 "ERM Budget"
     begin
         // Check Line and Column Values for Purchase Budget Overview Page when Show as Lines: Period and Show as Columns: Item, View By Week.
         Initialize();
-        LibraryLowerPermissions.SetFinancialReporting;
+        LibraryLowerPermissions.SetFinancialReporting();
         LibraryLowerPermissions.AddO365Setup();
         FirstDate := CalcDate('<-CW>', WorkDate());  // To fetch First Date of Current Work Date's Week.
         PurchaseBudgetOverview(
-          Format(FirstDate), FindItem, Format(DimensionValues::Period), Format(DimensionValues::Item), Format(PeriodType::Week), FirstDate);
+          Format(FirstDate), FindItem(), Format(DimensionValues::Period), Format(DimensionValues::Item), Format(PeriodType::Week), FirstDate);
     end;
 
     [Test]
@@ -258,10 +258,10 @@ codeunit 134922 "ERM Budget"
     begin
         // Check Line and Column Values for Purchase Budget Overview Page when Show as Lines: Item and Show as Columns: Period, View By: Day.
         Initialize();
-        LibraryLowerPermissions.SetFinancialReporting;
+        LibraryLowerPermissions.SetFinancialReporting();
         LibraryLowerPermissions.AddO365Setup();
         PurchaseBudgetOverview(
-          FindItem, Format(WorkDate()), Format(DimensionValues::Item), Format(DimensionValues::Period), Format(PeriodType::Day), WorkDate());
+          FindItem(), Format(WorkDate()), Format(DimensionValues::Item), Format(DimensionValues::Period), Format(PeriodType::Day), WorkDate());
     end;
 
     [Test]
@@ -273,11 +273,11 @@ codeunit 134922 "ERM Budget"
     begin
         // Check Line and Column Values for Purchase Budget Overview Page when Show as Lines: Item and Show as Columns: Period, View By Week.
         Initialize();
-        LibraryLowerPermissions.SetFinancialReporting;
+        LibraryLowerPermissions.SetFinancialReporting();
         LibraryLowerPermissions.AddO365Setup();
         WeekNo := StrSubstNo(WeekCaptionTxt, Date2DWY(WorkDate(), 2), Date2DWY(WorkDate(), 3));  // Using Text Constant to fetch column value.
         PurchaseBudgetOverview(
-          FindItem, WeekNo, Format(DimensionValues::Item), Format(DimensionValues::Period), Format(PeriodType::Week), 0D);  // 0D Used for Blank Date Filter.
+          FindItem(), WeekNo, Format(DimensionValues::Item), Format(DimensionValues::Period), Format(PeriodType::Week), 0D);  // 0D Used for Blank Date Filter.
     end;
 
     local procedure PurchaseBudgetOverview(NewLineValue: Text[50]; NewColumnValue: Text[50]; NewLineDimension: Text[50]; NewColumnDimension: Text[50]; NewViewBy: Text[50]; NewDateFilter: Date)
@@ -286,7 +286,7 @@ codeunit 134922 "ERM Budget"
         AssignLineAndColumnValues(NewLineValue, NewColumnValue, NewLineDimension, NewColumnDimension, NewViewBy, NewDateFilter);
 
         // Exercise: Open Purchase Budget Overview Page.
-        OpenPurchaseBudgetOverviewPage;
+        OpenPurchaseBudgetOverviewPage();
 
         // Verify: Verification Done in PurchaseBudgetOverviewPageHandler.
     end;
@@ -304,7 +304,7 @@ codeunit 134922 "ERM Budget"
 
         // Setup: Find Global Dimension Value and GL Budget with Dimensions, assign values to global variables.
         Initialize();
-        LibraryLowerPermissions.SetFinancialReporting;
+        LibraryLowerPermissions.SetFinancialReporting();
         FindGlobalDimensionValue(DimensionValue);
         CreateBudgetWithDimension(GLBudgetName);
         FindDimensionValue(DimensionValue2, GLBudgetName."Budget Dimension 1 Code");
@@ -331,12 +331,12 @@ codeunit 134922 "ERM Budget"
 
         // Setup: Find GL Budget and assign values to use on GL Budget Page.
         Initialize();
-        LibraryLowerPermissions.SetFinancialReporting;
+        LibraryLowerPermissions.SetFinancialReporting();
         GLBudgetName.FindFirst();
         FindGlobalDimensionValue(DimensionValue);
         AssignLineAndColumnValues(
           DimensionValue.Code, Format(WorkDate()), DimensionValue."Dimension Code", Format(DimensionValues::Period), Format(PeriodType::Day),
-          WorkDate);
+          WorkDate());
 
         // Exercise.
         LibraryVariableStorage.Enqueue(true); // to focus on the first matrix line in BudgetPageHandler
@@ -361,10 +361,10 @@ codeunit 134922 "ERM Budget"
         FindDimensionValue(DimensionValue, GLBudgetName."Budget Dimension 1 Code");
         AssignLineAndColumnValues(
           Format(WorkDate()), DimensionValue.Code, Format(DimensionValues::Period), DimensionValue."Dimension Code", Format(PeriodType::Day),
-          WorkDate);
+          WorkDate());
 
         // Exercise.
-        LibraryLowerPermissions.SetFinancialReporting;
+        LibraryLowerPermissions.SetFinancialReporting();
         LibraryVariableStorage.Enqueue(false); // to NOT focus on the first matrix line in BudgetPageHandler
         OpenGLBudgetPage(GLBudgetName.Name);
 
@@ -393,7 +393,7 @@ codeunit 134922 "ERM Budget"
           Format(PeriodType::Day), WorkDate());
 
         // Exercise.
-        LibraryLowerPermissions.SetFinancialReporting;
+        LibraryLowerPermissions.SetFinancialReporting();
         LibraryVariableStorage.Enqueue(true); // to focus on the first matrix line in BudgetPageHandler
         OpenGLBudgetPage(GLBudgetName.Name);
 
@@ -412,13 +412,13 @@ codeunit 134922 "ERM Budget"
 
         // Setup: Find GL Budget with Dimension.
         Initialize();
-        LibraryLowerPermissions.SetFinancialReporting;
+        LibraryLowerPermissions.SetFinancialReporting();
         CreateBudgetWithDimension(GLBudgetName);
         FindDimensionValue(DimensionValue, GLBudgetName."Budget Dimension 1 Code");
 
         AssignLineAndColumnValues(
           DimensionValue.Code, Format(WorkDate()), DimensionValue."Dimension Code", Format(DimensionValues::Period), Format(PeriodType::Day),
-          WorkDate);
+          WorkDate());
 
         // Exercise.
         LibraryVariableStorage.Enqueue(true); // to focus on the first matrix line in BudgetPageHandler
@@ -439,12 +439,12 @@ codeunit 134922 "ERM Budget"
 
         // Setup: Find a GL Budget and assign values to global variables.
         Initialize();
-        LibraryLowerPermissions.SetFinancialReporting;
+        LibraryLowerPermissions.SetFinancialReporting();
         GLBudgetName.FindFirst();
         FindGlobalDimensionValue(DimensionValue);
         AssignLineAndColumnValues(
           Format(WorkDate()), DimensionValue.Code, Format(DimensionValues::Period), DimensionValue."Dimension Code", Format(PeriodType::Day),
-          WorkDate);
+          WorkDate());
 
         // Exercise.
         LibraryVariableStorage.Enqueue(false); // to NOT focus on the first matrix line in BudgetPageHandler
@@ -467,7 +467,7 @@ codeunit 134922 "ERM Budget"
 
         // Setup: Create GL Account and Create Analysis View.
         Initialize();
-        LibraryLowerPermissions.SetFinancialReporting;
+        LibraryLowerPermissions.SetFinancialReporting();
         LibraryERM.CreateGLAccount(GLAccount);
         LibraryERM.CreateGLBudgetName(GLBudgetName);
         LibraryVariableStorage.Enqueue(GLAccount."No.");
@@ -494,8 +494,8 @@ codeunit 134922 "ERM Budget"
 
         // Setup: Assign Column Dimension as Global Dimension, find a GL Budget.
         Initialize();
-        LibraryLowerPermissions.SetFinancialReporting;
-        AssignColumnDimAsGlobalDim;
+        LibraryLowerPermissions.SetFinancialReporting();
+        AssignColumnDimAsGlobalDim();
         GLBudgetName.FindFirst();
 
         // Exercise: Open G/L Budget Page and click Buttons on page.
@@ -513,12 +513,12 @@ codeunit 134922 "ERM Budget"
 
         // Setup: Assign Column Dimension as Global Dimension.
         Initialize();
-        LibraryLowerPermissions.SetFinancialReporting;
+        LibraryLowerPermissions.SetFinancialReporting();
         LibraryLowerPermissions.AddO365Setup();
-        AssignColumnDimAsGlobalDim;
+        AssignColumnDimAsGlobalDim();
 
         // Exercise: Open Sales Budget Overview Page and click Buttons on page.
-        OpenSalesBudgetOverviewPage;
+        OpenSalesBudgetOverviewPage();
 
         // Verify: Verify Column Captions through ColumnCaptionOnSalesBudgetOverviewPageHandler.
     end;
@@ -532,12 +532,12 @@ codeunit 134922 "ERM Budget"
 
         // Setup: Assign Column Dimension as Global Dimension.
         Initialize();
-        LibraryLowerPermissions.SetFinancialReporting;
+        LibraryLowerPermissions.SetFinancialReporting();
         LibraryLowerPermissions.AddO365Setup();
-        AssignColumnDimAsGlobalDim;
+        AssignColumnDimAsGlobalDim();
 
         // Exercise: Open Purchase Budget Overview Budget Page and click Buttons on page.
-        OpenPurchaseBudgetOverviewPage;
+        OpenPurchaseBudgetOverviewPage();
 
         // Verify: Verify Column Captions through ColumnCaptionOnPurchaseBudgetOverviewPageHandler.
     end;
@@ -553,13 +553,13 @@ codeunit 134922 "ERM Budget"
         DateFilterQty: Integer;
     begin
         Initialize();
-        LibraryLowerPermissions.SetFinancialReporting;
+        LibraryLowerPermissions.SetFinancialReporting();
         LibraryLowerPermissions.AddO365Setup();
         // Open Budget Names Purchase page and Edit the line
-        BudgetNamesPurchase.OpenEdit;
+        BudgetNamesPurchase.OpenEdit();
         BudgetNamesPurchase.FILTER.SetFilter(Name, FindItemBudgetByAnalysisArea(ItemBudgetName."Analysis Area"::Purchase));
-        PurchBudgetOverview.Trap;
-        BudgetNamesPurchase.EditBudget.Invoke;
+        PurchBudgetOverview.Trap();
+        BudgetNamesPurchase.EditBudget.Invoke();
 
         // Creating new Budget Overview with Column header = Period, Line header = Item
         PurchBudgetOverview.LineDimCode.SetValue(DimensionValues::Item);
@@ -590,13 +590,13 @@ codeunit 134922 "ERM Budget"
         DateFilterQty: Integer;
     begin
         Initialize();
-        LibraryLowerPermissions.SetFinancialReporting;
+        LibraryLowerPermissions.SetFinancialReporting();
         LibraryLowerPermissions.AddO365Setup();
         // Open Budget Names Sales page and Edit the line
-        BudgetNamesSales.OpenEdit;
+        BudgetNamesSales.OpenEdit();
         BudgetNamesSales.FILTER.SetFilter(Name, FindItemBudgetByAnalysisArea(ItemBudgetName."Analysis Area"::Purchase));
-        SalesBudgetOverview.Trap;
-        BudgetNamesSales.EditBudget.Invoke;
+        SalesBudgetOverview.Trap();
+        BudgetNamesSales.EditBudget.Invoke();
 
         // Creating new Budget Overview with Column header = Period, Line header = Item
         SalesBudgetOverview.LineDimCode.SetValue(DimensionValues::Item);
@@ -635,8 +635,8 @@ codeunit 134922 "ERM Budget"
         LibraryVariableStorage.Enqueue(GetFirstColumnExpectedDateFilter(StartDate));
 
         // Exercise. Drill down from first column
-        LibraryLowerPermissions.SetFinancialReporting;
-        Budget.MatrixForm.Field1.DrillDown;
+        LibraryLowerPermissions.SetFinancialReporting();
+        Budget.MatrixForm.Field1.DrillDown();
 
         // Verify: Verify date filter applied in GLBudgetEntriesPageHandler.
     end;
@@ -660,8 +660,8 @@ codeunit 134922 "ERM Budget"
         LibraryVariableStorage.Enqueue(GetLastColumnExpectedDateFilter(EndDate));
 
         // Exercise. Drill down from last column
-        LibraryLowerPermissions.SetFinancialReporting;
-        Budget.MatrixForm.Field2.DrillDown;
+        LibraryLowerPermissions.SetFinancialReporting();
+        Budget.MatrixForm.Field2.DrillDown();
 
         // Verify: Verify date filter applied in GLBudgetEntriesPageHandler.
     end;
@@ -685,8 +685,8 @@ codeunit 134922 "ERM Budget"
         LibraryVariableStorage.Enqueue(GetFirstColumnExpectedDateFilter(StartDate));
 
         // Exercise. Drill down from first column
-        LibraryLowerPermissions.SetFinancialReporting;
-        SalesBudgetOverview.MATRIX.Field1.DrillDown;
+        LibraryLowerPermissions.SetFinancialReporting();
+        SalesBudgetOverview.MATRIX.Field1.DrillDown();
 
         // Verify: Verify date filter applied in ItemBudgetEntriesPageHandler.
     end;
@@ -710,8 +710,8 @@ codeunit 134922 "ERM Budget"
         LibraryVariableStorage.Enqueue(GetLastColumnExpectedDateFilter(EndDate));
 
         // Exercise. Drill down from last column
-        LibraryLowerPermissions.SetFinancialReporting;
-        SalesBudgetOverview.MATRIX.Field2.DrillDown;
+        LibraryLowerPermissions.SetFinancialReporting();
+        SalesBudgetOverview.MATRIX.Field2.DrillDown();
 
         // Verify: Verify date filter applied in ItemBudgetEntriesPageHandler.
     end;
@@ -735,9 +735,9 @@ codeunit 134922 "ERM Budget"
         LibraryVariableStorage.Enqueue(GetFirstColumnExpectedDateFilter(StartDate));
 
         // Exercise. Drill down from first column
-        LibraryLowerPermissions.SetFinancialReporting;
+        LibraryLowerPermissions.SetFinancialReporting();
         LibraryLowerPermissions.AddO365Setup();
-        PurchaseBudgetOverview.MATRIX.Field1.DrillDown;
+        PurchaseBudgetOverview.MATRIX.Field1.DrillDown();
 
         // Verify: Verify date filter applied in ItemBudgetEntriesPageHandler.
     end;
@@ -761,9 +761,9 @@ codeunit 134922 "ERM Budget"
         LibraryVariableStorage.Enqueue(GetLastColumnExpectedDateFilter(EndDate));
 
         // Exercise. Drill down from last column
-        LibraryLowerPermissions.SetFinancialReporting;
+        LibraryLowerPermissions.SetFinancialReporting();
         LibraryLowerPermissions.AddO365Setup();
-        PurchaseBudgetOverview.MATRIX.Field2.DrillDown;
+        PurchaseBudgetOverview.MATRIX.Field2.DrillDown();
 
         // Verify: Verify date filter applied in ItemBudgetEntriesPageHandler.
     end;
@@ -783,8 +783,8 @@ codeunit 134922 "ERM Budget"
         InitBudgetAmounts(BudgetAmounts);
         CreateTwoItemBudgetNamesWithItemBudgetEntries(BudgetAmounts, "Analysis Area Type"::Sales);
         // [WHEN] Open page and change budget there
-        LibraryLowerPermissions.SetFinancialReporting;
-        OpenSalesBudgetOverviewPage;
+        LibraryLowerPermissions.SetFinancialReporting();
+        OpenSalesBudgetOverviewPage();
 
         // [THEN] Passed values from handler must be equal to related Items' Sales Amounts
         VerifyValuesInBudgetEntries(BudgetAmounts);
@@ -805,8 +805,8 @@ codeunit 134922 "ERM Budget"
         InitBudgetAmounts(BudgetAmounts);
         CreateTwoItemBudgetNamesWithItemBudgetEntries(BudgetAmounts, "Analysis Area Type"::Purchase);
         // [WHEN] Open page and change budget there
-        LibraryLowerPermissions.SetFinancialReporting;
-        OpenPurchaseBudgetOverviewPage;
+        LibraryLowerPermissions.SetFinancialReporting();
+        OpenPurchaseBudgetOverviewPage();
         // [THEN] Passed values from handler must be equal to related Items' Cost Amounts
         VerifyValuesInBudgetEntries(BudgetAmounts);
     end;
@@ -823,7 +823,7 @@ codeunit 134922 "ERM Budget"
         // Verify that Budget Debit and Credit Amount flow fields calculates correctly.
 
         Initialize();
-        LibraryLowerPermissions.SetFinancialReporting;
+        LibraryLowerPermissions.SetFinancialReporting();
         LibraryERM.CreateAnalysisView(AnalysisView);
         LibraryERM.CreateGLAccount(GLAccount);
         ExpectedDebitAmount :=
@@ -848,10 +848,10 @@ codeunit 134922 "ERM Budget"
         // Verify that G/L Budget can export to Excel Buffer correctly.
 
         Initialize();
-        LibraryLowerPermissions.SetFinancialReporting;
+        LibraryLowerPermissions.SetFinancialReporting();
         GLBudgetName.FindFirst();
         LibraryReportValidation.SetFileName(GLBudgetName.Name);
-        FileName := LibraryReportValidation.GetFileName;
+        FileName := LibraryReportValidation.GetFileName();
 
         // Execute
         Evaluate(PeriodLength, '<1Y>');
@@ -884,13 +884,13 @@ codeunit 134922 "ERM Budget"
 
         // [GIVEN] "Department Code" = "SALES", "Project Code" = "VW"
         Initialize();
-        LibraryLowerPermissions.SetO365Full;
+        LibraryLowerPermissions.SetO365Full();
         GLSetup.Get();
         LibraryDimension.CreateDimensionValue(FirstDimValue, GLSetup."Global Dimension 1 Code");
         LibraryDimension.CreateDimensionValue(SecondDimValue, GLSetup."Global Dimension 2 Code");
 
         // [GIVEN] G/L Budger Entry with dimensions "SALES" and "VW", "Dimension Set ID" = "X"
-        LibraryLowerPermissions.SetFinancialReporting;
+        LibraryLowerPermissions.SetFinancialReporting();
         InsertGLBudgetEntry(GLBudgetEntry, FirstDimValue.Code, SecondDimValue.Code);
 
         // [WHEN] Blank dimension "Project Code"
@@ -909,10 +909,10 @@ codeunit 134922 "ERM Budget"
         Budget: TestPage Budget;
     begin
         // [FEATURE] [UI]
-        Budget.OpenView;
-        Assert.IsTrue(Budget.ReportTrialBalance.Enabled, Budget.Caption);
-        Assert.IsTrue(Budget.ReportTrialBalance.Visible, Budget.Caption);
-        Budget.ReportTrialBalance.Invoke;
+        Budget.OpenView();
+        Assert.IsTrue(Budget.ReportTrialBalance.Enabled(), Budget.Caption);
+        Assert.IsTrue(Budget.ReportTrialBalance.Visible(), Budget.Caption);
+        Budget.ReportTrialBalance.Invoke();
     end;
 
     [Test]
@@ -923,10 +923,10 @@ codeunit 134922 "ERM Budget"
         GLBudgetNames: TestPage "G/L Budget Names";
     begin
         // [FEATURE] [UI]
-        GLBudgetNames.OpenView;
-        Assert.IsTrue(GLBudgetNames.ReportTrialBalance.Visible, GLBudgetNames.Caption);
-        Assert.IsTrue(GLBudgetNames.ReportTrialBalance.Enabled, GLBudgetNames.Caption);
-        GLBudgetNames.ReportTrialBalance.Invoke;
+        GLBudgetNames.OpenView();
+        Assert.IsTrue(GLBudgetNames.ReportTrialBalance.Visible(), GLBudgetNames.Caption);
+        Assert.IsTrue(GLBudgetNames.ReportTrialBalance.Enabled(), GLBudgetNames.Caption);
+        GLBudgetNames.ReportTrialBalance.Invoke();
     end;
 
     [Test]
@@ -944,14 +944,14 @@ codeunit 134922 "ERM Budget"
         Initialize();
         // [GIVEN] Record of Budget
         LibraryERM.CreateGLBudgetName(GLBudgetName);
-        LibraryERM.CreateGLBudgetEntry(GLBudgetEntry, WorkDate(), LibraryERM.CreateGLAccountNo, GLBudgetName.Name);
+        LibraryERM.CreateGLBudgetEntry(GLBudgetEntry, WorkDate(), LibraryERM.CreateGLAccountNo(), GLBudgetName.Name);
         Commit();
 
         // [WHEN] Open request page of report "Export Budget to Excel"
         REPORT.Run(REPORT::"Export Budget to Excel", true, false, GLBudgetEntry);
 
         // [THEN] Value of Period Length = '1M'
-        PeriodLength := LibraryVariableStorage.DequeueText;
+        PeriodLength := LibraryVariableStorage.DequeueText();
         Assert.AreEqual('1M', PeriodLength, WrongPeriodLengthErr);
     end;
 
@@ -968,7 +968,7 @@ codeunit 134922 "ERM Budget"
         Initialize();
 
         ItemBudgetName."Analysis Area" := ItemBudgetName."Analysis Area"::Sales;
-        ItemBudgetName.Name := LibraryUTUtility.GetNewCode10;
+        ItemBudgetName.Name := LibraryUTUtility.GetNewCode10();
         ItemBudgetName.Insert();
 
         ItemBudgetEntry."Entry No." := LibraryUtility.GetNewRecNo(ItemBudgetEntry, ItemBudgetEntry.FieldNo("Entry No."));
@@ -998,7 +998,7 @@ codeunit 134922 "ERM Budget"
     begin
         // [SCENARIO 206900] No extra entries created when run Update Item Analysis View sequntially for Sales and Purchase Analysis View
         Initialize();
-        LibraryLowerPermissions.SetFinancialReporting;
+        LibraryLowerPermissions.SetFinancialReporting();
 
         // [GIVEN] Sales and Purchase Item Analysis View with one Item Budget Entry per each other
         ItemNo := LibraryUtility.GenerateGUID();
@@ -1028,10 +1028,10 @@ codeunit 134922 "ERM Budget"
         // [FEATURE] [UT] [Analysis View]
         // [SCENARIO 208664] Related Analysis View Budget Entries should be deleted when G/L Budget Entry is deleted
         Initialize();
-        LibraryLowerPermissions.SetFinancialReporting;
+        LibraryLowerPermissions.SetFinancialReporting();
 
         GLBudgetName.Init();
-        GLBudgetName.Name := LibraryUTUtility.GetNewCode10;
+        GLBudgetName.Name := LibraryUTUtility.GetNewCode10();
         GLBudgetName.Insert();
 
         GLBudgetEntry."Entry No." := LibraryUtility.GetNewRecNo(GLBudgetEntry, GLBudgetEntry.FieldNo("Entry No."));
@@ -1071,7 +1071,7 @@ codeunit 134922 "ERM Budget"
         // [GIVEN] Budget "X"
         LibraryERM.CreateGLBudgetName(GLBudgetName);
         LibraryReportValidation.SetFileName(GLBudgetName.Name);
-        FileName := LibraryReportValidation.GetFileName;
+        FileName := LibraryReportValidation.GetFileName();
 
         // [GIVEN] G/L Account
         LibraryERM.CreateGLAccount(GLAccount);
@@ -1089,14 +1089,14 @@ codeunit 134922 "ERM Budget"
 
         GLBudgetEntry.SetRange("Budget Name", GLBudgetName.Name);
         GLBudgetEntry.SetRange("Global Dimension 1 Code", DimensionValue.Code);
-        LibraryLowerPermissions.SetFinancialReporting;
+        LibraryLowerPermissions.SetFinancialReporting();
         Commit();
 
         // [WHEN] Export Budget "X" to Excel with "Column Dimensions" = "ADM" and "Department Code" filter = "ADM"
         RunExportBudgetToExcelWithRequestPage(GLBudgetEntry, FileName);
 
         // [THEN] The column "Department Code" in exported Excel file is filled with value "Y" for all G/L Accounts
-        LibraryReportValidation.OpenExcelFile;
+        LibraryReportValidation.OpenExcelFile();
         GLAccount.FindSet();
         i := 5;
         repeat
@@ -1148,7 +1148,7 @@ codeunit 134922 "ERM Budget"
         // [GIVEN] Budget "X"
         LibraryERM.CreateGLBudgetName(GLBudgetName);
         LibraryReportValidation.SetFileName(GLBudgetName.Name);
-        FileName := LibraryReportValidation.GetFileName;
+        FileName := LibraryReportValidation.GetFileName();
 
         // [GIVEN] G/L Account
         LibraryERM.CreateGLAccount(GLAccount);
@@ -1163,14 +1163,14 @@ codeunit 134922 "ERM Budget"
 
         GLBudgetEntry.SetRange("Budget Name", GLBudgetName.Name);
         GLBudgetEntry.SetFilter("Global Dimension 1 Code", '%1|%2', DimensionValue.Code, DimensionValue2.Code);
-        LibraryLowerPermissions.SetFinancialReporting;
+        LibraryLowerPermissions.SetFinancialReporting();
         Commit();
 
         // [WHEN] Export Budget "X" to Excel with "Column Dimensions" = "ADM" and "Department Code" filter = "ADM|PROD"
         RunExportBudgetToExcelWithRequestPage(GLBudgetEntry, FileName);
 
         // [THEN] The column "Department Code" in exported Excel file is blank for all G/L Accounts
-        LibraryReportValidation.OpenExcelFile;
+        LibraryReportValidation.OpenExcelFile();
         GLAccount.FindSet();
         i := 5;
         repeat
@@ -1209,7 +1209,7 @@ codeunit 134922 "ERM Budget"
         CreateGLBudgetWithDimensions(GLBudgetName);
 
         LibraryReportValidation.SetFileName(GLBudgetName.Name);
-        FileName := LibraryReportValidation.GetFileName;
+        FileName := LibraryReportValidation.GetFileName();
 
         // [GIVEN] G/L Account
         LibraryERM.CreateGLAccount(GLAccount);
@@ -1231,14 +1231,14 @@ codeunit 134922 "ERM Budget"
         GLBudgetEntry.SetRange("Budget Name", GLBudgetName.Name);
         SetBudgetDimensionFiltersOnGLBudgetEntry(
           GLBudgetEntry, DimensionValue[1].Code, DimensionValue[2].Code, DimensionValue[3].Code, DimensionValue[4].Code);
-        LibraryLowerPermissions.SetFinancialReporting;
+        LibraryLowerPermissions.SetFinancialReporting();
         Commit();
 
         // [WHEN] Export Budget "X" to Excel with "Column Dimensions" = "D1;D2;D3;D4" and "Budget Filters" = "DV1","DV2","DV3","DV4"
         RunExportBudgetToExcelWithRequestPage(GLBudgetEntry, FileName);
 
         // [THEN] All four columns with budget dimensions in exported Excel file is filled with a certain value "DV" for all G/L Accounts
-        LibraryReportValidation.OpenExcelFile;
+        LibraryReportValidation.OpenExcelFile();
         GLAccount.FindSet();
         i := 8;
         repeat
@@ -1288,7 +1288,7 @@ codeunit 134922 "ERM Budget"
         CreateGLBudgetWithDimensions(GLBudgetName);
 
         LibraryReportValidation.SetFileName(GLBudgetName.Name);
-        FileName := LibraryReportValidation.GetFileName;
+        FileName := LibraryReportValidation.GetFileName();
 
         // [GIVEN] G/L Account
         LibraryERM.CreateGLAccount(GLAccount);
@@ -1321,7 +1321,7 @@ codeunit 134922 "ERM Budget"
           StrSubstNo('%1|%2', DimensionValue[1, 2].Code, DimensionValue[2, 2].Code),
           StrSubstNo('%1|%2', DimensionValue[1, 3].Code, DimensionValue[2, 3].Code),
           StrSubstNo('%1|%2', DimensionValue[1, 4].Code, DimensionValue[2, 4].Code));
-        LibraryLowerPermissions.SetFinancialReporting;
+        LibraryLowerPermissions.SetFinancialReporting();
         Commit();
 
         // [WHEN] Export Budget "X" to Excel with "Column Dimensions" = "D1;D2;D3;D4;D5" and "Budget Filters" = "DV11|DV12","DV21|DV22","DV31|DV32","DV41|DV42"
@@ -1329,7 +1329,7 @@ codeunit 134922 "ERM Budget"
 
         // [THEN] Dimension Codes "D1", "D2", "D3" and "D4" exported Excel file as Columns
         // [THEN] Dimension Code "D5" without any value is not exported
-        LibraryReportValidation.OpenExcelFile;
+        LibraryReportValidation.OpenExcelFile();
         Commit();
         RowNo := 8;
         VerifyDimCaptionInCellValue('C', RowNo, SelectedDimension[1]."Dimension Code");
@@ -1370,8 +1370,8 @@ codeunit 134922 "ERM Budget"
         // [FEATURE] [UT] [UI]
         // [SCENARIO 318277] G/L Budget Entries page is editable when it runs separately
         Initialize();
-        GLBudgetEntries.OpenEdit;
-        Assert.IsTrue(GLBudgetEntries.Editable, 'G/L Budget Entries page should be editable');
+        GLBudgetEntries.OpenEdit();
+        Assert.IsTrue(GLBudgetEntries.Editable(), 'G/L Budget Entries page should be editable');
     end;
 
     [Test]
@@ -1425,8 +1425,8 @@ codeunit 134922 "ERM Budget"
         CreateGLBudgetEntryOnPageFromMatrixForm(Budget, GLBudgetEntries, LibraryRandom.RandDec(100, 2));
 
         // [WHEN] Set Amount = 100 on existing line
-        GLBudgetEntries.Trap;
-        Budget.MatrixForm.Field1.DrillDown;
+        GLBudgetEntries.Trap();
+        Budget.MatrixForm.Field1.DrillDown();
         GLBudgetEntries.Amount.SetValue(BudgetAmount);
         GLBudgetEntries.Close();
 
@@ -1445,10 +1445,10 @@ codeunit 134922 "ERM Budget"
         Initialize();
 
         // [GIVEN] G/L Budget Entry for G/L Budget with Budget Dimensions
-        CreateGLBudgetEntryWithDimensions;
+        CreateGLBudgetEntryWithDimensions();
 
         // [WHEN] Open G/L Budget Entry Page without Budget Name Filter
-        GLBudgetEntriesPage.OpenEdit;
+        GLBudgetEntriesPage.OpenEdit();
         GLBudgetEntriesPage.FILTER.SetFilter("Budget Name", '');
 
         // [THEN] Budget Dimension Columns Captions are default
@@ -1467,10 +1467,10 @@ codeunit 134922 "ERM Budget"
         Initialize();
 
         // [GIVEN] G/L Budget Entry for G/L Budget "B" with Budget Dimensions
-        GLBudgetNameTxt := CreateGLBudgetEntryWithDimensions;
+        GLBudgetNameTxt := CreateGLBudgetEntryWithDimensions();
 
         // [WHEN] Open G/L Budget Entry Page and set Budget Name Filter to "B".Name
-        GLBudgetEntriesPage.OpenEdit;
+        GLBudgetEntriesPage.OpenEdit();
         GLBudgetEntriesPage.FILTER.SetFilter("Budget Name", GLBudgetNameTxt);
 
         // [THEN] Budget Dimension Columns Captions are taken from "B"
@@ -1489,11 +1489,11 @@ codeunit 134922 "ERM Budget"
         Initialize();
 
         // [GIVEN] Two G/L Budget Entries for G/L Budgets "B1" and "B2" with Budget Dimensions
-        GLBudgetNameTxt[1] := CreateGLBudgetEntryWithDimensions;
-        GLBudgetNameTxt[2] := CreateGLBudgetEntryWithDimensions;
+        GLBudgetNameTxt[1] := CreateGLBudgetEntryWithDimensions();
+        GLBudgetNameTxt[2] := CreateGLBudgetEntryWithDimensions();
 
         // [WHEN] Open G/L Budget Entry Page and set Budget Name Filter to "B1".Name .. "B2".Name
-        GLBudgetEntriesPage.OpenEdit;
+        GLBudgetEntriesPage.OpenEdit();
         GLBudgetEntriesPage.FILTER.SetFilter("Budget Name", GLBudgetNameTxt[1] + '..' + GLBudgetNameTxt[2]);
 
         // [THEN] Budget Dimension Columns Captions are taken from "B1"
@@ -1512,11 +1512,11 @@ codeunit 134922 "ERM Budget"
         Initialize();
 
         // [GIVEN] Two G/L Budget Entries for G/L Budgets "B1" and "B2" with Budget Dimensions
-        GLBudgetNameTxt[1] := CreateGLBudgetEntryWithDimensions;
-        GLBudgetNameTxt[2] := CreateGLBudgetEntryWithDimensions;
+        GLBudgetNameTxt[1] := CreateGLBudgetEntryWithDimensions();
+        GLBudgetNameTxt[2] := CreateGLBudgetEntryWithDimensions();
 
         // [WHEN] Open G/L Budget Entry Page and set Budget Name Filter to "B1".Name|"B2".Name
-        GLBudgetEntriesPage.OpenEdit;
+        GLBudgetEntriesPage.OpenEdit();
         GLBudgetEntriesPage.FILTER.SetFilter("Budget Name", GLBudgetNameTxt[1] + '|' + GLBudgetNameTxt[2]);
 
         // [THEN] Budget Dimension Columns Captions are taken from "B1"
@@ -1543,7 +1543,7 @@ codeunit 134922 "ERM Budget"
         LibraryERM.CreateGLBudgetName(GLBudgetName);
 
         // [GIVEN]  G/L Budget Entries Page is opened with "Business Unit Code" Filter = "BusCode"
-        GLBudgetEntries.Trap;
+        GLBudgetEntries.Trap();
         GLBudgetEntriesPage.Run();
         GLBudgetEntries.FILTER.SetFilter("Business Unit Code", BusinessUnit.Code);
 
@@ -1570,18 +1570,18 @@ codeunit 134922 "ERM Budget"
         // [FEATURE] [Dimension]
         // [SCENARIO 262712] Dimension Set ID is updated on G/L Budget Dimension 1 lookup of G/L Budget Entries page
         Initialize();
-        LibraryApplicationArea.DisableApplicationAreaSetup;
+        LibraryApplicationArea.DisableApplicationAreaSetup();
 
         // [GIVEN] G/L Budget with Budget Dimension 1 and one entry with blank "Dimension Set ID"
         BudgetName := CreateAndOpenGLBudgetWithDimensions(Budget);
 
         // [GIVEN] G/L Budget Entries page is opened for edit
-        GLBudgetEntries.Trap;
-        Budget.MatrixForm.Field1.DrillDown;
+        GLBudgetEntries.Trap();
+        Budget.MatrixForm.Field1.DrillDown();
 
         // [WHEN] Set value to "Budget Dimension 1" field using lookup
         CreateDimValueCodeForGLBudgetDimension(BudgetName, 1);
-        GLBudgetEntries."Budget Dimension 1 Code".Lookup;
+        GLBudgetEntries."Budget Dimension 1 Code".Lookup();
         GLBudgetEntries.Close();
 
         // [THEN] "Dimension Set ID" is filled in G/L Budget Entry
@@ -1600,18 +1600,18 @@ codeunit 134922 "ERM Budget"
         // [FEATURE] [Dimension]
         // [SCENARIO 262712] Dimension Set ID is updated on G/L Budget Dimension 2 lookup of G/L Budget Entries page
         Initialize();
-        LibraryApplicationArea.DisableApplicationAreaSetup;
+        LibraryApplicationArea.DisableApplicationAreaSetup();
 
         // [GIVEN] G/L Budget with Budget Dimension 2 and one entry with blank "Dimension Set ID"
         BudgetName := CreateAndOpenGLBudgetWithDimensions(Budget);
 
         // [GIVEN] G/L Budget Entries page is opened for edit
-        GLBudgetEntries.Trap;
-        Budget.MatrixForm.Field1.DrillDown;
+        GLBudgetEntries.Trap();
+        Budget.MatrixForm.Field1.DrillDown();
 
         // [WHEN] Set value to "Budget Dimension 2" field using lookup
         CreateDimValueCodeForGLBudgetDimension(BudgetName, 2);
-        GLBudgetEntries."Budget Dimension 2 Code".Lookup;
+        GLBudgetEntries."Budget Dimension 2 Code".Lookup();
         GLBudgetEntries.Close();
 
         // [THEN] "Dimension Set ID" is filled in G/L Budget Entry
@@ -1630,18 +1630,18 @@ codeunit 134922 "ERM Budget"
         // [FEATURE] [Dimension]
         // [SCENARIO 262712] Dimension Set ID is updated on G/L Budget Dimension 3 lookup of G/L Budget Entries page
         Initialize();
-        LibraryApplicationArea.DisableApplicationAreaSetup;
+        LibraryApplicationArea.DisableApplicationAreaSetup();
 
         // [GIVEN] G/L Budget with Budget Dimension 3 and one entry with blank "Dimension Set ID"
         BudgetName := CreateAndOpenGLBudgetWithDimensions(Budget);
 
         // [GIVEN] G/L Budget Entries page is opened for edit
-        GLBudgetEntries.Trap;
-        Budget.MatrixForm.Field1.DrillDown;
+        GLBudgetEntries.Trap();
+        Budget.MatrixForm.Field1.DrillDown();
 
         // [WHEN] Set value to "Budget Dimension 3" field using lookup
         CreateDimValueCodeForGLBudgetDimension(BudgetName, 3);
-        GLBudgetEntries."Budget Dimension 3 Code".Lookup;
+        GLBudgetEntries."Budget Dimension 3 Code".Lookup();
         GLBudgetEntries.Close();
 
         // [THEN] "Dimension Set ID" is filled in G/L Budget Entry
@@ -1660,18 +1660,18 @@ codeunit 134922 "ERM Budget"
         // [FEATURE] [Dimension]
         // [SCENARIO 262712] Dimension Set ID is updated on G/L Budget Dimension 4 lookup of G/L Budget Entries page
         Initialize();
-        LibraryApplicationArea.DisableApplicationAreaSetup;
+        LibraryApplicationArea.DisableApplicationAreaSetup();
 
         // [GIVEN] G/L Budget with Budget Dimension 4 and one entry with blank "Dimension Set ID"
         BudgetName := CreateAndOpenGLBudgetWithDimensions(Budget);
 
         // [GIVEN] G/L Budget Entries page is opened for edit
-        GLBudgetEntries.Trap;
-        Budget.MatrixForm.Field1.DrillDown;
+        GLBudgetEntries.Trap();
+        Budget.MatrixForm.Field1.DrillDown();
 
         // [WHEN] Set value to "Budget Dimension 4" field using lookup
         CreateDimValueCodeForGLBudgetDimension(BudgetName, 4);
-        GLBudgetEntries."Budget Dimension 4 Code".Lookup;
+        GLBudgetEntries."Budget Dimension 4 Code".Lookup();
         GLBudgetEntries.Close();
 
         // [THEN] "Dimension Set ID" is filled in G/L Budget Entry
@@ -1696,7 +1696,7 @@ codeunit 134922 "ERM Budget"
         LibraryERM.CreateGLAccount(GLAccount);
         LibraryERM.CreateGLBudgetName(GLBudgetName);
 
-        LibraryLowerPermissions.SetFinancialReporting;
+        LibraryLowerPermissions.SetFinancialReporting();
 
         // [GIVEN] Create G/L Budget Entry with Amount = 100 for G/L Account (BudgetPageWithBudgetEntryPageHandler).
         LibraryVariableStorage.Enqueue(GLAccount."No.");
@@ -1805,7 +1805,7 @@ codeunit 134922 "ERM Budget"
 
         // [WHEN] Change G/L Budget Entry "G/L Account No.".
         GLBudgetEntry.Get(EntryNo);
-        asserterror GLBudgetEntry.Validate("G/L Account No.", LibraryERM.CreateGLAccountNo);
+        asserterror GLBudgetEntry.Validate("G/L Account No.", LibraryERM.CreateGLAccountNo());
 
         // [THEN] An error occurs that Analysis View Budget Entry exists.
         Assert.ExpectedError(AnalysisViewBudgetEntryExistsErr);
@@ -1824,7 +1824,7 @@ codeunit 134922 "ERM Budget"
         // [SCENARIO 274259] "Sales Budget Overview" page saves values previously set
 
         Initialize();
-        LibraryApplicationArea.DisableApplicationAreaSetup;
+        LibraryApplicationArea.DisableApplicationAreaSetup();
 
         // [GIVEN] New Dimension "ABC"
         LibraryDimension.CreateDimension(Dimension);
@@ -1833,18 +1833,18 @@ codeunit 134922 "ERM Budget"
         CreateItemBudgetWithDimensionCode(ItemBudgetName, Dimension.Code, ItemBudgetName."Analysis Area"::Sales);
 
         // [GIVEN] Opened page "Sales Budgets" with Budget "X"
-        BudgetNamesSales.OpenEdit;
+        BudgetNamesSales.OpenEdit();
         BudgetNamesSales.FILTER.SetFilter(Name, ItemBudgetName.Name);
-        SalesBudgetOverview.Trap;
+        SalesBudgetOverview.Trap();
 
         // [GIVEN] "Sales Budget Overview" page opened and "X" set for "Show as Lines"
-        BudgetNamesSales.EditBudget.Invoke;
+        BudgetNamesSales.EditBudget.Invoke();
         SalesBudgetOverview.LineDimCode.SetValue(Dimension.Code);
         SalesBudgetOverview.Close();
-        SalesBudgetOverview.Trap;
+        SalesBudgetOverview.Trap();
 
         // [WHEN] Open "Sales Budget Overview" page again
-        BudgetNamesSales.EditBudget.Invoke;
+        BudgetNamesSales.EditBudget.Invoke();
 
         // [THEN] "Show as Lines" is "X"
         Assert.AreEqual(Dimension.Code, SalesBudgetOverview.LineDimCode.Value, 'Value was not saved on Sales Budget Overview page');
@@ -1863,7 +1863,7 @@ codeunit 134922 "ERM Budget"
         // [SCENARIO 274259] "Purchase Budget Overview" page saves values previously set
 
         Initialize();
-        LibraryApplicationArea.DisableApplicationAreaSetup;
+        LibraryApplicationArea.DisableApplicationAreaSetup();
 
         // [GIVEN] New Dimension "ABC"
         LibraryDimension.CreateDimension(Dimension);
@@ -1872,18 +1872,18 @@ codeunit 134922 "ERM Budget"
         CreateItemBudgetWithDimensionCode(ItemBudgetName, Dimension.Code, ItemBudgetName."Analysis Area"::Purchase);
 
         // [GIVEN] Opened page "Purchase Budgets" with Budget "X"
-        BudgetNamesPurchase.OpenEdit;
+        BudgetNamesPurchase.OpenEdit();
         BudgetNamesPurchase.FILTER.SetFilter(Name, ItemBudgetName.Name);
-        PurchaseBudgetOverview.Trap;
+        PurchaseBudgetOverview.Trap();
 
         // [GIVEN] "Purchase Budget Overview" page opened and "X" set for "Show as Lines"
-        BudgetNamesPurchase.EditBudget.Invoke;
+        BudgetNamesPurchase.EditBudget.Invoke();
         PurchaseBudgetOverview.LineDimCode.SetValue(Dimension.Code);
         PurchaseBudgetOverview.Close();
-        PurchaseBudgetOverview.Trap;
+        PurchaseBudgetOverview.Trap();
 
         // [WHEN] Open "Purchase Budget Overview" page again
-        BudgetNamesPurchase.EditBudget.Invoke;
+        BudgetNamesPurchase.EditBudget.Invoke();
 
         // [THEN] "Show as Lines" is "X"
         Assert.AreEqual(Dimension.Code, PurchaseBudgetOverview.LineDimCode.Value, 'Value was not saved on Purchase Budget Overview page');
@@ -1904,7 +1904,7 @@ codeunit 134922 "ERM Budget"
         // [FEATURE] [G/L Budget Entries]
         // [SCENARIO 294693] Importing Budget from Excel restores Dimension Values of Budget Entries to filters used when exporting Budget to Excel
         Initialize();
-        LibraryApplicationArea.DisableApplicationAreaSetup;
+        LibraryApplicationArea.DisableApplicationAreaSetup();
 
         // [GIVEN] Budget with Global and Budget Dimensions
         CreateGlobalAndBudgetDimensionsWithDimensionsValues(DimensionValue);
@@ -1920,7 +1920,7 @@ codeunit 134922 "ERM Budget"
 
         // [GIVEN] Budget exported to Excel File
         LibraryReportValidation.SetFileName(GLBudgetName.Name);
-        FileName := LibraryReportValidation.GetFileName;
+        FileName := LibraryReportValidation.GetFileName();
         Commit();
         ExportBudgetWithDimensionFiltersToExcel(GLBudgetName, DimensionValue, FileName);
 
@@ -1951,7 +1951,7 @@ codeunit 134922 "ERM Budget"
         // [FEATURE] [G/L Budget Entries]
         // [SCENARIO 312456] It is possible to Import Budget with two lines differing only in Dimension Value from Excel
         Initialize();
-        LibraryApplicationArea.DisableApplicationAreaSetup;
+        LibraryApplicationArea.DisableApplicationAreaSetup();
 
         // [GIVEN] Budget with Global and Budget Dimensions
         CreateGlobalAndBudgetDimensionsWithDimensionsValues(DimensionValue);
@@ -2360,7 +2360,6 @@ codeunit 134922 "ERM Budget"
         SalesBudgetOverview: TestPage "Sales Budget Overview";
         ItemNo: Code[20];
         Quantity: array[2] of Decimal;
-        BudgetAmount: array[2] of Decimal;
         CostAmount: array[2] of Decimal;
         SalesAmount: array[2] of Decimal;
     begin
@@ -2411,14 +2410,14 @@ codeunit 134922 "ERM Budget"
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
-        ClearSelectedDimensions;
+        ClearSelectedDimensions();
 
-        ClearGlobalVariables;
-        ClearBudgetLinesAndColumns;
+        ClearGlobalVariables();
+        ClearBudgetLinesAndColumns();
         if IsInitialized then
             exit;
 
-        LibraryERMCountryData.UpdateCalendarSetup;
+        LibraryERMCountryData.UpdateCalendarSetup();
         LibraryERMCountryData.UpdateGeneralPostingSetup();
         LibraryApplicationArea.EnableFoundationSetup();
 
@@ -2529,7 +2528,7 @@ codeunit 134922 "ERM Budget"
         GLBudgetName: Record "G/L Budget Name";
     begin
         CreateGLBudgetWithDimensions(GLBudgetName);
-        CreateGLBudgetEntry(GLBudgetName.Name, LibraryERM.CreateGLAccountNo, LibraryRandom.RandInt(10));
+        CreateGLBudgetEntry(GLBudgetName.Name, LibraryERM.CreateGLAccountNo(), LibraryRandom.RandInt(10));
         exit(GLBudgetName.Name);
     end;
 
@@ -2718,7 +2717,7 @@ codeunit 134922 "ERM Budget"
         SalesBudgetOverview: TestPage "Sales Budget Overview";
         PurchaseBudgetOverview: TestPage "Purchase Budget Overview";
     begin
-        Budget.OpenEdit;
+        Budget.OpenEdit();
         Budget.LineDimCode.SetValue('');
         Budget.ColumnDimCode.SetValue('');
         Budget.GLAccFilter.SetValue('');
@@ -2727,14 +2726,14 @@ codeunit 134922 "ERM Budget"
         Budget.IncomeBalGLAccFilter.SetValue(0);
         Budget.Close();
 
-        SalesBudgetOverview.OpenEdit;
+        SalesBudgetOverview.OpenEdit();
         SalesBudgetOverview.LineDimCode.SetValue('');
         SalesBudgetOverview.ColumnDimCode.SetValue('');
         SalesBudgetOverview.DateFilter.SetValue('');
         SalesBudgetOverview.ItemFilter.SetValue('');
         SalesBudgetOverview.Close();
 
-        PurchaseBudgetOverview.OpenEdit;
+        PurchaseBudgetOverview.OpenEdit();
         PurchaseBudgetOverview.LineDimCode.SetValue('');
         PurchaseBudgetOverview.ColumnDimCode.SetValue('');
         PurchaseBudgetOverview.DateFilter.SetValue('');
@@ -2798,7 +2797,7 @@ codeunit 134922 "ERM Budget"
     var
         GLBudgetEntries: TestPage "G/L Budget Entries";
     begin
-        GLBudgetEntries.OpenEdit;
+        GLBudgetEntries.OpenEdit();
         GLBudgetEntries.FILTER.SetFilter("G/L Account No.", GLAccountNo);
         GLBudgetEntries.FILTER.SetFilter("Budget Name", GLBudgetName);
         GLBudgetEntries.Close();
@@ -2810,8 +2809,8 @@ codeunit 134922 "ERM Budget"
     begin
         Budget.IncomeBalGLAccFilter.SetValue(0);
         Budget.DateFilter.SetValue(WorkDate());
-        Budget.GLBalanceBudget.Invoke;
-        Budget.OK.Invoke;
+        Budget.GLBalanceBudget.Invoke();
+        Budget.OK().Invoke();
     end;
 
     [PageHandler]
@@ -2834,9 +2833,9 @@ codeunit 134922 "ERM Budget"
     var
         GLBudgetNamesPage: TestPage "G/L Budget Names";
     begin
-        GLBudgetNamesPage.OpenEdit;
+        GLBudgetNamesPage.OpenEdit();
         GLBudgetNamesPage.FILTER.SetFilter(Name, Name);
-        GLBudgetNamesPage.EditBudget.Invoke;
+        GLBudgetNamesPage.EditBudget.Invoke();
     end;
 
     local procedure OpenSalesBudgetOverviewPage()
@@ -2844,9 +2843,9 @@ codeunit 134922 "ERM Budget"
         ItemBudgetName: Record "Item Budget Name";
         BudgetNamesSales: TestPage "Budget Names Sales";
     begin
-        BudgetNamesSales.OpenEdit;
+        BudgetNamesSales.OpenEdit();
         BudgetNamesSales.FILTER.SetFilter(Name, FindItemBudgetByAnalysisArea(ItemBudgetName."Analysis Area"::Sales));
-        BudgetNamesSales.EditBudget.Invoke;
+        BudgetNamesSales.EditBudget.Invoke();
     end;
 
     local procedure OpenPurchaseBudgetOverviewPage()
@@ -2854,14 +2853,14 @@ codeunit 134922 "ERM Budget"
         ItemBudgetName: Record "Item Budget Name";
         BudgetNamesPurchase: TestPage "Budget Names Purchase";
     begin
-        BudgetNamesPurchase.OpenEdit;
+        BudgetNamesPurchase.OpenEdit();
         BudgetNamesPurchase.FILTER.SetFilter(Name, FindItemBudgetByAnalysisArea(ItemBudgetName."Analysis Area"::Purchase));
-        BudgetNamesPurchase.EditBudget.Invoke;
+        BudgetNamesPurchase.EditBudget.Invoke();
     end;
 
     local procedure OpenGLBudgetPageWithViewByMonth(var Budget: TestPage Budget; Name: Code[10]; DateFilter: Text)
     begin
-        Budget.OpenEdit;
+        Budget.OpenEdit();
         Budget.BudgetName.SetValue(Name);
         Budget.ColumnDimCode.SetValue(Format(DimensionValues::Period));
         Budget.PeriodType.SetValue(Format(PeriodType::Month));
@@ -2870,7 +2869,7 @@ codeunit 134922 "ERM Budget"
 
     local procedure OpenSalesBudgetPageWithViewByMonth(var SalesBudgetOverview: TestPage "Sales Budget Overview"; Name: Code[10]; DateFilter: Text)
     begin
-        SalesBudgetOverview.OpenEdit;
+        SalesBudgetOverview.OpenEdit();
         SalesBudgetOverview.CurrentBudgetName.SetValue(Name);
         SalesBudgetOverview.ColumnDimCode.SetValue(Format(DimensionValues::Period));
         SalesBudgetOverview.PeriodType.SetValue(Format(PeriodType::Month));
@@ -2879,7 +2878,7 @@ codeunit 134922 "ERM Budget"
 
     local procedure OpenPurchBudgetPageWithViewByMonth(var PurchaseBudgetOverview: TestPage "Purchase Budget Overview"; Name: Code[10]; DateFilter: Text)
     begin
-        PurchaseBudgetOverview.OpenEdit;
+        PurchaseBudgetOverview.OpenEdit();
         PurchaseBudgetOverview.CurrentBudgetName.SetValue(Name);
         PurchaseBudgetOverview.ColumnDimCode.SetValue(Format(DimensionValues::Period));
         PurchaseBudgetOverview.PeriodType.SetValue(Format(PeriodType::Month));
@@ -2999,7 +2998,7 @@ codeunit 134922 "ERM Budget"
         with GLBudgetEntry do begin
             Validate("Budget Name", GLBudgetName.Name);
             Validate(Date, WorkDate());
-            Validate("G/L Account No.", LibraryERM.CreateGLAccountNo);
+            Validate("G/L Account No.", LibraryERM.CreateGLAccountNo());
             Validate("Global Dimension 1 Code", Global1DimCode);
             Validate("Global Dimension 2 Code", Global2DimCode);
             Insert(true);
@@ -3033,9 +3032,9 @@ codeunit 134922 "ERM Budget"
 
     local procedure CreateGLBudgetEntryOnPageFromMatrixForm(var Budget: TestPage Budget; var GLBudgetEntries: TestPage "G/L Budget Entries"; BudgetAmount: Decimal)
     begin
-        GLBudgetEntries.Trap;
-        Budget.MatrixForm.Field1.DrillDown;
-        GLBudgetEntries.New;
+        GLBudgetEntries.Trap();
+        Budget.MatrixForm.Field1.DrillDown();
+        GLBudgetEntries.New();
         GLBudgetEntries.Amount.SetValue(BudgetAmount);
         GLBudgetEntries.Close();
     end;
@@ -3045,11 +3044,11 @@ codeunit 134922 "ERM Budget"
         GLBudgetEntry: Record "G/L Budget Entry";
         EntryNo: Integer;
     begin
-        GLBudgetEntries.New;
+        GLBudgetEntries.New();
         EntryNo := LibraryUtility.GetNewRecNo(GLBudgetEntry, GLBudgetEntry.FieldNo("Entry No."));
         GLBudgetEntries."Entry No.".SetValue(EntryNo);
         GLBudgetEntries.Date.SetValue(WorkDate());
-        GLBudgetEntries."G/L Account No.".SetValue(LibraryERM.CreateGLAccountNo);
+        GLBudgetEntries."G/L Account No.".SetValue(LibraryERM.CreateGLAccountNo());
         GLBudgetEntries."Budget Name".SetValue(GLBudgetName);
         GLBudgetEntries.Close();
         exit(EntryNo);
@@ -3058,10 +3057,10 @@ codeunit 134922 "ERM Budget"
     local procedure CreateGLBudgetWithDimensions(var GLBudgetName: Record "G/L Budget Name")
     begin
         LibraryERM.CreateGLBudgetName(GLBudgetName);
-        GLBudgetName.Validate("Budget Dimension 1 Code", CreateDimensionCode);
-        GLBudgetName.Validate("Budget Dimension 2 Code", CreateDimensionCode);
-        GLBudgetName.Validate("Budget Dimension 3 Code", CreateDimensionCode);
-        GLBudgetName.Validate("Budget Dimension 4 Code", CreateDimensionCode);
+        GLBudgetName.Validate("Budget Dimension 1 Code", CreateDimensionCode());
+        GLBudgetName.Validate("Budget Dimension 2 Code", CreateDimensionCode());
+        GLBudgetName.Validate("Budget Dimension 3 Code", CreateDimensionCode());
+        GLBudgetName.Validate("Budget Dimension 4 Code", CreateDimensionCode());
         GLBudgetName.Modify(true);
     end;
 
@@ -3271,13 +3270,13 @@ codeunit 134922 "ERM Budget"
         Budget.ShowColumnName.SetValue(false);
 
         // a flag is enqueued to focus on the first line, except for Period
-        if LibraryVariableStorage.DequeueBoolean then
-            Budget.MatrixForm.First;
+        if LibraryVariableStorage.DequeueBoolean() then
+            Budget.MatrixForm.First();
 
         // Verify: Verify Line Value and Column Caption for GL Budget Page.
         Budget.MatrixForm.Code.AssertEquals(LineValue);
         Assert.AreEqual(ColumnValue, Budget.MatrixForm.Field1.Caption, ColumnCaptionErr);
-        Budget.OK.Invoke;
+        Budget.OK().Invoke();
     end;
 
     [PageHandler]
@@ -3292,11 +3291,11 @@ codeunit 134922 "ERM Budget"
         SecondColumnValue := Budget.MatrixForm.Field2.Caption;
 
         // Click buttons and verify Column Values on Budget Page.
-        Budget."Next Column".Invoke; // Next Column.
+        Budget."Next Column".Invoke(); // Next Column.
         Assert.AreEqual(SecondColumnValue, Budget.MatrixForm.Field1.Caption, ColumnCaptionErr);
-        Budget."Previous Column".Invoke; // Previous Column.
+        Budget."Previous Column".Invoke(); // Previous Column.
         Assert.AreEqual(FirstColumnValue, Budget.MatrixForm.Field1.Caption, ColumnCaptionErr);
-        Budget.OK.Invoke;
+        Budget.OK().Invoke();
     end;
 
     [PageHandler]
@@ -3311,7 +3310,7 @@ codeunit 134922 "ERM Budget"
         // Verify Row and Column Values on Purchase Budget Overview Page.
         PurchaseBudgetOverview.MATRIX.Code.AssertEquals(LineValue);
         Assert.AreEqual(ColumnValue, PurchaseBudgetOverview.MATRIX.Field1.Caption, ColumnCaptionErr);
-        PurchaseBudgetOverview.OK.Invoke;
+        PurchaseBudgetOverview.OK().Invoke();
     end;
 
     [PageHandler]
@@ -3326,11 +3325,11 @@ codeunit 134922 "ERM Budget"
         SecondColumnValue := PurchaseBudgetOverview.MATRIX.Field2.Caption;
 
         // Verify  buttons and verify Column Values on Purchase Budget Overview Page.
-        PurchaseBudgetOverview."Next Column".Invoke; // Next Column.
+        PurchaseBudgetOverview."Next Column".Invoke(); // Next Column.
         Assert.AreEqual(SecondColumnValue, PurchaseBudgetOverview.MATRIX.Field1.Caption, ColumnCaptionErr);
-        PurchaseBudgetOverview."Previous Column".Invoke; // Previous Column.
+        PurchaseBudgetOverview."Previous Column".Invoke(); // Previous Column.
         Assert.AreEqual(FirstColumnValue, PurchaseBudgetOverview.MATRIX.Field1.Caption, ColumnCaptionErr);
-        PurchaseBudgetOverview.OK.Invoke;
+        PurchaseBudgetOverview.OK().Invoke();
     end;
 
     [PageHandler]
@@ -3345,7 +3344,7 @@ codeunit 134922 "ERM Budget"
         // Verify Row and Column Values on Sales Budget Overview Page.
         SalesBudgetOverview.MATRIX.Code.AssertEquals(LineValue);
         Assert.AreEqual(ColumnValue, SalesBudgetOverview.MATRIX.Field1.Caption, ColumnCaptionErr);
-        SalesBudgetOverview.OK.Invoke;
+        SalesBudgetOverview.OK().Invoke();
     end;
 
     [PageHandler]
@@ -3373,11 +3372,11 @@ codeunit 134922 "ERM Budget"
         SecondColumnValue := SalesBudgetOverview.MATRIX.Field2.Caption;
 
         // Click buttons and verify Column Values on Sales Budget Overview Page.
-        SalesBudgetOverview."Next Column".Invoke; // Next Column.
+        SalesBudgetOverview."Next Column".Invoke(); // Next Column.
         Assert.AreEqual(SecondColumnValue, SalesBudgetOverview.MATRIX.Field1.Caption, ColumnCaptionErr);
-        SalesBudgetOverview."Previous Column".Invoke; // Previous Column.
+        SalesBudgetOverview."Previous Column".Invoke(); // Previous Column.
         Assert.AreEqual(FirstColumnValue, SalesBudgetOverview.MATRIX.Field1.Caption, ColumnCaptionErr);
-        SalesBudgetOverview.OK.Invoke;
+        SalesBudgetOverview.OK().Invoke();
     end;
 
     [PageHandler]
@@ -3498,9 +3497,9 @@ codeunit 134922 "ERM Budget"
     begin
         LibraryVariableStorage.Dequeue(ItemNo);
         SalesBudgetOverview.ItemFilter.SetValue(ItemNo);
-        LibraryVariableStorage.Enqueue(SalesBudgetOverview.MATRIX.Field1.AsDEcimal);
+        LibraryVariableStorage.Enqueue(SalesBudgetOverview.MATRIX.Field1.AsDecimal());
         SalesBudgetOverview.CurrentBudgetName.SetValue(FindAnotherItemBudgetName(SalesBudgetOverview.CurrentBudgetName.Value));
-        LibraryVariableStorage.Enqueue(SalesBudgetOverview.MATRIX.Field1.AsDEcimal);
+        LibraryVariableStorage.Enqueue(SalesBudgetOverview.MATRIX.Field1.AsDecimal());
     end;
 
     [PageHandler]
@@ -3511,16 +3510,16 @@ codeunit 134922 "ERM Budget"
     begin
         LibraryVariableStorage.Dequeue(ItemNo);
         PurchaseBudgetOverview.ItemFilter.SetValue(ItemNo);
-        LibraryVariableStorage.Enqueue(PurchaseBudgetOverview.MATRIX.Field1.AsDEcimal);
+        LibraryVariableStorage.Enqueue(PurchaseBudgetOverview.MATRIX.Field1.AsDecimal());
         PurchaseBudgetOverview.CurrentBudgetName.SetValue(FindAnotherItemBudgetName(PurchaseBudgetOverview.CurrentBudgetName.Value));
-        LibraryVariableStorage.Enqueue(PurchaseBudgetOverview.MATRIX.Field1.AsDEcimal);
+        LibraryVariableStorage.Enqueue(PurchaseBudgetOverview.MATRIX.Field1.AsDecimal());
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure TrialBalanceBudgetCancelRequestPageHandler(var TrialBalanceBudget: TestRequestPage "Trial Balance/Budget")
     begin
-        TrialBalanceBudget.Cancel.Invoke;
+        TrialBalanceBudget.Cancel().Invoke();
     end;
 
     local procedure FindAnotherItemBudgetName(CurrentBudgetName: Code[10]): Code[10]
@@ -3601,8 +3600,8 @@ codeunit 134922 "ERM Budget"
         ExportBudgettoExcel.StartDate.SetValue(WorkDate());
         ExportBudgettoExcel.NoOfPeriods.SetValue(1);
         ExportBudgettoExcel.PeriodLength.SetValue('1M');
-        ExportBudgettoExcel.ColumnDimensions.SetValue(LibraryVariableStorage.DequeueText);
-        ExportBudgettoExcel.OK.Invoke;
+        ExportBudgettoExcel.ColumnDimensions.SetValue(LibraryVariableStorage.DequeueText());
+        ExportBudgettoExcel.OK().Invoke();
         Sleep(200);
     end;
 
@@ -3617,6 +3616,6 @@ codeunit 134922 "ERM Budget"
     [Scope('OnPrem')]
     procedure DimensionValuesPageHandler(var DimensionValueList: TestPage "Dimension Value List")
     begin
-        DimensionValueList.OK.Invoke;
+        DimensionValueList.OK().Invoke();
     end;
 }

@@ -8,6 +8,7 @@ table 343 "Item Application Entry History"
     Caption = 'Item Application Entry History';
     DrillDownPageID = "Item Application Entry History";
     LookupPageID = "Item Application Entry History";
+    DataClassification = CustomerContent;
 
     fields
     {

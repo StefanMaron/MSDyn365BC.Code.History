@@ -631,8 +631,8 @@ report 5900 "Service Order"
 
             trigger OnAfterGetRecord()
             begin
-                CurrReport.Language := Language.GetLanguageIdOrDefault("Language Code");
-                CurrReport.FormatRegion := Language.GetFormatRegionOrDefault("Format Region");
+                CurrReport.Language := LanguageMgt.GetLanguageIdOrDefault("Language Code");
+                CurrReport.FormatRegion := LanguageMgt.GetFormatRegionOrDefault("Format Region");
                 FormatAddr.SetLanguageCode("Language Code");
 
                 FormatAddressFields("Service Header");
@@ -713,7 +713,7 @@ report 5900 "Service Order"
         RespCenter: Record "Responsibility Center";
         DimSetEntry1: Record "Dimension Set Entry";
         DimSetEntry2: Record "Dimension Set Entry";
-        Language: Codeunit Language;
+        LanguageMgt: Codeunit Language;
         FormatAddr: Codeunit "Format Address";
         FormatDocument: Codeunit "Format Document";
         NoOfCopies: Integer;

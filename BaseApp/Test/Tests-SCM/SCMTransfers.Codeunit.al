@@ -45,10 +45,10 @@
         ILEIncorrectSumErr: Label 'Expected sum of quantities to be 0 for Item Ledger Entries after undone Transfer Shipment';
         TransShptIncorrectSumErr: Label 'Expected sum of quantities to be 0 for Transfer Shipment Lines of undone Transfer Shipment';
         TransShptLineNotCorrectionErr: Label 'Expected Line of undone Transfer Shipment to have "Correction Line"=true, but it din''t';
-        UndoneTransLineQtyToShipErr: Label 'Expected Qty. to Ship to be reset after Transfer Shipment was undone';
         UndoneTransLineQtyErr: Label 'Expected Quantity to be 0 after Transfer Shipment was undone';
         DerivedTransLineErr: Label 'Expected no Derived Transfer Line i.e. line with "Derived From Line No." equal to original transfer line.';
         IncorrectSNUndoneErr: Label 'The Serial No. of the item on the transfer shipment line that was undone was different from the SN on the corresponding transfer line.';
+        ApplToItemEntryErr: Label '%1 must be %2 in %3.', Comment = '%1 is Appl-to Item Entry, %2 is Item Ledger Entry No. and %3 is Transfer Line';
 
     [Test]
     [HandlerFunctions('MessageHandler')]
@@ -132,7 +132,7 @@
         LibraryInventory.UndoTransferShipments(TransferHeader."No.");
 
         // [THEN] The Transfer Order has been completely unshipped
-        VerifyTransferOrderCompletelyUnshipped(TransferHeader, QtyToShip);
+        VerifyTransferOrderCompletelyUnshipped(TransferHeader);
 
         // [THEN] The order can be fully shipped and received with no error
         ShipAndReceiveTransOrderFully(TransferHeader, false);
@@ -154,13 +154,13 @@
         QtyToShip := LibraryRandom.RandInt(10) + 1;
 
         // [GIVEN] A shipped transfer order with one line
-        CreateAndShipTransferOrderWithBin(TransferHeader, QtyToShip, false, false);
+        CreateAndShipTransferOrderWithBin(TransferHeader, QtyToShip);
 
         // [WHEN] The posted transfer shipment line is undone
         LibraryInventory.UndoTransferShipments(TransferHeader."No.");
 
         // [THEN] The Transfer Order has been completely unshipped
-        VerifyTransferOrderCompletelyUnshippedWithRefDoc(TransferHeader, QtyToShip);
+        VerifyTransferOrderCompletelyUnshippedWithRefDoc(TransferHeader);
 
         // [THEN] The order can be fully shipped and received with no error
         ShipAndReceiveTransOrderFully(TransferHeader, false);
@@ -190,7 +190,7 @@
         LibraryInventory.UndoTransferShipments(TransferHeader."No.");
 
         // [THEN] The Transfer Order has been completely unshipped
-        VerifyTransferOrderCompletelyUnshipped(TransferHeader, QtyToShip);
+        VerifyTransferOrderCompletelyUnshipped(TransferHeader);
 
         // [THEN] The order can be fully shipped and received with no error
         ShipAndReceiveTransOrderFully(TransferHeader, false);
@@ -216,7 +216,7 @@
         LibraryInventory.UndoTransferShipments(TransferHeader."No.");
 
         // [THEN] The Transfer Order has been completely unshipped
-        VerifyTransferOrderCompletelyUnshipped(TransferHeader, QtyToShip);
+        VerifyTransferOrderCompletelyUnshipped(TransferHeader);
 
         // [THEN] The order can be fully shipped and received with no error
         ShipAndReceiveTransOrderFully(TransferHeader, false);
@@ -323,10 +323,10 @@
         LibraryInventory.UndoTransferShipments(TransferHeader."No.");
 
         // [THEN] The Transfer Order has been completely unshipped
-        VerifyTransferOrderCompletelyUnshipped(TransferHeader, QtyToShip);
+        VerifyTransferOrderCompletelyUnshipped(TransferHeader);
 
         // [THEN] The item tracking information on the order is reset to a pre-posting state
-        VerifyTrackingNotShippedOnTransferOrder(TransferHeader, QtyToShip);
+        VerifyTrackingNotShippedOnTransferOrder(TransferHeader);
 
         // [THEN] The order can be fully shipped and received with no error
         ShipAndReceiveTransOrderFully(TransferHeader, true);
@@ -352,10 +352,10 @@
         LibraryInventory.UndoTransferShipments(TransferHeader."No.");
 
         // [THEN] The Transfer Order has been completely unshipped
-        VerifyTransferOrderCompletelyUnshipped(TransferHeader, QtyToShip);
+        VerifyTransferOrderCompletelyUnshipped(TransferHeader);
 
         // [THEN] The item tracking information on the order is reset to a pre-posting state
-        VerifyTrackingNotShippedOnTransferOrder(TransferHeader, QtyToShip);
+        VerifyTrackingNotShippedOnTransferOrder(TransferHeader);
 
         // [THEN] The order can be fully shipped and received with no error
         ShipAndReceiveTransOrderFully(TransferHeader, true);
@@ -381,10 +381,10 @@
         LibraryInventory.UndoTransferShipments(TransferHeader."No.");
 
         // [THEN] The Transfer Order has been completely unshipped
-        VerifyTransferOrderCompletelyUnshipped(TransferHeader, QtyToShip);
+        VerifyTransferOrderCompletelyUnshipped(TransferHeader);
 
         // [THEN] The item tracking information on the order is reset to a pre-posting state
-        VerifyTrackingNotShippedOnTransferOrder(TransferHeader, QtyToShip);
+        VerifyTrackingNotShippedOnTransferOrder(TransferHeader);
 
         // [THEN] The order can be fully shipped and received with no error
         ShipAndReceiveTransOrderFully(TransferHeader, true);
@@ -607,7 +607,7 @@
     local procedure OpenTransferOrderPageByNo(TransferOrderNoToFind: Code[20]; TransferOrderToReturn: TestPage "Transfer Order")
     begin
         // Method Opens transfer order page for the transfer order no.
-        TransferOrderToReturn.OpenEdit;
+        TransferOrderToReturn.OpenEdit();
         Assert.IsTrue(
           TransferOrderToReturn.GotoKey(TransferOrderNoToFind),
           'Unable to locate transfer order with transfer no');
@@ -741,12 +741,12 @@
 
         // [GIVEN] Transfer Order with description line.
         Initialize();
-        CreateUpdateLocations;
-        CreateTransferRoutes;
+        CreateUpdateLocations();
+        CreateTransferRoutes();
 
         LibraryInventory.CreateTransferHeader(TransferHeader, LocationCode[1], LocationCode[4], LocationCode[5]);
         LibraryInventory.CreateTransferLine(
-          TransferHeader, TransferLine, LibraryInventory.CreateItemNo, LibraryRandom.RandInt(5));
+          TransferHeader, TransferLine, LibraryInventory.CreateItemNo(), LibraryRandom.RandInt(5));
         LibraryInventory.CreateTransferLine(TransferHeader, TransferLine, '', 0);
 
         // [WHEN] Change "Transfer-to Code" in Transfer Header.
@@ -770,13 +770,13 @@
 
         // [GIVEN] Item "I" available on Location "A", stock is positively adjusted by ILE no. "N"
         Initialize();
-        CreateUpdateLocations;
+        CreateUpdateLocations();
 
         LibraryInventory.CreateItem(Item);
         Item.Validate("Costing Method", Item."Costing Method"::Average);
         Item.Modify();
 
-        CreateTransferRoutes;
+        CreateTransferRoutes();
         CreateAndPostItemJnlWithCostLocationVariant(
           ItemJournalLine."Entry Type"::"Positive Adjmt.", Item."No.", LibraryRandom.RandIntInRange(10, 20),
           LibraryRandom.RandIntInRange(10, 20), LocationCode[4], '');
@@ -811,13 +811,13 @@
 
         // [GIVEN] Item "I" available on Location "A", stock is positively adjusted by 2 ILE: "1" of cost "X" and "2" of cost "Y"
         Initialize();
-        CreateUpdateLocations;
+        CreateUpdateLocations();
 
         LibraryInventory.CreateItem(Item);
         Item.Validate("Costing Method", Item."Costing Method"::Average);
         Item.Modify();
 
-        CreateTransferRoutes;
+        CreateTransferRoutes();
         CreateAndPostItemJnlWithCostLocationVariant(
           ItemJournalLine."Entry Type"::"Positive Adjmt.", Item."No.", LibraryRandom.RandIntInRange(10, 20),
           LibraryRandom.RandIntInRange(10, 20), LocationCode[4], '');
@@ -878,12 +878,12 @@
         // [GIVEN] Create warehouse receipt on location "L2" from transfer order
         LibraryWarehouse.CreateWhseReceiptFromTO(TransferHeader);
 
-        TransferOrder.OpenEdit;
+        TransferOrder.OpenEdit();
         TransferOrder.GotoRecord(TransferHeader);
         // [WHEN] Change "Qty. to Ship" in transfer order line
         Qty := LibraryRandom.RandInt(TransferLine."Qty. to Ship" - 1);
         TransferOrder.TransferLines."Qty. to Ship".SetValue(Qty);
-        TransferOrder.OK.Invoke;
+        TransferOrder.OK().Invoke();
 
         // [THEN] New value is accepted
         TransferLine.Find();
@@ -919,12 +919,12 @@
         // [GIVEN] Create warehouse shipment from transfer order, set "Qty. to Ship" = "Q" / 2 and post shipment
         CreateAndPostWhseShipmentFromTransferOrder(TransferHeader, Qty);
 
-        TransferOrder.OpenEdit;
+        TransferOrder.OpenEdit();
         TransferOrder.GotoRecord(TransferHeader);
         // [WHEN] Change "Qty. to Receive" in transfer order line
         Qty := LibraryRandom.RandInt(TransferLine."Quantity Shipped" - 1);
         TransferOrder.TransferLines."Qty. to Receive".SetValue(Qty);
-        TransferOrder.OK.Invoke;
+        TransferOrder.OK().Invoke();
 
         // [THEN] New value is accepted
         TransferLine.Find();
@@ -940,7 +940,6 @@
         Item: Record Item;
         TransferHeader: Record "Transfer Header";
         TransferLine: Record "Transfer Line";
-        TransferOrder: TestPage "Transfer Order";
         WarehouseShipmentLine: Record "Warehouse Shipment Line";
         Qty: Decimal;
     begin
@@ -989,9 +988,9 @@
         // [GIVEN] Transfer order with two lines: item "A", item "B" (items are not available on stock)
         PrepareSimpleTransferOrderWithTwoLines(TransferHeader, TransferLine);
         // [GIVEN] Try post (ship). An error occurs: "Item "A" is not in inventory."
-        TransferOrder.OpenEdit;
+        TransferOrder.OpenEdit();
         TransferOrder.GotoRecord(TransferHeader);
-        asserterror TransferOrder.Post.Invoke;
+        asserterror TransferOrder.Post.Invoke();
         Assert.ExpectedErrorCode('Dialog');
         Assert.ExpectedError(StrSubstNo(ItemIsNotOnInventoryErr, TransferLine[1]."Item No."));
         // [GIVEN] Enter a new "Item No." into first transfer line: item "C"
@@ -1023,9 +1022,9 @@
         // [GIVEN] Transfer order with two lines: item "A", item "B" (items are not available on stock)
         PrepareSimpleTransferOrderWithTwoLines(TransferHeader, TransferLine);
         // [GIVEN] Try post (ship). An error occurs: "Item "A" is not in inventory."
-        TransferOrder.OpenEdit;
+        TransferOrder.OpenEdit();
         TransferOrder.GotoRecord(TransferHeader);
-        asserterror TransferOrder.PostAndPrint.Invoke;
+        asserterror TransferOrder.PostAndPrint.Invoke();
         Assert.ExpectedErrorCode('Dialog');
         Assert.ExpectedError(StrSubstNo(ItemIsNotOnInventoryErr, TransferLine[1]."Item No."));
         // [GIVEN] Enter a new "Item No." into first transfer line: item "C"
@@ -1056,14 +1055,14 @@
         // [GIVEN] Transfer order with a new item "X" (not available on stock)
         PrepareSimpleTransferOrderWithTwoLines(TransferHeader, TransferLine);
         // [GIVEN] Try post (ship). An error occurs: "Item "X" is not in inventory."
-        TransferOrder.OpenEdit;
+        TransferOrder.OpenEdit();
         TransferOrder.GotoRecord(TransferHeader);
-        asserterror TransferOrder.Post.Invoke;
+        asserterror TransferOrder.Post.Invoke();
         Assert.ExpectedErrorCode('Dialog');
         Assert.ExpectedError(StrSubstNo(ItemIsNotOnInventoryErr, TransferLine[1]."Item No."));
 
         // [WHEN] Try post again (ship).
-        asserterror TransferOrder.Post.Invoke;
+        asserterror TransferOrder.Post.Invoke();
 
         // [THEN] The same error occurs: "Item "X" is not in inventory."
         Assert.ExpectedErrorCode('Dialog');
@@ -1086,14 +1085,14 @@
         // [GIVEN] Transfer order with a new item "X" (not available on stock)
         PrepareSimpleTransferOrderWithTwoLines(TransferHeader, TransferLine);
         // [GIVEN] Try post (ship). An error occurs: "Item "X" is not in inventory."
-        TransferOrder.OpenEdit;
+        TransferOrder.OpenEdit();
         TransferOrder.GotoRecord(TransferHeader);
-        asserterror TransferOrder.PostAndPrint.Invoke;
+        asserterror TransferOrder.PostAndPrint.Invoke();
         Assert.ExpectedErrorCode('Dialog');
         Assert.ExpectedError(StrSubstNo(ItemIsNotOnInventoryErr, TransferLine[1]."Item No."));
 
         // [WHEN] Try post again (ship).
-        asserterror TransferOrder.PostAndPrint.Invoke;
+        asserterror TransferOrder.PostAndPrint.Invoke();
 
         // [THEN] The same error occurs: "Item "X" is not in inventory."
         Assert.ExpectedErrorCode('Dialog');
@@ -1116,14 +1115,14 @@
         // [GIVEN] Transfer order with a new item "X" (not available on stock)
         PrepareSimpleTransferOrderWithTwoLines(TransferHeader, TransferLine);
         // [GIVEN] Try post (ship) from "Transfer List" page. An error occurs: "Item "X" is not in inventory."
-        TransferList.OpenEdit;
+        TransferList.OpenEdit();
         TransferList.GotoRecord(TransferHeader);
-        asserterror TransferList.Post.Invoke;
+        asserterror TransferList.Post.Invoke();
         Assert.ExpectedErrorCode('Dialog');
         Assert.ExpectedError(StrSubstNo(ItemIsNotOnInventoryErr, TransferLine[1]."Item No."));
 
         // [WHEN] Try post again (ship).
-        asserterror TransferList.Post.Invoke;
+        asserterror TransferList.Post.Invoke();
 
         // [THEN] The same error occurs: "Item "X" is not in inventory."
         Assert.ExpectedErrorCode('Dialog');
@@ -1146,14 +1145,14 @@
         // [GIVEN] Transfer order with a new item "X" (not available on stock)
         PrepareSimpleTransferOrderWithTwoLines(TransferHeader, TransferLine);
         // [GIVEN] Try post (ship) from "Transfer List" page. An error occurs: "Item "X" is not in inventory."
-        TransferList.OpenEdit;
+        TransferList.OpenEdit();
         TransferList.GotoRecord(TransferHeader);
-        asserterror TransferList.PostAndPrint.Invoke;
+        asserterror TransferList.PostAndPrint.Invoke();
         Assert.ExpectedErrorCode('Dialog');
         Assert.ExpectedError(StrSubstNo(ItemIsNotOnInventoryErr, TransferLine[1]."Item No."));
 
         // [WHEN] Try post again (ship).
-        asserterror TransferList.PostAndPrint.Invoke;
+        asserterror TransferList.PostAndPrint.Invoke();
 
         // [THEN] The same error occurs: "Item "X" is not in inventory."
         Assert.ExpectedErrorCode('Dialog');
@@ -1245,9 +1244,9 @@
         LibraryVariableStorage.Enqueue(DimensionValue."Dimension Code");
         LibraryVariableStorage.Enqueue(DimensionValue.Code);
         LibraryVariableStorage.Enqueue(true); // to reply Yes on second confirmation
-        TransferOrder.OpenEdit;
+        TransferOrder.OpenEdit();
         TransferOrder.FILTER.SetFilter("No.", TransferHeader."No.");
-        TransferOrder.Dimensions.Invoke;
+        TransferOrder.Dimensions.Invoke();
 
         // [WHEN] Answer Yes on shipped line update confirmation
         // The reply is inside the handler ConfirmHandlerForTransferHeaderDimUpdate
@@ -1282,9 +1281,9 @@
         LibraryVariableStorage.Enqueue(DimensionValue."Dimension Code");
         LibraryVariableStorage.Enqueue(DimensionValue.Code);
         LibraryVariableStorage.Enqueue(false); // to reply No on second confirmation
-        TransferOrder.OpenEdit;
+        TransferOrder.OpenEdit();
         TransferOrder.FILTER.SetFilter("No.", TransferHeader."No.");
-        asserterror TransferOrder.Dimensions.Invoke;
+        asserterror TransferOrder.Dimensions.Invoke();
 
         // [WHEN] Answer Yes on shipped line update confirmation
         // The reply is inside the handler ConfirmHandlerForTransferHeaderDimUpdate
@@ -1372,9 +1371,9 @@
         // [GIVEN] Transfer Header Shortcut Dimension 1 Code is being changed to "NewDimValue"
         LibraryVariableStorage.Enqueue(DimensionValue."Dimension Code");
         LibraryVariableStorage.Enqueue(DimensionValue.Code);
-        TransferOrder.OpenEdit;
+        TransferOrder.OpenEdit();
         TransferOrder.FILTER.SetFilter("No.", TransferHeader."No.");
-        TransferOrder.TransferLines.Dimensions.Invoke;
+        TransferOrder.TransferLines.Dimensions.Invoke();
 
         // [WHEN] Answer Yes on shipped line update confirmation
 
@@ -1406,9 +1405,9 @@
         // [GIVEN] Transfer Header Shortcut Dimension 1 Code is being changed to "NewDimValue"
         LibraryVariableStorage.Enqueue(DimensionValue."Dimension Code");
         LibraryVariableStorage.Enqueue(DimensionValue.Code);
-        TransferOrder.OpenEdit;
+        TransferOrder.OpenEdit();
         TransferOrder.FILTER.SetFilter("No.", TransferHeader."No.");
-        asserterror TransferOrder.TransferLines.Dimensions.Invoke;
+        asserterror TransferOrder.TransferLines.Dimensions.Invoke();
 
         // [WHEN] Answer Yes on shipped line update confirmation
 
@@ -1956,16 +1955,16 @@
         CreatePartlyShipTransferOrder(TransferHeader, TransferLine);
 
         // [WHEN] Transfer Order is opened
-        TransferOrder.OpenEdit;
+        TransferOrder.OpenEdit();
         TransferOrder.GotoRecord(TransferHeader);
 
         // [THEN] Transfer related fields are not editable
-        Assert.IsFalse(TransferOrder."Transfer-from Code".Editable, 'Transfer-from Code is not expected to be editable.');
-        Assert.IsFalse(TransferOrder."Transfer-to Code".Editable, 'Transfer-to Code is not expected to be editable.');
-        Assert.IsFalse(TransferOrder."In-Transit Code".Editable, 'In-Transit Code is not expected to be editable.');
-        Assert.IsFalse(TransferOrder."Transfer-from Address".Editable, 'Transfer-from fields are not expected to be editable.');
-        Assert.IsFalse(TransferOrder."Transfer-to Address".Editable, 'Transfer-to fields are not expected to be editable.');
-        Assert.IsFalse(TransferOrder."Shipping Agent Code".Editable, 'Shipment fields are not expected to be editable.');
+        Assert.IsFalse(TransferOrder."Transfer-from Code".Editable(), 'Transfer-from Code is not expected to be editable.');
+        Assert.IsFalse(TransferOrder."Transfer-to Code".Editable(), 'Transfer-to Code is not expected to be editable.');
+        Assert.IsFalse(TransferOrder."In-Transit Code".Editable(), 'In-Transit Code is not expected to be editable.');
+        Assert.IsFalse(TransferOrder."Transfer-from Address".Editable(), 'Transfer-from fields are not expected to be editable.');
+        Assert.IsFalse(TransferOrder."Transfer-to Address".Editable(), 'Transfer-to fields are not expected to be editable.');
+        Assert.IsFalse(TransferOrder."Shipping Agent Code".Editable(), 'Shipment fields are not expected to be editable.');
     end;
 
     [Test]
@@ -1982,12 +1981,12 @@
         CreateTransferOrderAndInitializeNewTransferLine(TransferOrder, '');
 
         // [THEN] Transfer related fields are not editable
-        Assert.IsTrue(TransferOrder."Transfer-from Code".Editable, 'Transfer-from Code is expected to be editable.');
-        Assert.IsTrue(TransferOrder."Transfer-to Code".Editable, 'Transfer-to Code is expected to be editable.');
-        Assert.IsTrue(TransferOrder."In-Transit Code".Editable, 'In-Transit Code is expected to be editable.');
-        Assert.IsTrue(TransferOrder."Transfer-from Address".Editable, 'Transfer-from fields are expected to be editable.');
-        Assert.IsTrue(TransferOrder."Transfer-to Address".Editable, 'Transfer-to fields are expected to be editable.');
-        Assert.IsTrue(TransferOrder."Shipping Agent Code".Editable, 'Shipment fields are expected to be editable.');
+        Assert.IsTrue(TransferOrder."Transfer-from Code".Editable(), 'Transfer-from Code is expected to be editable.');
+        Assert.IsTrue(TransferOrder."Transfer-to Code".Editable(), 'Transfer-to Code is expected to be editable.');
+        Assert.IsTrue(TransferOrder."In-Transit Code".Editable(), 'In-Transit Code is expected to be editable.');
+        Assert.IsTrue(TransferOrder."Transfer-from Address".Editable(), 'Transfer-from fields are expected to be editable.');
+        Assert.IsTrue(TransferOrder."Transfer-to Address".Editable(), 'Transfer-to fields are expected to be editable.');
+        Assert.IsTrue(TransferOrder."Shipping Agent Code".Editable(), 'Shipment fields are expected to be editable.');
     end;
 
     [Test]
@@ -2090,13 +2089,13 @@
         LibraryVariableStorage.Enqueue(AnotherItemWithSameDescTxt);
 
         // [WHEN] Open transfer order page and select item no. "I2" on a new transfer line.
-        TransferOrder.OpenEdit;
+        TransferOrder.OpenEdit();
         TransferOrder.GotoKey(TransferHeader."No.");
         TransferOrder.TransferLines."Item No.".SetValue(Item[2]."No.");
         TransferOrder.Close();
 
         // [THEN] No confirmation message is shown (the enqueued text is not handled).
-        Assert.AreEqual(AnotherItemWithSameDescTxt, LibraryVariableStorage.DequeueText, 'The program must not suggest another item no.');
+        Assert.AreEqual(AnotherItemWithSameDescTxt, LibraryVariableStorage.DequeueText(), 'The program must not suggest another item no.');
 
         // [THEN] The selected item no. is saved.
         // [THEN] Description and "Description 2" are updated on the transfer line.
@@ -2106,7 +2105,7 @@
         TransferLine.TestField(Description, Desc);
         TransferLine.TestField("Description 2", Desc2);
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -2139,13 +2138,13 @@
 
         // [GIVEN] Create transfer order from locaiton "LOC1" to "LOC2"
         LibraryWarehouse.CreateTransferHeader(TransferHeader, Location[1].Code, Location[2].Code, Location[3].Code);
-        TransferOrder.OpenEdit;
+        TransferOrder.OpenEdit();
         TransferOrder.FILTER.SetFilter("No.", TransferHeader."No.");
 
         // [WHEN] Run function "Get Receipt Lines"
         LibraryVariableStorage.Enqueue(PurchaseReceiptNo[2]); // Purchase Receipt to select
         LibraryVariableStorage.Enqueue(PurchRcptLine."No."); // Purchase Receipt Line to select
-        TransferOrder.GetReceiptLines.Invoke;
+        TransferOrder.GetReceiptLines.Invoke();
 
         // [THEN] Opened list of purchase receipt headers filtered by location "LOC1"
         // [WHEN] Receipt "PR2" selected
@@ -2220,7 +2219,7 @@
         LibraryInventory.CreateTransferLine(TransferHeader, TransferLine, Item."No.", QtyToShip);
 
         // [WHEN] Post the direct transfer.
-        asserterror TransferLine.validate("Qty. to Ship", QtyToShip - 1);
+        asserterror TransferLine.Validate("Qty. to Ship", QtyToShip - 1);
     end;
 
     [Test]
@@ -2384,7 +2383,7 @@
         // [WHEN] Run function "Get Receipt Lines" with Receipt "PR1" line with item "ITEM1" selected
         LibraryVariableStorage.Enqueue(PurchaseReceiptNo); // Purchase Receipt to select
         LibraryVariableStorage.Enqueue(PurchRcptLine."No."); // Purchase Receipt Line to select
-        TransferHeader.GetReceiptLines;
+        TransferHeader.GetReceiptLines();
 
         // [THEN] Transfer line created with item "ITEM1", Unit Of Measure Code = "UOM1", Variant Code = "ITEM1V1"
         TransferLine.SetRange("Document No.", TransferHeader."No.");
@@ -2418,20 +2417,20 @@
 
         // [GIVEN] Transfer Receipt Line "TR1",10000 for Item "ITEM1" with Quantity 10
         MockTransferReceiptLine(
-          TransferReceiptLine, TransferReceiptHeader."No.", LibraryUtility.GenerateGUID, '', LibraryRandom.RandDec(10, 0));
+          TransferReceiptLine, TransferReceiptHeader."No.", LibraryUtility.GenerateGUID(), '', LibraryRandom.RandDec(10, 0));
         LibraryVariableStorage.Enqueue(TransferReceiptLine."Item No.");
 
         // [GIVEN] Transfer Receipt Line "TR1",20000 with blank Item No., Description = "Description 1" (Comment line)
         MockTransferReceiptLine(
-          TransferReceiptLine, TransferReceiptHeader."No.", '', LibraryUtility.GenerateGUID, LibraryRandom.RandDec(10, 0));
+          TransferReceiptLine, TransferReceiptHeader."No.", '', LibraryUtility.GenerateGUID(), LibraryRandom.RandDec(10, 0));
 
         // [GIVEN] Transfer Receipt Line "TR1",30000 for Item "ITEM2" with Quantity 0
-        MockTransferReceiptLine(TransferReceiptLine, TransferReceiptHeader."No.", LibraryUtility.GenerateGUID, '', 0);
+        MockTransferReceiptLine(TransferReceiptLine, TransferReceiptHeader."No.", LibraryUtility.GenerateGUID(), '', 0);
 
         // [GIVEN] Purchase Order with Item Charge Line "PO01",10000
         LibraryPurchase.CreatePurchaseOrder(PurchaseHeader);
         LibraryPurchase.CreatePurchaseLine(
-          PurchaseLine, PurchaseHeader, PurchaseLine.Type::"Charge (Item)", LibraryInventory.CreateItemChargeNo, LibraryRandom.RandDec(100, 0));
+          PurchaseLine, PurchaseHeader, PurchaseLine.Type::"Charge (Item)", LibraryInventory.CreateItemChargeNo(), LibraryRandom.RandDec(100, 0));
 
         // [WHEN] Invoke "Get Transfer Receipt Lines" action on the "Item Charge Assignment (Purch)" page for the Purchase Line "PO01",10000
         PurchaseLine.ShowItemChargeAssgnt();
@@ -2439,7 +2438,7 @@
         // [THEN] Only Transfer Receipt Line 10000 shown for the Transfer Receipt "TR1"
         // Verification done in PostedTransferReceiptLinesModalPageHandler
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [HandlerFunctions('PostedTransferShipmentLinesHandler')]
@@ -2499,8 +2498,6 @@
         TransferHeader: Record "Transfer Header";
         TransferLine: Record "Transfer Line";
         TransferOrder: TestPage "Transfer Order";
-        PostedTransferShipmentLines: TestPage "Posted Transfer Shipment Lines";
-        Text: Text;
         Qty: Decimal;
     begin
         // [FEATURE] [UI] [Transfer Order] 
@@ -3340,7 +3337,7 @@
         DescriptionText: Text[100];
     begin
         // [SCENARIO 455861] Intransit Transfer Order shipped with blocked item on a previously shipped line
-        Initialize;
+        Initialize();
 
         // [GIVEN] Locations "L1" and "L2". "L1" Code field contains special characters, that are used in filters.
         LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location[1]);
@@ -3471,7 +3468,76 @@
         LibraryInventory.UndoTransferShipmentLinesInFilter(TransferShipmentLine);
 
         // [VERIFY] Verify Transfer Line has been updated correctly to the state it was in before posting
-        VerifyTransLineUnshipped(TransferLine, 1);
+        VerifyTransLineUnshipped(TransferLine);
+    end;
+
+    [Test]
+    [HandlerFunctions('CreateInvtPickRequestPageHandler,MessageHandler')]
+    procedure S453705_PostingDirectTransferOrderviaInventoryPutAway()
+    var
+        Item: Record Item;
+        Location: Record Location;
+        WarehouseEmployee: Record "Warehouse Employee";
+        ItemJournalLine: Record "Item Journal Line";
+        TransferHeader: Record "Transfer Header";
+        TransferLine: Record "Transfer Line";
+        WarehouseActivityHeader: Record "Warehouse Activity Header";
+        DirectTransHeader: Record "Direct Trans. Header";
+        ItemLedgerEntry: Record "Item Ledger Entry";
+        LocationFromCode: Code[10];
+        LocationToCode: Code[10];
+    begin
+        // [FEATURE] [Direct Transfer] [Inventory Put-Away]
+        // [SCENARIO 453705] Posting Direct Transfer order via Inventory Put-Away.
+        Initialize();
+
+        // [GIVEN] Enable direct transfers in Inventory Setup.
+        EnableDirectTransfersInInventorySetup();
+
+        // [GIVEN] Create locations "From" and "To". "To" is a put-away Location.
+        CreateLocations(LocationFromCode, LocationToCode);
+        Location.Get(LocationToCode);
+        Location.Validate("Require Put-away", true);
+        Location.Modify();
+
+        // [GIVEN] Set up warehouse employee for "To" location.
+        LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, LocationToCode, false);
+
+        // [GIVEN] Post inventory with item "I" to location "From".
+        LibraryInventory.CreateItem(Item);
+        LibraryInventory.CreateItemJournalLineInItemTemplate(ItemJournalLine, Item."No.", LocationFromCode, '', LibraryRandom.RandIntInRange(10, 20));
+        LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
+
+        // [GIVEN] Create direct transfer "From" -> "To" for Item "I".
+        LibraryInventory.CreateTransferHeader(TransferHeader, LocationFromCode, LocationToCode, '');
+        TransferHeader.Validate("Direct Transfer", true);
+        TransferHeader.Modify(true);
+        LibraryInventory.CreateTransferLine(TransferHeader, TransferLine, Item."No.", LibraryRandom.RandInt(10));
+
+        // [GIVEN] Release the transfer order.
+        LibraryWarehouse.ReleaseTransferOrder(TransferHeader);
+        Commit();
+
+        // [GIVEN] Create inventory put-away for the transfer order.
+        TransferHeader.CreateInvtPutAwayPick();
+
+        // [WHEN] Post inventory put-away.
+        LibraryWarehouse.FindWhseActivityBySourceDoc(WarehouseActivityHeader, Database::"Transfer Line", 1, TransferHeader."No.", TransferLine."Line No.");
+        LibraryWarehouse.AutoFillQtyInventoryActivity(WarehouseActivityHeader);
+        LibraryWarehouse.PostInventoryActivity(WarehouseActivityHeader, true);
+
+        // [THEN] The direct transfer is successfully posted.
+        // [THEN] 1. Transfer Header is deleted
+        TransferHeader.SetRange("No.", TransferLine."Document No.");
+        Assert.RecordCount(TransferHeader, 0);
+
+        // [THEN] 2. There is Direct Transfer Heder
+        DirectTransHeader.SetRange("Transfer Order No.", TransferLine."Document No.");
+        Assert.RecordCount(DirectTransHeader, 1);
+
+        // [THEN] 3. There is Item Ledger Entry for the transfer.
+        FindItemLedgerEntry(ItemLedgerEntry, Item."No.", "Item Ledger Entry Type"::Transfer, LocationToCode, true);
+        ItemLedgerEntry.TestField("Quantity", TransferLine."Quantity (Base)");
     end;
 
     [Test]
@@ -3530,6 +3596,159 @@
         PostedTranferReceipt.Close();
     end;
 
+    [Test]
+    [HandlerFunctions('ConfirmHandlerYes')]
+    [Scope('OnPrem')]
+    procedure AdjustCostOfUndoneTransferShipment()
+    var
+        Item: Record Item;
+        InTransitLocation: Record Location;
+        TransferHeader: Record "Transfer Header";
+        TransferLine: Record "Transfer Line";
+        ItemLedgerEntry: Record "Item Ledger Entry";
+        ItemLedgerEntryNo: Integer;
+        LocationFromCode, LocationTOCode : Code[10];
+        OldCost, NewCost : Decimal;
+    begin
+        // [FEATURE] [Transfer] [Undo Shipment] [Costing] [Adjust Cost - Item Entries]
+        // [SCENARIO 496575] Item ledger entry for undone transfer shipment is adjusted with the correct cost.
+        Initialize();
+        OldCost := LibraryRandom.RandDec(100, 2);
+        NewCost := LibraryRandom.RandDecInDecimalRange(101, 200, 2);
+
+        // [GIVEN] Item "I".
+        // [GIVEN] Locations "From" and "To".
+        LibraryInventory.CreateItem(Item);
+        CreateLocations(LocationFromCode, LocationToCode);
+        LibraryWarehouse.CreateInTransitLocation(InTransitLocation);
+
+        // [GIVEN] Post inventory adjustment of "I" to location "From". Unit Cost = 10.
+        CreateAndPostItemJnlWithCostLocationVariant(
+          "Item Ledger Entry Type"::"Positive Adjmt.", Item."No.", 1, OldCost, LocationFromCode, '');
+        ItemLedgerEntryNo := FindLastILENo(Item."No.");
+
+        // [GIVEN] Create transfer order from "From" to "To".
+        // [GIVEN] Ship the transfer order.
+        LibraryInventory.CreateTransferHeader(TransferHeader, LocationFromCode, LocationToCode, InTransitLocation.Code);
+        LibraryInventory.CreateTransferLine(TransferHeader, TransferLine, Item."No.", 1);
+        LibraryInventory.PostTransferHeader(TransferHeader, true, false);
+
+        // [GIVEN] Revaluate the item entry for the inventory adjustment, new cost = 12.
+        CreateAndPostRevaluationJournal(Item."No.", ItemLedgerEntryNo, 1, NewCost);
+
+        // [GIVEN] Adjust cost.
+        LibraryCosting.AdjustCostItemEntries(Item."No.", '');
+
+        // [WHEN] Undo the transfer shipment and run the cost adjustment.
+        LibraryInventory.UndoTransferShipments(TransferHeader."No.");
+        LibraryCosting.AdjustCostItemEntries(Item."No.", '');
+
+        // [THEN] Unit cost of "I" = 12.
+        Item.Find();
+        Item.TestField("Unit Cost", NewCost);
+
+        // [THEN] Item ledger entry for the undone transfer shipment is adjusted. Unit Cost = 12.
+        ItemLedgerEntry.Get(FindLastILENo(Item."No."));
+        ItemLedgerEntry.TestField("Entry Type", ItemLedgerEntry."Entry Type"::Transfer);
+        ItemLedgerEntry.TestField("Location Code", LocationFromCode);
+        ItemLedgerEntry.TestField(Positive, true);
+        ItemLedgerEntry.CalcFields("Cost Amount (Actual)");
+        ItemLedgerEntry.TestField("Cost Amount (Actual)", NewCost);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    [HandlerFunctions('PostedPurchaseReceiptsModalPageHandler,PostedPurchRcptLinesModalPageHandler')]
+    procedure GetReceiptLinesShowListOfPostedPurchRcptsHavingTransferFromCodeInLocationCodeOfPurchRcptLines()
+    var
+        Item: Record Item;
+        Vendor: Record Vendor;
+        Location: Record Location;
+        Location2: Record Location;
+        Location3: Record Location;
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseHeader2: Record "Purchase Header";
+        PurchaseHeader3: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        PurchaseLine2: Record "Purchase Line";
+        PurchaseLine3: Record "Purchase Line";
+        ItemLedgerEntry: Record "Item Ledger Entry";
+        TransferHeader: Record "Transfer Header";
+        TransferLine: Record "Transfer Line";
+        PurchRcptLine: Record "Purch. Rcpt. Line";
+        ItemLedgerEntryNo: Integer;
+        PurchaseReceiptNo: Code[20];
+        TransferOrder: TestPage "Transfer Order";
+    begin
+        // [SCENARIO 500597] Get Receipt Lines action on Transfer Order shows list of Posted Purchase Receipts having Transfer-from Code in Location Code of Purch Rcpt Lines and after selecting it populates Appl-to Item Entry field in Transfer Lines.
+        Initialize();
+
+        // [GIVEN] Create an Item and Validate Costing Method.
+        LibraryInventory.CreateItem(Item);
+        Item.Validate("Costing Method", Item."Costing Method"::FIFO);
+        Item.Modify(true);
+
+        // [GIVEN] Create two Locations with Inventory Posting Setup.
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location2);
+
+        // [GIVEN] Create another Location with Inventory Posting Setup 
+        // And Validate Use As In-Transit.
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location3);
+        Location3.Validate("Use As In-Transit", true);
+        Location3.Modify(true);
+
+        // [GIVEN] Create a Vendor.
+        LibraryPurchase.CreateVendor(Vendor);
+
+        // [GIVEN] Create and Post Purchase Receipt with Location Code on Header.
+        CreateAndPostPurchRcptWithLocationCodeInPurchHeader(PurchaseHeader, PurchaseLine, Vendor, Item, Location);
+
+        // [GIVEN] Create and Post Purchase Receipt 2 with Location Code on Header.
+        CreateAndPostPurchRcptWithLocationCodeInPurchHeader(PurchaseHeader2, PurchaseLine2, Vendor, Item, Location);
+
+        // [GIVEN] Create and Post Purchase Receipt 3 with Location Code on Line.
+        PurchaseReceiptNo := CreateAndPostPurchRcptWithLocationCodeInPurchLine(
+            PurchaseHeader3,
+            PurchaseLine3,
+            Vendor,
+            Item,
+            Location);
+
+        // [GIVEN] Find and save Item Ledger Entry No. in a Variable.
+        ItemLedgerEntry.SetRange("Document No.", PurchaseReceiptNo);
+        ItemLedgerEntry.FindFirst();
+        ItemLedgerEntryNo := ItemLedgerEntry."Entry No.";
+
+        // [GIVEN] Find Purch. Rcpt Line.
+        FindRandomReceiptLine(PurchaseReceiptNo, PurchRcptLine);
+
+        // [GIVEN] Create Transfer Header.
+        LibraryInventory.CreateTransferHeader(TransferHeader, Location.Code, Location2.Code, Location3.Code);
+
+        // [GIVEN] Open Transfer Order page and run Get Receipt Line action.
+        TransferOrder.OpenEdit();
+        TransferOrder.GoToRecord(TransferHeader);
+        LibraryVariableStorage.Enqueue(PurchaseReceiptNo);
+        LibraryVariableStorage.Enqueue(PurchaseReceiptNo);
+        LibraryVariableStorage.Enqueue(PurchRcptLine."No.");
+        TransferOrder.GetReceiptLines.Invoke();
+
+        // [WHEN] Find Transfer Line.
+        TransferLine.SetRange("Document No.", TransferHeader."No.");
+        TransferLine.FindFirst();
+
+        // [VERIFY] Appl-to Item Entry and Item Ledger Entry No. are same.
+        Assert.AreEqual(
+            ItemLedgerEntryNo,
+            TransferLine."Appl.-to Item Entry",
+            StrSubstNo(
+                ApplToItemEntryErr,
+                TransferLine.FieldCaption("Appl.-to Item Entry"),
+                ItemLedgerEntryNo,
+                TransferLine.TableCaption));
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -3580,7 +3799,7 @@
 
     local procedure UpdateSalesReceivablesSetup()
     begin
-        LibrarySales.SetCreditWarningsToNoWarnings;
+        LibrarySales.SetCreditWarningsToNoWarnings();
         LibrarySales.SetStockoutWarning(false);
     end;
 
@@ -3596,7 +3815,7 @@
         LibraryWarehouse.CreateTransferHeader(TransferHeader, Location[1].Code, Location[2].Code, Location[3].Code);
         for i := 1 to ArrayLen(TransferLine) do
             LibraryWarehouse.CreateTransferLine(
-              TransferHeader, TransferLine[i], LibraryInventory.CreateItemNo, LibraryRandom.RandIntInRange(10, 20));
+              TransferHeader, TransferLine[i], LibraryInventory.CreateItemNo(), LibraryRandom.RandIntInRange(10, 20));
     end;
 
     local procedure CreateItem(var Item: Record Item)
@@ -3641,6 +3860,26 @@
 
         UpdateLocation(LocationCode[1], false, HandlingTime, HandlingTime2);
         UpdateLocation(LocationCode[5], true, HandlingTime2, HandlingTime2);
+    end;
+
+    local procedure CreateAndPostRevaluationJournal(ItemNo: Code[20]; AppliesToEntry: Integer; InventoryValueRevalued: Decimal; UnitCostRevalued: Decimal)
+    var
+        ItemJournalTemplate: Record "Item Journal Template";
+        ItemJournalBatch: Record "Item Journal Batch";
+        ItemJournalLine: Record "Item Journal Line";
+    begin
+        LibraryInventory.SelectItemJournalTemplateName(ItemJournalTemplate, ItemJournalTemplate.Type::Revaluation);
+        LibraryInventory.CreateItemJournalBatch(ItemJournalBatch, ItemJournalTemplate.Name);
+        ItemJournalLine.Validate("Journal Template Name", ItemJournalBatch."Journal Template Name");
+        ItemJournalLine.Validate("Journal Batch Name", ItemJournalBatch.Name);
+        LibraryInventory.CreateItemJournalLine(
+          ItemJournalLine, ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name, ItemJournalLine."Entry Type"::" ", ItemNo, 0);
+        ItemJournalLine.Validate("Value Entry Type", ItemJournalLine."Value Entry Type"::Revaluation);
+        ItemJournalLine.Validate("Applies-to Entry", AppliesToEntry);
+        ItemJournalLine.Validate("Inventory Value (Revalued)", InventoryValueRevalued);
+        ItemJournalLine.Validate("Unit Cost (Revalued)", UnitCostRevalued);
+        ItemJournalLine.Modify(true);
+        LibraryInventory.PostItemJournalLine(ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name);
     end;
 
     local procedure PostTransferShipmentPartiallyWithBlockedItem(DirectTransfer: Boolean)
@@ -3695,11 +3934,10 @@
     local procedure CreateUpdateStockKeepUnit(var StockkeepingUnit: Record "Stockkeeping Unit"; ItemNo: array[4] of Code[20])
     var
         Item: Record Item;
-        SKUCreationMethod: Option Location,Variant,"Location & Variant";
     begin
         Item.SetRange("No.", ItemNo[1], ItemNo[4]);
         Item.SetRange("Location Filter", LocationCode[1], LocationCode[4]);
-        LibraryInventory.CreateStockKeepingUnit(Item, SKUCreationMethod::Location, false, false);
+        LibraryInventory.CreateStockKeepingUnit(Item, "SKU Creation Method"::Location, false, false);
 
         // Update Replenishment System in Stock Keeping Unit.
         UpdateStockKeepingUnit(LocationCode[1], ItemNo[4], StockkeepingUnit."Replenishment System"::"Prod. Order", '', '');
@@ -3712,12 +3950,12 @@
         UpdateStockKeepingUnit(LocationCode[2], ItemNo[2], StockkeepingUnit."Replenishment System"::Transfer, '', LocationCode[4]);
         UpdateStockKeepingUnit(LocationCode[3], ItemNo[2], StockkeepingUnit."Replenishment System"::Purchase, '', '');
         UpdateStockKeepingUnit(
-          LocationCode[4], ItemNo[2], StockkeepingUnit."Replenishment System"::Purchase, LibraryPurchase.CreateVendorNo, '');
+          LocationCode[4], ItemNo[2], StockkeepingUnit."Replenishment System"::Purchase, LibraryPurchase.CreateVendorNo(), '');
         UpdateStockKeepingUnit(LocationCode[1], ItemNo[1], StockkeepingUnit."Replenishment System"::Purchase, '', '');
         UpdateStockKeepingUnit(LocationCode[2], ItemNo[1], StockkeepingUnit."Replenishment System"::Purchase, '', '');
         UpdateStockKeepingUnit(LocationCode[3], ItemNo[1], StockkeepingUnit."Replenishment System"::Purchase, '', '');
         UpdateStockKeepingUnit(
-          LocationCode[4], ItemNo[1], StockkeepingUnit."Replenishment System"::Purchase, LibraryPurchase.CreateVendorNo, '');
+          LocationCode[4], ItemNo[1], StockkeepingUnit."Replenishment System"::Purchase, LibraryPurchase.CreateVendorNo(), '');
     end;
 
     local procedure CreateProdBOM(var ProductionBOMHeader: Record "Production BOM Header"; ItemNo: Code[20]; ItemNo2: Code[20]; BaseUnitofMeasure: Code[10]; MultipleBOMLine: Boolean)
@@ -3893,14 +4131,14 @@
         PurchRcptHeader: Record "Purch. Rcpt. Header";
         i: Integer;
     begin
-        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo);
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo());
         PurchaseHeader.Validate("Location Code", LocationCode);
         PurchaseHeader.Modify();
 
         for i := 1 to LibraryRandom.RandIntInRange(3, 5) do
             LibraryPurchase.CreatePurchaseLine(
               PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item,
-              LibraryInventory.CreateItemNo, LibraryRandom.RandIntInRange(5, 10));
+              LibraryInventory.CreateItemNo(), LibraryRandom.RandIntInRange(5, 10));
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
 
         PurchRcptHeader.SetRange("Buy-from Vendor No.", PurchaseHeader."Buy-from Vendor No.");
@@ -3964,10 +4202,10 @@
         TransferHeader.Validate("Shipping Agent Code", ShippingAgentCode);
         TransferHeader.Modify(true);
 
-        TransferOrder.OpenEdit;
+        TransferOrder.OpenEdit();
         TransferOrder.FILTER.SetFilter("No.", TransferHeader."No.");
-        TransferOrder.TransferLines.New;
-        TransferOrder.TransferLines."Item No.".SetValue(LibraryInventory.CreateItemNo);
+        TransferOrder.TransferLines.New();
+        TransferOrder.TransferLines."Item No.".SetValue(LibraryInventory.CreateItemNo());
     end;
 
     local procedure CreateTransferOrder(var TransferHeader: Record "Transfer Header"; var TransferLine: Record "Transfer Line"): Code[20]
@@ -4057,7 +4295,7 @@
     begin
         // Create and Update Five Location.
         // Create Items and  Production BOMs.Attach BOM to Item.
-        CreateUpdateLocations;
+        CreateUpdateLocations();
         for i := 1 to 4 do begin
             CreateItem(Item);
             ItemNo[i] := Item."No.";
@@ -4070,7 +4308,7 @@
 
         // Create Transfer Routes.
         // Create Stock keeping Unit for each Item at each Location.
-        CreateTransferRoutes;
+        CreateTransferRoutes();
         CreateUpdateStockKeepUnit(StockkeepingUnit, ItemNo);
 
         // Create and Update Sales Order.
@@ -4122,7 +4360,7 @@
         CreateItemWithPositiveInventory(Item, LocationFromCode, Qty * 2);
 
         CreateTransferOrderNoRoute(TransferHeader, TransferLine, LocationFromCode, LocationToCode, Item."No.", '', Qty * 2);
-        UpdatePartialQuantityToShip(TransferLine, TransferLine.Quantity * LibraryUtility.GenerateRandomFraction);
+        UpdatePartialQuantityToShip(TransferLine, TransferLine.Quantity * LibraryUtility.GenerateRandomFraction());
 
         LibraryWarehouse.PostTransferOrder(TransferHeader, Ship, false);
     end;
@@ -4558,7 +4796,7 @@
             repeat
                 CalcFields("Cost Amount (Actual)");
                 TestField("Cost Amount (Actual)", ExpectedCost * Quantity);
-            until Next = 0;
+            until Next() = 0;
         end;
     end;
 
@@ -4636,7 +4874,7 @@
         LibraryInventory.PostItemJournalLine(ItemJournalTemplate.Name, ItemJournalBatch.Name);
     end;
 
-    local procedure CreateAndShipTransferOrderWithBin(var TransferHeader: Record "Transfer Header"; QtyToShip: Integer; PartlyShippedLine: Boolean; NotShippedLine: Boolean)
+    local procedure CreateAndShipTransferOrderWithBin(var TransferHeader: Record "Transfer Header"; QtyToShip: Integer)
     var
         Item: Record Item;
         FromLocation: Record Location;
@@ -4690,7 +4928,6 @@
 
     local procedure CreateAndShipTransferOrderWithTracking(var TransferHeader: Record "Transfer Header"; Quanitity: Integer; LotTracking: Boolean; ShipFullQty: Boolean; AdditionalLine: Boolean)
     var
-        TransferLine: Array[3] of Record "Transfer Line";
         QtyToShip: Decimal;
     begin
         CreateTransferOrderHeader(TransferHeader);
@@ -4757,7 +4994,7 @@
         TransferLine.OpenItemTrackingLines("Transfer Direction"::Outbound);
     end;
 
-    local procedure VerifyTrackingNotShippedOnTransferOrder(var TransferHeader: Record "Transfer Header"; QtyToShipPerLine: Decimal)
+    local procedure VerifyTrackingNotShippedOnTransferOrder(var TransferHeader: Record "Transfer Header")
     var
         TransferLine: Record "Transfer Line";
         TransferShipmentHeader: Record "Transfer Shipment Header";
@@ -4815,13 +5052,13 @@
         exit(ItemLedgerEntry.Quantity);
     end;
 
-    local procedure VerifyTransferOrderCompletelyUnshipped(var TransferHeader: Record "Transfer Header"; QtyToShipPerLine: Decimal)
+    local procedure VerifyTransferOrderCompletelyUnshipped(var TransferHeader: Record "Transfer Header")
     begin
-        VerifyTransferLineUpdated(TransferHeader, QtyToShipPerLine);
+        VerifyTransferLineUpdated(TransferHeader);
         VerifyRelatedTransferShipmentUndo(TransferHeader);
     end;
 
-    local procedure VerifyTransferLineUpdated(var TransferHeader: Record "Transfer Header"; QtyToShipPerLine: Decimal)
+    local procedure VerifyTransferLineUpdated(var TransferHeader: Record "Transfer Header")
     var
         TransferLine: Record "Transfer Line";
     begin
@@ -4831,7 +5068,7 @@
         if TransferLine.FindSet() then
             repeat
                 // The Transfer Line has been updated correctly to the state it was in before posting
-                VerifyTransLineUnshipped(TransferLine, QtyToShipPerLine);
+                VerifyTransLineUnshipped(TransferLine);
                 // No derived transfer lines exists (Derived From original line - was added on posting)
                 VerifyNoDerivedTransferLine(TransferHeader."No.", TransferLine."Line No.");
             until TransferLine.Next() = 0;
@@ -4850,12 +5087,9 @@
     end;
 
 
-    local procedure VerifyTransferOrderCompletelyUnshippedWithRefDoc(var TransferHeader: Record "Transfer Header"; QtyToShipPerLine: Decimal)
-    var
-        TransferLine: Record "Transfer Line";
-        TransferShipmentHeader: Record "Transfer Shipment Header";
+    local procedure VerifyTransferOrderCompletelyUnshippedWithRefDoc(var TransferHeader: Record "Transfer Header")
     begin
-        VerifyTransferLineUpdated(TransferHeader, QtyToShipPerLine);
+        VerifyTransferLineUpdated(TransferHeader);
         VerifyRefDocOfWarehouseEntry(TransferHeader."No.");
         VerifyRelatedTransferShipmentUndo(TransferHeader);
     end;
@@ -4944,7 +5178,7 @@
         ReservationEntry.FindFirst();
     end;
 
-    local procedure VerifyTransLineUnshipped(TransferLine: Record "Transfer Line"; QtyToShip: Decimal)
+    local procedure VerifyTransLineUnshipped(TransferLine: Record "Transfer Line")
     begin
         TransferLine.Get(TransferLine."Document No.", TransferLine."Line No.");
         Assert.AreEqual(0, TransferLine."Quantity Shipped", UndoneTransLineQtyErr);
@@ -4976,7 +5210,6 @@
         QtySum: Decimal;
         NoOfCorrections: Integer;
         NoOfNonCorrections: Integer;
-        InvoicedQtySum: Decimal;
     begin
         ItemLedgerEntry.SetFilter("Document No.", TransShptNo);
         ItemLedgerEntry.SetFilter("Location Code", LocationCode);
@@ -5029,6 +5262,52 @@
         Assert.AreEqual(LineCount, TransferReceiptLine.Count(), '');
     end;
 
+    local procedure CreateAndPostPurchRcptWithLocationCodeInPurchHeader(
+        var PurchaseHeader: Record "Purchase Header";
+        var PurchaseLine: Record "Purchase Line";
+        Vendor: Record Vendor;
+        Item: Record Item;
+        Location: Record Location)
+    begin
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, Vendor."No.");
+        PurchaseHeader.Validate("Location Code", Location.Code);
+        PurchaseHeader.Modify(true);
+
+        LibraryPurchase.CreatePurchaseLine(
+            PurchaseLine,
+            PurchaseHeader,
+            PurchaseLine.Type::Item,
+            Item."No.",
+            LibraryRandom.RandIntInRange(10, 10));
+
+        PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandInt(15000));
+        PurchaseLine.Modify(true);
+
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false);
+    end;
+
+    local procedure CreateAndPostPurchRcptWithLocationCodeInPurchLine(
+        var PurchaseHeader: Record "Purchase Header";
+        var PurchaseLine: Record "Purchase Line";
+        Vendor: Record Vendor;
+        Item: Record Item;
+        Location: Record Location): Code[20]
+    begin
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, Vendor."No.");
+        LibraryPurchase.CreatePurchaseLine(
+            PurchaseLine,
+            PurchaseHeader,
+            PurchaseLine.Type::Item,
+            Item."No.",
+            LibraryRandom.RandIntInRange(10, 10));
+
+        PurchaseLine.Validate("Location Code", Location.Code);
+        PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandInt(15000));
+        PurchaseLine.Modify(true);
+
+        exit(LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false));
+    end;
+
     [MessageHandler]
     [Scope('OnPrem')]
     procedure MessageHandler(Message: Text[1024])
@@ -5045,7 +5324,14 @@
         LibraryVariableStorage.Dequeue(Variant);
         CarryOutActionMsgPlan.TransOrderChoice.SetValue(TransOrderChoice::"Make Trans. Orders");
         CarryOutActionMsgPlan.CombineTransferOrders.SetValue(Variant);
-        CarryOutActionMsgPlan.OK.Invoke;
+        CarryOutActionMsgPlan.OK().Invoke();
+    end;
+
+    [RequestPageHandler]
+    procedure CreateInvtPickRequestPageHandler(var CreateInvtPutawayPickMvmt: TestRequestPage "Create Invt Put-away/Pick/Mvmt")
+    begin
+        CreateInvtPutawayPickMvmt.CreateInventorytPutAway.SetValue(true);
+        CreateInvtPutawayPickMvmt.OK().Invoke();
     end;
 
     [ConfirmHandler]
@@ -5070,7 +5356,7 @@
             Question = UpdateFromHeaderLinesQst:
                 Reply := true;
             StrPos(Question, UpdateLineDimQst) <> 0:
-                Reply := LibraryVariableStorage.DequeueBoolean;
+                Reply := LibraryVariableStorage.DequeueBoolean();
         end;
     end;
 
@@ -5083,7 +5369,7 @@
     var
         PurchRcptHeader: Record "Purch. Rcpt. Header";
     begin
-        PurchRcptHeader.Get(LibraryVariableStorage.DequeueText);
+        PurchRcptHeader.Get(LibraryVariableStorage.DequeueText());
         PostedPurchaseReceipts.SetRecord(PurchRcptHeader);
 
         Response := ACTION::LookupOK;
@@ -5098,7 +5384,7 @@
     var
         PurchRcptLine: Record "Purch. Rcpt. Line";
     begin
-        PurchRcptLine.SetRange("No.", LibraryVariableStorage.DequeueText);
+        PurchRcptLine.SetRange("No.", LibraryVariableStorage.DequeueText());
         PurchRcptLine.FindFirst();
         PostedPurchaseReceiptLines.SetRecord(PurchRcptLine);
 
@@ -5109,17 +5395,17 @@
     [Scope('OnPrem')]
     procedure ItemChargeAssignmentPurchModalPageHandler(var ItemChargeAssignmentPurch: TestPage "Item Charge Assignment (Purch)")
     begin
-        ItemChargeAssignmentPurch.GetTransferReceiptLines.Invoke;
+        ItemChargeAssignmentPurch.GetTransferReceiptLines.Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure PostedTransferReceiptLinesModalPageHandler(var PostedTransferReceiptLines: TestPage "Posted Transfer Receipt Lines")
     begin
-        PostedTransferReceiptLines.FILTER.SetFilter("Document No.", LibraryVariableStorage.DequeueText);
-        PostedTransferReceiptLines.Last;
-        PostedTransferReceiptLines."Item No.".AssertEquals(LibraryVariableStorage.DequeueText);
-        Assert.IsFalse(PostedTransferReceiptLines.Previous, 'Invalid number of records on the page');
+        PostedTransferReceiptLines.FILTER.SetFilter("Document No.", LibraryVariableStorage.DequeueText());
+        PostedTransferReceiptLines.Last();
+        PostedTransferReceiptLines."Item No.".AssertEquals(LibraryVariableStorage.DequeueText());
+        Assert.IsFalse(PostedTransferReceiptLines.Previous(), 'Invalid number of records on the page');
     end;
 
     [ModalPageHandler]
@@ -5127,7 +5413,7 @@
     begin
         ItemTrackingLines."Lot No.".SetValue(LibraryVariableStorage.DequeueText());
         ItemTrackingLines."Quantity (Base)".SetValue(LibraryVariableStorage.DequeueDecimal());
-        ItemTrackingLines.OK.Invoke();
+        ItemTrackingLines.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -5144,11 +5430,11 @@
         TrackingOption := OptionValue;  // To convert Variant into Option.
         case TrackingOption of
             OptionString::AssignLotNo:
-                ItemTrackingLines."Assign Lot No.".Invoke;
+                ItemTrackingLines."Assign Lot No.".Invoke();
             OptionString::AssignSerialNo:
-                ItemTrackingLines."Assign Serial No.".Invoke;
+                ItemTrackingLines."Assign Serial No.".Invoke();
             OptionString::SelectEntries:
-                ItemTrackingLines."Select Entries".Invoke;
+                ItemTrackingLines."Select Entries".Invoke();
             OptionString::ShowEntries:
                 begin
                     //Verify qty that has tracking
@@ -5182,14 +5468,14 @@
     [Scope('OnPrem')]
     procedure QuantityToCreatePageHandler(var EnterQuantityToCreate: TestPage "Enter Quantity to Create")
     begin
-        EnterQuantityToCreate.OK.Invoke;
+        EnterQuantityToCreate.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure ItemTrackingSummaryPageHandler(var ItemTrackingSummary: TestPage "Item Tracking Summary")
     begin
-        ItemTrackingSummary.OK.Invoke;
+        ItemTrackingSummary.OK().Invoke();
     end;
 
     [RecallNotificationHandler]
@@ -5208,10 +5494,10 @@
     [Scope('OnPrem')]
     procedure EditDimensionSetEntriesHandler(var EditDimensionSetEntries: TestPage "Edit Dimension Set Entries")
     begin
-        EditDimensionSetEntries.New;
-        EditDimensionSetEntries."Dimension Code".SetValue(LibraryVariableStorage.DequeueText);
-        EditDimensionSetEntries.DimensionValueCode.SetValue(LibraryVariableStorage.DequeueText);
-        EditDimensionSetEntries.OK.Invoke;
+        EditDimensionSetEntries.New();
+        EditDimensionSetEntries."Dimension Code".SetValue(LibraryVariableStorage.DequeueText());
+        EditDimensionSetEntries.DimensionValueCode.SetValue(LibraryVariableStorage.DequeueText());
+        EditDimensionSetEntries.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -5244,12 +5530,23 @@
 
     [ModalPageHandler]
     procedure ItemListModalPageHandler(var ItemList: TestPage "Item List")
-    var
-        Item: Record Item;
-        Counter: Integer;
     begin
         // 0 = Item.Type::Inventory
         Assert.AreEqual('0', ItemList.Filter.GetFilter("Type"), 'Item List contains non-inventory items.');
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure PostedPurchRcptLinesModalPageHandler(var PostedPurchaseReceiptLines: Page "Posted Purchase Receipt Lines"; var Response: Action)
+    var
+        PurchRcptLine: Record "Purch. Rcpt. Line";
+    begin
+        PurchRcptLine.SetRange("Document No.", LibraryVariableStorage.DequeueText());
+        PurchRcptLine.SetRange("No.", LibraryVariableStorage.DequeueText());
+        PurchRcptLine.FindFirst();
+        PostedPurchaseReceiptLines.SetRecord(PurchRcptLine);
+
+        Response := ACTION::LookupOK;
     end;
 }
 

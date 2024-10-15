@@ -94,36 +94,32 @@ codeunit 1242 "Set Up Curr Exch Rate Service"
         DataExchFieldMapping: Record "Data Exch. Field Mapping";
         DataExchColumnDef: Record "Data Exch. Column Def";
     begin
-        with DataExchColumnDef do begin
-            SetRange("Data Exch. Def Code", DataExchMapping."Data Exch. Def Code");
-            SetRange("Data Exch. Line Def Code", DataExchMapping."Data Exch. Line Def Code");
-            if NewDefaultValue <> '' then begin
-                if FindLast() then begin
-                    Init();
-                    "Column No." += 10000;
-                    Insert();
-                end
-            end else begin
-                SetRange(Name, FromColumnName);
-                FindFirst();
-            end;
-            Validate("Data Type", DataType);
-            Validate("Data Format", NewDataFormat);
-            Modify(true);
+        DataExchColumnDef.SetRange("Data Exch. Def Code", DataExchMapping."Data Exch. Def Code");
+        DataExchColumnDef.SetRange("Data Exch. Line Def Code", DataExchMapping."Data Exch. Line Def Code");
+        if NewDefaultValue <> '' then begin
+            if DataExchColumnDef.FindLast() then begin
+                DataExchColumnDef.Init();
+                DataExchColumnDef."Column No." += 10000;
+                DataExchColumnDef.Insert();
+            end
+        end else begin
+            DataExchColumnDef.SetRange(Name, FromColumnName);
+            DataExchColumnDef.FindFirst();
         end;
+        DataExchColumnDef.Validate("Data Type", DataType);
+        DataExchColumnDef.Validate("Data Format", NewDataFormat);
+        DataExchColumnDef.Modify(true);
 
-        with DataExchFieldMapping do begin
-            Init();
-            Validate("Data Exch. Def Code", DataExchMapping."Data Exch. Def Code");
-            Validate("Data Exch. Line Def Code", DataExchMapping."Data Exch. Line Def Code");
-            Validate("Table ID", DataExchMapping."Table ID");
-            Validate("Column No.", DataExchColumnDef."Column No.");
-            Validate("Field ID", ToFieldNo);
-            Validate(Multiplier, NewMultiplier);
-            Validate("Transformation Rule", NewTransformationRule);
-            Validate("Default Value", NewDefaultValue);
-            Insert(true);
-        end;
+        DataExchFieldMapping.Init();
+        DataExchFieldMapping.Validate("Data Exch. Def Code", DataExchMapping."Data Exch. Def Code");
+        DataExchFieldMapping.Validate("Data Exch. Line Def Code", DataExchMapping."Data Exch. Line Def Code");
+        DataExchFieldMapping.Validate("Table ID", DataExchMapping."Table ID");
+        DataExchFieldMapping.Validate("Column No.", DataExchColumnDef."Column No.");
+        DataExchFieldMapping.Validate("Field ID", ToFieldNo);
+        DataExchFieldMapping.Validate(Multiplier, NewMultiplier);
+        DataExchFieldMapping.Validate("Transformation Rule", NewTransformationRule);
+        DataExchFieldMapping.Validate("Default Value", NewDefaultValue);
+        DataExchFieldMapping.Insert(true);
     end;
 
     local procedure MapECBDataExch(var DataExchLineDef: Record "Data Exch. Line Def")

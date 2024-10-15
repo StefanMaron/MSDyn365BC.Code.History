@@ -109,7 +109,7 @@
 
         PostPurchOrder(PurchHeader);
 
-        VerifyZeroVendorAccEntry;
+        VerifyZeroVendorAccEntry();
         VerifyInvRoundingEqualToRoundingPrecision(PurchHeader."Pay-to Vendor No.", PurchHeader."Vendor Posting Group");
     end;
 
@@ -120,7 +120,7 @@
         PurchHeader: Record "Purchase Header";
     begin
         MultiLineOrderPartTFS323743(PurchHeader);
-        VerifyZeroVendorAccEntry;
+        VerifyZeroVendorAccEntry();
     end;
 
     local procedure MultiLineOrderPartTFS323743(PurchHeader: Record "Purchase Header")
@@ -133,7 +133,7 @@
         PurchLine.Validate("Qty. to Receive", PurchLine."Qty. to Receive" - 1);
         PurchLine.Modify();
         PostPurchOrder(PurchHeader);
-        VerifyZeroVendorAccEntry;
+        VerifyZeroVendorAccEntry();
 
         PostPurchOrder(PurchHeader);
     end;
@@ -145,7 +145,7 @@
         PurchHeader: Record "Purchase Header";
     begin
         MultiLineOrderTFS323742(PurchHeader);
-        VerifyZeroVendorAccEntry;
+        VerifyZeroVendorAccEntry();
     end;
 
     local procedure MultiLineOrderTFS323742(PurchHeader: Record "Purchase Header")
@@ -184,7 +184,7 @@
         PostPurchOrder(PurchHeader);
 
         // [THEN] Vendor Ledger Entry is posted where Amount = 0
-        VerifyZeroVendorAccEntry;
+        VerifyZeroVendorAccEntry();
         // [THEN] Invoice Rounding G/L Entry is posted, where Amount = 0.01
         VerifyInvRoundingEqualToRoundingPrecision(PurchHeader."Pay-to Vendor No.", PurchHeader."Vendor Posting Group");
     end;
@@ -197,7 +197,7 @@
     begin
         PurchHeader."Prepmt. Include Tax" := false;
         Scenario55698(PurchHeader);
-        asserterror VerifyZeroVendorAccEntry;
+        asserterror VerifyZeroVendorAccEntry();
         Assert.ExpectedError('Expected zero Vendor Ledger Entry');
     end;
 
@@ -209,7 +209,7 @@
     begin
         PurchHeader."Prepmt. Include Tax" := true;
         Scenario55698(PurchHeader);
-        VerifyZeroVendorAccEntry;
+        VerifyZeroVendorAccEntry();
     end;
 
     local procedure Scenario55698(PurchHeader: Record "Purchase Header")
@@ -234,7 +234,7 @@
         // Create purch.order with magic number that lead to inconsistent error
         ExchRate := 100 / 106.37;
         PurchHeader."Document Type" := PurchHeader."Document Type"::Order;
-        CreatePurchDoc(PurchHeader, FindTaxAreaCode, CreateCurrency(ExchRate), false);
+        CreatePurchDoc(PurchHeader, FindTaxAreaCode(), CreateCurrency(ExchRate), false);
         PreparePurchLineForGLAcc(PurchLine, PurchHeader);
         AddPurchOrderLine(PurchLine, 1, 400500, 30);
         AddPurchOrderLine(PurchLine, 1, 3000, 30);
@@ -340,7 +340,7 @@
     local procedure PreparePOwithPurchLine(var PurchHeader: Record "Purchase Header"; var PurchLine: Record "Purchase Line")
     begin
         PurchHeader."Document Type" := PurchHeader."Document Type"::Order;
-        CreatePurchDoc(PurchHeader, FindTaxAreaCode, PurchHeader."Currency Code", PurchHeader."Prepmt. Include Tax");
+        CreatePurchDoc(PurchHeader, FindTaxAreaCode(), PurchHeader."Currency Code", PurchHeader."Prepmt. Include Tax");
         PreparePurchLine(PurchLine, PurchHeader);
     end;
 
@@ -390,7 +390,7 @@
         Vendor.Validate("Gen. Bus. Posting Group", GeneralPostingSetup."Gen. Bus. Posting Group");
         Vendor.Validate("Tax Area Code", TaxAreaCode);
         Vendor.Validate("Tax Liable", true);
-        Vendor.Validate("Vendor Posting Group", LibraryPurch.FindVendorPostingGroup);
+        Vendor.Validate("Vendor Posting Group", LibraryPurch.FindVendorPostingGroup());
         Vendor.Modify(true);
         exit(Vendor."No.");
     end;
@@ -401,7 +401,7 @@
         TaxAreaLine: Record "Tax Area Line";
     begin
         LibraryERM.CreateTaxJurisdiction(TaxJurisdiction);
-        TaxJurisdiction.Validate("Tax Account (Purchases)", LibraryERM.CreateGLAccountNo);
+        TaxJurisdiction.Validate("Tax Account (Purchases)", LibraryERM.CreateGLAccountNo());
         TaxJurisdiction.Modify(true);
         LibraryERM.CreateTaxDetail(TaxDetail, TaxJurisdiction.Code, TaxGroupCode, TaxDetail."Tax Type"::"Sales and Use Tax", WorkDate());
         TaxDetail.Validate("Tax Below Maximum", TaxBelowMax);
@@ -425,25 +425,23 @@
 
     local procedure PreparePurchLine(var PurchLine: Record "Purchase Line"; PurchHeader: Record "Purchase Header")
     begin
-        PreparePurchLineForType(PurchLine, PurchHeader, PurchLine.Type::Item, FindItem);
+        PreparePurchLineForType(PurchLine, PurchHeader, PurchLine.Type::Item, FindItem());
     end;
 
-    local procedure PreparePurchLineForType(var PurchLine: Record "Purchase Line"; PurchHeader: Record "Purchase Header"; NewType: Option; NewNo: Code[20])
+    local procedure PreparePurchLineForType(var PurchLine: Record "Purchase Line"; PurchHeader: Record "Purchase Header"; NewType: Enum "Purchase Line Type"; NewNo: Code[20])
     begin
-        with PurchLine do begin
-            "Document Type" := PurchHeader."Document Type";
-            "Document No." := PurchHeader."No.";
-            "Line No." := 0;
-            Type := NewType;
-            Validate("No.", NewNo);
+        PurchLine."Document Type" := PurchHeader."Document Type";
+        PurchLine."Document No." := PurchHeader."No.";
+        PurchLine."Line No." := 0;
+        PurchLine.Type := NewType;
+        PurchLine.Validate("No.", NewNo);
 
-            FillPrepmtAcc(PurchLine);
-        end;
+        FillPrepmtAcc(PurchLine);
     end;
 
     local procedure PreparePurchLineForGLAcc(var PurchLine: Record "Purchase Line"; PurchHeader: Record "Purchase Header")
     begin
-        PreparePurchLineForType(PurchLine, PurchHeader, PurchLine.Type::"G/L Account", CreateGLAccount);
+        PreparePurchLineForType(PurchLine, PurchHeader, PurchLine.Type::"G/L Account", CreateGLAccount());
     end;
 
     local procedure AddPurchOrderLine(var PurchLine: Record "Purchase Line"; Qty: Decimal; UnitCost: Decimal; PrepmtPct: Decimal)
@@ -502,7 +500,7 @@
         Item.FindFirst();
 
         Item."No." := '';
-        Item.Validate("Tax Group Code", FindTaxGroupCode);
+        Item.Validate("Tax Group Code", FindTaxGroupCode());
         Item.Insert(true);
 
         ItemUnitOfMeasure."Item No." := Item."No.";
@@ -513,7 +511,7 @@
         exit(Item."No.");
     end;
 
-    local procedure FindPurchLine(var PurchLine: Record "Purchase Line"; DocType: Option; DocNo: Code[20])
+    local procedure FindPurchLine(var PurchLine: Record "Purchase Line"; DocType: Enum "Purchase Document Type"; DocNo: Code[20])
     begin
         PurchLine.SetRange("Document Type", DocType);
         PurchLine.SetRange("Document No.", DocNo);
@@ -584,7 +582,7 @@
             SetRange("G/L Account No.", VendPostingGroup."Invoice Rounding Account");
             FindLast();
             Assert.AreEqual(
-              Abs(Amount), LibraryERM.GetAmountRoundingPrecision, IncorrectInvRoundingErr);
+              Abs(Amount), LibraryERM.GetAmountRoundingPrecision(), IncorrectInvRoundingErr);
         end;
     end;
 

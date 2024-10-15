@@ -1,6 +1,7 @@
 namespace Microsoft.Service.Document;
 
 using Microsoft.Finance.Dimension;
+using Microsoft.Foundation.Attachment;
 using Microsoft.Foundation.Reporting;
 using Microsoft.Projects.Project.Ledger;
 using Microsoft.Sales.Customer;
@@ -68,6 +69,11 @@ page 9318 "Service Orders"
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the name of the customer to whom the items on the document will be shipped.';
+                }
+                field("External Document No."; Rec."External Document No.")
+                {
+                    ApplicationArea = Service;
+                    ToolTip = 'Specifies a document number that refers to the customer''s numbering system.';
                 }
                 field("Location Code"; Rec."Location Code")
                 {
@@ -205,6 +211,14 @@ page 9318 "Service Orders"
         }
         area(factboxes)
         {
+            part("Attached Documents"; "Document Attachment Factbox")
+            {
+                ApplicationArea = Service;
+                Caption = 'Attachments';
+                SubPageLink = "Table ID" = const(Database::"Service Header"),
+                              "No." = field("No."),
+                              "Document Type" = field("Document Type");
+            }
             part(Control1902018507; "Customer Statistics FactBox")
             {
                 ApplicationArea = Service;
@@ -300,12 +314,14 @@ page 9318 "Service Orders"
                 }
                 action(CFDIRelationDocuments)
                 {
-                    ApplicationArea = BasicMX, Service;
+                    ApplicationArea = Service, BasicMX;
                     Caption = 'CFDI Relation Documents';
                     Image = Allocations;
                     RunObject = Page "CFDI Relation Documents";
                     RunPageLink = "Document Table ID" = const(5900),
+#pragma warning disable AL0603
                                   "Document Type" = field("Document Type"),
+#pragma warning restore AL0603
                                   "Document No." = field("No."),
                                   "Customer No." = field("Bill-to Customer No.");
                     ToolTip = 'View or add CFDI relation documents for the record.';
@@ -421,13 +437,13 @@ page 9318 "Service Orders"
                 action("&Job Ledger Entries")
                 {
                     ApplicationArea = Service;
-                    Caption = '&Job Ledger Entries';
+                    Caption = '&Project Ledger Entries';
                     Image = JobLedger;
                     RunObject = Page "Job Ledger Entries";
                     RunPageLink = "Service Order No." = field("No.");
                     RunPageView = sorting("Service Order No.", "Posting Date")
                                   where("Entry Type" = const(Usage));
-                    ToolTip = 'View all the job ledger entries that result from posting transactions in the service document that involve a job.';
+                    ToolTip = 'View all the project ledger entries that result from posting transactions in the service document that involve a project.';
                 }
             }
         }
@@ -476,8 +492,11 @@ page 9318 "Service Orders"
 
                     trigger OnAction()
                     var
+                        SelectedServiceHeader: Record "Service Header";
                         ServPostYesNo: Codeunit "Service-Post (Yes/No)";
                     begin
+                        CurrPage.SetSelectionFilter(SelectedServiceHeader);
+                        ServPostYesNo.MessageIfPostingPreviewMultipleDocuments(SelectedServiceHeader, Rec."No.");
                         ServHeader.Get(Rec."Document Type", Rec."No.");
                         ServPostYesNo.PreviewDocument(ServHeader);
                     end;
@@ -532,10 +551,28 @@ page 9318 "Service Orders"
 
                     trigger OnAction()
                     var
-                        DocPrint: Codeunit "Document-Print";
+                        DocumentPrint: Codeunit "Document-Print";
                     begin
                         CurrPage.Update(true);
-                        DocPrint.PrintServiceHeader(Rec);
+                        DocumentPrint.PrintServiceHeader(Rec);
+                    end;
+                }
+                action(AttachAsPDF)
+                {
+                    ApplicationArea = Service;
+                    Caption = 'Attach as PDF';
+                    Ellipsis = true;
+                    Image = PrintAttachment;
+                    ToolTip = 'Create a PDF file and attach it to the document.';
+
+                    trigger OnAction()
+                    var
+                        ServiceHeader: Record "Service Header";
+                        DocumentPrint: Codeunit "Document-Print";
+                    begin
+                        ServiceHeader := Rec;
+                        ServiceHeader.SetRecFilter();
+                        DocumentPrint.PrintServiceHeaderToDocumentAttachment(ServiceHeader);
                     end;
                 }
             }
@@ -623,6 +660,9 @@ page 9318 "Service Orders"
                 Caption = 'Print/Send', Comment = 'Generated from the PromotedActionCategories property index 5.';
 
                 actionref("&Print_Promoted"; "&Print")
+                {
+                }
+                actionref(AttachAsPDF_Promoted; AttachAsPDF)
                 {
                 }
             }

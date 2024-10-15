@@ -42,7 +42,7 @@ codeunit 137002 "SCM WIP Costing Addnl Currency"
 
         LibraryInventory.SetAutomaticCostPosting(true);
         LibraryInventory.SetExpectedCostPosting(false);
-        LibraryInventory.SetAutomaticCostAdjmtNever;
+        LibraryInventory.SetAutomaticCostAdjmtNever();
         LibraryInventory.SetAverageCostSetup("Average Cost Calculation Type"::Item, AverageCostPeriod::Day);
 
         LibraryERM.SetAddReportingCurrency('');
@@ -189,9 +189,9 @@ codeunit 137002 "SCM WIP Costing Addnl Currency"
         Commit();
 
         // Update Additional Reporting Currency on G/L setup to execute Adjust Additional Reporting Currency report.
-        GeneralLedgerSetup.OpenEdit;
+        GeneralLedgerSetup.OpenEdit();
         GeneralLedgerSetup."Additional Reporting Currency".SetValue(Currency.Code);
-        GeneralLedgerSetup.OK.Invoke;
+        GeneralLedgerSetup.OK().Invoke();
     end;
 
     [Normal]
@@ -202,8 +202,8 @@ codeunit 137002 "SCM WIP Costing Addnl Currency"
         CurrencyExchangeRate.SetRange("Currency Code", Currency.Code);
         CurrencyExchangeRate.FindFirst();
         // Update Residual Gains Account and Residual Losses Account for the selected Currency.
-        Currency.Validate("Residual Gains Account", SelectGLAccountNo);
-        Currency.Validate("Residual Losses Account", SelectGLAccountNo);
+        Currency.Validate("Residual Gains Account", SelectGLAccountNo());
+        Currency.Validate("Residual Losses Account", SelectGLAccountNo());
         Currency.Modify(true);
     end;
 
@@ -283,7 +283,7 @@ codeunit 137002 "SCM WIP Costing Addnl Currency"
     begin
         // Report Handler: Update request form with random Document No, Retained Earnings Account and run the
         // Adjust Additional Reporting Currency report.
-        AdjustAddReportingCurrency.InitializeRequest(Format(LibraryRandom.RandInt(100)), SelectGLAccountNo);
+        AdjustAddReportingCurrency.InitializeRequest(Format(LibraryRandom.RandInt(100)), SelectGLAccountNo());
         AdjustAddReportingCurrency.UseRequestPage(false);
         AdjustAddReportingCurrency.Run();
     end;

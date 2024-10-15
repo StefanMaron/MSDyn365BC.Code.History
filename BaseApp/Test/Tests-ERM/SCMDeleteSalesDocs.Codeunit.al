@@ -13,14 +13,14 @@ codeunit 137208 "SCM Delete Sales Docs"
         Assert: Codeunit Assert;
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         LibrarySales: Codeunit "Library - Sales";
-        LibraryPurchase: Codeunit "Library - Purchase";
-        LibraryWarehouse: Codeunit "Library - Warehouse";
         LibraryInventory: Codeunit "Library - Inventory";
         LibraryRandom: Codeunit "Library - Random";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryReportDataset: Codeunit "Library - Report Dataset";
         LibraryXPathXMLReader: Codeunit "Library - XPath XML Reader";
+        LibraryERM: Codeunit "Library - ERM";
         isInitialized: Boolean;
+        AllowPostedDocumentDeletionDate: Date;
 
     local procedure Initialize()
     var
@@ -36,6 +36,7 @@ codeunit 137208 "SCM Delete Sales Docs"
 
         LibraryERMCountryData.CreateVATData();
         LibraryERMCountryData.UpdateGeneralPostingSetup();
+        AllowPostedDocumentDeletionDate := LibraryERM.GetDeletionBlockedAfterDate();
         CompanyInformation.Get();
         CompanyInformation."Bank Account No." := 'A';
         CompanyInformation.Modify();
@@ -187,7 +188,8 @@ codeunit 137208 "SCM Delete Sales Docs"
     begin
         LibrarySales.CreateCustomer(Customer);
         LibrarySales.CreateSalesHeader(SalesHeader, DocumentType, Customer."No.");
-
+        SalesHeader.Validate("Posting Date", AllowPostedDocumentDeletionDate - 1);
+        SalesHeader.Modify();
         // Create a sales document with 2 lines.
         for Counter := 1 to 2 do begin
             LibraryInventory.CreateItem(Item);

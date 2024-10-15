@@ -63,88 +63,85 @@ codeunit 10095 "Export EFT (RB)"
         CompanyInformation.Get();
         CompanyInformation.TestField("Federal ID No.");
 
-        with BankAccount do begin
-            LockTable();
-            Get(BankAccountNo);
-            TestField("Export Format", "Export Format"::CA);
-            TestField("Transit No.");
-            TestField("Last E-Pay Export File Name");
-            TestField("Bank Acc. Posting Group");
-            TestField(Blocked, false);
-            TestField("Client No.");
-            TestField("Client Name");
+        BankAccount.LockTable();
+        BankAccount.Get(BankAccountNo);
+        BankAccount.TestField("Export Format", BankAccount."Export Format"::CA);
+        BankAccount.TestField("Transit No.");
+        BankAccount.TestField("Last E-Pay Export File Name");
+        BankAccount.TestField("Bank Acc. Posting Group");
+        BankAccount.TestField(Blocked, false);
+        BankAccount.TestField("Client No.");
+        BankAccount.TestField("Client Name");
 
-            if TempEFTExportWorkset."Bank Payment Type" =
-               TempEFTExportWorkset."Bank Payment Type"::"Electronic Payment-IAT"
-            then begin
-                TempEFTExportWorkset.TestField("Transaction Code");
-                TempEFTExportWorkset.TestField("Company Entry Description");
-            end;
-
-            FileName := FileManagement.ServerTempFileName('');
-
-            if "Last ACH File ID Modifier" = '' then
-                "Last ACH File ID Modifier" := '1'
-            else begin
-                i := 1;
-                while (i < ArrayLen(DummyModifierValues)) and
-                      ("Last ACH File ID Modifier" <> DummyModifierValues[i])
-                do
-                    i := i + 1;
-                if i = ArrayLen(DummyModifierValues) then
-                    i := 1
-                else
-                    i := i + 1;
-
-                "Last ACH File ID Modifier" := DummyModifierValues[i];
-            end;
-            if not EFTValues.IsSetFileCreationNumber() then
-                "Last E-Pay File Creation No." := "Last E-Pay File Creation No." + 1;
-            Modify();
-
-            if Exists(FileName) then
-                Error(AlreadyExistsErr);
-
-            FileDate := Today;
-            EFTValues.SetNoOfRec(1);
-            EFTValues.SetNoOfCustInfoRec(0);
-            EFTValues.SetTotalFileDebit(0);
-            EFTValues.SetTotalFileCredit(0);
-            EFTValues.SetTransactions(0);
-            EFTValues.SetFileCreationNumber("Last E-Pay File Creation No.");
-            FedID := CompanyInformation."Federal ID No.";
-
-            if TempEFTExportWorkset."Currency Code" = '' then begin
-                GLSetup.Get();
-                CurrencyType := GLSetup."LCY Code";
-            end else
-                CurrencyType := TempEFTExportWorkset."Currency Code";
-
-            ACHRBHeader.Get(DataExchEntryNo);
-            ACHRBHeader."Record Count" := EFTValues.GetNoOfRec();
-            ACHRBHeader."Record Type" := 'A';
-            ACHRBHeader."Transaction Code" := 'HDR';
-            ACHRBHeader."Client Number" := "Client No.";
-            ACHRBHeader."Client Name" := "Client Name";
-            ACHRBHeader."Federal ID No." := DelChr(FedID, '=', ' .,-');
-            ACHRBHeader."File Creation Number" := "Last E-Pay File Creation No.";
-            ACHRBHeader."File Creation Date" := JulianDate(FileDate);
-            ACHRBHeader.Validate("Settlement Date", TempEFTExportWorkset.UserSettleDate);
-
-            // if can find the column definition, get the value of the Data Format and assign it to DateFormat variable
-            FindDataExchColumnDefWithMapping(
-                DataExchColumnDef, DataExchEntryNo, DATABASE::"ACH RB Header", ACHRBHeader.FieldNo("File Creation Date"));
-            if DataExchColumnDef."Data Format" <> '' then begin
-                Evaluate(DateInteger, Format(FileDate, DataExchColumnDef.Length, DataExchColumnDef."Data Format"));
-                ACHRBHeader."File Creation Date" := DateInteger;
-            end;
-
-            ACHRBHeader."Currency Type" := CurrencyType;
-            ACHRBHeader."Input Type" := '1';
-            ACHRBHeader."Input Qualifier" := "Input Qualifier";
-            OnBeforeACHRBHeaderModify(ACHRBHeader, BankAccount);
-            ACHRBHeader.Modify();
+        if TempEFTExportWorkset."Bank Payment Type" =
+           TempEFTExportWorkset."Bank Payment Type"::"Electronic Payment-IAT"
+        then begin
+            TempEFTExportWorkset.TestField("Transaction Code");
+            TempEFTExportWorkset.TestField("Company Entry Description");
         end;
+
+        FileName := FileManagement.ServerTempFileName('');
+
+        if BankAccount."Last ACH File ID Modifier" = '' then
+            BankAccount."Last ACH File ID Modifier" := '1'
+        else begin
+            i := 1;
+            while (i < ArrayLen(DummyModifierValues)) and
+                  (BankAccount."Last ACH File ID Modifier" <> DummyModifierValues[i])
+            do
+                i := i + 1;
+            if i = ArrayLen(DummyModifierValues) then
+                i := 1
+            else
+                i := i + 1;
+
+            BankAccount."Last ACH File ID Modifier" := DummyModifierValues[i];
+        end;
+        if not EFTValues.IsSetFileCreationNumber() then
+            BankAccount."Last E-Pay File Creation No." := BankAccount."Last E-Pay File Creation No." + 1;
+        BankAccount.Modify();
+
+        if Exists(FileName) then
+            Error(AlreadyExistsErr);
+
+        FileDate := Today;
+        EFTValues.SetNoOfRec(1);
+        EFTValues.SetNoOfCustInfoRec(0);
+        EFTValues.SetTotalFileDebit(0);
+        EFTValues.SetTotalFileCredit(0);
+        EFTValues.SetTransactions(0);
+        EFTValues.SetFileCreationNumber(BankAccount."Last E-Pay File Creation No.");
+        FedID := CompanyInformation."Federal ID No.";
+
+        if TempEFTExportWorkset."Currency Code" = '' then begin
+            GLSetup.Get();
+            CurrencyType := GLSetup."LCY Code";
+        end else
+            CurrencyType := TempEFTExportWorkset."Currency Code";
+
+        ACHRBHeader.Get(DataExchEntryNo);
+        ACHRBHeader."Record Count" := EFTValues.GetNoOfRec();
+        ACHRBHeader."Record Type" := 'A';
+        ACHRBHeader."Transaction Code" := 'HDR';
+        ACHRBHeader."Client Number" := BankAccount."Client No.";
+        ACHRBHeader."Client Name" := BankAccount."Client Name";
+        ACHRBHeader."Federal ID No." := DelChr(FedID, '=', ' .,-');
+        ACHRBHeader."File Creation Number" := BankAccount."Last E-Pay File Creation No.";
+        ACHRBHeader."File Creation Date" := JulianDate(FileDate);
+        ACHRBHeader.Validate("Settlement Date", TempEFTExportWorkset.UserSettleDate);
+        // if can find the column definition, get the value of the Data Format and assign it to DateFormat variable
+        FindDataExchColumnDefWithMapping(
+            DataExchColumnDef, DataExchEntryNo, DATABASE::"ACH RB Header", ACHRBHeader.FieldNo("File Creation Date"));
+        if DataExchColumnDef."Data Format" <> '' then begin
+            Evaluate(DateInteger, Format(FileDate, DataExchColumnDef.Length, DataExchColumnDef."Data Format"));
+            ACHRBHeader."File Creation Date" := DateInteger;
+        end;
+
+        ACHRBHeader."Currency Type" := CurrencyType;
+        ACHRBHeader."Input Type" := '1';
+        ACHRBHeader."Input Qualifier" := BankAccount."Input Qualifier";
+        OnBeforeACHRBHeaderModify(ACHRBHeader, BankAccount);
+        ACHRBHeader.Modify();
     end;
 
     [Scope('OnPrem')]
@@ -207,31 +204,29 @@ codeunit 10095 "Export EFT (RB)"
     var
         AcctType: Text[1];
     begin
-        with TempEFTExportWorkset do begin
-            if "Account Type" = "Account Type"::Vendor then begin
-                AcctType := 'V';
-                AcctNo := "Account No.";
+        if TempEFTExportWorkset."Account Type" = TempEFTExportWorkset."Account Type"::Vendor then begin
+            AcctType := 'V';
+            AcctNo := TempEFTExportWorkset."Account No.";
+        end else
+            if TempEFTExportWorkset."Account Type" = TempEFTExportWorkset."Account Type"::Customer then begin
+                AcctType := 'C';
+                AcctNo := TempEFTExportWorkset."Account No.";
             end else
-                if "Account Type" = "Account Type"::Customer then begin
-                    AcctType := 'C';
-                    AcctNo := "Account No.";
+                if TempEFTExportWorkset."Bal. Account Type" = TempEFTExportWorkset."Bal. Account Type"::Vendor then begin
+                    AcctType := 'V';
+                    AcctNo := TempEFTExportWorkset."Bal. Account No.";
                 end else
-                    if "Bal. Account Type" = "Bal. Account Type"::Vendor then begin
-                        AcctType := 'V';
-                        AcctNo := "Bal. Account No.";
+                    if TempEFTExportWorkset."Bal. Account Type" = TempEFTExportWorkset."Bal. Account Type"::Customer then begin
+                        AcctType := 'C';
+                        AcctNo := TempEFTExportWorkset."Bal. Account No.";
                     end else
-                        if "Bal. Account Type" = "Bal. Account Type"::Customer then begin
-                            AcctType := 'C';
-                            AcctNo := "Bal. Account No.";
-                        end else
-                            Error(ReferErr);
+                        Error(ReferErr);
 
-            if AcctType = 'V' then
-                GetRecipientDataFromVendor(TempEFTExportWorkset)
-            else
-                if AcctType = 'C' then
-                    GetRecipientDataFromCustomer(TempEFTExportWorkset);
-        end;
+        if AcctType = 'V' then
+            GetRecipientDataFromVendor(TempEFTExportWorkset)
+        else
+            if AcctType = 'C' then
+                GetRecipientDataFromCustomer(TempEFTExportWorkset);
     end;
 
     local procedure GetRecipientDataFromVendor(var TempEFTExportWorkset: Record "EFT Export Workset" temporary)
@@ -313,93 +308,90 @@ codeunit 10095 "Export EFT (RB)"
         DataExchColumnDef: Record "Data Exch. Column Def";
         DateInteger: Integer;
     begin
-        with TempEFTExportWorkset do begin
-            if IsParent then
-                EFTValues.SetTransactions(EFTValues.GetTransactions() + 1);
-            EFTValues.SetNoOfRec(EFTValues.GetNoOfRec() + 1);
-            EFTValues.SetTraceNo(EFTValues.GetNoOfRec());
-            EFTValues.SetDataExchEntryNo(DataExchEntryNo);
+        if IsParent then
+            EFTValues.SetTransactions(EFTValues.GetTransactions() + 1);
+        EFTValues.SetNoOfRec(EFTValues.GetNoOfRec() + 1);
+        EFTValues.SetTraceNo(EFTValues.GetNoOfRec());
+        EFTValues.SetDataExchEntryNo(DataExchEntryNo);
 
-            ACHRBDetail.Get(DataExchEntryNo, DataExchLineDefCode);
-            ACHRBDetail."Record Count" := EFTValues.GetNoOfRec();
-            ACHRBDetail."Transaction Code" := "Transaction Code";
-            ACHRBDetail."Client Number" := BankAccount."Client No.";
-            ACHRBDetail."Customer/Vendor Number" := AcctNo;
-            ACHRBDetail."Vendor/Customer Name" := AcctName;
-            ACHRBDetail."Payment Number" := PaymentsThisAcct;
-            ACHRBDetail."Document No." := "Document No.";
-            ACHRBDetail."External Document No." := "External Document No.";
-            ACHRBDetail."Applies-to Doc. No." := "Applies-to Doc. No.";
-            ACHRBDetail."Payment Reference" := "Payment Reference";
-            ACHRBDetail."File Creation Number" := EFTValues.GetFileCreationNumber();
+        ACHRBDetail.Get(DataExchEntryNo, DataExchLineDefCode);
+        ACHRBDetail."Record Count" := EFTValues.GetNoOfRec();
+        ACHRBDetail."Transaction Code" := TempEFTExportWorkset."Transaction Code";
+        ACHRBDetail."Client Number" := BankAccount."Client No.";
+        ACHRBDetail."Customer/Vendor Number" := AcctNo;
+        ACHRBDetail."Vendor/Customer Name" := AcctName;
+        ACHRBDetail."Payment Number" := PaymentsThisAcct;
+        ACHRBDetail."Document No." := TempEFTExportWorkset."Document No.";
+        ACHRBDetail."External Document No." := TempEFTExportWorkset."External Document No.";
+        ACHRBDetail."Applies-to Doc. No." := TempEFTExportWorkset."Applies-to Doc. No.";
+        ACHRBDetail."Payment Reference" := TempEFTExportWorkset."Payment Reference";
+        ACHRBDetail."File Creation Number" := EFTValues.GetFileCreationNumber();
 
-            if RecipientBankAcctCountryCode = 'CA' then begin
-                ACHRBDetail."Bank No." := RecipientBankNo;
+        if RecipientBankAcctCountryCode = 'CA' then begin
+            ACHRBDetail."Bank No." := RecipientBankNo;
+            ACHRBDetail."Transit Routing No." := RecipientTransitNo;
+        end else
+            if RecipientBankAcctCountryCode = 'US' then
                 ACHRBDetail."Transit Routing No." := RecipientTransitNo;
-            end else
-                if RecipientBankAcctCountryCode = 'US' then
-                    ACHRBDetail."Transit Routing No." := RecipientTransitNo;
 
-            ACHRBDetail."Recipient Bank No." := RecipientBankAcctNo;
-            ACHRBDetail."Payment Amount" := PaymentAmount;
-            ACHRBDetail."Payment Date" := JulianDate(SettleDate);
+        ACHRBDetail."Recipient Bank No." := RecipientBankAcctNo;
+        ACHRBDetail."Payment Amount" := PaymentAmount;
+        ACHRBDetail."Payment Date" := JulianDate(SettleDate);
+        // if can find the column definition, get the value of the Data Format and assign it to DateFormat variable
+        FindDataExchColumnDefWithMapping(
+            DataExchColumnDef, DataExchEntryNo, DATABASE::"ACH RB Detail", ACHRBDetail.FieldNo("Payment Date"));
+        if DataExchColumnDef."Data Format" <> '' then begin
+            Evaluate(DateInteger, Format(SettleDate, DataExchColumnDef.Length, DataExchColumnDef."Data Format"));
+            ACHRBDetail."Payment Date" := DateInteger;
+        end;
 
-            // if can find the column definition, get the value of the Data Format and assign it to DateFormat variable
-            FindDataExchColumnDefWithMapping(
-                DataExchColumnDef, DataExchEntryNo, DATABASE::"ACH RB Detail", ACHRBDetail.FieldNo("Payment Date"));
-            if DataExchColumnDef."Data Format" <> '' then begin
-                Evaluate(DateInteger, Format(SettleDate, DataExchColumnDef.Length, DataExchColumnDef."Data Format"));
-                ACHRBDetail."Payment Date" := DateInteger;
-            end;
+        ACHRBDetail."Language Code" := Format(AcctLanguage);
+        ACHRBDetail."Client Name" := BankAccount."Client Name";
 
-            ACHRBDetail."Language Code" := Format(AcctLanguage);
-            ACHRBDetail."Client Name" := BankAccount."Client Name";
+        if RecipientBankAcctCurrencyCode = '' then
+            ACHRBDetail."Currency Code" := CurrencyType
+        else
+            ACHRBDetail."Currency Code" := RecipientBankAcctCurrencyCode;
 
-            if RecipientBankAcctCurrencyCode = '' then
-                ACHRBDetail."Currency Code" := CurrencyType
-            else
-                ACHRBDetail."Currency Code" := RecipientBankAcctCurrencyCode;
+        if RecipientCountryCode = 'CA' then
+            ACHRBDetail.Country := 'CAN'
+        else
+            if RecipientCountryCode = 'US' then
+                ACHRBDetail.Country := 'USA';
 
-            if RecipientCountryCode = 'CA' then
-                ACHRBDetail.Country := 'CAN'
-            else
-                if RecipientCountryCode = 'US' then
-                    ACHRBDetail.Country := 'USA';
+        if IsParent then
+            EFTValues.SetNoOfCustInfoRec(EFTValues.GetNoOfCustInfoRec() + 1);
+        ACHRBDetail.AD1NoOfRec := EFTValues.GetNoOfRec();
+        ACHRBDetail."AD1Client No" := BankAccount."Client No.";
+        ACHRBDetail."AD1Company Name" := CompanyInformation.Name;
+        ACHRBDetail.AD1Address := CopyStr(CompanyInformation.Address, 1, 35) + ' ' +
+          CopyStr(CompanyInformation."Address 2", 1, 35);
+        ACHRBDetail."AD1City State" := CompanyInformation.City + '*' + CompanyInformation.County + '\';
+        ACHRBDetail."AD1Region Code/Post Code" := CompanyInformation."Country/Region Code" + '*' +
+          CompanyInformation."Post Code" + '\';
 
-            if IsParent then
-                EFTValues.SetNoOfCustInfoRec(EFTValues.GetNoOfCustInfoRec() + 1);
-            ACHRBDetail.AD1NoOfRec := EFTValues.GetNoOfRec();
-            ACHRBDetail."AD1Client No" := BankAccount."Client No.";
-            ACHRBDetail."AD1Company Name" := CompanyInformation.Name;
-            ACHRBDetail.AD1Address := CopyStr(CompanyInformation.Address, 1, 35) + ' ' +
-              CopyStr(CompanyInformation."Address 2", 1, 35);
-            ACHRBDetail."AD1City State" := CompanyInformation.City + '*' + CompanyInformation.County + '\';
-            ACHRBDetail."AD1Region Code/Post Code" := CompanyInformation."Country/Region Code" + '*' +
-              CompanyInformation."Post Code" + '\';
+        if IsParent then
+            EFTValues.SetNoOfCustInfoRec(EFTValues.GetNoOfCustInfoRec() + 1);
+        ACHRBDetail.AD2NoOfRec := EFTValues.GetNoOfRec();
+        ACHRBDetail."AD2Client No" := BankAccount."Client No.";
+        ACHRBDetail."AD2Recipient Address" := RecipientAddress;
+        ACHRBDetail."AD2Recipient City/County" := RecipientCity + '*' + RecipientCounty + '\';
+        ACHRBDetail."AD2Region Code/Post Code" := RecipientCountryCode + '*' + RecipientPostCode + '\';
+        ACHRBDetail."AD2Transaction Type Code" := Format(TempEFTExportWorkset."Transaction Type Code");
+        ACHRBDetail."AD2Company Entry Description" := TempEFTExportWorkset."Company Entry Description";
 
-            if IsParent then
-                EFTValues.SetNoOfCustInfoRec(EFTValues.GetNoOfCustInfoRec() + 1);
-            ACHRBDetail.AD2NoOfRec := EFTValues.GetNoOfRec();
-            ACHRBDetail."AD2Client No" := BankAccount."Client No.";
-            ACHRBDetail."AD2Recipient Address" := RecipientAddress;
-            ACHRBDetail."AD2Recipient City/County" := RecipientCity + '*' + RecipientCounty + '\';
-            ACHRBDetail."AD2Region Code/Post Code" := RecipientCountryCode + '*' + RecipientPostCode + '\';
-            ACHRBDetail."AD2Transaction Type Code" := Format("Transaction Type Code");
-            ACHRBDetail."AD2Company Entry Description" := "Company Entry Description";
-
-            if ("Payment Related Information 1" <> '') or ("Payment Related Information 2" <> '') then begin
-                ACHRBDetail."Client Number" := BankAccount."Client No.";
-                ACHRBDetail.RRNoOfRec := EFTValues.GetNoOfRec();
-                ACHRBDetail."RRClient No" := BankAccount."Client No.";
-                ACHRBDetail."RRPayment Related Info1" := "Payment Related Information 1";
-                ACHRBDetail."RRPayment Related Info2" := "Payment Related Information 2";
-                OnBeforeACHRBDetailModify(ACHRBDetail, TempEFTExportWorkset, BankAccount."No.", SettleDate);
-                ACHRBDetail.Modify();
-                EFTValues.SetNoOfCustInfoRec(EFTValues.GetNoOfCustInfoRec() + 1);
-            end else begin
-                OnBeforeACHRBDetailModify(ACHRBDetail, TempEFTExportWorkset, BankAccount."No.", SettleDate);
-                ACHRBDetail.Modify();
-            end;
+        if (TempEFTExportWorkset."Payment Related Information 1" <> '') or (TempEFTExportWorkset."Payment Related Information 2" <> '') then begin
+            ACHRBDetail."Client Number" := BankAccount."Client No.";
+            ACHRBDetail.RRNoOfRec := EFTValues.GetNoOfRec();
+            ACHRBDetail."RRClient No" := BankAccount."Client No.";
+            ACHRBDetail."RRPayment Related Info1" := TempEFTExportWorkset."Payment Related Information 1";
+            ACHRBDetail."RRPayment Related Info2" := TempEFTExportWorkset."Payment Related Information 2";
+            OnBeforeACHRBDetailModify(ACHRBDetail, TempEFTExportWorkset, BankAccount."No.", SettleDate);
+            ACHRBDetail.Modify();
+            EFTValues.SetNoOfCustInfoRec(EFTValues.GetNoOfCustInfoRec() + 1);
+        end else begin
+            OnBeforeACHRBDetailModify(ACHRBDetail, TempEFTExportWorkset, BankAccount."No.", SettleDate);
+            ACHRBDetail.Modify();
         end;
     end;
 

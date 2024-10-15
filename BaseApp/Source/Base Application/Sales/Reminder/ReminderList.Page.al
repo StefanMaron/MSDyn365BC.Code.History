@@ -22,6 +22,7 @@ page 436 "Reminder List"
             repeater(Control1)
             {
                 ShowCaption = false;
+                Editable = false;
                 field("No."; Rec."No.")
                 {
                     ApplicationArea = Basic, Suite;
@@ -135,6 +136,15 @@ page 436 "Reminder List"
                     RunPageLink = "No." = field("No.");
                     ShortCutKey = 'F7';
                     ToolTip = 'View statistical information, such as the value of posted entries, for the record.';
+                }
+                action(ReminderTerm)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Reminder Terms';
+                    Image = ReminderTerms;
+                    RunObject = Page "Reminder Terms List";
+                    RunPageMode = View;
+                    Tooltip = 'Open the list of Reminder Terms.';
                 }
             }
         }
@@ -300,12 +310,13 @@ page 436 "Reminder List"
                 actionref("Co&mments_Promoted"; "Co&mments")
                 {
                 }
-
                 separator(Navigate_Separator)
                 {
                 }
-
                 actionref("C&ustomer_Promoted"; "C&ustomer")
+                {
+                }
+                actionref(ReminderTerm_Promoted; ReminderTerm)
                 {
                 }
             }

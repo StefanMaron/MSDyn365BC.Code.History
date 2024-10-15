@@ -7,6 +7,7 @@ table 5557 "Permission Conflicts"
     Access = Internal;
     Extensible = false;
     ReplicateData = false;
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -24,7 +25,7 @@ table 5557 "Permission Conflicts"
         }
         field(5; "Object Name"; Text[249])
         {
-            CalcFormula = Lookup(AllObjWithCaption."Object Name" where("Object Type" = field("Object Type"),
+            CalcFormula = lookup(AllObjWithCaption."Object Name" where("Object Type" = field("Object Type"),
                                                                            "Object ID" = field("Object ID")));
             Caption = 'Object Name';
             FieldClass = FlowField;

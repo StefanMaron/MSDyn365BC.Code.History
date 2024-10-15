@@ -1,6 +1,7 @@
 table 130062 "Reference Data Log"
 {
     ReplicateData = false;
+    DataClassification = CustomerContent;
 
     fields
     {

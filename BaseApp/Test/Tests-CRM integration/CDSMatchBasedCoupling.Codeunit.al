@@ -1039,13 +1039,13 @@ codeunit 139199 "CDS Match Based Coupling"
     [Scope('OnPrem')]
     procedure MatchBasedCouplingModalPageDefaultHandler(var MatchBasedCouplingCriteria: TestPage "Match Based Coupling Criteria")
     begin
-        MatchBasedCouplingCriteria.OK.Invoke();
+        MatchBasedCouplingCriteria.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure MatchBasedCouplingModalPageCancelHandler(var MatchBasedCouplingCriteria: TestPage "Match Based Coupling Criteria")
     begin
-        MatchBasedCouplingCriteria.Cancel.Invoke();
+        MatchBasedCouplingCriteria.Cancel().Invoke();
     end;
 }

@@ -19,7 +19,7 @@ codeunit 139210 "JSON Buffer Tests"
         TempJSONBuffer: Record "JSON Buffer" temporary;
     begin
         // [SCENARIO] Reading empty string does not cause errors
-        LibraryLowerPermissions.SetO365Basic;
+        LibraryLowerPermissions.SetO365Basic();
         TempJSONBuffer.ReadFromText('');
     end;
 
@@ -30,7 +30,7 @@ codeunit 139210 "JSON Buffer Tests"
         TempJSONBuffer: Record "JSON Buffer" temporary;
     begin
         // [SCENARIO] Reading invalid JSON does produce errors
-        LibraryLowerPermissions.SetO365Basic;
+        LibraryLowerPermissions.SetO365Basic();
         asserterror TempJSONBuffer.ReadFromText('Test');
         asserterror TempJSONBuffer.ReadFromText('{Test}');
         asserterror TempJSONBuffer.ReadFromText('{Test - 5}');
@@ -43,7 +43,7 @@ codeunit 139210 "JSON Buffer Tests"
         JSONBuffer: Record "JSON Buffer";
     begin
         // [SCENARIO] It is only possible to use JSON Buffer as a temporary table
-        LibraryLowerPermissions.SetO365Basic;
+        LibraryLowerPermissions.SetO365Basic();
         asserterror JSONBuffer.ReadFromText('{Test : 5}');
         Assert.ExpectedError(DevMsgNotTemporaryErr);
     end;
@@ -57,7 +57,7 @@ codeunit 139210 "JSON Buffer Tests"
         PropertyValue: Text;
     begin
         // [SCENARIO] JSON Buffer supports reading arrays
-        LibraryLowerPermissions.SetO365Basic;
+        LibraryLowerPermissions.SetO365Basic();
         with TempJSONBuffer do begin
             // [WHEN] A JSON string containing an array is read
             ReadFromText('{"Result":[{"MyVar":"5"},{"OtherVar":"TestValue"}]}');
@@ -102,7 +102,7 @@ codeunit 139210 "JSON Buffer Tests"
         DecimalPropertyValue: Decimal;
     begin
         // [SCENARIO] JSON Buffer supports reading variables
-        LibraryLowerPermissions.SetO365Basic;
+        LibraryLowerPermissions.SetO365Basic();
         with TempJSONBuffer do begin
             // [WHEN] A JSON string containing variables is read
             ReadFromText('{"test1":"value1","test2":2.3,"test3":"value3"}');
@@ -139,7 +139,7 @@ codeunit 139210 "JSON Buffer Tests"
         PropertyValue: Text;
     begin
         // [SCENARIO] JSON Buffer supports reading nested arrays
-        LibraryLowerPermissions.SetO365Basic;
+        LibraryLowerPermissions.SetO365Basic();
         // [WHEN] A JSON string containing two nested arrays is read
         TempJSONBuffer.ReadFromText(
           '{"Result":[{"MyVar":"5","Result":[{"InnerContent1":"InnerValue1","InnerContent2":"InnerValue2"}]},{"OtherVar":"TestValue"}]}');
@@ -187,7 +187,7 @@ codeunit 139210 "JSON Buffer Tests"
         PropertyValue: Text;
     begin
         // [SCENARIO] JSON Buffer supports reading consecutive arrays
-        LibraryLowerPermissions.SetO365Basic;
+        LibraryLowerPermissions.SetO365Basic();
         // [WHEN] A JSON string containing two consecutive arrays is read
         TempJSONBuffer.ReadFromText('{"Array1":[{"Arr1Var":"Arr1Val"}],"Array2":[{"Arr2Var":"Arr2Val"}]}');
 
@@ -218,7 +218,7 @@ codeunit 139210 "JSON Buffer Tests"
         i: Integer;
     begin
         // [SCENARIO] JSON Buffer supports large values
-        LibraryLowerPermissions.SetO365Basic;
+        LibraryLowerPermissions.SetO365Basic();
         // [WHEN] A JSON string containing a very long value is read
         LongString := 'ABCDEFGHIJKLMOPQRTSTUVWXYZÆØÅ1234567890+´!#¤%&/()=?`,.-;:_@£${[]}<>abcdefghijklmnopqrstuvwxyzæøå½§';
         for i := 1 to 1000 do
@@ -239,7 +239,7 @@ codeunit 139210 "JSON Buffer Tests"
         PropertyValue: Text;
     begin
         // [SCENARIO] JSON Buffer supports formatting DateTime containing no seconds and milliseconds
-        LibraryLowerPermissions.SetO365Basic;
+        LibraryLowerPermissions.SetO365Basic();
 
         // [WHEN] A JSON string containing a DateTime without seconds or milliseconds is read
         DateTimeString := DateTime.UtcNow.ToString('yyyy-MM-ddTHH:mm', CultureInfo.InvariantCulture);
@@ -261,7 +261,7 @@ codeunit 139210 "JSON Buffer Tests"
         PropertyValue: Text;
     begin
         // [SCENARIO] JSON Buffer supports formatting DateTime containing seconds and milliseconds
-        LibraryLowerPermissions.SetO365Basic;
+        LibraryLowerPermissions.SetO365Basic();
 
         // [WHEN] A JSON string containing a DateTime with seconds and milliseconds is read
         DateTimeString := DateTime.UtcNow.ToString('yyyy-MM-ddTHH:mm:ss.fff', CultureInfo.InvariantCulture);
@@ -276,7 +276,7 @@ codeunit 139210 "JSON Buffer Tests"
     begin
         Assert.AreEqual(Depth, TempJSONBuffer.Depth, 'Incorrect depth');
         Assert.AreEqual(TokenType, TempJSONBuffer."Token type", 'Incorrect token type');
-        Assert.AreEqual(Value, TempJSONBuffer.GetValue, 'Incorrect JSON value');
+        Assert.AreEqual(Value, TempJSONBuffer.GetValue(), 'Incorrect JSON value');
         Assert.AreEqual(ValueType, TempJSONBuffer."Value Type", 'Incorrect JSON value type');
         Assert.AreEqual(Path, TempJSONBuffer.Path, 'Incorrect JSON path');
     end;
@@ -285,7 +285,7 @@ codeunit 139210 "JSON Buffer Tests"
     begin
         Assert.AreEqual(Depth, TempJSONBuffer.Depth, 'Incorrect depth');
         Assert.AreEqual(TokenType, TempJSONBuffer."Token type", 'Incorrect token type');
-        Assert.AreEqual(Value, TempJSONBuffer.GetValue, 'Incorrect JSON value');
+        Assert.AreEqual(Value, TempJSONBuffer.GetValue(), 'Incorrect JSON value');
         Assert.AreEqual(ValueType, TempJSONBuffer."Value Type", 'Incorrect JSON value type');
         Assert.AreEqual(Path, TempJSONBuffer.Path, 'Incorrect JSON path');
         Assert.IsTrue(TempJSONBuffer.Next() <> 0, 'There are no more elements');

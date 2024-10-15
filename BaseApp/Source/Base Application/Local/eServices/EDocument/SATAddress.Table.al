@@ -11,6 +11,7 @@ table 27009 "SAT Address"
     Caption = 'SAT Address';
     DrillDownPageID = "SAT Addresses";
     LookupPageID = "SAT Addresses";
+    DataClassification = CustomerContent;
 
     fields
     {

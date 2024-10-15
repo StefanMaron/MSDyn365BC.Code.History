@@ -64,7 +64,7 @@
         OpenSalesOrderPage(SalesOrder, SalesHeader);
 
         // [WHEN] Open Sales Order Statistics
-        SalesOrder.Statistics.Invoke;
+        SalesOrder.Statistics.Invoke();
 
         // [THEN] Tax Amount on Sales Order Statistics is correct
         // SalesOrderStatsTestPageHandler
@@ -89,7 +89,7 @@
         OpenSalesOrderPage(SalesOrder, SalesHeader);
 
         // [WHEN] Open Sales Order Statistics
-        SalesOrder.Statistics.Invoke;
+        SalesOrder.Statistics.Invoke();
 
         // [THEN] Tax Amount on Sales Order Statistics is correct
         // SalesOrderStatsTestPageHandler
@@ -117,7 +117,7 @@
         REPORT.Run(REPORT::"Sales Document - Test");
 
         // Verify: Verify Sales Order values on Sales Document Test Report - 202.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(SalesHeaderNo, SalesHeader."No.");
         LibraryReportDataset.AssertElementWithValueExists(
           'VATAmountLine__VAT_Amount_', Round(SalesLine."Line Amount" * SalesLine."VAT %" / 100));
@@ -142,7 +142,7 @@
         OpenSalesQuotePage(SalesQuote, SalesHeader);
 
         // [WHEN] Open Sales Quote Statistics
-        SalesQuote.Statistics.Invoke;
+        SalesQuote.Statistics.Invoke();
 
         // [THEN] Tax Amount on Sales Quote Statistics is correct
         // SalesStatsTestPageHandler.
@@ -167,7 +167,7 @@
         OpenSalesQuotePage(SalesQuote, SalesHeader);
 
         // [WHEN] Open Sales Quote Statistics
-        SalesQuote.Statistics.Invoke;
+        SalesQuote.Statistics.Invoke();
 
         // [THEN] Tax Amount on Sales Quote Statistics is correct
         // SalesStatsTestPageHandler.
@@ -191,7 +191,7 @@
         OpenPurchaseOrderPage(PurchaseOrder, PurchaseHeader);
 
         // Exercise.
-        PurchaseOrder.Statistics.Invoke;
+        PurchaseOrder.Statistics.Invoke();
 
         // Verify: Verify Tax Amount on Purchase Order Statistics. Verification done in PurchaseOrderStatsTestPageHandler.
     end;
@@ -214,7 +214,7 @@
         OpenPurchaseQuotePage(PurchaseQuote, PurchaseHeader);
 
         // Exercise.
-        PurchaseQuote.Statistics.Invoke;
+        PurchaseQuote.Statistics.Invoke();
 
         // Verify: Verify Tax Amount on Purchase Quote Statistics. Verification done in PurchaseStatsTestPageHandler.
     end;
@@ -241,7 +241,7 @@
         REPORT.Run(REPORT::"Purchase Document - Test");
 
         // Verify: Verify Purchase Order values on Purchase Document Test Report - 402.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(PurchaseHeaderNo, PurchaseHeader."No.");
         LibraryReportDataset.AssertElementWithValueExists(
           'VATAmountLine__VAT_Amount_', Round(PurchaseLine."Line Amount" * PurchaseLine."VAT %" / 100));
@@ -266,7 +266,7 @@
         OpenServiceOrderPage(ServiceHeader, ServiceOrder);
 
         // Exercise.
-        ServiceOrder.Statistics.Invoke;
+        ServiceOrder.Statistics.Invoke();
 
         // Verify: Verify Tax Amount on Service Order Statistics. Verification done in ServiceOrderStatsTestPageHandler.
     end;
@@ -290,7 +290,7 @@
         OpenServiceInvoicePage(ServiceHeader, ServiceInvoice);
 
         // Exercise.
-        ServiceInvoice.Statistics.Invoke;
+        ServiceInvoice.Statistics.Invoke();
 
         // Verify: Verify Tax Amount on Service Invoice Statistics. Verification done in ServiceStatsTestPageHandler.
     end;
@@ -317,7 +317,7 @@
         REPORT.Run(REPORT::"Service Document - Test");
 
         // Verify: Verify Service Order values on Service Document Test Report - 5915.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(
           FORMATServiceHeaderDocumentTypeServiceHeaderNo, Format(ServiceHeader."Document Type") + ' ' + ServiceHeader."No.");
         LibraryReportDataset.AssertElementWithValueExists('Service_Line___Line_Amount_', ServiceLine."Line Amount");
@@ -344,7 +344,7 @@
         REPORT.Run(REPORT::"Service Order");
 
         // Verify: Verify Service Order Number and Amount on Service Order Report - 5900.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(ServiceOrderNo, ServiceHeader."No.");
         LibraryReportDataset.AssertElementWithValueExists('TotalAmt', ServiceLine."Line Amount");
     end;
@@ -370,7 +370,7 @@
         REPORT.Run(REPORT::"Service Quote");
 
         // Verify: Verify Service Order Number and Tax Amount on Service Quote Report - 5902.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(ServiceQuoteNo, ServiceHeader."No.");
         LibraryReportDataset.AssertElementWithValueExists('Amt', ServiceLine."Line Amount");
     end;
@@ -450,7 +450,7 @@
         Initialize();
         CreateTaxAreaLine(TaxDetail);
         FindVATPostingSetup(VATPostingSetup);
-        SalesTaxJournal.OpenEdit;
+        SalesTaxJournal.OpenEdit();
         SalesTaxJournal."Document No.".SetValue(LibraryUtility.GenerateGUID());
         SalesTaxJournal."Account Type".SetValue(GenJournalLine."Account Type"::"G/L Account");
         SalesTaxJournal."Account No.".SetValue(CreateGLAccount(VATPostingSetup."VAT Prod. Posting Group", TaxDetail."Tax Group Code"));
@@ -458,7 +458,7 @@
         SalesTaxJournal."Bal. Account No.".SetValue('');
 
         // Exercise.
-        asserterror SalesTaxJournal.Post.Invoke;
+        asserterror SalesTaxJournal.Post.Invoke();
 
         // Verify: Verify Bal. Account No. error while posting General Journal Line with GST/HST and blank Bal. Account No.
         Assert.ExpectedError(StrSubstNo(AccountNoError, GenJournalLine."Account No."));
@@ -480,13 +480,13 @@
         Initialize();
         CreateTaxAreaLine(TaxDetail);
         FindVATPostingSetup(VATPostingSetup);
-        SalesTaxJournal.OpenEdit;
+        SalesTaxJournal.OpenEdit();
         SalesTaxJournal."Account Type".SetValue(GenJournalLine."Account Type"::"G/L Account");
         SalesTaxJournal."Account No.".SetValue(CreateGLAccount(VATPostingSetup."VAT Prod. Posting Group", TaxDetail."Tax Group Code"));
         SalesTaxJournal.Amount.SetValue(0);
 
         // Exercise.
-        asserterror SalesTaxJournal.Post.Invoke;
+        asserterror SalesTaxJournal.Post.Invoke();
 
         // Verify: Verify Amount error while posting Sales Tax Journal Line with zero Amount.
         Assert.ExpectedError(SalesTaxAmountError);
@@ -524,7 +524,7 @@
         Initialize();
 
         // Exercise: Modify Software Identification Code in the Company Information.
-        SoftwareIdentificationCode := DelStr(LibraryUtility.GenerateGUID, 1, 8);  // Using 8 for length of Software Identification Code.
+        SoftwareIdentificationCode := DelStr(LibraryUtility.GenerateGUID(), 1, 8);  // Using 8 for length of Software Identification Code.
         CompanyInformation.Validate("Software Identification Code", SoftwareIdentificationCode);
         CompanyInformation.Modify(true);
 
@@ -562,7 +562,7 @@
         PurchDocumentUsingGSTHSTValues(PurchaseLine."Document Type"::"Return Order", PurchaseLine."GST/HST"::Rebate);
     end;
 
-    local procedure PurchDocumentUsingGSTHSTValues(DocumentType: Option; GSTHST: Option)
+    local procedure PurchDocumentUsingGSTHSTValues(DocumentType: Enum "Purchase Document Type"; GSTHST: Enum "GST HST Tax Type")
     var
         PurchaseLine: Record "Purchase Line";
         TaxDetail: Record "Tax Detail";
@@ -629,7 +629,7 @@
         GSTHSTTaxEntryUsingPurchDoc(PurchaseHeader."Document Type"::Invoice);
     end;
 
-    local procedure GSTHSTTaxEntryUsingPurchDoc(DocumentType: Option)
+    local procedure GSTHSTTaxEntryUsingPurchDoc(DocumentType: Enum "Purchase Document Type")
     var
         DepreciationBook: Record "Depreciation Book";
         FixedAsset: Record "Fixed Asset";
@@ -641,7 +641,7 @@
         // Setup: Create and setup Fixed Asset, Depreciation Book.
         Initialize();
         CreateAndModifyDepreciationBook(DepreciationBook);
-        CreateFixedAsset(FixedAsset, CreateFAPostingGroup);
+        CreateFixedAsset(FixedAsset, CreateFAPostingGroup());
         CreateFADepreciationBook(FixedAsset."No.", DepreciationBook.Code, FixedAsset."FA Posting Group");
 
         // Exercise: Create Vendor, create Purchase Document.
@@ -780,7 +780,7 @@
 
         // Setup: Modify Purchases and Payables setup and create Tax Area Line.
         Initialize();
-        ModifyPurchasesPayablesSetup;
+        ModifyPurchasesPayablesSetup();
         TaxAreaCode := CreateTaxAreaLine(TaxDetail);
 
         // Exercise.
@@ -838,7 +838,7 @@
         ChangePositiveVATAmount(PurchaseLine."Document Type"::Invoice);
     end;
 
-    local procedure ChangePositiveVATAmount(DocumentType: Option)
+    local procedure ChangePositiveVATAmount(DocumentType: Enum "Purchase Document Type")
     var
         GLEntry: Record "G/L Entry";
         PurchaseLine: Record "Purchase Line";
@@ -879,7 +879,7 @@
         ChangeNegativeVATAmount(PurchaseLine."Document Type"::"Return Order");
     end;
 
-    local procedure ChangeNegativeVATAmount(DocumentType: Option)
+    local procedure ChangeNegativeVATAmount(DocumentType: Enum "Purchase Document Type")
     var
         GLEntry: Record "G/L Entry";
         PurchaseLine: Record "Purchase Line";
@@ -902,7 +902,7 @@
         VerifyVATEntry(GLEntry."Document Type"::"Credit Memo", DocumentNo, -Amount, VATEntry."GST/HST"::" ");
     end;
 
-    local procedure CreateAndModifyPurchaseDocument(var PurchaseLine: Record "Purchase Line"; DocumentType: Option): Decimal
+    local procedure CreateAndModifyPurchaseDocument(var PurchaseLine: Record "Purchase Line"; DocumentType: Enum "Purchase Document Type"): Decimal
     var
         VATPostingSetup: Record "VAT Posting Setup";
     begin
@@ -1020,7 +1020,7 @@
         SalesTaxCalc.PutSalesTaxAmountLineTable(TempSalesTaxAmountLine, 0, 0, '');
         SalesTaxCalc.GetSummarizedSalesTaxTable(TempSalesTaxAmountLine);
         TempSalesTaxAmountLine.CalcSums("Tax Amount");
-        Assert.AreEqual(GetTFS358890RoundingResult, TempSalesTaxAmountLine."Tax Amount", WrongRndSummarizedTaxAmountErr);
+        Assert.AreEqual(GetTFS358890RoundingResult(), TempSalesTaxAmountLine."Tax Amount", WrongRndSummarizedTaxAmountErr);
         UpdateCustomer(SalesHeader."Bill-to Customer No.");
     end;
 
@@ -1037,7 +1037,7 @@
     begin
         // Verify Purchase Invoice with Job Task posted with corrected amount in Job Ledger Entry
         Initialize();
-        ModifyPurchasesPayablesSetup;
+        ModifyPurchasesPayablesSetup();
         TaxAreaCode := InitJobAndTaxDetailWithExpense(Job, JobTask, TaxDetail);
         DocumentNo := CreatePostPurchInvWithJobTask(ExpectedAmount, TaxDetail, JobTask, TaxAreaCode);
         VerifyJobLedgerEntryTotalCost(JobTask."Job No.", DocumentNo, ExpectedAmount);
@@ -1057,7 +1057,7 @@
         // Verify that "Tax To Be Expensed" correctly transfered from partially posted Purchase Invoice to "Unit Cost (LCY)" in Job Jnl. Line.
 
         Initialize();
-        ModifyPurchasesPayablesSetup;
+        ModifyPurchasesPayablesSetup();
         TaxAreaCode := InitJobAndTaxDetailWithExpense(Job, JobTask, TaxDetail);
         DocumentNo := CreatePostPartialPurchInvWithJobTask(PurchaseLine, TaxDetail, JobTask, TaxAreaCode);
         VerifyUnitCostWithTaxInJobLedgEntry(PurchaseLine, DocumentNo);
@@ -1188,7 +1188,7 @@
 
         // [WHEN] Open Statistics, drilldown to Tax entries and "manually" change Tax Amount. Post document.
         OpenSalesOrderPage(SalesOrder, SalesHeader); // calls SalesOrderStatisticsPageHandler
-        SalesOrder.Statistics.Invoke;
+        SalesOrder.Statistics.Invoke();
         // [WHEN] Post document.
         DocumentNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
 
@@ -1226,7 +1226,7 @@
 
         // [WHEN] Open Statistics, drilldown to Tax entries and "manually" change Tax Amount.
         OpenPurchaseOrderPage(PurchaseOrder, PurchaseHeader); // calls PurchOrderStatisticsPageHandler
-        PurchaseOrder.Statistics.Invoke;
+        PurchaseOrder.Statistics.Invoke();
         // [WHEN] Post document.
         DocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
 
@@ -1371,7 +1371,7 @@
         LibraryVariableStorage.Enqueue(TaxAmount);
         // [WHEN] Open Purchase Order Statistics
         OpenPurchaseOrderPage(PurchaseOrder, PurchaseHeader);
-        PurchaseOrder.Statistics.Invoke;
+        PurchaseOrder.Statistics.Invoke();
         // [THEN] "Tax Amount" field on statistics page = "Y"
     end;
 
@@ -1537,7 +1537,7 @@
         // [SCENARIO 363302] Not a zero amount after reopening released Purchase Order with Sales Tax
 
         Initialize();
-        ModifyPurchasesPayablesSetup;
+        ModifyPurchasesPayablesSetup();
         TaxAreaCode := CreateTaxAreaLine(TaxDetail);
 
         // [GIVEN] Released Purchase Order with Sales Tax
@@ -1701,7 +1701,7 @@
         Initialize();
 
         // [GIVEN] Tax Area TA with 5 tax jurisdictions and Country = 'CA'
-        TaxAreaCode := LibraryERMTax.CreateTaxArea_CA;
+        TaxAreaCode := LibraryERMTax.CreateTaxArea_CA();
 
         TaxGroup.FindFirst();
 
@@ -1729,9 +1729,9 @@
 
         // [WHEN] Open Purchase Order Statistics
         LibraryVariableStorage.Enqueue(Round(PurchaseLine."Line Amount" * PurchaseLine."VAT %" / 100));
-        PurchaseOrder.OpenEdit;
+        PurchaseOrder.OpenEdit();
         PurchaseOrder.GotoRecord(PurchaseHeader);
-        PurchaseOrder.Statistics.Invoke;  // Opens Page Handler - PurchaseOrderStatsPageHandler
+        PurchaseOrder.Statistics.Invoke();  // Opens Page Handler - PurchaseOrderStatsPageHandler
         PurchaseOrder.Close();
 
         // [THEN] No error message appear
@@ -1757,15 +1757,15 @@
         // [GIVEN] Sales Tax Setup has 2nd line of Tax Detail with "Tax Below Maximum" = 1.5 and "Maximum Amount/Qty" = 5000
         // [GIVEN] Tax Account (Sales) = "X"
         GLAccountNo := LibraryERM.CreateGLAccountNo();
-        TaxAreaCode := LibraryERMTax.CreateTaxArea_US;
-        TaxGroupCode := LibraryERMTax.CreateTaxGroupCode;
+        TaxAreaCode := LibraryERMTax.CreateTaxArea_US();
+        TaxGroupCode := LibraryERMTax.CreateTaxGroupCode();
         CreateTaxAreaSetupWithValues(TaxDetail1, TaxAreaCode, TaxGroupCode, 6, 0, GLAccountNo);
         CreateTaxAreaSetupWithValues(TaxDetail2, TaxAreaCode, TaxGroupCode, 1.5, 5000, GLAccountNo);
 
         // [GIVEN] Tax Liable Sales Order with Amount = 5074.25
         // [GIVEN] Generated Tax Amount consisits of 1.5% * 5000 = 75 (due to amount limit) and 6% * 5074.25 = 304.455, in total of 379.455
         CreateSalesHeaderWithTaxArea(SalesHeader, SalesHeader."Document Type"::Order, '', TaxAreaCode);
-        CreateSalesLineGL(SalesHeader, LibraryERM.CreateGLAccountNo, TaxDetail1."Tax Group Code", 5074.25);
+        CreateSalesLineGL(SalesHeader, LibraryERM.CreateGLAccountNo(), TaxDetail1."Tax Group Code", 5074.25);
 
         // [WHEN] Post Sales Order
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
@@ -2272,7 +2272,6 @@
         DummySalesTaxAmountDifference: Record "Sales Tax Amount Difference";
         CrMemoPurchaseHeader: Record "Purchase Header";
         PostedPurchInvoiceNo: Code[20];
-        PurchDocType: Option Quote,"Blanket Order","Order",Invoice,"Return Order","Credit Memo","Posted Receipt","Posted Invoice","Posted Return Shipment","Posted Credit Memo";
     begin
         // [FEATURE] [Purchase] [Copy Document] [Tax Difference]
         // [SCENARIO 214207] Sales Tax Amount Difference should be copied from Posted Purchase Invoice to Purchase Cr. Memo by Copy Document
@@ -2289,7 +2288,7 @@
           CrMemoPurchaseHeader, CrMemoPurchaseHeader."Document Type"::"Credit Memo", PurchaseHeader."Buy-from Vendor No.");
 
         // [WHEN] Copy the posted purchase invoice to credit memo by Copy Document
-        LibraryPurchase.CopyPurchaseDocument(CrMemoPurchaseHeader, PurchDocType::"Posted Invoice", PostedPurchInvoiceNo, true, false);
+        LibraryPurchase.CopyPurchaseDocument(CrMemoPurchaseHeader, "Purchase Document Type From"::"Posted Invoice", PostedPurchInvoiceNo, true, false);
 
         // [THEN] Sales Tax Amount Difference has been copied
         DummySalesTaxAmountDifference.SetRange("Document No.", CrMemoPurchaseHeader."No.");
@@ -2305,7 +2304,6 @@
         DummySalesTaxAmountDifference: Record "Sales Tax Amount Difference";
         CrMemoSalesHeader: Record "Sales Header";
         PostedSalesInvoiceNo: Code[20];
-        SalesDocType: Option Quote,"Blanket Order","Order",Invoice,"Return Order","Credit Memo","Posted Shipment","Posted Invoice","Posted Return Receipt","Posted Credit Memo";
     begin
         // [FEATURE] [Sales] [Copy Document] [Tax Difference]
         // [SCENARIO 214207] Sales Tax Amount Difference should be copied from Posted Sales Invoice to Sales Cr. Memo by Copy Document
@@ -2323,7 +2321,7 @@
           CrMemoSalesHeader, CrMemoSalesHeader."Document Type"::"Credit Memo", SalesHeader."Sell-to Customer No.");
 
         // [WHEN] Copy the posted sales invoice to credit memo by Copy Document
-        LibrarySales.CopySalesDocument(CrMemoSalesHeader, SalesDocType::"Posted Invoice", PostedSalesInvoiceNo, true, false);
+        LibrarySales.CopySalesDocument(CrMemoSalesHeader, "Sales Document Type From"::"Posted Invoice", PostedSalesInvoiceNo, true, false);
 
         // [THEN] Sales Tax Amount Difference has been copied
         DummySalesTaxAmountDifference.SetRange("Document No.", CrMemoSalesHeader."No.");
@@ -3029,7 +3027,7 @@
         PrintStandardSalesOrderConfReport(SalesHeader);
 
         // [THEN] Report prints correct total amounts
-        LibraryReportValidation.OpenFile;
+        LibraryReportValidation.OpenFile();
         LibraryReportValidation.VerifyCellValueByRef('T', 44, 1, LibraryReportValidation.FormatDecimalValue(5617.52)); // Amount
         LibraryReportValidation.VerifyCellValueByRef('T', 47, 1, LibraryReportValidation.FormatDecimalValue(280.88)); // PST
         LibraryReportValidation.VerifyCellValueByRef('T', 49, 1, LibraryReportValidation.FormatDecimalValue(393.23)); // GST
@@ -3066,7 +3064,7 @@
         PrintSalesOrderReport(SalesHeader);
 
         // [THEN] Report prints all document lines
-        LibraryReportValidation.OpenFile;
+        LibraryReportValidation.OpenFile();
         RowNo := 56;
 
         SalesLine.SetRange("Document Type", SalesHeader."Document Type");
@@ -3093,7 +3091,7 @@
         // [SCENARIO 283517] "Use Tax" can be set on Purchase Line if both "Sales Tax Only" with "Expense/Capitalize" = TRUE Tax Detail and Tax Detail of another type exist for applicable Tax Jurisdiction
 
         Initialize();
-        ModifyPurchasesPayablesSetup;
+        ModifyPurchasesPayablesSetup();
         // [GIVEN] Tax Area "TA01" with "Country/Region" = CA and Tax Area Line for Tax Jurisdiction "TJ01"
         // [GIVEN] Tax Group "TG01"
         // [GIVEN] Tax Detail with "Tax Jurisdiction" = "TJ01", "Tax Group" = "TG01", "Tax Type" = "Sales Tax Only", "Expense/Capitalize" = TRUE
@@ -3133,7 +3131,7 @@
         // [FEATURE] [Purchase] [Expense/Capitalize]
         // [SCENARIO 285454] "Use Tax" cannot be set on Purchase Line when "Sales And Use Tax" has "Expense/Capitalize" = TRUE in Tax Detail
         Initialize();
-        ModifyPurchasesPayablesSetup;
+        ModifyPurchasesPayablesSetup();
 
         // [GIVEN] Tax Area "TA01" with "Country/Region" = CA and Tax Area Line for Tax Jurisdiction "TJ01"
         // [GIVEN] Tax Group "TG01"
@@ -3182,7 +3180,7 @@
         // [SCENARIO 285454] "Use Tax" can be set on Purchase Line if both "Sales Tax Only" with "Expense/Capitalize" = TRUE Tax Detail and Tax Detail of another type exist for applicable Tax Jurisdiction
 
         Initialize();
-        ModifyPurchasesPayablesSetup;
+        ModifyPurchasesPayablesSetup();
         // [GIVEN] Tax Area "TA01" with "Country/Region" = CA and Tax Area Line for Tax Jurisdiction "TJ01"
         // [GIVEN] Tax Group "TG01"
         // [GIVEN] Tax Detail 5%  with "Tax Jurisdiction" = "TJ01", "Tax Group" = "TG01", "Tax Type" = "Sales Tax Only", "Expense/Capitalize" = TRUE
@@ -3225,10 +3223,10 @@
         Initialize();
 
         // [GIVEN] Tax Area Code with Tax Group Code "TG" with Tax Detail where "Tax Below Max" = 5
-        TaxAreaCode := LibraryERMTax.CreateTaxArea_US;
+        TaxAreaCode := LibraryERMTax.CreateTaxArea_US();
         CreateTaxAreaSetupWithValues(
-            TaxDetail, TaxAreaCode, LibraryERMTax.CreateTaxGroupCode,
-            LibraryRandom.RandInt(10), 0, LibraryERM.CreateGLAccountNo);
+            TaxDetail, TaxAreaCode, LibraryERMTax.CreateTaxGroupCode(),
+            LibraryRandom.RandInt(10), 0, LibraryERM.CreateGLAccountNo());
 
         // [GIVEN] Sales Quote with Tax Area Code with "Tax Liable" = FALSE
         CreateSalesHeaderWithTaxArea(SalesHeader, SalesHeader."Document Type"::Quote, '', TaxAreaCode);
@@ -3237,8 +3235,8 @@
 
         // [GIVEN] Two Sales Lines added with G/L Accounts with "TG" with amounts 10 and 20
         CreateUnitPriceWithVAT(UnitPrice, LineAmountInclVAT, TaxDetail."Tax Below Maximum");
-        CreateSalesLineGL(SalesHeader, LibraryERM.CreateGLAccountNo, TaxDetail."Tax Group Code", UnitPrice[1]);
-        CreateSalesLineGL(SalesHeader, LibraryERM.CreateGLAccountNo, TaxDetail."Tax Group Code", UnitPrice[2]);
+        CreateSalesLineGL(SalesHeader, LibraryERM.CreateGLAccountNo(), TaxDetail."Tax Group Code", UnitPrice[1]);
+        CreateSalesLineGL(SalesHeader, LibraryERM.CreateGLAccountNo(), TaxDetail."Tax Group Code", UnitPrice[2]);
 
         // [WHEN] Set "Tax Liable" for Sales Quote
         ValidateSalesQuoteTaxLiableThroughPage(SalesHeader, true);
@@ -3263,10 +3261,10 @@
         Initialize();
 
         // [GIVEN] Tax Area Code with Tax Group Code "TG" with Tax Detail where "Tax Below Max" = 5
-        TaxAreaCode := LibraryERMTax.CreateTaxArea_US;
+        TaxAreaCode := LibraryERMTax.CreateTaxArea_US();
         CreateTaxAreaSetupWithValues(
-            TaxDetail, TaxAreaCode, LibraryERMTax.CreateTaxGroupCode,
-            LibraryRandom.RandInt(10), 0, LibraryERM.CreateGLAccountNo);
+            TaxDetail, TaxAreaCode, LibraryERMTax.CreateTaxGroupCode(),
+            LibraryRandom.RandInt(10), 0, LibraryERM.CreateGLAccountNo());
 
         // [GIVEN] Sales Blanket Order with Tax Area Code with "Tax Liable" = FALSE
         CreateSalesHeaderWithTaxArea(SalesHeader, SalesHeader."Document Type"::"Blanket Order", '', TaxAreaCode);
@@ -3275,8 +3273,8 @@
 
         // [GIVEN] Two Sales Lines added with G/L Accounts with "TG" with amounts 10 and 20
         CreateUnitPriceWithVAT(UnitPrice, LineAmountInclVAT, TaxDetail."Tax Below Maximum");
-        CreateSalesLineGL(SalesHeader, LibraryERM.CreateGLAccountNo, TaxDetail."Tax Group Code", UnitPrice[1]);
-        CreateSalesLineGL(SalesHeader, LibraryERM.CreateGLAccountNo, TaxDetail."Tax Group Code", UnitPrice[2]);
+        CreateSalesLineGL(SalesHeader, LibraryERM.CreateGLAccountNo(), TaxDetail."Tax Group Code", UnitPrice[1]);
+        CreateSalesLineGL(SalesHeader, LibraryERM.CreateGLAccountNo(), TaxDetail."Tax Group Code", UnitPrice[2]);
 
         // [WHEN] Set "Tax Liable" for Sales Blanket Order
         ValidateSalesBlanketOrderTaxLiableThroughPage(SalesHeader, true);
@@ -3301,10 +3299,10 @@
         Initialize();
 
         // [GIVEN] Tax Area Code with Tax Group Code "TG" with Tax Detail where "Tax Below Max" = 5
-        TaxAreaCode := LibraryERMTax.CreateTaxArea_US;
+        TaxAreaCode := LibraryERMTax.CreateTaxArea_US();
         CreateTaxAreaSetupWithValues(
-            TaxDetail, TaxAreaCode, LibraryERMTax.CreateTaxGroupCode,
-            LibraryRandom.RandInt(10), 0, LibraryERM.CreateGLAccountNo);
+            TaxDetail, TaxAreaCode, LibraryERMTax.CreateTaxGroupCode(),
+            LibraryRandom.RandInt(10), 0, LibraryERM.CreateGLAccountNo());
 
         // [GIVEN] Sales Order with Tax Area Code with "Tax Liable" = FALSE
         CreateSalesHeaderWithTaxArea(SalesHeader, SalesHeader."Document Type"::Order, '', TaxAreaCode);
@@ -3313,8 +3311,8 @@
 
         // [GIVEN] Two Sales Lines added with G/L Accounts with "TG" with amounts 10 and 20
         CreateUnitPriceWithVAT(UnitPrice, LineAmountInclVAT, TaxDetail."Tax Below Maximum");
-        CreateSalesLineGL(SalesHeader, LibraryERM.CreateGLAccountNo, TaxDetail."Tax Group Code", UnitPrice[1]);
-        CreateSalesLineGL(SalesHeader, LibraryERM.CreateGLAccountNo, TaxDetail."Tax Group Code", UnitPrice[2]);
+        CreateSalesLineGL(SalesHeader, LibraryERM.CreateGLAccountNo(), TaxDetail."Tax Group Code", UnitPrice[1]);
+        CreateSalesLineGL(SalesHeader, LibraryERM.CreateGLAccountNo(), TaxDetail."Tax Group Code", UnitPrice[2]);
 
         // [WHEN] Set "Tax Liable" for Sales Order
         ValidateSalesOrderTaxLiableThroughPage(SalesHeader, true);
@@ -3339,10 +3337,10 @@
         Initialize();
 
         // [GIVEN] Tax Area Code with Tax Group Code "TG" with Tax Detail where "Tax Below Max" = 5
-        TaxAreaCode := LibraryERMTax.CreateTaxArea_US;
+        TaxAreaCode := LibraryERMTax.CreateTaxArea_US();
         CreateTaxAreaSetupWithValues(
-            TaxDetail, TaxAreaCode, LibraryERMTax.CreateTaxGroupCode,
-            LibraryRandom.RandInt(10), 0, LibraryERM.CreateGLAccountNo);
+            TaxDetail, TaxAreaCode, LibraryERMTax.CreateTaxGroupCode(),
+            LibraryRandom.RandInt(10), 0, LibraryERM.CreateGLAccountNo());
 
         // [GIVEN] Sales Invoice with Tax Area Code with "Tax Liable" = FALSE
         CreateSalesHeaderWithTaxArea(SalesHeader, SalesHeader."Document Type"::Invoice, '', TaxAreaCode);
@@ -3351,8 +3349,8 @@
 
         // [GIVEN] Two Sales Lines added with G/L Accounts with "TG" with amounts 10 and 20
         CreateUnitPriceWithVAT(UnitPrice, LineAmountInclVAT, TaxDetail."Tax Below Maximum");
-        CreateSalesLineGL(SalesHeader, LibraryERM.CreateGLAccountNo, TaxDetail."Tax Group Code", UnitPrice[1]);
-        CreateSalesLineGL(SalesHeader, LibraryERM.CreateGLAccountNo, TaxDetail."Tax Group Code", UnitPrice[2]);
+        CreateSalesLineGL(SalesHeader, LibraryERM.CreateGLAccountNo(), TaxDetail."Tax Group Code", UnitPrice[1]);
+        CreateSalesLineGL(SalesHeader, LibraryERM.CreateGLAccountNo(), TaxDetail."Tax Group Code", UnitPrice[2]);
 
         // [WHEN] Set "Tax Liable" for Sales Invoice
         ValidateSalesInvoiceTaxLiableThroughPage(SalesHeader, true);
@@ -3377,10 +3375,10 @@
         Initialize();
 
         // [GIVEN] Tax Area Code with Tax Group Code "TG" with Tax Detail where "Tax Below Max" = 5
-        TaxAreaCode := LibraryERMTax.CreateTaxArea_US;
+        TaxAreaCode := LibraryERMTax.CreateTaxArea_US();
         CreateTaxAreaSetupWithValues(
-            TaxDetail, TaxAreaCode, LibraryERMTax.CreateTaxGroupCode,
-            LibraryRandom.RandInt(10), 0, LibraryERM.CreateGLAccountNo);
+            TaxDetail, TaxAreaCode, LibraryERMTax.CreateTaxGroupCode(),
+            LibraryRandom.RandInt(10), 0, LibraryERM.CreateGLAccountNo());
 
         // [GIVEN] Sales Credit Memo with Tax Area Code with "Tax Liable" = FALSE
         CreateSalesHeaderWithTaxArea(SalesHeader, SalesHeader."Document Type"::"Credit Memo", '', TaxAreaCode);
@@ -3389,8 +3387,8 @@
 
         // [GIVEN] Two Sales Lines added with G/L Accounts with "TG" with amounts 10 and 20
         CreateUnitPriceWithVAT(UnitPrice, LineAmountInclVAT, TaxDetail."Tax Below Maximum");
-        CreateSalesLineGL(SalesHeader, LibraryERM.CreateGLAccountNo, TaxDetail."Tax Group Code", UnitPrice[1]);
-        CreateSalesLineGL(SalesHeader, LibraryERM.CreateGLAccountNo, TaxDetail."Tax Group Code", UnitPrice[2]);
+        CreateSalesLineGL(SalesHeader, LibraryERM.CreateGLAccountNo(), TaxDetail."Tax Group Code", UnitPrice[1]);
+        CreateSalesLineGL(SalesHeader, LibraryERM.CreateGLAccountNo(), TaxDetail."Tax Group Code", UnitPrice[2]);
 
         // [WHEN] Set "Tax Liable" for Sales Credit Memo
         ValidateSalesCreditMemoTaxLiableThroughPage(SalesHeader, true);
@@ -3415,10 +3413,10 @@
         Initialize();
 
         // [GIVEN] Tax Area Code with Tax Group Code "TG" with Tax Detail where "Tax Below Max" = 5
-        TaxAreaCode := LibraryERMTax.CreateTaxArea_US;
+        TaxAreaCode := LibraryERMTax.CreateTaxArea_US();
         CreateTaxAreaSetupWithValues(
-            TaxDetail, TaxAreaCode, LibraryERMTax.CreateTaxGroupCode,
-            LibraryRandom.RandInt(10), 0, LibraryERM.CreateGLAccountNo);
+            TaxDetail, TaxAreaCode, LibraryERMTax.CreateTaxGroupCode(),
+            LibraryRandom.RandInt(10), 0, LibraryERM.CreateGLAccountNo());
 
         // [GIVEN] Sales Return Order with Tax Area Code with "Tax Liable" = FALSE
         CreateSalesHeaderWithTaxArea(SalesHeader, SalesHeader."Document Type"::"Return Order", '', TaxAreaCode);
@@ -3427,8 +3425,8 @@
 
         // [GIVEN] Two Sales Lines added with G/L Accounts with "TG" with amounts 10 and 20
         CreateUnitPriceWithVAT(UnitPrice, LineAmountInclVAT, TaxDetail."Tax Below Maximum");
-        CreateSalesLineGL(SalesHeader, LibraryERM.CreateGLAccountNo, TaxDetail."Tax Group Code", UnitPrice[1]);
-        CreateSalesLineGL(SalesHeader, LibraryERM.CreateGLAccountNo, TaxDetail."Tax Group Code", UnitPrice[2]);
+        CreateSalesLineGL(SalesHeader, LibraryERM.CreateGLAccountNo(), TaxDetail."Tax Group Code", UnitPrice[1]);
+        CreateSalesLineGL(SalesHeader, LibraryERM.CreateGLAccountNo(), TaxDetail."Tax Group Code", UnitPrice[2]);
 
         // [WHEN] Set "Tax Liable" for Sales Return Order
         ValidateSalesReturnOrderTaxLiableThroughPage(SalesHeader, true);
@@ -3452,10 +3450,10 @@
         Initialize();
 
         // [GIVEN] Tax Area Code with Tax Group Code "TG" with Tax Detail where "Tax Below Max" = 5
-        TaxAreaCode := LibraryERMTax.CreateTaxArea_US;
+        TaxAreaCode := LibraryERMTax.CreateTaxArea_US();
         CreateTaxAreaSetupWithValues(
-            TaxDetail, TaxAreaCode, LibraryERMTax.CreateTaxGroupCode,
-            LibraryRandom.RandInt(10), 0, LibraryERM.CreateGLAccountNo);
+            TaxDetail, TaxAreaCode, LibraryERMTax.CreateTaxGroupCode(),
+            LibraryRandom.RandInt(10), 0, LibraryERM.CreateGLAccountNo());
 
         // [GIVEN] Sales Quote with Tax Area Code with "Tax Liable" = TRUE
         CreateSalesHeaderWithTaxArea(SalesHeader, SalesHeader."Document Type"::Quote, '', TaxAreaCode);
@@ -3463,8 +3461,8 @@
 
         // [GIVEN] Two Sales Lines added with G/L Accounts with "TG" with amounts 10 and 20
         CreateUnitPrice(UnitPrice);
-        CreateSalesLineGL(SalesHeader, LibraryERM.CreateGLAccountNo, TaxDetail."Tax Group Code", UnitPrice[1]);
-        CreateSalesLineGL(SalesHeader, LibraryERM.CreateGLAccountNo, TaxDetail."Tax Group Code", UnitPrice[2]);
+        CreateSalesLineGL(SalesHeader, LibraryERM.CreateGLAccountNo(), TaxDetail."Tax Group Code", UnitPrice[1]);
+        CreateSalesLineGL(SalesHeader, LibraryERM.CreateGLAccountNo(), TaxDetail."Tax Group Code", UnitPrice[2]);
 
         // [WHEN] Set OFF "Tax Liable" for Sales Quote
         ValidateSalesQuoteTaxLiableThroughPage(SalesHeader, false);
@@ -3488,10 +3486,10 @@
         Initialize();
 
         // [GIVEN] Tax Area Code with Tax Group Code "TG" with Tax Detail where "Tax Below Max" = 5
-        TaxAreaCode := LibraryERMTax.CreateTaxArea_US;
+        TaxAreaCode := LibraryERMTax.CreateTaxArea_US();
         CreateTaxAreaSetupWithValues(
-            TaxDetail, TaxAreaCode, LibraryERMTax.CreateTaxGroupCode,
-            LibraryRandom.RandInt(10), 0, LibraryERM.CreateGLAccountNo);
+            TaxDetail, TaxAreaCode, LibraryERMTax.CreateTaxGroupCode(),
+            LibraryRandom.RandInt(10), 0, LibraryERM.CreateGLAccountNo());
 
         // [GIVEN] Sales Blanket Order with Tax Area Code with "Tax Liable" = TRUE
         CreateSalesHeaderWithTaxArea(SalesHeader, SalesHeader."Document Type"::"Blanket Order", '', TaxAreaCode);
@@ -3499,8 +3497,8 @@
 
         // [GIVEN] Two Sales Lines added with G/L Accounts with "TG" with amounts 10 and 20
         CreateUnitPrice(UnitPrice);
-        CreateSalesLineGL(SalesHeader, LibraryERM.CreateGLAccountNo, TaxDetail."Tax Group Code", UnitPrice[1]);
-        CreateSalesLineGL(SalesHeader, LibraryERM.CreateGLAccountNo, TaxDetail."Tax Group Code", UnitPrice[2]);
+        CreateSalesLineGL(SalesHeader, LibraryERM.CreateGLAccountNo(), TaxDetail."Tax Group Code", UnitPrice[1]);
+        CreateSalesLineGL(SalesHeader, LibraryERM.CreateGLAccountNo(), TaxDetail."Tax Group Code", UnitPrice[2]);
 
         // [WHEN] Set OFF "Tax Liable" for Sales Blanket Order
         ValidateSalesBlanketOrderTaxLiableThroughPage(SalesHeader, false);
@@ -3524,10 +3522,10 @@
         Initialize();
 
         // [GIVEN] Tax Area Code with Tax Group Code "TG" with Tax Detail where "Tax Below Max" = 5
-        TaxAreaCode := LibraryERMTax.CreateTaxArea_US;
+        TaxAreaCode := LibraryERMTax.CreateTaxArea_US();
         CreateTaxAreaSetupWithValues(
-            TaxDetail, TaxAreaCode, LibraryERMTax.CreateTaxGroupCode,
-            LibraryRandom.RandInt(10), 0, LibraryERM.CreateGLAccountNo);
+            TaxDetail, TaxAreaCode, LibraryERMTax.CreateTaxGroupCode(),
+            LibraryRandom.RandInt(10), 0, LibraryERM.CreateGLAccountNo());
 
         // [GIVEN] Sales Order with Tax Area Code with "Tax Liable" = TRUE
         CreateSalesHeaderWithTaxArea(SalesHeader, SalesHeader."Document Type"::Order, '', TaxAreaCode);
@@ -3535,8 +3533,8 @@
 
         // [GIVEN] Two Sales Lines added with G/L Accounts with "TG" with amounts 10 and 20
         CreateUnitPrice(UnitPrice);
-        CreateSalesLineGL(SalesHeader, LibraryERM.CreateGLAccountNo, TaxDetail."Tax Group Code", UnitPrice[1]);
-        CreateSalesLineGL(SalesHeader, LibraryERM.CreateGLAccountNo, TaxDetail."Tax Group Code", UnitPrice[2]);
+        CreateSalesLineGL(SalesHeader, LibraryERM.CreateGLAccountNo(), TaxDetail."Tax Group Code", UnitPrice[1]);
+        CreateSalesLineGL(SalesHeader, LibraryERM.CreateGLAccountNo(), TaxDetail."Tax Group Code", UnitPrice[2]);
 
         // [WHEN] Set OFF "Tax Liable" for Sales Order
         ValidateSalesOrderTaxLiableThroughPage(SalesHeader, false);
@@ -3560,10 +3558,10 @@
         Initialize();
 
         // [GIVEN] Tax Area Code with Tax Group Code "TG" with Tax Detail where "Tax Below Max" = 5
-        TaxAreaCode := LibraryERMTax.CreateTaxArea_US;
+        TaxAreaCode := LibraryERMTax.CreateTaxArea_US();
         CreateTaxAreaSetupWithValues(
-            TaxDetail, TaxAreaCode, LibraryERMTax.CreateTaxGroupCode,
-            LibraryRandom.RandInt(10), 0, LibraryERM.CreateGLAccountNo);
+            TaxDetail, TaxAreaCode, LibraryERMTax.CreateTaxGroupCode(),
+            LibraryRandom.RandInt(10), 0, LibraryERM.CreateGLAccountNo());
 
         // [GIVEN] Sales Invoice with Tax Area Code with "Tax Liable" = TRUE
         CreateSalesHeaderWithTaxArea(SalesHeader, SalesHeader."Document Type"::Invoice, '', TaxAreaCode);
@@ -3571,8 +3569,8 @@
 
         // [GIVEN] Two Sales Lines added with G/L Accounts with "TG" with amounts 10 and 20
         CreateUnitPrice(UnitPrice);
-        CreateSalesLineGL(SalesHeader, LibraryERM.CreateGLAccountNo, TaxDetail."Tax Group Code", UnitPrice[1]);
-        CreateSalesLineGL(SalesHeader, LibraryERM.CreateGLAccountNo, TaxDetail."Tax Group Code", UnitPrice[2]);
+        CreateSalesLineGL(SalesHeader, LibraryERM.CreateGLAccountNo(), TaxDetail."Tax Group Code", UnitPrice[1]);
+        CreateSalesLineGL(SalesHeader, LibraryERM.CreateGLAccountNo(), TaxDetail."Tax Group Code", UnitPrice[2]);
 
         // [WHEN] Set OFF "Tax Liable" for Sales Invoice
         ValidateSalesInvoiceTaxLiableThroughPage(SalesHeader, false);
@@ -3596,10 +3594,10 @@
         Initialize();
 
         // [GIVEN] Tax Area Code with Tax Group Code "TG" with Tax Detail where "Tax Below Max" = 5
-        TaxAreaCode := LibraryERMTax.CreateTaxArea_US;
+        TaxAreaCode := LibraryERMTax.CreateTaxArea_US();
         CreateTaxAreaSetupWithValues(
-            TaxDetail, TaxAreaCode, LibraryERMTax.CreateTaxGroupCode,
-            LibraryRandom.RandInt(10), 0, LibraryERM.CreateGLAccountNo);
+            TaxDetail, TaxAreaCode, LibraryERMTax.CreateTaxGroupCode(),
+            LibraryRandom.RandInt(10), 0, LibraryERM.CreateGLAccountNo());
 
         // [GIVEN] Sales Credit Memo with Tax Area Code with "Tax Liable" = TRUE
         CreateSalesHeaderWithTaxArea(SalesHeader, SalesHeader."Document Type"::"Credit Memo", '', TaxAreaCode);
@@ -3607,8 +3605,8 @@
 
         // [GIVEN] Two Sales Lines added with G/L Accounts with "TG" with amounts 10 and 20
         CreateUnitPrice(UnitPrice);
-        CreateSalesLineGL(SalesHeader, LibraryERM.CreateGLAccountNo, TaxDetail."Tax Group Code", UnitPrice[1]);
-        CreateSalesLineGL(SalesHeader, LibraryERM.CreateGLAccountNo, TaxDetail."Tax Group Code", UnitPrice[2]);
+        CreateSalesLineGL(SalesHeader, LibraryERM.CreateGLAccountNo(), TaxDetail."Tax Group Code", UnitPrice[1]);
+        CreateSalesLineGL(SalesHeader, LibraryERM.CreateGLAccountNo(), TaxDetail."Tax Group Code", UnitPrice[2]);
 
         // [WHEN] Set OFF "Tax Liable" for Sales Credit Memo
         ValidateSalesCreditMemoTaxLiableThroughPage(SalesHeader, false);
@@ -3632,10 +3630,10 @@
         Initialize();
 
         // [GIVEN] Tax Area Code with Tax Group Code "TG" with Tax Detail where "Tax Below Max" = 5
-        TaxAreaCode := LibraryERMTax.CreateTaxArea_US;
+        TaxAreaCode := LibraryERMTax.CreateTaxArea_US();
         CreateTaxAreaSetupWithValues(
-            TaxDetail, TaxAreaCode, LibraryERMTax.CreateTaxGroupCode,
-            LibraryRandom.RandInt(10), 0, LibraryERM.CreateGLAccountNo);
+            TaxDetail, TaxAreaCode, LibraryERMTax.CreateTaxGroupCode(),
+            LibraryRandom.RandInt(10), 0, LibraryERM.CreateGLAccountNo());
 
         // [GIVEN] Sales Return Order with Tax Area Code with "Tax Liable" = TRUE
         CreateSalesHeaderWithTaxArea(SalesHeader, SalesHeader."Document Type"::"Return Order", '', TaxAreaCode);
@@ -3643,8 +3641,8 @@
 
         // [GIVEN] Two Sales Lines added with G/L Accounts with "TG" with amounts 10 and 20
         CreateUnitPrice(UnitPrice);
-        CreateSalesLineGL(SalesHeader, LibraryERM.CreateGLAccountNo, TaxDetail."Tax Group Code", UnitPrice[1]);
-        CreateSalesLineGL(SalesHeader, LibraryERM.CreateGLAccountNo, TaxDetail."Tax Group Code", UnitPrice[2]);
+        CreateSalesLineGL(SalesHeader, LibraryERM.CreateGLAccountNo(), TaxDetail."Tax Group Code", UnitPrice[1]);
+        CreateSalesLineGL(SalesHeader, LibraryERM.CreateGLAccountNo(), TaxDetail."Tax Group Code", UnitPrice[2]);
 
         // [WHEN] Set OFF "Tax Liable" for Sales Return Order
         ValidateSalesReturnOrderTaxLiableThroughPage(SalesHeader, false);
@@ -3670,10 +3668,10 @@
         Initialize();
 
         // [GIVEN] Tax Area Code with Tax Group Code "TG" with Tax Detail where "Tax Below Max" = 5
-        TaxAreaCode := LibraryERMTax.CreateTaxArea_US;
+        TaxAreaCode := LibraryERMTax.CreateTaxArea_US();
         CreateTaxAreaSetupWithValues(
-            TaxDetail, TaxAreaCode, LibraryERMTax.CreateTaxGroupCode,
-            LibraryRandom.RandInt(10), 0, LibraryERM.CreateGLAccountNo);
+            TaxDetail, TaxAreaCode, LibraryERMTax.CreateTaxGroupCode(),
+            LibraryRandom.RandInt(10), 0, LibraryERM.CreateGLAccountNo());
 
         // [GIVEN] Purchase Quote with Tax Area Code with "Tax Liable" = FALSE
         CreatePurchaseHeaderWithTaxArea(PurchaseHeader, PurchaseHeader."Document Type"::Quote, '', TaxAreaCode);
@@ -3682,8 +3680,8 @@
 
         // [GIVEN] Two Purchase Lines added with G/L Accounts with "TG" with amounts 10 and 20
         CreateUnitPriceWithVAT(UnitPrice, LineAmountInclVAT, TaxDetail."Tax Below Maximum");
-        CreatePurchaseLineGL(PurchaseHeader, LibraryERM.CreateGLAccountNo, TaxDetail."Tax Group Code", UnitPrice[1]);
-        CreatePurchaseLineGL(PurchaseHeader, LibraryERM.CreateGLAccountNo, TaxDetail."Tax Group Code", UnitPrice[2]);
+        CreatePurchaseLineGL(PurchaseHeader, LibraryERM.CreateGLAccountNo(), TaxDetail."Tax Group Code", UnitPrice[1]);
+        CreatePurchaseLineGL(PurchaseHeader, LibraryERM.CreateGLAccountNo(), TaxDetail."Tax Group Code", UnitPrice[2]);
 
         // [WHEN] Set "Tax Liable" for Purchase Quote
         ValidatePurchaseQuoteTaxLiableThroughPage(PurchaseHeader, true);
@@ -3709,10 +3707,10 @@
         Initialize();
 
         // [GIVEN] Tax Area Code with Tax Group Code "TG" with Tax Detail where "Tax Below Max" = 5
-        TaxAreaCode := LibraryERMTax.CreateTaxArea_US;
+        TaxAreaCode := LibraryERMTax.CreateTaxArea_US();
         CreateTaxAreaSetupWithValues(
-            TaxDetail, TaxAreaCode, LibraryERMTax.CreateTaxGroupCode,
-            LibraryRandom.RandInt(10), 0, LibraryERM.CreateGLAccountNo);
+            TaxDetail, TaxAreaCode, LibraryERMTax.CreateTaxGroupCode(),
+            LibraryRandom.RandInt(10), 0, LibraryERM.CreateGLAccountNo());
 
         // [GIVEN] Purchase Blanket Order with Tax Area Code with "Tax Liable" = FALSE
         CreatePurchaseHeaderWithTaxArea(PurchaseHeader, PurchaseHeader."Document Type"::"Blanket Order", '', TaxAreaCode);
@@ -3721,8 +3719,8 @@
 
         // [GIVEN] Two Purchase Lines added with G/L Accounts with "TG" with amounts 10 and 20
         CreateUnitPriceWithVAT(UnitPrice, LineAmountInclVAT, TaxDetail."Tax Below Maximum");
-        CreatePurchaseLineGL(PurchaseHeader, LibraryERM.CreateGLAccountNo, TaxDetail."Tax Group Code", UnitPrice[1]);
-        CreatePurchaseLineGL(PurchaseHeader, LibraryERM.CreateGLAccountNo, TaxDetail."Tax Group Code", UnitPrice[2]);
+        CreatePurchaseLineGL(PurchaseHeader, LibraryERM.CreateGLAccountNo(), TaxDetail."Tax Group Code", UnitPrice[1]);
+        CreatePurchaseLineGL(PurchaseHeader, LibraryERM.CreateGLAccountNo(), TaxDetail."Tax Group Code", UnitPrice[2]);
 
         // [WHEN] Set "Tax Liable" for Purchase Blanket Order
         ValidatePurchaseBlanketOrderTaxLiableThroughPage(PurchaseHeader, true);
@@ -3748,10 +3746,10 @@
         Initialize();
 
         // [GIVEN] Tax Area Code with Tax Group Code "TG" with Tax Detail where "Tax Below Max" = 5
-        TaxAreaCode := LibraryERMTax.CreateTaxArea_US;
+        TaxAreaCode := LibraryERMTax.CreateTaxArea_US();
         CreateTaxAreaSetupWithValues(
-            TaxDetail, TaxAreaCode, LibraryERMTax.CreateTaxGroupCode,
-            LibraryRandom.RandInt(10), 0, LibraryERM.CreateGLAccountNo);
+            TaxDetail, TaxAreaCode, LibraryERMTax.CreateTaxGroupCode(),
+            LibraryRandom.RandInt(10), 0, LibraryERM.CreateGLAccountNo());
 
         // [GIVEN] Purchase Order with Tax Area Code with "Tax Liable" = FALSE
         CreatePurchaseHeaderWithTaxArea(PurchaseHeader, PurchaseHeader."Document Type"::Order, '', TaxAreaCode);
@@ -3760,8 +3758,8 @@
 
         // [GIVEN] Two Purchase Lines added with G/L Accounts with "TG" with amounts 10 and 20
         CreateUnitPriceWithVAT(UnitPrice, LineAmountInclVAT, TaxDetail."Tax Below Maximum");
-        CreatePurchaseLineGL(PurchaseHeader, LibraryERM.CreateGLAccountNo, TaxDetail."Tax Group Code", UnitPrice[1]);
-        CreatePurchaseLineGL(PurchaseHeader, LibraryERM.CreateGLAccountNo, TaxDetail."Tax Group Code", UnitPrice[2]);
+        CreatePurchaseLineGL(PurchaseHeader, LibraryERM.CreateGLAccountNo(), TaxDetail."Tax Group Code", UnitPrice[1]);
+        CreatePurchaseLineGL(PurchaseHeader, LibraryERM.CreateGLAccountNo(), TaxDetail."Tax Group Code", UnitPrice[2]);
 
         // [WHEN] Set "Tax Liable" for Purchase Order
         ValidatePurchaseOrderTaxLiableThroughPage(PurchaseHeader, true);
@@ -3787,10 +3785,10 @@
         Initialize();
 
         // [GIVEN] Tax Area Code with Tax Group Code "TG" with Tax Detail where "Tax Below Max" = 5
-        TaxAreaCode := LibraryERMTax.CreateTaxArea_US;
+        TaxAreaCode := LibraryERMTax.CreateTaxArea_US();
         CreateTaxAreaSetupWithValues(
-            TaxDetail, TaxAreaCode, LibraryERMTax.CreateTaxGroupCode,
-            LibraryRandom.RandInt(10), 0, LibraryERM.CreateGLAccountNo);
+            TaxDetail, TaxAreaCode, LibraryERMTax.CreateTaxGroupCode(),
+            LibraryRandom.RandInt(10), 0, LibraryERM.CreateGLAccountNo());
 
         // [GIVEN] Purchase Invoice with Tax Area Code with "Tax Liable" = FALSE
         CreatePurchaseHeaderWithTaxArea(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, '', TaxAreaCode);
@@ -3799,8 +3797,8 @@
 
         // [GIVEN] Two Purchase Lines added with G/L Accounts with "TG" with amounts 10 and 20
         CreateUnitPriceWithVAT(UnitPrice, LineAmountInclVAT, TaxDetail."Tax Below Maximum");
-        CreatePurchaseLineGL(PurchaseHeader, LibraryERM.CreateGLAccountNo, TaxDetail."Tax Group Code", UnitPrice[1]);
-        CreatePurchaseLineGL(PurchaseHeader, LibraryERM.CreateGLAccountNo, TaxDetail."Tax Group Code", UnitPrice[2]);
+        CreatePurchaseLineGL(PurchaseHeader, LibraryERM.CreateGLAccountNo(), TaxDetail."Tax Group Code", UnitPrice[1]);
+        CreatePurchaseLineGL(PurchaseHeader, LibraryERM.CreateGLAccountNo(), TaxDetail."Tax Group Code", UnitPrice[2]);
 
         // [WHEN] Set "Tax Liable" for Purchase Invoice
         ValidatePurchaseInvoiceTaxLiableThroughPage(PurchaseHeader, true);
@@ -3826,10 +3824,10 @@
         Initialize();
 
         // [GIVEN] Tax Area Code with Tax Group Code "TG" with Tax Detail where "Tax Below Max" = 5
-        TaxAreaCode := LibraryERMTax.CreateTaxArea_US;
+        TaxAreaCode := LibraryERMTax.CreateTaxArea_US();
         CreateTaxAreaSetupWithValues(
-            TaxDetail, TaxAreaCode, LibraryERMTax.CreateTaxGroupCode,
-            LibraryRandom.RandInt(10), 0, LibraryERM.CreateGLAccountNo);
+            TaxDetail, TaxAreaCode, LibraryERMTax.CreateTaxGroupCode(),
+            LibraryRandom.RandInt(10), 0, LibraryERM.CreateGLAccountNo());
 
         // [GIVEN] Purchase Credit Memo with Tax Area Code with "Tax Liable" = FALSE
         CreatePurchaseHeaderWithTaxArea(PurchaseHeader, PurchaseHeader."Document Type"::"Credit Memo", '', TaxAreaCode);
@@ -3838,8 +3836,8 @@
 
         // [GIVEN] Two Purchase Lines added with G/L Accounts with "TG" with amounts 10 and 20
         CreateUnitPriceWithVAT(UnitPrice, LineAmountInclVAT, TaxDetail."Tax Below Maximum");
-        CreatePurchaseLineGL(PurchaseHeader, LibraryERM.CreateGLAccountNo, TaxDetail."Tax Group Code", UnitPrice[1]);
-        CreatePurchaseLineGL(PurchaseHeader, LibraryERM.CreateGLAccountNo, TaxDetail."Tax Group Code", UnitPrice[2]);
+        CreatePurchaseLineGL(PurchaseHeader, LibraryERM.CreateGLAccountNo(), TaxDetail."Tax Group Code", UnitPrice[1]);
+        CreatePurchaseLineGL(PurchaseHeader, LibraryERM.CreateGLAccountNo(), TaxDetail."Tax Group Code", UnitPrice[2]);
 
         // [WHEN] Set "Tax Liable" for Purchase Credit Memo
         ValidatePurchaseCreditMemoTaxLiableThroughPage(PurchaseHeader, true);
@@ -3865,10 +3863,10 @@
         Initialize();
 
         // [GIVEN] Tax Area Code with Tax Group Code "TG" with Tax Detail where "Tax Below Max" = 5
-        TaxAreaCode := LibraryERMTax.CreateTaxArea_US;
+        TaxAreaCode := LibraryERMTax.CreateTaxArea_US();
         CreateTaxAreaSetupWithValues(
-            TaxDetail, TaxAreaCode, LibraryERMTax.CreateTaxGroupCode,
-            LibraryRandom.RandInt(10), 0, LibraryERM.CreateGLAccountNo);
+            TaxDetail, TaxAreaCode, LibraryERMTax.CreateTaxGroupCode(),
+            LibraryRandom.RandInt(10), 0, LibraryERM.CreateGLAccountNo());
 
         // [GIVEN] Purchase Credit Memo with Tax Area Code with "Tax Liable" = FALSE
         CreatePurchaseHeaderWithTaxArea(PurchaseHeader, PurchaseHeader."Document Type"::"Return Order", '', TaxAreaCode);
@@ -3877,8 +3875,8 @@
 
         // [GIVEN] Two Purchase Lines added with G/L Accounts with "TG" with amounts 10 and 20
         CreateUnitPriceWithVAT(UnitPrice, LineAmountInclVAT, TaxDetail."Tax Below Maximum");
-        CreatePurchaseLineGL(PurchaseHeader, LibraryERM.CreateGLAccountNo, TaxDetail."Tax Group Code", UnitPrice[1]);
-        CreatePurchaseLineGL(PurchaseHeader, LibraryERM.CreateGLAccountNo, TaxDetail."Tax Group Code", UnitPrice[2]);
+        CreatePurchaseLineGL(PurchaseHeader, LibraryERM.CreateGLAccountNo(), TaxDetail."Tax Group Code", UnitPrice[1]);
+        CreatePurchaseLineGL(PurchaseHeader, LibraryERM.CreateGLAccountNo(), TaxDetail."Tax Group Code", UnitPrice[2]);
 
         // [WHEN] Set "Tax Liable" for Purchase Return Order
         ValidatePurchaseReturnOrderTaxLiableThroughPage(PurchaseHeader, true);
@@ -3903,10 +3901,10 @@
         Initialize();
 
         // [GIVEN] Tax Area Code with Tax Group Code "TG" with Tax Detail where "Tax Below Max" = 5
-        TaxAreaCode := LibraryERMTax.CreateTaxArea_US;
+        TaxAreaCode := LibraryERMTax.CreateTaxArea_US();
         CreateTaxAreaSetupWithValues(
-            TaxDetail, TaxAreaCode, LibraryERMTax.CreateTaxGroupCode,
-            LibraryRandom.RandInt(10), 0, LibraryERM.CreateGLAccountNo);
+            TaxDetail, TaxAreaCode, LibraryERMTax.CreateTaxGroupCode(),
+            LibraryRandom.RandInt(10), 0, LibraryERM.CreateGLAccountNo());
 
         // [GIVEN] Purchase Quote with Tax Area Code with "Tax Liable" = TRUE
         CreatePurchaseHeaderWithTaxArea(PurchaseHeader, PurchaseHeader."Document Type"::Quote, '', TaxAreaCode);
@@ -3914,8 +3912,8 @@
 
         // [GIVEN] Two Purchase Lines added with G/L Accounts with "TG" with amounts 10 and 20
         CreateUnitPrice(UnitPrice);
-        CreatePurchaseLineGL(PurchaseHeader, LibraryERM.CreateGLAccountNo, TaxDetail."Tax Group Code", UnitPrice[1]);
-        CreatePurchaseLineGL(PurchaseHeader, LibraryERM.CreateGLAccountNo, TaxDetail."Tax Group Code", UnitPrice[2]);
+        CreatePurchaseLineGL(PurchaseHeader, LibraryERM.CreateGLAccountNo(), TaxDetail."Tax Group Code", UnitPrice[1]);
+        CreatePurchaseLineGL(PurchaseHeader, LibraryERM.CreateGLAccountNo(), TaxDetail."Tax Group Code", UnitPrice[2]);
 
         // [WHEN] Set off "Tax Liable" for Purchase Quote
         ValidatePurchaseQuoteTaxLiableThroughPage(PurchaseHeader, false);
@@ -3940,10 +3938,10 @@
         Initialize();
 
         // [GIVEN] Tax Area Code with Tax Group Code "TG" with Tax Detail where "Tax Below Max" = 5
-        TaxAreaCode := LibraryERMTax.CreateTaxArea_US;
+        TaxAreaCode := LibraryERMTax.CreateTaxArea_US();
         CreateTaxAreaSetupWithValues(
-            TaxDetail, TaxAreaCode, LibraryERMTax.CreateTaxGroupCode,
-            LibraryRandom.RandInt(10), 0, LibraryERM.CreateGLAccountNo);
+            TaxDetail, TaxAreaCode, LibraryERMTax.CreateTaxGroupCode(),
+            LibraryRandom.RandInt(10), 0, LibraryERM.CreateGLAccountNo());
 
         // [GIVEN] Purchase Blanket Order with Tax Area Code with "Tax Liable" = TRUE
         CreatePurchaseHeaderWithTaxArea(PurchaseHeader, PurchaseHeader."Document Type"::"Blanket Order", '', TaxAreaCode);
@@ -3951,8 +3949,8 @@
 
         // [GIVEN] Two Purchase Lines added with G/L Accounts with "TG" with amounts 10 and 20
         CreateUnitPrice(UnitPrice);
-        CreatePurchaseLineGL(PurchaseHeader, LibraryERM.CreateGLAccountNo, TaxDetail."Tax Group Code", UnitPrice[1]);
-        CreatePurchaseLineGL(PurchaseHeader, LibraryERM.CreateGLAccountNo, TaxDetail."Tax Group Code", UnitPrice[2]);
+        CreatePurchaseLineGL(PurchaseHeader, LibraryERM.CreateGLAccountNo(), TaxDetail."Tax Group Code", UnitPrice[1]);
+        CreatePurchaseLineGL(PurchaseHeader, LibraryERM.CreateGLAccountNo(), TaxDetail."Tax Group Code", UnitPrice[2]);
 
         // [WHEN] Set off "Tax Liable" for Purchase Blanket Order
         ValidatePurchaseBlanketOrderTaxLiableThroughPage(PurchaseHeader, false);
@@ -3977,10 +3975,10 @@
         Initialize();
 
         // [GIVEN] Tax Area Code with Tax Group Code "TG" with Tax Detail where "Tax Below Max" = 5
-        TaxAreaCode := LibraryERMTax.CreateTaxArea_US;
+        TaxAreaCode := LibraryERMTax.CreateTaxArea_US();
         CreateTaxAreaSetupWithValues(
-            TaxDetail, TaxAreaCode, LibraryERMTax.CreateTaxGroupCode,
-            LibraryRandom.RandInt(10), 0, LibraryERM.CreateGLAccountNo);
+            TaxDetail, TaxAreaCode, LibraryERMTax.CreateTaxGroupCode(),
+            LibraryRandom.RandInt(10), 0, LibraryERM.CreateGLAccountNo());
 
         // [GIVEN] Purchase Order with Tax Area Code with "Tax Liable" = TRUE
         CreatePurchaseHeaderWithTaxArea(PurchaseHeader, PurchaseHeader."Document Type"::Order, '', TaxAreaCode);
@@ -3988,8 +3986,8 @@
 
         // [GIVEN] Two Purchase Lines added with G/L Accounts with "TG" with amounts 10 and 20
         CreateUnitPrice(UnitPrice);
-        CreatePurchaseLineGL(PurchaseHeader, LibraryERM.CreateGLAccountNo, TaxDetail."Tax Group Code", UnitPrice[1]);
-        CreatePurchaseLineGL(PurchaseHeader, LibraryERM.CreateGLAccountNo, TaxDetail."Tax Group Code", UnitPrice[2]);
+        CreatePurchaseLineGL(PurchaseHeader, LibraryERM.CreateGLAccountNo(), TaxDetail."Tax Group Code", UnitPrice[1]);
+        CreatePurchaseLineGL(PurchaseHeader, LibraryERM.CreateGLAccountNo(), TaxDetail."Tax Group Code", UnitPrice[2]);
 
         // [WHEN] Set off "Tax Liable" for Purchase Order
         ValidatePurchaseOrderTaxLiableThroughPage(PurchaseHeader, false);
@@ -4014,10 +4012,10 @@
         Initialize();
 
         // [GIVEN] Tax Area Code with Tax Group Code "TG" with Tax Detail where "Tax Below Max" = 5
-        TaxAreaCode := LibraryERMTax.CreateTaxArea_US;
+        TaxAreaCode := LibraryERMTax.CreateTaxArea_US();
         CreateTaxAreaSetupWithValues(
-            TaxDetail, TaxAreaCode, LibraryERMTax.CreateTaxGroupCode,
-            LibraryRandom.RandInt(10), 0, LibraryERM.CreateGLAccountNo);
+            TaxDetail, TaxAreaCode, LibraryERMTax.CreateTaxGroupCode(),
+            LibraryRandom.RandInt(10), 0, LibraryERM.CreateGLAccountNo());
 
         // [GIVEN] Purchase Invoice with Tax Area Code with "Tax Liable" = TRUE
         CreatePurchaseHeaderWithTaxArea(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, '', TaxAreaCode);
@@ -4026,8 +4024,8 @@
         // [GIVEN] Two Purchase Lines added with G/L Accounts with "TG" with amounts 10 and 20
         CreateUnitPrice(UnitPrice);
 
-        CreatePurchaseLineGL(PurchaseHeader, LibraryERM.CreateGLAccountNo, TaxDetail."Tax Group Code", UnitPrice[1]);
-        CreatePurchaseLineGL(PurchaseHeader, LibraryERM.CreateGLAccountNo, TaxDetail."Tax Group Code", UnitPrice[2]);
+        CreatePurchaseLineGL(PurchaseHeader, LibraryERM.CreateGLAccountNo(), TaxDetail."Tax Group Code", UnitPrice[1]);
+        CreatePurchaseLineGL(PurchaseHeader, LibraryERM.CreateGLAccountNo(), TaxDetail."Tax Group Code", UnitPrice[2]);
 
         // [WHEN] Set off "Tax Liable" for Purchase Invoice
         ValidatePurchaseInvoiceTaxLiableThroughPage(PurchaseHeader, false);
@@ -4052,10 +4050,10 @@
         Initialize();
 
         // [GIVEN] Tax Area Code with Tax Group Code "TG" with Tax Detail where "Tax Below Max" = 5
-        TaxAreaCode := LibraryERMTax.CreateTaxArea_US;
+        TaxAreaCode := LibraryERMTax.CreateTaxArea_US();
         CreateTaxAreaSetupWithValues(
-            TaxDetail, TaxAreaCode, LibraryERMTax.CreateTaxGroupCode,
-            LibraryRandom.RandInt(10), 0, LibraryERM.CreateGLAccountNo);
+            TaxDetail, TaxAreaCode, LibraryERMTax.CreateTaxGroupCode(),
+            LibraryRandom.RandInt(10), 0, LibraryERM.CreateGLAccountNo());
 
         // [GIVEN] Purchase Credit Memo with Tax Area Code with "Tax Liable" = TRUE
         CreatePurchaseHeaderWithTaxArea(PurchaseHeader, PurchaseHeader."Document Type"::"Credit Memo", '', TaxAreaCode);
@@ -4063,8 +4061,8 @@
 
         // [GIVEN] Two Purchase Lines added with G/L Accounts with "TG" with amounts 10 and 20
         CreateUnitPrice(UnitPrice);
-        CreatePurchaseLineGL(PurchaseHeader, LibraryERM.CreateGLAccountNo, TaxDetail."Tax Group Code", UnitPrice[1]);
-        CreatePurchaseLineGL(PurchaseHeader, LibraryERM.CreateGLAccountNo, TaxDetail."Tax Group Code", UnitPrice[2]);
+        CreatePurchaseLineGL(PurchaseHeader, LibraryERM.CreateGLAccountNo(), TaxDetail."Tax Group Code", UnitPrice[1]);
+        CreatePurchaseLineGL(PurchaseHeader, LibraryERM.CreateGLAccountNo(), TaxDetail."Tax Group Code", UnitPrice[2]);
 
         // [WHEN] Set off "Tax Liable" for Purchase Credit Memo
         ValidatePurchaseCreditMemoTaxLiableThroughPage(PurchaseHeader, false);
@@ -4089,10 +4087,10 @@
         Initialize();
 
         // [GIVEN] Tax Area Code with Tax Group Code "TG" with Tax Detail where "Tax Below Max" = 5
-        TaxAreaCode := LibraryERMTax.CreateTaxArea_US;
+        TaxAreaCode := LibraryERMTax.CreateTaxArea_US();
         CreateTaxAreaSetupWithValues(
-            TaxDetail, TaxAreaCode, LibraryERMTax.CreateTaxGroupCode,
-            LibraryRandom.RandInt(10), 0, LibraryERM.CreateGLAccountNo);
+            TaxDetail, TaxAreaCode, LibraryERMTax.CreateTaxGroupCode(),
+            LibraryRandom.RandInt(10), 0, LibraryERM.CreateGLAccountNo());
 
         // [GIVEN] Purchase Return Order with Tax Area Code with "Tax Liable" = TRUE
         CreatePurchaseHeaderWithTaxArea(PurchaseHeader, PurchaseHeader."Document Type"::"Return Order", '', TaxAreaCode);
@@ -4100,8 +4098,8 @@
 
         // [GIVEN] Two Purchase Lines added with G/L Accounts with "TG" with amounts 10 and 20
         CreateUnitPrice(UnitPrice);
-        CreatePurchaseLineGL(PurchaseHeader, LibraryERM.CreateGLAccountNo, TaxDetail."Tax Group Code", UnitPrice[1]);
-        CreatePurchaseLineGL(PurchaseHeader, LibraryERM.CreateGLAccountNo, TaxDetail."Tax Group Code", UnitPrice[2]);
+        CreatePurchaseLineGL(PurchaseHeader, LibraryERM.CreateGLAccountNo(), TaxDetail."Tax Group Code", UnitPrice[1]);
+        CreatePurchaseLineGL(PurchaseHeader, LibraryERM.CreateGLAccountNo(), TaxDetail."Tax Group Code", UnitPrice[2]);
 
         // [WHEN] Set off "Tax Liable" for Purchase Return Order
         ValidatePurchaseReturnOrderTaxLiableThroughPage(PurchaseHeader, false);
@@ -4162,7 +4160,7 @@
         if IsInitialized then
             exit;
 
-        CreateEmptyVATPostingSetupSalesTax;
+        CreateEmptyVATPostingSetupSalesTax();
         LibraryERMCountryData.CreateVATData();
         LibraryInventory.NoSeriesSetup(InventorySetup);
         LibraryApplicationArea.EnableFoundationSetup();
@@ -4186,7 +4184,7 @@
     begin
         TaxAreaCode := LibraryERMTax.CreateTaxAreaWithCountryRegion(TaxCountry);
         for i := 1 to ArrayLen(TaxGroupCode) do begin
-            TaxGroupCode[i] := LibraryERMTax.CreateTaxGroupCode;
+            TaxGroupCode[i] := LibraryERMTax.CreateTaxGroupCode();
             TaxJurisdictionCode[i] := LibraryERMTax.CreateTaxJurisdictionWithCountryRegion(TaxCountry);
             CreateSimpleTaxAreaLine(TaxAreaCode, TaxJurisdictionCode[i], i);
         end;
@@ -4209,8 +4207,8 @@
         i: Integer;
     begin
         // Sales Tax Groups: "TAXABLE", "NONTAXABLE"
-        TaxableTaxGroupCode := LibraryERMTax.CreateTaxGroupCode;
-        NonTaxableTaxGroupCode := LibraryERMTax.CreateTaxGroupCode;
+        TaxableTaxGroupCode := LibraryERMTax.CreateTaxGroupCode();
+        NonTaxableTaxGroupCode := LibraryERMTax.CreateTaxGroupCode();
 
         // Sales Tax Jurisdictions:
         // 1: "Code" = "Jur1", "Report-to Jurisdiction" = "Jur1"
@@ -4265,9 +4263,9 @@
         TaxDetail: Record "Tax Detail";
         TaxAreaLine: Record "Tax Area Line";
     begin
-        TaxAreaCode := LibraryERMTax.CreateTaxArea_CA;
-        TaxJurisdictionCode := LibraryERMTax.CreateTaxJurisdiction_CA;
-        TaxGroupCode := LibraryERMTax.CreateTaxGroupCode;
+        TaxAreaCode := LibraryERMTax.CreateTaxArea_CA();
+        TaxJurisdictionCode := LibraryERMTax.CreateTaxJurisdiction_CA();
+        TaxGroupCode := LibraryERMTax.CreateTaxGroupCode();
         LibraryERMTax.CreateTaxDetailWithTaxType(
           TaxDetail,
           TaxJurisdictionCode,
@@ -4287,7 +4285,7 @@
         LibraryERM.CreateTaxAreaLine(TaxAreaLine, TaxAreaCode, TaxJurisdictionCode);
     end;
 
-    local procedure CreateCustomPurchaseInvoice_TFS210430(var PurchaseHeader: Record "Purchase Header"; DocumentType: Option; TaxAreaCode: Code[20]; TaxGroupCode: array[2] of Code[20]; CurrencyCode: Code[10])
+    local procedure CreateCustomPurchaseInvoice_TFS210430(var PurchaseHeader: Record "Purchase Header"; DocumentType: Enum "Purchase Document Type"; TaxAreaCode: Code[20]; TaxGroupCode: array[2] of Code[20]; CurrencyCode: Code[10])
     var
         GLAccountNo: Code[20];
     begin
@@ -4300,7 +4298,7 @@
         CreatePurchaseLineGL(PurchaseHeader, GLAccountNo, TaxGroupCode[2], 0.02);
     end;
 
-    local procedure CreateCustomSalesInvoice_TFS210430(var SalesHeader: Record "Sales Header"; DocumentType: Option; TaxAreaCode: Code[20]; TaxGroupCode: array[2] of Code[20]; CurrencyCode: Code[10])
+    local procedure CreateCustomSalesInvoice_TFS210430(var SalesHeader: Record "Sales Header"; DocumentType: Enum "Sales Document Type"; TaxAreaCode: Code[20]; TaxGroupCode: array[2] of Code[20]; CurrencyCode: Code[10])
     var
         GLAccountNo: Code[20];
     begin
@@ -4313,7 +4311,7 @@
         CreateSalesLineGL(SalesHeader, GLAccountNo, TaxGroupCode[2], 0.02);
     end;
 
-    local procedure CreateCustomPurchaseInvoice_TFS212811(var PurchaseHeader: Record "Purchase Header"; DocumentType: Option; TaxAreaCode: Code[20]; TaxGroupCode: array[2] of Code[20]; CurrencyCode: Code[10])
+    local procedure CreateCustomPurchaseInvoice_TFS212811(var PurchaseHeader: Record "Purchase Header"; DocumentType: Enum "Purchase Document Type"; TaxAreaCode: Code[20]; TaxGroupCode: array[2] of Code[20]; CurrencyCode: Code[10])
     var
         GLAccountNo: Code[20];
     begin
@@ -4325,7 +4323,7 @@
         CreateCustomPurchaseInvoiceLines(PurchaseHeader, TaxGroupCode[1], GLAccountNo);
     end;
 
-    local procedure CreateCustomSalesInvoice_TFS212811(var SalesHeader: Record "Sales Header"; DocumentType: Option; TaxAreaCode: Code[20]; TaxGroupCode: array[2] of Code[20]; CurrencyCode: Code[10])
+    local procedure CreateCustomSalesInvoice_TFS212811(var SalesHeader: Record "Sales Header"; DocumentType: Enum "Sales Document Type"; TaxAreaCode: Code[20]; TaxGroupCode: array[2] of Code[20]; CurrencyCode: Code[10])
     var
         GLAccountNo: Code[20];
     begin
@@ -4378,17 +4376,15 @@
     begin
         LibraryERM.CreatePostCode(PostCode);
         LibrarySales.CreateCustomer(Customer);
-        with Customer do begin
-            Validate("VAT Bus. Posting Group", '');
-            Validate("Tax Liable", true);
-            Validate("Tax Area Code", TaxAreaCode);
-            Validate("Tax Identification Type", "Tax Identification Type"::"Legal Entity");
-            "RFC No." := LibraryUtility.GenerateGUID();
-            "CURP No." := LibraryUtility.GenerateGUID();
-            Validate("Post Code", PostCode.Code);
-            Modify(true);
-            exit("No.");
-        end;
+        Customer.Validate("VAT Bus. Posting Group", '');
+        Customer.Validate("Tax Liable", true);
+        Customer.Validate("Tax Area Code", TaxAreaCode);
+        Customer.Validate("Tax Identification Type", Customer."Tax Identification Type"::"Legal Entity");
+        Customer."RFC No." := LibraryUtility.GenerateGUID();
+        Customer."CURP No." := LibraryUtility.GenerateGUID();
+        Customer.Validate("Post Code", PostCode.Code);
+        Customer.Modify(true);
+        exit(Customer."No.");
     end;
 
     local procedure CreateCurrencyWithCustomExchRate(StartingDate: Date; ExchRate: Decimal): Code[10]
@@ -4406,11 +4402,9 @@
     local procedure CreateItemCharge(var ItemCharge: Record "Item Charge"; VATProdPostingGroupCode: Code[20]; TaxGroupCode: Code[20])
     begin
         LibraryInventory.CreateItemCharge(ItemCharge);
-        with ItemCharge do begin
-            Validate("VAT Prod. Posting Group", VATProdPostingGroupCode);
-            Validate("Tax Group Code", TaxGroupCode);
-            Modify(true);
-        end;
+        ItemCharge.Validate("VAT Prod. Posting Group", VATProdPostingGroupCode);
+        ItemCharge.Validate("Tax Group Code", TaxGroupCode);
+        ItemCharge.Modify(true);
     end;
 
     local procedure CreateItemChargePurchaseLine(var PurchaseHeader: Record "Purchase Header"; AppliesToPurchLine: Record "Purchase Line")
@@ -4432,19 +4426,17 @@
           PurchaseHeader."No.", AppliesToPurchLine."Line No.", AppliesToPurchLine."No.");
     end;
 
-    local procedure CreatePurchaseHeaderWithTaxArea(var PurchaseHeader: Record "Purchase Header"; DocumentType: Option; CurrencyCode: Code[10]; TaxAreaCode: Code[20])
+    local procedure CreatePurchaseHeaderWithTaxArea(var PurchaseHeader: Record "Purchase Header"; DocumentType: Enum "Purchase Document Type"; CurrencyCode: Code[10]; TaxAreaCode: Code[20])
     begin
-        with PurchaseHeader do begin
-            LibraryPurchase.CreatePurchHeader(PurchaseHeader, DocumentType, CreateVendor(''));
-            Validate("Ship-to Address", LibraryUtility.GenerateGUID());
-            Validate("Currency Code", CurrencyCode);
-            Validate("Tax Liable", true);
-            Validate("Tax Area Code", TaxAreaCode);
-            Modify(true);
-        end;
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, DocumentType, CreateVendor(''));
+        PurchaseHeader.Validate("Ship-to Address", LibraryUtility.GenerateGUID());
+        PurchaseHeader.Validate("Currency Code", CurrencyCode);
+        PurchaseHeader.Validate("Tax Liable", true);
+        PurchaseHeader.Validate("Tax Area Code", TaxAreaCode);
+        PurchaseHeader.Modify(true);
     end;
 
-    local procedure CreatePurchaseDocumentWithCurrency(var PurchaseHeader: Record "Purchase Header"; DocumentType: Option): Decimal
+    local procedure CreatePurchaseDocumentWithCurrency(var PurchaseHeader: Record "Purchase Header"; DocumentType: Enum "Purchase Document Type"): Decimal
     var
         PurchaseLine: Record "Purchase Line";
         TaxDetail: Record "Tax Detail";
@@ -4466,34 +4458,30 @@
     local procedure CreatePurchaseOrder(var PurchaseHeader: Record "Purchase Header"; TaxAreaCode: Code[20]; TaxGroupCode: Code[20]; DirectUnitCost: Decimal)
     begin
         CreatePurchaseHeaderWithTaxArea(PurchaseHeader, PurchaseHeader."Document Type"::Order, '', TaxAreaCode);
-        CreatePurchaseLineGL(PurchaseHeader, LibraryERM.CreateGLAccountWithPurchSetup, TaxGroupCode, DirectUnitCost);
+        CreatePurchaseLineGL(PurchaseHeader, LibraryERM.CreateGLAccountWithPurchSetup(), TaxGroupCode, DirectUnitCost);
     end;
 
     local procedure CreatePurchaseLineGL(PurchaseHeader: Record "Purchase Header"; GLAccountNo: Code[20]; TaxGroupCode: Code[20]; DirectUnitCost: Decimal)
     var
         PurchaseLine: Record "Purchase Line";
     begin
-        with PurchaseLine do begin
-            LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, Type::"G/L Account", GLAccountNo, 1);
-            Validate("Direct Unit Cost", DirectUnitCost);
-            Validate("Tax Group Code", TaxGroupCode);
-            Modify(true);
-        end;
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::"G/L Account", GLAccountNo, 1);
+        PurchaseLine.Validate("Direct Unit Cost", DirectUnitCost);
+        PurchaseLine.Validate("Tax Group Code", TaxGroupCode);
+        PurchaseLine.Modify(true);
     end;
 
-    local procedure CreateSalesHeaderWithTaxArea(var SalesHeader: Record "Sales Header"; DocumentType: Option; CurrencyCode: Code[10]; TaxAreaCode: Code[20])
+    local procedure CreateSalesHeaderWithTaxArea(var SalesHeader: Record "Sales Header"; DocumentType: Enum "Sales Document Type"; CurrencyCode: Code[10]; TaxAreaCode: Code[20])
     begin
-        with SalesHeader do begin
-            LibrarySales.CreateSalesHeader(SalesHeader, DocumentType, CreateCustomer(''));
-            Validate("Bill-to Address", LibraryUtility.GenerateGUID());
-            Validate("Currency Code", CurrencyCode);
-            Validate("Tax Liable", true);
-            Validate("Tax Area Code", TaxAreaCode);
-            Modify(true);
-        end;
+        LibrarySales.CreateSalesHeader(SalesHeader, DocumentType, CreateCustomer(''));
+        SalesHeader.Validate("Bill-to Address", LibraryUtility.GenerateGUID());
+        SalesHeader.Validate("Currency Code", CurrencyCode);
+        SalesHeader.Validate("Tax Liable", true);
+        SalesHeader.Validate("Tax Area Code", TaxAreaCode);
+        SalesHeader.Modify(true);
     end;
 
-    local procedure CreateSalesDocumentWithCurrency(var SalesHeader: Record "Sales Header"; DocumentType: Option; TaxCountry: Option): Decimal
+    local procedure CreateSalesDocumentWithCurrency(var SalesHeader: Record "Sales Header"; DocumentType: Enum "Sales Document Type"; TaxCountry: Option): Decimal
     var
         SalesLine: Record "Sales Line";
         TaxDetail: Record "Tax Detail";
@@ -4513,7 +4501,7 @@
     local procedure CreateSalesOrder(var SalesHeader: Record "Sales Header"; TaxAreaCode: Code[20]; TaxGroupCode: Code[20]; UnitPrice: Decimal)
     begin
         CreateSalesHeaderWithTaxArea(SalesHeader, SalesHeader."Document Type"::Order, '', TaxAreaCode);
-        CreateSalesLineGL(SalesHeader, LibraryERM.CreateGLAccountWithSalesSetup, TaxGroupCode, UnitPrice);
+        CreateSalesLineGL(SalesHeader, LibraryERM.CreateGLAccountWithSalesSetup(), TaxGroupCode, UnitPrice);
     end;
 
     local procedure CreateSalesLineGL(SalesHeader: Record "Sales Header"; GLAccountNo: Code[20]; TaxGroupCode: Code[20]; UnitPrice: Decimal)
@@ -4528,7 +4516,7 @@
         end;
     end;
 
-    local procedure CreateServiceDocumentWithCurrency(var ServiceHeader: Record "Service Header"; DocumentType: Option): Decimal
+    local procedure CreateServiceDocumentWithCurrency(var ServiceHeader: Record "Service Header"; DocumentType: Enum "Service Document Type"): Decimal
     var
         ServiceLine: Record "Service Line";
         ServiceItemLine: Record "Service Item Line";
@@ -4567,10 +4555,10 @@
         CurrencyCode: Code[10];
     begin
         CurrencyCode := CreateCurrencyWithCustomExchRate(WorkDate(), 0.8);
-        TaxGroupCode := LibraryERMTax.CreateTaxGroupCode;
+        TaxGroupCode := LibraryERMTax.CreateTaxGroupCode();
 
         LibraryERM.CreatePrepaymentVATSetup(
-          GLAccount, PrepmtGLAccount, 2,
+          GLAccount, PrepmtGLAccount, "General Posting Type"::Sale,
           VATPostingSetup."VAT Calculation Type"::"Sales Tax",
           VATPostingSetup."VAT Calculation Type"::"Sales Tax");
         GLAccount.Validate("Tax Group Code", TaxGroupCode);
@@ -4603,7 +4591,7 @@
         TaxAreaCode: Code[20];
         TaxGroupCode: Code[20];
     begin
-        TaxGroupCode := LibraryERMTax.CreateTaxGroupCode;
+        TaxGroupCode := LibraryERMTax.CreateTaxGroupCode();
         CreateTaxDetail(
           TaxDetail, TaxGroupCode, TaxDetail."Tax Type"::"Sales and Use Tax", TaxCountry, CalculateTaxOnTax, LibraryRandom.RandInt(5));
         CreateTaxDetail(
@@ -4619,7 +4607,7 @@
         TaxDetail: array[2] of Record "Tax Detail";
         TaxJurisdiction: Record "Tax Jurisdiction";
     begin
-        TaxGroupCode := LibraryERMTax.CreateTaxGroupCode;
+        TaxGroupCode := LibraryERMTax.CreateTaxGroupCode();
         CreateTaxDetail(
           TaxDetail[1], TaxGroupCode, TaxDetail[1]."Tax Type"::"Sales and Use Tax", DummyTaxCountry::CA, true, TaxBelowMaximum1);
         CreateTaxDetail(
@@ -4629,7 +4617,7 @@
         SalesTaxAccountNo := TaxJurisdiction."Tax Account (Sales)";
         PurchaseTaxAccountNo := TaxJurisdiction."Tax Account (Purchases)";
 
-        TaxAreaCode := LibraryERMTax.CreateTaxArea_CA;
+        TaxAreaCode := LibraryERMTax.CreateTaxArea_CA();
         CreateSimpleTaxAreaLine(TaxAreaCode, TaxDetail[1]."Tax Jurisdiction Code", 1);
         CreateSimpleTaxAreaLine(TaxAreaCode, TaxDetail[2]."Tax Jurisdiction Code", 2);
     end;
@@ -4689,7 +4677,7 @@
         UnitPrice[13] := -45;
     end;
 
-    local procedure FindPurchaseLine(var PurchaseLine: Record "Purchase Line"; DocumentType: Option; DocumentNo: Code[20]; LineType: Option)
+    local procedure FindPurchaseLine(var PurchaseLine: Record "Purchase Line"; DocumentType: Enum "Purchase Document Type"; DocumentNo: Code[20]; LineType: Enum "Purchase Line Type")
     begin
         with PurchaseLine do begin
             SetRange("Document Type", DocumentType);
@@ -4714,37 +4702,37 @@
 
     local procedure OpenSalesOrderPage(var SalesOrder: TestPage "Sales Order"; SalesHeader: Record "Sales Header")
     begin
-        SalesOrder.OpenView;
+        SalesOrder.OpenView();
         SalesOrder.GotoRecord(SalesHeader);
     end;
 
     local procedure OpenSalesQuotePage(var SalesQuote: TestPage "Sales Quote"; SalesHeader: Record "Sales Header")
     begin
-        SalesQuote.OpenView;
+        SalesQuote.OpenView();
         SalesQuote.GotoRecord(SalesHeader);
     end;
 
     local procedure OpenServiceOrderPage(ServiceHeader: Record "Service Header"; var ServiceOrder: TestPage "Service Order")
     begin
-        ServiceOrder.OpenView;
+        ServiceOrder.OpenView();
         ServiceOrder.GotoRecord(ServiceHeader);
     end;
 
     local procedure OpenServiceInvoicePage(ServiceHeader: Record "Service Header"; var ServiceInvoice: TestPage "Service Invoice")
     begin
-        ServiceInvoice.OpenView;
+        ServiceInvoice.OpenView();
         ServiceInvoice.GotoRecord(ServiceHeader);
     end;
 
     local procedure OpenPurchaseOrderPage(var PurchaseOrder: TestPage "Purchase Order"; PurchaseHeader: Record "Purchase Header")
     begin
-        PurchaseOrder.OpenView;
+        PurchaseOrder.OpenView();
         PurchaseOrder.GotoRecord(PurchaseHeader);
     end;
 
     local procedure OpenPurchaseQuotePage(var PurchaseQuote: TestPage "Purchase Quote"; PurchaseHeader: Record "Purchase Header")
     begin
-        PurchaseQuote.OpenView;
+        PurchaseQuote.OpenView();
         PurchaseQuote.GotoRecord(PurchaseHeader);
     end;
 
@@ -4828,7 +4816,7 @@
         end;
     end;
 
-    local procedure CreateSalesDocument(var SalesLine: Record "Sales Line"; DocumentType: Option; TaxAreaCode: Code[20]; TaxGroupCode: Code[20])
+    local procedure CreateSalesDocument(var SalesLine: Record "Sales Line"; DocumentType: Enum "Sales Document Type"; TaxAreaCode: Code[20]; TaxGroupCode: Code[20])
     var
         SalesHeader: Record "Sales Header";
     begin
@@ -4839,7 +4827,7 @@
         SalesLine.Modify(true);
     end;
 
-    local procedure CreateAndPostElectronicPmtLine(var GenJournalLine: Record "Gen. Journal Line"; DocumentNo: Code[20]; AccountNo: Code[20]; Amount: Decimal; DocumentType: Option; AccountType: Option; AppliesToDocType: Option)
+    local procedure CreateAndPostElectronicPmtLine(var GenJournalLine: Record "Gen. Journal Line"; DocumentNo: Code[20]; AccountNo: Code[20]; Amount: Decimal; DocumentType: Enum "Gen. Journal Document Type"; AccountType: Enum "Gen. Journal Account Type"; AppliesToDocType: Enum "Gen. Journal Document Type")
     var
         BankAccount: Record "Bank Account";
     begin
@@ -4913,7 +4901,7 @@
         FixedAsset.Modify(true);
     end;
 
-    local procedure GenJournalLineUsingTaxSetup(var GenJournalLine: Record "Gen. Journal Line"; PostingDate: Date; DocumentType: Option; AccountNo: Code[20]; BalAccountNo: Code[20]; Amount: Decimal)
+    local procedure GenJournalLineUsingTaxSetup(var GenJournalLine: Record "Gen. Journal Line"; PostingDate: Date; DocumentType: Enum "Gen. Journal Document Type"; AccountNo: Code[20]; BalAccountNo: Code[20]; Amount: Decimal)
     begin
         CreateGenJournal(
           GenJournalLine, DocumentType, GenJournalLine."Account Type"::"G/L Account", AccountNo, Amount);
@@ -4932,7 +4920,7 @@
         LibraryERM.CreateGenJournalBatch(GenJournalBatch, GenJournalTemplate.Name);
     end;
 
-    local procedure CreateGenJournal(var GenJournalLine: Record "Gen. Journal Line"; DocumentType: Option; AccountType: Option; AccountNo: Code[20]; Amount: Decimal)
+    local procedure CreateGenJournal(var GenJournalLine: Record "Gen. Journal Line"; DocumentType: Enum "Gen. Journal Document Type"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; Amount: Decimal)
     var
         GenJournalBatch: Record "Gen. Journal Batch";
     begin
@@ -4969,7 +4957,7 @@
         exit(Item."No.");
     end;
 
-    local procedure CreatePurchaseDocument(var PurchaseLine: Record "Purchase Line"; DocumentType: Option; Type: Option; No: Code[20]; VendorNo: Code[20])
+    local procedure CreatePurchaseDocument(var PurchaseLine: Record "Purchase Line"; DocumentType: Enum "Purchase Document Type"; Type: Enum "Purchase Line Type"; No: Code[20]; VendorNo: Code[20])
     var
         PurchaseHeader: Record "Purchase Header";
     begin
@@ -4977,16 +4965,14 @@
         LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, Type, No, LibraryRandom.RandInt(10));  // Using RANDOM value for Quantity.
     end;
 
-    local procedure CreatePurchaseDocumentWithTaxArea(var PurchaseLine: Record "Purchase Line"; DocumentType: Option; Type: Option; No: Code[20]; VendorNo: Code[20]; TaxAreaCode: Code[20])
+    local procedure CreatePurchaseDocumentWithTaxArea(var PurchaseLine: Record "Purchase Line"; DocumentType: Enum "Purchase Document Type"; Type: Enum "Purchase Line Type"; No: Code[20]; VendorNo: Code[20]; TaxAreaCode: Code[20])
     var
         PurchaseHeader: Record "Purchase Header";
     begin
         CreatePurchaseDocument(PurchaseLine, DocumentType, Type, No, VendorNo);
-        with PurchaseHeader do begin
-            Get(PurchaseLine."Document Type", PurchaseLine."Document No.");
-            Validate("Tax Area Code", TaxAreaCode);
-            Modify(true);
-        end;
+        PurchaseHeader.Get(PurchaseLine."Document Type", PurchaseLine."Document No.");
+        PurchaseHeader.Validate("Tax Area Code", TaxAreaCode);
+        PurchaseHeader.Modify(true);
     end;
 
     local procedure CreatePurchaseOrderWithTaxArea(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line")
@@ -5009,7 +4995,7 @@
         CreateItemChargePurchaseLine(PurchaseHeader, PurchaseLine);
     end;
 
-    local procedure CreatePurchInvoiceWithTaxDifference(var PurchaseHeader: Record "Purchase Header"; DocumentProductArea: Option)
+    local procedure CreatePurchInvoiceWithTaxDifference(var PurchaseHeader: Record "Purchase Header"; DocumentProductArea: Enum "Sales Tax Document Area")
     var
         PurchaseLine: Record "Purchase Line";
         TaxDetail: Record "Tax Detail";
@@ -5029,18 +5015,14 @@
     var
         PurchaseLine: Record "Purchase Line";
     begin
-        with PurchaseHeader do begin
-            CreatePurchaseHeaderWithTaxArea(PurchaseHeader, "Document Type"::Invoice, CurrencyCode, TaxAreaCode);
-            Validate("Provincial Tax Area Code", ProvincialTaxAreaCode);
-            Modify(true);
-        end;
+        CreatePurchaseHeaderWithTaxArea(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, CurrencyCode, TaxAreaCode);
+        PurchaseHeader.Validate("Provincial Tax Area Code", ProvincialTaxAreaCode);
+        PurchaseHeader.Modify(true);
 
-        with PurchaseLine do begin
-            LibraryPurchase.CreatePurchaseLine(
-              PurchaseLine, PurchaseHeader, Type::"G/L Account", GLAccountNo, 1);
-            Validate("Direct Unit Cost", DirectUnitCost);
-            Modify(true);
-        end;
+        LibraryPurchase.CreatePurchaseLine(
+          PurchaseLine, PurchaseHeader, PurchaseLine.Type::"G/L Account", GLAccountNo, 1);
+        PurchaseLine.Validate("Direct Unit Cost", DirectUnitCost);
+        PurchaseLine.Modify(true);
     end;
 
     local procedure CreatePurchLineWithUseTax(var PurchaseLine: Record "Purchase Line"; PurchaseHeader: Record "Purchase Header"; VATProdPostingGroup: Code[20]; TaxGroupCode: Code[20]; UseTax: Boolean)
@@ -5052,7 +5034,7 @@
         PurchaseLine.Modify(true);
     end;
 
-    local procedure CreateSalesInvoiceWithTaxDifference(var SalesHeader: Record "Sales Header"; DocumentProductArea: Option)
+    local procedure CreateSalesInvoiceWithTaxDifference(var SalesHeader: Record "Sales Header"; DocumentProductArea: Enum "Sales Tax Document Area")
     var
         SalesLine: Record "Sales Line";
         TaxDetail: Record "Tax Detail";
@@ -5073,11 +5055,9 @@
         TaxJurisdiction: Record "Tax Jurisdiction";
     begin
         TaxJurisdiction.Get(LibraryERMTax.CreateTaxJurisdictionWithCountryRegion(CountryRegion));
-        with TaxJurisdiction do begin
-            Validate("Calculate Tax on Tax", CalculateTaxOnTax);
-            Modify(true);
-            exit(Code);
-        end;
+        TaxJurisdiction.Validate("Calculate Tax on Tax", CalculateTaxOnTax);
+        TaxJurisdiction.Modify(true);
+        exit(TaxJurisdiction.Code);
     end;
 
     local procedure CreateSalesTaxJurisdictionWithReportTo(CountryRegion: Option; ReportToJurisdictionCode: Code[10]): Code[10]
@@ -5085,11 +5065,9 @@
         TaxJurisdiction: Record "Tax Jurisdiction";
     begin
         TaxJurisdiction.Get(LibraryERMTax.CreateTaxJurisdictionWithCountryRegion(CountryRegion));
-        with TaxJurisdiction do begin
-            Validate("Report-to Jurisdiction", ReportToJurisdictionCode);
-            Modify(true);
-            exit(Code);
-        end;
+        TaxJurisdiction.Validate("Report-to Jurisdiction", ReportToJurisdictionCode);
+        TaxJurisdiction.Modify(true);
+        exit(TaxJurisdiction.Code);
     end;
 
     local procedure CreateSalesTaxDetail(var TaxDetail: Record "Tax Detail")
@@ -5097,7 +5075,7 @@
         TaxGroupCode: Code[20];
         TaxJurisdictionCode: Code[10];
     begin
-        TaxGroupCode := LibraryERMTax.CreateTaxGroupCode;
+        TaxGroupCode := LibraryERMTax.CreateTaxGroupCode();
         TaxJurisdictionCode := CreateSalesTaxJurisdiction(DummyTaxCountry::US, false);
         LibraryERMTax.CreateTaxDetail(TaxDetail, TaxJurisdictionCode, TaxGroupCode, LibraryRandom.RandInt(10));
     end;
@@ -5114,13 +5092,13 @@
         exit(Vendor."No.");
     end;
 
-    local procedure CreateSalesTaxAmountDifference(TaxDetail: Record "Tax Detail"; DocumentNo: Code[20]; DocumentType: Option; TaxAreaCode: Code[20]; DocumentProductArea: Option)
+    local procedure CreateSalesTaxAmountDifference(TaxDetail: Record "Tax Detail"; DocumentNo: Code[20]; DocumentType: Enum "Purchase Document Type"; TaxAreaCode: Code[20]; DocumentProductArea: Enum "Sales Tax Document Area")
     var
         SalesTaxAmountDifference: Record "Sales Tax Amount Difference";
     begin
         SalesTaxAmountDifference.Init();
         SalesTaxAmountDifference."Document No." := DocumentNo;
-        SalesTaxAmountDifference."Document Type" := DocumentType;
+        SalesTaxAmountDifference."Document Type" := DocumentType.AsInteger();
         SalesTaxAmountDifference."Document Product Area" := DocumentProductArea;
         SalesTaxAmountDifference."Tax Area Code" := TaxAreaCode;
         SalesTaxAmountDifference."Tax Jurisdiction Code" := TaxDetail."Tax Jurisdiction Code";
@@ -5138,7 +5116,7 @@
         TaxAreaLine: Record "Tax Area Line";
     begin
         CreateSalesTaxDetail(TaxDetail);
-        LibraryERM.CreateTaxAreaLine(TaxAreaLine, LibraryERMTax.CreateTaxArea_US, TaxDetail."Tax Jurisdiction Code");
+        LibraryERM.CreateTaxAreaLine(TaxAreaLine, LibraryERMTax.CreateTaxArea_US(), TaxDetail."Tax Jurisdiction Code");
         exit(TaxAreaLine."Tax Area");
     end;
 
@@ -5186,7 +5164,7 @@
         end;
 
         CreatePurchaseHeaderWithTaxArea(
-          PurchaseHeader, PurchaseHeader."Document Type"::Invoice, CreateCurrencyWithRandomExchRate, TaxAreaCode);
+          PurchaseHeader, PurchaseHeader."Document Type"::Invoice, CreateCurrencyWithRandomExchRate(), TaxAreaCode);
         DirectUnitCost := LibraryRandom.RandDecInRange(100, 1000, 2);
         SalesTaxAmount := DirectUnitCost / 100 * SalesTaxPct;
 
@@ -5230,7 +5208,7 @@
 
         GLAccountNo := CreateGLAccount('', TaxGroupCode);
         CreatePurchaseInvoiceWithProvTaxSetup(
-          PurchaseHeader, CreateCurrencyWithRandomExchRate, TaxAreaCode,
+          PurchaseHeader, CreateCurrencyWithRandomExchRate(), TaxAreaCode,
           ProvTaxAreaCode, GLAccountNo, DirectUnitCost);
 
         GetExpectedAmountsProvTax(
@@ -5253,25 +5231,21 @@
         CreateSalesTaxSetupExciseTax(TaxAreaCode, TaxGroupCode, ExciseTaxPct);
         VATPostingSetup.Get('', '');
 
-        with GLAccount do begin
-            Get(CreateGLAccount(VATPostingSetup."VAT Prod. Posting Group", TaxGroupCode));
-            Validate("VAT Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
-            Modify(true);
-        end;
+        GLAccount.Get(CreateGLAccount(VATPostingSetup."VAT Prod. Posting Group", TaxGroupCode));
+        GLAccount.Validate("VAT Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
+        GLAccount.Modify(true);
 
         CreatePurchaseHeaderWithTaxArea(PurchaseHeader, PurchaseHeader."Document Type"::Order, '', TaxAreaCode);
 
-        with PurchaseLine do begin
-            LibraryPurchase.CreatePurchaseLine(
-              PurchaseLine, PurchaseHeader, Type::"G/L Account", GLAccount."No.", 1);
-            Validate("Direct Unit Cost", LibraryRandom.RandInt(1000));
-            Modify(true);
-        end;
+        LibraryPurchase.CreatePurchaseLine(
+          PurchaseLine, PurchaseHeader, PurchaseLine.Type::"G/L Account", GLAccount."No.", 1);
+        PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandInt(1000));
+        PurchaseLine.Modify(true);
         // Excise tax amount = "Tax Detail"."Tax Below Maximum"
         TaxAmount := ExciseTaxPct;
     end;
 
-    local procedure CreateAndPostPurchDocWithExciseTax(var DocumentNo: Code[20]; var TaxAmount: Decimal; var PostingDate: Date; DocumentType: Option)
+    local procedure CreateAndPostPurchDocWithExciseTax(var DocumentNo: Code[20]; var TaxAmount: Decimal; var PostingDate: Date; DocumentType: Enum "Purchase Document Type")
     var
         VATPostingSetup: Record "VAT Posting Setup";
         GLAccount: Record "G/L Account";
@@ -5284,33 +5258,29 @@
         CreateSalesTaxSetupExciseTax(TaxAreaCode, TaxGroupCode, ExciseTaxPct);
         VATPostingSetup.Get('', '');
 
-        with GLAccount do begin
-            Get(CreateGLAccount(VATPostingSetup."VAT Prod. Posting Group", TaxGroupCode));
-            Validate("VAT Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
-            Modify(true);
-        end;
+        GLAccount.Get(CreateGLAccount(VATPostingSetup."VAT Prod. Posting Group", TaxGroupCode));
+        GLAccount.Validate("VAT Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
+        GLAccount.Modify(true);
 
-        with PurchaseHeader do begin
-            CreatePurchaseHeaderWithTaxArea(PurchaseHeader, DocumentType, '', TaxAreaCode);
-            if "Document Type" = "Document Type"::"Credit Memo" then
-                Validate("Vendor Cr. Memo No.", "No.");
-            Modify(true);
-        end;
-        with PurchaseLine do begin
-            LibraryPurchase.CreatePurchaseLine(
-              PurchaseLine, PurchaseHeader, Type::"G/L Account", GLAccount."No.", 1);
-            Validate("Direct Unit Cost", LibraryRandom.RandInt(1000));
-            Validate("Qty. per Unit of Measure", LibraryRandom.RandIntInRange(10, 20));
-            Validate(Quantity); // update "Quantity (Base)"
-            Modify(true);
-        end;
+        CreatePurchaseHeaderWithTaxArea(PurchaseHeader, DocumentType, '', TaxAreaCode);
+        if PurchaseHeader."Document Type" = PurchaseHeader."Document Type"::"Credit Memo" then
+            PurchaseHeader.Validate("Vendor Cr. Memo No.", PurchaseHeader."No.");
+        PurchaseHeader.Modify(true);
+
+        LibraryPurchase.CreatePurchaseLine(
+          PurchaseLine, PurchaseHeader, PurchaseLine.Type::"G/L Account", GLAccount."No.", 1);
+        PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandInt(1000));
+        PurchaseLine.Validate("Qty. per Unit of Measure", LibraryRandom.RandIntInRange(10, 20));
+        PurchaseLine.Validate(Quantity);
+        // update "Quantity (Base)"
+        PurchaseLine.Modify(true);
         // Excise tax amount = "Tax Detail"."Tax Below Maximum" * "Quantity (Base)"
         TaxAmount := ExciseTaxPct * PurchaseLine."Qty. per Unit of Measure";
         PostingDate := PurchaseHeader."Posting Date";
         DocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
     end;
 
-    local procedure CreateAndPostSalesDocWithExciseTax(var DocumentNo: Code[20]; var TaxAmount: Decimal; var PostingDate: Date; DocumentType: Option)
+    local procedure CreateAndPostSalesDocWithExciseTax(var DocumentNo: Code[20]; var TaxAmount: Decimal; var PostingDate: Date; DocumentType: Enum "Sales Document Type")
     var
         VATPostingSetup: Record "VAT Posting Setup";
         GLAccount: Record "G/L Account";
@@ -5323,21 +5293,18 @@
         CreateSalesTaxSetupExciseTax(TaxAreaCode, TaxGroupCode, ExciseTaxPct);
         VATPostingSetup.Get('', '');
 
-        with GLAccount do begin
-            Get(CreateGLAccount(VATPostingSetup."VAT Prod. Posting Group", TaxGroupCode));
-            Validate("VAT Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
-            Modify(true);
-        end;
+        GLAccount.Get(CreateGLAccount(VATPostingSetup."VAT Prod. Posting Group", TaxGroupCode));
+        GLAccount.Validate("VAT Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
+        GLAccount.Modify(true);
 
         CreateSalesHeaderWithTaxArea(SalesHeader, DocumentType, '', TaxAreaCode);
-        with SalesLine do begin
-            LibrarySales.CreateSalesLine(
-              SalesLine, SalesHeader, Type::"G/L Account", GLAccount."No.", 1);
-            Validate("Unit Price", LibraryRandom.RandInt(1000));
-            Validate("Qty. per Unit of Measure", LibraryRandom.RandIntInRange(10, 20));
-            Validate(Quantity); // update "Quantity (Base)"
-            Modify(true);
-        end;
+        LibrarySales.CreateSalesLine(
+          SalesLine, SalesHeader, SalesLine.Type::"G/L Account", GLAccount."No.", 1);
+        SalesLine.Validate("Unit Price", LibraryRandom.RandInt(1000));
+        SalesLine.Validate("Qty. per Unit of Measure", LibraryRandom.RandIntInRange(10, 20));
+        SalesLine.Validate(Quantity);
+        // update "Quantity (Base)"
+        SalesLine.Modify(true);
         // Excise tax amount = "Tax Detail"."Tax Below Maximum" * "Quantity (Base)"
         TaxAmount := ExciseTaxPct * SalesLine."Qty. per Unit of Measure";
         PostingDate := SalesHeader."Posting Date";
@@ -5390,10 +5357,10 @@
         TaxJurisdiction: Record "Tax Jurisdiction";
         TaxAreaLine: Record "Tax Area Line";
     begin
-        TaxGroupCode := LibraryERMTax.CreateTaxGroupCode;
+        TaxGroupCode := LibraryERMTax.CreateTaxGroupCode();
         CreateTaxDetail(
           TaxDetail, TaxGroupCode, TaxDetail."Tax Type"::"Sales and Use Tax", DummyTaxCountry::CA, false, LibraryRandom.RandInt(10));
-        TaxAreaCode := LibraryERMTax.CreateTaxArea_CA;
+        TaxAreaCode := LibraryERMTax.CreateTaxArea_CA();
         LibraryERM.CreateTaxAreaLine(TaxAreaLine, TaxAreaCode, TaxDetail."Tax Jurisdiction Code");
         TaxJurisdiction.Get(TaxDetail."Tax Jurisdiction Code");
         GLAccountArray[3] := TaxJurisdiction."Tax Account (Purchases)";
@@ -5402,7 +5369,7 @@
         CreateTaxDetail(
           TaxDetail, TaxGroupCode, TaxDetail."Tax Type"::"Sales and Use Tax", DummyTaxCountry::CA, false, LibraryRandom.RandInt(10));
         UpdateTaxDetailExpenseCapitalize(TaxDetail."Tax Jurisdiction Code", TaxDetail."Tax Group Code", TaxDetail."Tax Type", true);
-        ProvTaxAreaCode := LibraryERMTax.CreateTaxArea_CA;
+        ProvTaxAreaCode := LibraryERMTax.CreateTaxArea_CA();
         LibraryERM.CreateTaxAreaLine(TaxAreaLine, ProvTaxAreaCode, TaxDetail."Tax Jurisdiction Code");
         TaxJurisdiction.Get(TaxDetail."Tax Jurisdiction Code");
         GLAccountArray[4] := TaxJurisdiction."Reverse Charge (Purchases)";
@@ -5415,12 +5382,12 @@
         TaxDetail: Record "Tax Detail";
         TaxJurisdictionCode: Code[10];
     begin
-        TaxGroupCode := LibraryERMTax.CreateTaxGroupCode;
+        TaxGroupCode := LibraryERMTax.CreateTaxGroupCode();
         TaxJurisdictionCode := CreateSalesTaxJurisdiction(DummyTaxCountry::US, false);
         ExciseTaxPct := LibraryRandom.RandDec(10, 2);
         LibraryERMTax.CreateTaxDetailWithTaxType(
           TaxDetail, TaxJurisdictionCode, TaxGroupCode, TaxDetail."Tax Type"::"Excise Tax", ExciseTaxPct, 0);
-        TaxAreaCode := LibraryERMTax.CreateTaxArea_US;
+        TaxAreaCode := LibraryERMTax.CreateTaxArea_US();
         LibraryERM.CreateTaxAreaLine(TaxAreaLine, TaxAreaCode, TaxJurisdictionCode);
     end;
 
@@ -5430,7 +5397,7 @@
         TaxDetail: Record "Tax Detail";
         TaxJurisdictionCode: Code[10];
     begin
-        TaxJurisdictionCode := LibraryERMTax.CreateTaxJurisdiction_CA;
+        TaxJurisdictionCode := LibraryERMTax.CreateTaxJurisdiction_CA();
         LibraryERM.CreateTaxAreaLine(TaxAreaLine, TaxAreaCode, TaxJurisdictionCode);
         LibraryERMTax.CreateTaxDetail(TaxDetail, TaxJurisdictionCode, TaxGroupCode, LibraryRandom.RandInt(10));
     end;
@@ -5473,7 +5440,7 @@
     local procedure InsertSalesTaxLineWithFixedValues(var SalesTaxAmountLine: Record "Sales Tax Amount Line"; TaxBaseAmountFCY: Decimal; TaxPct: Decimal)
     begin
         with SalesTaxAmountLine do begin
-            "Tax Area Code for Key" := LibraryERMTax.CreateTaxArea_US;
+            "Tax Area Code for Key" := LibraryERMTax.CreateTaxArea_US();
             "Tax Base Amount FCY" := TaxBaseAmountFCY;
             "Tax %" := TaxPct;
             Insert();
@@ -5530,7 +5497,7 @@
     var
         SalesTaxCalc: Codeunit "Sales Tax Calculate";
     begin
-        SalesTaxCalc.StartSalesTaxCalculation;
+        SalesTaxCalc.StartSalesTaxCalculation();
         case TableID of
             DATABASE::"Purch. Inv. Header":
                 SalesTaxCalc.AddPurchInvoiceLines(DocumentNo);
@@ -5549,9 +5516,9 @@
     var
         PurchaseOrder: TestPage "Purchase Order";
     begin
-        PurchaseOrder.OpenView;
+        PurchaseOrder.OpenView();
         PurchaseOrder.FILTER.SetFilter("No.", No);
-        PurchaseOrder.Statistics.Invoke;
+        PurchaseOrder.Statistics.Invoke();
     end;
 
     local procedure PostPurchaseDocument(PurchaseLine: Record "Purchase Line") DocumentNo: Code[20]
@@ -5579,24 +5546,22 @@
         PostPurchaseDocumentLine(PurchaseHeader, PurchaseLine.Type::"Charge (Item)", QtyToReceive, QtyToInvoice);
     end;
 
-    local procedure PostPurchaseDocumentLine(var PurchaseHeader: Record "Purchase Header"; LineType: Option; QtyToReceive: Decimal; QtyToInvoice: Decimal)
+    local procedure PostPurchaseDocumentLine(var PurchaseHeader: Record "Purchase Header"; LineType: Enum "Purchase Line Type"; QtyToReceive: Decimal; QtyToInvoice: Decimal)
     var
         PurchaseLine: Record "Purchase Line";
     begin
         if QtyToInvoice <> 0 then
             UpdateVendorInvoiceNo(PurchaseHeader);
 
-        with PurchaseLine do begin
-            FindPurchaseLine(PurchaseLine, PurchaseHeader."Document Type", PurchaseHeader."No.", LineType);
-            UpdateQtyToReceiveAndInvoice(PurchaseLine, QtyToReceive, QtyToInvoice);
+        FindPurchaseLine(PurchaseLine, PurchaseHeader."Document Type", PurchaseHeader."No.", LineType);
+        UpdateQtyToReceiveAndInvoice(PurchaseLine, QtyToReceive, QtyToInvoice);
 
-            SetFilter("Line No.", '<>%1', "Line No.");
-            SetRange(Type);
-            if FindSet() then
-                repeat
-                    UpdateQtyToReceiveAndInvoice(PurchaseLine, 0, 0);
-                until Next = 0;
-        end;
+        PurchaseLine.SetFilter("Line No.", '<>%1', PurchaseLine."Line No.");
+        PurchaseLine.SetRange(Type);
+        if PurchaseLine.FindSet() then
+            repeat
+                UpdateQtyToReceiveAndInvoice(PurchaseLine, 0, 0);
+            until PurchaseLine.Next() = 0;
 
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, QtyToReceive <> 0, QtyToInvoice <> 0);
     end;
@@ -5712,7 +5677,7 @@
     var
         ReportLayoutSelectionPage: TestPage "Report Layout Selection";
     begin
-        ReportLayoutSelectionPage.OpenEdit;
+        ReportLayoutSelectionPage.OpenEdit();
         ReportLayoutSelectionPage.FILTER.SetFilter("Report ID", Format(ReportID));
         ReportLayoutSelectionPage.Type.SetValue(NewType);
         ReportLayoutSelectionPage.Close();
@@ -5722,7 +5687,7 @@
     var
         PurchaseInvoice: TestPage "Purchase Invoice";
     begin
-        PurchaseInvoice.OpenEdit;
+        PurchaseInvoice.OpenEdit();
         PurchaseInvoice.GotoRecord(PurchaseHeader);
         PurchaseInvoice."Tax Area Code".SetValue(TaxAreaCode);
         PurchaseInvoice.Close();
@@ -5733,7 +5698,7 @@
     var
         PurchaseInvoice: TestPage "Purchase Invoice";
     begin
-        PurchaseInvoice.OpenEdit;
+        PurchaseInvoice.OpenEdit();
         PurchaseInvoice.GotoRecord(PurchaseHeader);
         PurchaseInvoice."Tax Liable".SetValue(NewTaxLiable);
         PurchaseInvoice.Close();
@@ -5744,7 +5709,7 @@
     var
         PurchaseCreditMemo: TestPage "Purchase Credit Memo";
     begin
-        PurchaseCreditMemo.OpenEdit;
+        PurchaseCreditMemo.OpenEdit();
         PurchaseCreditMemo.GotoRecord(PurchaseHeader);
         PurchaseCreditMemo."Tax Area Code".SetValue(TaxAreaCode);
         PurchaseCreditMemo.Close();
@@ -5755,7 +5720,7 @@
     var
         PurchaseCreditMemo: TestPage "Purchase Credit Memo";
     begin
-        PurchaseCreditMemo.OpenEdit;
+        PurchaseCreditMemo.OpenEdit();
         PurchaseCreditMemo.GotoRecord(PurchaseHeader);
         PurchaseCreditMemo."Tax Liable".SetValue(NewTaxLiable);
         PurchaseCreditMemo.Close();
@@ -5766,7 +5731,7 @@
     var
         PurchaseOrder: TestPage "Purchase Order";
     begin
-        PurchaseOrder.OpenEdit;
+        PurchaseOrder.OpenEdit();
         PurchaseOrder.GotoRecord(PurchaseHeader);
         PurchaseOrder."Tax Area Code".SetValue(TaxAreaCode);
         PurchaseOrder.Close();
@@ -5777,7 +5742,7 @@
     var
         PurchaseOrder: TestPage "Purchase Order";
     begin
-        PurchaseOrder.OpenEdit;
+        PurchaseOrder.OpenEdit();
         PurchaseOrder.GotoRecord(PurchaseHeader);
         PurchaseOrder."Tax Liable".SetValue(NewTaxLiable);
         PurchaseOrder.Close();
@@ -5788,7 +5753,7 @@
     var
         PurchaseReturnOrder: TestPage "Purchase Return Order";
     begin
-        PurchaseReturnOrder.OpenEdit;
+        PurchaseReturnOrder.OpenEdit();
         PurchaseReturnOrder.GotoRecord(PurchaseHeader);
         PurchaseReturnOrder."Tax Area Code".SetValue(TaxAreaCode);
         PurchaseReturnOrder.Close();
@@ -5799,7 +5764,7 @@
     var
         PurchaseReturnOrder: TestPage "Purchase Return Order";
     begin
-        PurchaseReturnOrder.OpenEdit;
+        PurchaseReturnOrder.OpenEdit();
         PurchaseReturnOrder.GotoRecord(PurchaseHeader);
         PurchaseReturnOrder."Tax Liable".SetValue(NewTaxLiable);
         PurchaseReturnOrder.Close();
@@ -5810,7 +5775,7 @@
     var
         BlanketPurchaseOrder: TestPage "Blanket Purchase Order";
     begin
-        BlanketPurchaseOrder.OpenEdit;
+        BlanketPurchaseOrder.OpenEdit();
         BlanketPurchaseOrder.GotoRecord(PurchaseHeader);
         BlanketPurchaseOrder."Tax Area Code".SetValue(TaxAreaCode);
         BlanketPurchaseOrder.Close();
@@ -5821,7 +5786,7 @@
     var
         BlanketPurchaseOrder: TestPage "Blanket Purchase Order";
     begin
-        BlanketPurchaseOrder.OpenEdit;
+        BlanketPurchaseOrder.OpenEdit();
         BlanketPurchaseOrder.GotoRecord(PurchaseHeader);
         BlanketPurchaseOrder."Tax Liable".SetValue(NewTaxLiable);
         BlanketPurchaseOrder.Close();
@@ -5832,7 +5797,7 @@
     var
         PurchaseQuote: TestPage "Purchase Quote";
     begin
-        PurchaseQuote.OpenEdit;
+        PurchaseQuote.OpenEdit();
         PurchaseQuote.GotoRecord(PurchaseHeader);
         PurchaseQuote."Tax Area Code".SetValue(TaxAreaCode);
         PurchaseQuote.Close();
@@ -5843,7 +5808,7 @@
     var
         PurchaseQuote: TestPage "Purchase Quote";
     begin
-        PurchaseQuote.OpenEdit;
+        PurchaseQuote.OpenEdit();
         PurchaseQuote.GotoRecord(PurchaseHeader);
         PurchaseQuote."Tax Liable".SetValue(NewTaxLiable);
         PurchaseQuote.Close();
@@ -5854,7 +5819,7 @@
     var
         SalesInvoice: TestPage "Sales Invoice";
     begin
-        SalesInvoice.OpenEdit;
+        SalesInvoice.OpenEdit();
         SalesInvoice.GotoRecord(SalesHeader);
         SalesInvoice."Tax Area Code".SetValue(TaxAreaCode);
         SalesInvoice.Close();
@@ -5865,7 +5830,7 @@
     var
         SalesInvoice: TestPage "Sales Invoice";
     begin
-        SalesInvoice.OpenEdit;
+        SalesInvoice.OpenEdit();
         SalesInvoice.GotoRecord(SalesHeader);
         SalesInvoice."Tax Liable".SetValue(NewTaxLiable);
         SalesInvoice.Close();
@@ -5876,7 +5841,7 @@
     var
         SalesCreditMemo: TestPage "Sales Credit Memo";
     begin
-        SalesCreditMemo.OpenEdit;
+        SalesCreditMemo.OpenEdit();
         SalesCreditMemo.GotoRecord(SalesHeader);
         SalesCreditMemo."Tax Area Code".SetValue(TaxAreaCode);
         SalesCreditMemo.Close();
@@ -5887,7 +5852,7 @@
     var
         SalesCreditMemo: TestPage "Sales Credit Memo";
     begin
-        SalesCreditMemo.OpenEdit;
+        SalesCreditMemo.OpenEdit();
         SalesCreditMemo.GotoRecord(SalesHeader);
         SalesCreditMemo."Tax Liable".SetValue(NewTaxLiable);
         SalesCreditMemo.Close();
@@ -5898,7 +5863,7 @@
     var
         SalesOrder: TestPage "Sales Order";
     begin
-        SalesOrder.OpenEdit;
+        SalesOrder.OpenEdit();
         SalesOrder.GotoRecord(SalesHeader);
         SalesOrder."Tax Area Code".SetValue(TaxAreaCode);
         SalesOrder.Close();
@@ -5909,7 +5874,7 @@
     var
         SalesOrder: TestPage "Sales Order";
     begin
-        SalesOrder.OpenEdit;
+        SalesOrder.OpenEdit();
         SalesOrder.GotoRecord(SalesHeader);
         SalesOrder."Tax Liable".SetValue(NewTaxLiable);
         SalesOrder.Close();
@@ -5920,7 +5885,7 @@
     var
         SalesReturnOrder: TestPage "Sales Return Order";
     begin
-        SalesReturnOrder.OpenEdit;
+        SalesReturnOrder.OpenEdit();
         SalesReturnOrder.GotoRecord(SalesHeader);
         SalesReturnOrder."Tax Area Code".SetValue(TaxAreaCode);
         SalesReturnOrder.Close();
@@ -5931,7 +5896,7 @@
     var
         SalesReturnOrder: TestPage "Sales Return Order";
     begin
-        SalesReturnOrder.OpenEdit;
+        SalesReturnOrder.OpenEdit();
         SalesReturnOrder.GotoRecord(SalesHeader);
         SalesReturnOrder."Tax Liable".SetValue(NewTaxLiable);
         SalesReturnOrder.Close();
@@ -5942,7 +5907,7 @@
     var
         BlanketSalesOrder: TestPage "Blanket Sales Order";
     begin
-        BlanketSalesOrder.OpenEdit;
+        BlanketSalesOrder.OpenEdit();
         BlanketSalesOrder.GotoRecord(SalesHeader);
         BlanketSalesOrder."Tax Area Code".SetValue(TaxAreaCode);
         BlanketSalesOrder.Close();
@@ -5953,7 +5918,7 @@
     var
         BlanketSalesOrder: TestPage "Blanket Sales Order";
     begin
-        BlanketSalesOrder.OpenEdit;
+        BlanketSalesOrder.OpenEdit();
         BlanketSalesOrder.GotoRecord(SalesHeader);
         BlanketSalesOrder."Tax Liable".SetValue(NewTaxLiable);
         SalesHeader.Find();
@@ -5963,7 +5928,7 @@
     var
         SalesQuote: TestPage "Sales Quote";
     begin
-        SalesQuote.OpenEdit;
+        SalesQuote.OpenEdit();
         SalesQuote.GotoRecord(SalesHeader);
         SalesQuote."Tax Area Code".SetValue(TaxAreaCode);
         SalesQuote.Close();
@@ -5974,7 +5939,7 @@
     var
         SalesQuote: TestPage "Sales Quote";
     begin
-        SalesQuote.OpenEdit;
+        SalesQuote.OpenEdit();
         SalesQuote.GotoRecord(SalesHeader);
         SalesQuote."Tax Liable".SetValue(NewTaxLiable);
         SalesQuote.Close();
@@ -6057,7 +6022,7 @@
         GLEntry.SetRange("Document No.", DocumentNo);
         GLEntry.FindFirst();
         Assert.AreNearlyEqual(
-          Amount, GLEntry.Amount, LibraryERM.GetAmountRoundingPrecision,
+          Amount, GLEntry.Amount, LibraryERM.GetAmountRoundingPrecision(),
           StrSubstNo(AmountError, GLEntry.FieldCaption(Amount), GLEntry.Amount, GLEntry.TableCaption()));
     end;
 
@@ -6069,11 +6034,11 @@
         GLEntry.SetRange("Bal. Account No.", GenJournalLine."Bal. Account No.");
         GLEntry.FindFirst();
         Assert.AreNearlyEqual(
-          GenJournalLine.Amount, GLEntry.Amount, LibraryERM.GetAmountRoundingPrecision,
+          GenJournalLine.Amount, GLEntry.Amount, LibraryERM.GetAmountRoundingPrecision(),
           StrSubstNo(AmountError, GLEntry.FieldCaption(Amount), GLEntry.Amount, GLEntry.TableCaption()));
     end;
 
-    local procedure VerifyVATEntry(DocumentType: Option; DocumentNo: Code[20]; Amount: Decimal; GSTHST: Option)
+    local procedure VerifyVATEntry(DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20]; Amount: Decimal; GSTHST: Enum "GST HST Tax Type")
     var
         VATEntry: Record "VAT Entry";
     begin
@@ -6082,7 +6047,7 @@
         VATEntry.SetRange("Document Type", DocumentType);
         VATEntry.FindFirst();
         Assert.AreNearlyEqual(
-          Amount, VATEntry.Base, LibraryERM.GetAmountRoundingPrecision,
+          Amount, VATEntry.Base, LibraryERM.GetAmountRoundingPrecision(),
           StrSubstNo(AmountError, VATEntry.FieldCaption(Base), VATEntry.Base, VATEntry.TableCaption()));
     end;
 
@@ -6242,7 +6207,7 @@
         with GLEntry do begin
             SetRange("G/L Account No.", TaxAccountNo);
             FindFirst();
-            Assert.AreNearlyEqual(ExpectedAmount, Amount, LibraryERM.GetAmountRoundingPrecision, GLEntryAmountErr);
+            Assert.AreNearlyEqual(ExpectedAmount, Amount, LibraryERM.GetAmountRoundingPrecision(), GLEntryAmountErr);
         end;
     end;
 
@@ -6324,7 +6289,7 @@
         GLEntry.SetRange("Gen. Posting Type", GLEntry."Gen. Posting Type"::Purchase);
         GLEntry.FindFirst();
         Assert.AreNearlyEqual(
-          TaxAmount + PurchAmount, GLEntry.Amount, LibraryERM.GetAmountRoundingPrecision, GLEntryAmountErr);
+          TaxAmount + PurchAmount, GLEntry.Amount, LibraryERM.GetAmountRoundingPrecision(), GLEntryAmountErr);
     end;
 
     local procedure VerifyPurchaseTotalTaxBeforeAfterRelease(PurchaseHeader: Record "Purchase Header"; ExpectedValue: Decimal)
@@ -6349,7 +6314,7 @@
         Assert.AreEqual(ExpectedValue, SalesHeader."Amount Including VAT" - SalesHeader.Amount, '');
     end;
 
-    local procedure VerifySalesLinesAmounts(DocumentNo: Code[20]; DocumentType: Option; Amount: array[2] of Decimal; AmountIncludingVAT: array[2] of Decimal)
+    local procedure VerifySalesLinesAmounts(DocumentNo: Code[20]; DocumentType: Enum "Sales Document Type"; Amount: array[2] of Decimal; AmountIncludingVAT: array[2] of Decimal)
     var
         SalesLine: Record "Sales Line";
     begin
@@ -6363,7 +6328,7 @@
         SalesLine.TestField("Amount Including VAT", AmountIncludingVAT[2]);
     end;
 
-    local procedure VerifyPurchaseLinesAmounts(DocumentNo: Code[20]; DocumentType: Option; Amount: array[2] of Decimal; AmountIncludingVAT: array[2] of Decimal)
+    local procedure VerifyPurchaseLinesAmounts(DocumentNo: Code[20]; DocumentType: Enum "Purchase Document Type"; Amount: array[2] of Decimal; AmountIncludingVAT: array[2] of Decimal)
     var
         PurchaseLine: Record "Purchase Line";
     begin
@@ -6457,7 +6422,7 @@
     [Scope('OnPrem')]
     procedure PurchaseOrderStatsHandler(var PurchaseOrderStats: TestPage "Purchase Order Stats.")
     begin
-        PurchaseOrderStats.NoOfVATLines_Invoice.DrillDown;  // Opens SalesTaxLinesSubformDynHandler.
+        PurchaseOrderStats.NoOfVATLines_Invoice.DrillDown();  // Opens SalesTaxLinesSubformDynHandler.
     end;
 
     [ModalPageHandler]
@@ -6465,14 +6430,14 @@
     procedure SalesTaxLinesSubformDynHandler(var SalesTaxLinesSubformDyn: TestPage "Sales Tax Lines Subform Dyn")
     begin
         SalesTaxLinesSubformDyn."Tax Amount".SetValue(0);  // Tax Amount 0 is required on Sales TAx Line Subform Dyn page.
-        SalesTaxLinesSubformDyn.OK.Invoke;
+        SalesTaxLinesSubformDyn.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure ItemChargeAssignmentPurchHandler(var ItemChargeAssignmentPurch: TestPage "Item Charge Assignment (Purch)")
     begin
-        ItemChargeAssignmentPurch.SuggestItemChargeAssignment.Invoke;
+        ItemChargeAssignmentPurch.SuggestItemChargeAssignment.Invoke();
     end;
 
     [StrMenuHandler]
@@ -6490,7 +6455,7 @@
     begin
         LibraryVariableStorage.Dequeue(No);
         SalesDocumentTest."Sales Header".SetFilter("No.", No);
-        SalesDocumentTest.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        SalesDocumentTest.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -6501,7 +6466,7 @@
     begin
         LibraryVariableStorage.Dequeue(No);
         PurchaseDocumentTest."Purchase Header".SetFilter("No.", No);
-        PurchaseDocumentTest.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        PurchaseDocumentTest.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -6512,7 +6477,7 @@
     begin
         LibraryVariableStorage.Dequeue(No);
         ServiceDocumentTest."Service Header".SetFilter("No.", No);
-        ServiceDocumentTest.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        ServiceDocumentTest.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -6523,7 +6488,7 @@
     begin
         LibraryVariableStorage.Dequeue(No);
         ServiceOrder."Service Header".SetFilter("No.", No);
-        ServiceOrder.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        ServiceOrder.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -6534,7 +6499,7 @@
     begin
         LibraryVariableStorage.Dequeue(No);
         ServiceQuote."Service Header".SetFilter("No.", No);
-        ServiceQuote.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        ServiceQuote.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [ModalPageHandler]
@@ -6589,7 +6554,7 @@
         LibraryVariableStorage.Dequeue(TaxAmount);
         Currency.Get(CurrencyCode);
         Assert.AreNearlyEqual(
-          TaxAmount, ServiceOrderStats.TaxAmount.AsDEcimal, Currency."Amount Rounding Precision", TaxAmountMustMatchErr);
+          TaxAmount, ServiceOrderStats.TaxAmount.AsDecimal(), Currency."Amount Rounding Precision", TaxAmountMustMatchErr);
     end;
 
     [ModalPageHandler]
@@ -6603,15 +6568,15 @@
         LibraryVariableStorage.Dequeue(CurrencyCode);
         LibraryVariableStorage.Dequeue(TaxAmount);
         Currency.Get(CurrencyCode);
-        Assert.AreNearlyEqual(TaxAmount, ServiceStats.VATAmount.AsDEcimal, Currency."Amount Rounding Precision", TaxAmountMustMatchErr);
+        Assert.AreNearlyEqual(TaxAmount, ServiceStats.VATAmount.AsDecimal(), Currency."Amount Rounding Precision", TaxAmountMustMatchErr);
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure SalesOrderStatisticsPageHandler(var SalesOrderStatistics: TestPage "Sales Order Stats.")
     begin
-        SalesOrderStatistics.NoOfVATLines_Invoicing.DrillDown; // calls SalesTaxLinesSubformDynPageHandler
-        SalesOrderStatistics.OK.Invoke;
+        SalesOrderStatistics.NoOfVATLines_Invoicing.DrillDown(); // calls SalesTaxLinesSubformDynPageHandler
+        SalesOrderStatistics.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -6622,43 +6587,43 @@
     begin
         LibraryVariableStorage.Dequeue(NewTaxAmount);
         SalesTaxLinesSubformDyn."Tax Amount".SetValue(NewTaxAmount);
-        SalesTaxLinesSubformDyn.OK.Invoke;
+        SalesTaxLinesSubformDyn.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure PurchOrderStatisticsPageHandler(var PurchOrderStatistics: TestPage "Purchase Order Stats.")
     begin
-        PurchOrderStatistics.NoOfVATLines_Invoice.DrillDown; // calls SalesTaxLinesSubformDynPageHandler
-        PurchOrderStatistics.OK.Invoke;
+        PurchOrderStatistics.NoOfVATLines_Invoice.DrillDown(); // calls SalesTaxLinesSubformDynPageHandler
+        PurchOrderStatistics.OK().Invoke();
     end;
 
     [PageHandler]
     [Scope('OnPrem')]
     procedure SalesOrderListPageHandler(var SalesOrderList: TestPage "Sales Order List")
     begin
-        SalesOrderList."No.".AssertEquals(LibraryVariableStorage.DequeueText);
+        SalesOrderList."No.".AssertEquals(LibraryVariableStorage.DequeueText());
     end;
 
     [PageHandler]
     [Scope('OnPrem')]
     procedure PurchaseOrderListPageHandler(var PurchaseOrderList: TestPage "Purchase Order List")
     begin
-        PurchaseOrderList."No.".AssertEquals(LibraryVariableStorage.DequeueText);
+        PurchaseOrderList."No.".AssertEquals(LibraryVariableStorage.DequeueText());
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure StandardSalesOrderConf_RPH(var StandardSalesOrderConf: TestRequestPage "Standard Sales - Order Conf.")
     begin
-        StandardSalesOrderConf.SaveAsExcel(LibraryReportValidation.GetFileName);
+        StandardSalesOrderConf.SaveAsExcel(LibraryReportValidation.GetFileName());
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure SalesOrder_RPH(var SalesOrder: TestRequestPage "Sales Order")
     begin
-        SalesOrder.SaveAsExcel(LibraryReportValidation.GetFileName);
+        SalesOrder.SaveAsExcel(LibraryReportValidation.GetFileName());
     end;
 }
 

@@ -15,6 +15,7 @@ table 6325 "Power BI User Status"
     ObsoleteState = Removed;
     ObsoleteTag = '26.0';
 #endif
+    DataClassification = CustomerContent;
 
     fields
     {

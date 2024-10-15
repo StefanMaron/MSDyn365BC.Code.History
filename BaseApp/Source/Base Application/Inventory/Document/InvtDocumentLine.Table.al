@@ -27,6 +27,7 @@ table 5851 "Invt. Document Line"
     Caption = 'Item Document Line';
     DrillDownPageID = "Invt. Document Lines";
     LookupPageID = "Invt. Document Lines";
+    DataClassification = CustomerContent;
 
     fields
     {

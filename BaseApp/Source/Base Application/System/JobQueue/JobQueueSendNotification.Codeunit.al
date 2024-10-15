@@ -56,20 +56,18 @@ codeunit 454 "Job Queue - Send Notification"
     var
         Link: Text;
     begin
-        with JobQueueEntry do begin
-            // Generates a URL such as dynamicsnav://host:port/instance/company/runpage?page=672&$filter=
-            // The intent is to open up the Job Queue Entries page and show the list of "my errors".
-            // TODO: Leverage parameters ",JobQueueEntry,TRUE)" to take into account the filters, which will add the
-            // following to the Url: &$filter=JobQueueEntry.Status IS 2 AND JobQueueEntry."User ID" IS <UserID>.
-            // This will also require setting the filters on the record, such as:
-            // SETFILTER(Status,'=2');
-            // SETFILTER("User ID",'=%1',"User ID");
-            Link := GetUrl(DefaultClientType, CompanyName, OBJECTTYPE::Page, PAGE::"Job Queue Entries") +
-              StrSubstNo('&$filter=''%1''.''%2''%20IS%20''2''%20AND%20''%1''.''%3''%20IS%20''%4''&mode=View',
-                HtmlEncode(TableName), HtmlEncode(FieldName(Status)), HtmlEncode(FieldName("User ID")), HtmlEncode("User ID"));
+        // Generates a URL such as dynamicsnav://host:port/instance/company/runpage?page=672&$filter=
+        // The intent is to open up the Job Queue Entries page and show the list of "my errors".
+        // TODO: Leverage parameters ",JobQueueEntry,TRUE)" to take into account the filters, which will add the
+        // following to the Url: &$filter=JobQueueEntry.Status IS 2 AND JobQueueEntry."User ID" IS <UserID>.
+        // This will also require setting the filters on the record, such as:
+        // SETFILTER(Status,'=2');
+        // SETFILTER("User ID",'=%1',"User ID");
+        Link := GetUrl(DefaultClientType, CompanyName, OBJECTTYPE::Page, PAGE::"Job Queue Entries") +
+          StrSubstNo('&$filter=''%1''.''%2''%20IS%20''2''%20AND%20''%1''.''%3''%20IS%20''%4''&mode=View',
+            HtmlEncode(JobQueueEntry.TableName), HtmlEncode(JobQueueEntry.FieldName(Status)), HtmlEncode(JobQueueEntry.FieldName("User ID")), HtmlEncode(JobQueueEntry."User ID"));
 
-            RecordLink.URL1 := CopyStr(Link, 1, MaxStrLen(RecordLink.URL1));
-        end;
+        RecordLink.URL1 := CopyStr(Link, 1, MaxStrLen(RecordLink.URL1));
     end;
 
     local procedure SetText(var JobQueueEntry: Record "Job Queue Entry"; var RecordLink: Record "Record Link")
@@ -79,17 +77,15 @@ codeunit 454 "Job Queue - Send Notification"
         lf: Text;
         c1: Byte;
     begin
-        with JobQueueEntry do begin
-            c1 := 13;
-            lf[1] := c1;
+        c1 := 13;
+        lf[1] := c1;
 
-            if Status = Status::Error then
-                s := StrSubstNo(ErrorWhenProcessingTxt, Description) + lf + ErrorMessageLabelTxt + ' ' + "Error Message"
-            else
-                s := StrSubstNo(JobQueueFinishedTxt, Description);
+        if JobQueueEntry.Status = JobQueueEntry.Status::Error then
+            s := StrSubstNo(ErrorWhenProcessingTxt, JobQueueEntry.Description) + lf + ErrorMessageLabelTxt + ' ' + JobQueueEntry."Error Message"
+        else
+            s := StrSubstNo(JobQueueFinishedTxt, JobQueueEntry.Description);
 
-            RecordLinkManagement.WriteNote(RecordLink, s);
-        end;
+        RecordLinkManagement.WriteNote(RecordLink, s);
     end;
 
     local procedure HtmlEncode(InText: Text[1024]): Text[1024]

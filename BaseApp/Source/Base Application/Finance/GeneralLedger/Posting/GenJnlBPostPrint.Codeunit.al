@@ -45,68 +45,66 @@ codeunit 234 "Gen. Jnl.-B.Post+Print"
         if GenJnlManagement.GetJournalSimplePageModePreference(PAGE::"General Journal") then
             OrderByDocNoAndLineNo := true;
 
-        with GenJnlBatch do begin
-            GenJnlTemplate.Get("Journal Template Name");
-            if GenJnlTemplate."Force Posting Report" or
-               (GenJnlTemplate."Cust. Receipt Report ID" = 0) and (GenJnlTemplate."Vendor Receipt Report ID" = 0)
-            then
-                GenJnlTemplate.TestField("Posting Report ID");
+        GenJnlTemplate.Get(GenJnlBatch."Journal Template Name");
+        if GenJnlTemplate."Force Posting Report" or
+           (GenJnlTemplate."Cust. Receipt Report ID" = 0) and (GenJnlTemplate."Vendor Receipt Report ID" = 0)
+        then
+            GenJnlTemplate.TestField("Posting Report ID");
 
-            OnBeforePostJournalBatch(GenJnlBatch, HideDialog);
+        OnBeforePostJournalBatch(GenJnlBatch, HideDialog);
 
-            if not HideDialog then
-                if not ConfirmManagement.GetResponseOrDefault(Text000, true) then
-                    exit;
+        if not HideDialog then
+            if not ConfirmManagement.GetResponseOrDefault(Text000, true) then
+                exit;
 
-            Find('-');
-            repeat
-                GenJnlLine.SetRange("Journal Template Name", "Journal Template Name");
-                GenJnlLine.SetRange("Journal Batch Name", Name);
-                if OrderByDocNoAndLineNo then
-                    GenJnlLine.SetCurrentKey("Document No.", "Line No.");
-                if GenJnlLine.FindFirst() then begin
-                    GeneralLedgerSetup.Get();
-                    if GeneralLedgerSetup."Post & Print with Job Queue" then begin
-                        // Add job queue entry for each document no.
-                        GenJnlLine.SetCurrentKey("Document No.");
-                        while GenJnlLine.FindFirst() do begin
-                            GenJnlsScheduled := true;
-                            GenJnlLine."Print Posted Documents" := true;
-                            GenJnlLine.Modify();
-                            GenJnlPostviaJobQueue.EnqueueGenJrnlLineWithUI(GenJnlLine, false);
-                            GenJnlLine.SetFilter("Document No.", '>%1', GenJnlLine."Document No.");
-                        end;
-                        GenJnlLine.SetFilter("Document No.", '<>%1', '');
+        GenJnlBatch.Find('-');
+        repeat
+            GenJnlLine.SetRange("Journal Template Name", GenJnlBatch."Journal Template Name");
+            GenJnlLine.SetRange("Journal Batch Name", GenJnlBatch.Name);
+            if OrderByDocNoAndLineNo then
+                GenJnlLine.SetCurrentKey("Document No.", "Line No.");
+            if GenJnlLine.FindFirst() then begin
+                GeneralLedgerSetup.Get();
+                if GeneralLedgerSetup."Post & Print with Job Queue" then begin
+                    // Add job queue entry for each document no.
+                    GenJnlLine.SetCurrentKey("Document No.");
+                    while GenJnlLine.FindFirst() do begin
+                        GenJnlsScheduled := true;
+                        GenJnlLine."Print Posted Documents" := true;
+                        GenJnlLine.Modify();
+                        GenJnlPostviaJobQueue.EnqueueGenJrnlLineWithUI(GenJnlLine, false);
+                        GenJnlLine.SetFilter("Document No.", '>%1', GenJnlLine."Document No.");
+                    end;
+                    GenJnlLine.SetFilter("Document No.", '<>%1', '');
+                end else begin
+                    Clear(GenJnlPostBatch);
+                    if GenJnlPostBatch.Run(GenJnlLine) then begin
+                        OnAfterPostJournalBatch(GenJnlBatch);
+                        GenJnlBatch.Mark(false);
+                        RecRefToPrint.GetTable(GenJnlLine);
+                        BatchPostingPrintMgt.PrintJournal(RecRefToPrint);
                     end else begin
-                        Clear(GenJnlPostBatch);
-                        if GenJnlPostBatch.Run(GenJnlLine) then begin
-                            OnAfterPostJournalBatch(GenJnlBatch);
-                            Mark(false);
-                            RecRefToPrint.GetTable(GenJnlLine);
-                            BatchPostingPrintMgt.PrintJournal(RecRefToPrint);
-                        end else begin
-                            Mark(true);
-                            JnlWithErrors := true;
-                        end;
+                        GenJnlBatch.Mark(true);
+                        JnlWithErrors := true;
                     end;
                 end;
-            until Next() = 0;
-
-            if GenJnlsScheduled then
-                Message(JournalsScheduledMsg);
-
-            if not GeneralLedgerSetup."Post & Print with Job Queue" then
-                if not JnlWithErrors then
-                    Message(Text001)
-                else
-                    Message(
-                      Text002 +
-                      Text003);
-
-            if not Find('=><') or GeneralLedgerSetup."Post & Print with Job Queue" then begin
-                Reset();
-                Name := '';
             end;
+        until GenJnlBatch.Next() = 0;
+
+        if GenJnlsScheduled then
+            Message(JournalsScheduledMsg);
+
+        if not GeneralLedgerSetup."Post & Print with Job Queue" then
+            if not JnlWithErrors then
+                Message(Text001)
+            else
+                Message(
+                  Text002 +
+                  Text003);
+
+        if not GenJnlBatch.Find('=><') or GeneralLedgerSetup."Post & Print with Job Queue" then begin
+            GenJnlBatch.Reset();
+            GenJnlBatch.Name := '';
         end;
     end;
 

@@ -1,6 +1,8 @@
 namespace Microsoft.Intercompany.Inbox;
 
+#pragma warning disable AL0659
 enum 437 "IC Inbox Purchase Document Type"
+#pragma warning restore AL0659
 {
     Extensible = true;
     AssignmentCompatibility = true;

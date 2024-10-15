@@ -10,6 +10,7 @@ table 10015 "GIFI Code"
 {
     Caption = 'GIFI Code';
     LookupPageID = "GIFI Codes";
+    DataClassification = CustomerContent;
 
     fields
     {

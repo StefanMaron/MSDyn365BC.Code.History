@@ -75,7 +75,7 @@ codeunit 373 "Bank. Acc. Recon. Post Preview"
         if RunResult then
             Error(PreviewExitStateErr);
 
-        if NOT HideDialogs then begin
+        if not HideDialogs then begin
             if GetLastErrorText <> DocumentErrorsMgt.GetNothingToPostErrorMsg() then
                 if ErrorMessageHandler.ShowErrors() then
                     exit;

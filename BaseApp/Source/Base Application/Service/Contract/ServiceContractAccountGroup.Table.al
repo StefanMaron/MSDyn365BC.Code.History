@@ -8,6 +8,7 @@ table 5973 "Service Contract Account Group"
     Caption = 'Service Contract Account Group';
     DrillDownPageID = "Serv. Contract Account Groups";
     LookupPageID = "Serv. Contract Account Groups";
+    DataClassification = CustomerContent;
 
     fields
     {

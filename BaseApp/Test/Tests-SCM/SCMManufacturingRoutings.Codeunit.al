@@ -500,9 +500,9 @@ codeunit 137082 "SCM Manufacturing - Routings"
         LibraryManufacturing.CreateWorkCenter(WorkCenter);
         LibraryManufacturing.CreateRoutingHeader(RoutingHeader, RoutingHeader.Type::Parallel);
         LibraryManufacturing.CreateRoutingLine(
-          RoutingHeader, RoutingLine[1], '', LibraryUtility.GenerateGUID, RoutingLine[1].Type::"Work Center", WorkCenter."No.");
+          RoutingHeader, RoutingLine[1], '', LibraryUtility.GenerateGUID(), RoutingLine[1].Type::"Work Center", WorkCenter."No.");
         LibraryManufacturing.CreateRoutingLine(
-          RoutingHeader, RoutingLine[2], '', LibraryUtility.GenerateGUID, RoutingLine[2].Type::"Work Center", WorkCenter."No.");
+          RoutingHeader, RoutingLine[2], '', LibraryUtility.GenerateGUID(), RoutingLine[2].Type::"Work Center", WorkCenter."No.");
 
         // [WHEN] Certify the routing
         asserterror ChangeRoutingStatus(RoutingHeader, RoutingHeader.Status::Certified);
@@ -564,9 +564,9 @@ codeunit 137082 "SCM Manufacturing - Routings"
         LibraryManufacturing.CreateWorkCenter(WorkCenter);
         LibraryManufacturing.CreateRoutingHeader(RoutingHeader, RoutingHeader.Type::Parallel);
         LibraryManufacturing.CreateRoutingLine(
-          RoutingHeader, RoutingLine[1], '', LibraryUtility.GenerateGUID, RoutingLine[1].Type::"Work Center", WorkCenter."No.");
+          RoutingHeader, RoutingLine[1], '', LibraryUtility.GenerateGUID(), RoutingLine[1].Type::"Work Center", WorkCenter."No.");
         LibraryManufacturing.CreateRoutingLine(
-          RoutingHeader, RoutingLine[2], '', LibraryUtility.GenerateGUID, RoutingLine[2].Type::"Work Center", WorkCenter."No.");
+          RoutingHeader, RoutingLine[2], '', LibraryUtility.GenerateGUID(), RoutingLine[2].Type::"Work Center", WorkCenter."No.");
 
         SetNextOperationNo(RoutingLine[1], LibraryUtility.GenerateGUID());
         SetNextOperationNo(RoutingLine[2], LibraryUtility.GenerateGUID());
@@ -677,28 +677,28 @@ codeunit 137082 "SCM Manufacturing - Routings"
         // [GIVEN]    / \
         // [GIVEN]    ...
 
-        CodeCoverageMgt.StopApplicationCoverage;
+        CodeCoverageMgt.StopApplicationCoverage();
         SmallNoOfOperations := 1;
         MediumNoOfOperations := 5;
         LargeNoOfOperations := 10;
 
-        CodeCoverageMgt.StartApplicationCoverage;
+        CodeCoverageMgt.StartApplicationCoverage();
         CreateAndCertifyRoutingWithCrossOperations(SmallNoOfOperations);
-        CodeCoverageMgt.StopApplicationCoverage;
+        CodeCoverageMgt.StopApplicationCoverage();
         SmallNoOfHits :=
           GetCodeCoverageForObject(CodeCoverage."Object Type"::Codeunit, CODEUNIT::"Check Routing Lines", 'SetRtngLineSequenceBack') +
           GetCodeCoverageForObject(CodeCoverage."Object Type"::Codeunit, CODEUNIT::"Check Routing Lines", 'SetRtngLineSequenceForward');
 
-        CodeCoverageMgt.StartApplicationCoverage;
+        CodeCoverageMgt.StartApplicationCoverage();
         CreateAndCertifyRoutingWithCrossOperations(MediumNoOfOperations);
-        CodeCoverageMgt.StopApplicationCoverage;
+        CodeCoverageMgt.StopApplicationCoverage();
         MediumNoOfHits :=
           GetCodeCoverageForObject(CodeCoverage."Object Type"::Codeunit, CODEUNIT::"Check Routing Lines", 'SetRtngLineSequenceBack') +
           GetCodeCoverageForObject(CodeCoverage."Object Type"::Codeunit, CODEUNIT::"Check Routing Lines", 'SetRtngLineSequenceForward');
 
-        CodeCoverageMgt.StartApplicationCoverage;
+        CodeCoverageMgt.StartApplicationCoverage();
         CreateAndCertifyRoutingWithCrossOperations(LargeNoOfOperations);
-        CodeCoverageMgt.StopApplicationCoverage;
+        CodeCoverageMgt.StopApplicationCoverage();
         LargeNoOfHits :=
           GetCodeCoverageForObject(CodeCoverage."Object Type"::Codeunit, CODEUNIT::"Check Routing Lines", 'SetRtngLineSequenceBack') +
           GetCodeCoverageForObject(CodeCoverage."Object Type"::Codeunit, CODEUNIT::"Check Routing Lines", 'SetRtngLineSequenceForward');
@@ -826,7 +826,7 @@ codeunit 137082 "SCM Manufacturing - Routings"
         // [THEN] Caption method doesn't throw OverflowError and returns expected value
         CaptionText := StrSubstNo('%1 %2 %3', RoutingPersonnel."Routing No.",
             RoutingHeader.Description, RoutingPersonnel."Operation No.");
-        Assert.AreEqual(CaptionText, RoutingPersonnel.Caption, '');
+        Assert.AreEqual(CaptionText, RoutingPersonnel.Caption(), '');
     end;
 
     [Test]
@@ -855,7 +855,7 @@ codeunit 137082 "SCM Manufacturing - Routings"
             WorkCenter.Validate("Flushing Method", WorkCenter."Flushing Method"::Forward);
             WorkCenter.Modify(true);
             LibraryManufacturing.CreateRoutingLine(
-              RoutingHeader, RoutingLine[Index], '', LibraryUtility.GenerateGUID, RoutingLine[1].Type::"Work Center", WorkCenter."No.");
+              RoutingHeader, RoutingLine[Index], '', LibraryUtility.GenerateGUID(), RoutingLine[1].Type::"Work Center", WorkCenter."No.");
         end;
         RoutingLine[1].Validate("Next Operation No.", RoutingLine[2]."Operation No.");
         RoutingLine[1].Modify(true);
@@ -895,7 +895,7 @@ codeunit 137082 "SCM Manufacturing - Routings"
         ProductionOrder.SetRange("Source No.", Item."No.");
         ProductionOrder.FindFirst();
         ProductionOrder.TestField(Status, ProductionOrder.Status::Released);
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -1540,15 +1540,15 @@ codeunit 137082 "SCM Manufacturing - Routings"
 
         Routing.RoutingLine.First();
         Routing.RoutingLine."No.".AssertEquals(MachineCenter[1]."No.");
-        Assert.IsFalse(Routing.RoutingLine."Unit Cost per".Editable, '');
+        Assert.IsFalse(Routing.RoutingLine."Unit Cost per".Editable(), '');
 
         Routing.RoutingLine.Next();
         Routing.RoutingLine."No.".AssertEquals(MachineCenter[2]."No.");
-        Assert.IsFalse(Routing.RoutingLine."Unit Cost per".Editable, '');
+        Assert.IsFalse(Routing.RoutingLine."Unit Cost per".Editable(), '');
 
         Routing.RoutingLine.Next();
         Routing.RoutingLine."No.".AssertEquals(WorkCenter[2]."No.");
-        Assert.IsTrue(Routing.RoutingLine."Unit Cost per".Editable, '');
+        Assert.IsTrue(Routing.RoutingLine."Unit Cost per".Editable(), '');
 
         Routing.Close();
     end;
@@ -1590,7 +1590,6 @@ codeunit 137082 "SCM Manufacturing - Routings"
         ProdOrderLine: Record "Prod. Order Line";
         RoutingLineCopyLines: Codeunit "Routing Line-Copy Lines";
         LeadTimeMgt: Codeunit "Lead-Time Management";
-        ProductionOrderStatus: Enum "Production Order Status";
         CurrWorkDate: Date;
         StartingDateTime, EndingDateTime : DateTime;
         ItemNo: Code[20];
@@ -1708,8 +1707,6 @@ codeunit 137082 "SCM Manufacturing - Routings"
         ProdOrderRoutingLine: Record "Prod. Order Routing Line";
         ProdOrderLine: Record "Prod. Order Line";
         RoutingLineCopyLines: Codeunit "Routing Line-Copy Lines";
-        LeadTimeMgt: Codeunit "Lead-Time Management";
-        ProductionOrderStatus: Enum "Production Order Status";
         StartingDateTime, EndingDateTime : DateTime;
         ItemNo: Code[20];
         ShopCalendarCode: Code[10];
@@ -1795,7 +1792,6 @@ codeunit 137082 "SCM Manufacturing - Routings"
         ProdOrderRoutingLine: Record "Prod. Order Routing Line";
         ProdOrderLine: Record "Prod. Order Line";
         LeadTimeMgt: Codeunit "Lead-Time Management";
-        ProductionOrderStatus: Enum "Production Order Status";
         CurrWorkDate: Date;
         StartingDateTime, EndingDateTime : DateTime;
         ItemNo: Code[20];
@@ -1990,7 +1986,7 @@ codeunit 137082 "SCM Manufacturing - Routings"
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"SCM Manufacturing - Routings");
 
-        UpdateManufSetupSetNormalStartingEndingTime;
+        UpdateManufSetupSetNormalStartingEndingTime();
 
         isInitialized := true;
         Commit();
@@ -2102,7 +2098,7 @@ codeunit 137082 "SCM Manufacturing - Routings"
         CodeCoverage: Record "Code Coverage";
         CodeCoverageMgt: Codeunit "Code Coverage Mgt.";
     begin
-        CodeCoverageMgt.Refresh;
+        CodeCoverageMgt.Refresh();
         with CodeCoverage do begin
             SetRange("Line Type", "Line Type"::Code);
             SetRange("Object Type", ObjectType);
@@ -2112,7 +2108,7 @@ codeunit 137082 "SCM Manufacturing - Routings"
             if FindSet() then
                 repeat
                     NoOfHits += "No. of Hits";
-                until Next = 0;
+                until Next() = 0;
         end;
     end;
 
@@ -2248,10 +2244,10 @@ codeunit 137082 "SCM Manufacturing - Routings"
         case LibraryVariableStorage.DequeueInteger() of
             ItemTrackingMode::SetLotNo:
                 begin
-                    ItemTrackingLines.First;
-                    ItemTrackingLines."Lot No.".SetValue(LibraryVariableStorage.DequeueText);
+                    ItemTrackingLines.First();
+                    ItemTrackingLines."Lot No.".SetValue(LibraryVariableStorage.DequeueText());
                     ItemTrackingLines."Quantity (Base)".SetValue(LibraryVariableStorage.DequeueDecimal());
-                    ItemTrackingLines.OK.Invoke;
+                    ItemTrackingLines.OK().Invoke();
                 end;
             ItemTrackingMode::VerifyTotals:
                 begin

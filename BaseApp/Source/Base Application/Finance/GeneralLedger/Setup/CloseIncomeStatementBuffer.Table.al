@@ -6,6 +6,7 @@ table 347 "Close Income Statement Buffer"
 {
     Caption = 'Close Income Statement Buffer';
     ReplicateData = false;
+    DataClassification = CustomerContent;
 
     fields
     {

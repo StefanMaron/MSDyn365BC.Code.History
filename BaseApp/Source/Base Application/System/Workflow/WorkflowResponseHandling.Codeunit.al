@@ -1066,7 +1066,7 @@ codeunit 1521 "Workflow Response Handling"
 
         WorkflowResponse.SetRange(Description, Description);
         if not WorkflowResponse.IsEmpty() then begin
-            if SystemInitialization.IsInProgress() or (GetExecutionContext <> ExecutionContext::Normal) then
+            if SystemInitialization.IsInProgress() or (GetExecutionContext() <> ExecutionContext::Normal) then
                 exit;
             Error(ResponseAlreadyExistErr, Description);
         end;

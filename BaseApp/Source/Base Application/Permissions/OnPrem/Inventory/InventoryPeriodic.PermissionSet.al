@@ -73,11 +73,11 @@ permissionset 4936 "Inventory - Periodic"
                   tabledata "Reservation Entry" = Rimd,
                   tabledata "Responsibility Center" = R,
                   tabledata "Rounding Method" = R,
-#if not CLEAN21
+#if not CLEAN23
                   tabledata "Sales Price" = RIMD,
 #endif
                   tabledata "Sales Price Access" = RIMD,
-#if not CLEAN21
+#if not CLEAN23
                   tabledata "Sales Price Worksheet" = RIMD,
 #endif
                   tabledata "Source Code Setup" = R,

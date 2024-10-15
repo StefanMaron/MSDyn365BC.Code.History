@@ -1,7 +1,11 @@
+#if not CLEAN25
 codeunit 135519 "IRS 1099 Code Entity E2E Test"
 {
     Subtype = Test;
     TestPermissions = Disabled;
+    ObsoleteReason = 'Moved to IRS Forms App.';
+    ObsoleteState = Pending;
+    ObsoleteTag = '25.0';
 
     trigger OnRun()
     begin
@@ -30,7 +34,7 @@ codeunit 135519 "IRS 1099 Code Entity E2E Test"
         Initialize();
 
         // [GIVEN] a modified IRS1099FormBox record
-        IRS1099FormBoxCode := CreateIRS1099FormBox;
+        IRS1099FormBoxCode := CreateIRS1099FormBox();
 
         // [WHEN] we retrieve the IRS1099FormBox from the database
         IRS1099FormBox.Get(IRS1099FormBoxCode);
@@ -55,7 +59,7 @@ codeunit 135519 "IRS 1099 Code Entity E2E Test"
 
         // [GIVEN] 2 irs1099Codes in the IRS1099FormBox Table
         for Count := 1 to 2 do
-            IRS1099FormBoxCode[Count] := CreateIRS1099FormBox;
+            IRS1099FormBoxCode[Count] := CreateIRS1099FormBox();
 
         // [WHEN] A GET request is made to the irs1099Codes API.
         TargetURL := LibraryGraphMgt.CreateTargetURL('', PAGE::"IRS 1099 Form-Box Entity", ServiceNameTxt);
@@ -109,7 +113,7 @@ codeunit 135519 "IRS 1099 Code Entity E2E Test"
         Initialize();
 
         // [GIVEN] An IRS1099FormBox exists.
-        IRS1099FormBoxCode := CreateIRS1099FormBox;
+        IRS1099FormBoxCode := CreateIRS1099FormBox();
         IRS1099FormBox.Get(IRS1099FormBoxCode);
         IRS1099FormBox.Description := LibraryUtility.GenerateGUID();
         RequestBody := GetIRS1099FormBoxJSON(IRS1099FormBox);
@@ -139,7 +143,7 @@ codeunit 135519 "IRS 1099 Code Entity E2E Test"
         Initialize();
 
         // [GIVEN] An IRS1099FormBox exists.
-        IRS1099FormBoxCode := CreateIRS1099FormBox;
+        IRS1099FormBoxCode := CreateIRS1099FormBox();
         IRS1099FormBox.Get(IRS1099FormBoxCode);
 
         // [WHEN] The user makes a DELETE request to the endpoint for the IRS1099FormBox.
@@ -188,7 +192,7 @@ codeunit 135519 "IRS 1099 Code Entity E2E Test"
         JSONManagement.InitializeEmptyObject();
         JSONManagement.GetJSONObject(JsonObject);
         if IRS1099FormBox.Code = '' then
-            IRS1099FormBox.Code := GetNextIRS1099FormBoxID;
+            IRS1099FormBox.Code := GetNextIRS1099FormBoxID();
         if IRS1099FormBox.Description = '' then
             IRS1099FormBox.Description := LibraryUtility.GenerateGUID();
 
@@ -219,7 +223,7 @@ codeunit 135519 "IRS 1099 Code Entity E2E Test"
         IRS1099FormBox: Record "IRS 1099 Form-Box";
     begin
         IRS1099FormBox.Init();
-        IRS1099FormBox.Validate(Code, GetNextIRS1099FormBoxID);
+        IRS1099FormBox.Validate(Code, GetNextIRS1099FormBoxID());
         IRS1099FormBox.Insert(true);
 
         Commit();
@@ -227,4 +231,4 @@ codeunit 135519 "IRS 1099 Code Entity E2E Test"
         exit(IRS1099FormBox.Code);
     end;
 }
-
+#endif

@@ -22,7 +22,7 @@
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
     begin
-        PrepareSOwithPostedPrepmtInv(SalesHeader, SalesLine, 1, FindTaxAreaCode, FindItem, true);
+        PrepareSOwithPostedPrepmtInv(SalesHeader, SalesLine, 1, FindTaxAreaCode(), FindItem(), true);
 
         asserterror SalesHeader.Validate("Prepmt. Include Tax", false);
         Assert.ExpectedError(StrSubstNo('You cannot change %1', SalesHeader.FieldCaption("Prepmt. Include Tax")));
@@ -48,7 +48,7 @@
         SalesLine: Record "Sales Line";
         FirstPrepmtInvNo: Code[20];
     begin
-        PrepareSOwithPostedPrepmtInv(SalesHeader, SalesLine, 1, FindTaxAreaCode, FindItem, IncludeTax);
+        PrepareSOwithPostedPrepmtInv(SalesHeader, SalesLine, 1, FindTaxAreaCode(), FindItem(), IncludeTax);
         FirstPrepmtInvNo := SalesHeader."Last Prepayment No.";
         DoubleQuantityInLines(SalesHeader);
 
@@ -106,7 +106,7 @@
 
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
 
-        VerifyZeroCustomerAccEntry;
+        VerifyZeroCustomerAccEntry();
         // no rounding entry failures after fix 277059
         VerifyInvRoundingEqualToRoundingPrecision(SalesHeader."Bill-to Customer No.", SalesHeader."Customer Posting Group");
     end;
@@ -118,7 +118,7 @@
         SalesHeader: Record "Sales Header";
     begin
         MultiLineOrderPartTFS323743(SalesHeader);
-        VerifyZeroCustomerAccEntry;
+        VerifyZeroCustomerAccEntry();
     end;
 
     local procedure MultiLineOrderPartTFS323743(SalesHeader: Record "Sales Header")
@@ -126,12 +126,12 @@
         SalesLine: Record "Sales Line";
     begin
         SalesHeader."Prepmt. Include Tax" := true;
-        PrepareSOwithPostedPrepmtInv(SalesHeader, SalesLine, 3, FindTaxAreaCode, FindItem, true);
+        PrepareSOwithPostedPrepmtInv(SalesHeader, SalesLine, 3, FindTaxAreaCode(), FindItem(), true);
         SalesLine.Find();
         SalesLine.Validate("Qty. to Ship", SalesLine."Qty. to Ship" - 1);
         SalesLine.Modify();
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
-        VerifyZeroCustomerAccEntry;
+        VerifyZeroCustomerAccEntry();
 
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
     end;
@@ -143,7 +143,7 @@
         SalesHeader: Record "Sales Header";
     begin
         MultiLineOrderTFS323742(SalesHeader);
-        VerifyZeroCustomerAccEntry;
+        VerifyZeroCustomerAccEntry();
     end;
 
     local procedure MultiLineOrderTFS323742(SalesHeader: Record "Sales Header")
@@ -151,7 +151,7 @@
         SalesLine: Record "Sales Line";
     begin
         SalesHeader."Prepmt. Include Tax" := true;
-        PrepareSOwithPostedPrepmtInv(SalesHeader, SalesLine, 3, FindTaxAreaCode, FindItem, true);
+        PrepareSOwithPostedPrepmtInv(SalesHeader, SalesLine, 3, FindTaxAreaCode(), FindItem(), true);
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
     end;
 
@@ -188,7 +188,7 @@
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
 
         // [THEN] Cust. Ledger Entry is posted where Amount = 0
-        VerifyZeroCustomerAccEntry;
+        VerifyZeroCustomerAccEntry();
         // [THEN] No Invoice Rounding G/L Entry is posted after fix 277059
         // failed before the fix for TFS200992
         VerifyInvRoundingEqualToRoundingPrecision(SalesHeader."Bill-to Customer No.", SalesHeader."Customer Posting Group");
@@ -201,7 +201,7 @@
         SalesHeader: Record "Sales Header";
     begin
         Scenario55698(SalesHeader, false);
-        asserterror VerifyZeroCustomerAccEntry;
+        asserterror VerifyZeroCustomerAccEntry();
         Assert.ExpectedError('Expected zero Customer Ledger Entry');
     end;
 
@@ -212,14 +212,14 @@
         SalesHeader: Record "Sales Header";
     begin
         Scenario55698(SalesHeader, true);
-        VerifyZeroCustomerAccEntry;
+        VerifyZeroCustomerAccEntry();
     end;
 
     local procedure Scenario55698(SalesHeader: Record "Sales Header"; PrepmtInclTax: Boolean)
     var
         SalesLine: Record "Sales Line";
     begin
-        PrepareSOwithPostedPrepmtInv(SalesHeader, SalesLine, 1, FindTaxAreaCode, FindItem, PrepmtInclTax);
+        PrepareSOwithPostedPrepmtInv(SalesHeader, SalesLine, 1, FindTaxAreaCode(), FindItem(), PrepmtInclTax);
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
     end;
 
@@ -410,7 +410,7 @@
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
 
         // [WHEN] Update posting date on the sales order.
-        SalesOrder.OpenEdit;
+        SalesOrder.OpenEdit();
         SalesOrder.GotoKey(SalesHeader."Document Type", SalesHeader."No.");
         SalesOrder."Posting Date".SetValue(LibraryRandom.RandDate(60));
 
@@ -567,7 +567,7 @@
         Customer.Validate("Gen. Bus. Posting Group", GeneralPostingSetup."Gen. Bus. Posting Group");
         Customer.Validate("Tax Area Code", TaxAreaCode);
         Customer.Validate("Tax Liable", true);
-        Customer.Validate("Customer Posting Group", LibrarySales.FindCustomerPostingGroup);
+        Customer.Validate("Customer Posting Group", LibrarySales.FindCustomerPostingGroup());
         Customer.Modify(true);
         exit(Customer."No.");
     end;
@@ -593,7 +593,7 @@
         TaxAreaLine: Record "Tax Area Line";
     begin
         LibraryERM.CreateTaxJurisdiction(TaxJurisdiction);
-        TaxJurisdiction.Validate("Tax Account (Sales)", LibraryERM.CreateGLAccountNo);
+        TaxJurisdiction.Validate("Tax Account (Sales)", LibraryERM.CreateGLAccountNo());
         TaxJurisdiction.Modify(true);
         LibraryERM.CreateTaxDetail(TaxDetail, TaxJurisdiction.Code, TaxGroupCode, TaxDetail."Tax Type"::"Sales and Use Tax", WorkDate());
         TaxDetail.Validate("Tax Below Maximum", TaxBelowMax);
@@ -662,7 +662,7 @@
         exit(TaxGroup.Code);
     end;
 
-    local procedure FindSalesLine(var SalesLine: Record "Sales Line"; DocType: Option; DocNo: Code[20])
+    local procedure FindSalesLine(var SalesLine: Record "Sales Line"; DocType: Enum "Sales Document Type"; DocNo: Code[20])
     begin
         SalesLine.SetRange("Document Type", DocType);
         SalesLine.SetRange("Document No.", DocNo);
@@ -684,7 +684,7 @@
         Item.FindFirst();
 
         Item."No." := '';
-        Item.Validate("Tax Group Code", FindTaxGroupCode);
+        Item.Validate("Tax Group Code", FindTaxGroupCode());
         Item.Insert(true);
 
         ItemUnitOfMeasure."Item No." := Item."No.";

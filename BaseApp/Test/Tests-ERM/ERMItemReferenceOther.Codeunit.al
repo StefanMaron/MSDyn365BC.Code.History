@@ -425,13 +425,13 @@ codeunit 134466 "ERM Item Reference Other"
     [ModalPageHandler]
     procedure ItemReferenceListModalPageHandler(var ItemReferenceList: TestPage "Item Reference List")
     begin
-        ItemReferenceList.FILTER.SetFilter("Reference No.", LibraryVariableStorage.DequeueText);
+        ItemReferenceList.FILTER.SetFilter("Reference No.", LibraryVariableStorage.DequeueText());
         repeat
-            ItemReferenceList."Reference Type".AssertEquals(LibraryVariableStorage.DequeueInteger);
-            ItemReferenceList."Reference Type No.".AssertEquals(LibraryVariableStorage.DequeueText);
-            ItemReferenceList."Item No.".AssertEquals(LibraryVariableStorage.DequeueText);
+            ItemReferenceList."Reference Type".AssertEquals(LibraryVariableStorage.DequeueInteger());
+            ItemReferenceList."Reference Type No.".AssertEquals(LibraryVariableStorage.DequeueText());
+            ItemReferenceList."Item No.".AssertEquals(LibraryVariableStorage.DequeueText());
         until ItemReferenceList.Next() = false;
-        ItemReferenceList.OK.Invoke();
+        ItemReferenceList.OK().Invoke();
     end;
 }
 

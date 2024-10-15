@@ -7,9 +7,6 @@ codeunit 134565 "Recurring Sales Line Test"
     begin
     end;
 
-    var
-        Assert: Codeunit Assert;
-
     [Test]
     [Scope('OnPrem')]
     procedure AddAutomaticRecurringSalesLines()

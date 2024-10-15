@@ -44,8 +44,8 @@ codeunit 139174 "CRM Coupling Record"
 
         // [THEN] "NAV Name" is not blank, NOT editable; SyncAction is "Push To CRM"
         Assert.AreEqual(Customer.Name, CRMCouplingRecord.NAVName.Value, 'NAV Name should not be blank');
-        Assert.IsFalse(CRMCouplingRecord.NAVName.Editable, 'NAV Name should not be EDITABLE');
-        Assert.AreEqual(SyncAction::PushToCRM, CRMCouplingRecord.SyncActionControl.AsInteger,
+        Assert.IsFalse(CRMCouplingRecord.NAVName.Editable(), 'NAV Name should not be EDITABLE');
+        Assert.AreEqual(SyncAction::PushToCRM, CRMCouplingRecord.SyncActionControl.AsInteger(),
           'Different value expected in the synch action control');
     end;
 
@@ -65,7 +65,7 @@ codeunit 139174 "CRM Coupling Record"
         OpenCRMCouplingRecordPage(CRMCouplingRecord, Customer.RecordId);
 
         // [THEN] SyncAction is "Do Not Sync"
-        Assert.AreEqual(SyncAction::DoNotSync, CRMCouplingRecord.SyncActionControl.AsInteger,
+        Assert.AreEqual(SyncAction::DoNotSync, CRMCouplingRecord.SyncActionControl.AsInteger(),
           'Different value expected in the synch action control');
     end;
 
@@ -87,7 +87,7 @@ codeunit 139174 "CRM Coupling Record"
         CRMCouplingRecord.CreateNewControl.SetValue(true);
 
         // [THEN] SyncAction is "Push To CRM"
-        Assert.AreEqual(SyncAction::PushToCRM, CRMCouplingRecord.SyncActionControl.AsInteger,
+        Assert.AreEqual(SyncAction::PushToCRM, CRMCouplingRecord.SyncActionControl.AsInteger(),
           'When checking the "Create New in CRM" box, the synchronization action should be changed to "Push to CRM"');
     end;
 
@@ -110,7 +110,7 @@ codeunit 139174 "CRM Coupling Record"
         CRMCouplingRecord.CreateNewControl.SetValue(true);
 
         // [THEN] SyncAction is "Push To CRM"
-        Assert.AreEqual(SyncAction::PushToCRM, CRMCouplingRecord.SyncActionControl.AsInteger,
+        Assert.AreEqual(SyncAction::PushToCRM, CRMCouplingRecord.SyncActionControl.AsInteger(),
           'When checking the "Create New in CRM" box, the synchronization action should be changed to "Push to CRM"');
         // [THEN] "CRM Name" is blank and NOT editable
         Assert.AreEqual('', CRMCouplingRecord.CRMName.Value, 'CRM Name should be blank');
@@ -137,7 +137,7 @@ codeunit 139174 "CRM Coupling Record"
         // [WHEN] Set "Create New" to "No"
         CRMCouplingRecord.CreateNewControl.SetValue(false);
         // [THEN] Sync Action and CRM Name controls are enabled
-        Assert.AreEqual(SyncAction::DoNotSync, CRMCouplingRecord.SyncActionControl.AsInteger,
+        Assert.AreEqual(SyncAction::DoNotSync, CRMCouplingRecord.SyncActionControl.AsInteger(),
           'When unchecking the "Create New in CRM" checkbox, the synchronization action should be reverted to what it was before');
         VerifyControlsEnabledByCreateNew(CRMCouplingRecord);
 
@@ -148,7 +148,7 @@ codeunit 139174 "CRM Coupling Record"
         CRMCouplingRecord.CreateNewControl.SetValue(false);
 
         // [THEN] SyncAction is "Push To CRM"
-        Assert.AreEqual(SyncAction::PushToCRM, CRMCouplingRecord.SyncActionControl.AsInteger,
+        Assert.AreEqual(SyncAction::PushToCRM, CRMCouplingRecord.SyncActionControl.AsInteger(),
           'When unchecking the "Create New in CRM" checkbox, the synchronization action should be reverted to what it was before');
         VerifyControlsEnabledByCreateNew(CRMCouplingRecord);
 
@@ -159,7 +159,7 @@ codeunit 139174 "CRM Coupling Record"
         CRMCouplingRecord.CreateNewControl.SetValue(false);
 
         // [THEN] SyncAction is "Push To NAV"
-        Assert.AreEqual(SyncAction::PushToNAV, CRMCouplingRecord.SyncActionControl.AsInteger,
+        Assert.AreEqual(SyncAction::PushToNAV, CRMCouplingRecord.SyncActionControl.AsInteger(),
           'When unchecking the "Create New in CRM" checkbox, the synchronization action should be reverted to what it was before');
         VerifyControlsEnabledByCreateNew(CRMCouplingRecord);
     end;
@@ -185,7 +185,7 @@ codeunit 139174 "CRM Coupling Record"
         // [GIVEN] CRM Contact List page open, where focus is on CRM Contact "B"
         LibraryVariableStorage.Enqueue(CRMContact.FullName);
         LibraryVariableStorage.Enqueue(OtherCRMContact.FullName);
-        CRMCouplingRecord.CRMName.Lookup;
+        CRMCouplingRecord.CRMName.Lookup();
         // [WHEN] Pick CRM Contact "A"
         // by CRMContactListHandler
 
@@ -215,7 +215,7 @@ codeunit 139174 "CRM Coupling Record"
         // [GIVEN] CRM Account List page open, where focus is on CRM Account "B"
         LibraryVariableStorage.Enqueue(CRMAccount.Name);
         LibraryVariableStorage.Enqueue(OtherCRMAccount.Name);
-        CRMCouplingRecord.CRMName.Lookup;
+        CRMCouplingRecord.CRMName.Lookup();
         // [WHEN] Pick CRM Account "A"
         // by CRMAccountListHandler
 
@@ -245,7 +245,7 @@ codeunit 139174 "CRM Coupling Record"
         // [GIVEN] CRM Systemuser List page open, where focus is on CRM Systemuser "B"
         LibraryVariableStorage.Enqueue(CRMSystemuser.FullName);
         LibraryVariableStorage.Enqueue(OtherCRMSystemuser.FullName);
-        CRMCouplingRecord.CRMName.Lookup;
+        CRMCouplingRecord.CRMName.Lookup();
         // [WHEN] Pick CRM Systemuser "A"
         // by CRMSystemuserListHandler
 
@@ -275,7 +275,7 @@ codeunit 139174 "CRM Coupling Record"
         // [GIVEN] CRM Transactioncurrency List page open, where focus is on CRM Transactioncurrency "B"
         LibraryVariableStorage.Enqueue(CRMTransactioncurrency.ISOCurrencyCode);
         LibraryVariableStorage.Enqueue(OtherCRMTransactioncurrency.ISOCurrencyCode);
-        CRMCouplingRecord.CRMName.Lookup;
+        CRMCouplingRecord.CRMName.Lookup();
         // [WHEN] Pick CRM Transactioncurrency "A"
         // by CRMCurrencyListHandler
 
@@ -308,7 +308,7 @@ codeunit 139174 "CRM Coupling Record"
         // [GIVEN] CRM Pricelevel List page open, where focus is on CRM Pricelevel "B"
         LibraryVariableStorage.Enqueue(CRMPricelevel.Name);
         LibraryVariableStorage.Enqueue(OtherCRMPricelevel.Name);
-        CRMCouplingRecord.CRMName.Lookup;
+        CRMCouplingRecord.CRMName.Lookup();
         // [WHEN] Pick CRM Pricelevel "A"
         // by CRMPriceListHandler
 
@@ -345,7 +345,7 @@ codeunit 139174 "CRM Coupling Record"
         // [GIVEN] CRM Product List page open, where focus is on CRM Product "B"
         LibraryVariableStorage.Enqueue(CRMProduct.ProductNumber);
         LibraryVariableStorage.Enqueue(OtherCRMProduct.ProductNumber);
-        CRMCouplingRecord.CRMName.Lookup;
+        CRMCouplingRecord.CRMName.Lookup();
         // [WHEN] Pick CRM Product "A"
         // by CRMProductListHandler
 
@@ -382,7 +382,7 @@ codeunit 139174 "CRM Coupling Record"
         // [GIVEN] CRM Product List page open, where focus is on CRM Product "B"
         LibraryVariableStorage.Enqueue(CRMProduct.ProductNumber);
         LibraryVariableStorage.Enqueue(OtherCRMProduct.ProductNumber);
-        CRMCouplingRecord.CRMName.Lookup;
+        CRMCouplingRecord.CRMName.Lookup();
         // [WHEN] Pick CRM Product "A"
         // by CRMProductListHandler
 
@@ -417,7 +417,7 @@ codeunit 139174 "CRM Coupling Record"
         // [GIVEN] CRM Product List page open, where focus is on CRM Uomschedule "B"
         LibraryVariableStorage.Enqueue(CRMUomschedule.Name);
         LibraryVariableStorage.Enqueue(OtherCRMUomschedule.Name);
-        CRMCouplingRecord.CRMName.Lookup;
+        CRMCouplingRecord.CRMName.Lookup();
         // [WHEN] Pick CRM Product "A"
         // by CRMUomListHandler
 
@@ -446,7 +446,7 @@ codeunit 139174 "CRM Coupling Record"
         // [GIVEN] CRM Opportunity List page open, where focus is on CRM Opportunity "B"
         LibraryVariableStorage.Enqueue(CRMOpportunity.Name);
         LibraryVariableStorage.Enqueue(OtherCRMOpportunity.Name);
-        CRMCouplingRecord.CRMName.Lookup;
+        CRMCouplingRecord.CRMName.Lookup();
         // [WHEN] Pick CRM Opportunity "A"
         // by CRMContactListHandler
 
@@ -483,7 +483,7 @@ codeunit 139174 "CRM Coupling Record"
         // [GIVEN] Coupling Record page for "C"
         OpenCRMCouplingRecordPage(CRMCouplingRecord, Customer.RecordId);
         // [WHEN] Lookup "CRM Name"
-        CRMCouplingRecord.CRMName.Lookup;
+        CRMCouplingRecord.CRMName.Lookup();
         // [THEN] CRM Account list contains only "A"
         // FilteredCRMAccountListHandler
     end;
@@ -517,7 +517,7 @@ codeunit 139174 "CRM Coupling Record"
         // [GIVEN] Coupling Record page for "C"
         OpenCRMCouplingRecordPage(CRMCouplingRecord, Contact.RecordId);
         // [WHEN] Lookup "CRM Name"
-        CRMCouplingRecord.CRMName.Lookup;
+        CRMCouplingRecord.CRMName.Lookup();
         // [THEN] CRM Contact list contains only "A"
         // FilteredCRMContactListHandler
     end;
@@ -551,7 +551,7 @@ codeunit 139174 "CRM Coupling Record"
         // [GIVEN] Coupling Record page for "C"
         OpenCRMCouplingRecordPage(CRMCouplingRecord, SalespersonPurchaser.RecordId);
         // [WHEN] Lookup "CRM Name"
-        CRMCouplingRecord.CRMName.Lookup;
+        CRMCouplingRecord.CRMName.Lookup();
         // [THEN] CRM CRMSystemuser list contains only "A"
         // FilteredCRMSystemuserListHandler
     end;
@@ -593,7 +593,7 @@ codeunit 139174 "CRM Coupling Record"
         // [GIVEN] Coupling Record page for "C"
         OpenCRMCouplingRecordPage(CRMCouplingRecord, Currency.RecordId);
         // [WHEN] Lookup "CRM Name"
-        CRMCouplingRecord.CRMName.Lookup;
+        CRMCouplingRecord.CRMName.Lookup();
         // [THEN] CRM Transactioncurrency list contains only "A"
         // FilteredCRMCurrencyListHandler
     end;
@@ -630,7 +630,7 @@ codeunit 139174 "CRM Coupling Record"
         // [GIVEN] Coupling Record page for "C"
         OpenCRMCouplingRecordPage(CRMCouplingRecord, CustomerPriceGroup.RecordId);
         // [WHEN] Lookup "CRM Name"
-        CRMCouplingRecord.CRMName.Lookup;
+        CRMCouplingRecord.CRMName.Lookup();
         // [THEN] CRM Pricelist list contains only "A"
         // FilteredCRMPriceListHandler
     end;
@@ -663,7 +663,7 @@ codeunit 139174 "CRM Coupling Record"
         // [GIVEN] Coupling Record page for "C"
         OpenCRMCouplingRecordPage(CRMCouplingRecord, Item.RecordId);
         // [WHEN] Lookup "CRM Name"
-        CRMCouplingRecord.CRMName.Lookup;
+        CRMCouplingRecord.CRMName.Lookup();
         // [THEN] CRM Product list contains only "A"
         // FilteredCRMProductListHandler
     end;
@@ -696,7 +696,7 @@ codeunit 139174 "CRM Coupling Record"
         // [GIVEN] Coupling Record page for "C"
         OpenCRMCouplingRecordPage(CRMCouplingRecord, Resource.RecordId);
         // [WHEN] Lookup "CRM Name"
-        CRMCouplingRecord.CRMName.Lookup;
+        CRMCouplingRecord.CRMName.Lookup();
         // [THEN] CRM Product list contains only "B"
         // FilteredCRMProductListHandler
     end;
@@ -726,19 +726,19 @@ codeunit 139174 "CRM Coupling Record"
         // [WHEN] Set "CRM Name" to "B"
         CRMCouplingRecord.CRMName.SetValue(OtherCRMAccount.Name);
         // [THEN] SyncAction is "Push To NAV"
-        Assert.AreEqual(SyncAction::PushToNAV, CRMCouplingRecord.SyncActionControl.AsInteger,
+        Assert.AreEqual(SyncAction::PushToNAV, CRMCouplingRecord.SyncActionControl.AsInteger(),
           'When entering the name of a different CRM Account to couple to, nothing should change');
 
         // [WHEN] Set "CRM Name" back to "A"
         CRMCouplingRecord.CRMName.SetValue(OriginallyCoupledCRMAccount.Name);
         // [THEN] SyncAction is "Push To NAV"
-        Assert.AreEqual(SyncAction::PushToNAV, CRMCouplingRecord.SyncActionControl.AsInteger,
+        Assert.AreEqual(SyncAction::PushToNAV, CRMCouplingRecord.SyncActionControl.AsInteger(),
           'When entering the name of the already coupled CRM Account to couple to, nothing should change');
 
         // [WHEN] Set "CRM Name" to "A"
         CRMCouplingRecord.CRMName.SetValue(OriginallyCoupledCRMAccount.Name);
         // [THEN] SyncAction is "Push To NAV"
-        Assert.AreEqual(SyncAction::PushToNAV, CRMCouplingRecord.SyncActionControl.AsInteger,
+        Assert.AreEqual(SyncAction::PushToNAV, CRMCouplingRecord.SyncActionControl.AsInteger(),
           'When entering the same CRM Account name that was there before the edit, nothing should change');
     end;
 
@@ -823,29 +823,29 @@ codeunit 139174 "CRM Coupling Record"
 
         // [WHEN] Set "CRM Name" to "B" via lookup
         SelectCRMAccount := CoupleToCRMAccount;
-        CRMCouplingRecord.CRMName.Lookup;
+        CRMCouplingRecord.CRMName.Lookup();
         // [THEN] "CRM Name" is "B"
         CRMCouplingRecord.CRMName.AssertEquals(SelectCRMAccount.Name);
         // [THEN] SyncAction is "Push To NAV"
-        Assert.AreEqual(SyncAction::PushToNAV, CRMCouplingRecord.SyncActionControl.AsInteger,
+        Assert.AreEqual(SyncAction::PushToNAV, CRMCouplingRecord.SyncActionControl.AsInteger(),
           'When entering the name of a different CRM Account to couple to, nothing should change');
 
         // [WHEN] Set "CRM Name" back to "A" via lookup
         SelectCRMAccount := OriginallyCoupledCRMAccount;
-        CRMCouplingRecord.CRMName.Lookup;
+        CRMCouplingRecord.CRMName.Lookup();
         // [THEN] "CRM Name" is "A"
         CRMCouplingRecord.CRMName.AssertEquals(SelectCRMAccount.Name);
         // [THEN] SyncAction is "Push To NAV"
-        Assert.AreEqual(SyncAction::PushToNAV, CRMCouplingRecord.SyncActionControl.AsInteger,
+        Assert.AreEqual(SyncAction::PushToNAV, CRMCouplingRecord.SyncActionControl.AsInteger(),
           'When entering the name of the already coupled CRM Account to couple to, nothing should change');
 
         // [WHEN] Set "CRM Name" to "A" via lookup
         SelectCRMAccount := OriginallyCoupledCRMAccount;
-        CRMCouplingRecord.CRMName.Lookup;
+        CRMCouplingRecord.CRMName.Lookup();
         // [THEN] "CRM Name" is "A"
         CRMCouplingRecord.CRMName.AssertEquals(SelectCRMAccount.Name);
         // [THEN] SyncAction is "Push To NAV"
-        Assert.AreEqual(SyncAction::PushToNAV, CRMCouplingRecord.SyncActionControl.AsInteger,
+        Assert.AreEqual(SyncAction::PushToNAV, CRMCouplingRecord.SyncActionControl.AsInteger(),
           'When entering the same CRM Account name that was there before the edit, nothing should change');
     end;
 
@@ -854,7 +854,7 @@ codeunit 139174 "CRM Coupling Record"
     procedure CRMCustomerListPageHandler(var CRMAccountList: TestPage "CRM Account List")
     begin
         CRMAccountList.GotoRecord(SelectCRMAccount);
-        CRMAccountList.OK.Invoke;
+        CRMAccountList.OK().Invoke();
     end;
 
     [Test]
@@ -919,7 +919,7 @@ codeunit 139174 "CRM Coupling Record"
     begin
         Initialize();
         // [GIVEN] There are 15 fields defined for the mapping "Customer" - "CRM Account"
-        ResetDefaultCRMSetupConfiguration;
+        ResetDefaultCRMSetupConfiguration();
         IntegrationTableMapping.SetRange("Table ID", DATABASE::Customer);
         IntegrationTableMapping.SetRange("Delete After Synchronization", false);
         IntegrationTableMapping.FindFirst();
@@ -934,8 +934,8 @@ codeunit 139174 "CRM Coupling Record"
         OpenCRMCouplingRecordPage(CRMCouplingRecord, Customer.RecordId);
 
         // [THEN] Fields part is NOT editable
-        Assert.IsFalse(CRMCouplingRecord.CouplingFields.Editable, 'Fields part should be not editable');
-        Assert.IsTrue(CRMCouplingRecord.CouplingFields.First, 'There should be fields in the list part');
+        Assert.IsFalse(CRMCouplingRecord.CouplingFields.Editable(), 'Fields part should be not editable');
+        Assert.IsTrue(CRMCouplingRecord.CouplingFields.First(), 'There should be fields in the list part');
         IntegrationFieldMapping.FindFirst();
         ActualFieldCount := 1;
         while CRMCouplingRecord.CouplingFields.Next() do begin
@@ -1006,7 +1006,7 @@ codeunit 139174 "CRM Coupling Record"
         LibraryCRMIntegration.CreateCRMAccount(LocalCRMAccount);
         CoupleToCRMAccount := LocalCRMAccount;
 
-        Assert.IsTrue(IsNullGuid(CRMCouplingRecord.GetCRMId),
+        Assert.IsTrue(IsNullGuid(CRMCouplingRecord.GetCRMId()),
           'The CRM ID returned by the Customer Coupling page should be null before a record is set');
 
         CRMCouplingRecord.SetSourceRecordID(Customer.RecordId);
@@ -1014,7 +1014,7 @@ codeunit 139174 "CRM Coupling Record"
         CRMCouplingRecord.GetRecord(CouplingRecordBuffer);
 
         Assert.AreEqual(CRMAccount.AccountId, CouplingRecordBuffer."CRM ID", 'CRM ID');
-        Assert.AreEqual(CRMAccount.AccountId, CRMCouplingRecord.GetCRMId,
+        Assert.AreEqual(CRMAccount.AccountId, CRMCouplingRecord.GetCRMId(),
           'The CRM ID returned by the Customer Coupling page should be that of the record set');
     end;
 
@@ -1041,7 +1041,7 @@ codeunit 139174 "CRM Coupling Record"
 
         CRMCouplingRecord.SetSourceRecordID(Customer.RecordId);
         CRMCouplingRecord.RunModal();
-        Assert.AreEqual(CoupleToCRMAccount.AccountId, CRMCouplingRecord.GetCRMId,
+        Assert.AreEqual(CoupleToCRMAccount.AccountId, CRMCouplingRecord.GetCRMId(),
           'The CRM ID returned by the Customer Coupling page should be that of the record selected');
     end;
 
@@ -1099,15 +1099,15 @@ codeunit 139174 "CRM Coupling Record"
         CouplingRecordBuffer.Initialize(Customer.RecordId);
 
         CouplingRecordBuffer."Sync Action" := SyncAction::DoNotSync;
-        Assert.IsFalse(CouplingRecordBuffer.GetPerformInitialSynchronization,
+        Assert.IsFalse(CouplingRecordBuffer.GetPerformInitialSynchronization(),
           'When the synch action is set to "Do not synch", GetPerformInitialSynchronization must return FALSE');
 
         CouplingRecordBuffer."Sync Action" := SyncAction::PushToCRM;
-        Assert.IsTrue(CouplingRecordBuffer.GetPerformInitialSynchronization,
+        Assert.IsTrue(CouplingRecordBuffer.GetPerformInitialSynchronization(),
           'When the synch action is set to "Push to CRM", GetPerformInitialSynchronization must return TRUE');
 
         CouplingRecordBuffer."Sync Action" := SyncAction::PushToNAV;
-        Assert.IsTrue(CouplingRecordBuffer.GetPerformInitialSynchronization,
+        Assert.IsTrue(CouplingRecordBuffer.GetPerformInitialSynchronization(),
           'When the synch action is set to "Push to NAV", GetPerformInitialSynchronization must return TRUE');
     end;
 
@@ -1125,15 +1125,15 @@ codeunit 139174 "CRM Coupling Record"
         CouplingRecordBuffer.Initialize(Customer.RecordId);
 
         CouplingRecordBuffer."Sync Action" := SyncAction::DoNotSync;
-        asserterror CouplingRecordBuffer.GetInitialSynchronizationDirection;
+        asserterror CouplingRecordBuffer.GetInitialSynchronizationDirection();
         Assert.ExpectedError('No initial synchronization direction was specified because initial synchronization was disabled.');
 
         CouplingRecordBuffer."Sync Action" := SyncAction::PushToCRM;
-        Assert.AreEqual(IntegrationTableMapping.Direction::ToIntegrationTable, CouplingRecordBuffer.GetInitialSynchronizationDirection,
+        Assert.AreEqual(IntegrationTableMapping.Direction::ToIntegrationTable, CouplingRecordBuffer.GetInitialSynchronizationDirection(),
           '"Push to CRM" equals "To integration table"');
 
         CouplingRecordBuffer."Sync Action" := SyncAction::PushToNAV;
-        Assert.AreEqual(IntegrationTableMapping.Direction::FromIntegrationTable, CouplingRecordBuffer.GetInitialSynchronizationDirection,
+        Assert.AreEqual(IntegrationTableMapping.Direction::FromIntegrationTable, CouplingRecordBuffer.GetInitialSynchronizationDirection(),
           '"Push to NAV" equals "From integration table"');
     end;
 
@@ -1147,9 +1147,9 @@ codeunit 139174 "CRM Coupling Record"
     local procedure VerifyControlsEnabledByCreateNew(CRMCouplingRecord: TestPage "CRM Coupling Record")
     begin
         // Make sure the synch action dropdown and CRM Name are enabled if create new in CRM is unchecked
-        Assert.AreEqual(not CRMCouplingRecord.CreateNewControl.AsBoolean, CRMCouplingRecord.SyncActionControl.Enabled,
+        Assert.AreEqual(not CRMCouplingRecord.CreateNewControl.AsBoolean(), CRMCouplingRecord.SyncActionControl.Enabled(),
           'The Enabled setting of the Synch Action Control should be opposite to the value of the Create New in CRM Control');
-        Assert.AreEqual(not CRMCouplingRecord.CreateNewControl.AsBoolean, CRMCouplingRecord.CRMName.Enabled,
+        Assert.AreEqual(not CRMCouplingRecord.CreateNewControl.AsBoolean(), CRMCouplingRecord.CRMName.Enabled(),
           'The Enabled setting of the CRM Name Control should be opposite to the value of the Create New in CRM Control');
     end;
 
@@ -1166,9 +1166,9 @@ codeunit 139174 "CRM Coupling Record"
         // [SCENARIO 171357] NAV records are NOT decoupled from deleted CRM entities on synchronization
 
         Initialize();
-        LibraryCRMIntegration.RegisterTestTableConnection;
-        LibraryCRMIntegration.EnsureCRMSystemUser;
-        ResetDefaultCRMSetupConfiguration;
+        LibraryCRMIntegration.RegisterTestTableConnection();
+        LibraryCRMIntegration.EnsureCRMSystemUser();
+        ResetDefaultCRMSetupConfiguration();
 
         // [GIVEN] Two Customers coupled to CRM Accounts
         LibraryCRMIntegration.CreateCoupledCustomerAndAccount(Customer[1], CRMAccount[1]);
@@ -1228,7 +1228,7 @@ codeunit 139174 "CRM Coupling Record"
             Currency.RecordId, CRMTransactioncurrency.RecordId, ErrorMsg, CurrentDateTime, false);
         LibraryCRMIntegration.MockFailedSynchToNAVIntegrationRecord(
           CRMTransactioncurrency.TransactionCurrencyId, CRMTransactioncurrency.RecordId, Currency.RecordId,
-          LibraryUtility.GenerateGUID, CurrentDateTime, false);
+          LibraryUtility.GenerateGUID(), CurrentDateTime, false);
 
         CRMIntegrationRecord.FindByCRMID(CRMTransactioncurrency.TransactionCurrencyId);
         CRMIntegrationRecord.GetLatestError(IntegrationSynchJobErrors);
@@ -1355,32 +1355,32 @@ codeunit 139174 "CRM Coupling Record"
         LibrarySales.CreateCustomer(Customer);
 
         // [THEN] CRM related controls are visible on Customer List page
-        CustomerListPage.OpenEdit;
+        CustomerListPage.OpenEdit();
         CustomerListPage.GotoKey(Customer."No.");
-        Assert.AreEqual(true, CustomerListPage.CRMSynchronizeNow.Visible, WrongControlVisibilityErr);
-        Assert.AreEqual(true, CustomerListPage.CRMGotoAccount.Visible, WrongControlVisibilityErr);
-        Assert.AreEqual(true, CustomerListPage.UpdateStatisticsInCRM.Visible, WrongControlVisibilityErr);
-        Assert.AreEqual(true, CustomerListPage.ManageCRMCoupling.Visible, WrongControlVisibilityErr);
-        Assert.AreEqual(true, CustomerListPage.DeleteCRMCoupling.Visible, WrongControlVisibilityErr);
-        Assert.AreEqual(true, CustomerListPage.CreateInCRM.Visible, WrongControlVisibilityErr);
-        Assert.AreEqual(true, CustomerListPage.CreateFromCRM.Visible, WrongControlVisibilityErr);
-        Assert.AreEqual(true, CustomerListPage.ShowLog.Visible, WrongControlVisibilityErr);
+        Assert.AreEqual(true, CustomerListPage.CRMSynchronizeNow.Visible(), WrongControlVisibilityErr);
+        Assert.AreEqual(true, CustomerListPage.CRMGotoAccount.Visible(), WrongControlVisibilityErr);
+        Assert.AreEqual(true, CustomerListPage.UpdateStatisticsInCRM.Visible(), WrongControlVisibilityErr);
+        Assert.AreEqual(true, CustomerListPage.ManageCRMCoupling.Visible(), WrongControlVisibilityErr);
+        Assert.AreEqual(true, CustomerListPage.DeleteCRMCoupling.Visible(), WrongControlVisibilityErr);
+        Assert.AreEqual(true, CustomerListPage.CreateInCRM.Visible(), WrongControlVisibilityErr);
+        Assert.AreEqual(true, CustomerListPage.CreateFromCRM.Visible(), WrongControlVisibilityErr);
+        Assert.AreEqual(true, CustomerListPage.ShowLog.Visible(), WrongControlVisibilityErr);
         CustomerListPage.Close();
 
         // [WHEN] CRM Connection is not configured
-        LibraryCRMIntegration.ResetEnvironment;
+        LibraryCRMIntegration.ResetEnvironment();
 
         // [THEN] CRM related controls are visible on Customer List page
-        CustomerListPage.OpenEdit;
+        CustomerListPage.OpenEdit();
         CustomerListPage.GotoKey(Customer."No.");
-        Assert.AreEqual(false, CustomerListPage.CRMSynchronizeNow.Visible, WrongControlVisibilityErr);
-        Assert.AreEqual(false, CustomerListPage.CRMGotoAccount.Visible, WrongControlVisibilityErr);
-        Assert.AreEqual(false, CustomerListPage.UpdateStatisticsInCRM.Visible, WrongControlVisibilityErr);
-        Assert.AreEqual(false, CustomerListPage.ManageCRMCoupling.Visible, WrongControlVisibilityErr);
-        Assert.AreEqual(false, CustomerListPage.DeleteCRMCoupling.Visible, WrongControlVisibilityErr);
-        Assert.AreEqual(false, CustomerListPage.CreateInCRM.Visible, WrongControlVisibilityErr);
-        Assert.AreEqual(false, CustomerListPage.CreateFromCRM.Visible, WrongControlVisibilityErr);
-        Assert.AreEqual(false, CustomerListPage.ShowLog.Visible, WrongControlVisibilityErr);
+        Assert.AreEqual(false, CustomerListPage.CRMSynchronizeNow.Visible(), WrongControlVisibilityErr);
+        Assert.AreEqual(false, CustomerListPage.CRMGotoAccount.Visible(), WrongControlVisibilityErr);
+        Assert.AreEqual(false, CustomerListPage.UpdateStatisticsInCRM.Visible(), WrongControlVisibilityErr);
+        Assert.AreEqual(false, CustomerListPage.ManageCRMCoupling.Visible(), WrongControlVisibilityErr);
+        Assert.AreEqual(false, CustomerListPage.DeleteCRMCoupling.Visible(), WrongControlVisibilityErr);
+        Assert.AreEqual(false, CustomerListPage.CreateInCRM.Visible(), WrongControlVisibilityErr);
+        Assert.AreEqual(false, CustomerListPage.CreateFromCRM.Visible(), WrongControlVisibilityErr);
+        Assert.AreEqual(false, CustomerListPage.ShowLog.Visible(), WrongControlVisibilityErr);
         CustomerListPage.Close();
     end;
 
@@ -1398,28 +1398,28 @@ codeunit 139174 "CRM Coupling Record"
         LibrarySales.CreateCustomer(Customer);
 
         // [THEN] CRM related controls are visible on Customer Card page
-        CustomerCard.OpenEdit;
+        CustomerCard.OpenEdit();
         CustomerCard.GotoKey(Customer."No.");
-        Assert.AreEqual(true, CustomerCard.CRMSynchronizeNow.Visible, WrongControlVisibilityErr);
-        Assert.AreEqual(true, CustomerCard.CRMGotoAccount.Visible, WrongControlVisibilityErr);
-        Assert.AreEqual(true, CustomerCard.UpdateStatisticsInCRM.Visible, WrongControlVisibilityErr);
-        Assert.AreEqual(true, CustomerCard.ManageCRMCoupling.Visible, WrongControlVisibilityErr);
-        Assert.AreEqual(true, CustomerCard.DeleteCRMCoupling.Visible, WrongControlVisibilityErr);
-        Assert.AreEqual(true, CustomerCard.ShowLog.Visible, WrongControlVisibilityErr);
+        Assert.AreEqual(true, CustomerCard.CRMSynchronizeNow.Visible(), WrongControlVisibilityErr);
+        Assert.AreEqual(true, CustomerCard.CRMGotoAccount.Visible(), WrongControlVisibilityErr);
+        Assert.AreEqual(true, CustomerCard.UpdateStatisticsInCRM.Visible(), WrongControlVisibilityErr);
+        Assert.AreEqual(true, CustomerCard.ManageCRMCoupling.Visible(), WrongControlVisibilityErr);
+        Assert.AreEqual(true, CustomerCard.DeleteCRMCoupling.Visible(), WrongControlVisibilityErr);
+        Assert.AreEqual(true, CustomerCard.ShowLog.Visible(), WrongControlVisibilityErr);
         CustomerCard.Close();
 
         // [WHEN] CRM Connection is not configured
-        LibraryCRMIntegration.ResetEnvironment;
+        LibraryCRMIntegration.ResetEnvironment();
 
         // [THEN] CRM related controls are visible on Customer Card page
-        CustomerCard.OpenEdit;
+        CustomerCard.OpenEdit();
         CustomerCard.GotoKey(Customer."No.");
-        Assert.AreEqual(false, CustomerCard.CRMSynchronizeNow.Visible, WrongControlVisibilityErr);
-        Assert.AreEqual(false, CustomerCard.CRMGotoAccount.Visible, WrongControlVisibilityErr);
-        Assert.AreEqual(false, CustomerCard.UpdateStatisticsInCRM.Visible, WrongControlVisibilityErr);
-        Assert.AreEqual(false, CustomerCard.ManageCRMCoupling.Visible, WrongControlVisibilityErr);
-        Assert.AreEqual(false, CustomerCard.DeleteCRMCoupling.Visible, WrongControlVisibilityErr);
-        Assert.AreEqual(false, CustomerCard.ShowLog.Visible, WrongControlVisibilityErr);
+        Assert.AreEqual(false, CustomerCard.CRMSynchronizeNow.Visible(), WrongControlVisibilityErr);
+        Assert.AreEqual(false, CustomerCard.CRMGotoAccount.Visible(), WrongControlVisibilityErr);
+        Assert.AreEqual(false, CustomerCard.UpdateStatisticsInCRM.Visible(), WrongControlVisibilityErr);
+        Assert.AreEqual(false, CustomerCard.ManageCRMCoupling.Visible(), WrongControlVisibilityErr);
+        Assert.AreEqual(false, CustomerCard.DeleteCRMCoupling.Visible(), WrongControlVisibilityErr);
+        Assert.AreEqual(false, CustomerCard.ShowLog.Visible(), WrongControlVisibilityErr);
         CustomerCard.Close();
     end;
 
@@ -1447,7 +1447,7 @@ codeunit 139174 "CRM Coupling Record"
         CRMIntegrationManagement.DefineCoupling(Customer.RecordId);
 
         // [THEN] "Create new" control is enabled.
-        Assert.AreEqual(true, LibraryVariableStorage.DequeueBoolean, WrongControlVisibilityErr);
+        Assert.AreEqual(true, LibraryVariableStorage.DequeueBoolean(), WrongControlVisibilityErr);
     end;
 
     [Test]
@@ -1474,7 +1474,7 @@ codeunit 139174 "CRM Coupling Record"
         CRMIntegrationManagement.DefineCoupling(Customer.RecordId);
 
         // [THEN] "Create new" control not enabled.
-        Assert.AreEqual(false, LibraryVariableStorage.DequeueBoolean, WrongControlVisibilityErr);
+        Assert.AreEqual(false, LibraryVariableStorage.DequeueBoolean(), WrongControlVisibilityErr);
     end;
 
     [Test]
@@ -1501,7 +1501,7 @@ codeunit 139174 "CRM Coupling Record"
         CRMIntegrationManagement.DefineCoupling(SalespersonPurchaser.RecordId);
 
         // [THEN] "Create new" control not enabled.
-        Assert.AreEqual(false, LibraryVariableStorage.DequeueBoolean, WrongControlVisibilityErr);
+        Assert.AreEqual(false, LibraryVariableStorage.DequeueBoolean(), WrongControlVisibilityErr);
     end;
 
     [Test]
@@ -1516,7 +1516,7 @@ codeunit 139174 "CRM Coupling Record"
     begin
         // [SCENARIO 275682] Looking up a CRM contact on Coupling Record Page refreshes the lines on the page
         Initialize();
-        ResetDefaultCRMSetupConfiguration;
+        ResetDefaultCRMSetupConfiguration();
 
         // [GIVEN] A Customer was coupled to a CRM Account "A"
         LibraryCRMIntegration.CreateCoupledCustomerAndAccount(Customer, CRMAccount);
@@ -1527,20 +1527,20 @@ codeunit 139174 "CRM Coupling Record"
         // [GIVEN] CRM Account LookUp was performed
         LibraryVariableStorage.Enqueue(CRMAccount.Name);
         LibraryVariableStorage.Enqueue(OtherCRMAccount.Name);
-        CRMCouplingRecord.CRMName.Lookup;
+        CRMCouplingRecord.CRMName.Lookup();
 
         // [WHEN] Pick CRM Account "B"
         // by CRMAccountListHandler
 
         // [THEN] Values in the page now correspond to new CRM Account "B"
-        CRMCouplingRecord.CouplingFields.First;
+        CRMCouplingRecord.CouplingFields.First();
         CRMCouplingRecord.CouplingFields."Integration Value".AssertEquals(OtherCRMAccount.Name);
     end;
 
     local procedure Initialize()
     begin
-        LibraryCRMIntegration.ResetEnvironment;
-        LibraryCRMIntegration.ConfigureCRM;
+        LibraryCRMIntegration.ResetEnvironment();
+        LibraryCRMIntegration.ConfigureCRM();
     end;
 
     local procedure CreateIntTableMapping(var IntegrationTableMapping: Record "Integration Table Mapping"; TableId: Integer; CRMTableId: Integer; UIDFldNo: Integer; ModifiedOnFldNo: Integer; FldNo: Integer; IntTableFldNo: Integer)
@@ -1603,22 +1603,22 @@ codeunit 139174 "CRM Coupling Record"
     var
         CRMAccount: Record "CRM Account";
     begin
-        CRMAccountList.Name.AssertEquals(LibraryVariableStorage.DequeueText);
-        CRMAccount.SetRange(Name, LibraryVariableStorage.DequeueText);
+        CRMAccountList.Name.AssertEquals(LibraryVariableStorage.DequeueText());
+        CRMAccount.SetRange(Name, LibraryVariableStorage.DequeueText());
         CRMAccount.FindFirst();
         CRMAccountList.GotoRecord(CRMAccount);
-        CRMAccountList.OK.Invoke;
+        CRMAccountList.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure FilteredCRMAccountListHandler(var CRMAccountList: TestPage "CRM Account List")
     begin
-        CRMAccountList.First;
+        CRMAccountList.First();
         Assert.AreNotEqual('', CRMAccountList.Name.Value, CRMRecordErr);
-        CRMAccountList.Name.AssertEquals(LibraryVariableStorage.DequeueText);
-        Assert.IsFalse(CRMAccountList.Next, CRMRecordsListErr);
-        CRMAccountList.OK.Invoke;
+        CRMAccountList.Name.AssertEquals(LibraryVariableStorage.DequeueText());
+        Assert.IsFalse(CRMAccountList.Next(), CRMRecordsListErr);
+        CRMAccountList.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -1627,22 +1627,22 @@ codeunit 139174 "CRM Coupling Record"
     var
         CRMContact: Record "CRM Contact";
     begin
-        CRMContactList.FullName.AssertEquals(LibraryVariableStorage.DequeueText);
-        CRMContact.SetRange(FullName, LibraryVariableStorage.DequeueText);
+        CRMContactList.FullName.AssertEquals(LibraryVariableStorage.DequeueText());
+        CRMContact.SetRange(FullName, LibraryVariableStorage.DequeueText());
         CRMContact.FindFirst();
         CRMContactList.GotoRecord(CRMContact);
-        CRMContactList.OK.Invoke;
+        CRMContactList.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure FilteredCRMContactListHandler(var CRMContactList: TestPage "CRM Contact List")
     begin
-        CRMContactList.First;
+        CRMContactList.First();
         Assert.AreNotEqual('', CRMContactList.FullName.Value, CRMRecordErr);
-        CRMContactList.FullName.AssertEquals(LibraryVariableStorage.DequeueText);
-        Assert.IsFalse(CRMContactList.Next, CRMRecordsListErr);
-        CRMContactList.OK.Invoke;
+        CRMContactList.FullName.AssertEquals(LibraryVariableStorage.DequeueText());
+        Assert.IsFalse(CRMContactList.Next(), CRMRecordsListErr);
+        CRMContactList.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -1651,22 +1651,22 @@ codeunit 139174 "CRM Coupling Record"
     var
         CRMSystemuser: Record "CRM Systemuser";
     begin
-        CRMSystemuserList.FullName.AssertEquals(LibraryVariableStorage.DequeueText);
-        CRMSystemuser.SetRange(FullName, LibraryVariableStorage.DequeueText);
+        CRMSystemuserList.FullName.AssertEquals(LibraryVariableStorage.DequeueText());
+        CRMSystemuser.SetRange(FullName, LibraryVariableStorage.DequeueText());
         CRMSystemuser.FindFirst();
         CRMSystemuserList.GotoRecord(CRMSystemuser);
-        CRMSystemuserList.OK.Invoke;
+        CRMSystemuserList.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure FilteredCRMSystemuserListHandler(var CRMSystemuserList: TestPage "CRM Systemuser List")
     begin
-        CRMSystemuserList.First;
+        CRMSystemuserList.First();
         Assert.AreNotEqual('', CRMSystemuserList.FullName.Value, CRMRecordErr);
-        CRMSystemuserList.FullName.AssertEquals(LibraryVariableStorage.DequeueText);
-        Assert.IsFalse(CRMSystemuserList.Next, CRMRecordsListErr);
-        CRMSystemuserList.OK.Invoke;
+        CRMSystemuserList.FullName.AssertEquals(LibraryVariableStorage.DequeueText());
+        Assert.IsFalse(CRMSystemuserList.Next(), CRMRecordsListErr);
+        CRMSystemuserList.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -1675,22 +1675,22 @@ codeunit 139174 "CRM Coupling Record"
     var
         CRMTransactioncurrency: Record "CRM Transactioncurrency";
     begin
-        CRMTransactionCurrencyList.ISOCurrencyCode.AssertEquals(LibraryVariableStorage.DequeueText);
-        CRMTransactioncurrency.SetRange(ISOCurrencyCode, LibraryVariableStorage.DequeueText);
+        CRMTransactionCurrencyList.ISOCurrencyCode.AssertEquals(LibraryVariableStorage.DequeueText());
+        CRMTransactioncurrency.SetRange(ISOCurrencyCode, LibraryVariableStorage.DequeueText());
         CRMTransactioncurrency.FindFirst();
         CRMTransactionCurrencyList.GotoRecord(CRMTransactioncurrency);
-        CRMTransactionCurrencyList.OK.Invoke;
+        CRMTransactionCurrencyList.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure FilteredCRMCurrencyListHandler(var CRMTransactionCurrencyList: TestPage "CRM TransactionCurrency List")
     begin
-        CRMTransactionCurrencyList.First;
+        CRMTransactionCurrencyList.First();
         Assert.AreNotEqual('', CRMTransactionCurrencyList.ISOCurrencyCode.Value, CRMRecordErr);
-        CRMTransactionCurrencyList.ISOCurrencyCode.AssertEquals(LibraryVariableStorage.DequeueText);
-        Assert.IsFalse(CRMTransactionCurrencyList.Next, CRMRecordsListErr);
-        CRMTransactionCurrencyList.OK.Invoke;
+        CRMTransactionCurrencyList.ISOCurrencyCode.AssertEquals(LibraryVariableStorage.DequeueText());
+        Assert.IsFalse(CRMTransactionCurrencyList.Next(), CRMRecordsListErr);
+        CRMTransactionCurrencyList.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -1699,22 +1699,22 @@ codeunit 139174 "CRM Coupling Record"
     var
         CRMPricelevel: Record "CRM Pricelevel";
     begin
-        CRMPricelevelList.Name.AssertEquals(LibraryVariableStorage.DequeueText);
-        CRMPricelevel.SetRange(Name, LibraryVariableStorage.DequeueText);
+        CRMPricelevelList.Name.AssertEquals(LibraryVariableStorage.DequeueText());
+        CRMPricelevel.SetRange(Name, LibraryVariableStorage.DequeueText());
         CRMPricelevel.FindFirst();
         CRMPricelevelList.GotoRecord(CRMPricelevel);
-        CRMPricelevelList.OK.Invoke;
+        CRMPricelevelList.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure FilteredCRMPriceListHandler(var CRMPricelevelList: TestPage "CRM Pricelevel List")
     begin
-        CRMPricelevelList.First;
+        CRMPricelevelList.First();
         Assert.AreNotEqual('', CRMPricelevelList.Name.Value, CRMRecordErr);
-        CRMPricelevelList.Name.AssertEquals(LibraryVariableStorage.DequeueText);
-        Assert.IsFalse(CRMPricelevelList.Next, CRMRecordsListErr);
-        CRMPricelevelList.OK.Invoke;
+        CRMPricelevelList.Name.AssertEquals(LibraryVariableStorage.DequeueText());
+        Assert.IsFalse(CRMPricelevelList.Next(), CRMRecordsListErr);
+        CRMPricelevelList.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -1723,22 +1723,22 @@ codeunit 139174 "CRM Coupling Record"
     var
         CRMProduct: Record "CRM Product";
     begin
-        CRMProductList.ProductNumber.AssertEquals(LibraryVariableStorage.DequeueText);
-        CRMProduct.SetRange(ProductNumber, LibraryVariableStorage.DequeueText);
+        CRMProductList.ProductNumber.AssertEquals(LibraryVariableStorage.DequeueText());
+        CRMProduct.SetRange(ProductNumber, LibraryVariableStorage.DequeueText());
         CRMProduct.FindFirst();
         CRMProductList.GotoRecord(CRMProduct);
-        CRMProductList.OK.Invoke;
+        CRMProductList.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure FilteredCRMProductListHandler(var CRMProductList: TestPage "CRM Product List")
     begin
-        CRMProductList.First;
+        CRMProductList.First();
         Assert.AreNotEqual('', CRMProductList.Name.Value, CRMRecordErr);
-        CRMProductList.Name.AssertEquals(LibraryVariableStorage.DequeueText);
-        Assert.IsFalse(CRMProductList.Next, CRMRecordsListErr);
-        CRMProductList.OK.Invoke;
+        CRMProductList.Name.AssertEquals(LibraryVariableStorage.DequeueText());
+        Assert.IsFalse(CRMProductList.Next(), CRMRecordsListErr);
+        CRMProductList.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -1747,11 +1747,11 @@ codeunit 139174 "CRM Coupling Record"
     var
         CRMUomschedule: Record "CRM Uomschedule";
     begin
-        CRMUnitGroupList.Name.AssertEquals(LibraryVariableStorage.DequeueText);
-        CRMUomschedule.SetRange(Name, LibraryVariableStorage.DequeueText);
+        CRMUnitGroupList.Name.AssertEquals(LibraryVariableStorage.DequeueText());
+        CRMUomschedule.SetRange(Name, LibraryVariableStorage.DequeueText());
         CRMUomschedule.FindFirst();
         CRMUnitGroupList.GotoRecord(CRMUomschedule);
-        CRMUnitGroupList.OK.Invoke;
+        CRMUnitGroupList.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -1760,18 +1760,18 @@ codeunit 139174 "CRM Coupling Record"
     var
         CRMOpportunity: Record "CRM Opportunity";
     begin
-        CRMOpportunityList.Name.AssertEquals(LibraryVariableStorage.DequeueText);
-        CRMOpportunity.SetRange(Name, LibraryVariableStorage.DequeueText);
+        CRMOpportunityList.Name.AssertEquals(LibraryVariableStorage.DequeueText());
+        CRMOpportunity.SetRange(Name, LibraryVariableStorage.DequeueText());
         CRMOpportunity.FindFirst();
         CRMOpportunityList.GotoRecord(CRMOpportunity);
-        CRMOpportunityList.OK.Invoke;
+        CRMOpportunityList.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure CRMCouplingRecordHandler(var CRMCouplingRecord: TestPage "CRM Coupling Record")
     begin
-        LibraryVariableStorage.Enqueue(CRMCouplingRecord.CreateNewControl.Enabled);
+        LibraryVariableStorage.Enqueue(CRMCouplingRecord.CreateNewControl.Enabled());
     end;
 
     local procedure OpenCRMCouplingRecordPage(var CRMCouplingRecord: TestPage "CRM Coupling Record"; RecordID: RecordID)
@@ -1779,7 +1779,7 @@ codeunit 139174 "CRM Coupling Record"
         TempCouplingRecordBuffer: Record "Coupling Record Buffer" temporary;
     begin
         InitCouplingRecordBuf(RecordID, TempCouplingRecordBuffer);
-        CRMCouplingRecord.Trap;
+        CRMCouplingRecord.Trap();
         PAGE.Run(PAGE::"CRM Coupling Record", TempCouplingRecordBuffer);
     end;
 

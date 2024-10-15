@@ -20,13 +20,16 @@ using Microsoft.Sales.Customer;
 using Microsoft.Utilities;
 using System.Security.AccessControl;
 using System.Utilities;
+#if not CLEAN25
 using Microsoft.Finance.VAT.Reporting;
+#endif
 
 table 25 "Vendor Ledger Entry"
 {
     Caption = 'Vendor Ledger Entry';
     DrillDownPageID = "Vendor Ledger Entries";
     LookupPageID = "Vendor Ledger Entries";
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -639,11 +642,27 @@ table 25 "Vendor Ledger Entry"
         field(10020; "IRS 1099 Code"; Code[10])
         {
             Caption = 'IRS 1099 Code';
+            ObsoleteReason = 'Moved to IRS Forms App.';
+#if not CLEAN25
+            ObsoleteState = Pending;
             TableRelation = "IRS 1099 Form-Box";
+            ObsoleteTag = '25.0';
+#else
+            ObsoleteState = Removed;
+            ObsoleteTag = '28.0';
+#endif
         }
         field(10021; "IRS 1099 Amount"; Decimal)
         {
             Caption = 'IRS 1099 Amount';
+            ObsoleteReason = 'Moved to IRS Forms App.';
+#if not CLEAN25
+            ObsoleteState = Pending;
+            ObsoleteTag = '25.0';
+#else
+            ObsoleteState = Removed;
+            ObsoleteTag = '28.0';
+#endif
         }
     }
 
@@ -936,8 +955,10 @@ table 25 "Vendor Ledger Entry"
         "Payment Reference" := GenJnlLine."Payment Reference";
         "Payment Method Code" := GenJnlLine."Payment Method Code";
         "Exported to Payment File" := GenJnlLine."Exported to Payment File";
+#if not CLEAN25
         "IRS 1099 Code" := GenJnlLine."IRS 1099 Code";
         "IRS 1099 Amount" := GenJnlLine."IRS 1099 Amount";
+#endif
         if (GenJnlLine."Remit-to Code" <> '') then
             "Remit-to Code" := GenJnlLine."Remit-to Code";
 

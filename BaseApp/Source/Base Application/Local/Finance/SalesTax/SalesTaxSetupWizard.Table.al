@@ -9,6 +9,7 @@ using Microsoft.Finance.GeneralLedger.Account;
 table 10807 "Sales Tax Setup Wizard"
 {
     Caption = 'Sales Tax Setup Wizard';
+    DataClassification = CustomerContent;
 
     fields
     {

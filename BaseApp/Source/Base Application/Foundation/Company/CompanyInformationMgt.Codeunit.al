@@ -21,30 +21,33 @@ codeunit 1306 "Company Information Mgt."
         XPAYMENTTxt: Label 'PAYMENT', Comment = 'Payment';
         XPmtRegTxt: Label 'PMT REG', Comment = 'Payment Registration';
         CompanyBankAccountPostGroupTxt: Label 'CHECKING', Comment = 'Same as Bank Account Posting Group';
+        CompanyNameWarningLbl: Label 'Do not add personal data to the company name as this is not treated as restricted data.';
+
+    internal procedure GetCompanyNameClassificationWarning(): Text
+    begin
+        exit(CompanyNameWarningLbl);
+    end;
 
     local procedure UpdateGeneralJournalBatch(BankAccount: Record "Bank Account"; JournalTemplateName: Code[10]; JournalBatchName: Code[10])
     var
         GenJournalBatch: Record "Gen. Journal Batch";
     begin
-        with GenJournalBatch do
-            if Get(JournalTemplateName, JournalBatchName) then
-                if ("Bal. Account Type" = "Bal. Account Type"::"Bank Account") and ("Bal. Account No." = '') then begin
-                    Validate("Bal. Account No.", BankAccount."No.");
-                    Modify();
-                end;
+        if GenJournalBatch.Get(JournalTemplateName, JournalBatchName) then
+            if (GenJournalBatch."Bal. Account Type" = GenJournalBatch."Bal. Account Type"::"Bank Account") and (GenJournalBatch."Bal. Account No." = '') then begin
+                GenJournalBatch.Validate("Bal. Account No.", BankAccount."No.");
+                GenJournalBatch.Modify();
+            end;
     end;
 
     procedure UpdateCompanyBankAccount(var CompanyInformation: Record "Company Information"; BankAccountPostingGroup: Code[20]; var BankAccount: Record "Bank Account")
     begin
         // create or update existing company bank account with the information entered by the user
         // update general journal payment batches to point to the company bank account (unless a bank account is already specified in them)
-        with CompanyInformation do begin
-            if (("Bank Branch No." = '') and ("Bank Account No." = '')) and (("SWIFT Code" = '') and (IBAN = '')) then
-                exit;
-            UpdateBankAccount(BankAccount, CompanyInformation, BankAccountPostingGroup);
-            UpdateGeneralJournalBatch(BankAccount, XPAYMENTTxt, XPmtRegTxt);
-            UpdatePaymentRegistrationSetup(BankAccount, XPAYMENTTxt, XPmtRegTxt);
-        end;
+        if ((CompanyInformation."Bank Branch No." = '') and (CompanyInformation."Bank Account No." = '')) and ((CompanyInformation."SWIFT Code" = '') and (CompanyInformation.IBAN = '')) then
+            exit;
+        UpdateBankAccount(BankAccount, CompanyInformation, BankAccountPostingGroup);
+        UpdateGeneralJournalBatch(BankAccount, XPAYMENTTxt, XPmtRegTxt);
+        UpdatePaymentRegistrationSetup(BankAccount, XPAYMENTTxt, XPmtRegTxt);
     end;
 
     local procedure UpdatePaymentRegistrationSetup(BankAccount: Record "Bank Account"; JournalTemplateName: Code[10]; JournalBatchName: Code[10])
@@ -72,26 +75,24 @@ codeunit 1306 "Company Information Mgt."
         if BankAccount."No." = '' then
             BankAccount."No." := CompanyBankAccountTxt;
 
-        with CompanyInformation do begin
-            if not BankAccount.Get(BankAccount."No.") then begin
-                BankAccount.Init();
-                BankAccount."No." := CompanyBankAccountTxt;
-                BankAccount.Insert();
+        if not BankAccount.Get(BankAccount."No.") then begin
+            BankAccount.Init();
+            BankAccount."No." := CompanyBankAccountTxt;
+            BankAccount.Insert();
 
-                IsCompanyBankAcc := true;
-            end;
-            BankAccount.Validate(Name, "Bank Name");
-            BankAccount.Validate("Bank Branch No.", "Bank Branch No.");
-            BankAccount.Validate("Country/Region Code", "Country/Region Code");
-            BankAccount.Validate("Bank Account No.", "Bank Account No.");
-            BankAccount.Validate("SWIFT Code", "SWIFT Code");
-            BankAccount.Validate(IBAN, IBAN);
-            if (BankAccountPostingGroup = '') and IsCompanyBankAcc then
-                BankAccountPostingGroup := CompanyBankAccountPostGroupTxt;
-            if BankAccPostingGroup.Get(BankAccountPostingGroup) then
-                BankAccount.Validate("Bank Acc. Posting Group", BankAccPostingGroup.Code);
-            BankAccount.Modify();
+            IsCompanyBankAcc := true;
         end;
+        BankAccount.Validate(Name, CompanyInformation."Bank Name");
+        BankAccount.Validate("Bank Branch No.", CompanyInformation."Bank Branch No.");
+        BankAccount.Validate("Country/Region Code", CompanyInformation."Country/Region Code");
+        BankAccount.Validate("Bank Account No.", CompanyInformation."Bank Account No.");
+        BankAccount.Validate("SWIFT Code", CompanyInformation."SWIFT Code");
+        BankAccount.Validate(IBAN, CompanyInformation.IBAN);
+        if (BankAccountPostingGroup = '') and IsCompanyBankAcc then
+            BankAccountPostingGroup := CompanyBankAccountPostGroupTxt;
+        if BankAccPostingGroup.Get(BankAccountPostingGroup) then
+            BankAccount.Validate("Bank Acc. Posting Group", BankAccPostingGroup.Code);
+        BankAccount.Modify();
     end;
 
     procedure GetCompanyBankAccount(): Code[20]

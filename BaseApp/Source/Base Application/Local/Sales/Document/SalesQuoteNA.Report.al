@@ -52,13 +52,11 @@ report 10076 "Sales Quote NA"
 
                     trigger OnAfterGetRecord()
                     begin
-                        with TempSalesLine do begin
-                            Init();
-                            "Document Type" := "Sales Header"."Document Type";
-                            "Document No." := "Sales Header"."No.";
-                            "Line No." := HighestLineNo + 10;
-                            HighestLineNo := "Line No.";
-                        end;
+                        TempSalesLine.Init();
+                        TempSalesLine."Document Type" := "Sales Header"."Document Type";
+                        TempSalesLine."Document No." := "Sales Header"."No.";
+                        TempSalesLine."Line No." := HighestLineNo + 10;
+                        HighestLineNo := TempSalesLine."Line No.";
                         if StrLen(Comment) <= MaxStrLen(TempSalesLine.Description) then begin
                             TempSalesLine.Description := Comment;
                             TempSalesLine."Description 2" := '';
@@ -96,31 +94,29 @@ report 10076 "Sales Quote NA"
                         BrkIdx := 0;
                         PrevPrintOrder := 0;
                         PrevTaxPercent := 0;
-                        with TempSalesTaxAmtLine do begin
-                            Reset();
-                            SetCurrentKey("Print Order", "Tax Area Code for Key", "Tax Jurisdiction Code");
-                            if Find('-') then
-                                repeat
-                                    if ("Print Order" = 0) or
-                                       ("Print Order" <> PrevPrintOrder) or
-                                       ("Tax %" <> PrevTaxPercent)
-                                    then begin
-                                        BrkIdx := BrkIdx + 1;
-                                        if BrkIdx > 1 then begin
-                                            if TaxArea."Country/Region" = TaxArea."Country/Region"::CA then
-                                                BreakdownTitle := Text006
-                                            else
-                                                BreakdownTitle := Text003;
-                                        end;
-                                        if BrkIdx > ArrayLen(BreakdownAmt) then begin
-                                            BrkIdx := BrkIdx - 1;
-                                            BreakdownLabel[BrkIdx] := Text004;
-                                        end else
-                                            BreakdownLabel[BrkIdx] := StrSubstNo("Print Description", "Tax %");
+                        TempSalesTaxAmtLine.Reset();
+                        TempSalesTaxAmtLine.SetCurrentKey("Print Order", "Tax Area Code for Key", "Tax Jurisdiction Code");
+                        if TempSalesTaxAmtLine.Find('-') then
+                            repeat
+                                if (TempSalesTaxAmtLine."Print Order" = 0) or
+                                   (TempSalesTaxAmtLine."Print Order" <> PrevPrintOrder) or
+                                   (TempSalesTaxAmtLine."Tax %" <> PrevTaxPercent)
+                                then begin
+                                    BrkIdx := BrkIdx + 1;
+                                    if BrkIdx > 1 then begin
+                                        if TaxArea."Country/Region" = TaxArea."Country/Region"::CA then
+                                            BreakdownTitle := Text006
+                                        else
+                                            BreakdownTitle := Text003;
                                     end;
-                                    BreakdownAmt[BrkIdx] := BreakdownAmt[BrkIdx] + "Tax Amount";
-                                until Next() = 0;
-                        end;
+                                    if BrkIdx > ArrayLen(BreakdownAmt) then begin
+                                        BrkIdx := BrkIdx - 1;
+                                        BreakdownLabel[BrkIdx] := Text004;
+                                    end else
+                                        BreakdownLabel[BrkIdx] := StrSubstNo(TempSalesTaxAmtLine."Print Description", TempSalesTaxAmtLine."Tax %");
+                                end;
+                                BreakdownAmt[BrkIdx] := BreakdownAmt[BrkIdx] + TempSalesTaxAmtLine."Tax Amount";
+                            until TempSalesTaxAmtLine.Next() = 0;
                         if BrkIdx = 1 then begin
                             Clear(BreakdownLabel);
                             Clear(BreakdownAmt);
@@ -141,13 +137,11 @@ report 10076 "Sales Quote NA"
 
                 trigger OnAfterGetRecord()
                 begin
-                    with TempSalesLine do begin
-                        Init();
-                        "Document Type" := "Sales Header"."Document Type";
-                        "Document No." := "Sales Header"."No.";
-                        "Line No." := HighestLineNo + 1000;
-                        HighestLineNo := "Line No.";
-                    end;
+                    TempSalesLine.Init();
+                    TempSalesLine."Document Type" := "Sales Header"."Document Type";
+                    TempSalesLine."Document No." := "Sales Header"."No.";
+                    TempSalesLine."Line No." := HighestLineNo + 1000;
+                    HighestLineNo := TempSalesLine."Line No.";
                     if StrLen(Comment) <= MaxStrLen(TempSalesLine.Description) then begin
                         TempSalesLine.Description := Comment;
                         TempSalesLine."Description 2" := '';
@@ -165,13 +159,11 @@ report 10076 "Sales Quote NA"
 
                 trigger OnPreDataItem()
                 begin
-                    with TempSalesLine do begin
-                        Init();
-                        "Document Type" := "Sales Header"."Document Type";
-                        "Document No." := "Sales Header"."No.";
-                        "Line No." := HighestLineNo + 1000;
-                        HighestLineNo := "Line No.";
-                    end;
+                    TempSalesLine.Init();
+                    TempSalesLine."Document Type" := "Sales Header"."Document Type";
+                    TempSalesLine."Document No." := "Sales Header"."No.";
+                    TempSalesLine."Line No." := HighestLineNo + 1000;
+                    HighestLineNo := TempSalesLine."Line No.";
                     TempSalesLine.Insert();
                 end;
             }
@@ -440,40 +432,39 @@ report 10076 "Sales Quote NA"
                         begin
                             OnLineNumber := OnLineNumber + 1;
 
-                            with TempSalesLine do begin
-                                if OnLineNumber = 1 then
-                                    Find('-')
-                                else
-                                    Next();
+                            if OnLineNumber = 1 then
+                                TempSalesLine.Find('-')
+                            else
+                                TempSalesLine.Next();
 
-                                if Type = Type::" " then begin
-                                    "No." := '';
-                                    "Unit of Measure" := '';
-                                    "Line Amount" := 0;
-                                    "Inv. Discount Amount" := 0;
-                                    Quantity := 0;
-                                end else
-                                    if Type = Type::"G/L Account" then
-                                        "No." := '';
+                            if TempSalesLine.Type = TempSalesLine.Type::" " then begin
+                                TempSalesLine."No." := '';
+                                TempSalesLine."Unit of Measure" := '';
+                                TempSalesLine."Line Amount" := 0;
+                                TempSalesLine."Inv. Discount Amount" := 0;
+                                TempSalesLine.Quantity := 0;
+                            end else
+                                if TempSalesLine.Type = TempSalesLine.Type::"G/L Account" then
+                                    TempSalesLine."No." := '';
 
-                                if "Tax Area Code" <> '' then
-                                    TaxAmount := "Amount Including VAT" - Amount
-                                else
-                                    TaxAmount := 0;
-                                if TaxAmount <> 0 then
-                                    TaxLiable := Amount
-                                else
-                                    TaxLiable := 0;
+                            if TempSalesLine."Tax Area Code" <> '' then
+                                TaxAmount := TempSalesLine."Amount Including VAT" - TempSalesLine.Amount
+                            else
+                                TaxAmount := 0;
+                            if TaxAmount <> 0 then
+                                TaxLiable := TempSalesLine.Amount
+                            else
+                                TaxLiable := 0;
 
-                                OnAfterCalculateSalesTax("Sales Header", TempSalesLine, TaxAmount, TaxLiable);
+                            OnAfterCalculateSalesTax("Sales Header", TempSalesLine, TaxAmount, TaxLiable);
 
-                                AmountExclInvDisc := "Line Amount";
+                            AmountExclInvDisc := TempSalesLine."Line Amount";
 
-                                if Quantity = 0 then
-                                    UnitPriceToPrint := 0 // so it won't print
-                                else
-                                    UnitPriceToPrint := Round(AmountExclInvDisc / Quantity, 0.00001);
-                            end;
+                            if TempSalesLine.Quantity = 0 then
+                                UnitPriceToPrint := 0
+                            // so it won't print
+                            else
+                                UnitPriceToPrint := Round(AmountExclInvDisc / TempSalesLine.Quantity, 0.00001);
 
                             if OnLineNumber = NumberOfLines then
                                 PrintFooter := true;
@@ -525,8 +516,8 @@ report 10076 "Sales Quote NA"
                         CompanyInformation."Fax No." := RespCenter."Fax No.";
                     end;
 
-                CurrReport.Language := Language.GetLanguageIdOrDefault("Language Code");
-                CurrReport.FormatRegion := Language.GetFormatRegionOrDefault("Format Region");
+                CurrReport.Language := LanguageMgt.GetLanguageIdOrDefault("Language Code");
+                CurrReport.FormatRegion := LanguageMgt.GetFormatRegionOrDefault("Format Region");
 
                 FormatDocumentFields("Sales Header");
 
@@ -691,7 +682,7 @@ report 10076 "Sales Quote NA"
         TempSalesTaxAmtLine: Record "Sales Tax Amount Line" temporary;
         TaxArea: Record "Tax Area";
         Cust: Record Customer;
-        Language: Codeunit Language;
+        LanguageMgt: Codeunit Language;
         SalesPrinted: Codeunit "Sales-Printed";
         FormatAddress: Codeunit "Format Address";
         FormatDocument: Codeunit "Format Document";
@@ -766,11 +757,9 @@ report 10076 "Sales Quote NA"
 
     local procedure FormatDocumentFields(SalesHeader: Record "Sales Header")
     begin
-        with SalesHeader do begin
-            FormatDocument.SetSalesPerson(SalesPurchPerson, "Salesperson Code", SalespersonText);
-            FormatDocument.SetPaymentTerms(PaymentTerms, "Payment Terms Code", "Language Code");
-            FormatDocument.SetShipmentMethod(ShipmentMethod, "Shipment Method Code", "Language Code");
-        end;
+        FormatDocument.SetSalesPerson(SalesPurchPerson, SalesHeader."Salesperson Code", SalespersonText);
+        FormatDocument.SetPaymentTerms(PaymentTerms, SalesHeader."Payment Terms Code", SalesHeader."Language Code");
+        FormatDocument.SetShipmentMethod(ShipmentMethod, SalesHeader."Shipment Method Code", SalesHeader."Language Code");
     end;
 
     [IntegrationEvent(false, false)]

@@ -50,7 +50,7 @@ codeunit 5363 "CDS Set Coupled Flag"
 
         CoupledToCRMFieldRef := RecRef.Field(CoupledToCRMFieldNo);
 
-        ExistingValue := CoupledToCRMFieldRef.Value;
+        ExistingValue := CoupledToCRMFieldRef.Value();
         if ExistingValue = true then
             exit;
 

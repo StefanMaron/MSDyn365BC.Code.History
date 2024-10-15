@@ -16,35 +16,29 @@ codeunit 5371 "CRM Synch. Job Management"
 
     procedure SetInitialState(var CRMSynchJobStatusCue: Record "CRM Synch. Job Status Cue")
     begin
-        with CRMSynchJobStatusCue do begin
-            Reset();
-            if not FindFirst() then begin
-                Init();
-                Code := GetDefaultPkValue();
-                Insert();
-            end;
-            SetFilters(CRMSynchJobStatusCue);
+        CRMSynchJobStatusCue.Reset();
+        if not CRMSynchJobStatusCue.FindFirst() then begin
+            CRMSynchJobStatusCue.Init();
+            CRMSynchJobStatusCue.Code := GetDefaultPkValue();
+            CRMSynchJobStatusCue.Insert();
         end;
+        SetFilters(CRMSynchJobStatusCue);
     end;
 
     procedure OnReset(var CRMSynchJobStatusCue: Record "CRM Synch. Job Status Cue")
     begin
-        with CRMSynchJobStatusCue do begin
-            Reset();
-            FindFirst();
-            "Reset Date" := GetLastFailedDate(GetDefaultJobRunner());
-            Modify();
-            SetFilters(CRMSynchJobStatusCue);
-        end;
+        CRMSynchJobStatusCue.Reset();
+        CRMSynchJobStatusCue.FindFirst();
+        CRMSynchJobStatusCue."Reset Date" := GetLastFailedDate(GetDefaultJobRunner());
+        CRMSynchJobStatusCue.Modify();
+        SetFilters(CRMSynchJobStatusCue);
     end;
 
     local procedure FindLastJobQueue(var JobQueueEntry: Record "Job Queue Entry"; JobToRun: Integer): Boolean
     begin
-        with JobQueueEntry do begin
-            SetRange(Status, Status::Error);
-            SetRange("Object ID to Run", JobToRun);
-            exit(FindLast());
-        end;
+        JobQueueEntry.SetRange(Status, JobQueueEntry.Status::Error);
+        JobQueueEntry.SetRange("Object ID to Run", JobToRun);
+        exit(JobQueueEntry.FindLast());
     end;
 
     local procedure GetLastFailedDate(JobToRun: Integer): DateTime
@@ -63,10 +57,8 @@ codeunit 5371 "CRM Synch. Job Management"
 
     local procedure SetFilters(var CRMSynchJobStatusCue: Record "CRM Synch. Job Status Cue")
     begin
-        with CRMSynchJobStatusCue do begin
-            SetRange("Object ID to Run", GetDefaultJobRunner());
-            SetFilter("Date Filter", '>%1', "Reset Date");
-        end;
+        CRMSynchJobStatusCue.SetRange("Object ID to Run", GetDefaultJobRunner());
+        CRMSynchJobStatusCue.SetFilter("Date Filter", '>%1', CRMSynchJobStatusCue."Reset Date");
     end;
 
     procedure GetDefaultJobRunner(): Integer

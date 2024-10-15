@@ -56,26 +56,24 @@ codeunit 1636 "Office Contact Handler"
             exit;
         end;
 
-        with TempOfficeContactDetails do begin
-            if (Count() > 1) and (TempOfficeAddinContext.Command <> '') then
-                SetRange("Associated Table", TempOfficeAddinContext.CommandType());
+        if (TempOfficeContactDetails.Count() > 1) and (TempOfficeAddinContext.Command <> '') then
+            TempOfficeContactDetails.SetRange("Associated Table", TempOfficeAddinContext.CommandType());
 
-            if Count() = 1 then begin
-                ChangeCompanyAndShowContact(TempOfficeContactDetails, TempOfficeAddinContext, Contact);
-                exit;
-            end;
-
-            SetRange(Type, Type::"Contact Person");
-            if Count() = 1 then begin
-                ChangeCompanyAndShowContact(TempOfficeContactDetails, TempOfficeAddinContext, Contact);
-                exit;
-            end;
-
-            SetRange(Type);
-            SetRange("Associated Table");
-            if Count() > 1 then
-                Page.Run(Page::"Office Contact Associations", TempOfficeContactDetails);
+        if TempOfficeContactDetails.Count() = 1 then begin
+            ChangeCompanyAndShowContact(TempOfficeContactDetails, TempOfficeAddinContext, Contact);
+            exit;
         end;
+
+        TempOfficeContactDetails.SetRange(Type, TempOfficeContactDetails.Type::"Contact Person");
+        if TempOfficeContactDetails.Count() = 1 then begin
+            ChangeCompanyAndShowContact(TempOfficeContactDetails, TempOfficeAddinContext, Contact);
+            exit;
+        end;
+
+        TempOfficeContactDetails.SetRange(Type);
+        TempOfficeContactDetails.SetRange("Associated Table");
+        if TempOfficeContactDetails.Count() > 1 then
+            Page.Run(Page::"Office Contact Associations", TempOfficeContactDetails);
     end;
 
     local procedure ChangeCompanyAndShowContact(var TempOfficeContactDetails: Record "Office Contact Details" temporary; var TempOfficeAddinContext: Record "Office Add-in Context" temporary; var Contact: Record Contact)
@@ -168,21 +166,20 @@ codeunit 1636 "Office Contact Handler"
         if ContactBusinessRelation.FindSet() then
             repeat
                 ContactBusinessRelation.CalcFields("Business Relation Description");
-                with TempOfficeContactDetails do
-                    if not Get(ContactBusinessRelation."Contact No.", Contact.Type, ContactBusinessRelation."Link to Table", ContactCompany) then begin
-                        Clear(TempOfficeContactDetails);
-                        Init();
-                        TransferFields(ContactBusinessRelation);
-                        "Contact Name" := Contact.Name;
-                        Company := ContactCompany;
-                        Type := Contact.Type;
-                        "Business Relation Description" := ContactBusinessRelation."Business Relation Description";
-                        if ContactBusinessRelation."Link to Table".AsInteger() = TempOfficeAddinContext.CommandType() then begin
-                            "Contact No." := Contact."No.";
-                            "Associated Table" := TempOfficeAddinContext.CommandType();
-                        end;
-                        Insert();
+                if not TempOfficeContactDetails.Get(ContactBusinessRelation."Contact No.", Contact.Type, ContactBusinessRelation."Link to Table", ContactCompany) then begin
+                    Clear(TempOfficeContactDetails);
+                    TempOfficeContactDetails.Init();
+                    TempOfficeContactDetails.TransferFields(ContactBusinessRelation);
+                    TempOfficeContactDetails."Contact Name" := Contact.Name;
+                    TempOfficeContactDetails.Company := ContactCompany;
+                    TempOfficeContactDetails.Type := Contact.Type;
+                    TempOfficeContactDetails."Business Relation Description" := ContactBusinessRelation."Business Relation Description";
+                    if ContactBusinessRelation."Link to Table".AsInteger() = TempOfficeAddinContext.CommandType() then begin
+                        TempOfficeContactDetails."Contact No." := Contact."No.";
+                        TempOfficeContactDetails."Associated Table" := TempOfficeAddinContext.CommandType();
                     end;
+                    TempOfficeContactDetails.Insert();
+                end;
             until ContactBusinessRelation.Next() = 0
         else
             if Contact.FindSet() then
@@ -194,25 +191,23 @@ codeunit 1636 "Office Contact Handler"
     local procedure CreateUnlinkedContactAssociation(var TempOfficeContactDetails: Record "Office Contact Details" temporary; Contact: Record Contact; ContactCompany: Text)
     begin
         Clear(TempOfficeContactDetails);
-        with TempOfficeContactDetails do begin
-            SetRange("No.", Contact."Company No.");
-            if FindFirst() and (Type = Contact.Type::Company) then
-                Delete();
+        TempOfficeContactDetails.SetRange("No.", Contact."Company No.");
+        if TempOfficeContactDetails.FindFirst() and (TempOfficeContactDetails.Type = Contact.Type::Company) then
+            TempOfficeContactDetails.Delete();
 
-            if IsEmpty() then begin
-                Init();
-                "No." := Contact."Company No.";
-                if "No." = '' then
-                    "No." := Contact."No.";
-                "Contact No." := Contact."No.";
-                "Contact Name" := Contact.Name;
-                Company := CopyStr(ContactCompany, 1, 50);
-                Type := Contact.Type;
-                Insert();
-            end;
-
-            SetRange("No.");
+        if TempOfficeContactDetails.IsEmpty() then begin
+            TempOfficeContactDetails.Init();
+            TempOfficeContactDetails."No." := Contact."Company No.";
+            if TempOfficeContactDetails."No." = '' then
+                TempOfficeContactDetails."No." := Contact."No.";
+            TempOfficeContactDetails."Contact No." := Contact."No.";
+            TempOfficeContactDetails."Contact Name" := Contact.Name;
+            TempOfficeContactDetails.Company := CopyStr(ContactCompany, 1, 50);
+            TempOfficeContactDetails.Type := Contact.Type;
+            TempOfficeContactDetails.Insert();
         end;
+
+        TempOfficeContactDetails.SetRange("No.");
     end;
 
     local procedure FilterContactBusinessRelations(var Contact: Record Contact; var ContactBusinessRelation: Record "Contact Business Relation")
@@ -235,15 +230,14 @@ codeunit 1636 "Office Contact Handler"
     var
         ContactBusinessRelation: Record "Contact Business Relation";
     begin
-        with ContactBusinessRelation do
-            case true of
-                OfficeAddinContext.Command <> '':
-                    SetRange("Link to Table", OfficeAddinContext.CommandType());
-                OfficeAddinContext.IsAppointment():
-                    SetRange("Link to Table", "Link to Table"::Customer);
-                else
-                    exit;
-            end;
+        case true of
+            OfficeAddinContext.Command <> '':
+                ContactBusinessRelation.SetRange("Link to Table", OfficeAddinContext.CommandType());
+            OfficeAddinContext.IsAppointment():
+                ContactBusinessRelation.SetRange("Link to Table", ContactBusinessRelation."Link to Table"::Customer);
+            else
+                exit;
+        end;
 
         if ContactBusinessRelation.FindSet() then begin
             Contact.FilterGroup(-1);

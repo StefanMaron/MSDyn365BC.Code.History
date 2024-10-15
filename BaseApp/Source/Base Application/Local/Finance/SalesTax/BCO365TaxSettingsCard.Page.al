@@ -230,11 +230,10 @@ page 10350 "BC O365 Tax Settings Card"
     begin
         if Deleted then
             exit;
-        with TempSalesTaxSetupWizard do
-            if (("City Rate" <> 0) and (City = '')) or (("State Rate" <> 0) and (State = '')) then begin
-                ResponseOpt := StrMenu(DiscardWithNoNameOptionQst, 3, DiscardWithNoNameInstructionTxt);
-                exit(ResponseOpt = ResponseOpt::Discard);
-            end;
+        if ((TempSalesTaxSetupWizard."City Rate" <> 0) and (TempSalesTaxSetupWizard.City = '')) or ((TempSalesTaxSetupWizard."State Rate" <> 0) and (TempSalesTaxSetupWizard.State = '')) then begin
+            ResponseOpt := StrMenu(DiscardWithNoNameOptionQst, 3, DiscardWithNoNameInstructionTxt);
+            exit(ResponseOpt = ResponseOpt::Discard);
+        end;
 
         exit(StoreTaxSettings());
     end;
@@ -398,7 +397,7 @@ page 10350 "BC O365 Tax Settings Card"
 
     local procedure UpdateDescription()
     begin
-        TaxRateDescription := GenerateDescription;
+        TaxRateDescription := GenerateDescription();
     end;
 
     local procedure GenerateDescription(): Text[50]

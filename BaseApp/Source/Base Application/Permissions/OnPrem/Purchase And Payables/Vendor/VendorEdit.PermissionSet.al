@@ -144,7 +144,7 @@ permissionset 7371 "Vendor - Edit"
                   tabledata "Purchase Header" = rm,
                   tabledata "Purchase Header Archive" = r,
                   tabledata "Purchase Line" = Rm,
-#if not CLEAN21
+#if not CLEAN23
                   tabledata "Purchase Line Discount" = Rid,
                   tabledata "Purchase Price" = Rid,
 #endif
@@ -191,6 +191,7 @@ permissionset 7371 "Vendor - Edit"
                   tabledata "Vendor Posting Group" = R,
                   tabledata "Warehouse Activity Header" = r,
                   tabledata "Warehouse Activity Line" = r,
+                  tabledata "Warehouse Reason Code" = r,
                   tabledata "Warehouse Request" = rm,
                   tabledata "Warehouse Shipment Line" = rm,
                   tabledata "Warranty Ledger Entry" = rm,

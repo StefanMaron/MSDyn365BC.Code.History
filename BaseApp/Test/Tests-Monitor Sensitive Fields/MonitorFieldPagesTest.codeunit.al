@@ -13,7 +13,7 @@ codeunit 139066 "Monitor Field Pages Test"
         MonitoredFieldsWorksheet.OpenEdit();
 
         // [THEN] Check editable fields and initial value
-        Assert.AreEqual(MonitoredFieldsWorksheet.Editable, true, 'Page must be editable');
+        Assert.AreEqual(MonitoredFieldsWorksheet.Editable(), true, 'Page must be editable');
         Assert.IsTrue(MonitoredFieldsWorksheet.TableNo.Editable(), '"Table No" field must be editable');
         Assert.IsTrue(MonitoredFieldsWorksheet."Field No".Editable(), '"Field No" field must be editable');
         Assert.IsTrue(MonitoredFieldsWorksheet.Notify.Editable(), '"Notify" field must be editable');
@@ -223,7 +223,7 @@ codeunit 139066 "Monitor Field Pages Test"
         MonitoredFieldLogEntries.OpenEdit();
 
         // [THEN] Check that page is not editable
-        Assert.IsFalse(MonitoredFieldLogEntries.Editable, 'Page must not be editable');
+        Assert.IsFalse(MonitoredFieldLogEntries.Editable(), 'Page must not be editable');
         ChangeLogEntry.SetRange("Table No.", Database::"Test Table C");
         ChangeLogEntry.SetRange("Field No.", TestTableC.FieldNo("Option Field"));
         ChangeLogEntry.FindFirst();
@@ -235,7 +235,6 @@ codeunit 139066 "Monitor Field Pages Test"
     procedure MonitorEntriesRecords()
     var
         MonitoredFieldLogEntries: TestPage "Monitored Field Log Entries";
-        MonitorSensitiveFieldTest: Codeunit "Monitor Sensitive Field Test";
         FieldLogEntryFeature: enum "Field Log Entry Feature";
     begin
         // [SCENARIO] Monitor entries page must only display records marked in Monitor Field Feature filed as Monitor Sensitive Data or All.
@@ -390,6 +389,5 @@ codeunit 139066 "Monitor Field Pages Test"
         MonitorSensitiveField: Codeunit "Monitor Sensitive Field";
         MonitorFieldTestHelper: Codeunit "Monitor Field Test Helper";
         TableMonitoredInChangeLogErr: Label 'This table is monitored in Change log. If you want to monitor it here, please remove it from change log setup.', Locked = true;
-        DummyEntryTxt: Label 'Dummy Entry', Locked = true;
         SystemTableErr: Label 'You cannot monitor fields on the specified table. For example, the table ID might not exist or it might be a system table.', Locked = true;
 }

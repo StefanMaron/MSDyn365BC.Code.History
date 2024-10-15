@@ -70,19 +70,19 @@
         SalesReceivablesSetup.DeleteAll();
         PurchasesPayablesSetup.DeleteAll();
 
-        SalesReceivablesSetup."Blanket Order Nos." := LibraryUtility.GetGlobalNoSeriesCode;
-        SalesReceivablesSetup."Quote Nos." := LibraryUtility.GetGlobalNoSeriesCode;
-        SalesReceivablesSetup."Order Nos." := LibraryUtility.GetGlobalNoSeriesCode;
-        SalesReceivablesSetup."Invoice Nos." := LibraryUtility.GetGlobalNoSeriesCode;
-        SalesReceivablesSetup."Credit Memo Nos." := LibraryUtility.GetGlobalNoSeriesCode;
-        SalesReceivablesSetup."Posted Credit Memo Nos." := LibraryUtility.GetGlobalNoSeriesCode;
-        SalesReceivablesSetup."Posted Invoice Nos." := LibraryUtility.GetGlobalNoSeriesCode;
-        SalesReceivablesSetup."Return Order Nos." := LibraryUtility.GetGlobalNoSeriesCode;
+        SalesReceivablesSetup."Blanket Order Nos." := LibraryUtility.GetGlobalNoSeriesCode();
+        SalesReceivablesSetup."Quote Nos." := LibraryUtility.GetGlobalNoSeriesCode();
+        SalesReceivablesSetup."Order Nos." := LibraryUtility.GetGlobalNoSeriesCode();
+        SalesReceivablesSetup."Invoice Nos." := LibraryUtility.GetGlobalNoSeriesCode();
+        SalesReceivablesSetup."Credit Memo Nos." := LibraryUtility.GetGlobalNoSeriesCode();
+        SalesReceivablesSetup."Posted Credit Memo Nos." := LibraryUtility.GetGlobalNoSeriesCode();
+        SalesReceivablesSetup."Posted Invoice Nos." := LibraryUtility.GetGlobalNoSeriesCode();
+        SalesReceivablesSetup."Return Order Nos." := LibraryUtility.GetGlobalNoSeriesCode();
         SalesReceivablesSetup.Insert();
 
-        PurchasesPayablesSetup."Order Nos." := LibraryUtility.GetGlobalNoSeriesCode;
-        PurchasesPayablesSetup."Invoice Nos." := LibraryUtility.GetGlobalNoSeriesCode;
-        PurchasesPayablesSetup."Posted Invoice Nos." := LibraryUtility.GetGlobalNoSeriesCode;
+        PurchasesPayablesSetup."Order Nos." := LibraryUtility.GetGlobalNoSeriesCode();
+        PurchasesPayablesSetup."Invoice Nos." := LibraryUtility.GetGlobalNoSeriesCode();
+        PurchasesPayablesSetup."Posted Invoice Nos." := LibraryUtility.GetGlobalNoSeriesCode();
         PurchasesPayablesSetup.Insert();
 
         if not ServiceMgtSetup.Get() then
@@ -120,14 +120,14 @@
         ErrorEventsCounter: Integer;
     begin
         // [SCENARIO] The Event Subscription table has no errors.
-        LibraryLowerPermissions.SetO365Basic;
+        LibraryLowerPermissions.SetO365Basic();
         with EventSubscription do begin
             SetFilter("Error Information", '<>%1', '');
             ErrorEventsCounter := Count;
             if FindSet() then
                 repeat
                     SubscribersWithError += StrSubstNo(' %1.%2="%3"', "Subscriber Codeunit ID", "Subscriber Function", "Error Information");
-                until Next = 0;
+                until Next() = 0;
             if ErrorEventsCounter > 0 then
                 Error(ErrorEventSuscriptionErr, ErrorEventsCounter, SubscribersWithError);
         end;
@@ -150,12 +150,12 @@
         CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Quote);
         BindSubscription(TestPartnerIntegrationNA);
 
-        LibraryLowerPermissions.SetO365Basic;
+        LibraryLowerPermissions.SetO365Basic();
         LibraryLowerPermissions.SetOutsideO365Scope();
         // [WHEN] Click the Statistics
-        SalesQuote.Trap;
-        SalesQuote.OpenView;
-        SalesQuote.Statistics.Invoke;
+        SalesQuote.Trap();
+        SalesQuote.OpenView();
+        SalesQuote.Statistics.Invoke();
 
         // [THEN] Integration Events have fired.
         VerifyDataTypeBuffer(OnBeforeCalculateSalesTaxStatisticsTxt);
@@ -179,12 +179,12 @@
         CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Quote);
         BindSubscription(TestPartnerIntegrationNA);
 
-        LibraryLowerPermissions.SetO365Basic;
+        LibraryLowerPermissions.SetO365Basic();
         LibraryLowerPermissions.SetOutsideO365Scope();
         // [WHEN] Click the Statistics
-        SalesQuotes.Trap;
-        SalesQuotes.OpenView;
-        SalesQuotes.Statistics.Invoke;
+        SalesQuotes.Trap();
+        SalesQuotes.OpenView();
+        SalesQuotes.Statistics.Invoke();
 
         // [THEN] Integration Events have fired.
         VerifyDataTypeBuffer(OnBeforeCalculateSalesTaxStatisticsTxt);
@@ -207,12 +207,12 @@
         CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order);
         BindSubscription(TestPartnerIntegrationNA);
 
-        LibraryLowerPermissions.SetO365Basic;
+        LibraryLowerPermissions.SetO365Basic();
         LibraryLowerPermissions.SetOutsideO365Scope();
         // [WHEN] Click the Statistics
-        SalesOrder.Trap;
-        SalesOrder.OpenView;
-        SalesOrder.Statistics.Invoke;
+        SalesOrder.Trap();
+        SalesOrder.OpenView();
+        SalesOrder.Statistics.Invoke();
 
         // [THEN] Integration Events have fired.
         VerifyDataTypeBuffer(OnBeforeCalculateSalesTaxStatisticsTxt);
@@ -237,12 +237,12 @@
         Commit();
         BindSubscription(TestPartnerIntegrationNA);
 
-        LibraryLowerPermissions.SetO365Basic;
+        LibraryLowerPermissions.SetO365Basic();
         LibraryLowerPermissions.SetOutsideO365Scope();
         // [WHEN] Click the Statistics
-        SalesOrderShipment.Trap;
-        SalesOrderShipment.OpenView;
-        SalesOrderShipment.Statistics.Invoke;
+        SalesOrderShipment.Trap();
+        SalesOrderShipment.OpenView();
+        SalesOrderShipment.Statistics.Invoke();
 
         // [THEN] Integration Events have fired.
         VerifyDataTypeBuffer(OnBeforeCalculateSalesTaxStatisticsTxt);
@@ -251,7 +251,7 @@
         DataTypeBufferNA.DeleteAll(true);
 
         // [WHEN] Click the Print Report Action
-        SalesOrderShipment."Test Report".Invoke;
+        SalesOrderShipment."Test Report".Invoke();
 
         // [THEN] Integration Events have fired.
         VerifyDataTypeBuffer(OnBeforeCalculateSalesTaxStatisticsTxt);
@@ -273,12 +273,12 @@
         CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order);
         BindSubscription(TestPartnerIntegrationNA);
 
-        LibraryLowerPermissions.SetO365Basic;
+        LibraryLowerPermissions.SetO365Basic();
         LibraryLowerPermissions.SetOutsideO365Scope();
         // [WHEN] Click the Statistics
-        SalesOrderList.Trap;
-        SalesOrderList.OpenView;
-        SalesOrderList.Statistics.Invoke;
+        SalesOrderList.Trap();
+        SalesOrderList.OpenView();
+        SalesOrderList.Statistics.Invoke();
 
         // [THEN] Integration Events have fired.
         VerifyDataTypeBuffer(OnBeforeCalculateSalesTaxStatisticsTxt);
@@ -302,12 +302,12 @@
         CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order);
         BindSubscription(TestPartnerIntegrationNA);
 
-        LibraryLowerPermissions.SetO365Basic;
+        LibraryLowerPermissions.SetO365Basic();
         LibraryLowerPermissions.SetOutsideO365Scope();
         // [WHEN] Click the Statistics
-        SalesOrderInvoice.Trap;
-        SalesOrderInvoice.OpenView;
-        SalesOrderInvoice.Statistics.Invoke;
+        SalesOrderInvoice.Trap();
+        SalesOrderInvoice.OpenView();
+        SalesOrderInvoice.Statistics.Invoke();
 
         // [THEN] Integration Events have fired.
         VerifyDataTypeBuffer(OnBeforeCalculateSalesTaxStatisticsTxt);
@@ -316,7 +316,7 @@
         DataTypeBufferNA.DeleteAll(true);
 
         // [WHEN] Click the Print Report Action
-        SalesOrderInvoice."Test Report".Invoke;
+        SalesOrderInvoice."Test Report".Invoke();
 
         // [THEN] Integration Events have fired.
         VerifyDataTypeBuffer(OnBeforeCalculateSalesTaxStatisticsTxt);
@@ -338,12 +338,12 @@
         CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice);
         BindSubscription(TestPartnerIntegrationNA);
 
-        LibraryLowerPermissions.SetO365Basic;
+        LibraryLowerPermissions.SetO365Basic();
         LibraryLowerPermissions.SetOutsideO365Scope();
         // [WHEN] Click the Statistics
-        SalesInvoice.Trap;
-        SalesInvoice.OpenView;
-        SalesInvoice.Statistics.Invoke;
+        SalesInvoice.Trap();
+        SalesInvoice.OpenView();
+        SalesInvoice.Statistics.Invoke();
 
         // [THEN] Integration Events have fired.
         VerifyDataTypeBuffer(OnBeforeCalculateSalesTaxStatisticsTxt);
@@ -366,12 +366,12 @@
         CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice);
         BindSubscription(TestPartnerIntegrationNA);
 
-        LibraryLowerPermissions.SetO365Basic;
+        LibraryLowerPermissions.SetO365Basic();
         LibraryLowerPermissions.SetOutsideO365Scope();
         // [WHEN] Click the Statistics
-        SalesInvoiceList.Trap;
-        SalesInvoiceList.OpenView;
-        SalesInvoiceList.Statistics.Invoke;
+        SalesInvoiceList.Trap();
+        SalesInvoiceList.OpenView();
+        SalesInvoiceList.Statistics.Invoke();
 
         // [THEN] Integration Events have fired.
         VerifyDataTypeBuffer(OnBeforeCalculateSalesTaxStatisticsTxt);
@@ -394,12 +394,12 @@
         CreateSalesInvoice(SalesHeader);
         BindSubscription(TestPartnerIntegrationNA);
 
-        LibraryLowerPermissions.SetO365Basic;
+        LibraryLowerPermissions.SetO365Basic();
         LibraryLowerPermissions.SetOutsideO365Scope();
         // [WHEN] Click the Statistics
-        PostedSalesInvoice.Trap;
-        PostedSalesInvoice.OpenView;
-        PostedSalesInvoice.Statistics.Invoke;
+        PostedSalesInvoice.Trap();
+        PostedSalesInvoice.OpenView();
+        PostedSalesInvoice.Statistics.Invoke();
 
         // [THEN] Integration Events have fired.
         VerifyDataTypeBuffer(OnBeforeCalculateSalesTaxStatisticsTxt);
@@ -422,7 +422,7 @@
         // [WHEN] COD80.OnRun is executed
         PostSalesOrder(SalesHeader);
 
-        LibraryLowerPermissions.SetO365Basic;
+        LibraryLowerPermissions.SetO365Basic();
         LibraryLowerPermissions.SetOutsideO365Scope();
 
         // [THEN] Integration Events have fired.
@@ -445,12 +445,12 @@
         CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::"Credit Memo");
         BindSubscription(TestPartnerIntegrationNA);
 
-        LibraryLowerPermissions.SetO365Basic;
+        LibraryLowerPermissions.SetO365Basic();
         LibraryLowerPermissions.SetOutsideO365Scope();
         // [WHEN] Click the Statistics
-        SalesCreditMemo.Trap;
-        SalesCreditMemo.OpenView;
-        SalesCreditMemo.Statistics.Invoke;
+        SalesCreditMemo.Trap();
+        SalesCreditMemo.OpenView();
+        SalesCreditMemo.Statistics.Invoke();
 
         // [THEN] Integration Events have fired.
         VerifyDataTypeBuffer(OnBeforeCalculateSalesTaxStatisticsTxt);
@@ -473,12 +473,12 @@
         CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::"Return Order");
         BindSubscription(TestPartnerIntegrationNA);
 
-        LibraryLowerPermissions.SetO365Basic;
+        LibraryLowerPermissions.SetO365Basic();
         LibraryLowerPermissions.SetOutsideO365Scope();
         // [WHEN] Click the Statistics
-        SalesReturnOrder.Trap;
-        SalesReturnOrder.OpenView;
-        SalesReturnOrder.Statistics.Invoke;
+        SalesReturnOrder.Trap();
+        SalesReturnOrder.OpenView();
+        SalesReturnOrder.Statistics.Invoke();
 
         // [THEN] Integration Events have fired.
         VerifyDataTypeBuffer(OnBeforeCalculateSalesTaxStatisticsTxt);
@@ -501,12 +501,12 @@
         CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::"Return Order");
         BindSubscription(TestPartnerIntegrationNA);
 
-        LibraryLowerPermissions.SetO365Basic;
+        LibraryLowerPermissions.SetO365Basic();
         LibraryLowerPermissions.SetOutsideO365Scope();
         // [WHEN] Click the Statistics
-        SalesReturnOrderList.Trap;
-        SalesReturnOrderList.OpenView;
-        SalesReturnOrderList.Statistics.Invoke;
+        SalesReturnOrderList.Trap();
+        SalesReturnOrderList.OpenView();
+        SalesReturnOrderList.Statistics.Invoke();
 
         // [THEN] Integration Events have fired.
         VerifyDataTypeBuffer(OnBeforeCalculateSalesTaxStatisticsTxt);
@@ -529,12 +529,12 @@
         CreateSalesCreditMemo(SalesHeader);
         BindSubscription(TestPartnerIntegrationNA);
 
-        LibraryLowerPermissions.SetO365Basic;
+        LibraryLowerPermissions.SetO365Basic();
         LibraryLowerPermissions.SetOutsideO365Scope();
         // [WHEN] Click the Statistics
-        PostedSalesCreditMemo.Trap;
-        PostedSalesCreditMemo.OpenView;
-        PostedSalesCreditMemo.Statistics.Invoke;
+        PostedSalesCreditMemo.Trap();
+        PostedSalesCreditMemo.OpenView();
+        PostedSalesCreditMemo.Statistics.Invoke();
 
         // [THEN] Integration Events have fired.
         VerifyDataTypeBuffer(OnBeforeCalculateSalesTaxStatisticsTxt);
@@ -557,12 +557,12 @@
         CreateSalesCreditMemo(SalesHeader);
         BindSubscription(TestPartnerIntegrationNA);
 
-        LibraryLowerPermissions.SetO365Basic;
+        LibraryLowerPermissions.SetO365Basic();
         LibraryLowerPermissions.SetOutsideO365Scope();
         // [WHEN] Click the Statistics
-        PostedSalesCreditMemos.Trap;
-        PostedSalesCreditMemos.OpenView;
-        PostedSalesCreditMemos.Statistics.Invoke;
+        PostedSalesCreditMemos.Trap();
+        PostedSalesCreditMemos.OpenView();
+        PostedSalesCreditMemos.Statistics.Invoke();
 
         // [THEN] Integration Events have fired.
         VerifyDataTypeBuffer(OnBeforeCalculateSalesTaxStatisticsTxt);
@@ -581,7 +581,7 @@
     begin
         // [SCENARIO] Calling Sales-Post Prepayments.FillInvPostingBuffer will trigger OnFillInvPostingBuffer.
 
-        LibraryLowerPermissions.SetO365Basic;
+        LibraryLowerPermissions.SetO365Basic();
         LibraryLowerPermissions.SetOutsideO365Scope();
 
         // [GIVEN] Service Header
@@ -614,12 +614,12 @@
         CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::"Blanket Order");
         BindSubscription(TestPartnerIntegrationNA);
 
-        LibraryLowerPermissions.SetO365Basic;
+        LibraryLowerPermissions.SetO365Basic();
         LibraryLowerPermissions.SetOutsideO365Scope();
         // [WHEN] Click the Statistics
-        BlanketSalesOrder.Trap;
-        BlanketSalesOrder.OpenView;
-        BlanketSalesOrder.Statistics.Invoke;
+        BlanketSalesOrder.Trap();
+        BlanketSalesOrder.OpenView();
+        BlanketSalesOrder.Statistics.Invoke();
 
         // [THEN] Integration Events have fired.
         VerifyDataTypeBuffer(OnBeforeCalculateSalesTaxStatisticsTxt);
@@ -642,12 +642,12 @@
         CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::"Blanket Order");
         BindSubscription(TestPartnerIntegrationNA);
 
-        LibraryLowerPermissions.SetO365Basic;
+        LibraryLowerPermissions.SetO365Basic();
         LibraryLowerPermissions.SetOutsideO365Scope();
         // [WHEN] Click the Statistics
-        BlanketSalesOrders.Trap;
-        BlanketSalesOrders.OpenView;
-        BlanketSalesOrders.Statistics.Invoke;
+        BlanketSalesOrders.Trap();
+        BlanketSalesOrders.OpenView();
+        BlanketSalesOrders.Statistics.Invoke();
 
         // [THEN] Integration Events have fired.
         VerifyDataTypeBuffer(OnBeforeCalculateSalesTaxStatisticsTxt);
@@ -665,7 +665,7 @@
     begin
         // [SCENARIO] Calling Report Sales Blanket Order will trigger OnAfterCalculateSalesTax.
 
-        LibraryLowerPermissions.SetO365Basic;
+        LibraryLowerPermissions.SetO365Basic();
         LibraryLowerPermissions.SetOutsideO365Scope();
 
         // [GIVEN] Sales Header
@@ -694,7 +694,7 @@
     begin
         // [SCENARIO] Calling Report Sales Order will trigger OnAfterCalculateSalesTax.
 
-        LibraryLowerPermissions.SetO365Basic;
+        LibraryLowerPermissions.SetO365Basic();
         LibraryLowerPermissions.SetOutsideO365Scope();
 
         // [GIVEN] Sales Header
@@ -723,7 +723,7 @@
     begin
         // [SCENARIO] Calling Report Sales Quote will trigger OnAfterCalculateSalesTax.
 
-        LibraryLowerPermissions.SetO365Basic;
+        LibraryLowerPermissions.SetO365Basic();
         LibraryLowerPermissions.SetOutsideO365Scope();
 
         // [GIVEN] Sales Header
@@ -752,7 +752,7 @@
     begin
         // [SCENARIO] Calling Report Sales Document Test will trigger OnAfterCalculateSalesTax.
 
-        LibraryLowerPermissions.SetO365Basic;
+        LibraryLowerPermissions.SetO365Basic();
         LibraryLowerPermissions.SetOutsideO365Scope();
 
         // [GIVEN] Sales Header
@@ -787,12 +787,12 @@
         CreatePurchaseHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order);
         BindSubscription(TestPartnerIntegrationNA);
 
-        LibraryLowerPermissions.SetO365Basic;
+        LibraryLowerPermissions.SetO365Basic();
         LibraryLowerPermissions.SetOutsideO365Scope();
         // [WHEN] Click the Statistics
-        PurchaseOrder.Trap;
-        PurchaseOrder.OpenView;
-        PurchaseOrder.Statistics.Invoke;
+        PurchaseOrder.Trap();
+        PurchaseOrder.OpenView();
+        PurchaseOrder.Statistics.Invoke();
 
         // [THEN] Integration Events have fired.
         VerifyDataTypeBuffer(OnBeforeCalculateSalesTaxStatisticsTxt);
@@ -815,12 +815,12 @@
         CreatePurchaseHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order);
         BindSubscription(TestPartnerIntegrationNA);
 
-        LibraryLowerPermissions.SetO365Basic;
+        LibraryLowerPermissions.SetO365Basic();
         LibraryLowerPermissions.SetOutsideO365Scope();
         // [WHEN] Click the Statistics
-        PurchaseOrderList.Trap;
-        PurchaseOrderList.OpenView;
-        PurchaseOrderList.Statistics.Invoke;
+        PurchaseOrderList.Trap();
+        PurchaseOrderList.OpenView();
+        PurchaseOrderList.Statistics.Invoke();
 
         // [THEN] Integration Events have fired.
         VerifyDataTypeBuffer(OnBeforeCalculateSalesTaxStatisticsTxt);
@@ -843,12 +843,12 @@
         CreatePurchaseHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice);
         BindSubscription(TestPartnerIntegrationNA);
 
-        LibraryLowerPermissions.SetO365Basic;
+        LibraryLowerPermissions.SetO365Basic();
         LibraryLowerPermissions.SetOutsideO365Scope();
         // [WHEN] Click the Statistics
-        PurchaseInvoice.Trap;
-        PurchaseInvoice.OpenView;
-        PurchaseInvoice.Statistics.Invoke;
+        PurchaseInvoice.Trap();
+        PurchaseInvoice.OpenView();
+        PurchaseInvoice.Statistics.Invoke();
 
         // [THEN] Integration Events have fired.
         VerifyDataTypeBuffer(OnBeforeCalculateSalesTaxStatisticsTxt);
@@ -871,12 +871,12 @@
         CreatePurchaseHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice);
         BindSubscription(TestPartnerIntegrationNA);
 
-        LibraryLowerPermissions.SetO365Basic;
+        LibraryLowerPermissions.SetO365Basic();
         LibraryLowerPermissions.SetOutsideO365Scope();
         // [WHEN] Click the Statistics
-        PurchaseInvoices.Trap;
-        PurchaseInvoices.OpenView;
-        PurchaseInvoices.Statistics.Invoke;
+        PurchaseInvoices.Trap();
+        PurchaseInvoices.OpenView();
+        PurchaseInvoices.Statistics.Invoke();
 
         // [THEN] Integration Events have fired.
         VerifyDataTypeBuffer(OnBeforeCalculateSalesTaxStatisticsTxt);
@@ -894,7 +894,7 @@
         // [FEATURE] [Service]
         // [SCENARIO] Calling the Statistics action on Service Quote card will trigger OnBeforeCalculateSalesTaxStatistics.
 
-        LibraryLowerPermissions.SetO365Basic;
+        LibraryLowerPermissions.SetO365Basic();
         LibraryLowerPermissions.SetOutsideO365Scope();
 
         // [GIVEN] Service Quote
@@ -904,9 +904,9 @@
         BindSubscription(TestPartnerIntegrationNA);
 
         // [WHEN] Click the Statistics
-        ServiceQuote.Trap;
-        ServiceQuote.OpenView;
-        ServiceQuote.Statistics.Invoke;
+        ServiceQuote.Trap();
+        ServiceQuote.OpenView();
+        ServiceQuote.Statistics.Invoke();
 
         // [THEN] Integration Events have fired.
         VerifyDataTypeBuffer(OnBeforeCalculateSalesTaxStatisticsTxt);
@@ -926,7 +926,7 @@
         // [FEATURE] [Service]
         // [SCENARIO] Calling the Statistics action on Service Quote list will trigger OnBeforeCalculateSalesTaxStatistics.
 
-        LibraryLowerPermissions.SetO365Basic;
+        LibraryLowerPermissions.SetO365Basic();
         LibraryLowerPermissions.SetOutsideO365Scope();
 
         // [GIVEN] Service Quote
@@ -936,9 +936,9 @@
         BindSubscription(TestPartnerIntegrationNA);
 
         // [WHEN] Click the Statistics
-        ServiceQuotes.Trap;
-        ServiceQuotes.OpenView;
-        ServiceQuotes.Statistics.Invoke;
+        ServiceQuotes.Trap();
+        ServiceQuotes.OpenView();
+        ServiceQuotes.Statistics.Invoke();
 
         // [THEN] Integration Events have fired.
         VerifyDataTypeBuffer(OnBeforeCalculateSalesTaxStatisticsTxt);
@@ -957,7 +957,7 @@
     begin
         // [SCENARIO] Calling the Statistics action on Service Order card will trigger OnBeforeCalculateSalesTaxStatistics.
 
-        LibraryLowerPermissions.SetO365Basic;
+        LibraryLowerPermissions.SetO365Basic();
         LibraryLowerPermissions.SetOutsideO365Scope();
 
         // [GIVEN] Service Order
@@ -967,9 +967,9 @@
         BindSubscription(TestPartnerIntegrationNA);
 
         // [WHEN] Click the Statistics
-        ServiceOrder.Trap;
-        ServiceOrder.OpenView;
-        ServiceOrder.Statistics.Invoke;
+        ServiceOrder.Trap();
+        ServiceOrder.OpenView();
+        ServiceOrder.Statistics.Invoke();
 
         // [THEN] Integration Events have fired.
         VerifyDataTypeBuffer(OnBeforeCalculateSalesTaxStatisticsTxt);
@@ -988,7 +988,7 @@
     begin
         // [SCENARIO] Calling the Statistics action on Service Order list will trigger OnBeforeCalculateSalesTaxStatistics.
 
-        LibraryLowerPermissions.SetO365Basic;
+        LibraryLowerPermissions.SetO365Basic();
         LibraryLowerPermissions.SetOutsideO365Scope();
 
         // [GIVEN] Service Order
@@ -998,9 +998,9 @@
         BindSubscription(TestPartnerIntegrationNA);
 
         // [WHEN] Click the Statistics
-        ServiceOrders.Trap;
-        ServiceOrders.OpenView;
-        ServiceOrders.Statistics.Invoke;
+        ServiceOrders.Trap();
+        ServiceOrders.OpenView();
+        ServiceOrders.Statistics.Invoke();
 
         // [THEN] Integration Events have fired.
         VerifyDataTypeBuffer(OnBeforeCalculateSalesTaxStatisticsTxt);
@@ -1019,7 +1019,7 @@
     begin
         // [SCENARIO] Calling the Statistics action on Service Invoice card will trigger OnBeforeCalculateSalesTaxStatistics.
 
-        LibraryLowerPermissions.SetO365Basic;
+        LibraryLowerPermissions.SetO365Basic();
         LibraryLowerPermissions.SetOutsideO365Scope();
 
         // [GIVEN] Service Invoice
@@ -1029,9 +1029,9 @@
         BindSubscription(TestPartnerIntegrationNA);
 
         // [WHEN] Click the Statistics
-        ServiceInvoice.Trap;
-        ServiceInvoice.OpenView;
-        ServiceInvoice.Statistics.Invoke;
+        ServiceInvoice.Trap();
+        ServiceInvoice.OpenView();
+        ServiceInvoice.Statistics.Invoke();
 
         // [THEN] Integration Events have fired.
         VerifyDataTypeBuffer(OnBeforeCalculateSalesTaxStatisticsTxt);
@@ -1050,7 +1050,7 @@
     begin
         // [SCENARIO] Calling the Statistics action on Service Invoice list will trigger OnBeforeCalculateSalesTaxStatistics.
 
-        LibraryLowerPermissions.SetO365Basic;
+        LibraryLowerPermissions.SetO365Basic();
         LibraryLowerPermissions.SetOutsideO365Scope();
 
         // [GIVEN] Service Invoice
@@ -1060,9 +1060,9 @@
         BindSubscription(TestPartnerIntegrationNA);
 
         // [WHEN] Click the Statistics
-        ServiceInvoices.Trap;
-        ServiceInvoices.OpenView;
-        ServiceInvoices.Statistics.Invoke;
+        ServiceInvoices.Trap();
+        ServiceInvoices.OpenView();
+        ServiceInvoices.Statistics.Invoke();
 
         // [THEN] Integration Events have fired.
         VerifyDataTypeBuffer(OnBeforeCalculateSalesTaxStatisticsTxt);
@@ -1081,7 +1081,7 @@
     begin
         // [SCENARIO] Calling the Statistics action on Posted Service Invoice card page will trigger OnBeforeCalculateSalesTaxStatistics.
 
-        LibraryLowerPermissions.SetO365Basic;
+        LibraryLowerPermissions.SetO365Basic();
         LibraryLowerPermissions.SetOutsideO365Scope();
 
         // [GIVEN] Service Invoice
@@ -1091,9 +1091,9 @@
         BindSubscription(TestPartnerIntegrationNA);
 
         // [WHEN] Click the Statistics
-        PostedServiceInvoice.Trap;
-        PostedServiceInvoice.OpenView;
-        PostedServiceInvoice.Statistics.Invoke;
+        PostedServiceInvoice.Trap();
+        PostedServiceInvoice.OpenView();
+        PostedServiceInvoice.Statistics.Invoke();
 
         // [THEN] Integration Events have fired.
         VerifyDataTypeBuffer(OnAfterCalculateSalesTaxStatisticsTxt);
@@ -1110,7 +1110,7 @@
     begin
         // [SCENARIO] Calling the Statistics action on Posted Service Invoices List page will trigger OnBeforeCalculateSalesTaxStatistics.
 
-        LibraryLowerPermissions.SetO365Basic;
+        LibraryLowerPermissions.SetO365Basic();
         LibraryLowerPermissions.SetOutsideO365Scope();
 
         // [GIVEN] Service Invoice
@@ -1120,9 +1120,9 @@
         BindSubscription(TestPartnerIntegrationNA);
 
         // [WHEN] Click the Statistics
-        PostedServiceInvoices.Trap;
-        PostedServiceInvoices.OpenView;
-        PostedServiceInvoices.Statistics.Invoke;
+        PostedServiceInvoices.Trap();
+        PostedServiceInvoices.OpenView();
+        PostedServiceInvoices.Statistics.Invoke();
 
         // [THEN] Integration Events have fired.
         VerifyDataTypeBuffer(OnAfterCalculateSalesTaxStatisticsTxt);
@@ -1139,7 +1139,7 @@
     begin
         // [SCENARIO] Calling the Statistics action on Service Credit Memo card will trigger OnBeforeCalculateSalesTaxStatistics.
 
-        LibraryLowerPermissions.SetO365Basic;
+        LibraryLowerPermissions.SetO365Basic();
         LibraryLowerPermissions.SetOutsideO365Scope();
 
         // [GIVEN] Service Credit Memo
@@ -1149,9 +1149,9 @@
         BindSubscription(TestPartnerIntegrationNA);
 
         // [WHEN] Click the Statistics
-        ServiceCreditMemo.Trap;
-        ServiceCreditMemo.OpenView;
-        ServiceCreditMemo.Statistics.Invoke;
+        ServiceCreditMemo.Trap();
+        ServiceCreditMemo.OpenView();
+        ServiceCreditMemo.Statistics.Invoke();
 
         // [THEN] Integration Events have fired.
         VerifyDataTypeBuffer(OnBeforeCalculateSalesTaxStatisticsTxt);
@@ -1170,7 +1170,7 @@
     begin
         // [SCENARIO] Calling the Statistics action on Service Credit Memos list will trigger OnBeforeCalculateSalesTaxStatistics.
 
-        LibraryLowerPermissions.SetO365Basic;
+        LibraryLowerPermissions.SetO365Basic();
         LibraryLowerPermissions.SetOutsideO365Scope();
 
         // [GIVEN] Service Credit Memo
@@ -1180,9 +1180,9 @@
         BindSubscription(TestPartnerIntegrationNA);
 
         // [WHEN] Click the Statistics
-        ServiceCreditMemos.Trap;
-        ServiceCreditMemos.OpenView;
-        ServiceCreditMemos.Statistics.Invoke;
+        ServiceCreditMemos.Trap();
+        ServiceCreditMemos.OpenView();
+        ServiceCreditMemos.Statistics.Invoke();
 
         // [THEN] Integration Events have fired.
         VerifyDataTypeBuffer(OnBeforeCalculateSalesTaxStatisticsTxt);
@@ -1201,7 +1201,7 @@
     begin
         // [SCENARIO] Calling the Statistics action on Posted Service Credit Memo card page will trigger OnBeforeCalculateSalesTaxStatistics.
 
-        LibraryLowerPermissions.SetO365Basic;
+        LibraryLowerPermissions.SetO365Basic();
         LibraryLowerPermissions.SetOutsideO365Scope();
 
         // [GIVEN] Posted Service Credit Memo
@@ -1211,9 +1211,9 @@
         BindSubscription(TestPartnerIntegrationNA);
 
         // [WHEN] Click the Statistics
-        PostedServiceCreditMemo.Trap;
-        PostedServiceCreditMemo.OpenView;
-        PostedServiceCreditMemo.Statistics.Invoke;
+        PostedServiceCreditMemo.Trap();
+        PostedServiceCreditMemo.OpenView();
+        PostedServiceCreditMemo.Statistics.Invoke();
 
         // [THEN] Integration Events have fired.
         VerifyDataTypeBuffer(OnAfterCalculateSalesTaxStatisticsTxt);
@@ -1230,7 +1230,7 @@
     begin
         // [SCENARIO] Calling the Statistics action on Posted Service Credit Memos list page will trigger OnBeforeCalculateSalesTaxStatistics.
 
-        LibraryLowerPermissions.SetO365Basic;
+        LibraryLowerPermissions.SetO365Basic();
         LibraryLowerPermissions.SetOutsideO365Scope();
         // [GIVEN] Posted Service Credit Memo
         Initialize();
@@ -1239,9 +1239,9 @@
         BindSubscription(TestPartnerIntegrationNA);
 
         // [WHEN] Click the Statistics
-        PostedServiceCreditMemos.Trap;
-        PostedServiceCreditMemos.OpenView;
-        PostedServiceCreditMemos.Statistics.Invoke;
+        PostedServiceCreditMemos.Trap();
+        PostedServiceCreditMemos.OpenView();
+        PostedServiceCreditMemos.Statistics.Invoke();
 
         // [THEN] Integration Events have fired.
         VerifyDataTypeBuffer(OnAfterCalculateSalesTaxStatisticsTxt);
@@ -1258,7 +1258,7 @@
     begin
         // [SCENARIO] Calling Report Service Order will trigger OnAfterCalculateSalesTax.
 
-        LibraryLowerPermissions.SetO365Basic;
+        LibraryLowerPermissions.SetO365Basic();
         LibraryLowerPermissions.SetOutsideO365Scope();
 
         // [GIVEN] Service Order
@@ -1289,12 +1289,12 @@
     begin
         // [SCENARIO] Calling Serv-Amounts Mgt.FillInvPostingBuffer will trigger OnFillInvPostingBuffer.
 
-        LibraryLowerPermissions.SetO365Basic;
+        LibraryLowerPermissions.SetO365Basic();
         LibraryLowerPermissions.SetOutsideO365Scope();
 
         // [GIVEN] Service Header
         Initialize();
-        CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Invoice.AsInteger());
+        CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Invoice);
         CreateServiceLine(ServiceLine, ServiceHeader);
 
         BindSubscription(TestPartnerIntegrationNA);
@@ -1318,7 +1318,7 @@
     begin
         // [SCENARIO] Calling Report Service Quote will trigger OnAfterCalculateSalesTax.
 
-        LibraryLowerPermissions.SetO365Basic;
+        LibraryLowerPermissions.SetO365Basic();
         LibraryLowerPermissions.SetOutsideO365Scope();
 
         // [GIVEN] Service Header
@@ -1346,7 +1346,7 @@
     begin
         // [SCENARIO] Calling Report Service Document Test will trigger OnAfterCalculateSalesTax.
 
-        LibraryLowerPermissions.SetO365Basic;
+        LibraryLowerPermissions.SetO365Basic();
         LibraryLowerPermissions.SetOutsideO365Scope();
 
         // [GIVEN] Service Header
@@ -1659,11 +1659,11 @@
         InsertDataTypeBuffer(OnBeforePostUpdateOrderLineTxt);
     end;
 
-    local procedure CreateSalesHeader(var SalesHeader: Record "Sales Header"; DocumentType: Option Quote,"Order",Invoice,"Credit Memo","Blanket Order","Return Order")
+    local procedure CreateSalesHeader(var SalesHeader: Record "Sales Header"; DocumentType: Enum "Sales Document Type")
     begin
         SalesHeader.DeleteAll();
 
-        LibrarySales.CreateSalesHeader(SalesHeader, DocumentType, LibrarySales.CreateCustomerNo);
+        LibrarySales.CreateSalesHeader(SalesHeader, DocumentType, LibrarySales.CreateCustomerNo());
         SalesHeader."Tax Area Code" := 'X';  // Note this will force the NA specific pages to open.
         SalesHeader.Modify();
     end;
@@ -1735,12 +1735,12 @@
         CODEUNIT.Run(CODEUNIT::"Sales-Post", SalesHeader);
     end;
 
-    local procedure CreatePurchaseHeader(var PurchaseHeader: Record "Purchase Header"; DocumentType: Option Quote,"Order",Invoice,"Credit Memo","Blanket Order","Return Order")
+    local procedure CreatePurchaseHeader(var PurchaseHeader: Record "Purchase Header"; DocumentType: Enum "Purchase Document Type")
     var
         PurchaseLine: Record "Purchase Line";
     begin
         PurchaseHeader.DeleteAll();
-        LibraryPurchase.CreatePurchHeader(PurchaseHeader, DocumentType, LibraryPurchase.CreateVendorNo);
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, DocumentType, LibraryPurchase.CreateVendorNo());
         PurchaseHeader."Tax Area Code" := 'X'; // Note this will force the NA specific pages to open.
         PurchaseHeader.Modify();
 
@@ -1749,7 +1749,7 @@
         PurchaseLine.Modify();
     end;
 
-    local procedure CreateServiceHeader(var ServiceHeader: Record "Service Header"; DocumentType: Option Quote,"Order",Invoice,"Credit Memo")
+    local procedure CreateServiceHeader(var ServiceHeader: Record "Service Header"; DocumentType: Enum "Service Document Type")
     begin
         ServiceHeader.DeleteAll();
         LibraryService.CreateServiceHeader(ServiceHeader, DocumentType, '');
@@ -1836,119 +1836,119 @@
     [Scope('OnPrem')]
     procedure SalesStatsPageHandler(var SalesStatistics: TestPage "Sales Stats.")
     begin
-        SalesStatistics.OK.Invoke;
+        SalesStatistics.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure SalesOrderStatsPageHandler(var SalesOrderStats: TestPage "Sales Order Stats.")
     begin
-        SalesOrderStats.OK.Invoke;
+        SalesOrderStats.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure PurchaseOrderStatsPageHandler(var PurchaseOrderStats: TestPage "Purchase Order Stats.")
     begin
-        PurchaseOrderStats.OK.Invoke;
+        PurchaseOrderStats.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure PurchaseInvoiceStatsPageHandler(var PurchaseStats: TestPage "Purchase Stats.")
     begin
-        PurchaseStats.OK.Invoke;
+        PurchaseStats.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure SalesInvoiceStatsPageHandler(var SalesInvoiceStats: TestPage "Sales Invoice Stats.")
     begin
-        SalesInvoiceStats.OK.Invoke;
+        SalesInvoiceStats.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure SalesCreditMemoStatsPageHandler(var SalesCreditMemoStats: TestPage "Sales Credit Memo Stats.")
     begin
-        SalesCreditMemoStats.OK.Invoke;
+        SalesCreditMemoStats.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure ServiceStatsPageHandler(var ServiceStats: TestPage "Service Stats.")
     begin
-        ServiceStats.OK.Invoke;
+        ServiceStats.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure ServiceOrderStatsPageHandler(var ServiceOrderStats: TestPage "Service Order Stats.")
     begin
-        ServiceOrderStats.OK.Invoke;
+        ServiceOrderStats.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure ServiceInvoiceStatsPageHandler(var ServiceInvoiceStats: TestPage "Service Invoice Stats.")
     begin
-        ServiceInvoiceStats.OK.Invoke;
+        ServiceInvoiceStats.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure ServiceCreditMemoStatsPageHandler(var ServiceCreditMemoStats: TestPage "Service Credit Memo Stats.")
     begin
-        ServiceCreditMemoStats.OK.Invoke;
+        ServiceCreditMemoStats.OK().Invoke();
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure SalesBlanketOrderRequestPageHandler(var SalesBlanketOrder: TestRequestPage "Sales Blanket Order")
     begin
-        SalesBlanketOrder.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        SalesBlanketOrder.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure SalesQuoteRequestPageHandler(var SalesQuote: TestRequestPage "Sales Quote NA")
     begin
-        SalesQuote.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        SalesQuote.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure SalesOrderRequestPageHandler(var SalesOrder: TestRequestPage "Sales Order")
     begin
-        SalesOrder.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        SalesOrder.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure SalesDocumentTestRequestPageHandler(var SalesDocumentTest: TestRequestPage "Sales Document - Test")
     begin
-        SalesDocumentTest.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        SalesDocumentTest.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure ServiceQuoteRequestPageHandler(var ServiceQuote: TestRequestPage "Service Quote")
     begin
-        ServiceQuote.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        ServiceQuote.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure ServiceDocumentTestRequestPageHandler(var ServiceDocumentTest: TestRequestPage "Service Document - Test")
     begin
-        ServiceDocumentTest.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        ServiceDocumentTest.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure ServiceOrderRequestPageHandler(var ServiceOrder: TestRequestPage "Service Order")
     begin
-        ServiceOrder.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        ServiceOrder.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 }
 

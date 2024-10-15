@@ -24,6 +24,7 @@ table 274 "Bank Acc. Reconciliation Line"
 {
     Caption = 'Bank Acc. Reconciliation Line';
     Permissions = TableData "Data Exch. Field" = rimd;
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -95,28 +96,8 @@ table 274 "Bank Acc. Reconciliation Line"
             OptionCaption = 'Bank Account Ledger Entry,Check Ledger Entry,Difference';
             OptionMembers = "Bank Account Ledger Entry","Check Ledger Entry",Difference;
             ObsoleteReason = 'This field is prone to confusion and is redundant. A type Difference can be manually tracked and a type Check Ledger Entry has a related Bank Account Ledger Entry';
-#if not CLEAN21
-            ObsoleteState = Pending;
-            ObsoleteTag = '21.0';
-
-            trigger OnValidate()
-            begin
-                if (Type <> xRec.Type) and
-                   ("Applied Entries" <> 0)
-                then
-                    if Confirm(DeleteApplicationMsg, false) then begin
-                        RemoveApplication();
-                        Validate("Applied Amount", 0);
-                        "Applied Entries" := 0;
-                        "Check No." := '';
-                    end else
-                        Error(UpdateCanceledErr);
-            end;
-
-#else
             ObsoleteState = Removed;
             ObsoleteTag = '24.0';
-#endif
         }
         field(11; "Applied Entries"; Integer)
         {
@@ -314,11 +295,6 @@ table 274 "Bank Acc. Reconciliation Line"
         key(Key2; "Account Type", "Statement Amount")
         {
         }
-#if not CLEAN21
-        key(Key3; Type, "Applied Amount")
-        {
-        }
-#endif
     }
 
     fieldgroups
@@ -369,10 +345,6 @@ table 274 "Bank Acc. Reconciliation Line"
         ConfirmManagement: Codeunit "Confirm Management";
 
         YouCannotRenameErr: Label 'You cannot rename a %1.', Comment = '%1 - Table name';
-#if not CLEAN21
-        DeleteApplicationMsg: Label 'Delete application?';
-        UpdateCanceledErr: Label 'Update canceled.';
-#endif
         AmountWithinToleranceRangeTok: Label '>=%1&<=%2', Locked = true;
         AmountOustideToleranceRangeTok: Label '<%1|>%2', Locked = true;
         TransactionAmountMustNotBeZeroErr: Label 'The Transaction Amount field must have a value that is not 0.';
@@ -410,9 +382,6 @@ table 274 "Bank Acc. Reconciliation Line"
                     BankAccLedgEntry.SetRange("Statement No.", "Statement No.");
                     BankAccLedgEntry.SetRange("Statement Line No.", "Statement Line No.");
                     OnDisplayApplicationOnAfterBankAccLedgEntrySetFilters(Rec, BankAccLedgEntry);
-#if not CLEAN21
-                    OnDisplayApplicationOnAfterCheckLedgEntrySetFilters(Rec, CheckLedgEntry);
-#endif
                     PAGE.Run(0, BankAccLedgEntry);
                 end;
             "Statement Type"::"Payment Application":
@@ -659,9 +628,6 @@ table 274 "Bank Acc. Reconciliation Line"
         BankAccLedgEntry.SetRange("Statement No.", "Statement No.");
         BankAccLedgEntry.SetRange("Statement Line No.", "Statement Line No.");
         OnRemoveApplicationOnAfterBankAccLedgEntrySetFilters(Rec, BankAccLedgEntry);
-#if not CLEAN21
-        OnRemoveApplicationOnAfterCheckLedgEntrySetFilters(Rec, CheckLedgEntry);
-#endif
         BankAccLedgEntry.LockTable();
         CheckLedgEntry.LockTable();
         if BankAccLedgEntry.Find('-') then
@@ -1497,26 +1463,10 @@ table 274 "Bank Acc. Reconciliation Line"
     begin
     end;
 
-#if not CLEAN21
-    [IntegrationEvent(false, false)]
-    [Obsolete('This event will be removed, displaying check ledger entries is done via Bank Account Ledger Entries and Find entries.', '21.0')]
-    local procedure OnDisplayApplicationOnAfterCheckLedgEntrySetFilters(var BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line"; var CheckLedgEntry: Record "Check Ledger Entry")
-    begin
-    end;
-#endif
-
     [IntegrationEvent(false, false)]
     local procedure OnRemoveApplicationOnAfterBankAccLedgEntrySetFilters(var BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line"; var BankAccLedgEntry: Record "Bank Account Ledger Entry")
     begin
     end;
-
-#if not CLEAN21
-    [IntegrationEvent(false, false)]
-    [Obsolete('This event will be removed, removing application from check ledger entries is done when removing application from Bank Account Ledger Entries.', '21.0')]
-    local procedure OnRemoveApplicationOnAfterCheckLedgEntrySetFilters(var BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line"; var CheckLedgEntry: Record "Check Ledger Entry")
-    begin
-    end;
-#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeGetStyle(var BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line"; var Result: text; var IsHandled: Boolean)

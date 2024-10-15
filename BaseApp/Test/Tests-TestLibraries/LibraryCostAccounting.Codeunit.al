@@ -19,7 +19,7 @@ codeunit 131340 "Library - Cost Accounting"
         GetCostTypesFromGLErr: Label 'Mapping G/L Accounts to Chart of Cost Types Causes Inconsistency.';
         GLAccountFilterDefinition: Label '%1..%2', Locked = true;
         IncorrectGLAccountNo: Label 'The G/L Account No. %1 is aligned to Cost Type No. %2 although G/L Account No. %3 was expected.';
-        IncorrectPercentValueErr: Label 'For the Allocation Source %1, the Allocation Target %2  has its Percent field set to %3, although the expected value was %4, when values are rounded to 0.1 percision.';
+        IncorrectPercentValueErr: Label 'For the Allocation Source %1, the Allocation Target %2  has its Percent field set to %3, although the expected value was %4, when values are rounded to 0.1 precision.';
         NoRecordsInFilterErr: Label 'There are no records within the filters specified for table %1. The filters are: %2.';
         NumberOfRecordsNotMatchingErr: Label 'The number of records %1 of %2 do not match the the number of recods %3 of %4.';
         CostEntriesCountErr: Label 'Incorrect number of cost entries.';
@@ -58,11 +58,11 @@ codeunit 131340 "Library - Cost Accounting"
     var
         DimensionCombination: Record "Dimension Combination";
     begin
-        DimensionCombination.SetFilter("Dimension 1 Code", '%1|%2', CostCenterDimension, CostObjectDimension);
+        DimensionCombination.SetFilter("Dimension 1 Code", '%1|%2', CostCenterDimension(), CostObjectDimension());
         DeleteBlockedDimCombinations(DimensionCombination);
 
         Clear(DimensionCombination);
-        DimensionCombination.SetFilter("Dimension 2 Code", '%1|%2', CostCenterDimension, CostObjectDimension);
+        DimensionCombination.SetFilter("Dimension 2 Code", '%1|%2', CostCenterDimension(), CostObjectDimension());
         DeleteBlockedDimCombinations(DimensionCombination);
     end;
 
@@ -168,7 +168,7 @@ codeunit 131340 "Library - Cost Accounting"
 
         CostAllocationSource.Init();
         if TypeOfID = TypeOfID::Custom then
-            CostAllocationSource.Validate(ID, (LastAllocSourceID + StrSubstNo(AllocSourceID, CostAllocationSource.Count)));
+            CostAllocationSource.Validate(ID, (LastAllocSourceID() + StrSubstNo(AllocSourceID, CostAllocationSource.Count)));
         CostAllocationSource.Validate(Level, LibraryRandom.RandInt(10));
         CostAllocationSource.Validate("Credit to Cost Type", CostType."No.");
         CostAllocationSource.Insert(true);
@@ -186,7 +186,7 @@ codeunit 131340 "Library - Cost Accounting"
         UpdateAllocSourceWithCObject(CostAllocationSource);
     end;
 
-    procedure CreateAllocTarget(var CostAllocationTarget: Record "Cost Allocation Target"; CostAllocationSource: Record "Cost Allocation Source"; Share: Decimal; Base: Option; AllocationType: Option)
+    procedure CreateAllocTarget(var CostAllocationTarget: Record "Cost Allocation Target"; CostAllocationSource: Record "Cost Allocation Source"; Share: Decimal; Base: Enum "Cost Allocation Target Base"; AllocationType: Enum "Cost Allocation Target Type")
     var
         LineNo: Integer;
     begin
@@ -207,13 +207,13 @@ codeunit 131340 "Library - Cost Accounting"
         CostAllocationTarget.Modify(true);
     end;
 
-    procedure CreateAllocTargetWithCCenter(var CostAllocationTarget: Record "Cost Allocation Target"; CostAllocationSource: Record "Cost Allocation Source"; Share: Decimal; Base: Option; AllocationType: Option)
+    procedure CreateAllocTargetWithCCenter(var CostAllocationTarget: Record "Cost Allocation Target"; CostAllocationSource: Record "Cost Allocation Source"; Share: Decimal; Base: Enum "Cost Allocation Target Base"; AllocationType: Enum "Cost Allocation Target Type")
     begin
         CreateAllocTarget(CostAllocationTarget, CostAllocationSource, Share, Base, AllocationType);
         UpdateAllocTargetWithCCenter(CostAllocationTarget);
     end;
 
-    procedure CreateAllocTargetWithCObject(var CostAllocationTarget: Record "Cost Allocation Target"; CostAllocationSource: Record "Cost Allocation Source"; Share: Decimal; Base: Option; AllocationType: Option)
+    procedure CreateAllocTargetWithCObject(var CostAllocationTarget: Record "Cost Allocation Target"; CostAllocationSource: Record "Cost Allocation Source"; Share: Decimal; Base: Enum "Cost Allocation Target Base"; AllocationType: Enum "Cost Allocation Target Type")
     begin
         CreateAllocTarget(CostAllocationTarget, CostAllocationSource, Share, Base, AllocationType);
         UpdateAllocTargetWithCObject(CostAllocationTarget);
@@ -669,7 +669,7 @@ codeunit 131340 "Library - Cost Accounting"
 
         repeat
             // To avoid the rounding errors, approximate the decimal numbers by cutting out the fractional part.
-            FieldRefAmount := AmountFieldRef.Value;
+            FieldRefAmount := AmountFieldRef.Value();
             EntryAmount := Round(FieldRefAmount, 1);
             AllocatedCost := Round(TotalAmount * (CostAllocationTarget.Percent / 100), 1);
 
@@ -702,7 +702,7 @@ codeunit 131340 "Library - Cost Accounting"
             CostAccountingSetup.Validate("Last Allocation Doc. No.", 'ALLOC0');
         CostAccountingSetup.Modify(true);
 
-        InitializeCASourceCodes;
+        InitializeCASourceCodes();
     end;
 
     procedure InitializeCASourceCodes()
@@ -797,8 +797,8 @@ codeunit 131340 "Library - Cost Accounting"
         DimValue: Record "Dimension Value";
         DefaultDimension: Record "Default Dimension";
     begin
-        if not DefaultDimension.Get(DATABASE::"G/L Account", GLAccountNo, CostCenterDimension) then begin
-            LibraryDimension.FindDimensionValue(DimValue, CostCenterDimension);
+        if not DefaultDimension.Get(DATABASE::"G/L Account", GLAccountNo, CostCenterDimension()) then begin
+            LibraryDimension.FindDimensionValue(DimValue, CostCenterDimension());
             LibraryDimension.CreateDefaultDimensionGLAcc(DefaultDimension, GLAccountNo, DimValue."Dimension Code", DimValue.Code);
         end;
 
@@ -811,7 +811,7 @@ codeunit 131340 "Library - Cost Accounting"
         end;
 
         CheckBlockedDimensionValues(GLAccountNo); // check for blocked default dimension values, which prevent posting
-        CheckBlockedDimCombination; // check for blocked dimension combinations, which prevent posting
+        CheckBlockedDimCombination(); // check for blocked dimension combinations, which prevent posting
     end;
 
     procedure SetupGeneralJnlBatch(var GenJournalBatch: Record "Gen. Journal Batch")

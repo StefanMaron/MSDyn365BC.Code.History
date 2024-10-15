@@ -47,25 +47,25 @@ codeunit 134408 "Incom. Doc. Attach. FactBox"
         PAGE.Run(PAGE::"General Journal", GenJournalLine);
 
         GeneralJournalTestPage."Account Type".SetValue(GenJournalLine."Account Type"::"G/L Account");
-        GeneralJournalTestPage."Account No.".SetValue(LibraryERM.CreateGLAccountNoWithDirectPosting);
+        GeneralJournalTestPage."Account No.".SetValue(LibraryERM.CreateGLAccountNoWithDirectPosting());
         PrepareAttachmentRecordForGenJournalLine(GenJournalLine);
         GeneralJournalTestPage.IncomingDocAttachFactBox.ImportNew.Invoke();
         GeneralJournalTestPage.New();
         GeneralJournalTestPage."Account Type".SetValue(GenJournalLine."Account Type"::"G/L Account");
-        GeneralJournalTestPage."Account No.".SetValue(LibraryERM.CreateGLAccountNoWithDirectPosting);
+        GeneralJournalTestPage."Account No.".SetValue(LibraryERM.CreateGLAccountNoWithDirectPosting());
         PrepareAttachmentRecordForGenJournalLine(GenJournalLine);
         GeneralJournalTestPage.IncomingDocAttachFactBox.ImportNew.Invoke();
 
         // We saved attached file names in Library - Variable Storage.
-        Assert.RecordCount(GenJournalLine, LibraryVariableStorage.Length);
-        Assert.AreEqual(2, LibraryVariableStorage.Length, UnexpecteFileNameNoErr);
+        Assert.RecordCount(GenJournalLine, LibraryVariableStorage.Length());
+        Assert.AreEqual(2, LibraryVariableStorage.Length(), UnexpecteFileNameNoErr);
 
         // We return to first line and check the correct file is shown in "Incoming Document Attachment Factbox" (File "A")
         GeneralJournalTestPage.Previous();
-        GeneralJournalTestPage.IncomingDocAttachFactBox.Name.AssertEquals(LibraryVariableStorage.DequeueText);
+        GeneralJournalTestPage.IncomingDocAttachFactBox.Name.AssertEquals(LibraryVariableStorage.DequeueText());
         // We move to second line and check the correct file is shown in "Incoming Document Attachment Factbox" (File "B")
         GeneralJournalTestPage.Next();
-        GeneralJournalTestPage.IncomingDocAttachFactBox.Name.AssertEquals(LibraryVariableStorage.DequeueText);
+        GeneralJournalTestPage.IncomingDocAttachFactBox.Name.AssertEquals(LibraryVariableStorage.DequeueText());
         GeneralJournalTestPage.Next();
         GeneralJournalTestPage."Account No.".AssertEquals('');
 
@@ -99,25 +99,25 @@ codeunit 134408 "Incom. Doc. Attach. FactBox"
         PAGE.Run(PAGE::"Payment Journal", GenJournalLine);
 
         PaymentJournalTestPage."Account Type".SetValue(GenJournalLine."Account Type"::"G/L Account");
-        PaymentJournalTestPage."Account No.".SetValue(LibraryERM.CreateGLAccountNoWithDirectPosting);
+        PaymentJournalTestPage."Account No.".SetValue(LibraryERM.CreateGLAccountNoWithDirectPosting());
         PrepareAttachmentRecordForGenJournalLine(GenJournalLine);
         PaymentJournalTestPage.IncomingDocAttachFactBox.ImportNew.Invoke();
         PaymentJournalTestPage.New();
         PaymentJournalTestPage."Account Type".SetValue(GenJournalLine."Account Type"::"G/L Account");
-        PaymentJournalTestPage."Account No.".SetValue(LibraryERM.CreateGLAccountNoWithDirectPosting);
+        PaymentJournalTestPage."Account No.".SetValue(LibraryERM.CreateGLAccountNoWithDirectPosting());
         PrepareAttachmentRecordForGenJournalLine(GenJournalLine);
         PaymentJournalTestPage.IncomingDocAttachFactBox.ImportNew.Invoke();
 
         // We saved attached file names in Library - Variable Storage.
-        Assert.RecordCount(GenJournalLine, LibraryVariableStorage.Length);
-        Assert.AreEqual(2, LibraryVariableStorage.Length, UnexpecteFileNameNoErr);
+        Assert.RecordCount(GenJournalLine, LibraryVariableStorage.Length());
+        Assert.AreEqual(2, LibraryVariableStorage.Length(), UnexpecteFileNameNoErr);
 
         // We return to first line and check the correct file is shown in "Incoming Document Attachment Factbox" (File "A")
         PaymentJournalTestPage.Previous();
-        PaymentJournalTestPage.IncomingDocAttachFactBox.Name.AssertEquals(LibraryVariableStorage.DequeueText);
+        PaymentJournalTestPage.IncomingDocAttachFactBox.Name.AssertEquals(LibraryVariableStorage.DequeueText());
         // We move to second line and check the correct file is shown in "Incoming Document Attachment Factbox" (File "B")
         PaymentJournalTestPage.Next();
-        PaymentJournalTestPage.IncomingDocAttachFactBox.Name.AssertEquals(LibraryVariableStorage.DequeueText);
+        PaymentJournalTestPage.IncomingDocAttachFactBox.Name.AssertEquals(LibraryVariableStorage.DequeueText());
         PaymentJournalTestPage.Next();
         PaymentJournalTestPage."Account No.".AssertEquals('');
 
@@ -151,25 +151,25 @@ codeunit 134408 "Incom. Doc. Attach. FactBox"
         PAGE.Run(PAGE::"Purchase Journal", GenJournalLine);
 
         PurchaseJournalTestPage."Account Type".SetValue(GenJournalLine."Account Type"::"G/L Account");
-        PurchaseJournalTestPage."Account No.".SetValue(LibraryERM.CreateGLAccountNoWithDirectPosting);
+        PurchaseJournalTestPage."Account No.".SetValue(LibraryERM.CreateGLAccountNoWithDirectPosting());
         PrepareAttachmentRecordForGenJournalLine(GenJournalLine);
         PurchaseJournalTestPage.IncomingDocAttachFactBox.ImportNew.Invoke();
         PurchaseJournalTestPage.New();
         PurchaseJournalTestPage."Account Type".SetValue(GenJournalLine."Account Type"::"G/L Account");
-        PurchaseJournalTestPage."Account No.".SetValue(LibraryERM.CreateGLAccountNoWithDirectPosting);
+        PurchaseJournalTestPage."Account No.".SetValue(LibraryERM.CreateGLAccountNoWithDirectPosting());
         PrepareAttachmentRecordForGenJournalLine(GenJournalLine);
         PurchaseJournalTestPage.IncomingDocAttachFactBox.ImportNew.Invoke();
 
         // We saved attached file names in Library - Variable Storage.
-        Assert.RecordCount(GenJournalLine, LibraryVariableStorage.Length);
-        Assert.AreEqual(2, LibraryVariableStorage.Length, UnexpecteFileNameNoErr);
+        Assert.RecordCount(GenJournalLine, LibraryVariableStorage.Length());
+        Assert.AreEqual(2, LibraryVariableStorage.Length(), UnexpecteFileNameNoErr);
 
         // We return to first line and check the correct file is shown in "Incoming Document Attachment Factbox" (File "A")
         PurchaseJournalTestPage.Previous();
-        PurchaseJournalTestPage.IncomingDocAttachFactBox.Name.AssertEquals(LibraryVariableStorage.DequeueText);
+        PurchaseJournalTestPage.IncomingDocAttachFactBox.Name.AssertEquals(LibraryVariableStorage.DequeueText());
         // We move to second line and check the correct file is shown in "Incoming Document Attachment Factbox" (File "B")
         PurchaseJournalTestPage.Next();
-        PurchaseJournalTestPage.IncomingDocAttachFactBox.Name.AssertEquals(LibraryVariableStorage.DequeueText);
+        PurchaseJournalTestPage.IncomingDocAttachFactBox.Name.AssertEquals(LibraryVariableStorage.DequeueText());
         PurchaseJournalTestPage.Next();
         PurchaseJournalTestPage."Account No.".AssertEquals('');
 
@@ -203,25 +203,25 @@ codeunit 134408 "Incom. Doc. Attach. FactBox"
         PAGE.Run(PAGE::"Sales Journal", GenJournalLine);
 
         SalesJournalTestPage."Account Type".SetValue(GenJournalLine."Account Type"::"G/L Account");
-        SalesJournalTestPage."Account No.".SetValue(LibraryERM.CreateGLAccountNoWithDirectPosting);
+        SalesJournalTestPage."Account No.".SetValue(LibraryERM.CreateGLAccountNoWithDirectPosting());
         PrepareAttachmentRecordForGenJournalLine(GenJournalLine);
         SalesJournalTestPage.IncomingDocAttachFactBox.ImportNew.Invoke();
         SalesJournalTestPage.New();
         SalesJournalTestPage."Account Type".SetValue(GenJournalLine."Account Type"::"G/L Account");
-        SalesJournalTestPage."Account No.".SetValue(LibraryERM.CreateGLAccountNoWithDirectPosting);
+        SalesJournalTestPage."Account No.".SetValue(LibraryERM.CreateGLAccountNoWithDirectPosting());
         PrepareAttachmentRecordForGenJournalLine(GenJournalLine);
         SalesJournalTestPage.IncomingDocAttachFactBox.ImportNew.Invoke();
 
         // We saved attached file names in Library - Variable Storage.
-        Assert.RecordCount(GenJournalLine, LibraryVariableStorage.Length);
-        Assert.AreEqual(2, LibraryVariableStorage.Length, UnexpecteFileNameNoErr);
+        Assert.RecordCount(GenJournalLine, LibraryVariableStorage.Length());
+        Assert.AreEqual(2, LibraryVariableStorage.Length(), UnexpecteFileNameNoErr);
 
         // We return to first line and check the correct file is shown in "Incoming Document Attachment Factbox" (File "A")
         SalesJournalTestPage.Previous();
-        SalesJournalTestPage.IncomingDocAttachFactBox.Name.AssertEquals(LibraryVariableStorage.DequeueText);
+        SalesJournalTestPage.IncomingDocAttachFactBox.Name.AssertEquals(LibraryVariableStorage.DequeueText());
         // We move to second line and check the correct file is shown in "Incoming Document Attachment Factbox" (File "B")
         SalesJournalTestPage.Next();
-        SalesJournalTestPage.IncomingDocAttachFactBox.Name.AssertEquals(LibraryVariableStorage.DequeueText);
+        SalesJournalTestPage.IncomingDocAttachFactBox.Name.AssertEquals(LibraryVariableStorage.DequeueText());
         SalesJournalTestPage.Next();
         SalesJournalTestPage."Account No.".AssertEquals('');
 
@@ -255,25 +255,25 @@ codeunit 134408 "Incom. Doc. Attach. FactBox"
         PAGE.Run(PAGE::"Cash Receipt Journal", GenJournalLine);
 
         CashReceiptJournalTestPage."Account Type".SetValue(GenJournalLine."Account Type"::"G/L Account");
-        CashReceiptJournalTestPage."Account No.".SetValue(LibraryERM.CreateGLAccountNoWithDirectPosting);
+        CashReceiptJournalTestPage."Account No.".SetValue(LibraryERM.CreateGLAccountNoWithDirectPosting());
         PrepareAttachmentRecordForGenJournalLine(GenJournalLine);
         CashReceiptJournalTestPage.IncomingDocAttachFactBox.ImportNew.Invoke();
         CashReceiptJournalTestPage.New();
         CashReceiptJournalTestPage."Account Type".SetValue(GenJournalLine."Account Type"::"G/L Account");
-        CashReceiptJournalTestPage."Account No.".SetValue(LibraryERM.CreateGLAccountNoWithDirectPosting);
+        CashReceiptJournalTestPage."Account No.".SetValue(LibraryERM.CreateGLAccountNoWithDirectPosting());
         PrepareAttachmentRecordForGenJournalLine(GenJournalLine);
         CashReceiptJournalTestPage.IncomingDocAttachFactBox.ImportNew.Invoke();
 
         // We saved attached file names in Library - Variable Storage.
-        Assert.RecordCount(GenJournalLine, LibraryVariableStorage.Length);
-        Assert.AreEqual(2, LibraryVariableStorage.Length, UnexpecteFileNameNoErr);
+        Assert.RecordCount(GenJournalLine, LibraryVariableStorage.Length());
+        Assert.AreEqual(2, LibraryVariableStorage.Length(), UnexpecteFileNameNoErr);
 
         // We return to first line and check the correct file is shown in "Incoming Document Attachment Factbox" (File "A")
         CashReceiptJournalTestPage.Previous();
-        CashReceiptJournalTestPage.IncomingDocAttachFactBox.Name.AssertEquals(LibraryVariableStorage.DequeueText);
+        CashReceiptJournalTestPage.IncomingDocAttachFactBox.Name.AssertEquals(LibraryVariableStorage.DequeueText());
         // We move to second line and check the correct file is shown in "Incoming Document Attachment Factbox" (File "B")
         CashReceiptJournalTestPage.Next();
-        CashReceiptJournalTestPage.IncomingDocAttachFactBox.Name.AssertEquals(LibraryVariableStorage.DequeueText);
+        CashReceiptJournalTestPage.IncomingDocAttachFactBox.Name.AssertEquals(LibraryVariableStorage.DequeueText());
         CashReceiptJournalTestPage.Next();
         CashReceiptJournalTestPage."Account No.".AssertEquals('');
 

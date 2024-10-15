@@ -27,7 +27,10 @@ codeunit 5884 "Phys. Invt. Order-Post"
                   TableData "Pstd. Phys. Invt. Record Hdr" = rimd,
                   TableData "Pstd. Phys. Invt. Record Line" = rimd,
                   TableData "Pstd. Phys. Invt. Tracking" = rimd,
-                  TableData "Pstd. Exp. Phys. Invt. Track" = rimd;
+#if not CLEAN24
+                  TableData "Pstd. Exp. Phys. Invt. Track" = rimd,
+#endif
+                  TableData "Pstd.Exp.Invt.Order.Tracking" = rimd;
     TableNo = "Phys. Invt. Order Header";
 
     trigger OnRun()
@@ -52,8 +55,12 @@ codeunit 5884 "Phys. Invt. Order-Post"
         PhysInvtOrderLine2: Record "Phys. Invt. Order Line";
         PstdPhysInvtOrderHdr: Record "Pstd. Phys. Invt. Order Hdr";
         PstdPhysInvtOrderLine: Record "Pstd. Phys. Invt. Order Line";
+#if not CLEAN24
         ExpPhysInvtTracking: Record "Exp. Phys. Invt. Tracking";
         PstdExpPhysInvtTrack: Record "Pstd. Exp. Phys. Invt. Track";
+#endif
+        ExpInvtOrderTracking: Record "Exp. Invt. Order Tracking";
+        PstdExpInvtOrderTracking: Record "Pstd.Exp.Invt.Order.Tracking";
         PhysInvtRecordHeader: Record "Phys. Invt. Record Header";
         PhysInvtRecordLine: Record "Phys. Invt. Record Line";
         PhysInvtCommentLine: Record "Phys. Invt. Comment Line";
@@ -64,7 +71,6 @@ codeunit 5884 "Phys. Invt. Order-Post"
         TempWhseTrackingSpecification: Record "Tracking Specification" temporary;
         DimManagement: Codeunit DimensionManagement;
         PhysInvtTrackingMgt: Codeunit "Phys. Invt. Tracking Mgt.";
-        NoSeriesMgt: Codeunit NoSeriesManagement;
         DocumentErrorsMgt: Codeunit "Document Errors Mgt.";
         ItemJnlPostLine: Codeunit "Item Jnl.-Post Line";
         Window: Dialog;
@@ -85,107 +91,105 @@ codeunit 5884 "Phys. Invt. Order-Post"
         InventorySetup: Record "Inventory Setup";
         PhysInvtCountMgt: Codeunit "Phys. Invt. Count.-Management";
         GenJnlPostPreview: Codeunit "Gen. Jnl.-Post Preview";
+        NoSeries: Codeunit "No. Series";
         IsHandled: Boolean;
     begin
         OnBeforeCode(PhysInvtOrderHeader, HideProgressWindow, SuppressCommit);
 
-        with PhysInvtOrderHeader do begin
-            TestField(Status, Status::Finished);
-            TestField("Posting Date");
+        PhysInvtOrderHeader.TestField(Status, PhysInvtOrderHeader.Status::Finished);
+        PhysInvtOrderHeader.TestField("Posting Date");
 
-            if not HideProgressWindow then begin
-                Window.Open(
-                '#1################################\\' +
-                CheckingLinesMsg + PostingLinesMsg);
-                Window.Update(1, StrSubstNo('%1 %2', TableCaption(), "No."));
+        if not HideProgressWindow then begin
+            Window.Open(
+            '#1################################\\' +
+            CheckingLinesMsg + PostingLinesMsg);
+            Window.Update(1, StrSubstNo('%1 %2', PhysInvtOrderHeader.TableCaption(), PhysInvtOrderHeader."No."));
+        end;
+
+        PhysInvtOrderHeader.LockTable();
+        PhysInvtOrderLine.LockTable();
+
+        ModifyHeader := false;
+        if PhysInvtOrderHeader."Posting No." = '' then begin
+            if PhysInvtOrderHeader."No. Series" <> '' then
+                PhysInvtOrderHeader.TestField(PhysInvtOrderHeader."Posting No. Series");
+            if PhysInvtOrderHeader."No. Series" <> PhysInvtOrderHeader."Posting No. Series" then begin
+                PhysInvtOrderHeader."Posting No." := NoSeries.GetNextNo(PhysInvtOrderHeader."Posting No. Series", PhysInvtOrderHeader."Posting Date");
+                ModifyHeader := true;
             end;
+        end;
 
-            LockTable();
-            PhysInvtOrderLine.LockTable();
+        if ModifyHeader then begin
+            PhysInvtOrderHeader.Modify();
+            if not (SuppressCommit or PreviewMode) then
+                Commit();
+        end;
 
-            ModifyHeader := false;
-            if "Posting No." = '' then begin
-                if "No. Series" <> '' then
-                    TestField("Posting No. Series");
-                if "No. Series" <> "Posting No. Series" then begin
-                    "Posting No." := NoSeriesMgt.GetNextNo("Posting No. Series", "Posting Date", true);
-                    ModifyHeader := true;
-                end;
-            end;
+        CheckDim();
+        // Check phys. inventory order lines
+        LinesToPost := false;
+        LineCount := 0;
+        PhysInvtOrderLine.Reset();
+        PhysInvtOrderLine.SetRange("Document No.", PhysInvtOrderHeader."No.");
+        OnCodeOnAfterSetFilters(PhysInvtOrderLine);
+        if PhysInvtOrderLine.Find('-') then
+            repeat
+                LineCount := LineCount + 1;
+                if not HideProgressWindow then
+                    Window.Update(2, LineCount);
 
-            if ModifyHeader then begin
-                Modify();
-                if not (SuppressCommit or PreviewMode) then
-                    Commit();
-            end;
+                if not PhysInvtOrderLine.EmptyLine() then begin
+                    CheckOrderLine(PhysInvtOrderHeader, PhysInvtOrderLine, Item);
 
-            CheckDim();
+                    PhysInvtOrderLine.TestField("Entry Type");
+                    if IsDifference() then
+                        ThrowDifferenceError();
 
-            // Check phys. inventory order lines
-            LinesToPost := false;
-            LineCount := 0;
-            PhysInvtOrderLine.Reset();
-            PhysInvtOrderLine.SetRange("Document No.", "No.");
-            OnCodeOnAfterSetFilters(PhysInvtOrderLine);
-            if PhysInvtOrderLine.Find('-') then
-                repeat
-                    LineCount := LineCount + 1;
-                    if not HideProgressWindow then
-                        Window.Update(2, LineCount);
-
-                    if not PhysInvtOrderLine.EmptyLine() then begin
-                        CheckOrderLine(PhysInvtOrderHeader, PhysInvtOrderLine, Item);
-
-                        PhysInvtOrderLine.TestField("Entry Type");
-                        if IsDifference() then
-                            ThrowDifferenceError();
-
-                        if not LinesToPost then
-                            LinesToPost := true;
-                        if (PhysInvtOrderLine."Phys Invt Counting Period Type" <> PhysInvtOrderLine."Phys Invt Counting Period Type"::" ") and
-                           (PhysInvtOrderLine."Phys Invt Counting Period Code" <> '')
-                        then begin
-                            PhysInvtCountMgt.InitTempItemSKUList();
-                            PhysInvtCountMgt.AddToTempItemSKUList(PhysInvtOrderLine."Item No.", PhysInvtOrderLine."Location Code",
-                              PhysInvtOrderLine."Variant Code", PhysInvtOrderLine."Phys Invt Counting Period Type");
-                            PhysInvtCountMgt.UpdateItemSKUListPhysInvtCount();
-                        end;
+                    if not LinesToPost then
+                        LinesToPost := true;
+                    if (PhysInvtOrderLine."Phys Invt Counting Period Type" <> PhysInvtOrderLine."Phys Invt Counting Period Type"::" ") and
+                       (PhysInvtOrderLine."Phys Invt Counting Period Code" <> '')
+                    then begin
+                        PhysInvtCountMgt.InitTempItemSKUList();
+                        PhysInvtCountMgt.AddToTempItemSKUList(PhysInvtOrderLine."Item No.", PhysInvtOrderLine."Location Code",
+                          PhysInvtOrderLine."Variant Code", PhysInvtOrderLine."Phys Invt Counting Period Type");
+                        PhysInvtCountMgt.UpdateItemSKUListPhysInvtCount();
                     end;
-                until PhysInvtOrderLine.Next() = 0;
+                end;
+            until PhysInvtOrderLine.Next() = 0;
 
-            IsHandled := false;
-            OnCodeOnBeforeCheckLinesToPost(PhysInvtOrderHeader, LinesToPost, IsHandled);
-            if not IsHandled then
-                if not LinesToPost then
-                    Error(DocumentErrorsMgt.GetNothingToPostErrorMsg());
+        IsHandled := false;
+        OnCodeOnBeforeCheckLinesToPost(PhysInvtOrderHeader, LinesToPost, IsHandled);
+        if not IsHandled then
+            if not LinesToPost then
+                Error(DocumentErrorsMgt.GetNothingToPostErrorMsg());
 
-            SourceCodeSetup.Get();
-            SourceCode := SourceCodeSetup."Phys. Invt. Orders";
+        SourceCodeSetup.Get();
+        SourceCode := SourceCodeSetup."Phys. Invt. Orders";
 
-            InventorySetup.Get();
-
-            // Insert posted order header
-            InsertPostedHeader(PhysInvtOrderHeader);
-
-            // Insert posted order lines
-            LineCount := 0;
-            PhysInvtOrderLine.Reset();
-            PhysInvtOrderLine.SetRange("Document No.", "No.");
-            PhysInvtOrderLine.SetRange("Entry Type", PhysInvtOrderLine."Entry Type"::"Negative Adjmt.");
-            if PhysInvtOrderLine.FindSet() then
-                repeat
-                    PostPhysInventoryOrderLine();
-                until PhysInvtOrderLine.Next() = 0;
-            PhysInvtOrderLine.SetFilter("Entry Type", '<>%1', PhysInvtOrderLine."Entry Type"::"Negative Adjmt.");
-            if PhysInvtOrderLine.FindSet() then
-                repeat
-                    PostPhysInventoryOrderLine();
-                    OnCodeOnAferPostPhysInventoryOrderLineNonNegative(PhysInvtOrderHeader, PhysInvtOrderLine, ItemJnlPostLine);
-                until PhysInvtOrderLine.Next() = 0;
-
-            // Insert posted expected phys. invt. tracking Lines
+        InventorySetup.Get();
+        // Insert posted order header
+        InsertPostedHeader(PhysInvtOrderHeader);
+        // Insert posted order lines
+        LineCount := 0;
+        PhysInvtOrderLine.Reset();
+        PhysInvtOrderLine.SetRange("Document No.", PhysInvtOrderHeader."No.");
+        PhysInvtOrderLine.SetRange("Entry Type", PhysInvtOrderLine."Entry Type"::"Negative Adjmt.");
+        if PhysInvtOrderLine.FindSet() then
+            repeat
+                PostPhysInventoryOrderLine();
+            until PhysInvtOrderLine.Next() = 0;
+        PhysInvtOrderLine.SetFilter("Entry Type", '<>%1', PhysInvtOrderLine."Entry Type"::"Negative Adjmt.");
+        if PhysInvtOrderLine.FindSet() then
+            repeat
+                PostPhysInventoryOrderLine();
+                OnCodeOnAferPostPhysInventoryOrderLineNonNegative(PhysInvtOrderHeader, PhysInvtOrderLine, ItemJnlPostLine);
+            until PhysInvtOrderLine.Next() = 0;
+        // Insert posted expected phys. invt. tracking Lines
+#if not CLEAN24
+        if not PhysInvtTrackingMgt.IsPackageTrackingEnabled() then begin
             ExpPhysInvtTracking.Reset();
-            ExpPhysInvtTracking.SetRange("Order No", "No.");
+            ExpPhysInvtTracking.SetRange("Order No", PhysInvtOrderHeader."No.");
             if ExpPhysInvtTracking.Find('-') then
                 repeat
                     PstdExpPhysInvtTrack.Init();
@@ -193,41 +197,52 @@ codeunit 5884 "Phys. Invt. Order-Post"
                     PstdExpPhysInvtTrack."Order No" := PstdPhysInvtOrderHdr."No.";
                     PstdExpPhysInvtTrack.Insert();
                 until ExpPhysInvtTracking.Next() = 0;
-
-            // Insert posted recording header and lines
-            InsertPostedRecordings("No.", PstdPhysInvtOrderHdr."No.");
-
-            // Insert posted comment Lines
-            PhysInvtCommentLine.Reset();
-            PhysInvtCommentLine.SetRange("Document Type", PhysInvtCommentLine."Document Type"::Order);
-            PhysInvtCommentLine.SetRange("Order No.", "No.");
-            PhysInvtCommentLine.SetRange("Recording No.", 0);
-            if PhysInvtCommentLine.Find('-') then
+        end else begin
+#endif
+            ExpInvtOrderTracking.Reset();
+            ExpInvtOrderTracking.SetRange("Order No", PhysInvtOrderHeader."No.");
+            if ExpInvtOrderTracking.Find('-') then
                 repeat
-                    InsertPostedCommentLine(
-                      PhysInvtCommentLine, PhysInvtCommentLine."Document Type"::"Posted Order", PstdPhysInvtOrderHdr."No.");
-                until PhysInvtCommentLine.Next() = 0;
-            PhysInvtCommentLine.DeleteAll();
-
-            PhysInvtCommentLine.Reset();
-            PhysInvtCommentLine.SetRange("Document Type", PhysInvtCommentLine."Document Type"::Recording);
-            PhysInvtCommentLine.SetRange("Order No.", "No.");
-            if PhysInvtCommentLine.Find('-') then
-                repeat
-                    InsertPostedCommentLine(
-                      PhysInvtCommentLine, PhysInvtCommentLine."Document Type"::"Posted Recording", PstdPhysInvtOrderHdr."No.");
-                until PhysInvtCommentLine.Next() = 0;
-            PhysInvtCommentLine.DeleteAll();
-
-            "Last Posting No." := "Posting No.";
-
-            MakeInventoryAdjustment();
-            OnCodeOnAfterMakeInventoryAdjustment(PhysInvtOrderHeader);
-
-            if PreviewMode then
-                GenJnlPostPreview.ThrowError();
-            FinalizePost("No.");
+                    PstdExpInvtOrderTracking.Init();
+                    PstdExpInvtOrderTracking.TransferFields(ExpInvtOrderTracking);
+                    PstdExpInvtOrderTracking."Order No" := PstdPhysInvtOrderHdr."No.";
+                    PstdExpInvtOrderTracking.Insert();
+                until ExpInvtOrderTracking.Next() = 0;
+#if not CLEAN24
         end;
+#endif
+        // Insert posted recording header and lines
+        InsertPostedRecordings(PhysInvtOrderHeader."No.", PstdPhysInvtOrderHdr."No.");
+        // Insert posted comment Lines
+        PhysInvtCommentLine.Reset();
+        PhysInvtCommentLine.SetRange("Document Type", PhysInvtCommentLine."Document Type"::Order);
+        PhysInvtCommentLine.SetRange("Order No.", PhysInvtOrderHeader."No.");
+        PhysInvtCommentLine.SetRange("Recording No.", 0);
+        if PhysInvtCommentLine.Find('-') then
+            repeat
+                InsertPostedCommentLine(
+                  PhysInvtCommentLine, PhysInvtCommentLine."Document Type"::"Posted Order", PstdPhysInvtOrderHdr."No.");
+            until PhysInvtCommentLine.Next() = 0;
+        PhysInvtCommentLine.DeleteAll();
+
+        PhysInvtCommentLine.Reset();
+        PhysInvtCommentLine.SetRange("Document Type", PhysInvtCommentLine."Document Type"::Recording);
+        PhysInvtCommentLine.SetRange("Order No.", PhysInvtOrderHeader."No.");
+        if PhysInvtCommentLine.Find('-') then
+            repeat
+                InsertPostedCommentLine(
+                  PhysInvtCommentLine, PhysInvtCommentLine."Document Type"::"Posted Recording", PstdPhysInvtOrderHdr."No.");
+            until PhysInvtCommentLine.Next() = 0;
+        PhysInvtCommentLine.DeleteAll();
+
+        PhysInvtOrderHeader."Last Posting No." := PhysInvtOrderHeader."Posting No.";
+
+        MakeInventoryAdjustment();
+        OnCodeOnAfterMakeInventoryAdjustment(PhysInvtOrderHeader);
+
+        if PreviewMode then
+            GenJnlPostPreview.ThrowError();
+        FinalizePost(PhysInvtOrderHeader."No.");
 
         OnAfterCode(PhysInvtOrderHeader, PstdPhysInvtOrderHdr);
     end;
@@ -484,13 +499,26 @@ codeunit 5884 "Phys. Invt. Order-Post"
 
     local procedure FinalizePost(DocNo: Code[20])
     begin
-        ExpPhysInvtTracking.Reset();
-        ExpPhysInvtTracking.SetRange("Order No", DocNo);
-        ExpPhysInvtTracking.DeleteAll();
-        PhysInvtOrderLine.Reset();
-        PhysInvtOrderLine.SetRange("Document No.", DocNo);
-        PhysInvtOrderLine.DeleteAll();
-        PhysInvtOrderHeader.Delete();
+#if not CLEAN24
+        if not PhysInvtTrackingMgt.IsPackageTrackingEnabled() then begin
+            ExpPhysInvtTracking.Reset();
+            ExpPhysInvtTracking.SetRange("Order No", DocNo);
+            ExpPhysInvtTracking.DeleteAll();
+            PhysInvtOrderLine.Reset();
+            PhysInvtOrderLine.SetRange("Document No.", DocNo);
+            PhysInvtOrderLine.DeleteAll();
+        end else begin
+#endif
+            ExpInvtOrderTracking.Reset();
+            ExpInvtOrderTracking.SetRange("Order No", DocNo);
+            ExpInvtOrderTracking.DeleteAll();
+            PhysInvtOrderLine.Reset();
+            PhysInvtOrderLine.SetRange("Document No.", DocNo);
+            PhysInvtOrderLine.DeleteAll();
+            PhysInvtOrderHeader.Delete();
+#if not CLEAN24
+        end;
+#endif
     end;
 
     local procedure MakeInventoryAdjustment()

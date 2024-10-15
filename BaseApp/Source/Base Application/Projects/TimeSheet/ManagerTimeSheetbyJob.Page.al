@@ -9,9 +9,10 @@ using System.Utilities;
 
 page 954 "Manager Time Sheet by Job"
 {
+    AdditionalSearchTerms = 'Manager Time Sheet by Job';
     ApplicationArea = Jobs;
     AutoSplitKey = true;
-    Caption = 'Manager Time Sheet by Job';
+    Caption = 'Manager Time Sheet by Project';
     DeleteAllowed = false;
     InsertAllowed = false;
     PageType = Worksheet;
@@ -48,14 +49,29 @@ page 954 "Manager Time Sheet by Job"
                 {
                     ApplicationArea = Jobs;
                     Editable = false;
-                    ToolTip = 'Specifies the number for the job that is associated with the time sheet line.';
+                    ToolTip = 'Specifies the number for the project that is associated with the time sheet line.';
                     Visible = false;
                 }
                 field("Job Task No."; Rec."Job Task No.")
                 {
                     ApplicationArea = Jobs;
                     Editable = false;
-                    ToolTip = 'Specifies the number of the related job task.';
+                    ToolTip = 'Specifies the number of the related project task.';
+                    Visible = false;
+                }
+                field("Header Resource No."; TimeSheetHeader."Resource No.")
+                {
+                    ApplicationArea = Jobs;
+                    Caption = 'Resource No.';
+                    ToolTip = 'Specifies the number of the resource for the time sheet.';
+                    Editable = false;
+                }
+                field("Header Resource Name"; TimeSheetHeader."Resource Name")
+                {
+                    ApplicationArea = Jobs;
+                    Caption = 'Resource Name';
+                    ToolTip = 'Specifies the name of the resource for the time sheet.';
+                    Editable = false;
                     Visible = false;
                 }
                 field(Description; Rec.Description)
@@ -164,8 +180,29 @@ page 954 "Manager Time Sheet by Job"
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies the total number of hours that have been entered on a time sheet.';
-                    Visible = false;
+                    Style = Strong;
                 }
+            }
+
+        }
+        area(factboxes)
+        {
+            part(TimeSheetComments; "Time Sheet Comments FactBox")
+            {
+                ApplicationArea = Basic, Suite;
+                Caption = 'Time Sheet Comments';
+                SubPageLink = "No." = field("Time Sheet No."), "Time Sheet Line No." = filter(0); //just header comments
+                Editable = false;
+            }
+            part(TimeSheetLineDetailsFactBox; "TimeSheet Line Details FactBox")
+            {
+                ApplicationArea = Jobs;
+                SubPageLink = "Time Sheet No." = field("Time Sheet No."), "Line No." = field("Line No.");
+            }
+            part(TimeSheetStatusFactBox; "Time Sheet Status FactBox")
+            {
+                ApplicationArea = Jobs;
+                Caption = 'Time Sheet Status';
             }
         }
     }
@@ -242,6 +279,16 @@ page 954 "Manager Time Sheet by Job"
                         Rec.ShowLineDetails(true);
                     end;
                 }
+            }
+            action(OpenTimeSheet)
+            {
+                ApplicationArea = Jobs;
+                Scope = Repeater;
+                Caption = 'Open Time Sheet Card';
+                Image = OpenWorksheet;
+                RunObject = Page "Time Sheet Card";
+                RunPageLink = "No." = field("Time Sheet No.");
+                ToolTip = 'Open Time Sheet Card for the record.';
             }
         }
         area(processing)
@@ -344,6 +391,13 @@ page 954 "Manager Time Sheet by Job"
     trigger OnAfterGetRecord()
     begin
         AfterGetCurrentRecord();
+        GetLineAdditionalData();
+    end;
+
+    trigger OnAfterGetCurrRecord()
+    begin
+        GetLineAdditionalData();
+        CurrPage.TimeSheetComments.Page.UpdateData(Rec."Time Sheet No.", Rec."Line No.", true);
     end;
 
     trigger OnOpenPage()
@@ -353,6 +407,7 @@ page 954 "Manager Time Sheet by Job"
 
     var
         ResourcesSetup: Record "Resources Setup";
+        TimeSheetHeader: Record "Time Sheet Header";
         TimeSheetDetail: Record "Time Sheet Detail";
         ColumnRecords: array[32] of Record Date;
         TimeSheetMgt: Codeunit "Time Sheet Management";
@@ -384,6 +439,17 @@ page 954 "Manager Time Sheet by Job"
                 ColumnRecords[NoOfColumns]."Period Start" := Calendar."Period Start";
                 ColumnCaption[NoOfColumns] := TimeSheetMgt.FormatDate(Calendar."Period Start", 1);
             until Calendar.Next() = 0;
+    end;
+
+    local procedure GetLineAdditionalData()
+    begin
+        if TimeSheetHeader."No." <> Rec."Time Sheet No." then begin
+            if not TimeSheetHeader.Get(Rec."Time Sheet No.") then
+                Clear(TimeSheetHeader);
+
+            TimeSheetHeader.SetRange("Type Filter", TimeSheetHeader."Type Filter"::Job);
+            CurrPage.TimeSheetStatusFactBox.PAGE.UpdateDataInclFilters(TimeSheetHeader);
+        end;
     end;
 
     local procedure AfterGetCurrentRecord()
@@ -458,16 +524,36 @@ page 954 "Manager Time Sheet by Job"
         TimeSheetLine: Record "Time Sheet Line";
         TempTimeSheetLine: Record "Time Sheet Line" temporary;
         ActionType: Option Approve,Reopen,Reject;
+        TimeSheetAction: Enum "Time Sheet Action";
     begin
         CurrPage.SaveRecord();
         case Action of
             Action::"Approve All",
-          Action::"Reject All":
+            Action::"Reject All":
                 FilterAllLines(TimeSheetLine, ActionType::Approve);
             Action::"Reopen All":
                 FilterAllLines(TimeSheetLine, ActionType::Reopen);
-            else
-                CurrPage.SetSelectionFilter(TimeSheetLine);
+            Action::"Approve Selected",
+            Action::"Reject Selected":
+                begin
+                    CurrPage.SetSelectionFilter(TimeSheetLine);
+                    TimeSheetLine.FilterGroup(2);
+                    TimeSheetLine.SetRange("Time Sheet Starting Date", StartingDate, EndingDate);
+                    TimeSheetLine.SetRange("Approver ID", UserId);
+                    TimeSheetLine.SetRange(Type, TimeSheetLine.Type::Job);
+                    TimeSheetLine.FilterGroup(0);
+                    TimeSheetLine.SetRange(Status, TimeSheetLine.Status::Submitted);
+                end;
+            Action::"Reopen Selected":
+                begin
+                    CurrPage.SetSelectionFilter(TimeSheetLine);
+                    TimeSheetLine.FilterGroup(2);
+                    TimeSheetLine.SetRange("Time Sheet Starting Date", StartingDate, EndingDate);
+                    TimeSheetLine.SetRange("Approver ID", UserId);
+                    TimeSheetLine.SetRange(Type, TimeSheetLine.Type::Job);
+                    TimeSheetLine.FilterGroup(0);
+                    TimeSheetLine.SetRange(Status, TimeSheetLine.Status::Approved);
+                end;
         end;
         OnProcessOnAfterTimeSheetLinesFiltered(TimeSheetLine, Action);
         TimeSheetMgt.CopyFilteredTimeSheetLinesToBuffer(TimeSheetLine, TempTimeSheetLine);
@@ -475,16 +561,30 @@ page 954 "Manager Time Sheet by Job"
             repeat
                 case Action of
                     Action::"Approve Selected",
-                  Action::"Approve All":
+                    Action::"Approve All":
                         TimeSheetApprovalMgt.Approve(TimeSheetLine);
                     Action::"Reopen Selected",
-                  Action::"Reopen All":
+                    Action::"Reopen All":
                         TimeSheetApprovalMgt.ReopenApproved(TimeSheetLine);
                     Action::"Reject Selected",
-                  Action::"Reject All":
+                    Action::"Reject All":
                         TimeSheetApprovalMgt.Reject(TimeSheetLine);
                 end;
-            until TimeSheetLine.Next() = 0;
+            until TimeSheetLine.Next() = 0
+        else begin
+            case Action of
+                Action::"Approve Selected",
+                Action::"Approve All":
+                    TimeSheetAction := TimeSheetAction::Approve;
+                Action::"Reopen Selected",
+                Action::"Reopen All":
+                    TimeSheetAction := TimeSheetAction::"Reopen Approved";
+                Action::"Reject Selected",
+                Action::"Reject All":
+                    TimeSheetAction := TimeSheetAction::Reject;
+            end;
+            TimeSheetApprovalMgt.NoTimeSheetLinesToProcess(TimeSheetAction);
+        end;
         OnAfterProcess(TempTimeSheetLine, Action);
         CurrPage.Update(false);
     end;
@@ -533,7 +633,7 @@ page 954 "Manager Time Sheet by Job"
         TimeSheetLine: Record "Time Sheet Line";
     begin
         FilterAllLines(TimeSheetLine, ActionType);
-        exit(TimeSheetApprovalMgt.GetManagerTimeSheetDialogText(ActionType, TimeSheetLine.Count));
+        exit(TimeSheetApprovalMgt.GetManagerTimeSheetDialogText(ActionType, TimeSheetLine.Count()));
     end;
 
     local procedure FilterAllLines(var TimeSheetLine: Record "Time Sheet Line"; ActionType: Option Approve,Reopen,Reject)
@@ -546,7 +646,7 @@ page 954 "Manager Time Sheet by Job"
         TimeSheetLine.FilterGroup(0);
         case ActionType of
             ActionType::Approve,
-          ActionType::Reject:
+            ActionType::Reject:
                 TimeSheetLine.SetRange(Status, TimeSheetLine.Status::Submitted);
             ActionType::Reopen:
                 TimeSheetLine.SetRange(Status, TimeSheetLine.Status::Approved);
@@ -557,9 +657,18 @@ page 954 "Manager Time Sheet by Job"
 
     local procedure ShowDialog(ActionType: Option Approve,Reopen,Reject): Integer
     var
+        TimeSheetLine: Record "Time Sheet Line";
         DefaultValue: Integer;
+        ConfirmSelectedLinesTxt: Label '%1\Do you want to process selected lines [%2]?', Comment = '%1 - activity type instruction, %2 - selected lines count';
     begin
-        DefaultValue := 1;
+        CurrPage.SetSelectionFilter(TimeSheetLine);
+        if TimeSheetLine.Count() > 1 then begin
+            if Confirm(ConfirmSelectedLinesTxt, false, TimeSheetApprovalMgt.GetManagerTimeSheetDialogInstruction(ActionType), TimeSheetLine.Count) then
+                exit(2);
+            Error('');
+        end;
+
+        DefaultValue := 2;
         OnShowDialogOnAfterSetDefaultValue(ActionType, DefaultValue);
 
         exit(StrMenu(GetDialogText(ActionType), DefaultValue, TimeSheetApprovalMgt.GetManagerTimeSheetDialogInstruction(ActionType)));

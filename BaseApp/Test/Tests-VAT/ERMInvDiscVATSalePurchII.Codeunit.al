@@ -386,9 +386,9 @@ codeunit 134040 "ERM Inv Disc VAT Sale/Purch II"
 
         // Setup: Create Sales Order with Non Discount Items, Release Sales Order and Calculate VAT Amount on Sales Line.
         Initialize();
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, CreateCustomerInvDiscount);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, CreateCustomerInvDiscount());
         for Count := 1 to 1 + LibraryRandom.RandInt(5) do  // Create Multiple Sales Lines with Random Quantity and Price.
-            CreateSalesLine(SalesLine, SalesHeader, CreateItemWithAllowInvDiscNo);
+            CreateSalesLine(SalesLine, SalesHeader, CreateItemWithAllowInvDiscNo());
         SalesLine.CalcVATAmountLines(QtyType::General, SalesHeader, SalesLine, VATAmountLine);
         LibrarySales.ReleaseSalesDocument(SalesHeader);
 
@@ -650,9 +650,9 @@ codeunit 134040 "ERM Inv Disc VAT Sale/Purch II"
         // Setup: Create Purchase Header, Purchase Lines with Non Discount Items,Calculate VAT Amount on Purchase Line.
         // Release Purchase Order.
         Initialize();
-        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, CreateVendorInvDiscount);
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, CreateVendorInvDiscount());
         for Count := 1 to 1 + LibraryRandom.RandInt(5) do  // Create Multiple Purchase Lines with Random Quantity and Price.
-            CreatePurchaseLine(PurchaseLine, PurchaseHeader, CreateItemWithAllowInvDiscNo);
+            CreatePurchaseLine(PurchaseLine, PurchaseHeader, CreateItemWithAllowInvDiscNo());
         PurchCalcDiscount.CalculateInvoiceDiscount(PurchaseHeader, PurchaseLine);
         PurchaseLine.CalcVATAmountLines(QtyType::General, PurchaseHeader, PurchaseLine, VATAmountLine);
         LibraryPurchase.ReleasePurchaseDocument(PurchaseHeader);
@@ -748,9 +748,9 @@ codeunit 134040 "ERM Inv Disc VAT Sale/Purch II"
         Initialize();
 
         // [GIVEN] Purchase Order with Invoice Discount and multiples lines
-        CreatePurchaseHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, '', CreateVendorInvDiscount);
-        CreatePurchaseLine(PurchaseLine, PurchaseHeader, CreateItem);
-        CreatePurchaseLine(PurchaseLine, PurchaseHeader, CreateItem);
+        CreatePurchaseHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, '', CreateVendorInvDiscount());
+        CreatePurchaseLine(PurchaseLine, PurchaseHeader, CreateItem());
+        CreatePurchaseLine(PurchaseLine, PurchaseHeader, CreateItem());
         LibraryPurchase.CalcPurchaseDiscount(PurchaseHeader);
 
         // [GIVEN] First line is updated with Qty. to Receive = 0
@@ -816,7 +816,7 @@ codeunit 134040 "ERM Inv Disc VAT Sale/Purch II"
         Customer: Record Customer;
     begin
         LibrarySales.CreateCustomer(Customer);
-        Customer.Validate("VAT Bus. Posting Group", FindVATBusPostingGroup);
+        Customer.Validate("VAT Bus. Posting Group", FindVATBusPostingGroup());
         Customer.Modify(true);
         exit(Customer."No.");
     end;
@@ -825,7 +825,7 @@ codeunit 134040 "ERM Inv Disc VAT Sale/Purch II"
     var
         CustInvoiceDisc: Record "Cust. Invoice Disc.";
     begin
-        LibraryERM.CreateInvDiscForCustomer(CustInvoiceDisc, CreateCustomer, '', 0);  // Set Zero for Charge Amount.
+        LibraryERM.CreateInvDiscForCustomer(CustInvoiceDisc, CreateCustomer(), '', 0);  // Set Zero for Charge Amount.
         CustInvoiceDisc.Validate("Discount %", LibraryRandom.RandDec(10, 2));  // Take Random Discount.
         CustInvoiceDisc.Modify(true);
         exit(CustInvoiceDisc.Code);
@@ -835,7 +835,7 @@ codeunit 134040 "ERM Inv Disc VAT Sale/Purch II"
     var
         VendorInvoiceDisc: Record "Vendor Invoice Disc.";
     begin
-        LibraryERM.CreateInvDiscForVendor(VendorInvoiceDisc, CreateVendor, '', 0);  // Set Zero for Charge Amount.
+        LibraryERM.CreateInvDiscForVendor(VendorInvoiceDisc, CreateVendor(), '', 0);  // Set Zero for Charge Amount.
         VendorInvoiceDisc.Validate("Discount %", LibraryRandom.RandDec(10, 2));  // Take Random Discount.
         VendorInvoiceDisc.Modify(true);
         exit(VendorInvoiceDisc.Code);
@@ -858,7 +858,7 @@ codeunit 134040 "ERM Inv Disc VAT Sale/Purch II"
     var
         Item: Record Item;
     begin
-        Item.Get(CreateItem);
+        Item.Get(CreateItem());
         Item.Validate("Allow Invoice Disc.", false);
         Item.Modify(true);
         exit(Item."No.");
@@ -884,9 +884,9 @@ codeunit 134040 "ERM Inv Disc VAT Sale/Purch II"
     var
         "Count": Integer;
     begin
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, CreateCustomerInvDiscount);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, CreateCustomerInvDiscount());
         for Count := 1 to 1 + LibraryRandom.RandInt(5) do  // Create Multiple Sales Lines.
-            CreateSalesLine(SalesLine, SalesHeader, CreateItem);
+            CreateSalesLine(SalesLine, SalesHeader, CreateItem());
     end;
 
     local procedure CreateSalesHeader(var SalesHeader: Record "Sales Header"; DocumentType: Enum "Sales Document Type"; CurrencyCode: Code[10]; CustomerNo: Code[20])
@@ -907,8 +907,8 @@ codeunit 134040 "ERM Inv Disc VAT Sale/Purch II"
     var
         PurchaseLine: Record "Purchase Line";
     begin
-        CreatePurchaseHeader(PurchaseHeader, DocumentType, CurrencyCode, CreateVendor);
-        CreatePurchaseLine(PurchaseLine, PurchaseHeader, CreateItem);
+        CreatePurchaseHeader(PurchaseHeader, DocumentType, CurrencyCode, CreateVendor());
+        CreatePurchaseLine(PurchaseLine, PurchaseHeader, CreateItem());
         CopyPurchaseLine(TempPurchaseLine, PurchaseLine);  // Copy  First Purchase Line to Temporary Purchase Line.
         CreatePurchaseLine(PurchaseLine, PurchaseHeader, FindItem(PurchaseHeader."VAT Bus. Posting Group", PurchaseLine."VAT %"));
         CopyPurchaseLine(TempPurchaseLine, PurchaseLine);  // Copy Second Purchase Line to Temporary Purchase Line.
@@ -918,8 +918,8 @@ codeunit 134040 "ERM Inv Disc VAT Sale/Purch II"
     var
         SalesLine: Record "Sales Line";
     begin
-        CreateSalesHeader(SalesHeader, DocumentType, CurrencyCode, CreateCustomer);
-        CreateSalesLine(SalesLine, SalesHeader, CreateItem);
+        CreateSalesHeader(SalesHeader, DocumentType, CurrencyCode, CreateCustomer());
+        CreateSalesLine(SalesLine, SalesHeader, CreateItem());
         CopySalesLine(TempSalesLine, SalesLine);  // Copy First Sales Line to Temporary Sales Line.
         CreateSalesLine(SalesLine, SalesHeader, FindItem(SalesHeader."VAT Bus. Posting Group", SalesLine."VAT %"));
         CopySalesLine(TempSalesLine, SalesLine);  // Copy Second Sales Line to Temporary Sales Line.
@@ -930,7 +930,7 @@ codeunit 134040 "ERM Inv Disc VAT Sale/Purch II"
         Vendor: Record Vendor;
     begin
         LibraryPurchase.CreateVendor(Vendor);
-        Vendor.Validate("VAT Bus. Posting Group", FindVATBusPostingGroup);
+        Vendor.Validate("VAT Bus. Posting Group", FindVATBusPostingGroup());
         Vendor.Modify(true);
         exit(Vendor."No.");
     end;
@@ -939,16 +939,16 @@ codeunit 134040 "ERM Inv Disc VAT Sale/Purch II"
     var
         PurchaseHeader: Record "Purchase Header";
         VATAmountLine: Record "VAT Amount Line";
-        NoSeriesManagement: Codeunit NoSeriesManagement;
+        NoSeries: Codeunit "No. Series";
         PurchCalcDiscount: Codeunit "Purch.-Calc.Discount";
         QtyType: Option General,Invoicing,Shipping;
     begin
         // Exercise: Create Purchase Header and Purchase Line.
-        CreatePurchaseHeader(PurchaseHeader, DocumentType, CurrencyCode, CreateVendorInvDiscount);
-        CreatePurchaseLine(PurchaseLine, PurchaseHeader, CreateItem);
+        CreatePurchaseHeader(PurchaseHeader, DocumentType, CurrencyCode, CreateVendorInvDiscount());
+        CreatePurchaseLine(PurchaseLine, PurchaseHeader, CreateItem());
         PurchCalcDiscount.CalculateInvoiceDiscount(PurchaseHeader, PurchaseLine);
         PurchaseLine.CalcVATAmountLines(QtyType::General, PurchaseHeader, PurchaseLine, VATAmountLine);
-        exit(NoSeriesManagement.GetNextNo(PurchaseHeader."Posting No. Series", WorkDate(), false));
+        exit(NoSeries.PeekNextNo(PurchaseHeader."Posting No. Series"));
     end;
 
     local procedure CreateSalesDocWithDiscount(var SalesLine: Record "Sales Line")
@@ -962,8 +962,8 @@ codeunit 134040 "ERM Inv Disc VAT Sale/Purch II"
         // Exercise: Create Sales Header and Sales Line.
         CreateSalesHeader(
           SalesHeader, SalesHeader."Document Type"::Invoice, CreateCurrency(Currency."VAT Rounding Type"::Nearest),
-          CreateCustomerInvDiscount);
-        CreateSalesLine(SalesLine, SalesHeader, CreateItem);
+          CreateCustomerInvDiscount());
+        CreateSalesLine(SalesLine, SalesHeader, CreateItem());
         SalesCalcDiscount.Run(SalesLine);
         SalesLine.CalcVATAmountLines(QtyType::General, SalesHeader, SalesLine, VATAmountLine);
     end;

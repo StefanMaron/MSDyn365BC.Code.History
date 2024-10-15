@@ -14,7 +14,8 @@ report 10219 "Job Cost Suggested Billing"
 {
     DefaultLayout = RDLC;
     RDLCLayout = './Local/Projects/Project/Reports/JobCostSuggestedBilling.rdlc';
-    Caption = 'Job Cost Suggested Billing';
+    Caption = 'Project Cost Suggested Billing';
+    AdditionalSearchTerms = 'Job Cost Suggested Billing';
     UsageCategory = ReportsAndAnalysis;
 
     dataset
@@ -212,7 +213,7 @@ report 10219 "Job Cost Suggested Billing"
         ContractPrice: Decimal;
         UsagePrice: Decimal;
         InvoicedPrice: Decimal;
-        Job_Cost_Suggested_BillingCaptionLbl: Label 'Job Cost Suggested Billing';
+        Job_Cost_Suggested_BillingCaptionLbl: Label 'Project Cost Suggested Billing';
         CurrReport_PAGENOCaptionLbl: Label 'Page';
         ContractPriceCaptionLbl: Label 'Billable Price';
         UsagePriceCaptionLbl: Label 'Usage Amount';

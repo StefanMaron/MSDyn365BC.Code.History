@@ -6,6 +6,7 @@ using Microsoft.Inventory.Requisition;
 table 99000875 "Order Promising Setup"
 {
     Caption = 'Order Promising Setup';
+    DataClassification = CustomerContent;
 
     fields
     {

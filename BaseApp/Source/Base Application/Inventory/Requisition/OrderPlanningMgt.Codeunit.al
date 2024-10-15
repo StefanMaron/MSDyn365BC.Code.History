@@ -92,38 +92,36 @@ codeunit 5522 "Order Planning Mgt."
         i: Integer;
         NoOfRecords: Integer;
     begin
-        with TempUnplannedDemand do begin
-            SetCurrentKey("Demand Date", Level);
-            SetRange(Level, 0);
+        TempUnplannedDemand.SetCurrentKey("Demand Date", Level);
+        TempUnplannedDemand.SetRange(Level, 0);
 
-            i := 0;
-            Window.Open(Text000);
-            WindowUpdateDateTime := CurrentDateTime;
-            NoOfRecords := Count;
+        i := 0;
+        Window.Open(Text000);
+        WindowUpdateDateTime := CurrentDateTime;
+        NoOfRecords := TempUnplannedDemand.Count;
 
-            if Find('-') then
-                repeat
-                    i := i + 1;
-                    if CurrentDateTime - WindowUpdateDateTime >= 300 then begin
-                        WindowUpdateDateTime := CurrentDateTime;
-                        Window.Update(1, Round(i / NoOfRecords * 10000, 1));
-                    end;
+        if TempUnplannedDemand.Find('-') then
+            repeat
+                i := i + 1;
+                if CurrentDateTime - WindowUpdateDateTime >= 300 then begin
+                    WindowUpdateDateTime := CurrentDateTime;
+                    Window.Update(1, Round(i / NoOfRecords * 10000, 1));
+                end;
 
-                    InsertDemandLines(RequisitionLine);
-                    Delete();
-                until Next() = 0;
+                InsertDemandLines(RequisitionLine);
+                TempUnplannedDemand.Delete();
+            until TempUnplannedDemand.Next() = 0;
 
-            Window.Close();
+        Window.Close();
 
-            RequisitionLine.Reset();
-            RequisitionLine.SetCurrentKey("User ID", "Worksheet Template Name");
-            RequisitionLine.SetRange("User ID", UserId);
-            if not RequisitionLine.FindFirst() then
-                Error(Text004);
+        RequisitionLine.Reset();
+        RequisitionLine.SetCurrentKey("User ID", "Worksheet Template Name");
+        RequisitionLine.SetRange("User ID", UserId);
+        if not RequisitionLine.FindFirst() then
+            Error(Text004);
 
-            OnAfterTransformUnplannedDemandToRequisitionLines(RequisitionLine);
-            Commit();
-        end;
+        OnAfterTransformUnplannedDemandToRequisitionLines(RequisitionLine);
+        Commit();
     end;
 
     local procedure InsertDemandLines(var ReqLine: Record "Requisition Line")
@@ -132,33 +130,31 @@ codeunit 5522 "Order Planning Mgt."
         Item: Record Item;
         HeaderExists: Boolean;
     begin
-        with TempUnplannedDemand do begin
-            UnplannedDemand.Copy(TempUnplannedDemand);
+        UnplannedDemand.Copy(TempUnplannedDemand);
 
-            Reset();
-            SetRecFilter();
-            SetRange("Demand Line No.");
-            SetRange("Demand Ref. No.");
-            SetRange(Level, 1);
-            Find('-');
-            HeaderExists := false;
+        TempUnplannedDemand.Reset();
+        TempUnplannedDemand.SetRecFilter();
+        TempUnplannedDemand.SetRange("Demand Line No.");
+        TempUnplannedDemand.SetRange("Demand Ref. No.");
+        TempUnplannedDemand.SetRange(Level, 1);
+        TempUnplannedDemand.Find('-');
+        HeaderExists := false;
 
-            repeat
-                if DemandType in ["Demand Type", DemandType::" "] then begin
-                    if not HeaderExists then
-                        InsertDemandHeader(UnplannedDemand, ReqLine);
-                    HeaderExists := true;
+        repeat
+            if DemandType in [TempUnplannedDemand."Demand Type", DemandType::" "] then begin
+                if not HeaderExists then
+                    InsertDemandHeader(UnplannedDemand, ReqLine);
+                HeaderExists := true;
 
-                    ReqLine.TransferFromUnplannedDemand(TempUnplannedDemand);
-                    ReqLine.SetSupplyQty("Quantity (Base)", "Needed Qty. (Base)");
-                    ReqLine.SetSupplyDates("Demand Date");
-                    InsertReqLineFromUnplannedDemand(ReqLine, Item);
-                end;
-                Delete();
-            until Next() = 0;
+                ReqLine.TransferFromUnplannedDemand(TempUnplannedDemand);
+                ReqLine.SetSupplyQty(TempUnplannedDemand."Quantity (Base)", TempUnplannedDemand."Needed Qty. (Base)");
+                ReqLine.SetSupplyDates(TempUnplannedDemand."Demand Date");
+                InsertReqLineFromUnplannedDemand(ReqLine, Item);
+            end;
+            TempUnplannedDemand.Delete();
+        until TempUnplannedDemand.Next() = 0;
 
-            Copy(UnplannedDemand);
-        end;
+        TempUnplannedDemand.Copy(UnplannedDemand);
     end;
 
     local procedure InsertReqLineFromUnplannedDemand(var ReqLine: Record "Requisition Line"; var Item: Record Item)
@@ -178,69 +174,65 @@ codeunit 5522 "Order Planning Mgt."
 
         ReqLine.Insert();
         OnInsertDemandLinesOnAfterReqLineInsert(ReqLine, TempUnplannedDemand);
-        with TempUnplannedDemand do begin
-            if Item."No." <> "Item No." then
-                Item.Get("Item No.");
-            if Item."Item Tracking Code" <> '' then
-                case "Demand Type" of
-                    "Demand Type"::Sales:
-                        begin
-                            SalesLine.Get("Demand SubType", "Demand Order No.", "Demand Line No.");
-                            ItemTrackingMgt.CopyItemTracking(SalesLine.RowID1(), ReqLine.RowID1(), true);
-                        end;
-                    "Demand Type"::Production:
-                        begin
-                            ProdOrderComp2.Get("Demand SubType", "Demand Order No.", "Demand Line No.", "Demand Ref. No.");
-                            ItemTrackingMgt.CopyItemTracking(ProdOrderComp2.RowID1(), ReqLine.RowID1(), true);
-                        end;
-                    "Demand Type"::Service:
-                        begin
-                            ServLine.Get("Demand SubType", "Demand Order No.", "Demand Line No.");
-                            ItemTrackingMgt.CopyItemTracking(ServLine.RowID1(), ReqLine.RowID1(), true);
-                        end;
-                    "Demand Type"::Assembly:
-                        begin
-                            AsmLine.Get("Demand SubType", "Demand Order No.", "Demand Line No.");
-                            ItemTrackingMgt.CopyItemTracking(AsmLine.RowID1(), ReqLine.RowID1(), true);
-                        end;
-                end;
-            if ReqLine.Quantity > 0 then
-                PlanningLineMgt.Calculate(ReqLine, 1, true, true, 0);
-            ReqLine.Find('+');
-        end;
+        if Item."No." <> TempUnplannedDemand."Item No." then
+            Item.Get(TempUnplannedDemand."Item No.");
+        if Item."Item Tracking Code" <> '' then
+            case TempUnplannedDemand."Demand Type" of
+                TempUnplannedDemand."Demand Type"::Sales:
+                    begin
+                        SalesLine.Get(TempUnplannedDemand."Demand SubType", TempUnplannedDemand."Demand Order No.", TempUnplannedDemand."Demand Line No.");
+                        ItemTrackingMgt.CopyItemTracking(SalesLine.RowID1(), ReqLine.RowID1(), true);
+                    end;
+                TempUnplannedDemand."Demand Type"::Production:
+                    begin
+                        ProdOrderComp2.Get(TempUnplannedDemand."Demand SubType", TempUnplannedDemand."Demand Order No.", TempUnplannedDemand."Demand Line No.", TempUnplannedDemand."Demand Ref. No.");
+                        ItemTrackingMgt.CopyItemTracking(ProdOrderComp2.RowID1(), ReqLine.RowID1(), true);
+                    end;
+                TempUnplannedDemand."Demand Type"::Service:
+                    begin
+                        ServLine.Get(TempUnplannedDemand."Demand SubType", TempUnplannedDemand."Demand Order No.", TempUnplannedDemand."Demand Line No.");
+                        ItemTrackingMgt.CopyItemTracking(ServLine.RowID1(), ReqLine.RowID1(), true);
+                    end;
+                TempUnplannedDemand."Demand Type"::Assembly:
+                    begin
+                        AsmLine.Get(TempUnplannedDemand."Demand SubType", TempUnplannedDemand."Demand Order No.", TempUnplannedDemand."Demand Line No.");
+                        ItemTrackingMgt.CopyItemTracking(AsmLine.RowID1(), ReqLine.RowID1(), true);
+                    end;
+            end;
+        if ReqLine.Quantity > 0 then
+            PlanningLineMgt.Calculate(ReqLine, 1, true, true, 0);
+        ReqLine.Find('+');
     end;
 
     local procedure InsertDemandHeader(UnplannedDemand: Record "Unplanned Demand"; var ReqLine: Record "Requisition Line")
     begin
-        with ReqLine do begin
-            Init();
-            "Journal Batch Name" := GetJnlBatchNameForOrderPlanning();
-            case UnplannedDemand."Demand Type" of
-                UnplannedDemand."Demand Type"::Sales:
-                    "Demand Type" := Database::"Sales Line";
-                UnplannedDemand."Demand Type"::Production:
-                    "Demand Type" := Database::"Prod. Order Component";
-                UnplannedDemand."Demand Type"::Service:
-                    "Demand Type" := Database::"Service Line";
-                UnplannedDemand."Demand Type"::Job:
-                    "Demand Type" := Database::"Job Planning Line";
-                UnplannedDemand."Demand Type"::Assembly:
-                    "Demand Type" := Database::"Assembly Line";
-            end;
-            "Demand Subtype" := UnplannedDemand."Demand SubType";
-            "Demand Order No." := UnplannedDemand."Demand Order No.";
-            Status := UnplannedDemand.Status;
-            "Demand Date" := UnplannedDemand."Demand Date";
-            Description := UnplannedDemand.Description;
-
-            Level := 0;
-            "Replenishment System" := "Replenishment System"::" ";
-            IncreaseReqLineNo(UnplannedDemand, ReqLine);
-            "User ID" := CopyStr(UserId(), 1, MaxStrLen("User ID"));
-            OnInsertDemandHeaderOnBeforeReqLineInsert(UnplannedDemand, ReqLine);
-            Insert();
-            OnInsertDemandHeaderOnAfterReqLineInsert(UnplannedDemand, ReqLine);
+        ReqLine.Init();
+        ReqLine."Journal Batch Name" := ReqLine.GetJnlBatchNameForOrderPlanning();
+        case UnplannedDemand."Demand Type" of
+            UnplannedDemand."Demand Type"::Sales:
+                ReqLine."Demand Type" := Database::"Sales Line";
+            UnplannedDemand."Demand Type"::Production:
+                ReqLine."Demand Type" := Database::"Prod. Order Component";
+            UnplannedDemand."Demand Type"::Service:
+                ReqLine."Demand Type" := Database::"Service Line";
+            UnplannedDemand."Demand Type"::Job:
+                ReqLine."Demand Type" := Database::"Job Planning Line";
+            UnplannedDemand."Demand Type"::Assembly:
+                ReqLine."Demand Type" := Database::"Assembly Line";
         end;
+        ReqLine."Demand Subtype" := UnplannedDemand."Demand SubType";
+        ReqLine."Demand Order No." := UnplannedDemand."Demand Order No.";
+        ReqLine.Status := UnplannedDemand.Status;
+        ReqLine."Demand Date" := UnplannedDemand."Demand Date";
+        ReqLine.Description := UnplannedDemand.Description;
+
+        ReqLine.Level := 0;
+        ReqLine."Replenishment System" := ReqLine."Replenishment System"::" ";
+        IncreaseReqLineNo(UnplannedDemand, ReqLine);
+        ReqLine."User ID" := CopyStr(UserId(), 1, MaxStrLen(ReqLine."User ID"));
+        OnInsertDemandHeaderOnBeforeReqLineInsert(UnplannedDemand, ReqLine);
+        ReqLine.Insert();
+        OnInsertDemandHeaderOnAfterReqLineInsert(UnplannedDemand, ReqLine);
     end;
 
     local procedure IncreaseReqLineNo(var UnplannedDemand: Record "Unplanned Demand"; var ReqLine: Record "Requisition Line")
@@ -381,8 +373,7 @@ codeunit 5522 "Order Planning Mgt."
         if TempItemSub.FindFirst() then;
         if PAGE.RunModal(PAGE::"Item Substitution Entries", TempItemSub) = ACTION::LookupOK then begin
             // Update sourceline
-            with ReqLine do
-                ProdOrderComp.Get("Demand Subtype", "Demand Order No.", "Demand Line No.", "Demand Ref. No.");
+            ProdOrderComp.Get(ReqLine."Demand Subtype", ReqLine."Demand Order No.", ReqLine."Demand Line No.", ReqLine."Demand Ref. No.");
             ItemSubstMgt.UpdateComponent(
               ProdOrderComp, TempItemSub."Substitute No.", TempItemSub."Substitute Variant Code");
             ProdOrderComp.Modify(true);
@@ -522,22 +513,20 @@ codeunit 5522 "Order Planning Mgt."
     var
         ReqLine2: Record "Requisition Line";
     begin
-        with ReqLine do begin
-            ReqLine2.Reset();
-            ReqLine2.SetCurrentKey("Worksheet Template Name", "Journal Batch Name", Type, "No.", "Due Date");
-            ReqLine2.SetRange("Worksheet Template Name", '');
-            ReqLine2.SetRange(Type, ReqLine2.Type::Item);
-            ReqLine2.SetRange("No.", "No.");
-            ReqLine2.SetRange("User ID", UserId);
-            ReqLine2.SetRange("Variant Code", "Variant Code");
-            ReqLine2.SetRange("Replenishment System", ReqLine2."Replenishment System"::Transfer);
-            ReqLine2.SetRange("Supply From", LocationCode);
-            ReqLine2.SetFilter("Line No.", '<>%1', "Line No.");
-            if ReqLine2.Find('-') then
-                repeat
-                    OrderQtyBase += ReqLine2."Quantity (Base)";
-                until ReqLine2.Next() = 0;
-        end;
+        ReqLine2.Reset();
+        ReqLine2.SetCurrentKey("Worksheet Template Name", "Journal Batch Name", Type, "No.", "Due Date");
+        ReqLine2.SetRange("Worksheet Template Name", '');
+        ReqLine2.SetRange(Type, ReqLine2.Type::Item);
+        ReqLine2.SetRange("No.", ReqLine."No.");
+        ReqLine2.SetRange("User ID", UserId);
+        ReqLine2.SetRange("Variant Code", ReqLine."Variant Code");
+        ReqLine2.SetRange("Replenishment System", ReqLine2."Replenishment System"::Transfer);
+        ReqLine2.SetRange("Supply From", LocationCode);
+        ReqLine2.SetFilter("Line No.", '<>%1', ReqLine."Line No.");
+        if ReqLine2.Find('-') then
+            repeat
+                OrderQtyBase += ReqLine2."Quantity (Base)";
+            until ReqLine2.Next() = 0;
     end;
 
     procedure AvailQtyOnOtherLocations(ReqLine: Record "Requisition Line"): Decimal

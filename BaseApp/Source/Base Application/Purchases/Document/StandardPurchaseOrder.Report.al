@@ -1046,8 +1046,8 @@ report 1322 "Standard Purchase - Order"
                 TaxAmount := 0;
                 TotalSubTotal := 0;
                 TotalInvoiceDiscountAmount := 0;
-                CurrReport.Language := Language.GetLanguageIdOrDefault("Language Code");
-                CurrReport.FormatRegion := Language.GetFormatRegionOrDefault("Format Region");
+                CurrReport.Language := LanguageMgt.GetLanguageIdOrDefault("Language Code");
+                CurrReport.FormatRegion := LanguageMgt.GetFormatRegionOrDefault("Format Region");
                 FormatAddr.SetLanguageCode("Language Code");
 
                 Clear(BreakdownTitle);
@@ -1132,13 +1132,6 @@ report 1322 "Standard Purchase - Order"
 
     rendering
     {
-        layout("StandardPurchaseOrder.rdlc")
-        {
-            Type = RDLC;
-            LayoutFile = './Purchases/Document/StandardPurchaseOrder.rdlc';
-            Caption = 'Standard Purchase Order (RDLC)';
-            Summary = 'The Standard Purchase Order (RDLC) provides a detailed layout.';
-        }
         layout("StandardPurchaseOrder.docx")
         {
             Type = Word;
@@ -1152,6 +1145,13 @@ report 1322 "Standard Purchase - Order"
             LayoutFile = './Purchases/Document/StandardPurchaseOrderEmail.docx';
             Caption = 'Standard Purchase Order Email (Word)';
             Summary = 'The Standard Purchase Order Email (Word) provides an email body layout.';
+        }
+        layout("StandardPurchaseOrderBlue.docx")
+        {
+            Type = Word;
+            LayoutFile = './Purchases/Document/StandardPurchaseOrderBlue.docx';
+            Caption = 'Standard Purchase Order Blue (Word)';
+            Summary = 'The Standard Purchase Order (Word) provides a basic layout with a blue theme.';
         }
     }
 
@@ -1195,7 +1195,7 @@ report 1322 "Standard Purchase - Order"
         TempSalesTaxAmtLine: Record "Sales Tax Amount Line" temporary;
         TaxArea: Record "Tax Area";
         CurrExchRate: Record "Currency Exchange Rate";
-        Language: Codeunit Language;
+        LanguageMgt: Codeunit Language;
         FormatAddr: Codeunit "Format Address";
         FormatDocument: Codeunit "Format Document";
         PurchPost: Codeunit "Purch.-Post";
@@ -1373,16 +1373,14 @@ report 1322 "Standard Purchase - Order"
 
     local procedure FormatDocumentFields(PurchaseHeader: Record "Purchase Header")
     begin
-        with PurchaseHeader do begin
-            FormatDocument.SetTotalLabels("Currency Code", TotalText, TotalInclVATText, TotalExclVATText);
-            FormatDocument.SetPurchaser(SalespersonPurchaser, "Purchaser Code", PurchaserText);
-            FormatDocument.SetPaymentTerms(PaymentTerms, "Payment Terms Code", "Language Code");
-            FormatDocument.SetPaymentTerms(PrepmtPaymentTerms, "Prepmt. Payment Terms Code", "Language Code");
-            FormatDocument.SetShipmentMethod(ShipmentMethod, "Shipment Method Code", "Language Code");
+        FormatDocument.SetTotalLabels(PurchaseHeader."Currency Code", TotalText, TotalInclVATText, TotalExclVATText);
+        FormatDocument.SetPurchaser(SalespersonPurchaser, PurchaseHeader."Purchaser Code", PurchaserText);
+        FormatDocument.SetPaymentTerms(PaymentTerms, PurchaseHeader."Payment Terms Code", PurchaseHeader."Language Code");
+        FormatDocument.SetPaymentTerms(PrepmtPaymentTerms, PurchaseHeader."Prepmt. Payment Terms Code", PurchaseHeader."Language Code");
+        FormatDocument.SetShipmentMethod(ShipmentMethod, PurchaseHeader."Shipment Method Code", PurchaseHeader."Language Code");
 
-            ReferenceText := FormatDocument.SetText("Your Reference" <> '', FieldCaption("Your Reference"));
-            VATNoText := FormatDocument.SetText("VAT Registration No." <> '', FieldCaption("VAT Registration No."));
-        end;
+        ReferenceText := FormatDocument.SetText(PurchaseHeader."Your Reference" <> '', PurchaseHeader.FieldCaption("Your Reference"));
+        VATNoText := FormatDocument.SetText(PurchaseHeader."VAT Registration No." <> '', PurchaseHeader.FieldCaption("VAT Registration No."));
 
         OnAfterFormatDocumentFields(PurchaseHeader);
     end;

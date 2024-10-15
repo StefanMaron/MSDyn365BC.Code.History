@@ -20,7 +20,6 @@ codeunit 142086 PurchDocTotalsSalesEntryCopy
         LibraryDimension: Codeunit "Library - Dimension";
         LibrarySmallBusiness: Codeunit "Library - Small Business";
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
-        DocumentType: Option Quote,"Blanket Order","Order",Invoice,"Return Order","Credit Memo","Posted Receipt","Posted Invoice","Posted Return Shipment","Posted Credit Memo";
         isInitialized: Boolean;
 
     [Test]
@@ -65,7 +64,7 @@ codeunit 142086 PurchDocTotalsSalesEntryCopy
 
         // [WHEN] User creates new header and copies the posted document where "Recalculate Lines" is No
         CreatePurchaseDocumentHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, VendorNo, TaxAreaCode);
-        PurchCopyDocument(PurchaseHeader, PostedPurchDocNo, DocumentType::"Posted Invoice", false);
+        PurchCopyDocument(PurchaseHeader, PostedPurchDocNo, "Purchase Document Type From"::"Posted Invoice", false);
         CollectDataFromPurchaseInvoicePage(PurchaseHeader, PurchaseInvoice, PostAmounts, TotalTax);
 
         // [THEN] Verify Taxes are calculated and totals updated on page
@@ -116,7 +115,7 @@ codeunit 142086 PurchDocTotalsSalesEntryCopy
 
         // [WHEN] User creates new header and copies the posted document where "Recalculate Lines" is Yes
         CreatePurchaseDocumentHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, VendorNo, TaxAreaCode);
-        PurchCopyDocument(PurchaseHeader, PostedPurchDocNo, DocumentType::"Posted Invoice", true);
+        PurchCopyDocument(PurchaseHeader, PostedPurchDocNo, "Purchase Document Type From"::"Posted Invoice", true);
         CollectDataFromPurchaseInvoicePage(PurchaseHeader, PurchaseInvoice, PostAmounts, TotalTax);
 
         // [THEN] Taxes are calculated and totals updated on page
@@ -164,7 +163,7 @@ codeunit 142086 PurchDocTotalsSalesEntryCopy
         // [WHEN] User creates new order and copies the Invoice where "Recalculate Lines" is No
         CreatePurchaseDocumentHeader(PurchaseHeader2, PurchaseHeader2."Document Type"::Order,
           PurchaseHeader."Pay-to Vendor No.", PurchaseHeader."Tax Area Code");
-        PurchCopyDocument(PurchaseHeader2, PurchaseHeader."No.", DocumentType::Invoice, false);
+        PurchCopyDocument(PurchaseHeader2, PurchaseHeader."No.", "Purchase Document Type From"::Invoice, false);
         CollectDataFromPurchaseOrderPage(PurchaseHeader2, PurchaseOrder, OrderAmounts, TotalTax);
 
         // [THEN] Taxes are calculated and totals updated on page
@@ -212,7 +211,7 @@ codeunit 142086 PurchDocTotalsSalesEntryCopy
         // [WHEN] User creates new order and copies the invoice where "Recalculate Lines" is Yes
         CreatePurchaseDocumentHeader(PurchaseHeader2, PurchaseHeader2."Document Type"::Order,
           PurchaseHeader."Pay-to Vendor No.", PurchaseHeader."Tax Area Code");
-        PurchCopyDocument(PurchaseHeader2, PurchaseHeader."No.", DocumentType::Invoice, true);
+        PurchCopyDocument(PurchaseHeader2, PurchaseHeader."No.", "Purchase Document Type From"::Invoice, true);
         CollectDataFromPurchaseOrderPage(PurchaseHeader2, PurchaseOrder, OrderAmounts, TotalTax);
 
         // [THEN] Taxes are calculated and totals updated on page
@@ -265,7 +264,7 @@ codeunit 142086 PurchDocTotalsSalesEntryCopy
         // [WHEN] User creates new order and copies the invoice where "Recalculate Lines" is Yes
         CreatePurchaseDocumentHeaderWithInvDisc(PurchaseHeader2, PurchaseHeader2."Document Type"::Order,
           PurchaseHeader."Pay-to Vendor No.", PurchaseHeader."Tax Area Code");
-        PurchCopyDocument(PurchaseHeader2, PurchaseHeader."No.", DocumentType::Invoice, true);
+        PurchCopyDocument(PurchaseHeader2, PurchaseHeader."No.", "Purchase Document Type From"::Invoice, true);
         FindPurchaseLine(PurchaseHeader2, PurchaseLine2);
         DocumentTotals.PurchaseRedistributeInvoiceDiscountAmounts(PurchaseLine2, VATAmount, TotalPurchaseLine);
         DiscountPercent := PurchCalcDiscByType.GetVendInvoiceDiscountPct(PurchaseLine2);
@@ -434,7 +433,7 @@ codeunit 142086 PurchDocTotalsSalesEntryCopy
             exit;
 
         LibraryERMCountryData.CreateVATData();
-        CreateVATPostingSetup;
+        CreateVATPostingSetup();
         LibraryERMCountryData.UpdateGeneralLedgerSetup();
         LibraryERMCountryData.CreateGeneralPostingSetupData();
         LibraryInventory.NoSeriesSetup(InventorySetup);
@@ -477,7 +476,7 @@ codeunit 142086 PurchDocTotalsSalesEntryCopy
         TaxGroup: Record "Tax Group";
     begin
         LibraryERM.CreateTaxGroup(TaxGroup);
-        LibraryERM.CreateTaxDetail(TaxDetail, CreateSalesTaxJurisdiction, TaxGroup.Code, TaxDetail."Tax Type"::"Sales Tax Only", WorkDate());
+        LibraryERM.CreateTaxDetail(TaxDetail, CreateSalesTaxJurisdiction(), TaxGroup.Code, TaxDetail."Tax Type"::"Sales Tax Only", WorkDate());
         TaxDetail.Validate("Tax Below Maximum", TaxPercentage);  // Using RANDOM value for Tax Below Maximum.
         TaxDetail.Modify(true);
     end;
@@ -508,7 +507,7 @@ codeunit 142086 PurchDocTotalsSalesEntryCopy
         exit(TaxArea.Code);
     end;
 
-    local procedure CreatePurchaseDocument(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; DocumentType: Option; TaxPercentage: Integer)
+    local procedure CreatePurchaseDocument(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; DocumentType: Enum "Purchase Document Type"; TaxPercentage: Integer)
     var
         TaxDetail: Record "Tax Detail";
         TaxAreaCode: Code[20];
@@ -517,7 +516,7 @@ codeunit 142086 PurchDocTotalsSalesEntryCopy
         CreatePurchaseDocumentWithCertainTax(PurchaseHeader, PurchaseLine, DocumentType, TaxAreaCode, TaxDetail."Tax Group Code");
     end;
 
-    local procedure CreatePurchaseDocumentWithCertainTax(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; DocumentType: Option; TaxAreaCode: Code[20]; TaxGroupCode: Code[20])
+    local procedure CreatePurchaseDocumentWithCertainTax(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; DocumentType: Enum "Purchase Document Type"; TaxAreaCode: Code[20]; TaxGroupCode: Code[20])
     begin
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, DocumentType, CreateVendor(TaxAreaCode));
         PurchaseHeader.Validate("Invoice Discount Calculation", PurchaseHeader."Invoice Discount Calculation"::None);
@@ -529,7 +528,7 @@ codeunit 142086 PurchDocTotalsSalesEntryCopy
           LibraryRandom.RandDec(10, 2));  // Using RANDOM value for Quantity.
     end;
 
-    local procedure CreatePurchaseDocumentWithInvDisc(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; DocumentType: Option; TaxPercentage: Integer)
+    local procedure CreatePurchaseDocumentWithInvDisc(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; DocumentType: Enum "Purchase Document Type"; TaxPercentage: Integer)
     var
         TaxDetail: Record "Tax Detail";
         Vendor: Record Vendor;
@@ -543,7 +542,7 @@ codeunit 142086 PurchDocTotalsSalesEntryCopy
         CreatePurchaseDocumentWithCertainTaxAndDisc(PurchaseHeader, PurchaseLine, DocumentType, Vendor."No.", ItemNo, TaxAreaCode);
     end;
 
-    local procedure CreatePurchaseDocumentWithCertainTaxAndDisc(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; DocumentType: Option; VendorNo: Code[20]; ItemNo: Code[20]; TaxAreaCode: Code[20])
+    local procedure CreatePurchaseDocumentWithCertainTaxAndDisc(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; DocumentType: Enum "Purchase Document Type"; VendorNo: Code[20]; ItemNo: Code[20]; TaxAreaCode: Code[20])
     begin
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, DocumentType, VendorNo);
         PurchaseHeader.Validate("Invoice Discount Calculation", PurchaseHeader."Invoice Discount Calculation"::"%");
@@ -555,7 +554,7 @@ codeunit 142086 PurchDocTotalsSalesEntryCopy
           LibraryRandom.RandDec(10, 2));  // Using RANDOM value for Quantity.
     end;
 
-    local procedure CreatePurchaseDocumentHeader(var PurchaseHeader: Record "Purchase Header"; DocumentType: Option; VendorNo: Code[20]; TaxAreaCode: Code[20])
+    local procedure CreatePurchaseDocumentHeader(var PurchaseHeader: Record "Purchase Header"; DocumentType: Enum "Purchase Document Type"; VendorNo: Code[20]; TaxAreaCode: Code[20])
     begin
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, DocumentType, VendorNo);
         PurchaseHeader.Validate("Invoice Discount Calculation", PurchaseHeader."Invoice Discount Calculation"::None);
@@ -563,7 +562,7 @@ codeunit 142086 PurchDocTotalsSalesEntryCopy
         PurchaseHeader.Modify();
     end;
 
-    local procedure CreatePurchaseDocumentHeaderWithInvDisc(var PurchaseHeader: Record "Purchase Header"; DocumentType: Option; VendorNo: Code[20]; TaxAreaCode: Code[20])
+    local procedure CreatePurchaseDocumentHeaderWithInvDisc(var PurchaseHeader: Record "Purchase Header"; DocumentType: Enum "Purchase Document Type"; VendorNo: Code[20]; TaxAreaCode: Code[20])
     begin
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, DocumentType, VendorNo);
         PurchaseHeader.Validate("Invoice Discount Calculation", PurchaseHeader."Invoice Discount Calculation"::"%");
@@ -581,13 +580,13 @@ codeunit 142086 PurchDocTotalsSalesEntryCopy
 
     local procedure OpenPurchaseOrderPageEdit(var PurchaseOrder: TestPage "Purchase Order"; PurchaseHeader: Record "Purchase Header")
     begin
-        PurchaseOrder.OpenEdit;
+        PurchaseOrder.OpenEdit();
         PurchaseOrder.GotoRecord(PurchaseHeader);
     end;
 
     local procedure OpenPurchaseInvoicePageEdit(var PurchaseInvoice: TestPage "Purchase Invoice"; PurchaseHeader: Record "Purchase Header")
     begin
-        PurchaseInvoice.OpenEdit;
+        PurchaseInvoice.OpenEdit();
         PurchaseInvoice.GotoRecord(PurchaseHeader);
     end;
 
@@ -698,7 +697,7 @@ codeunit 142086 PurchDocTotalsSalesEntryCopy
         CreateVendorWithDiscount(Vendor, TaxAreaCode, DiscPct, MinAmt);
     end;
 
-    local procedure PurchCopyDocument(PurchaseHeader: Record "Purchase Header"; DocumentNo: Code[20]; DocumentType: Option; ReCalculateLines: Boolean)
+    local procedure PurchCopyDocument(PurchaseHeader: Record "Purchase Header"; DocumentNo: Code[20]; DocumentType: Enum "Purchase Document Type From"; ReCalculateLines: Boolean)
     var
         CopyPurchaseDocument: Report "Copy Purchase Document";
     begin
@@ -709,7 +708,7 @@ codeunit 142086 PurchDocTotalsSalesEntryCopy
         CopyPurchaseDocument.RunModal();
     end;
 
-    local procedure CreateItemWithDimension(DimensionCode: Code[20]; ValuePosting: Option; TaxGroupCode: Code[20]) ItemNo: Code[20]
+    local procedure CreateItemWithDimension(DimensionCode: Code[20]; ValuePosting: Enum "Default Dimension Value Posting Type"; TaxGroupCode: Code[20]) ItemNo: Code[20]
     var
         Item: Record Item;
         DefaultDimension: Record "Default Dimension";
@@ -719,8 +718,8 @@ codeunit 142086 PurchDocTotalsSalesEntryCopy
     begin
         LibraryInventory.CreateItem(Item);
         // Use Random because value is not important.
-        Item.Validate("Unit Price", LibraryRandom.RandDec(100, 2) + LibraryUtility.GenerateRandomFraction);
-        Item.Validate("Last Direct Cost", LibraryRandom.RandDec(100, 2) + LibraryUtility.GenerateRandomFraction);
+        Item.Validate("Unit Price", LibraryRandom.RandDec(100, 2) + LibraryUtility.GenerateRandomFraction());
+        Item.Validate("Last Direct Cost", LibraryRandom.RandDec(100, 2) + LibraryUtility.GenerateRandomFraction());
         Item.Validate("Tax Group Code", TaxGroupCode);
         Item.Modify(true);
         ItemNo := Item."No.";
@@ -748,7 +747,7 @@ codeunit 142086 PurchDocTotalsSalesEntryCopy
         LibraryService.CreateExtendedTextLineItem(ExtendedTextLine, ExtendedTextHeader);
     end;
 
-    local procedure CreateStandardPurchaseLine(var StandardPurchaseLine: Record "Standard Purchase Line"; StandardPurchaseCode: Code[10]; Type: Option; No: Code[20])
+    local procedure CreateStandardPurchaseLine(var StandardPurchaseLine: Record "Standard Purchase Line"; StandardPurchaseCode: Code[10]; Type: Enum "Purchase Line Type"; No: Code[20])
     begin
         LibraryPurchase.CreateStandardPurchaseLine(StandardPurchaseLine, StandardPurchaseCode);
         StandardPurchaseLine.Validate(Type, Type);
@@ -845,11 +844,11 @@ codeunit 142086 PurchDocTotalsSalesEntryCopy
     begin
         OpenPurchaseInvoicePageEdit(PurchaseInvoice, PurchaseHeader);
 
-        SetCompareAmounts(PurchaseInvoice.PurchLines.InvoiceDiscountAmount.AsDEcimal,
-          PurchaseInvoice.PurchLines."Total Amount Excl. VAT".AsDEcimal,
-          PurchaseInvoice.PurchLines."Total VAT Amount".AsDEcimal,
-          PurchaseInvoice.PurchLines."Total Amount Incl. VAT".AsDEcimal,
-          PurchaseInvoice.PurchLines."Invoice Disc. Pct.".AsDEcimal,
+        SetCompareAmounts(PurchaseInvoice.PurchLines.InvoiceDiscountAmount.AsDecimal(),
+          PurchaseInvoice.PurchLines."Total Amount Excl. VAT".AsDecimal(),
+          PurchaseInvoice.PurchLines."Total VAT Amount".AsDecimal(),
+          PurchaseInvoice.PurchLines."Total Amount Incl. VAT".AsDecimal(),
+          PurchaseInvoice.PurchLines."Invoice Disc. Pct.".AsDecimal(),
           PostAmounts);
 
         // Calculate the TotalTax, and flowfields
@@ -862,11 +861,11 @@ codeunit 142086 PurchDocTotalsSalesEntryCopy
     begin
         OpenPurchaseOrderPageEdit(PurchaseOrder, PurchaseHeader);
 
-        SetCompareAmounts(PurchaseOrder.PurchLines."Invoice Discount Amount".AsDEcimal,
-          PurchaseOrder.PurchLines."Total Amount Excl. VAT".AsDEcimal,
-          PurchaseOrder.PurchLines."Total VAT Amount".AsDEcimal,
-          PurchaseOrder.PurchLines."Total Amount Incl. VAT".AsDEcimal,
-          PurchaseOrder.PurchLines."Invoice Disc. Pct.".AsDEcimal,
+        SetCompareAmounts(PurchaseOrder.PurchLines."Invoice Discount Amount".AsDecimal(),
+          PurchaseOrder.PurchLines."Total Amount Excl. VAT".AsDecimal(),
+          PurchaseOrder.PurchLines."Total VAT Amount".AsDecimal(),
+          PurchaseOrder.PurchLines."Total Amount Incl. VAT".AsDecimal(),
+          PurchaseOrder.PurchLines."Invoice Disc. Pct.".AsDecimal(),
           OrderAmounts);
 
         // Calculate the TotalTax, and flowfields

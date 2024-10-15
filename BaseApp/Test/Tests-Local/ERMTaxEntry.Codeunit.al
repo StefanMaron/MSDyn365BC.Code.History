@@ -230,7 +230,7 @@ codeunit 144017 "ERM Tax Entry"
         GLEntry.SetRange("G/L Account No.", GLAccountNo);
         GLEntry.FindFirst();
         Assert.AreNearlyEqual(
-          Amount, GLEntry.Amount, LibraryERM.GetAmountRoundingPrecision,
+          Amount, GLEntry.Amount, LibraryERM.GetAmountRoundingPrecision(),
           StrSubstNo(AmountError, GLEntry.FieldCaption(Amount), GLEntry.Amount, GLEntry.TableCaption()));
     end;
 }

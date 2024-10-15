@@ -14,7 +14,7 @@ xmlport 9990 "Code Coverage Summary"
             tableelement("Code Coverage"; "Code Coverage")
             {
                 XmlName = 'CodeCoverageObjects';
-                SourceTableView = sorting("Object Type", "Object ID", "Line No.") order(Ascending);
+                SourceTableView = sorting("Object Type", "Object ID", "Line No.") order(ascending);
                 fieldelement(LineType; "Code Coverage"."Line Type")
                 {
                 }

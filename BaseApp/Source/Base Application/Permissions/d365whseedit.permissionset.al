@@ -44,6 +44,7 @@ permissionset 8992 "D365 WHSE, EDIT"
                   tabledata "Special Equipment" = IMD,
                   tabledata "Warehouse Activity Header" = IM,
                   tabledata "Warehouse Activity Line" = IM,
+                  tabledata "Warehouse Reason Code" = IM,
                   tabledata "Warehouse Class" = RIMD,
                   tabledata "Warehouse Employee" = IM,
                   tabledata "Warehouse Entry" = md,

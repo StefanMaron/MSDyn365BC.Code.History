@@ -118,46 +118,43 @@ codeunit 5053 TAPIManagement
     var
         ContAltAddr: Record "Contact Alt. Address";
     begin
-        with TempCommunicationMethod do begin
-            Init();
-            "Contact No." := ContactNo;
-            Name := Contact.Name;
-            if Contact."Phone No." <> '' then begin
-                Key += 1;
-                Description := CopyStr(Contact.FieldCaption("Phone No."), 1, MaxStrLen(Description));
-                Number := Contact."Phone No.";
-                Type := Contact.Type;
-                Insert();
-            end;
-            if Contact."Mobile Phone No." <> '' then begin
-                Key += 1;
-                Description := CopyStr(Contact.FieldCaption("Mobile Phone No."), 1, MaxStrLen(Description));
-                Number := Contact."Mobile Phone No.";
-                Type := Contact.Type;
-                Insert();
-            end;
-
-            // Alternative address
-            if ContAltAddr.Get(Contact."No.", ContAltAddrCode) then begin
-                if ContAltAddr."Phone No." <> '' then begin
-                    Key += 1;
-                    Description :=
-                      CopyStr(TrimCode(ContAltAddr.Code) + ' - ' + ContAltAddr.FieldCaption("Phone No."), 1, MaxStrLen(Description));
-                    Number := ContAltAddr."Phone No.";
-                    Type := Contact.Type;
-                    Insert();
-                end;
-                if ContAltAddr."Mobile Phone No." <> '' then begin
-                    Key += 1;
-                    Description :=
-                      CopyStr(TrimCode(ContAltAddr.Code) + ' - ' + ContAltAddr.FieldCaption("Mobile Phone No."), 1, MaxStrLen(Description));
-                    Number := ContAltAddr."Mobile Phone No.";
-                    Type := Contact.Type;
-                    Insert();
-                end;
-            end;
-            OnAfterCreateCommMethod(Contact, TempCommunicationMethod, ContactNo, ContAltAddrCode);
+        TempCommunicationMethod.Init();
+        TempCommunicationMethod."Contact No." := ContactNo;
+        TempCommunicationMethod.Name := Contact.Name;
+        if Contact."Phone No." <> '' then begin
+            TempCommunicationMethod."Key" += 1;
+            TempCommunicationMethod.Description := CopyStr(Contact.FieldCaption("Phone No."), 1, MaxStrLen(TempCommunicationMethod.Description));
+            TempCommunicationMethod.Number := Contact."Phone No.";
+            TempCommunicationMethod.Type := Contact.Type;
+            TempCommunicationMethod.Insert();
         end;
+        if Contact."Mobile Phone No." <> '' then begin
+            TempCommunicationMethod."Key" += 1;
+            TempCommunicationMethod.Description := CopyStr(Contact.FieldCaption("Mobile Phone No."), 1, MaxStrLen(TempCommunicationMethod.Description));
+            TempCommunicationMethod.Number := Contact."Mobile Phone No.";
+            TempCommunicationMethod.Type := Contact.Type;
+            TempCommunicationMethod.Insert();
+        end;
+        // Alternative address
+        if ContAltAddr.Get(Contact."No.", ContAltAddrCode) then begin
+            if ContAltAddr."Phone No." <> '' then begin
+                TempCommunicationMethod."Key" += 1;
+                TempCommunicationMethod.Description :=
+                  CopyStr(TrimCode(ContAltAddr.Code) + ' - ' + ContAltAddr.FieldCaption("Phone No."), 1, MaxStrLen(TempCommunicationMethod.Description));
+                TempCommunicationMethod.Number := ContAltAddr."Phone No.";
+                TempCommunicationMethod.Type := Contact.Type;
+                TempCommunicationMethod.Insert();
+            end;
+            if ContAltAddr."Mobile Phone No." <> '' then begin
+                TempCommunicationMethod."Key" += 1;
+                TempCommunicationMethod.Description :=
+                  CopyStr(TrimCode(ContAltAddr.Code) + ' - ' + ContAltAddr.FieldCaption("Mobile Phone No."), 1, MaxStrLen(TempCommunicationMethod.Description));
+                TempCommunicationMethod.Number := ContAltAddr."Mobile Phone No.";
+                TempCommunicationMethod.Type := Contact.Type;
+                TempCommunicationMethod.Insert();
+            end;
+        end;
+        OnAfterCreateCommMethod(Contact, TempCommunicationMethod, ContactNo, ContAltAddrCode);
     end;
 
     [IntegrationEvent(false, false)]

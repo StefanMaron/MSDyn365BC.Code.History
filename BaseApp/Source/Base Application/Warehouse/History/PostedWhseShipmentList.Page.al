@@ -13,7 +13,7 @@ page 7340 "Posted Whse. Shipment List"
     PageType = List;
     SourceTable = "Posted Whse. Shipment Header";
     SourceTableView = sorting("Posting Date")
-                      order(Descending);
+                      order(descending);
     UsageCategory = History;
 
     layout

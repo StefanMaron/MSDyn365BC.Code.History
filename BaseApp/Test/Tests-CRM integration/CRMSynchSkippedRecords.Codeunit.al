@@ -339,16 +339,16 @@ codeunit 139186 "CRM Synch. Skipped Records"
           Customer.RecordId, CRMAccount.RecordId,
           StrSubstNo(MustBeCoupledErr, Customer."Salesperson Code"), CurrentDateTime, true);
         // [GIVEN] Open "CRM Skipped Records" page, where all actions are enabled
-        CRMSkippedRecords.OpenEdit;
-        Assert.IsTrue(CRMSkippedRecords.First, 'the lines must be in the list');
+        CRMSkippedRecords.OpenEdit();
+        Assert.IsTrue(CRMSkippedRecords.First(), 'the lines must be in the list');
         VerifyPagesActions(CRMSkippedRecords, true);
         // [WHEN] Run the "Restore" action on the Customer '10000'
-        CRMSkippedRecords.Restore.Invoke;
+        CRMSkippedRecords.Restore.Invoke();
 
         // [THEN] Notification: 'The record has been restored for synchronization.'
         VerifyNotificationMessage(SyncRestoredMsg);
         // [THEN] No records in the page, all actions are disabled
-        Assert.IsFalse(CRMSkippedRecords.First, 'the list must be blank');
+        Assert.IsFalse(CRMSkippedRecords.First(), 'the list must be blank');
         VerifyPagesActions(CRMSkippedRecords, false);
     end;
 
@@ -377,7 +377,7 @@ codeunit 139186 "CRM Synch. Skipped Records"
 
         // [WHEN] Run the synch Job for Customer '10000'
         GoodSynchCustomer(Customer);
-        Assert.AreEqual(1, LibraryVariableStorage.DequeueInteger, 'wrong direction.'); // by PickDirectionToCRMHandler
+        Assert.AreEqual(1, LibraryVariableStorage.DequeueInteger(), 'wrong direction.'); // by PickDirectionToCRMHandler
         VerifyNotificationMessage(SyncStartedMsg);
 
         // [THEN] The job log, where "Failed" = 0, "Modified" = 1
@@ -435,18 +435,18 @@ codeunit 139186 "CRM Synch. Skipped Records"
         // [GIVEN] Coupled Salespersons 'X' and 'Y' are skipped for synchronization.
         MockSkippedSalespersons(SalespersonPurchaser, CRMSystemuser);
         // [GIVEN] Open "CRM Skipped Records" page on Salesperson 'X'
-        CRMSkippedRecords.OpenEdit;
+        CRMSkippedRecords.OpenEdit();
         CRMSkippedRecords.FindFirstField(Description, SalespersonPurchaser[1].Name);
 
         // [WHEN] run action "Synchronize"
-        CRMSkippedRecords.CRMSynchronizeNow.Invoke;
+        CRMSkippedRecords.CRMSynchronizeNow.Invoke();
         // execute the job
         CRMSystemuser[1].SetRange(SystemUserId, CRMSystemuser[1].SystemUserId);
         LibraryCRMIntegration.RunJobQueueEntry(
           DATABASE::"CRM Systemuser", CRMSystemuser[1].GetView(), IntegrationTableMapping);
 
         // [THEN] Confirmation asked: "Do you want to synchronize?"
-        Assert.ExpectedMessage(WantToSynchronizeQst, LibraryVariableStorage.DequeueText);
+        Assert.ExpectedMessage(WantToSynchronizeQst, LibraryVariableStorage.DequeueText());
         // [THEN] Notification "Synchronization has been scheduled"
         VerifyNotificationMessage(SyncStartedMsg);
         // [THEN] The synchronization job is executed and Salesperson 'X' became not skipped.
@@ -471,20 +471,20 @@ codeunit 139186 "CRM Synch. Skipped Records"
         // [GIVEN] Coupled Customers '10000' and '20000' are skipped for synchronization.
         MockSkippedCustomers(Customer, CRMAccount, 2);
         // [GIVEN] Open "CRM Skipped Records" page
-        CRMSkippedRecords.OpenEdit;
+        CRMSkippedRecords.OpenEdit();
         CRMSkippedRecords.FindFirstField(Description, Customer[1]."No.");
 
         // [WHEN] run action "Synchronize"
-        CRMSkippedRecords.CRMSynchronizeNow.Invoke;
+        CRMSkippedRecords.CRMSynchronizeNow.Invoke();
         // execute the job
         Customer[1].SetRange(SystemId, Customer[1].SystemId);
         LibraryCRMIntegration.RunJobQueueEntry(
           DATABASE::Customer, Customer[1].GetView(), IntegrationTableMapping);
 
         // [THEN] Message is shown: "data... will be lost and replaced..."
-        Assert.ExpectedMessage(DataWillBeOverriddenMsg, LibraryVariableStorage.DequeueText); // by MessageHandler
+        Assert.ExpectedMessage(DataWillBeOverriddenMsg, LibraryVariableStorage.DequeueText()); // by MessageHandler
         // [THEN] Menu for picking direction, where Direction "To Integration Table" is picked
-        Assert.AreEqual(1, LibraryVariableStorage.DequeueInteger, 'wrong direction.'); // by PickDirectionToCRMHandler
+        Assert.AreEqual(1, LibraryVariableStorage.DequeueInteger(), 'wrong direction.'); // by PickDirectionToCRMHandler
         // [THEN] Notification "Synchronization has been scheduled"
         VerifyNotificationMessage(SyncStartedMsg);
         // [THEN] CRM Account '10000' gets overridden by Customer '10000'
@@ -535,7 +535,7 @@ codeunit 139186 "CRM Synch. Skipped Records"
         CRMIntegrationManagement.UpdateMultipleNow(SelectedCRMIntegrationRecord);
 
         // [THEN] Menu for picking direction, where Direction "To Integration Table" is picked
-        Assert.AreEqual(1, LibraryVariableStorage.DequeueInteger, 'wrong direction.'); // by PickDirectionToCRMHandler
+        Assert.AreEqual(1, LibraryVariableStorage.DequeueInteger(), 'wrong direction.'); // by PickDirectionToCRMHandler
 
         // [THEN] Notification "Synchronization has been scheduled"
         VerifyNotificationMessage(SyncStartedMsg);
@@ -613,13 +613,13 @@ codeunit 139186 "CRM Synch. Skipped Records"
         // [GIVEN] Coupled Salespersons 'X' and 'Y' are skipped for synchronization.
         MockSkippedSalespersons(SalespersonPurchaser, CRMSystemuser);
         // [GIVEN] Open "CRM Skipped Records" page, where Salesperson 'Y' is selected
-        CRMSkippedRecords.OpenEdit;
+        CRMSkippedRecords.OpenEdit();
         CRMSkippedRecords.FindFirstField(Description, SalespersonPurchaser[2].Name);
 
         // [WHEN] Run action "Set Up Coupling"
-        CRMSkippedRecords.ManageCRMCoupling.Invoke;
+        CRMSkippedRecords.ManageCRMCoupling.Invoke();
         // [THEN] "CRM Coupling Record" page is open on Salesperson 'Y'
-        Assert.AreEqual(SalespersonPurchaser[2].Name, LibraryVariableStorage.DequeueText, 'wrong NAV name for coupling.'); // by CRMCouplingRecordModalPageHandler
+        Assert.AreEqual(SalespersonPurchaser[2].Name, LibraryVariableStorage.DequeueText(), 'wrong NAV name for coupling.'); // by CRMCouplingRecordModalPageHandler
     end;
 
     [Test]
@@ -638,11 +638,11 @@ codeunit 139186 "CRM Synch. Skipped Records"
         MockSkippedItem(Item[1], CRMProduct[1]);
         MockSkippedItem(Item[2], CRMProduct[2]);
         // [GIVEN] Open "CRM Skipped Records" page, where 'X' is selected
-        CRMSkippedRecords.OpenEdit;
+        CRMSkippedRecords.OpenEdit();
         CRMSkippedRecords.FindFirstField(Description, Item[1]."No.");
 
         // [WHEN] run action "Delete Coupling"
-        CRMSkippedRecords.DeleteCRMCoupling.Invoke;
+        CRMSkippedRecords.DeleteCRMCoupling.Invoke();
         VerifyUncouplingJobQueueEntryExists();
         SimulateUncouplingJobsExecution();
         // [THEN] the Item 'X' is not coupled and not in the list of skipped records
@@ -673,11 +673,11 @@ codeunit 139186 "CRM Synch. Skipped Records"
         Item[1].Delete();
 
         // [GIVEN] Open "CRM Skipped Records" page, where 'X' is selected
-        CRMSkippedRecords.OpenEdit;
+        CRMSkippedRecords.OpenEdit();
         CRMSkippedRecords.FindFirstField("Int. Description", CRMProduct[1].ProductNumber);
 
         // [WHEN] run action "Delete Coupling"
-        CRMSkippedRecords.DeleteCRMCoupling.Invoke;
+        CRMSkippedRecords.DeleteCRMCoupling.Invoke();
         VerifyUncouplingJobQueueEntryExists();
         SimulateUncouplingJobsExecution();
         // [THEN] the Salesperson 'X' is not coupled and not in the list of skipped records
@@ -716,16 +716,16 @@ codeunit 139186 "CRM Synch. Skipped Records"
           SalespersonPurchaser.RecordId, DummyEmptyRecID, NotFoundErr, FailedOn[2], true);
 
         // [GIVEN] Open CRM Connection Setup page
-        CRMConnectionSetupPage.OpenView;
+        CRMConnectionSetupPage.OpenView();
 
         // [WHEN] Run the promoted action "Skipped Records"
-        Assert.IsTrue(CRMConnectionSetupPage.SkippedSynchRecords.Enabled, 'SkippedSynchRecords is disabled');
-        CRMSkippedRecords.Trap;
-        CRMConnectionSetupPage.SkippedSynchRecords.Invoke;
+        Assert.IsTrue(CRMConnectionSetupPage.SkippedSynchRecords.Enabled(), 'SkippedSynchRecords is disabled');
+        CRMSkippedRecords.Trap();
+        CRMConnectionSetupPage.SkippedSynchRecords.Invoke();
 
         // [THEN] The modal "CRM Skipped Records" list page is open, where are two records:
         // [THEN] Salesperson 'RS' has error message 'X', "Failed On" is 'T2'
-        CRMSkippedRecords.First;
+        CRMSkippedRecords.First();
         CRMSkippedRecords."Table Name".AssertEquals(SalespersonPurchaser.TableCaption());
         CRMSkippedRecords.Description.AssertEquals(Customer."Salesperson Code");
         CRMSkippedRecords."Error Message".AssertEquals(NotFoundErr);
@@ -736,7 +736,7 @@ codeunit 139186 "CRM Synch. Skipped Records"
         CRMSkippedRecords.Description.AssertEquals(Customer."No.");
         CRMSkippedRecords."Error Message".AssertEquals(StrSubstNo(MustBeCoupledErr, Customer."Salesperson Code"));
         CRMSkippedRecords."Failed On".AssertEquals(FailedOn[1]);
-        Assert.IsFalse(CRMSkippedRecords.Next, 'Customer record should be the last.');
+        Assert.IsFalse(CRMSkippedRecords.Next(), 'Customer record should be the last.');
     end;
 
     [Test]
@@ -767,16 +767,16 @@ codeunit 139186 "CRM Synch. Skipped Records"
                 CRMIntegrationRecord.FindByRecordID(Customer[i].RecordId);
         end;
         // [GIVEN] Cursor points to Customer 'B'
-        CRMSkippedRecords.OpenView;
+        CRMSkippedRecords.OpenView();
         CRMSynchConflictBuffer.InitFromCRMIntegrationRecord(CRMIntegrationRecord);
         CRMSkippedRecords.FindFirstField(Description, CRMSynchConflictBuffer.Description);
 
         // [WHEN] "Show Synchronization Log" action
-        IntegrationSynchJobListPage.Trap;
-        CRMSkippedRecords.ShowLog.Invoke;
+        IntegrationSynchJobListPage.Trap();
+        CRMSkippedRecords.ShowLog.Invoke();
         // [THEN] Open page "Synchronization Log" for Customer 'B'
         Assert.IsTrue(IntegrationSynchJobListPage.GotoKey(JobID[2]), 'Expected job is not in the list.');
-        Assert.IsFalse(IntegrationSynchJobListPage.Previous, 'Expected job is not the first rec.');
+        Assert.IsFalse(IntegrationSynchJobListPage.Previous(), 'Expected job is not the first rec.');
     end;
 
     [Test]
@@ -813,13 +813,13 @@ codeunit 139186 "CRM Synch. Skipped Records"
         // [GIVEN] Item 'A' coupled to CRM Product, skipped for synchronization
         MockSkippedItem(Item, CRMProduct);
         // [GIVEN] Open "CRM Skipped Records" page
-        CRMSkippedRecords.OpenEdit;
+        CRMSkippedRecords.OpenEdit();
 
         // [WHEN] Drill down on "Description" value
-        CRMSkippedRecords.Description.DrillDown;
+        CRMSkippedRecords.Description.DrillDown();
 
         // [THEN] Item card is open on Item 'A'
-        Assert.AreEqual(Item."No.", LibraryVariableStorage.DequeueText, 'Item No. on the card');
+        Assert.AreEqual(Item."No.", LibraryVariableStorage.DequeueText(), 'Item No. on the card');
     end;
 
     [Test]
@@ -838,13 +838,13 @@ codeunit 139186 "CRM Synch. Skipped Records"
         // [GIVEN] Item 'A' coupled to CRM Product, skipped for synchronization
         MockSkippedItem(Item, CRMProduct);
         // [GIVEN] Open "CRM Skipped Records" page
-        CRMSkippedRecords.OpenEdit;
+        CRMSkippedRecords.OpenEdit();
 
         // [WHEN] Drill down on "Int. Description" value
-        CRMSkippedRecords."Int. Description".DrillDown;
+        CRMSkippedRecords."Int. Description".DrillDown();
 
         // [THEN] Product 'A' link is open
-        Link := LibraryVariableStorage.DequeueText; // from HyperlinkHandler
+        Link := LibraryVariableStorage.DequeueText(); // from HyperlinkHandler
         Assert.ExpectedMessage(Format(CRMProduct.ProductId), Link);
     end;
 
@@ -868,7 +868,7 @@ codeunit 139186 "CRM Synch. Skipped Records"
         // [GIVEN] Failed Job Entry is deleted
         IntegrationSynchJob.DeleteAll(true);
         // [WHEN] Open "CRM Skipped Records" page
-        CRMSkippedRecords.OpenEdit;
+        CRMSkippedRecords.OpenEdit();
 
         // [THEN] Page is open, "Error Message" is <blank>
         CRMSkippedRecords."Error Message".AssertEquals('');
@@ -962,8 +962,8 @@ codeunit 139186 "CRM Synch. Skipped Records"
           Currency.RecordId, CRMAccount.RecordId, '', CurrentDateTime, true);
 
         // [GIVEN] Open Customer Card
-        CustomerCardPage.Trap;
-        CRMSkippedRecords.Trap;
+        CustomerCardPage.Trap();
+        CRMSkippedRecords.Trap();
         PAGE.Run(PAGE::"Customer Card", Customer);
 
         // [GIVEN] Notification: 'The record will be skipped for further synchronization. Details.'
@@ -972,7 +972,7 @@ codeunit 139186 "CRM Synch. Skipped Records"
 
         // [THEN] "CRM Skipped Records" list is open with one record, Customer '10000'
         CRMSkippedRecords."Table Name".AssertEquals(Customer.TableCaption());
-        Assert.IsFalse(CRMSkippedRecords.Next, 'Should be one skipped record shown.');
+        Assert.IsFalse(CRMSkippedRecords.Next(), 'Should be one skipped record shown.');
     end;
 
     [Test]
@@ -993,7 +993,7 @@ codeunit 139186 "CRM Synch. Skipped Records"
 
         // [WHEN] run CRMIntegrationRecord.GetRecDescription()
         Assert.AreEqual(
-          'Invoice,' + Format(SalesLine."Document No.") + ',' + Format(SalesLine."Line No."), CRMSynchConflictBuffer.GetRecDescription,
+          'Invoice,' + Format(SalesLine."Document No.") + ',' + Format(SalesLine."Line No."), CRMSynchConflictBuffer.GetRecDescription(),
           'GetRecDescription fails.');
         // [THEN] result is 'Invoice,1003,20000'
     end;
@@ -1014,23 +1014,23 @@ codeunit 139186 "CRM Synch. Skipped Records"
         // [GIVEN] Customer, coupled to CRM Account, is deleted
         MockSkippedCouplingByDeletedNAVRec(Customer, CRMAccount);
         // [GIVEN] Open CRM Skipped Records page
-        CRMSkippedRecords.OpenEdit;
+        CRMSkippedRecords.OpenEdit();
         // [GIVEN] One line is in the list, where Description is <blank>, "Int. Description" is Customer Name
         CRMSkippedRecords.Description.AssertEquals('');
         CRMSkippedRecords."Int. Description".AssertEquals(CRMAccount.Name);
         CRMSkippedRecords."Record Exists".AssertEquals(false);
         CRMSkippedRecords."Int. Record Exists".AssertEquals(true);
-        Assert.IsTrue(CRMSkippedRecords.DeleteCoupledRec.Enabled, 'DeleteCoupledRec actions to be enabled');
+        Assert.IsTrue(CRMSkippedRecords.DeleteCoupledRec.Enabled(), 'DeleteCoupledRec actions to be enabled');
 
         // [WHEN] Run action "Delete Coupled Record"
-        CRMSkippedRecords.DeleteCoupledRec.Invoke;
+        CRMSkippedRecords.DeleteCoupledRec.Invoke();
 
         // [THEN] There is no lines on the page
-        Assert.IsFalse(CRMSkippedRecords.First, 'The list should be empty');
+        Assert.IsFalse(CRMSkippedRecords.First(), 'The list should be empty');
         // [THEN] coupling is deleted
         Assert.IsFalse(CRMIntegrationRecord.FindByCRMID(CRMAccount.AccountId), 'coupling should be deleted');
         // [THEN] the coupled CRM Account is removed
-        Assert.IsFalse(CRMAccount.Find, 'CRM Account should be deleted');
+        Assert.IsFalse(CRMAccount.Find(), 'CRM Account should be deleted');
     end;
 
     [Test]
@@ -1049,23 +1049,23 @@ codeunit 139186 "CRM Synch. Skipped Records"
         // [GIVEN] CRMAccount, coupled to Customer, is deleted
         MockSkippedCouplingByDeletedCRMRec(Customer, CRMAccount);
         // [GIVEN] Open CRM Skipped Records page
-        CRMSkippedRecords.OpenEdit;
+        CRMSkippedRecords.OpenEdit();
         // [GIVEN] One line is in the list, where Description is <blank>, "Int. Description" is Customer Name
         CRMSkippedRecords.Description.AssertEquals(Customer."No.");
         CRMSkippedRecords."Int. Description".AssertEquals('');
         CRMSkippedRecords."Record Exists".AssertEquals(true);
         CRMSkippedRecords."Int. Record Exists".AssertEquals(false);
-        Assert.IsTrue(CRMSkippedRecords.DeleteCoupledRec.Enabled, 'DeleteCoupledRec actions to be enabled');
+        Assert.IsTrue(CRMSkippedRecords.DeleteCoupledRec.Enabled(), 'DeleteCoupledRec actions to be enabled');
 
         // [WHEN] Run action "Delete Coupled Record"
-        CRMSkippedRecords.DeleteCoupledRec.Invoke;
+        CRMSkippedRecords.DeleteCoupledRec.Invoke();
 
         // [THEN] There is no lines on the page
-        Assert.IsFalse(CRMSkippedRecords.First, 'The list should be empty');
+        Assert.IsFalse(CRMSkippedRecords.First(), 'The list should be empty');
         // [THEN] coupling is deleted
         Assert.IsFalse(CRMIntegrationRecord.FindByRecordID(Customer.RecordId), 'coupling should be deleted');
         // [THEN] the coupled Customer is removed
-        Assert.IsFalse(Customer.Find, 'Customer should be deleted');
+        Assert.IsFalse(Customer.Find(), 'Customer should be deleted');
     end;
 
     [Test]
@@ -1097,10 +1097,10 @@ codeunit 139186 "CRM Synch. Skipped Records"
         VerifyLineSkippedRecordInBuffer(TempCRMSynchConflictBuffer, Customer[2].RecordId);
         // [THEN] the coupled Customer 'A' is removed, its coupling deleted
         Assert.IsFalse(CRMIntegrationRecord.FindByRecordID(Customer[1].RecordId), 'coupling A should be deleted');
-        Assert.IsFalse(Customer[1].Find, 'Customer should be deleted');
+        Assert.IsFalse(Customer[1].Find(), 'Customer should be deleted');
         // [THEN] the coupled CRM Account 'C' is deleted, its coupling deleted
         Assert.IsFalse(CRMIntegrationRecord.FindByCRMID(CRMAccount[3].AccountId), 'coupling C should be deleted');
-        Assert.IsFalse(CRMAccount[3].Find, 'CRM Account should be deleted');
+        Assert.IsFalse(CRMAccount[3].Find(), 'CRM Account should be deleted');
     end;
 
     [Test]
@@ -1134,8 +1134,8 @@ codeunit 139186 "CRM Synch. Skipped Records"
         // [THEN] There is still one line for CRM Account
         TempCRMSynchConflictBuffer.Reset();
         TempCRMSynchConflictBuffer.FindFirst();
-        Assert.IsTrue(TempCRMSynchConflictBuffer.IsOneRecordDeleted, 'One rec should be deleted in buffer');
-        Assert.IsTrue(CRMAccount[1].Find, 'CRM Account does not exist');
+        Assert.IsTrue(TempCRMSynchConflictBuffer.IsOneRecordDeleted(), 'One rec should be deleted in buffer');
+        Assert.IsTrue(CRMAccount[1].Find(), 'CRM Account does not exist');
     end;
 
     [EventSubscriber(ObjectType::Table, Database::"CRM Account", 'OnBeforeDeleteEvent', '', false, false)]
@@ -1164,13 +1164,13 @@ codeunit 139186 "CRM Synch. Skipped Records"
         // [GIVEN] Customer, coupled to CRM Account, is deleted
         MockSkippedCouplingByDeletedNAVRec(Customer[1], CRMAccount);
         // [GIVEN] Open CRM Skipped Records page
-        CRMSkippedRecords.OpenEdit;
+        CRMSkippedRecords.OpenEdit();
         // [GIVEN] One line is in the list, where Description is <blank>, "Int. Description" is Customer Name
         CRMSkippedRecords.Description.AssertEquals('');
         CRMSkippedRecords."Int. Description".AssertEquals(CRMAccount.Name);
 
         // [WHEN] Run action "Restore Deleted Records"
-        CRMSkippedRecords.RestoreDeletedRec.Invoke;
+        CRMSkippedRecords.RestoreDeletedRec.Invoke();
 
         // [THEN] the synchronization job is scheduled and executed
         CRMAccount.SetRange(AccountId, CRMAccount.AccountId);
@@ -1180,9 +1180,9 @@ codeunit 139186 "CRM Synch. Skipped Records"
         VerifyNotificationMessage(SyncStartedMsg);
 
         // [THEN] There is no lines on the page
-        Assert.IsFalse(CRMSkippedRecords.First, 'The list should be empty');
+        Assert.IsFalse(CRMSkippedRecords.First(), 'The list should be empty');
         // [THEN] CRM Account is not deleted
-        Assert.IsTrue(CRMAccount.Find, 'CRM Account should not be deleted');
+        Assert.IsTrue(CRMAccount.Find(), 'CRM Account should not be deleted');
         // [THEN] Customer is restored with a new "No." and "Name" copied from CRM Account
         CRMIntegrationRecord.FindRecordIDFromID(CRMAccount.AccountId, DATABASE::Customer, RecID);
         RecRef.Get(RecID);
@@ -1209,10 +1209,10 @@ codeunit 139186 "CRM Synch. Skipped Records"
         // [GIVEN] CRMAccount, coupled to Customer, is deleted
         MockSkippedCouplingByDeletedCRMRec(Customer, CRMAccount[1]);
         // [GIVEN] Open CRM Skipped Records page
-        CRMSkippedRecords.OpenEdit;
+        CRMSkippedRecords.OpenEdit();
 
         // [WHEN] Run action "Restore Deleted Records"
-        CRMSkippedRecords.RestoreDeletedRec.Invoke;
+        CRMSkippedRecords.RestoreDeletedRec.Invoke();
 
         // [THEN] the synchronization job is scheduled and executed
         Customer.SetRange(Systemid, Customer.SystemId);
@@ -1220,9 +1220,9 @@ codeunit 139186 "CRM Synch. Skipped Records"
           LibraryCRMIntegration.RunJobQueueEntry(DATABASE::Customer, Customer.GetView(), IntegrationTableMapping);
         VerifyNotificationMessage(SyncStartedMsg);
         // [THEN] There is no lines on the page
-        Assert.IsFalse(CRMSkippedRecords.First, 'The list should be empty');
+        Assert.IsFalse(CRMSkippedRecords.First(), 'The list should be empty');
         // [THEN] Customer is not deleted
-        Assert.IsTrue(Customer.Find, 'Customer should not be deleted');
+        Assert.IsTrue(Customer.Find(), 'Customer should not be deleted');
         // [THEN] CRM Account is restored with a new "AccountId" and "Name" copied from Customer
         CRMIntegrationRecord.FindByRecordID(Customer.RecordId);
         CRMAccount[2].Get(CRMIntegrationRecord."CRM ID");
@@ -1319,15 +1319,15 @@ codeunit 139186 "CRM Synch. Skipped Records"
         Customer.Delete();
 
         // [WHEN] Open "CRM Skipped Records" page
-        CRMSkippedRecords.OpenEdit;
+        CRMSkippedRecords.OpenEdit();
 
         // [THEN] Action "Delete Coupling" is enabled
-        Assert.IsTrue(CRMSkippedRecords.DeleteCRMCoupling.Enabled, 'action Delete Coupling');
+        Assert.IsTrue(CRMSkippedRecords.DeleteCRMCoupling.Enabled(), 'action Delete Coupling');
         // [THEN] Actions "Restore", "Synchronize", "Sync. Log", "Set up coupling" are disabled
-        Assert.IsFalse(CRMSkippedRecords.Restore.Enabled, 'Restore action to be enabled');
-        Assert.IsFalse(CRMSkippedRecords.CRMSynchronizeNow.Enabled, 'Synchronize action to be enabled');
-        Assert.IsFalse(CRMSkippedRecords.ShowLog.Enabled, 'ShowLog action to be disabled');
-        Assert.IsFalse(CRMSkippedRecords.ManageCRMCoupling.Enabled, 'action Manage Coupling');
+        Assert.IsFalse(CRMSkippedRecords.Restore.Enabled(), 'Restore action to be enabled');
+        Assert.IsFalse(CRMSkippedRecords.CRMSynchronizeNow.Enabled(), 'Synchronize action to be enabled');
+        Assert.IsFalse(CRMSkippedRecords.ShowLog.Enabled(), 'ShowLog action to be disabled');
+        Assert.IsFalse(CRMSkippedRecords.ManageCRMCoupling.Enabled(), 'action Manage Coupling');
     end;
 
     [Test]
@@ -1345,15 +1345,15 @@ codeunit 139186 "CRM Synch. Skipped Records"
         MockSkippedCouplingByDeletedCRMRec(Customer, CRMAccount);
 
         // [WHEN] Open "CRM Skipped Records" page
-        CRMSkippedRecords.OpenEdit;
+        CRMSkippedRecords.OpenEdit();
 
         // [THEN] Actions "Restore", "Synchronize" are disabled
-        Assert.IsFalse(CRMSkippedRecords.Restore.Enabled, 'Restore action to be disabled');
-        Assert.IsFalse(CRMSkippedRecords.CRMSynchronizeNow.Enabled, 'Synchronize action to be disabled');
+        Assert.IsFalse(CRMSkippedRecords.Restore.Enabled(), 'Restore action to be disabled');
+        Assert.IsFalse(CRMSkippedRecords.CRMSynchronizeNow.Enabled(), 'Synchronize action to be disabled');
         // [THEN] Action "Sync. Log", "Set up coupling", "Delete Coupling" are enabled
-        Assert.IsTrue(CRMSkippedRecords.DeleteCRMCoupling.Enabled, 'action Delete Coupling');
-        Assert.IsTrue(CRMSkippedRecords.ShowLog.Enabled, 'ShowLog action to be enabled');
-        Assert.IsTrue(CRMSkippedRecords.ManageCRMCoupling.Enabled, 'action Manage Coupling');
+        Assert.IsTrue(CRMSkippedRecords.DeleteCRMCoupling.Enabled(), 'action Delete Coupling');
+        Assert.IsTrue(CRMSkippedRecords.ShowLog.Enabled(), 'ShowLog action to be enabled');
+        Assert.IsTrue(CRMSkippedRecords.ManageCRMCoupling.Enabled(), 'action Manage Coupling');
     end;
 
     [Test]
@@ -1378,21 +1378,21 @@ codeunit 139186 "CRM Synch. Skipped Records"
         CRMIntegrationRecord.Modify();
 
         // [WHEN] Open CRM Skipped Records page
-        CRMSkippedRecords.OpenEdit;
+        CRMSkippedRecords.OpenEdit();
 
         // [THEN] both "Record Exists" and "Int. Record Exists" are 'Yes'
         CRMSkippedRecords."Record Exists".AssertEquals(true);
         CRMSkippedRecords."Int. Record Exists".AssertEquals(true);
         // [THEN] "Delete Coupled Rec" action is disabled
-        Assert.IsFalse(CRMSkippedRecords.DeleteCoupledRec.Enabled, 'DeleteCoupledRec actions to be disabled');
+        Assert.IsFalse(CRMSkippedRecords.DeleteCoupledRec.Enabled(), 'DeleteCoupledRec actions to be disabled');
         // [THEN] "Restore Deleted Records"action is disabled
-        Assert.IsFalse(CRMSkippedRecords.RestoreDeletedRec.Enabled, 'RestoreDeletedRec action to be disabled');
+        Assert.IsFalse(CRMSkippedRecords.RestoreDeletedRec.Enabled(), 'RestoreDeletedRec action to be disabled');
         // [THEN] Actions "Restore", "Synch. Log", "Synchronize", "Set up coupling", "Delete coupling" are enabled
-        Assert.IsTrue(CRMSkippedRecords.Restore.Enabled, 'Restore action to be enabled');
-        Assert.IsTrue(CRMSkippedRecords.ShowLog.Enabled, 'ShowLog action to be enabled');
-        Assert.IsTrue(CRMSkippedRecords.CRMSynchronizeNow.Enabled, 'Synchronize action to be enabled');
-        Assert.IsTrue(CRMSkippedRecords.ManageCRMCoupling.Enabled, 'SetupCoupling action to be enabled');
-        Assert.IsTrue(CRMSkippedRecords.DeleteCRMCoupling.Enabled, 'DeleteCRMCoupling action to be enabled');
+        Assert.IsTrue(CRMSkippedRecords.Restore.Enabled(), 'Restore action to be enabled');
+        Assert.IsTrue(CRMSkippedRecords.ShowLog.Enabled(), 'ShowLog action to be enabled');
+        Assert.IsTrue(CRMSkippedRecords.CRMSynchronizeNow.Enabled(), 'Synchronize action to be enabled');
+        Assert.IsTrue(CRMSkippedRecords.ManageCRMCoupling.Enabled(), 'SetupCoupling action to be enabled');
+        Assert.IsTrue(CRMSkippedRecords.DeleteCRMCoupling.Enabled(), 'DeleteCRMCoupling action to be enabled');
     end;
 
     [Test]
@@ -1418,11 +1418,11 @@ codeunit 139186 "CRM Synch. Skipped Records"
         CRMProduct[2].ProductNumber := LibraryUtility.GenerateGUID();
         CRMProduct[2].Insert(true);
         // [GIVEN] Open CRM Skipped Records page
-        CRMSkippedRecords.OpenEdit;
+        CRMSkippedRecords.OpenEdit();
         // [GIVEN] Run action "Set Up Coupling"
         // [WHEN] Set "CRM Name" as 'B' and push 'OK'
         LibraryVariableStorage.Enqueue(CRMProduct[2].ProductNumber);
-        CRMSkippedRecords.ManageCRMCoupling.Invoke;
+        CRMSkippedRecords.ManageCRMCoupling.Invoke();
         // by CRMCouplingRecordConfirmedModalPageHandler
 
         // [THEN] Notification 'The synchronization has been scheduled'
@@ -1433,7 +1433,7 @@ codeunit 139186 "CRM Synch. Skipped Records"
         Assert.IsTrue(CRMIntegrationRecord.FindByCRMID(CRMId), 'Product B should be coupled');
         CRMIntegrationRecord.TestField(Skipped, false);
         // [THEN] Record is not in the list
-        Assert.IsFalse(CRMSkippedRecords.First, 'The page should be empty');
+        Assert.IsFalse(CRMSkippedRecords.First(), 'The page should be empty');
     end;
 
     [Test]
@@ -1459,9 +1459,9 @@ codeunit 139186 "CRM Synch. Skipped Records"
         CRMProduct[2].ProductNumber := LibraryUtility.GenerateGUID();
         CRMProduct[2].Insert(true);
         // [GIVEN] Open CRM Skipped Records page
-        CRMSkippedRecords.OpenEdit;
+        CRMSkippedRecords.OpenEdit();
         // [GIVEN] Run action "Set Up Coupling"
-        CRMSkippedRecords.ManageCRMCoupling.Invoke;
+        CRMSkippedRecords.ManageCRMCoupling.Invoke();
         // [WHEN] Push 'Cancel'
         // by CRMCouplingRecordCancelledModalPageHandler
 
@@ -1471,7 +1471,7 @@ codeunit 139186 "CRM Synch. Skipped Records"
         Assert.IsTrue(CRMIntegrationRecord.FindByCRMID(CRMId), 'Product A should be coupled');
         CRMIntegrationRecord.TestField(Skipped, true);
         // [THEN] Record is in the list
-        Assert.IsTrue(CRMSkippedRecords.First, 'The page should not be empty');
+        Assert.IsTrue(CRMSkippedRecords.First(), 'The page should not be empty');
         CRMSkippedRecords.Description.AssertEquals(Item."No.");
     end;
 
@@ -1496,11 +1496,11 @@ codeunit 139186 "CRM Synch. Skipped Records"
         CRMAccount.Delete();
 
         // [WHEN] Open CRM Skipped Records page
-        CRMSkippedRecords.OpenEdit;
+        CRMSkippedRecords.OpenEdit();
 
         // [THEN]  No lines in the page, the couplng should be deleted
-        Assert.IsFalse(CRMSkippedRecords.First, 'Page should be empty');
-        Assert.IsFalse(CRMIntegrationRecord.Find, 'CRMIntegrationRecord should be deleted');
+        Assert.IsFalse(CRMSkippedRecords.First(), 'Page should be empty');
+        Assert.IsFalse(CRMIntegrationRecord.Find(), 'CRMIntegrationRecord should be deleted');
     end;
 
     [Test]
@@ -1625,8 +1625,8 @@ codeunit 139186 "CRM Synch. Skipped Records"
     begin
         LibraryApplicationArea.EnableFoundationSetup();
         LibraryVariableStorage.Clear();
-        LibraryCRMIntegration.ResetEnvironment;
-        LibraryCRMIntegration.ConfigureCRM;
+        LibraryCRMIntegration.ResetEnvironment();
+        LibraryCRMIntegration.ConfigureCRM();
         CRMConnectionSetup.Get();
         CDSConnectionSetup.LoadConnectionStringElementsFromCRMConnectionSetup();
         CDSConnectionSetup."Ownership Model" := CDSConnectionSetup."Ownership Model"::Person;
@@ -1636,9 +1636,9 @@ codeunit 139186 "CRM Synch. Skipped Records"
         CDSConnectionSetup.Modify();
         CRMSetupDefaults.ResetConfiguration(CRMConnectionSetup);
         CDSSetupDefaults.ResetConfiguration(CDSConnectionSetup);
-        LibraryCRMIntegration.DisableTaskOnBeforeJobQueueScheduleTask;
+        LibraryCRMIntegration.DisableTaskOnBeforeJobQueueScheduleTask();
 
-        MyNotifications.InsertDefault(UpdateCurrencyExchangeRates.GetMissingExchangeRatesNotificationID, '', '', false);
+        MyNotifications.InsertDefault(UpdateCurrencyExchangeRates.GetMissingExchangeRatesNotificationID(), '', '', false);
     end;
 
     local procedure DecoupleSalesperson("Code": Code[20]; var CRMIntegrationRecord: Record "CRM Integration Record")
@@ -1659,7 +1659,7 @@ codeunit 139186 "CRM Synch. Skipped Records"
         IntegrationSynchJob.Message := CopyStr(ErrorMsg, 1, MaxStrLen(IntegrationSynchJob.Message));
         LibraryCRMIntegration.VerifySyncJob(
           SynchCustomer(Customer, IntegrationTableMapping), IntegrationTableMapping, IntegrationSynchJob);
-        Assert.AreEqual(1, LibraryVariableStorage.DequeueInteger, 'wrong direction.'); // by PickDirectionToCRMHandler
+        Assert.AreEqual(1, LibraryVariableStorage.DequeueInteger(), 'wrong direction.'); // by PickDirectionToCRMHandler
     end;
 
     local procedure FailedSkippedSkippedSynchCustomer(Customer: Record Customer; ErrorMsg: Text)
@@ -1671,7 +1671,7 @@ codeunit 139186 "CRM Synch. Skipped Records"
         IntegrationSynchJob.Message := CopyStr(ErrorMsg, 1, MaxStrLen(IntegrationSynchJob.Message));
         LibraryCRMIntegration.VerifySyncJob(
           SynchCustomer(Customer, IntegrationTableMapping), IntegrationTableMapping, IntegrationSynchJob);
-        Assert.AreEqual(1, LibraryVariableStorage.DequeueInteger, 'wrong direction.'); // by PickDirectionToCRMHandler
+        Assert.AreEqual(1, LibraryVariableStorage.DequeueInteger(), 'wrong direction.'); // by PickDirectionToCRMHandler
     end;
 
     local procedure GoodSynchCustomer(Customer: Record Customer)
@@ -1690,7 +1690,7 @@ codeunit 139186 "CRM Synch. Skipped Records"
     begin
         CRMIntegrationManagement.UpdateOneNow(Customer.RecordId);
 
-        Assert.AreEqual(1, LibraryVariableStorage.DequeueInteger, 'wrong direction.'); // by PickDirectionToCRMHandler
+        Assert.AreEqual(1, LibraryVariableStorage.DequeueInteger(), 'wrong direction.'); // by PickDirectionToCRMHandler
     end;
 
     local procedure SynchCustomer(Customer: Record Customer; var IntegrationTableMapping: Record "Integration Table Mapping") JobID: Guid
@@ -1711,10 +1711,10 @@ codeunit 139186 "CRM Synch. Skipped Records"
         CRMSkippedRecords: TestPage "CRM Skipped Records";
     begin
         CRMIntegrationRecord.FindByRecordID(Customer.RecordId);
-        CRMSkippedRecords.OpenEdit;
+        CRMSkippedRecords.OpenEdit();
         CRMSkippedRecords.FindFirstField(Description, Customer."No.");
         CRMSkippedRecords."Table Name".AssertEquals(Customer.TableCaption());
-        CRMSkippedRecords.Restore.Invoke;
+        CRMSkippedRecords.Restore.Invoke();
     end;
 
     local procedure RestoreSkippedRecords(var CRMIntegrationRecord: Record "CRM Integration Record")
@@ -1855,10 +1855,10 @@ codeunit 139186 "CRM Synch. Skipped Records"
         JobQueueLogEntry.FindLast();
         IntegrationSynchJob[1].SetRange("Job Queue Log Entry No.", JobQueueLogEntry."Entry No.");
         IntegrationSynchJob[1].SetRange("Synch. Direction", IntegrationTableMapping.Direction::FromIntegrationTable);
-        Assert.IsTrue(IntegrationSynchJob[1].FindLast, 'IntegrationSynchJob.FromIntTable should be found.');
+        Assert.IsTrue(IntegrationSynchJob[1].FindLast(), 'IntegrationSynchJob.FromIntTable should be found.');
         IntegrationSynchJob[2].SetRange("Job Queue Log Entry No.", JobQueueLogEntry."Entry No.");
         IntegrationSynchJob[2].SetRange("Synch. Direction", IntegrationTableMapping.Direction::ToIntegrationTable);
-        Assert.IsTrue(IntegrationSynchJob[2].FindLast, 'IntegrationSynchJob.ToIntTable should be found.');
+        Assert.IsTrue(IntegrationSynchJob[2].FindLast(), 'IntegrationSynchJob.ToIntTable should be found.');
 
         Assert.AreEqual(
           ExpectedIntegrationSynchJob.Failed,
@@ -1887,7 +1887,7 @@ codeunit 139186 "CRM Synch. Skipped Records"
         TempCRMSynchConflictBuffer.Reset();
         Assert.AreEqual(1, TempCRMSynchConflictBuffer.Count, 'should be one line in the buffer');
         TempCRMSynchConflictBuffer.FindFirst();
-        Assert.IsTrue(TempCRMSynchConflictBuffer.DoBothRecordsExist, 'both coupled records should exist');
+        Assert.IsTrue(TempCRMSynchConflictBuffer.DoBothRecordsExist(), 'both coupled records should exist');
         Assert.IsTrue(CRMIntegrationRecord.FindByRecordID(RecID), 'coupling should exist');
         CRMIntegrationRecord.TestField(Skipped, true);
     end;
@@ -1895,16 +1895,16 @@ codeunit 139186 "CRM Synch. Skipped Records"
     local procedure VerifyNotificationMessage(ExpectedErrorMsg: Text)
     begin
         // Expect that LibraryVariableStorage contains a message filled by SyncNotificationHandler handler
-        Assert.ExpectedMessage(ExpectedErrorMsg, LibraryVariableStorage.DequeueText);
+        Assert.ExpectedMessage(ExpectedErrorMsg, LibraryVariableStorage.DequeueText());
     end;
 
     local procedure VerifyPagesActions(CRMSkippedRecords: TestPage "CRM Skipped Records"; ActionsAreEnabled: Boolean)
     begin
-        Assert.AreEqual(ActionsAreEnabled, CRMSkippedRecords.Restore.Enabled, 'action Restore');
-        Assert.AreEqual(ActionsAreEnabled, CRMSkippedRecords.CRMSynchronizeNow.Enabled, 'action Synchronize');
-        Assert.AreEqual(ActionsAreEnabled, CRMSkippedRecords.ShowLog.Enabled, 'action Show Log');
-        Assert.AreEqual(ActionsAreEnabled, CRMSkippedRecords.DeleteCRMCoupling.Enabled, 'action Delete Coupling');
-        Assert.AreEqual(ActionsAreEnabled, CRMSkippedRecords.ManageCRMCoupling.Enabled, 'action Manage Coupling');
+        Assert.AreEqual(ActionsAreEnabled, CRMSkippedRecords.Restore.Enabled(), 'action Restore');
+        Assert.AreEqual(ActionsAreEnabled, CRMSkippedRecords.CRMSynchronizeNow.Enabled(), 'action Synchronize');
+        Assert.AreEqual(ActionsAreEnabled, CRMSkippedRecords.ShowLog.Enabled(), 'action Show Log');
+        Assert.AreEqual(ActionsAreEnabled, CRMSkippedRecords.DeleteCRMCoupling.Enabled(), 'action Delete Coupling');
+        Assert.AreEqual(ActionsAreEnabled, CRMSkippedRecords.ManageCRMCoupling.Enabled(), 'action Manage Coupling');
     end;
 
     local procedure SimulateUncouplingJobsExecution()
@@ -1995,15 +1995,15 @@ codeunit 139186 "CRM Synch. Skipped Records"
     procedure CRMCouplingRecordCancelledModalPageHandler(var CRMCouplingRecord: TestPage "CRM Coupling Record")
     begin
         // simulate an attempt of coupling that was cancelled for some reason
-        CRMCouplingRecord.Cancel.Invoke;
+        CRMCouplingRecord.Cancel().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure CRMCouplingRecordConfirmedModalPageHandler(var CRMCouplingRecord: TestPage "CRM Coupling Record")
     begin
-        CRMCouplingRecord.CRMName.Value(LibraryVariableStorage.DequeueText); // set by the test
-        CRMCouplingRecord.OK.Invoke;
+        CRMCouplingRecord.CRMName.Value(LibraryVariableStorage.DequeueText()); // set by the test
+        CRMCouplingRecord.OK().Invoke();
     end;
 
     [PageHandler]
@@ -2026,7 +2026,7 @@ codeunit 139186 "CRM Synch. Skipped Records"
     var
         CRMIntegrationMgt: Codeunit "CRM Integration Management";
     begin
-        Assert.AreEqual(Format(CRMIntegrationMgt.GetCommonNotificationID), Format(Notification.Id), UnexpectedNotificationIdErr);
+        Assert.AreEqual(Format(CRMIntegrationMgt.GetCommonNotificationID()), Format(Notification.Id), UnexpectedNotificationIdErr);
     end;
 
     [RecallNotificationHandler]
@@ -2036,6 +2036,6 @@ codeunit 139186 "CRM Synch. Skipped Records"
         CRMIntegrationMgt: Codeunit "CRM Integration Management";
     begin
         Assert.AreEqual(
-          Format(CRMIntegrationMgt.GetSkippedNotificationID), Format(Notification.Id), UnexpectedNotificationIdErr);
+          Format(CRMIntegrationMgt.GetSkippedNotificationID()), Format(Notification.Id), UnexpectedNotificationIdErr);
     end;
 }

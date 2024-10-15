@@ -30,7 +30,7 @@ codeunit 134442 "GL Acct. Categories Page Tests"
         FindFirstParentGLAccountCategory(GLAccountCategory);
 
         // Exercise
-        NewGLAccountCategory.Get(GLAccountCategory.InsertRow);
+        NewGLAccountCategory.Get(GLAccountCategory.InsertRow());
 
         // Verify
         NewGLAccountCategory.CalcFields("Has Children");
@@ -51,7 +51,7 @@ codeunit 134442 "GL Acct. Categories Page Tests"
         GLAccountCategory.FindFirst();
 
         // Exercise
-        NewGLAccountCategory.Get(GLAccountCategory.InsertRow);
+        NewGLAccountCategory.Get(GLAccountCategory.InsertRow());
 
         // Verify
         NewGLAccountCategory.CalcFields("Has Children");
@@ -77,8 +77,8 @@ codeunit 134442 "GL Acct. Categories Page Tests"
         GeneralLedgerSetup.Modify(true);
 
         // Exercise
-        GLAccountCategories.OpenView;
-        GLAccountCategories.GenerateAccSched.Invoke;
+        GLAccountCategories.OpenView();
+        GLAccountCategories.GenerateAccSched.Invoke();
 
         // Verify
         GLAccountCategoryMgt.GetGLSetup(GeneralLedgerSetup);
@@ -87,7 +87,7 @@ codeunit 134442 "GL Acct. Categories Page Tests"
         Assert.AreNotEqual('', GeneralLedgerSetup."Fin. Rep. for Income Stmt.", WrongAccSchedErr);
         Assert.AreNotEqual('', GeneralLedgerSetup."Fin. Rep. for Retained Earn.", WrongAccSchedErr);
 
-        VerfiyCashFlowStatementAccountScheduleLines;
+        VerfiyCashFlowStatementAccountScheduleLines();
     end;
 
     [Test]
@@ -100,13 +100,13 @@ codeunit 134442 "GL Acct. Categories Page Tests"
         FindFirstParentGLAccountCategory(GLAccountCategory);
 
         // Exercise
-        GLAccountCategory.MakeChildOfPreviousSibling;
+        GLAccountCategory.MakeChildOfPreviousSibling();
 
         // Verify
         GLAccountCategory.TestField(Indentation, 0);
 
         // Exercise
-        GLAccountCategory.MakeSiblingOfParent;
+        GLAccountCategory.MakeSiblingOfParent();
 
         // Verify
         GLAccountCategory.TestField(Indentation, 0);
@@ -125,12 +125,12 @@ codeunit 134442 "GL Acct. Categories Page Tests"
         InitialSquenceNo := GLAccountCategory."Sibling Sequence No.";
 
         // Exercise
-        GLAccountCategory.MoveDown;
+        GLAccountCategory.MoveDown();
 
         // Verify
         Assert.IsTrue(InitialSquenceNo < GLAccountCategory."Sibling Sequence No.", 'Wrong sequence no');
 
-        GLAccountCategory.MoveUp;
+        GLAccountCategory.MoveUp();
 
         // Verify
         Assert.AreEqual(InitialSquenceNo, GLAccountCategory."Sibling Sequence No.", 'Wrong sequence no');
@@ -149,14 +149,14 @@ codeunit 134442 "GL Acct. Categories Page Tests"
         ChildGLAccountCategory.FindFirst();
 
         // Exercise
-        ChildGLAccountCategory.MakeSiblingOfParent;
+        ChildGLAccountCategory.MakeSiblingOfParent();
 
         // Verify
         ChildGLAccountCategory.TestField("Parent Entry No.", GLAccountCategory."Parent Entry No.");
         ChildGLAccountCategory.TestField(Indentation, GLAccountCategory.Indentation);
 
         // Exercise
-        ChildGLAccountCategory.MakeChildOfPreviousSibling;
+        ChildGLAccountCategory.MakeChildOfPreviousSibling();
         ChildGLAccountCategory.TestField(Indentation, GLAccountCategory.Indentation + 1);
     end;
 
@@ -206,12 +206,12 @@ codeunit 134442 "GL Acct. Categories Page Tests"
     begin
         // Setup
         FindFirstParentGLAccountCategory(GLAccountCategory);
-        UserGLAccountCategory.Get(GLAccountCategory.InsertRow);
+        UserGLAccountCategory.Get(GLAccountCategory.InsertRow());
 
-        ChildGLAccountCategory.Get(UserGLAccountCategory.InsertRow);
-        ChildGLAccountCategory.MakeChildOfPreviousSibling;
-        ChildGLAccountCategory.Get(UserGLAccountCategory.InsertRow);
-        ChildGLAccountCategory.MakeChildOfPreviousSibling;
+        ChildGLAccountCategory.Get(UserGLAccountCategory.InsertRow());
+        ChildGLAccountCategory.MakeChildOfPreviousSibling();
+        ChildGLAccountCategory.Get(UserGLAccountCategory.InsertRow());
+        ChildGLAccountCategory.MakeChildOfPreviousSibling();
         Clear(GLAccountCategory);
         BeforeDelCategoriesCount := GLAccountCategory.Count();
 
@@ -664,7 +664,7 @@ codeunit 134442 "GL Acct. Categories Page Tests"
     [Scope('OnPrem')]
     procedure OptionDialogForGenerateAccountSchedules(Options: Text; var Choice: Integer; Instruction: Text)
     begin
-        Choice := LibraryVariableStorage.DequeueInteger;
+        Choice := LibraryVariableStorage.DequeueInteger();
     end;
 }
 

@@ -66,7 +66,7 @@ codeunit 144016 "Job Planning"
 
     local procedure CreateItemUnitOfMeasure(var ItemUnitOfMeasure: Record "Item Unit of Measure")
     begin
-        LibraryInventory.CreateItemUnitOfMeasureCode(ItemUnitOfMeasure, CreateItem, LibraryRandom.RandDec(10, 2));
+        LibraryInventory.CreateItemUnitOfMeasureCode(ItemUnitOfMeasure, CreateItem(), LibraryRandom.RandDec(10, 2));
     end;
 
     local procedure CreateJobTask(var JobTask: Record "Job Task")
@@ -149,7 +149,7 @@ codeunit 144016 "Job Planning"
         LineType: Option Budget,Billable;
     begin
         JobTransferToPlanningLine.TransferTo.SetValue(LineType::Billable);
-        JobTransferToPlanningLine.OK.Invoke;
+        JobTransferToPlanningLine.OK().Invoke();
     end;
 
     [RequestPageHandler]
@@ -157,7 +157,7 @@ codeunit 144016 "Job Planning"
     procedure JobTransferToSalesInvoiceRequestPageHandler(var JobTransferToSalesInvoice: TestRequestPage "Job Transfer to Sales Invoice")
     begin
         JobTransferToSalesInvoice.CreateNewInvoice.SetValue(true);
-        JobTransferToSalesInvoice.OK.Invoke;
+        JobTransferToSalesInvoice.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -166,9 +166,9 @@ codeunit 144016 "Job Planning"
     begin
         // Enqueue value for General Ledger Entry verification.
         LibraryVariableStorage.Enqueue(SalesInvoice."Sell-to Customer Name".Value);
-        LibraryVariableStorage.Enqueue(SalesInvoice.SalesLines."Line Amount".AsDEcimal);
-        LibrarySales.DisableConfirmOnPostingDoc;
-        SalesInvoice.Post.Invoke;
+        LibraryVariableStorage.Enqueue(SalesInvoice.SalesLines."Line Amount".AsDecimal());
+        LibrarySales.DisableConfirmOnPostingDoc();
+        SalesInvoice.Post.Invoke();
     end;
 
     [ConfirmHandler]

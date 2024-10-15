@@ -45,7 +45,7 @@ codeunit 142057 PurchDocTotalsWithSalesTax
         InvDiscAmtPct := LibraryRandom.RandDecInDecimalRange(0.01, 0.09, 1);
 
         // [GIVEN] User has created a purchasing document with a purchasing line containing sales tax
-        LibraryLowerPermissions.SetPurchDocsCreate;
+        LibraryLowerPermissions.SetPurchDocsCreate();
         LibraryLowerPermissions.AddO365Setup();
         CreatePurchaseDocument(PurchaseLine, PurchaseHeader."Document Type"::Invoice, false);
 
@@ -61,10 +61,10 @@ codeunit 142057 PurchDocTotalsWithSalesTax
         PurchaseInvoice.PurchLines."Direct Unit Cost".SetValue(LibraryRandom.RandInt(1000));
 
         // Store values from window before setting the Tax Group Code
-        SetCompareAmounts(PurchaseInvoice.PurchLines.InvoiceDiscountAmount.AsDEcimal,
-          PurchaseInvoice.PurchLines."Total Amount Excl. VAT".AsDEcimal,
-          PurchaseInvoice.PurchLines."Total VAT Amount".AsDEcimal,
-          PurchaseInvoice.PurchLines."Total Amount Incl. VAT".AsDEcimal,
+        SetCompareAmounts(PurchaseInvoice.PurchLines.InvoiceDiscountAmount.AsDecimal(),
+          PurchaseInvoice.PurchLines."Total Amount Excl. VAT".AsDecimal(),
+          PurchaseInvoice.PurchLines."Total VAT Amount".AsDecimal(),
+          PurchaseInvoice.PurchLines."Total Amount Incl. VAT".AsDecimal(),
           0,
           PreAmounts);
         PurchaseInvoice.Close();
@@ -75,18 +75,18 @@ codeunit 142057 PurchDocTotalsWithSalesTax
         // [WHEN] User sets the Invoice Discount Amount and Tax Group Code
         OpenPurchaseInvoicePageEdit(PurchaseInvoice, PurchaseHeader);
         PurchaseInvoice.PurchLines.InvoiceDiscountAmount.SetValue(
-          PurchaseInvoice.PurchLines."Total Amount Excl. VAT".AsDEcimal * InvDiscAmtPct);
+          PurchaseInvoice.PurchLines."Total Amount Excl. VAT".AsDecimal() * InvDiscAmtPct);
         PurchaseInvoice.Close();
 
         // [THEN] Total amounts match Purchase Header amounts
         // Reopen the window with the updated record
         OpenPurchaseInvoicePageView(PurchaseInvoice, PurchaseHeader);
 
-        SetCompareAmounts(PurchaseInvoice.PurchLines.InvoiceDiscountAmount.AsDEcimal,
-          PurchaseInvoice.PurchLines."Total Amount Excl. VAT".AsDEcimal,
-          PurchaseInvoice.PurchLines."Total VAT Amount".AsDEcimal,
-          PurchaseInvoice.PurchLines."Total Amount Incl. VAT".AsDEcimal,
-          PurchaseInvoice.PurchLines."Invoice Disc. Pct.".AsDEcimal,
+        SetCompareAmounts(PurchaseInvoice.PurchLines.InvoiceDiscountAmount.AsDecimal(),
+          PurchaseInvoice.PurchLines."Total Amount Excl. VAT".AsDecimal(),
+          PurchaseInvoice.PurchLines."Total VAT Amount".AsDecimal(),
+          PurchaseInvoice.PurchLines."Total Amount Incl. VAT".AsDecimal(),
+          PurchaseInvoice.PurchLines."Invoice Disc. Pct.".AsDecimal(),
           PostAmounts);
 
         // Calculate the CustInvoiceDiscountPct
@@ -122,7 +122,7 @@ codeunit 142057 PurchDocTotalsWithSalesTax
         InvDiscAmtPct := LibraryRandom.RandDecInDecimalRange(0.01, 0.09, 1);
 
         // [GIVEN] User has created a purchasing document with a purchasing line containing sales tax
-        LibraryLowerPermissions.SetPurchDocsCreate;
+        LibraryLowerPermissions.SetPurchDocsCreate();
         LibraryLowerPermissions.AddO365Setup();
         CreatePurchaseDocument(PurchaseLine, PurchaseHeader."Document Type"::Invoice, false);
 
@@ -142,7 +142,7 @@ codeunit 142057 PurchDocTotalsWithSalesTax
 
         OpenPurchaseInvoicePageEdit(PurchaseInvoice, PurchaseHeader);
         PurchaseInvoice.PurchLines.InvoiceDiscountAmount.SetValue(
-          PurchaseInvoice.PurchLines."Total Amount Excl. VAT".AsDEcimal * InvDiscAmtPct);
+          PurchaseInvoice.PurchLines."Total Amount Excl. VAT".AsDecimal() * InvDiscAmtPct);
         PurchaseInvoice.Close();
 
         // Reopen the window with the updated record
@@ -159,7 +159,7 @@ codeunit 142057 PurchDocTotalsWithSalesTax
           PurchaseHeader."Amount Including VAT", 0, PurchHeaderAmounts);
 
         // [WHEN] User posts the Purchase Invoice
-        LibraryLowerPermissions.SetPurchDocsPost;
+        LibraryLowerPermissions.SetPurchDocsPost();
         PostedPurchDocNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);  // Post as invoice
 
         // [THEN] Posted amounts should match the pre-posted amounts
@@ -196,7 +196,7 @@ codeunit 142057 PurchDocTotalsWithSalesTax
         InvDiscAmtPct := LibraryRandom.RandDecInDecimalRange(0.01, 0.09, 1);
 
         // [GIVEN] User has created a purchasing document with a purchasing line containing sales tax
-        LibraryLowerPermissions.SetPurchDocsCreate;
+        LibraryLowerPermissions.SetPurchDocsCreate();
         LibraryLowerPermissions.AddO365Setup();
         CreatePurchaseDocument(PurchaseLine, PurchaseHeader."Document Type"::"Credit Memo", false);
 
@@ -212,10 +212,10 @@ codeunit 142057 PurchDocTotalsWithSalesTax
         PurchaseCreditMemo.PurchLines."Direct Unit Cost".SetValue(LibraryRandom.RandInt(1000));
 
         // Store values from window before setting the Tax Group Code
-        SetCompareAmounts(PurchaseCreditMemo.PurchLines."Invoice Discount Amount".AsDEcimal,
-          PurchaseCreditMemo.PurchLines."Total Amount Excl. VAT".AsDEcimal,
-          PurchaseCreditMemo.PurchLines."Total VAT Amount".AsDEcimal,
-          PurchaseCreditMemo.PurchLines."Total Amount Incl. VAT".AsDEcimal,
+        SetCompareAmounts(PurchaseCreditMemo.PurchLines."Invoice Discount Amount".AsDecimal(),
+          PurchaseCreditMemo.PurchLines."Total Amount Excl. VAT".AsDecimal(),
+          PurchaseCreditMemo.PurchLines."Total VAT Amount".AsDecimal(),
+          PurchaseCreditMemo.PurchLines."Total Amount Incl. VAT".AsDecimal(),
           0,
           PreAmounts);
         PurchaseCreditMemo.Close();
@@ -227,18 +227,18 @@ codeunit 142057 PurchDocTotalsWithSalesTax
         // [WHEN] User sets the Invoice Discount Amount and Tax Group Code
         OpenPurchaseCrMemoPageEdit(PurchaseCreditMemo, PurchaseHeader);
         PurchaseCreditMemo.PurchLines."Invoice Discount Amount".SetValue(
-          PurchaseCreditMemo.PurchLines."Total Amount Excl. VAT".AsDEcimal * InvDiscAmtPct);
+          PurchaseCreditMemo.PurchLines."Total Amount Excl. VAT".AsDecimal() * InvDiscAmtPct);
         PurchaseCreditMemo.Close();
 
         // [THEN] Total amounts match Purchase Header amounts
         // Reopen the window with the updated record
         OpenPurchaseCrMemoPageView(PurchaseCreditMemo, PurchaseHeader);
 
-        SetCompareAmounts(PurchaseCreditMemo.PurchLines."Invoice Discount Amount".AsDEcimal,
-          PurchaseCreditMemo.PurchLines."Total Amount Excl. VAT".AsDEcimal,
-          PurchaseCreditMemo.PurchLines."Total VAT Amount".AsDEcimal,
-          PurchaseCreditMemo.PurchLines."Total Amount Incl. VAT".AsDEcimal,
-          PurchaseCreditMemo.PurchLines."Invoice Disc. Pct.".AsDEcimal,
+        SetCompareAmounts(PurchaseCreditMemo.PurchLines."Invoice Discount Amount".AsDecimal(),
+          PurchaseCreditMemo.PurchLines."Total Amount Excl. VAT".AsDecimal(),
+          PurchaseCreditMemo.PurchLines."Total VAT Amount".AsDecimal(),
+          PurchaseCreditMemo.PurchLines."Total Amount Incl. VAT".AsDecimal(),
+          PurchaseCreditMemo.PurchLines."Invoice Disc. Pct.".AsDecimal(),
           PostAmounts);
 
         // Calculate the CustInvoiceDiscountPct
@@ -272,7 +272,7 @@ codeunit 142057 PurchDocTotalsWithSalesTax
         InvDiscAmtPct := LibraryRandom.RandDecInDecimalRange(0.01, 0.09, 1);
 
         // [GIVEN] User has created a purchasing document with a purchasing line containing sales tax
-        LibraryLowerPermissions.SetPurchDocsCreate;
+        LibraryLowerPermissions.SetPurchDocsCreate();
         LibraryLowerPermissions.AddO365Setup();
         CreatePurchaseDocument(PurchaseLine, PurchaseHeader."Document Type"::"Credit Memo", false);
 
@@ -292,7 +292,7 @@ codeunit 142057 PurchDocTotalsWithSalesTax
 
         OpenPurchaseCrMemoPageEdit(PurchaseCreditMemo, PurchaseHeader);
         PurchaseCreditMemo.PurchLines."Invoice Discount Amount".SetValue(
-          PurchaseCreditMemo.PurchLines."Total Amount Excl. VAT".AsDEcimal * InvDiscAmtPct);
+          PurchaseCreditMemo.PurchLines."Total Amount Excl. VAT".AsDecimal() * InvDiscAmtPct);
         PurchaseCreditMemo.Close();
 
         // Reopen the window with the updated record
@@ -310,7 +310,7 @@ codeunit 142057 PurchDocTotalsWithSalesTax
           PurchaseHeader."Amount Including VAT", 0, PurchHeaderAmounts);
 
         // [THEN] Posted amounts should match the pre-posted amounts
-        LibraryLowerPermissions.SetPurchDocsPost;
+        LibraryLowerPermissions.SetPurchDocsPost();
         PostedPurchDocNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);  // Post as invoice
 
         PurchCrMemoHdr.Get(PostedPurchDocNo);
@@ -338,7 +338,7 @@ codeunit 142057 PurchDocTotalsWithSalesTax
         // [SCENARIO 312198] Tax Amount must be calculated in Document Totals when "Expense/Capitalize" is true in Tax Details
         Initialize();
 
-        LibraryLowerPermissions.SetPurchDocsCreate;
+        LibraryLowerPermissions.SetPurchDocsCreate();
         LibraryLowerPermissions.AddO365Setup();
 
         // [GIVEN] Tax setup where tax detail with "Expense/Capitalize" = TRUE and "Tax Below Maximum" = 10%
@@ -384,13 +384,13 @@ codeunit 142057 PurchDocTotalsWithSalesTax
         // The following verifies excise tax when there is no unit cost or amount per line.  Bug 313016 reported by customer.
         Initialize();
 
-        LibraryLowerPermissions.SetPurchDocsCreate;
+        LibraryLowerPermissions.SetPurchDocsCreate();
         LibraryLowerPermissions.AddO365Setup();
 
         // Create excise tax to be used by purchase invoice
         TaxPercent := LibraryRandom.RandIntInRange(10, 20);
         LibraryERM.CreateTaxGroup(TaxGroup);
-        LibraryERM.CreateTaxDetail(TaxDetail, CreateSalesTaxJurisdiction, TaxGroup.Code, TaxDetail."Tax Type"::"Excise Tax", WorkDate());
+        LibraryERM.CreateTaxDetail(TaxDetail, CreateSalesTaxJurisdiction(), TaxGroup.Code, TaxDetail."Tax Type"::"Excise Tax", WorkDate());
         TaxDetail.Validate("Tax Below Maximum", TaxPercent);
         TaxDetail.Validate("Expense/Capitalize", false);
         TaxDetail.Modify(true);
@@ -446,13 +446,13 @@ codeunit 142057 PurchDocTotalsWithSalesTax
         // The following verifies the posting of excise tax when there is no unit cost or amount per line.  Bug 313016 reported by customer.
         Initialize();
 
-        LibraryLowerPermissions.SetPurchDocsCreate;
+        LibraryLowerPermissions.SetPurchDocsCreate();
         LibraryLowerPermissions.AddO365Setup();
 
         // Create excise tax to be used by purchase invoice
         TaxPercent := LibraryRandom.RandIntInRange(10, 20);
         LibraryERM.CreateTaxGroup(TaxGroup);
-        LibraryERM.CreateTaxDetail(TaxDetail, CreateSalesTaxJurisdiction, TaxGroup.Code, TaxDetail."Tax Type"::"Excise Tax", WorkDate());
+        LibraryERM.CreateTaxDetail(TaxDetail, CreateSalesTaxJurisdiction(), TaxGroup.Code, TaxDetail."Tax Type"::"Excise Tax", WorkDate());
         TaxDetail.Validate("Tax Below Maximum", TaxPercent);
         TaxDetail.Validate("Expense/Capitalize", false);
         TaxDetail.Modify(true);
@@ -488,7 +488,7 @@ codeunit 142057 PurchDocTotalsWithSalesTax
         PurchaseInvoice.Close();
 
         // Post invoice and verify amounts
-        LibraryLowerPermissions.SetPurchDocsPost;
+        LibraryLowerPermissions.SetPurchDocsPost();
         PostedPurchDocNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
         PurchInvHeader.Get(PostedPurchDocNo);
         PurchInvHeader.CalcFields(Amount, "Amount Including VAT", "Invoice Discount Amount");
@@ -622,7 +622,7 @@ codeunit 142057 PurchDocTotalsWithSalesTax
         TaxGroup: Record "Tax Group";
     begin
         LibraryERM.CreateTaxGroup(TaxGroup);
-        LibraryERM.CreateTaxDetail(TaxDetail, CreateSalesTaxJurisdiction, TaxGroup.Code, TaxDetail."Tax Type"::"Sales Tax Only", WorkDate());
+        LibraryERM.CreateTaxDetail(TaxDetail, CreateSalesTaxJurisdiction(), TaxGroup.Code, TaxDetail."Tax Type"::"Sales Tax Only", WorkDate());
         TaxDetail.Validate("Tax Below Maximum", TaxPercent);
         TaxDetail.Validate("Expense/Capitalize", ExpenseCapitalize);
         TaxDetail.Modify(true);
@@ -668,31 +668,30 @@ codeunit 142057 PurchDocTotalsWithSalesTax
 
     local procedure OpenPurchaseInvoicePageEdit(var PurchaseInvoice: TestPage "Purchase Invoice"; PurchaseHeader: Record "Purchase Header")
     begin
-        PurchaseInvoice.OpenEdit;
+        PurchaseInvoice.OpenEdit();
         PurchaseInvoice.FILTER.SetFilter("No.", PurchaseHeader."No.");
     end;
 
     local procedure OpenPurchaseCrMemoPageEdit(var PurchaseCreditMemo: TestPage "Purchase Credit Memo"; PurchaseHeader: Record "Purchase Header")
     begin
-        PurchaseCreditMemo.OpenEdit;
+        PurchaseCreditMemo.OpenEdit();
         PurchaseCreditMemo.FILTER.SetFilter("No.", PurchaseHeader."No.");
     end;
 
     local procedure OpenPurchaseInvoicePageView(var PurchaseInvoice: TestPage "Purchase Invoice"; PurchaseHeader: Record "Purchase Header")
     begin
-        PurchaseInvoice.OpenView;
+        PurchaseInvoice.OpenView();
         PurchaseInvoice.FILTER.SetFilter("No.", PurchaseHeader."No.");
     end;
 
     local procedure OpenPurchaseCrMemoPageView(var PurchaseCreditMemo: TestPage "Purchase Credit Memo"; PurchaseHeader: Record "Purchase Header")
     begin
-        PurchaseCreditMemo.OpenView;
+        PurchaseCreditMemo.OpenView();
         PurchaseCreditMemo.FILTER.SetFilter("No.", PurchaseHeader."No.");
     end;
 
     local procedure PostPurchaseInvoiceFromPage(PurchaseInvoiceNo: Code[20])
     var
-        PurchaseHeader: Record "Purchase Header";
         PurchaseInvoice: TestPage "Purchase Invoice";
     begin
         PurchaseInvoice.OpenEdit();

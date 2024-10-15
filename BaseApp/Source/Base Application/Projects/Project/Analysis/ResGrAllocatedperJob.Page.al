@@ -10,7 +10,7 @@ using System.Utilities;
 
 page 228 "Res. Gr. Allocated per Job"
 {
-    Caption = 'Res. Gr. Allocated per Job';
+    Caption = 'Res. Gr. Allocated per Project';
     DataCaptionExpression = '';
     DeleteAllowed = false;
     InsertAllowed = false;
@@ -94,7 +94,7 @@ page 228 "Res. Gr. Allocated per Job"
                 begin
                     IsHandled := false;
                     OnActionShowMatrix(JobRec, ResourceGrFilter, MatrixColumnCaptions, MatrixRecords, IsHandled);
-                    If IsHandled then
+                    if IsHandled then
                         exit;
 
                     JobPlanningLine.SetRange("Resource Group No.", ResourceGrFilter);
@@ -186,7 +186,7 @@ page 228 "Res. Gr. Allocated per Job"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnActionShowMatrix(var JobRec: Record Job; ResourceGrFilter: Text; MatrixColumnCaptions: Array[32] of Text; MatrixRecords: Array[32] of Record Date; var IsHandled: Boolean)
+    local procedure OnActionShowMatrix(var JobRec: Record Job; ResourceGrFilter: Text; MatrixColumnCaptions: array[32] of Text; MatrixRecords: array[32] of Record Date; var IsHandled: Boolean)
     begin
     end;
 

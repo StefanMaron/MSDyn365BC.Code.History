@@ -46,7 +46,7 @@ page 1294 "Pmt. Reconciliation Journals"
                     Caption = 'Remaining Amount to Apply';
                     Editable = false;
                     Style = Unfavorable;
-                    StyleExpr = TRUE;
+                    StyleExpr = true;
                     ToolTip = 'Specifies the total amount that exists on the bank account per the last time it was reconciled.';
                 }
                 field("Copy VAT Setup to Jnl. Line"; Rec."Copy VAT Setup to Jnl. Line")

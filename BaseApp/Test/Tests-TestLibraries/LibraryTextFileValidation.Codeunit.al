@@ -87,9 +87,9 @@ codeunit 131003 "Library - Text File Validation"
         Line: DotNet String;
     begin
         StreamReader := StreamReader.StreamReader(FileName);
-        Line := StreamReader.ReadLine;
+        Line := StreamReader.ReadLine();
         while not IsNull(Line) do begin
-            Line := StreamReader.ReadLine;
+            Line := StreamReader.ReadLine();
             if not IsNull(Line) then
                 if Line.Contains(Value) then
                     exit(true);

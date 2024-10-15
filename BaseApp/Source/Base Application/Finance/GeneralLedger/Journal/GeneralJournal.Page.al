@@ -149,7 +149,7 @@ page 39 "General Journal"
                     ApplicationArea = Basic, Suite;
                     StyleExpr = StyleTxt;
                     ToolTip = 'Specifies the date of the transaction in the general ledger, and thereby the fiscal year and period.';
-                    Visible = NOT IsSimplePage;
+                    Visible = not IsSimplePage;
                 }
                 field("VAT Reporting Date"; Rec."VAT Reporting Date")
                 {
@@ -171,13 +171,13 @@ page 39 "General Journal"
                     ApplicationArea = Basic, Suite;
                     StyleExpr = StyleTxt;
                     ToolTip = 'Specifies the type of document that the entry on the journal line is.';
-                    Visible = NOT IsSimplePage;
+                    Visible = not IsSimplePage;
                 }
                 field("Document No."; Rec."Document No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a document number for the journal line.';
-                    Visible = NOT IsSimplePage;
+                    Visible = not IsSimplePage;
                     ShowMandatory = true;
                 }
                 field("Incoming Document Entry No."; Rec."Incoming Document Entry No.")
@@ -209,7 +209,7 @@ page 39 "General Journal"
                     ApplicationArea = Basic, Suite;
                     StyleExpr = StyleTxt;
                     ToolTip = 'Specifies the type of account that the entry on the journal line will be posted to.';
-                    Visible = NOT IsSimplePage;
+                    Visible = not IsSimplePage;
 
                     trigger OnValidate()
                     begin
@@ -297,7 +297,7 @@ page 39 "General Journal"
                     ApplicationArea = Suite;
                     AssistEdit = true;
                     ToolTip = 'Specifies the code of the currency for the amounts on the journal line.';
-                    Visible = NOT IsSimplePage;
+                    Visible = not IsSimplePage;
 
                     trigger OnAssistEdit()
                     begin
@@ -312,7 +312,7 @@ page 39 "General Journal"
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the general posting type that will be used when you post the entry on this journal line.';
-                    Visible = NOT IsSimplePage;
+                    Visible = not IsSimplePage;
 
                     trigger OnValidate()
                     begin
@@ -323,13 +323,13 @@ page 39 "General Journal"
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the vendor''s or customer''s trade type to link transactions made for this business partner with the appropriate general ledger account according to the general posting setup.';
-                    Visible = NOT IsSimplePage;
+                    Visible = not IsSimplePage;
                 }
                 field("Gen. Prod. Posting Group"; Rec."Gen. Prod. Posting Group")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the item''s product type to link transactions made for this item with the appropriate general ledger account according to the general posting setup.';
-                    Visible = NOT IsSimplePage;
+                    Visible = not IsSimplePage;
                 }
                 field("VAT Bus. Posting Group"; Rec."VAT Bus. Posting Group")
                 {
@@ -429,7 +429,7 @@ page 39 "General Journal"
                     ApplicationArea = Basic, Suite;
                     StyleExpr = StyleTxt;
                     ToolTip = 'Specifies the code for the balancing account type that should be used in this journal line.';
-                    Visible = NOT IsSimplePage;
+                    Visible = not IsSimplePage;
 
                     trigger OnValidate()
                     begin
@@ -441,7 +441,7 @@ page 39 "General Journal"
                     ApplicationArea = Basic, Suite;
                     StyleExpr = StyleTxt;
                     ToolTip = 'Specifies the number of the general ledger, customer, vendor, or bank account to which a balancing entry for the journal line will posted (for example, a cash account for cash purchases).';
-                    Visible = NOT IsSimplePage;
+                    Visible = not IsSimplePage;
 
                     trigger OnValidate()
                     begin
@@ -454,7 +454,7 @@ page 39 "General Journal"
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the general posting type associated with the balancing account that will be used when you post the entry on the journal line.';
-                    Visible = NOT IsSimplePage;
+                    Visible = not IsSimplePage;
 
                     trigger OnValidate()
                     begin
@@ -465,7 +465,7 @@ page 39 "General Journal"
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the general business posting group code associated with the balancing account that will be used when you post the entry.';
-                    Visible = NOT IsSimplePage;
+                    Visible = not IsSimplePage;
 
                     trigger OnValidate()
                     begin
@@ -476,7 +476,7 @@ page 39 "General Journal"
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the general product posting group code associated with the balancing account that will be used when you post the entry.';
-                    Visible = NOT IsSimplePage;
+                    Visible = not IsSimplePage;
                 }
                 field("Allocation Account No."; Rec."Selected Alloc. Account No.")
                 {
@@ -495,7 +495,7 @@ page 39 "General Journal"
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the deferral template that governs how expenses or revenue are deferred to the different accounting periods when the expenses or revenue were incurred.';
-                    Visible = NOT IsSimplePage;
+                    Visible = not IsSimplePage;
 
                     trigger OnAssistEdit()
                     begin
@@ -604,13 +604,13 @@ page 39 "General Journal"
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the entry as a corrective entry. You can use the field if you need to post a corrective entry to an account.';
-                    Visible = NOT IsSimplePage;
+                    Visible = not IsSimplePage;
                 }
                 field(Comment; Rec.Comment)
                 {
                     ApplicationArea = Comments;
                     ToolTip = 'Specifies a comment about the activity on the journal line. Note that the comment is not carried forward to posted entries.';
-                    Visible = NOT IsSimplePage;
+                    Visible = not IsSimplePage;
                 }
                 field("Direct Debit Mandate ID"; Rec."Direct Debit Mandate ID")
                 {
@@ -960,7 +960,7 @@ page 39 "General Journal"
                     Caption = 'Renumber Document Numbers';
                     Image = EditLines;
                     ToolTip = 'Resort the numbers in the Document No. column to avoid posting errors because the document numbers are not in sequence. Entry applications and line groupings are preserved.';
-                    Visible = NOT IsSimplePage;
+                    Visible = not IsSimplePage;
 
                     trigger OnAction()
                     begin
@@ -1216,7 +1216,7 @@ page 39 "General Journal"
                         ApplicationArea = Basic, Suite;
                         Caption = 'Create Incoming Document from File';
                         Ellipsis = true;
-                        Enabled = NOT HasIncomingDocument;
+                        Enabled = not HasIncomingDocument;
                         Image = Attach;
                         ToolTip = 'Create an incoming document record by selecting a file to attach, and then link the incoming document record to the entry or document.';
 
@@ -1375,7 +1375,7 @@ page 39 "General Journal"
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Journal Batch';
-                        Enabled = NOT OpenApprovalEntriesOnBatchOrAnyJnlLineExist AND CanRequestFlowApprovalForBatchAndAllLines AND EnabledGenJnlBatchWorkflowsExist;
+                        Enabled = not OpenApprovalEntriesOnBatchOrAnyJnlLineExist and CanRequestFlowApprovalForBatchAndAllLines and EnabledGenJnlBatchWorkflowsExist;
                         Image = SendApprovalRequest;
                         ToolTip = 'Send all journal lines for approval, also those that you may not see because of filters.';
 
@@ -1392,7 +1392,7 @@ page 39 "General Journal"
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Selected Journal Lines';
-                        Enabled = NOT OpenApprovalEntriesOnBatchOrCurrJnlLineExist AND CanRequestFlowApprovalForBatchAndCurrentLine AND EnabledGenJnlLineWorkflowsExist;
+                        Enabled = not OpenApprovalEntriesOnBatchOrCurrJnlLineExist and CanRequestFlowApprovalForBatchAndCurrentLine and EnabledGenJnlLineWorkflowsExist;
                         Image = SendApprovalRequest;
                         ToolTip = 'Send selected journal lines for approval.';
 
@@ -1416,7 +1416,7 @@ page 39 "General Journal"
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Journal Batch';
-                        Enabled = CanCancelApprovalForJnlBatch OR CanCancelFlowApprovalForBatch;
+                        Enabled = CanCancelApprovalForJnlBatch or CanCancelFlowApprovalForBatch;
                         Image = CancelApprovalRequest;
                         ToolTip = 'Cancel sending all journal lines for approval, also those that you may not see because of filters.';
 
@@ -1433,7 +1433,7 @@ page 39 "General Journal"
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Selected Journal Lines';
-                        Enabled = CanCancelApprovalForJnlLine OR CanCancelFlowApprovalForLine;
+                        Enabled = CanCancelApprovalForJnlLine or CanCancelFlowApprovalForLine;
                         Image = CancelApprovalRequest;
                         ToolTip = 'Cancel sending selected journal lines for approval.';
 
@@ -1448,18 +1448,38 @@ page 39 "General Journal"
                         end;
                     }
                 }
+#if not CLEAN24
                 customaction(CreateFlowFromTemplate)
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Create approval flow';
                     ToolTip = 'Create a new flow in Power Automate from a list of relevant flow templates.';
-#if not CLEAN22
-                    Visible = IsSaaS and PowerAutomateTemplatesEnabled and IsPowerAutomatePrivacyNoticeApproved;
-#else
-                    Visible = IsSaaS and IsPowerAutomatePrivacyNoticeApproved;
-#endif
+                    Visible = false;
                     CustomActionType = FlowTemplateGallery;
                     FlowTemplateCategoryName = 'd365bc_approval_generalJournal';
+                    ObsoleteReason = 'Replaced by field "CreateApprovalFlowFromTemplate" in the group Flow.';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '24.0';
+                }
+#endif
+                group(Flow)
+                {
+                    Caption = 'Power Automate';
+                    Image = Flow;
+
+                    customaction(CreateApprovalFlowFromTemplate)
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'Create approval flow';
+                        ToolTip = 'Create a new flow in Power Automate from a list of relevant flow templates.';
+#if not CLEAN22
+                        Visible = IsSaaS and PowerAutomateTemplatesEnabled and IsPowerAutomatePrivacyNoticeApproved;
+#else
+                        Visible = IsSaaS and IsPowerAutomatePrivacyNoticeApproved;
+#endif
+                        CustomActionType = FlowTemplateGallery;
+                        FlowTemplateCategoryName = 'd365bc_approval_generalJournal';
+                    }
                 }
 #if not CLEAN22
                 action(CreateFlow)
@@ -1482,20 +1502,6 @@ page 39 "General Journal"
                         FlowTemplateSelector.SetSearchText(FlowServiceManagement.GetJournalTemplateFilter());
                         FlowTemplateSelector.Run();
                     end;
-                }
-#endif
-#if not CLEAN21
-                action(SeeFlows)
-                {
-                    ApplicationArea = Basic, Suite;
-                    Caption = 'See my flows';
-                    Image = Flow;
-                    RunObject = Page "Flow Selector";
-                    ToolTip = 'View and configure Power Automate flows that you created.';
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'This action has been moved to the tab dedicated to Power Automate';
-                    ObsoleteTag = '21.0';
                 }
 #endif
             }
@@ -1721,7 +1727,7 @@ page 39 "General Journal"
                     Caption = 'Show Fewer Columns';
                     Image = SetupList;
                     ToolTip = 'Hide fields that are not frequently used.';
-                    Visible = NOT IsSimplePage;
+                    Visible = not IsSimplePage;
 
                     trigger OnAction()
                     begin
@@ -1792,15 +1798,6 @@ page 39 "General Journal"
                     Caption = 'Post/Print', Comment = 'Generated from the PromotedActionCategories property index 8.';
                     ShowAs = SplitButton;
 
-#if not CLEAN21
-                    actionref("Remove From Job Queue_Promoted"; "Remove From Job Queue")
-                    {
-                        Visible = false;
-                        ObsoleteState = Pending;
-                        ObsoleteReason = 'Action is being demoted based on overall low usage.';
-                        ObsoleteTag = '21.0';
-                    }
-#endif
                     actionref(Post_Promoted; Post)
                     {
                     }
@@ -1919,24 +1916,6 @@ page 39 "General Journal"
             {
                 Caption = 'Account', Comment = 'Generated from the PromotedActionCategories property index 10.';
 
-#if not CLEAN21
-                actionref(Card_Promoted; Card)
-                {
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Action is being demoted based on overall low usage.';
-                    ObsoleteTag = '21.0';
-                }
-#endif
-#if not CLEAN21
-                actionref("Ledger E&ntries_Promoted"; "Ledger E&ntries")
-                {
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Action is being demoted based on overall low usage.';
-                    ObsoleteTag = '21.0';
-                }
-#endif
             }
             group("Category_Incoming Document")
             {
@@ -2121,7 +2100,6 @@ page 39 "General Journal"
         ReportPrint: Codeunit "Test Report-Print";
         PayrollManagement: Codeunit "Payroll Management";
         ClientTypeManagement: Codeunit "Client Type Management";
-        NoSeriesMgt: Codeunit NoSeriesManagement;
         JournalErrorsMgt: Codeunit "Journal Errors Mgt.";
         BackgroundErrorHandlingMgt: Codeunit "Background Error Handling Mgt.";
         PrivacyNotice: Codeunit "Privacy Notice";
@@ -2332,6 +2310,7 @@ page 39 "General Journal"
         GenJournalLine: Record "Gen. Journal Line";
         [SecurityFiltering(SecurityFilter::Filtered)]
         GenJnlBatch: Record "Gen. Journal Batch";
+        NoSeriesBatch: Codeunit "No. Series - Batch";
         LastDocNo: Code[20];
     begin
         if Rec.Count = 0 then
@@ -2343,9 +2322,9 @@ page 39 "General Journal"
         GenJournalLine.SetRange("Journal Batch Name", Rec."Journal Batch Name");
         if GenJournalLine.FindLast() then begin
             LastDocNo := GenJournalLine."Document No.";
-            Rec.IncrementDocumentNo(GenJnlBatch, LastDocNo);
+            LastDocNo := NoSeriesBatch.SimulateGetNextNo(GenJnlBatch."No. Series", Rec."Posting Date", LastDocNo);
         end else
-            LastDocNo := NoSeriesMgt.TryGetNextNo(GenJnlBatch."No. Series", Rec."Posting Date");
+            LastDocNo := NoSeriesBatch.PeekNextNo(GenJnlBatch."No. Series", Rec."Posting Date");
 
         CurrentDocNo := LastDocNo;
         SetDocumentNumberFilter(CurrentDocNo);
@@ -2536,10 +2515,10 @@ page 39 "General Journal"
             // current doc no.
             if ((xRec."Document No." = '') or (xRec."Journal Batch Name" <> Rec."Journal Batch Name")) and (not IsChangingDocNo) then begin
                 CurrentDocNo := Rec."Document No.";
-                IF xRec."Journal Batch Name" = '' THEN
-                    IF GenJournalBatch.Get(Rec."Journal Template Name", Rec."Journal Batch Name") then
-                        IF GenJournalBatch."Bal. Account Type" = GenJournalBatch."Bal. Account Type"::"Bank Account" THEN
-                            IF BankAccount.GET(GenJournalBatch."Bal. Account No.") THEN
+                if xRec."Journal Batch Name" = '' then
+                    if GenJournalBatch.Get(Rec."Journal Template Name", Rec."Journal Batch Name") then
+                        if GenJournalBatch."Bal. Account Type" = GenJournalBatch."Bal. Account Type"::"Bank Account" then
+                            if BankAccount.GET(GenJournalBatch."Bal. Account No.") then
                                 CurrentCurrencyCode := BankAccount."Currency Code";
             end else begin
                 Rec."Document No." := CurrentDocNo;
@@ -2566,7 +2545,7 @@ page 39 "General Journal"
             GenJournalLine.SetRange("Journal Template Name", Rec."Journal Template Name");
             GenJournalLine.SetRange("Journal Batch Name", Rec."Journal Batch Name");
             GenJournalLine.SetRange("Document No.", CurrentDocNo);
-            if GenJournalLine.Findset(true, false) then
+            if GenJournalLine.FindSet(true) then
                 repeat
                     case FieldNumber of
                         GenJournalLine.FieldNo("Currency Code"):
@@ -2699,4 +2678,3 @@ page 39 "General Journal"
     begin
     end;
 }
-

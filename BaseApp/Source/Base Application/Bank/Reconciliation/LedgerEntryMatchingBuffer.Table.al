@@ -6,95 +6,76 @@ using Microsoft.HumanResources.Payables;
 using Microsoft.Purchases.Payables;
 using Microsoft.Sales.Receivables;
 
+#if not CLEAN22
 #pragma warning disable AS0109
+#endif
 table 1248 "Ledger Entry Matching Buffer"
-#pragma warning restore AS0109
 {
     Caption = 'Ledger Entry Matching Buffer';
     ReplicateData = false;
-#if CLEAN21
     TableType = Temporary;
-#else
-    ObsoleteReason = 'Table will be marked as TableType=Temporary. Make sure you are not using this table to store records.';
-    ObsoleteState = Pending;
-    ObsoleteTag = '21.0';
-#endif
+    DataClassification = CustomerContent;
 
     fields
     {
         field(1; "Entry No."; Integer)
         {
             Caption = 'Entry No.';
-            DataClassification = SystemMetadata;
         }
         field(2; "Account Type"; Enum "Matching Ledger Account Type")
         {
             Caption = 'Account Type';
-            DataClassification = SystemMetadata;
         }
         field(3; "Account No."; Code[20])
         {
             Caption = 'Account No.';
-            DataClassification = SystemMetadata;
         }
         field(4; "Bal. Account Type"; enum "Gen. Journal Account Type")
         {
             Caption = 'Bal. Account Type';
-            DataClassification = SystemMetadata;
         }
         field(5; "Bal. Account No."; Code[20])
         {
             Caption = 'Bal. Account No.';
-            DataClassification = SystemMetadata;
         }
         field(7; Description; Text[100])
         {
-            DataClassification = SystemMetadata;
         }
         field(8; "Document Type"; Enum "Gen. Journal Document Type")
         {
             Caption = 'Document Type';
-            DataClassification = SystemMetadata;
         }
         field(9; "Due Date"; Date)
         {
             Caption = 'Due Date';
-            DataClassification = SystemMetadata;
         }
         field(10; "Posting Date"; Date)
         {
             Caption = 'Posting Date';
-            DataClassification = SystemMetadata;
         }
         field(11; "Document No."; Code[20])
         {
             Caption = 'Document No.';
-            DataClassification = SystemMetadata;
         }
         field(12; "External Document No."; Code[35])
         {
             Caption = 'External Document No.';
-            DataClassification = SystemMetadata;
         }
         field(13; "Payment Reference"; Code[50])
         {
             Caption = 'Payment Reference';
-            DataClassification = SystemMetadata;
         }
         field(20; "Remaining Amount"; Decimal)
         {
             Caption = 'Remaining Amount';
-            DataClassification = SystemMetadata;
         }
         field(21; "Remaining Amt. Incl. Discount"; Decimal)
         {
             Caption = 'Remaining Amt. Incl. Discount';
-            DataClassification = SystemMetadata;
         }
         field(22; "Pmt. Discount Due Date"; Date)
         {
             Caption = 'Pmt. Discount Due Date';
-            DataClassification = SystemMetadata;
         }
     }
 
@@ -176,6 +157,11 @@ table 1248 "Ledger Entry Matching Buffer"
 
     procedure InsertFromEmployeeLedgerEntry(EmployeeLedgerEntry: Record "Employee Ledger Entry")
     begin
+        InsertFromEmployeeLedgerEntry(EmployeeLedgerEntry, false);
+    end;
+
+    procedure InsertFromEmployeeLedgerEntry(EmployeeLedgerEntry: Record "Employee Ledger Entry"; UseLCYAmounts: Boolean)
+    begin
         Clear(Rec);
         "Entry No." := EmployeeLedgerEntry."Entry No.";
         "Account Type" := "Account Type"::Employee;
@@ -184,7 +170,10 @@ table 1248 "Ledger Entry Matching Buffer"
         "Document No." := EmployeeLedgerEntry."Document No.";
         "Payment Reference" := EmployeeLedgerEntry."Payment Reference";
 
-        "Remaining Amount" := EmployeeLedgerEntry."Remaining Amt. (LCY)";
+        if UseLCYAmounts then
+            "Remaining Amount" := EmployeeLedgerEntry."Remaining Amt. (LCY)"
+        else
+            "Remaining Amount" := EmployeeLedgerEntry."Remaining Amount";
 
         OnBeforeInsertFromEmployeeLedgerEntry(Rec, EmployeeLedgerEntry);
         Insert(true);

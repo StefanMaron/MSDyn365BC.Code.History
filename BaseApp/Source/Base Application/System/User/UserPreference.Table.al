@@ -4,6 +4,7 @@ table 1306 "User Preference"
 {
     Caption = 'User Preference';
     ReplicateData = false;
+    DataClassification = CustomerContent;
 
     fields
     {

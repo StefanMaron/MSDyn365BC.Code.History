@@ -1575,7 +1575,7 @@ page 344 Navigate
         if PostedDepositHeader.ReadPermission then begin
             PostedDepositHeader.Reset();
             PostedDepositHeader.SetFilter("No.", DocNoFilter);
-            InsertIntoDocEntry(Rec, DATABASE::"Posted Deposit Header", 0, PostedDepositHeader.TableCaption(), PostedDepositHeader.Count);
+            InsertIntoDocEntry(Rec, DATABASE::"Posted Deposit Header", PostedDepositHeader.TableCaption(), PostedDepositHeader.Count);
         end;
     end;
 
@@ -1586,7 +1586,7 @@ page 344 Navigate
             PostedDepositLine.SetCurrentKey("Document No.", "Posting Date");
             PostedDepositLine.SetFilter("Document No.", DocNoFilter);
             PostedDepositLine.SetFilter("Posting Date", PostingDateFilter);
-            InsertIntoDocEntry(Rec, DATABASE::"Posted Deposit Line", 0, PostedDepositLine.TableCaption(), PostedDepositLine.Count);
+            InsertIntoDocEntry(Rec, DATABASE::"Posted Deposit Line", PostedDepositLine.TableCaption(), PostedDepositLine.Count);
         end;
     end;
 
@@ -2332,13 +2332,6 @@ page 344 Navigate
         Window.Close();
     end;
 
-    [Obsolete('Replaced by SetTracking with ItemTrackingSetup parameter.', '18.0')]
-    procedure SetTracking(SerialNo: Code[50]; LotNo: Code[50])
-    begin
-        NewItemTrackingSetup."Serial No." := SerialNo;
-        NewItemTrackingSetup."Lot No." := LotNo;
-    end;
-
     procedure SetTracking(ItemTrackingSetup: Record "Item Tracking Setup")
     begin
         NewItemTrackingSetup := ItemTrackingSetup;
@@ -2380,7 +2373,7 @@ page 344 Navigate
                 Error(USText001);
             GLEntry.SetFilter("External Document No.", ExtDocNo);
             GLEntry.SetFilter("Posting Date", PostingDateFilter);
-            InsertIntoDocEntry(Rec, DATABASE::"G/L Entry", 0, GLEntry.TableCaption(), GLEntry.Count);
+            InsertIntoDocEntry(Rec, DATABASE::"G/L Entry", GLEntry.TableCaption(), GLEntry.Count);
         end;
         if CustLedgEntry.ReadPermission then begin
             CustLedgEntry.Reset();
@@ -2388,7 +2381,7 @@ page 344 Navigate
                 Error(USText001);
             CustLedgEntry.SetFilter("External Document No.", ExtDocNo);
             CustLedgEntry.SetFilter("Posting Date", PostingDateFilter);
-            InsertIntoDocEntry(Rec, DATABASE::"Cust. Ledger Entry", 0, CustLedgEntry.TableCaption(), CustLedgEntry.Count);
+            InsertIntoDocEntry(Rec, DATABASE::"Cust. Ledger Entry", CustLedgEntry.TableCaption(), CustLedgEntry.Count);
         end;
         if VendLedgEntry.ReadPermission then begin
             VendLedgEntry.Reset();
@@ -2396,7 +2389,7 @@ page 344 Navigate
                 Error(USText001);
             VendLedgEntry.SetFilter("External Document No.", ExtDocNo);
             VendLedgEntry.SetFilter("Posting Date", PostingDateFilter);
-            InsertIntoDocEntry(Rec, DATABASE::"Vendor Ledger Entry", 0, VendLedgEntry.TableCaption(), VendLedgEntry.Count);
+            InsertIntoDocEntry(Rec, DATABASE::"Vendor Ledger Entry", VendLedgEntry.TableCaption(), VendLedgEntry.Count);
         end;
         if BankAccLedgEntry.ReadPermission then begin
             BankAccLedgEntry.Reset();
@@ -2404,19 +2397,19 @@ page 344 Navigate
                 Error(USText001);
             BankAccLedgEntry.SetFilter("External Document No.", ExtDocNo);
             BankAccLedgEntry.SetFilter("Posting Date", PostingDateFilter);
-            InsertIntoDocEntry(Rec, DATABASE::"Bank Account Ledger Entry", 0, BankAccLedgEntry.TableCaption(), BankAccLedgEntry.Count);
+            InsertIntoDocEntry(Rec, DATABASE::"Bank Account Ledger Entry", BankAccLedgEntry.TableCaption(), BankAccLedgEntry.Count);
         end;
         if PostedDepositHeader.ReadPermission then begin
             PostedDepositHeader.Reset();
             PostedDepositHeader.SetFilter("No.", ExtDocNo);
-            InsertIntoDocEntry(Rec, DATABASE::"Posted Deposit Header", 0, PostedDepositHeader.TableCaption(), PostedDepositHeader.Count);
+            InsertIntoDocEntry(Rec, DATABASE::"Posted Deposit Header", PostedDepositHeader.TableCaption(), PostedDepositHeader.Count);
         end;
         if PostedDepositLine.ReadPermission then begin
             PostedDepositLine.Reset();
             PostedDepositLine.SetCurrentKey("Deposit No.");
             PostedDepositLine.SetFilter("Deposit No.", ExtDocNo);
             PostedDepositLine.SetFilter("Posting Date", PostingDateFilter);
-            InsertIntoDocEntry(Rec, DATABASE::"Posted Deposit Line", 0, PostedDepositLine.TableCaption(), PostedDepositLine.Count);
+            InsertIntoDocEntry(Rec, DATABASE::"Posted Deposit Line", PostedDepositLine.TableCaption(), PostedDepositLine.Count);
         end;
         DocExists := Rec.FindFirst();
 
@@ -2427,20 +2420,19 @@ page 344 Navigate
                 SetSource(
                   PostedDepositHeader."Posting Date", Format(Rec."Table Name"), PostedDepositHeader."No.",
                   4, PostedDepositHeader."Bank Account No.");
-            end else begin
+            end else
                 if ExtDocNo <> '' then
                     if PostingDateFilter = '' then
                         Message(Text011)
                     else
                         Message(Text012);
-            end;
         end else
             if PostingDateFilter = '' then
                 Message(Text013)
             else
                 Message(Text014);
 
-        UpdateFormAfterFindRecords;
+        UpdateFormAfterFindRecords();
         Window.Close();
     end;
 
@@ -2604,14 +2596,6 @@ page 344 Navigate
     local procedure OnAfterFindPurchRcptHeader(var DocumentEntry: Record "Document Entry"; var PurchRcptHeader: Record "Purch. Rcpt. Header"; DocNoFilter: Text; PostingDateFilter: Text)
     begin
     end;
-
-#if not CLEAN21
-    [Obsolete('No. of documents is not checked anymore', '21.0')]
-    [IntegrationEvent(true, false)]
-    local procedure OnAfterGetDocumentCount(var DocCount: Integer)
-    begin
-    end;
-#endif    
 
     [IntegrationEvent(true, false)]
     local procedure OnAfterNavigateFindExtRecords(var DocumentEntry: Record "Document Entry"; ContactType: Enum "Navigate Contact Type"; ContactNo: Code[250]; ExtDocNo: Code[250]; var FoundRecords: Boolean)

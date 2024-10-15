@@ -555,6 +555,12 @@ codeunit 816 "Purch. Post Invoice" implements "Invoice Posting"
         JobPurchLine.SetRange("VAT Prod. Posting Group", InvoicePostingBuffer."VAT Prod. Posting Group");
         JobPurchLine.SetRange("Dimension Set ID", InvoicePostingBuffer."Dimension Set ID");
 
+        if InvoicePostingBuffer."Fixed Asset Line No." <> 0 then begin
+            PurchSetup.Get();
+            if PurchSetup."Copy Line Descr. to G/L Entry" then
+                JobPurchLine.SetRange("Line No.", InvoicePostingBuffer."Fixed Asset Line No.");
+        end;
+
         PurchPostInvoiceEvents.RunOnAfterSetJobLineFilters(JobPurchLine, InvoicePostingBuffer);
     end;
 
@@ -637,10 +643,12 @@ codeunit 816 "Purch. Post Invoice" implements "Invoice Posting"
         GenJnlLine."Orig. Pmt. Disc. Possible(LCY)" :=
             CurrExchRate.ExchangeAmtFCYToLCY(
                 PurchHeader.GetUseDate(), PurchHeader."Currency Code", -TotalPurchLine."Pmt. Discount Amount", PurchHeader."Currency Factor");
+#if not CLEAN25
         if PurchHeader."IRS 1099 Code" <> '' then begin
             GenJnlLine."IRS 1099 Code" := PurchHeader."IRS 1099 Code";
             GenJnlLine."IRS 1099 Amount" := -Round(PurchHeader."IRS 1099 Amount");
         end;
+#endif
     end;
 
     procedure PostBalancingEntry(PurchHeaderVar: Variant; var GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line")

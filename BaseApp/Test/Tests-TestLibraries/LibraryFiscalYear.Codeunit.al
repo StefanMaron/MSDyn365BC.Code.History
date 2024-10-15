@@ -58,8 +58,8 @@ codeunit 131302 "Library - Fiscal Year"
         // Check if Posting Date is outside the Accounting Period then Create New Fiscal Year and close it.
         AccountingPeriod.FindLast();
         if PostingDate > AccountingPeriod."Starting Date" then begin
-            CreateFiscalYear;
-            CloseFiscalYear;
+            CreateFiscalYear();
+            CloseFiscalYear();
         end;
     end;
 
@@ -116,7 +116,7 @@ codeunit 131302 "Library - Fiscal Year"
         AccountingPeriod: Record "Accounting Period";
     begin
         Clear(AccountingPeriod);
-        CloseAccountingPeriod;
+        CloseAccountingPeriod();
         AccountingPeriod.Init();
         AccountingPeriod.Validate("Starting Date", CalcDate('<+1M>', GetLastPostingDate(true)));
         AccountingPeriod.Insert(true);

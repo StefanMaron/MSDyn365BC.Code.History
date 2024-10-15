@@ -6,10 +6,11 @@ using Microsoft.Projects.Project.Job;
 
 report 10217 "Job Register"
 {
+    AdditionalSearchTerms = 'Job Register';
     DefaultLayout = RDLC;
     RDLCLayout = './Projects/Project/Reports/JobRegister.rdlc';
     ApplicationArea = Jobs;
-    Caption = 'Job Register';
+    Caption = 'Project Register';
     UsageCategory = ReportsAndAnalysis;
 
     dataset
@@ -233,7 +234,7 @@ report 10217 "Job Register"
         JobEntryFilter: Text;
         JobDescription: Text[100];
         SourceCodeText: Text[50];
-        Job_RegisterCaptionLbl: Label 'Job Register';
+        Job_RegisterCaptionLbl: Label 'Project Register';
         CurrReport_PAGENOCaptionLbl: Label 'Page';
         Number_of_Entries_in_Register_No_CaptionLbl: Label 'Number of Entries in Register No.';
 }

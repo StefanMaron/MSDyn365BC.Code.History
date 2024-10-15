@@ -310,26 +310,26 @@ page 279 "Source Code Setup"
             }
             group(Jobs)
             {
-                Caption = 'Jobs';
+                Caption = 'Projects';
                 field("Job Journal"; Rec."Job Journal")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the code linked to entries that are posted from a job journal.';
+                    ToolTip = 'Specifies the code linked to entries that are posted from a project journal.';
                 }
                 field("Job G/L Journal"; Rec."Job G/L Journal")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the code assigned to entries that are posted from a general journal of the Job G/L Journal type.';
+                    ToolTip = 'Specifies the code assigned to entries that are posted from a general journal of the Project G/L Journal type.';
                 }
                 field("Job G/L WIP"; Rec."Job G/L WIP")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the code assigned to entries that are posted from the Job Post WIP to G/L batch job in the Jobs module.';
+                    ToolTip = 'Specifies the code assigned to entries that are posted from the Project Post WIP to G/L batch job in the Projects module.';
                 }
                 field("Compress Job Ledger"; Rec."Compress Job Ledger")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the code linked to entries that are posted using the Date Compress Job Ledger batch job.';
+                    ToolTip = 'Specifies the code linked to entries that are posted using the Date Compress Project Ledger batch job.';
                 }
             }
             group("Fixed Assets")

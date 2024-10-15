@@ -268,43 +268,41 @@ report 10071 "Customer Stmt. (Pre-Printed)"
                             TempCustLedgEntry.Find('-')
                         else
                             TempCustLedgEntry.Next();
-                        with TempCustLedgEntry do begin
-                            CalcFields("Remaining Amount");
-                            if "Currency Code" <> Customer."Currency Code" then
-                                "Remaining Amount" :=
-                                  Round(
-                                    CurrExchRate.ExchangeAmtFCYToFCY(
-                                      "Posting Date",
-                                      "Currency Code",
-                                      Customer."Currency Code",
-                                      "Remaining Amount"),
-                                    Currency."Amount Rounding Precision");
+                        TempCustLedgEntry.CalcFields("Remaining Amount");
+                        if TempCustLedgEntry."Currency Code" <> Customer."Currency Code" then
+                            TempCustLedgEntry."Remaining Amount" :=
+                              Round(
+                                CurrExchRate.ExchangeAmtFCYToFCY(
+                                  TempCustLedgEntry."Posting Date",
+                                  TempCustLedgEntry."Currency Code",
+                                  Customer."Currency Code",
+                                  TempCustLedgEntry."Remaining Amount"),
+                                Currency."Amount Rounding Precision");
 
-                            if AgingMethod <> AgingMethod::None then begin
-                                case AgingMethod of
-                                    AgingMethod::"Due Date":
-                                        AgingDate := "Due Date";
-                                    AgingMethod::"Trans Date":
-                                        AgingDate := "Posting Date";
-                                    AgingMethod::"Doc Date":
-                                        AgingDate := "Document Date";
-                                end;
-                                i := 0;
-                                while AgingDate < PeriodEndingDate[i + 1] do
-                                    i := i + 1;
-                                if i = 0 then
-                                    i := 1;
-                                AmountDue[i] := "Remaining Amount";
-                                TempAmountDue[i] := TempAmountDue[i] + AmountDue[i];
+                        if AgingMethod <> AgingMethod::None then begin
+                            case AgingMethod of
+                                AgingMethod::"Due Date":
+                                    AgingDate := TempCustLedgEntry."Due Date";
+                                AgingMethod::"Trans Date":
+                                    AgingDate := TempCustLedgEntry."Posting Date";
+                                AgingMethod::"Doc Date":
+                                    AgingDate := TempCustLedgEntry."Document Date";
                             end;
+                            i := 0;
+                            while AgingDate < PeriodEndingDate[i + 1] do
+                                i := i + 1;
+                            if i = 0 then
+                                i := 1;
+                            AmountDue[i] := TempCustLedgEntry."Remaining Amount";
+                            TempAmountDue[i] := TempAmountDue[i] + AmountDue[i];
+                        end;
 
-                            if StatementStyle = StatementStyle::"Open Item" then begin
-                                BalanceToPrint := BalanceToPrint + "Remaining Amount";
-                                if "Remaining Amount" >= 0 then
-                                    DebitBalance := DebitBalance + "Remaining Amount"
-                                else
-                                    CreditBalance := CreditBalance + "Remaining Amount";
-                            end;
+                        if StatementStyle = StatementStyle::"Open Item" then begin
+                            BalanceToPrint := BalanceToPrint + TempCustLedgEntry."Remaining Amount";
+                            if TempCustLedgEntry."Remaining Amount" >= 0 then
+                                DebitBalance := DebitBalance + TempCustLedgEntry."Remaining Amount"
+                            else
+                                CreditBalance := CreditBalance + TempCustLedgEntry."Remaining Amount";
                         end;
                     end;
 
@@ -408,8 +406,8 @@ report 10071 "Customer Stmt. (Pre-Printed)"
 
             trigger OnAfterGetRecord()
             begin
-                CurrReport.Language := Language.GetLanguageIdOrDefault("Language Code");
-                CurrReport.FormatRegion := Language.GetFormatRegionOrDefault("Format Region");
+                CurrReport.Language := LanguageMgt.GetLanguageIdOrDefault("Language Code");
+                CurrReport.FormatRegion := LanguageMgt.GetFormatRegionOrDefault("Format Region");
 
                 DebitBalance := 0;
                 CreditBalance := 0;
@@ -643,7 +641,7 @@ report 10071 "Customer Stmt. (Pre-Printed)"
         CurrExchRate: Record "Currency Exchange Rate";
         TempCustLedgEntry: Record "Cust. Ledger Entry" temporary;
         TempAppliedCustLedgEntry: Record "Cust. Ledger Entry" temporary;
-        Language: Codeunit Language;
+        LanguageMgt: Codeunit Language;
         FormatAddress: Codeunit "Format Address";
         EntryAppMgt: Codeunit "Entry Application Management";
         StatementStyle: Option "Open Item",Balance;
@@ -699,21 +697,19 @@ report 10071 "Customer Stmt. (Pre-Printed)"
         InvoiceHeader: Record "Sales Invoice Header";
         PaymentTerms: Record "Payment Terms";
     begin
-        with CustLedgerEntry do begin
-            if ("Document No." = '') or ("Document Type" <> "Document Type"::Invoice) then
-                exit('');
+        if (CustLedgerEntry."Document No." = '') or (CustLedgerEntry."Document Type" <> CustLedgerEntry."Document Type"::Invoice) then
+            exit('');
 
-            if InvoiceHeader.ReadPermission then
-                if InvoiceHeader.Get("Document No.") then begin
-                    if PaymentTerms.Get(InvoiceHeader."Payment Terms Code") then begin
-                        if PaymentTerms.Description <> '' then
-                            exit(PaymentTerms.Description);
+        if InvoiceHeader.ReadPermission then
+            if InvoiceHeader.Get(CustLedgerEntry."Document No.") then begin
+                if PaymentTerms.Get(InvoiceHeader."Payment Terms Code") then begin
+                    if PaymentTerms.Description <> '' then
+                        exit(PaymentTerms.Description);
 
-                        exit(InvoiceHeader."Payment Terms Code");
-                    end;
                     exit(InvoiceHeader."Payment Terms Code");
                 end;
-        end;
+                exit(InvoiceHeader."Payment Terms Code");
+            end;
 
         if Customer."Payment Terms Code" <> '' then begin
             if PaymentTerms.Get(Customer."Payment Terms Code") then begin
@@ -730,12 +726,10 @@ report 10071 "Customer Stmt. (Pre-Printed)"
 
     local procedure InsertTemp(var CustLedgEntry: Record "Cust. Ledger Entry")
     begin
-        with TempCustLedgEntry do begin
-            if Get(CustLedgEntry."Entry No.") then
-                exit;
-            TempCustLedgEntry := CustLedgEntry;
-            Insert();
-        end;
+        if TempCustLedgEntry.Get(CustLedgEntry."Entry No.") then
+            exit;
+        TempCustLedgEntry := CustLedgEntry;
+        TempCustLedgEntry.Insert();
     end;
 }
 

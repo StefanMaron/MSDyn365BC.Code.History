@@ -292,14 +292,13 @@ codeunit 1339 "Cancel Posted Sales Cr. Memo"
         GenJournalTemplate: Record "Gen. Journal Template";
         GeneralLedgerSetup: Record "General Ledger Setup";
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
-        NoSeriesManagement: Codeunit NoSeriesManagement;
         PostingDate: Date;
         PostingNoSeries: Code[20];
     begin
         PostingDate := WorkDate();
         SalesReceivablesSetup.Get();
 
-        if NoSeriesManagement.TryGetNextNo(SalesReceivablesSetup."Invoice Nos.", PostingDate) = '' then
+        if not TryPeekNextNo(SalesReceivablesSetup."Invoice Nos.", PostingDate) then
             ErrorHelperHeader(ErrorType::SerieNumInv, SalesCrMemoHeader);
 
         GeneralLedgerSetup.Get();
@@ -308,8 +307,17 @@ codeunit 1339 "Cancel Posted Sales Cr. Memo"
             PostingNoSeries := GenJournalTemplate."Posting No. Series"
         end else
             PostingNoSeries := SalesReceivablesSetup."Posted Invoice Nos.";
-        if NoSeriesManagement.TryGetNextNo(PostingNoSeries, PostingDate) = '' then
+        if not TryPeekNextNo(PostingNoSeries, PostingDate) then
             ErrorHelperHeader(ErrorType::SerieNumPostInv, SalesCrMemoHeader);
+    end;
+
+    [TryFunction]
+    local procedure TryPeekNextNo(NoSeriesCode: Code[20]; UsageDate: Date)
+    var
+        NoSeries: Codeunit "No. Series";
+    begin
+        if NoSeries.PeekNextNo(NoSeriesCode, UsageDate) = '' then
+            Error('');
     end;
 
     local procedure TestExternalDocument(SalesCrMemoHeader: Record "Sales Cr.Memo Header")
@@ -339,19 +347,17 @@ codeunit 1339 "Cancel Posted Sales Cr. Memo"
         if SalesCrMemoLine."VAT Calculation Type" = SalesCrMemoLine."VAT Calculation Type"::"Sales Tax" then
             exit;
 
-        with GenPostingSetup do begin
-            Get(SalesCrMemoLine."Gen. Bus. Posting Group", SalesCrMemoLine."Gen. Prod. Posting Group");
-            TestField("Sales Account");
-            TestGLAccount("Sales Account", SalesCrMemoLine);
-            TestField("Sales Credit Memo Account");
-            TestGLAccount("Sales Credit Memo Account", SalesCrMemoLine);
-            TestField("Sales Line Disc. Account");
-            TestGLAccount("Sales Line Disc. Account", SalesCrMemoLine);
-            if SalesCrMemoLine.Type = SalesCrMemoLine.Type::Item then begin
-                Item.Get(SalesCrMemoLine."No.");
-                if Item.IsInventoriableType() then
-                    TestGLAccount(GetCOGSAccount(), SalesCrMemoLine);
-            end;
+        GenPostingSetup.Get(SalesCrMemoLine."Gen. Bus. Posting Group", SalesCrMemoLine."Gen. Prod. Posting Group");
+        GenPostingSetup.TestField("Sales Account");
+        TestGLAccount(GenPostingSetup."Sales Account", SalesCrMemoLine);
+        GenPostingSetup.TestField("Sales Credit Memo Account");
+        TestGLAccount(GenPostingSetup."Sales Credit Memo Account", SalesCrMemoLine);
+        GenPostingSetup.TestField("Sales Line Disc. Account");
+        TestGLAccount(GenPostingSetup."Sales Line Disc. Account", SalesCrMemoLine);
+        if SalesCrMemoLine.Type = SalesCrMemoLine.Type::Item then begin
+            Item.Get(SalesCrMemoLine."No.");
+            if Item.IsInventoriableType() then
+                TestGLAccount(GenPostingSetup.GetCOGSAccount(), SalesCrMemoLine);
         end;
     end;
 
@@ -359,23 +365,19 @@ codeunit 1339 "Cancel Posted Sales Cr. Memo"
     var
         CustomerPostingGroup: Record "Customer Posting Group";
     begin
-        with CustomerPostingGroup do begin
-            Get(CustomerPostingGr);
-            TestField("Receivables Account");
-            TestGLAccount("Receivables Account", SalesCrMemoLine);
-        end;
+        CustomerPostingGroup.Get(CustomerPostingGr);
+        CustomerPostingGroup.TestField("Receivables Account");
+        TestGLAccount(CustomerPostingGroup."Receivables Account", SalesCrMemoLine);
     end;
 
     local procedure TestVATPostingSetup(SalesCrMemoLine: Record "Sales Cr.Memo Line")
     var
         VATPostingSetup: Record "VAT Posting Setup";
     begin
-        with VATPostingSetup do begin
-            Get(SalesCrMemoLine."VAT Bus. Posting Group", SalesCrMemoLine."VAT Prod. Posting Group");
-            if "VAT Calculation Type" <> "VAT Calculation Type"::"Sales Tax" then begin
-                TestField("Sales VAT Account");
-                TestGLAccount("Sales VAT Account", SalesCrMemoLine);
-            end;
+        VATPostingSetup.Get(SalesCrMemoLine."VAT Bus. Posting Group", SalesCrMemoLine."VAT Prod. Posting Group");
+        if VATPostingSetup."VAT Calculation Type" <> VATPostingSetup."VAT Calculation Type"::"Sales Tax" then begin
+            VATPostingSetup.TestField("Sales VAT Account");
+            TestGLAccount(VATPostingSetup."Sales VAT Account", SalesCrMemoLine);
         end;
     end;
 
@@ -389,11 +391,9 @@ codeunit 1339 "Cancel Posted Sales Cr. Memo"
         if IsHandled then
             exit;
 
-        with InventoryPostingSetup do begin
-            Get(SalesCrMemoLine."Location Code", SalesCrMemoLine."Posting Group");
-            TestField("Inventory Account");
-            TestGLAccount("Inventory Account", SalesCrMemoLine);
-        end;
+        InventoryPostingSetup.Get(SalesCrMemoLine."Location Code", SalesCrMemoLine."Posting Group");
+        InventoryPostingSetup.TestField("Inventory Account");
+        TestGLAccount(InventoryPostingSetup."Inventory Account", SalesCrMemoLine);
     end;
 
     local procedure UnapplyEntries(SalesCrMemoHeader: Record "Sales Cr.Memo Header")

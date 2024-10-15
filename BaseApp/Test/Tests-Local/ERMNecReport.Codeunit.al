@@ -1,7 +1,11 @@
+#if not CLEAN25
 codeunit 142087 "ERM Nec Report"
 {
     Subtype = Test;
     TestPermissions = Disabled;
+    ObsoleteReason = 'Moved to IRS Forms App.';
+    ObsoleteState = Pending;
+    ObsoleteTag = '25.0';
 
     trigger OnRun()
     begin
@@ -40,7 +44,7 @@ codeunit 142087 "ERM Nec Report"
         REPORT.Run(REPORT::"Vendor 1099 Nec");
 
         // [THEN] "NEC-01" value exists in the Report
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists('GetAmtNEC01', PurchaseLine."Line Amount");
     end;
 
@@ -92,7 +96,7 @@ codeunit 142087 "ERM Nec Report"
         REPORT.Run(REPORT::"Vendor 1099 Nec");
 
         // [THEN] "NEC-01" value exists in the Report
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists('GetAmtNEC01', PurchaseLine."Line Amount");
         LibraryVariableStorage.AssertEmpty();
 
@@ -160,7 +164,7 @@ codeunit 142087 "ERM Nec Report"
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
     end;
 
-    local procedure CreateAndPostPurchDocWithVendorAndIRS1099Code(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; DocType: Option; VendNo: Code[20]; IRS1099Code: Code[10])
+    local procedure CreateAndPostPurchDocWithVendorAndIRS1099Code(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; DocType: Enum "Purchase Document Type"; VendNo: Code[20]; IRS1099Code: Code[10])
     var
         Item: Record Item;
     begin
@@ -248,7 +252,7 @@ codeunit 142087 "ERM Nec Report"
         SuggestVendorPayments.BalAccountType.SetValue(BalAccountType::"Bank Account");
         SuggestVendorPayments.BalAccountNo.SetValue(BankAccount."No.");
         SuggestVendorPayments.Vendor.SetFilter("No.", No);
-        SuggestVendorPayments.OK.Invoke();
+        SuggestVendorPayments.OK().Invoke();
     end;
 
     [RequestPageHandler]
@@ -259,7 +263,7 @@ codeunit 142087 "ERM Nec Report"
     begin
         LibraryVariableStorage.Dequeue(No);
         Vendor1099Nec.Vendor.SetFilter("No.", No);
-        Vendor1099Nec.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        Vendor1099Nec.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -271,7 +275,7 @@ codeunit 142087 "ERM Nec Report"
         LibraryVariableStorage.Dequeue(No);
         Vendor1099Nec.Vendor.SetFilter("No.", No);
         Vendor1099Nec.Year.SetValue(LibraryVariableStorage.DequeueText());
-        Vendor1099Nec.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        Vendor1099Nec.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 }
-
+#endif

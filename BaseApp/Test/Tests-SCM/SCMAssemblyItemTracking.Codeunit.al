@@ -49,7 +49,7 @@ codeunit 137926 "SCM Assembly Item Tracking"
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"SCM Assembly Item Tracking");
 
         LibraryERMCountryData.UpdateGeneralPostingSetup();
-        LibraryPatterns.SETNoSeries;
+        LibraryPatterns.SetNoSeries();
         Initialized := true;
         Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM Assembly Item Tracking");
@@ -74,7 +74,7 @@ codeunit 137926 "SCM Assembly Item Tracking"
         SNChild: Code[20];
     begin
         Initialize();
-        LibrarySales.SetCreditWarningsToNoWarnings;
+        LibrarySales.SetCreditWarningsToNoWarnings();
 
         // Create items
         CreateItemTrackingCode(ItemTrackingCode, true, false);
@@ -413,7 +413,7 @@ codeunit 137926 "SCM Assembly Item Tracking"
         CompItem: Record Item;
         AsmItem: Record Item;
         ReservEntry: Record "Reservation Entry";
-        NoSeriesManagement: Codeunit NoSeriesManagement;
+        NoSeries: Codeunit "No. Series";
         ItemTracingPage: TestPage "Item Tracing";
         QtyPer, Qty : Decimal;
         LotNoCode, LotNo : Code[20];
@@ -427,7 +427,7 @@ codeunit 137926 "SCM Assembly Item Tracking"
 
         // [GIVEN] Create Lot No. no series
         LotNoCode := LibraryERM.CreateNoSeriesCode();
-        LotNo := NoSeriesManagement.GetNextNo(LotNoCode, WorkDate(), false);
+        LotNo := NoSeries.PeekNextNo(LotNoCode);
 
         // [GIVEN] Create Assembly Item, Component Item and BOM Component
         CreateAssemblyAndComponentItem(AsmItem, CompItem, QtyPer);
@@ -547,12 +547,12 @@ codeunit 137926 "SCM Assembly Item Tracking"
 
     local procedure OpenItemTracing(var ItemTracingPage: TestPage "Item Tracing"; ItemNo: Code[20]; LotNo: Code[20])
     begin
-        ItemTracingPage.OpenEdit;
+        ItemTracingPage.OpenEdit();
         ItemTracingPage.ItemNoFilter.SetValue(ItemNo);
         ItemTracingPage.LotNoFilter.SetValue(LotNo);
         ItemTracingPage.TraceMethod.SetValue('Usage -> Origin');
         ItemTracingPage.ShowComponents.SetValue('All');
-        ItemTracingPage.Trace.Invoke; // Trace
+        ItemTracingPage.Trace.Invoke(); // Trace
     end;
 
     local procedure FindPostedAssemblyHeaderNotReversed(var PostedAssemblyHeader: Record "Posted Assembly Header"; SourceAssemblyHeaderNo: Code[20])
@@ -726,13 +726,13 @@ codeunit 137926 "SCM Assembly Item Tracking"
         ValidateT337(AssemblyLine."Document No.", ItemChild, SNChild, LNChild, 0, false, 0);
 
         // Validate Item Tracing
-        ItemTracingPage.OpenEdit;
+        ItemTracingPage.OpenEdit();
         ItemTracingPage.LotNoFilter.SetValue(LNParent);
         ItemTracingPage.SerialNoFilter.SetValue(SNParent);
         ItemTracingPage.TraceMethod.SetValue('Usage -> Origin');
         ItemTracingPage.ShowComponents.SetValue('All');
 
-        ItemTracingPage.Trace.Invoke; // Trace
+        ItemTracingPage.Trace.Invoke(); // Trace
 
         ItemTracingPage.Expand(true);
         ValidateItemTracingLine(ItemTracingPage, 'Assembly Output', SNParent, LNParent, ItemParent."No.", 1);
@@ -744,8 +744,8 @@ codeunit 137926 "SCM Assembly Item Tracking"
         ItemTracingPage.Next();
         ValidateItemTracingLine(ItemTracingPage, 'Item Ledger Entry', SNChild, LNChild, ItemChild."No.", 1);
 
-        ItemTracingPage.TraceOppositeFromLine.Invoke; // Trace opposite from line
-        ItemTracingPage.First;
+        ItemTracingPage.TraceOppositeFromLine.Invoke(); // Trace opposite from line
+        ItemTracingPage.First();
 
         ItemTracingPage.Expand(true);
         ValidateItemTracingLine(ItemTracingPage, 'Item Ledger Entry', SNChild, LNChild, ItemChild."No.", 1);
@@ -758,10 +758,10 @@ codeunit 137926 "SCM Assembly Item Tracking"
         ValidateItemTracingLine(ItemTracingPage, 'Assembly Output', SNParent, LNParent, ItemParent."No.", 1);
 
         // Validate Navigate result parent
-        NavigatePage.OpenEdit;
+        NavigatePage.OpenEdit();
         NavigatePage.SerialNoFilter.Value(SNParent);
         NavigatePage.LotNoFilter.Value(LNParent);
-        NavigatePage.Find.Invoke;
+        NavigatePage.Find.Invoke();
         ValidateNavigateLine(NavigatePage, 'Item Ledger Entry', 1);
         NavigatePage.Next();
         ValidateNavigateLine(NavigatePage, 'Posted Assembly Header', 1);
@@ -769,7 +769,7 @@ codeunit 137926 "SCM Assembly Item Tracking"
         // Validate Navigate result child
         NavigatePage.SerialNoFilter.Value(SNChild);
         NavigatePage.LotNoFilter.Value(LNChild);
-        NavigatePage.Find.Invoke;
+        NavigatePage.Find.Invoke();
         ValidateNavigateLine(NavigatePage, 'Item Ledger Entry', 2);
         NavigatePage.Next();
         ValidateNavigateLine(NavigatePage, 'Posted Assembly Header', 1);
@@ -998,7 +998,7 @@ codeunit 137926 "SCM Assembly Item Tracking"
             ReservEntry.SetRange("Quantity (Base)", Quantity);
 
         Assert.AreEqual(ReservEntry.Count, ExpectedNumberOfRecords, WrongNoOfT337RecordsErr);
-        Assert.AreEqual(RecordsShouldExist, ReservEntry.FindFirst, 'T337 records are different from what expected :(');
+        Assert.AreEqual(RecordsShouldExist, ReservEntry.FindFirst(), 'T337 records are different from what expected :(');
     end;
 
     local procedure ValidateT32(AssemblyOrderNo: Code[20]; Item: Record Item; SN: Code[20]; LN: Code[20]; Quantity: Decimal; RecordsShouldExist: Boolean)
@@ -1011,7 +1011,7 @@ codeunit 137926 "SCM Assembly Item Tracking"
         ItemLedgerEntry.SetRange("Lot No.", LN);
         ItemLedgerEntry.SetRange(Quantity, Quantity);
 
-        Assert.AreEqual(RecordsShouldExist, ItemLedgerEntry.FindFirst, 'T32 records are different from what expected :(');
+        Assert.AreEqual(RecordsShouldExist, ItemLedgerEntry.FindFirst(), 'T32 records are different from what expected :(');
     end;
 
     local procedure ValidateITOnPW(AssemblyOrderNo: Code[20]; ItemNo: Code[20]; SN: Code[20]; LN: Code[20]; Quantity: Decimal; RecordsShouldExist: Boolean)
@@ -1025,7 +1025,7 @@ codeunit 137926 "SCM Assembly Item Tracking"
         WhseItemTrackingLine.SetRange("Lot No.", LN);
         WhseItemTrackingLine.SetRange("Quantity (Base)", Quantity);
 
-        Assert.AreEqual(RecordsShouldExist, WhseItemTrackingLine.FindFirst, 'T6550 records are different from what expected :(');
+        Assert.AreEqual(RecordsShouldExist, WhseItemTrackingLine.FindFirst(), 'T6550 records are different from what expected :(');
     end;
 
     [Normal]
@@ -1088,7 +1088,7 @@ codeunit 137926 "SCM Assembly Item Tracking"
         ReservEntry.SetRange("Source Type", DATABASE::"Assembly Line");
         ReservEntry.SetRange("Source Subtype", SourceSubType);
         Assert.AreEqual(1, ReservEntry.Count, WrongNoOfT337RecordsErr);
-        Assert.AreEqual(true, ReservEntry.FindFirst, 'T337 records are different from what expected :(');
+        Assert.AreEqual(true, ReservEntry.FindFirst(), 'T337 records are different from what expected :(');
     end;
 
     [ModalPageHandler]

@@ -9,6 +9,7 @@ table 27000 "SAT Account Code"
     Caption = 'SAT Account Code';
     DrillDownPageID = "SAT Account Codes";
     LookupPageID = "SAT Account Codes";
+    DataClassification = CustomerContent;
 
     fields
     {

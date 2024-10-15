@@ -13,6 +13,7 @@ table 300 "Reminder/Fin. Charge Entry"
     Caption = 'Reminder/Fin. Charge Entry';
     DrillDownPageID = "Reminder/Fin. Charge Entries";
     LookupPageID = "Reminder/Fin. Charge Entries";
+    DataClassification = CustomerContent;
 
     fields
     {

@@ -283,23 +283,23 @@ codeunit 138013 "O365 Purch. Calc Disc. By Type"
 
         Initialize();
 
-        LibraryLowerPermissions.SetPurchDocsCreate;
+        LibraryLowerPermissions.SetPurchDocsCreate();
         LibraryLowerPermissions.AddO365Setup();
 
         // [GIVEN] Create a new vendor "V" and open "Vendor Card" page
         LibrarySmallBusiness.CreateVendor(Vendor);
         DiscPct := LibraryRandom.RandDecInRange(10, 20, 2);
 
-        VendorCard.OpenView;
+        VendorCard.OpenView();
         VendorCard.GotoRecord(Vendor);
-        VendInvoiceDiscounts.Trap;
+        VendInvoiceDiscounts.Trap();
 
         // [GIVEN] Run "Page Vend. Invoice Discounts" action from vendor card to open vendor discounts. Set "Discount %" = "X"
-        VendorCard."Invoice &Discounts".Invoke;
+        VendorCard."Invoice &Discounts".Invoke();
         VendInvoiceDiscounts."Minimum Amount".SetValue(LibraryRandom.RandDec(100, 2));
         VendInvoiceDiscounts."Discount %".SetValue(DiscPct);
-        VendInvoiceDiscounts.OK.Invoke;
-        VendorCard.OK.Invoke;
+        VendInvoiceDiscounts.OK().Invoke();
+        VendorCard.OK().Invoke();
 
         // [GIVEN] Create a purchase invoice for vendor "V"
         CreateNewInvoiceWithLines(PurchaseHeader, Vendor, 1, LibraryRandom.RandDecInRange(200, 300, 2), LibraryRandom.RandInt(10));
@@ -323,7 +323,7 @@ codeunit 138013 "O365 Purch. Calc Disc. By Type"
         // [SCENARIO 280220] Calculate Invoice Discount Amount based on Amount when purchase line is deleted from document
         Initialize();
 
-        LibraryLowerPermissions.SetPurchDocsCreate;
+        LibraryLowerPermissions.SetPurchDocsCreate();
         LibraryLowerPermissions.AddO365Setup();
 
         // [GIVEN] Purchase Invoice with with two lines. Amount = 200 in each line. Invoice Discount calculation is based on amount
@@ -377,7 +377,7 @@ codeunit 138013 "O365 Purch. Calc Disc. By Type"
             DATABASE::Resource:
                 Resource.DeleteAll();
         end;
-        LibraryLowerPermissions.SetO365Full;
+        LibraryLowerPermissions.SetO365Full();
     end;
 
     local procedure CreateItem(var Item: Record Item; LastPurchasePrice: Decimal)
@@ -504,7 +504,7 @@ codeunit 138013 "O365 Purch. Calc Disc. By Type"
 
     local procedure RoundAmount(Amount: Decimal): Decimal
     begin
-        exit(Round(Amount, LibraryERM.GetAmountRoundingPrecision));
+        exit(Round(Amount, LibraryERM.GetAmountRoundingPrecision()));
     end;
 }
 

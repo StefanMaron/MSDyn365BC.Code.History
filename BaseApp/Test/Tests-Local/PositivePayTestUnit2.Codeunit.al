@@ -168,7 +168,7 @@ codeunit 134802 "Positive Pay Test Unit 2"
 
         // [GIVEN] Check Ledger Entry of Bank Account to export with Record Type Code = 'O'
         CreateAndPostGenJournalLine(
-          GenJournalLine, GenJournalLine."Document Type"::Payment, GenJournalLine."Account Type"::Vendor, LibraryPurchase.CreateVendorNo,
+          GenJournalLine, GenJournalLine."Document Type"::Payment, GenJournalLine."Account Type"::Vendor, LibraryPurchase.CreateVendorNo(),
           GenJournalLine."Bank Payment Type"::"Manual Check", '', BankAccountNo, LibraryRandom.RandDec(1000, 2), '');
 
         // [GIVEN] Data Exchange Detail Column added with Transformation Rule to replace Record Type Code to ReplaceByValue
@@ -216,7 +216,7 @@ codeunit 134802 "Positive Pay Test Unit 2"
 
         // [GIVEN] Check Ledger Entry of Bank Account to export
         CreateAndPostGenJournalLine(
-          GenJournalLine, GenJournalLine."Document Type"::Payment, GenJournalLine."Account Type"::Vendor, LibraryPurchase.CreateVendorNo,
+          GenJournalLine, GenJournalLine."Document Type"::Payment, GenJournalLine."Account Type"::Vendor, LibraryPurchase.CreateVendorNo(),
           GenJournalLine."Bank Payment Type"::"Manual Check", '', BankAccountNo, LibraryRandom.RandDec(1000, 2), '');
 
         // [WHEN] Export Positive Pay
@@ -443,7 +443,7 @@ codeunit 134802 "Positive Pay Test Unit 2"
 
         // [GIVEN] Check Ledger Entry of Bank Account to export with blank Void Check Indicator
         CreateAndPostGenJournalLine(
-          GenJournalLine, GenJournalLine."Document Type"::Payment, GenJournalLine."Account Type"::Vendor, LibraryPurchase.CreateVendorNo,
+          GenJournalLine, GenJournalLine."Document Type"::Payment, GenJournalLine."Account Type"::Vendor, LibraryPurchase.CreateVendorNo(),
           GenJournalLine."Bank Payment Type"::"Manual Check", '', BankAccountNo, LibraryRandom.RandDec(1000, 2), '');
 
         // [GIVEN] Data Exchange Definition contains only Detail Line Definition.
@@ -476,7 +476,7 @@ codeunit 134802 "Positive Pay Test Unit 2"
         LibraryERMCountryData.UpdateGeneralLedgerSetup();
         LibraryERMCountryData.UpdateGeneralPostingSetup();
         LibraryERMCountryData.UpdateLocalData();
-        CreateAccountingPeriodsWithNewFiscalYear;
+        CreateAccountingPeriodsWithNewFiscalYear();
         isInitialized := true;
         Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"Positive Pay Test Unit 2");
@@ -498,15 +498,15 @@ codeunit 134802 "Positive Pay Test Unit 2"
             // Try to hit as many account types as possible, for code coverage
             for CheckCount := 1 to 2 do
                 CreateAndPostGenJournalLine(
-                  GenJournalLine, "Document Type"::Payment, "Account Type"::Vendor, LibraryPurchase.CreateVendorNo,
+                  GenJournalLine, "Document Type"::Payment, "Account Type"::Vendor, LibraryPurchase.CreateVendorNo(),
                   "Bank Payment Type"::"Manual Check", '', BankAccountNumber, LibraryRandom.RandDec(1000, 2), '');
             for CheckCount := 1 to 2 do
                 CreateAndPostGenJournalLine(
-                  GenJournalLine, "Document Type"::Payment, "Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo,
+                  GenJournalLine, "Document Type"::Payment, "Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo(),
                   "Bank Payment Type"::"Manual Check", '', BankAccountNumber, LibraryRandom.RandDec(1000, 2), '');
             for CheckCount := 1 to 2 do
                 CreateAndPostGenJournalLine(
-                  GenJournalLine, "Document Type"::" ", "Account Type"::Customer, LibrarySales.CreateCustomerNo,
+                  GenJournalLine, "Document Type"::" ", "Account Type"::Customer, LibrarySales.CreateCustomerNo(),
                   "Bank Payment Type"::"Manual Check", '', BankAccountNumber, LibraryRandom.RandDec(1000, 2), '');
             for CheckCount := 1 to 2 do
                 CreateAndPostGenJournalLine(
@@ -515,7 +515,7 @@ codeunit 134802 "Positive Pay Test Unit 2"
             // Create a couple of checks to void
             for CheckCount := 1 to 2 do begin
                 CreateAndPostGenJournalLine(
-                  GenJournalLine, "Document Type"::Payment, "Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo,
+                  GenJournalLine, "Document Type"::Payment, "Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo(),
                   "Bank Payment Type"::"Manual Check", '', BankAccountNumber, LibraryRandom.RandDec(1000, 2), '');
                 LibraryVariableStorage.Enqueue(VoidType::"Void check only");
                 VoidCheck("Document No.");
@@ -523,7 +523,7 @@ codeunit 134802 "Positive Pay Test Unit 2"
         end;
     end;
 
-    local procedure CreateGenJournalLine(var GenJournalLine: Record "Gen. Journal Line"; DocumentType: Option; AccountType: Option; AccountNo: Code[20]; BankPaymentType: Option; CurrencyCode: Code[10]; BalAccountNo: Code[20]; Amount: Decimal; AppliesToDocNo: Code[20])
+    local procedure CreateGenJournalLine(var GenJournalLine: Record "Gen. Journal Line"; DocumentType: Enum "Gen. Journal Document Type"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; BankPaymentType: Enum "Bank Payment Type"; CurrencyCode: Code[10]; BalAccountNo: Code[20]; Amount: Decimal; AppliesToDocNo: Code[20])
     var
         GenJournalBatch: Record "Gen. Journal Batch";
         LibraryFiscalYear: Codeunit "Library - Fiscal Year";
@@ -555,7 +555,7 @@ codeunit 134802 "Positive Pay Test Unit 2"
         exit(BankAccount."No.");
     end;
 
-    local procedure CreateAndPostGenJournalLine(var GenJournalLine: Record "Gen. Journal Line"; DocumentType: Option; AccountType: Option; AccountNo: Code[20]; BankPaymentType: Option; CurrencyCode: Code[10]; BalAccountNo: Code[20]; Amount: Decimal; AppliesToDocNo: Code[20])
+    local procedure CreateAndPostGenJournalLine(var GenJournalLine: Record "Gen. Journal Line"; DocumentType: Enum "Gen. Journal Document Type"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; BankPaymentType: Enum "Bank Payment Type"; CurrencyCode: Code[10]; BalAccountNo: Code[20]; Amount: Decimal; AppliesToDocNo: Code[20])
     begin
         CreateGenJournalLine(
           GenJournalLine, DocumentType, AccountType, AccountNo, BankPaymentType, CurrencyCode, BalAccountNo, Amount, AppliesToDocNo);
@@ -568,7 +568,7 @@ codeunit 134802 "Positive Pay Test Unit 2"
         i: Integer;
     begin
         // Create Fiscal Year.
-        LibraryFiscalYear.CloseAccountingPeriod;
+        LibraryFiscalYear.CloseAccountingPeriod();
         LibraryFiscalYear.CreateFiscalYear();
         FindAccountingPeriod(AccountingPeriod);
         while not (AccountingPeriod."Starting Date" >= WorkDate()) do
@@ -792,7 +792,7 @@ codeunit 134802 "Positive Pay Test Unit 2"
 
         // Check Ledger Entry of Bank Account to export with amount with tens of millions
         CreateAndPostGenJournalLine(
-          GenJournalLine, GenJournalLine."Document Type"::Payment, GenJournalLine."Account Type"::Vendor, LibraryPurchase.CreateVendorNo,
+          GenJournalLine, GenJournalLine."Document Type"::Payment, GenJournalLine."Account Type"::Vendor, LibraryPurchase.CreateVendorNo(),
           GenJournalLine."Bank Payment Type"::"Manual Check", '', BankAccountNo, InputAmount, '');
 
         // Export Positive Pay

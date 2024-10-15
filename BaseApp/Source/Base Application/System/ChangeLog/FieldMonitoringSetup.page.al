@@ -73,7 +73,7 @@ page 1366 "Field Monitoring Setup"
 
                 trigger OnAction()
                 begin
-                    MonitorSensitiveField.EnableMonitor(True);
+                    MonitorSensitiveField.EnableMonitor(true);
                 end;
             }
             action("Stop")
@@ -95,7 +95,7 @@ page 1366 "Field Monitoring Setup"
                 Tooltip = 'View or edit the retention policy.';
                 Image = Delete;
                 RunObject = Page "Retention Policy Setup Card";
-                RunPageLink = "Table Id" = Filter(405); // Database::"Change Log Entry";
+                RunPageLink = "Table Id" = filter(405); // Database::"Change Log Entry";
                 AccessByPermission = tabledata "Retention Policy Setup" = R;
                 RunPageMode = View;
                 Ellipsis = true;

@@ -90,9 +90,9 @@ codeunit 139142 UpdateParentTest
         Quantity: Integer;
     begin
         Initialize();
-        CreateData;
+        CreateData();
 
-        UpdateParentHeaderPage.SetSubPagesToSave;
+        UpdateParentHeaderPage.SetSubPagesToSave();
         UpdateParentHeaderPage.SetSubPageIds(LineId, LineUpdateParentId, FactLineId);
 
         FirstLineNextAmount := '7';
@@ -113,8 +113,8 @@ codeunit 139142 UpdateParentTest
 
         UpdateParentHeaderPage.Close();
 
-        UpdateParentRegisterMgt.EnumeratorReset;
-        Assert.AreEqual(10, UpdateParentRegisterMgt.EnumeratorCount, 'The wrong list of registrated lines');
+        UpdateParentRegisterMgt.EnumeratorReset();
+        Assert.AreEqual(10, UpdateParentRegisterMgt.EnumeratorCount(), 'The wrong list of registrated lines');
 
         // On validate trigger (for Amount) CurrPage.Update(TRUE) is called in between PreUpdate/PostUpdate, and this trigger the Modify
         with UpdateParentRegisterMgt do begin
@@ -136,7 +136,7 @@ codeunit 139142 UpdateParentTest
             ExpectedLine(LineUpdateParentId, UpdateParentRegisterLine.Method::AfterGetCurrRecord, UpdateParentRegisterLine.Operation::Visit);
         end;
 
-        Assert.IsTrue(UpdateParentRegisterMgt.EnumeratorDone, 'Too many rows');
+        Assert.IsTrue(UpdateParentRegisterMgt.EnumeratorDone(), 'Too many rows');
     end;
 
     [Test]
@@ -151,9 +151,9 @@ codeunit 139142 UpdateParentTest
         Quantity: Integer;
     begin
         Initialize();
-        CreateData;
+        CreateData();
 
-        UpdateParentHeaderPage.SetSubPagesToNotSave;
+        UpdateParentHeaderPage.SetSubPagesToNotSave();
         UpdateParentHeaderPage.SetSubPageIds(LineId, LineUpdateParentId, FactLineId);
 
         FirstLineNextAmount := '7';
@@ -174,8 +174,8 @@ codeunit 139142 UpdateParentTest
         Assert.AreEqual(7, Amount, 'Amount is not correct');
 
         UpdateParentHeaderPage.Close();
-        UpdateParentRegisterMgt.EnumeratorReset;
-        Assert.AreEqual(6, UpdateParentRegisterMgt.EnumeratorCount, 'The wrong list of registrated lines');
+        UpdateParentRegisterMgt.EnumeratorReset();
+        Assert.AreEqual(6, UpdateParentRegisterMgt.EnumeratorCount(), 'The wrong list of registrated lines');
         with UpdateParentRegisterMgt do begin
             // On validate trigger (for Amount) CurrPage.Update(FALSE) is called in between PreUpdate/PostUpdate, and this triggers NOT the Modify
             ExpectedLine(LineId, UpdateParentRegisterLine.Method::Validate, UpdateParentRegisterLine.Operation::PreUpdate);
@@ -190,7 +190,7 @@ codeunit 139142 UpdateParentTest
             ExpectedLine(LineId, UpdateParentRegisterLine.Method::AfterGetCurrRecord, UpdateParentRegisterLine.Operation::Visit);
         end;
 
-        Assert.IsTrue(UpdateParentRegisterMgt.EnumeratorDone, 'Too many rows');
+        Assert.IsTrue(UpdateParentRegisterMgt.EnumeratorDone(), 'Too many rows');
     end;
 
     [Test]
@@ -205,9 +205,9 @@ codeunit 139142 UpdateParentTest
         Quantity: Integer;
     begin
         Initialize();
-        CreateData;
+        CreateData();
 
-        UpdateParentHeaderPage.SetSubPagesToSave;
+        UpdateParentHeaderPage.SetSubPagesToSave();
         UpdateParentHeaderPage.SetSubPageIds(LineId, LineUpdateParentId, FactLineId);
         FirstLineNextAmount := '4';
         FirstLineNextQuantity := '5';
@@ -228,8 +228,8 @@ codeunit 139142 UpdateParentTest
         UpdateParentHeaderPage.Close();
 
         // Validate the sequence of updates and visits.
-        UpdateParentRegisterMgt.EnumeratorReset;
-        Assert.AreEqual(16, UpdateParentRegisterMgt.EnumeratorCount, 'The wrong list of registrated lines');
+        UpdateParentRegisterMgt.EnumeratorReset();
+        Assert.AreEqual(16, UpdateParentRegisterMgt.EnumeratorCount(), 'The wrong list of registrated lines');
 
         with UpdateParentRegisterMgt do begin
             // On validate trigger (for Amount) CurrPage.Update(FALSE) is called in between PreUpdate/PostUpdate, and this triggers the Modify
@@ -257,7 +257,7 @@ codeunit 139142 UpdateParentTest
             ExpectedLine(FactLineId, UpdateParentRegisterLine.Method::AfterGetCurrRecord, UpdateParentRegisterLine.Operation::Visit);
         end;
 
-        Assert.IsTrue(UpdateParentRegisterMgt.EnumeratorDone, 'Too many rows');
+        Assert.IsTrue(UpdateParentRegisterMgt.EnumeratorDone(), 'Too many rows');
     end;
 
     [Test]
@@ -272,9 +272,9 @@ codeunit 139142 UpdateParentTest
         Quantity: Integer;
     begin
         Initialize();
-        CreateData;
+        CreateData();
 
-        UpdateParentHeaderPage.SetSubPagesToNotSave;
+        UpdateParentHeaderPage.SetSubPagesToNotSave();
         UpdateParentHeaderPage.SetSubPageIds(LineId, LineUpdateParentId, FactLineId);
 
         FirstLineNextAmount := '4';
@@ -297,8 +297,8 @@ codeunit 139142 UpdateParentTest
         UpdateParentHeaderPage.Close();
 
         // Validate the sequence of updates and visits.
-        UpdateParentRegisterMgt.EnumeratorReset;
-        Assert.AreEqual(14, UpdateParentRegisterMgt.EnumeratorCount, 'The wrong list of registrated lines');
+        UpdateParentRegisterMgt.EnumeratorReset();
+        Assert.AreEqual(14, UpdateParentRegisterMgt.EnumeratorCount(), 'The wrong list of registrated lines');
 
         with UpdateParentRegisterMgt do begin
             // On validate trigger (for Amount) CurrPage.Update(FALSE) is called in between PreUpdate/PostUpdate, and this triggers NOT the Modify
@@ -324,7 +324,7 @@ codeunit 139142 UpdateParentTest
             ExpectedLine(FactLineId, UpdateParentRegisterLine.Method::AfterGetCurrRecord, UpdateParentRegisterLine.Operation::Visit);
         end;
 
-        Assert.IsTrue(UpdateParentRegisterMgt.EnumeratorDone, 'Too many rows');
+        Assert.IsTrue(UpdateParentRegisterMgt.EnumeratorDone(), 'Too many rows');
     end;
 
     [Test]
@@ -335,17 +335,17 @@ codeunit 139142 UpdateParentTest
         UpdateParentHeaderPage: Page "Update Parent Header Page";
     begin
         Initialize();
-        CreateData;
+        CreateData();
 
-        UpdateParentHeaderPage.SetSubPagesToNotSave;
+        UpdateParentHeaderPage.SetSubPagesToNotSave();
         UpdateParentHeaderPage.SetSubPageIds(LineId, LineUpdateParentId, FactLineId);
 
         UpdateParentHeaderPage.Run();
         UpdateParentHeaderPage.Close();
 
         // Validate the sequence of updates and visits.
-        UpdateParentRegisterMgt.EnumeratorReset;
-        Assert.AreEqual(7, UpdateParentRegisterMgt.EnumeratorCount, 'The wrong list of registrated lines');
+        UpdateParentRegisterMgt.EnumeratorReset();
+        Assert.AreEqual(7, UpdateParentRegisterMgt.EnumeratorCount(), 'The wrong list of registrated lines');
 
         with UpdateParentRegisterMgt do begin
             // On validate trigger (for Amount) CurrPage.Update(FALSE) is called in between PreUpdate/PostUpdate, and this triggers NOT the Modify
@@ -362,14 +362,14 @@ codeunit 139142 UpdateParentTest
             ExpectedLine(FactLineId, UpdateParentRegisterLine.Method::AfterGetCurrRecord, UpdateParentRegisterLine.Operation::Visit);
         end;
 
-        Assert.IsTrue(UpdateParentRegisterMgt.EnumeratorDone, 'Too many rows');
+        Assert.IsTrue(UpdateParentRegisterMgt.EnumeratorDone(), 'Too many rows');
     end;
 
     [PageHandler]
     [Scope('OnPrem')]
     procedure HeaderUIHandler(var HeaderPage: TestPage "Update Parent Header Page")
     begin
-        UpdateParentRegisterMgt.Start;
+        UpdateParentRegisterMgt.Start();
         // Changing data on the page that do not update its parent
         HeaderPage.Lines.Amount.Value := FirstLineNextAmount;
         HeaderPage.Lines.Quantity.Value := FirstLineNextQuantity;
@@ -383,7 +383,7 @@ codeunit 139142 UpdateParentTest
     [Scope('OnPrem')]
     procedure HeaderUIHandlerWithUpdateParent(var HeaderPage: TestPage "Update Parent Header Page")
     begin
-        UpdateParentRegisterMgt.Start;
+        UpdateParentRegisterMgt.Start();
         // Changing data on the page that do update its parent
         HeaderPage.LinesUpdateParent.Amount.Value := FirstLineNextAmount;
         HeaderPage.LinesUpdateParent.Quantity.Value := FirstLineNextQuantity;
@@ -397,7 +397,7 @@ codeunit 139142 UpdateParentTest
     [Scope('OnPrem')]
     procedure HeaderUIHandlerForFactBox(var HeaderPage: TestPage "Update Parent Header Page")
     begin
-        UpdateParentRegisterMgt.Start;
+        UpdateParentRegisterMgt.Start();
         // Changing data on the page that do update its parent
         HeaderPage.FactLines.Name.Value := 'Some text';
         UpdateParentRegisterMgt.Stop();

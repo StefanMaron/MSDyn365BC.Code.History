@@ -120,7 +120,7 @@ codeunit 144023 "ERM VAT O365"
         VerifyVATEntryForPostApplication(SalesLine.Quantity * SalesLine."Unit Price", VATAmount);
     end;
 
-    local procedure VATEntriesAfterPostSalesDocument(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; DocumentType: Option; var VATPostingSetup: Record "VAT Posting Setup"): Code[20]
+    local procedure VATEntriesAfterPostSalesDocument(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; DocumentType: Enum "Sales Document Type"; var VATPostingSetup: Record "VAT Posting Setup"): Code[20]
     begin
         // Test to validate Amount in G/L entry and VAT Entry after post Sales Order with VAT.
 
@@ -231,7 +231,7 @@ codeunit 144023 "ERM VAT O365"
         UpdateGeneralLedgerSetup(true);
     end;
 
-    local procedure ApplyCustomerEntry(var ApplyCustLedgerEntry: Record "Cust. Ledger Entry"; DocumentType: Option; DocumentNo: Code[20])
+    local procedure ApplyCustomerEntry(var ApplyCustLedgerEntry: Record "Cust. Ledger Entry"; DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20])
     var
         CustLedgerEntry: Record "Cust. Ledger Entry";
         GLRegister: Record "G/L Register";
@@ -246,7 +246,7 @@ codeunit 144023 "ERM VAT O365"
         LibraryERM.SetAppliestoIdCustomer(CustLedgerEntry)
     end;
 
-    local procedure ApplyAndPostCustomerEntry(DocumentType: Option; DocumentNo: Code[20])
+    local procedure ApplyAndPostCustomerEntry(DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20])
     var
         CustLedgerEntry: Record "Cust. Ledger Entry";
     begin
@@ -274,7 +274,7 @@ codeunit 144023 "ERM VAT O365"
         exit(Item."No.");
     end;
 
-    local procedure CreateSalesDocument(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; DocumentType: Option; CustomerNo: Code[20]; ItemNo: Code[20])
+    local procedure CreateSalesDocument(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; DocumentType: Enum "Sales Document Type"; CustomerNo: Code[20]; ItemNo: Code[20])
     begin
         LibrarySales.CreateSalesHeader(SalesHeader, DocumentType, CustomerNo);
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, ItemNo, LibraryRandom.RandDec(20, 2));  // Takes Random value for Quantity.
@@ -307,7 +307,7 @@ codeunit 144023 "ERM VAT O365"
         GeneralLedgerSetup.Modify(true);
     end;
 
-    local procedure VerifyVATEntry(DocumentNo: Code[20]; DocumentType: Option; Amount: Decimal; VATAmount: Decimal)
+    local procedure VerifyVATEntry(DocumentNo: Code[20]; DocumentType: Enum "Sales Document Type"; Amount: Decimal; VATAmount: Decimal)
     var
         VATEntry: Record "VAT Entry";
     begin
@@ -315,14 +315,14 @@ codeunit 144023 "ERM VAT O365"
         VATEntry.SetRange("Document No.", DocumentNo);
         VATEntry.FindFirst();
         Assert.AreNearlyEqual(
-          VATEntry.Base, Amount, LibraryERM.GetAmountRoundingPrecision,
+          VATEntry.Base, Amount, LibraryERM.GetAmountRoundingPrecision(),
           StrSubstNo(AmountErr, VATEntry.FieldCaption(Base), Amount, VATEntry.TableCaption()));
         Assert.AreNearlyEqual(
-          VATEntry.Amount, VATAmount, LibraryERM.GetAmountRoundingPrecision,
+          VATEntry.Amount, VATAmount, LibraryERM.GetAmountRoundingPrecision(),
           StrSubstNo(AmountErr, VATEntry.FieldCaption(Amount), VATAmount, VATEntry.TableCaption()));
     end;
 
-    local procedure VerifyVATAmountForPostApplication(GLAcountNo: Code[20]; GenPostingType: Option; Amount: Decimal; SourceCode: Code[20])
+    local procedure VerifyVATAmountForPostApplication(GLAcountNo: Code[20]; GenPostingType: Enum "General Posting Type"; Amount: Decimal; SourceCode: Code[20])
     var
         GLEntry: Record "G/L Entry";
     begin
@@ -331,7 +331,7 @@ codeunit 144023 "ERM VAT O365"
         GLEntry.SetRange("Source Code", SourceCode);
         GLEntry.FindFirst();
         Assert.AreNearlyEqual(
-          GLEntry.Amount, Amount, LibraryERM.GetAmountRoundingPrecision,
+          GLEntry.Amount, Amount, LibraryERM.GetAmountRoundingPrecision(),
           StrSubstNo(AmountErr, GLEntry.FieldCaption(Amount), Amount, GLEntry.TableCaption()));
     end;
 
@@ -344,21 +344,21 @@ codeunit 144023 "ERM VAT O365"
         VATEntry.SetRange("Entry No.", GLRegister."From VAT Entry No.", GLRegister."To VAT Entry No.");
         VATEntry.FindSet();
         Assert.AreNearlyEqual(
-          VATEntry.Base, Amount, LibraryERM.GetAmountRoundingPrecision,
+          VATEntry.Base, Amount, LibraryERM.GetAmountRoundingPrecision(),
           StrSubstNo(AmountErr, VATEntry.FieldCaption(Base), Amount, VATEntry.TableCaption()));
         Assert.AreNearlyEqual(
-          VATEntry.Amount, VATAmount, LibraryERM.GetAmountRoundingPrecision,
+          VATEntry.Amount, VATAmount, LibraryERM.GetAmountRoundingPrecision(),
           StrSubstNo(AmountErr, VATEntry.FieldCaption(Amount), VATAmount, VATEntry.TableCaption()));
         VATEntry.Next();
         Assert.AreNearlyEqual(
-          VATEntry.Base, -Amount, LibraryERM.GetAmountRoundingPrecision,
+          VATEntry.Base, -Amount, LibraryERM.GetAmountRoundingPrecision(),
           StrSubstNo(AmountErr, VATEntry.FieldCaption(Base), -Amount, VATEntry.TableCaption()));
         Assert.AreNearlyEqual(
-          VATEntry.Amount, -VATAmount, LibraryERM.GetAmountRoundingPrecision,
+          VATEntry.Amount, -VATAmount, LibraryERM.GetAmountRoundingPrecision(),
           StrSubstNo(AmountErr, VATEntry.FieldCaption(Amount), -VATAmount, VATEntry.TableCaption()));
     end;
 
-    local procedure VerifyVATAmountOnGLEntry(DocumentNo: Code[20]; DocumentType: Option; GLAcountNo: Code[20]; Amount: Decimal)
+    local procedure VerifyVATAmountOnGLEntry(DocumentNo: Code[20]; DocumentType: Enum "Sales Document Type"; GLAcountNo: Code[20]; Amount: Decimal)
     var
         GLEntry: Record "G/L Entry";
     begin
@@ -367,7 +367,7 @@ codeunit 144023 "ERM VAT O365"
         GLEntry.SetRange("G/L Account No.", GLAcountNo);
         GLEntry.FindFirst();
         Assert.AreNearlyEqual(
-          GLEntry.Amount, -Amount, LibraryERM.GetAmountRoundingPrecision,
+          GLEntry.Amount, -Amount, LibraryERM.GetAmountRoundingPrecision(),
           StrSubstNo(AmountErr, GLEntry.FieldCaption(Amount), -Amount, GLEntry.TableCaption()));
     end;
 }

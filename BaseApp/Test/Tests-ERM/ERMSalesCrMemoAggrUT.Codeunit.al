@@ -40,8 +40,8 @@ codeunit 134397 "ERM Sales Cr. Memo Aggr. UT"
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"ERM Sales Cr. Memo Aggr. UT");
         LibraryVariableStorage.Clear();
         LibrarySetupStorage.Restore();
-        SalesHeader.DontNotifyCurrentUserAgain(SalesHeader.GetModifyBillToCustomerAddressNotificationId);
-        SalesHeader.DontNotifyCurrentUserAgain(SalesHeader.GetModifyCustomerAddressNotificationId);
+        SalesHeader.DontNotifyCurrentUserAgain(SalesHeader.GetModifyBillToCustomerAddressNotificationId());
+        SalesHeader.DontNotifyCurrentUserAgain(SalesHeader.GetModifyCustomerAddressNotificationId());
         LibraryApplicationArea.EnableFoundationSetup();
 
         if IsInitialized then
@@ -59,7 +59,7 @@ codeunit 134397 "ERM Sales Cr. Memo Aggr. UT"
         LibrarySales.SetStockoutWarning(false);
 
         LibrarySetupStorage.Save(DATABASE::"General Ledger Setup");
-        DisableWarningOnClosingCrMemo;
+        DisableWarningOnClosingCrMemo();
 
         Commit();
 
@@ -131,7 +131,7 @@ codeunit 134397 "ERM Sales Cr. Memo Aggr. UT"
         Initialize();
         CreateCrMemoWithOneLineThroughTestPageDiscountTypePCT(SalesCreditMemo);
         CrMemoDiscountAmount :=
-          LibraryRandom.RandDecInDecimalRange(1, SalesCreditMemo.SalesLines."Total Amount Excl. VAT".AsDEcimal / 2, 1);
+          LibraryRandom.RandDecInDecimalRange(1, SalesCreditMemo.SalesLines."Total Amount Excl. VAT".AsDecimal() / 2, 1);
         SalesCreditMemo.SalesLines."Invoice Discount Amount".SetValue(CrMemoDiscountAmount);
 
         SalesLine.SetRange("Document Type", SalesLine."Document Type"::"Credit Memo");
@@ -143,7 +143,7 @@ codeunit 134397 "ERM Sales Cr. Memo Aggr. UT"
         SalesCreditMemo.Close();
 
         // Execute
-        SalesCreditMemo.OpenEdit;
+        SalesCreditMemo.OpenEdit();
         SalesCreditMemo.GotoRecord(SalesHeader);
 
         // Verify
@@ -162,7 +162,7 @@ codeunit 134397 "ERM Sales Cr. Memo Aggr. UT"
         Initialize();
 
         CreateCrMemoWithOneLineThroughTestPageDiscountTypeAMT(SalesCreditMemo);
-        CrMemoDiscountAmount := SalesCreditMemo.SalesLines."Invoice Discount Amount".AsDEcimal;
+        CrMemoDiscountAmount := SalesCreditMemo.SalesLines."Invoice Discount Amount".AsDecimal();
 
         // Execute
         CreateLineThroughTestPage(SalesCreditMemo, SalesCreditMemo.SalesLines."No.".Value);
@@ -184,7 +184,7 @@ codeunit 134397 "ERM Sales Cr. Memo Aggr. UT"
         CreateCrMemoWithOneLineThroughTestPageNoDiscount(SalesCreditMemo);
 
         // Execute
-        SalesCreditMemo.SalesLines.Quantity.SetValue(SalesCreditMemo.SalesLines.Quantity.AsDEcimal * 2);
+        SalesCreditMemo.SalesLines.Quantity.SetValue(SalesCreditMemo.SalesLines.Quantity.AsDecimal() * 2);
         SalesCreditMemo.SalesLines.Next();
         SalesCreditMemo.SalesLines.Previous();
 
@@ -204,7 +204,7 @@ codeunit 134397 "ERM Sales Cr. Memo Aggr. UT"
         CreateCrMemoWithOneLineThroughTestPageDiscountTypePCT(SalesCreditMemo);
 
         // Execute
-        SalesCreditMemo.SalesLines."Line Amount".SetValue(Round(SalesCreditMemo.SalesLines."Line Amount".AsDEcimal / 2, 1));
+        SalesCreditMemo.SalesLines."Line Amount".SetValue(Round(SalesCreditMemo.SalesLines."Line Amount".AsDecimal() / 2, 1));
         SalesCreditMemo.SalesLines.Next();
         SalesCreditMemo.SalesLines.Previous();
 
@@ -224,7 +224,7 @@ codeunit 134397 "ERM Sales Cr. Memo Aggr. UT"
         CreateCrMemoWithOneLineThroughTestPageDiscountTypePCT(SalesCreditMemo);
 
         // Execute
-        SalesCreditMemo.SalesLines."Unit Price".SetValue(SalesCreditMemo.SalesLines."Unit Price".AsDEcimal * 2);
+        SalesCreditMemo.SalesLines."Unit Price".SetValue(SalesCreditMemo.SalesLines."Unit Price".AsDecimal() * 2);
         SalesCreditMemo.SalesLines.Next();
         SalesCreditMemo.SalesLines.Previous();
 
@@ -245,9 +245,9 @@ codeunit 134397 "ERM Sales Cr. Memo Aggr. UT"
         CreateCrMemoWithOneLineThroughTestPageDiscountTypeAMT(SalesCreditMemo);
 
         // Execute
-        SalesCreditMemo.SalesLines."Unit Price".SetValue(SalesCreditMemo.SalesLines."Unit Price".AsDEcimal * 2);
+        SalesCreditMemo.SalesLines."Unit Price".SetValue(SalesCreditMemo.SalesLines."Unit Price".AsDecimal() * 2);
         SalesCreditMemo.SalesLines.Next();
-        SalesCreditMemo.SalesLines.First;
+        SalesCreditMemo.SalesLines.First();
 
         // Verify
         SalesCreditMemo.SalesLines."Invoice Discount Amount".AssertEquals(0);
@@ -411,7 +411,7 @@ codeunit 134397 "ERM Sales Cr. Memo Aggr. UT"
 
         OpenSalesCrMemo(SalesHeader, SalesCreditMemo);
 
-        AnswerYesToAllConfirmDialogs;
+        AnswerYesToAllConfirmDialogs();
 
         // Execute
         SalesCreditMemo."Sell-to Customer No.".SetValue(NewCustomer."No.");
@@ -444,7 +444,7 @@ codeunit 134397 "ERM Sales Cr. Memo Aggr. UT"
         SalesCreditMemo.SalesLines."Invoice Discount Amount".SetValue(CrMemoDiscountAmount);
 
         // Execute
-        AnswerYesToAllConfirmDialogs;
+        AnswerYesToAllConfirmDialogs();
         SalesCreditMemo."Sell-to Customer Name".SetValue(NewCustomer."No.");
 
         // Verify
@@ -471,7 +471,7 @@ codeunit 134397 "ERM Sales Cr. Memo Aggr. UT"
         CreateCrMemoWithRandomNumberOfLines(SalesHeader, Item, Customer);
         OpenSalesCrMemo(SalesHeader, SalesCreditMemo);
 
-        AnswerYesToAllConfirmDialogs;
+        AnswerYesToAllConfirmDialogs();
 
         // Execute
         SalesCreditMemo."Sell-to Customer Name".SetValue(NewCustomer."No.");
@@ -502,7 +502,7 @@ codeunit 134397 "ERM Sales Cr. Memo Aggr. UT"
         CreateCrMemoWithRandomNumberOfLines(SalesHeader, Item, Customer);
         OpenSalesCrMemo(SalesHeader, SalesCreditMemo);
 
-        AnswerYesToAllConfirmDialogs;
+        AnswerYesToAllConfirmDialogs();
 
         // Execute
         SalesCreditMemo."Bill-to Name".SetValue(NewCustomer.Name);
@@ -534,7 +534,7 @@ codeunit 134397 "ERM Sales Cr. Memo Aggr. UT"
         OpenSalesCrMemo(SalesHeader, SalesCreditMemo);
         SalesCreditMemo.SalesLines."Invoice Discount Amount".SetValue(CrMemoDiscountAmount);
 
-        AnswerYesToAllConfirmDialogs;
+        AnswerYesToAllConfirmDialogs();
 
         // Execute
         SalesCreditMemo."Bill-to Name".SetValue(NewCustomer.Name);
@@ -581,7 +581,7 @@ codeunit 134397 "ERM Sales Cr. Memo Aggr. UT"
         Assert.IsFalse(SalesCrMemoEntityBuffer.Get(SalesHeader."No.", false), 'Draft Aggregated Credit Memo still exists');
 
         Assert.AreEqual(SalesHeader.SystemId, SalesCrMemoHeader."Draft Cr. Memo SystemId", 'Posted Credit Memo ID is incorrect');
-        Assert.IsFalse(SalesHeader.Find, 'Draft Credit Memo still exists');
+        Assert.IsFalse(SalesHeader.Find(), 'Draft Credit Memo still exists');
         SalesCrMemoEntityBuffer.Get(SalesCrMemoHeader."No.", true);
         Assert.IsFalse(IsNullGuid(SalesCrMemoEntityBuffer.Id), 'Id cannot be null');
         Assert.AreEqual(SalesCrMemoHeader."Draft Cr. Memo SystemId", SalesCrMemoEntityBuffer.Id, 'Aggregate Credit Memo ID is incorrect');
@@ -616,7 +616,7 @@ codeunit 134397 "ERM Sales Cr. Memo Aggr. UT"
 
         SalesCrMemoHeader.Find();
         Assert.AreEqual(SalesHeader.SystemId, SalesCrMemoHeader."Draft Cr. Memo SystemId", 'Posted Credit Memo ID is incorrect');
-        Assert.IsFalse(SalesHeader.Find, 'Draft Credit Memo still exists');
+        Assert.IsFalse(SalesHeader.Find(), 'Draft Credit Memo still exists');
         SalesCrMemoEntityBuffer.Get(SalesCrMemoHeader."No.", true);
         Assert.IsFalse(IsNullGuid(SalesCrMemoEntityBuffer.Id), 'Id cannot be null');
     end;
@@ -831,7 +831,7 @@ codeunit 134397 "ERM Sales Cr. Memo Aggr. UT"
         // Setup
         Initialize();
         SetupDataForDiscountTypePct(Item, Customer);
-        SetAllowManualDisc;
+        SetAllowManualDisc();
 
         CreateCrMemoWithRandomNumberOfLines(SalesHeader, Item, Customer);
         OpenSalesCrMemo(SalesHeader, SalesCreditMemo);
@@ -839,7 +839,7 @@ codeunit 134397 "ERM Sales Cr. Memo Aggr. UT"
         // Execute
         LibraryVariableStorage.Enqueue(CalculateInvoiceDiscountQst);
         LibraryVariableStorage.Enqueue(true);
-        SalesCreditMemo.CalculateInvoiceDiscount.Invoke;
+        SalesCreditMemo.CalculateInvoiceDiscount.Invoke();
 
         // Verify
         VerifyBufferTableIsUpdatedForCrMemo(SalesCreditMemo."No.".Value);
@@ -916,7 +916,7 @@ codeunit 134397 "ERM Sales Cr. Memo Aggr. UT"
         UpdateSalesCrMemoAggregate(SalesCrMemoEntityBuffer, TempFieldBuffer);
 
         // Execute
-        AnswerYesToAllConfirmDialogs;
+        AnswerYesToAllConfirmDialogs();
         GraphMgtSalCrMemoBuf.PropagateOnModify(SalesCrMemoEntityBuffer, TempFieldBuffer);
 
         // Verify
@@ -947,8 +947,8 @@ codeunit 134397 "ERM Sales Cr. Memo Aggr. UT"
         GraphMgtSalCrMemoBuf.PropagateOnDelete(SalesCrMemoEntityBuffer);
 
         // Verify
-        Assert.IsFalse(SalesHeader.Find, 'Sales header should be deleted');
-        Assert.IsFalse(SalesCrMemoEntityBuffer.Find, 'Sales line should be deleted');
+        Assert.IsFalse(SalesHeader.Find(), 'Sales header should be deleted');
+        Assert.IsFalse(SalesCrMemoEntityBuffer.Find(), 'Sales line should be deleted');
     end;
 
     [Test]
@@ -970,8 +970,8 @@ codeunit 134397 "ERM Sales Cr. Memo Aggr. UT"
         GraphMgtSalCrMemoBuf.PropagateOnDelete(SalesCrMemoEntityBuffer);
 
         // Verify
-        Assert.IsFalse(SalesCrMemoHeader.Find, 'Sales header should be deleted');
-        Assert.IsFalse(SalesCrMemoEntityBuffer.Find, 'Sales line should be deleted');
+        Assert.IsFalse(SalesCrMemoHeader.Find(), 'Sales header should be deleted');
+        Assert.IsFalse(SalesCrMemoEntityBuffer.Find(), 'Sales line should be deleted');
     end;
 
     [Test]
@@ -1180,7 +1180,7 @@ codeunit 134397 "ERM Sales Cr. Memo Aggr. UT"
     var
         ItemQuantity: Decimal;
     begin
-        SalesCreditMemo.SalesLines.Last;
+        SalesCreditMemo.SalesLines.Last();
         SalesCreditMemo.SalesLines.Next();
         SalesCreditMemo.SalesLines."No.".SetValue(ItemNo);
 
@@ -1362,7 +1362,7 @@ codeunit 134397 "ERM Sales Cr. Memo Aggr. UT"
 
     local procedure OpenSalesCrMemo(SalesHeader: Record "Sales Header"; var SalesCreditMemo: TestPage "Sales Credit Memo")
     begin
-        SalesCreditMemo.OpenEdit;
+        SalesCreditMemo.OpenEdit();
         SalesCreditMemo.GotoRecord(SalesHeader);
     end;
 
@@ -1402,7 +1402,7 @@ codeunit 134397 "ERM Sales Cr. Memo Aggr. UT"
         GeneralLedgerSetup: Record "General Ledger Setup";
         ItemUnitPrice: Decimal;
     begin
-        SetAllowManualDisc;
+        SetAllowManualDisc();
 
         ItemUnitPrice := LibraryRandom.RandDecInDecimalRange(100, 10000, 2);
         CreateItem(Item, ItemUnitPrice);
@@ -1468,7 +1468,7 @@ codeunit 134397 "ERM Sales Cr. Memo Aggr. UT"
             'Field ' +
             MismatchType +
             ' on fields ' +
-            FieldRef1.Record.Name + '.' + FieldRef1.Name + ' and ' + FieldRef2.Record.Name + '.' + FieldRef2.Name + ' do not match.'));
+            FieldRef1.Record().Name() + '.' + FieldRef1.Name + ' and ' + FieldRef2.Record().Name() + '.' + FieldRef2.Name + ' do not match.'));
     end;
 
     local procedure VerifyFieldDefinitionsMatchTableFields(SourceTableID: Integer; var TempField: Record "Field" temporary)
@@ -1675,25 +1675,25 @@ codeunit 134397 "ERM Sales Cr. Memo Aggr. UT"
         case SourceRecordRef.Number of
             DATABASE::"Sales Header":
                 begin
-                    SalesCreditMemo.OpenEdit;
+                    SalesCreditMemo.OpenEdit();
                     Assert.IsTrue(SalesCreditMemo.GotoRecord(SourceRecord), 'Could not navigate to credit memo');
-                    if SalesCreditMemo.SalesLines."Invoice Discount Amount".Visible then
-                        ExpectedCrMemoDiscountAmount := SalesCreditMemo.SalesLines."Invoice Discount Amount".AsDEcimal;
-                    ExpectedTaxAmountAmount := SalesCreditMemo.SalesLines."Total VAT Amount".AsDEcimal;
-                    ExpectedTotalExclTaxAmount := SalesCreditMemo.SalesLines."Total Amount Excl. VAT".AsDEcimal;
-                    ExpectedTotalInclTaxAmount := SalesCreditMemo.SalesLines."Total Amount Incl. VAT".AsDEcimal;
+                    if SalesCreditMemo.SalesLines."Invoice Discount Amount".Visible() then
+                        ExpectedCrMemoDiscountAmount := SalesCreditMemo.SalesLines."Invoice Discount Amount".AsDecimal();
+                    ExpectedTaxAmountAmount := SalesCreditMemo.SalesLines."Total VAT Amount".AsDecimal();
+                    ExpectedTotalExclTaxAmount := SalesCreditMemo.SalesLines."Total Amount Excl. VAT".AsDecimal();
+                    ExpectedTotalInclTaxAmount := SalesCreditMemo.SalesLines."Total Amount Incl. VAT".AsDecimal();
                     SalesLine.SetRange("Document Type", SalesLine."Document Type"::"Credit Memo");
                     SalesLine.SetRange("Document No.", SalesCrMemoEntityBuffer."No.");
                     NumberOfLines := SalesLine.Count();
                 end;
             DATABASE::"Sales Cr.Memo Header":
                 begin
-                    PostedSalesCreditMemo.OpenEdit;
+                    PostedSalesCreditMemo.OpenEdit();
                     Assert.IsTrue(PostedSalesCreditMemo.GotoRecord(SourceRecord), 'Could not navigate to invoice');
-                    ExpectedCrMemoDiscountAmount := PostedSalesCreditMemo.SalesCrMemoLines."Invoice Discount Amount".AsDEcimal;
-                    ExpectedTaxAmountAmount := PostedSalesCreditMemo.SalesCrMemoLines."Total VAT Amount".AsDEcimal;
-                    ExpectedTotalExclTaxAmount := PostedSalesCreditMemo.SalesCrMemoLines."Total Amount Excl. VAT".AsDEcimal;
-                    ExpectedTotalInclTaxAmount := PostedSalesCreditMemo.SalesCrMemoLines."Total Amount Incl. VAT".AsDEcimal;
+                    ExpectedCrMemoDiscountAmount := PostedSalesCreditMemo.SalesCrMemoLines."Invoice Discount Amount".AsDecimal();
+                    ExpectedTaxAmountAmount := PostedSalesCreditMemo.SalesCrMemoLines."Total VAT Amount".AsDecimal();
+                    ExpectedTotalExclTaxAmount := PostedSalesCreditMemo.SalesCrMemoLines."Total Amount Excl. VAT".AsDecimal();
+                    ExpectedTotalInclTaxAmount := PostedSalesCreditMemo.SalesCrMemoLines."Total Amount Incl. VAT".AsDecimal();
                     SalesCrMemoLine.SetRange("Document No.", SalesCrMemoEntityBuffer."No.");
                     NumberOfLines := SalesCrMemoLine.Count();
                 end;
@@ -1791,7 +1791,6 @@ codeunit 134397 "ERM Sales Cr. Memo Aggr. UT"
           DummySalesCrMemoEntityBuffer.FieldNo("Requested Delivery Date"), DATABASE::"Sales Cr. Memo Entity Buffer", TempField);
         AddFieldToBuffer(
           DummySalesCrMemoEntityBuffer.FieldNo("External Document No."), DATABASE::"Sales Cr. Memo Entity Buffer", TempField);
-        AddFieldToBuffer(DummySalesCrMemoEntityBuffer.FieldNo(Id), DATABASE::"Sales Cr. Memo Entity Buffer", TempField);
         AddFieldToBuffer(DummySalesCrMemoEntityBuffer.FieldNo("Reason Code"), DATABASE::"Sales Cr. Memo Entity Buffer", TempField);
         AddFieldToBuffer(DummySalesCrMemoEntityBuffer.FieldNo("Shortcut Dimension 1 Code"), DATABASE::"Sales Cr. Memo Entity Buffer", TempField);
         AddFieldToBuffer(DummySalesCrMemoEntityBuffer.FieldNo("Shortcut Dimension 2 Code"), DATABASE::"Sales Cr. Memo Entity Buffer", TempField);
@@ -1863,6 +1862,7 @@ codeunit 134397 "ERM Sales Cr. Memo Aggr. UT"
         AddFieldToBuffer(
           DummySalesCrMemoEntityBuffer.FieldNo("Bill-to Customer Id"), DATABASE::"Sales Cr. Memo Entity Buffer", TempField);
         AddFieldToBuffer(DummySalesCrMemoEntityBuffer.FieldNo("Reason Code Id"), DATABASE::"Sales Cr. Memo Entity Buffer", TempField);
+        AddFieldToBuffer(DummySalesCrMemoEntityBuffer.FieldNo(Id), DATABASE::"Sales Cr. Memo Entity Buffer", TempField);
     end;
 
     local procedure GetCrMemoAggregateLineSpecificFields(var TempField: Record "Field" temporary)

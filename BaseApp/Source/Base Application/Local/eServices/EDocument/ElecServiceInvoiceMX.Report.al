@@ -972,8 +972,8 @@ report 10479 "Elec. Service Invoice MX"
                 if "Source Code" = SourceCodeSetup."Deleted Document" then
                     Error(Text007);
 
-                CurrReport.Language := Language.GetLanguageIdOrDefault("Language Code");
-                CurrReport.FormatRegion := Language.GetFormatRegionOrDefault("Format Region");
+                CurrReport.Language := LanguageMgt.GetLanguageIdOrDefault("Language Code");
+                CurrReport.FormatRegion := LanguageMgt.GetFormatRegionOrDefault("Format Region");
 
                 if not CompanyBankAccount.Get("Service Invoice Header"."Company Bank Account Code") then
                     CompanyBankAccount.CopyBankFieldsFromCompanyInfo(CompanyInfo);
@@ -1129,7 +1129,7 @@ report 10479 "Elec. Service Invoice MX"
         RespCenter: Record "Responsibility Center";
         ServiceShipmentBuffer: Record "Service Shipment Buffer" temporary;
         SourceCodeSetup: Record "Source Code Setup";
-        Language: Codeunit Language;
+        LanguageMgt: Codeunit Language;
         ServiceInvCountPrinted: Codeunit "Service Inv.-Printed";
         FormatAddr: Codeunit "Format Address";
         PostedShipmentDate: Date;
@@ -1371,17 +1371,15 @@ report 10479 "Elec. Service Invoice MX"
             exit;
         end;
 
-        with ServiceShipmentBuffer do begin
-            "Document No." := ServiceInvoiceLine."Document No.";
-            "Line No." := ServiceInvoiceLine."Line No.";
-            "Entry No." := NextEntryNo;
-            Type := ServiceInvoiceLine.Type;
-            "No." := ServiceInvoiceLine."No.";
-            Quantity := QtyOnShipment;
-            "Posting Date" := PostingDate;
-            Insert();
-            NextEntryNo := NextEntryNo + 1
-        end;
+        ServiceShipmentBuffer."Document No." := ServiceInvoiceLine."Document No.";
+        ServiceShipmentBuffer."Line No." := ServiceInvoiceLine."Line No.";
+        ServiceShipmentBuffer."Entry No." := NextEntryNo;
+        ServiceShipmentBuffer.Type := ServiceInvoiceLine.Type;
+        ServiceShipmentBuffer."No." := ServiceInvoiceLine."No.";
+        ServiceShipmentBuffer.Quantity := QtyOnShipment;
+        ServiceShipmentBuffer."Posting Date" := PostingDate;
+        ServiceShipmentBuffer.Insert();
+        NextEntryNo := NextEntryNo + 1
     end;
 
     procedure FindDimTxt(DimSetID: Integer)

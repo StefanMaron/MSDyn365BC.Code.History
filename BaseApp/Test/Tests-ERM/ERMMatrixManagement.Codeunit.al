@@ -177,7 +177,7 @@ codeunit 134490 "ERM Matrix Management"
         // [SCENARIO 362971] MatrixMgt.FormatValue returns value with format based on GLSetup."Amount Decimal Places" for RoundingFactor::None. Value = 123.45678 converted to '123,46' when GLSetup."Amount Decimal Places" = 2:2
         Value := LibraryRandom.RandDec(100, 5);
         FormatValueWithRoundingFactor(
-          Format(Value, 0, LibraryAccSchedule.GetAutoFormatString), Value, "Analysis Rounding Factor"::None, false);
+          Format(Value, 0, LibraryAccSchedule.GetAutoFormatString()), Value, "Analysis Rounding Factor"::None, false);
     end;
 
     [Test]

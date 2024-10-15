@@ -47,7 +47,7 @@ codeunit 132213 "Library - Small Business"
         SalesCommentLine."No." := SalesLine."Document No.";
         SalesCommentLine."Document Line No." := SalesLine."Line No.";
         SalesCommentLine."Line No." := NextLineNo;
-        SalesCommentLine.Date := LibraryUtility.GenerateRandomDate(WorkDate + 10, WorkDate + 20);
+        SalesCommentLine.Date := LibraryUtility.GenerateRandomDate(WorkDate() + 10, WorkDate() + 20);
         SalesCommentLine.Comment := LibraryUtility.GenerateRandomCode(SalesCommentLine.FieldNo(Comment), DATABASE::"Sales Comment Line");
         SalesCommentLine.Insert(true);
     end;
@@ -93,9 +93,9 @@ codeunit 132213 "Library - Small Business"
         CreateCustomerTemplateLine(ConfigTemplateHeader, Customer.FieldNo("Our Account No."),
           Customer.FieldName("Our Account No."), '');
         CreateCustomerTemplateLine(ConfigTemplateHeader, Customer.FieldNo("Gen. Bus. Posting Group"),
-          Customer.FieldName("Gen. Bus. Posting Group"), FindGenBusPostingGroup);
+          Customer.FieldName("Gen. Bus. Posting Group"), FindGenBusPostingGroup());
         CreateCustomerTemplateLine(ConfigTemplateHeader, Customer.FieldNo("Customer Posting Group"),
-          Customer.FieldName("Customer Posting Group"), LibrarySales.FindCustomerPostingGroup);
+          Customer.FieldName("Customer Posting Group"), LibrarySales.FindCustomerPostingGroup());
     end;
 
     procedure CreateCurrencyExchangeRate(var CurrencyExchangeRate: Record "Currency Exchange Rate"; CurrencyCode: Code[10]; StartingDate: Date)
@@ -149,7 +149,7 @@ codeunit 132213 "Library - Small Business"
         LibraryInventory.CreateItem(Item2);
         ItemNew.Init();
         ItemNew.Insert(true);
-        ItemNew.Validate("Base Unit of Measure", FindUnitOfMeasure);
+        ItemNew.Validate("Base Unit of Measure", FindUnitOfMeasure());
         ItemNew.Validate("Unit Price", LibraryRandom.RandDecInDecimalRange(1.0, 10000.0, 2));
         ItemNew.Validate(Type, Item.Type::Service);
         ItemNew.Validate("Gen. Prod. Posting Group", Item2."Gen. Prod. Posting Group");
@@ -305,9 +305,9 @@ codeunit 132213 "Library - Small Business"
         CreateVendorTemplateLine(ConfigTemplateHeader, Vend.FieldNo("Our Account No."),
           Vend.FieldName("Our Account No."), '');
         CreateVendorTemplateLine(ConfigTemplateHeader, Vend.FieldNo("Gen. Bus. Posting Group"),
-          Vend.FieldName("Gen. Bus. Posting Group"), FindGenBusPostingGroup);
+          Vend.FieldName("Gen. Bus. Posting Group"), FindGenBusPostingGroup());
         CreateVendorTemplateLine(ConfigTemplateHeader, Vend.FieldNo("Vendor Posting Group"),
-          Vend.FieldName("Vendor Posting Group"), LibraryPurchase.FindVendorPostingGroup);
+          Vend.FieldName("Vendor Posting Group"), LibraryPurchase.FindVendorPostingGroup());
     end;
 
     procedure CreateVendorTemplateLine(ConfigTemplateHeader: Record "Config. Template Header"; FieldNo: Integer; FieldName: Text[30]; DefaultValue: Text[50])
@@ -407,22 +407,20 @@ codeunit 132213 "Library - Small Business"
 
     procedure CreateGLAccount(): Code[20]
     begin
-        exit(LibraryERM.CreateGLAccountNo);
+        exit(LibraryERM.CreateGLAccountNo());
     end;
 
     procedure FindVATProdPostingGroupZeroVAT(VATBusPostingGroupCode: Code[20]): Code[20]
     var
         VATPostingSetup: Record "VAT Posting Setup";
     begin
-        with VATPostingSetup do begin
-            SetFilter("VAT Bus. Posting Group", VATBusPostingGroupCode);
-            SetFilter("VAT Prod. Posting Group", '<>%1', '');
-            SetRange("VAT Calculation Type", "VAT Calculation Type"::"Normal VAT");
-            SetRange("VAT %", 0);
-            if not FindLast() then
-                CreateZeroVATPostingSetupByBusGroupCode(VATPostingSetup, VATBusPostingGroupCode);
-            exit("VAT Prod. Posting Group");
-        end;
+        VATPostingSetup.SetFilter("VAT Bus. Posting Group", VATBusPostingGroupCode);
+        VATPostingSetup.SetFilter("VAT Prod. Posting Group", '<>%1', '');
+        VATPostingSetup.SetRange("VAT Calculation Type", VATPostingSetup."VAT Calculation Type"::"Normal VAT");
+        VATPostingSetup.SetRange("VAT %", 0);
+        if not VATPostingSetup.FindLast() then
+            CreateZeroVATPostingSetupByBusGroupCode(VATPostingSetup, VATBusPostingGroupCode);
+        exit(VATPostingSetup."VAT Prod. Posting Group");
     end;
 
     procedure CreateGLAccountWithPostingSetup(var GLAccount: Record "G/L Account")
@@ -433,14 +431,12 @@ codeunit 132213 "Library - Small Business"
         if not VATPostingSetup.FindLast() then
             CreateVATPostingSetup(VATPostingSetup);
 
-        with GLAccount do begin
-            Get(CreateGLAccount);
-            Validate(Name, "No.");
-            Validate("Direct Posting", true);
-            Validate("VAT Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
-            Validate("VAT Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
-            Modify();
-        end;
+        GLAccount.Get(CreateGLAccount());
+        GLAccount.Validate(Name, GLAccount."No.");
+        GLAccount.Validate("Direct Posting", true);
+        GLAccount.Validate("VAT Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
+        GLAccount.Validate("VAT Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
+        GLAccount.Modify();
     end;
 
     local procedure CreateZeroVATPostingSetupByProdGroupCode(var VATPostingSetup: Record "VAT Posting Setup"; VATProdPostingGroupCode: Code[20])
@@ -473,19 +469,17 @@ codeunit 132213 "Library - Small Business"
 
     local procedure CreateZeroVATPostingSetup(var VATPostingSetup: Record "VAT Posting Setup"; VATBusPostingGroupCode: Code[20]; VATProdPostingGroupCode: Code[20])
     begin
-        with VATPostingSetup do begin
-            Init();
-            Validate("VAT Bus. Posting Group", VATBusPostingGroupCode);
-            Validate("VAT Prod. Posting Group", VATProdPostingGroupCode);
-            Validate(
-              "VAT Identifier",
-              LibraryUtility.GenerateRandomCode(
-                FieldNo("VAT Identifier"), DATABASE::"VAT Posting Setup"));
-            Validate("VAT %", 0);
-            Validate("Sales VAT Account", CreateGLAccount);
-            Validate("Purchase VAT Account", CreateGLAccount);
-            Insert();
-        end;
+        VATPostingSetup.Init();
+        VATPostingSetup.Validate("VAT Bus. Posting Group", VATBusPostingGroupCode);
+        VATPostingSetup.Validate("VAT Prod. Posting Group", VATProdPostingGroupCode);
+        VATPostingSetup.Validate(
+          "VAT Identifier",
+          LibraryUtility.GenerateRandomCode(
+            VATPostingSetup.FieldNo("VAT Identifier"), DATABASE::"VAT Posting Setup"));
+        VATPostingSetup.Validate("VAT %", 0);
+        VATPostingSetup.Validate("Sales VAT Account", CreateGLAccount());
+        VATPostingSetup.Validate("Purchase VAT Account", CreateGLAccount());
+        VATPostingSetup.Insert();
     end;
 
     procedure InitGlobalDimCodeValue(var DimValue: Record "Dimension Value"; DimNumber: Integer): Code[20]
@@ -517,28 +511,6 @@ codeunit 132213 "Library - Small Business"
             DimValue.FindFirst();
         end;
         exit(DimValue.Code);
-    end;
-
-    procedure SetNoSeries()
-    var
-        NoSeriesLine: Record "No. Series Line";
-        LastMaxNo: Code[20];
-    begin
-        with NoSeriesLine do
-            if Find('-') then
-                repeat
-                    if LastMaxNo < "Last No. Used" then
-                        LastMaxNo := "Last No. Used";
-                until Next = 0;
-
-        with NoSeriesLine do
-            if Find('-') then
-                repeat
-                    "Last No. Used" := LastMaxNo;
-                    "Ending No." := '';
-                    "Warning No." := '';
-                    Modify(true);
-                until Next = 0;
     end;
 
     procedure FindSalesCorrectiveInvoice(var SalesInvHeader: Record "Sales Invoice Header"; SalesCrMemoHeader: Record "Sales Cr.Memo Header")
@@ -577,13 +549,11 @@ codeunit 132213 "Library - Small Business"
     var
         CancelledDocument: Record "Cancelled Document";
     begin
-        with CancelledDocument do begin
-            Init();
-            "Source ID" := TableId;
-            "Cancelled Doc. No." := DocumentNo;
-            "Cancelled By Doc. No." := CancelledByDocNo;
-            Insert();
-        end;
+        CancelledDocument.Init();
+        CancelledDocument."Source ID" := TableId;
+        CancelledDocument."Cancelled Doc. No." := DocumentNo;
+        CancelledDocument."Cancelled By Doc. No." := CancelledByDocNo;
+        CancelledDocument.Insert();
     end;
 
     procedure UpdateInvRoundingAccountWithSalesSetup(CustomerPostingGroupCode: Code[20]; GenBusPostGroupCode: Code[20])
@@ -594,8 +564,8 @@ codeunit 132213 "Library - Small Business"
         GLAccount.Get(
           LibrarySales.GetInvRoundingAccountOfCustPostGroup(CustomerPostingGroupCode));
         GenPostingSetup.Get(GenBusPostGroupCode, GLAccount."Gen. Prod. Posting Group");
-        GenPostingSetup.Validate("Sales Account", LibraryERM.CreateGLAccountNo);
-        GenPostingSetup.Validate("Sales Credit Memo Account", LibraryERM.CreateGLAccountNo);
+        GenPostingSetup.Validate("Sales Account", LibraryERM.CreateGLAccountNo());
+        GenPostingSetup.Validate("Sales Credit Memo Account", LibraryERM.CreateGLAccountNo());
         GenPostingSetup.Modify(true);
     end;
 
@@ -607,8 +577,8 @@ codeunit 132213 "Library - Small Business"
         GLAccount.Get(
           LibrarySales.GetInvRoundingAccountOfCustPostGroup(CustomerPostingGroupCode));
         GenPostingSetup.Get(GenBusPostGroupCode, GLAccount."Gen. Prod. Posting Group");
-        GenPostingSetup.Validate("Purch. Account", LibraryERM.CreateGLAccountNo);
-        GenPostingSetup.Validate("Purch. Credit Memo Account", LibraryERM.CreateGLAccountNo);
+        GenPostingSetup.Validate("Purch. Account", LibraryERM.CreateGLAccountNo());
+        GenPostingSetup.Validate("Purch. Credit Memo Account", LibraryERM.CreateGLAccountNo());
         GenPostingSetup.Modify(true);
     end;
 

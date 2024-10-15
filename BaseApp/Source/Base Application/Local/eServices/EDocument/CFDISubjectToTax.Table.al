@@ -2,6 +2,7 @@
 {
     DrillDownPageID = "CFDI Subjects to Tax";
     LookupPageID = "CFDI Subjects to Tax";
+    DataClassification = CustomerContent;
 
     fields
     {

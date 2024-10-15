@@ -239,7 +239,7 @@ codeunit 142001 "Sales Tax Deferrals"
 
     local procedure CreateGLAccountWithTaxGroupCode(var GLAccount: Record "G/L Account"; TaxGroupCode: Code[20])
     begin
-        GLAccount.Get(LibraryERM.CreateGLAccountWithPurchSetup);
+        GLAccount.Get(LibraryERM.CreateGLAccountWithPurchSetup());
         GLAccount.Validate("VAT Prod. Posting Group", '');
         GLAccount.Validate("Tax Group Code", TaxGroupCode);
         GLAccount.Modify(true);
@@ -281,8 +281,8 @@ codeunit 142001 "Sales Tax Deferrals"
         TaxAreaLine: Record "Tax Area Line";
     begin
         LibraryERM.CreateTaxJurisdiction(TaxJurisdiction);
-        TaxJurisdiction.Validate("Tax Account (Purchases)", LibraryERM.CreateGLAccountNo);
-        TaxJurisdiction.Validate("Tax Account (Sales)", LibraryERM.CreateGLAccountNo);
+        TaxJurisdiction.Validate("Tax Account (Purchases)", LibraryERM.CreateGLAccountNo());
+        TaxJurisdiction.Validate("Tax Account (Sales)", LibraryERM.CreateGLAccountNo());
         TaxJurisdiction.Modify(true);
 
         LibraryERM.CreateTaxDetail(
@@ -321,7 +321,7 @@ codeunit 142001 "Sales Tax Deferrals"
         PurchasesPayablesSetup.Modify(true);
     end;
 
-    local procedure VerifyDeferralSchedule(DeferralDocumentType: Option; DocumentType: Option; DocumentNo: Code[20]; LineNo: Integer; ExpectedAmount: Decimal; ExpectedDeferralLinesCount: Integer)
+    local procedure VerifyDeferralSchedule(DeferralDocumentType: Enum "Deferral Document Type"; DocumentType: Enum "Sales Document Type"; DocumentNo: Code[20]; LineNo: Integer; ExpectedAmount: Decimal; ExpectedDeferralLinesCount: Integer)
     var
         DeferralLine: Record "Deferral Line";
         DeferralHeader: Record "Deferral Header";

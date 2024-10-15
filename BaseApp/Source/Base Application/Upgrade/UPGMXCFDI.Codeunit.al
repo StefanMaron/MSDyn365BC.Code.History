@@ -74,7 +74,7 @@
         if UpgradeTag.HasUpgradeTag(UpgradeTagDefCountry.GetPACWebServiceDetailsUpgradeTag()) then
             exit;
 
-        SATUtilities.PopulatePACWebServiceData;
+        SATUtilities.PopulatePACWebServiceData();
 
         UpgradeTag.SetUpgradeTag(UpgradeTagDefCountry.GetPACWebServiceDetailsUpgradeTag());
     end;

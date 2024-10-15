@@ -42,12 +42,10 @@ codeunit 10338 "Exp. Pre-Mapping Det EFT CA"
     var
         ACHRBDetail: Record "ACH RB Detail";
     begin
-        with ACHRBDetail do begin
-            Init();
-            "Data Exch. Entry No." := DataExchangeEntryNo;
-            "Data Exch. Line Def Code" := DataExchLineDefCode;
-            Insert(true);
-        end;
+        ACHRBDetail.Init();
+        ACHRBDetail."Data Exch. Entry No." := DataExchangeEntryNo;
+        ACHRBDetail."Data Exch. Line Def Code" := DataExchLineDefCode;
+        ACHRBDetail.Insert(true);
     end;
 }
 

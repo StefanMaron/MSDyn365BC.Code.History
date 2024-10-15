@@ -69,19 +69,6 @@ codeunit 10150 "O365 Tax Settings Management"
             until TaxAreaLine.Next() = 0;
     end;
 
-#if not CLEAN21
-    [Obsolete('Replaced with GetProvinceFullLength.', '21.0')]
-    procedure GetProvince(JurisdictionCode: Code[10]): Text[50]
-    var
-        TaxJurisdiction: Record "Tax Jurisdiction";
-    begin
-        if not TaxJurisdiction.Get(JurisdictionCode) then
-            exit('');
-
-        exit(TaxJurisdiction.GetDescriptionInCurrentLanguage());
-    end;
-#endif
-
     procedure GetProvinceFullLength(JurisdictionCode: Code[10]): Text[100]
     var
         TaxJurisdiction: Record "Tax Jurisdiction";
@@ -266,11 +253,10 @@ codeunit 10150 "O365 Tax Settings Management"
             exit(true);
 
         if GuiAllowed then
-            with TempSalesTaxSetupWizard do
-                if (("City Rate" <> 0) and (City = '')) or (("State Rate" <> 0) and (State = '')) then begin
-                    ResponseOptNoName := StrMenu(DiscardWithNoNameOptionQst, 0, DiscardWithNoNameInstructionTxt);
-                    exit(ResponseOptNoName = ResponseOptNoName::Discard);
-                end;
+            if ((TempSalesTaxSetupWizard."City Rate" <> 0) and (TempSalesTaxSetupWizard.City = '')) or ((TempSalesTaxSetupWizard."State Rate" <> 0) and (TempSalesTaxSetupWizard.State = '')) then begin
+                ResponseOptNoName := StrMenu(DiscardWithNoNameOptionQst, 0, DiscardWithNoNameInstructionTxt);
+                exit(ResponseOptNoName = ResponseOptNoName::Discard);
+            end;
 
         if GuiAllowed then
             if OtherTaxAreasWithSameStateOrCityExist(TempSalesTaxSetupWizard) then begin

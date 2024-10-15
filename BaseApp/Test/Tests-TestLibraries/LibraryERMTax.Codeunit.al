@@ -27,11 +27,9 @@ codeunit 140001 "Library - ERM Tax"
         TaxArea: Record "Tax Area";
     begin
         LibraryERM.CreateTaxArea(TaxArea);
-        with TaxArea do begin
-            Validate("Country/Region", CountryRegion);
-            Modify(true);
-            exit(Code);
-        end;
+        TaxArea.Validate("Country/Region", CountryRegion);
+        TaxArea.Modify(true);
+        exit(TaxArea.Code);
     end;
 
     [Scope('OnPrem')]
@@ -87,14 +85,12 @@ codeunit 140001 "Library - ERM Tax"
         TaxJurisdiction: Record "Tax Jurisdiction";
     begin
         LibraryERM.CreateTaxJurisdiction(TaxJurisdiction);
-        with TaxJurisdiction do begin
-            Validate("Country/Region", CountryRegion);
-            Validate("Tax Account (Sales)", LibraryERM.CreateGLAccountNo);
-            Validate("Tax Account (Purchases)", LibraryERM.CreateGLAccountNo);
-            Validate("Reverse Charge (Purchases)", LibraryERM.CreateGLAccountNo);
-            Modify(true);
-            exit(Code);
-        end;
+        TaxJurisdiction.Validate("Country/Region", CountryRegion);
+        TaxJurisdiction.Validate("Tax Account (Sales)", LibraryERM.CreateGLAccountNo());
+        TaxJurisdiction.Validate("Tax Account (Purchases)", LibraryERM.CreateGLAccountNo());
+        TaxJurisdiction.Validate("Reverse Charge (Purchases)", LibraryERM.CreateGLAccountNo());
+        TaxJurisdiction.Modify(true);
+        exit(TaxJurisdiction.Code);
     end;
 
     [Scope('OnPrem')]
@@ -114,12 +110,10 @@ codeunit 140001 "Library - ERM Tax"
     var
         TaxJurisdiction: Record "Tax Jurisdiction";
     begin
-        with TaxJurisdiction do begin
-            Get(CreateTaxJurisdictionWithCountryRegion(CountryRegion));
-            Validate("Report-to Jurisdiction", Code);
-            Modify(true);
-            exit(Code);
-        end;
+        TaxJurisdiction.Get(CreateTaxJurisdictionWithCountryRegion(CountryRegion));
+        TaxJurisdiction.Validate("Report-to Jurisdiction", TaxJurisdiction.Code);
+        TaxJurisdiction.Modify(true);
+        exit(TaxJurisdiction.Code);
     end;
 
     [Scope('OnPrem')]
@@ -134,21 +128,17 @@ codeunit 140001 "Library - ERM Tax"
     begin
         CreateTaxDetailWithTaxType(
           TaxDetail, TaxJurisdictionCode, TaxGroupCode, TaxDetail."Tax Type"::"Sales and Use Tax", TaxBelowMaximum, 0);
-        with TaxDetail do begin
-            Validate("Expense/Capitalize", ExpenseCapitalize);
-            Modify(true);
-        end;
+        TaxDetail.Validate("Expense/Capitalize", ExpenseCapitalize);
+        TaxDetail.Modify(true);
     end;
 
     [Scope('OnPrem')]
     procedure CreateTaxDetailWithTaxType(var TaxDetail: Record "Tax Detail"; TaxJurisdictionCode: Code[10]; TaxGroupCode: Code[20]; TaxType: Option; TaxBelowMaximum: Decimal; MaximumAmount: Decimal)
     begin
         LibraryERM.CreateTaxDetail(TaxDetail, TaxJurisdictionCode, TaxGroupCode, TaxType, WorkDate());
-        with TaxDetail do begin
-            Validate("Tax Below Maximum", TaxBelowMaximum);
-            Validate("Maximum Amount/Qty.", MaximumAmount);
-            Modify(true);
-        end;
+        TaxDetail.Validate("Tax Below Maximum", TaxBelowMaximum);
+        TaxDetail.Validate("Maximum Amount/Qty.", MaximumAmount);
+        TaxDetail.Modify(true);
     end;
 }
 

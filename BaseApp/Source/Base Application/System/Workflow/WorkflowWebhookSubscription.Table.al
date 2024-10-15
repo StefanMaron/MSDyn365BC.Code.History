@@ -16,6 +16,7 @@ using System.Text;
 table 469 "Workflow Webhook Subscription"
 {
     Caption = 'Workflow Webhook Subscription';
+    DataClassification = CustomerContent;
 
     fields
     {

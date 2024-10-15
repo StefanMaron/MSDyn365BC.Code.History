@@ -54,7 +54,7 @@ codeunit 134008 "ERM VAT Settlement with Apply"
         VatPostingSetup.FindLast();
         CalcandPostVATSettlement.SetTableView(VatPostingSetup);
         CalcandPostVATSettlement.InitializeRequest(
-          WorkDate, WorkDate(), WorkDate, GenJournalLine."Document No.", GenJournalLine."Bal. Account No.", false, false);
+          WorkDate(), WorkDate(), WorkDate(), GenJournalLine."Document No.", GenJournalLine."Bal. Account No.", false, false);
         CalcandPostVATSettlement.UseRequestPage(false);
 
         FilePath := TemporaryPath + Format(VatPostingSetup.TableName) + '.xlsx';
@@ -146,7 +146,7 @@ codeunit 134008 "ERM VAT Settlement with Apply"
         // [GIVEN] Customer Refund and Payment are posted then applied
         PostGenJournalLines(
           GenJournalLine, GenJournalLine."Document Type"::Payment, GenJournalLine."Document Type"::Refund,
-          GenJournalLine."Account Type"::Customer, CreateCustomer, -LibraryRandom.RandInt(500), 1);
+          GenJournalLine."Account Type"::Customer, CreateCustomer(), -LibraryRandom.RandInt(500), 1);
         ApplyAndPostCustomerEntry(GenJournalLine."Document No.", GenJournalLine."Document Type"::Refund, GenJournalLine.Amount);
 
         // [WHEN] Unapply Payment and Refund
@@ -172,7 +172,7 @@ codeunit 134008 "ERM VAT Settlement with Apply"
         CustomerNo := LibrarySales.CreateCustomerNo();
         CreateGenJournalLineWithBalanceAcc(
           GenJournalLine, GenJournalLine."Document Type"::Refund, GenJournalLine."Account Type"::Customer, CustomerNo,
-          GenJournalLine."Bal. Account Type"::"G/L Account", LibraryERM.CreateGLAccountWithSalesSetup, 1);
+          GenJournalLine."Bal. Account Type"::"G/L Account", LibraryERM.CreateGLAccountWithSalesSetup(), 1);
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
 
         // [GIVEN] Payment is posted and applied to Refund with Applied-to Doc. No.
@@ -199,7 +199,7 @@ codeunit 134008 "ERM VAT Settlement with Apply"
         // [GIVEN] Vendor Refund and Payment are posted then applied
         PostGenJournalLines(
           GenJournalLine, GenJournalLine."Document Type"::Payment, GenJournalLine."Document Type"::Refund,
-          GenJournalLine."Account Type"::Vendor, LibraryPurchase.CreateVendorNo, LibraryRandom.RandInt(500), 1);
+          GenJournalLine."Account Type"::Vendor, LibraryPurchase.CreateVendorNo(), LibraryRandom.RandInt(500), 1);
         LibraryERM.FindVendorLedgerEntry(VendorLedgerEntry, VendorLedgerEntry."Document Type"::Refund, GenJournalLine."Document No.");
         LibraryERM.SetAppliestoIdVendor(VendorLedgerEntry);
 
@@ -282,12 +282,12 @@ codeunit 134008 "ERM VAT Settlement with Apply"
 
         // Setup: Create & Post Sales Journal for invoice and payment.
         Initialize();
-        GLAccount.Get(LibraryERM.CreateGLAccountWithSalesSetup);
+        GLAccount.Get(LibraryERM.CreateGLAccountWithSalesSetup());
         PrepareSetupWithAdjForPmtDiscount(CustomerNo, OldAdjustForPaymentDiscount, GLAccount);
 
         CreateGenJournalLineWithBalanceAcc(
           GenJournalLine, GenJournalLine."Document Type"::Invoice, GenJournalLine."Account Type"::Customer, CustomerNo,
-          GenJournalLine."Bal. Account Type"::"G/L Account", LibraryERM.CreateGLAccountWithSalesSetup, 1);
+          GenJournalLine."Bal. Account Type"::"G/L Account", LibraryERM.CreateGLAccountWithSalesSetup(), 1);
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
         PostApplyPaymentToInvoice(CustLedgerEntry, CustomerNo, GenJournalLine."Document No.", GenJournalLine."Document Type"::Invoice);
 
@@ -321,7 +321,7 @@ codeunit 134008 "ERM VAT Settlement with Apply"
         Initialize();
         // [GIVEN] Invoice with Unrealized VAT ("VAT Base" = "X", "VAT Amount" = "Y") and Adjust For Payment Discount
         LibraryERM.SetUnrealizedVAT(true);
-        GLAccount.Get(CreateGLAccountWithUnrealizedVAT);
+        GLAccount.Get(CreateGLAccountWithUnrealizedVAT());
         PrepareSetupWithAdjForPmtDiscount(
           CustomerNo, OldAdjustForPaymentDiscount, GLAccount);
         CreateGenJournalLineWithBalanceAcc(
@@ -362,12 +362,12 @@ codeunit 134008 "ERM VAT Settlement with Apply"
 
         // [GIVEN] Posted sales invoice with sales tax setup
         CreateSalesTax(TaxAreaCode, TaxGroupCode);
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo());
         SalesHeader.Validate("Tax Area Code", TaxAreaCode);
         SalesHeader.Validate("Tax Liable", true);
         SalesHeader.Modify(true);
         LibrarySales.CreateSalesLine(
-          SalesLine, SalesHeader, SalesLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithSalesSetup, 1);
+          SalesLine, SalesHeader, SalesLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithSalesSetup(), 1);
         SalesLine.Validate("Tax Group Code", TaxGroupCode);
         SalesLine.Validate("Unit Price", LibraryRandom.RandDec(100, 2));
         SalesLine.Modify(true);
@@ -375,7 +375,7 @@ codeunit 134008 "ERM VAT Settlement with Apply"
 
         // [WHEN] Run Calc. and Post VAT Settlement report
         CalcAndPostVATSettlement.InitializeRequest(
-          WorkDate, WorkDate(), WorkDate, LibraryUtility.GenerateGUID, LibraryERM.CreateGLAccountNo, false, true);
+          WorkDate(), WorkDate(), WorkDate(), LibraryUtility.GenerateGUID(), LibraryERM.CreateGLAccountNo(), false, true);
         CalcAndPostVATSettlement.UseRequestPage(false);
         CalcAndPostVATSettlement.SaveAsXml('');
 
@@ -425,14 +425,14 @@ codeunit 134008 "ERM VAT Settlement with Apply"
         // [WHEN] Run Calculate And Post VAT Settlement report for VAT Posting Setup "X","Y" for dates starting with "20-01-2019" until "27-01-2019"
         CalcAndPostVATSettlement.SetTableView(VATPostingSetup);
         CalcAndPostVATSettlement.InitializeRequest(
-          WorkDate, CalcDate('<+7D>', WorkDate()), WorkDate(),
-          LibraryUtility.GenerateGUID, LibraryERM.CreateGLAccountNo, false, false);
+          WorkDate(), CalcDate('<+7D>', WorkDate()), WorkDate(),
+          LibraryUtility.GenerateGUID(), LibraryERM.CreateGLAccountNo(), false, false);
         CalcAndPostVATSettlement.SetInitialized(false);
         Commit();
         CalcAndPostVATSettlement.Run();
 
         // [THEN] Tax Jurisdictions "TJ01" and "TJ02" are included in the report
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementTagWithValueExists('VATEntryGetFiltTaxJurisCd', TaxJurisdictionCode[1]);
         LibraryReportDataset.AssertElementTagWithValueExists('VATEntryGetFiltTaxJurisCd', TaxJurisdictionCode[2]);
     end;
@@ -474,10 +474,10 @@ codeunit 134008 "ERM VAT Settlement with Apply"
         DocNo := LibraryUtility.GenerateGUID();
 
         // [WHEN] Run Calc. and Post VAT Settlement report
-	VATPostingSetup.SetRecFilter();
+        VATPostingSetup.SetRecFilter();
         CalcAndPostVATSettlement.SetTableView(VATPostingSetup);
         CalcAndPostVATSettlement.InitializeRequest(
-          WorkDate, WorkDate(), WorkDate, DocNo, LibraryERM.CreateGLAccountNo, false, true);
+          WorkDate(), WorkDate(), WorkDate(), DocNo, LibraryERM.CreateGLAccountNo(), false, true);
         CalcAndPostVATSettlement.UseRequestPage(false);
         CalcAndPostVATSettlement.SaveAsXml('');
 
@@ -502,7 +502,7 @@ codeunit 134008 "ERM VAT Settlement with Apply"
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"ERM VAT Settlement with Apply");
         LibraryERMCountryData.CreateVATData();
         LibraryERMCountryData.UpdateGeneralPostingSetup();
-        LibraryERMCountryData.UpdateVATPostingSetup;
+        LibraryERMCountryData.UpdateVATPostingSetup();
         LibraryERMCountryData.UpdatePurchasesPayablesSetup();
         LibrarySetupStorage.Save(DATABASE::"General Ledger Setup");
         isInitialized := true;
@@ -515,7 +515,7 @@ codeunit 134008 "ERM VAT Settlement with Apply"
         LibraryPmtDiscSetup.SetAdjustForPaymentDisc(true);
         UpdateGeneralPostingSetup(GLAccount);
         OldAdjustForPaymentDiscount := UpdateVATPostingSetup(GLAccount, true);
-        CustomerNo := CreateCustomerWithPaymentTerms;
+        CustomerNo := CreateCustomerWithPaymentTerms();
         UpdateCustVATBusPostingGroup(CustomerNo, GLAccount."VAT Bus. Posting Group");
     end;
 
@@ -525,12 +525,12 @@ codeunit 134008 "ERM VAT Settlement with Apply"
     begin
         // Setup: Create Customer, General Journal Line for 1 Invoice, Credit Memo and more than 1 for Payment, Refund and
         // Random Amount for General Journal Line.
-        ModifyGeneralLedegerSetup(CreateCurrency, true);
+        ModifyGeneralLedegerSetup(CreateCurrency(), true);
         ModifyVATPostingSetup(UnrealizedVATType::First);
         NoOfLines := 2 * LibraryRandom.RandInt(2);
 
         PostGenJournalLines(
-          GenJournalLine, DocumentType, DocumentType2, GenJournalLine."Account Type"::Customer, CreateCustomer, Amount, NoOfLines);
+          GenJournalLine, DocumentType, DocumentType2, GenJournalLine."Account Type"::Customer, CreateCustomer(), Amount, NoOfLines);
         ApplyAndPostCustomerEntry(GenJournalLine."Document No.", DocumentType2, -Amount / NoOfLines);
     end;
 
@@ -593,7 +593,7 @@ codeunit 134008 "ERM VAT Settlement with Apply"
         Customer: Record Customer;
     begin
         LibrarySales.CreateCustomer(Customer);
-        Customer.Validate("Payment Terms Code", CreatePaymentTerms);
+        Customer.Validate("Payment Terms Code", CreatePaymentTerms());
         Customer.Modify(true);
         exit(Customer."No.");
     end;
@@ -629,7 +629,7 @@ codeunit 134008 "ERM VAT Settlement with Apply"
     begin
         CreateGenJournalLineWithBalanceAcc(
           GenJournalLine, GenJournalLine."Document Type"::Payment, AccountType, AccountNo,
-          GenJournalLine."Bal. Account Type"::"Bank Account", LibraryERM.CreateBankAccountNo, 1);
+          GenJournalLine."Bal. Account Type"::"Bank Account", LibraryERM.CreateBankAccountNo(), 1);
         GenJournalLine.Validate("Applies-to Doc. Type", AppliesToDocType);
         GenJournalLine.Validate("Applies-to Doc. No.", AppliesToDocNo);
         GenJournalLine.Modify(true);
@@ -793,7 +793,7 @@ codeunit 134008 "ERM VAT Settlement with Apply"
         Clear(CalcAndPostVATSettlement);
         CalcAndPostVATSettlement.SetTableView(VATPostingSetup);
         CalcAndPostVATSettlement.InitializeRequest(
-          WorkDate, WorkDate(), WorkDate, GenJournalLine."Document No.", GenJournalLine."Bal. Account No.", false, true);
+          WorkDate(), WorkDate(), WorkDate(), GenJournalLine."Document No.", GenJournalLine."Bal. Account No.", false, true);
         CalcAndPostVATSettlement.UseRequestPage(false);
         FilePath := TemporaryPath + Format(VATPostingSetup.TableName) + '.xlsx';
         CalcAndPostVATSettlement.SaveAsExcel(FilePath)
@@ -989,7 +989,7 @@ codeunit 134008 "ERM VAT Settlement with Apply"
     [Scope('OnPrem')]
     procedure CalcAndPostVATSettlementReqPageHandler(var CalcandPostVATSettlement: TestRequestPage "Calc. and Post VAT Settlement")
     begin
-        CalcandPostVATSettlement.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        CalcandPostVATSettlement.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 }
 

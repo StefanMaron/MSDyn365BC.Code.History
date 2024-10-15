@@ -43,7 +43,7 @@ codeunit 134053 "ERM VAT Tool - Serv. Doc"
         SetupToolService(VATRateChangeSetup2."Update Service Docs."::Both, false, false);
 
         // Excercise: Run VAT Rate Change Tool.
-        ERMVATToolHelper.RunVATRateChangeTool;
+        ERMVATToolHelper.RunVATRateChangeTool();
 
         // Verify that no data was updated
         ERMVATToolHelper.VerifyUpdateConvFalse(DATABASE::"Service Line");
@@ -52,7 +52,7 @@ codeunit 134053 "ERM VAT Tool - Serv. Doc"
         ERMVATToolHelper.VerifyLogEntriesConvFalse(DATABASE::"Service Line", false);
 
         // Cleanup: Delete groups.
-        ERMVATToolHelper.DeleteGroups;
+        ERMVATToolHelper.DeleteGroups();
     end;
 
     [Test]
@@ -76,7 +76,7 @@ codeunit 134053 "ERM VAT Tool - Serv. Doc"
         SetupToolService(VATRateChangeSetup2."Update Service Docs."::Both, false, false);
 
         // Excercise: Run VAT Rate Change Tool.
-        ERMVATToolHelper.RunVATRateChangeTool;
+        ERMVATToolHelper.RunVATRateChangeTool();
 
         // Verify that no data was updated
         ERMVATToolHelper.VerifyUpdateConvFalse(DATABASE::"Service Line");
@@ -85,7 +85,7 @@ codeunit 134053 "ERM VAT Tool - Serv. Doc"
         ERMVATToolHelper.VerifyLogEntriesConvFalse(DATABASE::"Service Line", true);
 
         // Cleanup: Delete groups.
-        ERMVATToolHelper.DeleteGroups;
+        ERMVATToolHelper.DeleteGroups();
     end;
 
     [Test]
@@ -129,10 +129,10 @@ codeunit 134053 "ERM VAT Tool - Serv. Doc"
     begin
         // [SCENARIO] Service Order with one line, don't update groups.
         asserterror VATToolServiceLine(VATRateChangeSetup2."Update Service Docs."::No, ServiceHeader2."Document Type"::Order, false, false);
-        Assert.ExpectedError(ERMVATToolHelper.GetConversionErrorNoTables);
+        Assert.ExpectedError(ERMVATToolHelper.GetConversionErrorNoTables());
 
         // Cleanup: Delete Groups.
-        ERMVATToolHelper.DeleteGroups;
+        ERMVATToolHelper.DeleteGroups();
     end;
 
     [Test]
@@ -185,7 +185,7 @@ codeunit 134053 "ERM VAT Tool - Serv. Doc"
         GetServiceLine(ServiceHeader, ServiceLine);
         LineCount := ServiceLine.Count();
         if First then
-            ServiceLine.Next
+            ServiceLine.Next()
         else
             ServiceLine.FindFirst();
         ServiceLine.Validate("VAT Prod. Posting Group", VATProdPostingGroup);
@@ -196,14 +196,14 @@ codeunit 134053 "ERM VAT Tool - Serv. Doc"
         LibraryService.PostServiceOrder(ServiceHeader, true, false, false);
 
         // Excercise: Run VAT Rate Change Tool.
-        ERMVATToolHelper.RunVATRateChangeTool;
+        ERMVATToolHelper.RunVATRateChangeTool();
 
         // Verify: Check if proper data was updated.
         GetServiceLine(ServiceHeader, ServiceLine);
-        Assert.AreEqual(LineCount + 1, ServiceLine.Count, ERMVATToolHelper.GetConversionErrorSplitLines);
+        Assert.AreEqual(LineCount + 1, ServiceLine.Count, ERMVATToolHelper.GetConversionErrorSplitLines());
 
         // Cleanup: Delete groups.
-        ERMVATToolHelper.DeleteGroups;
+        ERMVATToolHelper.DeleteGroups();
     end;
 
     [Test]
@@ -285,14 +285,14 @@ codeunit 134053 "ERM VAT Tool - Serv. Doc"
         SetupToolService(VATRateChangeSetup2."Update Service Docs."::"VAT Prod. Posting Group", true, false);
 
         // Excercise: Run VAT Rate Change Tool.
-        ERMVATToolHelper.RunVATRateChangeTool;
+        ERMVATToolHelper.RunVATRateChangeTool();
 
         // Verify: Check that line was split.
         GetServiceLine(ServiceHeader, ServiceLine);
-        Assert.AreEqual(2, ServiceLine.Count, ERMVATToolHelper.GetConversionErrorSplitLines);
+        Assert.AreEqual(2, ServiceLine.Count, ERMVATToolHelper.GetConversionErrorSplitLines());
 
         // Cleanup: Delete groups.
-        ERMVATToolHelper.DeleteGroups;
+        ERMVATToolHelper.DeleteGroups();
     end;
 
     [Test]
@@ -373,7 +373,7 @@ codeunit 134053 "ERM VAT Tool - Serv. Doc"
         SetupToolService(VATRateChangeSetup2."Update Service Docs."::Both, true, false);
 
         // Excercise: Run VAT Rate Change Tool.
-        ERMVATToolHelper.RunVATRateChangeTool;
+        ERMVATToolHelper.RunVATRateChangeTool();
 
         // Verify: Check if proper data was updated.
         ERMVATToolHelper.VerifyUpdate(TempRecRef, false);
@@ -382,7 +382,7 @@ codeunit 134053 "ERM VAT Tool - Serv. Doc"
         ERMVATToolHelper.VerifyErrorLogEntries(TempRecRef, false);
 
         // Cleanup: Delete groups.
-        ERMVATToolHelper.DeleteGroups;
+        ERMVATToolHelper.DeleteGroups();
     end;
 
     [Test]
@@ -401,13 +401,13 @@ codeunit 134053 "ERM VAT Tool - Serv. Doc"
         SetupToolService(VATRateChangeSetup2."Update Service Docs."::Both, true, false);
 
         // Excercise: Run VAT Rate Change Tool.
-        ERMVATToolHelper.RunVATRateChangeTool;
+        ERMVATToolHelper.RunVATRateChangeTool();
 
         // Verify: Check if proper data was updated.
         VerifyServDocWithReservation(false);
 
         // Cleanup: Delete groups.
-        ERMVATToolHelper.DeleteGroups;
+        ERMVATToolHelper.DeleteGroups();
     end;
 
     [Test]
@@ -422,19 +422,19 @@ codeunit 134053 "ERM VAT Tool - Serv. Doc"
         ERMVATToolHelper.CreatePostingGroups(false);
 
         // SETUP: Create and save data to update in a temporary table.
-        PrepareServDocItemTracking;
+        PrepareServDocItemTracking();
 
         // SETUP: Update VAT Change Tool Setup table.
         SetupToolService(VATRateChangeSetup2."Update Service Docs."::Both, true, false);
 
         // Excercise: Run VAT Rate Change Tool.
-        ERMVATToolHelper.RunVATRateChangeTool;
+        ERMVATToolHelper.RunVATRateChangeTool();
 
         // Verify: Check if proper data was updated.
         VerifyServDocWithReservation(true);
 
         // Cleanup: Delete groups.
-        ERMVATToolHelper.DeleteGroups;
+        ERMVATToolHelper.DeleteGroups();
     end;
 
     [Test]
@@ -464,13 +464,13 @@ codeunit 134053 "ERM VAT Tool - Serv. Doc"
         SetupToolService(VATRateChangeSetup2."Update Service Docs."::Both, true, false);
 
         // Excercise: Run VAT Rate Change Tool.
-        ERMVATToolHelper.RunVATRateChangeTool;
+        ERMVATToolHelper.RunVATRateChangeTool();
 
         // Verify: Check if proper data was updated.
         VerifyServiceLnPartShipped(TempRecRef);
 
         // Cleanup: Delete groups.
-        ERMVATToolHelper.DeleteGroups;
+        ERMVATToolHelper.DeleteGroups();
     end;
 
     [Test]
@@ -501,14 +501,14 @@ codeunit 134053 "ERM VAT Tool - Serv. Doc"
         SetupToolService(VATRateChangeSetup2."Update Service Docs."::Both, true, false);
 
         // Excercise: Run VAT Rate Change Tool.
-        ERMVATToolHelper.RunVATRateChangeTool;
+        ERMVATToolHelper.RunVATRateChangeTool();
 
         // Verify: Check that each line was split.
         GetServiceLine(ServiceHeader, ServiceLine);
-        Assert.AreEqual(LineCount * 2, ServiceLine.Count, ERMVATToolHelper.GetConversionErrorSplitLines);
+        Assert.AreEqual(LineCount * 2, ServiceLine.Count, ERMVATToolHelper.GetConversionErrorSplitLines());
 
         // Cleanup: Delete groups.
-        ERMVATToolHelper.DeleteGroups;
+        ERMVATToolHelper.DeleteGroups();
     end;
 
     [Test]
@@ -530,7 +530,7 @@ codeunit 134053 "ERM VAT Tool - Serv. Doc"
         LibraryService.PostServiceOrder(ServiceHeader, true, false, false);
 
         // Excercise: Run VAT Rate Change Tool.
-        ERMVATToolHelper.RunVATRateChangeTool;
+        ERMVATToolHelper.RunVATRateChangeTool();
 
         // Verify: Verify Description field on vat rate change log entry.
         ERMVATToolHelper.VerifyValueOnZeroOutstandingQty(VatProdPostingGroup, DATABASE::"Service Line");
@@ -599,13 +599,13 @@ codeunit 134053 "ERM VAT Tool - Serv. Doc"
         SetupToolService(VATRateChangeSetup2."Update Service Docs."::"VAT Prod. Posting Group", false, true);
 
         // [WHEN] Run VAT Rate Change Tool.
-        ERMVATToolHelper.RunVATRateChangeTool;
+        ERMVATToolHelper.RunVATRateChangeTool();
 
         // [THEN] Conversion process successfully completed.
         ERMVATToolHelper.VerifyLogEntriesConvFalse(DATABASE::"Service Line", false);
 
         // Cleanup: Delete groups.
-        ERMVATToolHelper.DeleteGroups;
+        ERMVATToolHelper.DeleteGroups();
     end;
 
     [Test]
@@ -629,14 +629,14 @@ codeunit 134053 "ERM VAT Tool - Serv. Doc"
         SetupToolService(VATRateChangeSetup2."Update Service Docs."::"VAT Prod. Posting Group", false, false);
 
         // [WHEN] Run VAT Rate Change Tool.
-        asserterror ERMVATToolHelper.RunVATRateChangeTool;
+        asserterror ERMVATToolHelper.RunVATRateChangeTool();
 
         // [THEN] Error "Release Status must be equal to Open" occured.
         Assert.ExpectedErrorCode('TestField');
         Assert.ExpectedError('Release Status must be equal to ''Open''  in Service Header');
 
         // Cleanup: Delete groups.
-        ERMVATToolHelper.DeleteGroups;
+        ERMVATToolHelper.DeleteGroups();
     end;
 
     [Test]
@@ -650,7 +650,7 @@ codeunit 134053 "ERM VAT Tool - Serv. Doc"
         LibrarySales.CreateCustomer(Customer);
         LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Invoice, Customer."No.");
         LibraryService.CreateServiceLine(ServiceLine, ServiceHeader, ServiceHeader."Document Type"::Invoice,
-          LibraryResource.CreateResourceNo);
+          LibraryResource.CreateResourceNo());
 
         ServiceHeader.Validate("Order Date", Today);
 
@@ -803,7 +803,7 @@ codeunit 134053 "ERM VAT Tool - Serv. Doc"
         SetupToolService(FieldOption, true, false);
 
         // Excercise: Run VAT Rate Change Tool.
-        ERMVATToolHelper.RunVATRateChangeTool;
+        ERMVATToolHelper.RunVATRateChangeTool();
 
         // Verify: Check if proper data was updated.
         Update := ExpectUpdate(DocumentType, Ship);
@@ -816,7 +816,7 @@ codeunit 134053 "ERM VAT Tool - Serv. Doc"
             ERMVATToolHelper.VerifyErrorLogEntries(TempRecRef, ExpectLogEntries(DocumentType));
 
         // Cleanup: Delete groups.
-        ERMVATToolHelper.DeleteGroups;
+        ERMVATToolHelper.DeleteGroups();
     end;
 
     local procedure VATToolServiceLineAmount(DocumentType: Enum "Service Document Type"; PartialShip: Boolean)
@@ -850,13 +850,13 @@ codeunit 134053 "ERM VAT Tool - Serv. Doc"
         SetupToolService(VATRateChangeSetup2."Update Service Docs."::"VAT Prod. Posting Group", true, false);
 
         // Excercise: Run VAT Rate Change Tool.
-        ERMVATToolHelper.RunVATRateChangeTool;
+        ERMVATToolHelper.RunVATRateChangeTool();
 
         // Verify: Check VAT%, Unit Price and Line Amount Including VAT.
         VerifyServiceDocAmount(ServiceHeader);
 
         // Cleanup: Delete groups.
-        ERMVATToolHelper.DeleteGroups;
+        ERMVATToolHelper.DeleteGroups();
     end;
 
     local procedure VATToolServiceLnPartSh(FieldOption: Option; AutoInsertDefault: Boolean; MultipleLines: Boolean)
@@ -879,7 +879,7 @@ codeunit 134053 "ERM VAT Tool - Serv. Doc"
         SetupToolService(FieldOption, true, false);
 
         // Excercise: Run VAT Rate Change Tool.
-        ERMVATToolHelper.RunVATRateChangeTool;
+        ERMVATToolHelper.RunVATRateChangeTool();
 
         // Verify: Check if proper data was updated.
         VerifyServiceLnPartShipped(TempRecRef);
@@ -888,7 +888,7 @@ codeunit 134053 "ERM VAT Tool - Serv. Doc"
         ERMVATToolHelper.VerifyDocumentSplitLogEntries(TempRecRef);
 
         // Cleanup: Delete groups.
-        ERMVATToolHelper.DeleteGroups;
+        ERMVATToolHelper.DeleteGroups();
     end;
 
     local procedure VATToolServiceLnPartShInvoiceConsume(FieldOption: Option; Invoice: Boolean; Consume: Boolean)
@@ -914,7 +914,7 @@ codeunit 134053 "ERM VAT Tool - Serv. Doc"
         SetupToolService(FieldOption, true, false);
 
         // Excercise: Run VAT Rate Change Tool.
-        ERMVATToolHelper.RunVATRateChangeTool;
+        ERMVATToolHelper.RunVATRateChangeTool();
 
         // Verify: Check if proper data was updated.
         VerifyServiceLnPartShipped(TempRecRef);
@@ -923,7 +923,7 @@ codeunit 134053 "ERM VAT Tool - Serv. Doc"
         ERMVATToolHelper.VerifyDocumentSplitLogEntries(TempRecRef);
 
         // Cleanup: Delete groups.
-        ERMVATToolHelper.DeleteGroups;
+        ERMVATToolHelper.DeleteGroups();
     end;
 
     local procedure AddDimensionsForServiceLines(ServiceHeader: Record "Service Header")
@@ -993,7 +993,7 @@ codeunit 134053 "ERM VAT Tool - Serv. Doc"
         I: Integer;
     begin
         // Creates Service Invoices, Credit Memos and Quotes (not Orders)
-        LibraryService.CreateServiceHeader(ServiceHeader, DocumentType, ERMVATToolHelper.CreateCustomer);
+        LibraryService.CreateServiceHeader(ServiceHeader, DocumentType, ERMVATToolHelper.CreateCustomer());
         for I := 1 to LineCount do
             CreateServiceLine(ServiceHeader, false);
     end;
@@ -1015,7 +1015,7 @@ codeunit 134053 "ERM VAT Tool - Serv. Doc"
     begin
         ERMVATToolHelper.CreateItem(Item);
         ERMVATToolHelper.CreateInventorySetup(Item."Inventory Posting Group", '');
-        Qty := ERMVATToolHelper.GetQuantity;
+        Qty := ERMVATToolHelper.GetQuantity();
         ERMVATToolHelper.PostItemPurchase(Item, '', Qty);
 
         LibraryService.CreateServiceLine(ServiceLine, ServiceHeader, ServiceLine.Type::Item, Item."No.");
@@ -1035,7 +1035,7 @@ codeunit 134053 "ERM VAT Tool - Serv. Doc"
         ServiceItem: Record "Service Item";
         I: Integer;
     begin
-        LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Order, ERMVATToolHelper.CreateCustomer);
+        LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Order, ERMVATToolHelper.CreateCustomer());
         LibraryService.CreateServiceItem(ServiceItem, ServiceHeader."Customer No.");
         LibraryService.CreateServiceItemLine(ServiceItemLine, ServiceHeader, ServiceItem."No.");
 
@@ -1124,7 +1124,7 @@ codeunit 134053 "ERM VAT Tool - Serv. Doc"
         exit(
           Round(
             ServiceLine."Unit Price" * (100 + VATPostingSetup."VAT %") / (100 + ServiceLine."VAT %"),
-            LibraryERM.GetUnitAmountRoundingPrecision));
+            LibraryERM.GetUnitAmountRoundingPrecision()));
     end;
 
     local procedure ExpectLogEntries(DocumentType: Enum "Service Document Type"): Boolean
@@ -1171,7 +1171,7 @@ codeunit 134053 "ERM VAT Tool - Serv. Doc"
     var
         VATRateChangeSetup: TestPage "VAT Rate Change Setup";
     begin
-        VATRateChangeSetup.OpenEdit;
+        VATRateChangeSetup.OpenEdit();
         VATRateChangeSetup."Ignore Status on Service Docs.".SetValue(State);
         VATRateChangeSetup.Close();
     end;
@@ -1226,11 +1226,11 @@ codeunit 134053 "ERM VAT Tool - Serv. Doc"
     begin
         // Create Item with tracking and purchase it
         ERMVATToolHelper.CreateItemWithTracking(Item, true);
-        Qty := ERMVATToolHelper.GetQuantity;
+        Qty := ERMVATToolHelper.GetQuantity();
         ERMVATToolHelper.PostItemPurchase(Item, '', Qty);
 
         // Create Service Order with Item with tracking
-        LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Order, ERMVATToolHelper.CreateCustomer);
+        LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Order, ERMVATToolHelper.CreateCustomer());
         LibraryService.CreateServiceItem(ServiceItem, ServiceHeader."Customer No.");
         LibraryService.CreateServiceItemLine(ServiceItemLine, ServiceHeader, ServiceItem."No.");
         LibraryService.CreateServiceLine(ServiceLine, ServiceHeader, ServiceLine.Type::Item, Item."No.");
@@ -1305,9 +1305,9 @@ codeunit 134053 "ERM VAT Tool - Serv. Doc"
         repeat
             ERMVATToolHelper.GetReservationEntryService(ReservationEntry, ServiceLine);
             if Tracking then
-                Assert.AreEqual(ServiceLine.Quantity, ReservationEntry.Count, ERMVATToolHelper.GetConversionErrorUpdate)
+                Assert.AreEqual(ServiceLine.Quantity, ReservationEntry.Count, ERMVATToolHelper.GetConversionErrorUpdate())
             else
-                Assert.AreEqual(1, ReservationEntry.Count, ERMVATToolHelper.GetConversionErrorUpdate);
+                Assert.AreEqual(1, ReservationEntry.Count, ERMVATToolHelper.GetConversionErrorUpdate());
 
         until ServiceLine.Next() = 0;
 
@@ -1320,7 +1320,7 @@ codeunit 134053 "ERM VAT Tool - Serv. Doc"
 
         repeat
             ERMVATToolHelper.GetReservationEntryService(ReservationEntry, ServiceLine);
-            Assert.AreEqual(0, ReservationEntry.Count, ERMVATToolHelper.GetConversionErrorUpdate);
+            Assert.AreEqual(0, ReservationEntry.Count, ERMVATToolHelper.GetConversionErrorUpdate());
         until ServiceLine.Next() = 0;
     end;
 
@@ -1344,7 +1344,7 @@ codeunit 134053 "ERM VAT Tool - Serv. Doc"
         ServiceLn.FindSet();
 
         // Compare Number of lines.
-        Assert.AreEqual(TempRecRef.Count, ServiceLn.Count, StrSubstNo(ERMVATToolHelper.GetConversionErrorCount, ServiceLn.GetFilters));
+        Assert.AreEqual(TempRecRef.Count, ServiceLn.Count, StrSubstNo(ERMVATToolHelper.GetConversionErrorCount(), ServiceLn.GetFilters));
 
         TempRecRef.Reset();
         SetTempTableService(TempRecRef, TempServiceLn);
@@ -1410,15 +1410,15 @@ codeunit 134053 "ERM VAT Tool - Serv. Doc"
     [Scope('OnPrem')]
     procedure ItemTrackingPageHandler(var ItemTrackingLines: TestPage "Item Tracking Lines")
     begin
-        ItemTrackingLines."Assign Serial No.".Invoke;
-        ItemTrackingLines.OK.Invoke;
+        ItemTrackingLines."Assign Serial No.".Invoke();
+        ItemTrackingLines.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure QuantityToCreatePageHandler(var EnterQuantityToCreate: TestPage "Enter Quantity to Create")
     begin
-        EnterQuantityToCreate.OK.Invoke;
+        EnterQuantityToCreate.OK().Invoke();
     end;
 }
 

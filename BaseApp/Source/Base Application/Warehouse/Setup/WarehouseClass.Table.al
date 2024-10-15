@@ -4,6 +4,7 @@ table 7304 "Warehouse Class"
 {
     Caption = 'Warehouse Class';
     LookupPageID = "Warehouse Classes";
+    DataClassification = CustomerContent;
 
     fields
     {

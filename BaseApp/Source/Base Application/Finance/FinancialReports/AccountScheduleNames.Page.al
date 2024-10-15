@@ -152,9 +152,6 @@ page 103 "Account Schedule Names"
 #if not CLEAN22
         area(navigation)
         {
-            ObsoleteReason = 'AccScheduleOverview is now opened from FinancialReports page. Extend that page instead.';
-            ObsoleteState = Pending;
-            ObsoleteTag = '22.0';
             action(Overview)
             {
                 ApplicationArea = Basic, Suite;
@@ -177,9 +174,6 @@ page 103 "Account Schedule Names"
         }
         area(reporting)
         {
-            ObsoleteReason = 'AccScheduleName is no longer printable directly as they are only row definitions, print instead related Financial Report by calling directly the Account Schedule Report with SetFinancialReportName or SetFinancialReportNameNonEditable.';
-            ObsoleteState = Pending;
-            ObsoleteTag = '22.0';
             action(Print)
             {
                 ApplicationArea = Basic, Suite;

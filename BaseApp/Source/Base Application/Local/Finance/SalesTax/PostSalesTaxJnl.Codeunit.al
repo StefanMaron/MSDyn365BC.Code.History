@@ -32,39 +32,37 @@ codeunit 10100 "Post Sales Tax Jnl"
 
     procedure "Code"()
     begin
-        with GenJnlLine do begin
-            GenJnlTemplate.Get("Journal Template Name");
-            GenJnlTemplate.TestField("Force Posting Report", false);
-            if GenJnlTemplate.Recurring and (GetFilter("Posting Date") <> '') then
-                FieldError("Posting Date", Text000);
+        GenJnlTemplate.Get(GenJnlLine."Journal Template Name");
+        GenJnlTemplate.TestField("Force Posting Report", false);
+        if GenJnlTemplate.Recurring and (GenJnlLine.GetFilter("Posting Date") <> '') then
+            GenJnlLine.FieldError("Posting Date", Text000);
 
-            if not Confirm(Text001, false) then
-                exit;
+        if not Confirm(Text001, false) then
+            exit;
 
-            TempJnlBatchName := "Journal Batch Name";
+        TempJnlBatchName := GenJnlLine."Journal Batch Name";
 
-            ManageSalesTaxJournal.PostToVAT(GenJnlLine);
-            ManageSalesTaxJournal.CreateGenJnlLines(GenJnlLine);
-            GenJnlPostBatch.Run(GenJnlLine);
+        ManageSalesTaxJournal.PostToVAT(GenJnlLine);
+        ManageSalesTaxJournal.CreateGenJnlLines(GenJnlLine);
+        GenJnlPostBatch.Run(GenJnlLine);
 
-            if "Line No." = 0 then
-                Message(JournalErrorsMgt.GetNothingToPostErrorMsg())
+        if GenJnlLine."Line No." = 0 then
+            Message(JournalErrorsMgt.GetNothingToPostErrorMsg())
+        else
+            if TempJnlBatchName = GenJnlLine."Journal Batch Name" then
+                Message(Text003)
             else
-                if TempJnlBatchName = "Journal Batch Name" then
-                    Message(Text003)
-                else
-                    Message(
-                      Text004,
-                      "Journal Batch Name");
+                Message(
+                  Text004,
+                  GenJnlLine."Journal Batch Name");
 
-            if not Find('=><') or (TempJnlBatchName <> "Journal Batch Name") then begin
-                Reset();
-                FilterGroup(2);
-                SetRange("Journal Template Name", "Journal Template Name");
-                SetRange("Journal Batch Name", "Journal Batch Name");
-                FilterGroup(0);
-                "Line No." := 1;
-            end;
+        if not GenJnlLine.Find('=><') or (TempJnlBatchName <> GenJnlLine."Journal Batch Name") then begin
+            GenJnlLine.Reset();
+            GenJnlLine.FilterGroup(2);
+            GenJnlLine.SetRange("Journal Template Name", GenJnlLine."Journal Template Name");
+            GenJnlLine.SetRange("Journal Batch Name", GenJnlLine."Journal Batch Name");
+            GenJnlLine.FilterGroup(0);
+            GenJnlLine."Line No." := 1;
         end;
     end;
 }

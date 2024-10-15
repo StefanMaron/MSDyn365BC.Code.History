@@ -578,13 +578,18 @@ page 138 "Posted Purchase Invoice"
                         Editable = false;
                         ToolTip = 'Specifies the name of the person you should contact at the vendor who you received the invoice from.';
                     }
+#if not CLEAN25
                     field("IRS 1099 Code"; Rec."IRS 1099 Code")
                     {
                         ApplicationArea = BasicUS;
                         Editable = false;
                         Importance = Additional;
                         ToolTip = 'Specifies the Internal Revenue Service (IRS) 1099 code for the purchase invoice header.';
+                        ObsoleteReason = 'Moved to IRS Forms App.';
+                        ObsoleteState = Pending;
+                        ObsoleteTag = '25.0';
                     }
+#endif
                 }
                 group("Remit-to")
                 {
@@ -694,7 +699,7 @@ page 138 "Posted Purchase Invoice"
             {
                 ApplicationArea = Basic, Suite;
                 ShowFilter = false;
-                Visible = NOT IsOfficeAddin;
+                Visible = not IsOfficeAddin;
             }
             systempart(Control1900383207; Links)
             {
@@ -783,7 +788,7 @@ page 138 "Posted Purchase Invoice"
                 Ellipsis = true;
                 Image = Print;
                 ToolTip = 'Prepare to print the document. A report request window for the document opens where you can specify what to include on the print-out.';
-                Visible = NOT IsOfficeAddin;
+                Visible = not IsOfficeAddin;
 
                 trigger OnAction()
                 begin
@@ -896,7 +901,7 @@ page 138 "Posted Purchase Invoice"
                     Image = Navigate;
                     ShortCutKey = 'Ctrl+Alt+Q';
                     ToolTip = 'Find entries and documents that exist for the document number and posting date on the selected document. (Formerly this action was named Navigate.)';
-                    Visible = NOT IsOfficeAddin;
+                    Visible = not IsOfficeAddin;
 
                     trigger OnAction()
                     begin
@@ -959,7 +964,7 @@ page 138 "Posted Purchase Invoice"
                     AccessByPermission = TableData "Incoming Document" = R;
                     ApplicationArea = Basic, Suite;
                     Caption = 'Select Incoming Document';
-                    Enabled = NOT HasIncomingDocument;
+                    Enabled = not HasIncomingDocument;
                     Image = SelectLineToApply;
                     ToolTip = 'Select an incoming document record and file attachment that you want to link to the entry or document.';
 
@@ -975,7 +980,7 @@ page 138 "Posted Purchase Invoice"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Create Incoming Document from File';
                     Ellipsis = true;
-                    Enabled = NOT HasIncomingDocument;
+                    Enabled = not HasIncomingDocument;
                     Image = Attach;
                     ToolTip = 'Create an incoming document record by selecting a file to attach, and then link the incoming document record to the entry or document.';
 
@@ -1062,15 +1067,6 @@ page 138 "Posted Purchase Invoice"
                 actionref(Approvals_Promoted; Approvals)
                 {
                 }
-#if not CLEAN21
-                actionref("&Navigate_Promoted"; "&Navigate")
-                {
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Action is being demoted based on overall low usage.';
-                    ObsoleteTag = '21.0';
-                }
-#endif
                 actionref("Co&mments_Promoted"; "Co&mments")
                 {
                 }

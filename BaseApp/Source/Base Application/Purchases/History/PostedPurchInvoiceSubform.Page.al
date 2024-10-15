@@ -214,12 +214,12 @@ page 139 "Posted Purch. Invoice Subform"
                 field("Job No."; Rec."Job No.")
                 {
                     ApplicationArea = Jobs;
-                    ToolTip = 'Specifies the number of the related job.';
+                    ToolTip = 'Specifies the number of the related project.';
                 }
                 field("Job Task No."; Rec."Job Task No.")
                 {
                     ApplicationArea = Jobs;
-                    ToolTip = 'Specifies the number of the related job task.';
+                    ToolTip = 'Specifies the number of the related project task.';
                     Visible = false;
                 }
                 field("Insurance No."; Rec."Insurance No.")
@@ -418,7 +418,7 @@ page 139 "Posted Purch. Invoice Subform"
                         Caption = 'Total Amount Incl. VAT';
                         Editable = false;
                         Style = Strong;
-                        StyleExpr = TRUE;
+                        StyleExpr = true;
                         ToolTip = 'Specifies the sum of the value in the Line Amount Incl. VAT field on all lines in the document minus any discount amount in the Invoice Discount Amount field.';
                     }
                 }
@@ -577,12 +577,12 @@ page 139 "Posted Purch. Invoice Subform"
 
     procedure ShowDocumentLineTracking()
     var
-        DocumentLineTracking: Page "Document Line Tracking";
+        DocumentLineTrackingPage: Page "Document Line Tracking";
     begin
-        Clear(DocumentLineTracking);
-        DocumentLineTracking.SetDoc(
-          7, Rec."Document No.", Rec."Line No.", Rec."Blanket Order No.", Rec."Blanket Order Line No.", Rec."Order No.", Rec."Order Line No.");
-        DocumentLineTracking.RunModal();
+        Clear(DocumentLineTrackingPage);
+        DocumentLineTrackingPage.SetSourceDoc(
+            "Document Line Source Type"::"Purchase Invoice", Rec."Document No.", Rec."Line No.", Rec."Blanket Order No.", Rec."Blanket Order Line No.", Rec."Order No.", Rec."Order Line No.");
+        DocumentLineTrackingPage.RunModal();
     end;
 
     local procedure SetDimensionsVisibility()

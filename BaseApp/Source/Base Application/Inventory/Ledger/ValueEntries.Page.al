@@ -21,7 +21,7 @@ page 5802 "Value Entries"
     PageType = List;
     SourceTable = "Value Entry";
     SourceTableView = sorting("Entry No.")
-                      order(Descending);
+                      order(descending);
     UsageCategory = History;
 
     layout
@@ -318,19 +318,19 @@ page 5802 "Value Entries"
                 field("Job No."; Rec."Job No.")
                 {
                     ApplicationArea = Jobs;
-                    ToolTip = 'Specifies the number of the job that the value entry relates to.';
+                    ToolTip = 'Specifies the number of the project that the value entry relates to.';
                     Visible = false;
                 }
                 field("Job Task No."; Rec."Job Task No.")
                 {
                     ApplicationArea = Jobs;
-                    ToolTip = 'Specifies the number of the related job task.';
+                    ToolTip = 'Specifies the number of the related project task.';
                     Visible = false;
                 }
                 field("Job Ledger Entry No."; Rec."Job Ledger Entry No.")
                 {
                     ApplicationArea = Jobs;
-                    ToolTip = 'Specifies the number of the job ledger entry that the value entry relates to.';
+                    ToolTip = 'Specifies the number of the project ledger entry that the value entry relates to.';
                     Visible = false;
                 }
                 field("Dimension Set ID"; Rec."Dimension Set ID")

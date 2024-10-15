@@ -285,25 +285,23 @@ page 10044 "Sales Credit Memo Stats."
             BreakdownTitle := Text006
         else
             BreakdownTitle := Text007;
-        with TempSalesTaxAmtLine do begin
-            Reset();
-            SetCurrentKey("Print Order", "Tax Area Code for Key", "Tax Jurisdiction Code");
-            if Find('-') then
-                repeat
-                    if ("Print Order" = 0) or
-                       ("Print Order" <> PrevPrintOrder) or
-                       ("Tax %" <> PrevTaxPercent)
-                    then begin
-                        BrkIdx := BrkIdx + 1;
-                        if BrkIdx > ArrayLen(BreakdownAmt) then begin
-                            BrkIdx := BrkIdx - 1;
-                            BreakdownLabel[BrkIdx] := Text008;
-                        end else
-                            BreakdownLabel[BrkIdx] := CopyStr(StrSubstNo("Print Description", "Tax %"), 1, MaxStrLen(BreakdownLabel[BrkIdx]));
-                    end;
-                    BreakdownAmt[BrkIdx] := BreakdownAmt[BrkIdx] + "Tax Amount";
-                until Next() = 0;
-        end;
+        TempSalesTaxAmtLine.Reset();
+        TempSalesTaxAmtLine.SetCurrentKey("Print Order", "Tax Area Code for Key", "Tax Jurisdiction Code");
+        if TempSalesTaxAmtLine.Find('-') then
+            repeat
+                if (TempSalesTaxAmtLine."Print Order" = 0) or
+                   (TempSalesTaxAmtLine."Print Order" <> PrevPrintOrder) or
+                   (TempSalesTaxAmtLine."Tax %" <> PrevTaxPercent)
+                then begin
+                    BrkIdx := BrkIdx + 1;
+                    if BrkIdx > ArrayLen(BreakdownAmt) then begin
+                        BrkIdx := BrkIdx - 1;
+                        BreakdownLabel[BrkIdx] := Text008;
+                    end else
+                        BreakdownLabel[BrkIdx] := CopyStr(StrSubstNo(TempSalesTaxAmtLine."Print Description", TempSalesTaxAmtLine."Tax %"), 1, MaxStrLen(BreakdownLabel[BrkIdx]));
+                end;
+                BreakdownAmt[BrkIdx] := BreakdownAmt[BrkIdx] + TempSalesTaxAmtLine."Tax Amount";
+            until TempSalesTaxAmtLine.Next() = 0;
         CurrPage.Subform.PAGE.SetTempTaxAmountLine(TempSalesTaxLine);
         CurrPage.Subform.PAGE.InitGlobals(Rec."Currency Code", false, false, false, false, Rec."VAT Base Discount %");
     end;

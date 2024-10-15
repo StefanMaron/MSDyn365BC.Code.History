@@ -74,91 +74,89 @@ codeunit 1221 "SEPA CT-Fill Export Buffer"
         CreditTransferRegister.CreateNew(MessageID, BankAccount."No.");
         OnFillExportBufferOnAfterCreateNewRegister(CreditTransferRegister, BankExportImportSetup);
 
-        with PaymentExportData do begin
-            Reset();
-            if FindLast() then;
+        PaymentExportData.Reset();
+        if PaymentExportData.FindLast() then;
 
-            TempGenJnlLine.FindSet();
-            repeat
-                Init();
-                "Entry No." += 1;
-                SetPreserveNonLatinCharacters(BankExportImportSetup."Preserve Non-Latin Characters");
-                SetBankAsSenderBank(BankAccount);
-                "Transfer Date" := TempGenJnlLine."Posting Date";
-                "Document No." := TempGenJnlLine."Document No.";
-                "Applies-to Ext. Doc. No." := TempGenJnlLine."Applies-to Ext. Doc. No.";
-                Amount := TempGenJnlLine.Amount;
-                if TempGenJnlLine."Currency Code" = '' then
-                    "Currency Code" := GeneralLedgerSetup."LCY Code"
+        TempGenJnlLine.FindSet();
+        repeat
+            PaymentExportData.Init();
+            PaymentExportData."Entry No." += 1;
+            PaymentExportData.SetPreserveNonLatinCharacters(BankExportImportSetup."Preserve Non-Latin Characters");
+            PaymentExportData.SetBankAsSenderBank(BankAccount);
+            PaymentExportData."Transfer Date" := TempGenJnlLine."Posting Date";
+            PaymentExportData."Document No." := TempGenJnlLine."Document No.";
+            PaymentExportData."Applies-to Ext. Doc. No." := TempGenJnlLine."Applies-to Ext. Doc. No.";
+            PaymentExportData.Amount := TempGenJnlLine.Amount;
+            if TempGenJnlLine."Currency Code" = '' then
+                PaymentExportData."Currency Code" := GeneralLedgerSetup."LCY Code"
+            else
+                PaymentExportData."Currency Code" := TempGenJnlLine."Currency Code";
+
+            case TempGenJnlLine."Account Type" of
+                TempGenJnlLine."Account Type"::Customer:
+                    begin
+                        Customer.Get(TempGenJnlLine."Account No.");
+                        CustomerBankAccount.Get(Customer."No.", TempGenJnlLine."Recipient Bank Account");
+                        PaymentExportData.SetCustomerAsRecipient(Customer, CustomerBankAccount);
+                        OnFillExportBufferOnAfterSetCustomerAsRecipient(PaymentExportData, TempGenJnlLine, Customer, CustomerBankAccount);
+                    end;
+                TempGenJnlLine."Account Type"::Vendor:
+                    begin
+                        Vendor.Get(TempGenJnlLine."Account No.");
+                        VendorBankAccount.Get(Vendor."No.", TempGenJnlLine."Recipient Bank Account");
+                        PaymentExportData.SetVendorAsRecipient(Vendor, VendorBankAccount);
+                        OnFillExportBufferOnAfterSetVendorAsRecipient(PaymentExportData, TempGenJnlLine, Vendor, VendorBankAccount);
+                    end;
+                TempGenJnlLine."Account Type"::Employee:
+                    begin
+                        Employee.Get(TempGenJnlLine."Account No.");
+                        PaymentExportData.SetEmployeeAsRecipient(Employee);
+                    end;
                 else
-                    "Currency Code" := TempGenJnlLine."Currency Code";
+                    OnFillExportBufferOnSetAsRecipient(GenJnlLine, PaymentExportData, TempGenJnlLine, CreditTransferRegister);
+            end;
 
-                case TempGenJnlLine."Account Type" of
-                    TempGenJnlLine."Account Type"::Customer:
-                        begin
-                            Customer.Get(TempGenJnlLine."Account No.");
-                            CustomerBankAccount.Get(Customer."No.", TempGenJnlLine."Recipient Bank Account");
-                            SetCustomerAsRecipient(Customer, CustomerBankAccount);
-                            OnFillExportBufferOnAfterSetCustomerAsRecipient(PaymentExportData, TempGenJnlLine, Customer, CustomerBankAccount);
-                        end;
-                    TempGenJnlLine."Account Type"::Vendor:
-                        begin
-                            Vendor.Get(TempGenJnlLine."Account No.");
-                            VendorBankAccount.Get(Vendor."No.", TempGenJnlLine."Recipient Bank Account");
-                            SetVendorAsRecipient(Vendor, VendorBankAccount);
-                            OnFillExportBufferOnAfterSetVendorAsRecipient(PaymentExportData, TempGenJnlLine, Vendor, VendorBankAccount);
-                        end;
-                    TempGenJnlLine."Account Type"::Employee:
-                        begin
-                            Employee.Get(TempGenJnlLine."Account No.");
-                            SetEmployeeAsRecipient(Employee);
-                        end;
-                    else
-                        OnFillExportBufferOnSetAsRecipient(GenJnlLine, PaymentExportData, TempGenJnlLine, CreditTransferRegister);
-                end;
+            PaymentExportData.Validate(PaymentExportData."SEPA Instruction Priority", PaymentExportData."SEPA Instruction Priority"::NORMAL);
+            PaymentExportData.Validate(PaymentExportData."SEPA Payment Method", PaymentExportData."SEPA Payment Method"::TRF);
+            PaymentExportData.Validate(PaymentExportData."SEPA Charge Bearer", PaymentExportData."SEPA Charge Bearer"::SLEV);
+            PaymentExportData."SEPA Batch Booking" := false;
+            PaymentExportData.SetCreditTransferIDs(MessageID);
 
-                Validate("SEPA Instruction Priority", "SEPA Instruction Priority"::NORMAL);
-                Validate("SEPA Payment Method", "SEPA Payment Method"::TRF);
-                Validate("SEPA Charge Bearer", "SEPA Charge Bearer"::SLEV);
-                "SEPA Batch Booking" := false;
-                SetCreditTransferIDs(MessageID);
+            if PaymentExportData."Applies-to Ext. Doc. No." <> '' then
+                PaymentExportData.AddRemittanceText(StrSubstNo(RemitMsg, TempGenJnlLine."Applies-to Doc. Type", PaymentExportData."Applies-to Ext. Doc. No."))
+            else
+                PaymentExportData.AddRemittanceText(TempGenJnlLine.Description);
+            if TempGenJnlLine."Message to Recipient" <> '' then
+                PaymentExportData.AddRemittanceText(TempGenJnlLine."Message to Recipient");
 
-                if "Applies-to Ext. Doc. No." <> '' then
-                    AddRemittanceText(StrSubstNo(RemitMsg, TempGenJnlLine."Applies-to Doc. Type", "Applies-to Ext. Doc. No."))
-                else
-                    AddRemittanceText(TempGenJnlLine.Description);
-                if TempGenJnlLine."Message to Recipient" <> '' then
-                    AddRemittanceText(TempGenJnlLine."Message to Recipient");
-
-                ValidatePaymentExportData(PaymentExportData, TempGenJnlLine);
-                OnFillExportBufferOnBeforeInsertPaymentExportData(PaymentExportData, TempGenJnlLine);
-                Insert(true);
-                OnFillExportBufferOnAfterInsertPaymentExportData(PaymentExportData, TempGenJnlLine, BankExportImportSetup);
-                TempInteger.DeleteAll();
-                GetAppliesToDocEntryNumbers(TempGenJnlLine, TempInteger);
-                if TempInteger.FindSet() then
-                    repeat
-                        CreateNewCreditTransferEntry(
-                            PaymentExportData, CreditTransferEntry, CreditTransferRegister, TempGenJnlLine, 0, TempInteger.Number);
-                    until TempInteger.Next() = 0
-                else
+            ValidatePaymentExportData(PaymentExportData, TempGenJnlLine);
+            OnFillExportBufferOnBeforeInsertPaymentExportData(PaymentExportData, TempGenJnlLine);
+            PaymentExportData.Insert(true);
+            OnFillExportBufferOnAfterInsertPaymentExportData(PaymentExportData, TempGenJnlLine, BankExportImportSetup);
+            TempInteger.DeleteAll();
+            GetAppliesToDocEntryNumbers(TempGenJnlLine, TempInteger);
+            if TempInteger.FindSet() then
+                repeat
                     CreateNewCreditTransferEntry(
-                        PaymentExportData, CreditTransferEntry, CreditTransferRegister, TempGenJnlLine,
-                        CreditTransferEntry."Entry No." + 1, TempGenJnlLine.GetAppliesToDocEntryNo());
-            until TempGenJnlLine.Next() = 0;
-        end;
+                        PaymentExportData, CreditTransferEntry, CreditTransferRegister, TempGenJnlLine, 0, TempInteger.Number);
+                until TempInteger.Next() = 0
+            else
+                CreateNewCreditTransferEntry(
+                    PaymentExportData, CreditTransferEntry, CreditTransferRegister, TempGenJnlLine,
+                    CreditTransferEntry."Entry No." + 1, TempGenJnlLine.GetAppliesToDocEntryNo());
+        until TempGenJnlLine.Next() = 0;
 
         OnAfterFillExportBuffer(PaymentExportData, BankExportImportSetup);
     end;
 
     local procedure CreateNewCreditTransferEntry(var PaymentExportData: Record "Payment Export Data"; var CreditTransferEntry: Record "Credit Transfer Entry"; CreditTransferRegister: Record "Credit Transfer Register"; var TempGenJnlLine: Record "Gen. Journal Line" temporary; EntryNo: Integer; LedgerEntryNo: Integer)
     begin
-        with PaymentExportData do
-            CreditTransferEntry.CreateNew(
-                CreditTransferRegister."No.", EntryNo,
-                TempGenJnlLine."Account Type", TempGenJnlLine."Account No.", LedgerEntryNo,
-                "Transfer Date", "Currency Code", Amount, CopyStr("End-to-End ID", 1, MaxStrLen("End-to-End ID")),
-                TempGenJnlLine."Recipient Bank Account", TempGenJnlLine."Message to Recipient");
+        CreditTransferEntry.CreateNew(
+            CreditTransferRegister."No.", EntryNo,
+            TempGenJnlLine."Account Type", TempGenJnlLine."Account No.", LedgerEntryNo,
+            PaymentExportData."Transfer Date", PaymentExportData."Currency Code", PaymentExportData.Amount,
+            CopyStr(PaymentExportData."End-to-End ID", 1, MaxStrLen(PaymentExportData."End-to-End ID")),
+            TempGenJnlLine."Recipient Bank Account", TempGenJnlLine."Message to Recipient");
 
         OnAfterCreateNewCreditTransferEntry(PaymentExportData, CreditTransferEntry, TempGenJnlLine);
     end;
@@ -168,14 +166,13 @@ codeunit 1221 "SEPA CT-Fill Export Buffer"
         AccNo: Code[20];
         AccType: Enum "Gen. Journal Account Type";
     begin
-        with GenJournalLine do
-            if "Bal. Account Type" in ["Account Type"::Customer, "Account Type"::Vendor, "Account Type"::Employee] then begin
-                AccType := "Bal. Account Type";
-                AccNo := "Bal. Account No.";
-            end else begin
-                AccType := "Account Type";
-                AccNo := "Account No.";
-            end;
+        if GenJournalLine."Bal. Account Type" in [GenJournalLine."Account Type"::Customer, GenJournalLine."Account Type"::Vendor, GenJournalLine."Account Type"::Employee] then begin
+            AccType := GenJournalLine."Bal. Account Type";
+            AccNo := GenJournalLine."Bal. Account No.";
+        end else begin
+            AccType := GenJournalLine."Account Type";
+            AccNo := GenJournalLine."Account No.";
+        end;
         case AccType of
             GenJournalLine."Account Type"::Customer:
                 GetAppliesToDocCustLedgEntries(GenJournalLine, TempInteger, AccNo);
@@ -192,24 +189,22 @@ codeunit 1221 "SEPA CT-Fill Export Buffer"
     var
         CustLedgEntry: Record "Cust. Ledger Entry";
     begin
-        with CustLedgEntry do begin
-            SetCurrentKey("Customer No.", "Document No.");
-            SetRange("Customer No.", AccNo);
-            SetRange(Open, true);
-            case true of
-                GenJournalLine."Applies-to Doc. No." <> '':
-                    begin
-                        SetRange("Document Type", GenJournalLine."Applies-to Doc. Type");
-                        SetRange("Document No.", GenJournalLine."Applies-to Doc. No.");
-                    end;
-                GenJournalLine."Applies-to ID" <> '':
-                    begin
-                        SetCurrentKey("Customer No.", "Applies-to ID");
-                        SetRange("Applies-to ID", GenJournalLine."Applies-to ID");
-                    end;
-                else
-                    exit;
-            end;
+        CustLedgEntry.SetCurrentKey("Customer No.", CustLedgEntry."Document No.");
+        CustLedgEntry.SetRange("Customer No.", AccNo);
+        CustLedgEntry.SetRange(Open, true);
+        case true of
+            GenJournalLine."Applies-to Doc. No." <> '':
+                begin
+                    CustLedgEntry.SetRange("Document Type", GenJournalLine."Applies-to Doc. Type");
+                    CustLedgEntry.SetRange("Document No.", GenJournalLine."Applies-to Doc. No.");
+                end;
+            GenJournalLine."Applies-to ID" <> '':
+                begin
+                    CustLedgEntry.SetCurrentKey("Customer No.", CustLedgEntry."Applies-to ID");
+                    CustLedgEntry.SetRange("Applies-to ID", GenJournalLine."Applies-to ID");
+                end;
+            else
+                exit;
         end;
         GetEntriesFromSet(TempInteger, CustLedgEntry);
     end;
@@ -218,24 +213,22 @@ codeunit 1221 "SEPA CT-Fill Export Buffer"
     var
         VendLedgEntry: Record "Vendor Ledger Entry";
     begin
-        with VendLedgEntry do begin
-            SetCurrentKey("Vendor No.", "Document No.");
-            SetRange("Vendor No.", AccNo);
-            SetRange(Open, true);
-            case true of
-                GenJournalLine."Applies-to Doc. No." <> '':
-                    begin
-                        SetRange("Document Type", GenJournalLine."Applies-to Doc. Type");
-                        SetRange("Document No.", GenJournalLine."Applies-to Doc. No.");
-                    end;
-                GenJournalLine."Applies-to ID" <> '':
-                    begin
-                        SetCurrentKey("Vendor No.", "Applies-to ID");
-                        SetRange("Applies-to ID", GenJournalLine."Applies-to ID");
-                    end;
-                else
-                    exit;
-            end;
+        VendLedgEntry.SetCurrentKey("Vendor No.", VendLedgEntry."Document No.");
+        VendLedgEntry.SetRange("Vendor No.", AccNo);
+        VendLedgEntry.SetRange(Open, true);
+        case true of
+            GenJournalLine."Applies-to Doc. No." <> '':
+                begin
+                    VendLedgEntry.SetRange("Document Type", GenJournalLine."Applies-to Doc. Type");
+                    VendLedgEntry.SetRange("Document No.", GenJournalLine."Applies-to Doc. No.");
+                end;
+            GenJournalLine."Applies-to ID" <> '':
+                begin
+                    VendLedgEntry.SetCurrentKey("Vendor No.", VendLedgEntry."Applies-to ID");
+                    VendLedgEntry.SetRange("Applies-to ID", GenJournalLine."Applies-to ID");
+                end;
+            else
+                exit;
         end;
         GetEntriesFromSet(TempInteger, VendLedgEntry);
     end;
@@ -244,24 +237,22 @@ codeunit 1221 "SEPA CT-Fill Export Buffer"
     var
         EmplLedgEntry: Record "Employee Ledger Entry";
     begin
-        with EmplLedgEntry do begin
-            SetCurrentKey("Employee No.", "Document No.");
-            SetRange("Employee No.", AccNo);
-            SetRange(Open, true);
-            case true of
-                GenJournalLine."Applies-to Doc. No." <> '':
-                    begin
-                        SetRange("Document Type", GenJournalLine."Applies-to Doc. Type");
-                        SetRange("Document No.", GenJournalLine."Applies-to Doc. No.");
-                    end;
-                GenJournalLine."Applies-to ID" <> '':
-                    begin
-                        SetCurrentKey("Employee No.", "Applies-to ID");
-                        SetRange("Applies-to ID", GenJournalLine."Applies-to ID");
-                    end;
-                else
-                    exit;
-            end;
+        EmplLedgEntry.SetCurrentKey("Employee No.", EmplLedgEntry."Document No.");
+        EmplLedgEntry.SetRange("Employee No.", AccNo);
+        EmplLedgEntry.SetRange(Open, true);
+        case true of
+            GenJournalLine."Applies-to Doc. No." <> '':
+                begin
+                    EmplLedgEntry.SetRange("Document Type", GenJournalLine."Applies-to Doc. Type");
+                    EmplLedgEntry.SetRange("Document No.", GenJournalLine."Applies-to Doc. No.");
+                end;
+            GenJournalLine."Applies-to ID" <> '':
+                begin
+                    EmplLedgEntry.SetCurrentKey("Employee No.", EmplLedgEntry."Applies-to ID");
+                    EmplLedgEntry.SetRange("Applies-to ID", GenJournalLine."Applies-to ID");
+                end;
+            else
+                exit;
         end;
         GetEntriesFromSet(TempInteger, EmplLedgEntry);
     end;
@@ -273,12 +264,11 @@ codeunit 1221 "SEPA CT-Fill Export Buffer"
     begin
         RecordRef.GetTable(RecVariant);
         FieldRef := RecordRef.FieldIndex(1);
-        with RecordRef do
-            if FindSet() then
-                repeat
-                    TempInteger.Number := FieldRef.Value;
-                    TempInteger.Insert();
-                until Next() = 0;
+        if RecordRef.FindSet() then
+            repeat
+                TempInteger.Number := FieldRef.Value();
+                TempInteger.Insert();
+            until RecordRef.Next() = 0;
     end;
 
     local procedure ValidatePaymentExportData(var PaymentExportData: Record "Payment Export Data"; var GenJnlLine: Record "Gen. Journal Line")

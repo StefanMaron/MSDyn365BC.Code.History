@@ -6,7 +6,6 @@ codeunit 131021 "Library - Azure KV Mock Mgmt."
     end;
 
     var
-        AzureKeyVault: Codeunit "Azure Key Vault";
         AzureKeyVaultTestLibrary: Codeunit "Azure Key Vault Test Library";
         MockAzureKeyvaultSecretProvider: DotNet MockAzureKeyVaultSecretProvider;
 
@@ -14,7 +13,7 @@ codeunit 131021 "Library - Azure KV Mock Mgmt."
     procedure InitMockAzureKeyvaultSecretProvider()
     begin
         MockAzureKeyvaultSecretProvider :=
-          MockAzureKeyvaultSecretProvider.MockAzureKeyVaultSecretProvider;
+          MockAzureKeyvaultSecretProvider.MockAzureKeyVaultSecretProvider();
     end;
 
     [Scope('OnPrem')]

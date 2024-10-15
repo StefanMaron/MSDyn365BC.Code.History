@@ -114,8 +114,8 @@ codeunit 817 "Service Post Invoice" implements "Invoice Posting"
                         if not GenPostingSetup.Get(ServiceLine."Gen. Bus. Posting Group", ServiceLine."Gen. Prod. Posting Group") then
                             if ServiceLine."Gen. Prod. Posting Group" = '' then
                                 Error(GenProdPostingGroupErr,
-                                  ServiceLine.FieldName("Gen. Prod. Posting Group"),
-                                  ServiceLine.FieldName("Line No."),
+                                  ServiceLine.FieldCaption("Gen. Prod. Posting Group"),
+                                  ServiceLine.FieldCaption("Line No."),
                                   ServiceLine."Line No.")
                             else
                                 GenPostingSetup.Get(ServiceLine."Gen. Bus. Posting Group", ServiceLine."Gen. Prod. Posting Group");
@@ -176,6 +176,7 @@ codeunit 817 "Service Post Invoice" implements "Invoice Posting"
                 InvoicePostingBuffer.UpdateVATBase(TotalVATBase, TotalVATBaseACY);
                 if InvoicePostingParameters."Tax Type" = InvoicePostingParameters."Tax Type"::"Sales Tax" then
                     InvoicePostingBuffer.ClearVATFields();
+                ServicePostInvoiceEvents.RunOnPrepareLineOnBeforeUpdateInvoicePostingBufferLineDiscounts(InvoicePostingBuffer, ServiceLine);
                 UpdateInvoicePostingBuffer(InvoicePostingBuffer, ServiceLine);
             end;
         end;
@@ -303,22 +304,20 @@ codeunit 817 "Service Post Invoice" implements "Invoice Posting"
 
     local procedure PrepareGenJnlLineFromInvoicePostBuffer(ServiceHeader: Record "Service Header"; var InvoicePostingBuffer: Record "Invoice Posting Buffer"; var GenJnlLine: Record "Gen. Journal Line")
     begin
-        with GenJnlLine do begin
-            InitNewLine(
-              ServiceHeader."Posting Date", ServiceHeader."Document Date", ServiceHeader."VAT Reporting Date", InvoicePostingBuffer."Entry Description",
-              InvoicePostingBuffer."Global Dimension 1 Code", InvoicePostingBuffer."Global Dimension 2 Code",
-              InvoicePostingBuffer."Dimension Set ID", ServiceHeader."Reason Code");
+        GenJnlLine.InitNewLine(
+            ServiceHeader."Posting Date", ServiceHeader."Document Date", ServiceHeader."VAT Reporting Date", InvoicePostingBuffer."Entry Description",
+            InvoicePostingBuffer."Global Dimension 1 Code", InvoicePostingBuffer."Global Dimension 2 Code",
+            InvoicePostingBuffer."Dimension Set ID", ServiceHeader."Reason Code");
 
-            CopyDocumentFields(
-                InvoicePostingParameters."Document Type", InvoicePostingParameters."Document No.",
-                InvoicePostingParameters."External Document No.", InvoicePostingParameters."Source Code", '');
+        GenJnlLine.CopyDocumentFields(
+            InvoicePostingParameters."Document Type", InvoicePostingParameters."Document No.",
+            InvoicePostingParameters."External Document No.", InvoicePostingParameters."Source Code", '');
 
-            CopyFromServiceHeader(ServiceHeader);
+        GenJnlLine.CopyFromServiceHeader(ServiceHeader);
 
-            InvoicePostingBuffer.CopyToGenJnlLine(GenJnlLine);
-            "Gen. Posting Type" := "Gen. Posting Type"::Sale;
-            ServicePostInvoiceEvents.RunOnAfterPrepareGenJnlLineFromInvoicePostBuffer(ServiceHeader, InvoicePostingBuffer, GenJnlLine);
-        end;
+        InvoicePostingBuffer.CopyToGenJnlLine(GenJnlLine);
+        GenJnlLine."Gen. Posting Type" := GenJnlLine."Gen. Posting Type"::Sale;
+        ServicePostInvoiceEvents.RunOnAfterPrepareGenJnlLineFromInvoicePostBuffer(ServiceHeader, InvoicePostingBuffer, GenJnlLine);
     end;
 
     procedure CheckCreditLine(SalesHeaderVar: Variant; SalesLineVar: Variant)
@@ -333,42 +332,40 @@ codeunit 817 "Service Post Invoice" implements "Invoice Posting"
     begin
         ServiceHeader := ServiceHeaderVar;
 
-        with GenJnlLine do begin
-            InitNewLine(
-              ServiceHeader."Posting Date", ServiceHeader."Document Date", ServiceHeader."VAT Reporting Date", ServiceHeader."Posting Description",
-              ServiceHeader."Shortcut Dimension 1 Code", ServiceHeader."Shortcut Dimension 2 Code",
-              ServiceHeader."Dimension Set ID", ServiceHeader."Reason Code");
+        GenJnlLine.InitNewLine(
+            ServiceHeader."Posting Date", ServiceHeader."Document Date", ServiceHeader."VAT Reporting Date", ServiceHeader."Posting Description",
+            ServiceHeader."Shortcut Dimension 1 Code", ServiceHeader."Shortcut Dimension 2 Code",
+            ServiceHeader."Dimension Set ID", ServiceHeader."Reason Code");
 
-            CopyDocumentFields(
-                InvoicePostingParameters."Document Type", InvoicePostingParameters."Document No.",
-                InvoicePostingParameters."External Document No.", InvoicePostingParameters."Source Code", '');
+        GenJnlLine.CopyDocumentFields(
+            InvoicePostingParameters."Document Type", InvoicePostingParameters."Document No.",
+            InvoicePostingParameters."External Document No.", InvoicePostingParameters."Source Code", '');
 
-            "Account Type" := "Account Type"::Customer;
-            "Account No." := ServiceHeader."Bill-to Customer No.";
-            CopyFromServiceHeader(ServiceHeader);
-            SetCurrencyFactor(ServiceHeader."Currency Code", ServiceHeader."Currency Factor");
+        GenJnlLine."Account Type" := GenJnlLine."Account Type"::Customer;
+        GenJnlLine."Account No." := ServiceHeader."Bill-to Customer No.";
+        GenJnlLine.CopyFromServiceHeader(ServiceHeader);
+        GenJnlLine.SetCurrencyFactor(ServiceHeader."Currency Code", ServiceHeader."Currency Factor");
 
-            CopyFromServiceHeaderApplyTo(ServiceHeader);
-            CopyFromServiceHeaderPayment(ServiceHeader);
+        GenJnlLine.CopyFromServiceHeaderApplyTo(ServiceHeader);
+        GenJnlLine.CopyFromServiceHeaderPayment(ServiceHeader);
 
-            Amount := -TotalServiceLine."Amount Including VAT";
-            "Source Currency Amount" := -TotalServiceLine."Amount Including VAT";
-            "Amount (LCY)" := -TotalServiceLineLCY."Amount Including VAT";
-            "Sales/Purch. (LCY)" := -TotalServiceLineLCY.Amount;
-            "Profit (LCY)" := -(TotalServiceLineLCY.Amount - TotalServiceLineLCY."Unit Cost (LCY)");
-            "Inv. Discount (LCY)" := -TotalServiceLineLCY."Inv. Discount Amount";
-            "System-Created Entry" := true;
-            "Orig. Pmt. Disc. Possible" := -TotalServiceLine."Pmt. Discount Amount";
-            "Orig. Pmt. Disc. Possible(LCY)" :=
-              CurrExchRate.ExchangeAmtFCYToLCY(
-                ServiceHeader."Posting Date", ServiceHeader."Currency Code", -TotalServiceLine."Pmt. Discount Amount", ServiceHeader."Currency Factor");
+        GenJnlLine.Amount := -TotalServiceLine."Amount Including VAT";
+        GenJnlLine."Source Currency Amount" := -TotalServiceLine."Amount Including VAT";
+        GenJnlLine."Amount (LCY)" := -TotalServiceLineLCY."Amount Including VAT";
+        GenJnlLine."Sales/Purch. (LCY)" := -TotalServiceLineLCY.Amount;
+        GenJnlLine."Profit (LCY)" := -(TotalServiceLineLCY.Amount - TotalServiceLineLCY."Unit Cost (LCY)");
+        GenJnlLine."Inv. Discount (LCY)" := -TotalServiceLineLCY."Inv. Discount Amount";
+        GenJnlLine."System-Created Entry" := true;
+        GenJnlLine."Orig. Pmt. Disc. Possible" := -TotalServiceLine."Pmt. Discount Amount";
+        GenJnlLine."Orig. Pmt. Disc. Possible(LCY)" :=
+          CurrExchRate.ExchangeAmtFCYToLCY(
+            ServiceHeader."Posting Date", ServiceHeader."Currency Code", -TotalServiceLine."Pmt. Discount Amount", ServiceHeader."Currency Factor");
 
-            ServicePostInvoiceEvents.RunOnPostLedgerEntryOnBeforeGenJnlPostLine(
-                GenJnlLine, ServiceHeader, TotalServiceLine, TotalServiceLineLCY, PreviewMode, SuppressCommit, GenJnlPostLine);
-            GenJnlPostLine.RunWithCheck(GenJnlLine);
-            ServicePostInvoiceEvents.RunOnPostLedgerEntryOnAfterGenJnlPostLine(
-                GenJnlLine, ServiceHeader, TotalServiceLine, TotalServiceLineLCY, PreviewMode, SuppressCommit, GenJnlPostLine);
-        end;
+        ServicePostInvoiceEvents.RunOnPostLedgerEntryOnBeforeGenJnlPostLine(
+            GenJnlLine, ServiceHeader, TotalServiceLine, TotalServiceLineLCY, PreviewMode, SuppressCommit, GenJnlPostLine);
+        GenJnlPostLine.RunWithCheck(GenJnlLine);
+        ServicePostInvoiceEvents.RunOnPostLedgerEntryOnAfterGenJnlPostLine(
+            GenJnlLine, ServiceHeader, TotalServiceLine, TotalServiceLineLCY, PreviewMode, SuppressCommit, GenJnlPostLine);
     end;
 
     procedure PostBalancingEntry(ServiceHeaderVar: Variant; var GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line")
@@ -385,56 +382,52 @@ codeunit 817 "Service Post Invoice" implements "Invoice Posting"
         if not IsHandled then
             FindCustLedgerEntry(CustLedgerEntry);
 
-        with GenJnlLine do begin
-            InitNewLine(
-              ServiceHeader."Posting Date", ServiceHeader."Document Date", ServiceHeader."VAT Reporting Date", ServiceHeader."Posting Description",
-              ServiceHeader."Shortcut Dimension 1 Code", ServiceHeader."Shortcut Dimension 2 Code",
-              ServiceHeader."Dimension Set ID", ServiceHeader."Reason Code");
+        GenJnlLine.InitNewLine(
+            ServiceHeader."Posting Date", ServiceHeader."Document Date", ServiceHeader."VAT Reporting Date", ServiceHeader."Posting Description",
+            ServiceHeader."Shortcut Dimension 1 Code", ServiceHeader."Shortcut Dimension 2 Code",
+            ServiceHeader."Dimension Set ID", ServiceHeader."Reason Code");
 
-            if ServiceHeader."Document Type" = ServiceHeader."Document Type"::"Credit Memo" then
-                CopyDocumentFields(
-                    "Document Type"::Refund, InvoicePostingParameters."Document No.",
-                    InvoicePostingParameters."External Document No.", InvoicePostingParameters."Source Code", '')
-            else
-                CopyDocumentFields(
-                    "Document Type"::Payment, InvoicePostingParameters."Document No.",
-                    InvoicePostingParameters."External Document No.", InvoicePostingParameters."Source Code", '');
+        if ServiceHeader."Document Type" = ServiceHeader."Document Type"::"Credit Memo" then
+            GenJnlLine.CopyDocumentFields(
+                GenJnlLine."Document Type"::Refund, InvoicePostingParameters."Document No.",
+                InvoicePostingParameters."External Document No.", InvoicePostingParameters."Source Code", '')
+        else
+            GenJnlLine.CopyDocumentFields(
+                GenJnlLine."Document Type"::Payment, InvoicePostingParameters."Document No.",
+                InvoicePostingParameters."External Document No.", InvoicePostingParameters."Source Code", '');
 
-            "Account Type" := "Account Type"::Customer;
-            "Account No." := ServiceHeader."Bill-to Customer No.";
-            CopyFromServiceHeader(ServiceHeader);
-            SetCurrencyFactor(ServiceHeader."Currency Code", ServiceHeader."Currency Factor");
+        GenJnlLine."Account Type" := GenJnlLine."Account Type"::Customer;
+        GenJnlLine."Account No." := ServiceHeader."Bill-to Customer No.";
+        GenJnlLine.CopyFromServiceHeader(ServiceHeader);
+        GenJnlLine.SetCurrencyFactor(ServiceHeader."Currency Code", ServiceHeader."Currency Factor");
 
-            SetApplyToDocNo(ServiceHeader, GenJnlLine);
+        SetApplyToDocNo(ServiceHeader, GenJnlLine);
 
-            Amount := TotalServiceLine."Amount Including VAT" + CustLedgerEntry."Remaining Pmt. Disc. Possible";
-            "Source Currency Amount" := Amount;
-            CustLedgerEntry.CalcFields(Amount);
-            if CustLedgerEntry.Amount = 0 then
-                "Amount (LCY)" := TotalServiceLineLCY."Amount Including VAT"
-            else
-                "Amount (LCY)" :=
-                  TotalServiceLineLCY."Amount Including VAT" +
-                  Round(CustLedgerEntry."Remaining Pmt. Disc. Possible" / CustLedgerEntry."Adjusted Currency Factor");
-            "Allow Zero-Amount Posting" := true;
+        GenJnlLine.Amount := TotalServiceLine."Amount Including VAT" + CustLedgerEntry."Remaining Pmt. Disc. Possible";
+        GenJnlLine."Source Currency Amount" := GenJnlLine.Amount;
+        CustLedgerEntry.CalcFields(Amount);
+        if CustLedgerEntry.Amount = 0 then
+            GenJnlLine."Amount (LCY)" := TotalServiceLineLCY."Amount Including VAT"
+        else
+            GenJnlLine."Amount (LCY)" :=
+              TotalServiceLineLCY."Amount Including VAT" +
+              Round(CustLedgerEntry."Remaining Pmt. Disc. Possible" / CustLedgerEntry."Adjusted Currency Factor");
+        GenJnlLine."Allow Zero-Amount Posting" := true;
 
-            ServicePostInvoiceEvents.RunOnPostBalancingEntryOnBeforeGenJnlPostLine(
-                GenJnlLine, ServiceHeader, TotalServiceLine, TotalServiceLineLCY, PreviewMode, SuppressCommit, GenJnlPostLine);
-            GenJnlPostLine.RunWithCheck(GenJnlLine);
-            ServicePostInvoiceEvents.RunOnPostBalancingEntryOnAfterGenJnlPostLine(
-                GenJnlLine, ServiceHeader, TotalServiceLine, TotalServiceLineLCY, PreviewMode, SuppressCommit, GenJnlPostLine);
-        end;
+        ServicePostInvoiceEvents.RunOnPostBalancingEntryOnBeforeGenJnlPostLine(
+            GenJnlLine, ServiceHeader, TotalServiceLine, TotalServiceLineLCY, PreviewMode, SuppressCommit, GenJnlPostLine);
+        GenJnlPostLine.RunWithCheck(GenJnlLine);
+        ServicePostInvoiceEvents.RunOnPostBalancingEntryOnAfterGenJnlPostLine(
+            GenJnlLine, ServiceHeader, TotalServiceLine, TotalServiceLineLCY, PreviewMode, SuppressCommit, GenJnlPostLine);
     end;
 
     local procedure SetApplyToDocNo(ServiceHeader: Record "Service Header"; var GenJnlLine: Record "Gen. Journal Line")
     begin
-        with GenJnlLine do begin
-            if ServiceHeader."Bal. Account Type" = ServiceHeader."Bal. Account Type"::"Bank Account" then
-                "Bal. Account Type" := "Bal. Account Type"::"Bank Account";
-            "Bal. Account No." := ServiceHeader."Bal. Account No.";
-            "Applies-to Doc. Type" := InvoicePostingParameters."Document Type";
-            "Applies-to Doc. No." := InvoicePostingParameters."Document No.";
-        end;
+        if ServiceHeader."Bal. Account Type" = ServiceHeader."Bal. Account Type"::"Bank Account" then
+            GenJnlLine."Bal. Account Type" := GenJnlLine."Bal. Account Type"::"Bank Account";
+        GenJnlLine."Bal. Account No." := ServiceHeader."Bal. Account No.";
+        GenJnlLine."Applies-to Doc. Type" := InvoicePostingParameters."Document Type";
+        GenJnlLine."Applies-to Doc. No." := InvoicePostingParameters."Document No.";
     end;
 
     local procedure FindCustLedgerEntry(var CustLedgerEntry: Record "Cust. Ledger Entry")

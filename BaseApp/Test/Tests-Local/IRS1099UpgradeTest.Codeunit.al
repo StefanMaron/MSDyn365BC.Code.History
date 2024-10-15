@@ -1,3 +1,4 @@
+#if not CLEAN25
 codeunit 144030 "IRS 1099 Upgrade Test"
 {
     EventSubscriberInstance = Manual;
@@ -10,6 +11,9 @@ codeunit 144030 "IRS 1099 Upgrade Test"
                   TableData "Detailed Vendor Ledg. Entry" = rim;
     Subtype = Test;
     TestPermissions = NonRestrictive;
+    ObsoleteReason = 'Moved to IRS Forms App.';
+    ObsoleteState = Pending;
+    ObsoleteTag = '25.0';
 
     trigger OnRun()
     begin
@@ -62,7 +66,7 @@ codeunit 144030 "IRS 1099 Upgrade Test"
         // [SCENARIO 283821] Make sure that upgrade is needed if IRS 1099 code "DIV-07" does not exists
 
         Initialize();
-        Assert.IsTrue(IRS1099Management.UpgradeNeeded, 'Upgrade not needed');
+        Assert.IsTrue(IRS1099Management.UpgradeNeeded(), 'Upgrade not needed');
     end;
 
     [Test]
@@ -152,20 +156,20 @@ codeunit 144030 "IRS 1099 Upgrade Test"
         // [SCENARIO 412412] Notification of upgrade February 2020 thrown on opening IRS 1099 Form Box Page if code IRS 1099 code "NEC-01" does not exist
 
         Initialize();
-        IRSCode := GetIRS1099UpgradeCode2019;
+        IRSCode := GetIRS1099UpgradeCode2019();
         InsertIRS1099Code(IRSCode);
-        IRSCode := GetIRS1099UpgradeCode2020;
+        IRSCode := GetIRS1099UpgradeCode2020();
         InsertIRS1099Code(IRSCode);
-        IRSCode := GetIRS1099UpgradeCode2020February;
+        IRSCode := GetIRS1099UpgradeCode2020February();
         InsertIRS1099Code(IRSCode);
 
         LibraryVariableStorage.Enqueue(Upgrade2021Lbl);
-        IRS1099FormBoxPage.OpenView;
+        IRS1099FormBoxPage.OpenView();
         IRS1099FormBoxPage.FILTER.SetFilter(Code, IRSCode);
         IRS1099FormBoxPage.Code.AssertEquals(IRSCode);
-        RemoveIRS1099UpgradeCodeYear2019;
+        RemoveIRS1099UpgradeCodeYear2019();
         NotificationLifecycleMgt.RecallAllNotifications();
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -266,12 +270,12 @@ codeunit 144030 "IRS 1099 Upgrade Test"
         LibraryVariableStorage.Enqueue(UpgradeFormBoxesScheduledMsg);
 
         // [WHEN] Upgrade form boxes
-        IRS1099Management.UpgradeFormBoxes;
+        IRS1099Management.UpgradeFormBoxes();
 
         // [THEN] Job Queue Entry created and opened in Job Queue Entry Card
         // Verify by JobQueueEntryCardPageHandler
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
         UnbindSubscription(IRS1099UpgradeTest);
     end;
 
@@ -293,16 +297,16 @@ codeunit 144030 "IRS 1099 Upgrade Test"
         LibraryVariableStorage.Enqueue(FormBoxesUpgradedMsg);
 
         // [WHEN] Upgrade form boxes
-        IRS1099Management.UpgradeFormBoxes;
+        IRS1099Management.UpgradeFormBoxes();
 
         // [THEN] Confirmation about upgrade raised
         // Verify by ConfirmationHandler
         // [THEN] Upgrade performed and new code is added
-        Assert.IsFalse(IRS1099Management.UpgradeNeeded, 'Upgrade was not performed');
+        Assert.IsFalse(IRS1099Management.UpgradeNeeded(), 'Upgrade was not performed');
 
         // [THEN] Message about successfull upgrade shown
         // Verify by MessageHandler
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
 
         // Tear down
         RemoveIRS1099UpgradeCodeYear2019();
@@ -384,7 +388,7 @@ codeunit 144030 "IRS 1099 Upgrade Test"
         GenJournalLineBalAccount.Find();
         GenJournalLineBalAccount.TestField("IRS 1099 Code", Vendor."IRS 1099 Code");
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -439,19 +443,19 @@ codeunit 144030 "IRS 1099 Upgrade Test"
 
         // [GIVEN] Payment applied to invoice with "IRS 1099 Code" = "DIV-05" and "IRS Amount" = 100
         LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID());
-        LibraryVariableStorage.Enqueue(LibraryReportValidation.GetFileName);
+        LibraryVariableStorage.Enqueue(LibraryReportValidation.GetFileName());
         MockAppliedPmtEntry(DetailedVendorLedgEntry);
         Vendor.SetRange("No.", DetailedVendorLedgEntry."Vendor No.");
         Vendor1099Div.SetTableView(Vendor);
         Vendor1099Div.Run();
 
         // [WHEN] Print "Vendor 1099 Div" report
-        LibraryReportValidation.OpenFile;
+        LibraryReportValidation.OpenFile();
 
         // [THEN] Amount = 100 printed for "DIV-05" code
         LibraryReportValidation.VerifyCellValueOnWorksheet(15, 4, Format(-DetailedVendorLedgEntry.Amount), '1');
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     // [Test]
@@ -474,19 +478,19 @@ codeunit 144030 "IRS 1099 Upgrade Test"
 
         // [GIVEN] Payment applied to invoice with "IRS 1099 Code" = "DIV-05" and "IRS Amount" = 100
         LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID());
-        LibraryVariableStorage.Enqueue(LibraryReportValidation.GetFileName);
+        LibraryVariableStorage.Enqueue(LibraryReportValidation.GetFileName());
         MockAppliedPmtEntry(DetailedVendorLedgEntry);
         Vendor.SetRange("No.", DetailedVendorLedgEntry."Vendor No.");
         Vendor1099Div.SetTableView(Vendor);
         Vendor1099Div.Run();
 
         // [WHEN] Print "Vendor 1099 Div" report
-        LibraryReportValidation.OpenFile;
+        LibraryReportValidation.OpenFile();
 
         // [THEN] Amount = 100 printed for "DIV-05" code
         LibraryReportValidation.VerifyCellValueOnWorksheet(15, 4, Format(-DetailedVendorLedgEntry.Amount), '1');
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -616,12 +620,12 @@ codeunit 144030 "IRS 1099 Upgrade Test"
         // [SCENARIO 412412] A "Vendor 1099 Misc 2022" report shown from the Vendor List page when "MISC-11" code exists in the database
 
         Initialize();
-        InsertIRS1099Code(GetIRS1099UpgradeCode2020);
-        InsertIRS1099Code(GetIRS1099UpgradeCode2020February);
-        InsertIRS1099Code(GetIRS1099UpgradeCode2021);
-        Commit;
-        VendorList.OpenEdit;
-        VendorList."Vendor 1099 Misc".Invoke;
+        InsertIRS1099Code(GetIRS1099UpgradeCode2020());
+        InsertIRS1099Code(GetIRS1099UpgradeCode2020February());
+        InsertIRS1099Code(GetIRS1099UpgradeCode2021());
+        Commit();
+        VendorList.OpenEdit();
+        VendorList."Vendor 1099 Misc".Invoke();
     end;
 
     [Test]
@@ -635,12 +639,12 @@ codeunit 144030 "IRS 1099 Upgrade Test"
         // [SCENARIO 412412] A "Vendor 1099 Misc 2019" 2021 shown from the IRS-100 Form Box page when "MISC-11" code exists in the database
 
         Initialize();
-        InsertIRS1099Code(GetIRS1099UpgradeCode2020);
-        InsertIRS1099Code(GetIRS1099UpgradeCode2020February);
-        InsertIRS1099Code(GetIRS1099UpgradeCode2021);
-        Commit;
-        IRS1099FormBox.OpenEdit;
-        IRS1099FormBox."Vendor 1099 Misc".Invoke;
+        InsertIRS1099Code(GetIRS1099UpgradeCode2020());
+        InsertIRS1099Code(GetIRS1099UpgradeCode2020February());
+        InsertIRS1099Code(GetIRS1099UpgradeCode2021());
+        Commit();
+        IRS1099FormBox.OpenEdit();
+        IRS1099FormBox."Vendor 1099 Misc".Invoke();
     end;
 
     [Test]
@@ -924,7 +928,7 @@ codeunit 144030 "IRS 1099 Upgrade Test"
     var
         IRS1099FormBox: Record "IRS 1099 Form-Box";
     begin
-        IRS1099FormBox.SetRange(Code, GetIRS1099UpgradeCode2022);
+        IRS1099FormBox.SetRange(Code, GetIRS1099UpgradeCode2022());
         IRS1099FormBox.DeleteAll();
     end;
 
@@ -979,7 +983,7 @@ codeunit 144030 "IRS 1099 Upgrade Test"
     var
         VendorLedgerEntry: Record "Vendor Ledger Entry";
     begin
-        MockVendLedgEntry(VendorLedgerEntry, LibraryPurchase.CreateVendorNo, VendorLedgerEntry."Document Type"::Payment);
+        MockVendLedgEntry(VendorLedgerEntry, LibraryPurchase.CreateVendorNo(), VendorLedgerEntry."Document Type"::Payment);
         MockApplnDtldVendLedgerEntry(
           DetailedVendorLedgEntry, VendorLedgerEntry, LibraryRandom.RandInt(100), LibraryRandom.RandInt(100));
 
@@ -989,7 +993,7 @@ codeunit 144030 "IRS 1099 Upgrade Test"
           DetailedVendorLedgEntry."Transaction No.", DetailedVendorLedgEntry."Application No.");
     end;
 
-    local procedure MockVendLedgEntry(var VendorLedgerEntry: Record "Vendor Ledger Entry"; VendNo: Code[20]; DocType: Option)
+    local procedure MockVendLedgEntry(var VendorLedgerEntry: Record "Vendor Ledger Entry"; VendNo: Code[20]; DocType: Enum "Gen. Journal Document Type")
     begin
         VendorLedgerEntry.Init();
         VendorLedgerEntry."Entry No." := LibraryUtility.GetNewRecNo(VendorLedgerEntry, VendorLedgerEntry.FieldNo("Entry No."));
@@ -1046,7 +1050,7 @@ codeunit 144030 "IRS 1099 Upgrade Test"
     [Scope('OnPrem')]
     procedure MessageHandler(Text: Text)
     begin
-        Assert.ExpectedMessage(LibraryVariableStorage.DequeueText, Text);
+        Assert.ExpectedMessage(LibraryVariableStorage.DequeueText(), Text);
     end;
 
     [SendNotificationHandler]
@@ -1067,7 +1071,7 @@ codeunit 144030 "IRS 1099 Upgrade Test"
     [Scope('OnPrem')]
     procedure ConfirmHandler(Question: Text; var Reply: Boolean)
     begin
-        Assert.ExpectedMessage(LibraryVariableStorage.DequeueText, Question);
+        Assert.ExpectedMessage(LibraryVariableStorage.DequeueText(), Question);
         Reply := true;
     end;
 
@@ -1075,56 +1079,56 @@ codeunit 144030 "IRS 1099 Upgrade Test"
     [Scope('OnPrem')]
     procedure Vendor1099DivRequestPageHandler(var Vendor1099Div: TestRequestPage "Vendor 1099 Div")
     begin
-        Vendor1099Div.SaveAsExcel(LibraryVariableStorage.DequeueText);
+        Vendor1099Div.SaveAsExcel(LibraryVariableStorage.DequeueText());
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure Vendor1099Misc2019RequestPageHandler(var Vendor1099Misc: TestRequestPage "Vendor 1099 Misc")
     begin
-        Vendor1099Misc.Cancel.Invoke();
+        Vendor1099Misc.Cancel().Invoke();
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure Vendor1099Misc2020RequestPageHandler(var Vendor1099Misc2020: TestRequestPage "Vendor 1099 Misc 2020")
     begin
-        Vendor1099Misc2020.Cancel.Invoke();
+        Vendor1099Misc2020.Cancel().Invoke();
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure Vendor1099Misc2021RequestPageHandler(var Vendor1099Misc2021: TestRequestPage "Vendor 1099 Misc 2021")
     begin
-        Vendor1099Misc2021.Cancel.Invoke();
+        Vendor1099Misc2021.Cancel().Invoke();
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure Vendor1099Misc2022RequestPageHandler(var Vendor1099Misc2022: TestRequestPage "Vendor 1099 Misc 2022")
     begin
-        Vendor1099Misc2022.Cancel.Invoke();
+        Vendor1099Misc2022.Cancel().Invoke();
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure Vendor1099Int2022RequestPageHandler(var Vendor1099Int2022: TestRequestPage "Vendor 1099 Int 2022")
     begin
-        Vendor1099Int2022.Cancel.Invoke();
+        Vendor1099Int2022.Cancel().Invoke();
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure Vendor1099Div2022RequestPageHandler(var Vendor1099Div2022: TestRequestPage "Vendor 1099 Div 2022")
     begin
-        Vendor1099Div2022.Cancel.Invoke();
+        Vendor1099Div2022.Cancel().Invoke();
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure Vendor1099Nec2022RequestPageHandler(var Vendor1099Nec2022: TestRequestPage "Vendor 1099 Nec 2022")
     begin
-        Vendor1099Nec2022.Cancel.Invoke();
+        Vendor1099Nec2022.Cancel().Invoke();
     end;
 }
-
+#endif

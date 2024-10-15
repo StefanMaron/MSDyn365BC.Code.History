@@ -76,7 +76,7 @@ codeunit 134388 "ERM Sales Tax"
         Initialize();
 
         // Exercise.
-        JurisdictionCode := CreateSalesTaxJurisdiction;
+        JurisdictionCode := CreateSalesTaxJurisdiction();
 
         // Verify: Verify created Tax Jurisdiction exists.
         TaxJurisdiction.Get(JurisdictionCode);
@@ -134,7 +134,7 @@ codeunit 134388 "ERM Sales Tax"
         REPORT.Run(REPORT::"Sales Taxes Collected", true, false, TaxJurisdiction);
 
         // [THEN] Dataset for Tax Jurisdiction "A": 'SalesTaxAmt' = 10, 'TaxableSalesAmt' = 110, 'NonTaxableSalesAmt' = 0, 'ExemptSalesAmt' = 0
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         VerifyTaxAmountsInSalesTaxesCollectedReport(
           TaxDetail[1]."Tax Jurisdiction Code", -VATEntry[1].Amount, -VATEntry[1].Base, 0, 0, 1);
         // [THEN] Dataset line for Tax Jurisdiction "B" has 'SalesTaxAmt' = 0,
@@ -293,7 +293,7 @@ codeunit 134388 "ERM Sales Tax"
         TaxGroup: Record "Tax Group";
     begin
         LibraryERM.CreateTaxGroup(TaxGroup);
-        LibraryERM.CreateTaxDetail(TaxDetail, CreateSalesTaxJurisdiction, TaxGroup.Code, TaxDetail."Tax Type"::"Sales Tax Only", WorkDate());
+        LibraryERM.CreateTaxDetail(TaxDetail, CreateSalesTaxJurisdiction(), TaxGroup.Code, TaxDetail."Tax Type"::"Sales Tax Only", WorkDate());
     end;
 
     local procedure CreateTaxJurisditionWithTaxArea(var TaxJurisdiction: Record "Tax Jurisdiction"; var TaxArea: Record "Tax Area")
@@ -338,7 +338,7 @@ codeunit 134388 "ERM Sales Tax"
         TaxDetail2.SetRange("Tax Group Code", TaxDetail."Tax Group Code");
         TaxDetail2.SetRange("Tax Type", TaxDetail."Tax Type");
         TaxDetail2.SetRange("Effective Date", TaxDetail."Effective Date");
-        Assert.IsTrue(TaxDetail2.FindFirst, TaxDetailErr);
+        Assert.IsTrue(TaxDetail2.FindFirst(), TaxDetailErr);
     end;
 
     local procedure VerifyTaxAmountsInSalesTaxesCollectedReport(TaxJurisdiction: Text; SalesTaxAmt: Decimal; TaxableAmt: Decimal; NonTaxableAmt: Decimal; ExemptAmt: Decimal; LineNo: Integer)
@@ -347,7 +347,7 @@ codeunit 134388 "ERM Sales Tax"
     begin
         LibraryReportDataset.SetRange('Desc_TaxJurisdiction', TaxJurisdiction);
         for i := 1 to LineNo do
-            LibraryReportDataset.GetNextRow;
+            LibraryReportDataset.GetNextRow();
         LibraryReportDataset.AssertCurrentRowValueEquals('SalesTaxAmt', SalesTaxAmt);
         LibraryReportDataset.AssertCurrentRowValueEquals('TaxableSalesAmt', TaxableAmt);
         LibraryReportDataset.AssertCurrentRowValueEquals('NonTaxableSalesAmt', NonTaxableAmt);
@@ -357,7 +357,7 @@ codeunit 134388 "ERM Sales Tax"
     local procedure VerifyEmptyTaxJurisdictionInSalesTaxesCollectedReport(TaxJurisdiction: Text)
     begin
         LibraryReportDataset.SetRange('Desc_TaxJurisdiction', TaxJurisdiction);
-        LibraryReportDataset.GetNextRow;
+        LibraryReportDataset.GetNextRow();
         LibraryReportDataset.AssertCurrentRowValueEquals('SalesTaxAmt', 0);
         Assert.IsFalse(LibraryReportDataset.CurrentRowHasElementTag('TaxableSalesAmt'), '');
         Assert.IsFalse(LibraryReportDataset.CurrentRowHasElementTag('NonTaxableSalesAmt'), '');
@@ -368,7 +368,7 @@ codeunit 134388 "ERM Sales Tax"
     [Scope('OnPrem')]
     procedure SalesTaxesCollectedReqPageHandler(var SalesTaxesCollected: TestRequestPage "Sales Taxes Collected")
     begin
-        SalesTaxesCollected.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        SalesTaxesCollected.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 }
 

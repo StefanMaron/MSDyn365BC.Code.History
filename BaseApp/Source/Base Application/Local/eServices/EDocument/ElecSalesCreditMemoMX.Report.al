@@ -51,12 +51,10 @@ report 10476 "Elec. Sales Credit Memo MX"
 
                     trigger OnAfterGetRecord()
                     begin
-                        with TempSalesCrMemoLine do begin
-                            Init();
-                            "Document No." := "Sales Cr.Memo Header"."No.";
-                            "Line No." := HighestLineNo + 10;
-                            HighestLineNo := "Line No.";
-                        end;
+                        TempSalesCrMemoLine.Init();
+                        TempSalesCrMemoLine."Document No." := "Sales Cr.Memo Header"."No.";
+                        TempSalesCrMemoLine."Line No." := HighestLineNo + 10;
+                        HighestLineNo := TempSalesCrMemoLine."Line No.";
                         if StrLen(Comment) <= MaxStrLen(TempSalesCrMemoLine.Description) then begin
                             TempSalesCrMemoLine.Description := Comment;
                             TempSalesCrMemoLine."Description 2" := '';
@@ -94,12 +92,10 @@ report 10476 "Elec. Sales Credit Memo MX"
 
                 trigger OnAfterGetRecord()
                 begin
-                    with TempSalesCrMemoLine do begin
-                        Init();
-                        "Document No." := "Sales Cr.Memo Header"."No.";
-                        "Line No." := HighestLineNo + 1000;
-                        HighestLineNo := "Line No.";
-                    end;
+                    TempSalesCrMemoLine.Init();
+                    TempSalesCrMemoLine."Document No." := "Sales Cr.Memo Header"."No.";
+                    TempSalesCrMemoLine."Line No." := HighestLineNo + 1000;
+                    HighestLineNo := TempSalesCrMemoLine."Line No.";
                     if StrLen(Comment) <= MaxStrLen(TempSalesCrMemoLine.Description) then begin
                         TempSalesCrMemoLine.Description := Comment;
                         TempSalesCrMemoLine."Description 2" := '';
@@ -118,12 +114,10 @@ report 10476 "Elec. Sales Credit Memo MX"
 
                 trigger OnPreDataItem()
                 begin
-                    with TempSalesCrMemoLine do begin
-                        Init();
-                        "Document No." := "Sales Cr.Memo Header"."No.";
-                        "Line No." := HighestLineNo + 1000;
-                        HighestLineNo := "Line No.";
-                    end;
+                    TempSalesCrMemoLine.Init();
+                    TempSalesCrMemoLine."Document No." := "Sales Cr.Memo Header"."No.";
+                    TempSalesCrMemoLine."Line No." := HighestLineNo + 1000;
+                    HighestLineNo := TempSalesCrMemoLine."Line No.";
                     TempSalesCrMemoLine.Insert();
                 end;
             }
@@ -415,32 +409,31 @@ report 10476 "Elec. Sales Credit Memo MX"
                         trigger OnAfterGetRecord()
                         begin
                             OnLineNumber := OnLineNumber + 1;
-                            with TempSalesCrMemoLine do begin
-                                if OnLineNumber = 1 then
-                                    Find('-')
-                                else
-                                    Next();
+                            if OnLineNumber = 1 then
+                                TempSalesCrMemoLine.Find('-')
+                            else
+                                TempSalesCrMemoLine.Next();
 
-                                if Type = Type::" " then begin
-                                    "No." := '';
-                                    "Unit of Measure" := '';
-                                    Amount := 0;
-                                    "Amount Including VAT" := 0;
-                                    "Inv. Discount Amount" := 0;
-                                    Quantity := 0;
-                                end else
-                                    if Type = Type::"G/L Account" then
-                                        "No." := '';
+                            if TempSalesCrMemoLine.Type = TempSalesCrMemoLine.Type::" " then begin
+                                TempSalesCrMemoLine."No." := '';
+                                TempSalesCrMemoLine."Unit of Measure" := '';
+                                TempSalesCrMemoLine.Amount := 0;
+                                TempSalesCrMemoLine."Amount Including VAT" := 0;
+                                TempSalesCrMemoLine."Inv. Discount Amount" := 0;
+                                TempSalesCrMemoLine.Quantity := 0;
+                            end else
+                                if TempSalesCrMemoLine.Type = TempSalesCrMemoLine.Type::"G/L Account" then
+                                    TempSalesCrMemoLine."No." := '';
 
-                                AmountExclInvDisc := Amount + "Inv. Discount Amount";
+                            AmountExclInvDisc := TempSalesCrMemoLine.Amount + TempSalesCrMemoLine."Inv. Discount Amount";
 
-                                if Quantity = 0 then
-                                    UnitPriceToPrint := 0 // so it won't print
-                                else
-                                    UnitPriceToPrint := Round(AmountExclInvDisc / Quantity, 0.00001);
+                            if TempSalesCrMemoLine.Quantity = 0 then
+                                UnitPriceToPrint := 0
+                            // so it won't print
+                            else
+                                UnitPriceToPrint := Round(AmountExclInvDisc / TempSalesCrMemoLine.Quantity, 0.00001);
 
-                                TotalAmountIncludingVAT += "Amount Including VAT";
-                            end;
+                            TotalAmountIncludingVAT += TempSalesCrMemoLine."Amount Including VAT";
 
                             if OnLineNumber = NumberOfLines then
                                 ConvertAmounttoWords(TotalAmountIncludingVAT);
@@ -587,8 +580,8 @@ report 10476 "Elec. Sales Credit Memo MX"
                         CompanyInformation."Phone No." := RespCenter."Phone No.";
                         CompanyInformation."Fax No." := RespCenter."Fax No.";
                     end;
-                CurrReport.Language := Language.GetLanguageIdOrDefault("Language Code");
-                CurrReport.FormatRegion := Language.GetFormatRegionOrDefault("Format Region");
+                CurrReport.Language := LanguageMgt.GetLanguageIdOrDefault("Language Code");
+                CurrReport.FormatRegion := LanguageMgt.GetFormatRegionOrDefault("Format Region");
 
                 if "Salesperson Code" = '' then
                     Clear(SalesPurchPerson)
@@ -733,7 +726,7 @@ report 10476 "Elec. Sales Credit Memo MX"
         RespCenter: Record "Responsibility Center";
         Customer: Record Customer;
         SourceCodeSetup: Record "Source Code Setup";
-        Language: Codeunit Language;
+        LanguageMgt: Codeunit Language;
         CompanyAddress: array[8] of Text[100];
         BillToAddress: array[8] of Text[100];
         ShipToAddress: array[8] of Text[100];

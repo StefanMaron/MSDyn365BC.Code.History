@@ -10,7 +10,6 @@ codeunit 138927 "Disable Agg. Table Update Test"
     end;
 
     var
-        Assert: Codeunit Assert;
         LibraryUtility: Codeunit "Library - Utility";
         DisableAggTableUpdateTest: Codeunit "Disable Agg. Table Update Test";
         IsInitialized: Boolean;

@@ -321,7 +321,7 @@ codeunit 137270 "SCM Reservation III"
 
         // Setup: Create Item Journal Line with Item Tracking Code, Create and Release a Sales Order with Item Tracking.
         Initialize();
-        ErrorUsingCreatePick(WarehouseActivityLine."Action Type"::Take, LibraryUtility.GenerateGUID, BinContentError);
+        ErrorUsingCreatePick(WarehouseActivityLine."Action Type"::Take, LibraryUtility.GenerateGUID(), BinContentError);
     end;
 
     local procedure ErrorUsingCreatePick(ActionType: Enum "Warehouse Action Type"; BinCode: Code[20]; ExpectedError: Text[1024])
@@ -351,7 +351,7 @@ codeunit 137270 "SCM Reservation III"
         // Setup: Create Sales Order with Item Tracking.
         Initialize();
         CreateWarehouseLocation(Location);
-        CreateSalesDocument(SalesLine, SalesLine.Type::Item, CreateItem, Location.Code, LibraryRandom.RandInt(10));
+        CreateSalesDocument(SalesLine, SalesLine.Type::Item, CreateItem(), Location.Code, LibraryRandom.RandInt(10));
 
         // Exercise.
         asserterror LibraryWarehouse.CreateInvtPutAwayPick(WarehouseRequest, true, true, false);
@@ -393,7 +393,7 @@ codeunit 137270 "SCM Reservation III"
         PurchaseLine: Record "Purchase Line";
         WarehouseActivityLine: Record "Warehouse Activity Line";
         WarehouseSetup: Record "Warehouse Setup";
-        NoSeriesManagement: Codeunit NoSeriesManagement;
+        NoSeries: Codeunit "No. Series";
         DocumentNo: Code[20];
         PickNo: Code[20];
     begin
@@ -403,9 +403,9 @@ codeunit 137270 "SCM Reservation III"
         Initialize();
         WarehouseSetup.Get();
         DocumentNo := PostWhseRcptAndCreateWhseShpt(PurchaseLine);
-        GetWhseDocFromPickWksh;
+        GetWhseDocFromPickWksh();
         Commit();
-        PickNo := NoSeriesManagement.GetNextNo(WarehouseSetup."Whse. Pick Nos.", WorkDate(), false);
+        PickNo := NoSeries.PeekNextNo(WarehouseSetup."Whse. Pick Nos.");
         LibraryVariableStorage.Enqueue(StrSubstNo(PickActivityMessage, PickNo));  // Enqueue for Message Handler.
 
         // Exercise.
@@ -431,7 +431,7 @@ codeunit 137270 "SCM Reservation III"
         DocumentNo := PostWhseRcptAndCreateWhseShpt(PurchaseLine);
 
         // Exercise: Get Warehouse Documents from Pick Worksheet.
-        GetWhseDocFromPickWksh;
+        GetWhseDocFromPickWksh();
 
         // Verify: Verify Pick Worksheet after Get Warehouse Documents.
         VerifyWkshLine(PurchaseLine."No.", PurchaseLine.Quantity, DocumentNo, PurchaseLine."Location Code");
@@ -486,13 +486,13 @@ codeunit 137270 "SCM Reservation III"
         CreateAndReleasePurchaseOrder(PurchaseHeader, PurchaseLine, CreateAndModifyTrackedItem(false, false, true), Location.Code);  // Using Random Quantity.
         LibraryWarehouse.CreateWhseReceiptFromPO(PurchaseHeader);
         PostWarehouseReceipt(WarehouseReceiptLine."Source Document"::"Purchase Order", PurchaseHeader."No.");
-        PutAwayWorksheet.OpenEdit;
+        PutAwayWorksheet.OpenEdit();
 
         // Exercise: Get Warehouse Documents from Put Away Worksheet.
-        PutAwayWorksheet.GetWarehouseDocuments.Invoke;
+        PutAwayWorksheet.GetWarehouseDocuments.Invoke();
 
         // Verify: Verify Put Away Worksheet Line using Get Warehouse Documents.
-        PutAwayWorksheet.OK.Invoke;
+        PutAwayWorksheet.OK().Invoke();
         VerifyWkshLine(PurchaseLine."No.", PurchaseLine.Quantity, PurchaseHeader."No.", PurchaseLine."Location Code");
     end;
 
@@ -591,7 +591,7 @@ codeunit 137270 "SCM Reservation III"
         SalesLine: Record "Sales Line";
         WarehouseSetup: Record "Warehouse Setup";
         WarehouseActivityLine: Record "Warehouse Activity Line";
-        NoSeriesManagement: Codeunit NoSeriesManagement;
+        NoSeries: Codeunit "No. Series";
         PickNo: Code[20];
         No: Code[20];
     begin
@@ -601,7 +601,7 @@ codeunit 137270 "SCM Reservation III"
         Initialize();
         WarehouseSetup.Get();
         No := CreateWhseInternalPickLine(SalesLine);
-        PickNo := NoSeriesManagement.GetNextNo(WarehouseSetup."Whse. Pick Nos.", WorkDate(), false);
+        PickNo := NoSeries.PeekNextNo(WarehouseSetup."Whse. Pick Nos.");
         LibraryVariableStorage.Enqueue(StrSubstNo(PickActivityMessage, PickNo));  // Enqueue for Message Handler.
 
         // Exercise: Create Pick from Warehouse Internal Pick page.
@@ -646,7 +646,7 @@ codeunit 137270 "SCM Reservation III"
         SalesLine: Record "Sales Line";
         WarehouseSetup: Record "Warehouse Setup";
         WarehouseActivityLine: Record "Warehouse Activity Line";
-        NoSeriesManagement: Codeunit NoSeriesManagement;
+        NoSeries: Codeunit "No. Series";
         PutAwayNo: Code[20];
         BinCode: Code[20];
     begin
@@ -656,7 +656,7 @@ codeunit 137270 "SCM Reservation III"
         Initialize();
         BinCode := CreateWhseInternalPutAwayLine(SalesLine);
         WarehouseSetup.Get();
-        PutAwayNo := NoSeriesManagement.GetNextNo(WarehouseSetup."Whse. Put-away Nos.", WorkDate(), false);
+        PutAwayNo := NoSeries.PeekNextNo(WarehouseSetup."Whse. Put-away Nos.");
         LibraryVariableStorage.Enqueue(StrSubstNo(PutAwayActivityMessage, PutAwayNo));  // Enqueue for Message Handler.
 
         // Exercise: Create Put Away from Warehouse Internal Put Away.
@@ -1011,7 +1011,6 @@ codeunit 137270 "SCM Reservation III"
         TransferHeader: Record "Transfer Header";
         TransferLine: Record "Transfer Line";
         TrackingOption: Option AssignSerialNo,SelectEntries,AssignLotNo,SetValues;
-        Direction: Option Outbound,Inbound;
     begin
         // Verify Item Ledger Entry after Posting Transfer Order with Item Tracking and Reservation.
 
@@ -1252,13 +1251,13 @@ codeunit 137270 "SCM Reservation III"
         // This function assumes that an availability warning confirm dialog may be shown to the user
         // However, depending on the state of the database, this might not occur
         // Check whether all enqueued elements have been used to avoid dangling elements in the list
-        ListLength := LibraryVariableStorage.Length;
+        ListLength := LibraryVariableStorage.Length();
 
         LibraryVariableStorage.Enqueue(ItemTrackingLinesControl::CallingFromPO);
         LibraryVariableStorage.Enqueue(AvailabilityWarningsMsg);
         PurchaseLine.OpenItemTrackingLines();
 
-        if LibraryVariableStorage.Length > ListLength then
+        if LibraryVariableStorage.Length() > ListLength then
             if Confirm(AvailabilityWarningsQst) then;
     end;
 
@@ -1293,8 +1292,6 @@ codeunit 137270 "SCM Reservation III"
 
     [Normal]
     local procedure AssignLotNoOnTransferLine(var TransferLine: Record "Transfer Line"; Qty: Decimal)
-    var
-        Direction: Option Outbound,Inbound;
     begin
         LibraryVariableStorage.Enqueue(ItemTrackingLinesControl::CallingFromTO);
         LibraryVariableStorage.Enqueue(Qty);
@@ -1371,7 +1368,7 @@ codeunit 137270 "SCM Reservation III"
 
         // [GIVEN] Sales Line for Item in UoM = "Y" of Quantity "1"
         QtySale := LibraryRandom.RandDecInRange(100, 1000, 2);
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesLine."Document Type"::Order, CreateCustomer);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesLine."Document Type"::Order, CreateCustomer());
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", QtySale);
         with SalesLine do begin
             Validate("Location Code", Location.Code);
@@ -1488,7 +1485,7 @@ codeunit 137270 "SCM Reservation III"
         LibraryInventory.SelectItemJournalTemplateName(ItemJournalTemplate, ItemJournalTemplate.Type::Item);
         LibraryInventory.CreateItemJournalBatch(ItemJournalBatch, ItemJournalTemplate.Name);
         if NoSeries then begin
-            ItemJournalBatch.Validate("No. Series", LibraryUtility.GetGlobalNoSeriesCode);
+            ItemJournalBatch.Validate("No. Series", LibraryUtility.GetGlobalNoSeriesCode());
             ItemJournalBatch.Modify(true);
         end;
         LibraryInventory.ClearItemJournal(ItemJournalTemplate, ItemJournalBatch);
@@ -1527,7 +1524,7 @@ codeunit 137270 "SCM Reservation III"
         UpdateSalesLineUnitPrice(SalesLine, LibraryRandom.RandDec(10, 2));  // Using Random value for Unit Price.
         LibraryVariableStorage.Enqueue(TrackingOption::SelectEntries);  // Enqueue value for ItemTrackingLinesPageHandler.
         SalesLine.OpenItemTrackingLines();
-        LibraryVariableStorage.Enqueue(LibraryInventory.GetReservConfirmText);  // Enqueue values for Confirm Handlers.
+        LibraryVariableStorage.Enqueue(LibraryInventory.GetReservConfirmText());  // Enqueue values for Confirm Handlers.
         SalesLine.ShowReservation();
         SalesHeader.Get(SalesLine."Document Type", SalesLine."Document No.");
         LibrarySales.ReleaseSalesDocument(SalesHeader);
@@ -1598,7 +1595,7 @@ codeunit 137270 "SCM Reservation III"
         Item: Record Item;
     begin
         LibraryInventory.CreateTrackedItem(
-          Item, LibraryUtility.GetGlobalNoSeriesCode, LibraryUtility.GetGlobalNoSeriesCode,
+          Item, LibraryUtility.GetGlobalNoSeriesCode(), LibraryUtility.GetGlobalNoSeriesCode(),
           CreateItemTrackingCode(LotSpecific, SerialSpecific, SNWarehouseTracking));
         Item.Validate("Costing Method", Item."Costing Method"::Average);
         Item.Modify(true);
@@ -1627,7 +1624,7 @@ codeunit 137270 "SCM Reservation III"
         CreateWarehouseLocation(Location);
         LibraryInventory.CreateItemJournalLine(
           ItemJournalLine, ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name,
-          ItemJournalLine."Entry Type"::"Positive Adjmt.", CreateItem, LibraryRandom.RandInt(10));  // Using Random value for Quantity.
+          ItemJournalLine."Entry Type"::"Positive Adjmt.", CreateItem(), LibraryRandom.RandInt(10));  // Using Random value for Quantity.
         ModifyItemJnlLine(ItemJournalLine, Location.Code, LibraryRandom.RandDec(10, 2));  // Using Random value for Unit Amount.
         LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
     end;
@@ -1739,20 +1736,20 @@ codeunit 137270 "SCM Reservation III"
     var
         PickWorksheet: TestPage "Pick Worksheet";
     begin
-        PickWorksheet.OpenEdit;
+        PickWorksheet.OpenEdit();
         PickWorksheet.FILTER.SetFilter("Item No.", No);
-        PickWorksheet.CreatePick.Invoke;
-        PickWorksheet.OK.Invoke;
+        PickWorksheet.CreatePick.Invoke();
+        PickWorksheet.OK().Invoke();
     end;
 
     local procedure CreatePickFromWhseInternalPickPage(LocationCode: Code[10])
     var
         WhseInternalPick: TestPage "Whse. Internal Pick";
     begin
-        WhseInternalPick.OpenEdit;
+        WhseInternalPick.OpenEdit();
         WhseInternalPick.FILTER.SetFilter("Location Code", LocationCode);
-        WhseInternalPick.CreatePick.Invoke;
-        WhseInternalPick.OK.Invoke;
+        WhseInternalPick.CreatePick.Invoke();
+        WhseInternalPick.OK().Invoke();
     end;
 
     local procedure CreatePickUsingGetSourceDocWithWhseJournal(var SalesLine: Record "Sales Line"): Code[20]
@@ -1782,10 +1779,10 @@ codeunit 137270 "SCM Reservation III"
     var
         WhseInternalPutAway: TestPage "Whse. Internal Put-away";
     begin
-        WhseInternalPutAway.OpenEdit;
+        WhseInternalPutAway.OpenEdit();
         WhseInternalPutAway.FILTER.SetFilter("Location Code", LocationCode);
-        WhseInternalPutAway.CreatePutAway.Invoke;
-        WhseInternalPutAway.OK.Invoke;
+        WhseInternalPutAway.CreatePutAway.Invoke();
+        WhseInternalPutAway.OK().Invoke();
     end;
 
     local procedure CreatePurchaseOrder(var PurchaseLine: Record "Purchase Line"; LocationCode: Code[10]; ItemNo: Code[20])
@@ -1819,7 +1816,7 @@ codeunit 137270 "SCM Reservation III"
         LibraryPurchase.CreateVendor(Vendor);
         CreateReqisitiontLine(
           RequisitionLine, TemplateType::Planning, PurchaseLine."No.", PurchaseLine."Location Code", Vendor."No.", PurchaseLine.Quantity,
-          WorkDate);
+          WorkDate());
         CalcRegenPlanAndCarryOutActionMsg(PurchaseLine."Location Code", PurchaseLine."No.");
 
         // Open Purchase Order created after Carry Out Action Message, Release Purchase Order and Create Warehouse Receipt.
@@ -1853,7 +1850,7 @@ codeunit 137270 "SCM Reservation III"
     var
         SalesHeader: Record "Sales Header";
     begin
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesLine."Document Type"::Order, CreateCustomer);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesLine."Document Type"::Order, CreateCustomer());
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, Type, No, Quantity);
         SalesLine.Validate("Location Code", LocationCode);
         SalesLine.Modify(true);
@@ -1866,12 +1863,12 @@ codeunit 137270 "SCM Reservation III"
         ItemChargeAssignmentOption: Option AssignmentOnly,GetShipmentLine;
     begin
         CreateSalesDocument(
-          SalesLine2, SalesLine.Type::"Charge (Item)", LibraryInventory.CreateItemChargeNo, '', 1);
+          SalesLine2, SalesLine.Type::"Charge (Item)", LibraryInventory.CreateItemChargeNo(), '', 1);
         UpdateSalesLineUnitPrice(SalesLine2, LibraryRandom.RandDec(100, 2));  // Using Random value for Unit Price.
 
         SalesHeader.Get(SalesHeader."Document Type"::Order, SalesLine2."Document No.");
-        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, CreateItem, LibraryRandom.RandInt(10));  // Using Random value for Quantity.
-        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, CreateItem, LibraryRandom.RandInt(10));  // Using Random value for Quantity.
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, CreateItem(), LibraryRandom.RandInt(10));  // Using Random value for Quantity.
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, CreateItem(), LibraryRandom.RandInt(10));  // Using Random value for Quantity.
 
         LibraryVariableStorage.Enqueue(ItemChargeAssignmentOption::AssignmentOnly);  // Enqueue value for ItemChargeAssignmentSalesPageHandler.
         SalesLine2.ShowItemChargeAssgnt();
@@ -2110,9 +2107,9 @@ codeunit 137270 "SCM Reservation III"
     var
         PickWorksheet: TestPage "Pick Worksheet";
     begin
-        PickWorksheet.OpenEdit;
-        PickWorksheet."Get Warehouse Documents".Invoke;
-        PickWorksheet.OK.Invoke;
+        PickWorksheet.OpenEdit();
+        PickWorksheet."Get Warehouse Documents".Invoke();
+        PickWorksheet.OK().Invoke();
     end;
 
     [Scope('OnPrem')]
@@ -2168,7 +2165,7 @@ codeunit 137270 "SCM Reservation III"
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
     begin
-        CreatePurchaseOrder(PurchaseLine, '', CreateItem);
+        CreatePurchaseOrder(PurchaseLine, '', CreateItem());
         PurchaseHeader.Get(PurchaseLine."Document Type"::Order, PurchaseLine."Document No.");
         LibraryPurchase.ReleasePurchaseDocument(PurchaseHeader);
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false);
@@ -2276,14 +2273,14 @@ codeunit 137270 "SCM Reservation III"
     [Scope('OnPrem')]
     procedure WhseSourceCreateDocumentReportHandler(var WhseSourceCreateDocument: TestRequestPage "Whse.-Source - Create Document")
     begin
-        WhseSourceCreateDocument.OK.Invoke;
+        WhseSourceCreateDocument.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure EnterQuantitytoCreatePageHandler(var EnterQuantitytoCreate: TestPage "Enter Quantity to Create")
     begin
-        EnterQuantitytoCreate.OK.Invoke;
+        EnterQuantitytoCreate.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -2294,7 +2291,7 @@ codeunit 137270 "SCM Reservation III"
     begin
         LibraryVariableStorage.Dequeue(ItemNo);
         EnterQuantitytoCreate.ItemNo.AssertEquals(ItemNo);
-        EnterQuantitytoCreate.OK.Invoke;
+        EnterQuantitytoCreate.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -2310,19 +2307,19 @@ codeunit 137270 "SCM Reservation III"
         case ItemChargeAssignmentOption of
             OptionString::AssignmentOnly:
                 begin
-                    ItemChargeAssignmentSales.First;
+                    ItemChargeAssignmentSales.First();
                     repeat
                         ItemChargeAssignmentSales."Qty. to Assign".SetValue(1);  // Added Qty. to Assign as 1 for Item Charge.
                     until not ItemChargeAssignmentSales.Next();
                 end;
             OptionString::GetShipmentLine:
                 begin
-                    ItemChargeAssignmentSales.GetShipmentLines.Invoke;
+                    ItemChargeAssignmentSales.GetShipmentLines.Invoke();
                     ItemChargeAssignmentSales."Qty. to Assign".SetValue(1);  // Added Qty. to Assign as 1 for Item Charge.
                     ItemChargeAssignmentSales.RemAmountToAssign.SetValue(0);
                 end;
         end;
-        ItemChargeAssignmentSales.OK.Invoke;
+        ItemChargeAssignmentSales.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -2338,14 +2335,14 @@ codeunit 137270 "SCM Reservation III"
         TrackingOption := OptionValue;  // To convert Variant into Option.
         case TrackingOption of
             OptionString::AssignSerialNo:
-                ItemTrackingLines."Assign Serial No.".Invoke;
+                ItemTrackingLines."Assign Serial No.".Invoke();
             OptionString::AssignLotNo:
-                ItemTrackingLines."Assign Lot No.".Invoke;
+                ItemTrackingLines."Assign Lot No.".Invoke();
             OptionString::SelectEntries:
-                ItemTrackingLines."Select Entries".Invoke;
+                ItemTrackingLines."Select Entries".Invoke();
             OptionString::SetValues:
                 begin
-                    TrackingQuantity := ItemTrackingLines.Quantity3.AsDEcimal;
+                    TrackingQuantity := ItemTrackingLines.Quantity3.AsDecimal();
                     ItemTrackingLines."Lot No.".SetValue(LibraryUtility.GenerateGUID());
                     ItemTrackingLines."Quantity (Base)".SetValue(TrackingQuantity / 2);  // Using half value to assign the Quantity equally in both the ITem Tracking Line.
                     ItemTrackingLines.Next();
@@ -2353,43 +2350,43 @@ codeunit 137270 "SCM Reservation III"
                     ItemTrackingLines."Quantity (Base)".SetValue(TrackingQuantity / 2);  // Using half value to assign the Quantity equally in both the ITem Tracking Line.
                 end;
         end;
-        ItemTrackingLines.OK.Invoke;
+        ItemTrackingLines.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure ItemTrackingSummaryPageHandler(var ItemTrackingSummary: TestPage "Item Tracking Summary")
     begin
-        ItemTrackingSummary.OK.Invoke;
+        ItemTrackingSummary.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure ItemTrackingListPageHandler(var ItemTrackingList: TestPage "Item Tracking List")
     begin
-        ItemTrackingList.OK.Invoke;
+        ItemTrackingList.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure OrderTrackingPageHandler(var OrderTracking: TestPage "Order Tracking")
     begin
-        OrderTracking.OK.Invoke;
+        OrderTracking.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure ReservationFromCurrentLineHandler(var Reservation: TestPage Reservation)
     begin
-        Reservation."Reserve from Current Line".Invoke;
-        Reservation.OK.Invoke;
+        Reservation."Reserve from Current Line".Invoke();
+        Reservation.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure ReservationPageHandler(var Reservation: TestPage Reservation)
     begin
-        Reservation.OK.Invoke;
+        Reservation.OK().Invoke();
     end;
 
     [StrMenuHandler]
@@ -2406,7 +2403,7 @@ codeunit 137270 "SCM Reservation III"
     [Scope('OnPrem')]
     procedure SalesShipmentLinePageHandler(var SalesShipmentLines: TestPage "Sales Shipment Lines")
     begin
-        SalesShipmentLines.OK.Invoke;
+        SalesShipmentLines.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -2426,28 +2423,28 @@ codeunit 137270 "SCM Reservation III"
                     WhseItemTrackingLines.Quantity.SetValue(1);  // Using 1 because value is important.
                 end;
         end;
-        WhseItemTrackingLines.OK.Invoke;
+        WhseItemTrackingLines.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure PickSelectionPageHandler(var PickSelection: TestPage "Pick Selection")
     begin
-        PickSelection.OK.Invoke;
+        PickSelection.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure PutAwaySelectionPageHandler(var PutAwaySelection: TestPage "Put-away Selection")
     begin
-        PutAwaySelection.OK.Invoke;
+        PutAwaySelection.OK().Invoke();
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure CreatePickPageHandler(var CreatePick: TestRequestPage "Create Pick")
     begin
-        CreatePick.OK.Invoke;
+        CreatePick.OK().Invoke();
     end;
 
     [ConfirmHandler]
@@ -2495,11 +2492,11 @@ codeunit 137270 "SCM Reservation III"
             ItemTrackingLinesControl::CallingFromPO:
                 begin
                     // Assign Lot No. to the yet untracked quantity
-                    QtyTxt := ItemTrackingLines.Quantity3.Value;
+                    QtyTxt := ItemTrackingLines.Quantity3.Value();
                     Evaluate(QtyDec, QtyTxt);
                     ItemTrackingLines."Lot No.".SetValue(LotNoTC324960Tok);
                     ItemTrackingLines."Quantity (Base)".SetValue(QtyDec);
-                    ItemTrackingLines.OK.Invoke;
+                    ItemTrackingLines.OK().Invoke();
                 end;
             ItemTrackingLinesControl::CallingFromTO:
                 begin
@@ -2507,7 +2504,7 @@ codeunit 137270 "SCM Reservation III"
                     LibraryVariableStorage.Dequeue(QtyVar);
                     ItemTrackingLines."Quantity (Base)".SetValue(QtyVar);
                     ItemTrackingLines."Lot No.".SetValue(LotNoTC324960Tok);
-                    ItemTrackingLines.OK.Invoke;
+                    ItemTrackingLines.OK().Invoke();
                 end;
             else
                 Error(InvalidControlErr);
@@ -2518,14 +2515,14 @@ codeunit 137270 "SCM Reservation III"
     [Scope('OnPrem')]
     procedure ReservationHandler(var Reservation: TestPage Reservation)
     begin
-        Reservation.AvailableToReserve.Invoke;
+        Reservation.AvailableToReserve.Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure AvailableToReserveHandler(var AvailablePurchaseLines: TestPage "Available - Purchase Lines")
     begin
-        AvailablePurchaseLines.Reserve.Invoke;
+        AvailablePurchaseLines.Reserve.Invoke();
     end;
 }
 

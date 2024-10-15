@@ -3,8 +3,10 @@
 using Microsoft.CRM.Contact;
 using Microsoft.Finance.Currency;
 using Microsoft.Finance.Dimension;
+using Microsoft.Service.Setup;
 using Microsoft.Finance.VAT.Calculation;
 using Microsoft.Foundation.Address;
+using Microsoft.Foundation.Attachment;
 using Microsoft.Foundation.Reporting;
 using Microsoft.Inventory.Availability;
 using Microsoft.Projects.Project.Ledger;
@@ -41,6 +43,7 @@ page 5900 "Service Order"
                     ApplicationArea = Service;
                     Importance = Promoted;
                     ToolTip = 'Specifies the number of the involved entry or record, according to the specified number series.';
+                    Visible = DocNoVisible;
 
                     trigger OnAssistEdit()
                     begin
@@ -75,6 +78,16 @@ page 5900 "Service Order"
                             if Rec."Contact No." <> xRec."Contact No." then
                                 Rec.SetRange("Contact No.");
                     end;
+                }
+                group(Control114)
+                {
+                    ShowCaption = false;
+                    Visible = ShowQuoteNo;
+                    field("Quote No."; Rec."Quote No.")
+                    {
+                        ApplicationArea = Service;
+                        ToolTip = 'Specifies the number of the service quote that the service order was created from. You can track the number to service quote documents that you have printed, saved, or emailed.';
+                    }
                 }
                 group("Sell-To")
                 {
@@ -230,6 +243,16 @@ page 5900 "Service Order"
                     ApplicationArea = BasicMX;
                     Importance = Additional;
                     ToolTip = 'Specifies the relation of the CFDI document. ';
+                }
+                field("CFDI Export Code"; Rec."CFDI Export Code")
+                {
+                    ApplicationArea = BasicMX;
+                    ToolTip = 'Specifies a code to indicate if the document is used for exports to other countries.';
+                }
+                field("CFDI Period"; Rec."CFDI Period")
+                {
+                    ApplicationArea = BasicMX;
+                    ToolTip = 'Specifies the period to use when reporting for general public customers';
                 }
             }
             part(ServItemLines; "Service Order Subform")
@@ -392,6 +415,13 @@ page 5900 "Service Order"
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the date when the related document was created.';
+                }
+                field("External Document No."; Rec."External Document No.")
+                {
+                    ApplicationArea = Service;
+                    Importance = Promoted;
+                    ShowMandatory = ExternalDocNoMandatory;
+                    ToolTip = 'Specifies a document number that refers to the customer''s or vendor''s numbering system.';
                 }
                 field("Shortcut Dimension 1 Code"; Rec."Shortcut Dimension 1 Code")
                 {
@@ -747,6 +777,31 @@ page 5900 "Service Order"
                     ToolTip = 'Specifies the area of the customer or vendor, for the purpose of reporting to INTRASTAT.';
                 }
             }
+            group(ElectronicDocument)
+            {
+                Caption = 'Electronic Document';
+                field("SAT Address ID"; Rec."SAT Address ID")
+                {
+                    ApplicationArea = BasicMX;
+                    ToolTip = 'Specifies the SAT address that the goods or merchandise are moved to.';
+                    BlankZero = true;
+                }
+                field(Control1310005; Rec."Foreign Trade")
+                {
+                    ApplicationArea = BasicMX;
+                    ToolTip = 'Specifies whether the goods or merchandise that are transported enter or leave the national territory.';
+                }
+                field("SAT International Trade Term"; Rec."SAT International Trade Term")
+                {
+                    ApplicationArea = BasicMX;
+                    ToolTip = 'Specifies an international commercial terms code that are used in international sale contracts according to the SAT internatoinal trade terms definition.';
+                }
+                field("Exchange Rate USD"; Rec."Exchange Rate USD")
+                {
+                    ApplicationArea = BasicMX;
+                    ToolTip = 'Specifies the USD to MXN exchange rate that is used to report foreign trade documents to Mexican SAT authorities. This rate must match the rate used by the Mexican National Bank.';
+                }
+            }
         }
         area(factboxes)
         {
@@ -756,6 +811,14 @@ page 5900 "Service Order"
                 Caption = 'Document Check';
                 Visible = ServiceDocCheckFactboxVisible;
                 SubPageLink = "No." = field("No."),
+                              "Document Type" = field("Document Type");
+            }
+            part("Attached Documents"; "Document Attachment Factbox")
+            {
+                ApplicationArea = Service;
+                Caption = 'Attachments';
+                SubPageLink = "Table ID" = const(Database::"Service Header"),
+                              "No." = field("No."),
                               "Document Type" = field("Document Type");
             }
             part(Control1902018507; "Customer Statistics FactBox")
@@ -821,7 +884,7 @@ page 5900 "Service Order"
                     ApplicationArea = Planning;
                     Caption = 'Demand Overview';
                     Image = Forecast;
-                    ToolTip = 'Get an overview of demand for your items when planning sales, production, jobs, or service management and when they will be available.';
+                    ToolTip = 'Get an overview of demand for your items when planning sales, production, projects, or service management and when they will be available.';
 
                     trigger OnAction()
                     var
@@ -916,14 +979,33 @@ page 5900 "Service Order"
                                   Type = const(General);
                     ToolTip = 'View or add comments for the record.';
                 }
+                action(DocAttach)
+                {
+                    ApplicationArea = Service;
+                    Caption = 'Attachments';
+                    Image = Attach;
+                    ToolTip = 'Add a file as an attachment. You can attach images as well as documents.';
+
+                    trigger OnAction()
+                    var
+                        DocumentAttachmentDetails: Page "Document Attachment Details";
+                        RecRef: RecordRef;
+                    begin
+                        RecRef.GetTable(Rec);
+                        DocumentAttachmentDetails.OpenForRecRef(RecRef);
+                        DocumentAttachmentDetails.RunModal();
+                    end;
+                }
                 action(CFDIRelationDocuments)
                 {
-                    ApplicationArea = BasicMX, Service;
+                    ApplicationArea = Service, BasicMX;
                     Caption = 'CFDI Relation Documents';
                     Image = Allocations;
                     RunObject = Page "CFDI Relation Documents";
                     RunPageLink = "Document Table ID" = const(5900),
+#pragma warning disable AL0603
                                   "Document Type" = field("Document Type"),
+#pragma warning restore AL0603
                                   "Document No." = field("No."),
                                   "Customer No." = field("Bill-to Customer No.");
                     ToolTip = 'View or add CFDI relation documents for the record.';
@@ -1036,13 +1118,13 @@ page 5900 "Service Order"
                 action("&Job Ledger Entries")
                 {
                     ApplicationArea = Service;
-                    Caption = '&Job Ledger Entries';
+                    Caption = '&Project Ledger Entries';
                     Image = JobLedger;
                     RunObject = Page "Job Ledger Entries";
                     RunPageLink = "Service Order No." = field("No.");
                     RunPageView = sorting("Service Order No.", "Posting Date")
                                   where("Entry Type" = const(Usage));
-                    ToolTip = 'View all the job ledger entries that result from posting transactions in the service document that involve a job.';
+                    ToolTip = 'View all the project ledger entries that result from posting transactions in the service document that involve a project.';
                 }
             }
         }
@@ -1214,10 +1296,28 @@ page 5900 "Service Order"
 
                 trigger OnAction()
                 var
-                    DocPrint: Codeunit "Document-Print";
+                    DocumentPrint: Codeunit "Document-Print";
                 begin
                     CurrPage.Update(true);
-                    DocPrint.PrintServiceHeader(Rec);
+                    DocumentPrint.PrintServiceHeader(Rec);
+                end;
+            }
+            action(AttachAsPDF)
+            {
+                ApplicationArea = Service;
+                Caption = 'Attach as PDF';
+                Ellipsis = true;
+                Image = PrintAttachment;
+                ToolTip = 'Create a PDF file and attach it to the document.';
+
+                trigger OnAction()
+                var
+                    ServiceHeader: Record "Service Header";
+                    DocumentPrint: Codeunit "Document-Print";
+                begin
+                    ServiceHeader := Rec;
+                    ServiceHeader.SetRecFilter();
+                    DocumentPrint.PrintServiceHeaderToDocumentAttachment(ServiceHeader);
                 end;
             }
         }
@@ -1257,8 +1357,16 @@ page 5900 "Service Order"
                     {
                     }
                 }
-                actionref("&Print_Promoted"; "&Print")
+                group(Category_CategoryPrint)
                 {
+                    ShowAs = SplitButton;
+
+                    actionref("&Print_Promoted"; "&Print")
+                    {
+                    }
+                    actionref(AttachAsPDF_Promoted; AttachAsPDF)
+                    {
+                    }
                 }
                 actionref("Create Whse Shipment_Promoted"; "Create Whse Shipment")
                 {
@@ -1285,6 +1393,9 @@ page 5900 "Service Order"
                 {
                 }
                 actionref("Co&mments_Promoted"; "Co&mments")
+                {
+                }
+                actionref(DocAttach_Promoted; DocAttach)
                 {
                 }
                 separator(Navigate_Separator)
@@ -1331,7 +1442,7 @@ page 5900 "Service Order"
     begin
         Rec."Document Type" := Rec."Document Type"::Order;
         Rec."Responsibility Center" := UserMgt.GetServiceFilter();
-        if Rec."No." = '' then
+        if (not DocNoVisible) and (Rec."No." = '') then
             Rec.SetCustomerFromFilter();
     end;
 
@@ -1345,6 +1456,7 @@ page 5900 "Service Order"
             DocumentIsPosted := (not Rec.Get(Rec."Document Type", Rec."No."));
 
         ActivateFields();
+        SetDocNoVisible();
         CheckShowBackgrValidationNotification();
         VATDateEnabled := VATReportingDateMgt.IsVATDateEnabled();
     end;
@@ -1374,6 +1486,7 @@ page 5900 "Service Order"
         ServHeader: Record "Service Header";
         BillToContact: Record Contact;
         SellToContact: Record Contact;
+        ServiceMgtSetup: Record "Service Mgt. Setup";
         ServOrderMgt: Codeunit ServOrderManagement;
         ServLogMgt: Codeunit ServLogManagement;
         UserMgt: Codeunit "User Setup Management";
@@ -1387,7 +1500,10 @@ page 5900 "Service Order"
         IsShipToCountyVisible: Boolean;
         ServiceDocCheckFactboxVisible: Boolean;
         IsServiceLinesEditable: Boolean;
+        ShowQuoteNo: Boolean;
+        ExternalDocNoMandatory: Boolean;
         VATDateEnabled: Boolean;
+        DocNoVisible: Boolean;
 
     local procedure ActivateFields()
     begin
@@ -1396,6 +1512,16 @@ page 5900 "Service Order"
         IsShipToCountyVisible := FormatAddress.UseCounty(Rec."Ship-to Country/Region Code");
         ServiceDocCheckFactboxVisible := DocumentErrorsMgt.BackgroundValidationEnabled();
         IsServiceLinesEditable := Rec.ServiceLinesEditable();
+        ShowQuoteNo := Rec."Quote No." <> '';
+        SetExtDocNoMandatoryCondition();
+    end;
+
+    local procedure SetDocNoVisible()
+    var
+        DocumentNoVisibility: Codeunit DocumentNoVisibility;
+        DocType: Option Quote,"Order",Invoice,"Credit Memo",Contract;
+    begin
+        DocNoVisible := DocumentNoVisibility.ServiceDocumentNoIsVisible(DocType::"Order", Rec."No.");
     end;
 
     local procedure SetControlAppearance()
@@ -1421,6 +1547,12 @@ page 5900 "Service Order"
                 Rec.SetRange("Customer No.");
         IsServiceLinesEditable := Rec.ServiceLinesEditable();
         CurrPage.Update();
+    end;
+
+    local procedure SetExtDocNoMandatoryCondition()
+    begin
+        ServiceMgtSetup.GetRecordOnce();
+        ExternalDocNoMandatory := ServiceMgtSetup."Ext. Doc. No. Mandatory";
     end;
 
     local procedure BilltoCustomerNoOnAfterValidat()

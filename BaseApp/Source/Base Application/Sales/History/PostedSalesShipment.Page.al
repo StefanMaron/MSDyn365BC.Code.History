@@ -917,15 +917,6 @@ page 130 "Posted Sales Shipment"
                 {
                 }
             }
-#if not CLEAN21            
-            group(Category_Category6)
-            {
-                Caption = 'Certificate of Supply', Comment = 'Generated from the PromotedActionCategories property index 5.';
-                ObsoleteState = Pending;
-                ObsoleteTag = '21.0';
-                ObsoleteReason = 'Category_Category6 is being deprecated. Please use group("Category_Certificate of Supply").';
-            }
-#endif
             group("Category_Certificate of Supply")
             {
                 Caption = 'Certificate of Supply';

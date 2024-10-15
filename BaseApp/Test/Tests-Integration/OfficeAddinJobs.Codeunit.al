@@ -13,8 +13,8 @@ codeunit 139060 "Office Add-in Jobs"
         LibraryOfficeHostProvider: Codeunit "Library - Office Host Provider";
         LibraryJob: Codeunit "Library - Job";
         LibraryRandom: Codeunit "Library - Random";
-        TestJobNoTxt: Label 'TestJobNo287178';
-        TestJobTaskNoTxt: Label 'TestJobTaskNo82917';
+        TestJobNoTxt: Label 'TestProjectNo287178';
+        TestJobTaskNoTxt: Label 'TestProjectTaskNo82917';
         OfficeHostType: DotNet OfficeHostType;
 
     [Test]
@@ -42,10 +42,10 @@ codeunit 139060 "Office Add-in Jobs"
         // [WHEN] Run GetJobProperties
         OfficeJobsHandler.GetJobProperties(OfficeAddinContext, JobNo, JobTaskNo, JobPlanningLineNo);
 
-        // [THEN] Returned three values 'JobNo', JobTaskNo', 'PlanningLineNo'
-        Assert.AreEqual(TestJobNoTxt, JobNo, 'Job No. not parsed correctly');
-        Assert.AreEqual(TestJobTaskNoTxt, JobTaskNo, 'Job Task No. not parsed correctly');
-        Assert.AreEqual(RandomLineNo, JobPlanningLineNo, 'Job Planning Line No. not parsed correctly');
+        // [THEN] Returned three values 'ProjectNo', ProjectTaskNo', 'PlanningLineNo'
+        Assert.AreEqual(TestJobNoTxt, JobNo, 'Project No. not parsed correctly');
+        Assert.AreEqual(TestJobTaskNoTxt, JobTaskNo, 'Project Task No. not parsed correctly');
+        Assert.AreEqual(RandomLineNo, JobPlanningLineNo, 'Project Planning Line No. not parsed correctly');
     end;
 
     [Test]
@@ -72,11 +72,11 @@ codeunit 139060 "Office Add-in Jobs"
         OfficeAddinContext.SetRange("Item Type", OfficeAddinContext."Item Type"::Appointment);
 
         // [GIVEN] Add-in opens the Office Job Journal page opens
-        OfficeJobJournal.Trap;
+        OfficeJobJournal.Trap();
         RunMailEngine(OfficeAddinContext);
 
         // [GIVEN] User sets the quantity
-        Quantity := GenerateRandomQuantity;
+        Quantity := GenerateRandomQuantity();
         OfficeJobJournal.DisplayQuantity.Value(Format(Quantity));
 
         // [THEN] Office Job Complete page opens with correct values
@@ -111,7 +111,7 @@ codeunit 139060 "Office Add-in Jobs"
         OfficeAddinContext.SetRange(
           Subject, CreateAppointmentSubject(JobPlanningLine."Job No.", JobPlanningLine."Job Task No.", JobPlanningLine."Line No."));
         OfficeAddinContext.SetRange("Item Type", OfficeAddinContext."Item Type"::Appointment);
-        OfficeJobJournal.Trap;
+        OfficeJobJournal.Trap();
         RunMailEngine(OfficeAddinContext);
 
         // [THEN] Office Job Complete page opens with correct values
@@ -150,7 +150,7 @@ codeunit 139060 "Office Add-in Jobs"
         OfficeAddinContext.SetRange("Item Type", OfficeAddinContext."Item Type"::Appointment);
 
         // [GIVEN] Add-in opens the Office Job Journal page opens
-        OfficeJobJournal.Trap;
+        OfficeJobJournal.Trap();
         RunMailEngine(OfficeAddinContext);
 
         // [GIVEN] Job Journal Template and Job Batch Template
@@ -163,12 +163,12 @@ codeunit 139060 "Office Add-in Jobs"
         // [GIVEN] User sets the journal template, journal batch and quantity
         OfficeJobJournal.JobJournalTemplate.Value(JobJournalTemplate.Name);
         OfficeJobJournal.JobJournalBatch.Value(JobJournalBatch.Name);
-        Quantity := GenerateRandomQuantity;
+        Quantity := GenerateRandomQuantity();
         OfficeJobJournal.DisplayQuantity.Value(Format(Quantity));
 
         // [WHEN] User clicks submit to complete job and Office Job Complete page opens
-        OfficeJobJournalComplete.Trap;
-        OfficeJobJournal.Submit.Invoke;
+        OfficeJobJournalComplete.Trap();
+        OfficeJobJournal.Submit.Invoke();
 
         // [THEN] Office Job Complete page opens with correct values
         VerifyPage(JobPlanningLine, OfficeJobJournalComplete, Quantity, true);
@@ -207,13 +207,13 @@ codeunit 139060 "Office Add-in Jobs"
         OfficeAddinContext.SetRange("Item Type", OfficeAddinContext."Item Type"::Appointment);
 
         // [GIVEN] Add-in opens the Office Job Journal page opens
-        OfficeJobJournal.Trap;
+        OfficeJobJournal.Trap();
         RunMailEngine(OfficeAddinContext);
 
         // [THEN] Job Journal Template is not editable and Job Journal Batch is editable
-        Assert.IsFalse(OfficeJobJournal.JobJournalTemplate.Editable, 'Job journal template');
+        Assert.IsFalse(OfficeJobJournal.JobJournalTemplate.Editable(), 'Job journal template');
         OfficeJobJournal.JobJournalTemplate.AssertEquals(JobJournalTemplate.Name);
-        Assert.IsTrue(OfficeJobJournal.JobJournalBatch.Editable, 'Job journal batch');
+        Assert.IsTrue(OfficeJobJournal.JobJournalBatch.Editable(), 'Job journal batch');
     end;
 
     [Test]
@@ -247,14 +247,14 @@ codeunit 139060 "Office Add-in Jobs"
         OfficeAddinContext.SetRange("Item Type", OfficeAddinContext."Item Type"::Appointment);
 
         // [GIVEN] Add-in opens the Office Job Journal page opens
-        OfficeJobJournal.Trap;
+        OfficeJobJournal.Trap();
         RunMailEngine(OfficeAddinContext);
 
         // [THEN] Job Journal Template is editable and Job Journal Batch is editable
-        Assert.IsTrue(OfficeJobJournal.JobJournalTemplate.Editable, 'Job journal template');
+        Assert.IsTrue(OfficeJobJournal.JobJournalTemplate.Editable(), 'Job journal template');
         OfficeJobJournal.JobJournalTemplate.Value(JobJournalTemplate.Name);
         OfficeJobJournal.JobJournalTemplate.AssertEquals(JobJournalTemplate.Name);
-        Assert.IsTrue(OfficeJobJournal.JobJournalBatch.Editable, 'Job journal batch');
+        Assert.IsTrue(OfficeJobJournal.JobJournalBatch.Editable(), 'Job journal batch');
     end;
 
     [Test]
@@ -286,13 +286,13 @@ codeunit 139060 "Office Add-in Jobs"
         OfficeAddinContext.SetRange("Item Type", OfficeAddinContext."Item Type"::Appointment);
 
         // [GIVEN] Add-in opens the Office Job Journal page opens
-        OfficeJobJournal.Trap;
+        OfficeJobJournal.Trap();
         RunMailEngine(OfficeAddinContext);
 
         // [THEN] Job Journal Template is editable and Job Journal Batch is not editable
-        Assert.IsTrue(OfficeJobJournal.JobJournalTemplate.Editable, 'Job journal template');
+        Assert.IsTrue(OfficeJobJournal.JobJournalTemplate.Editable(), 'Job journal template');
         OfficeJobJournal.JobJournalTemplate.Value(JobJournalTemplate.Name);
-        Assert.IsFalse(OfficeJobJournal.JobJournalBatch.Editable, 'Job journal batch');
+        Assert.IsFalse(OfficeJobJournal.JobJournalBatch.Editable(), 'Job journal batch');
         OfficeJobJournal.JobJournalBatch.AssertEquals(JobJournalBatch.Name);
     end;
 
@@ -323,11 +323,11 @@ codeunit 139060 "Office Add-in Jobs"
         OfficeAddinContext.SetRange("Item Type", OfficeAddinContext."Item Type"::Appointment);
 
         // [GIVEN] Add-in opens the Office Job Journal page opens
-        OfficeJobJournal.Trap;
+        OfficeJobJournal.Trap();
         RunMailEngine(OfficeAddinContext);
 
         // [THEN] An error is displayed that no batches exist for this template
-        Assert.IsTrue(OfficeJobJournal.JobJournalTemplate.Editable, 'Job journal template');
+        Assert.IsTrue(OfficeJobJournal.JobJournalTemplate.Editable(), 'Job journal template');
         asserterror OfficeJobJournal.JobJournalTemplate.Value(JobJournalTemplate.Name);
     end;
 
@@ -358,7 +358,7 @@ codeunit 139060 "Office Add-in Jobs"
         OfficeAddinContext.SetRange("Item Type", OfficeAddinContext."Item Type"::Appointment);
 
         // [GIVEN] Add-in opens the Office Job Journal page opens
-        OfficeJobJournal.Trap;
+        OfficeJobJournal.Trap();
         RunMailEngine(OfficeAddinContext);
 
         // [THEN] An error is displayed when the user enters an the invalid Job Journal Template Name
@@ -392,7 +392,7 @@ codeunit 139060 "Office Add-in Jobs"
         OfficeAddinContext.SetRange("Item Type", OfficeAddinContext."Item Type"::Appointment);
 
         // [GIVEN] Add-in opens the Office Job Journal page opens
-        OfficeJobJournal.Trap;
+        OfficeJobJournal.Trap();
         RunMailEngine(OfficeAddinContext);
 
         // [THEN] An error is displayed when the user enters an the invalid Job Journal Template Name
@@ -429,7 +429,7 @@ codeunit 139060 "Office Add-in Jobs"
         OfficeAddinContext.SetRange("Item Type", OfficeAddinContext."Item Type"::Appointment);
 
         // [GIVEN] Add-in opens the Office Job Journal page opens
-        OfficeJobJournal.Trap;
+        OfficeJobJournal.Trap();
         RunMailEngine(OfficeAddinContext);
 
         // [THEN] An error is displayed when the user enters an the invalid Job Journal Batch Name
@@ -454,11 +454,11 @@ codeunit 139060 "Office Add-in Jobs"
         OfficeAddinContext.SetRange("Item Type", OfficeAddinContext."Item Type"::Appointment);
 
         // [WHEN] Add-in opens the Office Error Dialog page opens
-        OfficeErrorDlg.Trap;
+        OfficeErrorDlg.Trap();
         RunMailEngine(OfficeAddinContext);
 
         // [THEN] Error dialog has correct message
-        OfficeErrorDlg.ErrorText.AssertEquals('Cannot find job number 123, job task number 456, line number 789.');
+        OfficeErrorDlg.ErrorText.AssertEquals('Cannot find project number 123, project task number 456, line number 789.');
     end;
 
     local procedure Initialize()
@@ -490,7 +490,7 @@ codeunit 139060 "Office Add-in Jobs"
         OfficeHost: DotNet OfficeHost;
     begin
         OfficeAddinContext.DeleteAll();
-        SetOfficeHostUnAvailable;
+        SetOfficeHostUnAvailable();
 
         SetOfficeHostProvider(CODEUNIT::"Library - Office Host Provider");
 
@@ -502,7 +502,7 @@ codeunit 139060 "Office Add-in Jobs"
         NameValueBuffer: Record "Name/Value Buffer";
     begin
         // Test Providers checks whether we have registered Host in NameValueBuffer or not
-        if NameValueBuffer.Get(SessionId) then begin
+        if NameValueBuffer.Get(SessionId()) then begin
             NameValueBuffer.Delete();
             Commit();
         end;
@@ -526,7 +526,7 @@ codeunit 139060 "Office Add-in Jobs"
         AddinManifestManagement.GetAddinByHostType(OfficeAddin, OfficeHostType.OutlookItemRead);
         OfficeAddinContext.SetRange(Version, OfficeAddin.Version);
 
-        OutlookMailEngine.Trap;
+        OutlookMailEngine.Trap();
         PAGE.Run(PAGE::"Outlook Mail Engine", OfficeAddinContext);
     end;
 
@@ -556,9 +556,9 @@ codeunit 139060 "Office Add-in Jobs"
         OfficeJobJournal."Job Task No.".AssertEquals(JobPlanningLine."Job Task No.");
         OfficeJobJournal.DisplayQuantity.AssertEquals(Quantity);
 
-        Assert.AreEqual(not IsComplete, OfficeJobJournal.DisplayQuantity.Editable, 'DisplayQuantity Editable');
-        Assert.AreEqual(not IsComplete, OfficeJobJournal.Date.Editable, 'Planning Date Editable');
-        Assert.AreEqual(not IsComplete, OfficeJobJournal.Submit.Visible, 'Submit Visible');
+        Assert.AreEqual(not IsComplete, OfficeJobJournal.DisplayQuantity.Editable(), 'DisplayQuantity Editable');
+        Assert.AreEqual(not IsComplete, OfficeJobJournal.Date.Editable(), 'Planning Date Editable');
+        Assert.AreEqual(not IsComplete, OfficeJobJournal.Submit.Visible(), 'Submit Visible');
     end;
 
     [ConfirmHandler]

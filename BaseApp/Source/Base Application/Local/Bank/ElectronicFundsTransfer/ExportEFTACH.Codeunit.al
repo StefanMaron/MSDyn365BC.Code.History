@@ -57,68 +57,66 @@ codeunit 10094 "Export EFT (ACH)"
         CompanyInformation.Get();
         CompanyInformation.TestField("Federal ID No.");
 
-        with BankAccount do begin
-            LockTable();
-            Get(BankAccountNo);
-            TestField("Export Format", "Export Format"::US);
-            TestField("Transit No.");
-            if not ExportPaymentsACH.CheckDigit("Transit No.") then
-                Error(IsNotValidErr);
-            TestField("Last E-Pay Export File Name");
-            TestField(Blocked, false);
-            BankName := Name;
-            FileName := FileManagement.ServerTempFileName('');
+        BankAccount.LockTable();
+        BankAccount.Get(BankAccountNo);
+        BankAccount.TestField("Export Format", BankAccount."Export Format"::US);
+        BankAccount.TestField("Transit No.");
+        if not ExportPaymentsACH.CheckDigit(BankAccount."Transit No.") then
+            Error(IsNotValidErr);
+        BankAccount.TestField("Last E-Pay Export File Name");
+        BankAccount.TestField(Blocked, false);
+        BankName := BankAccount.Name;
+        FileName := FileManagement.ServerTempFileName('');
 
-            if "Last ACH File ID Modifier" = '' then
-                "Last ACH File ID Modifier" := '1'
-            else begin
-                i := 1;
-                while (i < ArrayLen(ModifierValues)) and
-                      ("Last ACH File ID Modifier" <> ModifierValues[i])
-                do
-                    i := i + 1;
-                if i = ArrayLen(ModifierValues) then
-                    i := 1
-                else
-                    i := i + 1;
-                "Last ACH File ID Modifier" := ModifierValues[i];
-            end;
-            if not EFTValues.IsSetFileCreationNumber() then
-                "Last E-Pay File Creation No." := "Last E-Pay File Creation No." + 1;
-            Modify();
-
-            if Exists(FileName) then
-                Error(AlreadyExistsErr);
-
-            FileDate := Today;
-            FileTime := Time;
-            EFTValues.SetNoOfRec(0);
-            EFTValues.SetTotalFileDebit(0);
-            EFTValues.SetTotalFileCredit(0);
-            EFTValues.SetFileEntryAddendaCount(0);
-            EFTValues.SetBatchCount(0);
-            EFTValues.SetBatchNo(0);
-            EFTValues.SetFileCreationNumber("Last E-Pay File Creation No.");
-            BlockingFactor := 10;
-            RecordLength := 94;
-
-            ACHUSHeader.Get(DataExchEntryNo);
-            ACHUSHeader."File Record Type" := 1;
-            ACHUSHeader."Priority Code" := 1;
-            ACHUSHeader."Transit Routing Number" := "Transit No.";
-            ACHUSHeader."Federal ID No." := DelChr(CompanyInformation."Federal ID No.", '=', ' .,-');
-            ACHUSHeader."File Creation Date" := FileDate;
-            ACHUSHeader."File Creation Time" := FileTime;
-            ACHUSHeader."File ID Modifier" := "Last ACH File ID Modifier";
-            ACHUSHeader."Record Size" := RecordLength;
-            ACHUSHeader."Blocking Factor" := BlockingFactor;
-            ACHUSHeader."Format Code" := 1;
-            ACHUSHeader."Company Name" := CompanyInformation.Name;
-            ACHUSHeader.Reference := ReferenceCode;
-            ACHUSHeader."Bank Name" := BankName;
-            OnStartExportFileOnBeforeACHUSHeaderModify(ACHUSHeader, BankAccount);
-            ACHUSHeader.Modify();
+        if BankAccount."Last ACH File ID Modifier" = '' then
+            BankAccount."Last ACH File ID Modifier" := '1'
+        else begin
+            i := 1;
+            while (i < ArrayLen(ModifierValues)) and
+                  (BankAccount."Last ACH File ID Modifier" <> ModifierValues[i])
+            do
+                i := i + 1;
+            if i = ArrayLen(ModifierValues) then
+                i := 1
+            else
+                i := i + 1;
+            BankAccount."Last ACH File ID Modifier" := ModifierValues[i];
         end;
+        if not EFTValues.IsSetFileCreationNumber() then
+            BankAccount."Last E-Pay File Creation No." := BankAccount."Last E-Pay File Creation No." + 1;
+        BankAccount.Modify();
+
+        if Exists(FileName) then
+            Error(AlreadyExistsErr);
+
+        FileDate := Today;
+        FileTime := Time;
+        EFTValues.SetNoOfRec(0);
+        EFTValues.SetTotalFileDebit(0);
+        EFTValues.SetTotalFileCredit(0);
+        EFTValues.SetFileEntryAddendaCount(0);
+        EFTValues.SetBatchCount(0);
+        EFTValues.SetBatchNo(0);
+        EFTValues.SetFileCreationNumber(BankAccount."Last E-Pay File Creation No.");
+        BlockingFactor := 10;
+        RecordLength := 94;
+
+        ACHUSHeader.Get(DataExchEntryNo);
+        ACHUSHeader."File Record Type" := 1;
+        ACHUSHeader."Priority Code" := 1;
+        ACHUSHeader."Transit Routing Number" := BankAccount."Transit No.";
+        ACHUSHeader."Federal ID No." := DelChr(CompanyInformation."Federal ID No.", '=', ' .,-');
+        ACHUSHeader."File Creation Date" := FileDate;
+        ACHUSHeader."File Creation Time" := FileTime;
+        ACHUSHeader."File ID Modifier" := BankAccount."Last ACH File ID Modifier";
+        ACHUSHeader."Record Size" := RecordLength;
+        ACHUSHeader."Blocking Factor" := BlockingFactor;
+        ACHUSHeader."Format Code" := 1;
+        ACHUSHeader."Company Name" := CompanyInformation.Name;
+        ACHUSHeader.Reference := ReferenceCode;
+        ACHUSHeader."Bank Name" := BankName;
+        OnStartExportFileOnBeforeACHUSHeaderModify(ACHUSHeader, BankAccount);
+        ACHUSHeader.Modify();
     end;
 
     [Scope('OnPrem')]
@@ -209,62 +207,60 @@ codeunit 10094 "Export EFT (ACH)"
         DemandCredit := (PaymentAmount < 0);
         PaymentAmount := Abs(PaymentAmount);
 
-        with TempEFTExportWorkset do begin
-            if "Account Type" = "Account Type"::Vendor then begin
-                AcctType := 'V';
-                AcctNo := "Account No.";
+        if TempEFTExportWorkset."Account Type" = TempEFTExportWorkset."Account Type"::Vendor then begin
+            AcctType := 'V';
+            AcctNo := TempEFTExportWorkset."Account No.";
+        end else
+            if TempEFTExportWorkset."Account Type" = TempEFTExportWorkset."Account Type"::Customer then begin
+                AcctType := 'C';
+                AcctNo := TempEFTExportWorkset."Account No.";
             end else
-                if "Account Type" = "Account Type"::Customer then begin
-                    AcctType := 'C';
-                    AcctNo := "Account No.";
+                if TempEFTExportWorkset."Bal. Account Type" = TempEFTExportWorkset."Bal. Account Type"::Vendor then begin
+                    AcctType := 'V';
+                    AcctNo := TempEFTExportWorkset."Bal. Account No.";
                 end else
-                    if "Bal. Account Type" = "Bal. Account Type"::Vendor then begin
-                        AcctType := 'V';
-                        AcctNo := "Bal. Account No.";
+                    if TempEFTExportWorkset."Bal. Account Type" = TempEFTExportWorkset."Bal. Account Type"::Customer then begin
+                        AcctType := 'C';
+                        AcctNo := TempEFTExportWorkset."Bal. Account No.";
                     end else
-                        if "Bal. Account Type" = "Bal. Account Type"::Customer then begin
-                            AcctType := 'C';
-                            AcctNo := "Bal. Account No.";
-                        end else
-                            Error(ReferErr);
+                        Error(ReferErr);
 
-            if AcctType = 'V' then begin
-                ExportPaymentsACH.CheckVendorTransitNum(TempEFTExportWorkset, AcctNo, Vendor, VendorBankAccount, true);
+        if AcctType = 'V' then begin
+            ExportPaymentsACH.CheckVendorTransitNum(TempEFTExportWorkset, AcctNo, Vendor, VendorBankAccount, true);
 
-                AcctName := CopyStr(Vendor.Name, 1, MaxStrLen(AcctName));
-                VendorBankAccount.TestField("Bank Account No.");
-                TransitNo := VendorBankAccount."Transit No.";
-                BankAcctNo := VendorBankAccount."Bank Account No.";
-            end else
-                if AcctType = 'C' then begin
-                    Customer.Get(AcctNo);
-                    if Customer."Privacy Blocked" then
-                        Error(IsBlockedErr);
-                    if Customer.Blocked in [Customer.Blocked::All] then
-                        Error(PrivacyBlockedErr);
-                    AcctName := CopyStr(Customer.Name, 1, MaxStrLen(AcctName));
+            AcctName := CopyStr(Vendor.Name, 1, MaxStrLen(AcctName));
+            VendorBankAccount.TestField("Bank Account No.");
+            TransitNo := VendorBankAccount."Transit No.";
+            BankAcctNo := VendorBankAccount."Bank Account No.";
+        end else
+            if AcctType = 'C' then begin
+                Customer.Get(AcctNo);
+                if Customer."Privacy Blocked" then
+                    Error(IsBlockedErr);
+                if Customer.Blocked in [Customer.Blocked::All] then
+                    Error(PrivacyBlockedErr);
+                AcctName := CopyStr(Customer.Name, 1, MaxStrLen(AcctName));
 
-                    EFTRecipientBankAccountMgt.GetRecipientCustomerBankAccount(CustomerBankAccount, TempEFTExportWorkset, AcctNo);
+                EFTRecipientBankAccountMgt.GetRecipientCustomerBankAccount(CustomerBankAccount, TempEFTExportWorkset, AcctNo);
 
-                    if not ExportPaymentsACH.CheckDigit(CustomerBankAccount."Transit No.") then
-                        Error(IsNotValidErr);
+                if not ExportPaymentsACH.CheckDigit(CustomerBankAccount."Transit No.") then
+                    Error(IsNotValidErr);
 
-                    CustomerBankAccount.TestField("Bank Account No.");
-                    TransitNo := CustomerBankAccount."Transit No.";
-                    BankAcctNo := CustomerBankAccount."Bank Account No.";
-                end;
+                CustomerBankAccount.TestField("Bank Account No.");
+                TransitNo := CustomerBankAccount."Transit No.";
+                BankAcctNo := CustomerBankAccount."Bank Account No.";
+            end;
 
-            EFTValues.SetTraceNo(EFTValues.GetTraceNo() + 1);
+        EFTValues.SetTraceNo(EFTValues.GetTraceNo() + 1);
 
-            EFTValues.SetEntryAddendaCount(EFTValues.GetEntryAddendaCount() + 1);
-            if DemandCredit then
-                EFTValues.SetTotalBatchCredit(EFTValues.GetTotalBatchCredit() + PaymentAmount)
-            else
-                EFTValues.SetTotalBatchDebit(EFTValues.GetTotalBatchDebit() + PaymentAmount);
+        EFTValues.SetEntryAddendaCount(EFTValues.GetEntryAddendaCount() + 1);
+        if DemandCredit then
+            EFTValues.SetTotalBatchCredit(EFTValues.GetTotalBatchCredit() + PaymentAmount)
+        else
+            EFTValues.SetTotalBatchDebit(EFTValues.GetTotalBatchDebit() + PaymentAmount);
 
-            IncrementHashTotal(BatchHashTotal, MakeHash(CopyStr(TransitNo, 1, 8)));
-            EFTValues.SetBatchHashTotal(BatchHashTotal);
-        end;
+        IncrementHashTotal(BatchHashTotal, MakeHash(CopyStr(TransitNo, 1, 8)));
+        EFTValues.SetBatchHashTotal(BatchHashTotal);
 
         ACHUSDetail.Get(DataExchEntryNo, DataExchLineDefCode);
         ACHUSDetail."Record Type" := 6;

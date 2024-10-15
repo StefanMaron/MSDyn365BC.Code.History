@@ -80,7 +80,7 @@ report 81 "Import Budget from Excel"
 
                 if ImportOption = ImportOption::"Replace entries" then begin
                     AnalysisView.SetRange("Include Budgets", true);
-                    if AnalysisView.FindSet(true, false) then
+                    if AnalysisView.FindSet(true) then
                         repeat
                             AnalysisView.AnalysisviewBudgetReset();
                             AnalysisView.Modify();

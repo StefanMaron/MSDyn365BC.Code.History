@@ -7,6 +7,7 @@ namespace Microsoft.Foundation.BatchProcessing;
 table 54 "Batch Processing Session Map"
 {
     Caption = 'Batch Processing Session Map';
+    DataClassification = CustomerContent;
 
     fields
     {

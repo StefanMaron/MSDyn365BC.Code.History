@@ -10,6 +10,7 @@ using Microsoft.Warehouse.Structure;
 table 5857 "Direct Trans. Line"
 {
     Caption = 'Direct Transfer Line';
+    DataClassification = CustomerContent;
 
     fields
     {

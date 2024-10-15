@@ -167,10 +167,10 @@ codeunit 137269 "SCM Transfer Reservation"
         Initialize();
 
         // Stub for test handler if no error occurs
-        RunDummyConfirm;
+        RunDummyConfirm();
 
         // [GIVEN] New "Transfer Header"."Receipt Date" and Demand Date are corresponding for Inbound Autoreserve
-        NewReceiptDate := WorkDate + LibraryRandom.RandInt(30);
+        NewReceiptDate := WorkDate() + LibraryRandom.RandInt(30);
         DemandDate := NewReceiptDate + LibraryRandom.RandInt(30);
 
         // [GIVEN] Reserved Transfer Order and Demand
@@ -197,7 +197,7 @@ codeunit 137269 "SCM Transfer Reservation"
         Initialize();
 
         // [GIVEN] New "Transfer Line"."Receipt Date" and Demand Date are not corresponding for Inbound Autoreserve
-        DemandDate := WorkDate + LibraryRandom.RandInt(30);
+        DemandDate := WorkDate() + LibraryRandom.RandInt(30);
         NewReceiptDate := DemandDate + LibraryRandom.RandInt(30);
 
         // [GIVEN] Outbound Reserved Transfer Line
@@ -227,7 +227,7 @@ codeunit 137269 "SCM Transfer Reservation"
         Initialize();
 
         // [GIVEN] New "Transfer Line"."Shipment Date" and Demand Date are not corresponding for Inbound Autoreserve
-        DemandDate := WorkDate + LibraryRandom.RandInt(30);
+        DemandDate := WorkDate() + LibraryRandom.RandInt(30);
         NewShipmentDate := DemandDate + LibraryRandom.RandInt(30);
 
         // [GIVEN] Outbound Reserved Transfer Line
@@ -257,7 +257,7 @@ codeunit 137269 "SCM Transfer Reservation"
         Initialize();
 
         // [GIVEN] New "Transfer Line"."Shipping Time" leads to "Transfer Line"."Receipt Date" and Demand Date are not corresponding for Inbound Autoreserve
-        DemandDate := WorkDate + LibraryRandom.RandInt(30);
+        DemandDate := WorkDate() + LibraryRandom.RandInt(30);
         Evaluate(NewShippingTime, '<+1Y>');
 
         // [GIVEN] Outbound Reserved Transfer Line
@@ -287,7 +287,7 @@ codeunit 137269 "SCM Transfer Reservation"
         Initialize();
 
         // [GIVEN] New "Transfer Line"."Outbound Whse. Handling Time" leads to "Transfer Line"."Receipt Date" and Demand Date are not corresponding for Inbound Autoreserve
-        DemandDate := WorkDate + LibraryRandom.RandInt(30);
+        DemandDate := WorkDate() + LibraryRandom.RandInt(30);
         Evaluate(OutboundWhseHandlingTime, '<+1Y>');
 
         // [GIVEN] Outbound Reserved Transfer Line
@@ -317,7 +317,7 @@ codeunit 137269 "SCM Transfer Reservation"
         Initialize();
 
         // [GIVEN] New "Transfer Line"."Inbound Whse. Handling Time" leads to "Transfer Line"."Receipt Date" and Demand Date are not corresponding for Inbound Autoreserve
-        DemandDate := WorkDate + LibraryRandom.RandInt(30);
+        DemandDate := WorkDate() + LibraryRandom.RandInt(30);
         Evaluate(InboundWhseHandlingTime, '<+1Y>');
 
         // [GIVEN] Outbound Reserved Transfer Line
@@ -348,7 +348,7 @@ codeunit 137269 "SCM Transfer Reservation"
         Initialize();
 
         // [GIVEN] New "Transfer Line"."Shipping Agent Service Code" leads to "Transfer Line"."Receipt Date" and Demand Date are not corresponding for Inbound Autoreserve
-        DemandDate := WorkDate + LibraryRandom.RandInt(30);
+        DemandDate := WorkDate() + LibraryRandom.RandInt(30);
         CreateShippingAgentServiceCodeWith1YShippingTime(ShippingAgentCode, ShippingAgentServiceCode);
 
         // [GIVEN] Outbound Reserved Transfer Line
@@ -380,7 +380,7 @@ codeunit 137269 "SCM Transfer Reservation"
         Initialize();
 
         // [GIVEN] New "Transfer Header"."Receipt Date" and Demand Date are not corresponding for Inbound Autoreserve
-        DemandDate := WorkDate + LibraryRandom.RandInt(30);
+        DemandDate := WorkDate() + LibraryRandom.RandInt(30);
         NewReceiptDate := DemandDate + LibraryRandom.RandInt(30);
 
         // [GIVEN] Outbound Reserved Transfer Order
@@ -411,7 +411,7 @@ codeunit 137269 "SCM Transfer Reservation"
         Initialize();
 
         // [GIVEN] New "Transfer Header"."Shipment Date" and Demand Date are not corresponding for Inbound Autoreserve
-        DemandDate := WorkDate + LibraryRandom.RandInt(30);
+        DemandDate := WorkDate() + LibraryRandom.RandInt(30);
         NewShipmentDate := DemandDate + LibraryRandom.RandInt(30);
 
         // [GIVEN] Outbound Reserved Transfer Order
@@ -442,7 +442,7 @@ codeunit 137269 "SCM Transfer Reservation"
         Initialize();
 
         // [GIVEN] New "Transfer Header"."Shipping Time" leads to "Transfer Header"."Receipt Date" and Demand Date are not corresponding for Inbound Autoreserve
-        DemandDate := WorkDate + LibraryRandom.RandInt(30);
+        DemandDate := WorkDate() + LibraryRandom.RandInt(30);
         Evaluate(NewShippingTime, '<+1Y>');
 
         // [GIVEN] Outbound Reserved Transfer Order
@@ -474,7 +474,7 @@ codeunit 137269 "SCM Transfer Reservation"
         Initialize();
 
         // [GIVEN] New "Transfer Header"."Shipping Agent Service Code" leads to "Transfer Header"."Receipt Date" and Demand Date are not corresponding for Inbound Autoreserve
-        DemandDate := WorkDate + LibraryRandom.RandInt(30);
+        DemandDate := WorkDate() + LibraryRandom.RandInt(30);
         CreateShippingAgentServiceCodeWith1YShippingTime(ShippingAgentCode, ShippingAgentServiceCode);
 
         // [GIVEN] Outbound Reserved Transfer Order
@@ -505,7 +505,7 @@ codeunit 137269 "SCM Transfer Reservation"
         Initialize();
 
         // [GIVEN] New "Transfer Line"."Receipt Date" and Demand Date are not corresponding for Outbound Autoreserve
-        DemandDate := WorkDate + LibraryRandom.RandInt(30);
+        DemandDate := WorkDate() + LibraryRandom.RandInt(30);
 
         // [GIVEN] Supply from Purchase Line, Transfer Line as Demand
         CreateSupplyAndDemandFromTransferLine(PurchaseLine, TransferLine, DemandDate);
@@ -532,7 +532,7 @@ codeunit 137269 "SCM Transfer Reservation"
         Initialize();
 
         // [GIVEN] New "Transfer Line"."Receipt Date" and Demand Date are not corresponding for Outbound Autoreserve
-        DemandDate := WorkDate + LibraryRandom.RandInt(30);
+        DemandDate := WorkDate() + LibraryRandom.RandInt(30);
 
         // [GIVEN] Supply from Purchase Line, Transfer Order as Demand
         CreateSupplyAndDemandFromTransferOrder(PurchaseLine, TransferHeader, DemandDate);
@@ -1283,7 +1283,7 @@ codeunit 137269 "SCM Transfer Reservation"
             Validate("Lot No.", LotNo);
             Modify(true);
 
-            Next;
+            Next();
             Validate("Qty. to Handle", 1);
             Validate("Lot No.", LotNo);
             Modify(true);
@@ -1347,7 +1347,7 @@ codeunit 137269 "SCM Transfer Reservation"
         ReservationEntry.TestField("Lot No.", LotNo);
         ReservationEntry.TestField(Quantity, LotQty);
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -1460,7 +1460,7 @@ codeunit 137269 "SCM Transfer Reservation"
         ReservationEntry.TestField("Lot No.", LotNo);
         ReservationEntry.TestField(Quantity, LotQty);
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -1512,7 +1512,7 @@ codeunit 137269 "SCM Transfer Reservation"
           DATABASE::"Transfer Line", Direction::Inbound, TransferLine."Document No.", TransferLine."Line No.", false);
         Assert.RecordIsEmpty(ReservationEntry);
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -1625,7 +1625,7 @@ codeunit 137269 "SCM Transfer Reservation"
         LibraryInventory.CreateTransferHeader(TransferHeader, LocationFrom.Code, LocationTo.Code, LocationInTransit.Code);
 
         // [WHEN] Invoke "Get Receipt Lines" function and select the posted receipt line.
-        TransferHeader.GetReceiptLines;
+        TransferHeader.GetReceiptLines();
 
         // [THEN] Transfer line is created.
         // [THEN] 5 serial nos. are assigned on the transfer line.
@@ -1641,7 +1641,7 @@ codeunit 137269 "SCM Transfer Reservation"
         ReservEntry.CalcSums(Quantity);
         ReservEntry.TestField(Quantity, Qty);
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -1678,7 +1678,7 @@ codeunit 137269 "SCM Transfer Reservation"
         LibraryInventory.CreateTransferHeader(TransferHeader, LocationFrom.Code, LocationTo.Code, LocationInTransit.Code);
 
         // [WHEN] Invoke "Get Receipt Lines" function and select the posted receipt line.
-        TransferHeader.GetReceiptLines;
+        TransferHeader.GetReceiptLines();
 
         // [THEN] Transfer line is created.
         // [THEN] No reservation entries are created for the new transfer line.
@@ -1700,7 +1700,6 @@ codeunit 137269 "SCM Transfer Reservation"
         WarehouseShipmentHeader: Record "Warehouse Shipment Header";
         WarehouseActivityLine: Record "Warehouse Activity Line";
         ReservationEntry: Record "Reservation Entry";
-        QtyToHandle: Decimal;
     begin
         // [FEATURE] [Warehouse Pick]
         // [SCENARIO 384945] Outbound Reservation Entry "Qty. to Handle (Base)" not modified for Transfer Order if "Qty. to Handle" was deleted on Warehouse Pick Lines when Item Tracking is not used
@@ -1814,7 +1813,6 @@ codeunit 137269 "SCM Transfer Reservation"
         Item: Record Item;
         LocationWhite: Record Location;
         LocationBlue: Record Location;
-        WarehouseEmployee: Record "Warehouse Employee";
         TransferHeader: Record "Transfer Header";
         LotNo, LotNo2 : Code[20];
     begin
@@ -1954,7 +1952,7 @@ codeunit 137269 "SCM Transfer Reservation"
     begin
         LibraryItemTracking.CreateLotItem(Item);
         Item.Validate("Reordering Policy", Item."Reordering Policy"::Order);
-        Item.Validate("Vendor No.", LibraryPurchase.CreateVendorNo);
+        Item.Validate("Vendor No.", LibraryPurchase.CreateVendorNo());
         Item.Modify(true);
     end;
 
@@ -2183,7 +2181,7 @@ codeunit 137269 "SCM Transfer Reservation"
         SKU.Validate("Transfer-from Code", TransferFromCode);
 
         if SKU."Replenishment System" = SKU."Replenishment System"::Purchase then
-            SKU.Validate("Vendor No.", LibraryPurchase.CreateVendorNo);
+            SKU.Validate("Vendor No.", LibraryPurchase.CreateVendorNo());
 
         SKU.Validate("Reordering Policy", ReorderingPolicy);
         SKU.Modify(true);
@@ -2731,36 +2729,36 @@ codeunit 137269 "SCM Transfer Reservation"
     [Scope('OnPrem')]
     procedure WhseItemTrackingLinesPageHandler(var WhseItemTrackingLines: TestPage "Whse. Item Tracking Lines")
     begin
-        WhseItemTrackingLines."Lot No.".SetValue(LibraryVariableStorage.DequeueText);
-        WhseItemTrackingLines.Quantity.SetValue(LibraryVariableStorage.DequeueDecimal);
-        WhseItemTrackingLines.OK.Invoke;
+        WhseItemTrackingLines."Lot No.".SetValue(LibraryVariableStorage.DequeueText());
+        WhseItemTrackingLines.Quantity.SetValue(LibraryVariableStorage.DequeueDecimal());
+        WhseItemTrackingLines.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure ItemTrackingLinesPageHandler(var ItemTrackingLines: TestPage "Item Tracking Lines")
     begin
-        case LibraryVariableStorage.DequeueInteger of
+        case LibraryVariableStorage.DequeueInteger() of
             ItemTrackingOption::AssignLotNo:
                 begin
-                    ItemTrackingLines."Lot No.".SetValue(LibraryVariableStorage.DequeueText);
-                    ItemTrackingLines."Quantity (Base)".SetValue(LibraryVariableStorage.DequeueDecimal);
+                    ItemTrackingLines."Lot No.".SetValue(LibraryVariableStorage.DequeueText());
+                    ItemTrackingLines."Quantity (Base)".SetValue(LibraryVariableStorage.DequeueDecimal());
                 end;
             ItemTrackingOption::SelectEntries:
                 begin
-                    ItemTrackingLines."Select Entries".Invoke;
-                    ItemTrackingLines.First;
+                    ItemTrackingLines."Select Entries".Invoke();
+                    ItemTrackingLines.First();
                     ItemTrackingLines."Qty. to Handle (Base)".SetValue(0);
                 end;
             ItemTrackingOption::ChangeLotQty:
                 begin
-                    ItemTrackingLines.FILTER.SetFilter("Lot No.", LibraryVariableStorage.DequeueText);
-                    ItemTrackingLines."Quantity (Base)".SetValue(LibraryVariableStorage.DequeueDecimal);
+                    ItemTrackingLines.FILTER.SetFilter("Lot No.", LibraryVariableStorage.DequeueText());
+                    ItemTrackingLines."Quantity (Base)".SetValue(LibraryVariableStorage.DequeueDecimal());
                 end;
             ItemTrackingOption::AssignSerialNos:
-                ItemTrackingLines."Assign Serial No.".Invoke;
+                ItemTrackingLines."Assign Serial No.".Invoke();
         end;
-        ItemTrackingLines.OK.Invoke;
+        ItemTrackingLines.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -2768,14 +2766,14 @@ codeunit 137269 "SCM Transfer Reservation"
     var
         QtyToHandle: Decimal;
     begin
-        ItemTrackingLines."Lot No.".SetValue(LibraryVariableStorage.DequeueText);
+        ItemTrackingLines."Lot No.".SetValue(LibraryVariableStorage.DequeueText());
         QtyToHandle := LibraryVariableStorage.DequeueDecimal();
         ItemTrackingLines."Quantity (Base)".SetValue(QtyToHandle);
         ItemTrackingLines.Next();
-        ItemTrackingLines."Lot No.".SetValue(LibraryVariableStorage.DequeueText);
+        ItemTrackingLines."Lot No.".SetValue(LibraryVariableStorage.DequeueText());
         QtyToHandle := LibraryVariableStorage.DequeueDecimal();
         ItemTrackingLines."Quantity (Base)".SetValue(QtyToHandle);
-        ItemTrackingLines.OK.Invoke;
+        ItemTrackingLines.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -2783,46 +2781,46 @@ codeunit 137269 "SCM Transfer Reservation"
     var
         QtyToBase, QtyToHandle : Decimal;
     begin
-        ItemTrackingLines."Lot No.".SetValue(LibraryVariableStorage.DequeueText);
+        ItemTrackingLines."Lot No.".SetValue(LibraryVariableStorage.DequeueText());
         QtyToBase := LibraryVariableStorage.DequeueDecimal();
         QtyToHandle := LibraryVariableStorage.DequeueDecimal();
         ItemTrackingLines."Quantity (Base)".SetValue(QtyToBase);
         ItemTrackingLines."Qty. to Handle (Base)".SetValue(QtyToHandle);
         ItemTrackingLines.Next();
-        ItemTrackingLines."Lot No.".SetValue(LibraryVariableStorage.DequeueText);
+        ItemTrackingLines."Lot No.".SetValue(LibraryVariableStorage.DequeueText());
         QtyToBase := LibraryVariableStorage.DequeueDecimal();
         QtyToHandle := LibraryVariableStorage.DequeueDecimal();
         ItemTrackingLines."Quantity (Base)".SetValue(QtyToBase);
         ItemTrackingLines."Qty. to Handle (Base)".SetValue(QtyToHandle);
-        ItemTrackingLines.OK.Invoke;
+        ItemTrackingLines.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure ItemTrackingSummaryPageHandler(var ItemTrackingSummary: TestPage "Item Tracking Summary")
     begin
-        ItemTrackingSummary.OK.Invoke;
+        ItemTrackingSummary.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure EnterQuantityToCreateModalPageHandler(var EnterQuantityToCreate: TestPage "Enter Quantity to Create")
     begin
-        EnterQuantityToCreate.OK.Invoke;
+        EnterQuantityToCreate.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure PostedPurchaseReceiptsModalPageHandler(var PostedPurchaseReceipts: TestPage "Posted Purchase Receipts")
     begin
-        PostedPurchaseReceipts.OK.Invoke;
+        PostedPurchaseReceipts.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure PostedPurchaseReceiptLinesModalPageHandler(var PostedPurchaseReceiptLines: TestPage "Posted Purchase Receipt Lines")
     begin
-        PostedPurchaseReceiptLines.OK.Invoke;
+        PostedPurchaseReceiptLines.OK().Invoke();
     end;
 
     [ConfirmHandler]

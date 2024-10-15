@@ -674,144 +674,142 @@ report 5915 "Service Document - Test"
                                 TempServiceLine.Next();
                             "Service Line" := TempServiceLine;
 
-                            with "Service Line" do begin
-                                if SalesTax and not HeaderTaxArea."Use External Tax Engine" then
-                                    SalesTaxCalculate.AddServiceLine("Service Line");
+                            if SalesTax and not HeaderTaxArea."Use External Tax Engine" then
+                                SalesTaxCalculate.AddServiceLine("Service Line");
 
-                                if not "Service Header"."Prices Including VAT" and
-                                   ("VAT Calculation Type" = "VAT Calculation Type"::"Full VAT")
-                                then
-                                    TempServiceLine."Line Amount" := 0;
+                            if not "Service Header"."Prices Including VAT" and
+                                   ("Service Line"."VAT Calculation Type" = "Service Line"."VAT Calculation Type"::"Full VAT")
+                            then
+                                TempServiceLine."Line Amount" := 0;
 
-                                TempDimSetEntry.SetRange("Dimension Set ID", "Dimension Set ID");
-                                if "Document Type" = "Document Type"::"Credit Memo" then begin
-                                    if "Document Type" = "Document Type"::"Credit Memo" then
-                                        if "Qty. to Invoice" <> Quantity then
-                                            AddError(StrSubstNo(Text015, FieldCaption("Qty. to Invoice"), Quantity));
-                                    if "Qty. to Ship" <> 0 then
-                                        AddError(StrSubstNo(Text043, FieldCaption("Qty. to Ship")));
-                                end else
-                                    if "Document Type" = "Document Type"::Invoice then begin
-                                        if ("Qty. to Ship" <> Quantity) and ("Shipment No." = '') then
-                                            AddError(StrSubstNo(Text015, FieldCaption("Qty. to Ship"), Quantity));
-                                        if "Qty. to Invoice" <> Quantity then
-                                            AddError(StrSubstNo(Text015, FieldCaption("Qty. to Invoice"), Quantity));
+                            TempDimSetEntry.SetRange("Dimension Set ID", "Service Line"."Dimension Set ID");
+                            if "Service Line"."Document Type" = "Service Line"."Document Type"::"Credit Memo" then begin
+                                if "Service Line"."Document Type" = "Service Line"."Document Type"::"Credit Memo" then
+                                    if "Service Line"."Qty. to Invoice" <> "Service Line".Quantity then
+                                        AddError(StrSubstNo(Text015, "Service Line".FieldCaption("Qty. to Invoice"), "Service Line".Quantity));
+                                if "Service Line"."Qty. to Ship" <> 0 then
+                                    AddError(StrSubstNo(Text043, "Service Line".FieldCaption("Qty. to Ship")));
+                            end else
+                                if "Service Line"."Document Type" = "Service Line"."Document Type"::Invoice then begin
+                                    if ("Service Line"."Qty. to Ship" <> "Service Line".Quantity) and ("Service Line"."Shipment No." = '') then
+                                        AddError(StrSubstNo(Text015, "Service Line".FieldCaption("Qty. to Ship"), "Service Line".Quantity));
+                                    if "Service Line"."Qty. to Invoice" <> "Service Line".Quantity then
+                                        AddError(StrSubstNo(Text015, "Service Line".FieldCaption("Qty. to Invoice"), "Service Line".Quantity));
+                                end;
+
+                            if not Ship then
+                                "Service Line"."Qty. to Ship" := 0;
+
+                            if ("Service Line"."Document Type" = "Service Line"."Document Type"::Invoice) and ("Service Line"."Shipment No." <> '') then begin
+                                "Service Line"."Quantity Shipped" := "Service Line".Quantity;
+                                "Service Line"."Qty. to Ship" := 0;
+                            end;
+
+                            if Invoice then begin
+                                if "Service Line"."Document Type" = "Service Line"."Document Type"::"Credit Memo" then
+                                    MaxQtyToBeInvoiced := "Service Line".Quantity
+                                else
+                                    MaxQtyToBeInvoiced := "Service Line"."Qty. to Ship" + "Service Line"."Quantity Shipped" - "Service Line"."Quantity Invoiced";
+                                if Abs("Service Line"."Qty. to Invoice") > Abs(MaxQtyToBeInvoiced) then
+                                    "Service Line"."Qty. to Invoice" := MaxQtyToBeInvoiced;
+                            end else
+                                "Service Line"."Qty. to Invoice" := 0;
+
+                            if "Service Line"."Gen. Prod. Posting Group" <> '' then begin
+                                if ("Service Header"."Document Type" = "Service Header"."Document Type"::"Credit Memo") and
+                                   ("Service Header"."Applies-to Doc. Type" = "Service Header"."Applies-to Doc. Type"::Invoice) and
+                                   ("Service Header"."Applies-to Doc. No." <> '')
+                                then begin
+                                    CustLedgEntry.SetCurrentKey("Document No.");
+                                    CustLedgEntry.SetRange("Customer No.", "Service Header"."Bill-to Customer No.");
+                                    CustLedgEntry.SetRange("Document Type", CustLedgEntry."Document Type"::Invoice);
+                                    CustLedgEntry.SetRange("Document No.", "Service Header"."Applies-to Doc. No.");
+                                    if not CustLedgEntry.FindLast() and not ApplNoError then begin
+                                        ApplNoError := true;
+                                        AddError(
+                                          StrSubstNo(
+                                            Text016,
+                                            "Service Header".FieldCaption("Applies-to Doc. No."), "Service Header"."Applies-to Doc. No."));
                                     end;
-
-                                if not Ship then
-                                    "Qty. to Ship" := 0;
-
-                                if ("Document Type" = "Document Type"::Invoice) and ("Shipment No." <> '') then begin
-                                    "Quantity Shipped" := Quantity;
-                                    "Qty. to Ship" := 0;
                                 end;
 
-                                if Invoice then begin
-                                    if "Document Type" = "Document Type"::"Credit Memo" then
-                                        MaxQtyToBeInvoiced := Quantity
-                                    else
-                                        MaxQtyToBeInvoiced := "Qty. to Ship" + "Quantity Shipped" - "Quantity Invoiced";
-                                    if Abs("Qty. to Invoice") > Abs(MaxQtyToBeInvoiced) then
-                                        "Qty. to Invoice" := MaxQtyToBeInvoiced;
-                                end else
-                                    "Qty. to Invoice" := 0;
-
-                                if "Gen. Prod. Posting Group" <> '' then begin
-                                    if ("Service Header"."Document Type" = "Service Header"."Document Type"::"Credit Memo") and
-                                       ("Service Header"."Applies-to Doc. Type" = "Service Header"."Applies-to Doc. Type"::Invoice) and
-                                       ("Service Header"."Applies-to Doc. No." <> '')
-                                    then begin
-                                        CustLedgEntry.SetCurrentKey("Document No.");
-                                        CustLedgEntry.SetRange("Customer No.", "Service Header"."Bill-to Customer No.");
-                                        CustLedgEntry.SetRange("Document Type", CustLedgEntry."Document Type"::Invoice);
-                                        CustLedgEntry.SetRange("Document No.", "Service Header"."Applies-to Doc. No.");
-                                        if not CustLedgEntry.FindLast() and not ApplNoError then begin
-                                            ApplNoError := true;
-                                            AddError(
-                                              StrSubstNo(
-                                                Text016,
-                                                "Service Header".FieldCaption("Applies-to Doc. No."), "Service Header"."Applies-to Doc. No."));
-                                        end;
+                                if not VATPostingSetup.Get("Service Line"."VAT Bus. Posting Group", "Service Line"."VAT Prod. Posting Group") then
+                                    AddError(
+                                      StrSubstNo(
+                                        Text017,
+                                        VATPostingSetup.TableCaption(), "Service Line"."VAT Bus. Posting Group", "Service Line"."VAT Prod. Posting Group"));
+                                if VATPostingSetup."VAT Calculation Type" = VATPostingSetup."VAT Calculation Type"::"Reverse Charge VAT" then
+                                    if ("Service Header"."VAT Registration No." = '') and not VATNoError then begin
+                                        VATNoError := true;
+                                        AddError(
+                                          StrSubstNo(
+                                            Text035, "Service Header".FieldCaption("VAT Registration No.")));
                                     end;
+                            end;
 
-                                    if not VATPostingSetup.Get("VAT Bus. Posting Group", "VAT Prod. Posting Group") then
-                                        AddError(
-                                          StrSubstNo(
-                                            Text017,
-                                            VATPostingSetup.TableCaption(), "VAT Bus. Posting Group", "VAT Prod. Posting Group"));
-                                    if VATPostingSetup."VAT Calculation Type" = VATPostingSetup."VAT Calculation Type"::"Reverse Charge VAT" then
-                                        if ("Service Header"."VAT Registration No." = '') and not VATNoError then begin
-                                            VATNoError := true;
-                                            AddError(
-                                              StrSubstNo(
-                                                Text035, "Service Header".FieldCaption("VAT Registration No.")));
-                                        end;
-                                end;
+                            CheckQuantity("Service Line");
 
-                                CheckQuantity("Service Line");
+                            ServiceLine := "Service Line";
+                            if not ("Service Line"."Document Type" = "Service Line"."Document Type"::"Credit Memo") then begin
+                                ServiceLine."Qty. to Ship" := -ServiceLine."Qty. to Ship";
+                                ServiceLine."Qty. to Invoice" := -ServiceLine."Qty. to Invoice";
+                            end;
 
-                                ServiceLine := "Service Line";
-                                if not ("Document Type" = "Document Type"::"Credit Memo") then begin
-                                    ServiceLine."Qty. to Ship" := -ServiceLine."Qty. to Ship";
-                                    ServiceLine."Qty. to Invoice" := -ServiceLine."Qty. to Invoice";
-                                end;
+                            RemQtyToBeInvoiced := ServiceLine."Qty. to Invoice";
 
-                                RemQtyToBeInvoiced := ServiceLine."Qty. to Invoice";
+                            case "Service Line"."Document Type" of
+                                "Service Line"."Document Type"::Order, "Service Line"."Document Type"::Invoice:
+                                    CheckShptLines("Service Line");
+                            end;
 
-                                case "Document Type" of
-                                    "Document Type"::Order, "Document Type"::Invoice:
-                                        CheckShptLines("Service Line");
-                                end;
+                            if ("Service Line".Type.AsInteger() >= "Service Line".Type::"G/L Account".AsInteger()) and ("Service Line"."Qty. to Invoice" <> 0) then begin
+                                if not GenPostingSetup.Get("Service Line"."Gen. Bus. Posting Group", "Service Line"."Gen. Prod. Posting Group") then
+                                    AddError(
+                                      StrSubstNo(
+                                        Text017,
+                                        GenPostingSetup.TableCaption(), "Service Line"."Gen. Bus. Posting Group", "Service Line"."Gen. Prod. Posting Group"));
+                                if not VATPostingSetup.Get("Service Line"."VAT Bus. Posting Group", "Service Line"."VAT Prod. Posting Group") then
+                                    AddError(
+                                      StrSubstNo(
+                                        Text017,
+                                        VATPostingSetup.TableCaption(), "Service Line"."VAT Bus. Posting Group", "Service Line"."VAT Prod. Posting Group"));
+                            end;
 
-                                if (Type.AsInteger() >= Type::"G/L Account".AsInteger()) and ("Qty. to Invoice" <> 0) then begin
-                                    if not GenPostingSetup.Get("Gen. Bus. Posting Group", "Gen. Prod. Posting Group") then
-                                        AddError(
-                                          StrSubstNo(
-                                            Text017,
-                                            GenPostingSetup.TableCaption(), "Gen. Bus. Posting Group", "Gen. Prod. Posting Group"));
-                                    if not VATPostingSetup.Get("VAT Bus. Posting Group", "VAT Prod. Posting Group") then
-                                        AddError(
-                                          StrSubstNo(
-                                            Text017,
-                                            VATPostingSetup.TableCaption(), "VAT Bus. Posting Group", "VAT Prod. Posting Group"));
-                                end;
+                            CheckType("Service Line");
 
-                                CheckType("Service Line");
+                            if not DimMgt.CheckDimIDComb("Service Line"."Dimension Set ID") then
+                                AddError(DimMgt.GetDimCombErr());
 
-                                if not DimMgt.CheckDimIDComb("Dimension Set ID") then
-                                    AddError(DimMgt.GetDimCombErr());
-
-                                if Type = Type::Cost then begin
-                                    TableID[1] := Database::"G/L Account";
-                                    if ServCost.Get("No.") then
-                                        No[1] := ServCost."Account No.";
-                                end else begin
-                                    TableID[1] := DimMgt.TypeToTableID5(Type);
-                                    No[1] := "No.";
-                                end;
-                                TableID[2] := Database::Job;
-                                No[2] := "Job No.";
-                                if not DimMgt.CheckDimValuePosting(TableID, No, "Dimension Set ID") then
-                                    AddError(DimMgt.GetDimValuePostingErr());
-                                if "Line No." > OrigMaxLineNo then begin
-                                    "No." := '';
-                                    Type := Type::" ";
-                                end;
-                                if "Line No." = OrigMaxLineNo then begin
-                                    if SalesTax then begin
-                                        if not SalesTaxCalculationOverridden then begin
-                                            if HeaderTaxArea."Use External Tax Engine" then
-                                                SalesTaxCalculate.CallExternalTaxEngineForServ("Service Header", true)
-                                            else
-                                                SalesTaxCalculate.EndSalesTaxCalculation("Service Header"."Posting Date");
-                                            SalesTaxCalculate.GetSalesTaxAmountLineTable(SalesTaxAmountLine);
-                                        end;
-                                        VATAmount := SalesTaxAmountLine.GetTotalTaxAmountFCY();
-                                        VATBaseAmount := SalesTaxAmountLine.GetTotalTaxBase();
-                                        TaxText := SalesTaxAmountLine.TaxAmountText();
-                                    end else
-                                        TaxText := TempVATAmountLine.VATAmountText();
-                                end;
+                            if "Service Line".Type = "Service Line".Type::Cost then begin
+                                TableID[1] := Database::"G/L Account";
+                                if ServCost.Get("Service Line"."No.") then
+                                    No[1] := ServCost."Account No.";
+                            end else begin
+                                TableID[1] := DimMgt.TypeToTableID5("Service Line".Type.AsInteger());
+                                No[1] := "Service Line"."No.";
+                            end;
+                            TableID[2] := Database::Job;
+                            No[2] := "Service Line"."Job No.";
+                            if not DimMgt.CheckDimValuePosting(TableID, No, "Service Line"."Dimension Set ID") then
+                                AddError(DimMgt.GetDimValuePostingErr());
+                            if "Service Line"."Line No." > OrigMaxLineNo then begin
+                                "Service Line"."No." := '';
+                                "Service Line".Type := "Service Line".Type::" ";
+                            end;
+                            if "Service Line"."Line No." = OrigMaxLineNo then begin
+                                if SalesTax then begin
+                                    if not SalesTaxCalculationOverridden then begin
+                                        if HeaderTaxArea."Use External Tax Engine" then
+                                            SalesTaxCalculate.CallExternalTaxEngineForServ("Service Header", true)
+                                        else
+                                            SalesTaxCalculate.EndSalesTaxCalculation("Service Header"."Posting Date");
+                                        SalesTaxCalculate.GetSalesTaxAmountLineTable(SalesTaxAmountLine);
+                                    end;
+                                    VATAmount := SalesTaxAmountLine.GetTotalTaxAmountFCY();
+                                    VATBaseAmount := SalesTaxAmountLine.GetTotalTaxBase();
+                                    TaxText := SalesTaxAmountLine.TaxAmountText();
+                                end else
+                                    TaxText := TempVATAmountLine.VATAmountText();
                             end;
                         end;
 
@@ -1489,92 +1487,90 @@ report 5915 "Service Document - Test"
     var
         TempPostedDimSetEntry: Record "Dimension Set Entry" temporary;
     begin
-        with ServiceLine2 do begin
-            if Abs(RemQtyToBeInvoiced) > Abs("Qty. to Ship") then begin
-                ServiceShptLine.Reset();
-                case "Document Type" of
-                    "Document Type"::Order:
-                        begin
-                            ServiceShptLine.SetCurrentKey("Order No.", "Order Line No.");
-                            ServiceShptLine.SetRange("Order No.", "Document No.");
-                            ServiceShptLine.SetRange("Order Line No.", "Line No.");
-                        end;
-                    "Document Type"::Invoice:
-                        begin
-                            ServiceShptLine.SetRange("Document No.", "Shipment No.");
-                            ServiceShptLine.SetRange("Line No.", "Shipment Line No.");
-                        end;
-                end;
-
-                ServiceShptLine.SetFilter("Qty. Shipped Not Invoiced", '<>0');
-
-                if ServiceShptLine.Find('-') then
-                    repeat
-                        DimMgt.GetDimensionSet(TempPostedDimSetEntry, ServiceShptLine."Dimension Set ID");
-                        if not DimMgt.CheckDimIDConsistency(
-                             TempDimSetEntry, TempPostedDimSetEntry, Database::"Service Line", Database::"Service Shipment Line")
-                        then
-                            AddError(DimMgt.GetDocDimConsistencyErr());
-
-                        if ServiceShptLine."Customer No." <> "Customer No." then
-                            AddError(
-                              StrSubstNo(
-                                Text024,
-                                FieldCaption("Customer No.")));
-                        if ServiceShptLine.Type <> Type then
-                            AddError(
-                              StrSubstNo(
-                                Text024,
-                                FieldCaption(Type)));
-                        if ServiceShptLine."No." <> "No." then
-                            AddError(
-                              StrSubstNo(
-                                Text024,
-                                FieldCaption("No.")));
-                        if ServiceShptLine."Gen. Bus. Posting Group" <> "Gen. Bus. Posting Group" then
-                            AddError(
-                              StrSubstNo(
-                                Text024,
-                                FieldCaption("Gen. Bus. Posting Group")));
-                        if ServiceShptLine."Gen. Prod. Posting Group" <> "Gen. Prod. Posting Group" then
-                            AddError(
-                              StrSubstNo(
-                                Text024,
-                                FieldCaption("Gen. Prod. Posting Group")));
-                        if ServiceShptLine."Location Code" <> "Location Code" then
-                            AddError(
-                              StrSubstNo(
-                                Text024,
-                                FieldCaption("Location Code")));
-
-                        if -ServiceLine."Qty. to Invoice" * ServiceShptLine.Quantity < 0 then
-                            AddError(
-                              StrSubstNo(
-                                Text027, FieldCaption("Qty. to Invoice")));
-
-                        QtyToBeInvoiced := RemQtyToBeInvoiced - ServiceLine."Qty. to Ship";
-                        if Abs(QtyToBeInvoiced) > Abs(ServiceShptLine.Quantity - ServiceShptLine."Quantity Invoiced") then
-                            QtyToBeInvoiced := -(ServiceShptLine.Quantity - ServiceShptLine."Quantity Invoiced");
-                        RemQtyToBeInvoiced := RemQtyToBeInvoiced - QtyToBeInvoiced;
-                        ServiceShptLine."Quantity Invoiced" := ServiceShptLine."Quantity Invoiced" - QtyToBeInvoiced;
-                        ServiceShptLine."Qty. Shipped Not Invoiced" :=
-                          ServiceShptLine.Quantity - ServiceShptLine."Quantity Invoiced"
-                    until (ServiceShptLine.Next() = 0) or (Abs(RemQtyToBeInvoiced) <= Abs("Qty. to Ship"))
-                else
-                    AddError(
-                      StrSubstNo(
-                        Text026,
-                        "Shipment Line No.",
-                        "Shipment No."));
+        if Abs(RemQtyToBeInvoiced) > Abs(ServiceLine2."Qty. to Ship") then begin
+            ServiceShptLine.Reset();
+            case ServiceLine2."Document Type" of
+                ServiceLine2."Document Type"::Order:
+                    begin
+                        ServiceShptLine.SetCurrentKey("Order No.", "Order Line No.");
+                        ServiceShptLine.SetRange("Order No.", ServiceLine2."Document No.");
+                        ServiceShptLine.SetRange("Order Line No.", ServiceLine2."Line No.");
+                    end;
+                ServiceLine2."Document Type"::Invoice:
+                    begin
+                        ServiceShptLine.SetRange("Document No.", ServiceLine2."Shipment No.");
+                        ServiceShptLine.SetRange("Line No.", ServiceLine2."Shipment Line No.");
+                    end;
             end;
 
-            if Abs(RemQtyToBeInvoiced) > Abs("Qty. to Ship") then
-                if "Document Type" = "Document Type"::Invoice then
-                    AddError(
-                      StrSubstNo(
-                        Text036,
-                        "Shipment No."));
+            ServiceShptLine.SetFilter("Qty. Shipped Not Invoiced", '<>0');
+
+            if ServiceShptLine.Find('-') then
+                repeat
+                    DimMgt.GetDimensionSet(TempPostedDimSetEntry, ServiceShptLine."Dimension Set ID");
+                    if not DimMgt.CheckDimIDConsistency(
+                         TempDimSetEntry, TempPostedDimSetEntry, Database::"Service Line", Database::"Service Shipment Line")
+                    then
+                        AddError(DimMgt.GetDocDimConsistencyErr());
+
+                    if ServiceShptLine."Customer No." <> ServiceLine2."Customer No." then
+                        AddError(
+                          StrSubstNo(
+                            Text024,
+                            ServiceLine2.FieldCaption("Customer No.")));
+                    if ServiceShptLine.Type <> ServiceLine2.Type then
+                        AddError(
+                          StrSubstNo(
+                            Text024,
+                            ServiceLine2.FieldCaption(Type)));
+                    if ServiceShptLine."No." <> ServiceLine2."No." then
+                        AddError(
+                          StrSubstNo(
+                            Text024,
+                            ServiceLine2.FieldCaption("No.")));
+                    if ServiceShptLine."Gen. Bus. Posting Group" <> ServiceLine2."Gen. Bus. Posting Group" then
+                        AddError(
+                          StrSubstNo(
+                            Text024,
+                            ServiceLine2.FieldCaption("Gen. Bus. Posting Group")));
+                    if ServiceShptLine."Gen. Prod. Posting Group" <> ServiceLine2."Gen. Prod. Posting Group" then
+                        AddError(
+                          StrSubstNo(
+                            Text024,
+                            ServiceLine2.FieldCaption("Gen. Prod. Posting Group")));
+                    if ServiceShptLine."Location Code" <> ServiceLine2."Location Code" then
+                        AddError(
+                          StrSubstNo(
+                            Text024,
+                            ServiceLine2.FieldCaption("Location Code")));
+
+                    if -ServiceLine."Qty. to Invoice" * ServiceShptLine.Quantity < 0 then
+                        AddError(
+                          StrSubstNo(
+                            Text027, ServiceLine2.FieldCaption("Qty. to Invoice")));
+
+                    QtyToBeInvoiced := RemQtyToBeInvoiced - ServiceLine."Qty. to Ship";
+                    if Abs(QtyToBeInvoiced) > Abs(ServiceShptLine.Quantity - ServiceShptLine."Quantity Invoiced") then
+                        QtyToBeInvoiced := -(ServiceShptLine.Quantity - ServiceShptLine."Quantity Invoiced");
+                    RemQtyToBeInvoiced := RemQtyToBeInvoiced - QtyToBeInvoiced;
+                    ServiceShptLine."Quantity Invoiced" := ServiceShptLine."Quantity Invoiced" - QtyToBeInvoiced;
+                    ServiceShptLine."Qty. Shipped Not Invoiced" :=
+                      ServiceShptLine.Quantity - ServiceShptLine."Quantity Invoiced"
+                until (ServiceShptLine.Next() = 0) or (Abs(RemQtyToBeInvoiced) <= Abs(ServiceLine2."Qty. to Ship"))
+            else
+                AddError(
+                  StrSubstNo(
+                    Text026,
+                    ServiceLine2."Shipment Line No.",
+                    ServiceLine2."Shipment No."));
         end;
+
+        if Abs(RemQtyToBeInvoiced) > Abs(ServiceLine2."Qty. to Ship") then
+            if ServiceLine2."Document Type" = ServiceLine2."Document Type"::Invoice then
+                AddError(
+                  StrSubstNo(
+                    Text036,
+                    ServiceLine2."Shipment No."));
     end;
 
     procedure FindDimTxt(DimSetID: Integer)
@@ -1607,16 +1603,15 @@ report 5915 "Service Document - Test"
 
     procedure CheckQuantity(var ServiceLine: Record "Service Line")
     begin
-        with ServiceLine do
-            if Quantity <> 0 then begin
-                if "No." = '' then
-                    AddError(StrSubstNo(Text019, Type, FieldCaption("No.")));
-                if Type = Type::" " then
-                    AddError(StrSubstNo(Text006, FieldCaption(Type)));
-            end else
-                if Amount <> 0 then
-                    AddError(
-                      StrSubstNo(Text020, FieldCaption(Amount), FieldCaption(Quantity)));
+        if ServiceLine.Quantity <> 0 then begin
+            if ServiceLine."No." = '' then
+                AddError(StrSubstNo(Text019, ServiceLine.Type, ServiceLine.FieldCaption("No.")));
+            if ServiceLine.Type = ServiceLine.Type::" " then
+                AddError(StrSubstNo(Text006, ServiceLine.FieldCaption(Type)));
+        end else
+            if ServiceLine.Amount <> 0 then
+                AddError(
+                  StrSubstNo(Text020, ServiceLine.FieldCaption(Amount), ServiceLine.FieldCaption(Quantity)));
     end;
 
     procedure InitializeRequest(ShipReceiveOnNextPostReqFrom: Boolean; InvOnNextPostReqFrom: Boolean; ShowDimFrom: Boolean)
@@ -1641,134 +1636,131 @@ report 5915 "Service Document - Test"
         ItemItemVariantLbl: Label '%1 %2', Comment = '%1 - Item No., %2 - Variant Code';
     begin
         OnBeforeCheckType(ServiceLine2, ErrorCounter, ErrorText);
-        with ServiceLine2 do
-            case Type of
-                Type::"G/L Account":
-                    begin
-                        if ("No." = '') and (Amount = 0) then
-                            exit;
+        case ServiceLine2.Type of
+            ServiceLine2.Type::"G/L Account":
+                begin
+                    if (ServiceLine2."No." = '') and (ServiceLine2.Amount = 0) then
+                        exit;
 
-                        if "No." <> '' then
-                            if GLAcc.Get("No.") then begin
-                                if GLAcc.Blocked then
-                                    AddError(StrSubstNo(MustBeForErr, GLAcc.FieldCaption(Blocked), false, GLAcc.TableCaption(), "No."));
-                                if not GLAcc."Direct Posting" and ("Line No." <= OrigMaxLineNo) then
-                                    AddError(StrSubstNo(MustBeForErr, GLAcc.FieldCaption("Direct Posting"), true, GLAcc.TableCaption(), "No."));
-                            end else
-                                AddError(StrSubstNo(Text008, GLAcc.TableCaption(), "No."));
-                    end;
-                Type::Item:
-                    begin
-                        if ("No." = '') and (Quantity = 0) then
-                            exit;
+                    if ServiceLine2."No." <> '' then
+                        if GLAcc.Get(ServiceLine2."No.") then begin
+                            if GLAcc.Blocked then
+                                AddError(StrSubstNo(MustBeForErr, GLAcc.FieldCaption(Blocked), false, GLAcc.TableCaption(), ServiceLine2."No."));
+                            if not GLAcc."Direct Posting" and (ServiceLine2."Line No." <= OrigMaxLineNo) then
+                                AddError(StrSubstNo(MustBeForErr, GLAcc.FieldCaption("Direct Posting"), true, GLAcc.TableCaption(), ServiceLine2."No."));
+                        end else
+                            AddError(StrSubstNo(Text008, GLAcc.TableCaption(), ServiceLine2."No."));
+                end;
+            ServiceLine2.Type::Item:
+                begin
+                    if (ServiceLine2."No." = '') and (ServiceLine2.Quantity = 0) then
+                        exit;
 
-                        if "No." <> '' then
-                            if Item.Get("No.") then begin
-                                if Item.Blocked then
-                                    AddError(StrSubstNo(MustBeForErr, Item.FieldCaption(Blocked), false, Item.TableCaption(), "No."));
+                    if ServiceLine2."No." <> '' then
+                        if Item.Get(ServiceLine2."No.") then begin
+                            if Item.Blocked then
+                                AddError(StrSubstNo(MustBeForErr, Item.FieldCaption(Blocked), false, Item.TableCaption(), ServiceLine2."No."));
 
-                                if ServiceLine2."Variant Code" <> '' then begin
-                                    ItemVariant.SetLoadFields(Blocked);
-                                    if ItemVariant.Get(ServiceLine2."No.", ServiceLine2."Variant Code") then begin
-                                        if ItemVariant.Blocked then
-                                            AddError(StrSubstNo(MustBeForErr, ItemVariant.FieldCaption(Blocked), false, ItemVariant.TableCaption(), StrSubstNo(ItemItemVariantLbl, ServiceLine2."No.", ServiceLine2."Variant Code")));
-                                    end else
-                                        AddError(StrSubstNo(Text008, ItemVariant.TableCaption(), StrSubstNo(ItemItemVariantLbl, ServiceLine2."No.", ServiceLine2."Variant Code")));
-                                end;
+                            if ServiceLine2."Variant Code" <> '' then begin
+                                ItemVariant.SetLoadFields(Blocked);
+                                if ItemVariant.Get(ServiceLine2."No.", ServiceLine2."Variant Code") then begin
+                                    if ItemVariant.Blocked then
+                                        AddError(StrSubstNo(MustBeForErr, ItemVariant.FieldCaption(Blocked), false, ItemVariant.TableCaption(), StrSubstNo(ItemItemVariantLbl, ServiceLine2."No.", ServiceLine2."Variant Code")));
+                                end else
+                                    AddError(StrSubstNo(Text008, ItemVariant.TableCaption(), StrSubstNo(ItemItemVariantLbl, ServiceLine2."No.", ServiceLine2."Variant Code")));
+                            end;
 
 
-                                if Item.Reserve = Item.Reserve::Always then begin
-                                    CalcFields("Reserved Quantity");
-                                    if "Document Type" = "Document Type"::"Credit Memo" then begin
-                                        if (SignedXX(Quantity) < 0) and (Abs("Reserved Quantity") < Abs(Quantity)) then
-                                            AddError(StrSubstNo(Text015, FieldCaption("Reserved Quantity"), SignedXX(Quantity)));
-                                    end else
-                                        if (SignedXX(Quantity) < 0) and (Abs("Reserved Quantity") < Abs("Qty. to Ship")) then
-                                            AddError(StrSubstNo(Text015, FieldCaption("Reserved Quantity"), SignedXX("Qty. to Ship")));
-                                end
-                            end else
-                                AddError(StrSubstNo(Text008, Item.TableCaption(), "No."));
-                    end;
-                Type::Resource:
-                    begin
-                        if ("No." = '') and (Quantity = 0) then
-                            exit;
+                            if Item.Reserve = Item.Reserve::Always then begin
+                                ServiceLine2.CalcFields(ServiceLine2."Reserved Quantity");
+                                if ServiceLine2."Document Type" = ServiceLine2."Document Type"::"Credit Memo" then begin
+                                    if (ServiceLine2.SignedXX(ServiceLine2.Quantity) < 0) and (Abs(ServiceLine2."Reserved Quantity") < Abs(ServiceLine2.Quantity)) then
+                                        AddError(StrSubstNo(Text015, ServiceLine2.FieldCaption("Reserved Quantity"), ServiceLine2.SignedXX(ServiceLine2.Quantity)));
+                                end else
+                                    if (ServiceLine2.SignedXX(ServiceLine2.Quantity) < 0) and (Abs(ServiceLine2."Reserved Quantity") < Abs(ServiceLine2."Qty. to Ship")) then
+                                        AddError(StrSubstNo(Text015, ServiceLine2.FieldCaption("Reserved Quantity"), ServiceLine2.SignedXX(ServiceLine2."Qty. to Ship")));
+                            end
+                        end else
+                            AddError(StrSubstNo(Text008, Item.TableCaption(), ServiceLine2."No."));
+                end;
+            ServiceLine2.Type::Resource:
+                begin
+                    if (ServiceLine2."No." = '') and (ServiceLine2.Quantity = 0) then
+                        exit;
 
-                        if "No." <> '' then
-                            if Res.Get("No.") then begin
-                                if Res."Privacy Blocked" then
-                                    AddError(StrSubstNo(MustBeForErr, Res.FieldCaption("Privacy Blocked"), false, Res.TableCaption(), "No."));
-                                if Res.Blocked then
-                                    AddError(StrSubstNo(MustBeForErr, Res.FieldCaption(Blocked), false, Res.TableCaption(), "No."));
-                            end else
-                                AddError(StrSubstNo(Text008, Res.TableCaption(), "No."));
-                    end;
-            end;
+                    if ServiceLine2."No." <> '' then
+                        if Res.Get(ServiceLine2."No.") then begin
+                            if Res."Privacy Blocked" then
+                                AddError(StrSubstNo(MustBeForErr, Res.FieldCaption("Privacy Blocked"), false, Res.TableCaption(), ServiceLine2."No."));
+                            if Res.Blocked then
+                                AddError(StrSubstNo(MustBeForErr, Res.FieldCaption(Blocked), false, Res.TableCaption(), ServiceLine2."No."));
+                        end else
+                            AddError(StrSubstNo(Text008, Res.TableCaption(), ServiceLine2."No."));
+                end;
+        end;
     end;
 
     local procedure VerifyCustomerNo(ServiceHeader: Record "Service Header")
     var
         ShipQtyExist: Boolean;
     begin
-        with ServiceHeader do
-            if "Customer No." = '' then
-                AddError(StrSubstNo(Text006, FieldCaption("Customer No.")))
-            else
-                if Cust.Get("Customer No.") then begin
-                    if (Cust.Blocked = Cust.Blocked::Ship) and Ship then begin
-                        ServiceLine2.SetRange("Document Type", "Document Type");
-                        ServiceLine2.SetRange("Document No.", "No.");
-                        ServiceLine2.SetFilter("Qty. to Ship", '>0');
-                        if ServiceLine2.FindFirst() then
-                            ShipQtyExist := true;
-                    end;
-                    if Cust."Privacy Blocked" then
-                        AddError(
-                          StrSubstNo(
-                            Text045,
-                            Cust.FieldCaption("Privacy Blocked"), Cust."Privacy Blocked", Cust.TableCaption(), "Customer No."));
-                    if (Cust.Blocked = Cust.Blocked::All) or
-                       ((Cust.Blocked = Cust.Blocked::Invoice) and
-                        (not ("Document Type" = "Document Type"::"Credit Memo"))) or
-                       ShipQtyExist
-                    then
-                        AddError(
-                          StrSubstNo(
-                            Text045,
-                            Cust.FieldCaption(Blocked), Cust.Blocked, Cust.TableCaption(), "Customer No."));
-                end else
+        if ServiceHeader."Customer No." = '' then
+            AddError(StrSubstNo(Text006, ServiceHeader.FieldCaption("Customer No.")))
+        else
+            if Cust.Get(ServiceHeader."Customer No.") then begin
+                if (Cust.Blocked = Cust.Blocked::Ship) and Ship then begin
+                    ServiceLine2.SetRange("Document Type", ServiceHeader."Document Type");
+                    ServiceLine2.SetRange("Document No.", ServiceHeader."No.");
+                    ServiceLine2.SetFilter("Qty. to Ship", '>0');
+                    if ServiceLine2.FindFirst() then
+                        ShipQtyExist := true;
+                end;
+                if Cust."Privacy Blocked" then
                     AddError(
                       StrSubstNo(
-                        Text008,
-                        Cust.TableCaption(), "Customer No."));
+                        Text045,
+                        Cust.FieldCaption("Privacy Blocked"), Cust."Privacy Blocked", Cust.TableCaption(), ServiceHeader."Customer No."));
+                if (Cust.Blocked = Cust.Blocked::All) or
+                   ((Cust.Blocked = Cust.Blocked::Invoice) and
+                    (not (ServiceHeader."Document Type" = ServiceHeader."Document Type"::"Credit Memo"))) or
+                   ShipQtyExist
+                then
+                    AddError(
+                      StrSubstNo(
+                        Text045,
+                        Cust.FieldCaption(Blocked), Cust.Blocked, Cust.TableCaption(), ServiceHeader."Customer No."));
+            end else
+                AddError(
+                  StrSubstNo(
+                    Text008,
+                    Cust.TableCaption(), ServiceHeader."Customer No."));
     end;
 
     local procedure VerifyBilltoCustomerNo(ServiceHeader: Record "Service Header")
     begin
-        with ServiceHeader do
-            if "Bill-to Customer No." = '' then
-                AddError(StrSubstNo(Text006, FieldCaption("Bill-to Customer No.")))
-            else
-                if "Bill-to Customer No." <> "Customer No." then
-                    if Cust.Get("Bill-to Customer No.") then begin
-                        if Cust."Privacy Blocked" then
-                            AddError(
-                              StrSubstNo(
-                                Text045,
-                                Cust.FieldCaption("Privacy Blocked"), Cust."Privacy Blocked", Cust.TableCaption(), "Bill-to Customer No."));
-                        if (Cust.Blocked = Cust.Blocked::All) or
-                           ((Cust.Blocked = Cust.Blocked::Invoice) and
-                            ("Document Type" = "Document Type"::"Credit Memo"))
-                        then
-                            AddError(
-                              StrSubstNo(
-                                Text045,
-                                Cust.FieldCaption(Blocked), false, Cust.TableCaption(), "Bill-to Customer No."));
-                    end else
+        if ServiceHeader."Bill-to Customer No." = '' then
+            AddError(StrSubstNo(Text006, ServiceHeader.FieldCaption("Bill-to Customer No.")))
+        else
+            if ServiceHeader."Bill-to Customer No." <> ServiceHeader."Customer No." then
+                if Cust.Get(ServiceHeader."Bill-to Customer No.") then begin
+                    if Cust."Privacy Blocked" then
                         AddError(
                           StrSubstNo(
-                            Text008,
-                            Cust.TableCaption(), "Bill-to Customer No."));
+                            Text045,
+                            Cust.FieldCaption("Privacy Blocked"), Cust."Privacy Blocked", Cust.TableCaption(), ServiceHeader."Bill-to Customer No."));
+                    if (Cust.Blocked = Cust.Blocked::All) or
+                       ((Cust.Blocked = Cust.Blocked::Invoice) and
+                        (ServiceHeader."Document Type" = ServiceHeader."Document Type"::"Credit Memo"))
+                    then
+                        AddError(
+                          StrSubstNo(
+                            Text045,
+                            Cust.FieldCaption(Blocked), false, Cust.TableCaption(), ServiceHeader."Bill-to Customer No."));
+                end else
+                    AddError(
+                      StrSubstNo(
+                        Text008,
+                        Cust.TableCaption(), ServiceHeader."Bill-to Customer No."));
     end;
 
     local procedure VerifyPostingDate(ServiceHeader: Record "Service Header")
@@ -1776,15 +1768,14 @@ report 5915 "Service Document - Test"
         UserSetupManagement: Codeunit "User Setup Management";
         TempErrorText: Text[250];
     begin
-        with ServiceHeader do
-            if "Posting Date" = 0D then
-                AddError(StrSubstNo(Text006, FieldCaption("Posting Date")))
+        if ServiceHeader."Posting Date" = 0D then
+            AddError(StrSubstNo(Text006, ServiceHeader.FieldCaption("Posting Date")))
+        else
+            if ServiceHeader."Posting Date" <> NormalDate(ServiceHeader."Posting Date") then
+                AddError(StrSubstNo(Text009, ServiceHeader.FieldCaption("Posting Date")))
             else
-                if "Posting Date" <> NormalDate("Posting Date") then
-                    AddError(StrSubstNo(Text009, FieldCaption("Posting Date")))
-                else
-                    if not UserSetupManagement.TestAllowedPostingDate("Posting Date", TempErrorText) then
-                        AddError(TempErrorText);
+                if not UserSetupManagement.TestAllowedPostingDate(ServiceHeader."Posting Date", TempErrorText) then
+                    AddError(TempErrorText);
     end;
 
     [IntegrationEvent(false, false)]

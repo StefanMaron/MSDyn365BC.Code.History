@@ -1,6 +1,7 @@
 namespace Microsoft.Projects.Project.Planning;
 
 using Microsoft.Inventory.Availability;
+using Microsoft.Inventory.BOM;
 using Microsoft.Inventory.Item;
 using Microsoft.Pricing.Calculation;
 using Microsoft.Projects.Project.Job;
@@ -14,7 +15,7 @@ using System.Security.User;
 page 1007 "Job Planning Lines"
 {
     AutoSplitKey = true;
-    Caption = 'Job Planning Lines';
+    Caption = 'Project Planning Lines';
     DataCaptionExpression = Rec.Caption();
     PageType = List;
     SourceTable = "Job Planning Line";
@@ -29,13 +30,13 @@ page 1007 "Job Planning Lines"
                 field("Job No."; Rec."Job No.")
                 {
                     ApplicationArea = All;
-                    ToolTip = 'Specifies the number of the related job.';
+                    ToolTip = 'Specifies the number of the related project.';
                     Visible = false;
                 }
                 field("Job Task No."; Rec."Job Task No.")
                 {
                     ApplicationArea = All;
-                    ToolTip = 'Specifies the number of the related job task.';
+                    ToolTip = 'Specifies the number of the related project task.';
                     Visible = JobTaskNoVisible;
                 }
                 field("Line Type"; Rec."Line Type")
@@ -46,7 +47,7 @@ page 1007 "Job Planning Lines"
                 field("Usage Link"; Rec."Usage Link")
                 {
                     ApplicationArea = Jobs;
-                    ToolTip = 'Specifies whether the Usage Link field applies to the job planning line. When this check box is selected, usage entries are linked to the job planning line. Selecting this check box creates a link to the job planning line from places where usage has been posted, such as the job journal or a purchase line. You can select this check box only if the line type of the job planning line is Budget or Both Budget and Billable.';
+                    ToolTip = 'Specifies whether the Usage Link field applies to the project planning line. When this check box is selected, usage entries are linked to the project planning line. Selecting this check box creates a link to the project planning line from places where usage has been posted, such as the project journal or a purchase line. You can select this check box only if the line type of the project planning line is Budget or Both Budget and Billable.';
                     Visible = false;
 
                     trigger OnValidate()
@@ -58,7 +59,7 @@ page 1007 "Job Planning Lines"
                 {
                     ApplicationArea = Jobs;
                     Editable = PlanningDateEditable;
-                    ToolTip = 'Specifies the date of the planning line. You can use the planning date for filtering the totals of the job, for example, if you want to see the scheduled usage for a specific month of the year.';
+                    ToolTip = 'Specifies the date of the planning line. You can use the planning date for filtering the totals of the project, for example, if you want to see the scheduled usage for a specific month of the year.';
 
                     trigger OnValidate()
                     begin
@@ -68,7 +69,7 @@ page 1007 "Job Planning Lines"
                 field("Planned Delivery Date"; Rec."Planned Delivery Date")
                 {
                     ApplicationArea = Jobs;
-                    ToolTip = 'Specifies the date that is planned to deliver the item connected to the job planning line. For a resource, the planned delivery date is the date that the resource performs services with respect to the job.';
+                    ToolTip = 'Specifies the date that is planned to deliver the item connected to the project planning line. For a resource, the planned delivery date is the date that the resource performs services with respect to the project.';
                 }
                 field("Currency Date"; Rec."Currency Date")
                 {
@@ -184,7 +185,7 @@ page 1007 "Job Planning Lines"
                 {
                     ApplicationArea = Warehouse;
                     Editable = BinCodeEditable;
-                    ToolTip = 'Specifies the bin where the selected item will be put away or picked in warehouse and inventory processes. If you specify a bin code in the To-Job Bin Code field on the Location page, that bin will be suggested when you choose the location.';
+                    ToolTip = 'Specifies the bin where the selected item will be put away or picked in warehouse and inventory processes. If you specify a bin code in the To-Project Bin Code field on the Location page, that bin will be suggested when you choose the location.';
                     Visible = false;
 
                     trigger OnValidate()
@@ -232,10 +233,27 @@ page 1007 "Job Planning Lines"
                         QuantityOnAfterValidate();
                     end;
                 }
+                field("Qty. to Assemble"; Rec."Qty. to Assemble")
+                {
+                    ApplicationArea = Assembly;
+                    BlankZero = true;
+                    ToolTip = 'Specifies how many units of the project planning line quantity that you want to supply by assembly.';
+                    Visible = true;
+
+                    trigger OnDrillDown()
+                    begin
+                        Rec.ShowAsmToJobPlanningLines();
+                    end;
+
+                    trigger OnValidate()
+                    begin
+                        QtyToAsmOnAfterValidate();
+                    end;
+                }
                 field("Reserved Quantity"; Rec."Reserved Quantity")
                 {
                     ApplicationArea = Reservation;
-                    ToolTip = 'Specifies the quantity of the item that is reserved for the job planning line.';
+                    ToolTip = 'Specifies the quantity of the item that is reserved for the project planning line.';
                     Visible = false;
                 }
                 field("Quantity (Base)"; Rec."Quantity (Base)")
@@ -247,7 +265,7 @@ page 1007 "Job Planning Lines"
                 field("Remaining Qty."; Rec."Remaining Qty.")
                 {
                     ApplicationArea = Jobs;
-                    ToolTip = 'Specifies the remaining quantity of the resource, item, or G/L Account that remains to complete a job. The quantity is calculated as the difference between Quantity and Qty. Posted.';
+                    ToolTip = 'Specifies the remaining quantity of the resource, item, or G/L Account that remains to complete a project. The quantity is calculated as the difference between Quantity and Qty. Posted.';
                     Visible = false;
                 }
                 field("Direct Unit Cost (LCY)"; Rec."Direct Unit Cost (LCY)")
@@ -272,12 +290,12 @@ page 1007 "Job Planning Lines"
                 field("Total Cost"; Rec."Total Cost")
                 {
                     ApplicationArea = Jobs;
-                    ToolTip = 'Specifies the total cost for the planning line. The total cost is in the job currency, which comes from the Currency Code field in the Job Card.';
+                    ToolTip = 'Specifies the total cost for the planning line. The total cost is in the project currency, which comes from the Currency Code field in the Project Card.';
                 }
                 field("Remaining Total Cost"; Rec."Remaining Total Cost")
                 {
                     ApplicationArea = Jobs;
-                    ToolTip = 'Specifies the remaining total cost for the planning line. The total cost is in the job currency, which comes from the Currency Code field in the Job Card.';
+                    ToolTip = 'Specifies the remaining total cost for the planning line. The total cost is in the project currency, which comes from the Currency Code field in the Project Card.';
                     Visible = false;
                 }
                 field("Total Cost (LCY)"; Rec."Total Cost (LCY)")
@@ -308,24 +326,24 @@ page 1007 "Job Planning Lines"
                 {
                     ApplicationArea = Jobs;
                     Editable = LineAmountEditable;
-                    ToolTip = 'Specifies the amount that will be posted to the job ledger.';
+                    ToolTip = 'Specifies the amount that will be posted to the project ledger.';
                 }
                 field("Remaining Line Amount"; Rec."Remaining Line Amount")
                 {
                     ApplicationArea = Jobs;
-                    ToolTip = 'Specifies the amount that will be posted to the job ledger.';
+                    ToolTip = 'Specifies the amount that will be posted to the project ledger.';
                     Visible = false;
                 }
                 field("Line Amount (LCY)"; Rec."Line Amount (LCY)")
                 {
                     ApplicationArea = Jobs;
-                    ToolTip = 'Specifies the amount in the local currency that will be posted to the job ledger.';
+                    ToolTip = 'Specifies the amount in the local currency that will be posted to the project ledger.';
                     Visible = false;
                 }
                 field("Remaining Line Amount (LCY)"; Rec."Remaining Line Amount (LCY)")
                 {
                     ApplicationArea = Jobs;
-                    ToolTip = 'Specifies the amount in the local currency that will be posted to the job ledger.';
+                    ToolTip = 'Specifies the amount in the local currency that will be posted to the project ledger.';
                     Visible = false;
                 }
                 field("Line Discount Amount"; Rec."Line Discount Amount")
@@ -345,7 +363,7 @@ page 1007 "Job Planning Lines"
                 field("Total Price"; Rec."Total Price")
                 {
                     ApplicationArea = Jobs;
-                    ToolTip = 'Specifies the total price in the job currency on the planning line.';
+                    ToolTip = 'Specifies the total price in the project currency on the planning line.';
                     Visible = false;
                 }
                 field("Total Price (LCY)"; Rec."Total Price (LCY)")
@@ -357,36 +375,36 @@ page 1007 "Job Planning Lines"
                 field("Qty. Posted"; Rec."Qty. Posted")
                 {
                     ApplicationArea = Jobs;
-                    ToolTip = 'Specifies the quantity that has been posted to the job ledger, if the Usage Link check box has been selected.';
+                    ToolTip = 'Specifies the quantity that has been posted to the project ledger, if the Usage Link check box has been selected.';
                     Visible = false;
                 }
                 field("Qty. to Transfer to Journal"; Rec."Qty. to Transfer to Journal")
                 {
                     ApplicationArea = Jobs;
-                    ToolTip = 'Specifies the quantity you want to transfer to the job journal. Its default value is calculated as quantity minus the quantity that has already been posted, if the Apply Usage Link check box has been selected.';
+                    ToolTip = 'Specifies the quantity you want to transfer to the project journal. Its default value is calculated as quantity minus the quantity that has already been posted, if the Apply Usage Link check box has been selected.';
                 }
                 field("Posted Total Cost"; Rec."Posted Total Cost")
                 {
                     ApplicationArea = Jobs;
-                    ToolTip = 'Specifies the total cost that has been posted to the job ledger, if the Usage Link check box has been selected.';
+                    ToolTip = 'Specifies the total cost that has been posted to the project ledger, if the Usage Link check box has been selected.';
                     Visible = false;
                 }
                 field("Posted Total Cost (LCY)"; Rec."Posted Total Cost (LCY)")
                 {
                     ApplicationArea = Jobs;
-                    ToolTip = 'Specifies the total cost (LCY) that has been posted to the job ledger, if the Usage Link check box has been selected.';
+                    ToolTip = 'Specifies the total cost (LCY) that has been posted to the project ledger, if the Usage Link check box has been selected.';
                     Visible = false;
                 }
                 field("Posted Line Amount"; Rec."Posted Line Amount")
                 {
                     ApplicationArea = Jobs;
-                    ToolTip = 'Specifies the amount that has been posted to the job ledger. This field is only filled in if the Apply Usage Link check box selected on the job card.';
+                    ToolTip = 'Specifies the amount that has been posted to the project ledger. This field is only filled in if the Apply Usage Link check box selected on the project card.';
                     Visible = false;
                 }
                 field("Posted Line Amount (LCY)"; Rec."Posted Line Amount (LCY)")
                 {
                     ApplicationArea = Jobs;
-                    ToolTip = 'Specifies the amount in the local currency that has been posted to the job ledger. This field is only filled in if the Apply Usage Link check box selected on the job card.';
+                    ToolTip = 'Specifies the amount in the local currency that has been posted to the project ledger. This field is only filled in if the Apply Usage Link check box selected on the project card.';
                     Visible = false;
                 }
                 field("Qty. Transferred to Invoice"; Rec."Qty. Transferred to Invoice")
@@ -460,37 +478,37 @@ page 1007 "Job Planning Lines"
                 field("Serial No."; Rec."Serial No.")
                 {
                     ApplicationArea = ItemTracking;
-                    ToolTip = 'Specifies the serial number that is applied to the posted item if the planning line was created from the posting of a job journal line.';
+                    ToolTip = 'Specifies the serial number that is applied to the posted item if the planning line was created from the posting of a project journal line.';
                     Visible = false;
                 }
                 field("Lot No."; Rec."Lot No.")
                 {
                     ApplicationArea = ItemTracking;
-                    ToolTip = 'Specifies the lot number that is applied to the posted item if the planning line was created from the posting of a job journal line.';
+                    ToolTip = 'Specifies the lot number that is applied to the posted item if the planning line was created from the posting of a project journal line.';
                     Visible = false;
                 }
                 field("Job Contract Entry No."; Rec."Job Contract Entry No.")
                 {
                     ApplicationArea = Jobs;
-                    ToolTip = 'Specifies the entry number of the job planning line that the sales line is linked to.';
+                    ToolTip = 'Specifies the entry number of the project planning line that the sales line is linked to.';
                     Visible = false;
                 }
                 field("Ledger Entry Type"; Rec."Ledger Entry Type")
                 {
                     ApplicationArea = Jobs;
-                    ToolTip = 'Specifies the entry type of the job ledger entry associated with the planning line.';
+                    ToolTip = 'Specifies the entry type of the project ledger entry associated with the planning line.';
                     Visible = false;
                 }
                 field("Ledger Entry No."; Rec."Ledger Entry No.")
                 {
                     ApplicationArea = Jobs;
-                    ToolTip = 'Specifies the entry number of the job ledger entry associated with the job planning line.';
+                    ToolTip = 'Specifies the entry number of the project ledger entry associated with the project planning line.';
                     Visible = false;
                 }
                 field("System-Created Entry"; Rec."System-Created Entry")
                 {
                     ApplicationArea = Jobs;
-                    ToolTip = 'Specifies that an entry has been created by Business Central and is related to a job ledger entry. The check box is selected automatically.';
+                    ToolTip = 'Specifies that an entry has been created by Business Central and is related to a project ledger entry. The check box is selected automatically.';
                     Visible = false;
                 }
                 field(Overdue; Rec.Overdue())
@@ -498,19 +516,19 @@ page 1007 "Job Planning Lines"
                     ApplicationArea = Jobs;
                     Caption = 'Overdue';
                     Editable = false;
-                    ToolTip = 'Specifies that the job is overdue. ';
+                    ToolTip = 'Specifies that the project is overdue. ';
                     Visible = false;
                 }
                 field("Qty. Picked"; Rec."Qty. Picked")
                 {
                     ApplicationArea = Warehouse;
-                    ToolTip = 'Specifies the quantity of the item you have picked for the job planning line.';
+                    ToolTip = 'Specifies the quantity of the item you have picked for the project planning line.';
                     Visible = false;
                 }
                 field("Qty. Picked (Base)"; Rec."Qty. Picked (Base)")
                 {
                     ApplicationArea = Warehouse;
-                    ToolTip = 'Specifies the base quantity of the item you have picked for the job planning line.';
+                    ToolTip = 'Specifies the base quantity of the item you have picked for the project planning line.';
                     Visible = false;
                 }
                 field("Contract Line"; Rec."Contract Line")
@@ -542,15 +560,15 @@ page 1007 "Job Planning Lines"
         {
             group("Job Planning &Line")
             {
-                Caption = 'Job Planning &Line';
+                Caption = 'Project Planning &Line';
                 Image = Line;
                 action("Linked Job Ledger E&ntries")
                 {
                     ApplicationArea = Suite;
-                    Caption = 'Linked Job Ledger E&ntries';
+                    Caption = 'Linked Project Ledger E&ntries';
                     Image = JobLedger;
                     ShortCutKey = 'Ctrl+F7';
-                    ToolTip = 'View job ledger entries related to the job planning line.';
+                    ToolTip = 'View project ledger entries related to the project planning line.';
 
                     trigger OnAction()
                     var
@@ -609,7 +627,7 @@ page 1007 "Job Planning Lines"
                     Image = CalendarChanged;
                     RunObject = Codeunit "Job Planning Line - Calendar";
                     RunPageOnRec = true;
-                    ToolTip = 'Create a calendar appointment for the resource on each job planning line.';
+                    ToolTip = 'Create a calendar appointment for the resource on each project planning line.';
                     Visible = CanSendToCalendar;
                 }
                 action("Put-away/Pick Lines/Movement Lines")
@@ -622,7 +640,7 @@ page 1007 "Job Planning Lines"
                                   "Source Subtype" = const("0"),
                                   "Source No." = field("Job No."),
                                   "Source Line No." = field("Job Contract Entry No.");
-                    ToolTip = 'View the list of ongoing inventory put-aways, picks, or movements for the job.';
+                    ToolTip = 'View the list of ongoing inventory put-aways, picks, or movements for the project.';
                 }
                 action(ItemTrackingLines)
                 {
@@ -630,12 +648,30 @@ page 1007 "Job Planning Lines"
                     Caption = 'Item Tracking Lines';
                     Image = ItemTrackingLines;
                     ShortCutKey = 'Ctrl+Alt+I';
-                    ToolTip = 'View or edit serial numbers and lot numbers that are assigned to the item on the job planning line.';
+                    ToolTip = 'View or edit serial numbers and lot numbers that are assigned to the item on the project planning line.';
 
                     trigger OnAction()
                     begin
                         Rec.OpenItemTrackingLines();
                     end;
+                }
+                group("Assemble to Order")
+                {
+                    Caption = 'Assemble to Order';
+                    Image = AssemblyBOM;
+                    action(AssembleToOrderLines)
+                    {
+                        AccessByPermission = TableData "BOM Component" = R;
+                        ApplicationArea = Assembly;
+                        Image = AssemblyBOM;
+                        Caption = 'Assemble-to-Order Lines';
+                        ToolTip = 'View any linked assembly order lines if the documents represents an assemble-to-order project.';
+
+                        trigger OnAction()
+                        begin
+                            Rec.ShowAsmToJobPlanningLines();
+                        end;
+                    }
                 }
             }
         }
@@ -648,9 +684,9 @@ page 1007 "Job Planning Lines"
                 action(CreateJobJournalLines)
                 {
                     ApplicationArea = Jobs;
-                    Caption = 'Create Job &Journal Lines';
+                    Caption = 'Create Project &Journal Lines';
                     Image = PostOrder;
-                    ToolTip = 'Use a batch job to help you create sales journal lines for the involved job planning lines.';
+                    ToolTip = 'Use a batch job to help you create sales journal lines for the involved project planning lines.';
 
                     trigger OnAction()
                     var
@@ -679,12 +715,12 @@ page 1007 "Job Planning Lines"
                 action("&Open Job Journal")
                 {
                     ApplicationArea = Jobs;
-                    Caption = '&Open Job Journal';
+                    Caption = '&Open Project Journal';
                     Image = Journals;
                     RunObject = Page "Job Journal";
                     RunPageLink = "Job No." = field("Job No."),
                                   "Job Task No." = field("Job Task No.");
-                    ToolTip = 'Open the job journal, for example, to post usage for a job.';
+                    ToolTip = 'Open the project journal, for example, to post usage for a project.';
                 }
                 separator(Action16)
                 {
@@ -695,7 +731,7 @@ page 1007 "Job Planning Lines"
                     Caption = 'Create &Sales Invoice';
                     Ellipsis = true;
                     Image = JobSalesInvoice;
-                    ToolTip = 'Use a batch job to help you create sales invoices for the involved job tasks.';
+                    ToolTip = 'Use a batch job to help you create sales invoices for the involved project tasks.';
 
                     trigger OnAction()
                     var
@@ -713,7 +749,7 @@ page 1007 "Job Planning Lines"
                     Caption = 'Create Sales &Credit Memo';
                     Ellipsis = true;
                     Image = CreditMemo;
-                    ToolTip = 'Create a sales credit memo for the selected job planning line.';
+                    ToolTip = 'Create a sales credit memo for the selected project planning line.';
 
                     trigger OnAction()
                     var
@@ -731,7 +767,7 @@ page 1007 "Job Planning Lines"
                     Caption = 'Sales &Invoices/Credit Memos';
                     Ellipsis = true;
                     Image = GetSourceDoc;
-                    ToolTip = 'View sales invoices or sales credit memos that are related to the selected job.';
+                    ToolTip = 'View sales invoices or sales credit memos that are related to the selected project.';
 
                     trigger OnAction()
                     begin
@@ -747,7 +783,7 @@ page 1007 "Job Planning Lines"
                     Caption = '&Reserve';
                     Ellipsis = true;
                     Image = Reserve;
-                    ToolTip = 'Reserve one or more units of the item on the job planning line, either from inventory or from incoming supply.';
+                    ToolTip = 'Reserve one or more units of the item on the project planning line, either from inventory or from incoming supply.';
 
                     trigger OnAction()
                     begin
@@ -774,7 +810,7 @@ page 1007 "Job Planning Lines"
                     ApplicationArea = Planning;
                     Caption = '&Demand Overview';
                     Image = Forecast;
-                    ToolTip = 'Get an overview of demand planning related to jobs, such as the availability of spare parts or other items that you may use in a job. For example, you can determine whether the item you need is in stock, and if it is not, you can determine when the item will be in stock.';
+                    ToolTip = 'Get an overview of demand planning related to projects, such as the availability of spare parts or other items that you may use in a project. For example, you can determine whether the item you need is in stock, and if it is not, you can determine when the item will be in stock.';
 
                     trigger OnAction()
                     var
@@ -786,6 +822,34 @@ page 1007 "Job Planning Lines"
                         DemandOverview.RunModal();
                     end;
                 }
+                action(ExplodeBOM_Functions)
+                {
+                    AccessByPermission = TableData "BOM Component" = R;
+                    ApplicationArea = Suite;
+                    Caption = 'E&xplode BOM';
+                    Image = ExplodeBOM;
+                    ToolTip = 'Add a line for each component on the bill of materials for the selected item. For example, this is useful for selling the parent item as a kit. CAUTION: The line for the parent item will be deleted and only its description will display. To undo this action, delete the component lines and add a line for the parent item again.';
+
+                    trigger OnAction()
+                    begin
+                        ExplodeBOM();
+                    end;
+                }
+                action(SelectMultiItems)
+                {
+                    AccessByPermission = TableData Item = R;
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Select items';
+                    Image = NewItem;
+                    Ellipsis = true;
+                    Visible = SelectMultipleItemsVisible;
+                    ToolTip = 'Add two or more items from the full list of available items.';
+
+                    trigger OnAction()
+                    begin
+                        Rec.SelectMultipleItems();
+                    end;
+                }
             }
         }
         area(reporting)
@@ -793,52 +857,52 @@ page 1007 "Job Planning Lines"
             action("Job Actual to Budget (Cost)")
             {
                 ApplicationArea = Jobs;
-                Caption = 'Job Actual to Budget (Cost)';
+                Caption = 'Project Actual to Budget (Cost)';
                 Image = "Report";
                 RunObject = Report "Job Actual to Budget (Cost)";
-                ToolTip = 'Compare budgeted and usage amounts for selected jobs. All lines of the selected job show quantity, total cost, and line amount.';
+                ToolTip = 'Compare budgeted and usage amounts for selected projects. All lines of the selected project show quantity, total cost, and line amount.';
             }
             action("<Report Job Actual to Budget (Price)>")
             {
                 ApplicationArea = Jobs;
-                Caption = 'Job Actual to Budget (Price)';
+                Caption = 'Project Actual to Budget (Price)';
                 Image = "Report";
                 RunObject = Report "Job Actual to Budget (Price)";
-                ToolTip = 'Compare the actual price of your jobs to the price that was budgeted. The report shows budget and actual amounts for each phase, task, and steps.';
+                ToolTip = 'Compare the actual price of your projects to the price that was budgeted. The report shows budget and actual amounts for each phase, task, and steps.';
             }
             action("Job Analysis")
             {
                 ApplicationArea = Jobs;
-                Caption = 'Job Analysis';
+                Caption = 'Project Analysis';
                 Image = "Report";
                 RunObject = Report "Job Analysis";
-                ToolTip = 'Analyze the job, such as the scheduled prices, usage prices, and contract prices, and then compares the three sets of prices.';
+                ToolTip = 'Analyze the project, such as the scheduled prices, usage prices, and contract prices, and then compares the three sets of prices.';
             }
             action("Job - Planning Lines")
             {
                 ApplicationArea = Jobs;
-                Caption = 'Job - Planning Lines';
+                Caption = 'Project - Planning Lines';
                 Image = "Report";
                 RunObject = Report "Job - Planning Lines";
-                ToolTip = 'View all planning lines for the job. You use this window to plan what items, resources, and general ledger expenses that you expect to use on a job (Budget) or you can specify what you actually agreed with your customer that he should pay for the job (Billable).';
+                ToolTip = 'View all planning lines for the project. You use this window to plan what items, resources, and general ledger expenses that you expect to use on a project (Budget) or you can specify what you actually agreed with your customer that he should pay for the project (Billable).';
             }
             action("Job - Suggested Billing")
             {
                 ApplicationArea = Jobs;
-                Caption = 'Job - Suggested Billing';
+                Caption = 'Project - Suggested Billing';
                 Image = "Report";
                 RunObject = Report "Job Cost Suggested Billing";
-                ToolTip = 'View a list of all jobs, grouped by customer, how much the customer has already been invoiced, and how much remains to be invoiced, that is, the suggested billing.';
+                ToolTip = 'View a list of all projects, grouped by customer, how much the customer has already been invoiced, and how much remains to be invoiced, that is, the suggested billing.';
             }
             action("Jobs - Transaction Detail")
             {
                 ApplicationArea = Jobs;
-                Caption = 'Jobs - Transaction Detail';
+                Caption = 'Projects - Transaction Detail';
                 Image = "Report";
                 //The property 'PromotedCategory' can only be set if the property 'Promoted' is set to 'true'
                 //PromotedCategory = "Report";
                 RunObject = Report "Job Cost Transaction Detail";
-                ToolTip = 'View all postings with entries for a selected job for a selected period, which have been charged to a certain job. At the end of each job list, the amounts are totaled separately for the Sales and Usage entry types.';
+                ToolTip = 'View all postings with entries for a selected project for a selected period, which have been charged to a certain project. At the end of each project list, the amounts are totaled separately for the Sales and Usage entry types.';
             }
         }
         area(Promoted)
@@ -964,15 +1028,18 @@ page 1007 "Job Planning Lines"
         if Rec.GetFilter("Job No.") <> '' then
             if Job.Get(Rec.GetRangeMin("Job No.")) then
                 CurrPage.Editable(not (Job.Blocked = Job.Blocked::All));
+
+        SelectMultipleItemsVisible := Rec.GetFilter("Job Task No.") <> '';
         Rec.FilterGroup := 0;
     end;
 
     var
         JobCreateInvoice: Codeunit "Job Create-Invoice";
-        Text001: Label 'This job planning line was automatically generated. Do you want to continue?';
+        Text001: Label 'This project planning line was automatically generated. Do you want to continue?';
         Text002: Label 'The %1 was successfully transferred to a %2.';
         ExtendedPriceEnabled: Boolean;
         VariantCodeMandatory: Boolean;
+        SelectMultipleItemsVisible: Boolean;
 
     protected var
         JobTaskNoVisible: Boolean;
@@ -1090,6 +1157,11 @@ page 1007 "Job Planning Lines"
         PerformAutoReserve();
     end;
 
+    protected procedure QtyToAsmOnAfterValidate()
+    begin
+        PerformAutoReserve();
+    end;
+
     protected procedure QuantityOnAfterValidate()
     begin
         PerformAutoReserve();
@@ -1119,6 +1191,11 @@ page 1007 "Job Planning Lines"
             exit(TypeFieldEditable);
 
         exit(Rec."Qty. Transferred to Invoice" = 0);
+    end;
+
+    procedure ExplodeBOM()
+    begin
+        Codeunit.Run(Codeunit::"Job-Explode BOM", Rec);
     end;
 
     [IntegrationEvent(true, false)]
@@ -1151,4 +1228,3 @@ page 1007 "Job Planning Lines"
     begin
     end;
 }
-

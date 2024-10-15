@@ -50,6 +50,23 @@ page 5907 "Service Item Worksheet Subform"
                             VariantCodeMandatory := Item.IsVariantMandatory(Rec.Type = Rec.Type::Item, Rec."No.");
                     end;
                 }
+                field("Item Reference No."; Rec."Item Reference No.")
+                {
+                    AccessByPermission = tabledata "Item Reference" = R;
+                    ApplicationArea = Service, ItemReferences;
+                    QuickEntry = false;
+                    ToolTip = 'Specifies the referenced item number. If you enter a cross reference between yours and your vendor''s or customer''s item number, then this number will override the standard item number when you enter the reference number on a sales or purchase document.';
+                    Visible = ItemReferenceVisible;
+
+                    trigger OnLookup(var Text: Text): Boolean
+                    var
+                        ServItemReferenceMgt: Codeunit "Serv. Item Reference Mgt.";
+                    begin
+                        ServItemReferenceMgt.ServiceReferenceNoLookup(Rec);
+                        NoOnAfterValidate();
+                        CurrPage.Update();
+                    end;
+                }
                 field("Variant Code"; Rec."Variant Code")
                 {
                     ApplicationArea = Planning;
@@ -409,6 +426,21 @@ page 5907 "Service Item Worksheet Subform"
     {
         area(processing)
         {
+            action(SelectMultiItems)
+            {
+                AccessByPermission = TableData Item = R;
+                ApplicationArea = Service;
+                Caption = 'Select items';
+                Ellipsis = true;
+                Image = NewItem;
+                ToolTip = 'Add two or more items from the full list of available items.';
+
+                trigger OnAction()
+                begin
+                    Rec.SelectMultipleItems();
+                end;
+            }
+
             group("F&unctions")
             {
                 Caption = 'F&unctions';
@@ -672,12 +704,19 @@ page 5907 "Service Item Worksheet Subform"
         Rec.Validate("Service Item Line No.", ServItemLineNo);
     end;
 
+    trigger OnOpenPage()
+    begin
+        SetItemReferenceVisibility();
+    end;
+
     var
-        Text000: Label 'You cannot open the window because %1 is %2 in the %3 table.';
         ServMgtSetup: Record "Service Mgt. Setup";
         ItemAvailFormsMgt: Codeunit "Item Availability Forms Mgt";
         ServItemLineNo: Integer;
+        ItemReferenceVisible: Boolean;
         VariantCodeMandatory: Boolean;
+
+        Text000: Label 'You cannot open the window because %1 is %2 in the %3 table.';
 
     protected var
         ShortcutDimCode: array[8] of Code[20];
@@ -799,6 +838,13 @@ page 5907 "Service Item Worksheet Subform"
             Rec.AutoReserve(true);
             CurrPage.Update(false);
         end;
+    end;
+
+    local procedure SetItemReferenceVisibility()
+    var
+        ItemReference: Record "Item Reference";
+    begin
+        ItemReferenceVisible := not ItemReference.IsEmpty();
     end;
 
     [IntegrationEvent(false, false)]

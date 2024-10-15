@@ -451,7 +451,7 @@ page 901 "Assembly Order Subform"
 
                     trigger OnAction()
                     begin
-                        Rec.ShowAvailabilityWarning();
+                        Rec.ShowAvailabilityWarningPage();
                     end;
                 }
                 action(Dimensions)

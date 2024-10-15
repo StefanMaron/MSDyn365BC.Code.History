@@ -264,25 +264,25 @@ page 5168 "Purchase Order Archive Subform"
                 field("Job No."; Rec."Job No.")
                 {
                     ApplicationArea = Suite;
-                    ToolTip = 'Specifies the job number that the archived document was linked to.';
+                    ToolTip = 'Specifies the project number that the archived document was linked to.';
                     Visible = false;
                 }
                 field("Job Task No."; Rec."Job Task No.")
                 {
                     ApplicationArea = Jobs;
-                    ToolTip = 'Specifies the number of the related job task.';
+                    ToolTip = 'Specifies the number of the related project task.';
                     Visible = false;
                 }
                 field("Job Planning Line No."; Rec."Job Planning Line No.")
                 {
                     ApplicationArea = Jobs;
-                    ToolTip = 'Specifies the job planning line number to which the usage should be linked when the Job Journal is posted. You can only link to Job Planning Lines that have the Apply Usage Link option enabled.';
+                    ToolTip = 'Specifies the project planning line number to which the usage should be linked when the Project Journal is posted. You can only link to Project Planning Lines that have the Apply Usage Link option enabled.';
                     Visible = false;
                 }
                 field("Job Line Type"; Rec."Job Line Type")
                 {
                     ApplicationArea = Jobs;
-                    ToolTip = 'Specifies the type of planning line that was created when the job ledger entry is posted from the purchase line. If the field is empty, no planning lines were created for this entry.';
+                    ToolTip = 'Specifies the type of planning line that was created when the project ledger entry is posted from the purchase line. If the field is empty, no planning lines were created for this entry.';
                     Visible = false;
                 }
                 field("Job Unit Price"; Rec."Job Unit Price")
@@ -294,19 +294,19 @@ page 5168 "Purchase Order Archive Subform"
                 field("Job Line Amount"; Rec."Job Line Amount")
                 {
                     ApplicationArea = Jobs;
-                    ToolTip = 'Specifies the line amount of the job ledger entry that is related to the purchase line.';
+                    ToolTip = 'Specifies the line amount of the project ledger entry that is related to the purchase line.';
                     Visible = false;
                 }
                 field("Job Line Discount Amount"; Rec."Job Line Discount Amount")
                 {
                     ApplicationArea = Jobs;
-                    ToolTip = 'Specifies the line discount amount of the job ledger entry that is related to the purchase line.';
+                    ToolTip = 'Specifies the line discount amount of the project ledger entry that is related to the purchase line.';
                     Visible = false;
                 }
                 field("Job Line Discount %"; Rec."Job Line Discount %")
                 {
                     ApplicationArea = Jobs;
-                    ToolTip = 'Specifies the line discount percentage of the job ledger entry that is related to the purchase line.';
+                    ToolTip = 'Specifies the line discount percentage of the project ledger entry that is related to the purchase line.';
                     Visible = false;
                 }
                 field("Job Total Price"; Rec."Job Total Price")
@@ -330,13 +330,13 @@ page 5168 "Purchase Order Archive Subform"
                 field("Job Line Amount (LCY)"; Rec."Job Line Amount (LCY)")
                 {
                     ApplicationArea = Jobs;
-                    ToolTip = 'Specifies the line amount of the job ledger entry that is related to the purchase line.';
+                    ToolTip = 'Specifies the line amount of the project ledger entry that is related to the purchase line.';
                     Visible = false;
                 }
                 field("Job Line Disc. Amount (LCY)"; Rec."Job Line Disc. Amount (LCY)")
                 {
                     ApplicationArea = Jobs;
-                    ToolTip = 'Specifies the line discount amount of the job ledger entry that is related to the purchase line.';
+                    ToolTip = 'Specifies the line discount amount of the project ledger entry that is related to the purchase line.';
                     Visible = false;
                 }
                 field("Planning Flexibility"; Rec."Planning Flexibility")
@@ -589,7 +589,8 @@ page 5168 "Purchase Order Archive Subform"
         DocumentLineTracking: Page "Document Line Tracking";
     begin
         Clear(DocumentLineTracking);
-        DocumentLineTracking.SetDoc(1, Rec."Document No.", Rec."Line No.", Rec."Blanket Order No.", Rec."Blanket Order Line No.", '', 0);
+        DocumentLineTracking.SetSourceDoc(
+            "Document Line Source Type"::"Purchase Order", Rec."Document No.", Rec."Line No.", Rec."Blanket Order No.", Rec."Blanket Order Line No.", '', 0);
         DocumentLineTracking.RunModal();
     end;
 

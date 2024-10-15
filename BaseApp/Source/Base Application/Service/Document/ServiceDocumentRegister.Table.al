@@ -7,6 +7,7 @@ table 5936 "Service Document Register"
     Caption = 'Service Document Register';
     DrillDownPageID = "Service Document Registers";
     LookupPageID = "Service Document Registers";
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -25,6 +26,26 @@ table 5936 "Service Document Register"
         field(4; "Destination Document No."; Code[20])
         {
             Caption = 'Destination Document No.';
+        }
+        field(32; "Invoice Period"; Enum "Service Contract Header Invoice Period")
+        {
+            Caption = 'Invoice Period';
+        }
+        field(33; "Last Invoice Date"; Date)
+        {
+            Caption = 'Last Invoice Date';
+        }
+        field(34; "Next Invoice Date"; Date)
+        {
+            Caption = 'Next Invoice Date';
+        }
+        field(98; "Next Invoice Period Start"; Date)
+        {
+            Caption = 'Next Invoice Period Start';
+        }
+        field(99; "Next Invoice Period End"; Date)
+        {
+            Caption = 'Next Invoice Period End';
         }
     }
 
@@ -45,6 +66,7 @@ table 5936 "Service Document Register"
 
     procedure InsertServiceSalesDocument(ServDocType: Enum "Service Source Document Type"; ServDocNo: Code[20]; SalesDocType: Enum "Service Destination Document Type"; SalesDocNo: Code[20])
     var
+        ServiceContractHeader: Record "Service Contract Header";
         ServDocReg: Record "Service Document Register";
     begin
         if not Get(ServDocType, ServDocNo, SalesDocType, SalesDocNo) then begin
@@ -53,6 +75,17 @@ table 5936 "Service Document Register"
             ServDocReg."Source Document No." := ServDocNo;
             ServDocReg."Destination Document Type" := SalesDocType;
             ServDocReg."Destination Document No." := SalesDocNo;
+
+            if (ServDocType = ServDocType::Contract) and (SalesDocType = SalesDocType::Invoice) then begin
+                ServiceContractHeader.SetLoadFields("Invoice Period", "Last Invoice Date", "Next Invoice Date", "Next Invoice Period Start", "Next Invoice Period End");
+                if ServiceContractHeader.Get(ServiceContractHeader."Contract Type"::Contract, ServDocNo) then begin
+                    ServDocReg."Invoice Period" := ServiceContractHeader."Invoice Period";
+                    ServDocReg."Last Invoice Date" := ServiceContractHeader."Last Invoice Date";
+                    ServDocReg."Next Invoice Date" := ServiceContractHeader."Next Invoice Date";
+                    ServDocReg."Next Invoice Period Start" := ServiceContractHeader."Next Invoice Period Start";
+                    ServDocReg."Next Invoice Period End" := ServiceContractHeader."Next Invoice Period End";
+                end;
+            end;
             if ServDocReg.Insert() then;
         end;
     end;

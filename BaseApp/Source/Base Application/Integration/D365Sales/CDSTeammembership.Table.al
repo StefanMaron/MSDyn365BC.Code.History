@@ -11,6 +11,7 @@ table 5397 "CDS Teammembership"
     ExternalName = 'teammembership';
     ExternalSchema = 'teammembership_association';
     TableType = CRM;
+    DataClassification = CustomerContent;
 
     fields
     {

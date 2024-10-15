@@ -65,14 +65,12 @@ codeunit 7181 "Purchases Info-Pane Management"
 
     local procedure GetItem(var PurchLine: Record "Purchase Line"): Boolean
     begin
-        with Item do begin
-            if (PurchLine.Type <> PurchLine.Type::Item) or (PurchLine."No." = '') then
-                exit(false);
+        if (PurchLine.Type <> PurchLine.Type::Item) or (PurchLine."No." = '') then
+            exit(false);
 
-            if PurchLine."No." <> "No." then
-                Get(PurchLine."No.");
-            exit(true);
-        end;
+        if PurchLine."No." <> Item."No." then
+            Item.Get(PurchLine."No.");
+        exit(true);
     end;
 
     [IntegrationEvent(false, false)]

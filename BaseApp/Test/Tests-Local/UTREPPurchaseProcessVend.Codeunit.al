@@ -40,7 +40,7 @@ codeunit 144002 "UT REP Purchase Process Vend"
         Initialize();
 
         // Exercise.
-        LibraryLowerPermissions.SetPurchDocsCreate;
+        LibraryLowerPermissions.SetPurchDocsCreate();
         REPORT.Run(REPORT::"Open Vendor Entries");  // Opens OpenVendorEntriesEndingDateRequestPageHandler.
 
         // Verify: Verify default value of Ending Date is WORKDATE on OpenVendorEntriesEndingDateRequestPageHandler.
@@ -62,11 +62,11 @@ codeunit 144002 "UT REP Purchase Process Vend"
         CreateVendorLedgerEntry(VendorLedgerEntry, Vendor, '', '', WorkDate(), Vendor.Blocked::" ");  // Due Date - WORKDATE.
 
         // Exercise.
-        LibraryLowerPermissions.SetPurchDocsCreate;
+        LibraryLowerPermissions.SetPurchDocsCreate();
         REPORT.Run(REPORT::"Open Vendor Entries");  // Opens OpenVendorEntriesRequestPageHandler.
 
         // Verify: Verify Filters on Vendor and Vendor Ledger Entry and Subtitle is updated on Report Open Vendor Entries.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(FilterStringCap, StrSubstNo('%1: %2', Vendor.FieldCaption("No."), Vendor."No."));
         LibraryReportDataset.AssertElementWithValueExists(
           FilterString2Cap, StrSubstNo('%1: %2', VendorLedgerEntry.FieldCaption("Vendor No."), VendorLedgerEntry."Vendor No."));
@@ -103,7 +103,7 @@ codeunit 144002 "UT REP Purchase Process Vend"
         OnAfterGetRecordVendorBlockedOpenVendorEntries(Vendor.Blocked::All);
     end;
 
-    local procedure OnAfterGetRecordVendorBlockedOpenVendorEntries(Blocked: Option)
+    local procedure OnAfterGetRecordVendorBlockedOpenVendorEntries(Blocked: Enum "Vendor Blocked")
     var
         Vendor: Record Vendor;
         VendorLedgerEntry: Record "Vendor Ledger Entry";
@@ -112,11 +112,11 @@ codeunit 144002 "UT REP Purchase Process Vend"
         CreateVendorLedgerEntry(VendorLedgerEntry, Vendor, '', '', WorkDate(), Blocked);  // Due Date - WORKDATE.
 
         // Exercise.
-        LibraryLowerPermissions.SetPurchDocsCreate;
+        LibraryLowerPermissions.SetPurchDocsCreate();
         REPORT.Run(REPORT::"Open Vendor Entries");  // Opens OpenVendorEntriesRequestPageHandler.
 
         // Verify: Verify Blocked of different type is updated on Report Open Vendor Entries.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(
           'VendorBlockedText', StrSubstNo('*** Vendor is Blocked for %1 processing ***', Vendor.Blocked));
     end;
@@ -135,17 +135,17 @@ codeunit 144002 "UT REP Purchase Process Vend"
 
         // Setup: Run Report Open Vendor Entries to verify RemainingAmountPrint is updated with Vendor Ledger Entry Remaining Amount.
         Initialize();
-        CurrencyCode := CreateCurrency;
+        CurrencyCode := CreateCurrency();
         CreateVendorLedgerEntry(VendorLedgerEntry, Vendor, CurrencyCode, CurrencyCode, WorkDate(), Vendor.Blocked::" ");  // Due Date - WORKDATE.
         CreateDetailedVendorLedgerEntry(VendorLedgerEntry."Entry No.", Vendor."No.");
 
         // Exercise.
-        LibraryLowerPermissions.SetPurchDocsCreate;
+        LibraryLowerPermissions.SetPurchDocsCreate();
         REPORT.Run(REPORT::"Open Vendor Entries");  // Opens OpenVendorEntriesPrintAmountsRequestPageHandler.
 
         // Verify: Verify RemainingAmountPrint on Report Open Vendor Entries.
         VendorLedgerEntry.CalcFields("Remaining Amount");
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(RemainingAmountToPrintCap, -VendorLedgerEntry."Remaining Amount")
     end;
 
@@ -167,13 +167,13 @@ codeunit 144002 "UT REP Purchase Process Vend"
         CreateDetailedVendorLedgerEntry(VendorLedgerEntry."Entry No.", Vendor."No.");
 
         // Exercise.
-        LibraryLowerPermissions.SetPurchDocsCreate;
+        LibraryLowerPermissions.SetPurchDocsCreate();
         REPORT.Run(REPORT::"Open Vendor Entries");  // Opens OpenVendorEntriesPrintAmountsRequestPageHandler.
 
         // Verify: Verify RemainingAmountPrint and OverDueDays on Report Open Vendor Entries.
         VendorLedgerEntry.CalcFields("Remaining Amt. (LCY)");
-        LibraryReportDataset.LoadDataSetFile;
-        LibraryReportDataset.AssertElementWithValueExists('OverDueDays', WorkDate - VendorLedgerEntry."Due Date");
+        LibraryReportDataset.LoadDataSetFile();
+        LibraryReportDataset.AssertElementWithValueExists('OverDueDays', WorkDate() - VendorLedgerEntry."Due Date");
         LibraryReportDataset.AssertElementWithValueExists(RemainingAmountToPrintCap, VendorLedgerEntry."Remaining Amt. (LCY)");
     end;
 
@@ -201,17 +201,17 @@ codeunit 144002 "UT REP Purchase Process Vend"
         CreateDetailedVendorLedgerEntry(VendorLedgerEntry."Entry No.", Vendor."No.");
 
         // Exercise.
-        LibraryLowerPermissions.SetPurchDocsCreate;
+        LibraryLowerPermissions.SetPurchDocsCreate();
         REPORT.Run(REPORT::"Open Vendor Entries");  // Opens OpenVendorEntriesPrintAmountsRequestPageHandler.
 
         // Verify: Verify RemainingAmountPrint on Report Open Vendor Entries. Calclulation is on the basis of VendorLedgerEntry - OnAfterGetRecord of Report Open Vendor Entries.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         VendorLedgerEntry.CalcFields("Remaining Amount");
         LibraryReportDataset.AssertElementWithValueExists(
           RemainingAmountToPrintCap,
           -Round(
             CurrencyExchangeRate.ExchangeAmtFCYToFCY(
-              WorkDate, VendorLedgerEntry."Currency Code", Vendor."Currency Code", VendorLedgerEntry."Remaining Amount"),
+              WorkDate(), VendorLedgerEntry."Currency Code", Vendor."Currency Code", VendorLedgerEntry."Remaining Amount"),
             Currency."Amount Rounding Precision"));
     end;
 
@@ -232,11 +232,11 @@ codeunit 144002 "UT REP Purchase Process Vend"
         CreateDetailedVendorLedgerEntry(VendorLedgerEntry."Entry No.", Vendor."No.");
 
         // Exercise.
-        LibraryLowerPermissions.SetPurchDocsCreate;
+        LibraryLowerPermissions.SetPurchDocsCreate();
         REPORT.Run(REPORT::"Open Vendor Entries");  // Opens OpenVendorEntriesUseExternalDocumentNoRequestPageHandler.
 
         // Verify: Verify External Document No of Vendor Ledger Entry is updated on Report Open Vendor Entries.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(DocumentNoCap, VendorLedgerEntry."External Document No.");
     end;
 
@@ -256,11 +256,11 @@ codeunit 144002 "UT REP Purchase Process Vend"
 
         // Exercise.
         LibraryVariableStorage.Enqueue(Vendor."No.");  // Required inside TopVendorListRequestPageHandler.
-        LibraryLowerPermissions.SetVendorView;
+        LibraryLowerPermissions.SetVendorView();
         RunTopVendorListReport(Vendor, TopType::"Balances ($)");
 
         // Verify: Verify the SubTitle after running Top __ Vendor List Report.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(SubTitleCap, '(by Balance Due)');
     end;
 
@@ -281,11 +281,11 @@ codeunit 144002 "UT REP Purchase Process Vend"
         // Exercise.
         LibraryVariableStorage.Enqueue(Vendor."No.");  // Required inside TopVendorListRequestPageHandler.
         Vendor.SetRange("Date Filter", WorkDate());
-        LibraryLowerPermissions.SetVendorView;
+        LibraryLowerPermissions.SetVendorView();
         RunTopVendorListReport(Vendor, TopType::"Balances ($)");
 
         // Verify: Verify the SubTitle after running Top __ Vendor List Report.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(SubTitleCap, '(by Balance Due as of' + ' ' + Format(WorkDate()) + ')');
     end;
 
@@ -306,11 +306,11 @@ codeunit 144002 "UT REP Purchase Process Vend"
 
         // Exercise.
         Vendor.SetRange("Date Filter", WorkDate());
-        LibraryLowerPermissions.SetVendorView;
+        LibraryLowerPermissions.SetVendorView();
         RunTopVendorListReport(Vendor, TopType::"Balances ($)");
 
         // Verify: Verify the Top Total Text and Top Total after running Top __ Vendor List Report.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(TopTotalTextCap, 'Total Amount Outstanding');
         LibraryReportDataset.AssertElementWithValueExists(TopTotalCap, 100);  // 100 for Top Total of TopType - Balances.
     end;
@@ -332,11 +332,11 @@ codeunit 144002 "UT REP Purchase Process Vend"
 
         // Exercise.
         Vendor.SetRange("Date Filter", WorkDate());
-        LibraryLowerPermissions.SetVendorView;
+        LibraryLowerPermissions.SetVendorView();
         RunTopVendorListReport(Vendor, TopType::"Purchases ($)");
 
         // Verify: Verify the Top Total Text and Top Total after running Top __ Vendor List Report.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(TopTotalTextCap, 'Total Purchases');
         LibraryReportDataset.AssertElementWithValueExists(TopTotalCap, 0);  // Zero Top Total for TopType - Purchases.
     end;
@@ -358,12 +358,12 @@ codeunit 144002 "UT REP Purchase Process Vend"
         CreateDetailedVendorLedgerEntry(VendorLedgerEntry."Entry No.", Vendor."No.");
 
         // Exercise.
-        LibraryLowerPermissions.SetVendorView;
+        LibraryLowerPermissions.SetVendorView();
         REPORT.Run(REPORT::"Vendor Account Detail");  // Opens VendorAccountDetailRequestPageHandler.
 
         // Verify: Verify AmountToPrint and CreditTotal on Report Vendor Account Detail.
         VendorLedgerEntry.CalcFields("Amount (LCY)");
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(AmountToPrintCap, VendorLedgerEntry."Amount (LCY)");
         LibraryReportDataset.AssertElementWithValueExists('CreditTotal', -VendorLedgerEntry."Amount (LCY)");
         LibraryReportDataset.AssertElementWithValueExists(
@@ -385,17 +385,17 @@ codeunit 144002 "UT REP Purchase Process Vend"
 
         // Setup: Run Report Vendor Account Detail to verify AmountToPrint is updated with Vendor Ledger Entry Amount.
         Initialize();
-        CurrencyCode := CreateCurrency;
+        CurrencyCode := CreateCurrency();
         CreateVendorLedgerEntry(VendorLedgerEntry, Vendor, CurrencyCode, CurrencyCode, WorkDate(), Vendor.Blocked::" ");  // Due Date - WORKDATE.
         CreateDetailedVendorLedgerEntry(VendorLedgerEntry."Entry No.", Vendor."No.");
 
         // Exercise.
-        LibraryLowerPermissions.SetVendorView;
+        LibraryLowerPermissions.SetVendorView();
         REPORT.Run(REPORT::"Vendor Account Detail");  // Opens VendorAccountDetailPrintAmountsRequestPageHandler.
 
         // Verify: Verify AmountToPrint on Report Vendor Account Detail.
         VendorLedgerEntry.CalcFields(Amount);
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(AmountToPrintCap, VendorLedgerEntry.Amount);
     end;
 
@@ -423,17 +423,17 @@ codeunit 144002 "UT REP Purchase Process Vend"
         CreateDetailedVendorLedgerEntry(VendorLedgerEntry."Entry No.", Vendor."No.");
 
         // Exercise.
-        LibraryLowerPermissions.SetVendorView;
+        LibraryLowerPermissions.SetVendorView();
         REPORT.Run(REPORT::"Vendor Account Detail");  // Opens VendorAccountDetailPrintAmountsRequestPageHandler.
 
         // Verify: Verify AmountPrint on Report Vendor Account Detail. Calclulation is on the basis of VendorLedgerEntry - OnAfterGetRecord of Report Vendor Account Detail.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         VendorLedgerEntry.CalcFields(Amount);
         LibraryReportDataset.AssertElementWithValueExists(
           AmountToPrintCap,
           Round(
             CurrencyExchangeRate.ExchangeAmtFCYToFCY(
-              WorkDate, VendorLedgerEntry."Currency Code", Vendor."Currency Code", VendorLedgerEntry.Amount),
+              WorkDate(), VendorLedgerEntry."Currency Code", Vendor."Currency Code", VendorLedgerEntry.Amount),
             Currency."Amount Rounding Precision"));
     end;
 
@@ -454,11 +454,11 @@ codeunit 144002 "UT REP Purchase Process Vend"
         CreateDetailedVendorLedgerEntry(VendorLedgerEntry."Entry No.", Vendor."No.");
 
         // Exercise.
-        LibraryLowerPermissions.SetVendorView;
+        LibraryLowerPermissions.SetVendorView();
         REPORT.Run(REPORT::"Vendor Account Detail");  // Opens VendorAccountDetailExternalDocRequestPageHandler.
 
         // Verify: Verify External Document No of Vendor Ledger Entry is updated on Report Vendor Account Detail.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(DocumentNoCap, VendorLedgerEntry."External Document No.");
     end;
 
@@ -477,7 +477,7 @@ codeunit 144002 "UT REP Purchase Process Vend"
         CreateVendorLedgerEntry(VendorLedgerEntry, Vendor, '', '', WorkDate(), Vendor.Blocked::" ");  // Due Date - WORKDATE.
 
         // Exercise.
-        LibraryLowerPermissions.SetVendorView;
+        LibraryLowerPermissions.SetVendorView();
         asserterror REPORT.Run(REPORT::"Vendor Account Detail");  // Opens VendorAccountDetailAccWithBalOnlyRequestPageHandler.
 
         // Verify: Verify error Code, Actual error message: Do not select Accounts with Balances Only if you are also setting Vendor Ledger Entry Filters.
@@ -501,11 +501,11 @@ codeunit 144002 "UT REP Purchase Process Vend"
         CreateCommentLine(CommentLine, Vendor."No.");
 
         // Exercise.
-        LibraryLowerPermissions.SetVendorView;
+        LibraryLowerPermissions.SetVendorView();
         REPORT.Run(REPORT::"Vendor Comment List");  // Opens VendorCommentListRequestPageHandler.
 
         // Verify: Verify Filters and Vendor Name is updated on Report Vendor Comment List.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(
           FilterStringCap, StrSubstNo('%1: %2', CommentLine.FieldCaption("No."), CommentLine."No."));
         LibraryReportDataset.AssertElementWithValueExists(VendorNameCap, Vendor.Name);
@@ -525,11 +525,11 @@ codeunit 144002 "UT REP Purchase Process Vend"
         CreateCommentLine(CommentLine, '');  // Comment Line without Vendor.
 
         // Exercise.
-        LibraryLowerPermissions.SetVendorView;
+        LibraryLowerPermissions.SetVendorView();
         REPORT.Run(REPORT::"Vendor Comment List");  // Opens VendorCommentListRequestPageHandler.
 
         // Verify: Verify No Vendor is updated on Report Vendor Comment List.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(VendorNameCap, 'No Name');
     end;
 
@@ -549,12 +549,12 @@ codeunit 144002 "UT REP Purchase Process Vend"
         CreateDetailedVendorLedgerEntry(VendorLedgerEntry."Entry No.", Vendor."No.");
 
         // Exercise.
-        LibraryLowerPermissions.SetVendorView;
+        LibraryLowerPermissions.SetVendorView();
         REPORT.Run(REPORT::"Vendor - Listing");  // Opens VendorListingRequestPageHandler.
 
         // Verify: Verify Filters and Vendor Balance is updated as Vendor Balance (LCY) on Report Vendor - Listing.
         Vendor.CalcFields("Balance (LCY)");
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(VendorBalanceCap, Vendor."Balance (LCY)");
         LibraryReportDataset.AssertElementWithValueExists('VendFilter', StrSubstNo('%1: %2', Vendor.FieldCaption("No."), Vendor."No."));
     end;
@@ -579,12 +579,12 @@ codeunit 144002 "UT REP Purchase Process Vend"
         CreateDetailedVendorLedgerEntry(VendorLedgerEntry."Entry No.", Vendor."No.");
 
         // Exercise.
-        LibraryLowerPermissions.SetVendorView;
+        LibraryLowerPermissions.SetVendorView();
         REPORT.Run(REPORT::"Vendor - Listing");  // Opens VendorListingPrintAmountsRequestPageHandler.
 
         // Verify: Verify Due Date Calculation of Payment Terms and Vendor Balance is updated on Report Vendor - Listing.
         Vendor.CalcFields(Balance);
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(VendorBalanceCap, Vendor.Balance);
         LibraryReportDataset.AssertElementWithValueExists(
           'PaymentTerms__Due_Date_Calculation_', Format(PaymentTerms."Due Date Calculation"));
@@ -610,11 +610,11 @@ codeunit 144002 "UT REP Purchase Process Vend"
         CreatePurchaseInvoiceHeader(PurchInvHeader, ValueEntry."External Document No.", ValueEntry."Posting Date");
 
         // Exercise.
-        LibraryLowerPermissions.SetPurchDocsCreate;
+        LibraryLowerPermissions.SetPurchDocsCreate();
         REPORT.Run(REPORT::"Vendor/Item Statistics");  // Opens VendorItemStatisticsRequestPageHandler.
 
         // Verify: Verify Filters of Vendor and Value Entry, Total Days and Item Description is updated on report Vendor/Item Statistics. Calculation is on the basis of OnAfterGetrecord - ValueEntry Trigger of the report.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(FilterStringCap, StrSubstNo('%1: %2', Vendor.FieldCaption("No."), Vendor."No."));
         LibraryReportDataset.AssertElementWithValueExists(
           'Value_Entry__TABLECAPTION__________FilterString2',
@@ -642,11 +642,11 @@ codeunit 144002 "UT REP Purchase Process Vend"
         CreatePurchaseInvoiceHeader(PurchInvHeader, ValueEntry."External Document No.", ValueEntry."Posting Date");
 
         // Exercise.
-        LibraryLowerPermissions.SetPurchDocsCreate;
+        LibraryLowerPermissions.SetPurchDocsCreate();
         REPORT.Run(REPORT::"Vendor/Item Statistics");  // Opens VendorItemStatisticsRequestPageHandler.
 
         // Verify: Verify Item Description is updated as Others on Report Vendor/Item Statistics.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(ItemDescriptionCap, 'Others');
     end;
 
@@ -689,18 +689,18 @@ codeunit 144002 "UT REP Purchase Process Vend"
     begin
         // Create Vendor, Value Entry and Purchase Invoice Header.
         CreateVendor(Vendor, '', Vendor.Blocked::" ");
-        Vendor."Purchaser Code" := CreateSalespersonPurchaser;
+        Vendor."Purchaser Code" := CreateSalespersonPurchaser();
         Vendor.Modify();
         CreateValueEntry(ValueEntry, Vendor."No.", ItemNo);
         CreatePurchaseInvoiceHeader(PurchInvHeader, ValueEntry."External Document No.", ValueEntry."Posting Date");
         LibraryVariableStorage.Enqueue(Vendor."Purchaser Code");  // Required inside VendorItemStatByPurchaserRequestPageHandler.
 
         // Exercise:
-        LibraryLowerPermissions.SetPurchDocsCreate;
+        LibraryLowerPermissions.SetPurchDocsCreate();
         REPORT.Run(REPORT::"Vendor Item Stat. by Purchaser");  // Opens VendorItemStatByPurchaserRequestPageHandler.
 
         // Verify: Verify Filters, AvgDays and Item Description on Report Vendor Item Stat. by Purchaser. Calculation is on the basis of OnAfterGetrecord - ValueEntry of Report Vendor Item Stat. by Purchaser.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         TotalDays := (ValueEntry."Posting Date" - PurchInvHeader."Order Date") * ValueEntry."Invoiced Quantity";
         LibraryReportDataset.AssertElementWithValueExists(
           FilterStringCap, StrSubstNo('%1: %2', SalespersonPurchaser.FieldCaption(Code), Vendor."Purchaser Code"));
@@ -726,11 +726,11 @@ codeunit 144002 "UT REP Purchase Process Vend"
         LibraryVariableStorage.Enqueue(Vendor."No.");  // Required inside VendorLabelsRequestPageHandler
 
         // Exercise.
-        LibraryLowerPermissions.SetVendorView;
+        LibraryLowerPermissions.SetVendorView();
         REPORT.Run(REPORT::"Vendor Labels");  // Opens VendorLabelsRequestPageHandler
 
         // Verify: Verify Address and Address2 of Vendor on Report Vendor Labels.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists('Addr_1__1_', Vendor.Address);
         LibraryReportDataset.AssertElementWithValueExists('Addr_1__2_', Vendor."Address 2");
     end;
@@ -753,11 +753,11 @@ codeunit 144002 "UT REP Purchase Process Vend"
         LibraryVariableStorage.Enqueue(Vendor."No.");  // Required inside VendorLabelsRequestPageHandler
 
         // Exercise.
-        LibraryLowerPermissions.SetVendorView;
+        LibraryLowerPermissions.SetVendorView();
         REPORT.Run(REPORT::"Vendor Labels");  // Opens VendorLabelsRequestPageHandler
 
         // Verify: Verify Number of Blanks Labels for Vendor on Report Vendor Labels.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists('NumOfBlanks', NoOfPrintLinesOnLabel - 9);  // Calculation is on the basis of OnAfteGetRecord - Vendor of Report Vendor Labels.
     end;
 
@@ -779,12 +779,12 @@ codeunit 144002 "UT REP Purchase Process Vend"
         LibraryVariableStorage.Enqueue(Vendor."No.");  // Required inside APVendorRegisterRequestPageHandler.
 
         // Exercise.
-        LibraryLowerPermissions.SetJournalsEdit;
+        LibraryLowerPermissions.SetJournalsEdit();
         REPORT.Run(REPORT::"AP - Vendor Register");  // Opens APVendorRegisterRequestPageHandler.
 
         // Verify: Verify Filters, Vendor Name, Remaining Amount (LCY) and Amount (LCY) is updated on Report AP - Vendor Register.
         VendorLedgerEntry.CalcFields("Amount (LCY)", "Remaining Amt. (LCY)");
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(
           'FilterString2', StrSubstNo('%1: %2', VendorLedgerEntry.FieldCaption("Vendor No."), Vendor."No."));
         LibraryReportDataset.AssertElementWithValueExists('VendorName', Vendor.Name);
@@ -804,7 +804,7 @@ codeunit 144002 "UT REP Purchase Process Vend"
         Initialize();
 
         // Exercise.
-        LibraryLowerPermissions.SetVendorView;
+        LibraryLowerPermissions.SetVendorView();
         REPORT.Run(REPORT::"Vendor Purchase Statistics");  // Opens VendorPurchaseStatisticsStartingDateRequestPageHandler.
 
         // Verify: Verify default value of StartDate and Length Of Periods is WORKDATE and 1M respectively on OpenVendorEntriesEndingDateRequestPageHandler.
@@ -832,12 +832,12 @@ codeunit 144002 "UT REP Purchase Process Vend"
         LibraryVariableStorage.Enqueue(Vendor."No.");  // Required inside VendorPurchaseStatisticsRequestPageHandler.
 
         // Exercise.
-        LibraryLowerPermissions.SetVendorView;
+        LibraryLowerPermissions.SetVendorView();
         REPORT.Run(REPORT::"Vendor Purchase Statistics");  // Opens VendorPurchaseStatisticsRequestPageHandler.
 
         // Verify: Verify Purchases, Payments, Invoice Discount, Vendor Balance and Discounts Taken on Report Vendor Purchase Statistics.
         VendorLedgerEntry.CalcFields("Amount (LCY)");
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists('Purchases___2_', -VendorLedgerEntry."Purchase (LCY)");
         LibraryReportDataset.AssertElementWithValueExists('Payments___2_', VendorLedgerEntry."Amount (LCY)");
         LibraryReportDataset.AssertElementWithValueExists('InvoiceDiscounts___2_', -VendorLedgerEntry."Inv. Discount (LCY)");
@@ -868,12 +868,12 @@ codeunit 144002 "UT REP Purchase Process Vend"
 
         // Exercise.
         LibraryVariableStorage.Enqueue(Vendor."No.");  // Required inside VendorPurchaseStatisticsRequestPageHandler.
-        LibraryLowerPermissions.SetVendorView;
+        LibraryLowerPermissions.SetVendorView();
         REPORT.Run(REPORT::"Vendor Purchase Statistics");  // Opens VendorPurchaseStatisticsRequestPageHandler.
 
         // Verify: Verify Finance Charge Memo Amount (LCY) and Discounts Lost on Report Vendor Purchase Statistics. Calculation is on the basis of OnAfterGetRecord - Vendor of Report Vendor Purchase Statistics.
         VendorLedgerEntry.CalcFields(Amount, "Amount (LCY)");
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists('FinanceCharges___2_', -VendorLedgerEntry."Amount (LCY)");
         LibraryReportDataset.AssertElementWithValueExists(
           'DiscountsLost___2_',
@@ -892,13 +892,13 @@ codeunit 144002 "UT REP Purchase Process Vend"
         end;
     end;
 
-    local procedure CreateVendor(var Vendor: Record Vendor; CurrencyCode: Code[10]; Blocked: Option)
+    local procedure CreateVendor(var Vendor: Record Vendor; CurrencyCode: Code[10]; Blocked: Enum "Vendor Blocked")
     begin
-        Vendor."No." := LibraryUTUtility.GetNewCode;
+        Vendor."No." := LibraryUTUtility.GetNewCode();
         Vendor."Currency Code" := CurrencyCode;
         Vendor.Blocked := Blocked;
-        Vendor.Address := LibraryUTUtility.GetNewCode;
-        Vendor."Address 2" := LibraryUTUtility.GetNewCode;
+        Vendor.Address := LibraryUTUtility.GetNewCode();
+        Vendor."Address 2" := LibraryUTUtility.GetNewCode();
         Vendor.Insert();
     end;
 
@@ -906,19 +906,19 @@ codeunit 144002 "UT REP Purchase Process Vend"
     var
         Currency: Record Currency;
     begin
-        Currency.Code := LibraryUTUtility.GetNewCode10;
+        Currency.Code := LibraryUTUtility.GetNewCode10();
         Currency.Insert();
         exit(Currency.Code);
     end;
 
     local procedure CreateItem(var Item: Record Item)
     begin
-        Item."No." := LibraryUTUtility.GetNewCode;
-        Item.Description := LibraryUTUtility.GetNewCode;
+        Item."No." := LibraryUTUtility.GetNewCode();
+        Item.Description := LibraryUTUtility.GetNewCode();
         Item.Insert();
     end;
 
-    local procedure CreateVendorLedgerEntry(var VendorLedgerEntry: Record "Vendor Ledger Entry"; var Vendor: Record Vendor; CurrencyCode: Code[10]; CurrencyCode2: Code[10]; DueDate: Date; Blocked: Option)
+    local procedure CreateVendorLedgerEntry(var VendorLedgerEntry: Record "Vendor Ledger Entry"; var Vendor: Record Vendor; CurrencyCode: Code[10]; CurrencyCode2: Code[10]; DueDate: Date; Blocked: Enum "Vendor Blocked")
     var
         VendorLedgerEntry2: Record "Vendor Ledger Entry";
     begin
@@ -929,7 +929,7 @@ codeunit 144002 "UT REP Purchase Process Vend"
         VendorLedgerEntry."Currency Code" := CurrencyCode2;
         VendorLedgerEntry."Posting Date" := WorkDate();
         VendorLedgerEntry."Due Date" := DueDate;
-        VendorLedgerEntry."External Document No." := LibraryUTUtility.GetNewCode;
+        VendorLedgerEntry."External Document No." := LibraryUTUtility.GetNewCode();
         VendorLedgerEntry.Open := true;
         VendorLedgerEntry."Purchase (LCY)" := LibraryRandom.RandDec(10, 2);
         VendorLedgerEntry.Insert();
@@ -965,7 +965,7 @@ codeunit 144002 "UT REP Purchase Process Vend"
 
     local procedure CreatePaymentTerms(var PaymentTerms: Record "Payment Terms")
     begin
-        PaymentTerms.Code := LibraryUTUtility.GetNewCode10;
+        PaymentTerms.Code := LibraryUTUtility.GetNewCode10();
         Evaluate(PaymentTerms."Due Date Calculation", '<' + Format(LibraryRandom.RandInt(5)) + 'M>');
         PaymentTerms."Due Date Calculation" := PaymentTerms."Due Date Calculation";
         PaymentTerms.Insert();
@@ -983,14 +983,14 @@ codeunit 144002 "UT REP Purchase Process Vend"
         ValueEntry."Item No." := ItemNo;
         ValueEntry."Posting Date" := WorkDate();
         ValueEntry."Invoiced Quantity" := LibraryRandom.RandDec(10, 2);
-        ValueEntry."External Document No." := LibraryUTUtility.GetNewCode;
+        ValueEntry."External Document No." := LibraryUTUtility.GetNewCode();
         ValueEntry.Insert();
         LibraryVariableStorage.Enqueue(ValueEntry."Source No.");  // Required inside VendorItemStatisticsRequestPageHandler and VendorItemStatByPurchaserRequestPageHandler..
     end;
 
     local procedure CreatePurchaseInvoiceHeader(var PurchInvHeader: Record "Purch. Inv. Header"; VendorInvoiceNo: Code[35]; PostingDate: Date)
     begin
-        PurchInvHeader."No." := LibraryUTUtility.GetNewCode;
+        PurchInvHeader."No." := LibraryUTUtility.GetNewCode();
         PurchInvHeader."Vendor Invoice No." := VendorInvoiceNo;
         PurchInvHeader."Order Date" := WorkDate();
         PurchInvHeader."Posting Date" := PostingDate;
@@ -1001,7 +1001,7 @@ codeunit 144002 "UT REP Purchase Process Vend"
     var
         SalespersonPurchaser: Record "Salesperson/Purchaser";
     begin
-        SalespersonPurchaser.Code := LibraryUTUtility.GetNewCode10;
+        SalespersonPurchaser.Code := LibraryUTUtility.GetNewCode10();
         SalespersonPurchaser.Insert();
         exit(SalespersonPurchaser.Code);
     end;
@@ -1016,7 +1016,7 @@ codeunit 144002 "UT REP Purchase Process Vend"
         TopVendorList.Run();  // Invokes TopVendorListRequestPageHandler.
     end;
 
-    local procedure UpdateInitialDocumentTypeDetailedVendorLedgerEntry(VendorLedgerEntryNo: Integer; VendorNo: Code[20]; InitialDocumentType: Option)
+    local procedure UpdateInitialDocumentTypeDetailedVendorLedgerEntry(VendorLedgerEntryNo: Integer; VendorNo: Code[20]; InitialDocumentType: Enum "Gen. Journal Document Type")
     var
         DetailedVendorLedgerEntry: Record "Detailed Vendor Ledg. Entry";
     begin
@@ -1044,7 +1044,7 @@ codeunit 144002 "UT REP Purchase Process Vend"
 
     local procedure UpdateVendorName(var Vendor: Record Vendor)
     begin
-        Vendor.Name := LibraryUTUtility.GetNewCode;
+        Vendor.Name := LibraryUTUtility.GetNewCode();
         Vendor.Modify();
     end;
 
@@ -1055,7 +1055,7 @@ codeunit 144002 "UT REP Purchase Process Vend"
         LibraryVariableStorage.Dequeue(VendorNo);
         OpenVendorEntries.Vendor.SetFilter("No.", VendorNo);
         OpenVendorEntries."Vendor Ledger Entry".SetFilter("Vendor No.", VendorNo);
-        OpenVendorEntries.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        OpenVendorEntries.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     local procedure OpenVendorAccountDetailRequestPage(VendorAccountDetail: TestRequestPage "Vendor Account Detail")
@@ -1065,7 +1065,7 @@ codeunit 144002 "UT REP Purchase Process Vend"
         LibraryVariableStorage.Dequeue(VendorNo);
         VendorAccountDetail.Vendor.SetFilter("No.", VendorNo);
         VendorAccountDetail."Vendor Ledger Entry".SetFilter("Vendor No.", VendorNo);
-        VendorAccountDetail.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        VendorAccountDetail.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     local procedure OpenVendorListingRequestPage(VendorListing: TestRequestPage "Vendor - Listing")
@@ -1074,7 +1074,7 @@ codeunit 144002 "UT REP Purchase Process Vend"
     begin
         LibraryVariableStorage.Dequeue(No);
         VendorListing.Vendor.SetFilter("No.", No);
-        VendorListing.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        VendorListing.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -1118,7 +1118,7 @@ codeunit 144002 "UT REP Purchase Process Vend"
         LibraryVariableStorage.Dequeue(TopType);
         TopVendorList.Vendor.SetFilter("No.", No);
         TopVendorList.Show.SetValue(TopType);
-        TopVendorList.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        TopVendorList.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -1160,7 +1160,7 @@ codeunit 144002 "UT REP Purchase Process Vend"
     begin
         LibraryVariableStorage.Dequeue(No);
         VendorCommentList."Comment Line".SetFilter("No.", No);
-        VendorCommentList.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        VendorCommentList.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -1187,7 +1187,7 @@ codeunit 144002 "UT REP Purchase Process Vend"
         LibraryVariableStorage.Dequeue(No);
         VendorItemStatistics.Vendor.SetFilter("No.", No);
         VendorItemStatistics."Value Entry".SetFilter("Source No.", No);
-        VendorItemStatistics.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        VendorItemStatistics.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -1202,7 +1202,7 @@ codeunit 144002 "UT REP Purchase Process Vend"
         VendorItemStatByPurchaser."Salesperson/Purchaser".SetFilter(Code, Code);
         VendorItemStatByPurchaser.Vendor.SetFilter("No.", No);
         VendorItemStatByPurchaser."Value Entry".SetFilter("Source No.", No);
-        VendorItemStatByPurchaser.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        VendorItemStatByPurchaser.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -1213,7 +1213,7 @@ codeunit 144002 "UT REP Purchase Process Vend"
     begin
         LibraryVariableStorage.Dequeue(No);
         VendorPurchaseStatistics.Vendor.SetFilter("No.", No);
-        VendorPurchaseStatistics.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        VendorPurchaseStatistics.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -1232,7 +1232,7 @@ codeunit 144002 "UT REP Purchase Process Vend"
     begin
         LibraryVariableStorage.Dequeue(VendorNo);
         APVendorRegister."Vendor Ledger Entry".SetFilter("Vendor No.", VendorNo);
-        APVendorRegister.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        APVendorRegister.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -1243,7 +1243,7 @@ codeunit 144002 "UT REP Purchase Process Vend"
     begin
         LibraryVariableStorage.Dequeue(No);
         VendorLabels.Vendor.SetFilter("No.", No);
-        VendorLabels.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        VendorLabels.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -1257,7 +1257,7 @@ codeunit 144002 "UT REP Purchase Process Vend"
         LibraryVariableStorage.Dequeue(No);
         VendorLabels.NoOfPrintLinesOnLabel.SetValue(NoOfPrintLinesOnLabel);
         VendorLabels.Vendor.SetFilter("No.", No);
-        VendorLabels.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        VendorLabels.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 }
 

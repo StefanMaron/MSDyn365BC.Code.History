@@ -400,8 +400,8 @@ report 10403 Deposit
 
             trigger OnAfterGetRecord()
             begin
-                CurrReport.Language := Language.GetLanguageIdOrDefault("Language Code");
-                CurrReport.FormatRegion := Language.GetFormatRegionOrDefault('');
+                CurrReport.Language := LanguageMgt.GetLanguageIdOrDefault("Language Code");
+                CurrReport.FormatRegion := LanguageMgt.GetFormatRegionOrDefault('');
 
                 if not BankAccount.Get("Bank Account No.") then
                     BankAccount.Name := StrSubstNo(Text001, BankAccount.TableCaption());
@@ -471,7 +471,7 @@ report 10403 Deposit
         AppliedCustLedgEntry: Record "Cust. Ledger Entry" temporary;
         VendLedgEntry: Record "Vendor Ledger Entry";
         AppliedVendLedgEntry: Record "Vendor Ledger Entry" temporary;
-        Language: Codeunit Language;
+        LanguageMgt: Codeunit Language;
         DepositPrinted: Codeunit "Deposit-Printed";
         EntryAppMgt: Codeunit "Entry Application Management";
         AccountName: Text[100];

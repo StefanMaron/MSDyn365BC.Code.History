@@ -42,12 +42,10 @@ codeunit 10328 "Exp. Mapping Det EFT US"
     var
         DataExchLineDef: Record "Data Exch. Line Def";
     begin
-        with DataExchLineDef do begin
-            Init();
-            SetRange("Data Exch. Def Code", DataExchDefCode);
-            SetRange("Line Type", "Line Type"::Detail);
-            exit(IsEmpty);
-        end;
+        DataExchLineDef.Init();
+        DataExchLineDef.SetRange("Data Exch. Def Code", DataExchDefCode);
+        DataExchLineDef.SetRange("Line Type", DataExchLineDef."Line Type"::Detail);
+        exit(DataExchLineDef.IsEmpty);
     end;
 }
 

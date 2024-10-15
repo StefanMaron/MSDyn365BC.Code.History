@@ -32,5 +32,10 @@ codeunit 5344 "CRM Product Name"
     begin
         exit('Dataverse');
     end;
+
+    procedure FSServiceName(): Text
+    begin
+        exit('Field Service');
+    end;
 }
 

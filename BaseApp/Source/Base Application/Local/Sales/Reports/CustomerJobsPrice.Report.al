@@ -15,7 +15,8 @@ report 10214 "Customer Jobs (Price)"
     DefaultLayout = RDLC;
     RDLCLayout = './Local/Sales/Reports/CustomerJobsPrice.rdlc';
     ApplicationArea = Jobs;
-    Caption = 'Customer Jobs (Price)';
+    Caption = 'Customer Projects (Price)';
+    AdditionalSearchTerms = 'Customer Jobs (Price)';
     UsageCategory = ReportsAndAnalysis;
 
     dataset
@@ -239,7 +240,7 @@ report 10214 "Customer Jobs (Price)"
         BudgetOptionText: Text[50];
         Text001: Label 'Budgeted Amounts are per the Budget';
         Text002: Label 'Budgeted Amounts are per the Contract';
-        Customer_Jobs___PriceCaptionLbl: Label 'Customer Jobs - Price';
+        Customer_Jobs___PriceCaptionLbl: Label 'Customer Projects - Price';
         CurrReport_PAGENOCaptionLbl: Label 'Page';
         BudgetedPriceCaptionLbl: Label 'Budgeted Price';
         UsagePriceCaptionLbl: Label 'Usage Price';

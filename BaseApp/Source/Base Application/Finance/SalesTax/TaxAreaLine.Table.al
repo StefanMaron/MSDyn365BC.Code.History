@@ -3,6 +3,7 @@ namespace Microsoft.Finance.SalesTax;
 table 319 "Tax Area Line"
 {
     Caption = 'Tax Area Line';
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -19,7 +20,7 @@ table 319 "Tax Area Line"
         }
         field(3; "Jurisdiction Description"; Text[100])
         {
-            CalcFormula = Lookup ("Tax Jurisdiction".Description where(Code = field("Tax Jurisdiction Code")));
+            CalcFormula = lookup ("Tax Jurisdiction".Description where(Code = field("Tax Jurisdiction Code")));
             Caption = 'Jurisdiction Description';
             Editable = false;
             FieldClass = FlowField;

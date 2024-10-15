@@ -41,7 +41,7 @@ codeunit 144022 "Sales Docs With Tax O365"
         CreateSalesDocumentWithFullLineDiscount(SalesHeader, SalesHeader."Document Type"::Order, SalesLine);
 
         // Excercise: Post Sales Order - Partially. Post Sales Order with remaining Quantity to Invoice.
-        LibraryLowerPermissions.SetSalesDocsPost;
+        LibraryLowerPermissions.SetSalesDocsPost();
         DocumentNo[1] := LibrarySales.PostSalesDocument(SalesHeader, true, true);
         DocumentNo[2] := LibrarySales.PostSalesDocument(SalesHeader, true, true);
 
@@ -65,12 +65,12 @@ codeunit 144022 "Sales Docs With Tax O365"
         CreateCustomer(Customer);
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, Customer."No.");
         UpdateTaxAreaOnSalesHeader(SalesHeader);
-        CreateSalesLine(SalesHeader, SalesLine, SalesLine.Type::Item, CreateItem, LibraryRandom.RandInt(10));  // Random value for Quantity.
+        CreateSalesLine(SalesHeader, SalesLine, SalesLine.Type::Item, CreateItem(), LibraryRandom.RandInt(10));  // Random value for Quantity.
         SalesLine.Validate("Tax Area Code", '');  // Blank value is required for Tax Area Code.
         SalesLine.Modify(true);
 
         // Excercise: Post Ship as Sales Order.
-        LibraryLowerPermissions.SetSalesDocsPost;
+        LibraryLowerPermissions.SetSalesDocsPost();
         LibrarySales.PostSalesDocument(SalesHeader, true, false);
 
         // Verify: Verify field - Shipped Not Invoiced with field - Amount of Sales Line Table.
@@ -95,15 +95,15 @@ codeunit 144022 "Sales Docs With Tax O365"
         CreateCustomer(Customer);
         CreateSalesDocument(
           SalesHeader, SalesLine, SalesHeader."Document Type"::Order, Customer."No.", SalesLine.Type::Item,
-          CreateItem, LibraryRandom.RandDec(10, 2));  // Random value for Quantity.
+          CreateItem(), LibraryRandom.RandDec(10, 2));  // Random value for Quantity.
         Amount := SalesLine.Quantity * SalesLine."Unit Price";
 
         // Excercise: Post Sales Order as ship.
-        LibraryLowerPermissions.SetSalesDocsPost;
+        LibraryLowerPermissions.SetSalesDocsPost();
         LibrarySales.PostSalesDocument(SalesHeader, true, false);  // Post as Ship.
 
         // Verify: Verify Shipped Not Invoiced on Customer List Order Status.
-        CustomerListOrderStatus.OpenEdit;
+        CustomerListOrderStatus.OpenEdit();
         CustomerListOrderStatus.FILTER.SetFilter("No.", SalesHeader."Sell-to Customer No.");
         Assert.AreEqual(
           Format(Amount), CustomerListOrderStatus.Control1902018507."Shipped Not Invoiced (LCY)".Value,
@@ -119,7 +119,7 @@ codeunit 144022 "Sales Docs With Tax O365"
         SalesHeader: Record "Sales Header";
         Location: Record Location;
         LibraryCosting: Codeunit "Library - Costing";
-        NoSeriesManagement: Codeunit NoSeriesManagement;
+        NoSeries: Codeunit "No. Series";
         DocumentNo: Code[20];
         ItemNo: Code[20];
     begin
@@ -130,14 +130,12 @@ codeunit 144022 "Sales Docs With Tax O365"
         LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
         ItemNo := CreateAndPostItemJournalWithLocationCode(Location.Code);
         CreateSalesDocumentWithLocationCode(SalesHeader, Customer, ItemNo, Location.Code);
-        DocumentNo :=
-          NoSeriesManagement.GetNextNo(
-            SalesHeader."Shipping No. Series", LibraryUtility.GetNextNoSeriesSalesDate(SalesHeader."Shipping No. Series"), false);
+        DocumentNo := NoSeries.PeekNextNo(SalesHeader."Shipping No. Series", LibraryUtility.GetNextNoSeriesSalesDate(SalesHeader."Shipping No. Series"));
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
         LibraryCosting.AdjustCostItemEntries(ItemNo, '');
 
         // Exercise: Run Customer Sales Statistics report.
-        LibraryLowerPermissions.SetCustomerView;
+        LibraryLowerPermissions.SetCustomerView();
         Customer.SetRange("No.", Customer."No.");
         Commit();
         REPORT.Run(REPORT::"Customer Sales Statistics", true, false, Customer);
@@ -170,7 +168,7 @@ codeunit 144022 "Sales Docs With Tax O365"
         LibraryCosting.AdjustCostItemEntries(ItemNo, '');
 
         // Exercise: Run Salesperson Commissions report.
-        LibraryLowerPermissions.SetCustomerView;
+        LibraryLowerPermissions.SetCustomerView();
         CustLedgerEntry.SetRange("Salesperson Code", Customer."Salesperson Code");
         Commit();
         REPORT.Run(REPORT::"Salesperson Commissions", true, false, CustLedgerEntry);
@@ -203,7 +201,7 @@ codeunit 144022 "Sales Docs With Tax O365"
         LibraryCosting.AdjustCostItemEntries(ItemNo, '');
 
         // Exercise: Run Salesperson Statistics by Inv. report.
-        LibraryLowerPermissions.SetCustomerView;
+        LibraryLowerPermissions.SetCustomerView();
         CustLedgerEntry.SetRange("Salesperson Code", Customer."Salesperson Code");
         Commit();
         REPORT.Run(REPORT::"Salesperson Statistics by Inv.", true, false, CustLedgerEntry);
@@ -220,7 +218,7 @@ codeunit 144022 "Sales Docs With Tax O365"
     begin
         SalesOrderWithAdditionalReportingCurrencyOrForeignCustomer(
           true, LibraryRandom.RandDec(100, 2), LibraryRandom.RandDec(100, 2),
-          SalesLine.Type::"G/L Account", CreateGLAccount,
+          SalesLine.Type::"G/L Account", CreateGLAccount(),
           LibraryRandom.RandDec(10, 2), LibraryRandom.RandDec(10, 2), LibraryRandom.RandDec(10, 2));
     end;
 
@@ -231,7 +229,7 @@ codeunit 144022 "Sales Docs With Tax O365"
         SalesLine: Record "Sales Line";
     begin
         SalesOrderWithAdditionalReportingCurrencyOrForeignCustomer(
-          true, 100, 98.95, SalesLine.Type::Item, CreateItem, 1, 1060.1, 5);
+          true, 100, 98.95, SalesLine.Type::Item, CreateItem(), 1, 1060.1, 5);
     end;
 
     local procedure Initialize()
@@ -253,8 +251,8 @@ codeunit 144022 "Sales Docs With Tax O365"
     begin
         LibraryERM.CreateCurrency(Currency);
 
-        GLAccountRealized := CreateGLAccount;
-        GLAccountResidual := CreateGLAccount;
+        GLAccountRealized := CreateGLAccount();
+        GLAccountResidual := CreateGLAccount();
 
         SetupDate := CalcDate('<CY-1Y+1D>', WorkDate());
         IncrementDateExpr := StrSubstNo('<+%1D>', LibraryRandom.RandInt(20));
@@ -265,7 +263,7 @@ codeunit 144022 "Sales Docs With Tax O365"
         CreateExchangeRate(Currency.Code, SetupDate, CurrencyExchangeRate, RelationalCurrencyExchangeRate);
         UpdateAdditionalReportingCurrency(Currency.Code);
 
-        GLAccountTax := CreateGLAccount;
+        GLAccountTax := CreateGLAccount();
         TaxJurisdictionCode := CreateTaxJurisdiction(GLAccountTax, Foreign);
 
         TaxAreaCode := CreateTaxAreaGroupDetail(TaxGroupCode, TaxJurisdictionCode, SetupDate, Foreign, TaxBelowMaximum);
@@ -284,7 +282,7 @@ codeunit 144022 "Sales Docs With Tax O365"
         LibraryInventory.SelectItemJournalTemplateName(ItemJournalTemplate, ItemJournalTemplate.Type::Item);
         LibraryInventory.SelectItemJournalBatchName(ItemJournalBatch, ItemJournalTemplate.Type, ItemJournalTemplate.Name);
         LibraryInventory.ClearItemJournal(ItemJournalTemplate, ItemJournalBatch);
-        Item.Get(CreateItem);
+        Item.Get(CreateItem());
         for ItemCount := 1 to LibraryRandom.RandInt(5) do begin
             LibraryInventory.CreateItemJournalLine(ItemJournalLine, ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name,
               ItemJournalLine."Entry Type"::Purchase, Item."No.", LibraryRandom.RandInt(10));
@@ -334,7 +332,7 @@ codeunit 144022 "Sales Docs With Tax O365"
         Item.Validate("Replenishment System", Item."Replenishment System"::Purchase);
         Item.Validate("VAT Prod. Posting Group", '');  // Blank value required for creating Sales Line.
         Item.Validate("Unit Cost", LibraryRandom.RandDec(10, 2));  // Take Random Unit Cost.
-        Item.Validate("Vendor No.", CreateVendor);
+        Item.Validate("Vendor No.", CreateVendor());
         Item.Modify(true);
         exit(Item."No.");
     end;
@@ -360,19 +358,19 @@ codeunit 144022 "Sales Docs With Tax O365"
         exit(Vendor."No.");
     end;
 
-    local procedure CreateSalesDocument(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; DocumentType: Option; CustomerNo: Code[20]; Type: Option; No: Code[20]; Quantity: Decimal)
+    local procedure CreateSalesDocument(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; DocumentType: Enum "Sales Document Type"; CustomerNo: Code[20]; Type: Enum "Sales Line Type"; No: Code[20]; Quantity: Decimal)
     begin
         LibrarySales.CreateSalesHeader(SalesHeader, DocumentType, CustomerNo);
         CreateSalesLine(SalesHeader, SalesLine, Type, No, Quantity);
     end;
 
-    local procedure CreateSalesDocumentWithFullLineDiscount(var SalesHeader: Record "Sales Header"; DocumentType: Option; var SalesLine: Record "Sales Line")
+    local procedure CreateSalesDocumentWithFullLineDiscount(var SalesHeader: Record "Sales Header"; DocumentType: Enum "Sales Document Type"; var SalesLine: Record "Sales Line")
     var
         Customer: Record Customer;
         Item: Record Item;
     begin
         CreateCustomer(Customer);
-        Item.Get(CreateItem);
+        Item.Get(CreateItem());
         CreateSalesDocument(
           SalesHeader, SalesLine, DocumentType, Customer."No.", SalesLine.Type::Item, Item."No.", LibraryRandom.RandInt(10));  // Random value for Quantity.
         UpdateSalesLineInvoiceToQtyAndLineDiscountPct(SalesLine);  // Update partially Quantity to Invoice and 100 % Line discount - full line discount.
@@ -388,34 +386,30 @@ codeunit 144022 "Sales Docs With Tax O365"
           ItemNo, LibraryRandom.RandDec(10, 2));
     end;
 
-    local procedure CreateSalesDocumentWithTaxLiable(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; CustomerNo: Code[20]; TaxAreaCode: Code[20]; PostingDate: Date; LocationCode: Code[10]; Type: Option; No: Code[20]; Quantity: Decimal)
+    local procedure CreateSalesDocumentWithTaxLiable(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; CustomerNo: Code[20]; TaxAreaCode: Code[20]; PostingDate: Date; LocationCode: Code[10]; Type: Enum "Sales Line Type"; No: Code[20]; Quantity: Decimal)
     begin
-        with SalesHeader do begin
-            CreateSalesDocument(SalesHeader, SalesLine, "Document Type"::Order, CustomerNo, Type, No, Quantity);
-            Validate("Tax Liable", true);
-            Validate("Tax Area Code", TaxAreaCode);
-            Validate("Posting Date", PostingDate);
-            Validate("Location Code", LocationCode);
-            Modify(true);
-        end;
+        CreateSalesDocument(SalesHeader, SalesLine, SalesHeader."Document Type"::Order, CustomerNo, Type, No, Quantity);
+        SalesHeader.Validate("Tax Liable", true);
+        SalesHeader.Validate("Tax Area Code", TaxAreaCode);
+        SalesHeader.Validate("Posting Date", PostingDate);
+        SalesHeader.Validate("Location Code", LocationCode);
+        SalesHeader.Modify(true);
     end;
 
-    local procedure CreateSalesDocumentWithTaxes(var SalesLine: Record "Sales Line"; TaxAreaCode: Code[20]; TaxGroupCode: Code[20]; LocationCode: Code[10]; CustomerNo: Code[20]; PostingDate: Date; Quantity: Decimal; UnitPrice: Decimal; Type: Option; No: Code[20])
+    local procedure CreateSalesDocumentWithTaxes(var SalesLine: Record "Sales Line"; TaxAreaCode: Code[20]; TaxGroupCode: Code[20]; LocationCode: Code[10]; CustomerNo: Code[20]; PostingDate: Date; Quantity: Decimal; UnitPrice: Decimal; Type: Enum "Sales Line Type"; No: Code[20])
     var
         SalesHeader: Record "Sales Header";
     begin
         CreateSalesDocumentWithTaxLiable(SalesHeader, SalesLine, CustomerNo, TaxAreaCode, PostingDate, LocationCode, Type, No, Quantity);
-        with SalesLine do begin
-            Validate("Unit Price", UnitPrice);
-            Validate("Location Code", LocationCode);
-            Validate("Tax Liable", true);
-            Validate("Tax Area Code", TaxAreaCode);
-            Validate("Tax Group Code", TaxGroupCode);
-            Modify(true);
-        end;
+        SalesLine.Validate("Unit Price", UnitPrice);
+        SalesLine.Validate("Location Code", LocationCode);
+        SalesLine.Validate("Tax Liable", true);
+        SalesLine.Validate("Tax Area Code", TaxAreaCode);
+        SalesLine.Validate("Tax Group Code", TaxGroupCode);
+        SalesLine.Modify(true);
     end;
 
-    local procedure CreateSalesLine(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; Type: Option; No: Code[20]; Quantity: Decimal)
+    local procedure CreateSalesLine(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; Type: Enum "Sales Line Type"; No: Code[20]; Quantity: Decimal)
     begin
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, Type, No, Quantity);
         SalesLine.Validate("Unit Price", LibraryRandom.RandInt(10));
@@ -428,7 +422,7 @@ codeunit 144022 "Sales Docs With Tax O365"
         TaxJurisdiction: Record "Tax Jurisdiction";
     begin
         LibraryERM.CreateTaxJurisdiction(TaxJurisdiction);
-        TaxJurisdiction."Tax Account (Sales)" := CreateGLAccount;
+        TaxJurisdiction."Tax Account (Sales)" := CreateGLAccount();
         TaxJurisdiction.Modify(true);
         LibraryERM.CreateTaxArea(TaxArea);
         LibraryERM.CreateTaxAreaLine(TaxAreaLine, TaxArea.Code, TaxJurisdiction.Code);
@@ -551,7 +545,7 @@ codeunit 144022 "Sales Docs With Tax O365"
             if FindSet() then
                 repeat
                     CostAmountActual += "Cost Amount (Actual)";
-                until Next = 0;
+                until Next() = 0;
         end;
         exit(CostAmountActual);
     end;
@@ -584,7 +578,7 @@ codeunit 144022 "Sales Docs With Tax O365"
     end;
 
     [HandlerFunctions('MessageHandler')]
-    local procedure SalesOrderWithAdditionalReportingCurrencyOrForeignCustomer(Foreign: Boolean; ExchangeRate: Decimal; RelationalExchangeRate: Decimal; LineType: Option; LineItemNo: Code[20]; Quantity: Decimal; Price: Decimal; TaxBelowMaximum: Decimal)
+    local procedure SalesOrderWithAdditionalReportingCurrencyOrForeignCustomer(Foreign: Boolean; ExchangeRate: Decimal; RelationalExchangeRate: Decimal; LineType: Enum "Sales Line Type"; LineItemNo: Code[20]; Quantity: Decimal; Price: Decimal; TaxBelowMaximum: Decimal)
     var
         SalesLine: Record "Sales Line";
         LocationCode: Code[10];
@@ -599,7 +593,7 @@ codeunit 144022 "Sales Docs With Tax O365"
           CustomerNo, PostingDate, LocationCode, TaxGroupCode, TaxAreaCode,
           ExchangeRate, RelationalExchangeRate, Foreign, TaxBelowMaximum);
 
-        LibraryLowerPermissions.SetSalesDocsPost;
+        LibraryLowerPermissions.SetSalesDocsPost();
         CreateSalesDocumentWithTaxes(
           SalesLine, TaxAreaCode, TaxGroupCode, LocationCode, CustomerNo, PostingDate,
           Quantity, Price, LineType, LineItemNo);
@@ -625,7 +619,7 @@ codeunit 144022 "Sales Docs With Tax O365"
         CustLedgerEntry.SetRange("Document No.", DocumentNo);
         CustLedgerEntry.FindFirst();
         ProfitAmt := GetCostAmountActualFromValueEntry(DocumentNo) + CustLedgerEntry."Profit (LCY)";
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.SetRange('Cust__Ledger_Entry__Document_No__', DocumentNo);
         LibraryReportDataset.AssertElementWithValueExists('Cust__Ledger_Entry__Profit__LCY__', ProfitAmt);
     end;
@@ -661,7 +655,7 @@ codeunit 144022 "Sales Docs With Tax O365"
         ItemLedgerEntry.CalcFields("Sales Amount (Actual)");
         ItemLedgerEntry.CalcFields("Cost Amount (Actual)");
         MarginProfit := ItemLedgerEntry."Sales Amount (Actual)" + ItemLedgerEntry."Cost Amount (Actual)";
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists('Sales___2_', ItemLedgerEntry."Sales Amount (Actual)");
         LibraryReportDataset.AssertElementWithValueExists('Profits___2_', MarginProfit);
     end;
@@ -699,21 +693,21 @@ codeunit 144022 "Sales Docs With Tax O365"
     [Scope('OnPrem')]
     procedure CustomerSalesStatisticsPageHandler(var CustomerSalesStatisticspageHandler: TestRequestPage "Customer Sales Statistics")
     begin
-        CustomerSalesStatisticspageHandler.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        CustomerSalesStatisticspageHandler.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure SalespersonCommissionsPageHandler(var SalespersonCommissions: TestRequestPage "Salesperson Commissions")
     begin
-        SalespersonCommissions.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        SalespersonCommissions.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure SalespersonStatisticsbyInvPageHandler(var SalespersonStatisticsbyInv: TestRequestPage "Salesperson Statistics by Inv.")
     begin
-        SalespersonStatisticsbyInv.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        SalespersonStatisticsbyInv.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     local procedure UpdateAdditionalReportingCurrency(AdditionalReportingCurrency: Code[10])

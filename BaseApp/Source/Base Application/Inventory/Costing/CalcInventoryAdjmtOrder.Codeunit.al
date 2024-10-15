@@ -88,105 +88,100 @@ codeunit 5896 "Calc. Inventory Adjmt. - Order"
         end;
 
         for IsPositiveOutputs := true downto false do
-            with TempItemLedgEntry do
-                if Find('-') then begin
-                    if IsPositiveOutputs then begin
-                        RemOutputQty := OutputQty;
-                        RemActInvtAdjmtEntryOrder := ActInvtAdjmtEntryOrder;
-                        RemNegOutputQty := -(GrossOutputQty - OutputQty);
-                        RemNegActInvtAdjmtEntryOrder := ActNegInvtAdjmtEntryOrder;
-                    end else begin
-                        RemOutputQty := -(GrossOutputQty - OutputQty);
-                        RemActInvtAdjmtEntryOrder := ActNegInvtAdjmtEntryOrder;
-                        RemNegOutputQty := 0;
-                    end;
-
-                    repeat
-                        if Positive = IsPositiveOutputs then begin
-                            ReversedQty := CalcExactCostReversingQty(TempItemLedgEntry);
-
-                            OldActInvtAdjmtEntryOrder.Init();
-                            CalcActualOutputCosts(OldActInvtAdjmtEntryOrder, "Entry No.");
-
-                            NewActInvtAdjmtEntryOrder := RemActInvtAdjmtEntryOrder;
-
-                            OnCalcOutputEntryCostAdjmtsOnBeforeCalculateCostForGrossOutput(NewActInvtAdjmtEntryOrder, RemOutputQty, OutputQty);
-
-                            if RemOutputQty * (Quantity + ReversedQty) <> 0 then begin
-                                // Calculate cost for gross output
-                                NewActInvtAdjmtEntryOrder.RoundCosts((Quantity + ReversedQty) / RemOutputQty);
-
-                                RemOutputQty -= (Quantity + ReversedQty);
-                                RemActInvtAdjmtEntryOrder.CalcDiff(NewActInvtAdjmtEntryOrder, false);
-                                RemActInvtAdjmtEntryOrder.RoundCosts(-1);
-                            end else
-                                NewActInvtAdjmtEntryOrder.RoundCosts(0);
-
-                            if RemNegOutputQty * ReversedQty <> 0 then begin
-                                // Calculate cost for negative output
-                                NewNegActInvtAdjmtEntryOrder := RemNegActInvtAdjmtEntryOrder;
-                                NewNegActInvtAdjmtEntryOrder.RoundCosts(ReversedQty / RemNegOutputQty);
-
-                                RemNegOutputQty -= ReversedQty;
-                                RemNegActInvtAdjmtEntryOrder.CalcDiff(NewNegActInvtAdjmtEntryOrder, false);
-                                RemNegActInvtAdjmtEntryOrder.RoundCosts(-1);
-
-                                // Gross + Negative Outputs
-                                NewActInvtAdjmtEntryOrder.CalcDiff(NewNegActInvtAdjmtEntryOrder, false);
-                                NewActInvtAdjmtEntryOrder.RoundCosts(-1);
-                            end;
-
-                            // Compute difference to post
-                            NewActInvtAdjmtEntryOrder.CalcDiff(OldActInvtAdjmtEntryOrder, false);
-                            NewActInvtAdjmtEntryOrder.RoundCosts(-1);
-
-                            UpdateOutputAdjmtBuf(TempItemLedgEntry, NewActInvtAdjmtEntryOrder, InvtAdjmtBuf);
-                            Delete();
-                        end;
-                    until Next() = 0;
+            if TempItemLedgEntry.Find('-') then begin
+                if IsPositiveOutputs then begin
+                    RemOutputQty := OutputQty;
+                    RemActInvtAdjmtEntryOrder := ActInvtAdjmtEntryOrder;
+                    RemNegOutputQty := -(GrossOutputQty - OutputQty);
+                    RemNegActInvtAdjmtEntryOrder := ActNegInvtAdjmtEntryOrder;
+                end else begin
+                    RemOutputQty := -(GrossOutputQty - OutputQty);
+                    RemActInvtAdjmtEntryOrder := ActNegInvtAdjmtEntryOrder;
+                    RemNegOutputQty := 0;
                 end;
+
+                repeat
+                    if TempItemLedgEntry.Positive = IsPositiveOutputs then begin
+                        ReversedQty := CalcExactCostReversingQty(TempItemLedgEntry);
+
+                        OldActInvtAdjmtEntryOrder.Init();
+                        CalcActualOutputCosts(OldActInvtAdjmtEntryOrder, TempItemLedgEntry."Entry No.");
+
+                        NewActInvtAdjmtEntryOrder := RemActInvtAdjmtEntryOrder;
+
+                        OnCalcOutputEntryCostAdjmtsOnBeforeCalculateCostForGrossOutput(NewActInvtAdjmtEntryOrder, RemOutputQty, OutputQty);
+
+                        if RemOutputQty * (TempItemLedgEntry.Quantity + ReversedQty) <> 0 then begin
+                            // Calculate cost for gross output
+                            NewActInvtAdjmtEntryOrder.RoundCosts((TempItemLedgEntry.Quantity + ReversedQty) / RemOutputQty);
+
+                            RemOutputQty -= (TempItemLedgEntry.Quantity + ReversedQty);
+                            RemActInvtAdjmtEntryOrder.CalcDiff(NewActInvtAdjmtEntryOrder, false);
+                            RemActInvtAdjmtEntryOrder.RoundCosts(-1);
+                        end else
+                            NewActInvtAdjmtEntryOrder.RoundCosts(0);
+
+                        if RemNegOutputQty * ReversedQty <> 0 then begin
+                            // Calculate cost for negative output
+                            NewNegActInvtAdjmtEntryOrder := RemNegActInvtAdjmtEntryOrder;
+                            NewNegActInvtAdjmtEntryOrder.RoundCosts(ReversedQty / RemNegOutputQty);
+
+                            RemNegOutputQty -= ReversedQty;
+                            RemNegActInvtAdjmtEntryOrder.CalcDiff(NewNegActInvtAdjmtEntryOrder, false);
+                            RemNegActInvtAdjmtEntryOrder.RoundCosts(-1);
+                            // Gross + Negative Outputs
+                            NewActInvtAdjmtEntryOrder.CalcDiff(NewNegActInvtAdjmtEntryOrder, false);
+                            NewActInvtAdjmtEntryOrder.RoundCosts(-1);
+                        end;
+                        // Compute difference to post
+                        NewActInvtAdjmtEntryOrder.CalcDiff(OldActInvtAdjmtEntryOrder, false);
+                        NewActInvtAdjmtEntryOrder.RoundCosts(-1);
+
+                        UpdateOutputAdjmtBuf(TempItemLedgEntry, NewActInvtAdjmtEntryOrder, InvtAdjmtBuf);
+                        TempItemLedgEntry.Delete();
+                    end;
+                until TempItemLedgEntry.Next() = 0;
+            end;
     end;
 
     local procedure UpdateOutputAdjmtBuf(ItemLedgerEntry: Record "Item Ledger Entry"; InventoryAdjmtEntryOrder: Record "Inventory Adjmt. Entry (Order)"; var InventoryAdjustmentBuffer: Record "Inventory Adjustment Buffer")
     begin
         OnBeforeUpdateOutputAdjmtBuf(InventoryAdjmtEntryOrder, ItemLedgerEntry, InventoryAdjustmentBuffer);
 
-        with InventoryAdjmtEntryOrder do begin
-            if HasNewCost("Direct Cost", "Direct Cost (ACY)") or not "Completely Invoiced" then
-                InventoryAdjustmentBuffer.AddCost(
-                  ItemLedgerEntry."Entry No.", InventoryAdjustmentBuffer."Entry Type"::"Direct Cost", "Cost Variance Type"::" ", "Direct Cost", "Direct Cost (ACY)");
-            if HasNewCost("Indirect Cost", "Indirect Cost (ACY)") then
-                InventoryAdjustmentBuffer.AddCost(
-                  ItemLedgerEntry."Entry No.", InventoryAdjustmentBuffer."Entry Type"::"Indirect Cost", "Cost Variance Type"::" ", "Indirect Cost", "Indirect Cost (ACY)");
+        if HasNewCost(InventoryAdjmtEntryOrder."Direct Cost", InventoryAdjmtEntryOrder."Direct Cost (ACY)") or not InventoryAdjmtEntryOrder."Completely Invoiced" then
+            InventoryAdjustmentBuffer.AddCost(
+              ItemLedgerEntry."Entry No.", InventoryAdjustmentBuffer."Entry Type"::"Direct Cost", "Cost Variance Type"::" ", InventoryAdjmtEntryOrder."Direct Cost", InventoryAdjmtEntryOrder."Direct Cost (ACY)");
+        if HasNewCost(InventoryAdjmtEntryOrder."Indirect Cost", InventoryAdjmtEntryOrder."Indirect Cost (ACY)") then
+            InventoryAdjustmentBuffer.AddCost(
+              ItemLedgerEntry."Entry No.", InventoryAdjustmentBuffer."Entry Type"::"Indirect Cost", "Cost Variance Type"::" ", InventoryAdjmtEntryOrder."Indirect Cost", InventoryAdjmtEntryOrder."Indirect Cost (ACY)");
 
-            if Item."Costing Method" <> Item."Costing Method"::Standard then
-                exit;
+        if Item."Costing Method" <> Item."Costing Method"::Standard then
+            exit;
 
-            if HasNewCost("Single-Level Material Cost", "Single-Lvl Material Cost (ACY)") then
-                InventoryAdjustmentBuffer.AddCost(ItemLedgerEntry."Entry No.",
-                  InventoryAdjustmentBuffer."Entry Type"::Variance, InventoryAdjustmentBuffer."Variance Type"::Material,
-                  "Single-Level Material Cost", "Single-Lvl Material Cost (ACY)");
+        if HasNewCost(InventoryAdjmtEntryOrder."Single-Level Material Cost", InventoryAdjmtEntryOrder."Single-Lvl Material Cost (ACY)") then
+            InventoryAdjustmentBuffer.AddCost(ItemLedgerEntry."Entry No.",
+              InventoryAdjustmentBuffer."Entry Type"::Variance, InventoryAdjustmentBuffer."Variance Type"::Material,
+              InventoryAdjmtEntryOrder."Single-Level Material Cost", InventoryAdjmtEntryOrder."Single-Lvl Material Cost (ACY)");
 
-            if HasNewCost("Single-Level Capacity Cost", "Single-Lvl Capacity Cost (ACY)") then
-                InventoryAdjustmentBuffer.AddCost(ItemLedgerEntry."Entry No.",
-                  InventoryAdjustmentBuffer."Entry Type"::Variance, InventoryAdjustmentBuffer."Variance Type"::Capacity,
-                  "Single-Level Capacity Cost", "Single-Lvl Capacity Cost (ACY)");
+        if HasNewCost(InventoryAdjmtEntryOrder."Single-Level Capacity Cost", InventoryAdjmtEntryOrder."Single-Lvl Capacity Cost (ACY)") then
+            InventoryAdjustmentBuffer.AddCost(ItemLedgerEntry."Entry No.",
+              InventoryAdjustmentBuffer."Entry Type"::Variance, InventoryAdjustmentBuffer."Variance Type"::Capacity,
+              InventoryAdjmtEntryOrder."Single-Level Capacity Cost", InventoryAdjmtEntryOrder."Single-Lvl Capacity Cost (ACY)");
 
-            if HasNewCost("Single-Level Cap. Ovhd Cost", "Single-Lvl Cap. Ovhd Cost(ACY)") then
-                InventoryAdjustmentBuffer.AddCost(ItemLedgerEntry."Entry No.",
-                  InventoryAdjustmentBuffer."Entry Type"::Variance, InventoryAdjustmentBuffer."Variance Type"::"Capacity Overhead",
-                  "Single-Level Cap. Ovhd Cost", "Single-Lvl Cap. Ovhd Cost(ACY)");
+        if HasNewCost(InventoryAdjmtEntryOrder."Single-Level Cap. Ovhd Cost", InventoryAdjmtEntryOrder."Single-Lvl Cap. Ovhd Cost(ACY)") then
+            InventoryAdjustmentBuffer.AddCost(ItemLedgerEntry."Entry No.",
+              InventoryAdjustmentBuffer."Entry Type"::Variance, InventoryAdjustmentBuffer."Variance Type"::"Capacity Overhead",
+              InventoryAdjmtEntryOrder."Single-Level Cap. Ovhd Cost", InventoryAdjmtEntryOrder."Single-Lvl Cap. Ovhd Cost(ACY)");
 
-            if HasNewCost("Single-Level Mfg. Ovhd Cost", "Single-Lvl Mfg. Ovhd Cost(ACY)") then
-                InventoryAdjustmentBuffer.AddCost(ItemLedgerEntry."Entry No.",
-                  InventoryAdjustmentBuffer."Entry Type"::Variance, InventoryAdjustmentBuffer."Variance Type"::"Manufacturing Overhead",
-                  "Single-Level Mfg. Ovhd Cost", "Single-Lvl Mfg. Ovhd Cost(ACY)");
+        if HasNewCost(InventoryAdjmtEntryOrder."Single-Level Mfg. Ovhd Cost", InventoryAdjmtEntryOrder."Single-Lvl Mfg. Ovhd Cost(ACY)") then
+            InventoryAdjustmentBuffer.AddCost(ItemLedgerEntry."Entry No.",
+              InventoryAdjustmentBuffer."Entry Type"::Variance, InventoryAdjustmentBuffer."Variance Type"::"Manufacturing Overhead",
+              InventoryAdjmtEntryOrder."Single-Level Mfg. Ovhd Cost", InventoryAdjmtEntryOrder."Single-Lvl Mfg. Ovhd Cost(ACY)");
 
-            if HasNewCost("Single-Level Subcontrd. Cost", "Single-Lvl Subcontrd Cost(ACY)") then
-                InventoryAdjustmentBuffer.AddCost(ItemLedgerEntry."Entry No.",
-                  InventoryAdjustmentBuffer."Entry Type"::Variance, InventoryAdjustmentBuffer."Variance Type"::Subcontracted,
-                  "Single-Level Subcontrd. Cost", "Single-Lvl Subcontrd Cost(ACY)");
-        end;
+        if HasNewCost(InventoryAdjmtEntryOrder."Single-Level Subcontrd. Cost", InventoryAdjmtEntryOrder."Single-Lvl Subcontrd Cost(ACY)") then
+            InventoryAdjustmentBuffer.AddCost(ItemLedgerEntry."Entry No.",
+              InventoryAdjustmentBuffer."Entry Type"::Variance, InventoryAdjustmentBuffer."Variance Type"::Subcontracted,
+              InventoryAdjmtEntryOrder."Single-Level Subcontrd. Cost", InventoryAdjmtEntryOrder."Single-Lvl Subcontrd Cost(ACY)");
 
         OnAfterUpdateOutputAdjmtBuf(InventoryAdjmtEntryOrder, ItemLedgerEntry, InventoryAdjustmentBuffer);
     end;
@@ -305,29 +300,27 @@ codeunit 5896 "Calc. Inventory Adjmt. - Order"
 
         ShareOfTotalCapCost := CalcShareOfCapCost(InvtAdjmtEntryOrder);
 
-        with CapLedgEntry do begin
-            SetCurrentKey("Order Type", "Order No.", "Order Line No.", "Routing No.", "Routing Reference No.");
-            SetRange("Order Type", InvtAdjmtEntryOrder."Order Type");
-            SetRange("Order No.", InvtAdjmtEntryOrder."Order No.");
-            SetRange("Routing No.", InvtAdjmtEntryOrder."Routing No.");
-            SetRange("Routing Reference No.", InvtAdjmtEntryOrder."Routing Reference No.");
-            SetRange("Item No.", InvtAdjmtEntryOrder."Item No.");
-            IsHandled := false;
-            OnCalcActualCapacityCostsOnAfterSetFilters(CapLedgEntry, InvtAdjmtEntryOrder, IsHandled, ShareOfTotalCapCost);
-            if not IsHandled then
-                if Find('-') then
-                    repeat
-                        CalcFields("Direct Cost", "Direct Cost (ACY)", "Overhead Cost", "Overhead Cost (ACY)");
-                        if Subcontracting then
-                            InvtAdjmtEntryOrder.AddSingleLvlSubcontrdCost("Direct Cost" * ShareOfTotalCapCost, "Direct Cost (ACY)" *
-                              ShareOfTotalCapCost)
-                        else
-                            InvtAdjmtEntryOrder.AddSingleLvlCapacityCost(
-                              "Direct Cost" * ShareOfTotalCapCost, "Direct Cost (ACY)" * ShareOfTotalCapCost);
-                        InvtAdjmtEntryOrder.AddSingleLvlCapOvhdCost(
-                          "Overhead Cost" * ShareOfTotalCapCost, "Overhead Cost (ACY)" * ShareOfTotalCapCost);
-                    until Next() = 0;
-        end;
+        CapLedgEntry.SetCurrentKey("Order Type", "Order No.", "Order Line No.", "Routing No.", "Routing Reference No.");
+        CapLedgEntry.SetRange("Order Type", InvtAdjmtEntryOrder."Order Type");
+        CapLedgEntry.SetRange("Order No.", InvtAdjmtEntryOrder."Order No.");
+        CapLedgEntry.SetRange("Routing No.", InvtAdjmtEntryOrder."Routing No.");
+        CapLedgEntry.SetRange("Routing Reference No.", InvtAdjmtEntryOrder."Routing Reference No.");
+        CapLedgEntry.SetRange("Item No.", InvtAdjmtEntryOrder."Item No.");
+        IsHandled := false;
+        OnCalcActualCapacityCostsOnAfterSetFilters(CapLedgEntry, InvtAdjmtEntryOrder, IsHandled, ShareOfTotalCapCost);
+        if not IsHandled then
+            if CapLedgEntry.Find('-') then
+                repeat
+                    CapLedgEntry.CalcFields("Direct Cost", "Direct Cost (ACY)", "Overhead Cost", "Overhead Cost (ACY)");
+                    if CapLedgEntry.Subcontracting then
+                        InvtAdjmtEntryOrder.AddSingleLvlSubcontrdCost(CapLedgEntry."Direct Cost" * ShareOfTotalCapCost, CapLedgEntry."Direct Cost (ACY)" *
+                          ShareOfTotalCapCost)
+                    else
+                        InvtAdjmtEntryOrder.AddSingleLvlCapacityCost(
+                          CapLedgEntry."Direct Cost" * ShareOfTotalCapCost, CapLedgEntry."Direct Cost (ACY)" * ShareOfTotalCapCost);
+                    InvtAdjmtEntryOrder.AddSingleLvlCapOvhdCost(
+                      CapLedgEntry."Overhead Cost" * ShareOfTotalCapCost, CapLedgEntry."Overhead Cost (ACY)" * ShareOfTotalCapCost);
+                until CapLedgEntry.Next() = 0;
     end;
 
     procedure CalcOutputQty(InvtAdjmtEntryOrder: Record "Inventory Adjmt. Entry (Order)"; OnlyInbounds: Boolean) OutputQty: Decimal
@@ -356,25 +349,23 @@ codeunit 5896 "Calc. Inventory Adjmt. - Order"
         if InvtAdjmtEntryOrder."Order Type" = InvtAdjmtEntryOrder."Order Type"::Assembly then
             exit(1);
 
-        with CapLedgEntry do begin
-            SetCurrentKey("Order Type", "Order No.");
-            SetRange("Order Type", InvtAdjmtEntryOrder."Order Type");
-            SetRange("Order No.", InvtAdjmtEntryOrder."Order No.");
-            SetRange("Order Line No.", InvtAdjmtEntryOrder."Order Line No.");
-            SetRange("Routing No.", InvtAdjmtEntryOrder."Routing No.");
-            SetRange("Routing Reference No.", InvtAdjmtEntryOrder."Routing Reference No.");
-            SetRange("Item No.", InvtAdjmtEntryOrder."Item No.");
-            CalcSums("Output Quantity");
-            ShareOfCapCost := "Output Quantity";
+        CapLedgEntry.SetCurrentKey("Order Type", "Order No.");
+        CapLedgEntry.SetRange("Order Type", InvtAdjmtEntryOrder."Order Type");
+        CapLedgEntry.SetRange("Order No.", InvtAdjmtEntryOrder."Order No.");
+        CapLedgEntry.SetRange("Order Line No.", InvtAdjmtEntryOrder."Order Line No.");
+        CapLedgEntry.SetRange("Routing No.", InvtAdjmtEntryOrder."Routing No.");
+        CapLedgEntry.SetRange("Routing Reference No.", InvtAdjmtEntryOrder."Routing Reference No.");
+        CapLedgEntry.SetRange("Item No.", InvtAdjmtEntryOrder."Item No.");
+        CapLedgEntry.CalcSums(CapLedgEntry."Output Quantity");
+        ShareOfCapCost := CapLedgEntry."Output Quantity";
 
-            if InvtAdjmtEntryOrder."Order Type" = InvtAdjmtEntryOrder."Order Type"::Production then
-                SetRange("Order Line No.");
-            CalcSums("Output Quantity");
-            if "Output Quantity" <> 0 then
-                ShareOfCapCost := ShareOfCapCost / "Output Quantity"
-            else
-                ShareOfCapCost := 1;
-        end;
+        if InvtAdjmtEntryOrder."Order Type" = InvtAdjmtEntryOrder."Order Type"::Production then
+            CapLedgEntry.SetRange("Order Line No.");
+        CapLedgEntry.CalcSums(CapLedgEntry."Output Quantity");
+        if CapLedgEntry."Output Quantity" <> 0 then
+            ShareOfCapCost := ShareOfCapCost / CapLedgEntry."Output Quantity"
+        else
+            ShareOfCapCost := 1;
     end;
 
     local procedure CopyILEToILE(var FromItemLedgEntry: Record "Item Ledger Entry"; var ToItemLedgEntry: Record "Item Ledger Entry")

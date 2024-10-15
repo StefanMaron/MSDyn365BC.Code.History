@@ -241,22 +241,22 @@ codeunit 144008 "UT COD Address"
     local procedure CreateServiceHeader(var ServiceHeader: Record "Service Header")
     begin
         ServiceHeader."Document Type" := ServiceHeader."Document Type";  // Using default Document Type - Quote.
-        ServiceHeader."No." := LibraryUTUtility.GetNewCode;
-        ServiceHeader.Name := LibraryUTUtility.GetNewCode;
-        ServiceHeader.Address := LibraryUTUtility.GetNewCode;
-        ServiceHeader.City := LibraryUTUtility.GetNewCode;
-        ServiceHeader.County := LibraryUTUtility.GetNewCode;
+        ServiceHeader."No." := LibraryUTUtility.GetNewCode();
+        ServiceHeader.Name := LibraryUTUtility.GetNewCode();
+        ServiceHeader.Address := LibraryUTUtility.GetNewCode();
+        ServiceHeader.City := LibraryUTUtility.GetNewCode();
+        ServiceHeader.County := LibraryUTUtility.GetNewCode();
         ServiceHeader.Insert();
     end;
 
     local procedure CreateCustomer(var Customer: Record Customer; CountryRegionCode: Code[10])
     begin
-        Customer."No." := LibraryUTUtility.GetNewCode;
-        Customer.Name := LibraryUTUtility.GetNewCode;
-        Customer.Address := LibraryUTUtility.GetNewCode;
-        Customer.City := LibraryUTUtility.GetNewCode;
-        Customer."Post Code" := LibraryUTUtility.GetNewCode;
-        Customer.County := LibraryUTUtility.GetNewCode10;
+        Customer."No." := LibraryUTUtility.GetNewCode();
+        Customer.Name := LibraryUTUtility.GetNewCode();
+        Customer.Address := LibraryUTUtility.GetNewCode();
+        Customer.City := LibraryUTUtility.GetNewCode();
+        Customer."Post Code" := LibraryUTUtility.GetNewCode();
+        Customer.County := LibraryUTUtility.GetNewCode10();
         Customer."Country/Region Code" := CountryRegionCode;
         Customer.Insert();
     end;
@@ -265,16 +265,16 @@ codeunit 144008 "UT COD Address"
     var
         CustomerPostingGroup: Record "Customer Posting Group";
     begin
-        CustomerPostingGroup.Code := LibraryUTUtility.GetNewCode10;
+        CustomerPostingGroup.Code := LibraryUTUtility.GetNewCode10();
         CustomerPostingGroup.Insert();
         exit(CustomerPostingGroup.Code);
     end;
 
-    local procedure CreateCountryRegion(AddressFormat: Option): Code[10]
+    local procedure CreateCountryRegion(AddressFormat: Enum "Country/Region Address Format"): Code[10]
     var
         CountryRegion: Record "Country/Region";
     begin
-        CountryRegion.Code := LibraryUTUtility.GetNewCode10;
+        CountryRegion.Code := LibraryUTUtility.GetNewCode10();
         CountryRegion."Address Format" := AddressFormat;
         CountryRegion.Insert();
         exit(CountryRegion.Code);
@@ -282,31 +282,31 @@ codeunit 144008 "UT COD Address"
 
     local procedure CreateTransferShipmentHeader(var TransferShipmentHeader: Record "Transfer Shipment Header")
     begin
-        TransferShipmentHeader."No." := LibraryUTUtility.GetNewCode;
-        TransferShipmentHeader."Transfer-from Name" := LibraryUTUtility.GetNewCode;
-        TransferShipmentHeader."Transfer-from Address" := LibraryUTUtility.GetNewCode;
-        TransferShipmentHeader."Transfer-to Name" := LibraryUTUtility.GetNewCode;
-        TransferShipmentHeader."Transfer-to Address" := LibraryUTUtility.GetNewCode;
+        TransferShipmentHeader."No." := LibraryUTUtility.GetNewCode();
+        TransferShipmentHeader."Transfer-from Name" := LibraryUTUtility.GetNewCode();
+        TransferShipmentHeader."Transfer-from Address" := LibraryUTUtility.GetNewCode();
+        TransferShipmentHeader."Transfer-to Name" := LibraryUTUtility.GetNewCode();
+        TransferShipmentHeader."Transfer-to Address" := LibraryUTUtility.GetNewCode();
         TransferShipmentHeader.Insert();
     end;
 
     local procedure CreateTransferReceiptHeader(var TransferReceiptHeader: Record "Transfer Receipt Header")
     begin
-        TransferReceiptHeader."No." := LibraryUTUtility.GetNewCode;
-        TransferReceiptHeader."Transfer-from Name" := LibraryUTUtility.GetNewCode;
-        TransferReceiptHeader."Transfer-from Address" := LibraryUTUtility.GetNewCode;
-        TransferReceiptHeader."Transfer-to Name" := LibraryUTUtility.GetNewCode;
-        TransferReceiptHeader."Transfer-to Address" := LibraryUTUtility.GetNewCode;
+        TransferReceiptHeader."No." := LibraryUTUtility.GetNewCode();
+        TransferReceiptHeader."Transfer-from Name" := LibraryUTUtility.GetNewCode();
+        TransferReceiptHeader."Transfer-from Address" := LibraryUTUtility.GetNewCode();
+        TransferReceiptHeader."Transfer-to Name" := LibraryUTUtility.GetNewCode();
+        TransferReceiptHeader."Transfer-to Address" := LibraryUTUtility.GetNewCode();
         TransferReceiptHeader.Insert();
     end;
 
     local procedure CreateTransferHeader(var TransferHeader: Record "Transfer Header")
     begin
-        TransferHeader."No." := LibraryUTUtility.GetNewCode;
-        TransferHeader."Transfer-from Name" := LibraryUTUtility.GetNewCode;
-        TransferHeader."Transfer-from Address" := LibraryUTUtility.GetNewCode;
-        TransferHeader."Transfer-to Name" := LibraryUTUtility.GetNewCode;
-        TransferHeader."Transfer-to Address" := LibraryUTUtility.GetNewCode;
+        TransferHeader."No." := LibraryUTUtility.GetNewCode();
+        TransferHeader."Transfer-from Name" := LibraryUTUtility.GetNewCode();
+        TransferHeader."Transfer-from Address" := LibraryUTUtility.GetNewCode();
+        TransferHeader."Transfer-to Name" := LibraryUTUtility.GetNewCode();
+        TransferHeader."Transfer-to Address" := LibraryUTUtility.GetNewCode();
         TransferHeader.Insert();
     end;
 

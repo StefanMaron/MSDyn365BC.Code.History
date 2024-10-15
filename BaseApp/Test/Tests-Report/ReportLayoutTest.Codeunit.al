@@ -1,4 +1,4 @@
-﻿codeunit 134600 "Report Layout Test"
+codeunit 134600 "Report Layout Test"
 {
     // SaveAsPDF is not tested for Word scenarios as it currently requires Windows client and an installed Word.
 
@@ -25,15 +25,10 @@
         LibraryTablesUT: Codeunit "Library - Tables UT";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryReportValidation: Codeunit "Library - Report Validation";
-        FileManagement: Codeunit "File Management";
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
         Usage: Option "Order Confirmation","Work Order","Pick Instruction";
-        CopyOfTxt: Label 'Copy of %1', Comment = '%1 - custom report layout description';
-        DeleteBuiltInLayoutErr: Label 'This is a built-in custom report layout, and it cannot be deleted.';
         IsInitialized: Boolean;
-        LineInFileTxt: Label '<ReportDataSet name="Test Report - Default=Word" id="134600">';
-        FileNameIsBlankMsg: Label 'File name is blank.';
         LayoutCodeShouldNotChangedErr: Label 'Layout code should not change.';
 
     local procedure Initialize()
@@ -64,9 +59,9 @@
 
         // Exercise
         asserterror ReportLayoutSelection.Insert(true);
-        if ReportLayoutSelection.Get(DetailTrialBalanceReportID, CompanyName) then
+        if ReportLayoutSelection.Get(DetailTrialBalanceReportID(), CompanyName) then
             ReportLayoutSelection.Delete();
-        ReportLayoutSelection."Report ID" := DetailTrialBalanceReportID;
+        ReportLayoutSelection."Report ID" := DetailTrialBalanceReportID();
         ReportLayoutSelection.Insert(true);
 
         // Verify
@@ -82,7 +77,7 @@
         // Init
         Initialize();
         ReportLayoutSelection.Init();
-        ReportLayoutSelection."Report ID" := DetailTrialBalanceReportID; // does not have a Word layout.
+        ReportLayoutSelection."Report ID" := DetailTrialBalanceReportID(); // does not have a Word layout.
         ReportLayoutSelection.Validate(Type, ReportLayoutSelection.Type::"Custom Layout");
         ReportLayoutSelection."Custom Report Layout Code" := '';
 
@@ -109,9 +104,9 @@
         // Init
         Initialize();
         ReportLayoutSelection.Init();
-        ReportLayoutSelection."Report ID" := DetailTrialBalanceReportID;
+        ReportLayoutSelection."Report ID" := DetailTrialBalanceReportID();
         CustomReportLayout.Init();
-        CustomReportLayout."Report ID" := DetailTrialBalanceReportID;
+        CustomReportLayout."Report ID" := DetailTrialBalanceReportID();
         CustomReportLayout.Code := '';
         CustomReportLayout.Insert(true);
 
@@ -151,27 +146,27 @@
         // Init
         Initialize();
         CustomReportLayout.Init();
-        CustomReportLayout."Report ID" := DetailTrialBalanceReportID;
+        CustomReportLayout."Report ID" := DetailTrialBalanceReportID();
         CustomReportLayout.Type := CustomReportLayout.Type::RDLC;
         CustomReportLayout.Code := '';
         CustomReportLayout.Insert(true);
 
-        if ReportLayoutSelection.Get(DetailTrialBalanceReportID, CompanyName) then
+        if ReportLayoutSelection.Get(DetailTrialBalanceReportID(), CompanyName) then
             ReportLayoutSelection.Delete();
         ReportLayoutSelection.Init();
-        ReportLayoutSelection."Report ID" := DetailTrialBalanceReportID;
+        ReportLayoutSelection."Report ID" := DetailTrialBalanceReportID();
         ReportLayoutSelection.Validate("Custom Report Layout Code", CustomReportLayout.Code);
         ReportLayoutSelection.Insert(true);
 
         // Verify
-        Assert.AreEqual(1, ReportLayoutSelection.HasCustomLayout(DetailTrialBalanceReportID), 'Expected a custom RDLC');
+        Assert.AreEqual(1, ReportLayoutSelection.HasCustomLayout(DetailTrialBalanceReportID()), 'Expected a custom RDLC');
 
         // Variations
         CustomReportLayout.Type := CustomReportLayout.Type::Word;
         CustomReportLayout.Modify();
-        Assert.AreEqual(2, ReportLayoutSelection.HasCustomLayout(DetailTrialBalanceReportID), 'Expected a custom Word');
+        Assert.AreEqual(2, ReportLayoutSelection.HasCustomLayout(DetailTrialBalanceReportID()), 'Expected a custom Word');
         CustomReportLayout.Delete();
-        Assert.AreEqual(0, ReportLayoutSelection.HasCustomLayout(DetailTrialBalanceReportID), 'Expected default (no layout found)');
+        Assert.AreEqual(0, ReportLayoutSelection.HasCustomLayout(DetailTrialBalanceReportID()), 'Expected default (no layout found)');
         Assert.AreEqual(0, ReportLayoutSelection.HasCustomLayout(99999), 'Expected default (no such report)');
     end;
 
@@ -183,7 +178,7 @@
     begin
         Initialize();
         CustomReportLayout.Init();
-        CustomReportLayout."Report ID" := StandardSalesInvoiceReportID;
+        CustomReportLayout."Report ID" := StandardSalesInvoiceReportID();
         CustomReportLayout.Type := CustomReportLayout.Type::Word;
         CustomReportLayout."Company Name" := CompanyName;
         CustomReportLayout.Insert(true);
@@ -227,7 +222,7 @@
         // Word
         InitCustomReportLayout(CustomReportLayout, CustomReportLayout.Type::Word, true);
         Assert.IsTrue(CustomReportLayout.ValidateLayout(false, false), '');
-        CustomReportLayout.ClearLayout;
+        CustomReportLayout.ClearLayout();
         Assert.IsFalse(CustomReportLayout.ValidateLayout(false, false), '');
     end;
 
@@ -248,10 +243,10 @@
         Commit();  // Necessary as the report is run modally.
 
         // Exercise - opens a request page for report 134600.
-        CustomReportLayouts.OpenView;
+        CustomReportLayouts.OpenView();
         CustomReportLayouts.GotoRecord(CustomReportLayout);
-        Assert.AreEqual(REPORT::"Test Report - Default=Word", CustomReportLayouts."Report ID".AsInteger, '');
-        CustomReportLayouts.RunReport.Invoke;
+        Assert.AreEqual(REPORT::"Test Report - Default=Word", CustomReportLayouts."Report ID".AsInteger(), '');
+        CustomReportLayouts.RunReport.Invoke();
 
         CustomReportLayout.Delete();
     end;
@@ -289,7 +284,7 @@
     begin
         // init
         Initialize();
-        LayoutCode := CustomReportLayout.InitBuiltInLayout(StandardSalesInvoiceReportID, CustomReportLayout.Type::RDLC.AsInteger());
+        LayoutCode := CustomReportLayout.InitBuiltInLayout(StandardSalesInvoiceReportID(), CustomReportLayout.Type::RDLC.AsInteger());
         CustomReportLayout.Get(LayoutCode);
 
         // Execute / verify
@@ -306,7 +301,7 @@
     begin
         // init
         Initialize();
-        LayoutCode := CustomReportLayout.InitBuiltInLayout(StandardSalesInvoiceReportID, CustomReportLayout.Type::RDLC.AsInteger());
+        LayoutCode := CustomReportLayout.InitBuiltInLayout(StandardSalesInvoiceReportID(), CustomReportLayout.Type::RDLC.AsInteger());
         CustomReportLayout.Get(LayoutCode);
         CustomReportLayout."Report ID" := REPORT::"Standard Sales - Order Conf."; // Force invalid rdlc.
 
@@ -326,7 +321,7 @@
     begin
         // init
         Initialize();
-        LayoutCode := CustomReportLayout.InitBuiltInLayout(StandardSalesInvoiceReportID, CustomReportLayout.Type::RDLC.AsInteger());
+        LayoutCode := CustomReportLayout.InitBuiltInLayout(StandardSalesInvoiceReportID(), CustomReportLayout.Type::RDLC.AsInteger());
         CustomReportLayout.Get(LayoutCode);
         CustomReportLayout."Report ID" := REPORT::"Standard Sales - Order Conf."; // Force invalid rdlc.
 
@@ -354,7 +349,7 @@
         if not SalesInvoiceHeader.FindFirst() then
             exit;
         SalesInvoiceHeader.SetRecFilter();
-        InitCompanySetup;
+        InitCompanySetup();
         FileNameXml := FileManagement.ServerTempFileName('xml');
         REPORT.SaveAsXml(REPORT::"Standard Sales - Invoice", FileNameXml, SalesInvoiceHeader);
 
@@ -430,12 +425,12 @@
         DefaultFileName: Text;
         LayoutCode: Code[20];
     begin
-        CustomReportLayout.SetRange("Report ID", StandardSalesInvoiceReportID);
+        CustomReportLayout.SetRange("Report ID", StandardSalesInvoiceReportID());
         CustomReportLayout.DeleteAll();
 
         // Init
         CustomReportLayout.Reset();
-        LayoutCode := CustomReportLayout.InitBuiltInLayout(StandardSalesInvoiceReportID, LayoutType.AsInteger());
+        LayoutCode := CustomReportLayout.InitBuiltInLayout(StandardSalesInvoiceReportID(), LayoutType.AsInteger());
         CustomReportLayout.Get(LayoutCode);
 
         case LayoutType of
@@ -447,14 +442,14 @@
 
         LayoutCode := CustomReportLayout.CopyReportLayout();
         CustomReportLayout.Get(LayoutCode);
-        CustomReportLayout.ClearLayout;
-        Assert.IsFalse(CustomReportLayout.HasLayout, '');
+        CustomReportLayout.ClearLayout();
+        Assert.IsFalse(CustomReportLayout.HasLayout(), '');
 
         // Execute
         CustomReportLayout.ImportReportLayout(DefaultFileName);
 
         // validate
-        Assert.IsTrue(CustomReportLayout.HasLayout, '');
+        Assert.IsTrue(CustomReportLayout.HasLayout(), '');
     end;
 
     [Test]
@@ -467,13 +462,13 @@
     begin
         // Init
         Initialize();
-        CustomReportLayout.SetRange("Report ID", StandardSalesInvoiceReportID);
+        CustomReportLayout.SetRange("Report ID", StandardSalesInvoiceReportID());
         CustomReportLayout.DeleteAll();
 
         // Exercise
-        ReportLayouts.OpenView;
-        ReportLayouts.NewLayout.Invoke;
-        ReportLayouts.OK.Invoke;
+        ReportLayouts.OpenView();
+        ReportLayouts.NewLayout.Invoke();
+        ReportLayouts.OK().Invoke();
 
         // Verify
         Assert.AreNotEqual(0, CustomReportLayout.Count, '');
@@ -851,7 +846,7 @@
         // [SCENARIO 213776] In SaaS, Job Task Nos should be shown in "Standard Sales - Invoice" Report
 
         // [GIVEN] Sales Invoice with two Sales Lines
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo());
 
         // [GIVEN] Sales Line 1 has "Job Task No." = "123"
         CreateSalesLineWithJobTaskNo(SalesHeader, SalesLine[1]);
@@ -870,7 +865,7 @@
         REPORT.Run(REPORT::"Standard Sales - Invoice", true, false, SalesInvoiceHeader);
 
         // [THEN] The 1st reported line contains "Job Task No." = "123"
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         VerifyJobTaskNo(10000, SalesLine[1]."Job Task No.");
 
         // [THEN] The 2nd reported line contains "Job Task No." = "321"
@@ -899,12 +894,9 @@
     var
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
-        Item: Record Item;
         ReportSelections: Record "Report Selections";
         CompanyInfo: Record "Company Information";
-        DocumentPrint: Codeunit "Document-Print";
         ReportSelectionUsage: Enum "Report Selection Usage";
-        CustomerNo: Code[20];
     begin
         Initialize();
         // [FEATURE] [Sales] [Return Order] [Print]
@@ -912,7 +904,7 @@
 
         // [GIVEN] Company Information has Email = "Email1" and other bank related fields filled
         CompanyInfo.Get();
-        CompanyInfo.Validate("E-Mail", RandomEmail);
+        CompanyInfo.Validate("E-Mail", RandomEmail());
         CompanyInfo.Validate("Home Page", CopyStr(LibraryRandom.RandText(10),
             1, MaxStrLen(CompanyInfo."Home Page")));
         CompanyInfo.Validate(
@@ -932,7 +924,7 @@
         ReportSelections.InsertRecord(ReportSelectionUsage::"S.Return", '1', 6631);
 
         // [GIVEN] Sales Return Order for the given customer
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::"Return Order", LibrarySales.CreateCustomerNo);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::"Return Order", LibrarySales.CreateCustomerNo());
         LibrarySales.CreateSimpleItemSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item);
         SalesLine.Validate("No.", LibraryInventory.CreateItemNo());
         SalesLine.Modify(True);
@@ -942,7 +934,7 @@
         RunReturnOrderConfirmation(SalesHeader, false, false);
 
         // [THEN] Report contains info about Company email, bank related data and Correct 'Description' column name
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists('CompanyInfoEMail', CompanyInfo."E-Mail");
         LibraryReportDataset.AssertElementWithValueExists('CompanyInfoHomePage', CompanyInfo."Home Page");
         LibraryReportDataset.AssertElementWithValueExists('CompanyInfoVATRegNo', CompanyInfo."VAT Registration No.");
@@ -995,7 +987,7 @@
         // [THEN] SalesHeader record points to Sales Order "SO"
         // Checked by subscribing to OnBeforePrintSalesOrder event in method PrintSalesOrder of Codeunit "Document-Print"
         // and getting Sales Header RecordId to be sure it point to correct record "SO"
-        Assert.ExpectedMessage(Format(SalesHeader.RecordId()), LibraryVariableStorage.DequeueText); // message from MessageHandler
+        Assert.ExpectedMessage(Format(SalesHeader.RecordId()), LibraryVariableStorage.DequeueText()); // message from MessageHandler
     end;
 
     [Test]
@@ -1029,7 +1021,7 @@
         ReportLayoutSelection.Insert(true);
 
         // [WHEN] Invoke Select Layout from Report Layout Selection Page
-        ReportLayoutSelectionPage.OpenEdit;
+        ReportLayoutSelectionPage.OpenEdit();
         ReportLayoutSelectionPage.Filter.SetFilter("Report ID", Format(CheckStubReportID()));
         ReportLayoutSelectionPage.SelectLayout.Invoke();
         ReportLayoutSelectionPage.Close();
@@ -1043,9 +1035,9 @@
     var
         LayoutCode: Code[20];
     begin
-        LayoutCode := CustomReportLayout.InitBuiltInLayout(StandardSalesInvoiceReportID, LayoutType.AsInteger());
+        LayoutCode := CustomReportLayout.InitBuiltInLayout(StandardSalesInvoiceReportID(), LayoutType.AsInteger());
         CustomReportLayout.Get(LayoutCode);
-        Assert.AreEqual(StandardSalesInvoiceReportID, CustomReportLayout."Report ID", '');
+        Assert.AreEqual(StandardSalesInvoiceReportID(), CustomReportLayout."Report ID", '');
         if WithCompanyName then begin
             CustomReportLayout."Company Name" := CompanyName;
             CustomReportLayout.Modify(true);
@@ -1143,7 +1135,7 @@
     begin
         AddCustomerDocumentLayoutReport(
           CustomerNo, CustomReportSelection.Usage::"S.Order", REPORT::"Standard Sales - Order Conf.",
-          AddOrderConfirmationToCustomReportLayout);
+          AddOrderConfirmationToCustomReportLayout());
     end;
 
     local procedure AddCustomerDocumentLayoutReport(CustomerNo: Code[20]; NewUsage: Enum "Report Selection Usage"; ReportID: Integer; CustomReportLayoutCode: Code[20])
@@ -1167,7 +1159,7 @@
         Job: Record Job;
         JobTask: Record "Job Task";
     begin
-        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo, 1);
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo(), 1);
         LibraryJob.CreateJob(Job);
         JobTask.Init();
         JobTask."Job No." := Job."No.";
@@ -1209,10 +1201,10 @@
     [Scope('OnPrem')]
     procedure ReportLookupHandler(var ReportLookup: TestPage "Report Layout Lookup")
     begin
-        ReportLookup.ReportID.SetValue := StandardSalesInvoiceReportID;
+        ReportLookup.ReportID.SetValue := StandardSalesInvoiceReportID();
         ReportLookup.AddWord.SetValue := true;
         ReportLookup.AddRDLC.SetValue := true;
-        ReportLookup.OK.Invoke;
+        ReportLookup.OK().Invoke();
     end;
 
     [ReportHandler]
@@ -1225,7 +1217,7 @@
     [Scope('OnPrem')]
     procedure ScheduleAReportHandlerCancel(var ScheduleaReport: TestPage "Schedule a Report")
     begin
-        ScheduleaReport.Cancel.Invoke;
+        ScheduleaReport.Cancel().Invoke();
     end;
 
     [ModalPageHandler]
@@ -1239,7 +1231,7 @@
     [Scope('OnPrem')]
     procedure StandardSalesInvoiceRequestPageHandler(var StandardSalesInvoice: TestRequestPage "Standard Sales - Invoice")
     begin
-        StandardSalesInvoice.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        StandardSalesInvoice.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     local procedure GetXmlAttribute(AttributeName: Text; XMLNode: DotNet XmlNode): Text
@@ -1287,7 +1279,7 @@
     local procedure VerifyJobTaskNo(LineNo: Integer; JobTaskNo: Code[20])
     begin
         LibraryReportDataset.SetRange('LineNo_Line', LineNo);
-        LibraryReportDataset.GetNextRow;
+        LibraryReportDataset.GetNextRow();
         LibraryReportDataset.AssertCurrentRowValueEquals('JobTaskNo', JobTaskNo);
     end;
 
@@ -1372,7 +1364,7 @@
 
     local procedure RandomEmail(): Text[80]
     begin
-        exit(StrSubstNo('%1@example.com', CreateGuid));
+        exit(StrSubstNo('%1@example.com', CreateGuid()));
     end;
 
     [ConfirmHandler]
@@ -1433,7 +1425,7 @@
     [Scope('OnPrem')]
     procedure ReportHandlerReturnOrderConfirmation(var ReturnOrderConfirmation: TestRequestPage "Return Order Confirmation")
     begin
-        ReturnOrderConfirmation.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        ReturnOrderConfirmation.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Document-Print", 'OnBeforePrintSalesOrder', '', false, false)]

@@ -5,6 +5,7 @@ using Microsoft.Foundation.Period;
 table 1702 "Deferral Line"
 {
     Caption = 'Deferral Line';
+    DataClassification = CustomerContent;
 
     fields
     {

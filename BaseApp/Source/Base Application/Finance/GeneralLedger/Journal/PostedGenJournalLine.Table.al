@@ -7,6 +7,7 @@ using Microsoft.CRM.Campaign;
 using Microsoft.CRM.Team;
 using Microsoft.EServices.EDocument;
 using Microsoft.Finance.Consolidation;
+using System.Threading;
 using Microsoft.Finance.Currency;
 using Microsoft.Finance.Deferral;
 using Microsoft.Finance.Dimension;
@@ -38,13 +39,16 @@ using Microsoft.Purchases.Vendor;
 using Microsoft.Sales.Customer;
 using Microsoft.Sales.History;
 using System.IO;
+#if not CLEAN25
 using Microsoft.Finance.VAT.Reporting;
+#endif
 
 table 181 "Posted Gen. Journal Line"
 {
     Caption = 'Posted Gen. Journal Line';
     LookupPageId = "Posted General Journal";
     DrillDownPageId = "Posted General Journal";
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -261,7 +265,7 @@ table 181 "Posted Gen. Journal Line"
         }
         field(42; "Job No."; Code[20])
         {
-            Caption = 'Job No.';
+            Caption = 'Project No.';
             TableRelation = Job;
         }
         field(43; Quantity; Decimal)
@@ -716,12 +720,10 @@ table 181 "Posted Gen. Journal Line"
             else
             if ("Bal. Account Type" = const("IC Partner"), "IC Account Type" = const("Bank Account")) "IC Bank Account" where("IC Partner Code" = field("Bal. Account No."), Blocked = const(false));
         }
-        field(160; "Job Queue Status"; Option)
+        field(160; "Job Queue Status"; Enum "Document Job Queue Status")
         {
             Caption = 'Job Queue Status';
             Editable = false;
-            OptionCaption = ' ,Scheduled for Posting,Error,Posting';
-            OptionMembers = " ","Scheduled for Posting",Error,Posting;
         }
         field(161; "Job Queue Entry ID"; Guid)
         {
@@ -786,71 +788,71 @@ table 181 "Posted Gen. Journal Line"
         }
         field(1001; "Job Task No."; Code[20])
         {
-            Caption = 'Job Task No.';
+            Caption = 'Project Task No.';
             TableRelation = "Job Task"."Job Task No." where("Job No." = field("Job No."));
         }
         field(1002; "Job Unit Price (LCY)"; Decimal)
         {
             AccessByPermission = TableData Job = R;
             AutoFormatType = 2;
-            Caption = 'Job Unit Price (LCY)';
+            Caption = 'Project Unit Price (LCY)';
             Editable = false;
         }
         field(1003; "Job Total Price (LCY)"; Decimal)
         {
             AccessByPermission = TableData Job = R;
             AutoFormatType = 1;
-            Caption = 'Job Total Price (LCY)';
+            Caption = 'Project Total Price (LCY)';
             Editable = false;
         }
         field(1004; "Job Quantity"; Decimal)
         {
             AccessByPermission = TableData Job = R;
-            Caption = 'Job Quantity';
+            Caption = 'Project Quantity';
             DecimalPlaces = 0 : 5;
         }
         field(1005; "Job Unit Cost (LCY)"; Decimal)
         {
             AccessByPermission = TableData Job = R;
             AutoFormatType = 2;
-            Caption = 'Job Unit Cost (LCY)';
+            Caption = 'Project Unit Cost (LCY)';
             Editable = false;
         }
         field(1006; "Job Line Discount %"; Decimal)
         {
             AccessByPermission = TableData Job = R;
             AutoFormatType = 1;
-            Caption = 'Job Line Discount %';
+            Caption = 'Project Line Discount %';
         }
         field(1007; "Job Line Disc. Amount (LCY)"; Decimal)
         {
             AutoFormatType = 1;
-            Caption = 'Job Line Disc. Amount (LCY)';
+            Caption = 'Project Line Disc. Amount (LCY)';
             Editable = false;
         }
         field(1008; "Job Unit Of Measure Code"; Code[10])
         {
-            Caption = 'Job Unit Of Measure Code';
+            Caption = 'Project Unit Of Measure Code';
             TableRelation = "Unit of Measure";
         }
         field(1009; "Job Line Type"; Enum "Job Line Type")
         {
             AccessByPermission = TableData Job = R;
-            Caption = 'Job Line Type';
+            Caption = 'Project Line Type';
         }
         field(1010; "Job Unit Price"; Decimal)
         {
             AccessByPermission = TableData Job = R;
             AutoFormatExpression = "Job Currency Code";
             AutoFormatType = 2;
-            Caption = 'Job Unit Price';
+            Caption = 'Project Unit Price';
         }
         field(1011; "Job Total Price"; Decimal)
         {
             AccessByPermission = TableData Job = R;
             AutoFormatExpression = "Job Currency Code";
             AutoFormatType = 1;
-            Caption = 'Job Total Price';
+            Caption = 'Project Total Price';
             Editable = false;
         }
         field(1012; "Job Unit Cost"; Decimal)
@@ -858,7 +860,7 @@ table 181 "Posted Gen. Journal Line"
             AccessByPermission = TableData Job = R;
             AutoFormatExpression = "Job Currency Code";
             AutoFormatType = 2;
-            Caption = 'Job Unit Cost';
+            Caption = 'Project Unit Cost';
             Editable = false;
         }
         field(1013; "Job Total Cost"; Decimal)
@@ -866,7 +868,7 @@ table 181 "Posted Gen. Journal Line"
             AccessByPermission = TableData Job = R;
             AutoFormatExpression = "Job Currency Code";
             AutoFormatType = 1;
-            Caption = 'Job Total Cost';
+            Caption = 'Project Total Cost';
             Editable = false;
         }
         field(1014; "Job Line Discount Amount"; Decimal)
@@ -874,47 +876,47 @@ table 181 "Posted Gen. Journal Line"
             AccessByPermission = TableData Job = R;
             AutoFormatExpression = "Job Currency Code";
             AutoFormatType = 1;
-            Caption = 'Job Line Discount Amount';
+            Caption = 'Project Line Discount Amount';
         }
         field(1015; "Job Line Amount"; Decimal)
         {
             AccessByPermission = TableData Job = R;
             AutoFormatExpression = "Job Currency Code";
             AutoFormatType = 1;
-            Caption = 'Job Line Amount';
+            Caption = 'Project Line Amount';
         }
         field(1016; "Job Total Cost (LCY)"; Decimal)
         {
             AccessByPermission = TableData Job = R;
             AutoFormatType = 1;
-            Caption = 'Job Total Cost (LCY)';
+            Caption = 'Project Total Cost (LCY)';
             Editable = false;
         }
         field(1017; "Job Line Amount (LCY)"; Decimal)
         {
             AccessByPermission = TableData Job = R;
             AutoFormatType = 1;
-            Caption = 'Job Line Amount (LCY)';
+            Caption = 'Project Line Amount (LCY)';
             Editable = false;
         }
         field(1018; "Job Currency Factor"; Decimal)
         {
-            Caption = 'Job Currency Factor';
+            Caption = 'Project Currency Factor';
         }
         field(1019; "Job Currency Code"; Code[10])
         {
-            Caption = 'Job Currency Code';
+            Caption = 'Project Currency Code';
         }
         field(1020; "Job Planning Line No."; Integer)
         {
             AccessByPermission = TableData Job = R;
             BlankZero = true;
-            Caption = 'Job Planning Line No.';
+            Caption = 'Project Planning Line No.';
         }
         field(1030; "Job Remaining Qty."; Decimal)
         {
             AccessByPermission = TableData Job = R;
-            Caption = 'Job Remaining Qty.';
+            Caption = 'Project Remaining Qty.';
             DecimalPlaces = 0 : 5;
         }
         field(1200; "Direct Debit Mandate ID"; Code[35])
@@ -1167,11 +1169,27 @@ table 181 "Posted Gen. Journal Line"
         field(10020; "IRS 1099 Code"; Code[10])
         {
             Caption = 'IRS 1099 Code';
+            ObsoleteReason = 'Moved to IRS Forms App.';
+#if not CLEAN25
+            ObsoleteState = Pending;
             TableRelation = "IRS 1099 Form-Box";
+            ObsoleteTag = '25.0';
+#else
+            ObsoleteState = Removed;
+            ObsoleteTag = '28.0';
+#endif
         }
         field(10021; "IRS 1099 Amount"; Decimal)
         {
             Caption = 'IRS 1099 Amount';
+            ObsoleteReason = 'Moved to IRS Forms App.';
+#if not CLEAN25
+            ObsoleteState = Pending;
+            ObsoleteTag = '25.0';
+#else
+            ObsoleteState = Removed;
+            ObsoleteTag = '28.0';
+#endif
         }
         field(10030; "Foreign Exchange Indicator"; Option)
         {

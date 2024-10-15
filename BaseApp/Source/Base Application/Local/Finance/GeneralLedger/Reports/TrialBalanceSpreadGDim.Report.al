@@ -849,25 +849,23 @@ report 10025 "Trial Balance, Spread G. Dim."
                 ColumnFilter[1] := "G/L Account".GetFilter("Global Dimension 2 Filter")
             else
                 Error(Text013);
-        with DimValue do begin
-            SetRange("Dimension Code", DimCode);
-            SetFilter(Code, ColumnFilter[1]);
-            if Find('-') then
-                repeat
-                    NumCol := NumCol + 1;
-                    if NumCol > MaxColumns() then begin
-                        if DimCode = GLSetup."Global Dimension 1 Code" then
-                            Error(Text010,
-                              TableCaption,
-                              "G/L Account".FieldCaption("Global Dimension 1 Filter"));
-
+        DimValue.SetRange("Dimension Code", DimCode);
+        DimValue.SetFilter(Code, ColumnFilter[1]);
+        if DimValue.Find('-') then
+            repeat
+                NumCol := NumCol + 1;
+                if NumCol > MaxColumns() then begin
+                    if DimCode = GLSetup."Global Dimension 1 Code" then
                         Error(Text010,
-                          TableCaption,
-                          "G/L Account".FieldCaption("Global Dimension 2 Filter"));
-                    end;
-                    ColumnFilter[NumCol] := Code;
-                until Next() = 0;
-        end;
+                          DimValue.TableCaption,
+                          "G/L Account".FieldCaption("Global Dimension 1 Filter"));
+
+                    Error(Text010,
+                      DimValue.TableCaption,
+                      "G/L Account".FieldCaption("Global Dimension 2 Filter"));
+                end;
+                ColumnFilter[NumCol] := DimValue.Code;
+            until DimValue.Next() = 0;
         exit(NumCol);
 
     end;

@@ -6,6 +6,7 @@ using Microsoft.CRM.Campaign;
 using Microsoft.CRM.Team;
 using Microsoft.Finance.Deferral;
 using Microsoft.Finance.Dimension;
+using Microsoft.Finance.GeneralLedger.Account;
 using Microsoft.Finance.GeneralLedger.Setup;
 using Microsoft.Finance.VAT.Calculation;
 using Microsoft.Finance.VAT.Setup;
@@ -21,7 +22,9 @@ using Microsoft.Purchases.Payables;
 using Microsoft.Purchases.Vendor;
 using Microsoft.Sales.Customer;
 using Microsoft.Sales.Receivables;
+#if not CLEAN24
 using System.Environment.Configuration;
+#endif
 using System.Security.User;
 using System.Utilities;
 
@@ -45,8 +48,10 @@ codeunit 11 "Gen. Jnl.-Check Line"
         TempErrorMessage: Record "Error Message" temporary;
         DimMgt: Codeunit DimensionManagement;
         CostAccMgt: Codeunit "Cost Account Mgt";
-        ApplicationAreaMgmt: Codeunit "Application Area Mgmt.";
         ErrorMessageMgt: Codeunit "Error Message Management";
+#if not CLEAN24
+        FeatureKeyManagement: Codeunit "Feature Key Management";
+#endif
         SkipFiscalYearCheck: Boolean;
         GenJnlTemplateFound: Boolean;
         OverrideDimErr: Boolean;
@@ -72,6 +77,9 @@ codeunit 11 "Gen. Jnl.-Check Line"
         PurchDocAlreadyExistsErr: Label 'Purchase %1 %2 already exists.', Comment = '%1 = Document Type; %2 = Document No.';
         EmployeeBalancingDocTypeErr: Label 'must be empty or set to Payment when Balancing Account Type field is set to Employee';
         EmployeeAccountDocTypeErr: Label 'must be empty or set to Payment when Account Type field is set to Employee';
+        GLAccCurrencyDoesNotMatchErr: Label 'The currency code %1 on general journal line does not match with the currency code %2 of G/L account %3.', Comment = '%1 and %2 - currency code, %3 - G/L Account No.';
+        GLAccSourceCurrencyDoesNotMatchErr: Label 'The currency code %1 on general journal line does not match with the any source currency code of G/L account %2.', Comment = '%1 - currency code, %2 - G/L Account No.';
+        GLAccSourceCurrencyDoesNotAllowedErr: Label 'The currency code %1 on general journal line does not allowed for posting to G/L account %2.', Comment = '%1 - currency code, %2 - G/L Account No.';
 
     procedure RunCheck(var GenJnlLine: Record "Gen. Journal Line")
     var
@@ -88,125 +96,126 @@ codeunit 11 "Gen. Jnl.-Check Line"
         end;
 
         GLSetup.Get();
-        with GenJnlLine do begin
-            if EmptyLine() then
-                exit;
+        if GenJnlLine.EmptyLine() then
+            exit;
 
-            if not GenJnlTemplateFound then begin
-                if GenJnlTemplate.Get("Journal Template Name") then;
-                GenJnlTemplateFound := true;
-            end;
+        if not GenJnlTemplateFound then begin
+            if GenJnlTemplate.Get(GenJnlLine."Journal Template Name") then;
+            GenJnlTemplateFound := true;
+        end;
 
-            CheckDates(GenJnlLine);
-            ValidateSalesPersonPurchaserCode(GenJnlLine);
+        CheckDates(GenJnlLine);
+        GenJnlLine.ValidateSalesPersonPurchaserCode(GenJnlLine);
 
-            TestDocumentNo(GenJnlLine);
+        TestDocumentNo(GenJnlLine);
 
-            if ("Account Type" in
-                ["Account Type"::Customer,
-                 "Account Type"::Vendor,
-                 "Account Type"::"Fixed Asset",
-                 "Account Type"::"IC Partner"]) and
-               ("Bal. Account Type" in
-                ["Bal. Account Type"::Customer,
-                 "Bal. Account Type"::Vendor,
-                 "Bal. Account Type"::"Fixed Asset",
-                 "Bal. Account Type"::"IC Partner"])
-            then
-                Error(
-                    ErrorInfo.Create(
-                        StrSubstNo(
-                        Text002,
-                        FieldCaption("Account Type"), FieldCaption("Bal. Account Type")),
+        if (GenJnlLine."Account Type" in
+            [GenJnlLine."Account Type"::Customer,
+             GenJnlLine."Account Type"::Vendor,
+             GenJnlLine."Account Type"::"Fixed Asset",
+             GenJnlLine."Account Type"::"IC Partner"]) and
+           (GenJnlLine."Bal. Account Type" in
+            [GenJnlLine."Bal. Account Type"::Customer,
+             GenJnlLine."Bal. Account Type"::Vendor,
+             GenJnlLine."Bal. Account Type"::"Fixed Asset",
+             GenJnlLine."Bal. Account Type"::"IC Partner"])
+        then
+            Error(
+                ErrorInfo.Create(
+                    StrSubstNo(
+                    Text002,
+                    GenJnlLine.FieldCaption("Account Type"), GenJnlLine.FieldCaption("Bal. Account Type")),
+                true,
+                GenJnlLine,
+                GenJnlLine.FieldNo("Account Type")));
+
+        if GenJnlLine."Bal. Account No." = '' then
+            GenJnlLine.TestField("Account No.", ErrorInfo.Create());
+
+        CheckZeroAmount(GenJnlLine);
+
+        if ((GenJnlLine.Amount < 0) xor (GenJnlLine."Amount (LCY)" < 0)) and (GenJnlLine.Amount <> 0) and (GenJnlLine."Amount (LCY)" <> 0) then
+            GenJnlLine.FieldError("Amount (LCY)", ErrorInfo.Create(StrSubstNo(Text003, GenJnlLine.FieldCaption(Amount)), true));
+
+        if (GenJnlLine."Account Type" = GenJnlLine."Account Type"::"G/L Account") and
+           (GenJnlLine."Bal. Account Type" = GenJnlLine."Bal. Account Type"::"G/L Account")
+        then
+            CheckAppliesToDocNo(GenJnlLine);
+
+        if (GenJnlLine."Recurring Method" in
+            [GenJnlLine."Recurring Method"::"B  Balance", GenJnlLine."Recurring Method"::"RB Reversing Balance"]) and
+           (GenJnlLine."Currency Code" <> '')
+        then
+            Error(
+                ErrorInfo.Create(
+                    StrSubstNo(
+                        Text004,
+                        GenJnlLine.FieldCaption("Currency Code"), GenJnlLine.FieldCaption("Recurring Method"), GenJnlLine."Recurring Method"),
                     true,
                     GenJnlLine,
-                    GenJnlLine.FieldNo("Account Type")));
+                    GenJnlLine.FieldNo("Recurring Method")));
 
-            if "Bal. Account No." = '' then
-                TestField("Account No.", ErrorInfo.Create());
+        if GenJnlLine."Account No." <> '' then
+            CheckAccountNo(GenJnlLine);
 
-            CheckZeroAmount(GenJnlLine);
-
-            if ((Amount < 0) xor ("Amount (LCY)" < 0)) and (Amount <> 0) and ("Amount (LCY)" <> 0) then
-                FieldError("Amount (LCY)", ErrorInfo.Create(StrSubstNo(Text003, FieldCaption(Amount)), true));
-
-            if ("Account Type" = "Account Type"::"G/L Account") and
-               ("Bal. Account Type" = "Bal. Account Type"::"G/L Account")
-            then
-                CheckAppliesToDocNo(GenJnlLine);
-
-            if ("Recurring Method" in
-                ["Recurring Method"::"B  Balance", "Recurring Method"::"RB Reversing Balance"]) and
-               ("Currency Code" <> '')
-            then
-                Error(
-                    ErrorInfo.Create(
-                        StrSubstNo(
-                            Text004,
-                            FieldCaption("Currency Code"), FieldCaption("Recurring Method"), "Recurring Method"),
-                        true,
-                        GenJnlLine,
-                        FieldNo("Recurring Method")));
-
-            if "Account No." <> '' then
-                CheckAccountNo(GenJnlLine);
-
-            if "Bal. Account No." <> '' then
-                CheckBalAccountNo(GenJnlLine);
-
+        if GenJnlLine."Bal. Account No." <> '' then
+            CheckBalAccountNo(GenJnlLine);
 #if not CLEAN22
-            if ("IC Partner G/L Acc. No." <> '') and ("IC Account No." = '') then begin
-                "IC Account Type" := "IC Account Type"::"G/L Account";
-                "IC Account No." := "IC Partner G/L Acc. No.";
-            end;
-#endif
-
-            if "IC Account No." <> '' then begin
-                if "IC Account Type" = "IC Account Type"::"G/L Account" then
-                    if ICGLAcount.Get("IC Account No.") then
-                        ICGLAcount.TestField(Blocked, false, ErrorInfo.Create());
-                if "IC Account Type" = "IC Account Type"::"Bank Account" then
-                    if ICBankAccount.Get("IC Account No.") then
-                        ICBankAccount.TestField(Blocked, false, ErrorInfo.Create());
-            end;
-
-            if (("Account Type" = "Account Type"::"G/L Account") and
-                ("Bal. Account Type" = "Bal. Account Type"::"G/L Account")) or
-               (("Document Type" <> "Document Type"::Invoice) and
-                (not
-                 (("Document Type" = "Document Type"::"Credit Memo") and
-                  CalcPmtDiscOnCrMemos("Payment Terms Code"))))
-            then begin
-                TestField("Pmt. Discount Date", 0D, ErrorInfo.Create());
-                TestField("Payment Discount %", 0, ErrorInfo.Create());
-            end;
-
-            if "Applies-to Doc. No." <> '' then
-                TestField("Applies-to ID", '', ErrorInfo.Create());
-
-            if ("Account Type" <> "Account Type"::"Bank Account") and
-               ("Bal. Account Type" <> "Bal. Account Type"::"Bank Account")
-            then
-                TestField("Bank Payment Type", "Bank Payment Type"::" ", ErrorInfo.Create());
-
-            if ("Account Type" = "Account Type"::"Fixed Asset") or
-               ("Bal. Account Type" = "Bal. Account Type"::"Fixed Asset")
-            then
-                CODEUNIT.Run(CODEUNIT::"FA Jnl.-Check Line", GenJnlLine);
-
-            if ("Account Type" <> "Account Type"::"Fixed Asset") and
-               ("Bal. Account Type" <> "Bal. Account Type"::"Fixed Asset")
-            then begin
-                TestField("Depreciation Book Code", '', ErrorInfo.Create());
-                TestField("FA Posting Type", 0, ErrorInfo.Create());
-            end;
-
-            if "Deferral Code" <> '' then
-                CheckPostedDeferralHeaderExist(GenJnlLine);
-
-            if not OverrideDimErr then
-                CheckDimensions(GenJnlLine);
+        if (GenJnlLine."IC Partner G/L Acc. No." <> '') and (GenJnlLine."IC Account No." = '') then begin
+            GenJnlLine."IC Account Type" := GenJnlLine."IC Account Type"::"G/L Account";
+            GenJnlLine."IC Account No." := GenJnlLine."IC Partner G/L Acc. No.";
         end;
+#endif
+        if GenJnlLine."IC Account No." <> '' then begin
+            if GenJnlLine."IC Account Type" = GenJnlLine."IC Account Type"::"G/L Account" then
+                if ICGLAcount.Get(GenJnlLine."IC Account No.") then
+                    ICGLAcount.TestField(Blocked, false, ErrorInfo.Create());
+            if GenJnlLine."IC Account Type" = GenJnlLine."IC Account Type"::"Bank Account" then
+                if ICBankAccount.Get(GenJnlLine."IC Account No.") then
+                    ICBankAccount.TestField(Blocked, false, ErrorInfo.Create());
+        end;
+
+        if ((GenJnlLine."Account Type" = GenJnlLine."Account Type"::"G/L Account") and
+            (GenJnlLine."Bal. Account Type" = GenJnlLine."Bal. Account Type"::"G/L Account")) or
+           ((GenJnlLine."Document Type" <> GenJnlLine."Document Type"::Invoice) and
+            (not
+             ((GenJnlLine."Document Type" = GenJnlLine."Document Type"::"Credit Memo") and
+              CalcPmtDiscOnCrMemos(GenJnlLine."Payment Terms Code"))))
+        then begin
+            GenJnlLine.TestField("Pmt. Discount Date", 0D, ErrorInfo.Create());
+            GenJnlLine.TestField("Payment Discount %", 0, ErrorInfo.Create());
+        end;
+
+        if GenJnlLine."Applies-to Doc. No." <> '' then
+            GenJnlLine.TestField("Applies-to ID", '', ErrorInfo.Create());
+
+        if (GenJnlLine."Account Type" <> GenJnlLine."Account Type"::"Bank Account") and
+           (GenJnlLine."Bal. Account Type" <> GenJnlLine."Bal. Account Type"::"Bank Account")
+        then
+            GenJnlLine.TestField("Bank Payment Type", GenJnlLine."Bank Payment Type"::" ", ErrorInfo.Create());
+
+        if (GenJnlLine."Account Type" = GenJnlLine."Account Type"::"Fixed Asset") or
+           (GenJnlLine."Bal. Account Type" = GenJnlLine."Bal. Account Type"::"Fixed Asset")
+        then
+            CODEUNIT.Run(CODEUNIT::"FA Jnl.-Check Line", GenJnlLine);
+
+        if (GenJnlLine."Account Type" <> GenJnlLine."Account Type"::"Fixed Asset") and
+           (GenJnlLine."Bal. Account Type" <> GenJnlLine."Bal. Account Type"::"Fixed Asset")
+        then begin
+            GenJnlLine.TestField("Depreciation Book Code", '', ErrorInfo.Create());
+            GenJnlLine.TestField("FA Posting Type", 0, ErrorInfo.Create());
+        end;
+
+        if GenJnlLine."Deferral Code" <> '' then
+            CheckPostedDeferralHeaderExist(GenJnlLine);
+
+        if not OverrideDimErr then
+            CheckDimensions(GenJnlLine);
+
+#if not CLEAN24
+        if FeatureKeyManagement.IsGLCurrencyRevaluationEnabled() then
+#endif
+        CheckCurrencyCode(GenJnlLine);
 
         if CostAccSetup.Get() then
             CostAccMgt.CheckValidCCAndCOInGLEntry(GenJnlLine."Dimension Set ID");
@@ -352,38 +361,36 @@ codeunit 11 "Gen. Jnl.-Check Line"
         DateCheckDone: Boolean;
         IsHandled: Boolean;
     begin
-        with GenJnlLine do begin
-            TestField("Posting Date", ErrorInfo.Create());
-            if "Posting Date" <> NormalDate("Posting Date") then begin
-                if ("Account Type" <> "Account Type"::"G/L Account") or
-                   ("Bal. Account Type" <> "Bal. Account Type"::"G/L Account")
-                then
-                    FieldError("Posting Date", ErrorInfo.Create(Text000, true));
-                if not SkipFiscalYearCheck then begin
-                    IsHandled := false;
-                    OnBeforeCheckPostingDateInFiscalYear(GenJnlLine, IsHandled);
-                    if not IsHandled then
-                        AccountingPeriodMgt.CheckPostingDateInFiscalYear("Posting Date");
-                end;
+        GenJnlLine.TestField("Posting Date", ErrorInfo.Create());
+        if GenJnlLine."Posting Date" <> NormalDate(GenJnlLine."Posting Date") then begin
+            if (GenJnlLine."Account Type" <> GenJnlLine."Account Type"::"G/L Account") or
+               (GenJnlLine."Bal. Account Type" <> GenJnlLine."Bal. Account Type"::"G/L Account")
+            then
+                GenJnlLine.FieldError("Posting Date", ErrorInfo.Create(Text000, true));
+            if not SkipFiscalYearCheck then begin
+                IsHandled := false;
+                OnBeforeCheckPostingDateInFiscalYear(GenJnlLine, IsHandled);
+                if not IsHandled then
+                    AccountingPeriodMgt.CheckPostingDateInFiscalYear(GenJnlLine."Posting Date");
             end;
-
-            if GLSetup."Journal Templ. Name Mandatory" then
-                TestField("Journal Template Name", ErrorInfo.Create());
-            OnBeforeDateNotAllowed(GenJnlLine, DateCheckDone);
-            if not DateCheckDone then
-                if DateNotAllowed("Posting Date", "Journal Template Name") then
-                    FieldError("Posting Date", ErrorInfo.Create(Text001, true));
-
-            if "Document Date" <> 0D then
-                if ("Document Date" <> NormalDate("Document Date")) and
-                   (("Account Type" <> "Account Type"::"G/L Account") or
-                    ("Bal. Account Type" <> "Bal. Account Type"::"G/L Account"))
-                then
-                    GenJnlLine.FieldError("Document Date", ErrorInfo.Create(Text000, true));
-
-            if HasVAT(GenJnlLine) then
-                CheckVATDate(GenJnlLine);
         end;
+
+        if GLSetup."Journal Templ. Name Mandatory" then
+            GenJnlLine.TestField("Journal Template Name", ErrorInfo.Create());
+        OnBeforeDateNotAllowed(GenJnlLine, DateCheckDone);
+        if not DateCheckDone then
+            if DateNotAllowed(GenJnlLine."Posting Date", GenJnlLine."Journal Template Name") then
+                GenJnlLine.FieldError("Posting Date", ErrorInfo.Create(Text001, true));
+
+        if GenJnlLine."Document Date" <> 0D then
+            if (GenJnlLine."Document Date" <> NormalDate(GenJnlLine."Document Date")) and
+               ((GenJnlLine."Account Type" <> GenJnlLine."Account Type"::"G/L Account") or
+                (GenJnlLine."Bal. Account Type" <> GenJnlLine."Bal. Account Type"::"G/L Account"))
+            then
+                GenJnlLine.FieldError("Document Date", ErrorInfo.Create(Text000, true));
+
+        if HasVAT(GenJnlLine) then
+            CheckVATDate(GenJnlLine);
     end;
 
     local procedure CheckAccountNo(GenJnlLine: Record "Gen. Journal Line")
@@ -397,96 +404,95 @@ codeunit 11 "Gen. Jnl.-Check Line"
         if CheckDone then
             exit;
 
-        with GenJnlLine do
-            case "Account Type" of
-                "Account Type"::"G/L Account":
-                    begin
-                        if ((("Gen. Bus. Posting Group" <> '') or ("Gen. Prod. Posting Group" <> '') or
-                            ("VAT Bus. Posting Group" <> '') or ("VAT Prod. Posting Group" <> '')) and
-                            ("Gen. Posting Type" = "Gen. Posting Type"::" "))
-                        then
+        case GenJnlLine."Account Type" of
+            GenJnlLine."Account Type"::"G/L Account":
+                begin
+                    if (((GenJnlLine."Gen. Bus. Posting Group" <> '') or (GenJnlLine."Gen. Prod. Posting Group" <> '') or
+                        (GenJnlLine."VAT Bus. Posting Group" <> '') or (GenJnlLine."VAT Prod. Posting Group" <> '')) and
+                        (GenJnlLine."Gen. Posting Type" = GenJnlLine."Gen. Posting Type"::" "))
+                    then
+                        Error(
+                            ErrorInfo.Create(
+                                StrSubstNo(
+                                    SpecifyGenPostingTypeErr, GenJnlLine."Account No.", GenJnlLine.FieldCaption("Gen. Posting Type"),
+                                    GenJnlLine.FieldCaption("Gen. Bus. Posting Group"), GenJnlLine.FieldCaption("Gen. Prod. Posting Group"),
+                                    GenJnlLine.FieldCaption("VAT Bus. Posting Group"), GenJnlLine.FieldCaption("VAT Prod. Posting Group")),
+                                true,
+                                GenJnlLine,
+                                GenJnlLine.FieldNo("Gen. Posting Type")));
+
+                    CheckGenProdPostingGroupWhenAdjustForPmtDisc(GenJnlLine);
+
+                    if (GenJnlLine."Gen. Posting Type" <> GenJnlLine."Gen. Posting Type"::" ") and
+                       (GenJnlLine."VAT Posting" = GenJnlLine."VAT Posting"::"Automatic VAT Entry")
+                    then begin
+                        if GenJnlLine."VAT Amount" + GenJnlLine."VAT Base Amount" <> GenJnlLine.Amount then
                             Error(
                                 ErrorInfo.Create(
                                     StrSubstNo(
-                                        SpecifyGenPostingTypeErr, "Account No.", FieldCaption("Gen. Posting Type"),
-                                        FieldCaption("Gen. Bus. Posting Group"), FieldCaption("Gen. Prod. Posting Group"),
-                                        FieldCaption("VAT Bus. Posting Group"), FieldCaption("VAT Prod. Posting Group")),
+                                        Text005, GenJnlLine.FieldCaption("VAT Amount"), GenJnlLine.FieldCaption("VAT Base Amount"),
+                                        GenJnlLine.FieldCaption(Amount)),
                                     true,
                                     GenJnlLine,
-                                    GenJnlLine.FieldNo("Gen. Posting Type")));
-
-                        CheckGenProdPostingGroupWhenAdjustForPmtDisc(GenJnlLine);
-
-                        if ("Gen. Posting Type" <> "Gen. Posting Type"::" ") and
-                           ("VAT Posting" = "VAT Posting"::"Automatic VAT Entry")
-                        then begin
-                            if "VAT Amount" + "VAT Base Amount" <> Amount then
+                                    GenJnlLine.FieldNo("VAT Amount")));
+                        if GenJnlLine."Currency Code" <> '' then
+                            if GenJnlLine."VAT Amount (LCY)" + GenJnlLine."VAT Base Amount (LCY)" <> GenJnlLine."Amount (LCY)" then
                                 Error(
                                     ErrorInfo.Create(
                                         StrSubstNo(
-                                            Text005, FieldCaption("VAT Amount"), FieldCaption("VAT Base Amount"),
-                                            FieldCaption(Amount)),
+                                            Text005, GenJnlLine.FieldCaption("VAT Amount (LCY)"),
+                                            GenJnlLine.FieldCaption("VAT Base Amount (LCY)"), GenJnlLine.FieldCaption("Amount (LCY)")),
                                         true,
                                         GenJnlLine,
-                                        GenJnlLine.FieldNo("VAT Amount")));
-                            if "Currency Code" <> '' then
-                                if "VAT Amount (LCY)" + "VAT Base Amount (LCY)" <> "Amount (LCY)" then
-                                    Error(
-                                        ErrorInfo.Create(
-                                            StrSubstNo(
-                                                Text005, FieldCaption("VAT Amount (LCY)"),
-                                                FieldCaption("VAT Base Amount (LCY)"), FieldCaption("Amount (LCY)")),
-                                            true,
-                                            GenJnlLine,
-                                            GenJnlLine.FieldNo("VAT Amount (LCY)")));
-                        end;
+                                        GenJnlLine.FieldNo("VAT Amount (LCY)")));
                     end;
-                "Account Type"::Customer, "Account Type"::Vendor, "Account Type"::Employee:
-                    begin
-                        TestField("Gen. Posting Type", 0, ErrorInfo.Create());
-                        TestField("Gen. Bus. Posting Group", '', ErrorInfo.Create());
-                        TestField("Gen. Prod. Posting Group", '', ErrorInfo.Create());
-                        TestField("VAT Bus. Posting Group", '', ErrorInfo.Create());
-                        TestField("VAT Prod. Posting Group", '', ErrorInfo.Create());
+                end;
+            GenJnlLine."Account Type"::Customer, GenJnlLine."Account Type"::Vendor, GenJnlLine."Account Type"::Employee:
+                begin
+                    GenJnlLine.TestField("Gen. Posting Type", 0, ErrorInfo.Create());
+                    GenJnlLine.TestField("Gen. Bus. Posting Group", '', ErrorInfo.Create());
+                    GenJnlLine.TestField("Gen. Prod. Posting Group", '', ErrorInfo.Create());
+                    GenJnlLine.TestField("VAT Bus. Posting Group", '', ErrorInfo.Create());
+                    GenJnlLine.TestField("VAT Prod. Posting Group", '', ErrorInfo.Create());
 
-                        CheckAccountType(GenJnlLine);
+                    CheckAccountType(GenJnlLine);
 
-                        CheckDocType(GenJnlLine);
+                    CheckDocType(GenJnlLine);
 
-                        if not "System-Created Entry" and
-                           (((Amount < 0) xor ("Sales/Purch. (LCY)" < 0)) and (Amount <> 0) and ("Sales/Purch. (LCY)" <> 0))
-                        then
-                            FieldError("Sales/Purch. (LCY)", ErrorInfo.Create(StrSubstNo(Text003, FieldCaption(Amount)), true));
-                        CheckJobNoIsEmpty(GenJnlLine);
+                    if not GenJnlLine."System-Created Entry" and
+                       (((GenJnlLine.Amount < 0) xor (GenJnlLine."Sales/Purch. (LCY)" < 0)) and (GenJnlLine.Amount <> 0) and (GenJnlLine."Sales/Purch. (LCY)" <> 0))
+                    then
+                        GenJnlLine.FieldError("Sales/Purch. (LCY)", ErrorInfo.Create(StrSubstNo(Text003, GenJnlLine.FieldCaption(Amount)), true));
+                    CheckJobNoIsEmpty(GenJnlLine);
 
-                        IsHandled := false;
-                        OnCheckAccountNoOnBeforeCheckICPartner(GenJnlLine, IsHandled);
-                        if not IsHandled then
-                            CheckICPartner("Account Type", "Account No.", "Document Type", GenJnlLine);
+                    IsHandled := false;
+                    OnCheckAccountNoOnBeforeCheckICPartner(GenJnlLine, IsHandled);
+                    if not IsHandled then
+                        CheckICPartner(GenJnlLine."Account Type", GenJnlLine."Account No.", GenJnlLine."Document Type", GenJnlLine);
+                end;
+            GenJnlLine."Account Type"::"Bank Account":
+                begin
+                    GenJnlLine.TestField("Gen. Posting Type", 0, ErrorInfo.Create());
+                    GenJnlLine.TestField("Gen. Bus. Posting Group", '', ErrorInfo.Create());
+                    GenJnlLine.TestField("Gen. Prod. Posting Group", '', ErrorInfo.Create());
+                    GenJnlLine.TestField("VAT Bus. Posting Group", '', ErrorInfo.Create());
+                    GenJnlLine.TestField("VAT Prod. Posting Group", '', ErrorInfo.Create());
+                    CheckJobNoIsEmpty(GenJnlLine);
+                    if (GenJnlLine.Amount < 0) and (GenJnlLine."Bank Payment Type" = GenJnlLine."Bank Payment Type"::"Computer Check") then
+                        GenJnlLine.TestField("Check Printed", true, ErrorInfo.Create());
+                    CheckElectronicPaymentFields(GenJnlLine, GenJnlLine."Account No.");
+                end;
+            GenJnlLine."Account Type"::"IC Partner":
+                begin
+                    ICPartner.Get(GenJnlLine."Account No.");
+                    ICPartner.CheckICPartner();
+                    if GenJnlLine."Journal Template Name" <> '' then begin
+                        GenJournalTemplate.Get(GenJnlLine."Journal Template Name");
+                        if GenJnlTemplate.Type <> GenJnlTemplate.Type::Intercompany then
+                            GenJnlLine.FieldError("Account Type", ErrorInfo.Create());
                     end;
-                "Account Type"::"Bank Account":
-                    begin
-                        TestField("Gen. Posting Type", 0, ErrorInfo.Create());
-                        TestField("Gen. Bus. Posting Group", '', ErrorInfo.Create());
-                        TestField("Gen. Prod. Posting Group", '', ErrorInfo.Create());
-                        TestField("VAT Bus. Posting Group", '', ErrorInfo.Create());
-                        TestField("VAT Prod. Posting Group", '', ErrorInfo.Create());
-                        CheckJobNoIsEmpty(GenJnlLine);
-                        if (Amount < 0) and ("Bank Payment Type" = "Bank Payment Type"::"Computer Check") then
-                            TestField("Check Printed", true, ErrorInfo.Create());
-                        CheckElectronicPaymentFields(GenJnlLine, "Account No.");
-                    end;
-                "Account Type"::"IC Partner":
-                    begin
-                        ICPartner.Get("Account No.");
-                        ICPartner.CheckICPartner();
-                        if "Journal Template Name" <> '' then begin
-                            GenJournalTemplate.Get("Journal Template Name");
-                            if GenJnlTemplate.Type <> GenJnlTemplate.Type::Intercompany then
-                                FieldError("Account Type", ErrorInfo.Create());
-                        end;
-                    end;
-            end;
+                end;
+        end;
 
         OnAfterCheckAccountNo(GenJnlLine);
     end;
@@ -500,79 +506,78 @@ codeunit 11 "Gen. Jnl.-Check Line"
         if CheckDone then
             exit;
 
-        with GenJnlLine do
-            case "Bal. Account Type" of
-                "Bal. Account Type"::"G/L Account":
-                    begin
-                        if (("Bal. Gen. Bus. Posting Group" <> '') or ("Bal. Gen. Prod. Posting Group" <> '') or
-                            ("Bal. VAT Bus. Posting Group" <> '') or ("Bal. VAT Prod. Posting Group" <> '')) and
-                           GLSetup."VAT in Use"
-                        then
-                            TestField("Bal. Gen. Posting Type", ErrorInfo.Create());
+        case GenJnlLine."Bal. Account Type" of
+            GenJnlLine."Bal. Account Type"::"G/L Account":
+                begin
+                    if ((GenJnlLine."Bal. Gen. Bus. Posting Group" <> '') or (GenJnlLine."Bal. Gen. Prod. Posting Group" <> '') or
+                        (GenJnlLine."Bal. VAT Bus. Posting Group" <> '') or (GenJnlLine."Bal. VAT Prod. Posting Group" <> '')) and
+                       GLSetup."VAT in Use"
+                    then
+                        GenJnlLine.TestField("Bal. Gen. Posting Type", ErrorInfo.Create());
 
-                        CheckBalGenProdPostingGroupWhenAdjustForPmtDisc(GenJnlLine);
+                    CheckBalGenProdPostingGroupWhenAdjustForPmtDisc(GenJnlLine);
 
-                        if ("Bal. Gen. Posting Type" <> "Bal. Gen. Posting Type"::" ") and
-                           ("VAT Posting" = "VAT Posting"::"Automatic VAT Entry")
-                        then begin
-                            if "Bal. VAT Amount" + "Bal. VAT Base Amount" <> -Amount then
+                    if (GenJnlLine."Bal. Gen. Posting Type" <> GenJnlLine."Bal. Gen. Posting Type"::" ") and
+                       (GenJnlLine."VAT Posting" = GenJnlLine."VAT Posting"::"Automatic VAT Entry")
+                    then begin
+                        if GenJnlLine."Bal. VAT Amount" + GenJnlLine."Bal. VAT Base Amount" <> -GenJnlLine.Amount then
+                            Error(
+                                ErrorInfo.Create(
+                                    StrSubstNo(
+                                        Text006, GenJnlLine.FieldCaption("Bal. VAT Amount"), GenJnlLine.FieldCaption("Bal. VAT Base Amount"),
+                                        GenJnlLine.FieldCaption(Amount)),
+                                    true,
+                                    GenJnlLine,
+                                    GenJnlLine.FieldNo("Bal. VAT Amount")));
+                        if GenJnlLine."Currency Code" <> '' then
+                            if GenJnlLine."Bal. VAT Amount (LCY)" + GenJnlLine."Bal. VAT Base Amount (LCY)" <> -GenJnlLine."Amount (LCY)" then
                                 Error(
                                     ErrorInfo.Create(
                                         StrSubstNo(
-                                            Text006, FieldCaption("Bal. VAT Amount"), FieldCaption("Bal. VAT Base Amount"),
-                                            FieldCaption(Amount)),
-                                        true,
-                                        GenJnlLine,
-                                        FieldNo("Bal. VAT Amount")));
-                            if "Currency Code" <> '' then
-                                if "Bal. VAT Amount (LCY)" + "Bal. VAT Base Amount (LCY)" <> -"Amount (LCY)" then
-                                    Error(
-                                        ErrorInfo.Create(
-                                            StrSubstNo(
-                                                Text006, FieldCaption("Bal. VAT Amount (LCY)"),
-                                                FieldCaption("Bal. VAT Base Amount (LCY)"), FieldCaption("Amount (LCY)")),
-                                                                true,
-                                        GenJnlLine,
-                                        FieldNo("Bal. VAT Amount (LCY)")));
-                        end;
+                                            Text006, GenJnlLine.FieldCaption("Bal. VAT Amount (LCY)"),
+                                            GenJnlLine.FieldCaption("Bal. VAT Base Amount (LCY)"), GenJnlLine.FieldCaption("Amount (LCY)")),
+                                                            true,
+                                    GenJnlLine,
+                                    GenJnlLine.FieldNo("Bal. VAT Amount (LCY)")));
                     end;
-                "Bal. Account Type"::Customer, "Bal. Account Type"::Vendor, "Bal. Account Type"::Employee:
-                    begin
-                        TestField("Bal. Gen. Posting Type", 0, ErrorInfo.Create());
-                        TestField("Bal. Gen. Bus. Posting Group", '', ErrorInfo.Create());
-                        TestField("Bal. Gen. Prod. Posting Group", '', ErrorInfo.Create());
-                        TestField("Bal. VAT Bus. Posting Group", '', ErrorInfo.Create());
-                        TestField("Bal. VAT Prod. Posting Group", '', ErrorInfo.Create());
+                end;
+            GenJnlLine."Bal. Account Type"::Customer, GenJnlLine."Bal. Account Type"::Vendor, GenJnlLine."Bal. Account Type"::Employee:
+                begin
+                    GenJnlLine.TestField("Bal. Gen. Posting Type", 0, ErrorInfo.Create());
+                    GenJnlLine.TestField("Bal. Gen. Bus. Posting Group", '', ErrorInfo.Create());
+                    GenJnlLine.TestField("Bal. Gen. Prod. Posting Group", '', ErrorInfo.Create());
+                    GenJnlLine.TestField("Bal. VAT Bus. Posting Group", '', ErrorInfo.Create());
+                    GenJnlLine.TestField("Bal. VAT Prod. Posting Group", '', ErrorInfo.Create());
 
-                        CheckBalAccountType(GenJnlLine);
+                    CheckBalAccountType(GenJnlLine);
 
-                        CheckBalDocType(GenJnlLine);
+                    CheckBalDocType(GenJnlLine);
 
-                        if ((Amount > 0) xor ("Sales/Purch. (LCY)" < 0)) and (Amount <> 0) and ("Sales/Purch. (LCY)" <> 0) then
-                            FieldError("Sales/Purch. (LCY)", ErrorInfo.Create(StrSubstNo(Text009, FieldCaption(Amount)), true));
-                        CheckJobNoIsEmpty(GenJnlLine);
+                    if ((GenJnlLine.Amount > 0) xor (GenJnlLine."Sales/Purch. (LCY)" < 0)) and (GenJnlLine.Amount <> 0) and (GenJnlLine."Sales/Purch. (LCY)" <> 0) then
+                        GenJnlLine.FieldError("Sales/Purch. (LCY)", ErrorInfo.Create(StrSubstNo(Text009, GenJnlLine.FieldCaption(Amount)), true));
+                    CheckJobNoIsEmpty(GenJnlLine);
 
-                        CheckICPartner("Bal. Account Type", "Bal. Account No.", "Document Type", GenJnlLine);
-                    end;
-                "Bal. Account Type"::"Bank Account":
-                    begin
-                        TestField("Bal. Gen. Posting Type", 0, ErrorInfo.Create());
-                        TestField("Bal. Gen. Bus. Posting Group", '', ErrorInfo.Create());
-                        TestField("Bal. Gen. Prod. Posting Group", '', ErrorInfo.Create());
-                        TestField("Bal. VAT Bus. Posting Group", '', ErrorInfo.Create());
-                        TestField("Bal. VAT Prod. Posting Group", '', ErrorInfo.Create());
-                        if (Amount > 0) and ("Bank Payment Type" = "Bank Payment Type"::"Computer Check") then
-                            TestField("Check Printed", true, ErrorInfo.Create());
-                        CheckElectronicPaymentFields(GenJnlLine, "Bal. Account No.");
-                    end;
-                "Bal. Account Type"::"IC Partner":
-                    begin
-                        ICPartner.Get("Bal. Account No.");
-                        ICPartner.CheckICPartner();
-                        if GenJnlTemplate.Type <> GenJnlTemplate.Type::Intercompany then
-                            FieldError("Bal. Account Type", ErrorInfo.Create());
-                    end;
-            end;
+                    CheckICPartner(GenJnlLine."Bal. Account Type", GenJnlLine."Bal. Account No.", GenJnlLine."Document Type", GenJnlLine);
+                end;
+            GenJnlLine."Bal. Account Type"::"Bank Account":
+                begin
+                    GenJnlLine.TestField("Bal. Gen. Posting Type", 0, ErrorInfo.Create());
+                    GenJnlLine.TestField("Bal. Gen. Bus. Posting Group", '', ErrorInfo.Create());
+                    GenJnlLine.TestField("Bal. Gen. Prod. Posting Group", '', ErrorInfo.Create());
+                    GenJnlLine.TestField("Bal. VAT Bus. Posting Group", '', ErrorInfo.Create());
+                    GenJnlLine.TestField("Bal. VAT Prod. Posting Group", '', ErrorInfo.Create());
+                    if (GenJnlLine.Amount > 0) and (GenJnlLine."Bank Payment Type" = GenJnlLine."Bank Payment Type"::"Computer Check") then
+                        GenJnlLine.TestField("Check Printed", true, ErrorInfo.Create());
+                    CheckElectronicPaymentFields(GenJnlLine, GenJnlLine."Bal. Account No.");
+                end;
+            GenJnlLine."Bal. Account Type"::"IC Partner":
+                begin
+                    ICPartner.Get(GenJnlLine."Bal. Account No.");
+                    ICPartner.CheckICPartner();
+                    if GenJnlTemplate.Type <> GenJnlTemplate.Type::Intercompany then
+                        GenJnlLine.FieldError("Bal. Account Type", ErrorInfo.Create());
+                end;
+        end;
 
         OnAfterCheckBalAccountNo(GenJnlLine);
     end;
@@ -587,16 +592,15 @@ codeunit 11 "Gen. Jnl.-Check Line"
         if IsHandled then
             exit;
 
-        with GenJnlLine do
-            if ("Bank Payment Type" = "Bank Payment Type"::"Electronic Payment") or
-               ("Bank Payment Type" = "Bank Payment Type"::"Electronic Payment-IAT")
-            then begin
-                TestField("Check Exported", true, ErrorInfo.Create());
-                BankAccount.Get(BankAccountNo);
-                // Only check when the export format is empty or other
-                if (BankAccount."Export Format" = 0) or (BankAccount."Export Format" = BankAccount."Export Format"::Other) then
-                    TestField("Check Transmitted", true, ErrorInfo.Create());
-            end;
+        if (GenJnlLine."Bank Payment Type" = GenJnlLine."Bank Payment Type"::"Electronic Payment") or
+           (GenJnlLine."Bank Payment Type" = GenJnlLine."Bank Payment Type"::"Electronic Payment-IAT")
+        then begin
+            GenJnlLine.TestField("Check Exported", true, ErrorInfo.Create());
+            BankAccount.Get(BankAccountNo);
+            // Only check when the export format is empty or other
+            if (BankAccount."Export Format" = 0) or (BankAccount."Export Format" = BankAccount."Export Format"::Other) then
+                GenJnlLine.TestField("Check Transmitted", true, ErrorInfo.Create());
+        end;
     end;
 
     local procedure CheckJobNoIsEmpty(GenJnlLine: Record "Gen. Journal Line")
@@ -663,20 +667,19 @@ codeunit 11 "Gen. Jnl.-Check Line"
         if IsHandled then
             exit;
 
-        with GenJnlLine do
-            if ("Document Type" <> "Document Type"::" ") and (not "Financial Void") then begin
-                if ("Account Type" = "Account Type"::Employee) and not
-                   ("Document Type" in ["Document Type"::Payment, "Document Type"::" "])
-                then
-                    FieldError("Document Type", ErrorInfo.Create(EmployeeAccountDocTypeErr, true));
+        if (GenJnlLine."Document Type" <> GenJnlLine."Document Type"::" ") and (not GenJnlLine."Financial Void") then begin
+            if (GenJnlLine."Account Type" = GenJnlLine."Account Type"::Employee) and not
+               (GenJnlLine."Document Type" in [GenJnlLine."Document Type"::Payment, GenJnlLine."Document Type"::" "])
+            then
+                GenJnlLine.FieldError("Document Type", ErrorInfo.Create(EmployeeAccountDocTypeErr, true));
 
-                IsFinChargeMemoNeg := ("Document Type" = "Document Type"::"Finance Charge Memo") and ("Account Type" = "Account Type"::Customer) and (Amount < 0);
-                IsPayment := "Document Type" in ["Document Type"::Payment, "Document Type"::"Credit Memo"];
-                if IsPayment xor (("Account Type" = "Account Type"::Customer) xor IsVendorPaymentToCrMemo(GenJnlLine)) xor IsFinChargeMemoNeg then
-                    ErrorIfNegativeAmt(GenJnlLine)
-                else
-                    ErrorIfPositiveAmt(GenJnlLine);
-            end;
+            IsFinChargeMemoNeg := (GenJnlLine."Document Type" = GenJnlLine."Document Type"::"Finance Charge Memo") and (GenJnlLine."Account Type" = GenJnlLine."Account Type"::Customer) and (GenJnlLine.Amount < 0);
+            IsPayment := GenJnlLine."Document Type" in [GenJnlLine."Document Type"::Payment, GenJnlLine."Document Type"::"Credit Memo"];
+            if IsPayment xor ((GenJnlLine."Account Type" = GenJnlLine."Account Type"::Customer) xor IsVendorPaymentToCrMemo(GenJnlLine)) xor IsFinChargeMemoNeg then
+                ErrorIfNegativeAmt(GenJnlLine)
+            else
+                ErrorIfPositiveAmt(GenJnlLine);
+        end;
     end;
 
     local procedure CheckBalDocType(GenJnlLine: Record "Gen. Journal Line")
@@ -689,19 +692,18 @@ codeunit 11 "Gen. Jnl.-Check Line"
         if IsHandled then
             exit;
 
-        with GenJnlLine do
-            if "Document Type" <> "Document Type"::" " then begin
-                if ("Bal. Account Type" = "Bal. Account Type"::Employee) and not
-                   ("Document Type" in ["Document Type"::Payment, "Document Type"::" "])
-                then
-                    FieldError("Document Type", ErrorInfo.Create(EmployeeBalancingDocTypeErr, true));
+        if GenJnlLine."Document Type" <> GenJnlLine."Document Type"::" " then begin
+            if (GenJnlLine."Bal. Account Type" = GenJnlLine."Bal. Account Type"::Employee) and not
+               (GenJnlLine."Document Type" in [GenJnlLine."Document Type"::Payment, GenJnlLine."Document Type"::" "])
+            then
+                GenJnlLine.FieldError("Document Type", ErrorInfo.Create(EmployeeBalancingDocTypeErr, true));
 
-                IsPayment := "Document Type" in ["Document Type"::Payment, "Document Type"::"Credit Memo"];
-                if IsPayment = ("Bal. Account Type" = "Bal. Account Type"::Customer) then
-                    ErrorIfNegativeAmt(GenJnlLine)
-                else
-                    ErrorIfPositiveAmt(GenJnlLine);
-            end;
+            IsPayment := GenJnlLine."Document Type" in [GenJnlLine."Document Type"::Payment, GenJnlLine."Document Type"::"Credit Memo"];
+            if IsPayment = (GenJnlLine."Bal. Account Type" = GenJnlLine."Bal. Account Type"::Customer) then
+                ErrorIfNegativeAmt(GenJnlLine)
+            else
+                ErrorIfPositiveAmt(GenJnlLine);
+        end;
     end;
 
     local procedure CheckICPartner(AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type"; GenJnlLine: Record "Gen. Journal Line")
@@ -749,28 +751,26 @@ codeunit 11 "Gen. Jnl.-Check Line"
         if CheckDone then
             exit;
 
-        with GenJnlLine do begin
-            if not DimMgt.CheckDimIDComb("Dimension Set ID") then
-                ThrowGenJnlLineError(GenJnlLine, Text011, DimMgt.GetDimCombErr());
+        if not DimMgt.CheckDimIDComb(GenJnlLine."Dimension Set ID") then
+            ThrowGenJnlLineError(GenJnlLine, Text011, DimMgt.GetDimCombErr());
 
-            TableID[1] := DimMgt.TypeToTableID1("Account Type".AsInteger());
-            No[1] := "Account No.";
-            TableID[2] := DimMgt.TypeToTableID1("Bal. Account Type".AsInteger());
-            No[2] := "Bal. Account No.";
-            TableID[3] := Database::Job;
-            No[3] := "Job No.";
-            TableID[4] := Database::"Salesperson/Purchaser";
-            No[4] := "Salespers./Purch. Code";
-            TableID[5] := Database::Campaign;
-            No[5] := "Campaign No.";
+        TableID[1] := DimMgt.TypeToTableID1(GenJnlLine."Account Type".AsInteger());
+        No[1] := GenJnlLine."Account No.";
+        TableID[2] := DimMgt.TypeToTableID1(GenJnlLine."Bal. Account Type".AsInteger());
+        No[2] := GenJnlLine."Bal. Account No.";
+        TableID[3] := Database::Job;
+        No[3] := GenJnlLine."Job No.";
+        TableID[4] := Database::"Salesperson/Purchaser";
+        No[4] := GenJnlLine."Salespers./Purch. Code";
+        TableID[5] := Database::Campaign;
+        No[5] := GenJnlLine."Campaign No.";
 
-            CheckDone := false;
-            OnCheckDimensionsOnAfterAssignDimTableIDs(GenJnlLine, TableID, No, CheckDone);
+        CheckDone := false;
+        OnCheckDimensionsOnAfterAssignDimTableIDs(GenJnlLine, TableID, No, CheckDone);
 
-            if not CheckDone then
-                if not DimMgt.CheckDimValuePosting(TableID, No, "Dimension Set ID") then
-                    ThrowGenJnlLineError(GenJnlLine, Text012, DimMgt.GetDimValuePostingErr());
-        end;
+        if not CheckDone then
+            if not DimMgt.CheckDimValuePosting(TableID, No, GenJnlLine."Dimension Set ID") then
+                ThrowGenJnlLineError(GenJnlLine, Text012, DimMgt.GetDimValuePostingErr());
     end;
 
     local procedure CheckZeroAmount(var GenJnlLine: Record "Gen. Journal Line")
@@ -796,17 +796,15 @@ codeunit 11 "Gen. Jnl.-Check Line"
         if IsHandled then
             exit;
 
-        with GenJournalLine do begin
-            if ("Account Type" = "Account Type"::Vendor) and
-               ("Document Type" = "Document Type"::Payment) and
-               ("Applies-to Doc. Type" = "Applies-to Doc. Type"::"Credit Memo") and
-               ("Applies-to Doc. No." <> '')
-            then begin
-                GenJournalTemplate.Get("Journal Template Name");
-                exit(GenJournalTemplate.Type = GenJournalTemplate.Type::Payments);
-            end;
-            exit(false);
+        if (GenJournalLine."Account Type" = GenJournalLine."Account Type"::Vendor) and
+            (GenJournalLine."Document Type" = GenJournalLine."Document Type"::Payment) and
+            (GenJournalLine."Applies-to Doc. Type" = GenJournalLine."Applies-to Doc. Type"::"Credit Memo") and
+            (GenJournalLine."Applies-to Doc. No." <> '')
+        then begin
+            GenJournalTemplate.Get(GenJournalLine."Journal Template Name");
+            exit(GenJournalTemplate.Type = GenJournalTemplate.Type::Payments);
         end;
+        exit(false);
     end;
 
     procedure ThrowGenJnlLineError(GenJournalLine: Record "Gen. Journal Line"; ErrorTemplate: Text; ErrorText: Text)
@@ -814,16 +812,15 @@ codeunit 11 "Gen. Jnl.-Check Line"
         if LogErrorMode then
             exit;
 
-        with GenJournalLine do
-            if "Line No." <> 0 then
-                Error(
-                    ErrorInfo.Create(
-                        StrSubstNo(
-                            ErrorTemplate,
-                            TableCaption, "Journal Template Name", "Journal Batch Name", "Line No.",
-                            ErrorText),
-                        true,
-                        GenJournalLine));
+        if GenJournalLine."Line No." <> 0 then
+            Error(
+                ErrorInfo.Create(
+                    StrSubstNo(
+                        ErrorTemplate,
+                        GenJournalLine.TableCaption, GenJournalLine."Journal Template Name", GenJournalLine."Journal Batch Name", GenJournalLine."Line No.",
+                        ErrorText),
+                    true,
+                    GenJournalLine));
 
         Error(
             ErrorInfo.Create(ErrorText, true, GenJournalLine));
@@ -838,36 +835,32 @@ codeunit 11 "Gen. Jnl.-Check Line"
     var
         VATPostingSetup: Record "VAT Posting Setup";
     begin
-        with GenJnlLine do begin
-            if "System-Created Entry" or
-               not ("Gen. Posting Type" in ["Gen. Posting Type"::Purchase, "Gen. Posting Type"::Sale]) or
-               not ("Document Type" in ["Document Type"::Invoice, "Document Type"::"Credit Memo"])
-            then
-                exit;
+        if GenJnlLine."System-Created Entry" or
+            not (GenJnlLine."Gen. Posting Type" in [GenJnlLine."Gen. Posting Type"::Purchase, GenJnlLine."Gen. Posting Type"::Sale]) or
+            not (GenJnlLine."Document Type" in [GenJnlLine."Document Type"::Invoice, GenJnlLine."Document Type"::"Credit Memo"])
+        then
+            exit;
 
-            if VATPostingSetup.Get("VAT Bus. Posting Group", "VAT Prod. Posting Group") and
-               VATPostingSetup."Adjust for Payment Discount"
-            then
-                TestField("Gen. Prod. Posting Group", ErrorInfo.Create());
-        end;
+        if VATPostingSetup.Get(GenJnlLine."VAT Bus. Posting Group", GenJnlLine."VAT Prod. Posting Group") and
+           VATPostingSetup."Adjust for Payment Discount"
+        then
+            GenJnlLine.TestField("Gen. Prod. Posting Group", ErrorInfo.Create());
     end;
 
     procedure CheckBalGenProdPostingGroupWhenAdjustForPmtDisc(GenJnlLine: Record "Gen. Journal Line")
     var
         VATPostingSetup: Record "VAT Posting Setup";
     begin
-        with GenJnlLine do begin
-            if "System-Created Entry" or
-               not ("Bal. Gen. Posting Type" in ["Bal. Gen. Posting Type"::Purchase, "Bal. Gen. Posting Type"::Sale]) or
-               not ("Document Type" in ["Document Type"::Invoice, "Document Type"::"Credit Memo"])
-            then
-                exit;
+        if GenJnlLine."System-Created Entry" or
+            not (GenJnlLine."Bal. Gen. Posting Type" in [GenJnlLine."Bal. Gen. Posting Type"::Purchase, GenJnlLine."Bal. Gen. Posting Type"::Sale]) or
+            not (GenJnlLine."Document Type" in [GenJnlLine."Document Type"::Invoice, GenJnlLine."Document Type"::"Credit Memo"])
+        then
+            exit;
 
-            if VATPostingSetup.Get("Bal. VAT Bus. Posting Group", "Bal. VAT Prod. Posting Group") and
-               VATPostingSetup."Adjust for Payment Discount"
-            then
-                TestField("Bal. Gen. Prod. Posting Group", ErrorInfo.Create());
-        end;
+        if VATPostingSetup.Get(GenJnlLine."Bal. VAT Bus. Posting Group", GenJnlLine."Bal. VAT Prod. Posting Group") and
+           VATPostingSetup."Adjust for Payment Discount"
+        then
+            GenJnlLine.TestField("Bal. Gen. Prod. Posting Group", ErrorInfo.Create());
     end;
 
     local procedure CheckAccountType(GenJnlLine: Record "Gen. Journal Line")
@@ -954,6 +947,89 @@ codeunit 11 "Gen. Jnl.-Check Line"
                 Error('');
     end;
 
+    local procedure CheckCurrencyCode(GenJnlLine: Record "Gen. Journal Line")
+    var
+        ACYOnlyPosting: Boolean;
+    begin
+        ACYOnlyPosting :=
+          (GLSetup."Additional Reporting Currency" <> '') and
+          (GenJnlLine."Additional-Currency Posting" = GenJnlLine."Additional-Currency Posting"::"Additional-Currency Amount Only") and
+          (GenJnlLine."Currency Code" = GLSetup."Additional Reporting Currency");
+
+        if (GenJnlLine."Currency Code" <> '') and (GenJnlLine."Currency Code" <> GLSetup."LCY Code") then begin
+            CheckAccountCurrencyCode(
+                GenJnlLine."Account No.", GenJnlLine."Account Type", GenJnlLine."Currency Code", ACYOnlyPosting);
+            CheckAccountCurrencyCode(
+                GenJnlLine."Bal. Account No.", GenJnlLine."Bal. Account Type", GenJnlLine."Currency Code", ACYOnlyPosting);
+        end;
+    end;
+
+    local procedure CheckAccountCurrencyCode(AccountNo: Code[20]; AccountType: Enum "Gen. Journal Account Type"; CurrencyCode: Code[10]; ACYOnly: Boolean)
+    var
+        GLAccount: Record "G/L Account";
+        BankAccount: Record "Bank Account";
+        BankAccountPostingGroup: Record "Bank Account Posting Group";
+        Customer: Record Customer;
+        CustomerPostingGroup: Record "Customer Posting Group";
+        Vendor: Record Vendor;
+        VendorPostingGroup: Record "Vendor Posting Group";
+    begin
+        if (AccountNo = '') or ACYOnly then
+            exit;
+
+        case AccountType of
+            AccountType::"G/L Account":
+                begin
+                    GLAccount.Get(AccountNo);
+                    CheckGLAccountSourceCurrency(GLAccount, CurrencyCode);
+                end;
+            AccountType::Customer:
+                begin
+                    Customer.Get(AccountNo);
+                    CustomerPostingGroup.Get(Customer."Customer Posting Group");
+                    GLAccount.Get(CustomerPostingGroup."Receivables Account");
+                    CheckGLAccountSourceCurrency(GLAccount, CurrencyCode);
+                end;
+            AccountType::Vendor:
+                begin
+                    Vendor.Get(AccountNo);
+                    VendorPostingGroup.Get(Vendor."Vendor Posting Group");
+                    GLAccount.Get(VendorPostingGroup."Payables Account");
+                    CheckGLAccountSourceCurrency(GLAccount, CurrencyCode);
+                end;
+            AccountType::"Bank Account":
+                begin
+                    BankAccount.Get(AccountNo);
+                    BankAccountPostingGroup.Get(BankAccount."Bank Acc. Posting Group");
+                    GLAccount.Get(BankAccountPostingGroup."G/L Account No.");
+                    CheckGLAccountSourceCurrency(GLAccount, CurrencyCode);
+                end;
+        end;
+    end;
+
+    local procedure CheckGLAccountSourceCurrency(var GLAccount: Record "G/L Account"; CurrencyCode: Code[10])
+    var
+        GLAccountSourceCurrency: Record "G/L Account Source Currency";
+    begin
+        case GLAccount."Source Currency Posting" of
+            GLAccount."Source Currency Posting"::"Same Currency":
+                if (CurrencyCode <> GLAccount."Source Currency Code") and
+                    (GLAccount."Source Currency Code" <> '') and (GLAccount."Source Currency Code" <> GLSetup."LCY Code")
+                then
+                    Error(GLAccCurrencyDoesNotMatchErr, CurrencyCode, GLAccount."Source Currency Code", GLAccount."No.");
+            GLAccount."Source Currency Posting"::"Multiple Currencies":
+                if CurrencyCode <> '' then begin
+                    GLAccountSourceCurrency.SetRange("G/L Account No.", GLAccount."No.");
+                    GLAccountSourceCurrency.SetRange("Currency Code", CurrencyCode);
+                    if GLAccountSourceCurrency.IsEmpty() then
+                        Error(GLAccSourceCurrencyDoesNotMatchErr, CurrencyCode, GLAccount."No.");
+                end;
+            GLAccount."Source Currency Posting"::"LCY Only":
+                if CurrencyCode <> '' then
+                    Error(GLAccSourceCurrencyDoesNotAllowedErr, CurrencyCode, GLAccount."No.");
+        end;
+    end;
+
     local procedure CheckPostedDeferralHeaderExist(GenJnlLine: Record "Gen. Journal Line")
     var
         DeferralHeader: Record "Deferral Header";
@@ -994,11 +1070,11 @@ codeunit 11 "Gen. Jnl.-Check Line"
 
     local procedure GetDeferralAccountNo(GenJournalLine: Record "Gen. Journal Line"): Code[20]
     var
-        GLAccountType: Enum "Gen. Journal Account Type";
         CustPostingGr: Record "Customer Posting Group";
         VendPostingGr: Record "Vendor Posting Group";
         BankAcc: Record "Bank Account";
         BankAccPostingGr: Record "Bank Account Posting Group";
+        GLAccountType: Enum "Gen. Journal Account Type";
         Account: Code[20];
         GLAccount: Code[20];
     begin

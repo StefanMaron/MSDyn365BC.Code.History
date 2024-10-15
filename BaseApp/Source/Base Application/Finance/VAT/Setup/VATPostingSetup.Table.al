@@ -19,6 +19,7 @@ table 325 "VAT Posting Setup"
     Caption = 'VAT Posting Setup';
     DrillDownPageID = "VAT Posting Setup";
     LookupPageID = "VAT Posting Setup";
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -296,7 +297,12 @@ table 325 "VAT Posting Setup"
 
     trigger OnDelete()
     begin
-        CheckSetupUsage();
+        CheckSetupUsage("VAT Bus. Posting Group", "VAT Prod. Posting Group");
+    end;
+
+    trigger OnRename()
+    begin
+        CheckSetupUsage(xRec."VAT Bus. Posting Group", xRec."VAT Prod. Posting Group");
     end;
 
     trigger OnInsert()
@@ -313,7 +319,7 @@ table 325 "VAT Posting Setup"
 
         Text000: Label '%1 must be entered on the tax jurisdiction line when %2 is %3.';
         Text001: Label '%1 = %2 has already been used for %3 = %4 in %5 for %6 = %7 and %8 = %9.';
-        YouCannotDeleteErr: Label 'You cannot delete %1 %2.', Comment = '%1 = Location Code; %2 = Posting Group';
+        YouCannotDeleteOrModifyErr: Label 'You cannot modify or delete VAT posting setup %1 %2 as it has been used to generate GL entries. Changing the setup now can cause inconsistencies in your financial data.', Comment = '%1 = "VAT Bus. Posting Group"; %2 = "VAT Prod. Posting Group"';
         VATPostingSetupHasVATEntriesErr: Label 'You cannot change the VAT posting setup because it has been used to generate VAT entries. Changing the setup now can cause inconsistencies in your financial data.';
         NoAccountSuggestedMsg: Label 'Cannot suggest G/L accounts as there is nothing to base suggestion on.';
 
@@ -323,7 +329,6 @@ table 325 "VAT Posting Setup"
     begin
         VATEntry.SetRange("VAT Bus. Posting Group", Rec."VAT Bus. Posting Group");
         VATEntry.SetRange("VAT Prod. Posting Group", Rec."VAT Prod. Posting Group");
-
         if not VATEntry.IsEmpty() then
             Error(VATPostingSetupHasVATEntriesErr);
     end;
@@ -338,20 +343,20 @@ table 325 "VAT Posting Setup"
         end;
     end;
 
-    local procedure CheckSetupUsage()
+    local procedure CheckSetupUsage(VATBusPostingGroup: Code[20]; VATProdPostingGroup: Code[20])
     var
         GLEntry: Record "G/L Entry";
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeCheckSetupUsage(Rec, IsHandled);
+        OnBeforeCheckSetupUsage(Rec, IsHandled, VATBusPostingGroup, VATProdPostingGroup);
         if IsHandled then
             exit;
 
-        GLEntry.SetRange("VAT Bus. Posting Group", "VAT Bus. Posting Group");
-        GLEntry.SetRange("VAT Prod. Posting Group", "VAT Prod. Posting Group");
+        GLEntry.SetRange("VAT Bus. Posting Group", VATBusPostingGroup);
+        GLEntry.SetRange("VAT Prod. Posting Group", VATProdPostingGroup);
         if not GLEntry.IsEmpty() then
-            Error(YouCannotDeleteErr, "VAT Bus. Posting Group", "VAT Prod. Posting Group");
+            Error(YouCannotDeleteOrModifyErr, VATBusPostingGroup, VATProdPostingGroup);
     end;
 
     procedure TestNotSalesTax(FromFieldName: Text[100])
@@ -535,7 +540,7 @@ table 325 "VAT Posting Setup"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCheckSetupUsage(var VATPostingSetup: Record "VAT Posting Setup"; var IsHandled: Boolean)
+    local procedure OnBeforeCheckSetupUsage(var VATPostingSetup: Record "VAT Posting Setup"; var IsHandled: Boolean; VATBusPostingGroup: Code[20]; VATProdPostingGroup: Code[20])
     begin
     end;
 }

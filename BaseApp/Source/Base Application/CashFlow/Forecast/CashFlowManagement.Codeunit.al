@@ -293,19 +293,6 @@ codeunit 841 "Cash Flow Management"
     begin
     end;
 
-#if not CLEAN21
-    [Obsolete('Replaced with CashFlowNameFullLength.', '21.0')]
-    procedure CashFlowName(CashFlowNo: Code[20]): Text[50]
-    var
-        CashFlowForecast: Record "Cash Flow Forecast";
-    begin
-        if CashFlowForecast.Get(CashFlowNo) then
-            exit(CopyStr(CashFlowForecast.Description, 1, 50));
-
-        exit('')
-    end;
-#endif
-
     procedure CashFlowNameFullLength(CashFlowNo: Code[20]): Text[100]
     var
         CashFlowForecast: Record "Cash Flow Forecast";
@@ -546,12 +533,10 @@ codeunit 841 "Cash Flow Management"
 
     local procedure InitCashFlowAccount(var CashFlowAccount: Record "Cash Flow Account"; SourceType: Enum "Cash Flow Source Type")
     begin
-        with CashFlowAccount do begin
-            Init();
-            Validate("Source Type", SourceType);
-            Validate("No.", GetNoFromSourceType(SourceType.AsInteger()));
-            Validate(Name, Format("Source Type", MaxStrLen(Name)));
-        end;
+        CashFlowAccount.Init();
+        CashFlowAccount.Validate("Source Type", SourceType);
+        CashFlowAccount.Validate("No.", GetNoFromSourceType(SourceType.AsInteger()));
+        CashFlowAccount.Validate(Name, Format(CashFlowAccount."Source Type", MaxStrLen(CashFlowAccount.Name)));
     end;
 
     local procedure CreateCashFlowForecast()
@@ -793,7 +778,7 @@ codeunit 841 "Cash Flow Management"
         TempSalesLine.SetFilter("Tax Group Code", '<>%1', '');
         if TempSalesLine.Find('-') then
             repeat
-                    SalesTaxCalculate.AddSalesLine(TempSalesLine);
+                SalesTaxCalculate.AddSalesLine(TempSalesLine);
             until TempSalesLine.Next() = 0;
         TempSalesLine.Reset();
 
@@ -802,14 +787,12 @@ codeunit 841 "Cash Flow Management"
 
         SalesTaxCalculate.GetSummarizedSalesTaxTable(TempSalesTaxAmtLine);
 
-        with TempSalesTaxAmtLine do begin
-            Reset();
-            SetCurrentKey("Print Order", "Tax Area Code for Key", "Tax Jurisdiction Code");
-            if Find('-') then
-                repeat
-                        VATAmount := VATAmount + "Tax Amount";
-                until Next() = 0;
-        end;
+        TempSalesTaxAmtLine.Reset();
+        TempSalesTaxAmtLine.SetCurrentKey("Print Order", "Tax Area Code for Key", "Tax Jurisdiction Code");
+        if TempSalesTaxAmtLine.Find('-') then
+            repeat
+                VATAmount := VATAmount + TempSalesTaxAmtLine."Tax Amount";
+            until TempSalesTaxAmtLine.Next() = 0;
         exit(-1 * VATAmount);
     end;
 
@@ -844,9 +827,9 @@ codeunit 841 "Cash Flow Management"
         TempPurchLine.SetFilter(Type, '>0');
         TempPurchLine.SetFilter(Quantity, '<>0');
         if TempPurchLine.Find('-') then
-                repeat
-                    SalesTaxCalculate.AddPurchLine(TempPurchLine);
-                until TempPurchLine.Next() = 0;
+            repeat
+                SalesTaxCalculate.AddPurchLine(TempPurchLine);
+            until TempPurchLine.Next() = 0;
         TempPurchLine.Reset();
 
         SalesTaxCalculate.EndSalesTaxCalculation(PurchaseHeader."Posting Date");
@@ -854,14 +837,12 @@ codeunit 841 "Cash Flow Management"
 
         SalesTaxCalculate.GetSummarizedSalesTaxTable(TempSalesTaxAmtLine);
 
-        with TempSalesTaxAmtLine do begin
-            Reset();
-            SetCurrentKey("Print Order", "Tax Area Code for Key", "Tax Jurisdiction Code");
-            if Find('-') then
-                    repeat
-                        VATAmount := VATAmount + "Tax Amount";
-                    until Next() = 0;
-        end;
+        TempSalesTaxAmtLine.Reset();
+        TempSalesTaxAmtLine.SetCurrentKey("Print Order", "Tax Area Code for Key", "Tax Jurisdiction Code");
+        if TempSalesTaxAmtLine.Find('-') then
+            repeat
+                VATAmount := VATAmount + TempSalesTaxAmtLine."Tax Amount";
+            until TempSalesTaxAmtLine.Next() = 0;
         exit(VATAmount);
     end;
 

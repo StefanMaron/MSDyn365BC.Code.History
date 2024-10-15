@@ -14,7 +14,6 @@ codeunit 144004 "UT REP Purchase Process Misc"
         LibraryReportDataset: Codeunit "Library - Report Dataset";
         LibraryRandom: Codeunit "Library - Random";
         SubTitleCap: Label 'SubTitle';
-        DateTitleCap: Label 'DateTitle';
         VendTotalLabelCap: Label 'VendTotalLabel';
         ErrorTextNumberCap: Label 'ErrorText_Number_';
         GenJournalLineAmountCap: Label 'Gen__Journal_Line_Amount';
@@ -43,7 +42,7 @@ codeunit 144004 "UT REP Purchase Process Misc"
         RunReconcileAPToGLReport(PurchaseLine."Document No.");
 
         // Verify: Verify the Subtitle after running Reconcile AP to GL Report.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists('Subtitle', '(Accruals)');
     end;
 
@@ -85,7 +84,7 @@ codeunit 144004 "UT REP Purchase Process Misc"
         CreateCheckLedgerEntry(CheckLedgerEntry, EntryStatus);
 
         // Exercise.
-        LibraryLowerPermissions.SetBanking;
+        LibraryLowerPermissions.SetBanking();
         REPORT.Run(REPORT::"Bank Account - Check Details");  // Opens handler - BankAccountCheckDetailsRequestPageHandler.
 
         // Verify: Verify Amount on Report Bank Account - Check Details.
@@ -113,7 +112,7 @@ codeunit 144004 "UT REP Purchase Process Misc"
 
         // Verify: Verify the Vendor Total Label after running Projected Cash Payments Report.
         GeneralLedgerSetup.Get();
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(
           VendTotalLabelCap, 'Total for ' + Vendor.TableCaption + ' ' + Vendor."No." + ' (' + GeneralLedgerSetup."LCY Code" + ')');
     end;
@@ -138,7 +137,7 @@ codeunit 144004 "UT REP Purchase Process Misc"
         RunProjectedCashPaymentsReport(Vendor."No.", true);  // TRUE for Print Totals in Vendor Currency.
 
         // Verify: Verify the Vendor Total Label after running Projected Cash Payments Report.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(
           VendTotalLabelCap, 'Total for ' + Vendor.TableCaption + ' ' + Vendor."No." + ' (' + Vendor."Currency Code" + ')');
     end;
@@ -173,11 +172,11 @@ codeunit 144004 "UT REP Purchase Process Misc"
         // [WHEN] BeginProjectionDate is setted as the Due Date of the first Ledger Entry
         LibraryVariableStorage.Enqueue(WorkDate());
         ProjectedCashPayments.SetTableView(Vendor);
-        LibraryLowerPermissions.SetAccountPayables;
+        LibraryLowerPermissions.SetAccountPayables();
         ProjectedCashPayments.Run(); // Invokes ProjectedCashPaymentsWithStartDateRequestPageHandler.
 
         // [THEN] For each month only 1 AmountDue have to be specified
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         // [THEN] Only AmountDue2 should be presented for the first month
         LibraryReportDataset.AssertElementWithValueExists(AmountDue2, 1000);
         LibraryReportDataset.AssertElementWithValueExists(AmountDue3, 0);
@@ -200,14 +199,14 @@ codeunit 144004 "UT REP Purchase Process Misc"
         // Setup.
         Initialize();
         CreateAndUpdateGenJournalLine(
-          GenJournalLine, CreateBankAccount, GenJournalLine."Bank Payment Type"::"Electronic Payment", LibraryRandom.RandDec(10, 2));
+          GenJournalLine, CreateBankAccount(), GenJournalLine."Bank Payment Type"::"Electronic Payment", LibraryRandom.RandDec(10, 2));
         UpdateBalanceAccountOnGenJournalLine(GenJournalLine);
 
         // Exercise.
         RunPaymentJournalTestReport(GenJournalLine."Account No.");
 
         // Verify: Verify the Error Text Number and Amount after running Payment Journal Test Report.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(ErrorTextNumberCap, 'Check Exported must be Yes for a(n) Electronic Payment.');
         LibraryReportDataset.AssertElementWithValueExists(GenJournalLineAmountCap, GenJournalLine.Amount);
     end;
@@ -224,13 +223,13 @@ codeunit 144004 "UT REP Purchase Process Misc"
         // Setup.
         Initialize();
         CreateAndUpdateGenJournalLine(
-          GenJournalLine, CreateBankAccount, GenJournalLine."Bank Payment Type"::"Electronic Payment", LibraryRandom.RandDec(10, 2));
+          GenJournalLine, CreateBankAccount(), GenJournalLine."Bank Payment Type"::"Electronic Payment", LibraryRandom.RandDec(10, 2));
 
         // Exercise.
         RunPaymentJournalTestReport(GenJournalLine."Account No.");
 
         // Verify: Verify the Error Text Number and Amount after running Payment Journal Test Report.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(
           ErrorTextNumberCap, 'Check Transmitted must be Yes for a(n) Electronic Payment.');
         LibraryReportDataset.AssertElementWithValueExists(GenJournalLineAmountCap, GenJournalLine.Amount);
@@ -264,13 +263,13 @@ codeunit 144004 "UT REP Purchase Process Misc"
     var
         GenJournalLine: Record "Gen. Journal Line";
     begin
-        CreateAndUpdateGenJournalLine(GenJournalLine, CreateBankAccount, GenJournalLine."Bank Payment Type"::"Computer Check", Amount);
+        CreateAndUpdateGenJournalLine(GenJournalLine, CreateBankAccount(), GenJournalLine."Bank Payment Type"::"Computer Check", Amount);
 
         // Exercise.
         RunPaymentJournalTestReport(GenJournalLine."Account No.");
 
         // Verify: Verify the Error Text Number and Amount after running Payment Journal Test Report.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(ErrorTextNumberCap, 'Posting Date must be specified.');
         LibraryReportDataset.AssertElementWithValueExists(GenJournalLineAmountCap, GenJournalLine.Amount);
     end;
@@ -294,7 +293,7 @@ codeunit 144004 "UT REP Purchase Process Misc"
         RunOutstandingPurchOrderStatusReport(Vendor."No.");
 
         // Verify: Verify the Purchase Line Quantity and Outstanding Quantity after running Outstanding Purch. Order Status Report.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists('Purchase_Line_Quantity', PurchaseLine.Quantity);
         LibraryReportDataset.AssertElementWithValueExists('Purchase_Line__Outstanding_Quantity_', PurchaseLine."Outstanding Quantity");
     end;
@@ -311,7 +310,7 @@ codeunit 144004 "UT REP Purchase Process Misc"
         // Test to verify the Vendor - OnAfterGetRecord trigger of Report ID: 10095, Outstanding Purch. Order Aging Report for Vendor Subtitle with Print Detail.
         // Setup.
         Initialize();
-        LibraryApplicationArea.DisableApplicationAreaSetup;
+        LibraryApplicationArea.DisableApplicationAreaSetup();
         CreateVendor(Vendor);
         CreatePurchaseOrder(PurchaseLine, Vendor."No.");
 
@@ -319,7 +318,7 @@ codeunit 144004 "UT REP Purchase Process Misc"
         RunOutstandingPurchOrderAgingReport(Vendor."No.", true);  // TRUE for Print Detail.
 
         // Verify: Verify the Subtitle after running Outstanding Purch. Order Aging Report.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(TitleCap, '(Detail)');
     end;
 
@@ -335,7 +334,7 @@ codeunit 144004 "UT REP Purchase Process Misc"
         // Test to verify the Vendor - OnAfterGetRecord trigger of Report ID: 10095, Outstanding Purch. Order Aging Report for Vendor Subtitle without Print Detail.
         // Setup.
         Initialize();
-        LibraryApplicationArea.DisableApplicationAreaSetup;
+        LibraryApplicationArea.DisableApplicationAreaSetup();
         CreateVendor(Vendor);
         CreatePurchaseOrder(PurchaseLine, Vendor."No.");
 
@@ -343,7 +342,7 @@ codeunit 144004 "UT REP Purchase Process Misc"
         RunOutstandingPurchOrderAgingReport(Vendor."No.", false);  // FALSE for Print Detail.
 
         // Verify: Verify the Subtitle after running Outstanding Purch. Order Aging Report.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(TitleCap, '(Summary)');
     end;
 
@@ -366,7 +365,7 @@ codeunit 144004 "UT REP Purchase Process Misc"
         RunCashRequirementsByDueDateReport(Vendor."No.", false);  // FALSE for Print Detail.
 
         // Verify: Verify the Subtitle after running Cash Requirements By Due Date Report.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(
           TitleCap, '(' + 'Summary for payments as of' + ' ' + Format(WorkDate(), 0, 4) + ')');
     end;
@@ -390,7 +389,7 @@ codeunit 144004 "UT REP Purchase Process Misc"
         RunCashRequirementsByDueDateReport(Vendor."No.", true);  // TRUE for Print Detail.
 
         // Verify: Verify the Subtitle after running Cash Requirements By Due Date Report.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(TitleCap, '(' + 'Detail for payments as of' + ' ' + Format(WorkDate(), 0, 4) + ')');
     end;
 
@@ -413,7 +412,7 @@ codeunit 144004 "UT REP Purchase Process Misc"
         RunCashApplicationReport(Vendor."No.");
 
         // Verify: Verify the Payment date String after running Cash Application Report.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists('PaymentDateString', '(For Payment on ' + Format(WorkDate(), 0, 4) + ')');
     end;
 
@@ -458,7 +457,7 @@ codeunit 144004 "UT REP Purchase Process Misc"
         RunItemStatisticsByPurchaserReport(SalespersonPurchaser.Code);
 
         // Verify: Verify the Item Description and Average Cost as Zero after running Item Statistics by Purchaser Report.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists('Item_Description', 'Others');
         LibraryReportDataset.AssertElementWithValueExists('AverageCost', 0);  // Average Cost Zero.
     end;
@@ -480,7 +479,7 @@ codeunit 144004 "UT REP Purchase Process Misc"
         RunOutstandingOrderStatByPOReport(PurchaseLine."Document No.");
 
         // Verify.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(
           'Control33Caption', ResolveCaption('Report Total (%1)'));  // Calculate Control33Caption as calculated in the Report.
     end;
@@ -504,7 +503,7 @@ codeunit 144004 "UT REP Purchase Process Misc"
         RunPurchaserStatByInvoiceReport(VendorLedgerEntry."Purchaser Code", false);  // FALSE for Print Detail.
 
         // Verify: Verify the SubTitle after running Purchaser Stat. by Invoice Report.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(SubTitleCap, '(Summary)');
     end;
 
@@ -527,7 +526,7 @@ codeunit 144004 "UT REP Purchase Process Misc"
         RunPurchaserStatByInvoiceReport(VendorLedgerEntry."Purchaser Code", true);  // TRUE for Print Detail.
 
         // Verify: Verify the SubTitle after running Purchaser Stat. by Invoice Report.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(SubTitleCap, '(Detail)');
     end;
 
@@ -544,15 +543,15 @@ codeunit 144004 "UT REP Purchase Process Misc"
 
     local procedure CreateVendor(var Vendor: Record Vendor)
     begin
-        Vendor."No." := LibraryUTUtility.GetNewCode;
-        Vendor.Name := LibraryUTUtility.GetNewCode;
+        Vendor."No." := LibraryUTUtility.GetNewCode();
+        Vendor.Name := LibraryUTUtility.GetNewCode();
         Vendor.Insert();
     end;
 
     local procedure CreatePurchaseOrder(var PurchaseLine: Record "Purchase Line"; BuyFromVendorNo: Code[20])
     begin
         PurchaseLine."Document Type" := PurchaseLine."Document Type"::Order;
-        PurchaseLine."Document No." := CreatePurchaseHeader;
+        PurchaseLine."Document No." := CreatePurchaseHeader();
         PurchaseLine."Line No." := 1;
         PurchaseLine.Type := PurchaseLine.Type::Item;
         PurchaseLine."Amt. Rcd. Not Invoiced" := LibraryRandom.RandDec(10, 2);
@@ -604,7 +603,7 @@ codeunit 144004 "UT REP Purchase Process Misc"
     begin
         CreateVendor(Vendor);
         PurchaseHeader."Document Type" := PurchaseHeader."Document Type"::Order;
-        PurchaseHeader."No." := LibraryUTUtility.GetNewCode;
+        PurchaseHeader."No." := LibraryUTUtility.GetNewCode();
         PurchaseHeader."Buy-from Vendor No." := Vendor."No.";
         PurchaseHeader.Insert();
         LibraryVariableStorage.Enqueue(PurchaseHeader."No.");  // Enqueue value required in PurchaseDocumentTestRequestPageHandler.
@@ -617,7 +616,7 @@ codeunit 144004 "UT REP Purchase Process Misc"
     begin
         BankAccount.FindFirst();
         BankAccount.SetRange("Date Filter", WorkDate());
-        CheckLedgerEntry."Entry No." := SelectCheckLedgerEntryNo;
+        CheckLedgerEntry."Entry No." := SelectCheckLedgerEntryNo();
         CheckLedgerEntry."Bank Account No." := BankAccount."No.";
         CheckLedgerEntry.Amount := LibraryRandom.RandDec(10, 2);
         CheckLedgerEntry."Check Date" := BankAccount."Date Filter";
@@ -629,27 +628,27 @@ codeunit 144004 "UT REP Purchase Process Misc"
     var
         BankAccount: Record "Bank Account";
     begin
-        BankAccount."No." := LibraryUTUtility.GetNewCode;
+        BankAccount."No." := LibraryUTUtility.GetNewCode();
         BankAccount.Insert();
         exit(BankAccount."No.");
     end;
 
-    local procedure CreateGenJournalLineWithAppliesToDocType(var GenJournalLine: Record "Gen. Journal Line"; AccountType: Option; AccountNo: Code[20]; AppliesToDocType: Option)
+    local procedure CreateGenJournalLineWithAppliesToDocType(var GenJournalLine: Record "Gen. Journal Line"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; AppliesToDocType: Enum "Gen. Journal Document Type")
     begin
         CreateGenJournalLine(GenJournalLine, AccountType, AccountNo, LibraryRandom.RandDec(10, 2));
         GenJournalLine."Applies-to Doc. Type" := AppliesToDocType;
         GenJournalLine.Modify();
     end;
 
-    local procedure CreateGenJournalLine(var GenJournalLine: Record "Gen. Journal Line"; AccountType: Option; AccountNo: Code[20]; GenJnlLineAmount: Decimal)
+    local procedure CreateGenJournalLine(var GenJournalLine: Record "Gen. Journal Line"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; GenJnlLineAmount: Decimal)
     var
         GenJournalTemplate: Record "Gen. Journal Template";
         GenJournalBatch: Record "Gen. Journal Batch";
     begin
-        GenJournalTemplate.Name := LibraryUTUtility.GetNewCode10;
+        GenJournalTemplate.Name := LibraryUTUtility.GetNewCode10();
         GenJournalTemplate.Insert();
         GenJournalBatch."Journal Template Name" := GenJournalTemplate.Name;
-        GenJournalBatch.Name := LibraryUTUtility.GetNewCode10;
+        GenJournalBatch.Name := LibraryUTUtility.GetNewCode10();
         GenJournalBatch.Insert();
 
         GenJournalLine."Journal Template Name" := GenJournalBatch."Journal Template Name";
@@ -657,7 +656,7 @@ codeunit 144004 "UT REP Purchase Process Misc"
         GenJournalLine."Line No." := 1;
         GenJournalLine."Account Type" := AccountType;
         GenJournalLine."Account No." := AccountNo;
-        GenJournalLine."Document No." := LibraryUTUtility.GetNewCode;
+        GenJournalLine."Document No." := LibraryUTUtility.GetNewCode();
         GenJournalLine.Amount := GenJnlLineAmount;
         GenJournalLine."Amount (LCY)" := GenJnlLineAmount;
         GenJournalLine."Balance (LCY)" := GenJournalLine."Amount (LCY)";
@@ -669,7 +668,7 @@ codeunit 144004 "UT REP Purchase Process Misc"
         Currency: Record Currency;
         CurrencyExchangeRate: Record "Currency Exchange Rate";
     begin
-        Currency.Code := LibraryUTUtility.GetNewCode10;
+        Currency.Code := LibraryUTUtility.GetNewCode10();
         Currency.Insert();
         CurrencyExchangeRate."Currency Code" := Currency.Code;
         CurrencyExchangeRate."Starting Date" := WorkDate();
@@ -679,7 +678,7 @@ codeunit 144004 "UT REP Purchase Process Misc"
         exit(CurrencyExchangeRate."Currency Code");
     end;
 
-    local procedure CreateAndUpdateGenJournalLine(var GenJournalLine: Record "Gen. Journal Line"; BankAccountNo: Code[20]; BankPaymentType: Option; Amount: Decimal)
+    local procedure CreateAndUpdateGenJournalLine(var GenJournalLine: Record "Gen. Journal Line"; BankAccountNo: Code[20]; BankPaymentType: Enum "Bank Payment Type"; Amount: Decimal)
     begin
         CreateGenJournalLineWithAppliesToDocType(
           GenJournalLine, GenJournalLine."Account Type"::"Bank Account", BankAccountNo,
@@ -691,7 +690,7 @@ codeunit 144004 "UT REP Purchase Process Misc"
 
     local procedure CreateSalespersonPurchaser(var SalespersonPurchaser: Record "Salesperson/Purchaser")
     begin
-        SalespersonPurchaser.Code := LibraryUTUtility.GetNewCode10;
+        SalespersonPurchaser.Code := LibraryUTUtility.GetNewCode10();
         SalespersonPurchaser.Insert();
     end;
 
@@ -737,7 +736,7 @@ codeunit 144004 "UT REP Purchase Process Misc"
     begin
         GenJournalLine.SetRange("Account No.", AccountNo);
         PaymentJournalTest.SetTableView(GenJournalLine);
-        LibraryLowerPermissions.SetJournalsEdit;
+        LibraryLowerPermissions.SetJournalsEdit();
         PaymentJournalTest.Run();  // Invokes PaymentJournalTestRequestPageHandler.
     end;
 
@@ -749,7 +748,7 @@ codeunit 144004 "UT REP Purchase Process Misc"
         LibraryVariableStorage.Enqueue(PrintDetails);  // Enqueue value for use in OutstandingPurchOrderAgingRequestPageHandler.
         Vendor.SetRange("No.", No);
         OutstandingPurchOrderAging.SetTableView(Vendor);
-        LibraryLowerPermissions.SetFinancialReporting;
+        LibraryLowerPermissions.SetFinancialReporting();
         OutstandingPurchOrderAging.Run();  // Invokes OutstandingPurchOrderAgingRequestPageHandler.
     end;
 
@@ -760,7 +759,7 @@ codeunit 144004 "UT REP Purchase Process Misc"
     begin
         Vendor.SetRange("No.", No);
         OutstandingPurchOrderStatus.SetTableView(Vendor);
-        LibraryLowerPermissions.SetFinancialReporting;
+        LibraryLowerPermissions.SetFinancialReporting();
         OutstandingPurchOrderStatus.Run();  // Invokes OutstandingPurchOrderStatusRequestPageHandler.
     end;
 
@@ -772,7 +771,7 @@ codeunit 144004 "UT REP Purchase Process Misc"
         LibraryVariableStorage.Enqueue(PrintTotalsInVendorCurrency);  // Enqueue value for use in ProjectedCashPaymentsRequestPageHandler.
         Vendor.SetRange("No.", No);
         ProjectedCashPayments.SetTableView(Vendor);
-        LibraryLowerPermissions.SetAccountPayables;
+        LibraryLowerPermissions.SetAccountPayables();
         ProjectedCashPayments.Run();  // Invokes ProjectedCashPaymentsRequestPageHandler.
     end;
 
@@ -783,7 +782,7 @@ codeunit 144004 "UT REP Purchase Process Misc"
     begin
         PurchaseLine.SetRange("Document No.", DocumentNo);
         ReconcileAPToGL.SetTableView(PurchaseLine);
-        LibraryLowerPermissions.SetAccountPayables;
+        LibraryLowerPermissions.SetAccountPayables();
         ReconcileAPToGL.Run();  // Invokes ReconcileAPToGLRequestPageHandler.
     end;
 
@@ -795,7 +794,7 @@ codeunit 144004 "UT REP Purchase Process Misc"
         LibraryVariableStorage.Enqueue(PrintDetail);  // Enqueue value for use in PurchaserInvoiceByStatRequestPageHandler.
         SalespersonPurchaser.SetRange(Code, Code);
         PurchaserStatByInvoice.SetTableView(SalespersonPurchaser);
-        LibraryLowerPermissions.SetAccountPayables;
+        LibraryLowerPermissions.SetAccountPayables();
         PurchaserStatByInvoice.Run();  // Invokes PurchaserInvoiceByStatRequestPageHandler.
     end;
 
@@ -806,7 +805,7 @@ codeunit 144004 "UT REP Purchase Process Misc"
     begin
         PurchaseHeader.SetRange("No.", No);
         OutstandingOrderStatByPO.SetTableView(PurchaseHeader);
-        LibraryLowerPermissions.SetPurchDocsCreate;
+        LibraryLowerPermissions.SetPurchDocsCreate();
         OutstandingOrderStatByPO.Run();  // Invokes OutstandingOrderStatByPORequestPageHandler.
     end;
 
@@ -822,7 +821,7 @@ codeunit 144004 "UT REP Purchase Process Misc"
         Commit();  // Commit required for explicit commit used in OnPostReport on Report ID:393, Suggest Vendor Payments.
         SuggestVendorPayments.SetGenJnlLine(GenJournalLine);
         SuggestVendorPayments.SetTableView(Vendor);
-        LibraryLowerPermissions.SetAccountPayables;
+        LibraryLowerPermissions.SetAccountPayables();
         SuggestVendorPayments.Run();  // Invokes SuggestVendorPaymentsRequestPageHandler.
     end;
 
@@ -833,20 +832,20 @@ codeunit 144004 "UT REP Purchase Process Misc"
     begin
         SalespersonPurchaser.SetRange(Code, Code);
         ItemStatisticsByPurchaser.SetTableView(SalespersonPurchaser);
-        LibraryLowerPermissions.SetAccountPayables;
+        LibraryLowerPermissions.SetAccountPayables();
         ItemStatisticsByPurchaser.Run();  // Invokes ItemStatisticsByPurchaserRequestPageHandler.
     end;
 
     local procedure UpdateBalanceAccountOnGenJournalLine(GenJournalLine: Record "Gen. Journal Line")
     begin
-        GenJournalLine."Bal. Account No." := LibraryUTUtility.GetNewCode;
+        GenJournalLine."Bal. Account No." := LibraryUTUtility.GetNewCode();
         GenJournalLine."Bal. Account Type" := GenJournalLine."Bal. Account Type"::"Bank Account";
         GenJournalLine.Modify();
     end;
 
     local procedure UpdateCurrencyCodeOnVendor(var Vendor: Record Vendor)
     begin
-        Vendor."Currency Code" := CreateCurrencyWithExchangeRate;
+        Vendor."Currency Code" := CreateCurrencyWithExchangeRate();
         Vendor.Modify();
     end;
 
@@ -861,7 +860,7 @@ codeunit 144004 "UT REP Purchase Process Misc"
 
     local procedure VerifyReportsPP(ElementName: Text; ExpectedValue: Variant)
     begin
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(ElementName, ExpectedValue);
     end;
 
@@ -869,14 +868,14 @@ codeunit 144004 "UT REP Purchase Process Misc"
     [Scope('OnPrem')]
     procedure ReconcileAPToGLRequestPageHandler(var ReconcileAPToGL: TestRequestPage "Reconcile AP to GL")
     begin
-        ReconcileAPToGL.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        ReconcileAPToGL.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure BankAccountCheckDetailsRequestPageHandler(var BankAccountCheckDetails: TestRequestPage "Bank Account - Check Details")
     begin
-        BankAccountCheckDetails.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        BankAccountCheckDetails.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -886,7 +885,7 @@ codeunit 144004 "UT REP Purchase Process Misc"
         CashApplication.PaymentDate.SetValue(0D);  // Blank Payment Date.
         CashApplication.TakePaymentDiscounts.SetValue(true);
         CashApplication.LastDiscDateToTake.SetValue(CalcDate('<-' + Format(LibraryRandom.RandInt(10)) + 'D>', WorkDate()));  // Last Discount Date less than WORKDATE.
-        CashApplication.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        CashApplication.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -898,14 +897,14 @@ codeunit 144004 "UT REP Purchase Process Misc"
         LibraryVariableStorage.Dequeue(PrintDetail);
         CashRequirementsByDueDate.ForPaymentOn.SetValue(WorkDate());
         CashRequirementsByDueDate.PrintDetail.SetValue(PrintDetail);
-        CashRequirementsByDueDate.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        CashRequirementsByDueDate.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure PaymentJournalTestRequestPageHandler(var PaymentJournalTest: TestRequestPage "Payment Journal - Test")
     begin
-        PaymentJournalTest.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        PaymentJournalTest.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -918,14 +917,14 @@ codeunit 144004 "UT REP Purchase Process Misc"
         LibraryVariableStorage.Dequeue(No);
         LibraryVariableStorage.Dequeue(PrintDetail);
         OutstandingPurchOrderAging.PrintDetail.SetValue(PrintDetail);
-        OutstandingPurchOrderAging.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        OutstandingPurchOrderAging.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure OutstandingPurchOrderStatusRequestPageHandler(var OutstandingPurchOrderStatus: TestRequestPage "Outstanding Purch.Order Status")
     begin
-        OutstandingPurchOrderStatus.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        OutstandingPurchOrderStatus.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -936,7 +935,7 @@ codeunit 144004 "UT REP Purchase Process Misc"
     begin
         LibraryVariableStorage.Dequeue(PrintTotalsInVendorCurrency);
         ProjectedCashPayments.PrintTotalsInVendorsCurrency.SetValue(PrintTotalsInVendorCurrency);
-        ProjectedCashPayments.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        ProjectedCashPayments.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -945,7 +944,7 @@ codeunit 144004 "UT REP Purchase Process Misc"
     begin
         ProjectedCashPayments.BeginProjectionDate.SetValue(LibraryVariableStorage.DequeueDate());
         ProjectedCashPayments.PrintDetail.SetValue(true);
-        ProjectedCashPayments.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        ProjectedCashPayments.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -956,14 +955,14 @@ codeunit 144004 "UT REP Purchase Process Misc"
     begin
         LibraryVariableStorage.Dequeue(PrintDetail);
         PurchaserStatByInvoice.PrintDetail.SetValue(PrintDetail);
-        PurchaserStatByInvoice.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        PurchaserStatByInvoice.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure OutstandingOrderStatByPORequestPageHandler(var OutstandingOrderStatByPO: TestRequestPage "Outstanding Order Stat. by PO")
     begin
-        OutstandingOrderStatByPO.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        OutstandingOrderStatByPO.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -971,15 +970,15 @@ codeunit 144004 "UT REP Purchase Process Misc"
     procedure SuggestVendorPaymentsRequestPageHandler(var SuggestVendorPayments: TestRequestPage "Suggest Vendor Payments")
     begin
         SuggestVendorPayments.LastPaymentDate.SetValue(WorkDate());
-        SuggestVendorPayments.StartingDocumentNo.SetValue(LibraryUTUtility.GetNewCode10);
-        SuggestVendorPayments.OK.Invoke;
+        SuggestVendorPayments.StartingDocumentNo.SetValue(LibraryUTUtility.GetNewCode10());
+        SuggestVendorPayments.OK().Invoke();
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure ItemStatisticsByPurchaserRequestPageHandler(var ItemStatisticsByPurchaser: TestRequestPage "Item Statistics by Purchaser")
     begin
-        ItemStatisticsByPurchaser.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        ItemStatisticsByPurchaser.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     local procedure ResolveCaption(CaptionExpression: Text): Text

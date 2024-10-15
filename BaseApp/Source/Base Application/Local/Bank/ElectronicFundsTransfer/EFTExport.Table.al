@@ -11,6 +11,7 @@ using Microsoft.Finance.GeneralLedger.Journal;
 table 10810 "EFT Export"
 {
     Caption = 'EFT Export';
+    DataClassification = CustomerContent;
 
     fields
     {

@@ -29,7 +29,7 @@ codeunit 131100 "Library - Incoming Documents"
         IncomingDocumentsSetup.Insert();
 
         IncomingDocumentApprover.Init();
-        IncomingDocumentApprover."User ID" := UserSecurityId;
+        IncomingDocumentApprover."User ID" := UserSecurityId();
         if IncomingDocumentApprover.Insert() then;
     end;
 

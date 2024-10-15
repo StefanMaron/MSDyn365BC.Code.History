@@ -479,17 +479,15 @@ report 10103 "Vendor Account Detail"
                         if Currency.ReadPermission then begin
                             TempCurrency.DeleteAll();
 
-                            with VendLedgerEntry2 do begin
-                                Reset();
-                                SetCurrentKey("Vendor No.", "Currency Code");
-                                SetRange("Vendor No.", Vendor."No.");
-                                SetFilter("Posting Date", '%1..%2', FromDate, ToDate);
-                                while FindFirst() do begin
-                                    TempCurrency.Init();
-                                    TempCurrency.Code := "Currency Code";
-                                    TempCurrency.Insert();
-                                    SetFilter("Currency Code", '>%1', "Currency Code");
-                                end;
+                            VendLedgerEntry2.Reset();
+                            VendLedgerEntry2.SetCurrentKey("Vendor No.", "Currency Code");
+                            VendLedgerEntry2.SetRange("Vendor No.", Vendor."No.");
+                            VendLedgerEntry2.SetFilter("Posting Date", '%1..%2', FromDate, ToDate);
+                            while VendLedgerEntry2.FindFirst() do begin
+                                TempCurrency.Init();
+                                TempCurrency.Code := VendLedgerEntry2."Currency Code";
+                                TempCurrency.Insert();
+                                VendLedgerEntry2.SetFilter("Currency Code", '>%1', VendLedgerEntry2."Currency Code");
                             end;
                             GetCurrencyRecord(Currency, "Currency Code");
                         end;

@@ -9,7 +9,6 @@ using Microsoft.Integration.Dataverse;
 using Microsoft.Integration.SyncEngine;
 using Microsoft.Utilities;
 using System.Privacy;
-using System.Environment;
 using System.IO;
 using System.Security.User;
 using System.Threading;
@@ -83,6 +82,7 @@ page 9072 "IT Operations Activities"
                     DrillDownPageID = "Integration Synch. Error List";
                     ToolTip = 'Specifies the number of errors related to data integration.';
                     Visible = ShowDataIntegrationCues;
+                    StyleExpr = IntegrationErrorsCue;
                 }
                 field("Coupled Data Synch Errors"; Rec."Coupled Data Synch Errors")
                 {
@@ -91,6 +91,7 @@ page 9072 "IT Operations Activities"
                     DrillDownPageID = "CRM Skipped Records";
                     ToolTip = 'Specifies the number of errors that occurred in the latest synchronization of coupled data between Business Central and Dynamics 365 Sales.';
                     Visible = ShowD365SIntegrationCues;
+                    StyleExpr = CoupledErrorsCue;
                 }
             }
             cuegroup("Data Privacy")
@@ -123,6 +124,7 @@ page 9072 "IT Operations Activities"
     var
         DataSensitivity: Record "Data Sensitivity";
         IntegrationSynchJobErrors: Record "Integration Synch. Job Errors";
+        CRMIntegrationRecord: Record "CRM Integration Record";
         DataClassNotificationMgt: Codeunit "Data Class. Notification Mgt.";
         CRMIntegrationManagement: Codeunit "CRM Integration Management";
         CDSIntegrationMgt: Codeunit "CDS Integration Mgt.";
@@ -143,16 +145,25 @@ page 9072 "IT Operations Activities"
         Rec.SetFilter("Date Filter3", '>%1', CreateDateTime(Today, 0T));
         Rec.SetRange("User ID Filter", UserId());
 
-        ShowIntelligentCloud := not EnvironmentInfo.IsSaaS();
         IntegrationSynchJobErrors.SetDataIntegrationUIElementsVisible(ShowDataIntegrationCues);
         ShowD365SIntegrationCues := CRMIntegrationManagement.IsIntegrationEnabled() or CDSIntegrationMgt.IsIntegrationEnabled();
+
+        if IntegrationSynchJobErrors.IsEmpty() then
+            IntegrationErrorsCue := 'Favorable'
+        else
+            IntegrationErrorsCue := 'Unfavorable';
+        CRMIntegrationRecord.SetRange(Skipped, true);
+        if CRMIntegrationRecord.IsEmpty() then
+            CoupledErrorsCue := 'Favorable'
+        else
+            CoupledErrorsCue := 'Unfavorable';
     end;
 
     var
-        EnvironmentInfo: Codeunit "Environment Information";
         UnclassifiedFields: Integer;
-        ShowIntelligentCloud: Boolean;
         ShowD365SIntegrationCues: Boolean;
         ShowDataIntegrationCues: Boolean;
+        IntegrationErrorsCue: Text;
+        CoupledErrorsCue: Text;
 }
 

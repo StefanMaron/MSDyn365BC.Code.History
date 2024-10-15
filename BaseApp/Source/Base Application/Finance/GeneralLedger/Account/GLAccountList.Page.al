@@ -141,7 +141,7 @@ page 18 "G/L Account List"
                     RunObject = Page "General Ledger Entries";
                     RunPageLink = "G/L Account No." = field("No.");
                     RunPageView = sorting("G/L Account No.")
-                                  order(Descending);
+                                  order(descending);
                     ShortCutKey = 'Ctrl+F7';
                     ToolTip = 'View the history of transactions that have been posted for the selected record.';
                 }
@@ -372,8 +372,10 @@ page 18 "G/L Account List"
 
     var
         ExtendedPriceEnabled: Boolean;
-        Emphasize: Boolean;
         NameIndent: Integer;
+
+    protected var
+        Emphasize: Boolean;
 
     procedure SetSelection(var GLAcc: Record "G/L Account")
     begin

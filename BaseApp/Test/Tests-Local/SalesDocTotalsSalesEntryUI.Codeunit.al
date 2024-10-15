@@ -56,11 +56,11 @@ codeunit 142063 SalesDocTotalsSalesEntryUI
         OpenSalesInvoicePageEdit(SalesInvoice, SalesHeader);
 
         // Store values from window before setting the Tax Group Code
-        SetCompareAmounts(SalesInvoice.SalesLines."Invoice Discount Amount".AsDEcimal,
-          SalesInvoice.SalesLines."Total Amount Excl. VAT".AsDEcimal,
-          SalesInvoice.SalesLines."Total VAT Amount".AsDEcimal,
-          SalesInvoice.SalesLines."Total Amount Incl. VAT".AsDEcimal,
-          SalesInvoice.SalesLines."Invoice Disc. Pct.".AsDEcimal,
+        SetCompareAmounts(SalesInvoice.SalesLines."Invoice Discount Amount".AsDecimal(),
+          SalesInvoice.SalesLines."Total Amount Excl. VAT".AsDecimal(),
+          SalesInvoice.SalesLines."Total VAT Amount".AsDecimal(),
+          SalesInvoice.SalesLines."Total Amount Incl. VAT".AsDecimal(),
+          SalesInvoice.SalesLines."Invoice Disc. Pct.".AsDecimal(),
           PreAmounts);
 
         SalesInvoice.SalesLines."Total VAT Amount".AssertEquals(0);
@@ -78,11 +78,11 @@ codeunit 142063 SalesDocTotalsSalesEntryUI
         SalesInvoice.SalesLines."Unit Price".SetValue(OriginalUnitPrice + 1);
         SalesInvoice.SalesLines."Unit Price".SetValue(OriginalUnitPrice);
 
-        SetCompareAmounts(SalesInvoice.SalesLines."Invoice Discount Amount".AsDEcimal,
-          SalesInvoice.SalesLines."Total Amount Excl. VAT".AsDEcimal,
-          SalesInvoice.SalesLines."Total VAT Amount".AsDEcimal,
-          SalesInvoice.SalesLines."Total Amount Incl. VAT".AsDEcimal,
-          SalesInvoice.SalesLines."Invoice Disc. Pct.".AsDEcimal,
+        SetCompareAmounts(SalesInvoice.SalesLines."Invoice Discount Amount".AsDecimal(),
+          SalesInvoice.SalesLines."Total Amount Excl. VAT".AsDecimal(),
+          SalesInvoice.SalesLines."Total VAT Amount".AsDecimal(),
+          SalesInvoice.SalesLines."Total Amount Incl. VAT".AsDecimal(),
+          SalesInvoice.SalesLines."Invoice Disc. Pct.".AsDecimal(),
           PostAmounts);
 
         // Calculate the TotalTax, and flowfields
@@ -134,22 +134,22 @@ codeunit 142063 SalesDocTotalsSalesEntryUI
         OpenSalesInvoicePageEdit(SalesInvoice, SalesHeader);
 
         // Store values from window before setting the Tax Group Code
-        SetCompareAmounts(SalesInvoice.SalesLines."Invoice Discount Amount".AsDEcimal,
-          SalesInvoice.SalesLines."Total Amount Excl. VAT".AsDEcimal,
-          SalesInvoice.SalesLines."Total VAT Amount".AsDEcimal,
-          SalesInvoice.SalesLines."Total Amount Incl. VAT".AsDEcimal,
-          SalesInvoice.SalesLines."Invoice Disc. Pct.".AsDEcimal,
+        SetCompareAmounts(SalesInvoice.SalesLines."Invoice Discount Amount".AsDecimal(),
+          SalesInvoice.SalesLines."Total Amount Excl. VAT".AsDecimal(),
+          SalesInvoice.SalesLines."Total VAT Amount".AsDecimal(),
+          SalesInvoice.SalesLines."Total Amount Incl. VAT".AsDecimal(),
+          SalesInvoice.SalesLines."Invoice Disc. Pct.".AsDecimal(),
           PreAmounts);
 
         // [WHEN] User changes the quantity
         SalesInvoice.SalesLines.Quantity.SetValue(LibraryRandom.RandDec(10, 2));
         SalesInvoice.SalesLines.Next();
 
-        SetCompareAmounts(SalesInvoice.SalesLines."Invoice Discount Amount".AsDEcimal,
-          SalesInvoice.SalesLines."Total Amount Excl. VAT".AsDEcimal,
-          SalesInvoice.SalesLines."Total VAT Amount".AsDEcimal,
-          SalesInvoice.SalesLines."Total Amount Incl. VAT".AsDEcimal,
-          SalesInvoice.SalesLines."Invoice Disc. Pct.".AsDEcimal,
+        SetCompareAmounts(SalesInvoice.SalesLines."Invoice Discount Amount".AsDecimal(),
+          SalesInvoice.SalesLines."Total Amount Excl. VAT".AsDecimal(),
+          SalesInvoice.SalesLines."Total VAT Amount".AsDecimal(),
+          SalesInvoice.SalesLines."Total Amount Incl. VAT".AsDecimal(),
+          SalesInvoice.SalesLines."Invoice Disc. Pct.".AsDecimal(),
           PostAmounts);
 
         // Calculate the TotalTax, and flowfields
@@ -202,11 +202,11 @@ codeunit 142063 SalesDocTotalsSalesEntryUI
         OpenSalesInvoicePageEdit(SalesInvoice, SalesHeader);
 
         // Store values from window before setting the Tax Group Code
-        SetCompareAmounts(SalesInvoice.SalesLines."Invoice Discount Amount".AsDEcimal,
-          SalesInvoice.SalesLines."Total Amount Excl. VAT".AsDEcimal,
-          SalesInvoice.SalesLines."Total VAT Amount".AsDEcimal,
-          SalesInvoice.SalesLines."Total Amount Incl. VAT".AsDEcimal,
-          SalesInvoice.SalesLines."Invoice Disc. Pct.".AsDEcimal,
+        SetCompareAmounts(SalesInvoice.SalesLines."Invoice Discount Amount".AsDecimal(),
+          SalesInvoice.SalesLines."Total Amount Excl. VAT".AsDecimal(),
+          SalesInvoice.SalesLines."Total VAT Amount".AsDecimal(),
+          SalesInvoice.SalesLines."Total Amount Incl. VAT".AsDecimal(),
+          SalesInvoice.SalesLines."Invoice Disc. Pct.".AsDecimal(),
           PreAmounts);
 
         SalesInvoice.SalesLines."Invoice Discount Amount".AssertEquals(0);
@@ -226,11 +226,11 @@ codeunit 142063 SalesDocTotalsSalesEntryUI
         SalesInvoice.SalesLines."Unit Price".SetValue(OriginalUnitPrice + 1);
         SalesInvoice.SalesLines."Unit Price".SetValue(OriginalUnitPrice);
 
-        SetCompareAmounts(SalesInvoice.SalesLines."Invoice Discount Amount".AsDEcimal,
-          SalesInvoice.SalesLines."Total Amount Excl. VAT".AsDEcimal,
-          SalesInvoice.SalesLines."Total VAT Amount".AsDEcimal,
-          SalesInvoice.SalesLines."Total Amount Incl. VAT".AsDEcimal,
-          SalesInvoice.SalesLines."Invoice Disc. Pct.".AsDEcimal,
+        SetCompareAmounts(SalesInvoice.SalesLines."Invoice Discount Amount".AsDecimal(),
+          SalesInvoice.SalesLines."Total Amount Excl. VAT".AsDecimal(),
+          SalesInvoice.SalesLines."Total VAT Amount".AsDecimal(),
+          SalesInvoice.SalesLines."Total Amount Incl. VAT".AsDecimal(),
+          SalesInvoice.SalesLines."Invoice Disc. Pct.".AsDecimal(),
           PostAmounts);
 
         // Calculate the TotalTax, and flowfields
@@ -283,11 +283,11 @@ codeunit 142063 SalesDocTotalsSalesEntryUI
         OpenSalesInvoicePageEdit(SalesInvoice, SalesHeader);
 
         // Store values from window before setting the Tax Group Code
-        SetCompareAmounts(SalesInvoice.SalesLines."Invoice Discount Amount".AsDEcimal,
-          SalesInvoice.SalesLines."Total Amount Excl. VAT".AsDEcimal,
-          SalesInvoice.SalesLines."Total VAT Amount".AsDEcimal,
-          SalesInvoice.SalesLines."Total Amount Incl. VAT".AsDEcimal,
-          SalesInvoice.SalesLines."Invoice Disc. Pct.".AsDEcimal,
+        SetCompareAmounts(SalesInvoice.SalesLines."Invoice Discount Amount".AsDecimal(),
+          SalesInvoice.SalesLines."Total Amount Excl. VAT".AsDecimal(),
+          SalesInvoice.SalesLines."Total VAT Amount".AsDecimal(),
+          SalesInvoice.SalesLines."Total Amount Incl. VAT".AsDecimal(),
+          SalesInvoice.SalesLines."Invoice Disc. Pct.".AsDecimal(),
           PreAmounts);
 
         SalesInvoice.Close();
@@ -303,11 +303,11 @@ codeunit 142063 SalesDocTotalsSalesEntryUI
         SalesInvoice.SalesLines."Unit Price".SetValue(SalesLine."Unit Price");
         SalesInvoice.SalesLines.Next();
 
-        SetCompareAmounts(SalesInvoice.SalesLines."Invoice Discount Amount".AsDEcimal,
-          SalesInvoice.SalesLines."Total Amount Excl. VAT".AsDEcimal,
-          SalesInvoice.SalesLines."Total VAT Amount".AsDEcimal,
-          SalesInvoice.SalesLines."Total Amount Incl. VAT".AsDEcimal,
-          SalesInvoice.SalesLines."Invoice Disc. Pct.".AsDEcimal,
+        SetCompareAmounts(SalesInvoice.SalesLines."Invoice Discount Amount".AsDecimal(),
+          SalesInvoice.SalesLines."Total Amount Excl. VAT".AsDecimal(),
+          SalesInvoice.SalesLines."Total VAT Amount".AsDecimal(),
+          SalesInvoice.SalesLines."Total Amount Incl. VAT".AsDecimal(),
+          SalesInvoice.SalesLines."Invoice Disc. Pct.".AsDecimal(),
           PostAmounts);
 
         // Calculate the TotalTax, and flowfields
@@ -361,21 +361,21 @@ codeunit 142063 SalesDocTotalsSalesEntryUI
         OpenSalesInvoicePageEdit(SalesInvoice, SalesHeader);
 
         // Store values from window before setting the Invoice Discount Amount
-        SetCompareAmounts(SalesInvoice.SalesLines."Invoice Discount Amount".AsDEcimal,
-          SalesInvoice.SalesLines."Total Amount Excl. VAT".AsDEcimal,
-          SalesInvoice.SalesLines."Total VAT Amount".AsDEcimal,
-          SalesInvoice.SalesLines."Total Amount Incl. VAT".AsDEcimal,
-          SalesInvoice.SalesLines."Invoice Disc. Pct.".AsDEcimal,
+        SetCompareAmounts(SalesInvoice.SalesLines."Invoice Discount Amount".AsDecimal(),
+          SalesInvoice.SalesLines."Total Amount Excl. VAT".AsDecimal(),
+          SalesInvoice.SalesLines."Total VAT Amount".AsDecimal(),
+          SalesInvoice.SalesLines."Total Amount Incl. VAT".AsDecimal(),
+          SalesInvoice.SalesLines."Invoice Disc. Pct.".AsDecimal(),
           PreAmounts);
 
         // [WHEN] User sets the Invoice Discount Amount
         SalesInvoice.SalesLines."Invoice Discount Amount".SetValue(LibraryRandom.RandIntInRange(1, 1));
 
-        SetCompareAmounts(SalesInvoice.SalesLines."Invoice Discount Amount".AsDEcimal,
-          SalesInvoice.SalesLines."Total Amount Excl. VAT".AsDEcimal,
-          SalesInvoice.SalesLines."Total VAT Amount".AsDEcimal,
-          SalesInvoice.SalesLines."Total Amount Incl. VAT".AsDEcimal,
-          SalesInvoice.SalesLines."Invoice Disc. Pct.".AsDEcimal,
+        SetCompareAmounts(SalesInvoice.SalesLines."Invoice Discount Amount".AsDecimal(),
+          SalesInvoice.SalesLines."Total Amount Excl. VAT".AsDecimal(),
+          SalesInvoice.SalesLines."Total VAT Amount".AsDecimal(),
+          SalesInvoice.SalesLines."Total Amount Incl. VAT".AsDecimal(),
+          SalesInvoice.SalesLines."Invoice Disc. Pct.".AsDecimal(),
           PostAmounts);
 
         // Calculate the TotalTax, and flowfields
@@ -433,11 +433,11 @@ codeunit 142063 SalesDocTotalsSalesEntryUI
         SalesInvoice.SalesLines."Unit Price".SetValue(OriginalUnitPrice);
 
         // Store values from window before setting the Tax Group Code
-        SetCompareAmounts(SalesInvoice.SalesLines."Invoice Discount Amount".AsDEcimal,
-          SalesInvoice.SalesLines."Total Amount Excl. VAT".AsDEcimal,
-          SalesInvoice.SalesLines."Total VAT Amount".AsDEcimal,
-          SalesInvoice.SalesLines."Total Amount Incl. VAT".AsDEcimal,
-          SalesInvoice.SalesLines."Invoice Disc. Pct.".AsDEcimal,
+        SetCompareAmounts(SalesInvoice.SalesLines."Invoice Discount Amount".AsDecimal(),
+          SalesInvoice.SalesLines."Total Amount Excl. VAT".AsDecimal(),
+          SalesInvoice.SalesLines."Total VAT Amount".AsDecimal(),
+          SalesInvoice.SalesLines."Total Amount Incl. VAT".AsDecimal(),
+          SalesInvoice.SalesLines."Invoice Disc. Pct.".AsDecimal(),
           SalesHeaderAmounts);
 
         // [WHEN] User Posts the invoice
@@ -493,11 +493,11 @@ codeunit 142063 SalesDocTotalsSalesEntryUI
         OpenSalesOrderPageEdit(SalesOrder, SalesHeader);
 
         // Store values from window before setting the Tax Group Code
-        SetCompareAmounts(SalesOrder.SalesLines."Invoice Discount Amount".AsDEcimal,
-          SalesOrder.SalesLines."Total Amount Excl. VAT".AsDEcimal,
-          SalesOrder.SalesLines."Total VAT Amount".AsDEcimal,
-          SalesOrder.SalesLines."Total Amount Incl. VAT".AsDEcimal,
-          SalesOrder.SalesLines."Invoice Disc. Pct.".AsDEcimal,
+        SetCompareAmounts(SalesOrder.SalesLines."Invoice Discount Amount".AsDecimal(),
+          SalesOrder.SalesLines."Total Amount Excl. VAT".AsDecimal(),
+          SalesOrder.SalesLines."Total VAT Amount".AsDecimal(),
+          SalesOrder.SalesLines."Total Amount Incl. VAT".AsDecimal(),
+          SalesOrder.SalesLines."Invoice Disc. Pct.".AsDecimal(),
           PreAmounts);
 
         SalesOrder.SalesLines."Total VAT Amount".AssertEquals(0);
@@ -515,11 +515,11 @@ codeunit 142063 SalesDocTotalsSalesEntryUI
         SalesOrder.SalesLines."Unit Price".SetValue(OriginalUnitPrice + 1);
         SalesOrder.SalesLines."Unit Price".SetValue(OriginalUnitPrice);
 
-        SetCompareAmounts(SalesOrder.SalesLines."Invoice Discount Amount".AsDEcimal,
-          SalesOrder.SalesLines."Total Amount Excl. VAT".AsDEcimal,
-          SalesOrder.SalesLines."Total VAT Amount".AsDEcimal,
-          SalesOrder.SalesLines."Total Amount Incl. VAT".AsDEcimal,
-          SalesOrder.SalesLines."Invoice Disc. Pct.".AsDEcimal,
+        SetCompareAmounts(SalesOrder.SalesLines."Invoice Discount Amount".AsDecimal(),
+          SalesOrder.SalesLines."Total Amount Excl. VAT".AsDecimal(),
+          SalesOrder.SalesLines."Total VAT Amount".AsDecimal(),
+          SalesOrder.SalesLines."Total Amount Incl. VAT".AsDecimal(),
+          SalesOrder.SalesLines."Invoice Disc. Pct.".AsDecimal(),
           PostAmounts);
 
         // Calculate the TotalTax, and flowfields
@@ -571,22 +571,22 @@ codeunit 142063 SalesDocTotalsSalesEntryUI
         OpenSalesOrderPageEdit(SalesOrder, SalesHeader);
 
         // Store values from window before setting the Tax Group Code
-        SetCompareAmounts(SalesOrder.SalesLines."Invoice Discount Amount".AsDEcimal,
-          SalesOrder.SalesLines."Total Amount Excl. VAT".AsDEcimal,
-          SalesOrder.SalesLines."Total VAT Amount".AsDEcimal,
-          SalesOrder.SalesLines."Total Amount Incl. VAT".AsDEcimal,
-          SalesOrder.SalesLines."Invoice Disc. Pct.".AsDEcimal,
+        SetCompareAmounts(SalesOrder.SalesLines."Invoice Discount Amount".AsDecimal(),
+          SalesOrder.SalesLines."Total Amount Excl. VAT".AsDecimal(),
+          SalesOrder.SalesLines."Total VAT Amount".AsDecimal(),
+          SalesOrder.SalesLines."Total Amount Incl. VAT".AsDecimal(),
+          SalesOrder.SalesLines."Invoice Disc. Pct.".AsDecimal(),
           PreAmounts);
 
         // [WHEN] User changes the quantity
         SalesOrder.SalesLines.Quantity.SetValue(LibraryRandom.RandDec(10, 2));
         SalesOrder.SalesLines.Next();
 
-        SetCompareAmounts(SalesOrder.SalesLines."Invoice Discount Amount".AsDEcimal,
-          SalesOrder.SalesLines."Total Amount Excl. VAT".AsDEcimal,
-          SalesOrder.SalesLines."Total VAT Amount".AsDEcimal,
-          SalesOrder.SalesLines."Total Amount Incl. VAT".AsDEcimal,
-          SalesOrder.SalesLines."Invoice Disc. Pct.".AsDEcimal,
+        SetCompareAmounts(SalesOrder.SalesLines."Invoice Discount Amount".AsDecimal(),
+          SalesOrder.SalesLines."Total Amount Excl. VAT".AsDecimal(),
+          SalesOrder.SalesLines."Total VAT Amount".AsDecimal(),
+          SalesOrder.SalesLines."Total Amount Incl. VAT".AsDecimal(),
+          SalesOrder.SalesLines."Invoice Disc. Pct.".AsDecimal(),
           PostAmounts);
 
         // Calculate the TotalTax, and flowfields
@@ -639,11 +639,11 @@ codeunit 142063 SalesDocTotalsSalesEntryUI
         OpenSalesOrderPageEdit(SalesOrder, SalesHeader);
 
         // Store values from window before setting the Tax Group Code
-        SetCompareAmounts(SalesOrder.SalesLines."Invoice Discount Amount".AsDEcimal,
-          SalesOrder.SalesLines."Total Amount Excl. VAT".AsDEcimal,
-          SalesOrder.SalesLines."Total VAT Amount".AsDEcimal,
-          SalesOrder.SalesLines."Total Amount Incl. VAT".AsDEcimal,
-          SalesOrder.SalesLines."Invoice Disc. Pct.".AsDEcimal,
+        SetCompareAmounts(SalesOrder.SalesLines."Invoice Discount Amount".AsDecimal(),
+          SalesOrder.SalesLines."Total Amount Excl. VAT".AsDecimal(),
+          SalesOrder.SalesLines."Total VAT Amount".AsDecimal(),
+          SalesOrder.SalesLines."Total Amount Incl. VAT".AsDecimal(),
+          SalesOrder.SalesLines."Invoice Disc. Pct.".AsDecimal(),
           PreAmounts);
 
         SalesOrder.SalesLines."Invoice Discount Amount".AssertEquals(0);
@@ -662,11 +662,11 @@ codeunit 142063 SalesDocTotalsSalesEntryUI
         SalesOrder.SalesLines."Unit Price".SetValue(OriginalUnitPrice + 1);
         SalesOrder.SalesLines."Unit Price".SetValue(OriginalUnitPrice);
 
-        SetCompareAmounts(SalesOrder.SalesLines."Invoice Discount Amount".AsDEcimal,
-          SalesOrder.SalesLines."Total Amount Excl. VAT".AsDEcimal,
-          SalesOrder.SalesLines."Total VAT Amount".AsDEcimal,
-          SalesOrder.SalesLines."Total Amount Incl. VAT".AsDEcimal,
-          SalesOrder.SalesLines."Invoice Disc. Pct.".AsDEcimal,
+        SetCompareAmounts(SalesOrder.SalesLines."Invoice Discount Amount".AsDecimal(),
+          SalesOrder.SalesLines."Total Amount Excl. VAT".AsDecimal(),
+          SalesOrder.SalesLines."Total VAT Amount".AsDecimal(),
+          SalesOrder.SalesLines."Total Amount Incl. VAT".AsDecimal(),
+          SalesOrder.SalesLines."Invoice Disc. Pct.".AsDecimal(),
           PostAmounts);
 
         // Calculate the TotalTax, and flowfields
@@ -719,11 +719,11 @@ codeunit 142063 SalesDocTotalsSalesEntryUI
         OpenSalesOrderPageEdit(SalesOrder, SalesHeader);
 
         // Store values from window before setting the Tax Group Code
-        SetCompareAmounts(SalesOrder.SalesLines."Invoice Discount Amount".AsDEcimal,
-          SalesOrder.SalesLines."Total Amount Excl. VAT".AsDEcimal,
-          SalesOrder.SalesLines."Total VAT Amount".AsDEcimal,
-          SalesOrder.SalesLines."Total Amount Incl. VAT".AsDEcimal,
-          SalesOrder.SalesLines."Invoice Disc. Pct.".AsDEcimal,
+        SetCompareAmounts(SalesOrder.SalesLines."Invoice Discount Amount".AsDecimal(),
+          SalesOrder.SalesLines."Total Amount Excl. VAT".AsDecimal(),
+          SalesOrder.SalesLines."Total VAT Amount".AsDecimal(),
+          SalesOrder.SalesLines."Total Amount Incl. VAT".AsDecimal(),
+          SalesOrder.SalesLines."Invoice Disc. Pct.".AsDecimal(),
           PreAmounts);
         SalesOrder.Close();
 
@@ -738,11 +738,11 @@ codeunit 142063 SalesDocTotalsSalesEntryUI
         SalesOrder.SalesLines."Unit Price".SetValue(SalesLine."Unit Price");
         SalesOrder.SalesLines.Next();
 
-        SetCompareAmounts(SalesOrder.SalesLines."Invoice Discount Amount".AsDEcimal,
-          SalesOrder.SalesLines."Total Amount Excl. VAT".AsDEcimal,
-          SalesOrder.SalesLines."Total VAT Amount".AsDEcimal,
-          SalesOrder.SalesLines."Total Amount Incl. VAT".AsDEcimal,
-          SalesOrder.SalesLines."Invoice Disc. Pct.".AsDEcimal,
+        SetCompareAmounts(SalesOrder.SalesLines."Invoice Discount Amount".AsDecimal(),
+          SalesOrder.SalesLines."Total Amount Excl. VAT".AsDecimal(),
+          SalesOrder.SalesLines."Total VAT Amount".AsDecimal(),
+          SalesOrder.SalesLines."Total Amount Incl. VAT".AsDecimal(),
+          SalesOrder.SalesLines."Invoice Disc. Pct.".AsDecimal(),
           PostAmounts);
 
         // Calculate the TotalTax, and flowfields
@@ -796,21 +796,21 @@ codeunit 142063 SalesDocTotalsSalesEntryUI
         OpenSalesOrderPageEdit(SalesOrder, SalesHeader);
 
         // Store values from window before setting the Invoice Discount Amount
-        SetCompareAmounts(SalesOrder.SalesLines."Invoice Discount Amount".AsDEcimal,
-          SalesOrder.SalesLines."Total Amount Excl. VAT".AsDEcimal,
-          SalesOrder.SalesLines."Total VAT Amount".AsDEcimal,
-          SalesOrder.SalesLines."Total Amount Incl. VAT".AsDEcimal,
-          SalesOrder.SalesLines."Invoice Disc. Pct.".AsDEcimal,
+        SetCompareAmounts(SalesOrder.SalesLines."Invoice Discount Amount".AsDecimal(),
+          SalesOrder.SalesLines."Total Amount Excl. VAT".AsDecimal(),
+          SalesOrder.SalesLines."Total VAT Amount".AsDecimal(),
+          SalesOrder.SalesLines."Total Amount Incl. VAT".AsDecimal(),
+          SalesOrder.SalesLines."Invoice Disc. Pct.".AsDecimal(),
           PreAmounts);
 
         // [WHEN] User sets the Invoice Discount Amount
         SalesOrder.SalesLines."Invoice Discount Amount".SetValue(LibraryRandom.RandIntInRange(1, 1));
 
-        SetCompareAmounts(SalesOrder.SalesLines."Invoice Discount Amount".AsDEcimal,
-          SalesOrder.SalesLines."Total Amount Excl. VAT".AsDEcimal,
-          SalesOrder.SalesLines."Total VAT Amount".AsDEcimal,
-          SalesOrder.SalesLines."Total Amount Incl. VAT".AsDEcimal,
-          SalesOrder.SalesLines."Invoice Disc. Pct.".AsDEcimal,
+        SetCompareAmounts(SalesOrder.SalesLines."Invoice Discount Amount".AsDecimal(),
+          SalesOrder.SalesLines."Total Amount Excl. VAT".AsDecimal(),
+          SalesOrder.SalesLines."Total VAT Amount".AsDecimal(),
+          SalesOrder.SalesLines."Total Amount Incl. VAT".AsDecimal(),
+          SalesOrder.SalesLines."Invoice Disc. Pct.".AsDecimal(),
           PostAmounts);
 
         // Calculate the TotalTax, and flowfields
@@ -868,11 +868,11 @@ codeunit 142063 SalesDocTotalsSalesEntryUI
         SalesOrder.SalesLines."Unit Price".SetValue(OriginalUnitPrice);
 
         // Store values from window before setting the Tax Group Code
-        SetCompareAmounts(SalesOrder.SalesLines."Invoice Discount Amount".AsDEcimal,
-          SalesOrder.SalesLines."Total Amount Excl. VAT".AsDEcimal,
-          SalesOrder.SalesLines."Total VAT Amount".AsDEcimal,
-          SalesOrder.SalesLines."Total Amount Incl. VAT".AsDEcimal,
-          SalesOrder.SalesLines."Invoice Disc. Pct.".AsDEcimal,
+        SetCompareAmounts(SalesOrder.SalesLines."Invoice Discount Amount".AsDecimal(),
+          SalesOrder.SalesLines."Total Amount Excl. VAT".AsDecimal(),
+          SalesOrder.SalesLines."Total VAT Amount".AsDecimal(),
+          SalesOrder.SalesLines."Total Amount Incl. VAT".AsDecimal(),
+          SalesOrder.SalesLines."Invoice Disc. Pct.".AsDecimal(),
           SalesHeaderAmounts);
 
         // [WHEN] User Posts the invoice
@@ -928,11 +928,11 @@ codeunit 142063 SalesDocTotalsSalesEntryUI
         OpenSalesReturnOrderPageEdit(SalesReturnOrder, SalesHeader);
 
         // Store values from window before setting the Tax Group Code
-        SetCompareAmounts(SalesReturnOrder.SalesLines."Invoice Discount Amount".AsDEcimal,
-          SalesReturnOrder.SalesLines."Total Amount Excl. VAT".AsDEcimal,
-          SalesReturnOrder.SalesLines."Total VAT Amount".AsDEcimal,
-          SalesReturnOrder.SalesLines."Total Amount Incl. VAT".AsDEcimal,
-          SalesReturnOrder.SalesLines."Invoice Disc. Pct.".AsDEcimal,
+        SetCompareAmounts(SalesReturnOrder.SalesLines."Invoice Discount Amount".AsDecimal(),
+          SalesReturnOrder.SalesLines."Total Amount Excl. VAT".AsDecimal(),
+          SalesReturnOrder.SalesLines."Total VAT Amount".AsDecimal(),
+          SalesReturnOrder.SalesLines."Total Amount Incl. VAT".AsDecimal(),
+          SalesReturnOrder.SalesLines."Invoice Disc. Pct.".AsDecimal(),
           PreAmounts);
 
         SalesReturnOrder.SalesLines."Total VAT Amount".AssertEquals(0);
@@ -951,11 +951,11 @@ codeunit 142063 SalesDocTotalsSalesEntryUI
         SalesReturnOrder.SalesLines."Unit Price".SetValue(OriginalUnitPrice + 1);
         SalesReturnOrder.SalesLines."Unit Price".SetValue(OriginalUnitPrice);
 
-        SetCompareAmounts(SalesReturnOrder.SalesLines."Invoice Discount Amount".AsDEcimal,
-          SalesReturnOrder.SalesLines."Total Amount Excl. VAT".AsDEcimal,
-          SalesReturnOrder.SalesLines."Total VAT Amount".AsDEcimal,
-          SalesReturnOrder.SalesLines."Total Amount Incl. VAT".AsDEcimal,
-          SalesReturnOrder.SalesLines."Invoice Disc. Pct.".AsDEcimal,
+        SetCompareAmounts(SalesReturnOrder.SalesLines."Invoice Discount Amount".AsDecimal(),
+          SalesReturnOrder.SalesLines."Total Amount Excl. VAT".AsDecimal(),
+          SalesReturnOrder.SalesLines."Total VAT Amount".AsDecimal(),
+          SalesReturnOrder.SalesLines."Total Amount Incl. VAT".AsDecimal(),
+          SalesReturnOrder.SalesLines."Invoice Disc. Pct.".AsDecimal(),
           PostAmounts);
 
         // Calculate the TotalTax, and flowfields
@@ -1007,11 +1007,11 @@ codeunit 142063 SalesDocTotalsSalesEntryUI
         OpenSalesReturnOrderPageEdit(SalesReturnOrder, SalesHeader);
 
         // Store values from window before setting the Tax Group Code
-        SetCompareAmounts(SalesReturnOrder.SalesLines."Invoice Discount Amount".AsDEcimal,
-          SalesReturnOrder.SalesLines."Total Amount Excl. VAT".AsDEcimal,
-          SalesReturnOrder.SalesLines."Total VAT Amount".AsDEcimal,
-          SalesReturnOrder.SalesLines."Total Amount Incl. VAT".AsDEcimal,
-          SalesReturnOrder.SalesLines."Invoice Disc. Pct.".AsDEcimal,
+        SetCompareAmounts(SalesReturnOrder.SalesLines."Invoice Discount Amount".AsDecimal(),
+          SalesReturnOrder.SalesLines."Total Amount Excl. VAT".AsDecimal(),
+          SalesReturnOrder.SalesLines."Total VAT Amount".AsDecimal(),
+          SalesReturnOrder.SalesLines."Total Amount Incl. VAT".AsDecimal(),
+          SalesReturnOrder.SalesLines."Invoice Disc. Pct.".AsDecimal(),
           PreAmounts);
 
         // [WHEN] User changes the quantity
@@ -1019,11 +1019,11 @@ codeunit 142063 SalesDocTotalsSalesEntryUI
         if SalesReturnOrder.SalesLines.Next() then
             SalesReturnOrder.SalesLines.Previous();
 
-        SetCompareAmounts(SalesReturnOrder.SalesLines."Invoice Discount Amount".AsDEcimal,
-          SalesReturnOrder.SalesLines."Total Amount Excl. VAT".AsDEcimal,
-          SalesReturnOrder.SalesLines."Total VAT Amount".AsDEcimal,
-          SalesReturnOrder.SalesLines."Total Amount Incl. VAT".AsDEcimal,
-          SalesReturnOrder.SalesLines."Invoice Disc. Pct.".AsDEcimal,
+        SetCompareAmounts(SalesReturnOrder.SalesLines."Invoice Discount Amount".AsDecimal(),
+          SalesReturnOrder.SalesLines."Total Amount Excl. VAT".AsDecimal(),
+          SalesReturnOrder.SalesLines."Total VAT Amount".AsDecimal(),
+          SalesReturnOrder.SalesLines."Total Amount Incl. VAT".AsDecimal(),
+          SalesReturnOrder.SalesLines."Invoice Disc. Pct.".AsDecimal(),
           PostAmounts);
 
         // Calculate the TotalTax, and flowfields
@@ -1076,11 +1076,11 @@ codeunit 142063 SalesDocTotalsSalesEntryUI
         OpenSalesReturnOrderPageEdit(SalesReturnOrder, SalesHeader);
 
         // Store values from window before setting the Tax Group Code
-        SetCompareAmounts(SalesReturnOrder.SalesLines."Invoice Discount Amount".AsDEcimal,
-          SalesReturnOrder.SalesLines."Total Amount Excl. VAT".AsDEcimal,
-          SalesReturnOrder.SalesLines."Total VAT Amount".AsDEcimal,
-          SalesReturnOrder.SalesLines."Total Amount Incl. VAT".AsDEcimal,
-          SalesReturnOrder.SalesLines."Invoice Disc. Pct.".AsDEcimal,
+        SetCompareAmounts(SalesReturnOrder.SalesLines."Invoice Discount Amount".AsDecimal(),
+          SalesReturnOrder.SalesLines."Total Amount Excl. VAT".AsDecimal(),
+          SalesReturnOrder.SalesLines."Total VAT Amount".AsDecimal(),
+          SalesReturnOrder.SalesLines."Total Amount Incl. VAT".AsDecimal(),
+          SalesReturnOrder.SalesLines."Invoice Disc. Pct.".AsDecimal(),
           PreAmounts);
 
         SalesReturnOrder.SalesLines."Invoice Discount Amount".AssertEquals(0);
@@ -1099,11 +1099,11 @@ codeunit 142063 SalesDocTotalsSalesEntryUI
         SalesReturnOrder.SalesLines."Unit Price".SetValue(OriginalUnitPrice + 1);
         SalesReturnOrder.SalesLines."Unit Price".SetValue(OriginalUnitPrice);
 
-        SetCompareAmounts(SalesReturnOrder.SalesLines."Invoice Discount Amount".AsDEcimal,
-          SalesReturnOrder.SalesLines."Total Amount Excl. VAT".AsDEcimal,
-          SalesReturnOrder.SalesLines."Total VAT Amount".AsDEcimal,
-          SalesReturnOrder.SalesLines."Total Amount Incl. VAT".AsDEcimal,
-          SalesReturnOrder.SalesLines."Invoice Disc. Pct.".AsDEcimal,
+        SetCompareAmounts(SalesReturnOrder.SalesLines."Invoice Discount Amount".AsDecimal(),
+          SalesReturnOrder.SalesLines."Total Amount Excl. VAT".AsDecimal(),
+          SalesReturnOrder.SalesLines."Total VAT Amount".AsDecimal(),
+          SalesReturnOrder.SalesLines."Total Amount Incl. VAT".AsDecimal(),
+          SalesReturnOrder.SalesLines."Invoice Disc. Pct.".AsDecimal(),
           PostAmounts);
 
         // Calculate the TotalTax, and flowfields
@@ -1157,11 +1157,11 @@ codeunit 142063 SalesDocTotalsSalesEntryUI
         OpenSalesReturnOrderPageEdit(SalesReturnOrder, SalesHeader);
 
         // Store values from window before setting the Tax Group Code
-        SetCompareAmounts(SalesReturnOrder.SalesLines."Invoice Discount Amount".AsDEcimal,
-          SalesReturnOrder.SalesLines."Total Amount Excl. VAT".AsDEcimal,
-          SalesReturnOrder.SalesLines."Total VAT Amount".AsDEcimal,
-          SalesReturnOrder.SalesLines."Total Amount Incl. VAT".AsDEcimal,
-          SalesReturnOrder.SalesLines."Invoice Disc. Pct.".AsDEcimal,
+        SetCompareAmounts(SalesReturnOrder.SalesLines."Invoice Discount Amount".AsDecimal(),
+          SalesReturnOrder.SalesLines."Total Amount Excl. VAT".AsDecimal(),
+          SalesReturnOrder.SalesLines."Total VAT Amount".AsDecimal(),
+          SalesReturnOrder.SalesLines."Total Amount Incl. VAT".AsDecimal(),
+          SalesReturnOrder.SalesLines."Invoice Disc. Pct.".AsDecimal(),
           PreAmounts);
         SalesReturnOrder.Close();
 
@@ -1178,11 +1178,11 @@ codeunit 142063 SalesDocTotalsSalesEntryUI
         SalesReturnOrder.SalesLines."Unit Price".SetValue(OriginalUnitPrice);
         SalesReturnOrder.SalesLines.Next();
 
-        SetCompareAmounts(SalesReturnOrder.SalesLines."Invoice Discount Amount".AsDEcimal,
-          SalesReturnOrder.SalesLines."Total Amount Excl. VAT".AsDEcimal,
-          SalesReturnOrder.SalesLines."Total VAT Amount".AsDEcimal,
-          SalesReturnOrder.SalesLines."Total Amount Incl. VAT".AsDEcimal,
-          SalesReturnOrder.SalesLines."Invoice Disc. Pct.".AsDEcimal,
+        SetCompareAmounts(SalesReturnOrder.SalesLines."Invoice Discount Amount".AsDecimal(),
+          SalesReturnOrder.SalesLines."Total Amount Excl. VAT".AsDecimal(),
+          SalesReturnOrder.SalesLines."Total VAT Amount".AsDecimal(),
+          SalesReturnOrder.SalesLines."Total Amount Incl. VAT".AsDecimal(),
+          SalesReturnOrder.SalesLines."Invoice Disc. Pct.".AsDecimal(),
           PostAmounts);
 
         // Calculate the TotalTax, and flowfields
@@ -1236,21 +1236,21 @@ codeunit 142063 SalesDocTotalsSalesEntryUI
         OpenSalesReturnOrderPageEdit(SalesReturnOrder, SalesHeader);
 
         // Store values from window before setting the Invoice Discount Amount
-        SetCompareAmounts(SalesReturnOrder.SalesLines."Invoice Discount Amount".AsDEcimal,
-          SalesReturnOrder.SalesLines."Total Amount Excl. VAT".AsDEcimal,
-          SalesReturnOrder.SalesLines."Total VAT Amount".AsDEcimal,
-          SalesReturnOrder.SalesLines."Total Amount Incl. VAT".AsDEcimal,
-          SalesReturnOrder.SalesLines."Invoice Disc. Pct.".AsDEcimal,
+        SetCompareAmounts(SalesReturnOrder.SalesLines."Invoice Discount Amount".AsDecimal(),
+          SalesReturnOrder.SalesLines."Total Amount Excl. VAT".AsDecimal(),
+          SalesReturnOrder.SalesLines."Total VAT Amount".AsDecimal(),
+          SalesReturnOrder.SalesLines."Total Amount Incl. VAT".AsDecimal(),
+          SalesReturnOrder.SalesLines."Invoice Disc. Pct.".AsDecimal(),
           PreAmounts);
 
         // [WHEN] User sets the Invoice Discount Amount
         SalesReturnOrder.SalesLines."Invoice Discount Amount".SetValue(LibraryRandom.RandIntInRange(1, 1));
 
-        SetCompareAmounts(SalesReturnOrder.SalesLines."Invoice Discount Amount".AsDEcimal,
-          SalesReturnOrder.SalesLines."Total Amount Excl. VAT".AsDEcimal,
-          SalesReturnOrder.SalesLines."Total VAT Amount".AsDEcimal,
-          SalesReturnOrder.SalesLines."Total Amount Incl. VAT".AsDEcimal,
-          SalesReturnOrder.SalesLines."Invoice Disc. Pct.".AsDEcimal,
+        SetCompareAmounts(SalesReturnOrder.SalesLines."Invoice Discount Amount".AsDecimal(),
+          SalesReturnOrder.SalesLines."Total Amount Excl. VAT".AsDecimal(),
+          SalesReturnOrder.SalesLines."Total VAT Amount".AsDecimal(),
+          SalesReturnOrder.SalesLines."Total Amount Incl. VAT".AsDecimal(),
+          SalesReturnOrder.SalesLines."Invoice Disc. Pct.".AsDecimal(),
           PostAmounts);
 
         // Calculate the TotalTax, and flowfields
@@ -1308,11 +1308,11 @@ codeunit 142063 SalesDocTotalsSalesEntryUI
         SalesReturnOrder.SalesLines."Unit Price".SetValue(OriginalUnitPrice);
 
         // Store values from window before setting the Tax Group Code
-        SetCompareAmounts(SalesReturnOrder.SalesLines."Invoice Discount Amount".AsDEcimal,
-          SalesReturnOrder.SalesLines."Total Amount Excl. VAT".AsDEcimal,
-          SalesReturnOrder.SalesLines."Total VAT Amount".AsDEcimal,
-          SalesReturnOrder.SalesLines."Total Amount Incl. VAT".AsDEcimal,
-          SalesReturnOrder.SalesLines."Invoice Disc. Pct.".AsDEcimal,
+        SetCompareAmounts(SalesReturnOrder.SalesLines."Invoice Discount Amount".AsDecimal(),
+          SalesReturnOrder.SalesLines."Total Amount Excl. VAT".AsDecimal(),
+          SalesReturnOrder.SalesLines."Total VAT Amount".AsDecimal(),
+          SalesReturnOrder.SalesLines."Total Amount Incl. VAT".AsDecimal(),
+          SalesReturnOrder.SalesLines."Invoice Disc. Pct.".AsDecimal(),
           SalesHeaderAmounts);
 
         // [WHEN] User Posts the invoice
@@ -1368,11 +1368,11 @@ codeunit 142063 SalesDocTotalsSalesEntryUI
         OpenSalesCrMemoPageEdit(SalesCrMemo, SalesHeader);
 
         // Store values from window before setting the Tax Group Code
-        SetCompareAmounts(SalesCrMemo.SalesLines."Invoice Discount Amount".AsDEcimal,
-          SalesCrMemo.SalesLines."Total Amount Excl. VAT".AsDEcimal,
-          SalesCrMemo.SalesLines."Total VAT Amount".AsDEcimal,
-          SalesCrMemo.SalesLines."Total Amount Incl. VAT".AsDEcimal,
-          SalesCrMemo.SalesLines."Invoice Disc. Pct.".AsDEcimal,
+        SetCompareAmounts(SalesCrMemo.SalesLines."Invoice Discount Amount".AsDecimal(),
+          SalesCrMemo.SalesLines."Total Amount Excl. VAT".AsDecimal(),
+          SalesCrMemo.SalesLines."Total VAT Amount".AsDecimal(),
+          SalesCrMemo.SalesLines."Total Amount Incl. VAT".AsDecimal(),
+          SalesCrMemo.SalesLines."Invoice Disc. Pct.".AsDecimal(),
           PreAmounts);
 
         SalesCrMemo.SalesLines."Total VAT Amount".AssertEquals(0);
@@ -1390,11 +1390,11 @@ codeunit 142063 SalesDocTotalsSalesEntryUI
         SalesCrMemo.SalesLines."Unit Price".SetValue(OriginalUnitPrice + 1);
         SalesCrMemo.SalesLines."Unit Price".SetValue(OriginalUnitPrice);
 
-        SetCompareAmounts(SalesCrMemo.SalesLines."Invoice Discount Amount".AsDEcimal,
-          SalesCrMemo.SalesLines."Total Amount Excl. VAT".AsDEcimal,
-          SalesCrMemo.SalesLines."Total VAT Amount".AsDEcimal,
-          SalesCrMemo.SalesLines."Total Amount Incl. VAT".AsDEcimal,
-          SalesCrMemo.SalesLines."Invoice Disc. Pct.".AsDEcimal,
+        SetCompareAmounts(SalesCrMemo.SalesLines."Invoice Discount Amount".AsDecimal(),
+          SalesCrMemo.SalesLines."Total Amount Excl. VAT".AsDecimal(),
+          SalesCrMemo.SalesLines."Total VAT Amount".AsDecimal(),
+          SalesCrMemo.SalesLines."Total Amount Incl. VAT".AsDecimal(),
+          SalesCrMemo.SalesLines."Invoice Disc. Pct.".AsDecimal(),
           PostAmounts);
 
         // Calculate the TotalTax, and flowfields
@@ -1446,22 +1446,22 @@ codeunit 142063 SalesDocTotalsSalesEntryUI
         OpenSalesCrMemoPageEdit(SalesCrMemo, SalesHeader);
 
         // Store values from window before setting the Tax Group Code
-        SetCompareAmounts(SalesCrMemo.SalesLines."Invoice Discount Amount".AsDEcimal,
-          SalesCrMemo.SalesLines."Total Amount Excl. VAT".AsDEcimal,
-          SalesCrMemo.SalesLines."Total VAT Amount".AsDEcimal,
-          SalesCrMemo.SalesLines."Total Amount Incl. VAT".AsDEcimal,
-          SalesCrMemo.SalesLines."Invoice Disc. Pct.".AsDEcimal,
+        SetCompareAmounts(SalesCrMemo.SalesLines."Invoice Discount Amount".AsDecimal(),
+          SalesCrMemo.SalesLines."Total Amount Excl. VAT".AsDecimal(),
+          SalesCrMemo.SalesLines."Total VAT Amount".AsDecimal(),
+          SalesCrMemo.SalesLines."Total Amount Incl. VAT".AsDecimal(),
+          SalesCrMemo.SalesLines."Invoice Disc. Pct.".AsDecimal(),
           PreAmounts);
 
         // [WHEN] User changes the quantity
         SalesCrMemo.SalesLines.Quantity.SetValue(LibraryRandom.RandDec(10, 2));
         SalesCrMemo.SalesLines.Next();
 
-        SetCompareAmounts(SalesCrMemo.SalesLines."Invoice Discount Amount".AsDEcimal,
-          SalesCrMemo.SalesLines."Total Amount Excl. VAT".AsDEcimal,
-          SalesCrMemo.SalesLines."Total VAT Amount".AsDEcimal,
-          SalesCrMemo.SalesLines."Total Amount Incl. VAT".AsDEcimal,
-          SalesCrMemo.SalesLines."Invoice Disc. Pct.".AsDEcimal,
+        SetCompareAmounts(SalesCrMemo.SalesLines."Invoice Discount Amount".AsDecimal(),
+          SalesCrMemo.SalesLines."Total Amount Excl. VAT".AsDecimal(),
+          SalesCrMemo.SalesLines."Total VAT Amount".AsDecimal(),
+          SalesCrMemo.SalesLines."Total Amount Incl. VAT".AsDecimal(),
+          SalesCrMemo.SalesLines."Invoice Disc. Pct.".AsDecimal(),
           PostAmounts);
 
         // Calculate the TotalTax, and flowfields
@@ -1514,11 +1514,11 @@ codeunit 142063 SalesDocTotalsSalesEntryUI
         OpenSalesCrMemoPageEdit(SalesCrMemo, SalesHeader);
 
         // Store values from window before setting the Tax Group Code
-        SetCompareAmounts(SalesCrMemo.SalesLines."Invoice Discount Amount".AsDEcimal,
-          SalesCrMemo.SalesLines."Total Amount Excl. VAT".AsDEcimal,
-          SalesCrMemo.SalesLines."Total VAT Amount".AsDEcimal,
-          SalesCrMemo.SalesLines."Total Amount Incl. VAT".AsDEcimal,
-          SalesCrMemo.SalesLines."Invoice Disc. Pct.".AsDEcimal,
+        SetCompareAmounts(SalesCrMemo.SalesLines."Invoice Discount Amount".AsDecimal(),
+          SalesCrMemo.SalesLines."Total Amount Excl. VAT".AsDecimal(),
+          SalesCrMemo.SalesLines."Total VAT Amount".AsDecimal(),
+          SalesCrMemo.SalesLines."Total Amount Incl. VAT".AsDecimal(),
+          SalesCrMemo.SalesLines."Invoice Disc. Pct.".AsDecimal(),
           PreAmounts);
 
         SalesCrMemo.SalesLines."Invoice Discount Amount".AssertEquals(0);
@@ -1537,11 +1537,11 @@ codeunit 142063 SalesDocTotalsSalesEntryUI
         SalesCrMemo.SalesLines."Unit Price".SetValue(OriginalUnitPrice + 1);
         SalesCrMemo.SalesLines."Unit Price".SetValue(OriginalUnitPrice);
 
-        SetCompareAmounts(SalesCrMemo.SalesLines."Invoice Discount Amount".AsDEcimal,
-          SalesCrMemo.SalesLines."Total Amount Excl. VAT".AsDEcimal,
-          SalesCrMemo.SalesLines."Total VAT Amount".AsDEcimal,
-          SalesCrMemo.SalesLines."Total Amount Incl. VAT".AsDEcimal,
-          SalesCrMemo.SalesLines."Invoice Disc. Pct.".AsDEcimal,
+        SetCompareAmounts(SalesCrMemo.SalesLines."Invoice Discount Amount".AsDecimal(),
+          SalesCrMemo.SalesLines."Total Amount Excl. VAT".AsDecimal(),
+          SalesCrMemo.SalesLines."Total VAT Amount".AsDecimal(),
+          SalesCrMemo.SalesLines."Total Amount Incl. VAT".AsDecimal(),
+          SalesCrMemo.SalesLines."Invoice Disc. Pct.".AsDecimal(),
           PostAmounts);
 
         // Calculate the TotalTax, and flowfields
@@ -1595,11 +1595,11 @@ codeunit 142063 SalesDocTotalsSalesEntryUI
         OpenSalesCrMemoPageEdit(SalesCrMemo, SalesHeader);
 
         // Store values from window before setting the Tax Group Code
-        SetCompareAmounts(SalesCrMemo.SalesLines."Invoice Discount Amount".AsDEcimal,
-          SalesCrMemo.SalesLines."Total Amount Excl. VAT".AsDEcimal,
-          SalesCrMemo.SalesLines."Total VAT Amount".AsDEcimal,
-          SalesCrMemo.SalesLines."Total Amount Incl. VAT".AsDEcimal,
-          SalesCrMemo.SalesLines."Invoice Disc. Pct.".AsDEcimal,
+        SetCompareAmounts(SalesCrMemo.SalesLines."Invoice Discount Amount".AsDecimal(),
+          SalesCrMemo.SalesLines."Total Amount Excl. VAT".AsDecimal(),
+          SalesCrMemo.SalesLines."Total VAT Amount".AsDecimal(),
+          SalesCrMemo.SalesLines."Total Amount Incl. VAT".AsDecimal(),
+          SalesCrMemo.SalesLines."Invoice Disc. Pct.".AsDecimal(),
           PreAmounts);
         SalesCrMemo.Close();
 
@@ -1616,11 +1616,11 @@ codeunit 142063 SalesDocTotalsSalesEntryUI
         SalesCrMemo.SalesLines."Unit Price".SetValue(OriginalUnitPrice);
         SalesCrMemo.SalesLines.Next();
 
-        SetCompareAmounts(SalesCrMemo.SalesLines."Invoice Discount Amount".AsDEcimal,
-          SalesCrMemo.SalesLines."Total Amount Excl. VAT".AsDEcimal,
-          SalesCrMemo.SalesLines."Total VAT Amount".AsDEcimal,
-          SalesCrMemo.SalesLines."Total Amount Incl. VAT".AsDEcimal,
-          SalesCrMemo.SalesLines."Invoice Disc. Pct.".AsDEcimal,
+        SetCompareAmounts(SalesCrMemo.SalesLines."Invoice Discount Amount".AsDecimal(),
+          SalesCrMemo.SalesLines."Total Amount Excl. VAT".AsDecimal(),
+          SalesCrMemo.SalesLines."Total VAT Amount".AsDecimal(),
+          SalesCrMemo.SalesLines."Total Amount Incl. VAT".AsDecimal(),
+          SalesCrMemo.SalesLines."Invoice Disc. Pct.".AsDecimal(),
           PostAmounts);
 
         // Calculate the TotalTax, and flowfields
@@ -1674,21 +1674,21 @@ codeunit 142063 SalesDocTotalsSalesEntryUI
         OpenSalesCrMemoPageEdit(SalesCrMemo, SalesHeader);
 
         // Store values from window before setting the Invoice Discount Amount
-        SetCompareAmounts(SalesCrMemo.SalesLines."Invoice Discount Amount".AsDEcimal,
-          SalesCrMemo.SalesLines."Total Amount Excl. VAT".AsDEcimal,
-          SalesCrMemo.SalesLines."Total VAT Amount".AsDEcimal,
-          SalesCrMemo.SalesLines."Total Amount Incl. VAT".AsDEcimal,
-          SalesCrMemo.SalesLines."Invoice Disc. Pct.".AsDEcimal,
+        SetCompareAmounts(SalesCrMemo.SalesLines."Invoice Discount Amount".AsDecimal(),
+          SalesCrMemo.SalesLines."Total Amount Excl. VAT".AsDecimal(),
+          SalesCrMemo.SalesLines."Total VAT Amount".AsDecimal(),
+          SalesCrMemo.SalesLines."Total Amount Incl. VAT".AsDecimal(),
+          SalesCrMemo.SalesLines."Invoice Disc. Pct.".AsDecimal(),
           PreAmounts);
 
         // [WHEN] User sets the Invoice Discount Amount
         SalesCrMemo.SalesLines."Invoice Discount Amount".SetValue(LibraryRandom.RandIntInRange(1, 1));
 
-        SetCompareAmounts(SalesCrMemo.SalesLines."Invoice Discount Amount".AsDEcimal,
-          SalesCrMemo.SalesLines."Total Amount Excl. VAT".AsDEcimal,
-          SalesCrMemo.SalesLines."Total VAT Amount".AsDEcimal,
-          SalesCrMemo.SalesLines."Total Amount Incl. VAT".AsDEcimal,
-          SalesCrMemo.SalesLines."Invoice Disc. Pct.".AsDEcimal,
+        SetCompareAmounts(SalesCrMemo.SalesLines."Invoice Discount Amount".AsDecimal(),
+          SalesCrMemo.SalesLines."Total Amount Excl. VAT".AsDecimal(),
+          SalesCrMemo.SalesLines."Total VAT Amount".AsDecimal(),
+          SalesCrMemo.SalesLines."Total Amount Incl. VAT".AsDecimal(),
+          SalesCrMemo.SalesLines."Invoice Disc. Pct.".AsDecimal(),
           PostAmounts);
 
         // Calculate the TotalTax, and flowfields
@@ -1746,11 +1746,11 @@ codeunit 142063 SalesDocTotalsSalesEntryUI
         SalesCrMemo.SalesLines."Unit Price".SetValue(OriginalUnitPrice);
 
         // Store values from window before setting the Tax Group Code
-        SetCompareAmounts(SalesCrMemo.SalesLines."Invoice Discount Amount".AsDEcimal,
-          SalesCrMemo.SalesLines."Total Amount Excl. VAT".AsDEcimal,
-          SalesCrMemo.SalesLines."Total VAT Amount".AsDEcimal,
-          SalesCrMemo.SalesLines."Total Amount Incl. VAT".AsDEcimal,
-          SalesCrMemo.SalesLines."Invoice Disc. Pct.".AsDEcimal,
+        SetCompareAmounts(SalesCrMemo.SalesLines."Invoice Discount Amount".AsDecimal(),
+          SalesCrMemo.SalesLines."Total Amount Excl. VAT".AsDecimal(),
+          SalesCrMemo.SalesLines."Total VAT Amount".AsDecimal(),
+          SalesCrMemo.SalesLines."Total Amount Incl. VAT".AsDecimal(),
+          SalesCrMemo.SalesLines."Invoice Disc. Pct.".AsDecimal(),
           SalesHeaderAmounts);
 
         // [WHEN] User Posts the invoice
@@ -1806,11 +1806,11 @@ codeunit 142063 SalesDocTotalsSalesEntryUI
         OpenSalesBlanketOrderPageEdit(BlanketSalesOrder, SalesHeader);
 
         // Store values from window before setting the Tax Group Code
-        SetCompareAmounts(BlanketSalesOrder.SalesLines."Invoice Discount Amount".AsDEcimal,
-          BlanketSalesOrder.SalesLines."Total Amount Excl. VAT".AsDEcimal,
-          BlanketSalesOrder.SalesLines."Total VAT Amount".AsDEcimal,
-          BlanketSalesOrder.SalesLines."Total Amount Incl. VAT".AsDEcimal,
-          BlanketSalesOrder.SalesLines."Invoice Disc. Pct.".AsDEcimal,
+        SetCompareAmounts(BlanketSalesOrder.SalesLines."Invoice Discount Amount".AsDecimal(),
+          BlanketSalesOrder.SalesLines."Total Amount Excl. VAT".AsDecimal(),
+          BlanketSalesOrder.SalesLines."Total VAT Amount".AsDecimal(),
+          BlanketSalesOrder.SalesLines."Total Amount Incl. VAT".AsDecimal(),
+          BlanketSalesOrder.SalesLines."Invoice Disc. Pct.".AsDecimal(),
           PreAmounts);
 
         BlanketSalesOrder.SalesLines."Total VAT Amount".AssertEquals(0);
@@ -1828,11 +1828,11 @@ codeunit 142063 SalesDocTotalsSalesEntryUI
         BlanketSalesOrder.SalesLines."Unit Price".SetValue(OriginalUnitPrice + 1);
         BlanketSalesOrder.SalesLines."Unit Price".SetValue(OriginalUnitPrice);
 
-        SetCompareAmounts(BlanketSalesOrder.SalesLines."Invoice Discount Amount".AsDEcimal,
-          BlanketSalesOrder.SalesLines."Total Amount Excl. VAT".AsDEcimal,
-          BlanketSalesOrder.SalesLines."Total VAT Amount".AsDEcimal,
-          BlanketSalesOrder.SalesLines."Total Amount Incl. VAT".AsDEcimal,
-          BlanketSalesOrder.SalesLines."Invoice Disc. Pct.".AsDEcimal,
+        SetCompareAmounts(BlanketSalesOrder.SalesLines."Invoice Discount Amount".AsDecimal(),
+          BlanketSalesOrder.SalesLines."Total Amount Excl. VAT".AsDecimal(),
+          BlanketSalesOrder.SalesLines."Total VAT Amount".AsDecimal(),
+          BlanketSalesOrder.SalesLines."Total Amount Incl. VAT".AsDecimal(),
+          BlanketSalesOrder.SalesLines."Invoice Disc. Pct.".AsDecimal(),
           PostAmounts);
 
         // Calculate the TotalTax, and flowfields
@@ -1884,21 +1884,21 @@ codeunit 142063 SalesDocTotalsSalesEntryUI
         OpenSalesBlanketOrderPageEdit(BlanketSalesOrder, SalesHeader);
 
         // Store values from window before setting the Tax Group Code
-        SetCompareAmounts(BlanketSalesOrder.SalesLines."Invoice Discount Amount".AsDEcimal,
-          BlanketSalesOrder.SalesLines."Total Amount Excl. VAT".AsDEcimal,
-          BlanketSalesOrder.SalesLines."Total VAT Amount".AsDEcimal,
-          BlanketSalesOrder.SalesLines."Total Amount Incl. VAT".AsDEcimal,
-          BlanketSalesOrder.SalesLines."Invoice Disc. Pct.".AsDEcimal,
+        SetCompareAmounts(BlanketSalesOrder.SalesLines."Invoice Discount Amount".AsDecimal(),
+          BlanketSalesOrder.SalesLines."Total Amount Excl. VAT".AsDecimal(),
+          BlanketSalesOrder.SalesLines."Total VAT Amount".AsDecimal(),
+          BlanketSalesOrder.SalesLines."Total Amount Incl. VAT".AsDecimal(),
+          BlanketSalesOrder.SalesLines."Invoice Disc. Pct.".AsDecimal(),
           PreAmounts);
 
         // [WHEN] User changes the quantity
         BlanketSalesOrder.SalesLines.Quantity.SetValue(LibraryRandom.RandDec(10, 2));
 
-        SetCompareAmounts(BlanketSalesOrder.SalesLines."Invoice Discount Amount".AsDEcimal,
-          BlanketSalesOrder.SalesLines."Total Amount Excl. VAT".AsDEcimal,
-          BlanketSalesOrder.SalesLines."Total VAT Amount".AsDEcimal,
-          BlanketSalesOrder.SalesLines."Total Amount Incl. VAT".AsDEcimal,
-          BlanketSalesOrder.SalesLines."Invoice Disc. Pct.".AsDEcimal,
+        SetCompareAmounts(BlanketSalesOrder.SalesLines."Invoice Discount Amount".AsDecimal(),
+          BlanketSalesOrder.SalesLines."Total Amount Excl. VAT".AsDecimal(),
+          BlanketSalesOrder.SalesLines."Total VAT Amount".AsDecimal(),
+          BlanketSalesOrder.SalesLines."Total Amount Incl. VAT".AsDecimal(),
+          BlanketSalesOrder.SalesLines."Invoice Disc. Pct.".AsDecimal(),
           PostAmounts);
 
         // Calculate the TotalTax, and flowfields
@@ -1951,11 +1951,11 @@ codeunit 142063 SalesDocTotalsSalesEntryUI
         OpenSalesBlanketOrderPageEdit(BlanketSalesOrder, SalesHeader);
 
         // Store values from window before setting the Tax Group Code
-        SetCompareAmounts(BlanketSalesOrder.SalesLines."Invoice Discount Amount".AsDEcimal,
-          BlanketSalesOrder.SalesLines."Total Amount Excl. VAT".AsDEcimal,
-          BlanketSalesOrder.SalesLines."Total VAT Amount".AsDEcimal,
-          BlanketSalesOrder.SalesLines."Total Amount Incl. VAT".AsDEcimal,
-          BlanketSalesOrder.SalesLines."Invoice Disc. Pct.".AsDEcimal,
+        SetCompareAmounts(BlanketSalesOrder.SalesLines."Invoice Discount Amount".AsDecimal(),
+          BlanketSalesOrder.SalesLines."Total Amount Excl. VAT".AsDecimal(),
+          BlanketSalesOrder.SalesLines."Total VAT Amount".AsDecimal(),
+          BlanketSalesOrder.SalesLines."Total Amount Incl. VAT".AsDecimal(),
+          BlanketSalesOrder.SalesLines."Invoice Disc. Pct.".AsDecimal(),
           PreAmounts);
 
         BlanketSalesOrder.SalesLines."Invoice Discount Amount".AssertEquals(0);
@@ -1974,11 +1974,11 @@ codeunit 142063 SalesDocTotalsSalesEntryUI
         BlanketSalesOrder.SalesLines."Unit Price".SetValue(OriginalUnitPrice + 1);
         BlanketSalesOrder.SalesLines."Unit Price".SetValue(OriginalUnitPrice);
 
-        SetCompareAmounts(BlanketSalesOrder.SalesLines."Invoice Discount Amount".AsDEcimal,
-          BlanketSalesOrder.SalesLines."Total Amount Excl. VAT".AsDEcimal,
-          BlanketSalesOrder.SalesLines."Total VAT Amount".AsDEcimal,
-          BlanketSalesOrder.SalesLines."Total Amount Incl. VAT".AsDEcimal,
-          BlanketSalesOrder.SalesLines."Invoice Disc. Pct.".AsDEcimal,
+        SetCompareAmounts(BlanketSalesOrder.SalesLines."Invoice Discount Amount".AsDecimal(),
+          BlanketSalesOrder.SalesLines."Total Amount Excl. VAT".AsDecimal(),
+          BlanketSalesOrder.SalesLines."Total VAT Amount".AsDecimal(),
+          BlanketSalesOrder.SalesLines."Total Amount Incl. VAT".AsDecimal(),
+          BlanketSalesOrder.SalesLines."Invoice Disc. Pct.".AsDecimal(),
           PostAmounts);
 
         // Calculate the TotalTax, and flowfields
@@ -2032,11 +2032,11 @@ codeunit 142063 SalesDocTotalsSalesEntryUI
         OpenSalesBlanketOrderPageEdit(BlanketSalesOrder, SalesHeader);
 
         // Store values from window before setting the Tax Group Code
-        SetCompareAmounts(BlanketSalesOrder.SalesLines."Invoice Discount Amount".AsDEcimal,
-          BlanketSalesOrder.SalesLines."Total Amount Excl. VAT".AsDEcimal,
-          BlanketSalesOrder.SalesLines."Total VAT Amount".AsDEcimal,
-          BlanketSalesOrder.SalesLines."Total Amount Incl. VAT".AsDEcimal,
-          BlanketSalesOrder.SalesLines."Invoice Disc. Pct.".AsDEcimal,
+        SetCompareAmounts(BlanketSalesOrder.SalesLines."Invoice Discount Amount".AsDecimal(),
+          BlanketSalesOrder.SalesLines."Total Amount Excl. VAT".AsDecimal(),
+          BlanketSalesOrder.SalesLines."Total VAT Amount".AsDecimal(),
+          BlanketSalesOrder.SalesLines."Total Amount Incl. VAT".AsDecimal(),
+          BlanketSalesOrder.SalesLines."Invoice Disc. Pct.".AsDecimal(),
           PreAmounts);
         BlanketSalesOrder.Close();
 
@@ -2053,11 +2053,11 @@ codeunit 142063 SalesDocTotalsSalesEntryUI
         BlanketSalesOrder.SalesLines."Unit Price".SetValue(OriginalUnitPrice);
         BlanketSalesOrder.SalesLines.Next();
 
-        SetCompareAmounts(BlanketSalesOrder.SalesLines."Invoice Discount Amount".AsDEcimal,
-          BlanketSalesOrder.SalesLines."Total Amount Excl. VAT".AsDEcimal,
-          BlanketSalesOrder.SalesLines."Total VAT Amount".AsDEcimal,
-          BlanketSalesOrder.SalesLines."Total Amount Incl. VAT".AsDEcimal,
-          BlanketSalesOrder.SalesLines."Invoice Disc. Pct.".AsDEcimal,
+        SetCompareAmounts(BlanketSalesOrder.SalesLines."Invoice Discount Amount".AsDecimal(),
+          BlanketSalesOrder.SalesLines."Total Amount Excl. VAT".AsDecimal(),
+          BlanketSalesOrder.SalesLines."Total VAT Amount".AsDecimal(),
+          BlanketSalesOrder.SalesLines."Total Amount Incl. VAT".AsDecimal(),
+          BlanketSalesOrder.SalesLines."Invoice Disc. Pct.".AsDecimal(),
           PostAmounts);
 
         // Calculate the TotalTax, and flowfields
@@ -2111,21 +2111,21 @@ codeunit 142063 SalesDocTotalsSalesEntryUI
         OpenSalesBlanketOrderPageEdit(BlanketSalesOrder, SalesHeader);
 
         // Store values from window before setting the Invoice Discount Amount
-        SetCompareAmounts(BlanketSalesOrder.SalesLines."Invoice Discount Amount".AsDEcimal,
-          BlanketSalesOrder.SalesLines."Total Amount Excl. VAT".AsDEcimal,
-          BlanketSalesOrder.SalesLines."Total VAT Amount".AsDEcimal,
-          BlanketSalesOrder.SalesLines."Total Amount Incl. VAT".AsDEcimal,
-          BlanketSalesOrder.SalesLines."Invoice Disc. Pct.".AsDEcimal,
+        SetCompareAmounts(BlanketSalesOrder.SalesLines."Invoice Discount Amount".AsDecimal(),
+          BlanketSalesOrder.SalesLines."Total Amount Excl. VAT".AsDecimal(),
+          BlanketSalesOrder.SalesLines."Total VAT Amount".AsDecimal(),
+          BlanketSalesOrder.SalesLines."Total Amount Incl. VAT".AsDecimal(),
+          BlanketSalesOrder.SalesLines."Invoice Disc. Pct.".AsDecimal(),
           PreAmounts);
 
         // [WHEN] User sets the Invoice Discount Amount
         BlanketSalesOrder.SalesLines."Invoice Discount Amount".SetValue(LibraryRandom.RandIntInRange(1, 1));
 
-        SetCompareAmounts(BlanketSalesOrder.SalesLines."Invoice Discount Amount".AsDEcimal,
-          BlanketSalesOrder.SalesLines."Total Amount Excl. VAT".AsDEcimal,
-          BlanketSalesOrder.SalesLines."Total VAT Amount".AsDEcimal,
-          BlanketSalesOrder.SalesLines."Total Amount Incl. VAT".AsDEcimal,
-          BlanketSalesOrder.SalesLines."Invoice Disc. Pct.".AsDEcimal,
+        SetCompareAmounts(BlanketSalesOrder.SalesLines."Invoice Discount Amount".AsDecimal(),
+          BlanketSalesOrder.SalesLines."Total Amount Excl. VAT".AsDecimal(),
+          BlanketSalesOrder.SalesLines."Total VAT Amount".AsDecimal(),
+          BlanketSalesOrder.SalesLines."Total Amount Incl. VAT".AsDecimal(),
+          BlanketSalesOrder.SalesLines."Invoice Disc. Pct.".AsDecimal(),
           PostAmounts);
 
         // Calculate the TotalTax, and flowfields
@@ -2175,11 +2175,11 @@ codeunit 142063 SalesDocTotalsSalesEntryUI
         OpenSalesQuotePageEdit(SalesQuote, SalesHeader);
 
         // Store values from window before setting the Tax Group Code
-        SetCompareAmounts(SalesQuote.SalesLines."Invoice Discount Amount".AsDEcimal,
-          SalesQuote.SalesLines."Total Amount Excl. VAT".AsDEcimal,
-          SalesQuote.SalesLines."Total VAT Amount".AsDEcimal,
-          SalesQuote.SalesLines."Total Amount Incl. VAT".AsDEcimal,
-          SalesQuote.SalesLines."Invoice Disc. Pct.".AsDEcimal,
+        SetCompareAmounts(SalesQuote.SalesLines."Invoice Discount Amount".AsDecimal(),
+          SalesQuote.SalesLines."Total Amount Excl. VAT".AsDecimal(),
+          SalesQuote.SalesLines."Total VAT Amount".AsDecimal(),
+          SalesQuote.SalesLines."Total Amount Incl. VAT".AsDecimal(),
+          SalesQuote.SalesLines."Invoice Disc. Pct.".AsDecimal(),
           PreAmounts);
 
         SalesQuote.SalesLines."Total VAT Amount".AssertEquals(0);
@@ -2197,11 +2197,11 @@ codeunit 142063 SalesDocTotalsSalesEntryUI
         SalesQuote.SalesLines."Unit Price".SetValue(OriginalUnitPrice + 1);
         SalesQuote.SalesLines."Unit Price".SetValue(OriginalUnitPrice);
 
-        SetCompareAmounts(SalesQuote.SalesLines."Invoice Discount Amount".AsDEcimal,
-          SalesQuote.SalesLines."Total Amount Excl. VAT".AsDEcimal,
-          SalesQuote.SalesLines."Total VAT Amount".AsDEcimal,
-          SalesQuote.SalesLines."Total Amount Incl. VAT".AsDEcimal,
-          SalesQuote.SalesLines."Invoice Disc. Pct.".AsDEcimal,
+        SetCompareAmounts(SalesQuote.SalesLines."Invoice Discount Amount".AsDecimal(),
+          SalesQuote.SalesLines."Total Amount Excl. VAT".AsDecimal(),
+          SalesQuote.SalesLines."Total VAT Amount".AsDecimal(),
+          SalesQuote.SalesLines."Total Amount Incl. VAT".AsDecimal(),
+          SalesQuote.SalesLines."Invoice Disc. Pct.".AsDecimal(),
           PostAmounts);
 
         // Calculate the TotalTax, and flowfields
@@ -2253,22 +2253,22 @@ codeunit 142063 SalesDocTotalsSalesEntryUI
         OpenSalesQuotePageEdit(SalesQuote, SalesHeader);
 
         // Store values from window before setting the Tax Group Code
-        SetCompareAmounts(SalesQuote.SalesLines."Invoice Discount Amount".AsDEcimal,
-          SalesQuote.SalesLines."Total Amount Excl. VAT".AsDEcimal,
-          SalesQuote.SalesLines."Total VAT Amount".AsDEcimal,
-          SalesQuote.SalesLines."Total Amount Incl. VAT".AsDEcimal,
-          SalesQuote.SalesLines."Invoice Disc. Pct.".AsDEcimal,
+        SetCompareAmounts(SalesQuote.SalesLines."Invoice Discount Amount".AsDecimal(),
+          SalesQuote.SalesLines."Total Amount Excl. VAT".AsDecimal(),
+          SalesQuote.SalesLines."Total VAT Amount".AsDecimal(),
+          SalesQuote.SalesLines."Total Amount Incl. VAT".AsDecimal(),
+          SalesQuote.SalesLines."Invoice Disc. Pct.".AsDecimal(),
           PreAmounts);
 
         // [WHEN] User changes the quantity
         SalesQuote.SalesLines.Quantity.SetValue(LibraryRandom.RandDec(10, 2));
         SalesQuote.SalesLines.Next();
 
-        SetCompareAmounts(SalesQuote.SalesLines."Invoice Discount Amount".AsDEcimal,
-          SalesQuote.SalesLines."Total Amount Excl. VAT".AsDEcimal,
-          SalesQuote.SalesLines."Total VAT Amount".AsDEcimal,
-          SalesQuote.SalesLines."Total Amount Incl. VAT".AsDEcimal,
-          SalesQuote.SalesLines."Invoice Disc. Pct.".AsDEcimal,
+        SetCompareAmounts(SalesQuote.SalesLines."Invoice Discount Amount".AsDecimal(),
+          SalesQuote.SalesLines."Total Amount Excl. VAT".AsDecimal(),
+          SalesQuote.SalesLines."Total VAT Amount".AsDecimal(),
+          SalesQuote.SalesLines."Total Amount Incl. VAT".AsDecimal(),
+          SalesQuote.SalesLines."Invoice Disc. Pct.".AsDecimal(),
           PostAmounts);
 
         // Calculate the TotalTax, and flowfields
@@ -2321,11 +2321,11 @@ codeunit 142063 SalesDocTotalsSalesEntryUI
         OpenSalesQuotePageEdit(SalesQuote, SalesHeader);
 
         // Store values from window before setting the Tax Group Code
-        SetCompareAmounts(SalesQuote.SalesLines."Invoice Discount Amount".AsDEcimal,
-          SalesQuote.SalesLines."Total Amount Excl. VAT".AsDEcimal,
-          SalesQuote.SalesLines."Total VAT Amount".AsDEcimal,
-          SalesQuote.SalesLines."Total Amount Incl. VAT".AsDEcimal,
-          SalesQuote.SalesLines."Invoice Disc. Pct.".AsDEcimal,
+        SetCompareAmounts(SalesQuote.SalesLines."Invoice Discount Amount".AsDecimal(),
+          SalesQuote.SalesLines."Total Amount Excl. VAT".AsDecimal(),
+          SalesQuote.SalesLines."Total VAT Amount".AsDecimal(),
+          SalesQuote.SalesLines."Total Amount Incl. VAT".AsDecimal(),
+          SalesQuote.SalesLines."Invoice Disc. Pct.".AsDecimal(),
           PreAmounts);
 
         SalesQuote.SalesLines."Invoice Discount Amount".AssertEquals(0);
@@ -2344,11 +2344,11 @@ codeunit 142063 SalesDocTotalsSalesEntryUI
         SalesQuote.SalesLines."Unit Price".SetValue(OriginalUnitPrice + 1);
         SalesQuote.SalesLines."Unit Price".SetValue(OriginalUnitPrice);
 
-        SetCompareAmounts(SalesQuote.SalesLines."Invoice Discount Amount".AsDEcimal,
-          SalesQuote.SalesLines."Total Amount Excl. VAT".AsDEcimal,
-          SalesQuote.SalesLines."Total VAT Amount".AsDEcimal,
-          SalesQuote.SalesLines."Total Amount Incl. VAT".AsDEcimal,
-          SalesQuote.SalesLines."Invoice Disc. Pct.".AsDEcimal,
+        SetCompareAmounts(SalesQuote.SalesLines."Invoice Discount Amount".AsDecimal(),
+          SalesQuote.SalesLines."Total Amount Excl. VAT".AsDecimal(),
+          SalesQuote.SalesLines."Total VAT Amount".AsDecimal(),
+          SalesQuote.SalesLines."Total Amount Incl. VAT".AsDecimal(),
+          SalesQuote.SalesLines."Invoice Disc. Pct.".AsDecimal(),
           PostAmounts);
 
         // Calculate the TotalTax, and flowfields
@@ -2401,11 +2401,11 @@ codeunit 142063 SalesDocTotalsSalesEntryUI
         OpenSalesQuotePageEdit(SalesQuote, SalesHeader);
 
         // Store values from window before setting the Tax Group Code
-        SetCompareAmounts(SalesQuote.SalesLines."Invoice Discount Amount".AsDEcimal,
-          SalesQuote.SalesLines."Total Amount Excl. VAT".AsDEcimal,
-          SalesQuote.SalesLines."Total VAT Amount".AsDEcimal,
-          SalesQuote.SalesLines."Total Amount Incl. VAT".AsDEcimal,
-          SalesQuote.SalesLines."Invoice Disc. Pct.".AsDEcimal,
+        SetCompareAmounts(SalesQuote.SalesLines."Invoice Discount Amount".AsDecimal(),
+          SalesQuote.SalesLines."Total Amount Excl. VAT".AsDecimal(),
+          SalesQuote.SalesLines."Total VAT Amount".AsDecimal(),
+          SalesQuote.SalesLines."Total Amount Incl. VAT".AsDecimal(),
+          SalesQuote.SalesLines."Invoice Disc. Pct.".AsDecimal(),
           PreAmounts);
         SalesQuote.Close();
 
@@ -2420,11 +2420,11 @@ codeunit 142063 SalesDocTotalsSalesEntryUI
         SalesQuote.SalesLines."Unit Price".SetValue(SalesLine."Unit Price");
         SalesQuote.SalesLines.Next();
 
-        SetCompareAmounts(SalesQuote.SalesLines."Invoice Discount Amount".AsDEcimal,
-          SalesQuote.SalesLines."Total Amount Excl. VAT".AsDEcimal,
-          SalesQuote.SalesLines."Total VAT Amount".AsDEcimal,
-          SalesQuote.SalesLines."Total Amount Incl. VAT".AsDEcimal,
-          SalesQuote.SalesLines."Invoice Disc. Pct.".AsDEcimal,
+        SetCompareAmounts(SalesQuote.SalesLines."Invoice Discount Amount".AsDecimal(),
+          SalesQuote.SalesLines."Total Amount Excl. VAT".AsDecimal(),
+          SalesQuote.SalesLines."Total VAT Amount".AsDecimal(),
+          SalesQuote.SalesLines."Total Amount Incl. VAT".AsDecimal(),
+          SalesQuote.SalesLines."Invoice Disc. Pct.".AsDecimal(),
           PostAmounts);
 
         // Calculate the TotalTax, and flowfields
@@ -2478,21 +2478,21 @@ codeunit 142063 SalesDocTotalsSalesEntryUI
         OpenSalesQuotePageEdit(SalesQuote, SalesHeader);
 
         // Store values from window before setting the Invoice Discount Amount
-        SetCompareAmounts(SalesQuote.SalesLines."Invoice Discount Amount".AsDEcimal,
-          SalesQuote.SalesLines."Total Amount Excl. VAT".AsDEcimal,
-          SalesQuote.SalesLines."Total VAT Amount".AsDEcimal,
-          SalesQuote.SalesLines."Total Amount Incl. VAT".AsDEcimal,
-          SalesQuote.SalesLines."Invoice Disc. Pct.".AsDEcimal,
+        SetCompareAmounts(SalesQuote.SalesLines."Invoice Discount Amount".AsDecimal(),
+          SalesQuote.SalesLines."Total Amount Excl. VAT".AsDecimal(),
+          SalesQuote.SalesLines."Total VAT Amount".AsDecimal(),
+          SalesQuote.SalesLines."Total Amount Incl. VAT".AsDecimal(),
+          SalesQuote.SalesLines."Invoice Disc. Pct.".AsDecimal(),
           PreAmounts);
 
         // [WHEN] User sets the Invoice Discount Amount
         SalesQuote.SalesLines."Invoice Discount Amount".SetValue(LibraryRandom.RandIntInRange(1, 1));
 
-        SetCompareAmounts(SalesQuote.SalesLines."Invoice Discount Amount".AsDEcimal,
-          SalesQuote.SalesLines."Total Amount Excl. VAT".AsDEcimal,
-          SalesQuote.SalesLines."Total VAT Amount".AsDEcimal,
-          SalesQuote.SalesLines."Total Amount Incl. VAT".AsDEcimal,
-          SalesQuote.SalesLines."Invoice Disc. Pct.".AsDEcimal,
+        SetCompareAmounts(SalesQuote.SalesLines."Invoice Discount Amount".AsDecimal(),
+          SalesQuote.SalesLines."Total Amount Excl. VAT".AsDecimal(),
+          SalesQuote.SalesLines."Total VAT Amount".AsDecimal(),
+          SalesQuote.SalesLines."Total Amount Incl. VAT".AsDecimal(),
+          SalesQuote.SalesLines."Invoice Disc. Pct.".AsDecimal(),
           PostAmounts);
 
         // Calculate the TotalTax, and flowfields
@@ -2545,14 +2545,14 @@ codeunit 142063 SalesDocTotalsSalesEntryUI
         LibraryApplicationArea: Codeunit "Library - Application Area";
     begin
         VATEntry.DeleteAll();
-        
+
         LibrarySetupStorage.Restore();
         LibraryApplicationArea.ClearApplicationAreaCache();
         if isInitialized then
             exit;
 
         LibraryERMCountryData.CreateVATData();
-        CreateVATPostingSetup;
+        CreateVATPostingSetup();
         LibraryInventory.NoSeriesSetup(InventorySetup);
         LibraryERMCountryData.UpdateSalesReceivablesSetup();
 
@@ -2587,7 +2587,7 @@ codeunit 142063 SalesDocTotalsSalesEntryUI
         Item.Modify(true);
     end;
 
-    local procedure CreateSalesHeader(var SalesHeader: Record "Sales Header"; DocumentType: Option; CustomerNo: Code[20])
+    local procedure CreateSalesHeader(var SalesHeader: Record "Sales Header"; DocumentType: Enum "Sales Document Type"; CustomerNo: Code[20])
     begin
         LibrarySales.CreateSalesHeader(SalesHeader, DocumentType, CustomerNo);
     end;
@@ -2597,7 +2597,7 @@ codeunit 142063 SalesDocTotalsSalesEntryUI
         TaxGroup: Record "Tax Group";
     begin
         LibraryERM.CreateTaxGroup(TaxGroup);
-        LibraryERM.CreateTaxDetail(TaxDetail, CreateSalesTaxJurisdiction, TaxGroup.Code, TaxDetail."Tax Type"::"Sales Tax Only", WorkDate());
+        LibraryERM.CreateTaxDetail(TaxDetail, CreateSalesTaxJurisdiction(), TaxGroup.Code, TaxDetail."Tax Type"::"Sales Tax Only", WorkDate());
         TaxDetail.Validate("Tax Below Maximum", TaxPercentage);  // Using RANDOM value for Tax Below Maximum.
         TaxDetail.Modify(true);
     end;
@@ -2628,7 +2628,7 @@ codeunit 142063 SalesDocTotalsSalesEntryUI
         exit(TaxArea.Code);
     end;
 
-    local procedure CreateSalesDocument(var SalesLine: Record "Sales Line"; DocumentType: Option; TaxPercentage: Integer; DefaultTaxCodeOnItem: Boolean; var TaxGroupCode: Code[20])
+    local procedure CreateSalesDocument(var SalesLine: Record "Sales Line"; DocumentType: Enum "Sales Document Type"; TaxPercentage: Integer; DefaultTaxCodeOnItem: Boolean; var TaxGroupCode: Code[20])
     var
         TaxDetail: Record "Tax Detail";
         TaxGroupCodeItem: Code[20];
@@ -2641,7 +2641,7 @@ codeunit 142063 SalesDocTotalsSalesEntryUI
         CreateSalesDocumentWithCertainTax(SalesLine, DocumentType, TaxAreaCode, TaxGroupCodeItem);
     end;
 
-    local procedure CreateSalesDocumentWithCertainTax(var SalesLine: Record "Sales Line"; DocumentType: Option; TaxAreaCode: Code[20]; TaxGroupCode: Code[20])
+    local procedure CreateSalesDocumentWithCertainTax(var SalesLine: Record "Sales Line"; DocumentType: Enum "Sales Document Type"; TaxAreaCode: Code[20]; TaxGroupCode: Code[20])
     var
         SalesHeader: Record "Sales Header";
     begin
@@ -2658,7 +2658,7 @@ codeunit 142063 SalesDocTotalsSalesEntryUI
         SalesLine.Modify();
     end;
 
-    local procedure CreateSalesDocumentWithInvDisc(var SalesLine: Record "Sales Line"; DocumentType: Option; TaxPercentage: Integer; DefaultTaxCodeOnItem: Boolean; var TaxGroupCode: Code[20])
+    local procedure CreateSalesDocumentWithInvDisc(var SalesLine: Record "Sales Line"; DocumentType: Enum "Sales Document Type"; TaxPercentage: Integer; DefaultTaxCodeOnItem: Boolean; var TaxGroupCode: Code[20])
     var
         TaxDetail: Record "Tax Detail";
         Customer: Record Customer;
@@ -2676,14 +2676,14 @@ codeunit 142063 SalesDocTotalsSalesEntryUI
         CreateSalesDocumentWithCertainTaxAndDisc(SalesLine, DocumentType, Customer."No.", ItemNo, TaxAreaCode);
     end;
 
-    local procedure CreateSalesDocumentWithCertainTaxAndDisc(var SalesLine: Record "Sales Line"; DocumentType: Option; CustomerNo: Code[20]; ItemNo: Code[20]; TaxAreaCode: Code[20])
+    local procedure CreateSalesDocumentWithCertainTaxAndDisc(var SalesLine: Record "Sales Line"; DocumentType: Enum "Sales Document Type"; CustomerNo: Code[20]; ItemNo: Code[20]; TaxAreaCode: Code[20])
     var
         SalesHeader: Record "Sales Header";
         Item: Record Item;
     begin
         CreateTaxGroup('');
         CreateSalesHeader(SalesHeader, DocumentType, CustomerNo);
-        if IsCalcInvDiscountMarked then
+        if IsCalcInvDiscountMarked() then
             SalesHeader.Validate("Invoice Discount Calculation", SalesHeader."Invoice Discount Calculation"::"%");
         SalesHeader.Validate("Tax Area Code", TaxAreaCode);
         SalesHeader.Modify();
@@ -2706,37 +2706,37 @@ codeunit 142063 SalesDocTotalsSalesEntryUI
 
     local procedure OpenSalesCrMemoPageEdit(var SalesCreditMemo: TestPage "Sales Credit Memo"; SalesHeader: Record "Sales Header")
     begin
-        SalesCreditMemo.OpenEdit;
+        SalesCreditMemo.OpenEdit();
         SalesCreditMemo.GotoRecord(SalesHeader);
     end;
 
     local procedure OpenSalesInvoicePageEdit(var SalesInvoice: TestPage "Sales Invoice"; SalesHeader: Record "Sales Header")
     begin
-        SalesInvoice.OpenEdit;
+        SalesInvoice.OpenEdit();
         SalesInvoice.GotoRecord(SalesHeader);
     end;
 
     local procedure OpenSalesQuotePageEdit(var SalesQuote: TestPage "Sales Quote"; SalesHeader: Record "Sales Header")
     begin
-        SalesQuote.OpenEdit;
+        SalesQuote.OpenEdit();
         SalesQuote.GotoRecord(SalesHeader);
     end;
 
     local procedure OpenSalesOrderPageEdit(var SalesOrder: TestPage "Sales Order"; SalesHeader: Record "Sales Header")
     begin
-        SalesOrder.OpenEdit;
+        SalesOrder.OpenEdit();
         SalesOrder.GotoRecord(SalesHeader);
     end;
 
     local procedure OpenSalesReturnOrderPageEdit(var SalesReturnOrder: TestPage "Sales Return Order"; SalesHeader: Record "Sales Header")
     begin
-        SalesReturnOrder.OpenEdit;
+        SalesReturnOrder.OpenEdit();
         SalesReturnOrder.GotoRecord(SalesHeader);
     end;
 
     local procedure OpenSalesBlanketOrderPageEdit(var BlanketSalesOrder: TestPage "Blanket Sales Order"; SalesHeader: Record "Sales Header")
     begin
-        BlanketSalesOrder.OpenEdit;
+        BlanketSalesOrder.OpenEdit();
         BlanketSalesOrder.GotoRecord(SalesHeader);
     end;
 

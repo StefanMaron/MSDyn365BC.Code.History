@@ -96,81 +96,79 @@ codeunit 10093 "Export Payments (IAT)"
         CompanyInformation.Get();
         CompanyInformation.TestField("Federal ID No.");
 
-        with BankAccount do begin
-            LockTable();
-            Get(BankAccountNo);
-            TestField("Export Format", "Export Format"::US);
-            TestField("Transit No.");
-            if not ExportPaymentsACH.CheckDigit("Transit No.") then
-                FieldError("Transit No.", StrSubstNo(BankTransitNumNotValidErr, "Transit No.", "No."));
-            TestField("E-Pay Export File Path");
-            if "E-Pay Export File Path"[StrLen("E-Pay Export File Path")] <> '\' then
-                Error(ExportFilePathErr,
-                  FieldCaption("E-Pay Export File Path"),
-                  TableCaption,
-                  "No.");
-            TestField("Last E-Pay Export File Name");
-            TestField("Bank Acc. Posting Group");
-            TestField(Blocked, false);
-            "Last E-Pay Export File Name" := IncStr("Last E-Pay Export File Name");
-            FileName := RBMgt.ServerTempFileName('');
+        BankAccount.LockTable();
+        BankAccount.Get(BankAccountNo);
+        BankAccount.TestField("Export Format", BankAccount."Export Format"::US);
+        BankAccount.TestField("Transit No.");
+        if not ExportPaymentsACH.CheckDigit(BankAccount."Transit No.") then
+            BankAccount.FieldError("Transit No.", StrSubstNo(BankTransitNumNotValidErr, BankAccount."Transit No.", BankAccount."No."));
+        BankAccount.TestField("E-Pay Export File Path");
+        if BankAccount."E-Pay Export File Path"[StrLen(BankAccount."E-Pay Export File Path")] <> '\' then
+            Error(ExportFilePathErr,
+              BankAccount.FieldCaption("E-Pay Export File Path"),
+              BankAccount.TableCaption,
+              BankAccount."No.");
+        BankAccount.TestField("Last E-Pay Export File Name");
+        BankAccount.TestField("Bank Acc. Posting Group");
+        BankAccount.TestField(Blocked, false);
+        BankAccount."Last E-Pay Export File Name" := IncStr(BankAccount."Last E-Pay Export File Name");
+        FileName := RBMgt.ServerTempFileName('');
 
-            if "Last ACH File ID Modifier" = '' then
-                "Last ACH File ID Modifier" := 'A'
-            else begin
-                i := 1;
-                while (i < ArrayLen(ModifierValues)) and
-                      ("Last ACH File ID Modifier" <> ModifierValues[i])
-                do
-                    i := i + 1;
-                if i = ArrayLen(ModifierValues) then
-                    i := 1
-                else
-                    i := i + 1;
-                "Last ACH File ID Modifier" := ModifierValues[i];
-            end;
-            Modify();
-
-            if Exists(FileName) then
-                Error(FileAlreadyExistsErr,
-                  FileName,
-                  FieldCaption("Last E-Pay Export File Name"),
-                  TableCaption,
-                  "No.");
-            ExportFile.TextMode(true);
-            ExportFile.WriteMode(true);
-            ExportFile.Create(FileName);
-
-            FileIsInProcess := true;
-            FileDate := Today;
-            FileTime := Time;
-            NoOfRec := 0;
-            FileHashTotal := 0;
-            TotalFileDebit := 0;
-            TotalFileCredit := 0;
-            FileEntryAddendaCount := 0;
-            BatchCount := 0;
-            BlockingFactor := 10;
-            RecordLength := 94;
-            BatchNo := 0;
-
-            FileHeaderRec := '';
-
-            AddNumToPrnString(FileHeaderRec, 1, 1, 1);
-            AddNumToPrnString(FileHeaderRec, 1, 2, 2);
-            AddToPrnString(FileHeaderRec, "Transit No.", 4, 10, Justification::Right, ' ');
-            AddFedIDToPrnString(FileHeaderRec, CompanyInformation."Federal ID No.", 14, 10);
-            AddToPrnString(FileHeaderRec, Format(FileDate, 0, '<Year,2><Month,2><Day,2>'), 24, 6, Justification::Right, '0');
-            AddToPrnString(FileHeaderRec, Format(FileTime, 0, '<Hours24,2><Minutes,2>'), 30, 4, Justification::Right, '0');
-            AddToPrnString(FileHeaderRec, "Last ACH File ID Modifier", 34, 1, Justification::Right, '0');
-            AddNumToPrnString(FileHeaderRec, RecordLength, 35, 3);
-            AddNumToPrnString(FileHeaderRec, BlockingFactor, 38, 2);
-            AddNumToPrnString(FileHeaderRec, 1, 40, 1);
-            AddToPrnString(FileHeaderRec, Name, 41, 23, Justification::Left, ' ');
-            AddToPrnString(FileHeaderRec, CompanyInformation.Name, 64, 23, Justification::Left, ' ');
-            AddToPrnString(FileHeaderRec, ReferenceCode, 87, 8, Justification::Left, ' ');
-            ExportPrnString(FileHeaderRec);
+        if BankAccount."Last ACH File ID Modifier" = '' then
+            BankAccount."Last ACH File ID Modifier" := 'A'
+        else begin
+            i := 1;
+            while (i < ArrayLen(ModifierValues)) and
+                  (BankAccount."Last ACH File ID Modifier" <> ModifierValues[i])
+            do
+                i := i + 1;
+            if i = ArrayLen(ModifierValues) then
+                i := 1
+            else
+                i := i + 1;
+            BankAccount."Last ACH File ID Modifier" := ModifierValues[i];
         end;
+        BankAccount.Modify();
+
+        if Exists(FileName) then
+            Error(FileAlreadyExistsErr,
+              FileName,
+              BankAccount.FieldCaption("Last E-Pay Export File Name"),
+              BankAccount.TableCaption,
+              BankAccount."No.");
+        ExportFile.TextMode(true);
+        ExportFile.WriteMode(true);
+        ExportFile.Create(FileName);
+
+        FileIsInProcess := true;
+        FileDate := Today;
+        FileTime := Time;
+        NoOfRec := 0;
+        FileHashTotal := 0;
+        TotalFileDebit := 0;
+        TotalFileCredit := 0;
+        FileEntryAddendaCount := 0;
+        BatchCount := 0;
+        BlockingFactor := 10;
+        RecordLength := 94;
+        BatchNo := 0;
+
+        FileHeaderRec := '';
+
+        AddNumToPrnString(FileHeaderRec, 1, 1, 1);
+        AddNumToPrnString(FileHeaderRec, 1, 2, 2);
+        AddToPrnString(FileHeaderRec, BankAccount."Transit No.", 4, 10, Justification::Right, ' ');
+        AddFedIDToPrnString(FileHeaderRec, CompanyInformation."Federal ID No.", 14, 10);
+        AddToPrnString(FileHeaderRec, Format(FileDate, 0, '<Year,2><Month,2><Day,2>'), 24, 6, Justification::Right, '0');
+        AddToPrnString(FileHeaderRec, Format(FileTime, 0, '<Hours24,2><Minutes,2>'), 30, 4, Justification::Right, '0');
+        AddToPrnString(FileHeaderRec, BankAccount."Last ACH File ID Modifier", 34, 1, Justification::Right, '0');
+        AddNumToPrnString(FileHeaderRec, RecordLength, 35, 3);
+        AddNumToPrnString(FileHeaderRec, BlockingFactor, 38, 2);
+        AddNumToPrnString(FileHeaderRec, 1, 40, 1);
+        AddToPrnString(FileHeaderRec, BankAccount.Name, 41, 23, Justification::Left, ' ');
+        AddToPrnString(FileHeaderRec, CompanyInformation.Name, 64, 23, Justification::Left, ' ');
+        AddToPrnString(FileHeaderRec, ReferenceCode, 87, 8, Justification::Left, ' ');
+        ExportPrnString(FileHeaderRec);
     end;
 
     procedure StartExportBatch(GenJournalLine: Record "Gen. Journal Line"; ServiceClassCode: Code[10]; SettleDate: Date)
@@ -184,68 +182,66 @@ codeunit 10093 "Export Payments (IAT)"
         if BatchIsInProcess then
             Error(ExportFileNotCompletedErr);
 
-        with GenJournalLine do begin
-            if "Account Type" = "Account Type"::Vendor then begin
-                DestinationAcctType := 'V';
-                DestinationAcctNo := "Account No.";
+        if GenJournalLine."Account Type" = GenJournalLine."Account Type"::Vendor then begin
+            DestinationAcctType := 'V';
+            DestinationAcctNo := GenJournalLine."Account No.";
+        end else
+            if GenJournalLine."Account Type" = GenJournalLine."Account Type"::Customer then begin
+                DestinationAcctType := 'C';
+                DestinationAcctNo := GenJournalLine."Account No.";
             end else
-                if "Account Type" = "Account Type"::Customer then begin
-                    DestinationAcctType := 'C';
-                    DestinationAcctNo := "Account No.";
+                if GenJournalLine."Bal. Account Type" = GenJournalLine."Bal. Account Type"::Vendor then begin
+                    DestinationAcctType := 'V';
+                    DestinationAcctNo := GenJournalLine."Bal. Account No.";
                 end else
-                    if "Bal. Account Type" = "Bal. Account Type"::Vendor then begin
-                        DestinationAcctType := 'V';
-                        DestinationAcctNo := "Bal. Account No.";
+                    if GenJournalLine."Bal. Account Type" = GenJournalLine."Bal. Account Type"::Customer then begin
+                        DestinationAcctType := 'C';
+                        DestinationAcctNo := GenJournalLine."Bal. Account No.";
                     end else
-                        if "Bal. Account Type" = "Bal. Account Type"::Customer then begin
-                            DestinationAcctType := 'C';
-                            DestinationAcctNo := "Bal. Account No.";
-                        end else
-                            Error(InvalidPaymentSpecErr,
-                              FieldCaption("Account Type"), FieldCaption("Bal. Account Type"), Vendor.TableCaption(), Customer.TableCaption());
+                        Error(InvalidPaymentSpecErr,
+                          GenJournalLine.FieldCaption("Account Type"), GenJournalLine.FieldCaption("Bal. Account Type"), Vendor.TableCaption(), Customer.TableCaption());
 
-            if DestinationAcctType = 'V' then begin
-                ExportPaymentsACH.CheckVendorTransitNum(GenJournalLine, DestinationAcctNo, Vendor, VendorBankAcct, true);
-                DestinationName := Vendor.Name;
-                DestinationFederalIDNo := Vendor."Federal ID No.";
-                DestinationAddress := Vendor.Address + ' ' + Vendor."Address 2";
-                DestinationCity := Vendor.City;
-                DestinationCountryCode := Vendor."Country/Region Code";
-                DestinationCounty := Vendor.County;
-                DestinationPostCode := Vendor."Post Code";
-                VendorBankAcct.TestField("Bank Account No.");
-                DestinationBankName := VendorBankAcct.Name;
-                DestinationBankTransitNo := VendorBankAcct."Transit No.";
-                DestinationBankAcctNo := VendorBankAcct."Bank Account No.";
-                DestinationBankCurrencyCode := VendorBankAcct."Currency Code";
-                DestinationBankCountryCode := VendorBankAcct."Country/Region Code";
-            end else
-                if DestinationAcctType = 'C' then begin
-                    Customer.Get(DestinationAcctNo);
-                    if Customer."Privacy Blocked" then
-                        Error(PrivacyBlockedErr, "Account Type");
-                    if Customer.Blocked in [Customer.Blocked::All] then
-                        Error(CustomerBlockedErr, "Account Type", Customer.Blocked);
-                    DestinationName := Customer.Name;
-                    DestinationFederalIDNo := ' ';
-                    DestinationAddress := Customer.Address + ' ' + Customer."Address 2";
-                    DestinationCity := Customer.City;
-                    DestinationCountryCode := Customer."Country/Region Code";
-                    DestinationCounty := Customer.County;
-                    DestinationPostCode := Customer."Post Code";
+        if DestinationAcctType = 'V' then begin
+            ExportPaymentsACH.CheckVendorTransitNum(GenJournalLine, DestinationAcctNo, Vendor, VendorBankAcct, true);
+            DestinationName := Vendor.Name;
+            DestinationFederalIDNo := Vendor."Federal ID No.";
+            DestinationAddress := Vendor.Address + ' ' + Vendor."Address 2";
+            DestinationCity := Vendor.City;
+            DestinationCountryCode := Vendor."Country/Region Code";
+            DestinationCounty := Vendor.County;
+            DestinationPostCode := Vendor."Post Code";
+            VendorBankAcct.TestField("Bank Account No.");
+            DestinationBankName := VendorBankAcct.Name;
+            DestinationBankTransitNo := VendorBankAcct."Transit No.";
+            DestinationBankAcctNo := VendorBankAcct."Bank Account No.";
+            DestinationBankCurrencyCode := VendorBankAcct."Currency Code";
+            DestinationBankCountryCode := VendorBankAcct."Country/Region Code";
+        end else
+            if DestinationAcctType = 'C' then begin
+                Customer.Get(DestinationAcctNo);
+                if Customer."Privacy Blocked" then
+                    Error(PrivacyBlockedErr, GenJournalLine."Account Type");
+                if Customer.Blocked in [Customer.Blocked::All] then
+                    Error(CustomerBlockedErr, GenJournalLine."Account Type", Customer.Blocked);
+                DestinationName := Customer.Name;
+                DestinationFederalIDNo := ' ';
+                DestinationAddress := Customer.Address + ' ' + Customer."Address 2";
+                DestinationCity := Customer.City;
+                DestinationCountryCode := Customer."Country/Region Code";
+                DestinationCounty := Customer.County;
+                DestinationPostCode := Customer."Post Code";
 
-                    EFTRecipientBankAccountMgt.GetRecipientCustomerBankAccount(CustBankAcct, GenJournalLine, Customer."No.");
+                EFTRecipientBankAccountMgt.GetRecipientCustomerBankAccount(CustBankAcct, GenJournalLine, Customer."No.");
 
-                    if not ExportPaymentsACH.CheckDigit(CustBankAcct."Transit No.") then
-                        CustBankAcct.FieldError("Transit No.", StrSubstNo(CustTransitNumNotValidErr, CustBankAcct."Transit No.", Customer."No."));
-                    CustBankAcct.TestField("Bank Account No.");
-                    DestinationBankName := CustBankAcct.Name;
-                    DestinationBankTransitNo := CustBankAcct."Transit No.";
-                    DestinationBankAcctNo := CustBankAcct."Bank Account No.";
-                    DestinationBankCurrencyCode := CustBankAcct."Currency Code";
-                    DestinationBankCountryCode := CustBankAcct."Country/Region Code";
-                end;
-        end;
+                if not ExportPaymentsACH.CheckDigit(CustBankAcct."Transit No.") then
+                    CustBankAcct.FieldError("Transit No.", StrSubstNo(CustTransitNumNotValidErr, CustBankAcct."Transit No.", Customer."No."));
+                CustBankAcct.TestField("Bank Account No.");
+                DestinationBankName := CustBankAcct.Name;
+                DestinationBankTransitNo := CustBankAcct."Transit No.";
+                DestinationBankAcctNo := CustBankAcct."Bank Account No.";
+                DestinationBankCurrencyCode := CustBankAcct."Currency Code";
+                DestinationBankCountryCode := CustBankAcct."Country/Region Code";
+            end;
 
         BatchIsInProcess := true;
         BatchNo := BatchNo + 1;

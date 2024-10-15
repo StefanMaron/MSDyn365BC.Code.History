@@ -59,17 +59,17 @@ codeunit 130231 "Test Proxy Notification Mgt."
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Test Proxy", 'OnBeforeTestFunctionRun', '', false, false)]
     local procedure PrepareOnBeforeTestFunctionRun(CodeunitID: Integer; CodeunitName: Text[30]; FunctionName: Text[128]; FunctionTestPermissions: TestPermissions)
     begin
-        DeleteNotificationContextEntries;
+        DeleteNotificationContextEntries();
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Test Proxy", 'OnAfterTestFunctionRun', '', false, false)]
     local procedure VerifyOnAfterTestFunctionRun(CodeunitID: Integer; CodeunitName: Text[30]; FunctionName: Text[128]; FunctionTestPermissions: TestPermissions; var IsSuccess: Boolean)
     begin
         if IsSuccess then begin
-            RemoveIgnoringNotifications;
-            IsSuccess := not HasNotificationContextEntries;
+            RemoveIgnoringNotifications();
+            IsSuccess := not HasNotificationContextEntries();
             if not IsSuccess then
-                asserterror Error(NotificationErr, GetFirstRecordIDText);
+                asserterror Error(NotificationErr, GetFirstRecordIDText());
         end;
     end;
 

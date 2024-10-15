@@ -80,22 +80,20 @@ page 10810 "Generate EFT Files"
                     EFTExport: Record "EFT Export";
                 begin
                     CurrPage.GenerateEFTFileLines.PAGE.GetColumns(EFTExportWorkset);
-                    with EFTExportWorkset do begin
-                        if Find('-') then begin
-                            if DIALOG.Confirm(DeleteQst) then
-                                repeat
-                                    EFTExport.Reset();
-                                    EFTExport.SetRange("Journal Template Name", "Journal Template Name");
-                                    EFTExport.SetRange("Journal Batch Name", "Journal Batch Name");
-                                    EFTExport.SetRange("Line No.", "Line No.");
-                                    EFTExport.SetRange("Sequence No.", "Sequence No.");
-                                    if EFTExport.FindFirst() then
-                                        EFTExport.Delete(true);
-                                until Next() = 0;
-                            UpdateSubForm();
-                        end else
-                            Message(NoLineMsg);
-                    end;
+                    if EFTExportWorkset.Find('-') then begin
+                        if DIALOG.Confirm(DeleteQst) then
+                            repeat
+                                EFTExport.Reset();
+                                EFTExport.SetRange("Journal Template Name", EFTExportWorkset."Journal Template Name");
+                                EFTExport.SetRange("Journal Batch Name", EFTExportWorkset."Journal Batch Name");
+                                EFTExport.SetRange("Line No.", EFTExportWorkset."Line No.");
+                                EFTExport.SetRange("Sequence No.", EFTExportWorkset."Sequence No.");
+                                if EFTExport.FindFirst() then
+                                    EFTExport.Delete(true);
+                            until EFTExportWorkset.Next() = 0;
+                        UpdateSubForm();
+                    end else
+                        Message(NoLineMsg);
                 end;
             }
             action(GenerateEFTFile)

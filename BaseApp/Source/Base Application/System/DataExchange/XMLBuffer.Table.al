@@ -7,6 +7,7 @@ table 1235 "XML Buffer"
 {
     Caption = 'XML Buffer';
     ReplicateData = false;
+    DataClassification = CustomerContent;
 
     fields
     {

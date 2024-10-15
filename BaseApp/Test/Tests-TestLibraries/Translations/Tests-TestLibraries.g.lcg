@@ -3038,6 +3038,231 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Table Watch Customer Ledger Entry - Field Sum Comparison Method - Property OptionCaption)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Table 204430517 - Property 2879900210" ItemType=";Table - Table" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Watch Employee]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Table Watch Employee - Property Caption)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Table 204430517 - Field 1833104195 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Dtld. LE Comparison Method]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Table Watch Employee - Field Dtld. LE Comparison Method - Property Caption)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Table 204430517 - Field 1833104195 - Property 62802879" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Equal,Greater Than,Less Than]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Table Watch Employee - Field Dtld. LE Comparison Method - Property OptionCaption)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Table 204430517 - Field 1964419135 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Employee No.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Table Watch Employee - Field Employee No. - Property Caption)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Table 204430517 - Field 4258774721 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[LE Comparison Method]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Table Watch Employee - Field LE Comparison Method - Property Caption)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Table 204430517 - Field 4258774721 - Property 62802879" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Equal,Greater Than,Less Than]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Table Watch Employee - Field LE Comparison Method - Property OptionCaption)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Table 204430517 - Field 3320823955 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Line No.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Table Watch Employee - Field Line No. - Property Caption)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Table 204430517 - Field 2745441135 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Original Dtld. LE Count]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Table Watch Employee - Field Original Dtld. LE Count - Property Caption)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Table 204430517 - Field 479660101 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Original LE Count]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Table Watch Employee - Field Original LE Count - Property Caption)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Table 204430517 - Field 2242254490 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Watch Dtld. LE]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Table Watch Employee - Field Watch Dtld. LE - Property Caption)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Table 204430517 - Field 4040717036 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Watch LE]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Table Watch Employee - Field Watch LE - Property Caption)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Table 3552725214 - Property 2879900210" ItemType=";Table - Table" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Watch Employee Ledger Entry]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Table Watch Employee Ledger Entry - Property Caption)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Table 3552725214 - Field 1704323735 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Count Comparison Method]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Table Watch Employee Ledger Entry - Field Count Comparison Method - Property Caption)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Table 3552725214 - Field 1704323735 - Property 62802879" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Equal,Greater Than,Less Than]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Table Watch Employee Ledger Entry - Field Count Comparison Method - Property OptionCaption)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Table 3552725214 - Field 579521613 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Delta Count]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Table Watch Employee Ledger Entry - Field Delta Count - Property Caption)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Table 3552725214 - Field 2042483221 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Delta Sum]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Table Watch Employee Ledger Entry - Field Delta Sum - Property Caption)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Table 3552725214 - Field 1964419135 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Employee No.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Table Watch Employee Ledger Entry - Field Employee No. - Property Caption)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Table 3552725214 - Field 2477667932 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Line Level]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Table Watch Employee Ledger Entry - Field Line Level - Property Caption)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Table 3552725214 - Field 2477667932 - Property 62802879" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Ledger Entry,Detailed Ledger Entry]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Table Watch Employee Ledger Entry - Field Line Level - Property OptionCaption)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Table 3552725214 - Field 3320823955 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Line No.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Table Watch Employee Ledger Entry - Field Line No. - Property Caption)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Table 3552725214 - Field 158172202 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Line Type]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Table Watch Employee Ledger Entry - Field Line Type - Property Caption)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Table 3552725214 - Field 494568966 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Original Count]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Table Watch Employee Ledger Entry - Field Original Count - Property Caption)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Table 3552725214 - Field 1895853662 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Original Sum]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Table Watch Employee Ledger Entry - Field Original Sum - Property Caption)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Table 3552725214 - Field 3140586943 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Sum Comparison Method]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Table Watch Employee Ledger Entry - Field Sum Comparison Method - Property Caption)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Table 3552725214 - Field 3140586943 - Property 62802879" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Equal,Greater Than,Less Than]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Table Watch Employee Ledger Entry - Field Sum Comparison Method - Property OptionCaption)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Table 704158543 - Property 2879900210" ItemType=";Table - Table" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Watch Vendor]]></Val>
@@ -3749,15 +3974,6 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit CRM Bus. Logic Simulator - NamedType InactiveInvoiceCannotBePaidErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 1074485058 - NamedType 546047751" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[ModifiedOn %1 should be bigger than CreatedOn %2]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit CRM Bus. Logic Simulator - NamedType ModifiedOnErr)]]></Cmt>
-    </Cmts>
-  </Item>
   <Item ItemId=";Codeunit 1074485058 - NamedType 1297523750" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[This product and unit combination has a price for this price list.]]></Val>
@@ -3954,24 +4170,6 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM VAT Tool - Helper - NamedType NotInitializedError)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 3047124741 - NamedType 2269008373" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Email should not be sent.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit EventSubscriber Invoicing App - NamedType DoNotSendEmailErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 3047124741 - NamedType 42893655" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Email sending was forced to fail.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit EventSubscriber Invoicing App - NamedType FailureRequestedErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 2777998348 - NamedType 737388645" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -4192,7 +4390,7 @@
   </Item>
   <Item ItemId=";Codeunit 3230302556 - NamedType 2417435400" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[For the Allocation Source %1, the Allocation Target %2  has its Percent field set to %3, although the expected value was %4, when values are rounded to 0.1 percision.]]></Val>
+      <Val><![CDATA[For the Allocation Source %1, the Allocation Target %2  has its Percent field set to %3, although the expected value was %4, when values are rounded to 0.1 precision.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -4296,15 +4494,6 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Library - CRM Integration - NamedType TempMappingNotFoundErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 647530252 - NamedType 2011886100" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[There are no %1 within the filters specified.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Library - ERM - NamedType NoRecordsInFilterError)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 3077960804 - NamedType 1155924594" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -4640,13 +4829,13 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Library - Human Resource - NamedType NameTxt)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 1399880884 - NamedType 577058019" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Codeunit 1399880884 - NamedType 2516283483" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[ journal]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Library - Inventory - NamedType JOURNAL)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Library - Inventory - NamedType JOURNALTxt)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 1399880884 - NamedType 3817947005" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -4721,13 +4910,13 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Library - Job - NamedType ErrorMsg)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 3579541519 - NamedType 2008442154" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Codeunit 3579541519 - NamedType 1973263797" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[GLEntry."Job No."]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Library - Job - NamedType JobNoError)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Library - Job - NamedType JobNoErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 3579541519 - NamedType 3271638145" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -5216,60 +5405,6 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Library - Manufacturing - NamedType TemplateName)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 1859565391 - NamedType 2517458955" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[CASH]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[Cash]D;]A;(LookupHint=Codeunit Library - O365 - NamedType CashTxt)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 1859565391 - NamedType 1680926194" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[CHECK]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Library - O365 - NamedType CHECKTxt)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 1859565391 - NamedType 2181028123" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Business-to-Business Customer (Bank)]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Library - O365 - NamedType DefaultCustomerTemplateDescriptionTxt)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 1859565391 - NamedType 1798485956" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Service]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Library - O365 - NamedType DefaultItemTemplateDescriptionTxt)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 1859565391 - NamedType 2006275734" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[PAYMENT]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[Payment]D;]A;(LookupHint=Codeunit Library - O365 - NamedType PaymentTxt)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 1859565391 - NamedType 3890920542" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[14 DAYS]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Library - O365 - NamedType X14DAYSTxt)]]></Cmt>
-    </Cmts>
-  </Item>
   <Item ItemId=";Codeunit 3857436598 - NamedType 3587148640" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[navtest@M365B409112.onmicrosoft.com]]></Val>
@@ -5304,15 +5439,6 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Library - O365 Sync - NamedType PasswordTxt)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 577769829 - NamedType 32956908" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[%1|%2|%3|%4|%5]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Library - Office Host Provider - NamedType InvokeExtensionMsg)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 699370659 - NamedType 246409783" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -5414,15 +5540,6 @@
       <Cmt Name="Dev"><![CDATA[%1=user group name]D;]A;(LookupHint=Codeunit Library - Permissions Verify - NamedType UserGroupDoesNotExistErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 3018674919 - NamedType 740142735" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[User group %1 should not be part of plan %2.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[%1=user group,%2=plan name,%3=company name]D;]A;(LookupHint=Codeunit Library - Permissions Verify - NamedType UserGroupIsInPlanErr)]]></Cmt>
-    </Cmts>
-  </Item>
   <Item ItemId=";Codeunit 3018674919 - NamedType 813603972" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[User group %1 is not in plan %2.]]></Val>
@@ -5468,15 +5585,6 @@
       <Cmt Name="Dev"><![CDATA[%1=user group code]D;]A;(LookupHint=Codeunit Library - Permissions Verify - NamedType UserGroupPlanFoundErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 3018674919 - NamedType 84465321" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[User %1 is not in plan %2.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[%1=user name,%2=plan name]D;]A;(LookupHint=Codeunit Library - Permissions Verify - NamedType UserIsNotInPlanErr)]]></Cmt>
-    </Cmts>
-  </Item>
   <Item ItemId=";Codeunit 3018674919 - NamedType 4020262254" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[User %1 is not in user group %2, for company %3.]]></Val>
@@ -5484,15 +5592,6 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[%1=user name,%2=user group name, %3=company name]D;]A;(LookupHint=Codeunit Library - Permissions Verify - NamedType UserIsNotInUserGroupErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 3018674919 - NamedType 2522329933" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[User %1 should not be part of plan %2.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[%1=user name,%2=plan name]D;]A;(LookupHint=Codeunit Library - Permissions Verify - NamedType UserShouldNotBeInPlanErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 3018674919 - NamedType 2406218410" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -5520,15 +5619,6 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Library - Price Calculation - NamedType DefaultPriceListTok)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 3128606904 - NamedType 3393799106" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[<?xml version="1.0" encoding="utf-8" standalone="yes"?><ReportParameters><DataItems><DataItem name="%1">SORTING(Field1) WHERE(Field%2=1(%3))</DataItem></DataItems></ReportParameters>]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Library - Rapid Start - NamedType TemplateSelectionRuleTxt)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 1694013866 - NamedType 2906328138" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -5603,31 +5693,13 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Library - Report Validation - NamedType ValueNotFoundError)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 3298115102 - NamedType 2138067883" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Document type not supported: %1]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Library - Sales - NamedType WrongDocumentTypeErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 2816402641 - NamedType 1581853453" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[No non-working day followed by a working day found within an interval of %1 days.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Library - Service - NamedType NonWorkDayWorkDaySequenceNotFound)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 2816402641 - NamedType 2003139243" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Codeunit 2816402641 - NamedType 3103137491" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Payment Channel]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Library - Service - NamedType PaymentChannel)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Library - Service - NamedType PaymentChannelTxt)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 2743165696 - NamedType 2188918101" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -5756,31 +5828,31 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Library - Verify XML Schema - NamedType AdditionalXmlSchemaPathsLimitReachedErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 2858857113 - NamedType 95063322" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Codeunit 2858857113 - NamedType 2720473193" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Inbound Whse. Requests are created.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Library - Warehouse - NamedType Text003)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Library - Warehouse - NamedType Text003Msg)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 2858857113 - NamedType 732759939" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Codeunit 2858857113 - NamedType 3457502012" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[No Inbound Whse. Request is created.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Library - Warehouse - NamedType Text004)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Library - Warehouse - NamedType Text004Msg)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 2858857113 - NamedType 1370456556" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Codeunit 2858857113 - NamedType 3014092491" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Inbound Whse. Requests have already been created.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Library - Warehouse - NamedType Text005)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Library - Warehouse - NamedType Text005Msg)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 1930697091 - NamedType 1957947122" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -6314,13 +6386,22 @@
       <Cmt Name="Dev"><![CDATA[%1=TableCaption]D;]A;(LookupHint=Codeunit Read Master Data from Cache 2 - NamedType SetupTableMissingErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 3162570506 - NamedType 1042678261" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Codeunit 3014934949 - NamedType 1862569966" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[File is not located on the server. Do you want to upload it?]]></Val>
+      <Val><![CDATA[Test Mock - Cannot insert reminder for customer]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Read Master Data from Cache 2 - NamedType UploadFileQst)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Reminder Automation Mock - NamedType CannotInsertReminderForCustomerErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 3014934949 - NamedType 870351361" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Test Mock - block automation job]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Reminder Automation Mock - NamedType CreationFailedErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 4060563856 - NamedType 2188659467" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -6546,51 +6627,6 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Page Mock Master Without Dims Card - Action Dimensions - Property Caption)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Page 3584331357 - Property 2879900210" ItemType=";Page - Page" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[O365 Sales Test Invoice Page]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page O365 Sales Test Invoice Page - Property Caption)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Page 3584331357 - Action 1774286354 - Property 1295455071" ItemType=";Page - Action" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Create the normal  invoice]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page O365 Sales Test Invoice Page - Action Create Normal Invoice - Property ToolTip)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Page 3584331357 - Action 1774286354 - Property 2879900210" ItemType=";Page - Action" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Create normal invoice.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page O365 Sales Test Invoice Page - Action Create Normal Invoice - Property Caption)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Page 3584331357 - Action 2164466077 - Property 1295455071" ItemType=";Page - Action" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[ENU=Create the test invoice.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page O365 Sales Test Invoice Page - Action Create Test Invoice - Property ToolTip)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Page 3584331357 - Action 2164466077 - Property 2879900210" ItemType=";Page - Action" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Create test invoice.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page O365 Sales Test Invoice Page - Action Create Test Invoice - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 2342602361 - Property 2879900210" ItemType=";Page - Page" PsrId="63" InstFlg="true" Leaf="true">
@@ -6888,6 +6924,24 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=XmlPort Import Code Cov. Test Results - Property Caption)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";PageExtension 1373195350 - Action 4055271836 - Property 1295455071" ItemType=";PageExtension - Action" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Trigger page background task in tests]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(ObjectTarget=Page 2183420390)(LookupHint=PageExtension Users PBT Test - Action TriggerPageBackgroundTask - Property ToolTip)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";PageExtension 1373195350 - Action 4055271836 - Property 2879900210" ItemType=";PageExtension - Action" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[TriggerPageBackgroundTask]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(ObjectTarget=Page 2183420390)(LookupHint=PageExtension Users PBT Test - Action TriggerPageBackgroundTask - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
 </LCX>

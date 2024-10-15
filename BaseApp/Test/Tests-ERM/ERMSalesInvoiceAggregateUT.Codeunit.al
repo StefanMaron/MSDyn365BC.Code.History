@@ -731,7 +731,6 @@ codeunit 134396 "ERM Sales Invoice Aggregate UT"
           DummySalesHeader.FieldNo("Invoice Discount Value"),
           DummySalesHeader.FieldNo("Recalculate Invoice Disc."));
         VerifyFieldDefinitionsMatchTableFields(DATABASE::"Sales Invoice Header", TempCommonField);
-        VerifyFieldDefinitionsDontExistInTargetTable(DATABASE::"Sales Invoice Header", TempInvoiceAggregateSpecificField);
 
         TempCommonField.SetFilter(
           "No.", '<>%1&<>%2', DummySalesInvoiceHeader.FieldNo("Order No."), DummySalesInvoiceHeader.FieldNo("Cust. Ledger Entry No."));
@@ -904,7 +903,7 @@ codeunit 134396 "ERM Sales Invoice Aggregate UT"
         // Setup
         Initialize();
         SetupDataForDiscountTypePct(Item, Customer);
-        SetAllowManualDisc;
+        SetAllowManualDisc();
 
         CreateInvoiceWithRandomNumberOfLines(SalesHeader, Item, Customer);
         OpenSalesInvoice(SalesHeader, SalesInvoice);
@@ -912,7 +911,7 @@ codeunit 134396 "ERM Sales Invoice Aggregate UT"
         // Execute
         LibraryVariableStorage.Enqueue(CalculateInvoiceDiscountQst);
         LibraryVariableStorage.Enqueue(true);
-        SalesInvoice.CalculateInvoiceDiscount.Invoke;
+        SalesInvoice.CalculateInvoiceDiscount.Invoke();
 
         // Verify
         VerifyAggregateTableIsUpdatedForInvoice(SalesInvoice."No.".Value);
@@ -989,7 +988,7 @@ codeunit 134396 "ERM Sales Invoice Aggregate UT"
         UpdateSalesInvoiceAggregate(SalesInvoiceEntityAggregate, TempFieldBuffer);
 
         // Execute
-        AnswerYesToAllConfirmDialogs;
+        AnswerYesToAllConfirmDialogs();
         SalesInvoiceAggregator.PropagateOnModify(SalesInvoiceEntityAggregate, TempFieldBuffer);
 
         // Verify
@@ -1020,8 +1019,8 @@ codeunit 134396 "ERM Sales Invoice Aggregate UT"
         SalesInvoiceAggregator.PropagateOnDelete(SalesInvoiceEntityAggregate);
 
         // Verify
-        Assert.IsFalse(SalesHeader.Find, 'Sales header should be deleted');
-        Assert.IsFalse(SalesInvoiceEntityAggregate.Find, 'Sales line should be deleted');
+        Assert.IsFalse(SalesHeader.Find(), 'Sales header should be deleted');
+        Assert.IsFalse(SalesInvoiceEntityAggregate.Find(), 'Sales line should be deleted');
     end;
 
     [Test]
@@ -1043,8 +1042,8 @@ codeunit 134396 "ERM Sales Invoice Aggregate UT"
         SalesInvoiceAggregator.PropagateOnDelete(SalesInvoiceEntityAggregate);
 
         // Verify
-        Assert.IsFalse(SalesInvoiceHeader.Find, 'Sales header should be deleted');
-        Assert.IsFalse(SalesInvoiceEntityAggregate.Find, 'Sales line should be deleted');
+        Assert.IsFalse(SalesInvoiceHeader.Find(), 'Sales header should be deleted');
+        Assert.IsFalse(SalesInvoiceEntityAggregate.Find(), 'Sales line should be deleted');
     end;
 
     [Test]
@@ -1183,7 +1182,7 @@ codeunit 134396 "ERM Sales Invoice Aggregate UT"
         // [THEN] Ids are empty (the same as before modify sales header) in sales invoice entity aggregate
         SalesInvoiceEntityAggregate.Reset();
         SalesInvoiceEntityAggregate.SetRange(Id, SalesHeader.SystemId);
-        Assert.IsTrue(SalesInvoiceEntityAggregate.FindFirst, 'The unposted invoice should exist');
+        Assert.IsTrue(SalesInvoiceEntityAggregate.FindFirst(), 'The unposted invoice should exist');
         Assert.AreEqual(ZeroGuid, SalesInvoiceEntityAggregate."Currency Id", 'The Id of the currency should be blank.');
         Assert.AreEqual('', SalesInvoiceEntityAggregate."Currency Code", 'The code of the currency should be blank.');
     end;
@@ -1216,7 +1215,7 @@ codeunit 134396 "ERM Sales Invoice Aggregate UT"
         // [THEN] Ids are empty (the same as before modify sales header) in sales order entity buffer
         SalesOrderEntityBuffer.Reset();
         SalesOrderEntityBuffer.SetRange(Id, SalesHeader.SystemId);
-        Assert.IsTrue(SalesOrderEntityBuffer.FindFirst, 'The unposted order should exist');
+        Assert.IsTrue(SalesOrderEntityBuffer.FindFirst(), 'The unposted order should exist');
         Assert.AreEqual(ZeroGuid, SalesOrderEntityBuffer."Currency Id", 'The Id of the currency should be blank.');
         Assert.AreEqual('', SalesOrderEntityBuffer."Currency Code", 'The code of the currency should be blank.');
     end;
@@ -1249,7 +1248,7 @@ codeunit 134396 "ERM Sales Invoice Aggregate UT"
         // [THEN] Ids are empty (the same as before modify sales header) in sales credit memo entity buffer
         SalesCrMemoEntityBuffer.Reset();
         SalesCrMemoEntityBuffer.SetRange(Id, SalesHeader.SystemId);
-        Assert.IsTrue(SalesCrMemoEntityBuffer.FindFirst, 'The unposted credit memo should exist');
+        Assert.IsTrue(SalesCrMemoEntityBuffer.FindFirst(), 'The unposted credit memo should exist');
         Assert.AreEqual(ZeroGuid, SalesCrMemoEntityBuffer."Currency Id", 'The Id of the currency should be blank.');
         Assert.AreEqual('', SalesCrMemoEntityBuffer."Currency Code", 'The code of the currency should be blank.');
     end;
@@ -1283,7 +1282,7 @@ codeunit 134396 "ERM Sales Invoice Aggregate UT"
         // [THEN] Ids are empty (the same as before modify purchase header) in purchase invoice entity aggregate
         PurchInvEntityAggregate.Reset();
         PurchInvEntityAggregate.SetRange(Id, PurchaseHeader.SystemId);
-        Assert.IsTrue(PurchInvEntityAggregate.FindFirst, 'The unposted purchase invoice should exist');
+        Assert.IsTrue(PurchInvEntityAggregate.FindFirst(), 'The unposted purchase invoice should exist');
         Assert.AreEqual(ZeroGuid, PurchInvEntityAggregate."Currency Id", 'The Id of the currency should be blank.');
         Assert.AreEqual('', PurchInvEntityAggregate."Currency Code", 'The code of the currency should be blank.');
     end;
@@ -1306,7 +1305,7 @@ codeunit 134396 "ERM Sales Invoice Aggregate UT"
         // [GIVEN] Standard text.
         LibrarySales.CreateStandardText(StandardText);
         // [GIVEN] Enabled notification about missing G/L account.
-        MyNotifications.InsertDefault(PostingSetupManagement.GetPostingSetupNotificationID, '', '', true);
+        MyNotifications.InsertDefault(PostingSetupManagement.GetPostingSetupNotificationID(), '', '', true);
         // [GIVEN] Sales header.
         LibrarySales.CreateCustomer(Customer);
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, Customer."No.");
@@ -1338,19 +1337,19 @@ codeunit 134396 "ERM Sales Invoice Aggregate UT"
         Initialize();
 
         // [GIVEN] Enabled notification about missing G/L account.
-        MyNotifications.InsertDefault(PostingSetupManagement.GetPostingSetupNotificationID, '', '', true);
+        MyNotifications.InsertDefault(PostingSetupManagement.GetPostingSetupNotificationID(), '', '', true);
         // [GIVEN] Sales header with "Gen. Business Posting Group" and "VAT Bus. Posting Group" are not in Posting Setup.
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, CreateCustomerrWithNewPostingGroups);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, CreateCustomerrWithNewPostingGroups());
 
         // [WHEN] Add Purchase Line (SendNotificationHandler).
-        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo, LibraryRandom.RandInt(10));
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo(), LibraryRandom.RandInt(10));
 
         // [THEN] Notification "Sales Account is missing in General Posting Setup." is sent.
-        Assert.ExpectedMessage(SalesAccountIsMissingTxt, LibraryVariableStorage.DequeueText);
+        Assert.ExpectedMessage(SalesAccountIsMissingTxt, LibraryVariableStorage.DequeueText());
         // [THEN] Notification "COGS Account is missing in General Posting Setup." is sent.
-        Assert.ExpectedMessage(CogsAccountIsMissingTxt, LibraryVariableStorage.DequeueText);
+        Assert.ExpectedMessage(CogsAccountIsMissingTxt, LibraryVariableStorage.DequeueText());
         // [THEN] Notification "Sales VAT Account is missing in VAT Posting Setup." is sent.
-        Assert.ExpectedMessage(SalesVatAccountIsMissingTxt, LibraryVariableStorage.DequeueText);
+        Assert.ExpectedMessage(SalesVatAccountIsMissingTxt, LibraryVariableStorage.DequeueText());
         LibraryVariableStorage.AssertEmpty();
     end;
 
@@ -1470,7 +1469,7 @@ codeunit 134396 "ERM Sales Invoice Aggregate UT"
     var
         ItemQuantity: Decimal;
     begin
-        SalesInvoice.SalesLines.Last;
+        SalesInvoice.SalesLines.Last();
         SalesInvoice.SalesLines.Next();
         SalesInvoice.SalesLines."No.".SetValue(ItemNo);
 
@@ -1614,7 +1613,7 @@ codeunit 134396 "ERM Sales Invoice Aggregate UT"
 
     local procedure OpenSalesInvoice(SalesHeader: Record "Sales Header"; var SalesInvoice: TestPage "Sales Invoice")
     begin
-        SalesInvoice.OpenEdit;
+        SalesInvoice.OpenEdit();
         SalesInvoice.GotoRecord(SalesHeader);
     end;
 
@@ -1654,7 +1653,7 @@ codeunit 134396 "ERM Sales Invoice Aggregate UT"
         GeneralLedgerSetup: Record "General Ledger Setup";
         ItemUnitPrice: Decimal;
     begin
-        SetAllowManualDisc;
+        SetAllowManualDisc();
 
         ItemUnitPrice := LibraryRandom.RandDecInDecimalRange(100, 10000, 2);
         CreateItem(Item, ItemUnitPrice);
@@ -1720,7 +1719,7 @@ codeunit 134396 "ERM Sales Invoice Aggregate UT"
             'Field ' +
             MismatchType +
             ' on fields ' +
-            FieldRef1.Record.Name + '.' + FieldRef1.Name + ' and ' + FieldRef2.Record.Name + '.' + FieldRef2.Name + ' do not match.'));
+            FieldRef1.Record().Name() + '.' + FieldRef1.Name + ' and ' + FieldRef2.Record().Name() + '.' + FieldRef2.Name + ' do not match.'));
     end;
 
     local procedure VerifyFieldDefinitionsMatchTableFields(SourceTableID: Integer; var TempField: Record "Field" temporary)
@@ -1931,25 +1930,25 @@ codeunit 134396 "ERM Sales Invoice Aggregate UT"
         case SourceRecordRef.Number of
             DATABASE::"Sales Header":
                 begin
-                    SalesInvoice.OpenEdit;
+                    SalesInvoice.OpenEdit();
                     Assert.IsTrue(SalesInvoice.GotoRecord(SourceRecord), 'Could not navigate to invoice');
-                    if SalesInvoice.SalesLines."Invoice Discount Amount".Visible then
-                        ExpectedInvoiceDiscountAmount := SalesInvoice.SalesLines."Invoice Discount Amount".AsDEcimal;
-                    ExpectedTaxAmountAmount := SalesInvoice.SalesLines."Total VAT Amount".AsDEcimal;
-                    ExpectedTotalExclTaxAmount := SalesInvoice.SalesLines."Total Amount Excl. VAT".AsDEcimal;
-                    ExpectedTotalInclTaxAmount := SalesInvoice.SalesLines."Total Amount Incl. VAT".AsDEcimal;
+                    if SalesInvoice.SalesLines."Invoice Discount Amount".Visible() then
+                        ExpectedInvoiceDiscountAmount := SalesInvoice.SalesLines."Invoice Discount Amount".AsDecimal();
+                    ExpectedTaxAmountAmount := SalesInvoice.SalesLines."Total VAT Amount".AsDecimal();
+                    ExpectedTotalExclTaxAmount := SalesInvoice.SalesLines."Total Amount Excl. VAT".AsDecimal();
+                    ExpectedTotalInclTaxAmount := SalesInvoice.SalesLines."Total Amount Incl. VAT".AsDecimal();
                     SalesLine.SetRange("Document Type", SalesLine."Document Type"::Invoice);
                     SalesLine.SetRange("Document No.", SalesInvoiceEntityAggregate."No.");
                     NumberOfLines := SalesLine.Count();
                 end;
             DATABASE::"Sales Invoice Header":
                 begin
-                    PostedSalesInvoice.OpenEdit;
+                    PostedSalesInvoice.OpenEdit();
                     Assert.IsTrue(PostedSalesInvoice.GotoRecord(SourceRecord), 'Could not navigate to invoice');
-                    ExpectedInvoiceDiscountAmount := PostedSalesInvoice.SalesInvLines."Invoice Discount Amount".AsDEcimal;
-                    ExpectedTaxAmountAmount := PostedSalesInvoice.SalesInvLines."Total VAT Amount".AsDEcimal;
-                    ExpectedTotalExclTaxAmount := PostedSalesInvoice.SalesInvLines."Total Amount Excl. VAT".AsDEcimal;
-                    ExpectedTotalInclTaxAmount := PostedSalesInvoice.SalesInvLines."Total Amount Incl. VAT".AsDEcimal;
+                    ExpectedInvoiceDiscountAmount := PostedSalesInvoice.SalesInvLines."Invoice Discount Amount".AsDecimal();
+                    ExpectedTaxAmountAmount := PostedSalesInvoice.SalesInvLines."Total VAT Amount".AsDecimal();
+                    ExpectedTotalExclTaxAmount := PostedSalesInvoice.SalesInvLines."Total Amount Excl. VAT".AsDecimal();
+                    ExpectedTotalInclTaxAmount := PostedSalesInvoice.SalesInvLines."Total Amount Incl. VAT".AsDecimal();
                     SalesInvoiceLine.SetRange("Document No.", SalesInvoiceEntityAggregate."No.");
                     NumberOfLines := SalesInvoiceLine.Count();
                 end;
@@ -2058,7 +2057,6 @@ codeunit 134396 "ERM Sales Invoice Aggregate UT"
           DummySalesInvoiceEntityAggregate.FieldNo("Invoice Discount Amount"), DATABASE::"Sales Invoice Entity Aggregate", TempField);
         AddFieldToBuffer(
           DummySalesInvoiceEntityAggregate.FieldNo("External Document No."), DATABASE::"Sales Invoice Entity Aggregate", TempField);
-        AddFieldToBuffer(DummySalesInvoiceEntityAggregate.FieldNo(Id), DATABASE::"Sales Invoice Entity Aggregate", TempField);
         AddFieldToBuffer(
           DummySalesInvoiceEntityAggregate.FieldNo("Tax Area Code"), DATABASE::"Sales Invoice Entity Aggregate", TempField);
         AddFieldToBuffer(
@@ -2148,11 +2146,18 @@ codeunit 134396 "ERM Sales Invoice Aggregate UT"
         AddFieldToBuffer(
           DummySalesInvoiceEntityAggregate.FieldNo("Shipment Method Id"), DATABASE::"Sales Invoice Entity Aggregate", TempField);
         AddFieldToBuffer(
+          DummySalesInvoiceEntityAggregate.FieldNo("Dispute Status"), DATABASE::"Sales Invoice Entity Aggregate", TempField);
+        AddFieldToBuffer(
+          DummySalesInvoiceEntityAggregate.FieldNo("Dispute Status Id"), DATABASE::"Sales Invoice Entity Aggregate", TempField);
+        AddFieldToBuffer(
+          DummySalesInvoiceEntityAggregate.FieldNo("Promised Pay Date"), DATABASE::"Sales Invoice Entity Aggregate", TempField);
+        AddFieldToBuffer(
           DummySalesInvoiceEntityAggregate.FieldNo("Subtotal Amount"), DATABASE::"Sales Invoice Entity Aggregate", TempField);
         AddFieldToBuffer(
           DummySalesInvoiceEntityAggregate.FieldNo("Tax Area ID"), DATABASE::"Sales Invoice Entity Aggregate", TempField);
         AddFieldToBuffer(
           DummySalesInvoiceEntityAggregate.FieldNo("Bill-to Customer Id"), DATABASE::"Sales Invoice Entity Aggregate", TempField);
+        AddFieldToBuffer(DummySalesInvoiceEntityAggregate.FieldNo(Id), DATABASE::"Sales Invoice Entity Aggregate", TempField);
     end;
 
     local procedure GetInvoiceAggregateLineSpecificFields(var TempField: Record "Field" temporary)

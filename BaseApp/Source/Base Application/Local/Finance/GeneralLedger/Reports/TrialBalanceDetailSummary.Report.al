@@ -368,8 +368,7 @@ report 10021 "Trial Balance Detail/Summary"
                 CopyFilter("Global Dimension 1 Filter", "G/L Entry"."Global Dimension 1 Code");
                 CopyFilter("Global Dimension 2 Filter", "G/L Entry"."Global Dimension 2 Code");
                 CopyFilter("Business Unit Filter", "G/L Entry"."Business Unit Code");
-                with "G/L Entry" do
-                    SetCurrentKey("G/L Account No.", "Business Unit Code", "Global Dimension 1 Code", "Global Dimension 2 Code", "Posting Date");
+                "G/L Entry".SetCurrentKey("G/L Account No.", "Business Unit Code", "Global Dimension 1 Code", "Global Dimension 2 Code", "Posting Date");
                 AnyEntries := "G/L Entry".Find('-');
 
                 // Is there any reason to skip this account?

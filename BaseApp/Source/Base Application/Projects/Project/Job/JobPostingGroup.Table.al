@@ -6,9 +6,10 @@ using Microsoft.Projects.Project.Ledger;
 
 table 208 "Job Posting Group"
 {
-    Caption = 'Job Posting Group';
+    Caption = 'Project Posting Group';
     DrillDownPageID = "Job Posting Groups";
     LookupPageID = "Job Posting Groups";
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -29,12 +30,12 @@ table 208 "Job Posting Group"
         }
         field(4; "Job Costs Applied Account"; Code[20])
         {
-            Caption = 'Job Costs Applied Account';
+            Caption = 'Project Costs Applied Account';
             TableRelation = "G/L Account";
         }
         field(5; "Job Costs Adjustment Account"; Code[20])
         {
-            Caption = 'Job Costs Adjustment Account';
+            Caption = 'Project Costs Adjustment Account';
             TableRelation = "G/L Account";
         }
         field(6; "G/L Expense Acc. (Contract)"; Code[20])
@@ -44,7 +45,7 @@ table 208 "Job Posting Group"
         }
         field(7; "Job Sales Adjustment Account"; Code[20])
         {
-            Caption = 'Job Sales Adjustment Account';
+            Caption = 'Project Sales Adjustment Account';
             TableRelation = "G/L Account";
         }
         field(8; "WIP Accrued Sales Account"; Code[20])
@@ -59,7 +60,7 @@ table 208 "Job Posting Group"
         }
         field(10; "Job Sales Applied Account"; Code[20])
         {
-            Caption = 'Job Sales Applied Account';
+            Caption = 'Project Sales Applied Account';
             TableRelation = "G/L Account";
         }
         field(11; "Recognized Costs Account"; Code[20])

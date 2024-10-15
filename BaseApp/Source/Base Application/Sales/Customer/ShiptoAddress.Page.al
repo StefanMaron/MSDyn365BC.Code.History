@@ -80,7 +80,7 @@ page 300 "Ship-to Address"
                         Editable = false;
                         ShowCaption = false;
                         Style = StrongAccent;
-                        StyleExpr = TRUE;
+                        StyleExpr = true;
                         ToolTip = 'Specifies the customer''s address on your preferred map website.';
 
                         trigger OnDrillDown()
@@ -119,6 +119,13 @@ page 300 "Ship-to Address"
                     ApplicationArea = Basic, Suite;
                     Importance = Additional;
                     ToolTip = 'Specifies the recipient''s web site.';
+                }
+                field("Salesperson Code"; Rec."Salesperson Code")
+                {
+                    ApplicationArea = Suite;
+                    Importance = Additional;
+                    ToolTip = 'Specifies a code for the salesperson who normally handles this customer''s recipient address.';
+                    Visible = false;
                 }
                 field("Location Code"; Rec."Location Code")
                 {

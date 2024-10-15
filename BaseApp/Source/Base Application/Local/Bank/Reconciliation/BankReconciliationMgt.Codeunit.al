@@ -30,7 +30,7 @@ codeunit 10130 "Bank Reconciliation Mgt."
         if not WarnIfOngoingBankReconciliations(BankAccount."No.") then
             exit;
 
-        BankAccReconciliation2.InsertRec(BankAccReconciliation2."Statement Type"::"Bank Reconciliation", BankAccount."No.");
+        BankAccReconciliation2.InsertRec(BankAccReconciliation2."Statement Type"::"Bank Reconciliation".AsInteger(), BankAccount."No.");
         if ShareTable then
             BankAccReconciliationCard.SetSharedTempTable(BankAccReconciliation);
         BankAccReconciliationCard.SetRecord(BankAccReconciliation2);
@@ -43,7 +43,7 @@ codeunit 10130 "Bank Reconciliation Mgt."
         BankAccReconciliationCard: Page "Bank Acc. Reconciliation";
         BankAccountNo: Code[20];
         StatementNo: Code[20];
-        StatementType: Option;
+        StatementType: Enum "Bank Acc. Rec. Stmt. Type";
     begin
         StatementType := BankAccReconciliation."Statement Type";
         BankAccountNo := BankAccReconciliation."Bank Account No.";
@@ -63,7 +63,7 @@ codeunit 10130 "Bank Reconciliation Mgt."
         BankAccReconciliation2: Record "Bank Acc. Reconciliation";
         BankAccountNo: Code[20];
         StatementNo: Code[20];
-        StatementType: Option;
+        StatementType: Enum "Bank Acc. Rec. Stmt. Type";
     begin
         StatementType := BankAccReconciliation."Statement Type";
         BankAccountNo := BankAccReconciliation."Bank Account No.";
@@ -86,7 +86,7 @@ codeunit 10130 "Bank Reconciliation Mgt."
         BankAccReconciliation2: Record "Bank Acc. Reconciliation";
         BankAccountNo: Code[20];
         StatementNo: Code[20];
-        StatementType: Option;
+        StatementType: Enum "Bank Acc. Rec. Stmt. Type";
     begin
         StatementType := BankAccReconciliation."Statement Type";
         BankAccountNo := BankAccReconciliation."Bank Account No.";

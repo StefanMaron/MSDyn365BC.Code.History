@@ -16,6 +16,7 @@ table 1206 "Credit Transfer Entry"
     DataCaptionFields = "Account Type", "Account No.", "Transaction ID";
     DrillDownPageID = "Credit Transfer Reg. Entries";
     LookupPageID = "Credit Transfer Reg. Entries";
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -81,17 +82,15 @@ table 1206 "Credit Transfer Entry"
         field(13; "Recipient IBAN"; Code[50])
         {
             Caption = 'Recipient IBAN';
-            DataClassification = CustomerContent;
         }
         field(14; "Recipient Bank Account No."; Code[30])
         {
             Caption = 'Recipient Bank Account No.';
-            DataClassification = CustomerContent;
         }
         field(15; "Recipient Name"; Text[100])
         {
             Caption = 'Recipient Name';
-            DataClassification = CustomerContent;
+            DataClassification = EndUserIdentifiableInformation;
         }
     }
 

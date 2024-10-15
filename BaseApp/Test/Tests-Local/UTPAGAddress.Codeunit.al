@@ -10,9 +10,11 @@ codeunit 144007 "UT PAG Address"
 
     var
         LibraryUTUtility: Codeunit "Library UT Utility";
+#if not CLEAN25
         LibraryApplicationArea: Codeunit "Library - Application Area";
         LibraryUtility: Codeunit "Library - Utility";
         Assert: Codeunit Assert;
+#endif
 
     [Test]
     [TransactionModel(TransactionModel::AutoRollback)]
@@ -28,7 +30,7 @@ codeunit 144007 "UT PAG Address"
         CreateServiceItem(ServiceItem);
 
         // Exercise.
-        ServiceItemCard.OpenEdit;
+        ServiceItemCard.OpenEdit();
         ServiceItemCard.FILTER.SetFilter("No.", ServiceItem."No.");
 
         // Verify: Verify Ship-to County Field on Page - Service Item Card.
@@ -37,6 +39,7 @@ codeunit 144007 "UT PAG Address"
         ServiceItemCard.Close();
     end;
 
+#if not CLEAN25
     [Test]
     [Scope('OnPrem')]
     procedure VerifyFieldsAreVisibleOnVendorLedgerEntry()
@@ -52,30 +55,31 @@ codeunit 144007 "UT PAG Address"
           LibraryUtility.GetNewRecNo(VendorLedgerEntry, VendorLedgerEntry.FieldNo("Entry No."));
         VendorLedgerEntry.Insert();
 
-        VendorLedgerEntries.OpenEdit;
+        VendorLedgerEntries.OpenEdit();
         VendorLedgerEntries.GotoRecord(VendorLedgerEntry);
 
-        Assert.IsTrue(VendorLedgerEntries."IRS 1099 Code".Visible, '"IRS 1099 Code" must be visible');
-        Assert.IsTrue(VendorLedgerEntries."IRS 1099 Code".Editable, '"IRS 1099 Code" must be editable');
-        Assert.IsTrue(VendorLedgerEntries."IRS 1099 Amount".Visible, '"IRS 199 Amount" must be visible');
-        Assert.IsTrue(VendorLedgerEntries."IRS 1099 Amount".Editable, '"IRS 199 Amount" must be editable');
+        Assert.IsTrue(VendorLedgerEntries."IRS 1099 Code".Visible(), '"IRS 1099 Code" must be visible');
+        Assert.IsTrue(VendorLedgerEntries."IRS 1099 Code".Editable(), '"IRS 1099 Code" must be editable');
+        Assert.IsTrue(VendorLedgerEntries."IRS 1099 Amount".Visible(), '"IRS 199 Amount" must be visible');
+        Assert.IsTrue(VendorLedgerEntries."IRS 1099 Amount".Editable(), '"IRS 199 Amount" must be editable');
         VendorLedgerEntries.Close();
     end;
+#endif
 
     local procedure CreateCustomer(): Code[20]
     var
         Customer: Record Customer;
     begin
-        Customer."No." := LibraryUTUtility.GetNewCode;
-        Customer.County := LibraryUTUtility.GetNewCode;
+        Customer."No." := LibraryUTUtility.GetNewCode();
+        Customer.County := LibraryUTUtility.GetNewCode();
         Customer.Insert();
         exit(Customer."No.");
     end;
 
     local procedure CreateServiceItem(var ServiceItem: Record "Service Item")
     begin
-        ServiceItem."No." := LibraryUTUtility.GetNewCode;
-        ServiceItem."Customer No." := CreateCustomer;
+        ServiceItem."No." := LibraryUTUtility.GetNewCode();
+        ServiceItem."Customer No." := CreateCustomer();
         ServiceItem.Insert();
     end;
 }

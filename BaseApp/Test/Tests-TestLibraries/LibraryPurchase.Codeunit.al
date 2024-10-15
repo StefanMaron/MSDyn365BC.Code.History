@@ -19,6 +19,7 @@ codeunit 130512 "Library - Purchase"
         LibraryRandom: Codeunit "Library - Random";
         LibraryResource: Codeunit "Library - Resource";
         LibraryFixedAsset: Codeunit "Library - Fixed Asset";
+        WrongDocumentTypeErr: Label 'Document type not supported: %1', Locked = true;
 
     procedure BlanketPurchaseOrderMakeOrder(var PurchaseHeader: Record "Purchase Header"): Code[20]
     var
@@ -33,12 +34,12 @@ codeunit 130512 "Library - Purchase"
 
     procedure CopyPurchaseDocument(PurchaseHeader: Record "Purchase Header"; FromDocType: Enum "Purchase Document Type From"; FromDocNo: Code[20]; NewIncludeHeader: Boolean; NewRecalcLines: Boolean)
     var
-        CopyPurchaseDocument: Report "Copy Purchase Document";
+        CopyPurchaseDocumentReport: Report "Copy Purchase Document";
     begin
-        CopyPurchaseDocument.SetPurchHeader(PurchaseHeader);
-        CopyPurchaseDocument.SetParameters(FromDocType, FromDocNo, NewIncludeHeader, NewRecalcLines);
-        CopyPurchaseDocument.UseRequestPage(false);
-        CopyPurchaseDocument.Run();
+        CopyPurchaseDocumentReport.SetPurchHeader(PurchaseHeader);
+        CopyPurchaseDocumentReport.SetParameters(FromDocType, FromDocNo, NewIncludeHeader, NewRecalcLines);
+        CopyPurchaseDocumentReport.UseRequestPage(false);
+        CopyPurchaseDocumentReport.Run();
     end;
 
     procedure CreateItemChargeAssignment(var ItemChargeAssignmentPurch: Record "Item Charge Assignment (Purch)"; PurchaseLine: Record "Purchase Line"; ItemCharge: Record "Item Charge"; DocType: Enum "Purchase Applies-to Document Type"; DocNo: Code[20]; DocLineNo: Integer; ItemNo: Code[20]; Qty: Decimal; UnitCost: Decimal)
@@ -47,22 +48,20 @@ codeunit 130512 "Library - Purchase"
     begin
         Clear(ItemChargeAssignmentPurch);
 
-        with ItemChargeAssignmentPurch do begin
-            "Document Type" := PurchaseLine."Document Type";
-            "Document No." := PurchaseLine."Document No.";
-            "Document Line No." := PurchaseLine."Line No.";
-            "Item Charge No." := PurchaseLine."No.";
-            "Unit Cost" := PurchaseLine."Unit Cost";
-            RecRef.GetTable(ItemChargeAssignmentPurch);
-            "Line No." := LibraryUtility.GetNewLineNo(RecRef, FieldNo("Line No."));
-            "Item Charge No." := ItemCharge."No.";
-            "Applies-to Doc. Type" := DocType;
-            "Applies-to Doc. No." := DocNo;
-            "Applies-to Doc. Line No." := DocLineNo;
-            "Item No." := ItemNo;
-            "Unit Cost" := UnitCost;
-            Validate("Qty. to Assign", Qty);
-        end;
+        ItemChargeAssignmentPurch."Document Type" := PurchaseLine."Document Type";
+        ItemChargeAssignmentPurch."Document No." := PurchaseLine."Document No.";
+        ItemChargeAssignmentPurch."Document Line No." := PurchaseLine."Line No.";
+        ItemChargeAssignmentPurch."Item Charge No." := PurchaseLine."No.";
+        ItemChargeAssignmentPurch."Unit Cost" := PurchaseLine."Unit Cost";
+        RecRef.GetTable(ItemChargeAssignmentPurch);
+        ItemChargeAssignmentPurch."Line No." := LibraryUtility.GetNewLineNo(RecRef, ItemChargeAssignmentPurch.FieldNo("Line No."));
+        ItemChargeAssignmentPurch."Item Charge No." := ItemCharge."No.";
+        ItemChargeAssignmentPurch."Applies-to Doc. Type" := DocType;
+        ItemChargeAssignmentPurch."Applies-to Doc. No." := DocNo;
+        ItemChargeAssignmentPurch."Applies-to Doc. Line No." := DocLineNo;
+        ItemChargeAssignmentPurch."Item No." := ItemNo;
+        ItemChargeAssignmentPurch."Unit Cost" := UnitCost;
+        ItemChargeAssignmentPurch.Validate("Qty. to Assign", Qty);
     end;
 
     procedure CreateOrderAddress(var OrderAddress: Record "Order Address"; VendorNo: Code[20])
@@ -140,15 +139,15 @@ codeunit 130512 "Library - Purchase"
 
     procedure CreatePurchHeader(var PurchaseHeader: Record "Purchase Header"; DocumentType: Enum "Purchase Document Type"; BuyfromVendorNo: Code[20])
     begin
-        DisableWarningOnCloseUnpostedDoc;
-        DisableWarningOnCloseUnreleasedDoc;
-        DisableConfirmOnPostingDoc;
+        DisableWarningOnCloseUnpostedDoc();
+        DisableWarningOnCloseUnreleasedDoc();
+        DisableConfirmOnPostingDoc();
         Clear(PurchaseHeader);
         OnBeforeCreatePurchaseHeader(PurchaseHeader, DocumentType, BuyFromVendorNo);
         PurchaseHeader.Validate("Document Type", DocumentType);
         PurchaseHeader.Insert(true);
         if BuyfromVendorNo = '' then
-            BuyfromVendorNo := CreateVendorNo;
+            BuyfromVendorNo := CreateVendorNo();
         PurchaseHeader.Validate("Buy-from Vendor No.", BuyfromVendorNo);
         if PurchaseHeader."Document Type" in [PurchaseHeader."Document Type"::"Credit Memo",
                                               PurchaseHeader."Document Type"::"Return Order"]
@@ -156,7 +155,6 @@ codeunit 130512 "Library - Purchase"
             PurchaseHeader.Validate("Vendor Cr. Memo No.", LibraryUtility.GenerateGUID())
         else
             PurchaseHeader.Validate("Vendor Invoice No.", LibraryUtility.GenerateGUID());
-        SetCorrDocNoPurchase(PurchaseHeader);
         PurchaseHeader.Modify(true);
         OnAfterCreatePurchHeader(PurchaseHeader, DocumentType, BuyfromVendorNo);
     end;
@@ -168,10 +166,9 @@ codeunit 130512 "Library - Purchase"
         PurchaseHeader."No." := DocNo;
         PurchaseHeader.Insert(true);
         if BuyfromVendorNo = '' then
-            BuyfromVendorNo := CreateVendorNo;
+            BuyfromVendorNo := CreateVendorNo();
         PurchaseHeader.Validate("Buy-from Vendor No.", BuyfromVendorNo);
         PurchaseHeader.Validate("Vendor Invoice No.", LibraryUtility.GenerateGUID());
-        SetCorrDocNoPurchase(PurchaseHeader);
         PurchaseHeader.Modify(true);
     end;
 
@@ -189,13 +186,13 @@ codeunit 130512 "Library - Purchase"
                     No := LibraryERM.CreateGLAccountWithPurchSetup();
             PurchaseLine.Type::"Charge (Item)":
                 if No = '' then
-                    No := LibraryInventory.CreateItemChargeNo;
+                    No := LibraryInventory.CreateItemChargeNo();
             PurchaseLine.Type::Resource:
                 if No = '' then
                     No := LibraryResource.CreateResourceNo();
             PurchaseLine.Type::"Fixed Asset":
                 if No = '' then
-                    No := LibraryFixedAsset.CreateFixedAssetNo;
+                    No := LibraryFixedAsset.CreateFixedAssetNo();
         end;
         PurchaseLine.Validate("No.", No);
         if LineType <> PurchaseLine.Type::" " then
@@ -205,7 +202,7 @@ codeunit 130512 "Library - Purchase"
         OnAfterCreatePurchaseLine(PurchaseLine, PurchaseHeader, LineType, No, Quantity);
     end;
 
-    procedure CreatePurchaseLineWithoutVAT(var PurchaseLine: Record "Purchase Line"; PurchaseHeader: Record "Purchase Header"; Type: Option; No: Code[20]; Quantity: Decimal)
+    procedure CreatePurchaseLineWithoutVAT(var PurchaseLine: Record "Purchase Line"; PurchaseHeader: Record "Purchase Header"; Type: Enum "Purchase Document Type"; No: Code[20]; Quantity: Decimal)
     begin
         CreatePurchaseLineSimple(PurchaseLine, PurchaseHeader);
 
@@ -213,10 +210,10 @@ codeunit 130512 "Library - Purchase"
         case Type of
             PurchaseLine.Type::Item:
                 if No = '' then
-                    No := LibraryInventory.CreateItemNoWithoutVAT;
+                    No := LibraryInventory.CreateItemNoWithoutVAT();
             PurchaseLine.Type::"Charge (Item)":
                 if No = '' then
-                    No := LibraryInventory.CreateItemChargeNoWithoutVAT;
+                    No := LibraryInventory.CreateItemChargeNoWithoutVAT();
         end;
         PurchaseLine.Validate("No.", No);
         if Type <> PurchaseLine.Type::" " then
@@ -246,19 +243,17 @@ codeunit 130512 "Library - Purchase"
     procedure CreatePurchaseQuote(var PurchaseHeader: Record "Purchase Header")
     var
         PurchaseLine: Record "Purchase Line";
-        LibraryInventory: Codeunit "Library - Inventory";
-        LibraryRandom: Codeunit "Library - Random";
     begin
-        CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Quote, CreateVendorNo);
+        CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Quote, CreateVendorNo());
         CreatePurchaseLine(
-          PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, LibraryInventory.CreateItemNo, LibraryRandom.RandInt(100));
+          PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, LibraryInventory.CreateItemNo(), LibraryRandom.RandInt(100));
         PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandDecInRange(1, 99, 2));
         PurchaseLine.Modify(true);
     end;
 
     procedure CreatePurchaseInvoice(var PurchaseHeader: Record "Purchase Header")
     begin
-        CreatePurchaseInvoiceForVendorNo(PurchaseHeader, CreateVendorNo);
+        CreatePurchaseInvoiceForVendorNo(PurchaseHeader, CreateVendorNo());
     end;
 
     procedure CreatePurchaseInvoiceForVendorNo(var PurchaseHeader: Record "Purchase Header"; VendorNo: Code[20])
@@ -266,7 +261,7 @@ codeunit 130512 "Library - Purchase"
         PurchaseLine: Record "Purchase Line";
     begin
         CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, VendorNo);
-        CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, LibraryInventory.CreateItemNo, LibraryRandom.RandInt(100));
+        CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, LibraryInventory.CreateItemNo(), LibraryRandom.RandInt(100));
         PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandDecInRange(1, 100, 2));
         PurchaseLine.Modify(true);
     end;
@@ -282,7 +277,7 @@ codeunit 130512 "Library - Purchase"
         PurchaseLine: Record "Purchase Line";
     begin
         CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, VendorNo);
-        CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, LibraryInventory.CreateItemNo, LibraryRandom.RandInt(100));
+        CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, LibraryInventory.CreateItemNo(), LibraryRandom.RandInt(100));
         PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandDecInRange(1, 100, 2));
         PurchaseLine.Modify(true);
     end;
@@ -297,7 +292,7 @@ codeunit 130512 "Library - Purchase"
         PurchaseLine: Record "Purchase Line";
     begin
         CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::"Credit Memo", VendorNo);
-        CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, LibraryInventory.CreateItemNo, LibraryRandom.RandInt(100));
+        CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, LibraryInventory.CreateItemNo(), LibraryRandom.RandInt(100));
         PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandDecInRange(1, 100, 2));
         PurchaseLine.Modify(true);
     end;
@@ -330,8 +325,8 @@ codeunit 130512 "Library - Purchase"
     var
         PurchaseLine: Record "Purchase Line";
     begin
-        CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::"Return Order", CreateVendorNo);
-        CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, LibraryInventory.CreateItemNo, LibraryRandom.RandInt(100));
+        CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::"Return Order", CreateVendorNo());
+        CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, LibraryInventory.CreateItemNo(), LibraryRandom.RandInt(100));
         PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandDecInRange(1, 100, 2));
         PurchaseLine.Modify(true);
     end;
@@ -438,7 +433,7 @@ codeunit 130512 "Library - Purchase"
         VendContUpdate: Codeunit "VendCont-Update";
     begin
         LibraryERM.FindPaymentMethod(PaymentMethod);
-        LibraryERM.SetSearchGenPostingTypePurch;
+        LibraryERM.SetSearchGenPostingTypePurch();
         LibraryERM.FindGeneralPostingSetupInvtFull(GeneralPostingSetup);
         Vendor.CopyFilter("VAT Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
         LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
@@ -450,8 +445,8 @@ codeunit 130512 "Library - Purchase"
         Vendor.Validate(Name, Vendor."No."); // Validating Name as No. because value is not important.
         Vendor.Validate("Gen. Bus. Posting Group", GeneralPostingSetup."Gen. Bus. Posting Group");
         Vendor.Validate("VAT Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
-        Vendor.Validate("Vendor Posting Group", FindVendorPostingGroup);
-        Vendor.Validate("Payment Terms Code", LibraryERM.FindPaymentTermsCode);
+        Vendor.Validate("Vendor Posting Group", FindVendorPostingGroup());
+        Vendor.Validate("Payment Terms Code", LibraryERM.FindPaymentTermsCode());
         Vendor.Validate("Payment Method Code", PaymentMethod.Code);
         Vendor.Modify(true);
         VendContUpdate.OnModify(Vendor);
@@ -473,17 +468,17 @@ codeunit 130512 "Library - Purchase"
         VendorPostingGroup.Init();
         VendorPostingGroup.Validate(Code,
           LibraryUtility.GenerateRandomCode(VendorPostingGroup.FieldNo(Code), DATABASE::"Vendor Posting Group"));
-        VendorPostingGroup.Validate("Payables Account", LibraryERM.CreateGLAccountNo);
-        VendorPostingGroup.Validate("Service Charge Acc.", LibraryERM.CreateGLAccountWithPurchSetup);
-        VendorPostingGroup.Validate("Invoice Rounding Account", LibraryERM.CreateGLAccountWithPurchSetup);
-        VendorPostingGroup.Validate("Debit Rounding Account", LibraryERM.CreateGLAccountNo);
-        VendorPostingGroup.Validate("Credit Rounding Account", LibraryERM.CreateGLAccountNo);
-        VendorPostingGroup.Validate("Payment Disc. Debit Acc.", LibraryERM.CreateGLAccountNo);
-        VendorPostingGroup.Validate("Payment Disc. Credit Acc.", LibraryERM.CreateGLAccountNo);
-        VendorPostingGroup.Validate("Payment Tolerance Debit Acc.", LibraryERM.CreateGLAccountNo);
-        VendorPostingGroup.Validate("Payment Tolerance Credit Acc.", LibraryERM.CreateGLAccountNo);
-        VendorPostingGroup.Validate("Debit Curr. Appln. Rndg. Acc.", LibraryERM.CreateGLAccountNo);
-        VendorPostingGroup.Validate("Credit Curr. Appln. Rndg. Acc.", LibraryERM.CreateGLAccountNo);
+        VendorPostingGroup.Validate("Payables Account", LibraryERM.CreateGLAccountNo());
+        VendorPostingGroup.Validate("Service Charge Acc.", LibraryERM.CreateGLAccountWithPurchSetup());
+        VendorPostingGroup.Validate("Invoice Rounding Account", LibraryERM.CreateGLAccountWithPurchSetup());
+        VendorPostingGroup.Validate("Debit Rounding Account", LibraryERM.CreateGLAccountNo());
+        VendorPostingGroup.Validate("Credit Rounding Account", LibraryERM.CreateGLAccountNo());
+        VendorPostingGroup.Validate("Payment Disc. Debit Acc.", LibraryERM.CreateGLAccountNo());
+        VendorPostingGroup.Validate("Payment Disc. Credit Acc.", LibraryERM.CreateGLAccountNo());
+        VendorPostingGroup.Validate("Payment Tolerance Debit Acc.", LibraryERM.CreateGLAccountNo());
+        VendorPostingGroup.Validate("Payment Tolerance Credit Acc.", LibraryERM.CreateGLAccountNo());
+        VendorPostingGroup.Validate("Debit Curr. Appln. Rndg. Acc.", LibraryERM.CreateGLAccountNo());
+        VendorPostingGroup.Validate("Credit Curr. Appln. Rndg. Acc.", LibraryERM.CreateGLAccountNo());
         VendorPostingGroup.Insert(true);
     end;
 
@@ -499,37 +494,31 @@ codeunit 130512 "Library - Purchase"
 
     procedure CreateVendorWithLocationCode(var Vendor: Record Vendor; LocationCode: Code[10]): Code[20]
     begin
-        with Vendor do begin
-            CreateVendor(Vendor);
-            Validate("Location Code", LocationCode);
-            Modify(true);
-            exit("No.");
-        end;
+        CreateVendor(Vendor);
+        Vendor.Validate("Location Code", LocationCode);
+        Vendor.Modify(true);
+        exit(Vendor."No.");
     end;
 
     procedure CreateVendorWithBusPostingGroups(GenBusPostGroupCode: Code[20]; VATBusPostGroupCode: Code[20]): Code[20]
     var
         Vendor: Record Vendor;
     begin
-        with Vendor do begin
-            CreateVendor(Vendor);
-            Validate("Gen. Bus. Posting Group", GenBusPostGroupCode);
-            Validate("VAT Bus. Posting Group", VATBusPostGroupCode);
-            Modify(true);
-            exit("No.");
-        end;
+        CreateVendor(Vendor);
+        Vendor.Validate("Gen. Bus. Posting Group", GenBusPostGroupCode);
+        Vendor.Validate("VAT Bus. Posting Group", VATBusPostGroupCode);
+        Vendor.Modify(true);
+        exit(Vendor."No.");
     end;
 
     procedure CreateVendorWithVATBusPostingGroup(VATBusPostGroupCode: Code[20]): Code[20]
     var
         Vendor: Record Vendor;
     begin
-        with Vendor do begin
-            CreateVendor(Vendor);
-            Validate("VAT Bus. Posting Group", VATBusPostGroupCode);
-            Modify(true);
-            exit("No.");
-        end;
+        CreateVendor(Vendor);
+        Vendor.Validate("VAT Bus. Posting Group", VATBusPostGroupCode);
+        Vendor.Modify(true);
+        exit(Vendor."No.");
     end;
 
     procedure CreateVendorWithVATRegNo(var Vendor: Record Vendor): Code[20]
@@ -606,7 +595,7 @@ codeunit 130512 "Library - Purchase"
         Vendor.Validate(City, LibraryUtility.GenerateGUID());
         Vendor.Validate("Phone No.", Format(LibraryRandom.RandIntInRange(100000000, 999999999)));
         Vendor.Validate("Fax No.", LibraryUtility.GenerateGUID());
-        Vendor.Validate("E-Mail", LibraryUtility.GenerateGUID + '@' + LibraryUtility.GenerateGUID());
+        Vendor.Validate("E-Mail", LibraryUtility.GenerateGUID() + '@' + LibraryUtility.GenerateGUID());
         Vendor.Modify(true);
         exit(Vendor."No.");
     end;
@@ -614,7 +603,7 @@ codeunit 130512 "Library - Purchase"
     procedure DeleteInvoicedPurchOrders(var PurchaseHeader: Record "Purchase Header")
     var
         PurchaseHeader2: Record "Purchase Header";
-        DeleteInvoicedPurchOrders: Report "Delete Invoiced Purch. Orders";
+        DeleteInvoicedPurchOrdersReport: Report "Delete Invoiced Purch. Orders";
     begin
         if PurchaseHeader.HasFilter then
             PurchaseHeader2.CopyFilters(PurchaseHeader)
@@ -623,10 +612,10 @@ codeunit 130512 "Library - Purchase"
             PurchaseHeader2.SetRange("Document Type", PurchaseHeader."Document Type");
             PurchaseHeader2.SetRange("No.", PurchaseHeader."No.");
         end;
-        Clear(DeleteInvoicedPurchOrders);
-        DeleteInvoicedPurchOrders.SetTableView(PurchaseHeader2);
-        DeleteInvoicedPurchOrders.UseRequestPage(false);
-        DeleteInvoicedPurchOrders.RunModal();
+        Clear(DeleteInvoicedPurchOrdersReport);
+        DeleteInvoicedPurchOrdersReport.SetTableView(PurchaseHeader2);
+        DeleteInvoicedPurchOrdersReport.UseRequestPage(false);
+        DeleteInvoicedPurchOrdersReport.RunModal();
     end;
 
     procedure ExplodeBOM(var PurchaseLine: Record "Purchase Line")
@@ -735,12 +724,12 @@ codeunit 130512 "Library - Purchase"
     procedure PostPurchasePrepaymentCreditMemo(var PurchaseHeader: Record "Purchase Header") DocumentNo: Code[20]
     var
         PurchPostPrepayments: Codeunit "Purchase-Post Prepayments";
-        NoSeriesMgt: Codeunit NoSeriesManagement;
+        NoSeries: Codeunit "No. Series";
         NoSeriesCode: Code[20];
     begin
         NoSeriesCode := PurchaseHeader."Prepmt. Cr. Memo No. Series";
         if PurchaseHeader."Prepmt. Cr. Memo No." = '' then
-            DocumentNo := NoSeriesMgt.GetNextNo(NoSeriesCode, LibraryUtility.GetNextNoSeriesPurchaseDate(NoSeriesCode), false)
+            DocumentNo := NoSeries.PeekNextNo(NoSeriesCode, LibraryUtility.GetNextNoSeriesPurchaseDate(NoSeriesCode))
         else
             DocumentNo := PurchaseHeader."Prepmt. Cr. Memo No.";
         PurchPostPrepayments.CreditMemo(PurchaseHeader);
@@ -749,21 +738,21 @@ codeunit 130512 "Library - Purchase"
     procedure PostPurchasePrepaymentInvoice(var PurchaseHeader: Record "Purchase Header") DocumentNo: Code[20]
     var
         PurchasePostPrepayments: Codeunit "Purchase-Post Prepayments";
-        NoSeriesMgt: Codeunit NoSeriesManagement;
+        NoSeries: Codeunit "No. Series";
         NoSeriesCode: Code[20];
     begin
         NoSeriesCode := PurchaseHeader."Prepayment No. Series";
         if PurchaseHeader."Prepayment No." = '' then
-            DocumentNo := NoSeriesMgt.GetNextNo(NoSeriesCode, LibraryUtility.GetNextNoSeriesPurchaseDate(NoSeriesCode), false)
+            DocumentNo := NoSeries.PeekNextNo(NoSeriesCode, LibraryUtility.GetNextNoSeriesPurchaseDate(NoSeriesCode))
         else
             DocumentNo := PurchaseHeader."Prepayment No.";
         PurchasePostPrepayments.Invoice(PurchaseHeader);
     end;
 
-    procedure PostPurchaseDocument(var PurchaseHeader: Record "Purchase Header"; ToShipReceive: Boolean; ToInvoice: Boolean) DocumentNo: Code[20]
+    procedure PostPurchaseDocument(var PurchaseHeader: Record "Purchase Header"; NewShipReceive: Boolean; NewInvoice: Boolean) DocumentNo: Code[20]
     var
-        NoSeriesManagement: Codeunit NoSeriesManagement;
-        NoSeriesCode: Code[20];
+        NoSeries: Codeunit "No. Series";
+        PurchPost: Codeunit "Purch.-Post";
     begin
         // Post the purchase document.
         // Depending on the document type and posting type return the number of the:
@@ -771,37 +760,48 @@ codeunit 130512 "Library - Purchase"
         // - posted purchase invoice,
         // - purchase return shipment, or
         // - posted credit memo
-        SetCorrDocNoPurchase(PurchaseHeader);
-        with PurchaseHeader do begin
-            Validate(Receive, ToShipReceive);
-            Validate(Ship, ToShipReceive);
-            Validate(Invoice, ToInvoice);
+        PurchaseHeader.Validate(Receive, NewShipReceive);
+        PurchaseHeader.Validate(Ship, NewShipReceive);
+        PurchaseHeader.Validate(Invoice, NewInvoice);
+        PurchPost.SetPostingFlags(PurchaseHeader);
 
-            case "Document Type" of
-                "Document Type"::Invoice:
-                    NoSeriesCode := "Posting No. Series"; // posted purchase invoice
-                "Document Type"::Order:
-                    if ToShipReceive and not ToInvoice then
-                        NoSeriesCode := "Receiving No. Series" // posted purchase receipt
-                    else
-                        NoSeriesCode := "Posting No. Series"; // posted purchase invoice
-                "Document Type"::"Credit Memo":
-                    NoSeriesCode := "Posting No. Series"; // posted purchase credit memo
-                "Document Type"::"Return Order":
-                    if ToShipReceive and not ToInvoice then
-                        NoSeriesCode := "Return Shipment No. Series" // posted purchase return shipment
-                    else
-                        NoSeriesCode := "Posting No. Series"; // posted purchase credit memo
-                else
-                    Assert.Fail(StrSubstNo('Document type not supported: %1', "Document Type"))
-            end
+        case PurchaseHeader."Document Type" of
+            PurchaseHeader."Document Type"::Invoice, PurchaseHeader."Document Type"::"Credit Memo":
+                if PurchaseHeader.Invoice and (PurchaseHeader."Posting No. Series" <> '') then begin
+                    if (PurchaseHeader."Posting No." = '') then
+                        PurchaseHeader."Posting No." := NoSeries.GetNextNo(PurchaseHeader."Posting No. Series", LibraryUtility.GetNextNoSeriesPurchaseDate(PurchaseHeader."Posting No. Series"));
+                    DocumentNo := PurchaseHeader."Posting No.";
+                end;
+            PurchaseHeader."Document Type"::Order:
+                begin
+                    if PurchaseHeader.Receive and (PurchaseHeader."Receiving No. Series" <> '') then begin
+                        if (PurchaseHeader."Receiving No." = '') then
+                            PurchaseHeader."Receiving No." := NoSeries.GetNextNo(PurchaseHeader."Receiving No. Series", LibraryUtility.GetNextNoSeriesPurchaseDate(PurchaseHeader."Receiving No. Series"));
+                        DocumentNo := PurchaseHeader."Receiving No.";
+                    end;
+                    if PurchaseHeader.Invoice and (PurchaseHeader."Posting No. Series" <> '') then begin
+                        if (PurchaseHeader."Posting No." = '') then
+                            PurchaseHeader."Posting No." := NoSeries.GetNextNo(PurchaseHeader."Posting No. Series", LibraryUtility.GetNextNoSeriesPurchaseDate(PurchaseHeader."Posting No. Series"));
+                        DocumentNo := PurchaseHeader."Posting No.";
+                    end;
+                end;
+            PurchaseHeader."Document Type"::"Return Order":
+                begin
+                    if PurchaseHeader.Ship and (PurchaseHeader."Return Shipment No. Series" <> '') then begin
+                        if (PurchaseHeader."Return Shipment No." = '') then
+                            PurchaseHeader."Return Shipment No." := NoSeries.GetNextNo(PurchaseHeader."Return Shipment No. Series", LibraryUtility.GetNextNoSeriesPurchaseDate(PurchaseHeader."Return Shipment No. Series"));
+                        DocumentNo := PurchaseHeader."Return Shipment No.";
+                    end;
+                    if PurchaseHeader.Invoice and (PurchaseHeader."Posting No. Series" <> '') then begin
+                        if (PurchaseHeader."Posting No." = '') then
+                            PurchaseHeader."Posting No." := NoSeries.GetNextNo(PurchaseHeader."Posting No. Series", LibraryUtility.GetNextNoSeriesPurchaseDate(PurchaseHeader."Posting No. Series"));
+                        DocumentNo := PurchaseHeader."Posting No.";
+                    end;
+                end;
+            else
+                Assert.Fail(StrSubstNo(WrongDocumentTypeErr, PurchaseHeader."Document Type"))
         end;
 
-        if NoSeriesCode = '' then
-            DocumentNo := PurchaseHeader."No."
-        else
-            DocumentNo :=
-              NoSeriesManagement.GetNextNo(NoSeriesCode, LibraryUtility.GetNextNoSeriesPurchaseDate(NoSeriesCode), false);
         CODEUNIT.Run(CODEUNIT::"Purch.-Post", PurchaseHeader);
     end;
 
@@ -942,8 +942,6 @@ codeunit 130512 "Library - Purchase"
     end;
 
     procedure SetDiscountPosting(DiscountPosting: Option)
-    var
-        PurchasesPayablesSetup: Record "Purchases & Payables Setup";
     begin
         PurchasesPayablesSetup.Get();
         PurchasesPayablesSetup.Validate("Discount Posting", DiscountPosting);
@@ -951,8 +949,6 @@ codeunit 130512 "Library - Purchase"
     end;
 
     procedure SetDiscountPostingSilent(DiscountPosting: Option)
-    var
-        PurchasesPayablesSetup: Record "Purchases & Payables Setup";
     begin
         PurchasesPayablesSetup.Get();
         PurchasesPayablesSetup."Discount Posting" := DiscountPosting;
@@ -964,12 +960,6 @@ codeunit 130512 "Library - Purchase"
         PurchasesPayablesSetup.Get();
         PurchasesPayablesSetup.Validate("Calc. Inv. Discount", CalcInvDiscount);
         PurchasesPayablesSetup.Modify(true);
-    end;
-
-    procedure SetCorrDocNoPurchase(var PurchHeader: Record "Purchase Header")
-    begin
-        with PurchHeader do
-            if "Document Type" in ["Document Type"::"Credit Memo", "Document Type"::"Return Order"] then;
     end;
 
     procedure SetInvoiceRounding(InvoiceRounding: Boolean)
@@ -994,8 +984,6 @@ codeunit 130512 "Library - Purchase"
     end;
 
     procedure SetPostWithJobQueue(PostWithJobQueue: Boolean)
-    var
-        PurchasesPayablesSetup: Record "Purchases & Payables Setup";
     begin
         PurchasesPayablesSetup.Get();
         PurchasesPayablesSetup.Validate("Post with Job Queue", PostWithJobQueue);
@@ -1003,8 +991,6 @@ codeunit 130512 "Library - Purchase"
     end;
 
     procedure SetPostAndPrintWithJobQueue(PostAndPrintWithJobQueue: Boolean)
-    var
-        PurchasesPayablesSetup: Record "Purchases & Payables Setup";
     begin
         PurchasesPayablesSetup.Get();
         PurchasesPayablesSetup.Validate("Post & Print with Job Queue", PostAndPrintWithJobQueue);
@@ -1012,58 +998,46 @@ codeunit 130512 "Library - Purchase"
     end;
 
     procedure SetOrderNoSeriesInSetup()
-    var
-        PurchasesPayablesSetup: Record "Purchases & Payables Setup";
     begin
-        with PurchasesPayablesSetup do begin
-            Get();
-            Validate("Order Nos.", LibraryERM.CreateNoSeriesCode);
-            Modify(true);
-        end;
+        PurchasesPayablesSetup.Get();
+        PurchasesPayablesSetup.Validate("Order Nos.", LibraryERM.CreateNoSeriesCode());
+        PurchasesPayablesSetup.Modify(true);
     end;
 
     procedure SetPostedNoSeriesInSetup()
     begin
-        with PurchasesPayablesSetup do begin
-            Get();
-            Validate("Posted Invoice Nos.", LibraryERM.CreateNoSeriesCode);
-            Validate("Posted Receipt Nos.", LibraryERM.CreateNoSeriesCode);
-            Validate("Posted Credit Memo Nos.", LibraryERM.CreateNoSeriesCode);
-            Modify(true);
-        end;
+        PurchasesPayablesSetup.Get();
+        PurchasesPayablesSetup.Validate("Posted Invoice Nos.", LibraryERM.CreateNoSeriesCode());
+        PurchasesPayablesSetup.Validate("Posted Receipt Nos.", LibraryERM.CreateNoSeriesCode());
+        PurchasesPayablesSetup.Validate("Posted Credit Memo Nos.", LibraryERM.CreateNoSeriesCode());
+        PurchasesPayablesSetup.Modify(true);
     end;
 
     procedure SetQuoteNoSeriesInSetup()
     begin
-        with PurchasesPayablesSetup do begin
-            Get();
-            Validate("Quote Nos.", LibraryERM.CreateNoSeriesCode);
-            Modify(true);
-        end;
+        PurchasesPayablesSetup.Get();
+        PurchasesPayablesSetup.Validate("Quote Nos.", LibraryERM.CreateNoSeriesCode());
+        PurchasesPayablesSetup.Modify(true);
     end;
 
     procedure SetReturnOrderNoSeriesInSetup()
     begin
-        with PurchasesPayablesSetup do begin
-            Get();
-            Validate("Return Order Nos.", LibraryERM.CreateNoSeriesCode);
-            Validate("Posted Return Shpt. Nos.", LibraryERM.CreateNoSeriesCode);
-            Modify(true);
-        end;
+        PurchasesPayablesSetup.Get();
+        PurchasesPayablesSetup.Validate("Return Order Nos.", LibraryERM.CreateNoSeriesCode());
+        PurchasesPayablesSetup.Validate("Posted Return Shpt. Nos.", LibraryERM.CreateNoSeriesCode());
+        PurchasesPayablesSetup.Modify(true);
     end;
 
     procedure SetCopyCommentsOrderToInvoiceInSetup(CopyCommentsOrderToInvoice: Boolean)
     begin
-        with PurchasesPayablesSetup do begin
-            Get();
-            Validate("Copy Comments Order to Invoice", CopyCommentsOrderToInvoice);
-            Modify(true);
-        end;
+        PurchasesPayablesSetup.Get();
+        PurchasesPayablesSetup.Validate("Copy Comments Order to Invoice", CopyCommentsOrderToInvoice);
+        PurchasesPayablesSetup.Modify(true);
     end;
 
     procedure SelectPmtJnlBatch(var GenJournalBatch: Record "Gen. Journal Batch")
     begin
-        LibraryJournals.SelectGenJournalBatch(GenJournalBatch, SelectPmtJnlTemplate);
+        LibraryJournals.SelectGenJournalBatch(GenJournalBatch, SelectPmtJnlTemplate());
     end;
 
     procedure SelectPmtJnlTemplate(): Code[10]
@@ -1092,7 +1066,7 @@ codeunit 130512 "Library - Purchase"
 
     procedure DisableWarningOnCloseUnreleasedDoc()
     begin
-        LibraryERM.DisableClosingUnreleasedOrdersMsg;
+        LibraryERM.DisableClosingUnreleasedOrdersMsg();
     end;
 
     procedure DisableWarningOnCloseUnpostedDoc()

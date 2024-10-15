@@ -211,7 +211,7 @@ page 490 "Acc. Schedule Overview"
                         Result := DimValue.LookUpDimFilter(AnalysisView."Dimension 1 Code", Text);
                         SetDimFilters(1, CopyStr(Text, 1, MaxStrLen(TempFinancialReport.Dim1Filter)));
                         TempFinancialReport.Dim1Filter := CopyStr(Text, 1, MaxStrLen(TempFinancialReport.Dim1Filter));
-                        Exit(Result);
+                        exit(Result);
                     end;
 
                     trigger OnValidate()
@@ -237,7 +237,7 @@ page 490 "Acc. Schedule Overview"
                         Result := DimValue.LookUpDimFilter(AnalysisView."Dimension 2 Code", Text);
                         SetDimFilters(2, CopyStr(Text, 1, MaxStrLen(TempFinancialReport.Dim2Filter)));
                         TempFinancialReport.Dim2Filter := CopyStr(Text, 1, MaxStrLen(TempFinancialReport.Dim2Filter));
-                        Exit(Result);
+                        exit(Result);
                     end;
 
                     trigger OnValidate()
@@ -263,7 +263,7 @@ page 490 "Acc. Schedule Overview"
                         Result := DimValue.LookUpDimFilter(AnalysisView."Dimension 3 Code", Text);
                         SetDimFilters(3, CopyStr(Text, 1, MaxStrLen(TempFinancialReport.Dim1Filter)));
                         TempFinancialReport.Dim3Filter := CopyStr(Text, 1, MaxStrLen(TempFinancialReport.Dim3Filter));
-                        Exit(Result);
+                        exit(Result);
                     end;
 
                     trigger OnValidate()
@@ -289,7 +289,7 @@ page 490 "Acc. Schedule Overview"
                         Result := DimValue.LookUpDimFilter(AnalysisView."Dimension 4 Code", Text);
                         SetDimFilters(4, CopyStr(Text, 1, MaxStrLen(TempFinancialReport.Dim1Filter)));
                         TempFinancialReport.Dim4Filter := CopyStr(Text, 1, MaxStrLen(TempFinancialReport.Dim4Filter));
-                        Exit(Result);
+                        exit(Result);
                     end;
 
                     trigger OnValidate()
@@ -312,7 +312,7 @@ page 490 "Acc. Schedule Overview"
                         Result := CostCenter.LookupCostCenterFilter(Text);
                         TempFinancialReport.CostCenterFilter := CopyStr(Text, 1, MaxStrLen(TempFinancialReport.CostCenterFilter));
                         ValidateCostCenterFilter();
-                        Exit(Result);
+                        exit(Result);
                     end;
 
                     trigger OnValidate()
@@ -335,7 +335,7 @@ page 490 "Acc. Schedule Overview"
                         Result := CostObject.LookupCostObjectFilter(Text);
                         TempFinancialReport.CostObjectFilter := CopyStr(Text, 1, MaxStrLen(TempFinancialReport.CostObjectFilter));
                         ValidateCostObjectFilter();
-                        Exit(Result);
+                        exit(Result);
                     end;
 
                     trigger OnValidate()
@@ -801,7 +801,7 @@ page 490 "Acc. Schedule Overview"
             {
                 ApplicationArea = Basic, Suite;
                 Caption = 'Row definition';
-                Image = Edit;
+                Image = SetupLines;
                 ToolTip = 'Edit the row definition of this financial report.';
 
                 trigger OnAction()

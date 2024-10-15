@@ -1,4 +1,5 @@
-﻿// ------------------------------------------------------------------------------------------------
+﻿#if not CLEAN25
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -17,6 +18,9 @@ report 10116 "Vendor 1099 Misc 2020"
     ApplicationArea = Basic, Suite;
     Caption = 'Vendor 1099 Misc 2020';
     UsageCategory = ReportsAndAnalysis;
+    ObsoleteReason = 'Moved to IRS Forms App.';
+    ObsoleteState = Pending;
+    ObsoleteTag = '25.0';
 
     dataset
     {
@@ -299,16 +303,14 @@ report 10116 "Vendor 1099 Misc 2020"
         EntryApplicationManagement: Codeunit "Entry Application Management";
     begin
         EntryApplicationManagement.GetAppliedVendorEntries(TempVendorLedgerEntry, VendorNo, PeriodDate, true);
-        with TempVendorLedgerEntry do begin
-            SetFilter("Document Type", '%1|%2', "Document Type"::Invoice, "Document Type"::"Credit Memo");
-            SetFilter("IRS 1099 Amount", '<>0');
-            SetRange("IRS 1099 Code", 'MISC-', 'MISC-99');
-            if FindSet() then
-                repeat
-                    IRS1099Management.Calculate1099Amount(
-                      Invoice1099Amount, Amounts, Codes, LastLineNo, TempVendorLedgerEntry, "Amount to Apply");
-                until Next() = 0;
-        end;
+        TempVendorLedgerEntry.SetFilter("Document Type", '%1|%2', TempVendorLedgerEntry."Document Type"::Invoice, TempVendorLedgerEntry."Document Type"::"Credit Memo");
+        TempVendorLedgerEntry.SetFilter("IRS 1099 Amount", '<>0');
+        TempVendorLedgerEntry.SetRange("IRS 1099 Code", 'MISC-', 'MISC-99');
+        if TempVendorLedgerEntry.FindSet() then
+            repeat
+                IRS1099Management.Calculate1099Amount(
+                  Invoice1099Amount, Amounts, Codes, LastLineNo, TempVendorLedgerEntry, TempVendorLedgerEntry."Amount to Apply");
+            until TempVendorLedgerEntry.Next() = 0;
     end;
 
     procedure UpdateLines("Code": Code[10]; Amount: Decimal): Integer
@@ -332,3 +334,4 @@ report 10116 "Vendor 1099 Misc 2020"
     end;
 }
 
+#endif

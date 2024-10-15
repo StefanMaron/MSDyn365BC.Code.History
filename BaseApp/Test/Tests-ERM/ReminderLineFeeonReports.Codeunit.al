@@ -193,7 +193,7 @@ codeunit 134993 "Reminder - Line Fee on Reports"
         CustomerPostingGroup.FindFirst();
         CustomerPostingGroup.ModifyAll("Add. Fee per Line Account", CustomerPostingGroup."Additional Fee Account");
 
-        LibraryERM.CreateVATBusinessPostingGroup(VATBusinessPostingGroup);
+        LibraryERM.CreateVATBusinessPostingGroup(VATBusinessPostingGroup); // NA
         LibraryERM.CreateVATProductPostingGroup(VATProductPostingGroup);
         LibraryERM.CreateVATPostingSetup(VATPostingSetup, VATBusinessPostingGroup.Code, VATProductPostingGroup.Code);
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"Reminder - Line Fee on Reports");
@@ -418,7 +418,7 @@ codeunit 134993 "Reminder - Line Fee on Reports"
         end;
 
         // expected result
-        if LanguageCode <> Language.GetUserLanguageCode then begin
+        if LanguageCode <> Language.GetUserLanguageCode() then begin
             ReminderTermsTranslation.Get(ReminderTerms.Code, LanguageCode);
             TextOnReportExpected := ReminderTermsTranslation."Note About Line Fee on Report"
         end else
@@ -428,7 +428,7 @@ codeunit 134993 "Reminder - Line Fee on Reports"
             CurrencyCode, AddFeeDueDate, Format(MarginalPerc, 0, 9));
 
         if LevelNo = 1 then
-            LibraryReportDataset.LoadDataSetFile;
+            LibraryReportDataset.LoadDataSetFile();
 
         if AddFeePerLine > 0 then
             LibraryReportDataset.AssertElementWithValueExists('LineFeeCaptionLbl', ElementExpectedValue)
@@ -441,7 +441,7 @@ codeunit 134993 "Reminder - Line Fee on Reports"
     procedure RHServiceInvoice(var ServiceInvoice: TestRequestPage "Service - Invoice")
     begin
         ServiceInvoice.DisplayAdditionalFeeNote.SetValue(true);
-        ServiceInvoice.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName)
+        ServiceInvoice.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName())
     end;
 }
 

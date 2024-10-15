@@ -71,7 +71,7 @@ codeunit 144013 "Sales Documents With Tax"
         PostedSalesDocumentResourceWithTax(SalesHeader."Document Type"::"Credit Memo");
     end;
 
-    local procedure PostedSalesDocumentResourceWithTax(DocumentType: Option)
+    local procedure PostedSalesDocumentResourceWithTax(DocumentType: Enum "Sales Document Type")
     var
         Customer: Record Customer;
         TaxGroup: Record "Tax Group";
@@ -157,7 +157,7 @@ codeunit 144013 "Sales Documents With Tax"
 
         // Verify: Verify Amount To Apply and Total Applied Customer Ledger Entry on Report - Cash Applied.
         FindVATEntry(DocumentNo, VATEntry);
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists('TotalApplied', AmountToApply);
         LibraryReportDataset.AssertElementWithValueExists('TotalApplied_CustLedgEntry', LineAmount - AmountToApply);
     end;
@@ -200,7 +200,7 @@ codeunit 144013 "Sales Documents With Tax"
         // Update Purchases Payables Setup, Create two Sales Order, Create Requisition Line, Get Sales Orders.
         UpdatePurchasesPayablesSetup(OldCombineSpecialOrdersDefault, CombineSpecialOrdersDefault);
         CreateCustomer(Customer);
-        CreateSalesDocumentWithShipToCode(SalesHeader, SalesLine, CreateLocation(''), Customer."No.", CreateItem, CreatePurchasingCode);
+        CreateSalesDocumentWithShipToCode(SalesHeader, SalesLine, CreateLocation(''), Customer."No.", CreateItem(), CreatePurchasingCode());
         CreateSalesDocumentWithShipToCode(
           SalesHeader2, SalesLine2, SalesHeader."Location Code", SalesHeader."Sell-to Customer No.",
           SalesLine."No.", SalesLine."Purchasing Code");
@@ -209,7 +209,7 @@ codeunit 144013 "Sales Documents With Tax"
         RunGetSalesOrdersReport(RequisitionLine, SalesLine2."Document No.");
 
         // Exercise: Create Purchase Order by Carry Out Action Message Action.
-        LibraryPlanning.CarryOutReqWksh(RequisitionLine, WorkDate(), WorkDate, WorkDate(), WorkDate, '');  // Blank value for Your Reference.
+        LibraryPlanning.CarryOutReqWksh(RequisitionLine, WorkDate(), WorkDate(), WorkDate(), WorkDate(), '');  // Blank value for Your Reference.
 
         // Verify: Verify Purchase Order is created by Carry Out Action.
         SalesLine.Get(SalesLine."Document Type", SalesLine."Document No.", SalesLine."Line No.");
@@ -323,7 +323,7 @@ codeunit 144013 "Sales Documents With Tax"
         Item.Validate("Replenishment System", Item."Replenishment System"::Purchase);
         Item.Validate("VAT Prod. Posting Group", '');  // Blank value required for creating Sales Line.
         Item.Validate("Unit Cost", LibraryRandom.RandDec(10, 2));  // Take Random Unit Cost.
-        Item.Validate("Vendor No.", CreateVendor);
+        Item.Validate("Vendor No.", CreateVendor());
         Item.Modify(true);
         exit(Item."No.");
     end;
@@ -360,19 +360,19 @@ codeunit 144013 "Sales Documents With Tax"
         exit(Vendor."No.");
     end;
 
-    local procedure CreateSalesDocument(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; DocumentType: Option; CustomerNo: Code[20]; Type: Option; No: Code[20]; Quantity: Decimal)
+    local procedure CreateSalesDocument(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; DocumentType: Enum "Sales Document Type"; CustomerNo: Code[20]; Type: Enum "Sales Line Type"; No: Code[20]; Quantity: Decimal)
     begin
         LibrarySales.CreateSalesHeader(SalesHeader, DocumentType, CustomerNo);
         CreateSalesLine(SalesHeader, SalesLine, Type, No, Quantity);
     end;
 
-    local procedure CreateSalesDocumentWithFullLineDiscount(var SalesHeader: Record "Sales Header"; DocumentType: Option; var SalesLine: Record "Sales Line")
+    local procedure CreateSalesDocumentWithFullLineDiscount(var SalesHeader: Record "Sales Header"; DocumentType: Enum "Sales Document Type"; var SalesLine: Record "Sales Line")
     var
         Customer: Record Customer;
         Item: Record Item;
     begin
         CreateCustomer(Customer);
-        Item.Get(CreateItem);
+        Item.Get(CreateItem());
         CreateSalesDocument(
           SalesHeader, SalesLine, DocumentType, Customer."No.", SalesLine.Type::Item, Item."No.", LibraryRandom.RandInt(10));  // Random value for Quantity.
         UpdateSalesLineInvoiceToQtyAndLineDiscountPct(SalesLine);  // Update partially Quantity to Invoice and 100 % Line discount - full line discount.
@@ -389,7 +389,7 @@ codeunit 144013 "Sales Documents With Tax"
         SalesLine.Modify(true);
     end;
 
-    local procedure CreateSalesDocumentWithVAT(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; DocumentType: Option; CustomerNo: Code[20]; Type: Option; No: Code[20]; TaxGroupCode: Code[20])
+    local procedure CreateSalesDocumentWithVAT(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; DocumentType: Enum "Sales Document Type"; CustomerNo: Code[20]; Type: Enum "Sales Line Type"; No: Code[20]; TaxGroupCode: Code[20])
     begin
         CreateSalesDocument(SalesHeader, SalesLine, DocumentType, CustomerNo, Type, No, LibraryRandom.RandDecInRange(1, 10, 2));  // Random value for Quantity.
         SalesLine.Validate("VAT Prod. Posting Group", '');
@@ -398,16 +398,16 @@ codeunit 144013 "Sales Documents With Tax"
         SalesLine.Modify(true);
     end;
 
-    local procedure CreateSalesHeader(var SalesHeader: Record "Sales Header"; DocumentType: Option; TaxAreaCode: Code[20])
+    local procedure CreateSalesHeader(var SalesHeader: Record "Sales Header"; DocumentType: Enum "Sales Document Type"; TaxAreaCode: Code[20])
     begin
-        LibrarySales.CreateSalesHeader(SalesHeader, DocumentType, LibrarySales.CreateCustomerNo);
+        LibrarySales.CreateSalesHeader(SalesHeader, DocumentType, LibrarySales.CreateCustomerNo());
         SalesHeader."VAT Bus. Posting Group" := '';
         SalesHeader."Tax Area Code" := TaxAreaCode;
         SalesHeader."Tax Liable" := true;
         SalesHeader.Modify();
     end;
 
-    local procedure CreateSalesLine(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; Type: Option; No: Code[20]; Quantity: Decimal)
+    local procedure CreateSalesLine(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; Type: Enum "Sales Line Type"; No: Code[20]; Quantity: Decimal)
     begin
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, Type, No, Quantity);
         SalesLine.Validate("Tax Group Code", '');
@@ -415,7 +415,7 @@ codeunit 144013 "Sales Documents With Tax"
         SalesLine.Modify(true);
     end;
 
-    local procedure CreateSalesLineWithTaxSetup(var SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header"; LineType: Option; No: Code[20]; Qty: Decimal; TaxGroupCode: Code[20]; TaxAreaCode: Code[20]; TaxLiable: Boolean; VATPct: Decimal; UnitPrice: Decimal; LineAmount: Decimal)
+    local procedure CreateSalesLineWithTaxSetup(var SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header"; LineType: Enum "Sales Line Type"; No: Code[20]; Qty: Decimal; TaxGroupCode: Code[20]; TaxAreaCode: Code[20]; TaxLiable: Boolean; VATPct: Decimal; UnitPrice: Decimal; LineAmount: Decimal)
     begin
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, LineType, No, Qty);
         with SalesLine do begin
@@ -439,8 +439,8 @@ codeunit 144013 "Sales Documents With Tax"
 
     local procedure CreateTaxDetailSimple(var TaxDetail: Record "Tax Detail")
     begin
-        TaxDetail."Tax Jurisdiction Code" := CreateTaxJurisdiction;
-        TaxDetail."Tax Group Code" := CreateTaxGroup;
+        TaxDetail."Tax Jurisdiction Code" := CreateTaxJurisdiction();
+        TaxDetail."Tax Group Code" := CreateTaxGroup();
         TaxDetail."Tax Below Maximum" := LibraryRandom.RandDec(10, 2);
         TaxDetail.Insert();
     end;
@@ -451,7 +451,7 @@ codeunit 144013 "Sales Documents With Tax"
         TaxJurisdiction: Record "Tax Jurisdiction";
     begin
         LibraryERM.CreateTaxJurisdiction(TaxJurisdiction);
-        TaxJurisdiction."Tax Account (Sales)" := CreateGLAccount;
+        TaxJurisdiction."Tax Account (Sales)" := CreateGLAccount();
         TaxJurisdiction.Modify(true);
         LibraryERM.CreateTaxArea(TaxArea);
         LibraryERM.CreateTaxAreaLine(TaxAreaLine, TaxArea.Code, TaxJurisdiction.Code);
@@ -474,7 +474,7 @@ codeunit 144013 "Sales Documents With Tax"
     var
         TaxGroup: Record "Tax Group";
     begin
-        TaxGroup.Code := LibraryUTUtility.GetNewCode10;
+        TaxGroup.Code := LibraryUTUtility.GetNewCode10();
         TaxGroup.Insert();
         exit(TaxGroup.Code);
     end;
@@ -483,7 +483,7 @@ codeunit 144013 "Sales Documents With Tax"
     var
         TaxJurisdiction: Record "Tax Jurisdiction";
     begin
-        TaxJurisdiction.Code := LibraryUTUtility.GetNewCode10;
+        TaxJurisdiction.Code := LibraryUTUtility.GetNewCode10();
         TaxJurisdiction."Tax Account (Sales)" := LibraryERM.CreateGLAccountNo();
         TaxJurisdiction.Insert();
         exit(TaxJurisdiction.Code);
@@ -539,9 +539,9 @@ codeunit 144013 "Sales Documents With Tax"
         LibraryERM.CreateGeneralJnlLine(
           GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, GenJournalLine."Document Type"::Payment,
           GenJournalLine."Account Type"::Customer, AccountNo, -Amount);
-        GeneralJournal.OpenEdit;
+        GeneralJournal.OpenEdit();
         GeneralJournal.CurrentJnlBatchName.SetValue(GenJournalBatch.Name);
-        GeneralJournal."Apply Entries".Invoke;  // Opens handler - ApplyCustomerEntriesModalPageHandler.
+        GeneralJournal."Apply Entries".Invoke();  // Opens handler - ApplyCustomerEntriesModalPageHandler.
         GeneralJournal.Close();
     end;
 
@@ -580,9 +580,9 @@ codeunit 144013 "Sales Documents With Tax"
     var
         PostedSalesInvoice: TestPage "Posted Sales Invoice";
     begin
-        PostedSalesInvoice.OpenEdit;
+        PostedSalesInvoice.OpenEdit();
         PostedSalesInvoice.FILTER.SetFilter("No.", No);
-        PostedSalesInvoice.Statistics.Invoke;
+        PostedSalesInvoice.Statistics.Invoke();
         PostedSalesInvoice.Close();
     end;
 
@@ -702,9 +702,9 @@ codeunit 144013 "Sales Documents With Tax"
         AmountToApply: Variant;
     begin
         LibraryVariableStorage.Dequeue(AmountToApply);
-        ApplyCustomerEntries."Set Applies-to ID".Invoke;
+        ApplyCustomerEntries."Set Applies-to ID".Invoke();
         ApplyCustomerEntries."Amount to Apply".SetValue(AmountToApply);
-        ApplyCustomerEntries.OK.Invoke;
+        ApplyCustomerEntries.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -715,14 +715,14 @@ codeunit 144013 "Sales Documents With Tax"
     begin
         LibraryVariableStorage.Dequeue(TaxAmount);
         SalesInvoiceStats.TaxAmount.AssertEquals(TaxAmount);
-        SalesInvoiceStats.OK.Invoke;
+        SalesInvoiceStats.OK().Invoke();
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure CashAppliedRequestPageHandler(var CashApplied: TestRequestPage "Cash Applied")
     begin
-        CashApplied.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        CashApplied.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 }
 

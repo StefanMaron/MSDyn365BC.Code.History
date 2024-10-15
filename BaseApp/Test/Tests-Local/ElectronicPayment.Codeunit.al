@@ -105,12 +105,12 @@ codeunit 141037 "Electronic Payment"
         LibraryERM.ClearGenJournalLines(GenJournalBatch);
 
         // Run multiple times suggest vendor payment for different vendors.
-        PaymentJournal.OpenEdit;
+        PaymentJournal.OpenEdit();
         SuggestVendorPayment(PaymentJournal, GenJournalBatch.Name, PurchaseLine."Buy-from Vendor No.", BankAccount."No.");
         SuggestVendorPayment(PaymentJournal, GenJournalBatch.Name, PurchaseLine2."Buy-from Vendor No.", BankAccount."No.");
 
         // Exercise.
-        PaymentJournal.Post.Invoke;
+        PaymentJournal.Post.Invoke();
         PaymentJournal.Close();
 
         // Verify: Verify Vendor balance after post payment.
@@ -262,7 +262,7 @@ codeunit 141037 "Electronic Payment"
         LibraryVariableStorage.Enqueue(VendorNo);
         LibraryVariableStorage.Enqueue(BankAccountNo);
         PaymentJournal.CurrentJnlBatchName.SetValue(JournalBatchName);
-        PaymentJournal.SuggestVendorPayments.Invoke;  // Opens handler - SuggestVendorPaymentRequestPageHandler.
+        PaymentJournal.SuggestVendorPayments.Invoke();  // Opens handler - SuggestVendorPaymentRequestPageHandler.
     end;
 
     local procedure UpdatePaymentJournalForeignExchange(var GenJournalLine: Record "Gen. Journal Line")
@@ -286,11 +286,11 @@ codeunit 141037 "Electronic Payment"
     local procedure CreateNoSeriesWithAllFalse(var NoSeriesLine: Record "No. Series Line")
     var
         NoSeries: Record "No. Series";
-        NoSeriesMgt: Codeunit NoSeriesManagement;
+        NoSeriesCodeunit: Codeunit "No. Series";
     begin
         LibraryUtility.CreateNoSeries(NoSeries, false, false, false);
         LibraryUtility.CreateNoSeriesLine(NoSeriesLine, NoSeries.Code, '', '');
-        NoSeriesMgt.GetNextNo(NoSeries.Code, WorkDate(), true);
+        NoSeriesCodeunit.GetNextNo(NoSeries.Code);
         NoSeriesLine.Find();
     end;
 
@@ -342,7 +342,7 @@ codeunit 141037 "Electronic Payment"
         GLEntry.SetRange("Bal. Account No.", GenJournalLine."Bal. Account No.");
         GLEntry.FindFirst();
         Assert.AreNearlyEqual(
-          GenJournalLine.Amount, GLEntry.Amount, LibraryERM.GetAmountRoundingPrecision,
+          GenJournalLine.Amount, GLEntry.Amount, LibraryERM.GetAmountRoundingPrecision(),
           StrSubstNo(AmountErr, GLEntry.FieldCaption(Amount), GLEntry.Amount, GLEntry.TableCaption()));
     end;
 
@@ -371,7 +371,7 @@ codeunit 141037 "Electronic Payment"
         SuggestVendorPayments.BalAccountType.SetValue(GenJournalLine."Bal. Account Type"::"Bank Account");
         SuggestVendorPayments.BalAccountNo.SetValue(BankAccountNo);
         SuggestVendorPayments.Vendor.SetFilter("No.", VendorNo);
-        SuggestVendorPayments.OK.Invoke;
+        SuggestVendorPayments.OK().Invoke();
     end;
 
     [ConfirmHandler]

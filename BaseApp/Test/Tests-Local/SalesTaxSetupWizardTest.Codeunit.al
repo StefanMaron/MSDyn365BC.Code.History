@@ -35,7 +35,7 @@ codeunit 140552 "Sales Tax Setup Wizard Test"
         TempSalesTaxSetupWizard."Tax Account (Sales)" := GLAccount."No.";
 
         // [WHEN] Some arbitrary information is entered into the wizard
-        TempSalesTaxSetupWizard."Tax Area Code" := CopyStr(CreateGuid, 2, 20);
+        TempSalesTaxSetupWizard."Tax Area Code" := CopyStr(CreateGuid(), 2, 20);
 
         // [WHEN] Sales tax setup wizard is canceled
         RunWizardToCompletion(SalesTaxSetupWizard, TempSalesTaxSetupWizard);
@@ -59,7 +59,7 @@ codeunit 140552 "Sales Tax Setup Wizard Test"
         Initialize(GLAccount);
 
         // [WHEN] Sales tax setup wizard is canceled
-        SalesTaxSetupWizard.Trap;
+        SalesTaxSetupWizard.Trap();
         PAGE.Run(PAGE::"Sales Tax Setup Wizard");
         SalesTaxSetupWizard.Close();
 
@@ -82,11 +82,11 @@ codeunit 140552 "Sales Tax Setup Wizard Test"
         TempSalesTaxSetupWizard."Tax Account (Sales)" := GLAccount."No.";
 
         // [WHEN] Some arbitrary information is entered into the wizard
-        TempSalesTaxSetupWizard."Tax Area Code" := CopyStr(CreateGuid, 2, 20);
+        TempSalesTaxSetupWizard."Tax Area Code" := CopyStr(CreateGuid(), 2, 20);
 
         // [WHEN] Sales tax setup wizard is completed
         RunWizardToCompletion(SalesTaxSetupWizard, TempSalesTaxSetupWizard);
-        SalesTaxSetupWizard.Finish.Invoke;
+        SalesTaxSetupWizard.Finish.Invoke();
 
         // [THEN] Status of the setup step is set to Completed
         Assert.IsTrue(GuidedExperience.IsAssistedSetupComplete(ObjectType::Page, PAGE::"Sales Tax Setup Wizard"), 'Guided Experience status should be completed.');
@@ -107,11 +107,11 @@ codeunit 140552 "Sales Tax Setup Wizard Test"
         TempSalesTaxSetupWizard."Tax Account (Sales)" := GLAccount."No.";
 
         // [WHEN] Some arbitrary information is entered into the wizard
-        TempSalesTaxSetupWizard."Tax Area Code" := CopyStr(CreateGuid, 2, 20);
+        TempSalesTaxSetupWizard."Tax Area Code" := CopyStr(CreateGuid(), 2, 20);
 
         // [WHEN] Sales tax setup wizard is completed
         RunWizardToCompletion(SalesTaxSetupWizard, TempSalesTaxSetupWizard);
-        SalesTaxSetupWizard.Finish.Invoke;
+        SalesTaxSetupWizard.Finish.Invoke();
 
         // [THEN] A tax group is created
         TaxGroup.Get('TAXABLE');
@@ -133,11 +133,11 @@ codeunit 140552 "Sales Tax Setup Wizard Test"
 
         // [WHEN] Some arbitrary information is entered into the wizard
         TempSalesTaxSetupWizard."Tax Account (Sales)" := GLAccount."No.";
-        TempSalesTaxSetupWizard."Tax Area Code" := CopyStr(CreateGuid, 2, 20);
+        TempSalesTaxSetupWizard."Tax Area Code" := CopyStr(CreateGuid(), 2, 20);
 
         // [WHEN] Sales tax setup wizard is completed
         RunWizardToCompletion(SalesTaxSetupWizard, TempSalesTaxSetupWizard);
-        SalesTaxSetupWizard.Finish.Invoke;
+        SalesTaxSetupWizard.Finish.Invoke();
 
         // [THEN] The tax area is created
         TaxArea.Get(TempSalesTaxSetupWizard."Tax Area Code");
@@ -331,7 +331,7 @@ codeunit 140552 "Sales Tax Setup Wizard Test"
             Error(GetLastErrorText);
 
         // [THEN] Next button is disabled
-        Assert.AreEqual(false, SalesTaxSetupWizard.ActionNextStep.Enabled, 'Next should be disabled when no accounts have been entered');
+        Assert.AreEqual(false, SalesTaxSetupWizard.ActionNextStep.Enabled(), 'Next should be disabled when no accounts have been entered');
     end;
 
     [Test]
@@ -350,15 +350,15 @@ codeunit 140552 "Sales Tax Setup Wizard Test"
         TempSalesTaxSetupWizard."Tax Account (Purchases)" := GLAccount."No.";
 
         // [WHEN] County and state tax information is entered, but city is empty
-        TempSalesTaxSetupWizard.County := CopyStr(CreateGuid, 2, 30);
+        TempSalesTaxSetupWizard.County := CopyStr(CreateGuid(), 2, 30);
         TempSalesTaxSetupWizard."County Rate" := LibraryRandom.RandDec(3, 2);
-        TempSalesTaxSetupWizard.State := CopyStr(CreateGuid, 2, 2);
+        TempSalesTaxSetupWizard.State := CopyStr(CreateGuid(), 2, 2);
         TempSalesTaxSetupWizard."State Rate" := LibraryRandom.RandDec(3, 2);
 
         // [WHEN] Wizard is stepped through to completion with the values
         RunWizardToCompletion(SalesTaxSetupWizard, TempSalesTaxSetupWizard);
-        TaxArea := SalesTaxSetupWizard."Tax Area Code".Value;
-        SalesTaxSetupWizard.Finish.Invoke;
+        TaxArea := SalesTaxSetupWizard."Tax Area Code".Value();
+        SalesTaxSetupWizard.Finish.Invoke();
 
         // [THEN] Tax area has been created
         CheckTaxArea(TaxArea);
@@ -392,15 +392,15 @@ codeunit 140552 "Sales Tax Setup Wizard Test"
         TempSalesTaxSetupWizard."Tax Account (Purchases)" := GLAccount."No.";
 
         // [WHEN] City and state tax information is entered, but county is empty
-        TempSalesTaxSetupWizard.City := CopyStr(CreateGuid, 2, 30);
+        TempSalesTaxSetupWizard.City := CopyStr(CreateGuid(), 2, 30);
         TempSalesTaxSetupWizard."City Rate" := LibraryRandom.RandDec(3, 2);
-        TempSalesTaxSetupWizard.State := CopyStr(CreateGuid, 2, 2);
+        TempSalesTaxSetupWizard.State := CopyStr(CreateGuid(), 2, 2);
         TempSalesTaxSetupWizard."State Rate" := LibraryRandom.RandDec(3, 2);
 
         // [WHEN] Wizard is stepped through to completion with the values
         RunWizardToCompletion(SalesTaxSetupWizard, TempSalesTaxSetupWizard);
-        TaxArea := SalesTaxSetupWizard."Tax Area Code".Value;
-        SalesTaxSetupWizard.Finish.Invoke;
+        TaxArea := SalesTaxSetupWizard."Tax Area Code".Value();
+        SalesTaxSetupWizard.Finish.Invoke();
 
         // [THEN] Tax area has been created
         CheckTaxArea(TaxArea);
@@ -434,15 +434,15 @@ codeunit 140552 "Sales Tax Setup Wizard Test"
         TempSalesTaxSetupWizard."Tax Account (Purchases)" := GLAccount."No.";
 
         // [WHEN] City and county tax information is entered, but state is empty
-        TempSalesTaxSetupWizard.City := CopyStr(CreateGuid, 2, 30);
+        TempSalesTaxSetupWizard.City := CopyStr(CreateGuid(), 2, 30);
         TempSalesTaxSetupWizard."City Rate" := LibraryRandom.RandDec(3, 2);
-        TempSalesTaxSetupWizard.County := CopyStr(CreateGuid, 2, 2);
+        TempSalesTaxSetupWizard.County := CopyStr(CreateGuid(), 2, 2);
         TempSalesTaxSetupWizard."County Rate" := LibraryRandom.RandDec(3, 2);
 
         // [WHEN] Wizard is stepped through to completion with the values
         RunWizardToCompletion(SalesTaxSetupWizard, TempSalesTaxSetupWizard);
-        TaxArea := SalesTaxSetupWizard."Tax Area Code".Value;
-        SalesTaxSetupWizard.Finish.Invoke;
+        TaxArea := SalesTaxSetupWizard."Tax Area Code".Value();
+        SalesTaxSetupWizard.Finish.Invoke();
 
         // [THEN] Tax area has been created
         CheckTaxArea(TaxArea);
@@ -651,7 +651,7 @@ codeunit 140552 "Sales Tax Setup Wizard Test"
 
         // [WHEN] Some arbitrary information is entered into the wizard
         TempSalesTaxSetupWizard."Tax Account (Sales)" := GLAccount."No.";
-        TempSalesTaxSetupWizard."Tax Area Code" := CopyStr(CreateGuid, 2, 20);
+        TempSalesTaxSetupWizard."Tax Area Code" := CopyStr(CreateGuid(), 2, 20);
 
         // [WHEN] Sales tax setup wizard is semi-completed with the option to assign new tax code to customers set to true
         RunWizardToCompletion(SalesTaxSetupWizard, TempSalesTaxSetupWizard);
@@ -659,7 +659,7 @@ codeunit 140552 "Sales Tax Setup Wizard Test"
 
         // [THEN] Upon closing the wizard the page to assign customers to tax area code opens
         LibraryVariableStorage.Enqueue(TempSalesTaxSetupWizard."Tax Area Code");
-        SalesTaxSetupWizard.Finish.Invoke;
+        SalesTaxSetupWizard.Finish.Invoke();
     end;
 
     [Test]
@@ -677,7 +677,7 @@ codeunit 140552 "Sales Tax Setup Wizard Test"
 
         // [WHEN] Some arbitrary information is entered into the wizard
         TempSalesTaxSetupWizard."Tax Account (Sales)" := GLAccount."No.";
-        TempSalesTaxSetupWizard."Tax Area Code" := CopyStr(CreateGuid, 2, 20);
+        TempSalesTaxSetupWizard."Tax Area Code" := CopyStr(CreateGuid(), 2, 20);
 
         // [WHEN] Sales tax setup wizard is semi-completed with the option to assign new tax code to vendors set to true
         RunWizardToCompletion(SalesTaxSetupWizard, TempSalesTaxSetupWizard);
@@ -685,7 +685,7 @@ codeunit 140552 "Sales Tax Setup Wizard Test"
 
         // [THEN] Upon closing the wizard the page to assign vendors to tax area code opens
         LibraryVariableStorage.Enqueue(TempSalesTaxSetupWizard."Tax Area Code");
-        SalesTaxSetupWizard.Finish.Invoke;
+        SalesTaxSetupWizard.Finish.Invoke();
     end;
 
     [Test]
@@ -703,7 +703,7 @@ codeunit 140552 "Sales Tax Setup Wizard Test"
 
         // [WHEN] Some arbitrary information is entered into the wizard
         TempSalesTaxSetupWizard."Tax Account (Sales)" := GLAccount."No.";
-        TempSalesTaxSetupWizard."Tax Area Code" := CopyStr(CreateGuid, 2, 20);
+        TempSalesTaxSetupWizard."Tax Area Code" := CopyStr(CreateGuid(), 2, 20);
 
         // [WHEN] Sales tax setup wizard is semi-completed with the option to assign new tax code to vendors set to true
         RunWizardToCompletion(SalesTaxSetupWizard, TempSalesTaxSetupWizard);
@@ -711,7 +711,7 @@ codeunit 140552 "Sales Tax Setup Wizard Test"
 
         // [THEN] Upon closing the wizard the page to assign vendors to tax area code opens
         LibraryVariableStorage.Enqueue(TempSalesTaxSetupWizard."Tax Area Code");
-        SalesTaxSetupWizard.Finish.Invoke;
+        SalesTaxSetupWizard.Finish.Invoke();
     end;
 
     [Test]
@@ -730,13 +730,13 @@ codeunit 140552 "Sales Tax Setup Wizard Test"
 
         // [WHEN] Some arbitrary information is entered into the wizard
         TempSalesTaxSetupWizard."Tax Account (Sales)" := GLAccount."No.";
-        TaxCode := CopyStr(CreateGuid, 2, 20);
+        TaxCode := CopyStr(CreateGuid(), 2, 20);
         TempSalesTaxSetupWizard."Tax Area Code" := TaxCode;
 
         // [WHEN] Sales tax setup wizard is semi-completed with the option to assign new tax code to locations set to true
         RunWizardToCompletion(SalesTaxSetupWizard, TempSalesTaxSetupWizard);
         SalesTaxSetupWizard.AssignToCompanyInfo.SetValue(true);
-        SalesTaxSetupWizard.Finish.Invoke;
+        SalesTaxSetupWizard.Finish.Invoke();
 
         // [THEN] tax area code is assigned to company information
         if CompanyInformation.FindFirst() then
@@ -761,7 +761,7 @@ codeunit 140552 "Sales Tax Setup Wizard Test"
 
         // [WHEN] Some arbitrary information is entered into the wizard
         TempSalesTaxSetupWizard."Tax Account (Sales)" := GLAccount."No.";
-        TaxCode := CopyStr(CreateGuid, 2, 20);
+        TaxCode := CopyStr(CreateGuid(), 2, 20);
         TempSalesTaxSetupWizard."Tax Area Code" := TaxCode;
 
         // [WHEN] Sales tax setup wizard is semi-completed with the option to assign new tax code to customers,vendors, and locations set to true
@@ -775,7 +775,7 @@ codeunit 140552 "Sales Tax Setup Wizard Test"
         LibraryVariableStorage.Enqueue(TempSalesTaxSetupWizard."Tax Area Code");
         LibraryVariableStorage.Enqueue(TempSalesTaxSetupWizard."Tax Area Code");
         LibraryVariableStorage.Enqueue(TempSalesTaxSetupWizard."Tax Area Code");
-        SalesTaxSetupWizard.Finish.Invoke;
+        SalesTaxSetupWizard.Finish.Invoke();
 
         // [THEN] tax area code is assigned to company information
         if CompanyInformation.FindFirst() then
@@ -793,7 +793,7 @@ codeunit 140552 "Sales Tax Setup Wizard Test"
         TaxSetup: Record "Tax Setup";
     begin
         // [SCENARIO 286191] Run Sales Tax Guided Experience Wizard when g/l account in defaults is removed
-        InitializeSetup;
+        InitializeSetup();
         // [GIVEN] G/L account "ACC"
         LibraryERM.CreateGLAccount(GLAccount);
         // [GIVEN] Tax setup (defaults) with "ACC"
@@ -812,20 +812,20 @@ codeunit 140552 "Sales Tax Setup Wizard Test"
 
     local procedure RunWizardToCompletion(var SalesTaxSetupWizard: TestPage "Sales Tax Setup Wizard"; var TempSalesTaxSetupWizard: Record "Sales Tax Setup Wizard" temporary)
     begin
-        SalesTaxSetupWizard.Trap;
+        SalesTaxSetupWizard.Trap();
         PAGE.Run(PAGE::"Sales Tax Setup Wizard", TempSalesTaxSetupWizard);
 
         // Transfer fields from record to page
         with SalesTaxSetupWizard do begin
-            ActionNextStep.Invoke; // To tax group created page
-            Back.Invoke;
-            ActionNextStep.Invoke;
+            ActionNextStep.Invoke(); // To tax group created page
+            Back.Invoke();
+            ActionNextStep.Invoke();
 
-            ActionNextStep.Invoke; // To tax account page
+            ActionNextStep.Invoke(); // To tax account page
             "Tax Account (Sales)".SetValue(TempSalesTaxSetupWizard."Tax Account (Sales)");
             "Tax Account (Purchases)".SetValue(TempSalesTaxSetupWizard."Tax Account (Purchases)");
 
-            ActionNextStep.Invoke; // To tax rate page
+            ActionNextStep.Invoke(); // To tax rate page
             City.SetValue(TempSalesTaxSetupWizard.City);
             "City Rate".SetValue(TempSalesTaxSetupWizard."City Rate");
 
@@ -835,13 +835,13 @@ codeunit 140552 "Sales Tax Setup Wizard Test"
             State.SetValue(TempSalesTaxSetupWizard.State);
             "State Rate".SetValue(TempSalesTaxSetupWizard."State Rate");
 
-            ActionNextStep.Invoke; // To tax area code page
+            ActionNextStep.Invoke(); // To tax area code page
             if "Tax Area Code".Value = '' then
                 "Tax Area Code".SetValue(TempSalesTaxSetupWizard."Tax Area Code");
 
-            ActionNextStep.Invoke; // To finish page
-            Back.Invoke;
-            ActionNextStep.Invoke;
+            ActionNextStep.Invoke(); // To finish page
+            Back.Invoke();
+            ActionNextStep.Invoke();
         end;
     end;
 
@@ -961,21 +961,21 @@ codeunit 140552 "Sales Tax Setup Wizard Test"
     [Scope('OnPrem')]
     procedure RequestPageHandlerCustomer(var AssignTaxAreatoCustomer: TestRequestPage "Assign Tax Area to Customer")
     begin
-        AssignTaxAreatoCustomer.OK.Invoke;
+        AssignTaxAreatoCustomer.OK().Invoke();
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure RequestPageHandlerVendor(var AssignTaxAreatoVendor: TestRequestPage "Assign Tax Area to Vendor")
     begin
-        AssignTaxAreatoVendor.OK.Invoke;
+        AssignTaxAreatoVendor.OK().Invoke();
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure RequestPageHandlerLocation(var AssignTaxAreatoLocation: TestRequestPage "Assign Tax Area to Location")
     begin
-        AssignTaxAreatoLocation.OK.Invoke;
+        AssignTaxAreatoLocation.OK().Invoke();
     end;
 
     [RequestPageHandler]
@@ -987,7 +987,7 @@ codeunit 140552 "Sales Tax Setup Wizard Test"
         LibraryVariableStorage.Dequeue(ExpectedTaxAreaCode);
         Assert.IsTrue(StrPos(AssignTaxAreatoCustomer."Tax Area Code Name".Value, ExpectedTaxAreaCode) > 0,
           AssignTaxAreatoCustomer."Tax Area Code Name".Value);
-        AssignTaxAreatoCustomer.Cancel.Invoke;
+        AssignTaxAreatoCustomer.Cancel().Invoke();
     end;
 
     [RequestPageHandler]
@@ -999,7 +999,7 @@ codeunit 140552 "Sales Tax Setup Wizard Test"
         LibraryVariableStorage.Dequeue(ExpectedTaxAreaCode);
         Assert.IsTrue(StrPos(AssignTaxAreatoVendor."Tax Area Code".Value, ExpectedTaxAreaCode) > 0,
           AssignTaxAreatoVendor."Tax Area Code".Value);
-        AssignTaxAreatoVendor.Cancel.Invoke;
+        AssignTaxAreatoVendor.Cancel().Invoke();
     end;
 
     [RequestPageHandler]
@@ -1011,7 +1011,7 @@ codeunit 140552 "Sales Tax Setup Wizard Test"
         LibraryVariableStorage.Dequeue(ExpectedTaxAreaCode);
         Assert.IsTrue(StrPos(AssignTaxAreatoLocation."Tax Area Code".Value, ExpectedTaxAreaCode) > 0,
           AssignTaxAreatoLocation."Tax Area Code".Value);
-        AssignTaxAreatoLocation.Cancel.Invoke;
+        AssignTaxAreatoLocation.Cancel().Invoke();
     end;
 }
 

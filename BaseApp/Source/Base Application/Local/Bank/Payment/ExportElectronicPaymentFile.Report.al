@@ -278,14 +278,13 @@ report 11380 "Export Electronic Payment File"
         CompanyInformation.Get();
         GenJournalTemplate.Get("Gen. Journal Line".GetFilter("Journal Template Name"));
 
-        with BankAccount do begin
-            LockTable();
-            Get("No.");
-            TestField(Blocked, false);
-            TestField("Currency Code", '');  // local currency only
-            TestField("Export Format");
-            TestField("Last Remittance Advice No.");
-        end;
+        BankAccount.LockTable();
+        BankAccount.Get(BankAccount."No.");
+        BankAccount.TestField(Blocked, false);
+        BankAccount.TestField("Currency Code", '');
+        // local currency only
+        BankAccount.TestField("Export Format");
+        BankAccount.TestField("Last Remittance Advice No.");
 
         GenJournalTemplate.Get("Gen. Journal Line".GetFilter("Journal Template Name"));
         if not GenJournalTemplate."Force Doc. Balance" then
@@ -330,28 +329,26 @@ report 11380 "Export Electronic Payment File"
     var
         CheckLedgerEntry: Record "Check Ledger Entry";
     begin
-        with CheckLedgerEntry do begin
-            Init();
-            "Bank Account No." := BankAccount."No.";
-            "Posting Date" := SettleDate;
-            "Document Type" := "Gen. Journal Line"."Document Type";
-            "Document No." := "Gen. Journal Line"."Document No.";
-            Description := "Gen. Journal Line".Description;
-            "Bank Payment Type" := "Bank Payment Type"::"Electronic Payment";
-            "Entry Status" := "Entry Status"::Exported;
-            "Check Date" := SettleDate;
-            "Check No." := "Gen. Journal Line"."Document No.";
-            if BankAccountIs = BankAccountIs::Acnt then begin
-                "Bal. Account Type" := "Gen. Journal Line"."Bal. Account Type";
-                "Bal. Account No." := "Gen. Journal Line"."Bal. Account No.";
-            end else begin
-                "Bal. Account Type" := "Gen. Journal Line"."Account Type";
-                "Bal. Account No." := "Gen. Journal Line"."Account No.";
-            end;
-            "Trace No." := Trace;
-            "Transmission File Name" := "Gen. Journal Line"."Export File Name";
-            Amount := Amt;
+        CheckLedgerEntry.Init();
+        CheckLedgerEntry."Bank Account No." := BankAccount."No.";
+        CheckLedgerEntry."Posting Date" := SettleDate;
+        CheckLedgerEntry."Document Type" := "Gen. Journal Line"."Document Type";
+        CheckLedgerEntry."Document No." := "Gen. Journal Line"."Document No.";
+        CheckLedgerEntry.Description := "Gen. Journal Line".Description;
+        CheckLedgerEntry."Bank Payment Type" := CheckLedgerEntry."Bank Payment Type"::"Electronic Payment";
+        CheckLedgerEntry."Entry Status" := CheckLedgerEntry."Entry Status"::Exported;
+        CheckLedgerEntry."Check Date" := SettleDate;
+        CheckLedgerEntry."Check No." := "Gen. Journal Line"."Document No.";
+        if BankAccountIs = BankAccountIs::Acnt then begin
+            CheckLedgerEntry."Bal. Account Type" := "Gen. Journal Line"."Bal. Account Type";
+            CheckLedgerEntry."Bal. Account No." := "Gen. Journal Line"."Bal. Account No.";
+        end else begin
+            CheckLedgerEntry."Bal. Account Type" := "Gen. Journal Line"."Account Type";
+            CheckLedgerEntry."Bal. Account No." := "Gen. Journal Line"."Account No.";
         end;
+        CheckLedgerEntry."Trace No." := Trace;
+        CheckLedgerEntry."Transmission File Name" := "Gen. Journal Line"."Export File Name";
+        CheckLedgerEntry.Amount := Amt;
         CheckManagement.InsertCheck(CheckLedgerEntry, RecordIdToPrint);
     end;
 

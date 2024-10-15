@@ -57,6 +57,11 @@ page 5775 "Warehouse Setup"
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies what should happen if errors occur when warehouse shipments are posted.';
                 }
+                field("Copy Item Descr. to Entries"; Rec."Copy Item Descr. to Entries")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies if you want the description on item cards to be copied to warehouse entries during registering.';
+                }
             }
             group(Numbering)
             {

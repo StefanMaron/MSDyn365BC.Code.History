@@ -420,8 +420,7 @@ page 10042 "Sales Stats."
             UpdateInvDiscAmount();
             TotalAmount1 := SaveTotalAmount;
         end;
-        with TotalSalesLine do
-            "Inv. Discount Amount" := "Line Amount" - TotalAmount1;
+        TotalSalesLine."Inv. Discount Amount" := TotalSalesLine."Line Amount" - TotalAmount1;
         UpdateInvDiscAmount();
     end;
 
@@ -474,7 +473,7 @@ page 10042 "Sales Stats."
             SalesTaxCalculate.StartSalesTaxCalculation();
             SalesTaxCalculate.PutSalesTaxAmountLineTable(
               TempSalesTaxLine,
-              SalesTaxDifference."Document Product Area"::Sales,
+              SalesTaxDifference."Document Product Area"::Sales.AsInteger(),
               Rec."Document Type".AsInteger(), Rec."No.");
             SalesTaxCalculate.DistTaxOverSalesLines(SalesLine);
             SalesTaxCalculate.SaveTaxDifferences();
@@ -515,29 +514,27 @@ page 10042 "Sales Stats."
             BreakdownTitle := Text006
         else
             BreakdownTitle := Text007;
-        with TempSalesTaxAmtLine do begin
-            Reset();
-            SetCurrentKey("Print Order", "Tax Area Code for Key", "Tax Jurisdiction Code");
-            if Find('-') then
-                repeat
-                    if ("Print Order" = 0) or
-                       ("Print Order" <> PrevPrintOrder) or
-                       ("Tax %" <> PrevTaxPercent)
-                    then begin
-                        BrkIdx := BrkIdx + 1;
-                        if BrkIdx > ArrayLen(BreakdownAmt) then begin
-                            BrkIdx := BrkIdx - 1;
-                            BreakdownLabel[BrkIdx] := Text008;
-                        end else
-                            BreakdownLabel[BrkIdx] := CopyStr(StrSubstNo("Print Description", "Tax %"), 1, MaxStrLen(BreakdownLabel[BrkIdx]));
-                    end;
-                    BreakdownAmt[BrkIdx] := BreakdownAmt[BrkIdx] + "Tax Amount";
-                    if UpdateTaxAmount then
-                        TaxAmount := TaxAmount + "Tax Amount"
-                    else
-                        BreakdownAmt[BrkIdx] := BreakdownAmt[BrkIdx] + "Tax Difference";
-                until Next() = 0;
-        end;
+        TempSalesTaxAmtLine.Reset();
+        TempSalesTaxAmtLine.SetCurrentKey("Print Order", "Tax Area Code for Key", "Tax Jurisdiction Code");
+        if TempSalesTaxAmtLine.Find('-') then
+            repeat
+                if (TempSalesTaxAmtLine."Print Order" = 0) or
+                   (TempSalesTaxAmtLine."Print Order" <> PrevPrintOrder) or
+                   (TempSalesTaxAmtLine."Tax %" <> PrevTaxPercent)
+                then begin
+                    BrkIdx := BrkIdx + 1;
+                    if BrkIdx > ArrayLen(BreakdownAmt) then begin
+                        BrkIdx := BrkIdx - 1;
+                        BreakdownLabel[BrkIdx] := Text008;
+                    end else
+                        BreakdownLabel[BrkIdx] := CopyStr(StrSubstNo(TempSalesTaxAmtLine."Print Description", TempSalesTaxAmtLine."Tax %"), 1, MaxStrLen(BreakdownLabel[BrkIdx]));
+                end;
+                BreakdownAmt[BrkIdx] := BreakdownAmt[BrkIdx] + TempSalesTaxAmtLine."Tax Amount";
+                if UpdateTaxAmount then
+                    TaxAmount := TaxAmount + TempSalesTaxAmtLine."Tax Amount"
+                else
+                    BreakdownAmt[BrkIdx] := BreakdownAmt[BrkIdx] + TempSalesTaxAmtLine."Tax Difference";
+            until TempSalesTaxAmtLine.Next() = 0;
     end;
 
     local procedure OnActivateForm()

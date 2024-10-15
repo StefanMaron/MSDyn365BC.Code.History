@@ -174,12 +174,12 @@ codeunit 137411 "SCM Stockout"
         LibraryInventory.CreateItem(Item);
 
         // Excercise
-        ItemCard.OpenEdit;
+        ItemCard.OpenEdit();
         ItemCard.GotoRecord(Item);
         ItemCard.Type.Value := Format(Item.Type::Service);
 
         // Verify
-        Assert.IsFalse(ItemCard.StockoutWarningDefaultYes.Editable,
+        Assert.IsFalse(ItemCard.StockoutWarningDefaultYes.Editable(),
           'Stockout Warning should NOT be EDITABLE when Item Type is Service');
         ItemCard.StockoutWarningDefaultYes.AssertEquals(Item."Stockout Warning"::No);
 
@@ -188,7 +188,7 @@ codeunit 137411 "SCM Stockout"
         ItemCard.Type.Value := Format(Item.Type::"Non-Inventory");
 
         // Verify
-        Assert.IsFalse(ItemCard.StockoutWarningDefaultYes.Editable,
+        Assert.IsFalse(ItemCard.StockoutWarningDefaultYes.Editable(),
           'Stockout Warning should NOT be EDITABLE when Item Type is Non-Inventory');
         ItemCard.StockoutWarningDefaultYes.AssertEquals(Item."Stockout Warning"::No);
     end;

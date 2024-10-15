@@ -31,6 +31,7 @@ table 21 "Cust. Ledger Entry"
     DrillDownPageID = "Customer Ledger Entries";
     LookupPageID = "Customer Ledger Entries";
     Permissions = tabledata "Reminder/Fin. Charge Entry" = R;
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -667,6 +668,28 @@ table 21 "Cust. Ledger Entry"
             Caption = 'Direct Debit Mandate ID';
             TableRelation = "SEPA Direct Debit Mandate" where("Customer No." = field("Customer No."));
         }
+        field(1340; "Dispute Status"; Code[10])
+        {
+            Caption = 'Dispute Status';
+            TableRelation = "Dispute Status";
+            DataClassification = CustomerContent;
+            trigger OnValidate()
+            var
+                DisputeStatus: Record "Dispute Status";
+                MarkedAsOnHoldLbl: label 'X', Locked = true;
+            begin
+                if Rec."Dispute Status" = '' then
+                    exit;
+                if DisputeStatus.get(Rec."Dispute Status") then
+                    if DisputeStatus."Overwrite on hold" then
+                        "On Hold" := MarkedAsOnHoldLbl;
+            end;
+        }
+        field(1341; "Promised Pay Date"; Date)
+        {
+            Caption = 'Promised Pay Date';
+            DataClassification = CustomerContent;
+        }
         field(10015; "Tax Exemption No."; Text[30])
         {
             Caption = 'Tax Exemption No.';
@@ -940,16 +963,26 @@ table 21 "Cust. Ledger Entry"
 
     procedure ShowPostedDocAttachment()
     var
-        SalesInvoiceHdr: Record "Sales Invoice Header";
-        SalesCrMemoHdr: Record "Sales Cr.Memo Header";
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        SalesCrMemoHeader: Record "Sales Cr.Memo Header";
+        ServiceInvoiceHeader: Record "Service Invoice Header";
+        ServiceCrMemoHeader: Record "Service Cr.Memo Header";
     begin
         case "Document Type" of
             "Document Type"::Invoice:
-                if SalesInvoiceHdr.Get("Document No.") then
-                    OpenDocumentAttachmentDetails(SalesInvoiceHdr);
+                begin
+                    if SalesInvoiceHeader.Get("Document No.") then
+                        OpenDocumentAttachmentDetails(SalesInvoiceHeader);
+                    if ServiceInvoiceHeader.Get("Document No.") then
+                        OpenDocumentAttachmentDetails(ServiceInvoiceHeader);
+                end;
             "Document Type"::"Credit Memo":
-                if SalesCrMemoHdr.Get("Document No.") then
-                    OpenDocumentAttachmentDetails(SalesCrMemoHdr);
+                begin
+                    if SalesCrMemoHeader.Get("Document No.") then
+                        OpenDocumentAttachmentDetails(SalesCrMemoHeader);
+                    if ServiceCrMemoHeader.Get("Document No.") then
+                        OpenDocumentAttachmentDetails(ServiceCrMemoHeader);
+                end;
         end;
 
         OnAfterShowPostedDocAttachment(Rec);
@@ -968,19 +1001,31 @@ table 21 "Cust. Ledger Entry"
     procedure HasPostedDocAttachment(): Boolean
     var
         [SecurityFiltering(SecurityFilter::Filtered)]
-        SalesInvoiceHdr: Record "Sales Invoice Header";
+        SalesInvoiceHeader: Record "Sales Invoice Header";
         [SecurityFiltering(SecurityFilter::Filtered)]
-        SalesCrMemoHdr: Record "Sales Cr.Memo Header";
+        SalesCrMemoHeader: Record "Sales Cr.Memo Header";
+        [SecurityFiltering(SecurityFilter::Filtered)]
+        ServiceInvoiceHeader: Record "Service Invoice Header";
+        [SecurityFiltering(SecurityFilter::Filtered)]
+        ServiceCrMemoHeader: Record "Service Cr.Memo Header";
         DocumentAttachment: Record "Document Attachment";
         HasPostedDocumentAttachment: Boolean;
     begin
         case "Document Type" of
             "Document Type"::Invoice:
-                if SalesInvoiceHdr.Get("Document No.") then
-                    exit(DocumentAttachment.HasPostedDocumentAttachment(SalesInvoiceHdr));
+                begin
+                    if SalesInvoiceHeader.Get("Document No.") then
+                        exit(DocumentAttachment.HasPostedDocumentAttachment(SalesInvoiceHeader));
+                    if ServiceInvoiceHeader.Get("Document No.") then
+                        exit(DocumentAttachment.HasPostedDocumentAttachment(ServiceInvoiceHeader));
+                end;
             "Document Type"::"Credit Memo":
-                if SalesCrMemoHdr.Get("Document No.") then
-                    exit(DocumentAttachment.HasPostedDocumentAttachment(SalesCrMemoHdr));
+                begin
+                    if SalesCrMemoHeader.Get("Document No.") then
+                        exit(DocumentAttachment.HasPostedDocumentAttachment(SalesCrMemoHeader));
+                    if ServiceCrMemoHeader.Get("Document No.") then
+                        exit(DocumentAttachment.HasPostedDocumentAttachment(ServiceCrMemoHeader));
+                end;
         end;
 
         OnAfterHasPostedDocAttachment(Rec, HasPostedDocumentAttachment);
@@ -1054,7 +1099,7 @@ table 21 "Cust. Ledger Entry"
         IsHandled: Boolean;
     begin
         OnBeforeSetStyle(Style, IsHandled);
-        if IsHandled Then
+        if IsHandled then
             exit(Style);
 
         if Open then begin

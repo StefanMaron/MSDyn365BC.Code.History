@@ -26,13 +26,13 @@ codeunit 144014 "Purchase Journal"
         // Verify Last Number Used field of Number Series, Post Purchase Journal.
 
         // Setup: Create Number Series, and Purchase Journal.
-        LibraryLowerPermissions.SetJournalsEdit;
+        LibraryLowerPermissions.SetJournalsEdit();
         LibraryLowerPermissions.AddO365Setup();
         CreateGeneralJournalLine(GenJournalLine, GenJournalBatch);
         LastNoUsed := GenJournalLine."Document No.";
 
         // Exercise: Post Purchase Journal.
-        LibraryLowerPermissions.SetJournalsPost;
+        LibraryLowerPermissions.SetJournalsPost();
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
 
         // Verify: Verify Last No. Used field of Number Series, Updated after posting Purchase Journal.
@@ -47,23 +47,23 @@ codeunit 144014 "Purchase Journal"
     var
         GenJournalBatch: Record "Gen. Journal Batch";
         GenJournalLine: Record "Gen. Journal Line";
-        NoSeriesManagement: Codeunit NoSeriesManagement;
+        NoSeries: Codeunit "No. Series";
         DocumentNo: Code[20];
     begin
         // Verify Document Number on Purchase Journal after Posting Purchase Journal.
 
         // Setup: Create Number Series. Create and Post Purchase Journal.
-        LibraryLowerPermissions.SetJournalsPost;
+        LibraryLowerPermissions.SetJournalsPost();
         LibraryLowerPermissions.AddO365Setup();
         CreateGeneralJournalLine(GenJournalLine, GenJournalBatch);
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
         FindGeneralJournalBatch(GenJournalBatch, GenJournalBatch."Journal Template Name", GenJournalBatch."Bal. Account No.");
-        DocumentNo := NoSeriesManagement.GetNextNo(GenJournalBatch."No. Series", WorkDate(), false);  // FALSE for Modify Series.
+        DocumentNo := NoSeries.PeekNextNo(GenJournalBatch."No. Series");
 
         // Exercise: Create Purchase Journal.
         LibraryERM.CreateGeneralJnlLine(
           GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, GenJournalLine."Document Type"::Payment,
-          GenJournalLine."Account Type"::"G/L Account", CreateGLAccount, LibraryRandom.RandDec(10, 2));  // Random value for Amount.
+          GenJournalLine."Account Type"::"G/L Account", CreateGLAccount(), LibraryRandom.RandDec(10, 2));  // Random value for Amount.
 
         // Verify: Verify Document Number on Purchase Journal with Number Series Next Number.
         GenJournalLine.TestField("Document No.", DocumentNo);
@@ -79,7 +79,7 @@ codeunit 144014 "Purchase Journal"
         LibraryERM.CreateGenJournalTemplate(GenJournalTemplate);
         LibraryERM.CreateGeneralJnlLine(
           GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, GenJournalLine."Document Type"::Payment,
-          GenJournalLine."Account Type"::"G/L Account", CreateGLAccount, LibraryRandom.RandDec(10, 2));  // Random value for Amount.
+          GenJournalLine."Account Type"::"G/L Account", CreateGLAccount(), LibraryRandom.RandDec(10, 2));  // Random value for Amount.
     end;
 
     local procedure CreateGLAccount(): Code[20]

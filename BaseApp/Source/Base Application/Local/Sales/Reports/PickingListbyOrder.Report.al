@@ -284,16 +284,15 @@ report 10153 "Picking List by Order"
                             trigger OnAfterGetRecord()
                             begin
                                 Item.Get("No.");
-                                if Item."Item Tracking Code" <> '' then
-                                    with TrackSpec2 do begin
-                                        SetCurrentKey(
-                                          "Source ID", "Source Type", "Source Subtype", "Source Batch Name", "Source Prod. Order Line", "Source Ref. No.");
-                                        SetRange("Source Type", DATABASE::"Sales Line");
-                                        SetRange("Source Subtype", "Sales Line"."Document Type");
-                                        SetRange("Source ID", "Sales Line"."Document No.");
-                                        SetRange("Source Ref. No.", "Sales Line"."Line No.");
-                                        AnySerialNos := FindFirst();
-                                    end
+                                if Item."Item Tracking Code" <> '' then begin
+                                    TrackSpec2.SetCurrentKey(
+                                      "Source ID", "Source Type", "Source Subtype", "Source Batch Name", "Source Prod. Order Line", "Source Ref. No.");
+                                    TrackSpec2.SetRange("Source Type", DATABASE::"Sales Line");
+                                    TrackSpec2.SetRange("Source Subtype", "Sales Line"."Document Type");
+                                    TrackSpec2.SetRange("Source ID", "Sales Line"."Document No.");
+                                    TrackSpec2.SetRange("Source Ref. No.", "Sales Line"."Line No.");
+                                    AnySerialNos := TrackSpec2.FindFirst();
+                                end
                                 else
                                     AnySerialNos := false;
                             end;
@@ -484,14 +483,12 @@ report 10153 "Picking List by Order"
     var
         SalesLine2: Record "Sales Line";
     begin
-        with SalesLine2 do begin
-            SetCurrentKey(Type, "No.", "Variant Code", "Drop Shipment", "Location Code", "Document Type");
-            SetRange("Document Type", "Sales Header"."Document Type");
-            SetRange("Document No.", "Sales Header"."No.");
-            SetRange("Location Code", LocationCode);
-            SetRange(Type, Type::Item);
-            exit(FindFirst());
-        end;
+        SalesLine2.SetCurrentKey(Type, "No.", "Variant Code", "Drop Shipment", "Location Code", "Document Type");
+        SalesLine2.SetRange("Document Type", "Sales Header"."Document Type");
+        SalesLine2.SetRange("Document No.", "Sales Header"."No.");
+        SalesLine2.SetRange("Location Code", LocationCode);
+        SalesLine2.SetRange(Type, SalesLine2.Type::Item);
+        exit(SalesLine2.FindFirst());
     end;
 }
 

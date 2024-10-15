@@ -1,3 +1,4 @@
+#if not CLEAN25
 codeunit 142055 "UT REP Vendor 1099"
 {
     // Validate feature Vendor 1099.
@@ -19,6 +20,9 @@ codeunit 142055 "UT REP Vendor 1099"
                   TableData "Detailed Vendor Ledg. Entry" = imd;
     Subtype = Test;
     TestPermissions = Disabled;
+    ObsoleteReason = 'Moved to IRS Forms App.';
+    ObsoleteState = Pending;
+    ObsoleteTag = '25.0';
 
     trigger OnRun()
     begin
@@ -81,7 +85,7 @@ codeunit 142055 "UT REP Vendor 1099"
         REPORT.Run(REPORT::"Vendor 1099 Div");
 
         // Verify: Verify Vendor 1099 Div report value.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(GetAmtCombinedDivCodeAB, -VendorLedgerEntry.Amount);
     end;
 
@@ -103,7 +107,7 @@ codeunit 142055 "UT REP Vendor 1099"
         REPORT.Run(REPORT::"Vendor 1099 Information");
 
         // Verify: Verify Vendor 1099 Information report value.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(Amounts, -VendorLedgerEntry.Amount);
     end;
 
@@ -124,7 +128,7 @@ codeunit 142055 "UT REP Vendor 1099"
         REPORT.Run(REPORT::"Vendor 1099 Int");
 
         // Verify: Verify Vendor 1099 Int report value.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(GetAmtINT01, -VendorLedgerEntry.Amount);
     end;
 
@@ -146,7 +150,7 @@ codeunit 142055 "UT REP Vendor 1099"
         REPORT.Run(REPORT::"Vendor 1099 Misc");
 
         // Verify: Verify Vendor 1099 Misc report value.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(GetAmtMISC02, -VendorLedgerEntry.Amount);
     end;
 
@@ -169,7 +173,7 @@ codeunit 142055 "UT REP Vendor 1099"
         REPORT.Run(REPORT::"Vendor 1099 Div");
 
         // [THEN] Exported amount for vendor "A" equal to sum of invoices for "A"
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(GetAmtCombinedDivCodeAB, DocAmountSum);
     end;
 
@@ -193,7 +197,7 @@ codeunit 142055 "UT REP Vendor 1099"
         REPORT.Run(REPORT::"Vendor 1099 Information");
 
         // [THEN] Exported amount for vendor "A" equal to sum of invoices for "A"
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(Amounts, DocAmountSum);
     end;
 
@@ -216,7 +220,7 @@ codeunit 142055 "UT REP Vendor 1099"
         REPORT.Run(REPORT::"Vendor 1099 Int");
 
         // [THEN] Exported amount for vendor "A" equal to sum of invoices for "A"
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(GetAmtINT01, DocAmountSum);
     end;
 
@@ -240,7 +244,7 @@ codeunit 142055 "UT REP Vendor 1099"
         REPORT.Run(REPORT::"Vendor 1099 Misc");
 
         // [THEN] Exported amount for vendor "A" equal to sum of invoices for "A"
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(GetAmtMISC02, DocAmountSum);
     end;
 
@@ -515,7 +519,7 @@ codeunit 142055 "UT REP Vendor 1099"
         REPORT.Run(REPORT::"Vendor 1099 Div", true, false, Vendor);
 
         // [THEN] Report has amount 280
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(
           GetAmtCombinedDivCodeAB, -VendorLedgerEntry.Amount - SecondVendorLedgerEntry.Amount + IRS1099Adjustment.Amount);
     end;
@@ -557,7 +561,7 @@ codeunit 142055 "UT REP Vendor 1099"
         REPORT.Run(REPORT::"Vendor 1099 Misc", true, false, Vendor);
 
         // [THEN] Report has amount 280
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(
           GetAmtMISC02, -VendorLedgerEntry.Amount - SecondVendorLedgerEntry.Amount + IRS1099Adjustment.Amount);
     end;
@@ -735,7 +739,7 @@ codeunit 142055 "UT REP Vendor 1099"
 
         // [GIVEN] Vendor entries with codes "MISC-14", "MISC-09", "MISC-10", "MISC-01", "MISC-01", "MISC-05", "MISC-12"
         // Work item id 458117: Misc code "MISC-13" has been replaced with misc code "MISC-14"
-        VendorNo := CreateVendor;
+        VendorNo := CreateVendor();
         SetupToCreateLedgerEntriesForExistingVendor(
           VendorLedgerEntry, VendorNo, IRS1099CodeMisc14Tok, LibraryRandom.RandIntInRange(5000, 10000));
         SetupToCreateLedgerEntriesForExistingVendor(
@@ -748,7 +752,7 @@ codeunit 142055 "UT REP Vendor 1099"
           VendorLedgerEntry, VendorNo, IRS1099CodeMisc05Tok, LibraryRandom.RandIntInRange(5000, 10000));
         SetupToCreateLedgerEntriesForExistingVendor(
           VendorLedgerEntry, VendorNo, IRS1099CodeMisc12Tok, LibraryRandom.RandIntInRange(5000, 10000));
-        Commit;
+        Commit();
 
         // [WHEN] Run Vendor 1099 Magnetic Media report
         RunVendor1099MagneticMediaReport(FileName);
@@ -797,7 +801,7 @@ codeunit 142055 "UT REP Vendor 1099"
 
         // [GIVEN] Vendor entry with MISC-10 code and amount = "X"
         SetupToCreateLedgerEntriesForVendor(VendorLedgerEntry, IRS1099CodeMisc10Tok, LibraryRandom.RandIntInRange(5000, 10000));
-        Commit;
+        Commit();
 
         // [WHEN] Run Vendor 1099 Magnetic Media report
         RunVendor1099MagneticMediaReport(FileName);
@@ -839,7 +843,7 @@ codeunit 142055 "UT REP Vendor 1099"
         REPORT.Run(REPORT::"Vendor 1099 Misc 2020");
 
         // [THEN] "MISC-02" value exists in the Report
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         VendorLedgerEntry.CalcFields(Amount);
         LibraryReportDataset.AssertElementWithValueExists(GetAmtMISC02, -VendorLedgerEntry.Amount);
         LibraryVariableStorage.AssertEmpty();
@@ -872,7 +876,7 @@ codeunit 142055 "UT REP Vendor 1099"
         REPORT.Run(REPORT::"Vendor 1099 Div");
 
         // [THEN] "DIV-01" value exists in the Report
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         VendorLedgerEntry.CalcFields(Amount);
         LibraryReportDataset.AssertElementWithValueExists(GetAmtCombinedDivCodeAB, -VendorLedgerEntry.Amount);
         LibraryVariableStorage.AssertEmpty();
@@ -905,7 +909,7 @@ codeunit 142055 "UT REP Vendor 1099"
         REPORT.Run(REPORT::"Vendor 1099 Int");
 
         // [THEN] "DIV-01" value exists in the Report
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         VendorLedgerEntry.CalcFields(Amount);
         LibraryReportDataset.AssertElementWithValueExists(GetAmtINT01, -VendorLedgerEntry.Amount);
         LibraryVariableStorage.AssertEmpty();
@@ -947,7 +951,7 @@ codeunit 142055 "UT REP Vendor 1099"
 
         // [GIVEN] Vendor entry with MISC-11 code and amount = "X"
         SetupToCreateLedgerEntriesForVendor(VendorLedgerEntry, IRS1099CodeMisc11Tok, LibraryRandom.RandIntInRange(5000, 10000));
-        Commit;
+        Commit();
 
         // [WHEN] Run Vendor 1099 Magnetic Media report
         RunVendor1099MagneticMediaReport(FileName);
@@ -980,14 +984,14 @@ codeunit 142055 "UT REP Vendor 1099"
 
         Initialize();
 
-        VendorNo := CreateVendor;
+        VendorNo := CreateVendor();
         // [GIVEN] Vendor entry with DIV-02-E code and amount = "X"
         SetupToCreateLedgerEntriesForExistingVendor(
           VendorLedgerEntry[1], VendorNo, IRS1099CodeDiv02ETok, LibraryRandom.RandIntInRange(5000, 10000));
         // [GIVEN] Vendor entry with DIV-02-F code and amount = "Y"
         SetupToCreateLedgerEntriesForExistingVendor(
           VendorLedgerEntry[2], VendorNo, IRS1099CodeDiv02FTok, LibraryRandom.RandIntInRange(5000, 10000));
-        Commit;
+        Commit();
 
         // [WHEN] Run Vendor 1099 Magnetic Media report
         RunVendor1099MagneticMediaReport(FileName);
@@ -1040,7 +1044,7 @@ codeunit 142055 "UT REP Vendor 1099"
         REPORT.Run(REPORT::"Vendor 1099 Misc 2021");
 
         // [THEN] "MISC-02" value exists in the Report
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         VendorLedgerEntry.CalcFields(Amount);
         LibraryReportDataset.AssertElementWithValueExists(GetAmtMISC02, -VendorLedgerEntry.Amount);
         LibraryVariableStorage.AssertEmpty();
@@ -1073,7 +1077,7 @@ codeunit 142055 "UT REP Vendor 1099"
         REPORT.Run(REPORT::"Vendor 1099 Div 2021");
 
         // [THEN] "DIV-01" value exists in the Report
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         VendorLedgerEntry.CalcFields(Amount);
         LibraryReportDataset.AssertElementWithValueExists(GetAmtCombinedDivCodeAB, -VendorLedgerEntry.Amount);
         LibraryVariableStorage.AssertEmpty();
@@ -1957,13 +1961,13 @@ codeunit 142055 "UT REP Vendor 1099"
         LibraryVariableStorage.Clear();
     end;
 
-    local procedure CreateDetailedVendorLedgerEntry(VendorLedgerEntryNo: Integer; AppliedVendLedgerEntryNo: Integer; EntryType: Option; VendorNo: Code[20]; Amount: Decimal; LedgerEntryAmount: Boolean)
+    local procedure CreateDetailedVendorLedgerEntry(VendorLedgerEntryNo: Integer; AppliedVendLedgerEntryNo: Integer; EntryType: Enum "Detailed CV Ledger Entry Type"; VendorNo: Code[20]; Amount: Decimal; LedgerEntryAmount: Boolean)
     begin
         InsertDetailedVendorLedgerEntry(
           VendorLedgerEntryNo, AppliedVendLedgerEntryNo, EntryType, VendorNo, 0, Amount, LedgerEntryAmount);
     end;
 
-    local procedure InsertDetailedVendorLedgerEntry(VendorLedgerEntryNo: Integer; AppliedVendLedgerEntryNo: Integer; EntryType: Option; VendorNo: Code[20]; TransactionNo: Integer; NewAmount: Decimal; LedgerEntryAmount: Boolean)
+    local procedure InsertDetailedVendorLedgerEntry(VendorLedgerEntryNo: Integer; AppliedVendLedgerEntryNo: Integer; EntryType: Enum "Detailed CV Ledger Entry Type"; VendorNo: Code[20]; TransactionNo: Integer; NewAmount: Decimal; LedgerEntryAmount: Boolean)
     var
         DetailedVendorLedgEntry: Record "Detailed Vendor Ledg. Entry";
         RecRef: RecordRef;
@@ -1997,38 +2001,36 @@ codeunit 142055 "UT REP Vendor 1099"
     var
         Vendor: Record Vendor;
     begin
-        Vendor."No." := LibraryUTUtility.GetNewCode;
-        Vendor."Federal ID No." := LibraryUTUtility.GetNewCode10;
+        Vendor."No." := LibraryUTUtility.GetNewCode();
+        Vendor."Federal ID No." := LibraryUTUtility.GetNewCode10();
         Vendor.Name := LibraryUtility.GenerateGUID();
-        Vendor.Address := LibraryUTUtility.GetNewCode10;
-        Vendor."Address 2" := LibraryUTUtility.GetNewCode10;
+        Vendor.Address := LibraryUTUtility.GetNewCode10();
+        Vendor."Address 2" := LibraryUTUtility.GetNewCode10();
         Vendor.Insert();
         exit(Vendor."No.");
     end;
 
-    local procedure CreateVendorLedgerEntry(var VendorLedgerEntry: Record "Vendor Ledger Entry"; DocumentType: Option; VendorNo: Code[20]; IRS1099Code: Code[10]; IRSAmount: Decimal)
+    local procedure CreateVendorLedgerEntry(var VendorLedgerEntry: Record "Vendor Ledger Entry"; DocumentType: Enum "Gen. Journal Document Type"; VendorNo: Code[20]; IRS1099Code: Code[10]; IRSAmount: Decimal)
     begin
-        InsertVendorLedgerEntry(VendorLedgerEntry, DocumentType, LibraryUTUtility.GetNewCode10, VendorNo, 0, IRS1099Code, IRSAmount);
+        InsertVendorLedgerEntry(VendorLedgerEntry, DocumentType, LibraryUTUtility.GetNewCode10(), VendorNo, 0, IRS1099Code, IRSAmount);
     end;
 
-    local procedure InsertVendorLedgerEntry(var VendorLedgerEntry: Record "Vendor Ledger Entry"; DocumentType: Option; DocumentNo: Code[20]; VendorNo: Code[20]; TransactionNo: Integer; IRS1099Code: Code[10]; DocAmount: Decimal)
+    local procedure InsertVendorLedgerEntry(var VendorLedgerEntry: Record "Vendor Ledger Entry"; DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20]; VendorNo: Code[20]; TransactionNo: Integer; IRS1099Code: Code[10]; DocAmount: Decimal)
     var
         RecRef: RecordRef;
     begin
         RecRef.GetTable(VendorLedgerEntry);
-        with VendorLedgerEntry do begin
-            "Entry No." := LibraryUtility.GetNewLineNo(RecRef, FieldNo("Entry No."));
-            "Document No." := DocumentNo;
-            "Document Type" := DocumentType;
-            "Vendor No." := VendorNo;
-            "Posting Date" := WorkDate();
-            Open := true;
-            "Transaction No." := TransactionNo;
-            "IRS 1099 Code" := IRS1099Code;
-            "IRS 1099 Amount" := -DocAmount;
+        VendorLedgerEntry."Entry No." := LibraryUtility.GetNewLineNo(RecRef, VendorLedgerEntry.FieldNo("Entry No."));
+        VendorLedgerEntry."Document No." := DocumentNo;
+        VendorLedgerEntry."Document Type" := DocumentType;
+        VendorLedgerEntry."Vendor No." := VendorNo;
+        VendorLedgerEntry."Posting Date" := WorkDate();
+        VendorLedgerEntry.Open := true;
+        VendorLedgerEntry."Transaction No." := TransactionNo;
+        VendorLedgerEntry."IRS 1099 Code" := IRS1099Code;
+        VendorLedgerEntry."IRS 1099 Amount" := -DocAmount;
 
-            Insert();
-        end;
+        VendorLedgerEntry.Insert();
     end;
 
     local procedure SetupToCreateLedgerEntriesForVendor(var VendorLedgerEntry: Record "Vendor Ledger Entry"; IRS1099Code: Code[10]; VendorLedgerEntryAmount: Decimal)
@@ -2087,18 +2089,18 @@ codeunit 142055 "UT REP Vendor 1099"
         // Create 3 invoices for each vendor in differenet transactions
         // Create payment and apply it for all invoices in a single transaction for both vendors
 
-        TransactionNo := LibraryUtility.GetLastTransactionNo;
+        TransactionNo := LibraryUtility.GetLastTransactionNo();
 
         VendorCount := ArrayLen(VendorNo);
 
         for VendorIndex := 1 to VendorCount do begin
-            VendorNo[VendorIndex] := CreateVendor;
+            VendorNo[VendorIndex] := CreateVendor();
             for Index := 1 to ArrayLen(VendorLedgerEntryInvoice, 2) do begin
                 TransactionNo += 1;
                 DocAmount[VendorIndex, Index] := LibraryRandom.RandInt(100);
                 InsertVendorLedgerEntry(
                   VendorLedgerEntryInvoice[VendorIndex, Index], VendorLedgerEntryInvoice[VendorIndex, Index]."Document Type"::Invoice,
-                  LibraryUtility.GenerateGUID, VendorNo[VendorIndex], TransactionNo, IRS1099Code, DocAmount[VendorIndex, Index]);
+                  LibraryUtility.GenerateGUID(), VendorNo[VendorIndex], TransactionNo, IRS1099Code, DocAmount[VendorIndex, Index]);
                 InsertDetailedVendorLedgerEntry(
                   VendorLedgerEntryInvoice[VendorIndex, Index]."Entry No.", 0, DetailedVendorLedgEntry."Entry Type"::"Initial Entry",
                   VendorLedgerEntryInvoice[VendorIndex, Index]."Vendor No.", TransactionNo, -DocAmount[VendorIndex, Index], true);
@@ -2110,7 +2112,7 @@ codeunit 142055 "UT REP Vendor 1099"
         for VendorIndex := 1 to VendorCount do begin
             InsertVendorLedgerEntry(
               VendorLedgerEntryPayment, VendorLedgerEntryPayment."Document Type"::Payment,
-              LibraryUtility.GenerateGUID, VendorNo[VendorIndex], TransactionNo, IRS1099Code, 0);
+              LibraryUtility.GenerateGUID(), VendorNo[VendorIndex], TransactionNo, IRS1099Code, 0);
 
             for Index := 1 to ArrayLen(VendorLedgerEntryInvoice, 2) do begin
                 InsertDetailedVendorLedgerEntry(
@@ -2157,87 +2159,87 @@ codeunit 142055 "UT REP Vendor 1099"
     [Scope('OnPrem')]
     procedure Vendor1099DivRPH(var Vendor1099Div: TestRequestPage "Vendor 1099 Div")
     begin
-        Vendor1099Div.Vendor.SetFilter("No.", LibraryVariableStorage.DequeueText);
-        Vendor1099Div.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        Vendor1099Div.Vendor.SetFilter("No.", LibraryVariableStorage.DequeueText());
+        Vendor1099Div.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure Vendor1099DivChangeCurrYearRPH(var Vendor1099Div: TestRequestPage "Vendor 1099 Div")
     begin
-        Vendor1099Div.Vendor.SetFilter("No.", LibraryVariableStorage.DequeueText);
+        Vendor1099Div.Vendor.SetFilter("No.", LibraryVariableStorage.DequeueText());
         Vendor1099Div.Year.SetValue(LibraryVariableStorage.DequeueText());
-        Vendor1099Div.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        Vendor1099Div.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure Vendor1099Div2021ChangeCurrYearRPH(var Vendor1099Div2021: TestRequestPage "Vendor 1099 Div 2021")
     begin
-        Vendor1099Div2021.Vendor.SetFilter("No.", LibraryVariableStorage.DequeueText);
+        Vendor1099Div2021.Vendor.SetFilter("No.", LibraryVariableStorage.DequeueText());
         Vendor1099Div2021.Year.SetValue(LibraryVariableStorage.DequeueText());
-        Vendor1099Div2021.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        Vendor1099Div2021.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure Vendor1099InformationRPH(var Vendor1099Information: TestRequestPage "Vendor 1099 Information")
     begin
-        Vendor1099Information.Vendor.SetFilter("No.", LibraryVariableStorage.DequeueText);
+        Vendor1099Information.Vendor.SetFilter("No.", LibraryVariableStorage.DequeueText());
         Vendor1099Information.Vendor.SetFilter("Date Filter", Format(WorkDate()));
-        Vendor1099Information.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        Vendor1099Information.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure Vendor1099IntRPH(var Vendor1099Int: TestRequestPage "Vendor 1099 Int")
     begin
-        Vendor1099Int.Vendor.SetFilter("No.", LibraryVariableStorage.DequeueText);
-        Vendor1099Int.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        Vendor1099Int.Vendor.SetFilter("No.", LibraryVariableStorage.DequeueText());
+        Vendor1099Int.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure Vendor1099IntChangeCurrYearRPH(var Vendor1099Int: TestRequestPage "Vendor 1099 Int")
     begin
-        Vendor1099Int.Vendor.SetFilter("No.", LibraryVariableStorage.DequeueText);
+        Vendor1099Int.Vendor.SetFilter("No.", LibraryVariableStorage.DequeueText());
         Vendor1099Int.Year.SetValue(LibraryVariableStorage.DequeueText());
-        Vendor1099Int.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        Vendor1099Int.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure Vendor1099MiscRPH(var Vendor1099Misc: TestRequestPage "Vendor 1099 Misc")
     begin
-        Vendor1099Misc.Vendor.SetFilter("No.", LibraryVariableStorage.DequeueText);
-        Vendor1099Misc.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        Vendor1099Misc.Vendor.SetFilter("No.", LibraryVariableStorage.DequeueText());
+        Vendor1099Misc.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure Vendor1099Misc2020ChangeCurrYearRPH(var Vendor1099Misc2020: TestRequestPage "Vendor 1099 Misc 2020")
     begin
-        Vendor1099Misc2020.Vendor.SetFilter("No.", LibraryVariableStorage.DequeueText);
+        Vendor1099Misc2020.Vendor.SetFilter("No.", LibraryVariableStorage.DequeueText());
         Vendor1099Misc2020.Year.SetValue(LibraryVariableStorage.DequeueText());
-        Vendor1099Misc2020.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        Vendor1099Misc2020.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure Vendor1099Misc2021ChangeCurrYearRPH(var Vendor1099Misc2021: TestRequestPage "Vendor 1099 Misc 2021")
     begin
-        Vendor1099Misc2021.Vendor.SetFilter("No.", LibraryVariableStorage.DequeueText);
+        Vendor1099Misc2021.Vendor.SetFilter("No.", LibraryVariableStorage.DequeueText());
         Vendor1099Misc2021.Year.SetValue(LibraryVariableStorage.DequeueText());
-        Vendor1099Misc2021.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        Vendor1099Misc2021.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure Vendor1099Nec2022ChangeCurrYearRPH(var Vendor1099Nec2022: TestRequestPage "Vendor 1099 Nec 2022")
     begin
-        Vendor1099Nec2022.Vendor.SetFilter("No.", LibraryVariableStorage.DequeueText);
+        Vendor1099Nec2022.Vendor.SetFilter("No.", LibraryVariableStorage.DequeueText());
         Vendor1099Nec2022.Year.SetValue(LibraryVariableStorage.DequeueText());
-        Vendor1099Nec2022.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        Vendor1099Nec2022.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -2260,20 +2262,20 @@ codeunit 142055 "UT REP Vendor 1099"
     procedure Vendor1099MagneticMediaRPH(var Vendor1099MagneticMedia: TestRequestPage "Vendor 1099 Magnetic Media")
     begin
         Vendor1099MagneticMedia.Year.SetValue(Date2DMY(WorkDate(), 3));
-        Vendor1099MagneticMedia.TransCode.SetValue(CopyStr(LibraryUTUtility.GetNewCode, 1, 5));
-        Vendor1099MagneticMedia.ContactName.SetValue(LibraryUTUtility.GetNewCode);
-        Vendor1099MagneticMedia.ContactPhoneNo.SetValue(LibraryUTUtility.GetNewCode);
-        Vendor1099MagneticMedia.VendContactName.SetValue(LibraryUTUtility.GetNewCode);
-        Vendor1099MagneticMedia.VendContactPhoneNo.SetValue(LibraryUTUtility.GetNewCode);
-        Vendor1099MagneticMedia.VendorInfoName.SetValue(LibraryUTUtility.GetNewCode);
-        Vendor1099MagneticMedia.VendorInfoAddress.SetValue(LibraryUTUtility.GetNewCode);
-        Vendor1099MagneticMedia.VendorInfoCity.SetValue(LibraryUTUtility.GetNewCode);
-        Vendor1099MagneticMedia.VendorInfoCounty.SetValue(LibraryUTUtility.GetNewCode);
-        Vendor1099MagneticMedia.VendorInfoPostCode.SetValue(LibraryUTUtility.GetNewCode);
-        Vendor1099MagneticMedia.VendorInfoEMail.SetValue(LibraryUTUtility.GetNewCode);
+        Vendor1099MagneticMedia.TransCode.SetValue(CopyStr(LibraryUTUtility.GetNewCode(), 1, 5));
+        Vendor1099MagneticMedia.ContactName.SetValue(LibraryUTUtility.GetNewCode());
+        Vendor1099MagneticMedia.ContactPhoneNo.SetValue(LibraryUTUtility.GetNewCode());
+        Vendor1099MagneticMedia.VendContactName.SetValue(LibraryUTUtility.GetNewCode());
+        Vendor1099MagneticMedia.VendContactPhoneNo.SetValue(LibraryUTUtility.GetNewCode());
+        Vendor1099MagneticMedia.VendorInfoName.SetValue(LibraryUTUtility.GetNewCode());
+        Vendor1099MagneticMedia.VendorInfoAddress.SetValue(LibraryUTUtility.GetNewCode());
+        Vendor1099MagneticMedia.VendorInfoCity.SetValue(LibraryUTUtility.GetNewCode());
+        Vendor1099MagneticMedia.VendorInfoCounty.SetValue(LibraryUTUtility.GetNewCode());
+        Vendor1099MagneticMedia.VendorInfoPostCode.SetValue(LibraryUTUtility.GetNewCode());
+        Vendor1099MagneticMedia.VendorInfoEMail.SetValue(LibraryUTUtility.GetNewCode());
 
-        Vendor1099MagneticMedia.VendorData.SetFilter("No.", LibraryVariableStorage.DequeueText);
-        Vendor1099MagneticMedia.OK.Invoke;
+        Vendor1099MagneticMedia.VendorData.SetFilter("No.", LibraryVariableStorage.DequeueText());
+        Vendor1099MagneticMedia.OK().Invoke();
     end;
 
     [RequestPageHandler]
@@ -2352,4 +2354,4 @@ codeunit 142055 "UT REP Vendor 1099"
         Vendor1099MagneticMedia.OK().Invoke();
     end;
 }
-
+#endif

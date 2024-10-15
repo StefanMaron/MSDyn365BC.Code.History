@@ -7,6 +7,7 @@ using Microsoft.Bank.ElectronicFundsTransfer;
 table 1224 "Data Exch. Mapping"
 {
     Caption = 'Data Exch. Mapping';
+    DataClassification = CustomerContent;
 
     fields
     {

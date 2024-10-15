@@ -13,14 +13,16 @@ using Microsoft.Sales.Customer;
 using Microsoft.Sales.Document;
 using Microsoft.Sales.History;
 using Microsoft.Sales.Receivables;
-using System.Reflection;
+using Microsoft.HumanResources.Payables;
 using System.Utilities;
+using System.Reflection;
 
 table 4 Currency
 {
     Caption = 'Currency';
     LookupPageID = Currencies;
     Permissions = tabledata "General Ledger Setup" = r;
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -281,7 +283,7 @@ table 4 Currency
                                                                          "Initial Entry Global Dim. 1" = field("Global Dimension 1 Filter"),
                                                                          "Initial Entry Global Dim. 2" = field("Global Dimension 2 Filter"),
                                                                          "Initial Entry Due Date" = field("Date Filter"),
-                                                                         "Posting Date" = field(UPPERLIMIT("Date Filter")),
+                                                                         "Posting Date" = field(upperlimit("Date Filter")),
                                                                          "Currency Code" = field(Code)));
             Caption = 'Customer Balance Due';
             Editable = false;
@@ -344,7 +346,7 @@ table 4 Currency
                                                                            "Initial Entry Global Dim. 1" = field("Global Dimension 1 Filter"),
                                                                            "Initial Entry Global Dim. 2" = field("Global Dimension 2 Filter"),
                                                                            "Initial Entry Due Date" = field("Date Filter"),
-                                                                           "Posting Date" = field(UPPERLIMIT("Date Filter")),
+                                                                           "Posting Date" = field(upperlimit("Date Filter")),
                                                                            "Currency Code" = field(Code)));
             Caption = 'Vendor Balance Due';
             Editable = false;
@@ -537,6 +539,7 @@ table 4 Currency
     var
         CustLedgEntry: Record "Cust. Ledger Entry";
         VendLedgEntry: Record "Vendor Ledger Entry";
+        EmplLedgEntry: Record "Employee Ledger Entry";
     begin
         CustLedgEntry.SetRange(Open, true);
         CustLedgEntry.SetRange("Currency Code", Code);
@@ -547,6 +550,11 @@ table 4 Currency
         VendLedgEntry.SetRange("Currency Code", Code);
         if not VendLedgEntry.IsEmpty() then
             Error(Text002, VendLedgEntry.TableCaption(), TableCaption(), Code);
+
+        EmplLedgEntry.SetRange(Open, true);
+        EmplLedgEntry.SetRange("Currency Code", Code);
+        if not EmplLedgEntry.IsEmpty() then
+            Error(Text002, EmplLedgEntry.TableCaption(), TableCaption(), Code);
 
         CurrExchRate.SetRange("Currency Code", Code);
         CurrExchRate.DeleteAll();

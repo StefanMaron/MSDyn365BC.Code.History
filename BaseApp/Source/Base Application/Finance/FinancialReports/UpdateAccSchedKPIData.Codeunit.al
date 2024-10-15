@@ -85,25 +85,22 @@ codeunit 197 "Update Acc. Sched. KPI Data"
         until AccSchedKPIWebSrvLine.Next() = 0;
 
         OnInitSetupDataAnAfterTempAccScheduleLineInsert(TempAccScheduleLine, NoOfActiveAccSchedLines);
-
-        with ColumnLayout do begin
-            // Net Change Actual
-            InsertTempColumn("Column Type"::"Net Change", "Ledger Entry Type"::Entries, false);
-            // Balance at Date Actual
-            InsertTempColumn("Column Type"::"Balance at Date", "Ledger Entry Type"::Entries, false);
-            // Net Change Budget
-            InsertTempColumn("Column Type"::"Net Change", "Ledger Entry Type"::"Budget Entries", false);
-            // Balance at Date Budget
-            InsertTempColumn("Column Type"::"Balance at Date", "Ledger Entry Type"::"Budget Entries", false);
-            // Net Change Actual Last Year
-            InsertTempColumn("Column Type"::"Net Change", "Ledger Entry Type"::Entries, true);
-            // Balance at Date Actual Last Year
-            InsertTempColumn("Column Type"::"Balance at Date", "Ledger Entry Type"::Entries, true);
-            // Net Change Budget Last Year
-            InsertTempColumn("Column Type"::"Net Change", "Ledger Entry Type"::"Budget Entries", true);
-            // Balance at Date Budget Last Year
-            InsertTempColumn("Column Type"::"Balance at Date", "Ledger Entry Type"::"Budget Entries", true);
-        end;
+        // Net Change Actual
+        InsertTempColumn(ColumnLayout."Column Type"::"Net Change", ColumnLayout."Ledger Entry Type"::Entries, false);
+        // Balance at Date Actual
+        InsertTempColumn(ColumnLayout."Column Type"::"Balance at Date", ColumnLayout."Ledger Entry Type"::Entries, false);
+        // Net Change Budget
+        InsertTempColumn(ColumnLayout."Column Type"::"Net Change", ColumnLayout."Ledger Entry Type"::"Budget Entries", false);
+        // Balance at Date Budget
+        InsertTempColumn(ColumnLayout."Column Type"::"Balance at Date", ColumnLayout."Ledger Entry Type"::"Budget Entries", false);
+        // Net Change Actual Last Year
+        InsertTempColumn(ColumnLayout."Column Type"::"Net Change", ColumnLayout."Ledger Entry Type"::Entries, true);
+        // Balance at Date Actual Last Year
+        InsertTempColumn(ColumnLayout."Column Type"::"Balance at Date", ColumnLayout."Ledger Entry Type"::Entries, true);
+        // Net Change Budget Last Year
+        InsertTempColumn(ColumnLayout."Column Type"::"Net Change", ColumnLayout."Ledger Entry Type"::"Budget Entries", true);
+        // Balance at Date Budget Last Year
+        InsertTempColumn(ColumnLayout."Column Type"::"Balance at Date", ColumnLayout."Ledger Entry Type"::"Budget Entries", true);
 
         AccSchedKPIWebSrvSetup.GetPeriodLength(NoOfLines, StartDate, EndDate);
         NoOfLines *= NoOfActiveAccSchedLines;
@@ -125,16 +122,14 @@ codeunit 197 "Update Acc. Sched. KPI Data"
 
     local procedure InsertTempColumn(ColumnType: Enum "Column Layout Type"; EntryType: Enum "Column Layout Entry Type"; LastYear: Boolean)
     begin
-        with TempColumnLayout do begin
-            if FindLast() then;
-            Init();
-            "Line No." += 10000;
-            "Column Type" := ColumnType;
-            "Ledger Entry Type" := EntryType;
-            if LastYear then
-                Evaluate("Comparison Date Formula", '<-1Y>');
-            Insert();
-        end;
+        if TempColumnLayout.FindLast() then;
+        TempColumnLayout.Init();
+        TempColumnLayout."Line No." += 10000;
+        TempColumnLayout."Column Type" := ColumnType;
+        TempColumnLayout."Ledger Entry Type" := EntryType;
+        if LastYear then
+            Evaluate(TempColumnLayout."Comparison Date Formula", '<-1Y>');
+        TempColumnLayout.Insert();
     end;
 
     local procedure CalcValues(Number: Integer)
@@ -195,17 +190,20 @@ codeunit 197 "Update Acc. Sched. KPI Data"
         until TempColumnLayout.Next() = 0;
 
         // Forecasted values
-        with AccSchedKPIWebSrvSetup do
-            if (("Forecasted Values Start" = "Forecasted Values Start"::"After Latest Closed Period") and
+        if ((AccSchedKPIWebSrvSetup."Forecasted Values Start" = AccSchedKPIWebSrvSetup."Forecasted Values Start"::"After Latest Closed Period") and
                 not (Date <= LastClosedDate)) or
-               (("Forecasted Values Start" = "Forecasted Values Start"::"After Current Date") and (Date > WorkDate()))
+               ((AccSchedKPIWebSrvSetup."Forecasted Values Start" = AccSchedKPIWebSrvSetup."Forecasted Values Start"::"After Current Date") and (Date > WorkDate()))
             then begin
-                AccSchedKPIBuffer."Net Change Forecast" := AccSchedKPIBuffer."Net Change Budget"; // Net Change Budget
-                AccSchedKPIBuffer."Balance at Date Forecast" := AccSchedKPIBuffer."Balance at Date Budget"; // Balance at Date Budget
-            end else begin
-                AccSchedKPIBuffer."Net Change Forecast" := AccSchedKPIBuffer."Net Change Actual"; // Net Change Actual
-                AccSchedKPIBuffer."Balance at Date Forecast" := AccSchedKPIBuffer."Balance at Date Actual"; // Balance at Date Actual
-            end;
+            AccSchedKPIBuffer."Net Change Forecast" := AccSchedKPIBuffer."Net Change Budget";
+            // Net Change Budget
+            AccSchedKPIBuffer."Balance at Date Forecast" := AccSchedKPIBuffer."Balance at Date Budget";
+            // Balance at Date Budget
+        end else begin
+            AccSchedKPIBuffer."Net Change Forecast" := AccSchedKPIBuffer."Net Change Actual";
+            // Net Change Actual
+            AccSchedKPIBuffer."Balance at Date Forecast" := AccSchedKPIBuffer."Balance at Date Actual";
+            // Balance at Date Actual
+        end;
         AccSchedKPIBuffer.Insert();
     end;
 

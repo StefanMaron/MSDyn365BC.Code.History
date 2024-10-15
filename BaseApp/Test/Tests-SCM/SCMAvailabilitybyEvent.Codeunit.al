@@ -324,17 +324,17 @@ codeunit 137009 "SCM Availability by Event"
         LibraryPatterns.MAKESalesOrder(SalesHeader, SalesLine, Item, '', '', LibraryRandom.RandInt(5), WorkDate(), LibraryRandom.RandInt(10));
 
         // [GIVEN] Open created Sales Order on test page
-        SalesOrder.OpenEdit;
+        SalesOrder.OpenEdit();
         SalesOrder.GotoRecord(SalesHeader);
 
         // [WHEN] Invoke Item Availability by Location page and choose Location
         Commit();
         LibraryVariableStorage.Enqueue(Location.Code);
-        SalesOrder.SalesLines.ItemAvailabilityByLocation.Invoke;
+        SalesOrder.SalesLines.ItemAvailabilityByLocation.Invoke();
 
         // [THEN] DummyNotificationHandler has been invoked - Notification was called properly
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
         LibraryNotificationMgt.RecallNotificationsForRecord(SalesLine);
     end;
 
@@ -361,12 +361,12 @@ codeunit 137009 "SCM Availability by Event"
         LibraryPatterns.MAKESalesOrder(SalesHeader, SalesLine, Item, '', '', LibraryRandom.RandInt(5), WorkDate(), LibraryRandom.RandInt(10));
 
         // [GIVEN] Open created Sales Order on test page
-        SalesOrder.OpenEdit;
+        SalesOrder.OpenEdit();
         SalesOrder.GotoRecord(SalesHeader);
 
         // [WHEN] Invoke Item Availability by Variant page and choose Item Variant
         Commit();
-        SalesOrder.SalesLines.ItemAvailabilityByVariant.Invoke;
+        SalesOrder.SalesLines.ItemAvailabilityByVariant.Invoke();
 
         // [THEN] DummyNotificationHandler has been invoked - Notification was called properly
         LibraryNotificationMgt.RecallNotificationsForRecord(SalesLine);
@@ -393,10 +393,10 @@ codeunit 137009 "SCM Availability by Event"
         MockProdOrderComponent(Item."No.", Qty);
 
         // [GIVEN] Item Availability by Periods page is opened for "I".
-        ItemCard.OpenView;
+        ItemCard.OpenView();
         ItemCard.GotoRecord(Item);
-        ItemAvailabilityByPeriod.Trap;
-        ItemCard.Period.Invoke;
+        ItemAvailabilityByPeriod.Trap();
+        ItemCard.Period.Invoke();
 
         // [WHEN] Drill down Gross Requirement value on Item Availability by Periods page.
         LibraryVariableStorage.Enqueue(ProdOrderComponent.TableCaption());
@@ -404,7 +404,7 @@ codeunit 137009 "SCM Availability by Event"
         LibraryVariableStorage.Enqueue(Item."No.");
         LibraryVariableStorage.Enqueue(Qty);
         ItemAvailabilityByPeriod.ItemAvailLines.FILTER.SetFilter("Period Start", Format(WorkDate()));
-        ItemAvailabilityByPeriod.ItemAvailLines.GrossRequirement.DrillDown;
+        ItemAvailabilityByPeriod.ItemAvailLines.GrossRequirement.DrillDown();
 
         // [THEN] Gross Requirement for "I" shows "X" units in prod. order components.
         // [THEN] Drilling down to "X" value shows "X" units of item "I" as a component of Firm Planned production order.
@@ -437,6 +437,7 @@ codeunit 137009 "SCM Availability by Event"
         // [GIVEN] Assembled item "A" with component "C".
         LibraryInventory.CreateItem(CompItem);
         LibraryInventory.CreateItem(AsmItem);
+        Commit();
         LibraryAssembly.CreateAssemblyListComponent(BOMComponent.Type::Item, CompItem."No.", AsmItem."No.", '', 0, 1, true);
 
         // [GIVEN] Assembly order for item "A". Demand of component "C" = 10 pcs.
@@ -600,11 +601,11 @@ codeunit 137009 "SCM Availability by Event"
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
     begin
         SalesReceivablesSetup.Get();
-        SalesReceivablesSetup.Validate("Order Nos.", LibraryUtility.GetGlobalNoSeriesCode);
+        SalesReceivablesSetup.Validate("Order Nos.", LibraryUtility.GetGlobalNoSeriesCode());
         SalesReceivablesSetup.Modify(true);
 
         PurchPayablesSetup.Get();
-        PurchPayablesSetup.Validate("Order Nos.", LibraryUtility.GetGlobalNoSeriesCode);
+        PurchPayablesSetup.Validate("Order Nos.", LibraryUtility.GetGlobalNoSeriesCode());
         PurchPayablesSetup.Modify(true);
     end;
 
@@ -676,33 +677,33 @@ codeunit 137009 "SCM Availability by Event"
     [Scope('OnPrem')]
     procedure ItemAvailabilityByLocationPageHandler(var ItemAvailabilitybyLocation: TestPage "Item Availability by Location")
     begin
-        ItemAvailabilitybyLocation.ItemAvailLocLines.GotoKey(LibraryVariableStorage.DequeueText);
-        ItemAvailabilitybyLocation.OK.Invoke;
+        ItemAvailabilitybyLocation.ItemAvailLocLines.GotoKey(LibraryVariableStorage.DequeueText());
+        ItemAvailabilitybyLocation.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure ItemAvailabilityByVariantPageHandler(var ItemAvailabilitybyVariant: TestPage "Item Availability by Variant")
     begin
-        ItemAvailabilitybyVariant.ItemAvailLocLines.First;
-        ItemAvailabilitybyVariant.OK.Invoke;
+        ItemAvailabilitybyVariant.ItemAvailLocLines.First();
+        ItemAvailabilitybyVariant.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure ItemAvailabilityLineListPageHandler(var ItemAvailabilityLineList: TestPage "Item Availability Line List")
     begin
-        ItemAvailabilityLineList.Name.AssertEquals(LibraryVariableStorage.DequeueText);
-        ItemAvailabilityLineList.Quantity.AssertEquals(LibraryVariableStorage.DequeueDecimal);
-        ItemAvailabilityLineList.Quantity.DrillDown;
+        ItemAvailabilityLineList.Name.AssertEquals(LibraryVariableStorage.DequeueText());
+        ItemAvailabilityLineList.Quantity.AssertEquals(LibraryVariableStorage.DequeueDecimal());
+        ItemAvailabilityLineList.Quantity.DrillDown();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure ProdOrderComponentPageHandler(var ProdOrderCompLineList: TestPage "Prod. Order Comp. Line List")
     begin
-        ProdOrderCompLineList."Item No.".AssertEquals(LibraryVariableStorage.DequeueText);
-        ProdOrderCompLineList."Remaining Quantity".AssertEquals(LibraryVariableStorage.DequeueDecimal);
+        ProdOrderCompLineList."Item No.".AssertEquals(LibraryVariableStorage.DequeueText());
+        ProdOrderCompLineList."Remaining Quantity".AssertEquals(LibraryVariableStorage.DequeueDecimal());
     end;
 
     [SendNotificationHandler]

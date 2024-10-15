@@ -34,7 +34,7 @@ codeunit 144001 "UT REP Resource"
         REPORT.Run(REPORT::"Cost Breakdown");
 
         // Verify: Verify Resource No and TotalDirectCost on Report Cost Breakdown.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists('Resource_No_', ResLedgerEntry."Resource No.");
         LibraryReportDataset.AssertElementWithValueExists('TotalDirectCost', ResLedgerEntry.Quantity * ResLedgerEntry."Direct Unit Cost");
     end;
@@ -52,16 +52,16 @@ codeunit 144001 "UT REP Resource"
 
         // Setup: Create Resource, Resource Ledger Entry and Resource Register.
         Initialize();
-        CreateResourceLedgerEntry(ResLedgerEntry, LibraryUTUtility.GetNewCode);
+        CreateResourceLedgerEntry(ResLedgerEntry, LibraryUTUtility.GetNewCode());
         CreateResourceRegister(ResourceRegister, ResLedgerEntry."Entry No.");
-        ResourceRegister."Source Code" := LibraryUTUtility.GetNewCode10;
+        ResourceRegister."Source Code" := LibraryUTUtility.GetNewCode10();
         ResourceRegister.Modify();
 
         // Exercise.
         REPORT.Run(REPORT::"Resource Register");
 
         // Verify: Verify SourceCodeText on Report Resource Register.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists('SourceCodeText', StrSubstNo('Source Code: %1', ResourceRegister."Source Code"));
     end;
 
@@ -78,7 +78,7 @@ codeunit 144001 "UT REP Resource"
 
         // Setup: Create Resource, Resource Ledger Entry and Resource Register.
         Initialize();
-        CreateResourceLedgerEntry(ResLedgerEntry, LibraryUTUtility.GetNewCode);
+        CreateResourceLedgerEntry(ResLedgerEntry, LibraryUTUtility.GetNewCode());
         ResLedgerEntry.Description := 'Description';
         ResLedgerEntry.Modify();
         CreateResourceRegister(ResourceRegister, ResLedgerEntry."Entry No.");
@@ -87,7 +87,7 @@ codeunit 144001 "UT REP Resource"
         REPORT.Run(REPORT::"Resource Register");
 
         // Verify: Verify ResDescription on Report Resource Register.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists('ResDescription', ResLedgerEntry.Description);
     end;
 
@@ -150,14 +150,14 @@ codeunit 144001 "UT REP Resource"
 
     local procedure CreateResource(var Resource: Record Resource)
     begin
-        Resource."No." := LibraryUTUtility.GetNewCode;
+        Resource."No." := LibraryUTUtility.GetNewCode();
         Resource.Insert();
         LibraryVariableStorage.Enqueue(Resource."No.");  // Enqueue for Request Page Handler.
     end;
 
     local procedure CreateResourceLedgerEntry(var ResLedgerEntry: Record "Res. Ledger Entry"; ResourceNo: Code[20])
     begin
-        ResLedgerEntry."Entry No." := SelectResourceLedgerEntryNo;
+        ResLedgerEntry."Entry No." := SelectResourceLedgerEntryNo();
         ResLedgerEntry."Entry Type" := ResLedgerEntry."Entry Type"::Usage;
         ResLedgerEntry."Resource No." := ResourceNo;
         ResLedgerEntry.Quantity := LibraryRandom.RandDec(10, 2);
@@ -167,7 +167,7 @@ codeunit 144001 "UT REP Resource"
 
     local procedure CreateResourceRegister(var ResourceRegister: Record "Resource Register"; EntryNo: Integer)
     begin
-        ResourceRegister."No." := SelectResourceRegisterNo;
+        ResourceRegister."No." := SelectResourceRegisterNo();
         ResourceRegister."From Entry No." := EntryNo;
         ResourceRegister."To Entry No." := EntryNo;
         ResourceRegister.Insert();
@@ -194,7 +194,7 @@ codeunit 144001 "UT REP Resource"
 
     local procedure VerifyResourceReports(ResourceNo: Code[20])
     begin
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists('Resource__No__', ResourceNo);
         LibraryReportDataset.AssertElementWithValueExists('ResFilter', StrSubstNo('No.: %1', ResourceNo));
     end;
@@ -207,7 +207,7 @@ codeunit 144001 "UT REP Resource"
     begin
         LibraryVariableStorage.Dequeue(No);
         CostBreakdown.Resource.SetFilter("No.", No);
-        CostBreakdown.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        CostBreakdown.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -218,7 +218,7 @@ codeunit 144001 "UT REP Resource"
     begin
         LibraryVariableStorage.Dequeue(No);
         ResourceList.Resource.SetFilter("No.", No);
-        ResourceList.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        ResourceList.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -229,7 +229,7 @@ codeunit 144001 "UT REP Resource"
     begin
         LibraryVariableStorage.Dequeue(No);
         ResourceRegister."Resource Register".SetFilter("No.", Format(No));  // Format required for Integer value.
-        ResourceRegister.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        ResourceRegister.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -240,7 +240,7 @@ codeunit 144001 "UT REP Resource"
     begin
         LibraryVariableStorage.Dequeue(No);
         ResourceStatistics.Resource.SetFilter("No.", No);
-        ResourceStatistics.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        ResourceStatistics.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -251,7 +251,7 @@ codeunit 144001 "UT REP Resource"
     begin
         LibraryVariableStorage.Dequeue(No);
         ResourceUsage.Resource.SetFilter("No.", No);
-        ResourceUsage.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        ResourceUsage.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 }
 

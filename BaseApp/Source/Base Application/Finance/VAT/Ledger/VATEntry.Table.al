@@ -37,6 +37,7 @@ table 254 "VAT Entry"
                     TableData "Purch. Inv. Header" = rm,
                     TableData "Purch. Cr. Memo Hdr." = rm,
                     TableData "G/L Entry" = rm;
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -410,6 +411,33 @@ table 254 "VAT Entry"
             Caption = 'Base Before Pmt. Disc.';
             Editable = false;
         }
+        field(70; "Source Currency VAT Amount"; Decimal)
+        {
+            AccessByPermission = TableData Currency = R;
+            AutoFormatExpression = GetCurrencyCode();
+            AutoFormatType = 1;
+            Caption = 'Source Currency VAT Amount';
+            Editable = false;
+        }
+        field(71; "Source Currency VAT Base"; Decimal)
+        {
+            AccessByPermission = TableData Currency = R;
+            AutoFormatExpression = GetCurrencyCode();
+            AutoFormatType = 1;
+            Caption = 'Source Currency VAT Base';
+            Editable = false;
+        }
+        field(74; "Source Currency Code"; Code[10])
+        {
+            Caption = 'Source Currency Code';
+            TableRelation = Currency;
+            DataClassification = SystemMetadata;
+        }
+        field(75; "Source Currency Factor"; Decimal)
+        {
+            Caption = 'Source Currency Factor';
+            DataClassification = SystemMetadata;
+        }
         field(78; "Journal Templ. Name"; Code[10])
         {
             Caption = 'Journal Template Name';
@@ -675,7 +703,7 @@ table 254 "VAT Entry"
             exit(0);
     end;
 
-    local procedure GetUnrealizedVATType() UnrealizedVATType: Integer
+    procedure GetUnrealizedVATType() UnrealizedVATType: Integer
     var
         VATPostingSetup: Record "VAT Posting Setup";
         TaxJurisdiction: Record "Tax Jurisdiction";

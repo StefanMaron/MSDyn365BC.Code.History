@@ -43,7 +43,7 @@ codeunit 134999 "ERM Excel Reports"
         RunReportGeneralJournalTest(GenJournalLine."Journal Template Name", GenJournalLine."Journal Batch Name");
 
         // Verify: Verify Total Balance value
-        VerifyGeneralJournalTestTotalBalance;
+        VerifyGeneralJournalTestTotalBalance();
     end;
 
     [Test]
@@ -67,7 +67,7 @@ codeunit 134999 "ERM Excel Reports"
         RunReportGeneralJournalTest(GenJournalLine."Journal Template Name", GenJournalLine."Journal Batch Name");
 
         // [THEN] Report contains warning - Amount must be specified.
-        LibraryReportValidation.OpenExcelFile;
+        LibraryReportValidation.OpenExcelFile();
         LibraryReportValidation.VerifyCellValue(21, 4, AmountMustBeSpecifiedTxt);
     end;
 
@@ -92,7 +92,7 @@ codeunit 134999 "ERM Excel Reports"
         RunReportGeneralJournalTest(GenJournalLine."Journal Template Name", GenJournalLine."Journal Batch Name");
 
         // [THEN] Report contains warning - Amount must be specified.
-        LibraryReportValidation.OpenExcelFile;
+        LibraryReportValidation.OpenExcelFile();
         LibraryReportValidation.VerifyCellValue(21, 4, AmountMustBeSpecifiedTxt);
     end;
 
@@ -120,7 +120,7 @@ codeunit 134999 "ERM Excel Reports"
         RunReportGeneralJournalTest(GenJournalLine."Journal Template Name", GenJournalLine."Journal Batch Name");
 
         // [THEN] Both lines are shown in the report results.
-        LibraryReportValidation.OpenExcelFile;
+        LibraryReportValidation.OpenExcelFile();
         LibraryReportValidation.VerifyCellValue(20, 4, ExpectedDocNo);
         LibraryReportValidation.VerifyCellValue(21, 4, ExpectedDocNo);
     end;
@@ -167,7 +167,7 @@ codeunit 134999 "ERM Excel Reports"
     begin
         LibraryERM.CreateGeneralJnlLine(
           GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, GenJournalLine."Document Type"::" ",
-          GenJournalLine."Account Type"::"G/L Account", LibraryERM.CreateGLAccountNoWithDirectPosting, Amount);
+          GenJournalLine."Account Type"::"G/L Account", LibraryERM.CreateGLAccountNoWithDirectPosting(), Amount);
         GenJournalLine.Validate("Bal. Account No.", '');
         GenJournalLine.Modify();
     end;
@@ -192,7 +192,7 @@ codeunit 134999 "ERM Excel Reports"
         GenJournalTemplate.TestField(Recurring, true);
         LibraryERM.CreateGeneralJnlLine(
           GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, GenJournalLine."Document Type"::" ",
-          GenJournalLine."Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo, LibraryRandom.RandDecInRange(100, 200, 2));
+          GenJournalLine."Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo(), LibraryRandom.RandDecInRange(100, 200, 2));
         GenJournalLine.Validate("Document No.", DocumentNo);
         GenJournalLine.Validate("Recurring Method", GenJournalLine."Recurring Method"::"F  Fixed");
         Evaluate(GenJournalLine."Recurring Frequency", '<1M>');
@@ -224,7 +224,7 @@ codeunit 134999 "ERM Excel Reports"
         Commit();
 
         REPORT.Run(ReportId);
-        LibraryReportValidation.DownloadFile;
+        LibraryReportValidation.DownloadFile();
     end;
 
     local procedure RunReportGeneralJournalTest(JournalTemplateName: Code[20]; JournalBatchName: Code[20])
@@ -237,8 +237,8 @@ codeunit 134999 "ERM Excel Reports"
         GenJnlLine.SetRange("Journal Template Name", JournalTemplateName);
         GenJnlLine.SetRange("Journal Batch Name", JournalBatchName);
         GeneralJournalTest.SetTableView(GenJnlLine);
-        GeneralJournalTest.SaveAsExcel(LibraryReportValidation.GetFileName);
-        LibraryReportValidation.DownloadFile;
+        GeneralJournalTest.SaveAsExcel(LibraryReportValidation.GetFileName());
+        LibraryReportValidation.DownloadFile();
     end;
 
     local procedure CreateCustomer(): Code[20]
@@ -246,7 +246,7 @@ codeunit 134999 "ERM Excel Reports"
         Customer: Record Customer;
     begin
         with Customer do begin
-            "No." := LibraryUTUtility.GetNewCode;
+            "No." := LibraryUTUtility.GetNewCode();
             Insert();
             exit("No.");
         end;
@@ -262,10 +262,10 @@ codeunit 134999 "ERM Excel Reports"
         Column: Integer;
     begin
         // Verify Saved Report's Data.
-        LibraryReportValidation.OpenExcelFile;
+        LibraryReportValidation.OpenExcelFile();
 
         // Retrieve value from cell: row Total (LCY) and column Balance (LCY)
-        Row := LibraryReportValidation.FindRowNoFromColumnCaption(FindColumnCaption);
+        Row := LibraryReportValidation.FindRowNoFromColumnCaption(FindColumnCaption());
         Column := LibraryReportValidation.FindColumnNoFromColumnCaption(RefGenJnlLine.FieldCaption("Balance (LCY)"));
         TotalBalanceLCYAsText := LibraryReportValidation.GetValueAt(ValueFound, Row, Column);
         Assert.IsTrue(ValueFound, StrSubstNo(CellValueNotFoundErr, Row, Column));
@@ -304,7 +304,7 @@ codeunit 134999 "ERM Excel Reports"
         CellValueFound: Boolean;
     begin
         // Verify Saved Report's Data.
-        LibraryReportValidation.OpenExcelFile;
+        LibraryReportValidation.OpenExcelFile();
 
         Row := LibraryReportValidation.FindRowNoFromColumnCaption(FieldCaption) + 1;
         Column := LibraryReportValidation.FindColumnNoFromColumnCaption(FieldCaption);

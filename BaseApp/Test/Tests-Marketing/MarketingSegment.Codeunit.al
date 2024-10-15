@@ -36,13 +36,13 @@ codeunit 136213 "Marketing Segment"
 
         // Setup: Create Contact.
         Initialize();
-        ContactNo3 := CreateContact;  // Global Variable used for Request Page Handler
+        ContactNo3 := CreateContact();  // Global Variable used for Request Page Handler
 
         // Exercise : Create Segment and add Contact through Report.
         Segment.OpenNew();  // Open New Segment.
-        Segment.Description.Activate;  // Used to generate the Segment No.
+        Segment.Description.Activate();  // Used to generate the Segment No.
         Commit();  // Commit required to run the report.
-        Segment.AddContacts.Invoke;
+        Segment.AddContacts.Invoke();
 
         // Verify : Verify Segment Line.
         VerifySegmentLine(Segment."No.".Value, ContactNo3);
@@ -59,7 +59,7 @@ codeunit 136213 "Marketing Segment"
 
         // Setup: Create Contact.
         Initialize();
-        ContactNo := CreateContact;
+        ContactNo := CreateContact();
 
         // Exercise: Create Segment Line and add Contact Manually.
         Segment.OpenNew();  // Open New Segment.
@@ -81,7 +81,7 @@ codeunit 136213 "Marketing Segment"
 
         // Setup: Create Contact and update Contact with Sales Person Code.
         Initialize();
-        ContactNo := CreateContact;
+        ContactNo := CreateContact();
         UpdateContactWithSalesPersonCode(ContactNo);
 
         // Exercise: Create Segment Line.
@@ -109,7 +109,7 @@ codeunit 136213 "Marketing Segment"
         SalesPersonCode := CreateSegmentWithContact(Segment);
 
         // Exercise: Run Reduce Contact Report from page.
-        Segment.ReduceContacts.Invoke;
+        Segment.ReduceContacts.Invoke();
         NoOfCriteriaActionsAfterReduce := GetNoOfCriteriaActions(Segment."No.".Value);
 
         // Verify: Verify Contact is reduced from the Segment and Verify No. of Criteria Action Reduced to Zero.
@@ -136,7 +136,7 @@ codeunit 136213 "Marketing Segment"
         NoOfCriteriaActionsBeforeReduce := GetNoOfCriteriaActions(Segment."No.".Value);
 
         // Exercise: Create Segment Line and add Contact Manually.
-        Segment.ReduceContacts.Invoke;
+        Segment.ReduceContacts.Invoke();
         NoOfCriteriaActionsAfterReduce := GetNoOfCriteriaActions(Segment."No.".Value);
 
         // Verify: Verify Contact is reduced from the Segment and Verify No. of Criteria Action is not Reduced.
@@ -162,7 +162,7 @@ codeunit 136213 "Marketing Segment"
         SalesPersonCode := CreateSegmentWithContacts(Segment);
 
         // Exercise: Invoke Refine Contact Report.
-        Segment.RefineContacts.Invoke;
+        Segment.RefineContacts.Invoke();
 
         // Verify: Verify Segment Line is Refined.
         Assert.IsFalse(
@@ -184,11 +184,11 @@ codeunit 136213 "Marketing Segment"
         // Setup:  Create Contact and update contact with Sales Person Code, Create Segment with line and Refine it.
         Initialize();
         SalesPersonCode := CreateSegmentWithContacts(Segment);
-        Segment.RefineContacts.Invoke;
+        Segment.RefineContacts.Invoke();
         NoOfCriteriaActionsAfterRefine := GetNoOfCriteriaActions(Segment."No.".Value);
 
         // Exercise: Re Refine Contact on Segment Line.
-        Segment.RefineContacts.Invoke;
+        Segment.RefineContacts.Invoke();
         NoOfCriteriaActionsAfterReRefine := GetNoOfCriteriaActions(Segment."No.".Value);
 
         // Verify: Verify Segment Line is Refined and No. of Criteria Action increases on Re Refine.
@@ -214,7 +214,7 @@ codeunit 136213 "Marketing Segment"
         CreateSegmentWithContacts(Segment);
 
         // Exercise: Save Segment Criteria.
-        Segment.SaveCriteria.Invoke;
+        Segment.SaveCriteria.Invoke();
 
         // Verify: Verify Segment Criteria is saved.
         SavedSegmentCriteria.SetRange(Code, SalesPersonCode2);
@@ -233,11 +233,11 @@ codeunit 136213 "Marketing Segment"
         // Setup:  Create Contact and update Contact with Sales Person Code, Create Segment with line, Save Segment Criteria.
         Initialize();
         CreateSegmentWithContacts(Segment);
-        Segment.SaveCriteria.Invoke;
+        Segment.SaveCriteria.Invoke();
 
         // Exercise: Delete Last Row in Segment, Reuse Segment Criteria and Validate the Segment.
         DeleteLastRecordSegmentLine(Segment."No.".Value);
-        Segment.ReuseCriteria.Invoke;
+        Segment.ReuseCriteria.Invoke();
 
         // Verify: Verify Segment Line.
         Assert.IsTrue(
@@ -268,17 +268,17 @@ codeunit 136213 "Marketing Segment"
         LibraryMarketing.CreateSegmentHeader(SegmentHeader);
         CreateSegmentLineForContact(SegmentHeader."No.", Contact1."No.");
         CreateSegmentLineForContact(SegmentHeader."No.", Contact2."No.");
-        Segment.OpenEdit;
+        Segment.OpenEdit();
         Segment.GotoRecord(SegmentHeader);
         LibraryVariableStorage.Enqueue(true);
         Commit();
 
         // [WHEN] Cover Sheet report printed for Segment "S" with Log Interaction = TRUE
-        Segment.CoverSheet.Invoke;
+        Segment.CoverSheet.Invoke();
 
         // [THEN] Company Information is printed and Contact Information is printed on separate page per Contact
-        LibraryReportDataset.LoadDataSetFile;
-        VerifyContactCoverSheetCompanyInfoReport;
+        LibraryReportDataset.LoadDataSetFile();
+        VerifyContactCoverSheetCompanyInfoReport();
         VerifyContactCoverSheetContactInfoReport(Contact1);
         VerifyContactCoverSheetContactInfoReport(Contact2);
 
@@ -310,15 +310,15 @@ codeunit 136213 "Marketing Segment"
         // [GIVEN] Segment "S" with Contact "C"
         LibraryMarketing.CreateSegmentHeader(SegmentHeader);
         CreateSegmentLineForContact(SegmentHeader."No.", Contact."No.");
-        Segment.OpenEdit;
+        Segment.OpenEdit();
         Segment.GotoRecord(SegmentHeader);
         LibraryVariableStorage.Enqueue(false);
         Commit();
 
         // [WHEN] Cover Sheet report printed for Segment "S" with Log Interaction = FALSE
-        Segment.CoverSheet.Invoke;
+        Segment.CoverSheet.Invoke();
 
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         // [THEN] Report is printed with Contact "C" Information
         VerifyContactCoverSheetContactInfoReport(Contact);
 
@@ -342,12 +342,12 @@ codeunit 136213 "Marketing Segment"
 
         Initialize();
         EnvironmentInfoTestLibrary.SetTestabilitySoftwareAsAService(true);
-        ContactNo := CreateContact;
+        ContactNo := CreateContact();
 
         Segment.OpenNew(); // Open New Segment.
         CreateSegmentLineByPage(Segment, ContactNo);
 
-        Segment.ExportContacts.Invoke;
+        Segment.ExportContacts.Invoke();
 
         EnvironmentInfoTestLibrary.SetTestabilitySoftwareAsAService(false);
     end;
@@ -365,12 +365,12 @@ codeunit 136213 "Marketing Segment"
 
         Initialize();
         EnvironmentInfoTestLibrary.SetTestabilitySoftwareAsAService(false);
-        ContactNo := CreateContact;
+        ContactNo := CreateContact();
 
         Segment.OpenNew(); // Open New Segment.
         CreateSegmentLineByPage(Segment, ContactNo);
 
-        Segment.ExportContacts.Invoke;
+        Segment.ExportContacts.Invoke();
     end;
 
     [Test]
@@ -406,8 +406,8 @@ codeunit 136213 "Marketing Segment"
         // [GIVEN] Line "L1" with Interaction Template Code = 'BUS'
         // [GIVEN] Line "L2" with Interaction Template Code = 'COVERSH'
         LibraryMarketing.CreateSegmentHeader(SegmentHeader);
-        Line1No := CreateSegmentLineWithInteractionTemplate(SegmentHeader."No.", InteractionTemplateCode[2], CreateContact);
-        Line2No := CreateSegmentLineWithInteractionTemplate(SegmentHeader."No.", InteractionTemplateCode[3], CreateContact);
+        Line1No := CreateSegmentLineWithInteractionTemplate(SegmentHeader."No.", InteractionTemplateCode[2], CreateContact());
+        Line2No := CreateSegmentLineWithInteractionTemplate(SegmentHeader."No.", InteractionTemplateCode[3], CreateContact());
         UniqueAttachmentNo := GetAttachmentNoFromSegmentLine(SegmentHeader."No.", Line1No);
 
         // [WHEN] Validate Interaction Template Code = 'ABSTRACT' in Segment Header
@@ -575,7 +575,7 @@ codeunit 136213 "Marketing Segment"
     var
         ContactNo: Code[20];
     begin
-        ContactNo := CreateContact;
+        ContactNo := CreateContact();
         SalesPersonCode := UpdateContactWithSalesPersonCode(ContactNo);
         Segment.OpenNew();  // Open New Segment.
         CreateSegmentLineByPage(Segment, ContactNo);
@@ -595,9 +595,9 @@ codeunit 136213 "Marketing Segment"
         ContactNo: Code[20];
         ContactNo2: Code[20];
     begin
-        ContactNo := CreateContact;
+        ContactNo := CreateContact();
         SalesPersonCode := UpdateContactWithSalesPersonCode(ContactNo);
-        ContactNo2 := CreateContact;
+        ContactNo2 := CreateContact();
         SalesPersonCode2 := UpdateContactWithSalesPersonCode(ContactNo2);  // Global Variable used for Request Page Handler.
 
         Segment.OpenNew();  // Open New Segment.
@@ -704,15 +704,15 @@ codeunit 136213 "Marketing Segment"
     procedure AddContactHandler(var AddContacts: TestRequestPage "Add Contacts")
     begin
         AddContacts.Contact.SetFilter("No.", ContactNo3);
-        AddContacts.OK.Invoke;
+        AddContacts.OK().Invoke();
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure ContactCoverSheetReportRequestPageHandler(var CoverSheet: TestRequestPage "Contact Cover Sheet")
     begin
-        CoverSheet.LogInteraction.SetValue(LibraryVariableStorage.DequeueBoolean);
-        CoverSheet.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        CoverSheet.LogInteraction.SetValue(LibraryVariableStorage.DequeueBoolean());
+        CoverSheet.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -720,7 +720,7 @@ codeunit 136213 "Marketing Segment"
     procedure ReduceContactHandler(var RemoveContactsReduce: TestRequestPage "Remove Contacts - Reduce")
     begin
         RemoveContactsReduce.Contact.SetFilter("Salesperson Code", SalesPersonCode2);
-        RemoveContactsReduce.OK.Invoke;
+        RemoveContactsReduce.OK().Invoke();
     end;
 
     [RequestPageHandler]
@@ -728,7 +728,7 @@ codeunit 136213 "Marketing Segment"
     procedure RefineContactHandler(var RemoveContactsRefine: TestRequestPage "Remove Contacts - Refine")
     begin
         RemoveContactsRefine.Contact.SetFilter("Salesperson Code", SalesPersonCode2);
-        RemoveContactsRefine.OK.Invoke;
+        RemoveContactsRefine.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -736,7 +736,7 @@ codeunit 136213 "Marketing Segment"
     procedure ReuseCriteriaSegmentHandler(var SavedSegmentCriteriaList: TestPage "Saved Segment Criteria List")
     begin
         SavedSegmentCriteriaList.FILTER.SetFilter(Code, SalesPersonCode2);  // SalesPersonCode is saved as code.
-        SavedSegmentCriteriaList.OK.Invoke;
+        SavedSegmentCriteriaList.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -744,7 +744,7 @@ codeunit 136213 "Marketing Segment"
     procedure SaveSegmentCriteriaHandler(var SaveSegmentCriteria: TestPage "Save Segment Criteria")
     begin
         SaveSegmentCriteria.Code.SetValue(SalesPersonCode2);
-        SaveSegmentCriteria.OK.Invoke;
+        SaveSegmentCriteria.OK().Invoke();
     end;
 
     [ConfirmHandler]

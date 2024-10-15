@@ -32,8 +32,12 @@ page 9003 "Acc. Receivables Adm. RC"
     {
         area(rolecenter)
         {
+#if not CLEAN24
             group(Control1900724808)
             {
+                ObsoleteReason = 'Group removed for better alignment of Role Centers parts';
+                ObsoleteState = Pending;
+                ObsoleteTag = '24.0';
                 ShowCaption = false;
                 part(Control1902899408; "Acc. Receivable Activities")
                 {
@@ -46,6 +50,9 @@ page 9003 "Acc. Receivables Adm. RC"
             }
             group(Control1900724708)
             {
+                ObsoleteReason = 'Group removed for better alignment of Role Centers parts';
+                ObsoleteState = Pending;
+                ObsoleteTag = '24.0';
                 ShowCaption = false;
                 part(Control1907692008; "My Customers")
                 {
@@ -70,6 +77,38 @@ page 9003 "Acc. Receivables Adm. RC"
                     ApplicationArea = Basic, Suite;
                 }
             }
+#else
+            part(Control1902899408; "Acc. Receivable Activities")
+            {
+                ApplicationArea = Basic, Suite;
+            }
+            part("User Tasks Activities"; "User Tasks Activities")
+            {
+                ApplicationArea = Suite;
+            }
+            part(Control1907692008; "My Customers")
+            {
+                ApplicationArea = Basic, Suite;
+            }
+            part(Control1905989608; "My Items")
+            {
+                ApplicationArea = Basic, Suite;
+                Visible = false;
+            }
+            part(Control38; "Report Inbox Part")
+            {
+                ApplicationArea = Basic, Suite;
+            }
+            part(Control1; "My Job Queue")
+            {
+                ApplicationArea = Basic, Suite;
+                Visible = false;
+            }
+            systempart(Control1901377608; MyNotes)
+            {
+                ApplicationArea = Basic, Suite;
+            }
+#endif
         }
     }
 
@@ -414,6 +453,7 @@ page 9003 "Acc. Receivables Adm. RC"
                 }
                 action("Posted Bank Deposits")
                 {
+                    ApplicationArea = Basic, Suite;
                     Caption = 'Posted Bank Deposits';
                     Image = PostedDeposit;
                     RunObject = codeunit "Open P. Bank Deposits L. Page";
@@ -522,6 +562,7 @@ page 9003 "Acc. Receivables Adm. RC"
             }
             action(Deposit)
             {
+                ApplicationArea = Basic, Suite;
                 Caption = 'Bank Deposit';
                 Image = DepositSlip;
                 RunObject = codeunit "Open Deposit Page";

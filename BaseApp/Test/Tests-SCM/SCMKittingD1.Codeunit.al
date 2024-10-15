@@ -72,14 +72,14 @@ codeunit 137090 "SCM Kitting - D1"
         Item.Get(Item."No.");
         Item.CalcFields("Assembly BOM");
         Assert.AreNearlyEqual(LibraryAssembly.CalcExpectedStandardCost(MaterialCost, CapacityCost, CapOverhead, Item."No."),
-          Item."Standard Cost", LibraryERM.GetAmountRoundingPrecision, 'Wrong std. cost for:' + Item."No.");
-        Assert.AreNearlyEqual(MaterialCost, Item."Single-Level Material Cost", LibraryERM.GetUnitAmountRoundingPrecision, 'Material Cost');
-        Assert.AreNearlyEqual(CapacityCost, Item."Single-Level Capacity Cost", LibraryERM.GetUnitAmountRoundingPrecision, 'Cap Cost');
-        Assert.AreNearlyEqual(CapOverhead, Item."Single-Level Cap. Ovhd Cost", LibraryERM.GetUnitAmountRoundingPrecision, 'Cap Overhead');
-        Assert.AreNearlyEqual(CapOverhead, Item."Rolled-up Cap. Overhead Cost", LibraryERM.GetUnitAmountRoundingPrecision,
+          Item."Standard Cost", LibraryERM.GetAmountRoundingPrecision(), 'Wrong std. cost for:' + Item."No.");
+        Assert.AreNearlyEqual(MaterialCost, Item."Single-Level Material Cost", LibraryERM.GetUnitAmountRoundingPrecision(), 'Material Cost');
+        Assert.AreNearlyEqual(CapacityCost, Item."Single-Level Capacity Cost", LibraryERM.GetUnitAmountRoundingPrecision(), 'Cap Cost');
+        Assert.AreNearlyEqual(CapOverhead, Item."Single-Level Cap. Ovhd Cost", LibraryERM.GetUnitAmountRoundingPrecision(), 'Cap Overhead');
+        Assert.AreNearlyEqual(CapOverhead, Item."Rolled-up Cap. Overhead Cost", LibraryERM.GetUnitAmountRoundingPrecision(),
           'Rolled up Cap Overhead');
         Assert.AreNearlyEqual(
-          LibraryAssembly.CalcExpectedPrice(Item."No."), Item."Unit Price", LibraryERM.GetUnitAmountRoundingPrecision,
+          LibraryAssembly.CalcExpectedPrice(Item."No."), Item."Unit Price", LibraryERM.GetUnitAmountRoundingPrecision(),
           'Wrong unit price for:' + Item."No.");
         Assert.AreEqual(NoOfItems + NoOfResources + NoOfTexts > 0, Item."Assembly BOM", 'Wrong Assembly BOM flag');
     end;
@@ -202,7 +202,7 @@ codeunit 137090 "SCM Kitting - D1"
         if CostingMethod <> Item."Costing Method"::Standard then
             Assert.AreEqual(0, Item."Unit Cost", 'Unit cost should be 0:' + Item."No.");
         Assert.AreNearlyEqual(
-          LibraryAssembly.CalcExpectedPrice(Item."No."), Item."Unit Price", LibraryERM.GetUnitAmountRoundingPrecision,
+          LibraryAssembly.CalcExpectedPrice(Item."No."), Item."Unit Price", LibraryERM.GetUnitAmountRoundingPrecision(),
           'Wrong unit price for:' + Item."No.");
     end;
 
@@ -263,14 +263,14 @@ codeunit 137090 "SCM Kitting - D1"
         if CostingMethod <> Item."Costing Method"::Standard then
             Assert.AreEqual(InitialCost, Item."Unit Cost", 'Unit cost should not be updated:' + Item."No.");
         Assert.AreNearlyEqual(LibraryAssembly.CalcExpectedStandardCost(MaterialCost, CapacityCost, CapOverhead, Item."No."),
-          Item."Standard Cost", LibraryERM.GetAmountRoundingPrecision, 'Wrong std. cost for:' + Item."No.");
-        Assert.AreNearlyEqual(MaterialCost, Item."Single-Level Material Cost", LibraryERM.GetUnitAmountRoundingPrecision, 'Material Cost');
-        Assert.AreNearlyEqual(CapacityCost, Item."Single-Level Capacity Cost", LibraryERM.GetUnitAmountRoundingPrecision, 'Capacity Cost');
-        Assert.AreNearlyEqual(CapOverhead, Item."Single-Level Cap. Ovhd Cost", LibraryERM.GetUnitAmountRoundingPrecision, 'Cap. Overhead');
-        Assert.AreNearlyEqual(CapOverhead, Item."Rolled-up Cap. Overhead Cost", LibraryERM.GetUnitAmountRoundingPrecision,
+          Item."Standard Cost", LibraryERM.GetAmountRoundingPrecision(), 'Wrong std. cost for:' + Item."No.");
+        Assert.AreNearlyEqual(MaterialCost, Item."Single-Level Material Cost", LibraryERM.GetUnitAmountRoundingPrecision(), 'Material Cost');
+        Assert.AreNearlyEqual(CapacityCost, Item."Single-Level Capacity Cost", LibraryERM.GetUnitAmountRoundingPrecision(), 'Capacity Cost');
+        Assert.AreNearlyEqual(CapOverhead, Item."Single-Level Cap. Ovhd Cost", LibraryERM.GetUnitAmountRoundingPrecision(), 'Cap. Overhead');
+        Assert.AreNearlyEqual(CapOverhead, Item."Rolled-up Cap. Overhead Cost", LibraryERM.GetUnitAmountRoundingPrecision(),
           'Rolled up Cap Overhead');
         Assert.AreNearlyEqual(
-          LibraryAssembly.CalcExpectedPrice(Item."No."), Item."Unit Price", LibraryERM.GetUnitAmountRoundingPrecision,
+          LibraryAssembly.CalcExpectedPrice(Item."No."), Item."Unit Price", LibraryERM.GetUnitAmountRoundingPrecision(),
           'Wrong unit price for:' + Item."No.");
     end;
 
@@ -342,14 +342,14 @@ codeunit 137090 "SCM Kitting - D1"
         // Validate.
         Item.Get(Item."No.");
         Assert.AreNearlyEqual(LibraryAssembly.CalcExpectedStandardCost(MaterialCost, CapacityCost, CapOverhead, Item."No."),
-          Item."Standard Cost", LibraryERM.GetAmountRoundingPrecision, 'Wrong std. cost for:' + Item."No.");
-        Assert.AreNearlyEqual(MaterialCost, Item."Single-Level Material Cost", LibraryERM.GetUnitAmountRoundingPrecision, 'Material Cost');
-        Assert.AreNearlyEqual(CapacityCost, Item."Single-Level Capacity Cost", LibraryERM.GetUnitAmountRoundingPrecision, 'Capacity Cost');
-        Assert.AreNearlyEqual(CapOverhead, Item."Single-Level Cap. Ovhd Cost", LibraryERM.GetUnitAmountRoundingPrecision, 'Cap. Overhead');
-        Assert.AreNearlyEqual(CapOverhead, Item."Rolled-up Cap. Overhead Cost", LibraryERM.GetUnitAmountRoundingPrecision,
+          Item."Standard Cost", LibraryERM.GetAmountRoundingPrecision(), 'Wrong std. cost for:' + Item."No.");
+        Assert.AreNearlyEqual(MaterialCost, Item."Single-Level Material Cost", LibraryERM.GetUnitAmountRoundingPrecision(), 'Material Cost');
+        Assert.AreNearlyEqual(CapacityCost, Item."Single-Level Capacity Cost", LibraryERM.GetUnitAmountRoundingPrecision(), 'Capacity Cost');
+        Assert.AreNearlyEqual(CapOverhead, Item."Single-Level Cap. Ovhd Cost", LibraryERM.GetUnitAmountRoundingPrecision(), 'Cap. Overhead');
+        Assert.AreNearlyEqual(CapOverhead, Item."Rolled-up Cap. Overhead Cost", LibraryERM.GetUnitAmountRoundingPrecision(),
           'Rolled up Cap Overhead');
         Assert.AreNearlyEqual(
-          LibraryAssembly.CalcExpectedPrice(Item."No."), Item."Unit Price", LibraryERM.GetUnitAmountRoundingPrecision,
+          LibraryAssembly.CalcExpectedPrice(Item."No."), Item."Unit Price", LibraryERM.GetUnitAmountRoundingPrecision(),
           'Wrong unit price for:' + Item."No.");
     end;
 
@@ -479,14 +479,14 @@ codeunit 137090 "SCM Kitting - D1"
         Item.Get(Item."No.");
         Item.CalcFields("Assembly BOM");
         Assert.AreNearlyEqual(LibraryAssembly.CalcExpectedStandardCost(MaterialCost, CapacityCost, CapOverhead, Item1."No."),
-          Item1."Standard Cost", LibraryERM.GetAmountRoundingPrecision, 'Wrong std. cost for:' + Item1."No.");
-        Assert.AreNearlyEqual(MaterialCost, Item1."Single-Level Material Cost", LibraryERM.GetUnitAmountRoundingPrecision, 'Material Cost');
-        Assert.AreNearlyEqual(CapacityCost, Item1."Single-Level Capacity Cost", LibraryERM.GetUnitAmountRoundingPrecision, 'Capacity Cost');
-        Assert.AreNearlyEqual(CapOverhead, Item1."Rolled-up Cap. Overhead Cost", LibraryERM.GetUnitAmountRoundingPrecision,
+          Item1."Standard Cost", LibraryERM.GetAmountRoundingPrecision(), 'Wrong std. cost for:' + Item1."No.");
+        Assert.AreNearlyEqual(MaterialCost, Item1."Single-Level Material Cost", LibraryERM.GetUnitAmountRoundingPrecision(), 'Material Cost');
+        Assert.AreNearlyEqual(CapacityCost, Item1."Single-Level Capacity Cost", LibraryERM.GetUnitAmountRoundingPrecision(), 'Capacity Cost');
+        Assert.AreNearlyEqual(CapOverhead, Item1."Rolled-up Cap. Overhead Cost", LibraryERM.GetUnitAmountRoundingPrecision(),
           'Rolled up Cap Overhead');
         Assert.AreNearlyEqual(
           LibraryAssembly.CalcExpectedPrice(Item1."No."), Item1."Unit Price",
-          LibraryERM.GetUnitAmountRoundingPrecision, 'Wrong unit price for:' + Item1."No.");
+          LibraryERM.GetUnitAmountRoundingPrecision(), 'Wrong unit price for:' + Item1."No.");
         Assert.AreEqual(NoOfComps > 0, Item."Assembly BOM", 'Wrong Assembly BOM flag.');
 
         if CalcLevel = 1 then begin
@@ -495,18 +495,18 @@ codeunit 137090 "SCM Kitting - D1"
         end
         else begin
             Assert.AreNearlyEqual(LibraryAssembly.CalcExpectedStandardCost(MaterialCost, CapacityCost, CapOverhead, Item."No."),
-              Item."Standard Cost", LibraryERM.GetAmountRoundingPrecision, 'Wrong std. cost for:' + Item."No.");
+              Item."Standard Cost", LibraryERM.GetAmountRoundingPrecision(), 'Wrong std. cost for:' + Item."No.");
             Assert.AreNearlyEqual(
-              MaterialCost, Item."Single-Level Material Cost", LibraryERM.GetUnitAmountRoundingPrecision, 'Material Cost');
+              MaterialCost, Item."Single-Level Material Cost", LibraryERM.GetUnitAmountRoundingPrecision(), 'Material Cost');
             Assert.AreNearlyEqual(
-              CapacityCost, Item."Single-Level Capacity Cost", LibraryERM.GetUnitAmountRoundingPrecision, 'Capacity Cost');
+              CapacityCost, Item."Single-Level Capacity Cost", LibraryERM.GetUnitAmountRoundingPrecision(), 'Capacity Cost');
             Assert.AreNearlyEqual(
-              CapOverhead, Item."Single-Level Cap. Ovhd Cost", LibraryERM.GetUnitAmountRoundingPrecision, 'Cap. Overhead');
-            Assert.AreNearlyEqual(CapOverhead, Item."Rolled-up Cap. Overhead Cost", LibraryERM.GetUnitAmountRoundingPrecision,
+              CapOverhead, Item."Single-Level Cap. Ovhd Cost", LibraryERM.GetUnitAmountRoundingPrecision(), 'Cap. Overhead');
+            Assert.AreNearlyEqual(CapOverhead, Item."Rolled-up Cap. Overhead Cost", LibraryERM.GetUnitAmountRoundingPrecision(),
               'Rolled up Cap Overhead');
             Assert.AreNearlyEqual(
               LibraryAssembly.CalcExpectedPrice(Item."No."),
-              Item."Unit Price", LibraryERM.GetUnitAmountRoundingPrecision, 'Wrong unit price for:' + Item."No.");
+              Item."Unit Price", LibraryERM.GetUnitAmountRoundingPrecision(), 'Wrong unit price for:' + Item."No.");
         end;
     end;
 
@@ -611,11 +611,11 @@ codeunit 137090 "SCM Kitting - D1"
         // Validate.
         Item.Get(Item."No.");
         Assert.AreNearlyEqual(LibraryAssembly.CalcExpectedStandardCost(MaterialCost, CapacityCost, CapOverhead, Item."No."),
-          Item."Standard Cost", LibraryERM.GetAmountRoundingPrecision, 'Wrong std. cost for:' + Item."No.");
-        Assert.AreNearlyEqual(MaterialCost, Item."Single-Level Material Cost", LibraryERM.GetUnitAmountRoundingPrecision, 'Material Cost');
-        Assert.AreNearlyEqual(CapacityCost, Item."Single-Level Capacity Cost", LibraryERM.GetUnitAmountRoundingPrecision, 'Capacity Cost');
-        Assert.AreNearlyEqual(CapOverhead, Item."Single-Level Cap. Ovhd Cost", LibraryERM.GetUnitAmountRoundingPrecision, 'Cap. Overhead');
-        Assert.AreNearlyEqual(CapOverhead, Item."Rolled-up Cap. Overhead Cost", LibraryERM.GetUnitAmountRoundingPrecision,
+          Item."Standard Cost", LibraryERM.GetAmountRoundingPrecision(), 'Wrong std. cost for:' + Item."No.");
+        Assert.AreNearlyEqual(MaterialCost, Item."Single-Level Material Cost", LibraryERM.GetUnitAmountRoundingPrecision(), 'Material Cost');
+        Assert.AreNearlyEqual(CapacityCost, Item."Single-Level Capacity Cost", LibraryERM.GetUnitAmountRoundingPrecision(), 'Capacity Cost');
+        Assert.AreNearlyEqual(CapOverhead, Item."Single-Level Cap. Ovhd Cost", LibraryERM.GetUnitAmountRoundingPrecision(), 'Cap. Overhead');
+        Assert.AreNearlyEqual(CapOverhead, Item."Rolled-up Cap. Overhead Cost", LibraryERM.GetUnitAmountRoundingPrecision(),
           'Rolled up Cap Overhead');
         Assert.AreEqual(LibraryAssembly.CalcExpectedPrice(Item."No."), Item."Unit Price", 'Wrong unit price for:' + Item."No.");
     end;
@@ -706,16 +706,16 @@ codeunit 137090 "SCM Kitting - D1"
 
         // Validate.
         Assert.AreNearlyEqual(LibraryAssembly.CalcExpectedStandardCost(MaterialCost, CapacityCost, CapOverhead, Item1."No."),
-          Item1."Standard Cost", LibraryERM.GetAmountRoundingPrecision, 'Wrong std. cost for:' + Item1."No.");
-        Assert.AreNearlyEqual(MaterialCost, Item1."Single-Level Material Cost", LibraryERM.GetUnitAmountRoundingPrecision, 'Material Cost');
-        Assert.AreNearlyEqual(CapacityCost, Item1."Single-Level Capacity Cost", LibraryERM.GetUnitAmountRoundingPrecision, 'Capacity Cost');
-        Assert.AreNearlyEqual(CapOverhead, Item1."Single-Level Cap. Ovhd Cost", LibraryERM.GetUnitAmountRoundingPrecision, 'Cap. Overhead');
+          Item1."Standard Cost", LibraryERM.GetAmountRoundingPrecision(), 'Wrong std. cost for:' + Item1."No.");
+        Assert.AreNearlyEqual(MaterialCost, Item1."Single-Level Material Cost", LibraryERM.GetUnitAmountRoundingPrecision(), 'Material Cost');
+        Assert.AreNearlyEqual(CapacityCost, Item1."Single-Level Capacity Cost", LibraryERM.GetUnitAmountRoundingPrecision(), 'Capacity Cost');
+        Assert.AreNearlyEqual(CapOverhead, Item1."Single-Level Cap. Ovhd Cost", LibraryERM.GetUnitAmountRoundingPrecision(), 'Cap. Overhead');
         Assert.AreNearlyEqual(
-          CapOverhead, Item1."Rolled-up Cap. Overhead Cost", LibraryERM.GetUnitAmountRoundingPrecision,
+          CapOverhead, Item1."Rolled-up Cap. Overhead Cost", LibraryERM.GetUnitAmountRoundingPrecision(),
           'Rolled up Cap Overhead');
         Assert.AreNearlyEqual(
           LibraryAssembly.CalcExpectedPrice(Item1."No."), Item1."Unit Price",
-          LibraryERM.GetUnitAmountRoundingPrecision, 'Wrong unit price for:' + Item1."No.");
+          LibraryERM.GetUnitAmountRoundingPrecision(), 'Wrong unit price for:' + Item1."No.");
         Assert.AreEqual(InitialCost, Item."Standard Cost", Item."No.");
         Assert.AreEqual(InitialPrice, Item."Unit Price", 'Wrong unit price for:' + Item."No.");
 
@@ -894,15 +894,15 @@ codeunit 137090 "SCM Kitting - D1"
         ClearLastError();
 
         Assert.AreNearlyEqual(LibraryAssembly.CalcExpectedStandardCost(MaterialCost, CapacityCost, CapOverhead, Item."No."),
-          Item."Standard Cost", LibraryERM.GetAmountRoundingPrecision, 'Wrong std. cost for:' + Item."No.");
-        Assert.AreNearlyEqual(MaterialCost, Item."Single-Level Material Cost", LibraryERM.GetUnitAmountRoundingPrecision, 'Material Cost');
-        Assert.AreNearlyEqual(CapacityCost, Item."Single-Level Capacity Cost", LibraryERM.GetUnitAmountRoundingPrecision, 'Capacity Cost');
-        Assert.AreNearlyEqual(CapOverhead, Item."Single-Level Cap. Ovhd Cost", LibraryERM.GetUnitAmountRoundingPrecision, 'Cap. Overhead');
-        Assert.AreNearlyEqual(CapOverhead, Item."Rolled-up Cap. Overhead Cost", LibraryERM.GetUnitAmountRoundingPrecision,
+          Item."Standard Cost", LibraryERM.GetAmountRoundingPrecision(), 'Wrong std. cost for:' + Item."No.");
+        Assert.AreNearlyEqual(MaterialCost, Item."Single-Level Material Cost", LibraryERM.GetUnitAmountRoundingPrecision(), 'Material Cost');
+        Assert.AreNearlyEqual(CapacityCost, Item."Single-Level Capacity Cost", LibraryERM.GetUnitAmountRoundingPrecision(), 'Capacity Cost');
+        Assert.AreNearlyEqual(CapOverhead, Item."Single-Level Cap. Ovhd Cost", LibraryERM.GetUnitAmountRoundingPrecision(), 'Cap. Overhead');
+        Assert.AreNearlyEqual(CapOverhead, Item."Rolled-up Cap. Overhead Cost", LibraryERM.GetUnitAmountRoundingPrecision(),
           'Rolled up Cap Overhead');
         Assert.AreNearlyEqual(
           LibraryAssembly.CalcExpectedPrice(Item."No."), Item."Unit Price",
-          LibraryERM.GetUnitAmountRoundingPrecision, 'Wrong unit price for:' + Item."No.");
+          LibraryERM.GetUnitAmountRoundingPrecision(), 'Wrong unit price for:' + Item."No.");
     end;
 
     [Test]

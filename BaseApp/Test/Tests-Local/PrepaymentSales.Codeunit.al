@@ -355,11 +355,10 @@ codeunit 144011 "Prepayment Sales"
     local procedure CreatePrepaymentVATSetup(var LineGLAccount: Record "G/L Account"): Code[20]
     var
         PrepmtGLAccount: Record "G/L Account";
-        VATCalculationType: Option "Normal VAT","Reverse Charge VAT","Full VAT","Sales Tax";
     begin
         LibraryERM.CreatePrepaymentVATSetup(
           LineGLAccount, PrepmtGLAccount, LineGLAccount."Gen. Posting Type"::Sale,
-          VATCalculationType::"Sales Tax", VATCalculationType::"Sales Tax");
+          "Tax Calculation Type"::"Sales Tax", "Tax Calculation Type"::"Sales Tax");
         exit(PrepmtGLAccount."No.");
     end;
 
@@ -372,10 +371,9 @@ codeunit 144011 "Prepayment Sales"
 
     local procedure GetPostedDocumentNo(NoSeries: Code[20]): Code[20]
     var
-        NoSeriesManagement: Codeunit NoSeriesManagement;
+        NoSeriesCodeunit: Codeunit "No. Series";
     begin
-        Clear(NoSeriesManagement);
-        exit(NoSeriesManagement.GetNextNo(NoSeries, WorkDate(), false));  // Required for Prepayment Invoice and Prepayment Credit Memo.
+        exit(NoSeriesCodeunit.PeekNextNo(NoSeries));  // Required for Prepayment Invoice and Prepayment Credit Memo.
     end;
 
     local procedure PostPrepaymentInvoiceAndReleaseSalesOrder(var SalesHeader: Record "Sales Header")
@@ -430,7 +428,7 @@ codeunit 144011 "Prepayment Sales"
         exit(TaxAreaLine."Tax Area");
     end;
 
-    local procedure VerifyGLEntry(DocumentNo: Code[20]; DocumentType: Option; GLAccountNo: Code[20]; Amount: Decimal; TaxAreaCode: Code[20]; TaxGroupCode: Code[20]; TaxLiable: Boolean)
+    local procedure VerifyGLEntry(DocumentNo: Code[20]; DocumentType: Enum "Sales Document Type"; GLAccountNo: Code[20]; Amount: Decimal; TaxAreaCode: Code[20]; TaxGroupCode: Code[20]; TaxLiable: Boolean)
     var
         GLEntry: Record "G/L Entry";
     begin
@@ -442,7 +440,7 @@ codeunit 144011 "Prepayment Sales"
         GLEntry.TestField("Tax Liable", TaxLiable);
     end;
 
-    local procedure VerifyCustomerLedgerEntry(CustomerNo: Code[20]; DocumentType: Option; DocumentNo: Code[20]; Amount: Decimal; RemainingAmount: Decimal; Prepayment: Boolean)
+    local procedure VerifyCustomerLedgerEntry(CustomerNo: Code[20]; DocumentType: Enum "Sales Document Type"; DocumentNo: Code[20]; Amount: Decimal; RemainingAmount: Decimal; Prepayment: Boolean)
     var
         CustLedgerEntry: Record "Cust. Ledger Entry";
     begin

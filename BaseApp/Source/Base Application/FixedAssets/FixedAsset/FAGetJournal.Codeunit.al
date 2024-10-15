@@ -73,68 +73,61 @@ codeunit 5639 "FA Get Journal"
 
     procedure SetGenJnlRange(var GenJnlLine: Record "Gen. Journal Line"; TemplateName: Code[10]; BatchName: Code[10])
     begin
-        with GenJnlLine do begin
-            Reset();
-            "Journal Template Name" := TemplateName;
-            "Journal Batch Name" := BatchName;
-            SetRange("Journal Template Name", TemplateName);
-            SetRange("Journal Batch Name", BatchName);
-            if Find('+') then;
-            Init();
-        end;
+        GenJnlLine.Reset();
+        GenJnlLine."Journal Template Name" := TemplateName;
+        GenJnlLine."Journal Batch Name" := BatchName;
+        GenJnlLine.SetRange("Journal Template Name", TemplateName);
+        GenJnlLine.SetRange("Journal Batch Name", BatchName);
+        if GenJnlLine.Find('+') then;
+        GenJnlLine.Init();
     end;
 
     procedure SetFAJnlRange(var FAJnlLine: Record "FA Journal Line"; TemplateName: Code[10]; BatchName: Code[10])
     begin
-        with FAJnlLine do begin
-            Reset();
-            "Journal Template Name" := TemplateName;
-            "Journal Batch Name" := BatchName;
-            SetRange("Journal Template Name", TemplateName);
-            SetRange("Journal Batch Name", BatchName);
-            if Find('+') then;
-            Init();
-        end;
+        FAJnlLine.Reset();
+        FAJnlLine."Journal Template Name" := TemplateName;
+        FAJnlLine."Journal Batch Name" := BatchName;
+        FAJnlLine.SetRange("Journal Template Name", TemplateName);
+        FAJnlLine.SetRange("Journal Batch Name", BatchName);
+        if FAJnlLine.Find('+') then;
+        FAJnlLine.Init();
     end;
 
     procedure SetInsuranceJnlRange(var InsuranceJnlLine: Record "Insurance Journal Line"; TemplateName: Code[10]; BatchName: Code[10])
     begin
-        with InsuranceJnlLine do begin
-            Reset();
-            "Journal Template Name" := TemplateName;
-            "Journal Batch Name" := BatchName;
-            SetRange("Journal Template Name", TemplateName);
-            SetRange("Journal Batch Name", BatchName);
-            if Find('+') then;
-            Init();
-        end;
+        InsuranceJnlLine.Reset();
+        InsuranceJnlLine."Journal Template Name" := TemplateName;
+        InsuranceJnlLine."Journal Batch Name" := BatchName;
+        InsuranceJnlLine.SetRange("Journal Template Name", TemplateName);
+        InsuranceJnlLine.SetRange("Journal Batch Name", BatchName);
+        if InsuranceJnlLine.Find('+') then;
+        InsuranceJnlLine.Init();
     end;
 
     local procedure CalcGLIntegration(BudgetAsset: Boolean; FAPostingType: Enum "FA Journal Line FA Posting Type") Result: Boolean
     begin
         if BudgetAsset then
             exit(false);
-        with DeprBook do
-            case FAPostingType of
-                FAPostingType::"Acquisition Cost":
-                    exit("G/L Integration - Acq. Cost");
-                FAPostingType::Depreciation:
-                    exit("G/L Integration - Depreciation");
-                FAPostingType::"Write-Down":
-                    exit("G/L Integration - Write-Down");
-                FAPostingType::Appreciation:
-                    exit("G/L Integration - Appreciation");
-                FAPostingType::"Custom 1":
-                    exit("G/L Integration - Custom 1");
-                FAPostingType::"Custom 2":
-                    exit("G/L Integration - Custom 2");
-                FAPostingType::Disposal:
-                    exit("G/L Integration - Disposal");
-                FAPostingType::Maintenance:
-                    exit("G/L Integration - Maintenance");
-                FAPostingType::"Salvage Value":
-                    exit(false);
-            end;
+        case FAPostingType of
+            FAPostingType::"Acquisition Cost":
+                exit(DeprBook."G/L Integration - Acq. Cost");
+            FAPostingType::Depreciation:
+                exit(DeprBook."G/L Integration - Depreciation");
+            FAPostingType::"Write-Down":
+                exit(DeprBook."G/L Integration - Write-Down");
+            FAPostingType::Appreciation:
+                exit(DeprBook."G/L Integration - Appreciation");
+            FAPostingType::"Custom 1":
+                exit(DeprBook."G/L Integration - Custom 1");
+            FAPostingType::"Custom 2":
+                exit(DeprBook."G/L Integration - Custom 2");
+            FAPostingType::Disposal:
+                exit(DeprBook."G/L Integration - Disposal");
+            FAPostingType::Maintenance:
+                exit(DeprBook."G/L Integration - Maintenance");
+            FAPostingType::"Salvage Value":
+                exit(false);
+        end;
 
         OnAfterCalcGLIntegration(DeprBook, FAPostingType, Result);
     end;

@@ -40,12 +40,10 @@ codeunit 10339 "Exp. Pre-Mapping Det EFT MX"
     var
         ACHCecobanDetail: Record "ACH Cecoban Detail";
     begin
-        with ACHCecobanDetail do begin
-            Init();
-            "Data Exch. Entry No." := DataExchangeEntryNo;
-            "Data Exch. Line Def Code" := DataExchLineDefCode;
-            Insert(true);
-        end;
+        ACHCecobanDetail.Init();
+        ACHCecobanDetail."Data Exch. Entry No." := DataExchangeEntryNo;
+        ACHCecobanDetail."Data Exch. Line Def Code" := DataExchLineDefCode;
+        ACHCecobanDetail.Insert(true);
     end;
 }
 

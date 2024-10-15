@@ -12,6 +12,7 @@ table 5365 "CRM Discount"
     Description = 'Price reduction made from the list price of a product or service based on the quantity purchased.';
     ExternalName = 'discount';
     TableType = CRM;
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -107,7 +108,7 @@ table 5365 "CRM Discount"
         }
         field(12; DiscountTypeIdName; Text[100])
         {
-            CalcFormula = Lookup("CRM Discounttype".Name where(DiscountTypeId = field(DiscountTypeId)));
+            CalcFormula = lookup("CRM Discounttype".Name where(DiscountTypeId = field(DiscountTypeId)));
             Caption = 'DiscountTypeIdName';
             ExternalAccess = Read;
             ExternalName = 'discounttypeidname';
@@ -124,7 +125,7 @@ table 5365 "CRM Discount"
         }
         field(14; CreatedByName; Text[200])
         {
-            CalcFormula = Lookup("CRM Systemuser".FullName where(SystemUserId = field(CreatedBy)));
+            CalcFormula = lookup("CRM Systemuser".FullName where(SystemUserId = field(CreatedBy)));
             Caption = 'CreatedByName';
             ExternalAccess = Read;
             ExternalName = 'createdbyname';
@@ -133,7 +134,7 @@ table 5365 "CRM Discount"
         }
         field(15; ModifiedByName; Text[200])
         {
-            CalcFormula = Lookup("CRM Systemuser".FullName where(SystemUserId = field(ModifiedBy)));
+            CalcFormula = lookup("CRM Systemuser".FullName where(SystemUserId = field(ModifiedBy)));
             Caption = 'ModifiedByName';
             ExternalAccess = Read;
             ExternalName = 'modifiedbyname';
@@ -199,7 +200,7 @@ table 5365 "CRM Discount"
         }
         field(23; TransactionCurrencyIdName; Text[100])
         {
-            CalcFormula = Lookup("CRM Transactioncurrency".CurrencyName where(TransactionCurrencyId = field(TransactionCurrencyId)));
+            CalcFormula = lookup("CRM Transactioncurrency".CurrencyName where(TransactionCurrencyId = field(TransactionCurrencyId)));
             Caption = 'TransactionCurrencyIdName';
             ExternalAccess = Read;
             ExternalName = 'transactioncurrencyidname';
@@ -217,7 +218,7 @@ table 5365 "CRM Discount"
         }
         field(25; CreatedOnBehalfByName; Text[200])
         {
-            CalcFormula = Lookup("CRM Systemuser".FullName where(SystemUserId = field(CreatedOnBehalfBy)));
+            CalcFormula = lookup("CRM Systemuser".FullName where(SystemUserId = field(CreatedOnBehalfBy)));
             Caption = 'CreatedOnBehalfByName';
             ExternalAccess = Read;
             ExternalName = 'createdonbehalfbyname';
@@ -235,7 +236,7 @@ table 5365 "CRM Discount"
         }
         field(27; ModifiedOnBehalfByName; Text[200])
         {
-            CalcFormula = Lookup("CRM Systemuser".FullName where(SystemUserId = field(ModifiedOnBehalfBy)));
+            CalcFormula = lookup("CRM Systemuser".FullName where(SystemUserId = field(ModifiedOnBehalfBy)));
             Caption = 'ModifiedOnBehalfByName';
             ExternalAccess = Read;
             ExternalName = 'modifiedonbehalfbyname';

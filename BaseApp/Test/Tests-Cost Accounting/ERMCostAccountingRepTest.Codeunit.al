@@ -19,7 +19,6 @@ codeunit 134392 "ERM Cost Accounting Rep - Test"
         LibraryRandom: Codeunit "Library - Random";
         LibraryUtility: Codeunit "Library - Utility";
         ComparisonType: Option "Last Year","Last Half Year","Last Quarter","Last Month","Same Period Last Year","Free comparison";
-        Amount: Label 'Amount.';
         RowNotFoundError: Label 'There is no dataset row corresponding to Element Name %1 with value %2.', Comment = '%1=Field Caption;%2=Field Value;';
         ExpectedEndingDateError: Label 'Starting date and ending date in the actual period must be defined.';
         ExpectedEndDateError: Label 'Ending date must not be before starting date.';
@@ -582,8 +581,8 @@ codeunit 134392 "ERM Cost Accounting Rep - Test"
         RunCostAllocationsReport(CostAllocationSource);
 
         // Verify: Verify Target Cost Type and Target Cost Center.
-        LibraryReportDataset.LoadDataSetFile;
-        Assert.IsFalse(LibraryReportDataset.GetNextRow, RowMustNotExist);
+        LibraryReportDataset.LoadDataSetFile();
+        Assert.IsFalse(LibraryReportDataset.GetNextRow(), RowMustNotExist);
     end;
 
     [Test]
@@ -615,10 +614,10 @@ codeunit 134392 "ERM Cost Accounting Rep - Test"
         PostCostJournalLines(CostJournalBatch."Journal Template Name", CostJournalBatch.Name);
 
         // Exercise : Run the Report with Filters Cost Center Code.
-        RunCostAcctgAnalysisReport;
+        RunCostAcctgAnalysisReport();
 
         // Verify : To check correct amount is displayed on report.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         for Count := 1 to 7 do
             VerifyCostAcctgAnalysisReportValue(
               CostJournalLine[Count].Amount, 'Col' + Format(Count), CostJournalLine[Count]."Cost Type No.");
@@ -653,10 +652,10 @@ codeunit 134392 "ERM Cost Accounting Rep - Test"
         PostCostJournalLines(CostJournalBatch."Journal Template Name", CostJournalBatch.Name);
 
         // Exercise : Run the Report with Filters Cost Object Code.
-        RunCostAcctgAnalysisReport;
+        RunCostAcctgAnalysisReport();
 
         // Verify : To check correct amount is displayed on report.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         for Count := 1 to 7 do
             VerifyCostAcctgAnalysisReportValue(
               CostJournalLine[Count].Amount, 'Col' + Format(Count), CostJournalLine[Count]."Cost Type No.");
@@ -680,10 +679,10 @@ codeunit 134392 "ERM Cost Accounting Rep - Test"
 
         // Exercise : Run the Report with Filters Cost Center Code & Supress without Amt is True
         Commit();
-        RunCostAcctgAnalysisReport;
+        RunCostAcctgAnalysisReport();
 
         // Verify : Without Amount Cost Type No. Not Print On Report
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         asserterror LibraryReportDataset.AssertElementWithValueExists('No_CostType', CostType."No.");
     end;
 
@@ -705,10 +704,10 @@ codeunit 134392 "ERM Cost Accounting Rep - Test"
         LibraryCostAccounting.PostCostJournalLine(CostJournalLine);
 
         // Exercise : Run the Report with Filters Cost Center Code.
-        RunCostAcctgAnalysisReport;
+        RunCostAcctgAnalysisReport();
 
         // Verify : To check correct amount is displayed on report.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         VerifyCostAcctgAnalysisReportValue(CostJournalLine.Amount, 'Col1', CostJournalLine."Cost Type No.");
     end;
 
@@ -730,10 +729,10 @@ codeunit 134392 "ERM Cost Accounting Rep - Test"
         LibraryCostAccounting.PostCostJournalLine(CostJournalLine);
 
         // Exercise : Run the Report with Filters Cost Object Code.
-        RunCostAcctgAnalysisReport;
+        RunCostAcctgAnalysisReport();
 
         // Verify : To check correct amount is displayed on report.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         VerifyCostAcctgAnalysisReportValue(CostJournalLine.Amount, 'Col1', CostJournalLine."Cost Type No.");
     end;
 
@@ -808,7 +807,7 @@ codeunit 134392 "ERM Cost Accounting Rep - Test"
         CostAcctgBalanceBudget.StartDate.SetValue(StartDate);
         CostAcctgBalanceBudget.EndDate.SetValue(EndDate);
         CostAcctgBalanceBudget.OnlyShowAccWithEntries.SetValue(false);
-        CostAcctgBalanceBudget.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        CostAcctgBalanceBudget.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -820,14 +819,14 @@ codeunit 134392 "ERM Cost Accounting Rep - Test"
     begin
         DequeueCostAcctgJournalValues(WithErrorMessage, FileName);
         CostAcctgJournal.WithErrorMessages.SetValue(WithErrorMessage);
-        CostAcctgJournal.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        CostAcctgJournal.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure CostAcctgStmtBudgetReportHandler(var CostAcctgStatementBudget: TestRequestPage "Cost Acctg. Statement/Budget")
     begin
-        CostAcctgStatementBudget.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        CostAcctgStatementBudget.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -845,7 +844,7 @@ codeunit 134392 "ERM Cost Accounting Rep - Test"
         CostAcctgStmtPerPeriod.StartDate.SetValue(StartDate);
         CostAcctgStmtPerPeriod.OnlyAccWithEntries.SetValue(OnlyAccWithEntries);
         CostAcctgStmtPerPeriod.ShowAddCurrency.SetValue(ShowAddCurr);
-        CostAcctgStmtPerPeriod.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        CostAcctgStmtPerPeriod.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -858,7 +857,7 @@ codeunit 134392 "ERM Cost Accounting Rep - Test"
         LibraryVariableStorage.Dequeue(ShowAmountsInAddRepCurrency);
         LibraryVariableStorage.Dequeue(CostTypeNo);
         CostAcctgStmtReport.ShowAmountsInAddRepCurrency.SetValue(ShowAmountsInAddRepCurrency);
-        CostAcctgStmtReport.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        CostAcctgStmtReport.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     local procedure CostAllocRepForPrintOnlyDetails(SkipalocSourceswithoutaloctgt: Boolean)
@@ -866,15 +865,15 @@ codeunit 134392 "ERM Cost Accounting Rep - Test"
         CostAllocationSource: Record "Cost Allocation Source";
         CostAllocationTarget: Record "Cost Allocation Target";
         CostCenter: Record "Cost Center";
-        AllocationType: Option;
-        Base: Option;
+        AllocationType: Enum "Cost Allocation Target Type";
+        AllocationBase: Enum "Cost Allocation Target Base";
         TypeOfID: Option "Auto Generated",Custom;
     begin
         // Setup.
         LibraryCostAccounting.CreateCostCenter(CostCenter);
         LibraryCostAccounting.CreateAllocSource(CostAllocationSource, TypeOfID::"Auto Generated");
         LibraryCostAccounting.CreateAllocTarget(
-          CostAllocationTarget, CostAllocationSource, LibraryRandom.RandDec(10, 1), Base, AllocationType);
+          CostAllocationTarget, CostAllocationSource, LibraryRandom.RandDec(10, 1), AllocationBase, AllocationType);
         CostAllocationTarget."Target Cost Center" := CostCenter.Code;
         CostAllocationTarget.Modify(true);
         LibraryVariableStorage.Enqueue(SkipalocSourceswithoutaloctgt);
@@ -894,7 +893,7 @@ codeunit 134392 "ERM Cost Accounting Rep - Test"
     begin
         LibraryVariableStorage.Dequeue(SkipalocSourceswithoutaloctgt);
         CostAllocationsReport.SkipalocSourceswithoutaloctgt.SetValue(SkipalocSourceswithoutaloctgt);
-        CostAllocationsReport.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        CostAllocationsReport.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -904,7 +903,7 @@ codeunit 134392 "ERM Cost Accounting Rep - Test"
         CostRegisterNo: Variant;
     begin
         LibraryVariableStorage.Dequeue(CostRegisterNo);
-        CostRegistersReport.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        CostRegistersReport.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -917,7 +916,7 @@ codeunit 134392 "ERM Cost Accounting Rep - Test"
         LibraryVariableStorage.Dequeue(ShowAmountsInAddRepCurrency);
         LibraryVariableStorage.Dequeue(CostTypeNo);
         CostTypeDetailsReport.ShowAmountsInAddRepCurrency.SetValue(ShowAmountsInAddRepCurrency);
-        CostTypeDetailsReport.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        CostTypeDetailsReport.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -936,7 +935,7 @@ codeunit 134392 "ERM Cost Accounting Rep - Test"
         CostAcctgAnalysisReport.CostCenter5.SetValue(CostCenterCode[5]);
         CostAcctgAnalysisReport.CostCenter6.SetValue(CostCenterCode[6]);
         CostAcctgAnalysisReport.CostCenter7.SetValue(CostCenterCode[7]);
-        CostAcctgAnalysisReport.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        CostAcctgAnalysisReport.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -955,7 +954,7 @@ codeunit 134392 "ERM Cost Accounting Rep - Test"
         CostAcctgAnalysisReport.CostObject5.SetValue(CostObjectCode[5]);
         CostAcctgAnalysisReport.CostObject6.SetValue(CostObjectCode[6]);
         CostAcctgAnalysisReport.CostObject7.SetValue(CostObjectCode[7]);
-        CostAcctgAnalysisReport.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        CostAcctgAnalysisReport.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -974,7 +973,7 @@ codeunit 134392 "ERM Cost Accounting Rep - Test"
         CostAcctgAnalysisReport.CostCenter1.SetValue(CostCenterCode);
         CostAcctgAnalysisReport.CostObject1.SetValue(CostObjectCode);
         CostAcctgAnalysisReport.SuppressCostTypesWithoutAmount.SetValue(SuppressCostTypesWithoutAmount);
-        CostAcctgAnalysisReport.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        CostAcctgAnalysisReport.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -1333,9 +1332,9 @@ codeunit 134392 "ERM Cost Accounting Rep - Test"
     local procedure VerifyBudgetAmount(var CostType: Record "Cost Type")
     begin
         CostType.FindFirst();
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.SetRange('No_CostType', CostType."No.");
-        if not LibraryReportDataset.GetNextRow then
+        if not LibraryReportDataset.GetNextRow() then
             Error(RowNotFoundError, 'No_CostType', CostType."No.");
         CostType.CalcFields("Budget Amount");
         LibraryReportDataset.AssertCurrentRowValueEquals('BudgetAmount_CostType', CostType."Budget Amount");
@@ -1343,27 +1342,27 @@ codeunit 134392 "ERM Cost Accounting Rep - Test"
 
     local procedure VerifyCostAcctgBalanceBudgetReport(BudgetAmount: Decimal; CostTypeNo: Code[20])
     begin
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.SetRange('No_CostType', CostTypeNo);
-        if not LibraryReportDataset.GetNextRow then
+        if not LibraryReportDataset.GetNextRow() then
             Error(RowNotFoundError, 'No_CostType', CostTypeNo);
         LibraryReportDataset.AssertCurrentRowValueEquals('YtdBud', BudgetAmount);
     end;
 
     local procedure VerifyCostAcctgJournalReport(ExpectedAmount: Decimal; CostTypeNo: Code[20])
     begin
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.SetRange('CostTypeNo_CostJourLine', CostTypeNo);
-        if not LibraryReportDataset.GetNextRow then
+        if not LibraryReportDataset.GetNextRow() then
             Error(RowNotFoundError, 'CostTypeNo_CostJourLine', CostTypeNo);
         LibraryReportDataset.AssertCurrentRowValueEquals('Amount_CostJourLine', ExpectedAmount);
     end;
 
     local procedure VerifyCostAcctgStmtBudgetReport(CostEntry: Record "Cost Entry")
     begin
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.SetRange('No_CostType', CostEntry."Cost Type No.");
-        if not LibraryReportDataset.GetNextRow then
+        if not LibraryReportDataset.GetNextRow() then
             Error(RowNotFoundError, 'No_CostType', CostEntry."Cost Type No.");
         LibraryReportDataset.AssertCurrentRowValueEquals('NetChange_CostType', CostEntry.Amount);
     end;
@@ -1372,9 +1371,9 @@ codeunit 134392 "ERM Cost Accounting Rep - Test"
     var
         ExpectedPercentage: Decimal;
     begin
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.SetRange('No_CostType', CostTypeNo);
-        if not LibraryReportDataset.GetNextRow then
+        if not LibraryReportDataset.GetNextRow() then
             Error(RowNotFoundError, 'No_CostType', CostTypeNo);
         LibraryReportDataset.AssertCurrentRowValueEquals('DiffAmount', CurrentYearAmount);
         ExpectedPercentage := 100 * ((PreviousYearAmount + CurrentYearAmount) / PreviousYearAmount);
@@ -1383,23 +1382,23 @@ codeunit 134392 "ERM Cost Accounting Rep - Test"
 
     local procedure VerifyCostAcctgStmtReport(ExpectedAmount: Decimal; CostTypeNo: Code[20]; NetChangeAmount: Text[1024])
     begin
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.SetRange('No_CostType', CostTypeNo);
-        if not LibraryReportDataset.GetNextRow then
+        if not LibraryReportDataset.GetNextRow() then
             Error(RowNotFoundError, 'No_CostType', CostTypeNo);
         LibraryReportDataset.AssertCurrentRowValueEquals(NetChangeAmount, ExpectedAmount);
     end;
 
     local procedure VerifyCostAllocationTarget(CostAllocationTarget: Record "Cost Allocation Target")
     begin
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
 
         // Verify Source Allocation ID.
         LibraryReportDataset.AssertElementWithValueExists('SourceID_CostAllocSource', CostAllocationTarget.ID);
 
         // Verify Target Cost Type and Target Cost Center.
         LibraryReportDataset.SetRange('SourceID_CostAllocSource', CostAllocationTarget.ID);
-        if not LibraryReportDataset.GetNextRow then
+        if not LibraryReportDataset.GetNextRow() then
             Error(RowNotFoundError, 'SourceID_CostAllocSource', CostAllocationTarget.ID);
         LibraryReportDataset.AssertCurrentRowValueEquals('TargetCostType_CostAllocTarget', CostAllocationTarget."Target Cost Type");
         LibraryReportDataset.AssertCurrentRowValueEquals('TargetCostCenter_CostAllocTarget', CostAllocationTarget."Target Cost Center");
@@ -1409,22 +1408,22 @@ codeunit 134392 "ERM Cost Accounting Rep - Test"
     var
         CostEntry: Record "Cost Entry";
     begin
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         CostEntry.SetRange("Entry No.", FromCostEntryNo);
         CostEntry.FindFirst();
         LibraryReportDataset.SetRange('DocNo_CostEntry', CostEntry."Document No.");
-        if not LibraryReportDataset.GetNextRow then
+        if not LibraryReportDataset.GetNextRow() then
             Error(RowNotFoundError, 'DocNo_CostEntry', CostEntry."Document No.");
         LibraryReportDataset.AssertCurrentRowValueEquals('Amount_CostEntry', CostEntry.Amount);
     end;
 
     local procedure VerifyCostTypeDetailsReport(ExpectedAmount: Decimal; DebitAmount: Text[1024]; Balance: Text[1024])
     begin
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.SetRange('FmtPostingDate_CostEntry', Format(WorkDate()));
 
         // Verify Debit Amount and Balance.
-        if not LibraryReportDataset.GetNextRow then
+        if not LibraryReportDataset.GetNextRow() then
             Error(RowNotFoundError, 'FmtPostingDate_CostEntry', Format(WorkDate()));
         LibraryReportDataset.AssertCurrentRowValueEquals(DebitAmount, ExpectedAmount);
         LibraryReportDataset.AssertCurrentRowValueEquals(Balance, ExpectedAmount);
@@ -1433,7 +1432,7 @@ codeunit 134392 "ERM Cost Accounting Rep - Test"
     local procedure VerifyCostAcctgAnalysisReportValue(ExpectedAmount: Decimal; ElementName: Text[250]; CostTypeNo: Code[20])
     begin
         LibraryReportDataset.SetRange('No_CostType', CostTypeNo);
-        if not LibraryReportDataset.GetNextRow then
+        if not LibraryReportDataset.GetNextRow() then
             Error(RowNotFoundError, 'No_CostType', CostTypeNo);
         LibraryReportDataset.AssertCurrentRowValueEquals(ElementName, ExpectedAmount);
     end;
@@ -1459,11 +1458,11 @@ codeunit 134392 "ERM Cost Accounting Rep - Test"
         RunCostAcctgJournalReport(CostJournalLine);
 
         // Verify: To check that expected error is displayed on report.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists('ErrorlineNumber', ExpectedError);
     end;
 
-    local procedure VerifyErrorOnCostAcctgJournalRepForSpecificCostType(Type: Option; Blocked: Boolean; ExpectedError: Text[250])
+    local procedure VerifyErrorOnCostAcctgJournalRepForSpecificCostType(Type: Enum "Cost Account Type"; Blocked: Boolean; ExpectedError: Text[250])
     var
         CostType: Record "Cost Type";
         CostJournalLine: Record "Cost Journal Line";

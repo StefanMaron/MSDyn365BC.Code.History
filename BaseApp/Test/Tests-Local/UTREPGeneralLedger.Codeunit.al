@@ -72,7 +72,7 @@ codeunit 141012 "UT REP General Ledger"
         // Setup.
         Initialize();
         CreateGLAccount(GLAccount);
-        GLAccount."GIFI Code" := CreateGIFICode;
+        GLAccount."GIFI Code" := CreateGIFICode();
         GLAccount.Modify();
         CreateGLEntry(GLEntry, GLAccount."No.", '', '', GLEntry."Bal. Account Type");
 
@@ -80,7 +80,7 @@ codeunit 141012 "UT REP General Ledger"
         RunReportWithApplicationAreaDisabled(REPORT::"Account Balances by GIFI Code");  // Opens AccountBalancesByGIFICodeRequestPageHandler.
 
         // Verify: Verify Subtitle and GIFI Code is updated on Report Account Balances by GIFI Code.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists('Subtitle', StrSubstNo(SubTitleFilterTxt, 'As Of', WorkDate()));
         LibraryReportDataset.AssertElementWithValueExists('GIFICode_GLAccount', GLAccount."GIFI Code");
     end;
@@ -166,7 +166,7 @@ codeunit 141012 "UT REP General Ledger"
         RunReportWithApplicationAreaDisabled(REPORT::"Consolidated Trial Balance");  // Opens ConsolidatedTrialBalanceRequestPageHandler.
 
         // Verify: Verify Filters of G/L Account and SubTitle is updated on Report Consolidated Trial Balance.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(GLFilterCap, StrSubstNo(GLFilterTxt, GLAccount.FieldCaption("No."), GLAccount."No."));
         LibraryReportDataset.AssertElementWithValueExists(SubTitleCap, StrSubstNo('%1: %2..%3', PeriodTxt, WorkDate(), WorkDate()));
     end;
@@ -184,14 +184,14 @@ codeunit 141012 "UT REP General Ledger"
         // Setup.
         Initialize();
         CreateGLAccount(GLAccount);
-        CurrencyDescription := UpdateGLSetupAdditionalReportingCurrency;
+        CurrencyDescription := UpdateGLSetupAdditionalReportingCurrency();
 
         // Exercise: Run Report - Consolidated Trial Balance with Filter on G/L Account.
         RunReportWithApplicationAreaDisabled(REPORT::"Consolidated Trial Balance");  // Opens ConsolidatedTrialBalanceUseAddRptCurrRequestPageHandler.
 
         // Verify: Verify SubTitle is updated on Report Consolidated Trial Balance.
-        LibraryReportDataset.LoadDataSetFile;
-        LibraryReportDataset.AssertElementWithValueExists(SubTitleCap, StrSubstNo('%1: %2..%3  %4 %5%6', PeriodTxt, WorkDate(), WorkDate, '(using', CurrencyDescription, ')'));
+        LibraryReportDataset.LoadDataSetFile();
+        LibraryReportDataset.AssertElementWithValueExists(SubTitleCap, StrSubstNo('%1: %2..%3  %4 %5%6', PeriodTxt, WorkDate(), WorkDate(), '(using', CurrencyDescription, ')'));
     end;
 
     [Test]
@@ -226,15 +226,15 @@ codeunit 141012 "UT REP General Ledger"
         GLEntry: Record "G/L Entry";
     begin
         CreateGLAccount(GLAccount);
-        CreateGLEntry(GLEntry, GLAccount."No.", '', CreateBusinessUnit, GLEntry."Bal. Account Type");
-        UpdateGLSetupAdditionalReportingCurrency;
+        CreateGLEntry(GLEntry, GLAccount."No.", '', CreateBusinessUnit(), GLEntry."Bal. Account Type");
+        UpdateGLSetupAdditionalReportingCurrency();
 
         // Exercise.
         RunReportWithApplicationAreaDisabled(REPORT::"Consolidated Trial Balance");  // Opens ConsolidatedTrialBalanceUseAddRptCurrRequestPageHandler.
 
         // Verify: Verify Additional-Currency Net Change and Additional-Currency Balance at Date of G/L Account is updated on report Consolidated Trial Balance.
         GLAccount.CalcFields("Additional-Currency Net Change", "Add.-Currency Balance at Date");
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(GLAccNetChangeCap, GLAccount."Additional-Currency Net Change" / Fraction);
         LibraryReportDataset.AssertElementWithValueExists(GLBalanceCap, GLAccount."Add.-Currency Balance at Date" / Fraction);
     end;
@@ -252,14 +252,14 @@ codeunit 141012 "UT REP General Ledger"
         // Setup.
         Initialize();
         CreateGLAccount(GLAccount);
-        CreateGLEntry(GLEntry, GLAccount."No.", '', CreateBusinessUnit, GLEntry."Bal. Account Type");
+        CreateGLEntry(GLEntry, GLAccount."No.", '', CreateBusinessUnit(), GLEntry."Bal. Account Type");
 
         // Exercise.
         RunReportWithApplicationAreaDisabled(REPORT::"Consolidated Trial Balance");  // Opens ConsolidatedTrialBalanceRequestPageHandler.
 
         // Verify: Verify Net Change and Balance at Date of G/L Account is updated on report Consolidated Trial Balance.
         GLAccount.CalcFields("Net Change", "Balance at Date");
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(GLAccNetChangeCap, GLAccount."Net Change");
         LibraryReportDataset.AssertElementWithValueExists(GLBalanceCap, GLAccount."Balance at Date");
     end;
@@ -297,7 +297,7 @@ codeunit 141012 "UT REP General Ledger"
     begin
         CreateGLAccount(GLAccount);
         CreateGLEntry(GLEntry, GLAccount."No.", '', '', GLEntry."Bal. Account Type");
-        UpdateGLSetupAdditionalReportingCurrency;
+        UpdateGLSetupAdditionalReportingCurrency();
 
         // Exercise.
         RunReportWithApplicationAreaDisabled(REPORT::"Consolidated Trial Balance");
@@ -305,7 +305,7 @@ codeunit 141012 "UT REP General Ledger"
 
         // Verify: Verify Additional-Currency Net Change in Thousands is updated as Elimination Amount on Report Consolidated Trial Balance.
         GLAccount.CalcFields("Additional-Currency Net Change");
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(EliminationAmountCap, GLAccount."Additional-Currency Net Change" / Fraction);
     end;
 
@@ -329,7 +329,7 @@ codeunit 141012 "UT REP General Ledger"
 
         // Verify: Verify Net Change is updated as Elimination Amount on Report Consolidated Trial Balance.
         GLAccount.CalcFields("Net Change");
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(EliminationAmountCap, GLAccount."Net Change");
     end;
 
@@ -355,7 +355,7 @@ codeunit 141012 "UT REP General Ledger"
         REPORT.Run(REPORT::"G/L Register");  // Opens GLRegisterRequestPageHandler.
 
         // Verify: Verify Filter, Debit Amount, Credit Amount and SourceCodeText is updated on Report ID - G/L Register.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(GLEntryFilterCap, StrSubstNo(GLFilterTxt, GLEntry.FieldCaption("G/L Account No."), GLAccount."No."));
         LibraryReportDataset.AssertElementWithValueExists('G_L_Entry__Debit_Amount_', GLEntry."Debit Amount");
         LibraryReportDataset.AssertElementWithValueExists('G_L_Entry__Credit_Amount_', GLEntry."Credit Amount");
@@ -374,7 +374,7 @@ codeunit 141012 "UT REP General Ledger"
 
         // Setup: Test to verify Source Name and Source Type is updated with Customer on Report G/L Register.
         Initialize();
-        OnAfterGetRecordGLEntryBalAccountTypeGLRegister(CreateCustomer, GLEntry."Bal. Account Type"::Customer);
+        OnAfterGetRecordGLEntryBalAccountTypeGLRegister(CreateCustomer(), GLEntry."Bal. Account Type"::Customer);
     end;
 
     [Test]
@@ -388,7 +388,7 @@ codeunit 141012 "UT REP General Ledger"
         // Purpose of the test is to validate G/L Entry -OnAfterGetRecord Trigger of Report ID - 10019 G/L Register.
 
         // Setup: Test to verify Source Name and Source Type is updated with Vendor on Report G/L Register.
-        OnAfterGetRecordGLEntryBalAccountTypeGLRegister(CreateVendor, GLEntry."Bal. Account Type"::Vendor);
+        OnAfterGetRecordGLEntryBalAccountTypeGLRegister(CreateVendor(), GLEntry."Bal. Account Type"::Vendor);
     end;
 
     [Test]
@@ -403,7 +403,7 @@ codeunit 141012 "UT REP General Ledger"
 
         // Setup: Test to verify Source Name and Source Type is updated with Fixed Asset on Report G/L Register.
         Initialize();
-        OnAfterGetRecordGLEntryBalAccountTypeGLRegister(CreateFixedAsset, GLEntry."Bal. Account Type"::"Fixed Asset");
+        OnAfterGetRecordGLEntryBalAccountTypeGLRegister(CreateFixedAsset(), GLEntry."Bal. Account Type"::"Fixed Asset");
     end;
 
     [Test]
@@ -418,11 +418,11 @@ codeunit 141012 "UT REP General Ledger"
 
         // Setup: Test to verify Source Name and Source Type is updated with Bank Account on Report G/L Register.
         Initialize();
-        OnAfterGetRecordGLEntryBalAccountTypeGLRegister(CreateBankAccount, GLEntry."Bal. Account Type"::"Bank Account");
+        OnAfterGetRecordGLEntryBalAccountTypeGLRegister(CreateBankAccount(), GLEntry."Bal. Account Type"::"Bank Account");
     end;
 
     [TransactionModel(TransactionModel::AutoRollback)]
-    local procedure OnAfterGetRecordGLEntryBalAccountTypeGLRegister(BalAccountNo: Code[20]; BalAccountType: Option)
+    local procedure OnAfterGetRecordGLEntryBalAccountTypeGLRegister(BalAccountNo: Code[20]; BalAccountType: Enum "Gen. Journal Account Type")
     var
         GLEntry: Record "G/L Entry";
         GLAccount: Record "G/L Account";
@@ -459,7 +459,7 @@ codeunit 141012 "UT REP General Ledger"
         // Purpose of the test is to validate G/L Entry -OnAfterGetRecord Trigger of Report ID - 10019 G/L Register.
         // Setup.
         Initialize();
-        ICPartnerCode := CreateICPartner;
+        ICPartnerCode := CreateICPartner();
         CreateGLAccount(GLAccount);
         CreateGLEntry(GLEntry, GLAccount."No.", ICPartnerCode, '', GLEntry."Bal. Account Type"::"IC Partner");
         GLEntry."IC Partner Code" := ICPartnerCode;
@@ -491,13 +491,13 @@ codeunit 141012 "UT REP General Ledger"
         // Setup.
         Initialize();
         CreateGLAccount(GLAccount);
-        CurrencyDescription := UpdateGLSetupAdditionalReportingCurrency;
+        CurrencyDescription := UpdateGLSetupAdditionalReportingCurrency();
 
         // Exercise.
         REPORT.Run(REPORT::"General Ledger Worksheet");  // Opens GeneralLedgerWorksheetUseAddRptCurrRequestPageHandler
 
         // Verify: Verify Filters of G/L Account and Subtitle is updated on Report General Ledger Worksheet.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(GLFilterCap, StrSubstNo(GLFilterTxt, GLAccount.FieldCaption("No."), GLAccount."No."));
         LibraryReportDataset.AssertElementWithValueExists(SubTitleCap, StrSubstNo(SubTitleFilterTxt, 'Amounts are in', CurrencyDescription));
     end;
@@ -515,7 +515,7 @@ codeunit 141012 "UT REP General Ledger"
         // Setup.
         Initialize();
         CreateGLAccount(GLAccount);
-        UpdateGLSetupAdditionalReportingCurrency;
+        UpdateGLSetupAdditionalReportingCurrency();
         CreateGLEntry(GLEntry, GLAccount."No.", '', '', GLEntry."Bal. Account Type");
         UpdateGLEntryAdditionalCurrencyAmount(GLEntry);
 
@@ -524,7 +524,7 @@ codeunit 141012 "UT REP General Ledger"
 
         // Verify: Verify Balance at Date and TotalCredits on Report General Ledger Worksheet.
         GLAccount.CalcFields("Add.-Currency Balance at Date");
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(GLAccountBalanceAtDateCap, GLAccount."Add.-Currency Balance at Date");
         LibraryReportDataset.AssertElementWithValueExists('TotalCredits', -GLAccount."Add.-Currency Balance at Date");
     end;
@@ -550,7 +550,7 @@ codeunit 141012 "UT REP General Ledger"
 
         // Verify: Verify Balance at Date and TotalDebits on Report General Ledger Worksheet.
         GLAccount.CalcFields("Balance at Date");
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(GLAccountBalanceAtDateCap, GLAccount."Balance at Date");
         LibraryReportDataset.AssertElementWithValueExists('TotalDebits', GLAccount."Balance at Date");
     end;
@@ -572,7 +572,7 @@ codeunit 141012 "UT REP General Ledger"
         REPORT.Run(REPORT::Budget);  // Opens BudgetRequestPageHandler.
 
         // Verify: Verify Filters of G/L Account and Subtitle on Report Budget.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(GLFilterCap, StrSubstNo(GLFilterTxt, GLAccount.FieldCaption("No."), GLAccount."No."));
         LibraryReportDataset.AssertElementWithValueExists(SubTitleCap, GLAccount.FieldCaption("Budget Filter") + ': ' + 'All Budgets');
     end;
@@ -597,7 +597,7 @@ codeunit 141012 "UT REP General Ledger"
 
         // Verify: Verify Filters of G/L Account, Account Type and Balance at Date on Report Chart of Accounts.
         GLAccount.CalcFields("Balance at Date");
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(GLFilterCap, StrSubstNo(GLFilterTxt, GLAccount.FieldCaption("No."), GLAccount."No."));
         LibraryReportDataset.AssertElementWithValueExists('G_L_Account___Balance_at_Date_', GLAccount."Balance at Date");
         LibraryReportDataset.AssertElementWithValueExists('G_L_Account___Account_Type_', Format(GLAccount."Account Type"));
@@ -644,7 +644,7 @@ codeunit 141012 "UT REP General Ledger"
 
         // Verify: Verify Filters of G/L Account, Subtitle and FiscalYearBalance on Report Closing Trial Balance.
         GLAccount.CalcFields("Net Change");
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(GLFilterCap, StrSubstNo(GLFilterTxt, GLAccount.FieldCaption("No."), GLAccount."No."));
         LibraryReportDataset.AssertElementWithValueExists(SubTitleCap, StrSubstNo(TitleFilterTxt, FiscalYearTxt, GLEntry."Posting Date", CalcDate('<+CY>', GLEntry."Posting Date")));
         LibraryReportDataset.AssertElementWithValueExists(FiscalYearBalanceCap, GLAccount."Net Change");
@@ -665,14 +665,14 @@ codeunit 141012 "UT REP General Ledger"
         Initialize();
         CreateGLAccount(GLAccount);
         AccountingPeriod.FindFirst();
-        CurrencyDescription := UpdateGLSetupAdditionalReportingCurrency;
+        CurrencyDescription := UpdateGLSetupAdditionalReportingCurrency();
         LibraryVariableStorage.Enqueue(AccountingPeriod."Starting Date"); // Required inside ClosingTrialBalanceUseAddRptCurrRequestPageHandler.
 
         // Exercise.
         REPORT.Run(REPORT::"Closing Trial Balance");  // Opens ClosingTrialBalanceUseAddRptCurrRequestPageHandler.
 
         // Verify: Verify SubTitle is updated with Currency Description of General Ledger Setup on Report Closing Trial Balance.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(SubTitleCap, StrSubstNo('%1 %2..%3  %4 %5%6', FiscalYearTxt, AccountingPeriod."Starting Date", CalcDate('<+CY>', AccountingPeriod."Starting Date"), '(using', CurrencyDescription, ')'));
     end;
 
@@ -689,9 +689,9 @@ codeunit 141012 "UT REP General Ledger"
         // Setup.
         Initialize();
         CreateGLAccount(GLAccount);
-        CreateGLEntry(GLEntry, GLAccount."No.", CreateBusinessUnit, '', GLEntry."Bal. Account Type");
+        CreateGLEntry(GLEntry, GLAccount."No.", CreateBusinessUnit(), '', GLEntry."Bal. Account Type");
         UpdateGLEntryPostingDate(GLEntry);
-        UpdateGLSetupAdditionalReportingCurrency;
+        UpdateGLSetupAdditionalReportingCurrency();
         LibraryVariableStorage.Enqueue(GLEntry."Posting Date");  // Required inside ClosingTrialBalanceUseAddRptCurrRequestPageHandler.
 
         // Exercise:
@@ -699,7 +699,7 @@ codeunit 141012 "UT REP General Ledger"
 
         // Verify: Verify Fiscal Year Balance on Report Closing Trial Balance.
         GLAccount.CalcFields("Additional-Currency Net Change");
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(FiscalYearBalanceCap, GLAccount."Additional-Currency Net Change");
     end;
 
@@ -722,7 +722,7 @@ codeunit 141012 "UT REP General Ledger"
         REPORT.Run(REPORT::"Cross Reference by Account No.");  // Opens CrossReferenceByAccountNoRequestPageHandler.
 
         // Verify: Verify Filters of G/L Entry, Debit amount and Credit Amount is updated on Report Cross Reference by Account No.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(GLEntryFilterCap, StrSubstNo(GLFilterTxt, GLEntry.FieldCaption("G/L Account No."), GLAccount."No."));
         LibraryReportDataset.AssertElementWithValueExists(DebitAmountGLEntryCap, GLEntry."Debit Amount");
         LibraryReportDataset.AssertElementWithValueExists(CreditAmountGLEntryCap, GLEntry."Credit Amount");
@@ -751,7 +751,7 @@ codeunit 141012 "UT REP General Ledger"
         REPORT.Run(REPORT::"Currency Balances - Rec./Pay.");  // Opens CurrencyBalancesRecPayRequestPageHandler.
 
         // Verify: Verify Currency Filter, Vendor Balance and Customer Balance on Report Currency Balances - Rec./Pay.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists('CurFilter', StrSubstNo('%1: %2', Currency.FieldCaption(Code), CurrencyExchangeRate."Currency Code"));
         LibraryReportDataset.AssertElementWithValueExists('VendorBalance_Currency', -DetailedVendorLedgEntry.Amount);
         LibraryReportDataset.AssertElementWithValueExists('VendorBalanceLCY_Currency', -DetailedVendorLedgEntry."Amount (LCY)");
@@ -776,15 +776,15 @@ codeunit 141012 "UT REP General Ledger"
         // Setup.
         Initialize();
         CreateGLAccount(GLAccount);
-        CreateGLEntry(GLEntry, GLAccount."No.", '', CreateBusinessUnit, GLEntry."Bal. Account Type");
-        CurrencyDescription := UpdateGLSetupAdditionalReportingCurrency;
+        CreateGLEntry(GLEntry, GLAccount."No.", '', CreateBusinessUnit(), GLEntry."Bal. Account Type");
+        CurrencyDescription := UpdateGLSetupAdditionalReportingCurrency();
 
         // Exercise.
         LibraryVariableStorage.Enqueue(AmountType::"Net Change");  // Required inside ConsolidatedTrialBalance4UseAddRptCurrRequestPageHandler.
         RunReportWithApplicationAreaDisabled(REPORT::"Consolidated Trial Balance (4)");  // Opens ConsolidatedTrialBalance4UseAddRptCurrRequestPageHandler.
 
         // Verify: Verify SubTitle is updated on Report Consolidated Trial Balance (4).
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(SubTitleCap, StrSubstNo('%1 %2%3', '(amounts are in', CurrencyDescription, ')'));
     end;
 
@@ -802,14 +802,14 @@ codeunit 141012 "UT REP General Ledger"
         // Setup.
         Initialize();
         CreateGLAccount(GLAccount);
-        CreateGLEntry(GLEntry, GLAccount."No.", '', CreateBusinessUnit, GLEntry."Bal. Account Type");
+        CreateGLEntry(GLEntry, GLAccount."No.", '', CreateBusinessUnit(), GLEntry."Bal. Account Type");
 
         // Exercise.
         LibraryVariableStorage.Enqueue(AmountType::"Net Change");  // Required inside ConsolidatedTrialBalance4UseAddRptCurrRequestPageHandler.
         RunReportWithApplicationAreaDisabled(REPORT::"Consolidated Trial Balance (4)");  // Opens ConsolidatedTrialBalance4UseAddRptCurrRequestPageHandler.
 
         // Verify: Verify Filters of G/L Account and SubTitle is updated on Report Consolidated Trial Balance (4).
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(GLFilterCap, StrSubstNo(GLFilterTxt, GLAccount.FieldCaption("No."), GLAccount."No."));
         LibraryReportDataset.AssertElementWithValueExists('MainTitle', StrSubstNo(TitleFilterTxt, 'Consolidated Trial Balance for', WorkDate(), WorkDate()));
     end;
@@ -824,7 +824,7 @@ codeunit 141012 "UT REP General Ledger"
 
         // Setup: Test to verify AmountCap is updated with Additional Currency Amount when UseAdditionalReportingCurrency - TRUE on ConsolidatedTrialBalance4UseAddRptCurrRequestPageHandler.
         Initialize();
-        OnAfterGetRecordGLAccountAmtConsolidatedTrialBal4(CreateBusinessUnit, AmountCap, 1);  // Fraction value - 1, when AmountsInWhole1000s - FALSE;
+        OnAfterGetRecordGLAccountAmtConsolidatedTrialBal4(CreateBusinessUnit(), AmountCap, 1);  // Fraction value - 1, when AmountsInWhole1000s - FALSE;
     end;
 
     [Test]
@@ -837,7 +837,7 @@ codeunit 141012 "UT REP General Ledger"
 
         // Setup: Test to verify AmountCap is updated with Additional Currency Amount divided by 1000s when AmountsInWhole1000s - TRUE on ConsolidatedTrialBalance4InThousandsRequestPageHandler.
         Initialize();
-        OnAfterGetRecordGLAccountAmtConsolidatedTrialBal4(CreateBusinessUnit, AmountCap, 1000);  // Fraction value - 1000, when AmountsInWhole1000s - TRUE;
+        OnAfterGetRecordGLAccountAmtConsolidatedTrialBal4(CreateBusinessUnit(), AmountCap, 1000);  // Fraction value - 1000, when AmountsInWhole1000s - TRUE;
     end;
 
     [Test]
@@ -873,9 +873,9 @@ codeunit 141012 "UT REP General Ledger"
         AmountType: Option "Net Change",Balance;
     begin
         CreateGLAccount(GLAccount);
-        CreateBusinessUnit;
+        CreateBusinessUnit();
         CreateGLEntry(GLEntry, GLAccount."No.", '', BusinessUnitCode, GLEntry."Bal. Account Type");
-        UpdateGLSetupAdditionalReportingCurrency;
+        UpdateGLSetupAdditionalReportingCurrency();
 
         // Exercise.
         LibraryVariableStorage.Enqueue(AmountType::"Net Change");  // Required inside ConsolidatedTrialBalance4InThousandsRequestPageHandler.
@@ -883,7 +883,7 @@ codeunit 141012 "UT REP General Ledger"
 
         // Verify: Verify Additional-Currency Net Change of G/L Account is updated in Thousands on report Consolidated Trial Balance (4).
         GLAccount.CalcFields("Additional-Currency Net Change");
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(AmountCaption, GLAccount."Additional-Currency Net Change" / Fraction);
     end;
 
@@ -897,7 +897,7 @@ codeunit 141012 "UT REP General Ledger"
 
         // Setup: Test to verify AmountCap is updated with Net Change.
         Initialize();
-        OnAfterGetRecordNetChangeConsolidatedTrialBal4(CreateBusinessUnit, AmountCap);
+        OnAfterGetRecordNetChangeConsolidatedTrialBal4(CreateBusinessUnit(), AmountCap);
     end;
 
     [Test]
@@ -920,7 +920,7 @@ codeunit 141012 "UT REP General Ledger"
         AmountType: Option "Net Change",Balance;
     begin
         CreateGLAccount(GLAccount);
-        CreateBusinessUnit;  // Business Unit Required to avoid Report Break.
+        CreateBusinessUnit();  // Business Unit Required to avoid Report Break.
         CreateGLEntry(GLEntry, GLAccount."No.", '', BusinessUnitCode, GLEntry."Bal. Account Type");
 
         // Exercise.
@@ -929,7 +929,7 @@ codeunit 141012 "UT REP General Ledger"
 
         // Verify: Verify Net Change is updated as Elimination Amount on Report Consolidated Trial Balance (4).
         GLAccount.CalcFields("Net Change");
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(AmountCaption, GLAccount."Net Change");
     end;
 
@@ -947,9 +947,9 @@ codeunit 141012 "UT REP General Ledger"
         // Setup.
         Initialize();
         CreateGLAccount(GLAccount);
-        CreateBusinessUnit;  // Business Unit Required to avoid Report Break.
+        CreateBusinessUnit();  // Business Unit Required to avoid Report Break.
         CreateGLEntry(GLEntry, GLAccount."No.", '', '', GLEntry."Bal. Account Type");
-        UpdateGLSetupAdditionalReportingCurrency;
+        UpdateGLSetupAdditionalReportingCurrency();
 
         // Exercise.
         LibraryVariableStorage.Enqueue(AmountType::Balance);  // Required inside ConsolidatedTrialBalance4UseAddRptCurrRequestPageHandler.
@@ -957,7 +957,7 @@ codeunit 141012 "UT REP General Ledger"
 
         // Verify: Verify Additional-Currency Balance At Date is updated as Elimination Amount on Report Consolidated Trial Balance (4).
         GLAccount.CalcFields("Add.-Currency Balance at Date");
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(EliminationAmountCap, GLAccount."Add.-Currency Balance at Date");
     end;
 
@@ -975,8 +975,8 @@ codeunit 141012 "UT REP General Ledger"
         // Setup.
         Initialize();
         CreateGLAccount(GLAccount);
-        CreateBusinessUnit;  // Business Unit Required to avoid Report Break.
-        CreateGLEntry(GLEntry, GLAccount."No.", '', CreateBusinessUnit, GLEntry."Bal. Account Type");
+        CreateBusinessUnit();  // Business Unit Required to avoid Report Break.
+        CreateGLEntry(GLEntry, GLAccount."No.", '', CreateBusinessUnit(), GLEntry."Bal. Account Type");
 
         // Exercise.
         LibraryVariableStorage.Enqueue(AmountType::Balance);  // Required inside ConsolidatedTrialBalance4RequestPageHandler.
@@ -984,7 +984,7 @@ codeunit 141012 "UT REP General Ledger"
 
         // Verify: Verify Balance At Date of G/L Account is updated on report Consolidated Trial Balance (4).
         GLAccount.CalcFields("Balance at Date");
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists('Amount_2_', GLAccount."Balance at Date");
     end;
 
@@ -1012,7 +1012,7 @@ codeunit 141012 "UT REP General Ledger"
         REPORT.Run(REPORT::"Cross Reference by Source");  // Opens CrossReferenceBySourceRequestPageHandler.
 
         // Verify: Verify Filters of G/L Entry, Debit amount and Credit Amount is updated on Report Cross Reference by Account No.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists('TableCaptionGLRegFilter', StrSubstNo('%1: %2: %3', GLRegister.TableCaption(), GLRegister.FieldCaption("From Entry No."), GLEntry."Entry No."));
         LibraryReportDataset.AssertElementWithValueExists(DebitAmountGLEntryCap, GLEntry."Debit Amount");
         LibraryReportDataset.AssertElementWithValueExists(CreditAmountGLEntryCap, GLEntry."Credit Amount");
@@ -1041,7 +1041,7 @@ codeunit 141012 "UT REP General Ledger"
 
     local procedure CreateGLAccount(var GLAccount: Record "G/L Account")
     begin
-        GLAccount."No." := LibraryUTUtility.GetNewCode;
+        GLAccount."No." := LibraryUTUtility.GetNewCode();
         GLAccount."Account Type" := GLAccount."Account Type"::Posting;
         GLAccount.Totaling := GLAccount."No.";
         GLAccount.Insert();
@@ -1052,20 +1052,20 @@ codeunit 141012 "UT REP General Ledger"
     var
         BusinessUnit: Record "Business Unit";
     begin
-        BusinessUnit.Code := LibraryUTUtility.GetNewCode10;
+        BusinessUnit.Code := LibraryUTUtility.GetNewCode10();
         BusinessUnit.Consolidate := true;
         BusinessUnit.Insert();
         exit(BusinessUnit.Code);
     end;
 
-    local procedure CreateGLEntry(var GLEntry: Record "G/L Entry"; GLAccountNo: Code[20]; BalAccountNo: Code[20]; BusinessUnitCode: Code[20]; BalAccountType: Option)
+    local procedure CreateGLEntry(var GLEntry: Record "G/L Entry"; GLAccountNo: Code[20]; BalAccountNo: Code[20]; BusinessUnitCode: Code[20]; BalAccountType: Enum "Gen. Journal Account Type")
     var
         GLEntry2: Record "G/L Entry";
     begin
         GLEntry2.FindLast();
         GLEntry."Entry No." := GLEntry2."Entry No." + 1;
         GLEntry."Source Type" := GLEntry."Source Type"::" ";
-        GLEntry."IC Partner Code" := LibraryUTUtility.GetNewCode;
+        GLEntry."IC Partner Code" := LibraryUTUtility.GetNewCode();
         GLEntry."Bal. Account Type" := BalAccountType;
         GLEntry."G/L Account No." := GLAccountNo;
         GLEntry."Bal. Account No." := BalAccountNo;
@@ -1095,7 +1095,7 @@ codeunit 141012 "UT REP General Ledger"
     var
         Currency: Record Currency;
     begin
-        Currency.Code := LibraryUTUtility.GetNewCode10;
+        Currency.Code := LibraryUTUtility.GetNewCode10();
         Currency.Description := Currency.Code;
         Currency.Insert();
         exit(Currency.Code);
@@ -1105,7 +1105,7 @@ codeunit 141012 "UT REP General Ledger"
     var
         GIFICode: Record "GIFI Code";
     begin
-        GIFICode.Code := LibraryUTUtility.GetNewCode10;
+        GIFICode.Code := LibraryUTUtility.GetNewCode10();
         GIFICode.Insert();
         exit(GIFICode.Code);
     end;
@@ -1114,7 +1114,7 @@ codeunit 141012 "UT REP General Ledger"
     var
         Vendor: Record Vendor;
     begin
-        Vendor."No." := LibraryUTUtility.GetNewCode;
+        Vendor."No." := LibraryUTUtility.GetNewCode();
         Vendor.Insert();
         LibraryUtility.FillFieldMaxText(Vendor, Vendor.FieldNo(Name));
         exit(Vendor."No.");
@@ -1124,7 +1124,7 @@ codeunit 141012 "UT REP General Ledger"
     var
         Customer: Record Customer;
     begin
-        Customer."No." := LibraryUTUtility.GetNewCode;
+        Customer."No." := LibraryUTUtility.GetNewCode();
         Customer.Insert();
         LibraryUtility.FillFieldMaxText(Customer, Customer.FieldNo(Name));
         exit(Customer."No.");
@@ -1134,7 +1134,7 @@ codeunit 141012 "UT REP General Ledger"
     var
         BankAccount: Record "Bank Account";
     begin
-        BankAccount."No." := LibraryUTUtility.GetNewCode;
+        BankAccount."No." := LibraryUTUtility.GetNewCode();
         BankAccount.Insert();
         LibraryUtility.FillFieldMaxText(BankAccount, BankAccount.FieldNo(Name));
         exit(BankAccount."No.");
@@ -1144,7 +1144,7 @@ codeunit 141012 "UT REP General Ledger"
     var
         ICPartner: Record "IC Partner";
     begin
-        ICPartner.Code := LibraryUTUtility.GetNewCode;
+        ICPartner.Code := LibraryUTUtility.GetNewCode();
         ICPartner.Insert();
         LibraryUtility.FillFieldMaxText(ICPartner, ICPartner.FieldNo(Name));
         exit(ICPartner.Code);
@@ -1154,7 +1154,7 @@ codeunit 141012 "UT REP General Ledger"
     var
         FixedAsset: Record "Fixed Asset";
     begin
-        FixedAsset."No." := LibraryUTUtility.GetNewCode;
+        FixedAsset."No." := LibraryUTUtility.GetNewCode();
         FixedAsset.Insert();
         LibraryUtility.FillFieldMaxText(FixedAsset, FixedAsset.FieldNo(Description));
         exit(FixedAsset."No.");
@@ -1162,7 +1162,7 @@ codeunit 141012 "UT REP General Ledger"
 
     local procedure CreateSourceCode(var SourceCode: Record "Source Code")
     begin
-        SourceCode.Code := LibraryUTUtility.GetNewCode10;
+        SourceCode.Code := LibraryUTUtility.GetNewCode10();
         SourceCode.Insert();
     end;
 
@@ -1194,7 +1194,7 @@ codeunit 141012 "UT REP General Ledger"
     begin
         DetailedCustLedgEntry2.FindLast();
         DetailedCustLedgEntry."Entry No." := DetailedCustLedgEntry2."Entry No." + 1;
-        DetailedCustLedgEntry."Cust. Ledger Entry No." := CreateCustomerLedgerEntry;
+        DetailedCustLedgEntry."Cust. Ledger Entry No." := CreateCustomerLedgerEntry();
         DetailedCustLedgEntry."Currency Code" := CurrencyCode;
         DetailedCustLedgEntry.Amount := LibraryRandom.RandDec(10, 2);
         DetailedCustLedgEntry."Amount (LCY)" := LibraryRandom.RandDec(10, 2);
@@ -1207,14 +1207,14 @@ codeunit 141012 "UT REP General Ledger"
     begin
         DetailedVendorLedgEntry2.FindLast();
         DetailedVendorLedgEntry."Entry No." := DetailedVendorLedgEntry2."Entry No." + 1;
-        DetailedVendorLedgEntry."Vendor Ledger Entry No." := CreateVendorLedgerEntry;
+        DetailedVendorLedgEntry."Vendor Ledger Entry No." := CreateVendorLedgerEntry();
         DetailedVendorLedgEntry."Currency Code" := CurrencyCode;
         DetailedVendorLedgEntry.Amount := LibraryRandom.RandDec(10, 2);
         DetailedVendorLedgEntry."Amount (LCY)" := LibraryRandom.RandDec(10, 2);
         DetailedVendorLedgEntry.Insert(true);
     end;
 
-    local procedure GetAccountName(AccountNo: Code[20]; AccountType: Option "G/L Account",Customer,Vendor,"Bank Account","Fixed Asset","IC Partner",Employee): Text
+    local procedure GetAccountName(AccountNo: Code[20]; AccountType: Enum "Gen. Journal Account Type"): Text
     var
         Customer: Record Customer;
         Vendor: Record Vendor;
@@ -1256,7 +1256,7 @@ codeunit 141012 "UT REP General Ledger"
         GeneralLedgerSetup: Record "General Ledger Setup";
     begin
         GeneralLedgerSetup.Get();
-        GeneralLedgerSetup."Additional Reporting Currency" := CreateCurrency;
+        GeneralLedgerSetup."Additional Reporting Currency" := CreateCurrency();
         GeneralLedgerSetup.Modify();
         exit(GeneralLedgerSetup."Additional Reporting Currency");
     end;
@@ -1284,7 +1284,7 @@ codeunit 141012 "UT REP General Ledger"
         ConsolidatedTrialBalance."G/L Account".SetFilter("No.", No);
         ConsolidatedTrialBalance.StartingDate.SetValue(WorkDate());
         ConsolidatedTrialBalance.EndingDate.SetValue(WorkDate());
-        ConsolidatedTrialBalance.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        ConsolidatedTrialBalance.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     local procedure SaveAsXMLGeneralLedgerWorksheetReport(GeneralLedgerWorksheet: TestRequestPage "General Ledger Worksheet")
@@ -1293,7 +1293,7 @@ codeunit 141012 "UT REP General Ledger"
     begin
         LibraryVariableStorage.Dequeue(No);
         GeneralLedgerWorksheet."G/L Account".SetFilter("No.", No);
-        GeneralLedgerWorksheet.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        GeneralLedgerWorksheet.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     local procedure SaveAsXMLConsolidatedTrialBalance4Report(ConsolidatedTrialBalance4: TestRequestPage "Consolidated Trial Balance (4)")
@@ -1307,7 +1307,7 @@ codeunit 141012 "UT REP General Ledger"
         ConsolidatedTrialBalance4.StartingDate.SetValue(WorkDate());
         ConsolidatedTrialBalance4.EndingDate.SetValue(WorkDate());
         ConsolidatedTrialBalance4.Show.SetValue(AmountType);
-        ConsolidatedTrialBalance4.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        ConsolidatedTrialBalance4.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     local procedure SaveAsXMLClosingTrialBalanceReport(ClosingTrialBalance: TestRequestPage "Closing Trial Balance")
@@ -1319,12 +1319,12 @@ codeunit 141012 "UT REP General Ledger"
         LibraryVariableStorage.Dequeue(FiscalYearStartingDate);
         ClosingTrialBalance."G/L Account".SetFilter("No.", No);
         ClosingTrialBalance.FiscalYearStartingDate.SetValue(FiscalYearStartingDate);
-        ClosingTrialBalance.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        ClosingTrialBalance.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     local procedure VerifySourceOnGLRegisterReport(SourceName: Variant; GLEntrySourceType: Variant; DebitAmount: Variant; CreditAmount: Variant; GLEntryBalAccountNo: Variant)
     begin
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(SourceNameTok, SourceName);
         LibraryReportDataset.AssertElementWithValueExists(GLEntrySourceTypeTok, GLEntrySourceType);
         LibraryReportDataset.AssertElementWithValueExists(GLEntryBalAccountNoTok, GLEntryBalAccountNo);
@@ -1341,14 +1341,14 @@ codeunit 141012 "UT REP General Ledger"
         LibraryVariableStorage.Dequeue(No);
         AccountBalancesByGIFICode.BalanceAsOfDate.SetValue(WorkDate());
         AccountBalancesByGIFICode."G/L Account".SetFilter("No.", No);
-        AccountBalancesByGIFICode.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        AccountBalancesByGIFICode.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure AccountBalancesByGIFICodeAsOfDateRequestPageHandler(var AccountBalancesByGIFICode: TestRequestPage "Account Balances by GIFI Code")
     begin
-        AccountBalancesByGIFICode.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        AccountBalancesByGIFICode.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -1359,7 +1359,7 @@ codeunit 141012 "UT REP General Ledger"
     begin
         LibraryVariableStorage.Dequeue(StartingDate);
         ConsolidatedTrialBalance.StartingDate.SetValue(StartingDate);
-        ConsolidatedTrialBalance.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        ConsolidatedTrialBalance.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -1395,7 +1395,7 @@ codeunit 141012 "UT REP General Ledger"
         LibraryVariableStorage.Dequeue(GLAccountNo);
         GLRegister.IncludeAccountDesc.SetValue(true);
         GLRegister."G/L Entry".SetFilter("G/L Account No.", GLAccountNo);
-        GLRegister.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        GLRegister.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -1423,7 +1423,7 @@ codeunit 141012 "UT REP General Ledger"
         Budget."G/L Account".SetFilter("No.", No);
         Budget.StartingPeriodDate.SetValue('P');  // Value of Starting Period Date on Report Budget.
         Budget.AmountsIn1000s.SetValue(true);
-        Budget.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        Budget.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -1434,7 +1434,7 @@ codeunit 141012 "UT REP General Ledger"
     begin
         LibraryVariableStorage.Dequeue(No);
         ChartOfAccounts."G/L Account".SetFilter("No.", No);
-        ChartOfAccounts.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        ChartOfAccounts.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -1460,7 +1460,7 @@ codeunit 141012 "UT REP General Ledger"
     begin
         LibraryVariableStorage.Dequeue(GLAccountNo);
         CrossReferenceByAccountNo."G/L Entry".SetFilter("G/L Account No.", GLAccountNo);
-        CrossReferenceByAccountNo.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        CrossReferenceByAccountNo.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -1473,7 +1473,7 @@ codeunit 141012 "UT REP General Ledger"
         LibraryVariableStorage.Dequeue(No);
         LibraryVariableStorage.Dequeue(FromEntryNo);
         CrossReferenceBySource."G/L Register".SetFilter("From Entry No.", FromEntryNo);
-        CrossReferenceBySource.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        CrossReferenceBySource.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -1484,12 +1484,12 @@ codeunit 141012 "UT REP General Ledger"
     begin
         LibraryVariableStorage.Dequeue(Code);
         CurrencyBalancesRecPay.Currency.SetFilter(Code, Code);
-        CurrencyBalancesRecPay.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        CurrencyBalancesRecPay.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     local procedure RunReportWithApplicationAreaDisabled(ReportNumber: Integer)
     begin
-        LibraryApplicationArea.DisableApplicationAreaSetup;
+        LibraryApplicationArea.DisableApplicationAreaSetup();
         REPORT.Run(ReportNumber);
     end;
 
@@ -1501,7 +1501,7 @@ codeunit 141012 "UT REP General Ledger"
     begin
         LibraryVariableStorage.Dequeue(StartingDate);
         ConsolidatedTrialBalance4.StartingDate.SetValue(StartingDate);
-        ConsolidatedTrialBalance4.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        ConsolidatedTrialBalance4.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]

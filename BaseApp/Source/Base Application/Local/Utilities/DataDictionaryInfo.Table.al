@@ -7,6 +7,7 @@ namespace Microsoft.Utilities;
 table 10040 "Data Dictionary Info"
 {
     Caption = 'Data Dictionary Info';
+    DataClassification = CustomerContent;
 
     fields
     {

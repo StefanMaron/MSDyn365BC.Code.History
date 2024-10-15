@@ -189,52 +189,50 @@ codeunit 10250 "Bulk Vendor Remit Reporting"
 
     local procedure CreateEFTRecord(var EFTExport: Record "EFT Export"; GenJournalLine: Record "Gen. Journal Line"; BankAccountNo: Code[20])
     begin
-        with GenJournalLine do begin
-            EFTExport.Init();
-            EFTExport."Journal Template Name" := "Journal Template Name";
-            EFTExport."Journal Batch Name" := "Journal Batch Name";
-            EFTExport."Line No." := "Line No.";
-            EFTExport."Sequence No." := GetNextSequenceNo();
+        EFTExport.Init();
+        EFTExport."Journal Template Name" := GenJournalLine."Journal Template Name";
+        EFTExport."Journal Batch Name" := GenJournalLine."Journal Batch Name";
+        EFTExport."Line No." := GenJournalLine."Line No.";
+        EFTExport."Sequence No." := GetNextSequenceNo();
 
-            EFTExport."Bank Account No." := BankAccountNo;
-            EFTExport."Bank Payment Type" := "Bank Payment Type";
-            EFTExport."Transaction Code" := "Transaction Code";
-            EFTExport."Document Type" := "Document Type";
-            EFTExport."Posting Date" := "Posting Date";
-            EFTExport."Account Type" := "Account Type";
-            EFTExport."Account No." := "Account No.";
-            EFTExport."Applies-to ID" := "Applies-to ID";
-            EFTExport."Document No." := "Document No.";
-            EFTExport.Description := Description;
-            EFTExport."Currency Code" := "Currency Code";
-            EFTExport."Bal. Account No." := "Bal. Account No.";
-            EFTExport."Bal. Account Type" := "Bal. Account Type";
-            EFTExport."Applies-to Doc. Type" := "Applies-to Doc. Type";
-            EFTExport."Applies-to Doc. No." := "Applies-to Doc. No.";
-            EFTExport."Check Exported" := true;
-            EFTExport."Check Printed" := true;
-            EFTExport."Exported to Payment File" := true;
-            EFTExport."Amount (LCY)" := "Amount (LCY)";
-            EFTExport."Foreign Exchange Reference" := "Foreign Exchange Reference";
-            EFTExport."Foreign Exchange Indicator" := "Foreign Exchange Indicator";
-            EFTExport."Foreign Exchange Ref.Indicator" := "Foreign Exchange Ref.Indicator";
-            EFTExport."Country/Region Code" := "Country/Region Code";
-            EFTExport."Source Code" := "Source Code";
-            EFTExport."Company Entry Description" := "Company Entry Description";
-            EFTExport."Transaction Type Code" := "Transaction Type Code";
-            EFTExport."Payment Related Information 1" := "Payment Related Information 1";
-            EFTExport."Payment Related Information 2" := "Payment Related Information 2";
-            EFTExport."Gateway Operator OFAC Scr.Inc" := "Gateway Operator OFAC Scr.Inc";
-            EFTExport."Secondary OFAC Scr.Indicator" := "Secondary OFAC Scr.Indicator";
-            EFTExport."Origin. DFI ID Qualifier" := "Origin. DFI ID Qualifier";
-            EFTExport."Receiv. DFI ID Qualifier" := "Receiv. DFI ID Qualifier";
-            EFTExport."Document Date" := "Document Date";
-            EFTExport."Document No." := "Document No.";
-            EFTExport."External Document No." := "External Document No.";
-            EFTExport."Payment Reference" := "Payment Reference";
+        EFTExport."Bank Account No." := BankAccountNo;
+        EFTExport."Bank Payment Type" := GenJournalLine."Bank Payment Type";
+        EFTExport."Transaction Code" := GenJournalLine."Transaction Code";
+        EFTExport."Document Type" := GenJournalLine."Document Type";
+        EFTExport."Posting Date" := GenJournalLine."Posting Date";
+        EFTExport."Account Type" := GenJournalLine."Account Type";
+        EFTExport."Account No." := GenJournalLine."Account No.";
+        EFTExport."Applies-to ID" := GenJournalLine."Applies-to ID";
+        EFTExport."Document No." := GenJournalLine."Document No.";
+        EFTExport.Description := GenJournalLine.Description;
+        EFTExport."Currency Code" := GenJournalLine."Currency Code";
+        EFTExport."Bal. Account No." := GenJournalLine."Bal. Account No.";
+        EFTExport."Bal. Account Type" := GenJournalLine."Bal. Account Type";
+        EFTExport."Applies-to Doc. Type" := GenJournalLine."Applies-to Doc. Type";
+        EFTExport."Applies-to Doc. No." := GenJournalLine."Applies-to Doc. No.";
+        EFTExport."Check Exported" := true;
+        EFTExport."Check Printed" := true;
+        EFTExport."Exported to Payment File" := true;
+        EFTExport."Amount (LCY)" := GenJournalLine."Amount (LCY)";
+        EFTExport."Foreign Exchange Reference" := GenJournalLine."Foreign Exchange Reference";
+        EFTExport."Foreign Exchange Indicator" := GenJournalLine."Foreign Exchange Indicator";
+        EFTExport."Foreign Exchange Ref.Indicator" := GenJournalLine."Foreign Exchange Ref.Indicator";
+        EFTExport."Country/Region Code" := GenJournalLine."Country/Region Code";
+        EFTExport."Source Code" := GenJournalLine."Source Code";
+        EFTExport."Company Entry Description" := GenJournalLine."Company Entry Description";
+        EFTExport."Transaction Type Code" := GenJournalLine."Transaction Type Code";
+        EFTExport."Payment Related Information 1" := GenJournalLine."Payment Related Information 1";
+        EFTExport."Payment Related Information 2" := GenJournalLine."Payment Related Information 2";
+        EFTExport."Gateway Operator OFAC Scr.Inc" := GenJournalLine."Gateway Operator OFAC Scr.Inc";
+        EFTExport."Secondary OFAC Scr.Indicator" := GenJournalLine."Secondary OFAC Scr.Indicator";
+        EFTExport."Origin. DFI ID Qualifier" := GenJournalLine."Origin. DFI ID Qualifier";
+        EFTExport."Receiv. DFI ID Qualifier" := GenJournalLine."Receiv. DFI ID Qualifier";
+        EFTExport."Document Date" := GenJournalLine."Document Date";
+        EFTExport."Document No." := GenJournalLine."Document No.";
+        EFTExport."External Document No." := GenJournalLine."External Document No.";
+        EFTExport."Payment Reference" := GenJournalLine."Payment Reference";
 
-            EFTExport.Insert();
-        end;
+        EFTExport.Insert();
     end;
 
     local procedure UpdateCheckInfoForGenLedgLine(var GenJournalLine: Record "Gen. Journal Line"; EFTExport: Record "EFT Export")
@@ -312,27 +310,25 @@ codeunit 10250 "Bulk Vendor Remit Reporting"
         else
             BankAccountIs := BankAccountIs::BalAcnt;
 
-        with CheckLedgerEntry do begin
-            Init();
-            "Bank Account No." := BankAccount."No.";
-            "Posting Date" := GenJournalLine."Document Date";
-            "Document Type" := GenJournalLine."Document Type";
-            "Document No." := GenJournalLine."Document No.";
-            Description := GenJournalLine.Description;
-            "Bank Payment Type" := "Bank Payment Type"::"Electronic Payment";
-            "Entry Status" := "Entry Status"::Exported;
-            "Check Date" := GenJournalLine."Document Date";
-            "Check No." := GenJournalLine."Document No.";
+        CheckLedgerEntry.Init();
+        CheckLedgerEntry."Bank Account No." := BankAccount."No.";
+        CheckLedgerEntry."Posting Date" := GenJournalLine."Document Date";
+        CheckLedgerEntry."Document Type" := GenJournalLine."Document Type";
+        CheckLedgerEntry."Document No." := GenJournalLine."Document No.";
+        CheckLedgerEntry.Description := GenJournalLine.Description;
+        CheckLedgerEntry."Bank Payment Type" := CheckLedgerEntry."Bank Payment Type"::"Electronic Payment";
+        CheckLedgerEntry."Entry Status" := CheckLedgerEntry."Entry Status"::Exported;
+        CheckLedgerEntry."Check Date" := GenJournalLine."Document Date";
+        CheckLedgerEntry."Check No." := GenJournalLine."Document No.";
 
-            if BankAccountIs = BankAccountIs::Acnt then begin
-                "Bal. Account Type" := GenJournalLine."Bal. Account Type";
-                "Bal. Account No." := GenJournalLine."Bal. Account No.";
-                Amount := -GenJournalLine.Amount;
-            end else begin
-                "Bal. Account Type" := GenJournalLine."Account Type";
-                "Bal. Account No." := GenJournalLine."Account No.";
-                Amount := GenJournalLine.Amount;
-            end;
+        if BankAccountIs = BankAccountIs::Acnt then begin
+            CheckLedgerEntry."Bal. Account Type" := GenJournalLine."Bal. Account Type";
+            CheckLedgerEntry."Bal. Account No." := GenJournalLine."Bal. Account No.";
+            CheckLedgerEntry.Amount := -GenJournalLine.Amount;
+        end else begin
+            CheckLedgerEntry."Bal. Account Type" := GenJournalLine."Account Type";
+            CheckLedgerEntry."Bal. Account No." := GenJournalLine."Account No.";
+            CheckLedgerEntry.Amount := GenJournalLine.Amount;
         end;
         CheckManagement.InsertCheck(CheckLedgerEntry, GenJournalLine.RecordId);
     end;

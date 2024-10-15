@@ -2,7 +2,6 @@ namespace Microsoft.Bank.Reconciliation;
 
 using Microsoft.Bank.BankAccount;
 using Microsoft.Bank.Ledger;
-using Microsoft.Finance.GeneralLedger.Setup;
 using Microsoft.Foundation.Reporting;
 using System.Telemetry;
 
@@ -572,7 +571,6 @@ page 379 "Bank Acc. Reconciliation"
     local procedure RefreshSharedTempTable()
     var
         BankAccReconciliation: Record "Bank Acc. Reconciliation";
-        GeneralLedgerSetup: Record "General Ledger Setup";
     begin
         TempBankAccReconciliationDataset.DeleteAll();
         BankAccReconciliation.GetTempCopy(TempBankAccReconciliationDataset);

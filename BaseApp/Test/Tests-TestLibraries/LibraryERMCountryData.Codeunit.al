@@ -22,9 +22,9 @@ codeunit 131305 "Library - ERM Country Data"
 
     procedure CreateVATData()
     begin
-        CreateVATSetup;
-        UpdateGenBusPostingGroup;
-        InitialSetupForGenProdPostingGroup;
+        CreateVATSetup();
+        UpdateGenBusPostingGroup();
+        InitialSetupForGenProdPostingGroup();
     end;
 
     procedure GetVATCalculationType(): Enum "Tax Calculation Type"
@@ -72,7 +72,7 @@ codeunit 131305 "Library - ERM Country Data"
         CustomerPostingGroup: Record "Customer Posting Group";
     begin
         if CustomerPostingGroup.FindSet() then
-            CustomerPostingGroup.ModifyAll("Invoice Rounding Account", CreateAndUpdateGLAccountWithNoVAT);
+            CustomerPostingGroup.ModifyAll("Invoice Rounding Account", CreateAndUpdateGLAccountWithNoVAT());
     end;
 
     procedure UpdateAccountInVendorPostingGroups()
@@ -80,7 +80,7 @@ codeunit 131305 "Library - ERM Country Data"
         VendorPostingGroup: Record "Vendor Posting Group";
     begin
         if VendorPostingGroup.FindSet() then
-            VendorPostingGroup.ModifyAll("Invoice Rounding Account", CreateAndUpdateGLAccountWithNoVAT);
+            VendorPostingGroup.ModifyAll("Invoice Rounding Account", CreateAndUpdateGLAccountWithNoVAT());
     end;
 
     procedure UpdateAccountsInServiceContractAccountGroups()
@@ -88,8 +88,8 @@ codeunit 131305 "Library - ERM Country Data"
         ServiceContractAccountGroup: Record "Service Contract Account Group";
     begin
         if ServiceContractAccountGroup.FindSet() then begin
-            ServiceContractAccountGroup.ModifyAll("Non-Prepaid Contract Acc.", CreateAndUpdateGLAccountWithNoVAT);
-            ServiceContractAccountGroup.ModifyAll("Prepaid Contract Acc.", CreateAndUpdateGLAccountWithNoVAT);
+            ServiceContractAccountGroup.ModifyAll("Non-Prepaid Contract Acc.", CreateAndUpdateGLAccountWithNoVAT());
+            ServiceContractAccountGroup.ModifyAll("Prepaid Contract Acc.", CreateAndUpdateGLAccountWithNoVAT());
         end;
     end;
 
@@ -98,7 +98,7 @@ codeunit 131305 "Library - ERM Country Data"
         ServiceCost: Record "Service Cost";
     begin
         if ServiceCost.FindSet() then
-            ServiceCost.ModifyAll(ServiceCost."Account No.", CreateAndUpdateGLAccountWithNoVAT);
+            ServiceCost.ModifyAll(ServiceCost."Account No.", CreateAndUpdateGLAccountWithNoVAT());
     end;
 
     procedure UpdateCalendarSetup()
@@ -108,7 +108,7 @@ codeunit 131305 "Library - ERM Country Data"
 
     procedure UpdateGeneralPostingSetup()
     begin
-        UpdateAccountsInGeneralPostingSetup;
+        UpdateAccountsInGeneralPostingSetup();
     end;
 
     procedure UpdateInventoryPostingSetup()
@@ -149,7 +149,7 @@ codeunit 131305 "Library - ERM Country Data"
 
     procedure CreateGeneralPostingSetupData()
     begin
-        CreateMissingGeneralPostingSetup;
+        CreateMissingGeneralPostingSetup();
     end;
 
     procedure CreateUnitsOfMeasure()
@@ -233,7 +233,7 @@ codeunit 131305 "Library - ERM Country Data"
         if BankAccountLedgerEntries.Amount.Visible() then
             EntryRemainingAmount := BankAccountLedgerEntries.Amount.AsDecimal()
         else
-            if BankAccountLedgerEntries."Credit Amount".AsDecimal <> 0 then
+            if BankAccountLedgerEntries."Credit Amount".AsDecimal() <> 0 then
                 EntryRemainingAmount := -BankAccountLedgerEntries."Credit Amount".AsDecimal()
             else
                 EntryRemainingAmount := BankAccountLedgerEntries."Debit Amount".AsDecimal();
@@ -290,16 +290,16 @@ codeunit 131305 "Library - ERM Country Data"
         VATProdPostingGroup: Record "VAT Product Posting Group";
         VATPostingSetup: Record "VAT Posting Setup";
         VATPerc: Integer;
-        VATCalculationType: Option;
+        VATCalculationType: Enum "Tax Calculation Type";
     begin
         CompanyInfo.Get();
         CompanyInfo."Tax Area Code" := '';
         CompanyInfo.Modify();
 
-        CreateNormalVATPostingGroups;
+        CreateNormalVATPostingGroups();
 
         // Check if VAT Posting Setup required for W1 is present.
-        if not IsMissingVATPostingSetup then
+        if not IsMissingVATPostingSetup() then
             exit;
 
         // Create VAT Posting Setup using existing VAT Business and VAT Product Groups.
@@ -317,7 +317,7 @@ codeunit 131305 "Library - ERM Country Data"
         until VATProdPostingGroup.Next() = 0;
     end;
 
-    local procedure CreateVATPostingSetup(VATCalculationType: Option; VATBusPostingGroup: Code[20]; VATProdPostingGroup: Code[20]; VATRate: Integer)
+    local procedure CreateVATPostingSetup(VATCalculationType: Enum "Tax Calculation Type"; VATBusPostingGroup: Code[20]; VATProdPostingGroup: Code[20]; VATRate: Integer)
     var
         VATPostingSetup: Record "VAT Posting Setup";
     begin
@@ -328,10 +328,10 @@ codeunit 131305 "Library - ERM Country Data"
         VATPostingSetup.Validate("VAT Identifier", VATProdPostingGroup);
         VATPostingSetup.Validate("VAT %", VATRate);
 
-        VATPostingSetup.Validate("Sales VAT Account", CreateGLAccount);
-        VATPostingSetup.Validate("Purchase VAT Account", CreateGLAccount);
+        VATPostingSetup.Validate("Sales VAT Account", CreateGLAccount());
+        VATPostingSetup.Validate("Purchase VAT Account", CreateGLAccount());
         if VATCalculationType = VATPostingSetup."VAT Calculation Type"::"Reverse Charge VAT" then
-            VATPostingSetup.Validate("Reverse Chrg. VAT Acc.", CreateGLAccount);
+            VATPostingSetup.Validate("Reverse Chrg. VAT Acc.", CreateGLAccount());
 
         VATPostingSetup.Modify(true);
     end;
@@ -516,7 +516,7 @@ codeunit 131305 "Library - ERM Country Data"
         VATPostingSetup.SetRange("VAT Calculation Type", VATPostingSetup."VAT Calculation Type"::"Normal VAT");
         VATPostingSetup.SetRange("VAT %", 0);  // Taking VAT % Zero will find Setup with NO VAT.
         VATPostingSetup.FindFirst();
-        GLAccount.Get(CreateGLAccount);
+        GLAccount.Get(CreateGLAccount());
         GLAccount.Validate("Gen. Bus. Posting Group", GeneralPostingSetup."Gen. Bus. Posting Group");
         GLAccount.Validate("Gen. Prod. Posting Group", GeneralPostingSetup."Gen. Prod. Posting Group");
         GLAccount.Validate("VAT Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
@@ -538,15 +538,15 @@ codeunit 131305 "Library - ERM Country Data"
                 GeneralPostingSetup.Reset();
                 if not GeneralPostingSetup.Get(GeneralBusinessPostingGroup.Code, GeneralProductPostingGroup.Code) then begin
                     LibraryERM.CreateGeneralPostingSetup(GeneralPostingSetup, GeneralBusinessPostingGroup.Code, GeneralProductPostingGroup.Code);
-                    GeneralPostingSetup.Validate("Sales Account", CreateGLAccount);
+                    GeneralPostingSetup.Validate("Sales Account", CreateGLAccount());
                     GeneralPostingSetup.Validate("Sales Line Disc. Account", GeneralPostingSetup."Sales Account");
                     GeneralPostingSetup.Validate("Sales Inv. Disc. Account", GeneralPostingSetup."Sales Account");
-                    GeneralPostingSetup.Validate("Purch. Account", CreateGLAccount);
+                    GeneralPostingSetup.Validate("Purch. Account", CreateGLAccount());
                     GeneralPostingSetup.Validate("Purch. Line Disc. Account", GeneralPostingSetup."Purch. Account");
                     GeneralPostingSetup.Validate("Purch. Inv. Disc. Account", GeneralPostingSetup."Purch. Account");
                     GeneralPostingSetup.Validate("Sales Credit Memo Account", GeneralPostingSetup."Sales Account");
                     GeneralPostingSetup.Validate("Purch. Credit Memo Account", GeneralPostingSetup."Purch. Account");
-                    GeneralPostingSetup.Validate("Direct Cost Applied Account", CreateGLAccount);
+                    GeneralPostingSetup.Validate("Direct Cost Applied Account", CreateGLAccount());
                     GeneralPostingSetup.Validate("Overhead Applied Account", GeneralPostingSetup."Direct Cost Applied Account");
                     GeneralPostingSetup.Validate("Purchase Variance Account", GeneralPostingSetup."Purch. Account");
                     GeneralPostingSetup.Validate("COGS Account", GeneralPostingSetup."Overhead Applied Account");
@@ -564,11 +564,11 @@ codeunit 131305 "Library - ERM Country Data"
         if GeneralPostingSetup.FindSet() then
             repeat
                 if GeneralPostingSetup."Inventory Adjmt. Account" = '' then
-                    GeneralPostingSetup.Validate("Inventory Adjmt. Account", CreateGLAccount);
+                    GeneralPostingSetup.Validate("Inventory Adjmt. Account", CreateGLAccount());
                 if GeneralPostingSetup."Purchase Variance Account" = '' then
-                    GeneralPostingSetup.Validate("Purchase Variance Account", CreateGLAccount);
+                    GeneralPostingSetup.Validate("Purchase Variance Account", CreateGLAccount());
                 if GeneralPostingSetup."COGS Account" = '' then
-                    GeneralPostingSetup.Validate("COGS Account", CreateGLAccount);
+                    GeneralPostingSetup.Validate("COGS Account", CreateGLAccount());
                 GeneralPostingSetup.Modify(true);
             until GeneralPostingSetup.Next() = 0;
     end;

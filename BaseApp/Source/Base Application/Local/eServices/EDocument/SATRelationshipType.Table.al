@@ -10,6 +10,7 @@ table 27011 "SAT Relationship Type"
     DataPerCompany = false;
     DrillDownPageID = "SAT Relationship Types";
     LookupPageID = "SAT Relationship Types";
+    DataClassification = CustomerContent;
 
     fields
     {

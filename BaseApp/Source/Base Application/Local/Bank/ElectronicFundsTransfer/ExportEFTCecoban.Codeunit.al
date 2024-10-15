@@ -41,34 +41,32 @@ codeunit 10096 "Export EFT (Cecoban)"
         CompanyInformation.Get();
         CompanyInformation.TestField("Federal ID No.");
 
-        with BankAccount do begin
-            LockTable();
-            Get(BankAccountNo);
-            TestField("Export Format", "Export Format"::MX);
-            TestField("Transit No.");
-            TestField("Bank Acc. Posting Group");
-            TestField(Blocked, false);
+        BankAccount.LockTable();
+        BankAccount.Get(BankAccountNo);
+        BankAccount.TestField("Export Format", BankAccount."Export Format"::MX);
+        BankAccount.TestField("Transit No.");
+        BankAccount.TestField("Bank Acc. Posting Group");
+        BankAccount.TestField(Blocked, false);
 
-            FileName := '';
-            "Last E-Pay Export File Name" := IncStr("Last E-Pay Export File Name");
-            FileName := FileManagement.ServerTempFileName('');
-            if not EFTValues.IsSetFileCreationNumber() then
-                "Last E-Pay File Creation No." := "Last E-Pay File Creation No." + 1;
-            Modify();
+        FileName := '';
+        BankAccount."Last E-Pay Export File Name" := IncStr(BankAccount."Last E-Pay Export File Name");
+        FileName := FileManagement.ServerTempFileName('');
+        if not EFTValues.IsSetFileCreationNumber() then
+            BankAccount."Last E-Pay File Creation No." := BankAccount."Last E-Pay File Creation No." + 1;
+        BankAccount.Modify();
 
-            if Exists(FileName) then
-                Error(AlreadyExistsErr);
+        if Exists(FileName) then
+            Error(AlreadyExistsErr);
 
-            FileDate := Today;
-            FileHashTotal := 0;
-            EFTValues.SetFileHashTotal(FileHashTotal);
-            EFTValues.SetTotalFileDebit(0);
-            EFTValues.SetTotalFileCredit(0);
-            EFTValues.SetFileEntryAddendaCount(0);
-            EFTValues.SetBatchCount(0);
-            EFTValues.SetBatchNo(0);
-            EFTValues.SetFileCreationNumber("Last E-Pay File Creation No.");
-        end;
+        FileDate := Today;
+        FileHashTotal := 0;
+        EFTValues.SetFileHashTotal(FileHashTotal);
+        EFTValues.SetTotalFileDebit(0);
+        EFTValues.SetTotalFileCredit(0);
+        EFTValues.SetFileEntryAddendaCount(0);
+        EFTValues.SetBatchCount(0);
+        EFTValues.SetBatchNo(0);
+        EFTValues.SetFileCreationNumber(BankAccount."Last E-Pay File Creation No.");
     end;
 
     [Scope('OnPrem')]
@@ -133,68 +131,66 @@ codeunit 10096 "Export EFT (Cecoban)"
         PaymentAmount := Abs(PaymentAmount);
         OpCode := 30;
 
-        with TempEFTExportWorkset do begin
-            if "Account Type" = "Account Type"::Vendor then begin
-                AcctType := 'V';
-                AcctNo := "Account No.";
+        if TempEFTExportWorkset."Account Type" = TempEFTExportWorkset."Account Type"::Vendor then begin
+            AcctType := 'V';
+            AcctNo := TempEFTExportWorkset."Account No.";
+        end else
+            if TempEFTExportWorkset."Account Type" = TempEFTExportWorkset."Account Type"::Customer then begin
+                AcctType := 'C';
+                AcctNo := TempEFTExportWorkset."Account No.";
             end else
-                if "Account Type" = "Account Type"::Customer then begin
-                    AcctType := 'C';
-                    AcctNo := "Account No.";
+                if TempEFTExportWorkset."Bal. Account Type" = TempEFTExportWorkset."Bal. Account Type"::Vendor then begin
+                    AcctType := 'V';
+                    AcctNo := TempEFTExportWorkset."Bal. Account No.";
                 end else
-                    if "Bal. Account Type" = "Bal. Account Type"::Vendor then begin
-                        AcctType := 'V';
-                        AcctNo := "Bal. Account No.";
+                    if TempEFTExportWorkset."Bal. Account Type" = TempEFTExportWorkset."Bal. Account Type"::Customer then begin
+                        AcctType := 'C';
+                        AcctNo := TempEFTExportWorkset."Bal. Account No.";
                     end else
-                        if "Bal. Account Type" = "Bal. Account Type"::Customer then begin
-                            AcctType := 'C';
-                            AcctNo := "Bal. Account No.";
-                        end else
-                            Error(ReferErr);
+                        Error(ReferErr);
 
-            if AcctType = 'V' then begin
-                Vendor.Get(AcctNo);
-                Vendor.TestField(Blocked, Vendor.Blocked::" ");
-                Vendor.TestField("Privacy Blocked", false);
-                AcctName := CopyStr(Vendor.Name, 1, MaxStrLen(AcctName));
-                RFCNo := Vendor."VAT Registration No.";
+        if AcctType = 'V' then begin
+            Vendor.Get(AcctNo);
+            Vendor.TestField(Blocked, Vendor.Blocked::" ");
+            Vendor.TestField("Privacy Blocked", false);
+            AcctName := CopyStr(Vendor.Name, 1, MaxStrLen(AcctName));
+            RFCNo := Vendor."VAT Registration No.";
 
-                EFTRecipientBankAccountMgt.GetRecipientVendorBankAccount(VendorBankAccount, TempEFTExportWorkset, AcctNo);
+            EFTRecipientBankAccountMgt.GetRecipientVendorBankAccount(VendorBankAccount, TempEFTExportWorkset, AcctNo);
 
-                VendorBankAccount.TestField("Bank Account No.");
-                TransitNo := VendorBankAccount."Transit No.";
-                BankAcctNo := VendorBankAccount."Bank Account No.";
-            end else
-                if AcctType = 'C' then begin
-                    Customer.Get(AcctNo);
-                    if Customer."Privacy Blocked" then
-                        Error(PrivacyBlockedErr);
-                    if Customer.Blocked in [Customer.Blocked::All] then
-                        Error(IsBlockedErr);
-                    AcctName := CopyStr(Customer.Name, 1, MaxStrLen(AcctName));
-                    RFCNo := Customer."VAT Registration No.";
+            VendorBankAccount.TestField("Bank Account No.");
+            TransitNo := VendorBankAccount."Transit No.";
+            BankAcctNo := VendorBankAccount."Bank Account No.";
+        end else
+            if AcctType = 'C' then begin
+                Customer.Get(AcctNo);
+                if Customer."Privacy Blocked" then
+                    Error(PrivacyBlockedErr);
+                if Customer.Blocked in [Customer.Blocked::All] then
+                    Error(IsBlockedErr);
+                AcctName := CopyStr(Customer.Name, 1, MaxStrLen(AcctName));
+                RFCNo := Customer."VAT Registration No.";
 
-                    EFTRecipientBankAccountMgt.GetRecipientCustomerBankAccount(CustomerBankAccount, TempEFTExportWorkset, AcctNo);
+                EFTRecipientBankAccountMgt.GetRecipientCustomerBankAccount(CustomerBankAccount, TempEFTExportWorkset, AcctNo);
 
-                    if not PayeeCheckDigit(CustomerBankAccount."Transit No.") then
-                        CustomerBankAccount.FieldError("Transit No.", TransitNoErr);
-                    CustomerBankAccount.TestField("Bank Account No.");
-                    TransitNo := CustomerBankAccount."Transit No.";
-                    BankAcctNo := CustomerBankAccount."Bank Account No.";
-                end;
+                if not PayeeCheckDigit(CustomerBankAccount."Transit No.") then
+                    CustomerBankAccount.FieldError("Transit No.", TransitNoErr);
+                CustomerBankAccount.TestField("Bank Account No.");
+                TransitNo := CustomerBankAccount."Transit No.";
+                BankAcctNo := CustomerBankAccount."Bank Account No.";
+            end;
 
-            EFTValues.SetSequenceNo(EFTValues.GetSequenceNo() + 1);
-            EFTValues.SetTraceNo(EFTValues.GetTraceNo() + 1);
-            EFTValues.SetEntryAddendaCount(EFTValues.GetEntryAddendaCount() + 1);
+        EFTValues.SetSequenceNo(EFTValues.GetSequenceNo() + 1);
+        EFTValues.SetTraceNo(EFTValues.GetTraceNo() + 1);
+        EFTValues.SetEntryAddendaCount(EFTValues.GetEntryAddendaCount() + 1);
 
-            if DemandCredit then
-                EFTValues.SetTotalBatchCredit(EFTValues.GetTotalBatchCredit() + PaymentAmount)
-            else
-                EFTValues.SetTotalBatchDebit(EFTValues.GetTotalBatchDebit() + PaymentAmount);
+        if DemandCredit then
+            EFTValues.SetTotalBatchCredit(EFTValues.GetTotalBatchCredit() + PaymentAmount)
+        else
+            EFTValues.SetTotalBatchDebit(EFTValues.GetTotalBatchDebit() + PaymentAmount);
 
-            IncrementHashTotal(BatchHashTotal, MakeHash(CopyStr(TransitNo, 1, 8)));
-            EFTValues.SetBatchHashTotal(BatchHashTotal);
-        end;
+        IncrementHashTotal(BatchHashTotal, MakeHash(CopyStr(TransitNo, 1, 8)));
+        EFTValues.SetBatchHashTotal(BatchHashTotal);
 
         BankAccount.Get(TempEFTExportWorkset."Bank Account No.");
         // Cecoban Detail rec

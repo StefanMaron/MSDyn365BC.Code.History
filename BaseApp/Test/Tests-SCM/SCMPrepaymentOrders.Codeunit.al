@@ -182,7 +182,7 @@ codeunit 137160 "SCM Prepayment Orders"
         VerifyGLEntry(
           FindPostedSalesInvoice(Customer."No.", '', ExternalDoNo), PaymentMethod."Bal. Account No.",
           Round(SalesLine."Amount Including VAT" * SalesLine."Prepayment %" * 0.01,
-            LibraryERM.GetAmountRoundingPrecision) / CurrencyFactor); // Value required for the test.
+            LibraryERM.GetAmountRoundingPrecision()) / CurrencyFactor); // Value required for the test.
     end;
 
     [Test]
@@ -212,7 +212,7 @@ codeunit 137160 "SCM Prepayment Orders"
         VerifyGLEntry(
           FindPostedPurchaseInvoice(Vendor."No.", '', VendorInvoiceNo), PaymentMethod."Bal. Account No.",
           -Round(PurchaseLine."Line Amount" * PurchaseLine."Prepayment %" * 0.01 * (1 + VATPostingSetup."VAT %" / 100),
-            LibraryERM.GetAmountRoundingPrecision) / CurrencyFactor); // Value required for the test.
+            LibraryERM.GetAmountRoundingPrecision()) / CurrencyFactor); // Value required for the test.
     end;
 
     [Test]
@@ -347,7 +347,7 @@ codeunit 137160 "SCM Prepayment Orders"
         LibraryERMCountryData.CreateGeneralPostingSetupData();
         LibraryERMCountryData.UpdateGeneralPostingSetup();
         LibraryERMCountryData.UpdateGeneralLedgerSetup();
-        LibraryERMCountryData.UpdatePrepaymentAccounts;
+        LibraryERMCountryData.UpdatePrepaymentAccounts();
         LibraryERMCountryData.UpdateSalesReceivablesSetup();
 
         isInitialized := true;
@@ -416,7 +416,7 @@ codeunit 137160 "SCM Prepayment Orders"
         Currency: Record Currency;
     begin
         LibraryERM.CreateCurrency(Currency);
-        Currency."Invoice Rounding Precision" := LibraryERM.GetAmountRoundingPrecision;
+        Currency."Invoice Rounding Precision" := LibraryERM.GetAmountRoundingPrecision();
         Currency.Modify();
 
         CreateCurrencyExchangeRate(
@@ -436,7 +436,7 @@ codeunit 137160 "SCM Prepayment Orders"
     begin
         LibraryERM.CreatePaymentMethod(PaymentMethod);
         PaymentMethod.Validate("Bal. Account Type", PaymentMethod."Bal. Account Type"::"G/L Account");
-        PaymentMethod.Validate("Bal. Account No.", LibraryERM.CreateGLAccountNo);
+        PaymentMethod.Validate("Bal. Account No.", LibraryERM.CreateGLAccountNo());
         PaymentMethod.Modify(true);
         CurrencyFactor := CreateCustomerWithCurrencyExchangeRate(Customer);
         Customer.Validate("Payment Method Code", PaymentMethod.Code);
@@ -648,11 +648,11 @@ codeunit 137160 "SCM Prepayment Orders"
     begin
         ItemJournalTemplate.SetRange(Recurring, false);
         LibraryInventory.SelectItemJournalTemplateName(ItemJournalTemplate2, ItemJournalTemplateType);
-        ItemJournalTemplate2.Validate("No. Series", LibraryUtility.GetGlobalNoSeriesCode);
+        ItemJournalTemplate2.Validate("No. Series", LibraryUtility.GetGlobalNoSeriesCode());
         ItemJournalTemplate2.Modify(true);
 
         LibraryInventory.SelectItemJournalBatchName(ItemJournalBatch2, ItemJournalTemplate2.Type, ItemJournalTemplate2.Name);
-        ItemJournalBatch2.Validate("No. Series", LibraryUtility.GetGlobalNoSeriesCode);
+        ItemJournalBatch2.Validate("No. Series", LibraryUtility.GetGlobalNoSeriesCode());
         ItemJournalBatch2.Modify(true);
     end;
 
@@ -668,13 +668,13 @@ codeunit 137160 "SCM Prepayment Orders"
         CreateAndUpdateLocation(LocationRed, false, false, false, false, false);
         CreateAndUpdateLocation(LocationGreen, true, true, true, true, false);  // Location Green with Require Put-Away, Require Pick, Require Receive and Require Shipment.
         CreateAndUpdateLocation(LocationOrange, false, true, false, false, false);  // Location Orange with Require Pick.
-        CreateInTransitLocation;
+        CreateInTransitLocation();
     end;
 
     local procedure NoSeriesSetup()
     begin
-        LibrarySales.SetOrderNoSeriesInSetup;
-        LibraryPurchase.SetOrderNoSeriesInSetup;
+        LibrarySales.SetOrderNoSeriesInSetup();
+        LibraryPurchase.SetOrderNoSeriesInSetup();
     end;
 
     local procedure PostWarehouseReceipt(SourceNo: Code[20]; ItemNo: Code[20])
@@ -806,7 +806,7 @@ codeunit 137160 "SCM Prepayment Orders"
         GLEntry.SetRange("Document No.", DocumentNo);
         GLEntry.SetRange("G/L Account No.", GLAccountNo);
         GLEntry.FindFirst();
-        Assert.AreNearlyEqual(Amount, GLEntry.Amount, LibraryERM.GetAmountRoundingPrecision, AmountMustBeEqualErr);
+        Assert.AreNearlyEqual(Amount, GLEntry.Amount, LibraryERM.GetAmountRoundingPrecision(), AmountMustBeEqualErr);
     end;
 
     [MessageHandler]

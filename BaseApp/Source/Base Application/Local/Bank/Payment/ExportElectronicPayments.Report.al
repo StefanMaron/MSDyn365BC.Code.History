@@ -552,12 +552,10 @@ report 10083 "Export Electronic Payments"
                     if GenJournalBatch."Bal. Account Type" = GenJournalBatch."Bal. Account Type"::"Bank Account" then
                         BankAccount."No." := GenJournalBatch."Bal. Account No.";
 
-        with BankAccount do begin
-            Get("No.");
-            TestField(Blocked, false);
-            TestField("Export Format");
-            TestField("Last Remittance Advice No.");
-        end;
+        BankAccount.Get(BankAccount."No.");
+        BankAccount.TestField(Blocked, false);
+        BankAccount.TestField("Export Format");
+        BankAccount.TestField("Last Remittance Advice No.");
 
         GenJournalTemplate.Get("Gen. Journal Line".GetFilter("Journal Template Name"));
         if not GenJournalTemplate."Force Doc. Balance" then

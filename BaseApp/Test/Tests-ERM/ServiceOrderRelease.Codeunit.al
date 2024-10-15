@@ -39,7 +39,6 @@ codeunit 136140 "Service Order Release"
         SourceDocumentType: Text[200];
         BlockedItemErrorMsg: Label 'Blocked must be equal to ''No''  in Item: No.=%1. Current value is ''Yes''.';
         ShippedNotInvoicedErr: Label 'Qty. Shipped Not Invoiced must be equal to ''%1''  in Service Shipment Line: Document No.=%2, Line No.=%3. Current value is ''%4''.';
-        NoWarehouseRequestErrorMsg: Label 'No Warehouse Request was found. The warehouse shipment could not be created.';
         YellowLocationCode: Code[10];
         BinMandatoryErrorTxt: Label 'Bin Code must have a value in Service Line: Document Type=';
         QuantityInsufficientErrorTxt: Label 'Quantity (Base) is not sufficient to complete this action. The quantity in the bin is';
@@ -279,7 +278,7 @@ codeunit 136140 "Service Order Release"
 
         // EXECUTE: Create Warehouse shipment on this order
         LibraryService.ReleaseServiceDocument(ServiceHeader);
-        WarehouseShipment.Trap;
+        WarehouseShipment.Trap();
 
         CreateWarehouseShipmentFromServiceHeader(ServiceHeader);
 
@@ -316,7 +315,7 @@ codeunit 136140 "Service Order Release"
 
         // EXECUTE: Create Warehouse shipment on this order
         LibraryService.ReleaseServiceDocument(ServiceHeader);
-        WarehouseShipment.Trap;
+        WarehouseShipment.Trap();
         CreateWarehouseShipmentFromServiceHeader(ServiceHeader);
 
         // Verify: All service lines are present in warehouse shipment and the quantities match
@@ -835,7 +834,7 @@ codeunit 136140 "Service Order Release"
         Initialize();
 
         // SETUP: Create Service order with header on BLUE Location and service lines on WHITE, Release
-        NonWMSLocationCode := CreateLocation;
+        NonWMSLocationCode := CreateLocation();
         WMSLocationCode := WMSFullLocation;
         LibraryInventory.CreateItem(Item);
         ServiceItemLineNo := CreateServiceOrder(ServiceHeader);
@@ -874,7 +873,7 @@ codeunit 136140 "Service Order Release"
         Initialize();
 
         // SETUP: Create Service order with service lines on WHITE and new BLUE Location, Release
-        NonWMSLocationCode := CreateLocation;
+        NonWMSLocationCode := CreateLocation();
         WMSLocationCode := WMSFullLocation;
         LibraryInventory.CreateItem(Item);
         ServiceItemLineNo := CreateServiceOrder(ServiceHeader);
@@ -1033,25 +1032,23 @@ codeunit 136140 "Service Order Release"
         ServiceLine.SetFilter("No.", '<>%1', Item."No.");
         ServiceLine.FindSet();
 
-        with ServiceLine do begin
-            Assert.AreEqual(5, Count, 'The right number of rows are returned by the filter');
-            Index := 0;
-            repeat
-                Assert.AreEqual(Quantity, "Quantity Shipped", StrSubstNo('Service line %1: %2', Index, FieldCaption("Quantity Shipped")));
-                Assert.AreEqual(
-                  Quantity, "Qty. Shipped Not Invoiced", StrSubstNo('Service line %1: %2', Index, FieldCaption("Qty. Shipped Not Invoiced")));
-                GetAndVerifyWarehouseEntry(ServiceLine, WarehouseEntry, WarehouseEntry."Entry Type"::"Negative Adjmt.", -"Quantity Shipped");
-                Assert.RecordCount(WarehouseEntry, 1);
-                Index += 1;
-            until Next = 0;
-
-            SetFilter("No.", Item."No.");
-            FindSet();
-            Assert.AreEqual(Quantity - Delta, "Quantity Shipped", 'Service Line 6: ' + FieldCaption("Quantity Shipped"));
-            Assert.AreEqual(Quantity - Delta, "Qty. Shipped Not Invoiced", 'Service Line 6: ' + FieldCaption("Qty. Shipped Not Invoiced"));
-            GetAndVerifyWarehouseEntry(ServiceLine, WarehouseEntry, WarehouseEntry."Entry Type"::"Negative Adjmt.", -"Quantity Shipped");
+        Assert.AreEqual(5, ServiceLine.Count, 'The right number of rows are returned by the filter');
+        Index := 0;
+        repeat
+            Assert.AreEqual(ServiceLine.Quantity, ServiceLine."Quantity Shipped", StrSubstNo('Service line %1: %2', Index, ServiceLine.FieldCaption("Quantity Shipped")));
+            Assert.AreEqual(
+              ServiceLine.Quantity, ServiceLine."Qty. Shipped Not Invoiced", StrSubstNo('Service line %1: %2', Index, ServiceLine.FieldCaption("Qty. Shipped Not Invoiced")));
+            GetAndVerifyWarehouseEntry(ServiceLine, WarehouseEntry, WarehouseEntry."Entry Type"::"Negative Adjmt.", -ServiceLine."Quantity Shipped");
             Assert.RecordCount(WarehouseEntry, 1);
-        end
+            Index += 1;
+        until ServiceLine.Next() = 0;
+
+        ServiceLine.SetFilter("No.", Item."No.");
+        ServiceLine.FindSet();
+        Assert.AreEqual(ServiceLine.Quantity - Delta, ServiceLine."Quantity Shipped", 'Service Line 6: ' + ServiceLine.FieldCaption("Quantity Shipped"));
+        Assert.AreEqual(ServiceLine.Quantity - Delta, ServiceLine."Qty. Shipped Not Invoiced", 'Service Line 6: ' + ServiceLine.FieldCaption("Qty. Shipped Not Invoiced"));
+        GetAndVerifyWarehouseEntry(ServiceLine, WarehouseEntry, WarehouseEntry."Entry Type"::"Negative Adjmt.", -ServiceLine."Quantity Shipped");
+        Assert.RecordCount(WarehouseEntry, 1);
     end;
 
     [Test]
@@ -1100,12 +1097,10 @@ codeunit 136140 "Service Order Release"
             ServiceHeader.Get(ServiceHeader."Document Type", ServiceHeaderNo[I]);
             Clear(ServiceLine);
             GetAllServiceLinesOfTypeItem(ServiceLine, ServiceHeader);
-            with ServiceLine do begin
-                repeat
-                    Assert.AreEqual(Quantity, "Quantity Shipped", FieldCaption("Quantity Shipped"));
-                    Assert.AreEqual(Quantity, "Qty. Shipped Not Invoiced", FieldCaption("Qty. Shipped Not Invoiced"));
-                until Next = 0;
-            end
+            repeat
+                Assert.AreEqual(ServiceLine.Quantity, ServiceLine."Quantity Shipped", ServiceLine.FieldCaption("Quantity Shipped"));
+                Assert.AreEqual(ServiceLine.Quantity, ServiceLine."Qty. Shipped Not Invoiced", ServiceLine.FieldCaption("Qty. Shipped Not Invoiced"));
+            until ServiceLine.Next() = 0;
         end;
     end;
 
@@ -1173,18 +1168,15 @@ codeunit 136140 "Service Order Release"
             GetAllServiceLinesOfTypeItem(ServiceLine, ServiceHeader);
             SalesHeader.Get(SalesHeader."Document Type", SalesHeaderNo[I]);
             GetSalesLinesOfTypeItem(SalesLine, SalesHeader);
-            with ServiceLine do
-                repeat
-                    Assert.AreEqual(Quantity, "Quantity Shipped", FieldCaption("Quantity Shipped"));
-                    Assert.AreEqual(Quantity, "Qty. Shipped Not Invoiced", FieldCaption("Qty. Shipped Not Invoiced"));
-                until Next = 0;
+            repeat
+                Assert.AreEqual(ServiceLine.Quantity, ServiceLine."Quantity Shipped", ServiceLine.FieldCaption("Quantity Shipped"));
+                Assert.AreEqual(ServiceLine.Quantity, ServiceLine."Qty. Shipped Not Invoiced", ServiceLine.FieldCaption("Qty. Shipped Not Invoiced"));
+            until ServiceLine.Next() = 0;
 
-            with SalesLine do begin
-                repeat
-                    Assert.AreEqual(Quantity, "Quantity Shipped", FieldCaption("Quantity Shipped"));
-                    Assert.AreEqual(Quantity, "Qty. Shipped Not Invoiced", FieldCaption("Qty. Shipped Not Invoiced"));
-                until Next = 0;
-            end
+            repeat
+                Assert.AreEqual(SalesLine.Quantity, SalesLine."Quantity Shipped", SalesLine.FieldCaption("Quantity Shipped"));
+                Assert.AreEqual(SalesLine.Quantity, SalesLine."Qty. Shipped Not Invoiced", SalesLine.FieldCaption("Qty. Shipped Not Invoiced"));
+            until SalesLine.Next() = 0;
         end;
     end;
 
@@ -1289,7 +1281,7 @@ codeunit 136140 "Service Order Release"
         CreateServiceOrderAndServiceLines(ServiceHeader, Item."No.", Quantity, LocationCode);
         LibraryService.ReleaseServiceDocument(ServiceHeader);
 
-        WarehouseShipment.Trap;
+        WarehouseShipment.Trap();
         CreateWarehouseShipmentFromServiceHeader(ServiceHeader);
         WarehouseShipmentHeader.Get(Format(WarehouseShipment."No.".Value()));
 
@@ -1433,12 +1425,10 @@ codeunit 136140 "Service Order Release"
             VerifyValueEntry(TempServiceLine, LineQuantity);
             VerifyServiceLedgerEntry(TempServiceLine, LineQuantity);
 
-            with SalesLine do begin
-                repeat
-                    Assert.AreEqual(0, "Quantity Shipped", FieldCaption("Quantity Shipped"));
-                    Assert.AreEqual(0, "Qty. Shipped Not Invoiced", FieldCaption("Qty. Shipped Not Invoiced"));
-                until Next = 0;
-            end
+            repeat
+                Assert.AreEqual(0, SalesLine."Quantity Shipped", SalesLine.FieldCaption("Quantity Shipped"));
+                Assert.AreEqual(0, SalesLine."Qty. Shipped Not Invoiced", SalesLine.FieldCaption("Qty. Shipped Not Invoiced"));
+            until SalesLine.Next() = 0;
         end;
     end;
 
@@ -1473,7 +1463,7 @@ codeunit 136140 "Service Order Release"
         CreateServiceOrderAndServiceLines(ServiceHeader, Item."No.", Quantity, LocationCode);
         LibraryService.ReleaseServiceDocument(ServiceHeader);
 
-        WarehouseShipment.Trap;
+        WarehouseShipment.Trap();
         CreateWarehouseShipmentFromServiceHeader(ServiceHeader);
         WarehouseShipmentHeader.Get(Format(WarehouseShipment."No.".Value()));
 
@@ -1561,7 +1551,7 @@ codeunit 136140 "Service Order Release"
         CreateServiceOrderAndServiceLines(ServiceHeader, Item."No.", Quantity, LocationCode);
         LibraryService.ReleaseServiceDocument(ServiceHeader);
 
-        WarehouseShipment.Trap;
+        WarehouseShipment.Trap();
         CreateWarehouseShipmentFromServiceHeader(ServiceHeader);
         WarehouseShipmentHeader.Get(Format(WarehouseShipment."No.".Value()));
 
@@ -1613,7 +1603,7 @@ codeunit 136140 "Service Order Release"
         CreateServiceOrderAndServiceLines(ServiceHeader, Item."No.", Quantity, LocationCode);
         LibraryService.ReleaseServiceDocument(ServiceHeader);
 
-        WarehouseShipment.Trap;
+        WarehouseShipment.Trap();
         CreateWarehouseShipmentFromServiceHeader(ServiceHeader);
         WarehouseShipmentHeader.Get(Format(WarehouseShipment."No.".Value()));
 
@@ -1665,7 +1655,7 @@ codeunit 136140 "Service Order Release"
         CreateServiceOrderAndServiceLines(ServiceHeader, Item."No.", Quantity, LocationCode);
         LibraryService.ReleaseServiceDocument(ServiceHeader);
 
-        WarehouseShipment.Trap;
+        WarehouseShipment.Trap();
         CreateWarehouseShipmentFromServiceHeader(ServiceHeader);
         WarehouseShipmentHeader.Get(Format(WarehouseShipment."No.".Value()));
 
@@ -1725,7 +1715,7 @@ codeunit 136140 "Service Order Release"
         CreateServiceOrderAndServiceLines(ServiceHeader, Item."No.", Quantity, LocationCode);
         LibraryService.ReleaseServiceDocument(ServiceHeader);
 
-        WarehouseShipment.Trap;
+        WarehouseShipment.Trap();
         CreateWarehouseShipmentFromServiceHeader(ServiceHeader);
         WarehouseShipmentHeader.Get(Format(WarehouseShipment."No.".Value()));
         WarehouseShipment.Close();
@@ -1742,7 +1732,7 @@ codeunit 136140 "Service Order Release"
         LibraryService.ReopenServiceDocument(ServiceHeader);
         LibraryService.ReleaseServiceDocument(ServiceHeader);
 
-        WarehouseShipment.Trap;
+        WarehouseShipment.Trap();
         CreateWarehouseShipmentFromServiceHeader(ServiceHeader);
         WarehouseShipmentHeader.Get(Format(WarehouseShipment."No.".Value()));
         WarehouseShipment.Close();
@@ -2029,7 +2019,7 @@ codeunit 136140 "Service Order Release"
         AddItemServiceLinesToOrder(ServiceHeader, ServiceItemLineNo, Item."No.", LibraryRandom.RandInt(100), ServiceLineLocationCode);
 
         LibraryService.ReleaseServiceDocument(ServiceHeader);
-        WarehouseShipment.Trap;
+        WarehouseShipment.Trap();
 
         CreateWarehouseShipmentFromServiceHeader(ServiceHeader);
 
@@ -2383,18 +2373,16 @@ codeunit 136140 "Service Order Release"
         ServiceLine.SetFilter("No.", '<>%1', Item."No.");
         ServiceLine.FindSet();
 
-        with ServiceLine do begin
-            Assert.AreEqual(5, Count, 'The right number of rows are returned by the filter');
-            I := 0;
-            repeat
-                VerifyServiceLineAfterOnlyShip(ServiceLine, 0);
-                I := I + 1;
-            until Next = 0;
+        Assert.AreEqual(5, ServiceLine.Count, 'The right number of rows are returned by the filter');
+        I := 0;
+        repeat
+            VerifyServiceLineAfterOnlyShip(ServiceLine, 0);
+            I := I + 1;
+        until ServiceLine.Next() = 0;
 
-            SetFilter("No.", Item."No.");
-            FindSet();
-            VerifyServiceLineAfterOnlyShip(ServiceLine, Delta);
-        end
+        ServiceLine.SetFilter("No.", Item."No.");
+        ServiceLine.FindSet();
+        VerifyServiceLineAfterOnlyShip(ServiceLine, Delta);
     end;
 
     [Test]
@@ -3150,7 +3138,7 @@ codeunit 136140 "Service Order Release"
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Service Order Release");
-        ClearGlobals;
+        ClearGlobals();
         LibrarySetupStorage.Restore();
 
         if IsInitialized then
@@ -3166,7 +3154,7 @@ codeunit 136140 "Service Order Release"
         LibrarySetupStorage.Save(DATABASE::"Warehouse Setup");
 
         IsInitialized := true;
-        WMSFullLocation := GetWhiteLocation;
+        WMSFullLocation := GetWhiteLocation();
         YellowLocationCode := CreateYellowLocation(Location);
         LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, WMSFullLocation, true);
         Commit();
@@ -3186,7 +3174,7 @@ codeunit 136140 "Service Order Release"
         UpdateServiceLine(ServiceLine, ServiceItemLineNo, LibraryRandom.RandInt(100));
         Clear(ServiceLine);
         LibraryService.CreateServiceLine(
-          ServiceLine, ServiceHeader, ServiceLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithSalesSetup);
+          ServiceLine, ServiceHeader, ServiceLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithSalesSetup());
         UpdateServiceLine(ServiceLine, ServiceItemLineNo, LibraryRandom.RandInt(100));
         Clear(ServiceLine);
         LibraryService.FindServiceCost(ServiceCost);
@@ -3244,7 +3232,7 @@ codeunit 136140 "Service Order Release"
     begin
         LibraryWarehouse.RegisterWhseJournalLine(
           WarehouseJournalBatch."Journal Template Name", WarehouseJournalBatch.Name, LocationCode, true);
-        ItemJournalSetup;
+        ItemJournalSetup();
         LibraryWarehouse.CalculateWhseAdjustment(Item, ItemJournalBatch);
         LibraryInventory.PostItemJournalLine(ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name);
     end;
@@ -3346,7 +3334,7 @@ codeunit 136140 "Service Order Release"
         LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, LocationCode, false);
         ServiceItemLineNo :=
           CreateServiceOrderAndServiceLines(
-            ServiceHeader, LibraryInventory.CreateItemNo, LibraryRandom.RandInt(100), LocationCode);
+            ServiceHeader, LibraryInventory.CreateItemNo(), LibraryRandom.RandInt(100), LocationCode);
         AddResourceGLServiceLinesToOrder(ServiceHeader, ServiceItemLineNo);
         SetLocationCodeOnServiceLines(ServiceLine, ServiceHeader, LocationCode, ServiceItemLineNo);
     end;
@@ -3364,7 +3352,7 @@ codeunit 136140 "Service Order Release"
         Location.Validate("Bin Mandatory", true);
         Location.Modify(true);
         LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, Location.Code, true);
-        LibraryWarehouse.CreateBin(Bin, Location.Code, LibraryUtility.GenerateGUID, '', '');
+        LibraryWarehouse.CreateBin(Bin, Location.Code, LibraryUtility.GenerateGUID(), '', '');
         exit(Location.Code);
     end;
 
@@ -3409,7 +3397,7 @@ codeunit 136140 "Service Order Release"
     var
         ItemJournalLine: Record "Item Journal Line";
     begin
-        ItemJournalSetup;
+        ItemJournalSetup();
         LibraryInventory.CreateItemJournalLine(
           ItemJournalLine,
           ItemJournalBatch."Journal Template Name",
@@ -3675,7 +3663,7 @@ codeunit 136140 "Service Order Release"
     begin
         LibraryInventory.SelectItemJournalTemplateName(ItemJournalTemplate, ItemJournalTemplate.Type::Item);
         LibraryInventory.SelectItemJournalBatchName(ItemJournalBatch, ItemJournalTemplate.Type::Item, ItemJournalTemplate.Name);
-        ItemJournalBatch.Validate("No. Series", LibraryUtility.GetGlobalNoSeriesCode);
+        ItemJournalBatch.Validate("No. Series", LibraryUtility.GetGlobalNoSeriesCode());
         ItemJournalBatch.Modify(true);
     end;
 
@@ -3751,17 +3739,15 @@ codeunit 136140 "Service Order Release"
     var
         WarehouseActivityLine: Record "Warehouse Activity Line";
     begin
-        with WarehouseActivityLine do begin
-            SetRange("Activity Type", WarehouseActivityHeader.Type);
-            SetRange("No.", WarehouseActivityHeader."No.");
-            SetRange("Action Type", "Action Type"::Place);
-            if FindSet() then
-                repeat
-                    Validate("Zone Code", ZoneCode);
-                    Validate("Bin Code", BinCode);
-                    Modify();
-                until Next = 0;
-        end;
+        WarehouseActivityLine.SetRange("Activity Type", WarehouseActivityHeader.Type);
+        WarehouseActivityLine.SetRange("No.", WarehouseActivityHeader."No.");
+        WarehouseActivityLine.SetRange("Action Type", WarehouseActivityLine."Action Type"::Place);
+        if WarehouseActivityLine.FindSet() then
+            repeat
+                WarehouseActivityLine.Validate("Zone Code", ZoneCode);
+                WarehouseActivityLine.Validate("Bin Code", BinCode);
+                WarehouseActivityLine.Modify();
+            until WarehouseActivityLine.Next() = 0;
     end;
 
     local procedure ReleaseServiceHeaderAndCreateWarehouseShipment(var ServiceHeader: Record "Service Header"; var WarehouseShipmentHeader: Record "Warehouse Shipment Header")
@@ -3770,9 +3756,9 @@ codeunit 136140 "Service Order Release"
         WarehouseShipmentHeaderNo: Code[20];
     begin
         LibraryService.ReleaseServiceDocument(ServiceHeader);
-        WarehouseShipment.Trap;
+        WarehouseShipment.Trap();
         CreateWarehouseShipmentFromServiceHeader(ServiceHeader);
-        WarehouseShipmentHeaderNo := WarehouseShipment."No.".Value;
+        WarehouseShipmentHeaderNo := WarehouseShipment."No.".Value();
         WarehouseShipment.Close();
         Clear(WarehouseShipment);
         WarehouseShipmentHeader.Get(WarehouseShipmentHeaderNo);
@@ -3791,17 +3777,15 @@ codeunit 136140 "Service Order Release"
 
     local procedure SetLocationCodeOnServiceLines(var ServiceLine: Record "Service Line"; ServiceHeader: Record "Service Header"; LocationCode: Code[10]; ServiceItemLineNo: Integer)
     begin
-        with ServiceLine do begin
-            SetRange("Document Type", ServiceHeader."Document Type");
-            SetRange("Document No.", ServiceHeader."No.");
-            SetRange("Service Item Line No.", ServiceItemLineNo);
-            SetRange(Type, Type::Resource, Type::"G/L Account");
-            FindSet(true);
-            repeat
-                Validate("Location Code", LocationCode);
-                Modify(true);
-            until Next = 0;
-        end;
+        ServiceLine.SetRange("Document Type", ServiceHeader."Document Type");
+        ServiceLine.SetRange("Document No.", ServiceHeader."No.");
+        ServiceLine.SetRange("Service Item Line No.", ServiceItemLineNo);
+        ServiceLine.SetRange(Type, ServiceLine.Type::Resource, ServiceLine.Type::"G/L Account");
+        ServiceLine.FindSet(true);
+        repeat
+            ServiceLine.Validate("Location Code", LocationCode);
+            ServiceLine.Modify(true);
+        until ServiceLine.Next() = 0;
     end;
 
     local procedure TestPostServiceDocumentWithItem(ServiceDocumentType: Enum "Service Document Type"; LocationType: Integer; LineQuantityDelta: Integer; IsBlankBincode: Boolean)
@@ -3957,9 +3941,9 @@ codeunit 136140 "Service Order Release"
         Customer.Get(CustNo);
         CustPostingGroup.Get(Customer."Customer Posting Group");
         if CustPostingGroup."Payment Disc. Debit Acc." = '' then
-            CustPostingGroup.Validate("Payment Disc. Debit Acc.", LibraryERM.CreateGLAccountNo);
+            CustPostingGroup.Validate("Payment Disc. Debit Acc.", LibraryERM.CreateGLAccountNo());
         if CustPostingGroup."Payment Disc. Credit Acc." = '' then
-            CustPostingGroup.Validate("Payment Disc. Credit Acc.", LibraryERM.CreateGLAccountNo);
+            CustPostingGroup.Validate("Payment Disc. Credit Acc.", LibraryERM.CreateGLAccountNo());
         CustPostingGroup.Modify(true);
     end;
 
@@ -3979,9 +3963,9 @@ codeunit 136140 "Service Order Release"
     var
         SalesOrder: TestPage "Sales Order";
     begin
-        SalesOrder.OpenEdit;
+        SalesOrder.OpenEdit();
         SalesOrder.FILTER.SetFilter("No.", No);
-        SalesOrder.SalesLines.Reserve.Invoke;
+        SalesOrder.SalesLines.Reserve.Invoke();
         SalesOrder.Close();
     end;
 
@@ -4008,7 +3992,7 @@ codeunit 136140 "Service Order Release"
         SourceDocuments.FILTER.SetFilter("Source Document", SourceDocumentType);
         Assert.AreEqual(SourceDocumentNo, SourceDocuments."Source No.".Value, 'Source Document no is found in the list');
         Assert.AreEqual(SourceDocumentType, SourceDocuments."Source Document".Value, 'Source Document Type found in the list');
-        SourceDocuments.OK.Invoke;
+        SourceDocuments.OK().Invoke();
     end;
 
     [ConfirmHandler]
@@ -4025,7 +4009,7 @@ codeunit 136140 "Service Order Release"
         SourceDocuments.FILTER.SetFilter("Source No.", SourceDocumentNo);
         SourceDocuments.FILTER.SetFilter("Source Document", SourceDocumentType);
         Assert.AreEqual('', SourceDocuments."Source No.".Value, 'Source Document no is found in the list');
-        SourceDocuments.Cancel.Invoke;
+        SourceDocuments.Cancel().Invoke();
     end;
 
     local procedure VerifyWarehouseShipmentLines(var WarehouseShipmentLine: Record "Warehouse Shipment Line"; var ServiceLine: Record "Service Line")
@@ -4042,7 +4026,7 @@ codeunit 136140 "Service Order Release"
         until (ServiceLine.Next() = 0);
     end;
 
-    local procedure VerifyServiceHeaderReleaseStatus(ServiceHeader: Record "Service Header"; ReleaseStatus: Option; ServiceHeaderStatus: Enum "Service Document Status")
+    local procedure VerifyServiceHeaderReleaseStatus(ServiceHeader: Record "Service Header"; ReleaseStatus: Enum "Service Doc. Release Status"; ServiceHeaderStatus: Enum "Service Document Status")
     begin
         Assert.AreEqual(ReleaseStatus, ServiceHeader."Release Status", 'Verify Release Status');
         Assert.AreEqual(ServiceHeaderStatus, ServiceHeader.Status, 'Verify Status of Service Header');
@@ -4166,7 +4150,7 @@ codeunit 136140 "Service Order Release"
         WarehouseEntry.SetRange("Source Document", WarehouseEntry."Source Document"::"Serv. Order");
         WarehouseEntry.SetRange("Source No.", ServiceLine."Document No.");
         WarehouseEntry.SetRange("Source Line No.", ServiceLine."Line No.");
-        Assert.AreEqual(false, WarehouseEntry.Find, 'No Ware house entries are created');
+        Assert.AreEqual(false, WarehouseEntry.Find(), 'No Ware house entries are created');
     end;
 
     local procedure VerifyQtyOnItemLedgerEntryAfterShip(var ServiceLine: Record "Service Line"; QuantityShipped: Decimal)
@@ -4285,13 +4269,11 @@ codeunit 136140 "Service Order Release"
     var
         ServiceLine: Record "Service Line";
     begin
-        with ServiceLine do begin
-            SetRange(Type, Type::Resource, Type::"G/L Account");
-            FindServiceLinesByHeaderNo(ServiceLine, ServiceHeader);
-            repeat
-                Assert.AreEqual(Quantity, "Qty. to Ship", FieldCaption("Qty. to Ship"));
-            until Next = 0;
-        end;
+        ServiceLine.SetRange(Type, ServiceLine.Type::Resource, ServiceLine.Type::"G/L Account");
+        FindServiceLinesByHeaderNo(ServiceLine, ServiceHeader);
+        repeat
+            Assert.AreEqual(ServiceLine.Quantity, ServiceLine."Qty. to Ship", ServiceLine.FieldCaption("Qty. to Ship"));
+        until ServiceLine.Next() = 0;
     end;
 }
 

@@ -12,6 +12,7 @@ using System.IO;
 table 1878 "VAT Assisted Setup Templates"
 {
     Caption = 'VAT Assisted Setup Templates';
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -124,25 +125,23 @@ table 1878 "VAT Assisted Setup Templates"
 
         if VATAssistedSetupTemplates.FindSet() then
             repeat
-                with VATAssistedSetupTemplates do begin
-                    if ("Default VAT Bus. Posting Grp" <> '') and
-                       (("Table ID" = Database::Customer) or ("Table ID" = Database::Vendor))
-                    then begin
-                        VATAssistedSetupBusGrp.SetRange(Code, "Default VAT Bus. Posting Grp");
-                        if not VATAssistedSetupBusGrp.FindFirst() then begin
-                            VATValidationError := "Default VAT Bus. Posting Grp";
-                            exit(false);
-                        end;
+                if (VATAssistedSetupTemplates."Default VAT Bus. Posting Grp" <> '') and
+                   ((VATAssistedSetupTemplates."Table ID" = Database::Customer) or (VATAssistedSetupTemplates."Table ID" = Database::Vendor))
+                then begin
+                    VATAssistedSetupBusGrp.SetRange(Code, VATAssistedSetupTemplates."Default VAT Bus. Posting Grp");
+                    if not VATAssistedSetupBusGrp.FindFirst() then begin
+                        VATValidationError := VATAssistedSetupTemplates."Default VAT Bus. Posting Grp";
+                        exit(false);
                     end;
+                end;
 
-                    if ("Default VAT Prod. Posting Grp" <> '') and
-                       ("Table ID" = Database::Item)
-                    then begin
-                        VATSetupPostingGroups.SetRange("VAT Prod. Posting Group", "Default VAT Prod. Posting Grp");
-                        if not VATSetupPostingGroups.FindFirst() then begin
-                            VATValidationError := "Default VAT Prod. Posting Grp";
-                            exit(false);
-                        end;
+                if (VATAssistedSetupTemplates."Default VAT Prod. Posting Grp" <> '') and
+                   (VATAssistedSetupTemplates."Table ID" = Database::Item)
+                then begin
+                    VATSetupPostingGroups.SetRange("VAT Prod. Posting Group", VATAssistedSetupTemplates."Default VAT Prod. Posting Grp");
+                    if not VATSetupPostingGroups.FindFirst() then begin
+                        VATValidationError := VATAssistedSetupTemplates."Default VAT Prod. Posting Grp";
+                        exit(false);
                     end;
                 end;
             until VATAssistedSetupTemplates.Next() = 0;

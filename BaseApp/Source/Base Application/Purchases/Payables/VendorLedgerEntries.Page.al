@@ -24,7 +24,7 @@ page 29 "Vendor Ledger Entries"
     PageType = List;
     Permissions = TableData "Vendor Ledger Entry" = m;
     SourceTable = "Vendor Ledger Entry";
-    SourceTableView = sorting("Vendor No.", "Posting Date") order(Descending);
+    SourceTableView = sorting("Vendor No.", "Posting Date") order(descending);
     UsageCategory = History;
     AdditionalSearchTerms = 'Vendor Check, Pay Vendor, Vendor Bills';
 
@@ -331,16 +331,24 @@ page 29 "Vendor Ledger Entries"
                     ToolTip = 'Specifies the number of the original entry that was undone by the reverse transaction.';
                     Visible = false;
                 }
+#if not CLEAN25
                 field("IRS 1099 Code"; Rec."IRS 1099 Code")
                 {
                     ApplicationArea = BasicUS;
                     ToolTip = 'Specifies the amount for the 1099 code that the vendor entry is linked to.';
+                    ObsoleteReason = 'Moved to IRS Forms App.';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '25.0';
                 }
                 field("IRS 1099 Amount"; Rec."IRS 1099 Amount")
                 {
                     ApplicationArea = BasicUS;
                     ToolTip = 'Specifies the amount for the 1099 code that the vendor entry is linked to.';
+                    ObsoleteReason = 'Moved to IRS Forms App.';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '25.0';
                 }
+#endif
                 field("Entry No."; Rec."Entry No.")
                 {
                     ApplicationArea = Basic, Suite;
@@ -604,7 +612,7 @@ page 29 "Vendor Ledger Entries"
                         AccessByPermission = TableData "Incoming Document" = R;
                         ApplicationArea = Basic, Suite;
                         Caption = 'Select Incoming Document';
-                        Enabled = NOT HasIncomingDocument;
+                        Enabled = not HasIncomingDocument;
                         Image = SelectLineToApply;
                         ToolTip = 'Select an incoming document record and file attachment that you want to link to the entry or document.';
 
@@ -620,7 +628,7 @@ page 29 "Vendor Ledger Entries"
                         ApplicationArea = Basic, Suite;
                         Caption = 'Create Incoming Document from File';
                         Ellipsis = true;
-                        Enabled = NOT HasIncomingDocument;
+                        Enabled = not HasIncomingDocument;
                         Image = Attach;
                         ToolTip = 'Create an incoming document record by selecting a file to attach, and then link the incoming document record to the entry or document.';
 

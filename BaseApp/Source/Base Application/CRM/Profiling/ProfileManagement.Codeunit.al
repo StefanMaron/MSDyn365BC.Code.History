@@ -30,35 +30,33 @@ codeunit 5059 ProfileManagement
 
         TempProfileQuestionnaireHeader.DeleteAll();
 
-        with ProfileQuestnHeader do begin
-            Reset();
-            if Find('-') then
-                repeat
-                    Valid := true;
-                    if ("Contact Type" = "Contact Type"::Companies) and
-                       (Cont.Type <> Cont.Type::Company)
-                    then
+        ProfileQuestnHeader.Reset();
+        if ProfileQuestnHeader.Find('-') then
+            repeat
+                Valid := true;
+                if (ProfileQuestnHeader."Contact Type" = ProfileQuestnHeader."Contact Type"::Companies) and
+                   (Cont.Type <> Cont.Type::Company)
+                then
+                    Valid := false;
+                if (ProfileQuestnHeader."Contact Type" = ProfileQuestnHeader."Contact Type"::People) and
+                   (Cont.Type <> Cont.Type::Person)
+                then
+                    Valid := false;
+                if Valid and (ProfileQuestnHeader."Business Relation Code" <> '') then
+                    if not ContBusRel.Get(Cont."Company No.", ProfileQuestnHeader."Business Relation Code") then
                         Valid := false;
-                    if ("Contact Type" = "Contact Type"::People) and
-                       (Cont.Type <> Cont.Type::Person)
-                    then
-                        Valid := false;
-                    if Valid and ("Business Relation Code" <> '') then
-                        if not ContBusRel.Get(Cont."Company No.", "Business Relation Code") then
-                            Valid := false;
-                    if not Valid then begin
-                        ContProfileAnswer.Reset();
-                        ContProfileAnswer.SetRange("Contact No.", Cont."No.");
-                        ContProfileAnswer.SetRange("Profile Questionnaire Code", Code);
-                        if ContProfileAnswer.FindFirst() then
-                            Valid := true;
-                    end;
-                    if Valid then begin
-                        TempProfileQuestionnaireHeader := ProfileQuestnHeader;
-                        TempProfileQuestionnaireHeader.Insert();
-                    end;
-                until Next() = 0;
-        end;
+                if not Valid then begin
+                    ContProfileAnswer.Reset();
+                    ContProfileAnswer.SetRange("Contact No.", Cont."No.");
+                    ContProfileAnswer.SetRange("Profile Questionnaire Code", ProfileQuestnHeader.Code);
+                    if ContProfileAnswer.FindFirst() then
+                        Valid := true;
+                end;
+                if Valid then begin
+                    TempProfileQuestionnaireHeader := ProfileQuestnHeader;
+                    TempProfileQuestionnaireHeader.Insert();
+                end;
+            until ProfileQuestnHeader.Next() = 0;
     end;
 
     procedure GetQuestionnaire(): Code[20]

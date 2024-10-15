@@ -53,7 +53,7 @@ codeunit 144006 "UT REP Job"
         CreateResource(Resource);
 
         // Exercise: Function GetItemDescription of Report Job Actual to Budget (Cost) with Resource.
-        ResourceName := JobActualToBudgetCost.GetItemDescription(JobPlanningLine.Type::Resource, Resource."No.");
+        ResourceName := JobActualToBudgetCost.GetItemDescription(JobPlanningLine.Type::Resource.AsInteger(), Resource."No.");
 
         // Verify: Verify Resource Name.
         Resource.TestField(Name, ResourceName);
@@ -75,7 +75,7 @@ codeunit 144006 "UT REP Job"
         CreateGLAccount(GLAccount);
 
         // Exercise: Function GetItemDescription of Report Job Actual to Budget (Cost) with GL Account.
-        GLAccountName := JobActualToBudgetCost.GetItemDescription(JobPlanningLine.Type::"G/L Account", GLAccount."No.");
+        GLAccountName := JobActualToBudgetCost.GetItemDescription(JobPlanningLine.Type::"G/L Account".AsInteger(), GLAccount."No.");
 
         // Verify: Verify GL Account Name.
         GLAccount.TestField(Name, GLAccountName);
@@ -158,7 +158,7 @@ codeunit 144006 "UT REP Job"
         REPORT.Run(REPORT::"Job Actual to Budget (Cost)");  // Opens handler - JobActualToBudgetCostScheduleRequestPageHandler.
 
         // Verify: Verify Total Cost (LCY) and Description on Report Job Actual to Budget (Cost).
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(
           BudgetedTotalCostCap, JobPlanningLine."Total Cost (LCY)" + JobPlanningLine2."Total Cost (LCY)");
         LibraryReportDataset.AssertElementWithValueExists(ItemDescriptionCap, Item.Description);
@@ -178,7 +178,7 @@ codeunit 144006 "UT REP Job"
         // Setup: Create Job Task and Job Ledger Entry.
         Initialize();
         CreateJobTask(JobTask, JobTask."Job Task Type"::Posting);
-        CreateJobLedgerEntry(JobLedgerEntry, JobTask, LibraryUTUtility.GetNewCode, JobLedgerEntry."Entry Type");
+        CreateJobLedgerEntry(JobLedgerEntry, JobTask, LibraryUTUtility.GetNewCode(), JobLedgerEntry."Entry Type");
 
         // Exercise.
         REPORT.Run(REPORT::"Job Actual to Budget (Cost)");  // Opens handler - JobActualToBudgetCostScheduleRequestPageHandler.
@@ -215,7 +215,7 @@ codeunit 144006 "UT REP Job"
         // [THEN] One row in output document containig both "JPL" and "JLE"
         VerifyCostOnJobActualToBudgetCostReport(JobLedgerEntry."Total Cost (LCY)", JobPlanningLine."Total Cost (LCY)");
         LibraryReportDataset.SetXmlNodeList(JobTaskNoTagNameTxt);
-        Assert.AreEqual(1, LibraryReportDataset.RowCount, RowCountErr);
+        Assert.AreEqual(1, LibraryReportDataset.RowCount(), RowCountErr);
     end;
 
     [Test]
@@ -263,7 +263,7 @@ codeunit 144006 "UT REP Job"
         CreateResource(Resource);
 
         // Exercise: Function GetItemDescription of Report Job Actual to Budget (Price) with Resource.
-        ResourceName := JobActualToBudgetPrice.GetItemDescription(JobPlanningLine.Type::Resource, Resource."No.");
+        ResourceName := JobActualToBudgetPrice.GetItemDescription(JobPlanningLine.Type::Resource.AsInteger(), Resource."No.");
 
         // Verify: Verify Resource Name.
         Resource.TestField(Name, ResourceName);
@@ -285,7 +285,7 @@ codeunit 144006 "UT REP Job"
         CreateGLAccount(GLAccount);
 
         // Exercise: Function GetItemDescription of Report Job Actual to Budget (Price) with GL Account.
-        GLAccountName := JobActualToBudgetPrice.GetItemDescription(JobPlanningLine.Type::"G/L Account", GLAccount."No.");
+        GLAccountName := JobActualToBudgetPrice.GetItemDescription(JobPlanningLine.Type::"G/L Account".AsInteger(), GLAccount."No.");
 
         // Verify: Verify GL Account Name.
         GLAccount.TestField(Name, GLAccountName);
@@ -340,7 +340,7 @@ codeunit 144006 "UT REP Job"
         // Verify: Verify Total Price (LCY), Budget Option, Actual Option, Job No and Job Task No on Report Job Actual to Budget (Price).
         VerifyPriceOnJobActualToBudgetPriceReport(JobLedgerEntry."Total Price (LCY)", JobPlanningLine."Total Price (LCY)");
         LibraryReportDataset.AssertElementWithValueExists(BudgetOptionCap, Format(BudgetedScheduleTxt));
-        LibraryReportDataset.AssertElementWithValueExists(ActualOptionCap, 'Actual Amounts are per Job Usage');
+        LibraryReportDataset.AssertElementWithValueExists(ActualOptionCap, 'Actual Amounts are per Project Usage');
         LibraryReportDataset.AssertElementWithValueExists(JobNoCap, JobTask."Job No.");
         LibraryReportDataset.AssertElementWithValueExists(JobTaskNoCap, JobTask."Job Task No.");
     end;
@@ -369,7 +369,7 @@ codeunit 144006 "UT REP Job"
         REPORT.Run(REPORT::"Job Actual to Budget (Price)");  // Opens handler - JobActualToBudgetPriceScheduleRequestPageHandler.
 
         // Verify: Verify Total Price (LCY) and Description on Report Job Actual to Budget (Price).
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(
           BudgetedLineAmountCap, JobPlanningLine."Total Price (LCY)" + JobPlanningLine2."Total Price (LCY)");
         LibraryReportDataset.AssertElementWithValueExists(ItemDescriptionCap, Item.Description);
@@ -389,7 +389,7 @@ codeunit 144006 "UT REP Job"
         // Setup: Create Job Task and Job Ledger Entry.
         Initialize();
         CreateJobTask(JobTask, JobTask."Job Task Type"::Posting);
-        CreateJobLedgerEntry(JobLedgerEntry, JobTask, LibraryUTUtility.GetNewCode, JobLedgerEntry."Entry Type");
+        CreateJobLedgerEntry(JobLedgerEntry, JobTask, LibraryUTUtility.GetNewCode(), JobLedgerEntry."Entry Type");
 
         // Exercise.
         REPORT.Run(REPORT::"Job Actual to Budget (Price)");  // Opens handler - JobActualToBudgetPriceScheduleRequestPageHandler.
@@ -445,7 +445,7 @@ codeunit 144006 "UT REP Job"
         Initialize();
         CreateJobTask(JobTask, JobTask."Job Task Type"::Posting);
         UpdateStatusJob(JobTask."Job No.", Job.Status::Completed);
-        CreateJobPlanningLine(JobPlanningLine, JobTask, JobPlanningLine."Line Type"::Billable, LibraryUTUtility.GetNewCode);
+        CreateJobPlanningLine(JobPlanningLine, JobTask, JobPlanningLine."Line Type"::Billable, LibraryUTUtility.GetNewCode());
         CreateJobLedgerEntry(JobLedgerEntry, JobTask, JobPlanningLine."No.", JobLedgerEntry."Entry Type");
 
         // Exercise.
@@ -473,7 +473,7 @@ codeunit 144006 "UT REP Job"
         CreateJobTask(JobTask, JobTask."Job Task Type"::Posting);
         UpdateStatusJob(JobTask."Job No.", Job.Status::Completed);
         CreateJobPlanningLine(
-          JobPlanningLine, JobTask, JobPlanningLine."Line Type"::"Both Budget and Billable", LibraryUTUtility.GetNewCode);
+          JobPlanningLine, JobTask, JobPlanningLine."Line Type"::"Both Budget and Billable", LibraryUTUtility.GetNewCode());
         CreateJobLedgerEntry(JobLedgerEntry, JobTask, JobPlanningLine."No.", JobLedgerEntry."Entry Type");
 
         // Exercise.
@@ -502,14 +502,14 @@ codeunit 144006 "UT REP Job"
         Initialize();
         CreateJobTask(JobTask, JobTask."Job Task Type"::Posting);
         UpdateStatusJob(JobTask."Job No.", Job.Status::Completed);
-        CreateJobPlanningLine(JobPlanningLine, JobTask, JobPlanningLine."Line Type"::Budget, LibraryUTUtility.GetNewCode);
+        CreateJobPlanningLine(JobPlanningLine, JobTask, JobPlanningLine."Line Type"::Budget, LibraryUTUtility.GetNewCode());
         CreateJobLedgerEntry(JobLedgerEntry, JobTask, JobPlanningLine."No.", JobLedgerEntry."Entry Type"::Sale);
 
         // Exercise.
         REPORT.Run(REPORT::"Completed Jobs");  // Opens handler - CompletedJobsRequestPageHandler.
 
         // Verify: Verify Profit, Scheduled Cost and Invoiced Cost on Report Completed Jobs.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(ProfitCap, -JobLedgerEntry."Total Price (LCY)");
         LibraryReportDataset.AssertElementWithValueExists(ScheduledPriceCap, JobPlanningLine."Total Price (LCY)");
         LibraryReportDataset.AssertElementWithValueExists(InvoicedPriceCap, -JobLedgerEntry."Total Price (LCY)");
@@ -532,14 +532,14 @@ codeunit 144006 "UT REP Job"
         Initialize();
         CreateJobTask(JobTask, JobTask."Job Task Type"::Posting);
         UpdateStatusJob(JobTask."Job No.", Job.Status::Open);
-        CreateJobPlanningLine(JobPlanningLine, JobTask, JobPlanningLine."Line Type"::Budget, LibraryUTUtility.GetNewCode);
+        CreateJobPlanningLine(JobPlanningLine, JobTask, JobPlanningLine."Line Type"::Budget, LibraryUTUtility.GetNewCode());
         CreateJobLedgerEntry(JobLedgerEntry, JobTask, JobPlanningLine."No.", JobLedgerEntry."Entry Type");
 
         // Exercise.
         REPORT.Run(REPORT::"Customer Jobs (Cost)");  // Opens handler - CustomerJobsCostRequestPageHandler.
 
         // Verify: Verify Job No, Scheduled Cost and Usage Cost on Report Customer Jobs (Cost).
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists('Job__No__', JobTask."Job No.");
         LibraryReportDataset.AssertElementWithValueExists('ScheduledCost', JobPlanningLine."Total Cost (LCY)");
         LibraryReportDataset.AssertElementWithValueExists(UsageCostCap, JobLedgerEntry."Total Cost (LCY)");
@@ -562,7 +562,7 @@ codeunit 144006 "UT REP Job"
         Initialize();
         CreateJobTask(JobTask, JobTask."Job Task Type"::Posting);
         UpdateStatusJob(JobTask."Job No.", Job.Status::Open);
-        CreateJobPlanningLine(JobPlanningLine, JobTask, JobPlanningLine."Line Type"::Budget, LibraryUTUtility.GetNewCode);
+        CreateJobPlanningLine(JobPlanningLine, JobTask, JobPlanningLine."Line Type"::Budget, LibraryUTUtility.GetNewCode());
         UpdateJobPlanningLine(JobPlanningLine, true, false);  // Contract Line - True and Schedule Line - False.
         CreateJobLedgerEntry(JobLedgerEntry, JobTask, JobPlanningLine."No.", JobLedgerEntry."Entry Type"::Sale);
 
@@ -570,7 +570,7 @@ codeunit 144006 "UT REP Job"
         REPORT.Run(REPORT::"Customer Jobs (Price)");  // Opens handler - CustomerJobsPriceContractRequestPageHandler.
 
         // Verify: Verify Budgeted Price and Invoiced Price on Report Customer Jobs (Price).
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(BudgetedPriceCap, JobPlanningLine."Total Price (LCY)");
         LibraryReportDataset.AssertElementWithValueExists(InvoicedPriceCap, -JobLedgerEntry."Total Price (LCY)");
     end;
@@ -592,7 +592,7 @@ codeunit 144006 "UT REP Job"
         Initialize();
         CreateJobTask(JobTask, JobTask."Job Task Type"::Posting);
         UpdateStatusJob(JobTask."Job No.", Job.Status::Open);
-        CreateJobPlanningLine(JobPlanningLine, JobTask, JobPlanningLine."Line Type"::Budget, LibraryUTUtility.GetNewCode);
+        CreateJobPlanningLine(JobPlanningLine, JobTask, JobPlanningLine."Line Type"::Budget, LibraryUTUtility.GetNewCode());
         UpdateJobPlanningLine(JobPlanningLine, false, true);  // Contract Line - False and Schedule Line - True.
         CreateJobLedgerEntry(JobLedgerEntry, JobTask, JobPlanningLine."No.", JobLedgerEntry."Entry Type");
 
@@ -600,7 +600,7 @@ codeunit 144006 "UT REP Job"
         REPORT.Run(REPORT::"Customer Jobs (Price)");  // Opens handler - CustomerJobsPriceScheduleRequestPageHandler.
 
         // Verify: Verify Budgeted Price and Usage Price on Report Customer Jobs (Price).
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(BudgetedPriceCap, JobPlanningLine."Total Price (LCY)");
         LibraryReportDataset.AssertElementWithValueExists(UsagePriceCap, JobLedgerEntry."Total Price (LCY)");
     end;
@@ -621,7 +621,7 @@ codeunit 144006 "UT REP Job"
         CreateResource(Resource);
 
         // Exercise: Function GetItemDescription of Report Job Cost Budget with Resource
-        ResourceName := JobCostBudget.GetItemDescription(JobPlanningLine.Type::Resource, Resource."No.");
+        ResourceName := JobCostBudget.GetItemDescription(JobPlanningLine.Type::Resource.AsInteger(), Resource."No.");
 
         // Verify: Verify Resource Name.
         Resource.TestField(Name, ResourceName);
@@ -643,7 +643,7 @@ codeunit 144006 "UT REP Job"
         CreateGLAccount(GLAccount);
 
         // Exercise: Function GetItemDescription of Report Job Cost Budget with GL Account.
-        GLAccountName := JobCostBudget.GetItemDescription(JobPlanningLine.Type::"G/L Account", GLAccount."No.");
+        GLAccountName := JobCostBudget.GetItemDescription(JobPlanningLine.Type::"G/L Account".AsInteger(), GLAccount."No.");
 
         // Verify: Verify GL Account Name.
         GLAccount.TestField(Name, GLAccountName);
@@ -665,7 +665,7 @@ codeunit 144006 "UT REP Job"
         CreateItem(Item);
 
         // Exercise: Function GetItemDescription of Report Job Cost Budget with GL Account.
-        ItemDescription := JobCostBudget.GetItemDescription(JobPlanningLine.Type::Item, Item."No.");
+        ItemDescription := JobCostBudget.GetItemDescription(JobPlanningLine.Type::Item.AsInteger(), Item."No.");
 
         // Verify: Verify Item Description.
         Item.TestField(Description, ItemDescription);
@@ -685,13 +685,13 @@ codeunit 144006 "UT REP Job"
         // Setup: Create Job Task and Job Planning Line.
         Initialize();
         CreateJobTask(JobTask, JobTask."Job Task Type"::Posting);
-        CreateJobPlanningLine(JobPlanningLine, JobTask, JobPlanningLine."Line Type"::Budget, LibraryUTUtility.GetNewCode);
+        CreateJobPlanningLine(JobPlanningLine, JobTask, JobPlanningLine."Line Type"::Budget, LibraryUTUtility.GetNewCode());
 
         // Exercise.
         REPORT.Run(REPORT::"Job Cost Budget");  // Opens JobCostBudgetScheduleRequestPageHandler.
 
         // Verify: Verify Total Cost (LCY), Total Price (LCY) and Budget Option as Schedule on Report Job Cost Budget.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists('Job_Planning_Line__Total_Cost__LCY__', JobPlanningLine."Total Cost (LCY)");
         LibraryReportDataset.AssertElementWithValueExists('Job_Planning_Line__Total_Price__LCY__', JobPlanningLine."Total Price (LCY)");
         LibraryReportDataset.AssertElementWithValueExists(BudgetOptionCap, Format(BudgetedScheduleTxt));
@@ -711,13 +711,13 @@ codeunit 144006 "UT REP Job"
         // Setup: Create Job Task and Job Planning Line.
         Initialize();
         CreateJobTask(JobTask, JobTask."Job Task Type"::"End-Total");
-        CreateJobPlanningLine(JobPlanningLine, JobTask, JobPlanningLine."Line Type"::Billable, LibraryUTUtility.GetNewCode);
+        CreateJobPlanningLine(JobPlanningLine, JobTask, JobPlanningLine."Line Type"::Billable, LibraryUTUtility.GetNewCode());
 
         // Exercise.
         REPORT.Run(REPORT::"Job Cost Budget");  // Opens JobCostBudgetContractRequestPageHandler.
 
         // Verify: Verify Budget Option as Contract on Report Job Cost Budget.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(BudgetOptionCap, Format(BudgetedContractTxt));
     end;
 
@@ -735,13 +735,13 @@ codeunit 144006 "UT REP Job"
         // Setup: Create Job Task and Job Planning Line.
         Initialize();
         CreateJobTask(JobTask, JobTask."Job Task Type"::Total);
-        CreateJobPlanningLine(JobPlanningLine, JobTask, JobPlanningLine."Line Type"::Budget, LibraryUTUtility.GetNewCode);
+        CreateJobPlanningLine(JobPlanningLine, JobTask, JobPlanningLine."Line Type"::Budget, LibraryUTUtility.GetNewCode());
 
         // Exercise.
         REPORT.Run(REPORT::"Job List");  // Opens JobListScheduleRequestPageHandler.
 
         // Verify: Verify Total Cost (LCY), Total Price (LCY) and Budget Option as Schedule on Report Job.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists('JobPlanningLine__Total_Cost__LCY__', JobPlanningLine."Total Cost (LCY)");
         LibraryReportDataset.AssertElementWithValueExists('JobPlanningLine__Total_Price__LCY__', JobPlanningLine."Total Price (LCY)");
         LibraryReportDataset.AssertElementWithValueExists(BudgetOptionCap, Format(BudgetedScheduleTxt));
@@ -761,13 +761,13 @@ codeunit 144006 "UT REP Job"
         // Setup: Create Job Task and Job Planning Line.
         Initialize();
         CreateJobTask(JobTask, JobTask."Job Task Type"::Total);
-        CreateJobPlanningLine(JobPlanningLine, JobTask, JobPlanningLine."Line Type"::Billable, LibraryUTUtility.GetNewCode);
+        CreateJobPlanningLine(JobPlanningLine, JobTask, JobPlanningLine."Line Type"::Billable, LibraryUTUtility.GetNewCode());
 
         // Exercise.
         REPORT.Run(REPORT::"Job List");  // Opens JobListContractRequestPageHandler.
 
         // Verify: Verify Budget Option as Contract on Report Job Cost Budget.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(BudgetOptionCap, Format(BudgetedContractTxt));
     end;
 
@@ -786,7 +786,7 @@ codeunit 144006 "UT REP Job"
         // Setup: Create Job Task, Job Ledger Entry and Job Register.
         Initialize();
         CreateJobTask(JobTask, JobTask."Job Task Type"::Total);
-        CreateJobLedgerEntry(JobLedgerEntry, JobTask, LibraryUTUtility.GetNewCode, JobLedgerEntry."Entry Type");
+        CreateJobLedgerEntry(JobLedgerEntry, JobTask, LibraryUTUtility.GetNewCode(), JobLedgerEntry."Entry Type");
         CreateJobRegister(JobLedgerEntry."Entry No.");
 
         // Exercise.
@@ -794,7 +794,7 @@ codeunit 144006 "UT REP Job"
 
         // Verify: Verify Filter on Job Ledger Entry and Job Description on Report Job Register.
         Job.Get(JobTask."Job No.");
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(
           'JobEntryFilter', StrSubstNo('%1: %2', JobLedgerEntry.FieldCaption("Job No."), JobLedgerEntry."Job No."));
         LibraryReportDataset.AssertElementWithValueExists('JobDescription', Job.Description);
@@ -815,7 +815,7 @@ codeunit 144006 "UT REP Job"
         // Setup: Create Job Task and Job Planning Line.
         Initialize();
         CreateJobTask(JobTask, JobTask."Job Task Type"::Total);
-        CreateJobPlanningLine(JobPlanningLine, JobTask, JobPlanningLine."Line Type"::Billable, LibraryUTUtility.GetNewCode);
+        CreateJobPlanningLine(JobPlanningLine, JobTask, JobPlanningLine."Line Type"::Billable, LibraryUTUtility.GetNewCode());
         UpdateStatusJob(JobTask."Job No.", Job.Status::Open);
         UpdateJobPlanningLine(JobPlanningLine, true, false);  // Contract Line - True and Schedule Line - False.
 
@@ -823,7 +823,7 @@ codeunit 144006 "UT REP Job"
         REPORT.Run(REPORT::"Job Cost Suggested Billing");  // Opens JobCostSuggestedBillingRequestPageHandler.
 
         // Verify: Verify Contract Price on Report Job Cost Suggested Billing.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(ContractPriceCap, JobPlanningLine."Total Price (LCY)");
     end;
 
@@ -850,7 +850,7 @@ codeunit 144006 "UT REP Job"
         REPORT.Run(REPORT::"Job Cost Suggested Billing");  // Opens JobCostSuggestedBillingRequestPageHandler.
 
         // Verify: Verify Invoiced Price on Report Job Cost Suggested Billing.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(InvoicedPriceCap, -JobLedgerEntry."Total Price (LCY)");
     end;
 
@@ -877,7 +877,7 @@ codeunit 144006 "UT REP Job"
         REPORT.Run(REPORT::"Job Cost Suggested Billing");  // Opens JobCostSuggestedBillingRequestPageHandler.
 
         // Verify: Verify Usage Price and Suggested Billing on Report Job Cost Suggested Billing.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(UsagePriceCap, JobLedgerEntry."Total Price (LCY)");
         LibraryReportDataset.AssertElementWithValueExists('SuggestedBilling', JobLedgerEntry."Total Price (LCY)");
     end;
@@ -896,7 +896,7 @@ codeunit 144006 "UT REP Job"
         // Setup: Create Job Task and Job Ledger Entry.
         Initialize();
         CreateJobTask(JobTask, JobTask."Job Task Type"::Total);
-        CreateJobLedgerEntry(JobLedgerEntry, JobTask, LibraryUTUtility.GetNewCode, JobLedgerEntry."Entry Type"::Usage);
+        CreateJobLedgerEntry(JobLedgerEntry, JobTask, LibraryUTUtility.GetNewCode(), JobLedgerEntry."Entry Type"::Usage);
         JobLedgerEntry."Amt. Posted to G/L" := LibraryRandom.RandDec(10, 2);
         JobLedgerEntry.Modify();
 
@@ -904,7 +904,7 @@ codeunit 144006 "UT REP Job"
         REPORT.Run(REPORT::"Job Cost Transaction Detail");  // Opens JobCostTransactionDetailRequestPageHandler.
 
         // Verify: Verify Total Price (LCY), Total Cost (LCY) and Amount Posted To G/L on Report Job Cost Transaction Detail.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists('TotalPrice_1_', JobLedgerEntry."Total Price (LCY)");
         LibraryReportDataset.AssertElementWithValueExists('TotalCost_1_', JobLedgerEntry."Total Cost (LCY)");
         LibraryReportDataset.AssertElementWithValueExists('AmtPostedToGL_1_', JobLedgerEntry."Amt. Posted to G/L");
@@ -932,7 +932,7 @@ codeunit 144006 "UT REP Job"
         GLAccount.Modify(true);
 
         // [WHEN] Run Function GetItemDescription of Report Job Actual to Budget (Cost) with GL Account.
-        GLAccountName := JobActualToBudgetCost.GetItemDescription(JobPlanningLine.Type::"G/L Account", GLAccount."No.");
+        GLAccountName := JobActualToBudgetCost.GetItemDescription(JobPlanningLine.Type::"G/L Account".AsInteger(), GLAccount."No.");
 
         // [THEN] No error and the result is first 50 symbols of name
         Assert.AreEqual(CopyStr(GLAccount.Name, 1, 50), GLAccountName, 'Names must be equal.');
@@ -960,7 +960,7 @@ codeunit 144006 "UT REP Job"
         GLAccount.Modify(true);
 
         // [WHEN] Run Function GetItemDescription of Report Job Actual to Budget (Price) with GL Account.
-        GLAccountName := JobActualToBudgetPrice.GetItemDescription(JobPlanningLine.Type::"G/L Account", GLAccount."No.");
+        GLAccountName := JobActualToBudgetPrice.GetItemDescription(JobPlanningLine.Type::"G/L Account".AsInteger(), GLAccount."No.");
 
         // [THEN] No error and the result is first 50 symbols of name
         Assert.AreEqual(CopyStr(GLAccount.Name, 1, 50), GLAccountName, 'Names must be equal.');
@@ -988,7 +988,7 @@ codeunit 144006 "UT REP Job"
         GLAccount.Modify(true);
 
         // [WHEN] Run Function GetItemDescription of Report Job Cost Budget with GL Account.
-        GLAccountName := JobCostBudget.GetItemDescription(JobPlanningLine.Type::"G/L Account", GLAccount."No.");
+        GLAccountName := JobCostBudget.GetItemDescription(JobPlanningLine.Type::"G/L Account".AsInteger(), GLAccount."No.");
 
         // [THEN] No error and the result is first 50 symbols of name
         Assert.AreEqual(CopyStr(GLAccount.Name, 1, 50), GLAccountName, 'Names must be equal.');
@@ -1001,14 +1001,12 @@ codeunit 144006 "UT REP Job"
     var
         JobTask: Record "Job Task";
         JobTask2: Record "Job Task";
-        Job: Record Job;
         JobPlanningLine: Record "Job Planning Line";
         JobPlanningLine2: Record "Job Planning Line";
         Customer: Record Customer;
         Vendor: Record Vendor;
         Item: Record Item;
         LibrarySales: Codeunit "Library - Sales";
-        LibraryPurchase: Codeunit "Library - Purchase";
         UsageCost: Decimal;
         ScheduledCost: Decimal;
         VATProdPostingGroupCode: Code[20];
@@ -1029,8 +1027,8 @@ codeunit 144006 "UT REP Job"
         CreateJobPlanningLine(JobPlanningLine2, Item, JobTask2);
 
         // [GIVEN] Post purchase invoices for both jobs
-        CreateAndPostPurchOrder(Vendor, Item, JobTask."Job No.", JobTask."Job Task No.", JobPlanningLine."Line No.", VATProdPostingGroupCode);
-        CreateAndPostPurchOrder(Vendor, Item, JobTask2."Job No.", JobTask2."Job Task No.", JobPlanningLine2."Line No.", VATProdPostingGroupCode);
+        CreateAndPostPurchOrder(Vendor, Item, JobTask."Job No.", JobTask."Job Task No.", JobPlanningLine."Line No.");
+        CreateAndPostPurchOrder(Vendor, Item, JobTask2."Job No.", JobTask2."Job Task No.", JobPlanningLine2."Line No.");
 
         // [GIVEN] Run Customer Job (Cost) report
         LibraryVariableStorage.Enqueue(JobTask."Job No." + '|' + JobTask2."Job No.");
@@ -1051,52 +1049,52 @@ codeunit 144006 "UT REP Job"
 
     local procedure CreateItem(var Item: Record Item)
     begin
-        Item."No." := LibraryUTUtility.GetNewCode;
-        Item.Description := LibraryUTUtility.GetNewCode;
+        Item."No." := LibraryUTUtility.GetNewCode();
+        Item.Description := LibraryUTUtility.GetNewCode();
         Item.Insert();
     end;
 
     local procedure CreateResource(var Resource: Record Resource)
     begin
-        Resource."No." := LibraryUTUtility.GetNewCode;
-        Resource.Name := LibraryUTUtility.GetNewCode;
+        Resource."No." := LibraryUTUtility.GetNewCode();
+        Resource.Name := LibraryUTUtility.GetNewCode();
         Resource.Insert();
     end;
 
     local procedure CreateGLAccount(var GLAccount: Record "G/L Account")
     begin
-        GLAccount."No." := LibraryUTUtility.GetNewCode;
-        GLAccount.Name := LibraryUTUtility.GetNewCode;
+        GLAccount."No." := LibraryUTUtility.GetNewCode();
+        GLAccount.Name := LibraryUTUtility.GetNewCode();
         GLAccount.Insert();
     end;
 
     local procedure CreateJob(var Job: Record Job)
     begin
-        Job."No." := LibraryUTUtility.GetNewCode;
-        Job.Description := LibraryUTUtility.GetNewCode;
-        Job."Bill-to Customer No." := LibraryUTUtility.GetNewCode;
+        Job."No." := LibraryUTUtility.GetNewCode();
+        Job.Description := LibraryUTUtility.GetNewCode();
+        Job."Bill-to Customer No." := LibraryUTUtility.GetNewCode();
         Job.Insert();
         LibraryVariableStorage.Enqueue(Job."No.");  // Enqueue value for Request Page Handler.
     end;
 
-    local procedure CreateJobTask(var JobTask: Record "Job Task"; JobTaskType: Option)
+    local procedure CreateJobTask(var JobTask: Record "Job Task"; JobTaskType: Enum "Job Task Type")
     var
         Job: Record Job;
     begin
         CreateJob(Job);
         JobTask."Job No." := Job."No.";
-        JobTask."Job Task No." := LibraryUTUtility.GetNewCode;
+        JobTask."Job Task No." := LibraryUTUtility.GetNewCode();
         JobTask."Job Task Type" := JobTaskType;
         JobTask.Insert();
     end;
 
-    local procedure CreateJobPlanningLine(var JobPlanningLine: Record "Job Planning Line"; JobTask: Record "Job Task"; LineType: Option; ItemNo: Code[20])
+    local procedure CreateJobPlanningLine(var JobPlanningLine: Record "Job Planning Line"; JobTask: Record "Job Task"; LineType: Enum "Job Planning Line Line Type"; ItemNo: Code[20])
     begin
         FillJobPlanningLine(JobPlanningLine, JobTask, LineType, ItemNo);
         JobPlanningLine.Insert();
     end;
 
-    local procedure CreateJobPlanningLineWithUOM(var JobPlanningLine: Record "Job Planning Line"; JobTask: Record "Job Task"; LineType: Option; ItemNo: Code[20])
+    local procedure CreateJobPlanningLineWithUOM(var JobPlanningLine: Record "Job Planning Line"; JobTask: Record "Job Task"; LineType: Enum "Job Planning Line Line Type"; ItemNo: Code[20])
     var
         ItemUnitOfMeasure: Record "Item Unit of Measure";
     begin
@@ -1106,7 +1104,7 @@ codeunit 144006 "UT REP Job"
         JobPlanningLine.Insert();
     end;
 
-    local procedure FillJobPlanningLine(var JobPlanningLine: Record "Job Planning Line"; JobTask: Record "Job Task"; LineType: Option; ItemNo: Code[20])
+    local procedure FillJobPlanningLine(var JobPlanningLine: Record "Job Planning Line"; JobTask: Record "Job Task"; LineType: Enum "Job Planning Line Line Type"; ItemNo: Code[20])
     begin
         JobPlanningLine."Job No." := JobTask."Job No.";
         JobPlanningLine."Job Task No." := JobTask."Job Task No.";
@@ -1119,13 +1117,13 @@ codeunit 144006 "UT REP Job"
         JobPlanningLine."Total Price (LCY)" := LibraryRandom.RandDec(10, 2);
     end;
 
-    local procedure CreateJobLedgerEntry(var JobLedgerEntry: Record "Job Ledger Entry"; JobTask: Record "Job Task"; ItemNo: Code[20]; EntryType: Option)
+    local procedure CreateJobLedgerEntry(var JobLedgerEntry: Record "Job Ledger Entry"; JobTask: Record "Job Task"; ItemNo: Code[20]; EntryType: Enum "Job Journal Line Entry Type")
     begin
         FillJobLedgerEntry(JobLedgerEntry, JobTask, ItemNo, EntryType);
         JobLedgerEntry.Insert();
     end;
 
-    local procedure CreateJobLedgerEntryWithUOM(var JobLedgerEntry: Record "Job Ledger Entry"; JobTask: Record "Job Task"; ItemNo: Code[20]; EntryType: Option)
+    local procedure CreateJobLedgerEntryWithUOM(var JobLedgerEntry: Record "Job Ledger Entry"; JobTask: Record "Job Task"; ItemNo: Code[20]; EntryType: Enum "Job Journal Line Entry Type")
     var
         ItemUnitOfMeasure: Record "Item Unit of Measure";
     begin
@@ -1135,9 +1133,9 @@ codeunit 144006 "UT REP Job"
         JobLedgerEntry.Insert();
     end;
 
-    local procedure FillJobLedgerEntry(var JobLedgerEntry: Record "Job Ledger Entry"; JobTask: Record "Job Task"; ItemNo: Code[20]; EntryType: Option)
+    local procedure FillJobLedgerEntry(var JobLedgerEntry: Record "Job Ledger Entry"; JobTask: Record "Job Task"; ItemNo: Code[20]; EntryType: Enum "Job Journal Line Entry Type")
     begin
-        JobLedgerEntry."Entry No." := SelectJobLedgerEntryNo;
+        JobLedgerEntry."Entry No." := SelectJobLedgerEntryNo();
         JobLedgerEntry."Job No." := JobTask."Job No.";
         JobLedgerEntry."Job Task No." := JobTask."Job Task No.";
         JobLedgerEntry.Type := JobLedgerEntry.Type::Item;
@@ -1185,7 +1183,7 @@ codeunit 144006 "UT REP Job"
         JobTask.Modify();
     end;
 
-    local procedure UpdateStatusJob(JobNo: Code[20]; Status: Option)
+    local procedure UpdateStatusJob(JobNo: Code[20]; Status: Enum "Job Status")
     var
         Job: Record Job;
     begin
@@ -1208,7 +1206,7 @@ codeunit 144006 "UT REP Job"
         LibraryVariableStorage.Dequeue(No);
         JobActualToBudgetCost.Job.SetFilter("No.", No);
         JobActualToBudgetCost.BudgetAmountsPer.SetValue(BudgetAmountsPer);
-        JobActualToBudgetCost.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        JobActualToBudgetCost.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     local procedure JobActualToBudgetPriceRequestPage(var JobActualToBudgetPrice: TestRequestPage "Job Actual to Budget (Price)"; BudgetAmountsPer: Option; ActualAmountsPer: Option)
@@ -1219,7 +1217,7 @@ codeunit 144006 "UT REP Job"
         JobActualToBudgetPrice.Job.SetFilter("No.", No);
         JobActualToBudgetPrice.BudgetAmountsPer.SetValue(BudgetAmountsPer);
         JobActualToBudgetPrice.ActualAmountsPer.SetValue(ActualAmountsPer);
-        JobActualToBudgetPrice.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        JobActualToBudgetPrice.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     local procedure CustomerJobsPriceRequestPage(var CustomerJobsPrice: TestRequestPage "Customer Jobs (Price)"; BudgetAmountsPer: Option)
@@ -1229,7 +1227,7 @@ codeunit 144006 "UT REP Job"
         LibraryVariableStorage.Dequeue(No);
         CustomerJobsPrice.Job.SetFilter("No.", No);
         CustomerJobsPrice.BudgetAmountsPer.SetValue(BudgetAmountsPer);
-        CustomerJobsPrice.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        CustomerJobsPrice.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     local procedure JobCostBudgetRequestPage(var JobCostBudget: TestRequestPage "Job Cost Budget"; BudgetAmountsPer: Option)
@@ -1239,7 +1237,7 @@ codeunit 144006 "UT REP Job"
         LibraryVariableStorage.Dequeue(No);
         JobCostBudget.Job.SetFilter("No.", No);
         JobCostBudget.BudgetAmountsPer.SetValue(BudgetAmountsPer);
-        JobCostBudget.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        JobCostBudget.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     local procedure JobListRequestPage(var JobList: TestRequestPage "Job List"; BudgetAmountsPer: Option)
@@ -1249,12 +1247,12 @@ codeunit 144006 "UT REP Job"
         LibraryVariableStorage.Dequeue(No);
         JobList.Job.SetFilter("No.", No);
         JobList.BudgetAmountsPer.SetValue(BudgetAmountsPer);
-        JobList.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        JobList.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     local procedure VerifyCostOnJobActualToBudgetCostReport(JobLedgerEntryTotalCostLCY: Decimal; JobPlanningLineTotalCostLCY: Decimal)
     begin
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists('JobDiffBuff__Total_Cost_', JobLedgerEntryTotalCostLCY);
         LibraryReportDataset.AssertElementWithValueExists(BudgetedTotalCostCap, JobPlanningLineTotalCostLCY);
         LibraryReportDataset.AssertElementWithValueExists(VarianceCap, JobLedgerEntryTotalCostLCY - JobPlanningLineTotalCostLCY);
@@ -1262,7 +1260,7 @@ codeunit 144006 "UT REP Job"
 
     local procedure VerifyPriceOnJobActualToBudgetPriceReport(JobLedgerEntryTotalPriceLCY: Decimal; JobPlanningLineTotalPriceLCY: Decimal)
     begin
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists('JobDiffBuff__Line_Amount_', JobLedgerEntryTotalPriceLCY);
         LibraryReportDataset.AssertElementWithValueExists(BudgetedLineAmountCap, JobPlanningLineTotalPriceLCY);
         LibraryReportDataset.AssertElementWithValueExists(VarianceCap, JobLedgerEntryTotalPriceLCY - JobPlanningLineTotalPriceLCY);
@@ -1270,7 +1268,7 @@ codeunit 144006 "UT REP Job"
 
     local procedure VerifyCompletedJobsReport(TotalCostLCY: Decimal; TotalPriceLCY: Decimal)
     begin
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(UsageCostCap, TotalCostLCY);
         LibraryReportDataset.AssertElementWithValueExists(ContractPriceCap, TotalPriceLCY);
     end;
@@ -1337,20 +1335,18 @@ codeunit 144006 "UT REP Job"
     local procedure CreateJobPlanningLine(var JobPlanningLine: Record "Job Planning Line"; Item: Record Item; JobTask: Record "Job Task")
     var
         LibraryJob: Codeunit "Library - Job";
-        LibraryResource: Codeunit "Library - Resource";
     begin
-        LibraryJob.CreateJobPlanningLine(LibraryJob.PlanningLineTypeBoth, LibraryJob.ItemType(), JobTask, JobPlanningLine);
+        LibraryJob.CreateJobPlanningLine(LibraryJob.PlanningLineTypeBoth(), LibraryJob.ItemType(), JobTask, JobPlanningLine);
         JobPlanningLine.Validate("No.", Item."No.");
         JobPlanningLine.Validate(Quantity, LibraryRandom.RandDec(10, 2));  // Using Random value for Quantity because value is not important.
         JobPlanningLine.Validate("Unit Cost", Item."Unit Cost");
         JobPlanningLine.Modify(true);
     end;
 
-    local procedure CreateAndPostPurchOrder(Vendor: Record Vendor; Item: Record Item; JobNo: Code[20]; JobTaskNo: Code[20]; JobPlanningLineNo: Integer; VATProdPostingGroupCode: Code[20]): Code[20]
+    local procedure CreateAndPostPurchOrder(Vendor: Record Vendor; Item: Record Item; JobNo: Code[20]; JobTaskNo: Code[20]; JobPlanningLineNo: Integer): Code[20]
     var
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
-        LibrarySales: Codeunit "Library - Sales";
         LibraryPurchase: Codeunit "Library - Purchase";
     begin
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, Vendor."No.");
@@ -1375,7 +1371,7 @@ codeunit 144006 "UT REP Job"
         LibraryVariableStorage.Dequeue(No2);
         JobActualToBudgetCost.Job.SetFilter("No.", Format(StrSubstNo(JobNoFilterTxt, No, No2)));
         JobActualToBudgetCost.PrintToExcel.SetValue(true);
-        JobActualToBudgetCost.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        JobActualToBudgetCost.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -1407,7 +1403,7 @@ codeunit 144006 "UT REP Job"
         LibraryVariableStorage.Dequeue(No2);
         JobActualToBudgetPrice.Job.SetFilter("No.", Format(StrSubstNo(JobNoFilterTxt, No, No2)));
         JobActualToBudgetPrice.PrintToExcel.SetValue(true);
-        JobActualToBudgetPrice.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        JobActualToBudgetPrice.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -1438,7 +1434,7 @@ codeunit 144006 "UT REP Job"
     begin
         LibraryVariableStorage.Dequeue(No);
         CompletedJobs.Job.SetFilter("No.", No);
-        CompletedJobs.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        CompletedJobs.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -1449,7 +1445,7 @@ codeunit 144006 "UT REP Job"
     begin
         LibraryVariableStorage.Dequeue(No);
         CustomerJobsCost.Job.SetFilter("No.", No);
-        CustomerJobsCost.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        CustomerJobsCost.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -1514,7 +1510,7 @@ codeunit 144006 "UT REP Job"
     begin
         LibraryVariableStorage.Dequeue(JobNo);
         JobRegister."Job Ledger Entry".SetFilter("Job No.", JobNo);
-        JobRegister.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        JobRegister.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -1525,7 +1521,7 @@ codeunit 144006 "UT REP Job"
     begin
         LibraryVariableStorage.Dequeue(No);
         JobCostSuggestedBilling.Job.SetFilter("No.", No);
-        JobCostSuggestedBilling.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        JobCostSuggestedBilling.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -1536,7 +1532,7 @@ codeunit 144006 "UT REP Job"
     begin
         LibraryVariableStorage.Dequeue(No);
         JobCostTransactionDetail.Job.SetFilter("No.", No);
-        JobCostTransactionDetail.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        JobCostTransactionDetail.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 }
 

@@ -316,25 +316,22 @@ report 699 "Calculate Plan - Req. Wksh."
         if IsHandled then
             exit(SkipPlanning);
 
-        with Item do
-            if (CurrWorksheetType = CurrWorksheetType::Requisition) and
-               ("Replenishment System" = "Replenishment System"::Purchase) and
-               ("Reordering Policy" <> "Reordering Policy"::" ")
-            then
-                exit(false);
+        if (CurrWorksheetType = CurrWorksheetType::Requisition) and
+               (Item."Replenishment System" = Item."Replenishment System"::Purchase) and
+               (Item."Reordering Policy" <> Item."Reordering Policy"::" ")
+        then
+            exit(false);
 
-        with SKU do begin
-            SetRange("Item No.", Item."No.");
-            if Find('-') then
-                repeat
-                    if (CurrWorksheetType = CurrWorksheetType::Requisition) and
-                       ("Replenishment System" in ["Replenishment System"::Purchase,
-                                                   "Replenishment System"::Transfer]) and
-                       ("Reordering Policy" <> "Reordering Policy"::" ")
-                    then
-                        exit(false);
-                until Next() = 0;
-        end;
+        SKU.SetRange(SKU."Item No.", Item."No.");
+        if SKU.Find('-') then
+            repeat
+                if (CurrWorksheetType = CurrWorksheetType::Requisition) and
+                   (SKU."Replenishment System" in [SKU."Replenishment System"::Purchase,
+                                               SKU."Replenishment System"::Transfer]) and
+                   (SKU."Reordering Policy" <> SKU."Reordering Policy"::" ")
+                then
+                    exit(false);
+            until SKU.Next() = 0;
 
         SkipPlanning := true;
         OnAfterSkipPlanningForItemOnReqWksh(Item, SkipPlanning);

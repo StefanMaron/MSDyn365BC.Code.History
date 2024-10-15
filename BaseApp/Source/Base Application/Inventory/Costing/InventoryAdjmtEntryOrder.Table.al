@@ -14,6 +14,8 @@ table 5896 "Inventory Adjmt. Entry (Order)"
 {
     Caption = 'Inventory Adjmt. Entry (Order)';
     Permissions = TableData "Inventory Adjmt. Entry (Order)" = i;
+    LookupPageId = "Inventory Adjmt. Entry Orders";
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -309,6 +311,7 @@ table 5896 "Inventory Adjmt. Entry (Order)"
                 OutputItemLedgEntry.SetRange("Entry Type", OutputItemLedgEntry."Entry Type"::"Assembly Output");
 
             OnCalcCurrencyFactorOnAfterSetFilters(OutputItemLedgEntry, Rec);
+            OutputItemLedgEntry.SetLoadFields("Posting Date");
             if OutputItemLedgEntry.FindLast() then
                 exit(CurrExchRate.ExchangeRate(OutputItemLedgEntry."Posting Date", GLSetup."Additional Reporting Currency"));
         end;

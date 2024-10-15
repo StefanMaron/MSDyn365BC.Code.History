@@ -26,6 +26,7 @@ table 5601 "FA Ledger Entry"
     Caption = 'FA Ledger Entry';
     DrillDownPageID = "FA Ledger Entries";
     LookupPageID = "FA Ledger Entries";
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -459,6 +460,7 @@ table 5601 "FA Ledger Entry"
         key(Key2; "FA No.", "Depreciation Book Code", "FA Posting Date")
         {
             SumIndexFields = Amount;
+            IncludedFields = Amount;
         }
         key(Key3; "FA No.", "Depreciation Book Code", "FA Posting Category", "FA Posting Type", "FA Posting Date", "Part of Book Value", "Reclassification Entry")
         {

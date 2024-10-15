@@ -45,11 +45,11 @@ codeunit 144021 "UT REP Purch. Process Doc O365"
         CreatePostedPurchaseInvoice(PurchInvHeader, PurchInvLine);
 
         // Exercise: Opens handler - PurchaseInvoiceRequestPageHandler. Commit required as the explicit Commit used on OnRun Trigger of Codeunit 319 - Purch. Inv.-Printed.
-        LibraryLowerPermissions.SetPurchDocsPost;
+        LibraryLowerPermissions.SetPurchDocsPost();
         RunReportsPPForCompanyAddress(ResponsibilityCenter, PurchInvHeader."Responsibility Center", REPORT::"Purchase Invoice NA");
 
         // Verify: Verify Company Address on Report Purchase Invoice.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists('No_PurchInvHeader', PurchInvHeader."No.");
         LibraryReportDataset.AssertElementWithValueExists(CompanyAddressTxt, ResponsibilityCenter.Name);
     end;
@@ -100,7 +100,7 @@ codeunit 144021 "UT REP Purch. Process Doc O365"
         REPORT.Run(REPORT::"Purchase Invoice NA");  // Opens handler - PurchaseInvoiceRequestPageHandler.
 
         // Verify: Verify Total Tax Label on Report Purchase Invoice.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(TotalTaxLabelTxt, ExpectedTaxValue + ':');  // Not able to pass Symbol - :, as part of constant hence taking it here.
     end;
 
@@ -123,7 +123,7 @@ codeunit 144021 "UT REP Purch. Process Doc O365"
         RunRepotsPPForNumberOfCopies(NumberOfCopies, REPORT::"Purchase Invoice NA");
 
         // Verify: Verify Copy Caption and total number of copies on Report Purchase Invoice.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(CopyTextTxt, Format(CopyTxt));
         LibraryReportDataset.AssertElementWithValueExists(CopyNoTxt, NumberOfCopies + 1);
     end;
@@ -156,7 +156,7 @@ codeunit 144021 "UT REP Purch. Process Doc O365"
         OnAfterGetRecordPurchaseInvoiceLinePurchaseInvoice(PurchInvLine.Type::Item);
     end;
 
-    local procedure OnAfterGetRecordPurchaseInvoiceLinePurchaseInvoice(Type: Option)
+    local procedure OnAfterGetRecordPurchaseInvoiceLinePurchaseInvoice(Type: Enum "Purchase Line Type")
     var
         PurchInvHeader: Record "Purch. Inv. Header";
         PurchInvLine: Record "Purch. Inv. Line";
@@ -173,11 +173,11 @@ codeunit 144021 "UT REP Purch. Process Doc O365"
         REPORT.Run(REPORT::"Purchase Invoice NA");  // Opens handler - PurchaseInvoiceRequestPageHandler.
 
         // Verify: Verify Item number on Report Purchase Invoice.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(ItemNumberToPrintTxt, PurchInvLine."No.");
         // [THEN] Line Discount % is in dataset
         LibraryReportDataset.SetRange('ItemNumberToPrint', Format(PurchInvLine."No."));
-        LibraryReportDataset.GetNextRow;
+        LibraryReportDataset.GetNextRow();
         LibraryReportDataset.AssertCurrentRowValueEquals('LineDisc_PurchInvLine', PurchInvLine."Line Discount %");
     end;
 
@@ -195,7 +195,7 @@ codeunit 144021 "UT REP Purch. Process Doc O365"
         OnPreDataItemPurchaseDocument(PurchaseHeader."Document Type"::Quote, REPORT::"Purchase Quote NA", NoPurchaseHeaderTxt);
     end;
 
-    local procedure OnPreDataItemPurchaseDocument(DocumentType: Option; ReportID: Integer; ElementCaption: Text)
+    local procedure OnPreDataItemPurchaseDocument(DocumentType: Enum "Purchase Document Type"; ReportID: Integer; ElementCaption: Text)
     var
         PurchaseHeader: Record "Purchase Header";
         ResponsibilityCenter: Record "Responsibility Center";
@@ -207,7 +207,7 @@ codeunit 144021 "UT REP Purch. Process Doc O365"
         RunReportsPPForCompanyAddress(ResponsibilityCenter, PurchaseHeader."Responsibility Center", ReportID);
 
         // Verify: Verify Purchase Header No and Company Address on Different Reports.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(ElementCaption, PurchaseHeader."No.");
         LibraryReportDataset.AssertElementWithValueExists(CompanyAddressTxt, ResponsibilityCenter.Name);
     end;
@@ -226,7 +226,7 @@ codeunit 144021 "UT REP Purch. Process Doc O365"
         OnAfterGetRecordPurchaseDocument(PurchaseHeader."Document Type"::Quote, REPORT::"Purchase Quote NA", PaymentTermsDescTxt);
     end;
 
-    local procedure OnAfterGetRecordPurchaseDocument(DocumentType: Option; ReportID: Integer; ElementCaption: Text)
+    local procedure OnAfterGetRecordPurchaseDocument(DocumentType: Enum "Purchase Document Type"; ReportID: Integer; ElementCaption: Text)
     var
         PurchaseHeader: Record "Purchase Header";
         PaymentTerms: Record "Payment Terms";
@@ -246,7 +246,7 @@ codeunit 144021 "UT REP Purch. Process Doc O365"
         REPORT.Run(ReportID);  // Opens handler PurchaseBlanketOrderRequestPageHandler, PurchaseOrderRequestPageHandler or PurchaseQuoteRequestPageHandler.
 
         // Verify: Verify Sales Person Purchaser Name and Payment term Description on different Reports.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(SalesPurchasePersonNameTxt, SalespersonPurchaser.Name);
         LibraryReportDataset.AssertElementWithValueExists(ElementCaption, PaymentTerms.Description);
     end;
@@ -265,7 +265,7 @@ codeunit 144021 "UT REP Purch. Process Doc O365"
         OnAfterGetRecordCopyLoopPurchaseDocument(PurchaseHeader."Document Type"::Quote, REPORT::"Purchase Quote NA");
     end;
 
-    local procedure OnAfterGetRecordCopyLoopPurchaseDocument(DocumentType: Option; ReportID: Integer)
+    local procedure OnAfterGetRecordCopyLoopPurchaseDocument(DocumentType: Enum "Purchase Document Type"; ReportID: Integer)
     var
         PurchaseHeader: Record "Purchase Header";
         NumberOfCopies: Integer;
@@ -277,7 +277,7 @@ codeunit 144021 "UT REP Purch. Process Doc O365"
         RunRepotsPPForNumberOfCopies(NumberOfCopies, ReportID);
 
         // Verify: Verify Copy Caption and total number of copies on Different Reports.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(CopyTextTxt, Format(CopyTxt));
         LibraryReportDataset.AssertElementWithValueExists(CopyNoTxt, NumberOfCopies + 1);
     end;
@@ -316,7 +316,7 @@ codeunit 144021 "UT REP Purch. Process Doc O365"
           TotalSalesTaxTxt);
     end;
 
-    local procedure OnAfterGetRecordCopyLoopTaxAreaPurchaseDocument(Country: Option; DocumentType: Option; ReportID: Integer; ElementCaption: Text; ExpectedTaxValue: Text)
+    local procedure OnAfterGetRecordCopyLoopTaxAreaPurchaseDocument(Country: Option; DocumentType: Enum "Purchase Document Type"; ReportID: Integer; ElementCaption: Text; ExpectedTaxValue: Text)
     var
         PurchaseHeader: Record "Purchase Header";
         TaxArea: Record "Tax Area";
@@ -332,7 +332,7 @@ codeunit 144021 "UT REP Purch. Process Doc O365"
         REPORT.Run(ReportID);  // Opens Request Page handlers - NumberOfCopiesPurchaseBlanketOrderRequestPageHandler, NumberOfCopiesPurchaseOrderRequestPageHandler or NumberOfCopiesPurchaseQuoteRequestPageHandler.
 
         // Verify: Verify Total Tax Label on different Reports.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(ElementCaption, ExpectedTaxValue + ':');  // Not able to pass Symbol - :, as part of constant hence taking it here.
     end;
 
@@ -355,7 +355,7 @@ codeunit 144021 "UT REP Purch. Process Doc O365"
         RunReportsPPForCompanyAddress(ResponsibilityCenter, PurchCrMemoHdr."Responsibility Center", REPORT::"Purchase Credit Memo NA");
 
         // Verify: Verify Purchase Credit Memo No and Company Address on Report - Purchase Credit Memo.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists('No_PurchCrMemoHdr', PurchCrMemoHdr."No.");
         LibraryReportDataset.AssertElementWithValueExists(CompanyAddressTxt, ResponsibilityCenter.Name);
     end;
@@ -406,7 +406,7 @@ codeunit 144021 "UT REP Purch. Process Doc O365"
         REPORT.Run(REPORT::"Purchase Credit Memo NA");  // Opens handler - PurchaseCreditMemoRequestPageHandler.
 
         // Verify: Verify Total Tax Label on Report - Purchase Credit Memo.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(TotalTaxLabelTxt, ExpectedTaxValue + ':');  // Not able to pass Symbol - :, as part of constant hence taking it here.
     end;
 
@@ -429,7 +429,7 @@ codeunit 144021 "UT REP Purch. Process Doc O365"
         RunRepotsPPForNumberOfCopies(NumberOfCopies, REPORT::"Purchase Credit Memo NA");
 
         // Verify: Verify Copy Caption and total number of copies on Report - Purchase Credit Memo.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(CopyTextTxt, Format(CopyTxt));
         LibraryReportDataset.AssertElementWithValueExists(CopyNoTxt, NumberOfCopies + 1);
     end;
@@ -455,7 +455,7 @@ codeunit 144021 "UT REP Purch. Process Doc O365"
         REPORT.Run(REPORT::"Purchase Credit Memo NA");  // Opens handler - PurchaseCreditMemoRequestPageHandler.
 
         // Verify: Verify Purchase Credit Memo Line Vendor Item No on Report - Purchase Credit Memo.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(ItemNumberToPrintTxt, PurchCrMemoLine."Vendor Item No.");
     end;
 
@@ -480,7 +480,7 @@ codeunit 144021 "UT REP Purch. Process Doc O365"
         REPORT.Run(REPORT::"Purchase Credit Memo NA");  // Opens handler - PurchaseCreditMemoRequestPageHandler.
 
         // Verify: Verify Purchase Credit Memo Line No on Report - Purchase Credit Memo.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(ItemNumberToPrintTxt, PurchCrMemoLine."No.");
     end;
 
@@ -503,7 +503,7 @@ codeunit 144021 "UT REP Purch. Process Doc O365"
         RunReportsPPForCompanyAddress(ResponsibilityCenter, PurchRcptHeader."Responsibility Center", REPORT::"Purchase Receipt NA");
 
         // Verify: Verify Purchase Receipt No and Company Address on Report - Purchase Receipt.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists('No_PurchRcptHeader', PurchRcptHeader."No.");
         LibraryReportDataset.AssertElementWithValueExists('CompanyAddr1', ResponsibilityCenter.Name);
     end;
@@ -538,7 +538,7 @@ codeunit 144021 "UT REP Purch. Process Doc O365"
         REPORT.Run(REPORT::"Purchase Receipt NA");  // Opens handler - PurchaseReceiptRequestPageHandler.
 
         // Verify: Verify Sales Person Purchase Name and Shipment Method Description on Report - Purchase Receipt.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(SalesPurchasePersonNameTxt, SalespersonPurchaser.Name);
         LibraryReportDataset.AssertElementWithValueExists('ShipmentMethodDesc', ShipmentMethod.Description);
     end;
@@ -562,7 +562,7 @@ codeunit 144021 "UT REP Purch. Process Doc O365"
         RunRepotsPPForNumberOfCopies(NumberOfCopies, REPORT::"Purchase Receipt NA");
 
         // Verify: Verify Copy Caption and total number of copies on Report - Purchase Receipt.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(CopyTextTxt, Format(CopyTxt));
         LibraryReportDataset.AssertElementWithValueExists('myCopyNo', NumberOfCopies + 1);
     end;
@@ -583,7 +583,7 @@ codeunit 144021 "UT REP Purch. Process Doc O365"
         LibraryVariableStorage.Enqueue(false);  // Enqueue value for PurchaseReceiptRequestPageHandler.
         PurchRcptLine.Type := PurchRcptLine.Type::Item;
         PurchRcptLine.Quantity := LibraryRandom.RandDec(10, 2);
-        PurchRcptLine."Order No." := LibraryUTUtility.GetNewCode;
+        PurchRcptLine."Order No." := LibraryUTUtility.GetNewCode();
         PurchRcptLine."Order Line No." := LibraryRandom.RandInt(10);
         PurchRcptLine.Modify();
 
@@ -592,7 +592,7 @@ codeunit 144021 "UT REP Purch. Process Doc O365"
         REPORT.Run(REPORT::"Purchase Receipt NA");  // Opens handler - PurchaseReceiptRequestPageHandler.
 
         // Verify: Verify Purchase Receipt Line Quantity on Report - Purchase Receipt.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists('OrderedQty_PurchRcptLine', PurchRcptLine.Quantity);
     end;
 
@@ -617,7 +617,7 @@ codeunit 144021 "UT REP Purch. Process Doc O365"
         REPORT.Run(REPORT::"Purchase Receipt NA");  // Opens handler - PurchaseReceiptRequestPageHandler.
 
         // Verify: Verify Purchase Receipt Line Vendor Item No on Report - Purchase Receipt.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(ItemNumberToPrintPurchReceiptLineTxt, PurchRcptLine."Vendor Item No.");
     end;
 
@@ -642,7 +642,7 @@ codeunit 144021 "UT REP Purch. Process Doc O365"
         REPORT.Run(REPORT::"Purchase Receipt NA");  // Opens handler - PurchaseReceiptRequestPageHandler.
 
         // Verify: Verify Purchase Receipt Line No on Report - Purchase Receipt.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(ItemNumberToPrintPurchReceiptLineTxt, PurchRcptLine."No.");
     end;
 
@@ -665,7 +665,7 @@ codeunit 144021 "UT REP Purch. Process Doc O365"
         RunReportsPPForCompanyAddress(ResponsibilityCenter, ReturnShipmentHeader."Responsibility Center", REPORT::"Return Shipment");
 
         // Verify: Verify Return Shipment No and Company Address on Report - Return Shipment.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists('No_ReturnShipmentHeader', ReturnShipmentHeader."No.");
         LibraryReportDataset.AssertElementWithValueExists(CompanyAddressTxt, ResponsibilityCenter.Name);
     end;
@@ -700,7 +700,7 @@ codeunit 144021 "UT REP Purch. Process Doc O365"
         REPORT.Run(REPORT::"Return Shipment");  // Opens handler - ReturnShipmentRequestPageHandler.
 
         // Verify: Verify Sales person Purchaser and Shipment Method description on Report - Return Shipment.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(SalesPurchasePersonNameTxt, SalespersonPurchaser.Name);
         LibraryReportDataset.AssertElementWithValueExists('ShipmentMethodDescription', ShipmentMethod.Description);
     end;
@@ -724,7 +724,7 @@ codeunit 144021 "UT REP Purch. Process Doc O365"
         RunRepotsPPForNumberOfCopies(NumberOfCopies, REPORT::"Return Shipment");
 
         // Verify: Verify Copy Caption and total number of copies on Report - Return Shipment.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(CopyTextTxt, Format(CopyTxt));
         LibraryReportDataset.AssertElementWithValueExists(CopyNoTxt, NumberOfCopies + 1);
     end;
@@ -745,7 +745,7 @@ codeunit 144021 "UT REP Purch. Process Doc O365"
         LibraryVariableStorage.Enqueue(false);  // Enqueue value for ReturnShipmentRequestPageHandler.
         ReturnShipmentLine.Type := ReturnShipmentLine.Type::Item;
         ReturnShipmentLine.Quantity := LibraryRandom.RandDec(10, 2);
-        ReturnShipmentLine."Return Order No." := LibraryUTUtility.GetNewCode;
+        ReturnShipmentLine."Return Order No." := LibraryUTUtility.GetNewCode();
         ReturnShipmentLine."Return Order Line No." := LibraryRandom.RandInt(10);
         ReturnShipmentLine.Modify();
 
@@ -754,7 +754,7 @@ codeunit 144021 "UT REP Purch. Process Doc O365"
         REPORT.Run(REPORT::"Return Shipment");  // Opens handler - ReturnShipmentRequestPageHandler.
 
         // Verify: Verify Return Shipment Line Quantity on Report - Return Shipment.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists('Qty_ReturnShipmentLine', ReturnShipmentLine.Quantity);
     end;
 
@@ -779,7 +779,7 @@ codeunit 144021 "UT REP Purch. Process Doc O365"
         REPORT.Run(REPORT::"Return Shipment");
 
         // Verify: Verify Return Shipment Line Vendor Item No on Report - Return Shipment.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(ItemNumberToPrintTxt, ReturnShipmentLine."Vendor Item No.");
     end;
 
@@ -804,7 +804,7 @@ codeunit 144021 "UT REP Purch. Process Doc O365"
         REPORT.Run(REPORT::"Return Shipment");
 
         // Verify: Verify Return Shipment Line No on Report - Return Shipment.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(ItemNumberToPrintTxt, ReturnShipmentLine."No.");
     end;
 
@@ -829,7 +829,7 @@ codeunit 144021 "UT REP Purch. Process Doc O365"
         REPORT.Run(REPORT::"Open Purchase Invoices by Job");  // Opens handler - OpenPurchaseInvoicesByJobRequestPageHandler.
 
         // Verify: Verify Job Number, Document No, and Remaining Amount LCY on Report - Open Purchase Invoices by Job.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists('Job_No_', PurchInvLine."Job No.");
         LibraryReportDataset.AssertElementWithValueExists('Purch__Inv__Line_Document_No_', PurchInvLine."Document No.");
         LibraryReportDataset.AssertElementWithValueExists('Vendor_Ledger_Entry___Remaining_Amt___LCY__', AmountLCY);
@@ -847,29 +847,29 @@ codeunit 144021 "UT REP Purch. Process Doc O365"
         Job: Record Job;
     begin
         Job.Init();
-        Job."No." := LibraryUTUtility.GetNewCode;
+        Job."No." := LibraryUTUtility.GetNewCode();
         Job.Insert();
         exit(Job."No.");
     end;
 
     local procedure CreateTaxArea(var TaxArea: Record "Tax Area"; Country: Option)
     begin
-        TaxArea.Code := LibraryUTUtility.GetNewCode;
+        TaxArea.Code := LibraryUTUtility.GetNewCode();
         TaxArea."Country/Region" := Country;
         TaxArea.Insert();
     end;
 
-    local procedure CreatePurchaseHeader(var PurchaseHeader: Record "Purchase Header"; DocumentType: Option)
+    local procedure CreatePurchaseHeader(var PurchaseHeader: Record "Purchase Header"; DocumentType: Enum "Purchase Document Type")
     begin
         PurchaseHeader."Document Type" := DocumentType;
-        PurchaseHeader."No." := LibraryUTUtility.GetNewCode;
-        PurchaseHeader."Buy-from Vendor No." := CreateVendor;
-        PurchaseHeader."Responsibility Center" := CreateResponsibilityCenter;
+        PurchaseHeader."No." := LibraryUTUtility.GetNewCode();
+        PurchaseHeader."Buy-from Vendor No." := CreateVendor();
+        PurchaseHeader."Responsibility Center" := CreateResponsibilityCenter();
         PurchaseHeader.Insert();
         LibraryVariableStorage.Enqueue(PurchaseHeader."No.");  // Enqueue value required in RequestPageHandler.
     end;
 
-    local procedure CreatePurchaseDocument(var PurchaseHeader: Record "Purchase Header"; DocumentType: Option)
+    local procedure CreatePurchaseDocument(var PurchaseHeader: Record "Purchase Header"; DocumentType: Enum "Purchase Document Type")
     var
         PurchaseLine: Record "Purchase Line";
     begin
@@ -882,8 +882,8 @@ codeunit 144021 "UT REP Purch. Process Doc O365"
 
     local procedure CreatePostedPurchaseInvoice(var PurchInvHeader: Record "Purch. Inv. Header"; var PurchInvLine: Record "Purch. Inv. Line")
     begin
-        PurchInvHeader."No." := LibraryUTUtility.GetNewCode;
-        PurchInvHeader."Responsibility Center" := CreateResponsibilityCenter;
+        PurchInvHeader."No." := LibraryUTUtility.GetNewCode();
+        PurchInvHeader."Responsibility Center" := CreateResponsibilityCenter();
         PurchInvHeader.Insert();
         PurchInvLine."Document No." := PurchInvHeader."No.";
         PurchInvLine.Insert();
@@ -895,11 +895,11 @@ codeunit 144021 "UT REP Purch. Process Doc O365"
         PurchInvHeader: Record "Purch. Inv. Header";
     begin
         PurchInvHeader.Init();
-        PurchInvHeader."No." := LibraryUTUtility.GetNewCode;
-        PurchInvHeader."Pay-to Vendor No." := CreateVendor;
+        PurchInvHeader."No." := LibraryUTUtility.GetNewCode();
+        PurchInvHeader."Pay-to Vendor No." := CreateVendor();
         PurchInvHeader.Insert();
         PurchInvLine."Document No." := PurchInvHeader."No.";
-        PurchInvLine."Job No." := CreateJob;
+        PurchInvLine."Job No." := CreateJob();
         PurchInvLine."Buy-from Vendor No." := PurchInvHeader."Pay-to Vendor No.";
         PurchInvLine.Insert();
         LibraryVariableStorage.Enqueue(PurchInvLine."Job No.");  // Enqueue value required in OpenPurchaseInvoicesByJobRequestPageHandler.
@@ -907,36 +907,36 @@ codeunit 144021 "UT REP Purch. Process Doc O365"
 
     local procedure CreatePostedPurchaseCreditMemo(var PurchCrMemoHdr: Record "Purch. Cr. Memo Hdr."; var PurchCrMemoLine: Record "Purch. Cr. Memo Line")
     begin
-        PurchCrMemoHdr."No." := LibraryUTUtility.GetNewCode;
-        PurchCrMemoHdr."Responsibility Center" := CreateResponsibilityCenter;
+        PurchCrMemoHdr."No." := LibraryUTUtility.GetNewCode();
+        PurchCrMemoHdr."Responsibility Center" := CreateResponsibilityCenter();
         PurchCrMemoHdr.Insert();
         PurchCrMemoLine."Document No." := PurchCrMemoHdr."No.";
-        PurchCrMemoLine."No." := LibraryUTUtility.GetNewCode;
-        PurchCrMemoLine."Vendor Item No." := LibraryUTUtility.GetNewCode;
+        PurchCrMemoLine."No." := LibraryUTUtility.GetNewCode();
+        PurchCrMemoLine."Vendor Item No." := LibraryUTUtility.GetNewCode();
         PurchCrMemoLine.Insert();
         LibraryVariableStorage.Enqueue(PurchCrMemoHdr."No.");  // Enqueue value required in different Request Page Handler.
     end;
 
     local procedure CreatePostedPurchaseReceipt(var PurchRcptHeader: Record "Purch. Rcpt. Header"; var PurchRcptLine: Record "Purch. Rcpt. Line")
     begin
-        PurchRcptHeader."No." := LibraryUTUtility.GetNewCode;
-        PurchRcptHeader."Responsibility Center" := CreateResponsibilityCenter;
+        PurchRcptHeader."No." := LibraryUTUtility.GetNewCode();
+        PurchRcptHeader."Responsibility Center" := CreateResponsibilityCenter();
         PurchRcptHeader.Insert();
         PurchRcptLine."Document No." := PurchRcptHeader."No.";
-        PurchRcptLine."No." := LibraryUTUtility.GetNewCode;
-        PurchRcptLine."Vendor Item No." := LibraryUTUtility.GetNewCode;
+        PurchRcptLine."No." := LibraryUTUtility.GetNewCode();
+        PurchRcptLine."Vendor Item No." := LibraryUTUtility.GetNewCode();
         PurchRcptLine.Insert();
         LibraryVariableStorage.Enqueue(PurchRcptHeader."No.");  // Enqueue value required in different Request Page Handler.
     end;
 
     local procedure CreatePostedReturnShipment(var ReturnShipmentHeader: Record "Return Shipment Header"; var ReturnShipmentLine: Record "Return Shipment Line")
     begin
-        ReturnShipmentHeader."No." := LibraryUTUtility.GetNewCode;
-        ReturnShipmentHeader."Responsibility Center" := CreateResponsibilityCenter;
+        ReturnShipmentHeader."No." := LibraryUTUtility.GetNewCode();
+        ReturnShipmentHeader."Responsibility Center" := CreateResponsibilityCenter();
         ReturnShipmentHeader.Insert();
         ReturnShipmentLine."Document No." := ReturnShipmentHeader."No.";
-        ReturnShipmentLine."No." := LibraryUTUtility.GetNewCode;
-        ReturnShipmentLine."Vendor Item No." := LibraryUTUtility.GetNewCode;
+        ReturnShipmentLine."No." := LibraryUTUtility.GetNewCode();
+        ReturnShipmentLine."Vendor Item No." := LibraryUTUtility.GetNewCode();
         ReturnShipmentLine.Insert();
         LibraryVariableStorage.Enqueue(ReturnShipmentHeader."No.");   // Enqueue value required in different Request Page Handler.
     end;
@@ -946,23 +946,23 @@ codeunit 144021 "UT REP Purch. Process Doc O365"
         ResponsibilityCenter: Record "Responsibility Center";
     begin
         ResponsibilityCenter.Init();
-        ResponsibilityCenter.Code := LibraryUTUtility.GetNewCode10;
-        ResponsibilityCenter.Name := LibraryUTUtility.GetNewCode;
+        ResponsibilityCenter.Code := LibraryUTUtility.GetNewCode10();
+        ResponsibilityCenter.Name := LibraryUTUtility.GetNewCode();
         ResponsibilityCenter.Insert();
         exit(ResponsibilityCenter.Code);
     end;
 
     local procedure CreateSalespersonPurchaser(var SalespersonPurchaser: Record "Salesperson/Purchaser")
     begin
-        SalespersonPurchaser.Code := LibraryUTUtility.GetNewCode10;
-        SalespersonPurchaser.Name := LibraryUTUtility.GetNewCode;
+        SalespersonPurchaser.Code := LibraryUTUtility.GetNewCode10();
+        SalespersonPurchaser.Name := LibraryUTUtility.GetNewCode();
         SalespersonPurchaser.Insert();
     end;
 
     local procedure CreateShipmentMethod(var ShipmentMethod: Record "Shipment Method")
     begin
-        ShipmentMethod.Code := LibraryUTUtility.GetNewCode10;
-        ShipmentMethod.Description := LibraryUTUtility.GetNewCode;
+        ShipmentMethod.Code := LibraryUTUtility.GetNewCode10();
+        ShipmentMethod.Description := LibraryUTUtility.GetNewCode();
         ShipmentMethod.Insert();
     end;
 
@@ -973,7 +973,7 @@ codeunit 144021 "UT REP Purch. Process Doc O365"
     begin
         VendorPostingGroup.FindFirst();
         Vendor.Init();
-        Vendor."No." := LibraryUTUtility.GetNewCode;
+        Vendor."No." := LibraryUTUtility.GetNewCode();
         Vendor."Vendor Posting Group" := VendorPostingGroup.Code;
         Vendor.Insert();
         exit(Vendor."No.")
@@ -1026,19 +1026,19 @@ codeunit 144021 "UT REP Purch. Process Doc O365"
         PurchaseHeader.Modify();
     end;
 
-    local procedure UpdateReturnShipmentLineType(ReturnShipmentLine: Record "Return Shipment Line"; Type: Option)
+    local procedure UpdateReturnShipmentLineType(ReturnShipmentLine: Record "Return Shipment Line"; Type: Enum "Purchase Line Type")
     begin
         ReturnShipmentLine.Type := Type;
         ReturnShipmentLine.Modify();
     end;
 
-    local procedure UpdatePurchaseReceiptLineType(PurchRcptLine: Record "Purch. Rcpt. Line"; Type: Option)
+    local procedure UpdatePurchaseReceiptLineType(PurchRcptLine: Record "Purch. Rcpt. Line"; Type: Enum "Purchase Line Type")
     begin
         PurchRcptLine.Type := Type;
         PurchRcptLine.Modify();
     end;
 
-    local procedure UpdatePurchaseCrMemoLineType(PurchCrMemoLine: Record "Purch. Cr. Memo Line"; Type: Option)
+    local procedure UpdatePurchaseCrMemoLineType(PurchCrMemoLine: Record "Purch. Cr. Memo Line"; Type: Enum "Purchase Line Type")
     begin
         PurchCrMemoLine.Type := Type;
         PurchCrMemoLine.Modify();
@@ -1047,13 +1047,13 @@ codeunit 144021 "UT REP Purch. Process Doc O365"
     local procedure OpenPurchaseInvoiceRequestPage(PurchaseInvoice: TestRequestPage "Purchase Invoice NA"; No: Variant)
     begin
         PurchaseInvoice."Purch. Inv. Header".SetFilter("No.", No);
-        PurchaseInvoice.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        PurchaseInvoice.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     local procedure OpenPurchaseCreditMemoRequestPage(PurchaseCreditMemo: TestRequestPage "Purchase Credit Memo NA"; No: Variant)
     begin
         PurchaseCreditMemo."Purch. Cr. Memo Hdr.".SetFilter("No.", No);
-        PurchaseCreditMemo.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        PurchaseCreditMemo.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     local procedure OpenPurchaseQuoteRequestPage(var PurchaseQuote: TestRequestPage "Purchase Quote NA"; No: Variant)
@@ -1062,19 +1062,19 @@ codeunit 144021 "UT REP Purch. Process Doc O365"
     begin
         PurchaseQuote."Purchase Header".SetFilter("Document Type", Format(PurchaseHeader."Document Type"::Quote));
         PurchaseQuote."Purchase Header".SetFilter("No.", No);
-        PurchaseQuote.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        PurchaseQuote.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     local procedure OpenPurchaseReceiptRequestPage(var PurchaseReceipt: TestRequestPage "Purchase Receipt NA"; No: Variant)
     begin
         PurchaseReceipt."Purch. Rcpt. Header".SetFilter("No.", No);
-        PurchaseReceipt.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        PurchaseReceipt.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     local procedure OpenReturnShipmentRequestPage(var ReturnShipment: TestRequestPage "Return Shipment"; No: Variant)
     begin
         ReturnShipment."Return Shipment Header".SetFilter("No.", No);
-        ReturnShipment.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        ReturnShipment.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     local procedure RunReportsPPForCompanyAddress(var ResponsibilityCenter: Record "Responsibility Center"; "Code": Code[10]; ReportID: Integer)
@@ -1221,7 +1221,7 @@ codeunit 144021 "UT REP Purch. Process Doc O365"
     begin
         LibraryVariableStorage.Dequeue(No);
         OpenPurchaseInvoicesByJob.Job.SetFilter("No.", No);
-        OpenPurchaseInvoicesByJob.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        OpenPurchaseInvoicesByJob.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 }
 

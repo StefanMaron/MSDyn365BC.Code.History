@@ -33,57 +33,55 @@ codeunit 5626 "FA General Report"
             exit(0D);
         if EndingDate = 0D then
             EndingDate := DMY2Date(31, 12, 9999);
-        with FALedgEntry do begin
-            Reset();
-            if GLEntry then begin
-                SetCurrentKey(
-                  "FA No.", "Depreciation Book Code", "FA Posting Category", "FA Posting Type", "Posting Date");
-                SetRange("Depreciation Book Code", DeprBookCode);
-                SetRange("FA No.", FANo);
-                SetRange("FA Posting Category", "FA Posting Category"::" ");
-                SetRange("Posting Date", 0D, EndingDate);
-            end else begin
-                DepreciationCalc.SetFAFilter(FALedgEntry, FANo, DeprBookCode, true);
-                SetRange("FA Posting Date", 0D, EndingDate);
-            end;
-            FirstLast := '+';
-            case PostingType of
-                FADeprBook.FieldNo("Last Acquisition Cost Date"):
-                    SetRange("FA Posting Type", "FA Posting Type"::"Acquisition Cost");
-                FADeprBook.FieldNo("Last Depreciation Date"):
-                    SetRange("FA Posting Type", "FA Posting Type"::Depreciation);
-                FADeprBook.FieldNo("Last Write-Down Date"):
-                    SetRange("FA Posting Type", "FA Posting Type"::"Write-Down");
-                FADeprBook.FieldNo("Last Appreciation Date"):
-                    SetRange("FA Posting Type", "FA Posting Type"::Appreciation);
-                FADeprBook.FieldNo("Last Custom 1 Date"):
-                    SetRange("FA Posting Type", "FA Posting Type"::"Custom 1");
-                FADeprBook.FieldNo("Last Custom 2 Date"):
-                    SetRange("FA Posting Type", "FA Posting Type"::"Custom 2");
-                FADeprBook.FieldNo("Last Salvage Value Date"):
-                    SetRange("FA Posting Type", "FA Posting Type"::"Salvage Value");
-                FADeprBook.FieldNo("Acquisition Date"),
-                FADeprBook.FieldNo("G/L Acquisition Date"):
-                    begin
-                        SetRange("FA Posting Type", "FA Posting Type"::"Acquisition Cost");
-                        FirstLast := '-';
-                    end;
-                FADeprBook.FieldNo("Disposal Date"):
-                    begin
-                        SetRange("FA Posting Type", "FA Posting Type"::"Proceeds on Disposal");
-                        FirstLast := '-';
-                    end;
-            end;
-
-            OnGetLastDateOnAfterFALedgEntrySetFilters(FALedgEntry, FADeprBook, PostingType, FirstLast);
-            if Find(FirstLast) then begin
-                if GLEntry then
-                    exit("Posting Date");
-
-                exit("FA Posting Date");
-            end;
-            exit(0D);
+        FALedgEntry.Reset();
+        if GLEntry then begin
+            FALedgEntry.SetCurrentKey(
+              "FA No.", "Depreciation Book Code", "FA Posting Category", "FA Posting Type", "Posting Date");
+            FALedgEntry.SetRange("Depreciation Book Code", DeprBookCode);
+            FALedgEntry.SetRange("FA No.", FANo);
+            FALedgEntry.SetRange("FA Posting Category", FALedgEntry."FA Posting Category"::" ");
+            FALedgEntry.SetRange("Posting Date", 0D, EndingDate);
+        end else begin
+            DepreciationCalc.SetFAFilter(FALedgEntry, FANo, DeprBookCode, true);
+            FALedgEntry.SetRange("FA Posting Date", 0D, EndingDate);
         end;
+        FirstLast := '+';
+        case PostingType of
+            FADeprBook.FieldNo("Last Acquisition Cost Date"):
+                FALedgEntry.SetRange("FA Posting Type", FALedgEntry."FA Posting Type"::"Acquisition Cost");
+            FADeprBook.FieldNo("Last Depreciation Date"):
+                FALedgEntry.SetRange("FA Posting Type", FALedgEntry."FA Posting Type"::Depreciation);
+            FADeprBook.FieldNo("Last Write-Down Date"):
+                FALedgEntry.SetRange("FA Posting Type", FALedgEntry."FA Posting Type"::"Write-Down");
+            FADeprBook.FieldNo("Last Appreciation Date"):
+                FALedgEntry.SetRange("FA Posting Type", FALedgEntry."FA Posting Type"::Appreciation);
+            FADeprBook.FieldNo("Last Custom 1 Date"):
+                FALedgEntry.SetRange("FA Posting Type", FALedgEntry."FA Posting Type"::"Custom 1");
+            FADeprBook.FieldNo("Last Custom 2 Date"):
+                FALedgEntry.SetRange("FA Posting Type", FALedgEntry."FA Posting Type"::"Custom 2");
+            FADeprBook.FieldNo("Last Salvage Value Date"):
+                FALedgEntry.SetRange("FA Posting Type", FALedgEntry."FA Posting Type"::"Salvage Value");
+            FADeprBook.FieldNo("Acquisition Date"),
+            FADeprBook.FieldNo("G/L Acquisition Date"):
+                begin
+                    FALedgEntry.SetRange("FA Posting Type", FALedgEntry."FA Posting Type"::"Acquisition Cost");
+                    FirstLast := '-';
+                end;
+            FADeprBook.FieldNo("Disposal Date"):
+                begin
+                    FALedgEntry.SetRange("FA Posting Type", FALedgEntry."FA Posting Type"::"Proceeds on Disposal");
+                    FirstLast := '-';
+                end;
+        end;
+
+        OnGetLastDateOnAfterFALedgEntrySetFilters(FALedgEntry, FADeprBook, PostingType, FirstLast);
+        if FALedgEntry.Find(FirstLast) then begin
+            if GLEntry then
+                exit(FALedgEntry."Posting Date");
+
+            exit(FALedgEntry."FA Posting Date");
+        end;
+        exit(0D);
     end;
 
     procedure CalcFAPostedAmount(FANo: Code[20]; PostingType: Integer; Period: Option "Before Starting Date","Net Change","at Ending Date"; StartingDate: Date; EndingDate: Date; DeprBookCode: Code[10]; BeforeAmount: Decimal; UntilAmount: Decimal; OnlyReclassified: Boolean; OnlyBookValue: Boolean) Result: Decimal
@@ -93,73 +91,71 @@ codeunit 5626 "FA General Report"
             exit(0);
         if EndingDate = 0D then
             EndingDate := DMY2Date(31, 12, 9999);
-        with FALedgEntry do begin
-            case PostingType of
-                FADeprBook.FieldNo("Book Value"):
-                    SetCurrentKey("FA No.", "Depreciation Book Code", "Part of Book Value");
-                FADeprBook.FieldNo("Depreciable Basis"):
-                    SetCurrentKey("FA No.", "Depreciation Book Code", "Part of Depreciable Basis");
-                else begin
-                    SetCurrentKey(
-                      "FA No.", "Depreciation Book Code",
-                      "FA Posting Category", "FA Posting Type", "FA Posting Date");
-                    SetRange("FA Posting Category", "FA Posting Category"::" ");
-                end;
+        case PostingType of
+            FADeprBook.FieldNo("Book Value"):
+                FALedgEntry.SetCurrentKey("FA No.", "Depreciation Book Code", "Part of Book Value");
+            FADeprBook.FieldNo("Depreciable Basis"):
+                FALedgEntry.SetCurrentKey("FA No.", "Depreciation Book Code", "Part of Depreciable Basis");
+            else begin
+                FALedgEntry.SetCurrentKey(
+                  "FA No.", "Depreciation Book Code",
+                  "FA Posting Category", "FA Posting Type", "FA Posting Date");
+                FALedgEntry.SetRange("FA Posting Category", FALedgEntry."FA Posting Category"::" ");
             end;
-            SetRange("FA No.", FANo);
-            SetRange("Depreciation Book Code", DeprBookCode);
-            if OnlyReclassified then
-                SetRange("Reclassification Entry", true);
-            if OnlyBookValue then
-                SetRange("Part of Book Value", true);
-            case PostingType of
-                FADeprBook.FieldNo("Acquisition Cost"):
-                    SetRange("FA Posting Type", "FA Posting Type"::"Acquisition Cost");
-                FADeprBook.FieldNo(Depreciation):
-                    SetRange("FA Posting Type", "FA Posting Type"::Depreciation);
-                FADeprBook.FieldNo("Write-Down"):
-                    SetRange("FA Posting Type", "FA Posting Type"::"Write-Down");
-                FADeprBook.FieldNo(Appreciation):
-                    SetRange("FA Posting Type", "FA Posting Type"::Appreciation);
-                FADeprBook.FieldNo("Custom 1"):
-                    SetRange("FA Posting Type", "FA Posting Type"::"Custom 1");
-                FADeprBook.FieldNo("Custom 2"):
-                    SetRange("FA Posting Type", "FA Posting Type"::"Custom 2");
-                FADeprBook.FieldNo("Proceeds on Disposal"):
-                    SetRange("FA Posting Type", "FA Posting Type"::"Proceeds on Disposal");
-                FADeprBook.FieldNo("Gain/Loss"):
-                    SetRange("FA Posting Type", "FA Posting Type"::"Gain/Loss");
-                FADeprBook.FieldNo("Salvage Value"):
-                    SetRange("FA Posting Type", "FA Posting Type"::"Salvage Value");
-                FADeprBook.FieldNo("Book Value"):
-                    SetRange("Part of Book Value", true);
-                FADeprBook.FieldNo("Depreciable Basis"):
-                    SetRange("Part of Depreciable Basis", true);
-            end;
-            OnBeforeCalcFAPostedAmount(FALedgEntry, PostingType);
+        end;
+        FALedgEntry.SetRange("FA No.", FANo);
+        FALedgEntry.SetRange("Depreciation Book Code", DeprBookCode);
+        if OnlyReclassified then
+            FALedgEntry.SetRange("Reclassification Entry", true);
+        if OnlyBookValue then
+            FALedgEntry.SetRange("Part of Book Value", true);
+        case PostingType of
+            FADeprBook.FieldNo("Acquisition Cost"):
+                FALedgEntry.SetRange("FA Posting Type", FALedgEntry."FA Posting Type"::"Acquisition Cost");
+            FADeprBook.FieldNo(Depreciation):
+                FALedgEntry.SetRange("FA Posting Type", FALedgEntry."FA Posting Type"::Depreciation);
+            FADeprBook.FieldNo("Write-Down"):
+                FALedgEntry.SetRange("FA Posting Type", FALedgEntry."FA Posting Type"::"Write-Down");
+            FADeprBook.FieldNo(Appreciation):
+                FALedgEntry.SetRange("FA Posting Type", FALedgEntry."FA Posting Type"::Appreciation);
+            FADeprBook.FieldNo("Custom 1"):
+                FALedgEntry.SetRange("FA Posting Type", FALedgEntry."FA Posting Type"::"Custom 1");
+            FADeprBook.FieldNo("Custom 2"):
+                FALedgEntry.SetRange("FA Posting Type", FALedgEntry."FA Posting Type"::"Custom 2");
+            FADeprBook.FieldNo("Proceeds on Disposal"):
+                FALedgEntry.SetRange("FA Posting Type", FALedgEntry."FA Posting Type"::"Proceeds on Disposal");
+            FADeprBook.FieldNo("Gain/Loss"):
+                FALedgEntry.SetRange("FA Posting Type", FALedgEntry."FA Posting Type"::"Gain/Loss");
+            FADeprBook.FieldNo("Salvage Value"):
+                FALedgEntry.SetRange("FA Posting Type", FALedgEntry."FA Posting Type"::"Salvage Value");
+            FADeprBook.FieldNo("Book Value"):
+                FALedgEntry.SetRange("Part of Book Value", true);
+            FADeprBook.FieldNo("Depreciable Basis"):
+                FALedgEntry.SetRange("Part of Depreciable Basis", true);
+        end;
+        OnBeforeCalcFAPostedAmount(FALedgEntry, PostingType);
+        case Period of
+            Period::"Before Starting Date":
+                FALedgEntry.SetRange("FA Posting Date", 0D, StartingDate - 1);
+            Period::"Net Change":
+                FALedgEntry.SetRange("FA Posting Date", StartingDate, EndingDate);
+            Period::"at Ending Date":
+                FALedgEntry.SetRange("FA Posting Date", 0D, EndingDate);
+        end;
+        FALedgEntry.CalcSums(Amount);
+
+        if (PostingType = FADeprBook.FieldNo("Book Value")) or
+           (PostingType = FADeprBook.FieldNo(Depreciation))
+        then
             case Period of
                 Period::"Before Starting Date":
-                    SetRange("FA Posting Date", 0D, StartingDate - 1);
+                    FALedgEntry.Amount := FALedgEntry.Amount + BeforeAmount;
                 Period::"Net Change":
-                    SetRange("FA Posting Date", StartingDate, EndingDate);
+                    FALedgEntry.Amount := FALedgEntry.Amount - BeforeAmount + UntilAmount;
                 Period::"at Ending Date":
-                    SetRange("FA Posting Date", 0D, EndingDate);
+                    FALedgEntry.Amount := FALedgEntry.Amount + UntilAmount;
             end;
-            CalcSums(Amount);
-
-            if (PostingType = FADeprBook.FieldNo("Book Value")) or
-               (PostingType = FADeprBook.FieldNo(Depreciation))
-            then
-                case Period of
-                    Period::"Before Starting Date":
-                        Amount := Amount + BeforeAmount;
-                    Period::"Net Change":
-                        Amount := Amount - BeforeAmount + UntilAmount;
-                    Period::"at Ending Date":
-                        Amount := Amount + UntilAmount;
-                end;
-            Result := Amount;
-        end;
+        Result := FALedgEntry.Amount;
 
         OnAfterCalcFAPostedAmount(FALedgEntry, PostingType, Period, BeforeAmount, UntilAmount, Result);
     end;
@@ -171,41 +167,37 @@ codeunit 5626 "FA General Report"
             exit(0);
         if EndingDate = 0D then
             EndingDate := DMY2Date(31, 12, 9999);
-        with FALedgEntry do begin
-            SetCurrentKey(
-              "FA No.", "Depreciation Book Code",
-              "FA Posting Category", "FA Posting Type", "Posting Date");
-            SetRange("FA No.", FANo);
-            SetRange("Depreciation Book Code", DeprBookCode);
-            SetRange("FA Posting Category", Period);
-            SetRange("Posting Date", StartingDate, EndingDate);
-            case PostingType of
-                FADeprBook.FieldNo("Acquisition Cost"):
-                    SetRange("FA Posting Type", "FA Posting Type"::"Acquisition Cost");
-                FADeprBook.FieldNo(Depreciation):
-                    SetRange("FA Posting Type", "FA Posting Type"::Depreciation);
-                FADeprBook.FieldNo("Write-Down"):
-                    SetRange("FA Posting Type", "FA Posting Type"::"Write-Down");
-                FADeprBook.FieldNo(Appreciation):
-                    SetRange("FA Posting Type", "FA Posting Type"::Appreciation);
-                FADeprBook.FieldNo("Custom 1"):
-                    SetRange("FA Posting Type", "FA Posting Type"::"Custom 1");
-                FADeprBook.FieldNo("Custom 2"):
-                    SetRange("FA Posting Type", "FA Posting Type"::"Custom 2");
-                FADeprBook.FieldNo("Proceeds on Disposal"):
-                    SetRange("FA Posting Type", "FA Posting Type"::"Proceeds on Disposal");
-                FADeprBook.FieldNo("Gain/Loss"):
-                    SetRange("FA Posting Type", "FA Posting Type"::"Gain/Loss");
-                FADeprBook.FieldNo("Book Value on Disposal"):
-                    SetRange("FA Posting Type", "FA Posting Type"::"Book Value on Disposal");
-            end;
-            OnCalcGLPostedAmountOnBeforeCalcAmount(FALedgEntry, PostingType);
-            CalcSums(Amount);
-
-            OnCalcGLPostedAmountOnAfterCalcAmount(FALedgEntry, PostingType, Amount);
-
-            exit(Amount);
+        FALedgEntry.SetCurrentKey("FA No.", "Depreciation Book Code", "FA Posting Category", "FA Posting Type", "Posting Date");
+        FALedgEntry.SetRange("FA No.", FANo);
+        FALedgEntry.SetRange("Depreciation Book Code", DeprBookCode);
+        FALedgEntry.SetRange("FA Posting Category", Period);
+        FALedgEntry.SetRange("Posting Date", StartingDate, EndingDate);
+        case PostingType of
+            FADeprBook.FieldNo("Acquisition Cost"):
+                FALedgEntry.SetRange("FA Posting Type", FALedgEntry."FA Posting Type"::"Acquisition Cost");
+            FADeprBook.FieldNo(Depreciation):
+                FALedgEntry.SetRange("FA Posting Type", FALedgEntry."FA Posting Type"::Depreciation);
+            FADeprBook.FieldNo("Write-Down"):
+                FALedgEntry.SetRange("FA Posting Type", FALedgEntry."FA Posting Type"::"Write-Down");
+            FADeprBook.FieldNo(Appreciation):
+                FALedgEntry.SetRange("FA Posting Type", FALedgEntry."FA Posting Type"::Appreciation);
+            FADeprBook.FieldNo("Custom 1"):
+                FALedgEntry.SetRange("FA Posting Type", FALedgEntry."FA Posting Type"::"Custom 1");
+            FADeprBook.FieldNo("Custom 2"):
+                FALedgEntry.SetRange("FA Posting Type", FALedgEntry."FA Posting Type"::"Custom 2");
+            FADeprBook.FieldNo("Proceeds on Disposal"):
+                FALedgEntry.SetRange("FA Posting Type", FALedgEntry."FA Posting Type"::"Proceeds on Disposal");
+            FADeprBook.FieldNo("Gain/Loss"):
+                FALedgEntry.SetRange("FA Posting Type", FALedgEntry."FA Posting Type"::"Gain/Loss");
+            FADeprBook.FieldNo("Book Value on Disposal"):
+                FALedgEntry.SetRange("FA Posting Type", FALedgEntry."FA Posting Type"::"Book Value on Disposal");
         end;
+        OnCalcGLPostedAmountOnBeforeCalcAmount(FALedgEntry, PostingType);
+        FALedgEntry.CalcSums(Amount);
+
+        OnCalcGLPostedAmountOnAfterCalcAmount(FALedgEntry, PostingType, FALedgEntry.Amount);
+
+        exit(FALedgEntry.Amount);
     end;
 
     procedure AppendFAPostingFilter(var FA: Record "Fixed Asset"; StartingDate: Date; EndingDate: Date)

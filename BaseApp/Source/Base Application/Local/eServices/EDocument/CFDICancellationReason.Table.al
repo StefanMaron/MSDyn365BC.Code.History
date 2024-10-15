@@ -8,6 +8,7 @@ table 27003 "CFDI Cancellation Reason"
 {
     DrillDownPageID = "CFDI Cancellation Reasons";
     LookupPageID = "CFDI Cancellation Reasons";
+    DataClassification = CustomerContent;
 
     fields
     {

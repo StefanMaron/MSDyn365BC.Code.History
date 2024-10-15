@@ -55,7 +55,7 @@ codeunit 144010 "Service Documents With Tax"
         ServiceDocumentTestError(ServiceHeader."Document Type"::"Credit Memo");
     end;
 
-    local procedure ServiceDocumentTestError(DocumentType: Option)
+    local procedure ServiceDocumentTestError(DocumentType: Enum "Service Document Type")
     var
         Customer: Record Customer;
         TaxArea: Record "Tax Area";
@@ -68,7 +68,7 @@ codeunit 144010 "Service Documents With Tax"
         CreateServiceDocument(ServiceLine, DocumentType, Customer."No.", LibraryInventory.CreateItem(Item), TaxArea.Code);
 
         // Exercise: Run report Service Document - Test for different Document Type of Service Documents.
-        asserterror DocumentServiceTestReport;  // Opens ServiceDocumentTestRequestPageHandler.
+        asserterror DocumentServiceTestReport();  // Opens ServiceDocumentTestRequestPageHandler.
 
         // Verify: Verify Error Code, Actual error - Invalid function call. Function reserved for external tax engines only.
         Assert.ExpectedErrorCode('Dialog');
@@ -110,7 +110,7 @@ codeunit 144010 "Service Documents With Tax"
         ServiceDocumentTestCustomerWithCurrency(ServiceHeader."Document Type"::"Credit Memo");
     end;
 
-    local procedure ServiceDocumentTestCustomerWithCurrency(DocumentType: Option)
+    local procedure ServiceDocumentTestCustomerWithCurrency(DocumentType: Enum "Service Document Type")
     var
         Customer: Record Customer;
         TaxArea: Record "Tax Area";
@@ -126,10 +126,10 @@ codeunit 144010 "Service Documents With Tax"
         CreateServiceDocument(ServiceLine, DocumentType, Customer."No.", CreateItem(TaxGroup), TaxArea.Code);
 
         // Exercise: Run report Service Document - Test for different Document Type of Service Documents.
-        DocumentServiceTestReport;  // Opens ServiceDocumentTestRequestPageHandler.
+        DocumentServiceTestReport();  // Opens ServiceDocumentTestRequestPageHandler.
 
         // Verify: Verify VAT Base Amount, Quantity and Currency Code on Report Service Document - Test for customer with Currency.
-        VerifyServiceDocumentTestReport(ServiceLine, Customer."Currency Code", TaxArea.Code);
+        VerifyServiceDocumentTestReport(ServiceLine, TaxArea.Code);
     end;
 
     [Test]
@@ -168,7 +168,7 @@ codeunit 144010 "Service Documents With Tax"
         ServiceDocumentTestCustomerWithoutCurrency(ServiceHeader."Document Type"::"Credit Memo");
     end;
 
-    local procedure ServiceDocumentTestCustomerWithoutCurrency(DocumentType: Option)
+    local procedure ServiceDocumentTestCustomerWithoutCurrency(DocumentType: Enum "Service Document Status")
     var
         Customer: Record Customer;
         TaxArea: Record "Tax Area";
@@ -184,11 +184,11 @@ codeunit 144010 "Service Documents With Tax"
         CreateServiceDocument(ServiceLine, DocumentType, Customer."No.", CreateItem(TaxGroup), TaxArea.Code);
 
         // Exercise: Run report Service Document - Test for different Document Type of Service Documents.
-        DocumentServiceTestReport;  // Opens ServiceDocumentTestRequestPageHandler.
+        DocumentServiceTestReport();  // Opens ServiceDocumentTestRequestPageHandler.
 
         // Verify: Verify VAT Base Amount, Quantity and Currency Code and Allow Invoice Discount on Report Service Document - Test for customer without Currency.
         GeneralLedgerSetup.Get();
-        VerifyServiceDocumentTestReport(ServiceLine, GeneralLedgerSetup."LCY Code", TaxArea.Code);
+        VerifyServiceDocumentTestReport(ServiceLine, TaxArea.Code);
         LibraryReportDataset.AssertElementWithValueExists('Service_Line___Allow_Invoice_Disc__', true);
 
         // Teardown.
@@ -212,7 +212,7 @@ codeunit 144010 "Service Documents With Tax"
         exit(Item."No.");
     end;
 
-    local procedure CreateServiceHeader(var ServiceHeader: Record "Service Header"; DocumentType: Option; CustomerNo: Code[20]; TaxAreaCode: Code[20])
+    local procedure CreateServiceHeader(var ServiceHeader: Record "Service Header"; DocumentType: Enum "Service Document Type"; CustomerNo: Code[20]; TaxAreaCode: Code[20])
     begin
         LibraryService.CreateServiceHeader(ServiceHeader, DocumentType, CustomerNo);
         ServiceHeader.Validate("Posting Date", WorkDate());
@@ -260,7 +260,7 @@ codeunit 144010 "Service Documents With Tax"
         exit(TaxGroup.Code);
     end;
 
-    local procedure CreateServiceDocument(var ServiceLine: Record "Service Line"; DocumentType: Option; CustomerNo: Code[20]; ItemNo: Code[20]; TaxAreaCode: Code[20])
+    local procedure CreateServiceDocument(var ServiceLine: Record "Service Line"; DocumentType: Enum "Service Document Type"; CustomerNo: Code[20]; ItemNo: Code[20]; TaxAreaCode: Code[20])
     var
         ServiceItem: Record "Service Item";
         ServiceHeader: Record "Service Header";
@@ -289,7 +289,7 @@ codeunit 144010 "Service Documents With Tax"
 
     local procedure UpdateCustomerCurrency(var Customer: Record Customer)
     begin
-        Customer.Validate("Currency Code", CreateCurrencyWithExchangeRate);
+        Customer.Validate("Currency Code", CreateCurrencyWithExchangeRate());
         Customer.Modify(true);
     end;
 
@@ -309,13 +309,13 @@ codeunit 144010 "Service Documents With Tax"
         REPORT.Run(REPORT::"Service Document - Test");
     end;
 
-    local procedure VerifyServiceDocumentTestReport(ServiceLine: Record "Service Line"; CurrencyCode: Code[10]; TaxAreaCode: Code[20])
+    local procedure VerifyServiceDocumentTestReport(ServiceLine: Record "Service Line"; TaxAreaCode: Code[20])
     var
         SalesTaxAmountLine: Record "Sales Tax Amount Line";
     begin
         SalesTaxAmountLine.SetRange("Tax Area Code", TaxAreaCode);
         SalesTaxAmountLine.FindFirst();
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists('VATBaseAmount', SalesTaxAmountLine."Line Amount");
         LibraryReportDataset.AssertElementWithValueExists('SumLineAmount', ServiceLine."Line Amount");
         LibraryReportDataset.AssertElementWithValueExists('Service_Line__Quantity', ServiceLine.Quantity);
@@ -332,7 +332,7 @@ codeunit 144010 "Service Documents With Tax"
         LibraryVariableStorage.Dequeue(No);
         ServiceDocumentTest."Service Header".SetFilter("Document Type", Format(DocumentType));
         ServiceDocumentTest."Service Header".SetFilter("No.", No);
-        ServiceDocumentTest.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        ServiceDocumentTest.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 }
 

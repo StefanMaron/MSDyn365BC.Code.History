@@ -5,8 +5,17 @@ using Microsoft.Inventory.Counting.Document;
 table 5886 "Exp. Phys. Invt. Tracking"
 {
     Caption = 'Exp. Phys. Invt. Tracking';
+    ObsoleteReason = 'Replaced by table Exp.Invt.Order.Tracking.';
+#if not CLEAN24
     DrillDownPageID = "Exp. Phys. Invt. Tracking";
     LookupPageID = "Exp. Phys. Invt. Tracking";
+    ObsoleteState = Pending;
+    ObsoleteTag = '24.0';
+#else
+    ObsoleteState = Removed;
+    ObsoleteTag = '27.0';
+#endif
+    DataClassification = CustomerContent;
 
     fields
     {

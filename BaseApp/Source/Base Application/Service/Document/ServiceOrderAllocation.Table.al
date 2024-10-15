@@ -13,6 +13,7 @@ table 5950 "Service Order Allocation"
     Caption = 'Service Order Allocation';
     DrillDownPageID = "Service Order Allocations";
     LookupPageID = "Service Order Allocations";
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -147,10 +148,13 @@ table 5950 "Service Order Allocation"
                                                                   "Document No." = field("Document No."));
 
             trigger OnValidate()
+            var
+                ServOrderManagement: Codeunit ServOrderManagement;
             begin
                 if not HideDialog and ServHeader.Get("Document Type", "Document No.") then
                     ServOrderAllocMgt.CheckServiceItemLineFinished(ServHeader, "Service Item Line No.");
                 if ServItemLine.Get("Document Type", "Document No.", "Service Item Line No.") then begin
+                    ServOrderManagement.CheckServiceItemBlockedForAll(ServItemLine);
                     "Service Item No." := ServItemLine."Service Item No.";
                     "Service Item Serial No." := ServItemLine."Serial No.";
                 end else begin
@@ -205,7 +209,9 @@ table 5950 "Service Order Allocation"
         field(13; "Service Item No."; Code[20])
         {
             Caption = 'Service Item No.';
-            TableRelation = "Service Item";
+            TableRelation = if ("Document Type" = filter(<> "Credit Memo")) "Service Item"."No." where(Blocked = filter(<> All))
+            else
+            if ("Document Type" = filter("Credit Memo")) "Service Item"."No.";
 
             trigger OnLookup()
             begin
@@ -235,7 +241,7 @@ table 5950 "Service Order Allocation"
         }
         field(15; "Service Item Description"; Text[100])
         {
-            CalcFormula = Lookup("Service Item Line".Description where("Document Type" = field("Document Type"),
+            CalcFormula = lookup("Service Item Line".Description where("Document Type" = field("Document Type"),
                                                                         "Document No." = field("Document No."),
                                                                         "Line No." = field("Service Item Line No.")));
             Caption = 'Service Item Description';
@@ -270,7 +276,7 @@ table 5950 "Service Order Allocation"
         }
         field(17; "Repair Status"; Code[20])
         {
-            CalcFormula = Lookup("Service Item Line"."Repair Status Code" where("Document Type" = field("Document Type"),
+            CalcFormula = lookup("Service Item Line"."Repair Status Code" where("Document Type" = field("Document Type"),
                                                                                  "Document No." = field("Document No."),
                                                                                  "Line No." = field("Service Item Line No.")));
             Caption = 'Repair Status';

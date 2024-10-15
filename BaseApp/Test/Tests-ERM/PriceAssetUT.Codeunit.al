@@ -12,12 +12,9 @@ codeunit 134119 "Price Asset UT"
         Assert: Codeunit Assert;
         LibraryERM: Codeunit "Library - ERM";
         LibraryInventory: Codeunit "Library - Inventory";
-        LibraryPriceCalculation: Codeunit "Library - Price Calculation";
         LibraryResource: Codeunit "Library - Resource";
         LibraryRandom: Codeunit "Library - Random";
         LibraryUtility: Codeunit "Library - Utility";
-        LibraryPurchase: Codeunit "Library - Purchase";
-        LibrarySales: Codeunit "Library - Sales";
         LibraryService: Codeunit "Library - Service";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
@@ -605,7 +602,7 @@ codeunit 134119 "Price Asset UT"
 
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"Price Asset UT");
         isInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"Price Asset UT");
     end;
 

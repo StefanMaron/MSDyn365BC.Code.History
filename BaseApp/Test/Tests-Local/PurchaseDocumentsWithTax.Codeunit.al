@@ -35,7 +35,7 @@ codeunit 144012 "Purchase Documents With Tax"
         // Setup: Create Purchase Order with Type - G/L Account.
         Initialize();
         LibraryERM.CreateTaxGroup(TaxGroup);
-        PurchaseOrderWithType(PurchaseLine.Type::"G/L Account", CreateGLAccount, TaxGroup.Code);
+        PurchaseOrderWithType(PurchaseLine.Type::"G/L Account", CreateGLAccount(), TaxGroup.Code);
     end;
 
     [Test]
@@ -54,7 +54,7 @@ codeunit 144012 "Purchase Documents With Tax"
         PurchaseOrderWithType(PurchaseLine.Type::Item, CreateItem(TaxGroup.Code), TaxGroup.Code);
     end;
 
-    local procedure PurchaseOrderWithType(Type: Option; No: Code[20]; TaxGroupCode: Code[20])
+    local procedure PurchaseOrderWithType(Type: Enum "Purchase Line Type"; No: Code[20]; TaxGroupCode: Code[20])
     var
         PurchaseLine: Record "Purchase Line";
         TaxAreaLine: Record "Tax Area Line";
@@ -63,14 +63,14 @@ codeunit 144012 "Purchase Documents With Tax"
         // Create Tax Group, Tax Area Line, Tax Detail and Purchase Order.
         CreateTaxAreaLine(TaxAreaLine);
         CreateTaxDetail(TaxAreaLine."Tax Jurisdiction Code", TaxGroupCode);
-        CreatePurchaseDocument(PurchaseLine, TaxAreaLine."Tax Area", Type, No, TaxGroupCode, CreateVendor);
+        CreatePurchaseDocument(PurchaseLine, TaxAreaLine."Tax Area", Type, No, TaxGroupCode, CreateVendor());
         LibraryVariableStorage.Enqueue(
-          Round((PurchaseLine."VAT %" * PurchaseLine."Line Amount") / 100, LibraryERM.GetAmountRoundingPrecision));  // Enqueue value required in PurchaseOrderStatisticsModalPageHandler.
+          Round((PurchaseLine."VAT %" * PurchaseLine."Line Amount") / 100, LibraryERM.GetAmountRoundingPrecision()));  // Enqueue value required in PurchaseOrderStatisticsModalPageHandler.
 
         // Exercise And Verify: Open Purchase Order Statistics page. Verify VAT Amount on PurchaseOrderStatsPageHandler.
-        PurchaseOrder.OpenView;
+        PurchaseOrder.OpenView();
         PurchaseOrder.FILTER.SetFilter("No.", PurchaseLine."Document No.");
-        PurchaseOrder.Statistics.Invoke;
+        PurchaseOrder.Statistics.Invoke();
         PurchaseOrder.Close();
     end;
 
@@ -86,7 +86,7 @@ codeunit 144012 "Purchase Documents With Tax"
         // Setup: Create Purchase Order with Type - G/L Account.
         Initialize();
         LibraryERM.CreateTaxGroup(TaxGroup);
-        PostPurchaseOrderWithType(PurchaseLine.Type::"G/L Account", CreateGLAccount, TaxGroup.Code);
+        PostPurchaseOrderWithType(PurchaseLine.Type::"G/L Account", CreateGLAccount(), TaxGroup.Code);
     end;
 
     [Test]
@@ -104,7 +104,7 @@ codeunit 144012 "Purchase Documents With Tax"
         PostPurchaseOrderWithType(PurchaseLine.Type::Item, CreateItem(TaxGroup.Code), TaxGroup.Code);
     end;
 
-    local procedure PostPurchaseOrderWithType(Type: Option; No: Code[20]; TaxGroupCode: Code[20])
+    local procedure PostPurchaseOrderWithType(Type: Enum "Purchase Line Type"; No: Code[20]; TaxGroupCode: Code[20])
     var
         PurchaseLine: Record "Purchase Line";
         TaxJurisdiction: Record "Tax Jurisdiction";
@@ -115,8 +115,8 @@ codeunit 144012 "Purchase Documents With Tax"
         // Create Tax Group, Tax Area Line, Tax Detail and Purchase Order.
         CreateTaxAreaLine(TaxAreaLine);
         CreateTaxDetail(TaxAreaLine."Tax Jurisdiction Code", TaxGroupCode);
-        CreatePurchaseDocument(PurchaseLine, TaxAreaLine."Tax Area", Type, No, TaxGroupCode, CreateVendor);
-        VATAmount := Round((PurchaseLine."VAT %" * PurchaseLine."Line Amount") / 100, LibraryERM.GetAmountRoundingPrecision);
+        CreatePurchaseDocument(PurchaseLine, TaxAreaLine."Tax Area", Type, No, TaxGroupCode, CreateVendor());
+        VATAmount := Round((PurchaseLine."VAT %" * PurchaseLine."Line Amount") / 100, LibraryERM.GetAmountRoundingPrecision());
 
         // Exercise: Post as Receive and Invoice Purchase Order.
         DocumentNo := PostPurchaseOrder(PurchaseLine."Document No.", true, true);
@@ -141,7 +141,7 @@ codeunit 144012 "Purchase Documents With Tax"
         Initialize();
         LibraryERM.CreateTaxGroup(TaxGroup);
         CreateTaxAreaLine(TaxAreaLine);
-        CreatePurchaseDocument(PurchaseLine, '', PurchaseLine.Type::Item, CreateItem(TaxGroup.Code), TaxGroup.Code, CreateVendor);  // Blank value for Tax Area Code.
+        CreatePurchaseDocument(PurchaseLine, '', PurchaseLine.Type::Item, CreateItem(TaxGroup.Code), TaxGroup.Code, CreateVendor());  // Blank value for Tax Area Code.
 
         // Exercise: Post as ship Purchase Order.
         PostPurchaseOrder(PurchaseLine."Document No.", true, false);
@@ -184,10 +184,7 @@ codeunit 144012 "Purchase Documents With Tax"
     var
         PurchaseLine: Record "Purchase Line";
     begin
-        PurchOrderWithAdditionalReportingCurrencyOrForeignVendor(
-          true, false, LibraryRandom.RandDec(100, 2), LibraryRandom.RandDec(100, 2),
-          PurchaseLine.Type::"G/L Account", CreateGLAccount,
-          LibraryRandom.RandDec(10, 2), LibraryRandom.RandDec(10, 2), LibraryRandom.RandDec(10, 2));
+        PurchOrderWithAdditionalReportingCurrencyOrForeignVendor(true, false, LibraryRandom.RandDec(100, 2), LibraryRandom.RandDec(100, 2), PurchaseLine.Type::"G/L Account", CreateGLAccount(), LibraryRandom.RandDec(10, 2), LibraryRandom.RandDec(10, 2));
     end;
 
     [Test]
@@ -196,10 +193,7 @@ codeunit 144012 "Purchase Documents With Tax"
     var
         PurchaseLine: Record "Purchase Line";
     begin
-        PurchOrderWithAdditionalReportingCurrencyOrForeignVendor(
-          true, true, LibraryRandom.RandDec(100, 2), LibraryRandom.RandDec(100, 2),
-          PurchaseLine.Type::"G/L Account", CreateGLAccount,
-          LibraryRandom.RandDec(10, 2), LibraryRandom.RandDec(10, 2), LibraryRandom.RandDec(10, 2));
+        PurchOrderWithAdditionalReportingCurrencyOrForeignVendor(true, true, LibraryRandom.RandDec(100, 2), LibraryRandom.RandDec(100, 2), PurchaseLine.Type::"G/L Account", CreateGLAccount(), LibraryRandom.RandDec(10, 2), LibraryRandom.RandDec(10, 2));
     end;
 
     [Test]
@@ -208,8 +202,7 @@ codeunit 144012 "Purchase Documents With Tax"
     var
         PurchaseLine: Record "Purchase Line";
     begin
-        PurchOrderWithAdditionalReportingCurrencyOrForeignVendor(
-          false, false, 100, 98.95, PurchaseLine.Type::Item, CreateItem(''), 1, 1060.1, 5);
+        PurchOrderWithAdditionalReportingCurrencyOrForeignVendor(false, false, 100, 98.95, PurchaseLine.Type::Item, CreateItem(''), 1060.1, 5);
     end;
 
     local procedure Initialize()
@@ -227,7 +220,7 @@ codeunit 144012 "Purchase Documents With Tax"
         Item.Validate("Tax Group Code", TaxGroupCode);
         Item.Modify(true);
         CreatePurchaseDocument(
-          PurchaseLine, TaxAreaCode, PurchaseLine.Type::Item, Item."No.", TaxGroupCode, CreateVendor);
+          PurchaseLine, TaxAreaCode, PurchaseLine.Type::Item, Item."No.", TaxGroupCode, CreateVendor());
         PurchaseLine.Validate("Line Discount %", LibraryRandom.RandDec(10, 2));
         PurchaseLine.Modify(true);
         PostPurchaseOrder(PurchaseLine."Document No.", true, false);
@@ -245,8 +238,8 @@ codeunit 144012 "Purchase Documents With Tax"
     begin
         LibraryERM.CreateCurrency(Currency);
 
-        GLAccountRealized := CreateGLAccount;
-        GLAccountResidual := CreateGLAccount;
+        GLAccountRealized := CreateGLAccount();
+        GLAccountResidual := CreateGLAccount();
 
         SetupDate := CalcDate('<CY-1Y+1D>', WorkDate());
         IncrementDateExpr := StrSubstNo('<+%1D>', LibraryRandom.RandInt(20));
@@ -256,7 +249,7 @@ codeunit 144012 "Purchase Documents With Tax"
         CreateExchangeRate(Currency.Code, SetupDate, CurrencyExchangeRate, RelationalCurrencyExchangeRate);
         UpdateAdditionalReportingCurrency(Currency.Code);
 
-        GLAccountTax := CreateGLAccount;
+        GLAccountTax := CreateGLAccount();
         TaxJurisdictionCode := CreateTaxJurisdiction(GLAccountTax, Foreign);
 
         TaxAreaCode := CreateTaxAreaGroupDetail(TaxGroupCode, TaxJurisdictionCode, SetupDate, Foreign, TaxBelowMaximum);
@@ -293,7 +286,7 @@ codeunit 144012 "Purchase Documents With Tax"
         exit(GLAccount."No.");
     end;
 
-    local procedure CreatePurchaseDocument(var PurchaseLine: Record "Purchase Line"; TaxArea: Code[20]; Type: Option; No: Code[20]; TaxGroupCode: Code[20]; VendorCode: Code[20])
+    local procedure CreatePurchaseDocument(var PurchaseLine: Record "Purchase Line"; TaxArea: Code[20]; Type: Enum "Purchase Line Type"; No: Code[20]; TaxGroupCode: Code[20]; VendorCode: Code[20])
     var
         PurchaseHeader: Record "Purchase Header";
     begin
@@ -304,31 +297,28 @@ codeunit 144012 "Purchase Documents With Tax"
         PurchaseLine.Modify(true);
     end;
 
-    local procedure CreatePurchaseDocumentWithTaxes(var PurchaseLine: Record "Purchase Line"; TaxAreaCode: Code[20]; TaxGroupCode: Code[20]; LocationCode: Code[10]; VendorNo: Code[20]; PostingDate: Date; LineType: Option; No: Code[20]; Quantity: Decimal; Cost: Decimal; SetProvincialTaxAreaCode: Boolean)
+    local procedure CreatePurchaseDocumentWithTaxes(var PurchaseLine: Record "Purchase Line"; TaxAreaCode: Code[20]; TaxGroupCode: Code[20]; LocationCode: Code[10]; VendorNo: Code[20]; PostingDate: Date; LineType: Enum "Purchase Line Type"; No: Code[20]; Cost: Decimal; SetProvincialTaxAreaCode: Boolean)
     var
         PurchaseHeader: Record "Purchase Header";
     begin
-        with PurchaseHeader do begin
-            CreatePurchaseHeader(PurchaseHeader, TaxAreaCode, VendorNo);
-            Validate("Posting Date", PostingDate);
-            Validate("Location Code", LocationCode);
-            if SetProvincialTaxAreaCode then
-                Validate("Provincial Tax Area Code", TaxAreaCode);
-            Modify(true);
-        end;
+        CreatePurchaseHeader(PurchaseHeader, TaxAreaCode, VendorNo);
+        PurchaseHeader.Validate("Posting Date", PostingDate);
+        PurchaseHeader.Validate("Location Code", LocationCode);
+        if SetProvincialTaxAreaCode then
+            PurchaseHeader.Validate("Provincial Tax Area Code", TaxAreaCode);
+        PurchaseHeader.Modify(true);
 
-        with PurchaseLine do begin
-            LibraryPurchase.CreatePurchaseLine(
-              PurchaseLine, PurchaseHeader, LineType, No, Quantity);  // Used Random value for Quantity.
-            if LocationCode <> '' then
-                Validate("Location Code", LocationCode);
-            Validate(Quantity, Cost);
-            Validate("Direct Unit Cost", Cost);
-            Validate("Tax Group Code", TaxGroupCode);
-            if SetProvincialTaxAreaCode then
-                Validate("Provincial Tax Area Code", TaxAreaCode);
-            Modify(true);
-        end;
+        LibraryPurchase.CreatePurchaseLine(
+          PurchaseLine, PurchaseHeader, LineType, No, PurchaseLine.Quantity);
+        // Used Random value for Quantity.
+        if LocationCode <> '' then
+            PurchaseLine.Validate("Location Code", LocationCode);
+        PurchaseLine.Validate(Quantity, Cost);
+        PurchaseLine.Validate("Direct Unit Cost", Cost);
+        PurchaseLine.Validate("Tax Group Code", TaxGroupCode);
+        if SetProvincialTaxAreaCode then
+            PurchaseLine.Validate("Provincial Tax Area Code", TaxAreaCode);
+        PurchaseLine.Modify(true);
     end;
 
     local procedure CreatePurchaseHeader(var PurchaseHeader: Record "Purchase Header"; TaxAreaCode: Code[20]; VendorCode: Code[20])
@@ -354,7 +344,7 @@ codeunit 144012 "Purchase Documents With Tax"
         TaxJurisdiction: Record "Tax Jurisdiction";
     begin
         LibraryERM.CreateTaxJurisdiction(TaxJurisdiction);
-        TaxJurisdiction."Tax Account (Purchases)" := CreateGLAccount;
+        TaxJurisdiction."Tax Account (Purchases)" := CreateGLAccount();
         TaxJurisdiction.Modify(true);
         LibraryERM.CreateTaxArea(TaxArea);
         LibraryERM.CreateTaxAreaLine(TaxAreaLine, TaxArea.Code, TaxJurisdiction.Code);
@@ -436,7 +426,7 @@ codeunit 144012 "Purchase Documents With Tax"
         VendorNo: Code[20];
     begin
         with Vendor do begin
-            VendorNo := CreateVendor;
+            VendorNo := CreateVendor();
             Get(VendorNo);
             Validate("Tax Liable", true);
             Validate("Tax Area Code", TaxAreaCode);
@@ -475,7 +465,7 @@ codeunit 144012 "Purchase Documents With Tax"
         end;
     end;
 
-    local procedure PurchOrderWithAdditionalReportingCurrencyOrForeignVendor(Foreign: Boolean; SetProvincialTaxAreaCode: Boolean; ExchangeRate: Decimal; RelationalExchangeRate: Decimal; LineType: Option; LineItemNo: Code[20]; Quantity: Decimal; Price: Decimal; TaxBelowMaximum: Decimal)
+    local procedure PurchOrderWithAdditionalReportingCurrencyOrForeignVendor(Foreign: Boolean; SetProvincialTaxAreaCode: Boolean; ExchangeRate: Decimal; RelationalExchangeRate: Decimal; LineType: Enum "Purchase Line Type"; LineItemNo: Code[20]; Price: Decimal; TaxBelowMaximum: Decimal)
     var
         PurchaseLine: Record "Purchase Line";
         LocationCode: Code[10];
@@ -494,7 +484,7 @@ codeunit 144012 "Purchase Documents With Tax"
         // Exercise
         CreatePurchaseDocumentWithTaxes(
           PurchaseLine, TaxAreaCode, TaxGroupCode, '', VendorNo, PostingDate,
-          LineType, LineItemNo, Quantity, Price, SetProvincialTaxAreaCode);
+          LineType, LineItemNo, Price, SetProvincialTaxAreaCode);
         DocNo := PostPurchaseOrder(PurchaseLine."Document No.", true, true);
 
         // Verify.
@@ -517,7 +507,7 @@ codeunit 144012 "Purchase Documents With Tax"
         PurchInvHeader.Get(DocumentNo);
         PurchInvHeader.CalcFields(Amount);
         Assert.AreNearlyEqual(
-          ExpectedAmount, PurchInvHeader.Amount, LibraryERM.GetAmountRoundingPrecision,
+          ExpectedAmount, PurchInvHeader.Amount, LibraryERM.GetAmountRoundingPrecision(),
           StrSubstNo(AmountErr, PurchInvHeader.FieldCaption(Amount), ExpectedAmount, PurchInvHeader.TableCaption()));
     end;
 
@@ -583,7 +573,7 @@ codeunit 144012 "Purchase Documents With Tax"
     begin
         LibraryVariableStorage.Dequeue(VATAmount);
         PurchaseOrderStats."VATAmount[2]".AssertEquals(VATAmount);
-        PurchaseOrderStats.OK.Invoke;
+        PurchaseOrderStats.OK().Invoke();
     end;
 
     local procedure UpdateAdditionalReportingCurrency(AdditionalReportingCurrency: Code[10])

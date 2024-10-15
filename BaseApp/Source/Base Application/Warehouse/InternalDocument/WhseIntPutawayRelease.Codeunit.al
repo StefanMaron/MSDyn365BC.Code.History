@@ -23,43 +23,41 @@ codeunit 7316 "Whse. Int. Put-away Release"
         WhsePutawayRqst: Record "Whse. Put-away Request";
         WhseInternalPutawayLine: Record "Whse. Internal Put-away Line";
     begin
-        with WhseInternalPutAwayHeader do begin
-            if Status = Status::Released then
-                exit;
+        if WhseInternalPutAwayHeader.Status = WhseInternalPutAwayHeader.Status::Released then
+            exit;
 
-            WhseInternalPutawayLine.SetRange("No.", "No.");
-            WhseInternalPutawayLine.SetFilter(Quantity, '<>0');
-            if not WhseInternalPutawayLine.Find('-') then
-                Error(Text000, TableCaption(), "No.");
+        WhseInternalPutawayLine.SetRange("No.", WhseInternalPutAwayHeader."No.");
+        WhseInternalPutawayLine.SetFilter(Quantity, '<>0');
+        if not WhseInternalPutawayLine.Find('-') then
+            Error(Text000, WhseInternalPutAwayHeader.TableCaption(), WhseInternalPutAwayHeader."No.");
 
-            if "Location Code" <> '' then begin
-                Location.Get("Location Code");
-                Location.TestField("Require Put-away");
-            end else
-                CheckPutawayRequired("Location Code");
+        if WhseInternalPutAwayHeader."Location Code" <> '' then begin
+            Location.Get(WhseInternalPutAwayHeader."Location Code");
+            Location.TestField("Require Put-away");
+        end else
+            WhseInternalPutAwayHeader.CheckPutawayRequired(WhseInternalPutAwayHeader."Location Code");
 
-            repeat
-                WhseInternalPutawayLine.TestField("Item No.");
-                WhseInternalPutawayLine.TestField("Unit of Measure Code");
-                if Location."Directed Put-away and Pick" then
-                    WhseInternalPutawayLine.TestField("From Zone Code");
-                if Location."Bin Mandatory" then
-                    WhseInternalPutawayLine.TestField("From Bin Code");
-            until WhseInternalPutawayLine.Next() = 0;
+        repeat
+            WhseInternalPutawayLine.TestField("Item No.");
+            WhseInternalPutawayLine.TestField("Unit of Measure Code");
+            if Location."Directed Put-away and Pick" then
+                WhseInternalPutawayLine.TestField("From Zone Code");
+            if Location."Bin Mandatory" then
+                WhseInternalPutawayLine.TestField("From Bin Code");
+        until WhseInternalPutawayLine.Next() = 0;
 
-            Status := Status::Released;
-            Modify();
+        WhseInternalPutAwayHeader.Status := WhseInternalPutAwayHeader.Status::Released;
+        WhseInternalPutAwayHeader.Modify();
 
-            CreateWhsePutawayRqst(WhseInternalPutAwayHeader);
+        CreateWhsePutawayRqst(WhseInternalPutAwayHeader);
 
-            WhsePutawayRqst.SetRange(
-              "Document Type", WhsePutawayRqst."Document Type"::"Internal Put-away");
-            WhsePutawayRqst.SetRange("Document No.", "No.");
-            WhsePutawayRqst.SetRange(Status, Status::Open);
-            WhsePutawayRqst.DeleteAll(true);
+        WhsePutawayRqst.SetRange(
+          "Document Type", WhsePutawayRqst."Document Type"::"Internal Put-away");
+        WhsePutawayRqst.SetRange("Document No.", WhseInternalPutAwayHeader."No.");
+        WhsePutawayRqst.SetRange(Status, WhseInternalPutAwayHeader.Status::Open);
+        WhsePutawayRqst.DeleteAll(true);
 
-            Commit();
-        end;
+        Commit();
     end;
 
     procedure Reopen(WhseInternalPutAwayHeader: Record "Whse. Internal Put-away Header")
@@ -68,54 +66,50 @@ codeunit 7316 "Whse. Int. Put-away Release"
         WhseWkshLine: Record "Whse. Worksheet Line";
         WhseActivLine: Record "Warehouse Activity Line";
     begin
-        with WhseInternalPutAwayHeader do begin
-            if Status = Status::Open then
-                exit;
+        if WhseInternalPutAwayHeader.Status = WhseInternalPutAwayHeader.Status::Open then
+            exit;
 
-            WhseWkshLine.SetCurrentKey("Whse. Document Type", "Whse. Document No.");
-            WhseWkshLine.SetRange("Whse. Document Type", WhseWkshLine."Whse. Document Type"::"Internal Put-away");
-            WhseWkshLine.SetRange("Whse. Document No.", "No.");
-            if not WhseWkshLine.IsEmpty() then
-                Error(Text001);
+        WhseWkshLine.SetCurrentKey("Whse. Document Type", "Whse. Document No.");
+        WhseWkshLine.SetRange("Whse. Document Type", WhseWkshLine."Whse. Document Type"::"Internal Put-away");
+        WhseWkshLine.SetRange("Whse. Document No.", WhseInternalPutAwayHeader."No.");
+        if not WhseWkshLine.IsEmpty() then
+            Error(Text001);
 
-            WhseActivLine.SetCurrentKey("Whse. Document No.", "Whse. Document Type", "Activity Type");
-            WhseActivLine.SetRange("Whse. Document No.", "No.");
-            WhseActivLine.SetRange("Whse. Document Type", WhseActivLine."Whse. Document Type"::"Internal Put-away");
-            WhseActivLine.SetRange("Activity Type", WhseActivLine."Activity Type"::"Put-away");
-            if not WhseActivLine.IsEmpty() then
-                Error(Text002);
+        WhseActivLine.SetCurrentKey("Whse. Document No.", "Whse. Document Type", "Activity Type");
+        WhseActivLine.SetRange("Whse. Document No.", WhseInternalPutAwayHeader."No.");
+        WhseActivLine.SetRange("Whse. Document Type", WhseActivLine."Whse. Document Type"::"Internal Put-away");
+        WhseActivLine.SetRange("Activity Type", WhseActivLine."Activity Type"::"Put-away");
+        if not WhseActivLine.IsEmpty() then
+            Error(Text002);
 
-            WhsePutawayRqst.SetRange("Document Type", WhsePutawayRqst."Document Type"::"Internal Put-away");
-            WhsePutawayRqst.SetRange("Document No.", "No.");
-            WhsePutawayRqst.SetRange(Status, Status::Released);
-            if WhsePutawayRqst.Find('-') then
-                repeat
-                    WhsePutawayRqst.Status := Status::Open;
-                    WhsePutawayRqst.Modify();
-                until WhsePutawayRqst.Next() = 0;
+        WhsePutawayRqst.SetRange("Document Type", WhsePutawayRqst."Document Type"::"Internal Put-away");
+        WhsePutawayRqst.SetRange("Document No.", WhseInternalPutAwayHeader."No.");
+        WhsePutawayRqst.SetRange(Status, WhseInternalPutAwayHeader.Status::Released);
+        if WhsePutawayRqst.Find('-') then
+            repeat
+                WhsePutawayRqst.Status := WhseInternalPutAwayHeader.Status::Open;
+                WhsePutawayRqst.Modify();
+            until WhsePutawayRqst.Next() = 0;
 
-            Status := Status::Open;
-            Modify();
-        end;
+        WhseInternalPutAwayHeader.Status := WhseInternalPutAwayHeader.Status::Open;
+        WhseInternalPutAwayHeader.Modify();
     end;
 
     local procedure CreateWhsePutawayRqst(var WhseInternalPutAwayHeader: Record "Whse. Internal Put-away Header")
     var
         WhsePutawayRqst: Record "Whse. Put-away Request";
     begin
-        with WhseInternalPutAwayHeader do begin
-            WhsePutawayRqst."Document Type" := WhsePutawayRqst."Document Type"::"Internal Put-away";
-            WhsePutawayRqst."Document No." := "No.";
-            WhsePutawayRqst.Status := Status;
-            WhsePutawayRqst."Location Code" := "Location Code";
-            WhsePutawayRqst."Zone Code" := "From Zone Code";
-            WhsePutawayRqst."Bin Code" := "From Bin Code";
-            "Document Status" := GetDocumentStatus(0);
-            WhsePutawayRqst."Completely Put Away" :=
-              "Document Status" = "Document Status"::"Completely Put Away";
-            if not WhsePutawayRqst.Insert() then
-                WhsePutawayRqst.Modify();
-        end;
+        WhsePutawayRqst."Document Type" := WhsePutawayRqst."Document Type"::"Internal Put-away";
+        WhsePutawayRqst."Document No." := WhseInternalPutAwayHeader."No.";
+        WhsePutawayRqst.Status := WhseInternalPutAwayHeader.Status;
+        WhsePutawayRqst."Location Code" := WhseInternalPutAwayHeader."Location Code";
+        WhsePutawayRqst."Zone Code" := WhseInternalPutAwayHeader."From Zone Code";
+        WhsePutawayRqst."Bin Code" := WhseInternalPutAwayHeader."From Bin Code";
+        WhseInternalPutAwayHeader."Document Status" := WhseInternalPutAwayHeader.GetDocumentStatus(0);
+        WhsePutawayRqst."Completely Put Away" :=
+          WhseInternalPutAwayHeader."Document Status" = WhseInternalPutAwayHeader."Document Status"::"Completely Put Away";
+        if not WhsePutawayRqst.Insert() then
+            WhsePutawayRqst.Modify();
     end;
 }
 

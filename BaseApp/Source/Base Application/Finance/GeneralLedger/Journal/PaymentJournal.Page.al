@@ -73,7 +73,7 @@ page 256 "Payment Journal"
                     trigger OnValidate()
                     begin
                         GenJnlManagement.CheckName(CurrentJnlBatchName, Rec);
-                        CurrentJnlBatchNameOnAfterVali();
+                        CurrentJnlBatchNameOnAfterValidate();
                         OnAfterValidateCurrentJnlBatchName(CurrentJnlBatchName);
                     end;
                 }
@@ -1090,7 +1090,7 @@ page 256 "Payment Journal"
                                 if not EntriesToVoid(GenJournalLine, true) then
                                     Error(NoEntriesToVoidErr);
                                 if GenJournalLine.FindFirst() then
-                                    GenJournalLine.VoidPaymentFile;
+                                    GenJournalLine.VoidPaymentFile();
                             end else begin
                                 GenJournalLine.Reset();
                                 GenJournalLine := Rec;
@@ -1131,7 +1131,7 @@ page 256 "Payment Journal"
                             if (BankAccount."Export Format" = 0) or (BankAccount."Export Format" = BankAccount."Export Format"::Other) then begin
                                 GenJournalLine.CopyFilters(Rec);
                                 if GenJournalLine.FindFirst() then
-                                    GenJournalLine.TransmitPaymentFile;
+                                    GenJournalLine.TransmitPaymentFile();
                             end;
                         end;
                     }
@@ -1521,7 +1521,7 @@ page 256 "Payment Journal"
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Journal Batch';
-                        Enabled = NOT OpenApprovalEntriesOnBatchOrAnyJnlLineExist AND CanRequestFlowApprovalForBatchAndAllLines;
+                        Enabled = not OpenApprovalEntriesOnBatchOrAnyJnlLineExist and CanRequestFlowApprovalForBatchAndAllLines;
                         Image = SendApprovalRequest;
                         ToolTip = 'Send all journal lines for approval, also those that you may not see because of filters.';
 
@@ -1538,7 +1538,7 @@ page 256 "Payment Journal"
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Selected Journal Lines';
-                        Enabled = NOT OpenApprovalEntriesOnBatchOrCurrJnlLineExist AND CanRequestFlowApprovalForBatchAndCurrentLine;
+                        Enabled = not OpenApprovalEntriesOnBatchOrCurrJnlLineExist and CanRequestFlowApprovalForBatchAndCurrentLine;
                         Image = SendApprovalRequest;
                         ToolTip = 'Send selected journal lines for approval.';
 
@@ -1560,7 +1560,7 @@ page 256 "Payment Journal"
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Journal Batch';
-                        Enabled = CanCancelApprovalForJnlBatch OR CanCancelFlowApprovalForBatch;
+                        Enabled = CanCancelApprovalForJnlBatch or CanCancelFlowApprovalForBatch;
                         Image = CancelApprovalRequest;
                         ToolTip = 'Cancel sending all journal lines for approval, also those that you may not see because of filters.';
 
@@ -1577,7 +1577,7 @@ page 256 "Payment Journal"
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Selected Journal Lines';
-                        Enabled = CanCancelApprovalForJnlLine OR CanCancelFlowApprovalForLine;
+                        Enabled = CanCancelApprovalForJnlLine or CanCancelFlowApprovalForLine;
                         Image = CancelApprovalRequest;
                         ToolTip = 'Cancel sending selected journal lines for approval.';
 
@@ -1591,18 +1591,38 @@ page 256 "Payment Journal"
                         end;
                     }
                 }
+#if not CLEAN24
                 customaction(CreateFlowFromTemplate)
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Create approval flow';
                     ToolTip = 'Create a new flow in Power Automate from a list of relevant flow templates.';
-#if not CLEAN22
-                    Visible = IsSaaS and PowerAutomateTemplatesEnabled and IsPowerAutomatePrivacyNoticeApproved;
-#else
-                    Visible = IsSaaS and IsPowerAutomatePrivacyNoticeApproved;
-#endif
+                    Visible = false;
                     CustomActionType = FlowTemplateGallery;
                     FlowTemplateCategoryName = 'd365bc_approval_generalJournal';
+                    ObsoleteReason = 'Replaced by field "CreateApprovalFlowFromTemplate" in the group Flow.';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '24.0';
+                }
+#endif
+                group(Flow)
+                {
+                    Caption = 'Power Automate';
+                    Image = Flow;
+
+                    customaction(CreateApprovalFlowFromTemplate)
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'Create approval flow';
+                        ToolTip = 'Create a new flow in Power Automate from a list of relevant flow templates.';
+#if not CLEAN22
+                        Visible = IsSaaS and PowerAutomateTemplatesEnabled and IsPowerAutomatePrivacyNoticeApproved;
+#else
+                        Visible = IsSaaS and IsPowerAutomatePrivacyNoticeApproved;
+#endif
+                        CustomActionType = FlowTemplateGallery;
+                        FlowTemplateCategoryName = 'd365bc_approval_generalJournal';
+                    }
                 }
 #if not CLEAN22
                 action(CreateFlow)
@@ -1627,20 +1647,6 @@ page 256 "Payment Journal"
                     end;
                 }
 #endif
-#if not CLEAN21
-                action(SeeFlows)
-                {
-                    ApplicationArea = Basic, Suite;
-                    Caption = 'See my flows';
-                    Image = Flow;
-                    RunObject = Page "Flow Selector";
-                    ToolTip = 'View and configure Power Automate flows that you created.';
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'This action has been moved to the tab dedicated to Power Automate';
-                    ObsoleteTag = '21.0';
-                }
-#endif
             }
             group(Workflow)
             {
@@ -1649,7 +1655,7 @@ page 256 "Payment Journal"
                 {
                     ApplicationArea = Suite;
                     Caption = 'Create Approval Workflow';
-                    Enabled = NOT EnabledApprovalWorkflowsExist;
+                    Enabled = not EnabledApprovalWorkflowsExist;
                     Image = CreateWorkflow;
                     ToolTip = 'Set up an approval workflow for payment journal lines, by going through a few pages that will guide you.';
 
@@ -1817,15 +1823,6 @@ page 256 "Payment Journal"
                     {
                     }
                 }
-#if not CLEAN21
-                actionref("Remove From Job Queue_Promoted"; "Remove From Job Queue")
-                {
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Action is being demoted based on overall low usage.';
-                    ObsoleteTag = '21.0';
-                }
-#endif
             }
             group(Category_Category5)
             {
@@ -1912,14 +1909,6 @@ page 256 "Payment Journal"
                 actionref(ExportPaymentsToFile_Promoted; ExportPaymentsToFile)
                 {
                 }
-#if not CLEAN21
-                actionref(TransmitPayments_Promoted; TransmitPayments)
-                {
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Action only related to NA local version';
-                    ObsoleteTag = '21.0';
-                }
-#endif
                 actionref(VoidPayments_Promoted; VoidPayments)
                 {
                 }
@@ -1943,29 +1932,11 @@ page 256 "Payment Journal"
                 actionref(IncomingDoc_Promoted; IncomingDoc)
                 {
                 }
-#if not CLEAN21
-                actionref("Ledger E&ntries_Promoted"; "Ledger E&ntries")
-                {
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Action is being demoted based on overall low usage.';
-                    ObsoleteTag = '21.0';
-                }
-#endif
             }
             group(Category_Category10)
             {
                 Caption = 'Account', Comment = 'Generated from the PromotedActionCategories property index 9.';
 
-#if not CLEAN21
-                actionref(Card_Promoted; Card)
-                {
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Action is being demoted based on overall low usage.';
-                    ObsoleteTag = '21.0';
-                }
-#endif
             }
             group(Category_Category7)
             {
@@ -2118,7 +2089,7 @@ page 256 "Payment Journal"
         BackgroundErrorHandlingMgt: Codeunit "Background Error Handling Mgt.";
         ApprovalMgmt: Codeunit "Approvals Mgmt.";
         FeatureTelemetry: Codeunit "Feature Telemetry";
-	    ClientTypeManagement: Codeunit "Client Type Management";
+        ClientTypeManagement: Codeunit "Client Type Management";
         ChangeExchangeRate: Page "Change Exchange Rate";
         AccName: Text[100];
         BalAccName: Text[100];
@@ -2234,7 +2205,7 @@ page 256 "Payment Journal"
         OnAfterEnableApplyEntriesAction(Rec, ApplyEntriesActionEnabled);
     end;
 
-    local procedure CurrentJnlBatchNameOnAfterVali()
+    protected procedure CurrentJnlBatchNameOnAfterValidate()
     begin
         CurrPage.SaveRecord();
         GenJnlManagement.SetName(CurrentJnlBatchName, Rec);
@@ -2248,7 +2219,7 @@ page 256 "Payment Journal"
         exit(GenJournalLine.FindSet());
     end;
 
-    local procedure SetControlAppearanceFromBatch()
+    protected procedure SetControlAppearanceFromBatch()
     begin
         SetApprovalStateForBatch();
         BackgroundErrorCheck := BackgroundErrorHandlingMgt.BackgroundValidationFeatureEnabled();
@@ -2609,4 +2580,3 @@ page 256 "Payment Journal"
     begin
     end;
 }
-

@@ -67,7 +67,7 @@ codeunit 134049 "ERM Date Compression FA"
         AccountingPeriod.ModifyAll(Closed, false);
         AccountingPeriod.ModifyAll("Date Locked", false);
 
-        FANo := CreateFixedAssetWithDimension;
+        FANo := CreateFixedAssetWithDimension();
         CreateGenJournalBatch(GenJournalBatch);
         CreateGeneralJournalLines(GenJournalLine, GenJournalBatch, FANo, GenJournalLine."FA Posting Type"::"Acquisition Cost");
         PostingDateInGenJournalLine(GenJournalLine, LibraryFiscalYear.GetFirstPostingDate(false));
@@ -99,7 +99,7 @@ codeunit 134049 "ERM Date Compression FA"
         // 1.Setup: Create and modify Fixed Asset, create General Journal Batch, create Generel Journal Line,
         // post the FA General Journal line.
         Initialize();
-        FANo := CreateFixedAssetWithDimension;
+        FANo := CreateFixedAssetWithDimension();
         CreateGenJournalBatch(GenJournalBatch);
         Amount := CreateGeneralJournalLines(GenJournalLine, GenJournalBatch, FANo, GenJournalLine."FA Posting Type"::"Acquisition Cost");
         PostingDateInGenJournalLine(GenJournalLine, LibraryFiscalYear.GetFirstPostingDate(true));
@@ -130,7 +130,7 @@ codeunit 134049 "ERM Date Compression FA"
         // 1. Setup: Create and modify Fixed Asset, create General Journal Batch, Create and Post General Journal Line with FA Posting
         // Type Maintenance.
         Initialize();
-        FANo := CreateFixedAssetWithDimension;
+        FANo := CreateFixedAssetWithDimension();
         CreateGenJournalBatch(GenJournalBatch);
         Amount := CreateGeneralJournalLines(GenJournalLine, GenJournalBatch, FANo, GenJournalLine."FA Posting Type"::Maintenance);
         PostingDateInGenJournalLine(GenJournalLine, LibraryFiscalYear.GetFirstPostingDate(true));
@@ -215,7 +215,7 @@ codeunit 134049 "ERM Date Compression FA"
 
         // 1. Setup: Create and post General Journal Lines with Account Type as Fixed Asset.
         Initialize();
-        LastFALedgerEntryNo := GetLastFALedgerEntryNo;
+        LastFALedgerEntryNo := GetLastFALedgerEntryNo();
         CreateAndPostGenJournalLines(GenJournalLine, GenJournalLine."FA Posting Type"::"Acquisition Cost");
 
         // 2. Exercise: Run Date Compress FA Ledger.
@@ -241,7 +241,7 @@ codeunit 134049 "ERM Date Compression FA"
         GenJournalBatch: Record "Gen. Journal Batch";
         FANo: Code[20];
     begin
-        FANo := CreateFixedAssetWithDimension;
+        FANo := CreateFixedAssetWithDimension();
         CreateGenJournalBatch(GenJournalBatch);
         CreateGeneralJournalLine(GenJournalLine, GenJournalBatch, FANo, FAPostingType);
         CreateGeneralJournalLine(GenJournalLine, GenJournalBatch, FANo, FAPostingType);
@@ -255,7 +255,7 @@ codeunit 134049 "ERM Date Compression FA"
         FADepreciationBook: Record "FA Depreciation Book";
         FixedAsset: Record "Fixed Asset";
     begin
-        DepreciationBook.Get(LibraryFixedAsset.GetDefaultDeprBook);
+        DepreciationBook.Get(LibraryFixedAsset.GetDefaultDeprBook());
         LibraryFixedAsset.CreateFAWithPostingGroup(FixedAsset);
         CreateFADepreciationBook(FADepreciationBook, FixedAsset."No.", DepreciationBook.Code, FixedAsset."FA Posting Group");
         UpdateFixedAsset(FixedAsset);
@@ -350,7 +350,7 @@ codeunit 134049 "ERM Date Compression FA"
             LibraryUtility.GetFieldLength(DATABASE::"Gen. Journal Line", GenJournalLine.FieldNo("Document No."))));
         GenJournalLine.Validate("FA Posting Type", FAPostingType);
         GenJournalLine.Validate("Bal. Account Type", GenJournalLine."Bal. Account Type"::"G/L Account");
-        GenJournalLine.Validate("Bal. Account No.", LibraryERM.CreateGLAccountNo);
+        GenJournalLine.Validate("Bal. Account No.", LibraryERM.CreateGLAccountNo());
         GenJournalLine.Modify(true);
     end;
 

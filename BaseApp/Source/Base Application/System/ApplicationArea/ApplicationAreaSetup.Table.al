@@ -11,6 +11,7 @@ table 9178 "Application Area Setup"
     ReplicateData = false;
     InherentEntitlements = rX;
     InherentPermissions = rX;
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -290,45 +291,5 @@ table 9178 "Application Area Setup"
     fieldgroups
     {
     }
-
-    [Obsolete('Use ApplicationAreaMgmtFacade.IsFoundationEnabled() instead', '18.0')]
-    procedure IsFoundationEnabled(): Boolean
-    var
-        ApplicationAreaMgmtFacade: Codeunit "Application Area Mgmt. Facade";
-    begin
-        exit(ApplicationAreaMgmtFacade.IsFoundationEnabled())
-    end;
-
-    [Obsolete('Use ApplicationAreaMgmtFacade.IsAdvancedEnabled instead', '18.0')]
-    procedure IsAdvanced(): Boolean
-    var
-        ApplicationAreaMgmtFacade: Codeunit "Application Area Mgmt. Facade";
-    begin
-        exit(ApplicationAreaMgmtFacade.IsAdvancedEnabled())
-    end;
-
-    [Obsolete('Use ApplicationAreaMgmtFacade.IsSuiteEnabled() instead', '18.0')]
-    procedure IsSuiteEnabled(): Boolean
-    var
-        ApplicationAreaMgmtFacade: Codeunit "Application Area Mgmt. Facade";
-    begin
-        exit(ApplicationAreaMgmtFacade.IsSuiteEnabled())
-    end;
-
-    [Obsolete('Use ApplicationAreaMgmtFacade.GetExperienceTierCurrentCompany instead', '18.0')]
-    procedure GetExperienceTierCurrentCompany(var ExperienceTier: Option)
-    var
-        ApplicationAreaMgmtFacade: Codeunit "Application Area Mgmt. Facade";
-    begin
-        ApplicationAreaMgmtFacade.DeprecatedGetExperienceTierCurrentCompany(ExperienceTier);
-    end;
-
-    [Obsolete('ApplicationAreaMgmtFacade.SaveExperienceTierCurrentCompany', '18.0')]
-    procedure SetExperienceTierCurrentCompany(ExperienceTier: Option)
-    var
-        ApplicationAreaMgmtFacade: Codeunit "Application Area Mgmt. Facade";
-    begin
-        ApplicationAreaMgmtFacade.DeprecatedSetExperienceTierCurrentCompany(ExperienceTier);
-    end;
 }
 

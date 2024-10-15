@@ -53,8 +53,9 @@ codeunit 250 "Gen. Jnl.-Post via Job Queue"
         PostAndPrintDescription: Label 'Post and print journal lines for journal template %1, journal batch %2, document no. %3.', Comment = '%1 = template name, %2 = batch name, %3 = document no. Example: Post and print journal lines for journal template GENERAL, journal batch DEFAULT, document no. G00123.';
         Confirmation: Label 'Journal lines have been scheduled for posting.';
         WrongJobQueueStatus: Label 'Journal lines cannot be posted because they have already been scheduled for posting. Choose the Remove from Job Queue action to reset the job queue status and then post again.';
+        PostingDateError: Label 'is not within your range of allowed posting dates';
 
-    local procedure SetJobQueueStatus(var GenJrnlLine: Record "Gen. Journal Line"; NewStatus: Option)
+    local procedure SetJobQueueStatus(var GenJrnlLine: Record "Gen. Journal Line"; NewStatus: Enum "Document Job Queue Status")
     begin
         GenJrnlLine.LockTable();
         if GenJrnlLine.Find() then begin
@@ -79,40 +80,36 @@ codeunit 250 "Gen. Jnl.-Post via Job Queue"
         if Handled then
             exit;
 
-        with GenJrnlLine do begin
-            if not ("Job Queue Status" in ["Job Queue Status"::" ", "Job Queue Status"::Error]) then
-                Error(WrongJobQueueStatus);
-            OnBeforeReleaseGenJrnlLine(GenJrnlLine);
-            "Job Queue Entry ID" := EnqueueJobEntry(GenJrnlLine);
-            Modify();
+        if not (GenJrnlLine."Job Queue Status" in [GenJrnlLine."Job Queue Status"::" ", GenJrnlLine."Job Queue Status"::Error]) then
+            Error(WrongJobQueueStatus);
+        OnBeforeReleaseGenJrnlLine(GenJrnlLine);
+        GenJrnlLine."Job Queue Entry ID" := EnqueueJobEntry(GenJrnlLine);
+        GenJrnlLine.Modify();
 
-            SetRange("Journal Template Name", "Journal Template Name");
-            SetRange("Journal Batch Name", "Journal Batch Name");
-            SetRange("Document No.", "Document No.");
-            ModifyAll("Job Queue Status", "Job Queue Status"::"Scheduled for Posting");
-            ModifyAll("Job Queue Entry ID", "Job Queue Entry ID");
+        GenJrnlLine.SetRange("Journal Template Name", GenJrnlLine."Journal Template Name");
+        GenJrnlLine.SetRange("Journal Batch Name", GenJrnlLine."Journal Batch Name");
+        GenJrnlLine.SetRange("Document No.", GenJrnlLine."Document No.");
+        GenJrnlLine.ModifyAll("Job Queue Status", GenJrnlLine."Job Queue Status"::"Scheduled for Posting");
+        GenJrnlLine.ModifyAll("Job Queue Entry ID", GenJrnlLine."Job Queue Entry ID");
 
-            if GuiAllowed then
-                if WithUI then
-                    Message(Confirmation);
-        end;
+        if GuiAllowed then
+            if WithUI then
+                Message(Confirmation);
     end;
 
     local procedure EnqueueJobEntry(GenJrnlLine: Record "Gen. Journal Line"): Guid
     var
         JobQueueEntry: Record "Job Queue Entry";
     begin
-        with JobQueueEntry do begin
-            Clear(ID);
-            "Object Type to Run" := "Object Type to Run"::Codeunit;
-            "Object ID to Run" := CODEUNIT::"Gen. Jnl.-Post via Job Queue";
-            "Record ID to Process" := GenJrnlLine.RecordId;
-            "Earliest Start Date/Time" := CreateDateTime(Today(), Time());
-            FillJobEntryFromGeneralLedgerSetup(JobQueueEntry);
-            FillJobEntryGeneralLedgerDescription(JobQueueEntry, GenJrnlLine);
-            CODEUNIT.Run(CODEUNIT::"Job Queue - Enqueue", JobQueueEntry);
-            exit(ID);
-        end;
+        Clear(JobQueueEntry.ID);
+        JobQueueEntry."Object Type to Run" := JobQueueEntry."Object Type to Run"::Codeunit;
+        JobQueueEntry."Object ID to Run" := CODEUNIT::"Gen. Jnl.-Post via Job Queue";
+        JobQueueEntry."Record ID to Process" := GenJrnlLine.RecordId;
+        JobQueueEntry."Earliest Start Date/Time" := CreateDateTime(Today(), Time());
+        FillJobEntryFromGeneralLedgerSetup(JobQueueEntry);
+        FillJobEntryGeneralLedgerDescription(JobQueueEntry, GenJrnlLine);
+        CODEUNIT.Run(CODEUNIT::"Job Queue - Enqueue", JobQueueEntry);
+        exit(JobQueueEntry.ID);
     end;
 
     local procedure FillJobEntryFromGeneralLedgerSetup(var JobQueueEntry: Record "Job Queue Entry")
@@ -120,44 +117,37 @@ codeunit 250 "Gen. Jnl.-Post via Job Queue"
         GeneralLedgerSetup: record "General Ledger Setup";
     begin
         GeneralLedgerSetup.Get();
-        with JobQueueEntry do begin
-            "Notify On Success" := GeneralLedgerSetup."Notify On Success";
-            "Job Queue Category Code" := GeneralLedgerSetup."Job Queue Category Code";
-        end;
+        JobQueueEntry."Notify On Success" := GeneralLedgerSetup."Notify On Success";
+        JobQueueEntry."Job Queue Category Code" := GeneralLedgerSetup."Job Queue Category Code";
     end;
 
     local procedure FillJobEntryGeneralLedgerDescription(var JobQueueEntry: Record "Job Queue Entry"; GenJrnlLine: Record "Gen. Journal Line")
     begin
-        with JobQueueEntry do begin
-            if GenJrnlLine."Print Posted Documents" then
-                Description := PostAndPrintDescription
-            else
-                Description := PostDescription;
-            Description :=
-              CopyStr(StrSubstNo(Description, GenJrnlLine."Journal Template Name", GenJrnlLine."Journal Batch Name", GenJrnlLine."Document No."), 1, MaxStrLen(Description));
-        end;
+        if GenJrnlLine."Print Posted Documents" then
+            JobQueueEntry.Description := PostAndPrintDescription
+        else
+            JobQueueEntry.Description := PostDescription;
+        JobQueueEntry.Description :=
+          CopyStr(StrSubstNo(JobQueueEntry.Description, GenJrnlLine."Journal Template Name", GenJrnlLine."Journal Batch Name", GenJrnlLine."Document No."), 1, MaxStrLen(JobQueueEntry.Description));
     end;
 
     procedure CancelQueueEntry(var GenJrnlLine: Record "Gen. Journal Line")
     begin
-        with GenJrnlLine do
-            if "Job Queue Status" <> "Job Queue Status"::" " then begin
-                DeleteJobs(GenJrnlLine);
-                SetJobQueueStatus(GenJrnlLine, "Job Queue Status"::" ");
-            end;
+        if GenJrnlLine."Job Queue Status" <> GenJrnlLine."Job Queue Status"::" " then begin
+            DeleteJobs(GenJrnlLine);
+            SetJobQueueStatus(GenJrnlLine, GenJrnlLine."Job Queue Status"::" ");
+        end;
     end;
 
     local procedure DeleteJobs(GenJrnlLine: Record "Gen. Journal Line")
     var
         JobQueueEntry: Record "Job Queue Entry";
     begin
-        with GenJrnlLine do begin
-            if not IsNullGuid("Job Queue Entry ID") then
-                JobQueueEntry.SetRange(ID, "Job Queue Entry ID");
-            JobQueueEntry.SetRange("Record ID to Process", RecordId);
-            if not JobQueueEntry.IsEmpty() then
-                JobQueueEntry.DeleteAll(true);
-        end;
+        if not IsNullGuid(GenJrnlLine."Job Queue Entry ID") then
+            JobQueueEntry.SetRange(ID, GenJrnlLine."Job Queue Entry ID");
+        JobQueueEntry.SetRange("Record ID to Process", GenJrnlLine.RecordId);
+        if not JobQueueEntry.IsEmpty() then
+            JobQueueEntry.DeleteAll(true);
     end;
 
     local procedure ClearBackgroundPostingInfo(GenJrnlLine: Record "Gen. Journal Line")
@@ -175,7 +165,6 @@ codeunit 250 "Gen. Jnl.-Post via Job Queue"
     local procedure ExecuteRecurringGeneralJournalsLogic(GenJrnlLine: Record "Gen. Journal Line")
     var
         GenJnlCheckLine: Codeunit "Gen. Jnl.-Check Line";
-        PostingDateError: Label 'is not within your range of allowed posting dates';
     begin
         if GenJnlCheckLine.DateNotAllowed(GenJrnlLine."Posting Date", GenJrnlLine."Journal Template Name") then begin
             SetJobQueueStatus(GenJrnlLine, GenJrnlLine."Job Queue Status"::Error);

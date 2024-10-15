@@ -298,7 +298,7 @@ codeunit 134825 "UT Customer Table"
         Customer.Address := DummyValueForAddressTxt;
 
         // Exercise
-        Assert.IsTrue(Customer.HasAddress, 'The customer should have an address');
+        Assert.IsTrue(Customer.HasAddress(), 'The customer should have an address');
     end;
 
     [Test]
@@ -314,7 +314,7 @@ codeunit 134825 "UT Customer Table"
         Customer."Address 2" := DummyValueForAddressTxt;
 
         // Exercise
-        Assert.IsTrue(Customer.HasAddress, 'The customer should have an address');
+        Assert.IsTrue(Customer.HasAddress(), 'The customer should have an address');
     end;
 
     [Test]
@@ -330,7 +330,7 @@ codeunit 134825 "UT Customer Table"
         Customer.City := DummyValueForAddressTxt;
 
         // Exercise
-        Assert.IsTrue(Customer.HasAddress, 'The customer should have an address');
+        Assert.IsTrue(Customer.HasAddress(), 'The customer should have an address');
     end;
 
     [Test]
@@ -346,7 +346,7 @@ codeunit 134825 "UT Customer Table"
         Customer.County := DummyValueForAddressTxt;
 
         // Exercise
-        Assert.IsTrue(Customer.HasAddress, 'The customer should have an address');
+        Assert.IsTrue(Customer.HasAddress(), 'The customer should have an address');
     end;
 
     [Test]
@@ -362,7 +362,7 @@ codeunit 134825 "UT Customer Table"
         Customer."Post Code" := DummyValueForAddressTxt;
 
         // Exercise
-        Assert.IsTrue(Customer.HasAddress, 'The customer should have an address');
+        Assert.IsTrue(Customer.HasAddress(), 'The customer should have an address');
     end;
 
     [Test]
@@ -378,7 +378,7 @@ codeunit 134825 "UT Customer Table"
         Customer.Contact := DummyValueForAddressTxt;
 
         // Exercise
-        Assert.IsTrue(Customer.HasAddress, 'The customer should have an address');
+        Assert.IsTrue(Customer.HasAddress(), 'The customer should have an address');
     end;
 
     [Test]
@@ -410,7 +410,7 @@ codeunit 134825 "UT Customer Table"
     [Scope('OnPrem')]
     procedure CancelSelectionOfCustomerFromCustomerListModalPageHandler(var CustomerList: TestPage "Customer List")
     begin
-        CustomerList.Cancel.Invoke;
+        CustomerList.Cancel().Invoke();
     end;
 
     [Test]
@@ -789,7 +789,7 @@ codeunit 134825 "UT Customer Table"
     begin
         LibrarySales.CreateSalesHeader(SalesHeader, SalesDocumentType, CustNo);
         LibrarySales.CreateSalesLine(
-          SalesLine, SalesHeader, SalesLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithSalesSetup, LibraryRandom.RandInt(10));
+          SalesLine, SalesHeader, SalesLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithSalesSetup(), LibraryRandom.RandInt(10));
     end;
 
     local procedure CreateCustomerFromNo(var Customer: Record Customer; No: Text)
@@ -817,7 +817,7 @@ codeunit 134825 "UT Customer Table"
     var
         Customer: Record Customer;
     begin
-        UpdateSalesReceivablesSetupNoS;
+        UpdateSalesReceivablesSetupNoS();
         LibrarySales.CreateCustomer(Customer);
         CreateSalesDocument(DocType, Customer."No.");
 
@@ -835,15 +835,15 @@ codeunit 134825 "UT Customer Table"
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
     begin
         with SalesReceivablesSetup do begin
-            Validate("Quote Nos.", LibraryUtility.GetGlobalNoSeriesCode);
-            Validate("Order Nos.", LibraryUtility.GetGlobalNoSeriesCode);
-            Validate("Invoice Nos.", LibraryUtility.GetGlobalNoSeriesCode);
-            Validate("Posted Invoice Nos.", LibraryUtility.GetGlobalNoSeriesCode);
-            Validate("Return Order Nos.", LibraryUtility.GetGlobalNoSeriesCode);
-            Validate("Credit Memo Nos.", LibraryUtility.GetGlobalNoSeriesCode);
-            Validate("Posted Credit Memo Nos.", LibraryUtility.GetGlobalNoSeriesCode);
-            Validate("Blanket Order Nos.", LibraryUtility.GetGlobalNoSeriesCode);
-            Validate("Customer Nos.", LibraryUtility.GetGlobalNoSeriesCode);
+            Validate("Quote Nos.", LibraryUtility.GetGlobalNoSeriesCode());
+            Validate("Order Nos.", LibraryUtility.GetGlobalNoSeriesCode());
+            Validate("Invoice Nos.", LibraryUtility.GetGlobalNoSeriesCode());
+            Validate("Posted Invoice Nos.", LibraryUtility.GetGlobalNoSeriesCode());
+            Validate("Return Order Nos.", LibraryUtility.GetGlobalNoSeriesCode());
+            Validate("Credit Memo Nos.", LibraryUtility.GetGlobalNoSeriesCode());
+            Validate("Posted Credit Memo Nos.", LibraryUtility.GetGlobalNoSeriesCode());
+            Validate("Blanket Order Nos.", LibraryUtility.GetGlobalNoSeriesCode());
+            Validate("Customer Nos.", LibraryUtility.GetGlobalNoSeriesCode());
             Modify(true);
         end;
     end;
@@ -852,7 +852,7 @@ codeunit 134825 "UT Customer Table"
     [Scope('OnPrem')]
     procedure SelectionFirstCustomerFromCustomerListModalPageHandler(var CustomerList: TestPage "Customer List")
     begin
-        CustomerList.OK.Invoke;
+        CustomerList.OK().Invoke();
     end;
 
     [StrMenuHandler]

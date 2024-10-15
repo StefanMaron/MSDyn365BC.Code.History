@@ -31,6 +31,7 @@ table 179 "Reversal Entry"
 {
     Caption = 'Reversal Entry';
     PasteIsValid = false;
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -198,6 +199,13 @@ table 179 "Reversal Entry"
             OptionCaption = 'Transaction,Register';
             OptionMembers = Transaction,Register;
         }
+        field(31; "Source Currency Amount"; Decimal)
+        {
+            AutoFormatExpression = Rec."Currency Code";
+            AutoFormatType = 1;
+            Caption = 'Source Currency Amount';
+            DataClassification = CustomerContent;
+        }
     }
 
     keys
@@ -252,6 +260,7 @@ table 179 "Reversal Entry"
         Text010: Label 'You cannot reverse %1 No. %2 because the register has already been involved in a reversal.';
         Text011: Label 'You cannot reverse %1 No. %2 because the entry has already been involved in a reversal.';
         PostedAndAppliedSameTransactionErr: Label 'You cannot reverse register number %1 because it contains customer or vendor or employee ledger entries that have been posted and applied in the same transaction.\\You must reverse each transaction in register number %1 separately.', Comment = '%1="G/L Register No."';
+        UnrealizedVATReverseErr: Label 'You cannot reverse %1 No. %2 because the entry has an associated Unrealized VAT Entry.';
         CaptionTxt: Label '%1 %2 %3', Locked = true;
 
     protected var
@@ -970,6 +979,11 @@ table 179 "Reversal Entry"
         BankAccountStatement.Get(BankAccountNo, StatementNo);
     end;
 
+    local procedure UnrealizedVATReverseError(TableCaption: Text; EntryNo: Integer): Text
+    begin
+        exit(StrSubstNo(UnrealizedVATReverseErr, TableCaption, EntryNo));
+    end;
+
     protected procedure InsertFromCustLedgEntry(var TempTransactionInteger: Record "Integer" temporary; Number: Integer; RevType: Option Transaction,Register; var NextLineNo: Integer)
     var
         Customer: Record Customer;
@@ -1317,6 +1331,7 @@ table 179 "Reversal Entry"
         "Source No." := GLEntry."Source No.";
         Description := GLEntry.Description;
         "Amount (LCY)" := GLEntry.Amount;
+        "Source Currency Amount" := GLEntry."Source Currency Amount";
         "Debit Amount (LCY)" := GLEntry."Debit Amount";
         "Credit Amount (LCY)" := GLEntry."Credit Amount";
         "VAT Amount" := GLEntry."VAT Amount";
@@ -1356,6 +1371,7 @@ table 179 "Reversal Entry"
         "Transaction No." := VATEntry."Transaction No.";
         Amount := VATEntry.Amount;
         "Amount (LCY)" := VATEntry.Amount;
+        "Source Currency Amount" := VATEntry."Source Currency VAT Amount";
         "Document Type" := VATEntry."Document Type";
         "Document No." := VATEntry."Document No.";
 
@@ -1572,47 +1588,47 @@ table 179 "Reversal Entry"
     begin
     end;
 
-    [IntegrationEvent(TRUE, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnAfterInsertFromBankAccLedgEntry(var TempRevertTransactionNo: Record "Integer"; Number: Integer; RevType: Option Transaction,Register; var NextLineNo: Integer; var TempReversalEntry: Record "Reversal Entry" temporary; var BankAccLedgEntry: Record "Bank Account Ledger Entry")
     begin
     end;
 
-    [IntegrationEvent(TRUE, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnAfterInsertFromCustLedgEntry(var TempRevertTransactionNo: Record "Integer"; Number: Integer; RevType: Option Transaction,Register; var NextLineNo: Integer; var TempReversalEntry: Record "Reversal Entry" temporary; var CustLedgEntry: Record "Cust. Ledger Entry")
     begin
     end;
 
-    [IntegrationEvent(TRUE, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnAfterInsertFromEmplLedgEntry(var TempRevertTransactionNo: Record "Integer"; Number: Integer; RevType: Option Transaction,Register; var NextLineNo: Integer; var TempReversalEntry: Record "Reversal Entry" temporary; var EmplLedgEntry: Record "Employee Ledger Entry")
     begin
     end;
 
-    [IntegrationEvent(TRUE, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnAfterInsertFromFALedgEntry(var TempRevertTransactionNo: Record "Integer"; Number: Integer; RevType: Option Transaction,Register; var NextLineNo: Integer; var TempReversalEntry: Record "Reversal Entry" temporary; var FALedgerEntry: Record "FA Ledger Entry")
     begin
     end;
 
-    [IntegrationEvent(TRUE, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnAfterInsertFromGLEntry(var TempRevertTransactionNo: Record "Integer"; Number: Integer; RevType: Option Transaction,Register; var NextLineNo: Integer; var TempReversalEntry: Record "Reversal Entry" temporary; var GLEntry: Record "G/L Entry")
     begin
     end;
 
-    [IntegrationEvent(TRUE, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnAfterInsertFromMaintenanceLedgEntry(var TempRevertTransactionNo: Record "Integer"; Number: Integer; RevType: Option Transaction,Register; var NextLineNo: Integer; var TempReversalEntry: Record "Reversal Entry" temporary; var MaintenanceLedgEntry: Record "Maintenance Ledger Entry")
     begin
     end;
 
-    [IntegrationEvent(TRUE, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnAfterInsertReversalEntry(var TempRevertTransactionNo: Record "Integer"; Number: Integer; RevType: Option Transaction,Register; var NextLineNo: Integer; var TempReversalEntry: Record "Reversal Entry" temporary)
     begin
     end;
 
-    [IntegrationEvent(TRUE, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnAfterInsertFromVATEntry(var TempRevertTransactionNo: Record "Integer"; Number: Integer; RevType: Option Transaction,Register; var NextLineNo: Integer; var TempReversalEntry: Record "Reversal Entry" temporary; var VATEntry: Record "VAT Entry")
     begin
     end;
 
-    [IntegrationEvent(TRUE, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnAfterInsertFromVendLedgEntry(var TempRevertTransactionNo: Record "Integer"; Number: Integer; RevType: Option Transaction,Register; var NextLineNo: Integer; var TempReversalEntry: Record "Reversal Entry" temporary; var VendLedgEntry: Record "Vendor Ledger Entry")
     begin
     end;

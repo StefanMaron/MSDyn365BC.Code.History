@@ -46,7 +46,7 @@ codeunit 134440 "G/L Acct. Category - Demo Data"
         FindFirstPostingGLAccount(GLAccount);
 
         // Exercise
-        GLAccountCard.OpenEdit;
+        GLAccountCard.OpenEdit();
         GLAccountCard.GotoRecord(GLAccount);
         asserterror GLAccountCard.SubCategoryDescription.SetValue(NotAValidValueTxt);
 
@@ -67,9 +67,9 @@ codeunit 134440 "G/L Acct. Category - Demo Data"
         FindFirstPostingGLAccount(GLAccount);
 
         // Exercise
-        GLAccountCard.OpenEdit;
+        GLAccountCard.OpenEdit();
         GLAccountCard.GotoRecord(GLAccount);
-        InitialCategory := GLAccountCard."Account Category".Value;
+        InitialCategory := GLAccountCard."Account Category".Value();
         GLAccountCard.SubCategoryDescription.SetValue('');
 
         // Verify
@@ -92,9 +92,9 @@ codeunit 134440 "G/L Acct. Category - Demo Data"
         GLAccount.SetFilter("Account Subcategory Descript.", '<>%1', '');
         GLAccount.FindFirst();
 
-        GLAccountCard.OpenEdit;
+        GLAccountCard.OpenEdit();
         GLAccountCard.GotoRecord(GLAccount);
-        InitialSubCategory := GLAccountCard.SubCategoryDescription.Value;
+        InitialSubCategory := GLAccountCard.SubCategoryDescription.Value();
 
         // Exercise
         GLAccountCard.SubCategoryDescription.SetValue(CopyStr(InitialSubCategory, 1, StrLen(InitialSubCategory) - 2));
@@ -117,10 +117,10 @@ codeunit 134440 "G/L Acct. Category - Demo Data"
         Initialize();
         FindFirstPostingGLAccount(GLAccount);
 
-        GLAccountCard.OpenEdit;
+        GLAccountCard.OpenEdit();
         GLAccountCard.GotoRecord(GLAccount);
 
-        InitialCategory := GLAccountCard."Account Category".Value;
+        InitialCategory := GLAccountCard."Account Category".Value();
 
         // Exercise
         GLAccountCard.SubCategoryDescription.SetValue(GLAccountCard.SubCategoryDescription.Value);
@@ -141,12 +141,12 @@ codeunit 134440 "G/L Acct. Category - Demo Data"
         Initialize();
         FindFirstPostingGLAccount(GLAccount);
 
-        GLAccountCard.OpenEdit;
+        GLAccountCard.OpenEdit();
         GLAccountCard.GotoRecord(GLAccount);
         GLAccountCard.SubCategoryDescription.SetValue('');
 
         // Exercise - Value will be selected in the modal page handler
-        GLAccountCard.SubCategoryDescription.Lookup;
+        GLAccountCard.SubCategoryDescription.Lookup();
 
         // Verify
         Assert.AreNotEqual('', GLAccountCard.SubCategoryDescription.Value, 'No subcategory selected');
@@ -167,14 +167,14 @@ codeunit 134440 "G/L Acct. Category - Demo Data"
         Initialize();
         FindFirstPostingGLAccount(GLAccount);
 
-        GLAccountCard.OpenEdit;
+        GLAccountCard.OpenEdit();
         GLAccountCard.GotoRecord(GLAccount);
-        InitialSubCategory := GLAccountCard.SubCategoryDescription.Value;
+        InitialSubCategory := GLAccountCard.SubCategoryDescription.Value();
         LibraryVariableStorage.Enqueue(InitialSubCategory);
         GLAccountCard.SubCategoryDescription.SetValue('');
 
         // Exercise - Value will be selected in the modal page handler
-        GLAccountCard.SubCategoryDescription.Lookup;
+        GLAccountCard.SubCategoryDescription.Lookup();
 
         // Verify
         Assert.AreEqual(InitialSubCategory, GLAccountCard.SubCategoryDescription.Value, 'Wrong subcategory selected');
@@ -224,11 +224,11 @@ codeunit 134440 "G/L Acct. Category - Demo Data"
         GLAccount."No." := AccountNumber;
         GLAccount.Insert();
 
-        GLAccountCard.OpenEdit;
+        GLAccountCard.OpenEdit();
         GLAccountCard.GotoRecord(GLAccount);
 
         // Exercise
-        GLAccountCard.SubCategoryDescription.Lookup;
+        GLAccountCard.SubCategoryDescription.Lookup();
 
         // Verify - Done in modal page handler
 
@@ -305,8 +305,8 @@ codeunit 134440 "G/L Acct. Category - Demo Data"
     [Scope('OnPrem')]
     procedure FirstAccountSubCategoryModalPageHandler(var GLAccountCategories: TestPage "G/L Account Categories")
     begin
-        Assert.IsTrue(GLAccountCategories.First, 'GL Account Categories is empty');
-        GLAccountCategories.OK.Invoke;
+        Assert.IsTrue(GLAccountCategories.First(), 'GL Account Categories is empty');
+        GLAccountCategories.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -315,16 +315,16 @@ codeunit 134440 "G/L Acct. Category - Demo Data"
     var
         SubcategoryDesc: Text;
     begin
-        SubcategoryDesc := LibraryVariableStorage.DequeueText;
+        SubcategoryDesc := LibraryVariableStorage.DequeueText();
         GLAccountCategories.Expand(true);
-        GLAccountCategories.First;
+        GLAccountCategories.First();
         repeat
             if GLAccountCategories.FindFirstField(Description, SubcategoryDesc) then
                 break;
             if not GLAccountCategories.IsExpanded then
                 GLAccountCategories.Expand(true);
         until not GLAccountCategories.Next();
-        GLAccountCategories.OK.Invoke;
+        GLAccountCategories.OK().Invoke();
     end;
 }
 

@@ -7,14 +7,15 @@ using Microsoft.Projects.Project.Job;
 using Microsoft.Projects.Project.WIP;
 using Microsoft.Purchases.Pricing;
 using Microsoft.Sales.Pricing;
-#if not CLEAN21
+#if not CLEAN23
 using System.Telemetry;
 using Microsoft.Pricing.Calculation;
 #endif
 
 table 315 "Jobs Setup"
 {
-    Caption = 'Jobs Setup';
+    Caption = 'Projects Setup';
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -24,7 +25,7 @@ table 315 "Jobs Setup"
         }
         field(2; "Job Nos."; Code[20])
         {
-            Caption = 'Job Nos.';
+            Caption = 'Project Nos.';
             TableRelation = "No. Series";
         }
         field(3; "Apply Usage Link by Default"; Boolean)
@@ -39,13 +40,13 @@ table 315 "Jobs Setup"
         }
         field(5; "Default Job Posting Group"; Code[20])
         {
-            Caption = 'Default Job Posting Group';
+            Caption = 'Default Project Posting Group';
             TableRelation = "Job Posting Group".Code;
         }
         field(6; "Default WIP Posting Method"; Option)
         {
             Caption = 'Default WIP Posting Method';
-            OptionCaption = 'Per Job,Per Job Ledger Entry';
+            OptionCaption = 'Per Project,Per Project Ledger Entry';
             OptionMembers = "Per Job","Per Job Ledger Entry";
         }
         field(7; "Allow Sched/Contract Lines Def"; Boolean)
@@ -55,8 +56,13 @@ table 315 "Jobs Setup"
         }
         field(9; "Document No. Is Job No."; Boolean)
         {
-            Caption = 'Document No. Is Job No.';
+            Caption = 'Document No. Is Project No.';
             InitValue = true;
+        }
+        field(10; "Default Task Billing Method"; Enum "Task Billing Method")
+        {
+            Caption = 'Default Task Billing Method';
+            DataClassification = CustomerContent;
         }
         field(31; "Logo Position on Documents"; Option)
         {
@@ -66,13 +72,20 @@ table 315 "Jobs Setup"
         }
         field(40; "Job WIP Nos."; Code[20])
         {
-            Caption = 'Job WIP Nos.';
+            Caption = 'Project WIP Nos.';
             TableRelation = "No. Series";
+        }
+        field(50; "Archive Jobs"; Option)
+        {
+            Caption = 'Archive Projects';
+            OptionCaption = 'Never,Question,Always';
+            OptionMembers = Never,Question,Always;
+            DataClassification = CustomerContent;
         }
         field(1001; "Automatic Update Job Item Cost"; Boolean)
         {
             AccessByPermission = TableData Item = R;
-            Caption = 'Automatic Update Job Item Cost';
+            Caption = 'Automatic Update Project Item Cost';
         }
         field(7000; "Price List Nos."; Code[20])
         {
@@ -94,7 +107,7 @@ table 315 "Jobs Setup"
                     Validate("Default Sales Price List Code", PriceListHeader.Code);
                 end;
             end;
-#if not CLEAN21
+#if not CLEAN23
 
             trigger OnValidate()
             var
@@ -120,7 +133,7 @@ table 315 "Jobs Setup"
                     Validate("Default Purch Price List Code", PriceListHeader.Code);
                 end;
             end;
-#if not CLEAN21
+#if not CLEAN23
 
             trigger OnValidate()
             var

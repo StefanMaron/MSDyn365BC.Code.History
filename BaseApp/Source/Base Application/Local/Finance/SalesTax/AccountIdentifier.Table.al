@@ -7,6 +7,7 @@ namespace Microsoft.Finance.SalesTax;
 table 10100 "Account Identifier"
 {
     Caption = 'Account Identifier';
+    DataClassification = CustomerContent;
 
     fields
     {

@@ -51,7 +51,7 @@ codeunit 142072 "UT COD Order Entry"
         LibraryLowerPermissions.SetOutsideO365Scope();
         // Setup: Create Sales Quote.
         Initialize();
-        CreateSalesDocument(SalesHeader, SalesHeader."Document Type"::Quote, CreateParentItem);
+        CreateSalesDocument(SalesHeader, SalesHeader."Document Type"::Quote, CreateParentItem());
         Commit();
 
         // Exercise.
@@ -103,7 +103,7 @@ codeunit 142072 "UT COD Order Entry"
 
     local procedure Initialize()
     begin
-        CreateBlankVATPostingSetup;
+        CreateBlankVATPostingSetup();
         LibraryVariableStorage.Clear();
     end;
 
@@ -129,7 +129,7 @@ codeunit 142072 "UT COD Order Entry"
     begin
         GenProductPostingGroup.FindFirst();
         InventoryPostingGroup.FindFirst();
-        Item."No." := LibraryUTUtility.GetNewCode;
+        Item."No." := LibraryUTUtility.GetNewCode();
         Item."Gen. Prod. Posting Group" := GenProductPostingGroup.Code;  // HardCode value required for Sales-Explode BOM Codeunit.
         Item."Inventory Posting Group" := InventoryPostingGroup.Code;  // HardCode value required for Sales-Explode BOM Codeunit.
         Item."Replenishment System" := Item."Replenishment System"::Purchase;
@@ -141,7 +141,7 @@ codeunit 142072 "UT COD Order Entry"
     var
         Customer: Record Customer;
     begin
-        Customer."No." := LibraryUTUtility.GetNewCode;
+        Customer."No." := LibraryUTUtility.GetNewCode();
         Customer.Insert();
         exit(Customer."No.");
     end;
@@ -150,7 +150,7 @@ codeunit 142072 "UT COD Order Entry"
     var
         Item: Record Item;
     begin
-        Item."No." := LibraryUTUtility.GetNewCode;
+        Item."No." := LibraryUTUtility.GetNewCode();
         Item."Assembly BOM" := true;
         Item."Replenishment System" := Item."Replenishment System"::Assembly;
         Item.Insert();
@@ -162,10 +162,10 @@ codeunit 142072 "UT COD Order Entry"
         BomComponent: Record "BOM Component";
         SalesHeader: Record "Sales Header";
     begin
-        BomComponent."Parent Item No." := CreateParentItem;
+        BomComponent."Parent Item No." := CreateParentItem();
         BomComponent."Line No." := LibraryRandom.RandInt(100);
         BomComponent.Type := BomComponent.Type::Item;
-        BomComponent."No." := CreateComponentItem;
+        BomComponent."No." := CreateComponentItem();
         BomComponent."Quantity per" := LibraryRandom.RandInt(5);
         BomComponent."Assembly BOM" := false;
         BomComponent."Resource Usage Type" := BomComponent."Resource Usage Type"::Direct;
@@ -180,19 +180,19 @@ codeunit 142072 "UT COD Order Entry"
     local procedure CreateSalesOrderWithOnHold(var SalesHeader: Record "Sales Header")
     begin
         SalesHeader."Document Type" := SalesHeader."Document Type"::Order;
-        SalesHeader."No." := LibraryUTUtility.GetNewCode;
-        SalesHeader."Sell-to Customer No." := LibraryUTUtility.GetNewCode;
-        SalesHeader."On Hold" := CopyStr(LibraryUTUtility.GetNewCode10, 1, 2);  // Upto 3 characters mandatory in this field.
+        SalesHeader."No." := LibraryUTUtility.GetNewCode();
+        SalesHeader."Sell-to Customer No." := LibraryUTUtility.GetNewCode();
+        SalesHeader."On Hold" := CopyStr(LibraryUTUtility.GetNewCode10(), 1, 2);  // Upto 3 characters mandatory in this field.
         SalesHeader.Insert();
     end;
 
-    local procedure CreateSalesDocument(var SalesHeader: Record "Sales Header"; DocumentType: Option; No: Code[20])
+    local procedure CreateSalesDocument(var SalesHeader: Record "Sales Header"; DocumentType: Enum "Sales Document Type"; No: Code[20])
     var
         SalesLine: Record "Sales Line";
     begin
         SalesHeader."Document Type" := DocumentType;
-        SalesHeader."No." := LibraryUTUtility.GetNewCode;
-        SalesHeader."Sell-to Customer No." := CreateCustomer;
+        SalesHeader."No." := LibraryUTUtility.GetNewCode();
+        SalesHeader."Sell-to Customer No." := CreateCustomer();
         SalesHeader."Bill-to Customer No." := SalesHeader."Sell-to Customer No.";
         SalesHeader."Posting Date" := WorkDate();
         SalesHeader.Insert();
@@ -211,9 +211,9 @@ codeunit 142072 "UT COD Order Entry"
 
     local procedure CreateSalesShipmentDocument(var SalesShipmentLine: Record "Sales Shipment Line")
     begin
-        SalesShipmentLine."Document No." := LibraryUTUtility.GetNewCode;
-        SalesShipmentLine."Sell-to Customer No." := LibraryUTUtility.GetNewCode;
-        SalesShipmentLine."Package Tracking No." := LibraryUTUtility.GetNewCode;
+        SalesShipmentLine."Document No." := LibraryUTUtility.GetNewCode();
+        SalesShipmentLine."Sell-to Customer No." := LibraryUTUtility.GetNewCode();
+        SalesShipmentLine."Package Tracking No." := LibraryUTUtility.GetNewCode();
         SalesShipmentLine.Insert();
     end;
 

@@ -8,6 +8,7 @@ table 332 "Currency Total Buffer"
 {
     Caption = 'Currency Total Buffer';
     ReplicateData = false;
+    DataClassification = CustomerContent;
 
     fields
     {

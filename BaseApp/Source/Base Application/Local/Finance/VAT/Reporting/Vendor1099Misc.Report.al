@@ -1,4 +1,5 @@
-﻿// ------------------------------------------------------------------------------------------------
+﻿#if not CLEAN25
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -17,6 +18,9 @@ report 10112 "Vendor 1099 Misc"
     ApplicationArea = BasicUS;
     Caption = 'Vendor 1099 Miscellaneous 2019';
     UsageCategory = ReportsAndAnalysis;
+    ObsoleteReason = 'Moved to IRS Forms App.';
+    ObsoleteState = Pending;
+    ObsoleteTag = '25.0';
 
     dataset
     {
@@ -302,17 +306,15 @@ report 10112 "Vendor 1099 Misc"
     begin
         // search for invoices paid off by this payment
         EntryAppMgt.GetAppliedVendorEntries(TempAppliedEntry, VendorNo, PeriodDate, true);
-        with TempAppliedEntry do begin
-            // search for invoices with 1099 amounts
-            SetFilter("Document Type", '%1|%2', "Document Type"::Invoice, "Document Type"::"Credit Memo");
-            SetFilter("IRS 1099 Amount", '<>0');
-            SetRange("IRS 1099 Code", 'MISC-', 'MISC-99');
-            if FindSet() then
-                repeat
-                    IRS1099Management.Calculate1099Amount(
-                      Invoice1099Amount, Amounts, Codes, LastLineNo, TempAppliedEntry, "Amount to Apply");
-                until Next() = 0;
-        end;
+        // search for invoices with 1099 amounts
+        TempAppliedEntry.SetFilter("Document Type", '%1|%2', TempAppliedEntry."Document Type"::Invoice, TempAppliedEntry."Document Type"::"Credit Memo");
+        TempAppliedEntry.SetFilter("IRS 1099 Amount", '<>0');
+        TempAppliedEntry.SetRange("IRS 1099 Code", 'MISC-', 'MISC-99');
+        if TempAppliedEntry.FindSet() then
+            repeat
+                IRS1099Management.Calculate1099Amount(
+                  Invoice1099Amount, Amounts, Codes, LastLineNo, TempAppliedEntry, TempAppliedEntry."Amount to Apply");
+            until TempAppliedEntry.Next() = 0;
     end;
 
     [Obsolete('Moved to IRS 1099 Management codeunit', '18.0')]
@@ -359,3 +361,4 @@ report 10112 "Vendor 1099 Misc"
     end;
 }
 
+#endif

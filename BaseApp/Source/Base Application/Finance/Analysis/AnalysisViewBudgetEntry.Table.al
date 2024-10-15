@@ -11,6 +11,7 @@ table 366 "Analysis View Budget Entry"
     Caption = 'Analysis View Budget Entry';
     DrillDownPageID = "Analysis View Budget Entries";
     LookupPageID = "Analysis View Budget Entries";
+    DataClassification = CustomerContent;
 
     fields
     {

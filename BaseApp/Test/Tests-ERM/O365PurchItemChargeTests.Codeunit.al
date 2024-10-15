@@ -1,4 +1,4 @@
-﻿codeunit 135300 "O365 Purch Item Charge Tests"
+codeunit 135300 "O365 Purch Item Charge Tests"
 {
     Subtype = Test;
     TestPermissions = NonRestrictive;
@@ -42,7 +42,7 @@
 
         ItemCharges.OpenNew();
         ItemCharges."No.".SetValue(ItemChargeNo);
-        ItemCharges.OK.Invoke;
+        ItemCharges.OK().Invoke();
 
         // [THEN] The record is created
         ItemCharge.SetRange("No.", ItemChargeNo);
@@ -73,7 +73,7 @@
         AddItemLinesToPurchHeader(PurchaseHeader, RandAmountOfItemLines);
         AddItemChargeLinesToPurchHeader(PurchaseHeader, 1);
         // [WHEN] Post and create a corrective credit memo
-        PurchaseCreditMemo.Trap;
+        PurchaseCreditMemo.Trap();
         PostAndVerifyCorrectiveCreditMemo(PurchaseHeader);
         // [THEN] Verify that the 'qty to assign' is not empty and is equal to the 'quantity' of the item charge
         VerifyCorrectiveCreditMemoWithAssignedItemCharge(PurchaseCreditMemo);
@@ -103,7 +103,7 @@
         AddItemLinesToPurchHeader(PurchaseHeader, RandAmountOfItemLines);
         AddItemChargeLinesToPurchHeader(PurchaseHeader, RandAmountOfItemChargeLines);
         // [WHEN] Post and create a corrective credit memo.
-        PurchaseCreditMemo.Trap;
+        PurchaseCreditMemo.Trap();
         PostAndVerifyCorrectiveCreditMemo(PurchaseHeader);
         // [THEN] Verify that the 'qty to assign' is not empty and is equal to the 'quantity' of the item charge
         VerifyCorrectiveCreditMemoWithAssignedItemCharge(PurchaseCreditMemo);
@@ -128,7 +128,7 @@
         AddItemLinesToPurchHeader(PurchaseHeader, 50);
         AddItemChargeLinesToPurchHeader(PurchaseHeader, 1);
         // [WHEN] Post document, and create corrective credit memo
-        PurchaseCreditMemo.Trap;
+        PurchaseCreditMemo.Trap();
         PostAndVerifyCorrectiveCreditMemo(PurchaseHeader);
         // [THEN] Verify that the 'qty to assign' is not empty and is equal to the 'quantity' of the item charge
         VerifyCorrectiveCreditMemoWithAssignedItemCharge(PurchaseCreditMemo);
@@ -154,7 +154,7 @@
         AddItemLinesToPurchHeader(PurchaseHeader, 1);
         AddItemChargeLinesToPurchHeader(PurchaseHeader, 1);
         // [WHEN] Post document, and create corrective credit memo
-        PurchaseCreditMemo.Trap;
+        PurchaseCreditMemo.Trap();
         PostAndVerifyCorrectiveCreditMemo(PurchaseHeader);
         // [THEN] Verify that the 'qty to assign' is not empty and is equal to the 'quantity' of the item charge
         VerifyCorrectiveCreditMemoWithAssignedItemCharge(PurchaseCreditMemo);
@@ -185,7 +185,7 @@
         AddItemLinesToPurchHeader(PurchaseHeader, 1);
         AddItemChargeLinesToPurchHeader(PurchaseHeader, 1);
         // [WHEN] Post document, and create corrective credit memo
-        PurchaseCreditMemo.Trap;
+        PurchaseCreditMemo.Trap();
         PostAndVerifyCorrectiveCreditMemo(PurchaseHeader);
         // [THEN] Verify that the 'qty to assign' is 0
         VerifyCorrectiveCreditMemoWithoutAssignedItemCharge(PurchaseCreditMemo);
@@ -278,9 +278,7 @@
         PurchaseHeaderInvoice: Record "Purchase Header";
         PurchaseLineOrder: Record "Purchase Line";
         PurchaseLineInvoice: Record "Purchase Line";
-        PurchRcptHeader: Record "Purch. Rcpt. Header";
         PurchInvHeader: Record "Purch. Inv. Header";
-        ValueEntry: Record "Value Entry";
         PostedDocNo: Code[20];
     begin
         // [FEATURE] [Copy Document]
@@ -295,7 +293,7 @@
         LibraryInventory.CreateVariant(ItemVariant, Item);
 
         // [GIVEN] Set "Variant Mandatory if Exists" in Inventory Setup
-        SetVariantMandatoryifExists(true);
+        SetVariantMandatoryifExists();
 
         // [GIVEN] Post purchase order with item and variant
         LibraryPurchase.CreatePurchHeader(PurchaseHeaderOrder, PurchaseHeaderOrder."Document Type"::Order, Vendor."No.");
@@ -409,14 +407,14 @@
     begin
         PostedDocNumber := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, false, true);
         PurchInvHeader.Get(PostedDocNumber);
-        PostedPurchaseInvoice.OpenEdit;
+        PostedPurchaseInvoice.OpenEdit();
         PostedPurchaseInvoice.GotoRecord(PurchInvHeader);
-        PostedPurchaseInvoice.CreateCreditMemo.Invoke; // Opens CorrectiveCreditMemoPageHandler
+        PostedPurchaseInvoice.CreateCreditMemo.Invoke(); // Opens CorrectiveCreditMemoPageHandler
     end;
 
     local procedure CreatePurchHeader(var PurchaseHeader: Record "Purchase Header"; UseRandomCurrency: Boolean)
     begin
-        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, LibraryPurchase.CreateVendorNo);
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, LibraryPurchase.CreateVendorNo());
         PurchaseHeader.Validate("VAT Bus. Posting Group", '');
         PurchaseHeader.Modify(true);
 
@@ -441,8 +439,8 @@
 
         for i := 1 to AmountOfItemLines do begin
             LibraryPurchase.CreatePurchaseLineWithoutVAT(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, '', 1);
-            PurchaseLine.Validate(Quantity, GenerateRandDecimalBetweenOneAndFive);
-            PurchaseLine.Validate("Direct Unit Cost", GenerateRandDecimalBetweenOneAndFive);
+            PurchaseLine.Validate(Quantity, GenerateRandDecimalBetweenOneAndFive());
+            PurchaseLine.Validate("Direct Unit Cost", GenerateRandDecimalBetweenOneAndFive());
             PurchaseLine."Tax Group Code" := CreateTaxGroupCode();
             PurchaseLine.Modify(true);
         end;
@@ -457,9 +455,9 @@
 
         for i := 1 to AmountOfItemChargeLines do begin
             LibraryPurchase.CreatePurchaseLineWithoutVAT(PurchaseLine, PurchaseHeader, PurchaseLine.Type::"Charge (Item)", '', 1);
-            PurchaseLine.Validate(Quantity, GenerateRandDecimalBetweenOneAndFive);
-            PurchaseLine."Line Amount" := GenerateRandDecimalBetweenOneAndFive;
-            PurchaseLine.Validate("Direct Unit Cost", GenerateRandDecimalBetweenOneAndFive);
+            PurchaseLine.Validate(Quantity, GenerateRandDecimalBetweenOneAndFive());
+            PurchaseLine."Line Amount" := GenerateRandDecimalBetweenOneAndFive();
+            PurchaseLine.Validate("Direct Unit Cost", GenerateRandDecimalBetweenOneAndFive());
             PurchaseLine."Tax Group Code" := CreateTaxGroupCode();
             PurchaseLine.Modify(true);
 
@@ -511,7 +509,7 @@
         PurchaseHeader.Modify(true);
     end;
 
-    local procedure SetVariantMandatoryifExists(NewValue: Boolean)
+    local procedure SetVariantMandatoryifExists()
     var
         InventorySetup: Record "Inventory Setup";
     begin
@@ -663,8 +661,8 @@
     [Scope('OnPrem')]
     procedure ItemChargeAssignmentPageHandler(var ItemChargeAssignmentPurch: TestPage "Item Charge Assignment (Purch)")
     begin
-        ItemChargeAssignmentPurch.SuggestItemChargeAssignment.Invoke;
-        ItemChargeAssignmentPurch.OK.Invoke;
+        ItemChargeAssignmentPurch.SuggestItemChargeAssignment.Invoke();
+        ItemChargeAssignmentPurch.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -683,7 +681,7 @@
             ItemChargeAssignmentPurch."Qty. to Assign".SetValue(LibraryVariableStorage.DequeueDecimal());
         end;
 
-        ItemChargeAssignmentPurch.OK.Invoke();
+        ItemChargeAssignmentPurch.OK().Invoke();
     end;
 
     [StrMenuHandler]
@@ -712,14 +710,14 @@
         LineNo := LibraryVariableStorage.DequeueInteger();
         PurchRcptLine.Get(DocumentNo, LineNo);
         GetReceiptLines.GoToKey(PurchRcptLine."Document No.", PurchRcptLine."Line No.");
-        GetReceiptLines.OK.Invoke;
+        GetReceiptLines.OK().Invoke();
     end;
 
     [ModalPageHandler]
     procedure ItemChargeAssignmentPurchPageHandler(var ItemChargeAssignmentPurch: TestPage "Item Charge Assignment (Purch)")
     begin
         ItemChargeAssignmentPurch."Qty. to Assign".SetValue(LibraryVariableStorage.DequeueDecimal());
-        ItemChargeAssignmentPurch.OK.Invoke;
+        ItemChargeAssignmentPurch.OK().Invoke();
     end;
 }
 

@@ -10,6 +10,7 @@ table 27013 "SAT Unit of Measure"
     DataPerCompany = false;
     DrillDownPageID = "SAT Units Of Measure";
     LookupPageID = "SAT Units Of Measure";
+    DataClassification = CustomerContent;
 
     fields
     {

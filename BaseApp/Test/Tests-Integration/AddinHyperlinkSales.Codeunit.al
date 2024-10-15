@@ -78,7 +78,7 @@ codeunit 139051 "Add-in Hyperlink Sales"
           SalesHeader."Document Type"::Quote, SalesLine.Type::"G/L Account", GLAccount."No.", 0D);
 
         // Need to create the regular expression that contains both the Sales Quote window title and document number
-        ExpressionMatch := HyperlinkManifest.GetNameForSalesQuote + '# ' + SalesHeader."No.";
+        ExpressionMatch := HyperlinkManifest.GetNameForSalesQuote() + '# ' + SalesHeader."No.";
 
         // [WHEN] OfficeAddinContext table's filter has been set to what hyperlink add-in would do.
         SetupRegExMatch(OfficeAddinContext, ExpressionMatch);
@@ -180,7 +180,7 @@ codeunit 139051 "Add-in Hyperlink Sales"
           SalesHeader."Document Type"::Order, SalesLine.Type::"G/L Account", GLAccount."No.", 0D);
 
         // Need to create the regular expression that contains both the Sales Order window title and document number
-        ExpressionMatch := HyperlinkManifest.GetNameForSalesOrder + '# ' + SalesHeader."No.";
+        ExpressionMatch := HyperlinkManifest.GetNameForSalesOrder() + '# ' + SalesHeader."No.";
 
         // [WHEN] OfficeAddinContext table's filter has been set to what hyperlink add-in would do.
         SetupRegExMatch(OfficeAddinContext, ExpressionMatch);
@@ -281,7 +281,7 @@ codeunit 139051 "Add-in Hyperlink Sales"
           SalesHeader."Document Type"::Invoice, SalesLine.Type::"G/L Account", GLAccount."No.", 0D);
 
         // Need to create the regular expression that contains both the Sales Invoice window title and document number
-        ExpressionMatch := HyperlinkManifest.GetNameForSalesInvoice + '# ' + SalesHeader."No.";
+        ExpressionMatch := HyperlinkManifest.GetNameForSalesInvoice() + '# ' + SalesHeader."No.";
 
         // [WHEN] OfficeAddinContext table's filter has been set to what hyperlink add-in would do.
         SetupRegExMatch(OfficeAddinContext, ExpressionMatch);
@@ -366,11 +366,11 @@ codeunit 139051 "Add-in Hyperlink Sales"
         TempOfficeAddinContext.SetRange("Regular Expression Match", ExpressionMatch);
 
         // [WHEN] Outlook Mail Engine is run with the OfficeAddinContext record.
-        OfficeDocumentSelection.Trap;
+        OfficeDocumentSelection.Trap();
         RunMailEngine(TempOfficeAddinContext);
 
         // [THEN] Office document selection page is opened with the three documents in the list
-        OfficeDocumentSelection.First;
+        OfficeDocumentSelection.First();
         OfficeDocumentSelection."Document No.".AssertEquals(SalesHeader1."No.");
         OfficeDocumentSelection.Next();
         OfficeDocumentSelection."Document No.".AssertEquals(SalesHeader2."No.");
@@ -415,11 +415,11 @@ codeunit 139051 "Add-in Hyperlink Sales"
         TempOfficeAddinContext.SetRange("Document No.", DocNos);
 
         // [WHEN] Outlook Mail Engine is run with the OfficeAddinContext record.
-        OfficeDocumentSelection.Trap;
+        OfficeDocumentSelection.Trap();
         RunMailEngine(TempOfficeAddinContext);
 
         // [THEN] Office document selection page is opened with all documents in the list
-        OfficeDocumentSelection.First;
+        OfficeDocumentSelection.First();
         for i := 1 to Count do begin
             OfficeDocumentSelection."Document No.".AssertEquals(SalesHeader[i]."No.");
             OfficeDocumentSelection.Next();
@@ -473,7 +473,7 @@ codeunit 139051 "Add-in Hyperlink Sales"
         CreateandPostSalesInvoice(SalesInvoiceHeader);
 
         // Need to create the regular expression that contains both the Sales Invoice window title and document number
-        ExpressionMatch := HyperlinkManifest.GetNameForSalesInvoice + '# ' + SalesInvoiceHeader."No.";
+        ExpressionMatch := HyperlinkManifest.GetNameForSalesInvoice() + '# ' + SalesInvoiceHeader."No.";
 
         // [WHEN] OfficeAddinContext table's filter has been set to what hyperlink add-in would do.
         SetupRegExMatch(OfficeAddinContext, ExpressionMatch);
@@ -570,7 +570,7 @@ codeunit 139051 "Add-in Hyperlink Sales"
           SalesHeader."Document Type"::"Credit Memo", SalesLine.Type::"G/L Account", GLAccount."No.", 0D);
 
         // Need to create the regular expression that contains both the Sales Credit Memo window title and document number
-        ExpressionMatch := HyperlinkManifest.GetNameForSalesCrMemo + '# ' + SalesHeader."No.";
+        ExpressionMatch := HyperlinkManifest.GetNameForSalesCrMemo() + '# ' + SalesHeader."No.";
 
         // [WHEN] OfficeAddinContext table's filter has been set to what hyperlink add-in would do.
         SetupRegExMatch(OfficeAddinContext, ExpressionMatch);
@@ -666,7 +666,7 @@ codeunit 139051 "Add-in Hyperlink Sales"
         CreateandPostSalesCrMemo(SalesCrMemoHeader);
 
         // Need to create the regular expression that contains both the Sales Credit Memo window title and document number
-        ExpressionMatch := HyperlinkManifest.GetNameForSalesCrMemo + '# ' + SalesCrMemoHeader."No.";
+        ExpressionMatch := HyperlinkManifest.GetNameForSalesCrMemo() + '# ' + SalesCrMemoHeader."No.";
 
         // [WHEN] OfficeAddinContext table's filter has been set to what hyperlink add-in would do.
         SetupRegExMatch(OfficeAddinContext, ExpressionMatch);
@@ -713,7 +713,7 @@ codeunit 139051 "Add-in Hyperlink Sales"
         LibraryERM: Codeunit "Library - ERM";
         No: Code[20];
     begin
-        No := LibraryERM.CreateGLAccountWithSalesSetup;
+        No := LibraryERM.CreateGLAccountWithSalesSetup();
         GLAccount.Get(No);
     end;
 
@@ -727,7 +727,7 @@ codeunit 139051 "Add-in Hyperlink Sales"
         AddinManifestManagement.GetAddinByHostType(OfficeAddin, OfficeHostType.OutlookHyperlink);
         OfficeAddinContext.SetRange(Version, OfficeAddin.Version);
 
-        OutlookMailEngine.Trap;
+        OutlookMailEngine.Trap();
         PAGE.Run(PAGE::"Outlook Mail Engine", OfficeAddinContext);
     end;
 
@@ -881,8 +881,8 @@ codeunit 139051 "Add-in Hyperlink Sales"
         Clear(SalesHeader);
         SalesHeader.Validate("Document Type", DocumentType);
         SalesHeader.Insert(true);
-        SalesHeader.Validate("Sell-to Customer No.", LibrarySales.CreateCustomerNo);
-        SalesHeader.Validate("Bill-to Customer No.", LibrarySales.CreateCustomerNo);
+        SalesHeader.Validate("Sell-to Customer No.", LibrarySales.CreateCustomerNo());
+        SalesHeader.Validate("Bill-to Customer No.", LibrarySales.CreateCustomerNo());
         SalesHeader.Modify(true);
     end;
 
@@ -940,8 +940,8 @@ codeunit 139051 "Add-in Hyperlink Sales"
         Clear(LibraryOfficeHostProvider);
         BindSubscription(LibraryOfficeHostProvider);
         InitializeOfficeHostProvider(OfficeHostType.OutlookHyperlink);
-        SalesHeader.DontNotifyCurrentUserAgain(SalesHeader.GetModifyBillToCustomerAddressNotificationId);
-        SalesHeader.DontNotifyCurrentUserAgain(SalesHeader.GetModifyCustomerAddressNotificationId);
+        SalesHeader.DontNotifyCurrentUserAgain(SalesHeader.GetModifyBillToCustomerAddressNotificationId());
+        SalesHeader.DontNotifyCurrentUserAgain(SalesHeader.GetModifyCustomerAddressNotificationId());
 
         if isInitialized then
             exit;
@@ -960,7 +960,7 @@ codeunit 139051 "Add-in Hyperlink Sales"
         LibrarySetupStorage.Save(DATABASE::"Sales & Receivables Setup");
 
         SalesHeader.DeleteAll(); // tests do not expect existing Sales Header
-        SMBOfficePages.SetupMarketing;
+        SMBOfficePages.SetupMarketing();
         isInitialized := true;
         Commit();
 
@@ -974,7 +974,7 @@ codeunit 139051 "Add-in Hyperlink Sales"
         OfficeHost: DotNet OfficeHost;
     begin
         OfficeAddinContext.DeleteAll();
-        SetOfficeHostUnAvailable;
+        SetOfficeHostUnAvailable();
 
         SetOfficeHostProvider(CODEUNIT::"Library - Office Host Provider");
 
@@ -986,7 +986,7 @@ codeunit 139051 "Add-in Hyperlink Sales"
         NameValueBuffer: Record "Name/Value Buffer";
     begin
         // Test Providers checks whether we have registered Host in NameValueBuffer or not
-        if NameValueBuffer.Get(SessionId) then begin
+        if NameValueBuffer.Get(SessionId()) then begin
             NameValueBuffer.Delete();
             Commit();
         end;

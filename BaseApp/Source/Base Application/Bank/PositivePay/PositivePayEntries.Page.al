@@ -106,7 +106,7 @@ page 1231 "Positive Pay Entries"
                     Caption = 'Positive Pay Entry Details';
                     Image = CheckLedger;
                     RunObject = Page "Positive Pay Entry Details";
-                    RunPageLink = "Bank Account No." = field(FILTER("Bank Account No.")),
+                    RunPageLink = "Bank Account No." = field(filter("Bank Account No.")),
                                   "Upload Date-Time" = field("Upload Date-Time");
                     ToolTip = 'Specifies the positive pay entries. If you select Net Change, the net change in the balance is displayed for the relevant time interval.';
                 }

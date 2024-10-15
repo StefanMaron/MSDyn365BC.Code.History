@@ -101,17 +101,6 @@ codeunit 99000813 "Carry Out Action"
         exit(CarryOutAction.Run(RequisitionLine));
     end;
 
-#if not CLEAN21
-    [Obsolete('Replaced by procedure SetParameters()', '21.0')]
-    procedure SetTryParameters(SourceType: Option Purchase,Transfer,Production,Assembly; Choice: Option; WkshTempl: Code[10]; WkshName: Code[10])
-    begin
-        TrySourceType := Enum::"Planning Create Source Type".FromInteger(SourceType);
-        TryChoice := Choice;
-        TryWkshTempl := WkshTempl;
-        TryWkshName := WkshName;
-    end;
-#endif
-
     procedure SetParameters(SourceType: Enum "Planning Create Source Type"; Choice: Integer; WkshTempl: Code[10]; WkshName: Code[10])
     begin
         TrySourceType := SourceType;
@@ -120,18 +109,10 @@ codeunit 99000813 "Carry Out Action"
         TryWkshName := WkshName;
     end;
 
-#if not CLEAN21
-    [Obsolete('Replaced by procedure CarryOutFromProdOrder()', '21.0')]
-    procedure CarryOutProdOrder(RequisitionLine: Record "Requisition Line"; ProdOrderChoice: Option " ",Planned,"Firm Planned","Firm Planned & Print","Copy to Req. Wksh"; ProdWkshTempl: Code[10]; ProdWkshName: Code[10]): Boolean
-    begin
-        exit(CarryOutActionsFromProdOrder(RequisitionLine, Enum::"Planning Create Prod. Order".FromInteger(ProdOrderChoice), ProdWkshTempl, ProdWkshName));
-    end;
-#endif
-
     procedure CarryOutActionsFromProdOrder(RequisitionLine: Record "Requisition Line"; ProdOrderChoice: Enum "Planning Create Prod. Order"; ProdWkshTempl: Code[10]; ProdWkshName: Code[10]): Boolean
     begin
         PrintOrder := ProdOrderChoice = ProdOrderChoice::"Firm Planned & Print";
-        OnCarryOutActionsFromProdOrderOnAfterCalcPrintOrder(PrintOrder, ProdOrderChoice);
+        OnCarryOutActionsFromProdOrderOnAfterCalcPrintOrder(PrintOrder, ProdOrderChoice.AsInteger());
 
         case RequisitionLine."Action Message" of
             RequisitionLine."Action Message"::New:
@@ -148,14 +129,6 @@ codeunit 99000813 "Carry Out Action"
         end;
         exit(true);
     end;
-
-#if not CLEAN21
-    [Obsolete('Replaced by procedure CarryOutActionsFromTransOrder()', '21.0')]
-    procedure CarryOutTransOrder(RequisitionLine: Record "Requisition Line"; TransOrderChoice: Option " ","Make Trans. Orders","Make Trans. Orders & Print","Copy to Req. Wksh"; TransWkshTempName: Code[10]; TransJournalName: Code[10])
-    begin
-        CarryOutActionsFromTransOrder(RequisitionLine, Enum::"Planning Create Transfer Order".FromInteger(TransOrderChoice), TransWkshTempName, TransJournalName);
-    end;
-#endif
 
     procedure CarryOutActionsFromTransOrder(RequisitionLine: Record "Requisition Line"; TransOrderChoice: Enum "Planning Create Transfer Order"; TransWkshTempName: Code[10];
                                                                                                               TransJournalName: Code[10])
@@ -193,14 +166,6 @@ codeunit 99000813 "Carry Out Action"
                     DeleteOrderLines(RequisitionLine);
             end;
     end;
-
-#if not CLEAN21
-    [Obsolete('Replaced by procedure CarryOutActionsFromAssemblyOrder()', '21.0')]
-    procedure CarryOutAsmOrder(RequisitionLine: Record "Requisition Line"; AsmOrderChoice: Option " ","Make Assembly Orders","Make Assembly Orders & Print"): Boolean
-    begin
-        CarryOutActionsFromAssemblyOrder(RequisitionLine, Enum::"Planning Create Assembly Order".FromInteger(AsmOrderChoice));
-    end;
-#endif
 
     procedure CarryOutActionsFromAssemblyOrder(RequisitionLine: Record "Requisition Line"; AsmOrderChoice: Enum "Planning Create Assembly Order"): Boolean
     var
@@ -611,14 +576,6 @@ codeunit 99000813 "Carry Out Action"
         RequisitionLine.Delete(true);
         OnAfterDeleteRequisitionLine(RequisitionLine);
     end;
-
-#if not CLEAN21
-    [Obsolete('Replaced by InsertProductionOrder', '21.0')]
-    procedure InsertProdOrder(RequisitionLine: Record "Requisition Line"; ProdOrderChoice: Option " ",Planned,"Firm Planned","Firm Planned & Print")
-    begin
-        InsertProductionOrder(RequisitionLine, Enum::"Planning Create Prod. Order".FromInteger(ProdOrderChoice));
-    end;
-#endif
 
     procedure InsertProductionOrder(RequisitionLine: Record "Requisition Line"; ProdOrderChoice: Enum "Planning Create Prod. Order")
     var

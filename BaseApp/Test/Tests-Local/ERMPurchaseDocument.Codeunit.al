@@ -1,7 +1,11 @@
+#if not CLEAN25
 codeunit 140611 "ERM - Purchase Document"
 {
     Subtype = Test;
     TestPermissions = Disabled;
+    ObsoleteReason = 'Moved to IRS Forms App.';
+    ObsoleteState = Pending;
+    ObsoleteTag = '25.0';
 
     trigger OnRun()
     begin
@@ -35,7 +39,7 @@ codeunit 140611 "ERM - Purchase Document"
         // Setup: Create Item Vendor and Create Sales Order.
         Initialize();
         LibraryPurchase.CreateVendor(Vendor);
-        Vendor.Validate("IRS 1099 Code", FindIrs1099Code);
+        Vendor.Validate("IRS 1099 Code", FindIrs1099Code());
         Vendor.Modify(true);
         LibraryInventory.CreateItem(Item);
         LibraryInventory.CreateItemVendor(ItemVendor, Vendor."No.", Item."No.");
@@ -62,7 +66,7 @@ codeunit 140611 "ERM - Purchase Document"
         Initialize();
         // [GIVEN] Purchase order with "IRS 1099 Code" = "MISC-01"
         LibraryPurchase.CreatePurchHeader(PurchHeader, PurchHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo());
-        PurchHeader.Validate("IRS 1099 Code", FindIrs1099Code);
+        PurchHeader.Validate("IRS 1099 Code", FindIrs1099Code());
         PurchHeader.Modify(true);
         // [GIVEN] Purchase line has Quantity = 20, "Unit Cost" = 100
         LibraryPurchase.CreatePurchaseLineWithUnitCost(
@@ -111,7 +115,7 @@ codeunit 140611 "ERM - Purchase Document"
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, '');
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, ItemNo, LibraryRandom.RandDec(100, 2));
         SalesLine.Validate("Unit Price", LibraryRandom.RandDec(100, 2));
-        SalesLine.Validate("Purchasing Code", FindPurchasingCode);
+        SalesLine.Validate("Purchasing Code", FindPurchasingCode());
         SalesLine.Modify(true);
         LibrarySales.ReleaseSalesDocument(SalesHeader);
     end;
@@ -162,4 +166,4 @@ codeunit 140611 "ERM - Purchase Document"
         PurchaseLine.TestField("IRS 1099 Liable", true);
     end;
 }
-
+#endif

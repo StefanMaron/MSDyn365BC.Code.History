@@ -31,7 +31,7 @@ codeunit 141003 "UT PAG Check"
         GenJournalLine: Record "Gen. Journal Line";
     begin
         // Purpose of the test is to validate OnAfterGetRecord Trigger of PAGE - 404 Check Preview.
-        OnAfterGetRecordAccountTypeCheckPreview(GenJournalLine."Account Type"::Customer, CreateCustomer);
+        OnAfterGetRecordAccountTypeCheckPreview(GenJournalLine."Account Type"::Customer, CreateCustomer());
     end;
 
     [Test]
@@ -42,7 +42,7 @@ codeunit 141003 "UT PAG Check"
         GenJournalLine: Record "Gen. Journal Line";
     begin
         // Purpose of the test is to validate OnAfterGetRecord Trigger of PAGE - 404 Check Preview.
-        OnAfterGetRecordAccountTypeCheckPreview(GenJournalLine."Account Type"::Vendor, CreateVendor);
+        OnAfterGetRecordAccountTypeCheckPreview(GenJournalLine."Account Type"::Vendor, CreateVendor());
     end;
 
     [Test]
@@ -53,10 +53,10 @@ codeunit 141003 "UT PAG Check"
         GenJournalLine: Record "Gen. Journal Line";
     begin
         // Purpose of the test is to validate OnAfterGetRecord Trigger of PAGE - 404 Check Preview.
-        OnAfterGetRecordAccountTypeCheckPreview(GenJournalLine."Account Type"::"Bank Account", CreateBankAccount);
+        OnAfterGetRecordAccountTypeCheckPreview(GenJournalLine."Account Type"::"Bank Account", CreateBankAccount());
     end;
 
-    local procedure OnAfterGetRecordAccountTypeCheckPreview(AccountType: Option; AccountNo: Code[20])
+    local procedure OnAfterGetRecordAccountTypeCheckPreview(AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20])
     var
         GenJournalLine: Record "Gen. Journal Line";
         CheckPreview: TestPage "Check Preview";
@@ -65,7 +65,7 @@ codeunit 141003 "UT PAG Check"
         CreateGeneralJournalLine(GenJournalLine, AccountType, AccountNo);
 
         // Exercise: Open Page - Check Preview.
-        CheckPreview.OpenEdit;
+        CheckPreview.OpenEdit();
         CheckPreview.GotoRecord(GenJournalLine);
 
         // Verify: Verify Document Number, Check Status Text and Amount on Check Preview Page.
@@ -80,7 +80,7 @@ codeunit 141003 "UT PAG Check"
         CompanyInformation: Record "Company Information";
     begin
         CompanyInformation.Get();
-        BankAccount."No." := LibraryUTUtility.GetNewCode;
+        BankAccount."No." := LibraryUTUtility.GetNewCode();
         BankAccount."Country/Region Code" := 'CA';
         BankAccount."Check Date Format" := LibraryRandom.RandIntInRange(0, 3);  // Check Date Format - option Range 0 to 3.
         BankAccount."Bank Communication" := LibraryRandom.RandIntInRange(0, 2);  // Bank Communication - option Range 0 to 2.
@@ -92,12 +92,12 @@ codeunit 141003 "UT PAG Check"
     var
         Customer: Record Customer;
     begin
-        Customer."No." := LibraryUTUtility.GetNewCode;
+        Customer."No." := LibraryUTUtility.GetNewCode();
         Customer.Insert();
         exit(Customer."No.");
     end;
 
-    local procedure CreateGeneralJournalLine(var GenJournalLine: Record "Gen. Journal Line"; AccountType: Option; AccountNo: Code[20])
+    local procedure CreateGeneralJournalLine(var GenJournalLine: Record "Gen. Journal Line"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20])
     var
         GenJournalBatch: Record "Gen. Journal Batch";
     begin
@@ -108,8 +108,8 @@ codeunit 141003 "UT PAG Check"
         GenJournalLine."Account Type" := AccountType;
         GenJournalLine."Account No." := AccountNo;
         GenJournalLine."Bal. Account Type" := GenJournalLine."Bal. Account Type"::"Bank Account";
-        GenJournalLine."Bal. Account No." := CreateBankAccount;
-        GenJournalLine."Document No." := LibraryUTUtility.GetNewCode;
+        GenJournalLine."Bal. Account No." := CreateBankAccount();
+        GenJournalLine."Document No." := LibraryUTUtility.GetNewCode();
         GenJournalLine."Bank Payment Type" := GenJournalLine."Bank Payment Type"::"Computer Check";
         GenJournalLine.Amount := LibraryRandom.RandDec(10, 2);
         GenJournalLine."Check Printed" := true;  // Default value - FALSE, update as TRUE.
@@ -120,10 +120,10 @@ codeunit 141003 "UT PAG Check"
     var
         GenJournalTemplate: Record "Gen. Journal Template";
     begin
-        GenJournalTemplate.Name := LibraryUTUtility.GetNewCode10;
+        GenJournalTemplate.Name := LibraryUTUtility.GetNewCode10();
         GenJournalTemplate.Insert();
         GenJournalBatch."Journal Template Name" := GenJournalTemplate.Name;
-        GenJournalBatch.Name := LibraryUTUtility.GetNewCode10;
+        GenJournalBatch.Name := LibraryUTUtility.GetNewCode10();
         GenJournalBatch.Insert();
     end;
 
@@ -131,7 +131,7 @@ codeunit 141003 "UT PAG Check"
     var
         Vendor: Record Vendor;
     begin
-        Vendor."No." := LibraryUTUtility.GetNewCode;
+        Vendor."No." := LibraryUTUtility.GetNewCode();
         Vendor.Insert();
         exit(Vendor."No.");
     end;

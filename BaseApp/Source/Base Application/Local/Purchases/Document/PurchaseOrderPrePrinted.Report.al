@@ -261,32 +261,30 @@ report 10125 "Purchase Order (Pre-Printed)"
                                     PrevPrintOrder := 0;
                                     PrevTaxPercent := 0;
                                     TaxAmount := 0;
-                                    with TempSalesTaxAmtLine do begin
-                                        Reset();
-                                        SetCurrentKey("Print Order", "Tax Area Code for Key", "Tax Jurisdiction Code");
-                                        if Find('-') then
-                                            repeat
-                                                if ("Print Order" = 0) or
-                                                   ("Print Order" <> PrevPrintOrder) or
-                                                   ("Tax %" <> PrevTaxPercent)
-                                                then begin
-                                                    BrkIdx := BrkIdx + 1;
-                                                    if BrkIdx > 1 then begin
-                                                        if TaxArea."Country/Region" = TaxArea."Country/Region"::CA then
-                                                            BreakdownTitle := Text006
-                                                        else
-                                                            BreakdownTitle := Text003;
-                                                    end;
-                                                    if BrkIdx > ArrayLen(BreakdownAmt) then begin
-                                                        BrkIdx := BrkIdx - 1;
-                                                        BreakdownLabel[BrkIdx] := Text004;
-                                                    end else
-                                                        BreakdownLabel[BrkIdx] := CopyStr(StrSubstNo("Print Description", "Tax %"), 1, MaxStrLen(BreakdownLabel[BrkIdx]));
+                                    TempSalesTaxAmtLine.Reset();
+                                    TempSalesTaxAmtLine.SetCurrentKey("Print Order", "Tax Area Code for Key", "Tax Jurisdiction Code");
+                                    if TempSalesTaxAmtLine.Find('-') then
+                                        repeat
+                                            if (TempSalesTaxAmtLine."Print Order" = 0) or
+                                               (TempSalesTaxAmtLine."Print Order" <> PrevPrintOrder) or
+                                               (TempSalesTaxAmtLine."Tax %" <> PrevTaxPercent)
+                                            then begin
+                                                BrkIdx := BrkIdx + 1;
+                                                if BrkIdx > 1 then begin
+                                                    if TaxArea."Country/Region" = TaxArea."Country/Region"::CA then
+                                                        BreakdownTitle := Text006
+                                                    else
+                                                        BreakdownTitle := Text003;
                                                 end;
-                                                BreakdownAmt[BrkIdx] := BreakdownAmt[BrkIdx] + "Tax Amount";
-                                                TaxAmount := TaxAmount + "Tax Amount";
-                                            until Next() = 0;
-                                    end;
+                                                if BrkIdx > ArrayLen(BreakdownAmt) then begin
+                                                    BrkIdx := BrkIdx - 1;
+                                                    BreakdownLabel[BrkIdx] := Text004;
+                                                end else
+                                                    BreakdownLabel[BrkIdx] := CopyStr(StrSubstNo(TempSalesTaxAmtLine."Print Description", TempSalesTaxAmtLine."Tax %"), 1, MaxStrLen(BreakdownLabel[BrkIdx]));
+                                            end;
+                                            BreakdownAmt[BrkIdx] := BreakdownAmt[BrkIdx] + TempSalesTaxAmtLine."Tax Amount";
+                                            TaxAmount := TaxAmount + TempSalesTaxAmtLine."Tax Amount";
+                                        until TempSalesTaxAmtLine.Next() = 0;
                                     if BrkIdx = 1 then begin
                                         Clear(BreakdownLabel);
                                         Clear(BreakdownAmt);
@@ -346,8 +344,8 @@ report 10125 "Purchase Order (Pre-Printed)"
 
             trigger OnAfterGetRecord()
             begin
-                CurrReport.Language := Language.GetLanguageIdOrDefault("Language Code");
-                CurrReport.FormatRegion := Language.GetFormatRegionOrDefault("Format Region");
+                CurrReport.Language := LanguageMgt.GetLanguageIdOrDefault("Language Code");
+                CurrReport.FormatRegion := LanguageMgt.GetFormatRegionOrDefault("Format Region");
                 if PrintCompany then
                     if RespCenter.Get("Responsibility Center") then begin
                         FormatAddress.RespCenter(CompanyAddress, RespCenter);
@@ -494,7 +492,7 @@ report 10125 "Purchase Order (Pre-Printed)"
         RespCenter: Record "Responsibility Center";
         TempSalesTaxAmtLine: Record "Sales Tax Amount Line" temporary;
         TaxArea: Record "Tax Area";
-        Language: Codeunit Language;
+        LanguageMgt: Codeunit Language;
         BuyFromAddress: array[8] of Text[100];
         ShipToAddress: array[8] of Text[100];
         CopyTxt: Text[10];

@@ -86,37 +86,35 @@ codeunit 96 "Purch.-Quote to Order"
     begin
         OnBeforeCreatePurchHeader(PurchHeader);
 
-        with PurchHeader do begin
-            PurchOrderHeader := PurchHeader;
-            PurchOrderHeader."Document Type" := PurchOrderHeader."Document Type"::Order;
-            PurchOrderHeader."No. Printed" := 0;
-            PurchOrderHeader.Status := PurchOrderHeader.Status::Open;
-            PurchOrderHeader."No." := '';
-            PurchOrderHeader."Quote No." := "No.";
+        PurchOrderHeader := PurchHeader;
+        PurchOrderHeader."Document Type" := PurchOrderHeader."Document Type"::Order;
+        PurchOrderHeader."No. Printed" := 0;
+        PurchOrderHeader.Status := PurchOrderHeader.Status::Open;
+        PurchOrderHeader."No." := '';
+        PurchOrderHeader."Quote No." := PurchHeader."No.";
 
-            OnCreatePurchHeaderOnBeforeInitRecord(PurchOrderHeader, PurchHeader);
-            PurchOrderHeader.InitRecord();
+        OnCreatePurchHeaderOnBeforeInitRecord(PurchOrderHeader, PurchHeader);
+        PurchOrderHeader.InitRecord();
 
-            PurchOrderLine.LockTable();
-            OnCreatePurchHeaderOnBeforePurchOrderHeaderInsert(PurchOrderHeader, PurchHeader);
-            PurchOrderHeader.Insert(true);
-            OnCreatePurchHeaderOnAfterPurchOrderHeaderInsert(PurchOrderHeader, PurchHeader);
+        PurchOrderLine.LockTable();
+        OnCreatePurchHeaderOnBeforePurchOrderHeaderInsert(PurchOrderHeader, PurchHeader);
+        PurchOrderHeader.Insert(true);
+        OnCreatePurchHeaderOnAfterPurchOrderHeaderInsert(PurchOrderHeader, PurchHeader);
 
-            PurchOrderHeader."Order Date" := "Order Date";
-            if "Posting Date" <> 0D then
-                PurchOrderHeader."Posting Date" := "Posting Date";
+        PurchOrderHeader."Order Date" := PurchHeader."Order Date";
+        if PurchHeader."Posting Date" <> 0D then
+            PurchOrderHeader."Posting Date" := PurchHeader."Posting Date";
 
-            PurchOrderHeader.InitFromPurchHeader(PurchHeader);
-            OnCreatePurchHeaderOnAfterInitFromPurchHeader(PurchOrderHeader, PurchHeader);
-            PurchOrderHeader."Inbound Whse. Handling Time" := "Inbound Whse. Handling Time";
+        PurchOrderHeader.InitFromPurchHeader(PurchHeader);
+        OnCreatePurchHeaderOnAfterInitFromPurchHeader(PurchOrderHeader, PurchHeader);
+        PurchOrderHeader."Inbound Whse. Handling Time" := PurchHeader."Inbound Whse. Handling Time";
 
-            PurchOrderHeader."Prepayment %" := PrepmtPercent;
-            if PurchOrderHeader."Posting Date" = 0D then
-                PurchOrderHeader."Posting Date" := WorkDate();
-            PurchOrderHeader."Tax Area Code" := "Tax Area Code";
-            OnCreatePurchHeaderOnBeforePurchOrderHeaderModify(PurchOrderHeader, PurchHeader);
-            PurchOrderHeader.Modify();
-        end;
+        PurchOrderHeader."Prepayment %" := PrepmtPercent;
+        if PurchOrderHeader."Posting Date" = 0D then
+            PurchOrderHeader."Posting Date" := WorkDate();
+        PurchOrderHeader."Tax Area Code" := PurchHeader."Tax Area Code";
+        OnCreatePurchHeaderOnBeforePurchOrderHeaderModify(PurchOrderHeader, PurchHeader);
+        PurchOrderHeader.Modify();
 
         OnAfterCreatePurchHeader(PurchOrderHeader, PurchHeader);
     end;

@@ -6,6 +6,7 @@ table 5085 "Contact Duplicate"
 {
     Caption = 'Contact Duplicate';
     DataCaptionFields = "Contact No.";
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -34,14 +35,14 @@ table 5085 "Contact Duplicate"
         }
         field(5; "Contact Name"; Text[100])
         {
-            CalcFormula = Lookup(Contact.Name where("No." = field("Contact No.")));
+            CalcFormula = lookup(Contact.Name where("No." = field("Contact No.")));
             Caption = 'Contact Name';
             Editable = false;
             FieldClass = FlowField;
         }
         field(6; "Duplicate Contact Name"; Text[100])
         {
-            CalcFormula = Lookup(Contact.Name where("No." = field("Duplicate Contact No.")));
+            CalcFormula = lookup(Contact.Name where("No." = field("Duplicate Contact No.")));
             Caption = 'Duplicate Contact Name';
             Editable = false;
             FieldClass = FlowField;

@@ -36,7 +36,6 @@ codeunit 132907 AzureADUserMgtTest
     procedure TestDeviceUsersAsFirstUserThrowsError()
     var
         User: Record User;
-        PlanIds: Codeunit "Plan Ids";
         UserAuthenticationId: Guid;
     begin
         // [SCENARIO] When device user signs in and its the first user on the system, an error is thrown
@@ -188,6 +187,7 @@ codeunit 132907 AzureADUserMgtTest
     end;
 
 #if not CLEAN22
+#pragma warning disable AS0072
     [Test]
     [HandlerFunctions('MessageHandler')]
     [TransactionModel(TransactionModel::AutoRollback)]
@@ -232,6 +232,7 @@ codeunit 132907 AzureADUserMgtTest
     end;
 
     [Test]
+    [Obsolete('Not Used.', '22.0')]
     [TransactionModel(TransactionModel::AutoRollback)]
     [CommitBehavior(CommitBehavior::Ignore)]
     procedure TestUserGroupsAppendedOnUserSyncNoCustomPermissions()
@@ -294,6 +295,7 @@ codeunit 132907 AzureADUserMgtTest
     end;
 
     [Test]
+    [Obsolete('Not Used.', '22.0')]
     [TransactionModel(TransactionModel::AutoRollback)]
     [CommitBehavior(CommitBehavior::Ignore)]
     procedure TestUserGroupsAppendedOnUserSyncWithCustomPermissions()
@@ -387,6 +389,7 @@ codeunit 132907 AzureADUserMgtTest
         UnbindSubscription(AzureADUserMgtTestLibrary);
         TearDown();
     end;
+#pragma warning restore AS0072
 #endif
 
 #if not CLEAN22
@@ -590,7 +593,6 @@ codeunit 132907 AzureADUserMgtTest
     var
         Users: Array[200] of Record User;
         UserGroupPlan: Record "User Group Plan";
-        AzureADPlan: codeunit "Azure AD Plan";
         i: Integer;
     begin
         // [SCENARIO] Creating new users from the Azure Active Directory Graph
@@ -668,7 +670,7 @@ codeunit 132907 AzureADUserMgtTest
         // in a non-SaaS environment
         ClearGlobals();
         LibraryLowerPermissions.SetOutsideO365Scope();
-        LibraryLowerPermissions.AddSecurity;
+        LibraryLowerPermissions.AddSecurity();
 
         // [GIVEN] 1 existing user in the system
         UserName := 'Cloud Test User';
@@ -681,10 +683,10 @@ codeunit 132907 AzureADUserMgtTest
 
         // [GIVEN] Not running in SaaS
         EnvironmentInfoTestLibrary.SetTestabilitySoftwareAsAService(false);
-        LibraryLowerPermissions.SetO365BusFull;
+        LibraryLowerPermissions.SetO365BusFull();
 
         // [WHEN] CreateNewUsersFromAzureAD is invoked
-        AzureADUserManagement.CreateNewUsersFromAzureAD;
+        AzureADUserManagement.CreateNewUsersFromAzureAD();
 
         // [THEN] The user count remains the same
         Assert.AreEqual(InitialUserCount, User.Count, 'The user count should have remained the same');
@@ -710,8 +712,8 @@ codeunit 132907 AzureADUserMgtTest
         CreateUserWithSubscriptionPlan(User, Plan.Plan_ID, Plan.Plan_Name, 'Disabled');
         // [WHEN] GetAzureUserPlanRoleCenterId invoked (at first userlogin)
         // [THEN] Rolecenter ID 0 is returned
-        LibraryLowerPermissions.SetO365Basic;
-        Assert.AreEqual(9022, ConfPersonalizationMgt.DefaultRoleCenterID, 'Invalid Role Center Id');
+        LibraryLowerPermissions.SetO365Basic();
+        Assert.AreEqual(9022, ConfPersonalizationMgt.DefaultRoleCenterID(), 'Invalid Role Center Id');
 
         LibraryLowerPermissions.SetOutsideO365Scope();
         TearDown();
@@ -780,7 +782,7 @@ codeunit 132907 AzureADUserMgtTest
     begin
         Plan.Open();
         while Plan.Read() do
-            MockGraphQueryTestLibrary.AddSubscribedSkuWithServicePlan(CreateGuid, Plan.Plan_ID, Plan.Plan_Name);
+            MockGraphQueryTestLibrary.AddSubscribedSkuWithServicePlan(CreateGuid(), Plan.Plan_ID, Plan.Plan_Name);
     end;
 
 #if not CLEAN22
@@ -878,7 +880,7 @@ codeunit 132907 AzureADUserMgtTest
     begin
         // [GIVEN] A user is created, but not added to the Azure AD Graph
         LibraryLowerPermissions.SetOutsideO365Scope();
-        LibraryLowerPermissions.AddSecurity;
+        LibraryLowerPermissions.AddSecurity();
         LibraryPermissions.CreateUser(User, 'username_username', true);
 
         // [WHEN] Checking whether the user is a tenant admin
@@ -893,7 +895,6 @@ codeunit 132907 AzureADUserMgtTest
     [Scope('OnPrem')]
     procedure TestIsUserTenantAdminWhenItDoesNotHaveAnyRoles()
     var
-        User: Record User;
         IsUserTenantAdmin: Boolean;
     begin
         // [GIVEN] A user corresponding to the current user exists in the Azure AD Graph, 
@@ -913,7 +914,6 @@ codeunit 132907 AzureADUserMgtTest
     [Scope('OnPrem')]
     procedure TestIsUserTenantAdminWhenItDoesNotHaveTheTenantAdminRole()
     var
-        User: Record User;
         IsUserTenantAdmin: Boolean;
     begin
         // [GIVEN] A user corresponding to the current user exists in the Azure AD Graph
@@ -936,7 +936,6 @@ codeunit 132907 AzureADUserMgtTest
     [Scope('OnPrem')]
     procedure TestIsUserTenantAdminWhenItHasOnlyTheTenantAdminRole()
     var
-        User: Record User;
         IsUserTenantAdmin: Boolean;
     begin
         Initialize();
@@ -965,7 +964,6 @@ codeunit 132907 AzureADUserMgtTest
     [Scope('OnPrem')]
     procedure TestIsUserTenantAdminWhenItHasTheTenantAdminRoleAndOtherRoles()
     var
-        User: Record User;
         IsUserTenantAdmin: Boolean;
     begin
         Initialize();

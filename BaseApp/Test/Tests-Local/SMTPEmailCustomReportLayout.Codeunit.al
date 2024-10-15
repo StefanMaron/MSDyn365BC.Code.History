@@ -14,14 +14,12 @@ codeunit 144055 "SMTPEMail Custom Report Layout"
         LibraryPurchase: Codeunit "Library - Purchase";
         LibrarySales: Codeunit "Library - Sales";
         LibraryUtility: Codeunit "Library - Utility";
-        LibraryWorkflow: Codeunit "Library - Workflow";
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
         LibraryvariableStorage: Codeunit "Library - Variable Storage";
         LibraryRandom: Codeunit "Library - Random";
         LibraryFileMgtHandler: Codeunit "Library - File Mgt Handler";
         TestClientTypeMgtSubscriber: Codeunit "Test Client Type Subscriber";
         IsInitialized: Boolean;
-        IgnoringFailureSendingEmailErr: Label 'Failure sending mail.\Unable to connect to the remote server';
         TargetEmailAddressErr: Label 'The target email address has not been specified';
         NoDataOutputErr: Label 'No data exists for the specified report filters.';
         LessErrorsOnErrorMessagesPageErr: Label '%1 contains less errors than expected.';
@@ -132,7 +130,7 @@ codeunit 144055 "SMTPEMail Custom Report Layout"
         CreateVendorWithDocumentLayout(
           Vendor[2], CustomReportSelection.Usage::"V.Remittance", ReportID, '');
 
-        ErrorMessages.Trap;
+        ErrorMessages.Trap();
 
         BindSubscription(LibraryTempNVBufferHandler);
         LibrarySMTPMailHandler.SetDisableSending(true);
@@ -342,7 +340,7 @@ codeunit 144055 "SMTPEMail Custom Report Layout"
         // [SCENARIO 325097] Email "ExportElecPayments - Word" For two vendors: "A" without email, "B" without email. "PrintIfEmailIsMissing" = false;.
         Initialize();
 
-        ReportID := GetExportElecPaymentsWordReportID;
+        ReportID := GetExportElecPaymentsWordReportID();
 
         InsertReportSelections(ReportSelections, ReportID, false, false, ReportSelections.Usage::"V.Remittance");
 
@@ -381,7 +379,7 @@ codeunit 144055 "SMTPEMail Custom Report Layout"
         // [SCENARIO 325097] Email "ExportElecPayments - Word" For two vendors: "A" without email, "B" with email. "PrintIfEmailIsMissing" = false;.
         Initialize();
 
-        ReportID := GetExportElecPaymentsWordReportID;
+        ReportID := GetExportElecPaymentsWordReportID();
 
         InsertReportSelections(ReportSelections, ReportID, false, false, ReportSelections.Usage::"V.Remittance");
 
@@ -422,7 +420,7 @@ codeunit 144055 "SMTPEMail Custom Report Layout"
         // [SCENARIO 325097] Email "ExportElecPayments - Word" For two vendors: "A" with email, "B" without email. "PrintIfEmailIsMissing" = false;.
         Initialize();
 
-        ReportID := GetExportElecPaymentsWordReportID;
+        ReportID := GetExportElecPaymentsWordReportID();
 
         InsertReportSelections(ReportSelections, ReportID, false, false, ReportSelections.Usage::"V.Remittance");
 
@@ -461,7 +459,7 @@ codeunit 144055 "SMTPEMail Custom Report Layout"
         // [SCENARIO 325097] Email "ExportElecPayments - Word" For two vendors: "A" with email, "B" with email. "PrintIfEmailIsMissing" = false;.
         Initialize();
 
-        ReportID := GetExportElecPaymentsWordReportID;
+        ReportID := GetExportElecPaymentsWordReportID();
 
         InsertReportSelections(ReportSelections, ReportID, false, false, ReportSelections.Usage::"V.Remittance");
 
@@ -494,7 +492,7 @@ codeunit 144055 "SMTPEMail Custom Report Layout"
         // [SCENARIO 325097] Email "ExportElecPayments - Word" For two vendors: "A" without email, "B" without email. "PrintIfEmailIsMissing" = false;.
         Initialize();
 
-        ReportID := GetExportElecPaymentsWordReportID;
+        ReportID := GetExportElecPaymentsWordReportID();
 
         InsertReportSelections(ReportSelections, ReportID, false, false, ReportSelections.Usage::"V.Remittance");
 
@@ -528,7 +526,7 @@ codeunit 144055 "SMTPEMail Custom Report Layout"
         // [SCENARIO 325097] Email "ExportElecPayments - Word" For two vendors: "A" without email, "B" with email. "PrintIfEmailIsMissing" = false;.
         Initialize();
 
-        ReportID := GetExportElecPaymentsWordReportID;
+        ReportID := GetExportElecPaymentsWordReportID();
 
         InsertReportSelections(ReportSelections, ReportID, false, false, ReportSelections.Usage::"V.Remittance");
 
@@ -565,7 +563,7 @@ codeunit 144055 "SMTPEMail Custom Report Layout"
         // [SCENARIO 325097] Email "ExportElecPayments - Word" For two vendors: "A" with email, "B" without email. "PrintIfEmailIsMissing" = false;.
         Initialize();
 
-        ReportID := GetExportElecPaymentsWordReportID;
+        ReportID := GetExportElecPaymentsWordReportID();
 
         InsertReportSelections(ReportSelections, ReportID, false, false, ReportSelections.Usage::"V.Remittance");
 
@@ -602,7 +600,7 @@ codeunit 144055 "SMTPEMail Custom Report Layout"
         // [SCENARIO 325097] Email "ExportElecPayments - Word" For two vendors: "A" with email, "B" with email. "PrintIfEmailIsMissing" = false;.
         Initialize();
 
-        ReportID := GetExportElecPaymentsWordReportID;
+        ReportID := GetExportElecPaymentsWordReportID();
 
         InsertReportSelections(ReportSelections, ReportID, false, false, ReportSelections.Usage::"V.Remittance");
 
@@ -641,7 +639,7 @@ codeunit 144055 "SMTPEMail Custom Report Layout"
         // [SCENARIO 325097] Email "Customer - Statements" For two vendors: "A" without email, "B" without email. "PrintIfEmailIsMissing" = false;.
         Initialize();
 
-        ReportID := GetCustomerStatementsReportID;
+        ReportID := GetCustomerStatementsReportID();
 
         InsertReportSelections(ReportSelections, ReportID, false, false, ReportSelections.Usage::"C.Statement");
 
@@ -683,7 +681,7 @@ codeunit 144055 "SMTPEMail Custom Report Layout"
         // [SCENARIO 325097] Email "Customer - Statements" For two vendors: "A" without email, "B" with email. "PrintIfEmailIsMissing" = false;.
         Initialize();
 
-        ReportID := GetCustomerStatementsReportID;
+        ReportID := GetCustomerStatementsReportID();
 
         InsertReportSelections(ReportSelections, ReportID, false, false, ReportSelections.Usage::"C.Statement");
 
@@ -726,7 +724,7 @@ codeunit 144055 "SMTPEMail Custom Report Layout"
         // [SCENARIO 325097] Email "Customer - Statements" For two vendors: "A" with email, "B" without email. "PrintIfEmailIsMissing" = false;.
         Initialize();
 
-        ReportID := GetCustomerStatementsReportID;
+        ReportID := GetCustomerStatementsReportID();
 
         InsertReportSelections(ReportSelections, ReportID, false, false, ReportSelections.Usage::"C.Statement");
 
@@ -767,7 +765,7 @@ codeunit 144055 "SMTPEMail Custom Report Layout"
         // [SCENARIO 325097] Email "Customer - Statements" For two vendors: "A" with email, "B" with email. "PrintIfEmailIsMissing" = false;.
         Initialize();
 
-        ReportID := GetCustomerStatementsReportID;
+        ReportID := GetCustomerStatementsReportID();
 
         InsertReportSelections(ReportSelections, ReportID, false, false, ReportSelections.Usage::"C.Statement");
 
@@ -803,7 +801,7 @@ codeunit 144055 "SMTPEMail Custom Report Layout"
         // [SCENARIO 325097] Email "Customer - Statements" For two vendors: "A" without email, "B" without email. "PrintIfEmailIsMissing" = false;.
         Initialize();
 
-        ReportID := GetCustomerStatementsReportID;
+        ReportID := GetCustomerStatementsReportID();
 
         InsertReportSelections(ReportSelections, ReportID, false, false, ReportSelections.Usage::"C.Statement");
 
@@ -840,7 +838,7 @@ codeunit 144055 "SMTPEMail Custom Report Layout"
         // [SCENARIO 325097] Email "Customer - Statements" For two vendors: "A" without email, "B" with email. "PrintIfEmailIsMissing" = false;.
         Initialize();
 
-        ReportID := GetCustomerStatementsReportID;
+        ReportID := GetCustomerStatementsReportID();
 
         InsertReportSelections(ReportSelections, ReportID, false, false, ReportSelections.Usage::"C.Statement");
 
@@ -880,7 +878,7 @@ codeunit 144055 "SMTPEMail Custom Report Layout"
         // [SCENARIO 325097] Email "Customer - Statements" For two vendors: "A" with email, "B" without email. "PrintIfEmailIsMissing" = false;.
         Initialize();
 
-        ReportID := GetCustomerStatementsReportID;
+        ReportID := GetCustomerStatementsReportID();
 
         InsertReportSelections(ReportSelections, ReportID, false, false, ReportSelections.Usage::"C.Statement");
 
@@ -920,7 +918,7 @@ codeunit 144055 "SMTPEMail Custom Report Layout"
         // [SCENARIO 325097] Email "Customer - Statements" For two vendors: "A" with email, "B" with email. "PrintIfEmailIsMissing" = false;.
         Initialize();
 
-        ReportID := GetCustomerStatementsReportID;
+        ReportID := GetCustomerStatementsReportID();
 
         InsertReportSelections(ReportSelections, ReportID, false, false, ReportSelections.Usage::"C.Statement");
 
@@ -988,7 +986,7 @@ codeunit 144055 "SMTPEMail Custom Report Layout"
         DocAmount: Integer;
         DocumentNo: Code[20];
     begin
-        CreateGeneralJournalBatch(GenJournalBatch, CreateAndModifyBankAccount);
+        CreateGeneralJournalBatch(GenJournalBatch, CreateAndModifyBankAccount());
 
         for Index := 1 to ARRAYLEN(Vendor) do begin
             LibraryERM.CreateBankAccount(BankAccount);
@@ -1002,7 +1000,7 @@ codeunit 144055 "SMTPEMail Custom Report Layout"
 
             LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, Vendor[Index]."No.");
             LibraryPurchase.CreatePurchaseLine(
-              PurchaseLine, PurchaseHeader, PurchaseLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithPurchSetup, 1);
+              PurchaseLine, PurchaseHeader, PurchaseLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithPurchSetup(), 1);
             PurchaseLine.Validate("Direct Unit Cost", DocAmount);
             PurchaseLine.Modify(true);
 
@@ -1014,7 +1012,7 @@ codeunit 144055 "SMTPEMail Custom Report Layout"
               DocAmount, VendorBankAccount.Code);
 
             GenJournalLine.Validate("Transaction Type Code", GenJournalLine."Transaction Type Code"::BUS);
-            GenJournalLine.Validate("Transaction Code", COPYSTR(LibraryUtility.GenerateGUID, 1, 3));
+            GenJournalLine.Validate("Transaction Code", COPYSTR(LibraryUtility.GenerateGUID(), 1, 3));
             GenJournalLine.Validate("Company Entry Description", LibraryUtility.GenerateGUID());
             GenJournalLine.Modify(true);
         end;
@@ -1038,7 +1036,7 @@ codeunit 144055 "SMTPEMail Custom Report Layout"
     var
         BankAccount: Record "Bank Account";
     begin
-        CreateBankAccount(BankAccount, LibraryUtility.GenerateGUID, BankAccount."Export Format"::US);
+        CreateBankAccount(BankAccount, LibraryUtility.GenerateGUID(), BankAccount."Export Format"::US);
         CreateBankAccWithBankStatementSetup(BankAccount, 'US EFT DEFAULT');
         BankAccount.Validate("Client No.", LibraryUtility.GenerateGUID());
         BankAccount.Validate("Client Name", LibraryUtility.GenerateGUID());
@@ -1078,7 +1076,7 @@ codeunit 144055 "SMTPEMail Custom Report Layout"
         BankAccount.Modify();
     end;
 
-    local procedure CreateCustomerWithDocumentLayout(var Customer: Record "Customer"; ReportUsage: Option; ReportID: Integer; Email: Text[200]);
+    local procedure CreateCustomerWithDocumentLayout(var Customer: Record "Customer"; ReportUsage: Enum "Report Selection Usage"; ReportID: Integer; Email: Text[200]);
     var
         CustomReportSelection: Record "Custom Report Selection";
     begin
@@ -1099,7 +1097,7 @@ codeunit 144055 "SMTPEMail Custom Report Layout"
         GenJournalBatch.Modify();
     end;
 
-    local procedure CreatePaymentJournal(var GenJournalLine: Record "Gen. Journal Line"; GenJournalBatch: Record "Gen. Journal Batch"; AppliesToDocNo: Code[20]; AccountType: Option; AccountNo: Code[20]; Amount: Decimal; RecipientBankAccoutCode: Code[20]);
+    local procedure CreatePaymentJournal(var GenJournalLine: Record "Gen. Journal Line"; GenJournalBatch: Record "Gen. Journal Batch"; AppliesToDocNo: Code[20]; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; Amount: Decimal; RecipientBankAccoutCode: Code[20]);
     begin
         LibraryERM.CreateGeneralJnlLine(
           GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name,
@@ -1116,7 +1114,7 @@ codeunit 144055 "SMTPEMail Custom Report Layout"
         GenJournalLine.Modify(true);
     end;
 
-    local procedure CreateVendorWithDocumentLayout(var Vendor: Record "Vendor"; ReportUsage: Option; ReportID: Integer; Email: Text[200]);
+    local procedure CreateVendorWithDocumentLayout(var Vendor: Record "Vendor"; ReportUsage: Enum "Report Selection Usage"; ReportID: Integer; Email: Text[200]);
     var
         CustomReportSelection: Record "Custom Report Selection";
     begin
@@ -1132,7 +1130,7 @@ codeunit 144055 "SMTPEMail Custom Report Layout"
     begin
         for Index := 1 to ARRAYLEN(Customer) do begin
             LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, Customer[Index]."No.");
-            LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithSalesSetup, 1);
+            LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithSalesSetup(), 1);
             SalesLine.Validate("Unit Price", LibraryRandom.RandIntInRange(100, 200));
             SalesLine.Modify(true);
             LibrarySales.PostSalesDocument(SalesHeader, true, true);
@@ -1166,10 +1164,10 @@ codeunit 144055 "SMTPEMail Custom Report Layout"
     local procedure GetBuiltInLayoutCode(ReportID: Integer): Code[20];
     var
         CustomReportLayout: Record "Custom Report Layout";
-        CustomReportLayoutType: Option;
+        CustomReportLayoutType: Enum "Custom Report Layout Type";
     begin
         case ReportID of
-            GetExportElecPaymentsWordReportID:
+            GetExportElecPaymentsWordReportID():
                 CustomReportLayoutType := CustomReportLayout.Type::Word;
             else
                 CustomReportLayoutType := CustomReportLayout.Type::RDLC;
@@ -1179,37 +1177,35 @@ codeunit 144055 "SMTPEMail Custom Report Layout"
         CustomReportLayout.SetRange(Type, CustomReportLayoutType);
         CustomReportLayout.SetRange("Report ID", ReportID);
         if NOT CustomReportLayout.FindFirst() then
-            CustomReportLayout.GET(CustomReportLayout.InitBuiltInLayout(ReportID, CustomReportLayoutType));
+            CustomReportLayout.GET(CustomReportLayout.InitBuiltInLayout(ReportID, CustomReportLayoutType.AsInteger()));
 
         exit(CustomReportLayout.Code);
     end;
 
-    local procedure InsertCustomReportSelectionVendor(var CustomReportSelection: Record "Custom Report Selection"; Vendor: Record "Vendor"; ReportID: Integer; UseForEmailAttachment: Boolean; UseForEmailBody: Boolean; SendToAddress: Text[200]; ReportUsage: Option);
+    local procedure InsertCustomReportSelectionVendor(var CustomReportSelection: Record "Custom Report Selection"; Vendor: Record "Vendor"; ReportID: Integer; UseForEmailAttachment: Boolean; UseForEmailBody: Boolean; SendToAddress: Text[200]; ReportUsage: Enum "Report Selection Usage");
     begin
         CustomReportSelection.SetRange("Source No.", Vendor."No.");
         CustomReportSelection.SetRange("Report ID", ReportID);
         CustomReportSelection.SetRange(Usage, ReportUsage);
         CustomReportSelection.DeleteAll();
 
-        WITH CustomReportSelection do begin
-            Init();
-            Validate("Source Type", DATABASE::Vendor);
-            Validate("Source No.", Vendor."No.");
-            Validate(Usage, ReportUsage);
-            Validate(Sequence, COUNT + 1);
-            Validate("Report ID", ReportID);
-            Validate("Use For Email Attachment", UseForEmailAttachment);
-            if "Use For Email Attachment" then
-                Validate("Custom Report Layout Code", GetBuiltInLayoutCode(ReportID));
-            Validate("Use For Email Body", UseForEmailBody);
-            if "Use For Email Body" then
-                Validate("Email Body Layout Code", GetBuiltInLayoutCode(ReportID));
-            Validate("Send To Email", SendToAddress);
-            Insert(true);
-        end;
+        CustomReportSelection.Init();
+        CustomReportSelection.Validate("Source Type", DATABASE::Vendor);
+        CustomReportSelection.Validate("Source No.", Vendor."No.");
+        CustomReportSelection.Validate(Usage, ReportUsage);
+        CustomReportSelection.Validate(Sequence, CustomReportSelection.COUNT + 1);
+        CustomReportSelection.Validate("Report ID", ReportID);
+        CustomReportSelection.Validate("Use For Email Attachment", UseForEmailAttachment);
+        if CustomReportSelection."Use For Email Attachment" then
+            CustomReportSelection.Validate("Custom Report Layout Code", GetBuiltInLayoutCode(ReportID));
+        CustomReportSelection.Validate("Use For Email Body", UseForEmailBody);
+        if CustomReportSelection."Use For Email Body" then
+            CustomReportSelection.Validate("Email Body Layout Code", GetBuiltInLayoutCode(ReportID));
+        CustomReportSelection.Validate("Send To Email", SendToAddress);
+        CustomReportSelection.Insert(true);
     end;
 
-    local procedure InsertCustomReportSelectionCustomer(var CustomReportSelection: Record "Custom Report Selection"; Customer: Record "Customer"; ReportID: Integer; UseForEmailAttachment: Boolean; UseForEmailBody: Boolean; SendToAddress: Text[200]; ReportUsage: Option);
+    local procedure InsertCustomReportSelectionCustomer(var CustomReportSelection: Record "Custom Report Selection"; Customer: Record "Customer"; ReportID: Integer; UseForEmailAttachment: Boolean; UseForEmailBody: Boolean; SendToAddress: Text[200]; ReportUsage: Enum "Report Selection Usage");
     begin
         CustomReportSelection.SetRange("Source No.", Customer."No.");
         CustomReportSelection.SetRange("Report ID", ReportID);
@@ -1234,7 +1230,7 @@ codeunit 144055 "SMTPEMail Custom Report Layout"
         end;
     end;
 
-    local procedure InsertReportSelections(var ReportSelections: Record "Report Selections"; ReportID: Integer; UseForEmailAttachment: Boolean; UseForEmailBody: Boolean; ReportUsage: Option);
+    local procedure InsertReportSelections(var ReportSelections: Record "Report Selections"; ReportID: Integer; UseForEmailAttachment: Boolean; UseForEmailBody: Boolean; ReportUsage: Enum "Report Selection Usage");
     begin
         ReportSelections.SetRange(Usage, ReportUsage);
         ReportSelections.DeleteAll();
@@ -1299,10 +1295,10 @@ codeunit 144055 "SMTPEMail Custom Report Layout"
             ErrorMessages."Message Type".AssertEquals(TempErrorMessage."Message Type");
             Stop := TempErrorMessage.Next() = 0;
             if NOT Stop then
-                Assert.IsTrue(ErrorMessages.NEXT, STRSUBSTNO(LessErrorsOnErrorMessagesPageErr, ErrorMessages.CAPTION));
+                Assert.IsTrue(ErrorMessages.Next(), STRSUBSTNO(LessErrorsOnErrorMessagesPageErr, ErrorMessages.CAPTION));
         until Stop;
 
-        Assert.IsFalse(ErrorMessages.NEXT, STRSUBSTNO(MoreErrorsOnErrorMessagesPageErr, ErrorMessages.CAPTION));
+        Assert.IsFalse(ErrorMessages.Next(), STRSUBSTNO(MoreErrorsOnErrorMessagesPageErr, ErrorMessages.CAPTION));
     end;
 
     [RequestPageHandler]
@@ -1314,7 +1310,7 @@ codeunit 144055 "SMTPEMail Custom Report Layout"
         ExportElectronicPayments."Gen. Journal Line".SetFilter("Journal Batch Name", LibraryvariableStorage.DequeueText());
         ExportElectronicPayments.OutputMethod.SetValue(LibraryvariableStorage.DequeueText());
         ExportElectronicPayments.PrintMissingAddresses.SetValue(LibraryvariableStorage.DequeueBoolean());
-        ExportElectronicPayments.OK.Invoke();
+        ExportElectronicPayments.OK().Invoke();
     end;
 
     [RequestPageHandler]
@@ -1326,18 +1322,18 @@ codeunit 144055 "SMTPEMail Custom Report Layout"
         ExportElecPaymentsWord."Gen. Journal Line".SetFilter("Journal Batch Name", LibraryvariableStorage.DequeueText());
         ExportElecPaymentsWord.OutputMethod.SetValue(LibraryvariableStorage.DequeueText());
         ExportElecPaymentsWord.PrintMissingAddresses.SetValue(LibraryvariableStorage.DequeueBoolean());
-        ExportElecPaymentsWord.OK.Invoke();
+        ExportElecPaymentsWord.OK().Invoke();
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure CustomerStatementsRequestPageHandler(var CustomerStatements: TestRequestPage "Customer Statements");
     begin
-        CustomerStatements.Customer.SetFilter("Date Filter", ForMAT(WORKDATE));
+        CustomerStatements.Customer.SetFilter("Date Filter", ForMAT(WorkDate()));
         CustomerStatements.Customer.SetFilter("No.", LibraryvariableStorage.DequeueText());
-        CustomerStatements.ReportOutput.SetValue(LibraryvariableStorage.DequeueInteger);
+        CustomerStatements.ReportOutput.SetValue(LibraryvariableStorage.DequeueInteger());
         CustomerStatements.PrintMissingAddresses.SetValue(LibraryvariableStorage.DequeueBoolean());
-        CustomerStatements.OK.Invoke();
+        CustomerStatements.OK().Invoke();
     end;
 }
 

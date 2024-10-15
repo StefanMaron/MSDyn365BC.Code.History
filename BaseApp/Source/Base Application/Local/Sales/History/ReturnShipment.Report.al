@@ -301,8 +301,8 @@ report 10127 "Return Shipment"
                         CompanyInformation."Phone No." := RespCenter."Phone No.";
                         CompanyInformation."Fax No." := RespCenter."Fax No.";
                     end;
-                CurrReport.Language := Language.GetLanguageIdOrDefault("Language Code");
-                CurrReport.FormatRegion := Language.GetFormatRegionOrDefault("Format Region");
+                CurrReport.Language := LanguageMgt.GetLanguageIdOrDefault("Language Code");
+                CurrReport.FormatRegion := LanguageMgt.GetFormatRegionOrDefault("Format Region");
 
                 if "Purchaser Code" = '' then
                     Clear(SalesPurchPerson)
@@ -404,7 +404,7 @@ report 10127 "Return Shipment"
         ReturnLine: Record "Return Shipment Line";
         OrderLine: Record "Purchase Line";
         RespCenter: Record "Responsibility Center";
-        Language: Codeunit Language;
+        LanguageMgt: Codeunit Language;
         CompanyAddress: array[8] of Text[100];
         BuyFromAddress: array[8] of Text[100];
         ShipToAddress: array[8] of Text[100];

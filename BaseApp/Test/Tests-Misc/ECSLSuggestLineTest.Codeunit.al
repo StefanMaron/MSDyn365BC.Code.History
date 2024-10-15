@@ -42,7 +42,7 @@ codeunit 134068 "ECSL Suggest Line Test"
 
         Assert.AreEqual(GetVATEntryTotalValue(StartDate, EndDate), GetReportTotalValue(VATReportHeader),
           'Expected that total Values are the same');
-        Teardown;
+        TearDown();
     end;
 
     [Test]
@@ -84,7 +84,7 @@ codeunit 134068 "ECSL Suggest Line Test"
         ECSLVATReportLine.SetRange("Report No.", VATReportHeader."No.");
         Assert.AreEqual(GetVATEntryTotalValue(StartDate, EndDate), GetReportTotalValue(VATReportHeader),
           'Expected that total Values are the same');
-        Teardown;
+        TearDown();
     end;
 
     [Test]
@@ -121,7 +121,7 @@ codeunit 134068 "ECSL Suggest Line Test"
 
         Assert.AreEqual(0, ECSLVATReportLine.Count, 'Expected that there is no line');
 
-        Teardown;
+        TearDown();
     end;
 
     [Test]
@@ -203,7 +203,7 @@ codeunit 134068 "ECSL Suggest Line Test"
         VATReportHeader.Init();
         VATReportHeader."Start Date" := StartDate;
         VATReportHeader."End Date" := EndDate;
-        VATReportHeader."No." := CopyStr(CreateGuid, 2, 20);
+        VATReportHeader."No." := CopyStr(CreateGuid(), 2, 20);
 
         VATReportHeader."Period Type" := VATReportHeader."Period Type"::Month;
         VATReportHeader."Period No." := Date2DMY(StartDate, 2);

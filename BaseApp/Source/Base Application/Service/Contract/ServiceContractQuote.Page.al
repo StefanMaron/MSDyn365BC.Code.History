@@ -3,10 +3,12 @@
 using Microsoft.CRM.Contact;
 using Microsoft.Finance.Dimension;
 using Microsoft.Foundation.Address;
+using Microsoft.Foundation.Attachment;
 using Microsoft.Foundation.Reporting;
 using Microsoft.Service.Comment;
 using Microsoft.Service.Document;
 using Microsoft.Service.Reports;
+using Microsoft.Utilities;
 using System.Security.User;
 using System.Utilities;
 
@@ -29,6 +31,7 @@ page 6053 "Service Contract Quote"
                 {
                     ApplicationArea = Service;
                     Importance = Promoted;
+                    Visible = DocNoVisible;
                     ToolTip = 'Specifies the number of the service contract or service contract quote.';
 
                     trigger OnAssistEdit()
@@ -592,6 +595,14 @@ page 6053 "Service Contract Quote"
         }
         area(factboxes)
         {
+            part("Attached Documents"; "Document Attachment Factbox")
+            {
+                ApplicationArea = Service;
+                Caption = 'Attachments';
+                SubPageLink = "Table ID" = const(Database::"Service Contract Header"),
+                              "Document Type" = const("Service Contract Quote"),
+                              "No." = field("Contract No.");
+            }
             systempart(Control1900383207; Links)
             {
                 ApplicationArea = RecordLinks;
@@ -640,6 +651,23 @@ page 6053 "Service Contract Quote"
                                   "Table Line No." = const(0);
                     ToolTip = 'View or add comments for the record.';
                 }
+                action(DocAttach)
+                {
+                    ApplicationArea = Service;
+                    Caption = 'Attachments';
+                    Image = Attach;
+                    ToolTip = 'Add a file as an attachment. You can attach images as well as documents.';
+
+                    trigger OnAction()
+                    var
+                        DocumentAttachmentDetails: Page "Document Attachment Details";
+                        RecRef: RecordRef;
+                    begin
+                        RecRef.GetTable(Rec);
+                        DocumentAttachmentDetails.OpenForRecRef(RecRef);
+                        DocumentAttachmentDetails.RunModal();
+                    end;
+                }
                 action("Service Dis&counts")
                 {
                     ApplicationArea = Service;
@@ -669,7 +697,7 @@ page 6053 "Service Contract Quote"
                     RunPageLink = "Contract Type Relation" = field("Contract Type"),
                                   "Contract No. Relation" = field("Contract No.");
                     RunPageView = sorting("Contract Type Relation", "Contract No. Relation", "File Date", "File Time")
-                                  order(Descending);
+                                  order(descending);
                     ToolTip = 'View filed contract quotes.';
                 }
             }
@@ -815,6 +843,24 @@ page 6053 "Service Contract Quote"
                     DocPrint.PrintServiceContract(Rec);
                 end;
             }
+            action(AttachAsPDF)
+            {
+                ApplicationArea = Service;
+                Caption = 'Attach as PDF';
+                Ellipsis = true;
+                Image = PrintAttachment;
+                ToolTip = 'Create a PDF file and attach it to the document.';
+
+                trigger OnAction()
+                var
+                    ServiceContractHeader: Record "Service Contract Header";
+                    DocumentPrint: Codeunit "Document-Print";
+                begin
+                    ServiceContractHeader := Rec;
+                    ServiceContractHeader.SetRecFilter();
+                    DocumentPrint.PrintServiceContractToDocumentAttachment(ServiceContractHeader);
+                end;
+            }
         }
         area(reporting)
         {
@@ -844,8 +890,16 @@ page 6053 "Service Contract Quote"
                 actionref("&Make Contract_Promoted"; "&Make Contract")
                 {
                 }
-                actionref("&Print_Promoted"; "&Print")
+                group(Category_CategoryPrint)
                 {
+                    ShowAs = SplitButton;
+
+                    actionref("&Print_Promoted"; "&Print")
+                    {
+                    }
+                    actionref(AttachAsPDF_Promoted; AttachAsPDF)
+                    {
+                    }
                 }
                 group(Category_Lock)
                 {
@@ -874,6 +928,9 @@ page 6053 "Service Contract Quote"
                 {
                 }
                 actionref("Co&mments_Promoted"; "Co&mments")
+                {
+                }
+                actionref(DocAttach_Promoted; DocAttach)
                 {
                 }
             }
@@ -920,6 +977,7 @@ page 6053 "Service Contract Quote"
         Rec.SetSecurityFilterOnRespCenter();
 
         ActivateFields();
+        SetDocNoVisible();
     end;
 
     var
@@ -941,6 +999,7 @@ page 6053 "Service Contract Quote"
         IsShipToCountyVisible: Boolean;
         IsSellToCountyVisible: Boolean;
         IsBillToCountyVisible: Boolean;
+        DocNoVisible: Boolean;
 
     local procedure ActivateFields()
     begin
@@ -949,6 +1008,14 @@ page 6053 "Service Contract Quote"
         IsSellToCountyVisible := FormatAddress.UseCounty(Rec."Country/Region Code");
         IsShipToCountyVisible := FormatAddress.UseCounty(Rec."Ship-to Country/Region Code");
         IsBillToCountyVisible := FormatAddress.UseCounty(Rec."Bill-to Country/Region Code");
+    end;
+
+    local procedure SetDocNoVisible()
+    var
+        DocumentNoVisibility: Codeunit DocumentNoVisibility;
+        DocType: Option Quote,"Order",Invoice,"Credit Memo",Contract;
+    begin
+        DocNoVisible := DocumentNoVisibility.ServiceDocumentNoIsVisible(DocType::Contract, Rec."Contract No.");
     end;
 
     local procedure CheckRequiredFields()

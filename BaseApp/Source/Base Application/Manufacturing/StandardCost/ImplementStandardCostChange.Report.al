@@ -7,14 +7,15 @@ using Microsoft.Inventory.Journal;
 using Microsoft.Inventory.Location;
 using Microsoft.Manufacturing.MachineCenter;
 using Microsoft.Manufacturing.WorkCenter;
-#if not CLEAN21
+#if not CLEAN23
 using Microsoft.Pricing.Calculation;
 #endif
 using Microsoft.Pricing.PriceList;
-#if not CLEAN21
+#if not CLEAN23
 using Microsoft.Projects.Resources.Pricing;
 #endif
 using Microsoft.Projects.Resources.Resource;
+using Microsoft.Inventory.Costing;
 
 report 5855 "Implement Standard Cost Change"
 {
@@ -197,29 +198,27 @@ report 5855 "Implement Standard Cost Change"
         Item: Record Item;
     begin
         OnBeforeUpdateItem(StdCostWksh, PostingDate);
-        with Item do begin
-            Get(StdCostWksh."No.");
-            Validate("Indirect Cost %", StdCostWksh."New Indirect Cost %");
-            Validate("Overhead Rate", StdCostWksh."New Overhead Rate");
-            Validate("Standard Cost", StdCostWksh."New Standard Cost");
-            "Single-Level Material Cost" := StdCostWksh."New Single-Lvl Material Cost";
-            "Single-Level Capacity Cost" := StdCostWksh."New Single-Lvl Cap. Cost";
-            "Single-Level Subcontrd. Cost" := StdCostWksh."New Single-Lvl Subcontrd Cost";
-            "Single-Level Cap. Ovhd Cost" := StdCostWksh."New Single-Lvl Cap. Ovhd Cost";
-            "Single-Level Mfg. Ovhd Cost" := StdCostWksh."New Single-Lvl Mfg. Ovhd Cost";
+        Item.Get(StdCostWksh."No.");
+        Item.Validate("Indirect Cost %", StdCostWksh."New Indirect Cost %");
+        Item.Validate("Overhead Rate", StdCostWksh."New Overhead Rate");
+        Item.Validate("Standard Cost", StdCostWksh."New Standard Cost");
+        Item."Single-Level Material Cost" := StdCostWksh."New Single-Lvl Material Cost";
+        Item."Single-Level Capacity Cost" := StdCostWksh."New Single-Lvl Cap. Cost";
+        Item."Single-Level Subcontrd. Cost" := StdCostWksh."New Single-Lvl Subcontrd Cost";
+        Item."Single-Level Cap. Ovhd Cost" := StdCostWksh."New Single-Lvl Cap. Ovhd Cost";
+        Item."Single-Level Mfg. Ovhd Cost" := StdCostWksh."New Single-Lvl Mfg. Ovhd Cost";
 
-            "Rolled-up Material Cost" := StdCostWksh."New Rolled-up Material Cost";
-            "Rolled-up Capacity Cost" := StdCostWksh."New Rolled-up Cap. Cost";
-            "Rolled-up Subcontracted Cost" := StdCostWksh."New Rolled-up Subcontrd Cost";
-            "Rolled-up Mfg. Ovhd Cost" := StdCostWksh."New Rolled-up Mfg. Ovhd Cost";
-            "Rolled-up Cap. Overhead Cost" := StdCostWksh."New Rolled-up Cap. Ovhd Cost";
+        Item."Rolled-up Material Cost" := StdCostWksh."New Rolled-up Material Cost";
+        Item."Rolled-up Capacity Cost" := StdCostWksh."New Rolled-up Cap. Cost";
+        Item."Rolled-up Subcontracted Cost" := StdCostWksh."New Rolled-up Subcontrd Cost";
+        Item."Rolled-up Mfg. Ovhd Cost" := StdCostWksh."New Rolled-up Mfg. Ovhd Cost";
+        Item."Rolled-up Cap. Overhead Cost" := StdCostWksh."New Rolled-up Cap. Ovhd Cost";
 
-            "Last Unit Cost Calc. Date" := PostingDate;
-            OnUpdateItemOnBeforeModify(StdCostWksh, Item);
-            Modify(true);
+        Item."Last Unit Cost Calc. Date" := PostingDate;
+        OnUpdateItemOnBeforeModify(StdCostWksh, Item);
+        Item.Modify(true);
 
-            ItemCostsUpdated := true;
-        end;
+        ItemCostsUpdated := true;
     end;
 
     local procedure UpdateSKU(StdCostWksh: Record "Standard Cost Worksheet")
@@ -227,18 +226,16 @@ report 5855 "Implement Standard Cost Change"
         SKU: Record "Stockkeeping Unit";
         IsHandled: Boolean;
     begin
-        with SKU do begin
-            SetRange("Item No.", StdCostWksh."No.");
-            if Find('-') then begin
-                SKUCostsUpdated := true;
-                repeat
-                    IsHandled := false;
-                    OnUpdateSKUOnBeforeValidateStandardCost(StdCostWksh, SKU, IsHandled);
-                    if not IsHandled then
-                        Validate("Standard Cost", StdCostWksh."New Standard Cost");
-                    Modify(true);
-                until Next() = 0;
-            end;
+        SKU.SetRange("Item No.", StdCostWksh."No.");
+        if SKU.Find('-') then begin
+            SKUCostsUpdated := true;
+            repeat
+                IsHandled := false;
+                OnUpdateSKUOnBeforeValidateStandardCost(StdCostWksh, SKU, IsHandled);
+                if not IsHandled then
+                    SKU.Validate("Standard Cost", StdCostWksh."New Standard Cost");
+                SKU.Modify(true);
+            until SKU.Next() = 0;
         end;
     end;
 
@@ -247,14 +244,12 @@ report 5855 "Implement Standard Cost Change"
         MachCtr: Record "Machine Center";
     begin
         OnBeforeUpdateMachCenter(StdCostWksh, PostingDate);
-        with MachCtr do begin
-            Get(StdCostWksh."No.");
-            Validate("Overhead Rate", StdCostWksh."New Overhead Rate");
-            Validate("Indirect Cost %", StdCostWksh."New Indirect Cost %");
-            Validate("Unit Cost", StdCostWksh."New Standard Cost");
-            Modify(true);
-            MachCtrCostsUpdated := true;
-        end;
+        MachCtr.Get(StdCostWksh."No.");
+        MachCtr.Validate("Overhead Rate", StdCostWksh."New Overhead Rate");
+        MachCtr.Validate("Indirect Cost %", StdCostWksh."New Indirect Cost %");
+        MachCtr.Validate("Unit Cost", StdCostWksh."New Standard Cost");
+        MachCtr.Modify(true);
+        MachCtrCostsUpdated := true;
     end;
 
     local procedure UpdateWorkCenter(StdCostWksh: Record "Standard Cost Worksheet")
@@ -262,37 +257,31 @@ report 5855 "Implement Standard Cost Change"
         WorkCtr: Record "Work Center";
     begin
         OnBeforeUpdateWorkCenter(StdCostWksh, PostingDate);
-        with WorkCtr do begin
-            Get(StdCostWksh."No.");
-            Validate("Overhead Rate", StdCostWksh."New Overhead Rate");
-            Validate("Indirect Cost %", StdCostWksh."New Indirect Cost %");
-            Validate("Unit Cost", StdCostWksh."New Standard Cost");
-            Modify(true);
-            WorkCtrCostsUpdated := true;
-        end;
+        WorkCtr.Get(StdCostWksh."No.");
+        WorkCtr.Validate("Overhead Rate", StdCostWksh."New Overhead Rate");
+        WorkCtr.Validate("Indirect Cost %", StdCostWksh."New Indirect Cost %");
+        WorkCtr.Validate("Unit Cost", StdCostWksh."New Standard Cost");
+        WorkCtr.Modify(true);
+        WorkCtrCostsUpdated := true;
     end;
 
     local procedure UpdateRes(StdCostWksh: Record "Standard Cost Worksheet")
     var
-        Res: Record Resource;
+        Resource: Record Resource;
     begin
-        with Res do begin
-            Get(StdCostWksh."No.");
-            Validate("Indirect Cost %", StdCostWksh."New Indirect Cost %");
-            Validate("Unit Cost", StdCostWksh."New Standard Cost");
-            Modify(true);
-            ResCostsUpdated := true;
-        end;
+        Resource.Get(StdCostWksh."No.");
+        Resource.Validate(Resource."Indirect Cost %", StdCostWksh."New Indirect Cost %");
+        Resource.Validate(Resource."Unit Cost", StdCostWksh."New Standard Cost");
+        Resource.Modify(true);
+        ResCostsUpdated := true;
 
-        UpdateResourceCost(StdCostWksh, Res);
+        UpdateResourceCost(StdCostWksh, Resource);
     end;
 
     local procedure UpdateStdCostWksh(var StdCostWksh: Record "Standard Cost Worksheet")
     begin
-        with StdCostWksh do begin
-            Implemented := true;
-            Modify(true);
-        end;
+        StdCostWksh.Implemented := true;
+        StdCostWksh.Modify(true);
     end;
 
     local procedure InsertRevalItemJnlLine()
@@ -365,16 +354,13 @@ report 5855 "Implement Standard Cost Change"
 
     local procedure ValidatePostingDate()
     var
-        NoSeriesMgt: Codeunit NoSeriesManagement;
+        NoSeries: Codeunit "No. Series";
     begin
-        with RevalItemJnlBatch do
-            if Get(RevalItemJnlTemplate.Name, Name) then
-                if "No. Series" = '' then
-                    DocNo := ''
-                else begin
-                    DocNo := NoSeriesMgt.GetNextNo("No. Series", PostingDate, false);
-                    Clear(NoSeriesMgt);
-                end;
+        if RevalItemJnlBatch.Get(RevalItemJnlTemplate.Name, RevalItemJnlBatch.Name) then
+            if RevalItemJnlBatch."No. Series" = '' then
+                DocNo := ''
+            else
+                DocNo := NoSeries.PeekNextNo(RevalItemJnlBatch."No. Series", PostingDate);
     end;
 
     procedure Initialize()
@@ -401,7 +387,7 @@ report 5855 "Implement Standard Cost Change"
     var
         Item: Record Item;
         CalcInvtValue: Report "Calculate Inventory Value";
-        CalculatePer: Option "Item Ledger Entry",Item;
+        CalculatePer: Enum "Inventory Value Calc. Per";
         IsHandled: Boolean;
     begin
         OnBeforeCalculateInventoryValue(RevalItemJnlTemplate, "Standard Cost Worksheet", PostingDate, DocNo, HideDuplWarning, IsHandled, RevalItemJnlBatch);
@@ -414,7 +400,7 @@ report 5855 "Implement Standard Cost Change"
         Clear(Item);
         Item.SetRange("No.", "Standard Cost Worksheet"."No.");
         CalcInvtValue.SetTableView(Item);
-        CalcInvtValue.InitializeRequest(PostingDate, DocNo, HideDuplWarning, CalculatePer::Item, false, false, false, 0, false);
+        CalcInvtValue.SetParameters(PostingDate, DocNo, HideDuplWarning, CalculatePer::Item, false, false, false, "Inventory Value Calc. Base"::" ", false);
         CalcInvtValue.UseRequestPage(false);
         OnCalculateInventoryValueOnBeforeCalcInvtValueRun(CalcInvtValue, PostingDate, DocNo, HideDuplWarning);
         CalcInvtValue.Run();
@@ -430,7 +416,7 @@ report 5855 "Implement Standard Cost Change"
         if IsHandled then
             exit;
 
-#if not CLEAN21
+#if not CLEAN23
         if UpdateOldResourceCost(StandardCostWorksheet, Resource) then
             exit;
 #endif
@@ -456,7 +442,7 @@ report 5855 "Implement Standard Cost Change"
         end;
     end;
 
-#if not CLEAN21
+#if not CLEAN23
     local procedure UpdateOldResourceCost(StandardCostWorksheet: Record "Standard Cost Worksheet"; Resource: Record Resource): Boolean;
     var
         ResourceCost: Record "Resource Cost";

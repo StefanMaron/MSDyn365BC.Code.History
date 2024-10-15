@@ -8,7 +8,11 @@ page 388 "Bank Acc. Reconciliation List"
     Editable = false;
     PageType = List;
     SourceTable = "Bank Acc. Reconciliation";
+#if not CLEAN24
     SourceTableTemporary = true;
+#else
+    SourceTableView = where("Statement Type" = const("Bank Reconciliation"));
+#endif
     UsageCategory = Lists;
     RefreshOnActivate = true;
 
@@ -75,16 +79,23 @@ page 388 "Bank Acc. Reconciliation List"
     {
         area(processing)
         {
+#if not CLEAN24
             group("&Document")
             {
                 Caption = '&Document';
+                ObsoleteReason = 'Document group in Bank Reconciliation Mgt. is no longer needed and therefore obsoleted.';
+                ObsoleteState = Pending;
+                ObsoleteTag = '24.0';
+
                 action(NewRec)
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'New';
                     Image = NewDocument;
                     ToolTip = 'Create a new bank account reconciliation.';
-                    Visible = false;
+                    ObsoleteReason = 'Custom NewRec action in Bank Reconciliation Mgt. is no longer supported.';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '24.0';
 
                     trigger OnAction()
                     var
@@ -100,6 +111,9 @@ page 388 "Bank Acc. Reconciliation List"
                     Caption = 'New';
                     Image = NewDocument;
                     ToolTip = 'Create a new bank account reconciliation.';
+                    ObsoleteReason = 'Custom NewRecProcess action in Bank Reconciliation Mgt. is no longer supported.';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '24.0';
 
                     trigger OnAction()
                     var
@@ -115,6 +129,9 @@ page 388 "Bank Acc. Reconciliation List"
                     Image = EditLines;
                     ShortCutKey = 'Return';
                     ToolTip = 'Edit the bank account reconciliation list.';
+                    ObsoleteReason = 'Custom edit action in Bank Reconciliation Mgt. is no longer supported.';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '24.0';
 
                     trigger OnAction()
                     var
@@ -129,6 +146,9 @@ page 388 "Bank Acc. Reconciliation List"
                     Caption = 'Refresh';
                     Image = RefreshLines;
                     ToolTip = 'Update the data with any changes made by other users since you opened the window.';
+                    ObsoleteReason = 'Refresh action in Bank Reconciliation Mgt. is no longer supported.';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '24.0';
 
                     trigger OnAction()
                     begin
@@ -141,6 +161,9 @@ page 388 "Bank Acc. Reconciliation List"
                     Caption = 'Delete';
                     Image = Delete;
                     ToolTip = 'Delete the bank account reconciliation.';
+                    ObsoleteReason = 'Custom delete action in Bank Reconciliation Mgt. is no longer supported.';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '24.0';
 
                     trigger OnAction()
                     var
@@ -154,10 +177,12 @@ page 388 "Bank Acc. Reconciliation List"
                     end;
                 }
             }
+#endif
             group("P&osting")
             {
                 Caption = 'P&osting';
                 Image = Post;
+#if not CLEAN24
                 action(Post)
                 {
                     ApplicationArea = Basic, Suite;
@@ -165,6 +190,10 @@ page 388 "Bank Acc. Reconciliation List"
                     Image = PostOrder;
                     ShortCutKey = 'F9';
                     ToolTip = 'Finalize the document or journal by posting the amounts and quantities to the related accounts in your company books.';
+                    ObsoleteReason = 'Custom post action in Bank Reconciliation Mgt. is no longer supported.';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '24.0';
+
                     trigger OnAction()
                     var
                         BankReconciliationMgt: Codeunit "Bank Reconciliation Mgt.";
@@ -184,6 +213,9 @@ page 388 "Bank Acc. Reconciliation List"
                     Image = PostPrint;
                     ShortCutKey = 'Shift+F9';
                     ToolTip = 'Finalize and prepare to print the document or journal. The values and quantities are posted to the related accounts. A report request window where you can specify what to include on the print-out.';
+                    ObsoleteReason = 'Custom PostAndPrint action in Bank Reconciliation Mgt. is no longer supported.';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '24.0';
 
                     trigger OnAction()
                     var
@@ -197,6 +229,26 @@ page 388 "Bank Acc. Reconciliation List"
                         Refresh();
                     end;
                 }
+#else
+                action(Post)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'P&ost';
+                    Image = PostOrder;
+                    RunObject = Codeunit "Bank Acc. Recon. Post (Yes/No)";
+                    ShortCutKey = 'F9';
+                    ToolTip = 'Finalize the document or journal by posting the amounts and quantities to the related accounts in your company books.';
+                }
+                action(PostAndPrint)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Post and &Print';
+                    Image = PostPrint;
+                    RunObject = Codeunit "Bank Acc. Recon. Post+Print";
+                    ShortCutKey = 'Shift+F9';
+                    ToolTip = 'Finalize and prepare to print the document or journal. The values and quantities are posted to the related accounts. A report request window where you can specify what to include on the print-out.';
+                }
+#endif
             }
             action(ChangeStatementNo)
             {
@@ -213,19 +265,28 @@ page 388 "Bank Acc. Reconciliation List"
                     BankAccReconciliation := Rec;
                     Codeunit.Run(Codeunit::"Change Bank Rec. Statement No.", BankAccReconciliation);
                     Rec := BankAccReconciliation;
+#if not CLEAN24
                     Refresh();
+#endif
                 end;
             }
+        }
+        area(Prompting)
+        {
         }
         area(Promoted)
         {
             group(Category_New)
             {
                 Caption = 'New', Comment = 'Generated from the PromotedActionCategories property index 0.';
-
+#if not CLEAN24
                 actionref(NewRec_Promoted; NewRec)
                 {
+                    ObsoleteReason = 'Custom NewRec action in Bank Reconciliation Mgt. is no longer supported.';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '24.0';
                 }
+#endif
             }
             group(Category_Process)
             {
@@ -246,18 +307,32 @@ page 388 "Bank Acc. Reconciliation List"
                 actionref(ChangeStatementNo_Promoted; ChangeStatementNo)
                 {
                 }
+#if not CLEAN24
                 actionref(NewRecProcess_Promoted; NewRecProcess)
                 {
+                    ObsoleteReason = 'Custom NewRecProcess action in Bank Reconciliation Mgt. is no longer supported.';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '24.0';
                 }
                 actionref(EditRec_Promoted; EditRec)
                 {
+                    ObsoleteReason = 'Custom edit action in Bank Reconciliation Mgt. is no longer supported.';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '24.0';
                 }
                 actionref(RefreshList_Promoted; RefreshList)
                 {
+                    ObsoleteReason = 'Refresh action in Bank Reconciliation Mgt. is no longer supported.';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '24.0';
                 }
                 actionref(DeleteRec_Promoted; DeleteRec)
                 {
+                    ObsoleteReason = 'Custom delete action in Bank Reconciliation Mgt. is no longer supported.';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '24.0';
                 }
+#endif
             }
             group(Category_Report)
             {
@@ -275,6 +350,7 @@ page 388 "Bank Acc. Reconciliation List"
         }
     }
 
+#if not CLEAN24
     trigger OnInit()
     begin
         UseSharedTable := true;
@@ -296,5 +372,6 @@ page 388 "Bank Acc. Reconciliation List"
         Rec.DeleteAll();
         BankReconciliationMgt.Refresh(Rec);
     end;
+#endif
 }
 

@@ -15,7 +15,7 @@ page 5726 "Catalog Item List"
     PageType = List;
     SourceTable = "Nonstock Item";
     SourceTableView = sorting("Vendor Item No.", "Manufacturer Code")
-                      order(Ascending);
+                      order(ascending);
     UsageCategory = Lists;
 
     layout

@@ -7,6 +7,7 @@ namespace Microsoft.Inventory.Reports;
 table 10139 "Item Location Variant Buffer"
 {
     Caption = 'Item Location Variant Buffer';
+    DataClassification = CustomerContent;
 
     fields
     {

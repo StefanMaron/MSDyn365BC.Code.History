@@ -8,6 +8,7 @@ table 6314 "Power BI Context Settings"
     Caption = 'Power BI Context Settings';
     ReplicateData = false;
     Extensible = false;
+    DataClassification = CustomerContent;
 
     fields
     {

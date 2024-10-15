@@ -217,16 +217,16 @@ codeunit 134340 "WF Buffer Table/Page UT"
         Initialize();
         LibraryWorkflow.CreateWorkflow(Workflow);
         LibraryWorkflow.CreateWorkflow(Workflow);
-        WorkflowsPage.OpenView;
+        WorkflowsPage.OpenView();
         WorkflowsPage.FILTER.SetFilter("Workflow Code", Workflow.Code);
-        WorkflowsPage.First;
+        WorkflowsPage.First();
 
         // Exercise
-        WorkflowPage.Trap;
-        WorkflowsPage.ViewAction.Invoke;
+        WorkflowPage.Trap();
+        WorkflowsPage.ViewAction.Invoke();
 
         // Verify
-        Assert.IsFalse(WorkflowPage.Editable, 'The view action opened the page in editable mode');
+        Assert.IsFalse(WorkflowPage.Editable(), 'The view action opened the page in editable mode');
         Assert.AreEqual(Workflow.Code, WorkflowPage.Code.Value, 'The view action opened a wrong record');
     end;
 
@@ -240,19 +240,19 @@ codeunit 134340 "WF Buffer Table/Page UT"
     begin
         // Setup
         Initialize();
-        SetApplicationArea;
+        SetApplicationArea();
         LibraryWorkflow.CreateWorkflow(Workflow);
         LibraryWorkflow.CreateWorkflow(Workflow);
-        WorkflowsPage.OpenView;
+        WorkflowsPage.OpenView();
         WorkflowsPage.FILTER.SetFilter("Workflow Code", Workflow.Code);
-        WorkflowsPage.First;
+        WorkflowsPage.First();
 
         // Exercise
-        WorkflowPage.Trap;
-        WorkflowsPage.EditAction.Invoke;
+        WorkflowPage.Trap();
+        WorkflowsPage.EditAction.Invoke();
 
         // Verify
-        Assert.IsTrue(WorkflowPage.Editable, 'The view action did not open the page in editable mode');
+        Assert.IsTrue(WorkflowPage.Editable(), 'The view action did not open the page in editable mode');
         Assert.AreEqual(Workflow.Code, WorkflowPage.Code.Value, 'The view action opened a wrong record');
     end;
 
@@ -267,21 +267,21 @@ codeunit 134340 "WF Buffer Table/Page UT"
     begin
         // Setup
         Initialize();
-        SetApplicationArea;
+        SetApplicationArea();
         WorkflowCode := LibraryUtility.GenerateRandomCode(Workflow.FieldNo(Code), DATABASE::Workflow);
-        WorkflowsPage.OpenView;
+        WorkflowsPage.OpenView();
 
         // Exercise
-        WorkflowPage.Trap;
-        WorkflowsPage.NewAction.Invoke;
+        WorkflowPage.Trap();
+        WorkflowsPage.NewAction.Invoke();
 
         // Verify
-        Assert.IsTrue(WorkflowPage.Editable, 'The view action did not open the page in editable mode');
+        Assert.IsTrue(WorkflowPage.Editable(), 'The view action did not open the page in editable mode');
         Assert.AreEqual('', WorkflowPage.Code.Value, 'The view action opened a wrong record');
 
         // Verify create record
         WorkflowPage.Code.SetValue(WorkflowCode);
-        WorkflowPage.OK.Invoke;
+        WorkflowPage.OK().Invoke();
         Workflow.Get(WorkflowCode);
     end;
 
@@ -296,23 +296,23 @@ codeunit 134340 "WF Buffer Table/Page UT"
     begin
         // Setup
         Initialize();
-        SetApplicationArea;
+        SetApplicationArea();
         LibraryWorkflow.CreateWorkflow(Workflow);
         LibraryWorkflow.CreateWorkflow(Workflow);
         WorkflowCode := LibraryUtility.GenerateRandomCode(Workflow.FieldNo(Code), DATABASE::Workflow);
-        WorkflowsPage.OpenView;
+        WorkflowsPage.OpenView();
 
         // Exercise
-        WorkflowPage.Trap;
-        WorkflowsPage.NewAction.Invoke;
+        WorkflowPage.Trap();
+        WorkflowsPage.NewAction.Invoke();
 
         // Verify
-        Assert.IsTrue(WorkflowPage.Editable, 'The view action did not open the page in editable mode');
+        Assert.IsTrue(WorkflowPage.Editable(), 'The view action did not open the page in editable mode');
         Assert.AreEqual('', WorkflowPage.Code.Value, 'The view action opened a wrong record');
 
         // Verify create record
         WorkflowPage.Code.SetValue(WorkflowCode);
-        WorkflowPage.OK.Invoke;
+        WorkflowPage.OK().Invoke();
         Workflow.Get(WorkflowCode);
     end;
 
@@ -386,16 +386,16 @@ codeunit 134340 "WF Buffer Table/Page UT"
         Initialize();
         LibraryWorkflow.CreateTemplateWorkflow(Workflow);
         LibraryWorkflow.CreateTemplateWorkflow(Workflow);
-        WorkflowTemplatesPage.OpenView;
+        WorkflowTemplatesPage.OpenView();
         WorkflowTemplatesPage.FILTER.SetFilter("Workflow Code", Workflow.Code);
-        WorkflowTemplatesPage.First;
+        WorkflowTemplatesPage.First();
 
         // Exercise
-        WorkflowPage.Trap;
-        WorkflowTemplatesPage.ViewAction.Invoke;
+        WorkflowPage.Trap();
+        WorkflowTemplatesPage.ViewAction.Invoke();
 
         // Verify
-        Assert.IsFalse(WorkflowPage.Editable, 'The view action opened the page in editable mode');
+        Assert.IsFalse(WorkflowPage.Editable(), 'The view action opened the page in editable mode');
         Assert.AreEqual(Workflow.Code, WorkflowPage.Code.Value, 'The view action opened a wrong record');
     end;
 
@@ -411,23 +411,23 @@ codeunit 134340 "WF Buffer Table/Page UT"
         // Setup
         Initialize();
         LibraryWorkflow.CreateWorkflow(Workflow);
-        WorkflowsPage.OpenView;
+        WorkflowsPage.OpenView();
         // Place focus to the Workflow
-        WorkflowsPage.Last;
+        WorkflowsPage.Last();
 
         // Exercise
-        WorkflowPage.Trap;
-        WorkflowsPage.EditAction.Invoke;
+        WorkflowPage.Trap();
+        WorkflowsPage.EditAction.Invoke();
 
         NewDescription := LibraryUtility.GenerateGUID();
         WorkflowPage.Description.SetValue(NewDescription);
-        WorkflowPage.OK.Invoke;
+        WorkflowPage.OK().Invoke();
 
         // Verify
         // Move to the catagory line and back to the workflow line.
         // This will activate the update of the line.
-        WorkflowsPage.First;
-        WorkflowsPage.Last;
+        WorkflowsPage.First();
+        WorkflowsPage.Last();
 
         Assert.AreEqual(NewDescription, WorkflowsPage.Description.Value, 'Descrition should get updated');
     end;
@@ -471,8 +471,8 @@ codeunit 134340 "WF Buffer Table/Page UT"
     procedure WorkflowTemplatePageHandlerLookupOKPass(var WorkflowTemplatesPage: TestPage "Workflow Templates")
     begin
         WorkflowTemplatesPage.FILTER.SetFilter("Workflow Code", '<>''''');
-        WorkflowTemplatesPage.First;
-        WorkflowTemplatesPage.OK.Invoke;
+        WorkflowTemplatesPage.First();
+        WorkflowTemplatesPage.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -480,8 +480,8 @@ codeunit 134340 "WF Buffer Table/Page UT"
     procedure WorkflowTemplatePageHandlerLookupOKFail(var WorkflowTemplatesPage: TestPage "Workflow Templates")
     begin
         WorkflowTemplatesPage.FILTER.SetFilter("Workflow Code", '');
-        WorkflowTemplatesPage.First;
-        WorkflowTemplatesPage.OK.Invoke;
+        WorkflowTemplatesPage.First();
+        WorkflowTemplatesPage.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -489,8 +489,8 @@ codeunit 134340 "WF Buffer Table/Page UT"
     procedure WorkflowTemplatePageHandlerLookupCancel(var WorkflowTemplatesPage: TestPage "Workflow Templates")
     begin
         WorkflowTemplatesPage.FILTER.SetFilter("Workflow Code", '''''');
-        WorkflowTemplatesPage.First;
-        WorkflowTemplatesPage.Cancel.Invoke;
+        WorkflowTemplatesPage.First();
+        WorkflowTemplatesPage.Cancel().Invoke();
     end;
 
     [MessageHandler]

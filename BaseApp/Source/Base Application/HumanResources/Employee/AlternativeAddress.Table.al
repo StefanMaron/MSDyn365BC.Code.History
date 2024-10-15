@@ -10,6 +10,7 @@ table 5201 "Alternative Address"
     DataCaptionFields = "Employee No.", Name, "Code";
     DrillDownPageID = "Alternative Address List";
     LookupPageID = "Alternative Address List";
+    DataClassification = CustomerContent;
 
     fields
     {

@@ -31,6 +31,7 @@ table 14 Location
     DataCaptionFields = "Code", Name;
     DrillDownPageID = "Location List";
     LookupPageID = "Location List";
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -149,11 +150,24 @@ table 14 Location
                 MailManagement.ValidateEmailAddressField("E-Mail");
             end;
         }
+#if not CLEAN24
         field(5719; "Home Page"; Text[90])
         {
             Caption = 'Home Page';
             ExtendedDatatype = URL;
+            ObsoleteReason = 'Field length will be increased to 255.';
+            ObsoleteState = Pending;
+            ObsoleteTag = '24.0';
         }
+#else
+#pragma warning disable AS0086
+        field(5719; "Home Page"; Text[255])
+        {
+            Caption = 'Home Page';
+            ExtendedDatatype = URL;
+        }
+#pragma warning restore AS0086
+#endif
         field(5720; "Country/Region Code"; Code[10])
         {
             Caption = 'Country/Region Code';
@@ -178,6 +192,10 @@ table 14 Location
                     TestField("Require Receive", false);
                     TestField("Require Shipment", false);
                     TestField("Bin Mandatory", false);
+                    TestField("Prod. Consump. Whse. Handling", "Prod. Consump. Whse. Handling"::"No Warehouse Handling");
+                    TestField("Prod. Output Whse. Handling", "Prod. Output Whse. Handling"::"No Warehouse Handling");
+                    TestField("Job Consump. Whse. Handling", "Job Consump. Whse. Handling"::"No Warehouse Handling");
+                    TestField("Asm. Consump. Whse. Handling", "Asm. Consump. Whse. Handling"::"No Warehouse Handling");
                 end;
             end;
         }
@@ -283,6 +301,7 @@ table 14 Location
                 end else begin
                     WhseActivHeader.SetRange(Type, WhseActivHeader.Type::"Put-away");
                     WhseActivHeader.SetRange("Location Code", Code);
+                    WhseActivHeader.SetFilter("Source Document", '<>%1&<>%2&<>%3&<>%4', WhseActivHeader."Source Document"::"Prod. Consumption", WhseActivHeader."Source Document"::"Prod. Output", WhseActivHeader."Source Document"::"Assembly Consumption", WhseActivHeader."Source Document"::"Job Usage");
                     if not WhseActivHeader.IsEmpty() then
                         Error(Text008, FieldCaption("Require Receive"), false, WhseActivHeader.TableCaption());
 
@@ -311,6 +330,7 @@ table 14 Location
                 end else begin
                     WhseActivHeader.SetRange(Type, WhseActivHeader.Type::Pick);
                     WhseActivHeader.SetRange("Location Code", Code);
+                    WhseActivHeader.SetFilter("Source Document", '<>%1&<>%2&<>%3&<>%4', WhseActivHeader."Source Document"::"Prod. Consumption", WhseActivHeader."Source Document"::"Prod. Output", WhseActivHeader."Source Document"::"Assembly Consumption", WhseActivHeader."Source Document"::"Job Usage");
                     if not WhseActivHeader.IsEmpty() then
                         Error(Text008, FieldCaption("Require Shipment"), false, WhseActivHeader.TableCaption());
                 end;
@@ -671,7 +691,7 @@ table 14 Location
         }
         field(7333; "To-Job Bin Code"; Code[20])
         {
-            Caption = 'To-Job Bin Code';
+            Caption = 'To-Project Bin Code';
             TableRelation = Bin.Code where("Location Code" = field(Code));
 
             trigger OnValidate()
@@ -697,7 +717,7 @@ table 14 Location
         }
         field(7335; "Job Consump. Whse. Handling"; Enum "Job Consump. Whse. Handling")
         {
-            Caption = 'Job Consump. Whse. Handling';
+            Caption = 'Project Consump. Whse. Handling';
 
             trigger OnValidate()
             begin
@@ -960,22 +980,53 @@ table 14 Location
 
     procedure GetLocationSetup(LocationCode: Code[10]; var Location2: Record Location): Boolean
     begin
-        if not Get(LocationCode) then
-            with Location2 do begin
-                Init();
-                WhseSetup.Get();
-                InvtSetup.Get();
-                Code := LocationCode;
-                "Use As In-Transit" := false;
-                "Require Put-away" := WhseSetup."Require Put-away";
-                "Require Pick" := WhseSetup."Require Pick";
-                "Outbound Whse. Handling Time" := InvtSetup."Outbound Whse. Handling Time";
-                "Inbound Whse. Handling Time" := InvtSetup."Inbound Whse. Handling Time";
-                "Require Receive" := WhseSetup."Require Receive";
-                "Require Shipment" := WhseSetup."Require Shipment";
-                OnGetLocationSetupOnAfterInitLocation(Rec, Location2);
-                exit(false);
+        if not Get(LocationCode) then begin
+            Location2.Init();
+            WhseSetup.Get();
+            InvtSetup.Get();
+            Location2.Code := LocationCode;
+            Location2."Use As In-Transit" := false;
+            Location2."Require Put-away" := WhseSetup."Require Put-away";
+            Location2."Require Pick" := WhseSetup."Require Pick";
+            Location2."Outbound Whse. Handling Time" := InvtSetup."Outbound Whse. Handling Time";
+            Location2."Inbound Whse. Handling Time" := InvtSetup."Inbound Whse. Handling Time";
+            Location2."Require Receive" := WhseSetup."Require Receive";
+            Location2."Require Shipment" := WhseSetup."Require Shipment";
+            // Initialize new settings based on upgrade
+            case true of
+                not Location2."Require Pick" and not Location2."Require Shipment",
+                not Location2."Require Pick" and Location2."Require Shipment":
+                    begin
+                        Location2."Prod. Consump. Whse. Handling" := Enum::"Prod. Consump. Whse. Handling"::"Warehouse Pick (optional)";
+                        Location2."Asm. Consump. Whse. Handling" := Enum::"Asm. Consump. Whse. Handling"::"Warehouse Pick (optional)";
+                        Location2."Job Consump. Whse. Handling" := Enum::"Job Consump. Whse. Handling"::"Warehouse Pick (optional)";
+                    end;
+                Location2."Require Pick" and not Location2."Require Shipment":
+                    begin
+                        Location2."Prod. Consump. Whse. Handling" := Enum::"Prod. Consump. Whse. Handling"::"Inventory Pick/Movement";
+                        Location2."Asm. Consump. Whse. Handling" := Enum::"Asm. Consump. Whse. Handling"::"Inventory Movement";
+                        Location2."Job Consump. Whse. Handling" := Enum::"Job Consump. Whse. Handling"::"Inventory Pick";
+                    end;
+                Location2."Require Pick" and Location2."Require Shipment":
+                    begin
+                        Location2."Prod. Consump. Whse. Handling" := Enum::"Prod. Consump. Whse. Handling"::"Warehouse Pick (mandatory)";
+                        Location2."Asm. Consump. Whse. Handling" := Enum::"Asm. Consump. Whse. Handling"::"Warehouse Pick (mandatory)";
+                        Location2."Job Consump. Whse. Handling" := Enum::"Job Consump. Whse. Handling"::"Warehouse Pick (mandatory)";
+                    end;
             end;
+
+            case true of
+                not Location2."Require Put-away" and not Location2."Require Receive",
+                not Location2."Require Put-away" and Location2."Require Receive",
+                Location2."Require Put-away" and Location2."Require Receive":
+                    Location2."Prod. Output Whse. Handling" := Enum::"Prod. Output Whse. Handling"::"No Warehouse Handling";
+                Location2."Require Put-away" and not Location2."Require Receive":
+                    Location2."Prod. Output Whse. Handling" := Enum::"Prod. Output Whse. Handling"::"Inventory Put-away";
+            end;
+
+            OnGetLocationSetupOnAfterInitLocation(Rec, Location2);
+            exit(false);
+        end;
 
         Location2 := Rec;
         exit(true);

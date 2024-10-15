@@ -19,7 +19,7 @@ codeunit 136352 "UT T Job Task Line"
         LibraryUtility: Codeunit "Library - Utility";
         LibraryJob: Codeunit "Library - Job";
         IsInitialized: Boolean;
-        CannotModifyJobTaskErr: Label 'The Job Task cannot be modified because the job has associated job WIP entries.';
+        CannotModifyJobTaskErr: Label 'The Project Task cannot be modified because the project has associated project WIP entries.';
 
     [Test]
     [Scope('OnPrem')]
@@ -28,7 +28,7 @@ codeunit 136352 "UT T Job Task Line"
         JobWIPTotal: Record "Job WIP Total";
     begin
         Initialize();
-        SetUp;
+        SetUp();
 
         // Verify that a Job Task can be deleted and that all Job Planning Lines and Job WIP Totals are deleted as well.
         JobWIPTotal.Init();
@@ -41,10 +41,10 @@ codeunit 136352 "UT T Job Task Line"
         JobWIPTotal.SetRange("Job No.", JobTask."Job No.");
         JobWIPTotal.SetRange("Job Task No.", JobTask."Job Task No.");
         JobWIPTotal.SetRange("Posted to G/L", false);
-        Assert.IsFalse(JobPlanningLine.FindFirst, 'Job Planning Lines still exist after deletion of Record.');
-        Assert.IsFalse(JobWIPTotal.FindFirst, 'Job WIP Totals still exist after deletion of Record.');
+        Assert.IsFalse(JobPlanningLine.FindFirst(), 'Job Planning Lines still exist after deletion of Record.');
+        Assert.IsFalse(JobWIPTotal.FindFirst(), 'Job WIP Totals still exist after deletion of Record.');
 
-        TearDown;
+        TearDown();
     end;
 
     [Test]
@@ -53,7 +53,7 @@ codeunit 136352 "UT T Job Task Line"
     begin
         // [SCENARIO 253648] When Job WIP Entry exists, Job Task can be edit for allowed field.
         Initialize();
-        SetUp;
+        SetUp();
 
         // Verify that a Job Task can be modified:
         JobTask.Description := LibraryUtility.GenerateGUID();
@@ -64,7 +64,7 @@ codeunit 136352 "UT T Job Task Line"
         JobTask.Description := LibraryUtility.GenerateGUID();
         JobTask.Modify();
 
-        TearDown;
+        TearDown();
     end;
 
     [Test]
@@ -75,7 +75,7 @@ codeunit 136352 "UT T Job Task Line"
         Initialize();
 
         // Job with Job Task
-        SetUp;
+        SetUp();
 
         // Verify that "Job Task Type" can be modified
         JobTask."Job Task Type" := JobTask."Job Task Type"::"Begin-Total";
@@ -87,7 +87,7 @@ codeunit 136352 "UT T Job Task Line"
         asserterror JobTask.Modify();
         Assert.ExpectedError(CannotModifyJobTaskErr);
 
-        TearDown;
+        TearDown();
     end;
 
     [Test]
@@ -98,7 +98,7 @@ codeunit 136352 "UT T Job Task Line"
         Initialize();
 
         // Job with Job Task
-        SetUp;
+        SetUp();
 
         // Verify that "WIP-Total" can be modified
         JobTask."WIP-Total" := JobTask."WIP-Total"::Excluded;
@@ -110,7 +110,7 @@ codeunit 136352 "UT T Job Task Line"
         asserterror JobTask.Modify();
         Assert.ExpectedError(CannotModifyJobTaskErr);
 
-        TearDown;
+        TearDown();
     end;
 
     [Test]
@@ -121,7 +121,7 @@ codeunit 136352 "UT T Job Task Line"
         Initialize();
 
         // Job with Job Task
-        SetUp;
+        SetUp();
 
         // Verify that "Job Posting Group" can be modified
         JobTask."Job Posting Group" := LibraryUtility.GenerateGUID();
@@ -133,7 +133,7 @@ codeunit 136352 "UT T Job Task Line"
         asserterror JobTask.Modify();
         Assert.ExpectedError(CannotModifyJobTaskErr);
 
-        TearDown;
+        TearDown();
     end;
 
     [Test]
@@ -144,7 +144,7 @@ codeunit 136352 "UT T Job Task Line"
         Initialize();
 
         // Job with Job Task
-        SetUp;
+        SetUp();
 
         // Verify that "WIP Method" can be modified
         JobTask."WIP Method" := LibraryUtility.GenerateGUID();
@@ -156,7 +156,7 @@ codeunit 136352 "UT T Job Task Line"
         asserterror JobTask.Modify();
         Assert.ExpectedError(CannotModifyJobTaskErr);
 
-        TearDown;
+        TearDown();
     end;
 
     [Test]
@@ -167,7 +167,7 @@ codeunit 136352 "UT T Job Task Line"
         Initialize();
 
         // Job with Job Task
-        SetUp;
+        SetUp();
 
         // Verify that "Totaling" can be modified
         JobTask.Totaling := LibraryUtility.GenerateGUID();
@@ -179,7 +179,7 @@ codeunit 136352 "UT T Job Task Line"
         asserterror JobTask.Modify();
         Assert.ExpectedError(CannotModifyJobTaskErr);
 
-        TearDown;
+        TearDown();
     end;
 
     [Test]
@@ -218,7 +218,7 @@ codeunit 136352 "UT T Job Task Line"
     begin
         // [SCENARIO 253648] When Job WIP Entry exists, Job Task cannot be renamed.
         Initialize();
-        SetUp;
+        SetUp();
 
         Value[1] := LibraryUtility.GenerateGUID();
         Value[2] := LibraryUtility.GenerateGUID();
@@ -234,7 +234,7 @@ codeunit 136352 "UT T Job Task Line"
         asserterror JobTask.Rename(Job."No.", Value[2]);
         Assert.ExpectedError(CannotModifyJobTaskErr);
 
-        TearDown;
+        TearDown();
     end;
 
     [Test]
@@ -274,7 +274,7 @@ codeunit 136352 "UT T Job Task Line"
     procedure TestJobTaskType()
     begin
         Initialize();
-        SetUp;
+        SetUp();
 
         with JobTask do begin
             // Prepare Job Task for later tests.
@@ -294,7 +294,7 @@ codeunit 136352 "UT T Job Task Line"
             Assert.IsTrue("WIP-Total" = "WIP-Total"::" ", 'WIP-Total is not blanked when Type is set to something different then Posting');
         end;
 
-        TearDown;
+        TearDown();
     end;
 
     [Test]
@@ -304,7 +304,7 @@ codeunit 136352 "UT T Job Task Line"
         JobWIPMethod: Record "Job WIP Method";
     begin
         Initialize();
-        SetUp;
+        SetUp();
 
         // Validate that WIP Method is set correctly when WIP-Total is defined.
         JobWIPMethod.FindFirst();
@@ -323,7 +323,7 @@ codeunit 136352 "UT T Job Task Line"
         JobTask.Validate("WIP-Total", JobTask."WIP-Total"::" ");
         Assert.AreEqual('', JobTask."WIP Method", 'WIP Method is not cleared when WIP Total is cleared.');
 
-        TearDown;
+        TearDown();
     end;
 
     [Test]
@@ -333,7 +333,7 @@ codeunit 136352 "UT T Job Task Line"
         JobWIPMethod: Record "Job WIP Method";
     begin
         Initialize();
-        SetUp;
+        SetUp();
 
         // Verify that WIP Method can be changed when WIP-Total is total.
         JobWIPMethod.FindFirst();
@@ -346,7 +346,7 @@ codeunit 136352 "UT T Job Task Line"
         JobTask.Validate("WIP-Total", JobTask."WIP-Total"::" ");
         asserterror JobTask.Validate("WIP Method", JobWIPMethod.Code);
 
-        TearDown;
+        TearDown();
     end;
 
     [Test]
@@ -357,7 +357,7 @@ codeunit 136352 "UT T Job Task Line"
         RemainingTotalCost: Decimal;
     begin
         Initialize();
-        SetUp;
+        SetUp();
 
         JobPlanningLineSet.SetRange("Job No.", Job."No.");
         JobPlanningLineSet.SetRange("Job Task No.", JobTask."Job Task No.");
@@ -369,7 +369,7 @@ codeunit 136352 "UT T Job Task Line"
         JobTask.CalcFields("Remaining (Total Cost)");
         Assert.AreEqual(RemainingTotalCost, JobTask."Remaining (Total Cost)", 'Remaining (Total Cost) does not have the correct value.');
 
-        TearDown;
+        TearDown();
     end;
 
     [Test]
@@ -380,7 +380,7 @@ codeunit 136352 "UT T Job Task Line"
         RemainingTotalPrice: Decimal;
     begin
         Initialize();
-        SetUp;
+        SetUp();
 
         JobPlanningLineSet.SetRange("Job No.", Job."No.");
         JobPlanningLineSet.SetRange("Job Task No.", JobTask."Job Task No.");
@@ -393,7 +393,7 @@ codeunit 136352 "UT T Job Task Line"
         Assert.AreEqual(
           RemainingTotalPrice, JobTask."Remaining (Total Price)", 'Remaining (Total Price) does not have the correct value.');
 
-        TearDown;
+        TearDown();
     end;
 
     [Test]
@@ -404,7 +404,7 @@ codeunit 136352 "UT T Job Task Line"
         JobWIPTotal: Record "Job WIP Total";
     begin
         Initialize();
-        SetUp;
+        SetUp();
 
         // Test that InitWIPFields initalizes all fields correctly.
         JobWIPMethod.FindFirst();
@@ -440,7 +440,7 @@ codeunit 136352 "UT T Job Task Line"
         JobWIPTotal.SetRange("Job No.", Job."No.");
         JobWIPTotal.SetRange("Job Task No.", JobTask."Job Task No.");
         JobWIPTotal.SetRange("Posted to G/L", false);
-        Assert.IsTrue(JobWIPTotal.FindFirst, 'Job WIP Total does not exist for the Job Task Line');
+        Assert.IsTrue(JobWIPTotal.FindFirst(), 'Job WIP Total does not exist for the Job Task Line');
 
         JobTask.InitWIPFields();
 
@@ -449,9 +449,9 @@ codeunit 136352 "UT T Job Task Line"
             Assert.AreEqual(0, "Recognized Costs Amount", 'Field initalized wrongly.');
         end;
 
-        Assert.IsFalse(JobWIPTotal.FindFirst, 'Job WIP Total does still exist for the Job Task Line');
+        Assert.IsFalse(JobWIPTotal.FindFirst(), 'Job WIP Total does still exist for the Job Task Line');
 
-        TearDown;
+        TearDown();
     end;
 
     [Test]

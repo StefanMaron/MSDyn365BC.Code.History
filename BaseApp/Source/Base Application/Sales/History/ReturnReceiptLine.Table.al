@@ -37,6 +37,7 @@ table 6661 "Return Receipt Line"
     LookupPageID = "Posted Return Receipt Lines";
     Permissions = TableData "Item Ledger Entry" = r,
                   TableData "Value Entry" = r;
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -183,7 +184,7 @@ table 6661 "Return Receipt Line"
         }
         field(45; "Job No."; Code[20])
         {
-            Caption = 'Job No.';
+            Caption = 'Project No.';
             TableRelation = Job;
         }
         field(52; "Work Type Code"; Code[10])
@@ -273,7 +274,7 @@ table 6661 "Return Receipt Line"
         }
         field(91; "Currency Code"; Code[10])
         {
-            CalcFormula = Lookup("Return Receipt Header"."Currency Code" where("No." = field("Document No.")));
+            CalcFormula = lookup("Return Receipt Header"."Currency Code" where("No." = field("Document No.")));
             Caption = 'Currency Code';
             Editable = false;
             FieldClass = FlowField;

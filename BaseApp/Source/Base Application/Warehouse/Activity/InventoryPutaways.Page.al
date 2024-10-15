@@ -11,6 +11,7 @@ page 9315 "Inventory Put-aways"
     CardPageID = "Inventory Put-away";
     Editable = false;
     PageType = List;
+    RefreshOnActivate = true;
     SourceTable = "Warehouse Activity Header";
     SourceTableView = where(Type = const("Invt. Put-away"));
     UsageCategory = Lists;
@@ -197,6 +198,21 @@ page 9315 "Inventory Put-aways"
                     end;
                 }
             }
+            action("Assign to me")
+            {
+                ApplicationArea = Warehouse;
+                Caption = 'Assign to me';
+                Image = User;
+                Gesture = LeftSwipe;
+                Scope = Repeater;
+                ToolTip = 'Assigns this put-away document to the current user.';
+
+                trigger OnAction()
+                begin
+                    Rec.AssignToCurrentUser();
+                    CurrPage.Update();
+                end;
+            }
         }
         area(Promoted)
         {
@@ -221,6 +237,9 @@ page 9315 "Inventory Put-aways"
                 actionref(SourceDocument_Promoted; "Source Document")
                 {
                 }
+                actionref("Assign to me_Promoted"; "Assign to me")
+                {
+                }
             }
         }
     }
@@ -238,8 +257,11 @@ page 9315 "Inventory Put-aways"
     local procedure PostPutawayYesNo()
     var
         WhseActivLine: Record "Warehouse Activity Line";
+        SelectedWarehouseActivityHeader: Record "Warehouse Activity Header";
         WhseActPostYesNo: Codeunit "Whse.-Act.-Post (Yes/No)";
     begin
+        CurrPage.SetSelectionFilter(SelectedWarehouseActivityHeader);
+        WhseActPostYesNo.MessageIfPostingPreviewMultipleDocuments(SelectedWarehouseActivityHeader, Rec."No.");
         GetLinesForRec(WhseActivLine);
         WhseActPostYesNo.Run(WhseActivLine);
     end;
@@ -265,7 +287,7 @@ page 9315 "Inventory Put-aways"
 
     local procedure GetLinesForRec(var WhseActivLine: Record "Warehouse Activity Line")
     begin
-        WhseActivLine.SetRange("Activity Type", WhseActivLine."activity Type"::"Invt. Put-away");
+        WhseActivLine.SetRange("Activity Type", WhseActivLine."Activity Type"::"Invt. Put-away");
         WhseActivLine.SetRange("No.", Rec."No.");
         WhseActivLine.FindSet();
     end;

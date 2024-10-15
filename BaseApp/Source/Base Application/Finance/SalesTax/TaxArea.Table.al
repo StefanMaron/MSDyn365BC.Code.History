@@ -10,6 +10,7 @@ table 318 "Tax Area"
     Caption = 'Tax Area';
     DataCaptionFields = "Code", Description;
     LookupPageID = "Tax Area List";
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -134,20 +135,6 @@ table 318 "Tax Area"
         TaxAreaLine.Insert();
         TaxJurisdiction.CreateTaxJurisdiction(NewJurisdictionCode);
     end;
-
-#if not CLEAN21
-    [Obsolete('Replaced with GetDescriptionInCurrentLanguageFullLength.', '21.0')]
-    procedure GetDescriptionInCurrentLanguage(): Text[50]
-    var
-        TaxAreaTranslation: Record "Tax Area Translation";
-        Language: Codeunit Language;
-    begin
-        if TaxAreaTranslation.Get(Code, Language.GetUserLanguageCode()) then
-            exit(CopyStr(TaxAreaTranslation.Description, 1, 50));
-
-        exit(CopyStr(Description, 1, 50));
-    end;
-#endif
 
     procedure GetDescriptionInCurrentLanguageFullLength(): Text[100]
     var
