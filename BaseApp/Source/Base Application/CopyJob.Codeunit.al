@@ -61,7 +61,13 @@ codeunit 1006 "Copy Job"
     var
         SourceJobTask: Record "Job Task";
         TargetJobTask: Record "Job Task";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCopyJobTasks(SourceJob, TargetJob, IsHandled);
+        if IsHandled then
+            exit;
+
         SourceJobTask.SetRange("Job No.", SourceJob."No.");
         case true of
             (JobTaskRangeFrom <> '') and (JobTaskRangeTo <> ''):
@@ -383,6 +389,11 @@ codeunit 1006 "Copy Job"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCopyJobPrices(var SourceJob: Record Job; var TargetJob: Record Job)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCopyJobTasks(var SourceJob: Record Job; var TargetJob: Record Job; var IsHandled: Boolean)
     begin
     end;
 

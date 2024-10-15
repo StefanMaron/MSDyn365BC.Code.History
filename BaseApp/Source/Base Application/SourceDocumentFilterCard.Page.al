@@ -232,6 +232,7 @@ page 5786 "Source Document Filter Card"
                     end;
 
                     GetSourceBatch.UseRequestPage(Rec."Show Filter Request");
+                    OnActionRunOnBeforeGetSourceBatchRunModal(Rec, GetSourceBatch);
                     GetSourceBatch.RunModal();
                     if GetSourceBatch.NotCancelled then
                         CurrPage.Close();
@@ -334,6 +335,11 @@ page 5786 "Source Document Filter Card"
 
     [IntegrationEvent(true, false)]
     local procedure OnAfterInitializeControls()
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnActionRunOnBeforeGetSourceBatchRunModal(var WhseSourceFilter: Record "Warehouse Source Filter"; var GetSourceBatch: Report "Get Source Documents")
     begin
     end;
 

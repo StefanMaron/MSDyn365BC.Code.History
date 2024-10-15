@@ -512,13 +512,8 @@ table 8613 "Config. Package Table"
         ConfigPackageField.SetRange("Include Field", true);
         if not ShowDim then
             ConfigPackageField.SetRange(Dimension, false);
-        i := 1;
-        Clear(MatrixColumnCaptions);
-        if ConfigPackageField.FindSet() then
-            repeat
-                MatrixColumnCaptions[i] := ConfigPackageField."Field Name";
-                i := i + 1;
-            until ConfigPackageField.Next() = 0;
+        FillMatrixColumnCaptions(MatrixColumnCaptions, ConfigPackageField);
+
 
         CalcFields("Table Caption");
         Clear(ConfigPackageRecords);
@@ -534,6 +529,24 @@ table 8613 "Config. Package Table"
         ConfigPackageRecords.LookupMode(true);
         ConfigPackageRecords.Load(MatrixColumnCaptions, "Table Caption", "Package Code", "Table ID", ShowDim);
         ConfigPackageRecords.RunModal();
+    end;
+
+    local procedure FillMatrixColumnCaptions(var MatrixColumnCaptions: array[1000] of Text[100]; var ConfigPackageField: Record "Config. Package Field")
+    var
+        IsHandled: Boolean;
+    begin
+        isHandled := false;
+        OnBeforeFillMatrixColumnCaptions(MatrixColumnCaptions, ConfigPackageField, IsHandled);
+        if IsHandled then
+            exit;
+
+        i := 1;
+        Clear(MatrixColumnCaptions);
+        if ConfigPackageField.FindSet() then
+            repeat
+                MatrixColumnCaptions[i] := ConfigPackageField."Field Name";
+                i := i + 1;
+            until ConfigPackageField.Next() = 0;
     end;
 
     procedure ShowDatabaseRecords()
@@ -759,6 +772,11 @@ table 8613 "Config. Package Table"
             childrenFound += 1;
         end;
         exit(childrenFound);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeFillMatrixColumnCaptions(var MatrixColumnCaptions: array[1000] of Text[100]; var ConfigPackageField: Record "Config. Package Field"; var IsHandled: Boolean)
+    begin
     end;
 
     [IntegrationEvent(false, false)]

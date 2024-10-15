@@ -517,20 +517,7 @@ table 5901 "Service Item Line"
                 TestField("Starting Date");
                 if "Starting Time" <> 0T then begin
                     GetServHeader;
-                    if ("Starting Date" = ServHeader."Order Date") and
-                       ("Starting Time" < ServHeader."Order Time")
-                    then
-                        Error(
-                          Text022,
-                          FieldCaption("Starting Time"), ServHeader.TableCaption,
-                          ServHeader.FieldCaption("Order Time"));
-
-                    if ("Starting Time" > "Finishing Time") and
-                       ("Finishing Time" <> 0T) and
-                       ("Starting Date" = "Finishing Date")
-                    then
-                        Error(Text020,
-                          FieldCaption("Starting Time"), FieldCaption("Finishing Time"));
+                    EnsureCorrectStartingFinishingTimes();
 
                     UpdateStartFinishDateTime("Document Type", "Document No.", "Line No.", "Starting Date",
                       "Starting Time", "Finishing Date", "Finishing Time", false);
@@ -924,36 +911,13 @@ table 5901 "Service Item Line"
             TableRelation = "Fault Reason Code";
 
             trigger OnValidate()
-            var
-                FaultReasonCode: Record "Fault Reason Code";
-                ConfirmManagement: Codeunit "Confirm Management";
             begin
                 ServLine.Reset();
                 ServLine.SetCurrentKey("Document Type", "Document No.", "Service Item Line No.");
                 ServLine.SetRange("Document Type", "Document Type");
                 ServLine.SetRange("Document No.", "Document No.");
                 ServLine.SetRange("Service Item Line No.", "Line No.");
-                if FaultReasonCode.Get("Fault Reason Code") then
-                    if FaultReasonCode."Exclude Warranty Discount" then begin
-                        ServLine.SetFilter(Type, '%1|%2', ServLine.Type::Cost, ServLine.Type::"G/L Account");
-                        if ServLine.Find('-') then
-                            if not ConfirmManagement.GetResponseOrDefault(
-                                 StrSubstNo(
-                                   Text056,
-                                   TableCaption,
-                                   FieldCaption("Document No."), "Document No.",
-                                   FieldCaption("Line No."), "Line No.",
-                                   ServLine.FieldCaption(Type),
-                                   ServLine.Type::"G/L Account",
-                                   ServLine.Type::Cost,
-                                   FaultReasonCode.FieldCaption("Exclude Warranty Discount"),
-                                   FaultReasonCode.TableCaption, FaultReasonCode.Code),
-                                 true)
-                            then
-                                Error('');
-                        ServLine.SetRange(Type, ServLine.Type::Item, ServLine.Type::Resource);
-                    end else
-                        ServLine.SetRange(Type, ServLine.Type::Item, ServLine.Type::"G/L Account");
+                SetFilterForType();
                 if ServLine.Find('-') then
                     repeat
                         ServLine.Validate("Fault Reason Code", "Fault Reason Code");
@@ -1980,7 +1944,23 @@ table 5901 "Service Item Line"
         exit(ServHour2.FindFirst);
     end;
 
-    local procedure UpdateStartFinishDateTime(DocumentType: Enum "Service Document Type"; DocumentNo: Code[20];
+    local procedure EnsureCorrectStartingFinishingTimes()
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeEnsureCorrectStartingFinishingTimes(Rec, ServHeader, IsHandled);
+        if IsHandled then
+            exit;
+
+        if ("Starting Date" = ServHeader."Order Date") and ("Starting Time" < ServHeader."Order Time") then
+            Error(Text022, FieldCaption("Starting Time"), ServHeader.TableCaption(), ServHeader.FieldCaption("Order Time"));
+
+        if ("Starting Time" > "Finishing Time") and ("Finishing Time" <> 0T) and ("Starting Date" = "Finishing Date") then
+            Error(Text020, FieldCaption("Starting Time"), FieldCaption("Finishing Time"));
+    end;
+
+    procedure UpdateStartFinishDateTime(DocumentType: Enum "Service Document Type"; DocumentNo: Code[20];
                                                                 LineNo: Integer;
                                                                 StartingDate: Date;
                                                                 StartingTime: Time;
@@ -1991,7 +1971,15 @@ table 5901 "Service Item Line"
         ServOrderMgt: Codeunit ServOrderManagement;
         GoOut: Boolean;
         Modifyheader: Boolean;
+        IsHandled: Boolean;
+        ShouldSetStartTime: Boolean;
+        ShouldSetFinishingTime: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeUpdateStartFinishDateTime(Rec, ServMgtSetup, IsHandled);
+        if IsHandled then
+            exit;
+
         if not ServHeader3.Get(DocumentType, DocumentNo) then
             exit;
 
@@ -2048,10 +2036,9 @@ table 5901 "Service Item Line"
 
         Modifyheader := false;
         ServHeader3.CalcFields("Contract Serv. Hours Exist");
-        if (ServHeader3."Starting Date" <> StartingDate) or
-           ((ServHeader3."Starting Date" = StartingDate) and
-            (ServHeader3."Starting Time" <> StartingTime))
-        then begin
+        ShouldSetStartTime := (ServHeader3."Starting Date" <> StartingDate) or ((ServHeader3."Starting Date" = StartingDate) and (ServHeader3."Starting Time" <> StartingTime));
+        OnUpdateStartFinishDateTimeOnAfterCalcShouldSetStartTime(Rec, ServHeader3, ShouldSetStartTime);
+        if ShouldSetStartTime then begin
             ServHeader3."Starting Date" := StartingDate;
             ServHeader3."Starting Time" := StartingTime;
             if StartingDate <> 0D then
@@ -2064,12 +2051,10 @@ table 5901 "Service Item Line"
             Modifyheader := true;
         end;
 
-        if ((ServHeader3.Status = ServHeader3.Status::Finished) or
-            GoOut) and
-           ((ServHeader3."Finishing Date" <> FinishingDate) or
-            ((ServHeader3."Finishing Date" = FinishingDate) and
-             (ServHeader3."Finishing Time" <> FinishingTime)))
-        then begin
+        ShouldSetFinishingTime := ((ServHeader3.Status = ServHeader3.Status::Finished) or GoOut) and ((ServHeader3."Finishing Date" <> FinishingDate) or
+                                   ((ServHeader3."Finishing Date" = FinishingDate) and (ServHeader3."Finishing Time" <> FinishingTime)));
+        OnUpdateStartFinishDateTimeOnAfterCalcShouldSetFinishingTime(Rec, ServHeader3, ShouldSetFinishingTime);
+        if ShouldSetFinishingTime then begin
             ServHeader3."Finishing Date" := FinishingDate;
             ServHeader3."Finishing Time" := FinishingTime;
             ServHeader3."Service Time (Hours)" :=
@@ -2118,6 +2103,7 @@ table 5901 "Service Item Line"
     procedure SetHideDialogBox(DialogBoxVar: Boolean)
     begin
         HideDialogBox := DialogBoxVar;
+        OnAfterSetHideDialogBox(HideDialogBox);
     end;
 
     local procedure GetItemTranslation(): Boolean
@@ -2322,6 +2308,8 @@ table 5901 "Service Item Line"
 
         if "Repair Status Code" <> OldServItemLine."Repair Status Code" then
             ServLogMgt.ServHeaderRepairStatusChange(Rec, OldServItemLine);
+
+        OnAfterUpdateServiceOrderChangeLog(Rec, OldServItemLine);
     end;
 
 #if not CLEAN20
@@ -2421,6 +2409,41 @@ table 5901 "Service Item Line"
         end;
     end;
 
+    local procedure SetFilterForType()
+    var
+        FaultReasonCode: Record "Fault Reason Code";
+        ConfirmManagement: Codeunit "Confirm Management";
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeSetFilterForType(Rec, ServLine, IsHandled);
+        if IsHandled then
+            exit;
+
+
+        if FaultReasonCode.Get("Fault Reason Code") then
+            if FaultReasonCode."Exclude Warranty Discount" then begin
+                ServLine.SetFilter(Type, '%1|%2', ServLine.Type::Cost, ServLine.Type::"G/L Account");
+                if ServLine.Find('-') then
+                    if not ConfirmManagement.GetResponseOrDefault(
+                         StrSubstNo(
+                           Text056,
+                           TableCaption,
+                           FieldCaption("Document No."), "Document No.",
+                           FieldCaption("Line No."), "Line No.",
+                           ServLine.FieldCaption(Type),
+                           ServLine.Type::"G/L Account",
+                           ServLine.Type::Cost,
+                           FaultReasonCode.FieldCaption("Exclude Warranty Discount"),
+                           FaultReasonCode.TableCaption(), FaultReasonCode.Code),
+                         true)
+                    then
+                        Error('');
+                ServLine.SetRange(Type, ServLine.Type::Item, ServLine.Type::Resource);
+            end else
+                ServLine.SetRange(Type, ServLine.Type::Item, ServLine.Type::"G/L Account");
+    end;
+
     local procedure ServLineExists(): Boolean
     begin
         ServLine.Reset();
@@ -2501,7 +2524,13 @@ table 5901 "Service Item Line"
     internal procedure LendLoanerWithConfirmation(errorOnDeny: Boolean)
     var
         ConfirmManagement: Codeunit "Confirm Management";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeLendLoanerWithConfirmation(Rec, errorOnDeny, IsHandled);
+        if IsHandled then
+            exit;
+
         if "Loaner No." = '' then
             exit;
         if ConfirmManagement.GetResponseOrDefault(
@@ -2548,7 +2577,7 @@ table 5901 "Service Item Line"
         DimMgt.AddDimSource(DefaultDimSource, Database::"Service Item Group", Rec."Service Item Group Code", FieldNo = Rec.FieldNo("Service Item Group Code"));
         DimMgt.AddDimSource(DefaultDimSource, Database::"Responsibility Center", Rec."Responsibility Center", FieldNo = Rec.FieldNo("Responsibility Center"));
 
-        OnAfterInitDefaultDimensionSources(Rec, DefaultDimSource);
+        OnAfterInitDefaultDimensionSources(Rec, DefaultDimSource, FieldNo);
     end;
 
 #if not CLEAN20
@@ -2582,7 +2611,7 @@ table 5901 "Service Item Line"
 #endif
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterInitDefaultDimensionSources(var ServiceItemLine: Record "Service Item Line"; var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]])
+    local procedure OnAfterInitDefaultDimensionSources(var ServiceItemLine: Record "Service Item Line"; var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]]; FieldNo: Integer)
     begin
     end;
 
@@ -2595,6 +2624,11 @@ table 5901 "Service Item Line"
 #endif
     [IntegrationEvent(false, false)]
     local procedure OnAfterAssignItemValues(var ServiceItemLine: Record "Service Item Line"; var xServiceItemLine: Record "Service Item Line"; Item: Record Item; ServiceHeader: Record "Service Header"; CurrFieldNo: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetHideDialogBox(var HideDialogBox: Boolean)
     begin
     end;
 
@@ -2614,12 +2648,32 @@ table 5901 "Service Item Line"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterUpdateServiceOrderChangeLog(ServiceItemLine: Record "Service Item Line"; var OldServiceItemLine: Record "Service Item Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckRecreateServLines(var ServiceItemLine: Record "Service Item Line"; xServiceItemLine: Record "Service Item Line"; var ServLine: Record "Service Line"; var IsHandled: Boolean)
     begin
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeEnsureCorrectStartingFinishingTimes(var ServiceItemLine: Record "Service Item Line"; ServiceHeader: Record "Service Header"; Ishandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeOnModify(var ServiceItemLine: Record "Service Item Line"; xServiceItemLine: Record "Service Item Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeLendLoanerWithConfirmation(var ServiceItemLine: Record "Service Item Line"; errorOnDeny: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdateStartFinishDateTime(var ServiceItemLine: Record "Service Item Line"; ServiceMgtSetup: Record "Service Mgt. Setup"; var IsHandled: Boolean)
     begin
     end;
 
@@ -2650,6 +2704,11 @@ table 5901 "Service Item Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeSetSecurityFilterOnRespCenter(var ServiceItemLine: Record "Service Item Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSetFilterForType(var ServiceItemLine: Record "Service Item Line"; var ServiceLine: Record "Service Line"; var IsHandled: Boolean)
     begin
     end;
 
@@ -2705,6 +2764,16 @@ table 5901 "Service Item Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnShowCommentsOnBeforeRunPageServiceCommentSheet(var ServiceItemLine: Record "Service Item Line"; var ServCommentLine: Record "Service Comment Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateStartFinishDateTimeOnAfterCalcShouldSetStartTime(var ServiceItemLine: Record "Service Item Line"; var ServiceHeader: Record "Service Header"; var ShouldSetStartTime: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateStartFinishDateTimeOnAfterCalcShouldSetFinishingTime(var ServiceItemLine: Record "Service Item Line"; var ServiceHeader: Record "Service Header"; var ShouldSetFinishingTime: Boolean)
     begin
     end;
 

@@ -2953,7 +2953,12 @@ codeunit 137287 "SCM Inventory Costing II"
     begin
         FindValueEntry(ValueEntry, DocumentNo, ItemChargeNo, ValuedQuantity);
         ValueEntry.TestField("Cost Amount (Non-Invtbl.)", Round(CostAmountNonInvtbl, LibraryERM.GetAmountRoundingPrecision));
-        ValueEntry.TestField("Cost per Unit", 0);  // Cost per Unit must be zero.
+        if ItemChargeNo <> '' then
+            ValueEntry.TestField("Cost per Unit", 0)
+        else
+            ValueEntry.TestField(
+              "Cost per Unit",
+              Round(ValueEntry."Cost Amount (Non-Invtbl.)" / ValuedQuantity, LibraryERM.GetUnitAmountRoundingPrecision()));
     end;
 
     local procedure VerifyActualCost(DocumentNo: Code[20]; ItemChargeNo: Code[20]; ValuedQuantity: Decimal; CostAmountActual: Decimal)

@@ -1,4 +1,4 @@
-table 167 Job
+﻿table 167 Job
 {
     Caption = 'Job';
     DataCaptionFields = "No.", Description;
@@ -1269,6 +1269,8 @@ table 167 Job
     procedure UpdateBillToContact(CustomerNo: Code[20])
     begin
         GetCustomerContact(CustomerNo, Rec."Bill-to Contact No.", Rec."Bill-to Contact");
+
+        OnAfterUpdateBillToContact(Rec, xRec);
     end;
 
     local procedure UpdateSellToContact(CustomerNo: Code[20])
@@ -1636,7 +1638,7 @@ table 167 Job
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeCopyDefaultDimensionsFromCustomer(Rec, IsHandled);
+        OnBeforeCopyDefaultDimensionsFromCustomer(Rec, IsHandled, CurrFieldNo);
         if IsHandled then
             exit;
 
@@ -1663,11 +1665,17 @@ table 167 Job
         DimMgt.UpdateDefaultDim(DATABASE::Job, "No.", "Global Dimension 1 Code", "Global Dimension 2 Code");
     end;
 
-    procedure PercentCompleted(): Decimal
+    procedure PercentCompleted() Result: Decimal
     var
         JobCalcStatistics: Codeunit "Job Calculate Statistics";
         CL: array[16] of Decimal;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforePercentCompleted(Rec, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
         JobCalcStatistics.JobCalculateCommonFilters(Rec);
         JobCalcStatistics.CalculateAmounts;
         JobCalcStatistics.GetLCYCostAmounts(CL);
@@ -1676,11 +1684,17 @@ table 167 Job
         exit(0);
     end;
 
-    procedure PercentInvoiced(): Decimal
+    procedure PercentInvoiced() Result: Decimal
     var
         JobCalcStatistics: Codeunit "Job Calculate Statistics";
         PL: array[16] of Decimal;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforePercentInvoiced(Rec, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
         JobCalcStatistics.JobCalculateCommonFilters(Rec);
         JobCalcStatistics.CalculateAmounts;
         JobCalcStatistics.GetLCYPriceAmounts(PL);
@@ -1689,12 +1703,18 @@ table 167 Job
         exit(0);
     end;
 
-    procedure PercentOverdue(): Decimal
+    procedure PercentOverdue() Result: Decimal
     var
         JobPlanningLine: Record "Job Planning Line";
         QtyOverdue: Decimal;
         QtyTotal: Decimal;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforePercentOverdue(Rec, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
         JobPlanningLine.SetRange("Job No.", "No.");
         QtyTotal := JobPlanningLine.Count();
         if QtyTotal = 0 then
@@ -2298,6 +2318,8 @@ table 167 Job
                 Rec."Ship-to Country/Region Code" := ShipToAddress."Country/Region Code";
                 Rec."Ship-to Contact" := ShipToAddress.Contact;
             end;
+
+        OnAfterShipToCodeValidate(Rec, ShipToAddress);
     end;
 
     local procedure ShouldSearchForCustomerByName(CustomerNo: Code[20]): Boolean
@@ -2383,6 +2405,16 @@ table 167 Job
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterShipToCodeValidate(var Job: Record Job; ShipToAddress: Record "Ship-to Address")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterUpdateBillToContact(var Job: Record Job; xJob: Record Job)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeChangeJobCompletionStatus(var Job: Record Job; var xJob: Record Job; var IsHandled: Boolean)
     begin
     end;
@@ -2408,7 +2440,22 @@ table 167 Job
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCopyDefaultDimensionsFromCustomer(var Job: Record Job; var IsHandled: Boolean)
+    local procedure OnBeforeCopyDefaultDimensionsFromCustomer(var Job: Record Job; var IsHandled: Boolean; CurrentFieldNo: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforePercentCompleted(var Job: Record Job; var Result: Decimal; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforePercentInvoiced(var Job: Record Job; var Result: Decimal; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforePercentOverdue(var Job: Record Job; var Result: Decimal; var IsHandled: Boolean)
     begin
     end;
 

@@ -1,4 +1,4 @@
-table 5964 "Service Contract Line"
+﻿table 5964 "Service Contract Line"
 {
     Caption = 'Service Contract Line';
     DrillDownPageID = "Serv. Contr. List (Serv. Item)";
@@ -88,6 +88,7 @@ table 5964 "Service Contract Line"
                         ServContractLine.SetFilter("Contract Status", '<>%1', ServContractLine."Contract Status"::Cancelled);
                         ServContractLine.SetRange("Contract Type", ServContractLine."Contract Type"::Contract);
                         ServContractLine.SetFilter("Contract No.", '<>%1', "Contract No.");
+                        OnValidateServiceItemNoOnAfterServContractLineSetFiltersWithContractStatus(Rec, ServContractLine);
                         if not ServContractLine.IsEmpty() then begin
                             if not ConfirmManagement.GetResponseOrDefault(
                                  StrSubstNo(Text019, "Service Item No."), true)
@@ -1097,6 +1098,11 @@ table 5964 "Service Contract Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnValidateServiceItemNoOnBeforeCheckSameItemExist(var ServiceContractLine: Record "Service Contract Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateServiceItemNoOnAfterServContractLineSetFiltersWithContractStatus(var ServiceContractLine: Record "Service Contract Line"; var ServContractLine: Record "Service Contract Line")
     begin
     end;
 

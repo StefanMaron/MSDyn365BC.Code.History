@@ -1,4 +1,4 @@
-report 109 "Customer - Summary Aging Simp."
+﻿report 109 "Customer - Summary Aging Simp."
 {
     DefaultLayout = RDLC;
     RDLCLayout = './CustomerSummaryAgingSimp.rdlc';
@@ -141,6 +141,7 @@ report 109 "Customer - Summary Aging Simp."
                     DtldCustLedgEntry.SetRange("Customer No.", "No.");
                     DtldCustLedgEntry.SetRange("Posting Date", 0D, StartDate);
                     DtldCustLedgEntry.SetRange("Initial Entry Due Date", PeriodStartDate[i], PeriodStartDate[i + 1] - 1);
+                    OnAfterGetRecordOnAfterDtldCustLedgEntrySetFilters(DtldCustLedgEntry);
                     DtldCustLedgEntry.CalcSums("Amount (LCY)");
                     CustBalanceDueLCY[i] := DtldCustLedgEntry."Amount (LCY)";
                     if CustBalanceDueLCY[i] <> 0 then
@@ -226,6 +227,11 @@ report 109 "Customer - Summary Aging Simp."
     procedure InitializeRequest(StartingDate: Date)
     begin
         StartDate := StartingDate;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterGetRecordOnAfterDtldCustLedgEntrySetFilters(var DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry")
+    begin
     end;
 }
 

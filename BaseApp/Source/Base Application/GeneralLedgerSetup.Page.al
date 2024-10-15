@@ -239,9 +239,10 @@
                 }
                 field("Journal Templ. Name Mandatory"; Rec."Journal Templ. Name Mandatory")
                 {
-                    ApplicationArea = Basic, Suite;
+                    ApplicationArea = BasicBE;
                     Importance = Additional;
-                    ToolTip = 'Specifies if a journal template and batch names are required when posting general ledger transactions.';
+                    ToolTip = 'Specifies if a journal template and batch names are required when posting general ledger transactions. If you want to have template name in posted documents and entries, you must set this field as TRUE.';
+                    Visible = false;
 
                     trigger OnValidate()
                     begin

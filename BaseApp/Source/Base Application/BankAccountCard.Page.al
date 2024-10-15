@@ -657,11 +657,13 @@ page 370 "Bank Account Card"
             action(RenewAccessConsentOnlineBankAccount)
             {
                 ApplicationArea = Basic, Suite;
-                Caption = 'Renew Access Consent for Online Bank Account';
+                Caption = 'Manage Access Consent for Online Bank Account';
                 Enabled = Linked;
                 Image = Approve;
-                Promoted = false;
-                ToolTip = 'Renew access consent for the online bank account linked to the selected bank account.';
+                Promoted = true;
+                PromotedCategory = Category4;
+                PromotedIsBig = true;
+                ToolTip = 'Manage access consent for the online bank account linked to the selected bank account.';
                 Visible = ShowBankLinkingActions;
 
                 trigger OnAction()

@@ -1,4 +1,4 @@
-codeunit 48 PostingSetupManagement
+﻿codeunit 48 PostingSetupManagement
 {
 
     trigger OnRun()
@@ -125,7 +125,13 @@ codeunit 48 PostingSetupManagement
     procedure CheckInvtPostingSetupInventoryAccount(LocationCode: Code[10]; PostingGroup: Code[20])
     var
         InventoryPostingSetup: Record "Inventory Posting Setup";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCheckInvtPostingSetupInventoryAccount(LocationCode, PostingGroup, IsHandled);
+        if IsHandled then
+            exit;
+
         if not IsPostingSetupNotificationEnabled then
             exit;
 
@@ -447,6 +453,11 @@ codeunit 48 PostingSetupManagement
     begin
         MyNotifications.InsertDefault(
           GetPostingSetupNotificationID, MissingAccountNotificationTxt, MissingAccountNotificationDescriptionTxt, true);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckInvtPostingSetupInventoryAccount(var LocationCode: Code[10]; var PostingGroup: Code[20]; var IsHandled: Boolean)
+    begin
     end;
 }
 
