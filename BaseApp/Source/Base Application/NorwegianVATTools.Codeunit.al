@@ -25,10 +25,10 @@ codeunit 10600 "Norwegian VAT Tools"
         GoodsDescriptionTxt: Label 'varer', Locked = true;
         ServicesTok: Label 'tjenester', Locked = true;
         ServicesDescriptionTxt: Label 'tjenester', Locked = true;
-        OutputVATDescriptionTxt: Label 'Output VAT (Withdrawals)';
-        NoOutputVATDescriptionTxt: Label 'No output VAT';
-        InputVATDeductDomDescrTxt: Label 'Input VAT deduct. (domestic)';
-        ImportOfGoodsDescrTxt: Label 'Imp. of goods, VAT deduct.';
+        OutputVATDescriptionTxt: Label 'Output VAT (Withdrawals)', MaxLength = 30;
+        NoOutputVATDescriptionTxt: Label 'No output VAT', MaxLength = 30;
+        InputVATDeductDomDescrTxt: Label 'Input VAT deduct. (domestic)', MaxLength = 30;
+        ImportOfGoodsDescrTxt: Label 'Imp. of goods, VAT deduct.', MaxLength = 30;
         NonStandardInvoicingTok: Label 'avvikende fakturering', Locked = true;
         NonStandardInvoicingDescriptionTxt: Label 'Husleie som faktureres kvartalsvis, halvårlig eller årlig eller sesongvariasjoner i virksomheten', Locked = true;
         AccrualsTok: Label 'periodisering', Locked = true;
@@ -523,6 +523,8 @@ codeunit 10600 "Norwegian VAT Tools"
         TempVATCode.Insert(true);
     end;
 
+#if not CLEAN20
+    [Obsolete('Use VAT Business and VAT Product posting groups for filtering.', '23.0')]
     local procedure SetVATCodeFilterInsteadOfPostingGroups(var VATEntry: Record "VAT Entry"; VATStatementLine: Record "VAT Statement Line")
     begin
         if VATStatementLine."VAT Code" = '' then
@@ -534,15 +536,18 @@ codeunit 10600 "Norwegian VAT Tools"
     end;
 
     [EventSubscriber(ObjectType::Report, Report::"VAT Statement", 'OnCalcLineTotalOnVATEntryTotalingOnAfterVATEntrySetFilters', '', true, true)]
+    [Obsolete('Use VAT Business and VAT Product posting groups for filtering.', '23.0')]
     local procedure OnCalcLineTotalOnVATEntryTotalingOnAfterVATEntrySetFilters(VATStmtLine: Record "VAT Statement Line"; var VATEntry: Record "VAT Entry"; Selection: Enum "VAT Statement Report Selection")
     begin
         SetVATCodeFilterInsteadOfPostingGroups(VATEntry, VATStmtLine);
     end;
 
     [EventSubscriber(ObjectType::Page, Page::"VAT Statement Preview Line", 'OnBeforeOpenPageVATEntryTotaling', '', true, true)]
+    [Obsolete('Use VAT Business and VAT Product posting groups for filtering.', '23.0')]
     local procedure OnBeforeOpenPageVATEntryTotaling(var VATEntry: Record "VAT Entry"; var VATStatementLine: Record "VAT Statement Line"; var GLEntry: Record "G/L Entry")
     begin
         SetVATCodeFilterInsteadOfPostingGroups(VATEntry, VATStatementLine);
     end;
+#endif    
 }
 

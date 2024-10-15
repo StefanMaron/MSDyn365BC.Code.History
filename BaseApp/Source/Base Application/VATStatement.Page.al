@@ -85,11 +85,17 @@ page 317 "VAT Statement"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the VAT specification of the involved item or resource to link transactions made for this record with the appropriate general ledger account according to the VAT posting setup.';
                 }
+#if not CLEAN20
                 field("VAT Code"; "VAT Code")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the VAT code of the involved item or resource to link transactions made for this record with the appropriate general ledger account according to the VAT posting setup.';
+                    Visible = false;
+                    ObsoleteReason = 'Use VAT Business and VAT Product posting groups for filtering.';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '20.0';
                 }
+#endif
                 field("Amount Type"; "Amount Type")
                 {
                     ApplicationArea = Basic, Suite;
