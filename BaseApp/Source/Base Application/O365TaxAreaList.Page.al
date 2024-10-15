@@ -16,7 +16,7 @@ page 2151 "O365 Tax Area List"
         {
             repeater(Group)
             {
-                field(Name; GetDescriptionInCurrentLanguage)
+                field(Name; GetDescriptionInCurrentLanguageFullLength())
                 {
                     ApplicationArea = Basic, Suite, Invoicing;
                     Caption = 'Name';
@@ -72,4 +72,3 @@ page 2151 "O365 Tax Area List"
         O365SalesInvoiceMgmt: Codeunit "O365 Sales Invoice Mgmt";
         IsCanada: Boolean;
 }
-

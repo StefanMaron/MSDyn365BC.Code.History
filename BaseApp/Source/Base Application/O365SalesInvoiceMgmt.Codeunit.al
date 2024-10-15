@@ -28,6 +28,7 @@ codeunit 2310 "O365 Sales Invoice Mgmt"
         ItemNotExistErr: Label 'The item does not exist.';
         CountryDoesntExistErr: Label 'Please choose an existing country or region, or add a new one.';
         CustomerIsBlockedMsg: Label 'The customer %1 has been blocked for any further business.', Comment = '%1= Customer name';
+        CurrencyFormatTok: Label '%1<precision, 2:2><standard format, 0>', Locked = true;
         NotificationShownForBlockedCustomer: Boolean;
         InvoiceDiscountNotificationGuidTok: Label '75d7aad4-7009-4f7f-836c-d034596b944b', Locked = true;
         AmountOutOfBoundsNotificationGuidTok: Label '281dfa97-d2a2-4379-ab39-b70d92cc83f1', Locked = true;
@@ -143,6 +144,8 @@ codeunit 2310 "O365 Sales Invoice Mgmt"
             NoOfAttachmentsValueTxt := StrSubstNo(NoOfAttachmentsTxt, NoOfAttachments);
     end;
 
+#if not CLEAN21
+    [Obsolete('Replaced with OnAfterGetSalesHeaderRecordFullLengthTaxAreaDesc.', '21.0')]
     procedure OnAfterGetSalesHeaderRecord(var SalesHeader: Record "Sales Header"; var CurrencyFormat: Text; var TaxAreaDescription: Text[50]; var NoOfAttachmentsValueTxt: Text; var WorkDescription: Text)
     var
         Currency: Record Currency;
@@ -169,6 +172,35 @@ codeunit 2310 "O365 Sales Invoice Mgmt"
             if TaxArea.Get(SalesHeader."Tax Area Code") then
                 TaxAreaDescription := TaxArea.GetDescriptionInCurrentLanguage;
     end;
+#endif
+
+    procedure OnAfterGetSalesHeaderRecordFullLengthTaxAreaDesc(var SalesHeader: Record "Sales Header"; var CurrencyFormat: Text; var TaxAreaDescription: Text[100]; var NoOfAttachmentsValueTxt: Text; var WorkDescription: Text)
+    var
+        Currency: Record Currency;
+        GLSetup: Record "General Ledger Setup";
+        TaxArea: Record "Tax Area";
+        CurrencySymbol: Text[10];
+    begin
+        SalesHeader.SetDefaultPaymentServices();
+
+        UpdateNoOfAttachmentsLabel(O365SalesAttachmentMgt.GetNoOfAttachments(SalesHeader), NoOfAttachmentsValueTxt);
+        WorkDescription := SalesHeader.GetWorkDescription();
+
+        if SalesHeader."Currency Code" = '' then begin
+            GLSetup.Get();
+            CurrencySymbol := GLSetup.GetCurrencySymbol();
+        end else begin
+            if Currency.Get(SalesHeader."Currency Code") then;
+            CurrencySymbol := Currency.GetCurrencySymbol();
+        end;
+        CurrencyFormat := StrSubstNo(CurrencyFormatTok, CurrencySymbol);
+
+        TaxAreaDescription := '';
+        if SalesHeader."Tax Area Code" <> '' then
+            if TaxArea.Get(SalesHeader."Tax Area Code") then
+                TaxAreaDescription := TaxArea.GetDescriptionInCurrentLanguageFullLength();
+    end;
+
 
     procedure LookupCustomerName(var SalesHeader: Record "Sales Header"; Text: Text; var CustomerName: Text[100]; var CustomerEmail: Text[80]): Boolean
     var
@@ -745,9 +777,9 @@ codeunit 2310 "O365 Sales Invoice Mgmt"
     begin
         SalesLine.SetRange("No.", CreateItemNotification.GetData('ItemNo'));
         if SalesLine.FindSet() then
-            repeat
-                SalesLine.Delete(true);
-            until SalesLine.Next() = 0;
+                repeat
+                    SalesLine.Delete(true);
+                until SalesLine.Next() = 0;
 
         if Item.Get(CreateItemNotification.GetData('ItemNo')) then
             Item.Delete(true);
@@ -984,4 +1016,3 @@ codeunit 2310 "O365 Sales Invoice Mgmt"
         exit(ClientTypeManagement.GetCurrentClientType = CLIENTTYPE::Tablet);
     end;
 }
-

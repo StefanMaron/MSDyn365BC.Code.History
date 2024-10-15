@@ -220,6 +220,7 @@ page 388 "Bank Acc. Reconciliation List"
                 Caption = 'Change Statement No.';
                 Ellipsis = true;
                 Image = ChangeTo;
+                Visible = ChangeStatementNoVisible;
                 ToolTip = 'Change the statement number of the bank account reconciliation. Typically, this is used when you have created a new reconciliation to correct a mistake, and you want to use the same statement number.';
 
                 trigger OnAction()
@@ -243,11 +244,21 @@ page 388 "Bank Acc. Reconciliation List"
     trigger OnOpenPage()
     begin
         Refresh;
+        SetChangeStatementNoVisible();
     end;
 
     var
         UseSharedTable: Boolean;
+        ChangeStatementNoVisible: Boolean;
         DeleteConfirmQst: Label 'Do you want to delete the Reconciliation?';
+
+    local procedure SetChangeStatementNoVisible()
+    var
+        GLSetup: Record "General Ledger Setup";
+    begin
+        GLSetup.Get();
+        ChangeStatementNoVisible := GLSetup."Bank Recon. with Auto. Match";
+    end;
 
     local procedure Refresh()
     var

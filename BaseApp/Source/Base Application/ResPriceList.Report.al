@@ -414,17 +414,12 @@ report 7054 "Res. Price List"
     local procedure GetSourceList(var PriceSourceList: Codeunit "Price Source List")
     begin
         PriceSourceList.Add("Price Source Type"::"All Customers");
-        PriceSourceList.Add("Price Source Type"::"All Jobs");
-        if SourceType = SourceType::Job then begin
-            PriceSourceList.IncLevel();
-            PriceSourceList.Add("Price Source Type"::Job, SourceNo);
-        end else
-            if SourceType = SourceType::"Job Task" then begin
-                PriceSourceList.IncLevel();
-                PriceSourceList.Add("Price Source Type"::Job, ParentSourceNo);
-                PriceSourceList.IncLevel();
-                PriceSourceList.Add("Price Source Type"::"Job Task", ParentSourceNo, SourceNo);
-            end;
+
+        if SourceType = SourceType::Job then
+            PriceSourceList.AddJobAsSources(SourceNo, '')
+        else
+            if SourceType = SourceType::"Job Task" then
+                PriceSourceList.AddJobAsSources(ParentSourceNo, SourceNo)
     end;
 
     local procedure GetPriceHandler(Method: Enum "Price Calculation Method"): Enum "Price Calculation Handler";

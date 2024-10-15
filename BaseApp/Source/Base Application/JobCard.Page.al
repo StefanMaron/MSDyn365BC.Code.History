@@ -134,12 +134,16 @@ page 88 "Job Card"
                                 exit(false);
                             Text := Rec."Sell-to Contact No.";
                             SellToContact.Get(Rec."Sell-to Contact No.");
+                            Rec."Sell-to Contact" := SellToContact.Name;
+                            CurrPage.Update();
                             exit(true);
                         end;
 
                         trigger OnValidate()
                         begin
                             SellToContact.Get(Rec."Sell-to Contact No.");
+                            Rec."Sell-to Contact" := SellToContact.Name;
+                            CurrPage.Update();
                         end;
                     }
                     field(SellToPhoneNo; SellToContact."Phone No.")

@@ -61,6 +61,9 @@ codeunit 10150 "O365 Tax Settings Management"
             until TaxAreaLine.Next() = 0;
     end;
 
+
+#if not CLEAN21
+    [Obsolete('Replaced with GetProvinceFullLength.', '21.0')]
     procedure GetProvince(JurisdictionCode: Code[10]): Text[50]
     var
         TaxJurisdiction: Record "Tax Jurisdiction";
@@ -69,6 +72,16 @@ codeunit 10150 "O365 Tax Settings Management"
             exit('');
 
         exit(TaxJurisdiction.GetDescriptionInCurrentLanguage);
+    end;
+#endif
+
+    procedure GetProvinceFullLength(JurisdictionCode: Code[10]): Text[100]
+    var
+        TaxJurisdiction: Record "Tax Jurisdiction";
+    begin
+        if not TaxJurisdiction.Get(JurisdictionCode) then
+            exit('');
+        exit(TaxJurisdiction.GetDescriptionInCurrentLanguageFullLength());
     end;
 
     procedure GetTaxRate(JurisdictionCode: Code[10]): Decimal
@@ -425,11 +438,11 @@ codeunit 10150 "O365 Tax Settings Management"
                 if TaxJurisdiction.FindFirst() then
                     if TaxJurisdiction."Report-to Jurisdiction" = GetCARegionCode() then begin
                         NativeAPITaxSetup."GST or HST Code" := TaxJurisdiction.Code;
-                        NativeAPITaxSetup."GST or HST Description" := GetProvince(NativeAPITaxSetup."GST or HST Code");
+                        NativeAPITaxSetup."GST or HST Description" := CopyStr(GetProvinceFullLength(NativeAPITaxSetup."GST or HST Code"), 1, 50);
                         NativeAPITaxSetup."GST or HST Rate" := GetTaxRate(NativeAPITaxSetup."GST or HST Code")
                     end else begin
                         NativeAPITaxSetup."PST Code" := TaxJurisdiction.Code;
-                        NativeAPITaxSetup."PST Description" := GetProvince(NativeAPITaxSetup."PST Code");
+                        NativeAPITaxSetup."PST Description" := CopyStr(GetProvinceFullLength(NativeAPITaxSetup."PST Code"), 1, 50);
                         NativeAPITaxSetup."PST Rate" := GetTaxRate(NativeAPITaxSetup."PST Code")
                     end;
             until TaxAreaLine.Next() = 0;
@@ -563,4 +576,3 @@ codeunit 10150 "O365 Tax Settings Management"
         exit(TaxArea.Delete(true));
     end;
 }
-

@@ -2878,7 +2878,7 @@ codeunit 134761 "Test Custom Reports"
         RecRef.SetTable(Document);
         if Email then begin
             ReportSelections.FindEmailAttachmentUsageForCust(ReportUsage, CustomerNo, TempReportSelections);
-            ReportSelections.SendEmailToCust(Usage, Document, '', '', true, CustomerNo);
+            ReportSelections.SendEmailToCust(Usage, Document, '', '', true, CustomerNo, CustomerNoFieldNo);
         end else begin
             ReportSelections.FindReportUsageForCust(ReportUsage, CustomerNo, TempReportSelections);
             ReportSelections.PrintWithDialogForCust(ReportUsage, Document, ShowRequestPage, CustomerNoFieldNo);

@@ -27,6 +27,7 @@ page 10120 "Bank Rec. Worksheet"
                 {
                     ApplicationArea = Basic, Suite;
                     Importance = Promoted;
+                    Editable = false;
                     ToolTip = 'Specifies the statement number to be reconciled.';
                 }
                 field("Statement Date"; "Statement Date")

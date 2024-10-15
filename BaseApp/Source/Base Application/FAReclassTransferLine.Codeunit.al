@@ -144,6 +144,7 @@ codeunit 5642 "FA Reclass. Transfer Line"
             Amounts[5] := "Custom 1";
             Amounts[6] := "Custom 2";
             Amounts[9] := "Salvage Value";
+            OnCalcAmountsOnAfterSetAmounts(FADeprBook, Amounts, TransferType);
             if Amounts[1] = 0 then
                 Error(Text003,
                   FAName(OldFA, "Depreciation Book Code"), FieldCaption("Acquisition Cost"));
@@ -443,6 +444,11 @@ codeunit 5642 "FA Reclass. Transfer Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeFAReclassLine(var FAReclassJnlLine: Record "FA Reclass. Journal Line"; var Done: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalcAmountsOnAfterSetAmounts(FADepreciationBook: Record "FA Depreciation Book"; var Amounts: array[9] of Decimal; TransferType: array[9] of Boolean)
     begin
     end;
 }

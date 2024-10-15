@@ -2122,6 +2122,21 @@ codeunit 144000 "MX CFDI Unit Test"
         Assert.ExpectedError(StrSubstNo(MustHaveValueErr, Customer.FieldCaption("Payment Method Code")));
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure CFDIRelationDocumentsFields()
+    var
+        CFDIRelationDocuments: TestPage "CFDI Relation Documents";
+    begin
+        // [SCENARIO 433792] SAT Relation Type field is enabled on CFDI Document Relations page
+        UpdateGLSetupPACEnvironment(true);
+
+        CFDIRelationDocuments.OpenEdit();
+        Assert.IsTrue(CFDIRelationDocuments."SAT Relation Type".Enabled, '');
+        Assert.IsTrue(CFDIRelationDocuments."SAT Relation Type".Editable, '');
+        CFDIRelationDocuments.Close();
+    end;
+
     local procedure Initialize()
     begin
         LibrarySetupStorage.Restore();

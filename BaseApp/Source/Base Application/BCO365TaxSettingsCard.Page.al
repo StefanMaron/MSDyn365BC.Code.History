@@ -129,7 +129,7 @@ page 10350 "BC O365 Tax Settings Card"
                         trigger OnValidate()
                         begin
                             PSTCode := CopyStr(PST, 1, MaxStrLen(PSTCode));
-                            PST := CopyStr(GetProvince(PSTCode), 1, MaxStrLen(GSTorHST));
+                            PST := CopyStr(GetProvince(PSTCode), 1, MaxStrLen(PST));
                             PSTrate := O365TaxSettingsManagement.GetTaxRate(PSTCode)
                         end;
                     }
@@ -302,11 +302,11 @@ page 10350 "BC O365 Tax Settings Card"
                 if TaxJurisdiction.FindFirst() then
                     if TaxJurisdiction."Report-to Jurisdiction" = CATxt then begin
                         GSTorHSTCode := TaxJurisdiction.Code;
-                        GSTorHST := GetProvince(GSTorHSTCode);
+                        GSTorHST := CopyStr(GetProvince(GSTorHSTCode), 1, MaxStrLen(GSTorHST));
                         GSTorHSTrate := O365TaxSettingsManagement.GetTaxRate(GSTorHSTCode)
                     end else begin
                         PSTCode := TaxJurisdiction.Code;
-                        PST := GetProvince(PSTCode);
+                        PST := CopyStr(GetProvince(PSTCode), 1, MaxStrLen(PST));
                         PSTrate := O365TaxSettingsManagement.GetTaxRate(PSTCode)
                     end;
             until TaxAreaLine.Next() = 0;
@@ -324,14 +324,14 @@ page 10350 "BC O365 Tax Settings Card"
         Clear(GSTorHSTrate);
     end;
 
-    local procedure GetProvince(JurisdictionCode: Code[10]): Text[50]
+    local procedure GetProvince(JurisdictionCode: Code[10]): Text[100]
     var
         TaxJurisdiction: Record "Tax Jurisdiction";
     begin
         if not TaxJurisdiction.Get(JurisdictionCode) then
             exit('');
 
-        exit(TaxJurisdiction.GetDescriptionInCurrentLanguage);
+        exit(TaxJurisdiction.GetDescriptionInCurrentLanguageFullLength());
     end;
 
     local procedure UpdateTotalTaxRate()
@@ -397,4 +397,3 @@ page 10350 "BC O365 Tax Settings Card"
         exit(Result);
     end;
 }
-

@@ -26,5 +26,13 @@ table 10015 "GIFI Code"
     fieldgroups
     {
     }
+
+    trigger OnInsert()
+    var
+        FeatureTelemetry: Codeunit "Feature Telemetry";
+        CanGIFITok: Label 'Canada GIDI Codes', Locked = true;
+    begin
+        FeatureTelemetry.LogUptake('1000HM7', CanGIFITok, Enum::"Feature Uptake Status"::"Set up");
+    end;
 }
 

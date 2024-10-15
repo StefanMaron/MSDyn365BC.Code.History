@@ -498,6 +498,11 @@
                 {
                     ApplicationArea = BasicMX;
                     ToolTip = 'Specifies if the CFDI feature is enabled.';
+
+                    trigger OnValidate()
+                    begin
+                        FeatureTelemetry.LogUptake('1000HR6', MXInvoiceTok, Enum::"Feature Uptake Status"::Discovered);
+                    end;
                 }
                 field("SAT Certificate"; "SAT Certificate")
                 {
@@ -519,6 +524,12 @@
                     ApplicationArea = BasicMX;
                     ToolTip = 'Specifies if your company uses electronic invoices in Mexico, and if you are using the web services of your authorized service provider, PAC, in a test environment or a production environment.';
                 }
+                field("Disable CFDI Payment Details"; Rec."Disable CFDI Payment Details")
+                {
+                    ApplicationArea = BasicMX;
+                    ToolTip = 'Specifies if tax information is disabled in payment reports to Mexican SAT authorities.';
+                }
+
             }
             group("Gen. Journal Templates")
             {
@@ -834,6 +845,7 @@
     var
         SessionSettings: SessionSettings;
     begin
+        FeatureTelemetry.LogUptake('1000HR7', MXInvoiceTok, Enum::"Feature Uptake Status"::"Set up");
         if IsShortcutDimensionModified then
             SessionSettings.RequestSessionUpdate(false);
     end;
@@ -861,6 +873,8 @@
     end;
 
     var
+        FeatureTelemetry: Codeunit "Feature Telemetry";
+        MXInvoiceTok: Label 'MX Electronic Invoice', Locked = true;
         Text001: Label 'Do you want to change all open entries for every customer and vendor that are not blocked?';
         Text002: Label 'If you delete the additional reporting currency, future general ledger entries are posted in LCY only. Deleting the additional reporting currency does not affect already posted general ledger entries.\\Are you sure that you want to delete the additional reporting currency?';
         Text003: Label 'If you change the additional reporting currency, future general ledger entries are posted in the new reporting currency and in LCY. To enable the additional reporting currency, a batch job opens, and running the batch job recalculates already posted general ledger entries in the new additional reporting currency.\Entries will be deleted in the Analysis View if it is unblocked, and an update will be necessary.\\Are you sure that you want to change the additional reporting currency?';

@@ -349,10 +349,10 @@ table 2850 "Native - API Tax Setup"
 
             SalesLine.SetRange("VAT Prod. Posting Group", Code);
             if SalesLine.FindSet() then
-                repeat
-                    SalesLine.Validate("VAT Prod. Posting Group");
-                    SalesLine.Modify(true);
-                until SalesLine.Next() = 0;
+                    repeat
+                        SalesLine.Validate("VAT Prod. Posting Group");
+                        SalesLine.Modify(true);
+                    until SalesLine.Next() = 0;
         end;
     end;
 
@@ -375,7 +375,7 @@ table 2850 "Native - API Tax Setup"
         if not TaxArea.GetBySystemId(TaxAreaId) then
             exit;
 
-        exit(TaxArea.GetDescriptionInCurrentLanguage);
+        exit(TaxArea.GetDescriptionInCurrentLanguageFullLength());
     end;
 
     [IntegrationEvent(false, false)]

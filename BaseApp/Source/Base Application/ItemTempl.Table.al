@@ -1,6 +1,8 @@
 table 1382 "Item Templ."
 {
     Caption = 'Item Template';
+    LookupPageID = "Item Templ. List";
+    DrillDownPageID = "Item Templ. List";
 
     fields
     {

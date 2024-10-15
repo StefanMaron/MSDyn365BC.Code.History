@@ -2,6 +2,7 @@ report 10151 "Physical Inventory Count"
 {
     DefaultLayout = RDLC;
     RDLCLayout = './PhysicalInventoryCount.rdlc';
+    ApplicationArea = Basic, Suite;
     Caption = 'Physical Inventory Count';
     UsageCategory = ReportsAndAnalysis;
 

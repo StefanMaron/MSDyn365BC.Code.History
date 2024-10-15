@@ -80,9 +80,9 @@ page 10351 "BC O365 Tax Settings List"
     trigger OnAfterGetRecord()
     begin
         if Code = O365TaxSettingsManagement.GetDefaultTaxArea then
-            TaxAreaDescription := StrSubstNo(DefaultTaxDescriptionTxt, GetDescriptionInCurrentLanguage)
+            TaxAreaDescription := StrSubstNo(DefaultTaxDescriptionTxt, GetDescriptionInCurrentLanguageFullLength())
         else
-            TaxAreaDescription := GetDescriptionInCurrentLanguage;
+            TaxAreaDescription := GetDescriptionInCurrentLanguageFullLength();
     end;
 
     trigger OnInit()
@@ -98,4 +98,3 @@ page 10351 "BC O365 Tax Settings List"
         DefaultTaxDescriptionTxt: Label '%1 (Default)', Comment = '%1 = a VAT rate name, such as "Reduced VAT"';
         TaxAreaDescription: Text;
 }
-

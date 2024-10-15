@@ -204,14 +204,7 @@ codeunit 7023 "Job Journal Line - Price" implements "Line With Price"
             CurrPriceType::Purchase:
                 PriceSourceList.Add(SourceType::"All Vendors");
         end;
-        PriceSourceList.IncLevel();
-        PriceSourceList.Add(SourceType::"All Jobs");
-        PriceSourceList.IncLevel();
-        PriceSourceList.Add(SourceType::Job, JobJournalLine."Job No.");
-        if JobJournalLine."Job Task No." <> '' then begin
-            PriceSourceList.IncLevel();
-            PriceSourceList.Add(SourceType::"Job Task", JobJournalLine."Job No.", JobJournalLine."Job Task No.");
-        end;
+        PriceSourceList.AddJobAsSources(JobJournalLine."Job No.", JobJournalLine."Job Task No.");
     end;
 
     procedure SetPrice(AmountType: Enum "Price Amount Type"; PriceListLine: Record "Price List Line")

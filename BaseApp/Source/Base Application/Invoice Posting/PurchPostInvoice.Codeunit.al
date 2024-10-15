@@ -109,7 +109,7 @@
         GetGenPostingSetup(GenPostingSetup, PurchLine);
         GenPostingSetup.TestField(Blocked, false);
 
-        PurchPostInvoiceEvents.RunOnPrepareLineOnBeforePreparePurchase(PurchHeader, PurchLine);
+        PurchPostInvoiceEvents.RunOnPrepareLineOnBeforePreparePurchase(PurchHeader, PurchLine, GenPostingSetup);
         InvoicePostingBuffer.PreparePurchase(PurchLine);
 
         InitTotalAmounts(
@@ -850,6 +850,7 @@
                             DeferralPostingBuffer."Deferral Account" := DeferralAccount;
                             DeferralPostingBuffer."Period Description" := DeferralTemplate."Period Description";
                             DeferralPostingBuffer."Deferral Line No." := InvDefLineNo;
+                            PurchPostInvoiceEvents.RunOnPrepareDeferralLineOnAfterInitFromDeferralLine(DeferralPostingBuffer, TempDeferralLine, PurchLine, DeferralTemplate);
                             DeferralPostingBuffer.Update(DeferralPostingBuffer);
                         end else
                             Error(ZeroDeferralAmtErr, PurchLine."No.", PurchLine."Deferral Code");

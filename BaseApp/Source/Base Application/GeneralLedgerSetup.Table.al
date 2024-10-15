@@ -844,6 +844,11 @@
             Caption = 'SAT Certificate';
             TableRelation = "Isolated Certificate";
         }
+        field(10122; "Disable CFDI Payment Details"; Boolean)
+        {
+            Caption = 'Disable CFDI Payment Details';
+        }
+
     }
 
     keys
