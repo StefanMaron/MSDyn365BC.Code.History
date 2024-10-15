@@ -27,7 +27,7 @@ codeunit 134763 "Test Sales Post Preview"
         IsInitialized: Boolean;
         WrongPostPreviewErr: Label 'Expected empty error from Preview. Actual error: ';
         RecordRestrictedTxt: Label 'You cannot use %1 for this action.', Comment = 'You cannot use Customer 10000 for this action.';
-        AmountMustNotBeGreaterErr: Label 'The amount of the deduction of the advance must not be greater than the amount invoiced.';
+        AmountMustBePositiveErr: Label 'Amount must be positive';
         InvalidSubscriberTypeErr: label 'Invalid Subscriber type. The type must be CODEUNIT.';
 
     [Test]
@@ -197,11 +197,11 @@ codeunit 134763 "Test Sales Post Preview"
         PostingPreviewEventHandler.GetEntries(Database::"Cust. Ledger Entry", RecRef);
         Assert.RecordIsEmpty(RecRef);
         PostingPreviewEventHandler.GetEntries(Database::"G/L Entry", RecRef);
-        Assert.RecordIsEmpty(RecRef);
-        // [THEN] Error message found: "Amount must not be greater..."
+        Assert.RecordCount(RecRef, 2);
+        // [THEN] Error message found: "Amount must be positive"
         Assert.IsTrue(ErrorMessageMgt.IsActive(), 'ErroMsgMgt inactive');
         Assert.AreNotEqual(0, ErrorMessageMgt.GetLastError(ErrorMsg), 'Errors not found');
-        Assert.ExpectedMessage(AmountMustNotBeGreaterErr, ErrorMsg);
+        Assert.ExpectedMessage(AmountMustBePositiveErr, ErrorMsg);
         // Cleanup
         asserterror Error('');
     end;

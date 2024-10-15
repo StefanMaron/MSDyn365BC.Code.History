@@ -26,7 +26,7 @@ page 23 "Cust. Invoice Discounts"
                 field("Minimum Amount"; "Minimum Amount")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the minimum amount that the invoice must total for the discount to be granted or the service charge levied.';
+                    ToolTip = 'Specifies the minimum amount that the invoice must total for the discount to be granted or the service charge levied. For discounts, only sales lines where the Allow Invoice Disc. field is selected are included in the calculation.';
                 }
                 field("Discount %"; "Discount %")
                 {

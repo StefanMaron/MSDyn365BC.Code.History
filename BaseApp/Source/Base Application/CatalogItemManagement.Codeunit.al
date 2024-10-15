@@ -362,14 +362,15 @@
             until ProdBOMLine.Next = 0;
 
         NewItem.Get(Item."No.");
-        if NewItem.Delete(true) then begin
-            NonStock.SetRange("Item No.", Item."No.");
-            if NonStock.Find('-') then
-                repeat
-                    NonStock."Item No." := '';
-                    NonStock.Modify();
-                until NonStock.Next = 0;
-        end;
+        if NewItem."Created From Nonstock Item" then
+            if NewItem.Delete(true) then begin
+                NonStock.SetRange("Item No.", Item."No.");
+                if NonStock.Find('-') then
+                    repeat
+                        NonStock."Item No." := '';
+                        NonStock.Modify();
+                    until NonStock.Next() = 0;
+            end;
     end;
 
     local procedure InsertItemUnitOfMeasure(UnitOfMeasureCode: Code[10]; ItemNo: Code[20])

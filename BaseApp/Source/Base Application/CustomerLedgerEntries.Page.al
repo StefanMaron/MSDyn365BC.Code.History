@@ -883,7 +883,7 @@ page 25 "Customer Ledger Entries"
         SetControlVisibility;
 
         if (GetFilters <> '') and ("Entry No." = 0) then // NAVCZ
-            if FindFirst then;
+            if FindFirst() then;
     end;
 
     var

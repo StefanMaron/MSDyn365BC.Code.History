@@ -153,7 +153,7 @@ report 11700 "Suggest Payments"
                     SetRange("Document Type", "Document Type"::Invoice);
                 SetRange("Due Date", LastDueDateToPayReq + 1, DMY2Date(31, 12, 9999));
                 SetRange("Pmt. Discount Date", PmtOrdHdr."Document Date", LastDueDateToPayReq);
-                SetFilter("Original Pmt. Disc. Possible", '<0');
+                SetFilter("Remaining Pmt. Disc. Possible", '<0');
 
                 if KeepCurrency then
                     case Currency of

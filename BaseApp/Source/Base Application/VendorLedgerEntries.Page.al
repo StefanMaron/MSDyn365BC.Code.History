@@ -777,7 +777,7 @@ page 29 "Vendor Ledger Entries"
     begin
         SetControlVisibility;
         if (GetFilters <> '') and ("Entry No." = 0) then // NAVCZ
-            if FindFirst then;
+            if FindFirst() then;
     end;
 
     var

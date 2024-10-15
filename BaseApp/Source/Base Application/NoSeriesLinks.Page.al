@@ -21,7 +21,7 @@ page 11799 "No. Series Links"
                     ToolTip = 'Specifies the code of initial number series, to which are setup the related number series.';
                     Visible = false;
                 }
-                field("Initial No. Series Desc."; "Initial No. Series Desc.")
+                field("Initial No. Series Desc."; "Initial No. Series Desc. 2")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the description of initial number series.';
@@ -32,7 +32,7 @@ page 11799 "No. Series Links"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the setup of following number series for document creating.';
                 }
-                field("Linked No. Series Desc."; "Linked No. Series Desc.")
+                field("Linked No. Series Desc."; "Linked No. Series Desc. 2")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the description of following number series.';
@@ -42,7 +42,7 @@ page 11799 "No. Series Links"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the setup of following number series for document posting.';
                 }
-                field("Posting No. Series Desc."; "Posting No. Series Desc.")
+                field("Posting No. Series Desc."; "Posting No. Series Desc. 2")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the description of following number series for document posting.';
@@ -52,7 +52,7 @@ page 11799 "No. Series Links"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the setup of following number series for document shipping .';
                 }
-                field("Shipping No. Series Desc."; "Shipping No. Series Desc.")
+                field("Shipping No. Series Desc."; "Shipping No. Series Desc. 2")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the description of shipping number series links.';
@@ -62,7 +62,7 @@ page 11799 "No. Series Links"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the setup of following number series for document receiving wh.';
                 }
-                field("Receiving No. Series Desc."; "Receiving No. Series Desc.")
+                field("Receiving No. Series Desc."; "Receiving No. Series Desc. 2")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the description of following number series for document posting.';
@@ -72,7 +72,7 @@ page 11799 "No. Series Links"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the setup of following number series for document shipping wh.';
                 }
-                field("Shipping Wh. No. Series Desc."; "Shipping Wh. No. Series Desc.")
+                field("Shipping Wh. No. Series Desc."; "Shipping Wh.No.Series Desc. 2")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the description of following number series for document posting.';
@@ -82,7 +82,7 @@ page 11799 "No. Series Links"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the setup of following number series for document receiving .';
                 }
-                field("Receiving Wh. No. Series Desc."; "Receiving Wh. No. Series Desc.")
+                field("Receiving Wh. No. Series Desc."; "Receiving Wh.No.Series Desc. 2")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the description of following number series for document posting.';

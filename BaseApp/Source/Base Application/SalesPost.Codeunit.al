@@ -1716,7 +1716,7 @@
             exit;
 
         with SalesLine do begin
-            if SalesHeader.Invoice and ("Line Discount %" <> 100 )then
+            if SalesHeader.Invoice and ("Line Discount %" <> 100) and (("Inv. Discount Amount" - "Line Amount") <> 0) then
                 TestField(Amount);
             TestField("Job No.", '');
             TestField("Job Contract Entry No.", 0);
@@ -2691,7 +2691,7 @@
 
         if SalesHeader."Document Type" in [SalesHeader."Document Type"::Order, SalesHeader."Document Type"::Invoice] then
             if not UseTempData then
-                if RndAmtLoc < 0 then
+                if (RndAmtLoc < 0) and (SalesHeader."Adv.Letter Link.Amt. to Deduct" <> 0) then
                     Error(DeductionAmtGreaterThanInvoicedAmtErr);
 
         InvoiceRoundingAmount :=

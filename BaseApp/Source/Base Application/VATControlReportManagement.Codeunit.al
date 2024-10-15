@@ -493,6 +493,9 @@ codeunit 31100 VATControlReportManagement
         TempDropShptPostBuffer.Reset();
         TempDropShptPostBuffer.DeleteAll();
 
+        if VATEntry.Amount = 0 then
+            exit;
+
         with VATEntry do begin
             if (Base <> 0) or (Amount <> 0) or ("Advance Base" <> 0) then
                 case SectionCode of
@@ -544,6 +547,7 @@ codeunit 31100 VATControlReportManagement
             SetRange("VAT Prod. Posting Group", VATEntry."VAT Prod. Posting Group");
             SetFilter(Type, '<>%1', Type::" ");
             SetFilter(Quantity, '<>0');
+            SetFilter("Tariff No.", '<>%1', '');
             if FindSet(false, false) then begin
                 SalesInvHdr.Get("Document No.");
                 repeat
@@ -590,6 +594,7 @@ codeunit 31100 VATControlReportManagement
             SetRange("VAT Prod. Posting Group", VATEntry."VAT Prod. Posting Group");
             SetFilter(Type, '<>%1', Type::" ");
             SetFilter(Quantity, '<>0');
+            SetFilter("Tariff No.", '<>%1', '');
             if FindSet(false, false) then begin
                 PurchInvHdr.Get("Document No.");
                 repeat

@@ -199,7 +199,7 @@ table 11709 "Payment Order Line"
                 GetPaymentOrder();
                 if not PmtOrdHdr."Foreign Payment Order" then begin
                     BankOperationsFunctions.CheckBankAccountNoCharacters("Account No.");
-                    
+
                     CompanyInfo.Get();
                     CompanyInfo.CheckCzBankAccountNo("Account No.");
                 end;
@@ -1176,11 +1176,11 @@ table 11709 "Payment Order Line"
                 if (CustLedgEntry."Document Type" = CustLedgEntry."Document Type"::Invoice) and
                    (PmtOrdHdr."Document Date" <= CustLedgEntry."Pmt. Discount Date")
                 then begin
-                    "Amount(Pay.Order Curr.) to Pay" := -(CustLedgEntry."Remaining Amount" - CustLedgEntry.
-                                                          "Original Pmt. Disc. Possible");
+                    "Amount(Pay.Order Curr.) to Pay" :=
+                        -(CustLedgEntry."Remaining Amount" - CustLedgEntry."Remaining Pmt. Disc. Possible");
                     "Pmt. Discount Date" := CustLedgEntry."Pmt. Discount Date";
                     "Pmt. Discount Possible" := true;
-                    "Remaining Pmt. Disc. Possible" := CustLedgEntry."Original Pmt. Disc. Possible";
+                    "Remaining Pmt. Disc. Possible" := CustLedgEntry."Remaining Pmt. Disc. Possible";
                 end else
                     "Amount(Pay.Order Curr.) to Pay" := -CustLedgEntry."Remaining Amount";
                 Validate("Amount(Pay.Order Curr.) to Pay");
@@ -1188,13 +1188,13 @@ table 11709 "Payment Order Line"
                 if (CustLedgEntry."Document Type" = CustLedgEntry."Document Type"::Invoice) and
                    (PmtOrdHdr."Document Date" <= CustLedgEntry."Pmt. Discount Date")
                 then begin
-                    CurrencyAmount := -(CustLedgEntry."Remaining Amount" - CustLedgEntry."Original Pmt. Disc. Possible");
+                    CurrencyAmount := -(CustLedgEntry."Remaining Amount" - CustLedgEntry."Remaining Pmt. Disc. Possible");
                     CurrFactor := CurrExchRateG.ExchangeRate(PmtOrdHdr."Document Date", CustLedgEntry."Currency Code");
                     "Amount (LCY) to Pay" := Round(CurrExchRateG.ExchangeAmtFCYToLCY(PmtOrdHdr."Document Date",
                           CustLedgEntry."Currency Code", CurrencyAmount, CurrFactor));
                     "Pmt. Discount Date" := CustLedgEntry."Pmt. Discount Date";
                     "Pmt. Discount Possible" := true;
-                    "Remaining Pmt. Disc. Possible" := CustLedgEntry."Original Pmt. Disc. Possible";
+                    "Remaining Pmt. Disc. Possible" := CustLedgEntry."Remaining Pmt. Disc. Possible";
                 end else
                     "Amount (LCY) to Pay" := -CustLedgEntry."Remaining Amt. (LCY)";
                 Validate("Amount (LCY) to Pay");
@@ -1247,11 +1247,11 @@ table 11709 "Payment Order Line"
                 if (VendorLedgEntry."Document Type" = VendorLedgEntry."Document Type"::Invoice) and
                    (PmtOrdHdr."Document Date" <= VendorLedgEntry."Pmt. Discount Date")
                 then begin
-                    "Amount(Pay.Order Curr.) to Pay" := -(VendorLedgEntry."Remaining Amount" - VendorLedgEntry.
-                                                          "Original Pmt. Disc. Possible");
+                    "Amount(Pay.Order Curr.) to Pay" :=
+                        -(VendorLedgEntry."Remaining Amount" - VendorLedgEntry."Remaining Pmt. Disc. Possible");
                     "Pmt. Discount Date" := VendorLedgEntry."Pmt. Discount Date";
                     "Pmt. Discount Possible" := true;
-                    "Remaining Pmt. Disc. Possible" := VendorLedgEntry."Original Pmt. Disc. Possible";
+                    "Remaining Pmt. Disc. Possible" := VendorLedgEntry."Remaining Pmt. Disc. Possible";
                     if ("Remaining Pmt. Disc. Possible" <> 0) and ("Pmt. Discount Date" <> 0D) then
                         "Due Date" := "Pmt. Discount Date";
                 end else
@@ -1261,13 +1261,13 @@ table 11709 "Payment Order Line"
                 if (VendorLedgEntry."Document Type" = VendorLedgEntry."Document Type"::Invoice) and
                    (PmtOrdHdr."Document Date" <= VendorLedgEntry."Pmt. Discount Date")
                 then begin
-                    CurrencyAmount := -(VendorLedgEntry."Remaining Amount" - VendorLedgEntry."Original Pmt. Disc. Possible");
+                    CurrencyAmount := -(VendorLedgEntry."Remaining Amount" - VendorLedgEntry."Remaining Pmt. Disc. Possible");
                     CurrFactor := CurrExchRateG.ExchangeRate(PmtOrdHdr."Document Date", VendorLedgEntry."Currency Code");
                     "Amount (LCY) to Pay" := Round(CurrExchRateG.ExchangeAmtFCYToLCY(PmtOrdHdr."Document Date",
                           VendorLedgEntry."Currency Code", CurrencyAmount, CurrFactor));
                     "Pmt. Discount Date" := VendorLedgEntry."Pmt. Discount Date";
                     "Pmt. Discount Possible" := true;
-                    "Remaining Pmt. Disc. Possible" := VendorLedgEntry."Original Pmt. Disc. Possible";
+                    "Remaining Pmt. Disc. Possible" := VendorLedgEntry."Remaining Pmt. Disc. Possible";
                     if ("Remaining Pmt. Disc. Possible" <> 0) and ("Pmt. Discount Date" <> 0D) then
                         "Due Date" := "Pmt. Discount Date";
                 end else
