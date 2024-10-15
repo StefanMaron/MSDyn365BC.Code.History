@@ -1276,4 +1276,3 @@ codeunit 11 "Gen. Jnl.-Check Line"
     begin
     end;
 }
-

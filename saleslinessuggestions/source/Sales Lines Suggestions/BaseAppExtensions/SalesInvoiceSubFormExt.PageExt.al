@@ -44,10 +44,7 @@ pageextension 7277 "Sales Invoice Sub Form Ext" extends "Sales Invoice Subform"
 
     trigger OnOpenPage()
     begin
-        if SalesLineAISuggestionImp.CheckSupportedApplicationFamily() and SalesLineAISuggestionImp.CheckSupportedLanguages() then
-            SLSActionVisibility := true
-        else
-            SLSActionVisibility := false;
+        SLSActionVisibility := SalesLineAISuggestionImp.CheckSupportedLanguages()
     end;
 
     var

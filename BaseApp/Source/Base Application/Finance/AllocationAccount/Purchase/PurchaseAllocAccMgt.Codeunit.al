@@ -620,7 +620,7 @@ codeunit 2679 "Purchase Alloc. Acc. Mgt."
         until AllocationAccountPurchaseLine.Next() = 0;
     end;
 
-    internal procedure VerifySelectedAllocationAccountNo(var PurchaseLine: Record "Purchase Line")
+    procedure VerifySelectedAllocationAccountNo(var PurchaseLine: Record "Purchase Line")
     var
         AllocationAccount: Record "Allocation Account";
     begin

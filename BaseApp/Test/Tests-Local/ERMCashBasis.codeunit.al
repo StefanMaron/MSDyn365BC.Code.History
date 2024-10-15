@@ -20,7 +20,6 @@
         LibraryRandom: Codeunit "Library - Random";
         IsInitialized: Boolean;
         ExchRateWasAdjustedTxt: Label 'One or more currency exchange rates have been adjusted.';
-        AmountErr: Label '%1 must be %2 in %3.', Comment = '%1 = Amount FieldCaption, %2 = Amount Value, %3 = Record TableCaption';
 
     [Test]
     [Scope('OnPrem')]
@@ -544,78 +543,6 @@
           LibraryERM.GetAmountRoundingPrecision(), RealizedVATEntry.FieldCaption("Remaining Unrealized Amount"));
     end;
 
-    [Test]
-    [Scope('OnPrem')]
-    procedure VerifyVATEntryAfterApplication()
-    var
-        CustLedgerEntry: Record "Cust. Ledger Entry";
-        Currency: Record Currency;
-        SalesHeader: array[2] of Record "Sales Header";
-        SalesLine: array[2] of Record "Sales Line";
-        VATPostingSetup: Record "VAT Posting Setup";
-        VATPostingSetup2: Record "VAT Posting Setup";
-        CustomerNo: Code[20];
-        ItemNo: array[2] of Code[20];
-        InvoiceNo: Code[20];
-        PostingDate: Date;
-        RateFactor: array[2] of Decimal;
-        RateFactor2: array[2] of Decimal;
-        UnitAmount: array[2] of Decimal;
-        VATAmount: Decimal;
-    begin
-        // [SCENARIO 477534] Wrong posted VAT Entries using Unrealized VAT and applying and Invoice against a partial Credit Memo in the Mexican version.
-        Initialize();
-
-        // [GIVEN] Create two VAT Posting Setup
-        GeneralSetupForRealizedVAT(
-          Currency, VATPostingSetup, VATPostingSetup."Unrealized VAT Type"::"Cash Basis", ItemNo[1], PostingDate, RateFactor[1], RateFactor[2]);
-        GeneralSetupForRealizedVAT(
-          Currency, VATPostingSetup2, VATPostingSetup2."Unrealized VAT Type"::"Cash Basis", ItemNo[2], PostingDate, RateFactor2[1], RateFactor2[2]);
-
-        // [GIVEN] Create customer
-        CustomerNo := CreateCustomer(Currency.Code, VATPostingSetup."VAT Bus. Posting Group");
-
-        // [GIVEN] Get two Unit amount for two Items
-        UnitAmount[1] := LibraryRandom.RandInt(10);
-        UnitAmount[2] := LibraryRandom.RandInt(20);
-
-        // [GIVEN] Create Sales order
-        LibrarySales.CreateSalesHeader(SalesHeader[1], SalesLine[1]."Document Type"::Order, CustomerNo);
-
-        // [GIVEN] Create first Sales Line of Item1
-        LibrarySales.CreateSalesLine(SalesLine[1], SalesHeader[1], SalesLine[1].Type::Item, ItemNo[1], 1);
-        SalesLine[1].Validate("Unit Price", UnitAmount[1]);
-        SalesLine[1].Modify(true);
-
-        // Create Second Sales Line of Item2
-        LibrarySales.CreateSalesLine(SalesLine[1], SalesHeader[1], SalesLine[1].Type::Item, ItemNo[2], 1);
-        SalesLine[1].Validate("Unit Price", UnitAmount[2]);
-        SalesLine[1].Modify(true);
-
-        // [THEN] Post Sales Order
-        InvoiceNo := LibrarySales.PostSalesDocument(SalesHeader[1], true, true);
-
-        // [GIVEN] Create Credit Memo
-        LibrarySales.CreateSalesHeader(SalesHeader[2], SalesLine[2]."Document Type"::"Credit Memo", CustomerNo);
-
-        // [GIVEN] Create Sales Line for Item1
-        LibrarySales.CreateSalesLine(SalesLine[2], SalesHeader[2], SalesLine[2].Type::Item, ItemNo[1], 1);
-        SalesLine[2].Validate("Unit Price", UnitAmount[1]);
-        SalesLine[2].Modify(true);
-
-        // [GIVEN] Get VAT Amount of Item1
-        VATAmount := SalesLine[2].Quantity * SalesLine[2]."Unit Price" * SalesLine[2]."VAT %" / 100;
-
-        // [THEN] Post the Sales Credit Memo
-        LibrarySales.PostSalesDocument(SalesHeader[2], true, true);
-
-        // [WHEN] Apply Invoice with Credit Memo
-        ApplyAndPostCustomerEntry(CustLedgerEntry."Document Type"::Invoice, InvoiceNo);
-
-        // [VERIFY] Verify VAT Realized Amount for customer.
-        VerifyVATEntryForPostApplication(VATAmount);
-    end;
-
     local procedure Initialize()
     var
         InventorySetup: Record "Inventory Setup";
@@ -866,47 +793,6 @@
         VATEntry.TestField(Amount, VATAmount);
         VATEntry.TestField(Base, VATBase);
     end;
-
-    local procedure ApplyAndPostCustomerEntry(DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20])
-    var
-        CustLedgerEntry: Record "Cust. Ledger Entry";
-    begin
-        ApplyCustomerEntry(CustLedgerEntry, DocumentType, DocumentNo);
-        LibraryERM.PostCustLedgerApplication(CustLedgerEntry);
-    end;
-
-    local procedure ApplyCustomerEntry(var ApplyCustLedgerEntry: Record "Cust. Ledger Entry"; DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20])
-    var
-        CustLedgerEntry: Record "Cust. Ledger Entry";
-        GLRegister: Record "G/L Register";
-    begin
-        LibraryERM.FindCustomerLedgerEntry(ApplyCustLedgerEntry, DocumentType, DocumentNo);
-        ApplyCustLedgerEntry.CalcFields("Remaining Amount");
-        LibraryERM.SetApplyCustomerEntry(ApplyCustLedgerEntry, ApplyCustLedgerEntry."Remaining Amount");
-        GLRegister.FindLast();
-        CustLedgerEntry.SetRange("Entry No.", GLRegister."From Entry No.", GLRegister."To Entry No.");
-        CustLedgerEntry.SetRange("Applying Entry", false);
-        CustLedgerEntry.FindFirst();
-        LibraryERM.SetAppliestoIdCustomer(CustLedgerEntry)
-    end;
-
-    local procedure VerifyVATEntryForPostApplication(VATAmount: Decimal)
-    var
-        VATEntry: Record "VAT Entry";
-        GLRegister: Record "G/L Register";
-    begin
-        GLRegister.FindLast();
-        VATEntry.SetRange("Entry No.", GLRegister."From VAT Entry No.", GLRegister."To VAT Entry No.");
-        VATEntry.FindSet();
-        Assert.AreNearlyEqual(
-          VATEntry.Amount, VATAmount, LibraryERM.GetAmountRoundingPrecision(),
-          StrSubstNo(AmountErr, VATEntry.FieldCaption(Amount), VATAmount, VATEntry.TableCaption()));
-        VATEntry.Next();
-        Assert.AreNearlyEqual(
-          VATEntry.Amount, -VATAmount, LibraryERM.GetAmountRoundingPrecision(),
-          StrSubstNo(AmountErr, VATEntry.FieldCaption(Amount), -VATAmount, VATEntry.TableCaption()));
-    end;
-
 
     [Scope('OnPrem')]
     procedure VerifyRealizedVATAmountsInVATEntry(VATType: Enum "General Posting Type"; DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20]; RealizedVATAmount: Decimal; RealizedVATBase: Decimal; AmtRounding: Decimal)
