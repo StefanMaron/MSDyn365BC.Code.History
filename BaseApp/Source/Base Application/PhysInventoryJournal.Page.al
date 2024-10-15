@@ -332,7 +332,6 @@ page 392 "Phys. Inventory Journal"
                     Image = Dimensions;
                     Promoted = true;
                     PromotedCategory = Category6;
-                    Scope = Repeater;
                     ShortCutKey = 'Alt+D';
                     ToolTip = 'View or edit dimensions, such as area, project, or department, that you can assign to sales and purchase documents to distribute costs and analyze transaction history.';
 
@@ -349,7 +348,6 @@ page 392 "Phys. Inventory Journal"
                     Image = ItemTrackingLines;
                     Promoted = true;
                     PromotedCategory = Category6;
-                    Scope = Repeater;
                     ShortCutKey = 'Shift+Ctrl+I';
                     ToolTip = 'View or edit serial numbers and lot numbers that are assigned to the item on the document or journal line.';
 
@@ -370,7 +368,6 @@ page 392 "Phys. Inventory Journal"
                                   "Item No." = FIELD("Item No."),
                                   "Variant Code" = FIELD("Variant Code");
                     RunPageView = SORTING("Location Code", "Item No.", "Variant Code");
-                    Scope = Repeater;
                     ToolTip = 'View items in the bin if the selected line contains a bin code.';
                 }
             }
@@ -387,7 +384,6 @@ page 392 "Phys. Inventory Journal"
                     PromotedCategory = Category7;
                     RunObject = Page "Item Card";
                     RunPageLink = "No." = FIELD("Item No.");
-                    Scope = Repeater;
                     ShortCutKey = 'Shift+F7';
                     ToolTip = 'View or change detailed information about the record on the document or journal line.';
                 }
@@ -401,7 +397,6 @@ page 392 "Phys. Inventory Journal"
                     RunObject = Page "Item Ledger Entries";
                     RunPageLink = "Item No." = FIELD("Item No.");
                     RunPageView = SORTING("Item No.");
-                    Scope = Repeater;
                     ShortCutKey = 'Ctrl+F7';
                     ToolTip = 'View the history of transactions that have been posted for the selected record.';
                 }
@@ -415,7 +410,6 @@ page 392 "Phys. Inventory Journal"
                     RunObject = Page "Phys. Inventory Ledger Entries";
                     RunPageLink = "Item No." = FIELD("Item No.");
                     RunPageView = SORTING("Item No.");
-                    Scope = Repeater;
                     ToolTip = 'Show the ledger entries for the current journal line.';
                 }
                 group("Item Availability by")
@@ -429,7 +423,6 @@ page 392 "Phys. Inventory Journal"
                         Image = "Event";
                         Promoted = true;
                         PromotedCategory = Category8;
-                        Scope = Repeater;
                         ToolTip = 'View how the actual and the projected available balance of an item will develop over time according to supply and demand events.';
 
                         trigger OnAction()
@@ -444,7 +437,6 @@ page 392 "Phys. Inventory Journal"
                         Image = Period;
                         Promoted = true;
                         PromotedCategory = Category8;
-                        Scope = Repeater;
                         ToolTip = 'Show the projected quantity of the item over time according to time periods, such as day, week, or month.';
 
                         trigger OnAction()
@@ -459,7 +451,6 @@ page 392 "Phys. Inventory Journal"
                         Image = ItemVariant;
                         Promoted = true;
                         PromotedCategory = Category8;
-                        Scope = Repeater;
                         ToolTip = 'View or edit the item''s variants. Instead of setting up each color of an item as a separate item, you can set up the various colors as variants of the item.';
 
                         trigger OnAction()
@@ -475,7 +466,6 @@ page 392 "Phys. Inventory Journal"
                         Image = Warehouse;
                         Promoted = true;
                         PromotedCategory = Category8;
-                        Scope = Repeater;
                         ToolTip = 'View the actual and projected quantity of the item per location.';
 
                         trigger OnAction()
@@ -501,7 +491,6 @@ page 392 "Phys. Inventory Journal"
                         Image = BOMLevel;
                         Promoted = true;
                         PromotedCategory = Category8;
-                        Scope = Repeater;
                         ToolTip = 'View availability figures for items on bills of materials that show how many units of a parent item you can make based on the availability of child items.';
 
                         trigger OnAction()
@@ -526,7 +515,6 @@ page 392 "Phys. Inventory Journal"
                     Image = CalculateInventory;
                     Promoted = true;
                     PromotedCategory = Category5;
-                    Scope = Repeater;
                     ToolTip = 'Start the process of counting inventory by filling the journal with known quantities.';
 
                     trigger OnAction()
@@ -544,7 +532,6 @@ page 392 "Phys. Inventory Journal"
                     Image = CalculateCalendar;
                     Promoted = true;
                     PromotedCategory = Category5;
-                    Scope = Repeater;
                     ToolTip = 'Show all items that a counting period has been assigned to, according to the counting period, the last counting period update, and the current work date.';
 
                     trigger OnAction()
@@ -565,7 +552,6 @@ page 392 "Phys. Inventory Journal"
                 Image = Print;
                 Promoted = true;
                 PromotedCategory = Category4;
-                Scope = Repeater;
                 ToolTip = 'Prepare to print the document. A report request window for the document opens where you can specify what to include on the print-out.';
 
                 trigger OnAction()
@@ -585,7 +571,6 @@ page 392 "Phys. Inventory Journal"
                     Caption = 'Test Report';
                     Ellipsis = true;
                     Image = TestReport;
-                    Scope = Repeater;
                     ToolTip = 'View a test report so that you can find and correct any errors before you perform the actual posting of the journal or document.';
 
                     trigger OnAction()
@@ -601,7 +586,6 @@ page 392 "Phys. Inventory Journal"
                     Promoted = true;
                     PromotedCategory = Category4;
                     PromotedIsBig = true;
-                    Scope = Repeater;
                     ShortCutKey = 'F9';
                     ToolTip = 'Finalize the document or journal by posting the amounts and quantities to the related accounts in your company books.';
 
@@ -620,7 +604,6 @@ page 392 "Phys. Inventory Journal"
                     Promoted = true;
                     PromotedCategory = Category4;
                     PromotedIsBig = true;
-                    Scope = Repeater;
                     ShortCutKey = 'Shift+F9';
                     ToolTip = 'Finalize and prepare to print the document or journal. The values and quantities are posted to the related accounts. A report request window where you can specify what to include on the print-out.';
 

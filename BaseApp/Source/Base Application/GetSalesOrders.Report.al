@@ -23,7 +23,8 @@ report 698 "Get Sales Orders"
                 if ("Purchasing Code" = '') and (SpecOrder <> 1) then
                     if "Drop Shipment" then begin
                         LineCount := LineCount + 1;
-                        Window.Update(1, LineCount);
+                        if not HideDialog then
+                            Window.Update(1, LineCount);
                         InsertReqWkshLine("Sales Line");
                     end;
 
@@ -31,7 +32,8 @@ report 698 "Get Sales Orders"
                     if PurchasingCode.Get("Purchasing Code") then
                         if PurchasingCode."Drop Shipment" and (SpecOrder <> 1) then begin
                             LineCount := LineCount + 1;
-                            Window.Update(1, LineCount);
+                            if not HideDialog then
+                                Window.Update(1, LineCount);
                             InsertReqWkshLine("Sales Line");
                         end else
                             if PurchasingCode."Special Order" and
@@ -39,15 +41,17 @@ report 698 "Get Sales Orders"
                                (SpecOrder <> 0)
                             then begin
                                 LineCount := LineCount + 1;
-                                Window.Update(1, LineCount);
+                                if not HideDialog then
+                                    Window.Update(1, LineCount);
                                 InsertReqWkshLine("Sales Line");
                             end;
             end;
 
             trigger OnPostDataItem()
             begin
-                if LineCount = 0 then
-                    Error(Text001);
+                if not HideDialog then
+                    if LineCount = 0 then
+                        Error(Text001);
             end;
         }
     }
@@ -85,6 +89,7 @@ report 698 "Get Sales Orders"
 
     trigger OnPreReport()
     begin
+        OnBeforeOnPreReport(HideDialog);
         ReqWkshTmpl.Get(ReqLine."Worksheet Template Name");
         ReqWkshName.Get(ReqLine."Worksheet Template Name", ReqLine."Journal Batch Name");
         ReqLine.SetRange("Worksheet Template Name", ReqLine."Worksheet Template Name");
@@ -94,7 +99,8 @@ report 698 "Get Sales Orders"
             ReqLine.Init();
             LineNo := ReqLine."Line No.";
         end;
-        Window.Open(Text000);
+        if not HideDialog then
+            Window.Open(Text000);
     end;
 
     var
@@ -112,6 +118,7 @@ report 698 "Get Sales Orders"
         LineCount: Integer;
         SpecOrder: Integer;
         GetDim: Option Item,"Sales Line";
+        HideDialog: Boolean;
         LineNo: Integer;
 
     procedure SetReqWkshLine(NewReqLine: Record "Requisition Line"; SpecialOrder: Integer)
@@ -225,6 +232,11 @@ report 698 "Get Sales Orders"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeOnAfterGetRecord(SalesLine: Record "Sales Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeOnPreReport(var HideDialog: Boolean)
     begin
     end;
 

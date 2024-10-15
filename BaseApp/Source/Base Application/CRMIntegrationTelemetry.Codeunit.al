@@ -142,23 +142,6 @@ codeunit 5333 "CRM Integration Telemetry"
             SendConnectionTelemetry(Rec);
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, Codeunit::"CRM Integration Management", 'OnAfterCRMIntegrationEnabled', '', true, true)]
-    local procedure ScheduleCRMIntTelemetryAfterIntegrationEnabled()
-    begin
-        ScheduleIntegrationTelemetryAfterIntegrationEnabled();
-    end;
-
-    [EventSubscriber(ObjectType::Codeunit, Codeunit::"CDS Integration Impl.", 'OnAfterIntegrationEnabled', '', true, true)]
-    local procedure ScheduleIntegrationtTelemetryAfterIntegrationEnabled()
-    begin
-        ScheduleIntegrationTelemetryAfterIntegrationEnabled();
-    end;
-
-    local procedure ScheduleIntegrationTelemetryAfterIntegrationEnabled()
-    begin
-        TaskScheduler.CreateTask(Codeunit::"CRM Integration Telemetry", 0, true, CompanyName(), CreateDateTime(Today() + 1, 0T));
-    end;
-
     [Scope('OnPrem')]
     procedure LogTelemetryWhenConnectionEnabled()
     begin

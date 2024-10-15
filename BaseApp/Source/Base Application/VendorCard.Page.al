@@ -1547,8 +1547,6 @@ page 26 "Vendor Card"
                 Caption = 'Word Template';
                 ToolTIp = 'Apply a Word template on the vendor.';
                 Image = Word;
-                Promoted = true;
-                PromotedCategory = Category9;
 
                 trigger OnAction()
                 var
@@ -1563,10 +1561,8 @@ page 26 "Vendor Card"
             action(Email)
             {
                 ApplicationArea = All;
-                Caption = 'Contact by Email';
+                Caption = 'Send Email';
                 Image = Email;
-                Promoted = true;
-                PromotedCategory = Category9;
                 ToolTip = 'Send an email to this vendor.';
 
                 trigger OnAction()

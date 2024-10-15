@@ -1031,6 +1031,174 @@ codeunit 134117 "Price Lists UI"
     end;
 
     [Test]
+    procedure T042_ValidateSourceNoInSalesHeaderAllowUpdatingDefaults()
+    var
+        Currency: array[2] of Record Currency;
+        Customer: array[2] of Record Customer;
+        PriceListHeader: Record "Price List Header";
+        PriceListLine: Record "Price List Line";
+        SalesPriceList: TestPage "Sales Price List";
+    begin
+        Initialize(true);
+
+        // [GIVEN] Customer 'C', where "Currency Code" is 'USD'
+        LibrarySales.CreateCustomer(Customer[1]);
+        LibraryERM.CreateCurrency(Currency[1]);
+        Customer[1]."Currency Code" := Currency[1].Code;
+        Customer[1].Modify();
+        // [GIVEN] Customer 'L', where "Currency Code" is 'EUR'
+        LibrarySales.CreateCustomer(Customer[2]);
+        LibraryERM.CreateCurrency(Currency[2]);
+        Customer[2]."Currency Code" := Currency[2].Code;
+        Customer[2].Modify();
+        // [GIVEN] Price List header for Customer 'C', where "Allow Updating Defaults" is 'Yes' and one line
+        LibraryPriceCalculation.CreatePriceHeader(
+            PriceListHeader, "Price Type"::Sale, "Price Source Type"::Customer, Customer[1]."No.");
+        PriceListHeader."Allow Updating Defaults" := true;
+        PriceListHeader.Modify();
+        LibraryPriceCalculation.CreateSalesPriceLine(
+            PriceListLine, PriceListHeader.Code, "Price Source Type"::Customer, Customer[1]."No.",
+            "Price Asset Type"::"G/L Account", LibraryERM.CreateGLAccountNo());
+
+        // [GIVEN] Change Customer to 'L' on the header
+        SalesPriceList.OpenEdit();
+        SalesPriceList.Filter.SetFilter(Code, PriceListHeader.Code);
+        SalesPriceList.SourceNo.SetValue(Customer[2]."No.");
+        SalesPriceList.CurrencyCode.AssertEquals(Customer[2]."Currency Code");
+
+        // [WHEN] Add new price list line with a g/l account
+        SalesPriceList.Lines.New();
+        SalesPriceList.Lines."Asset Type".SetValue("Price Asset Type"::"G/L Account");
+        SalesPriceList.Lines."Asset No.".SetValue(LibraryERM.CreateGLAccountNo());
+
+        // [THEN] Price list line added, where "Applies-To No." is 'L', "Currency Code" is 'EUR'
+        PriceListLine.SetRange("Price List Code", PriceListHeader.Code);
+        PriceListLine.SetRange("Asset Type", "Price Asset Type"::"G/L Account");
+        PriceListLine.FindFirst();
+        PriceListLine.Testfield("Source No.", Customer[1]."No.");
+        PriceListLine.TestField("Currency Code", Currency[1].Code);
+        Assert.IsFalse(PriceListLine.Next() = 0, 'not found 2nd line');
+        PriceListLine.Testfield("Source No.", Customer[2]."No.");
+        PriceListLine.TestField("Currency Code", Currency[2].Code);
+    end;
+
+    [Test]
+    procedure T043_ValidateSourceNoInPurchHeaderAllowUpdatingDefaults()
+    var
+        Currency: array[2] of Record Currency;
+        Vendor: array[2] of Record Vendor;
+        PriceListHeader: Record "Price List Header";
+        PriceListLine: Record "Price List Line";
+        PurchasePriceList: TestPage "Purchase Price List";
+    begin
+        Initialize(true);
+
+        // [GIVEN] Vendor 'C', where "Currency Code" is 'USD'
+        LibraryPurchase.CreateVendor(Vendor[1]);
+        LibraryERM.CreateCurrency(Currency[1]);
+        Vendor[1]."Currency Code" := Currency[1].Code;
+        Vendor[1].Modify();
+        // [GIVEN] Vendor 'L', where "Currency Code" is 'EUR'
+        LibraryPurchase.CreateVendor(Vendor[2]);
+        LibraryERM.CreateCurrency(Currency[2]);
+        Vendor[2]."Currency Code" := Currency[2].Code;
+        Vendor[2].Modify();
+        // [GIVEN] Price List header for Vendor 'C', where "Allow Updating Defaults" is 'Yes' and one line
+        LibraryPriceCalculation.CreatePriceHeader(
+            PriceListHeader, "Price Type"::Purchase, "Price Source Type"::Vendor, Vendor[1]."No.");
+        PriceListHeader."Allow Updating Defaults" := true;
+        PriceListHeader.Modify();
+        LibraryPriceCalculation.CreatePurchPriceLine(
+            PriceListLine, PriceListHeader.Code, "Price Source Type"::Vendor, Vendor[1]."No.",
+            "Price Asset Type"::"G/L Account", LibraryERM.CreateGLAccountNo());
+
+        // [GIVEN] Change vendor to 'L' on the header
+        PurchasePriceList.OpenEdit();
+        PurchasePriceList.Filter.SetFilter(Code, PriceListHeader.Code);
+        PurchasePriceList.SourceNo.SetValue(Vendor[2]."No.");
+        PurchasePriceList.CurrencyCode.AssertEquals(Vendor[2]."Currency Code");
+
+        // [WHEN] Add new price list line with a g/l account
+        PurchasePriceList.Lines.New();
+        PurchasePriceList.Lines."Asset Type".SetValue("Price Asset Type"::"G/L Account");
+        PurchasePriceList.Lines."Asset No.".SetValue(LibraryERM.CreateGLAccountNo());
+
+        // [THEN] Price list line added, where "Applies-To No." is 'L', "Currency Code" is 'EUR'
+        PriceListLine.SetRange("Price List Code", PriceListHeader.Code);
+        PriceListLine.SetRange("Asset Type", "Price Asset Type"::"G/L Account");
+        PriceListLine.FindFirst();
+        PriceListLine.Testfield("Source No.", Vendor[1]."No.");
+        PriceListLine.TestField("Currency Code", Currency[1].Code);
+        Assert.IsFalse(PriceListLine.Next() = 0, 'not found 2nd line');
+        PriceListLine.Testfield("Source No.", Vendor[2]."No.");
+        PriceListLine.TestField("Currency Code", Currency[2].Code);
+    end;
+
+    [Test]
+    procedure T044_SalesPriceLinesAllowUpdatingDefaults()
+    var
+        PriceListHeader: Record "Price List Header";
+        PriceListLine: Record "Price List Line";
+        SalesPriceList: TestPage "Sales Price List";
+    begin
+        Initialize(true);
+
+        // [GIVEN] Price List header for "All Customers", where "Allow Updating Defaults" is 'Yes' and one line
+        LibraryPriceCalculation.CreatePriceHeader(
+            PriceListHeader, "Price Type"::Sale, "Price Source Type"::"All Customers", '');
+        PriceListHeader."Allow Updating Defaults" := true;
+        PriceListHeader.Modify();
+        LibraryPriceCalculation.CreateSalesPriceLine(
+            PriceListLine, PriceListHeader.Code, "Price Source Type"::"All Customers", '',
+            "Price Asset Type"::"G/L Account", LibraryERM.CreateGLAccountNo());
+
+        // [WHEN] Open sales price list
+        SalesPriceList.OpenEdit();
+        SalesPriceList.Filter.SetFilter(Code, PriceListHeader.Code);
+
+        // [THEN] "Applie-to Type", "Applies-to No.", "Currency Code",  "Starting/Ending Date", "Price Includes VAT" are visible and editable
+        Assert.IsTrue(SalesPriceList.Lines.SourceType.Visible(), 'SourceType.Visible');
+        Assert.IsTrue(SalesPriceList.Lines.SourceNo.Visible(), 'SourceType.No');
+        Assert.IsTrue(SalesPriceList.Lines.CurrencyCode.Visible(), 'CurrencyCode.Visible');
+        Assert.IsTrue(SalesPriceList.Lines.StartingDate.Visible(), 'StartingDate.Visible');
+        Assert.IsTrue(SalesPriceList.Lines.EndingDate.Visible(), 'EndingDate.Visible');
+        Assert.IsTrue(SalesPriceList.Lines.PriceIncludesVAT.Visible(), 'PriceIncludesVAT.No');
+        Assert.IsTrue(SalesPriceList.Lines.VATBusPostingGrPrice.Visible(), 'VATBusPostingGrPrice.No');
+    end;
+
+    [Test]
+    procedure T045_PurchPriceLinesAllowUpdatingDefaults()
+    var
+        PriceListHeader: Record "Price List Header";
+        PriceListLine: Record "Price List Line";
+        PurchPriceList: TestPage "Purchase Price List";
+    begin
+        Initialize(true);
+
+        // [GIVEN] Price List header for "All Vendors", where "Allow Updating Defaults" is 'Yes' and one line
+        LibraryPriceCalculation.CreatePriceHeader(
+            PriceListHeader, "Price Type"::Sale, "Price Source Type"::"All Vendors", '');
+        PriceListHeader."Allow Updating Defaults" := true;
+        PriceListHeader.Modify();
+        LibraryPriceCalculation.CreatePurchPriceLine(
+            PriceListLine, PriceListHeader.Code, "Price Source Type"::"All Vendors", '',
+            "Price Asset Type"::"G/L Account", LibraryERM.CreateGLAccountNo());
+
+        // [WHEN] Open Purch price list
+        PurchPriceList.OpenEdit();
+        PurchPriceList.Filter.SetFilter(Code, PriceListHeader.Code);
+
+        // [THEN] "Applie-to Type", "Applies-to No.", "Currency Code",  "Starting/Ending Date", "Price Includes VAT" are visible and editable
+        Assert.IsTrue(PurchPriceList.Lines.SourceType.Visible(), 'SourceType.Visible');
+        Assert.IsTrue(PurchPriceList.Lines.SourceNo.Visible(), 'SourceType.No');
+        Assert.IsTrue(PurchPriceList.Lines.CurrencyCode.Visible(), 'CurrencyCode.Visible');
+        Assert.IsTrue(PurchPriceList.Lines.StartingDate.Visible(), 'StartingDate.Visible');
+        Assert.IsTrue(PurchPriceList.Lines.EndingDate.Visible(), 'EndingDate.Visible');
+        Assert.IsTrue(PurchPriceList.Lines.PriceIncludesVAT.Visible(), 'PriceIncludesVAT.No');
+        Assert.IsTrue(PurchPriceList.Lines.VATBusPostingGrPrice.Visible(), 'VATBusPostingGrPrice.No');
+    end;
+
+    [Test]
     procedure T050_PurchasePriceListsPageIsNotEditable()
     var
         PriceListHeader: Record "Price List Header";

@@ -71,10 +71,6 @@ table 9000 "User Group"
         }
     }
 
-    fieldgroups
-    {
-    }
-
     trigger OnDelete()
     var
         UserGroupMember: Record "User Group Member";

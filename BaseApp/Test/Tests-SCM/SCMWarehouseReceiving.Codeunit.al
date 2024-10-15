@@ -3193,6 +3193,63 @@ codeunit 137152 "SCM Warehouse - Receiving"
         WarehouseReceiptLine.TestField(Quantity, PurchaseLine[2].Quantity);
     end;
 
+    [Test]
+    procedure CreatePutAwayWithFloatingBinSkipsOverloadedBinContent()
+    var
+        Item: Record Item;
+        Location: Record Location;
+        Zone: Record Zone;
+        Bin: array[2] of Record Bin;
+        PutAwayTemplateHeader: Record "Put-away Template Header";
+        PutAwayTemplateLine: Record "Put-away Template Line";
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+    begin
+        // [FEATURE] [Put-away] [Bin Content]
+        // [SCENARIO 401645] Floating bin case - when bin content is already above its maximum capacity, the program does not suggest this bin for a new put-away.
+        Initialize();
+
+        LibraryInventory.CreateItem(Item);
+
+        // [GIVEN] Create put-away template, set "Floating Bin" = TRUE, all other parameters to FALSE.
+        LibraryWarehouse.CreatePutAwayTemplateHeader(PutAwayTemplateHeader);
+        LibraryWarehouse.CreatePutAwayTemplateLine(
+          PutAwayTemplateHeader, PutAwayTemplateLine, false, true, false, false, false, false);
+
+        // [GIVEN] Location with directed put-away and pick, assign the new put-away template code.
+        LibraryWarehouse.CreateFullWMSLocation(Location, 2);
+        Location.Validate("Put-away Template Code", PutAwayTemplateHeader.Code);
+        Location.Modify(true);
+
+        // [GIVEN] Find "B1", "B2" in the pick zone.
+        // [GIVEN] Set maximum quantity = 20 for bin "B2".
+        FindZone(Zone, Location.Code, false, true, true);
+        LibraryWarehouse.FindBin(Bin[1], Location.Code, Zone.Code, 1);
+        LibraryWarehouse.FindBin(Bin[2], Location.Code, Zone.Code, 2);
+        CreateAndUpdateBinContent(Bin[2], Item, LibraryRandom.RandIntInRange(10, 20), false);
+
+        // [GIVEN] Post 40 pcs to bin "B2" using warehouse journal, thereby overloading the bin.
+        UpdateInventoryUsingWhseJournal(Bin[2], Item, LibraryRandom.RandIntInRange(20, 40), '');
+
+        // [GIVEN] Create purchase order for 10 pcs, release.
+        // [GIVEN] Create and post warehouse receipt.
+        // [WHEN] Create put-away.
+        CreatePurchaseOrderAndPostWarehouseReceipt(
+          PurchaseHeader, Location.Code, Item."No.", LibraryRandom.RandInt(10), Item."Base Unit of Measure");
+        LibraryPurchase.FindFirstPurchLine(PurchaseLine, PurchaseHeader);
+
+        // [THEN] "Bin Code" on the put-away line is equal to "B1", instead of "B2".
+        // [THEN] Quantity on the "Place" put-away line = 10.
+        FilterWarehouseActivityLines(
+          WarehouseActivityLine, WarehouseActivityLine."Source Document"::"Purchase Order", PurchaseHeader."No.", '',
+          WarehouseActivityLine."Activity Type"::"Put-away");
+        WarehouseActivityLine.SetRange("Action Type", WarehouseActivityLine."Action Type"::Place);
+        WarehouseActivityLine.FindFirst();
+        WarehouseActivityLine.TestField("Bin Code", Bin[1].Code);
+        WarehouseActivityLine.TestField(Quantity, PurchaseLine.Quantity);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";

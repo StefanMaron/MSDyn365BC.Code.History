@@ -66,6 +66,7 @@ codeunit 137158 "SCM Orders V"
         MustBeDeletedErr: Label 'Sales order %1 must be deleted';
         ItemTrackingNotMatchErr: Label 'Item Tracking does not match';
         QtyToInvoiceDoesNotMatchItemTrackingErr: Label 'The quantity to invoice does not match the quantity defined in item tracking.';
+        ReservedQtyMustBeZeroErr: Label 'Reserved Qty. (Base) must be equal to ''0''  in Purchase Line';
 
     [Test]
     [Scope('OnPrem')]
@@ -3541,6 +3542,35 @@ codeunit 137158 "SCM Orders V"
         SalesHeader.TestField("Tax Liable", Customer[2]."Tax Liable");
     end;
 
+    [Test]
+    [HandlerFunctions('ReservationModalPageHandler')]
+    procedure CannotExplodeBOMOnReservedPurchaseLine()
+    var
+        Item: Record Item;
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+    begin
+        // [FEATURE] [Purchase] [Explode BOM] [Reservation]
+        // [SCENARIO 398112] Cannot run "Explode BOM" on reserved purchase line.
+        Initialize();
+
+        CreateAssemblyItemWithAsseblyBOM(Item, LibraryInventory.CreateItemNo(), LibraryRandom.RandInt(10));
+
+        CreatePurchaseOrder(PurchaseHeader, PurchaseLine, '', Item."No.", LibraryRandom.RandIntInRange(11, 20), '', false);
+
+        LibrarySales.CreateSalesDocumentWithItem(
+          SalesHeader, SalesLine, SalesHeader."Document Type"::Order, '', Item."No.", LibraryRandom.RandInt(10), '',
+          LibraryRandom.RandDate(30));
+        SalesLine.ShowReservation();
+
+        asserterror LibraryPurchase.ExplodeBOM(PurchaseLine);
+
+        Assert.ExpectedError(ReservedQtyMustBeZeroErr);
+        Assert.ExpectedErrorCode('TestField');
+    end;
+
     local procedure Initialize()
     var
         SalesHeader: Record "Sales Header";
@@ -5542,6 +5572,12 @@ codeunit 137158 "SCM Orders V"
     begin
         // Take 1 for "Retrieve dimensions from components".
         Choice := 1;
+    end;
+
+    [ModalPageHandler]
+    procedure ReservationModalPageHandler(var Reservation: TestPage Reservation)
+    begin
+        Reservation."Auto Reserve".Invoke();
     end;
 
     [RecallNotificationHandler]

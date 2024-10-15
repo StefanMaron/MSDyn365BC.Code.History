@@ -100,8 +100,14 @@
                 LookupVATReportHeader: Record "VAT Report Header";
                 VATReportList: Page "VAT Report List";
                 ShowLookup: Boolean;
+                IsHandled: Boolean;
                 TypeFilterText: Text[1024];
             begin
+                IsHandled := false;
+                OnBeforeLookupOriginalReportNo(Rec, IsHandled);
+                if IsHandled then
+                    exit;
+
                 TypeFilterText := '';
                 ShowLookup := false;
 
@@ -484,6 +490,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterInitRecord(var VATReportHeader: Record "VAT Report Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeLookupOriginalReportNo(var VATReportHeader: Record "VAT Report Header"; var IsHandled: Boolean)
     begin
     end;
 

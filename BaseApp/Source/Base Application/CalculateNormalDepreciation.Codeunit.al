@@ -401,7 +401,7 @@ codeunit 5611 "Calculate Normal Depreciation"
         exit(0);
     end;
 
-    local procedure CalcDB1Amount(): Decimal
+    local procedure CalcDB1Amount() Result: Decimal
     var
         DeprInFiscalYear: Decimal;
     begin
@@ -414,9 +414,11 @@ codeunit 5611 "Calculate Normal Depreciation"
             DeprInFiscalYear := EntryAmounts[3];
         if DeprInTwoFiscalYears then
             DeprInFiscalYear := 0;
-        exit(
-          -(DBPercent / 100) * (NumberOfDays / DaysInFiscalYear) *
-          (BookValue + SalvageValue - MinusBookValue - Sign * DeprInFiscalYear));
+
+        result := -(DBPercent / 100) * (NumberOfDays / DaysInFiscalYear) *
+          (BookValue + SalvageValue - MinusBookValue - Sign * DeprInFiscalYear);
+
+        OnAfterCalcDB1Amount(DBPercent, NumberOfDays, DaysInFiscalYear, BookValue, SalvageValue, MinusBookValue, Sign, DeprInFiscalYear, Result);
     end;
 
     local procedure CalcDB2Amount(): Decimal
@@ -980,6 +982,11 @@ codeunit 5611 "Calculate Normal Depreciation"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterCalcSL(FixedAsset: Record "Fixed Asset"; FADepreciationBook: Record "FA Depreciation Book"; UntilDate: Date; BookValue: Decimal; DeprBasis: Decimal; DeprYears: Decimal; NumberOfDays: Integer; DaysInFiscalYear: Integer; var ExitValue: Decimal; var IsHandled: Boolean; var RemainingLife: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCalcDB1Amount(DBPercent: Decimal; NumberOfDays: Integer; DaysInFiscalYear: Integer; BookValue: Decimal; SalvageValue: Decimal; MinusBookValue: Decimal; Sign: Integer; DeprInFiscalYear: Decimal; var Result: Decimal)
     begin
     end;
 
