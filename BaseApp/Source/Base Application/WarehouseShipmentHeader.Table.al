@@ -650,6 +650,70 @@ table 7320 "Warehouse Shipment Header"
         end;
     end;
 
+    procedure ApplyCustomSortingToWhseShptLines(var WarehouseShipmentLine: Record "Warehouse Shipment Line")
+    var
+        TempFirstPriorityWhseShptLine: Record "Warehouse Shipment Line" temporary;
+        TempSecondPriorityWhseShptLine: Record "Warehouse Shipment Line" temporary;
+        SequenceNo: Integer;
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeApplyCustomSortingToWhseShptLines(WarehouseShipmentLine, IsHandled);
+        if IsHandled then
+            exit;
+
+        if not WarehouseShipmentLine.FindSet() then
+            exit;
+
+        repeat
+            if MeetsCriteria(WarehouseShipmentLine) then begin
+                TempFirstPriorityWhseShptLine := WarehouseShipmentLine;
+                TempFirstPriorityWhseShptLine.Insert();
+            end else begin
+                TempSecondPriorityWhseShptLine := WarehouseShipmentLine;
+                TempSecondPriorityWhseShptLine.Insert();
+            end;
+        until WarehouseShipmentLine.Next() = 0;
+
+        SequenceNo := 10000;
+        if TempFirstPriorityWhseShptLine.FindSet() then
+            repeat
+                WarehouseShipmentLine := TempFirstPriorityWhseShptLine;
+                WarehouseShipmentLine.Find();
+                WarehouseShipmentLine."Sorting Sequence No." := SequenceNo;
+                WarehouseShipmentLine.Modify();
+                SequenceNo += 10000;
+            until TempFirstPriorityWhseShptLine.Next() = 0;
+
+        if TempSecondPriorityWhseShptLine.FindSet() then
+            repeat
+                WarehouseShipmentLine := TempSecondPriorityWhseShptLine;
+                WarehouseShipmentLine.Find();
+                WarehouseShipmentLine."Sorting Sequence No." := SequenceNo;
+                WarehouseShipmentLine.Modify();
+                SequenceNo += 10000;
+            until TempSecondPriorityWhseShptLine.Next() = 0;
+    end;
+
+    local procedure MeetsCriteria(WarehouseShipmentLine: Record "Warehouse Shipment Line") Result: Boolean
+    var
+        ReservationEntry: Record "Reservation Entry";
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeMeetsCriteria(WarehouseShipmentLine, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
+        ReservationEntry.SetSourceFilter(
+          WarehouseShipmentLine."Source Type", WarehouseShipmentLine."Source Subtype", WarehouseShipmentLine."Source No.",
+          WarehouseShipmentLine."Source Line No.", true);
+        ReservationEntry.SetFilter("Item Tracking", '<>%1', ReservationEntry."Item Tracking"::None);
+        Result := not ReservationEntry.IsEmpty();
+
+        exit(Result);
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnAfterAssistEdit(var WarehouseShipmentHeader: Record "Warehouse Shipment Header")
     begin
@@ -707,6 +771,16 @@ table 7320 "Warehouse Shipment Header"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeDeleteWarehouseShipmentLines(var WarehouseShipmentHeader: Record "Warehouse Shipment Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeApplyCustomSortingToWhseShptLines(var WarehouseShipmentLine: Record "Warehouse Shipment Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeMeetsCriteria(var WarehouseShipmentLine: Record "Warehouse Shipment Line"; var Result: Boolean; var IsHandled: Boolean)
     begin
     end;
 }

@@ -33,11 +33,11 @@ codeunit 134118 "Price List Header UT"
         StatusUpdateQst: Label 'Do you want to update status to %1?', Comment = '%1 - status value: Draft, Active, or Inactive';
         CannotDeleteActivePriceListErr: Label 'You cannot delete the active price list %1.', Comment = '%1 - the price list code.';
         ParentSourceJobErr: Label 'Parent Source No. must be blank for Job source type.';
-        ParentSourceNoMustBeFilledErr: Label 'Applies-to Parent No. must have a value';
-        ParentSourceNoMustBeBlankErr: Label 'Applies-to Parent No. must be equal to ''''';
+        ParentSourceNoMustBeFilledErr: Label 'Assign-to Parent No. must have a value';
+        ParentSourceNoMustBeBlankErr: Label 'Assign-to Parent No. must be equal to ''''';
         ProductNoMustBeFilledErr: Label 'Product No. must have a value';
-        SourceNoMustBeFilledErr: Label 'Applies-to No. must have a value';
-        SourceNoMustBeBlankErr: Label 'Applies-to No. must be equal to ''''';
+        SourceNoMustBeFilledErr: Label 'Assign-to must have a value';
+        SourceNoMustBeBlankErr: Label 'Assign-to must be equal to ''''';
         IsInitialized: Boolean;
 
     [Test]
@@ -885,7 +885,7 @@ codeunit 134118 "Price List Header UT"
     var
         PriceListHeader: Record "Price List Header";
     begin
-        // [SCENARIO] Update of Status in the header fails on inconsistent source: Applies-to No. is filled.
+        // [SCENARIO] Update of Status in the header fails on inconsistent source: Assign-to is filled.
         Initialize();
         // [GIVEN] New price list, where "Status" is 'Draft', "Source Type"::"All Customers", "Source No." is 'X'
         LibraryPriceCalculation.CreatePriceHeader(
@@ -897,7 +897,7 @@ codeunit 134118 "Price List Header UT"
         // [WHEN] Set "Status" as 'Active' and answer 'Yes'
         asserterror PriceListHeader.Validate(Status, PriceListHeader.Status::Active);
 
-        // [THEN] Error: "Applies-to No. must be equal to ''''"
+        // [THEN] Error: "Assign-to must be equal to ''''"
         Assert.ExpectedError(SourceNoMustBeBlankErr);
     end;
 
@@ -906,7 +906,7 @@ codeunit 134118 "Price List Header UT"
     var
         PriceListHeader: Record "Price List Header";
     begin
-        // [SCENARIO] Update of Status in the header fails on inconsistent source: Applies-to No. is blank.
+        // [SCENARIO] Update of Status in the header fails on inconsistent source: Assign-to is blank.
         Initialize();
         // [GIVEN] New price list, where "Status" is 'Draft', "Source Type"::"Customer", "Source No." is <blank>
         LibraryPriceCalculation.CreatePriceHeader(
@@ -917,7 +917,7 @@ codeunit 134118 "Price List Header UT"
         // [WHEN] Set "Status" as 'Active'
         asserterror PriceListHeader.Validate(Status, PriceListHeader.Status::Active);
 
-        // [THEN] Error: "Applies-to No. must have a value"
+        // [THEN] Error: "Assign-to must have a value"
         Assert.ExpectedError(SourceNoMustBeFilledErr);
     end;
 
@@ -928,7 +928,7 @@ codeunit 134118 "Price List Header UT"
         JobTask: Record "Job Task";
         PriceListHeader: Record "Price List Header";
     begin
-        // [SCENARIO] Update of Status in the header fails on inconsistent source: Applies-to Parent No. is blank.
+        // [SCENARIO] Update of Status in the header fails on inconsistent source: Assign-to Parent No. is blank.
         Initialize();
         // [GIVEN] New price list, where "Status" is 'Draft', "Source Type"::"Job Task", "Source No." is 'JT', 
         LibraryJob.CreateJob(Job);
@@ -943,7 +943,7 @@ codeunit 134118 "Price List Header UT"
         // [WHEN] Set "Status" as 'Active'
         asserterror PriceListHeader.Validate(Status, PriceListHeader.Status::Active);
 
-        // [THEN] Error: "Parent Applies-to No. must have a value"
+        // [THEN] Error: "Parent Assign-to must have a value"
         Assert.ExpectedError(ParentSourceNoMustBeFilledErr);
     end;
 
@@ -953,7 +953,7 @@ codeunit 134118 "Price List Header UT"
         Job: Record Job;
         PriceListHeader: Record "Price List Header";
     begin
-        // [SCENARIO] Update of Status in the header fails on inconsistent source: Applies-to Parent No. is filled.
+        // [SCENARIO] Update of Status in the header fails on inconsistent source: Assign-to Parent No. is filled.
         Initialize();
         // [GIVEN] New price list, where "Status" is 'Draft', "Source Type"::"Job", "Source No." is 'J',
         LibraryJob.CreateJob(Job);
@@ -967,7 +967,7 @@ codeunit 134118 "Price List Header UT"
         // [WHEN] Set "Status" as 'Active' and answer 'Yes'
         asserterror PriceListHeader.Validate(Status, PriceListHeader.Status::Active);
 
-        // [THEN] Error: "Applies-to Parent No. must be equal to ''''"
+        // [THEN] Error: "Assign-to Parent No. must be equal to ''''"
         Assert.ExpectedError(ParentSourceJobErr);
     end;
 
@@ -1013,7 +1013,7 @@ codeunit 134118 "Price List Header UT"
         PriceListHeader: Record "Price List Header";
         PriceListLine: array[2] of Record "Price List Line";
     begin
-        // [SCENARIO] Update of Status in the header with lines updates lines missing Applies-to No.
+        // [SCENARIO] Update of Status in the header with lines updates lines missing Assign-to
         Initialize();
         // [GIVEN] New price list, where "Source Type" is 'All Customers', "Status" is 'Draft', "Allow Updating Defaults" is 'Yes'
         CreatePriceList(PriceListHeader, PriceListLine[1]);
@@ -1030,7 +1030,7 @@ codeunit 134118 "Price List Header UT"
         // [WHEN] Set "Status" as 'Active'
         asserterror PriceListHeader.Validate(Status, PriceListHeader.Status::Active);
 
-        // [THEN] Error message: "Applies-to No. must have a value"
+        // [THEN] Error message: "Assign-to must have a value"
         Assert.ExpectedError(SourceNoMustBeFilledErr);
     end;
 
@@ -1043,7 +1043,7 @@ codeunit 134118 "Price List Header UT"
         Job: Record Job;
         JobTask: Record "Job Task";
     begin
-        // [SCENARIO] Update of Status in the header with lines updates lines missing Applies-to Parent No.
+        // [SCENARIO] Update of Status in the header with lines updates lines missing Assign-to Parent No.
         Initialize();
         // [GIVEN] New price list, where "Source Type" is 'All Customers', "Status" is 'Draft', "Allow Updating Defaults" is 'Yes'
         CreatePriceList(PriceListHeader, PriceListLine[1]);
@@ -1062,7 +1062,7 @@ codeunit 134118 "Price List Header UT"
         // [WHEN] Set "Status" as 'Active'
         asserterror PriceListHeader.Validate(Status, PriceListHeader.Status::Active);
 
-        // [THEN] Error message: "Applies-to Parent No. must have a value"
+        // [THEN] Error message: "Assign-to Parent No. must have a value"
         Assert.ExpectedError(ParentSourceNoMustBeFilledErr);
     end;
 
@@ -1105,7 +1105,7 @@ codeunit 134118 "Price List Header UT"
         PriceListHeader: Record "Price List Header";
     begin
         // [FEATURE] [Price Source Type] [Extended]
-        // [SCENARIO] Update of Status in the header fails on inconsistent source: Applies-to No. is filled.
+        // [SCENARIO] Update of Status in the header fails on inconsistent source: Assign-to is filled.
         Initialize();
         // [GIVEN] New price list, where "Status" is 'Draft', "Source Type"::"All Locations", "Source No." is 'X'
         LibraryPriceCalculation.CreatePriceHeader(
@@ -1117,7 +1117,7 @@ codeunit 134118 "Price List Header UT"
         // [WHEN] Set "Status" as 'Active' and answer 'Yes'
         asserterror PriceListHeader.Validate(Status, PriceListHeader.Status::Active);
 
-        // [THEN] Error: "Applies-to No. must be equal to ''''"
+        // [THEN] Error: "Assign-to must be equal to ''''"
         Assert.ExpectedError(SourceNoMustBeBlankErr);
     end;
 
@@ -1127,7 +1127,7 @@ codeunit 134118 "Price List Header UT"
         PriceListHeader: Record "Price List Header";
     begin
         // [FEATURE] [Price Source Type] [Extended]
-        // [SCENARIO] Update of Status in the header fails on inconsistent source: Applies-to No. is blank.
+        // [SCENARIO] Update of Status in the header fails on inconsistent source: Assign-to is blank.
         Initialize();
         // [GIVEN] New price list, where "Status" is 'Draft', "Source Type"::"Location", "Parent Source No." is 'X', "Source No." is <blank>
         LibraryPriceCalculation.CreatePriceHeader(
@@ -1139,7 +1139,7 @@ codeunit 134118 "Price List Header UT"
         // [WHEN] Set "Status" as 'Active'
         asserterror PriceListHeader.Validate(Status, PriceListHeader.Status::Active);
 
-        // [THEN] Error: "Applies-to No. must have a value"
+        // [THEN] Error: "Assign-to must have a value"
         Assert.ExpectedError(SourceNoMustBeFilledErr);
     end;
 
@@ -1149,7 +1149,7 @@ codeunit 134118 "Price List Header UT"
         PriceListHeader: Record "Price List Header";
     begin
         // [FEATURE] [Price Source Type] [Extended]
-        // [SCENARIO] Update of Status in the header fails on inconsistent source: "Applies-to Parent No."" is filled.
+        // [SCENARIO] Update of Status in the header fails on inconsistent source: "Assign-to Parent No."" is filled.
         Initialize();
         // [GIVEN] New price list, where "Status" is 'Draft', "Source Type"::"All Locations", "Parent Source No." is 'X'
         LibraryPriceCalculation.CreatePriceHeader(
@@ -1161,7 +1161,7 @@ codeunit 134118 "Price List Header UT"
         // [WHEN] Set "Status" as 'Active' and answer 'Yes'
         asserterror PriceListHeader.Validate(Status, PriceListHeader.Status::Active);
 
-        // [THEN] Error: "Applies-to Parent No. must be equal to ''''"
+        // [THEN] Error: "Assign-to Parent No. must be equal to ''''"
         Assert.ExpectedError(ParentSourceNoMustBeBlankErr);
     end;
 
@@ -1171,7 +1171,7 @@ codeunit 134118 "Price List Header UT"
         PriceListHeader: Record "Price List Header";
     begin
         // [FEATURE] [Price Source Type] [Extended]
-        // [SCENARIO] Update of Status in the header fails on inconsistent source: Applies-to No. is blank.
+        // [SCENARIO] Update of Status in the header fails on inconsistent source: Assign-to is blank.
         Initialize();
         // [GIVEN] New price list, where "Status" is 'Draft', "Source Type"::"Location", "Parent Source No." is <blank>
         LibraryPriceCalculation.CreatePriceHeader(
@@ -1181,7 +1181,7 @@ codeunit 134118 "Price List Header UT"
         // [WHEN] Set "Status" as 'Active'
         asserterror PriceListHeader.Validate(Status, PriceListHeader.Status::Active);
 
-        // [THEN] Error: "Applies-to Parent No. must have a value"
+        // [THEN] Error: "Assign-to Parent No. must have a value"
         Assert.ExpectedError(ParentSourceNoMustBeFilledErr);
     end;
 

@@ -1216,8 +1216,8 @@ page 5900 "Service Order"
 
     trigger OnAfterGetRecord()
     begin
-        if BillToContact.Get("Bill-to Contact No.") then;
-        if SellToContact.Get("Contact No.") then;
+        BillToContact.GetOrClear("Bill-to Contact No.");
+        SellToContact.GetOrClear("Contact No.");
     end;
 
     trigger OnQueryClosePage(CloseAction: Action): Boolean

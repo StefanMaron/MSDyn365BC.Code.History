@@ -2152,6 +2152,23 @@ codeunit 137414 "SCM Item Categories"
         ItemCategoryCard.Close();
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure ItemCategoryCodeIsNotEditableOnItemCategoriesPage()
+    var
+        ItemCategory: Record "Item Category";
+        ItemCategories: TestPage "Item Categories";
+    begin
+        // [FEATURE] [UT] [UI]
+        // [SCENARIO 410682] The field Code in page Item Categories must be readonly
+        LibraryInventory.CreateItemCategory(ItemCategory);
+        ItemCategories.OpenEdit();
+        ItemCategories.Filter.SetFilter(Code, ItemCategory.Code);
+        ItemCategories.Code.AssertEquals(ItemCategory.Code);
+
+        Assert.IsFalse(ItemCategories.Code.Editable(), 'Wrong');
+    end;
+
     local procedure CreatePairOfItemAttributeValues(var Item: Record Item; var ItemAttributeValue: array[2] of Record "Item Attribute Value"; Type: Option)
     var
         ItemAttribute: Record "Item Attribute";

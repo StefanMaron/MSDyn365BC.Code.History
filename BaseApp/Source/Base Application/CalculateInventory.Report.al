@@ -64,7 +64,7 @@ report 790 "Calculate Inventory"
                                             WhseEntry.SetRange("Bin Code", WhseEntry."Bin Code");
                                             if not ItemBinLocationIsCalculated(WhseEntry."Bin Code") then begin
                                                 WhseEntry.CalcSums("Qty. (Base)");
-                                                UpdateBuffer(WhseEntry."Bin Code", WhseEntry."Qty. (Base)");
+                                                UpdateBuffer(WhseEntry."Bin Code", WhseEntry."Qty. (Base)", false);
                                             end;
                                             WhseEntry.Find('+');
                                             Item.CopyFilter("Bin Filter", WhseEntry."Bin Code");
@@ -72,7 +72,7 @@ report 790 "Calculate Inventory"
                                     end;
                             end;
                         end else
-                            UpdateBuffer('', Quantity);
+                            UpdateBuffer('', Quantity, true);
                 end;
 
                 trigger OnPreDataItem()
@@ -673,7 +673,7 @@ report 790 "Calculate Inventory"
         exit(true);
     end;
 
-    local procedure UpdateBuffer(BinCode: Code[20]; NewQuantity: Decimal)
+    local procedure UpdateBuffer(BinCode: Code[20]; NewQuantity: Decimal; CalledFromItemLedgerEntry: Boolean)
     var
         DimEntryNo: Integer;
     begin
@@ -689,11 +689,11 @@ report 790 "Calculate Inventory"
             end;
             if RetrieveBuffer(BinCode, DimEntryNo) then begin
                 Quantity := Quantity + NewQuantity;
-                OnUpdateBufferOnBeforeModify(QuantityOnHandBuffer);
+                OnUpdateBufferOnBeforeModify(QuantityOnHandBuffer, CalledFromItemLedgerEntry);
                 Modify;
             end else begin
                 Quantity := NewQuantity;
-                OnUpdateBufferOnBeforeInsert(QuantityOnHandBuffer);
+                OnUpdateBufferOnBeforeInsert(QuantityOnHandBuffer, CalledFromItemLedgerEntry);
                 Insert;
             end;
         end;
@@ -934,12 +934,12 @@ report 790 "Calculate Inventory"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnUpdateBufferOnBeforeInsert(var InventoryBuffer: Record "Inventory Buffer")
+    local procedure OnUpdateBufferOnBeforeInsert(var InventoryBuffer: Record "Inventory Buffer"; CalledFromItemLedgerEntry: Boolean)
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnUpdateBufferOnBeforeModify(var InventoryBuffer: Record "Inventory Buffer")
+    local procedure OnUpdateBufferOnBeforeModify(var InventoryBuffer: Record "Inventory Buffer"; CalledFromItemLedgerEntry: Boolean)
     begin
     end;
 }
