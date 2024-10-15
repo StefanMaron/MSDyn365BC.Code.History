@@ -60,6 +60,13 @@ table 606 "Buffer IC Inbox Purchase Line"
             AutoFormatType = 1;
             Caption = 'Line Discount Amount';
         }
+        field(29; Amount; Decimal)
+        {
+            AutoFormatExpression = Rec."Currency Code";
+            AutoFormatType = 1;
+            Caption = 'Amount';
+            Editable = false;
+        }
         field(30; "Amount Including VAT"; Decimal)
         {
             AutoFormatExpression = Rec."Currency Code";
@@ -85,6 +92,13 @@ table 606 "Buffer IC Inbox Purchase Line"
         field(64; "Receipt Line No."; Integer)
         {
             Caption = 'Receipt Line No.';
+            Editable = false;
+        }
+        field(69; "Inv. Discount Amount"; Decimal)
+        {
+            AutoFormatExpression = Rec."Currency Code";
+            AutoFormatType = 1;
+            Caption = 'Inv. Discount Amount';
             Editable = false;
         }
         field(73; "Drop Shipment"; Boolean)

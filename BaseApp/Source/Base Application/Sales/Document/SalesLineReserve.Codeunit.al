@@ -2,6 +2,7 @@
 
 using Microsoft.Assembly.Document;
 using Microsoft.Foundation.UOM;
+using Microsoft.Inventory.Item;
 using Microsoft.Inventory.Journal;
 using Microsoft.Inventory.Ledger;
 using Microsoft.Inventory.Location;
@@ -299,7 +300,8 @@ codeunit 99000832 "Sales Line-Reserve"
 
         if NewSalesLine."Qty. per Unit of Measure" <> OldSalesLine."Qty. per Unit of Measure" then
             ReservationManagement.ModifyUnitOfMeasure();
-        if NewSalesLine."Outstanding Qty. (Base)" * OldSalesLine."Outstanding Qty. (Base)" < 0 then
+        if (NewSalesLine."Outstanding Qty. (Base)" * OldSalesLine."Outstanding Qty. (Base)" < 0) or
+            CheckQuantityReducedOnSalesLine(NewSalesLine, OldSalesLine) then
             ReservationManagement.DeleteReservEntries(true, 0)
         else
             ReservationManagement.DeleteReservEntries(false, NewSalesLine."Outstanding Qty. (Base)");
@@ -1173,6 +1175,21 @@ codeunit 99000832 "Sales Line-Reserve"
                                            Enum::"Reservation Summary Type"::"Sales Return Order".AsInteger()] then
             UpdateStatistics(
                 CalcReservEntry, ReservSummEntry, AvailabilityDate, Enum::"Sales Document Type".FromInteger(ReservSummEntry."Entry No." - 31), Positive, TotalQuantity);
+    end;
+
+    local procedure CheckQuantityReducedOnSalesLine(NewSalesLine: Record "Sales Line"; OldSalesLine: Record "Sales Line"): Boolean
+    var
+        Item: Record Item;
+    begin
+        if (NewSalesLine.Type <> NewSalesLine.Type::Item) or (NewSalesLine.Quantity = 0) then
+            exit(false);
+
+        Item.SetLoadFields(Reserve, "Costing Method");
+        Item.Get(NewSalesLine."No.");
+        if (Item.Reserve <> Item.Reserve::Always) or (Item."Costing Method" <> Item."Costing Method"::FIFO) then
+            exit(false);
+
+        exit(NewSalesLine.Quantity < OldSalesLine.Quantity);
     end;
 
     [IntegrationEvent(false, false)]
