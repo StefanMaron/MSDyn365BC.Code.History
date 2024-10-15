@@ -3920,6 +3920,55 @@
             PrepaymentAmountInvErr + ' ' + Format(CalculateTotalPrepaymentAmount(SalesHeader)));
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure TestNoErrorInOrderStatsWhenPrePaymentNegInvRounding()
+    var
+        Customer: Record Customer;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        SalesInvHeader: Record "Sales Invoice Header";
+        PrepmtSalesInvHeader: Record "Sales Invoice Header";
+        LineGLAccount: Record "G/L Account";
+        GeneralLedgerSetup: Record "General Ledger Setup";
+    begin
+        // [SCENARIO 474283] Order statistics fails when prepayment is active and invoice rounding is negative
+        Initialize();
+
+        // [GIVEN] Create Prepayment VAT Setup
+        CreatePrepmtVATSetup(LineGLAccount, LineGLAccount."Gen. Posting Type"::Sale);
+
+        // [GIVEN] Create a new Customer with Prepayment %.
+        CreateCustomerWithPrepmtPct(Customer, LineGLAccount);
+
+        // [GIVEN] Update "Inv. Rounding Precision (LCY)" to 0.01
+        GeneralLedgerSetup.FindFirst();
+        GeneralLedgerSetup.Validate("Inv. Rounding Precision (LCY)", 0.01);
+        GeneralLedgerSetup.Modify();
+
+        // [GIVEN] Create Sales Order with one G/L Account line
+        CreateSalesOrderWithOneLine(Customer."No.", SalesHeader, SalesLine, LineGLAccount);
+
+        // [GIVEN] Update Unit Price 11.14 to get the negative Invoice Rounding 
+        SalesLine.Validate("Unit Price", 11.14);
+        SalesLine.Modify();
+
+        // [WHEN] Post Prepayment Invoice
+        LibrarySales.PostSalesPrepaymentInvoice(SalesHeader);
+
+        // [WHEN] Find Prepayment Invoice
+        FindSalesPrepmtInvoice(PrepmtSalesInvHeader, SalesHeader."No.");
+        CreateCustomerPrepmtPaymentAndApply(PrepmtSalesInvHeader);
+        SalesInvHeader.Get(LibrarySales.PostSalesDocument(SalesHeader, true, true));
+        SalesLine.Get(SalesLine."Document Type", SalesLine."Document No.", SalesLine."Line No.");
+
+        // [THEN] Verify Total Amount (LCY) at Customer Statistics page
+        VerifyCustomerStatisticsTotalAmount(Customer, SalesHeader, SalesLine, PrepmtSalesInvHeader, SalesInvHeader);
+
+        // [THEN] Tear down
+        TearDownVATPostingSetup(SalesHeader."VAT Bus. Posting Group");
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
