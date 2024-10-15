@@ -147,6 +147,10 @@
             exit(false);
         end;
         CreateCopyDocument(SalesInvoiceHeader, SalesHeader, SalesHeader."Document Type"::"Credit Memo", false);
+
+        if SalesInvoiceLinesContainJob(SalesInvoiceHeader."No.") then
+            CreateAndProcessJobPlanningLines(SalesHeader);
+
         exit(true);
     end;
 
