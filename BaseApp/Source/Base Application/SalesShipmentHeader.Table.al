@@ -693,9 +693,7 @@
         CertificateOfSupply: Record "Certificate of Supply";
         PostSalesDelete: Codeunit "PostSales-Delete";
     begin
-#if not CLEAN19
         PostSalesDelete.IsDocumentDeletionAllowed("Posting Date");
-#endif
         TestField("No. Printed");
         LockTable();
         PostSalesDelete.DeleteSalesShptLines(Rec);

@@ -1,8 +1,8 @@
 codeunit 31425 "Undo Transfer Ship. Line CZA"
 {
-    Permissions = TableData "Item Application Entry" = rmd,
-                  TableData "Transfer Line" = imd,
-                  TableData "Transfer Shipment Line" = imd,
+    Permissions = TableData "Transfer Line" = rimd,
+                  TableData "Transfer Shipment Line" = rimd,
+                  TableData "Item Application Entry" = rmd,
                   TableData "Item Entry Relation" = ri;
     TableNo = "Transfer Shipment Line";
 
@@ -10,266 +10,425 @@ codeunit 31425 "Undo Transfer Ship. Line CZA"
     var
         UpdateItemAnalysisView: Codeunit "Update Item Analysis View";
         ItemList, ConfirmQst : Text;
-        UndoShptLinesQst: Label 'Do you really want to undo the selected Shipment lines?';
-        EmptyItemNoErr: Label 'Undo Shipment can be performed only for lines with nonempty Item No. Please select a line with nonempty Item No. and repeat the procedure.';
     begin
         ItemList := GetItemList(Rec);
         if ItemList = '' then
             Error(EmptyItemNoErr);
 
-        ConfirmQst := UndoShptLinesQst + '\\' + ItemList;
+        ConfirmQst := ReallyUndoQst + '\\' + ItemList;
         if not HideDialog then
             if not Confirm(ConfirmQst) then
                 exit;
 
-        TransferShipmentLineGlobal.Copy(Rec);
+        TransShptLine.Copy(Rec);
         Code();
         UpdateItemAnalysisView.UpdateAll(0, true);
-        Rec := TransferShipmentLineGlobal;
+        Rec := TransShptLine;
     end;
 
     var
-        TransferShipmentHeader: Record "Transfer Shipment Header";
-        TransferShipmentLineGlobal: Record "Transfer Shipment Line";
-        TempWarehouseJournalLine: Record "Warehouse Journal Line" temporary;
-        TempItemLedgerEntryGlobal: Record "Item Ledger Entry" temporary;
-        TempItemEntryRelationGlobal: Record "Item Entry Relation" temporary;
-        InventorySetup: Record "Inventory Setup";
-        UndoPostingManagement: Codeunit "Undo Posting Management";
+        TransShptLine: Record "Transfer Shipment Line";
+        TempWhseJnlLine: Record "Warehouse Journal Line" temporary;
+        TempGlobalItemLedgEntry: Record "Item Ledger Entry" temporary;
+        TempGlobalItemEntryRelation: Record "Item Entry Relation" temporary;
+        UndoPostingMgt: Codeunit "Undo Posting Management";
         ItemJnlPostLine: Codeunit "Item Jnl.-Post Line";
-        WhseUndoQuantity: Codeunit "Whse. Undo Quantity";
-        InventoryAdjustment: Codeunit "Inventory Adjustment";
+        WhseUndoQty: Codeunit "Whse. Undo Quantity";
         HideDialog: Boolean;
         NextLineNo: Integer;
-        CorrectionLineNo: Integer;
+
+        EmptyItemNoErr: Label 'Undo Shipment can be performed only for lines with nonempty Item No. Please select a line with nonempty Item No. and repeat the procedure.';
+        ReallyUndoQst: Label 'Do you really want to undo the selected Shipment lines?';
+        UndoQtyMsg: Label 'Undo quantity posting...';
+        NotEnoughLineSpaceErr: Label 'There is not enough space to insert correction lines.';
+        CheckingLinesMsg: Label 'Checking lines...';
+        AlreadyReversedErr: Label 'This shipment has already been reversed.';
+        AlreadyReceivedErr: Label 'This shipment has already been received. Undo Shipment can only be applied to posted, but not received Transfer Lines.';
+        NoTransOrderLineNoErr: Label 'The Transfer Shipment Line is missing a value in the field Trans. Order Line No. This is automatically populated when posting new Transfer Shipments';
+        NonSurplusResEntriesErr: Label 'You cannot undo transfer shipment line %1 because this line is Reserved. Reservation Entry No. %2', Comment = '%1 = Line No., %2 = Entry No.';
+
 
     procedure SetHideDialog(NewHideDialog: Boolean)
     begin
         HideDialog := NewHideDialog;
     end;
 
-    local procedure Code()
+    local procedure "Code"()
     var
-        TransferHeader: Record "Transfer Header";
-        PostedWhseShipmentLine: Record "Posted Whse. Shipment Line";
-        ReleaseTransferDocument: Codeunit "Release Transfer Document";
-        WindowDialog: Dialog;
+        PostedWhseShptLine: Record "Posted Whse. Shipment Line";
+        TransferLine: Record "Transfer Line";
+        WhseJnlRegisterLine: Codeunit "Whse. Jnl.-Register Line";
+        Window: Dialog;
         ItemShptEntryNo: Integer;
-        Release, PostedWhseShptLineFound : Boolean;
-        UndoQtyPostingMsg: Label 'Undo Quantity posting...';
-        CheckingLinesMsg: Label 'Checking lines...';
+        DocLineNo: Integer;
+        Direction: Enum "Transfer Direction";
+        PostedWhseShptLineFound: Boolean;
     begin
         Clear(ItemJnlPostLine);
-#pragma warning disable AA0210
-        TransferShipmentLineGlobal.SetRange(TransferShipmentLineGlobal."Correction CZA", false);
-#pragma warning restore AA0210
+        TransShptLine.SetCurrentKey("Item Shpt. Entry No.");
+        TransShptLine.SetFilter(Quantity, '<>0');
+        TransShptLine.SetRange("Correction CZA", false);
 
+        if TransShptLine.IsEmpty() then
+            Error(AlreadyReversedErr);
+        TransShptLine.FindSet();
         repeat
             if not HideDialog then
-                WindowDialog.Open(CheckingLinesMsg);
-            CheckTransShptLine();
-        until TransferShipmentLineGlobal.Next() = 0;
+                Window.Open(CheckingLinesMsg);
+            CheckTransferShptLine(TransShptLine);
+        until TransShptLine.Next() = 0;
 
-        TransferHeader.Get(TransferShipmentLineGlobal."Transfer Order No.");
-        Release := TransferHeader.Status = TransferHeader.Status::Released;
-        if Release then
-            ReleaseTransferDocument.Reopen(TransferHeader);
-
-        TransferShipmentLineGlobal.FindSet(false, false);
+        TransShptLine.FindSet();
         repeat
-            TempItemLedgerEntryGlobal.Reset();
-            if not TempItemLedgerEntryGlobal.IsEmpty() then
-                TempItemLedgerEntryGlobal.DeleteAll();
-            TempItemEntryRelationGlobal.Reset();
-            if not TempItemEntryRelationGlobal.IsEmpty() then
-                TempItemEntryRelationGlobal.DeleteAll();
+            if TransShptLine."Transfer Order Line No. CZA" = 0 then
+                Error(NoTransOrderLineNoErr);
+            TransferLine.Get(TransShptLine."Transfer Order No.", TransShptLine."Transfer Order Line No. CZA");
+            if TransferLine."Qty. Received (Base)" > 0 then
+                Error(AlreadyReceivedErr);
+
+            TempGlobalItemLedgEntry.Reset();
+            if not TempGlobalItemLedgEntry.IsEmpty() then
+                TempGlobalItemLedgEntry.DeleteAll();
+            TempGlobalItemEntryRelation.Reset();
+            if not TempGlobalItemEntryRelation.IsEmpty() then
+                TempGlobalItemEntryRelation.DeleteAll();
 
             if not HideDialog then
-                WindowDialog.Open(UndoQtyPostingMsg);
+                Window.Open(UndoQtyMsg);
 
-            CorrectionLineNo := GetNextTransferShipmentLineNo(TransferShipmentLineGlobal);
             PostedWhseShptLineFound :=
-              WhseUndoQuantity.FindPostedWhseShptLine(
-                PostedWhseShipmentLine,
-                Database::"Transfer Shipment Line",
-                TransferShipmentLineGlobal."Document No.",
-                Database::"Transfer Line",
-                0,
-                TransferShipmentLineGlobal."Transfer Order No.",
-                TransferShipmentLineGlobal."Line No.");
-            ItemShptEntryNo := PostItemJnlLine();
-            InsertNewShipmentLine(TransferShipmentLineGlobal, ItemShptEntryNo);
+             WhseUndoQty.FindPostedWhseShptLine(
+                 PostedWhseShptLine, Database::"Transfer Shipment Line", TransShptLine."Document No.",
+                 Database::"Transfer Line", Direction::Outbound.AsInteger(), TransShptLine."Transfer Order No.", TransShptLine."Line No.");
+
+            // Undo derived transfer line and move tracking to current line
+            UpdateDerivedTransferLine(TransferLine, TransShptLine);
+
+            Clear(ItemJnlPostLine);
+            ItemShptEntryNo := PostItemJnlLine(TransShptLine, DocLineNo);
+            InsertNewShipmentLine(TransShptLine, ItemShptEntryNo, DocLineNo);
+
             if PostedWhseShptLineFound then
-                WhseUndoQuantity.UndoPostedWhseShptLine(PostedWhseShipmentLine);
-            TempWarehouseJournalLine.SetRange("Source Line No.", TransferShipmentLineGlobal."Line No.");
-            WhseUndoQuantity.PostTempWhseJnlLine(TempWarehouseJournalLine);
-            UpdateTransLine(TransferShipmentLineGlobal);
+                WhseUndoQty.UndoPostedWhseShptLine(PostedWhseShptLine);
+
+            TempWhseJnlLine.SetRange("Source Line No.", TransShptLine."Line No.");
+            WhseUndoQty.PostTempWhseJnlLineCache(TempWhseJnlLine, WhseJnlRegisterLine);
+
+            UpdateOrderLine(TransShptLine);
             if PostedWhseShptLineFound then
-                WhseUndoQuantity.UpdateShptSourceDocLines(PostedWhseShipmentLine);
-            TransferShipmentLineGlobal."Correction CZA" := true;
-            TransferShipmentLineGlobal.Modify();
-        until TransferShipmentLineGlobal.Next() = 0;
+                WhseUndoQty.UpdateShptSourceDocLines(PostedWhseShptLine);
 
-        InventorySetup.Get();
-        if InventorySetup."Automatic Cost Adjustment" <>
-           InventorySetup."Automatic Cost Adjustment"::Never
-        then begin
-            TransferShipmentHeader.Get(TransferShipmentLineGlobal."Document No.");
-            InventoryAdjustment.SetProperties(true, true);
-            InventoryAdjustment.MakeMultiLevelAdjmt();
-        end;
+            TransShptLine."Correction CZA" := true;
+            TransShptLine.Modify();
 
-        if Release then begin
-            TransferHeader.Find();
-            ReleaseTransferDocument.Run(TransferHeader);
-        end;
+        until TransShptLine.Next() = 0;
+
+        MakeInventoryAdjustment();
     end;
 
-    local procedure CheckTransShptLine()
+    local procedure CheckTransferShptLine(TransShptLine: Record "Transfer Shipment Line")
     var
-        TempItemLedgerEntry: Record "Item Ledger Entry" temporary;
-        TransferLine: Record "Transfer Line";
-        ShptAlreadyReceiptErr: Label 'This shipment has already been received. Undo Shipment can be applied only to posted, but not received shipments.';
+        TempItemLedgEntry: Record "Item Ledger Entry" temporary;
     begin
-        TransferLine.Get(TransferShipmentLineGlobal."Transfer Order No.", TransferShipmentLineGlobal."Line No.");
-        if TransferLine."Quantity Received" <> 0 then
-            Error(ShptAlreadyReceiptErr);
+        if TransShptLine."Correction CZA" then
+            Error(AlreadyReversedErr);
 
-        TestTransferShipmentLine(TransferShipmentLineGlobal);
-        UndoPostingManagement.CollectItemLedgEntries(TempItemLedgerEntry, Database::"Transfer Shipment Line",
-          TransferShipmentLineGlobal."Document No.", TransferShipmentLineGlobal."Line No.", TransferShipmentLineGlobal."Quantity (Base)", TransferShipmentLineGlobal."Item Shpt. Entry No.");
-        UndoPostingManagement.CheckItemLedgEntries(TempItemLedgerEntry, TransferShipmentLineGlobal."Line No.");
+        UndoPostingMgt.RunTestAllTransactions(
+            Database::"Transfer Shipment Line", TransShptLine."Document No.", TransShptLine."Line No.",
+            Database::"Transfer Line", 0, TransShptLine."Transfer Order No.", TransShptLine."Line No.");
+
+        UndoPostingMgt.CollectItemLedgEntries(
+            TempItemLedgEntry, Database::"Transfer Shipment Line", TransShptLine."Document No.", TransShptLine."Line No.", TransShptLine."Quantity (Base)", TransShptLine."Item Shpt. Entry No.");
+        UndoPostingMgt.CheckItemLedgEntries(TempItemLedgEntry, TransShptLine."Line No.", false);
     end;
 
-    local procedure PostItemJnlLine(): Integer
+    local procedure UpdateDerivedTransferLine(var TransferLine: Record "Transfer Line"; var TransferShptLine: Record "Transfer Shipment Line")
     var
-        ItemJournalLine: Record "Item Journal Line";
-        TransferShipmentHeader2: Record "Transfer Shipment Header";
-        SourceCodeSetup: Record "Source Code Setup";
-        TempItemLedgerEntry: Record "Item Ledger Entry" temporary;
+        DerivedTransferLine: Record "Transfer Line";
     begin
-        SourceCodeSetup.Get();
-        TransferShipmentHeader2.Get(TransferShipmentLineGlobal."Document No.");
+        // Find the derived line
+        // The premise is that the only one derived line exist. It means that the partial shipping is not supported.
+        DerivedTransferLine.SetRange("Document No.", TransferShptLine."Transfer Order No.");
+        DerivedTransferLine.SetRange("Derived From Line No.", TransferShptLine."Transfer Order Line No. CZA");
+        DerivedTransferLine.FindFirst();
 
-        ItemJournalLine.Init();
-        ItemJournalLine."Posting Date" := TransferShipmentHeader2."Posting Date";
-        ItemJournalLine."Document Date" := TransferShipmentHeader2."Posting Date";
-        ItemJournalLine."Document Type" := ItemJournalLine."Document Type"::"Transfer Shipment";
-        ItemJournalLine."Document No." := TransferShipmentHeader2."No.";
-        ItemJournalLine."Document Line No." := CorrectionLineNo;
-        ItemJournalLine."Order Type" := ItemJournalLine."Order Type"::Transfer;
-        ItemJournalLine."Order No." := TransferShipmentHeader2."Transfer Order No.";
-        ItemJournalLine."Order Line No." := TransferShipmentLineGlobal."Transfer Order Line No. CZA";
-        ItemJournalLine."External Document No." := TransferShipmentHeader2."External Document No.";
-        ItemJournalLine."Entry Type" := ItemJournalLine."Entry Type"::Transfer;
-        ItemJournalLine."Item No." := TransferShipmentLineGlobal."Item No.";
-        ItemJournalLine.Description := TransferShipmentLineGlobal.Description;
-        ItemJournalLine."Shortcut Dimension 1 Code" := TransferShipmentLineGlobal."Shortcut Dimension 1 Code";
-        ItemJournalLine."New Shortcut Dimension 1 Code" := TransferShipmentLineGlobal."Shortcut Dimension 1 Code";
-        ItemJournalLine."Shortcut Dimension 2 Code" := TransferShipmentLineGlobal."Shortcut Dimension 2 Code";
-        ItemJournalLine."New Shortcut Dimension 2 Code" := TransferShipmentLineGlobal."Shortcut Dimension 2 Code";
-        ItemJournalLine."Dimension Set ID" := TransferShipmentLineGlobal."Dimension Set ID";
-        ItemJournalLine."New Dimension Set ID" := TransferShipmentLineGlobal."Dimension Set ID";
-        ItemJournalLine."Location Code" := TransferShipmentHeader2."In-Transit Code";
-        ItemJournalLine."New Location Code" := TransferShipmentHeader2."Transfer-from Code";
-        ItemJournalLine.Quantity := TransferShipmentLineGlobal.Quantity;
-        ItemJournalLine."Invoiced Quantity" := TransferShipmentLineGlobal.Quantity;
-        ItemJournalLine."Quantity (Base)" := TransferShipmentLineGlobal."Quantity (Base)";
-        ItemJournalLine."Invoiced Qty. (Base)" := TransferShipmentLineGlobal."Quantity (Base)";
-        ItemJournalLine."Source Code" := SourceCodeSetup.Transfer;
-        ItemJournalLine."Gen. Prod. Posting Group" := TransferShipmentLineGlobal."Gen. Prod. Posting Group";
-        ItemJournalLine."Inventory Posting Group" := TransferShipmentLineGlobal."Inventory Posting Group";
-        ItemJournalLine."Unit of Measure Code" := TransferShipmentLineGlobal."Unit of Measure Code";
-        ItemJournalLine."Qty. per Unit of Measure" := TransferShipmentLineGlobal."Qty. per Unit of Measure";
-        ItemJournalLine."Variant Code" := TransferShipmentLineGlobal."Variant Code";
-        ItemJournalLine."New Bin Code" := TransferShipmentLineGlobal."Transfer-from Bin Code";
-        ItemJournalLine."Country/Region Code" := TransferShipmentHeader2."Trsf.-from Country/Region Code";
-        ItemJournalLine."Transaction Type" := TransferShipmentHeader2."Transaction Type";
-        ItemJournalLine."Transport Method" := TransferShipmentHeader2."Transport Method";
-        ItemJournalLine."Entry/Exit Point" := TransferShipmentHeader2."Entry/Exit Point";
-        ItemJournalLine.Area := TransferShipmentHeader2.Area;
-        ItemJournalLine."Transaction Specification" := TransferShipmentHeader2."Transaction Specification";
-        ItemJournalLine."Item Category Code" := TransferShipmentLineGlobal."Item Category Code";
-        ItemJournalLine."Shpt. Method Code" := TransferShipmentHeader2."Shipment Method Code";
-        ItemJournalLine."Gen. Bus. Posting Group" := TransferShipmentLineGlobal."Gen.Bus.Post.Group Ship CZA";
+        // Move tracking information from the derived line to the original line
+        TransferTracking(DerivedTransferLine, TransferLine, TransferShptLine);
 
-        InsertTempWhseJnlLine(ItemJournalLine,
-          Database::"Transfer Line",
-          0,
-          TransferShipmentLineGlobal."Transfer Order No.",
-          TransferShipmentLineGlobal."Line No.",
-          TempWarehouseJournalLine."Reference Document"::"Posted T. Shipment",
-          TempWarehouseJournalLine,
-          NextLineNo);
-
-        if TransferShipmentLineGlobal."Item Shpt. Entry No." <> 0 then begin
-            ItemJnlPostLine.RunWithCheck(ItemJournalLine);
-            exit(ItemJournalLine."Item Shpt. Entry No.");
-        end;
-        UndoPostingManagement.CollectItemLedgEntries(TempItemLedgerEntry, Database::"Transfer Shipment Line",
-          TransferShipmentLineGlobal."Document No.", TransferShipmentLineGlobal."Line No.", TransferShipmentLineGlobal."Quantity (Base)", TransferShipmentLineGlobal."Item Shpt. Entry No.");
-
-        PostItemJnlLineAppliedToListTr(ItemJournalLine, TempItemLedgerEntry,
-          TransferShipmentLineGlobal.Quantity, TransferShipmentLineGlobal."Quantity (Base)", TempItemLedgerEntryGlobal, TempItemEntryRelationGlobal);
-        exit(0); // "Item Shpt. Entry No."
+        // Delete the derived line - a new one gets created for each shipment
+        DerivedTransferLine.Delete();
     end;
 
-    local procedure InsertNewShipmentLine(OldTransferShipmentLine: Record "Transfer Shipment Line"; ItemShptEntryNo: Integer)
+    local procedure TransferTracking(var FromTransLine: Record "Transfer Line"; var ToTransLine: Record "Transfer Line"; var TransferShptLine: Record "Transfer Shipment Line")
     var
-        NewTransferShipmentLine: Record "Transfer Shipment Line";
+        ReservationEntry: Record "Reservation Entry";
+        ItemTrackingMgt: Codeunit "Item Tracking Management";
+        FromReservationEntryRowID: Text[250];
+        ToReservationEntryRowID: Text[250];
+        TransferQty: Decimal;
     begin
-        NewTransferShipmentLine.Reset();
-        NewTransferShipmentLine.Init();
-        NewTransferShipmentLine.Copy(OldTransferShipmentLine);
-        NewTransferShipmentLine."Line No." := CorrectionLineNo;
-        NewTransferShipmentLine."Item Shpt. Entry No." := ItemShptEntryNo;
-        NewTransferShipmentLine.Quantity := -OldTransferShipmentLine.Quantity;
-        NewTransferShipmentLine."Quantity (Base)" := -OldTransferShipmentLine."Quantity (Base)";
-        NewTransferShipmentLine."Correction CZA" := true;
-        NewTransferShipmentLine.Insert();
+        TransferQty := FromTransLine.Quantity;
+        FindReservEntrySet(FromTransLine, ReservationEntry, "Transfer Direction"::Inbound);
+        if ReservationEntry.IsEmpty() then
+            exit;
 
-        InsertItemEntryRelation(TempItemEntryRelationGlobal, NewTransferShipmentLine);
+        CheckReservationEntryStatus(ReservationEntry, TransferShptLine);
+
+        FromReservationEntryRowID := ItemTrackingMgt.ComposeRowID( // From invisible TransferLine holding tracking
+                    DATABASE::"Transfer Line", 1, ReservationEntry."Source ID", '', ReservationEntry."Source Prod. Order Line", ReservationEntry."Source Ref. No.");
+        ToReservationEntryRowID := ItemTrackingMgt.ComposeRowID( // To original TransferLine
+              DATABASE::"Transfer Line", 0, ReservationEntry."Source ID", '', 0, ReservationEntry."Source Prod. Order Line");
+
+        ToTransLine.TestField("Variant Code", FromTransLine."Variant Code");
+
+        // Recreate reservation entries on from-location which were deleted on posting shipment
+        ItemTrackingMgt.CopyItemTracking(FromReservationEntryRowID, ToReservationEntryRowID, true); // Switch sign on quantities
+
+        if not ReservationEntry.IsEmpty() then
+            repeat
+                ReservationEntry.TestItemFields(FromTransLine."Item No.", FromTransLine."Variant Code", FromTransLine."Transfer-to Code");
+                UpdateTransferQuantity(TransferQty, ToTransLine, ReservationEntry);
+            until (ReservationEntry.Next() = 0) or (TransferQty = 0);
     end;
 
-    local procedure GetNextTransferShipmentLineNo(TransferShipmentLine: Record "Transfer Shipment Line"): Integer
+    local procedure FindReservEntrySet(TransLine: Record "Transfer Line"; var ReservEntry: Record "Reservation Entry"; Direction: Enum "Transfer Direction"): Boolean
+    begin
+        ReservEntry.InitSortingAndFilters(false);
+        TransLine.SetReservationFilters(ReservEntry, Direction);
+        exit(ReservEntry.FindSet());
+    end;
+
+    local procedure CheckReservationEntryStatus(var ReservationEntry: Record "Reservation Entry"; var TransferShipmentLine: Record "Transfer Shipment Line")
+    begin
+        ReservationEntry.SetFilter("Reservation Status", '<>%1', "Reservation Status"::Surplus);
+        if ReservationEntry.FindFirst() then
+            Error(NonSurplusResEntriesErr, TransferShipmentLine."Line No.", ReservationEntry."Entry No.");
+        ReservationEntry.SetRange("Reservation Status");
+        ReservationEntry.FindSet();
+    end;
+
+    local procedure UpdateTransferQuantity(var TransferQty: Decimal; var NewTransLine: Record "Transfer Line"; var OldReservEntry: Record "Reservation Entry")
     var
-        NextTransferShipmentLine: Record "Transfer Shipment Line";
+        CreateReservEntry: Codeunit "Create Reserv. Entry";
+    begin
+        TransferQty :=
+            CreateReservEntry.TransferReservEntry(DATABASE::"Transfer Line",
+            "Transfer Direction"::Inbound.AsInteger(), NewTransLine."Document No.", '', NewTransLine."Derived From Line No.",
+            NewTransLine."Line No.", NewTransLine."Qty. per Unit of Measure", OldReservEntry, TransferQty);
+    end;
+
+    local procedure GetCorrectionLineNo(TransferShptLine: Record "Transfer Shipment Line") Result: Integer;
+    var
+        TransferShptLine2: Record "Transfer Shipment Line";
         LineSpacing: Integer;
-        NotEnoughSpaceErr: Label 'There is not enough space to insert correction lines.';
     begin
-        NextTransferShipmentLine.SetRange("Document No.", TransferShipmentLine."Document No.");
-        NextTransferShipmentLine."Document No." := TransferShipmentLine."Document No.";
-        NextTransferShipmentLine."Line No." := TransferShipmentLine."Line No.";
-        NextTransferShipmentLine.Find('=');
-
-        if NextTransferShipmentLine.Next() = 1 then begin
-            LineSpacing := (NextTransferShipmentLine."Line No." - TransferShipmentLine."Line No.") div 2;
+        TransferShptLine2.SetRange("Document No.", TransferShptLine."Document No.");
+        TransferShptLine2.SetFilter("Line No.", '>%1', TransferShptLine."Line No.");
+        if TransferShptLine2.FindFirst() then begin
+            LineSpacing := (TransferShptLine2."Line No." - TransferShptLine."Line No.") div 2;
             if LineSpacing = 0 then
-                Error(NotEnoughSpaceErr);
+                Error(NotEnoughLineSpaceErr);
         end else
             LineSpacing := 10000;
 
-        exit(TransferShipmentLine."Line No." + LineSpacing);
+        Result := TransferShptLine."Line No." + LineSpacing;
     end;
 
-    local procedure UpdateTransLine(TransferShipmentLine: Record "Transfer Shipment Line")
+    local procedure PostItemJnlLine(TransShptLine: Record "Transfer Shipment Line"; var DocLineNo: Integer): Integer
+    var
+        ItemJnlLine: Record "Item Journal Line";
+        TransShptHeader: Record "Transfer Shipment Header";
+        SourceCodeSetup: Record "Source Code Setup";
+        TempApplyToEntryList: Record "Item Ledger Entry" temporary;
+        TempDummyItemEntryRelation: Record "Item Entry Relation" temporary;
+        ItemLedgEntry: Record "Item Ledger Entry";
+        Direction: Enum "Transfer Direction";
+    begin
+        DocLineNo := GetCorrectionLineNo(TransShptLine);
+
+        SourceCodeSetup.Get();
+        TransShptHeader.Get(TransShptLine."Document No.");
+
+        ItemJnlLine.Init();
+        ItemJnlLine."Entry Type" := ItemJnlLine."Entry Type"::Transfer;
+        ItemJnlLine."Order Type" := ItemJnlLine."Order Type"::Transfer;
+        ItemJnlLine."Item No." := TransShptLine."Item No.";
+        ItemJnlLine."Posting Date" := TransShptHeader."Posting Date";
+        ItemJnlLine."Document No." := TransShptLine."Document No.";
+        ItemJnlLine."Document Line No." := DocLineNo;
+        ItemJnlLine."Gen. Prod. Posting Group" := TransShptLine."Gen. Prod. Posting Group";
+        ItemJnlLine."Inventory Posting Group" := TransShptLine."Inventory Posting Group";
+        ItemJnlLine."Location Code" := TransShptLine."Transfer-from Code";
+        ItemJnlLine."Source Code" := SourceCodeSetup.Transfer;
+        ItemJnlLine.Correction := true;
+        ItemJnlLine."Variant Code" := TransShptLine."Variant Code";
+        ItemJnlLine."Bin Code" := TransShptLine."Transfer-from Bin Code";
+        ItemJnlLine."Document Date" := TransShptHeader."Shipment Date";
+        ItemJnlLine."Unit of Measure Code" := TransShptLine."Unit of Measure Code";
+
+        WhseUndoQty.InsertTempWhseJnlLine(
+                       ItemJnlLine,
+                       Database::"Transfer Line", Direction::Outbound.AsInteger(), TransShptLine."Transfer Order No.", TransShptLine."Line No.",
+                       TempWhseJnlLine."Reference Document"::"Posted Shipment".AsInteger(), TempWhseJnlLine, NextLineNo);
+
+        if GetShptEntries(TransShptLine, ItemLedgEntry) then begin
+            ItemLedgEntry.SetTrackingFilterBlank();
+            if ItemLedgEntry.FindSet() then begin
+                // First undo In-Transit item ledger entries
+                ItemLedgEntry.SetRange("Location Code", TransShptHeader."In-Transit Code");
+                ItemLedgEntry.FindSet();
+                PostCorrectiveItemLedgEntries(ItemJnlLine, ItemLedgEntry);
+
+                // Then undo from-location item ledger entries
+                ItemLedgEntry.SetRange("Location Code", TransShptHeader."Transfer-from Code");
+                ItemLedgEntry.FindSet();
+                PostCorrectiveItemLedgEntries(ItemJnlLine, ItemLedgEntry);
+
+                exit(ItemJnlLine."Item Shpt. Entry No.");
+            end
+            else begin
+                ItemLedgEntry.ClearTrackingFilter();
+                ItemLedgEntry.FindSet();
+                MoveItemLedgerEntriesToTempRec(ItemLedgEntry, TempApplyToEntryList);
+                // First undo In-Transit item ledger entries
+                TempApplyToEntryList.SetRange("Location Code", TransShptHeader."In-Transit Code");
+                TempApplyToEntryList.FindSet();
+                //Pass dummy ItemEntryRelation because, these are not used for In-Transit location
+                UndoPostingMgt.PostItemJnlLineAppliedToList(
+                    ItemJnlLine, TempApplyToEntryList, TransShptLine.Quantity, TransShptLine."Quantity (Base)", TempGlobalItemLedgEntry, TempDummyItemEntryRelation, false);
+
+                // Then undo from-location item ledger entries
+                TempApplyToEntryList.SetRange("Location Code", TransShptHeader."Transfer-from Code");
+                TempApplyToEntryList.FindSet();
+                UndoPostingMgt.PostItemJnlLineAppliedToList(
+                    ItemJnlLine, TempApplyToEntryList, TransShptLine.Quantity, TransShptLine."Quantity (Base)", TempGlobalItemLedgEntry, TempGlobalItemEntryRelation, false);
+            end;
+        end;
+        exit(0);
+    end;
+
+    local procedure MoveItemLedgerEntriesToTempRec(var ItemLedgerEntry: Record "Item Ledger Entry"; var TempItemLedgerEntry: Record "Item Ledger Entry" temporary)
+    begin
+        if ItemLedgerEntry.FindSet() then
+            repeat
+                TempItemLedgerEntry.TransferFields(ItemLedgerEntry);
+                TempItemLedgerEntry.Insert();
+            until ItemLedgerEntry.Next() = 0;
+    end;
+
+    local procedure PostCorrectiveItemLedgEntries(var ItemJnlLine: Record "Item Journal Line"; var ItemLedgEntry: Record "Item Ledger Entry")
+    begin
+        repeat
+            ItemJnlLine."Applies-to Entry" := ItemLedgEntry."Entry No.";
+            ItemJnlLine."Location Code" := ItemLedgEntry."Location Code";
+            ItemJnlLine.Quantity := ItemLedgEntry.Quantity;
+            ItemJnlLine."Quantity (Base)" := ItemLedgEntry.Quantity;
+            ItemJnlLine."Invoiced Quantity" := ItemLedgEntry."Invoiced Quantity";
+            ItemJnlLine."Invoiced Qty. (Base)" := ItemLedgEntry."Invoiced Quantity";
+            ItemJnlPostLine.Run(ItemJnlLine);
+        until ItemLedgEntry.Next() = 0;
+    end;
+
+    local procedure InsertNewShipmentLine(OldTransShptLine: Record "Transfer Shipment Line"; ItemShptEntryNo: Integer; DocLineNo: Integer)
+    var
+        NewTransShptLine: Record "Transfer Shipment Line";
+    begin
+        NewTransShptLine.Init();
+        NewTransShptLine.Copy(OldTransShptLine);
+        NewTransShptLine."Line No." := DocLineNo;
+        NewTransShptLine."Item Shpt. Entry No." := ItemShptEntryNo;
+        NewTransShptLine.Quantity := -OldTransShptLine.Quantity;
+        NewTransShptLine."Quantity (Base)" := -OldTransShptLine."Quantity (Base)";
+        NewTransShptLine."Correction CZA" := true;
+        NewTransShptLine."Dimension Set ID" := OldTransShptLine."Dimension Set ID";
+        NewTransShptLine.Insert();
+
+        InsertItemEntryRelation(TempGlobalItemEntryRelation, NewTransShptLine, OldTransShptLine."Transfer Order Line No. CZA");
+    end;
+
+    local procedure UpdateOrderLine(TransShptLine: Record "Transfer Shipment Line")
     var
         TransferLine: Record "Transfer Line";
     begin
-        TransferLine.Get(TransferShipmentLine."Transfer Order No.", TransferShipmentLine."Line No.");
-        UpdateTransferLine(TransferLine, TransferShipmentLine.Quantity, TransferShipmentLine."Quantity (Base)", TempItemLedgerEntryGlobal);
+        TransferLine.Get(TransShptLine."Transfer Order No.", TransShptLine."Line No.");
+        UpdateTransLine(
+            TransferLine, TransShptLine.Quantity,
+            TransShptLine."Quantity (Base)");
     end;
 
-    local procedure InsertItemEntryRelation(var TempItemEntryRelation: Record "Item Entry Relation" temporary; NewTransferShipmentLine: Record "Transfer Shipment Line")
+    local procedure UpdateTransLine(TransferLine: Record "Transfer Line"; UndoQty: Decimal; UndoQtyBase: Decimal)
+    var
+        xTransferLine: Record "Transfer Line";
+        SalesSetup: Record "Sales & Receivables Setup";
+        TransferLineReserve: Codeunit "Transfer Line-Reserve";
+        Direction: Enum "Transfer Direction";
+    begin
+        SalesSetup.Get();
+        xTransferLine := TransferLine;
+        TransferLine."Quantity Shipped" := TransferLine."Quantity Shipped" - UndoQty;
+        TransferLine."Qty. Shipped (Base)" := TransferLine."Qty. Shipped (Base)" - UndoQtyBase;
+        TransferLine."Qty. to Receive" := Maximum(TransferLine."Qty. to Receive" - UndoQty, 0);
+        TransferLine."Qty. to Receive (Base)" := Maximum(TransferLine."Qty. to Receive (Base)" - UndoQtyBase, 0);
+        TransferLine.InitOutstandingQty();
+        TransferLine.InitQtyToShip();
+        TransferLine.InitQtyInTransit();
+
+        TransferLine.Modify();
+        xTransferLine."Quantity (Base)" := 0;
+        TransferLineReserve.VerifyQuantity(TransferLine, xTransferLine);
+
+        UpdateWarehouseRequest(DATABASE::"Transfer Line", Direction::Outbound.AsInteger(), TransferLine."Document No.", TransferLine."Transfer-from Code");
+    end;
+
+    local procedure Maximum(A: Decimal; B: Decimal): Decimal
+    begin
+        if A < B then
+            exit(B);
+        exit(A);
+    end;
+
+    local procedure UpdateWarehouseRequest(SourceType: Integer; SourceSubtype: Integer; SourceNo: Code[20]; LocationCode: Code[10])
+    var
+        WarehouseRequest: Record "Warehouse Request";
+    begin
+        WarehouseRequest.SetSourceFilter(SourceType, SourceSubtype, SourceNo);
+        WarehouseRequest.SetRange("Location Code", LocationCode);
+        if not WarehouseRequest.IsEmpty() then
+            WarehouseRequest.ModifyAll("Completely Handled", false);
+    end;
+
+    local procedure InsertItemEntryRelation(var TempItemEntryRelation: Record "Item Entry Relation" temporary; NewTransShptLine: Record "Transfer Shipment Line"; OrderLineNo: Integer)
     var
         ItemEntryRelation: Record "Item Entry Relation";
     begin
-        if TempItemEntryRelation.FindSet(false, false) then
+        if TempItemEntryRelation.FindFirst() then
             repeat
                 ItemEntryRelation := TempItemEntryRelation;
-                ItemEntryRelation.TransferFieldsTransShptLine(NewTransferShipmentLine);
+                ItemEntryRelation.TransferFieldsTransShptLine(NewTransShptLine);
+                ItemEntryRelation."Order Line No." := OrderLineNo;
                 ItemEntryRelation.Insert();
             until TempItemEntryRelation.Next() = 0;
+    end;
+
+    local procedure GetShptEntries(TransShptLine: Record "Transfer Shipment Line"; var ItemLedgEntry: Record "Item Ledger Entry"): Boolean
+    begin
+        ItemLedgEntry.SetCurrentKey("Document No.", "Document Type", "Document Line No.");
+        ItemLedgEntry.SetRange("Document Type", ItemLedgEntry."Document Type"::"Transfer Shipment");
+        ItemLedgEntry.SetRange("Document No.", TransShptLine."Document No.");
+        ItemLedgEntry.SetRange("Document Line No.", TransShptLine."Line No.");
+        exit(ItemLedgEntry.FindSet());
+    end;
+
+    local procedure MakeInventoryAdjustment()
+    var
+        InvtSetup: Record "Inventory Setup";
+        InvtAdjmtHandler: Codeunit "Inventory Adjustment Handler";
+    begin
+        InvtSetup.Get();
+        if InvtSetup."Automatic Cost Adjustment" <> InvtSetup."Automatic Cost Adjustment"::Never then begin
+            InvtAdjmtHandler.SetJobUpdateProperties(true);
+            InvtAdjmtHandler.MakeInventoryAdjustment(true, InvtSetup."Automatic Cost Posting");
+        end;
     end;
 
     local procedure GetItemList(var TransferShipmentLine: Record "Transfer Shipment Line") ItemList: Text
@@ -284,72 +443,6 @@ codeunit 31425 "Undo Transfer Ship. Line CZA"
             repeat
                 ItemList += StrSubstNo(FourPlaceholdersTok, TransferShipmentLine2."Item No.", TransferShipmentLine2.Description, TransferShipmentLine2.Quantity, TransferShipmentLine2."Unit of Measure Code");
             until TransferShipmentLine2.Next() = 0;
-    end;
-
-    local procedure InsertTempWhseJnlLine(ItemJournalLine: Record "Item Journal Line"; SourceType: Integer; SourceSubType: Integer; SourceNo: Code[20]; SourceLineNo: Integer; RefDoc: Enum "Whse. Reference Document Type"; var TempWarehouseJournalLine: Record "Warehouse Journal Line" temporary; var NextLineNo: Integer)
-    var
-        WarehouseEntry: Record "Warehouse Entry";
-        WhseManagement: Codeunit "Whse. Management";
-        WMSManagement: Codeunit "WMS Management";
-    begin
-        WarehouseEntry.Reset();
-        WarehouseEntry.SetCurrentKey("Source Type", "Source Subtype", "Source No.");
-        WarehouseEntry.SetRange("Source Type", SourceType);
-        WarehouseEntry.SetRange("Source Subtype", SourceSubType);
-        WarehouseEntry.SetRange("Source No.", SourceNo);
-        WarehouseEntry.SetRange("Source Line No.", SourceLineNo);
-        WarehouseEntry.SetRange("Reference No.", ItemJournalLine."Document No.");
-        WarehouseEntry.SetRange("Item No.", ItemJournalLine."Item No.");
-        if WarehouseEntry.Find('+') then
-            repeat
-                TempWarehouseJournalLine.Init();
-                if WarehouseEntry."Entry Type" = WarehouseEntry."Entry Type"::"Positive Adjmt." then
-                    ItemJournalLine."Entry Type" := ItemJournalLine."Entry Type"::"Negative Adjmt."
-                else
-                    ItemJournalLine."Entry Type" := ItemJournalLine."Entry Type"::"Positive Adjmt.";
-                ItemJournalLine.Quantity := Abs(WarehouseEntry.Quantity);
-                ItemJournalLine."Quantity (Base)" := Abs(WarehouseEntry."Qty. (Base)");
-                WMSManagement.CreateWhseJnlLine(ItemJournalLine, 0, TempWarehouseJournalLine, true);
-                TempWarehouseJournalLine."Source Type" := SourceType;
-                TempWarehouseJournalLine."Source Subtype" := SourceSubType;
-                TempWarehouseJournalLine."Source No." := SourceNo;
-                TempWarehouseJournalLine."Source Line No." := SourceLineNo;
-#pragma warning disable AL0603
-                TempWarehouseJournalLine."Source Document" := WhseManagement.GetSourceDocument(TempWarehouseJournalLine."Source Type", TempWarehouseJournalLine."Source Subtype");
-#pragma warning restore AL0603
-                TempWarehouseJournalLine."Reference Document" := RefDoc;
-                TempWarehouseJournalLine."Reference No." := ItemJournalLine."Document No.";
-                TempWarehouseJournalLine."Location Code" := WarehouseEntry."Location Code";
-                TempWarehouseJournalLine."Zone Code" := WarehouseEntry."Zone Code";
-                TempWarehouseJournalLine."Bin Code" := WarehouseEntry."Bin Code";
-                TempWarehouseJournalLine."Whse. Document Type" := WarehouseEntry."Whse. Document Type";
-                TempWarehouseJournalLine."Whse. Document No." := WarehouseEntry."Whse. Document No.";
-                TempWarehouseJournalLine."Unit of Measure Code" := WarehouseEntry."Unit of Measure Code";
-                TempWarehouseJournalLine."Line No." := NextLineNo;
-                TempWarehouseJournalLine."Serial No." := WarehouseEntry."Serial No.";
-                TempWarehouseJournalLine."Lot No." := WarehouseEntry."Lot No.";
-                TempWarehouseJournalLine."Expiration Date" := WarehouseEntry."Expiration Date";
-                if ItemJournalLine."Entry Type" = ItemJournalLine."Entry Type"::"Negative Adjmt." then begin
-                    TempWarehouseJournalLine."From Zone Code" := TempWarehouseJournalLine."Zone Code";
-                    TempWarehouseJournalLine."From Bin Code" := TempWarehouseJournalLine."Bin Code";
-                end else begin
-                    TempWarehouseJournalLine."To Zone Code" := TempWarehouseJournalLine."Zone Code";
-                    TempWarehouseJournalLine."To Bin Code" := TempWarehouseJournalLine."Bin Code";
-                end;
-                TempWarehouseJournalLine.Insert();
-                NextLineNo := TempWarehouseJournalLine."Line No." + 10000;
-            until WarehouseEntry.Next(-1) = 0;
-
-    end;
-
-    local procedure TestTransferShipmentLine(TransferShipmentLine: Record "Transfer Shipment Line")
-    begin
-        UndoPostingManagement.RunTestAllTransactions(Database::"Transfer Shipment Line",
-              TransferShipmentLine."Document No.", TransferShipmentLine."Line No.",
-              Database::"Transfer Line",
-              0,
-              TransferShipmentLine."Transfer Order No.",
-              TransferShipmentLine."Line No.");
     end;
 
     procedure PostItemJnlLineAppliedToListTr(ItemJournalLine: Record "Item Journal Line"; var TempApplyToItemLedgerEntry: Record "Item Ledger Entry" temporary; UndoQty: Decimal; UndoQtyBase: Decimal; var TempItemLedgerEntry: Record "Item Ledger Entry" temporary; var TempItemEntryRelation: Record "Item Entry Relation" temporary)
@@ -517,6 +610,5 @@ codeunit 31425 "Undo Transfer Ship. Line CZA"
 #pragma warning restore AA0210
         TransferLine2.FindFirst();
         TransferLine2.Delete(true);
-
     end;
 }

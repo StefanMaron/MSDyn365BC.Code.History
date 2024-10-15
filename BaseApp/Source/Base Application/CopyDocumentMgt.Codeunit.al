@@ -680,6 +680,7 @@ codeunit 6620 "Copy Document Mgt."
         FromSalesHeader.CalcFields("Work Description");
         ToSalesHeader.TransferFields(FromSalesHeader, false);
         UpdateSalesHeaderWhenCopyFromSalesHeader(ToSalesHeader, OldSalesHeader, FromDocType);
+        SetReceivedFromCountryCode(FromDocType, ToSalesHeader);
         OnAfterCopySalesHeader(ToSalesHeader, OldSalesHeader, FromSalesHeader, FromDocType);
     end;
 
@@ -689,6 +690,8 @@ codeunit 6620 "Copy Document Mgt."
         ToSalesHeader.Validate("Sell-to Customer No.", FromSalesShptHeader."Sell-to Customer No.");
         OnCopySalesDocOnBeforeTransferPostedShipmentFields(ToSalesHeader, FromSalesShptHeader);
         ToSalesHeader.TransferFields(FromSalesShptHeader, false);
+        UpdateShipToAddress(ToSalesHeader);
+        SetReceivedFromCountryCode(FromSalesShptHeader, ToSalesHeader);
         OnAfterCopyPostedShipment(ToSalesHeader, OldSalesHeader, FromSalesShptHeader);
     end;
 
@@ -703,6 +706,8 @@ codeunit 6620 "Copy Document Mgt."
             ToSalesHeader.Validate("Sell-to Customer No.", FromSalesInvHeader."Sell-to Customer No.");
             OnCopySalesDocOnBeforeTransferPostedInvoiceFields(ToSalesHeader, FromSalesInvHeader, CopyJobData);
             ToSalesHeader.TransferFields(FromSalesInvHeader, false);
+            UpdateShipToAddress(ToSalesHeader);
+            SetReceivedFromCountryCode(FromSalesInvHeader, ToSalesHeader);
             OnCopySalesDocOnAfterTransferPostedInvoiceFields(ToSalesHeader, FromSalesInvHeader, OldSalesHeader);
         end;
     end;
@@ -712,6 +717,7 @@ codeunit 6620 "Copy Document Mgt."
         ToSalesHeader.Validate("Sell-to Customer No.", FromReturnRcptHeader."Sell-to Customer No.");
         OnCopySalesDocOnBeforeTransferPostedReturnReceiptFields(ToSalesHeader, FromReturnRcptHeader);
         ToSalesHeader.TransferFields(FromReturnRcptHeader, false);
+        SetReceivedFromCountryCode(ToSalesHeader);
         OnAfterCopyPostedReturnReceipt(ToSalesHeader, OldSalesHeader, FromReturnRcptHeader);
     end;
 
@@ -723,6 +729,7 @@ codeunit 6620 "Copy Document Mgt."
         OnCopySalesDocOnAfterTransferArchSalesHeaderFields(ToSalesHeader, FromSalesHeaderArchive);
         UpdateSalesHeaderWhenCopyFromSalesHeaderArchive(ToSalesHeader);
         CopyFromArchSalesDocDimToHdr(ToSalesHeader, FromSalesHeaderArchive);
+        SetReceivedFromCountryCode(FromSalesHeaderArchive, ToSalesHeader);
         OnAfterCopySalesHeaderArchive(ToSalesHeader, OldSalesHeader, FromSalesHeaderArchive)
     end;
 
@@ -6460,6 +6467,7 @@ codeunit 6620 "Copy Document Mgt."
             SetSalespersonPurchaserCode("Salesperson Code");
             Area := OldSalesHeader.Area;
             "Exit Point" := OldSalesHeader."Exit Point";
+            "Transaction Type" := OldSalesHeader."Transaction Type";
         end
     end;
 
@@ -7811,6 +7819,7 @@ codeunit 6620 "Copy Document Mgt."
                 ToSalesHeader.CopySellToAddressToShipToAddress();
                 ToSalesHeader.Validate("Ship-to Code", FromSalesCrMemoHeader."Ship-to Code");
             end;
+            SetReceivedFromCountryCode(ToSalesHeader);
         end;
 
         OnAfterTransferFieldsFromCrMemoToInv(ToSalesHeader, FromSalesCrMemoHeader, CopyJobData);
@@ -7840,6 +7849,51 @@ codeunit 6620 "Copy Document Mgt."
             if SalespersonPurchaser.Get(SalespersonPurchaserCode) then
                 if SalespersonPurchaser.VerifySalesPersonPurchaserPrivacyBlocked(SalespersonPurchaser) then
                     SalespersonPurchaserCode := ''
+    end;
+
+    local procedure SetReceivedFromCountryCode(FromDocType: Enum "Sales Document Type From"; var ToSalesHeader: Record "Sales Header")
+    begin
+        if not ToSalesHeader.IsCreditDocType() then
+            ToSalesHeader."Rcvd-from Country/Region Code" := '';
+        if not (FromDocType in [FromDocType::"Credit Memo", FromDocType::"Return Order"]) then
+            ToSalesHeader."Rcvd-from Country/Region Code" := '';
+    end;
+
+    local procedure SetReceivedFromCountryCode(FromSalesHeaderArchive: Record "Sales Header Archive"; var ToSalesHeader: Record "Sales Header")
+    begin
+        if not ToSalesHeader.IsCreditDocType() then
+            ToSalesHeader."Rcvd-from Country/Region Code" := '';
+        if not (FromSalesHeaderArchive."Document Type" in [FromSalesHeaderArchive."Document Type"::"Return Order"]) then
+            ToSalesHeader."Rcvd-from Country/Region Code" := '';
+    end;
+
+    local procedure SetReceivedFromCountryCode(FromSalesShipmentHeader: Record "Sales Shipment Header"; var ToSalesHeader: Record "Sales Header")
+    begin
+        if not ToSalesHeader.IsCreditDocType() then
+            ToSalesHeader."Rcvd-from Country/Region Code" := ''
+        else
+            ToSalesHeader."Rcvd-from Country/Region Code" := FromSalesShipmentHeader."Ship-to Country/Region Code";
+    end;
+
+    local procedure SetReceivedFromCountryCode(SalesInvoiceHeader: Record "Sales Invoice Header"; var ToSalesHeader: Record "Sales Header")
+    begin
+        if not ToSalesHeader.IsCreditDocType() then
+            ToSalesHeader."Rcvd-from Country/Region Code" := ''
+        else
+            ToSalesHeader."Rcvd-from Country/Region Code" := SalesInvoiceHeader."Ship-to Country/Region Code";
+    end;
+
+    local procedure UpdateShipToAddress(var ToSalesHeader: Record "Sales Header")
+    begin
+        if not ToSalesHeader.IsCreditDocType() then
+            exit;
+        ToSalesHeader.UpdateShipToAddress();
+    end;
+
+    local procedure SetReceivedFromCountryCode(var ToSalesHeader: Record "Sales Header")
+    begin
+        if not ToSalesHeader.IsCreditDocType() then
+            ToSalesHeader."Rcvd-from Country/Region Code" := '';
     end;
 
     [IntegrationEvent(false, false)]

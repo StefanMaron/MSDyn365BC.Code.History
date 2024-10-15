@@ -143,10 +143,4 @@ codeunit 11744 "Purchase Header Handler CZL"
     begin
         PurchaseHeader.Validate("VAT Country/Region Code", Vend."Country/Region Code");
     end;
-
-    [EventSubscriber(ObjectType::Table, Database::"Purchase Header", 'OnAfterCopyAddressInfoFromOrderAddress', '', false, false)]
-    local procedure UpdateVATCountryRegionCodeOnAfterCopyAddressInfoFromOrderAddress(var OrderAddress: Record "Order Address"; var PurchHeader: Record "Purchase Header")
-    begin
-        PurchHeader.Validate("VAT Country/Region Code", OrderAddress."Country/Region Code");
-    end;
 }

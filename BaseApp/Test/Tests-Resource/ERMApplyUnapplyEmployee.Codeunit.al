@@ -1,4 +1,4 @@
-codeunit 134114 "ERM Apply Unapply Employee"
+﻿codeunit 134114 "ERM Apply Unapply Employee"
 {
     Permissions = TableData "Employee Ledger Entry" = rimd;
     Subtype = Test;

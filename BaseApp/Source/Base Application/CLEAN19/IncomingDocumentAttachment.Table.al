@@ -525,6 +525,8 @@ table 133 "Incoming Document Attachment"
                     FieldRef.Value := GuidVar;
         end;
         RecRef.SetTable(IncomingDocument);
+
+        OnAfterSetValueOnExtractHeaderField(IncomingDocument, FieldNo);
         IncomingDocument.Modify();
     end;
 
@@ -666,6 +668,11 @@ table 133 "Incoming Document Attachment"
 
     [IntegrationEvent(false, false)]
     procedure OnBeforeSetFiltersFromMainRecord(var MainRecordRef: RecordRef; var IncomingDocumentAttachment: Record "Incoming Document Attachment"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetValueOnExtractHeaderField(var IncomingDocument: Record "Incoming Document"; FieldNumber: Integer)
     begin
     end;
 }

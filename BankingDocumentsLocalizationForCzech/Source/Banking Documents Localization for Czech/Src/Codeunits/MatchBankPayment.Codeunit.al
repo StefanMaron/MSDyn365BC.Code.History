@@ -84,6 +84,7 @@ codeunit 31362 "Match Bank Payment CZB"
                 GenJournalLine.SetRange("Variable Symbol CZL");
                 GenJournalLine.SetRange("Constant Symbol CZL");
                 GenJournalLine.SetRange("Specific Symbol CZL");
+                GenJournalLine.SetRange("Amount (LCY)");
             end else begin
                 // search rule
                 TempMatchBankPaymentBufferCZB.Reset();

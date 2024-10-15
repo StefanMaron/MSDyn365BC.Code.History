@@ -13,6 +13,7 @@ permissionset 11752 "CZ Advance Payments - Obj. CZZ"
 #pragma warning restore AL0432
 #endif            
                   Codeunit "Adv. Payments Approv. Mgt. CZZ" = X,
+                  Codeunit "Calc. And Post VAT Handler CZZ" = X,
                   Codeunit "Calculate Customer Stats. CZZ" = X,
                   Codeunit "Calculate Vendor Stats. CZZ" = X,
                   Codeunit "Cash Document Line Handler CZZ" = X,

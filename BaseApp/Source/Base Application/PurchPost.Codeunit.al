@@ -1,4 +1,4 @@
-﻿#if not CLEAN21
+#if not CLEAN21
 codeunit 90 "Purch.-Post"
 {
     Permissions = TableData "Sales Header" = m,
@@ -5851,6 +5851,7 @@ codeunit 90 "Purch.-Post"
     var
         ItemLedgEntry: Record "Item Ledger Entry";
         TempReservationEntry: Record "Reservation Entry" temporary;
+        JobPlanningLine: Record "Job Planning Line";
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -5879,6 +5880,9 @@ codeunit 90 "Purch.-Post"
                     if ItemLedgEntry.FindFirst() then
                         ItemJournalLine."Item Shpt. Entry No." := ItemLedgEntry."Entry No.";
                 end;
+                JobPlanningLine.SetLoadFields("Job Contract Entry No.");
+                if JobPlanningLine.Get("Job No.", "Job Task No.", "Job Planning Line No.") then
+                    ItemJournalLine."Job Contract Entry No." := JobPlanningLine."Job Contract Entry No.";
                 ItemJournalLine."Source Type" := ItemJournalLine."Source Type"::Customer;
                 ItemJournalLine."Discount Amount" := 0;
 
@@ -5898,7 +5902,9 @@ codeunit 90 "Purch.-Post"
                 if IsHandled then
                     exit;
 
-                ValidateMatchingJobPlanningLine(PurchLine);
+                if PurchLine."Job Line Type" = PurchLine."Job Line Type"::" " then
+                    ValidateMatchingJobPlanningLine(PurchLine);
+
                 if QtyToBeInvoiced <> 0 then begin
                     "Qty. to Invoice" := QtyToBeInvoiced;
 #if not CLEAN20

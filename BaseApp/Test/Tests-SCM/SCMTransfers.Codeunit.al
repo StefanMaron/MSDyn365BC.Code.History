@@ -472,6 +472,46 @@
     end;
 
     [Test]
+    [Scope('OnPrem')]
+    procedure QtyToShipCannotBeChangedManuallyOnNonWMSLocationForDirectTransferPosting()
+    var
+        Location: Record Location;
+        WMSLocation: Record Location;
+        Item: Record Item;
+        TransferHeader: Record "Transfer Header";
+        TransferLine: Record "Transfer Line";
+        TransferOrder: TestPage "Transfer Order";
+        WarehouseShipmentLine: Record "Warehouse Shipment Line";
+        Qty: Decimal;
+    begin
+        // [FEATURE] [Transfer]
+        // [SCENARIO 377487] "Qty. to Ship" in transfer order cannot be changed on warehouse shipment lines for direct transfer
+
+        // [GIVEN] Location "L1" with warehouse shipment requirement
+        LibraryWarehouse.CreateLocationWMS(WMSLocation, false, false, false, false, true);
+        // [GIVEN] Location "L2" without WMS setup
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
+        EnableDirectTransfersInInventorySetup();
+
+        Qty := LibraryRandom.RandIntInRange(100, 200);
+        CreateItemWithPositiveInventory(Item, WMSLocation.Code, Qty * 2);
+
+        // [GIVEN] Create transfer order from "L1" to "L2". Quantity = "Q"
+        CreateTransferOrderNoRoute(TransferHeader, TransferLine, WMSLocation.Code, Location.Code, Item."No.", '', Qty * 2);
+        TransferHeader.Validate("Direct Transfer", true);
+        TransferHeader.Modify();
+
+        // [GIVEN] Create warehouse shipment from transfer order, set "Qty. to Ship" = "Q" / 2 and post shipment
+        LibraryWarehouse.ReleaseTransferOrder(TransferHeader);
+        LibraryWarehouse.CreateWhseShipmentFromTO(TransferHeader);
+
+        WarehouseShipmentLine.SetRange("Source Type", DATABASE::"Transfer Line");
+        WarehouseShipmentLine.SetRange("Source No.", TransferHeader."No.");
+        WarehouseShipmentLine.FindFirst();
+        asserterror WarehouseShipmentLine.Validate("Qty. to Ship", Qty);
+    end;
+
+    [Test]
     [HandlerFunctions('StrMenuHandler')]
     [Scope('OnPrem')]
     procedure ChangeTransferLineItemNoAfterPostingError_Post()

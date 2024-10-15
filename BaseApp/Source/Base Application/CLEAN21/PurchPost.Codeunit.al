@@ -5817,7 +5817,9 @@ codeunit 90 "Purch.-Post"
                 if IsHandled then
                     exit;
 
-                ValidateMatchingJobPlanningLine(PurchLine);
+                if PurchLine."Job Line Type" = PurchLine."Job Line Type"::" " then
+                    ValidateMatchingJobPlanningLine(PurchLine);
+
                 if QtyToBeInvoiced <> 0 then begin
                     "Qty. to Invoice" := QtyToBeInvoiced;
 #if not CLEAN20

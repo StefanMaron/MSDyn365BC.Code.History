@@ -855,7 +855,10 @@ codeunit 22 "Item Jnl.-Post Line"
             exit;
 
         with ItemJournalLine do begin
-            CostAmt := Round(CapQty * "Unit Cost");
+            CostAmt := CapQty * "Unit Cost";
+            if Subcontracting then
+                CostAmt += RoundingResidualAmount;
+            CostAmt := Round(CostAmt);
             DirCostAmt := Round((CostAmt - CapQty * "Overhead Rate") / (1 + "Indirect Cost %" / 100));
             IndirCostAmt := CostAmt - DirCostAmt;
         end;
@@ -2002,7 +2005,8 @@ codeunit 22 "Item Jnl.-Post Line"
 
                 if (ItemLedgEntry."Entry Type" = ItemLedgEntry."Entry Type"::Transfer) and
                    (AppliedQty < 0) and
-                   not CausedByTransfer
+                   not CausedByTransfer and
+                   not ItemLedgEntry.Correction
                 then begin
                     if ItemLedgEntry."Completely Invoiced" then
                         ItemLedgEntry."Completely Invoiced" := OldItemLedgEntry."Completely Invoiced";

@@ -244,7 +244,6 @@ report 31252 "FA Assignment/Discard CZF"
     }
 
     var
-        Employee: Record Employee;
         FALocation: Record "FA Location";
         FixedAsset: Record "Fixed Asset";
         Code, FirstNameCaption, LastNameCaption, FirstName, LastName, Description, SerialNo : Text;
@@ -255,6 +254,9 @@ report 31252 "FA Assignment/Discard CZF"
         LastNameLbl: Label 'Last Name';
         FAAssignmentLbl: Label 'FA Assignment';
         FADiscardLbl: Label 'FA Discard';
+
+    protected var
+        Employee: Record Employee;
 
     procedure ShowReport(var "Count": Integer): Boolean
     begin

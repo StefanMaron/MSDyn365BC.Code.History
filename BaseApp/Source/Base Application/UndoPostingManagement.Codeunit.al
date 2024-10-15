@@ -1,4 +1,4 @@
-﻿#if not CLEAN20
+#if not CLEAN20
 codeunit 5817 "Undo Posting Management"
 {
     Permissions = TableData "Reservation Entry" = i;
@@ -601,7 +601,12 @@ codeunit 5817 "Undo Posting Management"
 
             ItemJnlLine."Item Shpt. Entry No." := 0;
             ItemJnlLine."Quantity (Base)" := -TempApplyToItemLedgEntry.Quantity;
+            ItemJnlLine."Invoiced Quantity" := -TempApplyToItemLedgEntry."Invoiced Quantity";
             ItemJnlLine.CopyTrackingFromItemLedgEntry(TempApplyToItemLedgEntry);
+            if ItemJnlLine."Entry Type" = ItemJnlLine."Entry Type"::Transfer then begin
+                ItemJnlLine."New Serial No." := TempApplyToItemLedgEntry."Serial No.";
+                ItemJnlLine."New Lot No." := TempApplyToItemLedgEntry."Lot No.";
+            end;
 
             // Quantity is filled in according to UOM:
             AdjustQuantityRounding(ItemJnlLine, NonDistrQuantity, NonDistrQuantityBase);

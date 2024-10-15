@@ -2790,6 +2790,39 @@ codeunit 136305 "Job Journal"
         asserterror SalesHeader.Validate("Campaign No.", Campaign."No.");
     end;
 
+    [Test]
+    [HandlerFunctions('ConfirmHandlerTrue,MessageHandler')]
+    procedure VerifyJobPlanningLineAfterPostingJobJournalWithResourceAndAdditionalUoM()
+    var
+        UnitOfMeasure: Record "Unit of Measure";
+        ResUnitOfMeasure: Record "Resource Unit of Measure";
+        JobTask: Record "Job Task";
+        JobJournalLine: Record "Job Journal Line";
+        JobPlanningLine: Record "Job Planning Line";
+        ResourceNo: Code[20];
+    begin
+        // [SCENARIO 470263] Verify Job Planning Line after posting Job Journal with Resource and Additional UoM
+        Initialize();
+
+        // [GIVEN] Create Resource
+        ResourceNo := LibraryResource.CreateResourceNo();
+
+        // [GIVEN] Create additional UoM for Resource
+        LibraryInventory.CreateUnitOfMeasureCode(UnitOfMeasure);
+        LibraryResource.CreateResourceUnitOfMeasure(ResUnitOfMeasure, ResourceNo, UnitOfMeasure.Code, 8);
+
+        // [GIVEN] Create Job Journal Line with Resource and Additional UoM
+        CreateResourceJobJournalLine(JobJournalLine, ResourceNo, UnitOfMeasure.Code);
+
+        // [WHEN] Post Job Journal
+        LibraryJob.PostJobJournal(JobJournalLine);
+
+        // [THEN] Verify result
+        JobPlanningLine.SetRange("Job No.", JobJournalLine."Job No.");
+        JobPlanningLine.SetRange("Job Task No.", JobJournalLine."Job Task No.");
+        Assert.RecordCount(JobPlanningLine, 1);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -2858,6 +2891,20 @@ codeunit 136305 "Job Journal"
         JobJournalLine.Validate("No.", CreateItem);
         JobJournalLine.Validate(Quantity, LibraryRandom.RandDec(100, 2));
         JobJournalLine.Validate("Unit Price (LCY)", LibraryRandom.RandDec(100, 2));
+        JobJournalLine.Modify(true);
+    end;
+
+    local procedure CreateResourceJobJournalLine(var JobJournalLine: Record "Job Journal Line"; ResourceNo: Code[20]; UnitOfMeasureCode: Code[10])
+    var
+        JobTask: Record "Job Task";
+    begin
+        // Create Job Journal Line with Random Quantity and Unit Price.
+        CreateJobWithJobTask(JobTask);
+        LibraryJob.CreateJobJournalLine(JobJournalLine."Line Type"::"Both Budget and Billable", JobTask, JobJournalLine);
+        JobJournalLine.Validate(Type, JobJournalLine.Type::Resource);
+        JobJournalLine.Validate("No.", ResourceNo);
+        JobJournalLine.Validate(Quantity, LibraryRandom.RandDec(100, 2));
+        JobJournalLine.Validate("Unit of Measure Code", UnitOfMeasureCode);
         JobJournalLine.Modify(true);
     end;
 

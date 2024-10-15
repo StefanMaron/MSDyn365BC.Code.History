@@ -1450,6 +1450,7 @@ report 31004 "Adjust Exchange Rates CZL"
                     TempAdjExchangeRateBufferCZL2."Posting Date" := TempAdjExchangeRateBufferCZL."Posting Date";
                     TempAdjExchangeRateBufferCZL2."IC Partner Code" := TempAdjExchangeRateBufferCZL."IC Partner Code";
                     TempAdjExchangeRateBufferCZL2."Initial G/L Account No." := TempAdjExchangeRateBufferCZL."Initial G/L Account No.";
+                    TempAdjExchangeRateBufferCZL2.Advance := TempAdjExchangeRateBufferCZL.Advance;
                     TempAdjExchangeRateBufferCZL2.Insert();
                 end else
                     TempAdjExchangeRateBufferCZL2.Modify();

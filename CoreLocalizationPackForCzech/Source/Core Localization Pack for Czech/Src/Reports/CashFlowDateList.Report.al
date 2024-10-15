@@ -65,13 +65,10 @@ report 31005 "Cash Flow Date List CZL"
                 column(GLBudget; Values[CashFlowForecastEntry."Source Type"::"G/L Budget".AsInteger()])
                 {
                 }
-#if CLEAN19
-                column(PurchaseAdvances; Values[13]) // value(13; "Purchase Advance Letters")
-#else
-#pragma warning disable AL0432
-                column(PurchaseAdvances; Values[CashFlowForecastEntry."Source Type"::"Purchase Advance Letters".AsInteger()])
-#pragma warning restore AL0432
-#endif
+                column(SalesAdvances; SalesAdvanceValue)
+                {
+                }
+                column(PurchaseAdvances; PurchaseAdvanceValue)
                 {
                 }
                 column(EditionPeriod_Number; Number)
@@ -108,13 +105,17 @@ report 31005 "Cash Flow Date List CZL"
                                 CurrentDateTo := 0D;
                             end;
                         else begin
-                                CurrentDateFrom := CurrentDateTo + 1;
-                                CurrentDateTo := CalcDate(Interval, CurrentDateFrom) - 1;
-                            end
+                            CurrentDateFrom := CurrentDateTo + 1;
+                            CurrentDateTo := CalcDate(Interval, CurrentDateFrom) - 1;
+                        end
                     end;
 
                     CashFlow.CalculateAllAmounts(CurrentDateFrom, CurrentDateTo, Values, CFSumTotal);
                     NewCFSumTotal := NewCFSumTotal + CFSumTotal;
+#if not CLEAN19
+                    SalesAdvanceValue := Values[12];
+                    PurchaseAdvanceValue := Values[13];
+#endif
                 end;
 
                 trigger OnPreDataItem()
@@ -174,6 +175,7 @@ report 31005 "Cash Flow Date List CZL"
         GLBudgetCaption = 'G/L Budget';
         LiquidityCaption = 'Liquidity';
         PurchaseAdvancesCaption = 'Purchase Advances';
+        SalesAdvancesCaption = 'Sales Advances';
         PAGENOCaption = 'Page';
         CashFlowDateListCaption = 'Cash Flow Date List';
         ServiceOrdersCaption = 'Service Orders';
@@ -205,6 +207,10 @@ report 31005 "Cash Flow Date List CZL"
         BeforeSumTotal: Decimal;
         NewCFSumTotal: Decimal;
         CFSumTotal: Decimal;
+
+    protected var
+        SalesAdvanceValue: Decimal;
+        PurchaseAdvanceValue: Decimal;
 
     procedure InitializeRequest(FromDate: Date; NumberOfIntervals: Integer; IntervalLength: DateFormula)
     begin

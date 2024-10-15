@@ -24,8 +24,8 @@ codeunit 4113 "Swiss QR Code Helper"
     begin
         TempBlob.CreateOutStream(OutStream);
         IBarcodeProvider := QRCodeProvider.QRCodeProvider();
-        // encoding 28591 = iso-8859-1 (Western European (ISO))
-        IBarcodeProvider.GetBarcodeStream(SourceText, OutStream, ErrorCorrectionLevel::Medium, 5, 0, 28591);
+        // encoding 65001 = UTF-8, ECI mode off.
+        IBarcodeProvider.GetBarcodeStream(SourceText, OutStream, ErrorCorrectionLevel::Medium, 5, 0, 65001, false, false);
     end;
 
     local procedure OverlaySwissCross(QRImageTempBlob: Codeunit "Temp Blob"; SwissCrossTempBlob: Codeunit "Temp Blob"): Boolean

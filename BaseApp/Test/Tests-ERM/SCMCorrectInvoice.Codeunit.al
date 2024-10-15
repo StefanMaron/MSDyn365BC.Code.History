@@ -1120,42 +1120,6 @@ codeunit 137019 "SCM Correct Invoice"
         LibraryVariableStorage.AssertEmpty();
     end;
 
-    [Test]
-    [Scope('OnPrem')]
-    procedure VerifyTransportAndTransactionTransferredInSalesCreditMemoHeader()
-    var
-        SalesInvHeader: Record "Sales Invoice Header";
-        SalesHeader: Record "Sales Header";
-        SalesHeader2: Record "Sales Header";
-        SalesLine: Record "Sales Line";
-        CorrectPostedSalesInvoice: Codeunit "Correct Posted Sales Invoice";
-        SalesInvHeaderNo: Code[20];
-    begin
-        // [SCENARIO 452722]  Fields “Transaction Type” and “Transport Method” are not transferred to Sales Credit Memo Header
-        Initialize();
-
-        // [GIVEN] Create Sales Header with Transaction Type & Transport Method
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo());
-        SalesHeader."Transaction Specification" := LibraryUtility.GenerateGUID();
-        SalesHeader."Transaction Type" := LibraryUtility.GenerateGUID();
-        SalesHeader."Transport Method" := LibraryUtility.GenerateGUID();
-        SalesHeader.Modify();
-
-        // [GIVEN] Create Sales Line
-        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo(), 1);
-
-        // [GIVEN] Post the Sales Invoice
-        SalesInvHeaderNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
-        SalesInvHeader.Get(SalesInvHeaderNo);
-
-        // [WHEN] Create Corrective Credit Memo for Sales Invoice
-        CorrectPostedSalesInvoice.CreateCreditMemoCopyDocument(SalesInvHeader, SalesHeader2);
-
-        // [THEN] Verify Transaction Type & Transport Method are transferred to Credit Memo
-        Assert.AreEqual(SalesHeader."Transaction Type", SalesHeader2."Transaction Type", TransactionTypeErr);
-        Assert.AreEqual(SalesHeader."Transport Method", SalesHeader2."Transport Method", TransportMethodErr);
-    end;
-
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";

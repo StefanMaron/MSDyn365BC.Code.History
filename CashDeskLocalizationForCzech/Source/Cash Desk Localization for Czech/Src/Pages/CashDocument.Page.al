@@ -920,6 +920,7 @@ page 31160 "Cash Document CZP"
         DateEditable := Rec.Status = Rec.Status::Open;
         ReceiptEditable := Rec."Document Type" = Rec."Document Type"::Receipt;
         WithdrawalEditable := Rec."Document Type" = Rec."Document Type"::Withdrawal;
+        OnAfterUpdateEditable(Rec);
     end;
 
 #if not CLEAN19
@@ -980,5 +981,10 @@ page 31160 "Cash Document CZP"
         CashDocumentHeaderCZP.Validate("Document Type", Rec."Document Type");
         CashDocumentHeaderCZP.Insert(true);
         Page.Run(Page::"Cash Document CZP", CashDocumentHeaderCZP);
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnAfterUpdateEditable(CashDocumentHeaderCZP: Record "Cash Document Header CZP")
+    begin
     end;
 }
