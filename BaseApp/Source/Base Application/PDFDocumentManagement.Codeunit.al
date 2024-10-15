@@ -8,7 +8,8 @@ codeunit 5467 "PDF Document Management"
     var
         CannotFindDocumentErr: Label 'The document %1 cannot be found.', Comment = '%1 - Error Message';
         CannotOpenFileErr: Label 'Opening the file failed because of the following error: \%1.', Comment = '%1 - Error Message';
-        UnpostedCreditMemoErr: Label 'You must post sales credit memo %1 before generating the PDF document.', Comment = '%1 - sales credit memo id';
+        UnpostedSalesCreditMemoErr: Label 'You must post sales credit memo %1 before generating the PDF document.', Comment = '%1 - sales credit memo id';
+        UnpostedPurchaseCreditMemoErr: Label 'You must post purchase credit memo %1 before generating the PDF document.', Comment = '%1 - purchase credit memo id';
         UnpostedPurchaseInvoiceErr: Label 'You must post purchase invoice %1 before generating the PDF document.', Comment = '%1 - sales credit memo id';
         BlobEmptyErr: Label 'Opening the file failed.';
         CreditMemoTxt: Label 'Credit Memo';
@@ -55,7 +56,7 @@ codeunit 5467 "PDF Document Management"
                         DocumentMailing.GetAttachmentFileName(Name, SalesHeader."No.", SalesHeader.GetDocTypeTxt(), ReportUsage.AsInteger());
                     end;
                 SalesHeader."Document Type"::"Credit Memo":
-                    Error(UnpostedCreditMemoErr, DocumentId);
+                    Error(UnpostedSalesCreditMemoErr, DocumentId);
                 else
                     Error(CannotFindDocumentErr, DocumentId);
             end;
@@ -172,7 +173,7 @@ codeunit 5467 "PDF Document Management"
                 begin
                     if SalesHeader.GetBySystemId(DocumentId) then
                         if SalesHeader."Document Type" = SalesHeader."Document Type"::"Credit Memo" then
-                            Error(UnpostedCreditMemoErr, DocumentId);
+                            Error(UnpostedSalesCreditMemoErr, DocumentId);
                     if GraphMgtSalCrMemoBuf.GetSalesCrMemoHeaderFromId(DocumentId, SalesCrMemoHeader) then begin
                         SalesCrMemoHeader.SetRange("No.", SalesCrMemoHeader."No.");
                         ReportUsage := "Report Selection Usage"::"S.Cr.Memo";
@@ -222,10 +223,12 @@ codeunit 5467 "PDF Document Management"
         PurchaseHeader: Record "Purchase Header";
         PurchInvHeader: Record "Purch. Inv. Header";
         ReportSelections: Record "Report Selections";
+        PurchCrMemoHdr: Record "Purch. Cr. Memo Hdr.";
         DocumentMailing: Codeunit "Document-Mailing";
         SalesInvoiceAggregator: Codeunit "Sales Invoice Aggregator";
         PurchInvAggregator: Codeunit "Purch. Inv. Aggregator";
         GraphMgtSalCrMemoBuf: Codeunit "Graph Mgt - Sal. Cr. Memo Buf.";
+        GraphMgtPurchCrMemo: Codeunit "Graph Mgt - Purch. Cr. Memo";
         TempBlob: Codeunit "Temp Blob";
         InStream: InStream;
         OutStream: OutStream;
@@ -271,7 +274,7 @@ codeunit 5467 "PDF Document Management"
                 begin
                     if SalesHeader.GetBySystemId(DocumentId) then
                         if SalesHeader."Document Type" = SalesHeader."Document Type"::"Credit Memo" then
-                            Error(UnpostedCreditMemoErr, DocumentId);
+                            Error(UnpostedSalesCreditMemoErr, DocumentId);
                     if GraphMgtSalCrMemoBuf.GetSalesCrMemoHeaderFromId(DocumentId, SalesCrMemoHeader) then begin
                         SalesCrMemoHeader.SetRange("No.", SalesCrMemoHeader."No.");
                         ReportUsage := "Report Selection Usage"::"S.Cr.Memo";
@@ -290,6 +293,19 @@ codeunit 5467 "PDF Document Management"
                         ReportUsage := "Report Selection Usage"::"P.Invoice";
                         ReportSelections.GetPdfReportForCust(TempBlob, ReportUsage, PurchInvHeader, PurchInvHeader."Buy-from Vendor No.");
                         DocumentMailing.GetAttachmentFileName(Name, PurchInvHeader."No.", PurchaseInvoiceTxt, ReportUsage.AsInteger());
+                        DocumentFound := true;
+                    end;
+                end;
+            DocumentType::"Purchase Credit Memo":
+                begin
+                    if PurchaseHeader.GetBySystemId(DocumentId) then
+                        if PurchaseHeader."Document Type" = PurchaseHeader."Document Type"::"Credit Memo" then
+                            Error(UnpostedPurchaseCreditMemoErr, DocumentId);
+                    if GraphMgtPurchCrMemo.GetPurchaseCrMemoHeaderFromId(DocumentId, PurchCrMemoHdr) then begin
+                        PurchCrMemoHdr.SetRange("No.", PurchCrMemoHdr."No.");
+                        ReportUsage := "Report Selection Usage"::"P.Cr.Memo";
+                        ReportSelections.GetPdfReportForCust(TempBlob, ReportUsage, PurchCrMemoHdr, PurchCrMemoHdr."Buy-from Vendor No.");
+                        DocumentMailing.GetAttachmentFileName(Name, PurchCrMemoHdr."No.", CreditMemoTxt, ReportUsage.AsInteger());
                         DocumentFound := true;
                     end;
                 end;

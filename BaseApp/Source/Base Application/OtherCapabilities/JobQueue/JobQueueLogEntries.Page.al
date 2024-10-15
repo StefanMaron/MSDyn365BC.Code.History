@@ -69,6 +69,11 @@ page 674 "Job Queue Log Entries"
                     ToolTip = 'Specifies the date and time when the job ended.';
                     Visible = false;
                 }
+                field(ID; Rec.ID)
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the ID of the job queue entry in the log.';
+                }
                 field("Error Message"; Rec."Error Message")
                 {
                     ApplicationArea = Basic, Suite;

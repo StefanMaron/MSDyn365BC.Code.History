@@ -15,6 +15,46 @@ codeunit 2622 "Stat. Acc. Fin Reporting Mgt"
         IsHandled := true;
     end;
 
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::AccSchedManagement, 'OnBeforeDrillDownOnAccounts', '', false, false)]
+    local procedure HandleOnBeforeDrillDownOnAccounts(var AccScheduleLine: Record "Acc. Schedule Line"; var TempColumnLayout: Record "Column Layout" temporary; PeriodLength: Option; StartDate: Date; EndDate: Date)
+    var
+        AccScheduleName: Record "Acc. Schedule Name";
+        AnalysisViewEntry: Record "Analysis View Entry";
+        StatisticalAccount: Record "Statistical Account";
+        StatisticalLedgerEntry: Record "Statistical Ledger Entry";
+        AccSchedManagement: Codeunit AccSchedManagement;
+    begin
+        if AccScheduleLine."Totaling Type" <> AccScheduleLine."Totaling Type"::"Statistical Account" then
+            exit;
+
+        if not AccScheduleName.Get(AccScheduleLine."Schedule Name") then
+            exit;
+
+        StatisticalAccount.SetFilter("No.", AccScheduleLine.Totaling);
+        if not StatisticalAccount.FindFirst() then begin
+            LogError(StrSubstNo(StatisticalAccountDoesNotExistMsg, AccScheduleLine.Totaling));
+            exit;
+        end;
+        AccSchedManagement.SetStartDateEndDate(StartDate, EndDate);
+        SetStatAccColumnFilters(AccSchedManagement, StatisticalAccount, AccScheduleLine, TempColumnLayout);
+
+        if AccScheduleName."Analysis View Name" = '' then
+            SetStatisticalAccountsLedgerEntryFilters(StatisticalAccount, StatisticalLedgerEntry, AccScheduleLine, TempColumnLayout, AccSchedManagement)
+        else begin
+            SetStatisticalAccountAnalysisViewEntryFilters(StatisticalAccount, AnalysisViewEntry, AccScheduleLine, TempColumnLayout, AccScheduleName);
+            if AnalysisViewEntry.FindSet() then
+                repeat
+                    if StatisticalLedgerEntry.Get(AnalysisViewEntry."Entry No.") then
+                        StatisticalLedgerEntry.Mark(true);
+                until AnalysisViewEntry.Next() = 0;
+            StatisticalLedgerEntry.MarkedOnly(true);
+            if StatisticalLedgerEntry.IsEmpty then
+                exit;
+        end;
+
+        Page.Run(Page::"Statistical Ledger Entry List", StatisticalLedgerEntry);
+    end;
+
     [EventSubscriber(ObjectType::Codeunit, Codeunit::AccSchedManagement, 'OnAfterCalcCellValue', '', false, false)]
     local procedure OnAfterCalcCellValue(sender: Codeunit AccSchedManagement; var AccSchedLine: Record "Acc. Schedule Line"; var ColumnLayout: Record "Column Layout"; var GLAcc: Record "G/L Account"; var Result: Decimal; var SourceAccScheduleLine: Record "Acc. Schedule Line")
     var
@@ -56,7 +96,7 @@ codeunit 2622 "Stat. Acc. Fin Reporting Mgt"
             StatisticalLedgerEntry.CalcSums(Amount);
             ColValue := StatisticalLedgerEntry.Amount;
         end else begin
-            SetStatisticalAccountAnalysisViewEntryFilters(StatisticalAccount, AnalysisViewEntry, AccSchedLine, ColumnLayout, AccSchedName);
+            SetStatisticalAccountAnalysisViewEntryFilters(StatisticalAccount, AnalysisViewEntry, SourceAccScheduleLine, ColumnLayout, AccSchedName);
             AnalysisViewEntry.CalcSums(Amount);
             ColValue := AnalysisViewEntry.Amount;
         end;

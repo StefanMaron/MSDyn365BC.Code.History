@@ -117,6 +117,47 @@ page 9401 "VAT Amount Lines"
                         FormCheckVATDifference();
                     end;
                 }
+                field(NonDeductibleBase; Rec."Non-Deductible VAT Base")
+                {
+                    ApplicationArea = VAT;
+                    ToolTip = 'Specifies the amount of the transaction for which VAT is not applied due to the type of goods or services purchased.';
+                    Visible = NonDeductibleVATVisible;
+                }
+                field(CalcNonDedVATAmount; Rec."Calc. Non-Ded. VAT Amount")
+                {
+                    ApplicationArea = Basic, Suite;
+                    AutoFormatExpression = CurrencyCode;
+                    AutoFormatType = 1;
+                    ToolTip = 'Specifies the calculated Non-Deductible VAT amount and is only used for reference when the user changes the Non-Deductible VAT Amount manually.';
+                    Visible = false;
+                }
+                field(NonDeductibleAmount; Rec."Non-Deductible VAT Amount")
+                {
+                    ApplicationArea = VAT;
+                    ToolTip = 'Specifies the amount of VAT that is not deducted due to the type of goods or services purchased.';
+                    Visible = NonDeductibleVATVisible;
+                    Editable = VATAmountEditable;
+
+                    trigger OnValidate()
+                    begin
+                        if AllowVATDifference and not AllowVATDifferenceOnThisTab then
+                            Error(Text000, FieldCaption("Non-Deductible VAT Amount"));
+                        NonDeductibleVAT.CheckNonDeductibleVATAmountDiff(Rec, xRec, AllowVATDifference, Currency);
+                        ModifyRec();
+                    end;
+                }
+                field(DeductibleBase; Rec."Deductible VAT Base")
+                {
+                    ApplicationArea = VAT;
+                    ToolTip = 'Specifies the amount of the transaction for which VAT is applied due to the type of goods or services purchased.';
+                    Visible = NonDeductibleVATVisible;
+                }
+                field(DeductibleAmount; Rec."Deductible VAT Amount")
+                {
+                    ApplicationArea = VAT;
+                    ToolTip = 'Specifies the amount of VAT that is deducted due to the type of goods or services purchased.';
+                    Visible = NonDeductibleVATVisible;
+                }
             }
         }
         area(factboxes)
@@ -158,6 +199,7 @@ page 9401 "VAT Amount Lines"
     begin
         InvoiceDiscountAmountEditable := true;
         VATAmountEditable := true;
+        NonDeductibleVATVisible := NonDeductibleVAT.IsNonDeductibleVATEnabled();
     end;
 
     trigger OnModifyRecord(): Boolean
@@ -179,6 +221,7 @@ page 9401 "VAT Amount Lines"
 
     var
         TempVATAmountLine: Record "VAT Amount Line" temporary;
+        NonDeductibleVAT: Codeunit "Non-Deductible VAT";
         Currency: Record Currency;
         CurrencyCode: Code[10];
         AllowVATDifference: Boolean;
@@ -186,6 +229,7 @@ page 9401 "VAT Amount Lines"
         PricesIncludingVAT: Boolean;
         AllowInvDisc: Boolean;
         VATBaseDiscPct: Decimal;
+        NonDeductibleVATVisible: Boolean;
         [InDataSet]
         VATAmountEditable: Boolean;
         [InDataSet]

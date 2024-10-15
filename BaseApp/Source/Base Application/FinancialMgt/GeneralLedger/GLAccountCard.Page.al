@@ -633,16 +633,33 @@ page 17 "G/L Account Card"
             group(Category_Navigate)
             {
                 Caption = 'Navigate';
-
+#if not CLEAN23
                 actionref("General Posting Setup_Promoted"; "General Posting Setup")
                 {
+                    Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Action is being demoted based on overall low usage.';
+                    ObsoleteTag = '23.0';
                 }
+#endif
+#if not CLEAN23
                 actionref("VAT Posting Setup_Promoted"; "VAT Posting Setup")
                 {
+                    Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Action is being demoted based on overall low usage.';
+                    ObsoleteTag = '23.0';
                 }
+#endif
+#if not CLEAN23
                 actionref("G/L Register_Promoted"; "G/L Register")
                 {
+                    Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Action is being demoted based on overall low usage.';
+                    ObsoleteTag = '23.0';
                 }
+#endif
             }
             group(Category_Report)
             {

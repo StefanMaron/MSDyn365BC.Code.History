@@ -30,9 +30,6 @@
         ICMapping: Codeunit "IC Mapping";
         ICTransactionNo: Integer;
     begin
-        FeatureTelemetry.LogUptake('0000IJ4', ICMapping.GetFeatureTelemetryName(), Enum::"Feature Uptake Status"::Used);
-        FeatureTelemetry.LogUsage('0000IJV', ICMapping.GetFeatureTelemetryName(), 'Creating Outbox Journal Transaction');
-
         ICPartner.Get(TempGenJnlLine."IC Partner Code");
         if ICPartner."Inbox Type" = ICPartner."Inbox Type"::"No IC Transfer" then
             exit(0);
@@ -913,6 +910,8 @@
             SalesHeader.Validate("Promised Delivery Date", ICInboxSalesHeader."Promised Delivery Date");
             SalesHeader."Shortcut Dimension 1 Code" := '';
             SalesHeader."Shortcut Dimension 2 Code" := '';
+            if SalesHeader."Document Type" = SalesHeader."Document Type"::Order then // Received sales orders can be sent back when posting as an invoice
+                SalesHeader."Send IC Document" := true;
 
             OnCreateSalesDocumentOnBeforeSetICDocDimFilters(SalesHeader, ICInboxSalesHeader);
             DimMgt.SetICDocDimFilters(
@@ -1394,6 +1393,11 @@
     end;
 
     internal procedure ShowDuplicateICDocumentWarning(var PurchaseHeader: Record "Purchase Header")
+    begin
+        ShowDuplicateICDocumentWarning(PurchaseHeader, DuplicateICDocumentMsg);
+    end;
+
+    internal procedure ShowDuplicateICDocumentWarning(var PurchaseHeader: Record "Purchase Header"; WarningMsg: Text)
     var
         Notification: Notification;
         DocumentType: Text;
@@ -1403,10 +1407,10 @@
                 DocumentType := 'order';
             PurchaseHeader."Document Type"::Invoice:
                 DocumentType := 'invoice';
-        else
-            exit;
+            else
+                exit;
         end;
-        Notification.Message(StrSubstNo(DuplicateICDocumentMsg, DocumentType, PurchaseHeader."No."));
+        Notification.Message(StrSubstNo(WarningMsg, DocumentType, PurchaseHeader."No."));
         Notification.Send();
     end;
 
@@ -2147,7 +2151,7 @@
         ICMapping: Codeunit "IC Mapping";
     begin
         FeatureTelemetry.LogUptake('0000IJL', ICMapping.GetFeatureTelemetryName(), Enum::"Feature Uptake Status"::Used);
-        FeatureTelemetry.LogUsage('0000IKC', ICMapping.GetFeatureTelemetryName(), 'Outpux Transaction to Inbox');
+        FeatureTelemetry.LogUsage('0000IKC', ICMapping.GetFeatureTelemetryName(), 'Outbox Transaction to Inbox');
 
         ICInboxTrans."Transaction No." := ICOutboxTrans."Transaction No.";
         ICInboxTrans."IC Partner Code" := FromICPartnerCode;

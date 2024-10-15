@@ -4248,17 +4248,24 @@
     var
         SalesInvoiceHeader: Record "Sales Invoice Header";
         SalesHeader: Record "Sales Header";
-        SalesInvoiceLine: Record "Sales Invoice Line";
+        SalesLine1: Record "Sales Line";
+        SalesLine2: Record "Sales Line";
         TempBlob: Codeunit "Temp Blob";
         InStream: InStream;
         OriginalStr: Text;
+        VATProdPostingGroup: Code[20];
     begin
         // [FEATURE] [VAT]
-        // [SCENARIO 338353] Request Stamp for Sales Invoice with normal VAT
+        // [SCENARIO 457742] Request Stamp for Sales Invoice with normal VAT that is 16% and 8%.
         Initialize();
 
-        // [GIVEN] Posted Sales Invoice with Amount = 100, VAT Amount = 10
-        SalesInvoiceHeader.Get(CreateAndPostSalesDoc(SalesHeader."Document Type"::Invoice, CreatePaymentMethodForSAT));
+        // [GIVEN] Posted Sales Invoice with line1: Amount = 1000, VAT % = 16, line2: Amount = 800, VAT % = 8.
+        CreateSalesHeaderForCustomer(SalesHeader, SalesHeader."Document Type"::Invoice, CreateCustomer(), CreatePaymentMethodForSAT());
+        VATProdPostingGroup := CreateVATPostingSetup(SalesHeader."VAT Bus. Posting Group", 16, false, false);
+        CreateSalesLineItemWithVATSetup(SalesLine1, SalesHeader, CreateItem(), VATProdPostingGroup, 1, LibraryRandom.RandIntInRange(1000, 2000), 0);
+        VATProdPostingGroup := CreateVATPostingSetup(SalesHeader."VAT Bus. Posting Group", 8, false, false);
+        CreateSalesLineItemWithVATSetup(SalesLine2, SalesHeader, CreateItem(), VATProdPostingGroup, 1, LibraryRandom.RandIntInRange(1000, 2000), 0);
+        SalesInvoiceHeader.Get(LibrarySales.PostSalesDocument(SalesHeader, true, true));
 
         // [WHEN] Request Stamp for the Sales Invoice
         RequestStamp(
@@ -4274,24 +4281,24 @@
         InStream.ReadText(OriginalStr);
         OriginalStr := ConvertStr(OriginalStr, '|', ',');
 
-        // [THEN] XML Document has node 'cfdi:Conceptos/cfdi:Concepto/cfdi:Impuestos/cfdi:Traslados/cfdi:Traslado' with VAT data for the line
-        // [THEN] and attributes 'Importe' = 10, 'TipoFactor' = 'Tasa', 'Impuesto' = '003', 'Base' = 100.
-        SalesInvoiceLine.SetRange("Document No.", SalesInvoiceHeader."No.");
-        SalesInvoiceLine.FindFirst();
-        SalesInvoiceLine."Amount Including VAT" := SalesInvoiceLine.Amount * (1 + SalesInvoiceLine."VAT %" / 100);
+        // [THEN] XML Document has node 'cfdi:Conceptos/cfdi:Concepto/cfdi:Impuestos/cfdi:Traslados/cfdi:Traslado' with VAT data for lines
+        // [THEN] Line1 has attributes 'Importe' = 160, 'TipoFactor' = 'Tasa', 'Impuesto' = '002', 'Base' = 1000.
+        // [THEN] Line2 has attributes 'Importe' = 64, 'TipoFactor' = 'Tasa', 'Impuesto' = '002', 'Base' = 800.
         VerifyVATAmountLines(
-          OriginalStr, SalesInvoiceLine.Amount, SalesInvoiceLine."Amount Including VAT" - SalesInvoiceLine.Amount,
-          SalesInvoiceLine."VAT %", GetTaxCodeTraslado(SalesInvoiceLine."VAT %"), 0, 0);
-
-        // [THEN] Total VAT Amount is exported as attribute 'cfdi:Impuestos/TotalImpuestosTrasladados' = 10
-        // [THEN] XML Document has node 'cfdi:Impuestos/cfdi:Traslados/cfdi:Traslado' with total VAT line
-        // [THEN] and attributes 'Importe' = 10, 'TipoFactor' = 'Tasa', 'Impuesto' = '003'.
+          OriginalStr, SalesLine1.Amount, SalesLine1."Amount Including VAT" - SalesLine1.Amount, SalesLine1."VAT %", '002', 0, 0);
+        VerifyVATAmountLines(
+          OriginalStr, SalesLine2.Amount, SalesLine2."Amount Including VAT" - SalesLine2.Amount, SalesLine2."VAT %", '002', 0, 1);
+        // [THEN] XML Document has node 'cfdi:Impuestos/cfdi:Traslados/cfdi:Traslado' with 2 total VAT lines
+        // [THEN] Line1: attributes 'Importe' = 160, 'TipoFactor' = 'Tasa', 'Impuesto' = '002'.
+        // [THEN] Line2: attributes 'Importe' = 64, 'TipoFactor' = 'Tasa', 'Impuesto' = '002'.
         VerifyVATTotalLine(
           OriginalStr,
-          SalesInvoiceHeader."Amount Including VAT" - SalesInvoiceHeader.Amount, SalesInvoiceLine."VAT %",
-          GetTaxCodeTraslado(SalesInvoiceLine."VAT %"), 0, 1, 0);
+          SalesLine1."Amount Including VAT" - SalesLine1.Amount, SalesLine1."VAT %", '002', 0, 1, 15);
+        VerifyVATTotalLine(
+          OriginalStr,
+          SalesLine2."Amount Including VAT" - SalesLine2.Amount, SalesLine2."VAT %", '002', 1, 1, 15);
         VerifyTotalImpuestos(
-          OriginalStr, 'TotalImpuestosTrasladados', SalesInvoiceHeader."Amount Including VAT" - SalesInvoiceHeader.Amount, 42);
+          OriginalStr, 'TotalImpuestosTrasladados', SalesInvoiceHeader."Amount Including VAT" - SalesInvoiceHeader.Amount, 62);
     end;
 
     [Test]

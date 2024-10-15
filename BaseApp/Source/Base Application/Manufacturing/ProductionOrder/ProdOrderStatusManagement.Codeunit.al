@@ -202,6 +202,7 @@
                                 InvtAdjmtEntryOrder.SetProdOrderLine(FromProdOrderLine);
                             InvtAdjmtEntryOrder."Cost is Adjusted" := false;
                             InvtAdjmtEntryOrder."Is Finished" := true;
+                            OnTransProdOrderLineOnBeforeFinishedInvtAdjmtEntryOrderModify(InvtAdjmtEntryOrder, FromProdOrderLine, ToProdOrderLine, ToProdOrder);
                             InvtAdjmtEntryOrder.Modify();
 
                             if NewUpdateUnitCost then
@@ -1307,6 +1308,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnTransProdOrderCompOnBeforeToProdOrderCompInsert(var FromProdOrderComp: Record "Prod. Order Component"; var ToProdOrderComp: Record "Prod. Order Component")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnTransProdOrderLineOnBeforeFinishedInvtAdjmtEntryOrderModify(var InventoryAdjmtEntryOrder: Record "Inventory Adjmt. Entry (Order)"; FromProdOrderLine: Record "Prod. Order Line"; var ToProdOrderLine: Record "Prod. Order Line"; ToProductionOrder: Record "Production Order")
     begin
     end;
 
