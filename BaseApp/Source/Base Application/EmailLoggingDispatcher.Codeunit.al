@@ -23,9 +23,18 @@ codeunit 5064 "Email Logging Dispatcher"
         ErrorContext: Text;
         Text109: Label 'The interaction template for email messages has not been specified in the Interaction Template Setup window.';
         Text110: Label 'An interaction template for email messages has been specified in the Interaction Template Setup window, but the template does not exist.';
-        CannotDeleteMessageTxt: Label 'Cannot delete the email message.';
+        MessageMovedTxt: Label 'The email message has been moved.', Locked = true;
+        MessageCopiedTxt: Label 'The email message has been copied.', Locked = true;
+        MessageDeletedTxt: Label 'The email message has been deleted.', Locked = true;
+        CannotMoveMessageTxt: Label 'Cannot move the email message.', Locked = true;
+        CannotCopyMessageTxt: Label 'Cannot copy the email message.', Locked = true;
+        CannotDeleteMessageTxt: Label 'Cannot delete the email message.', Locked = true;
+        CannotMoveMessageDetailedTxt: Label 'Cannot move the email message. %1\\%2', Locked = true;
+        CannotCopyMessageDetailedTxt: Label 'Cannot copy the email message. %1\\%2', Locked = true;
+        CannotDeleteMessageDetailedTxt: Label 'Cannot delete the email message. %1\\%2', Locked = true;
         MessageAlreadyDeletedTxt: Label 'The email message has already been deleted.', Locked = true;
         MessageNotDeletedTxt: Label 'The email message has not been deleted.', Locked = true;
+        MessageNotLoggedErr: Label 'The email has not been logged because it could not be moved. %1', Comment = '%1 - exception message';
         CannotDeleteMessageErr: Label 'Cannot delete the email message.';
         EmailLoggingTelemetryCategoryTxt: Label 'AL Email Logging', Locked = true;
         EmailLoggingDispatcherStartedTxt: Label 'Email Logging Dipatcher started.', Locked = true;
@@ -73,6 +82,9 @@ codeunit 5064 "Email Logging Dispatcher"
         PublicFoldersNotInitializedTxt: Label 'Public folders are not initialized.', Locked = true;
         EmailLoggingDisabledTxt: Label 'Email logging is disabled.', Locked = true;
         EmailLoggingDisabledErr: Label 'Email logging is disabled.';
+        NoLinkCommentMessageTxt: Label 'There is no link to the email because the email could not be copied.', Comment = 'Max 80 chars';
+        NoLinkAttachmentMessageTxt: Label 'There is no link to the email because it could not be copied from the queue to the storage folder.';
+        TextFileExtentionTxt: Label 'TXT', Locked = true;
 
     [NonDebuggable]
     local procedure RunJob(var JobQueueEntry: Record "Job Queue Entry")
@@ -168,10 +180,12 @@ codeunit 5064 "Email Logging Dispatcher"
     var
         QueueFindResults: DotNet IFindEmailsResults;
         QueueMessage: DotNet IEmailMessage;
+        StorageMessage: DotNet IEmailMessage;
         QueueEnumerator: DotNet IEnumerator;
         EmailsLeftInBatch: Integer;
         PageSize: Integer;
         RescanQueueFolder: Boolean;
+        EmailMovedToStorage: Boolean;
     begin
         SendTraceTag('0000BVX', EmailLoggingTelemetryCategoryTxt, Verbosity::Normal, RunEmailBatchTxt, DataClassification::SystemMetadata);
 
@@ -187,9 +201,13 @@ codeunit 5064 "Email Logging Dispatcher"
             QueueEnumerator := QueueFindResults.GetEnumerator;
             while QueueEnumerator.MoveNext do begin
                 QueueMessage := QueueEnumerator.Current;
-                RescanQueueFolder := ProcessMessage(QueueMessage, QueueFolder, StorageFolder);
+                RescanQueueFolder := ProcessMessage(QueueMessage, QueueFolder, StorageFolder, StorageMessage);
                 SetErrorContext(Text108);
-                DeleteMessage(QueueMessage, QueueFolder);
+                EmailMovedToStorage := false;
+                if not IsNull(StorageMessage) then
+                    EmailMovedToStorage := QueueMessage.Id = StorageMessage.Id;
+                if not EmailMovedToStorage then
+                    DeleteMessage(QueueMessage, QueueFolder);
                 if RescanQueueFolder then begin
                     QueueFolder.UpdateFolder;
                     QueueFindResults := QueueFolder.FindEmailMessages(PageSize, 0);
@@ -390,13 +408,23 @@ codeunit 5064 "Email Logging Dispatcher"
 
     local procedure LogMessageAsInteraction(QueueMessage: DotNet IEmailMessage; StorageFolder: DotNet IEmailFolder; var SegLine: Record "Segment Line"; var Attachment: Record Attachment; var StorageMessage: DotNet IEmailMessage)
     var
+        ErrorMessage: Text;
+    begin
+        if not LogMessageAsInteraction(QueueMessage, StorageFolder, SegLine, Attachment, StorageMessage, ErrorMessage) then
+            Error(MessageNotLoggedErr, ErrorMessage);
+        Commit();
+    end;
+
+    local procedure LogMessageAsInteraction(QueueMessage: DotNet IEmailMessage; StorageFolder: DotNet IEmailFolder; var SegLine: Record "Segment Line"; var Attachment: Record Attachment; var StorageMessage: DotNet IEmailMessage; var ErrorMessage: Text): Boolean
+    var
         InteractLogEntry: Record "Interaction Log Entry";
         InteractionTemplateSetup: Record "Interaction Template Setup";
-        OStream: OutStream;
+        EntryNumbers: List of [Integer];
         Subject: Text;
-        EMailMessageUrl: Text;
         AttachmentNo: Integer;
         NextInteractLogEntryNo: Integer;
+        EmailMovedToStorage: Boolean;
+        EmailMoveError: Text;
     begin
         SendTraceTag('0000BWH', EmailLoggingTelemetryCategoryTxt, Verbosity::Normal, LogMessageAsInteractionTxt, DataClassification::SystemMetadata);
 
@@ -432,28 +460,107 @@ codeunit 5064 "Email Logging Dispatcher"
                 repeat
                     NextInteractLogEntryNo := NextInteractLogEntryNo + 1;
                     InsertInteractionLogEntry(SegLine, NextInteractLogEntryNo);
+                    EntryNumbers.Add(NextInteractLogEntryNo);
                 until SegLine.Next = 0;
         end else
             SendTraceTag('0000BWI', EmailLoggingTelemetryCategoryTxt, Verbosity::Normal, EmptyRecipientTxt, DataClassification::SystemMetadata);
 
         if Attachment."No." <> 0 then begin
             SendTraceTag('0000BWJ', EmailLoggingTelemetryCategoryTxt, Verbosity::Normal, CopyMessageFromQueueToStorageFolderTxt, DataClassification::SystemMetadata);
-            StorageMessage := QueueMessage.CopyToFolder(StorageFolder);
-            Attachment.LinkToMessage(StorageMessage.Id, StorageMessage.EntryId, true);
-            StorageMessage.NavAttachmentNo := Format(Attachment."No.");
-            StorageMessage.Update;
 
-            Attachment."Email Message Url".CreateOutStream(OStream);
-            EMailMessageUrl := StorageMessage.LinkUrl;
-            if EMailMessageUrl <> '' then begin
-                SendTraceTag('0000BWK', EmailLoggingTelemetryCategoryTxt, Verbosity::Normal, NotEmptyEmailMessageUrlTxt, DataClassification::SystemMetadata);
-                OStream.Write(EMailMessageUrl);
-            end else
-                SendTraceTag('0000BWL', EmailLoggingTelemetryCategoryTxt, Verbosity::Normal, EmptyEmailMessageUrlTxt, DataClassification::SystemMetadata);
-            Attachment.Modify();
+            if TryMoveMessage(QueueMessage, StorageFolder, EmailMovedToStorage) then
+                if EmailMovedToStorage then begin
+                    SendTraceTag('0000ETD', EmailLoggingTelemetryCategoryTxt, Verbosity::Normal, MessageMovedTxt, DataClassification::SystemMetadata);
+                    StorageMessage := QueueMessage;
+                    LinkAttachmentToMessage(Attachment, StorageMessage);
+                    exit(true);
+                end;
+            EmailMoveError := GetLastErrorText();
+            SendTraceTag('0000ETE', EmailLoggingTelemetryCategoryTxt, Verbosity::Warning, CannotMoveMessageTxt, DataClassification::SystemMetadata);
+            if EmailMoveError <> '' then
+                SendTraceTag('0000ETF', EmailLoggingTelemetryCategoryTxt, Verbosity::Normal, StrSubstNo(CannotMoveMessageDetailedTxt, EmailMoveError, GetLastErrorCallStack()), DataClassification::CustomerContent);
 
-            Commit();
+            if TryCopyMessage(QueueMessage, StorageFolder, StorageMessage) then begin
+                SendTraceTag('0000ETG', EmailLoggingTelemetryCategoryTxt, Verbosity::Normal, MessageCopiedTxt, DataClassification::SystemMetadata);
+                LinkAttachmentToMessage(Attachment, StorageMessage);
+                exit(true);
+            end;
+            SendTraceTag('0000ETH', EmailLoggingTelemetryCategoryTxt, Verbosity::Warning, CannotCopyMessageTxt, DataClassification::SystemMetadata);
+            SendTraceTag('0000ETI', EmailLoggingTelemetryCategoryTxt, Verbosity::Normal, StrSubstNo(CannotCopyMessageDetailedTxt, GetLastErrorText(), GetLastErrorCallStack()), DataClassification::CustomerContent);
+
+            if TryDeleteMessage(QueueMessage) then begin
+                SendTraceTag('0000ETJ', EmailLoggingTelemetryCategoryTxt, Verbosity::Normal, MessageDeletedTxt, DataClassification::SystemMetadata);
+                AddNoLinkContent(Attachment);
+                AddNoLinkComment(EntryNumbers);
+                exit(true);
+            end;
+            SendTraceTag('0000ETK', EmailLoggingTelemetryCategoryTxt, Verbosity::Warning, CannotDeleteMessageTxt, DataClassification::SystemMetadata);
+            SendTraceTag('0000ETL', EmailLoggingTelemetryCategoryTxt, Verbosity::Normal, StrSubstNo(CannotDeleteMessageDetailedTxt, GetLastErrorText(), GetLastErrorCallStack()), DataClassification::CustomerContent);
+
+            ErrorMessage := EmailMoveError;
         end;
+
+        exit(false);
+    end;
+
+    local procedure LinkAttachmentToMessage(var Attachment: Record Attachment; var StorageMessage: DotNet IEmailMessage)
+    var
+        OutStream: OutStream;
+        EMailMessageUrl: Text;
+    begin
+        Attachment.LinkToMessage(StorageMessage.Id, StorageMessage.EntryId, true);
+        StorageMessage.NavAttachmentNo := Format(Attachment."No.");
+        StorageMessage.Update;
+        Attachment."Email Message Url".CreateOutStream(OutStream);
+        EMailMessageUrl := StorageMessage.LinkUrl;
+        if EMailMessageUrl <> '' then begin
+            SendTraceTag('0000BWK', EmailLoggingTelemetryCategoryTxt, Verbosity::Normal, NotEmptyEmailMessageUrlTxt, DataClassification::SystemMetadata);
+            OutStream.Write(EMailMessageUrl);
+        end else
+            SendTraceTag('0000BWL', EmailLoggingTelemetryCategoryTxt, Verbosity::Normal, EmptyEmailMessageUrlTxt, DataClassification::SystemMetadata);
+        Attachment.Modify();
+    end;
+
+    local procedure AddNoLinkContent(var Attachment: Record Attachment)
+    begin
+        Attachment."Storage Type" := Attachment."Storage Type"::Embedded;
+        Attachment."Read Only" := true;
+        Attachment."File Extension" := TextFileExtentionTxt;
+        Attachment.Write(NoLinkAttachmentMessageTxt);
+        Attachment.Modify();
+    end;
+
+    local procedure AddNoLinkComment(var LogEntryNumbers: List of [Integer])
+    var
+        InterLogEntryCommentLine: Record "Inter. Log Entry Comment Line";
+        EntryNo: Integer;
+        LineNo: Integer;
+    begin
+        foreach EntryNo in LogEntryNumbers do begin
+            InterLogEntryCommentLine.SetRange("Entry No.", EntryNo);
+            if InterLogEntryCommentLine.FindLast() then
+                LineNo := InterLogEntryCommentLine."Line No." + 10000
+            else
+                LineNo := 10000;
+            InterLogEntryCommentLine.Init();
+            InterLogEntryCommentLine."Entry No." := EntryNo;
+            InterLogEntryCommentLine."Line No." := LineNo;
+            InterLogEntryCommentLine.Date := WorkDate();
+            InterLogEntryCommentLine.Comment := CopyStr(NoLinkCommentMessageTxt, 1, MaxStrLen(InterLogEntryCommentLine.Comment));
+            InterLogEntryCommentLine.Insert();
+        end;
+    end;
+
+    [TryFunction]
+    local procedure TryMoveMessage(var QueueMessage: DotNet IEmailMessage; var StorageFolder: DotNet IEmailFolder; var Moved: Boolean)
+    begin
+        Moved := QueueMessage.MoveToFolder(StorageFolder);
+    end;
+
+    [TryFunction]
+    local procedure TryCopyMessage(var QueueMessage: DotNet IEmailMessage; var StorageFolder: DotNet IEmailFolder; var StorageMessage: DotNet IEmailMessage)
+    begin
+        StorageMessage := QueueMessage.CopyToFolder(StorageFolder);
     end;
 
     procedure InsertInteractionLogEntry(SegLine: Record "Segment Line"; EntryNo: Integer)
@@ -542,11 +649,10 @@ codeunit 5064 "Email Logging Dispatcher"
         exit(false);
     end;
 
-    local procedure ProcessMessage(QueueMessage: DotNet IEmailMessage; QueueFolder: DotNet IEmailFolder; StorageFolder: DotNet IEmailFolder) SimilarEmailsFound: Boolean
+    local procedure ProcessMessage(QueueMessage: DotNet IEmailMessage; QueueFolder: DotNet IEmailFolder; var StorageFolder: DotNet IEmailFolder; var StorageMessage: DotNet IEmailMessage) SimilarEmailsFound: Boolean
     var
         TempSegLine: Record "Segment Line" temporary;
         Attachment: Record Attachment;
-        StorageMessage: DotNet IEmailMessage;
     begin
         SendTraceTag('0000BWX', EmailLoggingTelemetryCategoryTxt, Verbosity::Normal, ProcessMessageTxt, DataClassification::SystemMetadata);
 
@@ -560,7 +666,8 @@ codeunit 5064 "Email Logging Dispatcher"
         if IsMessageToLog(QueueMessage, TempSegLine, Attachment) then begin
             SetErrorContext(Text107);
             LogMessageAsInteraction(QueueMessage, StorageFolder, TempSegLine, Attachment, StorageMessage);
-            SimilarEmailsFound := ProcessSimilarMessages(StorageMessage, QueueFolder, StorageFolder, QueueMessage.Id);
+            if not IsNull(StorageMessage) then
+                SimilarEmailsFound := ProcessSimilarMessages(StorageMessage, QueueFolder, StorageFolder, QueueMessage.Id);
         end;
     end;
 
@@ -597,10 +704,11 @@ codeunit 5064 "Email Logging Dispatcher"
         Enumerator: DotNet IEnumerator;
         TargetMessage: DotNet IEmailMessage;
         Sender: DotNet IEmailAddress;
-        StorageMessage2: DotNet IEmailMessage;
+        StorageMessage: DotNet IEmailMessage;
         MessageId: Text;
         FolderOffset: Integer;
         EmailLogged: Boolean;
+        EmailMovedToStorage: Boolean;
     begin
         SendTraceTag('0000BX2', EmailLoggingTelemetryCategoryTxt, Verbosity::Normal, ProcessSimilarMessagesTxt, DataClassification::SystemMetadata);
 
@@ -618,6 +726,7 @@ codeunit 5064 "Email Logging Dispatcher"
                     TempSegLine.Init();
                     TargetMessage := Enumerator.Current;
                     EmailLogged := false;
+                    EmailMovedToStorage := false;
                     if TargetMessage.Id <> PrimaryQueueMessageId then begin
                         Sender := TargetMessage.SenderAddress;
                         if (PrimaryStorageMessage.Subject = TargetMessage.Subject) and
@@ -626,19 +735,27 @@ codeunit 5064 "Email Logging Dispatcher"
                             if ExchangeWebServicesServer.CompareEmailAttachments(PrimaryStorageMessage, TargetMessage) then begin
                                 MessageId := PrimaryStorageMessage.Id;
                                 if ItemLinkedFromAttachment(MessageId, Attachment) then begin
-                                    PrimaryStorageMessage.Delete();
-                                    LogMessageAsInteraction(TargetMessage, StorageFolder, TempSegLine, Attachment, StorageMessage2);
-                                    PrimaryStorageMessage := StorageMessage2;
-                                    TargetMessage.Delete();
+                                    if not TryDeleteMessage(PrimaryStorageMessage) then;
+                                    LogMessageAsInteraction(TargetMessage, StorageFolder, TempSegLine, Attachment, StorageMessage);
+                                    if not IsNull(StorageMessage) then begin
+                                        PrimaryStorageMessage := StorageMessage;
+                                        EmailMovedToStorage := TargetMessage.Id = PrimaryStorageMessage.Id;
+                                    end;
+                                    if not EmailMovedToStorage then
+                                        DeleteMessage(TargetMessage, QueueFolder);
                                     EmailLogged := true;
                                 end;
                             end
                         end;
                         if not EmailLogged then
                             if AttachmentRecordAlreadyExists(TargetMessage.NavAttachmentNo, Attachment) then begin
-                                LogMessageAsInteraction(TargetMessage, StorageFolder, TempSegLine, Attachment, StorageMessage2);
-                                PrimaryStorageMessage := StorageMessage2;
-                                TargetMessage.Delete();
+                                LogMessageAsInteraction(TargetMessage, StorageFolder, TempSegLine, Attachment, StorageMessage);
+                                if not IsNull(StorageMessage) then begin
+                                    PrimaryStorageMessage := StorageMessage;
+                                    EmailMovedToStorage := TargetMessage.Id = PrimaryStorageMessage.Id;
+                                end;
+                                if not EmailMovedToStorage then
+                                    DeleteMessage(TargetMessage, QueueFolder);
                                 EmailLogged := true;
                             end;
                         if EmailLogged then
