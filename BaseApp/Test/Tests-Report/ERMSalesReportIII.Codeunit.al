@@ -22,6 +22,7 @@ codeunit 134984 "ERM Sales Report III"
         LibraryDimension: Codeunit "Library - Dimension";
         LibraryItemTracking: Codeunit "Library - Item Tracking";
         LibraryPurchase: Codeunit "Library - Purchase";
+        LibraryXPathXMLReader: Codeunit "Library - XPath XML Reader";
         FileManagement: Codeunit "File Management";
         CodeCoverageMgt: Codeunit "Code Coverage Mgt.";
         Assert: Codeunit Assert;
@@ -1949,6 +1950,7 @@ codeunit 134984 "ERM Sales Report III"
     var
         GenJournalLine: array[3] of Record "Gen. Journal Line";
         Customer: Record Customer;
+        AutoFormat: Codeunit "Auto Format";
         CustomerBalanceToDate: Report "Customer - Balance to Date";
     begin
         // [FEATURE] [Customer - Balance to Date]
@@ -1983,7 +1985,9 @@ codeunit 134984 "ERM Sales Report III"
 
         // [THEN] RemainingAmt is equal to 'X' + 'Y'
         LibraryReportDataset.LoadDataSetFile;
-        LibraryReportDataset.AssertElementWithValueExists('RemainingAmt', GenJournalLine[1].Amount + GenJournalLine[2].Amount);
+        LibraryReportDataset.AssertElementWithValueExists('RemainingAmt',
+            Format(GenJournalLine[1].Amount + GenJournalLine[2].Amount, 0,
+                AutoFormat.ResolveAutoFormat("Auto Format"::AmountFormat, GenJournalLine[1]."Currency Code")));
     end;
 
     [Test]
@@ -2414,6 +2418,138 @@ codeunit 134984 "ERM Sales Report III"
         LibraryReportDataset.AssertCurrentRowValueEquals('ShipToAddress1', ReturnReceiptHeader."Ship-to Name");
         // [THEN] Dataset contains data for bill-to customer "C2"
         LibraryReportDataset.AssertCurrentRowValueEquals('CustomerAddress1', ReturnReceiptHeader."Bill-to Name");
+    end;
+
+    [Test]
+    [HandlerFunctions('RHAgedAccountsReceivableFileName')]
+    procedure AgedAccountsReceivableCurrencyFilterNotSet()
+    var
+        Customer: Record Customer;
+        SalesLine: Record "Sales Line";
+        CurrencyCode: array[2] of Code[10];
+        DocumentNo: Code[20];
+        PeriodLength: DateFormula;
+        Filters: Text;
+        AmountFCY: array[2] of Decimal;
+        AmountLCY: array[2] of Decimal;
+    begin
+        // [FEATURE] [Aged Accounts Receivable]
+        // [SCENARIO 397446] Run Aged Accounts Receivable report for Sales Documents with different currencies when Currency Filter is not set.
+        Initialize();
+
+        // [GIVEN] Posted Sales Invoice with Currency "C1". Posted Sales Invoice with Currency "C2".
+        LibrarySales.CreateCustomer(Customer);
+        CurrencyCode[1] := LibraryERM.CreateCurrencyWithRandomExchRates();
+        CurrencyCode[2] := LibraryERM.CreateCurrencyWithRandomExchRates();
+        DocumentNo := CreateAndPostSalesDocument(SalesLine, Customer."No.", SalesLine."Document Type"::Invoice, CurrencyCode[1], true);
+        GetSalesDocAmounts(SalesLine."Document Type"::Invoice, DocumentNo, AmountFCY[1], AmountLCY[1]);
+        DocumentNo := CreateAndPostSalesDocument(SalesLine, Customer."No.", SalesLine."Document Type"::Invoice, CurrencyCode[2], true);
+        GetSalesDocAmounts(SalesLine."Document Type"::Invoice, DocumentNo, AmountFCY[2], AmountLCY[2]);
+
+        // [WHEN] Run report Aged Accounts Receivable. "Currency Filter" is not set in "Filter Totals by" section in Customer block.
+        Evaluate(PeriodLength, StrSubstNo('<%1M>', LibraryRandom.RandInt(5)));
+        Customer.SetRecFilter();
+        SaveAgedAccountsReceivable(Customer, AgingBy::"Due Date", HeadingType::"Date Interval", PeriodLength, false, false);
+
+        // [THEN] Lines for currencies "C1" and "C2" are shown. Totals are equal to sum of Amount(LCY) of Invoices.
+        LibraryXPathXMLReader.Initialize(LibraryVariableStorage.DequeueText, '');
+        VerifyCurrencyAgedAccountsReceivable(CurrencyCode[1], AmountFCY[1], AmountLCY[1], 0);
+        VerifyCurrencyAgedAccountsReceivable(CurrencyCode[2], AmountFCY[2], AmountLCY[2], 1);
+        VerifyTotalLCYAgedAccountsReceivable(AmountLCY[1] + AmountLCY[2]);
+        LibraryXPathXMLReader.VerifyNodeCountByXPath('//Result/CurrrencyCode', 2);
+        LibraryXPathXMLReader.VerifyNodeCountByXPath('//Result/TempCurrCode', 2);
+
+        // [THEN] Filter on the report page does not contain "Currency Filter".
+        Filters := LibraryXPathXMLReader.GetNodeInnerTextByXPathWithIndex('//Result/CustFilter', 0);
+        asserterror Assert.ExpectedMessage('Currency Filter', Filters);
+    end;
+
+    [Test]
+    [HandlerFunctions('RHAgedAccountsReceivableFileName')]
+    procedure AgedAccountsReceivableCurrencyFilterSetOneCurrency()
+    var
+        Customer: Record Customer;
+        SalesLine: Record "Sales Line";
+        CurrencyCode: array[2] of Code[10];
+        DocumentNo: Code[20];
+        PeriodLength: DateFormula;
+        Filters: Text;
+        AmountFCY: Decimal;
+        AmountLCY: Decimal;
+    begin
+        // [FEATURE] [Aged Accounts Receivable]
+        // [SCENARIO 397446] Run Aged Accounts Receivable report for Sales Documents with different currencies when Currency Filter is set to one currency.
+        Initialize();
+
+        // [GIVEN] Posted Sales Invoice with Currency "C1". Posted Sales Invoice with Currency "C2".
+        LibrarySales.CreateCustomer(Customer);
+        CurrencyCode[1] := LibraryERM.CreateCurrencyWithRandomExchRates();
+        CurrencyCode[2] := LibraryERM.CreateCurrencyWithRandomExchRates();
+        CreateAndPostSalesDocument(SalesLine, Customer."No.", SalesLine."Document Type"::Invoice, CurrencyCode[1], true);
+        DocumentNo := CreateAndPostSalesDocument(SalesLine, Customer."No.", SalesLine."Document Type"::Invoice, CurrencyCode[2], true);
+        GetSalesDocAmounts(SalesLine."Document Type"::Invoice, DocumentNo, AmountFCY, AmountLCY);
+
+        // [WHEN] Run report Aged Accounts Receivable. Set "Currency Filter" = "C2" in "Filter Totals by" section in Customer block.
+        Evaluate(PeriodLength, StrSubstNo('<%1M>', LibraryRandom.RandInt(5)));
+        Customer.SetRecFilter();
+        Customer.SetRange("Currency Filter", CurrencyCode[2]);
+        SaveAgedAccountsReceivable(Customer, AgingBy::"Due Date", HeadingType::"Date Interval", PeriodLength, false, false);
+
+        // [THEN] Only line for currency "C2" is shown. Totals are equal to corresponding values of the posted Invoice with Currency "C2".
+        LibraryXPathXMLReader.Initialize(LibraryVariableStorage.DequeueText, '');
+        VerifyCurrencyAgedAccountsReceivable(CurrencyCode[2], AmountFCY, AmountLCY, 0);
+        VerifyTotalLCYAgedAccountsReceivable(AmountLCY);
+        LibraryXPathXMLReader.VerifyNodeCountByXPath('//Result/CurrrencyCode', 1);
+        LibraryXPathXMLReader.VerifyNodeCountByXPath('//Result/TempCurrCode', 1);
+
+        // [THEN] Filter on the report page contains "Currency Filter: C2".
+        Filters := LibraryXPathXMLReader.GetNodeInnerTextByXPathWithIndex('//Result/CustFilter', 0);
+        Assert.ExpectedMessage(StrSubstNo('Currency Filter: %1', CurrencyCode[2]), Filters);
+    end;
+
+    [Test]
+    [HandlerFunctions('RHAgedAccountsReceivableFileName')]
+    procedure AgedAccountsReceivableCurrencyFilterSetTwoCurrencies()
+    var
+        Customer: Record Customer;
+        SalesLine: Record "Sales Line";
+        CurrencyCode: array[2] of Code[10];
+        DocumentNo: Code[20];
+        PeriodLength: DateFormula;
+        Filters: Text;
+        AmountFCY: array[2] of Decimal;
+        AmountLCY: array[2] of Decimal;
+    begin
+        // [FEATURE] [Aged Accounts Receivable]
+        // [SCENARIO 397446] Run Aged Accounts Receivable report for Sales Documents with different currencies when Currency Filter is set for two currencies.
+        Initialize();
+
+        // [GIVEN] Posted Sales Invoice with Currency "C1". Posted Sales Invoice with Currency "C2".
+        LibrarySales.CreateCustomer(Customer);
+        CurrencyCode[1] := LibraryERM.CreateCurrencyWithRandomExchRates();
+        CurrencyCode[2] := LibraryERM.CreateCurrencyWithRandomExchRates();
+        DocumentNo := CreateAndPostSalesDocument(SalesLine, Customer."No.", SalesLine."Document Type"::Invoice, CurrencyCode[1], true);
+        GetSalesDocAmounts(SalesLine."Document Type"::Invoice, DocumentNo, AmountFCY[1], AmountLCY[1]);
+        DocumentNo := CreateAndPostSalesDocument(SalesLine, Customer."No.", SalesLine."Document Type"::Invoice, CurrencyCode[2], true);
+        GetSalesDocAmounts(SalesLine."Document Type"::Invoice, DocumentNo, AmountFCY[2], AmountLCY[2]);
+
+        // [WHEN] Run report Aged Accounts Receivable. Set "Currency Filter" = "C1|C2" in "Filter Totals by" section in Customer block.
+        Evaluate(PeriodLength, StrSubstNo('<%1M>', LibraryRandom.RandInt(5)));
+        Customer.SetRecFilter();
+        Customer.SetFilter("Currency Filter", '%1|%2', CurrencyCode[1], CurrencyCode[2]);
+        SaveAgedAccountsReceivable(Customer, AgingBy::"Due Date", HeadingType::"Date Interval", PeriodLength, false, false);
+
+        // [THEN] Lines for currencies "C1" and "C2" are shown. Totals are equal to sum of Amount(LCY) of Invoices.
+        LibraryXPathXMLReader.Initialize(LibraryVariableStorage.DequeueText, '');
+        VerifyCurrencyAgedAccountsReceivable(CurrencyCode[1], AmountFCY[1], AmountLCY[1], 0);
+        VerifyCurrencyAgedAccountsReceivable(CurrencyCode[2], AmountFCY[2], AmountLCY[2], 1);
+        VerifyTotalLCYAgedAccountsReceivable(AmountLCY[1] + AmountLCY[2]);
+        LibraryXPathXMLReader.VerifyNodeCountByXPath('//Result/CurrrencyCode', 2);
+        LibraryXPathXMLReader.VerifyNodeCountByXPath('//Result/TempCurrCode', 2);
+
+        // [THEN] Filter on the report page contains "Currency Filter: C1|C2".
+        Filters := LibraryXPathXMLReader.GetNodeInnerTextByXPathWithIndex('//Result/CustFilter', 0);
+        Assert.ExpectedMessage(StrSubstNo('Currency Filter: %1|%2', CurrencyCode[1], CurrencyCode[2]), Filters);
     end;
 
     local procedure Initialize()
@@ -3116,6 +3252,16 @@ codeunit 134984 "ERM Sales Report III"
         end;
     end;
 
+    local procedure GetSalesDocAmounts(DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20]; var Amount: Decimal; var AmountLCY: Decimal)
+    var
+        CustLedgerEntry: Record "Cust. Ledger Entry";
+    begin
+        LibraryERM.FindCustomerLedgerEntry(CustLedgerEntry, DocumentType, DocumentNo);
+        CustLedgerEntry.CalcFields(Amount, "Amount (LCY)");
+        Amount := CustLedgerEntry.Amount;
+        AmountLCY := CustLedgerEntry."Amount (LCY)";
+    end;
+
     local procedure ApplyCustLedgerEntry(DocumentType: Enum "Gen. Journal Document Type"; CustomerNo: Code[20])
     var
         CustomerLedgerEntries: TestPage "Customer Ledger Entries";
@@ -3619,6 +3765,11 @@ codeunit 134984 "ERM Sales Report III"
           Format(Value, 0, StrSubstNo('<Sign><Integer Thousand><1000Character,,><Decimals,%1><Comma,.><Filler Character,0>', Decimals + 1)));
     end;
 
+    local procedure FormatDecimalXML(DecimalValue: Decimal): Text
+    begin
+        exit(Format(DecimalValue, 0, '<Precision,0:2><Standard Format,9>'));
+    end;
+
     local procedure VerifyAgedAccountsRecReport(PostedDocNo: Code[20]; SellToCustNo: Code[20]; Total: Decimal; VATAmount: Decimal; TotalLCY: Decimal; VATAmountLCY: Decimal)
     begin
         LibraryReportDataset.LoadDataSetFile;
@@ -3629,6 +3780,24 @@ codeunit 134984 "ERM Sales Report III"
         LibraryReportDataset.AssertCurrentRowValueEquals('AgedCLE1TempRemAmt', VATAmount);
         LibraryReportDataset.AssertCurrentRowValueEquals('CLEEndDateAmtLCY', TotalLCY);
         LibraryReportDataset.AssertCurrentRowValueEquals('AgedCLE1RemAmtLCY', VATAmountLCY);
+    end;
+
+    local procedure VerifyCurrencyAgedAccountsReceivable(CurrencyCode: Code[10]; Amount: Decimal; AmountLCY: Decimal; NodeIndex: Integer)
+    begin
+        LibraryXPathXMLReader.VerifyNodeValueByXPathWithIndex('//Result/CurrrencyCode', CurrencyCode, NodeIndex);
+        LibraryXPathXMLReader.VerifyNodeValueByXPathWithIndex('//Result/TempCurrCode', CurrencyCode, NodeIndex);
+        LibraryXPathXMLReader.VerifyNodeValueByXPathWithIndex('//Result/RemAmt_CLEEndDate', FormatDecimalXML(Amount), NodeIndex);
+        LibraryXPathXMLReader.VerifyNodeValueByXPathWithIndex('//Result/CLEEndDateAmtLCY', FormatDecimalXML(AmountLCY), NodeIndex);
+    end;
+
+    local procedure VerifyTotalLCYAgedAccountsReceivable(TotalLCY: Decimal)
+    var
+        nodeList: DotNet XmlNodeList;
+        TotalLastIndex: Integer;
+    begin
+        LibraryXPathXMLReader.GetNodeList('//Result/GrandTotalCLE1AmtLCY', nodeList);
+        TotalLastIndex := nodeList.Count - 1; // index of the last node that contains Total(LCY) value
+        LibraryXPathXMLReader.VerifyNodeValueByXPathWithIndex('//Result/GrandTotalCLE1AmtLCY', FormatDecimalXML(TotalLCY), TotalLastIndex);
     end;
 
     local procedure VerifyInternalInformation(DimensionValueRec: Record "Dimension Value"; Separator: Text[3])
@@ -3686,8 +3855,8 @@ codeunit 134984 "ERM Sales Report III"
         LibraryReportDataset.SetRange('DocType_DtldCustLedgEntry', Format(GenJournalLine."Document Type"::Payment));
         LibraryReportDataset.GetNextRow;
         LibraryReportDataset.AssertCurrentRowValueEquals('EntryNo_CustLedgEntry', CustLedgerEntry."Entry No.");
-        LibraryReportDataset.AssertCurrentRowValueEquals('OriginalAmt', InvAmountLCY);
-        LibraryReportDataset.AssertCurrentRowValueEquals('Amt', PmtAmountLCY);
+        LibraryReportDataset.AssertCurrentRowValueEquals('OriginalAmt', Format(InvAmountLCY));
+        LibraryReportDataset.AssertCurrentRowValueEquals('Amt', Format(PmtAmountLCY));
 
         LibraryReportDataset.Reset();
         LibraryReportDataset.SetRange('TotalCaption', TotalCapTxt);
@@ -3699,19 +3868,21 @@ codeunit 134984 "ERM Sales Report III"
     local procedure VerifyCustomerBalanceToDate(GenJournalLine: Record "Gen. Journal Line"; InvoiceAmount: Decimal; PmtDiscAmount: Decimal)
     var
         DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry";
+        AutoFormat: Codeunit "Auto Format";
     begin
         LibraryReportDataset.SetRange('PostingDt_CustLedgEntry', Format(WorkDate));
         LibraryReportDataset.SetRange('DocType_CustLedgEntry', Format(GenJournalLine."Document Type"::Payment));
         LibraryReportDataset.SetRange('EntType_DtldCustLedgEnt', Format(DetailedCustLedgEntry."Entry Type"::"Payment Discount"));
         LibraryReportDataset.GetNextRow;
         LibraryReportDataset.AssertCurrentRowValueEquals('DocNo_CustLedgEntry', GenJournalLine."Document No.");
-        LibraryReportDataset.AssertCurrentRowValueEquals('OriginalAmt', GenJournalLine.Amount);
-        LibraryReportDataset.AssertCurrentRowValueEquals('Amt', Round(PmtDiscAmount));
+        LibraryReportDataset.AssertCurrentRowValueEquals('OriginalAmt', Format(GenJournalLine.Amount));
+        LibraryReportDataset.AssertCurrentRowValueEquals('Amt',
+            Format(Round(PmtDiscAmount), 0, AutoFormat.ResolveAutoFormat("Auto Format"::AmountFormat, GenJournalLine."Currency Code")));
 
         LibraryReportDataset.Reset();
         LibraryReportDataset.SetRange('EntType_DtldCustLedgEnt', Format(DetailedCustLedgEntry."Entry Type"::Application));
         LibraryReportDataset.GetNextRow;
-        LibraryReportDataset.AssertCurrentRowValueEquals('Amt', InvoiceAmount);
+        LibraryReportDataset.AssertCurrentRowValueEquals('Amt', Format(InvoiceAmount));
 
         LibraryReportDataset.Reset();
         LibraryReportDataset.SetRange('TotalCaption', TotalCapTxt);
@@ -3741,17 +3912,17 @@ codeunit 134984 "ERM Sales Report III"
     begin
         LibraryReportDataset.SetRange('DocType_CustLedgEntry', Format(GenJournalLine."Document Type"::Invoice));
         LibraryReportDataset.GetNextRow;
-        LibraryReportDataset.AssertCurrentRowValueEquals('OriginalAmt', InvoiceAmount);
+        LibraryReportDataset.AssertCurrentRowValueEquals('OriginalAmt', Format(InvoiceAmount));
 
         LibraryReportDataset.Reset();
         LibraryReportDataset.SetRange('EntryNo_CustLedgEntry', EntryNo);
         LibraryReportDataset.GetNextRow;
-        LibraryReportDataset.AssertCurrentRowValueEquals('OriginalAmt', GenJournalLine.Amount);
+        LibraryReportDataset.AssertCurrentRowValueEquals('OriginalAmt', Format(GenJournalLine.Amount));
 
         LibraryReportDataset.Reset();
         LibraryReportDataset.SetRange('DocType_DtldCustLedgEntry', Format(GenJournalLine."Document Type"::Payment));
         LibraryReportDataset.GetNextRow;
-        LibraryReportDataset.AssertCurrentRowValueEquals('Amt', GenJournalLine.Amount);
+        LibraryReportDataset.AssertCurrentRowValueEquals('Amt', Format(GenJournalLine.Amount));
 
         LibraryReportDataset.Reset();
         LibraryReportDataset.SetRange('TotalCaption', TotalCapTxt);
@@ -3901,7 +4072,7 @@ codeunit 134984 "ERM Sales Report III"
         LibraryReportDataset.SetRange('PostingDt_CustLedgEntry', Format(WorkDate));
         LibraryReportDataset.SetRange('DocType_CustLedgEntry', Format(GenJournalLine."Document Type"::Invoice));
         LibraryReportDataset.GetNextRow;
-        LibraryReportDataset.AssertCurrentRowValueEquals('OriginalAmt', CustLedgerEntry.Amount);
+        LibraryReportDataset.AssertCurrentRowValueEquals('OriginalAmt', Format(CustLedgerEntry.Amount));
     end;
 
     local procedure VerifyCustomerEntriesAndBalanceInCustomerBalanceToDate(GenJournalLine: Record "Gen. Journal Line"; Balance: Decimal)
@@ -3909,10 +4080,10 @@ codeunit 134984 "ERM Sales Report III"
         LibraryReportDataset.LoadDataSetFile;
         LibraryReportDataset.SetRange('DocType_CustLedgEntry', Format(GenJournalLine."Document Type"::Invoice));
         LibraryReportDataset.GetNextRow;
-        LibraryReportDataset.AssertCurrentRowValueEquals('OriginalAmt', -GenJournalLine.Amount);
+        LibraryReportDataset.AssertCurrentRowValueEquals('OriginalAmt', Format(-GenJournalLine.Amount));
         LibraryReportDataset.SetRange('DocType_CustLedgEntry', Format(GenJournalLine."Document Type"::"Credit Memo"));
         LibraryReportDataset.GetNextRow;
-        LibraryReportDataset.AssertCurrentRowValueEquals('OriginalAmt', GenJournalLine.Amount);
+        LibraryReportDataset.AssertCurrentRowValueEquals('OriginalAmt', Format(GenJournalLine.Amount));
         LibraryReportDataset.SetRange('CustName', GenJournalLine."Account No.");
         LibraryReportDataset.GetNextRow;
         LibraryReportDataset.AssertCurrentRowValueEquals('TtlAmtCurrencyTtlBuff', Balance);
@@ -3922,8 +4093,8 @@ codeunit 134984 "ERM Sales Report III"
     begin
         LibraryReportDataset.LoadDataSetFile;
         LibraryReportDataset.SetRange('No_Customer', CustomerNo);
-        LibraryReportDataset.AssertElementWithValueExists('OriginalAmt', PmtAmount);
-        LibraryReportDataset.AssertElementWithValueExists('OriginalAmt', Amount);
+        LibraryReportDataset.AssertElementWithValueExists('OriginalAmt', Format(PmtAmount));
+        LibraryReportDataset.AssertElementWithValueExists('OriginalAmt', Format(Amount));
         LibraryReportDataset.AssertElementWithValueExists('TtlAmtCurrencyTtlBuff', TotalAmount);
         LibraryReportDataset.AssertElementWithValueNotExist('postDt_DtldCustLedgEntry', Format(WorkDate + 1));
     end;
@@ -3932,8 +4103,8 @@ codeunit 134984 "ERM Sales Report III"
     begin
         LibraryReportDataset.LoadDataSetFile;
         LibraryReportDataset.SetRange('No_Customer', CustomerNo);
-        LibraryReportDataset.AssertElementWithValueExists('OriginalAmt', PmtAmount);
-        LibraryReportDataset.AssertElementWithValueNotExist('OriginalAmt', Amount);
+        LibraryReportDataset.AssertElementWithValueExists('OriginalAmt', Format(PmtAmount));
+        LibraryReportDataset.AssertElementWithValueNotExist('OriginalAmt', Format(Amount));
         LibraryReportDataset.AssertElementWithValueExists('TtlAmtCurrencyTtlBuff', PmtAmount);
         LibraryReportDataset.AssertElementWithValueNotExist('postDt_DtldCustLedgEntry', Format(WorkDate + 1));
     end;
@@ -4168,6 +4339,17 @@ codeunit 134984 "ERM Sales Report III"
     procedure RHAgedAccountsReceivable(var AgedAccountsReceivable: TestRequestPage "Aged Accounts Receivable")
     begin
         AgedAccountsReceivable.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure RHAgedAccountsReceivableFileName(var AgedAccountsReceivable: TestRequestPage "Aged Accounts Receivable")
+    var
+        FileName: Text;
+    begin
+        FileName := LibraryReportDataset.GetFileName();
+        LibraryVariableStorage.Enqueue(FileName);
+        AgedAccountsReceivable.SaveAsXml(LibraryReportDataset.GetParametersFileName, FileName);
     end;
 
     [RequestPageHandler]

@@ -989,6 +989,16 @@ table 270 "Bank Account"
             OnRenewAccessConsentStatementProviderEvent(BankAccount, StatementProvider);
     end;
 
+    procedure EditAccountStatementProvider(var BankAccount: Record "Bank Account")
+    var
+        StatementProvider: Text;
+    begin
+        StatementProvider := SelectBankLinkingService();
+
+        if StatementProvider <> '' then
+            OnEditAccountStatementProviderEvent(BankAccount, StatementProvider);
+    end;
+
     procedure UpdateBankAccountLinking()
     var
         StatementProvider: Text;
@@ -1302,6 +1312,12 @@ table 270 "Bank Account"
     local procedure OnRenewAccessConsentStatementProviderEvent(var BankAccount: Record "Bank Account"; var StatementProvider: Text)
     begin
         // The subscriber of this event should provide the UI for renewing access consent to the linked open banking bank account
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnEditAccountStatementProviderEvent(var BankAccount: Record "Bank Account"; var StatementProvider: Text)
+    begin
+        // The subscriber of this event should provide the UI for editing the information about the online bank account
     end;
 
     [IntegrationEvent(false, false)]

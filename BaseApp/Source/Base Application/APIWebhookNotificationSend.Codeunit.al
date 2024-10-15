@@ -26,6 +26,11 @@
             exit;
         end;
 
+        if not APIWebhookNotificationMgt.CanScheduleJob() then begin
+            Session.LogMessage('0000EWZ', NoPermissionsTxt, Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', APIWebhookCategoryLbl);
+            exit;
+        end;
+
         Initialize();
         DeleteExpiredSubscriptions();
         DeleteObsoleteSubscriptions();

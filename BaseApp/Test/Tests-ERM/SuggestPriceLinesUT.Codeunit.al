@@ -1,4 +1,4 @@
-codeunit 134168 "Suggest Price Lines UT"
+  codeunit 134168 "Suggest Price Lines UT"
 {
     Subtype = Test;
     TestPermissions = Disabled;
@@ -664,29 +664,102 @@ codeunit 134168 "Suggest Price Lines UT"
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmYesHandler')]
-    procedure T035_ActivePriceListToDraft()
+    [HandlerFunctions('TwoDuplicatePriceLinesModalHandler,ConfirmYesHandler')]
+    procedure T036_DuplicateResourceSameWorkTypePriceLineInTheSamePriceList()
     var
-        Item: Record Item;
+        Resource: Record Resource;
+        WorkType: Record "Work Type";
         PriceListHeader: Record "Price List Header";
         PriceListLine: array[2] of Record "Price List Line";
     begin
         Initialize(true);
-        // [GIVEN] Item 'X'
-        LibraryInventory.CreateItem(Item);
-        // [GIVEN] 'Draft' price list, where "Asset No." is 'X', "Minimum Quantity" is 0, prices are different.
+        // [GIVEN] Work type 'A'
+        LibraryResource.CreateWorkType(WorkType);
+        // [GIVEN] Resource 'X'
+        LibraryResource.CreateResource(Resource, '');
+        // [GIVEN] Two duplicate lines in the 'Draft' price list, where "Asset No." is 'X', "Work Type" is 'A', "Minimum Quantity" is 0, prices are different.
         LibraryPriceCalculation.CreatePriceHeader(PriceListHeader, "Price Type"::Sale, "Price Source Type"::"All Customers", '');
-        LibraryPriceCalculation.CreateSalesPriceLine(
-            PriceListLine[1], PriceListHeader.Code, "Price Source Type"::"All Customers", '', "Price Asset Type"::Item, Item."No.");
-        // [GIVEN] Activate the price list
+        CreateSalesResourcePriceLine("Price Asset Type"::Resource, Resource."No.", WorkType, PriceListHeader, PriceListLine[1]);
+        CreateSalesResourcePriceLine("Price Asset Type"::Resource, Resource."No.", WorkType, PriceListHeader, PriceListLine[2]);
+
+        // [WHEN] Activate the price list
         PriceListHeader.Validate(Status, "Price Status"::Active);
 
-        // [WHEN] Deactivate the price list to 'Draft', answer 'Yes' to confirmation.
-        PriceListHeader.Validate(Status, "Price Status"::Draft);
+        // [THEN] "Duplicate Prices" page is open, where are two lines for Item 'X'
+        // [THEN] The first line, where "Remove" is 'No'
+        Assert.AreEqual(PriceListLine[1]."Line No.", LibraryVariableStorage.DequeueInteger(), 'wrong line number in 1st line');
+        Assert.IsFalse(LibraryVariableStorage.DequeueBoolean(), 'wrong Remove in 1st line');
+        // [THEN] The second line, where "Remove" is 'Yes'
+        Assert.AreEqual(PriceListLine[2]."Line No.", LibraryVariableStorage.DequeueInteger(), 'wrong line number in 2nd line');
+        Assert.IsTrue(LibraryVariableStorage.DequeueBoolean(), 'wrong Remove in 2nd line');
 
         // [THEN] Price list is active, where is one (first) line.
         Assert.IsTrue(PriceListLine[1].Find(), 'active first line is not found');
-        PriceListLine[1].TestField(Status, "Price Status"::Draft);
+        PriceListLine[1].TestField(Status, "Price Status"::Active);
+        Assert.IsFalse(PriceListLine[2].Find(), 'active second line is found');
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmYesHandler')]
+    procedure T037_NotDuplicateResourceWorkTypePriceLineInTheSamePriceList()
+    var
+        Resource: Record Resource;
+        WorkType: array[2] of Record "Work Type";
+        PriceListHeader: Record "Price List Header";
+        PriceListLine: array[2] of Record "Price List Line";
+    begin
+        Initialize(true);
+        // [GIVEN] 2 work types 'A' and 'B'
+        LibraryResource.CreateWorkType(WorkType[1]);
+        LibraryResource.CreateWorkType(WorkType[2]);
+        // [GIVEN] Resource 'X'
+        LibraryResource.CreateResource(Resource, '');
+        // [GIVEN] Two lines in the 'Draft' price list, where "Asset No." is 'X', "Work Type" are 'A' and 'B', "Minimum Quantity" is 0, prices are different.
+        LibraryPriceCalculation.CreatePriceHeader(PriceListHeader, "Price Type"::Sale, "Price Source Type"::"All Customers", '');
+        CreateSalesResourcePriceLine("Price Asset Type"::Resource, Resource."No.", WorkType[1], PriceListHeader, PriceListLine[1]);
+        CreateSalesResourcePriceLine("Price Asset Type"::Resource, Resource."No.", WorkType[2], PriceListHeader, PriceListLine[2]);
+
+        // [WHEN] Activate the price list
+        PriceListHeader.Validate(Status, "Price Status"::Active);
+
+        // [THEN] Price list is active, where are two active lines.
+        Assert.IsTrue(PriceListLine[1].Find(), 'active first line is not found');
+        PriceListLine[1].TestField(Status, "Price Status"::Active);
+        Assert.IsTrue(PriceListLine[2].Find(), 'active second line is not found');
+        PriceListLine[2].TestField(Status, "Price Status"::Active);
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmYesHandler')]
+    procedure T038_NotDuplicateResourceGroupWorkTypePriceLineInTheSamePriceList()
+    var
+        ResourceGroup: Record "Resource Group";
+        WorkType: array[2] of Record "Work Type";
+        PriceListHeader: Record "Price List Header";
+        PriceListLine: array[2] of Record "Price List Line";
+    begin
+        Initialize(true);
+        // [GIVEN] 2 work types 'A' and 'B'
+        LibraryResource.CreateWorkType(WorkType[1]);
+        LibraryResource.CreateWorkType(WorkType[2]);
+        // [GIVEN] Resource Group 'X'
+        LibraryResource.CreateResourceGroup(ResourceGroup);
+        // [GIVEN] Two lines in the 'Draft' price list, where "Asset No." is 'X', "Work Type" are 'A' and 'B', "Minimum Quantity" is 0, prices are different.
+        LibraryPriceCalculation.CreatePriceHeader(PriceListHeader, "Price Type"::Sale, "Price Source Type"::"All Customers", '');
+        CreateSalesResourcePriceLine("Price Asset Type"::"Resource Group", ResourceGroup."No.", WorkType[1], PriceListHeader, PriceListLine[1]);
+        CreateSalesResourcePriceLine("Price Asset Type"::"Resource Group", ResourceGroup."No.", WorkType[2], PriceListHeader, PriceListLine[2]);
+
+        // [WHEN] Activate the price list
+        PriceListHeader.Validate(Status, "Price Status"::Active);
+
+        // [THEN] Price list is active, where are two active lines.
+        Assert.IsTrue(PriceListLine[1].Find(), 'active first line is not found');
+        PriceListLine[1].TestField(Status, "Price Status"::Active);
+        Assert.IsTrue(PriceListLine[2].Find(), 'active second line is not found');
+        PriceListLine[2].TestField(Status, "Price Status"::Active);
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -1715,6 +1788,14 @@ codeunit 134168 "Suggest Price Lines UT"
         LibraryVariableStorage.Enqueue(LineNo);
         Evaluate(Remove, DuplicatePriceLines.Remove.Value());
         LibraryVariableStorage.Enqueue(Remove);
+    end;
+
+    local procedure CreateSalesResourcePriceLine(AssetType: Enum "Price Asset Type"; AssetNo: Code[20]; WorkType: Record "Work Type"; PriceListHeader: Record "Price List Header"; var PriceListLine: Record "Price List Line")
+    begin
+        LibraryPriceCalculation.CreateSalesPriceLine(
+            PriceListLine, PriceListHeader.Code, "Price Source Type"::"All Customers", '', AssetType, AssetNo);
+        PriceListLine.Validate("Work Type Code", WorkType.Code);
+        PriceListLine.Modify();
     end;
 
     [EventSubscriber(ObjectType::Page, Page::"Price List Lines", 'OnAfterSetSubFormLinkFilter', '', false, false)]

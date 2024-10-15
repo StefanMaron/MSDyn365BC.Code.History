@@ -28,7 +28,8 @@ codeunit 6300 "Azure AD Mgt."
     end;
 
     [NonDebuggable]
-    local procedure AcquireTokenByAuthorizationCode(AuthorizationCode: Text; ResourceUrl: Text) AccessToken: Text
+    [Scope('OnPrem')]
+    procedure AcquireTokenByAuthorizationCode(AuthorizationCode: Text; ResourceUrl: Text) AccessToken: Text
     var
         AzureADAuthFlow: Codeunit "Azure AD Auth Flow";
     begin
