@@ -5227,6 +5227,56 @@ codeunit 134378 "ERM Sales Order"
         VerifySalesOrderAfterPostCorrectiveCreditMemo(SalesHeader."No.");
     end;
 
+    [Test]
+    [HandlerFunctions('QtyToAssgnItemChargeModalPageHandler')]
+    [Scope('OnPrem')]
+    procedure CheckNoErrorOnDeletionOfChargeItemLineInSalesOrder()
+    var
+        SalesLine: Record "Sales Line";
+        SalesLine1: Record "Sales Line";
+        SalesHeader: Record "Sales Header";
+    begin
+        // [SCENARIO 495893] Delete invoiced Item Charge in Sales Order is not possible if there is VAT.
+        Initialize();
+
+        // [GIVEN] Create Sales Header
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, CreateCustomer());
+        
+        // [GIVEN] Create Sales Line with Type Item
+        CreateSalesLineWithUnitPrice(
+          SalesLine, SalesHeader, SalesLine.Type::Item, CreateItem(), LibraryRandom.RandDecInDecimalRange(5, 10, 0), LibraryRandom.RandDecInRange(500, 100, 2));
+
+        // [GIVEN] Create Sales Line with Type Charge Item  
+        CreateSalesLineWithUnitPrice(
+          SalesLine1, SalesHeader, SalesLine1.Type::"Charge (Item)", CreateItemChargeWithVAT(SalesLine."VAT Prod. Posting Group"), 1, LibraryRandom.RandDecInRange(50, 100, 2));
+
+        // [GIVEN] Update the first Sales Line with Qty. to Ship as 1  
+        SalesLine.Validate("Qty. to Ship", 1);
+        SalesLine.Modify();
+
+        // [GIVEN] Post the Order with Shipment
+        LibrarySales.PostSalesDocument(SalesHeader, true, false);
+
+        // [GIVEN] Assign the Item Charge Assignment On Second Sales Line
+        OpenItemChargeAssgnt(SalesLine1, true, 1);
+
+        // [GIVEN] Update the first Sales Line with Qty. to Invoice as 1
+        SalesLine.Get(SalesHeader."Document Type", SalesHeader."No.", SalesLine."Line No.");
+        SalesLine.Validate("Qty. to Invoice", 1);
+        SalesLine.Modify();
+
+        // [GIVEN] Post the order with Invoice
+        LibrarySales.PostSalesDocument(SalesHeader, false, true);
+
+        // [GIVEN] Reopen the Sales Document
+        LibrarySales.ReopenSalesDocument(SalesHeader);
+
+        // [WHEN] Delete the Sales Line with Type as Charge Item
+        SalesLine1.Delete(true);
+
+        // [THEN] No error is thrown
+    end;
+
     local procedure Initialize()
     var
         SalesHeader: Record "Sales Header";
@@ -5454,6 +5504,16 @@ codeunit 134378 "ERM Sales Order"
         exit(ItemCharge."No.");
     end;
 
+    local procedure CreateItemChargeWithVAT(VATProdPostingGroup: Code[20]): Code[20]
+    var
+        ItemCharge: Record "Item Charge";
+    begin
+        LibraryInventory.CreateItemCharge(ItemCharge);
+        ItemCharge.Validate("VAT Prod. Posting Group", VATProdPostingGroup);
+        ItemCharge.Modify(true);
+        exit(ItemCharge."No.");
+    end;
+    
     local procedure CreateItem(VATProdPostingGroup: Code[20]): Code[20]
     var
         Item: Record Item;
