@@ -1175,6 +1175,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Non-Deductible VAT Post. Basic - NamedType WrongValueErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 82402955 - NamedType 666113579" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Do you want to fill the G/L Account No. field in VAT entries that are linked to G/L Entries?]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Non-Deductible VAT Reports - NamedType ConfirmAdjustQst)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 3874077929 - NamedType 3826689261" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[%1 Failed]]></Val>
