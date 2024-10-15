@@ -147,23 +147,33 @@
                 group(ElectronicDocument)
                 {
                     Caption = 'Electronic Document';
+#if not CLEAN23
                     field("SAT State Code"; "SAT State Code")
                     {
                         ApplicationArea = Location, BasicMX;
                         Importance = Additional;
                         ToolTip = 'Specifies the state, entity, region, community, or similar definitions where the domicile of the origin and / or destination of the goods or merchandise that are moved in the different means of transport is located.';
+                        ObsoleteState = Pending;
+                        ObsoleteReason = 'Replaced with SAT Address table.';
+                        ObsoleteTag = '23.0';
                     }
                     field("SAT Municipality Code"; "SAT Municipality Code")
                     {
                         ApplicationArea = Location, BasicMX;
                         Importance = Additional;
                         ToolTip = 'Specifies the municipality, delegation or mayoralty, county, or similar definitions where the destination address of the goods or merchandise that are moved in the different means of transport is located.';
+                        ObsoleteState = Pending;
+                        ObsoleteReason = 'Replaced with SAT Address table.';
+                        ObsoleteTag = '23.0';
                     }
                     field("SAT Locality Code"; "SAT Locality Code")
                     {
                         ApplicationArea = Location, BasicMX;
                         Importance = Additional;
                         ToolTip = 'Specifies the city, town, district, or similar definition where the domicile of origin and / or destination of the goods or merchandise that are moved in the different means of transport is located.';
+                        ObsoleteState = Pending;
+                        ObsoleteReason = 'Replaced with SAT Address table.';
+                        ObsoleteTag = '23.0';
                     }
                     field("SAT Suburb Code"; SATSuburb."Suburb Code")
                     {
@@ -172,6 +182,9 @@
                         Editable = false;
                         Importance = Additional;
                         ToolTip = 'Specifies the SAT suburb code where the domicile of the origin or destination of the goods or merchandise that are moved in the different means of transport is located.';
+                        ObsoleteState = Pending;
+                        ObsoleteReason = 'Replaced with SAT Address table.';
+                        ObsoleteTag = '23.0';
 
                         trigger OnAssistEdit()
                         var
@@ -193,12 +206,26 @@
                         Editable = false;
                         Importance = Additional;
                         ToolTip = 'Specifies the SAT postal code where the domicile of the origin or destination of the goods or merchandise that are moved in the different means of transport is located.';
+                        ObsoleteState = Pending;
+                        ObsoleteReason = 'Replaced with SAT Address table.';
+                        ObsoleteTag = '23.0';
                     }
                     field("ID Ubicacion"; Rec."ID Ubicacion")
                     {
                         ApplicationArea = Location, BasicMX;
                         Caption = 'ID Ubicacion';
                         ToolTip = 'Specifies a code for the point of departure or entry of this transport in six numerical digits that are assigned by the taxpayer who issues the voucher for identification.';
+                        ObsoleteState = Pending;
+                        ObsoleteReason = 'Replaced with SAT Address table.';
+                        ObsoleteTag = '23.0';
+                    }
+#endif
+                    field("SAT Address ID"; Rec."SAT Address ID")
+                    {
+                        ApplicationArea = Location, BasicMX;
+                        BlankZero = true;
+                        Importance = Additional;
+                        ToolTip = 'Specifies the SAT address that the goods or merchandise are moved to.';
                     }
                 }
             }
@@ -615,8 +642,10 @@
     begin
         UpdateEnabled();
         TransitValidation;
+#if not CLEAN23
         Clear(SATSuburb);
         if SATSuburb.Get("SAT Suburb ID") then;
+#endif
     end;
 
     trigger OnInit()
@@ -657,7 +686,9 @@
     end;
 
     var
+#if not CLEAN23
         SATSuburb: Record "SAT Suburb";
+#endif
         CalendarMgmt: Codeunit "Calendar Management";
         [InDataSet]
         OutboundWhseHandlingTimeEnable: Boolean;

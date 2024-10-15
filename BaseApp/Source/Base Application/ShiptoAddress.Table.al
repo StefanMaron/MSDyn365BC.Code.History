@@ -202,6 +202,19 @@ table 222 "Ship-to Address"
         {
             Caption = 'UPS Zone';
         }
+        field(27009; "SAT Address ID"; Integer)
+        {
+            Caption = 'SAT Address ID';
+            TableRelation = "SAT Address";
+
+            trigger OnLookup()
+            var
+                SATAddress: Record "SAT Address";
+            begin
+                if SATAddress.LookupSATAddress(SATAddress, Rec."Country/Region Code", '') then
+                    Rec."SAT Address ID" := SATAddress.Id;
+            end;
+        }
     }
 
     keys
@@ -280,6 +293,15 @@ table 222 "Ship-to Address"
             exit;
 
         MailManagement.ValidateEmailAddressField("E-Mail");
+    end;
+
+    procedure GetSATPostalCode(): Code[20]
+    var
+        SATAddress: Record "SAT Address";
+    begin
+        if SATAddress.Get("SAT Address ID") then
+            exit(SATAddress.GetSATPostalCode);
+        exit('');
     end;
 
     [IntegrationEvent(false, false)]

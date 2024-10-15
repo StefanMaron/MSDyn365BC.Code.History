@@ -53,6 +53,7 @@
                   tabledata "SAT Account Code" = RIMD,
                   tabledata "SAT Classification" = RIMD,
                   tabledata "SAT Country Code" = RIMD,
+                  tabledata "SAT Address" = RIMD,
                   tabledata "SAT MX Resources" = RIMD,
                   tabledata "SAT Payment Method" = RIMD,
                   tabledata "SAT Payment Method Code" = RIMD,

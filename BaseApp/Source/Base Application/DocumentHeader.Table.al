@@ -242,6 +242,10 @@
             OptionCaption = 'Diario,Semanal,Quincenal,Mensual';
             OptionMembers = "Diario","Semanal","Quincenal","Mensual"; 
         }
+        field(27009; "SAT Address ID"; Integer)
+        {
+            Caption = 'SAT Address ID';
+        }
         field(27010; "Document Table ID"; Integer)
         {
             Caption = 'Document Table ID';

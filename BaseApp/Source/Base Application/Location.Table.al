@@ -652,25 +652,70 @@
                     "Provincial Tax Area Code" := '';
             end;
         }
+        field(27009; "SAT Address ID"; Integer)
+        {
+            Caption = 'SAT Address ID';
+            TableRelation = "SAT Address";
+
+            trigger OnLookup()
+            var
+                SATAddress: Record "SAT Address";
+            begin
+                if SATAddress.LookupSATAddress(SATAddress, Rec."Country/Region Code", '') then
+                    Rec."SAT Address ID" := SATAddress.Id;
+            end;
+        }
         field(27026; "SAT State Code"; Code[10])
         {
             Caption = 'SAT State Code';
             TableRelation = "SAT State";
+            ObsoleteReason = 'Replaced with SAT Address table.';
+#if not CLEAN23
+            ObsoleteState = Pending;
+            ObsoleteTag = '23.0';
+#else
+            ObsoleteState = Removed;
+            ObsoleteTag = '26.0';
+#endif            
         }
         field(27027; "SAT Municipality Code"; Code[10])
         {
             Caption = 'SAT Municipality Code';
             TableRelation = "SAT Municipality" WHERE(State = FIELD("SAT State Code"));
+            ObsoleteReason = 'Replaced with SAT Address table.';
+#if not CLEAN23
+            ObsoleteState = Pending;
+            ObsoleteTag = '23.0';
+#else
+            ObsoleteState = Removed;
+            ObsoleteTag = '26.0';
+#endif            
         }
         field(27028; "SAT Locality Code"; Code[10])
         {
             Caption = 'SAT Locality Code';
             TableRelation = "SAT Locality" WHERE(State = FIELD("SAT State Code"));
+            ObsoleteReason = 'Replaced with SAT Address table.';
+#if not CLEAN23
+            ObsoleteState = Pending;
+            ObsoleteTag = '23.0';
+#else
+            ObsoleteState = Removed;
+            ObsoleteTag = '26.0';
+#endif            
         }
         field(27029; "SAT Suburb ID"; Integer)
         {
             Caption = 'SAT Suburb ID';
             TableRelation = "SAT Suburb";
+            ObsoleteReason = 'Replaced with SAT Address table.';
+#if not CLEAN23
+            ObsoleteState = Pending;
+            ObsoleteTag = '23.0';
+#else
+            ObsoleteState = Removed;
+            ObsoleteTag = '26.0';
+#endif            
         }
         field(27030; "ID Ubicacion"; Integer)
         {
@@ -1023,30 +1068,22 @@
         FindFirst();
     end;
 
-    [Scope('OnPrem')]
-    procedure GetSATAddress() LocationAddress: Text
+    procedure GetSATAddress(): Text
     var
-        SATState: Record "SAT State";
-        SATMunicipality: Record "SAT Municipality";
-        SATLocality: Record "SAT Locality";
-        SATSuburb: Record "SAT Suburb";
+        SATAddress: Record "SAT Address";
     begin
-        if SATState.Get("SAT State Code") then
-            LocationAddress := SATState.Description;
-        if SATMunicipality.Get("SAT Municipality Code") then
-            LocationAddress += ' ' + SATMunicipality.Description;
-        if SATLocality.Get("SAT Locality Code") then
-            LocationAddress += ' ' + SATLocality.Description;
-        if SATSuburb.Get("SAT Suburb ID") then
-            LocationAddress += ' ' + SATSuburb.Description;
+        if SATAddress.Get("SAT Address ID") then
+            exit(SATAddress.GetSATAddress());
+        exit('');
     end;
 
-    procedure GetSATPostalCode(): Code[20];
+    procedure GetSATPostalCode(): Code[20]
     var
-        SATSuburb: Record "SAT Suburb";
+        SATAddress: Record "SAT Address";
     begin
-        SATSuburb.GET("SAT Suburb ID");
-        exit(SATSuburb."Postal Code");
+        if SATAddress.Get("SAT Address ID") then
+            exit(SATAddress.GetSATPostalCode());
+        exit('');
     end;
 
     [IntegrationEvent(false, false)]
