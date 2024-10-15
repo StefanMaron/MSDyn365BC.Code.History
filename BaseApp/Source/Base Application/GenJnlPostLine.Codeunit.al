@@ -1411,7 +1411,6 @@
     var
         GenJnlTemplate: Record "Gen. Journal Template";
         AccountingPeriodMgt: Codeunit "Accounting Period Mgt.";
-        CurrentDateTime: DateTime;
     begin
         OnBeforeStartPosting(GenJnlLine);
 
@@ -1445,13 +1444,8 @@
             GLReg.Init();
             GLReg."From Entry No." := NextEntryNo;
             GLReg."From VAT Entry No." := NextVATEntryNo;
-            if GetCurrentDateTimeInUserTimeZone(CurrentDateTime) then begin
-                GLReg."Creation Date" := DT2Date(CurrentDateTime);
-                GLReg."Creation Time" := DT2Time(CurrentDateTime);
-            end else begin
-                GLReg."Creation Date" := Today();
-                GLReg."Creation Time" := Time();
-            end;
+            GLReg."Creation Date" := Today();
+            GLReg."Creation Time" := Time();
             GLReg."Source Code" := "Source Code";
             GLReg."Journal Batch Name" := "Journal Batch Name";
             GLReg."User ID" := UserId;
@@ -1467,14 +1461,6 @@
         end;
 
         OnAfterStartPosting(GenJnlLine);
-    end;
-
-    [TryFunction]
-    local procedure GetCurrentDateTimeInUserTimeZone(var CurrentDateTime: DateTime)
-    var
-        TypeHelper: Codeunit "Type Helper";
-    begin
-        CurrentDateTime := TypeHelper.GetCurrentDateTimeInUserTimeZone();
     end;
 
     procedure ContinuePosting(GenJnlLine: Record "Gen. Journal Line")
@@ -6376,8 +6362,8 @@
         if IsHandled then
             exit;
 
-    if GenJnlCheckLine.DateNotAllowed(PostingDate) then
-        Error(InvalidPostingDateErr, PostingDate);
+        if GenJnlCheckLine.DateNotAllowed(PostingDate) then
+            Error(InvalidPostingDateErr, PostingDate);
 
     end;
 
