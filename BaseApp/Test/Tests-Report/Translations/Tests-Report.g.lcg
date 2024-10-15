@@ -959,6 +959,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Rep. Selections - Std. Stmt. - NamedType IgnoringFailureSendingEmailErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 3196030910 - NamedType 3185575367" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Failed to send email]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Rep. Selections - Std. Stmt. - NamedType FailedToSendEmailErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 3196030910 - NamedType 229130803" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[%1 contains more errors than expected.]]></Val>

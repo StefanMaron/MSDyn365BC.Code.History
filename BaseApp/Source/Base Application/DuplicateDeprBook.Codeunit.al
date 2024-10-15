@@ -28,59 +28,55 @@ codeunit 5640 "Duplicate Depr. Book"
     begin
         OnBeforeGenJnlLineDuplicate(GenJnlLine, FAAmount2);
 
-        with GenJnlLine do begin
-            FAAmount := FAAmount2;
-            DeprBook.Get("Depreciation Book Code");
-            if "Insurance No." <> '' then
-                InsertInsurance(true, GenJnlLine, FAJnlLine2);
-            if ("Duplicate in Depreciation Book" = '') and
-               (not "Use Duplication List")
-            then
-                exit;
-            ExchangeRate := GetExchangeRate("Account No.", DeprBook);
-            if "Duplicate in Depreciation Book" <> '' then begin
-                DeprBook.Get("Duplicate in Depreciation Book");
-                CreateLine(true, GenJnlLine, FAJnlLine2);
-                OnDuplicateGenJnlLineOnAfterCreateLine(GenJnlLine);
-                exit;
-            end;
-            if "Use Duplication List" then
-                if DeprBook.Find('-') then
-                    repeat
-                        if DeprBook."Part of Duplication List" and (DeprBook.Code <> "Depreciation Book Code") then
-                            if FADeprBook.Get("Account No.", DeprBook.Code) then
-                                CreateLine(true, GenJnlLine, FAJnlLine2);
-                    until DeprBook.Next = 0;
+        FAAmount := FAAmount2;
+        DeprBook.Get(GenJnlLine."Depreciation Book Code");
+        if GenJnlLine."Insurance No." <> '' then
+            InsertInsurance(true, GenJnlLine, FAJnlLine2);
+        if (GenJnlLine."Duplicate in Depreciation Book" = '') and
+            (not GenJnlLine."Use Duplication List")
+        then
+            exit;
+        ExchangeRate := GetExchangeRate(GenJnlLine."Account No.", DeprBook);
+        if GenJnlLine."Duplicate in Depreciation Book" <> '' then begin
+            DeprBook.Get(GenJnlLine."Duplicate in Depreciation Book");
+            CreateLine(true, GenJnlLine, FAJnlLine2);
+            OnDuplicateGenJnlLineOnAfterCreateLine(GenJnlLine);
+            exit;
         end;
+        if GenJnlLine."Use Duplication List" then
+            if DeprBook.Find('-') then
+                repeat
+                    if DeprBook."Part of Duplication List" and (DeprBook.Code <> GenJnlLine."Depreciation Book Code") then
+                        if FADeprBook.Get(GenJnlLine."Account No.", DeprBook.Code) then
+                            CreateLine(true, GenJnlLine, FAJnlLine2);
+                until DeprBook.Next() = 0;
     end;
 
     procedure DuplicateFAJnlLine(var FAJnlLine: Record "FA Journal Line")
     var
         FADeprBook: Record "FA Depreciation Book";
     begin
-        with FAJnlLine do begin
-            DeprBook.Get("Depreciation Book Code");
-            if "Insurance No." <> '' then
-                InsertInsurance(false, GenJnlLine2, FAJnlLine);
-            if ("Duplicate in Depreciation Book" = '') and
-               (not "Use Duplication List")
-            then
-                exit;
-            FA.Get("FA No.");
-            ExchangeRate := GetExchangeRate("FA No.", DeprBook);
-            if "Duplicate in Depreciation Book" <> '' then begin
-                DeprBook.Get("Duplicate in Depreciation Book");
-                CreateLine(false, GenJnlLine2, FAJnlLine);
-                exit;
-            end;
-            if "Use Duplication List" then
-                if DeprBook.Find('-') then
-                    repeat
-                        if DeprBook."Part of Duplication List" and (DeprBook.Code <> "Depreciation Book Code") then
-                            if FADeprBook.Get(FA."No.", DeprBook.Code) then
-                                CreateLine(false, GenJnlLine2, FAJnlLine);
-                    until DeprBook.Next = 0;
+        DeprBook.Get(FAJnlLine."Depreciation Book Code");
+        if FAJnlLine."Insurance No." <> '' then
+            InsertInsurance(false, GenJnlLine2, FAJnlLine);
+        if (FAJnlLine."Duplicate in Depreciation Book" = '') and
+            (not FAJnlLine."Use Duplication List")
+        then
+            exit;
+        FA.Get(FAJnlLine."FA No.");
+        ExchangeRate := GetExchangeRate(FAJnlLine."FA No.", DeprBook);
+        if FAJnlLine."Duplicate in Depreciation Book" <> '' then begin
+            DeprBook.Get(FAJnlLine."Duplicate in Depreciation Book");
+            CreateLine(false, GenJnlLine2, FAJnlLine);
+            exit;
         end;
+        if FAJnlLine."Use Duplication List" then
+            if DeprBook.Find('-') then
+                repeat
+                    if DeprBook."Part of Duplication List" and (DeprBook.Code <> FAJnlLine."Depreciation Book Code") then
+                        if FADeprBook.Get(FA."No.", DeprBook.Code) then
+                            CreateLine(false, GenJnlLine2, FAJnlLine);
+                until DeprBook.Next() = 0;
     end;
 
     local procedure InsertInsurance(GenJnlPosting: Boolean; GenJnlLine: Record "Gen. Journal Line"; FAJnlLine: Record "FA Journal Line")
@@ -94,61 +90,59 @@ codeunit 5640 "Duplicate Depr. Book"
         if not FASetup."Automatic Insurance Posting" then
             InitInsuranceJnlLine(InsuranceJnlLine);
 
-        with InsuranceJnlLine do begin
-            if GenJnlPosting then begin
-                if FASetup."Automatic Insurance Posting" then begin
-                    "Journal Batch Name" := GenJnlLine."Journal Batch Name";
-                    "Source Code" := GenJnlLine."Source Code";
-                    "Reason Code" := GenJnlLine."Reason Code"
-                end;
-                Validate("Insurance No.", GenJnlLine."Insurance No.");
-                Validate("FA No.", GenJnlLine."Account No.");
-                "Posting Date" := GenJnlLine."FA Posting Date";
-                if "Posting Date" = 0D then
-                    "Posting Date" := GenJnlLine."Posting Date";
-                Validate(Amount, FAAmount);
-                "Document Type" := GenJnlLine."Document Type";
-                "Document Date" := GenJnlLine."Document Date";
-                if "Document Date" = 0D then
-                    "Document Date" := "Posting Date";
-                "Document No." := GenJnlLine."Document No.";
-                "External Document No." := GenJnlLine."External Document No.";
-                if not DeprBook."Use Default Dimension" then begin
-                    "Shortcut Dimension 1 Code" := GenJnlLine."Shortcut Dimension 1 Code";
-                    "Shortcut Dimension 2 Code" := GenJnlLine."Shortcut Dimension 2 Code";
-                    "Dimension Set ID" := GenJnlLine."Dimension Set ID";
-                end;
+        if GenJnlPosting then begin
+            if FASetup."Automatic Insurance Posting" then begin
+                InsuranceJnlLine."Journal Batch Name" := GenJnlLine."Journal Batch Name";
+                InsuranceJnlLine."Source Code" := GenJnlLine."Source Code";
+                InsuranceJnlLine."Reason Code" := GenJnlLine."Reason Code"
             end;
-            if not GenJnlPosting then begin
-                if FASetup."Automatic Insurance Posting" then begin
-                    "Journal Batch Name" := FAJnlLine."Journal Batch Name";
-                    "Source Code" := FAJnlLine."Source Code";
-                    "Reason Code" := FAJnlLine."Reason Code"
-                end;
-                Validate("Insurance No.", FAJnlLine."Insurance No.");
-                Validate("FA No.", FAJnlLine."FA No.");
-                "Posting Date" := FAJnlLine."FA Posting Date";
-                Validate(Amount, FAJnlLine.Amount);
-                "Document Type" := FAJnlLine."Document Type";
-                "Document Date" := FAJnlLine."Document Date";
-                if "Document Date" = 0D then
-                    "Document Date" := "Posting Date";
-                "Document No." := FAJnlLine."Document No.";
-                "External Document No." := FAJnlLine."External Document No.";
-                if not DeprBook."Use Default Dimension" then begin
-                    "Shortcut Dimension 1 Code" := FAJnlLine."Shortcut Dimension 1 Code";
-                    "Shortcut Dimension 2 Code" := FAJnlLine."Shortcut Dimension 2 Code";
-                    "Dimension Set ID" := FAJnlLine."Dimension Set ID";
-                end;
+            InsuranceJnlLine.Validate("Insurance No.", GenJnlLine."Insurance No.");
+            InsuranceJnlLine.Validate("FA No.", GenJnlLine."Account No.");
+            InsuranceJnlLine."Posting Date" := GenJnlLine."FA Posting Date";
+            if InsuranceJnlLine."Posting Date" = 0D then
+                InsuranceJnlLine."Posting Date" := GenJnlLine."Posting Date";
+            InsuranceJnlLine.Validate(Amount, FAAmount);
+            InsuranceJnlLine."Document Type" := GenJnlLine."Document Type";
+            InsuranceJnlLine."Document Date" := GenJnlLine."Document Date";
+            if InsuranceJnlLine."Document Date" = 0D then
+                InsuranceJnlLine."Document Date" := InsuranceJnlLine."Posting Date";
+            InsuranceJnlLine."Document No." := GenJnlLine."Document No.";
+            InsuranceJnlLine."External Document No." := GenJnlLine."External Document No.";
+            if not DeprBook."Use Default Dimension" then begin
+                InsuranceJnlLine."Shortcut Dimension 1 Code" := GenJnlLine."Shortcut Dimension 1 Code";
+                InsuranceJnlLine."Shortcut Dimension 2 Code" := GenJnlLine."Shortcut Dimension 2 Code";
+                InsuranceJnlLine."Dimension Set ID" := GenJnlLine."Dimension Set ID";
             end;
-            if FASetup."Automatic Insurance Posting" then
-                InsuranceJnlPostLine.RunWithCheck(InsuranceJnlLine)
-            else begin
-                "Line No." := NextLineNo;
-                if DeprBook."Use Default Dimension" then
-                    CreateDim(DATABASE::Insurance, "Insurance No.");
-                Insert(true);
+        end;
+        if not GenJnlPosting then begin
+            if FASetup."Automatic Insurance Posting" then begin
+                InsuranceJnlLine."Journal Batch Name" := FAJnlLine."Journal Batch Name";
+                InsuranceJnlLine."Source Code" := FAJnlLine."Source Code";
+                InsuranceJnlLine."Reason Code" := FAJnlLine."Reason Code"
             end;
+            InsuranceJnlLine.Validate("Insurance No.", FAJnlLine."Insurance No.");
+            InsuranceJnlLine.Validate("FA No.", FAJnlLine."FA No.");
+            InsuranceJnlLine."Posting Date" := FAJnlLine."FA Posting Date";
+            InsuranceJnlLine.Validate(Amount, FAJnlLine.Amount);
+            InsuranceJnlLine."Document Type" := FAJnlLine."Document Type";
+            InsuranceJnlLine."Document Date" := FAJnlLine."Document Date";
+            if InsuranceJnlLine."Document Date" = 0D then
+                InsuranceJnlLine."Document Date" := InsuranceJnlLine."Posting Date";
+            InsuranceJnlLine."Document No." := FAJnlLine."Document No.";
+            InsuranceJnlLine."External Document No." := FAJnlLine."External Document No.";
+            if not DeprBook."Use Default Dimension" then begin
+                InsuranceJnlLine."Shortcut Dimension 1 Code" := FAJnlLine."Shortcut Dimension 1 Code";
+                InsuranceJnlLine."Shortcut Dimension 2 Code" := FAJnlLine."Shortcut Dimension 2 Code";
+                InsuranceJnlLine."Dimension Set ID" := FAJnlLine."Dimension Set ID";
+            end;
+        end;
+        if FASetup."Automatic Insurance Posting" then
+            InsuranceJnlPostLine.RunWithCheck(InsuranceJnlLine)
+        else begin
+            InsuranceJnlLine."Line No." := NextLineNo;
+            if DeprBook."Use Default Dimension" then
+                InsuranceJnlLine.CreateDim(DATABASE::Insurance, InsuranceJnlLine."Insurance No.");
+            InsuranceJnlLine.Insert(true);
         end;
     end;
 
@@ -156,28 +150,25 @@ codeunit 5640 "Duplicate Depr. Book"
     var
         InsuranceJnlLine2: Record "Insurance Journal Line";
     begin
-        with InsuranceJnlLine do begin
-            FAGetJnl.InsuranceJnlName(DeprBook.Code, TemplateName, BatchName);
-            "Journal Template Name" := TemplateName;
-            "Journal Batch Name" := BatchName;
-            LockTable();
-            FAGetJnl.SetInsuranceJnlRange(InsuranceJnlLine2, TemplateName, BatchName);
-            NextLineNo := InsuranceJnlLine2."Line No." + 10000;
-            "Posting No. Series" := FAJnlSetup.GetInsuranceNoSeries(InsuranceJnlLine);
-        end;
+        FAGetJnl.InsuranceJnlName(DeprBook.Code, TemplateName, BatchName);
+        InsuranceJnlLine."Journal Template Name" := TemplateName;
+        InsuranceJnlLine."Journal Batch Name" := BatchName;
+        InsuranceJnlLine.LockTable();
+        FAGetJnl.SetInsuranceJnlRange(InsuranceJnlLine2, TemplateName, BatchName);
+        NextLineNo := InsuranceJnlLine2."Line No." + 10000;
+        InsuranceJnlLine."Posting No. Series" := FAJnlSetup.GetInsuranceNoSeries(InsuranceJnlLine);
     end;
 
     local procedure CreateLine(GenJnlPosting: Boolean; var GenJnlLine: Record "Gen. Journal Line"; var FAJnlLine: Record "FA Journal Line")
     begin
-        if GenJnlPosting then
-            with GenJnlLine do begin
-                DuplicateInGenJnl := true;
-                TemplateName := "Journal Template Name";
-                BatchName := "Journal Batch Name";
-                FAGetJnl.JnlName(
-                  DeprBook.Code, false, "FA Posting Type" - 1,
-                  DuplicateInGenJnl, TemplateName, BatchName);
-            end;
+        if GenJnlPosting then begin
+            DuplicateInGenJnl := true;
+            TemplateName := GenJnlLine."Journal Template Name";
+            BatchName := GenJnlLine."Journal Batch Name";
+            FAGetJnl.JnlName(
+                DeprBook.Code, false, "FA Journal Line FA Posting Type".FromInteger(GenJnlLine."FA Posting Type".AsInteger() - 1),
+                DuplicateInGenJnl, TemplateName, BatchName);
+        end;
         if not GenJnlPosting then
             with FAJnlLine do begin
                 FA.Get("FA No.");
@@ -193,71 +184,67 @@ codeunit 5640 "Duplicate Depr. Book"
 
     local procedure MakeGenJnlLine(var GenJnlLine: Record "Gen. Journal Line"; var FAJnlLine: Record "FA Journal Line")
     begin
-        with GenJnlLine do begin
-            "Account Type" := "Account Type"::"Fixed Asset";
-            "Account No." := FAJnlLine."FA No.";
-            "Depreciation Book Code" := FAJnlLine."Depreciation Book Code";
-            "FA Posting Type" := FAJnlLine."FA Posting Type" + 1;
-            "FA Posting Date" := FAJnlLine."FA Posting Date";
-            "Posting Date" := FAJnlLine."Posting Date";
-            if "Posting Date" = "FA Posting Date" then
-                "FA Posting Date" := 0D;
-            "Document Type" := FAJnlLine."Document Type";
-            "Document Date" := FAJnlLine."Document Date";
-            "Document No." := FAJnlLine."Document No.";
-            "External Document No." := FAJnlLine."External Document No.";
-            Description := FAJnlLine.Description;
-            Validate(Amount, FAJnlLine.Amount);
-            "Salvage Value" := FAJnlLine."Salvage Value";
-            Quantity := FAJnlLine.Quantity;
-            Validate(Correction, FAJnlLine.Correction);
-            "No. of Depreciation Days" := FAJnlLine."No. of Depreciation Days";
-            "Depr. until FA Posting Date" := FAJnlLine."Depr. until FA Posting Date";
-            "Depr. Acquisition Cost" := FAJnlLine."Depr. Acquisition Cost";
-            "Posting Group" := FAJnlLine."FA Posting Group";
-            "Maintenance Code" := FAJnlLine."Maintenance Code";
-            "Shortcut Dimension 1 Code" := FAJnlLine."Shortcut Dimension 1 Code";
-            "Shortcut Dimension 2 Code" := FAJnlLine."Shortcut Dimension 2 Code";
-            "Dimension Set ID" := FAJnlLine."Dimension Set ID";
-            "Budgeted FA No." := FAJnlLine."Budgeted FA No.";
-            "FA Reclassification Entry" := FAJnlLine."FA Reclassification Entry";
-            "Index Entry" := FAJnlLine."Index Entry"
-        end;
+        GenJnlLine."Account Type" := GenJnlLine."Account Type"::"Fixed Asset";
+        GenJnlLine."Account No." := FAJnlLine."FA No.";
+        GenJnlLine."Depreciation Book Code" := FAJnlLine."Depreciation Book Code";
+        GenJnlLine."FA Posting Type" := "Gen. Journal Line FA Posting Type".FromInteger(FAJnlLine."FA Posting Type".AsInteger() + 1);
+        GenJnlLine."FA Posting Date" := FAJnlLine."FA Posting Date";
+        GenJnlLine."Posting Date" := FAJnlLine."Posting Date";
+        if GenJnlLine."Posting Date" = GenJnlLine."FA Posting Date" then
+            GenJnlLine."FA Posting Date" := 0D;
+        GenJnlLine."Document Type" := FAJnlLine."Document Type";
+        GenJnlLine."Document Date" := FAJnlLine."Document Date";
+        GenJnlLine."Document No." := FAJnlLine."Document No.";
+        GenJnlLine."External Document No." := FAJnlLine."External Document No.";
+        GenJnlLine.Description := FAJnlLine.Description;
+        GenJnlLine.Validate(Amount, FAJnlLine.Amount);
+        GenJnlLine."Salvage Value" := FAJnlLine."Salvage Value";
+        GenJnlLine.Quantity := FAJnlLine.Quantity;
+        GenJnlLine.Validate(Correction, FAJnlLine.Correction);
+        GenJnlLine."No. of Depreciation Days" := FAJnlLine."No. of Depreciation Days";
+        GenJnlLine."Depr. until FA Posting Date" := FAJnlLine."Depr. until FA Posting Date";
+        GenJnlLine."Depr. Acquisition Cost" := FAJnlLine."Depr. Acquisition Cost";
+        GenJnlLine."Posting Group" := FAJnlLine."FA Posting Group";
+        GenJnlLine."Maintenance Code" := FAJnlLine."Maintenance Code";
+        GenJnlLine."Shortcut Dimension 1 Code" := FAJnlLine."Shortcut Dimension 1 Code";
+        GenJnlLine."Shortcut Dimension 2 Code" := FAJnlLine."Shortcut Dimension 2 Code";
+        GenJnlLine."Dimension Set ID" := FAJnlLine."Dimension Set ID";
+        GenJnlLine."Budgeted FA No." := FAJnlLine."Budgeted FA No.";
+        GenJnlLine."FA Reclassification Entry" := FAJnlLine."FA Reclassification Entry";
+        GenJnlLine."Index Entry" := FAJnlLine."Index Entry";
 
         OnAfterMakeGenJnlLine(GenJnlLine, FAJnlLine);
     end;
 
     local procedure MakeFAJnlLine(var FAJnlLine: Record "FA Journal Line"; var GenJnlLine: Record "Gen. Journal Line")
     begin
-        with FAJnlLine do begin
-            "Depreciation Book Code" := GenJnlLine."Depreciation Book Code";
-            "FA Posting Type" := GenJnlLine."FA Posting Type" - 1;
-            "FA No." := GenJnlLine."Account No.";
-            "FA Posting Date" := GenJnlLine."FA Posting Date";
-            "Posting Date" := GenJnlLine."Posting Date";
-            if "Posting Date" = "FA Posting Date" then
-                "Posting Date" := 0D;
-            "Document Type" := GenJnlLine."Document Type";
-            "Document Date" := GenJnlLine."Document Date";
-            "Document No." := GenJnlLine."Document No.";
-            "External Document No." := GenJnlLine."External Document No.";
-            Description := GenJnlLine.Description;
-            Validate(Amount, FAAmount);
-            "Salvage Value" := GenJnlLine."Salvage Value";
-            Quantity := GenJnlLine.Quantity;
-            Validate(Correction, GenJnlLine.Correction);
-            "No. of Depreciation Days" := GenJnlLine."No. of Depreciation Days";
-            "Depr. until FA Posting Date" := GenJnlLine."Depr. until FA Posting Date";
-            "Depr. Acquisition Cost" := GenJnlLine."Depr. Acquisition Cost";
-            "FA Posting Group" := GenJnlLine."Posting Group";
-            "Maintenance Code" := GenJnlLine."Maintenance Code";
-            "Shortcut Dimension 1 Code" := GenJnlLine."Shortcut Dimension 1 Code";
-            "Shortcut Dimension 2 Code" := GenJnlLine."Shortcut Dimension 2 Code";
-            "Dimension Set ID" := GenJnlLine."Dimension Set ID";
-            "Budgeted FA No." := GenJnlLine."Budgeted FA No.";
-            "FA Reclassification Entry" := GenJnlLine."FA Reclassification Entry";
-            "Index Entry" := GenJnlLine."Index Entry"
-        end;
+        FAJnlLine."Depreciation Book Code" := GenJnlLine."Depreciation Book Code";
+        FAJnlLine."FA Posting Type" := "FA Journal Line FA Posting Type".FromInteger(GenJnlLine."FA Posting Type".AsInteger() - 1);
+        FAJnlLine."FA No." := GenJnlLine."Account No.";
+        FAJnlLine."FA Posting Date" := GenJnlLine."FA Posting Date";
+        FAJnlLine."Posting Date" := GenJnlLine."Posting Date";
+        if FAJnlLine."Posting Date" = FAJnlLine."FA Posting Date" then
+            FAJnlLine."Posting Date" := 0D;
+        FAJnlLine."Document Type" := GenJnlLine."Document Type";
+        FAJnlLine."Document Date" := GenJnlLine."Document Date";
+        FAJnlLine."Document No." := GenJnlLine."Document No.";
+        FAJnlLine."External Document No." := GenJnlLine."External Document No.";
+        FAJnlLine.Description := GenJnlLine.Description;
+        FAJnlLine.Validate(Amount, FAAmount);
+        FAJnlLine."Salvage Value" := GenJnlLine."Salvage Value";
+        FAJnlLine.Quantity := GenJnlLine.Quantity;
+        FAJnlLine.Validate(Correction, GenJnlLine.Correction);
+        FAJnlLine."No. of Depreciation Days" := GenJnlLine."No. of Depreciation Days";
+        FAJnlLine."Depr. until FA Posting Date" := GenJnlLine."Depr. until FA Posting Date";
+        FAJnlLine."Depr. Acquisition Cost" := GenJnlLine."Depr. Acquisition Cost";
+        FAJnlLine."FA Posting Group" := GenJnlLine."Posting Group";
+        FAJnlLine."Maintenance Code" := GenJnlLine."Maintenance Code";
+        FAJnlLine."Shortcut Dimension 1 Code" := GenJnlLine."Shortcut Dimension 1 Code";
+        FAJnlLine."Shortcut Dimension 2 Code" := GenJnlLine."Shortcut Dimension 2 Code";
+        FAJnlLine."Dimension Set ID" := GenJnlLine."Dimension Set ID";
+        FAJnlLine."Budgeted FA No." := GenJnlLine."Budgeted FA No.";
+        FAJnlLine."FA Reclassification Entry" := GenJnlLine."FA Reclassification Entry";
+        FAJnlLine."Index Entry" := GenJnlLine."Index Entry";
 
         OnAfterMakeFAJnlLine(FAJnlLine, GenJnlLine);
     end;
@@ -267,37 +254,36 @@ codeunit 5640 "Duplicate Depr. Book"
         GenJnlLine2: Record "Gen. Journal Line";
     begin
         GenJnlLine2 := GenJnlLine;
-        with GenJnlLine do begin
-            Init;
-            "Account Type" := "Account Type"::"Fixed Asset";
-            "Depreciation Book Code" := GenJnlLine2."Depreciation Book Code";
-            "FA Posting Type" := GenJnlLine2."FA Posting Type";
-            "Account No." := GenJnlLine2."Account No.";
-            "FA Posting Date" := GenJnlLine2."FA Posting Date";
-            "Posting Date" := GenJnlLine2."Posting Date";
-            if "Posting Date" = "FA Posting Date" then
-                "FA Posting Date" := 0D;
-            "Document Type" := GenJnlLine2."Document Type";
-            "Document Date" := GenJnlLine2."Document Date";
-            "Document No." := GenJnlLine2."Document No.";
-            "External Document No." := GenJnlLine2."External Document No.";
-            Description := GenJnlLine2.Description;
-            Validate(Amount, FAAmount);
-            "Salvage Value" := GenJnlLine2."Salvage Value";
-            Quantity := GenJnlLine2.Quantity;
-            Validate(Correction, GenJnlLine2.Correction);
-            "No. of Depreciation Days" := GenJnlLine2."No. of Depreciation Days";
-            "Depr. until FA Posting Date" := GenJnlLine2."Depr. until FA Posting Date";
-            "Depr. Acquisition Cost" := GenJnlLine2."Depr. Acquisition Cost";
-            "Posting Group" := GenJnlLine2."Posting Group";
-            "Maintenance Code" := GenJnlLine2."Maintenance Code";
-            "Shortcut Dimension 1 Code" := GenJnlLine2."Shortcut Dimension 1 Code";
-            "Shortcut Dimension 2 Code" := GenJnlLine2."Shortcut Dimension 2 Code";
-            "Dimension Set ID" := GenJnlLine2."Dimension Set ID";
-            "Budgeted FA No." := GenJnlLine2."Budgeted FA No.";
-            "FA Reclassification Entry" := GenJnlLine2."FA Reclassification Entry";
-            "Index Entry" := GenJnlLine2."Index Entry"
-        end;
+
+        GenJnlLine.Init();
+        GenJnlLine."Account Type" := GenJnlLine."Account Type"::"Fixed Asset";
+        GenJnlLine."Depreciation Book Code" := GenJnlLine2."Depreciation Book Code";
+        GenJnlLine."FA Posting Type" := GenJnlLine2."FA Posting Type";
+        GenJnlLine."Account No." := GenJnlLine2."Account No.";
+        GenJnlLine."FA Posting Date" := GenJnlLine2."FA Posting Date";
+        GenJnlLine."Posting Date" := GenJnlLine2."Posting Date";
+        if GenJnlLine."Posting Date" = GenJnlLine."FA Posting Date" then
+            GenJnlLine."FA Posting Date" := 0D;
+        GenJnlLine."Document Type" := GenJnlLine2."Document Type";
+        GenJnlLine."Document Date" := GenJnlLine2."Document Date";
+        GenJnlLine."Document No." := GenJnlLine2."Document No.";
+        GenJnlLine."External Document No." := GenJnlLine2."External Document No.";
+        GenJnlLine.Description := GenJnlLine2.Description;
+        GenJnlLine.Validate(Amount, FAAmount);
+        GenJnlLine."Salvage Value" := GenJnlLine2."Salvage Value";
+        GenJnlLine.Quantity := GenJnlLine2.Quantity;
+        GenJnlLine.Validate(Correction, GenJnlLine2.Correction);
+        GenJnlLine."No. of Depreciation Days" := GenJnlLine2."No. of Depreciation Days";
+        GenJnlLine."Depr. until FA Posting Date" := GenJnlLine2."Depr. until FA Posting Date";
+        GenJnlLine."Depr. Acquisition Cost" := GenJnlLine2."Depr. Acquisition Cost";
+        GenJnlLine."Posting Group" := GenJnlLine2."Posting Group";
+        GenJnlLine."Maintenance Code" := GenJnlLine2."Maintenance Code";
+        GenJnlLine."Shortcut Dimension 1 Code" := GenJnlLine2."Shortcut Dimension 1 Code";
+        GenJnlLine."Shortcut Dimension 2 Code" := GenJnlLine2."Shortcut Dimension 2 Code";
+        GenJnlLine."Dimension Set ID" := GenJnlLine2."Dimension Set ID";
+        GenJnlLine."Budgeted FA No." := GenJnlLine2."Budgeted FA No.";
+        GenJnlLine."FA Reclassification Entry" := GenJnlLine2."FA Reclassification Entry";
+        GenJnlLine."Index Entry" := GenJnlLine2."Index Entry";
 
         OnAfterAdjustGenJnlLine(GenJnlLine, GenJnlLine2);
     end;
@@ -307,36 +293,35 @@ codeunit 5640 "Duplicate Depr. Book"
         FAJnlLine2: Record "FA Journal Line";
     begin
         FAJnlLine2 := FAJnlLine;
-        with FAJnlLine do begin
-            Init;
-            "FA No." := FAJnlLine2."FA No.";
-            "Depreciation Book Code" := FAJnlLine2."Depreciation Book Code";
-            "FA Posting Type" := FAJnlLine2."FA Posting Type";
-            "FA Posting Date" := FAJnlLine2."FA Posting Date";
-            "Posting Date" := FAJnlLine2."Posting Date";
-            if "Posting Date" = "FA Posting Date" then
-                "Posting Date" := 0D;
-            "Document Type" := FAJnlLine2."Document Type";
-            "Document Date" := FAJnlLine2."Document Date";
-            "Document No." := FAJnlLine2."Document No.";
-            "External Document No." := FAJnlLine2."External Document No.";
-            Description := FAJnlLine2.Description;
-            Validate(Amount, FAJnlLine2.Amount);
-            "Salvage Value" := FAJnlLine2."Salvage Value";
-            Quantity := FAJnlLine2.Quantity;
-            Validate(Correction, FAJnlLine2.Correction);
-            "No. of Depreciation Days" := FAJnlLine2."No. of Depreciation Days";
-            "Depr. until FA Posting Date" := FAJnlLine2."Depr. until FA Posting Date";
-            "Depr. Acquisition Cost" := FAJnlLine2."Depr. Acquisition Cost";
-            "FA Posting Group" := FAJnlLine2."FA Posting Group";
-            "Maintenance Code" := FAJnlLine2."Maintenance Code";
-            "Shortcut Dimension 1 Code" := FAJnlLine2."Shortcut Dimension 1 Code";
-            "Shortcut Dimension 2 Code" := FAJnlLine2."Shortcut Dimension 2 Code";
-            "Dimension Set ID" := FAJnlLine2."Dimension Set ID";
-            "Budgeted FA No." := FAJnlLine2."Budgeted FA No.";
-            "FA Reclassification Entry" := FAJnlLine2."FA Reclassification Entry";
-            "Index Entry" := FAJnlLine2."Index Entry"
-        end;
+
+        FAJnlLine.Init();
+        FAJnlLine."FA No." := FAJnlLine2."FA No.";
+        FAJnlLine."Depreciation Book Code" := FAJnlLine2."Depreciation Book Code";
+        FAJnlLine."FA Posting Type" := FAJnlLine2."FA Posting Type";
+        FAJnlLine."FA Posting Date" := FAJnlLine2."FA Posting Date";
+        FAJnlLine."Posting Date" := FAJnlLine2."Posting Date";
+        if FAJnlLine."Posting Date" = FAJnlLine."FA Posting Date" then
+            FAJnlLine."Posting Date" := 0D;
+        FAJnlLine."Document Type" := FAJnlLine2."Document Type";
+        FAJnlLine."Document Date" := FAJnlLine2."Document Date";
+        FAJnlLine."Document No." := FAJnlLine2."Document No.";
+        FAJnlLine."External Document No." := FAJnlLine2."External Document No.";
+        FAJnlLine.Description := FAJnlLine2.Description;
+        FAJnlLine.Validate(Amount, FAJnlLine2.Amount);
+        FAJnlLine."Salvage Value" := FAJnlLine2."Salvage Value";
+        FAJnlLine.Quantity := FAJnlLine2.Quantity;
+        FAJnlLine.Validate(Correction, FAJnlLine2.Correction);
+        FAJnlLine."No. of Depreciation Days" := FAJnlLine2."No. of Depreciation Days";
+        FAJnlLine."Depr. until FA Posting Date" := FAJnlLine2."Depr. until FA Posting Date";
+        FAJnlLine."Depr. Acquisition Cost" := FAJnlLine2."Depr. Acquisition Cost";
+        FAJnlLine."FA Posting Group" := FAJnlLine2."FA Posting Group";
+        FAJnlLine."Maintenance Code" := FAJnlLine2."Maintenance Code";
+        FAJnlLine."Shortcut Dimension 1 Code" := FAJnlLine2."Shortcut Dimension 1 Code";
+        FAJnlLine."Shortcut Dimension 2 Code" := FAJnlLine2."Shortcut Dimension 2 Code";
+        FAJnlLine."Dimension Set ID" := FAJnlLine2."Dimension Set ID";
+        FAJnlLine."Budgeted FA No." := FAJnlLine2."Budgeted FA No.";
+        FAJnlLine."FA Reclassification Entry" := FAJnlLine2."FA Reclassification Entry";
+        FAJnlLine."Index Entry" := FAJnlLine2."Index Entry";
 
         OnAfterAdjustFAJnlLine(FAJnlLine, FAJnlLine2);
     end;
@@ -389,8 +374,8 @@ codeunit 5640 "Duplicate Depr. Book"
                 FAJnlSetup.SetGenJnlTrailCodes(GenJnlLine);
                 if DeprBook."Use Default Dimension" then
                     CreateDim(
-                      DimMgt.TypeToTableID1("Account Type"), "Account No.",
-                      DimMgt.TypeToTableID1("Bal. Account Type"), "Bal. Account No.",
+                      DimMgt.TypeToTableID1("Account Type".AsInteger()), "Account No.",
+                      DimMgt.TypeToTableID1("Bal. Account Type".AsInteger()), "Bal. Account No.",
                       DATABASE::Job, "Job No.",
                       DATABASE::"Salesperson/Purchaser", "Salespers./Purch. Code",
                       DATABASE::Campaign, "Campaign No.");
@@ -430,8 +415,8 @@ codeunit 5640 "Duplicate Depr. Book"
                 FAJnlSetup.SetGenJnlTrailCodes(GenJnlLine);
                 if DeprBook."Use Default Dimension" then
                     CreateDim(
-                      DimMgt.TypeToTableID1("Account Type"), "Account No.",
-                      DimMgt.TypeToTableID1("Bal. Account Type"), "Bal. Account No.",
+                      DimMgt.TypeToTableID1("Account Type".AsInteger()), "Account No.",
+                      DimMgt.TypeToTableID1("Bal. Account Type".AsInteger()), "Bal. Account No.",
                       DATABASE::Job, "Job No.",
                       DATABASE::"Salesperson/Purchaser", "Salespers./Purch. Code",
                       DATABASE::Campaign, "Campaign No.");

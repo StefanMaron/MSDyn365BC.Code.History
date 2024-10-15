@@ -380,8 +380,10 @@ table 7334 "Whse. Internal Pick Line"
         Text003: Label 'Cancelled.';
         Text004: Label 'must not be the %1 of the %2';
         LastLineNo: Integer;
-        HideValidationDialog: Boolean;
         Text005: Label 'Nothing to handle.';
+
+    protected var
+        HideValidationDialog: Boolean;
 
     procedure SetUpNewLine(LastWhseInternalPickLine: Record "Whse. Internal Pick Line")
     var

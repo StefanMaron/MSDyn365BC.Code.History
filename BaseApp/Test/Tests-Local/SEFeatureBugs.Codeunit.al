@@ -259,7 +259,7 @@ codeunit 144023 "SE Feature Bugs"
         LibraryERM.IssueFinanceChargeMemo(FinanceChargeMemoHeader);
     end;
 
-    local procedure CreateAndPostPurchaseDocument(var PurchaseLine: Record "Purchase Line"; DocumentType: Option; PaymentTermsCode: Code[10]; VendorNo: Code[20]; No: Code[20]; Quantity: Decimal; DirectUnitCost: Decimal)
+    local procedure CreateAndPostPurchaseDocument(var PurchaseLine: Record "Purchase Line"; DocumentType: Enum "Purchase Document Type"; PaymentTermsCode: Code[10]; VendorNo: Code[20]; No: Code[20]; Quantity: Decimal; DirectUnitCost: Decimal)
     var
         PurchaseHeader: Record "Purchase Header";
     begin
@@ -368,10 +368,10 @@ codeunit 144023 "SE Feature Bugs"
         GLAccount: Record "G/L Account";
     begin
         LibraryERM.FindGeneralPostingSetup(GeneralPostingSetup);
-        LibraryERM.FindVATPostingSetup(VATPostingSetup, 0);
+        LibraryERM.FindVATPostingSetup(VATPostingSetup, "General Posting Type"::" ");
         GLAccount.Get(GLAccountNo);
         GLAccount.Validate("Account Type", GLAccount."Account Type"::Posting);
-        LibraryERM.UpdateGLAccountWithPostingSetup(GLAccount, 1, GeneralPostingSetup, VATPostingSetup);
+        LibraryERM.UpdateGLAccountWithPostingSetup(GLAccount, "General Posting Type"::Purchase, GeneralPostingSetup, VATPostingSetup);
     end;
 
     local procedure GetNextFiscalYearStartDate(): Date
@@ -457,7 +457,7 @@ codeunit 144023 "SE Feature Bugs"
         exit(Format(Date, 8, '<Year4><month,2><day,2>'));
     end;
 
-    local procedure VerifyGenJournalLine(AppliesToDocType: Option; AccountNo: Code[20]; Amount: Decimal)
+    local procedure VerifyGenJournalLine(AppliesToDocType: Enum "Gen. Journal Document Type"; AccountNo: Code[20]; Amount: Decimal)
     var
         GenJournalLine: Record "Gen. Journal Line";
     begin
@@ -467,7 +467,7 @@ codeunit 144023 "SE Feature Bugs"
         GenJournalLine.TestField(Amount, Amount);
     end;
 
-    local procedure VerifyNoGenJournalLineExist(AppliesToDocType: Option; AccountNo: Code[20])
+    local procedure VerifyNoGenJournalLineExist(AppliesToDocType: Enum "Gen. Journal Document Type"; AccountNo: Code[20])
     var
         GenJournalLine: Record "Gen. Journal Line";
     begin

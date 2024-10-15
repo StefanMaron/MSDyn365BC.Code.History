@@ -1114,7 +1114,7 @@ codeunit 134987 "ERM Financial Reports III"
         exit(Vendor."No.");
     end;
 
-    local procedure CreateGenJournalLine(var GenJournalLine: Record "Gen. Journal Line"; DocumentType: Option; AccountType: Option; AccountNo: Code[20]; Amount: Decimal; BankPaymentType: Option)
+    local procedure CreateGenJournalLine(var GenJournalLine: Record "Gen. Journal Line"; DocumentType: Enum "Gen. Journal Document Type"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; Amount: Decimal; BankPaymentType: Enum "Bank Payment Type")
     var
         GenJournalBatch: Record "Gen. Journal Batch";
         BankAccount: Record "Bank Account";
@@ -1226,21 +1226,21 @@ codeunit 134987 "ERM Financial Reports III"
         Vendor.Modify(true);
     end;
 
-    local procedure CreateGenJournalLineWithAppliesToDocType(var GenJournalLine: Record "Gen. Journal Line"; AccountType: Option; AccountNo: Code[20]; AppliesToDocType: Option)
+    local procedure CreateGenJournalLineWithAppliesToDocType(var GenJournalLine: Record "Gen. Journal Line"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; AppliesToDocType: Enum "Gen. Journal Document Type")
     begin
         CreateGenJournalLine2(GenJournalLine, AccountType, AccountNo, LibraryRandom.RandDec(10, 2));
         GenJournalLine."Applies-to Doc. Type" := AppliesToDocType;
         GenJournalLine.Modify();
     end;
 
-    local procedure CreateGenJournalLineWithAppliesToID(var GenJournalLine: Record "Gen. Journal Line"; AccountType: Option; AccountNo: Code[20]; AmountLCY: Decimal; AppliesToID: Code[20])
+    local procedure CreateGenJournalLineWithAppliesToID(var GenJournalLine: Record "Gen. Journal Line"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; AmountLCY: Decimal; AppliesToID: Code[20])
     begin
         CreateGenJournalLine2(GenJournalLine, AccountType, AccountNo, AmountLCY);
         GenJournalLine."Applies-to ID" := AppliesToID;
         GenJournalLine.Modify();
     end;
 
-    local procedure CreateCustLedgerEntry(var CustLedgerEntry: Record "Cust. Ledger Entry"; DocType: Option; CustNo: Code[20])
+    local procedure CreateCustLedgerEntry(var CustLedgerEntry: Record "Cust. Ledger Entry"; DocType: Enum "Gen. Journal Document Type"; CustNo: Code[20])
     begin
         with CustLedgerEntry do begin
             "Entry No." := LibraryUtility.GetNewRecNo(CustLedgerEntry, FieldNo("Entry No."));
@@ -1251,7 +1251,7 @@ codeunit 134987 "ERM Financial Reports III"
         end;
     end;
 
-    local procedure CreateVendLedgerEntry(var VendLedgerEntry: Record "Vendor Ledger Entry"; DocType: Option; VendNo: Code[20])
+    local procedure CreateVendLedgerEntry(var VendLedgerEntry: Record "Vendor Ledger Entry"; DocType: Enum "Gen. Journal Document Type"; VendNo: Code[20])
     begin
         with VendLedgerEntry do begin
             "Entry No." := LibraryUtility.GetNewRecNo(VendLedgerEntry, FieldNo("Entry No."));
@@ -1278,7 +1278,7 @@ codeunit 134987 "ERM Financial Reports III"
         VendorLedgerEntry.Insert();
     end;
 
-    local procedure CreateGenJournalLine2(var GenJournalLine: Record "Gen. Journal Line"; AccountType: Option; AccountNo: Code[20]; GenJnlLineAmount: Decimal)
+    local procedure CreateGenJournalLine2(var GenJournalLine: Record "Gen. Journal Line"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; GenJnlLineAmount: Decimal)
     var
         GenJournalTemplate: Record "Gen. Journal Template";
         GenJournalBatch: Record "Gen. Journal Batch";
@@ -1303,7 +1303,7 @@ codeunit 134987 "ERM Financial Reports III"
         GenJournalLine.Insert();
     end;
 
-    local procedure CreateCustLedgerEntryWithSpecificAmountAndAppliesToID(var CustLedgerEntry: Record "Cust. Ledger Entry"; DocType: Option; CustNo: Code[20]; EntryAmount: Decimal; AppliesToID: Code[20])
+    local procedure CreateCustLedgerEntryWithSpecificAmountAndAppliesToID(var CustLedgerEntry: Record "Cust. Ledger Entry"; DocType: Enum "Gen. Journal Account Type"; CustNo: Code[20]; EntryAmount: Decimal; AppliesToID: Code[20])
     begin
         with CustLedgerEntry do begin
             Init;
@@ -1318,7 +1318,7 @@ codeunit 134987 "ERM Financial Reports III"
         end;
     end;
 
-    local procedure CreateVendLedgerEntryWithSpecificAmountAndAppliesToID(var VendLedgerEntry: Record "Vendor Ledger Entry"; DocType: Option; VendNo: Code[20]; EntryAmount: Decimal; AppliesToID: Code[20])
+    local procedure CreateVendLedgerEntryWithSpecificAmountAndAppliesToID(var VendLedgerEntry: Record "Vendor Ledger Entry"; DocType: Enum "Gen. Journal Document Type"; VendNo: Code[20]; EntryAmount: Decimal; AppliesToID: Code[20])
     begin
         with VendLedgerEntry do begin
             Init;
@@ -1333,7 +1333,7 @@ codeunit 134987 "ERM Financial Reports III"
         end;
     end;
 
-    local procedure CreatePostGenJnlInvoiceWithPmtTerms(AccountType: Option; AccountNo: Code[20]; PaymentTermsCode: Code[10]; LineAmount: Decimal): Code[20]
+    local procedure CreatePostGenJnlInvoiceWithPmtTerms(AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; PaymentTermsCode: Code[10]; LineAmount: Decimal): Code[20]
     var
         GenJournalLine: Record "Gen. Journal Line";
     begin
@@ -1346,7 +1346,7 @@ codeunit 134987 "ERM Financial Reports III"
         end;
     end;
 
-    local procedure CreatePmtJournalLineWithAppliesToID(var GenJournalLine: Record "Gen. Journal Line"; PostingDate: Date; AccountType: Option; AccountNo: Code[20]; LineAmount: Decimal)
+    local procedure CreatePmtJournalLineWithAppliesToID(var GenJournalLine: Record "Gen. Journal Line"; PostingDate: Date; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; LineAmount: Decimal)
     begin
         with GenJournalLine do begin
             LibraryJournals.CreateGenJournalLineWithBatch(GenJournalLine, "Document Type"::Payment, AccountType, AccountNo, LineAmount);
@@ -1357,7 +1357,7 @@ codeunit 134987 "ERM Financial Reports III"
     end;
 
     [Scope('OnPrem')]
-    procedure CreateAndPostGenJournalLines(GenJnlTemplateType: Option; "Page": Option; DocumentType: Integer; AccountType: Option; AccountNo: Code[20]; GenJnlLinesCount: Integer; PurchaseAmount: Integer)
+    procedure CreateAndPostGenJournalLines(GenJnlTemplateType: Enum "Gen. Journal Template Type"; "Page": Option; DocumentType: Enum "Gen. Journal Document Type"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; GenJnlLinesCount: Integer; PurchaseAmount: Integer)
     var
         GenJournalBatch: Record "Gen. Journal Batch";
         GenJournalLine: Record "Gen. Journal Line";
@@ -1455,7 +1455,7 @@ codeunit 134987 "ERM Financial Reports III"
         exit(GenJournalLine."Document No.");
     end;
 
-    local procedure PostPurchaseDocumentWithAmount(DocumentType: Option; VendorNo: Code[20]; GLAccountNo: Code[20]; DirectUnitCost: Decimal; Quantity: Decimal): Decimal
+    local procedure PostPurchaseDocumentWithAmount(DocumentType: Enum "Purchase Document Type"; VendorNo: Code[20]; GLAccountNo: Code[20]; DirectUnitCost: Decimal; Quantity: Decimal): Decimal
     var
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
@@ -1491,7 +1491,7 @@ codeunit 134987 "ERM Financial Reports III"
         GLAccount.FindFirst;
     end;
 
-    local procedure FindUpdateGenJnlLine(AccountNo: Code[20]; AppToDocType: Option; NewAmount: Decimal)
+    local procedure FindUpdateGenJnlLine(AccountNo: Code[20]; AppToDocType: Enum "Gen. Journal Account Type"; NewAmount: Decimal)
     var
         GenJournalLine: Record "Gen. Journal Line";
     begin

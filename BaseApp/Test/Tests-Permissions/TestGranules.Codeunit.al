@@ -44,11 +44,16 @@ codeunit 132532 "Test Granules"
         XFIXEDASSETSEDITTxt: Label 'D365 FA, EDIT';
         XTEAMMEMBERTxt: Label 'D365 TEAM MEMBER';
         D365AccountantsTxt: Label 'D365 ACCOUNTANTS';
+        D365CompanyHubTxt: Label 'D365 COMPANY HUB';
         UserGroupMissingLocalErr: Label '%1 User Group doesn''t contain %2 permission set.';
         D365PermissionSetPrefixFilterTok: Label 'D365*';
         ReadTok: Label 'D365 READ', Locked = true;
         D365EssentialPermissionSetFilterTok: Label '<>D365PREM*&D365*';
         BasicISVTok: Label 'D365 BASIC ISV', Locked = true;
+        D365MonitorFields: Label 'D365 Monitor Fields', Locked = true;
+        XRetentionPolSetupTok: Label 'RETENTION POL. SETUP', Locked = true;
+        XSnapshotDebugTok: Label 'D365 SNAPSHOT DEBUG';
+        D365AutomationTok: Label 'D365 AUTOMATION';
 
     [Test]
     [Scope('OnPrem')]
@@ -218,7 +223,7 @@ codeunit 132532 "Test Granules"
         PermissionSet.SetFilter("Role ID", D365PermissionSetPrefixFilterTok);
         PermissionSet.FindSet;
         repeat
-            if not (PermissionSet."Role ID" in [XO365FULLTxt, D365AccountantsTxt, XO365EXTENSIONMGTTxt, XO365BACKUPRESTORETxt, ProfileManagementTok]) then
+            if not (PermissionSet."Role ID" in [XO365FULLTxt, D365AccountantsTxt, D365CompanyHubTxt, XO365EXTENSIONMGTTxt, XO365BACKUPRESTORETxt, ProfileManagementTok, D365MonitorFields, XRetentionPolSetupTok, XSnapshotDebugTok, D365AutomationTok]) then
                 CopyPSToTemp(TempAllO365Permission, PermissionSet."Role ID");
         until PermissionSet.Next = 0;
 
@@ -242,7 +247,7 @@ codeunit 132532 "Test Granules"
         PermissionSet.SetFilter("Role ID", D365EssentialPermissionSetFilterTok);
         PermissionSet.FindSet;
         repeat
-            if not (PermissionSet."Role ID" in [XO365FULLTxt, D365AccountantsTxt, XO365EXTENSIONMGTTxt, XO365PREMIUMBUSTxt, ReadTok, XO365BACKUPRESTORETxt, ProfileManagementTok]) then
+            if not (PermissionSet."Role ID" in [XO365FULLTxt, D365AccountantsTxt, D365CompanyHubTxt, XO365EXTENSIONMGTTxt, XO365PREMIUMBUSTxt, ReadTok, XO365BACKUPRESTORETxt, ProfileManagementTok, D365MonitorFields, XRetentionPolSetupTok, XSnapshotDebugTok, D365AutomationTok]) then
                 CopyPSToTemp(TempAllO365Permission, PermissionSet."Role ID");
         until PermissionSet.Next = 0;
 
@@ -267,7 +272,7 @@ codeunit 132532 "Test Granules"
         PermissionSet.FindSet;
 
         repeat
-            if not (PermissionSet."Role ID" in [XO365BACKUPRESTORETxt]) then
+            if not (PermissionSet."Role ID" in [XO365BACKUPRESTORETxt, D365AutomationTok]) then
                 CopyPSToTemp(TempAllO365Permission, PermissionSet."Role ID");
         until PermissionSet.Next = 0;
 
@@ -588,7 +593,7 @@ codeunit 132532 "Test Granules"
 
     local procedure IsComposedPermissionSet(RoleID: Code[20]): Boolean
     begin
-        exit(RoleID in [XO365FULLTxt, XO365BUSFULLTxt, XO365PREMIUMBUSTxt, D365AccountantsTxt, ReadTok, XTEAMMEMBERTxt, BasicISVTok])
+        exit(RoleID in [XO365FULLTxt, XO365BUSFULLTxt, XO365PREMIUMBUSTxt, D365AccountantsTxt, D365CompanyHubTxt, ReadTok, XTEAMMEMBERTxt, BasicISVTok, D365AutomationTok]);
     end;
 }
 

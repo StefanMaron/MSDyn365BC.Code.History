@@ -128,7 +128,7 @@ codeunit 144003 "ERM EU 3-Party"
         PostPurchaseDocumentWithEUThirdParty(PurchaseHeader."Document Type"::Order, false);  // False for EU 3-Party Trade.
     end;
 
-    local procedure PostPurchaseDocumentWithEUThirdParty(DocumentType: Option; EUThirdPartyTrade: Boolean)
+    local procedure PostPurchaseDocumentWithEUThirdParty(DocumentType: Enum "Purchase Document Type"; EUThirdPartyTrade: Boolean)
     var
         Item: Record Item;
         PurchaseHeader: Record "Purchase Header";
@@ -267,7 +267,7 @@ codeunit 144003 "ERM EU 3-Party"
         PostSalesDocumentWithEUThirdParty(SalesHeader."Document Type"::Order, true);  // EU 3-Party Trade as True.
     end;
 
-    local procedure PostSalesDocumentWithEUThirdParty(DocumentType: Option; EUThirdPartyTrade: Boolean)
+    local procedure PostSalesDocumentWithEUThirdParty(DocumentType: Enum "Sales Document Type"; EUThirdPartyTrade: Boolean)
     var
         Customer: Record Customer;
         Item: Record Item;
@@ -352,7 +352,7 @@ codeunit 144003 "ERM EU 3-Party"
         PostServiceInvoiceWithEUThirdParty(ServiceHeader."Document Type"::Order, false);  // EU 3-Party Trade as False.
     end;
 
-    local procedure PostServiceInvoiceWithEUThirdParty(DocumentType: Option; EUThirdPartyTrade: Boolean)
+    local procedure PostServiceInvoiceWithEUThirdParty(DocumentType: Enum "Service Document Type"; EUThirdPartyTrade: Boolean)
     var
         ServiceHeader: Record "Service Header";
         ServiceInvoiceHeader: Record "Service Invoice Header";
@@ -390,7 +390,7 @@ codeunit 144003 "ERM EU 3-Party"
         PostServiceCrMemoWithEUThirdParty(ServiceHeader."Document Type"::"Credit Memo", true);  // EU 3-Party Trade as True.
     end;
 
-    local procedure PostServiceCrMemoWithEUThirdParty(DocumentType: Option; EUThirdPartyTrade: Boolean)
+    local procedure PostServiceCrMemoWithEUThirdParty(DocumentType: Enum "Service Document Type"; EUThirdPartyTrade: Boolean)
     var
         ServiceCrMemoHeader: Record "Service Cr.Memo Header";
         ServiceHeader: Record "Service Header";
@@ -746,7 +746,7 @@ codeunit 144003 "ERM EU 3-Party"
         exit(Item."No.");
     end;
 
-    local procedure CreatePurchaseHeader(var PurchaseHeader: Record "Purchase Header"; DocumentType: Option; EUThirdPartyTrade: Boolean; CustomerNo: Code[20])
+    local procedure CreatePurchaseHeader(var PurchaseHeader: Record "Purchase Header"; DocumentType: Enum "Purchase Document Type"; EUThirdPartyTrade: Boolean; CustomerNo: Code[20])
     var
         Vendor: Record Vendor;
     begin
@@ -757,7 +757,7 @@ codeunit 144003 "ERM EU 3-Party"
         PurchaseHeader.Modify(true);
     end;
 
-    local procedure CreateSalesDocument(var SalesHeader: Record "Sales Header"; DocumentType: Option; CustomerNo: Code[20]; ItemNo: Code[20]; CurrencyCode: Code[10]; EUThirdPartyTrade: Boolean)
+    local procedure CreateSalesDocument(var SalesHeader: Record "Sales Header"; DocumentType: Enum "Sales Document Type"; CustomerNo: Code[20]; ItemNo: Code[20]; CurrencyCode: Code[10]; EUThirdPartyTrade: Boolean)
     var
         SalesLine: Record "Sales Line";
     begin
@@ -768,7 +768,7 @@ codeunit 144003 "ERM EU 3-Party"
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, ItemNo, LibraryRandom.RandDec(10, 2));  // Take random Quantity.
     end;
 
-    local procedure CreateServiceCreditMemo(var ServiceHeader: Record "Service Header"; DocumentType: Option; EUThirdPartyTrade: Boolean)
+    local procedure CreateServiceCreditMemo(var ServiceHeader: Record "Service Header"; DocumentType: Enum "Service Document Type"; EUThirdPartyTrade: Boolean)
     var
         Item: Record Item;
         ServiceLine: Record "Service Line";
@@ -779,7 +779,7 @@ codeunit 144003 "ERM EU 3-Party"
         ServiceLine.Modify(true);
     end;
 
-    local procedure CreateServiceDocument(var ServiceHeader: Record "Service Header"; DocumentType: Option; EUThirdPartyTrade: Boolean)
+    local procedure CreateServiceDocument(var ServiceHeader: Record "Service Header"; DocumentType: Enum "Service Document Type"; EUThirdPartyTrade: Boolean)
     var
         Item: Record Item;
         ServiceItem: Record "Service Item";
@@ -796,7 +796,7 @@ codeunit 144003 "ERM EU 3-Party"
         ServiceLine.Modify(true);
     end;
 
-    local procedure CreateServiceHeader(var ServiceHeader: Record "Service Header"; DocumentType: Option; EUThirdPartyTrade: Boolean)
+    local procedure CreateServiceHeader(var ServiceHeader: Record "Service Header"; DocumentType: Enum "Service Document Type"; EUThirdPartyTrade: Boolean)
     var
         Customer: Record Customer;
     begin
@@ -818,7 +818,7 @@ codeunit 144003 "ERM EU 3-Party"
         VATPostingSetup.Modify(true);
     end;
 
-    local procedure CreateVATStatementLine(var VATStatementLine: Record "VAT Statement Line"; GenPostingType: Option; VATBusPostingGroup: Code[20]; VATProdPostingGroup: Code[20])
+    local procedure CreateVATStatementLine(var VATStatementLine: Record "VAT Statement Line"; GenPostingType: Enum "General Posting Type"; VATBusPostingGroup: Code[20]; VATProdPostingGroup: Code[20])
     var
         VATStatementName: Record "VAT Statement Name";
         VATStatementTemplate: Record "VAT Statement Template";

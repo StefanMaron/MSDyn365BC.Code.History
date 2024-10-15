@@ -170,7 +170,7 @@
         [RunOnClient]
         WordApplication: DotNet ApplicationClass;
         LastAttachmentNo: Integer;
-        LastCorrType: Integer;
+        LastCorrType: Enum "Correspondence Type";
         LastSubject: Text[100];
         LastSendWordDocsAsAttmt: Boolean;
         LineCount: Integer;
@@ -318,7 +318,7 @@
             CreateMergeSource(MergeFile);
             repeat
                 PopulateInterLogEntryToMergeSource(
-                  MergeFile, Attachment, TempDeliverySorter."No.", HeaderIsReady, TempDeliverySorter."Correspondence Type");
+                  MergeFile, Attachment, TempDeliverySorter."No.", HeaderIsReady, TempDeliverySorter."Correspondence Type".AsInteger());
                 Row := Row + 1;
                 Window.Update(4, Round(Row / NoOfRecords * 10000, 1))
             until TempDeliverySorter.Next = 0;
@@ -754,8 +754,8 @@
             AddNewEntry(Contact."Mobile Phone No.", '');
             AddNewEntry(Contact."VAT Registration No.", '');
             AddNewEntry(Contact."Home Page", '');
-            AddNewEntry(CopyStr(Contact.GetSalutation(0, LanguageCode), 1, MaxStrLen(Name)), '');
-            AddNewEntry(CopyStr(Contact.GetSalutation(1, LanguageCode), 1, MaxStrLen(Name)), '');
+            AddNewEntry(CopyStr(Contact.GetSalutation("Salutation Formula Salutation Type"::Formal, LanguageCode), 1, MaxStrLen(Name)), '');
+            AddNewEntry(CopyStr(Contact.GetSalutation("Salutation Formula Salutation Type"::Informal, LanguageCode), 1, MaxStrLen(Name)), '');
             AddNewEntry(Salesperson.Code, '');
             AddNewEntry(Salesperson.Name, '');
             AddNewEntry(Salesperson."Job Title", '');

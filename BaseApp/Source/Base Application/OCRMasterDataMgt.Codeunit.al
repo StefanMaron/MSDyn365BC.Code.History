@@ -5,6 +5,7 @@ codeunit 883 "OCR Master Data Mgt."
     begin
     end;
 
+    [Obsolete('Integration Records will be replaced by SystemID and SystemLastDateTimeModified', '17.0')]
     procedure UpdateIntegrationRecords(OnlyRecordsWithoutID: Boolean)
     var
         IntegrationRecord: Record "Integration Record";
@@ -22,28 +23,17 @@ codeunit 883 "OCR Master Data Mgt."
 
         if Vendor.FindSet then
             repeat
-                if not IntegrationRecord.Get(Vendor.Id) then begin
+                if not IntegrationRecord.Get(Vendor.SystemId) then begin
                     VendorRecordRef.GetTable(Vendor);
                     IntegrationManagement.InsertUpdateIntegrationRecord(VendorRecordRef, CurrentDateTime);
-                    if IsNullGuid(Format(Vendor.Id)) then begin
+                    if IsNullGuid(Format(Vendor.SystemId)) then begin
                         UpdatedIntegrationRecord.SetRange("Record ID", Vendor.RecordId);
                         UpdatedIntegrationRecord.FindFirst;
-                        Vendor.Id := IntegrationManagement.GetIdWithoutBrackets(UpdatedIntegrationRecord."Integration ID");
+                        Vendor.SystemId := IntegrationManagement.GetIdWithoutBrackets(UpdatedIntegrationRecord."Integration ID");
                     end;
                     Vendor.Modify(false);
                 end;
             until Vendor.Next = 0;
-    end;
-
-    [EventSubscriber(ObjectType::Codeunit, 5150, 'OnGetIntegrationActivated', '', false, false)]
-    local procedure OnGetIntegrationActivated(var IsSyncEnabled: Boolean)
-    var
-        ReadSoftOCRMasterDataSync: Codeunit "ReadSoft OCR Master Data Sync";
-    begin
-        if IsSyncEnabled then
-            exit;
-
-        IsSyncEnabled := ReadSoftOCRMasterDataSync.IsSyncEnabled;
     end;
 }
 

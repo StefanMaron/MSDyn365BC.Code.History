@@ -238,7 +238,7 @@ codeunit 137076 "SCM Manuf Calendars"
           PeriodType::"Accounting Period", CapacityUnitOfMeasure.Type::Minutes, GetYear(2, -1), GetYear(2, 1));  // Calendar Year range required: -2Y to 2Y.
     end;
 
-    local procedure WorkCenterGroupCalendarWithPeriodTypeAndCapacityUOM(PeriodType: Option; Type: Option; StartingDate: Date; EndingDate: Date)
+    local procedure WorkCenterGroupCalendarWithPeriodTypeAndCapacityUOM(PeriodType: Option; Type: Enum "Capacity Unit of Measure"; StartingDate: Date; EndingDate: Date)
     var
         WorkCenter: Record "Work Center";
         MatrixRecords: array[32] of Record Date;
@@ -807,7 +807,7 @@ codeunit 137076 "SCM Manuf Calendars"
         end;
     end;
 
-    local procedure FindCapacityUnitOfMeasure(var CapacityUnitOfMeasure: Record "Capacity Unit of Measure"; Type: Option)
+    local procedure FindCapacityUnitOfMeasure(var CapacityUnitOfMeasure: Record "Capacity Unit of Measure"; Type: Enum "Capacity Unit of Measure")
     begin
         CapacityUnitOfMeasure.SetRange(Type, Type);
         CapacityUnitOfMeasure.FindFirst;
@@ -936,23 +936,23 @@ codeunit 137076 "SCM Manuf Calendars"
 
             FindSet;
             // Total time required for machine center setup is 60 minutes * 100 / 75 = 80 min. (as MC efficiency is 75%)
-            VerifyCapacityLine(090700T, 102700T, "Time Type"::Setup, 60, ProdOrderCapacityNeed);
+            VerifyCapacityLine(090700T, 102700T, "Time Type"::"Setup Time", 60, ProdOrderCapacityNeed);
             Next;
             // Total run time is 60 min. * 10 pcs * 100 / 75 (75% efficiency) = 800 min.
             // Allocated time is 600 minutes, as it does not include efficiency multiplicator
             // Effective run time is 800 minutes
-            VerifyCapacityLine(102700T, 160000T, "Time Type"::Run, 249.75, ProdOrderCapacityNeed);
+            VerifyCapacityLine(102700T, 160000T, "Time Type"::"Run Time", 249.75, ProdOrderCapacityNeed);
             Next;
             // All times are backward calculated starting from the shift ending time
             // Move time - 13 minutes: 15:47 - 16:00 (efficiency multiplicator is not applied to move time and wait time)
             // Production takes 2 days:
             // Second day: 7 hours 47 minutes (whole work shift time) 08:00 - 15:47, actual allocated time is 467 * 75 / 100 = 350.25 min
             // First day: 5 hours 33 minutes 10:27 - 16:00 (till the end of the shift), allocated time is 333 * 75 / 100 = 249.75 min
-            VerifyCapacityLine(080000T, 154700T, "Time Type"::Run, 350.25, ProdOrderCapacityNeed);
+            VerifyCapacityLine(080000T, 154700T, "Time Type"::"Run Time", 350.25, ProdOrderCapacityNeed);
         end;
     end;
 
-    local procedure VerifyCapacityLine(ExpStartingTime: Time; ExpEndingTime: Time; ExpTimeType: Option; ExpAllocatedTime: Decimal; ProdOrderCapacityNeed: Record "Prod. Order Capacity Need")
+    local procedure VerifyCapacityLine(ExpStartingTime: Time; ExpEndingTime: Time; ExpTimeType: Enum "Routing Time Type"; ExpAllocatedTime: Decimal; ProdOrderCapacityNeed: Record "Prod. Order Capacity Need")
     begin
         with ProdOrderCapacityNeed do begin
             Assert.AreEqual(ExpStartingTime, "Starting Time", StrSubstNo(WrongFieldValueErr, FieldName("Starting Time"), TableName));

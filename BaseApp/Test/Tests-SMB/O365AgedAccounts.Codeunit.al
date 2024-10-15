@@ -917,7 +917,7 @@ codeunit 138027 "O365 Aged Accounts"
           true, CustLedgerEntry."Document Type"::Invoice, CustPostingGroup);
     end;
 
-    local procedure CreateCustomerLedgEntry(var CustLedgerEntry: Record "Cust. Ledger Entry"; CustomerNo: Code[20]; PostingDate: Date; DueDate: Date; AmountLCY: Decimal; DocOpen: Boolean; DocType: Option; CustPostingGroup: Code[20])
+    local procedure CreateCustomerLedgEntry(var CustLedgerEntry: Record "Cust. Ledger Entry"; CustomerNo: Code[20]; PostingDate: Date; DueDate: Date; AmountLCY: Decimal; DocOpen: Boolean; DocType: Enum "Gen. Journal Document Type"; CustPostingGroup: Code[20])
     begin
         with CustLedgerEntry do begin
             Init;
@@ -933,7 +933,7 @@ codeunit 138027 "O365 Aged Accounts"
         end;
     end;
 
-    local procedure CreateDetailedCustLedgEntry(CustLedgNo: Integer; AmountLCY: Decimal; PostingDate: Date; DocType: Option)
+    local procedure CreateDetailedCustLedgEntry(CustLedgNo: Integer; AmountLCY: Decimal; PostingDate: Date; DocType: Enum "Gen. Journal Document Type")
     var
         DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry";
     begin

@@ -1,4 +1,4 @@
-﻿table 1300 "Mini Customer Template"
+table 1300 "Mini Customer Template"
 {
     Caption = 'Mini Customer Template';
     ReplicateData = true;

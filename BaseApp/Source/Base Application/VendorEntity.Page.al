@@ -5,7 +5,7 @@ page 5472 "Vendor Entity"
     DelayedInsert = true;
     EntityName = 'vendor';
     EntitySetName = 'vendors';
-    ODataKeyFields = Id;
+    ODataKeyFields = SystemId;
     PageType = API;
     SourceTable = Vendor;
 
@@ -15,7 +15,7 @@ page 5472 "Vendor Entity"
         {
             repeater(Group)
             {
-                field(id; Id)
+                field(id; Rec.SystemId)
                 {
                     ApplicationArea = All;
                     Caption = 'Id', Locked = true;
@@ -98,8 +98,7 @@ page 5472 "Vendor Entity"
                         if "Currency Id" = BlankGUID then
                             "Currency Code" := ''
                         else begin
-                            Currency.SetRange(Id, "Currency Id");
-                            if not Currency.FindFirst then
+                            if not Currency.GetBySystemId("Currency Id") then
                                 Error(CurrencyIdDoesNotMatchACurrencyErr);
 
                             "Currency Code" := Currency.Code;
@@ -132,7 +131,7 @@ page 5472 "Vendor Entity"
                             if not Currency.Get("Currency Code") then
                                 Error(CurrencyCodeDoesNotMatchACurrencyErr);
 
-                            "Currency Id" := Currency.Id;
+                            "Currency Id" := Currency.SystemId;
                         end;
 
                         RegisterFieldSet(FieldNo("Currency Id"));
@@ -154,8 +153,7 @@ page 5472 "Vendor Entity"
                         if "Payment Terms Id" = BlankGUID then
                             "Payment Terms Code" := ''
                         else begin
-                            PaymentTerms.SetRange(Id, "Payment Terms Id");
-                            if not PaymentTerms.FindFirst then
+                            if not PaymentTerms.GetBySystemId("Payment Terms Id") then
                                 Error(PaymentTermsIdDoesNotMatchAPaymentTermsErr);
 
                             "Payment Terms Code" := PaymentTerms.Code;
@@ -175,8 +173,7 @@ page 5472 "Vendor Entity"
                         if "Payment Method Id" = BlankGUID then
                             "Payment Method Code" := ''
                         else begin
-                            PaymentMethod.SetRange(Id, "Payment Method Id");
-                            if not PaymentMethod.FindFirst then
+                            if not PaymentMethod.GetBySystemId("Payment Method Id") then
                                 Error(PaymentMethodIdDoesNotMatchAPaymentMethodErr);
 
                             "Payment Method Code" := PaymentMethod.Code;
@@ -222,7 +219,7 @@ page 5472 "Vendor Entity"
                     Caption = 'picture';
                     EntityName = 'picture';
                     EntitySetName = 'picture';
-                    SubPageLink = Id = FIELD(Id);
+                    SubPageLink = Id = FIELD(SystemId);
                 }
                 part(defaultDimensions; "Default Dimension Entity")
                 {
@@ -230,7 +227,7 @@ page 5472 "Vendor Entity"
                     Caption = 'DefaultDimensions', Locked = true;
                     EntityName = 'defaultDimensions';
                     EntitySetName = 'defaultDimensions';
-                    SubPageLink = ParentId = FIELD(Id);
+                    SubPageLink = ParentId = FIELD(SystemId);
                 }
             }
         }
@@ -270,12 +267,8 @@ page 5472 "Vendor Entity"
     trigger OnModifyRecord(): Boolean
     var
         Vendor: Record Vendor;
-        GraphMgtGeneralTools: Codeunit "Graph Mgt - General Tools";
     begin
-        if xRec.Id <> Id then
-            GraphMgtGeneralTools.ErrorIdImmutable;
-        Vendor.SetRange(Id, Id);
-        Vendor.FindFirst;
+        Vendor.GetBySystemId(SystemId);
 
         ProcessPostalAddress;
 
@@ -323,7 +316,6 @@ page 5472 "Vendor Entity"
 
     local procedure ClearCalculatedFields()
     begin
-        Clear(Id);
         Clear(PostalAddressJSON);
         Clear(IRS1099Code);
         Clear(PostalAddressSet);

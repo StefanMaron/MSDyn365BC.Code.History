@@ -1567,7 +1567,7 @@ codeunit 134322 "General Journal Line Approval"
         Workflow.Modify(true);
     end;
 
-    local procedure CreateJournalBatch(var GenJournalBatch: Record "Gen. Journal Batch"; JournalTemplateName: Code[10]; BalAccountType: Option; BalAccountNo: Code[20])
+    local procedure CreateJournalBatch(var GenJournalBatch: Record "Gen. Journal Batch"; JournalTemplateName: Code[10]; BalAccountType: Enum "Gen. Journal Account Type"; BalAccountNo: Code[20])
     begin
         LibraryERM.CreateGenJournalBatch(GenJournalBatch, JournalTemplateName);
         GenJournalBatch.Validate("Bal. Account Type", BalAccountType);
@@ -1591,7 +1591,7 @@ codeunit 134322 "General Journal Line Approval"
           GenJournalLine."Bal. Account Type"::"G/L Account", LibraryERM.CreateGLAccountNoWithDirectPosting);
     end;
 
-    local procedure CreateGeneralJournalBatchWithOneCustomJournalLine(var GenJournalBatch: Record "Gen. Journal Batch"; var GenJournalLine: Record "Gen. Journal Line"; AccountType: Option; AccountNo: Code[20]; BalAccountType: Option; BalAccountNo: Code[20])
+    local procedure CreateGeneralJournalBatchWithOneCustomJournalLine(var GenJournalBatch: Record "Gen. Journal Batch"; var GenJournalLine: Record "Gen. Journal Line"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; BalAccountType: Enum "Gen. Journal Account Type"; BalAccountNo: Code[20])
     begin
         CreateJournalBatch(GenJournalBatch, LibraryERM.SelectGenJnlTemplate, BalAccountType, BalAccountNo);
 
@@ -1606,7 +1606,7 @@ codeunit 134322 "General Journal Line Approval"
           GenJournalLine."Account Type"::Customer, LibrarySales.CreateCustomerNo);
     end;
 
-    local procedure CreatePmtJnlBatchWithOnePaymentLineForAccTypeVendor(var GenJournalBatch: Record "Gen. Journal Batch"; var GenJournalLine: Record "Gen. Journal Line"; BankPaymentType: Option)
+    local procedure CreatePmtJnlBatchWithOnePaymentLineForAccTypeVendor(var GenJournalBatch: Record "Gen. Journal Batch"; var GenJournalLine: Record "Gen. Journal Line"; BankPaymentType: Enum "Bank Payment Type")
     begin
         CreatePaymentJournalBatchWithOneJournalLine(
           GenJournalBatch, GenJournalLine, GenJournalLine."Document Type"::Payment,
@@ -1634,7 +1634,7 @@ codeunit 134322 "General Journal Line Approval"
         GenJournalLine[2].Modify();
     end;
 
-    local procedure CreatePaymentJournalBatchWithOneJournalLine(var GenJournalBatch: Record "Gen. Journal Batch"; var GenJournalLine: Record "Gen. Journal Line"; DocumentType: Option; AccountType: Option; AccountNo: Code[20])
+    local procedure CreatePaymentJournalBatchWithOneJournalLine(var GenJournalBatch: Record "Gen. Journal Batch"; var GenJournalLine: Record "Gen. Journal Line"; DocumentType: Enum "Gen. Journal Document Type"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20])
     var
         BankAccount: Record "Bank Account";
     begin
@@ -1676,7 +1676,7 @@ codeunit 134322 "General Journal Line Approval"
         ApprovalEntry: Record "Approval Entry";
     begin
         ApprovalEntry.Init();
-        ApprovalEntry."Document Type" := GenJournalLine."Document Type".AsInteger();
+        ApprovalEntry."Document Type" := GenJournalLine."Document Type";
         ApprovalEntry."Document No." := GenJournalLine."Document No.";
         ApprovalEntry."Table ID" := DATABASE::"Gen. Journal Line";
         ApprovalEntry."Record ID to Approve" := GenJournalLine.RecordId;
@@ -1686,7 +1686,7 @@ codeunit 134322 "General Journal Line Approval"
         ApprovalEntry.Insert();
     end;
 
-    local procedure PrintCheckForPaymentJournalLine(GenJournalLine: Record "Gen. Journal Line"; BalAccountType: Option)
+    local procedure PrintCheckForPaymentJournalLine(GenJournalLine: Record "Gen. Journal Line"; BalAccountType: Enum "Gen. Journal Account Type")
     var
         DocumentPrint: Codeunit "Document-Print";
     begin
@@ -1985,7 +1985,7 @@ codeunit 134322 "General Journal Line Approval"
     begin
         ApprovalCommentLine.Init();
         ApprovalCommentLine."Table ID" := ApprovalEntry."Table ID";
-        ApprovalCommentLine."Document Type" := ApprovalEntry."Document Type";
+        ApprovalCommentLine."Document Type" := ApprovalEntry."Document Type".AsInteger();
         ApprovalCommentLine."Document No." := ApprovalEntry."Document No.";
         ApprovalCommentLine."Record ID to Approve" := ApprovalEntry."Record ID to Approve";
         ApprovalCommentLine.Comment := 'Test';

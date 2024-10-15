@@ -96,7 +96,7 @@ page 5758 "Posted Transfer Shipment Lines"
 
                     trigger OnAction()
                     begin
-                        ShowDimensions;
+                        ShowDimensions();
                     end;
                 }
             }

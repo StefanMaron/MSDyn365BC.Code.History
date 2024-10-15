@@ -1070,6 +1070,38 @@ codeunit 134462 "ERM Copy Item"
     end;
 
     [Test]
+    [Scope('OnPrem')]
+    procedure UseCopyItemCodeunit()
+    var
+        Item: Record Item;
+        CopyItemBuffer: Record "Copy Item Buffer";
+        CopyItemCodeunit: Codeunit "Copy Item";
+        Comment: Text[80];
+    begin
+        // [FEATURE] [UT]
+        // [SCENARIO 346157] Copy item functionality could be used directly without parameters page
+        Initialize();
+
+        // [GIVEN] Item "I" with Comment Line
+        Comment := CreateItemWithCommentLine(Item);
+
+        // [GIVEN] Prepare CopyItemBuffer
+        CopyItemBuffer."Source Item No." := Item."No.";
+        CopyItemBuffer."Target Item No." := LibraryUtility.GenerateGUID;
+        CopyItemBuffer.Comments := true;
+        CopyItemBuffer."Units of Measure" := true;
+        CopyItemBuffer."Number of Copies" := 1;
+
+        // [WHEN] Run DoCopyItem function
+        CopyItemCodeunit.SetCopyItemBuffer(CopyItemBuffer);
+        CopyItemCodeunit.DoCopyItem();
+
+        // [THEN] Comment line copied
+        VerifyItemGeneralInformation(CopyItemBuffer."Target Item No.", Item."Base Unit of Measure", Item.Description);
+        VerifyCommentLine(CopyItemBuffer."Target Item No.", Comment);
+    end;
+
+    [Test]
     [HandlerFunctions('CopyItemPageHandler')]
     [Scope('OnPrem')]
     procedure LastUsedValuesSaved()
@@ -1255,7 +1287,8 @@ codeunit 134462 "ERM Copy Item"
         ItemCard: TestPage "Item Card";
         ItemTranslations: TestPage "Item Translations";
     begin
-        Language.FindFirst;
+        // TODO: BUG 134976 - Get random codes
+        Language.Get('ENU');
         Description := LibraryUtility.GenerateGUID;
         ItemCard.OpenEdit;
         ItemTranslations.Trap;
@@ -1416,11 +1449,9 @@ codeunit 134462 "ERM Copy Item"
     local procedure GetRandomLanguageCode(): Code[10]
     var
         Language: Record Language;
-        RandNum: Integer;
     begin
-        Language.Init();
-        RandNum := LibraryRandom.RandIntInRange(1, Language.Count);
-        Language.Next(RandNum);
+        // TODO: BUG 134976 - Get random codes
+        Language.Get('ENU');
         exit(Language.Code);
     end;
 

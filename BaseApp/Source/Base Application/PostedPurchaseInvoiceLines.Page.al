@@ -207,7 +207,7 @@ page 529 "Posted Purchase Invoice Lines"
 
                     trigger OnAction()
                     begin
-                        ShowDimensions;
+                        ShowDimensions();
                     end;
                 }
                 action("Item &Tracking Lines")

@@ -1,6 +1,9 @@
 table 409 "SMTP Mail Setup"
 {
     Caption = 'SMTP Mail Setup';
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to "Email - SMTP" app. Use SMTP connector to create SMTP accounts. Email accounts can be configured from "Email Accouts" page from "System Application".';
+    ObsoleteTag = '17.0';
 
     fields
     {
@@ -198,4 +201,3 @@ table 409 "SMTP Mail Setup"
         "Send As" := ConnectionString;
     end;
 }
-

@@ -1,4 +1,4 @@
-﻿page 221 "Resource Allocated per Job"
+page 221 "Resource Allocated per Job"
 {
     Caption = 'Resource Allocated per Job';
     DataCaptionExpression = '';

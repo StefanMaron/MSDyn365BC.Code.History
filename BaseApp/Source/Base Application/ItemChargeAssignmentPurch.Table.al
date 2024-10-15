@@ -89,11 +89,9 @@ table 5805 "Item Charge Assignment (Purch)"
                 ItemChargeAssgntPurch.SuggestAssgntFromLine(Rec);
             end;
         }
-        field(12; "Applies-to Doc. Type"; Option)
+        field(12; "Applies-to Doc. Type"; Enum "Purchase Applies-to Document Type")
         {
             Caption = 'Applies-to Doc. Type';
-            OptionCaption = 'Quote,Order,Invoice,Credit Memo,Blanket Order,Return Order,Receipt,Transfer Receipt,Return Shipment,Sales Shipment,Return Receipt';
-            OptionMembers = Quote,"Order",Invoice,"Credit Memo","Blanket Order","Return Order",Receipt,"Transfer Receipt","Return Shipment","Sales Shipment","Return Receipt";
         }
         field(13; "Applies-to Doc. No."; Code[20])
         {

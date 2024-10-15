@@ -343,6 +343,11 @@ table 5870 "BOM Buffer"
             DataClassification = SystemMetadata;
             DecimalPlaces = 0 : 5;
         }
+        field(84; "Inventoriable"; Boolean)
+        {
+            Caption = 'Inventoriable';
+            DataClassification = SystemMetadata;
+        }
     }
 
     keys
@@ -617,7 +622,7 @@ table 5870 "BOM Buffer"
         Insert(true);
     end;
 
-    local procedure InitFromItem(Item: Record Item)
+    procedure InitFromItem(Item: Record Item)
     var
         SKU: Record "Stockkeeping Unit";
         VersionMgt: Codeunit VersionManagement;
@@ -653,6 +658,7 @@ table 5870 "BOM Buffer"
         "Rounding Precision" := Item."Rounding Precision";
         "Lead Time Calculation" := Item."Lead Time Calculation";
         "Safety Lead Time" := Item."Safety Lead Time";
+        "Inventoriable" := Item.IsInventoriableType();
 
         SetRange("Location Code");
         SetRange("Variant Code");

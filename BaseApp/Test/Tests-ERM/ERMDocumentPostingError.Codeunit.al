@@ -502,7 +502,7 @@ codeunit 134384 "ERM Document Posting Error"
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Document Posting Error");
     end;
 
-    local procedure CreateSalesDocument(var SalesHeader: Record "Sales Header"; DocumentType: Option)
+    local procedure CreateSalesDocument(var SalesHeader: Record "Sales Header"; DocumentType: Enum "Sales Document Type")
     var
         SalesLine: Record "Sales Line";
     begin
@@ -513,13 +513,13 @@ codeunit 134384 "ERM Document Posting Error"
         SalesLine.Modify(true);
     end;
 
-    local procedure CreateAndReleaseSalesDocument(var SalesHeader: Record "Sales Header"; DocumentType: Option)
+    local procedure CreateAndReleaseSalesDocument(var SalesHeader: Record "Sales Header"; DocumentType: Enum "Sales Document Type")
     begin
         CreateSalesDocument(SalesHeader, DocumentType);
         LibrarySales.ReleaseSalesDocument(SalesHeader);
     end;
 
-    local procedure CreatePurchDocument(var PurchaseHeader: Record "Purchase Header"; DocumentType: Option)
+    local procedure CreatePurchDocument(var PurchaseHeader: Record "Purchase Header"; DocumentType: Enum "Purchase Document Type")
     var
         PurchaseLine: Record "Purchase Line";
     begin
@@ -531,7 +531,7 @@ codeunit 134384 "ERM Document Posting Error"
         PurchaseLine.Modify(true);
     end;
 
-    local procedure CreatePurchHeader(var PurchaseHeader: Record "Purchase Header"; DocumentType: Option)
+    local procedure CreatePurchHeader(var PurchaseHeader: Record "Purchase Header"; DocumentType: Enum "Purchase Document Type")
     var
         Vendor: Record Vendor;
     begin
@@ -541,13 +541,13 @@ codeunit 134384 "ERM Document Posting Error"
         PurchaseHeader.Modify(true);
     end;
 
-    local procedure CreateAndReleasePurchDocument(var PurchaseHeader: Record "Purchase Header"; DocumentType: Option)
+    local procedure CreateAndReleasePurchDocument(var PurchaseHeader: Record "Purchase Header"; DocumentType: Enum "Purchase Document Type")
     begin
         CreatePurchDocument(PurchaseHeader, DocumentType);
         LibraryPurchase.ReleasePurchaseDocument(PurchaseHeader);
     end;
 
-    local procedure FindPurchaseLine(var PurchaseLine: Record "Purchase Line"; DocumentNo: Code[20]; Type: Option)
+    local procedure FindPurchaseLine(var PurchaseLine: Record "Purchase Line"; DocumentNo: Code[20]; Type: Enum "Purchase Document Type")
     begin
         PurchaseLine.SetRange("Document Type", PurchaseLine."Document Type"::Order);
         PurchaseLine.SetRange("Document No.", DocumentNo);
@@ -555,7 +555,7 @@ codeunit 134384 "ERM Document Posting Error"
         PurchaseLine.FindLast;
     end;
 
-    local procedure FindSalesLine(var SalesLine: Record "Sales Line"; DocumentNo: Code[20]; Type: Option)
+    local procedure FindSalesLine(var SalesLine: Record "Sales Line"; DocumentNo: Code[20]; Type: Enum "Sales Document Type")
     begin
         SalesLine.SetRange("Document Type", SalesLine."Document Type"::Order);
         SalesLine.SetRange("Document No.", DocumentNo);

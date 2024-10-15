@@ -82,12 +82,10 @@ table 7344 "Registered Invt. Movement Hdr."
             IF ("Source Type" = CONST(900)) "Assembly Header"."No." WHERE("Document Type" = CONST(Order),
                                                                                                                                                                   "No." = FIELD("Source No."));
         }
-        field(7307; "Source Document"; Option)
+        field(7307; "Source Document"; Enum "Warehouse Activity Source Document")
         {
             BlankZero = true;
             Caption = 'Source Document';
-            OptionCaption = ' ,Sales Order,,,Sales Return Order,Purchase Order,,,Purchase Return Order,Inbound Transfer,Outbound Transfer,Prod. Consumption,Prod. Output,,,,,,,,Assembly Consumption,Assembly Order';
-            OptionMembers = " ","Sales Order",,,"Sales Return Order","Purchase Order",,,"Purchase Return Order","Inbound Transfer","Outbound Transfer","Prod. Consumption","Prod. Output",,,,,,,,"Assembly Consumption","Assembly Order";
         }
         field(7308; "Source Type"; Integer)
         {

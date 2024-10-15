@@ -2076,7 +2076,7 @@ codeunit 134978 "ERM Fixed Assets Reports"
         UpdateFAJournalSetup(FAJournalSetup);
     end;
 
-    local procedure CreateFAJournalLine(var FAJournalLine: Record "FA Journal Line"; FANo: Code[20]; DepreciationBookCode: Code[10]; FAPostingType: Option; PostingDate: Date)
+    local procedure CreateFAJournalLine(var FAJournalLine: Record "FA Journal Line"; FANo: Code[20]; DepreciationBookCode: Code[10]; FAPostingType: Enum "FA Journal Line FA Posting Type"; PostingDate: Date)
     var
         FAJournalBatch: Record "FA Journal Batch";
     begin
@@ -2092,7 +2092,7 @@ codeunit 134978 "ERM Fixed Assets Reports"
         FAJournalLine.Modify(true);
     end;
 
-    local procedure CreateAndPostFAGLJournalLine(FANo: Code[20]; FAPostingType: Option; Amount: Decimal)
+    local procedure CreateAndPostFAGLJournalLine(FANo: Code[20]; FAPostingType: Enum "Gen. Journal Line FA Posting Type"; Amount: Decimal)
     var
         GenJournalLine: Record "Gen. Journal Line";
         GenJournalBatch: Record "Gen. Journal Batch";
@@ -2105,7 +2105,7 @@ codeunit 134978 "ERM Fixed Assets Reports"
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
     end;
 
-    local procedure CreateAndPostFAJournalLine(FANo: Code[20]; FAPostingType: Option; DepreciationBookCode: Code[10]; PostingDate: Date) FAJournalLineAmount: Decimal
+    local procedure CreateAndPostFAJournalLine(FANo: Code[20]; FAPostingType: Enum "FA Journal Line FA Posting Type"; DepreciationBookCode: Code[10]; PostingDate: Date) FAJournalLineAmount: Decimal
     var
         FAJournalLine: Record "FA Journal Line";
     begin
@@ -2147,7 +2147,7 @@ codeunit 134978 "ERM Fixed Assets Reports"
         LibraryFixedAsset.CreateFAReclassJournalBatch(FAReclassJournalBatch, FAReclassJournalTemplate.Name);
     end;
 
-    local procedure CreateDisposalFAJournalLine(var FAJournalLine: Record "FA Journal Line"; FANo: Code[20]; FAPostingType: Option; DepreciationBookCode: Code[10])
+    local procedure CreateDisposalFAJournalLine(var FAJournalLine: Record "FA Journal Line"; FANo: Code[20]; FAPostingType: Enum "FA Journal Line FA Posting Type"; DepreciationBookCode: Code[10])
     begin
         CreateFAJournalLine(FAJournalLine, FANo, DepreciationBookCode, FAPostingType, WorkDate);
         FAJournalLine.Validate(Amount, -FAJournalLine.Amount);
@@ -2202,7 +2202,7 @@ codeunit 134978 "ERM Fixed Assets Reports"
         PostDisposalFAJournalLine(FixedAssetNo2, FAJournalLine."FA Posting Type"::Disposal, DepreciationBookCode, PostingDate);
     end;
 
-    local procedure PostDisposalFAJournalLine(FixedAssetNo: Code[20]; FAPostingType: Option; DepreciationBookCode: Code[10]; PostingDate: Date) FAJournalLineAmount: Decimal
+    local procedure PostDisposalFAJournalLine(FixedAssetNo: Code[20]; FAPostingType: Enum "FA Journal Line FA Posting Type"; DepreciationBookCode: Code[10]; PostingDate: Date) FAJournalLineAmount: Decimal
     var
         FAJournalLine: Record "FA Journal Line";
     begin
@@ -2214,7 +2214,7 @@ codeunit 134978 "ERM Fixed Assets Reports"
         LibraryFixedAsset.PostFAJournalLine(FAJournalLine);
     end;
 
-    local procedure PostingSetupFAGLJournalLine(var GenJournalLine: Record "Gen. Journal Line"; FAPostingType: Option)
+    local procedure PostingSetupFAGLJournalLine(var GenJournalLine: Record "Gen. Journal Line"; FAPostingType: Enum "Gen. Journal Line FA Posting Type")
     var
         GLAccount: Record "G/L Account";
     begin

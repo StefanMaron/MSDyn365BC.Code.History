@@ -137,7 +137,7 @@ codeunit 144017 "ERM VIP"
           PurchaseLine.Quantity, PurchaseLine."Direct Unit Cost");
     end;
 
-    local procedure CreateAndPostPurchaseDocument(var PurchaseLine: Record "Purchase Line"; DocumentType: Option; VendorNo: Code[20]; ItemNo: Code[20]; Quantity: Decimal; DirectUnitCost: Decimal)
+    local procedure CreateAndPostPurchaseDocument(var PurchaseLine: Record "Purchase Line"; DocumentType: Enum "Purchase Document Type"; VendorNo: Code[20]; ItemNo: Code[20]; Quantity: Decimal; DirectUnitCost: Decimal)
     var
         PurchaseHeader: Record "Purchase Header";
     begin

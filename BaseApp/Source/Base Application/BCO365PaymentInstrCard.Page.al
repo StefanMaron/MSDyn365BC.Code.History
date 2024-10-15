@@ -45,7 +45,7 @@ page 2343 "BC O365 Payment Instr. Card"
                     SaveRecord;
                     O365PaymentInstructions.Validate(Default, true);
                     O365PaymentInstructions.Modify(true);
-                    SendTraceTag('00001SC', PaymentInstrCategoryLbl, VERBOSITY::Normal, SetAsDefaultTelemetryTxt, DATACLASSIFICATION::SystemMetadata);
+                    Session.LogMessage('00001SC', SetAsDefaultTelemetryTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', PaymentInstrCategoryLbl);
                     UpdateDefaultLabel;
                 end;
             }
@@ -98,7 +98,7 @@ page 2343 "BC O365 Payment Instr. Card"
         with O365PaymentInstructions do begin
             if not Get(Id) then begin
                 Insert(true);
-                SendTraceTag('00001SD', PaymentInstrCategoryLbl, VERBOSITY::Normal, NewRecordTelemetryTxt, DATACLASSIFICATION::SystemMetadata);
+                Session.LogMessage('00001SD', NewRecordTelemetryTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', PaymentInstrCategoryLbl);
             end;
             Validate(Name, NameText);
             SetPaymentInstructions(PaymentInstructionsText);

@@ -1,4 +1,4 @@
-﻿codeunit 7324 "Whse.-Activity-Post"
+codeunit 7324 "Whse.-Activity-Post"
 {
     Permissions = TableData "Warehouse Setup" = m,
                   TableData "Warehouse Journal Batch" = imd,
@@ -991,10 +991,7 @@
 
         with WhseActivLine2 do begin
             ItemTrackingMgt.GetWhseItemTrkgSetup("Item No.", WhseItemTrackingSetup);
-            if WhseItemTrackingSetup."Serial No. Required" then
-                TestField("Serial No.");
-            if WhseItemTrackingSetup."Lot No. Required" then
-                TestField("Lot No.");
+            WhseActivLine2.TestTrackingIfRequired(WhseItemTrackingSetup);
             if ("Expiration Date" <> 0D) and ItemTrackingMgt.StrictExpirationPosting("Item No.") then
                 if WhseActivHeader."Posting Date" > "Expiration Date" then
                     FieldError("Expiration Date", PostingDateErr);

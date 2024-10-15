@@ -4,7 +4,7 @@ page 5477 "Customer Paym. Journal Entity"
     DelayedInsert = true;
     EntityName = 'customerPaymentJournal';
     EntitySetName = 'customerPaymentJournals';
-    ODataKeyFields = Id;
+    ODataKeyFields = SystemId;
     PageType = API;
     SourceTable = "Gen. Journal Batch";
 
@@ -14,7 +14,7 @@ page 5477 "Customer Paym. Journal Entity"
         {
             repeater(Group)
             {
-                field(id; Id)
+                field(id; SystemId)
                 {
                     ApplicationArea = All;
                     Caption = 'Id', Locked = true;
@@ -53,7 +53,7 @@ page 5477 "Customer Paym. Journal Entity"
                 Caption = 'customerPayments', Locked = true;
                 EntityName = 'customerPayment';
                 EntitySetName = 'customerPayments';
-                SubPageLink = "Journal Batch Id" = FIELD(Id);
+                SubPageLink = "Journal Batch Id" = FIELD(SystemId);
             }
         }
     }

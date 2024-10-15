@@ -86,9 +86,11 @@ page 6504 "Serial No. Information Card"
 
                     trigger OnAction()
                     var
+                        ItemTrackingSetup: Record "Item Tracking Setup";
                         ItemTrackingDocMgt: Codeunit "Item Tracking Doc. Management";
                     begin
-                        ItemTrackingDocMgt.ShowItemTrackingForMasterData(0, '', "Item No.", "Variant Code", "Serial No.", '', '');
+                        ItemTrackingSetup."Serial No." := "Serial No.";
+                        ItemTrackingDocMgt.ShowItemTrackingForEntity(0, '', "Item No.", "Variant Code", '', ItemTrackingSetup);
                     end;
                 }
                 action(Comment)
@@ -172,11 +174,12 @@ page 6504 "Serial No. Information Card"
             action(Navigate)
             {
                 ApplicationArea = ItemTracking;
-                Caption = '&Navigate';
+                Caption = 'Find entries...';
                 Image = Navigate;
                 Promoted = true;
                 PromotedCategory = Process;
-                ToolTip = 'Find all entries and documents that exist for the document number and posting date on the selected entry or document.';
+                ShortCutKey = 'Shift+Ctrl+I';
+                ToolTip = 'Find entries and documents that exist for the document number and posting date on the selected document. (Formerly this action was named Navigate.)';
 
                 trigger OnAction()
                 var

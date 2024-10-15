@@ -271,7 +271,7 @@ codeunit 144018 "ERM REFINV"
         SalesCreditMemo.CopyDocument.Invoke;
     end;
 
-    local procedure CreateSalesInvoice(var SalesLine: Record "Sales Line"; Type: Option; No: Code[20])
+    local procedure CreateSalesInvoice(var SalesLine: Record "Sales Line"; Type: Enum "Sales Line Type"; No: Code[20])
     var
         Customer: Record Customer;
         SalesHeader: Record "Sales Header";
@@ -281,7 +281,7 @@ codeunit 144018 "ERM REFINV"
         CreateSalesLine(SalesLine, SalesHeader, Type, No);
     end;
 
-    local procedure CreateSalesLine(var SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header"; Type: Option; No: Code[20])
+    local procedure CreateSalesLine(var SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header"; Type: Enum "Sales Line Type"; No: Code[20])
     begin
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, Type, No, LibraryRandom.RandDec(10, 2));  // Using Random Value for Quantity.
         SalesLine.Validate("Unit Price", LibraryRandom.RandDecInRange(100, 500, 2));

@@ -287,7 +287,7 @@ codeunit 134766 "Test Service Post Preview"
     end;
 
     [Normal]
-    local procedure CreateServiceDocument(var ServiceHeader: Record "Service Header"; DocumentType: Option)
+    local procedure CreateServiceDocument(var ServiceHeader: Record "Service Header"; DocumentType: Enum "Service Document Type")
     var
         ServiceItem: Record "Service Item";
         ServiceItemLine: Record "Service Item Line";

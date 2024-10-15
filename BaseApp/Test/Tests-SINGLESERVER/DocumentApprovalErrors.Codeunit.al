@@ -1171,7 +1171,7 @@ codeunit 134200 "Document Approval - Errors"
         SetupUsersWithLoop(UserSetup);
 
         // [GIVEN] A Sales Invoice approval workflow
-        SetupApprovalWorkflows(DATABASE::"Sales Header", SalesHeader."Document Type"::Invoice);
+        SetupApprovalWorkflows(DATABASE::"Sales Header", SalesHeader."Document Type"::Invoice.AsInteger());
 
         // [GIVEN] A Sales Invoice is sent for approval
         CreateSalesDocumentWithSalespersonCode(SalesHeader, SalesHeader."Document Type"::Invoice, UserSetup."Salespers./Purch. Code");
@@ -1208,7 +1208,7 @@ codeunit 134200 "Document Approval - Errors"
         ApprovalsMgmt.ApproveApprovalRequests(ApprovalEntry);
     end;
 
-    local procedure CreatePurchaseDocument(var PurchaseHeader: Record "Purchase Header"; DocumentType: Option)
+    local procedure CreatePurchaseDocument(var PurchaseHeader: Record "Purchase Header"; DocumentType: Enum "Purchase Document Type")
     var
         PurchaseLine: Record "Purchase Line";
     begin
@@ -1216,7 +1216,7 @@ codeunit 134200 "Document Approval - Errors"
         LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, '', LibraryRandom.RandDec(10, 2));
     end;
 
-    local procedure CreatePurchaseDocumentWithPurchaserCode(var PurchaseHeader: Record "Purchase Header"; DocumentType: Option; PurchaserCode: Code[20])
+    local procedure CreatePurchaseDocumentWithPurchaserCode(var PurchaseHeader: Record "Purchase Header"; DocumentType: Enum "Purchase Document Type"; PurchaserCode: Code[20])
     begin
         CreatePurchaseDocument(PurchaseHeader, DocumentType);
         PurchaseHeader.Validate("Purchaser Code", PurchaserCode);
@@ -1234,7 +1234,7 @@ codeunit 134200 "Document Approval - Errors"
         RestrictedRecord.Insert();
     end;
 
-    local procedure CreateSalesDocument(var SalesHeader: Record "Sales Header"; DocumentType: Option)
+    local procedure CreateSalesDocument(var SalesHeader: Record "Sales Header"; DocumentType: Enum "Sales Document Type")
     var
         SalesLine: Record "Sales Line";
     begin
@@ -1242,7 +1242,7 @@ codeunit 134200 "Document Approval - Errors"
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, '', LibraryRandom.RandDec(10, 2));
     end;
 
-    local procedure CreateSalesDocumentWithSalespersonCode(var SalesHeader: Record "Sales Header"; DocumentType: Option; SalespersonCode: Code[20])
+    local procedure CreateSalesDocumentWithSalespersonCode(var SalesHeader: Record "Sales Header"; DocumentType: Enum "Sales Document Type"; SalespersonCode: Code[20])
     begin
         CreateSalesDocument(SalesHeader, DocumentType);
         SalesHeader.Validate("Salesperson Code", SalespersonCode);
@@ -1291,7 +1291,7 @@ codeunit 134200 "Document Approval - Errors"
         ApprovalEntry.FindSet;
     end;
 
-    local procedure PostOpenedPurchaseDocument(DocumentType: Option)
+    local procedure PostOpenedPurchaseDocument(DocumentType: Enum "Purchase Document Type")
     var
         PurchaseHeader: Record "Purchase Header";
         UserSetup: Record "User Setup";
@@ -1300,11 +1300,11 @@ codeunit 134200 "Document Approval - Errors"
         // Setup
         Initialize;
         SetupDocumentApprovals(UserSetup, true);
-        SetupApprovalWorkflows(DATABASE::"Purchase Header", DocumentType);
+        SetupApprovalWorkflows(DATABASE::"Purchase Header", DocumentType.AsInteger());
         CreatePurchaseDocumentWithPurchaserCode(PurchaseHeader, DocumentType, UserSetup."Salespers./Purch. Code");
         ApprovalsMgmt.OnSendPurchaseDocForApproval(PurchaseHeader);
-        UpdateApprovalEntryWithTempUser(UserSetup, DATABASE::"Purchase Header", DocumentType, PurchaseHeader."No.");
-        ApproveRequest(DATABASE::"Purchase Header", DocumentType, PurchaseHeader."No.");
+        UpdateApprovalEntryWithTempUser(UserSetup, DATABASE::"Purchase Header", DocumentType.AsInteger(), PurchaseHeader."No.");
+        ApproveRequest(DATABASE::"Purchase Header", DocumentType.AsInteger(), PurchaseHeader."No.");
         PurchaseHeader.Get(DocumentType, PurchaseHeader."No.");
         LibraryPurchase.ReopenPurchaseDocument(PurchaseHeader);
 
@@ -1315,7 +1315,7 @@ codeunit 134200 "Document Approval - Errors"
         Assert.ExpectedError(StrSubstNo(DocumentMustBeApprovedAndReleasedErr, PurchaseHeader."Document Type", PurchaseHeader."No."));
     end;
 
-    local procedure PostOpenedSalesDocument(DocumentType: Option)
+    local procedure PostOpenedSalesDocument(DocumentType: Enum "Sales Document Type")
     var
         SalesHeader: Record "Sales Header";
         UserSetup: Record "User Setup";
@@ -1324,11 +1324,11 @@ codeunit 134200 "Document Approval - Errors"
         // Setup
         Initialize;
         SetupDocumentApprovals(UserSetup, true);
-        SetupApprovalWorkflows(DATABASE::"Sales Header", DocumentType);
+        SetupApprovalWorkflows(DATABASE::"Sales Header", DocumentType.AsInteger());
         CreateSalesDocumentWithSalespersonCode(SalesHeader, DocumentType, UserSetup."Salespers./Purch. Code");
         ApprovalsMgmt.OnSendSalesDocForApproval(SalesHeader);
-        UpdateApprovalEntryWithTempUser(UserSetup, DATABASE::"Sales Header", DocumentType, SalesHeader."No.");
-        ApproveRequest(DATABASE::"Sales Header", DocumentType, SalesHeader."No.");
+        UpdateApprovalEntryWithTempUser(UserSetup, DATABASE::"Sales Header", DocumentType.AsInteger(), SalesHeader."No.");
+        ApproveRequest(DATABASE::"Sales Header", DocumentType.AsInteger(), SalesHeader."No.");
         SalesHeader.Get(DocumentType, SalesHeader."No.");
         LibrarySales.ReopenSalesDocument(SalesHeader);
 
@@ -1339,7 +1339,7 @@ codeunit 134200 "Document Approval - Errors"
         Assert.ExpectedError(StrSubstNo(DocumentMustBeApprovedAndReleasedErr, SalesHeader."Document Type", SalesHeader."No."));
     end;
 
-    local procedure PurchaseDocumentApproval(DocumentType: Option)
+    local procedure PurchaseDocumentApproval(DocumentType: Enum "Purchase Document Type")
     var
         PurchaseHeader: Record "Purchase Header";
         ApprovalsMgmt: Codeunit "Approvals Mgmt.";
@@ -1356,7 +1356,7 @@ codeunit 134200 "Document Approval - Errors"
         PurchaseHeader.TestField(Status, PurchaseHeader.Status::Open);
     end;
 
-    local procedure PurchaseDocumentBeyondApprovalLimit(DocumentType: Option)
+    local procedure PurchaseDocumentBeyondApprovalLimit(DocumentType: Enum "Purchase Document Type")
     var
         UserSetup: Record "User Setup";
         PurchaseHeader: Record "Purchase Header";
@@ -1365,7 +1365,7 @@ codeunit 134200 "Document Approval - Errors"
         // Setup
         Initialize;
         SetupDocumentApprovals(UserSetup, false);
-        SetupApprovalWorkflows(DATABASE::"Purchase Header", DocumentType);
+        SetupApprovalWorkflows(DATABASE::"Purchase Header", DocumentType.AsInteger());
         CreatePurchaseDocumentWithPurchaserCode(PurchaseHeader, DocumentType, UserSetup."Salespers./Purch. Code");
 
         // Exercise
@@ -1375,7 +1375,7 @@ codeunit 134200 "Document Approval - Errors"
         Assert.ExpectedError(NoSuitableApproverFoundErr);
     end;
 
-    local procedure PurchaseDocumentWithDifferentPurchaserCode(DocumentType: Option)
+    local procedure PurchaseDocumentWithDifferentPurchaserCode(DocumentType: Enum "Purchase Document Type")
     var
         SalespersonPurchaser: Record "Salesperson/Purchaser";
         UserSetup: Record "User Setup";
@@ -1386,7 +1386,7 @@ codeunit 134200 "Document Approval - Errors"
         Initialize;
         SetupDocumentApprovals(UserSetup, true);
         LibrarySales.CreateSalesperson(SalespersonPurchaser);
-        SetupApprovalWorkflows(DATABASE::"Purchase Header", DocumentType);
+        SetupApprovalWorkflows(DATABASE::"Purchase Header", DocumentType.AsInteger());
         CreatePurchaseDocumentWithPurchaserCode(PurchHeader, DocumentType, SalespersonPurchaser.Code);
 
         // Exercise
@@ -1396,7 +1396,7 @@ codeunit 134200 "Document Approval - Errors"
         Assert.ExpectedError(StrSubstNo(SalespersPurchCodeErr));
     end;
 
-    local procedure PurchaseDocumentWithoutSubstitute(DocumentType: Option)
+    local procedure PurchaseDocumentWithoutSubstitute(DocumentType: Enum "Purchase Document Type")
     var
         UserSetup: Record "User Setup";
         ApprovalEntry: Record "Approval Entry";
@@ -1408,11 +1408,11 @@ codeunit 134200 "Document Approval - Errors"
         Initialize;
         SetupDocumentApprovals(UserSetup, true);
         ApprovalAdminUserSetup.ModifyAll("Approval Administrator", false, true);
-        SetupApprovalWorkflows(DATABASE::"Purchase Header", DocumentType);
+        SetupApprovalWorkflows(DATABASE::"Purchase Header", DocumentType.AsInteger());
         CreatePurchaseDocumentWithPurchaserCode(PurchHeader, DocumentType, UserSetup."Salespers./Purch. Code");
         ApprovalsMgmt.OnSendPurchaseDocForApproval(PurchHeader);
-        UpdateApprovalEntryWithTempUser(UserSetup, DATABASE::"Purchase Header", DocumentType, PurchHeader."No.");
-        GetApprovalEntries(ApprovalEntry, DATABASE::"Purchase Header", PurchHeader."Document Type", PurchHeader."No.");
+        UpdateApprovalEntryWithTempUser(UserSetup, DATABASE::"Purchase Header", DocumentType.AsInteger(), PurchHeader."No.");
+        GetApprovalEntries(ApprovalEntry, DATABASE::"Purchase Header", PurchHeader."Document Type".AsInteger(), PurchHeader."No.");
 
         UserSetup."Approver ID" := '';
         UserSetup.Modify(true);
@@ -1425,7 +1425,7 @@ codeunit 134200 "Document Approval - Errors"
         Assert.ExpectedError(StrSubstNo(SubstituteErr, UpperCase(UserId)));
     end;
 
-    local procedure SalesDocumentApproval(DocumentType: Option)
+    local procedure SalesDocumentApproval(DocumentType: Enum "Sales Document Type")
     var
         SalesHeader: Record "Sales Header";
         ApprovalsMgmt: Codeunit "Approvals Mgmt.";
@@ -1442,7 +1442,7 @@ codeunit 134200 "Document Approval - Errors"
         SalesHeader.TestField(Status, SalesHeader.Status::Open);
     end;
 
-    local procedure SalesDocumentBeyondApprovalLimit(DocumentType: Option)
+    local procedure SalesDocumentBeyondApprovalLimit(DocumentType: Enum "Sales Document Type")
     var
         UserSetup: Record "User Setup";
         SalesHeader: Record "Sales Header";
@@ -1451,7 +1451,7 @@ codeunit 134200 "Document Approval - Errors"
         // Setup
         Initialize;
         SetupDocumentApprovals(UserSetup, false);
-        SetupApprovalWorkflows(DATABASE::"Sales Header", DocumentType);
+        SetupApprovalWorkflows(DATABASE::"Sales Header", DocumentType.AsInteger());
         CreateSalesDocumentWithSalespersonCode(SalesHeader, DocumentType, UserSetup."Salespers./Purch. Code");
 
         // Exercise
@@ -1461,7 +1461,7 @@ codeunit 134200 "Document Approval - Errors"
         Assert.ExpectedError(NoSuitableApproverFoundErr);
     end;
 
-    local procedure SalesDocumentWithDifferentSalesPersonCode(DocumentType: Option)
+    local procedure SalesDocumentWithDifferentSalesPersonCode(DocumentType: Enum "Sales Document Type")
     var
         UserSetup: Record "User Setup";
         SalespersonPurchaser: Record "Salesperson/Purchaser";
@@ -1472,7 +1472,7 @@ codeunit 134200 "Document Approval - Errors"
         Initialize;
         SetupDocumentApprovals(UserSetup, true);
         LibrarySales.CreateSalesperson(SalespersonPurchaser);
-        SetupApprovalWorkflows(DATABASE::"Sales Header", DocumentType);
+        SetupApprovalWorkflows(DATABASE::"Sales Header", DocumentType.AsInteger());
         CreateSalesDocumentWithSalespersonCode(SalesHeader, DocumentType, SalespersonPurchaser.Code);
 
         // Exercise
@@ -1482,7 +1482,7 @@ codeunit 134200 "Document Approval - Errors"
         Assert.ExpectedError(StrSubstNo(SalespersPurchCodeErr));
     end;
 
-    local procedure SalesDocumentWithoutSubstitute(DocumentType: Option)
+    local procedure SalesDocumentWithoutSubstitute(DocumentType: Enum "Sales Document Type")
     var
         UserSetup: Record "User Setup";
         ApprovalEntry: Record "Approval Entry";
@@ -1494,11 +1494,11 @@ codeunit 134200 "Document Approval - Errors"
         Initialize;
         SetupDocumentApprovals(UserSetup, true);
         ApprovalAdminUserSetup.ModifyAll("Approval Administrator", false, true);
-        SetupApprovalWorkflows(DATABASE::"Sales Header", DocumentType);
+        SetupApprovalWorkflows(DATABASE::"Sales Header", DocumentType.AsInteger());
         CreateSalesDocumentWithSalespersonCode(SalesHeader, DocumentType, UserSetup."Salespers./Purch. Code");
         ApprovalsMgmt.OnSendSalesDocForApproval(SalesHeader);
-        UpdateApprovalEntryWithTempUser(UserSetup, DATABASE::"Sales Header", DocumentType, SalesHeader."No.");
-        GetApprovalEntries(ApprovalEntry, DATABASE::"Sales Header", SalesHeader."Document Type", SalesHeader."No.");
+        UpdateApprovalEntryWithTempUser(UserSetup, DATABASE::"Sales Header", DocumentType.AsInteger(), SalesHeader."No.");
+        GetApprovalEntries(ApprovalEntry, DATABASE::"Sales Header", SalesHeader."Document Type".AsInteger(), SalesHeader."No.");
 
         UserSetup."Approver ID" := '';
         UserSetup.Modify(true);

@@ -20,8 +20,7 @@ page 2349 "BC O365 Mobile App"
 
                 trigger OnDrillDown()
                 begin
-                    SendTraceTag('00006ZG', InvoicingMobileAppSettingsCategoryLbl, VERBOSITY::Normal,
-                      LearnMoreTelemetryTxt, DATACLASSIFICATION::SystemMetadata);
+                    Session.LogMessage('00006ZG', LearnMoreTelemetryTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', InvoicingMobileAppSettingsCategoryLbl);
                     HyperLink(InvoicingDocsUrlTok);
                 end;
             }

@@ -7,11 +7,9 @@ table 900 "Assembly Header"
 
     fields
     {
-        field(1; "Document Type"; Option)
+        field(1; "Document Type"; Enum "Assembly Document Type")
         {
             Caption = 'Document Type';
-            OptionCaption = 'Quote,Order,,,Blanket Order';
-            OptionMembers = Quote,"Order",,,"Blanket Order";
 
             trigger OnValidate()
             begin
@@ -150,7 +148,7 @@ table 900 "Assembly Header"
         }
         field(19; Comment; Boolean)
         {
-            CalcFormula = Exist ("Assembly Comment Line" WHERE("Document Type" = FIELD("Document Type"),
+            CalcFormula = Exist("Assembly Comment Line" WHERE("Document Type" = FIELD("Document Type"),
                                                                "Document No." = FIELD("No.")));
             Caption = 'Comment';
             Editable = false;
@@ -362,7 +360,7 @@ table 900 "Assembly Header"
         }
         field(48; "Reserved Quantity"; Decimal)
         {
-            CalcFormula = Sum ("Reservation Entry".Quantity WHERE("Source ID" = FIELD("No."),
+            CalcFormula = Sum("Reservation Entry".Quantity WHERE("Source ID" = FIELD("No."),
                                                                   "Source Type" = CONST(900),
                                                                   "Source Subtype" = FIELD("Document Type"),
                                                                   "Reservation Status" = CONST(Reservation)));
@@ -373,7 +371,7 @@ table 900 "Assembly Header"
         }
         field(49; "Reserved Qty. (Base)"; Decimal)
         {
-            CalcFormula = Sum ("Reservation Entry"."Quantity (Base)" WHERE("Source ID" = FIELD("No."),
+            CalcFormula = Sum("Reservation Entry"."Quantity (Base)" WHERE("Source ID" = FIELD("No."),
                                                                            "Source Type" = CONST(900),
                                                                            "Source Subtype" = FIELD("Document Type"),
                                                                            "Reservation Status" = CONST(Reservation)));
@@ -405,7 +403,7 @@ table 900 "Assembly Header"
         }
         field(54; "Assemble to Order"; Boolean)
         {
-            CalcFormula = Exist ("Assemble-to-Order Link" WHERE("Assembly Document Type" = FIELD("Document Type"),
+            CalcFormula = Exist("Assemble-to-Order Link" WHERE("Assembly Document Type" = FIELD("Document Type"),
                                                                 "Assembly Document No." = FIELD("No.")));
             Caption = 'Assemble to Order';
             Editable = false;
@@ -451,7 +449,7 @@ table 900 "Assembly Header"
         }
         field(68; "Rolled-up Assembly Cost"; Decimal)
         {
-            CalcFormula = Sum ("Assembly Line"."Cost Amount" WHERE("Document Type" = FIELD("Document Type"),
+            CalcFormula = Sum("Assembly Line"."Cost Amount" WHERE("Document Type" = FIELD("Document Type"),
                                                                    "Document No." = FIELD("No."),
                                                                    Type = FILTER(Item | Resource)));
             Caption = 'Rolled-up Assembly Cost';
@@ -561,7 +559,7 @@ table 900 "Assembly Header"
 
             trigger OnLookup()
             begin
-                ShowDimensions;
+                ShowDimensions();
             end;
 
             trigger OnValidate()
@@ -662,9 +660,6 @@ table 900 "Assembly Header"
         Text005: Label 'Changing %1 or %2 is not allowed when %3 is %4.';
         Text007: Label 'Nothing to handle.';
         Text009: Label 'You cannot rename an %1.';
-        StatusCheckSuspended: Boolean;
-        TestReservationDateConflict: Boolean;
-        HideValidationDialog: Boolean;
         CurrentFieldNum: Integer;
         Text010: Label 'You have modified %1.';
         Text011: Label 'the %1 from %2 to %3';
@@ -674,6 +669,12 @@ table 900 "Assembly Header"
         Text015: Label '%1 %2 is before %3 %4.', Comment = '%1 and %3 = Date Captions, %2 and %4 = Date Values';
         PostingDateLaterErr: Label 'Posting Date on Assembly Order %1 must not be later than the Posting Date on Sales Order %2.';
         RowIdx: Option ,MatCost,ResCost,ResOvhd,AsmOvhd,Total;
+
+    protected var
+        StatusCheckSuspended: Boolean;
+        TestReservationDateConflict: Boolean;
+        HideValidationDialog: Boolean;
+
 
     [Scope('OnPrem')]
     procedure RefreshBOM()
@@ -798,7 +799,8 @@ table 900 "Assembly Header"
         AssemblyLine.SetRange("Document Type", "Document Type");
         AssemblyLine.SetRange("Document No.", "No.");
         if AssemblyLine.Find('-') then begin
-            ReservMgt.DeleteDocumentReservation(DATABASE::"Assembly Line", "Document Type", "No.", HideValidationDialog);
+            ReservMgt.DeleteDocumentReservation(
+                DATABASE::"Assembly Line", "Document Type".AsInteger(), "No.", HideValidationDialog);
             repeat
                 AssemblyLine.SuspendStatusCheck(true);
                 AssemblyLine.Delete(true);
@@ -832,7 +834,7 @@ table 900 "Assembly Header"
     procedure AutoReserveAsmLine(AssemblyLine: Record "Assembly Line")
     begin
         if AssemblyLine.Reserve = AssemblyLine.Reserve::Always then
-            AssemblyLine.AutoReserve;
+            AssemblyLine.AutoReserve();
     end;
 
     procedure SetTestReservationDateConflict(NewTestReservationDateConflict: Boolean)
@@ -925,7 +927,7 @@ table 900 "Assembly Header"
 
     procedure SetReservationEntry(var ReservEntry: Record "Reservation Entry")
     begin
-        ReservEntry.SetSource(DATABASE::"Assembly Header", "Document Type", "No.", 0, '', 0);
+        ReservEntry.SetSource(DATABASE::"Assembly Header", "Document Type".AsInteger(), "No.", 0, '', 0);
         ReservEntry.SetItemData("Item No.", Description, "Location Code", "Variant Code", "Qty. per Unit of Measure");
         ReservEntry."Expected Receipt Date" := "Due Date";
         ReservEntry."Shipment Date" := "Due Date";
@@ -933,7 +935,7 @@ table 900 "Assembly Header"
 
     procedure SetReservationFilters(var ReservEntry: Record "Reservation Entry")
     begin
-        ReservEntry.SetSourceFilter(DATABASE::"Assembly Header", "Document Type", "No.", 0, false);
+        ReservEntry.SetSourceFilter(DATABASE::"Assembly Header", "Document Type".AsInteger(), "No.", 0, false);
         ReservEntry.SetSourceFilter('', 0);
 
         OnAfterSetReservationFilters(ReservEntry, Rec);
@@ -948,9 +950,9 @@ table 900 "Assembly Header"
         exit(not ReservEntry.IsEmpty);
     end;
 
-    procedure FilterLinesWithItemToPlan(var Item: Record Item; DocumentType: Option)
+    procedure SetItemToPlanFilters(var Item: Record Item; DocumentType: Enum "Assembly Document Type")
     begin
-        Reset;
+        Reset();
         SetCurrentKey("Document Type", "Item No.", "Variant Code", "Location Code");
         SetRange("Document Type", DocumentType);
         SetRange("Item No.", Item."No.");
@@ -963,16 +965,34 @@ table 900 "Assembly Header"
         SetFilter("Unit of Measure Code", Item.GetFilter("Unit of Measure Filter"));
     end;
 
-    procedure FindLinesWithItemToPlan(var Item: Record Item; DocumentType: Option): Boolean
+    [Obsolete('Replaced by SetItemToPlanFilters().', '17.0')]
+    procedure FilterLinesWithItemToPlan(var Item: Record Item; DocumentType: Option)
     begin
-        FilterLinesWithItemToPlan(Item, DocumentType);
+        SetItemToPlanFilters(Item, "Assembly Document Type".FromInteger(DocumentType));
+    end;
+
+    procedure FindItemToPlanLines(var Item: Record Item; DocumentType: Enum "Assembly Document Type"): Boolean
+    begin
+        SetItemToPlanFilters(Item, DocumentType);
         exit(Find('-'));
     end;
 
+    [Obsolete('Replaced by FindItemToPlanLines()', '17.0')]
+    procedure FindLinesWithItemToPlan(var Item: Record Item; DocumentType: Option): Boolean
+    begin
+        exit(FindItemToPlanLines(Item, "Assembly Document Type".FromInteger(DocumentType)));
+    end;
+
+    procedure ItemToPlanLinesExist(var Item: Record Item; DocumentType: Enum "Assembly Document Type"): Boolean
+    begin
+        SetItemToPlanFilters(Item, DocumentType);
+        exit(not IsEmpty);
+    end;
+
+    [Obsolete('Replaced by ItemToPlanLinesExist()', '17.0')]
     procedure LinesWithItemToPlanExist(var Item: Record Item; DocumentType: Option): Boolean
     begin
-        FilterLinesWithItemToPlan(Item, DocumentType);
-        exit(not IsEmpty);
+        exit(ItemToPlanLinesExist(Item, "Assembly Document Type".FromInteger(DocumentType)));
     end;
 
     procedure FilterLinesForReservation(ReservationEntry: Record "Reservation Entry"; DocumentType: Option; AvailabilityFilter: Text; Positive: Boolean)
@@ -1139,8 +1159,8 @@ table 900 "Assembly Header"
         ReqLine: Record "Requisition Line";
         LeadTimeMgt: Codeunit "Lead-Time Management";
     begin
-	OnBeforeCalcStartDateFromEndDate(Rec);
-		
+        OnBeforeCalcStartDateFromEndDate(Rec);
+
         exit(
           LeadTimeMgt.PlannedStartingDate(
             "Item No.", "Location Code", "Variant Code", '',
@@ -1153,8 +1173,8 @@ table 900 "Assembly Header"
         ReqLine: Record "Requisition Line";
         LeadTimeMgt: Codeunit "Lead-Time Management";
     begin
-	OnBeforeCalcEndDateFromStartDate(Rec);
-		
+        OnBeforeCalcEndDateFromStartDate(Rec);
+
         exit(
           LeadTimeMgt.PlannedEndingDate(
             "Item No.", "Location Code", "Variant Code", '',
@@ -1391,7 +1411,8 @@ table 900 "Assembly Header"
 
         WhseSourceCreateDocument.SetAssemblyOrder(Rec);
         if not ShowRequestPage then
-            WhseSourceCreateDocument.Initialize(AssignedUserID, SortingMethod, PrintDocument, DoNotFillQtyToHandle, SetBreakBulkFilter);
+            WhseSourceCreateDocument.Initialize(
+                AssignedUserID, "Whse. Activity Sorting Method".FromInteger(SortingMethod), PrintDocument, DoNotFillQtyToHandle, SetBreakBulkFilter);
         WhseSourceCreateDocument.UseRequestPage(ShowRequestPage);
         WhseSourceCreateDocument.RunModal;
         WhseSourceCreateDocument.GetResultMessage(2);
@@ -1626,7 +1647,7 @@ table 900 "Assembly Header"
     var
         ItemTrackingMgt: Codeunit "Item Tracking Management";
     begin
-        exit(ItemTrackingMgt.ComposeRowID(DATABASE::"Assembly Header", "Document Type", "No.", '', 0, 0));
+        exit(ItemTrackingMgt.ComposeRowID(DATABASE::"Assembly Header", "Document Type".AsInteger(), "No.", '', 0, 0));
     end;
 
     [IntegrationEvent(false, false)]

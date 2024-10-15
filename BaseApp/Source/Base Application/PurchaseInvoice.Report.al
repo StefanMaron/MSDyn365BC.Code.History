@@ -21,6 +21,42 @@ report 406 "Purchase - Invoice"
             column(AllowInvDiscCaption; AllowInvDiscCaptionLbl)
             {
             }
+            column(BuyFromContactPhoneNoLbl; BuyFromContactPhoneNoLbl)
+            {
+            }
+            column(BuyFromContactMobilePhoneNoLbl; BuyFromContactMobilePhoneNoLbl)
+            {
+            }
+            column(BuyFromContactEmailLbl; BuyFromContactEmailLbl)
+            {
+            }
+            column(PayToContactPhoneNoLbl; PayToContactPhoneNoLbl)
+            {
+            }
+            column(PayToContactMobilePhoneNoLbl; PayToContactMobilePhoneNoLbl)
+            {
+            }
+            column(PayToContactEmailLbl; PayToContactEmailLbl)
+            {
+            }
+            column(BuyFromContactPhoneNo; BuyFromContact."Phone No.")
+            {
+            }
+            column(BuyFromContactMobilePhoneNo; BuyFromContact."Mobile Phone No.")
+            {
+            }
+            column(BuyFromContactEmail; BuyFromContact."E-Mail")
+            {
+            }
+            column(PayToContactPhoneNo; PayToContact."Phone No.")
+            {
+            }
+            column(PayToContactMobilePhoneNo; PayToContact."Mobile Phone No.")
+            {
+            }
+            column(PayToContactEmail; PayToContact."E-Mail")
+            {
+            }
             column(PlusGiroNoCaption; PlusGiroNoCaptionLbl)
             {
             }
@@ -257,7 +293,7 @@ report 406 "Purchase - Invoice"
                         trigger OnAfterGetRecord()
                         begin
                             if Number = 1 then begin
-                                if not DimSetEntry1.FindSet then
+                                if not DimSetEntry1.FindSet() then
                                     CurrReport.Break();
                             end else
                                 if not Continue then
@@ -279,7 +315,7 @@ report 406 "Purchase - Invoice"
                                     Continue := true;
                                     exit;
                                 end;
-                            until DimSetEntry1.Next = 0;
+                            until DimSetEntry1.Next() = 0;
                         end;
 
                         trigger OnPreDataItem()
@@ -295,7 +331,7 @@ report 406 "Purchase - Invoice"
                         DataItemTableView = SORTING("Document No.", "Line No.");
                         column(LineAmt_PurchInvLine; "Line Amount")
                         {
-                            AutoFormatExpression = GetCurrencyCode;
+                            AutoFormatExpression = GetCurrencyCode();
                             AutoFormatType = 1;
                         }
                         column(Desc_PurchInvLine; Description)
@@ -312,7 +348,7 @@ report 406 "Purchase - Invoice"
                         }
                         column(DirectUnitCost_PurchInvLine; "Direct Unit Cost")
                         {
-                            AutoFormatExpression = GetCurrencyCode;
+                            AutoFormatExpression = GetCurrencyCode();
                             AutoFormatType = 2;
                         }
                         column(LineDisc_PurchInvLine; "Line Discount %")
@@ -339,7 +375,7 @@ report 406 "Purchase - Invoice"
                         }
                         column(NegInvDiscAmt_PurchInvLine; -"Inv. Discount Amount")
                         {
-                            AutoFormatExpression = GetCurrencyCode;
+                            AutoFormatExpression = GetCurrencyCode();
                             AutoFormatType = 1;
                         }
                         column(TotalText; TotalText)
@@ -347,7 +383,7 @@ report 406 "Purchase - Invoice"
                         }
                         column(PurchInvLineAmt; Amount)
                         {
-                            AutoFormatExpression = GetCurrencyCode;
+                            AutoFormatExpression = GetCurrencyCode();
                             AutoFormatType = 1;
                         }
                         column(TotalInclVATText; TotalInclVATText)
@@ -355,12 +391,12 @@ report 406 "Purchase - Invoice"
                         }
                         column(AmtIncVAT_PurchInvLine; "Amount Including VAT")
                         {
-                            AutoFormatExpression = GetCurrencyCode;
+                            AutoFormatExpression = GetCurrencyCode();
                             AutoFormatType = 1;
                         }
                         column(AmtIncVATAmt_PurchInvLine; "Amount Including VAT" - Amount)
                         {
-                            AutoFormatExpression = GetCurrencyCode;
+                            AutoFormatExpression = GetCurrencyCode();
                             AutoFormatType = 1;
                         }
                         column(VATAmtLineVATAmtText; VATAmountLine.VATAmountText)
@@ -446,7 +482,7 @@ report 406 "Purchase - Invoice"
                             trigger OnAfterGetRecord()
                             begin
                                 if Number = 1 then begin
-                                    if not DimSetEntry2.FindSet then
+                                    if not DimSetEntry2.FindSet() then
                                         CurrReport.Break();
                                 end else
                                     if not Continue then
@@ -468,7 +504,7 @@ report 406 "Purchase - Invoice"
                                         Continue := true;
                                         exit;
                                     end;
-                                until DimSetEntry2.Next = 0;
+                                until DimSetEntry2.Next() = 0;
                             end;
 
                             trigger OnPreDataItem()
@@ -497,10 +533,10 @@ report 406 "Purchase - Invoice"
                             if "Allow Invoice Disc." then
                                 VATAmountLine."Inv. Disc. Base Amount" := "Line Amount";
                             VATAmountLine."Invoice Discount Amount" := "Inv. Discount Amount";
-                            VATAmountLine.InsertLine;
+                            VATAmountLine.InsertLine();
 
                             AllowVATDisctxt := Format("Allow Invoice Disc.");
-                            PurchInLineTypeNo := Type;
+                            PurchInLineTypeNo := Type.AsInteger();
 
                             TotalSubTotal += "Line Amount";
                             TotalInvoiceDiscountAmount -= "Inv. Discount Amount";
@@ -532,7 +568,7 @@ report 406 "Purchase - Invoice"
                                 repeat
                                     if (PurchInvLine."VAT Identifier" <> VATIdentifier) and (PurchInvLine.Quantity <> 0) then
                                         VATAmountText := Text012;
-                                until PurchInvLine.Next = 0;
+                                until PurchInvLine.Next() = 0;
                             end;
                         end;
                     }
@@ -730,6 +766,8 @@ report 406 "Purchase - Invoice"
 
                 FormatAddressFields("Purch. Inv. Header");
                 FormatDocumentFields("Purch. Inv. Header");
+                if BuyFromContact.Get("Buy-from Contact No.") then;
+                if PayToContact.Get("Pay-to Contact No.") then;
                 PricesInclVATtxt := Format("Prices Including VAT");
 
                 DimSetEntry1.SetRange("Dimension Set ID", "Dimension Set ID");
@@ -807,11 +845,11 @@ report 406 "Purchase - Invoice"
     trigger OnPostReport()
     begin
         if LogInteraction and not IsReportInPreviewMode then
-            if "Purch. Inv. Header".FindSet then
+            if "Purch. Inv. Header".FindSet() then
                 repeat
                     SegManagement.LogDocument(14, "Purch. Inv. Header"."No.", 0, 0, DATABASE::Vendor, "Purch. Inv. Header"."Buy-from Vendor No.",
                       "Purch. Inv. Header"."Purchaser Code", '', "Purch. Inv. Header"."Posting Description", '');
-                until "Purch. Inv. Header".Next = 0;
+                until "Purch. Inv. Header".Next() = 0;
     end;
 
     trigger OnPreReport()
@@ -832,6 +870,8 @@ report 406 "Purchase - Invoice"
         DimSetEntry2: Record "Dimension Set Entry";
         RespCenter: Record "Responsibility Center";
         CurrExchRate: Record "Currency Exchange Rate";
+        BuyFromContact: Record Contact;
+        PayToContact: Record Contact;
         Language: Codeunit Language;
         FormatAddr: Codeunit "Format Address";
         FormatDocument: Codeunit "Format Document";
@@ -863,7 +903,7 @@ report 406 "Purchase - Invoice"
         Text008: Label 'Local Currency';
         Text009: Label 'Exchange rate: %1/%2';
         CalculatedExchRate: Decimal;
-        Text010: Label 'Purchase - Prepayment Invoice %1';
+        Text010: Label 'Purchase - Prepayment Invoice %1', Comment = '%1 = Document No.';
         OutputNo: Integer;
         PricesInclVATtxt: Text[30];
         AllowVATDisctxt: Text[30];
@@ -911,6 +951,12 @@ report 406 "Purchase - Invoice"
         ShipToAddressCaptionLbl: Label 'Ship-to Address';
         InvDiscAmtCaptionLbl: Label 'Invoice Discount Amount';
         AllowInvDiscCaptionLbl: Label 'Allow Invoice Discount';
+        BuyFromContactPhoneNoLbl: Label 'Buy-from Contact Phone No.';
+        BuyFromContactMobilePhoneNoLbl: Label 'Buy-from Contact Mobile Phone No.';
+        BuyFromContactEmailLbl: Label 'Buy-from Contact E-Mail';
+        PayToContactPhoneNoLbl: Label 'Pay-to Contact Phone No.';
+        PayToContactMobilePhoneNoLbl: Label 'Pay-to Contact Mobile Phone No.';
+        PayToContactEmailLbl: Label 'Pay-to Contact E-Mail';
         PlusGiroNoCaptionLbl: Label 'Plus Giro No.';
         BoardOfDirectorsLocCaptionLbl: Label 'Board of Directors Location (registered office)';
         CompHasTaxAssessCaptionLbl: Label 'Company has Tax Assessment Note';

@@ -66,7 +66,7 @@ table 11204 "Automatic Acc. Line"
 
             trigger OnLookup()
             begin
-                ShowDimensions;
+                ShowDimensions();
             end;
 
             trigger OnValidate()

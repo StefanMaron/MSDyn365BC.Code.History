@@ -45,7 +45,7 @@ codeunit 134090 "ERM Pmt Disc And VAT Cust/Vend"
         SalesDocumentWithVAT(SalesHeader."Document Type"::"Credit Memo", 1);  // Passing 1 to make Verification Amounts Positive.
     end;
 
-    local procedure SalesDocumentWithVAT(DocumentType: Option; SignFactor: Integer)
+    local procedure SalesDocumentWithVAT(DocumentType: Enum "Sales Document Type"; SignFactor: Integer)
     var
         Customer: Record Customer;
         Item: Record Item;
@@ -172,7 +172,7 @@ codeunit 134090 "ERM Pmt Disc And VAT Cust/Vend"
         PurchaseDocumentWithVAT(PurchaseHeader."Document Type"::"Credit Memo", -1);  // Passing -1 to make Verification Amounts Negative.
     end;
 
-    local procedure PurchaseDocumentWithVAT(DocumentType: Option; SignFactor: Integer)
+    local procedure PurchaseDocumentWithVAT(DocumentType: Enum "Purchase Document Type"; SignFactor: Integer)
     var
         Item: Record Item;
         PurchaseHeader: Record "Purchase Header";
@@ -826,7 +826,7 @@ codeunit 134090 "ERM Pmt Disc And VAT Cust/Vend"
         exit(Item."No.");
     end;
 
-    local procedure CreatePostGeneralJournalLine(var GenJournalLine: Record "Gen. Journal Line"; AccountType: Option; AccountNo: Code[20]; Amount: Decimal)
+    local procedure CreatePostGeneralJournalLine(var GenJournalLine: Record "Gen. Journal Line"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; Amount: Decimal)
     var
         GenJournalBatch: Record "Gen. Journal Batch";
     begin
@@ -902,7 +902,7 @@ codeunit 134090 "ERM Pmt Disc And VAT Cust/Vend"
               "Account Type"::"G/L Account", GLAccountNo, LineAmount);
     end;
 
-    local procedure CreateGenJnlLine(var GenJournalLine: Record "Gen. Journal Line"; UseDocumentNo: Code[20]; DocumentType: Option; AccountType: Option; AccountNo: Code[20]; GenJnlAmount: Decimal): Code[20]
+    local procedure CreateGenJnlLine(var GenJournalLine: Record "Gen. Journal Line"; UseDocumentNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; GenJnlAmount: Decimal): Code[20]
     begin
         with GenJournalLine do begin
             LibraryERM.CreateGeneralJnlLine(
@@ -916,7 +916,7 @@ codeunit 134090 "ERM Pmt Disc And VAT Cust/Vend"
         end;
     end;
 
-    local procedure CreatePurchaseDocument(var PurchaseHeader: Record "Purchase Header"; VendorNo: Code[20]; ItemNo: Code[20]; DocumentType: Option) LineAmount: Decimal
+    local procedure CreatePurchaseDocument(var PurchaseHeader: Record "Purchase Header"; VendorNo: Code[20]; ItemNo: Code[20]; DocumentType: Enum "Purchase Document Type") LineAmount: Decimal
     var
         PurchaseLine: Record "Purchase Line";
     begin
@@ -929,7 +929,7 @@ codeunit 134090 "ERM Pmt Disc And VAT Cust/Vend"
         LineAmount := LineAmount + PurchaseLine."Line Amount";
     end;
 
-    local procedure CreatePurchaseHeader(var PurchaseHeader: Record "Purchase Header"; DocumentType: Option; VendorNo: Code[20])
+    local procedure CreatePurchaseHeader(var PurchaseHeader: Record "Purchase Header"; DocumentType: Enum "Purchase Document Type"; VendorNo: Code[20])
     begin
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, DocumentType, VendorNo);
         PurchaseHeader.Validate("Vendor Invoice No.", PurchaseHeader."No.");
@@ -937,7 +937,7 @@ codeunit 134090 "ERM Pmt Disc And VAT Cust/Vend"
         PurchaseHeader.Modify(true);
     end;
 
-    local procedure CreatePurchaseLine(var PurchaseLine: Record "Purchase Line"; PurchaseHeader: Record "Purchase Header"; Type: Option; No: Code[20])
+    local procedure CreatePurchaseLine(var PurchaseLine: Record "Purchase Line"; PurchaseHeader: Record "Purchase Header"; Type: Enum "Purchase Line Type"; No: Code[20])
     begin
         // Take Random Quantity and Direct Unit Cost.
         LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, Type, No, LibraryRandom.RandDecInRange(10, 20, 2));
@@ -945,7 +945,7 @@ codeunit 134090 "ERM Pmt Disc And VAT Cust/Vend"
         PurchaseLine.Modify(true);
     end;
 
-    local procedure CreateSalesDocument(var SalesHeader: Record "Sales Header"; CustomerNo: Code[20]; ItemNo: Code[20]; DocumentType: Option) LineAmount: Decimal
+    local procedure CreateSalesDocument(var SalesHeader: Record "Sales Header"; CustomerNo: Code[20]; ItemNo: Code[20]; DocumentType: Enum "Sales Document Type") LineAmount: Decimal
     var
         SalesLine: Record "Sales Line";
     begin
@@ -958,7 +958,7 @@ codeunit 134090 "ERM Pmt Disc And VAT Cust/Vend"
         LineAmount := LineAmount + SalesLine."Line Amount";
     end;
 
-    local procedure CreateSalesLine(var SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header"; Type: Option; No: Code[20])
+    local procedure CreateSalesLine(var SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header"; Type: Enum "Sales Line Type"; No: Code[20])
     begin
         // Take Random Quantity and Unit Price.
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, Type, No, LibraryRandom.RandDecInRange(10, 20, 2));
@@ -1353,7 +1353,7 @@ codeunit 134090 "ERM Pmt Disc And VAT Cust/Vend"
         end;
     end;
 
-    local procedure VerifyPmtDiscEntryInGLEntry(DocumentNo: Code[20]; GLAccountNo: Code[20]; DocumentType: Option; ExpectedAmount: Decimal; ExpectedVATAmount: Decimal)
+    local procedure VerifyPmtDiscEntryInGLEntry(DocumentNo: Code[20]; GLAccountNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type"; ExpectedAmount: Decimal; ExpectedVATAmount: Decimal)
     var
         GLEntry: Record "G/L Entry";
     begin

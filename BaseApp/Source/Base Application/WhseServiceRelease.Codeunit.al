@@ -96,7 +96,7 @@ codeunit 5770 "Whse.-Service Release"
             with WhseRqst do begin
                 Type := WhseType;
                 "Source Type" := DATABASE::"Service Line";
-                "Source Subtype" := ServiceHeader."Document Type";
+                "Source Subtype" := ServiceHeader."Document Type".AsInteger();
                 "Source No." := ServiceHeader."No.";
                 "Shipping Advice" := ServiceHeader."Shipping Advice";
                 "Document Status" := ServiceHeader."Release Status"::"Released to Ship";

@@ -154,7 +154,7 @@ codeunit 144050 "ERM Regoff SE"
           CompanyBoardDirectorCap, CompanyBoardDirectorValue2, CompanyAddressCap);
     end;
 
-    local procedure RegisteredOfficeInfoOnSalesReports(DocumentType: Option; ReportID: Integer; ComBoardDirectorCap: Text[50]; ComBoardDirectorValue: Text[50]; ComAddressCap: Text[50])
+    local procedure RegisteredOfficeInfoOnSalesReports(DocumentType: Enum "Sales Document Type"; ReportID: Integer; ComBoardDirectorCap: Text[50]; ComBoardDirectorValue: Text[50]; ComAddressCap: Text[50])
     var
         CompanyInformation: Record "Company Information";
         SalesHeader: Record "Sales Header";
@@ -201,7 +201,7 @@ codeunit 144050 "ERM Regoff SE"
           CompanyAddressCap);
     end;
 
-    local procedure ChangeRegisteredOfficeInfoOnSalesReports(DocumentType: Option; ReportID: Integer; ComBoardDirectorCap: Text[50]; ComBoardDirectorValue: Text[50]; ComInfoCap: Text[50])
+    local procedure ChangeRegisteredOfficeInfoOnSalesReports(DocumentType: Enum "Sales Document Type"; ReportID: Integer; ComBoardDirectorCap: Text[50]; ComBoardDirectorValue: Text[50]; ComInfoCap: Text[50])
     var
         CompanyInformation: Record "Company Information";
         SalesHeader: Record "Sales Header";
@@ -233,7 +233,7 @@ codeunit 144050 "ERM Regoff SE"
         RegisteredOfficeInfoOnSalesReport(SalesHeader."Document Type"::"Credit Memo", REPORT::"Sales - Credit Memo");
     end;
 
-    local procedure RegisteredOfficeInfoOnSalesReport(DocumentType: Option; ReportID: Integer)
+    local procedure RegisteredOfficeInfoOnSalesReport(DocumentType: Enum "Sales Document Type"; ReportID: Integer)
     var
         CompanyInformation: Record "Company Information";
         SalesHeader: Record "Sales Header";
@@ -265,7 +265,7 @@ codeunit 144050 "ERM Regoff SE"
         ChangeRegisteredOfficeInfoOnSalesReport(SalesHeader."Document Type"::"Credit Memo", REPORT::"Sales - Credit Memo");
     end;
 
-    local procedure ChangeRegisteredOfficeInfoOnSalesReport(DocumentType: Option; ReportID: Integer)
+    local procedure ChangeRegisteredOfficeInfoOnSalesReport(DocumentType: Enum "Sales Document Type"; ReportID: Integer)
     var
         CompanyInformation: Record "Company Information";
         SalesHeader: Record "Sales Header";
@@ -401,7 +401,7 @@ codeunit 144050 "ERM Regoff SE"
         isInitialized := true;
     end;
 
-    local procedure CreateSalesDocument(var SalesHeader: Record "Sales Header"; DocumentType: Option)
+    local procedure CreateSalesDocument(var SalesHeader: Record "Sales Header"; DocumentType: Enum "Sales Document Type")
     var
         Customer: Record Customer;
         Item: Record Item;
@@ -413,7 +413,7 @@ codeunit 144050 "ERM Regoff SE"
           SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItem(Item), LibraryRandom.RandDec(100, 2));  // Using Random ofr Quantity.
     end;
 
-    local procedure RunSalesReport(DocumentType: Option; No: Code[20]; ReportID: Integer)
+    local procedure RunSalesReport(DocumentType: Enum "Sales Document Type"; No: Code[20]; ReportID: Integer)
     begin
         Commit();
         LibraryVariableStorage.Enqueue(DocumentType);

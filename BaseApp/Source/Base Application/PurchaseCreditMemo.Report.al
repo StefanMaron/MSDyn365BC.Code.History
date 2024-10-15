@@ -45,6 +45,42 @@ report 407 "Purchase - Credit Memo"
             column(AllowInvoiceDiscountCaption; AllowInvoiceDiscountCaptionLbl)
             {
             }
+            column(BuyFromContactPhoneNoLbl; BuyFromContactPhoneNoLbl)
+            {
+            }
+            column(BuyFromContactMobilePhoneNoLbl; BuyFromContactMobilePhoneNoLbl)
+            {
+            }
+            column(BuyFromContactEmailLbl; BuyFromContactEmailLbl)
+            {
+            }
+            column(PayToContactPhoneNoLbl; PayToContactPhoneNoLbl)
+            {
+            }
+            column(PayToContactMobilePhoneNoLbl; PayToContactMobilePhoneNoLbl)
+            {
+            }
+            column(PayToContactEmailLbl; PayToContactEmailLbl)
+            {
+            }
+            column(BuyFromContactPhoneNo; BuyFromContact."Phone No.")
+            {
+            }
+            column(BuyFromContactMobilePhoneNo; BuyFromContact."Mobile Phone No.")
+            {
+            }
+            column(BuyFromContactEmail; BuyFromContact."E-Mail")
+            {
+            }
+            column(PayToContactPhoneNo; PayToContact."Phone No.")
+            {
+            }
+            column(PayToContactMobilePhoneNo; PayToContact."Mobile Phone No.")
+            {
+            }
+            column(PayToContactEmail; PayToContact."E-Mail")
+            {
+            }
             column(PlusGiroNoCaption; PlusGiroNoCaptionLbl)
             {
             }
@@ -274,7 +310,7 @@ report 407 "Purchase - Credit Memo"
                         }
                         column(LineAmt_PurchCrMemoLine; "Line Amount")
                         {
-                            AutoFormatExpression = GetCurrencyCode;
+                            AutoFormatExpression = GetCurrencyCode();
                             AutoFormatType = 1;
                         }
                         column(Desc__PurchCrMemoLine; Description)
@@ -291,7 +327,7 @@ report 407 "Purchase - Credit Memo"
                         }
                         column(DirUntCst_PurchCrMemoLine; "Direct Unit Cost")
                         {
-                            AutoFormatExpression = GetCurrencyCode;
+                            AutoFormatExpression = GetCurrencyCode();
                             AutoFormatType = 2;
                         }
                         column(LineDisc_PurchCrMemoLine; "Line Discount %")
@@ -306,7 +342,7 @@ report 407 "Purchase - Credit Memo"
                         }
                         column(InvDiscAmt_PurchCrMemoLine; -"Inv. Discount Amount")
                         {
-                            AutoFormatExpression = GetCurrencyCode;
+                            AutoFormatExpression = GetCurrencyCode();
                             AutoFormatType = 1;
                         }
                         column(TotalText; TotalText)
@@ -314,7 +350,7 @@ report 407 "Purchase - Credit Memo"
                         }
                         column(Amount_PurchCrMemoLine; Amount)
                         {
-                            AutoFormatExpression = GetCurrencyCode;
+                            AutoFormatExpression = GetCurrencyCode();
                             AutoFormatType = 1;
                         }
                         column(TotalExclVATText; TotalExclVATText)
@@ -325,12 +361,12 @@ report 407 "Purchase - Credit Memo"
                         }
                         column(AmtIncVAT_PurchCrMemoLine; "Amount Including VAT")
                         {
-                            AutoFormatExpression = GetCurrencyCode;
+                            AutoFormatExpression = GetCurrencyCode();
                             AutoFormatType = 1;
                         }
                         column(VATAmount_AmountIncluding; "Amount Including VAT" - Amount)
                         {
-                            AutoFormatExpression = GetCurrencyCode;
+                            AutoFormatExpression = GetCurrencyCode();
                             AutoFormatType = 1;
                         }
                         column(VATAmountLineVATAmtText; VATAmountLine.VATAmountText)
@@ -716,6 +752,8 @@ report 407 "Purchase - Credit Memo"
 
                 FormatAddressFields("Purch. Cr. Memo Hdr.");
                 FormatDocumentFields("Purch. Cr. Memo Hdr.");
+                if BuyFromContact.Get("Buy-from Contact No.") then;
+                if PayToContact.Get("Pay-to Contact No.") then;
 
                 DimSetEntry1.SetRange("Dimension Set ID", "Dimension Set ID");
 
@@ -819,6 +857,8 @@ report 407 "Purchase - Credit Memo"
         DimSetEntry2: Record "Dimension Set Entry";
         RespCenter: Record "Responsibility Center";
         CurrExchRate: Record "Currency Exchange Rate";
+        BuyFromContact: Record Contact;
+        PayToContact: Record Contact;
         Language: Codeunit Language;
         FormatAddr: Codeunit "Format Address";
         FormatDocument: Codeunit "Format Document";
@@ -896,6 +936,12 @@ report 407 "Purchase - Credit Memo"
         PageCaptionLbl: Label 'Page';
         DocumentDateCaptionLbl: Label 'Document Date';
         AllowInvoiceDiscountCaptionLbl: Label 'Allow Invoice Discount';
+        BuyFromContactPhoneNoLbl: Label 'Buy-from Contact Phone No.';
+        BuyFromContactMobilePhoneNoLbl: Label 'Buy-from Contact Mobile Phone No.';
+        BuyFromContactEmailLbl: Label 'Buy-from Contact E-Mail';
+        PayToContactPhoneNoLbl: Label 'Pay-to Contact Phone No.';
+        PayToContactMobilePhoneNoLbl: Label 'Pay-to Contact Mobile Phone No.';
+        PayToContactEmailLbl: Label 'Pay-to Contact E-Mail';
         PlusGiroNoCaptionLbl: Label 'Plus Giro No.';
         BoardOfDirectorsLocCaptionLbl: Label 'Board of Directors Location (registered office)';
         CompHasTaxAssessCaptionLbl: Label 'Company has Tax Assessment Note';

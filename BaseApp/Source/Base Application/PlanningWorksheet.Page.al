@@ -399,7 +399,7 @@ page 99000852 "Planning Worksheet"
 
                     trigger OnAction()
                     begin
-                        ShowDimensions;
+                        ShowDimensions();
                         CurrPage.SaveRecord;
                     end;
                 }
@@ -415,7 +415,7 @@ page 99000852 "Planning Worksheet"
 
                     trigger OnAction()
                     begin
-                        OpenItemTrackingLines;
+                        OpenItemTrackingLines();
                     end;
                 }
             }
@@ -532,6 +532,7 @@ page 99000852 "Planning Worksheet"
                         Promoted = true;
                         PromotedCategory = Category7;
                         ToolTip = 'Get a graphical view of an item''s projected inventory based on future supply and demand events, with or without planning suggestions. The result is a graphical representation of the inventory profile.';
+                        Visible = false;
 
                         trigger OnAction()
                         begin
@@ -681,7 +682,7 @@ page 99000852 "Planning Worksheet"
                     trigger OnAction()
                     begin
                         CurrPage.SaveRecord;
-                        ShowReservation;
+                        ShowReservation();
                     end;
                 }
                 action(OrderTracking)
@@ -758,11 +759,13 @@ page 99000852 "Planning Worksheet"
         CurrentWkshBatchName: Code[10];
         ItemDescription: Text[100];
         RoutingDescription: Text[50];
-        ShortcutDimCode: array[8] of Code[20];
         OpenedFromBatch: Boolean;
         [InDataSet]
         DescriptionIndent: Integer;
         Warning: Option " ",Emergency,Exception,Attention;
+
+    protected var
+        ShortcutDimCode: array[8] of Code[20];
 
     local procedure PlanningWarningLevel()
     var

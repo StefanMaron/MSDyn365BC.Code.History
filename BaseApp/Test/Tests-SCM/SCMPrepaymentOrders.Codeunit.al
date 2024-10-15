@@ -341,7 +341,7 @@ codeunit 137160 "SCM Prepayment Orders"
         LibraryWarehouse.CreateInTransitLocation(LocationInTransit);
     end;
 
-    local procedure CreateItemWithVendorNoAndReorderingPolicy(var Item: Record Item; VendorNo: Code[20]; ReorderingPolicy: Option)
+    local procedure CreateItemWithVendorNoAndReorderingPolicy(var Item: Record Item; VendorNo: Code[20]; ReorderingPolicy: Enum "Reordering Policy")
     begin
         LibraryInventory.CreateItem(Item);
         Item.Validate("Vendor No.", VendorNo);
@@ -356,7 +356,7 @@ codeunit 137160 "SCM Prepayment Orders"
         UpdateVATProdPostingGroupOnItem(Item, VATPostingSetup."VAT Prod. Posting Group");
     end;
 
-    local procedure CreatePick(var WarehouseShipmentHeader: Record "Warehouse Shipment Header"; SourceDocument: Option; SourceNo: Code[20])
+    local procedure CreatePick(var WarehouseShipmentHeader: Record "Warehouse Shipment Header"; SourceDocument: Enum "Warehouse Activity Source Document"; SourceNo: Code[20])
     begin
         GetWarehouseShipmentHeader(WarehouseShipmentHeader, SourceDocument, SourceNo);
         LibraryWarehouse.CreatePick(WarehouseShipmentHeader);
@@ -368,7 +368,7 @@ codeunit 137160 "SCM Prepayment Orders"
         PurchaseLine.Validate("Location Code", LocationCode);
         PurchaseLine.Modify(true);
         if UseTracking then
-            PurchaseLine.OpenItemTrackingLines;
+            PurchaseLine.OpenItemTrackingLines();
     end;
 
     local procedure CreatePurchaseOrder(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; VendorNo: Code[20]; ItemNo: Code[20]; Quantity: Decimal; LocationCode: Code[10]; ItemTracking: Boolean)
@@ -392,7 +392,7 @@ codeunit 137160 "SCM Prepayment Orders"
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, CustomerNo);
         CreateSalesLine(SalesHeader, SalesLine, ItemNo, Quantity, LocationCode);
         if Reserve then
-            SalesLine.ShowReservation;
+            SalesLine.ShowReservation();
     end;
 
     local procedure CreateVendorWithCurrencyExchangeRate(var Vendor: Record Vendor): Decimal
@@ -491,14 +491,14 @@ codeunit 137160 "SCM Prepayment Orders"
         Zone.FindFirst;
     end;
 
-    local procedure FindSalesLine(var SalesLine: Record "Sales Line"; DocumentType: Option; DocumentNo: Code[20])
+    local procedure FindSalesLine(var SalesLine: Record "Sales Line"; DocumentType: Enum "Sales Document Type"; DocumentNo: Code[20])
     begin
         SalesLine.SetRange("Document Type", DocumentType);
         SalesLine.SetRange("Document No.", DocumentNo);
         SalesLine.FindFirst;
     end;
 
-    local procedure FindWarehouseActivityLine(var WarehouseActivityLine: Record "Warehouse Activity Line"; SourceDocument: Option; SourceNo: Code[20]; ActivityType: Option)
+    local procedure FindWarehouseActivityLine(var WarehouseActivityLine: Record "Warehouse Activity Line"; SourceDocument: Enum "Warehouse Activity Source Document"; SourceNo: Code[20]; ActivityType: Option)
     begin
         WarehouseActivityLine.SetRange("Source Document", SourceDocument);
         WarehouseActivityLine.SetRange("Source No.", SourceNo);
@@ -514,14 +514,14 @@ codeunit 137160 "SCM Prepayment Orders"
         WarehouseReceiptLine.FindFirst;
     end;
 
-    local procedure FindWarehouseShipmentLine(var WarehouseShipmentLine: Record "Warehouse Shipment Line"; SourceDocument: Option; SourceNo: Code[20])
+    local procedure FindWarehouseShipmentLine(var WarehouseShipmentLine: Record "Warehouse Shipment Line"; SourceDocument: Enum "Warehouse Activity Source Document"; SourceNo: Code[20])
     begin
         WarehouseShipmentLine.SetRange("Source Document", SourceDocument);
         WarehouseShipmentLine.SetRange("Source No.", SourceNo);
         WarehouseShipmentLine.FindFirst;
     end;
 
-    local procedure GetWarehouseShipmentHeader(var WarehouseShipmentHeader: Record "Warehouse Shipment Header"; SourceDocument: Option; SourceNo: Code[20])
+    local procedure GetWarehouseShipmentHeader(var WarehouseShipmentHeader: Record "Warehouse Shipment Header"; SourceDocument: Enum "Warehouse Activity Source Document"; SourceNo: Code[20])
     var
         WarehouseShipmentLine: Record "Warehouse Shipment Line";
     begin
@@ -529,7 +529,7 @@ codeunit 137160 "SCM Prepayment Orders"
         WarehouseShipmentHeader.Get(WarehouseShipmentLine."No.");
     end;
 
-    local procedure ItemJournalSetup(var ItemJournalTemplate2: Record "Item Journal Template"; var ItemJournalBatch2: Record "Item Journal Batch"; ItemJournalTemplateType: Option)
+    local procedure ItemJournalSetup(var ItemJournalTemplate2: Record "Item Journal Template"; var ItemJournalBatch2: Record "Item Journal Batch"; ItemJournalTemplateType: Enum "Item Journal Template Type")
     begin
         ItemJournalTemplate.SetRange(Recurring, false);
         LibraryInventory.SelectItemJournalTemplateName(ItemJournalTemplate2, ItemJournalTemplateType);
@@ -572,7 +572,7 @@ codeunit 137160 "SCM Prepayment Orders"
         LibraryWarehouse.PostWhseReceipt(WarehouseReceiptHeader);
     end;
 
-    local procedure PostWarehouseShipment(var WarehouseShipmentHeader: Record "Warehouse Shipment Header"; SourceDocument: Option; SourceNo: Code[20]; QuantityToShip: Decimal; Invoice: Boolean)
+    local procedure PostWarehouseShipment(var WarehouseShipmentHeader: Record "Warehouse Shipment Header"; SourceDocument: Enum "Warehouse Activity Source Document"; SourceNo: Code[20]; QuantityToShip: Decimal; Invoice: Boolean)
     var
         WarehouseShipmentLine: Record "Warehouse Shipment Line";
     begin
@@ -583,7 +583,7 @@ codeunit 137160 "SCM Prepayment Orders"
         LibraryWarehouse.PostWhseShipment(WarehouseShipmentHeader, Invoice);
     end;
 
-    local procedure RegisterWarehouseActivity(SourceDocument: Option; SourceNo: Code[20]; ActivityType: Option)
+    local procedure RegisterWarehouseActivity(SourceDocument: Enum "Warehouse Activity Source Document"; SourceNo: Code[20]; ActivityType: Option)
     var
         WarehouseActivityHeader: Record "Warehouse Activity Header";
         WarehouseActivityLine: Record "Warehouse Activity Line";

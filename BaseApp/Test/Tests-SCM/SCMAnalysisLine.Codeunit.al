@@ -199,7 +199,7 @@ codeunit 137202 "SCM Analysis Line"
         InventorySetup.Modify(true);
     end;
 
-    local procedure CreatePartialAnalysisLine(var AnalysisLine: Record "Analysis Line"; Type: Option) AnalysisLineTemplateName: Code[10]
+    local procedure CreatePartialAnalysisLine(var AnalysisLine: Record "Analysis Line"; Type: Enum "Analysis Line Type") AnalysisLineTemplateName: Code[10]
     var
         AnalysisLineTemplate: Record "Analysis Line Template";
         LibraryUtility: Codeunit "Library - Utility";
@@ -215,7 +215,7 @@ codeunit 137202 "SCM Analysis Line"
         AnalysisLineTemplateName := AnalysisLine."Analysis Line Template Name";
     end;
 
-    local procedure VerifyAnalysisLine(Type: Option; AnalysisLineTemplateName: Code[10])
+    local procedure VerifyAnalysisLine(Type: Enum "Analysis Line Type"; AnalysisLineTemplateName: Code[10])
     var
         AnalysisLine: Record "Analysis Line";
     begin

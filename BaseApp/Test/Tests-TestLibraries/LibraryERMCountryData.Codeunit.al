@@ -23,11 +23,9 @@ codeunit 131305 "Library - ERM Country Data"
         exit;
     end;
 
-    procedure GetVATCalculationType(): Integer
-    var
-        DummyVATPostingSetup: Record "VAT Posting Setup";
+    procedure GetVATCalculationType(): Enum "Tax Calculation Type"
     begin
-        exit(DummyVATPostingSetup."VAT Calculation Type"::"Normal VAT");
+        exit("Tax Calculation Type"::"Normal VAT");
     end;
 
     [Scope('OnPrem')]
@@ -35,7 +33,7 @@ codeunit 131305 "Library - ERM Country Data"
     var
         ReportSelections: Record "Report Selections";
     begin
-        exit(ReportSelections.Usage::"P.Quote");
+        exit(ReportSelections.Usage::"P.Quote".AsInteger());
     end;
 
     [Scope('OnPrem')]
@@ -43,7 +41,7 @@ codeunit 131305 "Library - ERM Country Data"
     var
         ReportSelections: Record "Report Selections";
     begin
-        exit(ReportSelections.Usage::"S.Quote");
+        exit(ReportSelections.Usage::"S.Quote".AsInteger());
     end;
 
     procedure SetupCostAccounting()

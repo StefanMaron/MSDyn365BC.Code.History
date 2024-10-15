@@ -371,7 +371,7 @@ codeunit 134201 "Document Approval - Comments"
         Initialize;
         SetupUsers(UserSetup);
         SetApprovalAdmin(UserSetup."Approver ID");
-        WorkflowSetup.InsertSalesDocumentApprovalWorkflow(Workflow, SalesHeader."Document Type"::Order,
+        WorkflowSetup.InsertSalesDocumentApprovalWorkflow(Workflow, SalesHeader."Document Type"::Order.AsInteger(),
           WorkflowStepArgument."Approver Type"::Approver, WorkflowStepArgument."Approver Limit Type"::"Approver Chain",
           '', BlankDateFormula);
         Workflow.Validate(Template, false);
@@ -409,7 +409,7 @@ codeunit 134201 "Document Approval - Comments"
         Initialize;
         SetupUsers(UserSetup);
         SetApprovalAdmin(UserSetup."Approver ID");
-        WorkflowSetup.InsertPurchaseDocumentApprovalWorkflow(Workflow, PurchaseHeader."Document Type"::Order,
+        WorkflowSetup.InsertPurchaseDocumentApprovalWorkflow(Workflow, PurchaseHeader."Document Type"::Order.AsInteger(),
           WorkflowStepArgument."Approver Type"::Approver, WorkflowStepArgument."Approver Limit Type"::"Approver Chain",
           '', BlankDateFormula);
         Workflow.Validate(Template, false);
@@ -552,12 +552,11 @@ codeunit 134201 "Document Approval - Comments"
         GeneralJournal: TestPage "General Journal";
         ApprovalComments: TestPage "Approval Comments";
         Comment: Text;
-        TemplateType: Option General,Sales,Purchases,"Cash Receipts",Payments,Assets,Intercompany,Jobs;
     begin
         // [FEATURE] [UT] [UI]
         // [SCENARIO 381208] Approval Comments from Gen. Journal page are filtered on Record ID
         Initialize;
-        CreateGenJournalLine(GenJournalLine, PAGE::"General Journal", TemplateType::General);
+        CreateGenJournalLine(GenJournalLine, PAGE::"General Journal", "Gen. Journal Template Type"::General);
         LibraryVariableStorage.Enqueue(GenJournalLine."Journal Template Name");
 
         // [GIVEN] Sender creates an approval request with a comment for General Journal Line
@@ -585,13 +584,12 @@ codeunit 134201 "Document Approval - Comments"
         CashReceiptJournal: TestPage "Cash Receipt Journal";
         ApprovalComments: TestPage "Approval Comments";
         Comment: Text;
-        TemplateType: Option General,Sales,Purchases,"Cash Receipts",Payments,Assets,Intercompany,Jobs;
     begin
         // [FEATURE] [UT] [UI]
         // [SCENARIO 381208] Approval Comments from Cash Receipt Journal page are filtered on Record ID
         Initialize;
         CreateGenJournalLine(
-          GenJournalLine, PAGE::"Cash Receipt Journal", TemplateType::"Cash Receipts");
+          GenJournalLine, PAGE::"Cash Receipt Journal", "Gen. Journal Template Type"::"Cash Receipts");
         LibraryVariableStorage.Enqueue(GenJournalLine."Journal Template Name");
 
         // [GIVEN] Sender creates an approval request with a comment for General Journal Line
@@ -618,13 +616,12 @@ codeunit 134201 "Document Approval - Comments"
         PaymentJournal: TestPage "Payment Journal";
         ApprovalComments: TestPage "Approval Comments";
         Comment: Text;
-        TemplateType: Option General,Sales,Purchases,"Cash Receipts",Payments,Assets,Intercompany,Jobs;
     begin
         // [FEATURE] [UT] [UI]
         // [SCENARIO 381208] Approval Comments from Payment page are filtered on Record ID
         Initialize;
         CreateGenJournalLine(
-          GenJournalLine, PAGE::"Payment Journal", TemplateType::Payments);
+          GenJournalLine, PAGE::"Payment Journal", "Gen. Journal Template Type"::Payments);
         LibraryVariableStorage.Enqueue(GenJournalLine."Journal Template Name");
 
         // [GIVEN] Sender creates an approval request with a comment for General Journal Line
@@ -709,12 +706,11 @@ codeunit 134201 "Document Approval - Comments"
         GenJournalLine: Record "Gen. Journal Line";
         ApprovalCommentLine: Record "Approval Comment Line";
         RecordIDToApprove: RecordID;
-        TemplateType: Option General,Sales,Purchases,"Cash Receipts",Payments,Assets,Intercompany,Jobs;
     begin
         // [FEATURE] [UT]
         // [SCENARIO 381885] Approval Comments should be deleted when delete Gen. Journal Line.
         Initialize;
-        CreateGenJournalLine(GenJournalLine, PAGE::"General Journal", TemplateType::General);
+        CreateGenJournalLine(GenJournalLine, PAGE::"General Journal", "Gen. Journal Template Type"::General);
 
         // [GIVEN] Sender creates an approval request with a comment for General Journal Line
         RecordIDToApprove := GenJournalLine.RecordId;
@@ -1154,7 +1150,7 @@ codeunit 134201 "Document Approval - Comments"
         SetApprovalAdmin(UserSetup."Approver ID");
         LibraryWorkflow.DeleteAllExistingWorkflows();
         WorkflowSetup.InsertPurchaseDocumentApprovalWorkflow(
-            Workflow, PurchaseHeader."Document Type"::Order,
+            Workflow, PurchaseHeader."Document Type"::Order.AsInteger(),
             WorkflowStepArgument."Approver Type"::"Salesperson/Purchaser",
             WorkflowStepArgument."Approver Limit Type"::"Approver Chain", '', BlankDateFormula);
         Workflow.Validate(Template, false);
@@ -1198,7 +1194,7 @@ codeunit 134201 "Document Approval - Comments"
         ApprovalEntries.Comments.Invoke;
     end;
 
-    local procedure CreateApprovalEntry(var ApprovalEntry: Record "Approval Entry"; WorkflowInstanceID: Guid; RecID: RecordID; EntryStatus: Option)
+    local procedure CreateApprovalEntry(var ApprovalEntry: Record "Approval Entry"; WorkflowInstanceID: Guid; RecID: RecordID; EntryStatus: Enum "Approval Status")
     begin
         ApprovalEntry.Init();
         ApprovalEntry.Validate("Table ID", DATABASE::"Purchase Header");
@@ -1218,7 +1214,7 @@ codeunit 134201 "Document Approval - Comments"
         CreateApprovalEntry(ApprovalEntry, WorkflowInstanceID, PurchaseHeader.RecordId, ApprovalEntry.Status::Open);
     end;
 
-    local procedure CreateGenJournalLine(var GenJournalLine: Record "Gen. Journal Line"; PageID: Integer; JournalType: Option)
+    local procedure CreateGenJournalLine(var GenJournalLine: Record "Gen. Journal Line"; PageID: Integer; TemplateType: Enum "Gen. Journal Template Type")
     var
         GenJournalTemplate: Record "Gen. Journal Template";
         GenJournalBatch: Record "Gen. Journal Batch";
@@ -1226,14 +1222,14 @@ codeunit 134201 "Document Approval - Comments"
         LibraryERM.CreateGenJournalTemplate(GenJournalTemplate);
         LibraryERM.CreateGenJournalBatch(GenJournalBatch, GenJournalTemplate.Name);
         LibraryERM.CreateGeneralJnlLine(
-          GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, JournalType,
+          GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, TemplateType,
           GenJournalLine."Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo, LibraryRandom.RandDec(100, 2));
         GenJournalTemplate.Validate("Page ID", PageID);
-        GenJournalTemplate.Validate(Type, JournalType);
+        GenJournalTemplate.Validate(Type, TemplateType);
         GenJournalTemplate.Modify(true);
     end;
 
-    local procedure CreatePurchDocument(var PurchHeader: Record "Purchase Header"; DocumentType: Option)
+    local procedure CreatePurchDocument(var PurchHeader: Record "Purchase Header"; DocumentType: Enum "Purchase Document Type")
     var
         PurchLine: Record "Purchase Line";
         Item: Record Item;
@@ -1245,14 +1241,14 @@ codeunit 134201 "Document Approval - Comments"
         LibraryPurchase.CreatePurchaseLine(PurchLine, PurchHeader, PurchLine.Type::Item, Item."No.", LibraryRandom.RandInt(10));
     end;
 
-    local procedure CreatePurchDocumentWithPurchaserCode(var PurchHeader: Record "Purchase Header"; DocumentType: Option; PurchaserCode: Code[20])
+    local procedure CreatePurchDocumentWithPurchaserCode(var PurchHeader: Record "Purchase Header"; DocumentType: Enum "Purchase Document Type"; PurchaserCode: Code[20])
     begin
         CreatePurchDocument(PurchHeader, DocumentType);
         PurchHeader.Validate("Purchaser Code", PurchaserCode);
         PurchHeader.Modify(true);
     end;
 
-    local procedure CreateSalesDocument(var SalesHeader: Record "Sales Header"; DocumentType: Option)
+    local procedure CreateSalesDocument(var SalesHeader: Record "Sales Header"; DocumentType: Enum "Sales Document Type")
     var
         Customer: Record Customer;
         Item: Record Item;
@@ -1264,7 +1260,7 @@ codeunit 134201 "Document Approval - Comments"
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", LibraryRandom.RandInt(10));
     end;
 
-    local procedure CreateSalesDocumentWithSalespersonCode(var SalesHeader: Record "Sales Header"; DocumentType: Option; SalespersonCode: Code[20])
+    local procedure CreateSalesDocumentWithSalespersonCode(var SalesHeader: Record "Sales Header"; DocumentType: Enum "Sales Document Type"; SalespersonCode: Code[20])
     begin
         CreateSalesDocument(SalesHeader, DocumentType);
         SalesHeader.Validate("Salesperson Code", SalespersonCode);
@@ -1343,7 +1339,7 @@ codeunit 134201 "Document Approval - Comments"
         ApprovalCommentLine.DeleteAll();
     end;
 
-    local procedure GetApprovalEntries(var ApprovalEntry: Record "Approval Entry"; TableID: Integer; DocumentType: Option; DocumentNo: Code[20])
+    local procedure GetApprovalEntries(var ApprovalEntry: Record "Approval Entry"; TableID: Integer; DocumentType: Enum "Approval Document Type"; DocumentNo: Code[20])
     begin
         ApprovalEntry.SetRange("Table ID", TableID);
         ApprovalEntry.SetRange("Document Type", DocumentType);
@@ -1351,7 +1347,7 @@ codeunit 134201 "Document Approval - Comments"
         ApprovalEntry.FindSet;
     end;
 
-    local procedure InsertApprovalCommentsForPurchDocument(DocumentType: Option)
+    local procedure InsertApprovalCommentsForPurchDocument(DocumentType: Enum "Purchase Document Type")
     var
         UserSetup: Record "User Setup";
         PurchHeader: Record "Purchase Header";
@@ -1375,7 +1371,7 @@ codeunit 134201 "Document Approval - Comments"
         VerifyApprovalCommentLineExist(ApprovalEntry);
     end;
 
-    local procedure InsertApprovalCommentsForSalesDocument(DocumentType: Option)
+    local procedure InsertApprovalCommentsForSalesDocument(DocumentType: Enum "Sales Document Type")
     var
         UserSetup: Record "User Setup";
         SalesHeader: Record "Sales Header";
@@ -1408,7 +1404,7 @@ codeunit 134201 "Document Approval - Comments"
         ApprovalEntries.Reject.Invoke;
     end;
 
-    local procedure RejectRequestForSalesDocumentWithComments(DocumentType: Option)
+    local procedure RejectRequestForSalesDocumentWithComments(DocumentType: Enum "Sales Document Type")
     var
         ApprovalEntry: Record "Approval Entry";
         SalesHeader: Record "Sales Header";
@@ -1444,7 +1440,7 @@ codeunit 134201 "Document Approval - Comments"
         UserSetup.Modify();
     end;
 
-    local procedure SetupApprovalWorkflows(TableNo: Integer; DocumentType: Option)
+    local procedure SetupApprovalWorkflows(TableNo: Integer; DocumentType: Enum "Approval Document Type")
     var
         WorkflowStepArgument: Record "Workflow Step Argument";
         Workflow: Record Workflow;
@@ -1459,7 +1455,7 @@ codeunit 134201 "Document Approval - Comments"
         case TableNo of
             DATABASE::"Purchase Header":
                 begin
-                    WorkflowSetup.InsertPurchaseDocumentApprovalWorkflow(Workflow, DocumentType,
+                    WorkflowSetup.InsertPurchaseDocumentApprovalWorkflow(Workflow, DocumentType.AsInteger(),
                       WorkflowStepArgument."Approver Type"::"Salesperson/Purchaser",
                       WorkflowStepArgument."Approver Limit Type"::"Approver Chain", '', BlankDateFormula);
                     Workflow.Validate(Template, false);
@@ -1469,7 +1465,7 @@ codeunit 134201 "Document Approval - Comments"
                 end;
             DATABASE::"Sales Header":
                 begin
-                    WorkflowSetup.InsertSalesDocumentApprovalWorkflow(Workflow, DocumentType,
+                    WorkflowSetup.InsertSalesDocumentApprovalWorkflow(Workflow, DocumentType.AsInteger(),
                       WorkflowStepArgument."Approver Type"::"Salesperson/Purchaser",
                       WorkflowStepArgument."Approver Limit Type"::"Approver Chain", '', BlankDateFormula);
                     Workflow.Validate(Template, false);
@@ -1483,7 +1479,7 @@ codeunit 134201 "Document Approval - Comments"
         Workflow.Modify(true);
     end;
 
-    local procedure SetupDocumentApprovals(var UserSetup: Record "User Setup"; TableNo: Integer; DocumentType: Option)
+    local procedure SetupDocumentApprovals(var UserSetup: Record "User Setup"; TableNo: Integer; DocumentType: Enum "Approval Document Type")
     begin
         SetupUsers(UserSetup);
         SetApprovalAdmin(UserSetup."Approver ID");
@@ -1509,7 +1505,7 @@ codeunit 134201 "Document Approval - Comments"
         LibraryDocumentApprovals.UpdateApprovalLimits(RequestorUserSetup, false, false, false, 0, 0, 0);
     end;
 
-    local procedure UpdateApprovalEntryWithTempUser(UserSetup: Record "User Setup"; TableID: Integer; DocumentType: Option; DocumentNo: Code[20])
+    local procedure UpdateApprovalEntryWithTempUser(UserSetup: Record "User Setup"; TableID: Integer; DocumentType: Enum "Approval Document Type"; DocumentNo: Code[20])
     var
         ApprovalEntry: Record "Approval Entry";
     begin
@@ -1590,7 +1586,7 @@ codeunit 134201 "Document Approval - Comments"
         Assert.AreEqual(0, ApprovalEntry.Next, WrongNumberOfApprovalEntriesMsg);
     end;
 
-    local procedure VerifyApprovalEntry(TableNo: Integer; DocumentType: Option; DocumentNo: Code[20]; ApproverID: Code[50])
+    local procedure VerifyApprovalEntry(TableNo: Integer; DocumentType: Enum "Approval Document Type"; DocumentNo: Code[20]; ApproverID: Code[50])
     var
         ApprovalEntry: Record "Approval Entry";
     begin

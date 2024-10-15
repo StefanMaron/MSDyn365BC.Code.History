@@ -6,6 +6,7 @@ page 595 "Change Log Entries"
     Editable = false;
     PageType = List;
     SourceTable = "Change Log Entry";
+    SourceTableView = where("Field Log Entry Feature" = filter("Change Log" | All));
     UsageCategory = Lists;
 
     layout
@@ -48,8 +49,15 @@ page 595 "Change Log Entries"
                 field("Table Caption"; "Table Caption")
                 {
                     ApplicationArea = Basic, Suite;
-                    DrillDown = false;
                     ToolTip = 'Specifies the name of the table containing the changed field.';
+
+                    trigger OnDrillDown()
+                    var
+                        MonitorSensitiveFieldData: Codeunit "Monitor Sensitive Field Data";
+                    begin
+                        if not IsNullGuid("Changed Record SystemId") then
+                            MonitorSensitiveFieldData.OpenChangedRecordPage("Table No.", "Field No.", "Changed Record SystemId");
+                    end;
                 }
                 field("Primary Key"; "Primary Key")
                 {
@@ -207,6 +215,21 @@ page 595 "Change Log Entries"
                 Image = Delete;
                 RunObject = Report "Change Log - Delete";
                 ToolTip = 'Find and delete change log entries.';
+                ObsoleteState = Pending;
+                ObsoleteReason = 'The functionality has been replaced with the retention policy module in system application.';
+                ObsoleteTag = '17.0';
+            }
+            action(RetentionPolicy)
+            {
+                ApplicationArea = All;
+                Caption = 'Retention Policy';
+                Tooltip = 'View or Edit the retention policy.';
+                Image = Delete;
+                RunObject = Page "Retention Policy Setup Card";
+                RunPageView = where("Table Id" = const(405)); // Database::"Change Log Entry";
+                AccessByPermission = tabledata "Retention Policy Setup" = R;
+                RunPageMode = View;
+                Ellipsis = true;
             }
         }
     }

@@ -9,8 +9,6 @@ codeunit 7203 "CDS Environment"
     var
         OAuthAuthorityUrlAuthCodeTxt: Label 'https://login.microsoftonline.com/common/oauth2', Locked = true;
         ResourceUrlTxt: Label 'https://globaldisco.crm.dynamics.com', Locked = true;
-        ConsumerKeyLbl: Label 'globaldisco-clientid', Locked = true;
-        ConsumerSecretLbl: Label 'globaldisco-clientsecret', Locked = true;
         GlobalDiscoOauthCategoryLbl: Label 'Global Discoverability OAuth', Locked = true;
         MissingKeyErr: Label 'The consumer key has not been initialized and are missing from the Azure Key Vault.';
         MissingSecretErr: Label 'The consumer secret has not been initialized and are missing from the Azure Key Vault.';
@@ -54,13 +52,13 @@ codeunit 7203 "CDS Environment"
         if EnvironmentCount = 1 then begin
             TempCDSEnvironment.FindFirst();
             CDSConnectionSetup."Server Address" := TempCDSEnvironment.Url;
-            SendTraceTag('0000BFV', CategoryTok, Verbosity::Normal, StrSubstNo(SelectedDefaultEnvironmentTxt, TempCDSEnvironment.Url), DataClassification::OrganizationIdentifiableInformation);
+            Session.LogMessage('0000BFV', StrSubstNo(SelectedDefaultEnvironmentTxt, TempCDSEnvironment.Url), Verbosity::Normal, DataClassification::OrganizationIdentifiableInformation, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
             exit(true);
         end;
 
         Commit();
         if PAGE.RunModal(PAGE::"CDS Environments", TempCDSEnvironment) = ACTION::LookupOK then begin
-            SendTraceTag('0000AVC', CategoryTok, VERBOSITY::Normal, StrSubstNo(SelectedEnvironmentTxt, TempCDSEnvironment.Url), DataClassification::OrganizationIdentifiableInformation);
+            Session.LogMessage('0000AVC', StrSubstNo(SelectedEnvironmentTxt, TempCDSEnvironment.Url), Verbosity::Normal, DataClassification::OrganizationIdentifiableInformation, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
             CDSConnectionSetup."Server Address" := TempCDSEnvironment.Url;
             exit(true);
         end;
@@ -73,32 +71,38 @@ codeunit 7203 "CDS Environment"
     var
         OAuth2: Codeunit OAuth2;
         CDSIntegrationImpl: Codeunit "CDS Integration Impl.";
-        AzureKeyVault: Codeunit "Azure Key Vault";
         PromptInteraction: Enum "Prompt Interaction";
         ConsumerKey: Text;
         ConsumerSecret: Text;
+        RedirectUrl: Text;
         Token: Text;
         Err: Text;
     begin
         OAuth2.AcquireOnBehalfOfToken(CDSIntegrationImpl.GetRedirectURL(), ResourceUrlTxt, Token);
 
-        if Token = '' then begin
-            SendTraceTag('0000BRA', GlobalDiscoOauthCategoryLbl, Verbosity::Error, ReceivedEmptyOnBehalfOfTokenErr, DataClassification::SystemMetadata);
+        if Token <> '' then
+            exit(Token);
 
-            if ConsumerKey = '' then
-                if not AzureKeyVault.GetAzureKeyVaultSecret(ConsumerKeyLbl, ConsumerKey) then
-                    SendTraceTag('0000BRB', GlobalDiscoOauthCategoryLbl, Verbosity::Normal, MissingKeyErr, DataClassification::SystemMetadata);
+        Session.LogMessage('0000BRA', ReceivedEmptyOnBehalfOfTokenErr, Verbosity::Error, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', GlobalDiscoOauthCategoryLbl);
 
-            if ConsumerSecret = '' then
-                if not AzureKeyVault.GetAzureKeyVaultSecret(ConsumerSecretLbl, ConsumerSecret) then
-                    SendTraceTag('0000BRC', GlobalDiscoOauthCategoryLbl, Verbosity::Normal, MissingSecretErr, DataClassification::SystemMetadata);
+        ConsumerKey := CDSIntegrationImpl.GetCDSConnectionClientId();
+        ConsumerSecret := CDSIntegrationImpl.GetCDSConnectionClientSecret();
+        RedirectUrl := CDSIntegrationImpl.GetRedirectURL();
 
-            if (ConsumerKey <> '') AND (ConsumerSecret <> '') then
-                OAuth2.AcquireTokenByAuthorizationCode(ConsumerKey, ConsumerSecret, OAuthAuthorityUrlAuthCodeTxt, CDSIntegrationImpl.GetRedirectURL(), ResourceUrlTxt, PromptInteraction::Login, Token, Err);
+        if ConsumerKey = '' then
+            Session.LogMessage('0000BRB', MissingKeyErr, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', GlobalDiscoOauthCategoryLbl);
 
+        if ConsumerSecret = '' then
+            Session.LogMessage('0000BRC', MissingSecretErr, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', GlobalDiscoOauthCategoryLbl);
+
+        if (ConsumerKey <> '') AND (ConsumerSecret <> '') then begin
+            OAuth2.AcquireAuthorizationCodeTokenFromCache(ConsumerKey, ConsumerSecret, RedirectUrl, OAuthAuthorityUrlAuthCodeTxt, ResourceUrlTxt, Token);
             if Token = '' then
-                SendTraceTag('0000C6I', GlobalDiscoOauthCategoryLbl, Verbosity::Error, ReceivedEmptyAuthCodeTokenErr, DataClassification::SystemMetadata);
+                OAuth2.AcquireTokenByAuthorizationCode(ConsumerKey, ConsumerSecret, OAuthAuthorityUrlAuthCodeTxt, RedirectUrl, ResourceUrlTxt, PromptInteraction::Login, Token, Err);
         end;
+
+        if Token = '' then
+            Session.LogMessage('0000C6I', ReceivedEmptyAuthCodeTokenErr, Verbosity::Error, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', GlobalDiscoOauthCategoryLbl);
 
         exit(Token);
     end;
@@ -135,18 +139,18 @@ codeunit 7203 "CDS Environment"
         IsSuccessful := Client.Send(RequestMessage, ResponseMessage);
 
         if not IsSuccessful then begin
-            SendTraceTag('0000AVE', CategoryTok, VERBOSITY::Normal, RequestFailedTxt, DataClassification::SystemMetadata);
+            Session.LogMessage('0000AVE', RequestFailedTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
             exit(0);
         end;
 
         if not ResponseMessage.IsSuccessStatusCode() then begin
             StatusCode := ResponseMessage.HttpStatusCode();
-            SendTraceTag('0000B1B', CategoryTok, VERBOSITY::Warning, StrSubstNo(RequestFailedWithStatusCodeTxt, StatusCode), DATACLASSIFICATION::SystemMetadata);
+            Session.LogMessage('0000B1B', StrSubstNo(RequestFailedWithStatusCodeTxt, StatusCode), Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
             exit(0);
         end;
 
         if not ResponseMessage.Content().ReadAs(ResponseStream) then begin
-            SendTraceTag('0000AVF', CategoryTok, VERBOSITY::Normal, CannotReadResponseTxt, DataClassification::SystemMetadata);
+            Session.LogMessage('0000AVF', CannotReadResponseTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
             exit(0);
         end;
 
@@ -156,11 +160,11 @@ codeunit 7203 "CDS Environment"
         end;
 
         if not JsonResponse.ReadFrom(EnvironmentsList) then begin
-            SendTraceTag('0000AVG', CategoryTok, VERBOSITY::Normal, CannotParseResponseTxt, DataClassification::SystemMetadata);
+            Session.LogMessage('0000AVG', CannotParseResponseTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
             exit(0);
         end;
         if not JsonResponse.Get('value', JToken) then begin
-            SendTraceTag('0000AVH', CategoryTok, VERBOSITY::Normal, CannotParseResponseTxt, DataClassification::SystemMetadata);
+            Session.LogMessage('0000AVH', CannotParseResponseTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
             exit(0);
         end;
         JsonEnvironmentList := JToken.AsArray();
@@ -197,10 +201,10 @@ codeunit 7203 "CDS Environment"
                 TempCDSEnvironment.Version := CopyStr(JToken.AsValue().AsText(), 1, MaxStrLen(TempCDSEnvironment.Version));
 
             if TempCDSEnvironment.Url = '' then
-                SendTraceTag('0000AVI', CategoryTok, VERBOSITY::Normal, EnvironmentUrlEmptyTxt, DataClassification::SystemMetadata)
+                Session.LogMessage('0000AVI', EnvironmentUrlEmptyTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok)
             else
                 if not TempCDSEnvironment.Insert() then
-                    SendTraceTag('0000AVJ', CategoryTok, VERBOSITY::Normal, CannotInsertEnvironmentTxt, DataClassification::SystemMetadata)
+                    Session.LogMessage('0000AVJ', CannotInsertEnvironmentTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok)
                 else
                     EnvironmentCount += 1;
         end;

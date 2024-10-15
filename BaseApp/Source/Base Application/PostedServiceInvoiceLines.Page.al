@@ -172,7 +172,7 @@ page 5951 "Posted Service Invoice Lines"
 
                     trigger OnAction()
                     begin
-                        ShowDimensions;
+                        ShowDimensions();
                     end;
                 }
                 action("Item &Tracking Entries")

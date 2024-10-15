@@ -395,7 +395,7 @@ codeunit 139033 "Test Job Queue Status"
         JobQueueLogEntry.DeleteAll();
     end;
 
-    local procedure CreateSalesDocument(var SalesHeader: Record "Sales Header"; DocumentType: Integer)
+    local procedure CreateSalesDocument(var SalesHeader: Record "Sales Header"; DocumentType: Enum "Sales Document Type")
     var
         SalesLine: Record "Sales Line";
     begin
@@ -419,7 +419,7 @@ codeunit 139033 "Test Job Queue Status"
         SalesLine.Modify(true);
     end;
 
-    local procedure CreatePurchaseDocument(var PurchaseHeader: Record "Purchase Header"; DocumentType: Integer)
+    local procedure CreatePurchaseDocument(var PurchaseHeader: Record "Purchase Header"; DocumentType: Enum "Purchase Document Type")
     var
         PurchaseLine: Record "Purchase Line";
         LibraryPurchase: Codeunit "Library - Purchase";
@@ -440,7 +440,7 @@ codeunit 139033 "Test Job Queue Status"
         PurchaseLine.Modify(true);
     end;
 
-    local procedure VerifySalesDocumentBackgroundPostingState(DocumentType: Option; JobQueueStatus: Option)
+    local procedure VerifySalesDocumentBackgroundPostingState(DocumentType: Enum "Sales Document Type"; JobQueueStatus: Option)
     var
         SalesHeader: Record "Sales Header";
         JobQueueEntry: Record "Job Queue Entry";
@@ -454,7 +454,7 @@ codeunit 139033 "Test Job Queue Status"
         InvokeJobStatusStateOnSalesDocument(SalesHeader);
     end;
 
-    local procedure VerifyPurchaseDocumentBackgroundPostingState(DocumentType: Option; JobQueueStatus: Option)
+    local procedure VerifyPurchaseDocumentBackgroundPostingState(DocumentType: Enum "Purchase Document Type"; JobQueueStatus: Option)
     var
         PurchaseHeader: Record "Purchase Header";
         JobQueueEntry: Record "Job Queue Entry";

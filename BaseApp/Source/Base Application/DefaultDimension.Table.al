@@ -90,7 +90,7 @@ table 352 "Default Dimension"
         }
         field(6; "Table Caption"; Text[250])
         {
-            CalcFormula = Lookup (AllObjWithCaption."Object Caption" WHERE("Object Type" = CONST(Table),
+            CalcFormula = Lookup(AllObjWithCaption."Object Caption" WHERE("Object Type" = CONST(Table),
                                                                            "Object ID" = FIELD("Table ID")));
             Caption = 'Table Caption';
             Editable = false;
@@ -102,35 +102,55 @@ table 352 "Default Dimension"
             OptionCaption = ' ,Change,Delete';
             OptionMembers = " ",Change,Delete;
         }
+        field(8; "Parent Type"; Enum "Default Dimension Parent Type")
+        {
+            Caption = 'Parent Type';
+
+            trigger OnValidate()
+            begin
+                case "Parent Type" of
+                    "Parent Type"::Customer:
+                        "Table ID" := Database::Customer;
+                    "Parent Type"::Employee:
+                        "Table ID" := Database::Employee;
+                    "Parent Type"::Item:
+                        "Table ID" := Database::Item;
+                    "Parent Type"::Vendor:
+                        "Table ID" := Database::Vendor;
+                end;
+            end;
+        }
         field(8000; ParentId; Guid)
         {
             Caption = 'ParentId';
             DataClassification = SystemMetadata;
-            TableRelation = IF ("Table ID" = CONST(15)) "G/L Account".Id
+            TableRelation = IF ("Table ID" = CONST(15)) "G/L Account".SystemId
             ELSE
-            IF ("Table ID" = CONST(18)) Customer.Id
+            IF ("Table ID" = CONST(18)) Customer.SystemId
             ELSE
-            IF ("Table ID" = CONST(23)) Vendor.Id
+            IF ("Table ID" = CONST(23)) Vendor.SystemId
             ELSE
-            IF ("Table ID" = CONST(5200)) Employee.Id;
+            IF ("Table ID" = CONST(5200)) Employee.SystemId;
 
             trigger OnValidate()
             begin
-                UpdateTableIdAndNo(ParentId);
+                if "Parent Type" <> "Parent Type"::" " then
+                    UpdateNo(ParentId, "Parent Type")
+                else
+                    UpdateTableIdAndNo(ParentId);
             end;
         }
         field(8001; DimensionId; Guid)
         {
             Caption = 'DimensionId';
             DataClassification = SystemMetadata;
-            TableRelation = Dimension.Id;
+            TableRelation = Dimension.SystemId;
 
             trigger OnValidate()
             var
                 Dimension: Record Dimension;
             begin
-                Dimension.SetRange(Id, DimensionId);
-                if not Dimension.FindFirst then
+                if not Dimension.GetBySystemId(DimensionId) then
                     Error(DimensionIdDoesNotMatchADimensionErr);
 
                 CheckDimension(Dimension.Code);
@@ -141,7 +161,7 @@ table 352 "Default Dimension"
         {
             Caption = 'DimensionValueId';
             DataClassification = SystemMetadata;
-            TableRelation = "Dimension Value".Id;
+            TableRelation = "Dimension Value".SystemId;
 
             trigger OnValidate()
             var
@@ -152,8 +172,7 @@ table 352 "Default Dimension"
                     exit;
                 end;
 
-                DimensionValue.SetRange(Id, DimensionValueId);
-                if not DimensionValue.FindFirst then
+                if not DimensionValue.GetBySystemId(DimensionValueId) then
                     Error(DimensionValueIdDoesNotMatchADimensionValueErr);
 
                 if "Dimension Code" = '' then
@@ -229,6 +248,8 @@ table 352 "Default Dimension"
         ParentIdDoesNotMatchAnIntegrationRecordErr: Label 'The "parenteId" does not match to any entity.', Locked = true;
         RequestedRecordIsNotSupportedErr: Label 'Images are not supported for requested entity - %1.', Locked = true;
         NoValidateErr: Label 'The field No. of table Default Dimension contains a value (%1) that cannot be found in the related table (%2).', Comment = '%1 - a master table record key value; %2 - table caption. ';
+        MultipleParentsFoundErr: Label 'Multiple parents have been found for the specified criteria.';
+        ParentNotFoundErr: Label 'Parent is not found.';
 
     procedure GetCaption(): Text[250]
     var
@@ -302,6 +323,14 @@ table 352 "Default Dimension"
                 UpdateNeutrPayGlobalDimCode(GlobalDimCodeNo, AccNo, NewDimValue);
             DATABASE::"Cash Flow Manual Revenue":
                 UpdateNeutrRevGlobalDimCode(GlobalDimCodeNo, AccNo, NewDimValue);
+            Database::"Vendor Templ.":
+                UpdateVendorTemplGlobalDimCode(GlobalDimCodeNo, AccNo, NewDimValue);
+            Database::"Customer Templ.":
+                UpdateCustomerTemplGlobalDimCode(GlobalDimCodeNo, AccNo, NewDimValue);
+            Database::"Item Templ.":
+                UpdateItemTemplGlobalDimCode(GlobalDimCodeNo, AccNo, NewDimValue);
+            Database::"Employee Templ.":
+                UpdateEmployeeTemplGlobalDimCode(GlobalDimCodeNo, AccNo, NewDimValue);
             else
                 OnAfterUpdateGlobalDimCode(GlobalDimCodeNo, TableID, AccNo, NewDimValue);
         end;
@@ -606,6 +635,38 @@ table 352 "Default Dimension"
         FieldRef.SetRange(Value);
     end;
 
+    local procedure UpdateNo(ParentId: Guid; ParentType: Enum "Default Dimension Parent Type")
+    var
+        Customer: Record Customer;
+        Item: Record Item;
+        Vendor: Record Vendor;
+        Employee: Record Employee;
+    begin
+        case ParentType of
+            "Parent Type"::Customer:
+                if Customer.GetBySystemId(ParentId) then begin
+                    "No." := Customer."No.";
+                    exit;
+                end;
+            "Parent Type"::Employee:
+                if Employee.GetBySystemId(ParentId) then begin
+                    "No." := Employee."No.";
+                    exit;
+                end;
+            "Parent Type"::Item:
+                if Item.GetBySystemId(ParentId) then begin
+                    "No." := Item."No.";
+                    exit;
+                end;
+            "Parent Type"::Vendor:
+                if Vendor.GetBySystemId(ParentId) then begin
+                    "No." := Vendor."No.";
+                    exit;
+                end;
+        end;
+        Error(ParentNotFoundErr);
+    end;
+
     local procedure UpdateTableIdAndNo(Id: Guid)
     var
         IntegrationRecord: Record "Integration Record";
@@ -613,36 +674,119 @@ table 352 "Default Dimension"
         Item: Record Item;
         Vendor: Record Vendor;
         Employee: Record Employee;
+        IntegrationManagement: Codeunit "Integration Management";
+        ParentRecordRef: RecordRef;
+        ParentRecordRefId: RecordId;
     begin
-        if not IntegrationRecord.Get(Id) then
-            Error(ParentIdDoesNotMatchAnIntegrationRecordErr);
+        if IntegrationManagement.GetIntegrationIsEnabledOnTheSystem() then begin
+            if not IntegrationRecord.Get(Id) then
+                Error(ParentIdDoesNotMatchAnIntegrationRecordErr);
+            ParentRecordRefId := IntegrationRecord."Record ID";
+        end else begin
+            if not GetRecordRefFromFilter(Id, ParentRecordRef) then
+                Error(ParentIdDoesNotMatchAnIntegrationRecordErr);
 
-        case IntegrationRecord."Table ID" of
+            ParentRecordRefId := ParentRecordRef.RecordId;
+        end;
+
+        case ParentRecordRefId.TableNo of
             DATABASE::Item:
                 begin
-                    Item.Get(IntegrationRecord."Record ID");
+                    Item.Get(ParentRecordRefId);
                     "No." := Item."No.";
+                    "Parent Type" := "Parent Type"::Item;
                 end;
             DATABASE::Customer:
                 begin
-                    Customer.Get(IntegrationRecord."Record ID");
+                    Customer.Get(ParentRecordRefId);
                     "No." := Customer."No.";
+                    "Parent Type" := "Parent Type"::Customer;
                 end;
             DATABASE::Vendor:
                 begin
-                    Vendor.Get(IntegrationRecord."Record ID");
+                    Vendor.Get(ParentRecordRefId);
                     "No." := Vendor."No.";
+                    "Parent Type" := "Parent Type"::Vendor;
                 end;
             DATABASE::Employee:
                 begin
-                    Employee.Get(IntegrationRecord."Record ID");
+                    Employee.Get(ParentRecordRefId);
                     "No." := Employee."No.";
+                    "Parent Type" := "Parent Type"::Employee;
                 end;
             else
-                ThrowEntityNotSupportedError(IntegrationRecord);
+                ThrowEntityNotSupportedError(ParentRecordRefId.TableNo);
         end;
 
-        "Table ID" := IntegrationRecord."Table ID";
+        "Table ID" := ParentRecordRefId.TableNo;
+    end;
+
+    local procedure GetRecordRefFromFilter(IDFilter: Text; var ParentRecordRef: RecordRef): Boolean
+    var
+        Customer: Record Customer;
+        Item: Record Item;
+        Vendor: Record Vendor;
+        Employee: Record Employee;
+        RecordFound: Boolean;
+    begin
+        Item.SetFilter(SystemId, IDFilter);
+        if Item.FindFirst() then begin
+            ParentRecordRef.GetTable(Item);
+            RecordFound := true;
+        end;
+
+        Customer.SetFilter(SystemId, IDFilter);
+        if Customer.FindFirst() then begin
+            if not RecordFound then begin
+                ParentRecordRef.GetTable(Customer);
+                RecordFound := true;
+            end else
+                Error(MultipleParentsFoundErr);
+        end;
+
+        Vendor.SetFilter(SystemId, IDFilter);
+        if Vendor.FindFirst() then begin
+            if not RecordFound then begin
+                ParentRecordRef.GetTable(Vendor);
+                RecordFound := true;
+            end else
+                Error(MultipleParentsFoundErr);
+        end;
+
+        Employee.SetFilter(SystemId, IDFilter);
+        if Employee.FindFirst() then begin
+            if not RecordFound then begin
+                ParentRecordRef.GetTable(Employee);
+                RecordFound := true;
+            end else
+                Error(MultipleParentsFoundErr);
+        end;
+
+        exit(RecordFound);
+    end;
+
+    local procedure UpdateParentType(): Boolean
+    var
+        NewParentType: Enum "Default Dimension Parent Type";
+    begin
+        case "Table ID" of
+            DATABASE::Item:
+                NewParentType := "Parent Type"::Item;
+            DATABASE::Customer:
+                NewParentType := "Parent Type"::Customer;
+            DATABASE::Vendor:
+                NewParentType := "Parent Type"::Vendor;
+            DATABASE::Employee:
+                NewParentType := "Parent Type"::Employee;
+            else
+                NewParentType := "Parent Type"::" ";
+        end;
+
+        if NewParentType = "Parent Type" then
+            exit(false);
+
+        "Parent Type" := NewParentType;
+        exit(true);
     end;
 
     local procedure UpdateParentId(): Boolean
@@ -655,25 +799,17 @@ table 352 "Default Dimension"
     begin
         case "Table ID" of
             DATABASE::Item:
-                begin
-                    if Item.Get("No.") then
-                        NewParentId := Item.Id;
-                end;
+                if Item.Get("No.") then
+                    NewParentId := Item.SystemId;
             DATABASE::Customer:
-                begin
-                    if Customer.Get("No.") then
-                        NewParentId := Customer.Id;
-                end;
+                if Customer.Get("No.") then
+                    NewParentId := Customer.SystemId;
             DATABASE::Vendor:
-                begin
-                    if Vendor.Get("No.") then
-                        NewParentId := Vendor.Id;
-                end;
+                if Vendor.Get("No.") then
+                    NewParentId := Vendor.SystemId;
             DATABASE::Employee:
-                begin
-                    if Employee.Get("No.") then
-                        NewParentId := Employee.Id;
-                end;
+                if Employee.Get("No.") then
+                    NewParentId := Employee.SystemId;
         end;
 
         if NewParentId = ParentId then
@@ -690,10 +826,10 @@ table 352 "Default Dimension"
         if not Dimension.Get("Dimension Code") then
             exit(false);
 
-        if DimensionId = Dimension.Id then
+        if DimensionId = Dimension.SystemId then
             exit(false);
 
-        DimensionId := Dimension.Id;
+        DimensionId := Dimension.SystemId;
         exit(true);
     end;
 
@@ -702,10 +838,10 @@ table 352 "Default Dimension"
         DimensionValue: Record "Dimension Value";
     begin
         if DimensionValue.Get("Dimension Code", "Dimension Value Code") then begin
-            if DimensionValueId = DimensionValue.Id then
+            if DimensionValueId = DimensionValue.SystemId then
                 exit(false);
 
-            DimensionValueId := DimensionValue.Id;
+            DimensionValueId := DimensionValue.SystemId;
             exit(true);
         end;
 
@@ -731,19 +867,80 @@ table 352 "Default Dimension"
         Modified: Boolean;
     begin
         Modified := UpdateParentId();
+        Modified := UpdateParentType();
         Modified := Modified or UpdateDimensionId();
         Modified := Modified or UpdateDimensionValueId();
         exit(Modified);
     end;
 
-    local procedure ThrowEntityNotSupportedError(var IntegrationRecord: Record "Integration Record")
+    local procedure ThrowEntityNotSupportedError(TableID: Integer)
     var
         AllObjWithCaption: Record AllObjWithCaption;
     begin
         AllObjWithCaption.SetRange("Object Type", AllObjWithCaption."Object Type"::Table);
-        AllObjWithCaption.SetRange("Object ID", IntegrationRecord."Table ID");
+        AllObjWithCaption.SetRange("Object ID", TableID);
         if AllObjWithCaption.FindFirst then;
         Error(StrSubstNo(RequestedRecordIsNotSupportedErr, AllObjWithCaption."Object Caption"));
+    end;
+
+    local procedure UpdateVendorTemplGlobalDimCode(GlobalDimCodeNo: Integer; VendorTemplCode: Code[20]; NewDimValue: Code[20])
+    var
+        VendorTempl: Record "Vendor Templ.";
+    begin
+        if VendorTempl.Get(VendorTemplCode) then begin
+            case GlobalDimCodeNo of
+                1:
+                    VendorTempl."Global Dimension 1 Code" := NewDimValue;
+                2:
+                    VendorTempl."Global Dimension 2 Code" := NewDimValue;
+            end;
+            VendorTempl.Modify(true);
+        end;
+    end;
+
+    local procedure UpdateCustomerTemplGlobalDimCode(GlobalDimCodeNo: Integer; CustomerTemplCode: Code[20]; NewDimValue: Code[20])
+    var
+        CustomerTempl: Record "Customer Templ.";
+    begin
+        if CustomerTempl.Get(CustomerTemplCode) then begin
+            case GlobalDimCodeNo of
+                1:
+                    CustomerTempl."Global Dimension 1 Code" := NewDimValue;
+                2:
+                    CustomerTempl."Global Dimension 2 Code" := NewDimValue;
+            end;
+            CustomerTempl.Modify(true);
+        end;
+    end;
+
+    local procedure UpdateItemTemplGlobalDimCode(GlobalDimCodeNo: Integer; ItemTemplCode: Code[20]; NewDimValue: Code[20])
+    var
+        ItemTempl: Record "Item Templ.";
+    begin
+        if ItemTempl.Get(ItemTemplCode) then begin
+            case GlobalDimCodeNo of
+                1:
+                    ItemTempl."Global Dimension 1 Code" := NewDimValue;
+                2:
+                    ItemTempl."Global Dimension 2 Code" := NewDimValue;
+            end;
+            ItemTempl.Modify(true);
+        end;
+    end;
+
+    local procedure UpdateEmployeeTemplGlobalDimCode(GlobalDimCodeNo: Integer; EmployeeTemplCode: Code[20]; NewDimValue: Code[20])
+    var
+        EmployeeTempl: Record "Employee Templ.";
+    begin
+        if EmployeeTempl.Get(EmployeeTemplCode) then begin
+            case GlobalDimCodeNo of
+                1:
+                    EmployeeTempl."Global Dimension 1 Code" := NewDimValue;
+                2:
+                    EmployeeTempl."Global Dimension 2 Code" := NewDimValue;
+            end;
+            EmployeeTempl.Modify(true);
+        end;
     end;
 }
 

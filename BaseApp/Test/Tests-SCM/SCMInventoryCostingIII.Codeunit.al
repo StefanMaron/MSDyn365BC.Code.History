@@ -991,7 +991,7 @@ codeunit 137288 "SCM Inventory Costing III"
           SalesLine, SalesLine."Document Type"::Order, CreateTrackedItem(false, '', LibraryUtility.GetGlobalNoSeriesCode),
           -LibraryRandom.RandInt(5));
         LibraryVariableStorage.Enqueue(TrackingOption::AssignSerialNo);  // Enqueue value for ItemTrackingLinesPageHandler.
-        SalesLine.OpenItemTrackingLines;
+        SalesLine.OpenItemTrackingLines();
         FindReservationEntry(TempReservationEntry, SalesLine."No.");
         PostSalesDocument(SalesLine, false);  // False for Invoice.
         EnqueueValuesForPostedItemTrackingLines(TempReservationEntry, UndoShipmentMessage, -1);  // Enqueue value for PostedItemTrackingLinesHandler.
@@ -1331,7 +1331,7 @@ codeunit 137288 "SCM Inventory Costing III"
         ProductionBOMHeader.Modify(true);
     end;
 
-    local procedure CreateAndPostItemJournalLine(var ItemJournalLine: Record "Item Journal Line"; ItemNo: Code[20]; TemplateType: Option; EntryType: Option)
+    local procedure CreateAndPostItemJournalLine(var ItemJournalLine: Record "Item Journal Line"; ItemNo: Code[20]; TemplateType: Enum "Item Journal Template Type"; EntryType: Enum "Item Ledger Document Type")
     var
         ItemJournalBatch: Record "Item Journal Batch";
         ItemJournalTemplate: Record "Item Journal Template";
@@ -1344,7 +1344,7 @@ codeunit 137288 "SCM Inventory Costing III"
         LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
     end;
 
-    local procedure CreateAndPostPurchaseDocumentWithTracking(var TempReservationEntry: Record "Reservation Entry" temporary; DocumentType: Option; ItemNo: Code[20]; ComfirmMessage: Text[1024]; SignFactor: Integer)
+    local procedure CreateAndPostPurchaseDocumentWithTracking(var TempReservationEntry: Record "Reservation Entry" temporary; DocumentType: Enum "Purchase Document Type"; ItemNo: Code[20]; ComfirmMessage: Text[1024]; SignFactor: Integer)
     var
         PurchaseLine: Record "Purchase Line";
         TrackingOption: Option AssignLotNo,AssignSerialNo,SelectEntries,ShowEntries,VerifyEntries;
@@ -1354,7 +1354,7 @@ codeunit 137288 "SCM Inventory Costing III"
         PostPurchaseDocument(PurchaseLine, false);  // False for Invoice.
     end;
 
-    local procedure CreateAndPostSalesDocWithApplFromItemEntry(var SalesLine: Record "Sales Line"; DocumentType: Option; No: Code[20]; Quantity: Decimal; ApplyFromItemEntry: Integer; Invoice: Boolean)
+    local procedure CreateAndPostSalesDocWithApplFromItemEntry(var SalesLine: Record "Sales Line"; DocumentType: Enum "Sales Document Type"; No: Code[20]; Quantity: Decimal; ApplyFromItemEntry: Integer; Invoice: Boolean)
     begin
         CreateSalesDocument(SalesLine, DocumentType, No, Quantity);
         SalesLine.Validate("Appl.-from Item Entry", ApplyFromItemEntry);
@@ -1373,7 +1373,7 @@ codeunit 137288 "SCM Inventory Costing III"
         LibraryVariableStorage.Enqueue(TrackingOption::AssignSerialNo);  // Enqueue value for ItemTrackingLinesPageHandler.
         if SNSpecific then
             LibraryVariableStorage.Enqueue(ConfirmMessage);
-        SalesLine.OpenItemTrackingLines;
+        SalesLine.OpenItemTrackingLines();
         FindReservationEntry(TempReservationEntry, SalesLine."No.");
         PostSalesDocument(SalesLine, false);  // False for Invoice.
     end;
@@ -1393,7 +1393,7 @@ codeunit 137288 "SCM Inventory Costing III"
         exit(Customer."No.");
     end;
 
-    local procedure CreateItem(ReplenishmentSystem: Option): Code[20]
+    local procedure CreateItem(ReplenishmentSystem: Enum "Replenishment System"): Code[20]
     var
         Item: Record Item;
     begin
@@ -1413,7 +1413,7 @@ codeunit 137288 "SCM Inventory Costing III"
         exit(ItemTrackingCode.Code);
     end;
 
-    local procedure CreatePurchaseDocumentWithTracking(var PurchaseLine: Record "Purchase Line"; DocumentType: Option; ItemNo: Code[20]; TrackingOption: Option; WarningsMessage: Text[1024]; SignFactor: Integer)
+    local procedure CreatePurchaseDocumentWithTracking(var PurchaseLine: Record "Purchase Line"; DocumentType: Enum "Purchase Document Type"; ItemNo: Code[20]; TrackingOption: Option; WarningsMessage: Text[1024]; SignFactor: Integer)
     var
         Item: Record Item;
         ItemTrackingCode: Record "Item Tracking Code";
@@ -1424,17 +1424,17 @@ codeunit 137288 "SCM Inventory Costing III"
         ItemTrackingCode.Get(Item."Item Tracking Code");
         if ItemTrackingCode."SN Specific Tracking" or ItemTrackingCode."Lot Specific Tracking" then
             LibraryVariableStorage.Enqueue(WarningsMessage);  // Enqueue value for ConfirmHandler.
-        PurchaseLine.OpenItemTrackingLines;
+        PurchaseLine.OpenItemTrackingLines();
     end;
 
-    local procedure CreatePurchaseLine(var PurchaseLine: Record "Purchase Line"; PurchaseHeader: Record "Purchase Header"; Type: Option; No: Code[20]; Quantity: Decimal; DirectUnitCost: Decimal)
+    local procedure CreatePurchaseLine(var PurchaseLine: Record "Purchase Line"; PurchaseHeader: Record "Purchase Header"; Type: Enum "Purchase Line Type"; No: Code[20]; Quantity: Decimal; DirectUnitCost: Decimal)
     begin
         LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, Type, No, Quantity);
         PurchaseLine.Validate("Direct Unit Cost", DirectUnitCost);
         PurchaseLine.Modify(true);
     end;
 
-    local procedure CreatePurchaseDocument(var PurchaseLine: Record "Purchase Line"; DocumentType: Option; VendorNo: Code[20]; ItemNo: Code[20]; Quantity: Integer)
+    local procedure CreatePurchaseDocument(var PurchaseLine: Record "Purchase Line"; DocumentType: Enum "Purchase Document Type"; VendorNo: Code[20]; ItemNo: Code[20]; Quantity: Integer)
     var
         PurchaseHeader: Record "Purchase Header";
     begin
@@ -1444,7 +1444,7 @@ codeunit 137288 "SCM Inventory Costing III"
         LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, ItemNo, Quantity);
     end;
 
-    local procedure CreateSalesDocument(var SalesLine: Record "Sales Line"; DocumentType: Option; No: Code[20]; Quantity: Decimal)
+    local procedure CreateSalesDocument(var SalesLine: Record "Sales Line"; DocumentType: Enum "Sales Document Type"; No: Code[20]; Quantity: Decimal)
     var
         SalesHeader: Record "Sales Header";
     begin
@@ -1459,7 +1459,7 @@ codeunit 137288 "SCM Inventory Costing III"
         CreateSalesDocument(SalesLine, SalesLine."Document Type"::Order, ItemNo, Quantity);
         LibraryVariableStorage.Enqueue(TrackingOption::SelectEntries);  // Enqueue value for ItemTrackingLinesPageHandler.
         LibraryVariableStorage.Enqueue(TrackingSummaryOption);  // Enqueue value for ItemTrackingSummaryPageHandler.
-        SalesLine.OpenItemTrackingLines;
+        SalesLine.OpenItemTrackingLines();
     end;
 
     local procedure CreateShipSalesOrderAndUndoShipment(var SalesLine: Record "Sales Line"; ItemNo: Code[20]; Quantity: Decimal)
@@ -1519,7 +1519,7 @@ codeunit 137288 "SCM Inventory Costing III"
         SalesShipmentLine.SetFilter("No.", ItemFilter, SalesLine."No.", ItemNo);
     end;
 
-    local procedure FindItemLedgerEntry(var ItemLedgerEntry: Record "Item Ledger Entry"; EntryType: Option; ItemNo: Code[20]; SalesAmountActual: Decimal; Open: Boolean)
+    local procedure FindItemLedgerEntry(var ItemLedgerEntry: Record "Item Ledger Entry"; EntryType: Enum "Item Ledger Document Type"; ItemNo: Code[20]; SalesAmountActual: Decimal; Open: Boolean)
     begin
         ItemLedgerEntry.SetRange("Entry Type", EntryType);
         ItemLedgerEntry.SetRange("Item No.", ItemNo);
@@ -1528,7 +1528,7 @@ codeunit 137288 "SCM Inventory Costing III"
         ItemLedgerEntry.FindFirst;
     end;
 
-    local procedure FindPurchaseLine(var PurchaseLine: Record "Purchase Line"; DocumentType: Option; No: Code[20])
+    local procedure FindPurchaseLine(var PurchaseLine: Record "Purchase Line"; DocumentType: Enum "Purchase Document Type"; No: Code[20])
     begin
         PurchaseLine.SetRange("Document Type", DocumentType);
         PurchaseLine.SetRange("No.", No);
@@ -1568,7 +1568,7 @@ codeunit 137288 "SCM Inventory Costing III"
         until ReservationEntry.Next = 0;
     end;
 
-    local procedure FindSalesLine(var SalesLine: Record "Sales Line"; DocumentType: Option; No: Code[20])
+    local procedure FindSalesLine(var SalesLine: Record "Sales Line"; DocumentType: Enum "Sales Document Type"; No: Code[20])
     begin
         SalesLine.SetRange("Document Type", DocumentType);
         SalesLine.SetRange("No.", No);
@@ -1582,7 +1582,7 @@ codeunit 137288 "SCM Inventory Costing III"
         SalesShipmentLine.FindFirst;
     end;
 
-    local procedure FindValueEntry(var ValueEntry: Record "Value Entry"; ItemNo: Code[20]; DocumentType: Option; DocumentLineNo: Integer)
+    local procedure FindValueEntry(var ValueEntry: Record "Value Entry"; ItemNo: Code[20]; DocumentType: Enum "Item Ledger Document Type"; DocumentLineNo: Integer)
     begin
         ValueEntry.SetRange("Item No.", ItemNo);
         ValueEntry.SetRange("Document Type", DocumentType);
@@ -1636,7 +1636,7 @@ codeunit 137288 "SCM Inventory Costing III"
         UndoReturnReceipt(SalesLine);
     end;
 
-    local procedure PurchaseInvoiceItemChargeAssign(var PurchaseHeader: Record "Purchase Header"; VendorNo: Code[20]; AppliesToDocType: Option; DocumentNo: Code[20]; LineNo: Integer; No: Code[20])
+    local procedure PurchaseInvoiceItemChargeAssign(var PurchaseHeader: Record "Purchase Header"; VendorNo: Code[20]; AppliesToDocType: Enum "Purchase Applies-to Document Type"; DocumentNo: Code[20]; LineNo: Integer; No: Code[20])
     var
         ItemChargeAssignmentPurch: Record "Item Charge Assignment (Purch)";
         PurchaseLine: Record "Purchase Line";
@@ -1664,7 +1664,7 @@ codeunit 137288 "SCM Inventory Costing III"
         EnqueueValuesForPostedItemTrackingLines(TempReservationEntry, UndoShipmentMessage, 1);  // Enqueue value for PostedItemTrackingLinesHandler.
     end;
 
-    local procedure SalesInvoiceItemChargeAssign(var SalesHeader: Record "Sales Header"; CustomerNo: Code[20]; AppliesToDocType: Option; DocumentNo: Code[20]; LineNo: Integer; No: Code[20])
+    local procedure SalesInvoiceItemChargeAssign(var SalesHeader: Record "Sales Header"; CustomerNo: Code[20]; AppliesToDocType: Enum "Sales Applies-to Document Type"; DocumentNo: Code[20]; LineNo: Integer; No: Code[20])
     var
         ItemChargeAssignmentSales: Record "Item Charge Assignment (Sales)";
         SalesLine: Record "Sales Line";
@@ -1748,7 +1748,7 @@ codeunit 137288 "SCM Inventory Costing III"
         LibrarySales.UndoSalesShipmentLine(SalesShipmentLine);
     end;
 
-    local procedure CreateProductionOrderAndPostConsumptionOutput(var ItemJournalLine: Record "Item Journal Line"; TemplateType: Option)
+    local procedure CreateProductionOrderAndPostConsumptionOutput(var ItemJournalLine: Record "Item Journal Line"; TemplateType: Enum "Item Journal Template Type")
     var
         Item: Record Item;
         ItemJournalTemplate: Record "Item Journal Template";
@@ -1854,7 +1854,7 @@ codeunit 137288 "SCM Inventory Costing III"
         LibraryVariableStorage.Enqueue(PurchaseLine.Quantity);
         LibraryVariableStorage.Enqueue(Count);
         LibraryVariableStorage.Enqueue(AvailabilityWarning);
-        PurchaseLine.OpenItemTrackingLines;
+        PurchaseLine.OpenItemTrackingLines();
     end;
 
     local procedure VerifyTrackingOnSalesLineAfterUndo(SalesLine: Record "Sales Line")
@@ -1867,10 +1867,10 @@ codeunit 137288 "SCM Inventory Costing III"
         LibraryVariableStorage.Enqueue(SalesLine.Quantity);
         LibraryVariableStorage.Enqueue(SalesLine.Quantity);
         LibraryVariableStorage.Enqueue(AvailabilityWarning);
-        SalesLine.OpenItemTrackingLines;
+        SalesLine.OpenItemTrackingLines();
     end;
 
-    local procedure VerifyValueEntry(DocumentType: Option; ItemNo: Code[20]; DocumentLineNo: Integer; ValuedQuantity: Decimal)
+    local procedure VerifyValueEntry(DocumentType: Enum "Item Ledger Document Type"; ItemNo: Code[20]; DocumentLineNo: Integer; ValuedQuantity: Decimal)
     var
         ValueEntry: Record "Value Entry";
     begin

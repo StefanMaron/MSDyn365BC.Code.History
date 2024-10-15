@@ -165,7 +165,7 @@ codeunit 134031 "ERM VAT With Payment Discount"
         PaymentDiscountOnSalesDocument(SalesHeader."Document Type"::"Credit Memo", CreateCurrency, -1);
     end;
 
-    local procedure PaymentDiscountOnSalesDocument(DocumentType: Option; CurrencyCode: Code[10]; AmountSign: Integer)
+    local procedure PaymentDiscountOnSalesDocument(DocumentType: Enum "Sales Document Type"; CurrencyCode: Code[10]; AmountSign: Integer)
     var
         SalesHeader: Record "Sales Header";
         OriginalPmtDiscPossible: Decimal;
@@ -225,7 +225,7 @@ codeunit 134031 "ERM VAT With Payment Discount"
         PaymentDiscountOnPurchDocument(PurchaseHeader."Document Type"::"Credit Memo", CreateCurrency, 1);
     end;
 
-    local procedure PaymentDiscountOnPurchDocument(DocumentType: Option; CurrencyCode: Code[10]; AmountSign: Integer)
+    local procedure PaymentDiscountOnPurchDocument(DocumentType: Enum "Purchase Document Type"; CurrencyCode: Code[10]; AmountSign: Integer)
     var
         PurchaseHeader: Record "Purchase Header";
         OriginalPmtDiscPossible: Decimal;
@@ -412,13 +412,13 @@ codeunit 134031 "ERM VAT With Payment Discount"
         AmountLCY := Round(LibraryERM.ConvertCurrency(AmountLCY, CurrencyCode, '', WorkDate));
     end;
 
-    local procedure CreateAndPostGenJournalLine(var GenJournalLine: Record "Gen. Journal Line"; DocumentType: Option; AccountType: Option; AccountNo: Code[20]; CurrencyCode: Code[10]; Amount: Decimal)
+    local procedure CreateAndPostGenJournalLine(var GenJournalLine: Record "Gen. Journal Line"; DocumentType: Enum "Gen. Journal Document Type"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; CurrencyCode: Code[10]; Amount: Decimal)
     begin
         CreateGeneralJnlLine(GenJournalLine, AccountType, DocumentType, AccountNo, Amount, CurrencyCode);
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
     end;
 
-    local procedure CreateAndPostPurchaseDocument(var PurchaseHeader: Record "Purchase Header"; PmtDiscExclVAT: Boolean; CurrencyCode: Code[10]; DocumentType: Option): Code[20]
+    local procedure CreateAndPostPurchaseDocument(var PurchaseHeader: Record "Purchase Header"; PmtDiscExclVAT: Boolean; CurrencyCode: Code[10]; DocumentType: Enum "Purchase Document Type"): Code[20]
     begin
         LibraryPmtDiscSetup.SetPmtDiscExclVAT(PmtDiscExclVAT);
         CreatePurchaseDocument(PurchaseHeader, CreateVendor, CurrencyCode, DocumentType);
@@ -427,7 +427,7 @@ codeunit 134031 "ERM VAT With Payment Discount"
         exit(LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true));
     end;
 
-    local procedure CreateAndPostSalesDocument(var SalesHeader: Record "Sales Header"; PmtDiscExclVAT: Boolean; CurrencyCode: Code[10]; DocumentType: Option) PostedInvoiceNo: Code[20]
+    local procedure CreateAndPostSalesDocument(var SalesHeader: Record "Sales Header"; PmtDiscExclVAT: Boolean; CurrencyCode: Code[10]; DocumentType: Enum "Sales Document Type") PostedInvoiceNo: Code[20]
     begin
         LibraryPmtDiscSetup.SetPmtDiscExclVAT(PmtDiscExclVAT);
         CreateSalesDocument(SalesHeader, CreateCustomer, CurrencyCode, DocumentType);
@@ -460,7 +460,7 @@ codeunit 134031 "ERM VAT With Payment Discount"
         exit(Customer."No.");
     end;
 
-    local procedure CreateGeneralJnlLine(var GenJournalLine: Record "Gen. Journal Line"; AccountType: Option; DocumentType: Option; AccountNo: Code[20]; Amount: Decimal; CurrencyCode: Code[10])
+    local procedure CreateGeneralJnlLine(var GenJournalLine: Record "Gen. Journal Line"; AccountType: Enum "Gen. Journal Account Type"; DocumentType: Enum "Gen. Journal Document Type"; AccountNo: Code[20]; Amount: Decimal; CurrencyCode: Code[10])
     var
         GenJournalBatch: Record "Gen. Journal Batch";
     begin
@@ -484,7 +484,7 @@ codeunit 134031 "ERM VAT With Payment Discount"
         exit(Item."No.");
     end;
 
-    local procedure CreatePurchaseDocument(var PurchaseHeader: Record "Purchase Header"; VendorNo: Code[20]; CurrencyCode: Code[10]; DocumentType: Option)
+    local procedure CreatePurchaseDocument(var PurchaseHeader: Record "Purchase Header"; VendorNo: Code[20]; CurrencyCode: Code[10]; DocumentType: Enum "Purchase Document Type")
     var
         PurchaseLine: Record "Purchase Line";
     begin
@@ -498,7 +498,7 @@ codeunit 134031 "ERM VAT With Payment Discount"
           PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, CreateItem, LibraryRandom.RandInt(10));
     end;
 
-    local procedure CreateSalesDocument(var SalesHeader: Record "Sales Header"; CustomerNo: Code[20]; CurrencyCode: Code[10]; DocumentType: Option)
+    local procedure CreateSalesDocument(var SalesHeader: Record "Sales Header"; CustomerNo: Code[20]; CurrencyCode: Code[10]; DocumentType: Enum "Sales Document Type")
     var
         SalesLine: Record "Sales Line";
     begin
@@ -555,7 +555,7 @@ codeunit 134031 "ERM VAT With Payment Discount"
         VerifyGLEntry(GenJournalLine."Document No.", CustomerPostingGroup."Payment Disc. Debit Acc.", AmountLCY);
     end;
 
-    local procedure SetupPmtDiscAndPostGenJournalLine(var GenJournalLine: Record "Gen. Journal Line"; PmtDiscExclVAT: Boolean; AccountType: Option; AccountNo: Code[20]; Amount: Decimal) DiscountAmount: Decimal
+    local procedure SetupPmtDiscAndPostGenJournalLine(var GenJournalLine: Record "Gen. Journal Line"; PmtDiscExclVAT: Boolean; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; Amount: Decimal) DiscountAmount: Decimal
     begin
         // Setup: Set value for Payment Discount Exclusive VAT on General Ledger Setup, Create General Journal Line.
         LibraryPmtDiscSetup.SetPmtDiscExclVAT(PmtDiscExclVAT);
@@ -566,7 +566,7 @@ codeunit 134031 "ERM VAT With Payment Discount"
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
     end;
 
-    local procedure VerifyCustomerLedgerEntry(DocumentNo: Code[20]; DocumentType: Option; OriginalPmtDiscPossible: Decimal)
+    local procedure VerifyCustomerLedgerEntry(DocumentNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type"; OriginalPmtDiscPossible: Decimal)
     var
         CustLedgerEntry: Record "Cust. Ledger Entry";
         Currency: Record Currency;
@@ -634,7 +634,7 @@ codeunit 134031 "ERM VAT With Payment Discount"
             GLEntry."Entry No."));
     end;
 
-    local procedure VerifyVendorLedgerEntry(DocumentNo: Code[20]; DocumentType: Option; OriginalPmtDiscPossible: Decimal)
+    local procedure VerifyVendorLedgerEntry(DocumentNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type"; OriginalPmtDiscPossible: Decimal)
     var
         VendorLedgerEntry: Record "Vendor Ledger Entry";
         Currency: Record Currency;

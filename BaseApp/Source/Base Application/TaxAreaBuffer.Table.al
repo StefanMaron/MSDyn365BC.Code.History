@@ -27,12 +27,10 @@ table 5504 "Tax Area Buffer"
             Caption = 'Id';
             DataClassification = SystemMetadata;
         }
-        field(9600; Type; Option)
+        field(9600; Type; Enum "Tax Buffer Type")
         {
             Caption = 'Type';
             DataClassification = SystemMetadata;
-            OptionCaption = 'Sales Tax,VAT', Locked = true;
-            OptionMembers = "Sales Tax",VAT;
         }
     }
 
@@ -169,12 +167,14 @@ table 5504 "Tax Area Buffer"
     begin
         TransferFields(VATBusinessPostingGroup, true);
         Type := Type::VAT;
+        Id := VATBusinessPostingGroup.SystemId;
     end;
 
     local procedure UpdateFromTaxArea(var TaxArea: Record "Tax Area")
     begin
         TransferFields(TaxArea, true);
         Type := Type::"Sales Tax";
+        Id := TaxArea.SystemId;
         Description := TaxArea.GetDescriptionInCurrentLanguage;
     end;
 
@@ -184,15 +184,15 @@ table 5504 "Tax Area Buffer"
         VATBusinessPostingGroup: Record "VAT Business Posting Group";
         TaxArea: Record "Tax Area";
     begin
+        if IsNullGuid(TaxAreaId) then
+            exit('');
+
         if GeneralLedgerSetup.UseVat then begin
-            VATBusinessPostingGroup.SetRange(Id, TaxAreaId);
-            if VATBusinessPostingGroup.FindFirst then
+            if VATBusinessPostingGroup.GetBySystemId(TaxAreaId) then
                 exit(VATBusinessPostingGroup.Description);
-        end else begin
-            TaxArea.SetRange(Id, TaxAreaId);
-            if TaxArea.FindFirst then
+        end else
+            if TaxArea.GetBySystemId(TaxAreaId) then
                 exit(TaxArea.GetDescriptionInCurrentLanguage);
-        end;
 
         exit('');
     end;

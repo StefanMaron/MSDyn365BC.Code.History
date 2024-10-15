@@ -118,7 +118,7 @@ codeunit 1354 "Generate Activity Telemetry"
         TraceTagMessage: Text;
     begin
         TraceTagMessage := StrSubstNo(TraceTagTelemetryMsg, RecordName, RecordCount);
-        SendTraceTag(Tag, AlCompanyActivityCategoryTxt, VERBOSITY::Normal, TraceTagMessage, DATACLASSIFICATION::SystemMetadata);
+        Session.LogMessage(Tag, TraceTagMessage, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', AlCompanyActivityCategoryTxt);
     end;
 
     local procedure EmitTelemetryOnRecordCount(RecordName: Text; Tag: Text)

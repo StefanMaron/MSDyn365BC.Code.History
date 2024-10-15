@@ -466,7 +466,7 @@ table 1293 "Payment Application Proposal"
         Vendor: Record Vendor;
         GLAccount: Record "G/L Account";
         BankAccount: Record "Bank Account";
-        AccountType: Option;
+        AccountType: Enum "Gen. Journal Account Type";
         AccountNo: Code[20];
     begin
         AccountType := GetAppliedToAccountType;
@@ -501,7 +501,7 @@ table 1293 "Payment Application Proposal"
         Vendor: Record Vendor;
         GLAccount: Record "G/L Account";
         BankAccount: Record "Bank Account";
-        AccountType: Option;
+        AccountType: Enum "Gen. Journal Account Type";
         AccountNo: Code[20];
         Name: Text;
     begin
@@ -527,7 +527,7 @@ table 1293 "Payment Application Proposal"
         exit(Name);
     end;
 
-    local procedure GetAppliedToAccountType(): Integer
+    local procedure GetAppliedToAccountType(): Enum "Gen. Journal Account Type"
     var
         BankAccountLedgerEntry: Record "Bank Account Ledger Entry";
     begin

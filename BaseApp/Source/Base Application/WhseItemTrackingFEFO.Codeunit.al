@@ -32,6 +32,7 @@ codeunit 7326 "Whse. Item Tracking FEFO"
     local procedure SummarizeInventoryFEFO(Location: Record Location; ItemNo: Code[20]; VariantCode: Code[10]; HasExpirationDate: Boolean)
     var
         ItemLedgEntry: Record "Item Ledger Entry";
+        ItemTrackingSetup: Record "Item Tracking Setup";
         IsHandled: Boolean;
         NonReservedQtyLotSN: Decimal;
     begin
@@ -55,32 +56,31 @@ codeunit 7326 "Whse. Item Tracking FEFO"
             if IsEmpty then
                 exit;
 
-            FindSet;
+            FindSet();
             repeat
                 NonReservedQtyLotSN := 0;
-                SetRange("Lot No.", "Lot No.");
-                SetRange("Serial No.", "Serial No.");
-                FindSet;
-                if not IsItemTrackingBlocked("Item No.", "Variant Code", "Lot No.", "Serial No.") then
+                SetTrackingFilterFromItemLedgEntry(ItemLedgEntry);
+                ItemTrackingSetup.CopyTrackingFromItemLedgerEntry(ItemLedgEntry);
+                FindSet();
+                if not IsItemTrackingBlocked("Item No.", "Variant Code", ItemTrackingSetup) then
                     repeat
                         CalcFields("Reserved Quantity");
                         NonReservedQtyLotSN += "Remaining Quantity" - ("Reserved Quantity" - CalcReservedToSource("Entry No."));
-                    until Next = 0;
+                    until Next() = 0;
 
                 if NonReservedQtyLotSN - CalcNonRegisteredQtyOutstanding(
-                     "Item No.", "Variant Code", "Location Code", "Lot No.", "Serial No.", HasExpirationDate) > 0
+                     "Item No.", "Variant Code", "Location Code", ItemTrackingSetup, HasExpirationDate) > 0
                 then begin
                     OnSummarizeInventoryFEFOOnBeforeInsertEntrySummaryFEFO(TempGlobalEntrySummary, ItemLedgEntry);
-                    InsertEntrySummaryFEFO("Lot No.", "Serial No.", "Expiration Date");
+                    InsertEntrySummaryFEFO(ItemTrackingSetup, "Expiration Date");
                 end;
 
-                SetRange("Lot No.");
-                SetRange("Serial No.");
+                ClearTrackingFilter();
             until Next = 0;
         end;
     end;
 
-    local procedure CalcNonRegisteredQtyOutstanding(ItemNo: Code[20]; VariantCode: Code[10]; LocationCode: Code[10]; LotNo: Code[50]; SerialNo: Code[50]; HasExpirationDate: Boolean): Decimal
+    local procedure CalcNonRegisteredQtyOutstanding(ItemNo: Code[20]; VariantCode: Code[10]; LocationCode: Code[10]; WhseItemTrackingSetup: Record "Item Tracking Setup"; HasExpirationDate: Boolean): Decimal
     var
         WarehouseActivityLine: Record "Warehouse Activity Line";
     begin
@@ -93,8 +93,7 @@ codeunit 7326 "Whse. Item Tracking FEFO"
             SetRange("Item No.", ItemNo);
             SetRange("Variant Code", VariantCode);
             SetRange("Location Code", LocationCode);
-            SetRange("Lot No.", LotNo);
-            SetRange("Serial No.", SerialNo);
+            SetTrackingFilterFromItemTrackingSetup(WhseItemTrackingSetup);
             if HasExpirationDate then
                 SetFilter("Expiration Date", '<>%1', 0D)
             else
@@ -107,6 +106,7 @@ codeunit 7326 "Whse. Item Tracking FEFO"
     local procedure SummarizeAdjustmentBinFEFO(Location: Record Location; ItemNo: Code[20]; VariantCode: Code[10])
     var
         WhseEntry: Record "Warehouse Entry";
+        ItemTrackingSetup: Record "Item Tracking Setup";
         ItemTrackingMgt: Codeunit "Item Tracking Management";
         ExpirationDate: Date;
         EntriesExist: Boolean;
@@ -114,67 +114,80 @@ codeunit 7326 "Whse. Item Tracking FEFO"
         if Location."Adjustment Bin Code" = '' then
             exit;
 
-        with WhseEntry do begin
-            Reset;
-            SetCurrentKey("Item No.", "Bin Code", "Location Code", "Variant Code", "Unit of Measure Code", "Lot No.", "Serial No.");
-            SetRange("Item No.", ItemNo);
-            SetRange("Bin Code", Location."Adjustment Bin Code");
-            SetRange("Location Code", Location.Code);
-            SetRange("Variant Code", VariantCode);
-            if IsEmpty then
-                exit;
+        WhseEntry.Reset();
+        WhseEntry.SetCurrentKey("Item No.", "Bin Code", "Location Code", "Variant Code", "Unit of Measure Code", "Lot No.", "Serial No.");
+        WhseEntry.SetRange("Item No.", ItemNo);
+        WhseEntry.SetRange("Bin Code", Location."Adjustment Bin Code");
+        WhseEntry.SetRange("Location Code", Location.Code);
+        WhseEntry.SetRange("Variant Code", VariantCode);
+        if WhseEntry.IsEmpty then
+            exit;
 
-            if FindSet then
-                repeat
-                    if not EntrySummaryFEFOExists("Lot No.", "Serial No.") then
-                        if CalcAvailQtyOnWarehouse(WhseEntry) <> 0 then
-                            if not IsItemTrackingBlocked("Item No.", "Variant Code", "Lot No.", "Serial No.") then begin
-                                ExpirationDate :=
-                                  ItemTrackingMgt.WhseExistingExpirationDate(
-                                    "Item No.", "Variant Code", Location, "Lot No.", "Serial No.", EntriesExist);
+        if WhseEntry.FindSet() then
+            repeat
+                ItemTrackingSetup.CopyTrackingFromWhseEntry(WhseEntry);
+                if not EntrySummaryFEFOExists(ItemTrackingSetup) then
+                    if CalcAvailQtyOnWarehouse(WhseEntry) <> 0 then
+                        if not IsItemTrackingBlocked(WhseEntry."Item No.", WhseEntry."Variant Code", ItemTrackingSetup) then begin
+                            ExpirationDate :=
+                                ItemTrackingMgt.WhseExistingExpirationDate(
+                                    WhseEntry."Item No.", WhseEntry."Variant Code", Location, ItemTrackingSetup, EntriesExist);
 
-                                if not EntriesExist then
-                                    ExpirationDate := 0D;
+                            if not EntriesExist then
+                                ExpirationDate := 0D;
 
-                                OnSummarizeAdjustmentBinFEFOOnBeforeInsertEntrySummaryFEFO(TempGlobalEntrySummary, WhseEntry);
-                                InsertEntrySummaryFEFO("Lot No.", "Serial No.", ExpirationDate);
-                            end;
-                until Next = 0;
-        end;
+                            OnSummarizeAdjustmentBinFEFOOnBeforeInsertEntrySummaryFEFO(TempGlobalEntrySummary, WhseEntry);
+                            InsertEntrySummaryFEFO(ItemTrackingSetup, ExpirationDate);
+                        end;
+            until WhseEntry.Next() = 0;
     end;
 
     local procedure InitEntrySummaryFEFO()
     begin
-        with TempGlobalEntrySummary do begin
-            DeleteAll();
-            Reset;
-            SetCurrentKey("Lot No.", "Serial No.");
-        end;
+        TempGlobalEntrySummary.DeleteAll();
+        TempGlobalEntrySummary.Reset();
+        TempGlobalEntrySummary.SetCurrentKey("Lot No.", "Serial No.");
     end;
 
+    [Obsolete('Replaced by same procedure with parameter ItemTrackingSetup.', '17.0')]
     procedure InsertEntrySummaryFEFO(LotNo: Code[50]; SerialNo: Code[50]; ExpirationDate: Date)
+    var
+        WhseItemTrackingSetup: Record "Item Tracking Setup";
     begin
-        with TempGlobalEntrySummary do
-            if (not StrictExpirationPosting) or (ExpirationDate >= WorkDate) then begin
-                Init;
-                "Entry No." := LastSummaryEntryNo + 1;
-                "Serial No." := SerialNo;
-                "Lot No." := LotNo;
-                "Expiration Date" := ExpirationDate;
-                OnBeforeInsertEntrySummaryFEFO(TempGlobalEntrySummary);
-                Insert;
-                LastSummaryEntryNo := "Entry No.";
-            end else
-                HasExpiredItems := true;
+        WhseItemTrackingSetup."Serial No." := SerialNo;
+        WhseItemTrackingSetup."Lot No." := LotNo;
+        InsertEntrySummaryFEFO(WhseItemTrackingSetup, ExpirationDate);
     end;
 
-    procedure EntrySummaryFEFOExists(LotNo: Code[50]; SerialNo: Code[50]): Boolean
+    procedure InsertEntrySummaryFEFO(ItemTrackingSetup: Record "Item Tracking Setup"; ExpirationDate: Date)
     begin
-        with TempGlobalEntrySummary do begin
-            SetTrackingFilter(SerialNo, LotNo);
-            OnEntrySummaryFEFOExistsOnAfterSetFilters(TempGlobalEntrySummary);
-            exit(FindSet);
-        end;
+        if (not StrictExpirationPosting) or (ExpirationDate >= WorkDate) then begin
+            TempGlobalEntrySummary.Init();
+            TempGlobalEntrySummary."Entry No." := LastSummaryEntryNo + 1;
+            TempGlobalEntrySummary.CopyTrackingFromItemTrackingSetup(ItemTrackingSetup);
+            TempGlobalEntrySummary."Expiration Date" := ExpirationDate;
+            OnBeforeInsertEntrySummaryFEFO(TempGlobalEntrySummary);
+            TempGlobalEntrySummary.Insert();
+            LastSummaryEntryNo := TempGlobalEntrySummary."Entry No.";
+        end else
+            HasExpiredItems := true;
+    end;
+
+    [Obsolete('Replaced by same procedure with parameter ItemTrackingSetup.', '17.0')]
+    procedure EntrySummaryFEFOExists(LotNo: Code[50]; SerialNo: Code[50]): Boolean
+    var
+        WhseItemTrackingSetup: Record "Item Tracking Setup";
+    begin
+        WhseItemTrackingSetup."Serial No." := SerialNo;
+        WhseItemTrackingSetup."Lot No." := LotNo;
+        EntrySummaryFEFOExists(WhseItemTrackingSetup);
+    end;
+
+    procedure EntrySummaryFEFOExists(ItemTrackingSetup: Record "Item Tracking Setup"): Boolean
+    begin
+        TempGlobalEntrySummary.SetTrackingFilterFromItemTrackingSetup(ItemTrackingSetup);
+        OnEntrySummaryFEFOExistsOnAfterSetFilters(TempGlobalEntrySummary);
+        exit(TempGlobalEntrySummary.FindSet());
     end;
 
     procedure FindFirstEntrySummaryFEFO(var EntrySummary: Record "Entry Summary"): Boolean
@@ -278,30 +291,29 @@ codeunit 7326 "Whse. Item Tracking FEFO"
     var
         WarehouseEntry: Record "Warehouse Entry";
     begin
-        with WarehouseEntry do begin
-            CopyFilters(WhseEntry);
-            SetRange("Lot No.", WhseEntry."Lot No.");
-            SetRange("Serial No.", WhseEntry."Serial No.");
-            CalcSums(Quantity);
-            exit(Quantity);
-        end;
+        WarehouseEntry.CopyFilters(WhseEntry);
+        WarehouseEntry.SetTrackingFilterFromWhseEntry(WhseEntry);
+        WarehouseEntry.CalcSums(Quantity);
+        exit(WarehouseEntry.Quantity);
     end;
 
-    local procedure IsItemTrackingBlocked(ItemNo: Code[20]; VariantCode: Code[10]; LotNo: Code[50]; SerialNo: Code[50]): Boolean
+    local procedure IsItemTrackingBlocked(ItemNo: Code[20]; VariantCode: Code[10]; ItemTrackingSetup: Record "Item Tracking Setup"): Boolean
     var
         LotNoInformation: Record "Lot No. Information";
         SerialNoInformation: Record "Serial No. Information";
         IsBlocked: Boolean;
     begin
-        if LotNoInformation.Get(ItemNo, VariantCode, LotNo) then
-            if LotNoInformation.Blocked then
-                exit(true);
-        if SerialNoInformation.Get(ItemNo, VariantCode, SerialNo) then
-            if SerialNoInformation.Blocked then
-                exit(true);
+        if ItemTrackingSetup."Lot No." <> '' then
+            if LotNoInformation.Get(ItemNo, VariantCode, ItemTrackingSetup."Lot No.") then
+                if LotNoInformation.Blocked then
+                    exit(true);
+        if ItemTrackingSetup."Serial No." <> '' then
+            if SerialNoInformation.Get(ItemNo, VariantCode, ItemTrackingSetup."Serial No.") then
+                if SerialNoInformation.Blocked then
+                    exit(true);
 
         IsBlocked := false;
-        OnAfterIsItemTrackingBlocked(SourceReservationEntry, ItemNo, VariantCode, LotNo, IsBlocked);
+        OnAfterIsItemTrackingBlocked(SourceReservationEntry, ItemNo, VariantCode, ItemTrackingSetup."Lot No.", IsBlocked);
 
         exit(IsBlocked);
     end;

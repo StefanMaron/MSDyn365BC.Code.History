@@ -14,6 +14,42 @@ report 6646 "Sales - Return Receipt"
             column(No_ReturnRcptHeader; "No.")
             {
             }
+            column(SellToContactPhoneNoLbl; SellToContactPhoneNoLbl)
+            {
+            }
+            column(SellToContactMobilePhoneNoLbl; SellToContactMobilePhoneNoLbl)
+            {
+            }
+            column(SellToContactEmailLbl; SellToContactEmailLbl)
+            {
+            }
+            column(BillToContactPhoneNoLbl; BillToContactPhoneNoLbl)
+            {
+            }
+            column(BillToContactMobilePhoneNoLbl; BillToContactMobilePhoneNoLbl)
+            {
+            }
+            column(BillToContactEmailLbl; BillToContactEmailLbl)
+            {
+            }
+            column(SellToContactPhoneNo; SellToContact."Phone No.")
+            {
+            }
+            column(SellToContactMobilePhoneNo; SellToContact."Mobile Phone No.")
+            {
+            }
+            column(SellToContactEmail; SellToContact."E-Mail")
+            {
+            }
+            column(BillToContactPhoneNo; BillToContact."Phone No.")
+            {
+            }
+            column(BillToContactMobilePhoneNo; BillToContact."Mobile Phone No.")
+            {
+            }
+            column(BillToContactEmail; BillToContact."E-Mail")
+            {
+            }
             column(PlusGiroNoCaption; PlusGiroNoCaptionLbl)
             {
             }
@@ -313,7 +349,7 @@ report 6646 "Sales - Return Receipt"
                                 CurrReport.Skip();
 
                             DimSetEntry2.SetRange("Dimension Set ID", "Dimension Set ID");
-                            TypeInt := Type;
+                            TypeInt := Type.AsInteger();
                         end;
 
                         trigger OnPreDataItem()
@@ -406,6 +442,8 @@ report 6646 "Sales - Return Receipt"
 
                 FormatAddressFields("Return Receipt Header");
                 FormatDocumentFields("Return Receipt Header");
+                if SellToContact.Get("Sell-to Contact No.") then;
+                if BillToContact.Get("Bill-to Contact No.") then;
 
                 DimSetEntry1.SetRange("Dimension Set ID", "Dimension Set ID");
             end;
@@ -515,6 +553,8 @@ report 6646 "Sales - Return Receipt"
         DimSetEntry2: Record "Dimension Set Entry";
         RespCenter: Record "Responsibility Center";
         SalesSetup: Record "Sales & Receivables Setup";
+        SellToContact: Record Contact;
+        BillToContact: Record Contact;
         FormatAddr: Codeunit "Format Address";
         FormatDocument: Codeunit "Format Document";
         SegManagement: Codeunit SegManagement;
@@ -551,6 +591,12 @@ report 6646 "Sales - Return Receipt"
         HeaderDimensionsCaptionLbl: Label 'Header Dimensions';
         LineDimensionsCaptionLbl: Label 'Line Dimensions';
         BilltoAddressCaptionLbl: Label 'Bill-to Address';
+        SellToContactPhoneNoLbl: Label 'Sell-to Contact Phone No.';
+        SellToContactMobilePhoneNoLbl: Label 'Sell-to Contact Mobile Phone No.';
+        SellToContactEmailLbl: Label 'Sell-to Contact E-Mail';
+        BillToContactPhoneNoLbl: Label 'Bill-to Contact Phone No.';
+        BillToContactMobilePhoneNoLbl: Label 'Bill-to Contact Mobile Phone No.';
+        BillToContactEmailLbl: Label 'Bill-to Contact E-Mail';
         PlusGiroNoCaptionLbl: Label 'Plus Giro No.';
         BoardOfDirLocCaptionLbl: Label 'Board of Directors Location (registered office)';
         CompHasTaxAssNoteCaptionLbl: Label 'Company has Tax Assessment Note';

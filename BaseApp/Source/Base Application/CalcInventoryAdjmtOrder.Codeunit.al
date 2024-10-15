@@ -142,37 +142,37 @@ codeunit 5896 "Calc. Inventory Adjmt. - Order"
     begin
         with InvtAdjmtEntryOrder do begin
             if HasNewCost("Direct Cost", "Direct Cost (ACY)") or not "Completely Invoiced" then
-                InvtAdjmtBuffer.AddOrderCost(
-                  ItemLedgEntry."Entry No.", InvtAdjmtBuffer."Entry Type"::"Direct Cost", 0, "Direct Cost", "Direct Cost (ACY)");
+                InvtAdjmtBuffer.AddCost(
+                  ItemLedgEntry."Entry No.", InvtAdjmtBuffer."Entry Type"::"Direct Cost", "Cost Variance Type"::" ", "Direct Cost", "Direct Cost (ACY)");
             if HasNewCost("Indirect Cost", "Indirect Cost (ACY)") then
-                InvtAdjmtBuffer.AddOrderCost(
-                  ItemLedgEntry."Entry No.", InvtAdjmtBuffer."Entry Type"::"Indirect Cost", 0, "Indirect Cost", "Indirect Cost (ACY)");
+                InvtAdjmtBuffer.AddCost(
+                  ItemLedgEntry."Entry No.", InvtAdjmtBuffer."Entry Type"::"Indirect Cost", "Cost Variance Type"::" ", "Indirect Cost", "Indirect Cost (ACY)");
 
             if Item."Costing Method" <> Item."Costing Method"::Standard then
                 exit;
 
             if HasNewCost("Single-Level Material Cost", "Single-Lvl Material Cost (ACY)") then
-                InvtAdjmtBuffer.AddOrderCost(ItemLedgEntry."Entry No.",
+                InvtAdjmtBuffer.AddCost(ItemLedgEntry."Entry No.",
                   InvtAdjmtBuffer."Entry Type"::Variance, InvtAdjmtBuffer."Variance Type"::Material,
                   "Single-Level Material Cost", "Single-Lvl Material Cost (ACY)");
 
             if HasNewCost("Single-Level Capacity Cost", "Single-Lvl Capacity Cost (ACY)") then
-                InvtAdjmtBuffer.AddOrderCost(ItemLedgEntry."Entry No.",
+                InvtAdjmtBuffer.AddCost(ItemLedgEntry."Entry No.",
                   InvtAdjmtBuffer."Entry Type"::Variance, InvtAdjmtBuffer."Variance Type"::Capacity,
                   "Single-Level Capacity Cost", "Single-Lvl Capacity Cost (ACY)");
 
             if HasNewCost("Single-Level Cap. Ovhd Cost", "Single-Lvl Cap. Ovhd Cost(ACY)") then
-                InvtAdjmtBuffer.AddOrderCost(ItemLedgEntry."Entry No.",
+                InvtAdjmtBuffer.AddCost(ItemLedgEntry."Entry No.",
                   InvtAdjmtBuffer."Entry Type"::Variance, InvtAdjmtBuffer."Variance Type"::"Capacity Overhead",
                   "Single-Level Cap. Ovhd Cost", "Single-Lvl Cap. Ovhd Cost(ACY)");
 
             if HasNewCost("Single-Level Mfg. Ovhd Cost", "Single-Lvl Mfg. Ovhd Cost(ACY)") then
-                InvtAdjmtBuffer.AddOrderCost(ItemLedgEntry."Entry No.",
+                InvtAdjmtBuffer.AddCost(ItemLedgEntry."Entry No.",
                   InvtAdjmtBuffer."Entry Type"::Variance, InvtAdjmtBuffer."Variance Type"::"Manufacturing Overhead",
                   "Single-Level Mfg. Ovhd Cost", "Single-Lvl Mfg. Ovhd Cost(ACY)");
 
             if HasNewCost("Single-Level Subcontrd. Cost", "Single-Lvl Subcontrd Cost(ACY)") then
-                InvtAdjmtBuffer.AddOrderCost(ItemLedgEntry."Entry No.",
+                InvtAdjmtBuffer.AddCost(ItemLedgEntry."Entry No.",
                   InvtAdjmtBuffer."Entry Type"::Variance, InvtAdjmtBuffer."Variance Type"::Subcontracted,
                   "Single-Level Subcontrd. Cost", "Single-Lvl Subcontrd Cost(ACY)");
         end;

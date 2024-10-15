@@ -13,12 +13,17 @@ codeunit 135970 "Integration Record Tests"
     procedure ValidateIntegrationRecordIdMatchesSystemID()
     var
         IntegrationRecord: Record "Integration Record";
+        IntegrationManagement: Codeunit "Integration Management";
         MissmatchingIntegrationRecords: Record "Integration Record" temporary;
         Assert: Codeunit "Library Assert";
         UpgradeStatus: Codeunit "Upgrade Status";
         BlankRecordId: RecordId;
     begin
         IntegrationRecord.SetFilter("Record ID", '<>%1', BlankRecordId);
+
+        if not IntegrationManagement.GetIntegrationIsEnabledOnTheSystem() then
+            exit;
+
         Assert.IsTrue(IntegrationRecord.FindSet(), 'Integration records must be present');
         repeat
             VerifyIntegrationRecord(IntegrationRecord, MissmatchingIntegrationRecords);

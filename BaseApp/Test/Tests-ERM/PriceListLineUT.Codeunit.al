@@ -25,10 +25,19 @@ codeunit 134123 "Price List Line UT"
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         StartingDateErr: Label 'Starting Date cannot be after Ending Date.';
         CampaignDateErr: Label 'If Source Type is Campaign, then you can only change Starting Date and Ending Date from the Campaign Card.';
-        AssetTypeForUOMErr: Label 'Asset Type must be equal to Item or Resource.';
-        AssetTypeMustBeItemErr: Label 'Asset Type must be equal to ''Item''';
+        AssetTypeForUOMErr: Label 'Product Type must be equal to Item or Resource.';
+        AssetTypeMustBeItemErr: Label 'Product Type must be equal to ''Item''';
+        AssetTypeMustBeResourceErr: Label 'Product Type must be equal to ''Resource''';
+        AssetNoMustHaveValueErr: Label 'Product No. must have a value';
         NotPostingJobTaskTypeErr: Label 'Job Task Type must be equal to ''Posting''';
         WrongPriceListCodeErr: Label 'The field Price List Code of table Price List Line contains a value (%1) that cannot be found';
+        WorkTypeCodeMustBeEmptyErr: Label 'Work Type Code can be set only if the product type is resourse or resource group.';
+        FieldNotAllowedForAmountTypeErr: Label 'Field %1 is not allowed in the price list line where %2 is %3.',
+            Comment = '%1 - the field caption; %2 - Amount Type field caption; %3 - amount type value: Discount or Price';
+        AmountTypeMustBeDiscountErr: Label 'Defines must be equal to ''Discount''';
+        ItemDiscGroupMustNotBePurchaseErr: Label 'Product Type must not be Item Discount Group';
+        LineSourceTypeErr: Label 'cannot be set to %1 if the header''s source type is %2.', Comment = '%1 and %2 - the source type value.';
+        SourceTypeMustBeErr: Label 'Applies-to Type must be equal to ''%1''', Comment = '%1 - source type value';
         IsInitialized: Boolean;
 
     [Test]
@@ -49,7 +58,7 @@ codeunit 134123 "Price List Line UT"
         LibraryInventory.CreateItemUnitOfMeasureCode(ItemUnitofMeasure, Item."No.", 134123);
         // [GIVEN] Price List Line, where "Asset Type" is Item, "Asset No."" is 'I'
         PriceListLine.Init();
-        PriceListLine.Validate("Asset Type", PriceListLine."Asset Type"::Item);
+        PriceListLine.Validate("Asset Type", "Price Asset Type"::Item);
         PriceListLine.Validate("Asset No.", Item."No.");
         PriceListLine.Insert();
 
@@ -82,7 +91,7 @@ codeunit 134123 "Price List Line UT"
         LibraryInventory.CreateItemVariant(ItemVariant, Item."No.");
         // [GIVEN] Price List Line, where "Asset Type" is Item, "Asset No."" is 'I'
         PriceListLine.Init();
-        PriceListLine.Validate("Asset Type", PriceListLine."Asset Type"::Item);
+        PriceListLine.Validate("Asset Type", "Price Asset Type"::Item);
         PriceListLine.Validate("Asset No.", Item."No.");
         PriceListLine.Insert();
 
@@ -116,7 +125,7 @@ codeunit 134123 "Price List Line UT"
         LibraryResource.CreateResourceUnitOfMeasure(ResourceUnitofMeasure, Resource."No.", UnitofMeasure.Code, 1);
         // [GIVEN] Price List Line, where "Asset Type" is Resource, "Asset No."" is 'R'
         PriceListLine.Init();
-        PriceListLine.Validate("Asset Type", PriceListLine."Asset Type"::Resource);
+        PriceListLine.Validate("Asset Type", "Price Asset Type"::Resource);
         PriceListLine.Validate("Asset No.", Resource."No.");
         PriceListLine.Insert();
 
@@ -158,7 +167,7 @@ codeunit 134123 "Price List Line UT"
         Initialize();
 
         LibraryPriceCalculation.CreatePriceHeader(
-            PriceListHeader, PriceListHeader."Source Type"::Customer, LibrarySales.CreateCustomerNo());
+            PriceListHeader, "Price Type"::Sale, "Price Source Type"::Customer, LibrarySales.CreateCustomerNo());
         PriceListLine.Validate("Price List Code", PriceListHeader.Code);
 
         PriceListLine.Testfield("Price List Code", PriceListHeader.Code);
@@ -174,9 +183,9 @@ codeunit 134123 "Price List Line UT"
         Initialize();
         // [GIVEN] Price List Header 'X', where "Source Type" is 'All', "Source No." is <blank>, "Price Type" is 'Any', "Amount Type" is 'Any'
         LibraryPriceCalculation.CreatePriceHeader(
-            PriceListHeader, PriceListHeader."Source Type"::All, '');
+            PriceListHeader, "Price Type"::Sale, "Price Source Type"::All, '');
         PriceListHeader."Amount Type" := PriceListHeader."Amount Type"::Any;
-        PriceListHeader."Price Type" := PriceListHeader."Price Type"::Any;
+        PriceListHeader."Price Type" := "Price Type"::Any;
         // [GIVEN] all other header's fields are filled with data
         PriceListHeader."Starting Date" := WorkDate();
         PriceListHeader."Ending Date" := WorkDate() + 10;
@@ -188,11 +197,11 @@ codeunit 134123 "Price List Line UT"
         // [GIVEN] Fill the Line, where "Price List Code" is 'X', "Source Type" is 'Customer', "Source No." is 'C', 
         PriceListLine.Init();
         PriceListLine.Validate("Price List Code", PriceListHeader.Code);
-        PriceListLine.Validate("Source Type", PriceListLine."Source Type"::Customer);
+        PriceListLine.Validate("Source Type", "Price Source Type"::Customer);
         CustomerNo := LibrarySales.CreateCustomerNo();
         PriceListLine.Validate("Source No.", CustomerNo);
         // [GIVEN] "Amount Type" is 'Price', "Price Type" is 'Sale'
-        PriceListLine.Validate("Price Type", PriceListLine."Price Type"::Sale);
+        PriceListLine.Validate("Price Type", "Price Type"::Sale);
         PriceListLine.Validate("Amount Type", PriceListLine."Amount Type"::Price);
         // [WHEN] Insert the line
         PriceListLine.Insert(true);
@@ -201,13 +210,13 @@ codeunit 134123 "Price List Line UT"
         PriceListLine.TestField("Starting Date", 0D);
 
         // [WHEN] Validate "Asset Type"
-        PriceListLine.Validate("Asset Type", PriceListLine."Asset Type"::Item);
+        PriceListLine.Validate("Asset Type", "Price Asset Type"::Item);
 
         // [THEN] Line where,  "Source Type" is 'Customer', "Source No." is 'C'
-        PriceListLine.TestField("Source Type", PriceListLine."Source Type"::Customer);
+        PriceListLine.TestField("Source Type", "Price Source Type"::Customer);
         PriceListLine.TestField("Source No.", CustomerNo);
         // [GIVEN] "Amount Type" is 'Price', "Price Type" is 'Sale'
-        PriceListLine.TestField("Price Type", PriceListLine."Price Type"::Sale);
+        PriceListLine.TestField("Price Type", "Price Type"::Sale);
         PriceListLine.TestField("Amount Type", PriceListLine."Amount Type"::Price);
         // [THEN] Other fields are copied from the header
         PriceListLine.TestField("Starting Date", PriceListHeader."Starting Date");
@@ -229,9 +238,9 @@ codeunit 134123 "Price List Line UT"
         // [GIVEN] Price List Header 'X', where "Source Type" is 'Vendor', "Source No." is 'V', "Price Type" is 'Any', "Amount Type" is 'Any'
         SourceNo := LibraryPurchase.CreateVendorNo();
         LibraryPriceCalculation.CreatePriceHeader(
-            PriceListHeader, PriceListHeader."Source Type"::Vendor, SourceNo);
-        PriceListHeader."Amount Type" := PriceListHeader."Amount Type"::Cost;
-        PriceListHeader."Price Type" := PriceListHeader."Price Type"::Purchase;
+            PriceListHeader, "Price Type"::Purchase, "Price Source Type"::Vendor, SourceNo);
+        PriceListHeader."Amount Type" := PriceListHeader."Amount Type"::Price;
+        PriceListHeader."Price Type" := "Price Type"::Purchase;
         // [GIVEN] all other header's fields are filled with data
         PriceListHeader."Starting Date" := WorkDate();
         PriceListHeader."Ending Date" := WorkDate() + 10;
@@ -243,26 +252,25 @@ codeunit 134123 "Price List Line UT"
         // [GIVEN] Fill the Line, where "Price List Code" is 'X', "Source Type" is 'Customer', "Source No." is 'C', 
         PriceListLine.Init();
         PriceListLine.Validate("Price List Code", PriceListHeader.Code);
-        PriceListLine.Validate("Source Type", PriceListLine."Source Type"::Customer);
-        PriceListLine.Validate("Source No.", LibrarySales.CreateCustomerNo());
+        PriceListLine."Source Type" := "Price Source Type"::Customer;
+        PriceListLine."Source No." := LibrarySales.CreateCustomerNo();
         // [GIVEN] "Amount Type" is 'Price', "Price Type" is 'Sale'
-        PriceListLine.Validate("Price Type", PriceListLine."Price Type"::Sale);
-        PriceListLine.Validate("Amount Type", PriceListLine."Amount Type"::Price);
+        PriceListLine."Price Type" := "Price Type"::Sale;
+        PriceListLine."Amount Type" := PriceListLine."Amount Type"::Price;
 
         // [WHEN] Insert the line
         PriceListLine.Insert(true);
         // [THEN] Header's fields are not copied, "Line No." is not 0,
         PriceListLine.TestField("Line No.");
-        PriceListLine.TestField("Price Type", PriceListLine."Price Type"::Sale);
+        PriceListLine.TestField("Price Type", "Price Type"::Sale);
 
         // [WHEN] Validate "Asset Type"
-        PriceListLine.Validate("Asset Type", PriceListLine."Asset Type"::Item);
+        PriceListLine.Validate("Asset Type", "Price Asset Type"::Item);
 
-        // [THEN] Line inserted, all fields are copied for the header
+        // [THEN] Line inserted, all fields are copied from the header
         PriceListLine.TestField("Source Type", PriceListHeader."Source Type");
         PriceListLine.TestField("Source No.", PriceListHeader."Source No.");
         PriceListLine.TestField("Price Type", PriceListHeader."Price Type");
-        PriceListLine.TestField("Amount Type", PriceListHeader."Amount Type");
         PriceListLine.TestField("Starting Date", PriceListHeader."Starting Date");
         PriceListLine.TestField("Ending Date", PriceListHeader."Ending Date");
         PriceListLine.TestField("Allow Invoice Disc.", PriceListHeader."Allow Invoice Disc.");
@@ -284,7 +292,7 @@ codeunit 134123 "Price List Line UT"
         LibrarySales.CreateCustomer(Customer);
         // [GIVEN] Price Line, where "Source Type" is 'Customer'
         MockPriceListLine.OpenEdit();
-        MockPriceListLine."Source Type".SetValue(PriceListLine."Source Type"::Customer);
+        MockPriceListLine."Source Type".SetValue("Price Source Type"::Customer);
         // [WHEN] Enter "Source No." set as 'C'
         MockPriceListLine."Source No.".SetValue(Customer."No.");
         // [THEN] "Source No." is 'C', "Source ID" is 'X'
@@ -306,10 +314,10 @@ codeunit 134123 "Price List Line UT"
         LibrarySales.CreateCustomer(Customer);
         // [GIVEN] Price Line, where "Source Type" is 'Customer', "Source No." is 'C'
         MockPriceListLine.OpenEdit();
-        MockPriceListLine."Source Type".SetValue(PriceListLine."Source Type"::Customer);
+        MockPriceListLine."Source Type".SetValue("Price Source Type"::Customer);
         MockPriceListLine."Source No.".SetValue(Customer."No.");
         // [WHEN] "Source Type" set as 'Customer'
-        MockPriceListLine."Source Type".SetValue(PriceListLine."Source Type"::Customer);
+        MockPriceListLine."Source Type".SetValue("Price Source Type"::Customer);
         // [THEN] "Source Type" is 'Customer', "Source No." is <blank>
         MockPriceListLine."Source No.".AssertEquals('');
     end;
@@ -329,7 +337,7 @@ codeunit 134123 "Price List Line UT"
         LibraryJob.CreateJobTask(Job, JobTask);
         // [GIVEN] Price Line, where "Source Type" is 'Job Task', "Parent Source No." is 'J'
         MockPriceListLine.OpenEdit();
-        MockPriceListLine."Source Type".SetValue(PriceListLine."Source Type"::"Job Task");
+        MockPriceListLine."Source Type".SetValue("Price Source Type"::"Job Task");
         MockPriceListLine."Parent Source No.".SetValue(JobTask."Job No.");
         // [WHEN] Enter "Source No." as 'JT'
         MockPriceListLine."Source No.".SetValue(JobTask."Job Task No.");
@@ -351,11 +359,11 @@ codeunit 134123 "Price List Line UT"
         LibrarySales.CreateCustomer(Customer);
         // [GIVEN] Price Line, where "Source Type" is 'Customer', "Source No." is 'C'
         MockPriceListLine.OpenEdit();
-        MockPriceListLine."Source Type".SetValue(PriceListLine."Source Type"::Customer);
+        MockPriceListLine."Source Type".SetValue("Price Source Type"::Customer);
         // [WHEN] "Source ID" set as 'X'
         MockPriceListLine."Source ID".SetValue(Customer.SystemId);
         // [THEN] "Source Type" is 'Customer', "Source No." is 'C'
-        MockPriceListLine."Source Type".AssertEquals(PriceListLine."Source Type"::Customer);
+        MockPriceListLine."Source Type".AssertEquals("Price Source Type"::Customer);
         MockPriceListLine."Source No.".AssertEquals(Customer."No.");
     end;
 
@@ -373,7 +381,7 @@ codeunit 134123 "Price List Line UT"
         LibrarySales.CreateCustomer(Customer);
         // [GIVEN] Price Line, where "Source Type" is 'Customer'
         MockPriceListLine.OpenEdit();
-        MockPriceListLine."Source Type".SetValue(PriceListLine."Source Type"::Customer);
+        MockPriceListLine."Source Type".SetValue("Price Source Type"::Customer);
         // [WHEN] Lookup "Source No." set as 'C'
         LibraryVariableStorage.Enqueue(Customer."No."); // for LookupCustomerModalHandler
         MockPriceListLine."Source No.".Lookup();
@@ -403,7 +411,7 @@ codeunit 134123 "Price List Line UT"
         LibraryJob.CreateJobTask(Job, JobTask);
         // [GIVEN] Price Line, where "Source Type" is 'Job Task', "Parent Source No." is 'J'
         MockPriceListLine.OpenEdit();
-        MockPriceListLine."Source Type".SetValue(PriceListLine."Source Type"::"Job Task");
+        MockPriceListLine."Source Type".SetValue("Price Source Type"::"Job Task");
         // [WHEN] Lookup "Source No."
         LibraryVariableStorage.Enqueue(JobTask."Job No."); // for LookupJobModalHandler
         LibraryVariableStorage.Enqueue(JobTask."Job Task No."); // for LookupJobTaskModalHandler
@@ -429,7 +437,7 @@ codeunit 134123 "Price List Line UT"
         LibraryInventory.CreateItem(Item);
         // [GIVEN] Price Line, where "Asset Type" is 'Item'
         MockPriceListLine.OpenEdit();
-        MockPriceListLine."Asset Type".SetValue(PriceListLine."Asset Type"::Item);
+        MockPriceListLine."Asset Type".SetValue("Price Asset Type"::Item);
         // [WHEN] Lookup "Asset No." set as 'I'
         LibraryVariableStorage.Enqueue(Item."No."); // for LookupItemModalHandler
         MockPriceListLine."Asset No.".Lookup();
@@ -441,22 +449,412 @@ codeunit 134123 "Price List Line UT"
     end;
 
     [Test]
+    procedure T017_SourceTypeInLineMustBeTheSameIfSourceNoDefined()
+    var
+        Job: Record Job;
+        PriceListHeader: Record "Price List Header";
+        PriceListLine: Record "Price List Line";
+    begin
+        Initialize();
+        // [GIVEN] Price List Header, where all fields are filled, "Source Type" = 'Job', "Source No." is 'J'
+        LibraryJob.CreateJob(Job);
+        LibraryPriceCalculation.CreatePriceHeader(PriceListHeader, "Price Type"::Purchase, "Price Source Type"::Job, Job."No.");
+        // [GIVEN] One line added
+        PriceListLine.Init();
+        PriceListLine."Price List Code" := PriceListHeader.Code;
+        PriceListLine.Insert(true);
+
+        // [WHEN] set "Source Type" as 'Job Task' in the line
+        asserterror PriceListLine.Validate("Source Type", "Price Source Type"::"Job Task");
+        // [THEN] Error message: "Source Type must be equal to Job"
+        Assert.ExpectedError(StrSubstNo(SourceTypeMustBeErr, "Price Source Type"::Job));
+    end;
+
+    [Test]
+    procedure T018_SourceTypeInLineMustBeLowerHeadersSourceType()
+    var
+        Job: Record Job;
+        PriceListHeader: Record "Price List Header";
+        PriceListLine: Record "Price List Line";
+    begin
+        Initialize();
+        // [GIVEN] Price List Header, where all fields are filled, "Source Type" = 'Job', "Source No." is <blank>
+        LibraryJob.CreateJob(Job);
+        LibraryPriceCalculation.CreatePriceHeader(
+            PriceListHeader, "Price Type"::Purchase,
+            "Price Source Type"::Job, Job."No.");
+        PriceListHeader.Validate("Source No.", '');
+        PriceListHeader.Modify();
+        // [GIVEN] One line added
+        PriceListLine.Init();
+        PriceListLine."Price List Code" := PriceListHeader.Code;
+        PriceListLine.Insert(true);
+
+        // [WHEN] set "Source Type" as 'All Jobs' in the line
+        asserterror PriceListLine.Validate("Source Type", "Price Source Type"::"All Jobs");
+        // [THEN] Error message: "Cannot set All Jobs if header's source type is Job"
+        Assert.ExpectedError(
+            StrSubstNo(LineSourceTypeErr, "Price Source Type"::"All Jobs", "Price Source Type"::Job));
+    end;
+
+    [Test]
+    procedure T019_SourceTypeInLineMustBeInTheHeadersSourceGroup()
+    var
+        Job: Record Job;
+        PriceListHeader: Record "Price List Header";
+        PriceListLine: Record "Price List Line";
+    begin
+        Initialize();
+        // [GIVEN] Price List Header, where all fields are filled, "Source Type" = 'All Custromers'
+        LibraryPriceCalculation.CreatePriceHeader(
+            PriceListHeader, "Price Type"::Sale, "Price Source Type"::"All Customers", '');
+        // [GIVEN] One line added
+        PriceListLine.Init();
+        PriceListLine."Price List Code" := PriceListHeader.Code;
+        PriceListLine.Insert(true);
+
+        // [WHEN] set "Source Type" as 'Vendor' in the line
+        asserterror PriceListLine.Validate("Source Type", "Price Source Type"::Vendor);
+        // [THEN] Error message: "Cannot set Vendor if header's source type is All Customers"
+        Assert.ExpectedError(
+            StrSubstNo(LineSourceTypeErr, "Price Source Type"::Vendor, "Price Source Type"::"All Customers"));
+    end;
+
+    [Test]
     procedure T020_InsertNewLineDoesNotControlConsistency()
     var
         TempPriceListLine: Record "Price List Line" temporary;
         LineNo: Integer;
     begin
-        // [SCENARIO] OnInsert() does not control data consistency, but increments "Line No." for the temp record.
+        // [SCENARIO] OnInsert() does not control data consistency, does not increments "Line No." for the temp record.
         Initialize();
         // [GIVEN] Price list line, where "Source Type" is 'Customer', "Asset Type" is 'Item', but "Source No." and "Asset No." are blank, 
         LineNo := LibraryRandom.RandInt(100);
         TempPriceListLine."Line No." := LineNo;
-        TempPriceListLine.Validate("Source Type", TempPriceListLine."Source Type"::Customer);
-        TempPriceListLine.Validate("Asset Type", TempPriceListLine."Asset Type"::Item);
+        TempPriceListLine.Validate("Source Type", "Price Source Type"::Customer);
+        TempPriceListLine.Validate("Asset Type", "Price Asset Type"::Item);
         // [WHEN] Insert temporary line 
         TempPriceListLine.Insert(true);
         // [THEN] "Line No." is not changed
         TempPriceListLine.TestField("Line No.", LineNo);
+    end;
+
+    [Test]
+    procedure T021_UnitPriceBlanksCostFactor()
+    var
+        PriceListLine: Record "Price List Line";
+    begin
+        // [SCENARIO] "Unit Price" validation with a non-zero value blanks "Cost Factor".
+        Initialize();
+        PriceListLine."Cost Factor" := 1.2;
+        PriceListLine.Validate("Unit Price", 0);
+        PriceListLine.TestField("Cost Factor", 1.2);
+
+        PriceListLine.Validate("Unit Price", 10);
+        PriceListLine.TestField("Cost Factor", 0);
+        PriceListLine.TestField("Unit Price", 10);
+    end;
+
+    [Test]
+    procedure T022_CostFactorBlanksUnitPrice()
+    var
+        PriceListLine: Record "Price List Line";
+    begin
+        // [SCENARIO] "Cost Factor" validation with a non-zero value blanks "Unit Price".
+        Initialize();
+        PriceListLine."Unit Price" := 10.15;
+        PriceListLine.Validate("Cost Factor", 0);
+        PriceListLine.TestField("Unit Price", 10.15);
+
+        PriceListLine.Validate("Cost Factor", 0.98);
+        PriceListLine.TestField("Unit Price", 0);
+        PriceListLine.TestField("Cost Factor", 0.98);
+    end;
+
+    [Test]
+    procedure T023_UnitPriceNotAllowedForDiscountLine()
+    var
+        PriceListLine: Record "Price List Line";
+    begin
+        // [SCENARIO] "Unit Price" validation fails in Discount line
+        Initialize();
+        PriceListLine."Amount Type" := PriceListLine."Amount Type"::Discount;
+        asserterror PriceListLine.Validate("Unit Price", 1);
+        Assert.ExpectedError(
+            StrSubstNo(
+                FieldNotAllowedForAmountTypeErr, PriceListLine.FieldCaption("Unit Price"),
+                PriceListLine.FieldCaption("Amount Type"), PriceListLine."Amount Type"::Discount));
+    end;
+
+    [Test]
+    procedure T024_CostFactorNotAllowedForDiscountLine()
+    var
+        PriceListLine: Record "Price List Line";
+    begin
+        // [SCENARIO] "Cost Factor" validation fails in Discount line
+        Initialize();
+        PriceListLine."Amount Type" := PriceListLine."Amount Type"::Discount;
+        asserterror PriceListLine.Validate("Cost Factor", 1);
+        Assert.ExpectedError(
+            StrSubstNo(
+                FieldNotAllowedForAmountTypeErr, PriceListLine.FieldCaption("Cost Factor"),
+                PriceListLine.FieldCaption("Amount Type"), PriceListLine."Amount Type"::Discount));
+    end;
+
+    [Test]
+    procedure T025_AllowLineDiscNotAllowedForDiscountLine()
+    var
+        PriceListLine: Record "Price List Line";
+    begin
+        // [SCENARIO] "Allow Line Disc." validation fails in Discount line
+        Initialize();
+        PriceListLine."Amount Type" := PriceListLine."Amount Type"::Discount;
+        asserterror PriceListLine.Validate("Allow Line Disc.", true);
+        Assert.ExpectedError(
+            StrSubstNo(
+                FieldNotAllowedForAmountTypeErr, PriceListLine.FieldCaption("Allow Line Disc."),
+                PriceListLine.FieldCaption("Amount Type"), PriceListLine."Amount Type"::Discount));
+    end;
+
+    [Test]
+    procedure T026_AllowInvDiscNotAllowedForDiscountLine()
+    var
+        PriceListLine: Record "Price List Line";
+    begin
+        // [SCENARIO] "Allow Invoice Disc." validation fails in Discount line
+        Initialize();
+        PriceListLine."Amount Type" := PriceListLine."Amount Type"::Discount;
+        asserterror PriceListLine.Validate("Allow Invoice Disc.", true);
+        Assert.ExpectedError(
+            StrSubstNo(
+                FieldNotAllowedForAmountTypeErr, PriceListLine.FieldCaption("Allow Invoice Disc."),
+                PriceListLine.FieldCaption("Amount Type"), PriceListLine."Amount Type"::Discount));
+    end;
+
+    [Test]
+    procedure T027_LineDiscPctNotAllowedForPriceLine()
+    var
+        PriceListLine: Record "Price List Line";
+    begin
+        // [SCENARIO] "Line Discount %" validation fails in Price line
+        Initialize();
+        PriceListLine."Amount Type" := PriceListLine."Amount Type"::Price;
+        asserterror PriceListLine.Validate("Line Discount %", 3);
+        Assert.ExpectedError(
+            StrSubstNo(
+                FieldNotAllowedForAmountTypeErr, PriceListLine.FieldCaption("Line Discount %"),
+                PriceListLine.FieldCaption("Amount Type"), PriceListLine."Amount Type"::Price));
+    end;
+
+    [Test]
+    procedure T030_WorkTypeCodeNotAllowedForItem()
+    var
+        PriceListLine: Record "Price List Line";
+    begin
+        // [FEATURE] [Work Type] [Item]
+        // [SCENARIO] "Work Type Code" must not be filled for product type 'Item'
+        Initialize();
+        // [GIVEN] Price list line, where "Asset Type" is 'Item' 
+        PriceListLine.Validate("Asset Type", "Price Asset Type"::Item);
+        // [WHEN] Validate "Work Type Code" with a valid code
+        asserterror PriceListLine.Validate("Work Type Code", GetWorkTypeCode());
+        // [THEN] Error message: 'Asset Type must be Resource'
+        Assert.ExpectedError(AssetTypeMustBeResourceErr);
+    end;
+
+    [Test]
+    procedure T031_WorkTypeCodeAllowedForResource()
+    var
+        PriceListLine: Record "Price List Line";
+        Resource: Record Resource;
+        WorkType: Record "Work Type";
+    begin
+        // [FEATURE] [Work Type] [Resource]
+        // [SCENARIO] "Work Type Code" can be filled for product type 'Resource'
+        Initialize();
+        // [GIVEN] Price list line, where "Asset Type" is 'Resource', "Asset No." is 'R'
+        PriceListLine.Validate("Asset Type", "Price Asset Type"::Resource);
+        LibraryResource.CreateResource(Resource, '');
+        PriceListLine.Validate("Asset No.", Resource."No.");
+        // [GIVEN] Work Group 'WT', where "Unit of Measure Code" is <blank>
+        WorkType.Get(GetWorkTypeCode());
+        WorkType."Unit of Measure Code" := '';
+        WorkType.Modify();
+
+        // [WHEN] Validate "Work Type Code" with a valid code 'WT'
+        PriceListLine.Validate("Work Type Code", WorkType.Code);
+
+        // [THEN] 'Work Type Code' is 'WT', "Unit of Measure Code" is 'R-UOM'
+        PriceListLine.TestField("Work Type Code", WorkType.Code);
+        PriceListLine.TestField("Unit of Measure Code", Resource."Base Unit of Measure");
+    end;
+
+    [Test]
+    procedure T035_VariantCodeAllowedForItem()
+    var
+        Item: Record Item;
+        ItemVariant: Record "Item Variant";
+        PriceListLine: Record "Price List Line";
+    begin
+        // [SCENARIO] "Variant Code" can be filled for product type 'Item'
+        Initialize();
+        // [GIVEN] Price list line, where "Asset Type" is 'Item', "Asset No." is 'I' 
+        PriceListLine.Validate("Asset Type", "Price Asset Type"::Item);
+        LibraryInventory.CreateItem(Item);
+        PriceListLine.Validate("Asset No.", Item."No.");
+        // [WHEN] Validate "Variant Code" with a valid code 'V'
+        LibraryInventory.CreateItemVariant(ItemVariant, Item."No.");
+        PriceListLine.Validate("Variant Code", ItemVariant.Code);
+        // [THEN] "Variant Code" is 'V'
+        PriceListLine.TestField("Variant Code", ItemVariant.Code);
+    end;
+
+    [Test]
+    procedure T036_VariantCodeNoAllowedForBlankItem()
+    var
+        Item: Record Item;
+        ItemVariant: Record "Item Variant";
+        PriceListLine: Record "Price List Line";
+    begin
+        // [SCENARIO] "Variant Code" cannot be filled for product type 'Item', but blank "Asset No."
+        Initialize();
+        // [GIVEN] Price list line, where "Asset Type" is 'Item', "Asset No." is <blank> 
+        PriceListLine.Validate("Asset Type", "Price Asset Type"::Item);
+        PriceListLine.Validate("Asset No.", '');
+        // [WHEN] Validate "Variant Code" with a valid code 'V'
+        LibraryInventory.CreateItem(Item);
+        LibraryInventory.CreateItemVariant(ItemVariant, Item."No.");
+        asserterror PriceListLine.Validate("Variant Code", ItemVariant.Code);
+        // [THEN] Error message: 'Asset No. must have a value.'
+        Assert.ExpectedError(AssetNoMustHaveValueErr);
+    end;
+
+    [Test]
+    procedure T040_AmountTypePriceFromDiscount()
+    var
+        PriceListLine: Record "Price List Line";
+    begin
+        // [SCENARIO] "Amount Type" set to Price, blanks "Line Discount %" and sets "Allows .. Disc" from header
+        Initialize();
+        PriceListLine."Amount Type" := PriceListLine."Amount Type"::Discount;
+        PriceListLine."Line Discount %" := 13.3;
+        PriceListLine."Unit Price" := 0;
+        PriceListLine."Cost Factor" := 0;
+        PriceListLine."Allow Invoice Disc." := false;
+        PriceListLine."Allow Line Disc." := false;
+
+        PriceListLine.Validate("Amount Type", PriceListLine."Amount Type"::Price);
+
+        PriceListLine.TestField("Line Discount %", 0);
+        PriceListLine.TestField("Unit Price", 0);
+        PriceListLine.TestField("Cost Factor", 0);
+        PriceListLine.TestField("Allow Invoice Disc.", false);
+        PriceListLine.TestField("Allow Line Disc.", false);
+    end;
+
+    [Test]
+    procedure T041_AmountTypePriceWithHeader()
+    var
+        PriceListHeader: Record "Price List Header";
+        PriceListLine: Record "Price List Line";
+    begin
+        // [SCENARIO] "Amount Type" set to Price, "Allows .. Disc" are set from header
+        Initialize();
+        LibraryPriceCalculation.CreatePriceHeader(
+            PriceListHeader, "Price Type"::Sale, "Price Source Type"::"All Customers", '');
+        PriceListHeader."Allow Invoice Disc." := true;
+        PriceListHeader."Allow Line Disc." := true;
+        PriceListHeader.Modify();
+
+        PriceListLine.Init();
+        PriceListLine."Price List Code" := PriceListHeader.Code;
+        PriceListLine."Amount Type" := PriceListLine."Amount Type"::Discount;
+        PriceListLine."Line Discount %" := 13.3;
+        PriceListLine."Unit Price" := 0;
+        PriceListLine."Cost Factor" := 0;
+        PriceListLine."Allow Invoice Disc." := false;
+        PriceListLine."Allow Line Disc." := false;
+
+        PriceListLine.Validate("Amount Type", PriceListLine."Amount Type"::Price);
+
+        PriceListLine.TestField("Line Discount %", 0);
+        PriceListLine.TestField("Unit Price", 0);
+        PriceListLine.TestField("Cost Factor", 0);
+        PriceListLine.TestField("Allow Invoice Disc.", true);
+        PriceListLine.TestField("Allow Line Disc.", true);
+    end;
+
+    [Test]
+    procedure T042_AmountTypeDiscountFromPrice()
+    var
+        PriceListLine: Record "Price List Line";
+    begin
+        // [SCENARIO] "Amount Type" set to Discount, blanks "Unit Price" and "Allows .. Disc" fields.
+        Initialize();
+        PriceListLine."Amount Type" := PriceListLine."Amount Type"::Price;
+        PriceListLine."Line Discount %" := 0;
+        PriceListLine."Unit Price" := 10;
+        PriceListLine."Cost Factor" := 0.5;
+        PriceListLine."Allow Invoice Disc." := true;
+        PriceListLine."Allow Line Disc." := true;
+
+        PriceListLine.Validate("Amount Type", PriceListLine."Amount Type"::Discount);
+
+        PriceListLine.TestField("Line Discount %", 0);
+        PriceListLine.TestField("Unit Price", 0);
+        PriceListLine.TestField("Cost Factor", 0);
+        PriceListLine.TestField("Allow Invoice Disc.", false);
+        PriceListLine.TestField("Allow Line Disc.", false);
+    end;
+
+    [Test]
+    procedure T043_AmountTypeMustBeDiscountForItemDiscGroup()
+    var
+        PriceListLine: Record "Price List Line";
+    begin
+        // [SCENARIO] "Amount Type" must be Discount for 'Item Discounnt Group'
+        Initialize();
+
+        PriceListLine.Validate("Asset Type", "Price Asset Type"::"Item Discount Group");
+        PriceListLine.TestField("Amount Type", PriceListLine."Amount Type"::Discount);
+
+        asserterror PriceListLine.Validate("Amount Type", PriceListLine."Amount Type"::Price);
+        Assert.ExpectedError(AmountTypeMustBeDiscountErr);
+
+        asserterror PriceListLine.Validate("Amount Type", PriceListLine."Amount Type"::Any);
+        Assert.ExpectedError(AmountTypeMustBeDiscountErr);
+    end;
+
+    [Test]
+    procedure T045_AssetTypeItemDiscGroupNotAllowedForPurchase()
+    var
+        PriceListLine: Record "Price List Line";
+    begin
+        // [FEATURE] [Purchase] [Item Discount Group]
+        // [SCENARIO] Product Type 'Item Discounnt Group' is nnot allowed for 'Purchase'
+        Initialize();
+
+        PriceListLine."Price Type" := "Price Type"::Purchase;
+        asserterror PriceListLine.Validate("Asset Type", "Price Asset Type"::"Item Discount Group");
+        Assert.ExpectedError(ItemDiscGroupMustNotBePurchaseErr);
+    end;
+
+    [Test]
+    procedure T050_IsEditable()
+    var
+        PriceListLine: Record "Price List Line";
+    begin
+        // [SCENARIO] Price LIst should be editable only if Status is Draft.
+        Initialize();
+
+        PriceListLine.Status := PriceListLine.Status::Draft;
+        Assert.IsTrue(PriceListLine.IsEditable(), 'Draft');
+
+        PriceListLine.Status := PriceListLine.Status::Active;
+        Assert.IsFalse(PriceListLine.IsEditable(), 'Active');
+
+        PriceListLine.Status := PriceListLine.Status::Inactive;
+        Assert.IsFalse(PriceListLine.IsEditable(), 'Inactive')
     end;
 
     [Test]
@@ -474,11 +872,11 @@ codeunit 134123 "Price List Line UT"
         // [GIVEN] Customer 'C', where "VAT Bus. Posting Group" is 'CVAT'
         LibrarySales.CreateCustomer(Customer);
         // [GIVEN] Price List Line, where "Source Type" is 'Customer', "Asset Type" is Item, "Variant Code" is 'V'
-        PriceListLine.Validate("Source Type", PriceListLine."Source Type"::Customer);
+        PriceListLine.Validate("Source Type", "Price Source Type"::Customer);
         PriceListLine.Validate("Source No.", Customer."No.");
         PriceListLine."Variant Code" := LibraryUtility.GenerateGUID();
         PriceListLine."Unit of Measure Code" := LibraryUtility.GenerateGUID();
-        PriceListLine.Validate("Asset Type", PriceListLine."Asset Type"::Item);
+        PriceListLine.Validate("Asset Type", "Price Asset Type"::Item);
 
         // [WHEN] Set "Asset No." as 'X'
         PriceListLine.Validate("Asset No.", Item."No.");
@@ -500,10 +898,10 @@ codeunit 134123 "Price List Line UT"
         // [GIVEN] "Price Includes VAT" is Yes, "VAT Bus. Posting Gr. (Price)" is 'VATBPG'
         CreateItem(Item);
         // [GIVEN] Price List Line, where "Source Type" is 'All Customers', "Asset Type" is Item, "Variant Code" is 'V'
-        PriceListLine.Validate("Source Type", PriceListLine."Source Type"::"All Customers");
+        PriceListLine.Validate("Source Type", "Price Source Type"::"All Customers");
         PriceListLine."Variant Code" := LibraryUtility.GenerateGUID();
         PriceListLine."Unit of Measure Code" := LibraryUtility.GenerateGUID();
-        PriceListLine.Validate("Asset Type", PriceListLine."Asset Type"::Item);
+        PriceListLine.Validate("Asset Type", "Price Asset Type"::Item);
 
         // [WHEN] Set "Asset No." as 'X'
         PriceListLine.Validate("Asset No.", Item."No.");
@@ -528,11 +926,11 @@ codeunit 134123 "Price List Line UT"
         // [GIVEN] CustomerPriceGroup 'CPG', where "Allow Invoice Disc." is No, "Price Includes VAT" is Yes, "VAT Bus. Posting Gr. (Price)" is 'CPGVAT'
         CreateCustomerPriceGroup(CustomerPriceGroup);
         // [GIVEN] Price List Line, where "Allow Invoice Disc." is No, "Source Type" is 'Customer Price Group', "Asset Type" is 'Item', "Variant Code" is 'V'
-        PriceListLine.Validate("Source Type", PriceListLine."Source Type"::"Customer Price Group");
+        PriceListLine.Validate("Source Type", "Price Source Type"::"Customer Price Group");
         PriceListLine.Validate("Source No.", CustomerPriceGroup.Code);
         PriceListLine."Variant Code" := LibraryUtility.GenerateGUID();
         PriceListLine."Unit of Measure Code" := LibraryUtility.GenerateGUID();
-        PriceListLine.Validate("Asset Type", PriceListLine."Asset Type"::Item);
+        PriceListLine.Validate("Asset Type", "Price Asset Type"::Item);
 
         // [WHEN] Set "Asset No." as 'X'
         PriceListLine.Validate("Asset No.", Item."No.");
@@ -561,11 +959,11 @@ codeunit 134123 "Price List Line UT"
         LibrarySales.CreateCustomer(Customer);
         // [GIVEN] Price List Line, where "Source Type" is 'Customer', "Asset Type" is "Item Discount Group", 
         // [GIVEN] "Variant Code" is 'V', "Unit of Measure Code" is 'UoM'
-        PriceListLine.Validate("Source Type", PriceListLine."Source Type"::Customer);
+        PriceListLine.Validate("Source Type", "Price Source Type"::Customer);
         PriceListLine.Validate("Source No.", Customer."No.");
         PriceListLine."Variant Code" := LibraryUtility.GenerateGUID();
         PriceListLine."Unit of Measure Code" := LibraryUtility.GenerateGUID();
-        PriceListLine.Validate("Asset Type", PriceListLine."Asset Type"::"Item Discount Group");
+        PriceListLine.Validate("Asset Type", "Price Asset Type"::"Item Discount Group");
 
         // [WHEN] Set "Asset No." as 'X'
         PriceListLine.Validate("Asset No.", ItemDiscountGroup.Code);
@@ -587,11 +985,11 @@ codeunit 134123 "Price List Line UT"
         // [GIVEN] "Price Includes VAT" is Yes, "VAT Bus. Posting Gr. (Price)" is 'VATBPG'
         CreateItem(Item);
         // [GIVEN] Price List Line, where "Source Type" is 'Vendor', "Asset Type" is Item, "Variant Code" is 'V'
-        PriceListLine.Validate("Source Type", PriceListLine."Source Type"::Vendor);
+        PriceListLine.Validate("Source Type", "Price Source Type"::Vendor);
         PriceListLine.Validate("Source No.", LibraryPurchase.CreateVendorNo());
         PriceListLine."Variant Code" := LibraryUtility.GenerateGUID();
         PriceListLine."Unit of Measure Code" := LibraryUtility.GenerateGUID();
-        PriceListLine.Validate("Asset Type", PriceListLine."Asset Type"::Item);
+        PriceListLine.Validate("Asset Type", "Price Asset Type"::Item);
 
         // [WHEN] Set "Asset No." as 'X'
         PriceListLine.Validate("Asset No.", Item."No.");
@@ -614,13 +1012,13 @@ codeunit 134123 "Price List Line UT"
         // [GIVEN] "Price Includes VAT" is Yes, "VAT Bus. Posting Gr. (Price)" is 'VATBPG'
         CreateItem(Item);
         // [GIVEN] Price List Line, where "Price Type" is 'Sale', "Source Type" is 'Job', "Asset Type" is Item, "Variant Code" is 'V'
-        PriceListLine."Price Type" := PriceListLine."Price Type"::Sale;
-        PriceListLine.Validate("Source Type", PriceListLine."Source Type"::Job);
+        PriceListLine."Price Type" := "Price Type"::Sale;
+        PriceListLine.Validate("Source Type", "Price Source Type"::Job);
         LibraryJob.CreateJob(Job);
         PriceListLine.Validate("Source No.", Job."No.");
         PriceListLine."Variant Code" := LibraryUtility.GenerateGUID();
         PriceListLine."Unit of Measure Code" := LibraryUtility.GenerateGUID();
-        PriceListLine.Validate("Asset Type", PriceListLine."Asset Type"::Item);
+        PriceListLine.Validate("Asset Type", "Price Asset Type"::Item);
 
         // [WHEN] Set "Asset No." as 'X'
         PriceListLine.Validate("Asset No.", Item."No.");
@@ -645,13 +1043,13 @@ codeunit 134123 "Price List Line UT"
         // [GIVEN] "Price Includes VAT" is Yes, "VAT Bus. Posting Gr. (Price)" is 'VATBPG'
         CreateItem(Item);
         // [GIVEN] Price List Line, where "Price Type" is 'Purchase', "Source Type" is 'Job', "Asset Type" is Item, "Variant Code" is 'V'
-        PriceListLine."Price Type" := PriceListLine."Price Type"::Purchase;
-        PriceListLine.Validate("Source Type", PriceListLine."Source Type"::Job);
+        PriceListLine."Price Type" := "Price Type"::Purchase;
+        PriceListLine.Validate("Source Type", "Price Source Type"::Job);
         LibraryJob.CreateJob(Job);
         PriceListLine.Validate("Source No.", Job."No.");
         PriceListLine."Variant Code" := LibraryUtility.GenerateGUID();
         PriceListLine."Unit of Measure Code" := LibraryUtility.GenerateGUID();
-        PriceListLine.Validate("Asset Type", PriceListLine."Asset Type"::Item);
+        PriceListLine.Validate("Asset Type", "Price Asset Type"::Item);
 
         // [WHEN] Set "Asset No." as 'X'
         PriceListLine.Validate("Asset No.", Item."No.");
@@ -670,22 +1068,25 @@ codeunit 134123 "Price List Line UT"
     begin
         // [FEATURE] [Job] [G/L Account]
         Initialize();
-        // [GIVEN] G/L Account 'X', where "VAT Bus. Posting Group" is 'VATBPG'
-        GLAccount."No." := LibraryERM.CreateGLAccountWithSalesSetup();
+        // [GIVEN] G/L Account 'X', where "VAT Bus. Posting Group" is 'VATBPG', Name is 'Descr'
+        GLAccount.Get(LibraryERM.CreateGLAccountWithSalesSetup());
+        GLAccount.Name := LibraryUtility.GenerateRandomText(MaxStrLen(GLAccount.Name));
+        GLAccount.Modify();
         // [GIVEN] Price List Line, where "Price Type" is 'Any, "Source Type" is 'Job', "Asset Type" is Item, "Variant Code" is 'V'
-        PriceListLine.Validate("Source Type", PriceListLine."Source Type"::Job);
+        PriceListLine.Validate("Source Type", "Price Source Type"::Job);
         LibraryJob.CreateJob(Job);
         PriceListLine.Validate("Source No.", Job."No.");
         PriceListLine."Variant Code" := LibraryUtility.GenerateGUID();
         PriceListLine."Unit of Measure Code" := LibraryUtility.GenerateGUID();
-        PriceListLine.Validate("Asset Type", PriceListLine."Asset Type"::"G/L Account");
+        PriceListLine.Validate("Asset Type", "Price Asset Type"::"G/L Account");
 
         // [WHEN] Set "Asset No." as 'X'
         PriceListLine.Validate("Asset No.", GLAccount."No.");
 
         // [THEN] Price List Line, where "Unit of Measure Code" is <blank>, "Variant Code" is <blank>, "Allow Invoice Disc." is No, 
-        // [THEN] "Price Includes VAT" is No, "VAT Bus. Posting Gr. (Price)" is <blank>
+        // [THEN] "Price Includes VAT" is No, "VAT Bus. Posting Gr. (Price)" is <blank>, Description is 'Descr'
         VerifyLine(PriceListLine, '', false, false, '', '');
+        PriceListLine.TestField(Description, GLAccount.Name);
     end;
 
     [Test]
@@ -698,25 +1099,25 @@ codeunit 134123 "Price List Line UT"
     begin
         // [FEATURE] [Job] [Resource]
         Initialize();
-        // [GIVEN] Resource 'X'
+        // [GIVEN] Resource 'X', where "Unit of Measure Code" is 'R-UOM'
         Resource.Get(LibraryResource.CreateResourceNo());
         // [GIVEN] Price List Line, where "Price Type" is 'Any, "Source Type" is 'Job', "Asset Type" is Resource, 
         // [GIVEN] "Variant Code" is 'V', "Work Type Code" is 'WT'
-        PriceListLine.Validate("Source Type", PriceListLine."Source Type"::Job);
+        PriceListLine.Validate("Source Type", "Price Source Type"::Job);
         LibraryJob.CreateJob(Job);
         PriceListLine.Validate("Source No.", Job."No.");
         PriceListLine."Variant Code" := LibraryUtility.GenerateGUID();
         PriceListLine."Unit of Measure Code" := LibraryUtility.GenerateGUID();
         LibraryResource.CreateWorkType(WorkType);
         PriceListLine."Work Type Code" := WorkType.Code;
-        PriceListLine.Validate("Asset Type", PriceListLine."Asset Type"::Resource);
+        PriceListLine.Validate("Asset Type", "Price Asset Type"::Resource);
 
         // [WHEN] Set "Asset No." as 'X'
         PriceListLine.Validate("Asset No.", Resource."No.");
 
-        // [THEN] Price List Line, where "Unit of Measure Code" is <blank>, "Variant Code" is <blank>, "Allow Invoice Disc." is No, 
-        // [THEN] "Price Includes VAT" is No, "VAT Bus. Posting Gr. (Price)" is <blank>, "Work Type Code" is 'WT'
-        VerifyLine(PriceListLine, '', false, false, '', WorkType.Code);
+        // [THEN] Price List Line, where "Unit of Measure Code" is 'R-UOM', "Variant Code" is <blank>, "Allow Invoice Disc." is No, 
+        // [THEN] "Price Includes VAT" is No, "VAT Bus. Posting Gr. (Price)" is <blank>, "Work Type Code" is <blank>
+        VerifyLine(PriceListLine, Resource."Base Unit of Measure", false, false, '', '');
     end;
 
     [Test]
@@ -733,14 +1134,14 @@ codeunit 134123 "Price List Line UT"
         LibraryResource.CreateResourceGroup(ResourceGroup);
         // [GIVEN] Price List Line, where "Price Type" is 'Any, "Source Type" is 'Job', "Asset Type" is 'Resource Group', 
         // [GIVEN] "Variant Code" is 'V', "Work Type Code" is 'WT'
-        PriceListLine.Validate("Source Type", PriceListLine."Source Type"::Job);
+        PriceListLine.Validate("Source Type", "Price Source Type"::Job);
         LibraryJob.CreateJob(Job);
         PriceListLine.Validate("Source No.", Job."No.");
         PriceListLine."Variant Code" := LibraryUtility.GenerateGUID();
         PriceListLine."Unit of Measure Code" := LibraryUtility.GenerateGUID();
         LibraryResource.CreateWorkType(WorkType);
         PriceListLine."Work Type Code" := WorkType.Code;
-        PriceListLine.Validate("Asset Type", PriceListLine."Asset Type"::"Resource Group");
+        PriceListLine.Validate("Asset Type", "Price Asset Type"::"Resource Group");
 
         // [WHEN] Set "Asset No." as 'X'
         PriceListLine.Validate("Asset No.", ResourceGroup."No.");
@@ -761,26 +1162,26 @@ codeunit 134123 "Price List Line UT"
     begin
         // [FEATURE] [Customer] [Resource]
         Initialize();
-        // [GIVEN] Resource 'X'
+        // [GIVEN] Resource 'X', where "Unit of Measure Code" is 'R-UOM'
         Resource.Get(LibraryResource.CreateResourceNo());
         // [GIVEN] Customer 'C', where "VAT Bus. Posting Group" is 'CVAT'
         LibrarySales.CreateCustomer(Customer);
         // [GIVEN] Price List Line, where "Source Type" is 'Customer', "Asset Type" is Resource, 
         // [GIVEN] "Variant Code" is 'V', "Work Type Code" is 'WT'
-        PriceListLine.Validate("Source Type", PriceListLine."Source Type"::Customer);
+        PriceListLine.Validate("Source Type", "Price Source Type"::Customer);
         PriceListLine.Validate("Source No.", Customer."No.");
         PriceListLine."Variant Code" := LibraryUtility.GenerateGUID();
         PriceListLine."Unit of Measure Code" := LibraryUtility.GenerateGUID();
         LibraryResource.CreateWorkType(WorkType);
         PriceListLine."Work Type Code" := WorkType.Code;
-        PriceListLine.Validate("Asset Type", PriceListLine."Asset Type"::Resource);
+        PriceListLine.Validate("Asset Type", "Price Asset Type"::Resource);
 
         // [WHEN] Set "Asset No." as 'X'
         PriceListLine.Validate("Asset No.", Resource."No.");
 
-        // [THEN] Price List Line, where "Unit of Measure Code" is <blank>, "Variant Code" is <blank>, "Allow Invoice Disc." is No, 
-        // [THEN] "Price Includes VAT" is No, "VAT Bus. Posting Gr. (Price)" is 'CVAT', "Work Type Code" is 'WT'
-        VerifyLine(PriceListLine, '', false, false, Customer."VAT Bus. Posting Group", WorkType.Code);
+        // [THEN] Price List Line, where "Unit of Measure Code" is 'R-UOM', "Variant Code" is <blank>, "Allow Invoice Disc." is No, 
+        // [THEN] "Price Includes VAT" is No, "VAT Bus. Posting Gr. (Price)" is 'CVAT', "Work Type Code" is <blank>
+        VerifyLine(PriceListLine, Resource."Base Unit of Measure", false, false, Customer."VAT Bus. Posting Group", '');
     end;
 
     [Test]
@@ -797,13 +1198,13 @@ codeunit 134123 "Price List Line UT"
         LibraryResource.CreateResourceGroup(ResourceGroup);
         // [GIVEN] Price List Line, where "Source Type" is 'Vendor', "Asset Type" is 'Resource Group',
         // [GIVEN] "Variant Code" is 'V', "Work Type Code" is 'WT'
-        PriceListLine.Validate("Source Type", PriceListLine."Source Type"::Vendor);
+        PriceListLine.Validate("Source Type", "Price Source Type"::Vendor);
         PriceListLine.Validate("Source No.", LibraryPurchase.CreateVendorNo());
         PriceListLine."Variant Code" := LibraryUtility.GenerateGUID();
         PriceListLine."Unit of Measure Code" := LibraryUtility.GenerateGUID();
         LibraryResource.CreateWorkType(WorkType);
         PriceListLine."Work Type Code" := WorkType.Code;
-        PriceListLine.Validate("Asset Type", PriceListLine."Asset Type"::"Resource Group");
+        PriceListLine.Validate("Asset Type", "Price Asset Type"::"Resource Group");
 
         // [WHEN] Set "Asset No." as 'X'
         PriceListLine.Validate("Asset No.", ResourceGroup."No.");
@@ -825,14 +1226,14 @@ codeunit 134123 "Price List Line UT"
         // [GIVEN] "Price Includes VAT" is Yes, "VAT Bus. Posting Gr. (Price)" is 'VATBPG'
         CreateItem(Item);
         // [GIVEN] Price List Line, where "Source Type" is 'Customer', "Asset Type" is Item, "Variant Code" is 'V'
-        PriceListLine.Validate("Source Type", PriceListLine."Source Type"::"All Customers");
-        PriceListLine.Validate("Asset Type", PriceListLine."Asset Type"::Item);
+        PriceListLine.Validate("Source Type", "Price Source Type"::"All Customers");
+        PriceListLine.Validate("Asset Type", "Price Asset Type"::Item);
         PriceListLine.Validate("Asset No.", Item."No.");
         PriceListLine."Variant Code" := LibraryUtility.GenerateGUID();
         PriceListLine."Unit of Measure Code" := LibraryUtility.GenerateGUID();
 
         // [WHEN] Set "Source Type " as 'Customer'
-        PriceListLine.Validate("Source Type", PriceListLine."Source Type"::Customer);
+        PriceListLine.Validate("Source Type", "Price Source Type"::Customer);
 
         // [THEN] Price List Line, where "Unit of Measure Code" is 'SUoM', "Variant Code" is <blank>, "Allow Invoice Disc." is Yes, 
         // [THEN] "Price Includes VAT" is Yes, "VAT Bus. Posting Gr. (Price)" is 'VATBPG'
@@ -848,7 +1249,7 @@ codeunit 134123 "Price List Line UT"
         // [FEATURE] [All Customers]
         Initialize();
         // [GIVEN] Price List Line, where "Source Type" is 'All Customers'
-        PriceListLine.Validate("Source Type", PriceListLine."Source Type"::"All Customers");
+        PriceListLine.Validate("Source Type", "Price Source Type"::"All Customers");
 
         // [WHEN] Set "Source No." as 'X'
         PriceListLine.Validate("Source No.", LibraryUtility.GenerateGUID());
@@ -874,8 +1275,8 @@ codeunit 134123 "Price List Line UT"
         // [GIVEN] "Price Includes VAT" is Yes, "VAT Bus. Posting Gr. (Price)" is 'VATBPG'
         CreateItem(Item);
         // [GIVEN] Price List Line, where "Source Type" is 'Customer', "Asset Type" is Item, "Variant Code" is 'V'
-        PriceListLine.Validate("Source Type", PriceListLine."Source Type"::Customer);
-        PriceListLine.Validate("Asset Type", PriceListLine."Asset Type"::Item);
+        PriceListLine.Validate("Source Type", "Price Source Type"::Customer);
+        PriceListLine.Validate("Asset Type", "Price Asset Type"::Item);
         PriceListLine.Validate("Asset No.", Item."No.");
         PriceListLine."Variant Code" := LibraryUtility.GenerateGUID();
         PriceListLine."Unit of Measure Code" := LibraryUtility.GenerateGUID();
@@ -907,8 +1308,8 @@ codeunit 134123 "Price List Line UT"
         // [GIVEN] "Price Includes VAT" is Yes, "VAT Bus. Posting Gr. (Price)" is 'VATBPG'
         CreateItem(Item);
         // [GIVEN] Price List Line, where "Source Type" is 'Customer Price GroupCustomer Price Group', "Asset Type" is Item, "Variant Code" is 'V'
-        PriceListLine.Validate("Source Type", PriceListLine."Source Type"::"Customer Price Group");
-        PriceListLine.Validate("Asset Type", PriceListLine."Asset Type"::Item);
+        PriceListLine.Validate("Source Type", "Price Source Type"::"Customer Price Group");
+        PriceListLine.Validate("Asset Type", "Price Asset Type"::Item);
         PriceListLine.Validate("Asset No.", Item."No.");
         PriceListLine."Variant Code" := LibraryUtility.GenerateGUID();
         PriceListLine."Unit of Measure Code" := LibraryUtility.GenerateGUID();
@@ -937,7 +1338,7 @@ codeunit 134123 "Price List Line UT"
         Campaign.Validate("Ending Date", WorkDate() + 10);
         Campaign.Modify();
         // [GIVEN] Price List Line, where "Source Type" is 'Campaign', "Starting Date" and "Ending Date" are <blank>
-        PriceListLine.Validate("Source Type", PriceListLine."Source Type"::Campaign);
+        PriceListLine.Validate("Source Type", "Price Source Type"::Campaign);
 
         // [WHEN] Set "Source No." as 'C'
         PriceListLine.Validate("Source No.", Campaign."No.");
@@ -964,9 +1365,9 @@ codeunit 134123 "Price List Line UT"
         // [GIVEN] "Price Includes VAT" is Yes, "VAT Bus. Posting Gr. (Price)" is 'VATBPG'
         CreateItem(Item);
         // [GIVEN] Price List Line, where "Price Type"::Sale, "Source Type" is 'Contact', "Asset Type" is Item, "Variant Code" is 'V'
-        PriceListLine."Price Type" := PriceListLine."Price Type"::Sale;
-        PriceListLine.Validate("Source Type", PriceListLine."Source Type"::Contact);
-        PriceListLine.Validate("Asset Type", PriceListLine."Asset Type"::Item);
+        PriceListLine."Price Type" := "Price Type"::Sale;
+        PriceListLine.Validate("Source Type", "Price Source Type"::Contact);
+        PriceListLine.Validate("Asset Type", "Price Asset Type"::Item);
         PriceListLine.Validate("Asset No.", Item."No.");
 
         // [WHEN] Set "Source No." as 'CONT'
@@ -995,10 +1396,10 @@ codeunit 134123 "Price List Line UT"
         // [GIVEN] "Price Includes VAT" is Yes, "VAT Bus. Posting Gr. (Price)" is 'VATBPG'
         CreateItem(Item);
         // [GIVEN] Price List Line, where "Price Type"::Sale, "Source Type" is 'Contact', "Asset Type" is Item, "Variant Code" is 'V'
-        PriceListLine."Price Type" := PriceListLine."Price Type"::Sale;
-        PriceListLine.Validate("Source Type", PriceListLine."Source Type"::Contact);
+        PriceListLine."Price Type" := "Price Type"::Sale;
+        PriceListLine.Validate("Source Type", "Price Source Type"::Contact);
         PriceListLine.Validate("Source No.", Contact."No.");
-        PriceListLine.Validate("Asset Type", PriceListLine."Asset Type"::Item);
+        PriceListLine.Validate("Asset Type", "Price Asset Type"::Item);
         PriceListLine."Variant Code" := LibraryUtility.GenerateGUID();
         PriceListLine."Unit of Measure Code" := LibraryUtility.GenerateGUID();
 
@@ -1015,20 +1416,19 @@ codeunit 134123 "Price List Line UT"
     var
         PriceListLine: Record "Price List Line";
         Resource: Array[2] of Record Resource;
-        AssetType: Enum "Price Asset Type";
     begin
         // [FEATURE] [Resource]
         Initialize();
         // [GIVEN] Two Resource 'A' and 'B' have related price lines
         LibraryResource.CreateResource(Resource[1], '');
         LibraryResource.CreateResource(Resource[2], '');
-        CreateAssetPriceLines(AssetType::Resource, Resource[1]."No.", Resource[2]."No.");
+        CreateAssetPriceLines("Price Asset Type"::Resource, Resource[1]."No.", Resource[2]."No.");
 
         // [WHEN] Delete Resource 'A'
         Resource[1].Delete(true);
 
         // [THEN] Price list lines for Resource 'A' are deleted, for Resource 'B' are not deleted
-        VerifyDeletedAssetPrices(AssetType::Resource, Resource[1]."No.", Resource[2]."No.");
+        VerifyDeletedAssetPrices("Price Asset Type"::Resource, Resource[1]."No.", Resource[2]."No.");
     end;
 
     [Test]
@@ -1036,20 +1436,19 @@ codeunit 134123 "Price List Line UT"
     var
         PriceListLine: Record "Price List Line";
         ResourceGroup: Array[2] of Record "Resource Group";
-        AssetType: Enum "Price Asset Type";
     begin
         // [FEATURE] [Resource Group]
         Initialize();
         // [GIVEN] Two Resource Groups 'A' and 'B' have related price lines
         LibraryResource.CreateResourceGroup(ResourceGroup[1]);
         LibraryResource.CreateResourceGroup(ResourceGroup[2]);
-        CreateAssetPriceLines(AssetType::"Resource Group", ResourceGroup[1]."No.", ResourceGroup[2]."No.");
+        CreateAssetPriceLines("Price Asset Type"::"Resource Group", ResourceGroup[1]."No.", ResourceGroup[2]."No.");
 
         // [WHEN] Delete ResourceGroup 'A'
         ResourceGroup[1].Delete(true);
 
         // [THEN] Price list lines for ResourceGroup 'A' are deleted, for ResourceGroup 'B' are not deleted
-        VerifyDeletedAssetPrices(AssetType::"Resource Group", ResourceGroup[1]."No.", ResourceGroup[2]."No.");
+        VerifyDeletedAssetPrices("Price Asset Type"::"Resource Group", ResourceGroup[1]."No.", ResourceGroup[2]."No.");
     end;
 
     [Test]
@@ -1057,20 +1456,19 @@ codeunit 134123 "Price List Line UT"
     var
         PriceListLine: Record "Price List Line";
         Item: Array[2] of Record Item;
-        AssetType: Enum "Price Asset Type";
     begin
         // [FEATURE] [Item]
         Initialize();
         // [GIVEN] Two Item 'A' and 'B' have related price lines
         LibraryInventory.CreateItem(Item[1]);
         LibraryInventory.CreateItem(Item[2]);
-        CreateAssetPriceLines(AssetType::Item, Item[1]."No.", Item[2]."No.");
+        CreateAssetPriceLines("Price Asset Type"::Item, Item[1]."No.", Item[2]."No.");
 
         // [WHEN] Delete Item 'A'
         Item[1].Delete(true);
 
         // [THEN] Price list lines for Item 'A' are deleted, for Item 'B' are not deleted
-        VerifyDeletedAssetPrices(AssetType::Item, Item[1]."No.", Item[2]."No.");
+        VerifyDeletedAssetPrices("Price Asset Type"::Item, Item[1]."No.", Item[2]."No.");
     end;
 
     [Test]
@@ -1078,20 +1476,19 @@ codeunit 134123 "Price List Line UT"
     var
         PriceListLine: Record "Price List Line";
         ItemDiscountGroup: Array[2] of Record "Item Discount Group";
-        AssetType: Enum "Price Asset Type";
     begin
         // [FEATURE] [Item Discount Group]
         Initialize();
         // [GIVEN] Two "Item Discount Group" 'A' and 'B' have related price lines
         LibraryERM.CreateItemDiscountGroup(ItemDiscountGroup[1]);
         LibraryERM.CreateItemDiscountGroup(ItemDiscountGroup[2]);
-        CreateAssetPriceLines(AssetType::"Item Discount Group", ItemDiscountGroup[1].Code, ItemDiscountGroup[2].Code);
+        CreateAssetDiscLines("Price Asset Type"::"Item Discount Group", ItemDiscountGroup[1].Code, ItemDiscountGroup[2].Code);
 
         // [WHEN] Delete "Item Discount Group" 'A'
         ItemDiscountGroup[1].Delete(true);
 
         // [THEN] Price list lines for "Item Discount Group" 'A' are deleted, for "Item Discount Group" 'B' are not deleted
-        VerifyDeletedAssetPrices(AssetType::"Item Discount Group", ItemDiscountGroup[1].Code, ItemDiscountGroup[2].Code);
+        VerifyDeletedAssetPrices("Price Asset Type"::"Item Discount Group", ItemDiscountGroup[1].Code, ItemDiscountGroup[2].Code);
     end;
 
     [Test]
@@ -1100,7 +1497,6 @@ codeunit 134123 "Price List Line UT"
         GeneralLedgerSetup: Record "General Ledger Setup";
         PriceListLine: Record "Price List Line";
         GLAccount: Array[2] of Record "G/L Account";
-        AssetType: Enum "Price Asset Type";
     begin
         // [FEATURE] [G/L Account]
         Initialize();
@@ -1111,13 +1507,13 @@ codeunit 134123 "Price List Line UT"
         // [GIVEN] Two G/L Account 'A' and 'B' have related price lines
         LibraryERM.CreateGLAccount(GLAccount[1]);
         LibraryERM.CreateGLAccount(GLAccount[2]);
-        CreateAssetPriceLines(AssetType::"G/L Account", GLAccount[1]."No.", GLAccount[2]."No.");
+        CreateAssetPriceLines("Price Asset Type"::"G/L Account", GLAccount[1]."No.", GLAccount[2]."No.");
 
         // [WHEN] Delete G/L Account 'A'
         GLAccount[1].Delete(true);
 
         // [THEN] Price list lines for G/L Account 'A' are deleted, for G/L Account 'B' are not deleted
-        VerifyDeletedAssetPrices(AssetType::"G/L Account", GLAccount[1]."No.", GLAccount[2]."No.");
+        VerifyDeletedAssetPrices("Price Asset Type"::"G/L Account", GLAccount[1]."No.", GLAccount[2]."No.");
     end;
 
     [Test]
@@ -1125,20 +1521,19 @@ codeunit 134123 "Price List Line UT"
     var
         PriceListLine: Record "Price List Line";
         ServiceCost: Array[2] of Record "Service Cost";
-        AssetType: Enum "Price Asset Type";
     begin
         // [FEATURE] [Service Cost]
         Initialize();
         // [GIVEN] Two "Service Cost" 'A' and 'B' have related price lines
         LibraryService.CreateServiceCost(ServiceCost[1]);
         LibraryService.CreateServiceCost(ServiceCost[2]);
-        CreateAssetPriceLines(AssetType::"Service Cost", ServiceCost[1].Code, ServiceCost[2].Code);
+        CreateAssetPriceLines("Price Asset Type"::"Service Cost", ServiceCost[1].Code, ServiceCost[2].Code);
 
         // [WHEN] Delete Service Cost 'A'
         ServiceCost[1].Delete(true);
 
         // [THEN] Price list lines for Service Cost 'A' are deleted, for Service Cost 'B' are not deleted
-        VerifyDeletedAssetPrices(AssetType::"Service Cost", ServiceCost[1].Code, ServiceCost[2].Code);
+        VerifyDeletedAssetPrices("Price Asset Type"::"Service Cost", ServiceCost[1].Code, ServiceCost[2].Code);
     end;
 
     [Test]
@@ -1147,7 +1542,6 @@ codeunit 134123 "Price List Line UT"
         PriceListLine: Record "Price List Line";
         Item: Record Item;
         ItemVariant: Array[2] of Record "Item Variant";
-        AssetType: Enum "Price Asset Type";
     begin
         // [FEATURE] [Item Variant]
         Initialize();
@@ -1169,7 +1563,6 @@ codeunit 134123 "Price List Line UT"
     var
         PriceListLine: Record "Price List Line";
         Resource: Array[2] of Record Resource;
-        AssetType: Enum "Price Asset Type";
         OldNo: Code[20];
     begin
         // [FEATURE] [Resource]
@@ -1177,14 +1570,14 @@ codeunit 134123 "Price List Line UT"
         // [GIVEN] Two Resource 'A' and 'B' have related price lines
         LibraryResource.CreateResource(Resource[1], '');
         LibraryResource.CreateResource(Resource[2], '');
-        CreateAssetPriceLines(AssetType::Resource, Resource[1]."No.", Resource[2]."No.");
+        CreateAssetPriceLines("Price Asset Type"::Resource, Resource[1]."No.", Resource[2]."No.");
 
         // [WHEN] Rename Resource 'A' to 'X'
         OldNo := Resource[1]."No.";
         Resource[1].Rename(LibraryUtility.GenerateGUID());
 
         // [THEN] Price list lines for Resource 'A' are modified to 'X', for Resource 'B' are not deleted
-        VerifyRenamedAssetPrices(AssetType::Resource, Resource[1]."No.", Resource[2]."No.", OldNo);
+        VerifyRenamedAssetPrices("Price Asset Type"::Resource, Resource[1]."No.", Resource[2]."No.", OldNo);
     end;
 
     [Test]
@@ -1192,7 +1585,6 @@ codeunit 134123 "Price List Line UT"
     var
         PriceListLine: Record "Price List Line";
         ResourceGroup: Array[2] of Record "Resource Group";
-        AssetType: Enum "Price Asset Type";
         OldNo: Code[20];
     begin
         // [FEATURE] [Resource Group]
@@ -1200,14 +1592,14 @@ codeunit 134123 "Price List Line UT"
         // [GIVEN] Two Resource 'A' and 'B' have related price lines
         LibraryResource.CreateResourceGroup(ResourceGroup[1]);
         LibraryResource.CreateResourceGroup(ResourceGroup[2]);
-        CreateAssetPriceLines(AssetType::"Resource Group", ResourceGroup[1]."No.", ResourceGroup[2]."No.");
+        CreateAssetPriceLines("Price Asset Type"::"Resource Group", ResourceGroup[1]."No.", ResourceGroup[2]."No.");
 
         // [WHEN] Rename ResourceGroup 'A' to 'X'
         OldNo := ResourceGroup[1]."No.";
         ResourceGroup[1].Rename(LibraryUtility.GenerateGUID());
 
         // [THEN] Price list lines for ResourceGroup 'A' are modified to 'X', for ResourceGroup 'B' are not deleted
-        VerifyRenamedAssetPrices(AssetType::"Resource Group", ResourceGroup[1]."No.", ResourceGroup[2]."No.", OldNo);
+        VerifyRenamedAssetPrices("Price Asset Type"::"Resource Group", ResourceGroup[1]."No.", ResourceGroup[2]."No.", OldNo);
     end;
 
     [Test]
@@ -1215,7 +1607,6 @@ codeunit 134123 "Price List Line UT"
     var
         PriceListLine: Record "Price List Line";
         Item: Array[2] of Record Item;
-        AssetType: Enum "Price Asset Type";
         OldNo: Code[20];
     begin
         // [FEATURE] [Item]
@@ -1223,14 +1614,14 @@ codeunit 134123 "Price List Line UT"
         // [GIVEN] Two Item 'A' and 'B' have related price lines
         LibraryInventory.CreateItem(Item[1]);
         LibraryInventory.CreateItem(Item[2]);
-        CreateAssetPriceLines(AssetType::Item, Item[1]."No.", Item[2]."No.");
+        CreateAssetPriceLines("Price Asset Type"::Item, Item[1]."No.", Item[2]."No.");
 
         // [WHEN] Rename Item 'A' to 'X'
         OldNo := Item[1]."No.";
         Item[1].Rename(LibraryUtility.GenerateGUID());
 
         // [THEN] Price list lines for Item 'A' are modified to 'X', for Item 'B' are not deleted
-        VerifyRenamedAssetPrices(AssetType::Item, Item[1]."No.", Item[2]."No.", OldNo);
+        VerifyRenamedAssetPrices("Price Asset Type"::Item, Item[1]."No.", Item[2]."No.", OldNo);
     end;
 
     [Test]
@@ -1238,7 +1629,6 @@ codeunit 134123 "Price List Line UT"
     var
         PriceListLine: Record "Price List Line";
         ItemDiscountGroup: Array[2] of Record "Item Discount Group";
-        AssetType: Enum "Price Asset Type";
         OldNo: Code[20];
     begin
         // [FEATURE] [Item Discount Group]
@@ -1246,14 +1636,14 @@ codeunit 134123 "Price List Line UT"
         // [GIVEN] Two Item Discount Groups 'A' and 'B' have related price lines
         LibraryERM.CreateItemDiscountGroup(ItemDiscountGroup[1]);
         LibraryERM.CreateItemDiscountGroup(ItemDiscountGroup[2]);
-        CreateAssetPriceLines(AssetType::"Item Discount Group", ItemDiscountGroup[1].Code, ItemDiscountGroup[2].Code);
+        CreateAssetDiscLines("Price Asset Type"::"Item Discount Group", ItemDiscountGroup[1].Code, ItemDiscountGroup[2].Code);
 
         // [WHEN] Rename ItemDiscountGroup 'A' to 'X'
         OldNo := ItemDiscountGroup[1].Code;
         ItemDiscountGroup[1].Rename(LibraryUtility.GenerateGUID());
 
         // [THEN] Price list lines for "Item Discount Group" 'A' are modified to 'X', for "Item Discount Group" 'B' are not deleted
-        VerifyRenamedAssetPrices(AssetType::"Item Discount Group", ItemDiscountGroup[1].Code, ItemDiscountGroup[2].Code, OldNo);
+        VerifyRenamedAssetPrices("Price Asset Type"::"Item Discount Group", ItemDiscountGroup[1].Code, ItemDiscountGroup[2].Code, OldNo);
     end;
 
     [Test]
@@ -1261,7 +1651,6 @@ codeunit 134123 "Price List Line UT"
     var
         PriceListLine: Record "Price List Line";
         GLAccount: Array[2] of Record "G/L Account";
-        AssetType: Enum "Price Asset Type";
         OldNo: Code[20];
     begin
         // [FEATURE] [G/L Account]
@@ -1269,14 +1658,14 @@ codeunit 134123 "Price List Line UT"
         // [GIVEN] Two GLAccount 'A' and 'B' have related price lines
         LibraryERM.CreateGLAccount(GLAccount[1]);
         LibraryERM.CreateGLAccount(GLAccount[2]);
-        CreateAssetPriceLines(AssetType::"G/L Account", GLAccount[1]."No.", GLAccount[2]."No.");
+        CreateAssetPriceLines("Price Asset Type"::"G/L Account", GLAccount[1]."No.", GLAccount[2]."No.");
 
         // [WHEN] Rename GLAccount 'A' to 'X'
         OldNo := GLAccount[1]."No.";
         GLAccount[1].Rename(LibraryUtility.GenerateGUID());
 
         // [THEN] Price list lines for GLAccount 'A' are modified to 'X', for GLAccount 'B' are not deleted
-        VerifyRenamedAssetPrices(AssetType::"G/L Account", GLAccount[1]."No.", GLAccount[2]."No.", OldNo);
+        VerifyRenamedAssetPrices("Price Asset Type"::"G/L Account", GLAccount[1]."No.", GLAccount[2]."No.", OldNo);
     end;
 
     [Test]
@@ -1284,7 +1673,6 @@ codeunit 134123 "Price List Line UT"
     var
         PriceListLine: Record "Price List Line";
         ServiceCost: Array[2] of Record "Service Cost";
-        AssetType: Enum "Price Asset Type";
         OldNo: Code[20];
     begin
         // [FEATURE] [Service Cost]
@@ -1292,14 +1680,14 @@ codeunit 134123 "Price List Line UT"
         // [GIVEN] Two "Service Cost" 'A' and 'B' have related price lines
         LibraryService.CreateServiceCost(ServiceCost[1]);
         LibraryService.CreateServiceCost(ServiceCost[1]);
-        CreateAssetPriceLines(AssetType::"Service Cost", ServiceCost[1].Code, ServiceCost[2].Code);
+        CreateAssetPriceLines("Price Asset Type"::"Service Cost", ServiceCost[1].Code, ServiceCost[2].Code);
 
         // [WHEN] Rename "Service Cost" 'A' to 'X'
         OldNo := ServiceCost[1].Code;
         ServiceCost[1].Rename(LibraryUtility.GenerateGUID());
 
         // [THEN] Price list lines for "Service Cost" 'A' are modified to 'X', for "Service Cost" 'B' are not deleted
-        VerifyRenamedAssetPrices(AssetType::"Service Cost", ServiceCost[1].Code, ServiceCost[2].Code, OldNo);
+        VerifyRenamedAssetPrices("Price Asset Type"::"Service Cost", ServiceCost[1].Code, ServiceCost[2].Code, OldNo);
     end;
 
     [Test]
@@ -1308,7 +1696,6 @@ codeunit 134123 "Price List Line UT"
         PriceListLine: Record "Price List Line";
         Item: Record Item;
         ItemVariant: Array[2] of Record "Item Variant";
-        AssetType: Enum "Price Asset Type";
         OldNo: Code[10];
     begin
         // [FEATURE] [Item Variant]
@@ -1368,7 +1755,7 @@ codeunit 134123 "Price List Line UT"
         Initialize();
         // [GIVEN] Price List Line, where "Source Type" is 'Campaign', "Ending Date" is '310120'
         PriceListLine.Init();
-        PriceListLine."Source Type" := PriceListLine."Source Type"::Campaign;
+        PriceListLine."Source Type" := "Price Source Type"::Campaign;
         PriceListLine."Ending Date" := WorkDate();
         // [WHEN] Set "Starting Date" as '010120'
         asserterror PriceListLine.Validate("Starting Date", WorkDate() + 1);
@@ -1388,7 +1775,7 @@ codeunit 134123 "Price List Line UT"
         // [GIVEN] Price List Line, where "Source Type" is 'Campaign', "Starting Date" is '010220'
         PriceListLine.DeleteAll();
         PriceListLine.Init();
-        PriceListLine."Source Type" := PriceListLine."Source Type"::Campaign;
+        PriceListLine."Source Type" := "Price Source Type"::Campaign;
         PriceListLine."Starting Date" := WorkDate();
         PriceListLine.Insert();
         // [GIVEN] Open page 
@@ -1411,7 +1798,7 @@ codeunit 134123 "Price List Line UT"
         Initialize();
         // [GIVEN] Price List Line, where "Asset Type" is 'G/L Account'
         PriceListLine.Init();
-        PriceListLine."Asset Type" := PriceListLine."Asset Type"::"G/L Account";
+        PriceListLine."Asset Type" := "Price Asset Type"::"G/L Account";
         // [WHEN] Set "Unit Of Meadure" as 'BOX'
         UnitofMeasure.FindFirst();
         asserterror PriceListLine.Validate("Unit of Measure Code", UnitofMeasure.Code);
@@ -1432,7 +1819,7 @@ codeunit 134123 "Price List Line UT"
         ItemVariant.FindFirst();
         // [GIVEN] Price List Line, where "Asset Type" is 'Item Discount Group', "Asset Type" is 'I'
         PriceListLine.Init();
-        PriceListLine."Asset Type" := PriceListLine."Asset Type"::"Item Discount Group";
+        PriceListLine."Asset Type" := "Price Asset Type"::"Item Discount Group";
         PriceListLine."Asset No." := ItemVariant."Item No.";
         // [WHEN] Set "Variant Code" as 'X'
         asserterror PriceListLine.Validate("Variant Code", ItemVariant.Code);
@@ -1450,7 +1837,7 @@ codeunit 134123 "Price List Line UT"
         Initialize();
         // [GIVEN] Price List Line, where "Source Type" is 'Job', "Cost Factor" is 2
         PriceListLine.Init();
-        PriceListLine."Source Type" := PriceListLine."Source Type"::Job;
+        PriceListLine."Source Type" := "Price Source Type"::Job;
         PriceListLine."Cost Factor" := 2;
         // [WHEN] Set "Unit Price" as 1
         PriceListLine.Validate("Unit Price", 1);
@@ -1467,7 +1854,7 @@ codeunit 134123 "Price List Line UT"
         Initialize();
         // [GIVEN] Price List Line, where "Source Type" is 'Job', "Unit Price" is 2
         PriceListLine.Init();
-        PriceListLine."Source Type" := PriceListLine."Source Type"::Job;
+        PriceListLine."Source Type" := "Price Source Type"::Job;
         PriceListLine."Unit Price" := 2;
         // [WHEN] Set "Cost Factor" as 1
         PriceListLine.Validate("Cost Factor", 1);
@@ -1491,7 +1878,7 @@ codeunit 134123 "Price List Line UT"
         JobTask.Modify();
         // [GIVEN] Price List Line, where "Source Type" is 'Job Task'
         PriceListLine.Init();
-        PriceListLine."Source Type" := PriceListLine."Source Type"::"Job Task";
+        PriceListLine."Source Type" := "Price Source Type"::"Job Task";
         PriceListLine."Parent Source No." := Job."No.";
         // [WHEN] Set "Source No." as 'JT'
         asserterror PriceListLine.Validate("Source No.", JobTask."Job Task No.");
@@ -1515,7 +1902,7 @@ codeunit 134123 "Price List Line UT"
         Job.Modify();
         // [GIVEN] Price List Line, where "Source Type" is 'Job'
         PriceListLine.Init();
-        PriceListLine."Source Type" := PriceListLine."Source Type"::"Job";
+        PriceListLine."Source Type" := "Price Source Type"::"Job";
         // [WHEN] Set "Source No." as 'JT'
         PriceListLine.Validate("Source No.", Job."No.");
         // [THEN] Line, where "Currency Code" is 'USD'
@@ -1538,7 +1925,7 @@ codeunit 134123 "Price List Line UT"
         Job.Modify();
         // [GIVEN] Price List Line, where "Source Type" is 'Job Task'
         PriceListLine.Init();
-        PriceListLine."Source Type" := PriceListLine."Source Type"::"Job Task";
+        PriceListLine."Source Type" := "Price Source Type"::"Job Task";
         // [WHEN] Set "Parent Source No." as 'J'
         PriceListLine.Validate("Parent Source No.", Job."No.");
         // [THEN] Line, where "Currency Code" is 'USD'
@@ -1560,27 +1947,49 @@ codeunit 134123 "Price List Line UT"
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"Price List Line UT");
     end;
 
+    local procedure CreateAssetDiscLines(AssetType: Enum "Price Asset Type"; AssetNo1: Code[20]; AssetNo2: Code[20])
+    var
+        PriceListLine: Record "Price List Line";
+    begin
+        PriceListLine.DeleteAll();
+        LibraryPriceCalculation.CreateSalesDiscountLine(
+            PriceListLine, '', "Price Source Type"::"All Customers", '', AssetType, AssetNo1);
+        LibraryPriceCalculation.CreateSalesDiscountLine(
+            PriceListLine, '', "Price Source Type"::"All Customers", '', AssetType, AssetNo2);
+    end;
+
     local procedure CreateAssetPriceLines(AssetType: Enum "Price Asset Type"; AssetNo1: Code[20]; AssetNo2: Code[20])
     var
         PriceListLine: Record "Price List Line";
     begin
         PriceListLine.DeleteAll();
-        LibraryPriceCalculation.CreatePriceLine(PriceListLine, '', AssetType, AssetNo1);
-        LibraryPriceCalculation.CreatePriceLine(PriceListLine, '', AssetType, AssetNo2);
+        LibraryPriceCalculation.CreateSalesPriceLine(
+            PriceListLine, '', "Price Source Type"::"All Customers", '', AssetType, AssetNo1);
+        LibraryPriceCalculation.CreateSalesPriceLine(
+            PriceListLine, '', "Price Source Type"::"All Customers", '', AssetType, AssetNo2);
     end;
 
     local procedure CreateAssetPriceLines(ItemNo: Code[20]; VariantCode1: Code[10]; VariantCode2: Code[10])
     var
         PriceListLine: Record "Price List Line";
-        AssetType: Enum "Price Asset Type";
     begin
         PriceListLine.DeleteAll();
-        LibraryPriceCalculation.CreatePriceLine(PriceListLine, '', AssetType::Item, ItemNo);
+        LibraryPriceCalculation.CreateSalesPriceLine(
+            PriceListLine, '', "Price Source Type"::"All Customers", '', "Price Asset Type"::Item, ItemNo);
         PriceListLine.Validate("Variant Code", VariantCode1);
         PriceListLine.Modify();
-        LibraryPriceCalculation.CreatePriceLine(PriceListLine, '', AssetType::Item, ItemNo);
+        LibraryPriceCalculation.CreateSalesPriceLine(
+            PriceListLine, '', "Price Source Type"::"All Customers", '', "Price Asset Type"::Item, ItemNo);
         PriceListLine.Validate("Variant Code", VariantCode2);
         PriceListLine.Modify();
+    end;
+
+    local procedure GetWorkTypeCode(): Code[10]
+    var
+        WorkType: Record "Work Type";
+    begin
+        LibraryResource.CreateWorkType(WorkType);
+        exit(WorkType.Code);
     end;
 
     local procedure VerifyDeletedAssetPrices(AssetType: Enum "Price Asset Type"; AssetNo1: Code[20]; AssetNo2: Code[20])
@@ -1597,9 +2006,8 @@ codeunit 134123 "Price List Line UT"
     local procedure VerifyDeletedAssetPrices(ItemNo: Code[20]; VariantCode1: Code[10]; VariantCode2: Code[10])
     var
         PriceListLine: Record "Price List Line";
-        AssetType: Enum "Price Asset Type";
     begin
-        PriceListLine.SetRange("Asset Type", AssetType::Item);
+        PriceListLine.SetRange("Asset Type", "Price Asset Type"::Item);
         PriceListLine.SetRange("Asset No.", ItemNo);
         PriceListLine.SetRange("Variant Code", VariantCode2);
         Assert.RecordCount(PriceListLine, 1);
@@ -1623,9 +2031,8 @@ codeunit 134123 "Price List Line UT"
     local procedure VerifyRenamedAssetPrices(ItemNo: Code[20]; VariantCode1: Code[10]; VariantCode2: Code[10]; OldVariantCode: Code[10])
     var
         PriceListLine: Record "Price List Line";
-        AssetType: Enum "Price Asset Type";
     begin
-        PriceListLine.SetRange("Asset Type", AssetType::Item);
+        PriceListLine.SetRange("Asset Type", "Price Asset Type"::Item);
         PriceListLine.SetRange("Asset No.", ItemNo);
         PriceListLine.SetRange("Variant Code", VariantCode1);
         Assert.RecordCount(PriceListLine, 1);

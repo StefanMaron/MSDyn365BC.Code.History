@@ -185,7 +185,7 @@ codeunit 137000 "SCM WIP Posting"
         exit(InventoryPostingSetup."WIP Account");
     end;
 
-    local procedure SelectItemJournalBatch(var ItemJournalBatch: Record "Item Journal Batch"; Type: Option)
+    local procedure SelectItemJournalBatch(var ItemJournalBatch: Record "Item Journal Batch"; Type: Enum "Item Journal Template Type")
     var
         ItemJournalTemplate: Record "Item Journal Template";
     begin
