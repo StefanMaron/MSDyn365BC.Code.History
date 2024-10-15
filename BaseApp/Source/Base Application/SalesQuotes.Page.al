@@ -358,11 +358,10 @@ page 9300 "Sales Quotes"
                     begin
                         IsHandled := false;
                         OnBeforeStatisticsAction(Rec, IsHandled);
-                        if not IsHandled then begin
-                            CalcInvDiscForHeader();
-                            Commit();
-                            PAGE.RunModal(PAGE::"Sales Statistics", Rec);
-                        end;
+                        if IsHandled then
+                            exit;
+
+                        OpenDocumentStatistics();
                     end;
                 }
                 action("Co&mments")

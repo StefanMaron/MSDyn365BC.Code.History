@@ -38,7 +38,7 @@ codeunit 7201 "CDS Integration Impl."
         DisableIntegrationTxt: Label 'Disable integration.', Locked = true;
         NoPermissionsTxt: Label 'No permissions.', Locked = true;
         RebuildCouplingTableJobQueueEntryDescriptionTxt: Label 'Rebuilding the Dataverse coupling table after Cloud Migration.';
-        RebuildCouplingTableQst: Label 'You should invoke this action only if you have migrated your Business Central installation from version 2019 Wave 1 (version 14) to the Cloud. Do you want to continue?';
+        RebuildCouplingTableQst: Label 'You should run this action only if you have migrated your Business Central installation from version 2019 Wave 1 (version 14) to the Cloud.\This will create a job queue entry which will perform the rebuilding of the coupling table in the background. You must specify the starting time and start the job queue entry.\Do you want to continue?';
         UpdateSetupTxt: Label 'Update setup.', Locked = true;
         SetupUpdatedTxt: Label 'Setup has been updated.', Locked = true;
         ConnectionFailureTxt: Label 'Connection failure.', Locked = true;
@@ -3868,6 +3868,7 @@ codeunit 7201 "CDS Integration Impl."
         exit(false);
     end;
 
+    [NonDebuggable]
     [Scope('OnPrem')]
     procedure UpdateConnectionSetupFromWizard(var SourceCDSConnectionSetup: Record "CDS Connection Setup"; PasswordText: Text)
     var
@@ -4052,7 +4053,7 @@ codeunit 7201 "CDS Integration Impl."
         JobQueueEntry."Run in User Session" := false;
         JobQueueEntry.Description := RebuildCouplingTableJobQueueEntryDescriptionTxt;
         JobQueueEntry."Maximum No. of Attempts to Run" := 5;
-        JobQueueEntry.Status := JobQueueEntry.Status::Ready;
+        JobQueueEntry.Status := JobQueueEntry.Status::"On Hold";
         JobQueueEntry."Rerun Delay (sec.)" := 120;
         JobQueueEntry.Insert(true);
 

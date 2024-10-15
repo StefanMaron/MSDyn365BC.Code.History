@@ -1,4 +1,4 @@
-page 39 "General Journal"
+﻿page 39 "General Journal"
 {
     // // This page has two view modes based on global variable 'IsSimplePage' as :-
     // // Classic mode (Show more columns action) - When IsSimplePage is set to false. This view supports showing all the traditional columns. All the lines for all
@@ -40,6 +40,7 @@ page 39 "General Journal"
                         SetControlAppearanceFromBatch;
                         // Set simple view when batch is changed
                         SetDataForSimpleModeOnBatchChange;
+                        OnLookupCurrentJnlBatchNameOnAfterSetDataForSimpleModeOnBatchChange(CurrentJnlBatchName);
                         CurrPage.Update(false);
                     end;
 
@@ -48,6 +49,7 @@ page 39 "General Journal"
                         GenJnlManagement.CheckName(CurrentJnlBatchName, Rec);
                         CurrentJnlBatchNameOnAfterVali;
                         SetDataForSimpleModeOnBatchChange;
+                        OnAfterValidateCurrentJnlBatchName(CurrentJnlBatchName);
                     end;
                 }
                 field("<Document No. Simple Page>"; CurrentDocNo)
@@ -1735,6 +1737,8 @@ page 39 "General Journal"
         GeneralLedgerSetup: Record "General Ledger Setup";
         ClientTypeManagement: Codeunit "Client Type Management";
     begin
+        OnBeforeOnInit(Rec);
+
         TotalBalanceVisible := true;
         BalanceVisible := true;
         AmountVisible := true;
@@ -1779,7 +1783,6 @@ page 39 "General Journal"
     var
         ServerSetting: Codeunit "Server Setting";
         EnvironmentInfo: Codeunit "Environment Information";
-        JnlSelected: Boolean;
         LastGenJnlBatch: Code[10];
     begin
         IsSaaSExcelAddinEnabled := ServerSetting.GetIsSaasExcelAddinEnabled();
@@ -1789,20 +1792,17 @@ page 39 "General Journal"
         BalAccName := '';
         SetControlVisibility;
         SetDimensionVisibility;
-        if IsOpenedFromBatch then begin
-            CurrentJnlBatchName := "Journal Batch Name";
-            GenJnlManagement.OpenJnl(CurrentJnlBatchName, Rec);
-            SetControlAppearanceFromBatch;
-            SetDataForSimpleModeOnOpen;
+        if OpenJournalFromBatch() then
             exit;
-        end;
-        GenJnlManagement.TemplateSelection(PAGE::"General Journal", "Gen. Journal Template Type"::General, false, Rec, JnlSelected);
-        if not JnlSelected then
-            Error('');
 
+        SelectTemplate();
+
+        OnOpenPageOnBeforeGetLastViewedJournalBatchName(CurrentJnlBatchName, GenJnlManagement);
         LastGenJnlBatch := GenJnlManagement.GetLastViewedJournalBatchName(PAGE::"General Journal");
         if LastGenJnlBatch <> '' then
             CurrentJnlBatchName := LastGenJnlBatch;
+        OnOpenPageOnAfterAssignCurrentJnlBatchName(CurrentJnlBatchName);
+
         GenJnlManagement.OpenJnl(CurrentJnlBatchName, Rec);
         SetControlAppearanceFromBatch;
 
@@ -2001,6 +2001,39 @@ page 39 "General Journal"
 
         CurrentDocNo := LastDocNo;
         SetDocumentNumberFilter(CurrentDocNo);
+    end;
+
+    local procedure OpenJournalFromBatch() Result: Boolean
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeOpenJournalFromBatch(Rec, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
+        if IsOpenedFromBatch then begin
+            CurrentJnlBatchName := "Journal Batch Name";
+            GenJnlManagement.OpenJnl(CurrentJnlBatchName, Rec);
+            SetControlAppearanceFromBatch();
+            SetDataForSimpleModeOnOpen();
+            exit(true);
+        end;
+    end;
+
+    local procedure SelectTemplate()
+    var
+        JnlSelected: Boolean;
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeSelectTemplate(Rec, GenJnlManagement, IsHandled);
+        if IsHandled then
+            exit;
+
+        GenJnlManagement.TemplateSelection(PAGE::"General Journal", "Gen. Journal Template Type"::General, false, Rec, JnlSelected);
+        if not JnlSelected then
+            Error('');
     end;
 
     local procedure SetPayrollAppearance()
@@ -2239,6 +2272,41 @@ page 39 "General Journal"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterValidateShortcutDimCode(var GenJournalLine: Record "Gen. Journal Line"; var ShortcutDimCode: array[8] of Code[20]; DimIndex: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterValidateCurrentJnlBatchName(CurrentJnlBatchName: Code[10])
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnBeforeOnInit(var GenJnlLine: Record "Gen. Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnBeforeOpenJournalFromBatch(var GenJournalLine: Record "Gen. Journal Line"; var Result: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnBeforeSelectTemplate(var GenJournalLine: Record "Gen. Journal Line"; var GenJnlManagement: Codeunit GenJnlManagement; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnLookupCurrentJnlBatchNameOnAfterSetDataForSimpleModeOnBatchChange(CurrentJnlBatchName: Code[10])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnOpenPageOnAfterAssignCurrentJnlBatchName(var CurrentJnlBatchName: Code[10])
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnOpenPageOnBeforeGetLastViewedJournalBatchName(var CurrentJnlBatchName: Code[10]; var GenJnlManagement: Codeunit GenJnlManagement)
     begin
     end;
 }

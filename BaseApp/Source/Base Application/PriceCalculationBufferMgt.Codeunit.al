@@ -160,21 +160,30 @@ codeunit 7008 "Price Calculation Buffer Mgt."
         if PriceListLine."Price Includes VAT" then begin
             VATPostingSetup.Get(PriceListLine."VAT Bus. Posting Gr. (Price)", PriceCalculationBuffer."VAT Prod. Posting Group");
             OnConvertAmountByTaxOnAfterVATPostingSetupGet(VATPostingSetup);
-            if VATPostingSetup."VAT Calculation Type" = VATPostingSetup."VAT Calculation Type"::"Sales Tax" then
-                Error(PricesInclVATErr, VATPostingSetup."VAT Calculation Type");
+
+            case VATPostingSetup."VAT Calculation Type" of
+                VATPostingSetup."VAT Calculation Type"::"Reverse Charge VAT":
+                    VATPostingSetup."VAT %" := 0;
+                VATPostingSetup."VAT Calculation Type"::"Sales Tax":
+                    Error(PricesInclVATErr, VATPostingSetup."VAT Calculation Type");
+            end;
 
             case PriceCalculationBuffer."VAT Calculation Type" of
-                VATPostingSetup."VAT Calculation Type"::"Normal VAT".AsInteger(),
-                VATPostingSetup."VAT Calculation Type"::"Full VAT".AsInteger():
+                "Tax Calculation Type"::"Normal VAT".AsInteger(),
+                "Tax Calculation Type"::"Sales Tax".AsInteger(),
+                "Tax Calculation Type"::"Full VAT".AsInteger():
                     if PriceCalculationBuffer."Prices Including Tax" then begin
-                        if PriceCalculationBuffer."VAT Bus. Posting Group" <> PriceListLine."VAT Bus. Posting Gr. (Price)" then
+                        if PriceCalculationBuffer."Tax %" <> VATPostingSetup."VAT %" then
                             Amount := Amount * (100 + PriceCalculationBuffer."Tax %") / (100 + VATPostingSetup."VAT %");
                     end else
                         Amount := Amount / (1 + VATPostingSetup."VAT %" / 100);
+                "Tax Calculation Type"::"Reverse Charge VAT".AsInteger():
+                    Amount := Amount / (1 + VATPostingSetup."VAT %" / 100);
             end;
         end else
             if PriceCalculationBuffer."Prices Including Tax" then
-                Amount := Amount * (1 + PriceCalculationBuffer."Tax %" / 100);
+                if PriceCalculationBuffer."VAT Calculation Type" <> "Tax Calculation Type"::"Reverse Charge VAT".AsInteger() then
+                    Amount := Amount * (1 + PriceCalculationBuffer."Tax %" / 100);
     end;
 
     procedure ConvertAmountByUnitOfMeasure(var PriceListLine: Record "Price List Line"; var Amount: Decimal)

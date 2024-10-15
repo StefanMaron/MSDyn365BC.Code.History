@@ -859,10 +859,7 @@ page 51 "Purchase Invoice"
 
                     trigger OnAction()
                     begin
-                        CalcInvDiscForHeader;
-                        Commit();
-                        PAGE.RunModal(PAGE::"Purchase Statistics", Rec);
-                        PurchCalcDiscByType.ResetRecalculateInvoiceDisc(Rec);
+                        OpenDocumentStatistics();
                     end;
                 }
                 action(Vendor)
@@ -1140,6 +1137,7 @@ page 51 "Purchase Invoice"
                         ReleasePurchDoc: Codeunit "Release Purchase Document";
                     begin
                         ReleasePurchDoc.PerformManualRelease(Rec);
+                        CurrPage.PurchLines.PAGE.ClearTotalPurchaseHeader();
                     end;
                 }
                 action(Reopen)
@@ -1158,6 +1156,7 @@ page 51 "Purchase Invoice"
                         ReleasePurchDoc: Codeunit "Release Purchase Document";
                     begin
                         ReleasePurchDoc.PerformManualReopen(Rec);
+                        CurrPage.PurchLines.PAGE.ClearTotalPurchaseHeader();
                     end;
                 }
             }

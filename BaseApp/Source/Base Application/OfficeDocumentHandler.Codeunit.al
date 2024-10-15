@@ -378,6 +378,9 @@ codeunit 1637 "Office Document Handler"
         TempOfficeAddinContext: Record "Office Add-in Context" temporary;
         OfficeMgt: Codeunit "Office Management";
     begin
+        if Rec.IsTemporary() then
+            exit;
+
         if OfficeMgt.IsAvailable and (Rec."Document Type" = Rec."Document Type"::Invoice) then begin
             OfficeMgt.GetContext(TempOfficeAddinContext);
             if TempOfficeAddinContext.IsAppointment then
@@ -391,6 +394,9 @@ codeunit 1637 "Office Document Handler"
         TempOfficeAddinContext: Record "Office Add-in Context" temporary;
         OfficeMgt: Codeunit "Office Management";
     begin
+        if Rec.IsTemporary() then
+            exit;
+
         if OfficeMgt.IsAvailable then begin
             OfficeMgt.GetContext(TempOfficeAddinContext);
             if TempOfficeAddinContext.IsAppointment then
@@ -463,6 +469,9 @@ codeunit 1637 "Office Document Handler"
         OfficeMgt: Codeunit "Office Management";
         HeaderRecRef: RecordRef;
     begin
+        if Rec.IsTemporary() then
+            exit;
+
         if not OfficeMgt.IsAvailable then
             exit;
 

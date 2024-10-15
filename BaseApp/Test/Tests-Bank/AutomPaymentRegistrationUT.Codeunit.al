@@ -141,7 +141,7 @@ codeunit 134712 "Autom. Payment Registration.UT"
     end;
 
     [Test]
-    [HandlerFunctions('UIConfirmHandler')]
+    [HandlerFunctions('UIConfirmHandler,PostAndReconcilePageHandler')]
     [Scope('OnPrem')]
     procedure Post_YesNo()
     var
@@ -155,6 +155,7 @@ codeunit 134712 "Autom. Payment Registration.UT"
           BankAccReconciliation, BankAccReconciliationLine);
 
         BankAccReconciliationLine.FindFirst;
+        UpdateBankAccRecStmEndingBalance(BankAccReconciliation, BankAccReconciliation."Balance Last Statement" + BankAccReconciliationLine."Statement Amount");
 
         asserterror CODEUNIT.Run(CODEUNIT::"Bank Acc. Recon. Post (Yes/No)", BankAccReconciliation);
         Assert.ExpectedError(
@@ -206,11 +207,24 @@ codeunit 134712 "Autom. Payment Registration.UT"
         Assert.AreEqual(ExpLastPaymentStatementNo, BankAccount."Last Payment Statement No.", 'Wrong Last Payment Statement No.');
     end;
 
+    local procedure UpdateBankAccRecStmEndingBalance(var BankAccRecon: Record "Bank Acc. Reconciliation"; NewStmEndingBalance: Decimal)
+    begin
+        BankAccRecon.Validate("Statement Ending Balance", NewStmEndingBalance);
+        BankAccRecon.Modify();
+    end;
+
     [ConfirmHandler]
     [Scope('OnPrem')]
     procedure UIConfirmHandler(Question: Text[1024]; var Reply: Boolean)
     begin
         Reply := true;
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure PostAndReconcilePageHandler(var PostPmtsAndRecBankAcc: TestPage "Post Pmts and Rec. Bank Acc.")
+    begin
+        PostPmtsAndRecBankAcc.OK.Invoke();
     end;
 }
 

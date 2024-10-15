@@ -2965,6 +2965,84 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
             DestinationSalesHeader[2].FieldCaption("Work Description"));
     end;
 
+    [Test]
+    [HandlerFunctions('SalesListModalPageHandler')]
+    procedure DoNotUnconditionallyAddExtendedTextInPurchaseOrderForDropShipment()
+    var
+        Item: Record Item;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+    begin
+        // [FEATURE] [Purchase] [Extended Text] [Drop Shipment]
+        // [SCENARIO 401739] Do not add extended text in purchase order for drop shipment with "Automatic Ext. Texts" disabled in item card.
+        Initialize();
+
+        // [GIVEN] Item with extended text.
+        // [GIVEN] Disable "Automatic Ext. Texts" for the item.
+        Item.Get(CreateItemWithExtText);
+        Item.Validate("Automatic Ext. Texts", false);
+        Item.Modify(true);
+
+        // [GIVEN] Sales order for drop shipment.
+        LibrarySales.CreateSalesDocumentWithItem(
+          SalesHeader, SalesLine, SalesHeader."Document Type"::Order, '', Item."No.", LibraryRandom.RandInt(10), '', WorkDate);
+        SalesLine.Validate("Purchasing Code", CreatePurchasingCode(true, false));
+        SalesLine.Modify(true);
+
+        // [GIVEN] Create purchase order.
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, '');
+        PurchaseHeader.Validate("Sell-to Customer No.", SalesHeader."Sell-to Customer No.");
+        PurchaseHeader.Modify(true);
+
+        // [WHEN] Invoke "Drop Shipment" - "Get Sales Orders" for the purchase order.
+        LibraryPurchase.GetDropShipment(PurchaseHeader);
+
+        // [THEN] Extended text is not added to purchase lines.
+        FindLastLineOfPurchaseDocument(PurchaseHeader, PurchaseLine);
+        PurchaseLine.TestField("No.", Item."No.");
+    end;
+
+    [Test]
+    [HandlerFunctions('SalesListModalPageHandler')]
+    procedure DoNotUnconditionallyAddExtendedTextInPurchaseOrderForSpecialOrder()
+    var
+        Item: Record Item;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+    begin
+        // [FEATURE] [Purchase] [Extended Text] [Special Order]
+        // [SCENARIO 401739] Do not add extended text in purchase order for special order with "Automatic Ext. Texts" disabled in item card.
+        Initialize();
+
+        // [GIVEN] Item with extended text.
+        // [GIVEN] Disable "Automatic Ext. Texts" for the item.
+        Item.Get(CreateItemWithExtText);
+        Item.Validate("Automatic Ext. Texts", false);
+        Item.Modify(true);
+
+        // [GIVEN] Sales order for special order.
+        LibrarySales.CreateSalesDocumentWithItem(
+          SalesHeader, SalesLine, SalesHeader."Document Type"::Order, '', Item."No.", LibraryRandom.RandInt(10), '', WorkDate);
+        SalesLine.Validate("Purchasing Code", CreatePurchasingCode(false, true));
+        SalesLine.Modify(true);
+
+        // [GIVEN] Create purchase order.
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, '');
+        PurchaseHeader.Validate("Sell-to Customer No.", SalesHeader."Sell-to Customer No.");
+        PurchaseHeader.Modify(true);
+
+        // [WHEN] Invoke "Special Order" - "Get Sales Orders" for the purchase order.
+        LibraryPurchase.GetSpecialOrder(PurchaseHeader);
+
+        // [THEN] Extended text is not added to purchase lines.
+        FindLastLineOfPurchaseDocument(PurchaseHeader, PurchaseLine);
+        PurchaseLine.TestField("No.", Item."No.");
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";

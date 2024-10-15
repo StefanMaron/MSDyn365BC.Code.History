@@ -1,4 +1,4 @@
-codeunit 91 "Purch.-Post (Yes/No)"
+﻿codeunit 91 "Purch.-Post (Yes/No)"
 {
     EventSubscriberInstance = Manual;
     TableNo = "Purchase Header";
@@ -55,10 +55,16 @@ codeunit 91 "Purch.-Post (Yes/No)"
         OnAfterPost(PurchaseHeader);
     end;
 
-    local procedure ConfirmPost(var PurchaseHeader: Record "Purchase Header"; DefaultOption: Integer): Boolean
+    local procedure ConfirmPost(var PurchaseHeader: Record "Purchase Header"; DefaultOption: Integer) Result: Boolean
     var
         ConfirmManagement: Codeunit "Confirm Management";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeConfirmPostProcedure(PurchaseHeader, DefaultOption, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
         if DefaultOption > 3 then
             DefaultOption := 3;
         if DefaultOption <= 0 then
@@ -164,6 +170,11 @@ codeunit 91 "Purch.-Post (Yes/No)"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeConfirmPost(var PurchaseHeader: Record "Purchase Header"; var HideDialog: Boolean; var IsHandled: Boolean; var DefaultOption: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeConfirmPostProcedure(var PurchaseHeader: Record "Purchase Header"; var DefaultOption: Integer; var Result: Boolean; var IsHandled: Boolean)
     begin
     end;
 

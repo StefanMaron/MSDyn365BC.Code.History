@@ -596,6 +596,9 @@ codeunit 396 NoSeriesManagement
     [EventSubscriber(ObjectType::Table, Database::"No. Series Line", 'OnAfterDeleteEvent', '', false, false)]
     local procedure OnDeleteNoSeriesLine(var Rec: Record "No. Series Line"; RunTrigger: Boolean)
     begin
+        if Rec.IsTemporary() then
+            exit;
+
         with Rec do
             if "Sequence Name" <> '' then
                 if NUMBERSEQUENCE.Exists("Sequence Name") then

@@ -1,4 +1,4 @@
-codeunit 370 "Bank Acc. Reconciliation Post"
+﻿codeunit 370 "Bank Acc. Reconciliation Post"
 {
     Permissions = TableData "Bank Account Ledger Entry" = rm,
                   TableData "Check Ledger Entry" = rm,
@@ -63,6 +63,14 @@ codeunit 370 "Bank Acc. Reconciliation Post"
                         SourceCodeSetup.Get();
                         SourceCode := SourceCodeSetup."Payment Reconciliation Journal";
                         PostPaymentsOnly := "Post Payments Only";
+                        if not PostPaymentsOnly then
+                            if GuiAllowed then begin
+                                if PAGE.RunModal(Page::"Post Pmts and Rec. Bank Acc.", BankAccRecon) <> ACTION::LookupOK then
+                                    Error('');
+
+                                BankAccRecon.Get("Statement Type", "Bank Account No.", "Statement No.");
+                                CheckLinesMatchEndingBalance(BankAccRecon, Difference);
+                            end;
                     end;
             end;
     end;
@@ -470,6 +478,7 @@ codeunit 370 "Bank Acc. Reconciliation Post"
             repeat
                 BankAccStmtLine.TransferFields(BankAccReconLine);
                 BankAccStmtLine."Statement No." := BankAccStmt."Statement No.";
+                OnTransferToBankStmtOnBeforeBankAccStmtLineInsert(BankAccStmtLine, BankAccReconLine);
                 BankAccStmtLine.Insert();
                 BankAccReconLine.ClearDataExchEntries;
             until BankAccReconLine.Next() = 0;
@@ -510,6 +519,7 @@ codeunit 370 "Bank Acc. Reconciliation Post"
 
                 PostedPmtReconLine.Reconciled := not PostPaymentsOnly;
 
+                OnTransferToPostPmtApplnOnBeforePostedPmtReconLineInsert(PostedPmtReconLine, BankAccReconLine);
                 PostedPmtReconLine.Insert();
                 BankAccReconLine.ClearDataExchEntries;
             until BankAccReconLine.Next() = 0;
@@ -733,6 +743,16 @@ codeunit 370 "Bank Acc. Reconciliation Post"
 
     [IntegrationEvent(false, false)]
     local procedure OnPostAfterFilterBankAccRecLines(var BankAccReconLines: Record "Bank Acc. Reconciliation Line"; BankAccRecon: Record "Bank Acc. Reconciliation")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnTransferToBankStmtOnBeforeBankAccStmtLineInsert(var BankAccStmtLine: Record "Bank Account Statement Line"; BankAccReconLine: Record "Bank Acc. Reconciliation Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnTransferToPostPmtApplnOnBeforePostedPmtReconLineInsert(var PostedPmtReconLine: Record "Posted Payment Recon. Line"; BankAccReconLine: Record "Bank Acc. Reconciliation Line")
     begin
     end;
 }
