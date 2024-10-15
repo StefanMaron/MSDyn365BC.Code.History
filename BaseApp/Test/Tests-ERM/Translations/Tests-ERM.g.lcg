@@ -14918,6 +14918,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Test RED Setup Gen. Jnl. - NamedType WrongAllowDeferralPostingDatesErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 518006362 - Method 2450948280 - NamedType 3870762580" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Deferral amounts cannot be 0]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Test RED Setup Gen. Jnl. - Method PostSalesInvoiceWithAllocationAccountAndUserDefinedDeferralWithError - NamedType ZeroDeferralAmtErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 3359274847 - NamedType 2667088805" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Document %1 has been archived.]]></Val>

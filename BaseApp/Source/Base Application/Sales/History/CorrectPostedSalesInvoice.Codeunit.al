@@ -33,6 +33,7 @@ codeunit 1303 "Correct Posted Sales Invoice"
     trigger OnRun()
     var
         SalesHeader: Record "Sales Header";
+        NoSeries: Codeunit "No. Series";
         IsHandled: Boolean;
     begin
         UnapplyCostApplication(Rec."No.");
@@ -44,9 +45,13 @@ codeunit 1303 "Correct Posted Sales Invoice"
         if SalesInvoiceLinesContainJob(Rec."No.") then
             CreateAndProcessJobPlanningLines(SalesHeader);
 
+        SuppressCommit := not NoSeries.IsNoSeriesInDateOrder(SalesHeader."Posting No. Series");
+
         IsHandled := false;
-        OnRunOnBeforePostCorrectiveSalesCrMemo(Rec, SalesHeader, IsHandled);
+        OnRunOnBeforePostCorrectiveSalesCrMemo(Rec, SalesHeader, IsHandled, SuppressCommit);
         if not IsHandled then begin
+            if not SuppressCommit then
+                Commit();
             CODEUNIT.Run(CODEUNIT::"Sales-Post", SalesHeader);
             SetTrackInfoForCancellation(Rec);
             UpdateSalesOrderLinesFromCancelledInvoice(Rec."No.");
@@ -59,6 +64,7 @@ codeunit 1303 "Correct Posted Sales Invoice"
     var
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
         CancellingOnly: Boolean;
+        SuppressCommit: Boolean;
 
         PostedInvoiceIsPaidCorrectErr: Label 'You cannot correct this posted sales invoice because it is fully or partially paid.\\To reverse a paid sales invoice, you must manually create a sales credit memo.';
         PostedInvoiceIsPaidCancelErr: Label 'You cannot cancel this posted sales invoice because it is fully or partially paid.\\To reverse a paid sales invoice, you must manually create a sales credit memo.';
@@ -1302,7 +1308,7 @@ codeunit 1303 "Correct Posted Sales Invoice"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnRunOnBeforePostCorrectiveSalesCrMemo(var SalesInvoiceHeader: Record "Sales Invoice Header"; var SalesHeader: Record "Sales Header"; var IsHandled: Boolean)
+    local procedure OnRunOnBeforePostCorrectiveSalesCrMemo(var SalesInvoiceHeader: Record "Sales Invoice Header"; var SalesHeader: Record "Sales Header"; var IsHandled: Boolean; var SuppressCommit: Boolean)
     begin
     end;
 

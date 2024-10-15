@@ -106,6 +106,11 @@ report 300 "Carry Out Reservation"
         exit(B);
     end;
 
+    procedure Initialize(NewDemandType: Enum "Reservation Demand Type")
+    begin
+        DemandType := NewDemandType;
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnCarryOutReservationOtherDemandType(var ReservationWkshLine: Record "Reservation Wksh. Line")
     begin

@@ -38,7 +38,10 @@ codeunit 5060 DuplicateManagement
                 InsDuplContIndex(Cont, DuplSearchStringSetup);
             until DuplSearchStringSetup.Next() = 0;
 
-        InsDuplCont(Cont, RMSetup."Search Hit %");
+        IsHandled := false;
+        OnMakeContIndexOnBeforeInsDuplCont(Cont, IsHandled);
+        if not IsHandled then
+            InsDuplCont(Cont, RMSetup."Search Hit %");
     end;
 
     procedure RemoveContIndex(Cont: Record Contact; KeepAccepted: Boolean)
@@ -229,6 +232,11 @@ codeunit 5060 DuplicateManagement
 
     [IntegrationEvent(false, false)]
     local procedure OnMakeContIndex(var Contact: Record Contact; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnMakeContIndexOnBeforeInsDuplCont(var Contact: Record Contact; var IsHandled: Boolean)
     begin
     end;
 }
