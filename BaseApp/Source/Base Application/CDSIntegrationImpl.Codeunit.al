@@ -1160,12 +1160,10 @@ codeunit 7201 "CDS Integration Impl."
         end;
 
         if CDSConnectionSetup."Authentication Type" <> CDSConnectionSetup."Authentication Type"::Office365 then begin
+            TempAdminCDSConnectionSetup."Authentication Type" := CDSConnectionSetup."Authentication Type";
             TempAdminCDSConnectionSetup."User Name" := CopyStr(AdminUser, 1, MaxStrLen(TempAdminCDSConnectionSetup."User Name"));
             TempAdminCDSConnectionSetup.SetPassword(AdminPassword);
-            if TempAdminCDSConnectionSetup."Authentication Type" = TempAdminCDSConnectionSetup."Authentication Type"::OAuth then
-                SetConnectionString(TempAdminCDSConnectionSetup, ReplaceUserNamePasswordInConnectionstring(CDSConnectionSetup, AdminUser, Format(MissingPasswordTok)))
-            else
-                UpdateConnectionString(TempAdminCDSConnectionSetup);
+            SetConnectionString(TempAdminCDSConnectionSetup, ReplaceUserNamePasswordInConnectionstring(CDSConnectionSetup, AdminUser, Format(MissingPasswordTok)))
         end;
     end;
 

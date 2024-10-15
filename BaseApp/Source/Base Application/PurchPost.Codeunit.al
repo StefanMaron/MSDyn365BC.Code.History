@@ -7279,6 +7279,7 @@
                 if GuiAllowed and not HideProgressWindow then
                     Window.Update(3, LineCount);
 
+                TempInvoicePostBuffer.ApplyRoundingForFinalPosting();
                 CalculateVATAmountInBuffer(PurchHeader, TempInvoicePostBuffer, VATAmountRemainder, VATAmountACYRemainder);
                 GLEntryNo := PostInvoicePostBufferLine(PurchHeader, TempInvoicePostBuffer);
 
