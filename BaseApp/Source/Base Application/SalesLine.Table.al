@@ -3998,6 +3998,8 @@
         if IsCreditDocType() then
             exit("Return Qty. Received" + "Return Qty. to Receive" - "Quantity Invoiced");
 
+        if "Document Type" = "Document Type"::"Blanket Order" then
+            exit(Quantity - "Quantity Invoiced");
         exit("Quantity Shipped" + "Qty. to Ship" - "Quantity Invoiced");
     end;
 
@@ -4013,7 +4015,8 @@
 
         if IsCreditDocType() then
             exit("Return Qty. Received (Base)" + "Return Qty. to Receive (Base)" - "Qty. Invoiced (Base)");
-
+        if "Document Type" = "Document Type"::"Blanket Order" then
+            exit("Quantity (Base)" - "Qty. Invoiced (Base)");
         exit("Qty. Shipped (Base)" + "Qty. to Ship (Base)" - "Qty. Invoiced (Base)");
     end;
 
@@ -4768,8 +4771,7 @@
 #else
             if ("Prepmt. Line Amount" <> 0) and (SalesHeader."Prepayment Type" <> SalesHeader."Prepayment Type"::Advance) then begin
 #endif
-                RemLineAmountToInvoice :=
-                  Round("Line Amount" * (Quantity - "Quantity Invoiced") / Quantity, Currency."Amount Rounding Precision");
+                RemLineAmountToInvoice := GetLineAmountToHandleInclPrepmt(Quantity - "Quantity Invoiced");
                 if RemLineAmountToInvoice < ("Prepmt. Line Amount" - "Prepmt Amt Deducted") then
                     FieldError("Prepmt. Line Amount", StrSubstNo(Text045, RemLineAmountToInvoice + "Prepmt Amt Deducted"));
             end;

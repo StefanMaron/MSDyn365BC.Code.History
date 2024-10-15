@@ -2225,7 +2225,10 @@ codeunit 134052 "ERM VAT Tool - Purch. Doc"
         // Quantity Shipped/Received = 0 and new Posting Groups.
         with PurchLn2 do begin
             TestField(Quantity, PurchLn1.Quantity);
-            TestField("Qty. to Receive", PurchLn1."Qty. to Receive");
+            if PurchLn2."Document Type" = PurchLn2."Document Type"::"Blanket Order" then
+                TestField("Qty. to Receive", 0)
+            else
+                TestField("Qty. to Receive", PurchLn1."Qty. to Receive");
             TestField("Return Qty. to Ship", PurchLn1."Return Qty. to Ship");
             TestField("Dimension Set ID", PurchLn1."Dimension Set ID");
             TestField("Blanket Order No.", PurchLn1."Blanket Order No.");

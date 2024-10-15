@@ -6,7 +6,8 @@
     LookupPageID = "Item Lookup";
     Permissions = TableData "Service Item" = rm,
                   TableData "Service Item Component" = rm,
-                  TableData "Bin Content" = d;
+                  TableData "Bin Content" = d,
+                  TableData "Planning Assignment" = d;
 
     fields
     {
@@ -3429,6 +3430,9 @@
         ItemLedgerEntry: Record "Item Ledger Entry";
         ErrorMessage: Label ' cannot be changed';
     begin
+        if "No." = '' then
+            exit;
+
         // NAVCZ
         ItemLedgerEntry.SetCurrentKey("Item No.", Open);
         ItemLedgerEntry.SetRange("Item No.", "No.");
@@ -3936,6 +3940,9 @@
     var
         ItemLedgEntry: Record "Item Ledger Entry";
     begin
+        if "No." = '' then
+            exit;
+
         ItemLedgEntry.Reset();
         ItemLedgEntry.SetCurrentKey("Item No.");
         ItemLedgEntry.SetRange("Item No.", "No.");

@@ -17,7 +17,6 @@ codeunit 393 "Reminder-Issue"
 #endif
         IsHandled: Boolean;
         DimSetIDArr: array[10] of Integer;
-        DummyGlobalDimCode: Code[20];
     begin
         IsHandled := false;
         OnBeforeIssueReminder(ReminderHeader, ReplacePostingDate, PostingDate, IsHandled, IssuedReminderHeader);
@@ -109,7 +108,7 @@ codeunit 393 "Reminder-Issue"
                     DimSetIDArr[2] := GenJnlLine."Dimension Set ID";
                     GenJnlLine2."Dimension Set ID" :=
                         DimMgt.GetCombinedDimensionSetID(
-                            DimSetIDArr, DummyGlobalDimCode, DummyGlobalDimCode);
+                            DimSetIDArr, GenJnlLine2."Shortcut Dimension 1 Code", GenJnlLine2."Shortcut Dimension 2 Code");
                     OnBeforeGenJnlPostLineRun(GenJnlLine2, GenJnlLine);
                     GenJnlPostLine.Run(GenJnlLine2);
                     OnRunOnAfterGenJnlPostLineRun(GenJnlLine2, GenJnlLine);

@@ -560,6 +560,9 @@
                             GenJnlLine3 := GenJnlLine;
                             GenJnlLine3.TestField("Posting No. Series", '');
                             GenJnlLine3."Document No." := UseCheckNo;
+
+                            OnAfterAssignGenJnlLineDocNoAndAccountType(GenJnlLine3, GenJnlLine."Document No.", ApplyMethod);
+
                             GenJnlLine3."Check Printed" := true;
                             GenJnlLine3.Modify();
                         end else begin
@@ -574,6 +577,9 @@
                                     GenJnlLine3."Bal. Account No." := '';
                                     GenJnlLine3."Bank Payment Type" := GenJnlLine3."Bank Payment Type"::" ";
                                     GenJnlLine3."Document No." := UseCheckNo;
+
+                                    OnAfterAssignGenJnlLineDocNoAndAccountType(GenJnlLine3, GenJnlLine."Document No.", ApplyMethod);
+
                                     GenJnlLine3."Check Printed" := true;
                                     GenJnlLine3.Validate(Amount);
                                     GenJnlLine3.Modify();
@@ -599,6 +605,9 @@
                             GenJnlLine3.Validate("Posting Date", GenJnlLine."Posting Date");
                             GenJnlLine3."Document Type" := GenJnlLine."Document Type";
                             GenJnlLine3."Document No." := UseCheckNo;
+
+                            OnAfterAssignGenJnlLineDocumentNo(GenJnlLine3, GenJnlLine."Document No.");
+
                             GenJnlLine3."Account Type" := GenJnlLine3."Account Type"::"Bank Account";
                             GenJnlLine3.Validate("Account No.", BankAcc2."No.");
                             if BalancingType <> BalancingType::"G/L Account" then
@@ -1436,5 +1445,16 @@
     local procedure OnGenJnlLineOnAfterGetRecordOnAfterBalancingTypeVendorCase(var Vendor: Record Vendor; var GenJnlLine: Record "Gen. Journal Line")
     begin
     end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterAssignGenJnlLineDocumentNo(var GenJnlLine: Record "Gen. Journal Line"; PreviousDocumentNo: Code[20])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterAssignGenJnlLineDocNoAndAccountType(var GenJnlLine: Record "Gen. Journal Line"; PreviousDocumentNo: Code[20]; ApplyMethod: Option)
+    begin
+    end;
+
 }
 

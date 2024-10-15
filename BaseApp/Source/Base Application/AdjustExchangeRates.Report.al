@@ -1121,7 +1121,12 @@ report 595 "Adjust Exchange Rates"
         GenJnlLine."Document No." := PostingDocNo;
         GenJnlLine."Account Type" := GenJnlLine."Account Type"::"Bank Account";
         GenJnlLine.Validate("Account No.", BankAccount."No.");
-        GenJnlLine.Description := PadStr(StrSubstNo(PostingDescription, Currency.Code, CurrAdjBase), MaxStrLen(GenJnlLine.Description));
+        if SummarizeEntries then
+            GenJnlLine.Description :=
+                CopyStr(StrSubstNo(PostingDescription, Currency.Code, CurrAdjBase), 1, MaxStrLen(GenJnlLine.Description))
+        else
+            GenJnlLine.Description :=
+                CopyStr(StrSubstNo(PostingDescription, Currency.Code, CurrAdjBase, '', ''), 1, MaxStrLen(GenJnlLine.Description));
         GenJnlLine.Validate(Amount, 0);
         GenJnlLine."Amount (LCY)" := CurrAdjAmount;
         GenJnlLine."Source Currency Code" := Currency.Code;

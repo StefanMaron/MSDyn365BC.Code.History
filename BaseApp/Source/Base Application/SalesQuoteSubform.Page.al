@@ -1,4 +1,4 @@
-#if not CLEAN17
+﻿#if not CLEAN17
 page 95 "Sales Quote Subform"
 {
     AutoSplitKey = true;
@@ -1066,6 +1066,7 @@ page 95 "Sales Quote Subform"
     trigger OnAfterGetRecord()
     begin
         ShowShortcutDimCode(ShortcutDimCode);
+        UpdateEditableOnRow();
         UpdateTypeText();
         SetItemChargeFieldsStyle();
     end;

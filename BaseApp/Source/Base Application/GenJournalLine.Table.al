@@ -3767,6 +3767,7 @@
         DontShowAgainActionTxt: Label 'Don''t show again.';
         SetDimFiltersActionTxt: Label 'Set dimension filters.';
         SetDimFiltersMessageTxt: Label 'Dimension filters are not set for one or more lines that use the BD Balance by Dimension or RBD Reversing Balance by Dimension options. Do you want to set the filters?';
+        SpecialSymbolsTok: Label '=|&''@()<>', Locked = true;
 
     protected var
         Currency: Record Currency;
@@ -5249,6 +5250,8 @@
         else
             TempJobJnlLine.Validate("Posting Date", xRec."Posting Date");
         TempJobJnlLine.Validate(Type, TempJobJnlLine.Type::"G/L Account");
+        
+        "Job Currency Factor" := 0;
         if "Job Currency Code" <> '' then begin
             if "Posting Date" = 0D then
                 CurrencyDate := WorkDate()
@@ -7017,6 +7020,8 @@
             end;
             if TemplateFilter <> '' then
                 GenJournalBatch.SetFilter("Journal Template Name", TemplateFilter);
+            if DelChr(BatchFilter, '=', SpecialSymbolsTok) <> BatchFilter then
+                BatchFilter := '''' + BatchFilter + '''';
             GenJournalBatch.SetFilter(Name, BatchFilter);
             GenJournalBatch.FindFirst;
         end;
