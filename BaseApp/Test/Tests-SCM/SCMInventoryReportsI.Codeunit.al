@@ -1,0 +1,1537 @@
+codeunit 137301 "SCM Inventory Reports - I"
+{
+    Subtype = Test;
+    TestPermissions = Disabled;
+
+    trigger OnRun()
+    begin
+        // [FEATURE] [Reports] [SCM]
+    end;
+
+    var
+        Assert: Codeunit Assert;
+        LibraryTestInitialize: Codeunit "Library - Test Initialize";
+        LibraryInventory: Codeunit "Library - Inventory";
+        LibrarySales: Codeunit "Library - Sales";
+        LibraryCosting: Codeunit "Library - Costing";
+        LibraryPurchase: Codeunit "Library - Purchase";
+        LibraryManufacturing: Codeunit "Library - Manufacturing";
+        LibraryReportDataset: Codeunit "Library - Report Dataset";
+        LibraryReportValidation: Codeunit "Library - Report Validation";
+        LibraryVariableStorage: Codeunit "Library - Variable Storage";
+        LibraryUtility: Codeunit "Library - Utility";
+        LibraryWarehouse: Codeunit "Library - Warehouse";
+        LibraryRandom: Codeunit "Library - Random";
+        isInitialized: Boolean;
+        IncorrectValueInCellErr: Label 'Row count in report Inventory Validation before posting purchase order should be the same as after posting purchase order', Comment = '%1 - row % 2 - column';
+        QuantityErr: Label 'Quantity Must Be %1 for %2  Document No. %3';
+        NothingToPostTxt: Label 'There is nothing to post to the general ledger.';
+        ValueEntriesWerePostedTxt: Label 'value entries have been posted to the general ledger.';
+
+    [Test]
+    [HandlerFunctions('InvtCostAndPriceListRepRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure InvtCostAndPriceListSKUFalse()
+    var
+        Item: Record Item;
+    begin
+        // Create Setup to Generate Inventory Cost and Price List Report with Use Stockkeeping as False.
+        Initialize;
+        InvtCostAndPriceListSetup(Item, false);
+
+        // Verify: Standard Cost shown in Inventory Cost and Price List Report is equal to the Standard Cost in Item Table.
+        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.SetRange('No_Item', Item."No.");
+        LibraryReportDataset.GetNextRow;
+        LibraryReportDataset.AssertCurrentRowValueEquals('StandardCost_Item', Item."Standard Cost");
+    end;
+
+    [Test]
+    [HandlerFunctions('InvtCostAndPriceListRepRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure InvtCostAndPriceListSKUTrue()
+    var
+        Item: Record Item;
+        StockkeepingUnit: Record "Stockkeeping Unit";
+    begin
+        // Create Setup to Generate Inventory Cost and Price List Report with Use Stockkeeping as True.
+        Initialize;
+        InvtCostAndPriceListSetup(Item, true);
+
+        // Verify: Stockkeeping  units are created and Standard Cost shown in Inventory Cost and Price List Report is equal to the
+        // Standard Cost in Item Table.
+        StockkeepingUnit.SetRange("Item No.", Item."No.");
+        StockkeepingUnit.FindSet;
+        LibraryReportDataset.LoadDataSetFile;
+        repeat
+            LibraryReportDataset.SetRange('LocationCode_StockKeepingUnit', StockkeepingUnit."Location Code");
+            LibraryReportDataset.GetNextRow;
+            LibraryReportDataset.AssertCurrentRowValueEquals('StandardCost_StockKeepingUnit',
+              StockkeepingUnit."Standard Cost");
+            LibraryReportDataset.AssertCurrentRowValueEquals('StandardCost_Item', Item."Standard Cost");
+        until StockkeepingUnit.Next = 0;
+    end;
+
+    local procedure InvtCostAndPriceListSetup(var Item: Record Item; UseStockkeepingUnit: Boolean)
+    var
+        SKUCreationMethod: Option Location,Variant,"Location & Variant";
+    begin
+        // Setup :Create Item with costing method as standard and Create Stockkeeping Unit.
+        CreateItem(Item);
+        if UseStockkeepingUnit then
+            CreateStockKeepingUnit(Item."No.", SKUCreationMethod::Location);
+
+        // Exercise: Generate the Inventory Cost and Price List.
+        Commit;
+        Item.SetRange("No.", Item."No.");
+        REPORT.Run(REPORT::"Inventory Cost and Price List", true, false, Item);
+    end;
+
+    [Test]
+    [HandlerFunctions('InvtListRepRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure InventoryList()
+    var
+        Item: Record Item;
+    begin
+        // Setup: Create Item with costing method as standard.
+        Initialize;
+        CreateItem(Item);
+
+        // Exercise: Generate Inventory List Report.
+        Commit;
+        Item.SetRange("No.", Item."No.");
+        REPORT.Run(REPORT::"Inventory - List", true, false, Item);
+
+        // Verify: No. shown in Inventory List Report is equal to the No. shown in Item Table.
+        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.AssertElementWithValueExists('No_Item', Item."No.");
+    end;
+
+    [Test]
+    [HandlerFunctions('InvtTransactionDetailRepRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure InventoryTransactionDetail()
+    var
+        Item: Record Item;
+        SalesHeader: Record "Sales Header";
+        ItemJournalLine: Record "Item Journal Line";
+        ItemLedgerEntry: Record "Item Ledger Entry";
+    begin
+        // Setup: Create Item with costing method as standard and update Inventory.
+        Initialize;
+        CreateItem(Item);
+        CreateAndPostItemJrnl(ItemJournalLine."Entry Type"::"Positive Adjmt.", Item."No.", LibraryRandom.RandDec(100, 2));
+
+        // Create and Post Sales Order using Random Value.
+        Item.CalcFields(Inventory);
+        CreateSalesOrder(SalesHeader, '', Item."No.", Item.Inventory + LibraryRandom.RandDec(100, 2));
+        LibrarySales.PostSalesDocument(SalesHeader, true, true);
+
+        // Exercise: Generate Inventory - Transaction Detail Report.
+        Item.SetRange("No.", Item."No.");
+        Item.FindFirst;
+        REPORT.Run(REPORT::"Inventory - Transaction Detail", true, false, Item);
+
+        // Verify: Document No. shown in Inventory - Transaction Detail Report is equal Document No. in Item Ledger Entry Table.
+        ItemLedgerEntry.SetRange("Item No.", Item."No.");
+        ItemLedgerEntry.FindFirst;
+        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.SetRange('No_Item', Item."No.");
+        LibraryReportDataset.SetRange('EntryNo_ItemLedgerEntry', ItemLedgerEntry."Entry No.");
+        LibraryReportDataset.GetNextRow;
+        LibraryReportDataset.AssertCurrentRowValueEquals('DocumentNo_PItemLedgEntry', ItemLedgerEntry."Document No.");
+    end;
+
+    [Test]
+    [HandlerFunctions('InvtTop10ListRepRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure InvtTop10ListLargestSalesLCY()
+    var
+        ItemNo: Code[20];
+        ItemNo2: Code[20];
+        ShowSorting: Option Largest,Smallest;
+        ShowType: Option "Sales (LCY)",Inventory;
+    begin
+        // Create Setup to Generate Inventory Cost Top 10 List with Show Sorting option as Largest and ShowType as Sales (LCY).
+        Initialize;
+        InventoryTop10ListSetup(ItemNo, ItemNo2, ShowSorting::Largest, ShowType::"Sales (LCY)");
+
+        // Verify: Sales (LCY) shown in Inventory Top 10 List Report is equal to the Sales (LCY) in Item Table.
+        VerifyTop10ListReport(ItemNo, ItemNo2);
+    end;
+
+    [Test]
+    [HandlerFunctions('InvtTop10ListRepRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure InvtTop10ListSmallestSalesLCY()
+    var
+        ItemNo: Code[20];
+        ItemNo2: Code[20];
+        ShowSorting: Option Largest,Smallest;
+        ShowType: Option "Sales (LCY)",Inventory;
+    begin
+        // Create Setup to Generate Inventory Cost Top 10 List with Show Sorting option as Smallest and ShowType as Sales (LCY).
+        Initialize;
+        InventoryTop10ListSetup(ItemNo, ItemNo2, ShowSorting::Smallest, ShowType::"Sales (LCY)");
+
+        // Verify: Sales (LCY) shown in Inventory Top 10 List Report is equal to the Sales (LCY) in Item Table.
+        VerifyTop10ListReport(ItemNo, ItemNo2);
+    end;
+
+    [Test]
+    [HandlerFunctions('InvtTop10ListRepRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure InvtTop10ListLargestInventory()
+    var
+        ItemNo: Code[20];
+        ItemNo2: Code[20];
+        ShowSorting: Option Largest,Smallest;
+        ShowType: Option "Sales (LCY)",Inventory;
+    begin
+        // Create Setup to Generate Inventory Cost Top 10 List with Show Sorting option as Largest and ShowType as Inventory.
+        Initialize;
+        InventoryTop10ListSetup(ItemNo, ItemNo2, ShowSorting::Largest, ShowType::Inventory);
+
+        // Verify: Inventory shown in Inventory Top 10 List Report is equal to the Inventory in Item Table.
+        VerifyTop10ListReport(ItemNo, ItemNo2);
+    end;
+
+    [Test]
+    [HandlerFunctions('InvtTop10ListRepRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure InvtTop10ListSmallestInventory()
+    var
+        ItemNo: Code[20];
+        ItemNo2: Code[20];
+        ShowSorting: Option Largest,Smallest;
+        ShowType: Option "Sales (LCY)",Inventory;
+    begin
+        // Create Setup to Generate Inventory Cost Top 10 List with Show Sorting option as Smallest and ShowType as Inventory.
+        Initialize;
+        InventoryTop10ListSetup(ItemNo, ItemNo2, ShowSorting::Smallest, ShowType::Inventory);
+
+        // Verify: Inventory shown in Inventory Top 10 List Report is equal to the Inventory in Item Table.
+        VerifyTop10ListReport(ItemNo, ItemNo2);
+    end;
+
+    local procedure InventoryTop10ListSetup(var ItemNo: Code[20]; var ItemNo2: Code[20]; ShowSorting: Option; ShowType: Option)
+    var
+        Item: Record Item;
+        SalesHeader: Record "Sales Header";
+        ItemJournalLine: Record "Item Journal Line";
+    begin
+        // Setup: Create two Items with costing method as standard. Update Inventory.
+        CreateItem(Item);
+        ItemNo := Item."No.";
+        CreateAndPostItemJrnl(ItemJournalLine."Entry Type"::"Negative Adjmt.", ItemNo, LibraryRandom.RandDec(100, 2));
+        CreateItem(Item);
+        CreateAndPostItemJrnl(ItemJournalLine."Entry Type"::"Positive Adjmt.", Item."No.", LibraryRandom.RandDec(100, 2));
+        ItemNo2 := Item."No.";
+
+        // Create and Post Sales Order.
+        CreateSalesOrder(SalesHeader, '', Item."No.", LibraryRandom.RandDec(100, 2));
+        LibrarySales.PostSalesDocument(SalesHeader, true, true);
+
+        // Exercise: Generate Inventory - Transaction Detail Report.
+        Commit;
+        LibraryVariableStorage.Enqueue(ShowSorting);
+        LibraryVariableStorage.Enqueue(ShowType);
+        Item.SetFilter("No.", '%1|%2', ItemNo, ItemNo2);
+        REPORT.Run(REPORT::"Inventory - Top 10 List", true, false, Item);
+    end;
+
+    [Test]
+    [HandlerFunctions('InvtReordersRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure InventoryReorderSKUFalse()
+    begin
+        // Create Setup to Generate Inventory Reorder with Use Stockkeeping as False.
+        Initialize;
+        InventoryReorder(false);
+    end;
+
+    [Test]
+    [HandlerFunctions('InvtReordersRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure InventoryReorderSKUTrue()
+    begin
+        // Create Setup to Generate Inventory Reorder with Use Stockkeeping as True. Value used is important for test.
+        Initialize;
+        InventoryReorder(true);
+    end;
+
+    local procedure InventoryReorder(UseStockKeepingUnit: Boolean)
+    var
+        Item: Record Item;
+        Location: Record Location;
+        SalesHeader: Record "Sales Header";
+        ItemJournalLine: Record "Item Journal Line";
+        SKUCreationMethod: Option Location,Variant,"Location & Variant";
+    begin
+        // Setup: Create a Item and Stockkeeping Unit. Update Inventory.
+        CreateItem(Item);
+        Item.Validate("Reorder Quantity", LibraryRandom.RandDec(10, 2));
+        Item.Modify(true);
+        if UseStockKeepingUnit then
+            CreateStockKeepingUnit(Item."No.", SKUCreationMethod::Location);
+        CreateAndPostItemJrnl(
+          ItemJournalLine."Entry Type"::"Positive Adjmt.", Item."No.", LibraryRandom.RandDec(100, 2));
+        Item.CalcFields(Inventory);
+
+        // Create Sales Order.
+        Location.FindFirst;
+        CreateSalesOrder(SalesHeader, Location.Code, Item."No.", Item.Inventory + LibraryRandom.RandDec(100, 2));
+        Item.CalcFields(Inventory, "Qty. on Sales Order");
+
+        // Exercise: Generate the Inventory Reorder Report.
+        Commit;
+        LibraryVariableStorage.Enqueue(UseStockKeepingUnit);
+        Item.SetRange("No.", Item."No.");
+        REPORT.Run(REPORT::"Inventory - Reorders", true, false, Item);
+
+        // Verify: Value of Available Inventory in Inventory Reorders Report is equal to the Available Inventory in
+        // corresponding Item Table.
+        LibraryReportDataset.LoadDataSetFile;
+
+        if UseStockKeepingUnit then begin
+            LibraryReportDataset.SetRange('ItemNo_SKU', Item."No.");
+            LibraryReportDataset.GetNextRow;
+            LibraryReportDataset.AssertCurrentRowValueEquals('QtyAvailable_StockKeepingUnit', -Item."Qty. on Sales Order")
+        end else begin
+            LibraryReportDataset.SetRange('No_Item', Item."No.");
+            LibraryReportDataset.GetNextRow;
+            LibraryReportDataset.AssertCurrentRowValueEquals('QtyAvailable', Item.Inventory - Item."Qty. on Sales Order");
+        end;
+    end;
+
+    [Test]
+    [HandlerFunctions('MessageHandler,NonstockItemSalesRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure NonstockItemSales()
+    var
+        NonstockItem: Record "Nonstock Item";
+        SalesHeader: Record "Sales Header";
+        ItemLedgerEntry: Record "Item Ledger Entry";
+        ItemTemplate: Record "Item Template";
+    begin
+        // Setup: Create NonStock Item
+        Initialize;
+        LibraryInventory.CreateItemTemplate(ItemTemplate);
+        LibraryInventory.CreateNonStockItem(NonstockItem);
+        CreateSalesOrder(SalesHeader, '', NonstockItem."Vendor Item No.", LibraryRandom.RandDec(100, 2));
+        LibrarySales.PostSalesDocument(SalesHeader, true, true);
+
+        // Exercise: Generate Inventory List Report.
+        ItemLedgerEntry.SetRange("Item No.", NonstockItem."Vendor Item No.");
+        REPORT.Run(REPORT::"Catalog Item Sales", true, false, ItemLedgerEntry);
+
+        // Verify: Item No. shown in Nonstock Item Sales Report is equal to the Item No. shown in Nonstock Item Table.
+        ItemLedgerEntry.SetRange("Entry Type", ItemLedgerEntry."Entry Type"::Sale);
+        ItemLedgerEntry.FindFirst;
+        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.SetRange('ItemLedgerEntryItemNo', NonstockItem."Vendor Item No.");
+        LibraryReportDataset.GetNextRow;
+        LibraryReportDataset.AssertCurrentRowValueEquals('InvoicedQuantity', -ItemLedgerEntry.Quantity);
+    end;
+
+    [Test]
+    [HandlerFunctions('RevalPostingTestItemRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure RevaluationPostingTest()
+    var
+        Item: Record Item;
+        PurchaseHeader: Record "Purchase Header";
+        ItemJournalBatch: Record "Item Journal Batch";
+        ItemJournalLine: Record "Item Journal Line";
+        CalculatePer: Option "Item Ledger Entry",Item;
+        CalculationBase: Option " ","Last Direct Unit Cost","Standard Cost - Assembly List","Standard Cost - Manufacturing";
+    begin
+        // Setup: Create Item with costing method as standard. Value important for Test.
+        Initialize;
+        CreateItem(Item);
+        CreateAndPostItemJrnl(ItemJournalLine."Entry Type"::"Positive Adjmt.", Item."No.", LibraryRandom.RandInt(100) + 10);
+        Item.CalcFields(Inventory);
+
+        // Create and Post Purchase order with One Item Line.
+        // Run Adjust cost and create Revaluation Journal.Update Unit Cost (Revalued).
+        CreatePurchaseOrder(PurchaseHeader, Item."No.", Item.Inventory, LibraryRandom.RandDec(100, 2), 1);
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+        LibraryCosting.AdjustCostItemEntries(Item."No.", '');
+        CreateItemJournalBatch(ItemJournalBatch, ItemJournalBatch."Template Type"::Revaluation);
+        Item.SetRange("No.", Item."No.");
+        LibraryCosting.CreateRevaluationJournal(
+          ItemJournalBatch, Item, WorkDate, ItemJournalLine."Document No.", CalculatePer::Item, false, false, false, CalculationBase::" ", false);
+        UpdateRevaluationJrnl(ItemJournalLine, ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name);
+
+        // Exercise: Generate Revaluation Posting - Test Report.
+        Commit;
+        ItemJournalLine.SetRange("Item No.", Item."No.");
+        LibraryVariableStorage.Enqueue(false);
+        REPORT.Run(REPORT::"Revaluation Posting - Test", true, false, ItemJournalLine);
+
+        // Verify: Unit Cost (Revalued) shown in Revaluation Posting - Test Report is equal to the
+        // Unit Cost (Revalued) shown in Item Journal Line Table.
+        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.SetRange('Item_Journal_Line__Item_No__', ItemJournalLine."Item No.");
+        LibraryReportDataset.GetNextRow;
+        LibraryReportDataset.AssertCurrentRowValueEquals('Item_Journal_Line__Unit_Cost__Revalued__',
+          ItemJournalLine."Unit Cost (Revalued)");
+    end;
+
+    [Test]
+    [HandlerFunctions('InvtInboundTransferRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure InventoryInboundTransfer()
+    var
+        Item: Record Item;
+        TransferLine: Record "Transfer Line";
+        Location: Record Location;
+        FromLocationCode: Code[10];
+        ToLocationCode: Code[10];
+        InTransitLocationCode: Code[10];
+    begin
+        // Setup: Create Item, Location and Transfer Order to New Location.
+        Initialize;
+        CreateItem(Item);
+
+        // Create Transfer From Location.
+        CreateLocation(Location, false);
+        FromLocationCode := Location.Code;
+
+        // Create Transfer To Location.
+        CreateLocation(Location, false);
+        ToLocationCode := Location.Code;
+
+        // Create Intransit Location.
+        CreateLocation(Location, true);
+        InTransitLocationCode := Location.Code;
+        CreateAndRealeaseTransferOrder(TransferLine, FromLocationCode, ToLocationCode, InTransitLocationCode, Item."No.");
+
+        // Exercise: Run Inventory Inbound Transfer report.
+        Commit;
+        TransferLine.SetRange("Transfer-to Code", ToLocationCode);
+        REPORT.Run(REPORT::"Inventory - Inbound Transfer", true, false, TransferLine);
+
+        // Verify: Check Transfer Line Quantity equals Quantity in report.
+        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.SetRange('InTransitCode_TransLine', InTransitLocationCode);
+        LibraryReportDataset.GetNextRow;
+        LibraryReportDataset.AssertCurrentRowValueEquals('OutstandQty_TransLine', TransferLine."Outstanding Quantity");
+    end;
+
+    [Test]
+    [HandlerFunctions('InvtOrderDetailsRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure InventoryOrderDetails()
+    var
+        SalesHeader: Record "Sales Header";
+        Item: Record Item;
+        SalesQuantity: Decimal;
+    begin
+        // Setup: Create Item, and Sales Order.
+        Initialize;
+        CreateItem(Item);
+        SalesQuantity := LibraryRandom.RandDec(100, 2);
+        CreateSalesOrder(SalesHeader, '', Item."No.", SalesQuantity);
+        SalesHeader.Validate("Shipment Date", CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate));
+        SalesHeader.Modify(true);
+
+        // Exercise : Run Inventory Order Details report.
+        Commit;
+        Item.SetRange("No.", Item."No.");
+        REPORT.Run(REPORT::"Inventory Order Details", true, false, Item);
+
+        // Verify : Check Sales Header Shipment with report Shipment Date.
+        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.SetRange('SalesLineDocumentNo', SalesHeader."No.");
+        // The element ShipmentDate_SalesLine is formatted in the report layout.
+        LibraryReportDataset.GetNextRow;
+        LibraryReportDataset.AssertCurrentRowValueEquals('ShipmentDate_SalesLine', Format(SalesHeader."Shipment Date"));
+    end;
+
+    [Test]
+    [HandlerFunctions('InvtPurchaseOrdersRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure InventoryPurchaseOrderDetails()
+    var
+        Item: Record Item;
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseQuantity: Decimal;
+    begin
+        // Setup: Create Item, and Purchase Order with one Item Line.
+        Initialize;
+        CreateItem(Item);
+        PurchaseQuantity := LibraryRandom.RandDec(100, 2);
+        CreatePurchaseOrder(PurchaseHeader, Item."No.", PurchaseQuantity, LibraryRandom.RandDec(100, 2), 1);
+        PurchaseHeader.Validate("Expected Receipt Date", CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate));
+        PurchaseHeader.Modify(true);
+
+        // Exercise : Run Inventory Purchase Orders report.
+        Commit;
+        Item.SetRange("No.", Item."No.");
+        REPORT.Run(REPORT::"Inventory Purchase Orders", true, false, Item);
+
+        // Verify : Check Purchase Header Expected Receipt Date with Report Expected Receipt Date.
+        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.SetRange('DocumentNo_PurchaseLine', PurchaseHeader."No.");
+        LibraryReportDataset.GetNextRow;
+        LibraryReportDataset.AssertCurrentRowValueEquals('ExpReceiptDt_PurchaseLine', Format(PurchaseHeader."Expected Receipt Date"));
+    end;
+
+    [Test]
+    [HandlerFunctions('InvtPurchaseOrdersRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure InventoryPurchaseOrderDescription()
+    var
+        Item: Record Item;
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseQuantity: Decimal;
+    begin
+        // Setup: Create Item, and Purchase Order with one Item Line.
+        Initialize;
+        CreateItem(Item);
+        Item.Validate(Description, LibraryUtility.GenerateRandomText(50));
+        Item.Modify(true);
+
+        PurchaseQuantity := LibraryRandom.RandDec(100, 2);
+        CreatePurchaseOrder(PurchaseHeader, Item."No.", PurchaseQuantity, LibraryRandom.RandDec(100, 2), 1);
+
+        // Exercise : Run Inventory Purchase Orders report.
+        Commit;
+        Item.SetRange("No.", Item."No.");
+        REPORT.Run(REPORT::"Inventory Purchase Orders", true, false, Item);
+
+        // Verify : Check Purchase Header Expected Receipt Date with Report Expected Receipt Date.
+        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.SetRange('DocumentNo_PurchaseLine', PurchaseHeader."No.");
+        LibraryReportDataset.GetNextRow;
+        LibraryReportDataset.AssertCurrentRowValueEquals('Description_Item', Item.Description);
+    end;
+
+    [Test]
+    [HandlerFunctions('InvtSalesStatisticsRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure InventorySalesStatistic()
+    var
+        Item: Record Item;
+        SalesHeader: Record "Sales Header";
+        SalesQuantity: Decimal;
+    begin
+        // Setup: Create Item, Create And Post Sales Order.
+        Initialize;
+        CreateItem(Item);
+        SalesQuantity := LibraryRandom.RandDec(100, 2);
+        CreateSalesOrder(SalesHeader, '', Item."No.", SalesQuantity);
+        LibrarySales.PostSalesDocument(SalesHeader, true, true);
+
+        // Exercise : Run Inventory - Sales Statistics report.
+        Item.SetRange("No.", Item."No.");
+        REPORT.Run(REPORT::"Inventory - Sales Statistics", true, false, Item);
+
+        // Verify : Check Sales Quantity with Quantity in report
+        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.SetRange('No_Item', Item."No.");
+        LibraryReportDataset.GetNextRow;
+        LibraryReportDataset.AssertCurrentRowValueEquals('SalesQty', SalesQuantity);
+    end;
+
+    [Test]
+    [HandlerFunctions('InvtCustomerSalesRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure InventoryCustomerSales()
+    var
+        Item: Record Item;
+        SalesHeader: Record "Sales Header";
+        SalesQuantity: Decimal;
+    begin
+        // Setup: Create Item, Create And Post Sales Order.
+        Initialize;
+        CreateItem(Item);
+        SalesQuantity := LibraryRandom.RandDec(100, 2);
+        CreateSalesOrder(SalesHeader, '', Item."No.", SalesQuantity);
+        LibrarySales.PostSalesDocument(SalesHeader, true, true);
+
+        // Exercise : Run Inventory - Customer Sales report.
+        Item.SetRange("No.", Item."No.");
+        REPORT.Run(REPORT::"Inventory - Customer Sales", true, false, Item);
+
+        // Verify : Check Sales Quantity with Quantity in report.
+        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.SetRange('CustName', SalesHeader."Sell-to Customer Name");
+        LibraryReportDataset.GetNextRow;
+        LibraryReportDataset.AssertCurrentRowValueEquals('InvQty_ItemLedgEntry', SalesQuantity);
+    end;
+
+    [Test]
+    [HandlerFunctions('InvtVendorPurchasesRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure InventoryVendorPurchases()
+    var
+        Item: Record Item;
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseQuantity: Decimal;
+    begin
+        // Setup: Create Item, Create And Post Purchase Order with one Item Line.
+        Initialize;
+        CreateItem(Item);
+        PurchaseQuantity := LibraryRandom.RandDec(100, 2);
+        CreatePurchaseOrder(PurchaseHeader, Item."No.", PurchaseQuantity, LibraryRandom.RandDec(100, 2), 1);
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+
+        // Exercise: Run Inventory - Vendor Purchases report.
+        Item.SetRange("No.", Item."No.");
+        REPORT.Run(REPORT::"Inventory - Vendor Purchases", true, false, Item);
+
+        // Verify : Check Purchase Quantity with Quantity in report.
+        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.SetRange('VendName', PurchaseHeader."Buy-from Vendor Name");
+        LibraryReportDataset.GetNextRow;
+        LibraryReportDataset.AssertCurrentRowValueEquals('InvQty_ValueEntry', PurchaseQuantity);
+    end;
+
+    [Test]
+    [HandlerFunctions('MessageHandler,InvtSalesBackOrdersRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure InventorySalesBackOrders()
+    var
+        SalesHeader: Record "Sales Header";
+        Item: Record Item;
+    begin
+        // Setup: Create Item, Sales Order with Back Date.
+        Initialize;
+        CreateItem(Item);
+        CreateSalesOrder(SalesHeader, '', Item."No.", LibraryRandom.RandDec(100, 2));
+        SalesHeader.Validate("Shipment Date", CalcDate('<-' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate));
+        SalesHeader.Modify(true);
+
+        // Exercise : Run Inventory - Sales Back Orders report.
+        Commit;
+        Item.SetRange("No.", Item."No.");
+        REPORT.Run(REPORT::"Inventory - Sales Back Orders", true, false, Item);
+
+        // Verify : Check Sales Header Document No. with Document No. on Report.
+        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.SetRange('DocumentNo_SalesLine', SalesHeader."No.");
+        LibraryReportDataset.GetNextRow;
+        LibraryReportDataset.AssertCurrentRowValueEquals('ShipmentDate_SalesLine', Format(SalesHeader."Shipment Date"));
+    end;
+
+    [Test]
+    [HandlerFunctions('StatusRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure InventoryStatus()
+    var
+        Item: Record Item;
+        ItemJournalLine: Record "Item Journal Line";
+        ItemLedgerEntry: Record "Item Ledger Entry";
+    begin
+        // Setup : Create Item, Update Inventory And Find Item Ledger Entry.
+        Initialize;
+        CreateItem(Item);
+        CreateAndPostItemJrnl(ItemJournalLine."Entry Type"::"Positive Adjmt.", Item."No.", LibraryRandom.RandDec(100, 2));
+
+        // Exercise : Run Status Report.
+        Commit;
+        Item.SetRange("No.", Item."No.");
+        LibraryVariableStorage.Enqueue(WorkDate);
+        REPORT.Run(REPORT::Status, true, false, Item);
+
+        // Verify : Check Item Ledger Entry Quantity with Quantity on report.
+        ItemLedgerEntry.SetRange("Item No.", Item."No.");
+        ItemLedgerEntry.FindFirst;
+        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.SetRange('DocumentNo_ItemLedgerEntry', ItemLedgerEntry."Document No.");
+        LibraryReportDataset.GetNextRow;
+        LibraryReportDataset.AssertCurrentRowValueEquals('RemainingQty', ItemLedgerEntry.Quantity);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CalculateInventory()
+    var
+        Item: Record Item;
+        ItemJournalBatch: Record "Item Journal Batch";
+        ItemJournalLine: Record "Item Journal Line";
+        Location: Record Location;
+        PurchaseQuantity: Decimal;
+    begin
+        // Setup : Create item , Location, Post Purchase Order ,Create Item Journal Batch and assign to Item Journal Line.
+        Initialize;
+        CreateItemJournalBatch(ItemJournalBatch, ItemJournalBatch."Template Type"::"Phys. Inventory");
+        CreateItem(Item);
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
+        PurchaseQuantity := LibraryRandom.RandDec(100, 2);
+        CreateAndPostPurchaseOrder(Item."No.", Location.Code, PurchaseQuantity);
+
+        // Exercise : Run Calculate Inventory report.
+        ItemJournalLine."Journal Template Name" := ItemJournalBatch."Journal Template Name";
+        ItemJournalLine."Journal Batch Name" := ItemJournalBatch.Name;
+        Item.SetRange("No.", Item."No.");
+        LibraryInventory.CalculateInventory(ItemJournalLine, Item, WorkDate, true, false);
+
+        // Verify : Check Purchase Quantity with Inventory Journal Line Physical Qty.
+        FindItemJournalLine(ItemJournalLine, ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name, Location.Code);
+        VerifyQuantity(
+          PurchaseQuantity, ItemJournalLine."Qty. (Phys. Inventory)", ItemJournalLine."Document No.", ItemJournalLine.TableCaption);
+        VerifyQuantity(PurchaseQuantity, ItemJournalLine."Qty. (Calculated)", ItemJournalLine."Document No.", ItemJournalLine.TableCaption);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CreateRevaluationJournal()
+    var
+        Item: Record Item;
+        ItemJournalLine: Record "Item Journal Line";
+        PurchaseHeader: Record "Purchase Header";
+        ItemJournalBatch: Record "Item Journal Batch";
+        CalculatePer: Option "Item Ledger Entry",Item;
+        CalculationBase: Option " ","Last Direct Unit Cost","Standard Cost - Assembly List","Standard Cost - Manufacturing";
+        Quantity: Decimal;
+    begin
+        // Setup: Create Item with costing method as standard, Random Value important.
+        Initialize;
+        CreateItem(Item);
+        Quantity := LibraryRandom.RandInt(100) + 10;
+        CreateAndPostItemJrnl(ItemJournalLine."Entry Type"::"Positive Adjmt.", Item."No.", Quantity);
+        Item.CalcFields(Inventory);
+
+        // Create and Post Purchase order with one Item line.
+        // Run Adjust cost and create Revaluation Journal.Update Unit Cost (Revalued).
+        CreatePurchaseOrder(PurchaseHeader, Item."No.", Item.Inventory, LibraryRandom.RandDec(100, 2), 1);
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+        LibraryCosting.AdjustCostItemEntries(Item."No.", '');
+        CreateItemJournalBatch(ItemJournalBatch, ItemJournalBatch."Template Type"::Revaluation);
+
+        // Exercise: Generate Calculate Inventory Value Report.
+        Item.SetRange("No.", Item."No.");
+        LibraryCosting.CreateRevaluationJournal(
+          ItemJournalBatch, Item, WorkDate, ItemJournalLine."Document No.", CalculatePer::Item, false, false, false, CalculationBase::" ", false);
+
+        // Verify : Verify that Revaluation Journal is created.
+        FindItemJournalLine(ItemJournalLine, ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name, '');
+
+        // Verify quantity on Revaluation Journal is equal to Item quantity.
+        VerifyQuantity(2 * Quantity, ItemJournalLine.Quantity, ItemJournalLine."Document No.", ItemJournalLine.TableCaption);
+    end;
+
+    [Test]
+    [HandlerFunctions('ItemRegQuantityRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure ItemRegisterQuantity()
+    var
+        Item: Record Item;
+        PurchaseHeader: Record "Purchase Header";
+        ItemRegister: Record "Item Register";
+        ItemLedgerEntry: Record "Item Ledger Entry";
+        FromEntryNo: Integer;
+        ToEntryNo: Integer;
+    begin
+        // Setup: Create Item with costing method as standard.Create Purchase order with Two Item Lines.
+        Initialize;
+        CreateItem(Item);
+        CreatePurchaseOrder(PurchaseHeader, Item."No.", LibraryRandom.RandDec(100, 2), LibraryRandom.RandDec(100, 2), 2);
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+        FindItemRegister(ItemRegister, FromEntryNo, ToEntryNo, Item."No.");
+
+        // Exercise: Generate Calculate Inventory Value Report.
+        REPORT.Run(REPORT::"Item Register - Quantity", true, false, ItemRegister);
+
+        // Verify : Check Item Ledger Entry Quantity with Quantity on report.Rounding in RTC is hard coded as 1.
+        ItemLedgerEntry.Get(ItemRegister."From Entry No.");
+        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.SetRange('DocNo_ItemLedgEntry', ItemLedgerEntry."Document No.");
+        LibraryReportDataset.GetNextRow;
+        LibraryReportDataset.AssertCurrentRowValueEquals('Quantity_ItemLedgEntry', ItemLedgerEntry.Quantity);
+    end;
+
+    [Test]
+    [HandlerFunctions('PostInvtCostToGLRequestPageHandler,StatisticsMessageHandler')]
+    [Scope('OnPrem')]
+    procedure PostInventoryCostToGLPostTrue()
+    begin
+        // Run Post Inventory Cost to G/L with Post as True.
+        Initialize;
+        PostInventoryCostToGLPost(true);
+    end;
+
+    [Test]
+    [HandlerFunctions('PostInvtCostToGLRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure PostInventoryCostToGLPostFalse()
+    begin
+        // Run Post Inventory Cost to G/L with Post as False.
+        Initialize;
+        PostInventoryCostToGLPost(false);
+    end;
+
+    [Normal]
+    local procedure PostInventoryCostToGLPost(Post: Boolean)
+    var
+        Item: Record Item;
+        PurchaseHeader: Record "Purchase Header";
+        PurchInvHeader: Record "Purch. Inv. Header";
+        PostValueEntryToGL: Record "Post Value Entry to G/L";
+        PostMethod: Option "per Posting Group","per Entry";
+    begin
+        // Setup: Create Item with costing method as standard.Create Purchase Order with two Item Lines and Post It.
+        Initialize;
+        CreateItem(Item);
+        CreatePurchaseOrder(PurchaseHeader, Item."No.", LibraryRandom.RandDec(100, 2), LibraryRandom.RandDec(100, 2), 2);
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+        FindPurchInvHeader(PurchInvHeader, PurchaseHeader."No.");
+
+        // Exercise: Generate the Post Inventory Cost to G/L report.
+        Commit;
+        LibraryVariableStorage.Enqueue(PostMethod::"per Posting Group");
+        LibraryVariableStorage.Enqueue(PurchInvHeader."No.");
+        LibraryVariableStorage.Enqueue(Post);
+        REPORT.Run(REPORT::"Post Inventory Cost to G/L", true, false, PostValueEntryToGL);
+
+        // Verify: Document No shown in Inventory Cost to G/L Report is equal to the Document No shown of Purchase Invoice Header.
+        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.SetRange('ItemNo_PostValueEntryToGL', Item."No.");
+        LibraryReportDataset.GetNextRow;
+        LibraryReportDataset.AssertCurrentRowValueEquals('ItemValueEntryDocumentNo', PurchInvHeader."No.");
+
+        // Verify Inventory Account in Gl Entry.
+        VerifyInvtAccountInGLEntry(Item."No.", PurchInvHeader."No.", Post);
+    end;
+
+    [Test]
+    [HandlerFunctions('InvtValuationRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure InventoryValuationExpCostFalse()
+    begin
+        Initialize;
+        InventoryValuationWithExpCost(false);
+    end;
+
+    [Test]
+    [HandlerFunctions('InvtValuationRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure InventoryValuationExpCostTrue()
+    begin
+        Initialize;
+        InventoryValuationWithExpCost(true);
+    end;
+
+    [Normal]
+    local procedure InventoryValuationWithExpCost(IncludeExpectedCost: Boolean)
+    var
+        Item: Record Item;
+        PurchaseHeader: Record "Purchase Header";
+        PurchInvHeader: Record "Purch. Inv. Header";
+    begin
+        // Setup: Create Item with costing method as standard.Create Purchase Order with two Item Lines.
+        CreateItem(Item);
+        CreatePurchaseOrder(PurchaseHeader, Item."No.", LibraryRandom.RandDec(100, 2), LibraryRandom.RandDec(100, 2), 2);
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+        FindPurchInvHeader(PurchInvHeader, PurchaseHeader."No.");
+
+        // Exercise: Generate Inventory Valuation with include Expected Cost False.
+        Commit;
+        RunInvtValuationReport(Item, '', 0D, WorkDate, IncludeExpectedCost);
+
+        // Verify Value Entry Quantity.
+        LibraryReportDataset.LoadDataSetFile;
+        if IncludeExpectedCost then
+            LibraryReportDataset.AssertElementWithValueExists('Expected_Cost_IncludedCaption', 'Expected Cost Included');
+
+        VerifyValueEntryQuantity(Item."No.", PurchInvHeader."No.");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure InventoryValuationNoDuplicateExpCostLines()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        Item: Record Item;
+        RowNo: Integer;
+        ValueFound: Boolean;
+    begin
+        // [FEATURE] [Inventory Valuation]
+        // [SCENARIO 378286] Expected cost line should not be shown in the report "Inventory Valuation" when expected amount is 0.
+        // [GIVEN] Create item
+        LibraryInventory.CreateItem(Item);
+
+        // [GIVEN] Post purchase order as received and invoiced
+        CreatePurchaseOrder(PurchaseHeader, Item."No.", LibraryRandom.RandDec(100, 2), LibraryRandom.RandDec(100, 2), 1);
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+
+        // [WHEN] Run report "Inventory Valuation" with parameter "Include expected cost" = TRUE
+        SaveAsExcelInventoryValuationReport(Item."No.");
+
+        // [THEN] The string with description "Expected Cost Included" shouldn't be in this report for created item
+        RowNo := LibraryReportValidation.FindRowNoFromColumnNoAndValue(
+            LibraryReportValidation.FindColumnNoFromColumnCaption('Item No.'), Item."No.");
+        Assert.AreNotEqual(
+          'Expected Cost Included', LibraryReportValidation.GetValueAt(ValueFound, RowNo + 1,
+            LibraryReportValidation.FindColumnNoFromColumnCaption('Description')), IncorrectValueInCellErr);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure InventoryValuationDuplicateExpCostLines()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        Item: Record Item;
+        RowNo: Integer;
+    begin
+        // [FEATURE] [Inventory Valuation]
+        // [SCENARIO 378286] Expected cost line should be shown in the report "Inventory Valuation" when expected amount is not 0.
+        // [GIVEN] Create item
+        LibraryInventory.CreateItem(Item);
+
+        // [GIVEN] Posting the receipt in Purchase Order
+        CreatePurchaseOrder(PurchaseHeader, Item."No.", LibraryRandom.RandDec(100, 2), LibraryRandom.RandDec(100, 2), 1);
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false);
+
+        // [WHEN] Run report "Inventory Valuation" with parameter "Include expected cost" = TRUE
+        SaveAsExcelInventoryValuationReport(Item."No.");
+
+        // [THEN] The string with description "Expected Cost Included" should be in this report for created item
+        RowNo := LibraryReportValidation.FindRowNoFromColumnNoAndValue(
+            LibraryReportValidation.FindColumnNoFromColumnCaption('Item No.'), Item."No.");
+        LibraryReportValidation.VerifyCellValueOnWorksheet(
+          RowNo + 1, LibraryReportValidation.FindColumnNoFromColumnCaption('Description'), 'Expected Cost Included', '1');
+    end;
+
+    [Test]
+    [HandlerFunctions('CloseInvtPeriodTestRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure CloseInventoryPeriodTest()
+    var
+        Item: Record Item;
+        SalesHeader: Record "Sales Header";
+        ItemJournalLine: Record "Item Journal Line";
+        InventoryPeriod: Record "Inventory Period";
+    begin
+        // Setup: Create Item with costing method as standard and update Inventory.
+        Initialize;
+        CreateInventoryPeriod(InventoryPeriod);
+        CreateItem(Item);
+        CreateAndPostItemJrnl(ItemJournalLine."Entry Type"::"Positive Adjmt.", Item."No.", LibraryRandom.RandDec(100, 2));
+
+        // Create and Post Sales Order using Random Value.
+        Item.CalcFields(Inventory);
+        CreateSalesOrder(SalesHeader, '', Item."No.", Item.Inventory + LibraryRandom.RandDec(100, 2));
+        LibrarySales.PostSalesDocument(SalesHeader, true, true);
+
+        // Exercise: Generate Inventory - Transaction Detail Report.
+        REPORT.Run(REPORT::"Close Inventory Period - Test", true, false, Item);
+
+        // Verify : Verify Item No. With Generated Report.
+        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.SetRange('No_Item', Item."No.");
+        LibraryReportDataset.GetNextRow;
+        LibraryReportDataset.AssertCurrentRowValueEquals('Description_Item', Item.Description);
+    end;
+
+    [Test]
+    [HandlerFunctions('InvtValuationRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure InventoryValuationWithLocationAndTransfer()
+    var
+        Item: Record Item;
+        FromLocation: Record Location;
+        ToLocation: Record Location;
+        IntransitLocation: Record Location;
+        PurchaseQuantity: Decimal;
+    begin
+        // Setup: Create Item and Locations for Transfer.Create and post Purchase Order / Transfer Order with Location.
+        CreateItem(Item);
+        CreateLocation(FromLocation, false);
+        CreateLocation(ToLocation, false);
+        CreateLocation(IntransitLocation, true);
+        PurchaseQuantity := LibraryRandom.RandDec(100, 2);
+        CreateAndPostPurchaseOrder(Item."No.", FromLocation.Code, PurchaseQuantity);
+        CreateAndPostTransferOrder(FromLocation.Code, ToLocation.Code, IntransitLocation.Code, Item."No.", PurchaseQuantity / 2);
+
+        // Exercise: Generate Inventory Valuation.
+        Commit;
+        RunInvtValuationReport(Item, ToLocation.Code, CalcDate('<1D>', WorkDate), CalcDate('<CM>', WorkDate), false);
+
+        // Verify: Verify Quantity of Opening Balance on Inventory Valuation Report.
+        VerifyOpeningBalanceOnInvtValuationReport(PurchaseQuantity / 2);
+    end;
+
+    [Test]
+    [HandlerFunctions('PostInvtCostToGLRequestPageHandler,NothingPostedMessageHandler')]
+    [Scope('OnPrem')]
+    procedure CheckFilterInfoOnPostInventoryCostToGLReport()
+    var
+        Item: Record Item;
+        PostValueEntryToGL: Record "Post Value Entry to G/L";
+        PostMethod: Option "per Posting Group","per Entry";
+    begin
+        // [FEATURE] [Post Inventory Cost to G/L]
+        // [SCENARIO 364399] Post Inventory Cost to G/L report should show Item filter information
+        Initialize;
+
+        // [GIVEN] Item with "No." = "X"
+        CreateItem(Item);
+
+        // [WHEN] Run Post Inventory Cost to G/L report with filters on "Item No." = "X"
+        Commit;
+        PostValueEntryToGL.SetRange("Item No.", Item."No.");
+        LibraryVariableStorage.Enqueue(PostMethod::"per Entry"); // Equeue for PostInvtCostToGLRequestPageHandler
+        LibraryVariableStorage.Enqueue('');
+        LibraryVariableStorage.Enqueue(true);
+        REPORT.Run(REPORT::"Post Inventory Cost to G/L", true, false, PostValueEntryToGL);
+
+        // [THEN] Report contains info of applied filter "X"
+        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.AssertElementWithValueExists('ValueEntryFilter', StrSubstNo('Item No.: %1', Item."No."));
+    end;
+
+    [Test]
+    [HandlerFunctions('PostInvtCostToGLTestRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure CheckFilterInfoOnPostInventoryCostToGLTestReport()
+    var
+        Item: Record Item;
+        PostValueEntryToGL: Record "Post Value Entry to G/L";
+        SalesHeader: Record "Sales Header";
+        PostMethod: Option "per Posting Group","per Entry";
+    begin
+        // [FEATURE] [Post Inventory Cost to G/L Test]
+        // [SCENARIO 364399] Post Inventory Cost to G/L Test report should show Item filter information
+        Initialize;
+
+        // [GIVEN] Item with "No." = "X" with Inventory Transactions
+        CreateItem(Item);
+        CreateSalesOrder(SalesHeader, '', Item."No.", LibraryRandom.RandDec(100, 2));
+        LibrarySales.PostSalesDocument(SalesHeader, true, true);
+
+        // [WHEN] Run Post Inventory Cost to G/L Test report with filters on "Item No." = "X"
+        Commit;
+        PostValueEntryToGL.SetRange("Item No.", Item."No.");
+        LibraryVariableStorage.Enqueue(PostMethod::"per Entry"); // Equeue for PostInvtCostToGLRequestPageHandler
+        LibraryVariableStorage.Enqueue('');
+        REPORT.Run(REPORT::"Post Invt. Cost to G/L - Test", true, false, PostValueEntryToGL);
+
+        // [THEN] Report contains info of applied filter "X"
+        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.AssertElementWithValueExists('ValueEntryFilter', StrSubstNo('Item No.: %1', Item."No."));
+    end;
+
+    [Test]
+    [HandlerFunctions('InvtValuationRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure CheckItemInfoOnInventoryValuationReport()
+    var
+        Item: Record Item;
+    begin
+        // [FEATURE] [Inventory Valuation]
+        // [SCENARIO 371760] Item info should not be shown in Inventory Valuation report if there are no Item Ledger Entries posted
+        Initialize;
+
+        // [GIVEN] Item "X" has no related Item Ledger Entries
+        LibraryInventory.CreateItem(Item);
+
+        // [WHEN] Run Inventory Valuation report
+        Commit;
+        RunInvtValuationReport(Item, '', 0D, WorkDate, false);
+
+        // [THEN] Report doesn't contain info for Item "X"
+        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.AssertElementWithValueNotExist('ItemNo', Item."No.");
+    end;
+
+    local procedure Initialize()
+    var
+        LibraryERMCountryData: Codeunit "Library - ERM Country Data";
+    begin
+        LibraryTestInitialize.OnTestInitialize(CODEUNIT::"SCM Inventory Reports - I");
+        LibraryVariableStorage.Clear;
+
+        // Lazy Setup.
+        if isInitialized then
+            exit;
+        LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"SCM Inventory Reports - I");
+        LibraryERMCountryData.CreateVATData;
+        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        UpdateInventorySetupCostPosting;
+        isInitialized := true;
+        Commit;
+        LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM Inventory Reports - I");
+    end;
+
+    local procedure CreateItem(var Item: Record Item)
+    begin
+        LibraryManufacturing.CreateItemManufacturing(
+          Item, Item."Costing Method"::Standard, LibraryRandom.RandDec(100, 2), Item."Reordering Policy",
+          Item."Flushing Method", '', '');
+    end;
+
+    local procedure CreateStockKeepingUnit(ItemNo: Code[20]; SKUCreationMethod: Option)
+    var
+        Item: Record Item;
+        StockkeepingUnit: Record "Stockkeeping Unit";
+    begin
+        Item.SetRange("No.", ItemNo);
+        LibraryInventory.CreateStockKeepingUnit(Item, SKUCreationMethod, false, true);
+        StockkeepingUnit.SetRange("Item No.", ItemNo);
+        if StockkeepingUnit.FindSet then
+            repeat
+                StockkeepingUnit.Validate(
+                  "Standard Cost",
+                  LibraryRandom.RandDecInDecimalRange(StockkeepingUnit."Standard Cost", StockkeepingUnit."Standard Cost" + 100, 2));
+                StockkeepingUnit.Modify(true);
+            until StockkeepingUnit.Next = 0;
+    end;
+
+    [Normal]
+    local procedure CreateAndPostItemJrnl(EntryType: Option; ItemNo: Code[20]; Qty: Decimal)
+    var
+        ItemJournalTemplate: Record "Item Journal Template";
+        ItemJournalBatch: Record "Item Journal Batch";
+        ItemJournalLine: Record "Item Journal Line";
+    begin
+        // Create Item Journal to populate Item Quantity.
+        LibraryInventory.SelectItemJournalTemplateName(ItemJournalTemplate, ItemJournalTemplate.Type::Item);
+        LibraryInventory.SelectItemJournalBatchName(ItemJournalBatch, ItemJournalTemplate.Type::Item, ItemJournalTemplate.Name);
+        LibraryInventory.CreateItemJournalLine(
+          ItemJournalLine, ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name, EntryType, ItemNo, Qty);
+        LibraryInventory.PostItemJournalLine(ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name);
+    end;
+
+    local procedure CreateItemJournalBatch(var ItemJournalBatch: Record "Item Journal Batch"; Type: Option)
+    var
+        ItemJournalTemplate: Record "Item Journal Template";
+    begin
+        LibraryInventory.SelectItemJournalTemplateName(ItemJournalTemplate, Type);
+        LibraryInventory.CreateItemJournalBatch(ItemJournalBatch, ItemJournalTemplate.Name);
+        ItemJournalBatch.Validate("No. Series", LibraryUtility.GetGlobalNoSeriesCode);
+        ItemJournalBatch.Modify(true);
+    end;
+
+    local procedure CreateSalesOrder(var SalesHeader: Record "Sales Header"; LocationCode: Code[10]; ItemNo: Code[20]; Quantity: Decimal)
+    var
+        SalesLine: Record "Sales Line";
+    begin
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, '');
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, ItemNo, Quantity);
+        SalesLine.Validate("Unit Price", LibraryRandom.RandDec(100, 2));
+        SalesLine.Validate("Location Code", LocationCode);
+        SalesLine.Modify(true);
+    end;
+
+    local procedure CreatePurchaseOrder(var PurchaseHeader: Record "Purchase Header"; ItemNo: Code[20]; Quantity: Decimal; DirectUnitCost: Decimal; NoOfItemLines: Integer)
+    var
+        PurchaseLine: Record "Purchase Line";
+        "Count": Integer;
+    begin
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, '');
+        for Count := 1 to NoOfItemLines do
+            LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, ItemNo, Quantity);
+
+        PurchaseLine.Validate("Direct Unit Cost", DirectUnitCost);
+        PurchaseLine.Modify(true);
+        PurchaseHeader.Validate(
+          "Vendor Invoice No.", LibraryUtility.GenerateRandomCode(PurchaseHeader.FieldNo("Vendor Invoice No."),
+            DATABASE::"Purchase Header"));
+        PurchaseHeader.Modify(true);
+    end;
+
+    local procedure CreateLocation(var Location: Record Location; InTransit: Boolean)
+    begin
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
+        Location.Validate("Use As In-Transit", InTransit);
+        Location.Modify(true);
+    end;
+
+    local procedure CreateAndRealeaseTransferOrder(var TransferLine: Record "Transfer Line"; FromLocationCode: Code[10]; ToLocationCode: Code[10]; IntransitLocationCode: Code[10]; ItemNo: Code[20])
+    var
+        TransferHeader: Record "Transfer Header";
+        ReleaseTransferDocument: Codeunit "Release Transfer Document";
+    begin
+        LibraryWarehouse.CreateTransferHeader(TransferHeader, FromLocationCode, ToLocationCode, IntransitLocationCode);
+        LibraryWarehouse.CreateTransferLine(TransferHeader, TransferLine, ItemNo, LibraryRandom.RandDec(100, 2));
+        ReleaseTransferDocument.Run(TransferHeader);
+    end;
+
+    local procedure CreateAndPostTransferOrder(FromLocationCode: Code[10]; ToLocationCode: Code[10]; IntransitLocationCode: Code[10]; ItemNo: Code[20]; TransferQty: Decimal)
+    var
+        TransferHeader: Record "Transfer Header";
+        TransferLine: Record "Transfer Line";
+    begin
+        LibraryWarehouse.CreateTransferHeader(TransferHeader, FromLocationCode, ToLocationCode, IntransitLocationCode);
+        LibraryWarehouse.CreateTransferLine(TransferHeader, TransferLine, ItemNo, TransferQty);
+        LibraryWarehouse.PostTransferOrder(TransferHeader, true, true);
+    end;
+
+    local procedure CreateAndPostPurchaseOrder(ItemNo: Code[20]; LocationCode: Code[10]; PurchaseQuantity: Decimal)
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+    begin
+        CreatePurchaseOrder(PurchaseHeader, ItemNo, LibraryRandom.RandDec(100, 2), LibraryRandom.RandDec(100, 2), 1);
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, ItemNo, PurchaseQuantity);
+        PurchaseLine.Validate("Location Code", LocationCode);
+        PurchaseLine.Modify(true);
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+    end;
+
+    local procedure CreateInventoryPeriod(var InventoryPeriod: Record "Inventory Period")
+    begin
+        InventoryPeriod.SetRange("Ending Date", WorkDate);
+        if InventoryPeriod.FindFirst then
+            exit;
+
+        InventoryPeriod.Init;
+        InventoryPeriod.Validate("Ending Date", WorkDate);
+        InventoryPeriod.Insert(true);
+    end;
+
+    [Normal]
+    local procedure SelectInventoryPostingSetup(var InventoryPostingSetup: Record "Inventory Posting Setup"; ItemNo: Code[20])
+    var
+        Item: Record Item;
+    begin
+        Item.Get(ItemNo);
+        InventoryPostingSetup.SetRange("Invt. Posting Group Code", Item."Inventory Posting Group");
+        InventoryPostingSetup.FindFirst;
+    end;
+
+    local procedure FindItem(var Item: Record Item; ItemNo: Code[20]; ItemNo2: Code[20])
+    begin
+        Item.SetFilter("No.", '%1|%2', ItemNo, ItemNo2);
+        Item.FindSet;
+    end;
+
+    local procedure FindItemJournalLine(var ItemJournalLine: Record "Item Journal Line"; JournalTemplateName: Code[10]; JournalBatchName: Code[10]; LocationCode: Code[10])
+    begin
+        ItemJournalLine.SetRange("Journal Template Name", JournalTemplateName);
+        ItemJournalLine.SetRange("Journal Batch Name", JournalBatchName);
+        ItemJournalLine.SetRange("Location Code", LocationCode);
+        ItemJournalLine.FindFirst;
+    end;
+
+    local procedure FindItemRegister(var ItemRegister: Record "Item Register"; var FromEntryNo: Integer; var ToEntryNo: Integer; ItemNo: Code[20])
+    var
+        ItemLedgerEntry: Record "Item Ledger Entry";
+    begin
+        ItemLedgerEntry.SetRange("Item No.", ItemNo);
+        ItemLedgerEntry.FindFirst;
+        FromEntryNo := ItemLedgerEntry."Entry No.";
+        ItemLedgerEntry.FindLast;
+        ToEntryNo := ItemLedgerEntry."Entry No.";
+        ItemRegister.SetRange("From Entry No.", FromEntryNo);
+        ItemRegister.SetRange("To Entry No.", ToEntryNo);
+        ItemRegister.FindFirst;
+    end;
+
+    local procedure FindPurchInvHeader(var PurchInvHeader: Record "Purch. Inv. Header"; OrderNo: Code[20])
+    begin
+        PurchInvHeader.SetRange("Order No.", OrderNo);
+        PurchInvHeader.FindFirst;
+    end;
+
+    local procedure SaveAsExcelInventoryValuationReport(ItemNo: Code[20])
+    var
+        Item: Record Item;
+        InventoryValuation: Report "Inventory Valuation";
+    begin
+        Item.SetRange("No.", ItemNo);
+        InventoryValuation.SetTableView(Item);
+        InventoryValuation.InitializeRequest(0D, WorkDate, true);
+        LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID);
+        InventoryValuation.SaveAsExcel(LibraryReportValidation.GetFileName);
+        LibraryReportValidation.DownloadFile;
+        LibraryReportValidation.OpenExcelFile;
+    end;
+
+    local procedure UpdateRevaluationJrnl(var ItemJournalLine: Record "Item Journal Line"; JournalTemplateName: Code[10]; JournalBatchName: Code[10])
+    begin
+        FindItemJournalLine(ItemJournalLine, JournalTemplateName, JournalBatchName, '');
+        ItemJournalLine.Validate("Unit Cost (Revalued)", LibraryRandom.RandDec(10, 2));
+        ItemJournalLine.Modify(true);
+    end;
+
+    local procedure RunInvtValuationReport(Item: Record Item; LocationCode: Code[20]; StartDate: Date; EndingDate: Date; IncludeExpectedCost: Boolean)
+    begin
+        Item.SetRange("No.", Item."No.");
+        Item.SetRange("Location Filter", LocationCode);
+        LibraryVariableStorage.Enqueue(StartDate);
+        LibraryVariableStorage.Enqueue(EndingDate);
+        LibraryVariableStorage.Enqueue(IncludeExpectedCost);
+        REPORT.Run(REPORT::"Inventory Valuation", true, false, Item);
+    end;
+
+    local procedure VerifyTop10ListReport(ItemNo: Code[20]; ItemNo2: Code[20])
+    var
+        Item: Record Item;
+    begin
+        FindItem(Item, ItemNo, ItemNo2);
+        LibraryReportDataset.LoadDataSetFile;
+        repeat
+            Item.CalcFields(Inventory, "Sales (LCY)");
+            LibraryReportDataset.SetRange('Item__No__', Item."No.");
+            LibraryReportDataset.GetNextRow;
+            LibraryReportDataset.AssertCurrentRowValueEquals('Item_Inventory', Item.Inventory);
+            LibraryReportDataset.AssertCurrentRowValueEquals('Item__Sales__LCY__', Item."Sales (LCY)");
+        until Item.Next = 0;
+    end;
+
+    [Normal]
+    local procedure VerifyInvtAccountInGLEntry(ItemNo: Code[20]; DocumentNo: Code[20]; Post: Boolean)
+    var
+        InventoryPostingSetup: Record "Inventory Posting Setup";
+        GLEntry: Record "G/L Entry";
+    begin
+        SelectInventoryPostingSetup(InventoryPostingSetup, ItemNo);
+        GLEntry.SetRange("Document No.", DocumentNo);
+        GLEntry.SetRange("G/L Account No.", InventoryPostingSetup."Inventory Account");
+
+        // Verify row existence for Inventory Account in G/L Entry.
+        Assert.AreEqual(Post, GLEntry.FindFirst, 'Unexpected GL entries for document ' + DocumentNo);
+    end;
+
+    [Normal]
+    local procedure VerifyValueEntryQuantity(ItemNo: Code[20]; DocumentNo: Code[20])
+    var
+        ValueEntry: Record "Value Entry";
+    begin
+        ValueEntry.SetRange("Item No.", ItemNo);
+        ValueEntry.SetRange("Document No.", DocumentNo);
+        ValueEntry.CalcSums("Item Ledger Entry Quantity");
+        LibraryReportDataset.SetRange('ItemNo', ItemNo);
+        LibraryReportDataset.GetNextRow;
+        LibraryReportDataset.AssertCurrentRowValueEquals('IncreaseInvoicedQty', ValueEntry."Item Ledger Entry Quantity");
+    end;
+
+    [Normal]
+    local procedure VerifyQuantity(ExpectedQuantity: Decimal; ActualQuantity: Decimal; DocumentNo: Code[20]; TableCaption: Text[1024])
+    begin
+        Assert.AreEqual(ExpectedQuantity, ActualQuantity, StrSubstNo(QuantityErr, ActualQuantity, TableCaption, DocumentNo));
+    end;
+
+    local procedure VerifyOpeningBalanceOnInvtValuationReport(ExpectedOpenningBalance: Decimal)
+    begin
+        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.GetNextRow;
+        LibraryReportDataset.AssertCurrentRowValueEquals('StartingInvoicedQty', ExpectedOpenningBalance);
+    end;
+
+    local procedure UpdateInventorySetupCostPosting()
+    var
+        InventorySetup: Record "Inventory Setup";
+    begin
+        InventorySetup.Get;
+        InventorySetup.Validate("Automatic Cost Posting", false);
+        InventorySetup.Modify(true);
+    end;
+
+    [MessageHandler]
+    [Scope('OnPrem')]
+    procedure MessageHandler(Message: Text[1024])
+    begin
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure InvtCostAndPriceListRepRequestPageHandler(var InventoryCostAndPriceList: TestRequestPage "Inventory Cost and Price List")
+    begin
+        InventoryCostAndPriceList.UseStockkeepingUnit.SetValue(true); // Use Stockkeeping Units in the report.
+        InventoryCostAndPriceList.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure InvtListRepRequestPageHandler(var InventoryList: TestRequestPage "Inventory - List")
+    begin
+        InventoryList.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure InvtTransactionDetailRepRequestPageHandler(var InventoryTransactionDetail: TestRequestPage "Inventory - Transaction Detail")
+    begin
+        InventoryTransactionDetail.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure InvtTop10ListRepRequestPageHandler(var InventoryTopTenList: TestRequestPage "Inventory - Top 10 List")
+    var
+        ShowSorting: Variant;
+        ShowType: Variant;
+    begin
+        LibraryVariableStorage.Dequeue(ShowSorting);
+        LibraryVariableStorage.Dequeue(ShowType);
+        InventoryTopTenList.ShowSorting.SetValue(ShowSorting); // Show sorting: Largest, Smallest.
+        InventoryTopTenList.ShowType.SetValue(ShowType); // Show Type: Sales, Inventory.
+        InventoryTopTenList.NoOfRecordsToPrint.SetValue(0); // No. of records to print.
+        InventoryTopTenList.PrintAlsoIfZero.SetValue(false); // Item not in inventory.
+        InventoryTopTenList.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure InvtReordersRequestPageHandler(var InventoryReorders: TestRequestPage "Inventory - Reorders")
+    var
+        UseStockkeepingUnit: Variant;
+    begin
+        // Use stockkeeping units in the report.
+        LibraryVariableStorage.Dequeue(UseStockkeepingUnit);
+        InventoryReorders.UseStockkeepUnit.SetValue(UseStockkeepingUnit);
+        InventoryReorders.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure NonstockItemSalesRequestPageHandler(var NonstockItemSales: TestRequestPage "Catalog Item Sales")
+    begin
+        NonstockItemSales.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure RevalPostingTestItemRequestPageHandler(var RevaluationPostingTest: TestRequestPage "Revaluation Posting - Test")
+    var
+        ShowDim: Variant;
+    begin
+        LibraryVariableStorage.Dequeue(ShowDim);
+        RevaluationPostingTest.ShowDim.SetValue(ShowDim); // Show dimensions in report.
+        RevaluationPostingTest.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure InvtInboundTransferRequestPageHandler(var InventoryInboundTransfer: TestRequestPage "Inventory - Inbound Transfer")
+    begin
+        InventoryInboundTransfer.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure InvtOrderDetailsRequestPageHandler(var InventoryOrderDetails: TestRequestPage "Inventory Order Details")
+    begin
+        InventoryOrderDetails.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure InvtPurchaseOrdersRequestPageHandler(var InventoryPurchaseOrder: TestRequestPage "Inventory Purchase Orders")
+    begin
+        InventoryPurchaseOrder.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure InvtSalesStatisticsRequestPageHandler(var InventorySalesStatistics: TestRequestPage "Inventory - Sales Statistics")
+    begin
+        InventorySalesStatistics.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure InvtCustomerSalesRequestPageHandler(var InventoryCustomerSales: TestRequestPage "Inventory - Customer Sales")
+    begin
+        InventoryCustomerSales.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure InvtVendorPurchasesRequestPageHandler(var InventoryVendorPurchases: TestRequestPage "Inventory - Vendor Purchases")
+    begin
+        InventoryVendorPurchases.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure InvtSalesBackOrdersRequestPageHandler(var InventorySalesBackOrders: TestRequestPage "Inventory - Sales Back Orders")
+    begin
+        InventorySalesBackOrders.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure StatusRequestPageHandler(var Status: TestRequestPage Status)
+    var
+        StatusDate: Variant;
+    begin
+        LibraryVariableStorage.Dequeue(StatusDate);
+        Status.StatusDate.SetValue(StatusDate);
+        Status.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure ItemRegQuantityRequestPageHandler(var ItemRegisterQuantity: TestRequestPage "Item Register - Quantity")
+    begin
+        ItemRegisterQuantity.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure PostInvtCostToGLRequestPageHandler(var PostInventoryCostToGL: TestRequestPage "Post Inventory Cost to G/L")
+    var
+        PostMethod: Variant;
+        DocNo: Variant;
+        Post: Variant;
+    begin
+        LibraryVariableStorage.Dequeue(PostMethod);
+        PostInventoryCostToGL.PostMethod.SetValue(PostMethod); // Post Method: per entry or per Posting Group.
+        LibraryVariableStorage.Dequeue(DocNo);
+        PostInventoryCostToGL.DocumentNo.SetValue(DocNo); // Doc No. required when posting per Posting Group.
+        LibraryVariableStorage.Dequeue(Post); // Post to G/L.
+        PostInventoryCostToGL.Post.SetValue(Post);
+        PostInventoryCostToGL.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure PostInvtCostToGLTestRequestPageHandler(var PostInventoryCostToGLTest: TestRequestPage "Post Invt. Cost to G/L - Test")
+    var
+        PostMethod: Variant;
+        DocNo: Variant;
+    begin
+        LibraryVariableStorage.Dequeue(PostMethod);
+        PostInventoryCostToGLTest.PostingMethod.SetValue(PostMethod); // Post Method: per entry or per Posting Group.
+        LibraryVariableStorage.Dequeue(DocNo);
+        PostInventoryCostToGLTest.DocumentNo.SetValue(DocNo); // Doc No. required when posting per Posting Group.
+        PostInventoryCostToGLTest.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure InvtValuationRequestPageHandler(var InventoryValuation: TestRequestPage "Inventory Valuation")
+    var
+        StartDate: Variant;
+        EndingDate: Variant;
+        IncludeExpectedCost: Variant;
+    begin
+        LibraryVariableStorage.Dequeue(StartDate);
+        InventoryValuation.StartingDate.SetValue(StartDate);
+        LibraryVariableStorage.Dequeue(EndingDate);
+        InventoryValuation.EndingDate.SetValue(EndingDate);
+        LibraryVariableStorage.Dequeue(IncludeExpectedCost);
+        InventoryValuation.IncludeExpectedCost.SetValue(IncludeExpectedCost);
+        InventoryValuation.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure CloseInvtPeriodTestRequestPageHandler(var CloseInventoryPeriodTest: TestRequestPage "Close Inventory Period - Test")
+    begin
+        CloseInventoryPeriodTest.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+    end;
+
+    [MessageHandler]
+    [Scope('OnPrem')]
+    procedure NothingPostedMessageHandler(Message: Text[1024])
+    begin
+        Assert.ExpectedMessage(NothingToPostTxt, Message);
+    end;
+
+    [MessageHandler]
+    [Scope('OnPrem')]
+    procedure StatisticsMessageHandler(Message: Text[1024])
+    begin
+        Assert.ExpectedMessage(ValueEntriesWerePostedTxt, Message);
+    end;
+}
+

@@ -1,0 +1,39 @@
+page 7710 "ADCS Users"
+{
+    AdditionalSearchTerms = 'scanner,handheld,automated data capture,barcode';
+    ApplicationArea = ADCS;
+    Caption = 'ADCS Users';
+    DelayedInsert = true;
+    PageType = List;
+    SourceTable = "ADCS User";
+    UsageCategory = Lists;
+
+    layout
+    {
+        area(content)
+        {
+            repeater(Group)
+            {
+                Caption = 'Group';
+                field(Name; Name)
+                {
+                    ApplicationArea = ADCS;
+                    Caption = 'Name';
+                    ToolTip = 'Specifies the name of an ADCS user.';
+                }
+                field(Password; Password)
+                {
+                    ApplicationArea = ADCS;
+                    Caption = 'Password';
+                    ExtendedDatatype = Masked;
+                    ToolTip = 'Specifies the password of an ADCS user.';
+                }
+            }
+        }
+    }
+
+    actions
+    {
+    }
+}
+

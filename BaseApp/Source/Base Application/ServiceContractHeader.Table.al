@@ -1,0 +1,2497 @@
+table 5965 "Service Contract Header"
+{
+    Caption = 'Service Contract Header';
+    DataCaptionFields = "Contract No.", Description;
+    DrillDownPageID = "Service Contract List";
+    LookupPageID = "Service Contract List";
+
+    fields
+    {
+        field(1; "Contract No."; Code[20])
+        {
+            Caption = 'Contract No.';
+
+            trigger OnValidate()
+            begin
+                if "Contract No." <> xRec."Contract No." then begin
+                    ServMgtSetup.Get;
+                    NoSeriesMgt.TestManual(ServMgtSetup."Service Contract Nos.");
+                    "No. Series" := '';
+                end;
+            end;
+        }
+        field(2; "Contract Type"; Option)
+        {
+            Caption = 'Contract Type';
+            OptionCaption = 'Quote,Contract';
+            OptionMembers = Quote,Contract;
+        }
+        field(3; Description; Text[100])
+        {
+            Caption = 'Description';
+        }
+        field(4; "Description 2"; Text[50])
+        {
+            Caption = 'Description 2';
+        }
+        field(5; Status; Option)
+        {
+            Caption = 'Status';
+            Editable = true;
+            OptionCaption = ' ,Signed,Canceled';
+            OptionMembers = " ",Signed,Canceled;
+
+            trigger OnValidate()
+            var
+                ServLedgEntry: Record "Service Ledger Entry";
+                ConfirmManagement: Codeunit "Confirm Management";
+                AnyServItemInOtherContract: Boolean;
+            begin
+                if Status <> xRec.Status then begin
+                    if not SuspendChangeStatus then
+                        TestField("Change Status", "Change Status"::Open);
+                    case "Contract Type" of
+                        "Contract Type"::Contract:
+                            begin
+                                if Status <> Status::Canceled then
+                                    Error(Text006, FieldCaption(Status));
+
+                                CalcFields("No. of Unposted Invoices", "No. of Unposted Credit Memos");
+                                case true of
+                                    ("No. of Unposted Invoices" <> 0) and ("No. of Unposted Credit Memos" = 0):
+                                        if not ConfirmManagement.GetResponseOrDefault(Text048, true) then begin
+                                            Status := xRec.Status;
+                                            exit;
+                                        end;
+                                    ("No. of Unposted Invoices" = 0) and ("No. of Unposted Credit Memos" <> 0):
+                                        if not ConfirmManagement.GetResponseOrDefault(Text049, true) then begin
+                                            Status := xRec.Status;
+                                            exit;
+                                        end;
+                                    ("No. of Unposted Invoices" <> 0) and ("No. of Unposted Credit Memos" <> 0):
+                                        if not ConfirmManagement.GetResponseOrDefault(Text055, true) then begin
+                                            Status := xRec.Status;
+                                            exit;
+                                        end;
+                                end;
+
+                                ServMgtSetup.Get;
+                                if ServMgtSetup."Use Contract Cancel Reason" then
+                                    TestField("Cancel Reason Code");
+
+                                ServLedgEntry.SetRange(Type, ServLedgEntry.Type::"Service Contract");
+                                ServLedgEntry.SetRange("No.", "Contract No.");
+                                ServLedgEntry.SetRange("Moved from Prepaid Acc.", false);
+                                ServLedgEntry.SetRange(Open, false);
+                                ServLedgEntry.CalcSums("Amount (LCY)");
+                                if ServLedgEntry."Amount (LCY)" <> 0 then
+                                    StrToInsert := OpenPrepaymentEntriesExistTxt;
+                                if not ConfirmManagement.GetResponseOrDefault(
+                                     StrSubstNo(CancelTheContractQst, StrToInsert), true)
+                                then begin
+                                    Status := xRec.Status;
+                                    exit;
+                                end;
+                                FiledServContract.FileContractBeforeCancellation(xRec);
+                            end;
+                        "Contract Type"::Quote:
+                            case Status of
+                                Status::" ":
+                                    if xRec.Status = xRec.Status::Canceled then begin
+                                        ServContractLine.Reset;
+                                        ServContractLine.SetRange("Contract Type", "Contract Type");
+                                        ServContractLine.SetRange("Contract No.", "Contract No.");
+                                        if ServContractLine.Find('-') then
+                                            repeat
+                                                ServContractLine2.Reset;
+                                                ServContractLine2.SetCurrentKey("Service Item No.");
+                                                ServContractLine2.SetRange("Service Item No.", ServContractLine."Service Item No.");
+                                                ServContractLine2.SetRange("Contract Type", "Contract Type"::Contract);
+                                                if ServContractLine2.FindFirst then begin
+                                                    AnyServItemInOtherContract := true;
+                                                    ServContractLine.Mark(true);
+                                                end;
+                                            until ServContractLine.Next = 0;
+
+                                        "Change Status" := "Change Status"::Open;
+
+                                        if AnyServItemInOtherContract then
+                                            if ConfirmManagement.GetResponse(
+                                                 StrSubstNo(Text062, Format(xRec.Status), FieldCaption(Status)), true)
+                                            then begin
+                                                ServContractLine.MarkedOnly(true);
+                                                PAGE.RunModal(PAGE::"Service Contract Line List", ServContractLine);
+                                            end;
+                                    end;
+                                Status::Signed:
+                                    Error(
+                                      Text009,
+                                      FieldCaption(Status), Status, FieldCaption("Contract Type"), "Contract Type");
+                                Status::Canceled:
+                                    if not ConfirmManagement.GetResponseOrDefault(StrSubstNo(Text010, "Contract No."), true) then begin
+                                        Status := xRec.Status;
+                                        exit;
+                                    end;
+                            end;
+                    end;
+                    if Status = Status::Canceled then
+                        "Change Status" := "Change Status"::Locked;
+                    ServContractLine.Reset;
+                    ServContractLine.SetRange("Contract Type", "Contract Type");
+                    ServContractLine.SetRange("Contract No.", "Contract No.");
+                    ServContractLine.ModifyAll("Contract Status", Status);
+                end;
+            end;
+        }
+        field(6; "Change Status"; Option)
+        {
+            Caption = 'Change Status';
+            Editable = false;
+            OptionCaption = 'Open,Locked';
+            OptionMembers = Open,Locked;
+        }
+        field(7; "Customer No."; Code[20])
+        {
+            Caption = 'Customer No.';
+            NotBlank = true;
+            TableRelation = Customer;
+
+            trigger OnValidate()
+            begin
+                Cust.Get("Customer No.");
+                if "Customer No." <> xRec."Customer No." then begin
+                    if ContractLinesExist then
+                        case "Contract Type" of
+                            "Contract Type"::Contract:
+                                Error(Text011 + Text012, FieldCaption("Customer No."));
+                            "Contract Type"::Quote:
+                                Error(Text011, FieldCaption("Customer No."));
+                        end;
+                    Validate("Ship-to Code", '');
+                end;
+
+                "Responsibility Center" := UserMgt.GetRespCenter(2, Cust."Responsibility Center");
+
+                if "Customer No." <> '' then begin
+                    if Cust."Bill-to Customer No." = '' then begin
+                        if "Bill-to Customer No." = "Customer No." then
+                            SkipBillToContact := true;
+                        Validate("Bill-to Customer No.", "Customer No.");
+                        SkipBillToContact := false;
+                    end else
+                        Validate("Bill-to Customer No.", Cust."Bill-to Customer No.");
+                    if not SkipContact then begin
+                        "Contact Name" := Cust.Contact;
+                        "Phone No." := Cust."Phone No.";
+                        "E-Mail" := Cust."E-Mail";
+                    end;
+                    "Fax No." := Cust."Fax No.";
+                end else begin
+                    "Contact Name" := '';
+                    "Phone No." := '';
+                    "Fax No." := '';
+                    "E-Mail" := '';
+                    "Service Zone Code" := '';
+                end;
+
+                if "Customer No." <> xRec."Customer No." then begin
+                    CalcFields(
+                      Name, "Name 2", Address, "Address 2",
+                      "Post Code", City, County, "Country/Region Code");
+                    CalcFields(
+                      "Bill-to Name", "Bill-to Name 2", "Bill-to Address", "Bill-to Address 2",
+                      "Bill-to Post Code", "Bill-to City", "Bill-to County", "Bill-to Country/Region Code");
+                    UpdateShiptoCode;
+                end;
+
+                if not SkipContact then
+                    UpdateCont("Customer No.");
+            end;
+        }
+        field(8; Name; Text[100])
+        {
+            CalcFormula = Lookup (Customer.Name WHERE("No." = FIELD("Customer No.")));
+            Caption = 'Name';
+            Editable = false;
+            FieldClass = FlowField;
+        }
+        field(9; Address; Text[100])
+        {
+            CalcFormula = Lookup (Customer.Address WHERE("No." = FIELD("Customer No.")));
+            Caption = 'Address';
+            Editable = false;
+            FieldClass = FlowField;
+        }
+        field(10; "Address 2"; Text[50])
+        {
+            CalcFormula = Lookup (Customer."Address 2" WHERE("No." = FIELD("Customer No.")));
+            Caption = 'Address 2';
+            Editable = false;
+            FieldClass = FlowField;
+        }
+        field(11; "Post Code"; Code[20])
+        {
+            CalcFormula = Lookup (Customer."Post Code" WHERE("No." = FIELD("Customer No.")));
+            Caption = 'Post Code';
+            Editable = false;
+            FieldClass = FlowField;
+        }
+        field(12; City; Text[30])
+        {
+            CalcFormula = Lookup (Customer.City WHERE("No." = FIELD("Customer No.")));
+            Caption = 'City';
+            Editable = false;
+            FieldClass = FlowField;
+        }
+        field(13; "Contact Name"; Text[100])
+        {
+            Caption = 'Contact Name';
+        }
+        field(14; "Your Reference"; Text[35])
+        {
+            Caption = 'Your Reference';
+        }
+        field(15; "Salesperson Code"; Code[20])
+        {
+            Caption = 'Salesperson Code';
+            TableRelation = "Salesperson/Purchaser";
+
+            trigger OnValidate()
+            begin
+                ValidateSalesPersonOnServiceContractHeader(Rec, false, false);
+
+                CheckChangeStatus;
+                Modify;
+
+                CreateDim(
+                  DATABASE::"Salesperson/Purchaser", "Salesperson Code",
+                  DATABASE::Customer, "Bill-to Customer No.",
+                  DATABASE::"Responsibility Center", "Responsibility Center",
+                  DATABASE::"Service Contract Template", "Template No.",
+                  DATABASE::"Service Order Type", "Service Order Type");
+            end;
+        }
+        field(16; "Bill-to Customer No."; Code[20])
+        {
+            Caption = 'Bill-to Customer No.';
+            TableRelation = Customer;
+
+            trigger OnValidate()
+            var
+                CustCheckCrLimit: Codeunit "Cust-Check Cr. Limit";
+                ConfirmManagement: Codeunit "Confirm Management";
+            begin
+                CheckChangeStatus;
+                if xRec."Bill-to Customer No." <> "Bill-to Customer No." then
+                    if xRec."Bill-to Customer No." <> '' then begin
+                        if HideValidationDialog then
+                            Confirmed := true
+                        else
+                            Confirmed :=
+                              ConfirmManagement.GetResponseOrDefault(
+                                StrSubstNo(Text014, FieldCaption("Bill-to Customer No.")), true);
+                    end else
+                        Confirmed := true;
+
+                if Confirmed then begin
+                    if "Bill-to Customer No." <> xRec."Bill-to Customer No." then
+                        if "Bill-to Customer No." <> '' then begin
+                            Cust.Get("Bill-to Customer No.");
+                            if Cust."Privacy Blocked" then
+                                Cust.CustPrivacyBlockedErrorMessage(Cust, false);
+                            if Cust.Blocked = Cust.Blocked::All then
+                                Cust.CustBlockedErrorMessage(Cust, false);
+                        end;
+
+                    if "Customer No." <> '' then begin
+                        Cust.Get("Customer No.");
+                        if Cust."Bill-to Customer No." <> '' then
+                            if "Bill-to Customer No." = '' then
+                                "Bill-to Customer No." := Cust."Bill-to Customer No.";
+                    end;
+                    if "Bill-to Customer No." = '' then
+                        "Bill-to Customer No." := "Customer No.";
+                    if Cust.Get("Bill-to Customer No.") then begin
+                        "Currency Code" := Cust."Currency Code";
+                        "Payment Terms Code" := Cust."Payment Terms Code";
+                        "Language Code" := Cust."Language Code";
+                        SetSalespersonCode(Cust."Salesperson Code", "Salesperson Code");
+                        if not SkipBillToContact then
+                            "Bill-to Contact" := Cust.Contact;
+                    end;
+
+                    if not HideValidationDialog then
+                        CustCheckCrLimit.ServiceContractHeaderCheck(Rec);
+
+                    CalcFields(
+                      "Bill-to Name", "Bill-to Name 2", "Bill-to Address", "Bill-to Address 2",
+                      "Bill-to Post Code", "Bill-to City", "Bill-to County", "Bill-to Country/Region Code");
+
+                    if not SkipBillToContact then
+                        UpdateBillToCont("Bill-to Customer No.");
+                end else
+                    "Bill-to Customer No." := xRec."Bill-to Customer No.";
+
+                CreateDim(
+                  DATABASE::Customer, "Bill-to Customer No.",
+                  DATABASE::"Salesperson/Purchaser", "Salesperson Code",
+                  DATABASE::"Responsibility Center", "Responsibility Center",
+                  DATABASE::"Service Contract Template", "Template No.",
+                  DATABASE::"Service Order Type", "Service Order Type");
+            end;
+        }
+        field(17; "Bill-to Name"; Text[100])
+        {
+            CalcFormula = Lookup (Customer.Name WHERE("No." = FIELD("Bill-to Customer No.")));
+            Caption = 'Bill-to Name';
+            Editable = false;
+            FieldClass = FlowField;
+        }
+        field(18; "Bill-to Address"; Text[100])
+        {
+            CalcFormula = Lookup (Customer.Address WHERE("No." = FIELD("Bill-to Customer No.")));
+            Caption = 'Bill-to Address';
+            Editable = false;
+            FieldClass = FlowField;
+        }
+        field(19; "Bill-to Address 2"; Text[50])
+        {
+            CalcFormula = Lookup (Customer."Address 2" WHERE("No." = FIELD("Bill-to Customer No.")));
+            Caption = 'Bill-to Address 2';
+            Editable = false;
+            FieldClass = FlowField;
+        }
+        field(20; "Bill-to Post Code"; Code[20])
+        {
+            CalcFormula = Lookup (Customer."Post Code" WHERE("No." = FIELD("Bill-to Customer No.")));
+            Caption = 'Bill-to Post Code';
+            Editable = false;
+            FieldClass = FlowField;
+        }
+        field(21; "Bill-to City"; Text[30])
+        {
+            CalcFormula = Lookup (Customer.City WHERE("No." = FIELD("Bill-to Customer No.")));
+            Caption = 'Bill-to City';
+            Editable = false;
+            FieldClass = FlowField;
+        }
+        field(22; "Ship-to Code"; Code[10])
+        {
+            Caption = 'Ship-to Code';
+            TableRelation = "Ship-to Address".Code WHERE("Customer No." = FIELD("Customer No."));
+
+            trigger OnValidate()
+            begin
+                if ("Customer No." <> xRec."Customer No.") or
+                   ("Ship-to Code" <> xRec."Ship-to Code")
+                then begin
+                    if ContractLinesExist then
+                        Error(Text011, FieldCaption("Ship-to Code"));
+                    UpdateServZone;
+                end;
+            end;
+        }
+        field(23; "Ship-to Name"; Text[100])
+        {
+            CalcFormula = Lookup ("Ship-to Address".Name WHERE("Customer No." = FIELD("Customer No."),
+                                                               Code = FIELD("Ship-to Code")));
+            Caption = 'Ship-to Name';
+            Editable = false;
+            FieldClass = FlowField;
+        }
+        field(24; "Ship-to Address"; Text[100])
+        {
+            CalcFormula = Lookup ("Ship-to Address".Address WHERE("Customer No." = FIELD("Customer No."),
+                                                                  Code = FIELD("Ship-to Code")));
+            Caption = 'Ship-to Address';
+            Editable = false;
+            FieldClass = FlowField;
+        }
+        field(25; "Ship-to Address 2"; Text[50])
+        {
+            CalcFormula = Lookup ("Ship-to Address"."Address 2" WHERE("Customer No." = FIELD("Customer No."),
+                                                                      Code = FIELD("Ship-to Code")));
+            Caption = 'Ship-to Address 2';
+            Editable = false;
+            FieldClass = FlowField;
+        }
+        field(26; "Ship-to Post Code"; Code[20])
+        {
+            CalcFormula = Lookup ("Ship-to Address"."Post Code" WHERE("Customer No." = FIELD("Customer No."),
+                                                                      Code = FIELD("Ship-to Code")));
+            Caption = 'Ship-to Post Code';
+            Editable = false;
+            FieldClass = FlowField;
+        }
+        field(27; "Ship-to City"; Text[30])
+        {
+            CalcFormula = Lookup ("Ship-to Address".City WHERE("Customer No." = FIELD("Customer No."),
+                                                               Code = FIELD("Ship-to Code")));
+            Caption = 'Ship-to City';
+            Editable = false;
+            FieldClass = FlowField;
+        }
+        field(28; "Serv. Contract Acc. Gr. Code"; Code[10])
+        {
+            Caption = 'Serv. Contract Acc. Gr. Code';
+            TableRelation = "Service Contract Account Group";
+        }
+        field(32; "Invoice Period"; Option)
+        {
+            Caption = 'Invoice Period';
+            OptionCaption = 'Month,Two Months,Quarter,Half Year,Year,None';
+            OptionMembers = Month,"Two Months",Quarter,"Half Year",Year,"None";
+
+            trigger OnValidate()
+            begin
+                CalcInvPeriodDuration;
+                if (Format("Price Update Period") <> '') and
+                   (CalcDate("Price Update Period", "Starting Date") < CalcDate(InvPeriodDuration, "Starting Date"))
+                then
+                    Error(Text065, FieldCaption("Invoice Period"), FieldCaption("Price Update Period"));
+
+                TestField("Change Status", "Change Status"::Open);
+                if ("Invoice Period" = "Invoice Period"::None) and
+                   ("Last Invoice Date" <> 0D)
+                then
+                    Error(Text041,
+                      FieldCaption("Invoice Period"),
+                      Format("Invoice Period"),
+                      TableCaption);
+
+                if "Invoice Period" = "Invoice Period"::None then begin
+                    "Amount per Period" := 0;
+                    "Next Invoice Date" := 0D;
+                    "Next Invoice Period Start" := 0D;
+                    "Next Invoice Period End" := 0D;
+                end else
+                    if Prepaid then begin
+                        if "Next Invoice Date" = 0D then begin
+                            if "Last Invoice Date" = 0D then begin
+                                TestField("Starting Date");
+                                if "Starting Date" = CalcDate('<-CM>', "Starting Date") then
+                                    Validate("Next Invoice Date", "Starting Date")
+                                else
+                                    Validate("Next Invoice Date", CalcDate('<-CM+1M>', "Starting Date"));
+                            end else
+                                if "Last Invoice Date" = CalcDate('<-CM>', "Last Invoice Date") then
+                                    Validate("Next Invoice Date", CalcDate('<CM+1D>', "Last Invoice Period End"))
+                                else
+                                    Validate("Next Invoice Date", CalcDate('<-CM+1M>', "Last Invoice Date"));
+                        end else
+                            Validate("Next Invoice Date");
+                    end else
+                        Validate("Last Invoice Date");
+            end;
+        }
+        field(33; "Last Invoice Date"; Date)
+        {
+            Caption = 'Last Invoice Date';
+            Editable = false;
+
+            trigger OnValidate()
+            begin
+                TestField("Starting Date");
+                if "Last Invoice Date" = 0D then
+                    if Prepaid then
+                        TempDate := CalcDate('<-1D-CM>', "Starting Date")
+                    else
+                        TempDate := CalcDate('<-1D+CM>', "Starting Date")
+                else
+                    TempDate := "Last Invoice Date";
+                case "Invoice Period" of
+                    "Invoice Period"::Month:
+                        "Next Invoice Date" := CalcDate('<1M>', TempDate);
+                    "Invoice Period"::"Two Months":
+                        "Next Invoice Date" := CalcDate('<2M>', TempDate);
+                    "Invoice Period"::Quarter:
+                        "Next Invoice Date" := CalcDate('<3M>', TempDate);
+                    "Invoice Period"::"Half Year":
+                        "Next Invoice Date" := CalcDate('<6M>', TempDate);
+                    "Invoice Period"::Year:
+                        "Next Invoice Date" := CalcDate('<12M>', TempDate);
+                    "Invoice Period"::None:
+                        if Prepaid then
+                            "Next Invoice Date" := 0D;
+                end;
+                if not Prepaid and ("Next Invoice Date" <> 0D) then
+                    "Next Invoice Date" := CalcDate('<CM>', "Next Invoice Date");
+
+                if ("Last Invoice Date" <> 0D) and ("Last Invoice Date" <> xRec."Last Invoice Date") then
+                    if Prepaid then
+                        Validate("Last Invoice Period End", "Next Invoice Period End")
+                    else
+                        Validate("Last Invoice Period End", "Last Invoice Date");
+
+                Validate("Next Invoice Date");
+            end;
+        }
+        field(34; "Next Invoice Date"; Date)
+        {
+            Caption = 'Next Invoice Date';
+            Editable = false;
+
+            trigger OnValidate()
+            var
+                ServLedgEntry: Record "Service Ledger Entry";
+                IsHandled: Boolean;
+            begin
+                if "Next Invoice Date" = 0D then begin
+                    "Next Invoice Period Start" := 0D;
+                    "Next Invoice Period End" := 0D;
+                    exit;
+                end;
+                if "Last Invoice Date" <> 0D then
+                    if "Last Invoice Date" > "Next Invoice Date" then begin
+                        ServLedgEntry.SetRange(Type, ServLedgEntry.Type::"Service Contract");
+                        ServLedgEntry.SetRange("No.", "Contract No.");
+                        if not ServLedgEntry.IsEmpty then
+                            Error(Text023, FieldCaption("Next Invoice Date"), FieldCaption("Last Invoice Date"));
+                        "Last Invoice Date" := 0D;
+                    end;
+
+                if "Next Invoice Date" < "Starting Date" then
+                    Error(Text024, FieldCaption("Next Invoice Date"), FieldCaption("Starting Date"));
+
+                if Prepaid then begin
+                    if "Next Invoice Date" <> CalcDate('<-CM>', "Next Invoice Date") then begin
+                        IsHandled := false;
+                        OnValidateNextInvoiceDateOnBeforeCheck(Rec, IsHandled);
+                        if not IsHandled then
+                            Error(Text026, FieldCaption("Next Invoice Date"));
+                    end;
+                    TempDate := CalculateEndPeriodDate(true, "Next Invoice Date");
+                    if "Expiration Date" <> 0D then
+                        if "Next Invoice Date" > "Expiration Date" then
+                            "Next Invoice Date" := 0D
+                        else
+                            if TempDate > "Expiration Date" then
+                                TempDate := "Expiration Date";
+                    if ("Next Invoice Date" <> 0D) and (TempDate <> 0D) then begin
+                        "Next Invoice Period Start" := "Next Invoice Date";
+                        "Next Invoice Period End" := TempDate;
+                    end else begin
+                        "Next Invoice Period Start" := 0D;
+                        "Next Invoice Period End" := 0D;
+                    end;
+                end else begin
+                    if "Next Invoice Date" <> CalcDate('<CM>', "Next Invoice Date") then
+                        Error(Text028, FieldCaption("Next Invoice Date"));
+                    TempDate := CalculateEndPeriodDate(false, "Next Invoice Date");
+                    if TempDate < "Starting Date" then
+                        TempDate := "Starting Date";
+
+                    if "Expiration Date" <> 0D then
+                        if "Expiration Date" < TempDate then
+                            "Next Invoice Date" := 0D
+                        else
+                            if "Expiration Date" < "Next Invoice Date" then
+                                "Next Invoice Date" := "Expiration Date";
+
+                    if ("Next Invoice Date" <> 0D) and (TempDate <> 0D) then begin
+                        "Next Invoice Period Start" := TempDate;
+                        "Next Invoice Period End" := "Next Invoice Date";
+                    end else begin
+                        "Next Invoice Period Start" := 0D;
+                        "Next Invoice Period End" := 0D;
+                    end;
+                end;
+
+                ValidateNextInvoicePeriod;
+            end;
+        }
+        field(35; "Starting Date"; Date)
+        {
+            Caption = 'Starting Date';
+
+            trigger OnValidate()
+            begin
+                CheckChangeStatus;
+
+                if "Last Invoice Date" <> 0D then
+                    Error(
+                      Text029,
+                      FieldCaption("Starting Date"), Format("Contract Type"));
+                if "Starting Date" = 0D then begin
+                    Validate("Next Invoice Date", 0D);
+                    "First Service Date" := 0D;
+                    ServContractLine.Reset;
+                    ServContractLine.SetRange("Contract Type", "Contract Type");
+                    ServContractLine.SetRange("Contract No.", "Contract No.");
+                    ServContractLine.SetRange("New Line", true);
+                    if ServContractLine.Find('-') then begin
+                        repeat
+                            ServContractLine."Starting Date" := 0D;
+                            ServContractLine."Next Planned Service Date" := 0D;
+                            ServContractLine.Modify;
+                        until ServContractLine.Next = 0;
+                        Modify(true);
+                    end;
+                end else begin
+                    if "Starting Date" > "First Service Date" then
+                        "First Service Date" := "Starting Date";
+                    ServContractLine.Reset;
+                    ServContractLine.SetRange("Contract Type", "Contract Type");
+                    ServContractLine.SetRange("Contract No.", "Contract No.");
+                    ServContractLine.SetRange("New Line", true);
+                    if ServContractLine.Find('-') then begin
+                        repeat
+                            ServContractLine.SuspendStatusCheck(true);
+                            ServContractLine."Starting Date" := "Starting Date";
+                            ServContractLine."Next Planned Service Date" := "First Service Date";
+                            ServContractLine.Modify;
+                        until ServContractLine.Next = 0;
+                        Modify(true);
+                    end;
+                    if "Next Price Update Date" = 0D then
+                        "Next Price Update Date" := CalcDate("Price Update Period", "Starting Date");
+                    if "Invoice Period" <> "Invoice Period"::None then
+                        if Prepaid then begin
+                            if "Starting Date" = CalcDate('<-CM>', "Starting Date") then
+                                Validate("Next Invoice Date", "Starting Date")
+                            else
+                                Validate("Next Invoice Date", CalcDate('<-CM+1M>', "Starting Date"))
+                        end else
+                            Validate("Last Invoice Date");
+                    Validate("Service Period");
+                end;
+            end;
+        }
+        field(36; "Expiration Date"; Date)
+        {
+            Caption = 'Expiration Date';
+
+            trigger OnValidate()
+            var
+                ConfirmManagement: Codeunit "Confirm Management";
+            begin
+                CheckChangeStatus;
+
+                if "Expiration Date" <> xRec."Expiration Date" then begin
+                    if "Expiration Date" <> 0D then begin
+                        if "Expiration Date" < "Starting Date" then
+                            Error(Text023, FieldCaption("Expiration Date"), FieldCaption("Starting Date"));
+                        if "Last Invoice Date" <> 0D then
+                            if "Expiration Date" < "Last Invoice Date" then
+                                Error(
+                                  Text023, FieldCaption("Expiration Date"), FieldCaption("Last Invoice Date"));
+                    end;
+
+                    ServContractLine.Reset;
+                    ServContractLine.SetRange("Contract Type", "Contract Type");
+                    ServContractLine.SetRange("Contract No.", "Contract No.");
+                    ServContractLine.SetRange(Credited, false);
+
+                    if ("Expiration Date" <> 0D) or
+                       ("Contract Type" = "Contract Type"::Quote)
+                    then begin
+                        if "Contract Type" = "Contract Type"::Contract then begin
+                            ServContractLine.SetFilter("Contract Expiration Date", '>%1', "Expiration Date");
+                            if ServContractLine.Find('-') then
+                                if not ConfirmManagement.GetResponseOrDefault(
+                                     StrSubstNo(
+                                       Text056, FieldCaption("Expiration Date"),
+                                       TableCaption, "Expiration Date"), true)
+                                then
+                                    Error('');
+                            ServContractLine.SetFilter("Contract Expiration Date", '>%1 | %2', "Expiration Date", 0D);
+                        end;
+
+                        if ServContractLine.Find('-') then begin
+                            repeat
+                                ServContractLine."Contract Expiration Date" := "Expiration Date";
+                                ServContractLine."Credit Memo Date" := "Expiration Date";
+                                ServContractLine.Modify;
+                            until ServContractLine.Next = 0;
+                            Modify(true);
+                        end;
+                    end;
+                    Validate("Invoice Period");
+                end;
+            end;
+        }
+        field(38; "First Service Date"; Date)
+        {
+            Caption = 'First Service Date';
+
+            trigger OnValidate()
+            begin
+                if "First Service Date" <> xRec."First Service Date" then begin
+                    if ("Contract Type" = "Contract Type"::Contract) and
+                       (Status = Status::Signed)
+                    then
+                        Error(
+                          Text030,
+                          FieldCaption("First Service Date"));
+
+                    if "First Service Date" < "Starting Date" then
+                        Error(
+                          Text023,
+                          FieldCaption("First Service Date"),
+                          FieldCaption("Starting Date"));
+
+                    if "Contract Type" = "Contract Type"::Quote then begin
+                        if ContractLinesExist then
+                            Message(
+                              Text031, FieldCaption("First Service Date"));
+                    end;
+                end;
+            end;
+        }
+        field(39; "Max. Labor Unit Price"; Decimal)
+        {
+            AutoFormatExpression = "Currency Code";
+            AutoFormatType = 2;
+            BlankZero = true;
+            Caption = 'Max. Labor Unit Price';
+        }
+        field(40; "Calcd. Annual Amount"; Decimal)
+        {
+            AutoFormatType = 1;
+            CalcFormula = Sum ("Service Contract Line"."Line Amount" WHERE("Contract Type" = FIELD("Contract Type"),
+                                                                           "Contract No." = FIELD("Contract No.")));
+            Caption = 'Calcd. Annual Amount';
+            Editable = false;
+            FieldClass = FlowField;
+        }
+        field(42; "Annual Amount"; Decimal)
+        {
+            AutoFormatType = 1;
+            BlankZero = true;
+            Caption = 'Annual Amount';
+            MinValue = 0;
+
+            trigger OnValidate()
+            begin
+                TestField("Change Status", "Change Status"::Open);
+                ServMgtSetup.Get;
+                DistributeAmounts;
+                Validate("Invoice Period");
+            end;
+        }
+        field(43; "Amount per Period"; Decimal)
+        {
+            AutoFormatType = 1;
+            BlankZero = true;
+            Caption = 'Amount per Period';
+            Editable = false;
+        }
+        field(44; "Combine Invoices"; Boolean)
+        {
+            Caption = 'Combine Invoices';
+        }
+        field(45; Prepaid; Boolean)
+        {
+            Caption = 'Prepaid';
+
+            trigger OnValidate()
+            var
+                ServLedgEntry: Record "Service Ledger Entry";
+            begin
+                if Prepaid <> xRec.Prepaid then begin
+                    if "Contract Type" = "Contract Type"::Contract then begin
+                        ServLedgEntry.SetCurrentKey("Service Contract No.");
+                        ServLedgEntry.SetRange("Service Contract No.", "Contract No.");
+                        if not ServLedgEntry.IsEmpty then
+                            Error(
+                              Text032,
+                              FieldCaption(Prepaid), TableCaption, "Contract No.");
+                    end;
+                    TestField("Starting Date");
+                    if Prepaid then begin
+                        if "Invoice after Service" then
+                            Error(
+                              Text057,
+                              FieldCaption("Invoice after Service"),
+                              FieldCaption(Prepaid));
+                        if "Invoice Period" = "Invoice Period"::None then
+                            Validate("Next Invoice Date", 0D)
+                        else
+                            if "Starting Date" = CalcDate('<-CM>', "Starting Date") then
+                                Validate("Next Invoice Date", "Starting Date")
+                            else
+                                Validate("Next Invoice Date", CalcDate('<-CM+1M>', "Starting Date"));
+                    end else
+                        Validate("Last Invoice Date");
+                end;
+            end;
+        }
+        field(46; "Next Invoice Period"; Text[30])
+        {
+            Caption = 'Next Invoice Period';
+            Editable = false;
+        }
+        field(47; "Service Zone Code"; Code[10])
+        {
+            Caption = 'Service Zone Code';
+            TableRelation = "Service Zone";
+        }
+        field(48; "Language Code"; Code[10])
+        {
+            Caption = 'Language Code';
+            TableRelation = Language;
+        }
+        field(50; "Cancel Reason Code"; Code[10])
+        {
+            Caption = 'Cancel Reason Code';
+            TableRelation = "Reason Code";
+        }
+        field(51; "Last Price Update Date"; Date)
+        {
+            Caption = 'Last Price Update Date';
+            Editable = false;
+        }
+        field(52; "Next Price Update Date"; Date)
+        {
+            Caption = 'Next Price Update Date';
+
+            trigger OnValidate()
+            begin
+                if "Next Price Update Date" < "Next Invoice Date" then
+                    Error(Text064, FieldCaption("Next Price Update Date"), FieldCaption("Next Invoice Date"));
+            end;
+        }
+        field(53; "Last Price Update %"; Decimal)
+        {
+            Caption = 'Last Price Update %';
+            DecimalPlaces = 0 : 5;
+            Editable = false;
+        }
+        field(55; "Response Time (Hours)"; Decimal)
+        {
+            BlankZero = true;
+            Caption = 'Response Time (Hours)';
+            DecimalPlaces = 0 : 5;
+
+            trigger OnValidate()
+            var
+                ConfirmManagement: Codeunit "Confirm Management";
+            begin
+                CheckChangeStatus;
+
+                if "Response Time (Hours)" <> xRec."Response Time (Hours)" then begin
+                    ServContractLine.Reset;
+                    ServContractLine.SetRange("Contract Type", "Contract Type");
+                    ServContractLine.SetRange("Contract No.", "Contract No.");
+                    ServContractLine.SetFilter("Response Time (Hours)", '>%1', "Response Time (Hours)");
+                    if ServContractLine.Find('-') then
+                        if ConfirmManagement.GetResponseOrDefault(
+                             StrSubstNo(Text034, FieldCaption("Response Time (Hours)")), true)
+                        then
+                            ServContractLine.ModifyAll("Response Time (Hours)", "Response Time (Hours)", true);
+                end;
+            end;
+        }
+        field(56; "Contract Lines on Invoice"; Boolean)
+        {
+            Caption = 'Contract Lines on Invoice';
+        }
+        field(57; "No. of Posted Invoices"; Integer)
+        {
+            CalcFormula = Count ("Service Document Register" WHERE("Source Document Type" = CONST(Contract),
+                                                                   "Source Document No." = FIELD("Contract No."),
+                                                                   "Destination Document Type" = CONST("Posted Invoice")));
+            Caption = 'No. of Posted Invoices';
+            Editable = false;
+            FieldClass = FlowField;
+        }
+        field(58; "No. of Unposted Invoices"; Integer)
+        {
+            CalcFormula = Count ("Service Document Register" WHERE("Source Document Type" = CONST(Contract),
+                                                                   "Source Document No." = FIELD("Contract No."),
+                                                                   "Destination Document Type" = CONST(Invoice)));
+            Caption = 'No. of Unposted Invoices';
+            Editable = false;
+            FieldClass = FlowField;
+        }
+        field(59; "Service Period"; DateFormula)
+        {
+            Caption = 'Service Period';
+
+            trigger OnValidate()
+            begin
+                if "Service Period" <> xRec."Service Period" then begin
+                    if ("Contract Type" = "Contract Type"::Contract) and
+                       (Status = Status::Signed)
+                    then
+                        Error(
+                          Text030,
+                          FieldCaption("Service Period"));
+                    if "Contract Type" = "Contract Type"::Quote then begin
+                        if ContractLinesExist then
+                            Message(
+                              Text031,
+                              FieldCaption("Service Period"));
+                    end;
+                    if ContractLinesExist and (Format("Service Period") <> '') then begin
+                        ServContractLine.Reset;
+                        ServContractLine.SetRange("Contract Type", "Contract Type");
+                        ServContractLine.SetRange("Contract No.", "Contract No.");
+                        if ServContractLine.Find('-') then
+                            repeat
+                                if (Format(ServContractLine."Service Period") = '') or
+                                   (ServContractLine."Service Period" = xRec."Service Period")
+                                then begin
+                                    ServContractLine."Service Period" := "Service Period";
+                                    ServContractLine.Modify;
+                                end;
+                            until ServContractLine.Next = 0;
+                    end;
+                end;
+            end;
+        }
+        field(60; "Payment Terms Code"; Code[10])
+        {
+            Caption = 'Payment Terms Code';
+            TableRelation = "Payment Terms";
+        }
+        field(62; "Invoice after Service"; Boolean)
+        {
+            Caption = 'Invoice after Service';
+
+            trigger OnValidate()
+            begin
+                if not ServHeader.ReadPermission and
+                   "Invoice after Service" = true
+                then
+                    Error(Text054);
+                if "Invoice after Service" and
+                   Prepaid
+                then
+                    Error(
+                      Text057,
+                      FieldCaption("Invoice after Service"),
+                      FieldCaption(Prepaid));
+            end;
+        }
+        field(63; "Quote Type"; Option)
+        {
+            Caption = 'Quote Type';
+            OptionCaption = 'Quote 1,Quote 2,Quote 3,Quote 4,Quote 5,Quote 6,Quote 7,Quote 8';
+            OptionMembers = "Quote 1","Quote 2","Quote 3","Quote 4","Quote 5","Quote 6","Quote 7","Quote 8";
+        }
+        field(64; "Allow Unbalanced Amounts"; Boolean)
+        {
+            Caption = 'Allow Unbalanced Amounts';
+
+            trigger OnValidate()
+            begin
+                TestField("Change Status", "Change Status"::Open);
+                ServMgtSetup.Get;
+                if "Allow Unbalanced Amounts" <> xRec."Allow Unbalanced Amounts" then
+                    DistributeAmounts;
+            end;
+        }
+        field(65; "Contract Group Code"; Code[10])
+        {
+            Caption = 'Contract Group Code';
+            TableRelation = "Contract Group";
+        }
+        field(66; "Service Order Type"; Code[10])
+        {
+            Caption = 'Service Order Type';
+            TableRelation = "Service Order Type";
+
+            trigger OnValidate()
+            begin
+                CreateDim(
+                  DATABASE::"Service Order Type", "Service Order Type",
+                  DATABASE::Customer, "Bill-to Customer No.",
+                  DATABASE::"Responsibility Center", "Responsibility Center",
+                  DATABASE::"Service Contract Template", "Template No.",
+                  DATABASE::"Salesperson/Purchaser", "Salesperson Code");
+            end;
+        }
+        field(67; "Shortcut Dimension 1 Code"; Code[20])
+        {
+            CaptionClass = '1,2,1';
+            Caption = 'Shortcut Dimension 1 Code';
+            TableRelation = "Dimension Value".Code WHERE("Global Dimension No." = CONST(1));
+
+            trigger OnValidate()
+            begin
+                CheckChangeStatus;
+                ValidateShortcutDimCode(1, "Shortcut Dimension 1 Code");
+                Modify;
+            end;
+        }
+        field(68; "Shortcut Dimension 2 Code"; Code[20])
+        {
+            CaptionClass = '1,2,2';
+            Caption = 'Shortcut Dimension 2 Code';
+            TableRelation = "Dimension Value".Code WHERE("Global Dimension No." = CONST(2));
+
+            trigger OnValidate()
+            begin
+                CheckChangeStatus;
+                ValidateShortcutDimCode(2, "Shortcut Dimension 2 Code");
+                Modify;
+            end;
+        }
+        field(69; "Accept Before"; Date)
+        {
+            Caption = 'Accept Before';
+        }
+        field(71; "Automatic Credit Memos"; Boolean)
+        {
+            Caption = 'Automatic Credit Memos';
+        }
+        field(74; "Template No."; Code[20])
+        {
+            Caption = 'Template No.';
+
+            trigger OnValidate()
+            begin
+                CreateDim(
+                  DATABASE::Customer, "Bill-to Customer No.",
+                  DATABASE::"Salesperson/Purchaser", "Salesperson Code",
+                  DATABASE::"Responsibility Center", "Responsibility Center",
+                  DATABASE::"Service Contract Template", "Template No.",
+                  DATABASE::"Service Order Type", "Service Order Type");
+            end;
+        }
+        field(75; "Price Update Period"; DateFormula)
+        {
+            Caption = 'Price Update Period';
+            InitValue = '1Y';
+
+            trigger OnValidate()
+            begin
+                CalcInvPeriodDuration;
+                if (Format("Price Update Period") <> '') and
+                   (CalcDate("Price Update Period", "Starting Date") < CalcDate(InvPeriodDuration, "Starting Date"))
+                then
+                    Error(Text064, FieldCaption("Price Update Period"), FieldCaption("Invoice Period"));
+
+                if Format("Price Update Period") <> '' then
+                    if "Last Price Update Date" <> 0D then
+                        "Next Price Update Date" := CalcDate("Price Update Period", "Last Price Update Date")
+                    else
+                        "Next Price Update Date" := CalcDate("Price Update Period", "Starting Date")
+                else
+                    "Next Price Update Date" := 0D;
+            end;
+        }
+        field(79; "Price Inv. Increase Code"; Code[20])
+        {
+            Caption = 'Price Inv. Increase Code';
+            TableRelation = "Standard Text";
+        }
+        field(80; "Print Increase Text"; Boolean)
+        {
+            Caption = 'Print Increase Text';
+        }
+        field(81; "Currency Code"; Code[10])
+        {
+            Caption = 'Currency Code';
+            TableRelation = Currency;
+
+            trigger OnValidate()
+            begin
+                Message(Text042, FieldCaption("Currency Code"));
+            end;
+        }
+        field(82; "No. Series"; Code[20])
+        {
+            Caption = 'No. Series';
+            Editable = false;
+            TableRelation = "No. Series";
+        }
+        field(83; Probability; Decimal)
+        {
+            Caption = 'Probability';
+            DecimalPlaces = 0 : 5;
+            InitValue = 100;
+        }
+        field(84; Comment; Boolean)
+        {
+            CalcFormula = Exist ("Service Comment Line" WHERE("Table Name" = CONST("Service Contract"),
+                                                              "Table Subtype" = FIELD("Contract Type"),
+                                                              "No." = FIELD("Contract No."),
+                                                              "Table Line No." = FILTER(0)));
+            Caption = 'Comment';
+            Editable = false;
+            FieldClass = FlowField;
+        }
+        field(85; "Responsibility Center"; Code[10])
+        {
+            Caption = 'Responsibility Center';
+            TableRelation = "Responsibility Center";
+
+            trigger OnValidate()
+            begin
+                if not UserMgt.CheckRespCenter(2, "Responsibility Center") then
+                    Error(
+                      Text040,
+                      RespCenter.TableCaption, UserMgt.GetSalesFilter);
+
+                CreateDim(
+                  DATABASE::"Salesperson/Purchaser", "Salesperson Code",
+                  DATABASE::Customer, "Bill-to Customer No.",
+                  DATABASE::"Responsibility Center", "Responsibility Center",
+                  DATABASE::"Service Contract Template", "Template No.",
+                  DATABASE::"Service Order Type", "Service Order Type");
+            end;
+        }
+        field(86; "Phone No."; Text[30])
+        {
+            Caption = 'Phone No.';
+            ExtendedDatatype = PhoneNo;
+        }
+        field(87; "Fax No."; Text[30])
+        {
+            Caption = 'Fax No.';
+        }
+        field(88; "E-Mail"; Text[80])
+        {
+            Caption = 'Email';
+            ExtendedDatatype = EMail;
+
+            trigger OnValidate()
+            var
+                MailManagement: Codeunit "Mail Management";
+            begin
+                MailManagement.ValidateEmailAddressField("E-Mail");
+            end;
+        }
+        field(89; "Bill-to County"; Text[30])
+        {
+            CalcFormula = Lookup (Customer.County WHERE("No." = FIELD("Bill-to Customer No.")));
+            CaptionClass = '5,1,' + "Bill-to Country/Region Code";
+            Caption = 'Bill-to County';
+            Editable = false;
+            FieldClass = FlowField;
+        }
+        field(90; County; Text[30])
+        {
+            CalcFormula = Lookup (Customer.County WHERE("No." = FIELD("Customer No.")));
+            CaptionClass = '5,1,' + "Country/Region Code";
+            Caption = 'County';
+            Editable = false;
+            FieldClass = FlowField;
+        }
+        field(91; "Ship-to County"; Text[30])
+        {
+            CalcFormula = Lookup ("Ship-to Address".County WHERE("Customer No." = FIELD("Customer No."),
+                                                                 Code = FIELD("Ship-to Code")));
+            CaptionClass = '5,1,' + "Ship-to Country/Region Code";
+            Caption = 'Ship-to County';
+            Editable = false;
+            FieldClass = FlowField;
+        }
+        field(92; "Country/Region Code"; Code[10])
+        {
+            CalcFormula = Lookup (Customer."Country/Region Code" WHERE("No." = FIELD("Customer No.")));
+            Caption = 'Country/Region Code';
+            Editable = false;
+            FieldClass = FlowField;
+        }
+        field(93; "Bill-to Country/Region Code"; Code[10])
+        {
+            CalcFormula = Lookup (Customer."Country/Region Code" WHERE("No." = FIELD("Bill-to Customer No.")));
+            Caption = 'Bill-to Country/Region Code';
+            Editable = false;
+            FieldClass = FlowField;
+        }
+        field(94; "Ship-to Country/Region Code"; Code[10])
+        {
+            CalcFormula = Lookup ("Ship-to Address"."Country/Region Code" WHERE("Customer No." = FIELD("Customer No."),
+                                                                                Code = FIELD("Ship-to Code")));
+            Caption = 'Ship-to Country/Region Code';
+            Editable = false;
+            FieldClass = FlowField;
+        }
+        field(95; "Name 2"; Text[50])
+        {
+            CalcFormula = Lookup (Customer."Name 2" WHERE("No." = FIELD("Customer No.")));
+            Caption = 'Name 2';
+            Editable = false;
+            FieldClass = FlowField;
+        }
+        field(96; "Bill-to Name 2"; Text[50])
+        {
+            CalcFormula = Lookup (Customer."Name 2" WHERE("No." = FIELD("Bill-to Customer No.")));
+            Caption = 'Bill-to Name 2';
+            Editable = false;
+            FieldClass = FlowField;
+        }
+        field(97; "Ship-to Name 2"; Text[50])
+        {
+            CalcFormula = Lookup ("Ship-to Address"."Name 2" WHERE("Customer No." = FIELD("Customer No."),
+                                                                   Code = FIELD("Ship-to Code")));
+            Caption = 'Ship-to Name 2';
+            Editable = false;
+            FieldClass = FlowField;
+        }
+        field(98; "Next Invoice Period Start"; Date)
+        {
+            Caption = 'Next Invoice Period Start';
+            Editable = false;
+        }
+        field(99; "Next Invoice Period End"; Date)
+        {
+            Caption = 'Next Invoice Period End';
+            Editable = false;
+        }
+        field(100; "Contract Invoice Amount"; Decimal)
+        {
+            AutoFormatType = 1;
+            CalcFormula = - Sum ("Service Ledger Entry"."Amount (LCY)" WHERE("Service Contract No." = FIELD("Contract No."),
+                                                                            "Entry Type" = CONST(Sale),
+                                                                            "Moved from Prepaid Acc." = CONST(true),
+                                                                            Type = FIELD("Type Filter"),
+                                                                            "Posting Date" = FIELD("Date Filter"),
+                                                                            Open = CONST(false)));
+            Caption = 'Contract Invoice Amount';
+            Editable = false;
+            FieldClass = FlowField;
+        }
+        field(101; "Contract Prepaid Amount"; Decimal)
+        {
+            AutoFormatType = 1;
+            CalcFormula = - Sum ("Service Ledger Entry"."Amount (LCY)" WHERE("Service Contract No." = FIELD("Contract No."),
+                                                                            "Entry Type" = CONST(Sale),
+                                                                            "Moved from Prepaid Acc." = CONST(false),
+                                                                            Type = CONST("Service Contract"),
+                                                                            "Posting Date" = FIELD("Date Filter"),
+                                                                            Open = CONST(false),
+                                                                            Prepaid = CONST(true)));
+            Caption = 'Contract Prepaid Amount';
+            Editable = false;
+            FieldClass = FlowField;
+        }
+        field(102; "Contract Discount Amount"; Decimal)
+        {
+            AutoFormatType = 1;
+            CalcFormula = Sum ("Service Ledger Entry"."Contract Disc. Amount" WHERE("Service Contract No." = FIELD("Contract No."),
+                                                                                    "Entry Type" = CONST(Sale),
+                                                                                    "Moved from Prepaid Acc." = CONST(true),
+                                                                                    Type = FIELD("Type Filter"),
+                                                                                    "Posting Date" = FIELD("Date Filter"),
+                                                                                    Open = CONST(false)));
+            Caption = 'Contract Discount Amount';
+            Editable = false;
+            FieldClass = FlowField;
+        }
+        field(103; "Contract Cost Amount"; Decimal)
+        {
+            AutoFormatType = 1;
+            CalcFormula = Sum ("Service Ledger Entry"."Cost Amount" WHERE("Service Contract No." = FIELD("Contract No."),
+                                                                          "Entry Type" = CONST(Usage),
+                                                                          "Moved from Prepaid Acc." = CONST(true),
+                                                                          Type = FIELD("Type Filter"),
+                                                                          "Posting Date" = FIELD("Date Filter"),
+                                                                          Open = CONST(false)));
+            Caption = 'Contract Cost Amount';
+            Editable = false;
+            FieldClass = FlowField;
+        }
+        field(104; "Contract Gain/Loss Amount"; Decimal)
+        {
+            AutoFormatType = 1;
+            CalcFormula = Sum ("Contract Gain/Loss Entry".Amount WHERE("Contract No." = FIELD("Contract No."),
+                                                                       "Reason Code" = FIELD("Reason Code Filter"),
+                                                                       "Change Date" = FIELD("Date Filter")));
+            Caption = 'Contract Gain/Loss Amount';
+            Editable = false;
+            FieldClass = FlowField;
+        }
+        field(106; "No. of Posted Credit Memos"; Integer)
+        {
+            CalcFormula = Count ("Service Document Register" WHERE("Source Document Type" = CONST(Contract),
+                                                                   "Source Document No." = FIELD("Contract No."),
+                                                                   "Destination Document Type" = CONST("Posted Credit Memo")));
+            Caption = 'No. of Posted Credit Memos';
+            Editable = false;
+            FieldClass = FlowField;
+        }
+        field(107; "No. of Unposted Credit Memos"; Integer)
+        {
+            CalcFormula = Count ("Service Document Register" WHERE("Source Document Type" = CONST(Contract),
+                                                                   "Source Document No." = FIELD("Contract No."),
+                                                                   "Destination Document Type" = CONST("Credit Memo")));
+            Caption = 'No. of Unposted Credit Memos';
+            Editable = false;
+            FieldClass = FlowField;
+        }
+        field(140; "Type Filter"; Option)
+        {
+            Caption = 'Type Filter';
+            FieldClass = FlowFilter;
+            OptionCaption = ' ,Resource,Item,Service Cost,Service Contract,G/L Account';
+            OptionMembers = " ",Resource,Item,"Service Cost","Service Contract","G/L Account";
+        }
+        field(141; "Reason Code Filter"; Code[10])
+        {
+            Caption = 'Reason Code Filter';
+            FieldClass = FlowFilter;
+            TableRelation = "Reason Code";
+        }
+        field(142; "Posted Service Order Filter"; Code[20])
+        {
+            Caption = 'Posted Service Order Filter';
+            FieldClass = FlowFilter;
+            TableRelation = "Service Shipment Header";
+        }
+        field(143; "Date Filter"; Date)
+        {
+            Caption = 'Date Filter';
+            FieldClass = FlowFilter;
+        }
+        field(144; "Item Filter"; Code[20])
+        {
+            Caption = 'Item Filter';
+            FieldClass = FlowFilter;
+            TableRelation = Item;
+        }
+        field(480; "Dimension Set ID"; Integer)
+        {
+            Caption = 'Dimension Set ID';
+            Editable = false;
+            TableRelation = "Dimension Set Entry";
+
+            trigger OnLookup()
+            begin
+                ShowDocDim;
+            end;
+
+            trigger OnValidate()
+            begin
+                DimMgt.UpdateGlobalDimFromDimSetID("Dimension Set ID", "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
+            end;
+        }
+        field(5050; "Contact No."; Code[20])
+        {
+            Caption = 'Contact No.';
+            TableRelation = Contact;
+
+            trigger OnLookup()
+            var
+                Cont: Record Contact;
+                ContBusinessRelation: Record "Contact Business Relation";
+            begin
+                if ("Customer No." <> '') and Cont.Get("Contact No.") then
+                    Cont.SetRange("Company No.", Cont."Company No.")
+                else
+                    if "Customer No." <> '' then begin
+                        if ContBusinessRelation.FindByRelation(ContBusinessRelation."Link to Table"::Customer, "Customer No.") then
+                            Cont.SetRange("Company No.", ContBusinessRelation."Contact No.");
+                    end else
+                        Cont.SetFilter("Company No.", '<>%1', '''');
+
+                if "Contact No." <> '' then
+                    if Cont.Get("Contact No.") then;
+                if PAGE.RunModal(0, Cont) = ACTION::LookupOK then begin
+                    xRec := Rec;
+                    Validate("Contact No.", Cont."No.");
+                end;
+            end;
+
+            trigger OnValidate()
+            var
+                Cont: Record Contact;
+                ContBusinessRelation: Record "Contact Business Relation";
+                ConfirmManagement: Codeunit "Confirm Management";
+            begin
+                if ("Contact No." <> xRec."Contact No.") and (xRec."Contact No." <> '') then
+                    if not ConfirmManagement.GetResponseOrDefault(
+                         StrSubstNo(Text014, FieldCaption("Contact No.")), true)
+                    then begin
+                        "Contact No." := xRec."Contact No.";
+                        exit;
+                    end;
+
+                if ("Customer No." <> '') and ("Contact No." <> '') then begin
+                    Cont.Get("Contact No.");
+                    if ContBusinessRelation.FindByRelation(ContBusinessRelation."Link to Table"::Customer, "Customer No.") then
+                        if ContBusinessRelation."Contact No." <> Cont."Company No." then
+                            Error(Text045, Cont."No.", Cont.Name, "Customer No.");
+                end;
+
+                UpdateCust("Contact No.");
+            end;
+        }
+        field(5051; "Bill-to Contact No."; Code[20])
+        {
+            Caption = 'Bill-to Contact No.';
+            TableRelation = Contact;
+
+            trigger OnLookup()
+            var
+                Cont: Record Contact;
+                ContBusinessRelation: Record "Contact Business Relation";
+            begin
+                if ("Bill-to Customer No." <> '') and Cont.Get("Bill-to Contact No.") then
+                    Cont.SetRange("Company No.", Cont."Company No.")
+                else
+                    if Cust.Get("Bill-to Customer No.") then begin
+                        if ContBusinessRelation.FindByRelation(ContBusinessRelation."Link to Table"::Customer, "Bill-to Customer No.") then
+                            Cont.SetRange("Company No.", ContBusinessRelation."Contact No.");
+                    end else
+                        Cont.SetFilter("Company No.", '<>%1', '''');
+
+                if "Bill-to Contact No." <> '' then
+                    if Cont.Get("Bill-to Contact No.") then;
+                if PAGE.RunModal(0, Cont) = ACTION::LookupOK then begin
+                    xRec := Rec;
+                    Validate("Bill-to Contact No.", Cont."No.");
+                end;
+            end;
+
+            trigger OnValidate()
+            var
+                Cont: Record Contact;
+                ContBusinessRelation: Record "Contact Business Relation";
+                ConfirmManagement: Codeunit "Confirm Management";
+            begin
+                if ("Bill-to Contact No." <> xRec."Bill-to Contact No.") and
+                   (xRec."Bill-to Contact No." <> '')
+                then
+                    if not ConfirmManagement.GetResponseOrDefault(
+                         StrSubstNo(Text014, FieldCaption("Bill-to Contact No.")), true)
+                    then begin
+                        "Bill-to Contact No." := xRec."Bill-to Contact No.";
+                        exit;
+                    end;
+
+                if ("Bill-to Customer No." <> '') and ("Bill-to Contact No." <> '') then begin
+                    Cont.Get("Bill-to Contact No.");
+                    if ContBusinessRelation.FindByRelation(ContBusinessRelation."Link to Table"::Customer, "Bill-to Customer No.") then
+                        if ContBusinessRelation."Contact No." <> Cont."Company No." then
+                            Error(Text045, Cont."No.", Cont.Name, "Bill-to Customer No.");
+                end;
+
+                UpdateBillToCust("Bill-to Contact No.");
+            end;
+        }
+        field(5052; "Bill-to Contact"; Text[100])
+        {
+            Caption = 'Bill-to Contact';
+        }
+        field(5053; "Last Invoice Period End"; Date)
+        {
+            Caption = 'Last Invoice Period End';
+        }
+    }
+
+    keys
+    {
+        key(Key1; "Contract Type", "Contract No.")
+        {
+            Clustered = true;
+        }
+        key(Key2; "Contract No.", "Contract Type")
+        {
+        }
+        key(Key3; "Customer No.", "Ship-to Code")
+        {
+        }
+        key(Key4; "Bill-to Customer No.", "Contract Type", "Combine Invoices", "Next Invoice Date")
+        {
+        }
+        key(Key5; "Next Price Update Date")
+        {
+        }
+        key(Key6; "Responsibility Center", "Service Zone Code", Status, "Contract Group Code")
+        {
+        }
+        key(Key7; "Salesperson Code", Status)
+        {
+        }
+        key(Key8; "Template No.")
+        {
+        }
+        key(Key9; "Customer No.", "Bill-to Customer No.")
+        {
+            MaintainSQLIndex = false;
+        }
+        key(Key10; "Customer No.", "Currency Code", "Ship-to Code")
+        {
+            MaintainSQLIndex = false;
+        }
+        key(Key11; "Expiration Date")
+        {
+        }
+    }
+
+    fieldgroups
+    {
+        fieldgroup(DropDown; "Contract No.", Description, "Customer No.", Status, "Change Status", "Starting Date")
+        {
+        }
+    }
+
+    trigger OnDelete()
+    var
+        ServLedgEntry: Record "Service Ledger Entry";
+        ConfirmManagement: Codeunit "Confirm Management";
+    begin
+        if not UserMgt.CheckRespCenter(2, "Responsibility Center") then
+            Error(
+              Text002,
+              RespCenter.TableCaption, UserMgt.GetSalesFilter);
+
+        if "Contract Type" = "Contract Type"::Contract then begin
+            MoveEntries.MoveServContractLedgerEntries(Rec);
+
+            if Status = Status::Signed then
+                Error(Text003, Format(Status), TableCaption);
+
+            ServLedgEntry.SetRange(Type, ServLedgEntry.Type::"Service Contract");
+            ServLedgEntry.SetRange("No.", "Contract No.");
+            ServLedgEntry.SetRange(Prepaid, false);
+            ServLedgEntry.SetRange(Open, true);
+            if not ServLedgEntry.IsEmpty then
+                if not ConfirmManagement.GetResponseOrDefault(
+                     StrSubstNo(Text052, ServLedgEntry.FieldCaption(Open)), true)
+                then
+                    Error(Text053);
+        end;
+        ServContractLine.Reset;
+        ServContractLine.SetRange("Contract Type", "Contract Type");
+        ServContractLine.SetRange("Contract No.", "Contract No.");
+        ServContractLine.DeleteAll;
+
+        ServCommentLine.SetRange("Table Name", ServCommentLine."Table Name"::"Service Contract");
+        ServCommentLine.SetRange("Table Subtype", "Contract Type");
+        ServCommentLine.SetRange("No.", "Contract No.");
+        ServCommentLine.DeleteAll;
+
+        ServHour.Reset;
+        case "Contract Type" of
+            "Contract Type"::Quote:
+                ServHour.SetRange("Service Contract Type", ServHour."Service Contract Type"::Quote);
+            "Contract Type"::Contract:
+                ServHour.SetRange("Service Contract Type", ServHour."Service Contract Type"::Contract);
+        end;
+        ServHour.SetRange("Service Contract No.", "Contract No.");
+        ServHour.DeleteAll;
+
+        FiledServContract.Reset;
+        FiledServContract.SetCurrentKey("Contract Type Relation", "Contract No. Relation");
+        FiledServContract.SetRange("Contract Type Relation", "Contract Type");
+        FiledServContract.SetRange("Contract No. Relation", "Contract No.");
+        FiledServContract.DeleteAll(true);
+    end;
+
+    trigger OnInsert()
+    var
+        ServiceContractTemplate: Record "Service Contract Template";
+        ServContractQuoteTmplUpd: Codeunit "ServContractQuote-Tmpl. Upd.";
+        ConfirmManagement: Codeunit "Confirm Management";
+        IsHandled: Boolean;
+    begin
+        ServMgtSetup.Get;
+        if "Contract No." = '' then begin
+            ServMgtSetup.TestField("Service Contract Nos.");
+            NoSeriesMgt.InitSeries(ServMgtSetup."Service Contract Nos.", xRec."No. Series", 0D,
+              "Contract No.", "No. Series");
+        end;
+        "Starting Date" := WorkDate;
+        "First Service Date" := WorkDate;
+
+        IsHandled := false;
+        OnBeforeApplyServiceContractQuoteTemplate(Rec, IsHandled);
+        if not IsHandled then begin
+            ServiceContractTemplate.Reset;
+            if ServiceContractTemplate.FindFirst then
+                if ConfirmManagement.GetResponseOrDefault(Text000, false) then begin
+                    Commit;
+                    Clear(ServContractQuoteTmplUpd);
+                    ServContractQuoteTmplUpd.Run(Rec);
+                end;
+        end;
+
+        Validate("Starting Date");
+    end;
+
+    trigger OnModify()
+    begin
+        CheckChangeStatus;
+        if ("Contract Type" = "Contract Type"::Contract) and ("Contract No." <> '') then begin
+            ServMgtSetup.Get;
+            if ServMgtSetup."Register Contract Changes" then
+                UpdContractChangeLog(xRec);
+
+            if (Status <> xRec.Status) and
+               (Status = Status::Canceled)
+            then
+                ContractGainLossEntry.AddEntry(3, "Contract Type", "Contract No.", -"Annual Amount", "Cancel Reason Code");
+        end;
+
+        if (Status = Status::Signed) and
+           ("Annual Amount" <> xRec."Annual Amount")
+        then
+            ContractGainLossEntry.AddEntry(4, "Contract Type",
+              "Contract No.", "Annual Amount" - xRec."Annual Amount", '');
+    end;
+
+    trigger OnRename()
+    begin
+        Error(Text063, TableCaption);
+    end;
+
+    var
+        Text000: Label 'Do you want to create the contract using a contract template?';
+        Text002: Label 'You cannot delete this document. Your identification is set up to process from %1 %2 only.';
+        Text003: Label 'You cannot delete %1 %2.';
+        Text006: Label 'The %1 field can only be changed to Canceled.';
+        CancelTheContractQst: Label '%1 It is not possible to change a service contract to its previous status.\\Do you want to cancel the contract?', Comment = '%1: Text008';
+        OpenPrepaymentEntriesExistTxt: Label 'Open prepayment entries exist for the contract.';
+        Text009: Label 'You cannot change the %1 field to %2 when the %3 field is %4.';
+        Text010: Label 'Do you want to cancel %1?';
+        Text011: Label 'You cannot change the %1 field manually because there are contract lines for this customer.\\';
+        Text012: Label 'To change the customer, use the Change Customer function.';
+        Text014: Label 'Do you want to change %1?';
+        Text023: Label '%1 cannot be less than %2.';
+        Text024: Label 'The %1 cannot be before the %2.';
+        Text026: Label '%1 must be the first day in the month.';
+        Text027: Label '%1 to %2';
+        Text028: Label '%1 must be the last day in the month.';
+        Text029: Label 'You are not allowed to change %1 because the %2 has been invoiced.';
+        Text030: Label 'You cannot change the %1 field on signed service contracts.';
+        Text031: Label 'You have changed the %1 field.\\The contract lines will not be updated.';
+        Text032: Label 'You cannot change %1 because %2 %3 has been invoiced.';
+        Text034: Label 'Some of the contract lines have a longer response time than the %1 field on the service contract header. Do you want to update them?';
+        Text040: Label 'Your identification is set up to process from %1 %2 only.';
+        ServHeader: Record "Service Header";
+        ServContractHeader: Record "Service Contract Header";
+        ServContractLine: Record "Service Contract Line";
+        ServMgtSetup: Record "Service Mgt. Setup";
+        ServCommentLine: Record "Service Comment Line";
+        Cust: Record Customer;
+        ShipToAddr: Record "Ship-to Address";
+        ContractChangeLog: Record "Contract Change Log";
+        FiledServContract: Record "Filed Service Contract Header";
+        ContractGainLossEntry: Record "Contract Gain/Loss Entry";
+        RespCenter: Record "Responsibility Center";
+        ServHour: Record "Service Hour";
+        ServContractLine2: Record "Service Contract Line";
+        Currency: Record Currency;
+        Salesperson: Record "Salesperson/Purchaser";
+        NoSeriesMgt: Codeunit NoSeriesManagement;
+        UserMgt: Codeunit "User Setup Management";
+        ServContractMgt: Codeunit ServContractManagement;
+        ServOrderMgt: Codeunit ServOrderManagement;
+        DimMgt: Codeunit DimensionManagement;
+        MoveEntries: Codeunit MoveEntries;
+        DaysInThisInvPeriod: Integer;
+        DaysInFullInvPeriod: Integer;
+        TempDate: Date;
+        Text041: Label '%1 cannot be changed to %2 because this %3 has been invoiced';
+        Text042: Label 'The amounts on the service contract header and service contract lines have not been updated. The value of the %1 field indicates the currency in which the amounts in the sales documents belonging to this contract are calculated. The amounts on the service contract are presented in LCY only.';
+        Text044: Label 'Contact %1 %2 is not related to customer %3.';
+        Text045: Label 'Contact %1 %2 is related to a different company than customer %3.';
+        Text048: Label 'There are unposted invoices linked to this contract.\\Do you want to cancel the contract?';
+        Text049: Label 'There are unposted credit memos linked to this contract.\\Do you want to cancel the contract?';
+        Text051: Label 'Contact %1 %2 is not related to a customer.';
+        ContactNo: Code[20];
+        Text052: Label '%1 service ledger entries exist for this service contract\Would you like to continue?';
+        Text053: Label 'The deletion process has been interrupted.';
+        SuspendChangeStatus: Boolean;
+        SkipContact: Boolean;
+        SkipBillToContact: Boolean;
+        Text054: Label 'You cannot checkmark this field because you do not have permissions for the Service Order Management Area.';
+        Text055: Label 'There are unposted invoices and credit memos linked to this contract.\\Do you want to cancel the contract?';
+        StrToInsert: Text[250];
+        Text056: Label 'The contract expiration dates on the service contract lines that are later than %1 on the %2 will be replaced with %3.\Do you want to continue?';
+        Text057: Label 'You cannot select both the %1 and the %2 check boxes.';
+        Text058: Label 'You cannot use the Distribution functionality if there are no contract lines in the service contract.';
+        Text059: Label 'You cannot use the Distribution Based on Profit option if the sum of values in the Profit field on the contract lines equals to zero.';
+        Text060: Label 'You cannot use the Distribution Based on Line Amount option if the sum of values in the Line Amount field on the contract lines equals to zero.';
+        Text061: Label 'The annual amount difference has been distributed and one or more contract lines have zero or less in the %1 fields.\You can enter an amount in the %1 field.';
+        Text062: Label 'Some lines containing service items have been added to one or more contracts\while the quote had the %1 %2.\Do you want to see these lines?';
+        HideValidationDialog: Boolean;
+        Confirmed: Boolean;
+        Text063: Label 'You cannot rename a %1.';
+        InvPeriodDuration: DateFormula;
+        Text064: Label '%1 cannot be less than %2.';
+        Text065: Label '%1 cannot be more than %2.';
+
+    procedure UpdContractChangeLog(OldServContractHeader: Record "Service Contract Header")
+    begin
+        if "Contract Type" <> OldServContractHeader."Contract Type" then
+            ContractChangeLog.LogContractChange(
+              "Contract No.", 0, FieldCaption("Contract Type"), 0,
+              Format(OldServContractHeader."Contract Type"), Format("Contract Type"),
+              '', 0);
+        if "Contract No." <> OldServContractHeader."Contract No." then
+            ContractChangeLog.LogContractChange(
+              "Contract No.", 0, FieldCaption("Contract No."), 0,
+              Format(OldServContractHeader."Contract No."), Format("Contract No."),
+              '', 0);
+        if Description <> OldServContractHeader.Description then
+            ContractChangeLog.LogContractChange(
+              "Contract No.", 0, FieldCaption(Description), 0,
+              OldServContractHeader.Description, Description,
+              '', 0);
+        if "Description 2" <> OldServContractHeader."Description 2" then
+            ContractChangeLog.LogContractChange(
+              "Contract No.", 0, FieldCaption("Description 2"), 0,
+              OldServContractHeader."Description 2", "Description 2",
+              '', 0);
+        if Status <> OldServContractHeader.Status then
+            ContractChangeLog.LogContractChange(
+              "Contract No.", 0, FieldCaption(Status), 0,
+              Format(OldServContractHeader.Status), Format(Status),
+              '', 0);
+        if "Customer No." <> OldServContractHeader."Customer No." then
+            ContractChangeLog.LogContractChange(
+              "Contract No.", 0, FieldCaption("Customer No."), 0,
+              OldServContractHeader."Customer No.", "Customer No.",
+              '', 0);
+        if "Contact Name" <> OldServContractHeader."Contact Name" then
+            ContractChangeLog.LogContractChange(
+              "Contract No.", 0, FieldCaption("Contact Name"), 0,
+              OldServContractHeader."Contact Name", "Contact Name",
+              '', 0);
+        if "Your Reference" <> OldServContractHeader."Your Reference" then
+            ContractChangeLog.LogContractChange(
+              "Contract No.", 0, FieldCaption("Your Reference"), 0,
+              OldServContractHeader."Your Reference", "Your Reference",
+              '', 0);
+        if "Salesperson Code" <> OldServContractHeader."Salesperson Code" then
+            ContractChangeLog.LogContractChange(
+              "Contract No.", 0, FieldCaption("Salesperson Code"), 0,
+              OldServContractHeader."Salesperson Code", "Salesperson Code",
+              '', 0);
+        if "Bill-to Customer No." <> OldServContractHeader."Bill-to Customer No." then
+            ContractChangeLog.LogContractChange(
+              "Contract No.", 0, FieldCaption("Bill-to Customer No."), 0,
+              OldServContractHeader."Bill-to Customer No.", "Bill-to Customer No.",
+              '', 0);
+        if "Ship-to Code" <> OldServContractHeader."Ship-to Code" then
+            ContractChangeLog.LogContractChange(
+              "Contract No.", 0, FieldCaption("Ship-to Code"), 0,
+              OldServContractHeader."Ship-to Code", "Ship-to Code",
+              '', 0);
+        if Prepaid <> OldServContractHeader.Prepaid then
+            ContractChangeLog.LogContractChange(
+              "Contract No.", 0, FieldCaption(Prepaid), 0,
+              Format(OldServContractHeader.Prepaid), Format(Prepaid),
+              '', 0);
+        if "Invoice Period" <> OldServContractHeader."Invoice Period" then
+            ContractChangeLog.LogContractChange(
+              "Contract No.", 0, FieldCaption("Invoice Period"), 0,
+              Format(OldServContractHeader."Invoice Period"), Format("Invoice Period"),
+              '', 0);
+        if "Next Invoice Date" <> OldServContractHeader."Next Invoice Date" then
+            ContractChangeLog.LogContractChange(
+              "Contract No.", 0, FieldCaption("Next Invoice Date"), 0,
+              Format(OldServContractHeader."Next Invoice Date"), Format("Next Invoice Date"),
+              '', 0);
+        if "Starting Date" <> OldServContractHeader."Starting Date" then
+            ContractChangeLog.LogContractChange(
+              "Contract No.", 0, FieldCaption("Starting Date"), 0,
+              Format(OldServContractHeader."Starting Date"), Format("Starting Date"),
+              '', 0);
+        if "Expiration Date" <> OldServContractHeader."Expiration Date" then
+            ContractChangeLog.LogContractChange(
+              "Contract No.", 0, FieldCaption("Expiration Date"), 0,
+              Format(OldServContractHeader."Expiration Date"), Format("Expiration Date"),
+              '', 0);
+        if "First Service Date" <> OldServContractHeader."First Service Date" then
+            ContractChangeLog.LogContractChange(
+              "Contract No.", 0, FieldCaption("First Service Date"), 0,
+              Format(OldServContractHeader."First Service Date"), Format("First Service Date"),
+              '', 0);
+        if "Max. Labor Unit Price" <> OldServContractHeader."Max. Labor Unit Price" then
+            ContractChangeLog.LogContractChange(
+              "Contract No.", 0, FieldCaption("Max. Labor Unit Price"), 0,
+              Format(OldServContractHeader."Max. Labor Unit Price"), Format("Max. Labor Unit Price"),
+              '', 0);
+        if "Annual Amount" <> OldServContractHeader."Annual Amount" then
+            ContractChangeLog.LogContractChange(
+              "Contract No.", 0, FieldCaption("Annual Amount"), 0,
+              Format(OldServContractHeader."Annual Amount"), Format("Annual Amount"),
+              '', 0);
+        if "Amount per Period" <> OldServContractHeader."Amount per Period" then
+            ContractChangeLog.LogContractChange(
+              "Contract No.", 0, FieldCaption("Amount per Period"), 0,
+              Format(OldServContractHeader."Amount per Period"), Format("Amount per Period"),
+              '', 0);
+        if "Combine Invoices" <> OldServContractHeader."Combine Invoices" then
+            ContractChangeLog.LogContractChange(
+              "Contract No.", 0, FieldCaption("Combine Invoices"), 0,
+              Format(OldServContractHeader."Combine Invoices"), Format("Combine Invoices"),
+              '', 0);
+        if "Next Invoice Period Start" <> OldServContractHeader."Next Invoice Period Start" then
+            ContractChangeLog.LogContractChange(
+              "Contract No.", 0, FieldCaption("Next Invoice Period Start"), 0,
+              Format(OldServContractHeader."Next Invoice Period Start"), Format("Next Invoice Period Start"),
+              '', 0);
+        if "Next Invoice Period End" <> OldServContractHeader."Next Invoice Period End" then
+            ContractChangeLog.LogContractChange(
+              "Contract No.", 0, FieldCaption("Next Invoice Period End"), 0,
+              Format(OldServContractHeader."Next Invoice Period End"), Format("Next Invoice Period End"),
+              '', 0);
+        if "Service Zone Code" <> OldServContractHeader."Service Zone Code" then
+            ContractChangeLog.LogContractChange(
+              "Contract No.", 0, FieldCaption("Service Zone Code"), 0,
+              Format(OldServContractHeader."Service Zone Code"), Format("Service Zone Code"),
+              '', 0);
+        if "Cancel Reason Code" <> OldServContractHeader."Cancel Reason Code" then
+            ContractChangeLog.LogContractChange(
+              "Contract No.", 0, FieldCaption("Cancel Reason Code"), 0,
+              Format(OldServContractHeader."Cancel Reason Code"), Format("Cancel Reason Code"),
+              '', 0);
+        if "Next Price Update Date" <> OldServContractHeader."Next Price Update Date" then
+            ContractChangeLog.LogContractChange(
+              "Contract No.", 0, FieldCaption("Next Price Update Date"), 0,
+              Format(OldServContractHeader."Next Price Update Date"), Format("Next Price Update Date"),
+              '', 0);
+        if "Response Time (Hours)" <> OldServContractHeader."Response Time (Hours)" then
+            ContractChangeLog.LogContractChange(
+              "Contract No.", 0, FieldCaption("Response Time (Hours)"), 0,
+              Format(OldServContractHeader."Response Time (Hours)"), Format("Response Time (Hours)"),
+              '', 0);
+        if "Contract Lines on Invoice" <> OldServContractHeader."Contract Lines on Invoice" then
+            ContractChangeLog.LogContractChange(
+              "Contract No.", 0, FieldCaption("Contract Lines on Invoice"), 0,
+              Format(OldServContractHeader."Contract Lines on Invoice"), Format("Contract Lines on Invoice"),
+              '', 0);
+        if "Service Period" <> OldServContractHeader."Service Period" then
+            ContractChangeLog.LogContractChange(
+              "Contract No.", 0, FieldCaption("Service Period"), 0,
+              Format(OldServContractHeader."Service Period"), Format("Service Period"),
+              '', 0);
+        if "Payment Terms Code" <> OldServContractHeader."Payment Terms Code" then
+            ContractChangeLog.LogContractChange(
+              "Contract No.", 0, FieldCaption("Payment Terms Code"), 0,
+              Format(OldServContractHeader."Payment Terms Code"), Format("Payment Terms Code"),
+              '', 0);
+        if "Contract Group Code" <> OldServContractHeader."Contract Group Code" then
+            ContractChangeLog.LogContractChange(
+              "Contract No.", 0, FieldCaption("Contract Group Code"), 0,
+              OldServContractHeader."Contract Group Code", "Contract Group Code",
+              '', 0);
+        if "Service Order Type" <> OldServContractHeader."Service Order Type" then
+            ContractChangeLog.LogContractChange(
+              "Contract No.", 0, FieldCaption("Service Order Type"), 0,
+              Format(OldServContractHeader."Service Order Type"), Format("Service Order Type"),
+              '', 0);
+        if "Accept Before" <> OldServContractHeader."Accept Before" then
+            ContractChangeLog.LogContractChange(
+              "Contract No.", 0, FieldCaption("Accept Before"), 0,
+              Format(OldServContractHeader."Accept Before"), Format("Accept Before"),
+              '', 0);
+        if "Automatic Credit Memos" <> OldServContractHeader."Automatic Credit Memos" then
+            ContractChangeLog.LogContractChange(
+              "Contract No.", 0, FieldCaption("Automatic Credit Memos"), 0,
+              Format(OldServContractHeader."Automatic Credit Memos"), Format("Automatic Credit Memos"),
+              '', 0);
+        if "Price Update Period" <> OldServContractHeader."Price Update Period" then
+            ContractChangeLog.LogContractChange(
+              "Contract No.", 0, FieldCaption("Price Update Period"), 0,
+              Format(OldServContractHeader."Price Update Period"), Format("Price Update Period"),
+              '', 0);
+        if "Price Inv. Increase Code" <> OldServContractHeader."Price Inv. Increase Code" then
+            ContractChangeLog.LogContractChange(
+              "Contract No.", 0, FieldCaption("Price Inv. Increase Code"), 0,
+              Format(OldServContractHeader."Price Inv. Increase Code"), Format("Price Inv. Increase Code"),
+              '', 0);
+        if "Currency Code" <> OldServContractHeader."Currency Code" then
+            ContractChangeLog.LogContractChange(
+              "Contract No.", 0, FieldCaption("Currency Code"), 0,
+              Format(OldServContractHeader."Currency Code"), Format("Currency Code"),
+              '', 0);
+        if "Responsibility Center" <> OldServContractHeader."Responsibility Center" then
+            ContractChangeLog.LogContractChange(
+              "Contract No.", 0, FieldCaption("Responsibility Center"), 0,
+              Format(OldServContractHeader."Responsibility Center"), Format("Responsibility Center"),
+              '', 0);
+        if "Phone No." <> OldServContractHeader."Phone No." then
+            ContractChangeLog.LogContractChange(
+              "Contract No.", 0, FieldCaption("Phone No."), 0,
+              Format(OldServContractHeader."Phone No."), Format("Phone No."),
+              '', 0);
+        if "Fax No." <> OldServContractHeader."Fax No." then
+            ContractChangeLog.LogContractChange(
+              "Contract No.", 0, FieldCaption("Fax No."), 0,
+              Format(OldServContractHeader."Fax No."), Format("Fax No."),
+              '', 0);
+        if "E-Mail" <> OldServContractHeader."E-Mail" then
+            ContractChangeLog.LogContractChange(
+              "Contract No.", 0, FieldCaption("E-Mail"), 0,
+              Format(OldServContractHeader."E-Mail"), Format("E-Mail"),
+              '', 0);
+        if "Allow Unbalanced Amounts" <> OldServContractHeader."Allow Unbalanced Amounts" then
+            ContractChangeLog.LogContractChange(
+              "Contract No.", 0, FieldCaption("Allow Unbalanced Amounts"), 0,
+              Format(OldServContractHeader."Allow Unbalanced Amounts"), Format("Allow Unbalanced Amounts"),
+              '', 0);
+
+        OnAfterUpdContractChangeLog(Rec, OldServContractHeader);
+    end;
+
+    procedure AssistEdit(OldServContract: Record "Service Contract Header"): Boolean
+    begin
+        with ServContractHeader do begin
+            ServContractHeader := Rec;
+            ServMgtSetup.Get;
+            ServMgtSetup.TestField("Service Contract Nos.");
+            if NoSeriesMgt.SelectSeries(ServMgtSetup."Service Contract Nos.", OldServContract."No. Series", "No. Series") then begin
+                NoSeriesMgt.SetSeries("Contract No.");
+                Rec := ServContractHeader;
+                exit(true);
+            end;
+        end;
+
+        OnAfterAssistEdit(OldServContract);
+    end;
+
+    procedure ReturnNoOfPer(InvoicePeriod: Option Month,"Two Months",Quarter,"Half Year",Year) RetPer: Integer
+    begin
+        case InvoicePeriod of
+            InvoicePeriod::Month:
+                RetPer := 12;
+            InvoicePeriod::"Two Months":
+                RetPer := 6;
+            InvoicePeriod::Quarter:
+                RetPer := 4;
+            InvoicePeriod::"Half Year":
+                RetPer := 2;
+            InvoicePeriod::Year:
+                RetPer := 1;
+            else
+                RetPer := 0;
+        end;
+    end;
+
+    local procedure CalculateEndPeriodDate(Prepaid: Boolean; NextInvDate: Date): Date
+    var
+        TempDate2: Date;
+        IsHandled: Boolean;
+        Result: Date;
+    begin
+        if NextInvDate = 0D then
+            exit(0D);
+
+        IsHandled := false;
+        OnBeforeCalculateEndPeriodDate(Rec, Prepaid, NextInvDate, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
+        if Prepaid then begin
+            case "Invoice Period" of
+                "Invoice Period"::Month:
+                    TempDate2 := CalcDate('<1M-1D>', NextInvDate);
+                "Invoice Period"::"Two Months":
+                    TempDate2 := CalcDate('<2M-1D>', NextInvDate);
+                "Invoice Period"::Quarter:
+                    TempDate2 := CalcDate('<3M-1D>', NextInvDate);
+                "Invoice Period"::"Half Year":
+                    TempDate2 := CalcDate('<6M-1D>', NextInvDate);
+                "Invoice Period"::Year:
+                    TempDate2 := CalcDate('<12M-1D>', NextInvDate);
+                "Invoice Period"::None:
+                    TempDate2 := 0D;
+            end;
+            exit(TempDate2);
+        end;
+        case "Invoice Period" of
+            "Invoice Period"::Month:
+                TempDate2 := CalcDate('<-CM>', NextInvDate);
+            "Invoice Period"::"Two Months":
+                TempDate2 := CalcDate('<-CM-1M>', NextInvDate);
+            "Invoice Period"::Quarter:
+                TempDate2 := CalcDate('<-CM-2M>', NextInvDate);
+            "Invoice Period"::"Half Year":
+                TempDate2 := CalcDate('<-CM-5M>', NextInvDate);
+            "Invoice Period"::Year:
+                TempDate2 := CalcDate('<-CM-11M>', NextInvDate);
+            "Invoice Period"::None:
+                TempDate2 := 0D;
+        end;
+        exit(TempDate2);
+    end;
+
+    procedure UpdateServZone()
+    begin
+        if "Ship-to Code" <> '' then begin
+            ShipToAddr.Get("Customer No.", "Ship-to Code");
+            "Service Zone Code" := ShipToAddr."Service Zone Code";
+        end else
+            if "Customer No." <> '' then begin
+                Cust.Get("Customer No.");
+                "Service Zone Code" := Cust."Service Zone Code";
+            end else
+                "Service Zone Code" := '';
+    end;
+
+    local procedure ContractLinesExist(): Boolean
+    begin
+        ServContractLine.Reset;
+        ServContractLine.SetRange("Contract Type", "Contract Type");
+        ServContractLine.SetRange("Contract No.", "Contract No.");
+        exit(ServContractLine.Find('-'));
+    end;
+
+    procedure UpdateShiptoCode()
+    begin
+        if "Ship-to Code" = '' then begin
+            "Ship-to Name" := Name;
+            "Ship-to Name 2" := "Name 2";
+            "Ship-to Address" := Address;
+            "Ship-to Address 2" := "Address 2";
+            "Ship-to Post Code" := "Post Code";
+            "Ship-to City" := City;
+            "Ship-to County" := County;
+            "Ship-to Country/Region Code" := "Country/Region Code";
+        end;
+    end;
+
+    procedure NextInvoicePeriod(): Text[250]
+    begin
+        if ("Next Invoice Period Start" <> 0D) and ("Next Invoice Period End" <> 0D) then
+            exit(StrSubstNo(Text027, "Next Invoice Period Start", "Next Invoice Period End"));
+    end;
+
+    procedure ValidateNextInvoicePeriod()
+    var
+        InvFrom: Date;
+        InvTo: Date;
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeValidateNextInvoicePeriod(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
+        if NextInvoicePeriod = '' then begin
+            "Amount per Period" := 0;
+            exit;
+        end;
+        Currency.InitRoundingPrecision;
+        InvFrom := "Next Invoice Period Start";
+        InvTo := "Next Invoice Period End";
+
+        DaysInThisInvPeriod := InvTo - InvFrom + 1;
+
+        if Prepaid then begin
+            TempDate := CalculateEndPeriodDate(true, "Next Invoice Date");
+            DaysInFullInvPeriod := TempDate - "Next Invoice Date" + 1;
+        end else begin
+            TempDate := CalculateEndPeriodDate(false, "Next Invoice Date");
+            DaysInFullInvPeriod := "Next Invoice Date" - TempDate + 1;
+            if (DaysInFullInvPeriod = DaysInThisInvPeriod) and ("Next Invoice Date" = "Expiration Date") then
+                DaysInFullInvPeriod := CalculateEndPeriodDate(true, TempDate) - TempDate + 1;
+        end;
+
+        if DaysInFullInvPeriod = DaysInThisInvPeriod then
+            "Amount per Period" :=
+              Round("Annual Amount" / ReturnNoOfPer("Invoice Period"), Currency."Amount Rounding Precision")
+        else
+            "Amount per Period" := Round(
+                ServContractMgt.CalcContractAmount(Rec, InvFrom, InvTo), Currency."Amount Rounding Precision");
+    end;
+
+    procedure ValidateShortcutDimCode(FieldNumber: Integer; var ShortcutDimCode: Code[20])
+    begin
+        OnBeforeValidateShortcutDimCode(Rec, xRec, FieldNumber, ShortcutDimCode);
+
+        DimMgt.ValidateShortcutDimValues(FieldNumber, ShortcutDimCode, "Dimension Set ID");
+
+        OnAfterValidateShortcutDimCode(Rec, xRec, FieldNumber, ShortcutDimCode);
+    end;
+
+    procedure CreateDim(Type1: Integer; No1: Code[20]; Type2: Integer; No2: Code[20]; Type3: Integer; No3: Code[20]; Type4: Integer; No4: Code[20]; Type5: Integer; No5: Code[20])
+    var
+        SourceCodeSetup: Record "Source Code Setup";
+        TableID: array[10] of Integer;
+        No: array[10] of Code[20];
+    begin
+        if "Change Status" <> "Change Status"::Open then
+            exit;
+
+        SourceCodeSetup.Get;
+        TableID[1] := Type1;
+        No[1] := No1;
+        TableID[2] := Type2;
+        No[2] := No2;
+        TableID[3] := Type3;
+        No[3] := No3;
+        TableID[4] := Type4;
+        No[4] := No4;
+        TableID[5] := Type5;
+        No[5] := No5;
+        OnAfterCreateDimTableIDs(Rec, CurrFieldNo, TableID, No);
+
+        "Shortcut Dimension 1 Code" := '';
+        "Shortcut Dimension 2 Code" := '';
+        "Dimension Set ID" :=
+          DimMgt.GetRecDefaultDimID(
+            Rec, CurrFieldNo, TableID, No, SourceCodeSetup."Service Management",
+            "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code", 0, 0);
+    end;
+
+    procedure SuspendStatusCheck(StatCheckParameter: Boolean)
+    begin
+        SuspendChangeStatus := StatCheckParameter;
+    end;
+
+    procedure UpdateCont(CustomerNo: Code[20])
+    var
+        ContBusRel: Record "Contact Business Relation";
+        Cont: Record Contact;
+        Cust: Record Customer;
+    begin
+        if Cust.Get(CustomerNo) then begin
+            Clear(ServOrderMgt);
+            ContactNo := ServOrderMgt.FindContactInformation(Cust."No.");
+            if Cont.Get(ContactNo) then begin
+                "Contact No." := Cont."No.";
+                "Contact Name" := Cont.Name;
+                "Phone No." := Cont."Phone No.";
+                "E-Mail" := Cont."E-Mail";
+            end else begin
+                if Cust."Primary Contact No." <> '' then
+                    "Contact No." := Cust."Primary Contact No."
+                else
+                    if ContBusRel.FindByRelation(ContBusRel."Link to Table"::Customer, "Customer No.") then
+                        "Contact No." := ContBusRel."Contact No.";
+                "Contact Name" := Cust.Contact;
+            end;
+        end;
+    end;
+
+    local procedure UpdateBillToCont(CustomerNo: Code[20])
+    var
+        ContBusRel: Record "Contact Business Relation";
+        Cont: Record Contact;
+        Cust: Record Customer;
+    begin
+        if Cust.Get(CustomerNo) then begin
+            Clear(ServOrderMgt);
+            ContactNo := ServOrderMgt.FindContactInformation("Bill-to Customer No.");
+            if Cont.Get(ContactNo) then begin
+                "Bill-to Contact No." := Cont."No.";
+                "Bill-to Contact" := Cont.Name;
+            end else begin
+                if Cust."Primary Contact No." <> '' then
+                    "Bill-to Contact No." := Cust."Primary Contact No."
+                else
+                    if ContBusRel.FindByRelation(ContBusRel."Link to Table"::Customer, "Bill-to Customer No.") then
+                        "Bill-to Contact No." := ContBusRel."Contact No.";
+                "Bill-to Contact" := Cust.Contact;
+            end;
+        end;
+    end;
+
+    procedure UpdateCust(ContactNo: Code[20])
+    var
+        ContBusinessRelation: Record "Contact Business Relation";
+        Cust: Record Customer;
+        Cont: Record Contact;
+    begin
+        if Cont.Get(ContactNo) then begin
+            "Contact No." := Cont."No.";
+            "Phone No." := Cont."Phone No.";
+            "E-Mail" := Cont."E-Mail";
+            if Cont.Type = Cont.Type::Person then
+                "Contact Name" := Cont.Name
+            else
+                if Cust.Get("Customer No.") then
+                    "Contact Name" := Cust.Contact
+                else
+                    "Contact Name" := ''
+        end else begin
+            "Contact Name" := '';
+            "Phone No." := '';
+            "E-Mail" := '';
+            exit;
+        end;
+
+        if ContBusinessRelation.FindByContact(ContBusinessRelation."Link to Table"::Customer, Cont."Company No.") then begin
+            if ("Customer No." <> '') and
+               ("Customer No." <> ContBusinessRelation."No.")
+            then
+                Error(Text044, Cont."No.", Cont.Name, "Customer No.");
+            if "Customer No." = '' then begin
+                SkipContact := true;
+                Validate("Customer No.", ContBusinessRelation."No.");
+                SkipContact := false;
+            end;
+        end else
+            Error(Text051, Cont."No.", Cont.Name);
+
+        if ("Customer No." = "Bill-to Customer No.") or
+           ("Bill-to Customer No." = '')
+        then
+            Validate("Bill-to Contact No.", "Contact No.");
+    end;
+
+    local procedure UpdateBillToCust(ContactNo: Code[20])
+    var
+        ContBusinessRelation: Record "Contact Business Relation";
+        Cust: Record Customer;
+        Cont: Record Contact;
+    begin
+        if Cont.Get(ContactNo) then begin
+            "Bill-to Contact No." := Cont."No.";
+            if Cont.Type = Cont.Type::Person then
+                "Bill-to Contact" := Cont.Name
+            else
+                if Cust.Get("Bill-to Customer No.") then
+                    "Bill-to Contact" := Cust.Contact
+                else
+                    "Bill-to Contact" := '';
+        end else begin
+            "Bill-to Contact" := '';
+            exit;
+        end;
+
+        if ContBusinessRelation.FindByContact(ContBusinessRelation."Link to Table"::Customer, Cont."Company No.") then begin
+            if "Bill-to Customer No." = '' then begin
+                SkipBillToContact := true;
+                Validate("Bill-to Customer No.", ContBusinessRelation."No.");
+                SkipBillToContact := false;
+            end else
+                if "Bill-to Customer No." <> ContBusinessRelation."No." then
+                    Error(Text044, Cont."No.", Cont.Name, "Bill-to Customer No.");
+        end else
+            Error(Text051, Cont."No.", Cont.Name);
+    end;
+
+    local procedure EvenDistribution(var ServContractLine2: Record "Service Contract Line")
+    var
+        OldServContractLine: Record "Service Contract Line";
+        AmountToAdjust: Decimal;
+    begin
+        ServContractLine2.LockTable;
+        CalcFields("Calcd. Annual Amount");
+        AmountToAdjust := ("Annual Amount" - "Calcd. Annual Amount") / ServContractLine2.Count;
+        if ServContractLine2.Find('-') then
+            repeat
+                OldServContractLine := ServContractLine2;
+                ServContractLine2.Validate(
+                  "Line Amount",
+                  Round(ServContractLine2."Line Amount" + AmountToAdjust, Currency."Amount Rounding Precision"));
+                ServContractLine2.Modify;
+                if ServMgtSetup."Register Contract Changes" then
+                    ServContractLine2.LogContractLineChanges(OldServContractLine);
+            until ServContractLine2.Next = 0;
+    end;
+
+    local procedure ProfitBasedDistribution(var ServContractLine2: Record "Service Contract Line")
+    var
+        OldServContractLine: Record "Service Contract Line";
+        TotalProfit: Decimal;
+    begin
+        ServContractLine2.LockTable;
+        ServContractLine2.CalcSums(Profit);
+        TotalProfit := ServContractLine2.Profit;
+        if TotalProfit = 0 then
+            Error(Text059);
+        CalcFields("Calcd. Annual Amount");
+        if ServContractLine2.Find('-') then
+            repeat
+                OldServContractLine := ServContractLine2;
+                ServContractLine2.Validate(
+                  "Line Amount",
+                  Round(
+                    ServContractLine."Line Amount" +
+                    ("Annual Amount" - "Calcd. Annual Amount") *
+                    (ServContractLine2.Profit / TotalProfit), Currency."Amount Rounding Precision"));
+                ServContractLine2.Modify;
+                if ServMgtSetup."Register Contract Changes" then
+                    ServContractLine2.LogContractLineChanges(OldServContractLine);
+            until ServContractLine2.Next = 0;
+    end;
+
+    local procedure AmountBasedDistribution(var ServContractLine2: Record "Service Contract Line")
+    var
+        OldServContractLine: Record "Service Contract Line";
+    begin
+        ServContractLine2.LockTable;
+        CalcFields("Calcd. Annual Amount");
+        if "Calcd. Annual Amount" = 0 then
+            Error(Text060);
+        if ServContractLine2.Find('-') then
+            repeat
+                OldServContractLine := ServContractLine2;
+                ServContractLine2.Validate(
+                  "Line Amount",
+                  Round(
+                    ServContractLine2."Line Amount" +
+                    ("Annual Amount" - "Calcd. Annual Amount") *
+                    (ServContractLine2."Line Amount" / "Calcd. Annual Amount"),
+                    Currency."Amount Rounding Precision"));
+                ServContractLine2.Modify;
+                if ServMgtSetup."Register Contract Changes" then
+                    ServContractLine2.LogContractLineChanges(OldServContractLine);
+            until ServContractLine2.Next = 0;
+    end;
+
+    local procedure DistributeAmounts()
+    var
+        OldServContractLine: Record "Service Contract Line";
+        ContractAmountDistribution: Page "Contract Amount Distribution";
+        Result: Integer;
+    begin
+        if not "Allow Unbalanced Amounts" then begin
+            ServContractLine.Reset;
+            ServContractLine.SetRange("Contract Type", "Contract Type");
+            ServContractLine.SetRange("Contract No.", "Contract No.");
+            if not ServContractLine.Find('-') and ("Annual Amount" <> 0) then
+                Error(Text058);
+            CalcFields("Calcd. Annual Amount");
+            if "Annual Amount" <> "Calcd. Annual Amount" then begin
+                ServContractLine.SetRange("Line Value", 0);
+                if ServContractLine.Find('-') then
+                    ServContractLine.TestField("Line Value");
+                ServContractLine.SetRange("Line Value");
+                if ServContractLine.Next <> 0 then begin
+                    Clear(ContractAmountDistribution);
+                    ContractAmountDistribution.SetValues("Annual Amount", "Calcd. Annual Amount");
+                    if ContractAmountDistribution.RunModal = ACTION::Yes then begin
+                        Result := ContractAmountDistribution.GetResult;
+                        Currency.InitRoundingPrecision;
+                        case Result of
+                            0:
+                                EvenDistribution(ServContractLine);
+                            1:
+                                ProfitBasedDistribution(ServContractLine);
+                            2:
+                                AmountBasedDistribution(ServContractLine);
+                        end;
+                        CalcFields("Calcd. Annual Amount");
+                        if "Annual Amount" <> "Calcd. Annual Amount" then begin
+                            ServContractLine.Validate(
+                              "Line Amount",
+                              ServContractLine."Line Amount" + "Annual Amount" - "Calcd. Annual Amount");
+                            ServContractLine.Modify;
+                        end;
+                        ServContractLine.SetFilter("Line Amount", '<=0');
+                        if ServContractLine.Find('-') then
+                            Message(Text061, ServContractLine.FieldCaption("Line Amount"));
+                    end else
+                        Error('');
+                end else begin
+                    OldServContractLine := ServContractLine;
+                    ServContractLine.Validate("Line Amount", "Annual Amount");
+                    ServContractLine.Modify;
+                    if ServMgtSetup."Register Contract Changes" then
+                        ServContractLine.LogContractLineChanges(OldServContractLine);
+                end;
+            end;
+        end;
+    end;
+
+    procedure SetHideValidationDialog(Hide: Boolean)
+    begin
+        HideValidationDialog := Hide;
+    end;
+
+    procedure SetSecurityFilterOnRespCenter()
+    begin
+        if UserMgt.GetServiceFilter <> '' then begin
+            FilterGroup(2);
+            SetRange("Responsibility Center", UserMgt.GetServiceFilter);
+            FilterGroup(0);
+        end;
+
+        SetRange("Date Filter", 0D, WorkDate - 1);
+    end;
+
+    procedure ShowDocDim()
+    begin
+        "Dimension Set ID" :=
+          DimMgt.EditDimensionSet(
+            "Dimension Set ID", StrSubstNo('%1 %2', "Contract Type", "Contract No."),
+            "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
+    end;
+
+    local procedure CalcInvPeriodDuration()
+    begin
+        if "Invoice Period" <> "Invoice Period"::None then
+            case "Invoice Period" of
+                "Invoice Period"::Month:
+                    Evaluate(InvPeriodDuration, '<1M>');
+                "Invoice Period"::"Two Months":
+                    Evaluate(InvPeriodDuration, '<2M>');
+                "Invoice Period"::Quarter:
+                    Evaluate(InvPeriodDuration, '<3M>');
+                "Invoice Period"::"Half Year":
+                    Evaluate(InvPeriodDuration, '<6M>');
+                "Invoice Period"::Year:
+                    Evaluate(InvPeriodDuration, '<1Y>');
+            end;
+    end;
+
+    local procedure CheckChangeStatus()
+    begin
+        if (Status <> Status::Canceled) and
+           not SuspendChangeStatus
+        then
+            TestField("Change Status", "Change Status"::Open);
+    end;
+
+    local procedure SetSalespersonCode(SalesPersonCodeToCheck: Code[20]; var SalesPersonCodeToAssign: Code[20])
+    begin
+        if SalesPersonCodeToCheck <> '' then
+            if Salesperson.Get(SalesPersonCodeToCheck) then
+                if Salesperson.VerifySalesPersonPurchaserPrivacyBlocked(Salesperson) then
+                    SalesPersonCodeToAssign := ''
+                else
+                    SalesPersonCodeToAssign := SalesPersonCodeToCheck;
+    end;
+
+    procedure ValidateSalesPersonOnServiceContractHeader(ServiceContractHeader2: Record "Service Contract Header"; IsTransaction: Boolean; IsPostAction: Boolean)
+    begin
+        if ServiceContractHeader2."Salesperson Code" <> '' then
+            if Salesperson.Get(ServiceContractHeader2."Salesperson Code") then
+                if Salesperson.VerifySalesPersonPurchaserPrivacyBlocked(Salesperson) then begin
+                    if IsTransaction then
+                        Error(Salesperson.GetPrivacyBlockedTransactionText(Salesperson, IsPostAction, true));
+                    if not IsTransaction then
+                        Error(Salesperson.GetPrivacyBlockedGenericText(Salesperson, true));
+                end;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterAssistEdit(var ServiceContractHeader: Record "Service Contract Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCreateDimTableIDs(var ServiceContractHeader: Record "Service Contract Header"; CallingFieldNo: Integer; var TableID: array[10] of Integer; var No: array[10] of Code[20])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterUpdContractChangeLog(var ServiceContractHeader: Record "Service Contract Header"; OldServiceContractHeader: Record "Service Contract Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterValidateShortcutDimCode(var ServiceContractHeader: Record "Service Contract Header"; var xServiceContractHeader: Record "Service Contract Header"; FieldNumber: Integer; var ShortcutDimCode: Code[20])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeApplyServiceContractQuoteTemplate(ServiceContractHeader: Record "Service Contract Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCalculateEndPeriodDate(var ServiceContractHeader: Record "Service Contract Header"; PrepaidContract: Boolean; NextInvDate: Date; var Result: Date; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateNextInvoicePeriod(var ServiceContractHeader: Record "Service Contract Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateShortcutDimCode(var ServiceContractHeader: Record "Service Contract Header"; var xServiceContractHeader: Record "Service Contract Header"; FieldNumber: Integer; var ShortcutDimCode: Code[20])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateNextInvoiceDateOnBeforeCheck(ServiceContractHeader: Record "Service Contract Header"; var IsHandled: Boolean)
+    begin
+    end;
+}
+

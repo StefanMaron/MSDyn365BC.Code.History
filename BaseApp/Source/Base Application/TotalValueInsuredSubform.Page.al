@@ -1,0 +1,62 @@
+page 5650 "Total Value Insured Subform"
+{
+    Caption = 'Lines';
+    DataCaptionFields = "FA No.";
+    Editable = false;
+    LinksAllowed = false;
+    PageType = ListPart;
+    SourceTable = "Total Value Insured";
+
+    layout
+    {
+        area(content)
+        {
+            repeater(Control1)
+            {
+                ShowCaption = false;
+                field("FA No."; "FA No.")
+                {
+                    ApplicationArea = FixedAssets;
+                    ToolTip = 'Specifies the number of the related fixed asset. ';
+                    Visible = false;
+                }
+                field("Insurance No."; "Insurance No.")
+                {
+                    ApplicationArea = FixedAssets;
+                    ToolTip = 'Specifies the number of the insurance policy that the entry is linked to.';
+                }
+                field(Description; Description)
+                {
+                    ApplicationArea = FixedAssets;
+                    ToolTip = 'Specifies the description of the insurance policy.';
+                }
+                field("Total Value Insured"; "Total Value Insured")
+                {
+                    ApplicationArea = FixedAssets;
+                    ToolTip = 'Specifies the amounts you posted to each insurance policy for the fixed asset.';
+                }
+            }
+        }
+    }
+
+    actions
+    {
+    }
+
+    trigger OnFindRecord(Which: Text): Boolean
+    begin
+        exit(FindFirst(Which));
+    end;
+
+    trigger OnNextRecord(Steps: Integer): Integer
+    begin
+        exit(FindNext(Steps));
+    end;
+
+    procedure CreateTotalValue(FANo: Code[20])
+    begin
+        CreateInsTotValueInsured(FANo);
+        CurrPage.Update;
+    end;
+}
+
