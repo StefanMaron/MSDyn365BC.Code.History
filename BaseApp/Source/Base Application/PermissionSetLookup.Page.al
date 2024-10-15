@@ -23,7 +23,7 @@ page 9841 "Permission Set Lookup"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a permission set that defines the role.';
                 }
-                field(Name; Name)
+                field(Name; Rec.Name)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the name of the permission set.';

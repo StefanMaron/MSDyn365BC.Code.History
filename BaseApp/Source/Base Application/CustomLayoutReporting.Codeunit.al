@@ -362,7 +362,7 @@ codeunit 8800 "Custom Layout Reporting"
                 ExclusionFilter += StrSubstNo(DifferentThanFilterTxt, SelectionFilterManagement.AddQuotes((TempRecordKeyFieldRef.Value))) + AndFilterCharacter;
                 FilterStatementsCount += 1;
             end;
-#pragma warning enable AA0005            
+#pragma warning restore AA0005            
         until (TempRecordRef.Next() = 0) or (FilterStatementsCount = SafeNumberOfFilterStatements);
 
         if ExclusionFilter <> '' then begin
@@ -1427,7 +1427,6 @@ codeunit 8800 "Custom Layout Reporting"
         Exit(OutputTxt);
     end;
 
-    [Scope('OnPrem')]
     procedure GetReportRequestPageParameters(ReportID: Integer) XMLTxt: Text
     var
         ObjectOptions: Record "Object Options";
@@ -1476,6 +1475,7 @@ codeunit 8800 "Custom Layout Reporting"
     end;
 
 #if not CLEAN20
+#pragma warning disable AL0432
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Document Report Mgt.", 'OnBeforeMergeDocument', '', false, false)]
     [Obsolete('The rendering of Word documents will be handled on the Platform. To override the behavior, subscribe on the report event CustomDocumentMerger.', '20.0')]
     local procedure VerifyXmlContainsDatasetOnBeforeMergeDocument(ReportID: Integer; ReportAction: Option SaveAsPdf,SaveAsWord,SaveAsExcel,Preview,Print,SaveAsHtml; InStrXmlData: InStream; PrinterName: Text; OutStream: OutStream; var Handled: Boolean; IsFileNameBlank: Boolean)
@@ -1497,6 +1497,7 @@ codeunit 8800 "Custom Layout Reporting"
     local procedure OnBeforeVerifyXmlContainsDataset(var CancelVerification: Boolean)
     begin
     end;
+#pragma warning restore AL0432
 #endif
 
     procedure CheckForCustomLayoutReportingJob()
@@ -1576,7 +1577,7 @@ codeunit 8800 "Custom Layout Reporting"
         OutStr: OutStream;
         ReportCaption: Text;
     begin
-        ReportInbox."User ID" := UserId;
+        ReportInbox."User ID" := CopyStr(UserId(), 1, MaxStrLen(ReportInbox."User ID"));
         if IsZipFile then begin
             ReportInbox.Validate("Output Type", ReportInbox."Output Type"::Zip);
             InputFile.Open(ZipFileName);
@@ -1705,7 +1706,6 @@ codeunit 8800 "Custom Layout Reporting"
     begin
     end;
 
-#pragma warning disable AS0077
     [IntegrationEvent(false, false)]
     local procedure OnAfterGetSendToEmailID(var CustomReportSelection: Record "Custom Report Selection"; var EmailID: Text[250])
     begin
@@ -1715,6 +1715,5 @@ codeunit 8800 "Custom Layout Reporting"
     local procedure OnAfterGetSendToEmailIDFromSource(var CustomReportSelection: Record "Custom Report Selection"; var EmailID: Text[250])
     begin
     end;
-#pragma warning restore AS0077
 }
 

@@ -17,7 +17,7 @@ codeunit 139199 "CDS Match Based Coupling"
         LibraryUtility: Codeunit "Library - Utility";
         LibrarySales: Codeunit "Library - Sales";
         CDSIntegrationImpl: Codeunit "CDS Integration Impl.";
-        ConfirmCouplingInBackgroundTxt: Label 'You are about to couple Business Central records to Dataverse entities from the selected mapping, based on the matching criteria that you must define.\The coupling will run in the background, so you can continue with other tasks.\\Do you want to continue?';
+        ConfirmCouplingInBackgroundTxt: Label 'You are about to couple records in Business Central table with records in the integration table from the selected mapping, based on the matching criteria that you must define.\The coupling will run in the background, so you can continue with other tasks.\\Do you want to continue?';
         CouplingScheduledTxt: Label 'Match-based coupling is scheduled. \Details are available on the Integration Synchronization Jobs page.', Comment = '%1 = mapping name';
 
     [Test]

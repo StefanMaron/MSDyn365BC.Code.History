@@ -21,7 +21,6 @@ codeunit 139164 "Library - CRM Integration"
         LibraryResource: Codeunit "Library - Resource";
         LibraryMarketing: Codeunit "Library - Marketing";
         LibraryCRMIntegration: Codeunit "Library - CRM Integration";
-        IntegrationManagement: Codeunit "Integration Management";
         LibraryERM: Codeunit "Library - ERM";
         DefaultUoMNameTxt: Label 'BOX';
         TempMappingNotFoundErr: Label 'Temp Table Mapping is not found.';
@@ -171,6 +170,87 @@ codeunit 139164 "Library - CRM Integration"
         CreateCRMAccount(CRMAccount);
         CRMIntegrationRecord.CoupleRecordIdToCRMID(Customer.RecordId, CRMAccount.AccountId);
         Customer.Find();
+        CouplePaymentTerms(Customer);
+        CoupleShippingAgent(Customer);
+        CoupleShipmentMethod(Customer);
+    end;
+
+    [Scope('OnPrem')]
+    procedure CouplePaymentTerms(var Customer: Record Customer)
+    var
+        PaymentTerms: Record "Payment Terms";
+        CRMOptionMapping: Record "CRM Option Mapping";
+        CRMAccount: Record "CRM Account";
+    begin
+        if Customer."Payment Terms Code" <> '' then
+            PaymentTerms.Get(Customer."Payment Terms Code")
+        else begin
+            PaymentTerms.FindFirst();
+            Customer."Payment Terms Code" := PaymentTerms.Code;
+            Customer.Modify();
+        end;
+
+        CRMOptionMapping."Record ID" := PaymentTerms.RecordId;
+        CRMOptionMapping."Option Value" := 1;
+        CRMOptionMapping."Option Value Caption" := PaymentTerms.Code;
+        CRMOptionMapping."Table ID" := Database::"Payment Terms";
+        CRMOptionMapping."Integration Table ID" := Database::"CRM Account";
+        CRMOptionMapping."Integration Field ID" := CRMAccount.FieldNo(CRMAccount.PaymentTermsCodeEnum);
+        if CRMOptionMapping.Insert() then;
+    end;
+
+    local procedure CoupleShippingAgent(var Customer: Record Customer)
+    var
+        ShippingAgent: Record "Shipping Agent";
+        CRMOptionMapping: Record "CRM Option Mapping";
+        CRMAccount: Record "CRM Account";
+    begin
+        if Customer."Shipping Agent Code" <> '' then
+            ShippingAgent.Get(Customer."Shipping Agent Code")
+        else begin
+            if not ShippingAgent.FindFirst() then begin
+                ShippingAgent.Init();
+                ShippingAgent.Code := CopyStr(LibraryUtility.GenerateRandomText(MaxStrLen(ShippingAgent.Code)), 1, MaxStrLen(ShippingAgent.Code));
+                ShippingAgent.Insert();
+            end;
+            Customer."Shipping Agent Code" := ShippingAgent.Code;
+            Customer.Modify();
+        end;
+
+        CRMOptionMapping."Record ID" := ShippingAgent.RecordId;
+        CRMOptionMapping."Option Value" := 1;
+        CRMOptionMapping."Option Value Caption" := ShippingAgent.Code;
+        CRMOptionMapping."Table ID" := Database::"Shipping Agent";
+        CRMOptionMapping."Integration Table ID" := Database::"CRM Account";
+        CRMOptionMapping."Integration Field ID" := CRMAccount.FieldNo(CRMAccount.Address1_ShippingMethodCodeEnum);
+        if CRMOptionMapping.Insert() then;
+    end;
+
+    local procedure CoupleShipmentMethod(var Customer: Record Customer)
+    var
+        ShipmentMethod: Record "Shipment Method";
+        CRMOptionMapping: Record "CRM Option Mapping";
+        CRMAccount: Record "CRM Account";
+    begin
+        if Customer."Shipment Method Code" <> '' then
+            ShipmentMethod.Get(Customer."Shipping Agent Code")
+        else begin
+            if not ShipmentMethod.FindFirst() then begin
+                ShipmentMethod.Init();
+                ShipmentMethod.Code := CopyStr(LibraryUtility.GenerateRandomText(MaxStrLen(ShipmentMethod.Code)), 1, MaxStrLen(ShipmentMethod.Code));
+                ShipmentMethod.Insert();
+            end;
+            Customer."Shipment Method Code" := ShipmentMethod.Code;
+            Customer.Modify();
+        end;
+
+        CRMOptionMapping."Record ID" := ShipmentMethod.RecordId;
+        CRMOptionMapping."Option Value" := 1;
+        CRMOptionMapping."Option Value Caption" := ShipmentMethod.Code;
+        CRMOptionMapping."Table ID" := Database::"Shipment Method";
+        CRMOptionMapping."Integration Table ID" := Database::"CRM Account";
+        CRMOptionMapping."Integration Field ID" := CRMAccount.FieldNo(CRMAccount.Address1_FreightTermsCodeEnum);
+        if CRMOptionMapping.Insert() then;
     end;
 
     [Scope('OnPrem')]
@@ -221,7 +301,7 @@ codeunit 139164 "Library - CRM Integration"
         CustomerPriceGroup.Find();
     end;
 
-#if not CLEAN19
+#if not CLEAN21
     [Scope('OnPrem')]
     procedure CreateCoupledSalesPriceAndPricelistLine(CustomerPriceGroup: Record "Customer Price Group"; var SalesPrice: Record "Sales Price"; var CRMProductpricelevel: Record "CRM Productpricelevel")
     var
@@ -437,20 +517,6 @@ codeunit 139164 "Library - CRM Integration"
         Opportunity.Find();
     end;
 
-    [Obsolete('Integration Records will be replaced by SystemID and SystemModifiedAt ', '17.0')]
-    [Scope('OnPrem')]
-    procedure CreateCustomerAndEnsureIntegrationRecord(var Customer: Record Customer; var IntegrationRecord: Record "Integration Record")
-    var
-        CustomerRecordRef: RecordRef;
-    begin
-        LibrarySales.CreateCustomer(Customer);
-        if not IntegrationRecord.FindByRecordId(Customer.RecordId) then begin
-            CustomerRecordRef.GetTable(Customer);
-            IntegrationManagement.OnDatabaseInsert(CustomerRecordRef);
-            IntegrationRecord.FindByRecordId(Customer.RecordId);
-        end;
-    end;
-
     [Scope('OnPrem')]
     procedure CreateCurrencyCoupledToTransactionBaseCurrency(var Currency: Record Currency; var CRMTransactioncurrency: Record "CRM Transactioncurrency")
     var
@@ -462,23 +528,6 @@ codeunit 139164 "Library - CRM Integration"
         CreateCurrency(Currency);
         CoupleRecordIdToCRMId(Currency.RecordId, CRMTransactioncurrency.TransactionCurrencyId);
         Currency.Find();
-    end;
-
-    [Obsolete('Integration Records will be replaced by SystemID and SystemModifiedAt ', '17.0')]
-    [Scope('OnPrem')]
-    procedure CreateContactAndEnsureIntegrationRecord(var Contact: Record Contact; var IntegrationRecord: Record "Integration Record")
-    var
-        ContactRecordRef: RecordRef;
-    begin
-        LibraryMarketing.CreateCompanyContact(Contact);
-        Contact.Type := Contact.Type::Person;
-        Contact."First Name" := LibraryUtility.GenerateGUID();
-        Contact.Surname := LibraryUtility.GenerateGUID();
-        if not IntegrationRecord.FindByRecordId(Contact.RecordId) then begin
-            ContactRecordRef.GetTable(Contact);
-            IntegrationManagement.OnDatabaseInsert(ContactRecordRef);
-            IntegrationRecord.FindByRecordId(Contact.RecordId);
-        end;
     end;
 
     [Scope('OnPrem')]
@@ -503,24 +552,6 @@ codeunit 139164 "Library - CRM Integration"
             Assert.Fail('Existing customers should have a contact business relationship');
 
         CreateContact(Contact);
-        Contact."Company No." := ContBusRel."Contact No.";
-        Contact."Salesperson Code" := Customer."Salesperson Code";
-        Contact.Modify(true);
-    end;
-
-    [Obsolete('Integration Records will be replaced by SystemID and SystemModifiedAt ', '17.0')]
-    [Scope('OnPrem')]
-    procedure CreateContactForCustomerAndEnsureIntegrationRecord(var Contact: Record Contact; Customer: Record Customer; var IntegrationRecord: Record "Integration Record")
-    var
-        ContBusRel: Record "Contact Business Relation";
-    begin
-        ContBusRel.SetCurrentKey("Link to Table", "No.");
-        ContBusRel.SetRange("Link to Table", ContBusRel."Link to Table"::Customer);
-        ContBusRel.SetRange("No.", Customer."No.");
-        if not ContBusRel.FindFirst() then
-            Assert.Fail('Existing customers should have a contact business relationship');
-
-        CreateContactAndEnsureIntegrationRecord(Contact, IntegrationRecord);
         Contact."Company No." := ContBusRel."Contact No.";
         Contact."Salesperson Code" := Customer."Salesperson Code";
         Contact.Modify(true);
@@ -622,20 +653,6 @@ codeunit 139164 "Library - CRM Integration"
             "Authentication Type" := "Authentication Type"::Office365;
             Validate("User Name", 'UserName@asEmail.net'); // Empty username triggers username/password dialog
             Insert(true);
-        end;
-    end;
-
-    [Scope('OnPrem')]
-    procedure CreateCRMIntegrationRecord(CRMId: Guid; IntegrationRecord: Record "Integration Record")
-    var
-        CRMIntegrationRecord: Record "CRM Integration Record";
-    begin
-        with CRMIntegrationRecord do begin
-            Init();
-            "CRM ID" := CRMId;
-            "Integration ID" := IntegrationRecord."Integration ID";
-            "Table ID" := IntegrationRecord."Table ID";
-            Insert();
         end;
     end;
 
@@ -1113,23 +1130,6 @@ codeunit 139164 "Library - CRM Integration"
         Currency.Insert(true);
     end;
 
-    [Obsolete('Integration Records will be replaced by SystemID and SystemModifiedAt ', '17.0')]
-    [Scope('OnPrem')]
-    procedure CreateCurrencyAndEnsureIntegrationRecord(var Currency: Record Currency; var IntegrationRecord: Record "Integration Record")
-    var
-        CurrencyRecordRef: RecordRef;
-    begin
-        Currency.Init();
-        Currency.Validate(Code, LibraryUtility.GenerateRandomCodeWithLength(Currency.FieldNo(Code), DATABASE::Currency, 5));
-        Currency.Insert(true);
-
-        if not IntegrationRecord.FindByRecordId(Currency.RecordId) then begin
-            CurrencyRecordRef.GetTable(Currency);
-            IntegrationManagement.OnDatabaseInsert(CurrencyRecordRef);
-            IntegrationRecord.FindByRecordId(Currency.RecordId);
-        end;
-    end;
-
     [Scope('OnPrem')]
     procedure CreateCRMQuote(var CRMQuote: Record "CRM Quote")
     var
@@ -1353,29 +1353,10 @@ codeunit 139164 "Library - CRM Integration"
         end;
     end;
 
-    [Obsolete('Integration Records will be replaced by SystemID and SystemModifiedAt ', '17.0')]
-    [Scope('OnPrem')]
-    procedure CreateIntegrationRecord(IntegrationID: Guid; TableID: Integer; DestinationRecordID: RecordID)
-    var
-        IntegrationRecord: Record "Integration Record";
-    begin
-        with IntegrationRecord do begin
-            if FindByRecordId(DestinationRecordID) then
-                exit;
-
-            Init();
-            "Integration ID" := IntegrationID;
-            "Table ID" := TableID;
-            "Record ID" := DestinationRecordID;
-            Insert(true);
-        end;
-    end;
-
     [Scope('OnPrem')]
     procedure ConfigureCRM()
     begin
         RegisterTestTableConnection;
-        IntegrationManagement.SetConnectorIsEnabledForSession(true);
         EnsureCRMSystemUser;
     end;
 
@@ -1840,17 +1821,6 @@ codeunit 139164 "Library - CRM Integration"
         CRMIntegrationRecord."Last Synch. Modified On" := SyncDateTime;
         CRMIntegrationRecord."Last Synch. CRM Modified On" := SyncDateTime;
         CRMIntegrationRecord.Modify();
-    end;
-
-    [Obsolete('Integration Records will be replaced by SystemID and SystemModifiedAt ', '17.0')]
-    [Scope('OnPrem')]
-    procedure ShiftModifiedOnBy(RecID: RecordID; ShiftBy: Duration)
-    var
-        IntegrationRecord: Record "Integration Record";
-    begin
-        IntegrationRecord.FindByRecordId(RecID);
-        IntegrationRecord."Modified On" += ShiftBy;
-        IntegrationRecord.Modify();
     end;
 
     [Scope('OnPrem')]

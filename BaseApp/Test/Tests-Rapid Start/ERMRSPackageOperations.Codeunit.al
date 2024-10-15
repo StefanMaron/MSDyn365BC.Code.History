@@ -305,49 +305,6 @@ codeunit 136603 "ERM RS Package Operations"
 
     [Test]
     [Scope('OnPrem')]
-    procedure CannotApplyPackageWithIntegrationRecords()
-    var
-        ConfigPackage: Record "Config. Package";
-        ConfigPackageTable: Record "Config. Package Table";
-        IntegrationRecord: Record "Integration Record";
-        ConfigPackageError: Record "Config. Package Error";
-        IntegrationRecordCount: Integer;
-    begin
-        // [FEATURE] [XML]
-        // [SCENARIO] A package can be created, exported and imported with integration records, but not applied.
-        Initialize();
-
-        // [GIVEN] A package containing Customer integration records that is exported and then imported
-        IntegrationRecord.SetFilter("Table ID", '<>%1', DATABASE::Customer);
-        IntegrationRecord.DeleteAll();
-        IntegrationRecord.Reset();
-        CreatePackageWithTable(ConfigPackage, ConfigPackageTable, DATABASE::"Integration Record");
-        if IntegrationRecord.IsEmpty() then begin
-            IntegrationRecord."Integration ID" := CreateGuid();
-            IntegrationRecord."Table ID" := Database::Customer;
-            IntegrationRecord.Insert(true);
-        end;
-
-        IntegrationRecordCount := IntegrationRecord.Count();
-        ExportImportXML(ConfigPackage.Code);
-
-        Assert.IsTrue(ConfigPackageTable.Get(ConfigPackage.Code, DATABASE::"Integration Record"), NoDataAfterImportErr);
-        IntegrationRecord.DeleteAll();
-        Assert.RecordIsEmpty(IntegrationRecord);
-
-        // [WHEN] Attempting to apply the package
-        LibraryRapidStart.ApplyPackage(ConfigPackage, true);
-
-        // [THEN] No integration records are imported and an error message is loggeed for each record in the package.
-        Assert.RecordIsEmpty(IntegrationRecord);
-        ConfigPackageError.SetRange("Package Code", ConfigPackage.Code);
-        ConfigPackageError.SetRange("Table ID", DATABASE::"Integration Record");
-        ConfigPackageError.SetRange("Error Text", StrSubstNo(ImportNotAllowedErr, IntegrationRecord.TableCaption()));
-        Assert.RecordCount(ConfigPackageError, IntegrationRecordCount);
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
     procedure CannotApplyPackageWithIntegrationTableMapping()
     var
         ConfigPackage: Record "Config. Package";
@@ -2841,14 +2798,6 @@ codeunit 136603 "ERM RS Package Operations"
         ConfigPackage.Modify();
     end;
 
-#if not CLEAN19
-    [Scope('OnPrem')]
-    [Obsolete('Function Name typo. Replaced with SetFileName', '19.0')]
-    procedure SetFileHame(FileName: Text)
-    begin
-        FileNameForHandler := FileName;
-    end;
-#endif
     [Scope('OnPrem')]
     procedure SetFileName(FileName: Text)
     begin

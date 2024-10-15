@@ -263,7 +263,7 @@ codeunit 138014 "O365 Item Price Including VAT"
         end;
     end;
 
-#if not CLEAN19
+#if not CLEAN21
     [Test]
     [Scope('OnPrem')]
     procedure TestForAllCustomersValidateItemNo()

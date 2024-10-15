@@ -32,6 +32,7 @@ codeunit 134141 "ERM Bank Reconciliation"
         LibraryApplicationArea: Codeunit "Library - Application Area";
         LibraryHumanResource: Codeunit "Library - Human Resource";
         isInitialized: Boolean;
+        TimesSuggestLinesRun: Integer;
         StatementNoEditableErr: Label '%1 should not be editable.', Comment = '%1 - "Statement No." field caption';
         TransactionAmountReducedMsg: Label 'The value in the Transaction Amount field has been reduced';
         ICPartnerAccountTypeQst: Label 'The resulting entry will be of type IC Transaction, but no Intercompany Outbox transaction will be created. \\Do you want to use the IC Partner account type anyway?';
@@ -3030,6 +3031,614 @@ codeunit 134141 "ERM Bank Reconciliation"
         LibraryReportDataset.AssertElementWithValueExists('Outstanding_Check_Amount', -ClosedAfterwardsCheckAmount);
     end;
 
+    [HandlerFunctions('CorruptSuggestLinesHandler')]
+    [Test()]
+    procedure CorruptDataWhenSuggestingLinesShouldHaveOptionForYesToAll()
+    var
+        BankAccount: Record "Bank Account";
+        BankAccReconciliation: Record "Bank Acc. Reconciliation";
+        CheckLedgerEntry: Record "Check Ledger Entry";
+        SuggestBankAccReconLines: Report "Suggest Bank Acc. Recon. Lines";
+        GenJournalLines: array[10] of Record "Gen. Journal Line";
+        VendorNo: Code[20];
+        I: Integer;
+    begin
+        // [SCENARIO] When a user has a corrupt state in its Bank Ledger Entries, they will be warned when matching (for example when using Suggest Lines)
+        // They should have the option to choose "Yes to  all" for all the entries in this state 
+
+        // [GIVEN] A bank account with several corrupt check entries: A corrupt entry is one with Bank Account Ledger Entry Statement Status open, but Check Ledger Entry with different Statement Status
+        Initialize();
+        TimesSuggestLinesRun := 0;
+        LibraryERM.CreateBankAccount(BankAccount);
+        VendorNo := LibraryPurchase.CreateVendorNo();
+        for I := 1 to ArrayLen(GenJournalLines) do begin
+            CreatePaymentJournalLineWithVendorAndBank(GenJournalLines[i], VendorNo, BankAccount."No.");
+            GenJournalLines[I].Validate("Bank Payment Type", GenJournalLines[i]."Bank Payment Type"::"Manual Check");
+            GenJournalLines[I].Modify();
+            LibraryERM.PostGeneralJnlLine(GenJournalLines[I]);
+        end;
+        // We corrupt all the Check Entries for this bank
+        CheckLedgerEntry.SetRange("Bank Account No.", BankAccount."No.");
+        CheckLedgerEntry.FindSet();
+        repeat
+            CheckLedgerEntry."Statement Status" := CheckLedgerEntry."Statement Status"::"Check Entry Applied";
+            CheckLedgerEntry.Modify();
+        until CheckLedgerEntry.Next() = 0;
+
+        // [WHEN] The user Runs Suggest lines for a bank reconciliation of this bank
+        LibraryERM.CreateBankAccReconciliation(BankAccReconciliation, BankAccount."No.", BankAccReconciliation."Statement Type"::"Bank Reconciliation");
+        BankAccReconciliation.Validate("Statement Date", WorkDate());
+        BankAccReconciliation.Modify(true);
+
+        SuggestBankAccReconLines.SetTableView(BankAccount);
+        SuggestBankAccReconLines.InitializeRequest(WorkDate(), WorkDate(), false);
+        SuggestBankAccReconLines.UseRequestPage(false);
+        SuggestBankAccReconLines.SetStmt(BankAccReconciliation);
+        SuggestBankAccReconLines.Run();
+        // [THEN] In Handler
+    end;
+
+    [Test]
+    procedure BankAccReconciliationPageHidesReversedByDefault()
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+        GLRegister: Record "G/L Register";
+        ReversalEntry: Record "Reversal Entry";
+        BankAccReconciliation: Record "Bank Acc. Reconciliation";
+        BankAccReconciliationPage: TestPage "Bank Acc. Reconciliation";
+        BankAccountNo: Code[20];
+        VendorNo: Code[20];
+        FirstAmount: Decimal;
+        VisibleAmount: Decimal;
+        NEntries: Integer;
+    begin
+        // [SCENARIO] A user posts some payments to a bank and reverts one of them. When opening a reconciliation the Bank Ledger shouldn't be empty, but they shoudln't see the reversed entry
+        Initialize();
+        // [GIVEN] Bank account
+        BankAccountNo := CreateBankAccount();
+        // [GIVEN] Vendor
+        VendorNo := LibraryPurchase.CreateVendorNo();
+        // [GIVEN] First payment
+        PostPaymentJournalLineWithDateAndSource(GenJournalLine, WorkDate() - 1, VendorNo, BankAccountNo);
+        FirstAmount := GenJournalLine.Amount;
+        // [GIVEN] Second payment
+        PostPaymentJournalLineWithDateAndSource(GenJournalLine, WorkDate() - 1, VendorNo, BankAccountNo);
+        // [GIVEN] Second payment is reversed
+        GLRegister.FindLast();
+        ReversalEntry.SetHideWarningDialogs();
+        ReversalEntry.ReverseRegister(GLRegister."No.");
+        // [WHEN] Opening the Bank Reconciliation page for this bank
+        LibraryERM.CreateBankAccReconciliation(BankAccReconciliation, BankAccountNo, BankAccReconciliation."Statement Type"::"Bank Reconciliation");
+        BankAccReconciliationPage.OpenView();
+        BankAccReconciliationPage.GoToRecord(BankAccReconciliation);
+        // [THEN] There should only be one payment visible in the Bank Ledger Entries subpage
+        if not BankAccReconciliationPage.ApplyBankLedgerEntries.First() then
+            Error('No visible bank ledger entries found');
+        repeat
+            NEntries += 1;
+            Evaluate(VisibleAmount, BankAccReconciliationPage.ApplyBankLedgerEntries.Amount.Value());
+        until not BankAccReconciliationPage.ApplyBankLedgerEntries.Next();
+        Assert.AreEqual(1, NEntries, 'Only one bank ledger entry should be visible');
+        Assert.AreEqual(FirstAmount, -VisibleAmount, 'The visible entry should be the non-reversed one');
+    end;
+
+    [Test]
+    procedure BankAccReconciliationPageTogglesReversed()
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+        GLRegister: Record "G/L Register";
+        ReversalEntry: Record "Reversal Entry";
+        BankAccReconciliation: Record "Bank Acc. Reconciliation";
+        BankAccReconciliationPage: TestPage "Bank Acc. Reconciliation";
+        BankAccountNo: Code[20];
+        VendorNo: Code[20];
+        FirstAmount: Decimal;
+        VisibleAmount: Decimal;
+        NEntries: Integer;
+    begin
+        // [SCENARIO] A user posts some payments to a bank and reverts one of them. By using the actions "Show/Hide Reversed" the user should be able to change the entries they are looking at.
+        Initialize();
+        // [GIVEN] Bank account
+        BankAccountNo := CreateBankAccount();
+        // [GIVEN] Vendor
+        VendorNo := LibraryPurchase.CreateVendorNo();
+        // [GIVEN] First payment
+        PostPaymentJournalLineWithDateAndSource(GenJournalLine, WorkDate() - 1, VendorNo, BankAccountNo);
+        FirstAmount := GenJournalLine.Amount;
+        // [GIVEN] Second payment
+        PostPaymentJournalLineWithDateAndSource(GenJournalLine, WorkDate() - 1, VendorNo, BankAccountNo);
+        // [GIVEN] Second payment is reversed
+        GLRegister.FindLast();
+        ReversalEntry.SetHideWarningDialogs();
+        ReversalEntry.ReverseRegister(GLRegister."No.");
+        // [WHEN] Opening the Bank Reconciliation page for this bank
+        LibraryERM.CreateBankAccReconciliation(BankAccReconciliation, BankAccountNo, BankAccReconciliation."Statement Type"::"Bank Reconciliation");
+        BankAccReconciliationPage.OpenView();
+        BankAccReconciliationPage.GoToRecord(BankAccReconciliation);
+        // [WHEN] Using the action "Show Reversed Entries"
+        BankAccReconciliationPage.ShowReversedEntries.Invoke();
+        // [THEN] There should be two payments visible in the Bank Ledger Entries subpage
+        if not BankAccReconciliationPage.ApplyBankLedgerEntries.First() then
+            Error('No visible bank ledger entries found');
+        repeat
+            NEntries += 1;
+        until not BankAccReconciliationPage.ApplyBankLedgerEntries.Next();
+        Assert.AreEqual(3, NEntries, 'Both bank ledger entries should be visible, and one reversal');
+        NEntries := 0;
+        // [WHEN] Using the action "Hide Reversed Entries"
+        BankAccReconciliationPage.HideReversedEntries.Invoke();
+        // [THEN] There should only the first payment visible
+        if not BankAccReconciliationPage.ApplyBankLedgerEntries.First() then
+            Error('No visible bank ledger entries found');
+        repeat
+            NEntries += 1;
+            Evaluate(VisibleAmount, BankAccReconciliationPage.ApplyBankLedgerEntries.Amount.Value());
+        until not BankAccReconciliationPage.ApplyBankLedgerEntries.Next();
+        Assert.AreEqual(1, NEntries, 'Only one bank ledger entry should be visible');
+        Assert.AreEqual(FirstAmount, -VisibleAmount, 'The visible entry should be the non-reversed one');
+    end;
+
+    [Test]
+    procedure DeleteAMatchedBankRecLineFromPageShouldUnmatchIt()
+    var
+        BankAccReconciliation: Record "Bank Acc. Reconciliation";
+        BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line";
+        BankAccountLedgerEntry: Record "Bank Account Ledger Entry";
+        GenJournalLine: Record "Gen. Journal Line";
+        BankAccReconciliationPage: TestPage "Bank Acc. Reconciliation";
+        BankAccountNo: Code[20];
+    begin
+        // [SCENARIO] A user deletes a reconciliation line created from the Bank Reconciliation page that was matched to an open bank entry. The Bank Ledger Entry should be unmatched.
+        // [GIVEN] A bank reconciliation with a matched Bank Account Reconciliation Line
+        BankAccountNo := CreateBankAccount();
+        CreateAndPostGenJournalLine(GenJournalLine, BankAccountNo);
+        LibraryERM.CreateBankAccReconciliation(BankAccReconciliation, BankAccountNo, BankAccReconciliation."Statement Type"::"Bank Reconciliation");
+        BankAccReconciliationLine.Init();
+        BankAccReconciliationLine."Statement Type" := BankAccReconciliationLine."Statement Type"::"Bank Reconciliation";
+        BankAccReconciliationLine."Bank Account No." := BankAccountNo;
+        BankAccReconciliationLine."Statement No." := BankAccReconciliation."Statement No.";
+        BankAccReconciliationLine."Statement Line No." := 1000;
+        BankAccReconciliationLine.Validate("Statement Amount", -GenJournalLine.Amount);
+        BankAccReconciliationLine.Insert();
+        BankAccReconciliationPage.OpenView();
+        BankAccReconciliationPage.GoToRecord(BankAccReconciliation);
+        BankAccReconciliationPage.ApplyBankLedgerEntries.First();
+        BankAccReconciliationPage.StmtLine.First();
+        BankAccReconciliationPage.MatchManually.Invoke();
+        BankAccountLedgerEntry.SetRange("Bank Account No.", BankAccountNo);
+        BankAccountLedgerEntry.FindFirst();
+        Assert.AreEqual(BankAccountLedgerEntry."Statement Status"::"Bank Acc. Entry Applied", BankAccountLedgerEntry."Statement Status", 'Bank entry should be applied');
+        Assert.AreEqual(BankAccReconciliation."Statement No.", BankAccountLedgerEntry."Statement No.", 'Statement No. should be the current statement');
+        Assert.AreEqual(BankAccReconciliationLine."Statement Line No.", BankAccountLedgerEntry."Statement Line No.", 'Statement Line No. should be the current line');
+        // [WHEN] The matched line gets deleted
+        BankAccReconciliationLine.Delete(true);
+        // [THEN] The bank ledger entry should be unmatched
+        BankAccReconciliationPage.ApplyBankLedgerEntries.First();
+        BankAccountLedgerEntry.SetRecFilter();
+        BankAccountLedgerEntry.FindFirst();
+        Assert.AreEqual(BankAccountLedgerEntry."Statement Status"::Open, BankAccountLedgerEntry."Statement Status", 'Bank entry should be open');
+        Assert.AreEqual('', BankAccountLedgerEntry."Statement No.", 'Statement No. should be empty');
+        Assert.AreEqual(0, BankAccountLedgerEntry."Statement Line No.", 'Statement Line No. should be empty');
+    end;
+
+    [Test]
+    procedure AddingABankRecLineBeforeAnExistingLineShouldHaveASmallerLineNumber()
+    var
+        BankAccReconciliation: Record "Bank Acc. Reconciliation";
+        BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line";
+        BankAccReconciliationPage: TestPage "Bank Acc. Reconciliation";
+        BankAccountNo: Code[20];
+        LineNo1: Integer;
+        LineNo2: Integer;
+    begin
+        Initialize();
+        // [SCENARIO] A user adds a line, and then another before this. The statement line number of the new line should be smaller and the field "Balance" should accumulate with respect to the Statement Line No.
+        // [GIVEN] A bank reconciliation
+        BankAccountNo := CreateBankAccount();
+        LibraryERM.CreateBankAccReconciliation(BankAccReconciliation, BankAccountNo, BankAccReconciliation."Statement Type"::"Bank Reconciliation");
+        BankAccReconciliationPage.OpenEdit();
+        BankAccReconciliationPage.GoToRecord(BankAccReconciliation);
+        // [GIVEN] A reconciliation line A
+        BankAccReconciliationPage.StmtLine.New();
+        BankAccReconciliationPage.StmtLine.Description.Value := 'empty';
+        BankAccReconciliationPage.StmtLine.New();
+        BankAccReconciliationPage.StmtLine.Description.Value('001');
+        BankAccReconciliationPage.StmtLine."Statement Amount".Value('1000');
+        // [WHEN] A reconciliation line B inserted above A
+        BankAccReconciliationPage.StmtLine.Previous();
+        BankAccReconciliationPage.StmtLine.Description.Value('002');
+        BankAccReconciliationPage.StmtLine."Statement Amount".Value('500');
+        // [THEN] The Balance field is just the value of the current line
+        Assert.AreEqual(500, BankAccReconciliationPage.StmtLine.Balance.AsDecimal(), 'The new line should update the Balance field with just its value');
+        BankAccReconciliationPage.Close();
+        BankAccReconciliationLine.SetRange("Statement No.", BankAccReconciliation."Statement No.");
+        BankAccReconciliationLine.SetRange("Statement Type", BankAccReconciliationLine."Statement Type"::"Bank Reconciliation");
+        BankAccReconciliationLine.SetRange("Bank Account No.", BankAccountNo);
+        BankAccReconciliationLine.SetRange(Description, '001');
+        BankAccReconciliationLine.FindFirst();
+        LineNo1 := BankAccReconciliationLine."Statement Line No.";
+        BankAccReconciliationLine.SetRange(Description, '002');
+        BankAccReconciliationLine.FindFirst();
+        LineNo2 := BankAccReconciliationLine."Statement Line No.";
+        // [THEN] the line above should have a smaller Statement Line No
+        Assert.IsTrue(LineNo2 < LineNo1, 'A line inserted above should have a smaller statement line no.');
+    end;
+
+    [Test]
+    procedure BankReconciliationPageChangingStatementDateShouldNotRemoveOrUnmatchEntriesAndCanBePosted()
+    var
+        BankAccountLedgerEntry: Record "Bank Account Ledger Entry";
+        GenJournalLine: Record "Gen. Journal Line";
+        BankAccReconciliation: Record "Bank Acc. Reconciliation";
+        BankAccReconciliationPage: TestPage "Bank Acc. Reconciliation";
+        BankAccountNo: Code[20];
+    begin
+        // [SCENARIO] A user has entries matched on a future date, and then changes the statement date to a date before the entries.
+        // [GIVEN] A bank reconciliation with a matched entry
+        BankAccountNo := CreateBankAccount();
+        CreateAndPostGenJournalLine(GenJournalLine, BankAccountNo);
+        LibraryERM.CreateBankAccReconciliation(BankAccReconciliation, BankAccountNo, BankAccReconciliation."Statement Type"::"Bank Reconciliation");
+        BankAccReconciliation."Statement Date" := WorkDate() + 5;
+        SuggestLines(BankAccReconciliation);
+        BankAccReconciliation.Validate("Statement Ending Balance", BankAccReconciliation."Balance Last Statement" + BankAccRecSum(BankAccReconciliation));
+        BankAccReconciliation.Modify(true);
+        // [WHEN] Changing the statement date from the Bank Reconciliation page
+        BankAccReconciliationPage.OpenView();
+        BankAccReconciliationPage.GoToRecord(BankAccReconciliation);
+        BankAccReconciliationPage.StatementDate.Value(Format(WorkDate() - 10));
+        BankAccReconciliationPage.Close();
+        // [THEN] There should be no warning
+        // [THEN] Entries should still be matched
+        BankAccountLedgerEntry.SetRange("Bank Account No.", BankAccountNo);
+        BankAccountLedgerEntry.SetRange("Statement No.", '');
+        Assert.IsTrue(BankAccountLedgerEntry.IsEmpty(), 'There should be no open entries');
+        // [THEN] It should be possible to post
+        LibraryERM.PostBankAccReconciliation(BankAccReconciliation);
+    end;
+
+    [Test]
+    [HandlerFunctions('SuggestLinesRequestPageHandler')]
+    procedure SuggestLinesActionForBankWithAutomatchingDisabled()
+    var
+        BankAccount: Record "Bank Account";
+        BankAccReconciliation: Record "Bank Acc. Reconciliation";
+        BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line";
+        GenJournalLine: Record "Gen. Journal Line";
+        BankAccountLedgerEntry: Record "Bank Account Ledger Entry";
+        BankAccReconciliationPage: TestPage "Bank Acc. Reconciliation";
+        NEntries: Integer;
+    begin
+        Initialize();
+        // [SCENARIO] Suggest lines is run from the bank reconciliation page for a bank with automatch disabled should not apply entries and have the difference values computed accordingly
+        // [GIVEN] A bank account with automatching disabled
+        CreateBankAccount(BankAccount);
+        BankAccount."Disable Automatic Pmt Matching" := true;
+        BankAccount.Modify(true);
+        // [GIVEN] 5 Bank Account Ledger Entries made on this bank account
+        CreateAndPostGenJournalLine(GenJournalLine, BankAccount."No.");
+        CreateAndPostGenJournalLine(GenJournalLine, BankAccount."No.");
+        CreateAndPostGenJournalLine(GenJournalLine, BankAccount."No.");
+        CreateAndPostGenJournalLine(GenJournalLine, BankAccount."No.");
+        CreateAndPostGenJournalLine(GenJournalLine, BankAccount."No.");
+        // [WHEN] Running suggest lines in the Bank Account Reconciliation page
+        LibraryERM.CreateBankAccReconciliation(BankAccReconciliation, BankAccount."No.", BankAccReconciliation."Statement Type"::"Bank Reconciliation");
+        BankAccReconciliation."Statement Date" := WorkDate() + 5;
+        BankAccReconciliation.Modify();
+        Commit();
+        BankAccReconciliationPage.OpenView();
+        BankAccReconciliationPage.GoToRecord(BankAccReconciliation);
+        BankAccReconciliationPage.SuggestLines.Invoke();
+        // [THEN] The entries suggested are not applied
+        BankAccReconciliationLine.SetRange("Statement No.", BankAccReconciliation."Statement No.");
+        BankAccReconciliationLine.SetRange("Statement Type", BankAccReconciliation."Statement Type"::"Bank Reconciliation");
+        BankAccReconciliationLine.SetRange("Bank Account No.", BankAccount."No.");
+        BankAccReconciliationLine.FindSet();
+        repeat
+            Assert.AreEqual(0, BankAccReconciliationLine."Applied Amount", 'Lines should have 0 as amount applied');
+            Assert.AreEqual(BankAccReconciliationLine."Statement Amount", BankAccReconciliationLine.Difference, 'The difference should be the same as the statement amount');
+            Assert.AreNotEqual(0, BankAccReconciliationLine."Statement Amount", 'Amounts should not be zero');
+            NEntries += 1;
+        until BankAccReconciliationLine.Next() = 0;
+        Assert.AreEqual(NEntries, 5, 'All the payments should be suggested.');
+        BankAccountLedgerEntry.SetRange("Bank Account No.", BankAccount."No.");
+        BankAccountLedgerEntry.SetFilter("Statement Status", '<>%1', BankAccountLedgerEntry."Statement Status"::Open);
+        Assert.IsTrue(BankAccountLedgerEntry.IsEmpty(), 'There should be no Bank Ledger Entry applied');
+    end;
+
+    [Test]
+    procedure TransferingToGLEntryForMatchedBankRecLineShouldError()
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+        BankAccReconciliation: Record "Bank Acc. Reconciliation";
+        BankAccReconciliationPage: TestPage "Bank Acc. Reconciliation";
+        BankAccountNo: Code[20];
+    begin
+        // [SCENARIO] Running Tranfer Difference to GL Entry on a matched line should fail
+        Initialize();
+        // [GIVEN] A bank reconciliation with a line matched
+        BankAccountNo := CreateBankAccount();
+        CreateAndPostGenJournalLine(GenJournalLine, BankAccountNo);
+        LibraryERM.CreateBankAccReconciliation(BankAccReconciliation, BankAccountNo, BankAccReconciliation."Statement Type"::"Bank Reconciliation");
+        BankAccReconciliation."Statement Date" := WorkDate() + 5;
+        SuggestLines(BankAccReconciliation);
+        // [WHEN] Attempting to tranfer difference to G/L entry
+        BankAccReconciliationPage.OpenView();
+        BankAccReconciliationPage.GoToRecord(BankAccReconciliation);
+        // [THEN] The user should be blocked
+        asserterror BankAccReconciliationPage.SuggestLines.Invoke();
+    end;
+
+    [Test]
+    [HandlerFunctions('ChangeStatementNoModalPageHandler')]
+    procedure ChangeStatementNoForAReconciliationWithCheckEntriesCanBePosted()
+    var
+        BankAccReconciliation: Record "Bank Acc. Reconciliation";
+        GenJournalBatch: Record "Gen. Journal Batch";
+        GenJournalLine: Record "Gen. Journal Line";
+        CheckLedgerEntry: Record "Check Ledger Entry";
+        BankAccountLedgerEntry: Record "Bank Account Ledger Entry";
+        Vendor: Record Vendor;
+        BankAccReconciliationPage: TestPage "Bank Acc. Reconciliation";
+        BankAccReconciliationPage2: TestPage "Bank Acc. Reconciliation";
+        BankAccountNo: Code[20];
+    begin
+        Initialize();
+        // [SCENARIO] A bank reconciliation with matched lines to Check entries can use the action "Change Statement No" and post afterwards
+        // [GIVEN] A bank
+        BankAccountNo := CreateBankAccount();
+        // [GIVEN] A posted check for that bank
+        LibraryPurchase.CreateVendor(Vendor);
+        LibraryJournals.CreateGenJournalBatch(GenJournalBatch);
+        GenJournalBatch.Validate("No. Series", LibraryUtility.GetGlobalNoSeriesCode());
+        GenJournalBatch.Validate("Bal. Account Type", GenJournalBatch."Bal. Account Type"::"Bank Account");
+        GenJournalBatch.Validate("Bal. Account No.", BankAccountNo);
+        GenJournalBatch.Modify(true);
+        LibraryERM.CreateGeneralJnlLine(GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, GenJournalLine."Document Type"::Payment,
+          GenJournalLine."Account Type"::Vendor, Vendor."No.", LibraryRandom.RandDec(500, 2));
+        GenJournalLine.Validate("Bank Payment Type", GenJournalLine."Bank Payment Type"::"Manual Check");
+        GenJournalLine.Modify(true);
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+        // [GIVEN] A bank reconciliation for this bank with entries matched
+        LibraryERM.CreateBankAccReconciliation(BankAccReconciliation, BankAccountNo, BankAccReconciliation."Statement Type"::"Bank Reconciliation");
+        BankAccReconciliation."Statement Date" := WorkDate() + 5;
+        SuggestLines(BankAccReconciliation);
+        // [WHEN] Running "Change Statement No."
+        BankAccReconciliationPage.OpenView();
+        BankAccReconciliationPage.GoToRecord(BankAccReconciliation);
+        LibraryVariableStorage.Enqueue('NEWNO');
+        BankAccReconciliationPage2.Trap();
+        BankAccReconciliationPage.ChangeStatementNo.Invoke();
+        // [THEN] Bank and Check Entries should change
+        BankAccountLedgerEntry.SetRange("Bank Account No.", BankAccountNo);
+        BankAccountLedgerEntry.FindFirst();
+        Assert.AreEqual(-GenJournalLine.Amount, BankAccountLedgerEntry.Amount, 'Amounts should be the same as posted');
+        Assert.AreEqual(BankAccountLedgerEntry."Statement Status"::"Bank Acc. Entry Applied", BankAccountLedgerEntry."Statement Status", 'Statement Status of Bank Entry should be Bank Applied');
+        Assert.AreEqual(BankAccountLedgerEntry."Statement No.", 'NEWNO', 'Statement No of Bank Entry should be updated');
+        CheckLedgerEntry.SetRange("Bank Account Ledger Entry No.", BankAccountLedgerEntry."Entry No.");
+        CheckLedgerEntry.FindFirst();
+        Assert.AreEqual(CheckLedgerEntry."Statement No.", 'NEWNO', 'Statement No of Check Entry should be updated');
+        Assert.AreEqual(CheckLedgerEntry."Statement Status", CheckLedgerEntry."Statement Status"::"Bank Acc. Entry Applied", 'Statement Status of Check Entry should be Bank Applied');
+    end;
+
+    [Test]
+    [HandlerFunctions('SameBankReconciliationConfirmHandler')]
+    procedure TwoBankReconciliationsFromSameBankWarnsAndDeletesIfConfirmed()
+    var
+        BankAccReconciliation: Record "Bank Acc. Reconciliation";
+        BankAccount: Record "Bank Account";
+        BankAccReconciliationPage: TestPage "Bank Acc. Reconciliation";
+        BankAccountList: TestPage "Bank Account List";
+        BankAccountNo: Code[20];
+    begin
+        Initialize();
+        // [SCENARIO] A user creates a bank reconciliation, they then open to create another reconciliation for the same bank. They should be warned about an ongoing bank reconciliation and if they decide to, delete the new one
+        // [GIVEN] A bank
+        BankAccountNo := CreateBankAccount();
+        // [GIVEN] A bank reconciliation for the bank
+        LibraryERM.CreateBankAccReconciliation(BankAccReconciliation, BankAccountNo, BankAccReconciliation."Statement Type"::"Bank Reconciliation");
+        // [WHEN] The user tries to create a new bank reconciliation for that bank
+        BankAccReconciliationPage.OpenNew();
+        BankAccReconciliationPage.BankAccountNo.SetValue(BankAccountNo);
+        BankAccReconciliationPage.Close();
+        // [THEN] A confirmation is asked to continue
+        // [WHEN] The user decides not to continue (message handler)
+        // [THEN] There is only one bank rec. for this bank
+        BankAccReconciliation.Reset();
+        BankAccReconciliation.SetRange("Bank Account No.", BankAccountNo);
+        Assert.AreEqual(1, BankAccReconciliation.Count(), 'There should only be one bank reconciliation if the user doesn''t continue');
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandler')]
+    procedure TwoBankReconciliationsFromSameBankWarnsDoesntDeletesIfNotConfirmed()
+    var
+        BankAccReconciliation: Record "Bank Acc. Reconciliation";
+        BankAccount: Record "Bank Account";
+        BankAccReconciliationPage: TestPage "Bank Acc. Reconciliation";
+        BankAccountList: TestPage "Bank Account List";
+        BankAccountNo: Code[20];
+    begin
+        Initialize();
+        // [SCENARIO] A user creates a bank reconciliation, they then open to create another reconciliation for the same bank. They should be warned about an ongoing bank reconciliation but if they continue they should not be deleted
+        // [GIVEN] A bank
+        BankAccountNo := CreateBankAccount();
+        // [GIVEN] A bank reconciliation for the bank
+        LibraryERM.CreateBankAccReconciliation(BankAccReconciliation, BankAccountNo, BankAccReconciliation."Statement Type"::"Bank Reconciliation");
+        // [WHEN] The user tries to create a new bank reconciliation for that bank
+        BankAccReconciliationPage.OpenNew();
+        BankAccReconciliationPage.BankAccountNo.Value(BankAccountNo);
+        // [THEN] A confirmation is asked to continue
+        // [WHEN] The user decides to continue (message handler)
+        // [THEN] There is only one bank rec. for this bank
+        BankAccReconciliationPage.Close();
+        BankAccReconciliation.Reset();
+        BankAccReconciliation.SetRange("Bank Account No.", BankAccountNo);
+        Assert.AreEqual(2, BankAccReconciliation.Count(), 'There should be two bank reconciliations if the user continues');
+    end;
+
+    [Test]
+    procedure TwoBankReconciliationsFromDifferentBanksShouldntWarn()
+    var
+        BankAccReconciliation: Record "Bank Acc. Reconciliation";
+        BankAccount: Record "Bank Account";
+        BankAccReconciliationPage: TestPage "Bank Acc. Reconciliation";
+        BankAccountList: TestPage "Bank Account List";
+        BankAccountNo: Code[20];
+    begin
+        Initialize();
+        // [SCENARIO] A user creates a bank reconciliation, they then open to create another reconciliation for the same bank. They should be warned about an ongoing bank reconciliation but if they continue they should not be deleted
+        // [GIVEN] A bank
+        BankAccountNo := CreateBankAccount();
+        // [GIVEN] A bank reconciliation for that bank
+        LibraryERM.CreateBankAccReconciliation(BankAccReconciliation, BankAccountNo, BankAccReconciliation."Statement Type"::"Bank Reconciliation");
+        // [GIVEN] Another bank
+        BankAccountNo := CreateBankAccount();
+
+        // [WHEN] The user tries to create a new bank reconciliation for the second bank
+        BankAccReconciliationPage.OpenNew();
+        BankAccReconciliationPage.BankAccountNo.Value(BankAccountNo);
+        // [THEN] No message should occur (No MessageHandler)
+    end;
+
+    [Test]
+    procedure BankReconciliationAndPaymentRecJournalFromSameBankShouldNotWarn()
+    var
+        BankAccReconciliation: Record "Bank Acc. Reconciliation";
+        BankAccReconciliationPage: TestPage "Bank Acc. Reconciliation";
+        BankAccountNo: Code[20];
+    begin
+        Initialize();
+        // [SCENARIO] A user creates a payment rec. journal, and a bank reconciliation. Both for the same bank. No warning should show
+        // [GIVEN] A Payment Rec. Journal
+        BankAccountNo := CreateBankAccount();
+        LibraryERM.CreateBankAccReconciliation(BankAccReconciliation, BankAccountNo, BankAccReconciliation."Statement Type"::"Payment Application");
+        // [WHEN] The user tries to create a new bank reconciliation
+        BankAccReconciliationPage.OpenNew();
+        BankAccReconciliationPage.BankAccountNo.Value(BankAccountNo);
+        // [THEN] No message should occur (No MessageHandler)
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandlerNo')]
+    procedure RemovingMatchesForADifferentReconciliationOfTheSameBankShouldWarn()
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+        BankAccReconciliation: Record "Bank Acc. Reconciliation";
+        BankAccountLedgerEntry: Record "Bank Account Ledger Entry";
+        BankAccReconciliationPage: TestPage "Bank Acc. Reconciliation";
+        BankAccountNo: Code[20];
+    begin
+        // [SCENARIO] After a bank rec with matched lines is created, another bank rec for the same bank is created. Unmatch is run selecting the bank ledger entries. A warning should occur
+        // [GIVEN] A bank rec with matched lines
+        // [SCENARIO] Running Tranfer Difference to GL Entry on a matched line should fail
+        Initialize();
+        // [GIVEN] A bank reconciliation with a line matched
+        BankAccountNo := CreateBankAccount();
+        CreateAndPostGenJournalLine(GenJournalLine, BankAccountNo);
+        LibraryERM.CreateBankAccReconciliation(BankAccReconciliation, BankAccountNo, BankAccReconciliation."Statement Type"::"Bank Reconciliation");
+        BankAccReconciliation."Statement Date" := WorkDate() + 5;
+        SuggestLines(BankAccReconciliation);
+        // [GIVEN] Another bank reconciliation for the same bank
+        BankAccReconciliation."Statement No." := IncStr(BankAccReconciliation."Statement No.");
+        LibraryERM.CreateBankAccReconciliation(BankAccReconciliation, BankAccountNo, BankAccReconciliation."Statement Type"::"Bank Reconciliation");
+        // [WHEN] Running RemoveMatch
+        BankAccReconciliationPage.OpenView();
+        BankAccReconciliationPage.GoToRecord(BankAccReconciliation);
+        BankAccReconciliationPage.ApplyBankLedgerEntries.First();
+        BankAccReconciliationPage.RemoveMatch.Invoke();
+        // [THEN] The user should be warned (MessageHandler)
+        // [WHEN] User decides not to continue (MessageHandler)
+        // [THEN] No entries should be unmatched
+        BankAccountLedgerEntry.SetRange("Bank Account No.", BankAccountNo);
+        BankAccountLedgerEntry.SetRange("Statement No.", '');
+        Assert.IsTrue(BankAccountLedgerEntry.IsEmpty(), 'No entries should be unmatched');
+    end;
+
+    [Test]
+    [HandlerFunctions('ChangeStatementNoModalPageHandler')]
+    procedure ChangeStatementNoShouldPreserveMatchesForBankReconciliationsWithManyToOne()
+    var
+        BankAccount: Record "Bank Account";
+        BankAccReconciliation: Record "Bank Acc. Reconciliation";
+        BankAccountLedgerEntry: Record "Bank Account Ledger Entry";
+        BankAccRecMatchBuffer: Record "Bank Acc. Rec. Match Buffer";
+        CheckLedgerEntry: Record "Check Ledger Entry";
+        BankAccReconciliationPage: TestPage "Bank Acc. Reconciliation";
+        BankAccReconciliationPage2: TestPage "Bank Acc. Reconciliation";
+        PaymentAmount: Decimal;
+    begin
+        Initialize();
+        // [SCENARIO] Change statement no. is run on a bank reconciliation with a Many to one match
+        // [GIVEN] A bank rec with a many to one match to a Check entry
+        PaymentAmount := 2 * LibraryRandom.RandDec(1000, 2);
+        PostCheck(BankAccount, CreateBankAccount(), PaymentAmount);
+        CreateBankReconciliationManyToOne(BankAccReconciliation, BankAccount."No.", PaymentAmount);
+        MatchBankReconciliationManyToOne(BankAccReconciliation);
+        // [WHEN] Running ChangeStatementNo
+        BankAccReconciliationPage.OpenView();
+        BankAccReconciliationPage.GoToRecord(BankAccReconciliation);
+        LibraryVariableStorage.Enqueue('NEWNO');
+        BankAccReconciliationPage2.Trap();
+        BankAccReconciliationPage.ChangeStatementNo.Invoke();
+        // [THEN] The ManyToOne match should be kept
+        BankAccountLedgerEntry.SetRange("Bank Account No.", BankAccount."No.");
+        BankAccountLedgerEntry.FindFirst();
+        Assert.AreEqual(BankAccountLedgerEntry."Statement No.", 'NEWNO', 'Statement No. of Bank entry not updated');
+        Assert.AreEqual(BankAccountLedgerEntry."Statement Line No.", -1, 'Statement Line No. should be set to Many-One default');
+        Assert.AreEqual(BankAccountLedgerEntry."Statement Status", BankAccountLedgerEntry."Statement Status"::"Bank Acc. Entry Applied", 'Invalid Statement Status of Bank Ledger Entry');
+        CheckLedgerEntry.SetRange("Bank Account No.", BankAccount."No.");
+        CheckLedgerEntry.FindFirst();
+        Assert.AreEqual(CheckLedgerEntry."Statement Status", CheckLedgerEntry."Statement Status"::"Bank Acc. Entry Applied", 'Invalid Statement Status of Check Ledger Entry');
+        Assert.AreEqual(CheckLedgerEntry."Statement No.", 'NEWNO', 'Statement No. of Check entry not updated');
+        BankAccRecMatchBuffer.SetRange("Statement No.", 'NEWNO');
+        BankAccRecMatchBuffer.SetRange("Bank Account No.", BankAccount."No.");
+        Assert.AreEqual(2, BankAccRecMatchBuffer.Count(), 'Entries for the Many to One buffer table should be 2');
+    end;
+
+    [Test]
+    procedure ManyToManyMatchIsNotSupported()
+    var
+        BankAccount: Record "Bank Account";
+        BankAccReconciliation: Record "Bank Acc. Reconciliation";
+        GenJournalLine: Record "Gen. Journal Line";
+        BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line";
+        BankAccountLedgerEntry: Record "Bank Account Ledger Entry";
+        TempBankAccReconciliationLine: Record "Bank Acc. Reconciliation Line" temporary;
+        TempBankAccountLedgerEntry: Record "Bank Account Ledger Entry" temporary;
+        MatchBankRecLines: Codeunit "Match Bank Rec. Lines";
+        BankAccountNo: Code[20];
+    begin
+        Initialize();
+        // [SCENARIO] A user attempts to do a Many to Many match in Bank Reconciliations
+        // [GIVEN] A bank account
+        BankAccountNo := CreateBankAccount(BankAccount);
+        BankAccount."Disable Automatic Pmt Matching" := true;
+        BankAccount.Modify();
+        // [GIVEN] 2 Bank Account Ledger Entries
+        CreateAndPostGenJournalLine(GenJournalLine, BankAccountNo);
+        CreateAndPostGenJournalLine(GenJournalLine, BankAccountNo);
+        // [GIVEN] A bank reconciliation with two unmatched suggested lines
+        LibraryERM.CreateBankAccReconciliation(BankAccReconciliation, BankAccountNo, BankAccReconciliation."Statement Type"::"Bank Reconciliation");
+        BankAccReconciliation."Statement Date" := WorkDate() + 5;
+        SuggestLines(BankAccReconciliation);
+        // [WHEN] Attempting to do a Many to Many match
+        BankAccountLedgerEntry.SetRange("Bank Account No.", BankAccountNo);
+        BankAccountLedgerEntry.FindSet();
+        repeat
+            TempBankAccountLedgerEntry.Copy(BankAccountLedgerEntry);
+            TempBankAccountLedgerEntry.Insert();
+        until BankAccountLedgerEntry.Next() = 0;
+        BankAccReconciliationLine.SetRange("Bank Account No.", BankAccountNo);
+        BankAccReconciliationLine.SetRange("Statement No.", BankAccReconciliation."Statement No.");
+        BankAccReconciliationLine.FindSet();
+        repeat
+            TempBankAccReconciliationLine.Copy(BankAccReconciliationLine);
+            TempBankAccReconciliationLine.Insert();
+        until BankAccReconciliationLine.Next() = 0;
+        // [THEN] The user should see an error message
+        asserterror MatchBankRecLines.MatchManually(TempBankAccReconciliationLine, TempBankAccountLedgerEntry);
+    end;
+
     [Test]
     [HandlerFunctions('ConfirmHandlerNo,MessageHandler')]
     procedure RunningAutomatchWithoutOverwriteShouldKeepManualMatch()
@@ -3527,6 +4136,63 @@ codeunit 134141 "ERM Bank Reconciliation"
 
         BankAccReconLine.SetFilter("Transaction ID", TransactionIDList.Get(2));
         Assert.RecordCount(BankAccReconLine, 1);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CheckBankAccRecAutocompletesBankAccountNo()
+    var
+        BankAccReconciliation: Record "Bank Acc. Reconciliation";
+        BankAccount: Record "Bank Account";
+        BankAccReconciliationCard: TestPage "Bank Acc. Reconciliation";
+        ExpectedStatementNo: Code[20];
+    begin
+        // [SCENARIO] Autocomplete Bank Account No. when creating a new Bank Acc. Recon. when there is only one Bank Account.
+        Initialize();
+
+        // [GIVEN] No bank acc. reconciliations or bank accounts.
+        BankAccReconciliation.DeleteAll();
+        BankAccount.DeleteAll();
+
+        // [WHEN] Created a new bank account and opened a new bank acc. reconciliation.
+        LibraryERM.CreateBankAccount(BankAccount);
+        ExpectedStatementNo := '1';
+        BankAccReconciliationCard.OpenNew();
+
+        // [THEN] Bank Account No. autocompletes to the only available bank account number
+        Assert.AreEqual(BankAccount."No.", BankAccReconciliationCard.BankAccountNo.Value(), '');
+        // [THEN] Statement No. autocompletes to the corresponding value.
+        Assert.AreEqual(ExpectedStatementNo, BankAccReconciliationCard.StatementNo.Value(), '');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CheckBankAccRecDoesNotAutocompletesBankAccountNo()
+    var
+        BankAccReconciliation: Record "Bank Acc. Reconciliation";
+        BankAccount: Record "Bank Account";
+        BankAccReconciliationCard: TestPage "Bank Acc. Reconciliation";
+        ExpectedBankAccountNo: Code[20];
+        ExpectedStatementNo: Code[20];
+    begin
+        // [SCENARIO] Autocomplete Bank Account No. does not work when creating a new Bank Acc. Recon. when there are more than one Bank Account.
+        Initialize();
+
+        // [GIVEN] No bank acc. reconciliations or bank accounts.
+        BankAccReconciliation.DeleteAll();
+        BankAccount.DeleteAll();
+
+        // [WHEN] Created two new bank accounts and opened a new bank acc. reconciliation.
+        LibraryERM.CreateBankAccount(BankAccount);
+        LibraryERM.CreateBankAccount(BankAccount);
+        ExpectedBankAccountNo := '';
+        ExpectedStatementNo := '';
+        BankAccReconciliationCard.OpenNew();
+
+        // [THEN] Bank Account No. does not autocomplete.
+        Assert.AreEqual(ExpectedBankAccountNo, BankAccReconciliationCard.BankAccountNo.Value(), '');
+        // [THEN] Statement No. does not autocomplete.
+        Assert.AreEqual(ExpectedStatementNo, BankAccReconciliationCard.StatementNo.Value(), '');
     end;
 
     local procedure Initialize()
@@ -4835,6 +5501,12 @@ codeunit 134141 "ERM Bank Reconciliation"
         PostedPaymentReconciliation.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName)
     end;
 
+    [RequestPageHandler]
+    procedure SuggestLinesRequestPageHandler(var SuggestBankAccReconLines: TestRequestPage "Suggest Bank Acc. Recon. Lines")
+    begin
+        SuggestBankAccReconLines.OK.Invoke();
+    end;
+
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure PostAndReconcilePageHandler(var PostPmtsAndRecBankAcc: TestPage "Post Pmts and Rec. Bank Acc.")
@@ -4849,6 +5521,12 @@ codeunit 134141 "ERM Bank Reconciliation"
         Reply := true;
     end;
 
+    [ConfirmHandler]
+    procedure SameBankReconciliationConfirmHandler(Question: Text[1024]; var Reply: Boolean)
+    begin
+        Reply := false;
+    end;
+
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure PostAndReconcileWithEndingBalanceModalPageHandler(var PostPmtsAndRecBankAcc: TestPage "Post Pmts and Rec. Bank Acc.")
@@ -4856,4 +5534,25 @@ codeunit 134141 "ERM Bank Reconciliation"
         PostPmtsAndRecBankAcc."Statement Ending Balance".SetValue(LibraryVariableStorage.DequeueDecimal());
         PostPmtsAndRecBankAcc.OK.Invoke();
     end;
+
+    [StrMenuHandler]
+    procedure CorruptSuggestLinesHandler(Options: Text[1024]; var Choice: Integer; Instruction: Text[1024])
+    begin
+        case TimesSuggestLinesRun of
+            0:
+                // [THEN] When User says "Yes" (2) the first time it should ask again for the next entry
+                Choice := 2;
+            1:
+                // [THEN] When User says "Yes" (2) the second time it should ask again for the next entry
+                Choice := 2;
+            2:
+                // [THEN] When User says  "Yes to all" (1) the third time it should skip the confirmation for the next entries
+                Choice := 1;
+            else
+                Error('Suggest Lines shouldn''t keep asking to confirm for these entries');
+        end;
+        TimesSuggestLinesRun += 1;
+    end;
+
+
 }

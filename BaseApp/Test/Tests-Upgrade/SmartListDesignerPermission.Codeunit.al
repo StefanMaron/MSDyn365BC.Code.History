@@ -1,3 +1,4 @@
+#if not CLEAN22
 codeunit 135953 "SmartList Designer Upg. Tests"
 {
     Subtype = Test;
@@ -77,16 +78,6 @@ codeunit 135953 "SmartList Designer Upg. Tests"
                 LibraryAssert.IsFalse(UserGroupPlan.Get(Plan."Plan_ID", SmartListDesignerTok), StrSubstNo('Plan %1 should not contain %2 user group', Plan."Plan_ID", SmartListDesignerTok));
             until not Plan.Read();
     end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure SmartListDesignerManualSetupDeleted()
-    var
-        GuidedExperience: Codeunit "Guided Experience";
-        LibraryAssert: Codeunit "Library Assert";
-    begin
-        LibraryAssert.IsFalse(GuidedExperience.Exists(Enum::"Guided Experience Type"::"Manual Setup", ObjectType::Page, Page::"SmartList Designer Setup"),
-            'Manual setup for SmartList designer is not deleted.');
-    end;
 #endif
 }
+#endif

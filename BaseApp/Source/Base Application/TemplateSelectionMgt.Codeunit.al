@@ -58,7 +58,7 @@ codeunit 1900 "Template Selection Mgt."
             UserPreference.Delete();
 
         UserPreference.Init();
-        UserPreference."User ID" := UserId;
+        UserPreference."User ID" := CopyStr(UserId(), 1, MaxStrLen(UserPreference."User ID"));
         UserPreference."Instruction Code" := ContextCode;
         UserPreference.SetUserSelection(TemplateCode);
         UserPreference.Insert();
