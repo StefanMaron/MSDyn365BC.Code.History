@@ -1,4 +1,4 @@
-report 10115 "Vendor 1099 Magnetic Media"
+﻿report 10115 "Vendor 1099 Magnetic Media"
 {
     ApplicationArea = BasicUS;
     Caption = 'Vendor 1099 Magnetic Media';
@@ -443,18 +443,35 @@ report 10115 "Vendor 1099 Magnetic Media"
     end;
 
     trigger OnPostReport()
+    var
+        TempBlob: Codeunit "Temp Blob";
+        InStream: InStream;
+        OutStream: OutStream;
+        ClientFileName: Text;
     begin
+        IRSData.CreateInStream(InStream);
+        TempBlob.CreateOutStream(OutStream);
+        CopyStream(OutStream, InStream);
         IRSData.Close();
-        if FileName = '' then
-            FileMgt.DownloadHandler(ServerTempFileName, '', '', FileMgt.GetToFilterText('', ServerTempFileName), ClientFileNameTxt)
-        else
-            FileMgt.CopyServerFile(ServerTempFileName, FileName, true);
         FileMgt.DeleteServerFile(ServerTempFileName);
+
+        OnBeforeDownloadFile(TempBlob);
+
+        TempBlob.CreateInStream(InStream);
+        if FileName = '' then begin
+            ClientFileName := ClientFileNameTxt;
+            DownloadFromStream(InStream, '', '', '*.txt', ClientFileName);
+        end else begin
+            IRSData.Create(ServerTempFileName);
+            IRSData.CreateOutStream(OutStream);
+            CopyStream(OutStream, InStream);
+            IRSData.Close();
+            FileMgt.CopyServerFile(ServerTempFileName, FileName, true);
+            FileMgt.DeleteServerFile(ServerTempFileName);
+        end;
     end;
 
     trigger OnPreReport()
-    var
-        FileMgt: Codeunit "File Management";
     begin
         if TransCode = '' then
             Error(Text005);
@@ -653,7 +670,9 @@ report 10115 "Vendor 1099 Magnetic Media"
           StrSubstNo('#1##################', VendorInfo."E-Mail") + // 20 chars
           StrSubstNo('                          '));
 
+#if not CLEAN24
           OnAfterWriteTRec(IRSData, VendorInfo);
+#endif
     end;
 
     procedure WriteARec()
@@ -1245,8 +1264,15 @@ report 10115 "Vendor 1099 Magnetic Media"
         exit(Vendor.Name + Vendor."Name 2");
     end;
 
+#if not CLEAN24
+    [Obsolete('File operations are not allowed in the cloud. Use OnBeforeDownloadFile instead.', '24.0')]
     [IntegrationEvent(false, false)]
     local procedure OnAfterWriteTRec(var IRSData: File; VendorCompanyInformation: Record "Company Information")
+    begin
+    end;
+#endif
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeDownloadFile(var TempBlob: Codeunit "Temp Blob")
     begin
     end;
 }
