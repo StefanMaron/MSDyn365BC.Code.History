@@ -55,7 +55,6 @@ codeunit 99000855 "Planning-Get Parameters"
                             "Include Inventory" := true
                         else
                             "Include Inventory" := Item."Include Inventory";
-                        "Minimum Order Quantity" := 0;
                         "Maximum Order Quantity" := 0;
                         "Safety Stock Quantity" := 0;
                         "Order Multiple" := 0;

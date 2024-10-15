@@ -9059,6 +9059,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Manufacturing - Routings - NamedType NotLinearCCErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 2368608297 - NamedType 3019524191" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Starting Date-Time of 1st Prod. Order Routing line must be less than Satrting Date-Time of 2nd Prod. Order Routing Line.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Manufacturing - Routings - NamedType StartingDateTimeMustBeLessErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 2368608297 - NamedType 3110885488" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Operation no. %1 uses %2 no. %3 that no longer exists.]]></Val>
@@ -13089,15 +13098,6 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Production Orders II - NamedType TimeShiftedOnParentLineMsg)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 3590079757 - NamedType 1507543634" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[The sum of setup, move and wait time exceeds the available time in the period.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Production Orders II - NamedType TotalDurationExceedsAvailTimeErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 3792612980 - NamedType 1884474113" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
