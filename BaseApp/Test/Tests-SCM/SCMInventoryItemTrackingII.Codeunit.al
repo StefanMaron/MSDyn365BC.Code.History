@@ -23,6 +23,7 @@ codeunit 137261 "SCM Inventory Item Tracking II"
         LibraryWarehouse: Codeunit "Library - Warehouse";
         LibraryPlanning: Codeunit "Library - Planning";
         LibraryRandom: Codeunit "Library - Random";
+        LibraryJob: Codeunit "Library - Job";
         isInitialized: Boolean;
         IsUsingSimpleYesConfirmHandler: Boolean;
         AvailabilityWarning: Label 'You do not have enough inventory to meet the demand for items in one or more lines';
@@ -36,7 +37,7 @@ codeunit 137261 "SCM Inventory Item Tracking II"
         AssignSerialNoStatus: Label 'Assign Serial No must be TRUE.';
         ExistingSalesLnITError: Label 'Item tracking is defined for item %1 in the Sales Line.';
         WrongSerialNoErr: Label 'Serial No is wrong.';
-        TrackingOption: Option AssignSerialNo,AssignLotNo,VerifyLotNo,EditValue,SelectEntries,UpdateQtyToInvoice,AssignLotNo2,AssignQty,ReSelectEntries,AssignMoreThanPurchasedQty,SetNewLotNo,EditSNValue,SetNewSN,SetLotAndSerial,CheckExpDateControls,CreateCustomizedSN,AssignPackageNo,SetNewPackageNo,AssignTwoLotNos;
+        TrackingOption: Option AssignSerialNo,AssignLotNo,VerifyLotNo,EditValue,SelectEntries,UpdateQtyToInvoice,AssignLotNo2,AssignQty,ReSelectEntries,AssignMoreThanPurchasedQty,SetNewLotNo,EditSNValue,SetNewSN,SetLotAndSerial,CheckExpDateControls,CreateCustomizedSN,AssignPackageNo,SetNewPackageNo,AssignTwoLotNos,AssignLotNoAndPackageNo;
         TheLotNoInfoDoesNotExistErr: Label 'The Lot No. Information does not exist. Identification fields and values:';
         TheSerialNoInfoDoesNotExistErr: Label 'The Serial No. Information does not exist. Identification fields and values:';
         LotNoBySNNotFoundErr: Label 'A lot number could not be found for serial number';
@@ -2086,6 +2087,30 @@ codeunit 137261 "SCM Inventory Item Tracking II"
         // [THEN] The "Lot No. Information List" page opens.
     end;
 
+    [Test]
+    [HandlerFunctions('ItemTrackingLinesPageHandler')]
+    procedure PostPurchaseOrderWhenItemTrackingLinesWithLotNoAndPackageNoAssigned()
+    var
+        ItemTrackingCode: Record "Item Tracking Code";
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        InventorySetup: Record "Inventory Setup";
+    begin
+        // [SCENARIO 504315] Item tracking error "Package No. must be equal to 'x' in item ledger entry: Entry No.=xxx. Current value is 'x'." 
+        // when package tracking is enabled, and a job is used on a purchase order.
+        Initialize();
+
+        // [GIVEN] Create Item Tracking Code with Lot and Package tracking
+        LibraryItemTracking.CreateItemTrackingCode(ItemTrackingCode, false, true, true);
+
+        // [GIVEN] Create Purchase Order with Job when Item with Lot and Package tracking
+        CreatePurchaseDocumentWithJobAndLotTracking(PurchaseLine, PurchaseHeader."Document Type"::Order, ItemTrackingCode.Code);
+
+        // [THEN] Purchase Order Post without any Error
+        PurchaseHeader.Get(PurchaseHeader."Document Type"::Order, PurchaseLine."Document No.");
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+    end;
+
     local procedure Initialize()
     var
         InventorySetup: Record "Inventory Setup";
@@ -3288,6 +3313,51 @@ codeunit 137261 "SCM Inventory Item Tracking II"
         PurchaseLine.OpenItemTrackingLines();
     end;
 
+    local procedure CreatePurchaseDocumentWithJobAndLotTracking(
+        var PurchaseLine: Record "Purchase Line";
+        DocumentType: Enum "Purchase Document Type";
+        ItemTrackingCode: Code[10])
+    var
+        LotNo: Code[10];
+    begin
+        CreatePurchaseDocumentWithJob(PurchaseLine, DocumentType, ItemTrackingCode);
+        LibraryVariableStorage.Enqueue(TrackingOption::AssignLotNoAndPackageNo);
+        LotNo := LibraryUtility.GenerateGUID();
+        LibraryVariableStorage.Enqueue(LotNo);
+        LibraryVariableStorage.Enqueue(LibraryUtility.GenerateGUID());
+        LibraryVariableStorage.Enqueue(PurchaseLine."Quantity (Base)" / 2);
+        LibraryVariableStorage.Enqueue(LotNo);
+        LibraryVariableStorage.Enqueue(LibraryUtility.GenerateGUID());
+        LibraryVariableStorage.Enqueue(PurchaseLine."Quantity (Base)" / 2);
+        PurchaseLine.OpenItemTrackingLines();
+    end;
+
+    local procedure CreatePurchaseDocumentWithJob(
+        var PurchaseLine: Record "Purchase Line";
+        DocumentType: Enum "Purchase Document Type";
+        ItemTrackingCode: Code[10])
+    var
+        PurchaseHeader: Record "Purchase Header";
+        Item: Record Item;
+        Job: Record Job;
+        JobTask: Record "Job Task";
+    begin
+        CreateTrackedItem(Item, LibraryUtility.GetGlobalNoSeriesCode(), '', ItemTrackingCode);
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, DocumentType, LibraryPurchase.CreateVendorNo());
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, Item."No.", LibraryRandom.RandIntInRange(5, 10));
+        LibraryJob.CreateJob(Job);
+        LibraryJob.CreateJobTask(Job, JobTask);
+        UpdatePurchaseLineWithJobTask(PurchaseLine, JobTask);
+    end;
+
+    local procedure UpdatePurchaseLineWithJobTask(var PurchaseLine: Record "Purchase Line"; JobTask: Record "Job Task")
+    begin
+        PurchaseLine.Validate("Job No.", JobTask."Job No.");
+        PurchaseLine.Validate("Job Task No.", JobTask."Job Task No.");
+        PurchaseLine.Validate("Job Line Type", PurchaseLine."Job Line Type"::Budget);
+        PurchaseLine.Modify(true);
+    end;
+
     [ConfirmHandler]
     [Scope('OnPrem')]
     procedure ConfirmHandler(ConfirmMessage: Text[1024]; var Reply: Boolean)
@@ -3469,6 +3539,16 @@ codeunit 137261 "SCM Inventory Item Tracking II"
                     ItemTrackingLines."Quantity (Base)".SetValue(LibraryVariableStorage.DequeueDecimal());
                     ItemTrackingLines.Next();
                     ItemTrackingLines."Lot No.".SetValue(LibraryVariableStorage.DequeueText());
+                    ItemTrackingLines."Quantity (Base)".SetValue(LibraryVariableStorage.DequeueDecimal());
+                end;
+            TrackingOption::AssignLotNoAndPackageNo:
+                begin
+                    ItemTrackingLines."Lot No.".SetValue(LibraryVariableStorage.DequeueText());
+                    ItemTrackingLines."Package No.".SetValue(LibraryVariableStorage.DequeueText());
+                    ItemTrackingLines."Quantity (Base)".SetValue(LibraryVariableStorage.DequeueDecimal());
+                    ItemTrackingLines.Next();
+                    ItemTrackingLines."Lot No.".SetValue(LibraryVariableStorage.DequeueText());
+                    ItemTrackingLines."Package No.".SetValue(LibraryVariableStorage.DequeueText());
                     ItemTrackingLines."Quantity (Base)".SetValue(LibraryVariableStorage.DequeueDecimal());
                 end;
         end;
