@@ -10,7 +10,6 @@ table 349 "Dimension Value"
             Caption = 'Dimension Code';
             NotBlank = true;
             TableRelation = Dimension;
-            Editable = false;
 
             trigger OnValidate()
             begin
@@ -217,6 +216,9 @@ table 349 "Dimension Value"
     var
         DimValuePerAccount: Record "Dim. Value per Account";
     begin
+        if (xRec."Dimension Code" <> '') and ("Dimension Code" <> xRec."Dimension Code") then
+            Error(Text006, FieldCaption("Dimension Code"));
+
         RenameBudgEntryDim();
         RenameAnalysisViewEntryDim();
         RenameItemBudgEntryDim();

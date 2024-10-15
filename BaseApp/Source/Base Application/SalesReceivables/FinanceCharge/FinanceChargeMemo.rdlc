@@ -2710,7 +2710,7 @@
                                   </FilterValues>
                                 </Filter>
                               </Filters>
-                              <Height>1.72441in</Height>
+                              <Height>1.8633in</Height>
                               <Width>7.1968in</Width>
                               <ZIndex>2</ZIndex>
                               <Visibility>
@@ -4364,7 +4364,7 @@ Cstr(Fields!CompanyInfoVATRegistrationNoCaption.Value) + Chr(177) +
 Cstr(Fields!CompanyInfoGiroNoCaption.Value) + Chr(177) + 
 Cstr(Fields!CompanyInfoBankNameCaption.Value) + Chr(177) + 
 Cstr(Fields!CustNo_IssFinChrgMemoHdrCaption.Value) + Chr(177) + 
-Cstr(Fields!CompanyInfoBankAccountNoCaption.Value) + Chr(177) + 
+Cstr(Fields!IBANCaption.Value) + Chr(177) + 
 Cstr(Fields!IssuedFinChargeMemoHeaderNoCaption.Value) + Chr(177) + 
 Cstr(Fields!IssuedFinChargeMemoHeaderDueDateCaption.Value) + Chr(177) + 
 Cstr(Fields!IssuedFinChargeMemoHeaderPostingDateCaption.Value) + Chr(177) + 
@@ -4378,7 +4378,7 @@ Cstr(Fields!CompanyInfoPhoneNo.Value) + Chr(177) +
 Cstr(Fields!CompanyInfoVATRegNo.Value) + Chr(177) + 
 Cstr(Fields!CompanyInfoGiroNo.Value) + Chr(177) + 
 Cstr(Fields!CompanyInfoBankName.Value) + Chr(177) + 
-Cstr(Fields!CompanyInfoBankAccountNo.Value) + Chr(177) + 
+Cstr(Fields!CompanyInfoIBAN.Value) + Chr(177) + 
 Cstr(Fields!PageCaption.Value) + Chr(177) + 
 Cstr(Fields!HomePageCaption.Value) + Chr(177) + 
 Cstr(Fields!CompanyInfoHomePage.Value) + Chr(177) + 
@@ -4443,7 +4443,7 @@ Cstr(Fields!DocumentDateCaption.Value)
       <Width>7.22093in</Width>
       <Page>
         <PageHeader>
-          <Height>3.77236in</Height>
+          <Height>3.8in</Height>
           <PrintOnFirstPage>true</PrintOnFirstPage>
           <PrintOnLastPage>true</PrintOnLastPage>
           <ReportItems>
@@ -4492,7 +4492,7 @@ Cstr(Fields!DocumentDateCaption.Value)
                   </Style>
                 </Paragraph>
               </Paragraphs>
-              <Top>2.21757in</Top>
+              <Top>2.34257in</Top>
               <Left>4.62363in</Left>
               <Height>11pt</Height>
               <Width>1.36658in</Width>
@@ -4519,38 +4519,11 @@ Cstr(Fields!DocumentDateCaption.Value)
                   </Style>
                 </Paragraph>
               </Paragraphs>
-              <Top>2.66174in</Top>
+              <Top>2.78674in</Top>
               <Left>4.62363in</Left>
               <Height>11pt</Height>
               <Width>1.36658in</Width>
               <ZIndex>2</ZIndex>
-              <Style>
-                <VerticalAlign>Top</VerticalAlign>
-              </Style>
-            </Textbox>
-            <Textbox Name="CompanyInfoGiroNoCaption1">
-              <KeepTogether>true</KeepTogether>
-              <Paragraphs>
-                <Paragraph>
-                  <TextRuns>
-                    <TextRun>
-                      <Value>=Code.GetData(21,1)</Value>
-                      <Style>
-                        <FontFamily>Segoe UI</FontFamily>
-                        <FontSize>8pt</FontSize>
-                      </Style>
-                    </TextRun>
-                  </TextRuns>
-                  <Style>
-                    <TextAlign>Left</TextAlign>
-                  </Style>
-                </Paragraph>
-              </Paragraphs>
-              <Top>2.79217in</Top>
-              <Left>4.62363in</Left>
-              <Height>11pt</Height>
-              <Width>1.36658in</Width>
-              <ZIndex>3</ZIndex>
               <Style>
                 <VerticalAlign>Top</VerticalAlign>
               </Style>
@@ -4577,7 +4550,7 @@ Cstr(Fields!DocumentDateCaption.Value)
               <Left>4.62363in</Left>
               <Height>11pt</Height>
               <Width>1.36658in</Width>
-              <ZIndex>4</ZIndex>
+              <ZIndex>3</ZIndex>
               <Style>
                 <VerticalAlign>Top</VerticalAlign>
               </Style>
@@ -4600,15 +4573,15 @@ Cstr(Fields!DocumentDateCaption.Value)
                   </Style>
                 </Paragraph>
               </Paragraphs>
-              <Top>2.35785in</Top>
+              <Top>2.60785in</Top>
               <Height>11pt</Height>
               <Width>1.24016in</Width>
-              <ZIndex>5</ZIndex>
+              <ZIndex>4</ZIndex>
               <Style>
                 <VerticalAlign>Top</VerticalAlign>
               </Style>
             </Textbox>
-            <Textbox Name="CompanyInfoBankAccountNoCaption1">
+            <Textbox Name="CompanyInfoIBANCaption1">
               <KeepTogether>true</KeepTogether>
               <Paragraphs>
                 <Paragraph>
@@ -4629,8 +4602,8 @@ Cstr(Fields!DocumentDateCaption.Value)
               <Top>3.12524in</Top>
               <Left>4.62363in</Left>
               <Height>11pt</Height>
-              <Width>1.35466in</Width>
-              <ZIndex>6</ZIndex>
+              <Width>1.02133in</Width>
+              <ZIndex>5</ZIndex>
               <Style>
                 <VerticalAlign>Top</VerticalAlign>
               </Style>
@@ -4657,7 +4630,7 @@ Cstr(Fields!DocumentDateCaption.Value)
               <Left>4.62363in</Left>
               <Height>11pt</Height>
               <Width>1.36658in</Width>
-              <ZIndex>7</ZIndex>
+              <ZIndex>6</ZIndex>
               <Style>
                 <VerticalAlign>Top</VerticalAlign>
               </Style>
@@ -4680,10 +4653,10 @@ Cstr(Fields!DocumentDateCaption.Value)
                   </Style>
                 </Paragraph>
               </Paragraphs>
-              <Top>3.13696in</Top>
+              <Top>3.38696in</Top>
               <Height>11pt</Height>
               <Width>1.24016in</Width>
-              <ZIndex>8</ZIndex>
+              <ZIndex>7</ZIndex>
               <Style>
                 <VerticalAlign>Top</VerticalAlign>
               </Style>
@@ -4706,10 +4679,10 @@ Cstr(Fields!DocumentDateCaption.Value)
                   </Style>
                 </Paragraph>
               </Paragraphs>
-              <Top>2.97043in</Top>
+              <Top>3.22043in</Top>
               <Height>11pt</Height>
               <Width>1.24016in</Width>
-              <ZIndex>9</ZIndex>
+              <ZIndex>8</ZIndex>
               <Style>
                 <VerticalAlign>Top</VerticalAlign>
               </Style>
@@ -4736,7 +4709,7 @@ Cstr(Fields!DocumentDateCaption.Value)
               <Left>4.62363in</Left>
               <Height>11pt</Height>
               <Width>2.58479in</Width>
-              <ZIndex>10</ZIndex>
+              <ZIndex>9</ZIndex>
               <Style>
                 <VerticalAlign>Top</VerticalAlign>
               </Style>
@@ -4759,11 +4732,11 @@ Cstr(Fields!DocumentDateCaption.Value)
                   </Style>
                 </Paragraph>
               </Paragraphs>
-              <Top>0.95711in</Top>
+              <Top>1.20711in</Top>
               <Left>0.00139in</Left>
               <Height>11pt</Height>
               <Width>4.62363in</Width>
-              <ZIndex>11</ZIndex>
+              <ZIndex>10</ZIndex>
               <Style>
                 <VerticalAlign>Top</VerticalAlign>
               </Style>
@@ -4790,7 +4763,7 @@ Cstr(Fields!DocumentDateCaption.Value)
               <Left>4.62363in</Left>
               <Height>11pt</Height>
               <Width>2.58479in</Width>
-              <ZIndex>12</ZIndex>
+              <ZIndex>11</ZIndex>
               <Style>
                 <VerticalAlign>Top</VerticalAlign>
               </Style>
@@ -4813,10 +4786,10 @@ Cstr(Fields!DocumentDateCaption.Value)
                   </Style>
                 </Paragraph>
               </Paragraphs>
-              <Top>1.10989in</Top>
+              <Top>1.35989in</Top>
               <Height>11pt</Height>
               <Width>333.00171pt</Width>
-              <ZIndex>13</ZIndex>
+              <ZIndex>12</ZIndex>
               <Style>
                 <VerticalAlign>Top</VerticalAlign>
               </Style>
@@ -4843,7 +4816,7 @@ Cstr(Fields!DocumentDateCaption.Value)
               <Left>4.62363in</Left>
               <Height>11pt</Height>
               <Width>2.58479in</Width>
-              <ZIndex>14</ZIndex>
+              <ZIndex>13</ZIndex>
               <Style>
                 <VerticalAlign>Top</VerticalAlign>
               </Style>
@@ -4866,10 +4839,10 @@ Cstr(Fields!DocumentDateCaption.Value)
                   </Style>
                 </Paragraph>
               </Paragraphs>
-              <Top>1.25143in</Top>
+              <Top>1.50143in</Top>
               <Height>11pt</Height>
               <Width>4.62363in</Width>
-              <ZIndex>15</ZIndex>
+              <ZIndex>14</ZIndex>
               <Style>
                 <VerticalAlign>Top</VerticalAlign>
               </Style>
@@ -4896,7 +4869,7 @@ Cstr(Fields!DocumentDateCaption.Value)
               <Left>4.62363in</Left>
               <Height>11pt</Height>
               <Width>2.58479in</Width>
-              <ZIndex>16</ZIndex>
+              <ZIndex>15</ZIndex>
               <Style>
                 <VerticalAlign>Top</VerticalAlign>
               </Style>
@@ -4919,10 +4892,10 @@ Cstr(Fields!DocumentDateCaption.Value)
                   </Style>
                 </Paragraph>
               </Paragraphs>
-              <Top>1.41796in</Top>
+              <Top>1.66796in</Top>
               <Height>11pt</Height>
               <Width>4.62363in</Width>
-              <ZIndex>17</ZIndex>
+              <ZIndex>16</ZIndex>
               <Style>
                 <VerticalAlign>Top</VerticalAlign>
               </Style>
@@ -4949,7 +4922,7 @@ Cstr(Fields!DocumentDateCaption.Value)
               <Left>4.62363in</Left>
               <Height>11pt</Height>
               <Width>2.58479in</Width>
-              <ZIndex>18</ZIndex>
+              <ZIndex>17</ZIndex>
               <Style>
                 <VerticalAlign>Top</VerticalAlign>
               </Style>
@@ -4972,10 +4945,10 @@ Cstr(Fields!DocumentDateCaption.Value)
                   </Style>
                 </Paragraph>
               </Paragraphs>
-              <Top>1.55949in</Top>
+              <Top>1.80949in</Top>
               <Height>11pt</Height>
               <Width>4.62363in</Width>
-              <ZIndex>19</ZIndex>
+              <ZIndex>18</ZIndex>
               <Style>
                 <VerticalAlign>Top</VerticalAlign>
               </Style>
@@ -5002,7 +4975,7 @@ Cstr(Fields!DocumentDateCaption.Value)
               <Left>4.62363in</Left>
               <Height>11pt</Height>
               <Width>2.58479in</Width>
-              <ZIndex>20</ZIndex>
+              <ZIndex>19</ZIndex>
               <Style>
                 <VerticalAlign>Top</VerticalAlign>
               </Style>
@@ -5025,10 +4998,10 @@ Cstr(Fields!DocumentDateCaption.Value)
                   </Style>
                 </Paragraph>
               </Paragraphs>
-              <Top>1.71353in</Top>
+              <Top>1.96353in</Top>
               <Height>11pt</Height>
               <Width>4.62363in</Width>
-              <ZIndex>21</ZIndex>
+              <ZIndex>20</ZIndex>
               <Style>
                 <VerticalAlign>Top</VerticalAlign>
               </Style>
@@ -5051,10 +5024,10 @@ Cstr(Fields!DocumentDateCaption.Value)
                   </Style>
                 </Paragraph>
               </Paragraphs>
-              <Top>1.85507in</Top>
+              <Top>2.10507in</Top>
               <Height>11pt</Height>
               <Width>4.62363in</Width>
-              <ZIndex>22</ZIndex>
+              <ZIndex>21</ZIndex>
               <Style>
                 <VerticalAlign>Top</VerticalAlign>
               </Style>
@@ -5077,11 +5050,11 @@ Cstr(Fields!DocumentDateCaption.Value)
                   </Style>
                 </Paragraph>
               </Paragraphs>
-              <Top>2.21757in</Top>
+              <Top>2.34257in</Top>
               <Left>5.99021in</Left>
               <Height>11pt</Height>
               <Width>1.21821in</Width>
-              <ZIndex>23</ZIndex>
+              <ZIndex>22</ZIndex>
               <Style>
                 <VerticalAlign>Top</VerticalAlign>
               </Style>
@@ -5104,10 +5077,10 @@ Cstr(Fields!DocumentDateCaption.Value)
                   </Style>
                 </Paragraph>
               </Paragraphs>
-              <Top>2.0216in</Top>
+              <Top>2.2716in</Top>
               <Height>11pt</Height>
               <Width>4.62363in</Width>
-              <ZIndex>24</ZIndex>
+              <ZIndex>23</ZIndex>
               <Style>
                 <VerticalAlign>Top</VerticalAlign>
               </Style>
@@ -5130,38 +5103,11 @@ Cstr(Fields!DocumentDateCaption.Value)
                   </Style>
                 </Paragraph>
               </Paragraphs>
-              <Top>2.66313in</Top>
+              <Top>2.78813in</Top>
               <Left>6.00063in</Left>
               <Height>11pt</Height>
               <Width>1.21821in</Width>
-              <ZIndex>25</ZIndex>
-              <Style>
-                <VerticalAlign>Top</VerticalAlign>
-              </Style>
-            </Textbox>
-            <Textbox Name="CompanyInfoGiroNo1">
-              <KeepTogether>true</KeepTogether>
-              <Paragraphs>
-                <Paragraph>
-                  <TextRuns>
-                    <TextRun>
-                      <Value>=Code.GetData(36,1)</Value>
-                      <Style>
-                        <FontFamily>Segoe UI</FontFamily>
-                        <FontSize>8pt</FontSize>
-                      </Style>
-                    </TextRun>
-                  </TextRuns>
-                  <Style>
-                    <TextAlign>Right</TextAlign>
-                  </Style>
-                </Paragraph>
-              </Paragraphs>
-              <Top>2.79217in</Top>
-              <Left>5.99021in</Left>
-              <Height>11pt</Height>
-              <Width>1.21821in</Width>
-              <ZIndex>26</ZIndex>
+              <ZIndex>24</ZIndex>
               <Style>
                 <VerticalAlign>Top</VerticalAlign>
               </Style>
@@ -5188,7 +5134,7 @@ Cstr(Fields!DocumentDateCaption.Value)
               <Left>5.99021in</Left>
               <Height>11pt</Height>
               <Width>1.21821in</Width>
-              <ZIndex>27</ZIndex>
+              <ZIndex>25</ZIndex>
               <Style>
                 <VerticalAlign>Top</VerticalAlign>
               </Style>
@@ -5211,16 +5157,16 @@ Cstr(Fields!DocumentDateCaption.Value)
                   </Style>
                 </Paragraph>
               </Paragraphs>
-              <Top>2.36219in</Top>
+              <Top>2.61219in</Top>
               <Left>1.25405in</Left>
               <Height>11pt</Height>
               <Width>3.36959in</Width>
-              <ZIndex>28</ZIndex>
+              <ZIndex>26</ZIndex>
               <Style>
                 <VerticalAlign>Top</VerticalAlign>
               </Style>
             </Textbox>
-            <Textbox Name="CompanyInfoBankAccountNo1">
+            <Textbox Name="CompanyInfoIBAN1">
               <KeepTogether>true</KeepTogether>
               <Paragraphs>
                 <Paragraph>
@@ -5239,10 +5185,10 @@ Cstr(Fields!DocumentDateCaption.Value)
                 </Paragraph>
               </Paragraphs>
               <Top>3.12524in</Top>
-              <Left>5.99021in</Left>
+              <Left>5.64496in</Left>
               <Height>11pt</Height>
-              <Width>1.21821in</Width>
-              <ZIndex>29</ZIndex>
+              <Width>1.56346in</Width>
+              <ZIndex>27</ZIndex>
               <Style>
                 <VerticalAlign>Top</VerticalAlign>
               </Style>
@@ -5265,10 +5211,10 @@ Cstr(Fields!DocumentDateCaption.Value)
                   </Style>
                 </Paragraph>
               </Paragraphs>
-              <Top>2.49985in</Top>
+              <Top>2.74985in</Top>
               <Height>11pt</Height>
               <Width>1.24016in</Width>
-              <ZIndex>30</ZIndex>
+              <ZIndex>28</ZIndex>
               <Style>
                 <VerticalAlign>Top</VerticalAlign>
               </Style>
@@ -5291,11 +5237,11 @@ Cstr(Fields!DocumentDateCaption.Value)
                   </Style>
                 </Paragraph>
               </Paragraphs>
-              <Top>2.51235in</Top>
+              <Top>2.76235in</Top>
               <Left>1.25405in</Left>
               <Height>11pt</Height>
               <Width>3.36959in</Width>
-              <ZIndex>31</ZIndex>
+              <ZIndex>29</ZIndex>
               <Style>
                 <VerticalAlign>Top</VerticalAlign>
               </Style>
@@ -5318,10 +5264,10 @@ Cstr(Fields!DocumentDateCaption.Value)
                   </Style>
                 </Paragraph>
               </Paragraphs>
-              <Top>2.65389in</Top>
+              <Top>2.90389in</Top>
               <Height>11pt</Height>
               <Width>1.24016in</Width>
-              <ZIndex>32</ZIndex>
+              <ZIndex>30</ZIndex>
               <Style>
                 <VerticalAlign>Top</VerticalAlign>
               </Style>
@@ -5344,11 +5290,11 @@ Cstr(Fields!DocumentDateCaption.Value)
                   </Style>
                 </Paragraph>
               </Paragraphs>
-              <Top>2.65292in</Top>
+              <Top>2.90292in</Top>
               <Left>1.25405in</Left>
               <Height>11pt</Height>
               <Width>3.36959in</Width>
-              <ZIndex>33</ZIndex>
+              <ZIndex>31</ZIndex>
               <Style>
                 <VerticalAlign>Top</VerticalAlign>
               </Style>
@@ -5375,7 +5321,7 @@ Cstr(Fields!DocumentDateCaption.Value)
               <Left>5.99021in</Left>
               <Height>11pt</Height>
               <Width>1.21821in</Width>
-              <ZIndex>34</ZIndex>
+              <ZIndex>32</ZIndex>
               <Style>
                 <VerticalAlign>Top</VerticalAlign>
               </Style>
@@ -5399,11 +5345,11 @@ Cstr(Fields!DocumentDateCaption.Value)
                   </Style>
                 </Paragraph>
               </Paragraphs>
-              <Top>3.13696in</Top>
+              <Top>3.38696in</Top>
               <Left>1.25405in</Left>
               <Height>11pt</Height>
               <Width>3.36959in</Width>
-              <ZIndex>35</ZIndex>
+              <ZIndex>33</ZIndex>
               <Style>
                 <VerticalAlign>Top</VerticalAlign>
               </Style>
@@ -5427,11 +5373,11 @@ Cstr(Fields!DocumentDateCaption.Value)
                   </Style>
                 </Paragraph>
               </Paragraphs>
-              <Top>2.97043in</Top>
+              <Top>3.22043in</Top>
               <Left>1.25405in</Left>
               <Height>11pt</Height>
               <Width>3.36959in</Width>
-              <ZIndex>36</ZIndex>
+              <ZIndex>34</ZIndex>
               <Style>
                 <VerticalAlign>Top</VerticalAlign>
               </Style>
@@ -5454,11 +5400,11 @@ Cstr(Fields!DocumentDateCaption.Value)
                   </Style>
                 </Paragraph>
               </Paragraphs>
-              <Top>2.81904in</Top>
+              <Top>3.06904in</Top>
               <Left>1.26794in</Left>
               <Height>11pt</Height>
               <Width>3.3557in</Width>
-              <ZIndex>37</ZIndex>
+              <ZIndex>35</ZIndex>
               <Style>
                 <VerticalAlign>Top</VerticalAlign>
               </Style>
@@ -5485,7 +5431,7 @@ Cstr(Fields!DocumentDateCaption.Value)
               <Left>4.62363in</Left>
               <Height>11pt</Height>
               <Width>2.59729in</Width>
-              <ZIndex>38</ZIndex>
+              <ZIndex>36</ZIndex>
               <Style>
                 <VerticalAlign>Top</VerticalAlign>
               </Style>
@@ -5510,11 +5456,11 @@ Cstr(Fields!DocumentDateCaption.Value)
                 </Paragraph>
               </Paragraphs>
               <rd:DefaultName>Textbox2</rd:DefaultName>
-              <Top>2.35271in</Top>
+              <Top>2.47771in</Top>
               <Left>4.62363in</Left>
               <Height>11pt</Height>
               <Width>1.377in</Width>
-              <ZIndex>39</ZIndex>
+              <ZIndex>37</ZIndex>
               <Style>
                 <Border>
                   <Style>None</Style>
@@ -5542,11 +5488,11 @@ Cstr(Fields!DocumentDateCaption.Value)
                 </Paragraph>
               </Paragraphs>
               <rd:DefaultName>Textbox4</rd:DefaultName>
-              <Top>2.35271in</Top>
+              <Top>2.47771in</Top>
               <Left>5.98871in</Left>
               <Height>11pt</Height>
               <Width>1.21821in</Width>
-              <ZIndex>40</ZIndex>
+              <ZIndex>38</ZIndex>
               <Style>
                 <Border>
                   <Style>None</Style>
@@ -5572,11 +5518,11 @@ Cstr(Fields!DocumentDateCaption.Value)
                 </Paragraph>
               </Paragraphs>
               <rd:DefaultName>Textbox51</rd:DefaultName>
-              <Top>2.50896in</Top>
+              <Top>2.63396in</Top>
               <Left>4.62363in</Left>
               <Height>11pt</Height>
               <Width>1.36658in</Width>
-              <ZIndex>41</ZIndex>
+              <ZIndex>39</ZIndex>
               <Style>
                 <Border>
                   <Style>None</Style>
@@ -5604,11 +5550,11 @@ Cstr(Fields!DocumentDateCaption.Value)
                 </Paragraph>
               </Paragraphs>
               <rd:DefaultName>Textbox61</rd:DefaultName>
-              <Top>2.50896in</Top>
+              <Top>2.63396in</Top>
               <Left>5.98871in</Left>
               <Height>11pt</Height>
               <Width>1.21821in</Width>
-              <ZIndex>42</ZIndex>
+              <ZIndex>40</ZIndex>
               <Style>
                 <Border>
                   <Style>None</Style>
@@ -5636,10 +5582,10 @@ Cstr(Fields!DocumentDateCaption.Value)
                 </Paragraph>
               </Paragraphs>
               <rd:DefaultName>Textbox122</rd:DefaultName>
-              <Top>2.81487in</Top>
+              <Top>3.06487in</Top>
               <Height>11pt</Height>
               <Width>1.24016in</Width>
-              <ZIndex>43</ZIndex>
+              <ZIndex>41</ZIndex>
               <Style>
                 <Border>
                   <Style>None</Style>
@@ -5655,7 +5601,7 @@ Cstr(Fields!DocumentDateCaption.Value)
               <Left>12cm</Left>
               <Height>14mm</Height>
               <Width>60mm</Width>
-              <ZIndex>44</ZIndex>
+              <ZIndex>42</ZIndex>
               <Visibility>
                 <Hidden>=iif(ISNothing(First(Fields!CompanyInfo2Picture.Value, "DataSet_Result"))= true,true,false)</Hidden>
               </Visibility>
@@ -5672,7 +5618,7 @@ Cstr(Fields!DocumentDateCaption.Value)
               <Left>6cm</Left>
               <Height>14mm</Height>
               <Width>60mm</Width>
-              <ZIndex>45</ZIndex>
+              <ZIndex>43</ZIndex>
               <Visibility>
                 <Hidden>=iif(ISNothing(First(Fields!CompanyInfo1Picture.Value, "DataSet_Result")) = true,true,false)</Hidden>
               </Visibility>
@@ -5688,7 +5634,7 @@ Cstr(Fields!DocumentDateCaption.Value)
               <Sizing>FitProportional</Sizing>
               <Height>14mm</Height>
               <Width>60mm</Width>
-              <ZIndex>46</ZIndex>
+              <ZIndex>44</ZIndex>
               <Visibility>
                 <Hidden>=iif(ISNothing(First(Fields!CompanyInfoPicture.Value, "DataSet_Result")) = true,true,false)</Hidden>
               </Visibility>
@@ -5859,6 +5805,9 @@ End Function
         <Field Name="CompanyInfoBankAccountNo">
           <DataField>CompanyInfoBankAccountNo</DataField>
         </Field>
+        <Field Name="CompanyInfoIBAN">
+          <DataField>CompanyInfoIBAN</DataField>
+        </Field>
         <Field Name="CustNo_IssFinChrgMemoHdr">
           <DataField>CustNo_IssFinChrgMemoHdr</DataField>
         </Field>
@@ -5945,6 +5894,9 @@ End Function
         </Field>
         <Field Name="CompanyInfoBankAccountNoCaption">
           <DataField>CompanyInfoBankAccountNoCaption</DataField>
+        </Field>
+        <Field Name="IBANCaption">
+          <DataField>IBANCaption</DataField>
         </Field>
         <Field Name="CompanyInfoBankNameCaption">
           <DataField>CompanyInfoBankNameCaption</DataField>

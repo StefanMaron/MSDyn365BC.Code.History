@@ -77,6 +77,7 @@ codeunit 130509 "Library - Sales"
           DATABASE::"Sales & Receivables Setup", SalesReceivablesSetup.FieldNo("Customer Nos."));
 
         Clear(Customer);
+        OnCreateCustomerOnBeforeInsertCustomer(Customer);
         Customer.Insert(true);
         Customer.Validate(Name, Customer."No.");  // Validating Name as No. because value is not important.
         Customer.Validate("Payment Method Code", PaymentMethod.Code);  // Mandatory for posting in ES build
@@ -1381,6 +1382,11 @@ codeunit 130509 "Library - Sales"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCreateSalesHeader(var SalesHeader: Record "Sales Header"; DocumentType: Enum "Sales Document Type"; SellToCustomerNo: Code[20])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateCustomerOnBeforeInsertCustomer(var Customer: Record Customer)
     begin
     end;
 }

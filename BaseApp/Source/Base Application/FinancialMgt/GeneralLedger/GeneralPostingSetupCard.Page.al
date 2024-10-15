@@ -308,9 +308,16 @@ page 395 "General Posting Setup Card"
     }
 
     trigger OnOpenPage()
+    var
+       FeatureTelemetry: Codeunit "Feature Telemetry";
     begin
         SetAccountsVisibility(
           PmtToleranceVisible, PmtDiscountVisible, SalesInvDiscVisible, SalesLineDiscVisible, PurchInvDiscVisible, PurchLineDiscVisible);
+
+        FeatureTelemetry.LogUptake('0000KQF', 'Prepayment Sales', Enum::"Feature Uptake Status"::Discovered);
+        FeatureTelemetry.LogUptake('0000KQG', 'Prepayment Sales', Enum::"Feature Uptake Status"::"Set up");
+        FeatureTelemetry.LogUptake('0000KQH', 'Prepayment Purchase', Enum::"Feature Uptake Status"::Discovered);
+        FeatureTelemetry.LogUptake('0000KQI', 'Prepayment Purchase', Enum::"Feature Uptake Status"::"Set up");
     end;
 
     var

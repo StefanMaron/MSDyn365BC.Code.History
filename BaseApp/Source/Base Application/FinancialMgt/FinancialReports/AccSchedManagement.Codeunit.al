@@ -400,6 +400,8 @@
         IsHandled := false;
         OnBeforeCalcCell(AccSchedLine, ColumnLayout, CalcAddCurr, Result, IsHandled);
         if not IsHandled then begin
+            AccountScheduleLine."Dimension 1 Totaling" := AccSchedLine."Dimension 1 Totaling";
+            AccountScheduleLine."Dimension 2 Totaling" := AccSchedLine."Dimension 2 Totaling";
             AccountScheduleLine.CopyFilters(AccSchedLine);
             StartDate := AccountScheduleLine.GetRangeMin("Date Filter");
             if EndDate <> AccountScheduleLine.GetRangeMax("Date Filter") then begin

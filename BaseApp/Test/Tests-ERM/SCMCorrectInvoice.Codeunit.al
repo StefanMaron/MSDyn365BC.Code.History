@@ -33,6 +33,7 @@ codeunit 137019 "SCM Correct Invoice"
         DocumentNoErr: Label 'Document No. are not equal.';
         TransactionTypeErr: Label 'Transaction Type are not equal';
         TransportMethodErr: Label 'Transport Method are not equal';
+        CommentCountErr: Label 'Wrong Sales Line Count';
 
     [Test]
     [Scope('OnPrem')]
@@ -1120,6 +1121,57 @@ codeunit 137019 "SCM Correct Invoice"
         LibraryVariableStorage.AssertEmpty();
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure NoDuplicateCommentLineWhenUsingCorrectiveCreditMemoOnPostedSalesInv()
+    var
+        SalesHeader: Record "Sales Header";
+        Cust: Record Customer;
+        Item: Record Item;
+        SalesLine: Record "Sales Line";
+        SalesShptLine: Record "Sales Shipment Line";
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        SalesHeaderCorrection: Record "Sales Header";
+        CorrectPostedSalesInvoice: Codeunit "Correct Posted Sales Invoice";
+        SalesGetShpt: Codeunit "Sales-Get Shipment";
+    begin
+        // [SCENARIO 456470] Duplicate comment lines in Sales/Purchase Credit Memo when created by Corrective Credit Memo
+        Initialize();
+
+        // [GIVEN] Create a Item with a Price
+        CreateItemWithPrice(Item, LibraryRandom.RandDec(10, 2));
+
+        // [GIVEN] Create a Customer
+        LibrarySales.CreateCustomer(Cust);
+
+        // [GIVEN] Create a Sales Order
+        CreateSalesOrderForItem(Cust, Item, 1, SalesHeader, SalesLine);
+
+        // [GIVEN] Post a Sales Order
+        LibrarySales.PostSalesDocument(SalesHeader, true, false);
+
+        // [GIVEN] Select a Sales Shipment Line
+        SalesShptLine.SetRange("Order No.", SalesLine."Document No.");
+        SalesShptLine.SetRange("Order Line No.", SalesLine."Line No.");
+        SalesShptLine.FindFirst();
+
+        // [GIVEN] Create a Sales Invoice for selected Sales Shipment Line
+        Clear(SalesHeader);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, Cust."No.");
+        SalesGetShpt.SetSalesHeader(SalesHeader);
+        SalesGetShpt.CreateInvLines(SalesShptLine);
+
+        // [GIVEN] Post the Sales Invoice 
+        SalesInvoiceHeader.Get(LibrarySales.PostSalesDocument(SalesHeader, true, true));
+        //Commit();
+
+        // [WHEN] Correct the posted Sales Invoice
+        CorrectPostedSalesInvoice.CreateCreditMemoCopyDocument(SalesInvoiceHeader, SalesHeaderCorrection);
+
+        // [THEN] Two Comments Lines should be created in the Sales Line.
+        CheckCommentsOnCreditLine(SalesHeaderCorrection);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -1407,6 +1459,18 @@ codeunit 137019 "SCM Correct Invoice"
         LibraryInventory.VerifyReservationEntryWithLotExists(
           DATABASE::"Sales Line", SalesHeader."Document Type".AsInteger(),
           SalesHeader."No.", SalesLine."Line No.", SalesLine."No.", SalesLine.Quantity);
+    end;
+
+    local procedure CheckCommentsOnCreditLine(SalesHeaderCorrection: Record "Sales Header")
+    var
+        SalesLine: Record "Sales Line";
+        SalesLineCount: Integer;
+    begin
+        SalesLine.SetRange("Document Type", SalesLine."Document Type"::"Credit Memo");
+        SalesLine.SetRange("Document No.", SalesHeaderCorrection."No.");
+        SalesLine.SetFilter(Type, '%1', SalesLine.Type::" ");
+        SalesLineCount := SalesLine.Count();
+        Assert.AreEqual(2, SalesLineCount, CommentCountErr);
     end;
 
     [ModalPageHandler]

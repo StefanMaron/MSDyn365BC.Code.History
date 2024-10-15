@@ -272,7 +272,7 @@
 #if not CLEAN23
                 OnAfterValidateNo(Rec, xRec, TempPurchLine);
 #endif
-                OnAfterValidateNoPurchaseLine(Rec, xRec, TempPurchLine, PurchHeader);                
+                OnAfterValidateNoPurchaseLine(Rec, xRec, TempPurchLine, PurchHeader);
             end;
         }
         field(7; "Location Code"; Code[10])
@@ -1794,9 +1794,14 @@
             MinValue = 0;
 
             trigger OnValidate()
+            var
+                FeatureTelemetry: Codeunit "Feature Telemetry";
             begin
                 TestStatusOpen();
                 UpdatePrepmtSetupFields();
+
+                FeatureTelemetry.LogUptake('0000KQD', 'Prepayment Purchase', Enum::"Feature Uptake Status"::Used);
+                FeatureTelemetry.LogUsage('0000KQE', 'Prepayment Purchase', 'Prepayment added');
 
                 if HasTypeToFillMandatoryFields() then
                     UpdateAmounts();
@@ -3455,6 +3460,7 @@
             trigger OnValidate()
             begin
                 NonDeductibleVAT.CheckPrepmtWithNonDeductubleVATInPurchaseLine(Rec);
+                NonDeductibleVAT.CheckNonDeductibleVATPctIsAllowed(Rec);
                 UpdateAmounts();
             end;
         }
@@ -4432,7 +4438,7 @@
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeCheckLineAmount(Rec, MaxLineAmount, IsHandled);
+        OnBeforeCheckLineAmount(Rec, MaxLineAmount, IsHandled, CurrFieldNo);
         if IsHandled then
             exit;
 
@@ -8071,7 +8077,6 @@
         UpdateDirectUnitCostByField(CallingFieldNo);
     end;
 
-    [Scope('OnPrem')]
     procedure ValidateLineDiscountPercent(DropInvoiceDiscountAmount: Boolean)
     var
         IsHandled: Boolean;
@@ -9989,7 +9994,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCheckLineAmount(var PurchaseLine: Record "Purchase Line"; MaxLineAmount: Decimal; var IsHandled: Boolean)
+    local procedure OnBeforeCheckLineAmount(var PurchaseLine: Record "Purchase Line"; MaxLineAmount: Decimal; var IsHandled: Boolean; CalledByFieldNo: Integer)
     begin
     end;
 
@@ -10895,7 +10900,7 @@
     [IntegrationEvent(false, false)]
     local procedure OnAfterValidateTypePurchaseLine(var PurchaseLine: Record "Purchase Line"; var xPurchaseLine: Record "Purchase Line"; var TempPurchaseLine: Record "Purchase Line" temporary)
     begin
-    end;    
+    end;
 
 
 #if not CLEAN23
@@ -10909,7 +10914,7 @@
     [IntegrationEvent(false, false)]
     local procedure OnAfterValidateNoPurchaseLine(var PurchaseLine: Record "Purchase Line"; var xPurchaseLine: Record "Purchase Line"; var TempPurchaseLine: Record "Purchase Line" temporary; PurchaseHeader: Record "Purchase Header")
     begin
-    end;    
+    end;
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeAttachToInventoryItemLine(var PurchaseLine: Record "Purchase Line"; var IsHandled: Boolean)

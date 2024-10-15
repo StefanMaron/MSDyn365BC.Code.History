@@ -12,6 +12,8 @@ report 5691 "Index Insurance"
             RequestFilterFields = "No.", "FA Class Code", "FA Subclass Code";
 
             trigger OnAfterGetRecord()
+            var
+                IsHandled: Boolean;
             begin
                 if Blocked or Inactive then
                     CurrReport.Skip();
@@ -32,19 +34,23 @@ report 5691 "Index Insurance"
                                         CurrReport.Skip();
                                 end else
                                     CurrReport.Skip();
-                                InsuranceJnlLine."Line No." := 0;
-                                FAJnlSetup.SetInsuranceJnlTrailCodes(InsuranceJnlLine);
-                                InsuranceJnlLine.Validate("Insurance No.", InsCoverageLedgEntry."Insurance No.");
-                                InsuranceJnlLine.Validate("FA No.", "No.");
-                                InsuranceJnlLine.Validate(
-                                  Amount, Round(InsCoverageLedgEntry.Amount * (IndexFigure / 100 - 1)));
-                                InsuranceJnlLine."Document No." := DocumentNo;
-                                InsuranceJnlLine."Posting No. Series" := NoSeries;
-                                InsuranceJnlLine.Description := PostingDescription;
-                                InsuranceJnlLine."Index Entry" := true;
-                                NextLineNo := NextLineNo + 10000;
-                                InsuranceJnlLine."Line No." := NextLineNo;
-                                InsuranceJnlLine.Insert(true);
+                                IsHandled := false;
+                                OnAfterGetRecordOnBeforeInitInsuranceJournalLine("Fixed Asset", IndexFigure, IsHandled, InsCoverageLedgEntry);
+                                if not IsHandled then begin
+                                    InsuranceJnlLine."Line No." := 0;
+                                    FAJnlSetup.SetInsuranceJnlTrailCodes(InsuranceJnlLine);
+                                    InsuranceJnlLine.Validate("Insurance No.", InsCoverageLedgEntry."Insurance No.");
+                                    InsuranceJnlLine.Validate("FA No.", "No.");
+                                    InsuranceJnlLine.Validate(
+                                      Amount, Round(InsCoverageLedgEntry.Amount * (IndexFigure / 100 - 1)));
+                                    InsuranceJnlLine."Document No." := DocumentNo;
+                                    InsuranceJnlLine."Posting No. Series" := NoSeries;
+                                    InsuranceJnlLine.Description := PostingDescription;
+                                    InsuranceJnlLine."Index Entry" := true;
+                                    NextLineNo := NextLineNo + 10000;
+                                    InsuranceJnlLine."Line No." := NextLineNo;
+                                    InsuranceJnlLine.Insert(true);
+                                end;
                             end;
                         end;
                     until InsCoverageLedgEntry.Next() = 0;
@@ -156,6 +162,11 @@ report 5691 "Index Insurance"
         PostingDescription := PostingDescriptionFrom;
         PostingDate := PostingDateFrom;
         IndexFigure := IndexFigureFrom;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterGetRecordOnBeforeInitInsuranceJournalLine(FixedAsset: Record "Fixed Asset"; IndexFigure: Decimal; var IsHandled: Boolean; InsCoverageLedgerEntry: Record "Ins. Coverage Ledger Entry")
+    begin
     end;
 }
 

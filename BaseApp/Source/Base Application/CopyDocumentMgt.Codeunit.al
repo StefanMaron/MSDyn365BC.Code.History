@@ -78,6 +78,7 @@
         CopyExtText: Boolean;
         CopyJobData: Boolean;
         SkipWarningNotification: Boolean;
+        SkipOldInvoiceDesc: Boolean;
         IsBlockedErr: Label '%1 %2 is blocked.', Comment = '%1 - type of entity, e.g. Item; %2 - entity''s No.';
         IsSalesBlockedItemErr: Label 'You cannot sell item %1 because the Sales Blocked check box is selected on the item card.', Comment = '%1 - Item No.';
         IsPurchBlockedItemErr: Label 'You cannot purchase item %1 because the Purchasing Blocked check box is selected on the item card.', Comment = '%1 - Item No.';
@@ -746,7 +747,13 @@
     procedure CheckCustomer(var FromSalesHeader: Record "Sales Header"; var ToSalesHeader: Record "Sales Header")
     var
         Cust: Record Customer;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCheckCustomer(FromSalesHeader, ToSalesHeader, IsHandled);
+        if IsHandled then
+            exit;
+
         if Cust.Get(FromSalesHeader."Sell-to Customer No.") then
             Cust.CheckBlockedCustOnDocs(Cust, ToSalesHeader."Document Type", false, false);
         if Cust.Get(FromSalesHeader."Bill-to Customer No.") then
@@ -2382,7 +2389,13 @@
         QtyToAssign: Decimal;
         SumQtyToAssign: Decimal;
         RemainingQty: Decimal;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCopyFromSalesLineItemChargeAssign(FromSalesLine, ToSalesLine, FromSalesHeader, ItemChargeAssgntNextLineNo, IsHandled);
+        if IsHandled then
+            exit;
+
         if FromSalesLine."Document Type" = FromSalesLine."Document Type"::"Credit Memo" then
             ValueEntry.SetRange("Document Type", ValueEntry."Document Type"::"Sales Credit Memo")
         else
@@ -3157,6 +3170,9 @@
                         CopySalesLinesToBuffer(
                           FromSalesHeader, FromSalesLine, FromSalesLine2, TempSalesLineBuf,
                           ToSalesHeader, TempDocSalesLine, "Document No.", NextLineNo);
+
+                    if TempSalesLineBuf."Shipment Line No." <> 0 then
+                        SkipOldInvoiceDescription(true);
 
                     OnAfterCopySalesInvLine(TempDocSalesLine, ToSalesHeader, TempSalesLineBuf, FromSalesInvLine);
                 until Next() = 0;
@@ -4064,6 +4080,9 @@
                         CopyPurchLinesToBuffer(
                           FromPurchHeader, FromPurchLine, FromPurchLine2, FromPurchLineBuf, ToPurchHeader, TempDocPurchaseLine,
                           "Document No.", NextLineNo);
+
+                    if FromPurchLineBuf."Receipt Line No." <> 0 then
+                        SkipOldInvoiceDescription(true);
 
                     OnAfterCopyPurchInvLines(TempDocPurchaseLine, ToPurchHeader, FromPurchLineBuf, FromPurchInvLine);
                 until Next() = 0;
@@ -6229,6 +6248,8 @@
             ToPurchLine."Pay-to Vendor No." := ToPurchHeader."Pay-to Vendor No.";
         end;
 
+        OnCopyArchPurchLineOnBeforeCheckExactCostRevMandatory(ToPurchLine, FromPurchLineArchive);
+
         if ExactCostRevMandatory and
            (FromPurchLineArchive.Type = FromPurchLineArchive.Type::Item) and
            (FromPurchLineArchive."Appl.-to Item Entry" <> 0) and
@@ -8200,6 +8221,18 @@
         OnCopyPurchLineOnBeforeCheckVATBusGroup(ToPurchLine, CheckVATBusGroup);
         if CheckVATBusGroup then
             ToPurchLine.TestField("VAT Bus. Posting Group", ToPurchHeader."VAT Bus. Posting Group");
+    end;
+
+    procedure SetPropertiesForCorrectiveCreditMemo(NewSkipCopyFromDescription: Boolean)
+    begin
+        SetProperties(true, false, false, false, true, true, false);
+        SkipOldInvoiceDesc := NewSkipCopyFromDescription;
+    end;
+
+    local procedure SkipOldInvoiceDescription(RcptOrShipLineExist: Boolean)
+    begin
+        if SkipOldInvoiceDesc and RcptOrShipLineExist then
+            SkipCopyFromDescription := true;
     end;
 
     [IntegrationEvent(false, false)]
@@ -10285,4 +10318,19 @@
     local procedure OnInitAndCheckPurchaseDocumentsOnAfterCheckPurchDocItselfCopy(ToPurchaseHeader: Record "Purchase Header"; FromPurchaseHeader: Record "Purchase Header")
     begin
     end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCopyArchPurchLineOnBeforeCheckExactCostRevMandatory(var ToPurchLine: Record "Purchase Line"; FromPurchLineArchive: Record "Purchase Line Archive")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckCustomer(var FromSalesHeader: Record "Sales Header"; var ToSalesHeader: Record "Sales Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCopyFromSalesLineItemChargeAssign(FromSalesLine: Record "Sales Line"; ToSalesLine: Record "Sales Line"; FromSalesHeader: Record "Sales Header"; var ItemChargeAssgntNextLineNo: Integer; var IsHandled: Boolean)
+    begin
+    end;    
 }

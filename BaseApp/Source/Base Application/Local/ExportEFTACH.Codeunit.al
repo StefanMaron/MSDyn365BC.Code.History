@@ -417,14 +417,21 @@ codeunit 10094 "Export EFT (ACH)"
         ZipInStream: InStream;
         ZipOutStream: OutStream;
         ToFile: Text;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
         OnBeforeDownloadWebclientZip(TempNameValueBuffer, TempEraseFileNameValueBuffer, ZipFileName, DataCompression);
         // Download the .zip file containing the reports if one was generated (usually from being on the web client)
         if (ZipFileName <> '') and TempNameValueBuffer.FindSet() then
             // If there's a single file, download it directly instead of the zip file
-            if TempNameValueBuffer.Count = 1 then
-                FileManagement.DownloadHandler(TempNameValueBuffer.Value, '', '', '', TempNameValueBuffer.Name)
-            else begin
+            if TempNameValueBuffer.Count = 1 then begin
+                FileManagement.BLOBImportFromServerFile(TempBlob, TempNameValueBuffer.Value);
+                TempBlob.CreateInStream(ServerTempFileInStream);
+                OnBeforeDownloadSingleFile(ServerTempFileInStream, TempNameValueBuffer.Name, IsHandled);
+
+                if not IsHandled then
+                    FileManagement.DownloadHandler(TempNameValueBuffer.Value, '', '', '', TempNameValueBuffer.Name);
+            end else begin
                 repeat
                     FileManagement.BLOBImportFromServerFile(TempBlob, TempNameValueBuffer.Value);
                     TempBlob.CreateInStream(ServerTempFileInStream);
@@ -436,7 +443,11 @@ codeunit 10094 "Export EFT (ACH)"
                 DataCompression.CloseZipArchive();
                 ZipTempBlob.CreateInStream(ZipInStream);
                 ToFile := ZipDownloadTxt;
-                DownloadFromStream(ZipInStream, '', '', '', ToFile);
+
+                OnBeforeDownloadZipFile(ZipInStream, ToFile, IsHandled);
+
+                if not IsHandled then
+                    DownloadFromStream(ZipInStream, '', '', '', ToFile);
             end;
 
         CleanupTempFiles();
@@ -508,6 +519,16 @@ codeunit 10094 "Export EFT (ACH)"
 
     [IntegrationEvent(false, false)]
     local procedure OnStartExportBatchOnBeforeACHUSHeaderModify(var ACHUSHeader: Record "ACH US Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeDownloadSingleFile(var FileInstream: InStream; FileName: Text[250]; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeDownloadZipFile(var FileInstream: InStream; FileName: Text; var IsHandled: Boolean)
     begin
     end;
 }

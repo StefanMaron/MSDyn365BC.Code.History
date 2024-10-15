@@ -177,6 +177,16 @@
         {
             Caption = 'Blocked';
         }
+        field(25; "Sale VAT Reporting Code"; Code[20])
+        {
+            Caption = 'Sale VAT Reporting Code';
+            TableRelation = "VAT Reporting Code";
+        }
+        field(26; "Purch. VAT Reporting Code"; Code[20])
+        {
+            Caption = 'Purchase VAT Reporting Code';
+            TableRelation = "VAT Reporting Code";
+        }
         field(6200; "Non-Deductible VAT %"; Decimal)
         {
             Caption = 'Non-Deductible VAT %';
@@ -195,12 +205,20 @@
         {
             Caption = 'Non-Deductible Sales VAT Account';
             TableRelation = "G/L Account";
+            ObsoleteReason = 'Non-Deductible VAT is not implemented for Sales.';
+#if not CLEAN23
+            ObsoleteState = Pending;
+            ObsoleteTag = '23.0';
 
             trigger OnValidate()
             begin
                 TestNotSalesTax(CopyStr(FieldCaption("Non-Ded. Sales VAT Account"), 1, 100));
                 CheckGLAcc("Non-Ded. Sales VAT Account");
             end;
+#else
+            ObsoleteState = Removed;
+            ObsoleteTag = '26.0';
+#endif
         }
         field(6202; "Non-Ded. Purchase VAT Account"; Code[20])
         {

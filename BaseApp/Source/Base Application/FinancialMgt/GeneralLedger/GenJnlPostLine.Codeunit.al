@@ -1461,9 +1461,6 @@
                                     CheckLedgEntry2 := CheckLedgEntry;
                                     CheckLedgEntry2."Entry Status" := CheckLedgEntry2."Entry Status"::Posted;
                                     CheckLedgEntry2."Bank Account Ledger Entry No." := BankAccLedgEntry."Entry No.";
-                                    // When Remit-to Code is blank use description given on Payment Journal Line
-                                    if "Remit-to Code" = '' then
-                                        CheckLedgEntry2.Description := BankAccLedgEntry.Description;
                                     OnPostBankAccOnBeforeCheckLedgEntry2Modify(CheckLedgEntry, BankAccLedgEntry);
                                     CheckLedgEntry2.Modify();
                                 until CheckLedgEntry.Next() = 0;
@@ -3778,6 +3775,9 @@
         VATEntry2.Reset();
         VATEntry2.SetCurrentKey("Transaction No.");
         VATEntry2.SetRange("Transaction No.", CustLedgEntry2."Transaction No.");
+
+        OnCustUnrealizedVATOnAfterSetFilterForVATEntry2(VATEntry2);
+
         if VATEntry2.FindSet() then
             repeat
                 VATPostingSetup.Get(VATEntry2."VAT Bus. Posting Group", VATEntry2."VAT Prod. Posting Group");
@@ -4865,8 +4865,11 @@
                     begin
                         VATPostingSetup.Get("VAT Bus. Posting Group", "VAT Prod. Posting Group");
                         VATPostingSetup.TestField("VAT Calculation Type", VATEntry."VAT Calculation Type");
-                        CreateGLEntry(
-                          GenJnlLine, VATPostingSetup.GetPurchAccount(false), -"Amount (LCY)", -"Additional-Currency Amount", false);
+                        IsHandled := false;
+                        OnPostDtldVendVATAdjustmentOnBeforeCreateGLEntryForNormalOrFullVAT(DtldCVLedgEntryBuf, VATEntry, GenJnlLine, IsHandled);
+                        if not IsHandled then
+                            CreateGLEntry(
+                              GenJnlLine, VATPostingSetup.GetPurchAccount(false), -"Amount (LCY)", -"Additional-Currency Amount", false);
                     end;
                 VATPostingSetup."VAT Calculation Type"::"Reverse Charge VAT":
                     begin
@@ -4940,6 +4943,9 @@
         VATEntry2.Reset();
         VATEntry2.SetCurrentKey("Transaction No.");
         VATEntry2.SetRange("Transaction No.", VendLedgEntry2."Transaction No.");
+	
+	    OnVendUnrealizedVATOnAfterSetFilterForVATEntry2(VATEntry2);
+	
         VendLedgEntry2.CalcFields("Amount (LCY)", "Original Amt. (LCY)");
         PaidAmount := -VendLedgEntry2."Amount (LCY)" + VendLedgEntry2."Remaining Amt. (LCY)";
         if VATEntry2.FindSet() then
@@ -9497,6 +9503,21 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeInitGLEntryVATOnVendUnrealizedVATForRevChargeVAT(var VATEntry: Record "VAT Entry"; var GenJournalLine: Record "Gen. Journal Line"; var NextEntryNo: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnVendUnrealizedVATOnAfterSetFilterForVATEntry2(var VATEntry: Record "VAT Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCustUnrealizedVATOnAfterSetFilterForVATEntry2(var VATEntry: Record "VAT Entry")
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnPostDtldVendVATAdjustmentOnBeforeCreateGLEntryForNormalOrFullVAT(DetailedCVLedgEntryBuffer: Record "Detailed CV Ledg. Entry Buffer"; VATEntry: Record "VAT Entry"; GenJournalLine: Record "Gen. Journal Line"; var IsHandled: Boolean)
     begin
     end;
 }
