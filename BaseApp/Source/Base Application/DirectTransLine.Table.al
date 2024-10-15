@@ -184,6 +184,37 @@ table 5857 "Direct Trans. Line"
         DimMgt: Codeunit DimensionManagement;
         DocumentLineTxt: Label '%1 %2 %3', Locked = true;
 
+    procedure CopyFromTransferLine(TransferLine: Record "Transfer Line")
+    begin
+        "Line No." := TransferLine."Line No.";
+        "Item No." := TransferLine."Item No.";
+        Description := TransferLine.Description;
+        Quantity := TransferLine."Qty. to Ship";
+        "Unit of Measure" := TransferLine."Unit of Measure";
+        "Shortcut Dimension 1 Code" := TransferLine."Shortcut Dimension 1 Code";
+        "Shortcut Dimension 2 Code" := TransferLine."Shortcut Dimension 2 Code";
+        "Dimension Set ID" := TransferLine."Dimension Set ID";
+        "Gen. Prod. Posting Group" := TransferLine."Gen. Prod. Posting Group";
+        "Inventory Posting Group" := TransferLine."Inventory Posting Group";
+        Quantity := TransferLine.Quantity;
+        "Quantity (Base)" := TransferLine."Quantity (Base)";
+        "Qty. per Unit of Measure" := TransferLine."Qty. per Unit of Measure";
+        "Unit of Measure Code" := TransferLine."Unit of Measure Code";
+        "Gross Weight" := TransferLine."Gross Weight";
+        "Net Weight" := TransferLine."Net Weight";
+        "Unit Volume" := TransferLine."Unit Volume";
+        "Variant Code" := TransferLine."Variant Code";
+        "Units per Parcel" := TransferLine."Units per Parcel";
+        "Description 2" := TransferLine."Description 2";
+        "Transfer Order No." := TransferLine."Document No.";
+        "Transfer-from Code" := TransferLine."Transfer-from Code";
+        "Transfer-to Code" := TransferLine."Transfer-to Code";
+        "Transfer-from Bin Code" := TransferLine."Transfer-from Bin Code";
+        "Item Category Code" := TransferLine."Item Category Code";
+
+        OnAfterCopyFromTransferLine(Rec, TransferLine);
+    end;
+
     procedure ShowDimensions()
     begin
         DimMgt.ShowDimensionSet(
@@ -196,6 +227,11 @@ table 5857 "Direct Trans. Line"
         ItemTrackingDocMgt: Codeunit "Item Tracking Doc. Management";
     begin
         ItemTrackingDocMgt.ShowItemTrackingForShptRcptLine(DATABASE::"Direct Trans. Line", 0, "Document No.", '', 0, "Line No.");
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCopyFromTransferLine(var DirectTransLine: Record "Direct Trans. Line"; TransferLine: Record "Transfer Line")
+    begin
     end;
 }
 

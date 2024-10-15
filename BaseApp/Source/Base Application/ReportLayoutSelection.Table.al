@@ -22,7 +22,7 @@ table 9651 "Report Layout Selection"
         field(4; Type; Option)
         {
             Caption = 'Type';
-            OptionCaption = 'RDLC,Word,Custom,Excel,External';
+            OptionCaption = 'RDLC,Word,Custom Layout,Excel,External';
             OptionMembers = "RDLC (built-in)","Word (built-in)","Custom Layout","Excel Layout","External Layout";
 
             trigger OnValidate()

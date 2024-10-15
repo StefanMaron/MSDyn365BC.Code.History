@@ -298,7 +298,9 @@
 
                     trigger OnAction()
                     begin
+                        FeatureTelemetry.LogUptake('0000FAF', IntrastatTok, Enum::"Feature Uptake Status"::Used);
                         DocPrint.PrintIntrastatDisk(Rec);
+			            FeatureTelemetry.LogUsage('0000QWE', IntrastatTok, 'File created');
                     end;
                 }
                 action(DiskLabels)
@@ -382,6 +384,8 @@
         ServerSetting: Codeunit "Server Setting";
         JnlSelected: Boolean;
     begin
+        FeatureTelemetry.LogUptake('0000FAS', IntrastatTok, Enum::"Feature Uptake Status"::Discovered);
+        Commit();
         IsSaaSExcelAddinEnabled := ServerSetting.GetIsSaasExcelAddinEnabled();
         if ClientTypeManagement.GetCurrentClientType = CLIENTTYPE::ODataV4 then
             exit;
@@ -405,7 +409,9 @@
         IntraJnlManagement: Codeunit IntraJnlManagement;
         DocPrint: Codeunit "Document-Print";
         ClientTypeManagement: Codeunit "Client Type Management";
+        FeatureTelemetry: Codeunit "Feature Telemetry";
         LineStyleExpression: Text;
+        IntrastatTok: Label 'Intrastat', Locked = true;
         StatisticalValue: Decimal;
         TotalStatisticalValue: Decimal;
         CurrentJnlBatchName: Code[10];

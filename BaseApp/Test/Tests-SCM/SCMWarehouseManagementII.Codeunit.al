@@ -39,6 +39,7 @@ codeunit 137154 "SCM Warehouse Management II"
         LibraryService: Codeunit "Library - Service";
         LibraryManufacturing: Codeunit "Library - Manufacturing";
         LibraryPurchase: Codeunit "Library - Purchase";
+        LibraryERM: Codeunit "Library - ERM";
         LibraryUtility: Codeunit "Library - Utility";
         LibraryRandom: Codeunit "Library - Random";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
@@ -2426,6 +2427,32 @@ codeunit 137154 "SCM Warehouse Management II"
 
         // [THEN] A validation error occurs.
         Assert.ExpectedError(LocationValidationError);
+    end;
+
+    [Test]
+    procedure LocationValidationForPurchaseLineWithGLAccountAndJobNo()
+    var
+        Job: Record Job;
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        LibraryJob: Codeunit "Library - Job";
+    begin
+        // [FEATURE] [Purchase] [Job]
+        // [SCENARIO 430663] Setting job on purchase line for g/l account with Directed Put-away and Pick location is allowed.
+        Initialize();
+
+        // [GIVEN] Create purchase line at location with directed put-away and pick.
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, '');
+        LibraryPurchase.CreatePurchaseLine(
+          PurchaseLine, PurchaseHeader, PurchaseLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithPurchSetup(), 1);
+        PurchaseLine.Validate("Location Code", LocationWhite.Code);
+
+        // [WHEN] Set job no. on the purchase line. 
+        LibraryJob.CreateJob(Job);
+        PurchaseLine.Validate("Job No.", Job."No.");
+
+        // [THEN] No error.
+        PurchaseLine.TestField("Job No.", Job."No.");
     end;
 
     [Test]

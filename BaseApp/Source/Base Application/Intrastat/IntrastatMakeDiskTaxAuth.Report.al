@@ -77,7 +77,7 @@ report 593 "Intrastat - Make Disk Tax Auth"
                 trigger OnPreDataItem()
                 begin
                     CompanyInfo.Get();
-                    VATRegNo := ConvertStr(CompanyInfo."VAT Registration No.", Text001, '    ');
+                    VATRegNo := ConvertStr(IntraJnlManagement.GetCompanyVATRegNo(), Text001, '    ');
                     SetRange("Internal Ref. No.", CopyStr(IntraReferenceNo, 1, 4), CopyStr(IntraReferenceNo, 1, 4) + '9');
                     PrevCompoundField := '';
                     IntrastatFileWriter.InitializeNextFile(IntrastatFileWriter.GetDefaultOrReceiptFileName());
@@ -167,6 +167,7 @@ report 593 "Intrastat - Make Disk Tax Auth"
 
     trigger OnPreReport()
     begin
+        ExportFormat := ExportFormat::"2022";
         IntrastatFileWriter.Initialize(true, true, 0);
 
         if ExportFormatIsSpecified then
@@ -194,7 +195,7 @@ report 593 "Intrastat - Make Disk Tax Auth"
         PrevType: Integer;
         ReceiptExists: Boolean;
         ShipmentExists: Boolean;
-        VATRegNo: Code[20];
+        VATRegNo: Text;
         ExportFormat: Enum "Intrastat Export Format";
         SpecifiedExportFormat: Enum "Intrastat Export Format";
         ExportFormatIsSpecified: Boolean;
@@ -202,6 +203,9 @@ report 593 "Intrastat - Make Disk Tax Auth"
     local procedure FilterSourceLinesByIntrastatSetupExportTypes()
     begin
         if not IntrastatSetup.Get() then
+            exit;
+
+        if IntrastatJnlLine.GetFilter(Type) <> '' then
             exit;
 
         if IntrastatSetup."Report Receipts" and IntrastatSetup."Report Shipments" then
@@ -436,8 +440,8 @@ report 593 "Intrastat - Make Disk Tax Auth"
             Format(IntrastatJnlLine."Transaction Type", 2) + sep +
             TextZeroFormat(DecimalFormat(IntrastatJnlLine."Total Weight", '<Integer><Decimals,4><Comma,,>'), 14) + sep +
             QuantityText + sep +
-            TextZeroFormat(DecimalFormat(IntrastatJnlLine.Amount, '<Integer><Decimals,3><Comma,,>'), 13) + sep +
-            TextZeroFormat(DecimalFormat(IntrastatJnlLine."Statistical Value", '<Integer><Decimals,3><Comma,,>'), 13) + sep +
+            TextZeroFormat(DecimalFormat(Round(IntrastatJnlLine.Amount), '<Integer><Decimals,3><Comma,,>'), 13) + sep +
+            TextZeroFormat(DecimalFormat(Round(IntrastatJnlLine."Statistical Value"), '<Integer><Decimals,3><Comma,,>'), 13) + sep +
             CopyStr(DelChr(IntrastatJnlLine."Partner VAT ID"), 1, 14));
     end;
 }

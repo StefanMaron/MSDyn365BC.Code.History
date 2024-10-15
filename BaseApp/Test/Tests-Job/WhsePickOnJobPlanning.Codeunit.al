@@ -412,7 +412,7 @@ codeunit 136318 "Whse. Pick On Job Planning"
         LibraryInventory.CreateItemVariant(NewItemVariant, Item."No.");
         QtyInventory := 1000;
         CreateAndPostInvtAdjustmentWithUnitCost(Item."No.", LocationWithWhsePick.Code, SourceBin.Code, QtyInventory, LibraryRandom.RandDec(10, 2));
-        CreateJobWithCustomer(Job, CreateCustomer(''));
+        LibraryJob.CreateJob(Job, CreateCustomer(''));
 
         // [GIVEN] Create 1 Job task
         LibraryJob.CreateJobTask(Job, JobTask);
@@ -643,7 +643,7 @@ codeunit 136318 "Whse. Pick On Job Planning"
         LibraryInventory.CreateItem(Item);
         QtyInventory := 1000;
         CreateAndPostInvtAdjustmentWithUnitCost(Item."No.", LocationWithWhsePick.Code, SourceBin.Code, QtyInventory, LibraryRandom.RandDec(10, 2));
-        CreateJobWithCustomer(Job, CreateCustomer(''));
+        LibraryJob.CreateJob(Job, CreateCustomer(''));
 
         // [GIVEN] Create job tasks and a Job Planning Line 
         // [GIVEN] Job Planning Line for Job Task T1: Type = Item, Line Type = Both Budget and Billable
@@ -701,7 +701,7 @@ codeunit 136318 "Whse. Pick On Job Planning"
         LibraryInventory.CreateItem(Item);
         QtyInventory := 1000;
         CreateAndPostInvtAdjustmentWithUnitCost(Item."No.", LocationWithWhsePick.Code, SourceBin.Code, QtyInventory, LibraryRandom.RandDec(10, 2));
-        CreateJobWithCustomer(Job, CreateCustomer(''));
+        LibraryJob.CreateJob(Job, CreateCustomer(''));
 
         // [GIVEN] Create job tasks and a Job Planning Line 
         // [GIVEN] Job Planning Line for Job Task T1: Type = Item, Line Type = Budget
@@ -743,7 +743,7 @@ codeunit 136318 "Whse. Pick On Job Planning"
         LibraryInventory.CreateItem(Item);
         QtyInventory := 1000;
         CreateAndPostInvtAdjustmentWithUnitCost(Item."No.", LocationWithWhsePick.Code, SourceBin.Code, QtyInventory, LibraryRandom.RandDec(10, 2));
-        CreateJobWithCustomer(Job, CreateCustomer(''));
+        LibraryJob.CreateJob(Job, CreateCustomer(''));
 
         // [GIVEN] Create job tasks and a Job Planning Line with 0 quantity.
         // [GIVEN] Job Planning Line for Job Task T1: Type = Item, Line Type = Budget
@@ -784,7 +784,7 @@ codeunit 136318 "Whse. Pick On Job Planning"
         LibraryInventory.CreateItem(Item);
         QtyInventory := 1000;
         CreateAndPostInvtAdjustmentWithUnitCost(Item."No.", LocationWithWhsePick.Code, SourceBin.Code, QtyInventory, LibraryRandom.RandDec(10, 2));
-        CreateJobWithCustomer(Job, CreateCustomer(''));
+        LibraryJob.CreateJob(Job, CreateCustomer(''));
 
         // [GIVEN] Create job tasks and a Job Planning Line 
         // [GIVEN] Job Planning Line for Job Task T1: Type = Item, Line Type = Budget
@@ -843,7 +843,7 @@ codeunit 136318 "Whse. Pick On Job Planning"
         LibraryInventory.CreateItem(Item);
         QtyInventory := 1000;
         CreateAndPostInvtAdjustmentWithUnitCost(Item."No.", LocationWithWhsePick.Code, SourceBin.Code, QtyInventory, LibraryRandom.RandDec(10, 2));
-        CreateJobWithCustomer(Job, CreateCustomer(''));
+        LibraryJob.CreateJob(Job, CreateCustomer(''));
 
         // [GIVEN] Create 1 Job task
         LibraryJob.CreateJobTask(Job, JobTask);
@@ -905,7 +905,7 @@ codeunit 136318 "Whse. Pick On Job Planning"
         CreateAndPostInvtAdjustmentWithUnitCost(Item."No.", Location1.Code, '', QtyInventory, LibraryRandom.RandDec(10, 2));
         CreateAndPostInvtAdjustmentWithUnitCost(Item."No.", Location2.Code, '', QtyInventory, LibraryRandom.RandDec(10, 2));
         CreateAndPostInvtAdjustmentWithUnitCost(Item."No.", LocationWithWhsePick.Code, SourceBin.Code, QtyInventory, LibraryRandom.RandDec(10, 2));
-        CreateJobWithCustomer(Job, CreateCustomer(''));
+        LibraryJob.CreateJob(Job, CreateCustomer(''));
 
         // [GIVEN] Create 1 Job task
         LibraryJob.CreateJobTask(Job, JobTask);
@@ -1541,7 +1541,7 @@ codeunit 136318 "Whse. Pick On Job Planning"
         );
 
         // [GIVEN] A job with a job task
-        CreateJobWithCustomer(Job, CreateCustomer(''));
+        LibraryJob.CreateJob(Job, CreateCustomer(''));
         LibraryJob.CreateJobTask(Job, JobTask);
 
         // [WHEN] Adding a job planning line
@@ -1595,7 +1595,7 @@ codeunit 136318 "Whse. Pick On Job Planning"
         LibraryInventory.CreateItem(Item);
         QtyInventory := 1000;
         CreateAndPostInvtAdjustmentWithUnitCost(Item."No.", LocationWithWhsePick.Code, SourceBin.Code, QtyInventory, LibraryRandom.RandDec(10, 2));
-        CreateJobWithCustomer(Job, CreateCustomer(''));
+        LibraryJob.CreateJob(Job, CreateCustomer(''));
 
         // [GIVEN] Create 1 Job task
         LibraryJob.CreateJobTask(Job, JobTask);
@@ -1634,6 +1634,222 @@ codeunit 136318 "Whse. Pick On Job Planning"
             DeletionNotPossibleErr, JobPlanningLine.TableCaption(), WarehouseActivityLinePick.TableCaption()
         );
         Assert.ExpectedError(ExpectedErrorMessage);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure LocationCardJobToBinUI()
+    var
+        Location: Record Location;
+        Bin1: Record Bin;
+        LocationCard: TestPage "Location Card";
+    begin
+        // [FEATURE] 430026 Location -> To-Job Bin Code
+        // [SCENARIO] Location Card UI To-Job Bin Code is enabled for Bin Mandatory and NOT Directed put-away and Pick.
+        // [GIVEN] Location with Bin Mandatory = False.
+        Initialize();
+        LibraryWarehouse.CreateLocation(Location);
+
+        // [GIVEN] Bin1 is setup for to the location.
+        LibraryWarehouse.CreateBin(Bin1, Location.Code, LibraryUtility.GenerateRandomCode(Bin1.FieldNo(Code), Database::Bin), '', '');
+        Commit(); //Needed to execute statements after the expected errors.
+
+        // [WHEN] To-Job Bin code on Location is set to Bin1.
+        asserterror Location.Validate("To-Job Bin Code", Bin1.Code);
+
+        // [THEN] Error: Bin Mandatory must be true
+        Assert.ExpectedError(Location.FieldCaption(Location."Bin Mandatory"));
+
+        // [WHEN] Open Location Card
+        LocationCard.OpenEdit();
+        LocationCard.GoToRecord(Location);
+
+        // [THEN] To-Job Bin Code must be disabled.
+        Assert.IsFalse(LocationCard."To-Job Bin Code".Enabled(), 'To-Job Bin Code must not be enabled as Bin Mandatory is false');
+
+        // [WHEN] Bin Mandatory is set to true
+        Location.Validate("Bin Mandatory", true);
+        Location.Modify(true);
+
+        // [THEN] To-Job Bin Code must be enabled.
+        LocationCard.GoToRecord(Location);
+        Assert.IsTrue(LocationCard."To-Job Bin Code".Enabled(), 'To-Job Bin Code must be enabled as Bin Mandatory is true');
+
+        // [THEN] Bin1 can be set as To-Job Bin Code.
+        LocationCard."To-Job Bin Code".SetValue(Bin1.Code);
+
+        // [WHEN] Directed Put-Away and Pick is set to true
+        LocationCard."Directed Put-away and Pick".SetValue(true);
+
+        // [THEN] To-Job Bin Code must be disabled.
+        Assert.IsFalse(LocationCard."To-Job Bin Code".Enabled(), 'To-Job Bin Code must not be enabled as Directed Put-away and Pick is false');
+
+        // [THEN] To-Job Bin Code value is deleted.
+        Assert.AreEqual('', LocationCard."To-Job Bin Code".Value(), 'To-Job Bin Code must not have any value as Directed Put-away and Pick is false');
+        LocationCard.Close();
+
+        // [WHEN] Setting To-Job Bin Code
+        Location.Get(Location.Code);
+        asserterror Location.Validate("To-Job Bin Code", Bin1.Code);
+
+        // [THEN] Error: Jobs does not support Directed Put-Away and Pick. Directed Put-away and pick must be set to False.
+        Assert.ExpectedError(Location.FieldCaption(Location."Directed Put-away and Pick"));
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure LocationToJobBinIsUsedForItemJobPlanningLine()
+    var
+        Item: Record Item;
+        Location: Record Location;
+        Bin1: Record Bin;
+        ToJobBin: Record Bin;
+        JobPlanningLine: Record "Job Planning Line";
+        JobTask: Record "Job Task";
+        QtyInventory: Integer;
+    begin
+        // [FEATURE] 430026 Location -> To-Job Bin Code
+        // [SCENARIO] To-Job Bin Code is used when creating job planning line.
+        // [GIVEN] Location with Bin Mandatory and Item I
+        // [GIVEN] A Job.
+        Initialize();
+        LibraryInventory.CreateItem(Item);
+        LibraryWarehouse.CreateLocationWMS(Location, true, false, false, false, false);
+
+        // [GIVEN] Create 1 Job task
+        CreateJobWithJobTask(JobTask);
+
+        // [GIVEN] To-Job Bin code on Location is set to ''.
+        Location.Validate("To-Job Bin Code", '');
+
+        // [WHEN] Create Job Planning Line Type: Item
+        CreateJobPlanningLineWithData(JobPlanningLine, JobTask, "Job Planning Line Line Type"::Budget, JobPlanningLine.Type::Item, Item."No.", Location.Code, '', LibraryRandom.RandInt(100));
+
+        // [THEN] Job Planning Line has no bin.
+        JobPlanningLine.TestField("Bin Code", '');
+
+        // [GIVEN] Add sufficient quantity in the inventory for item for the given Location and Bin Code 1.
+        QtyInventory := 10;
+        LibraryWarehouse.CreateBin(Bin1, Location.Code, LibraryUtility.GenerateRandomCode(Bin1.FieldNo(Code), Database::Bin), '', '');
+        CreateAndPostInvtAdjustmentWithUnitCost(Item."No.", Location.Code, Bin1.Code, QtyInventory, LibraryRandom.RandDec(10, 2));
+
+        // [WHEN] Create Job Planning Line Type: Item
+        CreateJobPlanningLineWithData(JobPlanningLine, JobTask, "Job Planning Line Line Type"::Budget, JobPlanningLine.Type::Item, Item."No.", Location.Code, '', LibraryRandom.RandInt(100));
+
+        // [THEN] Based on availability, Bin1 is selected as the Bin Code for the Job Planning Line.
+        JobPlanningLine.TestField("Bin Code", Bin1.Code);
+
+        // [GIVEN] ToJobBin is added to the location.
+        LibraryWarehouse.CreateBin(ToJobBin, Location.Code, LibraryUtility.GenerateRandomCode(ToJobBin.FieldNo(Code), Database::Bin), '', '');
+
+        // [WHEN] To-Job Bin code on Location is set to ToJobBin.Code.
+        Location.Validate("To-Job Bin Code", ToJobBin.Code);
+        Location.Modify(true);
+
+        // [WHEN] Create Job Planning Line Type: Item
+        CreateJobPlanningLineWithData(JobPlanningLine, JobTask, "Job Planning Line Line Type"::Budget, JobPlanningLine.Type::Item, Item."No.", Location.Code, '', LibraryRandom.RandInt(100));
+
+        // [THEN] Bin code on Job Planning Line = ToJobBin
+        JobPlanningLine.TestField("Bin Code", ToJobBin.Code);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure LocationToJobBinIsIgnoredForNonItemJobPlanningLine()
+    var
+        NonInventoryItem: Record Item;
+        ServiceItem: Record Item;
+        Location: Record Location;
+        ToJobBin: Record Bin;
+        JobPlanningLine: Record "Job Planning Line";
+        JobTask: Record "Job Task";
+        ResourceNo: Code[20];
+        GLAccountNo: Code[20];
+    begin
+        // [FEATURE] 430026 Location -> To-Job Bin Code
+        // [SCENARIO] To-Job Bin Code is not used when creating job planning line for non-inventory items, resource and GL account.
+        // [GIVEN] Location with Bin Mandatory and Item I
+        // [GIVEN] A Job.
+        Initialize();
+        LibraryWarehouse.CreateLocationWMS(Location, true, false, false, false, false);
+
+        // [GIVEN] Non-Inventory type of item
+        LibraryInventory.CreateNonInventoryTypeItem(NonInventoryItem);
+
+        // [GIVEN] Service type of item
+        LibraryInventory.CreateServiceTypeItem(ServiceItem);
+
+        // [GIVEN] Resource
+        ResourceNo := LibraryResource.CreateResourceNo();
+
+        // [GIVEN] G/L account
+        GLAccountNo := CreateGLAccount();
+
+        // [GIVEN] Create 1 Job task
+        CreateJobWithJobTask(JobTask);
+
+        // [GIVEN] To-Job Bin code on Location is set to ToJobBin.Code.
+        LibraryWarehouse.CreateBin(ToJobBin, Location.Code, LibraryUtility.GenerateRandomCode(ToJobBin.FieldNo(Code), Database::Bin), '', '');
+        Location.Validate("To-Job Bin Code", ToJobBin.Code);
+        Location.Modify(true);
+
+        // [WHEN] Create Job Planning Line for Non-Inventory Item
+        CreateJobPlanningLineWithData(JobPlanningLine, JobTask, "Job Planning Line Line Type"::Budget, JobPlanningLine.Type::Item, NonInventoryItem."No.", Location.Code, '', LibraryRandom.RandInt(100));
+
+        // [THEN] Job Planning Line has no bin.
+        JobPlanningLine.TestField("Bin Code", '');
+
+        // [WHEN] Create Job Planning Line for Service Item
+        CreateJobPlanningLineWithData(JobPlanningLine, JobTask, "Job Planning Line Line Type"::Budget, JobPlanningLine.Type::Item, ServiceItem."No.", Location.Code, '', LibraryRandom.RandInt(100));
+
+        // [THEN] Job Planning Line has no bin.
+        JobPlanningLine.TestField("Bin Code", '');
+
+        // [WHEN] Create Job Planning Line for a Resource
+        CreateJobPlanningLineWithData(JobPlanningLine, JobTask, "Job Planning Line Line Type"::Budget, JobPlanningLine.Type::Resource, ResourceNo, Location.Code, '', LibraryRandom.RandInt(100));
+
+        // [THEN] Job Planning Line has no bin.
+        JobPlanningLine.TestField("Bin Code", '');
+
+        // [WHEN] Create Job Planning Line for GL account
+        CreateJobPlanningLineWithData(JobPlanningLine, JobTask, "Job Planning Line Line Type"::Budget, JobPlanningLine.Type::"G/L Account", GLAccountNo, Location.Code, '', LibraryRandom.RandInt(100));
+
+        // [THEN] Job Planning Line has no bin.
+        JobPlanningLine.TestField("Bin Code", '');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure DirectedPutAwayAndPickIsNotSupported()
+    var
+        Item: Record Item;
+        Location: Record Location;
+        JobPlanningLine: Record "Job Planning Line";
+        JobTask: Record "Job Task";
+        LocationCard: TestPage "Location Card";
+    begin
+        // [SCENARIO] Location with Directed Put-away and Pick is not supported for Job.
+        // [GIVEN] Location with Directed Put-away and Pick
+        // [GIVEN] A Job.
+        Initialize();
+        LibraryInventory.CreateItem(Item);
+        LibraryWarehouse.CreateLocationWMS(Location, true, false, false, false, false);
+        LocationCard.OpenEdit();
+        LocationCard.GoToRecord(Location);
+        LocationCard."Directed Put-away and Pick".SetValue(true);
+        LocationCard.Close();
+
+        // [GIVEN] Create 1 Job task
+        CreateJobWithJobTask(JobTask);
+
+        // [GIVEN] Job Planning Line Type: Item
+        LibraryJob.CreateJobPlanningLine("Job Planning Line Line Type"::Budget, JobPlanningLine.Type::Item, JobTask, JobPlanningLine);
+
+        // [WHEN] Add location with Directed Put-away and Pick
+        asserterror JobPlanningLine.Validate("Location Code", Location.Code);
+
+        // [THEN] Error: Location with Directed Put-away and Pick is not supported.
+        Assert.ExpectedError(Location.FieldCaption(Location."Directed Put-away and Pick"));
     end;
 
     procedure AssignSNWhsePickLines(JobPlanningLine: Record "Job Planning Line")
@@ -2086,15 +2302,8 @@ codeunit 136318 "Whse. Pick On Job Planning"
     var
         Job: Record Job;
     begin
-        CreateJobWithCustomer(Job, CreateCustomer(''));  // Blank value for Currency Code.
+        LibraryJob.CreateJob(Job, CreateCustomer(''));  // Blank value for Currency Code.
         LibraryJob.CreateJobTask(Job, JobTask);
-    end;
-
-    local procedure CreateJobWithCustomer(var Job: Record Job; SellToCustomerNo: Code[20])
-    begin
-        LibraryJob.CreateJob(Job);
-        Job.Validate("Sell-to Customer No.", SellToCustomerNo);
-        Job.Modify(true);
     end;
 
     local procedure CreateAndPostInvtAdjustmentWithUnitCost(ItemNo: Code[20]; LocationCode: Code[10]; BinCode: Code[20]; Qty: Decimal; UnitCost: Decimal)

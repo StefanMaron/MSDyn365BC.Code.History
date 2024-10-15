@@ -104,8 +104,10 @@ codeunit 1380 "Batch Processing Mgt."
                         Window.Update(1, Round(CounterToPost / CounterTotal * 10000, 1));
 
                     if CanProcessRecord(RecRef) then
-                        if ProcessRecord(RecRef, BatchConfirm) then
+                        if ProcessRecord(RecRef, BatchConfirm) then begin
                             CounterPosted += 1;
+                            OnBatchProcessOnAfterIncreaseCounterPosted(RecRef, ProcessingCodeunitID);
+                        end;
                 until Next() = 0;
 
             OnBatchProcessOnBeforeResetBatchID(RecRef, ProcessingCodeunitID);
@@ -367,6 +369,28 @@ codeunit 1380 "Batch Processing Mgt."
             BatchProcessingParameter.Insert();
     end;
 
+    procedure SetParametersForPageID(PageID: Integer)
+    begin
+        IsHandled := false;
+        OnBeforeSetParametersForPageID(PageID, IsHandled);
+        if IsHandled then
+            exit;
+
+        case PageID of
+            Page::"Purchase Order List", Page::"Sales Return Order List":
+                begin
+                    SetParameter("Batch Posting Parameter Type"::Invoice, true);
+                    SetParameter("Batch Posting Parameter Type"::Receive, true);
+                end;
+
+            Page::"Sales Order List", Page::"Purchase Return Order List":
+                begin
+                    SetParameter("Batch Posting Parameter Type"::Invoice, true);
+                    SetParameter("Batch Posting Parameter Type"::Ship, true);
+                end;
+        end;
+    end;
+
     procedure GetTextParameter(RecordID: RecordID; ParameterId: Enum "Batch Posting Parameter Type"; var ParameterValue: Text[250]): Boolean
     var
         BatchProcessingParameter: Record "Batch Processing Parameter";
@@ -504,43 +528,53 @@ codeunit 1380 "Batch Processing Mgt."
         OnProcessBatchInBackground(RecRef, SkippedRecordExists);
     end;
 
-    [IntegrationEvent(TRUE, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnVerifyRecord(var RecRef: RecordRef; var Result: Boolean)
     begin
     end;
 
-    [IntegrationEvent(TRUE, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnBeforeBatchProcess(var RecRef: RecordRef)
     begin
     end;
 
-    [IntegrationEvent(TRUE, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnBeforeBatchProcessing(var RecRef: RecordRef; var BatchConfirm: Option)
     begin
     end;
 
-    [IntegrationEvent(TRUE, false)]
+    [IntegrationEvent(true, false)]
+    local procedure OnBeforeSetParametersForPageID(PageID: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
     local procedure OnAfterBatchProcess(var RecRef: RecordRef; var CounterPosted: Integer; ProcessingCodeunitID: Integer)
     begin
     end;
 
-    [IntegrationEvent(TRUE, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnAfterBatchProcessing(var RecRef: RecordRef; PostingResult: Boolean)
     begin
     end;
 
-    [IntegrationEvent(TRUE, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnCustomProcessing(var RecRef: RecordRef; var Handled: Boolean; var KeepParameters: Boolean)
     begin
     end;
 
-    [IntegrationEvent(TRUE, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnBatchProcessOnBeforeShowMessage(CounterPosted: Integer; CounterTotal: Integer; var IsHandled: Boolean)
     begin
     end;
 
-    [IntegrationEvent(TRUE, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnBatchProcessOnBeforeResetBatchID(var RecRef: RecordRef; ProcessingCodeunitID: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnBatchProcessOnAfterIncreaseCounterPosted(var RecRef: RecordRef; ProcessingCodeunitID: Integer)
     begin
     end;
 

@@ -1,4 +1,4 @@
-table 5875 "Phys. Invt. Order Header"
+﻿table 5875 "Phys. Invt. Order Header"
 {
     Caption = 'Phys. Invt. Order Header';
     DataCaptionFields = "No.", Description;
@@ -461,7 +461,7 @@ table 5875 "Phys. Invt. Order Header"
         OldDimSetID := "Dimension Set ID";
         "Dimension Set ID" :=
           DimManagement.EditDimensionSet(
-            "Dimension Set ID", StrSubstNo('%1 %2', TableCaption, "No."),
+            Rec, "Dimension Set ID", StrSubstNo('%1 %2', TableCaption, "No."),
             "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
         if OldDimSetID <> "Dimension Set ID" then begin
             Modify;
@@ -497,6 +497,7 @@ table 5875 "Phys. Invt. Order Header"
                     DimManagement.UpdateGlobalDimFromDimSetID(
                       PhysInvtOrderLine."Dimension Set ID", PhysInvtOrderLine."Shortcut Dimension 1 Code",
                       PhysInvtOrderLine."Shortcut Dimension 2 Code");
+                    OnUpdateAllLineDimOnBeforePhysInvtOrderLineModify(PhysInvtOrderLine);
                     PhysInvtOrderLine.Modify();
                 end;
             until PhysInvtOrderLine.Next() = 0;
@@ -564,6 +565,11 @@ table 5875 "Phys. Invt. Order Header"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterSetErrorText(NoOfOrderLines: Integer; OrderNo: Code[20]; PhysInvtOrderLineArgs: Record "Phys. Invt. Order Line"; var ErrorText: Text[250])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateAllLineDimOnBeforePhysInvtOrderLineModify(var PhysInvtOrderLine: Record "Phys. Invt. Order Line")
     begin
     end;
 }

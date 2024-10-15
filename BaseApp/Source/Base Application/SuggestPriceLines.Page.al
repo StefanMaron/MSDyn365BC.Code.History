@@ -107,6 +107,16 @@ page 7021 "Suggest Price Lines"
                         end;
                     }
                 }
+                group(ForceDefaultsGroup)
+                {
+                    ShowCaption = false;
+                    Visible = ShowForceDefaults;
+                    field("Force Defaults"; Rec."Force Defaults")
+                    {
+                        ApplicationArea = Basic, Suite;
+                        ToolTip = 'Specifies whether to apply the values of the target price list header to the new lines instead of the values of the price list you are copying.';
+                    }
+                }
                 group(Options)
                 {
                     Caption = 'Options';
@@ -120,7 +130,6 @@ page 7021 "Suggest Price Lines"
                     group(Adjustment)
                     {
                         ShowCaption = false;
-                        Visible = "Different Currencies";
                         field("Exchange Rate Date"; Rec."Exchange Rate Date")
                         {
                             ApplicationArea = Basic, Suite;
@@ -155,11 +164,21 @@ page 7021 "Suggest Price Lines"
         end else
             CreateNewLinesEditable := true;
         Rec.Insert();
-        if (Rec."To Price List Code" <> '') and (Defaults = '') then
-            if PriceListHeader.Get(Rec."To Price List Code") then begin
-                TempDefaultsPriceListHeader := PriceListHeader;
-                Defaults := GetDefaults();
-            end;
+
+        if Rec."To Price List Code" <> '' then
+            if PriceListHeader.Get(Rec."To Price List Code") then
+                if Defaults = '' then begin
+                    TempDefaultsPriceListHeader := PriceListHeader;
+                    Defaults := GetDefaults();
+                end;
+
+        if not Rec."Copy Lines" then
+            ShowForceDefaults := false
+        else
+            if PriceListHeader.Code <> '' then
+                ShowForceDefaults := PriceListHeader."Allow Updating Defaults"
+            else
+                ShowForceDefaults := true;
 
         CopyLines := Rec."Copy Lines";
         CopyToWorksheet := Rec."Copy Lines" and Rec.Worksheet;
@@ -177,9 +196,15 @@ page 7021 "Suggest Price Lines"
         DataCaptionCopyLbl: Label 'Copy existing';
         DataCaptionSuggestLbl: Label 'Create new';
         DefaultsLbl: Label '%1 = %2; ', Locked = true;
+        [InDataSet]
         CopyToWorksheet: Boolean;
+        [InDataSet]
+        ShowForceDefaults: Boolean;
+        [InDataSet]
         ShowDefaults: Boolean;
+        [InDataSet]
         CreateNewLinesEditable: Boolean;
+        [InDataSet]
         CopyLines: Boolean;
 
     procedure GetDefaults(var PriceListHeader: Record "Price List Header")

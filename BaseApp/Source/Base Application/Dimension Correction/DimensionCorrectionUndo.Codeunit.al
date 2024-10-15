@@ -1,4 +1,4 @@
-codeunit 2582 "Dimension Correction Undo"
+﻿codeunit 2582 "Dimension Correction Undo"
 {
     TableNo = "Job Queue Entry";
     Permissions = tabledata "G/L Entry" = rimd;
@@ -97,6 +97,7 @@ codeunit 2582 "Dimension Correction Undo"
         GLEntry."Dimension Set ID" := TempDimCorrectionSetBuffer."Dimension Set ID";
         DimensionManagement.UpdateGlobalDimFromDimSetID(
             GLEntry."Dimension Set ID", GLEntry."Global Dimension 1 Code", GLEntry."Global Dimension 2 Code");
+        OnUndoGLEntryOnAfterUpdateGlobalDimFromDimSetID(GLEntry);
 
         GLEntry."Dimension Changes Count" += 1;
 
@@ -126,4 +127,9 @@ codeunit 2582 "Dimension Correction Undo"
         StartingUndoDimensionCorrectionEntriesLbl: Label 'Starting undo of Ledger entries of Dimension Correction %1.', Locked = true, Comment = '%1 Dimension Correction Entry No.';
         CompletedUndoDimensionCorrectionEntriesLbl: Label 'Starting undo of Ledger entries of Dimension Correction %1.', Locked = true, Comment = '%1 Dimension Correction Entry No.';
         CommitedUndoLedgerEntriesUpdateTelemetryLbl: Label 'Commited Undo G/L Entries Dimensions. Time from last commit: %1. Number of entries iterated: %2', Locked = true, Comment = '%1 - Time passed between commits, %2 Number';
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUndoGLEntryOnAfterUpdateGlobalDimFromDimSetID(var GLEntry: Record "G/L Entry")
+    begin
+    end;
 }

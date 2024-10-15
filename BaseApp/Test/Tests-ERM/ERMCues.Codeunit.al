@@ -647,6 +647,7 @@ codeunit 134924 "ERM Cues"
         ServiceContractLine: Record "Service Contract Line";
         PostedWhseShipmentHeader: Record "Posted Whse. Shipment Header";
         VendorLedgerEntry: Record "Vendor Ledger Entry";
+        SalesCue: Record "Sales Cue";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"ERM Cues");
         SalesHeader.DeleteAll();
@@ -659,6 +660,10 @@ codeunit 134924 "ERM Cues"
         ServiceContractLine.DeleteAll();
         PostedWhseShipmentHeader.DeleteAll();
         VendorLedgerEntry.DeleteAll();
+        if SalesCue.Get() then begin
+            SalesCue."Avg. Days Delayed Updated On" := 0DT;
+            SalesCue.Modify();
+        end;
 
         if IsInitialized then
             exit;
