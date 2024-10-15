@@ -37,7 +37,6 @@ report 4403 "EXR Aged Acc Payable Excel"
             {
                 IncludeCaption = true;
             }
-
             dataitem(AgingData; "EXR Aging Report Buffer")
             {
                 DataItemTableView = sorting("Vendor Source No.");
@@ -88,6 +87,22 @@ report 4403 "EXR Aged Acc Payable Excel"
                     IncludeCaption = true;
                 }
                 column(DueDate; "Due Date")
+                {
+                    IncludeCaption = true;
+                }
+                column(ReportingDate; "Reporting Date")
+                {
+                    IncludeCaption = true;
+                }
+                column(ReportingDate_Month; "Reporting Date Month")
+                {
+                    IncludeCaption = true;
+                }
+                column(ReportingDate_Quarter; "Reporting Date Quarter")
+                {
+                    IncludeCaption = true;
+                }
+                column(ReportingDate_Year; "Reporting Date Year")
                 {
                     IncludeCaption = true;
                 }
@@ -150,6 +165,8 @@ report 4403 "EXR Aged Acc Payable Excel"
     requestpage
     {
         SaveValues = true;
+        AboutTitle = 'Aged Accounts Payable Excel';
+        AboutText = 'This report contains aggregated aging data based on vendor ledger entries. The data is aggregated and bucketed according to the ‘Aged as of'' and ‘period length'' parameters in the reports request page. The aggregated data is summarized per the 2 global dimensions.';
 
         layout
         {
@@ -164,12 +181,17 @@ report 4403 "EXR Aged Acc Payable Excel"
                         Caption = 'Aged As Of';
                         ToolTip = 'Specifies the date that you want the aging calculated for.';
                     }
-                    field(AgingbyOption; AgingBy)
+                    field(AgingbyOption; TempEXRAgingReportBuffer."Aged By")
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Aging by';
                         OptionCaption = 'Due Date,Posting Date,Document Date';
                         ToolTip = 'Specifies if the aging will be calculated from the due date, the posting date, or the document date.';
+
+                        trigger OnValidate()
+                        begin
+                            GlobalEXTAgedAccCaptionHandler.SetGlobalEXRAgingReportBuffer(TempEXRAgingReportBuffer);
+                        end;
                     }
                     field(PeriodLengthOption; PeriodLength)
                     {
@@ -213,6 +235,8 @@ report 4403 "EXR Aged Acc Payable Excel"
         {
             Type = Excel;
             LayoutFile = './ReportLayouts/Excel/Purchase/AgedAccountsPayableExcel.xlsx';
+            Caption = 'Aged Accounts Payable Excel';
+            Summary = 'Built in layout for Aged Account Payable. Pivot tables can be used to view the data per LCY and FCY and analyse amounts due by currency. Report uses Query connections.';
         }
     }
     labels
@@ -232,6 +256,9 @@ report 4403 "EXR Aged Acc Payable Excel"
         PostingDateYear = 'Posting Date (Year)';
         PostingDateMonth = 'Posting Date (Month)';
         PostingDateQuarter = 'Posting Date (Quarter)';
+        DocumentDateMonth = 'Document Date (Month)';
+        DocumentDateQuarter = 'Document Date (Quarter)';
+        DocumentDateYear = 'Document Date (Year)';
         DueByCurrencies = 'Due by Currencies';
         OpenByFCY = 'Open by (FCY)';
         DataRetrieved = 'Data retrieved:';
@@ -239,7 +266,9 @@ report 4403 "EXR Aged Acc Payable Excel"
     }
 
     protected var
+        TempEXRAgingReportBuffer: Record "EXR Aging Report Buffer" temporary;
         GeneralLedgerSetup: Record "General Ledger Setup";
+        GlobalEXTAgedAccCaptionHandler: Codeunit "EXT Aged Acc. Caption Handler";
         PeriodLength: DateFormula;
         SkipZeroBalanceVendors: Boolean;
         EndingDate: Date;
@@ -247,11 +276,18 @@ report 4403 "EXR Aged Acc Payable Excel"
         PeriodEnds: List of [Date];
         PeriodStarts: List of [Date];
         CurrencyCodeDisplayCode: Code[20];
+#if not CLEAN25
+#pragma warning disable AA0137
+        [Obsolete('Will be deleted', '25.0')]
         AgingBy: Option "Due Date","Posting Date","Document Date";
+#pragma warning restore AA0137
+#endif
 
     trigger OnPreReport()
     begin
         InitReport();
+        BindSubscription(GlobalEXTAgedAccCaptionHandler);
+        GlobalEXTAgedAccCaptionHandler.SetGlobalEXRAgingReportBuffer(TempEXRAgingReportBuffer);
     end;
 
     local procedure InitReport()
@@ -314,55 +350,14 @@ report 4403 "EXR Aged Acc Payable Excel"
         AgingData."Posting Date" := VendorLedgerEntry."Posting Date";
         AgingData."Document Date" := VendorLedgerEntry."Document Date";
         AgingData."Due Date" := VendorLedgerEntry."Due Date";
-        FindPeriodRange(AgingData);
+        AgingData."Aged By" := TempEXRAgingReportBuffer."Aged By";
+        AgingData.SetPeriodStartAndEndDate(PeriodStarts, PeriodEnds);
+        AgingData.SetReportingDate();
         AgingData."Remaining Amount (LCY)" := VendorLedgerEntry."Remaining Amt. (LCY)";
         AgingData."Remaining Amount" := VendorLedgerEntry."Remaining Amount";
         AgingData."Original Amount (LCY)" := VendorLedgerEntry."Original Amt. (LCY)";
         AgingData."Original Amount" := VendorLedgerEntry."Original Amount";
         AgingData.Insert(true);
-    end;
-
-    local procedure FindPeriodRange(var TempFERAgingReportBuffer: Record "EXR Aging Report Buffer" temporary)
-    begin
-        case AgingBy of
-            AgingBy::"Due Date":
-                begin
-                    TempFERAgingReportBuffer."Period Start Date" := FindPeriodStart(TempFERAgingReportBuffer."Due Date");
-                    TempFERAgingReportBuffer."Period End Date" := FindPeriodEnd(TempFERAgingReportBuffer."Due Date");
-                end;
-            AgingBy::"Posting Date":
-                begin
-                    TempFERAgingReportBuffer."Period Start Date" := FindPeriodStart(TempFERAgingReportBuffer."Posting Date");
-                    TempFERAgingReportBuffer."Period End Date" := FindPeriodEnd(TempFERAgingReportBuffer."Posting Date");
-                end;
-            AgingBy::"Document Date":
-                begin
-                    TempFERAgingReportBuffer."Period Start Date" := FindPeriodStart(TempFERAgingReportBuffer."Document Date");
-                    TempFERAgingReportBuffer."Period End Date" := FindPeriodEnd(TempFERAgingReportBuffer."Document Date");
-                end;
-        end;
-    end;
-
-    local procedure FindPeriodStart(WhatDate: Date): Date
-    var
-        PossibleDate: Date;
-    begin
-        foreach PossibleDate in PeriodStarts do
-            if WhatDate >= PossibleDate then
-                exit(PossibleDate);
-
-        exit(PossibleDate);
-    end;
-
-    local procedure FindPeriodEnd(WhatDate: Date): Date
-    var
-        PossibleDate: Date;
-    begin
-        foreach PossibleDate in PeriodEnds do
-            if WhatDate < PossibleDate then
-                exit(PossibleDate);
-
-        exit(PossibleDate);
     end;
 }
 

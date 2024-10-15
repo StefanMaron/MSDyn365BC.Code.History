@@ -60,6 +60,6 @@ enum 99000880 "Order Promising Line Source Type"
     }
     value(13; Job)
     {
-        Caption = 'Job';
+        Caption = 'Project';
     }
 }

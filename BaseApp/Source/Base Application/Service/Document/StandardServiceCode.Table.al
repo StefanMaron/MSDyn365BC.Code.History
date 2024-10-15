@@ -112,7 +112,13 @@ table 5996 "Standard Service Code"
         StdServItemGrCode: Record "Standard Service Item Gr. Code";
         StdServItemGrCodesForm: Page "Standard Serv. Item Gr. Codes";
         Factor: Integer;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeInsertServiceLines(ServiceHeader, IsHandled);
+        if IsHandled then
+            exit;
+
         ServiceHeader.TestField("No.");
         ServiceHeader.TestField("Document Type");
 
@@ -191,6 +197,11 @@ table 5996 "Standard Service Code"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeInsertServLine(var ServiceLine: Record "Service Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeInsertServiceLines(ServiceHeader: Record "Service Header"; var IsHandled: Boolean)
     begin
     end;
 }

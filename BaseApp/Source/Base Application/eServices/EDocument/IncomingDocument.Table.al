@@ -945,11 +945,18 @@ table 130 "Incoming Document"
 
     procedure SetPostedDocFieldsForcePosted(PostingDate: Date; DocNo: Code[20]; ForcePosted: Boolean)
     var
+        CurrIncomingDocument: Record "Incoming Document";
         IncomingDocumentAttachment: Record "Incoming Document Attachment";
+        IncomingDocumentAttachmentCopy: Record "Incoming Document Attachment";
         RelatedRecordRef: RecordRef;
         RelatedRecord: Variant;
     begin
         TestReadyForProcessingForcePosted(ForcePosted);
+        if Posted then begin
+            CurrIncomingDocument.CreateIncomingDocument('', '');
+            CurrIncomingDocument.TransferFields(Rec, false);
+            CurrIncomingDocument.Modify();
+        end;
         Posted := true;
         Status := Status::Posted;
         Processed := true;
@@ -963,8 +970,19 @@ table 130 "Incoming Document"
         ClearErrorMessages();
         Modify(true);
         IncomingDocumentAttachment.SetRange("Incoming Document Entry No.", "Entry No.");
-        IncomingDocumentAttachment.ModifyAll("Document No.", "Document No.");
-        IncomingDocumentAttachment.ModifyAll("Posting Date", "Posting Date");
+        if not IncomingDocumentAttachment.Findset() then
+            exit;
+
+        repeat
+            if CurrIncomingDocument."Entry No." <> 0 then begin
+                IncomingDocumentAttachmentCopy := IncomingDocumentAttachment;
+                IncomingDocumentAttachmentCopy."Incoming Document Entry No." := CurrIncomingDocument."Entry No.";
+                IncomingDocumentAttachmentCopy.Insert();
+            end;
+            IncomingDocumentAttachment."Document No." := "Document No.";
+            IncomingDocumentAttachment."Posting Date" := "Posting Date";
+            IncomingDocumentAttachment.Modify();
+        until IncomingDocumentAttachment.Next() = 0;
     end;
 
     procedure UndoPostedDocFields()

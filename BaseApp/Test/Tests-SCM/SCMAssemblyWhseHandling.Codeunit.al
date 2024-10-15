@@ -24,6 +24,8 @@ codeunit 137932 "SCM Assembly Whse. Handling"
         LibraryRandom: Codeunit "Library - Random";
         isInitialized: Boolean;
         ZoneCodeMustMatchErr: Label 'Zone Code must match.';
+        AssemblyHeaderIsNotFoundErr: Label 'Assembly Header is not found.';
+        PickQtyAndQtyPickedMustMatchErr: Label 'PickQty and Qty. Picked must match.';
 
     [Test]
     [Scope('OnPrem')]
@@ -429,6 +431,123 @@ codeunit 137932 "SCM Assembly Whse. Handling"
         Assert.AreEqual(Zone2.Code, WarehouseEntry."Zone Code", ZoneCodeMustMatchErr);
     end;
 
+    [Test]
+    [HandlerFunctions('MessageHandler,ConfirmHandlerNo')]
+    [Scope('OnPrem')]
+    procedure ShowWarningWhenDeleteAssemblyLineHavingQtyPicked()
+    var
+        Item: Record Item;
+        Item2: Record Item;
+        Location: Record Location;
+        Bin: Record Bin;
+        Bin2: Record Bin;
+        ItemJournalLine: Record "Item Journal Line";
+        AssemblyHeader: Record "Assembly Header";
+        AssemblyLine: Record "Assembly Line";
+        WarehouseActivityHeader: Record "Warehouse Activity Header";
+        PickQty: Decimal;
+        DocumentNo: Code[20];
+    begin
+        // [SCENARIO 488261] Warning is shown when Stan deletes Assembly Order or Assembly Line having Qty. Picked greater than Consumed Quantity.
+        Initialize();
+
+        // [GIVEN] Create Item.
+        LibraryInventory.CreateItem(Item);
+
+        // [GIVEN] Create Item 2.
+        LibraryInventory.CreateItem(Item2);
+
+        // [GIVEN] Create Location & Validate Assembly Consumption Warehouse Handling.
+        CreateLocation(Location);
+        Location.Validate("Asm. Consump. Whse. Handling", Location."Asm. Consump. Whse. Handling"::"Warehouse Pick (mandatory)");
+        Location.Modify(true);
+
+        // [GIVEN] Create Bin.
+        LibraryWarehouse.CreateBin(Bin, Location.Code, Bin.Code, '', '');
+
+        // [GIVEN] Create Bin 2.
+        LibraryWarehouse.CreateBin(Bin2, Location.Code, Bin2.Code, '', '');
+
+        // [GIVEN] Create Item Journal Line & Validate Location Code & Bin Code.
+        CreateItemJournalLine(ItemJournalTemplate, ItemJournalBatch, ItemJournalLine, Item);
+        ItemJournalLine.Validate("Location Code", Location.Code);
+        ItemJournalLine.Validate("Bin Code", Bin.Code);
+        ItemJournalLine.Modify(true);
+
+        // [GIVEN] Post Item Journal Line.
+        LibraryInventory.PostItemJournalLine(ItemJournalTemplate.Name, ItemJournalBatch.Name);
+
+        // [GIVEN] Create Assembly Header.
+        LibraryAssembly.CreateAssemblyHeader(AssemblyHeader, WorkDate(), Item2."No.", '', LibraryRandom.RandInt(0), '');
+
+        // [GIVEN] Save Assembly Header No. in a Variable.
+        DocumentNo := AssemblyHeader."No.";
+
+        // [GIVEN] Create Assembly Line.
+        LibraryAssembly.CreateAssemblyLine(
+            AssemblyHeader,
+            AssemblyLine,
+            AssemblyLine.Type::Item,
+            Item."No.",
+            Item."Base Unit of Measure",
+            LibraryRandom.RandIntInRange(2, 2),
+            LibraryRandom.RandIntInRange(2, 2),
+            Item.Description);
+
+        // [GIVEN] Validate Location Code & Bin Code in Assembly Line.
+        AssemblyLine.Validate("Location Code", Location.Code);
+        AssemblyLine.Validate("Bin Code", Bin2.Code);
+        AssemblyLine.Modify(true);
+
+        // [GIVEN] Release Assembly Order.
+        LibraryAssembly.ReleaseAO(AssemblyHeader);
+
+        // [GIVEN] Create Warehouse Pick.
+        LibraryAssembly.CreateWhsePick(AssemblyHeader, '', 0, false, false, false);
+
+        // [GIVEN] Generate and save Quantity to be picked in a Variable.
+        PickQty := AssemblyLine.Quantity - 1;
+
+        // [GIVEN] Validate Qty. to Handle in Warehouse Activity Lines.
+        ValidateQtyToHandleInWhseActivityLines(Location, PickQty);
+
+        // [GIVEN] Find Warehouse Activity Header.
+        WarehouseActivityHeader.SetRange("Location Code", Location.Code);
+        WarehouseActivityHeader.FindFirst();
+
+        // [GIVEN] Register Warehouse Pick.
+        LibraryWarehouse.RegisterWhseActivity(WarehouseActivityHeader);
+
+        // [GIVEN] Validate Status in Assembly Header.
+        AssemblyHeader.Validate(Status, AssemblyHeader.Status::Open);
+        AssemblyHeader.Modify(true);
+
+        // [GIVEN] Delete Assembly Header.
+        asserterror AssemblyHeader.Delete(true);
+
+        // [WHEN] Find Assembly Header.
+        AssemblyHeader.SetRange("Document Type", AssemblyHeader."Document Type"::Order);
+        AssemblyHeader.SetRange("No.", DocumentNo);
+
+        // [THEN] Verify Assembly Header is not deleted.
+        Assert.IsTrue(AssemblyHeader.FindFirst(), AssemblyHeaderIsNotFoundErr);
+
+        // [GIVEN] Validate Status in Assembly Header.
+        AssemblyHeader.Validate(Status, AssemblyHeader.Status::Open);
+        AssemblyHeader.Modify(true);
+
+        // [GIVEN] Find Assembly Line.
+        AssemblyLine.SetRange("Document Type", AssemblyLine."Document Type"::Order);
+        AssemblyLine.SetRange("Document No.", AssemblyHeader."No.");
+        AssemblyLine.FindFirst();
+
+        // [WHEN] Delete Assembly Line.
+        asserterror AssemblyLine.Delete(true);
+
+        // [VERIFY] Verify Assembly Line is not deleted and has Qty. Picked.
+        Assert.AreEqual(PickQty, AssemblyLine."Qty. Picked", PickQtyAndQtyPickedMustMatchErr);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -688,6 +807,19 @@ codeunit 137932 "SCM Assembly Whse. Handling"
             LibraryRandom.RandInt(100));
     end;
 
+    local procedure ValidateQtyToHandleInWhseActivityLines(Location: Record Location; PickQty: Decimal)
+    var
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+    begin
+        WarehouseActivityLine.SetRange("Location Code", Location.Code);
+        WarehouseActivityLine.FindFirst();
+        WarehouseActivityLine.Validate("Qty. to Handle", PickQty);
+        WarehouseActivityLine.Modify(true);
+        WarehouseActivityLine.FindLast();
+        WarehouseActivityLine.Validate("Qty. to Handle", PickQty);
+        WarehouseActivityLine.Modify(true);
+    end;
+
     [MessageHandler]
     [Scope('OnPrem')]
     procedure SimpleMessageHandler(Message: Text[1024])
@@ -699,6 +831,13 @@ codeunit 137932 "SCM Assembly Whse. Handling"
     [Scope('OnPrem')]
     procedure MessageHandler(Message: Text[1024])
     begin
+    end;
+
+    [ConfirmHandler]
+    [Scope('OnPrem')]
+    procedure ConfirmHandlerNo(Question: Text[1024]; var Reply: Boolean)
+    begin
+        Reply := false;
     end;
 }
 

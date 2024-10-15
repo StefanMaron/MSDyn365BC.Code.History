@@ -1208,6 +1208,7 @@ codeunit 22 "Item Jnl.-Post Line"
 
         OnItemQtyPostingOnBeforeApplyItemLedgEntry(ItemJnlLine, GlobalItemLedgEntry);
         ApplyItemLedgEntry(GlobalItemLedgEntry, OldItemLedgEntry, GlobalValueEntry, false);
+        UpdateReservationEntryForNonInventoriableItem();
         CheckApplFromInProduction(GlobalItemLedgEntry, ItemJnlLine."Applies-from Entry");
         AutoTrack(GlobalItemLedgEntry, IsReserved);
 
@@ -1948,8 +1949,11 @@ then
                    Abs(ItemLedgEntry."Remaining Quantity" - ItemLedgEntry."Reserved Quantity")
                 then
                     AppliedQty := ItemLedgEntry."Remaining Quantity" - ItemLedgEntry."Reserved Quantity"
-                else
+                else begin
                     AppliedQty := -(OldItemLedgEntry."Remaining Quantity" - OldItemLedgEntry."Reserved Quantity");
+                    if AppliedQty = 0 then
+                        AppliedQty := UpdateAppliedQtyIfConsumptionEntry(ItemLedgEntry, OldItemLedgEntry);
+                end;
 
                 OnApplyItemLedgEntryOnAfterCalcAppliedQty(OldItemLedgEntry, ItemLedgEntry, AppliedQty);
 
@@ -2045,6 +2049,28 @@ then
             end;
             OnApplyItemLedgEntryOnApplicationLoop(ItemLedgEntry);
         until false;
+    end;
+
+    local procedure UpdateReservationEntryForNonInventoriableItem()
+    var
+        ReservationEntry: Record "Reservation Entry";
+    begin
+        if Item.IsInventoriableType() then
+            exit;
+
+        ReservationEntry.SetCurrentKey("Source ID", "Source Ref. No.", "Source Type", "Source Subtype", "Source Batch Name", "Source Prod. Order Line", "Reservation Status");
+        ReservationEntry.SetRange("Reservation Status", ReservationEntry."Reservation Status"::Reservation);
+        ItemJnlLine.SetReservationFilters(ReservationEntry);
+        ReservationEntry.SetRange("Item No.", ItemJnlLine."Item No.");
+
+        if not ReservationEntry.IsEmpty() then
+            exit;
+
+        ReservationEntry.SetRange("Reservation Status", ReservationEntry."Reservation Status"::Tracking, ReservationEntry."Reservation Status"::Prospect);
+        if ReservationEntry.FindSet() then
+            repeat
+                ReservEngineMgt.CloseSurplusTrackingEntry(ReservationEntry);
+            until ReservationEntry.Next() = 0;
     end;
 
     local procedure UpdateItemLedgerEntryRemainingQuantity(var ItemLedgerEntry: Record "Item Ledger Entry"; AppliedQty: Decimal; var OldItemLedgEntry: Record "Item Ledger Entry"; CausedByTransfer: Boolean)
@@ -5939,6 +5965,17 @@ then
           (ItemJournalLine."Value Entry Type" = ItemJournalLine."Value Entry Type"::Revaluation) and
           (GetItem(ItemJournalLine."Item No.", false) and (Item."Costing Method" = Item."Costing Method"::Average) or
            (ItemJournalLine."Applies-to Entry" <> 0)));
+    end;
+
+    local procedure UpdateAppliedQtyIfConsumptionEntry(ItemLedgerEntry: Record "Item Ledger Entry"; OldItemLedgerEntry: Record "Item Ledger Entry"): Decimal
+    begin
+        if ItemLedgerEntry."Entry Type" <> ItemLedgerEntry."Entry Type"::Consumption then
+            exit(0);
+
+        if (ItemLedgerEntry."Remaining Quantity" + OldItemLedgerEntry."Remaining Quantity") > 0 then
+            exit(0);
+
+        exit(-Abs(OldItemLedgerEntry."Reserved Quantity"));
     end;
 
     [IntegrationEvent(false, false)]

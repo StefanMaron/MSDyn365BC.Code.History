@@ -23,6 +23,7 @@ codeunit 137261 "SCM Inventory Item Tracking II"
         LibraryWarehouse: Codeunit "Library - Warehouse";
         LibraryPlanning: Codeunit "Library - Planning";
         LibraryRandom: Codeunit "Library - Random";
+        LibraryJob: Codeunit "Library - Job";
         isInitialized: Boolean;
         IsUsingSimpleYesConfirmHandler: Boolean;
         AvailabilityWarning: Label 'You do not have enough inventory to meet the demand for items in one or more lines';
@@ -2304,6 +2305,30 @@ codeunit 137261 "SCM Inventory Item Tracking II"
         // [WHEN] [THEN] Verified in ItemTrackingLinesPageHandler
     end;
 
+    [Test]
+    [HandlerFunctions('ItemTrackingLinesPageHandler,ConfirmHandlerTrue')]
+    procedure PostPurchaseOrderWhenItemTrackingLinesWithLotNoAndPackageNoAssigned()
+    var
+        ItemTrackingCode: Record "Item Tracking Code";
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+    begin
+        // [SCENARIO 504315] Item tracking error "Package No. must be equal to 'x' in item ledger entry: Entry No.=xxx. Current value is 'x'." 
+        // when package tracking is enabled, and a job is used on a purchase order.
+        Initialize();
+        EnablePhysInvtOrderPackageTrackingFeature();
+
+        // [GIVEN] Create Item Tracking Code with Lot and Package tracking
+        LibraryItemTracking.CreateItemTrackingCode(ItemTrackingCode, false, true, true);
+
+        // [GIVEN] Create Purchase Order with Job when Item with Lot and Package tracking
+        CreatePurchaseDocumentWithJobAndLotTracking(PurchaseLine, PurchaseHeader."Document Type"::Order, ItemTrackingCode.Code);
+
+        // [THEN] Purchase Order Post without any Error
+        PurchaseHeader.Get(PurchaseHeader."Document Type"::Order, PurchaseLine."Document No.");
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+    end;
+
     local procedure Initialize()
     var
         InventorySetup: Record "Inventory Setup";
@@ -3506,6 +3531,51 @@ codeunit 137261 "SCM Inventory Item Tracking II"
         LibraryVariableStorage.Enqueue(SerialNo);
         LibraryVariableStorage.Enqueue(Quantity);
         PurchaseLine.OpenItemTrackingLines();
+    end;
+
+    local procedure EnablePhysInvtOrderPackageTrackingFeature()
+    var
+        FeatureKey: Record "Feature Key";
+    begin
+        FeatureKey.Get('PhysInvtOrderPackageTracking');
+        FeatureKey.Enabled := FeatureKey.Enabled::"All Users";
+        FeatureKey.Modify();
+    end;
+
+    local procedure CreatePurchaseDocumentWithJobAndLotTracking(
+        var PurchaseLine: Record "Purchase Line";
+        DocumentType: Enum "Purchase Document Type";
+        ItemTrackingCode: Code[10])
+    begin
+        CreatePurchaseDocumentWithJob(PurchaseLine, DocumentType, ItemTrackingCode);
+        LibraryVariableStorage.Enqueue(TrackingOption::AssignLotNoAndPackageNo);
+        PurchaseLine.OpenItemTrackingLines();
+    end;
+
+    local procedure CreatePurchaseDocumentWithJob(
+        var PurchaseLine: Record "Purchase Line";
+        DocumentType: Enum "Purchase Document Type";
+        ItemTrackingCode: Code[10])
+    var
+        PurchaseHeader: Record "Purchase Header";
+        Item: Record Item;
+        Job: Record Job;
+        JobTask: Record "Job Task";
+    begin
+        CreateTrackedItem(Item, LibraryUtility.GetGlobalNoSeriesCode(), '', ItemTrackingCode);
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, DocumentType, LibraryPurchase.CreateVendorNo());
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, Item."No.", LibraryRandom.RandIntInRange(5, 10));
+        LibraryJob.CreateJob(Job);
+        LibraryJob.CreateJobTask(Job, JobTask);
+        UpdatePurchaseLineWithJobTask(PurchaseLine, JobTask);
+    end;
+
+    local procedure UpdatePurchaseLineWithJobTask(var PurchaseLine: Record "Purchase Line"; JobTask: Record "Job Task")
+    begin
+        PurchaseLine.Validate("Job No.", JobTask."Job No.");
+        PurchaseLine.Validate("Job Task No.", JobTask."Job Task No.");
+        PurchaseLine.Validate("Job Line Type", PurchaseLine."Job Line Type"::Budget);
+        PurchaseLine.Modify(true);
     end;
 
     [ConfirmHandler]

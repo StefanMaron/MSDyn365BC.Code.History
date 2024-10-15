@@ -1056,12 +1056,15 @@ page 253 "Sales Journal"
 
                     trigger OnAction()
                     var
+                        BackupRec: Record "Gen. Journal Line";
                         GenJournalAllocAccMgt: Codeunit "Gen. Journal Alloc. Acc. Mgt.";
                     begin
                         if (Rec."Account Type" <> Rec."Account Type"::"Allocation Account") and (Rec."Bal. Account Type" <> Rec."Bal. Account Type"::"Allocation Account") and (Rec."Selected Alloc. Account No." = '') then
                             Error(ActionOnlyAllowedForAllocationAccountsErr);
 
-                        GenJournalAllocAccMgt.CreateLines(Rec);
+                        BackupRec.Copy(Rec);
+                        BackupRec.SetRecFilter();
+                        GenJournalAllocAccMgt.CreateLines(BackupRec);
                         Rec.Delete();
                         CurrPage.Update(false);
                     end;
@@ -1543,9 +1546,6 @@ page 253 "Sales Journal"
         BackgroundErrorHandlingMgt: Codeunit "Background Error Handling Mgt.";
         ApprovalMgmt: Codeunit "Approvals Mgmt.";
         ChangeExchangeRate: Page "Change Exchange Rate";
-        CurrentJnlBatchName: Code[10];
-        AccName: Text[100];
-        BalAccName: Text[100];
         GenJnlBatchApprovalStatus: Text[20];
         GenJnlLineApprovalStatus: Text[20];
         Balance: Decimal;
@@ -1599,6 +1599,9 @@ page 253 "Sales Journal"
         DimVisible6: Boolean;
         DimVisible7: Boolean;
         DimVisible8: Boolean;
+        CurrentJnlBatchName: Code[10];
+        AccName: Text[100];
+        BalAccName: Text[100];
 
     local procedure UpdateBalance()
     var
@@ -1691,7 +1694,7 @@ page 253 "Sales Journal"
         OnAfterSetDimensionsVisibility();
     end;
 
-    local procedure SetJobQueueVisibility()
+    protected procedure SetJobQueueVisibility()
     begin
         JobQueueVisible := Rec."Job Queue Status" = Rec."Job Queue Status"::"Scheduled for Posting";
         JobQueuesUsed := GeneralLedgerSetup.JobQueueActive();

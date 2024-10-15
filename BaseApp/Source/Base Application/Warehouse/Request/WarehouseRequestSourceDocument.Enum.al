@@ -18,5 +18,5 @@ enum 5770 "Warehouse Request Source Document"
     value(13; "Service Order") { Caption = 'Service Order'; }
     value(20; "Assembly Consumption") { Caption = 'Assembly Consumption'; }
     value(21; "Assembly Order") { Caption = 'Assembly Order'; }
-    value(22; "Job Usage") { Caption = 'Job Usage'; }
+    value(22; "Job Usage") { Caption = 'Project Usage'; }
 }

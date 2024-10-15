@@ -3152,7 +3152,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Intercompany II - NamedType BlockedErr)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[%1 = Vendor no.]D;]A;(LookupHint=Codeunit ERM Intercompany II - NamedType BlockedErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 2300497691 - NamedType 2921628094" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -3161,7 +3161,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Intercompany II - NamedType DatesErr)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[%1 = table name, %2 = date field, %3 = table name, %4 = date field]D;]A;(LookupHint=Codeunit ERM Intercompany II - NamedType DatesErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 2300497691 - NamedType 679529918" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -3170,7 +3170,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Intercompany II - NamedType ICCustomerBlockedAllErr)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[%1 = Customer no.]D;]A;(LookupHint=Codeunit ERM Intercompany II - NamedType ICCustomerBlockedAllErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 2300497691 - NamedType 4153389416" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -3179,7 +3179,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Intercompany II - NamedType ICGLAccountBlockErr)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[%1 = GL account no.]D;]A;(LookupHint=Codeunit ERM Intercompany II - NamedType ICGLAccountBlockErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 2300497691 - NamedType 2743000076" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -3188,7 +3188,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Intercompany II - NamedType ICPartnerBlockErr)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[%1 = IC partner code]D;]A;(LookupHint=Codeunit ERM Intercompany II - NamedType ICPartnerBlockErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 2300497691 - NamedType 2892882952" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -3260,7 +3260,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Intercompany II - NamedType SameICPartnerErr)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[%1 = IC partner code, %2 = customer no.]D;]A;(LookupHint=Codeunit ERM Intercompany II - NamedType SameICPartnerErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 2300497691 - NamedType 1838629515" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -3269,7 +3269,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Intercompany II - NamedType TableFieldErr)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[%1 = table name, %2 = field name]D;]A;(LookupHint=Codeunit ERM Intercompany II - NamedType TableFieldErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 2300497691 - NamedType 3800651618" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -3278,7 +3278,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Intercompany II - NamedType ValidationErr)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[%1 = field name, %2 = field value, %3 = table name]D;]A;(LookupHint=Codeunit ERM Intercompany II - NamedType ValidationErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 2300497691 - NamedType 2784494499" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -3287,7 +3287,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[.]D;]A;(LookupHint=Codeunit ERM Intercompany II - NamedType WrongCompanyErr)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[%1 = IC partner code, %2 = IC partner code]D;]A;(LookupHint=Codeunit ERM Intercompany II - NamedType WrongCompanyErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 689671132 - NamedType 908971242" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -5441,6 +5441,24 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Purchase Return Order - NamedType LineAmountError)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 3241683255 - NamedType 2441676181" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[%1 must be %2 in %3]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 = Qty. to Assign, %2 = Quantity, %3 = Purchase Return Order Subform]D;]A;(LookupHint=Codeunit ERM Purchase Return Order - NamedType QtyToAssignErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 3241683255 - NamedType 114235244" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[ Return Qty. to Ship must be zero.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Purchase Return Order - NamedType ReturnQtyToShipMustBeZeroErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 3241683255 - NamedType 177781297" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[VAT %1 must be %2 in %3.]]></Val>
@@ -6548,6 +6566,15 @@
       <Cmt Name="Dev"><![CDATA[.]D;]A;(LookupHint=Codeunit ERM Sales Documents III - NamedType QtyInvoiceErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 2641639841 - NamedType 2441676181" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[%1 must be %2 in %3]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 = Qty. to Assign, %2 = Quantity, %3 = Sales Return Order Subform]D;]A;(LookupHint=Codeunit ERM Sales Documents III - NamedType QtyToAssignErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 2641639841 - NamedType 2441023260" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Qty. to Invoice must have the same sign as the return receipt in Sales Line Document Type='Credit Memo',Document No.='%1',Line No.='%2'.]]></Val>
@@ -6591,6 +6618,15 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[.]D;]A;(LookupHint=Codeunit ERM Sales Documents III - NamedType RetQtyRcdErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 2641639841 - NamedType 1335671523" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[ Return Qty. to Receive must be zero.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Sales Documents III - NamedType ReturnQtyToReceiveMustBeZeroErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 2641639841 - NamedType 856917680" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -7873,7 +7909,7 @@
   </Item>
   <Item ItemId=";Codeunit 744599786 - NamedType 957449493" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[urn:iso:std:iso:20022:tech:xsd:pain.001.001.03]]></Val>
+      <Val><![CDATA[urn:iso:std:iso:20022:tech:xsd:pain.001.001.09]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -9862,7 +9898,7 @@
   </Item>
   <Item ItemId=";Codeunit 2479071172 - NamedType 475522084" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Source Group must be equal to 'Job']]></Val>
+      <Val><![CDATA[Source Group must be equal to 'Project']]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -9939,6 +9975,15 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Price Lists UI - NamedType FeatureIsOffErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 1304875132 - NamedType 3250133227" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[%1 must have a value]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 = Field Caption]D;]A;(LookupHint=Codeunit Price Lists UI - NamedType TestFieldErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 1304875132 - NamedType 4096681042" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -10078,7 +10123,7 @@
   </Item>
   <Item ItemId=";Codeunit 2055198712 - NamedType 475522084" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Source Group must be equal to 'Job']]></Val>
+      <Val><![CDATA[Source Group must be equal to 'Project']]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -13685,6 +13730,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Service Posting - Invoice - NamedType PostingDateBlankError)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 1571865123 - NamedType 1306784414" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Reservation Entry should be deleted.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Service Posting - Invoice - NamedType ReservationEntryNotFoundErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 1571865123 - NamedType 2402263590" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Do you want to undo the selected shipment line(s)?]]></Val>
@@ -14612,6 +14666,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Test Item Journal Post Preview - NamedType WrongPostPreviewErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 3642787199 - Method 4173830910 - NamedType 426937326" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Some of the documents are not available and will be skipped]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Test Manual Release - Method CheckPrompt - NamedType SkippedDocsSubstringTxt)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 2805650360 - NamedType 1421259837" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[The amount in the preview page was not expected.]]></Val>
@@ -14682,6 +14745,15 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Test Price Calculation - V16 - NamedType PickedWrongMinQtyErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 616764730 - NamedType 3250133227" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[%1 must have a value]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 = Field Caption]D;]A;(LookupHint=Codeunit Test Price Calculation - V16 - NamedType TestFieldErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 616764730 - NamedType 306311142" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">

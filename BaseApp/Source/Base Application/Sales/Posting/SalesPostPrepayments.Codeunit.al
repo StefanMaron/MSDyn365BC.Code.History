@@ -26,6 +26,7 @@ using Microsoft.Sales.Receivables;
 using Microsoft.Sales.Setup;
 using Microsoft.Utilities;
 using System.Utilities;
+using System.Telemetry;
 
 codeunit 442 "Sales-Post Prepayments"
 {
@@ -56,6 +57,7 @@ codeunit 442 "Sales-Post Prepayments"
         ErrorMessageMgt: Codeunit "Error Message Management";
         DocumentErrorsMgt: Codeunit "Document Errors Mgt.";
         GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line";
+        FeatureTelemetry: Codeunit "Feature Telemetry";
         PrepmtDocumentType: Option ,,Invoice,"Credit Memo";
         SuppressCommit: Boolean;
         PreviewMode: Boolean;
@@ -79,6 +81,7 @@ codeunit 442 "Sales-Post Prepayments"
         Text018: Label 'must be positive when %1 is not 0';
         Text019: Label 'Invoice,Credit Memo';
         Text020: Label 'must be %1, the same as in the field %2';
+        PrepaymentSalesTok: Label 'Prepayment Sales', Locked = true;
         UpdateTok: Label '%1 %2', Locked = true;
 
     procedure SetDocumentType(DocumentType: Option ,,Invoice,"Credit Memo")
@@ -154,6 +157,9 @@ codeunit 442 "Sales-Post Prepayments"
         GLSetup.GetRecordOnce();
         SalesSetup.Get();
         TempGlobalPrepmtInvLineBufGST.DeleteAll();
+
+        FeatureTelemetry.LogUptake('0000KQB', PrepaymentSalesTok, Enum::"Feature Uptake Status"::Used);
+        FeatureTelemetry.LogUsage('0000KQC', PrepaymentSalesTok, PrepaymentSalesTok);
 
         if (SalesSetup."Calc. Inv. Discount" and (SalesHeader.Status = SalesHeader.Status::Open)) then
             DocumentTotals.SalesRedistributeInvoiceDiscountAmountsOnDocument(SalesHeader);
@@ -1506,8 +1512,15 @@ codeunit 442 "Sales-Post Prepayments"
         OnAfterApplyFilter(SalesLine, SalesHeader, DocumentType);
     end;
 
-    procedure PrepmtAmount(SalesLine: Record "Sales Line"; DocumentType: Option Invoice,"Credit Memo",Statistic): Decimal
+    procedure PrepmtAmount(SalesLine: Record "Sales Line"; DocumentType: Option Invoice,"Credit Memo",Statistic) Result: Decimal
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforePrepmtAmount(SalesLine, DocumentType, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
         case DocumentType of
             DocumentType::Statistic:
                 exit(SalesLine."Prepmt. Line Amount");
@@ -1549,31 +1562,36 @@ codeunit 442 "Sales-Post Prepayments"
     local procedure PostCustomerEntry(SalesHeader: Record "Sales Header"; TotalPrepmtInvLineBuffer: Record "Prepayment Inv. Line Buffer"; TotalPrepmtInvLineBufferLCY: Record "Prepayment Inv. Line Buffer"; DocumentType: Option Invoice,"Credit Memo"; PostingDescription: Text[100]; DocType: Enum "Gen. Journal Document Type"; DocNo: Code[20]; ExtDocNo: Text[35]; SrcCode: Code[10]; PostingNoSeriesCode: Code[20]; CalcPmtDisc: Boolean)
     var
         GenJnlLine: Record "Gen. Journal Line";
+        IsHandled: Boolean;
     begin
-        GenJnlLine.InitNewLine(
-            SalesHeader."Posting Date", SalesHeader."Document Date", SalesHeader."VAT Reporting Date", PostingDescription,
-            SalesHeader."Shortcut Dimension 1 Code", SalesHeader."Shortcut Dimension 2 Code",
-            SalesHeader."Dimension Set ID", SalesHeader."Reason Code");
+        IsHandled := false;
+        OnBeforePostCustomerEntryProcedure(SalesHeader, TotalPrepmtInvLineBuffer, TotalPrepmtInvLineBufferLCY, DocumentType, PostingDescription, DocType, DocNo, ExtDocNo, SrcCode, PostingNoSeriesCode, CalcPmtDisc, GenJnlPostLine, IsHandled);
+        if not IsHandled then begin
+            GenJnlLine.InitNewLine(
+                SalesHeader."Posting Date", SalesHeader."Document Date", SalesHeader."VAT Reporting Date", PostingDescription,
+                SalesHeader."Shortcut Dimension 1 Code", SalesHeader."Shortcut Dimension 2 Code",
+                SalesHeader."Dimension Set ID", SalesHeader."Reason Code");
 
-        GenJnlLine.CopyDocumentFields(DocType, DocNo, ExtDocNo, SrcCode, PostingNoSeriesCode);
+            GenJnlLine.CopyDocumentFields(DocType, DocNo, ExtDocNo, SrcCode, PostingNoSeriesCode);
 
-        GenJnlLine.CopyFromSalesHeaderPrepmtPost(SalesHeader, (DocumentType = DocumentType::Invoice) or CalcPmtDisc);
+            GenJnlLine.CopyFromSalesHeaderPrepmtPost(SalesHeader, (DocumentType = DocumentType::Invoice) or CalcPmtDisc);
 
-        GenJnlLine.Amount := -TotalPrepmtInvLineBuffer."Amount Incl. VAT";
-        GenJnlLine."Source Currency Amount" := -TotalPrepmtInvLineBuffer."Amount Incl. VAT";
-        GenJnlLine."Amount (LCY)" := -TotalPrepmtInvLineBufferLCY."Amount Incl. VAT";
-        GenJnlLine."Sales/Purch. (LCY)" := -TotalPrepmtInvLineBufferLCY.Amount;
-        GenJnlLine."Profit (LCY)" := -TotalPrepmtInvLineBufferLCY.Amount;
+            GenJnlLine.Amount := -TotalPrepmtInvLineBuffer."Amount Incl. VAT";
+            GenJnlLine."Source Currency Amount" := -TotalPrepmtInvLineBuffer."Amount Incl. VAT";
+            GenJnlLine."Amount (LCY)" := -TotalPrepmtInvLineBufferLCY."Amount Incl. VAT";
+            GenJnlLine."Sales/Purch. (LCY)" := -TotalPrepmtInvLineBufferLCY.Amount;
+            GenJnlLine."Profit (LCY)" := -TotalPrepmtInvLineBufferLCY.Amount;
 
-        GenJnlLine.Correction := (DocumentType = DocumentType::"Credit Memo") and GLSetup."Mark Cr. Memos as Corrections";
+            GenJnlLine.Correction := (DocumentType = DocumentType::"Credit Memo") and GLSetup."Mark Cr. Memos as Corrections";
 
-        GenJnlLine."Orig. Pmt. Disc. Possible" := -TotalPrepmtInvLineBuffer."Orig. Pmt. Disc. Possible";
-        GenJnlLine."Orig. Pmt. Disc. Possible(LCY)" := -TotalPrepmtInvLineBufferLCY."Orig. Pmt. Disc. Possible";
-        if GLSetup."Journal Templ. Name Mandatory" then
-            GenJnlLine."Journal Template Name" := GenJournalTemplate.Name;
+            GenJnlLine."Orig. Pmt. Disc. Possible" := -TotalPrepmtInvLineBuffer."Orig. Pmt. Disc. Possible";
+            GenJnlLine."Orig. Pmt. Disc. Possible(LCY)" := -TotalPrepmtInvLineBufferLCY."Orig. Pmt. Disc. Possible";
+            if GLSetup."Journal Templ. Name Mandatory" then
+                GenJnlLine."Journal Template Name" := GenJournalTemplate.Name;
 
-        OnBeforePostCustomerEntry(GenJnlLine, TotalPrepmtInvLineBuffer, TotalPrepmtInvLineBufferLCY, SuppressCommit, SalesHeader, DocumentType);
-        GenJnlPostLine.RunWithCheck(GenJnlLine);
+            OnBeforePostCustomerEntry(GenJnlLine, TotalPrepmtInvLineBuffer, TotalPrepmtInvLineBufferLCY, SuppressCommit, SalesHeader, DocumentType);
+            GenJnlPostLine.RunWithCheck(GenJnlLine);
+        end;
 
         OnAfterPostCustomerEntry(GenJnlLine, TotalPrepmtInvLineBuffer, TotalPrepmtInvLineBufferLCY, SuppressCommit);
     end;
@@ -2563,6 +2581,16 @@ codeunit 442 "Sales-Post Prepayments"
 
     [IntegrationEvent(false, false)]
     local procedure OnCodeOnAfterPostingDescriptionSet(var SalesHeader: Record "Sales Header"; DocumentType: Option Invoice,"Credit Memo")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforePostCustomerEntryProcedure(var SalesHeader: Record "Sales Header"; TotalPrepmtInvLineBuffer: Record "Prepayment Inv. Line Buffer" temporary; TotalPrepmtInvLineBufferLCY: Record "Prepayment Inv. Line Buffer"; DocumentType: Option Invoice,"Credit Memo"; PostingDescription: Text[100]; DocType: Enum "Gen. Journal Document Type"; DocNo: Code[20]; ExtDocNo: Text[35]; SrcCode: Code[10]; PostingNoSeriesCode: Code[20]; CalcPmtDisc: Boolean; var GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforePrepmtAmount(var SalesLine: Record "Sales Line"; DocumentType: Option Invoice,"Credit Memo",Statistic; var Result: Decimal; var IsHandled: Boolean);
     begin
     end;
 }

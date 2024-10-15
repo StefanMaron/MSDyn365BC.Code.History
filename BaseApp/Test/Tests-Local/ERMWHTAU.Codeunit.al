@@ -2015,17 +2015,17 @@
     local procedure CreateAppliedFCYPaymentGenJnlLine(var GenJournalLine: Record "Gen. Journal Line"; var InvoiceGenJournalLine: Record "Gen. Journal Line")
     begin
         with GenJournalLine do begin
-            LibraryERM.CreateGeneralJnlLine(
-              GenJournalLine, InvoiceGenJournalLine."Journal Template Name", InvoiceGenJournalLine."Journal Batch Name",
+        LibraryERM.CreateGeneralJnlLine(
+          GenJournalLine, InvoiceGenJournalLine."Journal Template Name", InvoiceGenJournalLine."Journal Batch Name",
               "Document Type"::Payment, "Account Type"::Vendor, InvoiceGenJournalLine."Account No.", -InvoiceGenJournalLine.Amount);
             Validate("Posting Date", WorkDate() + 10);
+            Validate("WHT Business Posting Group", InvoiceGenJournalLine."WHT Business Posting Group");
             Validate("Currency Code", InvoiceGenJournalLine."Currency Code");
             Validate("Currency Factor", 1 / 120);
             Validate("Applies-to Doc. Type", "Applies-to Doc. Type"::Invoice);
             Validate("Applies-to Doc. No.", InvoiceGenJournalLine."Document No.");
             Validate("Bal. Account Type", "Bal. Account Type"::"G/L Account");
             Validate("Bal. Account No.", InvoiceGenJournalLine."Bal. Account No.");
-            Validate("WHT Business Posting Group", InvoiceGenJournalLine."WHT Business Posting Group");
             Validate("WHT Product Posting Group", InvoiceGenJournalLine."WHT Product Posting Group");
             Modify(true);
         end;

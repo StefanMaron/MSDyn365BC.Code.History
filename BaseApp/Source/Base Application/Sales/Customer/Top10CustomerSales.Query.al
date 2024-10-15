@@ -9,6 +9,7 @@ using Microsoft.Sales.Receivables;
 query 1311 "Top 10 Customer Sales"
 {
     Caption = 'Top 10 Customer Sales';
+    DataAccessIntent = ReadOnly;
     OrderBy = descending(Sum_Sales_LCY);
     TopNumberOfRows = 10;
 

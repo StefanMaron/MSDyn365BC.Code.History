@@ -836,6 +836,7 @@ report 393 "Suggest Vendor Payments"
                             end else begin
                                 TempVendorPaymentBuffer."Vendor Ledg. Entry Doc. Type" := VendLedgEntry."Document Type";
                                 TempVendorPaymentBuffer."Vendor Ledg. Entry Doc. No." := VendLedgEntry."Document No.";
+                                TempVendorPaymentBuffer."Ledg. Entry System Id" := VendLedgEntry.SystemId;
                                 TempVendorPaymentBuffer."Global Dimension 1 Code" := VendLedgEntry."Global Dimension 1 Code";
                                 TempVendorPaymentBuffer."Global Dimension 2 Code" := VendLedgEntry."Global Dimension 2 Code";
                                 TempVendorPaymentBuffer."Dimension Set ID" := VendLedgEntry."Dimension Set ID";
@@ -943,6 +944,7 @@ report 393 "Suggest Vendor Payments"
         GenJnlLine.Validate(Amount, TempVendorPaymentBuffer.Amount);
         GenJnlLine."Applies-to Doc. Type" := TempVendorPaymentBuffer."Vendor Ledg. Entry Doc. Type";
         GenJnlLine."Applies-to Doc. No." := TempVendorPaymentBuffer."Vendor Ledg. Entry Doc. No.";
+        GenJnlLine."Applies-to Invoice Id" := TempVendorPaymentBuffer."Ledg. Entry System Id";
         GenJnlLine."Payment Method Code" := TempVendorPaymentBuffer."Payment Method Code";
         GenJnlLine."Remit-to Code" := TempVendorPaymentBuffer."Remit-to Code";
 

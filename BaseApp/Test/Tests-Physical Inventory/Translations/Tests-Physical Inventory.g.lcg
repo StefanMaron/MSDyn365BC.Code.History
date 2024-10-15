@@ -50,6 +50,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Phys. Invt. Item Tracking - NamedType RoundingTo0Err)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 534482066 - NamedType 3004993977" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[%1 lines inserted into the order %2.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 = counters, %2 = Order No.]D;]A;(LookupHint=Codeunit Phys. Invt. Order PAG UT - NamedType LinesInsertedToOrderMsg)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 1215155537 - NamedType 1526356973" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Physical Inventory Comment Line exists.]]></Val>

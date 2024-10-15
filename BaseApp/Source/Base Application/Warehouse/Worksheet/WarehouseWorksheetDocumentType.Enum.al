@@ -16,5 +16,5 @@ enum 5772 "Warehouse Worksheet Document Type"
     value(6; "Whse. Mov.-Worksheet") { Caption = 'Whse. Mov.-Worksheet'; }
     value(7; "Internal Movement") { Caption = 'Internal Movement'; }
     value(8; "Assembly") { Caption = 'Assembly'; }
-    value(9; "Job") { Caption = 'Job'; }
+    value(9; "Job") { Caption = 'Project'; }
 }

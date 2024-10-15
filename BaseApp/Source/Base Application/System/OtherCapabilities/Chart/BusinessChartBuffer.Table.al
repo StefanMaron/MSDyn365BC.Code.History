@@ -362,24 +362,24 @@ table 485 "Business Chart Buffer"
 
     procedure SetDrillDownIndexes(Point: JsonObject)
     var
-        MeasuresLbl: Label 'Measures';
-        XValueStringLbl: Label 'XValueString';
-        YValuesLbl: Label 'YValues';
+        MeasuresTok: Label 'Measures', Locked = true;
+        XValueStringTok: Label 'XValueString', Locked = true;
+        YValuesTok: Label 'YValues', Locked = true;
         Token: JsonToken;
         ValueArray: JsonArray;
         MeasureName: Text[249];
         XValueString: Text[249];
         YValue: Decimal;
     begin
-        Point.Get(MeasuresLbl, Token);
+        Point.Get(MeasuresTok, Token);
         ValueArray := Token.AsArray();
         ValueArray.Get(0, Token);
         MeasureName := CopyStr(Token.AsValue().AsText(), 1, 249);
 
-        Point.Get(XValueStringLbl, Token);
+        Point.Get(XValueStringTok, Token);
         XValueString := CopyStr(Token.AsValue().AsText(), 1, 249);
 
-        Point.Get(YValuesLbl, Token);
+        Point.Get(YValuesTok, Token);
         ValueArray := Token.AsArray();
         ValueArray.Get(0, Token);
         YValue := Token.AsValue().AsDecimal();

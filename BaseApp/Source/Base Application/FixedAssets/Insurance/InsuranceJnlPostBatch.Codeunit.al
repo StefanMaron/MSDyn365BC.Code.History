@@ -154,8 +154,7 @@ codeunit 5653 "Insurance Jnl.-Post Batch"
                 InsuranceJnlLine3.Modify();
             end;
         end;
-        if InsuranceJnlBatch."No. Series" <> '' then
-            NoSeriesBatch.SaveState();
+        NoSeriesBatch.SaveState();
 
         Commit();
         Clear(InsuranceJnlCheckLine);

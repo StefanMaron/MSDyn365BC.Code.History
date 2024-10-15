@@ -2505,6 +2505,57 @@ codeunit 137048 "SCM Warehouse II"
         PostedPurchaseInvoice.Close();
     end;
 
+    [Test]
+    [HandlerFunctions('ConfirmHandler')]
+    [Scope('OnPrem')]
+    procedure VerifyConfirmationDialogToOpenPostedPurchaseInvoiceWhenPurchaseInvoiceCreatedWithReceiptNo()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        Item: Record Item;
+        PurchaseHeader2: Record "Purchase Header";
+        PurchRcptLine: Record "Purch. Rcpt. Line";
+        PurchaseInvoice: TestPage "Purchase Invoice";
+        PostedPurchaseInvoice: TestPage "Posted Purchase Invoice";
+    begin
+        // [SCENARIO 501930] Confirmation dialogue open Posted Purchase Invoice when Purchase Invoices with Get Receipt Lines
+        Initialize();
+
+        // [GIVEN] Create Item
+        CreateItem(Item);
+
+        // [GIVEN] Update Purchase "Purchases & Payables Setup" with same "Invoice Nos." and "Posted Invoice Nos." series
+        UpdatePurchaseSetupWithSamePreAndPostedNoSeries();
+
+        // [GIVEN] Create Purchase Order
+        //CreateAndReleasePurchaseOrder(PurchaseHeader, PurchaseLine, LocationRed.Code, Item."No.");
+        CreatePurchaseOrder(PurchaseHeader, PurchaseLine);
+
+        // [GIVEN] Create adn post Warehouse Receipt
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false);
+
+        // [GIVEN] Find Purchase Receipt Line
+        FindPurchaseReceiptLine(PurchRcptLine, PurchaseHeader."No.");
+
+        // [THEN] Create Purchase Invoice with Receipt No.
+        CreatePurchaseInvoiceWithReceipt(PurchaseHeader2, PurchaseHeader);
+
+        // [THEN] Open Purchase Invoice Page and Post the Invoice 
+        PostedPurchaseInvoice.Trap();
+        PurchaseInvoice.OpenView();
+        PurchaseInvoice.Filter.SetFilter("No.", PurchaseHeader2."No.");
+
+        // [THEN]  Disable warnings
+        LibrarySales.EnableWarningOnCloseUnpostedDoc();
+        LibrarySales.EnableConfirmOnPostingDoc();
+
+        // [THEN] Post the Purchase Invoice
+        PurchaseInvoice.Post.Invoke();
+
+        // [VERIFY] The posted document opened in the Posted Purchase Invoice page
+        PostedPurchaseInvoice.Close();
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -3761,6 +3812,66 @@ codeunit 137048 "SCM Warehouse II"
         PurchaseLine.SetRange("Document No.", DocumentNo);
         PurchaseLine.FindFirst();
         PurchaseLine.TestField("Quantity Received", 0);
+    end;
+
+    local procedure CreatePurchaseOrder(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line")
+    var
+        Item: Record Item;
+    begin
+        LibraryInventory.CreateItem(Item);
+        Item."Unit Cost" := LibraryRandom.RandDec(1000, 2);
+        Item.Modify();
+
+        LibraryPurchase.CreatePurchaseDocumentWithItem(
+         PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Order, '', Item."No.", LibraryRandom.RandDec(100, 2), '', WorkDate());
+    end;
+
+    local procedure CreateAndModifyVendor(VATBusPostingGroup: Code[20]): Code[20]
+    var
+        Vendor: Record Vendor;
+    begin
+        LibraryPurchase.CreateVendor(Vendor);
+        Vendor.Validate("VAT Bus. Posting Group", VATBusPostingGroup);
+        Vendor.Modify(true);
+        exit(Vendor."No.");
+    end;
+
+    local procedure CreateItem(AllowInvDisc: Boolean; VATProdPostingGroup: Code[20]): Code[20]
+    var
+        Item: Record Item;
+    begin
+        LibraryInventory.CreateItem(Item);
+        Item.Validate("Allow Invoice Disc.", AllowInvDisc);
+        Item.Validate("VAT Prod. Posting Group", VATProdPostingGroup);
+        Item.Validate("Unit Price", 10 + LibraryRandom.RandInt(100));
+        Item.Validate("Last Direct Cost", Item."Unit Price");
+        Item.Modify(true);
+        exit(Item."No.");
+    end;
+
+    local procedure CreatePurchaseInvoiceWithReceipt(var PurchaseHeader: Record "Purchase Header"; var PurchaseHeader2: Record "Purchase Header")
+    var
+        PurchRcptHeader: Record "Purch. Rcpt. Header";
+        PurchRcptLine: Record "Purch. Rcpt. Line";
+        PurchGetReceipt: Codeunit "Purch.-Get Receipt";
+    begin
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, PurchaseHeader2."Buy-from Vendor No.");
+        PurchaseHeader.Validate("Buy-from Vendor No.", PurchaseHeader2."Buy-from Vendor No.");
+        PurchaseHeader.Modify(true);
+
+        FindPurchaseReceipt(PurchRcptHeader, PurchaseHeader2."No.");
+        PurchRcptLine.SetRange("Document No.", PurchRcptHeader."No.");
+        PurchGetReceipt.SetPurchHeader(PurchaseHeader);
+        PurchGetReceipt.CreateInvLines(PurchRcptLine);
+    end;
+
+    local procedure UpdatePurchaseSetupWithSamePreAndPostedNoSeries()
+    var
+        PurchasesPayablesSetup: Record "Purchases & Payables Setup";
+    begin
+        PurchasesPayablesSetup.Get();
+        PurchasesPayablesSetup.Validate("Invoice Nos.", PurchasesPayablesSetup."Posted Invoice Nos.");
+        PurchasesPayablesSetup.Modify(true);
     end;
 
     [ConfirmHandler]
