@@ -203,6 +203,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Prepayment - NamedType SalesDocExistErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 526616433 - NamedType 1529194934" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[The Sales Order entry not created in Cash Flow Worksheet.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Prepayment - NamedType SalesOrderNotCreatedWorksheetLineMsg)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 526616433 - NamedType 3395100570" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Specify the code for the number series that will be used to assign numbers to posted sales prepayment invoices.]]></Val>

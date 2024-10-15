@@ -3349,6 +3349,8 @@
 
             RemAmtWHT := TempOldCustLedgEntry."Remaining Amount";
 
+            if (OldCVLedgEntryBuf."Currency Code" = NewCVLedgEntryBuf."Currency Code") and (OldCVLedgEntryBuf."Applies-to ID" = '') then
+                OldCVLedgEntryBuf."Amount to Apply" := 0;
             TempOldCustLedgEntry.CopyFromCVLedgEntryBuffer(OldCVLedgEntryBuf);
             SavedTempOldCustLedgEntry := TempOldCustLedgEntry;
             TempOldCustLedgEntry."Remaining Amount" := TempOldCustLedgEntry.Amount;

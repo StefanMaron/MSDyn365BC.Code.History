@@ -2719,7 +2719,7 @@ codeunit 134168 "Suggest Price Lines UT"
     begin
         PriceWorksheetLine.TestField("Asset Type", "Price Asset Type"::Item);
         PriceWorksheetLine.TestField("Asset No.", Item."No.");
-        PriceWorksheetLine.TestField("Amount Type", "Price Amount Type"::Price);
+        PriceWorksheetLine.TestField("Amount Type", "Price Amount Type"::Any);
         PriceWorksheetLine.TestField("Minimum Quantity", MinQty);
         case PriceWorksheetLine."Price Type" of
             "Price Type"::Sale:
@@ -2741,7 +2741,7 @@ codeunit 134168 "Suggest Price Lines UT"
     begin
         PriceListLine.TestField("Asset Type", "Price Asset Type"::Resource);
         PriceListLine.TestField("Asset No.", Resource."No.");
-        PriceListLine.TestField("Amount Type", "Price Amount Type"::Price);
+        PriceListLine.TestField("Amount Type", "Price Amount Type"::Any);
         PriceListLine.TestField("Minimum Quantity", MinQty);
         case PriceListLine."Price Type" of
             "Price Type"::Sale:
@@ -2763,7 +2763,7 @@ codeunit 134168 "Suggest Price Lines UT"
     begin
         PriceWorksheetLine.TestField("Asset Type", "Price Asset Type"::"Service Cost");
         PriceWorksheetLine.TestField("Asset No.", ServiceCost.Code);
-        PriceWorksheetLine.TestField("Amount Type", "Price Amount Type"::Price);
+        PriceWorksheetLine.TestField("Amount Type", "Price Amount Type"::Any);
         PriceWorksheetLine.TestField("Minimum Quantity", MinQty);
         case PriceWorksheetLine."Price Type" of
             "Price Type"::Sale:
