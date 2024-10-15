@@ -2793,10 +2793,7 @@
         AddAttribute(XMLDoc, XMLCurrNode, 'Rfc', CompanyInfo."RFC Number");
         AddAttribute(XMLDoc, XMLCurrNode, 'Nombre', RemoveInvalidChars(CompanyInfo.Name));
         AddAttribute(XMLDoc, XMLCurrNode, 'UsoCFDI', TempDocumentHeader."CFDI Purpose");
-        AddAttribute(
-            XMLDoc, XMLCurrNode, 'DomicilioFiscalReceptor',
-            GetSATPostalCode(
-                TempDocumentHeader."SAT Address ID", TempDocumentHeader."Location Code", TempDocumentHeader."Sell-to/Buy-from Post Code"));
+        AddAttribute(XMLDoc, XMLCurrNode, 'DomicilioFiscalReceptor', CompanyInfo."SAT Postal Code");
         AddAttribute(XMLDoc, XMLCurrNode, 'RegimenFiscalReceptor', CompanyInfo."SAT Tax Regime Classification");
 
         // Conceptos
@@ -3434,10 +3431,7 @@
         // Customer information (Receptor)
         WriteOutStr(OutStream, CompanyInfo."RFC Number" + '|'); // Rfc
         WriteOutStr(OutStream, RemoveInvalidChars(CompanyInfo.Name) + '|'); // Nombre
-        WriteOutStr(OutStream,
-          GetSATPostalCode(
-            TempDocumentHeader."SAT Address ID",
-            TempDocumentHeader."Location Code", TempDocumentHeader."Sell-to/Buy-from Post Code") + '|'); // DomicilioFiscalReceptor
+        WriteOutStr(OutStream, CompanyInfo."SAT Postal Code" + '|'); // DomicilioFiscalReceptor
         WriteOutStr(OutStream, CompanyInfo."SAT Tax Regime Classification" + '|'); // RegimenFiscalReceptor
         WriteOutStr(OutStream, RemoveInvalidChars(TempDocumentHeader."CFDI Purpose") + '|'); // UsoCFDI
 
@@ -4525,6 +4519,7 @@
                     if SalesShipmentLine.FindSet() then
                         repeat
                             TempDocumentLine.TransferFields(SalesShipmentLine);
+                            TempDocumentLine."Gross Weight" := SalesShipmentLine."Gross Weight" * SalesShipmentLine.Quantity;
                             TempDocumentLine.Insert();
                             if TempDocumentHeader."Location Code" = '' then
                                 TempDocumentHeader."Location Code" := TempDocumentLine."Location Code";
@@ -4570,7 +4565,7 @@
                             TempDocumentLine.Description := TransferShipmentLine.Description;
                             TempDocumentLine."Unit of Measure Code" := TransferShipmentLine."Unit of Measure Code";
                             TempDocumentLine.Quantity := TransferShipmentLine.Quantity;
-                            TempDocumentLine."Gross Weight" := TransferShipmentLine."Gross Weight";
+                            TempDocumentLine."Gross Weight" := TransferShipmentLine."Gross Weight" * TransferShipmentLine.Quantity;
                             TempDocumentLine."Location Code" := TempDocumentLine."Location Code";
                             TempDocumentLine.Insert();
                             if TempDocumentHeader."Location Code" = '' then
@@ -6518,28 +6513,28 @@ IsVATExemptLine(TempDocumentLine));
         case TableID of
             DATABASE::"Sales Invoice Header":
                 begin
-                    SalesInvoiceLine.SetRange("Document No.", DocumentNo);
+                    FilterSalesInvoiceLines(SalesInvoiceLine, DocumentNo);
                     SalesInvoiceLine.FindFirst();
                     DocumentLine.TransferFields(SalesInvoiceLine);
                     exit(GetSubjectToTaxCode(DocumentLine));
                 end;
             DATABASE::"Sales Cr.Memo Header":
                 begin
-                    SalesCrMemoLine.SetRange("Document No.", DocumentNo);
+                    FilterSalesCrMemoLines(SalesCrMemoLine, DocumentNo);
                     SalesCrMemoLine.FindFirst();
                     DocumentLine.TransferFields(SalesCrMemoLine);
                     exit(GetSubjectToTaxCode(DocumentLine));
                 end;
             DATABASE::"Service Invoice Header":
                 begin
-                    ServiceInvoiceLine.SetRange("Document No.", DocumentNo);
+                    FilterServiceInvoiceLines(ServiceInvoiceLine, DocumentNo);
                     ServiceInvoiceLine.FindFirst();
                     DocumentLine.TransferFields(ServiceInvoiceLine);
                     exit(GetSubjectToTaxCode(DocumentLine));
                 end;
             DATABASE::"Service Cr.Memo Header":
                 begin
-                    ServiceCrMemoLine.SetRange("Document No.", DocumentNo);
+                    FilterServiceCrMemoLines(ServiceCrMemoLine, DocumentNo);
                     ServiceCrMemoLine.FindFirst();
                     DocumentLine.TransferFields(ServiceCrMemoLine);
                     exit(GetSubjectToTaxCode(DocumentLine));
@@ -7041,8 +7036,6 @@ IsVATExemptLine(TempDocumentLine));
                 DATABASE::"Transfer Shipment Header":
                     LogIfEmpty(DocumentVariant, 20, "Message Type"::Error);
             end;
-            if GetSATPostalCode(DocumentHeader."SAT Address ID", DocumentHeader."Location Code", DocumentHeader."Sell-to/Buy-from Post Code") = '0' then
-                LogSimpleMessage("Message Type"::Warning, StrSubstNo(ValueIsNotDefinedErr, 'SAT Postal Code', DocumentHeader.RecordId));
             LogIfEmpty(DocumentVariant, DocumentHeader.FieldNo("Transit-from Date/Time"), "Message Type"::Error);
             LogIfEmpty(DocumentVariant, DocumentHeader.FieldNo("Transit Hours"), "Message Type"::Error);
             LogIfEmpty(DocumentVariant, DocumentHeader.FieldNo("Transit Distance"), "Message Type"::Error);

@@ -262,11 +262,14 @@ codeunit 5345 "Integration Rec. Synch. Invoke"
         ConfigTemplateHeader: Record "Config. Template Header";
         ConfigTemplateManagement: Codeunit "Config. Template Management";
         ConfigTemplateCode: Code[10];
+        Handled: Boolean;
     begin
-        if DestinationRecordRef.Number() = IntegrationTableMapping."Integration Table ID" then
-            ConfigTemplateCode := IntegrationTableMapping."Int. Tbl. Config Template Code"
-        else
-            ConfigTemplateCode := IntegrationTableMapping."Table Config Template Code";
+        OnBeforeDetermineConfigTemplateCode(IntegrationTableMapping, ConfigTemplateCode, Handled);
+        if not Handled then
+            if DestinationRecordRef.Number() = IntegrationTableMapping."Integration Table ID" then
+                ConfigTemplateCode := IntegrationTableMapping."Int. Tbl. Config Template Code"
+            else
+                ConfigTemplateCode := IntegrationTableMapping."Table Config Template Code";
         if ConfigTemplateCode <> '' then begin
             OnBeforeApplyRecordTemplate(IntegrationTableMapping, SourceRecordRef, DestinationRecordRef, ConfigTemplateCode);
 
@@ -688,6 +691,11 @@ codeunit 5345 "Integration Rec. Synch. Invoke"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeApplyRecordTemplate(IntegrationTableMapping: Record "Integration Table Mapping"; SourceRecordRef: RecordRef; var DestinationRecordRef: RecordRef; var TemplateCode: Code[10])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeDetermineConfigTemplateCode(IntegrationTableMapping: Record "Integration Table Mapping"; var TemplateCode: Code[10]; var Handled: Boolean)
     begin
     end;
 
