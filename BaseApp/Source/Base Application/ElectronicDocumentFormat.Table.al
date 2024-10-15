@@ -24,6 +24,20 @@ table 61 "Electronic Document Format"
             Caption = 'Codeunit ID';
             NotBlank = true;
             TableRelation = AllObjWithCaption."Object ID" WHERE("Object Type" = CONST(Codeunit));
+
+            trigger OnValidate()
+            var
+                PEPPOLManagement: Codeunit "PEPPOL Management";
+                FeatureTelemetry: Codeunit "Feature Telemetry";
+            begin
+                if "Codeunit ID" in
+                    [Codeunit::"PEPPOL Validation", Codeunit::"PEPPOL Service Validation",
+                    Codeunit::"Exp. Sales Inv. PEPPOL BIS3.0", Codeunit::"Exp. Sales CrM. PEPPOL BIS3.0",
+                    Codeunit::"Exp. Serv.Inv. PEPPOL BIS3.0", Codeunit::"Exp. Serv.CrM. PEPPOL BIS3.0"] then begin
+                    FeatureTelemetry.LogUptake('0000KOQ', PEPPOLManagement.GetPeppolTelemetryTok(), Enum::"Feature Uptake Status"::Discovered);
+                    FeatureTelemetry.LogUptake('0000KOR', PEPPOLManagement.GetPeppolTelemetryTok(), Enum::"Feature Uptake Status"::"Set up");
+                end;
+            end;
         }
         field(6; "Codeunit Caption"; Text[250])
         {
@@ -159,6 +173,8 @@ table 61 "Electronic Document Format"
                 RecordExportBuffer.GetFileContent(TempBlob);
                 ClientFileName := RecordExportBuffer.ClientFileName;
             end;
+
+        OnSendElectronicallyOnBeforeDeleteAll(RecordExportBuffer, ClientFileName, DocumentVariant);
 
         RecordExportBuffer.DeleteAll();
     end;
@@ -546,6 +562,11 @@ table 61 "Electronic Document Format"
 
     [IntegrationEvent(false, false)]
     local procedure OnGetDocumentTypeCaseElse(DocumentVariant: Variant; var DocumentTypeText: Text[50])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSendElectronicallyOnBeforeDeleteAll(var RecordExportBuffer: Record "Record Export Buffer"; var ClientFileName: Text[250]; DocumentVariant: Variant)
     begin
     end;
 

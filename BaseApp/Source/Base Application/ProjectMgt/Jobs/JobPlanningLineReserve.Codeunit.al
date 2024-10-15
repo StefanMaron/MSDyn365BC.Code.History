@@ -430,7 +430,13 @@
     var
         TrackingSpecification: Record "Tracking Specification";
         ReservationEntry: Record "Reservation Entry";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeBindToProdOrder(JobPlanningLine, ProdOrderLine, ReservQty, ReservQtyBase, IsHandled);
+        if IsHandled then
+            exit;
+
         SetBinding(ReservationEntry.Binding::"Order-to-Order");
         TrackingSpecification.InitTrackingSpecification(
           DATABASE::"Prod. Order Line", ProdOrderLine.Status.AsInteger(), ProdOrderLine."Prod. Order No.", '', ProdOrderLine."Line No.", 0,
@@ -676,6 +682,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnVerifyChangeOnBeforeHasErrorCheck(NewJobPlanningLine: Record "Job Planning Line"; OldJobPlanningLine: Record "Job Planning Line"; var HasError: Boolean; var ShowError: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeBindToProdOrder(JobPlanningLine: Record "Job Planning Line"; ProdOrderLine: Record "Prod. Order Line"; ReservQty: Decimal; ReservQtyBase: Decimal; var IsHandled: Boolean)
     begin
     end;
 }

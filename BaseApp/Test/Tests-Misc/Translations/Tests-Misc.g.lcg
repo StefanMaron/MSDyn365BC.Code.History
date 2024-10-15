@@ -329,15 +329,6 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Attachment Storage Type - NamedType WordExtensionTxt)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 490952843 - NamedType 1632511380" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Could not get access token.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Azure AD Mgt. Tests - NamedType CouldNotGetAccessTokenErr)]]></Cmt>
-    </Cmts>
-  </Item>
   <Item ItemId=";Codeunit 3808007876 - NamedType 3302565684" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[amcname]]></Val>
@@ -1355,6 +1346,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Charts - Test AL Charts - NamedType NotAllowedInsertErrMsg)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 205634720 - NamedType 276437244" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[blank]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Check Dimensions On Posting - NamedType BlankLbl)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 205634720 - NamedType 4153205626" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Dimensions %1 and %2 can't be used concurrently.]]></Val>
@@ -1409,15 +1409,6 @@
       <Cmt Name="Dev"><![CDATA[%1 = Dimension Value table caption, %2 = Dim Code, %3 = Dim Value]D;]A;(LookupHint=Codeunit Check Dimensions On Posting - NamedType DimValueBlockedErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 205634720 - NamedType 2087021590" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[%1 %2 must not be mentioned for %3 %4.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Check Dimensions On Posting - NamedType DimValueMentionedForRecErr)]]></Cmt>
-    </Cmts>
-  </Item>
   <Item ItemId=";Codeunit 205634720 - NamedType 1320827926" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Dimension Value %1 - %2 is missing.]]></Val>
@@ -1436,13 +1427,13 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Check Dimensions On Posting - NamedType DimValueNotAllowedErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 205634720 - NamedType 924325723" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Codeunit 205634720 - NamedType 2104866903" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Select %1 %2 for the %3 %4.]]></Val>
+      <Val><![CDATA[The %1 must be %2 for %3 %4 for %5 %6. Currently it's %7.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Check Dimensions On Posting - NamedType DimValueSameCodeErr)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[%1 = "Dimension value code" caption, %2 = expected "Dimension value code" value, %3 = "Dimension code" caption, %4 = "Dimension Code" value, %5 = Table caption (Vendor), %6 = Table value (XYZ), %7 = current "Dimension value code" value]D;]A;(LookupHint=Codeunit Check Dimensions On Posting - NamedType DimValueSameOrNoCodeErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 205634720 - NamedType 319042074" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -1461,6 +1452,15 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Check Dimensions On Posting - NamedType PostingDimensionErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 205634720 - NamedType 67431746" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[The %1 %2 with %3 %4 is required.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 = "Dimension code" caption, %2= "Dimension Code" value, %3 = "Dimension value code" caption, %4 = "Dimension value code" value]D;]A;(LookupHint=Codeunit Check Dimensions On Posting - NamedType SameCodeMissingDimErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 205634720 - NamedType 3861567882" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
