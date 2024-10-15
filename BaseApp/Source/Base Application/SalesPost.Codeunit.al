@@ -1537,8 +1537,19 @@
                             ItemJnlLine2."Quantity (Base)" := -"Quantity (Base)";
                             ItemJnlLine2."Invoiced Qty. (Base)" := ItemJnlLine2."Quantity (Base)";
 
-                            PreciseTotalChargeAmt += OriginalAmt * Factor;
-                            ItemJnlLine2.Amount := PreciseTotalChargeAmt - RoundedPrevTotalChargeAmt;
+                            if SalesHeader."Currency Code" <> '' then begin
+                                PreciseTotalChargeAmt +=
+                                  CurrExchRate.ExchangeAmtLCYToFCY(
+                                    UseDate, SalesHeader."Currency Code", OriginalAmt * Factor, SalesHeader."Currency Factor");
+                                ItemJnlLine2.Amount :=
+                                  CurrExchRate.ExchangeAmtFCYToLCY(
+                                    UseDate, SalesHeader."Currency Code", PreciseTotalChargeAmt + TotalSalesLine.Amount, SalesHeader."Currency Factor") -
+                                  RoundedPrevTotalChargeAmt - TotalSalesLineLCY.Amount;
+                            end else begin
+                                PreciseTotalChargeAmt += OriginalAmt * Factor;
+                                ItemJnlLine2.Amount := PreciseTotalChargeAmt - RoundedPrevTotalChargeAmt;
+                            end;
+
                             RoundedPrevTotalChargeAmt += Round(ItemJnlLine2.Amount, GLSetup."Amount Rounding Precision");
 
                             ItemJnlLine2."Discount Amount" :=

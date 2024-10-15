@@ -15,21 +15,29 @@ codeunit 10740 "No Taxable Mgt."
     var
         PurchInvHeader: Record "Purch. Inv. Header";
         PurchInvLine: Record "Purch. Inv. Line";
+        TempPurchInvLine: Record "Purch. Inv. Line" temporary;
         NoTaxableEntry: Record "No Taxable Entry";
         PostedLineRecordRef: RecordRef;
     begin
         if GenJournalLine."Document Type" <> GenJournalLine."Document Type"::Invoice then
             exit(false);
-        if not PurchInvHeader.Get(GenJournalLine."Document No.") then
-            exit(false);
-        if not FindNoTaxableLinesPurchaseInvoice(
-             PurchInvLine, GenJournalLine."Account No.", GenJournalLine."Document No.", GenJournalLine."Posting Date")
-        then
-            exit(true);
+        if PurchInvHeader.Get(GenJournalLine."Document No.") then begin
+            if not FindNoTaxableLinesPurchaseInvoice(
+                 PurchInvLine, GenJournalLine."Account No.", GenJournalLine."Document No.", GenJournalLine."Posting Date")
+            then
+                exit(true);
+            CopyPurchInvoiceLineToTempPurchInvoiceLine(TempPurchInvLine, PurchInvLine);
+        end else begin
+            if not CopyVATGenJnlLineToTempPurchInvoiceLine(TempPurchInvLine, GenJournalLine) then
+                exit(false);
+            GenJournalLine."Account No." := FindVendNoFromLedgEntryInSameTransNo(GenJournalLine, TransactionNo);
+            if GenJournalLine."Account No." = '' then
+                exit(false);
+        end;
 
         NoTaxableEntry.InitFromGenJnlLine(GenJournalLine);
         NoTaxableEntry."Transaction No." := TransactionNo;
-        PostedLineRecordRef.GetTable(PurchInvLine);
+        PostedLineRecordRef.GetTable(TempPurchInvLine);
         InsertNoTaxableEntriesFromPurchLines(PostedLineRecordRef, NoTaxableEntry, 1);
         exit(true);
     end;
@@ -38,21 +46,29 @@ codeunit 10740 "No Taxable Mgt."
     var
         PurchCrMemoHdr: Record "Purch. Cr. Memo Hdr.";
         PurchCrMemoLine: Record "Purch. Cr. Memo Line";
+        TempPurchCrMemoLine: Record "Purch. Cr. Memo Line" temporary;
         NoTaxableEntry: Record "No Taxable Entry";
         PostedLineRecordRef: RecordRef;
     begin
         if GenJournalLine."Document Type" <> GenJournalLine."Document Type"::"Credit Memo" then
             exit(false);
-        if not PurchCrMemoHdr.Get(GenJournalLine."Document No.") then
-            exit(false);
-        if not FindNoTaxableLinesPurchaseCrMemo(
-             PurchCrMemoLine, GenJournalLine."Account No.", GenJournalLine."Document No.", GenJournalLine."Posting Date")
-        then
-            exit(true);
+        if PurchCrMemoHdr.Get(GenJournalLine."Document No.") then begin
+            if not FindNoTaxableLinesPurchaseCrMemo(
+                 PurchCrMemoLine, GenJournalLine."Account No.", GenJournalLine."Document No.", GenJournalLine."Posting Date")
+            then
+                exit(true);
+            CopyPurchCrMemoLineToTempPurchCrMemoLine(TempPurchCrMemoLine, PurchCrMemoLine);
+        end else begin
+            if not CopyVATGenJnlLineToTempPurchCrMemoLine(TempPurchCrMemoLine, GenJournalLine) then
+                exit(false);
+            GenJournalLine."Account No." := FindVendNoFromLedgEntryInSameTransNo(GenJournalLine, TransactionNo);
+            if GenJournalLine."Account No." = '' then
+                exit(false);
+        end;
 
         NoTaxableEntry.InitFromGenJnlLine(GenJournalLine);
         NoTaxableEntry."Transaction No." := TransactionNo;
-        PostedLineRecordRef.GetTable(PurchCrMemoLine);
+        PostedLineRecordRef.GetTable(TempPurchCrMemoLine);
         InsertNoTaxableEntriesFromPurchLines(PostedLineRecordRef, NoTaxableEntry, -1);
         exit(true);
     end;
@@ -61,21 +77,29 @@ codeunit 10740 "No Taxable Mgt."
     var
         SalesInvoiceHeader: Record "Sales Invoice Header";
         SalesInvoiceLine: Record "Sales Invoice Line";
+        TempSalesInvoiceLine: Record "Sales Invoice Line" temporary;
         NoTaxableEntry: Record "No Taxable Entry";
         PostedLineRecordRef: RecordRef;
     begin
         if GenJournalLine."Document Type" <> GenJournalLine."Document Type"::Invoice then
             exit(false);
-        if not SalesInvoiceHeader.Get(GenJournalLine."Document No.") then
-            exit(false);
-        if not FindNoTaxableLinesSalesInvoice(SalesInvoiceLine,
-             GenJournalLine."Account No.", GenJournalLine."Document No.", GenJournalLine."Posting Date")
-        then
-            exit(true);
+        if SalesInvoiceHeader.Get(GenJournalLine."Document No.") then begin
+            if not FindNoTaxableLinesSalesInvoice(SalesInvoiceLine,
+                 GenJournalLine."Account No.", GenJournalLine."Document No.", GenJournalLine."Posting Date")
+            then
+                exit(true);
+            CopySalesInvoiceLineToTempSalesInvoiceLine(TempSalesInvoiceLine, SalesInvoiceLine);
+        end else begin
+            if not CopyVATGenJnlLineToTempSalesInvoiceLine(TempSalesInvoiceLine, GenJournalLine) then
+                exit(false);
+            GenJournalLine."Account No." := FindCustNoFromLedgEntryInSameTransNo(GenJournalLine, TransactionNo);
+            if GenJournalLine."Account No." = '' then
+                exit(false);
+        end;
 
         NoTaxableEntry.InitFromGenJnlLine(GenJournalLine);
         NoTaxableEntry."Transaction No." := TransactionNo;
-        PostedLineRecordRef.GetTable(SalesInvoiceLine);
+        PostedLineRecordRef.GetTable(TempSalesInvoiceLine);
         InsertNoTaxableEntriesFromSalesLines(PostedLineRecordRef, NoTaxableEntry, -1);
         exit(true);
     end;
@@ -84,21 +108,29 @@ codeunit 10740 "No Taxable Mgt."
     var
         SalesCrMemoHeader: Record "Sales Cr.Memo Header";
         SalesCrMemoLine: Record "Sales Cr.Memo Line";
+        TempSalesCrMemoLine: Record "Sales Cr.Memo Line" temporary;
         NoTaxableEntry: Record "No Taxable Entry";
         PostedLineRecordRef: RecordRef;
     begin
         if GenJournalLine."Document Type" <> GenJournalLine."Document Type"::"Credit Memo" then
             exit(false);
-        if not SalesCrMemoHeader.Get(GenJournalLine."Document No.") then
-            exit(false);
-        if not FindNoTaxableLinesSalesCrMemo(
-             SalesCrMemoLine, GenJournalLine."Account No.", GenJournalLine."Document No.", GenJournalLine."Posting Date")
-        then
-            exit(true);
+        if SalesCrMemoHeader.Get(GenJournalLine."Document No.") then begin
+            if not FindNoTaxableLinesSalesCrMemo(
+                 SalesCrMemoLine, GenJournalLine."Account No.", GenJournalLine."Document No.", GenJournalLine."Posting Date")
+            then
+                exit(true);
+            CopySalesCrMemoLineToTempSalesCrMemoLine(TempSalesCrMemoLine, SalesCrMemoLine);
+        end else begin
+            if not CopyVATGenJnlLineToTempSalesCrMemoLine(TempSalesCrMemoLine, GenJournalLine) then
+                exit(false);
+            GenJournalLine."Account No." := FindCustNoFromLedgEntryInSameTransNo(GenJournalLine, TransactionNo);
+            if GenJournalLine."Account No." = '' then
+                exit(false);
+        end;
 
         NoTaxableEntry.InitFromGenJnlLine(GenJournalLine);
         NoTaxableEntry."Transaction No." := TransactionNo;
-        PostedLineRecordRef.GetTable(SalesCrMemoLine);
+        PostedLineRecordRef.GetTable(TempSalesCrMemoLine);
         InsertNoTaxableEntriesFromSalesLines(PostedLineRecordRef, NoTaxableEntry, 1);
         exit(true);
     end;
@@ -367,6 +399,28 @@ codeunit 10740 "No Taxable Mgt."
         end;
     end;
 
+    local procedure FindCustNoFromLedgEntryInSameTransNo(GenJournalLine: Record "Gen. Journal Line"; TransNo: Integer): Code[20]
+    var
+        CustLedgerEntry: Record "Cust. Ledger Entry";
+    begin
+        CustLedgerEntry.SetRange("Document Type", GenJournalLine."Document Type");
+        CustLedgerEntry.SetRange("Document No.", GenJournalLine."Document No.");
+        CustLedgerEntry.SetRange("Transaction No.", TransNo);
+        if CustLedgerEntry.FindFirst() then
+            exit(CustLedgerEntry."Customer No.");
+    end;
+
+    local procedure FindVendNoFromLedgEntryInSameTransNo(GenJournalLine: Record "Gen. Journal Line"; TransNo: Integer): Code[20]
+    var
+        VendorLedgerEntry: Record "Vendor Ledger Entry";
+    begin
+        VendorLedgerEntry.SetRange("Document Type", GenJournalLine."Document Type");
+        VendorLedgerEntry.SetRange("Document No.", GenJournalLine."Document No.");
+        VendorLedgerEntry.SetRange("Transaction No.", TransNo);
+        if VendorLedgerEntry.FindFirst() then
+            exit(VendorLedgerEntry."Vendor No.");
+    end;
+
     local procedure InsertNoTaxableEntriesFromPurchLines(var PostedLineRecRef: RecordRef; NoTaxableEntry: Record "No Taxable Entry"; Sign: Integer)
     var
         DummyPurchInvLine: Record "Purch. Inv. Line";
@@ -388,6 +442,9 @@ codeunit 10740 "No Taxable Mgt."
         GenProdPostGroup: Code[20];
         NotIn347: Boolean;
     begin
+        if not PostedLineRecRef.FindSet() then
+            exit;
+
         with PostedLineRecRef do
             repeat
                 TypeFieldRef := Field(DummyPurchInvLine.FieldNo(Type));
@@ -439,6 +496,9 @@ codeunit 10740 "No Taxable Mgt."
         GenProdPostGroup: Code[20];
         NotIn347: Boolean;
     begin
+        if not PostedLineRecRef.FindSet() then
+            exit;
+
         with PostedLineRecRef do
             repeat
                 TypeFieldRef := Field(DummySalesInvoiceLine.FieldNo(Type));
@@ -468,45 +528,6 @@ codeunit 10740 "No Taxable Mgt."
                     UpdateAmountsInCurrency(NoTaxableEntry);
                 end;
             until Next() = 0;
-    end;
-
-    local procedure InsertNoTaxableEntriesFromGenJnlLine(GenJournalLine: Record "Gen. Journal Line"; TransactionNo: Integer; Sign: Integer)
-    var
-        NoTaxableEntry: Record "No Taxable Entry";
-        VATPostingSetup: Record "VAT Posting Setup";
-        VATProductPostingGroup: Record "VAT Product Posting Group";
-        GeneralPostingSetup: Record "General Posting Setup";
-        EntryType: Enum "General Posting Type";
-    begin
-        with GenJournalLine do begin
-            if not VATPostingSetup.Get("VAT Bus. Posting Group", "VAT Prod. Posting Group") then
-                if not VATPostingSetup.Get("Bal. VAT Bus. Posting Group", "Bal. VAT Prod. Posting Group") then
-                    exit;
-            if not VATPostingSetup.IsNoTaxable then
-                exit;
-
-            if not GeneralPostingSetup.Get("Gen. Bus. Posting Group", "Gen. Prod. Posting Group") then
-                if not GeneralPostingSetup.Get("Bal. Gen. Bus. Posting Group", "Bal. Gen. Prod. Posting Group") then;
-
-            if ("Account Type" = "Account Type"::Vendor) or ("Bal. Account Type" = "Bal. Account Type"::Vendor) then
-                EntryType := NoTaxableEntry.Type::Purchase;
-
-            if ("Account Type" = "Account Type"::Customer) or ("Bal. Account Type" = "Bal. Account Type"::Customer) then begin
-                EntryType := NoTaxableEntry.Type::Sale;
-                if VATProductPostingGroup.Get(VATPostingSetup."VAT Prod. Posting Group") then;
-            end;
-
-            if "Document Type" = "Document Type"::"Credit Memo" then
-                Sign := -Sign;
-            NoTaxableEntry.InitFromGenJnlLine(GenJournalLine);
-            NoTaxableEntry."Transaction No." := TransactionNo;
-            InsertNoTaxableEntry(
-              NoTaxableEntry, EntryType, Sign * Abs(Amount), VATPostingSetup."EU Service", false,
-              VATPostingSetup."No Taxable Type", VATProductPostingGroup."Delivery Operation Code",
-              VATPostingSetup."VAT Calculation Type", VATPostingSetup."VAT Bus. Posting Group", VATPostingSetup."VAT Prod. Posting Group",
-              GeneralPostingSetup."Gen. Bus. Posting Group", GeneralPostingSetup."Gen. Prod. Posting Group");
-            UpdateAmountsInCurrency(NoTaxableEntry);
-        end;
     end;
 
     local procedure InsertNoTaxableEntriesFromGenLedgEntry(NoTaxableEntry: Record "No Taxable Entry"; EntryAmount: Decimal; Sign: Integer)
@@ -676,6 +697,174 @@ codeunit 10740 "No Taxable Mgt."
               PostingDate, CurrencyCode, Amount, CurrencyFactor), Currency."Amount Rounding Precision"));
     end;
 
+    local procedure CopySalesInvoiceLineToTempSalesInvoiceLine(var TempSalesInvoiceLine: Record "Sales Invoice Line" temporary; var SalesInvoiceLine: Record "Sales Invoice Line")
+    begin
+        TempSalesInvoiceLine.Reset();
+        TempSalesInvoiceLine.DeleteAll();
+        repeat
+            TempSalesInvoiceLine := SalesInvoiceLine;
+            TempSalesInvoiceLine.Insert();
+        until SalesInvoiceLine.Next() = 0;
+    end;
+
+    local procedure CopyVATGenJnlLineToTempSalesInvoiceLine(var TempSalesInvoiceLine: Record "Sales Invoice Line" temporary; GenJournalLine: Record "Gen. Journal Line"): Boolean
+    begin
+        Clear(TempSalesInvoiceLine);
+        if (GenJournalLine."VAT Bus. Posting Group" <> '') or (GenJournalLine."VAT Prod. Posting Group" <> '') then begin
+            if GenJournalLine."Account Type" = GenJournalLine."Account Type"::"G/L Account" then begin
+                TempSalesInvoiceLine.Type := TempSalesInvoiceLine.Type::"G/L Account";
+                TempSalesInvoiceLine."No." := GenJournalLine."Account No.";
+            end;
+            TempSalesInvoiceLine.Amount := GenJournalLine.Amount;
+            TempSalesInvoiceLine."Gen. Bus. Posting Group" := GenJournalLine."Gen. Bus. Posting Group";
+            TempSalesInvoiceLine."Gen. Prod. Posting Group" := GenJournalLine."Gen. Prod. Posting Group";
+            TempSalesInvoiceLine."VAT Bus. Posting Group" := GenJournalLine."VAT Bus. Posting Group";
+            TempSalesInvoiceLine."VAT Prod. Posting Group" := GenJournalLine."VAT Prod. Posting Group";
+            TempSalesInvoiceLine.Insert();
+            exit(true);
+        end;
+        if (GenJournalLine."Bal. VAT Bus. Posting Group" <> '') and (GenJournalLine."Bal. VAT Prod. Posting Group" <> '') then begin
+            if GenJournalLine."Bal. Account Type" = GenJournalLine."Bal. Account Type"::"G/L Account" then begin
+                TempSalesInvoiceLine.Type := TempSalesInvoiceLine.Type::"G/L Account";
+                TempSalesInvoiceLine."No." := GenJournalLine."Bal. Account No.";
+            end;
+            TempSalesInvoiceLine.Amount := GenJournalLine.Amount;
+            TempSalesInvoiceLine."Gen. Bus. Posting Group" := GenJournalLine."Bal. Gen. Bus. Posting Group";
+            TempSalesInvoiceLine."Gen. Prod. Posting Group" := GenJournalLine."Bal. Gen. Prod. Posting Group";
+            TempSalesInvoiceLine."VAT Bus. Posting Group" := GenJournalLine."Bal. VAT Bus. Posting Group";
+            TempSalesInvoiceLine."VAT Prod. Posting Group" := GenJournalLine."Bal. VAT Prod. Posting Group";
+            TempSalesInvoiceLine.Insert();
+            exit(true);
+        end;
+        exit(false);
+    end;
+
+    local procedure CopySalesCrMemoLineToTempSalesCrMemoLine(var TempSalesCrMemoLine: Record "Sales Cr.Memo Line" temporary; var SalesCrMemoLine: Record "Sales Cr.Memo Line")
+    begin
+        TempSalesCrMemoLine.Reset();
+        TempSalesCrMemoLine.DeleteAll();
+        repeat
+            TempSalesCrMemoLine := SalesCrMemoLine;
+            TempSalesCrMemoLine.Insert();
+        until SalesCrMemoLine.Next() = 0;
+    end;
+
+    local procedure CopyVATGenJnlLineToTempSalesCrMemoLine(var TempSalesCrMemoLine: Record "Sales Cr.Memo Line" temporary; GenJournalLine: Record "Gen. Journal Line"): Boolean
+    begin
+        Clear(TempSalesCrMemoLine);
+        if (GenJournalLine."VAT Bus. Posting Group" <> '') or (GenJournalLine."VAT Prod. Posting Group" <> '') then begin
+            if GenJournalLine."Account Type" = GenJournalLine."Account Type"::"G/L Account" then begin
+                TempSalesCrMemoLine.Type := TempSalesCrMemoLine.Type::"G/L Account";
+                TempSalesCrMemoLine."No." := GenJournalLine."Account No.";
+            end;
+            TempSalesCrMemoLine.Amount := GenJournalLine.Amount;
+            TempSalesCrMemoLine."Gen. Bus. Posting Group" := GenJournalLine."Gen. Bus. Posting Group";
+            TempSalesCrMemoLine."Gen. Prod. Posting Group" := GenJournalLine."Gen. Prod. Posting Group";
+            TempSalesCrMemoLine."VAT Bus. Posting Group" := GenJournalLine."VAT Bus. Posting Group";
+            TempSalesCrMemoLine."VAT Prod. Posting Group" := GenJournalLine."VAT Prod. Posting Group";
+            TempSalesCrMemoLine.Insert();
+            exit(true);
+        end;
+        if (GenJournalLine."Bal. VAT Bus. Posting Group" <> '') and (GenJournalLine."Bal. VAT Prod. Posting Group" <> '') then begin
+            if GenJournalLine."Bal. Account Type" = GenJournalLine."Bal. Account Type"::"G/L Account" then begin
+                TempSalesCrMemoLine.Type := TempSalesCrMemoLine.Type::"G/L Account";
+                TempSalesCrMemoLine."No." := GenJournalLine."Bal. Account No.";
+            end;
+            TempSalesCrMemoLine.Amount := -GenJournalLine.Amount;
+            TempSalesCrMemoLine."Gen. Bus. Posting Group" := GenJournalLine."Bal. Gen. Bus. Posting Group";
+            TempSalesCrMemoLine."Gen. Prod. Posting Group" := GenJournalLine."Bal. Gen. Prod. Posting Group";
+            TempSalesCrMemoLine."VAT Bus. Posting Group" := GenJournalLine."Bal. VAT Bus. Posting Group";
+            TempSalesCrMemoLine."VAT Prod. Posting Group" := GenJournalLine."Bal. VAT Prod. Posting Group";
+            TempSalesCrMemoLine.Insert();
+            exit(true);
+        end;
+        exit(false);
+    end;
+
+    local procedure CopyPurchInvoiceLineToTempPurchInvoiceLine(var TempPurchInvLine: Record "Purch. Inv. Line" temporary; PurchInvLine: Record "Purch. Inv. Line")
+    begin
+        TempPurchInvLine.Reset();
+        TempPurchInvLine.DeleteAll();
+        repeat
+            TempPurchInvLine := PurchInvLine;
+            TempPurchInvLine.Insert();
+        until PurchInvLine.Next() = 0;
+    end;
+
+    local procedure CopyVATGenJnlLineToTempPurchInvoiceLine(var TempPurchInvLine: Record "Purch. Inv. Line" temporary; GenJournalLine: Record "Gen. Journal Line"): Boolean
+    begin
+        Clear(TempPurchInvLine);
+        if (GenJournalLine."VAT Bus. Posting Group" <> '') or (GenJournalLine."VAT Prod. Posting Group" <> '') then begin
+            if GenJournalLine."Account Type" = GenJournalLine."Account Type"::"G/L Account" then begin
+                TempPurchInvLine.Type := TempPurchInvLine.Type::"G/L Account";
+                TempPurchInvLine."No." := GenJournalLine."Account No.";
+            end;
+            TempPurchInvLine.Amount := GenJournalLine.Amount;
+            TempPurchInvLine."Gen. Bus. Posting Group" := GenJournalLine."Gen. Bus. Posting Group";
+            TempPurchInvLine."Gen. Prod. Posting Group" := GenJournalLine."Gen. Prod. Posting Group";
+            TempPurchInvLine."VAT Bus. Posting Group" := GenJournalLine."VAT Bus. Posting Group";
+            TempPurchInvLine."VAT Prod. Posting Group" := GenJournalLine."VAT Prod. Posting Group";
+            TempPurchInvLine.Insert();
+            exit(true);
+        end;
+        if (GenJournalLine."Bal. VAT Bus. Posting Group" <> '') and (GenJournalLine."Bal. VAT Prod. Posting Group" <> '') then begin
+            if GenJournalLine."Bal. Account Type" = GenJournalLine."Bal. Account Type"::"G/L Account" then begin
+                TempPurchInvLine.Type := TempPurchInvLine.Type::"G/L Account";
+                TempPurchInvLine."No." := GenJournalLine."Bal. Account No.";
+            end;
+            TempPurchInvLine.Amount := -GenJournalLine.Amount;
+            TempPurchInvLine."Gen. Bus. Posting Group" := GenJournalLine."Bal. Gen. Bus. Posting Group";
+            TempPurchInvLine."Gen. Prod. Posting Group" := GenJournalLine."Bal. Gen. Prod. Posting Group";
+            TempPurchInvLine."VAT Bus. Posting Group" := GenJournalLine."Bal. VAT Bus. Posting Group";
+            TempPurchInvLine."VAT Prod. Posting Group" := GenJournalLine."Bal. VAT Prod. Posting Group";
+            TempPurchInvLine.Insert();
+            exit(true);
+        end;
+        exit(false);
+    end;
+
+    local procedure CopyPurchCrMemoLineToTempPurchCrMemoLine(var TempPurchCrMemoLine: Record "Purch. Cr. Memo Line" temporary; PurchCrMemoLine: Record "Purch. Cr. Memo Line")
+    begin
+        TempPurchCrMemoLine.Reset();
+        TempPurchCrMemoLine.DeleteAll();
+        repeat
+            TempPurchCrMemoLine := PurchCrMemoLine;
+            TempPurchCrMemoLine.Insert();
+        until PurchCrMemoLine.Next() = 0;
+    end;
+
+    local procedure CopyVATGenJnlLineToTempPurchCrMemoLine(var TempPurchCrMemoLine: Record "Purch. Cr. Memo Line" temporary; GenJournalLine: Record "Gen. Journal Line"): Boolean
+    begin
+        Clear(TempPurchCrMemoLine);
+        if (GenJournalLine."VAT Bus. Posting Group" <> '') or (GenJournalLine."VAT Prod. Posting Group" <> '') then begin
+            if GenJournalLine."Account Type" = GenJournalLine."Account Type"::"G/L Account" then begin
+                TempPurchCrMemoLine.Type := TempPurchCrMemoLine.Type::"G/L Account";
+                TempPurchCrMemoLine."No." := GenJournalLine."Account No.";
+            end;
+            TempPurchCrMemoLine.Amount := GenJournalLine.Amount;
+            TempPurchCrMemoLine."Gen. Bus. Posting Group" := GenJournalLine."Gen. Bus. Posting Group";
+            TempPurchCrMemoLine."Gen. Prod. Posting Group" := GenJournalLine."Gen. Prod. Posting Group";
+            TempPurchCrMemoLine."VAT Bus. Posting Group" := GenJournalLine."VAT Bus. Posting Group";
+            TempPurchCrMemoLine."VAT Prod. Posting Group" := GenJournalLine."VAT Prod. Posting Group";
+            TempPurchCrMemoLine.Insert();
+            exit(true);
+        end;
+        if (GenJournalLine."Bal. VAT Bus. Posting Group" <> '') and (GenJournalLine."Bal. VAT Prod. Posting Group" <> '') then begin
+            if GenJournalLine."Bal. Account Type" = GenJournalLine."Bal. Account Type"::"G/L Account" then begin
+                TempPurchCrMemoLine.Type := TempPurchCrMemoLine.Type::"G/L Account";
+                TempPurchCrMemoLine."No." := GenJournalLine."Bal. Account No.";
+            end;
+            TempPurchCrMemoLine.Amount := GenJournalLine.Amount;
+            TempPurchCrMemoLine."Gen. Bus. Posting Group" := GenJournalLine."Bal. Gen. Bus. Posting Group";
+            TempPurchCrMemoLine."Gen. Prod. Posting Group" := GenJournalLine."Bal. Gen. Prod. Posting Group";
+            TempPurchCrMemoLine."VAT Bus. Posting Group" := GenJournalLine."Bal. VAT Bus. Posting Group";
+            TempPurchCrMemoLine."VAT Prod. Posting Group" := GenJournalLine."Bal. VAT Prod. Posting Group";
+            TempPurchCrMemoLine.Insert();
+            exit(true);
+        end;
+        exit(false);
+    end;
+
     local procedure UpdateAmountsInCurrency(var NoTaxableEntry: Record "No Taxable Entry")
     begin
         with NoTaxableEntry do begin
@@ -745,6 +934,20 @@ codeunit 10740 "No Taxable Mgt."
         end;
     end;
 
+    [EventSubscriber(ObjectType::Codeunit, 12, 'OnAfterPostGLAcc', '', false, false)]
+    local procedure InsertNoTaxableEntryOnPostGLAcc(var GenJnlLine: Record "Gen. Journal Line"; var TempGLEntryBuf: Record "G/L Entry" temporary; var NextEntryNo: Integer; var NextTransactionNo: Integer; Balancing: Boolean)
+    begin
+        if (GenJnlLine."Gen. Posting Type" = GenJnlLine."Gen. Posting Type"::Sale) or
+           (GenJnlLine."Bal. Gen. Posting Type" = GenJnlLine."Bal. Gen. Posting Type"::Sale)
+        then
+            InsertNoTaxableEntryOnPostCust(GenJnlLine, Balancing, TempGLEntryBuf, NextEntryNo, NextTransactionNo)
+        else
+            if (GenJnlLine."Gen. Posting Type" = GenJnlLine."Gen. Posting Type"::Purchase) or
+               (GenJnlLine."Bal. Gen. Posting Type" = GenJnlLine."Bal. Gen. Posting Type"::Purchase)
+            then
+                InsertNoTaxableEntryOnPostVend(GenJnlLine, Balancing, TempGLEntryBuf, NextEntryNo, NextTransactionNo);
+    end;
+
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Gen. Jnl.-Post Line", 'OnAfterPostVend', '', false, false)]
     local procedure InsertNoTaxableEntryOnPostVend(var GenJournalLine: Record "Gen. Journal Line"; Balancing: Boolean; var TempGLEntryBuf: Record "G/L Entry" temporary; var NextEntryNo: Integer; var NextTransactionNo: Integer)
     begin
@@ -757,8 +960,6 @@ codeunit 10740 "No Taxable Mgt."
             exit;
         if CreateNoTaxableEntriesPurchCreditMemo(GenJournalLine, TempGLEntryBuf."Transaction No.") then
             exit;
-
-        InsertNoTaxableEntriesFromGenJnlLine(GenJournalLine, TempGLEntryBuf."Transaction No.", 1);
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Gen. Jnl.-Post Line", 'OnAfterPostCust', '', false, false)]
@@ -773,8 +974,6 @@ codeunit 10740 "No Taxable Mgt."
             exit;
         if CreateNoTaxableEntriesSalesCreditMemo(GenJournalLine, TempGLEntryBuf."Transaction No.") then
             exit;
-
-        InsertNoTaxableEntriesFromGenJnlLine(GenJournalLine, TempGLEntryBuf."Transaction No.", -1);
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Service-Post", 'OnAfterPostServiceDoc', '', false, false)]

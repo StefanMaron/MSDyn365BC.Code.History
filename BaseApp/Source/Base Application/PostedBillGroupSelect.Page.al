@@ -1,7 +1,7 @@
 page 7000064 "Posted Bill Group Select."
 {
     ApplicationArea = Basic, Suite;
-    Caption = 'Posted Bill Groups';
+    Caption = 'Posted Bill Groups (Batch)';
     DeleteAllowed = false;
     Editable = true;
     InsertAllowed = false;

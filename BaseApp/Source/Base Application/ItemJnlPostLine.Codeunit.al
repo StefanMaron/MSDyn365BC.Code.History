@@ -4203,7 +4203,8 @@
                     if ItemJnlLine2."Phys. Inventory" and (ExistingExpirationDate <> 0D) then
                         TempTrackingSpecification."Expiration Date" := ExistingExpirationDate;
                     if not TempTrackingSpecification.Correction then
-                        TempTrackingSpecification.TestField("Expiration Date");
+                        if TempTrackingSpecification."Appl.-from Item Entry" = 0 then
+                            TempTrackingSpecification.TestField("Expiration Date");
                 end;
 
             if CalcExpirationDate <> 0D then

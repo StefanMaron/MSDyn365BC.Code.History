@@ -21,6 +21,7 @@ codeunit 134099 "Purchase Documents"
         LibraryWarehouse: Codeunit "Library - Warehouse";
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         LibraryTimeSheet: Codeunit "Library - Time Sheet";
+        LibraryMarketing: Codeunit "Library - Marketing";
         Assert: Codeunit Assert;
         PurchaseAlreadyExistsTxt: Label 'Purchase %1 %2 already exists for this vendor.', Comment = '%1 = Document Type; %2 = Document No.';
         IsInitialized: Boolean;
@@ -1279,6 +1280,99 @@ codeunit 134099 "Purchase Documents"
         LibraryVariableStorage.AssertEmpty();
     end;
 
+    [Test]
+    [HandlerFunctions('ConfirmHandlerTrue')]
+    procedure UpdateContactInfoAfterChangeBuyfromContactNoinPurchaseOrderByValidatePageField()
+    var
+        Vendor: Record Vendor;
+        Contact: Record Contact;
+        Contact2: Record Contact;
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseOrder: TestPage "Purchase Order";
+    begin
+        // [FEATURE] [UI]
+        // [SCENARIO 414694] When user change Buy-from Contact No. in Purchase Order card then contact info must be updated 
+        Initialize();
+
+        // [GIVEN] Vendor with two contacts
+        // [GIVEN] First contact "C1" with phone = "111111111", mobile phone = "222222222" and email = "contact1@mail.com"
+        // [GIVEN] Second contact "C2" with phone = "333333333", mobile phone = "444444444" and email = "contact2@mail.com"
+        LibraryMarketing.CreateContactWithVendor(Contact, Vendor);
+        UpdateContactInfo(Contact, '111111111', '222222222', 'contact1@mail.com');
+        Contact.Modify(true);
+        Vendor.Validate("Primary Contact No.", Contact."No.");
+        Vendor.Modify(true);
+        LibraryMarketing.CreatePersonContact(Contact2);
+        UpdateContactInfo(Contact2, '333333333', '444444444', 'contact2@mail.com');
+        Contact2.Validate("Company No.", Contact."Company No.");
+        Contact2.Modify(true);
+
+        // [GIVEN] Purchase Order with "Buy-from Contact No." = "C1"
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, Vendor."No.");
+        PurchaseOrder.Trap();
+        Page.Run(Page::"Purchase Order", PurchaseHeader);
+
+        // [WHEN] User set "Buy-from Contact No." = "C2" by validate page field
+        PurchaseOrder."Buy-from Contact No.".SetValue(Contact2."No.");
+
+        // [THEN] "Purchase Order"."Phone No." = "333333333"
+        PurchaseOrder.BuyFromContactPhoneNo.AssertEquals(Contact2."Phone No.");
+
+        // [THEN] "Purchase Order"."Mobile Phone No." = "444444444"
+        PurchaseOrder.BuyFromContactMobilePhoneNo.AssertEquals(Contact2."Mobile Phone No.");
+
+        // [THEN] "Purchase Order"."Email" = "contact2@mail.com"
+        PurchaseOrder.BuyFromContactEmail.AssertEquals(Contact2."E-Mail");
+    end;
+
+    [Test]
+    [HandlerFunctions('ContactListPageHandler,ConfirmHandlerTrue')]
+    procedure UpdateContactInfoAfterChangeBuyfromContactNoinPurchaseOrderCardByLookup()
+    var
+        Vendor: Record Vendor;
+        Contact: Record Contact;
+        Contact2: Record Contact;
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseOrder: TestPage "Purchase Order";
+    begin
+        // [FEATURE] [UI]
+        // [SCENARIO] When user change Buy-from Contact No. in Purchase Order then contact info must be updated
+        Initialize();
+
+        // [GIVEN] Vendor with two contacts
+        // [GIVEN] First contact "C1" with phone = "111111111", mobile phone = "222222222" and email = "contact1@mail.com"
+        // [GIVEN] Second contact "C2" with phone = "333333333", mobile phone = "444444444" and email = "contact2@mail.com"
+        LibraryMarketing.CreateContactWithVendor(Contact, Vendor);
+        UpdateContactInfo(Contact, '111111111', '222222222', 'contact1@mail.com');
+        Contact.Modify(true);
+        Vendor.Validate("Primary Contact No.", Contact."No.");
+        Vendor.Modify(true);
+        LibraryMarketing.CreatePersonContact(Contact2);
+        UpdateContactInfo(Contact2, '333333333', '444444444', 'contact2@mail.com');
+        Contact2.Validate("Company No.", Contact."Company No.");
+        Contact2.Modify(true);
+
+        // [GIVEN] Purchase Order with "Buy-from Contact No." = "C1"
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, Vendor."No.");
+        PurchaseOrder.Trap();
+        Page.Run(Page::"Purchase Order", PurchaseHeader);
+
+        // [WHEN] User set "Buy-from Contact No." = "C2" by validate page field
+        LibraryVariableStorage.Enqueue(Contact2."No.");
+        PurchaseOrder."Buy-from Contact No.".Lookup();
+
+        // [THEN] "Purchase Order"."Phone No." = "333333333"
+        PurchaseOrder.BuyFromContactPhoneNo.AssertEquals(Contact2."Phone No.");
+
+        // [THEN] "Purchase Order"."Mobile Phone No." = "444444444"
+        PurchaseOrder.BuyFromContactMobilePhoneNo.AssertEquals(Contact2."Mobile Phone No.");
+
+        // [THEN] "Purchase Order"."Email" = "contact2@mail.com"
+        PurchaseOrder.BuyFromContactEmail.AssertEquals(Contact2."E-Mail");
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
     local procedure Initialize()
     var
         IntrastatSetup: Record "Intrastat Setup";
@@ -1469,6 +1563,14 @@ codeunit 134099 "Purchase Documents"
         LibraryPurchase.UndoPurchaseReceiptLine(PurchRcptLine);
     end;
 
+    local procedure UpdateContactInfo(var Contact: Record Contact; PhoneNo: Text[30]; MobilePhoneNo: Text[30]; Email: Text[80])
+    begin
+        Contact.Validate("Phone No.", PhoneNo);
+        Contact.Validate("Mobile Phone No.", MobilePhoneNo);
+        Contact.Validate("E-Mail", Email);
+        Contact.Modify(true);
+    end;
+
     local procedure VerifyTransactionTypeWhenInsertPurchaseDocument(DocumentType: Enum "Purchase Document Type")
     var
         PurchaseHeader: Record "Purchase Header";
@@ -1565,6 +1667,14 @@ codeunit 134099 "Purchase Documents"
     begin
         ItemChargeAssignmentPurch."Qty. to Assign".SetValue(LibraryVariableStorage.DequeueDecimal());
         ItemChargeAssignmentPurch.OK.Invoke();
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure ContactListPageHandler(var ContactList: TestPage "Contact List")
+    begin
+        ContactList.GotoKey(LibraryVariableStorage.DequeueText);
+        ContactList.OK.Invoke;
     end;
 }
 
