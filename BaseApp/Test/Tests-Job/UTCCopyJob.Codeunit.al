@@ -24,6 +24,10 @@ codeunit 136361 "UT C Copy Job"
         IsInitialized: Boolean;
         JobWithManualNoNotCreatedErr: Label 'Job with manual number is not created.';
         TestFieldValueErr: Label '%1 must be equal to %2.', Comment = '%1 - field caption, %2 - field value';
+        UnitCostMustMatchErr: Label 'Unit Cost must match.';
+        TotalCostMustMatchErr: Label 'Total Cost must match.';
+        UnitPriceMustMatchErr: Label 'Unit Price must match.';
+        TotalPriceMustMatchErr: Label 'Total Price must match.';
 
     [Test]
     [Scope('OnPrem')]
@@ -702,6 +706,50 @@ codeunit 136361 "UT C Copy Job"
 
         // [VERIFY] Verify: Unit Cost and Price of Target Job Planning Lines with Item and Resource
         VerifyUnitCostAndPriceOnJobPlanningLine(SourceJobTask, TargetJobTask);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CopyJobPlanningLinesToActionShouldCopyPricesAndCost()
+    var
+        SourceJob: Record Job;
+        SourceJobTask: Record "Job Task";
+        SourceJobPlanningLine: Record "Job Planning Line";
+        TargetJobTask: Record "Job Task";
+        TargetJobPlanningLine: Record "Job Planning Line";
+        CopyJob: Codeunit "Copy Job";
+    begin
+        // [SCENARIO 484709] [IcM] Copy Job Planning Lines no longer copying unit price and unit cost
+        Initialize();
+
+        // [GIVEN] Create Source Job, Job Task, and Job Planning Lines with Item and Resource.
+        JobSetUpWithItemAndResource(SourceJob, SourceJobTask);
+
+        // [GIVEN] Create Target Job Task for Source Job.
+        LibraryJob.CreateJobTask(SourceJob, TargetJobTask);
+
+        // [GIVEN] Use Copy Job codeunit to Set Copy Quanity & Copy Prices parameter as True.
+        CopyJob.SetCopyQuantity(true);
+        CopyJob.SetCopyPrices(true);
+
+        // [GIVEN] Use Copy Job Codeunit to Copy Job Planning Lines.
+        CopyJob.CopyJobPlanningLines(SourceJobTask, TargetJobTask);
+
+        // [GIVEN] Find Source Job planning Lines.
+        SourceJobPlanningLine.SetRange("Job No.", SourceJob."No.");
+        SourceJobPlanningLine.SetRange("Job Task No.", SourceJobTask."Job Task No.");
+        SourceJobPlanningLine.FindFirst();
+
+        // [WHEN] Find Target Job Planning Lines.
+        TargetJobPlanningLine.SetRange("Job No.", SourceJob."No.");
+        TargetJobPlanningLine.SetRange("Job Task No.", TargetJobTask."Job Task No.");
+        TargetJobPlanningLine.FindFirst();
+
+        // [VERIFY] Verify Source Job Planning Lines Costs & Prices match with Target Job Planning Lines Costs & Prices.
+        Assert.AreEqual(SourceJobPlanningLine."Unit Cost", TargetJobPlanningLine."Unit Cost", UnitCostMustMatchErr);
+        Assert.AreEqual(SourceJobPlanningLine."Total Cost", TargetJobPlanningLine."Total Cost", TotalCostMustMatchErr);
+        Assert.AreEqual(SourceJobPlanningLine."Unit Price", TargetJobPlanningLine."Unit Price", UnitPriceMustMatchErr);
+        Assert.AreEqual(SourceJobPlanningLine."Total Price", TargetJobPlanningLine."Total Price", TotalPriceMustMatchErr);
     end;
 
     local procedure Initialize()
