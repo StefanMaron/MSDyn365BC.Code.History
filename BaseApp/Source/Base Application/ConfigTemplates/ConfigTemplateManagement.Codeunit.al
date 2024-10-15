@@ -41,6 +41,8 @@ codeunit 8612 "Config. Template Management"
             else
                 Error(NoSeriesErr, RecRef.Number, RecRef.Caption);
         end;
+
+        OnAfterUpdateRecordWithSkipFields(ConfigTemplateHeader, RecRef, SkipFields, TempSkipFields);
     end;
 
     procedure InsertTemplate(var RecRef: RecordRef; ConfigTemplateHeader: Record "Config. Template Header"; SkipFields: Boolean; var TempSkipField: Record "Field")
@@ -547,6 +549,11 @@ codeunit 8612 "Config. Template Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterIsNotInitializedFieldRef(FieldRef: FieldRef; var Resul: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterUpdateRecordWithSkipFields(ConfigTemplateHeader: Record "Config. Template Header"; var RecRef: RecordRef; SkipFields: Boolean; var TempSkipFields: Record "Field" temporary)
     begin
     end;
 

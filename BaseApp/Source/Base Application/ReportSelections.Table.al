@@ -1,4 +1,4 @@
-table 77 "Report Selections"
+﻿table 77 "Report Selections"
 {
     Caption = 'Report Selections';
 
@@ -1131,7 +1131,7 @@ table 77 "Report Selections"
         FilePath := CopyStr(FileMgt.ServerTempFileName('pdf'), 1, 250);
 
         ReportLayoutSelection.SetTempLayoutSelected(LayoutCode);
-        OnBeforeSaveReportAsPDF(ReportID, RecordVariant, LayoutCode, IsHandled, FilePath);
+        OnBeforeSaveReportAsPDF(ReportID, RecordVariant, LayoutCode, IsHandled, FilePath, ReportUsage);
         if not IsHandled then
             REPORT.SaveAsPdf(ReportID, FilePath, RecordVariant);
         ReportLayoutSelection.SetTempLayoutSelected('');
@@ -1437,7 +1437,7 @@ table 77 "Report Selections"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeSaveReportAsPDF(ReportID: Integer; RecordVariant: Variant; LayoutCode: Code[20]; var IsHandled: Boolean; FilePath: Text[250])
+    local procedure OnBeforeSaveReportAsPDF(var ReportID: Integer; RecordVariant: Variant; var LayoutCode: Code[20]; var IsHandled: Boolean; FilePath: Text[250]; ReportUsage: Enum "Report Selection Usage")
     begin
     end;
 

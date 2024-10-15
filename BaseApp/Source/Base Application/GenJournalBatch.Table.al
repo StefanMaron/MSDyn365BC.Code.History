@@ -242,7 +242,14 @@ table 232 "Gen. Journal Batch"
         BalAccountIdDoesNotMatchAGLAccountErr: Label 'The "balancingAccountNumber" does not match to a G/L Account.', Locked = true;
 
     procedure SetupNewBatch()
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeSetupNewBatch(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         GenJnlTemplate.Get("Journal Template Name");
         "Bal. Account Type" := GenJnlTemplate."Bal. Account Type";
         "Bal. Account No." := GenJnlTemplate."Bal. Account No.";
@@ -360,6 +367,11 @@ table 232 "Gen. Journal Batch"
             exit;
 
         BalAccountId := GLAccount.Id;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSetupNewBatch(GenJournalBatch: Record "Gen. Journal Batch"; var IsHandled: Boolean)
+    begin
     end;
 }
 
