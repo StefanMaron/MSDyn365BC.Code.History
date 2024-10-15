@@ -71,6 +71,9 @@ codeunit 99000774 "Calculate Routing Line"
     end;
 
     local procedure CreateCapNeed(NeedDate: Date; StartingTime: Time; EndingTime: Time; NeedQty: Decimal; TimeType: Enum "Routing Time Type"; Direction: Option Forward,Backward)
+    var
+        ActuallyPostedTime: Decimal;
+        DistributedCapNeed: Decimal;
     begin
         ProdOrderCapNeed.Init();
         ProdOrderCapNeed.Status := ProdOrder.Status;
@@ -93,7 +96,11 @@ codeunit 99000774 "Calculate Routing Line"
         ProdOrderCapNeed."Requested Only" := false;
         ProdOrderCapNeed.Active := true;
         if ProdOrder.Status <> ProdOrder.Status::Simulated then begin
-            ProdOrderCapNeed."Allocated Time" := NeedQty;
+            ActuallyPostedTime := CalcActuallyPostedCapacityTime(ProdOrderRoutingLine, TimeType);
+            DistributedCapNeed := CalcDistributedCapacityNeedForOperation(ProdOrderRoutingLine, TimeType);
+            ProdOrderCapNeed."Allocated Time" := NeedQty - ActuallyPostedTime + DistributedCapNeed;
+            if ProdOrderCapNeed."Allocated Time" < 0 then
+                ProdOrderCapNeed."Allocated Time" := 0;
             ProdOrderRoutingLine."Expected Capacity Need" :=
               ProdOrderRoutingLine."Expected Capacity Need" + ProdOrderCapNeed."Needed Time (ms)";
         end;
@@ -1157,7 +1164,7 @@ codeunit 99000774 "Calculate Routing Line"
         end;
 
         MaxLotSize :=
-          ProdOrderQty *
+          ExpectedOperOutput *
           (1 + ProdOrderRoutingLine."Scrap Factor % (Accumulated)") *
           (1 + TotalScrap / 100) +
           ProdOrderRoutingLine."Fixed Scrap Qty. (Accum.)";
@@ -1856,6 +1863,45 @@ codeunit 99000774 "Calculate Routing Line"
         if (ProdStartTime = 000000T) and ((CalendarEntryDate <> ProdStartDate) or IsForward) then
             exit(86400000);
         exit((86400000 + (ProdStartTime - 000000T) * CalcFactor) mod 86400000);
+    end;
+
+    local procedure CalcActuallyPostedCapacityTime(ProdOrderRoutingLine: Record "Prod. Order Routing Line"; TimeType: Enum "Routing Time Type"): Decimal
+    var
+        CapacityLedgerEntry: Record "Capacity Ledger Entry";
+    begin
+        with CapacityLedgerEntry do begin
+            SetCurrentKey(
+              "Order Type", "Order No.", "Order Line No.", "Routing No.", "Routing Reference No.",
+              "Operation No.", "Last Output Line");
+            SetRange("Order Type", "Order Type"::Production);
+            SetRange("Order No.", ProdOrderRoutingLine."Prod. Order No.");
+            SetRange("Routing No.", ProdOrderRoutingLine."Routing No.");
+            SetRange("Routing Reference No.", ProdOrderRoutingLine."Routing Reference No.");
+            SetRange("Operation No.", ProdOrderRoutingLine."Operation No.");
+            CalcSums("Setup Time", "Run Time");
+            if TimeType = TimeType::"Setup Time" then
+                exit("Setup Time");
+            if TimeType = TimeType::"Run Time" then
+                exit("Run Time");
+            exit(0);
+        end;
+    end;
+
+    local procedure CalcDistributedCapacityNeedForOperation(ProdOrderRoutingLine: Record "Prod. Order Routing Line"; TimeType: Enum "Routing Time Type"): Decimal
+    var
+        ProdOrderCapacityNeed: Record "Prod. Order Capacity Need";
+    begin
+        with ProdOrderCapacityNeed do begin
+            SetRange(Status, ProdOrderRoutingLine.Status);
+            SetRange("Prod. Order No.", ProdOrderRoutingLine."Prod. Order No.");
+            SetRange("Requested Only", false);
+            SetRange("Routing No.", ProdOrderRoutingLine."Routing No.");
+            SetRange("Routing Reference No.", ProdOrderRoutingLine."Routing Reference No.");
+            SetRange("Operation No.", ProdOrderRoutingLine."Operation No.");
+            SetRange("Time Type", TimeType);
+            CalcSums("Needed Time", "Allocated Time");
+            exit("Needed Time" - "Allocated Time");
+        end;
     end;
 
     local procedure SetMaxDateTime(var ResultingDate: Date; var ResultingTime: Time; DateToCompare: Date; TimeToCompare: Time)

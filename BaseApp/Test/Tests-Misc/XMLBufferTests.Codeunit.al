@@ -13,6 +13,7 @@ codeunit 139200 "XML Buffer Tests"
         Assert: Codeunit Assert;
         FileManagement: Codeunit "File Management";
         LibraryRandom: Codeunit "Library - Random";
+        WrongNamespaceUriErr: Label 'Wrong namespace uri.';
 
     [Test]
     [Scope('OnPrem')]
@@ -744,6 +745,29 @@ codeunit 139200 "XML Buffer Tests"
         // [WHEN] Saving and then loading the XML Buffer
         // [THEN] The two XML Buffer lists are identical
         SaveLoadAndVerifyXmlBuffer(TempXMLBuffer);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure GetNamespaceUriUndependParentID()
+    var
+        XMLBuffer: Record "XML Buffer";
+        Namespace: Text[250];
+    begin
+        // [FEATURE] [UT]
+        // [SCENARIO 374587] The "XML Buffer".GetNamespaceUriByPrefix must return the uri independs of "Parent Entry No."
+
+        // [GIVEN] Namespace with prefix 'namespace1' and uri = 'uri1'
+        XMLBuffer.AddNamespace('namespace1', 'uri1');
+
+        // [GIVEN] Set filter on XMLBuffer by "Parent Entry No."
+        XMLBuffer.SetRange("Parent Entry No.", LibraryRandom.RandIntInRange(3, 5));
+
+        // [WHEN] Invoke GetNamespaceUriByPrefix for 'namespace1'
+        Namespace := XMLBuffer.GetNamespaceUriByPrefix('namespace1');
+
+        // [THEN] Result must be equal 'uri1'
+        Assert.AreEqual('uri1', Namespace, WrongNamespaceUriErr);
     end;
 
     local procedure CreateAndVerifyRootNode(var TempXMLBuffer: Record "XML Buffer" temporary; NumNamespaces: Integer; DefaultNamespace: Boolean)

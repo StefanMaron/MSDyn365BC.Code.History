@@ -101,7 +101,7 @@ codeunit 730 "Copy Item"
 
         CopyExtendedTexts(SourceItem."No.", TargetItem);
         CopyItemDimensions(SourceItem, TargetItem."No.");
-        CopyItemVariants(SourceItem."No.", TargetItem."No.");
+        CopyItemVariants(SourceItem."No.", TargetItem."No.", TargetItem.SystemId);
         CopyItemTranslations(SourceItem."No.", TargetItem."No.");
         CopyItemComments(SourceItem."No.", TargetItem."No.");
         CopyBOMComponents(SourceItem."No.", TargetItem."No.");
@@ -202,7 +202,7 @@ codeunit 730 "Copy Item"
             end;
     end;
 
-    local procedure CopyItemVariants(FromItemNo: Code[20]; ToItemNo: Code[20])
+    local procedure CopyItemVariants(FromItemNo: Code[20]; ToItemNo: Code[20]; ToItemId: Guid)
     var
         ItemVariant: Record "Item Variant";
     begin
@@ -210,6 +210,9 @@ codeunit 730 "Copy Item"
             exit;
 
         CopyItemRelatedTable(DATABASE::"Item Variant", ItemVariant.FieldNo("Item No."), FromItemNo, ToItemNo);
+        ItemVariant.SetRange("Item No.", ToItemNo);
+        if not ItemVariant.IsEmpty() then
+            ItemVariant.ModifyAll("Item Id", ToItemId);
     end;
 
     local procedure CopyItemTranslations(FromItemNo: Code[20]; ToItemNo: Code[20])

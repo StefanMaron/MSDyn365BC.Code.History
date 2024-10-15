@@ -1264,6 +1264,107 @@ codeunit 139175 "CRM Sales Order Integr. Test"
 
     [Test]
     [Scope('OnPrem')]
+    procedure CRMSalesOrderListFilters()
+    var
+        CRMSalesorder: array[5] of Record "CRM Salesorder";
+        CRMSalesOrderList: TestPage "CRM Sales Order List";
+    begin
+        // [FEATURE] [Sales Order]
+        // [SCENARIO] CRM Sales Order page presents only the orders with StateCode=Submitted and LastBackofficeSubmit equal to 0D or 1900-01-01
+        Initialize();
+
+        // [GIVEN] Submitted CRM sales order with LastBackofficeSubmit=0D
+        LibraryCRMIntegration.CreateCRMSalesOrder(CRMSalesorder[1]);
+        CRMSalesorder[1].StateCode := CRMSalesorder[1].StateCode::Submitted;
+        Clear(CRMSalesorder[1].LastBackofficeSubmit);
+        CRMSalesorder[1].Modify();
+        // [GIVEN] Submitted CRM sales order with LastBackofficeSubmit=1899-12-31
+        LibraryCRMIntegration.CreateCRMSalesOrder(CRMSalesorder[2]);
+        CRMSalesorder[2].StateCode := CRMSalesorder[2].StateCode::Submitted;
+        CRMSalesorder[2].LastBackofficeSubmit := DMY2Date(31, 12, 1899);
+        CRMSalesorder[2].Modify();
+        // [GIVEN] Submitted CRM sales order with LastBackofficeSubmit=1900-01-01
+        LibraryCRMIntegration.CreateCRMSalesOrder(CRMSalesorder[3]);
+        CRMSalesorder[3].StateCode := CRMSalesorder[3].StateCode::Submitted;
+        CRMSalesorder[3].LastBackofficeSubmit := DMY2Date(1, 1, 1900);
+        CRMSalesorder[3].Modify();
+        // [GIVEN] Submitted CRM sales order with LastBackofficeSubmit=1900-01-02
+        LibraryCRMIntegration.CreateCRMSalesOrder(CRMSalesorder[4]);
+        CRMSalesorder[4].StateCode := CRMSalesorder[4].StateCode::Submitted;
+        CRMSalesorder[4].LastBackofficeSubmit := DMY2Date(2, 1, 1900);
+        CRMSalesorder[4].Modify();
+        // [GIVEN] Active CRM sales order
+        LibraryCRMIntegration.CreateCRMSalesOrder(CRMSalesorder[5]);
+        CRMSalesorder[5].StateCode := CRMSalesorder[5].StateCode::Active;
+        CRMSalesorder[5].Modify();
+
+        // [WHEN] The user opens CRM Sales Orders page
+        CRMSalesOrderList.OpenView();
+
+        // [THEN] Submitted CRM sales order with LastBackofficeSubmit=0D is presented
+        Assert.IsTrue(CRMSalesOrderList.GoToRecord(CRMSalesorder[1]), 'Sales Order 1 should be presented.');
+        // [THEN] Submitted CRM sales order with LastBackofficeSubmit=1899-12-31 is not presented
+        Assert.IsFalse(CRMSalesOrderList.GoToRecord(CRMSalesorder[2]), 'Sales Order 2 should not be presented.');
+        // [THEN] Submitted CRM sales order with LastBackofficeSubmit=1900-01-01 is presented
+        Assert.IsTrue(CRMSalesOrderList.GoToRecord(CRMSalesorder[3]), 'Sales Order 3 should be presented.');
+        // [THEN] Submitted CRM sales order with LastBackofficeSubmit=1900-01-02 is not presented
+        Assert.IsFalse(CRMSalesOrderList.GoToRecord(CRMSalesorder[4]), 'Sales Order 4 should not be presented.');
+        // [THEN] Active CRM sales order is not presented
+        Assert.IsFalse(CRMSalesOrderList.GoToRecord(CRMSalesorder[5]), 'Sales Order 5 should not be presented.');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CreateSalesOrderInNAVFilters()
+    var
+        CRMIntegrationRecord: Record "CRM Integration Record";
+        CRMSalesorder: array[5] of Record "CRM Salesorder";
+        CRMSalesorderdetail: array[5] of Record "CRM Salesorderdetail";
+    begin
+        // [SCENARIO] Job queue entry "Process submitted sales orders" makes NAV sales order from submitted CRM sales orders with LastBackofficeSubmit equal to 0D or 1900-01-01
+        Initialize();
+        ClearCRMData();
+
+        // [GIVEN] Submitted CRM sales order with LastBackofficeSubmit=0D
+        CreateCRMSalesorderInLCY(CRMSalesorder[1]);
+        LibraryCRMIntegration.CreateCRMSalesOrderLine(CRMSalesorder[1], CRMSalesorderdetail[1]);
+        // [GIVEN] Submitted CRM sales order with LastBackofficeSubmit=1899-12-31
+        CreateCRMSalesorderInLCY(CRMSalesorder[2]);
+        CRMSalesorder[2].LastBackofficeSubmit := DMY2Date(31, 12, 1899);
+        CRMSalesorder[2].Modify();
+        LibraryCRMIntegration.CreateCRMSalesOrderLine(CRMSalesorder[2], CRMSalesorderdetail[2]);
+        // [GIVEN] Submitted CRM sales order with LastBackofficeSubmit=1900-01-01
+        CreateCRMSalesorderInLCY(CRMSalesorder[3]);
+        CRMSalesorder[3].LastBackofficeSubmit := DMY2Date(1, 1, 1900);
+        CRMSalesorder[3].Modify();
+        LibraryCRMIntegration.CreateCRMSalesOrderLine(CRMSalesorder[3], CRMSalesorderdetail[3]);
+        // [GIVEN] Submitted CRM sales order with LastBackofficeSubmit=1900-01-02
+        CreateCRMSalesorderInLCY(CRMSalesorder[4]);
+        CRMSalesorder[4].LastBackofficeSubmit := DMY2Date(2, 1, 1900);
+        CRMSalesorder[4].Modify();
+        // [GIVEN] Active CRM sales order
+        CreateCRMSalesorderInLCY(CRMSalesorder[5]);
+        CRMSalesorder[5].StateCode := CRMSalesorder[5].StateCode::Active;
+        CRMSalesorder[5].Modify();
+        // [WHEN] Job queue entry "Process submitted sales orders" is being run
+        RunCodeunitProcessSubmittedCRMSalesOrders();
+
+        // [THEN] Nav sales order created for submitted CRM sales order with LastBackofficeSubmit=0D
+        Assert.IsTrue(CRMIntegrationRecord.FindByCRMID(CRMSalesorder[1].SalesOrderId), 'Coupled sales header is not found for CRM Sales Order 1');
+        CRMIntegrationRecord.TestField("Table ID", DATABASE::"Sales Header");
+        // [THEN] Nav sales order is not created for submitted CRM sales order with LastBackofficeSubmit=1899-12-31
+        Assert.IsFalse(CRMIntegrationRecord.FindByCRMID(CRMSalesorder[2].SalesOrderId), 'Coupled sales header is found for CRM Sales Order 2');
+        // [THEN] Nav sales order created for submitted CRM sales order with LastBackofficeSubmit=1900-01-01
+        Assert.IsTrue(CRMIntegrationRecord.FindByCRMID(CRMSalesorder[3].SalesOrderId), 'Coupled sales header is not found for CRM Sales Order 3');
+        CRMIntegrationRecord.TestField("Table ID", DATABASE::"Sales Header");
+        // [THEN] Nav sales order is not created for submitted CRM sales order with LastBackofficeSubmit=1900-01-02
+        Assert.IsFalse(CRMIntegrationRecord.FindByCRMID(CRMSalesorder[4].SalesOrderId), 'Coupled sales header is found for CRM Sales Order 4');
+        // [THEN] Nav sales order is not created for active CRM sales order
+        Assert.IsFalse(CRMIntegrationRecord.FindByCRMID(CRMSalesorder[5].SalesOrderId), 'Coupled sales header is found for CRM Sales Order 5');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
     procedure CreateSalesOrderInNAVWithJobQueueSunshine()
     var
         CRMIntegrationRecord: Record "CRM Integration Record";
