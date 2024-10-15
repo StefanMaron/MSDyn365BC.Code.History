@@ -735,6 +735,12 @@
                 SubPageLink = "No." = FIELD("Pay-to Vendor No."),
                               "Date Filter" = field("Date Filter");
             }
+            part(IncomingDocAttachFactBox; "Incoming Doc. Attach. FactBox")
+            {
+                ApplicationArea = Suite;
+                ShowFilter = false;
+                Visible = false;
+            }
             part(Control1903435607; "Vendor Hist. Buy-from FactBox")
             {
                 ApplicationArea = PurchReturnOrder;
@@ -1514,6 +1520,7 @@
     trigger OnAfterGetCurrRecord()
     begin
         SetControlAppearance();
+        CurrPage.IncomingDocAttachFactBox.PAGE.LoadDataFromRecord(Rec);
         CurrPage.ApprovalFactBox.PAGE.UpdateApprovalEntriesFromSourceRecord(RecordId);
         ShowWorkflowStatus := CurrPage.WorkflowStatus.PAGE.SetFilterOnWorkflowRecord(RecordId);
         StatusStyleTxt := Rec.GetStatusStyleText();
@@ -1524,6 +1531,7 @@
         CalculateCurrentShippingOption();
         BuyFromContact.GetOrClear(Rec."Buy-from Contact No.");
         PayToContact.GetOrClear(Rec."Pay-to Contact No.");
+        CurrPage.IncomingDocAttachFactBox.Page.SetCurrentRecordID(Rec.RecordId);
 
         OnAfterOnAfterGetRecord(Rec);
     end;
