@@ -168,7 +168,9 @@ codeunit 1223 "SEPA CT-Check Line"
             if (SwissPaymentType = DummyPaymentExportData."Swiss Payment Type"::"1") and (GenJnlLine."Reference No." = '') then
                 AddFieldEmptyError(GenJnlLine, GenJnlLine.TableCaption, GenJnlLine.FieldCaption("Reference No."), '');
             if SwissPaymentType in
-               [DummyPaymentExportData."Swiss Payment Type"::"5", DummyPaymentExportData."Swiss Payment Type"::"6"]
+               [DummyPaymentExportData."Swiss Payment Type"::"3",
+                DummyPaymentExportData."Swiss Payment Type"::"5",
+                DummyPaymentExportData."Swiss Payment Type"::"6"]
             then begin
                 BankAccount.Get(GenJnlLine."Bal. Account No.");
                 if BankAccount."SWIFT Code" = '' then
@@ -219,7 +221,7 @@ codeunit 1223 "SEPA CT-Check Line"
                       GenJnlLine, BankAccount.TableCaption, BankAccount.FieldCaption("SWIFT Code"), GenJnlLine."Bal. Account No.");
             end;
     end;
-    
+
     [IntegrationEvent(false, false)]
     local procedure OnAfterCheckGenJnlLine(var GenJournalLine: Record "Gen. Journal Line")
     begin

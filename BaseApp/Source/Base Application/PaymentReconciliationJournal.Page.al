@@ -595,14 +595,12 @@ page 1290 "Payment Reconciliation Journal"
                     group(StatementEndingBalanceGroup)
                     {
                         Visible = StatementEndingBalanceVisible and (not PreviousUXExperienceActive);
-                        Caption = 'Statement Ending Balance';
+                            ShowCaption = false;
                         field(StatementEndingBalanceFixedLayout; BankAccReconciliation."Statement Ending Balance")
                         {
-                            Visible = StatementEndingBalanceVisible and (not PreviousUXExperienceActive);
                             ApplicationArea = Basic, Suite;
                             AutoFormatType = 1;
                             Editable = false;
-                            ShowCaption = false;
                             Caption = 'Statement Ending Balance';
                             ToolTip = 'Specifies the balance on your actual bank account after the bank has processed the payments that you have imported with the bank statement file.';
                         }

@@ -170,6 +170,9 @@ report 11012 "Intrastat - Form DE"
                 column(NoOfRecordsCaption; NoOfRecordsCaptionLbl)
                 {
                 }
+                column(Intrastat_Jnl__Line_Partner_VAT_ID; "Partner VAT ID")
+                {
+                }
 
                 trigger OnAfterGetRecord()
                 var

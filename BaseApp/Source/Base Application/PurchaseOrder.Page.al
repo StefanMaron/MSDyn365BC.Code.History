@@ -965,6 +965,7 @@
                     begin
                         OpenPurchaseOrderStatistics;
                         PurchCalcDiscByType.ResetRecalculateInvoiceDisc(Rec);
+                        CurrPage.PurchLines.Page.ForceTotalsCalculation();
                     end;
                 }
                 action(Vendor)

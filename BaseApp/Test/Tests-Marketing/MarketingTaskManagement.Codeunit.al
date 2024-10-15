@@ -1144,6 +1144,69 @@ codeunit 136203 "Marketing Task Management"
         VerifySalespersonDeleted(SalespersonPurchaser.Code);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure CreateTaskPhoneCallSetStartEndTimeUI()
+    var
+        Todo: Record "To-do";
+        SalespersonPurchaser: Record "Salesperson/Purchaser";
+        CreateTask: TestPage "Create Task";
+    begin
+        // [SCEANRIO 420421] Make "Start Time" and "Ending Time" fields available to edit for "Phone Call" task on the "Create Task" page
+        Initialize();
+
+        // [GIVEN] "Phone Call" task
+        LibraryMarketing.CreateTask(Todo);
+        LibrarySales.CreateSalesperson(SalespersonPurchaser);
+        Todo.Validate("Salesperson Code", SalespersonPurchaser.Code);
+        Todo.Validate(Type, Todo.Type::"Phone Call");
+        Todo.Validate(Date, WorkDate());
+        Todo.Modify(true);
+
+        // [WHEN] Set "Start Time" = "T1" and "Ending Time" = "T2" on the "Create Task" page
+        CreateTask.OpenEdit();
+        CreateTask.GoToRecord(Todo);
+        CreateTask."Start Time".SetValue(120100T);
+        CreateTask."Ending Time".SetValue(125959T);
+        CreateTask.OK().Invoke();
+
+        // [THEN] "Start Time" = "T1", "Ending Time" = "T2", "Duration" = "T2" - "T1"
+        Todo.SetRange("Salesperson Code", SalespersonPurchaser.Code);
+        Todo.FindFirst();
+        Todo.TestField("Start Time", 120100T);
+        Todo.TestField("Ending Time", 125959T);
+        Todo.TestField(Duration, 125959T - 120100T);
+    end;
+
+    [Test]
+    [HandlerFunctions('ModalFormCreateTaskCheckEditable')]
+    [Scope('OnPrem')]
+    procedure CreateTaskFromSalespersonPage()
+    var
+        SalespersonPurchaser: Record "Salesperson/Purchaser";
+        Team: Record Team;
+        SalespersonPurchaserCard: TestPage "Salesperson/Purchaser Card";
+        TaskList: TestPage "Task List";
+    begin
+        // [FEATURE] [Salesperson] [UT]
+        // [SCENARIO 420888] Salesperson and Team are editable when Create Task opened from salesperson
+        Initialize();
+
+        // [GIVEN] Created Salesperson and Team
+        CreateTeamWithSalesperson(Team, SalespersonPurchaser);
+        SalespersonPurchaserCard.OpenEdit();
+        SalespersonPurchaserCard.Filter.SetFilter(Code, SalespersonPurchaser.Code);
+        TaskList.Trap();
+        SalespersonPurchaserCard."T&asks".Invoke();
+
+        // [WHEN] Action "Create Task"
+        TaskList."&Create Task".Invoke();
+
+        // [THEN] Salesperson Code and Team Task are editable
+        Assert.IsTrue(LibraryVariableStorage.DequeueBoolean(), 'Invalid editable state for Salesperson Code');
+        Assert.IsTrue(LibraryVariableStorage.DequeueBoolean(), 'Invalid editable state for Team Task');
+    end;
+
     local procedure Initialize()
     begin
         LibraryVariableStorage.Clear;
@@ -1535,6 +1598,14 @@ codeunit 136203 "Marketing Task Management"
         CreateSegmentTask(TempTask, SegmentNo, TaskType2);
         TempTask.Validate("Salesperson Code", SalespersonCode2);
         FinishStepTaskWizard(TempTask);
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure ModalFormCreateTaskCheckEditable(var CreateTask: TestPage "Create Task")
+    begin
+        LibraryVariableStorage.Enqueue(CreateTask."Salesperson Code".Editable());
+        LibraryVariableStorage.Enqueue(CreateTask.TeamTask.Editable());
     end;
 
     [ModalPageHandler]
