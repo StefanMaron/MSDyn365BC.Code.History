@@ -27,6 +27,61 @@ codeunit 2004 "Machine Learning KeyVaultMgmt."
 
     [NonDebuggable]
     [Scope('OnPrem')]
+    procedure GetMachineLearningCredentials(SecretName: Text; var ApiUri: Text[250]; var ApiKey: SecretText; var LimitType: Option; var Limit: Decimal)
+    var
+        AzureKeyVault: Codeunit "Azure Key Vault";
+        SecretObject: JsonObject;
+        ApiKeys: JsonArray;
+        ApiUris: JsonArray;
+        RandomIndex: Integer;
+        SecretValue: Text;
+        KeyValue, UriValue: Text;
+        LimitTxt: Text;
+        LimitTypeTxt: Text;
+        Value: Text;
+    begin
+        // If MLStudioAppUrlKVNameLbl is set in KV, use new function to get access token.
+        if AzureKeyVault.GetAzureKeyVaultSecret(MLStudioAppUrlKVNameLbl, Value) then begin
+            GetMachineLearningCredentials(ApiUri, KeyValue, LimitType, Limit);
+            ApiKey := KeyValue;
+            exit;
+        end;
+
+        if not AzureKeyVault.GetAzureKeyVaultSecret(SecretName, SecretValue) then
+            exit;
+
+        // check if the secret is a properly formatted JSON object
+        if not SecretObject.ReadFrom(SecretValue) then
+            exit;
+
+        GetAsText(SecretObject, 'Limit', LimitTxt);
+        if LimitTxt <> '' then
+            Evaluate(Limit, LimitTxt, 9);
+
+        GetAsText(SecretObject, 'LimitType', LimitTxt);
+        if LimitTypeTxt = '' then
+            LimitTypeTxt := 'Month';
+
+        LimitType := GetLimitTypeOptionFromText(LimitTypeTxt);
+
+        if not GetAsArray(SecretObject, 'ApiKeys', ApiKeys) then
+            exit;
+
+        if not GetAsArray(SecretObject, 'ApiUris', ApiUris) then
+            exit;
+
+        if (ApiKeys.Count() = 0) or (ApiUris.Count() = 0) then
+            exit;
+
+        RandomIndex := Random(ApiKeys.Count()) - 1;
+        GetAsText(ApiKeys, RandomIndex, KeyValue);
+        GetAsText(ApiUris, RandomIndex, UriValue);
+        ApiKey := KeyValue;
+        ApiUri := CopyStr(UriValue, 1, MaxStrLen(ApiUri));
+    end;
+
+    [NonDebuggable]
+    [Scope('OnPrem')]
     procedure GetMachineLearningCredentials(SecretName: Text; var ApiUri: Text[250]; var ApiKey: Text[200]; var LimitType: Option; var Limit: Decimal)
     var
         AzureKeyVault: Codeunit "Azure Key Vault";
@@ -176,7 +231,6 @@ codeunit 2004 "Machine Learning KeyVaultMgmt."
             Session.LogMessage('0000N18', StrSubstNo(MissingKVNameTelemetryTxt, AppOAuthKVName), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', MLKVTok);
             exit(false);
         end;
-
         exit(true);
     end;
 
