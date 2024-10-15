@@ -1849,6 +1849,45 @@ codeunit 141050 "Bank Recon. with Matching"
         Assert.IsTrue(BankAccReconciliationList.ChangeStatementNo.Visible(), 'Action must be visible');
     end;
 
+    [Test]
+    [HandlerFunctions('BankAccountListPageHandler,NewBankAccReconciliationPageHandler')]
+    [Scope('OnPrem')]
+    procedure VerifyStmtNoInNewBankAccReconciliationCard()
+    var
+        BankAccount: Record "Bank Account";
+        BankAccReconciliation: Record "Bank Acc. Reconciliation";
+        BankAccReconciliationList: TestPage "Bank Acc. Reconciliation List";
+    begin
+        // [SCENARIO 442279] Check Statement No. is incremented while Creating New Bank Acc. Reconciliation
+        Initialize();
+
+        // [GIVEN] No Bank Acc. Reconciliation records in the database
+        BankAccReconciliation.DeleteAll(true);
+        Assert.IsTrue(BankAccReconciliation.IsEmpty, StrSubstNo(RecordNotDeletedErr, BankAccReconciliation.TableCaption()));
+
+        // [GIVEN] Bank Account with a value in the Last Statement No. field
+        LibraryERM.CreateBankAccount(BankAccount);
+        BankAccount."Last Statement No." := '1';
+        BankAccount.Modify();
+
+        // [GIVEN] Bank Recon. with Auto. Match checkbox is checked on General Ledger Setup
+        ActivateAutoMatchPages;
+        LibraryVariableStorage.Enqueue(BankAccount."No."); // First handler
+        LibraryVariableStorage.Enqueue(BankAccount."No."); // Second handler
+        LibraryVariableStorage.Enqueue('2'); // Second handler
+
+        // [WHEN] User clicks the New action on the Bank Acc. Reconciliation List
+        LibraryLowerPermissions.SetBanking;
+        BankAccReconciliationList.OpenEdit;
+        BankAccReconciliationList.NewRecProcess.Invoke;
+
+        // [THEN] Bank Acc. Reconciliation card is opened and Verify the Statement No. is incremented
+        // Implemented in the Page Handler!
+
+        // Tear Down
+        LibraryVariableStorage.AssertEmpty;
+    end;
+
     local procedure Initialize()
     var
         GeneralLedgerSetup: Record "General Ledger Setup";

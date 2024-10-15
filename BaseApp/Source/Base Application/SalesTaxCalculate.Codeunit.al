@@ -735,8 +735,8 @@ codeunit 398 "Sales Tax Calculate"
                         Quantity := SalesLine."Quantity (Base)";
                         "Invoice Discount Amount" := SalesLine."Inv. Discount Amount";
                         "Calculation Order" := TaxAreaLine."Calculation Order";
-
-                        Insert;
+						OnAddSalesLineOnBeforeTempSalesTaxAmountLineInsert(TempSalesTaxAmountLine, SalesLine);
+                        Insert();
                     end else begin
                         "Line Amount" := "Line Amount" + (SalesLine."Line Amount" / ExchangeFactor);
                         "Tax Liable" := SalesLine."Tax Liable";
@@ -1513,6 +1513,7 @@ codeunit 398 "Sales Tax Calculate"
             SalesLine.SetRange("Tax Group Code");
             SalesLine.SetRange("Document Type", SalesHeader."Document Type");
             SalesLine.SetRange("Document No.", SalesHeader."No.");
+            OnDistTaxOverSalesLinesOnBeforeFindSalesLineAmounts(SalesLine, TempSalesTaxAmountLine); 
             if SalesLine.FindSet(true) then
                 repeat
                     SalesLine."Amount Including VAT" := Round(SalesLine."Amount Including VAT", Currency."Amount Rounding Precision");
@@ -2278,6 +2279,11 @@ codeunit 398 "Sales Tax Calculate"
     end;
 	
     [IntegrationEvent(false, false)]
+    local procedure OnDistTaxOverSalesLinesOnBeforeFindSalesLineAmounts(var SalesLine: Record "Sales Line"; var TempSalesTaxAmountLine: Record "Sales Tax Amount Line" temporary)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnEndSalesTaxCalculationOnBeforeSalesTaxAmountLine2Insert(var SalesTaxAmountLine2: Record "Sales Tax Amount Line" temporary; var TempSalesTaxLine: Record "Sales Tax Amount Line" temporary)
     begin
     end;
@@ -2319,6 +2325,11 @@ codeunit 398 "Sales Tax Calculate"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCalculateExpenseTax(TaxAreaCode: Code[20]; TaxGroupCode: Code[20]; TaxLiable: Boolean; Date: Date; Amount: Decimal; Quantity: Decimal; ExchangeRate: Decimal; var TaxAmount: Decimal; var TempTaxDetailMaximums: Record "Tax Detail" temporary; var TaxDetail: Record "Tax Detail"; var TaxAreaLine: Record "Tax Area Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAddSalesLineOnBeforeTempSalesTaxAmountLineInsert(var TempSalesTaxLine: Record "Sales Tax Amount Line" temporary; var SalesLine: Record "Sales Line")
     begin
     end;
 }

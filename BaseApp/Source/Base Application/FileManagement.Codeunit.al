@@ -401,7 +401,6 @@ codeunit 419 "File Management"
         Size := FileInfo.FileInfo(FullFileName).Length;
     end;
 
-    [Scope('OnPrem')]
     procedure CombinePath(BasePath: Text; Suffix: Text): Text
     begin
         exit(PathHelper.Combine(BasePath, Suffix));

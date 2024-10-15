@@ -1527,6 +1527,65 @@ codeunit 142066 "UT REP Sales Tax"
         LibraryVariableStorage.AssertEmpty;
     end;
 
+    [Test]
+    [HandlerFunctions('RHStandardPurchaseOrder')]
+    [Scope('OnPrem')]
+    procedure StandardPurchaseTotalVAT()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        TaxDetail: Record "Tax Detail";
+        TaxJurisdiction: Record "Tax Jurisdiction";
+        TaxAreaCode: Code[20];
+        TaxGroupCode: Code[20];
+    begin
+        // [SCENARIO 437909] Run report Standard Purchase - Order to verify Total VAT is correct.
+        Initialize();
+        UpdateMissingVATPostingSetup;
+
+        TaxJurisdiction.Init();
+        TaxJurisdiction.Code := 'Code2';
+        TaxJurisdiction.Insert();
+
+        TaxGroupCode := CreateTaxGroup;
+        LibraryERM.CreateTaxDetail(
+          TaxDetail, TaxJurisdiction.Code, TaxGroupCode, TaxDetail."Tax Type"::"Sales and Use Tax", WorkDate());
+        TaxDetail.Validate("Tax Below Maximum", 7.0);
+        TaxDetail.Modify(true);
+
+        TaxAreaCode := CreateTaxArea;
+        CreateTaxAreaLine(TaxAreaCode, TaxJurisdiction.Code);
+
+        // [GIVEN] A purchase header and line
+        LibraryPurchase.CreatePurchHeader(
+          PurchaseHeader, PurchaseHeader."Document Type"::Order, CreateVendorWithTaxAreaSetup(TaxAreaCode));
+        PurchaseHeader.Validate("Tax Area Code", TaxAreaCode);
+        PurchaseHeader.Validate("Tax Liable", true);
+        PurchaseHeader.Validate("Currency Code", '');
+        PurchaseHeader.Validate("Currency Factor", 2);
+        PurchaseHeader.Modify(true);
+
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item,
+          CreateItemWithTaxGroupCode(TaxGroupCode), 10.0);
+        PurchaseLine.Validate("Direct Unit Cost", 26.0);
+        PurchaseLine.Validate("Tax Area Code", TaxAreaCode);
+        PurchaseLine.Validate("Tax Group Code", TaxGroupCode);
+        PurchaseLine.Validate("Tax Liable", true);
+        PurchaseLine.Validate("Line Amount", 260);
+        PurchaseLine.Validate("Inv. Discount Amount", 25);
+        PurchaseLine.Modify(true);
+
+        // [WHEN] Run report "Standard Purchase - Order"
+        LibraryVariableStorage.Enqueue(false);
+        PurchaseHeader.SetRange("No.", PurchaseHeader."No.");
+        Commit();
+        REPORT.Run(REPORT::"Standard Purchase - Order", true, false, PurchaseHeader);
+
+        // [THEN] Verify Report has the TaxAmount value.
+        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.AssertElementTagWithValueExists('TaxAmount', '16.45');
+    end;
+
     local procedure Initialize()
     begin
         LibraryVariableStorage.Clear();

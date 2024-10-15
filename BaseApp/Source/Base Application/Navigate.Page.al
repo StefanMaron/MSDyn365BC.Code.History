@@ -115,7 +115,7 @@
                     var
                         Vend: Record Vendor;
                         Cust: Record Customer;
-                        BankAcc: Record "Bank Account";
+                        BankAccount: Record "Bank Account";
                     begin
                         case ContactType of
                             ContactType::Vendor:
@@ -129,8 +129,8 @@
                                     exit(true);
                                 end;
                             ContactType::"Bank Account":
-                                if PAGE.RunModal(0, BankAcc) = ACTION::LookupOK then begin
-                                    Text := BankAcc."No.";
+                                if PAGE.RunModal(0, BankAccount) = ACTION::LookupOK then begin
+                                    Text := BankAccount."No.";
                                     exit(true);
                                 end;
                         end;
@@ -444,6 +444,8 @@
     end;
 
     var
+        [SecurityFiltering(SecurityFilter::Filtered)]
+        BankAccount: Record "Bank Account";
         Text000: Label 'The business contact type was not specified.';
         Text001: Label 'There are no posted records with this external document number.';
         Text002: Label 'Counting records...';
@@ -487,8 +489,6 @@
         Cust: Record Customer;
         [SecurityFiltering(SecurityFilter::Filtered)]
         Vend: Record Vendor;
-        [SecurityFiltering(SecurityFilter::Filtered)]
-        Bank: Record "Bank Account";
         [SecurityFiltering(SecurityFilter::Filtered)]
         SalesShptHeader: Record "Sales Shipment Header";
         [SecurityFiltering(SecurityFilter::Filtered)]
@@ -702,13 +702,13 @@
                     VendLedgEntry2.SetFilter("External Document No.", ExtDocNo);
                     VendLedgEntry2.SetFilter("Vendor No.", ContactNo);
                     if VendLedgEntry2.FindSet() then begin
-                        repeat
-                            MakeExtFilter(
-                              DateFilter2,
-                              VendLedgEntry2."Posting Date",
-                              DocNoFilter2,
-                              VendLedgEntry2."Document No.");
-                        until VendLedgEntry2.Next() = 0;
+                                                         repeat
+                                                             MakeExtFilter(
+                                                               DateFilter2,
+                                                               VendLedgEntry2."Posting Date",
+                                                               DocNoFilter2,
+                                                               VendLedgEntry2."Document No.");
+                                                         until VendLedgEntry2.Next() = 0;
                         SetPostingDate(DateFilter2);
                         SetDocNo(DocNoFilter2);
                         FindRecords();
@@ -831,10 +831,13 @@
 
         SetSource(0D, '', '', 0, '');
         if DocExists then begin
-            SetSourceForService();
-            SetSourceForSales();
-            SetSourceForPurchase();
-            SetSourceForServiceDoc();
+            OnBeforeFindRecordsSetSources(Rec, DocNoFilter, PostingDateFilter, ExtDocNo, IsSourceUpdated);
+            if not IsSourceUpdated then begin
+                SetSourceForService();
+                SetSourceForSales();
+                SetSourceForPurchase();
+                SetSourceForServiceDoc();
+            end;
 
             IsSourceUpdated := false;
             OnFindRecordsOnAfterSetSource(Rec, PostingDate, DocType2, DocNo2, SourceType2, SourceNo2, DocNoFilter, PostingDateFilter, IsSourceUpdated);
@@ -875,8 +878,11 @@
     end;
 
     local procedure FindCustEntries()
+    var
+        IsHandled: Boolean;
     begin
-        if CustLedgEntry.ReadPermission() then begin
+        OnBeforeFindCustLedgerEntry(CustLedgEntry, DocNoFilter, PostingDateFilter, ExtDocNo, IsHandled);
+        if CustLedgEntry.ReadPermission() and (not IsHandled) then begin
             CustLedgEntry.Reset();
             CustLedgEntry.SetCurrentKey("Document No.");
             CustLedgEntry.SetFilter("Document No.", DocNoFilter);
@@ -895,8 +901,11 @@
     end;
 
     local procedure FindVendEntries()
+    var
+        IsHandled: Boolean;
     begin
-        if VendLedgEntry.ReadPermission() then begin
+        OnBeforeFindVendorLedgerEntry(VendLedgEntry, DocNoFilter, PostingDateFilter, ExtDocNo, IsHandled);
+        if VendLedgEntry.ReadPermission() and (not IsHandled) then begin
             VendLedgEntry.Reset();
             VendLedgEntry.SetCurrentKey("Document No.");
             VendLedgEntry.SetFilter("Document No.", DocNoFilter);
@@ -915,10 +924,13 @@
     end;
 
     local procedure FindBankEntries()
+    var
+        IsHandled: Boolean;
     begin
         if (DocNoFilter = '') and (PostingDateFilter = '') then
             exit;
-        if BankAccLedgEntry.ReadPermission() then begin
+        OnBeforeFindBankAccountLedgerEntry(BankAccLedgEntry, DocNoFilter, PostingDateFilter, ExtDocNo, IsHandled);
+        if BankAccLedgEntry.ReadPermission() and (not IsHandled) then begin
             BankAccLedgEntry.Reset();
             BankAccLedgEntry.SetCurrentKey("Document No.", "Posting Date");
             BankAccLedgEntry.SetFilter("Document No.", DocNoFilter);
@@ -935,8 +947,11 @@
     end;
 
     local procedure FindGLEntries()
+    var
+        IsHandled: Boolean;
     begin
-        if GLEntry.ReadPermission() then begin
+        OnBeforeFindGLEntry(GLEntry, DocNoFilter, PostingDateFilter, ExtDocNo, IsHandled);
+        if GLEntry.ReadPermission() and (not IsHandled) then begin
             GLEntry.Reset();
             GLEntry.SetCurrentKey("Document No.", "Posting Date");
             GLEntry.SetFilter("Document No.", DocNoFilter);
@@ -1501,6 +1516,11 @@
         CurrPage.Update(false);
     end;
 
+    procedure InsertIntoDocEntry(DocTableID: Integer; DocTableName: Text; DocNoOfRecords: Integer)
+    begin
+        InsertIntoDocEntry(Rec, DocTableID, "Document Entry Document Type"::" ", DocTableName, DocNoOfRecords);
+    end;
+
     procedure InsertIntoDocEntry(var TempDocumentEntry: Record "Document Entry" temporary; DocTableID: Integer; DocTableName: Text; DocNoOfRecords: Integer)
     begin
         InsertIntoDocEntry(TempDocumentEntry, DocTableID, "Document Entry Document Type"::" ", DocTableName, DocNoOfRecords);
@@ -1561,10 +1581,10 @@
                     end;
                 4:
                     begin
-                        SourceType := Bank.TableCaption;
-                        if not Bank.Get(SourceNo) then
-                            Bank.Init();
-                        SourceName := Bank.Name;
+                        SourceType := CopyStr(BankAccount.TableCaption(), 1, MaxStrLen(SourceType));
+                        if not BankAccount.Get(SourceNo) then
+                            BankAccount.Init();
+                        SourceName := BankAccount.Name;
                     end;
             end;
         end;
@@ -2203,16 +2223,16 @@
         TempRecordBuffer.SetCurrentKey("Table No.", "Record Identifier");
         if TempRecordBuffer.Find('-') then
             repeat
-                TempRecordBuffer.SetRange("Table No.", TempRecordBuffer."Table No.");
+                    TempRecordBuffer.SetRange("Table No.", TempRecordBuffer."Table No.");
 
                 DocNoOfRecords := 0;
                 if TempRecordBuffer.Find('-') then
-                    repeat
-                        TempRecordBuffer.SetRange("Record Identifier", TempRecordBuffer."Record Identifier");
-                        TempRecordBuffer.Find('+');
-                        TempRecordBuffer.SetRange("Record Identifier");
-                        DocNoOfRecords += 1;
-                    until TempRecordBuffer.Next() = 0;
+                        repeat
+                            TempRecordBuffer.SetRange("Record Identifier", TempRecordBuffer."Record Identifier");
+                            TempRecordBuffer.Find('+');
+                            TempRecordBuffer.SetRange("Record Identifier");
+                            DocNoOfRecords += 1;
+                        until TempRecordBuffer.Next() = 0;
 
                 InsertIntoDocEntry(Rec, TempRecordBuffer."Table No.", TempRecordBuffer."Table Name", DocNoOfRecords);
 
@@ -2548,7 +2568,7 @@
     begin
     end;
 
-    [IntegrationEvent(false, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnBeforeNavigateShowRecords(TableID: Integer; DocNoFilter: Text; PostingDateFilter: Text; ItemTrackingSearch: Boolean; var TempDocumentEntry: Record "Document Entry" temporary; var IsHandled: Boolean; var SalesInvoiceHeader: Record "Sales Invoice Header"; var SalesCrMemoHeader: Record "Sales Cr.Memo Header"; var PurchInvHeader: Record "Purch. Inv. Header"; var PurchCrMemoHdr: Record "Purch. Cr. Memo Hdr."; var ServiceInvoiceHeader: Record "Service Invoice Header"; var ServiceCrMemoHeader: Record "Service Cr.Memo Header"; var SOSalesHeader: Record "Sales Header"; var SISalesHeader: Record "Sales Header"; var SCMSalesHeader: Record "Sales Header"; var SROSalesHeader: Record "Sales Header"; var GLEntry: Record "G/L Entry"; var VATEntry: Record "VAT Entry"; var VendLedgEntry: Record "Vendor Ledger Entry"; var WarrantyLedgerEntry: Record "Warranty Ledger Entry"; var NewSourceRecVar: Variant; var SalesShipmentHeader: Record "Sales Shipment Header"; var ReturnReceiptHeader: Record "Return Receipt Header"; var ReturnShipmentHeader: Record "Return Shipment Header"; var PurchRcptHeader: Record "Purch. Rcpt. Header")
     begin
     end;
@@ -2617,5 +2637,31 @@
     local procedure OnFindTrackingRecordsOnAfterCollectTempRecordBuffer(var TempRecordBuffer: Record "Record Buffer" temporary; SerialNoFilter: Text; LotNoFilter: Text)
     begin
     end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnBeforeFindCustLedgerEntry(var CustLedgerEntry: Record "Cust. Ledger Entry"; DocNoFilter: Text; PostingDateFilter: Text; ExtDocNo: Text; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnBeforeFindVendorLedgerEntry(var VendorLedgerEntry: Record "Vendor Ledger Entry"; DocNoFilter: Text; PostingDateFilter: Text; ExtDocNo: Text; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnBeforeFindBankAccountLedgerEntry(var BankAccountLedgerEntry: Record "Bank Account Ledger Entry"; DocNoFilter: Text; PostingDateFilter: Text; ExtDocNo: Text; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnBeforeFindGLEntry(var GLEntry: Record "G/L Entry"; DocNoFilter: Text; PostingDateFilter: Text; ExtDocNo: Text; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnBeforeFindRecordsSetSources(DocumentEntry: Record "Document Entry"; DocNoFilter: Text; PostingDateFilter: Text; ExtDocNo: Text; var IsHandled: Boolean)
+    begin
+    end;
+
 }
 

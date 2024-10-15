@@ -1144,10 +1144,7 @@
                 end;
                 PurchLine.Validate(Quantity, Quantity);
                 PurchLine.Validate("Unit of Measure Code", "Unit of Measure Code");
-                if PurchHeader."Prices Including VAT" then
-                    PurchLine.Validate("Direct Unit Cost", Round("Amount Including VAT" / Quantity, Precision))
-                else
-                    PurchLine.Validate("Direct Unit Cost", "Direct Unit Cost");
+                PurchLine.Validate("Direct Unit Cost", "Direct Unit Cost");
                 PurchLine.Validate("Line Discount Amount", "Line Discount Amount");
                 PurchLine."Amount Including VAT" := "Amount Including VAT";
                 PurchLine."VAT Base Amount" := Round("Amount Including VAT" / (1 + (PurchLine."VAT %" / 100)), Precision2);

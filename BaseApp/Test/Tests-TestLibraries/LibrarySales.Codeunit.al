@@ -346,6 +346,7 @@ codeunit 130509 "Library - Sales"
         DisableWarningOnCloseUnpostedDoc;
         DisableConfirmOnPostingDoc;
         Clear(SalesHeader);
+        OnBeforeCreateSalesHeader(SalesHeader, DocumentType, SellToCustomerNo);
         SalesHeader.Validate("Document Type", DocumentType);
         SalesHeader.Insert(true);
         if SellToCustomerNo = '' then
@@ -1391,6 +1392,11 @@ codeunit 130509 "Library - Sales"
 #endif
     [IntegrationEvent(false, false)]
     local procedure OnBeforePostSalesDocument(var SalesHeader: Record "Sales Header"; NewShipReceive: Boolean; NewInvoice: Boolean; AfterPostSalesDocumentSendAsEmail: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCreateSalesHeader(var SalesHeader: Record "Sales Header"; DocumentType: Enum "Sales Document Type"; SellToCustomerNo: Code[20])
     begin
     end;
 }

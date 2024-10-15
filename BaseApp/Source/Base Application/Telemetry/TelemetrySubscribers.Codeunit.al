@@ -370,6 +370,8 @@ codeunit 1351 "Telemetry Subscribers"
         TranslationHelper.SetGlobalLanguageToDefault();
 
         SetJobQueueTelemetryDimensions(JobQueueEntry, Dimensions);
+        // Job has finished but JQE does not update to finished status when it does (By design)
+        Dimensions.Set('JobQueueStatus', Format(JobQueueEntry.Status::Finished));
         Telemetry.LogMessage('000082C',
                                 StrSubstNo(JobQueueEntryFinishedTxt, JobQueueEntry.ID, JobQueueEntry."Object Type to Run", JobQueueEntry."Object ID to Run", 'Success', JobQueueEntry.CurrentCompany(), JobQueueEntry."System Task ID"),
                                 Verbosity::Normal,
@@ -389,6 +391,7 @@ codeunit 1351 "Telemetry Subscribers"
         TranslationHelper.SetGlobalLanguageToDefault();
 
         SetJobQueueTelemetryDimensions(JobQueueEntry, Dimensions);
+        Dimensions.Add('JobQueueStacktrace', JobQueueLogEntry.GetErrorCallStack());
         Telemetry.LogMessage('0000HE7',
                                 StrSubstNo(JobQueueEntryErrorAllTxt, Format(JobQueueEntry.ID, 0, 4)),
                                 Verbosity::Warning,
@@ -419,7 +422,7 @@ codeunit 1351 "Telemetry Subscribers"
         TranslationHelper.RestoreGlobalLanguage();
     end;
 
-    local procedure SetJobQueueTelemetryDimensions(var JobQueueEntry: Record "Job Queue Entry"; var Dimensions: Dictionary of [Text, Text])
+    internal procedure SetJobQueueTelemetryDimensions(var JobQueueEntry: Record "Job Queue Entry"; var Dimensions: Dictionary of [Text, Text])
     begin
         Dimensions.Add('Category', JobQueueEntriesCategoryTxt);
         Dimensions.Add('JobQueueId', Format(JobQueueEntry.ID, 0, 4));
@@ -427,7 +430,7 @@ codeunit 1351 "Telemetry Subscribers"
         Dimensions.Add('JobQueueObjectId', Format(JobQueueEntry."Object ID to Run"));
         Dimensions.Add('JobQueueStatus', Format(JobQueueEntry.Status));
         Dimensions.Add('JobQueueIsRecurring', Format(JobQueueEntry."Recurring Job"));
-        Dimensions.Add('JobQueueEarliestStartDateTime', Format(JobQueueEntry."Earliest Start Date/Time"));
+        Dimensions.Add('JobQueueEarliestStartDateTime', Format(JobQueueEntry."Earliest Start Date/Time", 0, 9)); // UTC time
         Dimensions.Add('JobQueueCompanyName', JobQueueEntry.CurrentCompany());
         Dimensions.Add('JobQueueScheduledTaskId', Format(JobQueueEntry."System Task ID", 0, 4));
     end;
