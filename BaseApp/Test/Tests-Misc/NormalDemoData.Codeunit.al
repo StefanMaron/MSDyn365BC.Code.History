@@ -285,5 +285,22 @@ codeunit 138200 "Normal DemoData"
             TestField("Auto Receive Period CU ID", 0);
         end;
     end;
+
+    [Test]
+    procedure VATStatementSetup_GB()
+    var
+        VATStatementLine: Record "VAT Statement Line";
+    begin
+        // [SCENARIO 376993] Default GB demo VAT Statement setup contains Row Totaling value 190 for Box 6 and 290 for Box 7
+        VATStatementLine.SetRange("Box No.", '6');
+        Assert.RecordCount(VATStatementLine, 1);
+        VATStatementLine.FindFirst();
+        Assert.IsTrue(StrPos(VATStatementLine."Row Totaling", '190') > 0, 'VATStatementLine."Row Totaling" should include 190 for Box 6.');
+
+        VATStatementLine.SetRange("Box No.", '7');
+        Assert.RecordCount(VATStatementLine, 1);
+        VATStatementLine.FindFirst();
+        Assert.IsTrue(StrPos(VATStatementLine."Row Totaling", '290') > 0, 'VATStatementLine."Row Totaling" should include 290 for Box 7.');
+    end;
 }
 

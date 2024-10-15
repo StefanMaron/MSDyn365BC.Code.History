@@ -555,10 +555,12 @@ codeunit 5340 "CRM Integration Table Synch."
     local procedure CreateCRMIntegrationRecordClone(ForTable: Integer; var TempCRMIntegrationRecord: Record "CRM Integration Record" temporary)
     var
         CRMIntegrationRecord: Record "CRM Integration Record";
+        CRMIntegrationManagement: Codeunit "CRM Integration Management";
     begin
         TempCRMIntegrationRecord.Reset();
         TempCRMIntegrationRecord.DeleteAll();
 
+        CRMIntegrationManagement.RepairBrokenCouplings();
         CRMIntegrationRecord.SetRange("Table ID", ForTable);
         if not CRMIntegrationRecord.FindSet then
             exit;

@@ -24,7 +24,7 @@ page 7132 "Item Budget Names"
                 field(Blocked; Blocked)
                 {
                     ApplicationArea = ItemBudget;
-                    ToolTip = 'Specifies that the related record is blocked from being posted in transactions, for example a customer that is declared insolvent or an item that is placed in quarantine.';
+                    ToolTip = 'Specifies that the related record is blocked from being posted in transactions, for example an item that is placed in quarantine.';
                 }
                 field("Budget Dimension 1 Code"; "Budget Dimension 1 Code")
                 {
