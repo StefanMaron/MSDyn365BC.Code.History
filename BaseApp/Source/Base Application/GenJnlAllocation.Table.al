@@ -91,6 +91,7 @@
                     Amount := 0;
                 end;
                 UpdateAllocations(GenJnlLine);
+                GenJnlLine.UpdateLineBalance();
             end;
         }
         field(9; "Allocation %"; Decimal)
@@ -104,6 +105,7 @@
                 if "Allocation %" = 0 then
                     Amount := 0;
                 UpdateAllocations(GenJnlLine);
+                GenJnlLine.UpdateLineBalance();
             end;
         }
         field(10; Amount; Decimal)
@@ -121,6 +123,7 @@
                 end else begin
                     Validate("VAT Prod. Posting Group");
                     Modify;
+                   GenJnlLine.UpdateLineBalance();
                     UpdateJnlBalance(GenJnlLine);
                 end;
             end;
