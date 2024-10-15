@@ -631,6 +631,7 @@ page 6325 "Power BI Embedded Report Part"
         // source record of this page will be used instead.
         PowerBIDisplayedElement: Record "Power BI Displayed Element";
 #endif
+        PowerBIFilter: Record "Power BI Filter";
         MediaResources: Record "Media Resources";
         PowerBiServiceMgt: Codeunit "Power BI Service Mgt.";
         PowerBiFilterHelper: Codeunit "Power BI Filter Helper";
@@ -653,7 +654,6 @@ page 6325 "Power BI Embedded Report Part"
         PageState: Option GetStarted,ShouldDeploy,NoElementSelected,NoElementSelectedButDeploying,ElementVisible,ErrorVisible;
         ReportFrameRatio: Text;
         AvailableReportLevelFilters: JsonArray;
-        FilterValuesJsonArray: JsonArray;
         PageContext: Text[30];
         AddInReady: Boolean;
         ErrorMessageText: Text;
@@ -862,7 +862,7 @@ page 6325 "Power BI Embedded Report Part"
         // When the page just opened, we want to have an initial filter pointing to the single selected record (the first in the list).
         // This will be applied when (and if) the part is actually visible.
         // If we have already the initial filter, we should calculate filters only if the part is visible and there is a filter to use.
-        if FilterValuesJsonArray.Count > 0 then
+        if not PowerBIFilter.IsEmpty() then
             exit(IsPartVisible and (AvailableReportLevelFilters.Count() > 0));
 
         exit(true);
@@ -894,7 +894,7 @@ page 6325 "Power BI Embedded Report Part"
             exit;
 #endif
 
-        ReportFiltersJArray := PowerBiFilterHelper.MergeValuesIntoFirstFilter(AvailableReportLevelFilters, FilterValuesJsonArray);
+        ReportFiltersJArray := PowerBiFilterHelper.MergeIntoFirstFilter(AvailableReportLevelFilters, PowerBiFilter);
 
         ReportFiltersJArray.WriteTo(ReportFiltersToSet);
         AvailableReportLevelFilters.WriteTo(AvailableReportFiltersText);
@@ -942,7 +942,8 @@ page 6325 "Power BI Embedded Report Part"
                 exit;
         end;
 
-        FilterValuesJsonArray := PowerBiFilterHelper.RecordRefToFilter(FilteringRecordRef, FieldNumber);
+        PowerBiFilterHelper.RecordRefToFilterRecord(FilteringRecordRef, FieldNumber, PowerBiFilter);
+
         PushFiltersToAddin();
     end;
 
@@ -958,7 +959,7 @@ page 6325 "Power BI Embedded Report Part"
         if not ShouldCalculateFilter() then
             exit;
 
-        FilterValuesJsonArray := PowerBiFilterHelper.VariantToFilter(InputSelectionVariant);
+        PowerBiFilterHelper.VariantToFilterRecord(InputSelectionVariant, PowerBiFilter);
         PushFiltersToAddin();
     end;
 

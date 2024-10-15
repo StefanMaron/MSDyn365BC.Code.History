@@ -170,6 +170,27 @@ table 9657 "Custom Report Selection"
             Caption = 'Email body layout App ID';
             Editable = false;
         }
+        field(29; "Email Body Layout Caption"; Text[250])
+        {
+            Caption = 'Email Body Layout';
+            FieldClass = FlowField;
+            CalcFormula = lookup("Report Layout List".Caption where("Report ID" = field("Report ID"), Name = field("Email Attachment Layout Name")));
+            Editable = false;
+
+            trigger OnLookup()
+            var
+                ReportLayoutList: Record "Report Layout List";
+                ReportManagement: Codeunit ReportManagement;
+                Handled: Boolean;
+            begin
+                ReportLayoutList.SetRange("Report ID", Rec."Report ID");
+                ReportManagement.OnSelectReportLayout(ReportLayoutList, Handled);
+                if not Handled then
+                    exit;
+                "Email Body Layout Name" := ReportLayoutList.Name;
+                "Email Body Layout AppID" := ReportLayoutList."Application ID";
+            end;
+        }
     }
 
     keys

@@ -975,7 +975,7 @@ page 43 "Sales Invoice"
             }
             part(Control1902018507; "Customer Statistics FactBox")
             {
-                ApplicationArea = Advanced;
+                ApplicationArea = Basic, Suite;
                 SubPageLink = "No." = field("Bill-to Customer No."),
                               "Date Filter" = field("Date Filter");
             }
