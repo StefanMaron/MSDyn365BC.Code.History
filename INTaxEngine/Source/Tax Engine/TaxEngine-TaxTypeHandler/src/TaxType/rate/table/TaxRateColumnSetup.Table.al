@@ -118,6 +118,7 @@ table 20252 "Tax Rate Column Setup"
 
         foreach ConfigID in ConfigIDList do begin
             UpdateTaxRateProgressWindow(UpdatingKeysValueLbl);
+            InitilizeMissingTaxRateValue(TempTaxRateValue, "Tax Type", ConfigID);
             TempTaxRate.Get("Tax Type", ConfigID);
             TempTaxRate."Tax Setup ID" := TaxSetupMatrixMgmt.GenerateTaxSetupID(TempTaxRateValue, TempTaxRate.ID, TempTaxRate."Tax Type");
             TempTaxRate."Tax Rate ID" := TaxSetupMatrixMgmt.GenerateTaxRateID(TempTaxRateValue, TempTaxRate.ID, TempTaxRate."Tax Type");
@@ -135,6 +136,40 @@ table 20252 "Tax Rate Column Setup"
         CloseTaxRateProgressWindow();
     end;
 
+    local procedure InitilizeMissingTaxRateValue(var TempTaxRateValue: Record "Tax Rate Value" temporary; TaxType: Code[20]; ConfigID: Guid)
+    var
+        TaxRateColumnSetup: Record "Tax Rate Column Setup";
+    begin
+        TaxRateColumnSetup.SetCurrentKey(Sequence);
+        TaxRateColumnSetup.SetRange("Tax Type", TaxType);
+        if TaxRateColumnSetup.FindSet() then
+            repeat
+                TempTaxRateValue.Reset();
+                TempTaxRateValue.SetRange("Tax Type", TaxType);
+                TempTaxRateValue.SetRange("Config ID", ConfigID);
+                TempTaxRateValue.SetRange("Column ID", TaxRateColumnSetup."Column ID");
+                if TempTaxRateValue.IsEmpty() then
+                    InitializeRateValueForNewColumnSetup(TempTaxRateValue, TaxRateColumnSetup, ConfigID);
+            until TaxRateColumnSetup.Next() = 0;
+    end;
+
+    local procedure InitializeRateValueForNewColumnSetup(
+        var TaxRateValue: Record "Tax Rate Value";
+        TaxRateColumnSetup: Record "Tax Rate Column Setup";
+        ConfigID: Guid)
+    var
+        TaxSetupMatrixMgmt: Codeunit "Tax Setup Matrix Mgmt.";
+    begin
+        TaxRateValue.Init();
+        TaxRateValue."Config ID" := ConfigID;
+        TaxRateValue.ID := CreateGuid();
+        TaxRateValue."Tax Type" := TaxRateColumnSetup."Tax Type";
+        TaxRateValue."Column ID" := TaxRateColumnSetup."Column ID";
+        TaxRateValue."Column Type" := TaxRateColumnSetup."Column Type";
+        TaxSetupMatrixMgmt.SetDefaultRateValues(TaxRateColumnSetup, TaxRateValue);
+        TaxRateValue.Insert();
+    end;
+
     local procedure TransferToTemp(
         var TempTaxRate: Record "Tax Rate" temporary;
         var TempTaxRateValue: Record "Tax Rate Value" temporary;
@@ -150,7 +185,6 @@ table 20252 "Tax Rate Column Setup"
                 TempTaxRate := TaxRate;
                 TempTaxRate.Insert();
                 ConfigIDList.Add(TempTaxRate.ID);
-
             until TaxRate.Next() = 0;
 
         TaxRateValue.SetRange("Tax Type", "Tax Type");

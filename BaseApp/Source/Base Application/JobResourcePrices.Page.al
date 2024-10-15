@@ -96,5 +96,12 @@ page 1011 "Job Resource Prices"
     actions
     {
     }
+
+    trigger OnInit()
+    var
+        FeaturePriceCalculation: Codeunit "Feature - Price Calculation";
+    begin
+        FeaturePriceCalculation.FailIfFeatureEnabled();
+    end;
 }
 

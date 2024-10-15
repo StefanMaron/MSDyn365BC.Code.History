@@ -271,10 +271,17 @@ codeunit 136210 "Contact Employee"
         Contact.SetHideValidationDialog(true);
         Contact.CreateEmployee();
 
+        // tfs 400030: Contact List page fills missing "Contact Business Relation" data.
+        Contact.Find();
+        Contact."Contact Business Relation" := Contact."Contact Business Relation"::" ";
+        Contact.Modify();
+        Commit();
+
         // [WHEN] Invoke "Navigate->Employee"
         ContactList.OpenView();
-        ContactList.GoToRecord(Contact);
+        ContactList.Filter.SetFilter("No.", Contact."No.");
         EmployeeCard.Trap();
+        ContactList."Business Relation".AssertEquals(Contact."Contact Business Relation"::Employee);
         Assert.IsTrue(ContactList.RelatedEmployee.Enabled(), 'RelatedEmployee. not Enabled');
         ContactList.RelatedEmployee.Invoke();
 
@@ -301,11 +308,18 @@ codeunit 136210 "Contact Employee"
         Contact.CreateEmployee();
         ReplaceBusRelationCode(Contact."No.");
 
+        // tfs 400030: Contact List page fills missing "Contact Business Relation" data.
+        Contact.Find();
+        Contact."Contact Business Relation" := Contact."Contact Business Relation"::" ";
+        Contact.Modify();
+        Commit();
+
         // [WHEN] Open Contact List
         ContactList.OpenView();
-        ContactList.GoToRecord(Contact);
+        ContactList.Filter.SetFilter("No.", Contact."No.");
 
         // [THEN] "Employee" action is not enabled
+        ContactList."Business Relation".AssertEquals(Contact."Contact Business Relation"::Other);
         Assert.IsFalse(ContactList.RelatedEmployee.Enabled(), 'RelatedEmployee.Enabled');
     end;
 
@@ -331,7 +345,7 @@ codeunit 136210 "Contact Employee"
         ContBusRel.FindByContact(ContBusRel."Link to Table"::Employee, Contact."No.");
         Employee.Get(ContBusRel."No.");
         EmployeeList.OpenView();
-        EmployeeList.GoToRecord(Employee);
+        EmployeeList.Filter.SetFilter("No.", Employee."No.");
         ContactCard.Trap();
         EmployeeList.Contact.Invoke();
 
@@ -361,7 +375,7 @@ codeunit 136210 "Contact Employee"
         ContBusRel.FindByContact(ContBusRel."Link to Table"::Employee, Contact."No.");
         Employee.Get(ContBusRel."No.");
         EmployeeCard.OpenView();
-        EmployeeCard.GoToRecord(Employee);
+        EmployeeCard.Filter.SetFilter("No.", Employee."No.");
         ContactCard.Trap();
         EmployeeCard.Contact.Invoke();
 

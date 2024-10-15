@@ -24,6 +24,7 @@ codeunit 132904 UserRenameTest
     procedure RenameUserTest_Card()
     var
         LibraryJobQueue: Codeunit "Library - Job Queue";
+        LibraryLowerPermissions: Codeunit "Library - Lower Permissions";
     begin
         Initialize;
         BindSubscription(LibraryJobQueue);
@@ -36,6 +37,7 @@ codeunit 132904 UserRenameTest
     procedure RenameUserTest_List()
     var
         LibraryJobQueue: Codeunit "Library - Job Queue";
+        LibraryLowerPermissions: Codeunit "Library - Lower Permissions";
     begin
         Initialize;
         BindSubscription(LibraryJobQueue);

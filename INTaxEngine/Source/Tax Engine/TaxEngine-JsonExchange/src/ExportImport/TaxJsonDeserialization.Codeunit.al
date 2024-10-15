@@ -533,10 +533,11 @@ codeunit 20361 "Tax Json Deserialization"
                 'Code':
                     UseCase.Code := JToken2Text20(JToken);
                 'ParentUseCase':
+                    ;
+                'ParentCaseId':
                     begin
                         UpdateUseCaseProgressWindow('Updating Parent Use Case ID');
-                        UseCase."Parent Use Case ID" := UseCaseObjectHelper.GetUseCaseID(
-                            CopyStr(JToken2Text(JToken), 1, 2000));
+                        UseCase."Parent Use Case ID" := JToken.AsValue().AsText();
                         GlobalUseCase := UseCase;
                         UseCase.Modify();
                     end;
@@ -2674,7 +2675,6 @@ codeunit 20361 "Tax Json Deserialization"
 
     var
         GlobalUseCase: Record "Tax Use Case";
-        UseCaseObjectHelper: Codeunit "Use Case Object Helper";
         UseCaseMgmt: Codeunit "Use Case Mgmt.";
         ScriptDataTypeMgmt: Codeunit "Script Data Type Mgmt.";
         TypeHelper: Codeunit "Type Helper";

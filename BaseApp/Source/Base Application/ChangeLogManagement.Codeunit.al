@@ -69,6 +69,8 @@ codeunit 423 "Change Log Management"
             LogRename := "Log Modification" <> "Log Modification"::" ";
             LogDelete := "Log Deletion" <> "Log Deletion"::" ";
         end;
+
+        OnAfterGetDatabaseTableTriggerSetup(TempChangeLogSetupTable, LogInsert, LogModify, LogDelete, LogRename);
     end;
 
     local procedure IsLogActive(TableNumber: Integer; FieldNumber: Integer; TypeOfChange: Option Insertion,Modification,Deletion): Boolean
@@ -534,6 +536,11 @@ codeunit 423 "Change Log Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterIsAlwaysLoggedTable(TableID: Integer; var AlwaysLogTable: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterGetDatabaseTableTriggerSetup(TempChangeLogSetupTable: Record "Change Log Setup (Table)" temporary; var LogInsert: Boolean; var LogModify: Boolean; var LogDelete: Boolean; var LogRename: Boolean);
     begin
     end;
 

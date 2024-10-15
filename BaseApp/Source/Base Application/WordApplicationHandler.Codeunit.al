@@ -1,6 +1,10 @@
+#if not CLEAN19
 codeunit 5068 WordApplicationHandler
 {
     EventSubscriberInstance = Manual;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Word DotNet libraries do not work in any of the supported clients.';
+    ObsoleteTag = '19.0';
 
     trigger OnRun()
     begin
@@ -85,3 +89,4 @@ codeunit 5068 WordApplicationHandler
     end;
 }
 
+#endif
