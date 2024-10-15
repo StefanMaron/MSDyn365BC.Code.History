@@ -167,6 +167,7 @@ codeunit 6520 "Item Tracing Mgt."
     var
         ItemLedgEntry: Record "Item Ledger Entry";
         ItemApplnEntry: Record "Item Application Entry";
+        TempTrackEntryBuffer: Record "Item Tracing Buffer" temporary;
         TrackNo: Integer;
         IsHandled: Boolean;
     begin
@@ -220,7 +221,9 @@ codeunit 6520 "Item Tracing Mgt."
                             TransferData(ItemLedgEntry, TempTrackEntry);
                             OnNextLevelOnAfterTransferData(TempTrackEntry, TempTrackEntry2);
                             if InsertRecord(TempTrackEntry, ParentID) then begin
+                                TempTrackEntryBuffer := TempTrackEntry;
                                 FindComponents(ItemLedgEntry, TempTrackEntry, Direction, ShowComponents, ItemLedgEntry."Entry No.");
+                                TempTrackEntry := TempTrackEntryBuffer;
                                 NextLevel(TempTrackEntry, TempTrackEntry, Direction, ShowComponents, ItemLedgEntry."Entry No.");
                             end;
                         end;

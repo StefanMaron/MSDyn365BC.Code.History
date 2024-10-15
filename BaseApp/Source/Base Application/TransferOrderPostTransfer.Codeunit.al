@@ -31,7 +31,11 @@
             CheckBeforeTransferPost();
             CheckDim();
 
+            WhseReference := "Posting from Whse. Ref.";
+            "Posting from Whse. Ref." := 0;
+
             WhseShip := TempWhseShptHeader.FindFirst();
+            InvtPickPutaway := WhseReference <> 0;
 
             TransLine.Reset();
             TransLine.SetRange("Document No.", "No.");
@@ -47,8 +51,8 @@
                 Error(DocumentErrorsMgt.GetNothingToPostErrorMsg());
 
             GetLocation("Transfer-from Code");
-            if Location."Bin Mandatory" and not WhseShip then
-                WhseShipPosting := true;
+            if Location."Bin Mandatory" and not (WhseShip or InvtPickPutaway) then
+                WhsePosting := true;
 
             // Require Receipt is not supported here, only Bin Mandatory
             GetLocation("Transfer-to Code");
@@ -62,12 +66,12 @@
 
             SourceCodeSetup.Get();
             SourceCode := SourceCodeSetup.Transfer;
-            InvtSetup.Get();
-            InvtSetup.TestField("Posted Direct Trans. Nos.");
+            InventorySetup.Get();
+            InventorySetup.TestField("Posted Direct Trans. Nos.");
 
             NoSeriesLine.LockTable();
             if NoSeriesLine.FindLast() then;
-            if InvtSetup."Automatic Cost Posting" then begin
+            if InventorySetup."Automatic Cost Posting" then begin
                 GLEntry.LockTable();
                 if GLEntry.FindLast() then;
             end;
@@ -78,7 +82,7 @@
               DocSign, DATABASE::"Transfer Header", 0, "No.", 
               DATABASE::"Direct Trans. Header", DirectTransHeader."No.");
 
-            if InvtSetup."Copy Comments Order to Shpt." then begin
+            if InventorySetup."Copy Comments Order to Shpt." then begin
                 InvtCommentLine.CopyCommentLines(
                     "Inventory Comment Document Type"::"Transfer Order", "No.",
                     "Inventory Comment Document Type"::"Posted Direct Transfer", DirectTransHeader."No.");
@@ -94,6 +98,8 @@
             LineCount := 0;
             if WhseShip then
                 PostedWhseShptLine.LockTable();
+            if InvtPickPutaway then
+                WhseRqst.LockTable();
             DirectTransLine.LockTable();
             TransLine.SetRange(Quantity);
             if TransLine.FindSet() then
@@ -144,8 +150,9 @@
         TransHeader: Record "Transfer Header";
         TransLine: Record "Transfer Line";
         Location: Record Location;
-        InvtSetup: Record "Inventory Setup";
+        InventorySetup: Record "Inventory Setup";
         ItemJnlLine: Record "Item Journal Line";
+        WhseRqst: Record "Warehouse Request";
         PostedWhseShptHeader: Record "Posted Whse. Shipment Header";
         PostedWhseShptLine: Record "Posted Whse. Shipment Line";
         TempWhseSplitSpecification: Record "Tracking Specification" temporary;
@@ -165,10 +172,12 @@
         WhsePostShipment: Codeunit "Whse.-Post Shipment";
         SourceCode: Code[10];
         HideValidationDialog: Boolean;
+        InvtPickPutaway: Boolean;
         SuppressCommit: Boolean;
         WhseReceive: Boolean;
         WhseShip: Boolean;
-        WhseShipPosting: Boolean;
+        WhsePosting: Boolean;
+        WhseReference: Integer;
         OriginalQuantity: Decimal;
         OriginalQuantityBase: Decimal;
         PostingLinesMsg: Label 'Posting transfer lines #2######', Comment = '#2 - line counter';
@@ -261,10 +270,10 @@
         DirectTransHeader."Dimension Set ID" := TransferHeader."Dimension Set ID";
         DirectTransHeader."Transfer Order No." := TransferHeader."No.";
         DirectTransHeader."External Document No." := TransferHeader."External Document No.";
-        DirectTransHeader."No. Series" := InvtSetup."Posted Direct Trans. Nos.";
+        DirectTransHeader."No. Series" := InventorySetup."Posted Direct Trans. Nos.";
         OnInsertDirectTransHeaderOnBeforeGetNextNo(DirectTransHeader, TransferHeader);
         DirectTransHeader."No." :=
-            NoSeriesMgt.GetNextNo(InvtSetup."Posted Direct Trans. Nos.", TransferHeader."Posting Date", true);
+            NoSeriesMgt.GetNextNo(InventorySetup."Posted Direct Trans. Nos.", TransferHeader."Posting Date", true);
         OnInsertDirectTransHeaderOnBeforeDirectTransHeaderInsert(DirectTransHeader, TransferHeader);
         DirectTransHeader.Insert();
 
@@ -296,7 +305,7 @@
                         WhseShptLine, PostedWhseShptHeader, PostedWhseShptLine, TempWhseSplitSpecification);
                 end;
             end;
-            if WhseShipPosting then
+            if WhsePosting then
                 PostWhseJnlLine(ItemJnlLine, OriginalQuantity, OriginalQuantityBase, TempHandlingSpecification, 0);
             if WhseReceive then
                 PostWhseJnlLine(ItemJnlLine, OriginalQuantity, OriginalQuantityBase, TempHandlingSpecification, 1);
@@ -358,19 +367,36 @@
     var
         TempHandlingSpecification2: Record "Tracking Specification" temporary;
         ItemEntryRelation: Record "Item Entry Relation";
+        ItemTrackingMgt: Codeunit "Item Tracking Management";
+        WhseSplitSpecification: Boolean;
     begin
+        if WhsePosting then begin
+            TempWhseSplitSpecification.Reset();
+            TempWhseSplitSpecification.DeleteAll();
+        end;
+
         TempHandlingSpecification2.Reset();
         if ItemJnlPostLine.CollectTrackingSpecification(TempHandlingSpecification2) then begin
             TempHandlingSpecification2.SetRange("Buffer Status", 0);
             if TempHandlingSpecification2.Find('-') then begin
                 repeat
+                    WhseSplitSpecification := WhsePosting or WhseShip or InvtPickPutaway;
+                    if WhseSplitSpecification then
+                        if ItemTrackingMgt.GetWhseItemTrkgSetup(DirectTransLine."Item No.") then begin
+                            TempWhseSplitSpecification := TempHandlingSpecification2;
+                            TempWhseSplitSpecification."Source Type" := DATABASE::"Transfer Line";
+                            TempWhseSplitSpecification."Source ID" := TransLine."Document No.";
+                            TempWhseSplitSpecification."Source Ref. No." := TransLine."Line No.";
+                            TempWhseSplitSpecification.Insert();
+                        end;
+
                     ItemEntryRelation.Init();
                     ItemEntryRelation.InitFromTrackingSpec(TempHandlingSpecification2);
                     ItemEntryRelation.TransferFieldsDirectTransLine(DirectTransLine);
                     ItemEntryRelation.Insert();
                     TempHandlingSpecification := TempHandlingSpecification2;
                     TempHandlingSpecification.SetSource(
-                      DATABASE::"Transfer Line", 0, DirectTransLine."Document No.", DirectTransLine."Line No.", '', DirectTransLine."Line No.");
+                        DATABASE::"Transfer Line", 0, DirectTransLine."Document No.", DirectTransLine."Line No.", '', DirectTransLine."Line No.");
                     TempHandlingSpecification."Buffer Status" := TempHandlingSpecification."Buffer Status"::MODIFY;
                     TempHandlingSpecification.Insert();
                 until TempHandlingSpecification2.Next() = 0;
@@ -472,8 +498,21 @@
     var
         InvtAdjmtHandler: Codeunit "Inventory Adjustment Handler";
     begin
-        if InvtSetup.AutomaticCostAdjmtRequired() then
-            InvtAdjmtHandler.MakeInventoryAdjustment(true, InvtSetup."Automatic Cost Posting");
+        if InventorySetup.AutomaticCostAdjmtRequired() then
+            InvtAdjmtHandler.MakeInventoryAdjustment(true, InventorySetup."Automatic Cost Posting");
+    end;
+
+    [EventSubscriber(ObjectType::Table, Database::"Warehouse Shipment Line", 'OnAfterValidateQtyToShip', '', false, false)]
+    local procedure WarehouseShipmentLineOnValidateQtyToShip(var WarehouseShipmentLine: Record "Warehouse Shipment Line")
+    begin
+        if WarehouseShipmentLine."Qty. to Ship (Base)" <> 0 then
+            CheckDirectTransferQtyToShip(WarehouseShipmentLine);
+    end;
+
+    local procedure CheckDirectTransferQtyToShip(var WarehouseShipmentLine: Record "Warehouse Shipment Line")
+    begin
+        if WarehouseShipmentLine.CheckDirectTransfer(false, false) then
+            WarehouseShipmentLine.TestField("Qty. to Ship (Base)", WarehouseShipmentLine."Qty. Outstanding (Base)");
     end;
 
     [IntegrationEvent(false, false)]

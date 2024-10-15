@@ -3634,7 +3634,7 @@
   </Item>
   <Item ItemId=";Codeunit 917041221 - NamedType 3041014380" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Unit Code are not equal]]></Val>
+      <Val><![CDATA[Unit Cost are not equal]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -3648,6 +3648,24 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Inventory Documents - NamedType UnitOfMeasureCodeErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 917041221 - Method 3600959516 - NamedType 3258320759" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Inventory Document copying issue.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Inventory Documents - Method NotCopiedAppliesValuesMessageHandler - NamedType InvDocCopyIssue)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 917041221 - Method 3600959516 - NamedType 363318328" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[There is 1 document line(s) with Item Tracking which requires manual specify of apply to/from numbers within Item Tracking Lines]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Inventory Documents - Method NotCopiedAppliesValuesMessageHandler - NamedType LinesNotAppliedMsg)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 2034147439 - NamedType 129690862" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">

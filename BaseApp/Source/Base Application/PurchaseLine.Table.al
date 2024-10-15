@@ -3936,12 +3936,12 @@
             PurchLineReserve.VerifyQuantity(Rec, xRec);
         end;
         LockTable();
-        PurchHeader."No." := '';
         if ("Deferral Code" <> '') and (GetDeferralAmount() <> 0) then
             UpdateDeferralAmounts();
 
         if Type = Type::"Empl. Purchase" then
             PurchHeader.TestField("Currency Code", '');
+        PurchHeader."No." := '';
     end;
 
     trigger OnModify()

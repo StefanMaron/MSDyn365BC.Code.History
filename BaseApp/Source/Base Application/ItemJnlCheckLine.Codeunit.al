@@ -71,7 +71,7 @@
             OnBeforeCheckLocation(ItemJournalLine, IsHandled);
             if not IsHandled then
                 if InvtSetup."Location Mandatory" and
-                   ("Value Entry Type" = "Value Entry Type"::"Direct Cost") and
+                    ("Value Entry Type" = "Value Entry Type"::"Direct Cost") and
                    (Quantity <> 0) and
                    not Adjustment
                 then begin
@@ -94,11 +94,7 @@
                     end;
                 end;
 
-            IsHandled := false;
-            OnBeforeCheckVariantMandatory(ItemJournalLine, IsHandled);
-            if not IsHandled then
-                if Item.IsVariantMandatory(InvtSetup."Variant Mandatory if Exists") and ("Item Charge No." = '') then
-                    TestField("Variant Code");
+            CheckVariantMandatory(ItemJournalLine, Item);
 
             CheckInTransitLocations(ItemJournalLine);
 
@@ -767,6 +763,25 @@
                 CheckInTransitLocation("Location Code");
                 CheckInTransitLocation("New Location Code");
             end;
+    end;
+
+    local procedure CheckVariantMandatory(var ItemJournalLine: Record "Item Journal Line"; var Item: Record Item)
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCheckVariantMandatory(ItemJournalLine, IsHandled);
+        if IsHandled then
+            exit;
+
+        if ItemJournalLine."Item Charge No." <> '' then
+            exit;
+
+        if ItemJournalLine."Inventory Value Per" in [ItemJournalLine."Inventory Value Per"::Item, ItemJournalLine."Inventory Value Per"::Location] then
+            exit;
+
+        if Item.IsVariantMandatory(InvtSetup."Variant Mandatory if Exists") then
+            ItemJournalLine.TestField("Variant Code", ErrorInfo.Create());
     end;
 
     [IntegrationEvent(false, false)]
