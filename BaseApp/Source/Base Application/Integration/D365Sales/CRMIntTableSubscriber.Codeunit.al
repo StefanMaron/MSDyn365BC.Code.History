@@ -987,6 +987,9 @@ codeunit 5341 "CRM Int. Table. Subscriber"
     local procedure LogTelemetryOnAfterInitSynchJob(ConnectionType: TableConnectionType; IntegrationTableID: Integer)
     var
         FeatureTelemetry: Codeunit "Feature Telemetry";
+        IntegrationRecordRef: RecordRef;
+        TelemetryCategories: Dictionary of [Text, Text];
+        IntegrationTableName: Text;
     begin
         if ConnectionType <> TableConnectionType::CRM then
             exit;
@@ -1001,10 +1004,22 @@ codeunit 5341 "CRM Int. Table. Subscriber"
                 Database::"CRM Uom",
                 Database::"CRM Uomschedule",
                 Database::"CRM Account Statistics"] then begin
-            Session.LogMessage('0000FME', StrSubstNo(SynchingSalesSpecificEntityTxt, CRMProductName.SHORT()), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
+            TelemetryCategories.Add('Category', CategoryTok);
+            TelemetryCategories.Add('IntegrationTableID', Format(IntegrationTableID));
+            if TryCalculateTableName(IntegrationRecordRef, IntegrationTableID, IntegrationTableName) then
+                TelemetryCategories.Add('IntegrationTableName', IntegrationTableName);
+
+            Session.LogMessage('0000FME', StrSubstNo(SynchingSalesSpecificEntityTxt, CRMProductName.SHORT()), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, TelemetryCategories);
             FeatureTelemetry.LogUptake('0000H7F', 'Dynamics 365 Sales', Enum::"Feature Uptake Status"::Used);
             FeatureTelemetry.LogUsage('0000H7G', 'Dynamics 365 Sales', 'Sales entity synch');
         end;
+    end;
+
+    [TryFunction]
+    local procedure TryCalculateTableName(var IntegrationRecordRef: RecordRef; TableId: Integer; var TableName: Text)
+    begin
+        IntegrationRecordRef.Open(TableId);
+        TableName := IntegrationRecordRef.Name();
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Int. Rec. Uncouple Invoke", 'OnAfterUncoupleRecord', '', false, false)]

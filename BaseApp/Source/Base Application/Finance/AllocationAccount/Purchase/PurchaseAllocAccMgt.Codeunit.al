@@ -28,14 +28,16 @@ codeunit 2679 "Purchase Alloc. Acc. Mgt."
         PurchaseLine.GetBySystemId(ParentSystemId);
         AmountToAllocate := PurchaseLine.Amount;
 
+        PurchaseHeader.ReadIsolation := IsolationLevel::ReadUncommitted;
+        PurchaseHeader.Get(PurchaseLine."Document Type", PurchaseLine."Document No.");
+        PostingDate := PurchaseHeader."Posting Date";
+
         if PurchaseLine."Alloc. Acc. Modified by User" then
             LoadManualAllocationLines(PurchaseLine, AllocationLine)
         else begin
-            PurchaseHeader.ReadIsolation := IsolationLevel::ReadUncommitted;
-            PurchaseHeader.Get(PurchaseLine."Document Type", PurchaseLine."Document No.");
-            PostingDate := PurchaseHeader."Posting Date";
             GetAllocationAccount(PurchaseLine, AllocationAccount);
             AllocationAccountMgt.GenerateAllocationLines(AllocationAccount, AllocationLine, PurchaseLine.Amount, PostingDate, PurchaseLine."Dimension Set ID", PurchaseLine."Currency Code");
+            AllocationAccountMgt.SplitQuantitiesIfNeeded(PurchaseLine.Quantity, AllocationLine, AllocationAccount);
             ReplaceInheritFromParent(AllocationLine, PurchaseLine);
         end;
     end;
@@ -59,6 +61,7 @@ codeunit 2679 "Purchase Alloc. Acc. Mgt."
             AllocationLine."Allocation Account No." := AllocAccManualOverride."Allocation Account No.";
             AllocationLine."Dimension Set ID" := AllocAccManualOverride."Dimension Set ID";
             AllocationLine.Amount := AllocAccManualOverride.Amount;
+            AllocationLine.Quantity := AllocAccManualOverride.Quantity;
             AllocationLine.Insert();
         until AllocAccManualOverride.Next() = 0;
     end;
@@ -96,11 +99,10 @@ codeunit 2679 "Purchase Alloc. Acc. Mgt."
     local procedure HandlePostDocument(var PurchaseHeader: Record "Purchase Header"; PreviewMode: Boolean; CommitIsSupressed: Boolean; var HideProgressWindow: Boolean; var ItemJnlPostLine: Codeunit "Item Jnl.-Post Line"; var IsHandled: Boolean)
     var
         AllocAccTelemetry: Codeunit "Alloc. Acc. Telemetry";
-        ContainsAllocationAccount: Boolean;
+        ContainsAllocationLines: Boolean;
     begin
-        VerifyLinesFromDocument(PurchaseHeader, ContainsAllocationAccount);
-
-        if not ContainsAllocationAccount then
+        VerifyLinesFromDocument(PurchaseHeader, ContainsAllocationLines);
+        if not ContainsAllocationLines then
             exit;
 
         AllocAccTelemetry.LogPurchaseInvoicePostingUsage();
@@ -222,7 +224,7 @@ codeunit 2679 "Purchase Alloc. Acc. Mgt."
         until AllocationPurchaseLine.Next() = 0;
     end;
 
-    local procedure CreateLinesFromAllocationAccountLine(var AllocationAccountPurchaseLine: Record "Purchase Line")
+    procedure CreateLinesFromAllocationAccountLine(var AllocationAccountPurchaseLine: Record "Purchase Line")
     var
         ExistingAccountPurchaseLine: Record "Purchase Line";
         AllocationLine: Record "Allocation Line";
@@ -230,6 +232,7 @@ codeunit 2679 "Purchase Alloc. Acc. Mgt."
         NextLineNo: Integer;
         LastLineNo: Integer;
         Increment: Integer;
+        CreatedLines: List of [Guid];
     begin
         if not GetAllocationAccount(AllocationAccountPurchaseLine, AllocationAccount) then
             Error(CannotGetAllocationAccountFromLineErr, AllocationAccountPurchaseLine."Line No.");
@@ -264,9 +267,10 @@ codeunit 2679 "Purchase Alloc. Acc. Mgt."
         ExistingAccountPurchaseLine.GetBySystemId(AllocationAccountPurchaseLine.SystemId);
 
         repeat
-            CreatePurchaseLine(ExistingAccountPurchaseLine, AllocationLine, LastLineNo, Increment);
+            CreatedLines.Add(CreatePurchaseLine(ExistingAccountPurchaseLine, AllocationLine, LastLineNo, Increment, AllocationAccount));
         until AllocationLine.Next() = 0;
 
+        FixQuantityRounding(CreatedLines, ExistingAccountPurchaseLine, AllocationAccount);
         DeleteManualOverrides(AllocationAccountPurchaseLine);
     end;
 
@@ -281,7 +285,7 @@ codeunit 2679 "Purchase Alloc. Acc. Mgt."
             AllocAccManualOverride.DeleteAll();
     end;
 
-    local procedure VerifyLinesFromDocument(var PurchaseHeader: Record "Purchase Header"; var ContainsAllocationAccount: Boolean)
+    local procedure VerifyLinesFromDocument(var PurchaseHeader: Record "Purchase Header"; var ContainsAllocationLines: Boolean)
     var
         AllocationAccountPurchaseLine: Record "Purchase Line";
     begin
@@ -290,7 +294,7 @@ codeunit 2679 "Purchase Alloc. Acc. Mgt."
         AllocationAccountPurchaseLine.SetRange("Type", AllocationAccountPurchaseLine."Type"::"Allocation Account");
         AllocationAccountPurchaseLine.ReadIsolation := IsolationLevel::ReadUncommitted;
         if AllocationAccountPurchaseLine.FindSet() then begin
-            ContainsAllocationAccount := true;
+            ContainsAllocationLines := true;
             repeat
                 VerifyPurchaseLines(AllocationAccountPurchaseLine);
             until AllocationAccountPurchaseLine.Next() = 0;
@@ -302,25 +306,35 @@ codeunit 2679 "Purchase Alloc. Acc. Mgt."
         AllocationAccountPurchaseLine.SetFilter("Selected Alloc. Account No.", '<>%1', '');
         AllocationAccountPurchaseLine.ReadIsolation := IsolationLevel::ReadUncommitted;
         if AllocationAccountPurchaseLine.FindSet() then begin
-            ContainsAllocationAccount := true;
+            ContainsAllocationLines := true;
             repeat
                 VerifyPurchaseLines(AllocationAccountPurchaseLine);
             until AllocationAccountPurchaseLine.Next() = 0;
         end;
     end;
 
-    local procedure CreatePurchaseLine(var AllocationPurchaseLine: Record "Purchase Line"; var AllocationLine: Record "Allocation Line"; var LastLineNo: Integer; Increment: Integer)
+    local procedure CreatePurchaseLine(var AllocationPurchaseLine: Record "Purchase Line"; var AllocationLine: Record "Allocation Line"; var LastLineNo: Integer; Increment: Integer; var AllocationAccount: Record "Allocation Account"): Guid
     var
         PurchaseLine: Record "Purchase Line";
+        AllocAccHandleDocPost: Codeunit "Alloc. Acc. Handle Doc. Post";
     begin
         PurchaseLine.TransferFields(AllocationPurchaseLine, true);
         PurchaseLine."Line No." := LastLineNo + Increment;
         PurchaseLine."Type" := PurchaseLine."Type"::"G/L Account";
+        if AllocationPurchaseLine."VAT Bus. Posting Group" <> '' then
+            AllocAccHandleDocPost.SetVATBusPostingGroupCode(AllocationPurchaseLine."VAT Bus. Posting Group");
+
+        if AllocationPurchaseLine."VAT Prod. Posting Group" <> '' then
+            AllocAccHandleDocPost.SetVATProdPostingGroupCode(AllocationPurchaseLine."VAT Prod. Posting Group");
+
+        BindSubscription(AllocAccHandleDocPost);
         PurchaseLine.Validate("No.", AllocationLine."Destination Account Number");
-        PurchaseLine.Quantity := AllocationPurchaseLine.Quantity;
-        PurchaseLine."Unit Cost" := AllocationPurchaseLine."Unit Cost";
-        PurchaseLine.Validate("Direct Unit Cost", AllocationLine.Amount);
-        PurchaseLine.Validate("Line Amount", AllocationLine.Amount);
+        UnbindSubscription(AllocAccHandleDocPost);
+
+        MoveAmounts(PurchaseLine, AllocationPurchaseLine, AllocationLine, AllocationAccount);
+        MoveQuantities(PurchaseLine, AllocationPurchaseLine);
+
+        PurchaseLine."Deferral Code" := AllocationPurchaseLine."Deferral Code";
 
         TransferDimensionSetID(PurchaseLine, AllocationLine, AllocationPurchaseLine."Alloc. Acc. Modified by User");
         PurchaseLine."Allocation Account No." := AllocationLine."Allocation Account No.";
@@ -328,6 +342,145 @@ codeunit 2679 "Purchase Alloc. Acc. Mgt."
         OnBeforeCreatePurchaseLine(PurchaseLine, AllocationLine, AllocationPurchaseLine);
         PurchaseLine.Insert(true);
         LastLineNo := PurchaseLine."Line No.";
+        RedistributeQuantitiesIfNeededMoveQuantities(PurchaseLine, AllocationPurchaseLine, AllocationLine, AllocationAccount);
+        exit(PurchaseLine.SystemId);
+    end;
+
+    local procedure MoveQuantities(var PurchaseLine: Record "Purchase Line"; var AllocationPurchaseLine: Record "Purchase Line")
+    begin
+        PurchaseLine.Quantity := AllocationPurchaseLine.Quantity;
+        PurchaseLine."Outstanding Quantity" := AllocationPurchaseLine."Outstanding Quantity";
+        PurchaseLine."Quantity Received" := AllocationPurchaseLine."Quantity Received";
+        PurchaseLine."Quantity Invoiced" := AllocationPurchaseLine."Quantity Invoiced";
+        PurchaseLine."Qty. to Invoice" := AllocationPurchaseLine."Qty. to Invoice";
+        PurchaseLine."Qty. to Receive" := AllocationPurchaseLine."Qty. to Receive";
+        PurchaseLine."Quantity (Base)" := AllocationPurchaseLine."Quantity (Base)";
+        PurchaseLine."Outstanding Qty. (Base)" := AllocationPurchaseLine."Outstanding Qty. (Base)";
+        PurchaseLine."Qty. to Receive (Base)" := AllocationPurchaseLine."Qty. to Receive (Base)";
+        PurchaseLine."Return Qty. to Ship" := AllocationPurchaseLine."Return Qty. to Ship";
+        PurchaseLine."Return Qty. to Ship (Base)" := AllocationPurchaseLine."Return Qty. to Ship (Base)";
+    end;
+
+    local procedure RedistributeQuantitiesIfNeededMoveQuantities(var PurchaseLine: Record "Purchase Line"; var AllocationPurchaseLine: Record "Purchase Line"; var AllocationLine: Record "Allocation Line"; var AllocationAccount: Record "Allocation Account")
+    var
+        LinePercentage: Decimal;
+    begin
+        if AllocationAccount."Document Lines Split" <> AllocationAccount."Document Lines Split"::"Split Quantity" then
+            exit;
+
+        if AllocationLine.Percentage <> 0 then
+            LinePercentage := AllocationLine.Percentage
+        else
+            LinePercentage := Round(AllocationLine.Quantity / AllocationPurchaseLine.Quantity * 100, AllocationLine.GetQuantityPercision());
+
+        PurchaseLine.Quantity := 0;
+        PurchaseLine.Validate(Quantity, AllocationLine.Quantity);
+        PurchaseLine."Outstanding Quantity" := Round(AllocationPurchaseLine."Outstanding Quantity" * LinePercentage / 100, AllocationLine.GetQuantityPercision());
+        PurchaseLine."Quantity Received" := Round(AllocationPurchaseLine."Quantity Received" * LinePercentage / 100, AllocationLine.GetQuantityPercision());
+        PurchaseLine."Quantity Invoiced" := Round(AllocationPurchaseLine."Quantity Invoiced" * LinePercentage / 100, AllocationLine.GetQuantityPercision());
+        PurchaseLine."Qty. to Invoice" := Round(AllocationPurchaseLine."Qty. to Invoice" * LinePercentage / 100, AllocationLine.GetQuantityPercision());
+        PurchaseLine."Qty. to Receive" := Round(AllocationPurchaseLine."Qty. to Receive" * LinePercentage / 100, AllocationLine.GetQuantityPercision());
+        PurchaseLine."Quantity (Base)" := Round(AllocationPurchaseLine."Quantity (Base)" * LinePercentage / 100, AllocationLine.GetQuantityPercision());
+        PurchaseLine."Outstanding Qty. (Base)" := Round(AllocationPurchaseLine."Outstanding Qty. (Base)" * LinePercentage / 100, AllocationLine.GetQuantityPercision());
+        PurchaseLine."Qty. to Receive (Base)" := Round(AllocationPurchaseLine."Qty. to Receive (Base)" * LinePercentage / 100, AllocationLine.GetQuantityPercision());
+        PurchaseLine."Return Qty. to Ship" := Round(AllocationPurchaseLine."Return Qty. to Ship" * LinePercentage / 100, AllocationLine.GetQuantityPercision());
+        PurchaseLine."Return Qty. to Ship (Base)" := Round(AllocationPurchaseLine."Return Qty. to Ship (Base)" * LinePercentage / 100, AllocationLine.GetQuantityPercision());
+        PurchaseLine.Modify();
+    end;
+
+    local procedure FixQuantityRounding(CreatedLines: List of [Guid]; var ExistingAccountPurchaseLine: Record "Purchase Line"; var AllocationAccount: Record "Allocation Account")
+    var
+        PurchaseLine: Record "Purchase Line";
+        LastLine: Record "Purchase Line";
+        CreatedLineSystemID: Guid;
+        ModifyLine: Boolean;
+    begin
+        if AllocationAccount."Document Lines Split" <> AllocationAccount."Document Lines Split"::"Split Quantity" then
+            exit;
+
+        PurchaseLine.ReadIsolation := IsolationLevel::ReadCommitted;
+        foreach CreatedLineSystemID in CreatedLines do begin
+            PurchaseLine.GetBySystemId(CreatedLineSystemID);
+            PurchaseLine.Mark(true);
+        end;
+
+        PurchaseLine.MarkedOnly(true);
+        if not PurchaseLine.FindLast() then
+            exit;
+
+        LastLine.Copy(PurchaseLine);
+
+        PurchaseLine.CalcSums("Outstanding Quantity", "Quantity Received", "Quantity Invoiced", "Qty. to Invoice", "Qty. to Receive", "Quantity (Base)", "Outstanding Qty. (Base)", "Qty. to Receive (Base)", "Return Qty. to Ship", "Return Qty. to Ship (Base)");
+
+        if ExistingAccountPurchaseLine."Outstanding Quantity" - PurchaseLine."Outstanding Quantity" > 0 then begin
+            LastLine."Outstanding Quantity" += ExistingAccountPurchaseLine."Outstanding Quantity" - PurchaseLine."Outstanding Quantity";
+            ModifyLine := true;
+        end;
+
+        if ExistingAccountPurchaseLine."Quantity Received" - PurchaseLine."Quantity Received" > 0 then begin
+            LastLine."Quantity Received" += ExistingAccountPurchaseLine."Quantity Received" - PurchaseLine."Quantity Received";
+            ModifyLine := true;
+        end;
+
+        if ExistingAccountPurchaseLine."Quantity Invoiced" - PurchaseLine."Quantity Invoiced" > 0 then begin
+            LastLine."Quantity Invoiced" += ExistingAccountPurchaseLine."Quantity Invoiced" - PurchaseLine."Quantity Invoiced";
+            ModifyLine := true;
+        end;
+
+        if ExistingAccountPurchaseLine."Qty. to Invoice" - PurchaseLine."Qty. to Invoice" > 0 then begin
+            LastLine."Qty. to Invoice" += ExistingAccountPurchaseLine."Qty. to Invoice" - PurchaseLine."Qty. to Invoice";
+            ModifyLine := true;
+        end;
+
+        if ExistingAccountPurchaseLine."Qty. to Receive" - PurchaseLine."Qty. to Receive" > 0 then begin
+            LastLine."Qty. to Receive" += ExistingAccountPurchaseLine."Qty. to Receive" - PurchaseLine."Qty. to Receive";
+            ModifyLine := true;
+        end;
+
+        if ExistingAccountPurchaseLine."Quantity (Base)" - PurchaseLine."Quantity (Base)" > 0 then begin
+            LastLine."Quantity (Base)" += ExistingAccountPurchaseLine."Quantity (Base)" - PurchaseLine."Quantity (Base)";
+            ModifyLine := true;
+        end;
+
+        if ExistingAccountPurchaseLine."Outstanding Qty. (Base)" - PurchaseLine."Outstanding Qty. (Base)" > 0 then begin
+            LastLine."Outstanding Qty. (Base)" += ExistingAccountPurchaseLine."Outstanding Qty. (Base)" - PurchaseLine."Outstanding Qty. (Base)";
+            ModifyLine := true;
+        end;
+
+        if ExistingAccountPurchaseLine."Qty. to Receive (Base)" - PurchaseLine."Qty. to Receive (Base)" > 0 then begin
+            LastLine."Qty. to Receive (Base)" += ExistingAccountPurchaseLine."Qty. to Receive (Base)" - PurchaseLine."Qty. to Receive (Base)";
+            ModifyLine := true;
+        end;
+
+        if ExistingAccountPurchaseLine."Return Qty. to Ship" - PurchaseLine."Return Qty. to Ship" > 0 then begin
+            LastLine."Return Qty. to Ship" += ExistingAccountPurchaseLine."Return Qty. to Ship" - PurchaseLine."Return Qty. to Ship";
+            ModifyLine := true;
+        end;
+
+        if ExistingAccountPurchaseLine."Return Qty. to Ship (Base)" - PurchaseLine."Return Qty. to Ship (Base)" > 0 then begin
+            LastLine."Return Qty. to Ship (Base)" += ExistingAccountPurchaseLine."Return Qty. to Ship (Base)" - PurchaseLine."Return Qty. to Ship (Base)";
+            ModifyLine := true;
+        end;
+
+        if ModifyLine then
+            LastLine.Modify();
+    end;
+
+    local procedure MoveAmounts(var PurchaseLine: Record "Purchase Line"; var AllocationPurchaseLine: Record "Purchase Line"; var AllocationLine: Record "Allocation Line"; var AllocationAccount: Record "Allocation Account")
+    var
+        AllocationAccountMgt: Codeunit "Allocation Account Mgt.";
+        AmountRoundingPercision: Decimal;
+    begin
+        PurchaseLine."Unit Cost" := AllocationPurchaseLine."Unit Cost";
+
+        if AllocationAccount."Document Lines Split" = AllocationAccount."Document Lines Split"::"Split Amount" then begin
+            AmountRoundingPercision := AllocationAccountMgt.GetCurrencyRoundingPrecision(PurchaseLine."Currency Code");
+            PurchaseLine.Validate("Direct Unit Cost", Round(AllocationLine.Amount / PurchaseLine.Quantity, AmountRoundingPercision));
+            PurchaseLine.Validate("Line Amount", AllocationLine.Amount);
+        end else begin
+            PurchaseLine.Validate("Direct Unit Cost", AllocationPurchaseLine."Direct Unit Cost");
+            PurchaseLine."Line Amount" := AllocationPurchaseLine."Line Amount";
+        end;
     end;
 
     local procedure GetNextLine(var AllocationPurchaseLine: Record "Purchase Line"): Integer
@@ -473,7 +626,7 @@ codeunit 2679 "Purchase Alloc. Acc. Mgt."
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCreatePurchaseLine(var PurchaseLine: Record "Purchase Line"; var AllocationLine: Record "Allocation Line"; AllocationPurchaseLine: Record "Purchase Line")
+    local procedure OnBeforeCreatePurchaseLine(var PurchaseLine: Record "Purchase Line"; var AllocationLine: Record "Allocation Line"; var AllocationPurchaseLine: Record "Purchase Line")
     begin
     end;
 
@@ -481,7 +634,6 @@ codeunit 2679 "Purchase Alloc. Acc. Mgt."
     local procedure OnBeforeVerifyPurchaseLine(var PurchaseLine: Record "Purchase Line")
     begin
     end;
-
 
     var
         AllocationAccountMustOnlyDistributeToGLAccountsErr: Label 'The allocation account must contain G/L accounts as distribution accounts.';

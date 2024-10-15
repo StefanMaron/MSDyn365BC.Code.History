@@ -14,6 +14,7 @@ codeunit 6133 "E-Document Background Jobs"
             tabledata "E-Document" = m,
             tabledata "E-Document Service" = m,
             tabledata "Job Queue Entry" = im;
+
     procedure StartEdocumentCreatedFlow(EDocument: Record "E-Document")
     begin
         EDocument."Job Queue Entry ID" := ScheduleEDocumentJob(Codeunit::"E-Document Created Flow", EDocument.RecordId(), 0);
@@ -21,10 +22,15 @@ codeunit 6133 "E-Document Background Jobs"
     end;
 
     procedure GetEDocumentResponse()
+    begin
+        GetEDocumentResponse(true);
+    end;
+
+    procedure GetEDocumentResponse(SkipSchedulingIfJobExists: Boolean)
     var
         BlankRecord: RecordId;
     begin
-        if IsJobQueueScheduled(Codeunit::"E-Document Get Response") then
+        if SkipSchedulingIfJobExists and IsJobQueueScheduled(Codeunit::"E-Document Get Response") then
             exit;
 
         //  Run background job every 5 minutes (300 second) to check the status of async documents.
