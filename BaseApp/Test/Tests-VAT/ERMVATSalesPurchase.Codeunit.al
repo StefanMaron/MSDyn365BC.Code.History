@@ -40,6 +40,7 @@ codeunit 134045 "ERM VAT Sales/Purchase"
         VATReturnPeriodClosedErr: Label 'VAT Return Period is closed for the selected date. Please select another date.';
         VATReturnPeriodFromClosedErr: Label 'VAT Entry is in a closed VAT Return Period and can not be changed.';
         PostingDateOutOfPostingDatesErr: Label 'VAT Date is not within your range of allowed posting dates';
+        VATEntrySettlementChangeErr: Label 'You cannot change the contents of this field when %1 is %2.';
 
     [Test]
     [Scope('OnPrem')]
@@ -3736,6 +3737,61 @@ codeunit 134045 "ERM VAT Sales/Purchase"
     end;
 
     [Test]
+    procedure VATPostingDateChangeNotAllowedOnSettlementSuccessful()
+    var
+        SalesInvHeader: Record "Sales Invoice Header";
+        VATReturnPeriod: Record "VAT Return Period";
+        VATReportHeader: Record "VAT Report Header";
+        VATEntry, VATEntry2: Record "VAT Entry";
+        VATEntryPage: TestPage "VAT Entries";
+        DocNo: Code[20];
+        VATDate, NewVATDate : Date;
+        VATEntryNo, VATEntryNo2: Integer;
+        DocType: Enum "Gen. Journal Document Type";
+        PostType: Enum "General Posting Type";
+    begin
+        // [FEATURE] [VAT]
+        // [SCENARIO 464310] Do not change related entries and entry itself if it is type Settlement
+        Initialize();
+        VATEntry.DeleteAll();
+
+        // [WHEN] Posting settlement
+        VATEntry.Init();
+        VATEntry."Entry No." := VATEntry.GetLastEntryNo();
+        VATEntryNo := VATEntry."Entry No.";
+        VATEntry."Document No." := 'TEST';
+        VATEntry."Posting Date" := WorkDate();
+        VATEntry."VAT Reporting Date" := WorkDate();
+        VATEntry.Type := PostType::Settlement;
+        VATEntry."Transaction No." := 12345;
+        VATEntry.Insert();
+
+        VATEntry2.Init();
+        VATEntry2."Entry No." := VATEntry."Entry No." + 1;
+        VATEntry2."Document No." := 'TEST';
+        VATEntry2."Posting Date" := WorkDate();
+        VATEntry2."VAT Reporting Date" := WorkDate();
+        VATEntry2.Type := PostType::Settlement;
+        VATEntry2."Transaction No." := 12345;
+        VATEntryNo2 := VATEntry2."Entry No.";
+        VATEntry2.Insert();
+        NewVATDate := WorkDate() + 1;
+        Commit();
+
+        // [WHEN] Fail to change entry on VAT Entries page
+        VATEntryPage.OpenEdit();
+        VATEntryPage.Filter.SetFilter("Entry No.", Format(VATEntryNo));
+        VATEntryPage.First();
+        asserterror VATEntryPage."VAT Reporting Date".SetValue(NewVATDate);
+        Assert.ExpectedError(StrSubstNo(VATEntrySettlementChangeErr, VATEntry.FieldCaption(Type), VATEntry.Type));
+        
+        // [THEN] Then related entry is not changed
+        VATEntry2.Reset();
+        VATEntry2.Get(VATEntryNo2);
+        Assert.AreEqual(WorkDate(), VATEntry2."VAT Reporting Date", VATDateOnRecordErr);
+    end;
+
+    [Test]
     procedure VATPostingDateChangeFailure()
     var
         SalesInvHeader: Record "Sales Invoice Header";
@@ -4607,7 +4663,10 @@ codeunit 134045 "ERM VAT Sales/Purchase"
     [Test]
     procedure UpdateVATDateMultipleVATEntriesSameDocNo()
     var
+        GLEntryVATEntryLink: Record "G/L Entry - VAT Entry Link";
+        GLEntry: Record "G/L Entry";
         GenJournalLine: Record "Gen. Journal Line";
+        GeneralLedgerSetup: Record "General Ledger Setup";
         SalesVATEntry: Record "VAT Entry";
         PurchaseVATEntry: Record "VAT Entry";
         VATReportingDateMgt: Codeunit "VAT Reporting Date Mgt";
@@ -4618,6 +4677,9 @@ codeunit 134045 "ERM VAT Sales/Purchase"
         // [FEATURE] [VAT]
         // [SCENARIO 463793] VAT Entries and GL Entries are not filtered on Document No when updating related entries
         Initialize();
+        GLEntryVATEntryLink.DeleteAll();
+        GLEntry.DeleteAll();
+
         InitalVATDate := WorkDate();
         UpdatedVATDate := CalcDate('<+1M>', WorkDate());
 
@@ -4750,6 +4812,60 @@ codeunit 134045 "ERM VAT Sales/Purchase"
         // [WHEN] Sales Invoice is posted
         asserterror LibrarySales.PostSalesDocument(SalesHeader, true, true);
         assert.ExpectedError(PostingDateOutOfPostingDatesErr);
+    end;
+    
+    [Test]
+    procedure PostShipSalesDocOutOfAllowedPostingPeriod()
+    var
+        GeneralLedgerSetup: Record "General Ledger Setup";
+        SalesHeader: Record "Sales Header";
+        DocType: Enum "Sales Document Type";
+        PostType: Enum "General Posting Type";
+    begin
+        // [FEATURE] [VAT]
+        // [SCENARIO 466841] Posting procedure must not be aborted if document is out of allowed posting period on Shipment as it has no VAT
+        Initialize();
+
+        // [WHEN] General Ledger Setup with defined Allowed Posting Period
+        GeneralLedgerSetup.Get();
+        GeneralLedgerSetup."Allow Posting From" := WorkDate();
+        GeneralLedgerSetup."Allow Posting To" := WorkDate();
+        GeneralLedgerSetup.Modify();
+
+        // [WHEN] General Journal Line defined with VAT Date out of Allowed Period 
+        DocType := Enum::"Sales Document Type"::Order;
+        PostType := Enum::"General Posting Type"::Sale;
+        CreateSalesDoc(SalesHeader, CalcDate('<+1M>', WorkDate()), DocType);
+
+        // [WHEN] Sales Order allow ship and receipt
+        LibrarySales.PostSalesDocument(SalesHeader, true, false);
+    end;
+
+    [Test]
+    procedure PostReceiptPurchDocOutOfAllowedPostingPeriod()
+    var
+        GeneralLedgerSetup: Record "General Ledger Setup";
+        PurchaseHeader: Record "Purchase Header";
+        DocType: Enum "Sales Document Type";
+        PostType: Enum "General Posting Type";
+    begin
+        // [FEATURE] [VAT]
+        // [SCENARIO 466841] Posting procedure must not be aborted if document is out of allowed posting period on receipt as it has no VAT
+        Initialize();
+
+        // [WHEN] General Ledger Setup with defined Allowed Posting Period
+        GeneralLedgerSetup.Get();
+        GeneralLedgerSetup."Allow Posting From" := WorkDate();
+        GeneralLedgerSetup."Allow Posting To" := WorkDate();
+        GeneralLedgerSetup.Modify();
+
+        // [WHEN] General Journal Line defined with VAT Date out of Allowed Period 
+        DocType := Enum::"Purchase Document Type"::Order;
+        PostType := Enum::"General Posting Type"::Purchase;
+        CreatePurchDoc(PurchaseHeader, CalcDate('<+1M>', WorkDate()), DocType);
+
+        // [WHEN] Purchase Order allow ship and receipt
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false);
     end;
 
     [Test]
@@ -5023,6 +5139,8 @@ codeunit 134045 "ERM VAT Sales/Purchase"
         GLSetup.Get();
         GLSetup."VAT Reporting Date Usage" := GLSetup."VAT Reporting Date Usage"::Complete;
         GLSetup."Control VAT Period" := GLSetup."Control VAT Period"::"Block posting within closed and warn for released period";
+        GLSetup."Allow Posting From" := 0D;
+        GLSetup."Allow Posting To" := 0D;
         GLSetup.Modify();
 
         // Lazy Setup.

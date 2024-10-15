@@ -627,6 +627,11 @@ page 44 "Sales Credit Memo"
                     ApplicationArea = BasicEU;
                     ToolTip = 'Specifies the country or region of origin for the purpose of Intrastat reporting.';
                 }
+                field("Rcvd-from Country/Region Code"; Rec."Rcvd-from Country/Region Code")
+                {
+                    ApplicationArea = BasicEU, BasicCH, BasicNO;
+                    ToolTip = 'Specifies the country or region from which the items are returned for the purpose of Intrastat reporting.';
+                }
             }
         }
         area(factboxes)
@@ -1431,6 +1436,7 @@ page 44 "Sales Credit Memo"
         CurrPage.ApprovalFactBox.PAGE.UpdateApprovalEntriesFromSourceRecord(RecordId);
         ShowWorkflowStatus := CurrPage.WorkflowStatus.PAGE.SetFilterOnWorkflowRecord(RecordId);
         StatusStyleTxt := GetStatusStyleText();
+        SetControlAppearance();
     end;
 
     trigger OnAfterGetRecord()
@@ -1458,6 +1464,9 @@ page 44 "Sales Credit Memo"
     begin
         if DocNoVisible then
             CheckCreditMaxBeforeInsert();
+
+        if ("Sell-to Customer No." = '') and (GetFilter("Sell-to Customer No.") <> '') then
+            CurrPage.Update(false);
     end;
 
     trigger OnNewRecord(BelowxRec: Boolean)
@@ -1602,6 +1611,8 @@ page 44 "Sales Credit Memo"
 
         if PostingCodeunitID <> CODEUNIT::"Sales-Post (Yes/No)" then
             exit;
+
+        Rec.SetTrackInfoForCancellation();
 
         if OfficeMgt.IsAvailable() then begin
             SalesCrMemoHeader.SetRange("Pre-Assigned No.", PreAssignedNo);

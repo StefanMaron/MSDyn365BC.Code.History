@@ -2762,6 +2762,54 @@ codeunit 137063 "SCM Manufacturing 7.0"
         RequisitionLine.TestField("Vendor Item No.", '');
     end;
 
+    [Test]
+    procedure VerifyQtyOnConsumptionLedgerEntryForComponentWithDifferentUoM()
+    var
+        UnitOfMeasure: Record "Unit of Measure";
+        ItemUnitofMeasure: Record "Item Unit of Measure";
+        CompItem, ProdItem : Record Item;
+        ProductionBOMHeader: Record "Production BOM Header";
+        RoutingHeader: Record "Routing Header";
+        ProductionOrder: Record "Production Order";
+    begin
+        // [SCENARIO 467829] Verify Qty. on Consumption Ledger Entry for Component with different UoM
+        Initialize();
+
+        // [GIVEN] New Unit of Measure
+        LibraryInventory.CreateUnitOfMeasureCode(UnitOfMeasure);
+
+        // [GIVEN] Create Component Item with different UoM
+        CreateCompItem(CompItem, CompItem."Flushing Method"::Backward, 0.00001);
+
+        // [GIVEN] Create Item Unit of Measure
+        LibraryInventory.CreateItemUnitOfMeasure(ItemUnitofMeasure, CompItem."No.", UnitofMeasure.Code, 0.00824);
+
+        // [GIVEN] Create Production BOM
+        CreateProdBOM(ProductionBOMHeader, CompItem."Base Unit of Measure", 0.3, CompItem."No.", ItemUnitofMeasure.Code, Format(100));
+
+        // [GIVEN] Create Routing
+        CreateCertifiedRoutingForWorkCenter(RoutingHeader, Format(100), Format(100));
+
+        // [GIVEN] Create Production Item
+        CreateProdItem(ProdItem, ProdItem."Replenishment System"::"Prod. Order", ProdItem."Reordering Policy"::" ", RoutingHeader."No.", ProductionBOMHeader."No.");
+
+        // [GIVEN] Create and Post Item Journal
+        CreateAndPostItemJournalLine(CompItem."No.", 100);
+
+        // [GIVEN] Create Production Order
+        LibraryManufacturing.CreateProductionOrder(
+          ProductionOrder, ProductionOrder.Status::Released, ProductionOrder."Source Type"::Item, ProdItem."No.", 1260);
+
+        // [GIVEN] Refresh Production Order
+        LibraryManufacturing.RefreshProdOrder(ProductionOrder, false, true, true, true, false);
+
+        // [WHEN] Post Production Order
+        PostProductionJournal(ProductionOrder);
+
+        // [THEN] Verify Qty on Consumption Ledger Entry for Component with different UoM
+        VerifyItemLedgerEntry(CompItem."No.", false, -3.11472, 0);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -4808,6 +4856,106 @@ codeunit 137063 "SCM Manufacturing 7.0"
         ProdOrderCompCmtLine.SetRange("Prod. Order No.", ProductionOrderNo);
         ProdOrderCompCmtLine.SetRange(Comment, CommentText);
         Assert.RecordIsNotEmpty(ProdOrderCompCmtLine);
+    end;
+
+    local procedure PostProductionJournal(var ProductionOrder: Record "Production Order")
+    var
+        ProdOrderLine: Record "Prod. Order Line";
+        ItemJournalLine: Record "Item Journal Line";
+        ProductionJournalMgt: Codeunit "Production Journal Mgt";
+    begin
+        ProdOrderLine.SetRange(Status, ProductionOrder.Status);
+        ProdOrderLine.SetRange("Prod. Order No.", ProductionOrder."No.");
+        ProdOrderLine.FindFirst();
+
+        ProductionJournalMgt.InitSetupValues;
+        ProductionJournalMgt.SetTemplateAndBatchName();
+        ProductionJournalMgt.CreateJnlLines(ProductionOrder, ProdOrderLine."Line No.");
+        ItemJournalLine.SetRange("Order Type", ItemJournalLine."Order Type"::Production);
+        ItemJournalLine.SetRange("Document No.", ProductionOrder."No.");
+        ItemJournalLine.SetRange("Flushing Method", ItemJournalLine."Flushing Method"::Manual);
+        ItemJournalLine.FindFirst();
+        CODEUNIT.Run(CODEUNIT::"Item Jnl.-Post Batch", ItemJournalLine);
+    end;
+
+    local procedure CreateCertifiedRoutingForWorkCenter(var RoutingHeader: Record "Routing Header"; WorkCenterNo: Code[20]; RoutingLinkCode: Code[20])
+    var
+        RoutingLine: Record "Routing Line";
+    begin
+        LibraryManufacturing.CreateRoutingHeader(RoutingHeader, RoutingHeader.Type::Serial);
+        LibraryManufacturing.CreateRoutingLineSetup(RoutingLine, RoutingHeader, WorkCenterNo, LibraryUtility.GenerateGUID, 0, 10);
+        RoutingLine.Validate("Routing Link Code", RoutingLinkCode);
+        RoutingLine.Modify(true);
+
+        RoutingHeader.Validate(Status, RoutingHeader.Status::Certified);
+        RoutingHeader.Modify(true);
+    end;
+
+    local procedure CreateProdItem(var Item: Record Item; ReplenishmentSystem: Enum "Replenishment System"; ReorderingPolicy: Enum "Reordering Policy"; RoutingNo: Code[20]; ProdBOMNo: Code[20])
+    begin
+        LibraryInventory.CreateItem(Item);
+        Item.Validate("Replenishment System", ReplenishmentSystem);
+        Item.Validate("Reordering Policy", ReorderingPolicy);
+        Item.Validate("Routing No.", RoutingNo);
+        Item.Validate("Production BOM No.", ProdBOMNo);
+        Item.Modify(true);
+    end;
+
+    local procedure CreateAndPostItemJournalLine(ItemNo: Code[20]; Quantity: Decimal)
+    var
+        ItemJournalBatch: Record "Item Journal Batch";
+        ItemJournalLine: Record "Item Journal Line";
+    begin
+        SelectAndClearItemJournalBatch(ItemJournalBatch);
+        LibraryInventory.CreateItemJournalLine(
+          ItemJournalLine, ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name,
+          ItemJournalLine."Entry Type"::"Positive Adjmt.", ItemNo, Quantity);
+        LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
+    end;
+
+    local procedure SelectAndClearItemJournalBatch(var ItemJournalBatch: Record "Item Journal Batch")
+    var
+        ItemJournalTemplate: Record "Item Journal Template";
+    begin
+        LibraryInventory.SelectItemJournalTemplateName(ItemJournalTemplate, ItemJournalTemplate.Type::Item);
+        LibraryInventory.SelectItemJournalBatchName(ItemJournalBatch, ItemJournalBatch."Template Type"::Item, ItemJournalTemplate.Name);
+        LibraryInventory.ClearItemJournal(ItemJournalTemplate, ItemJournalBatch);
+    end;
+
+    local procedure CreateProdBOM(var ProductionBOMHeader: Record "Production BOM Header"; BaseUnitOfMeasure: Code[10]; QtyPer: Decimal; ItemNo: Code[20]; ItemUoMCode: Code[10]; RoutingLinkCode: Code[10])
+    var
+        ProductionBOMLine: Record "Production BOM Line";
+    begin
+        LibraryManufacturing.CreateProductionBOMHeader(ProductionBOMHeader, BaseUnitOfMeasure);
+        LibraryManufacturing.CreateProductionBOMLine(ProductionBOMHeader, ProductionBOMLine, '', ProductionBOMLine.Type::Item, ItemNo, QtyPer);
+        ProductionBOMLine.Validate("Unit of Measure Code", ItemUoMCode);
+        ProductionBOMLine.Validate("Routing Link Code", RoutingLinkCode);
+        ProductionBOMLine.Modify();
+        LibraryManufacturing.UpdateProductionBOMStatus(ProductionBOMHeader, ProductionBOMHeader.Status::Certified);
+    end;
+
+    local procedure CreateCompItem(var Item: Record Item; FlushingType: Enum "Flushing Method"; RoundPrecision: Decimal)
+    begin
+        LibraryInventory.CreateItem(Item);
+        Item.Validate("Flushing Method", FlushingType);
+        Item.Validate("Rounding Precision", RoundPrecision);
+        Item.Modify(true);
+    end;
+
+    local procedure VerifyItemLedgerEntry(ItemNo: Code[20]; Positive: Boolean; Quantity: Decimal; RemainingQty: Decimal)
+    var
+        ItemLedgerEntry: Record "Item Ledger Entry";
+    begin
+        FindItemLedgerEntry(ItemLedgerEntry, ItemNo, Positive);
+        ItemLedgerEntry.TestField(Quantity, Quantity);
+        ItemLedgerEntry.TestField("Remaining Quantity", RemainingQty);
+    end;
+
+    local procedure FindItemLedgerEntry(var ItemLedgerEntry: Record "Item Ledger Entry"; ItemNo: Code[20]; Positive: Boolean)
+    begin
+        ItemLedgerEntry.SetRange("Item No.", ItemNo);
+        ItemLedgerEntry.SetRange(Positive, Positive);
+        ItemLedgerEntry.FindFirst();
     end;
 
     [ModalPageHandler]

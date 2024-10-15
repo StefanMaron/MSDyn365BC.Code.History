@@ -61,7 +61,10 @@ codeunit 4810 IntrastatReportManagement
                 if ReturnRcptHeader.Get(ItemLedgEntry."Document No.") then
                     case IntrastatReportSetup."Shipments Based On" of
                         IntrastatReportSetup."Shipments Based On"::"Ship-to Country":
-                            CountryCode := ReturnRcptHeader."Sell-to Country/Region Code";
+                            if ReturnRcptHeader."Rcvd-from Country/Region Code" <> '' then
+                                CountryCode := ReturnRcptHeader."Rcvd-from Country/Region Code"
+                            else
+                                CountryCode := ReturnRcptHeader."Sell-to Country/Region Code";
                         IntrastatReportSetup."Shipments Based On"::"Sell-to Country":
                             CountryCode := ReturnRcptHeader."Sell-to Country/Region Code";
                         IntrastatReportSetup."Shipments Based On"::"Bill-to Country":
@@ -1088,7 +1091,7 @@ codeunit 4810 IntrastatReportManagement
     local procedure OnBeforeDefineFileNames(var IntrastatReportHeader: Record "Intrastat Report Header"; var FileName: Text; var ReceptFileName: Text; var ShipmentFileName: Text; var ZipFileName: Text; var IsHandled: Boolean)
     begin
     end;
-    
+
     [IntegrationEvent(true, false)]
     local procedure OnBeforeUpdateInternalRefNo(var IntrastatReportLine: Record "Intrastat Report Line"; var CompoundField: Text; var PrevCompoundField: Text);
     begin

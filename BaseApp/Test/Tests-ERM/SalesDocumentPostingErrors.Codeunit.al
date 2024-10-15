@@ -414,7 +414,7 @@ codeunit 132501 "Sales Document Posting Errors"
         Assert.ExpectedError('');
         // [THEN] Opened page "Error Messages" with two lines:
         LibraryErrorMessage.GetErrorMessages(TempErrorMessage);
-        Assert.RecordCount(TempErrorMessage, 3);
+        Assert.RecordCount(TempErrorMessage, 2);
         // [THEN] Second line, where Description is 'There is nothing to post', Context is 'Sales Header: Order, 1002'
         TempErrorMessage.FindLast();
         TempErrorMessage.TestField("Message", DocumentErrorsMgt.GetNothingToPostErrorMsg());
@@ -456,18 +456,18 @@ codeunit 132501 "Sales Document Posting Errors"
         LibraryErrorMessage.GetErrorMessages(TempErrorMessage);
         Clear(RegisterID);
         TempErrorMessage.SetRange("Register ID", RegisterID);
-        Assert.RecordCount(TempErrorMessage, 5);
+        Assert.RecordCount(TempErrorMessage, 4);
         // [THEN] The first error for Order '1002' is 'Posting Date is not within your range of allowed posting dates.'
 
         TempErrorMessage.Get(1);
         Assert.ExpectedMessage(PostingDateNotAllowedErr, TempErrorMessage."Message");
         Assert.AreEqual(SalesHeader[1].RecordId, TempErrorMessage."Context Record ID", 'Context for 1st error');
         // [THEN] The second error for Order '1002' is 'There is nothing to post'
-        TempErrorMessage.Get(3);
+        TempErrorMessage.Get(2);
         Assert.ExpectedMessage(DocumentErrorsMgt.GetNothingToPostErrorMsg(), TempErrorMessage."Message");
         Assert.AreEqual(SalesHeader[1].RecordId, TempErrorMessage."Context Record ID", 'Context for 2nd error');
         // [THEN] The Error for Invoice '1003' is 'Posting Date is not within your range of allowed posting dates.'
-        TempErrorMessage.Get(4);
+        TempErrorMessage.Get(3);
         Assert.ExpectedMessage(PostingDateNotAllowedErr, TempErrorMessage."Message");
         Assert.AreEqual(SalesHeader[2].RecordId, TempErrorMessage."Context Record ID", 'Context for 3rd error');
     end;
