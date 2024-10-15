@@ -2414,10 +2414,10 @@ codeunit 134450 "ERM Fixed Assets Journal"
         GenJournalLine.Validate("Bal. Account No.", FADepreciationBook."FA No.");
 
         // [THEN] "Gen. Journal Line"."Posting Group" = ""
-        GenJournalLine.TestField("Posting Group", '');
+        GenJournalLine.TestField("Posting Group", FADepreciationBook."FA Posting Group");
 
         // [THEN] "Gen. Journal Line"."Depreciation Book Code" = ""
-        GenJournalLine.TestField("Depreciation Book Code", '');
+        GenJournalLine.TestField("Depreciation Book Code", FADepreciationBook."Depreciation Book Code");
     end;
 
     [Test]
