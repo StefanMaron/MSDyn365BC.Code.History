@@ -44,16 +44,16 @@ codeunit 139151 DocumentSendingPostTests
         DocExchServiceNotEnabledErr: Label 'The document exchange service is not enabled.';
         ElementNameErr: Label 'Element with name ''%1'' was not found', Comment = '%1 = Element Name';
         EmailSubjectCapTxt: Label '%1 - %2 %3', Comment = '%1 = Customer Name. %2 = Document Type %3 = Invoice No.';
-        ReportAsPdfFileNameMsg: Label 'Sales %1 %2.pdf', Comment = '%1 = Document Type %2 = Invoice No.';
+        ReportAsPdfFileNameMsg: Label '%1 %2.pdf', Comment = '%1 = Document Type %2 = Invoice No.';
         EmailSubjectCapPluralTxt: Label '%1 - %2', Comment = '%1 = Customer Name. %2 = Document Type in plural form';
         ReportAsPdfFileNamePluralMsg: Label 'Sales %1.pdf', Comment = '%1 = Document Type in plural form';
-        InvoiceTxt: Label 'Invoice';
+        SalesInvoiceTxt: Label 'Sales Invoice';
         InvoicesTxt: Label 'Invoices';
-        CrMemoTxt: Label 'Credit Memo';
+        SalesCrMemoTxt: Label 'Sales Credit Memo';
         CrMemosTxt: Label 'Credit Memos';
-        ShipmentTxt: Label 'Shipment';
+        SalesShipmentTxt: Label 'Sales Shipment';
         ShipmentsTxt: Label 'Shipments';
-        ReceiptTxt: Label 'Receipt';
+        SalesReceiptTxt: Label 'Sales Receipt';
         ReceiptsTxt: Label 'Receipts';
         YesUseDefaultSettingsTxt: Label 'Yes (Use Default Settings)';
         PdfTxt: Label 'PDF';
@@ -2193,15 +2193,15 @@ codeunit 139151 DocumentSendingPostTests
         Initialize();
 
         // [GIVEN] Company Name = "C"
-        // [GIVEN] Select posted Invoice "A"
+        // [GIVEN] Select posted Sales Invoice "A"
         CreatePostSevSalesInvoices(SalesInvoiceHeader, 1);
 
         // [WHEN] Run "Email" action
-        EnqueueValuesForEmailDialog(InvoiceTxt, SalesInvoiceHeader."No.");
+        EnqueueValuesForEmailDialog(SalesInvoiceTxt, SalesInvoiceHeader."No.");
         SalesInvoiceHeader.EmailRecords(true);
 
         // [THEN] Page "Email Dialog" is opened with following values:
-        // [THEN] "Subject" = "C" - Invoice "A"
+        // [THEN] "Subject" = "C" - Sales Invoice "A"
         // [THEN] "Attachment Name" = Sales Invoice "A".pdf
         // Verify is done in EmailDialogVerifySubjectAndAttahcmentNamesMPH()
     end;
@@ -2241,15 +2241,15 @@ codeunit 139151 DocumentSendingPostTests
         Initialize();
 
         // [GIVEN] Company Name = "C"
-        // [GIVEN] Select posted Credit Memo "A"
+        // [GIVEN] Select posted Sales Credit Memo "A"
         CreatePostSevSalesCrMemos(SalesCrMemoHeader, 1);
 
         // [WHEN] Run "Email" action
-        EnqueueValuesForEmailDialog(CrMemoTxt, SalesCrMemoHeader."No.");
+        EnqueueValuesForEmailDialog(SalesCrMemoTxt, SalesCrMemoHeader."No.");
         SalesCrMemoHeader.EmailRecords(true);
 
         // [THEN] Page "Email Dialog" is opened with following values:
-        // [THEN] "Subject" = "C" - Credit Memo "A"
+        // [THEN] "Subject" = "C" - Sales Credit Memo "A"
         // [THEN] "Attachment Name" = Sales Credit Memo "A".pdf
         // Verify is done in EmailDialogVerifySubjectAndAttahcmentNamesMPH()
     end;
@@ -2289,15 +2289,15 @@ codeunit 139151 DocumentSendingPostTests
         Initialize();
 
         // [GIVEN] Company Name = "C"
-        // [GIVEN] Select posted Shipment "A"
+        // [GIVEN] Select posted Sales Shipment "A"
         CreatePostSevSalesShipments(SalesShipmentHeader, 1);
 
         // [WHEN] Run "Email" action
-        EnqueueValuesForEmailDialog(ShipmentTxt, SalesShipmentHeader."No.");
+        EnqueueValuesForEmailDialog(SalesShipmentTxt, SalesShipmentHeader."No.");
         SalesShipmentHeader.EmailRecords(true);
 
         // [THEN] Page "Email Dialog" is opened with following values:
-        // [THEN] "Subject" = "C" - Shipment "A"
+        // [THEN] "Subject" = "C" - Sales Shipment "A"
         // [THEN] "Attachment Name" = Sales Shipment "A".pdf
         // Verify is done in EmailDialogVerifySubjectAndAttahcmentNamesMPH()
     end;
@@ -2341,11 +2341,11 @@ codeunit 139151 DocumentSendingPostTests
         CreatePostSevReturnReceipts(ReturnReceiptHeader, 1);
 
         // [WHEN] Run "Email" action
-        EnqueueValuesForEmailDialog(ReceiptTxt, ReturnReceiptHeader."No.");
+        EnqueueValuesForEmailDialog(SalesReceiptTxt, ReturnReceiptHeader."No.");
         ReturnReceiptHeader.EmailRecords(true);
 
         // [THEN] Page "Email Dialog" is opened with following values:
-        // [THEN] "Subject" = "C" - Receipt "A"
+        // [THEN] "Subject" = "C" - Sales Receipt "A"
         // [THEN] "Attachment Name" = Sales Receipt "A".pdf
         // Verify is done in EmailDialogVerifySubjectAndAttahcmentNamesMPH()
     end;

@@ -118,9 +118,13 @@ page 198 "Acc. Sched. KPI WS Dimensions"
     end;
 
     trigger OnOpenPage()
+    var
+        ViewTxt: Text;
     begin
+        ViewTxt := GetView();
         Initialize;
         PrecalculateData;
+        SetView(ViewTxt);
     end;
 
     var

@@ -8,6 +8,27 @@ codeunit 452 "Report Distribution Management"
 
     var
         HideDialog: Boolean;
+        SalesInvoiceDocTypeTxt: Label 'Sales Invoice';
+        SalesCrMemoDocTypeTxt: Label 'Sales Credit Memo';
+        SalesQuoteDocTypeTxt: Label 'Sales Quote';
+        SalesOrderDocTypeTxt: Label 'Sales Order';
+        SalesBlanketOrderDocTypeTxt: Label 'Sales Blanket Order';
+        SalesReturnOrderDocTypeTxt: Label 'Sales Return Order';
+        SalesShipmentDocTypeTxt: Label 'Sales Shipment';
+        SalesReturnRcptDocTypeTxt: Label 'Sales Receipt';
+        PurchaseInvoiceDocTypeTxt: Label 'Purchase Invoice';
+        PurchaseCrMemoDocTypeTxt: Label 'Purchase Credit Memo';
+        PurchaseQuoteDocTypeTxt: Label 'Purchase Quote';
+        PurchaseOrderDocTypeTxt: Label 'Purchase Order';
+        PurchaseBlanketOrderDocTypeTxt: Label 'Purchase Blanket Order';
+        PurchaseReturnOrderDocTypeTxt: Label 'Purchase Return Order';
+        ServiceInvoiceDocTypeTxt: Label 'Service Invoice';
+        ServiceCrMemoDocTypeTxt: Label 'Service Credit Memo';
+        ServiceQuoteDocTypeTxt: Label 'Service Quote';
+        ServiceOrderDocTypeTxt: Label 'Service Order';
+        JobQuoteDocTypeTxt: Label 'Job Quote';
+        IssuedReminderDocTypeTxt: Label 'Issued Reminder';
+        IssuedFinChargeMemoDocTypeTxt: Label 'Issued Finance Charge Memo';
 
     [Scope('OnPrem')]
     procedure VANDocumentReport(HeaderDoc: Variant; TempDocumentSendingProfile: Record "Document Sending Profile" temporary)
@@ -55,39 +76,90 @@ codeunit 452 "Report Distribution Management"
         HideDialog := NewHideDialog;
     end;
 
-    local procedure GetDocumentType(DocumentVariant: Variant) DocumentTypeText: Text[50]
+    procedure GetFullDocumentTypeText(DocumentVariant: Variant) DocumentTypeText: Text[50]
     var
-        DummySalesHeader: Record "Sales Header";
-        DummyServiceHeader: Record "Service Header";
-        DummyPurchaseHeader: Record "Purchase Header";
+        SalesHeader: Record "Sales Header";
+        PurchaseHeader: Record "Purchase Header";
+        ServiceHeader: Record "Service Header";
         TranslationHelper: Codeunit "Translation Helper";
         DocumentRecordRef: RecordRef;
     begin
+        if DocumentVariant.IsRecord then
+            DocumentRecordRef.GetTable(DocumentVariant)
+        else
+            if DocumentVariant.IsRecordRef then
+                DocumentRecordRef := DocumentVariant;
+
         TranslationHelper.SetGlobalLanguageByCode(GetDocumentLanguageCode(DocumentVariant));
 
-        DocumentRecordRef.GetTable(DocumentVariant);
         case DocumentRecordRef.Number of
             DATABASE::"Sales Invoice Header":
-                DocumentTypeText := Format(DummySalesHeader."Document Type"::Invoice);
+                DocumentTypeText := SalesInvoiceDocTypeTxt;
             DATABASE::"Sales Cr.Memo Header":
-                DocumentTypeText := Format(DummySalesHeader."Document Type"::"Credit Memo");
+                DocumentTypeText := SalesCrMemoDocTypeTxt;
+            Database::"Sales Shipment Header":
+                DocumentTypeText := SalesShipmentDocTypeTxt;
             DATABASE::"Service Invoice Header":
-                DocumentTypeText := Format(DummyServiceHeader."Document Type"::Invoice);
+                DocumentTypeText := ServiceInvoiceDocTypeTxt;
             DATABASE::"Service Cr.Memo Header":
-                DocumentTypeText := Format(DummyServiceHeader."Document Type"::"Credit Memo");
-            DATABASE::"Purchase Header":
-                DocumentTypeText := Format(DummyPurchaseHeader."Document Type"::Order);
-            DATABASE::"Service Header":
-                begin
-                    DummyServiceHeader := DocumentVariant;
-                    if DummyServiceHeader."Document Type" = DummyServiceHeader."Document Type"::Quote then
-                        DocumentTypeText := Format(DummyServiceHeader."Document Type"::Quote);
-                end;
+                DocumentTypeText := ServiceCrMemoDocTypeTxt;
+            DATABASE::Job:
+                DocumentTypeText := JobQuoteDocTypeTxt;
+            Database::"Return Receipt Header":
+                DocumentTypeText := SalesReturnRcptDocTypeTxt;
+            Database::"Issued Reminder Header":
+                DocumentTypeText := IssuedReminderDocTypeTxt;
+            Database::"Issued Fin. Charge Memo Header":
+                DocumentTypeText := IssuedFinChargeMemoDocTypeTxt;
             DATABASE::"Sales Header":
                 begin
-                    DummySalesHeader := DocumentVariant;
-                    if DummySalesHeader."Document Type" = DummySalesHeader."Document Type"::Quote then
-                        DocumentTypeText := Format(DummySalesHeader."Document Type"::Quote);
+                    DocumentRecordRef.SetTable(SalesHeader);
+                    case SalesHeader."Document Type" of
+                        SalesHeader."Document Type"::Invoice:
+                            DocumentTypeText := SalesInvoiceDocTypeTxt;
+                        SalesHeader."Document Type"::"Credit Memo":
+                            DocumentTypeText := SalesCrMemoDocTypeTxt;
+                        SalesHeader."Document Type"::Quote:
+                            DocumentTypeText := SalesQuoteDocTypeTxt;
+                        SalesHeader."Document Type"::Order:
+                            DocumentTypeText := SalesOrderDocTypeTxt;
+                        SalesHeader."Document Type"::"Blanket Order":
+                            DocumentTypeText := SalesBlanketOrderDocTypeTxt;
+                        SalesHeader."Document Type"::"Return Order":
+                            DocumentTypeText := SalesReturnOrderDocTypeTxt;
+                    end;
+                end;
+            DATABASE::"Purchase Header":
+                begin
+                    DocumentRecordRef.SetTable(PurchaseHeader);
+                    case PurchaseHeader."Document Type" of
+                        PurchaseHeader."Document Type"::Invoice:
+                            DocumentTypeText := PurchaseInvoiceDocTypeTxt;
+                        PurchaseHeader."Document Type"::"Credit Memo":
+                            DocumentTypeText := PurchaseCrMemoDocTypeTxt;
+                        PurchaseHeader."Document Type"::Quote:
+                            DocumentTypeText := PurchaseQuoteDocTypeTxt;
+                        PurchaseHeader."Document Type"::Order:
+                            DocumentTypeText := PurchaseOrderDocTypeTxt;
+                        PurchaseHeader."Document Type"::"Blanket Order":
+                            DocumentTypeText := PurchaseBlanketOrderDocTypeTxt;
+                        PurchaseHeader."Document Type"::"Return Order":
+                            DocumentTypeText := PurchaseReturnOrderDocTypeTxt;
+                    end;
+                end;
+            DATABASE::"Service Header":
+                begin
+                    DocumentRecordRef.SetTable(ServiceHeader);
+                    case ServiceHeader."Document Type" of
+                        ServiceHeader."Document Type"::Invoice:
+                            DocumentTypeText := ServiceInvoiceDocTypeTxt;
+                        ServiceHeader."Document Type"::"Credit Memo":
+                            DocumentTypeText := ServiceCrMemoDocTypeTxt;
+                        ServiceHeader."Document Type"::Quote:
+                            DocumentTypeText := ServiceQuoteDocTypeTxt;
+                        ServiceHeader."Document Type"::Order:
+                            DocumentTypeText := ServiceOrderDocTypeTxt;
+                    end;
                 end;
         end;
 
@@ -278,7 +350,7 @@ codeunit 452 "Report Distribution Management"
           SendToEmailAddress,
           XMLPath,
           ClientFileName,
-          GetDocumentType(DocumentVariant),
+          GetFullDocumentTypeText(DocumentVariant),
           DocumentSendingProfile."Send To"::"Electronic Document",
           ServerEmailBodyFilePath, ReportUsage);
     end;
@@ -312,7 +384,7 @@ codeunit 452 "Report Distribution Management"
           SendToEmailAddress,
           XMLPath,
           ClientFileName,
-          GetDocumentType(DocumentVariant),
+          GetFullDocumentTypeText(DocumentVariant),
           DocumentSendingProfile."Send To"::"Electronic Document",
           ServerEmailBodyFilePath, ReportUsage);
     end;

@@ -641,9 +641,6 @@ codeunit 550 "VAT Rate Change Conversion"
         OldReservationEntry.SetRange("Source Ref. No.", SalesLine."Line No.");
         OldReservationEntry.SetRange("Source Type", DATABASE::"Sales Line");
         OldReservationEntry.SetRange("Source Subtype", SalesLine."Document Type");
-        OldReservationEntry.SetFilter(
-          "Reservation Status", '%1|%2', OldReservationEntry."Reservation Status"::Reservation,
-          OldReservationEntry."Reservation Status"::Surplus);
         if OldReservationEntry.FindSet then
             repeat
                 NewReservationEntry := OldReservationEntry;
