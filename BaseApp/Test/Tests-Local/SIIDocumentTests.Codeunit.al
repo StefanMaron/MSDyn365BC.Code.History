@@ -1011,7 +1011,6 @@ codeunit 147520 SIIDocumentTests
     end;
 
     [Test]
-    [HandlerFunctions('MessageHandler')]
     [Scope('OnPrem')]
     procedure FechaOperacionWhenShptDateDiffersFromSalesInvPostDate()
     var
@@ -1023,6 +1022,7 @@ codeunit 147520 SIIDocumentTests
         CustomerNo: Code[20];
         SalesInvoiceHeaderNo: Code[20];
         ShipmentDate: Date;
+        OldWorkDate: Date;
     begin
         // [FEATURE] [Sales] [Shipment]
         // [SCENARIO 220565] If the latest "Shipment Date" of line is not equeal to "Posting Date" of Sales Invoice, then the latest "Shipment Date" must be included in XML file within FechaOperacion tag
@@ -1030,13 +1030,16 @@ codeunit 147520 SIIDocumentTests
 
         // [GIVEN] Posted Sales Shipment on 01.07.2017
         CustomerNo := LibrarySales.CreateCustomerNo;
-        ShipmentDate := CalcDate('<-2D>', WorkDate);
-        CreateSalesShipmentWithShipDate(SalesHeaderForShip1, CustomerNo, ShipmentDate);
+        OldWorkDate := WorkDate();
+        CreateSalesShipmentWithShipDate(SalesHeaderForShip1, CustomerNo, WorkDate());
 
         // [GIVEN] Posted Sales Shipment on 03.07.2017
-        CreateSalesShipmentWithShipDate(SalesHeaderForShip2, CustomerNo, CalcDate('<-3D>', WorkDate));
+        WorkDate := WorkDate() + 1;
+        ShipmentDate := WorkDate();
+        CreateSalesShipmentWithShipDate(SalesHeaderForShip2, CustomerNo, WorkDate());
 
         // [GIVEN] "Get Shipment Lines" action is called for Sales Invoice
+        WorkDate := WorkDate() + 1;
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, CustomerNo);
         GetShipmentLines(SalesHeaderForShip1, SalesHeader);
         GetShipmentLines(SalesHeaderForShip2, SalesHeader);
@@ -1053,10 +1056,12 @@ codeunit 147520 SIIDocumentTests
 
         // [THEN] FechaOperacion tag contains 03.07.2017
         LibrarySII.ValidateElementByNameAt(XMLDoc, 'sii:FechaOperacion', SIIXMLCreator.FormatDate(ShipmentDate), 0);
+
+        // Tear down
+        WorkDate := OldWorkDate;
     end;
 
     [Test]
-    [HandlerFunctions('MessageHandler')]
     [Scope('OnPrem')]
     procedure FechaOperacionWhenShptDateIsTheSameAsSalesInvPostDate()
     var
@@ -1067,7 +1072,7 @@ codeunit 147520 SIIDocumentTests
         XMLDoc: DotNet XmlDocument;
         CustomerNo: Code[20];
         SalesInvoiceHeaderNo: Code[20];
-        ShipmentDate: Date;
+        OldWorkDate: Date;
     begin
         // [FEATURE] [Sales] [Shipment]
         // [SCENARIO 220565] If the latest "Shipment Date" of line is equeal to "Posting Date" of Sales Invoice, then FechaOperacion tag must not be included in XML file
@@ -1075,11 +1080,12 @@ codeunit 147520 SIIDocumentTests
 
         // [GIVEN] Posted Sales Shipment on 01.07.2017
         CustomerNo := LibrarySales.CreateCustomerNo;
-        ShipmentDate := CalcDate('<-2D>', WorkDate);
-        CreateSalesShipmentWithShipDate(SalesHeaderForShip1, CustomerNo, ShipmentDate);
+        OldWorkDate := WorkDate();
+        CreateSalesShipmentWithShipDate(SalesHeaderForShip1, CustomerNo, WorkDate());
 
         // [GIVEN] Posted Sales Shipment on 05.07.2017
-        CreateSalesShipmentWithShipDate(SalesHeaderForShip2, CustomerNo, WorkDate);
+        WorkDate := WorkDate() + 1;
+        CreateSalesShipmentWithShipDate(SalesHeaderForShip2, CustomerNo, WorkDate());
 
         // [GIVEN] "Get Shipment Lines" action is called for Sales Invoice
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, CustomerNo);
@@ -1098,6 +1104,9 @@ codeunit 147520 SIIDocumentTests
 
         // [THEN] FechaOperacion tag is not included in XML file
         LibrarySII.ValidateNoElementsByName(XMLDoc, 'sii:FechaOperacion');
+
+        // Tear down
+        WorkDate := OldWorkDate;
     end;
 
     [Test]
@@ -2131,6 +2140,231 @@ codeunit 147520 SIIDocumentTests
 
         // Tear down
         WorkDate := OldWorkDate;
+    end;
+
+    [Test]
+    [HandlerFunctions('MessageHandler')]
+    [Scope('OnPrem')]
+    procedure NoFechaOperacionWhenShptDateIsInDiffYearThanPostingDate()
+    var
+        CustLedgerEntry: Record "Cust. Ledger Entry";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        SIIDocUploadState: Record "SII Doc. Upload State";
+        XMLDoc: DotNet XmlDocument;
+    begin
+        // [FEATURE] [Sales] [Shipment]
+        // [SCENARIO 386538] If "Shipment Date" has different year than "Posting Date" of the Sales Invoice, then FechaOperacion tag is not present in the xml file
+
+        Initialize();
+
+        // [GIVEN] Posted Sales Invoice with "Posting Date" = 01.01.2021. " Shipment Date" is 31.12.2020
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo());
+        LibrarySales.CreateSalesLineWithShipmentDate(
+          SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo(), CalcDate('<-1Y>', SalesHeader."Posting Date"), 1);
+        LibraryERM.FindCustomerLedgerEntry(
+          CustLedgerEntry, SalesHeader."Document Type", LibrarySales.PostSalesDocument(SalesHeader, true, false));
+
+        // [GIVEN] SII Version is 1.1bis
+        SIIXMLCreator.SetSIIVersionNo(SIIDocUploadState."Version No."::"2.1");
+
+        // [WHEN] We create the xml to be transmitted for that transaction
+        Assert.IsTrue(SIIXMLCreator.GenerateXml(CustLedgerEntry, XMLDoc, UploadType::Regular, false), IncorrectXMLDocErr);
+
+        // [THEN] FechaOperacion tag does not contain in the xml file
+        LibrarySII.ValidateNoElementsByName(XMLDoc, 'sii:FechaOperacion');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure NoFechaOperacionWhenRcptDateIsInDiffYearThanPostingDate()
+    var
+        VendorLedgerEntry: Record "Vendor Ledger Entry";
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseHeaderForRcpt: Record "Purchase Header";
+        SIIDocUploadState: Record "SII Doc. Upload State";
+        XMLDoc: DotNet XmlDocument;
+        VendorNo: Code[20];
+        PurchInvoiceHeaderNo: Code[20];
+        RcptDate: Date;
+    begin
+        // [FEATURE] [Purchase] [Receipt]
+        // [SCENARIO 386538] If "Receipt Date" has different year than "Posting Date" of the Purchase Invoice, then FechaOperacion tag is present in the xml file
+
+        Initialize();
+
+        // [GIVEN] Posted Purchase Invoice with "Posting Date" = 01.01.2021, "Receipt Date" = 31.12.2020
+        VendorNo := LibraryPurchase.CreateVendorNo();
+        RcptDate := CalcDate('<-1Y>', WorkDate());
+        CreatePurchRcptWithPostingDate(PurchaseHeaderForRcpt, VendorNo, RcptDate);
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, VendorNo);
+        GetRcptLines(PurchaseHeaderForRcpt, PurchaseHeader);
+        PurchInvoiceHeaderNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, false, true);
+        LibraryERM.FindVendorLedgerEntry(VendorLedgerEntry, VendorLedgerEntry."Document Type"::Invoice, PurchInvoiceHeaderNo);
+
+        // [GIVEN] SII Version is 1.1bis
+        SIIXMLCreator.SetSIIVersionNo(SIIDocUploadState."Version No."::"2.1");
+
+        // [WHEN] We create the xml to be transmitted for that transaction
+        Assert.IsTrue(SIIXMLCreator.GenerateXml(VendorLedgerEntry, XMLDoc, UploadType::Regular, false), IncorrectXMLDocErr);
+
+        // [THEN] FechaOperacion tag contains 31.12.2020
+        LibrarySII.ValidateElementByNameAt(XMLDoc, 'sii:FechaOperacion', SIIXMLCreator.FormatDate(RcptDate), 0);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure NoFeachaOperationWhenShptDateOfSeparateSphtIsInDiffYearThanPostingDate()
+    var
+        CustLedgerEntry: Record "Cust. Ledger Entry";
+        SalesHeader: Record "Sales Header";
+        SalesHeaderForShip: Record "Sales Header";
+        SIIDocUploadState: Record "SII Doc. Upload State";
+        XMLDoc: DotNet XmlDocument;
+        CustomerNo: Code[20];
+        SalesInvoiceHeaderNo: Code[20];
+        OldWorkDate: Date;
+    begin
+        // [FEATURE] [Sales] [Shipment]
+        // [SCENARIO 386538] If "Shipment Date" of the separate shipment has different year than "Posting Date" of the Sales Invoice, then FechaOperacion tag is not present in the xml file
+
+        Initialize();
+
+        // [GIVEN] Posted Sales Shipment on 31.12.2020
+        CustomerNo := LibrarySales.CreateCustomerNo();
+        OldWorkDate := WorkDate();
+        WorkDate := CalcDate('<-1Y>', WorkDate());
+        CreateSalesShipmentWithShipDate(SalesHeaderForShip, CustomerNo, WorkDate());
+
+        // [GIVEN] "Get Shipment Lines" action is called for Sales Invoice
+        WorkDate := OldWorkDate;
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, CustomerNo);
+        GetShipmentLines(SalesHeaderForShip, SalesHeader);
+
+        // [GIVEN] Sales Invoice is posted on 01.01.2021
+        SalesInvoiceHeaderNo := LibrarySales.PostSalesDocument(SalesHeader, false, true);
+
+        CustLedgerEntry.SetRange("Document Type", CustLedgerEntry."Document Type"::Invoice);
+        CustLedgerEntry.SetRange("Document No.", SalesInvoiceHeaderNo);
+        CustLedgerEntry.FindFirst();
+
+        // [GIVEN] SII Version is 1.1bis
+        SIIXMLCreator.SetSIIVersionNo(SIIDocUploadState."Version No."::"2.1");
+
+        // [WHEN] We create the xml to be transmitted for that transaction
+        Assert.IsTrue(SIIXMLCreator.GenerateXml(CustLedgerEntry, XMLDoc, UploadType::Regular, false), IncorrectXMLDocErr);
+
+        // [THEN] FechaOperacion tag does not contain in the xml file
+        LibrarySII.ValidateNoElementsByName(XMLDoc, 'sii:FechaOperacion');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure PurchInvWithIDType6AndReverseChargeVATXML()
+    var
+        CountryRegion: Record "Country/Region";
+        PurchaseHeader: Record "Purchase Header";
+        VendorLedgerEntry: Record "Vendor Ledger Entry";
+        SIIDocUploadState: Record "SII Doc. Upload State";
+        XMLDoc: DotNet XmlDocument;
+        VATRate: Decimal;
+        Amount: Decimal;
+    begin
+        // [FEATURE] [Purchase] [Invoice] [XML] [Reverse Charge] [VAT]
+        // [SCENARIO 389265] CuotaDeducible has non-zero amount for purchase invoice with "ID Type" equals 06 and Reverse charge VAT
+        Initialize();
+
+        // [GIVEN] Posted Purchase Invoice with "ID Type" = 06, one Purchase Line where
+        // [GIVEN] line is calculated as Reverse Charge VAT with Amount = "X"
+        LibraryERM.CreateCountryRegion(CountryRegion);
+        LibrarySII.CreatePurchDocWithReverseChargeVAT(
+          PurchaseHeader, VATRate, Amount, PurchaseHeader."Document Type"::Invoice, CountryRegion.Code);
+        PurchaseHeader.Validate("ID Type", PurchaseHeader."ID Type"::"06-Other Probative Document");
+        PurchaseHeader.Modify(true);
+        LibraryERM.FindVendorLedgerEntry(
+          VendorLedgerEntry, PurchaseHeader."Document Type", LibraryPurchase.PostPurchaseDocument(PurchaseHeader, false, true));
+
+        // [GIVEN] SII version is "2.1"
+        SIIXMLCreator.SetSIIVersionNo(SIIDocUploadState."Version No."::"2.1");
+
+        // [WHEN] XML is generated
+        Assert.IsTrue(SIIXMLCreator.GenerateXml(VendorLedgerEntry, XMLDoc, UploadType::Regular, false), IncorrectXMLDocErr);
+
+        // [THEN] 'sii:CuotaDeducible' has value = "X"
+        LibrarySII.VerifyVATInXMLDoc(XMLDoc, 'sii:InversionSujetoPasivo', VATRate, Amount);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure PurchCrMemoWithIDType6AndReverseChargeVATXML()
+    var
+        CountryRegion: Record "Country/Region";
+        PurchaseHeader: Record "Purchase Header";
+        VendorLedgerEntry: Record "Vendor Ledger Entry";
+        SIIDocUploadState: Record "SII Doc. Upload State";
+        XMLDoc: DotNet XmlDocument;
+        VATRate: Decimal;
+        Amount: Decimal;
+    begin
+        // [FEATURE] [Purchase] [Credit Memo] [XML] [Reverse Charge] [VAT]
+        // [SCENARIO 389265] CuotaDeducible has non-zero amount for purchase credit memo with "ID Type" equals 06 and Reverse charge VAT
+        Initialize();
+
+        // [GIVEN] Posted Purchase credit memo with "ID Type" = 06, one Purchase Line where
+        // [GIVEN] line is calculated as Reverse Charge VAT with Amount = "X"
+        LibraryERM.CreateCountryRegion(CountryRegion);
+        LibrarySII.CreatePurchDocWithReverseChargeVAT(
+          PurchaseHeader, VATRate, Amount, PurchaseHeader."Document Type"::"Credit Memo", CountryRegion.Code);
+        PurchaseHeader.Validate("ID Type", PurchaseHeader."ID Type"::"06-Other Probative Document");
+        PurchaseHeader.Modify(true);
+        LibraryERM.FindVendorLedgerEntry(
+          VendorLedgerEntry, PurchaseHeader."Document Type", LibraryPurchase.PostPurchaseDocument(PurchaseHeader, false, true));
+
+        // [GIVEN] SII version is "2.1"
+        SIIXMLCreator.SetSIIVersionNo(SIIDocUploadState."Version No."::"2.1");
+
+        // [WHEN] XML is generated
+        Assert.IsTrue(SIIXMLCreator.GenerateXml(VendorLedgerEntry, XMLDoc, UploadType::Regular, false), IncorrectXMLDocErr);
+
+        // [THEN] 'sii:CuotaDeducible' has value = -"X"
+        LibrarySII.VerifyVATInXMLDoc(XMLDoc, 'sii:InversionSujetoPasivo', VATRate, -Amount);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure PurchInvWithInvTypeF5AndReverseChargeVATXML()
+    var
+        CountryRegion: Record "Country/Region";
+        PurchaseHeader: Record "Purchase Header";
+        VendorLedgerEntry: Record "Vendor Ledger Entry";
+        SIIDocUploadState: Record "SII Doc. Upload State";
+        XMLDoc: DotNet XmlDocument;
+        VATRate: Decimal;
+        Amount: Decimal;
+    begin
+        // [FEATURE] [Purchase] [Invoice] [XML] [Reverse Charge] [VAT]
+        // [SCENARIO 390731] Reverse Charge VAT Amount exports under the DesgloseIVA for the purchase invoice with invoice type "F5"
+        Initialize();
+
+        // [GIVEN] Posted Purchase Invoice with "Invoice Type" = F5, one Purchase Line where
+        // [GIVEN] line is calculated as Reverse Charge VAT with VAT Amount = "X"
+        LibraryERM.CreateCountryRegion(CountryRegion);
+        LibrarySII.CreatePurchDocWithReverseChargeVAT(
+          PurchaseHeader, VATRate, Amount, PurchaseHeader."Document Type"::Invoice, CountryRegion.Code);
+        PurchaseHeader.Validate("Invoice Type", PurchaseHeader."Invoice Type"::"F5 Imports (DUA)");
+        PurchaseHeader.Modify(true);
+        LibraryERM.FindVendorLedgerEntry(
+          VendorLedgerEntry, PurchaseHeader."Document Type", LibraryPurchase.PostPurchaseDocument(PurchaseHeader, false, true));
+
+        // [GIVEN] SII version is "2.1"
+        SIIXMLCreator.SetSIIVersionNo(SIIDocUploadState."Version No."::"2.1");
+
+        // [WHEN] XML is generated
+        Assert.IsTrue(SIIXMLCreator.GenerateXml(VendorLedgerEntry, XMLDoc, UploadType::Regular, false), IncorrectXMLDocErr);
+
+        // [THEN] 'sii:CuotaSoportada' under 'sii:DesgloseIVA" has value = "X"
+        LibrarySII.VerifyOneNodeWithValueByXPath(
+          XMLDoc, XPathPurchBaseImponibleTok, '/sii:CuotaSoportada', SIIXMLCreator.FormatNumber(Round(VATRate * Amount / 100)));
     end;
 
     local procedure Initialize()

@@ -693,8 +693,8 @@
         HasFilters := GetFilters <> '';
         SetSecurityFilterOnRespCenter;
         CRMIntegrationEnabled := CRMIntegrationManagement.IsCRMIntegrationEnabled;
-        if HasFilters then
-            if FindFirst then;
+        if HasFilters and not Find() then
+            if FindFirst() then;
         IsOfficeAddin := OfficeMgt.IsAvailable;
 
         SIIStateVisible := SIISetup.IsEnabled;

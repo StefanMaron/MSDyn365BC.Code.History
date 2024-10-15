@@ -344,9 +344,30 @@
                             Modify(true);
                         end;
                     }
+                    group(Control1100010)
+                    {
+                        ShowCaption = false;
+                        Visible = DocHasMultipleRegimeCode;
+                        field(MultipleSchemeCodesControl; MultipleSchemeCodesLbl)
+                        {
+                            ApplicationArea = Basic, Suite;
+                            Editable = false;
+                            ShowCaption = false;
+                            Style = StandardAccent;
+                            StyleExpr = TRUE;
+
+                            trigger OnDrillDown()
+                            var
+                                SIISchemeCodeMgt: Codeunit "SII Scheme Code Mgt.";
+                            begin
+                                SIISchemeCodeMgt.SalesDrillDownRegimeCodes(Rec);
+                            end;
+                        }
+                    }
                     field("Special Scheme Code"; "Special Scheme Code")
                     {
                         ApplicationArea = Basic, Suite;
+                        Editable = NOT DocHasMultipleRegimeCode;
                         ToolTip = 'Specifies the Special Scheme Code.';
                     }
                     field("Cr. Memo Type"; "Cr. Memo Type")
@@ -780,6 +801,24 @@
                         RecRef.GetTable(Rec);
                         DocumentAttachmentDetails.OpenForRecRef(RecRef);
                         DocumentAttachmentDetails.RunModal;
+                    end;
+                }
+                action(SpecialSchemeCodes)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Special Scheme Codes';
+                    Image = Allocations;
+                    Promoted = true;
+                    PromotedCategory = Category8;
+                    PromotedIsBig = true;
+                    ToolTip = 'View or edit the list of special scheme codes that related to the current document for VAT reporting.';
+
+                    trigger OnAction()
+                    var
+                        SIISchemeCodeMgt: Codeunit "SII Scheme Code Mgt.";
+                    begin
+                        SIISchemeCodeMgt.SalesDrillDownRegimeCodes(Rec);
+                        CurrPage.Update(false);
                     end;
                 }
             }
@@ -1283,12 +1322,14 @@
         SetControlAppearance;
 
         SIIManagement.CombineOperationDescription("Operation Description", "Operation Description 2", OperationDescription);
+        UpdateDocHasRegimeCode();
     end;
 
     trigger OnAfterGetRecord()
     begin
         SetControlAppearance;
         WorkDescription := GetWorkDescription;
+        UpdateDocHasRegimeCode();	
     end;
 
     trigger OnDeleteRecord(): Boolean
@@ -1341,6 +1382,7 @@
             DocumentIsPosted := (not Get("Document Type", "No."));
 
         SIIManagement.CombineOperationDescription("Operation Description", "Operation Description 2", OperationDescription);
+        UpdateDocHasRegimeCode();
     end;
 
     trigger OnQueryClosePage(CloseAction: Action): Boolean
@@ -1379,6 +1421,8 @@
         IsSaaS: Boolean;
         IsBillToCountyVisible: Boolean;
         IsSellToCountyVisible: Boolean;
+        DocHasMultipleRegimeCode: Boolean;
+        MultipleSchemeCodesLbl: Label 'Multiple scheme codes';
 
     local procedure ActivateFields()
     begin
@@ -1513,6 +1557,13 @@
                  InstructionMgt.ShowPostedConfirmationMessageCode)
             then
                 PAGE.Run(PAGE::"Posted Sales Credit Memo", SalesCrMemoHeader);
+    end;
+
+    local procedure UpdateDocHasRegimeCode()
+    var
+        SIISchemeCodeMgt: Codeunit "SII Scheme Code Mgt.";
+    begin
+        DocHasMultipleRegimeCode := SIISchemeCodeMgt.SalesDocHasRegimeCodes(Rec);
     end;
 
     [IntegrationEvent(false, false)]

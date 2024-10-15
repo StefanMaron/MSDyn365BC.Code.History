@@ -418,9 +418,30 @@
                             Modify(true);
                         end;
                     }
+                    group(Control1100009)
+                    {
+                        ShowCaption = false;
+                        Visible = DocHasMultipleRegimeCode;
+                        field(MultipleSchemeCodesControl; MultipleSchemeCodesLbl)
+                        {
+                            ApplicationArea = Basic, Suite;
+                            Editable = false;
+                            ShowCaption = false;
+                            Style = StandardAccent;
+                            StyleExpr = TRUE;
+
+                            trigger OnDrillDown()
+                            var
+                                SIISchemeCodeMgt: Codeunit "SII Scheme Code Mgt.";
+                            begin
+                                SIISchemeCodeMgt.SalesDrillDownRegimeCodes(Rec);
+                            end;
+                        }
+                    }
                     field("Special Scheme Code"; "Special Scheme Code")
                     {
                         ApplicationArea = Basic, Suite;
+                        Editable = NOT DocHasMultipleRegimeCode;
                         ToolTip = 'Specifies the Special Scheme Code.';
                     }
                     field("Invoice Type"; "Invoice Type")
@@ -865,6 +886,24 @@
                                   Type = CONST(General);
                     ToolTip = 'View or add comments for the record.';
                 }
+                action(SpecialSchemeCodes)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Special Scheme Codes';
+                    Image = Allocations;
+                    Promoted = true;
+                    PromotedCategory = Category8;
+                    PromotedIsBig = true;
+                    ToolTip = 'View or edit the list of special scheme codes that related to the current document for VAT reporting.';
+
+                    trigger OnAction()
+                    var
+                        SIISchemeCodeMgt: Codeunit "SII Scheme Code Mgt.";
+                    begin
+                        SIISchemeCodeMgt.SalesDrillDownRegimeCodes(Rec);
+                        CurrPage.Update(false);
+                    end;
+                }
             }
             group("<Action36>")
             {
@@ -1196,6 +1235,7 @@
         SIIManagement: Codeunit "SII Management";
     begin
         SIIManagement.CombineOperationDescription("Operation Description", "Operation Description 2", OperationDescription);
+        UpdateDocHasRegimeCode();
     end;
 
     trigger OnDeleteRecord(): Boolean
@@ -1227,8 +1267,13 @@
             DocumentIsPosted := (not Get("Document Type", "No."));
 
         SIIManagement.CombineOperationDescription("Operation Description", "Operation Description 2", OperationDescription);
-
+        UpdateDocHasRegimeCode();
         ActivateFields;
+    end;
+
+    trigger OnAfterGetRecord()
+    begin
+        UpdateDocHasRegimeCode();
     end;
 
     trigger OnQueryClosePage(CloseAction: Action): Boolean
@@ -1249,7 +1294,9 @@
         IsBillToCountyVisible: Boolean;
         IsSellToCountyVisible: Boolean;
         IsShipToCountyVisible: Boolean;
+        DocHasMultipleRegimeCode: Boolean;
         OperationDescription: Text[500];
+        MultipleSchemeCodesLbl: Label 'Multiple scheme codes';
 
     local procedure ActivateFields()
     begin
@@ -1317,6 +1364,13 @@
                 then
                     PAGE.Run(PAGE::"Posted Service Invoice", ServiceInvoiceHeader);
         end;
+    end;
+
+    local procedure UpdateDocHasRegimeCode()
+    var
+        SIISchemeCodeMgt: Codeunit "SII Scheme Code Mgt.";
+    begin
+        DocHasMultipleRegimeCode := SIISchemeCodeMgt.SalesDocHasRegimeCodes(Rec);
     end;
 }
 

@@ -416,9 +416,30 @@
                             Modify(true);
                         end;
                     }
+                    group(Control1100004)
+                    {
+                        ShowCaption = false;
+                        Visible = DocHasMultipleRegimeCode;
+                        field(MultipleSchemeCodesControl; MultipleSchemeCodesLbl)
+                        {
+                            ApplicationArea = Basic, Suite;
+                            Editable = false;
+                            ShowCaption = false;
+                            Style = StandardAccent;
+                            StyleExpr = TRUE;
+
+                            trigger OnDrillDown()
+                            var
+                                SIISchemeCodeMgt: Codeunit "SII Scheme Code Mgt.";
+                            begin
+                                SIISchemeCodeMgt.PurchDrillDownRegimeCodes(Rec);
+                            end;
+                        }
+                    }
                     field("Special Scheme Code"; "Special Scheme Code")
                     {
                         ApplicationArea = Basic, Suite;
+                        Editable = NOT DocHasMultipleRegimeCode;
                         ToolTip = 'Specifies the Special Scheme Code.';
                     }
                     field("Invoice Type"; "Invoice Type")
@@ -898,6 +919,24 @@
                         RecRef.GetTable(Rec);
                         DocumentAttachmentDetails.OpenForRecRef(RecRef);
                         DocumentAttachmentDetails.RunModal;
+                    end;
+                }
+                action(SpecialSchemeCodes)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Special Scheme Codes';
+                    Image = Allocations;
+                    Promoted = true;
+                    PromotedCategory = Category5;
+                    PromotedIsBig = true;
+                    ToolTip = 'View or edit the list of special scheme codes that related to the current document for VAT reporting.';
+
+                    trigger OnAction()
+                    var
+                        SIISchemeCodeMgt: Codeunit "SII Scheme Code Mgt.";
+                    begin
+                        SIISchemeCodeMgt.PurchDrillDownRegimeCodes(Rec);
+                        CurrPage.Update(false);
                     end;
                 }
             }
@@ -1423,11 +1462,13 @@
         SetControlAppearance;
 
         SIIManagement.CombineOperationDescription("Operation Description", "Operation Description 2", OperationDescription);
+        UpdateDocHasRegimeCode();
     end;
 
     trigger OnAfterGetRecord()
     begin
         CalculateCurrentShippingAndPayToOption;
+        UpdateDocHasRegimeCode();
     end;
 
     trigger OnDeleteRecord(): Boolean
@@ -1476,7 +1517,7 @@
             DocumentIsPosted := (not Get("Document Type", "No."));
 
         SIIManagement.CombineOperationDescription("Operation Description", "Operation Description 2", OperationDescription);
-
+        UpdateDocHasRegimeCode();
         SetRange("Date Filter", 0D, WorkDate());
 
         ActivateFields;
@@ -1524,6 +1565,8 @@
         IsBuyFromCountyVisible: Boolean;
         IsPayToCountyVisible: Boolean;
         IsShipToCountyVisible: Boolean;
+        DocHasMultipleRegimeCode: Boolean;
+        MultipleSchemeCodesLbl: Label 'Multiple scheme codes';
 
     local procedure ActivateFields()
     begin
@@ -1704,6 +1747,13 @@
         end;
 
         OnAfterCalculateCurrentShippingAndPayToOption(ShipToOptions, PayToOptions, Rec);
+    end;
+
+    local procedure UpdateDocHasRegimeCode()
+    var
+        SIISchemeCodeMgt: Codeunit "SII Scheme Code Mgt.";
+    begin
+        DocHasMultipleRegimeCode := SIISchemeCodeMgt.PurchDocHasRegimeCodes(Rec);
     end;
 
     [IntegrationEvent(false, false)]

@@ -1,4 +1,4 @@
-report 594 "Get Item Ledger Entries"
+﻿report 594 "Get Item Ledger Entries"
 {
     Caption = 'Get Item Ledger Entries';
     Permissions = TableData "General Posting Setup" = imd;
@@ -60,6 +60,9 @@ report 594 "Get Item Ledger Entries"
                         SetFilter("Country/Region Code", '%1|%2', "Country/Region".Code, '');
                     end else
                         SetRange("Country/Region Code", "Country/Region".Code);
+
+                    if SkipNotInvoicedEntries then
+                        SetFilter("Invoiced Quantity", '<>0');
 
                     IntrastatJnlLine2.SetCurrentKey("Source Type", "Source Entry No.");
                     IntrastatJnlLine2.SetRange("Source Type", IntrastatJnlLine2."Source Type"::"Item Entry");
@@ -192,6 +195,12 @@ report 594 "Get Item Ledger Entries"
                         Caption = 'Show Item Charge Entries';
                         ToolTip = 'Specifies if you want to show direct costs that your company has assigned and posted as item charges.';
                     }
+                    field(SkipNotInvoiced; SkipNotInvoicedEntries)
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'Skip Non-Invoiced Entries';
+                        ToolTip = 'Specifies if item ledger entries that are shipped or received but not yet invoiced must be excluded from the process.';
+                    }
                 }
             }
         }
@@ -261,6 +270,7 @@ report 594 "Get Item Ledger Entries"
         SkipRecalcZeroAmounts: Boolean;
         SkipZeroAmounts: Boolean;
         ShowItemCharges: Boolean;
+        SkipNotInvoicedEntries: Boolean;
 
     procedure SetIntrastatJnlLine(NewIntrastatJnlLine: Record "Intrastat Jnl. Line")
     begin

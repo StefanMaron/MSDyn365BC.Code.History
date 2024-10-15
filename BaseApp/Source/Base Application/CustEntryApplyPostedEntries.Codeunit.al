@@ -33,7 +33,7 @@ codeunit 226 "CustEntry-Apply Posted Entries"
         Text1100000: Label 'Application of %1 %2';
         Text1100001: Label 'Application of %1 %2/%3';
         Text1100002: Label 'To apply a set of entries containing bills, rejected invoices or invoices to cartera, the cursor should be positioned on an entry different than bill type, rejected invoice or invoices to cartera.';
-        Text1100003: Label 'You cannot unapply the entry.';
+        UnapplyBlankedDocTypeErr: Label 'You cannot unapply the entries because one entry has a blank document type.';
         DetailedCustLedgEntryPreviewContext: Record "Detailed Cust. Ledg. Entry";
         SIIJobUploadPendingDocs: Codeunit "SII Job Upload Pending Docs.";
         ApplicationDatePreviewContext: Date;
@@ -295,7 +295,7 @@ codeunit 226 "CustEntry-Apply Posted Entries"
                     AddCurrChecked := true;
                 end;
                 if DtldCustLedgEntry."Initial Document Type" = DtldCustLedgEntry."Initial Document Type"::" " then
-                    Error(Text1100003);
+                    Error(UnapplyBlankedDocTypeErr);
                 CheckReversal(DtldCustLedgEntry."Cust. Ledger Entry No.");
                 if DtldCustLedgEntry."Transaction No." <> 0 then begin
                     if DtldCustLedgEntry."Entry Type" = DtldCustLedgEntry."Entry Type"::Application then begin

@@ -506,7 +506,7 @@
                         if not Confirm(Text1100000, false) then
                             Error(Text1100011);
                 end;
-                if "Corrected Invoice No." <> '' then
+                if ("Corrected Invoice No." <> '') and ("Posting Description" = '') then
                     "Posting Description" := Format(Text1100104) + ' ' + "No."
             end;
 
@@ -1632,7 +1632,7 @@
             exit;
 
         with SalesLine do begin
-            if "Line Discount %" <> 100 then
+            if ("Line Discount %" <> 100) and (("Inv. Discount Amount" - "Line Amount") <> 0) then
                 TestField(Amount);
             TestField("Job No.", '');
             TestField("Job Contract Entry No.", 0);
