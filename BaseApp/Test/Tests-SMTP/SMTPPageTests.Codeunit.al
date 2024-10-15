@@ -9,6 +9,7 @@ codeunit 139022 "SMTP Page Tests"
         LibraryUtility: Codeunit "Library - Utility";
         ActiveDirectoryMockEvents: Codeunit "Active Directory Mock Events";
         LibraryNotificationMgt: Codeunit "Library - Notification Mgt.";
+        EveryUserShouldPressAuthenticateMsg: Label 'Before people can send email they must authenticate their email account. They can do that by choosing the Authenticate action on the SMTP Mail Setup page.';
 
     [Test]
     [TransactionModel(TransactionModel::AutoRollback)]
@@ -152,6 +153,44 @@ codeunit 139022 "SMTP Page Tests"
 
         CODEUNIT.Run(CODEUNIT::"SMTP Test Mail");
         CryptographyManagement.DisableEncryption(true);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    [HandlerFunctions('OAuth2AuthenticationMessageHandler')]
+    procedure TestMail_SwitchingToOAuth2Authentication()
+    var
+        SMTPMail: Codeunit "SMTP Mail";
+        EnvironmentInfoTestLibrary: Codeunit "Environment Info Test Library";
+        SMTPMailSetupPage: TestPage "SMTP Mail Setup";
+    begin
+        // [GIVEN] SMTP setup with basic authentication.
+        SMTPMailSetupInitialize();
+
+        // [GIVEN] OnPrem
+        EnvironmentInfoTestLibrary.SetTestabilitySoftwareAsAService(false);
+
+        // [WHEN] The SMTP Setup page is opened.
+        SMTPMailSetupPage.OpenEdit();
+
+        // [THEN] The actions related to OAuth 2.0 are invisible.
+        Assert.IsFalse(SMTPMailSetupPage."Authenticate with OAuth 2.0".Visible(), 'OAuth 2.0 actions should not be visible if the authentication is not OAuth 2.0 in SMTP setup');
+        Assert.IsFalse(SMTPMailSetupPage."Check OAuth 2.0 authentication".Visible(), 'OAuth 2.0 actions should not be visible if the authentication is not OAuth 2.0 in SMTP setup');
+
+        // [WHEN] The authentication is changed to OAuth 2.0.
+        // [THEN] A message is shown that all users need to authenticate (verified in the handler).
+        SMTPMailSetupPage.Authentication.Value := Format(SMTPMailSetup.Authentication::OAuth2);
+
+        // [THEN] The actions related to OAuth 2.0 are still invisible (as server is not an O365 server).
+        Assert.IsFalse(SMTPMailSetupPage."Authenticate with OAuth 2.0".Visible(), 'OAuth 2.0 actions should not be visible if the authentication is not OAuth 2.0 in SMTP setup');
+        Assert.IsFalse(SMTPMailSetupPage."Check OAuth 2.0 authentication".Visible(), 'OAuth 2.0 actions should not be visible if the authentication is not OAuth 2.0 in SMTP setup');
+
+        // [WHEN] The server is changed to O365 SMTP server (and authentication is set to OAuth 2.0).
+        SMTPMailSetupPage."SMTP Server".Value := SMTPMail.GetO365SmtpServer();
+
+        // [THEN] The actions related to OAuth 2.0 are visible.
+        Assert.IsTrue(SMTPMailSetupPage."Authenticate with OAuth 2.0".Visible(), 'OAuth 2.0 actions should be visible if the authentication is OAuth 2.0 in SMTP setup');
+        Assert.IsTrue(SMTPMailSetupPage."Check OAuth 2.0 authentication".Visible(), 'OAuth 2.0 actions should be visible if the authentication is OAuth 2.0 in SMTP setup');
     end;
 
     [Test]
@@ -308,5 +347,11 @@ codeunit 139022 "SMTP Page Tests"
     begin
         // Choice #4 is where the user selects to specify his own Email Address.
         Choice := 4;
+    end;
+
+    [MessageHandler]
+    procedure OAuth2AuthenticationMessageHandler(Message: Text[1024])
+    begin
+        Assert.AreEqual(EveryUserShouldPressAuthenticateMsg, Message, 'Incorrect message is shown.');
     end;
 }

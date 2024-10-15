@@ -3686,6 +3686,15 @@
       <Cmt Name="Dev"><![CDATA[%1 the transit number, %2 The Vendor No.]D;]A;(LookupHint=Codeunit UT COD Electronic Payment - NamedType VendorTransitNumNotValidErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 1557322699 - NamedType 4174355188" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[The specified transit number is not valid.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit UT COD Electronic Payment - NamedType TransitNumberIsNotValidErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 4279816947 - NamedType 3887901338" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Value must exist.]]></Val>

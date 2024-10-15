@@ -70,8 +70,9 @@
             Get(BankAccountNo);
             TestField("Export Format", "Export Format"::US);
             TestField("Transit No.");
-            if not ExportPaymentsACH.CheckDigit("Transit No.") then
-                Error(IsNotValidErr);
+            if "Country/Region Code" = 'US' then
+                if not ExportPaymentsACH.CheckDigit("Transit No.") then
+                    Error(IsNotValidErr);
             TestField("Last E-Pay Export File Name");
             TestField(Blocked, false);
             FileName := FileManagement.ServerTempFileName('');
@@ -528,8 +529,9 @@
                 if VendorBankAccount.Count > 1 then
                     Error(VendorMoreThanOneBankAccErr);
 
-                if not ExportPaymentsACH.CheckDigit(VendorBankAccount."Transit No.") then
-                    Error(IsNotValidErr);
+                if VendorBankAccount."Country/Region Code" = 'US' then
+                    if not ExportPaymentsACH.CheckDigit(VendorBankAccount."Transit No.") then
+                        Error(IsNotValidErr);
 
                 VendorBankAccount.TestField("Bank Account No.");
                 DestinationBankName := VendorBankAccount.Name;
@@ -562,8 +564,9 @@
                     if CustomerBankAccount.Count > 1 then
                         Error(CustomerMoreThanOneBankAccErr);
 
-                    if not ExportPaymentsACH.CheckDigit(CustomerBankAccount."Transit No.") then
-                        Error(IsNotValidErr);
+                    if CustomerBankAccount."Country/Region Code" = 'US' then
+                        if not ExportPaymentsACH.CheckDigit(CustomerBankAccount."Transit No.") then
+                            Error(IsNotValidErr);
                     CustomerBankAccount.TestField("Bank Account No.");
                     DestinationBankName := CustomerBankAccount.Name;
                     DestinationBankTransitNo := CustomerBankAccount."Transit No.";

@@ -130,6 +130,7 @@ codeunit 131305 "Library - ERM Country Data"
 
     procedure UpdatePrepaymentAccounts()
     begin
+        // disabled in US
         exit;
     end;
 

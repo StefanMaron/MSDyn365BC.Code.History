@@ -538,6 +538,7 @@ table 113 "Sales Invoice Line"
         field(10002; "Retention VAT %"; Decimal)
         {
             Caption = 'Retention VAT %';
+            AutoFormatType = 2;	    
         }
     }
 

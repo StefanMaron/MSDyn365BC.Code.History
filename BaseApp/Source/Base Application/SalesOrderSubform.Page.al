@@ -812,13 +812,13 @@
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number of the sales order line that the record is linked to.';
-                    Visible = false;
+                    Visible = IsPACEnabled;
                 }
                 field("Retention VAT %"; "Retention VAT %")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the retention VAT percentage that is used in the line.';
-                    Visible = false;
+                    Visible = IsPACEnabled;
                 }
             }
             group(Control51)
@@ -1433,12 +1433,14 @@
     trigger OnInit()
     var
         ApplicationAreaMgmtFacade: Codeunit "Application Area Mgmt. Facade";
+        EInvoiceMgt: Codeunit "E-Invoice Mgt.";
     begin
         SalesSetup.Get();
         InventorySetup.Get();
         Currency.InitRoundingPrecision;
         TempOptionLookupBuffer.FillBuffer(TempOptionLookupBuffer."Lookup Type"::Sales);
         IsFoundation := ApplicationAreaMgmtFacade.IsFoundationEnabled;
+        IsPACEnabled := EInvoiceMgt.IsPACEnvironmentEnabled();
     end;
 
     trigger OnModifyRecord(): Boolean
@@ -1509,6 +1511,7 @@
         DimVisible7: Boolean;
         DimVisible8: Boolean;
         SuppressTotals: Boolean;
+        IsPACEnabled: Boolean;        
 
     protected var
         IsCommentLine: Boolean;

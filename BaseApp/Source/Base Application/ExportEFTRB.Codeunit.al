@@ -120,7 +120,7 @@
             ACHRBHeader."Federal ID No." := DelChr(FedID, '=', ' .,-');
             ACHRBHeader."File Creation Number" := "Last E-Pay File Creation No.";
             ACHRBHeader."File Creation Date" := JulianDate(FileDate);
-            ACHRBHeader."Settlement Date" := TempEFTExportWorkset.UserSettleDate;
+            ACHRBHeader.Validate("Settlement Date", TempEFTExportWorkset.UserSettleDate);
 
             // if can find the column definition, get the value of the Data Format and assign it to DateFormat variable
             FindDataExchColumnDef(DataExchColumnDef, DataExchEntryNo, ACHRBHeader.FieldName("File Creation Date"));

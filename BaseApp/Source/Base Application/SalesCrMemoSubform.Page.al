@@ -563,13 +563,13 @@ page 96 "Sales Cr. Memo Subform"
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number of the sales credit memo line that the record is linked to.';
-                    Visible = false;
+                    Visible = IsPACEnabled;
                 }
                 field("Retention VAT %"; "Retention VAT %")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the retention VAT percentage that is used in the line.';
-                    Visible = false;
+                    Visible = IsPACEnabled;
                 }
             }
             group(Control39)
@@ -910,11 +910,13 @@ page 96 "Sales Cr. Memo Subform"
     trigger OnInit()
     var
         ApplicationAreaMgmtFacade: Codeunit "Application Area Mgmt. Facade";
+        EInvoiceMgt: Codeunit "E-Invoice Mgt.";	
     begin
         SalesSetup.Get();
         Currency.InitRoundingPrecision;
         TempOptionLookupBuffer.FillBuffer(TempOptionLookupBuffer."Lookup Type"::Sales);
-        IsFoundation := ApplicationAreaMgmtFacade.IsFoundationEnabled;
+        IsFoundation := ApplicationAreaMgmtFacade.IsFoundationEnabled();
+        IsPACEnabled := EInvoiceMgt.IsPACEnvironmentEnabled();
     end;
 
     trigger OnModifyRecord(): Boolean
@@ -971,6 +973,7 @@ page 96 "Sales Cr. Memo Subform"
         DimVisible6: Boolean;
         DimVisible7: Boolean;
         DimVisible8: Boolean;
+        IsPACEnabled: Boolean;        
 
     protected var
         IsBlankNumber: Boolean;

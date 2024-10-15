@@ -2936,7 +2936,7 @@
                     "Line No." := BiggestLineNo;
                     Validate(Type, Type::"G/L Account");
                 end;
-                Validate("No.", VendPostingGr."Invoice Rounding Account");
+                Validate("No.", VendPostingGr.GetInvRoundingAccount());
                 "Tax Area Code" := '';
                 "Tax Liable" := false;
                 Validate(Quantity, 1);

@@ -1667,6 +1667,42 @@ codeunit 142092 "ERM Sales/Purchase Tax III"
         VerifySalesPostedInvAmounts(LibrarySales.PostSalesDocument(SalesHeader, true, true), -60.84, 0);
     end;
 
+    [Test]
+    procedure CalculationOrderWithCalculateTaxOnTaxAndNegativeLine()
+    var
+        SalesHeader: Record "Sales Header";
+        TaxAreaLine: Record "Tax Area Line";
+        TaxDetail: Record "Tax Detail";
+        TaxAreaCode: Code[20];
+        TaxJurisdictionCode: Code[10];
+        TaxGroupCode: Code[20];
+        CustomerNo: Code[20];
+        GLAccountNo: Code[20];
+    begin
+        // [FEATURE] [Calculate Tax on Tax] [Negative Line]
+        // [SCENARIO 395667] Calculation Order in case of Calculate Tax on Tax and negative line
+        Initialize();
+
+        // [GIVEN] Tax setup with tax group having "Calculate Tax on Tax" = TRUE
+        TaxAreaCode := LibraryERMTax.CreateTaxArea_US();
+        TaxJurisdictionCode := LibraryERMTax.CreateTaxJurisdiction_US();
+        LibraryERM.CreateTaxAreaLine(TaxAreaLine, TaxAreaCode, TaxJurisdictionCode);
+        TaxGroupCode := LibraryERMTax.CreateTaxGroupCode();
+        LibraryERMTax.CreateTaxDetail(TaxDetail, TaxJurisdictionCode, TaxGroupCode, 10);
+        TaxDetail.Validate("Calculate Tax on Tax", true);
+        TaxDetail.Modify(true);
+
+        // [GIVEN] Sales Order with positive and negative lines
+        CreateCustomerAndGLAccount(CustomerNo, GLAccountNo);
+        CreateSalesHeader(SalesHeader, CustomerNo, TaxAreaCode, 0, false);
+        CreateSalesLineGLQty(SalesHeader, GLAccountNo, TaxGroupCode, 1, 1000);
+        CreateSalesLineGLQty(SalesHeader, GLAccountNo, TaxGroupCode, -1, 500);
+
+        // [WHEN] Post the order
+        // [THEN] The order is posted
+        VerifySalesPostedInvAmounts(LibrarySales.PostSalesDocument(SalesHeader, true, true), 500, 560);
+    end;
+
     local procedure Initialize()
     var
         TaxSetup: Record "Tax Setup";

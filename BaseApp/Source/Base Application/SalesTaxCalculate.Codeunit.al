@@ -1134,6 +1134,7 @@
         LastTaxAreaCode: Code[20];
         LastTaxType: Integer;
         LastTaxGroupCode: Code[20];
+        LastPositive: Boolean;
         RoundTax: Option "To Nearest",Up,Down;
         IsHandled: Boolean;
     begin
@@ -1213,9 +1214,10 @@
                         TaxBaseAmt := "Tax Base Amount"
                     else
                         TaxBaseAmt := Quantity;
-                    if LastCalculationOrder = "Calculation Order" then
+                    if (LastCalculationOrder = "Calculation Order") and (LastPositive = Positive) then
                         CalculationOrderViolation := true;
                     LastCalculationOrder := "Calculation Order";
+                    LastPositive := Positive;
 
                     SetTaxDetailFilter(TaxDetail, "Tax Jurisdiction Code", "Tax Group Code", Date);
                     TaxDetail.SetRange("Tax Type", "Tax Type");

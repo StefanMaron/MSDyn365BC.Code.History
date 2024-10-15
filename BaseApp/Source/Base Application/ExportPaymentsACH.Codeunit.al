@@ -614,7 +614,7 @@ codeunit 10090 "Export Payments (ACH)"
         if VendorBankAccount.Count > 1 then
             Error(StrSubstNo(VendorMoreThanOneBankAccErr, Vendor."No."));
 
-        if CheckTheCheckDigit then
+        if CheckTheCheckDigit and (VendorBankAccount."Country/Region Code" = 'US') then
             if not ExportPaymentsACH.CheckDigit(VendorBankAccount."Transit No.") then
                 Error(StrSubstNo(VendorTransitNumNotValidErr, VendorBankAccount."Transit No.", Vendor."No."));
     end;

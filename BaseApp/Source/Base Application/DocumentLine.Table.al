@@ -98,6 +98,7 @@ table 10003 "Document Line"
         field(10002; "Retention VAT %"; Decimal)
         {
             Caption = 'Retention VAT %';
+            AutoFormatType = 2;	    
         }
     }
 

@@ -2700,7 +2700,7 @@
                     "Line No." := BiggestLineNo;
                     Validate(Type, Type::"G/L Account");
                 end;
-                Validate("No.", CustPostingGr.GetInvRoundingAccount);
+                Validate("No.", CustPostingGr.GetInvRoundingAccount());
                 "Tax Area Code" := '';
                 "Tax Liable" := false;
                 Validate(Quantity, 1);
@@ -5355,6 +5355,7 @@
             if not HasQtyToAsm(SalesLine, AsmHeader) then
                 exit;
 
+            AsmPost.SetSuppressCommit(SuppressCommit);
             AsmPost.SetPostingDate(true, SalesHeader."Posting Date");
             AsmPost.InitPostATO(AsmHeader);
 
