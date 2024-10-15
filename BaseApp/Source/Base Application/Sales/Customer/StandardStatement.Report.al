@@ -17,6 +17,7 @@ report 1316 "Standard Statement"
 {
     Caption = 'Customer Statement';
     DefaultRenderingLayout = "StandardStatement.docx";
+    WordMergeDataItem = Customer;
 
     dataset
     {
@@ -1071,7 +1072,6 @@ report 1316 "Standard Statement"
         DueDate: Date;
         CustAddr: array[8] of Text[100];
         CompanyAddr: array[8] of Text[100];
-        Description: Text[100];
         StartBalance: Decimal;
         CurrencyCode3: Code[10];
         DateChoice: Option "Due Date","Posting Date";
@@ -1146,6 +1146,7 @@ report 1316 "Standard Statement"
         CompanyInfo1: Record "Company Information";
         CompanyInfo2: Record "Company Information";
         CompanyInfo3: Record "Company Information";
+        Description: Text[100];
         CustBalance: Decimal;
         RemainingAmount: Decimal;
         IncludeAgingBand: Boolean;

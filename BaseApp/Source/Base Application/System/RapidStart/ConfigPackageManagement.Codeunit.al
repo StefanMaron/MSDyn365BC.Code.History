@@ -146,6 +146,7 @@ codeunit 8611 "Config. Package Management"
         ConfigPackageTable: Record "Config. Package Table";
         RecRef: RecordRef;
         DelayedInsert: Boolean;
+        IsHandled: Boolean;
     begin
         if (ConfigPackageRecord."Package Code" = '') or (ConfigPackageRecord."Table ID" = 0) then
             exit;
@@ -163,6 +164,12 @@ codeunit 8611 "Config. Package Management"
 
         ConfigPackageTable.Get(ConfigPackageRecord."Package Code", ConfigPackageRecord."Table ID");
         DelayedInsert := ConfigPackageTable."Delayed Insert";
+
+        IsHandled := false;
+        OnInsertPackageRecordOnAfterDelayedInsert(RecRef, ConfigPackageRecord, ConfigPackageTable, ApplyMode, DelayedInsert, IsHandled);
+        if IsHandled then
+            exit;
+
         InsertPrimaryKeyFields(RecRef, ConfigPackageRecord, true, DelayedInsert);
 
         if ApplyMode = ApplyMode::PrimaryKey then
@@ -239,6 +246,7 @@ codeunit 8611 "Config. Package Management"
         ConfigPackageError: Record "Config. Package Error";
         RecRef1: RecordRef;
         FieldRef: FieldRef;
+        IsHandled: Boolean;
     begin
         ConfigPackageData.SetRange("Package Code", ConfigPackageRecord."Package Code");
         ConfigPackageData.SetRange("Table ID", ConfigPackageRecord."Table ID");
@@ -256,7 +264,11 @@ codeunit 8611 "Config. Package Management"
             ConfigPackageData.SetRange("Field ID", TempConfigPackageField."Field ID");
             if ConfigPackageData.FindFirst() then begin
                 ConfigPackageField.Get(ConfigPackageData."Package Code", ConfigPackageData."Table ID", ConfigPackageData."Field ID");
-                UpdateValueUsingMapping(ConfigPackageData, ConfigPackageField, ConfigPackageRecord."Package Code");
+
+                IsHandled := false;
+                OnInsertPrimaryKeyFieldsOnBeforeUpdateValueUsingMapping(RecRef, ConfigPackageData, ConfigPackageField, ConfigPackageRecord, IsHandled);
+                if not IsHandled then
+                    UpdateValueUsingMapping(ConfigPackageData, ConfigPackageField, ConfigPackageRecord."Package Code");
                 ValidationFieldID := FieldRef.Number;
                 ConfigValidateMgt.EvaluateTextToFieldRef(
                   ConfigPackageData.Value, FieldRef, ConfigPackageField."Validate Field" and (ApplyMode = ApplyMode::PrimaryKey));
@@ -437,8 +449,10 @@ codeunit 8611 "Config. Package Management"
         IsTemplate := IsTemplateField(ConfigPackageTable."Data Template", ConfigPackageField."Field ID");
         if not IsTemplate or (IsTemplate and (ConfigPackageData.Value <> '')) then begin
             FieldRef := RecRef.Field(ConfigPackageField."Field ID");
-            OnModifyRecordDataFieldOnBeforeUpdateValueUsingMapping(ConfigPackageData, ConfigPackageField);
-            UpdateValueUsingMapping(ConfigPackageData, ConfigPackageField, ConfigPackageRecord."Package Code");
+            IsHandled := false;
+            OnModifyRecordDataFieldOnBeforeUpdateValueUsingMapping(ConfigPackageData, ConfigPackageField, ConfigPackageRecord, RecRef, IsHandled);
+            if not IsHandled then
+                UpdateValueUsingMapping(ConfigPackageData, ConfigPackageField, ConfigPackageRecord."Package Code");
 
             GetCachedConfigPackageField(ConfigPackageData);
             IsHandled := false;
@@ -1129,6 +1143,7 @@ codeunit 8611 "Config. Package Management"
             DeleteAppliedPackageRecords(TempAppliedConfigPackageRecord); // Do not delete PackageRecords till transactions are created
 
         Commit();
+        OnApplyPackageOnAfterCommit(ConfigPackageTable);
 
         TempAppliedConfigPackageRecord.DeleteAll();
         TempConfigRecordForProcessing.DeleteAll();
@@ -1758,6 +1773,7 @@ codeunit 8611 "Config. Package Management"
           ConfigPackageFilter, PackageCode, Database::"Config. Package Filter", 0, ConfigPackageFilter.FieldNo("Package Code"), PackageCode);
         InsertPackageTable(ConfigPackageTable, PackageCode, Database::"Config. Field Map");
         InsertPackageTable(ConfigPackageTable, PackageCode, Database::"Config. Table Processing Rule");
+        OnAddConfigTablesOnBeforeSetSkipTableTriggers(ConfigPackageTable, PackageCode);
         SetSkipTableTriggers(ConfigPackageTable, PackageCode, Database::"Config. Table Processing Rule", true);
         InsertPackageFilter(
           ConfigPackageFilter, PackageCode, Database::"Config. Table Processing Rule", 0,
@@ -2584,7 +2600,7 @@ codeunit 8611 "Config. Package Management"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnModifyRecordDataFieldOnBeforeUpdateValueUsingMapping(var ConfigPackageData: Record "Config. Package Data"; var ConfigPackageField: Record "Config. Package Field")
+    local procedure OnModifyRecordDataFieldOnBeforeUpdateValueUsingMapping(var ConfigPackageData: Record "Config. Package Data"; var ConfigPackageField: Record "Config. Package Field"; ConfigPackageRecord: Record "Config. Package Record"; var RecordRef: RecordRef; var IsHandled: Boolean)
     begin
     end;
 
@@ -2657,6 +2673,26 @@ codeunit 8611 "Config. Package Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnApplyPackageTablesOnFilterConfigPackageRecord(var ConfigPackage: Record "Config. Package"; var ConfigPackageRecord: Record "Config. Package Record")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInsertPackageRecordOnAfterDelayedInsert(var RecordRef: RecordRef; ConfigPackageRecord: Record "Config. Package Record"; ConfigPackageTable: Record "Config. Package Table"; var ApplyMode: Option; DelayedInsert: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInsertPrimaryKeyFieldsOnBeforeUpdateValueUsingMapping(var RecordRef: RecordRef; ConfigPackageData: Record "Config. Package Data"; var ConfigPackageField: Record "Config. Package Field"; ConfigPackageRecord: Record "Config. Package Record"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnApplyPackageOnAfterCommit(var ConfigPackageTable: Record "Config. Package Table")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAddConfigTablesOnBeforeSetSkipTableTriggers(var ConfigPackageTable: Record "Config. Package Table"; var PackageCode: Code[20])
     begin
     end;
 }

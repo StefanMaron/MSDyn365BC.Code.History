@@ -105,7 +105,7 @@ page 1350 "Posted Sales Shipment - Update"
     local procedure RecordChanged() IsChanged: Boolean
     begin
         IsChanged :=
-          (Rec."Shipping Agent Service Code" <> xSalesShipmentHeader."Shipping Agent Service Code") or
+          (Rec."Shipping Agent Code" <> xSalesShipmentHeader."Shipping Agent Code") or
           (Rec."Promised Delivery Date" <> xSalesShipmentHeader."Promised Delivery Date") or
           (Rec."Package Tracking No." <> xSalesShipmentHeader."Package Tracking No.") or
           (Rec."Outbound Whse. Handling Time" <> xSalesShipmentHeader."Outbound Whse. Handling Time") or

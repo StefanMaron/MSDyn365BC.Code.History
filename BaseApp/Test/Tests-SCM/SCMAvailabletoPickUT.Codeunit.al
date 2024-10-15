@@ -15,6 +15,7 @@ codeunit 137501 "SCM Available to Pick UT"
         LibrarySales: Codeunit "Library - Sales";
         LibraryWarehouse: Codeunit "Library - Warehouse";
         LibraryManufacturing: Codeunit "Library - Manufacturing";
+        LibraryItemTracking: Codeunit "Library - Item Tracking";
         TooManyPickLinesErr: Label 'There were too many pick lines generated.';
         DifferentQtyErr: Label 'Quantity on pick line different from quantity on shipment line.';
         LibraryUtility: Codeunit "Library - Utility";
@@ -151,9 +152,7 @@ codeunit 137501 "SCM Available to Pick UT"
         CheckPick(Enum::"Warehouse Action Type"::Place, SalesHeader."No.", Qty);
     end;
 
-    [Test]
-    [HandlerFunctions('CreatePickFromWhseShowCalcSummaryShptReqHandler')]
-    procedure DirectedPutAwayPickSimpleScenarioPartialPickSummaryPage()
+    local procedure DirectedPutAwayPickSimpleScenarioPartialPickSummaryPageScenario(IsCrossDock: Boolean)
     var
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
@@ -176,6 +175,11 @@ codeunit 137501 "SCM Available to Pick UT"
         // [GIVEN] Location with Directed Put-away and Pick, Shipment required enabled
         // [GIVEN] Item available in pick bin
         SetupLocationWithBins(Location, 1);
+        if IsCrossDock then begin
+            Location.Validate("Use Cross-Docking", true);
+            Location.Modify();
+        end;
+
         LibraryInventory.CreateItem(Item);
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, '');
         Qty := 5;
@@ -222,6 +226,20 @@ codeunit 137501 "SCM Available to Pick UT"
         // [THEN] Warehouse pick is created
         CheckPick(Enum::"Warehouse Action Type"::Take, SalesHeader."No.", RegisteredQty);
         CheckPick(Enum::"Warehouse Action Type"::Place, SalesHeader."No.", RegisteredQty);
+    end;
+
+    [Test]
+    [HandlerFunctions('CreatePickFromWhseShowCalcSummaryShptReqHandler')]
+    procedure DirectedPutAwayPickSimpleScenarioPartialPickSummaryPage()
+    begin
+        DirectedPutAwayPickSimpleScenarioPartialPickSummaryPageScenario(false); //Not cross-dock
+    end;
+
+    [Test]
+    [HandlerFunctions('CreatePickFromWhseShowCalcSummaryShptReqHandler')]
+    procedure DirectedPutAwayPickSimpleScenarioPartialPickSummaryPageCrossDock()
+    begin
+        DirectedPutAwayPickSimpleScenarioPartialPickSummaryPageScenario(true); //Cross-dock
     end;
 
     [Test]
@@ -383,6 +401,535 @@ codeunit 137501 "SCM Available to Pick UT"
         // [THEN] Warehouse pick is created
         CheckPick(Enum::"Warehouse Action Type"::Take, SalesHeader."No.", Quantities.Get(2));
         CheckPick(Enum::"Warehouse Action Type"::Place, SalesHeader."No.", Quantities.Get(2));
+    end;
+
+    [Test]
+    [HandlerFunctions('VerifyMessageHandler')]
+    procedure DirectedPutAwayPickErrorOnCreatingPicksForCompletelyPickedSummaryPage()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        WhseReceiptLine: Record "Warehouse Receipt Line";
+        WhseActivityLine: Record "Warehouse Activity Line";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        WhseShipmentHeader: Record "Warehouse Shipment Header";
+        Item: Record Item;
+        Location: Record Location;
+        WhseReceiptHeader: Record "Warehouse Receipt Header";
+        WhseShipmentLine: Record "Warehouse Shipment Line";
+        Quantity: Decimal;
+    begin
+        // [SCENARIO 359031] [BUG 482628] Directed Put-away and Pick completely picked shipment lines. This leads to an error when creating warehouse pick.
+        Initialize();
+
+        // [GIVEN] Location with Directed Put-away and Pick, Shipment required enabled
+        // [GIVEN] Item available in pick bin
+        SetupLocationWithBins(Location, 2);
+        LibraryInventory.CreateItem(Item);
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, '');
+        Quantity := 5;
+
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, Item."No.", Quantity);
+        PurchaseLine.Validate("Location Code", Location.Code);
+        PurchaseLine.Modify(true);
+
+        LibraryPurchase.ReleasePurchaseDocument(PurchaseHeader);
+        LibraryWarehouse.CreateWhseReceiptFromPO(PurchaseHeader);
+
+        WhseReceiptLine.SetRange("Source Document", WhseReceiptLine."Source Document"::"Purchase Order");
+        WhseReceiptLine.SetRange("Source No.", PurchaseHeader."No.");
+        WhseReceiptLine.FindFirst();
+
+        WhseReceiptHeader.Get(WhseReceiptLine."No.");
+        LibraryWarehouse.PostWhseReceipt(WhseReceiptHeader);
+
+        RegisterWhseActivity(WhseActivityLine."Activity Type"::"Put-away", 39, WhseActivityLine."Source Document"::"Purchase Order", PurchaseHeader."No.", Quantity, '', '');
+
+        // [GIVEN] Warehouse shipment for the Sales order with qty. available in pick bin
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, '');
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", Quantity);
+        SalesLine.Validate("Location Code", Location.Code);
+        SalesLine.Modify(true);
+        LibrarySales.ReleaseSalesDocument(SalesHeader);
+        LibraryWarehouse.CreateWhseShipmentFromSO(SalesHeader);
+
+        // [GIVEN] Create warehouse pick
+        WhseShipmentLine.SetRange("Source Document", WhseShipmentLine."Source Document"::"Sales Order");
+        WhseShipmentLine.SetRange("Source No.", SalesHeader."No.");
+        WhseShipmentLine.FindFirst();
+
+        WhseShipmentHeader.Get(WhseShipmentLine."No.");
+        LibraryWarehouse.CreateWhsePick(WhseShipmentHeader);
+
+        // [GIVEN] Register Warehouse Pick
+        RegisterWhseActivity(WhseActivityLine."Activity Type"::Pick, Database::"Sales Line", WhseActivityLine."Source Document"::"Sales Order", SalesHeader."No.", Quantity, '', '');
+
+        // [WHEN] Create warehouse pick for the same document again
+        WhseShipmentHeader.Get(WhseShipmentLine."No.");
+        LibraryVariableStorage.Enqueue('Nothing to handle. The quantity on the shipment lines are completely picked.');
+        CreateWhsePickFromShipment(WhseShipmentHeader);
+
+        // [THEN] Message is shown explaining that all the lines are completely picked
+        // VerifyMessageHandler will verify the message
+    end;
+
+    [Test]
+    [HandlerFunctions('CreatePickFromWhseShowCalcSummaryShptReqHandler,VerifyDrillDownPickWorksheetModalPageHandler')]
+    procedure DirectedPutAwayPickWorksheetBatchIsShownInSummaryPage()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        WhseReceiptLine: Record "Warehouse Receipt Line";
+        WhseActivityLine: Record "Warehouse Activity Line";
+        SalesHeader: Record "Sales Header";
+        SalesLine1: Record "Sales Line";
+        SalesLine2: Record "Sales Line";
+        WhseShipmentHeader: Record "Warehouse Shipment Header";
+        Item1: Record Item;
+        Item2: Record Item;
+        Location: Record Location;
+        WhseReceiptHeader: Record "Warehouse Receipt Header";
+        WhseShipmentLine: Record "Warehouse Shipment Line";
+        WhsePickRequest: Record "Whse. Pick Request";
+        WhseWorksheetLine: Record "Whse. Worksheet Line";
+        WarehousePickSummaryTestPage: TestPage "Warehouse Pick Summary";
+        Quantity1: Decimal;
+        Quantity2: Decimal;
+    begin
+        // [SCENARIO 359031] [BUG 482628] Directed Put-away and Pick, calculation summary shows the lines present in the pick worksheet
+        Initialize();
+
+        // [GIVEN] Location with Directed Put-away and Pick, Shipment required enabled
+        // [GIVEN] Item available in pick bin
+        SetupLocationWithBins(Location, 1);
+        LibraryInventory.CreateItem(Item1);
+        LibraryInventory.CreateItem(Item2);
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, '');
+        Quantity1 := 3;
+        Quantity2 := 8;
+
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, Item1."No.", Quantity1);
+        PurchaseLine.Validate("Location Code", Location.Code);
+        PurchaseLine.Modify(true);
+
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, Item2."No.", Quantity2);
+        PurchaseLine.Validate("Location Code", Location.Code);
+        PurchaseLine.Modify(true);
+
+        LibraryPurchase.ReleasePurchaseDocument(PurchaseHeader);
+        LibraryWarehouse.CreateWhseReceiptFromPO(PurchaseHeader);
+
+        WhseReceiptLine.SetRange("Source Document", WhseReceiptLine."Source Document"::"Purchase Order");
+        WhseReceiptLine.SetRange("Source No.", PurchaseHeader."No.");
+        WhseReceiptLine.FindFirst();
+
+        WhseReceiptHeader.Get(WhseReceiptLine."No.");
+        LibraryWarehouse.PostWhseReceipt(WhseReceiptHeader);
+
+        // [GIVEN] Register a put-away activity to make the quantity available in the pick bin
+        RegisterWhseActivity(WhseActivityLine."Activity Type"::"Put-away", 39, WhseActivityLine."Source Document"::"Purchase Order", PurchaseHeader."No.");
+
+        // [GIVEN] Warehouse shipment for the Sales order with two sales in with qty. available in the pick bins
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, '');
+        LibrarySales.CreateSalesLine(SalesLine1, SalesHeader, SalesLine1.Type::Item, Item1."No.", Quantity1);
+        SalesLine1.Validate("Location Code", Location.Code);
+        SalesLine1.Modify(true);
+        LibrarySales.CreateSalesLine(SalesLine2, SalesHeader, SalesLine2.Type::Item, Item2."No.", Quantity2);
+        SalesLine2.Validate("Location Code", Location.Code);
+        SalesLine2.Modify(true);
+        LibrarySales.ReleaseSalesDocument(SalesHeader);
+        LibraryWarehouse.CreateWhseShipmentFromSO(SalesHeader);
+
+        // [GIVEN] Release the warehouse shipment
+        WhseShipmentLine.SetRange("Source Document", WhseShipmentLine."Source Document"::"Sales Order");
+        WhseShipmentLine.SetRange("Source No.", SalesHeader."No.");
+        WhseShipmentLine.FindFirst();
+
+        WhseShipmentHeader.Get(WhseShipmentLine."No.");
+
+        LibraryWarehouse.ReleaseWarehouseShipment(WhseShipmentHeader);
+
+        // [GIVEN] Add the shipment lines to the pick worksheet.
+        WhseShipmentHeader.Get(WhseShipmentLine."No.");
+        WhsePickRequest.Get(WhsePickRequest."Document Type"::Shipment, 0, WhseShipmentHeader."No.", WhseShipmentHeader."Location Code");
+        LibraryWarehouse.GetWhseDocsPickWorksheet(WhseWorksheetLine, WhsePickRequest, WhseShipmentHeader."Location Code");
+        Assert.RecordCount(WhseWorksheetLine, 2);
+        WhseWorksheetLine.FindSet();
+        WhseWorksheetLine.Delete();
+        WhseWorksheetLine.Next();
+        Commit();
+
+        // [WHEN] Create warehouse pick and show calculation summary.
+        WhseShipmentLine.SetRange("Source Document", WhseShipmentLine."Source Document"::"Sales Order");
+        WhseShipmentLine.SetRange("Source No.", SalesHeader."No.");
+        WhseShipmentLine.FindFirst();
+        WhseShipmentHeader.Get(WhseShipmentLine."No.");
+
+        CreateWhsePickAndTrapSummary(WhseShipmentHeader, WarehousePickSummaryTestPage); //CreatePickFromWhseShowCalcSummaryShptReqHandler will show calculation summary page.
+
+        // [THEN] Warehouse pick summary page is shown
+        WarehousePickSummaryTestPage.First();
+
+        CheckWarehouseSummaryLineDetails(WarehousePickSummaryTestPage, Enum::"Warehouse Activity Source Document"::"Sales Order", SalesHeader."No.", SalesLine1."Line No.", Item1."No.", Quantity1, Quantity1);
+        CheckWhseSummaryFactBoxValues(WarehousePickSummaryTestPage, false, false, false, Quantity1, Quantity1, Quantity1, 0, 0, 0, 0, 0, 0, 0, 0);
+
+        WarehousePickSummaryTestPage.Next();
+        CheckWarehouseSummaryLineDetails(WarehousePickSummaryTestPage, Enum::"Warehouse Activity Source Document"::"Sales Order", SalesHeader."No.", SalesLine2."Line No.", Item2."No.", Quantity2, 0);
+        CheckWhseSummaryFactBoxValuesForPickWorksheet(WarehousePickSummaryTestPage, WhseWorksheetLine.Name);
+
+        // [WHEN] Drill Down to the pick worksheet
+        LibraryVariableStorage.Enqueue(WhseWorksheetLine.Name);
+        LibraryVariableStorage.Enqueue(WhseWorksheetLine."Location Code");
+        LibraryVariableStorage.Enqueue(WhseWorksheetLine."Whse. Document No.");
+        LibraryVariableStorage.Enqueue(WhseWorksheetLine."Whse. Document Type");
+        LibraryVariableStorage.Enqueue(WhseWorksheetLine."Item No.");
+
+        WarehousePickSummaryTestPage.SummaryPart."Worksheet Batch Name".Drilldown();
+
+        // [THEN] Verify the information in VerifyDrillDownPickWorksheetModalPageHandler
+        Assert.AreEqual(Item2."No.", WhseWorksheetLine."Item No.", 'Item No. in the pick worksheet line is not as expected.');
+        WarehousePickSummaryTestPage.Close();
+    end;
+
+    [Test]
+    [HandlerFunctions('CreatePickFromWhseDoNotShowCalcSummaryShptReqHandler')]
+    procedure DirectedPutAwayPickCreatePickErrorsHintsUserToUseCalcSummary()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        WhseShipmentHeader: Record "Warehouse Shipment Header";
+        Item: Record Item;
+        Location: Record Location;
+        WhseShipmentLine: Record "Warehouse Shipment Line";
+        Quantity: Decimal;
+    begin
+        // [SCENARIO 359031] [BUG 482628] Directed Put-away and Pick, show error message and hint the user to use Show Summary Page option
+        Initialize();
+
+        // [GIVEN] Location with Directed Put-away and Pick, Shipment required enabled
+        // [GIVEN] Item NOT available in pick bin
+        SetupLocationWithBins(Location, 1);
+        LibraryInventory.CreateItem(Item);
+
+        Quantity := 5;
+
+        // [GIVEN] Warehouse shipment for the Sales order with two sales in with qty. available in the pick bins
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, '');
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", Quantity);
+        SalesLine.Validate("Location Code", Location.Code);
+        SalesLine.Modify(true);
+        LibrarySales.ReleaseSalesDocument(SalesHeader);
+        LibraryWarehouse.CreateWhseShipmentFromSO(SalesHeader);
+
+        // [WHEN] Create warehouse pick without the Show Summary Page option
+        WhseShipmentLine.SetRange("Source Document", WhseShipmentLine."Source Document"::"Sales Order");
+        WhseShipmentLine.SetRange("Source No.", SalesHeader."No.");
+        WhseShipmentLine.FindFirst();
+        WhseShipmentHeader.Get(WhseShipmentLine."No.");
+        asserterror CreateWhsePickFromShipment(WhseShipmentHeader); //CreatePickFromWhseDoNotShowCalcSummaryShptReqHandler is used to not show the summary page.
+
+        // [THEN] Error message is shown and hinting the user to use Show Summary Page option
+        Assert.ExpectedError('Nothing to handle.\Try the "Show Summary (Directed Put-away and Pick)" option when creating pick to inspect the error.');
+    end;
+
+    [Test]
+    [HandlerFunctions('CreatePickFromProdOrderShowCalcSummaryShptReqHandler')]
+    procedure DirectedPutAwayPickProdOrderErrorOnCreatingPicksForCompletelyPickedSummaryPage()
+    var
+        WhseActivityLine: Record "Warehouse Activity Line";
+        ProdParent: Record Item;
+        ProdChild: Record Item;
+        ProductionOrder: Record "Production Order";
+        ProdOrderLine: Record "Prod. Order Line";
+        ProdOrderComponent: Record "Prod. Order Component";
+        Location: Record Location;
+        WarehousePickSummaryTestPage: TestPage "Warehouse Pick Summary";
+        Quantity: Decimal;
+    begin
+        // [SCENARIO 359031] [BUG 482628] Directed Put-away and Pick completely picked production order components. This leads to an error when creating warehouse pick.
+        Initialize();
+
+        // [GIVEN] Location with Directed Put-away and Pick, Shipment required enabled
+        // [GIVEN] Production BOM item available in pick bin
+        SetupLocationWithBins(Location, 1);
+        Quantity := 1;
+        SetupProductionOrderScenario(ProdChild, ProdParent, Enum::"Flushing Method"::Manual, Quantity, Location);
+
+        // [GIVEN] Released production order with qty. available in pick bin for ProdParent
+        LibraryManufacturing.CreateAndRefreshProductionOrder(ProductionOrder, Enum::"Production Order Status"::Released, Enum::"Prod. Order Source Type"::Item, ProdParent."No.", Quantity);
+        ProdOrderLine.SetRange(Status, Enum::"Production Order Status"::Released);
+        ProdOrderLine.SetRange("Prod. Order No.", ProductionOrder."No.");
+        ProdOrderLine.FindFirst();
+        ProdOrderLine.Validate("Location Code", Location.Code);
+        ProdOrderLine.Modify();
+
+        ProdOrderComponent.SetRange(Status, Enum::"Production Order Status"::Released);
+        ProdOrderComponent.SetRange("Prod. Order No.", ProductionOrder."No.");
+        ProdOrderComponent.SetRange("Prod. Order Line No.", ProdOrderLine."Line No.");
+        ProdOrderComponent.FindFirst();
+        ProdOrderComponent.Validate("Location Code", Location.Code);
+        ProdOrderComponent.Modify();
+
+        // [GIVEN] Create warehouse pick
+        CreateWhsePickAndTrapSummary(ProductionOrder, WarehousePickSummaryTestPage); //CreatePickFromProdOrderShowCalcSummaryShptReqHandler will show calculation summary page.
+        WarehousePickSummaryTestPage.Close();
+
+        // [GIVEN] Register Warehouse Pick
+        RegisterWhseActivity(WhseActivityLine."Activity Type"::Pick, Database::"Prod. Order Component", WhseActivityLine."Source Document"::"Prod. Consumption", ProductionOrder."No.");
+
+        // [WHEN] Create warehouse pick for the same document again
+        asserterror ProductionOrder.CreatePick('', 0, false, false, false);
+
+        // [THEN] Error is shown explaining that all the lines are completely picked
+        Assert.ExpectedError('Nothing to handle. The production components are completely picked or not eligible for picking.');
+    end;
+
+    [Test]
+    [HandlerFunctions('CreatePickFromProdOrderShowCalcSummaryShptReqHandler,VerifyDrillDownPickWorksheetModalPageHandler')]
+    procedure DirectedPutAwayPickProdOrderWorksheetBatchIsShownInSummaryPage()
+    var
+        ProdParent: Record Item;
+        ProdChild: Record Item;
+        ProductionOrder: Record "Production Order";
+        ProdOrderLine: Record "Prod. Order Line";
+        ProdOrderComponent: Record "Prod. Order Component";
+        Location: Record Location;
+        WhsePickRequest: Record "Whse. Pick Request";
+        WhseWorksheetLine: Record "Whse. Worksheet Line";
+        WarehousePickSummaryTestPage: TestPage "Warehouse Pick Summary";
+        Quantity: Decimal;
+    begin
+        // [SCENARIO 359031] [BUG 482628] Directed Put-away and Pick, calculation summary shows the lines present in the pick worksheet for production order
+        Initialize();
+
+        // [GIVEN] Location with Directed Put-away and Pick, Shipment required enabled
+        // [GIVEN] Item available in pick bin
+        Quantity := 1;
+        SetupLocationWithBins(Location, 1);
+        SetupProductionOrderScenario(ProdChild, ProdParent, Enum::"Flushing Method"::Manual, Quantity, Location);
+
+        // [GIVEN] Released production order with qty. available in pick bin for ProdParent
+        LibraryManufacturing.CreateAndRefreshProductionOrder(ProductionOrder, Enum::"Production Order Status"::Released, Enum::"Prod. Order Source Type"::Item, ProdParent."No.", 1);
+        ProdOrderLine.SetRange(Status, Enum::"Production Order Status"::Released);
+        ProdOrderLine.SetRange("Prod. Order No.", ProductionOrder."No.");
+        ProdOrderLine.FindFirst();
+        ProdOrderLine.Validate("Location Code", Location.Code);
+        ProdOrderLine.Modify();
+
+        ProdOrderComponent.SetRange(Status, Enum::"Production Order Status"::Released);
+        ProdOrderComponent.SetRange("Prod. Order No.", ProductionOrder."No.");
+        ProdOrderComponent.SetRange("Prod. Order Line No.", ProdOrderLine."Line No.");
+        ProdOrderComponent.FindFirst();
+        ProdOrderComponent.Validate("Location Code", Location.Code);
+        ProdOrderComponent.Modify();
+
+        LibraryManufacturing.RefreshProdOrder(ProductionOrder, false, false, false, false, false); //Create the warehouse pick request
+
+        // [GIVEN] Add the production order to the pick worksheet.
+        WhsePickRequest.Get(WhsePickRequest."Document Type"::Production, ProductionOrder.Status, ProductionOrder."No.", Location.Code);
+        LibraryWarehouse.GetWhseDocsPickWorksheet(WhseWorksheetLine, WhsePickRequest, Location.Code);
+        Assert.RecordCount(WhseWorksheetLine, 1);
+        WhseWorksheetLine.FindFirst();
+
+        // [WHEN] Create warehouse pick and show calculation summary.
+        CreateWhsePickAndTrapSummary(ProductionOrder, WarehousePickSummaryTestPage); //CreatePickFromProdOrderShowCalcSummaryShptReqHandler will show calculation summary page.
+
+        // [THEN] Warehouse pick summary page is shown
+        WarehousePickSummaryTestPage.First();
+
+        CheckWarehouseSummaryLineDetails(WarehousePickSummaryTestPage, Enum::"Warehouse Activity Source Document"::"Prod. Consumption", ProductionOrder."No.", ProdOrderLine."Line No.", ProdOrderComponent."Item No.", Quantity, 0);
+        CheckWhseSummaryFactBoxValuesForPickWorksheet(WarehousePickSummaryTestPage, WhseWorksheetLine.Name);
+
+        // [WHEN] Drill Down to the pick worksheet
+        LibraryVariableStorage.Enqueue(WhseWorksheetLine.Name);
+        LibraryVariableStorage.Enqueue(WhseWorksheetLine."Location Code");
+        LibraryVariableStorage.Enqueue(WhseWorksheetLine."Whse. Document No.");
+        LibraryVariableStorage.Enqueue(WhseWorksheetLine."Whse. Document Type");
+        LibraryVariableStorage.Enqueue(WhseWorksheetLine."Item No.");
+
+        WarehousePickSummaryTestPage.SummaryPart."Worksheet Batch Name".Drilldown();
+
+        // [THEN] Verify the information in VerifyDrillDownPickWorksheetModalPageHandler
+        Assert.AreEqual(ProdOrderComponent."Item No.", WhseWorksheetLine."Item No.", 'Item No. in the pick worksheet line is not as expected.');
+        WarehousePickSummaryTestPage.Close();
+    end;
+
+    [Test]
+    [HandlerFunctions('CreatePickFromPrdOrderDoNotShowCalcSummaryShptReqHandler')]
+    procedure DirectedPutAwayPickProdOrderCreatePickErrorsHintsUserToUseCalcSummary()
+    var
+        ProdParent: Record Item;
+        ProdChild: Record Item;
+        ProdBOMHeader: Record "Production BOM Header";
+        ProductionOrder: Record "Production Order";
+        ProdOrderLine: Record "Prod. Order Line";
+        ProdOrderComponent: Record "Prod. Order Component";
+        Location: Record Location;
+        Quantity: Decimal;
+    begin
+        // [SCENARIO 359031] [BUG 482628] Directed Put-away and Pick, show error message and hint the user to use Show Summary Page option for production order
+        Initialize();
+
+        // [GIVEN] Location with Directed Put-away and Pick, Shipment required enabled
+        // [GIVEN] Item NOT available in pick bin
+        Quantity := 1;
+        SetupLocationWithBins(Location, 1);
+        LibraryInventory.CreateItem(ProdChild);
+        LibraryManufacturing.CreateCertifiedProductionBOM(ProdBOMHeader, ProdChild."No.", Quantity);
+        LibraryManufacturing.CreateItemManufacturing(ProdParent, Enum::"Costing Method"::Standard, 1000, Enum::"Reordering Policy"::" ", Enum::"Flushing Method"::Manual, '', ProdBOMHeader."No.");
+
+        // [GIVEN] Released production order
+        LibraryManufacturing.CreateAndRefreshProductionOrder(ProductionOrder, Enum::"Production Order Status"::Released, Enum::"Prod. Order Source Type"::Item, ProdParent."No.", 1);
+        ProdOrderLine.SetRange(Status, Enum::"Production Order Status"::Released);
+        ProdOrderLine.SetRange("Prod. Order No.", ProductionOrder."No.");
+        ProdOrderLine.FindFirst();
+        ProdOrderLine.Validate("Location Code", Location.Code);
+        ProdOrderLine.Modify();
+
+        ProdOrderComponent.SetRange(Status, Enum::"Production Order Status"::Released);
+        ProdOrderComponent.SetRange("Prod. Order No.", ProductionOrder."No.");
+        ProdOrderComponent.SetRange("Prod. Order Line No.", ProdOrderLine."Line No.");
+        ProdOrderComponent.FindFirst();
+        ProdOrderComponent.Validate("Location Code", Location.Code);
+        ProdOrderComponent.Modify();
+
+        // [WHEN] Create warehouse pick without the Show Summary Page option
+        asserterror ProductionOrder.CreatePick('', 0, false, false, false); //Requires a request page handler CreatePickFromPrdOrderDoNotShowCalcSummaryShptReqHandler to not show the summary page
+
+        // [THEN] Error message is shown and hinting the user to use Show Summary Page option
+        Assert.ExpectedError('Nothing to handle.\Try the "Show Summary (Directed Put-away and Pick)" option when creating pick to inspect the error.');
+    end;
+
+    [Test]
+    [HandlerFunctions('CreatePickFromAsmOrderShowCalcSummaryShptReqHandler')]
+    procedure DirectedPutAwayPickAsmOrderErrorOnCreatingPicksForCompletelyPickedSummaryPage()
+    var
+        WhseActivityLine: Record "Warehouse Activity Line";
+        AsmParent: Record Item;
+        AsmChild: Record Item;
+        AsmHeader: Record "Assembly Header";
+        Location: Record Location;
+        WarehousePickSummaryTestPage: TestPage "Warehouse Pick Summary";
+        Quantity: Decimal;
+    begin
+        // [SCENARIO 359031] [BUG 482628] Directed Put-away and Pick completely picked assembly line items. This leads to an error when creating warehouse pick.
+        Initialize();
+
+        // [GIVEN] Location with Directed Put-away and Pick, Shipment required enabled
+        // [GIVEN] Assemble to order item available in pick bin
+        SetupLocationWithBins(Location, 1);
+        Quantity := 1;
+        SetupAssemblyOrderScenario(AsmChild, AsmParent, Enum::"Costing Method"::FIFO, Enum::"Replenishment System"::Assembly, Enum::"Assembly Policy"::"Assemble-to-Stock", Quantity, Location);
+
+        // [GIVEN] Released assembly order with qty. available in pick bin
+        LibraryAssembly.CreateAssemblyHeader(AsmHeader, WorkDate() + 100, AsmParent."No.", Location.Code, Quantity, '');
+        LibraryAssembly.ReleaseAO(AsmHeader);
+
+        // [GIVEN] Create warehouse pick
+        CreateWhsePickAndTrapSummary(AsmHeader, WarehousePickSummaryTestPage); //CreatePickFromAsmOrderShowCalcSummaryShptReqHandler will show calculation summary page.
+        WarehousePickSummaryTestPage.Close();
+
+        // [GIVEN] Register Warehouse Pick
+        RegisterWhseActivity(WhseActivityLine."Activity Type"::Pick, Database::"Assembly Line", WhseActivityLine."Source Document"::"Assembly Consumption", AsmHeader."No.");
+
+        // [WHEN] Create warehouse pick for the same document again
+        asserterror AsmHeader.CreatePick(false, '', 0, false, false, false);
+
+        // [THEN] Error is shown explaining that all the lines are completely picked
+        Assert.ExpectedError('Nothing to handle. The assembly line items are completely picked.');
+    end;
+
+    [Test]
+    [HandlerFunctions('CreatePickFromAsmOrderShowCalcSummaryShptReqHandler,VerifyDrillDownPickWorksheetModalPageHandler')]
+    procedure DirectedPutAwayPickAsmOrderWorksheetBatchIsShownInSummaryPage()
+    var
+        AsmParent: Record Item;
+        AsmChild: Record Item;
+        AsmHeader: Record "Assembly Header";
+        AsmLine: Record "Assembly Line";
+        Location: Record Location;
+        WhsePickRequest: Record "Whse. Pick Request";
+        WhseWorksheetLine: Record "Whse. Worksheet Line";
+        WarehousePickSummaryTestPage: TestPage "Warehouse Pick Summary";
+        Quantity: Decimal;
+    begin
+        // [SCENARIO 359031] [BUG 482628] Directed Put-away and Pick, calculation summary shows the lines present in the pick worksheet for assembly order
+        Initialize();
+
+        // [GIVEN] Location with Directed Put-away and Pick, Shipment required enabled
+        // [GIVEN] Item available in pick bin
+        Quantity := 1;
+        SetupLocationWithBins(Location, 1);
+        SetupAssemblyOrderScenario(AsmChild, AsmParent, Enum::"Costing Method"::FIFO, Enum::"Replenishment System"::Assembly, Enum::"Assembly Policy"::"Assemble-to-Stock", Quantity, Location);
+
+        // [GIVEN] Released assembly order with qty. available in pick bin
+        LibraryAssembly.CreateAssemblyHeader(AsmHeader, WorkDate() + 100, AsmParent."No.", Location.Code, Quantity, '');
+        LibraryAssembly.ReleaseAO(AsmHeader);
+
+        // [GIVEN] Add the assembly lines to the pick worksheet.
+        WhsePickRequest.Get(WhsePickRequest."Document Type"::Assembly, AsmHeader.Status, AsmHeader."No.", Location.Code);
+        LibraryWarehouse.GetWhseDocsPickWorksheet(WhseWorksheetLine, WhsePickRequest, Location.Code);
+        Assert.RecordCount(WhseWorksheetLine, 1);
+        WhseWorksheetLine.FindFirst();
+
+        // [WHEN] Create warehouse pick and show calculation summary.
+        CreateWhsePickAndTrapSummary(AsmHeader, WarehousePickSummaryTestPage); //CreatePickFromAsmOrderShowCalcSummaryShptReqHandler will show calculation summary page.
+
+        // [THEN] Warehouse pick summary page is shown
+        WarehousePickSummaryTestPage.First();
+        AsmLine.SetRange("Document Type", AsmLine."Document Type"::Order);
+        AsmLine.SetRange("Document No.", AsmHeader."No.");
+        AsmLine.FindFirst();
+
+        CheckWarehouseSummaryLineDetails(WarehousePickSummaryTestPage, Enum::"Warehouse Activity Source Document"::"Assembly Consumption", AsmHeader."No.", AsmLine."Line No.", AsmChild."No.", Quantity, 0);
+        CheckWhseSummaryFactBoxValuesForPickWorksheet(WarehousePickSummaryTestPage, WhseWorksheetLine.Name);
+
+        // [WHEN] Drill Down to the pick worksheet
+        LibraryVariableStorage.Enqueue(WhseWorksheetLine.Name);
+        LibraryVariableStorage.Enqueue(WhseWorksheetLine."Location Code");
+        LibraryVariableStorage.Enqueue(WhseWorksheetLine."Whse. Document No.");
+        LibraryVariableStorage.Enqueue(WhseWorksheetLine."Whse. Document Type");
+        LibraryVariableStorage.Enqueue(WhseWorksheetLine."Item No.");
+
+        WarehousePickSummaryTestPage.SummaryPart."Worksheet Batch Name".Drilldown();
+
+        // [THEN] Verify the information in VerifyDrillDownPickWorksheetModalPageHandler
+        Assert.AreEqual(AsmLine."No.", WhseWorksheetLine."Item No.", 'Item No. in the pick worksheet line is not as expected.');
+        WarehousePickSummaryTestPage.Close();
+    end;
+
+    [Test]
+    [HandlerFunctions('CreatePickFromAsmOrderDoNotShowCalcSummaryShptReqHandler')]
+    procedure DirectedPutAwayPickAsmOrderCreatePickErrorsHintsUserToUseCalcSummary()
+    var
+        AsmParent: Record Item;
+        AsmChild: Record Item;
+        AsmHeader: Record "Assembly Header";
+        AsmLine: Record "Assembly Line";
+        Location: Record Location;
+        Quantity: Decimal;
+    begin
+        // [SCENARIO 359031] [BUG 482628] Directed Put-away and Pick, show error message and hint the user to use Show Summary Page option for assembly order
+        Initialize();
+
+        // [GIVEN] Location with Directed Put-away and Pick, Shipment required enabled
+        // [GIVEN] Item NOT available in pick bin
+        Quantity := 1;
+        SetupLocationWithBins(Location, 1);
+        LibraryInventory.CreateItem(AsmChild);
+        LibraryInventory.CreateItem(AsmParent);
+
+        // [GIVEN] Released assembly order
+        LibraryAssembly.CreateAssemblyHeader(AsmHeader, WorkDate() + 100, AsmParent."No.", Location.Code, Quantity, '');
+        LibraryAssembly.CreateAssemblyLine(AsmHeader, AsmLine, Enum::"BOM Component Type"::Item, AsmChild."No.", AsmChild."Base Unit of Measure", Quantity, Quantity, '');
+        LibraryAssembly.ReleaseAO(AsmHeader);
+
+        // [WHEN] Create warehouse pick without the Show Summary Page option
+        asserterror AsmHeader.CreatePick(true, '', 0, false, false, false); //Requires a request page handler CreatePickFromAsmOrderDoNotShowCalcSummaryShptReqHandler to not show the summary page
+
+        // [THEN] Error message is shown and hinting the user to use Show Summary Page option
+        Assert.ExpectedError('Nothing to handle.\Try the "Show Summary (Directed Put-away and Pick)" option when creating pick to inspect the error.');
     end;
 
     [Test]
@@ -778,7 +1325,7 @@ codeunit 137501 "SCM Available to Pick UT"
 
     [Test]
     [HandlerFunctions('CreatePickFromWhseShowCalcSummaryShptReqHandler')]
-    procedure DirectedPutAwayPickAfterCompletePickNoSummaryPage()
+    procedure DirectedPutAwayPickAfterCompletePickShowsSummaryPageWithQtyToHandleAs0()
     var
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
@@ -794,7 +1341,7 @@ codeunit 137501 "SCM Available to Pick UT"
         WarehousePickSummaryTestPage: TestPage "Warehouse Pick Summary";
         Qty: Decimal;
     begin
-        // [SCENARIO 359031] [BUG 482122] Directed put-away and Pick, full warehouse pick done, create pick after should show an error nothing to handle
+        // [SCENARIO 359031] [BUG 482122] [BUG 482628] Directed put-away and Pick, full warehouse pick done, create pick after should show the summary page
         Initialize();
 
         // [GIVEN] Location with Directed Put-away and Pick, Shipment required enabled
@@ -846,10 +1393,12 @@ codeunit 137501 "SCM Available to Pick UT"
 
         // [WHEN] Create warehouse pick for the same shipment again
         WhseShipmentHeader.Get(WhseShipmentLine."No.");
-        asserterror CreateWhsePickAndTrapSummary(WhseShipmentHeader, WarehousePickSummaryTestPage);
+        CreateWhsePickAndTrapSummary(WhseShipmentHeader, WarehousePickSummaryTestPage);
 
-        // [THEN] Nothing to handle error is shown
-        Assert.ExpectedError(NothingToHandleErr);
+        // [THEN] Warehouse pick summary page is shown
+        WarehousePickSummaryTestPage.First();
+        CheckWarehouseSummaryLineDetails(WarehousePickSummaryTestPage, Enum::"Warehouse Activity Source Document"::"Sales Order", SalesHeader."No.", SalesLine."Line No.", Item."No.", 0, 0);
+        WarehousePickSummaryTestPage.Close();
     end;
 
     [Test]
@@ -1088,7 +1637,7 @@ codeunit 137501 "SCM Available to Pick UT"
     end;
 
     [Test]
-    [HandlerFunctions('CreatePickFromAsmOrderShowCalcSummaryShptReqHandler,CreatePickFromWhseShowCalcSummaryShptReqHandler,MessageHandler')]
+    [HandlerFunctions('CreatePickFromAsmOrderShowCalcSummaryShptReqHandler,CreatePickFromWhseShowCalcSummaryShptReqHandler')]
     procedure DirectedPutAwayPickAsmToStockCompAvailInPickBinFullPicksCreatedSummaryPage()
     var
         PurchaseHeader: Record "Purchase Header";
@@ -1153,7 +1702,7 @@ codeunit 137501 "SCM Available to Pick UT"
         Location.Modify();
 
         // [GIVEN] Warehouse shipment for the assembly order with qty. available in pick bin for AsmParent
-        LibraryAssembly.CreateAssemblyHeader(AsmHeader, WorkDate(), AsmParent."No.", Location.Code, Quantity, '');
+        LibraryAssembly.CreateAssemblyHeader(AsmHeader, WorkDate() + 100, AsmParent."No.", Location.Code, Quantity, '');
 
         // [WHEN] Create warehouse pick
         LibraryAssembly.ReleaseAO(AsmHeader);
@@ -1205,7 +1754,7 @@ codeunit 137501 "SCM Available to Pick UT"
     end;
 
     [Test]
-    [HandlerFunctions('CreatePickFromPrdOrderShowCalcSummaryShptReqHandler,CreatePickFromWhseShowCalcSummaryShptReqHandler')]
+    [HandlerFunctions('CreatePickFromProdOrderShowCalcSummaryShptReqHandler,CreatePickFromWhseShowCalcSummaryShptReqHandler')]
     procedure DirectPutAwayPickProdOrderManualFlushAvailInPickBinFullPicksCreatedSummaryPage()
     var
         WhseActivityLine: Record "Warehouse Activity Line";
@@ -1247,7 +1796,7 @@ codeunit 137501 "SCM Available to Pick UT"
         ProdOrderComponent.Modify();
 
         // [WHEN] Create warehouse pick
-        CreateWhsePickAndTrapSummary(ProductionOrder, WarehousePickSummaryTestPage); //CreatePickFromPrdOrderShowCalcSummaryShptReqHandler will show calculation summary page.
+        CreateWhsePickAndTrapSummary(ProductionOrder, WarehousePickSummaryTestPage); //CreatePickFromProdOrderShowCalcSummaryShptReqHandler will show calculation summary page.
 
         // [THEN] Warehouse pick summary page is shown
         WarehousePickSummaryTestPage.First();
@@ -1291,7 +1840,7 @@ codeunit 137501 "SCM Available to Pick UT"
     end;
 
     [Test]
-    [HandlerFunctions('CreatePickFromPrdOrderShowCalcSummaryShptReqHandler,CreatePickFromWhseShowCalcSummaryShptReqHandler')]
+    [HandlerFunctions('CreatePickFromProdOrderShowCalcSummaryShptReqHandler,CreatePickFromWhseShowCalcSummaryShptReqHandler')]
     procedure DirectPutAwayPickProdOrderPickBackwardFlushAvailInPickBinFullPicksCreatedSummaryPage()
     var
         WhseActivityLine: Record "Warehouse Activity Line";
@@ -1333,7 +1882,7 @@ codeunit 137501 "SCM Available to Pick UT"
         ProdOrderComponent.Modify();
 
         // [WHEN] Create warehouse pick
-        CreateWhsePickAndTrapSummary(ProductionOrder, WarehousePickSummaryTestPage); //CreatePickFromPrdOrderShowCalcSummaryShptReqHandler will show calculation summary page.
+        CreateWhsePickAndTrapSummary(ProductionOrder, WarehousePickSummaryTestPage); //CreatePickFromProdOrderShowCalcSummaryShptReqHandler will show calculation summary page.
 
         // [THEN] Warehouse pick summary page is shown
         WarehousePickSummaryTestPage.First();
@@ -1445,6 +1994,161 @@ codeunit 137501 "SCM Available to Pick UT"
         // [THEN] Warehouse pick is created
         CheckPick(Enum::"Warehouse Action Type"::Take, SalesHeader."No.", Quantity);
         CheckPick(Enum::"Warehouse Action Type"::Place, SalesHeader."No.", Quantity);
+    end;
+
+    [Test]
+    [HandlerFunctions('CreatePickFromWhseShowCalcSummaryShptReqHandler,ItemTrackingLinesAssignSNModalPageHandler,AssignSNWithInfoToCreateModalPageHandler')]
+    procedure DirectedPutAwayPickNoPicksForMultiItemDifferentReasonsCreatedSummaryPage()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        WhseReceiptLine: Record "Warehouse Receipt Line";
+        WhseActivityLine: Record "Warehouse Activity Line";
+        SalesHeader: Record "Sales Header";
+        SalesLine1: Record "Sales Line";
+        SalesLine2: Record "Sales Line";
+        WhseShipmentHeader: Record "Warehouse Shipment Header";
+        ItemToBeReserved: Record Item;
+        ItemToBeSNBlocked: Record Item;
+        Location: Record Location;
+        WhseReceiptHeader: Record "Warehouse Receipt Header";
+        WhseShipmentLine: Record "Warehouse Shipment Line";
+        SerialNoInformation: Record "Serial No. Information";
+        WarehousePickSummaryTestPage: TestPage "Warehouse Pick Summary";
+        Quantity: Decimal;
+    begin
+        // [SCENARIO 485183] Directed Put-away and Pick, Qty handled is zero for multiple lines for different reasons and pick summary factbox has correct values.
+        Initialize();
+
+        // [GIVEN] Location with Directed Put-away and Pick, Shipment required enabled
+        // [GIVEN] Item available in pick bin
+        SetupLocationWithBins(Location, 1);
+        LibraryInventory.CreateItem(ItemToBeReserved);
+        LibraryInventory.CreateItem(ItemToBeSNBlocked);
+        LibraryItemTracking.AddSerialNoTrackingInfo(ItemToBeSNBlocked);
+
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, '');
+        Quantity := 5;
+
+        // [GIVEN] Create a purchase order for both the items
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, ItemToBeReserved."No.", Quantity);
+        PurchaseLine.Validate("Location Code", Location.Code);
+        PurchaseLine.Modify(true);
+
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, ItemToBeSNBlocked."No.", Quantity);
+        PurchaseLine.Validate("Location Code", Location.Code);
+        PurchaseLine.Modify(true);
+        PurchaseLine.OpenItemTrackingLines(); //ItemTrackingLinesAssignSNModalPageHandler, AssignSNWithInfoToCreateModalPageHandler will be used to assign item tracking lines.
+
+        LibraryPurchase.ReleasePurchaseDocument(PurchaseHeader);
+        LibraryWarehouse.CreateWhseReceiptFromPO(PurchaseHeader);
+
+        WhseReceiptLine.SetRange("Source Document", WhseReceiptLine."Source Document"::"Purchase Order");
+        WhseReceiptLine.SetRange("Source No.", PurchaseHeader."No.");
+        WhseReceiptLine.FindFirst();
+
+        WhseReceiptHeader.Get(WhseReceiptLine."No.");
+        LibraryWarehouse.PostWhseReceipt(WhseReceiptHeader);
+
+        // [GIVEN] Register a put-away activity to make the quantity available in the pick bin
+        RegisterWhseActivity(WhseActivityLine."Activity Type"::"Put-away", 39, WhseActivityLine."Source Document"::"Purchase Order", PurchaseHeader."No.");
+
+        // [GIVEN] Create Sales Order and reserve it against the purchase order
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, '');
+        LibrarySales.CreateSalesLine(SalesLine1, SalesHeader, SalesLine1.Type::Item, ItemToBeReserved."No.", Quantity);
+        SalesLine1.Validate("Location Code", Location.Code);
+        SalesLine1.Modify(true);
+        LibrarySales.AutoReserveSalesLine(SalesLine1);
+
+        // [GIVEN] Block the Serial numbers for the item
+        SerialNoInformation.SetRange("Item No.", ItemToBeSNBlocked."No.");
+        SerialNoInformation.FindSet();
+        repeat
+            SerialNoInformation.Validate(Blocked, true);
+            SerialNoInformation.Modify();
+        until SerialNoInformation.Next() = 0;
+
+        // [GIVEN] Warehouse shipment for the Sales order with qty. available in pick bin for both the items
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, '');
+        LibrarySales.CreateSalesLine(SalesLine1, SalesHeader, SalesLine1.Type::Item, ItemToBeReserved."No.", Quantity);
+        SalesLine1.Validate("Location Code", Location.Code);
+        SalesLine1.Modify(true);
+
+        LibrarySales.CreateSalesLine(SalesLine2, SalesHeader, SalesLine2.Type::Item, ItemToBeSNBlocked."No.", Quantity);
+        SalesLine2.Validate("Location Code", Location.Code);
+        SalesLine2.Modify(true);
+        LibrarySales.ReleaseSalesDocument(SalesHeader);
+        LibraryWarehouse.CreateWhseShipmentFromSO(SalesHeader);
+
+        // [WHEN] Create warehouse pick
+        WhseShipmentLine.SetRange("Source Document", WhseShipmentLine."Source Document"::"Sales Order");
+        WhseShipmentLine.SetRange("Source No.", SalesHeader."No.");
+        WhseShipmentLine.FindFirst();
+
+        WhseShipmentHeader.Get(WhseShipmentLine."No.");
+        CreateWhsePickAndTrapSummary(WhseShipmentHeader, WarehousePickSummaryTestPage); //CreatePickFromWhseShowCalcSummaryShptReqHandler will show calculation summary page.
+
+        // [THEN] Warehouse pick summary page is shown
+        WarehousePickSummaryTestPage.First();
+        CheckWarehouseSummaryNothingToHandleMsg(WarehousePickSummaryTestPage);
+
+        // [THEN] Values are correctly updated for Reserved Item.
+        WarehousePickSummaryTestPage.First();
+        CheckWarehouseSummaryLineDetails(WarehousePickSummaryTestPage, Enum::"Warehouse Activity Source Document"::"Sales Order", SalesHeader."No.", SalesLine1."Line No.", ItemToBeReserved."No.", Quantity, 0);
+        CheckWhseSummaryFactBoxValues(WarehousePickSummaryTestPage, false, false, true, Quantity, Quantity, Quantity, 0, 0, Quantity, Quantity, 0, 0, 0, -Quantity);
+
+        // [THEN] Values are correctly updated for blocked Item tracking.
+        WarehousePickSummaryTestPage.Next();
+        CheckWarehouseSummaryLineDetails(WarehousePickSummaryTestPage, Enum::"Warehouse Activity Source Document"::"Sales Order", SalesHeader."No.", SalesLine2."Line No.", ItemToBeSNBlocked."No.", Quantity, 0);
+        CheckWhseSummaryFactBoxValues(WarehousePickSummaryTestPage, false, true, false, 0, 0, Quantity, Quantity, 0, 0, Quantity, 0, 0, 0, 0);
+
+        WarehousePickSummaryTestPage.Close();
+    end;
+
+    local procedure SetupAssemblyOrderScenario(var AsmChild: Record Item; var AsmParent: Record Item; CostingMethod: Enum "Costing Method"; ReplenishmentSystem: Enum "Replenishment System"; AsmPolicy: Enum "Assembly Policy"; Quantity: Decimal; Location: Record Location)
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        WhseReceiptLine: Record "Warehouse Receipt Line";
+        WhseReceiptHeader: Record "Warehouse Receipt Header";
+        PutAwayBin: Record Bin;
+        PickBin: Record Bin;
+        WhseActivityLine: Record "Warehouse Activity Line";
+    begin
+        LibraryInventory.CreateItem(AsmChild);
+        LibraryAssembly.CreateItem(AsmParent, CostingMethod, ReplenishmentSystem, '', '');
+        AsmParent.Validate("Assembly Policy", AsmPolicy);
+        AsmParent.Modify();
+
+        LibraryAssembly.CreateAssemblyListComponent(Enum::"BOM Component Type"::Item, AsmChild."No.", AsmParent."No.", '', 0, Quantity, true);
+
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, '');
+
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, AsmChild."No.", 2 * Quantity);
+        PurchaseLine.Validate("Location Code", Location.Code);
+        PurchaseLine.Modify(true);
+
+        LibraryPurchase.ReleasePurchaseDocument(PurchaseHeader);
+        LibraryWarehouse.CreateWhseReceiptFromPO(PurchaseHeader);
+
+        WhseReceiptLine.SetRange("Source Document", WhseReceiptLine."Source Document"::"Purchase Order");
+        WhseReceiptLine.SetRange("Source No.", PurchaseHeader."No.");
+        WhseReceiptLine.FindFirst();
+
+        WhseReceiptHeader.Get(WhseReceiptLine."No.");
+        LibraryWarehouse.PostWhseReceipt(WhseReceiptHeader);
+
+        // [GIVEN] Register a put-away activity to make the quantity available in the pick bin
+        RegisterWhseActivity(WhseActivityLine."Activity Type"::"Put-away", 39, WhseActivityLine."Source Document"::"Purchase Order", PurchaseHeader."No.", 2 * Quantity, '', '');
+
+        // [GIVEN] Update location To-Assembly bin to Put-away bin and From-Assembly bin to Pick bin
+        LibraryWarehouse.FindBin(PutAwayBin, Location.Code, 'BULK', 1);
+        Location.Validate("To-Assembly Bin Code", PutAwayBin.Code);
+
+        LibraryWarehouse.FindBin(PickBin, Location.Code, 'PICK', 0);
+        Location.Validate("From-Assembly Bin Code", PickBin.Code);
+
+        Location.Modify();
     end;
 
     local procedure SetupProductionOrderScenario(var ProdChild: Record Item; var ProdParent: Record Item; FlushingMethod: Enum "Flushing Method"; Quantity: Decimal; Location: Record Location)
@@ -2063,6 +2767,8 @@ codeunit 137501 "SCM Available to Pick UT"
         BinCodeList: List of [Code[20]];
     begin
         LibraryWarehouse.CreateFullWMSLocation(Location, PickBinQty);
+        Location.Validate("Use Cross-Docking", false);
+        Location.Modify();
         SetupWarehouse(Location.Code);
 
         // Get Pick Zone and Pick bins
@@ -2130,6 +2836,23 @@ codeunit 137501 "SCM Available to Pick UT"
         WarehouseShipmentLineRec.CreatePickDoc(WhseShptLine, WhseShptHeader); //Requires a request page handler to set Show Summary to true
     end;
 
+    local procedure CreateWhsePickFromShipment(WarehouseShipmentHeader: Record "Warehouse Shipment Header")
+    var
+        WarehouseShipmentLineRec: Record "Warehouse Shipment Line";
+        WhseShptHeader: Record "Warehouse Shipment Header";
+        WhseShptLine: Record "Warehouse Shipment Line";
+        WhseShipmentRelease: Codeunit "Whse.-Shipment Release";
+    begin
+        WarehouseShipmentLineRec.SetRange("No.", WarehouseShipmentHeader."No.");
+        WarehouseShipmentLineRec.FindFirst();
+        WhseShptLine.Copy(WarehouseShipmentLineRec);
+        WhseShptHeader.Get(WhseShptLine."No.");
+        if WhseShptHeader.Status = WhseShptHeader.Status::Open then
+            WhseShipmentRelease.Release(WhseShptHeader);
+        WarehouseShipmentLineRec.SetHideValidationDialog(false);
+        WarehouseShipmentLineRec.CreatePickDoc(WhseShptLine, WhseShptHeader); //Requires a request page handler to set Show Summary
+    end;
+
     local procedure CreateWhsePickAndTrapSummary(AssemblyHeader: Record "Assembly Header"; var WarehousePickSummaryTestPage: TestPage "Warehouse Pick Summary")
     var
     begin
@@ -2146,7 +2869,7 @@ codeunit 137501 "SCM Available to Pick UT"
 
     local procedure CheckWarehouseSummaryNothingToHandleMsg(var WarehousePickSummaryTestPage: TestPage "Warehouse Pick Summary")
     begin
-        Assert.AreEqual('There is nothing to handle.', WarehousePickSummaryTestPage.Message.Value, 'Message shown on the summary page is not correct');
+        Assert.AreEqual('Nothing to handle.', WarehousePickSummaryTestPage.Message.Value, 'Message shown on the summary page is not correct');
     end;
 
     local procedure CheckWarehouseSummaryLineDetails(var WarehousePickSummaryTestPage: TestPage "Warehouse Pick Summary"; SourceDocument: Enum "Warehouse Activity Source Document"; SourceNo: Code[20]; SourceLineNo: Integer; ItemNo: Code[20]; ExpectedQtyToHandle: Decimal; ExpectedQtyHandled: Decimal)
@@ -2189,6 +2912,11 @@ codeunit 137501 "SCM Available to Pick UT"
             Assert.AreEqual(false, WarehousePickSummaryTestPage.SummaryPart."Qty. assigned".Visible(), 'Qty. assigned. should not be visible');
 
         CheckWhseSummaryFactBoxQtyInWhse(WarehousePickSummaryTestPage, ExpectedQtyInWhse);
+    end;
+
+    local procedure CheckWhseSummaryFactBoxValuesForPickWorksheet(var WarehousePickSummaryTestPage: TestPage "Warehouse Pick Summary"; BatchName: Text)
+    begin
+        Assert.AreEqual(BatchName, WarehousePickSummaryTestPage.SummaryPart."Worksheet Batch Name".Value, 'Worksheet Batch Name is not correct');
     end;
 
     local procedure CheckWhseSummaryFactBoxPickableQty(var WarehousePickSummaryTestPage: TestPage "Warehouse Pick Summary"; ExpectedQty: Decimal)
@@ -2368,6 +3096,31 @@ codeunit 137501 "SCM Available to Pick UT"
         until WhseActivityLine.Next() = 0;
 
         Clear(WhseActivityHeader);
+        WhseActivityHeader.SetRange(Type, ActivityType);
+        WhseActivityHeader.SetRange("No.", WhseActivityLine."No.");
+        WhseActivityHeader.FindFirst();
+        if (ActivityType = WhseActivityLine."Activity Type"::"Put-away") or
+           (ActivityType = WhseActivityLine."Activity Type"::Pick)
+        then
+            LibraryWarehouse.RegisterWhseActivity(WhseActivityHeader)
+        else
+            LibraryWarehouse.PostInventoryActivity(WhseActivityHeader, false);
+    end;
+
+    local procedure RegisterWhseActivity(ActivityType: Enum "Warehouse Activity Type"; SourceType: Integer; SourceDocument: Enum "Warehouse Activity Source Document"; SourceNo: Code[20])
+    var
+        WhseActivityLine: Record "Warehouse Activity Line";
+        WhseActivityHeader: Record "Warehouse Activity Header";
+    begin
+        WhseActivityLine.SetRange("Source Type", SourceType);
+        WhseActivityLine.SetRange("Source Document", SourceDocument);
+        WhseActivityLine.SetRange("Source No.", SourceNo);
+        WhseActivityLine.FindSet();
+        repeat
+            WhseActivityLine.Validate("Qty. to Handle", WhseActivityLine.Quantity);
+            WhseActivityLine.Modify();
+        until WhseActivityLine.Next() = 0;
+
         WhseActivityHeader.SetRange(Type, ActivityType);
         WhseActivityHeader.SetRange("No.", WhseActivityLine."No.");
         WhseActivityHeader.FindFirst();
@@ -2560,6 +3313,13 @@ codeunit 137501 "SCM Available to Pick UT"
     end;
 
     [RequestPageHandler]
+    procedure CreatePickFromWhseDoNotShowCalcSummaryShptReqHandler(var CreatePickFromWhseShptReqPage: TestRequestPage "Whse.-Shipment - Create Pick")
+    begin
+        CreatePickFromWhseShptReqPage.ShowSummaryField.SetValue(false);
+        CreatePickFromWhseShptReqPage.OK().Invoke();
+    end;
+
+    [RequestPageHandler]
     procedure CreatePickFromAsmOrderShowCalcSummaryShptReqHandler(var CreatePickFromAsmOrderReqPage: TestRequestPage "Whse.-Source - Create Document")
     begin
         CreatePickFromAsmOrderReqPage.ShowSummaryField.SetValue(true);
@@ -2567,9 +3327,23 @@ codeunit 137501 "SCM Available to Pick UT"
     end;
 
     [RequestPageHandler]
-    procedure CreatePickFromPrdOrderShowCalcSummaryShptReqHandler(var CreatePickFromProdOrderReqPage: TestRequestPage "Whse.-Source - Create Document")
+    procedure CreatePickFromAsmOrderDoNotShowCalcSummaryShptReqHandler(var CreatePickFromAsmOrderReqPage: TestRequestPage "Whse.-Source - Create Document")
+    begin
+        CreatePickFromAsmOrderReqPage.ShowSummaryField.SetValue(false);
+        CreatePickFromAsmOrderReqPage.OK().Invoke();
+    end;
+
+    [RequestPageHandler]
+    procedure CreatePickFromProdOrderShowCalcSummaryShptReqHandler(var CreatePickFromProdOrderReqPage: TestRequestPage "Whse.-Source - Create Document")
     begin
         CreatePickFromProdOrderReqPage.ShowSummaryField.SetValue(true);
+        CreatePickFromProdOrderReqPage.OK().Invoke();
+    end;
+
+    [RequestPageHandler]
+    procedure CreatePickFromPrdOrderDoNotShowCalcSummaryShptReqHandler(var CreatePickFromProdOrderReqPage: TestRequestPage "Whse.-Source - Create Document")
+    begin
+        CreatePickFromProdOrderReqPage.ShowSummaryField.SetValue(false);
         CreatePickFromProdOrderReqPage.OK().Invoke();
     end;
 
@@ -2590,6 +3364,36 @@ codeunit 137501 "SCM Available to Pick UT"
         TotalBaseQty += BinContents."Quantity (Base)".AsDecimal();
         // Use total base quantity as we cannot guarantee the sequence of the bin content lines.
         Assert.AreEqual(LibraryVariableStorage.DequeueDecimal() + LibraryVariableStorage.DequeueDecimal(), TotalBaseQty, 'Total Quantity (Base) is not correct');
+    end;
+
+    [ModalPageHandler]
+    procedure ItemTrackingLinesAssignSNModalPageHandler(var ItemTrackingLines: TestPage "Item Tracking Lines")
+    begin
+        ItemTrackingLines."Assign Serial No.".Invoke();
+    end;
+
+    [ModalPageHandler]
+    procedure AssignSNWithInfoToCreateModalPageHandler(var EnterQuantityToCreate: TestPage "Enter Quantity to Create")
+    begin
+        EnterQuantityToCreate.CreateSNInfo.SetValue(true);
+        EnterQuantityToCreate.OK().Invoke();
+    end;
+
+    [ModalPageHandler]
+    procedure VerifyDrillDownPickWorksheetModalPageHandler(var PickWorksheet: TestPage "Pick Worksheet")
+    begin
+        Assert.AreEqual(LibraryVariableStorage.DequeueText(), PickWorksheet.CurrentWkshName.Value, 'Worksheet Batch Name is not correct');
+        Assert.AreEqual(LibraryVariableStorage.DequeueText(), PickWorksheet.CurrentLocationCode.Value, 'Location Code is not correct');
+        Assert.AreEqual(LibraryVariableStorage.DequeueText(), PickWorksheet."Whse. Document No.".Value, 'Whse. Document No. is not correct');
+        Assert.AreEqual(LibraryVariableStorage.DequeueText(), PickWorksheet.WhseDocumentType.Value, 'Whse. Document Type is not correct');
+        Assert.AreEqual(LibraryVariableStorage.DequeueText(), PickWorksheet."Item No.".Value, 'Item No. is not correct');
+        Assert.IsFalse(PickWorksheet.Next(), 'There should be only one line in the worksheet');
+    end;
+
+    [MessageHandler]
+    procedure VerifyMessageHandler(Message: Text)
+    begin
+        Assert.AreEqual(LibraryVariableStorage.DequeueText(), Message, 'Message is not correct');
     end;
 }
 

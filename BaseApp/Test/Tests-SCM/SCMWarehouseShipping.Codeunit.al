@@ -66,7 +66,7 @@ codeunit 137151 "SCM Warehouse - Shipping"
         RegisterPickConfirmMsg: Label 'Do you want to register the';
         PickActivityCreatedMsg: Label 'Pick activity no. ';
         PutAwayActivityCreatedMsg: Label 'Put-away activity no.';
-        NothingToHandleErr: Label 'Nothing to handle. .';
+        NothingToHandleErr: Label 'Nothing to handle.';
         UnexpectedErr: Label 'UnexpectedErr.';
         UndoShipmentConfirmMsg: Label 'Do you really want to undo the selected Shipment lines?';
         UndoPickedShipmentConfirmMsg: Label 'The items have been picked';
@@ -1151,7 +1151,7 @@ codeunit 137151 "SCM Warehouse - Shipping"
         asserterror CreatePickFromWhseShipment(SalesHeader2);
 
         // Verify: Nothing to handle Error.
-        Assert.AreEqual(StrSubstNo(NothingToHandleErr), GetLastErrorText, UnexpectedErr);
+        Assert.ExpectedError(NothingToHandleErr);
 
         // Tear Down: Allow break bulk TRUE on Location.
         ModifyAllowBreakBulkOnLocation(LocationWhite2, true);

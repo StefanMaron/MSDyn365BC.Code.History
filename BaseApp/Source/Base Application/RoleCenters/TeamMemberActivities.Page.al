@@ -8,6 +8,7 @@ using Microsoft.Projects.TimeSheet;
 using System;
 using System.Environment.Configuration;
 using System.Feedback;
+using System.Telemetry;
 
 page 9042 "Team Member Activities"
 {
@@ -38,9 +39,13 @@ page 9042 "Team Member Activities"
                         trigger OnAction()
                         var
                             TimeSheetHeader: Record "Time Sheet Header";
+                            FeatureTelemetry: Codeunit "Feature Telemetry";
                             TimeSheetCard: Page "Time Sheet Card";
                             TimeSheetList: Page "Time Sheet List";
                         begin
+#if not CLEAN22
+                            FeatureTelemetry.LogUptake('0000JQU', TimeSheetManagement.GetTimeSheetV2FeatureKey(), Enum::"Feature Uptake Status"::Used);
+#endif
                             TimeSheetManagement.FilterTimeSheets(TimeSheetHeader, TimeSheetHeader.FieldNo("Owner User ID"));
                             TimeSheetCard.SetTableView(TimeSheetHeader);
                             if TimeSheetHeader.Get(TimeSheetHeader.FindCurrentTimeSheetNo(TimeSheetHeader.FieldNo("Owner User ID"))) then begin
@@ -53,7 +58,7 @@ page 9042 "Team Member Activities"
                                 TimeSheetList.SetRecord(TimeSheetHeader);
                                 TimeSheetList.Run();
                             end;
-
+                            FeatureTelemetry.LogUsage('0000JQU', 'NewTimeSheetExperience', 'Current Time Sheet opened from Self-Service part of the Role Center');
                         end;
                     }
                 }

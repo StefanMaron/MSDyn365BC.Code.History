@@ -74,6 +74,7 @@ codeunit 137051 "SCM Warehouse - III"
         NoWarehouseActivityLineErr: Label 'There is no Warehouse Activity Line within the filter.';
         UnexpectedSourceNoErr: Label 'Unexpected value of Source No. field.';
         ExpiredItemsNotPickedMsg: Label 'Some items were not included in the pick due to their expiration date.';
+        ZoneCodeMustMatchErr: Label 'Zone Code must match.';
 
     [Test]
     [HandlerFunctions('ItemTrackingPageHandler,QuantityToCreatePageHandler,ConfirmHandler,PickActivitiesMessageHandler')]
@@ -5108,6 +5109,274 @@ codeunit 137051 "SCM Warehouse - III"
         LibraryVariableStorage.AssertEmpty();
     end;
 
+    [Test]
+    [HandlerFunctions('PostProductionJournalPageHandler')]
+    [Scope('OnPrem')]
+    procedure ZoneCodeShouldFlowToWarehouseEntriesWhenPostProductionJournal()
+    var
+        Item: Record Item;
+        Item2: Record Item;
+        Location: Record Location;
+        Bin: Record Bin;
+        Zone: Record Zone;
+        ItemJnlTemplate: Record "Item Journal Template";
+        ItemJnlBatch: Record "Item Journal Batch";
+        ItemJnlLine: Record "Item Journal Line";
+        ProductionOrder: Record "Production Order";
+        ProdOrderLine: Record "Prod. Order Line";
+        WarehouseEntry: Record "Warehouse Entry";
+        ProductionJournalMgt: Codeunit "Production Journal Mgt";
+    begin
+        // [SCENARIO 481027] Zone is missing in warehouse entries created via for production posting
+        Initialize();
+
+        // [GIVEN] Create Item.
+        LibraryInventory.CreateItem(Item);
+
+        // [GIVEN] Create Item 2.
+        LibraryInventory.CreateItem(Item2);
+
+        // [GIVEN] Create Location.
+        CreateLocation(Location);
+
+        // [GIVEN] Create Zone.
+        LibraryWarehouse.CreateZone(Zone, Zone.Code, Location.Code, '', '', '', 0, false);
+
+        // [GIVEN] Create Bin.
+        LibraryWarehouse.CreateBin(Bin, Location.Code, Bin.Code, Zone.Code, '');
+
+        // [GIVEN] Create Item Journal line & Validate Location Code & Bin code.
+        CreateItemJournalLine(ItemJnlTemplate, ItemJnlBatch, ItemJnlLine, Item);
+        ItemJnlLine.Validate("Location Code", Location.Code);
+        ItemJnlLine.Validate("Bin Code", Bin.Code);
+        ItemJnlLine.Modify(true);
+
+        // [GIVEN] Post Item Journal Line.
+        LibraryInventory.PostItemJournalLine(ItemJnlTemplate.Name, ItemJnlBatch.Name);
+
+        // [GIVEN] Create Released Production Order & Refresh it.
+        CreateReleasedProdOrderAndRefresh(ProductionOrder, Item2, Location.Code, Bin.Code, LibraryRandom.RandInt(0));
+
+        // [GIVEN] Add Component Line to Released Production Order.
+        AddComponentToProdOrder(ProductionOrder, Item."No.", LibraryRandom.RandInt(0), Location.Code, Bin.Code, Item."Flushing Method");
+
+        // [GIVEN] Find Production Order Line.
+        ProdOrderLine.SetRange("Prod. Order No.", ProductionOrder."No.");
+        ProdOrderLine.FindFirst();
+
+        // [GIVEN] Post Production Journal.
+        ProductionJournalMgt.Handling(ProductionOrder, ProdOrderLine."Line No.");
+
+        // [WHEN] Find Warehouse Entry for Source Document Consumption Jnl.
+        WarehouseEntry.SetRange("Source Document", WarehouseEntry."Source Document"::"Consumption Jnl.");
+        WarehouseEntry.SetRange("Bin Code", Bin.Code);
+        WarehouseEntry.FindFirst();
+
+        // [VERIFY] Verify Warehouse Entry Zone Code & Zone Code are same.
+        Assert.AreEqual(Zone.Code, WarehouseEntry."Zone Code", ZoneCodeMustMatchErr);
+
+        // [WHEN] Find Warehouse Entry for Source Document Output Jnl.
+        WarehouseEntry.SetRange("Source Document", WarehouseEntry."Source Document"::"Output Jnl.");
+        WarehouseEntry.SetRange("Bin Code", Bin.Code);
+        WarehouseEntry.FindFirst();
+
+        // [VERIFY] Verify Warehouse Entry Zone Code & Zone Code are same.
+        Assert.AreEqual(Zone.Code, WarehouseEntry."Zone Code", ZoneCodeMustMatchErr);
+    end;
+
+    [Test]
+    [HandlerFunctions('MessageHandlerGetText')]
+    [Scope('OnPrem')]
+    procedure ZoneCodeShouldFlowToWarehouseEntriesWhenPostInventoryPick()
+    var
+        Item: Record Item;
+        Item2: Record Item;
+        Location: Record Location;
+        Bin: Record Bin;
+        Zone: Record Zone;
+        ItemJnlTemplate: Record "Item Journal Template";
+        ItemJnlBatch: Record "Item Journal Batch";
+        ItemJnlLine: Record "Item Journal Line";
+        ProductionOrder: Record "Production Order";
+        WarehouseActivityHeader: Record "Warehouse Activity Header";
+        WarehouseEntry: Record "Warehouse Entry";
+    begin
+        // [SCENARIO 481027] Zone is missing in warehouse entries created via for production posting
+        Initialize();
+
+        // [GIVEN] Create Item.
+        LibraryInventory.CreateItem(Item);
+
+        // [GIVEN] Create Item 2.
+        LibraryInventory.CreateItem(Item2);
+
+        // [GIVEN] Create Location & Validate Prod Consump Whse Handling.
+        CreateLocation(Location);
+        Location.Validate("Prod. Consump. Whse. Handling", Location."Prod. Consump. Whse. Handling"::"Inventory Pick/Movement");
+        Location.Modify(true);
+
+        // [GIVEN] Create Zone.
+        LibraryWarehouse.CreateZone(Zone, Zone.Code, Location.Code, '', '', '', 0, false);
+
+        // [GIVEN] Create Bin.
+        LibraryWarehouse.CreateBin(Bin, Location.Code, Bin.Code, Zone.Code, '');
+
+        // [GIVEN] Create Item Journal Line & Validate Location Code & Bin Code.
+        CreateItemJournalLine(ItemJnlTemplate, ItemJnlBatch, ItemJnlLine, Item);
+        ItemJnlLine.Validate("Location Code", Location.Code);
+        ItemJnlLine.Validate("Bin Code", Bin.Code);
+        ItemJnlLine.Modify(true);
+
+        // [GIVEN] Post Item Journal Line.
+        LibraryInventory.PostItemJournalLine(ItemJnlTemplate.Name, ItemJnlBatch.Name);
+
+        // [GIVEN] Create Released Production Order & Refresh it.
+        CreateReleasedProdOrderAndRefresh(ProductionOrder, Item2, Location.Code, Bin.Code, LibraryRandom.RandInt(0));
+
+        // [GIVEN] Add Component to Released Production Order.
+        AddComponentToProdOrder(ProductionOrder, Item."No.", LibraryRandom.RandInt(0), Location.Code, Bin.Code, Item."Flushing Method");
+
+        // [GIVEN] Run Create Inventory PutAway/Pick/Movement & Create Inventory Pick.
+        LibraryWarehouse.CreateInvtPutPickMovement("Warehouse Request Source Document"::"Prod. Consumption", ProductionOrder."No.", false, true, false);
+
+        // [GIVEN] Find Warehouse Activity Header.
+        WarehouseActivityHeader.SetRange("Location Code", Location.Code);
+        WarehouseActivityHeader.FindFirst();
+
+        // [GIVEN] Fill Qty to Handle in Inventory Pick.
+        LibraryWarehouse.AutoFillQtyInventoryActivity(WarehouseActivityHeader);
+
+        // [GIVEN] Post Inventory Pick.
+        LibraryWarehouse.PostInventoryActivity(WarehouseActivityHeader, true);
+
+        // [WHEN] Find Warehouse Entry of Bin Code.
+        WarehouseEntry.SetRange("Bin Code", Bin.Code);
+        WarehouseEntry.FindFirst();
+
+        // [VERIFY] Verify Warehouse Entry Zone Code & Zone Code are same.
+        Assert.AreEqual(Zone.Code, WarehouseEntry."Zone Code", ZoneCodeMustMatchErr);
+    end;
+
+    [Test]
+    [HandlerFunctions('MessageHandlerGetText')]
+    [Scope('OnPrem')]
+    procedure ZoneCodeShouldFlowToWarehouseEntriesWhenRegisterPick()
+    var
+        Item: Record Item;
+        Item2: Record Item;
+        Location: Record Location;
+        Bin: Record Bin;
+        Bin2: Record Bin;
+        Zone: Record Zone;
+        Zone2: Record Zone;
+        ItemJnlTemplate: Record "Item Journal Template";
+        ItemJnlBatch: Record "Item Journal Batch";
+        ItemJnlLine: Record "Item Journal Line";
+        Customer: Record Customer;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        WarehouseShipmentHeader: Record "Warehouse Shipment Header";
+        WarehouseShipmentLine: Record "Warehouse Shipment Line";
+        WarehouseActivityHeader: Record "Warehouse Activity Header";
+        WarehouseEntry: Record "Warehouse Entry";
+    begin
+        // [SCENARIO 481027] Zone is missing in warehouse entries created via for production posting
+        Initialize();
+
+        // [GIVEN] Create Item.
+        LibraryInventory.CreateItem(Item);
+
+        // [GIVEN] Create Item 2.
+        LibraryInventory.CreateItem(Item2);
+
+        // [GIVEN] Create Location.
+        CreateLocation(Location);
+
+        // [GIVEN] Create Zone.
+        LibraryWarehouse.CreateZone(Zone, Zone.Code, Location.Code, '', '', '', 0, false);
+
+        // [GIVEN] Create Bin.
+        LibraryWarehouse.CreateBin(Bin, Location.Code, Bin.Code, Zone.Code, '');
+
+        // [GIVEN] Create Zone 2.
+        LibraryWarehouse.CreateZone(Zone2, Zone2.Code, Location.Code, '', '', '', 0, false);
+
+        // [GIVEN] Create Bin 2.
+        LibraryWarehouse.CreateBin(Bin2, Location.Code, Bin2.Code, Zone2.Code, '');
+
+        // [GIVEN] Validate Require Shipment, Require Pick & Shipment Bin Code in Location.
+        Location.Validate("Require Shipment", true);
+        Location.Validate("Require Pick", true);
+        Location.Validate("Shipment Bin Code", Bin2.Code);
+        Location.Modify(true);
+
+        // [GIVEN] Create Item Journal Line & Validate Location Code & Bin Code.
+        CreateItemJournalLine(ItemJnlTemplate, ItemJnlBatch, ItemJnlLine, Item);
+        ItemJnlLine.Validate("Location Code", Location.Code);
+        ItemJnlLine.Validate("Bin Code", Bin.Code);
+        ItemJnlLine.Modify(true);
+
+        // [GIVEN] Post Item Journal Line.
+        LibraryInventory.PostItemJournalLine(ItemJnlTemplate.Name, ItemJnlBatch.Name);
+
+        // [GIVEN] Create Customer.
+        LibrarySales.CreateCustomer(Customer);
+
+        // [GIVEN] Create Sales Header.
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, Customer."No.");
+
+        // [GIVEN] Create a Sales Line & Validate Location Code, Bin Code & Qty to Ship.
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", LibraryRandom.RandInt(0));
+        SalesLine.Validate("Location Code", Location.Code);
+        SalesLine.Validate("Bin Code", Bin.Code);
+        SalesLine.Validate("Qty. to Ship", LibraryRandom.RandInt(0));
+        SalesLine.Modify(true);
+
+        // [GIVEN] Release Sales Order.
+        LibrarySales.ReleaseSalesDocument(SalesHeader);
+
+        // [GIVEN] Create Warehouse Shipment from Sales Order.
+        LibraryWarehouse.CreateWhseShipmentFromSO(SalesHeader);
+
+        // [GIVEN] Find Warehouse Shipment Line.
+        WarehouseShipmentLine.SetRange("Source No.", SalesHeader."No.");
+        WarehouseShipmentLine.SetRange("Source Type", DATABASE::"Sales Line");
+        WarehouseShipmentLine.SetRange("Source Subtype", SalesHeader."Document Type");
+        WarehouseShipmentLine.FindLast();
+
+        // [GIVEN] Find Warehouse Shipment Header.
+        WarehouseShipmentHeader.Get(WarehouseShipmentLine."No.");
+
+        // [GIVEN] Release Warehosue Shipment.
+        LibraryWarehouse.ReleaseWarehouseShipment(WarehouseShipmentHeader);
+
+        // [GIVEN] Create Warehosue Pick.
+        LibraryWarehouse.CreatePick(WarehouseShipmentHeader);
+
+        // [GIVEN] Find Warehouse Activity Header.
+        WarehouseActivityHeader.SetRange("Location Code", Location.Code);
+        WarehouseActivityHeader.FindFirst();
+
+        // [GIVEN] Register Warehouse Pick.
+        LibraryWarehouse.RegisterWhseActivity(WarehouseActivityHeader);
+
+        // [WHEN] Find Warehouse Entry of Entry Type S Order & Bin Code.
+        WarehouseEntry.SetRange("Source Document", WarehouseEntry."Source Document"::"S. Order");
+        WarehouseEntry.SetRange("Bin Code", Bin.Code);
+        WarehouseEntry.FindFirst();
+
+        // [VERIFY] Verify Warehouse Entry Zone Code & Zone Code are same.
+        Assert.AreEqual(Zone.Code, WarehouseEntry."Zone Code", ZoneCodeMustMatchErr);
+
+        // [WHEN] Find Warehouse Entry of Entry Type S Order & Bin 2 Code.
+        WarehouseEntry.SetRange("Source Document", WarehouseEntry."Source Document"::"S. Order");
+        WarehouseEntry.SetRange("Bin Code", Bin2.Code);
+        WarehouseEntry.FindFirst();
+
+        // [VERIFY] Verify Warehouse Entry Zone Code & Zone 2 Code are same.
+        Assert.AreEqual(Zone2.Code, WarehouseEntry."Zone Code", ZoneCodeMustMatchErr);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -6956,6 +7225,57 @@ codeunit 137051 "SCM Warehouse - III"
         end;
     end;
 
+    local procedure CreateLocation(var Location: Record Location): Code[10]
+    var
+        WarehouseEmployee: Record "Warehouse Employee";
+    begin
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
+        Location.Validate("Bin Mandatory", true);
+        Location.Modify(true);
+        LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, Location.Code, true);
+        exit(Location.Code);
+    end;
+
+    local procedure CreateItemJournalLine(var ItemJnlTemplate: Record "Item Journal Template"; var ItemJnlBatch: Record "Item Journal Batch"; var ItemJnlLine: Record "Item Journal Line"; Item: Record Item)
+    begin
+        LibraryInventory.CreateItemJournalTemplate(ItemJnlTemplate);
+        LibraryInventory.CreateItemJournalBatch(ItemJnlBatch, ItemJnlTemplate.Name);
+        LibraryInventory.CreateItemJournalLine(ItemJnlLine, ItemJnlTemplate.Name, ItemJnlBatch.Name, ItemJnlLine."Entry Type"::"Positive Adjmt.", Item."No.", LibraryRandom.RandInt(100));
+    end;
+
+    local procedure CreateReleasedProdOrderAndRefresh(var ProductionOrder: Record "Production Order"; Item: Record Item; LocationCode: Code[10]; BinCode: Code[20]; Qty: Integer)
+    begin
+        LibraryManufacturing.CreateProductionOrder(
+          ProductionOrder, ProductionOrder.Status::Released, ProductionOrder."Source Type"::Item, Item."No.", Qty);
+        ProductionOrder.Validate("Location Code", LocationCode);
+        ProductionOrder.Validate("Bin Code", BinCode);
+        ProductionOrder.Modify(true);
+        LibraryManufacturing.RefreshProdOrder(ProductionOrder, false, true, true, true, false);
+    end;
+
+    local procedure AddComponentToProdOrder(ProductionOrder: Record "Production Order"; ItemNo: Code[20]; QuantityPer: Decimal; LocationCode: Code[10]; BinCode: Code[20]; FlushingMethod: Enum "Flushing Method")
+    var
+        ProdOrderComponent: Record "Prod. Order Component";
+        ProdOrderLine: Record "Prod. Order Line";
+    begin
+        ProdOrderLine.SetRange("Prod. Order No.", ProductionOrder."No.");
+        ProdOrderLine.FindFirst();
+
+        ProdOrderComponent.Init();
+        ProdOrderComponent.Status := ProductionOrder.Status;
+        ProdOrderComponent."Prod. Order No." := ProductionOrder."No.";
+        ProdOrderComponent."Prod. Order Line No." := ProdOrderLine."Line No.";
+        ProdOrderComponent."Line No." += 10000;
+        ProdOrderComponent.Validate("Item No.", ItemNo);
+        ProdOrderComponent.Validate("Location Code", LocationCode);
+        ProdOrderComponent.Validate("Flushing Method", FlushingMethod);
+        ProdOrderComponent.Validate("Bin Code", BinCode);
+        ProdOrderComponent.Validate("Quantity per", QuantityPer);
+        ProdOrderComponent.Insert(true);
+
+        LibraryVariableStorage.Enqueue(ProductionOrder."No.");
+    end;
+
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure ProductionJournalPostOneHandler(var ProductionJournal: TestPage "Production Journal")
@@ -7270,6 +7590,20 @@ codeunit 137051 "SCM Warehouse - III"
         if not Evaluate(Integer, Reservation.TotalAvailableQuantity.Value) then
             Integer := 0;
         LibraryVariableStorage.Enqueue(Integer);
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure PostProductionJournalPageHandler(var ProductionJournal: TestPage "Production Journal")
+    var
+        ItemJournalLine: Record "Item Journal Line";
+    begin
+        ItemJournalLine.SetRange("Order Type", ItemJournalLine."Order Type"::Production);
+        ItemJournalLine.SetRange("Order No.", LibraryVariableStorage.DequeueText());
+        ItemJournalLine.FindSet();
+        repeat
+            CODEUNIT.Run(CODEUNIT::"Item Jnl.-Post Batch", ItemJournalLine);
+        until ItemJournalLine.Next() = 0;
     end;
 }
 

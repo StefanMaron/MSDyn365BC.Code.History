@@ -1121,7 +1121,7 @@ table 5092 Opportunity
             end else
                 Error(SalesCycleNotFoundErr);
         end;
-        OnAfterStartActivateFirstStage(SalesCycleStage, OpportunityEntry);
+        OnAfterStartActivateFirstStage(SalesCycleStage, OpportunityEntry, Rec);
     end;
 
     procedure SetDefaultSalesCycle()
@@ -1260,7 +1260,7 @@ table 5092 Opportunity
     end;
 
     [IntegrationEvent(true, false)]
-    local procedure OnAfterStartActivateFirstStage(SalesCycleStage: Record "Sales Cycle Stage"; var OpportunityEntry: Record "Opportunity Entry")
+    local procedure OnAfterStartActivateFirstStage(SalesCycleStage: Record "Sales Cycle Stage"; var OpportunityEntry: Record "Opportunity Entry"; var Opportunity: Record Opportunity)
     begin
     end;
 

@@ -539,6 +539,16 @@ codeunit 825 "Sales Post Invoice Events"
     begin
     end;
 
+    procedure RunOnPrepareLineOnBeforeInvoicePostingBufferSetAccount(var InvoicePostingBuffer: Record "Invoice Posting Buffer"; var SalesLine: Record "Sales Line"; var GeneralPostingSetup: Record "General Posting Setup"; var InvDiscAccount: Code[20]; var TotalVAT: Decimal; var TotalVATACY: Decimal; var TotalAmount: Decimal; var TotalAmountACY: Decimal; var IsHandled: Boolean)
+    begin
+        OnPrepareLineOnBeforeInvoicePostingBufferSetAccount(InvoicePostingBuffer, SalesLine, GeneralPostingSetup, InvDiscAccount, TotalVAT, TotalVATACY, TotalAmount, TotalAmountACY, IsHandled);
+    end;
+
+    [IntegrationEvent(false, false)]
+    procedure OnPrepareLineOnBeforeInvoicePostingBufferSetAccount(var InvoicePostingBuffer: Record "Invoice Posting Buffer"; var SalesLine: Record "Sales Line"; var GeneralPostingSetup: Record "General Posting Setup"; var InvDiscAccount: Code[20]; var TotalVAT: Decimal; var TotalVATACY: Decimal; var TotalAmount: Decimal; var TotalAmountACY: Decimal; var IsHandled: Boolean)
+    begin
+    end;
+
     // Prepare Deferral Line
 
     procedure RunOnPrepareDeferralLineOnBeforePrepareInitialAmounts(var DeferralPostBuffer: Record "Deferral Posting Buffer"; SalesHeader: Record "Sales Header"; SalesLine: Record "Sales Line"; AmountLCY: Decimal; AmountACY: Decimal; RemainAmtToDefer: Decimal; RemainAmtToDeferACY: Decimal; DeferralAccount: Code[20]; SalesAccount: Code[20])

@@ -1386,7 +1386,7 @@ page 51 "Purchase Invoice"
                     Caption = 'Move Negative Lines';
                     Ellipsis = true;
                     Image = MoveNegativeLines;
-                    ToolTip = 'Prepare to create a replacement sales order in a sales return process.';
+                    ToolTip = 'Prepare to create a replacement purchase order in a purchase return process.';
 
                     trigger OnAction()
                     begin
@@ -2130,9 +2130,10 @@ page 51 "Purchase Invoice"
     begin
         if (Rec."Last Posting No." <> '') and (Rec."Last Posting No." <> xLastPostingNo) then
             PurchInvHeader.SetRange("No.", Rec."Last Posting No.")
-        else
+        else begin
             PurchInvHeader.SetRange("Pre-Assigned No.", PreAssignedNo);
-        PurchInvHeader.SetRange("Order No.", '');
+            PurchInvHeader.SetRange("Order No.", '');
+        end;
         if PurchInvHeader.FindFirst() then
             if InstructionMgt.ShowConfirm(StrSubstNo(OpenPostedPurchaseInvQst, PurchInvHeader."No."),
                  InstructionMgt.ShowPostedConfirmationMessageCode())

@@ -262,6 +262,13 @@ table 9651 "Report Layout Selection"
         DesignTimeReportSelection.SetSelectedCustomLayout(NewTempSelectedLayoutCode);
     end;
 
+    procedure SetTempLayoutSelectedName(NewTempSelectedLayoutName: Text[250]; AppID: Guid)
+    var
+        DesignTimeReportSelection: Codeunit "Design-time Report Selection";
+    begin
+        DesignTimeReportSelection.SetSelectedLayout(NewTempSelectedLayoutName, AppID);
+    end;
+
     procedure SetTempLayoutSelectedName(NewTempSelectedLayoutName: Text[250])
     var
         DesignTimeReportSelection: Codeunit "Design-time Report Selection";

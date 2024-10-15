@@ -78,7 +78,7 @@ page 672 "Job Queue Entries"
                 {
                     ApplicationArea = Basic, Suite;
                     Style = Unfavorable;
-                    StyleExpr = NOT Rec.Scheduled;
+                    StyleExpr = not Rec.Scheduled;
                     ToolTip = 'Specifies if the job queue entry has been scheduled to run automatically, which happens when an entry changes status to Ready. If the field is cleared, the job queue entry is not scheduled to run.';
                 }
                 field("Recurring Job"; Rec."Recurring Job")
@@ -343,6 +343,7 @@ page 672 "Job Queue Entries"
         AzureADGraphUser: Codeunit "Azure AD Graph User";
     begin
         JobQueueManagement.FindStaleJobsAndSetError();
+        JobQueueManagement.TooManyScheduledTasksNotification();
         IsUserDelegated := AzureADGraphUser.IsUserDelegatedAdmin() or AzureADGraphUser.IsUserDelegatedHelpdesk();
     end;
 

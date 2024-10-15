@@ -98,6 +98,7 @@ codeunit 99000792 "Create Prod. Order from Sale"
                     UpdateSalesLineReserve(SalesLine, ProdOrderLine);
                     OnCreateProductionOrderOnBeforeProdOrderLineModify(ProdOrderLine, SalesLine, ProdOrder, SalesLineReserve);
                     ProdOrderLine.Modify();
+                    OnCreateProductionOrderOnAfterProdOrderLineModify(ProdOrderLine, SalesLine);
                 end;
             end;
 
@@ -164,6 +165,11 @@ codeunit 99000792 "Create Prod. Order from Sale"
 
     [IntegrationEvent(false, false)]
     local procedure OnCreateProductionOrderOnBeforeProdOrderLineModify(var ProdOrderLine: Record "Prod. Order Line"; var SalesLine: Record "Sales Line"; var ProdOrder: Record "Production Order"; var SalesLineReserve: Codeunit "Sales Line-Reserve")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateProductionOrderOnAfterProdOrderLineModify(var ProdOrderLine: Record "Prod. Order Line"; var SalesLine: Record "Sales Line")
     begin
     end;
 

@@ -12,6 +12,7 @@ report 5051 "Contact - Company Summary"
     ApplicationArea = Basic, Suite;
     Caption = 'Contact - Company Summary';
     UsageCategory = ReportsAndAnalysis;
+    WordMergeDataItem = Contact;
 
     dataset
     {

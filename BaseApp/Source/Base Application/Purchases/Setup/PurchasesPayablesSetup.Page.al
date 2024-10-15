@@ -129,7 +129,7 @@ page 460 "Purchases & Payables Setup"
                 field("Default Posting Date"; Rec."Default Posting Date")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies which date must be used as the default posting date on purchase documents.';
+                    ToolTip = 'Specifies which date must be used as the default posting date on purchase documents. If you select Work Date, the Posting Date field will be populated with the work date at the time of creating a new purchase document. If you select No Date, the Posting Date field will be empty by default and you must manually enter a posting date before posting.';
                 }
                 field("Default Qty. to Receive"; Rec."Default Qty. to Receive")
                 {

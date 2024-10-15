@@ -2236,16 +2236,24 @@ page 21 "Customer Card"
                 var
                     Customer: Record Customer;
                     CustomReportSelection: Record "Custom Report Selection";
+                    ReportSelections: Record "Report Selections";
                     CustomLayoutReporting: Codeunit "Custom Layout Reporting";
                     RecRef: RecordRef;
                 begin
                     RecRef.Open(Database::Customer);
                     CustomLayoutReporting.SetOutputFileBaseName(StatementFileNameTxt);
                     CustomReportSelection.SetRange(Usage, Enum::"Report Selection Usage"::"C.Statement");
+                    CustomReportSelection.SetRange("Source Type", Database::Customer);
+                    CustomReportSelection.SetRange("Source No.", Rec."No.");
                     if CustomReportSelection.FindFirst() then
                         CustomLayoutReporting.SetTableFilterForReportID(CustomReportSelection."Report ID", Rec."No.")
-                    else
-                        CustomLayoutReporting.SetTableFilterForReportID(Report::"Standard Statement", Rec."No.");
+                    else begin
+                        ReportSelections.SetRange(Usage, Enum::"Report Selection Usage"::"C.Statement");
+                        if ReportSelections.FindFirst() then
+                            CustomLayoutReporting.SetTableFilterForReportID(ReportSelections."Report ID", Rec."No.")
+                        else
+                            CustomLayoutReporting.SetTableFilterForReportID(Report::"Standard Statement", Rec."No.");
+                    end;
                     CustomLayoutReporting.ProcessReportData(
                         Enum::"Report Selection Usage"::"C.Statement", RecRef, Customer.FieldName("No."),
                         Database::Customer, Customer.FieldName("No."), true);
@@ -2819,7 +2827,6 @@ page 21 "Customer Card"
         ShowWorkflowStatus: Boolean;
         NoFieldVisible: Boolean;
         BalanceExhausted: Boolean;
-        AttentionToPaidDay: Boolean;
         IsAddressLookupTextEnabled: Boolean;
         Totals: Decimal;
         AmountOnPostedInvoices: Decimal;
@@ -2835,7 +2842,6 @@ page 21 "Customer Card"
         CustSalesLCY: Decimal;
         OverdueBalance: Decimal;
         OverduePaymentsMsg: Label 'Overdue Payments';
-        DaysPastDueDate: Decimal;
         PostedInvoicesMsg: Label 'Posted Invoices (%1)', Comment = 'Invoices (5)';
         CreditMemosMsg: Label 'Posted Credit Memos (%1)', Comment = 'Credit Memos (3)';
         OutstandingInvoicesMsg: Label 'Ongoing Invoices (%1)', Comment = 'Ongoing Invoices (4)';
@@ -2875,6 +2881,8 @@ page 21 "Customer Card"
         NoPostedCrMemos: Integer;
         NoOutstandingInvoices: Integer;
         NoOutstandingCrMemos: Integer;
+        AttentionToPaidDay: Boolean;
+        DaysPastDueDate: Decimal;
 
     [TryFunction]
     local procedure TryGetDictionaryValueFromKey(var DictionaryToLookIn: Dictionary of [Text, Text]; KeyToSearchFor: Text; var ReturnValue: Text)

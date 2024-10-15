@@ -887,6 +887,37 @@ codeunit 134658 "Edit Posted Documents"
         Assert.AreEqual(ReturnReceiptStatistics.TotalVolume.AsDecimal(), SalesLine.Quantity * SalesLine."Unit Volume", UnexpectedVolumeErr);
     end;
 
+    [Test]
+    [HandlerFunctions('PostedSalesShipmentUpdateShippingAgentCodeOKModalPageHandler')]
+    [Scope('OnPrem')]
+    procedure PostedSalesShipmentUpdateShippingAgentCodeOK()
+    var
+        SalesShptHeader: Record "Sales Shipment Header";
+        ShippingAgent: Record "Shipping Agent";
+        PostedSalesShipment: TestPage "Posted Sales Shipment";
+    begin
+        // [FEATURE] [Sales Shipment]
+        // [SCENARIO 487182] Updating the Shipping Agent Code on a Posted Sales Shipment
+        Initialize();
+        SalesShptHeader.Get(CreateAndPostSalesOrderGetShipmentNo());
+        LibraryInventory.CreateShippingAgent(ShippingAgent);
+        LibraryVariableStorage.Enqueue(ShippingAgent.Code);
+
+        // [GIVEN] Opened "Posted Sales Shipment - Update" page.
+        // [GIVEN] New values are set for editable fields.
+        PostedSalesShipment.OpenView();
+        PostedSalesShipment.GoToRecord(SalesShptHeader);
+        PostedSalesShipment."Update Document".Invoke();
+
+        // [WHEN] Press OK on the page.
+
+        // [THEN] Values of these fields in Sales Invoice Header were changed.
+        Assert.AreEqual(
+            ShippingAgent.Code,
+            PostedSalesShipment."Shipping Agent Code".Value,
+            SalesShptHeader.FieldCaption("Shipping Agent Code"));
+    end;
+
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(Codeunit::"Edit Posted Documents");
@@ -1384,5 +1415,13 @@ codeunit 134658 "Edit Posted Documents"
         PostedServiceInvUpdate."Payment Reference".SetValue(LibraryVariableStorage.DequeueText());
         PostedServiceInvUpdate."Payment Method Code".SetValue(LibraryVariableStorage.DequeueText());
         PostedServiceInvUpdate.Cancel.Invoke();
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure PostedSalesShipmentUpdateShippingAgentCodeOKModalPageHandler(var PostedSalesShipmentUpdate: TestPage "Posted Sales Shipment - Update")
+    begin
+        PostedSalesShipmentUpdate."Shipping Agent Code".SetValue(LibraryVariableStorage.DequeueText());
+        PostedSalesShipmentUpdate.OK().Invoke();
     end;
 }
