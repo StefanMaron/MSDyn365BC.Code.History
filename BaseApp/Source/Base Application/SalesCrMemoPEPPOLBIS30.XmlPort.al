@@ -61,6 +61,18 @@ xmlport 1611 "Sales Cr.Memo - PEPPOL BIS 3.0"
             {
                 NamespacePrefix = 'cbc';
             }
+            textelement(taxcurrencycodelcy)
+            {
+                NamespacePrefix = 'cbc';
+                XmlName = 'TaxCurrencyCode';
+
+                trigger OnBeforePassVariable()
+                begin
+                    PEPPOLMgt.GetTaxTotalInfoLCY(SalesHeader, TaxAmountLCY, TaxCurrencyCodeLCY, TaxTotalCurrencyIDLCY);
+                    if TaxCurrencyCodeLCY = '' then
+                        currXMLport.Skip();
+                end;
+            }
             textelement(AccountingCost)
             {
                 NamespacePrefix = 'cbc';
@@ -1356,6 +1368,26 @@ xmlport 1611 "Sales Cr.Memo - PEPPOL BIS 3.0"
                       TempVATAmtLine,
                       TaxAmount,
                       TaxTotalCurrencyID);
+                end;
+            }
+            textelement(taxtotallcy)
+            {
+                NamespacePrefix = 'cac';
+                XmlName = 'TaxTotal';
+                textelement(taxamountlcy)
+                {
+                    NamespacePrefix = 'cbc';
+                    XmlName = 'TaxAmount';
+                    textattribute(taxtotalcurrencyidlcy)
+                    {
+                        XmlName = 'currencyID';
+                    }
+                }
+
+                trigger OnBeforePassVariable()
+                begin
+                    if TaxTotalCurrencyIDLCY = '' then
+                        currXMLport.Skip();
                 end;
             }
             textelement(LegalMonetaryTotal)
