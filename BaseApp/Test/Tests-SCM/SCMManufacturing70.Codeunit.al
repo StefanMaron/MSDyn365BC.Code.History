@@ -4044,10 +4044,10 @@ codeunit 137063 "SCM Manufacturing 7.0"
 
     local procedure CreatePostItemJournal(var ItemJournalLine: Record "Item Journal Line"; ItemNo: Code[20])
     var
-        GenProductPostingGroup: Record "Gen. Product Posting Group";
+        Item: Record Item;
         ItemJournal: TestPage "Item Journal";
     begin
-        GenProductPostingGroup.FindFirst();
+        Item.Get(ItemNo);
         ItemJournalBatch.FindFirst();
         ItemJournalBatch.Validate("No. Series", '');
         ItemJournalBatch.Modify(true);
@@ -4056,7 +4056,7 @@ codeunit 137063 "SCM Manufacturing 7.0"
           ItemJournalLine, ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name,
           ItemJournalLine."Entry Type"::"Positive Adjmt.", ItemNo, 1);
 
-        ItemJournalLine.Validate("Gen. Prod. Posting Group", GenProductPostingGroup.Code);
+        ItemJournalLine.Validate("Gen. Prod. Posting Group", Item."Gen. Prod. Posting Group");
         ItemJournalLine.Validate("Entry Type", ItemJournalLine."Entry Type"::"Positive Adjmt.");
         ItemJournalLine.Validate("Item No.", ItemNo);
         ItemJournalLine.Validate(Quantity, LibraryRandom.RandIntInRange(5, 10));
