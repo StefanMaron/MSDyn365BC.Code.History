@@ -1925,6 +1925,10 @@
 
         if (Type <> Type::Item) or ("No." = '') then
             exit;
+
+        if UpdateWorkCenterDescription() then
+            exit;
+
         if "Variant Code" = '' then begin
             GetItem();
             Description := Item.Description;
@@ -3855,6 +3859,25 @@
             DimSetIDArr[2] := DimMgt.CreateDimSetFromJobTaskDim(JobPlanningLine."Job No.", JobPlanningLine."Job Task No.", "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
 
         "Dimension Set ID" := DimMgt.GetCombinedDimensionSetID(DimSetIDArr, "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
+    end;
+
+    local procedure UpdateWorkCenterDescription(): Boolean
+    var
+        WorkCenterForDescription: Record "Work Center";
+    begin
+        if ("Ref. Order Type" <> "Ref. Order Type"::"Prod. Order") or ("Work Center No." = '') then
+            exit(false);
+
+        WorkCenterForDescription.SetLoadFields(Name, "Name 2", "Subcontractor No.");
+        WorkCenterForDescription.Get("Work Center No.");
+
+        if WorkCenterForDescription."Subcontractor No." = '' then
+            exit(false);
+
+        Description := WorkCenterForDescription.Name;
+        "Description 2" := WorkCenterForDescription."Name 2";
+
+        exit(true);
     end;
 
 #if not CLEAN20
