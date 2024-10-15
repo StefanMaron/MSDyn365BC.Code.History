@@ -181,6 +181,9 @@ codeunit 99000769 "Production BOM-Check"
 
                 if CheckNextLevel then
                     CheckCircularReferencesInProductionBOM(TempProductionBOMHeader, NextVersionCode);
+
+                TempProductionBOMHeader.Get(ProductionBOMLine."No.");
+                TempProductionBOMHeader.Delete();
             until ProductionBOMLine.Next() = 0;
     end;
 
