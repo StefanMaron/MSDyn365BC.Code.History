@@ -52,6 +52,12 @@ codeunit 20366 "Tax Engine Assisted Setup"
         end;
     end;
 
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Import Config. Package Files", 'OnBeforeImportConfigurationFile', '', false, false)]
+    local procedure OnBeforeImportConfigurationFile()
+    begin
+        SetupTaxEngine();
+    end;
+
     local procedure GetAppId(): Guid
     var
         EmptyGuid: Guid;

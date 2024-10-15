@@ -7,15 +7,15 @@ codeunit 7204 "CDS Setup Defaults"
 
     var
         CRMProductName: Codeunit "CRM Product Name";
-        JobQueueCategoryLbl: Label 'CDS INTEG', Locked = true;
+        JobQueueCategoryLbl: Label 'BCI INTEG', Locked = true;
         JobQueueEntryNameTok: Label ' %1 - %2 synchronization job.', Comment = '%1 = The Integration Table Name to synchronized (ex. CUSTOMER), %2 = CRM product name';
         UncoupleJobQueueEntryNameTok: Label ' %1 uncouple job.', Comment = '%1 = Integration mapping description, for example, CUSTOMER <-> CRM Account';
         IntegrationTablePrefixTok: Label 'Dynamics CRM', Comment = 'Product name', Locked = true;
-        CDSCustomerConfigTemplateCodeTok: Label 'CDSCUSTOME', Comment = 'Config. Template code for Common Data Service Accounts created from Customers. Max length 10.', Locked = true;
-        CDSVendorConfigTemplateCodeTok: Label 'CDSVENDOR', Comment = 'Config. Template code for Common Data Service Accounts created from Vendors. Max length 10.', Locked = true;
-        CRMAccountConfigTemplateDescTxt: Label 'New CRM Account records created during synch.', Comment = 'Max. length 50.';
-        CustomerConfigTemplateCodeTok: Label 'CDSCUST', Comment = 'Customer template code for new customers created from Common Data Service data. Max length 10.', Locked = true;
-        VendorConfigTemplateCodeTok: Label 'CDSVEND', Comment = 'Vendor template code for new vendors created from Common Data Service data. Max length 10.', Locked = true;
+        CDSCustomerConfigTemplateCodeTok: Label 'BCICUSTOME', Comment = 'Config. Template code for Dataverse Accounts created from Customers. Max length 10.', Locked = true;
+        CDSVendorConfigTemplateCodeTok: Label 'BCIVENDOR', Comment = 'Config. Template code for Dataverse Accounts created from Vendors. Max length 10.', Locked = true;
+        CRMAccountConfigTemplateDescTxt: Label 'New accounts were created in Sales.', Comment = 'Max. length 50.';
+        CustomerConfigTemplateCodeTok: Label 'BCICUST', Comment = 'Customer template code for new customers created from Dataverse data. Max length 10.', Locked = true;
+        VendorConfigTemplateCodeTok: Label 'BCIVEND', Comment = 'Vendor template code for new vendors created from Dataverse data. Max length 10.', Locked = true;
         CustomerConfigTemplateDescTxt: Label 'New Customer records created during synch.', Comment = 'Max. length 50.';
         VendorConfigTemplateDescTxt: Label 'New Vendor records created during synch.', Comment = 'Max. length 50.';
 

@@ -529,13 +529,15 @@ codeunit 18001 "GST Base Validation"
     var
         CurrExchRate: record "Currency Exchange Rate";
         TaxComponent: record "Tax Component";
-        TaxTypeSetp: record "Tax Type Setup";
+        TaxTypeSetup: record "Tax Type Setup";
     begin
         if CurrencyCode <> '' then begin
-            TaxTypeSetp.Get();
-            TaxTypeSetp.TestField(code);
+            if not TaxTypeSetup.Get() then
+                exit;
 
-            TaxComponent.SetRange("Tax Type", TaxTypeSetp.Code);
+            TaxTypeSetup.TestField(code);
+
+            TaxComponent.SetRange("Tax Type", TaxTypeSetup.Code);
             TaxComponent.SetRange(Name, ComponentCode);
             TaxComponent.FindFirst();
             Exit(Round(
@@ -547,13 +549,15 @@ codeunit 18001 "GST Base Validation"
     local procedure GetRoundingPrecision(var DetailedGSTLedgerEntry: Record "Detailed GST Ledger Entry"): Decimal
     var
         TaxComponent: record "Tax Component";
-        TaxTypeSetp: record "Tax Type Setup";
+        TaxTypeSetup: record "Tax Type Setup";
         GSTInvRounfingType: Enum "GST Inv Rounding Type";
         Direction: Text;
     begin
-        TaxTypeSetp.Get();
-        TaxTypeSetp.TestField(code);
-        TaxComponent.SetRange("Tax Type", TaxTypeSetp.Code);
+        if not TaxTypeSetup.Get() then
+            exit;
+
+        TaxTypeSetup.TestField(code);
+        TaxComponent.SetRange("Tax Type", TaxTypeSetup.Code);
         TaxComponent.SetRange(Name, DetailedGSTLedgerEntry."GST Component Code");
         TaxComponent.FindFirst();
         Direction := Format(TaxComponent.Direction);

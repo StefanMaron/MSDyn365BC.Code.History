@@ -1,4 +1,4 @@
-codeunit 570 "G/L Account Category Mgt."
+﻿codeunit 570 "G/L Account Category Mgt."
 {
 
     trigger OnRun()
@@ -60,6 +60,8 @@ codeunit 570 "G/L Account Category Mgt."
         JobsCostTxt: Label 'Jobs Cost';
         IncomeJobsTxt: Label 'Income, Jobs';
         JobSalesContraTxt: Label 'Job Sales Contra';
+        OverwriteConfirmationQst: Label 'How do you want to generate standard account schedules?';
+        GenerateAccountSchedulesOptionsTxt: Label 'Keep existing account schedules and create new ones.,Overwrite existing account schedules.';
         CreateAccountScheduleForBalanceSheet: Boolean;
         CreateAccountScheduleForIncomeStatement: Boolean;
         CreateAccountScheduleForCashFlowStatement: Boolean;
@@ -340,6 +342,24 @@ codeunit 570 "G/L Account Category Mgt."
         AccountSchedule.InitAccSched;
         AccountSchedule.SetAccSchedNameNonEditable(AccSchedName);
         AccountSchedule.Run;
+    end;
+
+    procedure ConfirmAndRunGenerateAccountSchedules()
+    begin
+        if GLSetupAllAccScheduleNamesNotDefined() then begin
+            Codeunit.Run(Codeunit::"Categ. Generate Acc. Schedules");
+            exit;
+        end;
+
+        case StrMenu(GenerateAccountSchedulesOptionsTxt, 1, OverwriteConfirmationQst) of
+            1:
+                begin
+                    ForceInitializeStandardAccountSchedules();
+                    Codeunit.Run(Codeunit::"Categ. Generate Acc. Schedules");
+                end;
+            2:
+                Codeunit.Run(Codeunit::"Categ. Generate Acc. Schedules");
+        end;
     end;
 
     local procedure AnyAccSchedSetupMissing(var GeneralLedgerSetup: Record "General Ledger Setup"): Boolean

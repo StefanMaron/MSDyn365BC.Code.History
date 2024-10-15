@@ -1,4 +1,4 @@
-codeunit 1607 "GLN Calculator"
+﻿codeunit 1607 "GLN Calculator"
 {
 
     trigger OnRun()
@@ -20,8 +20,15 @@ codeunit 1607 "GLN Calculator"
         exit(IsValidCheckDigit(GLNValue, 13));
     end;
 
-    local procedure IsValidCheckDigit(GLNValue: Code[20]; ExpectedSize: Integer): Boolean
+    local procedure IsValidCheckDigit(GLNValue: Code[20]; ExpectedSize: Integer) IsValid: Boolean
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeIsValidCheckDigit(GLNValue, ExpectedSize, IsValid, Ishandled);
+        if IsHandled then
+            exit(IsValid);
+
         if GLNValue = '' then
             exit(false);
 
@@ -29,6 +36,11 @@ codeunit 1607 "GLN Calculator"
             Error(GLNLengthErr, ExpectedSize, StrLen(GLNValue));
 
         exit(Format(StrCheckSum(CopyStr(GLNValue, 1, ExpectedSize - 1), '131313131313')) = Format(GLNValue[ExpectedSize]));
+    end;
+
+    [IntegrationEvent(false, false)]
+    procedure OnBeforeIsValidCheckDigit(GLNValue: Code[20]; ExpectedSize: Integer; var IsValid: Boolean; var IsHandled: Boolean)
+    begin
     end;
 }
 

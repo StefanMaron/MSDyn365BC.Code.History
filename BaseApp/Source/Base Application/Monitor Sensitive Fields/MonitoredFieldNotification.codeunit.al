@@ -12,9 +12,13 @@ codeunit 1368 "Monitored Field Notification"
             exit;
         end;
 
-        if SendEmail(FieldMonitoringSetup, RecRef, FieldNo, OriginalValue, NewValue, UseNewEmailFeature) then
-            MonitorFieldNotification := MonitorFieldNotification::"Email Sent"
-        else
+        if SendEmail(FieldMonitoringSetup, RecRef, FieldNo, OriginalValue, NewValue, UseNewEmailFeature) then begin
+            if UseNewEmailFeature then
+                MonitorFieldNotification := MonitorFieldNotification::"Email Enqueued"
+            else
+                MonitorFieldNotification := MonitorFieldNotification::"Email Sent";
+
+        end else
             MonitorFieldNotification := MonitorFieldNotification::"Sending Email Failed";
     end;
 
@@ -28,7 +32,8 @@ codeunit 1368 "Monitored Field Notification"
         if UseNewEmailFeature then begin
             EmailMessage.Create(SendToList, GetEmailSubject(RecRef, FieldNo), GetEmailBody(RecRef, FieldNo, OriginalValue, NewValue), true);
 
-            exit(Email.Send(EmailMessage, FieldMonitoringSetup."Email Account Id", FieldMonitoringSetup."Email Connector"));
+            Email.Enqueue(EmailMessage, FieldMonitoringSetup."Email Account Id", FieldMonitoringSetup."Email Connector");
+            exit(true);
         end else
             if SMTPMail.CreateMessage(FromMsg, MailManagement.GetSenderEmailAddress(), SendToList, GetEmailSubject(RecRef, FieldNo), GetEmailBody(RecRef, FieldNo, OriginalValue, NewValue), true) then
                 exit(SMTPMail.Send());

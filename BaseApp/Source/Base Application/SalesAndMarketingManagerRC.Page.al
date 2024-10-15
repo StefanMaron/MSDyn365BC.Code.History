@@ -638,7 +638,7 @@ page 8907 "Sales & Marketing Manager RC"
             }
             group("Group15")
             {
-                Caption = 'Sales - Common Data Service';
+                Caption = 'Sales - Dataverse';
                 action("Sales Order List - Dynamics 365 for Sales")
                 {
                     ApplicationArea = Suite;
