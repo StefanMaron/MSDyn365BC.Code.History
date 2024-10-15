@@ -154,6 +154,8 @@ codeunit 13 "Gen. Jnl.-Post Batch"
         GenJnlLineVATInfoSource: Record "Gen. Journal Line";
         UpdateAnalysisView: Codeunit "Update Analysis View";
         ICOutboxExport: Codeunit "IC Outbox Export";
+        TypeHelper: Codeunit "Type Helper";
+        RecRef: RecordRef;
         ICLastDocNo: Code[20];
         CurrentICPartner: Code[20];
         LastLineNo: Integer;
@@ -225,6 +227,9 @@ codeunit 13 "Gen. Jnl.-Post Batch"
                 ICOutboxExport.ProcessAutoSendOutboxTransactionNo(ICTransactionNo);
 
             // Post reversing lines
+            RecRef.GetTable(TempGenJnlLine4);
+            TypeHelper.SortRecordRef(RecRef, CurrentKey, Ascending);
+            RecRef.SetTable(TempGenJnlLine4);
             PostReversingLines(TempGenJnlLine4);
 
             OnProcessLinesOnAfterPostGenJnlLines(GenJnlLine, GLReg, GLRegNo);
@@ -290,8 +295,10 @@ codeunit 13 "Gen. Jnl.-Post Batch"
         IsProcessingKeySet := false;
         OnBeforeProcessBalanceOfLines(GenJnlLine, GenJnlBatch, GenJnlTemplate, IsProcessingKeySet);
         if not IsProcessingKeySet then
-            if ((GenJnlBatch."No. Series" = '') and (GenJnlBatch."Posting No. Series" = '') and GenJnlTemplate."Force Doc. Balance") or
-               IsWHTPaymentPosting(GenJnlLine)
+            if IsWHTPaymentPosting(GenJnlLine) or
+               (GenJnlTemplate."Force Doc. Balance" and
+                ((GenJnlBatch."No. Series" = '') and (GenJnlBatch."Posting No. Series" = '')) or
+                GenJnlTemplate.Recurring)
             then
                 GenJnlLine.SetCurrentKey("Document No.");
 

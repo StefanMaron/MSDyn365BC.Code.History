@@ -1117,7 +1117,7 @@ codeunit 5895 "Inventory Adjustment"
                 DeleteAvgBuffers(OutbndValueEntry, ExcludedValueEntry);
                 FindSet;
                 repeat
-                    if "Partial Revaluation" then begin
+                    if "Entry Type" = "Entry Type"::Revaluation then begin
                         RevaluationPoint.Number := "Entry No.";
                         if RevaluationPoint.Insert then;
                         FillFixApplBuffer("Item Ledger Entry No.");

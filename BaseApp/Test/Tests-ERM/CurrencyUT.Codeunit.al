@@ -13,6 +13,7 @@ codeunit 134275 "Currency UT"
         ASCIILetterErr: Label 'must contain ASCII letters only';
         NumericErr: Label 'must contain numbers only';
         LibraryApplicationArea: Codeunit "Library - Application Area";
+        LibraryRandom: Codeunit "Library - Random";
 
     [Test]
     [Scope('OnPrem')]
@@ -132,6 +133,26 @@ codeunit 134275 "Currency UT"
         Currency.Find;
         Currency.TestField("ISO Code", 'ZZZ');
         Currency.TestField("ISO Numeric Code", '999');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CheckFailedInsetWithBlankCode()
+    var
+        Currency: Record Currency;
+    begin
+        // [SCENARIO] Insert Currency with blank Code
+        LibraryApplicationArea.EnableFoundationSetup;
+
+        // [GIVEN] Create Currency with blank Code
+        Currency.Init();
+        Currency.Description := LibraryRandom.RandText(MaxStrLen(Currency.Description));
+
+        // [WHEN] Insert record
+        asserterror Currency.Insert(true);
+
+        // [THEN] The TestField Error was shown
+        Assert.ExpectedErrorCode('TestField');
     end;
 }
 

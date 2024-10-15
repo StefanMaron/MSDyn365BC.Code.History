@@ -336,30 +336,45 @@ codeunit 20105 "AMC Banking Mgt."
         NoSeries: Record "No. Series";
         NoSeriesLine: Record "No. Series Line";
     begin
-        if (NoSeries.GET(CreditTransMsgNoTxt)) then
-            exit(NoSeries.Code)
-        else begin //Create No. Series for credittranfers
+        //Create No. Series for credittranfers
+        if not NoSeries.GET(CreditTransMsgNoTxt) then begin
             NoSeries.INIT();
             NoSeries.Code := CreditTransMsgNoTxt;
             NoSeries.Description := CreditTransMsgNameTxt;
             NoSeries."Default Nos." := TRUE;
             NoSeries.INSERT();
+        end;
 
+        // Only insert noseries lines if they don't exist
+        NoSeriesLine.SetRange("Series Code", CreditTransMsgNoTxt);
+        NoSeriesLine.SetRange(Open, true);
+        if NoSeriesLine.IsEmpty() then begin
+            Clear(NoSeriesLine);
             NoSeriesLine.INIT();
             NoSeriesLine."Series Code" := CreditTransMsgNoTxt;
-            NoSeriesLine."Line No." := 10000;
+            NoSeriesLine."Line No." := GetLastNoSeriesLineNo() + 10000;
             NoSeriesLine."Starting No." := '1001';
             NoSeriesLine."Ending No." := '9999';
             NoSeriesLine."Warning No." := '9995';
             NoSeriesLine."Increment-by No." := 1;
             NoSeriesLine.Open := TRUE;
-            NoSeriesLine.INSERT();
-
-            exit(NoSeries.Code);
+            NoSeriesLine.Insert()
         end;
+
+        exit(NoSeries.Code);
     end;
 
-    procedure GetAMCClientCode(): Text; //AMC-JN
+    local procedure GetLastNoSeriesLineNo(): Integer
+    var
+        NoSeriesLine: Record "No. Series Line";
+    begin
+        NoSeriesLine.SetRange("Series Code", CreditTransMsgNoTxt);
+        if NoSeriesLine.FindLast() then
+            exit(NoSeriesLine."Line No.");
+        exit(0);
+    end;
+
+    procedure GetAMCClientCode(): Text;
     begin
         exit(ClientCodeTxt);
     end;

@@ -741,7 +741,7 @@ report 393 "Suggest Vendor Payments"
                                     TempPaymentBuffer.Modify;
                                 end else begin
                                     TempPaymentBuffer."Document No." := NextDocNo;
-                                    NextDocNo := IncStr(NextDocNo);
+                                    GenJnlLine.IncrementDocumentNo(GenJnlBatch, NextDocNo);
                                     TempPaymentBuffer.Amount := PayableVendLedgEntry.Amount;
                                     Window2.Update(1, VendLedgEntry."Vendor No.");
                                     TempPaymentBuffer.Insert;
@@ -808,7 +808,7 @@ report 393 "Suggest Vendor Payments"
                         "Document Type" := "Document Type"::Refund;
 
                     "Document No." := NextDocNo;
-                    NextDocNo := IncStr(NextDocNo);
+                    IncrementDocumentNo(GenJnlBatch, NextDocNo);
                 end else
                     if (TempPaymentBuffer."Vendor No." = OldTempPaymentBuffer."Vendor No.") and
                        (TempPaymentBuffer."Currency Code" = OldTempPaymentBuffer."Currency Code")
@@ -816,7 +816,7 @@ report 393 "Suggest Vendor Payments"
                         "Document No." := OldTempPaymentBuffer."Document No."
                     else begin
                         "Document No." := NextDocNo;
-                        NextDocNo := IncStr(NextDocNo);
+                        IncrementDocumentNo(GenJnlBatch, NextDocNo);
                         OldTempPaymentBuffer := TempPaymentBuffer;
                         OldTempPaymentBuffer."Document No." := "Document No.";
                     end;

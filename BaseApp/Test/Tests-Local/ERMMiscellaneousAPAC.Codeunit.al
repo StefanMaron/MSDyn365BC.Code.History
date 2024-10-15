@@ -874,6 +874,25 @@ codeunit 141008 "ERM - Miscellaneous APAC"
         VerifyGSTPurchaseEntryExists(PostedDocNo, GSTPurchaseEntry."Document Type"::Invoice, 2);
     end;
 
+    [Test]
+    [TransactionModel(TransactionModel::AutoRollback)]
+    [Scope('OnPrem')]
+    procedure GSTBaseIsZero()
+    var
+        GSTPurchaseEntries: TestPage "GST Purchase Entries";
+    begin
+        // [SCENARIO] When the page GST Purchase Entry is open and a value in the GST Purchase Entries table
+        // has a record with "GST Base" = 0 no error is thrown
+
+        // [GIVEN] the GST Purchase Entries table with at least one record with the value "GST Base" = 0
+        InitGSTPurchaseEntry();
+
+        // [WHEN] the page GST Purchase Entry opens
+        GSTPurchaseEntries.OpenView();
+        //[THEN] no error is thrown
+        GSTPurchaseEntries.Close();
+    end;
+
     local procedure Initialize()
     begin
         LibraryVariableStorage.Clear;
@@ -1432,6 +1451,16 @@ codeunit 141008 "ERM - Miscellaneous APAC"
                 TestField(Description, ExpectedDescription);
             until Next = 0;
         end;
+    end;
+
+    local procedure InitGSTPurchaseEntry()
+    var
+        GSTPurchaseEntry: Record "GST Purchase Entry";
+    begin
+        GSTPurchaseEntry.DeleteAll();
+        GSTPurchaseEntry."Entry No." := 1000;
+        GSTPurchaseEntry."GST Base" := 0;
+        GSTPurchaseEntry.Insert();
     end;
 
     [ModalPageHandler]
