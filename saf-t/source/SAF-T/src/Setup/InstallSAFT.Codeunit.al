@@ -22,9 +22,12 @@ codeunit 5288 "Install SAF-T"
 
     local procedure SetupSAFT()
     var
+        AuditFileExportSetup: Record "Audit File Export Setup";
         MappingHelperSAFT: Codeunit "Mapping Helper SAF-T";
     begin
         ApplyEvaluationClassificationsForPrivacy();
+
+        AuditFileExportSetup.InitSetup("Audit File Export Format"::SAFT);
         MappingHelperSAFT.InsertSAFTSourceCodes();
         MappingHelperSAFT.UpdateMasterDataWithNoSeries();
         MappingHelperSAFT.UpdateSAFTSourceCodesBySetup();

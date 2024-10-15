@@ -40,10 +40,9 @@ pageextension 5283 "Audit Export Doc. Card SAF-T" extends "Audit File Export Doc
         IsSAFTFormatSelected: Boolean;
     begin
         AuditFileExportFormat := Rec."Audit File Export Format";
-        if AuditFileExportFormat = 0 then begin     // if not initialized yet
-            AuditFileExportSetup.Get();
-            AuditFileExportFormat := AuditFileExportSetup."Audit File Export Format";
-        end;
+        if AuditFileExportFormat = Enum::"Audit File Export Format"::None then     // if not initialized yet
+            if AuditFileExportSetup.Get() then
+                AuditFileExportFormat := AuditFileExportSetup."Audit File Export Format";
         IsSAFTFormatSelected := AuditFileExportFormat = Enum::"Audit File Export Format"::SAFT;
         exit(IsSAFTFormatSelected);
     end;

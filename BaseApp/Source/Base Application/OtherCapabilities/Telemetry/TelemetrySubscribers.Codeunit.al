@@ -39,6 +39,7 @@ codeunit 1351 "Telemetry Subscribers"
         JobQueueEntryErrorAllTxt: Label 'Job queue entry errored: %1', Comment = '%1 = Job queue id', Locked = true;
         JobQueueEntryEnqueuedAllTxt: Label 'Job queue entry enqueued: %1', Comment = '%1 = Job queue id', Locked = true;
         JobQueueEntryNotEnqueuedTxt: Label 'Job queue entry not enqueued: %1', Comment = '%1 = Job queue id', Locked = true;
+        JobQueueEntryTaskCancelledTxt: Label 'Job queue entry task cancelled: %1', Comment = '%1 = Job queue id', Locked = true;
         UndoSalesShipmentCategoryTxt: Label 'AL UndoSalesShipmentNoOfLines', Locked = true;
         UndoSalesShipmentNoOfLinesTxt: Label 'UndoNoOfLines = %1', Locked = true;
         BankAccountRecCategoryLbl: Label 'AL Bank Account Rec', Locked = true;
@@ -402,6 +403,24 @@ codeunit 1351 "Telemetry Subscribers"
         Dimensions.Add('JobQueueNextScheduledTaskId', Format(JobQueueEntry."System Task ID", 0, 4));
         Telemetry.LogMessage('0000E26',
                                 StrSubstNo(JobQueueEntryFinishedAllTxt, Format(JobQueueEntry.ID, 0, 4)),
+                                Verbosity::Normal,
+                                DataClassification::OrganizationIdentifiableInformation,
+                                TelemetryScope::All,
+                                Dimensions);
+
+        TranslationHelper.RestoreGlobalLanguage();
+    end;
+
+    internal procedure SendTraceOnJobQueueEntryScheduledTaskCancelled(var JobQueueEntry: Record "Job Queue Entry")
+    var
+        TranslationHelper: Codeunit "Translation Helper";
+        Dimensions: Dictionary of [Text, Text];
+    begin
+        TranslationHelper.SetGlobalLanguageToDefault();
+
+        SetJobQueueTelemetryDimensions(JobQueueEntry, Dimensions);
+        Telemetry.LogMessage('0000KZV',
+                                StrSubstNo(JobQueueEntryTaskCancelledTxt, Format(JobQueueEntry.ID, 0, 4)),
                                 Verbosity::Normal,
                                 DataClassification::OrganizationIdentifiableInformation,
                                 TelemetryScope::All,

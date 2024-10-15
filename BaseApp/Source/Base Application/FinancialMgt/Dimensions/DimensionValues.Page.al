@@ -15,7 +15,13 @@ page 537 "Dimension Values"
                 IndentationColumn = NameIndent;
                 IndentationControls = Name;
                 ShowCaption = false;
-                field("Code"; Code)
+                field("Dimension Code"; Rec."Dimension Code")
+                {
+                    ApplicationArea = Dimensions;
+                    Visible = false;
+                    ToolTip = 'Specifies the code for the dimension.';
+                }
+                field("Code"; Rec."Code")
                 {
                     ApplicationArea = Dimensions;
                     Style = Strong;

@@ -52,10 +52,11 @@ codeunit 1026 "Job Link Usage"
 
             IsHandled := false;
             OnMatchUsageUnspecifiedOnBeforeCheckPostedQty(JobPlanningLine, JobLedgerEntry, RemainingQtyToMatch, IsHandled);
-            if not IsHandled then
+            if not IsHandled then begin
                 RemainingQtyToMatchPerUoM := UOMMgt.CalcQtyFromBase(RemainingQtyToMatch, JobPlanningLine."Qty. per Unit of Measure");
-            if (RemainingQtyToMatchPerUoM = JobPlanningLine."Qty. Posted") and (JobPlanningLine."Remaining Qty. (Base)" = 0) then
-                exit;
+                if (RemainingQtyToMatchPerUoM = JobPlanningLine."Qty. Posted") and (JobPlanningLine."Remaining Qty. (Base)" = 0) then
+                    exit;
+            end;
 
             if RemainingQtyToMatch <> 0 then begin
                 JobUsageLink.Create(JobPlanningLine, JobLedgerEntry);
