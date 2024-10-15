@@ -395,6 +395,13 @@ table 1382 "Item Templ."
             AccessByPermission = TableData "Req. Wksh. Template" = R;
             Caption = 'Replenishment System';
         }
+        field(5422; "Rounding Precision"; Decimal)
+        {
+            AccessByPermission = TableData "Production Order" = R;
+            Caption = 'Rounding Precision';
+            DecimalPlaces = 0 : 5;
+            InitValue = 1;
+        }
         field(5428; "Time Bucket"; DateFormula)
         {
             AccessByPermission = TableData "Req. Wksh. Template" = R;
@@ -537,6 +544,16 @@ table 1382 "Item Templ."
         {
             Caption = 'SAT Item Classification';
             TableRelation = "SAT Classification";
+        }
+        field(27024; "SAT Hazardous Material"; Code[10])
+        {
+            Caption = 'SAT Hazardous Material';
+            TableRelation = "SAT Hazardous Material";
+        }
+        field(27025; "SAT Packaging Type"; Code[10])
+        {
+            Caption = 'SAT Packaging Type';
+            TableRelation = "SAT Packaging Type";
         }
         field(99000750; "Routing No."; Code[20])
         {

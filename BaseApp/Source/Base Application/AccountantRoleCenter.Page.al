@@ -470,8 +470,6 @@ page 9027 "Accountant Role Center"
                     ObsoleteReason = 'Duplicated action use action(Currencies)';
                     ObsoleteTag = '19.0';
                 }
-#endif
-#if not CLEAN19
                 action(Action144)
                 {
                     ApplicationArea = BasicHR;
@@ -1276,6 +1274,9 @@ page 9027 "Accountant Role Center"
                     Image = AccountingPeriods;
                     RunObject = Page "Accounting Periods";
                     ToolTip = 'Set up the number of accounting periods, such as 12 monthly periods, within the fiscal year and specify which period is the start of the new fiscal year.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Setup is no longer shown in this page.';
+                    ObsoleteTag = '19.0';
                 }
                 action("General &Ledger Setup")
                 {

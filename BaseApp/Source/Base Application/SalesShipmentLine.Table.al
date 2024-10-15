@@ -732,7 +732,7 @@
             SalesLine.Description := StrSubstNo(Text000, "Document No.");
             TranslationHelper.RestoreGlobalLanguage;
             IsHandled := false;
-            OnBeforeInsertInvLineFromShptLineBeforeInsertTextLine(Rec, SalesLine, NextLineNo, IsHandled);
+            OnBeforeInsertInvLineFromShptLineBeforeInsertTextLine(Rec, SalesLine, NextLineNo, IsHandled, TempSalesLine, SalesInvHeader);
             if not IsHandled then begin
                 SalesLine.Insert();
                 OnAfterDescriptionSalesLineInsert(SalesLine, Rec, NextLineNo);
@@ -856,6 +856,7 @@
             if "Attached to Line No." = 0 then
                 SetRange("Attached to Line No.", "Line No.");
         until (Next() = 0) or ("Attached to Line No." = 0);
+        OnInsertInvLineFromShptLineOnAfterInsertAllLines(Rec, SalesLine);
 
         if SalesOrderHeader.Get(SalesOrderHeader."Document Type"::Order, "Order No.") then begin
             SalesOrderHeader."Get Shipment Used" := true;
@@ -1179,7 +1180,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeInsertInvLineFromShptLineBeforeInsertTextLine(var SalesShptLine: Record "Sales Shipment Line"; var SalesLine: Record "Sales Line"; var NextLineNo: Integer; var Handled: Boolean)
+    local procedure OnBeforeInsertInvLineFromShptLineBeforeInsertTextLine(var SalesShptLine: Record "Sales Shipment Line"; var SalesLine: Record "Sales Line"; var NextLineNo: Integer; var Handled: Boolean; TempSalesLine: Record "Sales Line" temporary; SalesInvHeader: Record "Sales Header")
     begin
     end;
 
@@ -1215,6 +1216,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnInsertInvLineFromShptLineOnAfterValidateInvDiscountAmount(var SalesLine: Record "Sales Line"; SalesOrderLine: Record "Sales Line"; SalesShipmentLine: Record "Sales Shipment Line"; SalesInvHeader: Record "Sales Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInsertInvLineFromShptLineOnAfterInsertAllLines(SalesShipmentLine: Record "Sales Shipment Line"; var SalesLine: Record "Sales Line")
     begin
     end;
 }

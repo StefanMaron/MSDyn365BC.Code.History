@@ -27,6 +27,7 @@ codeunit 144000 "MX CFDI Unit Test"
         EDocStatusError: Label 'You cannot choose the action %1 when the document status is %2.';
         ExpectedError: Label 'Error message was different than expected.';
         NoRelationDocumentsExistErr: Label 'No relation documents specified for the replacement of previous CFDIs.';
+        IfEmptyErr: Label '''%1'' in ''%2'' must not be blank.', Comment = '%1=caption of a field, %2=key of record';
 
     [Test]
     [Scope('OnPrem')]
@@ -1033,6 +1034,35 @@ codeunit 144000 "MX CFDI Unit Test"
     end;
 
     [Test]
+    [HandlerFunctions('RequestStampMenuHandler')]
+    [Scope('OnPrem')]
+    procedure RequestStampMissedCFDIRelationInSalesInvoice()
+    var
+        Customer: Record Customer;
+        SalesHeader: Record "Sales Header";
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        ErrorMessages: TestPage "Error Messages";
+    begin
+        // [FEATURE] [UT] [Sales]
+        // [SCENARIO 419768] Error on request stamp  for Sales Invoice having CFDI relations when "CFDI Relation" is blank
+        Initialize();
+        UpdateGLSetupSAT;
+        CreateCustomerWithCFDIFields(Customer);
+        LibrarySales.CreateSalesInvoiceForCustomerNo(SalesHeader, Customer."No.");
+        SalesInvoiceHeader.Get(LibrarySales.PostSalesDocument(SalesHeader, true, true));
+        SalesInvoiceHeader."CFDI Relation" := '';
+        SalesInvoiceHeader.Modify();
+        CreateCFDIRelationDocument(
+            DATABASE::"Sales Invoice Header", 0, SalesInvoiceHeader."No.", Customer."No.", '', '');
+        ErrorMessages.Trap();
+        asserterror SalesInvoiceHeader.RequestStampEDocument;
+        ErrorMessages.FILTER.SetFilter("Table Number", Format(DATABASE::"Sales Invoice Header"));
+        ErrorMessages.FILTER.SetFilter("Field Number", Format(SalesInvoiceHeader.FieldNo("CFDI Relation")));
+        ErrorMessages.Description.AssertEquals(
+            StrSubstNo(IfEmptyErr, SalesInvoiceHeader.FieldCaption("CFDI Relation"), SalesInvoiceHeader.RecordId));
+    end;
+
+    [Test]
     [Scope('OnPrem')]
     procedure CreateAbstractDocumentSalesInvoiceHeader()
     var
@@ -1971,7 +2001,9 @@ codeunit 144000 "MX CFDI Unit Test"
         DataTypeManagement.GetRecordRef(CustomerDocumentHeaderVariant, CustDocRecRef);
         Field.SetRange(TableNo, DATABASE::"Document Header");
         FilterStr :=
-            StrSubstNo('<>%1&<>%2&<>%3&<>%4&<>%5&<>%6&<>%7&<>%8', 3, 10048, 10049, 10051, 10052, 10053, 10054, 10055);
+            StrSubstNo(
+                '<>%1&<>%2&<>%3&<>%4&<>%5&<>%6&<>%7&<>%8&<>%9&<>%10&<>%11',
+                3, 10048, 10049, 10051, 10052, 10053, 10054, 10055, 10056, 10057, 10058);
         Field.SetFilter("No.", FilterStr);
         Field.SetFilter(Type, '%1|%2', Field.Type::Text, Field.Type::Code);
         Field.FindSet();
@@ -2039,7 +2071,9 @@ codeunit 144000 "MX CFDI Unit Test"
         DocHeaderRecRef.GetTable(TempDocumentHeader);
         Field.SetRange(TableNo, DATABASE::"Document Header");
         FilterStr :=
-            StrSubstNo('<>%1&<>%2&<>%3&<>%4&<>%5&<>%6&<>%7&<>%8', 3, 10048, 10049, 10051, 10052, 10053, 10054, 10055);
+            StrSubstNo(
+                '<>%1&<>%2&<>%3&<>%4&<>%5&<>%6&<>%7&<>%8&<>%9&<>%10&<>%11',
+                3, 10048, 10049, 10051, 10052, 10053, 10054, 10055, 10056, 10057, 10058);
         Field.SetFilter("No.", FilterStr);
         Field.SetFilter(Type, '%1|%2', Field.Type::Text, Field.Type::Code);
         Field.FindSet();

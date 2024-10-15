@@ -10,42 +10,33 @@ codeunit 132864 "User Groups Data Setup"
     var
         UserGroup: Record "User Group";
         UserGroupPermissionSet: Record "User Group Permission Set";
-        UserGroupPermissionSetWithoutAppId: Record "User Group Permission Set";
-        NonEmptyAppID: Guid;
-        EmptyAppID: Guid;
+        UserGrpPermTestLibrary: Codeunit "User Grp. Perm. Test Library";
     begin
+        BindSubscription(UserGrpPermTestLibrary);
         UserGroup.Insert();
-
-        NonEmptyAppID := '00000000-0000-0000-0000-000000000001'; // avoid the guard on inserting empty "App ID"
 
         UserGroupPermissionSet."User Group Code" := UserGroup.Code;
         UserGroupPermissionSet."Role ID" := 'D365 BASIC';
-        UserGroupPermissionSet."App ID" := NonEmptyAppID;
         UserGroupPermissionSet.Insert();
 
         UserGroupPermissionSet."User Group Code" := UserGroup.Code;
         UserGroupPermissionSet."Role ID" := 'D365 BUS FULL ACCESS';
-        UserGroupPermissionSet."App ID" := NonEmptyAppID;
         UserGroupPermissionSet.Insert();
 
         UserGroupPermissionSet."User Group Code" := UserGroup.Code;
         UserGroupPermissionSet."Role ID" := 'SECURITY';
-        UserGroupPermissionSet."App ID" := EmptyAppID;
         UserGroupPermissionSet.Insert();
 
         UserGroupPermissionSet."User Group Code" := UserGroup.Code;
         UserGroupPermissionSet."Role ID" := 'EMAIL SETUP';
-        UserGroupPermissionSet."App ID" := NonEmptyAppID;
         UserGroupPermissionSet.Insert();
 
         UserGroupPermissionSet."User Group Code" := UserGroup.Code;
         UserGroupPermissionSet."Role ID" := 'D365 EXTENSION MGT';
-        UserGroupPermissionSet."App ID" := NonEmptyAppID;
         UserGroupPermissionSet.Insert();
 
         UserGroupPermissionSet."User Group Code" := UserGroup.Code;
         UserGroupPermissionSet."Role ID" := 'RETENTION POL. SETUP';
-        UserGroupPermissionSet."App ID" := NonEmptyAppID;
         UserGroupPermissionSet.Insert();
 
         if UserGroup.Get('EXCEL EXPORT ACTION') then
@@ -59,15 +50,6 @@ codeunit 132864 "User Groups Data Setup"
 
         UserGroupPermissionSet."User Group Code" := UserGroup.Code;
         UserGroupPermissionSet."Role ID" := 'EXCEL EXPORT ACTION';
-        UserGroupPermissionSet."App ID" := NonEmptyAppID;
         UserGroupPermissionSet.Insert();
-
-        // set empty "App ID"
-        UserGroupPermissionSet.Reset();
-        UserGroupPermissionSet.FindSet();
-        repeat
-            UserGroupPermissionSetWithoutAppId.Get(UserGroupPermissionSet."User Group Code", UserGroupPermissionSet."Role ID", UserGroupPermissionSet.Scope, UserGroupPermissionSet."App ID");
-            UserGroupPermissionSetWithoutAppId.Rename(UserGroupPermissionSetWithoutAppId."User Group Code", UserGroupPermissionSetWithoutAppId."Role ID", UserGroupPermissionSetWithoutAppId.Scope, EmptyAppID);
-        until UserGroupPermissionSet.Next() = 0;
     end;
 }

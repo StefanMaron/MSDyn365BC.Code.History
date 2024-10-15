@@ -894,6 +894,7 @@ page 51 "Purchase Invoice"
                         PrepareOpeningDocumentStatistics();
                         OnBeforeCalculateSalesTaxStatistics(Rec, true);
                         ShowDocumentStatisticsPage();
+                        CurrPage.PurchLines.Page.ForceTotalsCalculation();
                     end;
                 }
                 action(Vendor)

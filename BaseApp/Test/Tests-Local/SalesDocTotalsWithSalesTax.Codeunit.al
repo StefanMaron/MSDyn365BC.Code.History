@@ -809,6 +809,42 @@ codeunit 142054 SalesDocTotalsWithSalesTax
         GLEntry.TestField("Additional-Currency Amount");
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure SalesOrderShippedNotInvoicedWithExpenseTaxDetails()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        TaxDetail: Record "Tax Detail";
+        TaxPercent: Decimal;
+        TaxAreaCode: Code[20];
+    begin
+        // [FEATURE] [Order] [Expense/Capitalize]
+        // [SCENARIO 407399] 
+        Initialize();
+
+        LibraryLowerPermissions.SetSalesDocsCreate();
+        LibraryLowerPermissions.AddO365Full();
+
+        // [GIVEN] Tax setup where tax detail with "Expense/Capitalize" = true and "Tax Below Maximum" = 10%
+        TaxPercent := LibraryRandom.RandIntInRange(10, 20);
+        TaxAreaCode := CreateTaxAreaLine(TaxDetail, true, TaxPercent);
+
+        // [GIVEN] Sales order with Quantity = 10, "Unit Price" = 7, "Qty. to Invoice" = 3 and "Qty. to Ship" = 10
+        CreateSalesDocumentWithCertainTax(SalesLine, SalesHeader."Document Type"::Order, TaxDetail, TaxAreaCode, TaxDetail."Tax Group Code");
+        SalesLine.Validate("Qty. to Invoice", SalesLine.Quantity / 3);
+        SalesLine.Modify(true);
+
+        // [WHEN] Post order
+        SalesHeader.Get(SalesLine."Document Type", SalesLine."Document No.");
+        LibrarySales.PostSalesDocument(SalesHeader, true, true);
+
+        // [THEN] "Shipped not Invoiced" = (Quantity - Qty. Invoiced) * "Unit Price" * "Tax Percent" = (10 - 3) * 7 * (100 + 10%) = 53.9
+        SalesLine.Find();
+        SalesLine.TestField("Qty. Shipped Not Invoiced", SalesLine.Quantity * 2 / 3);
+        SalesLine.TestField("Shipped Not Invoiced", SalesLine."Unit Price" * SalesLine.Quantity * 2 / 3 * (1 + TaxPercent / 100));
+    end;
+
     local procedure Initialize()
     var
         InventorySetup: Record "Inventory Setup";
@@ -987,7 +1023,7 @@ codeunit 142054 SalesDocTotalsWithSalesTax
         LibrarySales.CreateSalesLine(
           SalesLine, SalesHeader, SalesLine.Type::Item,
           CreateItem(TaxGroupCode),
-          LibraryRandom.RandInt(10));  // Using RANDOM value for Quantity.
+          LibraryRandom.RandIntInRange(10, 20) * 3);
         exit(TaxDetail."Tax Below Maximum");
     end;
 
