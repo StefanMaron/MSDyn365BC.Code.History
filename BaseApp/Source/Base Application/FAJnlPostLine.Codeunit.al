@@ -159,7 +159,6 @@ codeunit 5632 "FA Jnl.-Post Line"
         FAInsertLedgEntry.SetLastEntryNo(false);
         if PostBudget then
             PostBudgetAsset;
-        FAInsertLedgEntry.FinalizeInsertFA();
     end;
 
     [Scope('OnPrem')]

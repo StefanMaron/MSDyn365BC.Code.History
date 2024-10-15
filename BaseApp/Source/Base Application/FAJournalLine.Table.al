@@ -110,9 +110,9 @@ table 5621 "FA Journal Line"
             var
                 Currency: Record Currency;
             begin
-                CLEAR(Currency);
+                Clear(Currency);
                 Currency.InitRoundingPrecision();
-                Amount := ROUND(Amount, Currency."Amount Rounding Precision");
+                Amount := Round(Amount, Currency."Amount Rounding Precision");
                 if ((Amount > 0) and (not Correction)) or
                    ((Amount < 0) and Correction)
                 then begin

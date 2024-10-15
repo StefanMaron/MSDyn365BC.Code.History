@@ -39,6 +39,8 @@ codeunit 134123 "Price List Line UT"
         ItemDiscGroupMustNotBePurchaseErr: Label 'Product Type must not be Item Discount Group';
         LineSourceTypeErr: Label 'cannot be set to %1 if the header''s source type is %2.', Comment = '%1 and %2 - the source type value.';
         SourceTypeMustBeErr: Label 'Applies-to Type must be equal to ''%1''', Comment = '%1 - source type value';
+        SourceNoMustBeFilledErr: Label 'Applies-to No. must have a value';
+        SourceNoMustBeBlankErr: Label 'Applies-to No. must be equal to ''''';
         CannotDeleteActivePriceListLineErr: Label 'You cannot delete the active price list line %1 %2.', Comment = '%1 - the price list code, %2 - line no';
         IsInitialized: Boolean;
 
@@ -1098,6 +1100,44 @@ codeunit 134123 "Price List Line UT"
         PriceListLine.TestField("Price Type", PriceListHeader."Price Type");
         PriceListLine.TestField("Amount Type", PriceListHeader."Amount Type");
         PriceListLine.TestField("Unit Price", 0);
+    end;
+
+    [Test]
+    procedure T070_VerifySourceForSourceAllLocationsSourceFilled()
+    var
+        PriceListLine: Record "Price List Line";
+    begin
+        // [FEATURE] [Price Source Type] [Extended]
+        // [SCENARIO] Verify sournce in the line fails on inconsistent source: Applies-to No. is filled.
+        Initialize();
+        // [GIVEN] New price list line, where "Source Type"::"All Locations", "Source No." is 'X'
+        PriceListLine."Source Type" := "Price Source Type"::"All Locations";
+        PriceListLine."Source No." := 'X';
+
+        // [WHEN] Set "Status" as 'Active' and answer 'Yes'
+        asserterror PriceListLine.VerifySource();
+
+        // [THEN] Error: "Applies-to No. must be equal to ''''"
+        Assert.ExpectedError(SourceNoMustBeBlankErr);
+    end;
+
+    [Test]
+    procedure T071_VerifySourceForSourceLocationSourceBlank()
+    var
+        PriceListLine: Record "Price List Line";
+    begin
+        // [FEATURE] [Price Source Type] [Extended]
+        // [SCENARIO] Verify sournce in the line fails on inconsistent source: Applies-to No. is blank.
+        Initialize();
+        // [GIVEN] New price list line, where "Source Type"::"Location", "Source No." is <blank>
+        PriceListLine."Source Type" := "Price Source Type"::Location;
+        PriceListLine."Source No." := '';
+
+        // [WHEN] Verify source
+        asserterror PriceListLine.VerifySource();
+
+        // [THEN] Error: "Applies-to No. must have a value"
+        Assert.ExpectedError(SourceNoMustBeFilledErr);
     end;
 
     [Test]

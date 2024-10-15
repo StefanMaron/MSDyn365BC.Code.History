@@ -719,6 +719,7 @@
                                         PurchLine."Line Amount" := PurchLine."Amount Including VAT" + PurchLine."Inv. Discount Amount"
                                     else
                                         PurchLine."Line Amount" := PurchLine.Amount + PurchLine."Inv. Discount Amount";
+                                UpdatePrepmtAmounts(PurchLine);
                             end;
                             OnValidatePricesIncludingVATOnBeforePurchLineModify(PurchHeader, PurchLine, Currency, RecalculatePrice);
                             PurchLine.Modify();
@@ -5406,6 +5407,19 @@
     procedure SetCalledFromWhseDoc(NewCalledFromWhseDoc: Boolean)
     begin
         CalledFromWhseDoc := NewCalledFromWhseDoc;
+    end;
+
+    local procedure UpdatePrepmtAmounts(var PurchaseLine: Record "Purchase Line")
+    var
+        Currency: Record Currency;
+    begin
+        Currency.Initialize("Currency Code");
+        if "Document Type" = "Document Type"::Order then begin
+            PurchaseLine."Prepmt. Line Amount" := Round(
+                PurchaseLine."Line Amount" * PurchaseLine."Prepayment %" / 100, Currency."Amount Rounding Precision");
+            if Abs(PurchaseLine."Inv. Discount Amount" + PurchaseLine."Prepmt. Line Amount") > Abs(PurchaseLine."Line Amount") then
+                PurchaseLine."Prepmt. Line Amount" := PurchaseLine."Line Amount" - PurchaseLine."Inv. Discount Amount";
+        end;
     end;
 
     [IntegrationEvent(false, false)]

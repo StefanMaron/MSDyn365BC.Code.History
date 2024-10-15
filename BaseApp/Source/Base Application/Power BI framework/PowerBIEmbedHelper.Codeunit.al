@@ -94,6 +94,9 @@ codeunit 6299 "Power BI Embed Helper"
                 if JsonCallbackMessage.SelectToken('$.body[0].$schema', TempJsonToken)
                 and (StrPos(TempJsonToken.AsValue().AsText(), '/schema#basic') > 0) then begin
                     LatestReceivedFilterInfo := CallbackMessage; // save data for filter update on change of selected list element
+                    if CurrentListSelection = '' then
+                        exit; // There is no list selection information available. We should not clear the filter, because the report itself might have some filtering set up
+
                     ResponseForWebPage := GetPutReportFilterRequest(JsonCallbackMessage, CurrentListSelection);
                 end else begin
                     // There are no filters on the page, that is OK

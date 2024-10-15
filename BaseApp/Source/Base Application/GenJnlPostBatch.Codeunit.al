@@ -99,7 +99,9 @@
         SuppressCommit: Boolean;
         ReversePostingDateErr: Label 'Posting Date for reverse cannot be less than %1', Comment = '%1 = Posting Date';
         FirstLine: Boolean;
-        TempBatchNameTxt: Label 'BD_TEMP_B', Locked = true;
+        TempBatchNameTxt: Label 'BD_TEMP', Locked = true;
+        TwoPlaceHoldersTok: Label '%1%2', Locked = true;
+        ServiceSessionTok: Label '#%1#%2#', Locked = true;
 
     local procedure "Code"(var GenJnlLine: Record "Gen. Journal Line")
     var
@@ -174,6 +176,7 @@
                     GenJnlPostPreview.ThrowError;
                 if not SuppressCommit then
                     Commit();
+                DeleteDimBalBatch(GenJnlLine, false);
                 exit;
             end;
 
@@ -260,7 +263,7 @@
                     NoSeriesMgt2[PostingNoSeriesNo].SaveNoSeries;
                 until NoSeries.Next = 0;
 
-            DeleteDimBalBatch(GenJnlLine);
+            DeleteDimBalBatch(GenJnlLine, true);
 
             OnBeforeCommit(GLRegNo, GenJnlLine, GenJnlPostLine);
 
@@ -1473,6 +1476,7 @@
     local procedure PrepareDimensionBalancedGenJnlLine(var SrcGenJournalLine: Record "Gen. Journal Line")
     var
         GenJournalLine: Record "Gen. Journal Line";
+        TempBatchName: Code[10];
     begin
         GenJournalLine.Copy(SrcGenJournalLine);
         GenJournalLine.SetFilter(
@@ -1483,23 +1487,56 @@
             exit;
 
         SavedGenJournalLine := SrcGenJournalLine;
-        CreateDimBalGenJnlBatch(SrcGenJournalLine);
+        TempBatchName := CreateDimBalGenJnlBatch(SrcGenJournalLine);
         CreateDimBalGenJnlLines(GenJournalLine);
         SrcGenJournalLine.FilterGroup(2);
-        SrcGenJournalLine.SetFilter("Journal Batch Name", '%1|%2', SrcGenJournalLine."Journal Batch Name", TempBatchNameTxt);
+        SrcGenJournalLine.SetFilter("Journal Batch Name", '%1|%2', SrcGenJournalLine."Journal Batch Name", TempBatchName);
         SrcGenJournalLine.FilterGroup(0);
-        SrcGenJournalLine.SetFilter("Journal Batch Name", '%1|%2', SrcGenJournalLine."Journal Batch Name", TempBatchNameTxt);
+        SrcGenJournalLine.SetFilter("Journal Batch Name", '%1|%2', SrcGenJournalLine."Journal Batch Name", TempBatchName);
     end;
 
-    local procedure CreateDimBalGenJnlBatch(SrcGenJournalLine: Record "Gen. Journal Line")
+    local procedure CreateDimBalGenJnlBatch(SrcGenJournalLine: Record "Gen. Journal Line"): Code[10];
     var
         SrcGenJournalBatch: Record "Gen. Journal Batch";
         DstGenJournalBatch: Record "Gen. Journal Batch";
     begin
         SrcGenJournalBatch.Get(SrcGenJournalLine."Journal Template Name", SrcGenJournalLine."Journal Batch Name");
         DstGenJournalBatch := SrcGenJournalBatch;
-        DstGenJournalBatch.Name := TempBatchNameTxt;
+        DstGenJournalBatch.Name := NewTempBatchName();
+        DstGenJournalBatch.Description := GetSessionId();
         DstGenJournalBatch.Insert();
+        exit(DstGenJournalBatch.Name);
+    end;
+
+    local procedure FindTempBatch(var GenJournalBatch: Record "Gen. Journal Batch"): Boolean;
+    begin
+        GenJournalBatch.SetFilter(Name, StrSubstNo(TwoPlaceHoldersTok, TempBatchNameTxt, '*'));
+        exit(GenJournalBatch.FindLast());
+    end;
+
+    local procedure GetSessionId(): Text[100];
+    begin
+        exit(StrSubstNo(ServiceSessionTok, ServiceInstanceId(), SessionId()));
+    end;
+
+    local procedure GetTempBatchName(): Code[10];
+    var
+        GenJournalBatch: Record "Gen. Journal Batch";
+    begin
+        GenJournalBatch.SetRange(Description, GetSessionId());
+        if FindTempBatch(GenJournalBatch) then
+            exit(GenJournalBatch.Name);
+    end;
+
+    local procedure NewTempBatchName() Name: Code[10];
+    var
+        GenJournalBatch: Record "Gen. Journal Batch";
+    begin
+        if FindTempBatch(GenJournalBatch) then
+            Name := GenJournalBatch.Name
+        else
+            Name := StrSubstNo(TwoPlaceHoldersTok, TempBatchNameTxt, '000');
+        exit(IncStr(Name));
     end;
 
     local procedure CreateDimBalGenJnlLines(var SrcGenJournalLine: Record "Gen. Journal Line");
@@ -1507,10 +1544,13 @@
         GenJournalLine: Record "Gen. Journal Line";
         DimBalGLEntry: Record "G/L Entry";
         TempInteger: Record Integer temporary;
+        TempBatchName: Code[10];
         LineNo: Integer;
     begin
+        TempBatchName := GetTempBatchName();
         if SrcGenJournalLine.FindSet() then
             repeat
+                DimBalGLEntry.Reset();
                 DimBalGLEntry.SetRange("G/L Account No.", SrcGenJournalLine."Account No.");
                 DimBalGLEntry.SetRange("Posting Date", 0D, SrcGenJournalLine."Posting Date");
                 SetGLEntryDimensionFilters(DimBalGLEntry, SrcGenJournalLine);
@@ -1527,7 +1567,7 @@
                         DimBalGLEntry.CalcSums(Amount);
                         if DimBalGLEntry.Amount <> 0 then begin
                             GenJournalLine := SrcGenJournalLine;
-                            GenJournalLine."Journal Batch Name" := TempBatchNameTxt;
+                            GenJournalLine."Journal Batch Name" := TempBatchName;
                             GenJournalLine."Line No." := LineNo;
                             GenJournalLine.Validate("Dimension Set ID", TempInteger.Number);
                             GenJournalLine.Validate(Amount, -DimBalGLEntry.Amount);
@@ -1590,13 +1630,14 @@
             until SrcGenJnlAllocation.Next() = 0;
     end;
 
-    local procedure DeleteDimBalBatch(var SrcGenJournalLine: Record "Gen. Journal Line")
+    local procedure DeleteDimBalBatch(var SrcGenJournalLine: Record "Gen. Journal Line"; Posted: Boolean)
     var
         GenJournalBatch: Record "Gen. Journal Batch";
     begin
-        if GenJournalBatch.Get(GenJnlTemplate.Name, TempBatchNameTxt) then begin
+        if GenJournalBatch.Get(GenJnlTemplate.Name, GetTempBatchName()) then begin
             GenJournalBatch.Delete(true);
-            SrcGenJournalLine := SavedGenJournalLine;
+            if Posted then
+                SrcGenJournalLine := SavedGenJournalLine;
         end;
     end;
 
