@@ -1018,6 +1018,16 @@ table 1382 "Item Templ."
                 ValidateItemField(FieldNo("SAT Packaging Type"));
             end;
         }
+        field(27026; "SAT Material Type"; Code[10])
+        {
+            Caption = 'SAT Material Type';
+            TableRelation = "SAT Material Type";
+
+            trigger OnValidate()
+            begin
+                ValidateItemField(FieldNo("SAT Material Type"));
+            end;
+        }
         field(99000750; "Routing No."; Code[20])
         {
             Caption = 'Routing No.';

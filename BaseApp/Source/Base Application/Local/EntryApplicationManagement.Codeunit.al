@@ -128,6 +128,7 @@ codeunit 10202 "Entry Application Management"
         VendLedgEntry: Record "Vendor Ledger Entry";
         TempInteger: Record "Integer" temporary;
         AmountToApply: Decimal;
+        PaymentDiscountEntries: List of [Integer];
     begin
         TempAppliedVendLedgEntry.Reset();
         TempAppliedVendLedgEntry.DeleteAll();
@@ -175,8 +176,11 @@ codeunit 10202 "Entry Application Management"
                                         ClosingVendLedgEntry.Get(PmtDtldVendLedgEntry."Vendor Ledger Entry No.");
                                         if ClosingVendLedgEntry."Closed by Entry No." <> TempAppliedVendLedgEntry."Entry No." then
                                             TempAppliedVendLedgEntry."Pmt. Disc. Rcd.(LCY)" := 0;
-                                        TempAppliedVendLedgEntry."Amount to Apply" +=
-                                            GetPaymentDiscount(ClosingVendLedgEntry."Closed by Entry No.", UseLCY);
+                                        if not PaymentDiscountEntries.Contains(ClosingVendLedgEntry."Closed by Entry No.") then begin
+                                            TempAppliedVendLedgEntry."Amount to Apply" +=
+                                                GetPaymentDiscount(ClosingVendLedgEntry."Closed by Entry No.", UseLCY);
+                                            PaymentDiscountEntries.Add(ClosingVendLedgEntry."Closed by Entry No.");
+                                        end;
                                     end;
                                     TempAppliedVendLedgEntry.Insert();
                                 end;

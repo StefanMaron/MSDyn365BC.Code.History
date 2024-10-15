@@ -1,4 +1,4 @@
-table 10003 "Document Line"
+﻿table 10003 "Document Line"
 {
     Caption = 'Document Line';
 
@@ -108,6 +108,10 @@ table 10003 "Document Line"
         field(10003; "Custom Transit Number"; Text[30])
         {
             Caption = 'Custom Transit Number';
+        }
+        field(10004; "SAT Customs Document Type"; Code[10])
+        {
+            Caption = 'SAT Customs Document Type';
         }
     }
 

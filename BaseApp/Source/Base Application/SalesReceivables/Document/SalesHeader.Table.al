@@ -3040,6 +3040,16 @@
             Caption = 'Exchange Rate USD';
             DecimalPlaces = 0 : 6;
         }
+        field(10061; "SAT Customs Regime"; Code[10])
+        {
+            Caption = 'SAT Customs Regime';
+            TableRelation = "SAT Customs Regime";
+        }
+        field(10062; "SAT Transfer Reason"; Code[10])
+        {
+            Caption = 'SAT Transfer Reason';
+            TableRelation = "SAT Transfer Reason";
+        }
         field(12600; "Prepmt. Include Tax"; Boolean)
         {
             Caption = 'Prepmt. Include Tax';
