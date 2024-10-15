@@ -895,13 +895,13 @@ codeunit 5530 "Calc. Item Availability"
                     SourceRefNo := AssemblyLine."Line No.";
                 end
             else begin
-                    IsHandled := false;
-                    OnAfterGetSourceReferences(
-                      FromRecordID, TransferDirection, SourceType, SourceSubtype, SourceID, SourceBatchName, SourceProdOrderLine, SourceRefNo,
-                      IsHandled);
-                    if not IsHandled then
-                        exit(false);
-                end;
+                IsHandled := false;
+                OnAfterGetSourceReferences(
+                  FromRecordID, TransferDirection, SourceType, SourceSubtype, SourceID, SourceBatchName, SourceProdOrderLine, SourceRefNo,
+                  IsHandled);
+                if not IsHandled then
+                    exit(false);
+            end;
         end;
         exit(true);
     end;
@@ -949,6 +949,8 @@ codeunit 5530 "Calc. Item Availability"
 
         RecRef := RecordID.GetRecord();
 
+        OnBeforeShowDocument(RecRef);
+
         case RecordID.TableNo of
             DATABASE::"Item Ledger Entry":
                 begin
@@ -969,17 +971,26 @@ codeunit 5530 "Calc. Item Availability"
             DATABASE::"Sales Shipment Header":
                 begin
                     RecRef.SetTable(SalesShptHeader);
-                    PAGE.RunModal(PAGE::"Posted Sales Shipment", SalesShptHeader);
+                    IsHandled := false;
+                    OnBeforeShowSalesShipmentHeader(SalesShptHeader, IsHandled);
+                    if not IsHandled then
+                        PAGE.RunModal(PAGE::"Posted Sales Shipment", SalesShptHeader);
                 end;
             DATABASE::"Sales Invoice Header":
                 begin
                     RecRef.SetTable(SalesInvHeader);
-                    PAGE.RunModal(PAGE::"Posted Sales Invoice", SalesInvHeader);
+                    IsHandled := false;
+                    OnBeforeShowSalesInvoiceHeader(SalesInvHeader, IsHandled);
+                    if not IsHandled then
+                        PAGE.RunModal(PAGE::"Posted Sales Invoice", SalesInvHeader);
                 end;
             DATABASE::"Sales Cr.Memo Header":
                 begin
                     RecRef.SetTable(SalesCrMemoHeader);
-                    PAGE.RunModal(PAGE::"Posted Sales Credit Memo", SalesCrMemoHeader);
+                    IsHandled := false;
+                    OnBeforeShowSalesCrMemoHeader(SalesCrMemoHeader, IsHandled);
+                    if not IsHandled then
+                        PAGE.RunModal(PAGE::"Posted Sales Credit Memo", SalesCrMemoHeader);
                 end;
             DATABASE::"Service Shipment Header":
                 begin
@@ -999,43 +1010,47 @@ codeunit 5530 "Calc. Item Availability"
             DATABASE::"Purchase Header":
                 begin
                     RecRef.SetTable(PurchHeader);
-                    case PurchHeader."Document Type" of
-                        PurchHeader."Document Type"::Order:
-                            PAGE.RunModal(PAGE::"Purchase Order", PurchHeader);
-                        PurchHeader."Document Type"::Invoice:
-                            PAGE.RunModal(PAGE::"Purchase Invoice", PurchHeader);
-                        PurchHeader."Document Type"::"Credit Memo":
-                            PAGE.RunModal(PAGE::"Purchase Credit Memo", PurchHeader);
-                        PurchHeader."Document Type"::"Blanket Order":
-                            PAGE.RunModal(PAGE::"Blanket Purchase Order", PurchHeader);
-                        PurchHeader."Document Type"::"Return Order":
-                            PAGE.RunModal(PAGE::"Purchase Return Order", PurchHeader);
-                    end;
+                    RunPurchHeaderPage(PurchHeader);
                 end;
             DATABASE::"Purch. Rcpt. Header":
                 begin
                     RecRef.SetTable(PurchRcptHeader);
-                    PAGE.RunModal(PAGE::"Posted Purchase Receipt", PurchRcptHeader);
+                    IsHandled := false;
+                    OnBeforeShowPurchRcptHeader(PurchRcptHeader, IsHandled);
+                    if not IsHandled then
+                        PAGE.RunModal(PAGE::"Posted Purchase Receipt", PurchRcptHeader);
                 end;
             DATABASE::"Purch. Inv. Header":
                 begin
                     RecRef.SetTable(PurchInvHeader);
-                    PAGE.RunModal(PAGE::"Posted Purchase Invoice", PurchInvHeader);
+                    IsHandled := false;
+                    OnBeforeShowPurchInvHeader(PurchInvHeader, IsHandled);
+                    if not IsHandled then
+                        PAGE.RunModal(PAGE::"Posted Purchase Invoice", PurchInvHeader);
                 end;
             DATABASE::"Purch. Cr. Memo Hdr.":
                 begin
                     RecRef.SetTable(PurchCrMemoHdr);
-                    PAGE.RunModal(PAGE::"Posted Purchase Credit Memo", PurchCrMemoHdr);
+                    IsHandled := false;
+                    OnBeforeShowPurchCrMemoHdr(PurchCrMemoHdr, IsHandled);
+                    if not IsHandled then
+                        PAGE.RunModal(PAGE::"Posted Purchase Credit Memo", PurchCrMemoHdr);
                 end;
             DATABASE::"Return Shipment Header":
                 begin
                     RecRef.SetTable(ReturnShptHeader);
-                    PAGE.RunModal(PAGE::"Posted Return Shipment", ReturnShptHeader);
+                    IsHandled := false;
+                    OnBeforeShowReturnShptHeader(ReturnShptHeader, IsHandled);
+                    if not IsHandled then
+                        PAGE.RunModal(PAGE::"Posted Return Shipment", ReturnShptHeader);
                 end;
             DATABASE::"Return Receipt Header":
                 begin
                     RecRef.SetTable(ReturnRcptHeader);
-                    PAGE.RunModal(PAGE::"Posted Return Receipt", ReturnRcptHeader);
+                    IsHandled := false;
+                    OnBeforeShowReturnRcptHeader(ReturnRcptHeader, IsHandled);
+                    if not IsHandled then
+                        PAGE.RunModal(PAGE::"Posted Return Receipt", ReturnRcptHeader);
                 end;
             DATABASE::"Transfer Header":
                 begin
@@ -1055,16 +1070,7 @@ codeunit 5530 "Calc. Item Availability"
             DATABASE::"Production Order":
                 begin
                     RecRef.SetTable(ProductionOrder);
-                    case ProductionOrder.Status of
-                        ProductionOrder.Status::Planned:
-                            PAGE.RunModal(PAGE::"Planned Production Order", ProductionOrder);
-                        ProductionOrder.Status::"Firm Planned":
-                            PAGE.RunModal(PAGE::"Firm Planned Prod. Order", ProductionOrder);
-                        ProductionOrder.Status::Released:
-                            PAGE.RunModal(PAGE::"Released Production Order", ProductionOrder);
-                        ProductionOrder.Status::Finished:
-                            PAGE.RunModal(PAGE::"Finished Production Order", ProductionOrder);
-                    end;
+                    RunProductionOrderPage(ProductionOrder);
                 end;
             DATABASE::"Production Forecast Name":
                 begin
@@ -1111,11 +1117,11 @@ codeunit 5530 "Calc. Item Availability"
                     PAGE.RunModal(PAGE::"Assembly Order", AssemblyHeader);
                 end
             else begin
-                    IsHandled := false;
-                    OnAfterShowDocument(RecordID, IsHandled);
-                    if not IsHandled then
-                        Error(TableNotSupportedErr, RecordID.TableNo);
-                end;
+                IsHandled := false;
+                OnAfterShowDocument(RecordID, IsHandled);
+                if not IsHandled then
+                    Error(TableNotSupportedErr, RecordID.TableNo);
+            end;
         end;
     end;
 
@@ -1139,6 +1145,50 @@ codeunit 5530 "Calc. Item Availability"
                 PAGE.RunModal(PAGE::"Blanket Sales Orders", SalesHeader);
             SalesHeader."Document Type"::"Return Order":
                 PAGE.RunModal(PAGE::"Sales Return Order", SalesHeader);
+        end;
+    end;
+
+    local procedure RunPurchHeaderPage(var PurchHeader: Record "Purchase Header")
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeRunPurchHeaderPage(PurchHeader, IsHandled);
+        if IsHandled then
+            exit;
+
+        case PurchHeader."Document Type" of
+            PurchHeader."Document Type"::Order:
+                PAGE.RunModal(PAGE::"Purchase Order", PurchHeader);
+            PurchHeader."Document Type"::Invoice:
+                PAGE.RunModal(PAGE::"Purchase Invoice", PurchHeader);
+            PurchHeader."Document Type"::"Credit Memo":
+                PAGE.RunModal(PAGE::"Purchase Credit Memo", PurchHeader);
+            PurchHeader."Document Type"::"Blanket Order":
+                PAGE.RunModal(PAGE::"Blanket Purchase Order", PurchHeader);
+            PurchHeader."Document Type"::"Return Order":
+                PAGE.RunModal(PAGE::"Purchase Return Order", PurchHeader);
+        end;
+    end;
+
+    local procedure RunProductionOrderPage(var ProductionOrder: Record "Production Order")
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeRunProductionOrderPage(ProductionOrder, IsHandled);
+        if IsHandled then
+            exit;
+
+        case ProductionOrder.Status of
+            ProductionOrder.Status::Planned:
+                PAGE.RunModal(PAGE::"Planned Production Order", ProductionOrder);
+            ProductionOrder.Status::"Firm Planned":
+                PAGE.RunModal(PAGE::"Firm Planned Prod. Order", ProductionOrder);
+            ProductionOrder.Status::Released:
+                PAGE.RunModal(PAGE::"Released Production Order", ProductionOrder);
+            ProductionOrder.Status::Finished:
+                PAGE.RunModal(PAGE::"Finished Production Order", ProductionOrder);
         end;
     end;
 
@@ -1169,6 +1219,16 @@ codeunit 5530 "Calc. Item Availability"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeRunSalesHeaderPage(var SalesHeader: Record "Sales Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeRunPurchHeaderPage(var PurchHeader: Record "Purchase Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeRunProductionOrderPage(var ProductionOrder: Record "Production Order"; var IsHandled: Boolean)
     begin
     end;
 
@@ -1224,6 +1284,51 @@ codeunit 5530 "Calc. Item Availability"
 
     [IntegrationEvent(false, false)]
     local procedure OnTryGetQtyOnInventoryOnBeforeInsertEntry(var InvtEventBuf: Record "Inventory Event Buffer"; var ItemLedgerEntry: Record "Item Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeShowDocument(var RecRef: RecordRef)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeShowSalesShipmentHeader(SalesShptHeader: Record "Sales Shipment Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeShowSalesInvoiceHeader(SalesInvHeader: Record "Sales Invoice Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeShowSalesCrMemoHeader(SalesCrMemoHeader: Record "Sales Cr.Memo Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeShowPurchRcptHeader(PurchRcptHeader: Record "Purch. Rcpt. Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeShowPurchInvHeader(PurchInvHeader: Record "Purch. Inv. Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeShowPurchCrMemoHdr(PurchCrMemoHdr: Record "Purch. Cr. Memo Hdr."; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeShowReturnRcptHeader(ReturnRcptHeader: Record "Return Receipt Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeShowReturnShptHeader(ReturnShptHeader: Record "Return Shipment Header"; var IsHandled: Boolean)
     begin
     end;
 }

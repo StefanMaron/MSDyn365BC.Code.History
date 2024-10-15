@@ -16,7 +16,9 @@ report 298 "Batch Post Sales Credit Memos"
                 SalesBatchPostMgt: Codeunit "Sales Batch Post Mgt.";
             begin
                 OnBeforeSalesHeaderOnPreDataItem("Sales Header", SalesBatchPostMgt, PrintDoc);
-                SalesBatchPostMgt.SetParameter("Batch Posting Parameter Type"::Print, PrintDoc);
+                SalesBatchPostMgt.SetParameter(Enum::"Batch Posting Parameter Type"::Print, PrintDoc);
+                SalesBatchPostMgt.SetParameter(Enum::"Batch Posting Parameter Type"::"Replace VAT Date", ReplaceVATDateReq);
+                SalesBatchPostMgt.SetParameter(Enum::"Batch Posting Parameter Type"::"VAT Date", VATDateReq);
                 SalesBatchPostMgt.RunBatch("Sales Header", ReplacePostingDate, PostingDateReq, ReplaceDocumentDate, CalcInvDisc, false, false);
 
                 CurrReport.Break();
@@ -41,6 +43,12 @@ report 298 "Batch Post Sales Credit Memos"
                         Caption = 'Posting Date';
                         ToolTip = 'Specifies the date that the program will use as the document and/or posting date when you post, if you place a checkmark in one or both of the fields below.';
                     }
+                    field(VATDate; VATDateReq)
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'VAT Date';
+                        ToolTip = 'Specifies the date that the program will use as the VAT date when you post, if you place a checkmark in Replace VAT Date.';
+                    }
                     field(ReplacePostingDate; ReplacePostingDate)
                     {
                         ApplicationArea = Basic, Suite;
@@ -58,6 +66,12 @@ report 298 "Batch Post Sales Credit Memos"
                         ApplicationArea = Basic, Suite;
                         Caption = 'Replace Document Date';
                         ToolTip = 'Specifies if you want to replace the document date of the credit memo with the date in the Posting/Document Date field.';
+                    }
+                    field(ReplaceVATDate; ReplaceVATDateReq)
+                    {
+                        ApplicationArea = VAT;
+                        Caption = 'Replace VAT Date';
+                        ToolTip = 'Specifies if you want to replace the VAT date of the credit memo with the date in the VAT Date field.';
                     }
                     field(CalcInvDisc; CalcInvDisc)
                     {
@@ -121,13 +135,13 @@ report 298 "Batch Post Sales Credit Memos"
     }
 
     var
-        Text003: Label 'The exchange rate associated with the new posting date on the sales header will not apply to the sales lines.';
+        Text003: Label 'The exchange rate associated with the new posting date on the sales header will apply to the sales lines.';
 
     protected var
         CalcInvDisc: Boolean;
         ReplacePostingDate: Boolean;
-        ReplaceDocumentDate: Boolean;
-        PostingDateReq: Date;
+        ReplaceDocumentDate, ReplaceVATDateReq: Boolean;
+        PostingDateReq, VATDateReq: Date;
         PrintDoc: Boolean;
         [InDataSet]
         PrintDocVisible: Boolean;

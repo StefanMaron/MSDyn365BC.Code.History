@@ -11,4 +11,6 @@ enum 1370 "Batch Posting Parameter Type"
     value(5; "Replace Document Date") { Caption = 'Replace Document Date'; }
     value(6; "Calculate Invoice Discount") { Caption = 'Calculate Invoice Discount'; }
     value(7; "Print") { Caption = 'Print'; }
+    value(8; "VAT Date") { Caption = 'VAT Date'; }
+    value(9; "Replace VAT Date") { Caption = 'Replace VAT Date'; }
 }

@@ -403,6 +403,31 @@ table 274 "Bank Acc. Reconciliation Line"
         end;
     end;
 
+    procedure TransferFromPostedPaymentReconLine(PostedPaymentReconLine: Record "Posted Payment Recon. Line")
+    begin
+        Rec."Bank Account No." := PostedPaymentReconLine."Bank Account No.";
+        Rec."Statement No." := PostedPaymentReconLine."Statement No.";
+        Rec."Statement Line No." := PostedPaymentReconLine."Statement Line No.";
+        Rec."Document No." := PostedPaymentReconLine."Document No.";
+        Rec."Transaction Date" := PostedPaymentReconLine."Transaction Date";
+        Rec.Description := PostedPaymentReconLine.Description;
+        Rec."Statement Amount" := PostedPaymentReconLine."Statement Amount";
+        Rec.Difference := PostedPaymentReconLine.Difference;
+        Rec."Applied Amount" := PostedPaymentReconLine."Applied Amount";
+        Rec."Applied Entries" := PostedPaymentReconLine."Applied Entries";
+        Rec."Value Date" := PostedPaymentReconLine."Value Date";
+        Rec."Check No." := PostedPaymentReconLine."Check No.";
+        Rec."Related-Party Name" := PostedPaymentReconLine."Related-Party Name";
+        Rec."Additional Transaction Info" := PostedPaymentReconLine."Additional Transaction Info";
+        Rec."Data Exch. Entry No." := PostedPaymentReconLine."Data Exch. Entry No.";
+        Rec."Data Exch. Line No." := PostedPaymentReconLine."Data Exch. Line No.";
+        Rec."Statement Type" := Rec."Statement Type"::"Payment Application";
+        Rec."Account Type" := PostedPaymentReconLine."Account Type";
+        Rec."Account No." := PostedPaymentReconLine."Account No.";
+        Rec."Transaction Text" := PostedPaymentReconLine.Description;
+        Rec."Transaction ID" := CopyStr(PostedPaymentReconLine."Transaction ID", 1, MaxStrLen(Rec."Transaction ID"));
+    end;
+
     procedure GetPaymentFile(var DataExchField: Record "Data Exch. Field"): Boolean
     begin
         if not DataExchField.ReadPermission() then
@@ -970,6 +995,15 @@ table 274 "Bank Acc. Reconciliation Line"
             BankAccountLedgerEntry.SetRange("Bank Account No.", AccountNo);
     end;
 
+    procedure FilterBankRecLinesByDate(BankAccReconciliation: Record "Bank Acc. Reconciliation"; Overwrite: Boolean)
+    begin
+        FilterBankRecLines(BankAccReconciliation, Overwrite);
+
+        // Records sorted by transaction date to optimize matching
+        Rec.SetCurrentKey("Transaction Date");
+        Rec.SetAscending("Transaction Date", true);
+    end;
+
     procedure FilterBankRecLines(BankAccReconciliation: Record "Bank Acc. Reconciliation"; Overwrite: Boolean)
     begin
         Rec.Reset();
@@ -978,10 +1012,6 @@ table 274 "Bank Acc. Reconciliation Line"
         Rec.SetRange("Statement No.", BankAccReconciliation."Statement No.");
         if not Overwrite then
             Rec.SetRange("Applied Entries", 0);
-
-        // Records sorted by transaction date to optimize matching
-        Rec.SetCurrentKey("Transaction Date");
-        Rec.SetAscending("Transaction Date", true);
         OnAfterFilterBankRecLines(Rec, BankAccReconciliation);
     end;
 

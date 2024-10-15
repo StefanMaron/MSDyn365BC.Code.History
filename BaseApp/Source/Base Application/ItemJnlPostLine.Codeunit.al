@@ -1456,12 +1456,16 @@
         if QtyToPost = 0 then
             exit;
 
+        GetMfgSetup();
         with ItemJnlLine do begin
             Init();
             "Line No." := 0;
             "Entry Type" := "Entry Type"::Consumption;
             Validate("Posting Date", OldItemJnlLine."Posting Date");
-            "Document No." := OldItemJnlLine."Document No.";
+            if MfgSetup."Doc. No. Is Prod. Order No." then
+                "Document No." := ProdOrderLine."Prod. Order No."
+            else
+                "Document No." := OldItemJnlLine."Document No.";
             "Source No." := ProdOrderLine."Item No.";
             "Order Type" := "Order Type"::Production;
             "Order No." := ProdOrderLine."Prod. Order No.";
@@ -6474,7 +6478,7 @@
     begin
     end;
 
-    [IntegrationEvent(false, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnFlushOperationOnBeforeCheckRoutingLinkCode(var ProductionOrder: Record "Production Order"; var ProdOrderLine: Record "Prod. Order Line"; var ProdOrderRoutingLine: Record "Prod. Order Routing Line"; var ItemJournalLine: Record "Item Journal Line"; LastOperation: Boolean)
     begin
     end;
