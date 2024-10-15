@@ -762,7 +762,10 @@
     local procedure ApplyCapNeed(PostedSetupTime: Decimal; PostedRunTime: Decimal)
     var
         ProdOrderCapNeed: Record "Prod. Order Capacity Need";
-        Qty: Decimal;
+        TypeHelper: Codeunit "Type Helper";
+        TimeToAllocate: Decimal;
+        PrevSetupTime: Decimal;
+        PrevRunTime: Decimal;
     begin
         with ItemJnlLine do begin
             ProdOrderCapNeed.LockTable;
@@ -780,37 +783,51 @@
                 ProdOrderCapNeed.ModifyAll("Allocated Time", 0)
             else begin
                 OnApplyCapNeedOnAfterSetFilters(ProdOrderCapNeed, ItemJnlLine);
+                CalcCapLedgerEntriesSetupRunTime(ItemJnlLine, PrevSetupTime, PrevRunTime);
+
                 if PostedSetupTime <> 0 then begin
                     ProdOrderCapNeed.SetRange("Time Type", ProdOrderCapNeed."Time Type"::Setup);
-                    if ProdOrderCapNeed.FindSet then
+                    PostedSetupTime += PrevSetupTime;
+                    if ProdOrderCapNeed.FindSet() then
                         repeat
-                            if ProdOrderCapNeed."Allocated Time" > PostedSetupTime then
-                                Qty := PostedSetupTime
-                            else
-                                Qty := ProdOrderCapNeed."Allocated Time";
-                            ProdOrderCapNeed."Allocated Time" :=
-                              ProdOrderCapNeed."Allocated Time" - Qty;
-                            ProdOrderCapNeed.Modify;
-                            PostedSetupTime := PostedSetupTime - Qty;
-                        until (ProdOrderCapNeed.Next = 0) or (PostedSetupTime = 0);
+                            TimeToAllocate := TypeHelper.Minimum(ProdOrderCapNeed."Needed Time", PostedSetupTime);
+                            ProdOrderCapNeed."Allocated Time" := ProdOrderCapNeed."Needed Time" - TimeToAllocate;
+                            ProdOrderCapNeed.Modify();
+                            PostedSetupTime -= TimeToAllocate;
+                        until ProdOrderCapNeed.Next() = 0;
                 end;
 
                 if PostedRunTime <> 0 then begin
                     ProdOrderCapNeed.SetRange("Time Type", ProdOrderCapNeed."Time Type"::Run);
-                    if ProdOrderCapNeed.FindSet then
+                    PostedRunTime += PrevRunTime;
+                    if ProdOrderCapNeed.FindSet() then
                         repeat
-                            if ProdOrderCapNeed."Allocated Time" > PostedRunTime then
-                                Qty := PostedRunTime
-                            else
-                                Qty := ProdOrderCapNeed."Allocated Time";
-                            ProdOrderCapNeed."Allocated Time" :=
-                              ProdOrderCapNeed."Allocated Time" - Qty;
-                            ProdOrderCapNeed.Modify;
-                            PostedRunTime := PostedRunTime - Qty;
-                        until (ProdOrderCapNeed.Next = 0) or (PostedRunTime = 0);
+                            TimeToAllocate := TypeHelper.Minimum(ProdOrderCapNeed."Needed Time", PostedRunTime);
+                            ProdOrderCapNeed."Allocated Time" := ProdOrderCapNeed."Needed Time" - TimeToAllocate;
+                            ProdOrderCapNeed.Modify();
+                            PostedRunTime -= TimeToAllocate;
+                        until ProdOrderCapNeed.Next() = 0;
                 end;
             end;
         end;
+    end;
+
+    local procedure CalcCapLedgerEntriesSetupRunTime(ItemJnlLine: Record "Item Journal Line"; var TotalSetupTime: Decimal; var TotalRunTime: Decimal)
+    var
+        CapLedgerEntry: Record "Capacity Ledger Entry";
+    begin
+        CapLedgerEntry.SetCurrentKey(
+          "Order Type", "Order No.", "Order Line No.", "Routing No.", "Routing Reference No.", "Operation No.", "Last Output Line");
+        CapLedgerEntry.SetRange("Order Type", CapLedgerEntry."Order Type"::Production);
+        CapLedgerEntry.SetRange("Order No.", ItemJnlLine."Order No.");
+        CapLedgerEntry.SetRange("Order Line No.", ItemJnlLine."Order Line No.");
+        CapLedgerEntry.SetRange("Routing No.", ItemJnlLine."Routing No.");
+        CapLedgerEntry.SetRange("Routing Reference No.", ItemJnlLine."Routing Reference No.");
+        CapLedgerEntry.SetRange("Operation No.", ItemJnlLine."Operation No.");
+
+        CapLedgerEntry.CalcSums("Setup Time", "Run Time");
+        TotalSetupTime := CapLedgerEntry."Setup Time";
+        TotalRunTime := CapLedgerEntry."Run Time";
     end;
 
     local procedure UpdateProdOrderLine(var ProdOrderLine: Record "Prod. Order Line"; ReTrack: Boolean)

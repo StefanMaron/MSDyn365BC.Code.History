@@ -33,6 +33,7 @@ codeunit 113 "Vend. Entry-Edit"
             VendLedgEntry.Validate("Applying Entry", "Applying Entry");
             VendLedgEntry.Validate("Applies-to Ext. Doc. No.", "Applies-to Ext. Doc. No.");
             VendLedgEntry.Validate("Message to Recipient", "Message to Recipient");
+            VendLedgEntry.Validate("Recipient Bank Account", "Recipient Bank Account");
         end;
         VendLedgEntry.Validate("VAT Entry Type", "VAT Entry Type");
         VendLedgEntry.Validate("Exported to Payment File", "Exported to Payment File");

@@ -1934,7 +1934,10 @@
                         TestField("Qty. to Invoice", Quantity);
                     end;
             end;
-        end;
+
+            if "Blanket Order No." <> '' then
+                TestField("Blanket Order Line No.");
+        end;    
 
         OnAfterTestPurchLine(PurchHeader, PurchLine, WhseReceive, WhseShip);
     end;

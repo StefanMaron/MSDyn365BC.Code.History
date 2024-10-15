@@ -835,6 +835,24 @@ codeunit 136202 "Marketing Document Logging"
         Assert.RecordIsNotEmpty(InteractionLogEntry);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure ArchiveQuoteOnMakeInvoice()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesHeaderArchive: Record "Sales Header Archive";
+    begin
+        // [FEATURE] [Quote] [Invoice]
+        // [SCENARIO 366380] Archive Sales Quote created after "Make Invoice" from Sales Quote with Archive Quotes set True
+        // [WHEN] Created Sales Quote and ran "Make Invoice" with Archive Quotes set True
+        CreateInvoiceFromQuote(SalesHeader);
+
+        // [THEN] Sales Quote is archived
+        SalesHeaderArchive.SetRange("Document Type", SalesHeader."Document Type");
+        SalesHeaderArchive.SetRange("No.", SalesHeader."No.");
+        Assert.RecordCount(SalesHeaderArchive, 1);
+    end;
+
     local procedure Initialize()
     var
         ReportSelections: Record "Report Selections";
@@ -924,6 +942,16 @@ codeunit 136202 "Marketing Document Logging"
         Item.Validate("VAT Prod. Posting Group", VATProdPostingGroup);
         Item.Modify(true);
         exit(Item."No.");
+    end;
+
+    local procedure CreateInvoiceFromQuote(var SalesHeader: Record "Sales Header")
+    var
+        SalesLine: Record "Sales Line";
+    begin
+        CreateSalesDocumentWithItem(SalesHeader, SalesLine, SalesHeader."Document Type"::Quote);
+        LibrarySales.SetArchiveQuoteAlways();
+        Commit();
+        CODEUNIT.Run(CODEUNIT::"Sales-Quote to Invoice", SalesHeader);
     end;
 
     local procedure CreateOrderFromQuote(var SalesHeader: Record "Sales Header"; ArchiveQuotesAndOrders: Boolean)
