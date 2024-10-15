@@ -61,6 +61,11 @@
             Caption = 'Adjust VAT Entries';
             DataClassification = SystemMetadata;
         }
+        field(12; "Adjust Per Entry"; Boolean)
+        {
+            Caption = 'Adjust Per Entry';
+            DataClassification = SystemMetadata;
+        }
         field(20; "Currency Filter"; Text[2048])
         {
             FieldClass = FlowFilter;

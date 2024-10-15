@@ -406,6 +406,7 @@
         ExchRateAdjmtParameters2."Adjust Customers" := AdjCust;
         ExchRateAdjmtParameters2."Adjust Vendors" := AdjVend;
         ExchRateAdjmtParameters2."Adjust G/L Accounts" := AdjGLAcc;
+        ExchRateAdjmtParameters2."Adjust Per Entry" := AdjPerEntry;
         ExchRateAdjmtParameters2."Adjust VAT Entries" := AdjVATEntries;
         ExchRateAdjmtParameters2."Hide UI" := HideUI;
         ExchRateAdjmtParameters2."Preview Posting" := PreviewPosting;
