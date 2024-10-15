@@ -545,8 +545,10 @@ codeunit 1004 "Job Transfer Line"
                     "Direct Unit Cost",
                     PurchHeader."Currency Factor");
 
-            JobJnlLine."Unit Price (LCY)" := "Job Unit Price (LCY)";
-            JobJnlLine."Unit Price" := "Job Unit Price";
+            JobJnlLine."Unit Price (LCY)" :=
+              Round("Job Unit Price (LCY)" / "Qty. per Unit of Measure", LCYCurrency."Unit-Amount Rounding Precision");
+            JobJnlLine."Unit Price" :=
+              Round("Job Unit Price" / "Qty. per Unit of Measure", Currency."Unit-Amount Rounding Precision");
             JobJnlLine."Line Discount %" := "Job Line Discount %";
 
             if Quantity <> 0 then begin

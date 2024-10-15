@@ -4953,6 +4953,31 @@ codeunit 134902 "ERM Account Schedule"
         LibraryVariableStorage.AssertEmpty();
     end;
 
+    [Test]
+    [HandlerFunctions('AccountScheduleSetStartEndDatesRequestHandler')]
+    [Scope('OnPrem')]
+    procedure AccountScheduleReportAcceptsClosingDates()
+    var
+        AccScheduleName: Record "Acc. Schedule Name";
+        StartDate: Date;
+        EndDate: Date;
+    begin
+        // [SCENARIO 396826] Account Schedule accepts closing dates entered by users
+        Initialize();
+
+        LibraryERM.CreateAccScheduleName(AccScheduleName);
+        Commit();
+        StartDate := ClosingDate(DMY2Date(1, 2, 2019));
+        EndDate := ClosingDate(DMY2Date(28, 2, 2019));
+        LibraryVariableStorage.Enqueue(StartDate);
+        LibraryVariableStorage.Enqueue(EndDate);
+        AccScheduleName.SetRecFilter();
+        REPORT.Run(REPORT::"Account Schedule", true, false, AccScheduleName);
+
+        LibraryReportDataset.LoadDataSetFile();
+        LibraryReportDataset.AssertElementWithValueExists('PeriodText',PeriodTextCaptionLbl + Format(StartDate) + '..' + Format(EndDate));
+    end;
+
     local procedure Initialize()
     var
         ObjectOptions: Record "Object Options";
