@@ -53,7 +53,7 @@ page 6301 "Azure AD App Setup Part"
         HomePageUrl := GetUrl(CLIENTTYPE::Web);
         RedirectUrl := AzureADMgt.GetRedirectUrl;
         AppId := "App ID";
-        SecretKey := GetSecretKey;
+        SecretKey := GetSecretKeyFromIsolatedStorage();
     end;
 
     var
@@ -70,7 +70,7 @@ page 6301 "Azure AD App Setup Part"
     begin
         "Redirect URL" := RedirectUrl;
         "App ID" := AppId;
-        SetSecretKey(SecretKey);
+        SetSecretKeyToIsolatedStorage(SecretKey);
 
         if not Modify(true) then
             Insert(true);
