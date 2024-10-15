@@ -53,7 +53,7 @@ codeunit 86 "Sales-Quote to Order"
 
         MoveWonLostOpportunites(Rec, SalesOrderHeader);
 
-        ApprovalsMgmt.CopyApprovalEntryQuoteToOrder(RecordId, SalesOrderHeader."No.", SalesOrderHeader.RecordId);
+        CopyApprovalEntryQuoteToOrder(Rec, SalesOrderHeader);
 
         IsHandled := false;
         OnBeforeDeleteSalesQuote(Rec, SalesOrderHeader, IsHandled, SalesQuoteLine);
@@ -77,6 +77,17 @@ codeunit 86 "Sales-Quote to Order"
         SalesOrderHeader: Record "Sales Header";
         SalesOrderLine: Record "Sales Line";
         SalesSetup: Record "Sales & Receivables Setup";
+
+    local procedure CopyApprovalEntryQuoteToOrder(SalesHeader: Record "Sales Header"; SalesOrderHeader: Record "Sales Header")
+    var
+        ApprovalsMgmt: Codeunit "Approvals Mgmt.";
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCopyApprovalEntryQuoteToOrder(SalesHeader, SalesOrderHeader, IsHandled);
+        if not IsHandled then
+            ApprovalsMgmt.CopyApprovalEntryQuoteToOrder(SalesHeader.RecordId, SalesOrderHeader."No.", SalesOrderHeader.RecordId);
+    end;
 
     local procedure CreateSalesHeader(SalesHeader: Record "Sales Header"; PrepmtPercent: Decimal)
     begin
@@ -134,7 +145,12 @@ codeunit 86 "Sales-Quote to Order"
     local procedure AssignItemCharges(FromDocType: Option; FromDocNo: Code[20]; ToDocType: Option; ToDocNo: Code[20])
     var
         ItemChargeAssgntSales: Record "Item Charge Assignment (Sales)";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeAssignItemCharges(FromDocType, FromDocNo, ToDocType, ToDocNo, IsHandled);
+        if IsHandled then
+            exit;
         ItemChargeAssgntSales.Reset();
         ItemChargeAssgntSales.SetRange("Document Type", FromDocType);
         ItemChargeAssgntSales.SetRange("Document No.", FromDocNo);
@@ -323,6 +339,16 @@ codeunit 86 "Sales-Quote to Order"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeArchiveSalesQuote(var SalesQuoteHeader: Record "Sales Header"; var SalesOrderHeader: Record "Sales Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeAssignItemCharges(FromDocType: Option; FromDocNo: Code[20]; ToDocType: Option; ToDocNo: Code[20]; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCopyApprovalEntryQuoteToOrder(var QuoteSalesHeader: Record "Sales Header"; var OrderSalesHeader: Record "Sales Header"; var IsHandled: Boolean)
     begin
     end;
 

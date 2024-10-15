@@ -80,7 +80,7 @@ page 1651 "Curr. Exch. Rate Service Card"
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = NotEnabledAndCurrPageEditable;
-                    ToolTip = 'Specifies if web requests occurring in connection with the service are logged. The log is located in the server Temp folder.';
+                    ToolTip = 'Specifies whether to log exceptions that occur when connecting to the service. The log is located in the server Temp folder.';
                     Visible = NOT IsSoftwareAsService;
                 }
             }

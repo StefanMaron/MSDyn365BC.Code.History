@@ -691,7 +691,9 @@ table 25 "Vendor Ledger Entry"
 
     procedure HasPostedDocAttachment(): Boolean
     var
+        [SecurityFiltering(SecurityFilter::Filtered)]
         PurchInvHeader: Record "Purch. Inv. Header";
+        [SecurityFiltering(SecurityFilter::Filtered)]
         PurchCrMemoHdr: Record "Purch. Cr. Memo Hdr.";
         DocumentAttachment: Record "Document Attachment";
     begin

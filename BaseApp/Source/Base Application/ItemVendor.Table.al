@@ -1,4 +1,4 @@
-table 99 "Item Vendor"
+﻿table 99 "Item Vendor"
 {
     Caption = 'Item Vendor';
     LookupPageID = "Item Vendor Catalog";
@@ -105,13 +105,25 @@ table 99 "Item Vendor"
     end;
 
     local procedure UpdateItemCrossReference()
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeUpdateItemCrossReference(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         if ItemCrossReference.WritePermission then
             if ("Vendor No." <> '') and ("Item No." <> '') then
                 if ("Vendor No." <> xRec."Vendor No.") or ("Item No." <> xRec."Item No.") or
                    ("Variant Code" <> xRec."Variant Code") or ("Vendor Item No." <> xRec."Vendor Item No.")
                 then
                     DistIntegration.UpdateItemCrossReference(Rec, xRec);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdateItemCrossReference(var ItemVendor: Record "Item Vendor"; var IsHandled: Boolean)
+    begin
     end;
 }
 

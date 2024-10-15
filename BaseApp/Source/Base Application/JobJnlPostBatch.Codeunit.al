@@ -58,6 +58,7 @@ codeunit 1013 "Job Jnl.-Post Batch"
         with JobJnlLine do begin
             SetRange("Journal Template Name", "Journal Template Name");
             SetRange("Journal Batch Name", "Journal Batch Name");
+            OnCodeOnAfterFilterJobJnlLine(JobJnlLine);
             LockTable();
 
             JobJnlTemplate.Get("Journal Template Name");
@@ -328,6 +329,11 @@ codeunit 1013 "Job Jnl.-Post Batch"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeUpdateAndDeleteLines(var JobJournalLine: Record "Job Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCodeOnAfterFilterJobJnlLine(var JobJournalLine: Record "Job Journal Line");
     begin
     end;
 }
