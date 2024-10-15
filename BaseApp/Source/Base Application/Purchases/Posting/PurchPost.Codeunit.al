@@ -128,6 +128,8 @@ codeunit 90 "Purch.-Post"
         if IsHandled then
             exit;
 
+        GetPurchaseHeader(PurchaseHeader2);
+
         if not GuiAllowed then
             LockTimeout(false);
 
@@ -3277,7 +3279,7 @@ codeunit 90 "Purch.-Post"
         end;
 
         DeferralUtilities.AdjustTotalAmountForDeferralsNoBase(
-          PurchLine."Deferral Code", AmtToDefer, AmtToDeferACY, TotalAmount, TotalAmountACY);
+          PurchLine."Deferral Code", AmtToDefer, AmtToDeferACY, TotalAmount, TotalAmountACY, PurchLine."Inv. Discount Amount" + PurchLine."Line Discount Amount", PurchLineACY."Inv. Discount Amount" + PurchLineACY."Line Discount Amount");
 
         IsHandled := false;
         OnBeforeInvoicePostingBufferSetAmounts(
@@ -3329,7 +3331,7 @@ codeunit 90 "Purch.-Post"
         if PurchLine."Deferral Code" <> '' then begin
             OnBeforeFillDeferralPostingBuffer(
               PurchLine, InvoicePostBuffer, TempInvoicePostBuffer, PurchHeader.GetUseDate(), InvDefLineNo, DeferralLineNo, SuppressCommit);
-            FillDeferralPostingBuffer(PurchHeader, PurchLine, InvoicePostBuffer, AmtToDefer, AmtToDeferACY, DeferralAccount, PurchAccount);
+            FillDeferralPostingBuffer(PurchHeader, PurchLine, InvoicePostBuffer, AmtToDefer, AmtToDeferACY, DeferralAccount, PurchAccount, PurchLine."Inv. Discount Amount" + PurchLine."Line Discount Amount", PurchLineACY."Inv. Discount Amount" + PurchLineACY."Line Discount Amount");
         end;
 
         if PurchLine."Prepayment Line" then
@@ -3856,6 +3858,16 @@ codeunit 90 "Purch.-Post"
     local procedure Increment(var Number: Decimal; Number2: Decimal)
     begin
         Number := Number + Number2;
+    end;
+
+    local procedure GetPurchaseHeader(var PurchaseHeader: Record "Purchase Header")
+    var
+        PurchaseHeaderCopy: Record "Purchase Header";
+    begin
+        PurchaseHeaderCopy := PurchaseHeader;
+        PurchaseHeader.ReadIsolation := IsolationLevel::ReadCommitted;
+        PurchaseHeader.Get(PurchaseHeader."Document Type", PurchaseHeader."No.");
+        PurchaseHeader := PurchaseHeaderCopy;
     end;
 
     procedure GetPurchLines(var PurchHeader: Record "Purchase Header"; var PurchLine: Record "Purchase Line"; QtyType: Option General,Invoicing,Shipping)
@@ -8198,7 +8210,7 @@ codeunit 90 "Purch.-Post"
     end;
 
 #if not CLEAN23
-    local procedure FillDeferralPostingBuffer(PurchHeader: Record "Purchase Header"; PurchLine: Record "Purchase Line"; InvoicePostBuffer: Record "Invoice Post. Buffer"; RemainAmtToDefer: Decimal; RemainAmtToDeferACY: Decimal; DeferralAccount: Code[20]; PurchAccount: Code[20])
+    local procedure FillDeferralPostingBuffer(PurchHeader: Record "Purchase Header"; PurchLine: Record "Purchase Line"; InvoicePostBuffer: Record "Invoice Post. Buffer"; RemainAmtToDefer: Decimal; RemainAmtToDeferACY: Decimal; DeferralAccount: Code[20]; PurchAccount: Code[20]; DiscountAmount: Decimal; DiscountAmountACY: Decimal)
     var
         DeferralTemplate: Record "Deferral Template";
     begin
@@ -8218,8 +8230,7 @@ codeunit 90 "Purch.-Post"
                     DeferralPostBuffer.Description := PurchHeader."Posting Description";
                     DeferralPostBuffer."Period Description" := DeferralTemplate."Period Description";
                     DeferralPostBuffer."Deferral Line No." := InvDefLineNo;
-                    DeferralPostBuffer.PrepareInitialPair(
-                      InvoicePostBuffer, RemainAmtToDefer, RemainAmtToDeferACY, PurchAccount, DeferralAccount);
+                    DeferralPostBuffer.PrepareInitialAmounts(InvoicePostBuffer.Amount, InvoicePostBuffer."Amount (ACY)", RemainAmtToDefer, RemainAmtToDeferACY, PurchAccount, DeferralAccount, DiscountAmount, DiscountAmountACY);
                     DeferralPostBuffer.Update(DeferralPostBuffer, InvoicePostBuffer);
                     if (RemainAmtToDefer <> 0) or (RemainAmtToDeferACY <> 0) then begin
                         DeferralPostBuffer.PrepareRemainderPurchase(
