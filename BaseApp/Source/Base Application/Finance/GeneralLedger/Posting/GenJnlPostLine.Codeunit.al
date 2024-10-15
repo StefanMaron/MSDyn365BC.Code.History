@@ -957,7 +957,9 @@ codeunit 12 "Gen. Jnl.-Post Line"
     begin
         if not NonDeductibleVAT.UseNonDeductibleVATAmountForFixedAssetCost() then
             exit;
+        GenJnlLine."Non-Ded. VAT FA Cost" := true;
         FAJnlPostLine.GenJnlPostLine(GenJnlLine, VATPostingParameters."Non-Deductible VAT Amount", 0, NextTransactionNo, LastNextEntryNo, GLReg."No.");
+        GenJnlLine."Non-Ded. VAT FA Cost" := false;
         if FAJnlPostLine.FindFirstGLAcc(TempFAGLPostingBuffer) then begin
             TempGLEntryBuf."FA Entry Type" := TempFAGLPostingBuffer."FA Entry Type";
             TempGLEntryBuf."FA Entry No." := TempFAGLPostingBuffer."FA Entry No.";

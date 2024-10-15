@@ -123,9 +123,11 @@ table 1003 "Job Planning Line"
             if (Type = const("G/L Account")) "G/L Account"
             else
             if (Type = const(Text)) "Standard Text";
+            ValidateTableRelation = false;
 
             trigger OnValidate()
             begin
+                "No." := FindOrCreateRecordByNo("No.");
                 ValidateModification(xRec."No." <> "No.", Rec.FieldNo("No."));
 
                 CheckUsageLinkRelations();
@@ -3282,6 +3284,33 @@ table 1003 "Job Planning Line"
     procedure SuspendDeletionCheck(Suspend: Boolean)
     begin
         CalledFromHeader := Suspend;
+    end;
+
+    local procedure FindOrCreateRecordByNo(SourceNo: Code[20]): Code[20]
+    var
+        Item2: Record Item;
+        FindRecordManagement: Codeunit "Find Record Management";
+        FoundNo: Text;
+    begin
+        if Type = Type::Item then begin
+            if Item2.TryGetItemNoOpenCardWithView(FoundNo, SourceNo, false, true, false, '') then
+                exit(CopyStr(FoundNo, 1, MaxStrLen("No.")))
+        end else
+            exit(FindRecordManagement.FindNoFromTypedValue(GetType(Type), "No.", false));
+
+        exit(SourceNo);
+    end;
+
+    local procedure GetType(JobPlanningLineType: Enum "Job Planning Line Type"): Integer
+    begin
+        if JobPlanningLineType = JobPlanningLineType::Text then
+            exit(0);
+        if JobPlanningLineType = JobPlanningLineType::"G/L Account" then
+            exit(1);
+        if JobPlanningLineType = JobPlanningLineType::Item then
+            exit(2);
+        if JobPlanningLineType = JobPlanningLineType::Resource then
+            exit(3);
     end;
 
     [IntegrationEvent(false, false)]

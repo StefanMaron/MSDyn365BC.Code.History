@@ -38,6 +38,7 @@ codeunit 136353 "UT T Job Planning Line"
         FBPlanningDrillDownErr: Label 'Wrong Project Planning Lines';
         FBLedgerDrillDownErr: Label 'Wrong Project Ledger Entries';
         RoundingTo0Err: Label 'Rounding of the field';
+        NoJobPlanningLineErr: Label '%1 must be %2 in %3', Comment = '%1 = "No." field of Job Planning Line, %2 = Value of "No." field of Item, %3 = Job Planning Line';
 
     [Test]
     [Scope('OnPrem')]
@@ -1896,6 +1897,44 @@ codeunit 136353 "UT T Job Planning Line"
 
         // [THEN] Verify Description on Job Planning Line
         JobPlanningLine.TestField(Description, ItemTranslation.Description);
+    end;
+
+    [Test]
+    procedure NoOfItemIsValidatedEvenIfEnterDescriptionOfItemInNoOfJobPlanningLineHavingTypeAsItem()
+    var
+        Item: Record Item;
+        Job: Record Job;
+        JobTask: Record "Job Task";
+        JobPlanningLine: Record "Job Planning Line";
+    begin
+        // [SCENARIO 547563] When Stan enters the Description of an Item in "No." field of 
+        // Job Planning Line having Type selected as Item, then "No." field of Job Planning Line
+        // Is updated with the value of "No." field of the Item without any error.
+        Initialize();
+
+        // [GIVEN] Create an Item and Validate Description.
+        LibraryInventory.CreateItem(Item);
+        Item.Validate(Description, LibraryUtility.GenerateRandomText(MaxStrLen(Item."No.")));
+        Item.Modify(true);
+
+        // [GIVEN] Create a Job and a Job task.
+        CreateJobAndJobTask(Job, JobTask, false, '');
+
+        // [WHEN] Create a Job Planning Line and Validate Type and No.
+        CreateSimpleJobPlanningLine(JobPlanningLine, JobTask);
+        JobPlanningLine.Validate(Type, JobPlanningLine.Type::Item);
+        JobPlanningLine.Validate("No.", Item.Description);
+        JobPlanningLine.Modify(true);
+
+        // [THEN] No. of Job Planning Line must be equal to No. of Item.
+        Assert.AreEqual(
+            Item."No.",
+            JobPlanningLine."No.",
+            StrSubstNo(
+                NoJobPlanningLineErr,
+                JobPlanningLine.FieldCaption("No."),
+                Item."No.",
+                JobPlanningLine.TableCaption()));
     end;
 
     local procedure Initialize()
