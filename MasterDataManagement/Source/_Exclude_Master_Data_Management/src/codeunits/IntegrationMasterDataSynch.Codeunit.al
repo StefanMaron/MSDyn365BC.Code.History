@@ -3,8 +3,6 @@ namespace Microsoft.Integration.MDM;
 using System.Threading;
 using Microsoft.Integration.SyncEngine;
 using System.Utilities;
-using Microsoft.CRM.Contact;
-
 
 codeunit 7231 "Integration Master Data Synch."
 {
@@ -528,21 +526,6 @@ codeunit 7231 "Integration Master Data Synch."
     [IntegrationEvent(false, false)]
     local procedure OnSyncLocalTableToIntegrationTableOnBeforeCheckLatestModifiedOn(var SourceRecordRef: RecordRef; IntegrationTableMapping: Record "Integration Table Mapping")
     begin
-    end;
-
-    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Integration Master Data Synch.", 'OnQueryPostFilterIgnoreRecord', '', false, false)]
-    local procedure IgnoreCompanyContactOnQueryPostFilterIgnoreRecord(SourceRecordRef: RecordRef; var IgnoreRecord: Boolean)
-    var
-        Contact: Record Contact;
-    begin
-        if IgnoreRecord then
-            exit;
-
-        if SourceRecordRef.Number = DATABASE::Contact then begin
-            SourceRecordRef.SetTable(Contact);
-            if Contact.Type = Contact.Type::Company then
-                IgnoreRecord := true;
-        end;
     end;
 
     [EventSubscriber(ObjectType::Table, Database::"Job Queue Entry", 'OnBeforeModifyEvent', '', false, false)]

@@ -96,7 +96,7 @@ codeunit 144012 "UT TAB Cash Bank Giro"
         Initialize();
         CreateCBGStatement(
           CBGStatement, CBGStatementLine, Type, CBGStatementLine."Account Type"::Customer,
-          CreateCustomerLedgerEntry, CreateCurrency);
+          CreateCustomerLedgerEntry(), CreateCurrency());
 
         // Exercise.
         asserterror CBGStatement.CheckBalance();
@@ -136,10 +136,10 @@ codeunit 144012 "UT TAB Cash Bank Giro"
         Initialize();
         CreateCBGStatement(
           CBGStatement, CBGStatementLine, Type, CBGStatementLine."Account Type"::Customer,
-          CreateCustomerLedgerEntry, '');
+          CreateCustomerLedgerEntry(), '');
 
         // Exercise.
-        asserterror CBGStatement.ProcessStatementASGenJournal;
+        asserterror CBGStatement.ProcessStatementASGenJournal();
 
         // Verify: Verify error code, actual error is "Bal. Account Type must be ""Bank"" in/General Journal Template when/the identification must be applied.", on Check Balance of CBG Statement table.
         Assert.ExpectedErrorCode('Dialog');
@@ -295,11 +295,11 @@ codeunit 144012 "UT TAB Cash Bank Giro"
         Initialize();
         CreateCBGStatement(
           CBGStatement, CBGStatementLine, CBGStatement.Type::"Bank/Giro",
-          CBGStatementLine."Account Type"::Customer, CreateCustomerLedgerEntry, '');
+          CBGStatementLine."Account Type"::Customer, CreateCustomerLedgerEntry(), '');
 
         // Exercise.
         asserterror CreateCBGStatementLine(CBGStatementLine, CBGStatementLine."Account Type"::Customer,
-            CreateCustomerLedgerEntry, CBGStatement."Journal Template Name", CBGStatement."No.");
+            CreateCustomerLedgerEntry(), CBGStatement."Journal Template Name", CBGStatement."No.");
 
         // Verify: Verify error code, actual error is "Applies-to ID is used before in  1 line 1", on Check Balance of CBG Statement Line table.
         Assert.ExpectedErrorCode('Dialog');
@@ -316,7 +316,7 @@ codeunit 144012 "UT TAB Cash Bank Giro"
         Initialize();
         CreateCBGStatement(
           CBGStatement, CBGStatementLine, CBGStatement.Type::"Bank/Giro",
-          CBGStatementLine."Account Type"::Customer, CreateCustomerLedgerEntry, CreateCurrency);
+          CBGStatementLine."Account Type"::Customer, CreateCustomerLedgerEntry(), CreateCurrency());
         CreatePaymentHistory(
           CBGStatementLine."Statement No.", CBGStatementLine.Identification, CBGStatementLine."Account No.");
 
@@ -340,7 +340,7 @@ codeunit 144012 "UT TAB Cash Bank Giro"
         Initialize();
         CreateVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
         CreateCBGStatement(
-          CBGStatement, CBGStatementLine, CBGStatement.Type::"Bank/Giro", CBGStatementLine."Account Type"::Customer, CreateCustomer, '');
+          CBGStatement, CBGStatementLine, CBGStatement.Type::"Bank/Giro", CBGStatementLine."Account Type"::Customer, CreateCustomer(), '');
         CBGStatementLine."VAT Type" := CBGStatementLine."VAT Type"::Sale;
         CBGStatementLine."VAT Bus. Posting Group" := VATPostingSetup."VAT Bus. Posting Group";
 
@@ -364,7 +364,7 @@ codeunit 144012 "UT TAB Cash Bank Giro"
         Initialize();
         CreateVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
         CreateCBGStatement(
-          CBGStatement, CBGStatementLine, CBGStatement.Type::"Bank/Giro", CBGStatementLine."Account Type"::Customer, CreateCustomer, '');
+          CBGStatement, CBGStatementLine, CBGStatement.Type::"Bank/Giro", CBGStatementLine."Account Type"::Customer, CreateCustomer(), '');
         CBGStatementLine."VAT Type" := CBGStatementLine."VAT Type"::Sale;
         CBGStatementLine."VAT Prod. Posting Group" := VATPostingSetup."VAT Prod. Posting Group";
 
@@ -388,7 +388,7 @@ codeunit 144012 "UT TAB Cash Bank Giro"
         Initialize();
         CreateVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
         CreateCBGStatement(
-          CBGStatement, CBGStatementLine, CBGStatement.Type::"Bank/Giro", CBGStatementLine."Account Type"::Customer, CreateCustomer, '');
+          CBGStatement, CBGStatementLine, CBGStatement.Type::"Bank/Giro", CBGStatementLine."Account Type"::Customer, CreateCustomer(), '');
         CBGStatementLine."VAT Bus. Posting Group" := VATPostingSetup."VAT Bus. Posting Group";
         CBGStatementLine."VAT Prod. Posting Group" := VATPostingSetup."VAT Prod. Posting Group";
 
@@ -411,7 +411,7 @@ codeunit 144012 "UT TAB Cash Bank Giro"
         Initialize();
         CreateVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Full VAT");
         VATOnCBGStatement(
-          CBGStatementLine."Account Type"::"G/L Account", CreateGLAccount, CBGStatementLine."VAT Type"::Sale,
+          CBGStatementLine."Account Type"::"G/L Account", CreateGLAccount(), CBGStatementLine."VAT Type"::Sale,
           VATPostingSetup."VAT Bus. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
     end;
 
@@ -427,7 +427,7 @@ codeunit 144012 "UT TAB Cash Bank Giro"
         Initialize();
         CreateVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Full VAT");
         VATOnCBGStatement(
-          CBGStatementLine."Account Type"::"G/L Account", CreateGLAccount, CBGStatementLine."VAT Type"::Purchase,
+          CBGStatementLine."Account Type"::"G/L Account", CreateGLAccount(), CBGStatementLine."VAT Type"::Purchase,
           VATPostingSetup."VAT Bus. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
     end;
 
@@ -464,7 +464,7 @@ codeunit 144012 "UT TAB Cash Bank Giro"
         CreateVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Sales Tax");
         CreateCBGStatement(
           CBGStatement, CBGStatementLine, CBGStatement.Type::"Bank/Giro",
-          CBGStatementLine."Account Type"::"G/L Account", CreateGLAccount, '');
+          CBGStatementLine."Account Type"::"G/L Account", CreateGLAccount(), '');
         CBGStatementLine.Validate("VAT Type", CBGStatementLine."VAT Type"::Sale);
         CBGStatementLine.Validate("VAT Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
 
@@ -473,6 +473,33 @@ codeunit 144012 "UT TAB Cash Bank Giro"
 
         // Verify: Verify error code, actual error is "VAT Calculation Type is not supported in the Cash, Bank or Giro Journal in VAT Posting Setup VAT Bus. Posting Group=,VAT Prod. Posting Group=" of CBG Statement Line table.
         Assert.ExpectedErrorCode('NCLCSRTS:TableErrorStr');
+    end;
+
+    [Test]
+    procedure AccountNoTableRelationOnCBGStatementLine()
+    var
+        CBGStatementLine: Record "CBG Statement Line";
+        GLAccountNo: array[3] of Code[20];
+        i: Integer;
+        ExpectedErrorCodeLbl: Label 'DB:NothingInsideFilter', Locked = true;
+    begin
+        // [SCENARIO 495747] Account no. has table relation filters "Account Type" = Posting, Blocked = false and "Direct Posting" = true for type "G/L Account" on CBG statement line
+        Initialize();
+
+        // [GIVEN] Create three G/L accounts
+        // [GIVEN] G/L account "A" has "Account Type" = "Begin Total"
+        GLAccountNo[1] := CreateGLAccount("G/L Account Type"::"Begin-Total", false, true);
+        // [GIVEN] G/L account "B" is blocked
+        GLAccountNo[2] := CreateGLAccount("G/L Account Type"::Posting, true, true);
+        // [GIVEN] G/L account "C" has not Direct Posting option
+        GLAccountNo[3] := CreateGLAccount();
+
+        //[WHEN] Validate "Account No." on the CBG Statement Line with these G/L accounts 
+        for i := 1 to ArrayLen(GLAccountNo) do
+            asserterror CBGStatementLine.Validate("Account No.", GLAccountNo[i]);
+
+        //[THEN] The error "G/L Acount No. can't be found in G/L Account table" is executed
+        Assert.ExpectedErrorCode(ExpectedErrorCodeLbl);
     end;
 
     local procedure Initialize()
@@ -490,14 +517,14 @@ codeunit 144012 "UT TAB Cash Bank Giro"
     var
         BankAccount: Record "Bank Account";
     begin
-        BankAccount."No." := LibraryUTUtility.GetNewCode;
+        BankAccount."No." := LibraryUTUtility.GetNewCode();
         BankAccount.Insert();
         exit(BankAccount."No.");
     end;
 
     local procedure CreateBlockedCustomer(var Customer: Record Customer; Blocked: Enum "Customer Blocked"; PrivacyBlocked: Boolean)
     begin
-        Customer."No." := LibraryUTUtility.GetNewCode;
+        Customer."No." := LibraryUTUtility.GetNewCode();
         Customer.Blocked := Blocked;
         Customer."Privacy Blocked" := PrivacyBlocked;
         Customer.Insert();
@@ -505,7 +532,7 @@ codeunit 144012 "UT TAB Cash Bank Giro"
 
     local procedure CreateBlockedVendor(var Vendor: Record Vendor; Blocked: Enum "Vendor Blocked"; PrivacyBlocked: Boolean)
     begin
-        Vendor."No." := LibraryUTUtility.GetNewCode;
+        Vendor."No." := LibraryUTUtility.GetNewCode();
         Vendor.Blocked := Blocked;
         Vendor."Privacy Blocked" := PrivacyBlocked;
         Vendor.Insert();
@@ -513,7 +540,7 @@ codeunit 144012 "UT TAB Cash Bank Giro"
 
     local procedure CreateCBGStatement(var CBGStatement: Record "CBG Statement"; var CBGStatementLine: Record "CBG Statement Line"; Type: Option; AccountType: Option; AccountNo: Code[20]; Currency: Code[10])
     begin
-        CBGStatement."Journal Template Name" := CreateJournalTemplate(CreateGLAccount);
+        CBGStatement."Journal Template Name" := CreateJournalTemplate(CreateGLAccount());
         CBGStatement."No." := LibraryRandom.RandInt(10);
         CBGStatement."Account No." := CBGStatement."Journal Template Name";
         CBGStatement.Date := WorkDate();
@@ -531,8 +558,8 @@ codeunit 144012 "UT TAB Cash Bank Giro"
         CBGStatementLine."Account No." := AccountNo;
         CBGStatementLine.Date := CBGStatement.Date;
         CBGStatementLine."Statement Type" := CBGStatementLine."Statement Type"::"Bank Account";
-        CBGStatementLine."Statement No." := CreateBankAccount;
-        CBGStatementLine.Identification := LibraryUTUtility.GetNewCode;
+        CBGStatementLine."Statement No." := CreateBankAccount();
+        CBGStatementLine.Identification := LibraryUTUtility.GetNewCode();
         CBGStatementLine."Applies-to ID" := UserId;
         CBGStatementLine."Debit Incl. VAT" := LibraryRandom.RandDec(10, 2);
         CBGStatementLine."Credit Incl. VAT" := LibraryRandom.RandDec(10, 2);
@@ -549,7 +576,7 @@ codeunit 144012 "UT TAB Cash Bank Giro"
         CBGStatementLine.Validate("Applies-to ID", UserId);
         CBGStatementLine."Statement Type" := CBGStatementLine."Statement Type"::"Bank Account";
         CBGStatementLine."Statement No." := AccountNo;
-        CBGStatementLine.Identification := LibraryUTUtility.GetNewCode;
+        CBGStatementLine.Identification := LibraryUTUtility.GetNewCode();
         CBGStatementLine.Insert();
     end;
 
@@ -557,7 +584,7 @@ codeunit 144012 "UT TAB Cash Bank Giro"
     var
         Customer: Record Customer;
     begin
-        Customer."No." := LibraryUTUtility.GetNewCode;
+        Customer."No." := LibraryUTUtility.GetNewCode();
         Customer.Insert();
         exit(Customer."No.");
     end;
@@ -570,7 +597,7 @@ codeunit 144012 "UT TAB Cash Bank Giro"
         CustLedgerEntry2.FindLast();
         CustLedgerEntry."Entry No." := CustLedgerEntry2."Entry No." + 1;
         CustLedgerEntry."Document Type" := CustLedgerEntry."Document Type"::Invoice;
-        CustLedgerEntry."Customer No." := CreateCustomer;
+        CustLedgerEntry."Customer No." := CreateCustomer();
         CustLedgerEntry.Open := true;
         CustLedgerEntry.Insert();
         exit(CustLedgerEntry."Customer No.");
@@ -580,7 +607,7 @@ codeunit 144012 "UT TAB Cash Bank Giro"
     var
         Currency: Record Currency;
     begin
-        Currency.Code := LibraryUTUtility.GetNewCode10;
+        Currency.Code := LibraryUTUtility.GetNewCode10();
         Currency.Insert();
         exit(Currency.Code);
     end;
@@ -589,13 +616,13 @@ codeunit 144012 "UT TAB Cash Bank Giro"
     var
         GenJournalTemplate: Record "Gen. Journal Template";
     begin
-        GenJournalTemplate.Name := LibraryUTUtility.GetNewCode10;
+        GenJournalTemplate.Name := LibraryUTUtility.GetNewCode10();
         GenJournalTemplate.Description := GenJournalTemplate.Name;
         GenJournalTemplate.Type := GenJournalTemplate.Type::Bank;
         GenJournalTemplate."Bal. Account Type" := GenJournalTemplate."Bal. Account Type"::"G/L Account";
         GenJournalTemplate."Bal. Account No." := BalAccountNo;
-        GenJournalTemplate."No. Series" := CreateNoSeries;
-        GenJournalTemplate."Source Code" := LibraryUTUtility.GetNewCode10;
+        GenJournalTemplate."No. Series" := CreateNoSeries();
+        GenJournalTemplate."Source Code" := LibraryUTUtility.GetNewCode10();
         GenJournalTemplate.Insert();
         exit(GenJournalTemplate.Name);
     end;
@@ -604,7 +631,19 @@ codeunit 144012 "UT TAB Cash Bank Giro"
     var
         GLAccount: Record "G/L Account";
     begin
-        GLAccount."No." := LibraryUTUtility.GetNewCode;
+        GLAccount."No." := LibraryUTUtility.GetNewCode();
+        GLAccount.Insert();
+        exit(GLAccount."No.");
+    end;
+
+    local procedure CreateGLAccount(GLAccountType: Enum Microsoft.Finance.GeneralLedger.Account."G/L Account Type"; Blocked: Boolean; DirectPosting: Boolean): Code[20]
+    var
+        GLAccount: Record "G/L Account";
+    begin
+        GLAccount."No." := LibraryUTUtility.GetNewCode();
+        GLAccount."Account Type" := GLAccountType;
+        GLAccount.Blocked := Blocked;
+        GLAccount."Direct Posting" := DirectPosting;
         GLAccount.Insert();
         exit(GLAccount."No.");
     end;
@@ -614,23 +653,23 @@ codeunit 144012 "UT TAB Cash Bank Giro"
         NoSeries: Record "No. Series";
         NoSeriesLine: Record "No. Series Line";
     begin
-        NoSeries.Code := LibraryUTUtility.GetNewCode10;
+        NoSeries.Code := LibraryUTUtility.GetNewCode10();
         NoSeries."Default Nos." := true;
         NoSeries.Insert();
         NoSeriesLine."Series Code" := NoSeries.Code;
-        NoSeriesLine."Starting No." := LibraryUTUtility.GetNewCode;
+        NoSeriesLine."Starting No." := LibraryUTUtility.GetNewCode();
         NoSeriesLine.Insert();
         exit(NoSeries.Code);
     end;
 
     local procedure CreateVATPostingSetup(var VATPostingSetup: Record "VAT Posting Setup"; VATCalculationType: Enum "Tax Calculation Type")
     begin
-        VATPostingSetup."VAT Bus. Posting Group" := CreateVATBusinessPostingGroup;
-        VATPostingSetup."VAT Prod. Posting Group" := CreateVATProductPostingGroup;
+        VATPostingSetup."VAT Bus. Posting Group" := CreateVATBusinessPostingGroup();
+        VATPostingSetup."VAT Prod. Posting Group" := CreateVATProductPostingGroup();
         VATPostingSetup."VAT Calculation Type" := VATCalculationType;
         VATPostingSetup."VAT %" := LibraryRandom.RandInt(10);
-        VATPostingSetup."Sales VAT Account" := CreateGLAccount;
-        VATPostingSetup."Purchase VAT Account" := CreateGLAccount;
+        VATPostingSetup."Sales VAT Account" := CreateGLAccount();
+        VATPostingSetup."Purchase VAT Account" := CreateGLAccount();
         VATPostingSetup.Insert();
     end;
 
@@ -638,7 +677,7 @@ codeunit 144012 "UT TAB Cash Bank Giro"
     var
         VATBusinessPostingGroup: Record "VAT Business Posting Group";
     begin
-        VATBusinessPostingGroup.Code := LibraryUTUtility.GetNewCode10;
+        VATBusinessPostingGroup.Code := LibraryUTUtility.GetNewCode10();
         VATBusinessPostingGroup.Insert();
         exit(VATBusinessPostingGroup.Code);
     end;
@@ -647,7 +686,7 @@ codeunit 144012 "UT TAB Cash Bank Giro"
     var
         VATProductPostingGroup: Record "VAT Product Posting Group";
     begin
-        VATProductPostingGroup.Code := LibraryUTUtility.GetNewCode10;
+        VATProductPostingGroup.Code := LibraryUTUtility.GetNewCode10();
         VATProductPostingGroup.Insert();
         exit(VATProductPostingGroup.Code);
     end;
@@ -658,7 +697,7 @@ codeunit 144012 "UT TAB Cash Bank Giro"
         PaymentHistoryLine: Record "Payment History Line";
     begin
         PaymentHistory."Our Bank" := OurBank;
-        PaymentHistory."Run No." := LibraryUTUtility.GetNewCode;
+        PaymentHistory."Run No." := LibraryUTUtility.GetNewCode();
         PaymentHistory.Insert();
 
         PaymentHistoryLine."Our Bank" := PaymentHistory."Our Bank";
@@ -667,7 +706,7 @@ codeunit 144012 "UT TAB Cash Bank Giro"
         PaymentHistoryLine.Identification := Identification;
         PaymentHistoryLine."Account Type" := PaymentHistoryLine."Account Type"::Customer;
         PaymentHistoryLine."Account No." := AccountNo;
-        PaymentHistoryLine."Currency Code" := LibraryUTUtility.GetNewCode10;
+        PaymentHistoryLine."Currency Code" := LibraryUTUtility.GetNewCode10();
         PaymentHistoryLine.Insert();
     end;
 
