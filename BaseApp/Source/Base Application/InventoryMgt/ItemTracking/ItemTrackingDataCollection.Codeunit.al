@@ -68,7 +68,7 @@ codeunit 6501 "Item Tracking Data Collection"
         ItemTrackingSummaryForm.SetTableView(TempGlobalEntrySummary);
 
         TempGlobalEntrySummary.SetTrackingKey();
-        OnAssistEditTrackingNoOnBeforeLookupMode(TempGlobalEntrySummary, TempTrackingSpecification, ItemTrackingSummaryForm);
+        OnAssistEditTrackingNoOnBeforeLookupMode(TempGlobalEntrySummary, TempTrackingSpecification, ItemTrackingSummaryForm, CurrBinCode);
         case LookupMode of
             LookupMode::"Serial No.":
                 AssistEditTrackingNoLookupSerialNo(TempTrackingSpecification, ItemTrackingSummaryForm);
@@ -739,18 +739,23 @@ codeunit 6501 "Item Tracking Data Collection"
     local procedure UpdateCurrentPendingQty()
     var
         TempLastGlobalEntrySummary: Record "Entry Summary" temporary;
+        IsHandled: Boolean;
     begin
         TempGlobalChangedEntrySummary.Reset();
         TempGlobalChangedEntrySummary.SetTrackingKey();
         if TempGlobalChangedEntrySummary.FindSet() then
             repeat
-                if TempGlobalChangedEntrySummary.HasNonSerialTracking() then begin
-                    // only last record with Lot Number updates Summary
-                    if not TempGlobalChangedEntrySummary.HasSameNonSerialTracking(TempLastGlobalEntrySummary) then
-                        FindLastGlobalEntrySummary(TempGlobalChangedEntrySummary, TempLastGlobalEntrySummary);
-                    SkipLot := not (TempGlobalChangedEntrySummary."Entry No." = TempLastGlobalEntrySummary."Entry No.");
+                IsHandled := false;
+                OnUpdateCurrentPendingQtyOnLoop(TempGlobalChangedEntrySummary, CurrBinCode, TempGlobalEntrySummary, IsHandled);
+                if not IsHandled then begin
+                    if TempGlobalChangedEntrySummary.HasNonSerialTracking() then begin
+                        // only last record with Lot Number updates Summary
+                        if not TempGlobalChangedEntrySummary.HasSameNonSerialTracking(TempLastGlobalEntrySummary) then
+                            FindLastGlobalEntrySummary(TempGlobalChangedEntrySummary, TempLastGlobalEntrySummary);
+                        SkipLot := not (TempGlobalChangedEntrySummary."Entry No." = TempLastGlobalEntrySummary."Entry No.");
+                    end;
+                    UpdateTempSummaryWithChange(TempGlobalChangedEntrySummary);
                 end;
-                UpdateTempSummaryWithChange(TempGlobalChangedEntrySummary);
             until TempGlobalChangedEntrySummary.Next() = 0;
     end;
 
@@ -759,7 +764,13 @@ codeunit 6501 "Item Tracking Data Collection"
         LastEntryNo: Integer;
         SumOfSNPendingQuantity: Decimal;
         SumOfSNRequestedQuantity: Decimal;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeUpdateTempSummaryWithChange(TempChangedEntrySummary, CurrBinCode, TempGlobalEntrySummary, IsHandled);
+        if IsHandled then
+            exit;
+
         TempGlobalEntrySummary.Reset();
         LastEntryNo := TempGlobalEntrySummary.GetLastEntryNo();
 
@@ -899,6 +910,8 @@ codeunit 6501 "Item Tracking Data Collection"
         if xBinCode <> BinCode then
             if PartialGlobalDataSetExists then
                 RefreshBinContent(TempGlobalEntrySummary);
+
+        OnAfterSetCurrentBinAndItemTrkgCode(xBinCode, CurrBinCode, CurrItemTrackingCode, FullGlobalDataSetExists, PartialGlobalDataSetExists);
     end;
 
     procedure SetHideValidationDialog(NewHideValidationDialog: Boolean)
@@ -1609,7 +1622,7 @@ codeunit 6501 "Item Tracking Data Collection"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAssistEditTrackingNoOnBeforeLookupMode(var TempGlobalEntrySummary: Record "Entry Summary"; var TempTrackingSpecification: Record "Tracking Specification"; var ItemTrackingSummaryPage: Page "Item Tracking Summary")
+    local procedure OnAssistEditTrackingNoOnBeforeLookupMode(var TempGlobalEntrySummary: Record "Entry Summary"; var TempTrackingSpecification: Record "Tracking Specification"; var ItemTrackingSummaryPage: Page "Item Tracking Summary"; CurrBinCode: Code[20])
     begin
     end;
 
@@ -1630,6 +1643,21 @@ codeunit 6501 "Item Tracking Data Collection"
 
     [IntegrationEvent(false, false)]
     local procedure OnAddSelectedTrackingToDataSetOnBeforeUpdateWithChange(var TempEntrySummary: Record "Entry Summary" temporary; var TempTrackingSpecification: Record "Tracking Specification"; ChangeType: Option Insert,Modify,Delete)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateCurrentPendingQtyOnLoop(var TempGlobalChangedEntrySummary: Record "Entry Summary" temporary; CurrBinCode: Code[20]; var TempGlobalEntrySummary: Record "Entry Summary" temporary; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdateTempSummaryWithChange(var TempChangedEntrySummary: Record "Entry Summary" temporary; CurrBinCode: Code[20]; var TempGlobalEntrySummary: Record "Entry Summary" temporary; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetCurrentBinAndItemTrkgCode(xBinCode: Code[20]; BinCode: Code[20]; CurrItemTrackingCode: Record "Item Tracking Code"; var FullGlobalDataSetExists: Boolean; var PartialGlobalDataSetExists: Boolean)
     begin
     end;
 }

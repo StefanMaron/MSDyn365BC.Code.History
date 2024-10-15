@@ -1,4 +1,4 @@
-﻿table 5077 "Segment Line"
+table 5077 "Segment Line"
 {
     Caption = 'Segment Line';
     Permissions = tabledata Attachment = rd,
@@ -33,40 +33,40 @@
             begin
                 InitLine();
 
-                if Cont.Get(Rec."Contact No.") then begin
-                    Rec."Language Code" := FindLanguage(Rec."Interaction Template Code", Cont."Language Code");
-                    Rec."Contact Company No." := Cont."Company No.";
-                    Rec."Contact Alt. Address Code" := Cont.ActiveAltAddress(Rec.Date);
-                    if SegHeader.Get(Rec."Segment No.") then begin
-                        if SegHeader."Salesperson Code" = '' then
-                            Rec."Salesperson Code" := Cont."Salesperson Code"
+                if ContactGlobal.Get(Rec."Contact No.") then begin
+                    Rec."Language Code" := FindLanguage(Rec."Interaction Template Code", ContactGlobal."Language Code");
+                    Rec."Contact Company No." := ContactGlobal."Company No.";
+                    Rec."Contact Alt. Address Code" := ContactGlobal.ActiveAltAddress(Rec.Date);
+                    if SegmentHeaderGlobal.Get(Rec."Segment No.") then begin
+                        if SegmentHeaderGlobal."Salesperson Code" = '' then
+                            Rec."Salesperson Code" := ContactGlobal."Salesperson Code"
                         else
-                            Rec."Salesperson Code" := SegHeader."Salesperson Code";
-                        if SegHeader."Ignore Contact Corres. Type" and
-                           (SegHeader."Correspondence Type (Default)" <> SegHeader."Correspondence Type (Default)"::" ")
+                            Rec."Salesperson Code" := SegmentHeaderGlobal."Salesperson Code";
+                        if SegmentHeaderGlobal."Ignore Contact Corres. Type" and
+                           (SegmentHeaderGlobal."Correspondence Type (Default)" <> SegmentHeaderGlobal."Correspondence Type (Default)"::" ")
                         then
-                            Rec."Correspondence Type" := SegHeader."Correspondence Type (Default)"
+                            Rec."Correspondence Type" := SegmentHeaderGlobal."Correspondence Type (Default)"
                         else
-                            if InteractTmpl.Get(SegHeader."Interaction Template Code") and
+                            if InteractTmpl.Get(SegmentHeaderGlobal."Interaction Template Code") and
                                (InteractTmpl."Ignore Contact Corres. Type" or
                                 ((InteractTmpl."Ignore Contact Corres. Type" = false) and
-                                 (Cont."Correspondence Type" = Cont."Correspondence Type"::" ")))
+                                 (ContactGlobal."Correspondence Type" = ContactGlobal."Correspondence Type"::" ")))
                             then
                                 Rec."Correspondence Type" := InteractTmpl."Correspondence Type (Default)"
                             else
-                                Rec."Correspondence Type" := Cont."Correspondence Type";
+                                Rec."Correspondence Type" := ContactGlobal."Correspondence Type";
                     end else begin
                         SetDefaultSalesperson();
                         if Rec."Salesperson Code" = '' then
-                            if not Salesperson.Get(GetFilter("Salesperson Code")) then
-                                Rec."Salesperson Code" := Cont."Salesperson Code";
+                            if not SalespersonPurchaserGlobal.Get(GetFilter("Salesperson Code")) then
+                                Rec."Salesperson Code" := ContactGlobal."Salesperson Code";
                     end;
 
                 end else begin
                     Rec."Contact Company No." := '';
                     Rec."Contact Alt. Address Code" := '';
-                    if SegHeader.Get(Rec."Segment No.") then
-                        Rec."Salesperson Code" := SegHeader."Salesperson Code"
+                    if SegmentHeaderGlobal.Get(Rec."Segment No.") then
+                        Rec."Salesperson Code" := SegmentHeaderGlobal."Salesperson Code"
                     else begin
                         Rec."Salesperson Code" := '';
                         Rec."Language Code" := '';
@@ -116,7 +116,7 @@
         field(6; "Correspondence Type"; Enum "Correspondence Type")
         {
             Caption = 'Correspondence Type';
-
+#if not CLEAN23
             trigger OnValidate()
             var
                 Attachment: Record Attachment;
@@ -132,6 +132,7 @@
                         StrSubstNo(Text000, FieldCaption("Correspondence Type"), "Correspondence Type", TableCaption(), "Line No."),
                         ErrorText));
             end;
+#endif
         }
         field(7; "Interaction Template Code"; Code[10])
         {
@@ -146,16 +147,15 @@
                 IsHandled: Boolean;
             begin
                 IsHandled := false;
-                OnValidateInteractionTemplateCode(Rec, Cont, IsHandled);
+                OnValidateInteractionTemplateCode(Rec, ContactGlobal, IsHandled);
                 if IsHandled then
                     exit;
 
                 Rec.TestField("Contact No.");
-                Cont.Get(Rec."Contact No.");
+                ContactGlobal.Get(Rec."Contact No.");
                 Rec."Attachment No." := 0;
                 Rec."Language Code" := '';
                 Rec.Subject := '';
-                Rec."Correspondence Type" := "Correspondence Type"::" ";
                 Rec."Interaction Group Code" := '';
                 Rec."Cost (LCY)" := 0;
                 Rec."Duration (Min.)" := 0;
@@ -175,16 +175,16 @@
                     SegInteractLanguage.DeleteAll(true);
                     Rec.Get(Rec."Segment No.", Rec."Line No.");
                     if Rec."Interaction Template Code" <> '' then begin
-                        SegHeader.Get(Rec."Segment No.");
-                        if Rec."Interaction Template Code" <> SegHeader."Interaction Template Code" then begin
-                            SegHeader.CreateSegInteractions(Rec."Interaction Template Code", Rec."Segment No.", Rec."Line No.");
-                            Rec."Language Code" := FindLanguage(Rec."Interaction Template Code", Cont."Language Code");
+                        SegmentHeaderGlobal.Get(Rec."Segment No.");
+                        if Rec."Interaction Template Code" <> SegmentHeaderGlobal."Interaction Template Code" then begin
+                            SegmentHeaderGlobal.CreateSegInteractions(Rec."Interaction Template Code", Rec."Segment No.", Rec."Line No.");
+                            Rec."Language Code" := FindLanguage(Rec."Interaction Template Code", ContactGlobal."Language Code");
                             if SegInteractLanguage.Get(Rec."Segment No.", Rec."Line No.", Rec."Language Code") then begin
                                 Rec."Attachment No." := SegInteractLanguage."Attachment No.";
                                 Rec."Word Template Code" := SegInteractLanguage."Word Template Code";
                             end;
                         end else begin
-                            Rec."Language Code" := FindLanguage(Rec."Interaction Template Code", Cont."Language Code");
+                            Rec."Language Code" := FindLanguage(Rec."Interaction Template Code", ContactGlobal."Language Code");
                             if SegInteractLanguage.Get(Rec."Segment No.", 0, Rec."Language Code") then begin
                                 Rec."Attachment No." := SegInteractLanguage."Attachment No.";
                                 Rec."Word Template Code" := SegInteractLanguage."Word Template Code";
@@ -192,7 +192,7 @@
                         end;
                     end;
                 end else begin
-                    Rec."Language Code" := FindLanguage(Rec."Interaction Template Code", Cont."Language Code");
+                    Rec."Language Code" := FindLanguage(Rec."Interaction Template Code", ContactGlobal."Language Code");
                     if InteractTemplLanguage.Get(Rec."Interaction Template Code", Rec."Language Code") then begin
                         Rec."Attachment No." := InteractTemplLanguage."Attachment No.";
                         Rec."Word Template Code" := InteractTemplLanguage."Word Template Code";
@@ -215,14 +215,14 @@
                     Rec."Campaign Response" := InteractTmpl."Campaign Response";
 
                     SetCorrespondenceType(InteractTmpl);
-                    if SegHeader."Campaign No." <> '' then
-                        Rec."Campaign No." := SegHeader."Campaign No."
+                    if SegmentHeaderGlobal."Campaign No." <> '' then
+                        Rec."Campaign No." := SegmentHeaderGlobal."Campaign No."
                     else
                         if (Rec.GetFilter("Campaign No.") = '') and (InteractTmpl."Campaign No." <> '') then
                             Rec."Campaign No." := InteractTmpl."Campaign No.";
                 end;
-                if Campaign.Get(Rec."Campaign No.") then
-                    Rec."Campaign Description" := Campaign.Description;
+                if GlobalCampaign.Get(Rec."Campaign No.") then
+                    Rec."Campaign Description" := GlobalCampaign.Description;
 
                 Modify();
             end;
@@ -317,7 +317,7 @@
                 if Rec."Language Code" = xRec."Language Code" then
                     exit;
 
-                if SegHeader.Get(Rec."Segment No.") then begin
+                if SegmentHeaderGlobal.Get(Rec."Segment No.") then begin
                     if not UniqueAttachmentExists() then begin
                         if SegInteractLanguage.Get(Rec."Segment No.", 0, Rec."Language Code") then begin
                             Rec."Attachment No." := SegInteractLanguage."Attachment No.";
@@ -353,9 +353,9 @@
 
             trigger OnValidate()
             begin
-                if Cont.Get("Contact No.") then
-                    if "Contact Alt. Address Code" = Cont.ActiveAltAddress(xRec.Date) then
-                        "Contact Alt. Address Code" := Cont.ActiveAltAddress(Date);
+                if ContactGlobal.Get("Contact No.") then
+                    if "Contact Alt. Address Code" = ContactGlobal.ActiveAltAddress(xRec.Date) then
+                        "Contact Alt. Address Code" := ContactGlobal.ActiveAltAddress(Date);
             end;
         }
         field(24; "Time of Interaction"; Time)
@@ -454,6 +454,10 @@
             DataClassification = CustomerContent;
             TableRelation = "Word Template".Code where("Table ID" = const(5106)); // Only Interaction Merge Data Word templates are allowed
         }
+        field(54; Merged; Boolean)
+        {
+            DataClassification = SystemMetadata;
+        }
         field(9501; "Wizard Step"; Enum "Segment Line Wizard Step")
         {
             Caption = 'Wizard Step';
@@ -511,27 +515,27 @@
 
     trigger OnDelete()
     var
-        SegLine: Record "Segment Line";
+        SegmentLine: Record "Segment Line";
         SegmentCriteriaLine: Record "Segment Criteria Line";
         SegmentHistory: Record "Segment History";
-        SegInteractLanguage: Record "Segment Interaction Language";
-        Task: Record "To-do";
+        SegmentInteractionLanguage: Record "Segment Interaction Language";
+        TodoTask: Record "To-do";
     begin
-        CampaignTargetGrMgt.DeleteSegfromTargetGr(Rec);
+        CampaignTargetGroupMgt.DeleteSegfromTargetGr(Rec);
 
-        SegInteractLanguage.Reset();
-        SegInteractLanguage.SetRange("Segment No.", "Segment No.");
-        SegInteractLanguage.SetRange("Segment Line No.", "Line No.");
-        SegInteractLanguage.DeleteAll(true);
+        SegmentInteractionLanguage.Reset();
+        SegmentInteractionLanguage.SetRange("Segment No.", "Segment No.");
+        SegmentInteractionLanguage.SetRange("Segment Line No.", "Line No.");
+        SegmentInteractionLanguage.DeleteAll(true);
         Get("Segment No.", "Line No.");
 
-        SegLine.SetRange("Segment No.", "Segment No.");
-        SegLine.SetFilter("Line No.", '<>%1', "Line No.");
-        if SegLine.IsEmpty() then begin
-            if SegHeader.Get("Segment No.") then
-                SegHeader.CalcFields("No. of Criteria Actions");
-            if SegHeader."No. of Criteria Actions" > 1 then
-                if Confirm(Text006, true) then begin
+        SegmentLine.SetRange("Segment No.", "Segment No.");
+        SegmentLine.SetFilter("Line No.", '<>%1', "Line No.");
+        if SegmentLine.IsEmpty() then begin
+            if SegmentHeaderGlobal.Get("Segment No.") then
+                SegmentHeaderGlobal.CalcFields("No. of Criteria Actions");
+            if SegmentHeaderGlobal."No. of Criteria Actions" > 1 then
+                if Confirm(SegmentEmptyResetCriteriaActionsQst, true) then begin
                     SegmentCriteriaLine.SetRange("Segment No.", "Segment No.");
                     OnDeleteOnBeforeSegmentCriteriaLineDeleteAll(Rec, SegmentCriteriaLine);
                     SegmentCriteriaLine.DeleteAll();
@@ -540,123 +544,162 @@
                 end;
         end;
         if "Contact No." <> '' then begin
-            SegLine.SetRange("Contact No.", "Contact No.");
-            if SegLine.IsEmpty() then begin
-                Task.SetRange("Segment No.", "Segment No.");
-                Task.SetRange("Contact No.", "Contact No.");
-                Task.ModifyAll("Segment No.", '');
+            SegmentLine.SetRange("Contact No.", "Contact No.");
+            if SegmentLine.IsEmpty() then begin
+                TodoTask.SetRange("Segment No.", "Segment No.");
+                TodoTask.SetRange("Contact No.", "Contact No.");
+                TodoTask.ModifyAll("Segment No.", '');
             end;
         end;
     end;
 
     var
-        SegHeader: Record "Segment Header";
-        Cont: Record Contact;
-        Salesperson: Record "Salesperson/Purchaser";
-        Campaign: Record Campaign;
-        InteractTmpl: Record "Interaction Template";
-        Attachment: Record Attachment;
+        SegmentHeaderGlobal: Record "Segment Header";
+        ContactGlobal: Record Contact;
+        SalespersonPurchaserGlobal: Record "Salesperson/Purchaser";
+        GlobalCampaign: Record Campaign;
+        GlobalInteractionTemplate: Record "Interaction Template";
+        GlobalAttachment: Record Attachment;
         InterLogEntryCommentLine: Record "Inter. Log Entry Comment Line";
         TempInterLogEntryCommentLine: Record "Inter. Log Entry Comment Line" temporary;
         AttachmentManagement: Codeunit AttachmentManagement;
         ClientTypeManagement: Codeunit "Client Type Management";
-        CampaignTargetGrMgt: Codeunit "Campaign Target Group Mgt";
+        CampaignTargetGroupMgt: Codeunit "Campaign Target Group Mgt";
         Mail: Codeunit Mail;
         ResumedAttachmentNo: Integer;
 
+#if not CLEAN23
         Text000: Label '%1 = %2 can not be specified for %3 %4.\';
-        Text001: Label 'Inherited';
-        Text002: Label 'Unique';
+#endif
+        InheritedTxt: Label 'Inherited';
+        UniqueTxt: Label 'Unique';
         NoAttachmentErr: Label 'No attachment found. You must either add an attachment or choose a template in the Word Template Code field on the Interaction Template page.';
-        Text005: Label 'You must fill in the %1 field.';
-        Text004: Label 'The program has stopped importing the attachment at your request.';
-        Text006: Label 'Your Segment is now empty.\Do you want to reset number of criteria actions?';
-        Text007: Label 'Do you want to finish this interaction later?';
-        Text008: Label 'The correspondence type for this interaction is Email, which requires an interaction template with an attachment or Word template. To continue, you can either change the correspondence type for the contact, select an interaction template that has a different correspondence type, or select a template that ignores the contact correspondence type.';
-        Text009: Label 'You must select a contact to interact with.';
-        Text013: Label 'You must fill in the phone number.';
+        FieldNotFilledErr: Label 'You must fill in the %1 field.', Comment = '%1 - field name';
+        AttachmentImportCancelledMsg: Label 'The program has stopped importing the attachment at your request.';
+        SegmentEmptyResetCriteriaActionsQst: Label 'Your Segment is now empty.\Do you want to reset number of criteria actions?';
+        FinishInteractionLaterQst: Label 'Do you want to finish this interaction later?';
+        AttachmentRequiredErr: Label 'The correspondence type for this interaction is Email, which requires an interaction template with an attachment or Word template. To continue, you can either change the correspondence type for the contact, select an interaction template that has a different correspondence type, or select a template that ignores the contact correspondence type.';
+        SelectContactErr: Label 'You must select a contact to interact with.';
+        PhoneNumberErr: Label 'You must fill in the phone number.';
+#if not CLEAN23
         Text024: Label '%1 = %2 cannot be specified.', Comment = '%1=Correspondence Type';
-        Text025: Label 'The email could not be sent because of the following error: %1.\Note: if you run %2 as administrator, you must run Outlook as administrator as well.', Comment = '%2 - product name';
+#endif
+        EmailCouldNotbeSentErr: Label 'The email could not be sent because of the following error: %1.\Note: if you run %2 as administrator, you must run Outlook as administrator as well.', Comment = '%1 - error, %2 - product name';
         WordTemplateUsedErr: Label 'You cannot change the attachment when a Word template has been specified.';
+        NoWordTemplateErr: Label 'The selected interaction template does not have a Word template specified and cannot be used with the Merge wizard action.';
+        OneDriveNotEnabledMsg: Label 'Onedrive is not enabled. Please enable it in the OneDrive Setup page.';
+        ModifyExistingAttachmentMsg: Label 'Modify existing attachment?';
 
     protected var
         TempAttachment: Record Attachment temporary;
 
     procedure InitLine()
+    var
+        Attachment: Record Attachment;
     begin
-        if not SegHeader.Get(Rec."Segment No.") then
+        if not SegmentHeaderGlobal.Get(Rec."Segment No.") then
             exit;
 
-        Rec.Description := SegHeader.Description;
-        Rec."Campaign No." := SegHeader."Campaign No.";
-        Rec."Salesperson Code" := SegHeader."Salesperson Code";
-        Rec."Correspondence Type" := SegHeader."Correspondence Type (Default)";
-        Rec."Interaction Template Code" := SegHeader."Interaction Template Code";
-        Rec."Interaction Group Code" := SegHeader."Interaction Group Code";
-        Rec."Cost (LCY)" := SegHeader."Unit Cost (LCY)";
-        Rec."Duration (Min.)" := SegHeader."Unit Duration (Min.)";
-        Rec."Attachment No." := SegHeader."Attachment No.";
-        Rec.Date := SegHeader.Date;
-        Rec."Campaign Target" := SegHeader."Campaign Target";
-        Rec."Information Flow" := SegHeader."Information Flow";
-        Rec."Initiated By" := SegHeader."Initiated By";
-        Rec."Campaign Response" := SegHeader."Campaign Response";
-        Rec."Send Word Doc. As Attmt." := SegHeader."Send Word Docs. as Attmt.";
-        Rec."Word Template Code" := SegHeader."Word Template Code";
+        // Delete old attachment if changed
+        if Rec."Attachment No." <> 0 then begin
+            Attachment.Get(Rec."Attachment No.");
+            Attachment.Delete();
+        end;
+
+        Rec.Description := SegmentHeaderGlobal.Description;
+        Rec."Campaign No." := SegmentHeaderGlobal."Campaign No.";
+        Rec."Salesperson Code" := SegmentHeaderGlobal."Salesperson Code";
+        Rec."Correspondence Type" := SegmentHeaderGlobal."Correspondence Type (Default)";
+        Rec."Interaction Template Code" := SegmentHeaderGlobal."Interaction Template Code";
+        Rec."Interaction Group Code" := SegmentHeaderGlobal."Interaction Group Code";
+        Rec."Cost (LCY)" := SegmentHeaderGlobal."Unit Cost (LCY)";
+        Rec."Duration (Min.)" := SegmentHeaderGlobal."Unit Duration (Min.)";
+        Rec."Attachment No." := SegmentHeaderGlobal."Attachment No.";
+        Rec.Date := SegmentHeaderGlobal.Date;
+        Rec."Campaign Target" := SegmentHeaderGlobal."Campaign Target";
+        Rec."Information Flow" := SegmentHeaderGlobal."Information Flow";
+        Rec."Initiated By" := SegmentHeaderGlobal."Initiated By";
+        Rec."Campaign Response" := SegmentHeaderGlobal."Campaign Response";
+        Rec."Send Word Doc. As Attmt." := SegmentHeaderGlobal."Send Word Docs. as Attmt.";
+        Rec."Word Template Code" := SegmentHeaderGlobal."Word Template Code";
+        Rec.Merged := false;
 
         Clear(Evaluation);
-        OnAfterInitLine(Rec, SegHeader);
+        OnAfterInitLine(Rec, SegmentHeaderGlobal);
     end;
 
     procedure AttachmentText(): Text[30]
     begin
         if AttachmentInherited() then
-            exit(Text001);
+            exit(InheritedTxt);
 
         if "Attachment No." <> 0 then
-            exit(Text002);
+            exit(UniqueTxt);
 
         exit('');
     end;
 
     procedure MaintainSegLineAttachment()
     var
-        Cont: Record Contact;
+        Attachment: Record Attachment;
+        Contact: Record Contact;
         SalutationFormula: Record "Salutation Formula";
+        DocumentSharing: Codeunit "Document Sharing";
+        Telemetry: Codeunit Telemetry;
+        InStream: InStream;
     begin
         Rec.TestField("Interaction Template Code");
 
-        if Rec."Word Template Code" <> '' then
-            Error(WordTemplateUsedErr);
+        if Rec."Word Template Code" <> '' then begin
+            GlobalInteractionTemplate.Get("Interaction Template Code");
+            if not DocumentSharing.ShareEnabled(Enum::"Document Sharing Source"::System) then begin
+                Message(OneDriveNotEnabledMsg);
+                Telemetry.LogMessage('0000K5K', 'OneDrive not enabled', Verbosity::Normal, DataClassification::SystemMetadata);
+                exit;
+            end;
+            if Merged then
+                LoadTempAttachment(true);
+            MergeTemplate(true, Merged);
 
-        Cont.Get(Rec."Contact No.");
-        if SalutationFormula.Get(Cont."Salutation Code", "Language Code", 0) then;
-        if SalutationFormula.Get(Cont."Salutation Code", "Language Code", 1) then;
+            Subject := Description;
 
-        if Rec."Attachment No." <> 0 then
-            OpenSegLineAttachment()
-        else
-            CreateSegLineAttachment();
+            TempAttachment."Attachment File".CreateInStream(InStream);
+            Rec."Attachment No." := Attachment.ImportAttachmentFromStream(InStream, 'docx');
+            Merged := true;
+            Modify();
+        end else begin
+            if Rec."Word Template Code" <> '' then
+                Error(WordTemplateUsedErr);
+
+            Contact.Get(Rec."Contact No.");
+            if SalutationFormula.Get(Contact."Salutation Code", "Language Code", 0) then;
+            if SalutationFormula.Get(Contact."Salutation Code", "Language Code", 1) then;
+
+            if Rec."Attachment No." <> 0 then
+                OpenSegLineAttachment()
+            else
+                CreateSegLineAttachment();
+        end;
     end;
 
     procedure CreateSegLineAttachment()
     var
-        SegInteractLanguage: Record "Segment Interaction Language";
+        SegmentInteractionLanguage: Record "Segment Interaction Language";
     begin
         if Rec."Word Template Code" <> '' then
             Error(WordTemplateUsedErr);
 
-        if not SegInteractLanguage.Get(Rec."Segment No.", Rec."Line No.", Rec."Language Code") then begin
-            SegInteractLanguage.Init();
-            SegInteractLanguage."Segment No." := Rec."Segment No.";
-            SegInteractLanguage."Segment Line No." := Rec."Line No.";
-            SegInteractLanguage."Language Code" := Rec."Language Code";
-            SegInteractLanguage.Description := Rec.Description;
-            SegInteractLanguage.Subject := Rec.Subject;
-            SegInteractLanguage."Word Template Code" := Rec."Word Template Code";
+        if not SegmentInteractionLanguage.Get(Rec."Segment No.", Rec."Line No.", Rec."Language Code") then begin
+            SegmentInteractionLanguage.Init();
+            SegmentInteractionLanguage."Segment No." := Rec."Segment No.";
+            SegmentInteractionLanguage."Segment Line No." := Rec."Line No.";
+            SegmentInteractionLanguage."Language Code" := Rec."Language Code";
+            SegmentInteractionLanguage.Description := Rec.Description;
+            SegmentInteractionLanguage.Subject := Rec.Subject;
+            SegmentInteractionLanguage."Word Template Code" := Rec."Word Template Code";
         end;
 
-        SegInteractLanguage.CreateAttachment();
+        SegmentInteractionLanguage.CreateAttachment();
     end;
 
     procedure OpenSegLineAttachment()
@@ -700,49 +743,49 @@
 
     procedure ImportSegLineAttachment()
     var
-        SegInteractLanguage: Record "Segment Interaction Language";
+        SegmentInteractionLanguage: Record "Segment Interaction Language";
     begin
         if Rec."Word Template Code" <> '' then
             Error(WordTemplateUsedErr);
 
-        if not SegInteractLanguage.Get("Segment No.", "Line No.", "Language Code") then begin
-            SegInteractLanguage.Init();
-            SegInteractLanguage."Segment No." := Rec."Segment No.";
-            SegInteractLanguage."Segment Line No." := Rec."Line No.";
-            SegInteractLanguage."Language Code" := Rec."Language Code";
-            SegInteractLanguage.Description := Rec.Description;
-            SegInteractLanguage."Word Template Code" := Rec."Word Template Code";
-            SegInteractLanguage.Insert(true);
+        if not SegmentInteractionLanguage.Get("Segment No.", "Line No.", "Language Code") then begin
+            SegmentInteractionLanguage.Init();
+            SegmentInteractionLanguage."Segment No." := Rec."Segment No.";
+            SegmentInteractionLanguage."Segment Line No." := Rec."Line No.";
+            SegmentInteractionLanguage."Language Code" := Rec."Language Code";
+            SegmentInteractionLanguage.Description := Rec.Description;
+            SegmentInteractionLanguage."Word Template Code" := Rec."Word Template Code";
+            SegmentInteractionLanguage.Insert(true);
         end;
-        SegInteractLanguage.ImportAttachment();
+        SegmentInteractionLanguage.ImportAttachment();
     end;
 
     procedure ExportSegLineAttachment()
     var
-        SegInteractLanguage: Record "Segment Interaction Language";
+        SegmentInteractionLanguage: Record "Segment Interaction Language";
     begin
         if Rec."Word Template Code" <> '' then
             Error(WordTemplateUsedErr);
 
         if UniqueAttachmentExists() then begin
-            if SegInteractLanguage.Get("Segment No.", "Line No.", "Language Code") then
-                if SegInteractLanguage."Attachment No." <> 0 then
-                    SegInteractLanguage.ExportAttachment();
+            if SegmentInteractionLanguage.Get("Segment No.", "Line No.", "Language Code") then
+                if SegmentInteractionLanguage."Attachment No." <> 0 then
+                    SegmentInteractionLanguage.ExportAttachment();
         end else
-            if SegInteractLanguage.Get("Segment No.", 0, "Language Code") then
-                if SegInteractLanguage."Attachment No." <> 0 then
-                    SegInteractLanguage.ExportAttachment();
+            if SegmentInteractionLanguage.Get("Segment No.", 0, "Language Code") then
+                if SegmentInteractionLanguage."Attachment No." <> 0 then
+                    SegmentInteractionLanguage.ExportAttachment();
     end;
 
     procedure RemoveAttachment()
     var
-        SegInteractLanguage: Record "Segment Interaction Language";
+        SegmentInteractionLanguage: Record "Segment Interaction Language";
     begin
         if Rec."Word Template Code" <> '' then
             Error(WordTemplateUsedErr);
 
-        if SegInteractLanguage.Get("Segment No.", "Line No.", "Language Code") then begin
-            SegInteractLanguage.Delete(true);
+        if SegmentInteractionLanguage.Get("Segment No.", "Line No.", "Language Code") then begin
+            SegmentInteractionLanguage.Delete(true);
             Get("Segment No.", "Line No.");
         end;
         "Attachment No." := 0;
@@ -758,10 +801,10 @@
         if IsHandled then
             exit;
 
-        Cont.Get("Contact No.");
-        TempSegmentLine."Contact No." := Cont."No.";
-        TempSegmentLine."Contact Via" := Cont."Phone No.";
-        TempSegmentLine."Contact Company No." := Cont."Company No.";
+        ContactGlobal.Get("Contact No.");
+        TempSegmentLine."Contact No." := ContactGlobal."No.";
+        TempSegmentLine."Contact Via" := ContactGlobal."Phone No.";
+        TempSegmentLine."Contact Company No." := ContactGlobal."Company No.";
         TempSegmentLine."To-do No." := "To-do No.";
         TempSegmentLine."Salesperson Code" := "Salesperson Code";
         if "Contact Alt. Address Code" <> '' then
@@ -780,70 +823,75 @@
 
     local procedure FindLanguage(InteractTmplCode: Code[10]; ContactLanguageCode: Code[10]) Language: Code[10]
     var
-        SegInteractLanguage: Record "Segment Interaction Language";
-        InteractTemplLanguage: Record "Interaction Tmpl. Language";
-        InteractTmpl: Record "Interaction Template";
+        SegmentInteractionLanguage: Record "Segment Interaction Language";
+        InteractionTmplLanguage: Record "Interaction Tmpl. Language";
+        InteractionTemplateLocal: Record "Interaction Template";
     begin
-        if SegHeader.Get("Segment No.") then begin
+        if SegmentHeaderGlobal.Get("Segment No.") then begin
             if not UniqueAttachmentExists() and
-               ("Interaction Template Code" = SegHeader."Interaction Template Code")
+               ("Interaction Template Code" = SegmentHeaderGlobal."Interaction Template Code")
             then begin
-                if SegInteractLanguage.Get("Segment No.", 0, ContactLanguageCode) then
+                if SegmentInteractionLanguage.Get("Segment No.", 0, ContactLanguageCode) then
                     Language := ContactLanguageCode
                 else
-                    Language := SegHeader."Language Code (Default)";
+                    Language := SegmentHeaderGlobal."Language Code (Default)";
             end else
-                if SegInteractLanguage.Get("Segment No.", "Line No.", ContactLanguageCode) then
+                if SegmentInteractionLanguage.Get("Segment No.", "Line No.", ContactLanguageCode) then
                     Language := ContactLanguageCode
                 else begin
-                    InteractTmpl.Get(InteractTmplCode);
-                    if SegInteractLanguage.Get("Segment No.", "Line No.", InteractTmpl."Language Code (Default)") then
-                        Language := InteractTmpl."Language Code (Default)"
+                    InteractionTemplateLocal.Get(InteractTmplCode);
+                    if SegmentInteractionLanguage.Get("Segment No.", "Line No.", InteractionTemplateLocal."Language Code (Default)") then
+                        Language := InteractionTemplateLocal."Language Code (Default)"
                     else begin
-                        SegInteractLanguage.SetRange("Segment No.", "Segment No.");
-                        SegInteractLanguage.SetRange("Segment Line No.", "Line No.");
-                        if SegInteractLanguage.FindFirst() then
-                            Language := SegInteractLanguage."Language Code";
+                        SegmentInteractionLanguage.SetRange("Segment No.", "Segment No.");
+                        SegmentInteractionLanguage.SetRange("Segment Line No.", "Line No.");
+                        if SegmentInteractionLanguage.FindFirst() then
+                            Language := SegmentInteractionLanguage."Language Code";
                     end;
                 end;
         end else  // Create Interaction:
-            if InteractTemplLanguage.Get(InteractTmplCode, ContactLanguageCode) then
+            if InteractionTmplLanguage.Get(InteractTmplCode, ContactLanguageCode) then
                 Language := ContactLanguageCode
             else
-                if InteractTmpl.Get(InteractTmplCode) then
-                    Language := InteractTmpl."Language Code (Default)";
+                if InteractionTemplateLocal.Get(InteractTmplCode) then
+                    Language := InteractionTemplateLocal."Language Code (Default)";
     end;
 
     procedure AttachmentInherited(): Boolean
     var
-        SegInteractLanguage: Record "Segment Interaction Language";
+        SegmentInteractionLanguage: Record "Segment Interaction Language";
     begin
-        if "Attachment No." = 0 then
-            exit(false);
-        if not SegHeader.Get("Segment No.") then
+        if ("Attachment No." = 0) and ("Word Template Code" = '') then
+            exit(false)
+        else
+            if ("Attachment No." <> 0) and ("Word Template Code" <> '') then
+                exit(false);
+        if not SegmentHeaderGlobal.Get("Segment No.") then
             exit(false);
         if "Interaction Template Code" = '' then
             exit(false);
 
-        SegInteractLanguage.SetRange("Segment No.", "Segment No.");
-        SegInteractLanguage.SetRange("Segment Line No.", "Line No.");
-        SegInteractLanguage.SetRange("Language Code", "Language Code");
-        SegInteractLanguage.SetRange("Attachment No.", "Attachment No.");
-        if not SegInteractLanguage.IsEmpty() then
+        SegmentInteractionLanguage.SetRange("Segment No.", "Segment No.");
+        SegmentInteractionLanguage.SetRange("Segment Line No.", "Line No.");
+        SegmentInteractionLanguage.SetRange("Language Code", "Language Code");
+        SegmentInteractionLanguage.SetRange("Attachment No.", "Attachment No.");
+        if not SegmentInteractionLanguage.IsEmpty() then
             exit(false);
 
-        SegInteractLanguage.SetRange("Segment Line No.", 0);
-        exit(not SegInteractLanguage.IsEmpty);
+        SegmentHeaderGlobal.CalcFields("Modified Word Template");
+        SegmentInteractionLanguage.SetRange("Segment Line No.", 0);
+        if (not SegmentInteractionLanguage.IsEmpty()) or (SegmentHeaderGlobal."Modified Word Template" <> 0) then
+            exit(true);
     end;
 
     procedure SetInteractionAttachment()
     var
         Attachment: Record Attachment;
-        InteractTemplLanguage: Record "Interaction Tmpl. Language";
+        InteractionTemplLanguage: Record "Interaction Tmpl. Language";
     begin
-        if InteractTemplLanguage.Get("Interaction Template Code", "Language Code") then
-            if Attachment.Get(InteractTemplLanguage."Attachment No.") then
-                "Attachment No." := InteractTemplLanguage."Attachment No."
+        if InteractionTemplLanguage.Get("Interaction Template Code", "Language Code") then
+            if Attachment.Get(InteractionTemplLanguage."Attachment No.") then
+                "Attachment No." := InteractionTemplLanguage."Attachment No."
             else
                 "Attachment No." := 0;
         Modify();
@@ -851,68 +899,68 @@
 
     local procedure UniqueAttachmentExists(): Boolean
     var
-        SegInteractLanguage: Record "Segment Interaction Language";
+        SegmentInteractionLanguage: Record "Segment Interaction Language";
     begin
         if "Line No." <> 0 then begin
-            SegInteractLanguage.SetRange("Segment No.", "Segment No.");
-            SegInteractLanguage.SetRange("Segment Line No.", "Line No.");
-            exit(not SegInteractLanguage.IsEmpty);
+            SegmentInteractionLanguage.SetRange("Segment No.", "Segment No.");
+            SegmentInteractionLanguage.SetRange("Segment Line No.", "Line No.");
+            exit(not SegmentInteractionLanguage.IsEmpty);
         end;
         exit(false);
     end;
 
     local procedure SetCampaignTargetGroup()
     begin
-        if Campaign.Get(xRec."Campaign No.") then begin
-            Campaign.CalcFields(Activated);
-            if Campaign.Activated then
-                CampaignTargetGrMgt.DeleteSegfromTargetGr(xRec);
+        if GlobalCampaign.Get(xRec."Campaign No.") then begin
+            GlobalCampaign.CalcFields(Activated);
+            if GlobalCampaign.Activated then
+                CampaignTargetGroupMgt.DeleteSegfromTargetGr(xRec);
         end;
 
-        if Campaign.Get("Campaign No.") then begin
-            Campaign.CalcFields(Activated);
-            if Campaign.Activated then
-                CampaignTargetGrMgt.AddSegLinetoTargetGr(Rec);
+        if GlobalCampaign.Get("Campaign No.") then begin
+            GlobalCampaign.CalcFields(Activated);
+            if GlobalCampaign.Activated then
+                CampaignTargetGroupMgt.AddSegLinetoTargetGr(Rec);
         end;
     end;
 
-    procedure CopyFromInteractLogEntry(var InteractLogEntry: Record "Interaction Log Entry")
+    procedure CopyFromInteractLogEntry(var InteractionLogEntry: Record "Interaction Log Entry")
     begin
-        "Line No." := InteractLogEntry."Entry No.";
-        "Contact No." := InteractLogEntry."Contact No.";
-        "Contact Company No." := InteractLogEntry."Contact Company No.";
-        Date := InteractLogEntry.Date;
-        Description := InteractLogEntry.Description;
-        "Information Flow" := InteractLogEntry."Information Flow";
-        "Initiated By" := InteractLogEntry."Initiated By";
-        "Attachment No." := InteractLogEntry."Attachment No.";
-        "Cost (LCY)" := InteractLogEntry."Cost (LCY)";
-        "Duration (Min.)" := InteractLogEntry."Duration (Min.)";
-        "Interaction Group Code" := InteractLogEntry."Interaction Group Code";
-        "Interaction Template Code" := InteractLogEntry."Interaction Template Code";
-        "Language Code" := InteractLogEntry."Interaction Language Code";
-        Subject := InteractLogEntry.Subject;
-        "Campaign No." := InteractLogEntry."Campaign No.";
-        "Campaign Entry No." := InteractLogEntry."Campaign Entry No.";
-        "Campaign Response" := InteractLogEntry."Campaign Response";
-        "Campaign Target" := InteractLogEntry."Campaign Target";
-        "Segment No." := InteractLogEntry."Segment No.";
-        Evaluation := InteractLogEntry.Evaluation;
-        "Time of Interaction" := InteractLogEntry."Time of Interaction";
-        "Attempt Failed" := InteractLogEntry."Attempt Failed";
-        "To-do No." := InteractLogEntry."To-do No.";
-        "Salesperson Code" := InteractLogEntry."Salesperson Code";
-        "Correspondence Type" := InteractLogEntry."Correspondence Type";
-        "Contact Alt. Address Code" := InteractLogEntry."Contact Alt. Address Code";
-        "Document Type" := InteractLogEntry."Document Type";
-        "Document No." := InteractLogEntry."Document No.";
-        "Doc. No. Occurrence" := InteractLogEntry."Doc. No. Occurrence";
-        "Version No." := InteractLogEntry."Version No.";
-        "Send Word Doc. As Attmt." := InteractLogEntry."Send Word Docs. as Attmt.";
-        "Contact Via" := InteractLogEntry."Contact Via";
-        "Opportunity No." := InteractLogEntry."Opportunity No.";
+        "Line No." := InteractionLogEntry."Entry No.";
+        "Contact No." := InteractionLogEntry."Contact No.";
+        "Contact Company No." := InteractionLogEntry."Contact Company No.";
+        Date := InteractionLogEntry.Date;
+        Description := InteractionLogEntry.Description;
+        "Information Flow" := InteractionLogEntry."Information Flow";
+        "Initiated By" := InteractionLogEntry."Initiated By";
+        "Attachment No." := InteractionLogEntry."Attachment No.";
+        "Cost (LCY)" := InteractionLogEntry."Cost (LCY)";
+        "Duration (Min.)" := InteractionLogEntry."Duration (Min.)";
+        "Interaction Group Code" := InteractionLogEntry."Interaction Group Code";
+        "Interaction Template Code" := InteractionLogEntry."Interaction Template Code";
+        "Language Code" := InteractionLogEntry."Interaction Language Code";
+        Subject := InteractionLogEntry.Subject;
+        "Campaign No." := InteractionLogEntry."Campaign No.";
+        "Campaign Entry No." := InteractionLogEntry."Campaign Entry No.";
+        "Campaign Response" := InteractionLogEntry."Campaign Response";
+        "Campaign Target" := InteractionLogEntry."Campaign Target";
+        "Segment No." := InteractionLogEntry."Segment No.";
+        Evaluation := InteractionLogEntry.Evaluation;
+        "Time of Interaction" := InteractionLogEntry."Time of Interaction";
+        "Attempt Failed" := InteractionLogEntry."Attempt Failed";
+        "To-do No." := InteractionLogEntry."To-do No.";
+        "Salesperson Code" := InteractionLogEntry."Salesperson Code";
+        "Correspondence Type" := InteractionLogEntry."Correspondence Type";
+        "Contact Alt. Address Code" := InteractionLogEntry."Contact Alt. Address Code";
+        "Document Type" := InteractionLogEntry."Document Type";
+        "Document No." := InteractionLogEntry."Document No.";
+        "Doc. No. Occurrence" := InteractionLogEntry."Doc. No. Occurrence";
+        "Version No." := InteractionLogEntry."Version No.";
+        "Send Word Doc. As Attmt." := InteractionLogEntry."Send Word Docs. as Attmt.";
+        "Contact Via" := InteractionLogEntry."Contact Via";
+        "Opportunity No." := InteractionLogEntry."Opportunity No.";
 
-        OnAfterCopyFromInteractionLogEntry(Rec, InteractLogEntry);
+        OnAfterCopyFromInteractionLogEntry(Rec, InteractionLogEntry);
     end;
 
     procedure CreateSegLineInteractionFromContact(var Contact: Record Contact)
@@ -940,46 +988,46 @@
         StartWizard();
     end;
 
-    procedure CreateInteractionFromSalesperson(var Salesperson: Record "Salesperson/Purchaser")
+    procedure CreateInteractionFromSalesperson(var SalespersonPurchaser: Record "Salesperson/Purchaser")
     begin
         DeleteAll();
         Init();
-        Validate("Salesperson Code", Salesperson.Code);
-        SetRange("Salesperson Code", Salesperson.Code);
+        Validate("Salesperson Code", SalespersonPurchaser.Code);
+        SetRange("Salesperson Code", SalespersonPurchaser.Code);
 
-        OnCreateInteractionFromSalespersonOnBeforeStartWizard(Rec, Salesperson);
+        OnCreateInteractionFromSalespersonOnBeforeStartWizard(Rec, SalespersonPurchaser);
 
         StartWizard();
     end;
 
     procedure CreateInteractionFromInteractLogEntry(var InteractionLogEntry: Record "Interaction Log Entry")
     var
-        Cont: Record Contact;
-        Salesperson: Record "Salesperson/Purchaser";
-        Campaign: Record Campaign;
+        Contact: Record Contact;
+        SalespersonPurchaserLocal: Record "Salesperson/Purchaser";
+        CampaignLocal: Record Campaign;
         Task: Record "To-do";
         Opportunity: Record Opportunity;
     begin
-        OnBeforeCreateInteractionFromInteractLogEntry(Rec, Salesperson);
+        OnBeforeCreateInteractionFromInteractLogEntry(Rec, SalespersonPurchaserLocal);
 
         if Task.Get(InteractionLogEntry.GetFilter("To-do No.")) then begin
             CreateFromTask(Task);
             SetRange("To-do No.", "To-do No.");
         end else begin
-            if Cont.Get(InteractionLogEntry.GetFilter("Contact Company No.")) then begin
-                Validate("Contact No.", Cont."Company No.");
+            if Contact.Get(InteractionLogEntry.GetFilter("Contact Company No.")) then begin
+                Validate("Contact No.", Contact."Company No.");
                 SetRange("Contact No.", "Contact No.");
             end;
-            if Cont.Get(InteractionLogEntry.GetFilter("Contact No.")) then begin
-                Validate("Contact No.", Cont."No.");
+            if Contact.Get(InteractionLogEntry.GetFilter("Contact No.")) then begin
+                Validate("Contact No.", Contact."No.");
                 SetRange("Contact No.", "Contact No.");
             end;
-            if Salesperson.Get(InteractionLogEntry.GetFilter("Salesperson Code")) then begin
-                "Salesperson Code" := Salesperson.Code;
+            if SalespersonPurchaserLocal.Get(InteractionLogEntry.GetFilter("Salesperson Code")) then begin
+                "Salesperson Code" := SalespersonPurchaserLocal.Code;
                 SetRange("Salesperson Code", "Salesperson Code");
             end;
-            if Campaign.Get(InteractionLogEntry.GetFilter("Campaign No.")) then begin
-                "Campaign No." := Campaign."No.";
+            if CampaignLocal.Get(InteractionLogEntry.GetFilter("Campaign No.")) then begin
+                "Campaign No." := CampaignLocal."No.";
                 SetRange("Campaign No.", "Campaign No.");
             end;
             if Opportunity.Get(InteractionLogEntry.GetFilter("Opportunity No.")) then begin
@@ -1058,17 +1106,17 @@
 
     local procedure GetContactName(): Text[100]
     var
-        Cont: Record Contact;
+        Contact: Record Contact;
     begin
-        if Cont.Get("Contact No.") then
-            exit(Cont.Name);
-        if Cont.Get("Contact Company No.") then
-            exit(Cont.Name);
+        if Contact.Get("Contact No.") then
+            exit(Contact.Name);
+        if Contact.Get("Contact Company No.") then
+            exit(Contact.Name);
     end;
 
     procedure StartWizard()
     var
-        Opp: Record Opportunity;
+        Opportunity: Record Opportunity;
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -1076,10 +1124,10 @@
         if IsHandled then
             exit;
 
-        if Campaign.Get("Campaign No.") then
-            "Campaign Description" := Campaign.Description;
-        if Opp.Get("Opportunity No.") then
-            "Opportunity Description" := Opp.Description;
+        if GlobalCampaign.Get("Campaign No.") then
+            "Campaign Description" := GlobalCampaign.Description;
+        if Opportunity.Get("Opportunity No.") then
+            "Opportunity Description" := Opportunity.Description;
         "Wizard Contact Name" := GetContactName();
         "Wizard Step" := "Wizard Step"::"1";
         "Interaction Successful" := true;
@@ -1119,7 +1167,7 @@
 
     procedure CheckStatus()
     var
-        InteractTmpl: Record "Interaction Template";
+        InteractionTemplate: Record "Interaction Template";
         SalutationFormula: Record "Salutation Formula";
         IsHandled: Boolean;
     begin
@@ -1129,32 +1177,32 @@
             exit;
 
         if "Contact No." = '' then
-            Error(Text009);
+            Error(SelectContactErr);
         if "Interaction Template Code" = '' then
-            ErrorMessage(FieldCaption("Interaction Template Code"));
+            ErrorMessage(CopyStr(FieldCaption("Interaction Template Code"), 1, 1024));
         if "Salesperson Code" = '' then
-            ErrorMessage(FieldCaption("Salesperson Code"));
+            ErrorMessage(CopyStr(FieldCaption("Salesperson Code"), 1, 1024));
         if Date = 0D then
-            ErrorMessage(FieldCaption(Date));
+            ErrorMessage(CopyStr(FieldCaption(Date), 1, 1024));
         if Description = '' then
-            ErrorMessage(FieldCaption(Description));
+            ErrorMessage(CopyStr(FieldCaption(Description), 1, 1024));
 
-        InteractTmpl.Get("Interaction Template Code");
-        if InteractTmpl."Wizard Action" = InteractTmpl."Wizard Action"::Open then
-            if ("Attachment No." = 0) and (InteractTmpl."Word Template Code" = '') then
+        InteractionTemplate.Get("Interaction Template Code");
+        if InteractionTemplate."Wizard Action" = InteractionTemplate."Wizard Action"::Open then
+            if ("Attachment No." = 0) and (InteractionTemplate."Word Template Code" = '') then
                 Error(NoAttachmentErr);
 
-        Cont.Get("Contact No.");
-        if SalutationFormula.Get(Cont."Salutation Code", "Language Code", 0) then;
-        if SalutationFormula.Get(Cont."Salutation Code", "Language Code", 1) then;
+        ContactGlobal.Get("Contact No.");
+        if SalutationFormula.Get(ContactGlobal."Salutation Code", "Language Code", 0) then;
+        if SalutationFormula.Get(ContactGlobal."Salutation Code", "Language Code", 1) then;
 
         if TempAttachment.FindFirst() then
             TempAttachment.CalcFields("Attachment File");
         if ("Correspondence Type" = "Correspondence Type"::Email) and
            not TempAttachment."Attachment File".HasValue() and
-           (InteractTmpl."Word Template Code" = '')
+           (InteractionTemplate."Word Template Code" = '')
         then
-            Error(Text008);
+            Error(AttachmentRequiredErr);
 
         OnAfterCheckStatus(Rec);
     end;
@@ -1173,7 +1221,6 @@
     begin
         OnBeforeFinishSegLineWizard(Rec, IsFinish);
 
-        HTMLAttachment := IsHTMLAttachment();
         Flag := GetFinishInteractionFlag(IsFinish);
 
         if Flag then begin
@@ -1184,8 +1231,8 @@
             if ShouldAssignStep then
                 "Wizard Step" := "Wizard Step"::"6";
 
-            if not HTMLAttachment then
-                HandleTrigger();
+            // if not HTMLAttachment then
+            //     HandleTrigger();
 
             "Attempt Failed" := not "Interaction Successful";
             Subject := Description;
@@ -1211,7 +1258,7 @@
                 end;
                 if not (ClientTypeManagement.GetCurrentClientType() in [CLIENTTYPE::Web, CLIENTTYPE::Tablet, CLIENTTYPE::Phone]) then
                     if Mail.GetErrorDesc() <> '' then
-                        Error(Text025, Mail.GetErrorDesc(), PRODUCTNAME.Full());
+                        Error(EmailCouldNotbeSentErr, Mail.GetErrorDesc(), PRODUCTNAME.Full());
             end;
         end;
 
@@ -1231,19 +1278,22 @@
         if IsFinish then
             Flag := true
         else
-            Flag := Confirm(Text007);
+            Flag := Confirm(FinishInteractionLaterQst);
     end;
 
     local procedure ErrorMessage(FieldName: Text[1024])
     begin
-        Error(Text005, FieldName);
+        Error(FieldNotFilledErr, FieldName);
     end;
 
     procedure ValidateCorrespondenceType()
+#if not CLEAN23
     var
         ErrorText: Text[80];
+#endif
     begin
         if "Correspondence Type" <> "Correspondence Type"::" " then
+#if not CLEAN23
             if TempAttachment.FindFirst() then begin
                 ErrorText := TempAttachment.CheckCorrespondenceType("Correspondence Type");
                 if ErrorText <> '' then
@@ -1251,47 +1301,132 @@
                       Text024 + ErrorText,
                       FieldCaption("Correspondence Type"), "Correspondence Type");
             end;
+#else
+            if TempAttachment.FindFirst() then;
+#endif
     end;
 
-    local procedure HandleTrigger()
+    internal procedure HandleTrigger()
     var
         TempBlob: Codeunit "Temp Blob";
         FileMgt: Codeunit "File Management";
+        DocumentSharing: Codeunit "Document Sharing";
+        Telemetry: Codeunit Telemetry;
         ImportedFileName: Text;
     begin
-        InteractTmpl.Get("Interaction Template Code");
+        GlobalInteractionTemplate.Get("Interaction Template Code");
 
-        case InteractTmpl."Wizard Action" of
-            InteractTmpl."Wizard Action"::" ":
+        case GlobalInteractionTemplate."Wizard Action" of
+            GlobalInteractionTemplate."Wizard Action"::" ":
                 if "Attachment No." <> 0 then begin
                     LoadTempAttachment(false);
                     Subject := Description;
                 end;
-            InteractTmpl."Wizard Action"::Open:
+            GlobalInteractionTemplate."Wizard Action"::Open:
                 begin
-                    if ("Attachment No." = 0) and (InteractTmpl."Word Template Code" = '') then
+                    if ("Attachment No." = 0) and (GlobalInteractionTemplate."Word Template Code" = '') then
                         Error(NoAttachmentErr);
 
-                    if InteractTmpl."Word Template Code" = '' then
-                        LoadTempAttachment(false);
-
                     Subject := Description;
-                    TempAttachment.OpenAttachment(Rec, Description);
+
+                    if GlobalInteractionTemplate."Word Template Code" = '' then begin
+                        LoadTempAttachment(false);
+                        if not DocumentSharing.ShareEnabled(Enum::"Document Sharing Source"::System) or not (Text.LowerCase(TempAttachment."File Extension") = 'docx') then begin
+                            Telemetry.LogMessage('0000K88', 'OneDrive not enabled', Verbosity::Normal, DataClassification::SystemMetadata);
+
+                            TempAttachment.OpenAttachment(Rec, Description);
+                        end else
+                            MergeTemplate(true, true);
+                    end else begin
+                        if not DocumentSharing.ShareEnabled(Enum::"Document Sharing Source"::System) then begin
+                            Message(OneDriveNotEnabledMsg);
+                            Telemetry.LogMessage('0000K5L', 'OneDrive not enabled', Verbosity::Normal, DataClassification::SystemMetadata);
+                            exit;
+                        end;
+
+                        MergeTemplate(true, false);
+                    end;
+
+                    Merged := true;
                 end;
-            InteractTmpl."Wizard Action"::Import:
+            GlobalInteractionTemplate."Wizard Action"::Import:
                 begin
                     ImportedFileName := FileMgt.BLOBImport(TempBlob, ImportedFileName);
                     if ImportedFileName = '' then
-                        Message(Text004)
+                        Message(AttachmentImportCancelledMsg)
                     else begin
                         TempAttachment.DeleteAll();
                         TempAttachment.SetAttachmentFileFromBlob(TempBlob);
                         TempAttachment."File Extension" := CopyStr(FileMgt.GetExtension(ImportedFileName), 1, 250);
                         TempAttachment.Insert();
                     end;
+                    Merged := true;
+                end;
+            GlobalInteractionTemplate."Wizard Action"::Merge:
+                begin
+                    if GlobalInteractionTemplate."Word Template Code" = '' then
+                        Error(NoWordTemplateErr);
+                    MergeTemplate(false, false);
+                    Merged := true;
                 end;
             else
-                OnHandleTriggerCaseElse(Rec, InteractTmpl);
+                OnHandleTriggerCaseElse(Rec, GlobalInteractionTemplate);
+        end;
+    end;
+
+    local procedure MergeTemplate(EditDocument: Boolean; UseTempAttachment: Boolean)
+    var
+        TempInteractionMergeData: Record "Interaction Merge Data" temporary;
+        WordTemplate: Codeunit "Word Template";
+        InStream: InStream;
+        FileExtension: Text[250];
+    begin
+        CreateInteractionMergeData(TempInteractionMergeData);
+        LoadTemplateAttachment(UseTempAttachment, WordTemplate);
+
+        if UseTempAttachment then
+            FileExtension := TempAttachment."File Extension"
+        else
+            FileExtension := 'docx';
+
+        WordTemplate.Merge(TempInteractionMergeData, false, Enum::"Word Templates Save Format"::Docx, EditDocument, Enum::"Doc. Sharing Conflict Behavior"::Replace);
+
+        WordTemplate.GetDocument(InStream);
+        TempAttachment.DeleteAll();
+        TempAttachment.SetAttachmentFileFromStream(InStream);
+        TempAttachment."File Extension" := FileExtension;
+        TempAttachment.Insert();
+    end;
+
+    local procedure CreateInteractionMergeData(var TempInteractionMergeData: Record "Interaction Merge Data" temporary)
+    begin
+        TempInteractionMergeData.Id := CreateGuid();
+        TempInteractionMergeData."Contact No." := Rec."Contact No.";
+        TempInteractionMergeData."Salesperson Code" := Rec."Salesperson Code";
+        TempInteractionMergeData.Insert();
+    end;
+
+    local procedure LoadTemplateAttachment(UseTempAttachment: Boolean; var WordTemplate: Codeunit "Word Template")
+    var
+        Attachment: Record Attachment;
+        InStream: InStream;
+    begin
+        if UseTempAttachment then begin
+            TempAttachment.CalcFields("Attachment File");
+            TempAttachment."Attachment File".CreateInStream(InStream);
+            WordTemplate.Load(InStream);
+        end else begin
+            SegmentHeaderGlobal.CalcFields("Modified Word Template");
+            if SegmentHeaderGlobal."Modified Word Template" <> 0 then begin
+                if Dialog.Confirm(ModifyExistingAttachmentMsg, true) then begin
+                    Attachment.Get(SegmentHeaderGlobal."Modified Word Template");
+                    Attachment.CalcFields("Attachment File");
+                    Attachment."Attachment File".CreateInStream(InStream);
+                    WordTemplate.Load(InStream, GlobalInteractionTemplate."Word Template Code");
+                end else
+                    WordTemplate.Load(GlobalInteractionTemplate."Word Template Code");
+            end else
+                WordTemplate.Load(GlobalInteractionTemplate."Word Template Code");
         end;
     end;
 
@@ -1299,14 +1434,22 @@
     begin
         if not ForceReload and TempAttachment."Attachment File".HasValue() then
             exit;
-        Attachment.Get("Attachment No.");
-        Attachment.CalcFields("Attachment File");
+        GlobalAttachment.Get("Attachment No.");
+        GlobalAttachment.CalcFields("Attachment File");
         TempAttachment.DeleteAll();
-        TempAttachment.WizEmbeddAttachment(Attachment);
+        TempAttachment.WizEmbeddAttachment(GlobalAttachment);
         TempAttachment."No." := 0;
         TempAttachment."Read Only" := false;
-        if Attachment.IsHTML() then
-            TempAttachment."File Extension" := Attachment."File Extension";
+        if GlobalAttachment.IsHTML() then
+            TempAttachment."File Extension" := GlobalAttachment."File Extension";
+        TempAttachment.Insert();
+    end;
+
+    procedure SetTempAttachment(var InStream: InStream; FileExtension: Text)
+    begin
+        TempAttachment.DeleteAll();
+        TempAttachment.SetAttachmentFileFromStream(InStream);
+        TempAttachment."File Extension" := CopyStr(FileExtension, 1, 250);
         TempAttachment.Insert();
     end;
 
@@ -1336,8 +1479,8 @@
             if "Line No." <> 0 then
                 "Attachment No." := ResumedAttachmentNo;
         end else
-            if Attachment.Get(ResumedAttachmentNo) then
-                Attachment.RemoveAttachment(false);
+            if GlobalAttachment.Get(ResumedAttachmentNo) then
+                GlobalAttachment.RemoveAttachment(false);
     end;
 
     procedure LoadSegLineAttachment(ForceReload: Boolean)
@@ -1412,31 +1555,31 @@
     begin
         if "Wizard Step" = "Wizard Step"::"1" then begin
             if "Dial Contact" and ("Contact Via" = '') then
-                Error(Text013);
+                Error(PhoneNumberErr);
             if Date = 0D then
-                ErrorMessage(FieldCaption(Date));
+                ErrorMessage(CopyStr(FieldCaption(Date), 1, 1024));
             if Description = '' then
-                ErrorMessage(FieldCaption(Description));
+                ErrorMessage(CopyStr(FieldCaption(Description), 1, 1024));
             if "Salesperson Code" = '' then
-                ErrorMessage(FieldCaption("Salesperson Code"));
+                ErrorMessage(CopyStr(FieldCaption("Salesperson Code"), 1, 1024));
         end;
     end;
 
     procedure LogSegLinePhoneCall()
     var
-        TempAttachment: Record Attachment temporary;
-        SegLine: Record "Segment Line";
+        TempLocalAttachment: Record Attachment temporary;
+        SegmentLine: Record "Segment Line";
         SegManagement: Codeunit SegManagement;
     begin
         "Attempt Failed" := not "Interaction Successful";
 
-        SegManagement.LogInteraction(Rec, TempAttachment, TempInterLogEntryCommentLine, false, false);
+        SegManagement.LogInteraction(Rec, TempLocalAttachment, TempInterLogEntryCommentLine, false, false);
 
-        if SegLine.Get("Segment No.", "Line No.") then begin
-            SegLine.LockTable();
-            SegLine."Contact Via" := "Contact Via";
-            SegLine."Wizard Step" := SegLine."Wizard Step"::" ";
-            SegLine.Modify();
+        if SegmentLine.Get("Segment No.", "Line No.") then begin
+            SegmentLine.LockTable();
+            SegmentLine."Contact Via" := "Contact Via";
+            SegmentLine."Wizard Step" := SegmentLine."Wizard Step"::" ";
+            SegmentLine.Modify();
         end;
     end;
 
@@ -1452,18 +1595,18 @@
         PAGE.RunModal(PAGE::"Inter. Log Entry Comment Sheet", TempInterLogEntryCommentLine);
     end;
 
-    procedure SetComments(var InterLogEntryCommentLine: Record "Inter. Log Entry Comment Line")
+    procedure SetComments(var InterLogEntryCommentLineLocal: Record "Inter. Log Entry Comment Line")
     begin
         TempInterLogEntryCommentLine.DeleteAll();
 
-        if InterLogEntryCommentLine.FindSet() then
+        if InterLogEntryCommentLineLocal.FindSet() then
             repeat
-                TempInterLogEntryCommentLine := InterLogEntryCommentLine;
+                TempInterLogEntryCommentLine := InterLogEntryCommentLineLocal;
                 TempInterLogEntryCommentLine.Insert();
-            until InterLogEntryCommentLine.Next() = 0;
+            until InterLogEntryCommentLineLocal.Next() = 0;
     end;
 
-    local procedure SetCorrespondenceType(InteractTmpl: Record "Interaction Template")
+    local procedure SetCorrespondenceType(InteractionTemplate: Record "Interaction Template")
     var
         IsHandled: Boolean;
     begin
@@ -1473,17 +1616,17 @@
             exit;
 
         case true of
-            SegHeader."Ignore Contact Corres. Type" and
-            (SegHeader."Correspondence Type (Default)" <> SegHeader."Correspondence Type (Default)"::" "):
-                "Correspondence Type" := SegHeader."Correspondence Type (Default)";
-            InteractTmpl."Ignore Contact Corres. Type" or
-            ((InteractTmpl."Ignore Contact Corres. Type" = false) and
-            (Cont."Correspondence Type" = Cont."Correspondence Type"::" ") and
-            (InteractTmpl."Correspondence Type (Default)" <> InteractTmpl."Correspondence Type (Default)"::" ")):
-                "Correspondence Type" := InteractTmpl."Correspondence Type (Default)";
+            SegmentHeaderGlobal."Ignore Contact Corres. Type" and
+            (SegmentHeaderGlobal."Correspondence Type (Default)" <> SegmentHeaderGlobal."Correspondence Type (Default)"::" "):
+                "Correspondence Type" := SegmentHeaderGlobal."Correspondence Type (Default)";
+            InteractionTemplate."Ignore Contact Corres. Type" or
+            ((InteractionTemplate."Ignore Contact Corres. Type" = false) and
+            (ContactGlobal."Correspondence Type" = ContactGlobal."Correspondence Type"::" ") and
+            (InteractionTemplate."Correspondence Type (Default)" <> InteractionTemplate."Correspondence Type (Default)"::" ")):
+                "Correspondence Type" := InteractionTemplate."Correspondence Type (Default)";
             else
-                if Cont."Correspondence Type" <> Cont."Correspondence Type"::" " then
-                    "Correspondence Type" := Cont."Correspondence Type"
+                if ContactGlobal."Correspondence Type" <> ContactGlobal."Correspondence Type"::" " then
+                    "Correspondence Type" := ContactGlobal."Correspondence Type"
                 else
                     "Correspondence Type" := xRec."Correspondence Type";
         end;
@@ -1504,26 +1647,26 @@
 
     procedure LanguageCodeOnLookup()
     var
-        SegInteractLanguage: Record "Segment Interaction Language";
+        SegmentInteractionLanguage: Record "Segment Interaction Language";
         InteractionTmplLanguage: Record "Interaction Tmpl. Language";
     begin
         TestField("Interaction Template Code");
 
-        if SegHeader.Get("Segment No.") then begin
-            SegInteractLanguage.SetRange("Segment No.", "Segment No.");
+        if SegmentHeaderGlobal.Get("Segment No.") then begin
+            SegmentInteractionLanguage.SetRange("Segment No.", "Segment No.");
             if UniqueAttachmentExists() or
-               ("Interaction Template Code" <> SegHeader."Interaction Template Code")
+               ("Interaction Template Code" <> SegmentHeaderGlobal."Interaction Template Code")
             then
-                SegInteractLanguage.SetRange("Segment Line No.", "Line No.")
+                SegmentInteractionLanguage.SetRange("Segment Line No.", "Line No.")
             else
-                SegInteractLanguage.SetRange("Segment Line No.", 0);
+                SegmentInteractionLanguage.SetRange("Segment Line No.", 0);
 
-            if PAGE.RunModal(0, SegInteractLanguage) = ACTION::LookupOK then begin
+            if PAGE.RunModal(0, SegmentInteractionLanguage) = ACTION::LookupOK then begin
                 Get("Segment No.", "Line No.");
-                "Language Code" := SegInteractLanguage."Language Code";
-                "Attachment No." := SegInteractLanguage."Attachment No.";
-                Rec."Word Template Code" := SegInteractLanguage."Word Template Code";
-                Subject := SegInteractLanguage.Subject;
+                "Language Code" := SegmentInteractionLanguage."Language Code";
+                "Attachment No." := SegmentInteractionLanguage."Attachment No.";
+                Rec."Word Template Code" := SegmentInteractionLanguage."Word Template Code";
+                Subject := SegmentInteractionLanguage.Subject;
                 Modify();
             end else
                 Get("Segment No.", "Line No.");
@@ -1554,7 +1697,7 @@
     local procedure FindSalespersonByUserEmail(): Code[20]
     var
         User: Record User;
-        Salesperson: Record "Salesperson/Purchaser";
+        SalespersonPurchaser: Record "Salesperson/Purchaser";
         Email: Text[250];
     begin
         User.SetRange("User Name", UserId);
@@ -1562,10 +1705,10 @@
             Email := User."Authentication Email";
 
         if Email <> '' then begin
-            Salesperson.SetRange("E-Mail", Email);
-            if Salesperson.Count = 1 then begin
-                Salesperson.FindFirst();
-                "Salesperson Code" := Salesperson.Code;
+            SalespersonPurchaser.SetRange("E-Mail", Email);
+            if SalespersonPurchaser.Count = 1 then begin
+                SalespersonPurchaser.FindFirst();
+                "Salesperson Code" := SalespersonPurchaser.Code;
             end;
         end;
         exit("Salesperson Code");
@@ -1575,16 +1718,16 @@
     var
         TenantWebService: Record "Tenant Web Service";
         ODataFieldsExport: Page "OData Fields Export";
-        RecRef: RecordRef;
+        SegLineRecordRef: RecordRef;
     begin
         TenantWebService.SetRange("Object Type", TenantWebService."Object Type"::Query);
         TenantWebService.SetRange("Object ID", QUERY::"Segment Lines");
         TenantWebService.FindFirst();
 
-        RecRef.Open(DATABASE::"Segment Line");
-        RecRef.SetView(GetView());
+        SegLineRecordRef.Open(DATABASE::"Segment Line");
+        SegLineRecordRef.SetView(GetView());
 
-        ODataFieldsExport.SetExportData(TenantWebService, RecRef);
+        ODataFieldsExport.SetExportData(TenantWebService, SegLineRecordRef);
         ODataFieldsExport.RunModal();
     end;
 

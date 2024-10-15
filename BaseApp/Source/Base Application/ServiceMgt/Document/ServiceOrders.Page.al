@@ -482,9 +482,18 @@ page 9318 "Service Orders"
                     ToolTip = 'Post several documents at once. A report request window opens where you can specify which documents to post.';
 
                     trigger OnAction()
+                    var
+                        SelectionFilterManagement: Codeunit SelectionFilterManagement;
                     begin
                         Clear(ServHeader);
-                        ServHeader.CopyFilters(Rec);
+
+                        if Rec.GetFilters() <> '' then
+                            ServHeader.CopyFilters(Rec)
+                        else begin
+                            CurrPage.SetSelectionFilter(ServHeader);
+                            ServHeader.SetFilter("No.", SelectionFilterManagement.GetSelectionFilterForServiceHeader(ServHeader));
+                        end;
+
                         ServHeader.SetRange(Status, ServHeader.Status::Finished);
                         REPORT.RunModal(REPORT::"Batch Post Service Orders", true, true, ServHeader);
                         CurrPage.Update(false);

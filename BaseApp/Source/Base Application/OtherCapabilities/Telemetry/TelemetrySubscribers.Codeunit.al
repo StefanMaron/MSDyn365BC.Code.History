@@ -9,8 +9,8 @@ codeunit 1351 "Telemetry Subscribers"
 
     var
         Telemetry: Codeunit Telemetry;
-        ProfileChangedTelemetryMsg: Label 'Profile changed from %1 to %2.', Comment = '%1=Previous profile id, %2=New profile id';
-        ProfileChangedTelemetryCategoryTxt: Label 'AL User Profile';
+        ProfileChangedTelemetryMsg: Label 'Profile changed from %1 to %2.', Comment = '%1=Previous profile id, %2=New profile id', Locked = true;
+        ProfileChangedTelemetryCategoryTxt: Label 'AL User Profile', Locked = true;
         PermissionSetCategoryTxt: Label 'AL PermissionSet', Locked = true;
         PermissionSetLinkAddedTelemetryTxt: Label 'A Permission Set Link was added between Source Permission Set %1 and Permission Set %2. Total count of Permission Set Links are %3.', Locked = true;
         PermissionSetLinkAddedTelemetryScopeAllTxt: Label 'Permission set link added: %1 -> %2', Locked = true;

@@ -59,6 +59,8 @@ codeunit 137275 "SCM Inventory Journals"
         QtyCalculatedErr: Label 'Qty. Calculated is not correct for %1 with Variant %2, Location %3, Bin %4.';
         ItemExistErr: Label 'Item No. must have a value';
         ItemJournalLineDimErr: Label 'Dimensions on Item Journal Line should be same as on Item Ledger Entry if Calculate Inventory using By Dimensions';
+        TemplateTypeMustItemErr: Label 'Template Type must be equal to ''Item''';
+        TextGetLastErrorText: Label 'Actual error: ''%1''. Expected: ''%2''';
         CurrentSaveValuesId: Integer;
 
     [Test]
@@ -1611,6 +1613,29 @@ codeunit 137275 "SCM Inventory Journals"
 
         // [THEN] Line for Item "I" with no variant was created with quantity = 0
         VerifyItemJournalLine(ItemNo, '', '', '', 0);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ItemTrackingOnLinesShouldAllowedForTemplateTypeItemOnly()
+    var
+        ItemJournalBatch: Record "Item Journal Batch";
+    begin
+        // [SCENARIO 473079] Lot No., Expiration Date and Warranty Date are not available for Physical Inventory Journals after activating Item Tracking on Lines for Physical Inventory Batches
+
+        Initialize();
+
+        // [GIVEN] Create Item Journal Batch with Template Type "Phys. Inventory"
+        CreateItemJournalBatch(ItemJournalBatch);
+        ItemJournalBatch.CalcFields("Template Type");
+
+        // [WHEN] Expected Test field error while setting true to "Item Tracking on Lines" field
+        asserterror ItemJournalBatch.Validate("Item Tracking on Lines", true);
+
+        // [VERIFY] Verify: Error: Template Type must be equal to 'Item' in Item Journal Batch
+        Assert.IsTrue(
+            StrPos(GetLastErrorText, TemplateTypeMustItemErr) > 0,
+            StrSubstNo(TextGetLastErrorText, GetLastErrorText, TemplateTypeMustItemErr));
     end;
 
     local procedure Initialize()

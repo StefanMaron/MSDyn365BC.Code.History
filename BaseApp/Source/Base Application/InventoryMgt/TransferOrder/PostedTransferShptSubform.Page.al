@@ -29,6 +29,12 @@
                     ApplicationArea = Location;
                     ToolTip = 'Specifies a description of the item.';
                 }
+                field("Description 2"; Rec."Description 2")
+                {
+                    ApplicationArea = All;
+                    ToolTip = 'Specifies information in addition to the description of the item being transferred.';
+                    Visible = false;
+                }
                 field("Transfer-from Bin Code"; Rec."Transfer-from Bin Code")
                 {
                     ApplicationArea = Warehouse;

@@ -56,6 +56,9 @@ codeunit 370 "Bank Acc. Reconciliation Post"
         LineNoTAppliedErr: Label 'The line with transaction date %1 and transaction text ''%2'' is not applied. You must apply all lines.', Comment = '%1 - transaction date, %2 - arbitrary text';
         TransactionAlreadyReconciledErr: Label 'The line with transaction date %1 and transaction text ''%2'' is already reconciled.\\You must remove it from the payment reconciliation journal before posting.', Comment = '%1 - transaction date, %2 - arbitrary text';
         EventNameTelemetryTxt: Label 'Post bank reconciliation', Locked = true;
+        EventNameTelemetryPmtTxt: Label 'Post payment application', Locked = true;
+        PaymentRecCategoryLbl: Label 'AL Payment Reconciliation', Locked = true;
+        BankAccountRecCategoryLbl: Label 'AL Bank Account Rec', Locked = true;
 
     [Scope('OnPrem')]
     [CommitBehavior(CommitBehavior::Ignore)]
@@ -135,7 +138,12 @@ codeunit 370 "Bank Acc. Reconciliation Post"
         TotalTransAmtNotAppliedErr: Text;
     begin
         OnBeforePost(BankAccRecon, BankAccReconLine);
-        FeatureTelemetry.LogUptake('0000JLO', BankAccRecon.GetBankReconciliationTelemetryFeatureName(), Enum::"Feature Uptake Status"::Used);
+        case BankAccRecon."Statement Type" of
+            BankAccRecon."Statement Type"::"Bank Reconciliation":
+                FeatureTelemetry.LogUptake('0000JLO', BankAccRecon.GetBankReconciliationTelemetryFeatureName(), Enum::"Feature Uptake Status"::Used);
+            BankAccRecon."Statement Type"::"Payment Application":
+                FeatureTelemetry.LogUptake('0000KMI', BankAccReconLine.GetPaymentRecJournalTelemetryFeatureName(), Enum::"Feature Uptake Status"::Used);
+        end;
         StoreFieldsPrePosting(BankAccRecon, PrePostingOutstdPayments, PrePostingOutstdBankTransactions, PrePostingGLBalance, PrePostingTotalPositiveDifference, PrePostingTotalNegativeDifference);
         with BankAccRecon do begin
             // Run through lines
@@ -201,12 +209,18 @@ codeunit 370 "Bank Acc. Reconciliation Post"
 
             case "Statement Type" of
                 "Statement Type"::"Bank Reconciliation":
-                    TransferToBankStmt(BankAccRecon, PrePostingOutstdPayments, PrePostingOutstdBankTransactions, PrePostingGLBalance, PrePostingTotalPositiveDifference, PrePostingTotalNegativeDifference);
+                    begin
+                        TransferToBankStmt(BankAccRecon, PrePostingOutstdPayments, PrePostingOutstdBankTransactions, PrePostingGLBalance, PrePostingTotalPositiveDifference, PrePostingTotalNegativeDifference);
+                        FeatureTelemetry.LogUsage('0000JLP', BankAccRecon.GetBankReconciliationTelemetryFeatureName(), EventNameTelemetryTxt);
+                        Session.LogMessage('0000JLQ', Format(Lines), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', BankAccountRecCategoryLbl);
+                    end;
                 "Statement Type"::"Payment Application":
-                    HandlePaymentApplicationTransfer(BankAccRecon, PrePostingOutstdPayments, PrePostingOutstdBankTransactions, PrePostingGLBalance, PrePostingTotalPositiveDifference, PrePostingTotalNegativeDifference);
+                    begin
+                        HandlePaymentApplicationTransfer(BankAccRecon, PrePostingOutstdPayments, PrePostingOutstdBankTransactions, PrePostingGLBalance, PrePostingTotalPositiveDifference, PrePostingTotalNegativeDifference);
+                        FeatureTelemetry.LogUsage('0000KMJ', BankAccReconLine.GetPaymentRecJournalTelemetryFeatureName(), EventNameTelemetryPmtTxt);
+                        Session.LogMessage('0000KMK', Format(Lines), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', PaymentRecCategoryLbl);
+                    end;
             end;
-            FeatureTelemetry.LogUsage('0000JLP', BankAccRecon.GetBankReconciliationTelemetryFeatureName(), EventNameTelemetryTxt);
-            Session.LogMessage('0000JLQ', Format(Lines), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', BankAccRecon.GetBankReconciliationTelemetryFeatureName());
         end;
     end;
 
@@ -623,11 +637,18 @@ codeunit 370 "Bank Acc. Reconciliation Post"
     var
         CustLedgEntry: Record "Cust. Ledger Entry";
         CurrExchRate: Record "Currency Exchange Rate";
+        IsHandled: Boolean;
     begin
         with CustLedgEntry do begin
             Get(AppliedPmtEntry."Applies-to Entry No.");
             TestField(Open);
             BankAcc.Get(AppliedPmtEntry."Bank Account No.");
+
+            IsHandled := false;
+            OnBeforeApplyCustLedgEntry(CustLedgEntry, AppliedPmtEntry, BankAcc, AppliesToID, PostingDate, PmtDiscDueDate, PmtDiscToleranceDate, RemPmtDiscPossible, IsHandled);
+            if IsHandled then
+                exit;
+
             if AppliesToID = '' then begin
                 "Pmt. Discount Date" := PmtDiscDueDate;
                 "Pmt. Disc. Tolerance Date" := PmtDiscToleranceDate;
@@ -915,6 +936,11 @@ codeunit 370 "Bank Acc. Reconciliation Post"
 
     [IntegrationEvent(false, false)]
     local procedure OnTransferToPostPmtApplnOnBeforePostedPmtReconLineInsert(var PostedPmtReconLine: Record "Posted Payment Recon. Line"; BankAccReconLine: Record "Bank Acc. Reconciliation Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeApplyCustLedgEntry(var CustLedgerEntry: Record "Cust. Ledger Entry"; AppliedPaymentEntry: Record "Applied Payment Entry"; var BankAccount: Record "Bank Account"; AppliesToID: Code[50]; PostingDate: Date; PmtDiscDueDate: Date; PmtDiscToleranceDate: Date; RemPmtDiscPossible: Decimal; var IsHandled: Boolean)
     begin
     end;
 }

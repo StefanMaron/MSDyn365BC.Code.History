@@ -188,7 +188,13 @@ table 5940 "Service Item"
             var
                 ConfirmManagement: Codeunit "Confirm Management";
                 ShouldConfirmChange: Boolean;
+                IsHandled: Boolean;
             begin
+                IsHandled := false;
+                OnBeforeValidateShiptoCode(Rec, xRec, IsHandled);
+                if IsHandled then
+                    exit;
+
                 if "Ship-to Code" <> xRec."Ship-to Code" then begin
                     if CheckifActiveServContLineExist() then
                         Error(
@@ -216,7 +222,13 @@ table 5940 "Service Item"
             trigger OnValidate()
             var
                 ConfirmManagement: Codeunit "Confirm Management";
+                IsHandled: Boolean;
             begin
+                IsHandled := false;
+                OnBeforeValidateItemNo(Rec, xRec, CancelResSkillAssignment, CancelResSkillChanges, ResSkill, IsHandled);
+                if IsHandled then
+                    exit;
+
                 if "Item No." <> xRec."Item No." then begin
                     if "Item No." <> '' then begin
                         CalcFields("Service Item Components");
@@ -272,13 +284,15 @@ table 5940 "Service Item"
                         "Unit of Measure Code" := '';
                     end;
                     MessageIfServItemLinesExist(FieldCaption("Item No."));
-                end else
+                end else begin
+                    OnValidateItemNoOnBeforeCheckCancelResSkillAssignment(Rec, ResSkillMgt);
                     if not CancelResSkillAssignment then
                         ResSkillMgt.RevalidateResSkillRelation(
                           ResSkill.Type::"Service Item",
                           "No.",
                           ResSkill.Type::Item,
                           "Item No.");
+                end;
 
                 ServLogMgt.ServItemItemNoChange(Rec, xRec);
                 Modify();
@@ -339,7 +353,14 @@ table 5940 "Service Item"
             Caption = 'Warranty Starting Date (Labor)';
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
+                IsHandled := false;
+                OnBeforeValidateWarrantyStartingDateLabor(Rec, xRec, IsHandled);
+                if IsHandled then
+                    exit;
+
                 if "Warranty Starting Date (Labor)" <> xRec."Warranty Starting Date (Labor)" then
                     MessageIfServItemLinesExist(FieldCaption("Warranty Starting Date (Labor)"));
 
@@ -361,7 +382,14 @@ table 5940 "Service Item"
             Caption = 'Warranty Ending Date (Labor)';
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
+                IsHandled := false;
+                OnBeforeValidateWarrantyEndingDateLabor(Rec, xRec, IsHandled);
+                if IsHandled then
+                    exit;
+
                 if "Warranty Ending Date (Labor)" <> xRec."Warranty Ending Date (Labor)" then
                     MessageIfServItemLinesExist(FieldCaption("Warranty Ending Date (Labor)"));
 
@@ -382,7 +410,13 @@ table 5940 "Service Item"
             trigger OnValidate()
             var
                 ItemTrackingCode: Record "Item Tracking Code";
+                IsHandled: Boolean;
             begin
+                IsHandled := false;
+                OnBeforeValidateWarrantyStartingDateParts(Rec, xRec, Item, IsHandled);
+                if IsHandled then
+                    exit;
+
                 if "Warranty Starting Date (Parts)" <> xRec."Warranty Starting Date (Parts)" then
                     MessageIfServItemLinesExist(FieldCaption("Warranty Starting Date (Parts)"));
 
@@ -778,14 +812,19 @@ table 5940 "Service Item"
             var
                 Resource: Record Resource;
                 SkilledResourceList: Page "Skilled Resource List";
+                IsHandled: Boolean;
             begin
-                SkilledResourceList.Initialize(ResSkill.Type::"Service Item", "No.", Description);
-                SkilledResourceList.LookupMode(true);
-                if Resource.Get("Preferred Resource") then
-                    SkilledResourceList.SetRecord(Resource);
-                if SkilledResourceList.RunModal() = ACTION::LookupOK then begin
-                    SkilledResourceList.GetRecord(Resource);
-                    "Preferred Resource" := Resource."No.";
+                IsHandled := false;
+                OnBeforeValidatePreferredResource(Rec, IsHandled);
+                if not IsHandled then begin
+                    SkilledResourceList.Initialize(ResSkill.Type::"Service Item", "No.", Description);
+                    SkilledResourceList.LookupMode(true);
+                    if Resource.Get("Preferred Resource") then
+                        SkilledResourceList.SetRecord(Resource);
+                    if SkilledResourceList.RunModal() = ACTION::LookupOK then begin
+                        SkilledResourceList.GetRecord(Resource);
+                        "Preferred Resource" := Resource."No.";
+                    end;
                 end;
                 OnAfterValidatePreferredResource(Rec, ServItem);
             end;
@@ -986,7 +1025,13 @@ table 5940 "Service Item"
     trigger OnDelete()
     var
         ResultDescription: Text;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeDeleteServiceItem(Rec, ServItem, IsHandled);
+        if IsHandled then
+            exit;
+
         MoveEntries.MoveServiceItemLedgerEntries(Rec);
 
         ResultDescription := CheckIfCanBeDeleted();
@@ -1008,7 +1053,14 @@ table 5940 "Service Item"
     end;
 
     trigger OnInsert()
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeinsertServiceItem(Rec, xRec, IsHandled);
+        if IsHandled then
+            exit;
+
         ServMgtSetup.Get();
         if "No." = '' then begin
             ServMgtSetup.TestField("Service Item Nos.");
@@ -1050,7 +1102,6 @@ table 5940 "Service Item"
         ServLedgEntry: Record "Service Ledger Entry";
         ServItemLine: Record "Service Item Line";
         ServItemComponent: Record "Service Item Component";
-        PostCodeRec: Record "Post Code";
         ResSkill: Record "Resource Skill";
         Currency: Record Currency;
         NoSeriesMgt: Codeunit NoSeriesManagement;
@@ -1091,17 +1142,22 @@ table 5940 "Service Item"
         ServItemLine.Reset();
         ServItemLine.SetCurrentKey("Service Item No.");
         ServItemLine.SetRange("Service Item No.", "No.");
-        exit(ServItemLine.FindFirst())
+        exit(ServItemLine.FindFirst());
     end;
 
-    procedure MessageIfServItemLinesExist(ChangedFieldName: Text[100])
+    procedure MessageIfServItemLinesExist(ChangedFieldName: Text)
     var
         MessageText: Text;
-        ShowMessage: Boolean;
+        ShowMessage, IsHandled : Boolean;
     begin
+        IsHandled := false;
+        OnBeforeMsgIfServItemLinesExist(CurrFieldNo, IsHandled);
+        if IsHandled then
+            exit;
+
         ShowMessage := ServItemLinesExist();
         MessageText := StrSubstNo(FieldUpdateConfirmQst, ChangedFieldName);
-        OnBeforeMessageIfServItemLinesExist(Rec, ChangedFieldName, MessageText, ShowMessage);
+        OnBeforeMessageIfServItemLinesExist(Rec, CopyStr(ChangedFieldName, 1, 100), MessageText, ShowMessage);
         if ShowMessage then
             Message(MessageText);
     end;
@@ -1115,12 +1171,12 @@ table 5940 "Service Item"
         OnAfterDeleteServItemComponents(Rec);
     end;
 
-    local procedure ServItemLinesExistErr(ChangedFieldName: Text[100])
+    local procedure ServItemLinesExistErr(ChangedFieldName: Text)
     var
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeServItemLinesExistErr(Rec, ChangedFieldName, IsHandled);
+        OnBeforeServItemLinesExistErr(Rec, CopyStr(ChangedFieldName, 1, 100), IsHandled);
         if IsHandled then
             exit;
 
@@ -1139,7 +1195,7 @@ table 5940 "Service Item"
           "Service Item No. (Serviced)", "Entry Type", "Moved from Prepaid Acc.",
           Type, "Posting Date", Open);
         ServLedgEntry.SetRange("Service Item No. (Serviced)", "No.");
-        exit(ServLedgEntry.FindFirst())
+        exit(ServLedgEntry.FindFirst());
     end;
 
     local procedure CheckifActiveServContLineExist(): Boolean
@@ -1206,6 +1262,11 @@ table 5940 "Service Item"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidatePreferredResource(var ServiceItem: Record "Service Item"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterValidatePreferredResource(var ServiceItem: Record "Service Item"; var ServiceItemGlobal: Record "Service Item")
     begin
     end;
@@ -1247,6 +1308,51 @@ table 5940 "Service Item"
 
     [IntegrationEvent(false, false)]
     local procedure OnValidateShiptoCodeOnAfterCalcShouldConfirmChange(var ServiceItem: Record "Service Item"; CurrFieldNo: Integer; var ShouldConfirmChange: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateWarrantyStartingDateLabor(var ServiceItem: Record "Service Item"; var xServiceItem: Record "Service Item"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateWarrantyEndingDateLabor(var ServiceItem: Record "Service Item"; xServiceItem: Record "Service Item"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateShiptoCode(var ServiceItem: Record "Service Item"; xServiceItem: Record "Service Item"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateItemNoOnBeforeCheckCancelResSkillAssignment(var ServiceItem: Record "Service Item"; var ResourceSkillMgt: Codeunit "Resource Skill Mgt.")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateWarrantyStartingDateParts(var ServiceItem: Record "Service Item"; var xServiceItem: Record "Service Item"; var Item: Record Item; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeInsertServiceItem(var ServiceItem: Record "Service Item"; var xServiceItem: Record "Service Item"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeDeleteServiceItem(var ServiceItem: Record "Service Item"; var ServItem: Record "Service Item"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateItemNo(var ServiceItem: Record "Service Item"; var xServiceItem: Record "Service Item"; var CancelResSkillAssignment: Boolean; var CancelResSkillChanges: Boolean; var ResourceSkill: Record "Resource Skill"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeMsgIfServItemLinesExist(CurrFieldNo: Integer; var IsHandled: Boolean)
     begin
     end;
 }

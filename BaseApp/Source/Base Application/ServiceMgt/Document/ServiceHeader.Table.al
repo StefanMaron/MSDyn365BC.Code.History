@@ -23,87 +23,89 @@
                 ConfirmManagement: Codeunit "Confirm Management";
                 IsHandled: Boolean;
             begin
-                if ("Customer No." <> xRec."Customer No.") and (xRec."Customer No." <> '') then begin
-                    if "Contract No." <> '' then
-                        Error(
-                          Text003,
-                          FieldCaption("Customer No."),
-                          "Document Type", FieldCaption("No."), "No.",
-                          FieldCaption("Contract No."), "Contract No.");
-                    if HideValidationDialog or not GuiAllowed then
-                        Confirmed := true
-                    else
-                        if ServItemLineExists() then
-                            Confirmed :=
-                              ConfirmManagement.GetResponseOrDefault(
-                                StrSubstNo(Text004, FieldCaption("Customer No.")), true)
+                IsHandled := false;
+                OnBeforeValidateCustomerNo(Rec, xRec, CurrFieldNo, IsHandled);
+                if not IsHandled then
+                    if ("Customer No." <> xRec."Customer No.") and (xRec."Customer No." <> '') then begin
+                        if "Contract No." <> '' then
+                            Error(
+                              Text003,
+                              FieldCaption("Customer No."),
+                              "Document Type", FieldCaption("No."), "No.",
+                              FieldCaption("Contract No."), "Contract No.");
+                        if HideValidationDialog or not GuiAllowed then
+                            Confirmed := true
                         else
-                            if ServLineExists() then
+                            if ServItemLineExists() then
                                 Confirmed :=
                                   ConfirmManagement.GetResponseOrDefault(
-                                    StrSubstNo(Text057, FieldCaption("Customer No.")), true)
+                                    StrSubstNo(Text004, FieldCaption("Customer No.")), true)
                             else
-                                Confirmed :=
-                                  ConfirmManagement.GetResponseOrDefault(
-                                    StrSubstNo(Text005, FieldCaption("Customer No.")), true);
-                    if Confirmed then begin
-                        ServLine.SetRange("Document Type", "Document Type");
-                        ServLine.SetRange("Document No.", "No.");
-                        if "Document Type" = "Document Type"::Order then
-                            ServLine.SetFilter("Quantity Shipped", '<>0')
-                        else
-                            if "Document Type" = "Document Type"::Invoice then begin
-                                ServLine.SetRange("Customer No.", xRec."Customer No.");
-                                ServLine.SetFilter("Shipment No.", '<>%1', '');
-                            end;
-
-                        if ServLine.FindFirst() then begin
-                            if "Document Type" = "Document Type"::Order then
-                                ServLine.TestField("Quantity Shipped", 0)
-                            else
-                                ServLine.TestField("Shipment No.", '');
-                        end;
-                        OnValidateCustomerNoOnBeforeModify(Rec, CurrFieldNo);
-                        Modify(true);
-
-                        IsHandled := false;
-                        OnValidateCustomerNoOnBeforeDeleteLines(Rec, IsHandled);
-                        if not IsHandled then begin
-                            ServLine.LockTable();
-                            ServLine.Reset();
+                                if ServLineExists() then
+                                    Confirmed :=
+                                      ConfirmManagement.GetResponseOrDefault(
+                                        StrSubstNo(Text057, FieldCaption("Customer No.")), true)
+                                else
+                                    Confirmed :=
+                                      ConfirmManagement.GetResponseOrDefault(
+                                        StrSubstNo(Text005, FieldCaption("Customer No.")), true);
+                        if Confirmed then begin
                             ServLine.SetRange("Document Type", "Document Type");
                             ServLine.SetRange("Document No.", "No.");
-                            ServLine.DeleteAll(true);
+                            if "Document Type" = "Document Type"::Order then
+                                ServLine.SetFilter("Quantity Shipped", '<>0')
+                            else
+                                if "Document Type" = "Document Type"::Invoice then begin
+                                    ServLine.SetRange("Customer No.", xRec."Customer No.");
+                                    ServLine.SetFilter("Shipment No.", '<>%1', '');
+                                end;
 
-                            ServItemLine.LockTable();
-                            ServItemLine.Reset();
-                            ServItemLine.SetRange("Document Type", "Document Type");
-                            ServItemLine.SetRange("Document No.", "No.");
-                            ServItemLine.DeleteAll(true);
-                        end;
+                            if ServLine.FindFirst() then
+                                if "Document Type" = "Document Type"::Order then
+                                    ServLine.TestField("Quantity Shipped", 0)
+                                else
+                                    ServLine.TestField("Shipment No.", '');
+                            OnValidateCustomerNoOnBeforeModify(Rec, CurrFieldNo);
+                            Modify(true);
 
-                        Get("Document Type", "No.");
-                        if "Customer No." = '' then begin
-                            Init();
-                            OnValidateCustomerNoAfterInit(Rec, xRec);
-                            GetServiceMgtSetup();
-                            "No. Series" := xRec."No. Series";
-                            InitRecord();
-                            if xRec."Shipping No." <> '' then begin
-                                "Shipping No. Series" := xRec."Shipping No. Series";
-                                "Shipping No." := xRec."Shipping No.";
+                            IsHandled := false;
+                            OnValidateCustomerNoOnBeforeDeleteLines(Rec, IsHandled);
+                            if not IsHandled then begin
+                                ServLine.LockTable();
+                                ServLine.Reset();
+                                ServLine.SetRange("Document Type", "Document Type");
+                                ServLine.SetRange("Document No.", "No.");
+                                ServLine.DeleteAll(true);
+
+                                ServItemLine.LockTable();
+                                ServItemLine.Reset();
+                                ServItemLine.SetRange("Document Type", "Document Type");
+                                ServItemLine.SetRange("Document No.", "No.");
+                                ServItemLine.DeleteAll(true);
                             end;
-                            if xRec."Posting No." <> '' then begin
-                                "Posting No. Series" := xRec."Posting No. Series";
-                                "Posting No." := xRec."Posting No.";
+
+                            Get("Document Type", "No.");
+                            if "Customer No." = '' then begin
+                                Init();
+                                OnValidateCustomerNoAfterInit(Rec, xRec);
+                                GetServiceMgtSetup();
+                                "No. Series" := xRec."No. Series";
+                                InitRecord();
+                                if xRec."Shipping No." <> '' then begin
+                                    "Shipping No. Series" := xRec."Shipping No. Series";
+                                    "Shipping No." := xRec."Shipping No.";
+                                end;
+                                if xRec."Posting No." <> '' then begin
+                                    "Posting No. Series" := xRec."Posting No. Series";
+                                    "Posting No." := xRec."Posting No.";
+                                end;
+                                exit;
                             end;
+                        end else begin
+                            Rec := xRec;
                             exit;
                         end;
-                    end else begin
-                        Rec := xRec;
-                        exit;
                     end;
-                end;
 
                 GetCust("Customer No.");
                 if "Customer No." <> '' then begin
@@ -129,17 +131,27 @@
 	                        end;
 	                    end;
 
-                Validate("Ship-to Code", Cust."Ship-to Code");
-                if Cust."Bill-to Customer No." <> '' then
-                    Validate("Bill-to Customer No.", Cust."Bill-to Customer No.")
-                else begin
-                    if "Bill-to Customer No." = "Customer No." then
-                        SkipBillToContact := true;
-                    Validate("Bill-to Customer No.", "Customer No.");
-                    SkipBillToContact := false;
+                IsHandled := false;
+                OnValidateCustomerNoOnBeforeVerifyShipToCode(Rec, SkipBillToContact, IsHandled);
+                if not IsHandled then begin
+                    Validate("Ship-to Code", Cust."Ship-to Code");
+                    IsHandled := false;
+                    OnValidateCustomerNoOnBeforeValidateBillToCustomerNo(Rec, Cust, IsHandled);
+                    if not IsHandled then
+                        if Cust."Bill-to Customer No." <> '' then
+                            Validate("Bill-to Customer No.", Cust."Bill-to Customer No.")
+                        else begin
+                            if "Bill-to Customer No." = "Customer No." then
+                                SkipBillToContact := true;
+                            Validate("Bill-to Customer No.", "Customer No.");
+                            SkipBillToContact := false;
+                        end;
                 end;
 
-                Validate("Service Zone Code");
+                IsHandled := false;
+                OnValidateCustomerNoOnBeforeValidateServiceZoneCode(Rec, IsHandled);
+                if not IsHandled then
+                    Validate("Service Zone Code");
 
                 if not SkipContact then
                     UpdateCont("Customer No.");
@@ -210,10 +222,13 @@
 
                 Cust.TestField("Customer Posting Group");
 
-                if GuiAllowed and not HideValidationDialog and
-                   ("Document Type" in ["Document Type"::Quote, "Document Type"::Order, "Document Type"::Invoice])
-                then
-                    CustCheckCrLimit.ServiceHeaderCheck(Rec);
+                IsHandled := false;
+                OnValidateBillToCustomerNoOnBeforeCopyBillToCustomerFields(Rec, IsHandled);
+                if not IsHandled then
+                    if GuiAllowed and not HideValidationDialog and
+                       ("Document Type" in ["Document Type"::Quote, "Document Type"::Order, "Document Type"::Invoice])
+                    then
+                        CustCheckCrLimit.ServiceHeaderCheck(Rec);
 
                 CopyBillToCustomerFields(Cust);
 
@@ -231,10 +246,13 @@
                 Validate("Payment Method Code");
                 Validate("Currency Code");
 
-                if (xRec."Customer No." = "Customer No.") and
-                   (xRec."Bill-to Customer No." <> "Bill-to Customer No.")
-                then
-                    RecreateServLines(FieldCaption("Bill-to Customer No."));
+                IsHandled := false;
+                OnValidateBillToCustomerNoOnBeforeRecreateServLines(Rec, xRec, IsHandled);
+                if not IsHandled then
+                    if (xRec."Customer No." = "Customer No.") and
+                       (xRec."Bill-to Customer No." <> "Bill-to Customer No.")
+                    then
+                        RecreateServLines(FieldCaption("Bill-to Customer No."));
 
                 if not SkipBillToContact then
                     UpdateBillToCont("Bill-to Customer No.");
@@ -305,35 +323,30 @@
                 IsHandled: Boolean;
                 ShouldUpdateShipToAddressFields: Boolean;
             begin
-                if ("Ship-to Code" <> xRec."Ship-to Code") and
-                   ("Customer No." = xRec."Customer No.")
-                then begin
-                    if ("Contract No." <> '') and not HideValidationDialog then
-                        Error(
-                          Text003,
-                          FieldCaption("Ship-to Code"),
-                          "Document Type", FieldCaption("No."), "No.",
-                          FieldCaption("Contract No."), "Contract No.");
-                    if ServItemLineExists() then begin
-                        if not ConfirmManagement.GetResponseOrDefault(
-                             StrSubstNo(Text004, FieldCaption("Ship-to Code")), true)
-                        then begin
-                            "Ship-to Code" := xRec."Ship-to Code";
-                            exit;
-                        end;
-                    end else
-                        if ServLineExists() then begin
-                            IsHandled := false;
-                            OnValidateShipToCodeOnBeforeConfirmDeleteLines(Rec, IsHandled);
-                            if not IsHandled then
-                                if not ConfirmManagement.GetResponseOrDefault(
-                                    StrSubstNo(Text057, FieldCaption("Ship-to Code")), true)
-                                then begin
-                                    "Ship-to Code" := xRec."Ship-to Code";
-                                    exit;
-                                end;
-                        end;
-                end;
+                IsHandled := false;
+                OnValidateShiptoCodeBeforeConfirmDialog(Rec, xRec, IsHandled);
+                if not IsHandled then
+                    if ("Ship-to Code" <> xRec."Ship-to Code") and ("Customer No." = xRec."Customer No.") then begin
+                        if ("Contract No." <> '') and not HideValidationDialog then
+                            Error(
+                                Text003,
+                                FieldCaption("Ship-to Code"), "Document Type", FieldCaption("No."), "No.", FieldCaption("Contract No."), "Contract No.");
+                        if ServItemLineExists() then begin
+                            if not ConfirmManagement.GetResponseOrDefault(StrSubstNo(Text004, FieldCaption("Ship-to Code")), true) then begin
+                                "Ship-to Code" := xRec."Ship-to Code";
+                                exit;
+                            end;
+                        end else
+                            if ServLineExists() then begin
+                                IsHandled := false;
+                                OnValidateShipToCodeOnBeforeConfirmDeleteLines(Rec, IsHandled);
+                                if not IsHandled then
+                                    if not ConfirmManagement.GetResponseOrDefault(StrSubstNo(Text057, FieldCaption("Ship-to Code")), true) then begin
+                                        "Ship-to Code" := xRec."Ship-to Code";
+                                        exit;
+                                    end;
+                            end;
+                    end;
 
                 ShouldUpdateShipToAddressFields := "Document Type" <> "Document Type"::"Credit Memo";
                 OnValidateShipToCodeOnAfterCalcShouldUpdateShipToAddressFields(Rec, ShouldUpdateShipToAddressFields);
@@ -360,12 +373,14 @@
                        (xRec."Tax Area Code" <> "Tax Area Code")
                     then
                         RecreateServLines(FieldCaption("Ship-to Code"))
-                    else begin
+                    else
                         if xRec."Tax Liable" <> "Tax Liable" then
                             Validate("Tax Liable");
-                    end;
 
-                Validate("Service Zone Code");
+                IsHandled := false;
+                OnValidateShipToCodeOnBeforeValidateServiceZoneCode(Rec, IsHandled);
+                if not IsHandled then
+                    Validate("Service Zone Code");
 
                 IsHandled := false;
                 OnValidateShipToCodeOnBeforeDeleteLines(Rec, IsHandled);
@@ -497,6 +512,11 @@
                 end;
 
                 TestField("Posting Date");
+
+                GeneralLedgerSetup.GetRecordOnce();
+                GeneralLedgerSetup.UpdateVATDate("Posting Date", Enum::"VAT Reporting Date"::"Posting Date", "VAT Reporting Date");
+                Validate("VAT Reporting Date");
+
                 Validate("Document Date", "Posting Date");
 
                 ServLine.SetRange("Document Type", "Document Type");
@@ -520,10 +540,6 @@
                     if "Currency Factor" <> xRec."Currency Factor" then
                         ConfirmCurrencyFactorUpdate();
                 end;
-
-                GeneralLedgerSetup.GetRecordOnce();
-                GeneralLedgerSetup.UpdateVATDate("Posting Date", Enum::"VAT Reporting Date"::"Posting Date", "VAT Reporting Date");
-                Validate("VAT Reporting Date");
             end;
         }
         field(22; "Posting Description"; Text[100])
@@ -1219,10 +1235,10 @@
 
             trigger OnValidate()
             begin
-                Validate("Payment Terms Code");
                 GeneralLedgerSetup.GetRecordOnce();
                 GeneralLedgerSetup.UpdateVATDate("Document Date", Enum::"VAT Reporting Date"::"Document Date", "VAT Reporting Date");
                 Validate("VAT Reporting Date");
+                Validate("Payment Terms Code");
             end;
         }
         field(101; "Area"; Code[10])
@@ -1618,6 +1634,8 @@
                 Cont: Record Contact;
                 ContBusinessRelation: Record "Contact Business Relation";
             begin
+                OnBeforeLookupContactNo(Rec);
+
                 Cont.FilterGroup(2);
                 if "Customer No." <> '' then
                     if Cont.Get("Contact No.") then
@@ -1758,7 +1776,13 @@
             trigger OnValidate()
             var
                 RespCenter: Record "Responsibility Center";
+                IsHandled: Boolean;
             begin
+                IsHandled := false;
+                OnBeforeValidateResponsibilityCenter(Rec, xRec, IsHandled);
+                if IsHandled then
+                    exit;
+
                 if not UserSetupMgt.CheckRespCenter(2, "Responsibility Center") then
                     Error(
                       Text010,
@@ -2239,7 +2263,13 @@
             var
                 ServContractHeader: Record "Service Contract Header";
                 ServContractList: Page "Service Contract List";
+                IsHandled: Boolean;
             begin
+                IsHandled := false;
+                OnBeforeValidateContractNo(Rec, xRec, IsHandled);
+                if IsHandled then
+                    exit;
+
                 if "Contract No." <> '' then
                     if ServContractHeader.Get(ServContractHeader."Contract Type"::Contract, "Contract No.") then
                         ServContractList.SetRecord(ServContractHeader);
@@ -2508,7 +2538,7 @@
         LoanerEntry: Record "Loaner Entry";
         ServAllocMgt: Codeunit ServAllocationManagement;
         ReservMgt: Codeunit "Reservation Management";
-        ShowPostedDocsToPrint: Boolean;
+        ShowPostedDocsToPrint, IsHandled : Boolean;
     begin
         if not UserSetupMgt.CheckRespCenter(2, "Responsibility Center") then
             Error(Text000, UserSetupMgt.GetServiceFilter());
@@ -2522,7 +2552,10 @@
                 Error(Text046, "No.");
         end;
 
-        ServPost.DeleteHeader(Rec, ServShptHeader, ServInvHeader, ServCrMemoHeader);
+        IsHandled := false;
+        OnDeleteHeaderOnBeforeDeleteRelatedRecords(Rec, ServShptHeader, ServInvHeader, ServCrMemoHeader, IsHandled);
+        if not IsHandled then
+            ServPost.DeleteHeader(Rec, ServShptHeader, ServInvHeader, ServCrMemoHeader);
         Validate("Applies-to ID", '');
 
         ServLine.Reset();
@@ -2601,6 +2634,7 @@
 
                 Clear(ServLogMgt);
                 ServLogMgt.ServItemOffServOrder(ServItemLine);
+                OnDeleteOnBeforeServItemLineDelete(ServItemLine, Rec);
                 ServItemLine.Delete();
             until ServItemLine.Next() = 0;
 
@@ -2998,7 +3032,7 @@
             exit;
 
         IsHandled := false;
-        OnBeforeRecreateServLines(Rec, xRec, ChangedFieldName, IsHandled);
+        OnBeforeRecreateServLines(Rec, xRec, ChangedFieldName, IsHandled, CurrFieldNo);
         if IsHandled then
             exit;
 
@@ -3116,16 +3150,20 @@
         "Field": Record "Field";
         ConfirmManagement: Codeunit "Confirm Management";
         Question: Text[250];
+        IsHandled: Boolean;
     begin
         Field.Get(DATABASE::"Service Header", ChangedFieldNo);
 
-        if ServLineExists() and AskQuestion then begin
-            Question := StrSubstNo(
-                Text016,
-                Field."Field Caption");
-            if not ConfirmManagement.GetResponseOrDefault(Question, true) then
-                exit
-        end;
+        IsHandled := false;
+        OnBeforeUpdateServLinesByFieldNoOnBeforeAskQst(Rec, AskQuestion, ChangedFieldNo, IsHandled);
+        if not IsHandled then
+            if ServLineExists() and AskQuestion then begin
+                Question := StrSubstNo(
+                    Text016,
+                    Field."Field Caption");
+                if not ConfirmManagement.GetResponseOrDefault(Question, true) then
+                    exit
+            end;
 
         if ServLineExists() then begin
             ServLine.LockTable();
@@ -3424,8 +3462,13 @@
     end;
 
     procedure SetHideValidationDialog(NewHideValidationDialog: Boolean)
+    var
+        IsHandled: Boolean;
     begin
-        HideValidationDialog := NewHideValidationDialog;
+        IsHandled := false;
+        OnBeforeSetHideValidationDialog(Rec, HideValidationDialog, NewHideValidationDialog, IsHandled);
+        if not IsHandled then
+            HideValidationDialog := NewHideValidationDialog;
     end;
 
     procedure SetValidatingFromLines(NewValidatingFromLines: Boolean)
@@ -3674,23 +3717,28 @@
         ContBusinessRelation: Record "Contact Business Relation";
         Cont: Record Contact;
         CustCheckCreditLimit: Codeunit "Cust-Check Cr. Limit";
+        IsHandled: Boolean;
     begin
         if HideCreditCheckDialogue then
             exit;
-        if GetFilter("Customer No.") <> '' then begin
-            if GetRangeMin("Customer No.") = GetRangeMax("Customer No.") then begin
-                ServHeader."Bill-to Customer No." := GetRangeMin("Customer No.");
-                CustCheckCreditLimit.ServiceHeaderCheck(ServHeader);
-            end
-        end else
-            if GetFilter("Contact No.") <> '' then
-                if GetRangeMin("Contact No.") = GetRangeMax("Contact No.") then begin
-                    Cont.Get(GetRangeMin("Contact No."));
-                    if ContBusinessRelation.FindByContact(ContBusinessRelation."Link to Table"::Customer, Cont."Company No.") then begin
-                        ServHeader."Bill-to Customer No." := ContBusinessRelation."No.";
-                        CustCheckCreditLimit.ServiceHeaderCheck(ServHeader);
+
+        IsHandled := false;
+        OnBeforeCheckCreditMaxBeforeInsert(Rec, IsHandled);
+        if not IsHandled then
+            if GetFilter("Customer No.") <> '' then begin
+                if GetRangeMin("Customer No.") = GetRangeMax("Customer No.") then begin
+                    ServHeader."Bill-to Customer No." := GetRangeMin("Customer No.");
+                    CustCheckCreditLimit.ServiceHeaderCheck(ServHeader);
+                end
+            end else
+                if GetFilter("Contact No.") <> '' then
+                    if GetRangeMin("Contact No.") = GetRangeMax("Contact No.") then begin
+                        Cont.Get(GetRangeMin("Contact No."));
+                        if ContBusinessRelation.FindByContact(ContBusinessRelation."Link to Table"::Customer, Cont."Company No.") then begin
+                            ServHeader."Bill-to Customer No." := ContBusinessRelation."No.";
+                            CustCheckCreditLimit.ServiceHeaderCheck(ServHeader);
+                        end;
                     end;
-                end;
     end;
 
     procedure UpdateServiceOrderChangeLog(var OldServHeader: Record "Service Header")
@@ -3706,6 +3754,8 @@
 
         if "Contract No." <> OldServHeader."Contract No." then
             ServLogMgt.ServHeaderContractNoChanged(Rec, OldServHeader);
+
+        OnAfterUpdateServiceOrderChangeLog(Rec, OldServHeader);
     end;
 
     local procedure GetPostingNoSeriesCode() PostingNos: Code[20]
@@ -4485,7 +4535,14 @@
     end;
 
     local procedure CopyCustomerFields(Cust: Record Customer)
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCopyCustomerFields(Rec, Cust, SkipContact, SkipBillToContact, IsHandled);
+        if IsHandled then
+            exit;
+
         Name := Cust.Name;
         "Name 2" := Cust."Name 2";
         Address := Cust.Address;
@@ -4515,7 +4572,13 @@
     local procedure CopyBillToCustomerFields(Cust: Record Customer)
     var
         PaymentTerms: Record "Payment Terms";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCopyBillToCustFields(Rec, Cust, SkipBillToContact, CurrFieldNo, IsHandled);
+        if IsHandled then
+            exit;
+
         "Bill-to Name" := Cust.Name;
         "Bill-to Name 2" := Cust."Name 2";
         "Bill-to Address" := Cust.Address;
@@ -5184,7 +5247,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeRecreateServLines(var ServiceHeader: Record "Service Header"; xServiceHeader: Record "Service Header"; ChangedFieldName: Text[100]; var IsHandled: Boolean)
+    local procedure OnBeforeRecreateServLines(var ServiceHeader: Record "Service Header"; xServiceHeader: Record "Service Header"; ChangedFieldName: Text[100]; var IsHandled: Boolean; CurrentFieldNo: Integer)
     begin
     end;
 
@@ -5340,6 +5403,101 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnValidateAssignedUserIdOnBeforeCheckRespCenter(var ServiceHeader: Record "Service Header"; xServiceHeader: Record "Service Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateCustomerNoOnBeforeValidateBillToCustomerNo(var ServiceHeader: Record "Service Header"; Customer: Record Customer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateCustomerNoOnBeforeValidateServiceZoneCode(var ServiceHeader: Record "Service Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateShiptoCodeBeforeConfirmDialog(var ServiceHeader: Record "Service Header"; xServiceHeader: Record "Service Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateShipToCodeOnBeforeValidateServiceZoneCode(var ServiceHeader: Record "Service Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateContractNo(var ServiceHeader: Record "Service Header"; xServiceHeader: Record "Service Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnDeleteOnBeforeServItemLineDelete(var ServiceItemLine: Record "Service Item Line"; ServiceHeader: Record "Service Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnDeleteHeaderOnBeforeDeleteRelatedRecords(var ServiceHeader: Record "Service Header"; var ServShptHeader: Record "Service Shipment Header"; var ServInvHeader: Record "Service Invoice Header"; var ServCrMemoHeader: Record "Service Cr.Memo Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateCustomerNo(var ServiceHeader: Record "Service Header"; xServiceHeader: Record "Service Header"; CallingFieldNo: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateCustomerNoOnBeforeVerifyShipToCode(var ServiceHeader: Record "Service Header"; var SkipBillToContact: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateBillToCustomerNoOnBeforeCopyBillToCustomerFields(var ServiceHeader: Record "Service Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateBillToCustomerNoOnBeforeRecreateServLines(var ServiceHeader: Record "Service Header"; xServiceHeader: Record "Service Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeLookupContactNo(var ServiceHeader: Record "Service Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateResponsibilityCenter(var ServiceHeader: Record "Service Header"; xServiceHeader: Record "Service Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdateServLinesByFieldNoOnBeforeAskQst(var ServiceHeader: Record "Service Header"; AskQuestion: Boolean; ChangedFieldNo: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckCreditMaxBeforeInsert(var ServiceHeader: Record "Service Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterUpdateServiceOrderChangeLog(var ServiceHeader: Record "Service Header"; var OldServiceHeader: Record "Service Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCopyCustomerFields(var ServiceHeader: Record "Service Header"; Customer: Record Customer; var SkipContact: Boolean; var SkipBillToContact: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCopyBillToCustFields(var ServiceHeader: Record "Service Header"; Customer: Record Customer; var SkipBillToContact: Boolean; CurrFieldNo: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSetHideValidationDialog(var ServiceHeader: Record "Service Header"; var HideValidationDialog: Boolean; NewHideValidationDialog: Boolean; var IsHandled: Boolean)
     begin
     end;
 }

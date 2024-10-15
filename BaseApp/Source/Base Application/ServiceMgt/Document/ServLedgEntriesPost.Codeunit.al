@@ -65,11 +65,16 @@
         end;
     end;
 
-    procedure InsertServLedgerEntry(var NextEntryNo: Integer; var ServHeader: Record "Service Header"; var TempServLine: Record "Service Line"; var ServItemLine: Record "Service Item Line"; Qty: Decimal; DocNo: Code[20]): Integer
+    procedure InsertServLedgerEntry(var NextEntryNo: Integer; var ServHeader: Record "Service Header"; var TempServLine: Record "Service Line"; var ServItemLine: Record "Service Item Line"; Qty: Decimal; DocNo: Code[20]) Result: Integer
     var
         LineAmount: Decimal;
         IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeInsertServLedgerEntry(NextEntryNo, ServHeader, TempServLine, ServItemLine, Qty, DocNo, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
         ServLedgEntry.LockTable();
         with TempServLine do begin
             ServLedgEntry.Init();
@@ -77,10 +82,10 @@
             if "Contract No." <> '' then
                 if ServOrderMgt.InServiceContract(TempServLine) then begin
                     ServLedgEntry."Service Contract No." := "Contract No.";
-                    ServLedgEntry."Contract Group Code" := ServContract."Contract Group Code";
-                    if ServContract.Get(ServContract."Contract Type"::Contract, "Contract No.") then
-                        ServLedgEntry."Serv. Contract Acc. Gr. Code" :=
-                          ServContract."Serv. Contract Acc. Gr. Code";
+                    if ServContract.Get(ServContract."Contract Type"::Contract, "Contract No.") then begin
+                        ServLedgEntry."Serv. Contract Acc. Gr. Code" := ServContract."Serv. Contract Acc. Gr. Code";
+                        ServLedgEntry."Contract Group Code" := ServContract."Contract Group Code";
+                    end
                 end else
                     Error(
                       Text001,
@@ -158,7 +163,13 @@
         ApplyToServLedgEntry: Record "Service Ledger Entry";
         CurrExchRate: Record "Currency Exchange Rate";
         TotalAmount: Decimal;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeInsertServLedgerEntrySale(PassedNextEntryNo, ServHeader, ServLine, ServItemLine, ServLedgEntry, Qty, QtyToCharge, GenJnlLineDocNo, DocLineNo, IsHandled);
+        if IsHandled then
+            exit;
+
         if (ServLine."Document No." = '') and
            (ServLine."Contract No." = '')
         then
@@ -338,7 +349,13 @@
     var
         ServItem: Record "Service Item";
         TotalAmount: Decimal;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeInsertServLedgEntryCrMemo(PassedNextEntryNo, ServHeader, ServLine, GenJnlLineDocNo, IsHandled);
+        if IsHandled then
+            exit;
+
         if ServLine."Qty. to Invoice" = 0 then
             exit;
 
@@ -1159,6 +1176,21 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnReverseServLedgEntryOnBeforeNewServLedgEntryInsert(var NewServLedgEntry: Record "Service Ledger Entry"; var ServLedgEntry: Record "Service Ledger Entry"; ServiceShipmentLine: Record "Service Shipment Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeInsertServLedgerEntry(var NextEntryNo: Integer; var ServiceHeader: Record "Service Header"; var TempServiceLine: Record "Service Line"; var ServiceItemLine: Record "Service Item Line"; Qty: Decimal; DocNo: Code[20]; var Result: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeInsertServLedgerEntrySale(var PassedNextEntryNo: Integer; var ServiceHeader: Record "Service Header"; var ServiceLine: Record "Service Line"; var ServiceItemLine: Record "Service Item Line"; var ServiceLedgerEntry: Record "Service Ledger Entry"; Qty: Decimal; QtyToCharge: Decimal; GenJnlLineDocNo: Code[20]; DocLineNo: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeInsertServLedgEntryCrMemo(var PassedNextEntryNo: Integer; var ServiceHeader: Record "Service Header"; var ServiceLine: Record "Service Line"; GenJnlLineDocNo: Code[20]; var IsHandled: Boolean)
     begin
     end;
 }

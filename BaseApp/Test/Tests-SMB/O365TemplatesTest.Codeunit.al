@@ -45,6 +45,7 @@ codeunit 138012 "O365 Templates Test"
         DuplicateRelationErr: Label 'The template %1 is already in this hierarchy.';
         StartingNumberTxt: Label 'ABC00010D';
         EndingNumberTxt: Label 'ABC00090D';
+        InsertedItemErr: Label 'Item inserted with wrong data';
 
     [Test]
     [HandlerFunctions('CustomerTemplateCardHandler')]
@@ -1540,6 +1541,43 @@ codeunit 138012 "O365 Templates Test"
         VerifyItemNoWithSeries(ItemNo, EndingNumberTxt, NoSeries.Code);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    [HandlerFunctions('ConfirmHandler')]
+    procedure ItemTemplApplyTemplateFromItemTemplatesUT()
+    var
+        Item: Record Item;
+        ItemTempl: Record "Item Templ.";
+        ItemTemplMgt: Codeunit "Item Templ. Mgt.";
+    begin
+        // [SCENARIO 475184] Item Template is not working as expected: some fields get overwritten unexpectedly
+        Initialize();
+
+        // [GIVEN] Create new Item Template "T1" with data, and enquue Item Template Code
+        LibraryTemplates.CreateItemTemplateWithData(ItemTempl);
+        UpdateItemTemplate(ItemTempl);
+        LibraryVariableStorage.Enqueue(ItemTempl.Code);
+
+        // [GIVEN] Create new Item "I", and set Default values for different item fields
+        LibraryInventory.CreateItem(Item);
+
+        // [WHEN] Apply "T1" to "I"
+        ItemTemplMgt.UpdateItemFromTemplate(Item);
+
+        // [THEN] "I" filled with data from "T2", Fields in new item matches template's fields
+        Item.Get(Item."No.");
+
+        // [VERIFY] Verify: Values on Item record after applying Item Template
+        VerifyItemAfterApplyTemplate(Item, ItemTempl);
+
+        // [WHEN] Clear different fields on Item Template T1, and Apply "T1" to "I"
+        ClearItemTemplate(ItemTempl);
+        ItemTemplMgt.UpdateItemFromTemplate(Item);
+
+        // [VERIFY] Verify: Values on Item record after applying Item Template
+        VerifyItemDataNotEqualAfterApplyTemplate(Item, ItemTempl);
+    end;
+
     local procedure Initialize()
     var
         SalesSetup: Record "Sales & Receivables Setup";
@@ -2680,6 +2718,58 @@ codeunit 138012 "O365 Templates Test"
         SalesSetup.Modify();
     end;
 
+    local procedure UpdateItemTemplate(var ItemTempl: Record "Item Templ.")
+    begin
+        // Field Type: Text
+        ItemTempl.Validate("Vendor Item No.", LibraryRandom.RandText(50));
+
+        // Field Type: Code
+        ItemTempl.Validate("Shelf No.", LibraryRandom.RandText(10));
+
+        // Field Type: DateFormula
+        Evaluate(ItemTempl."Lead Time Calculation", '<10D>');
+
+        // Field Type: Option
+        ItemTempl.Validate("Reordering Policy", ItemTempl."Reordering Policy"::"Fixed Reorder Qty.");
+
+        ItemTempl.Modify(true);
+    end;
+
+    local procedure ClearItemTemplate(var ItemTempl: Record "Item Templ.")
+    begin
+        // Field Type: Text
+        ItemTempl.Validate("Vendor Item No.", '');
+
+        // Field Type: Code
+        ItemTempl.Validate("Shelf No.", '');
+        ItemTempl.Validate("Gen. Prod. Posting Group", '');
+
+        // Field Type: DateFormula
+        Evaluate(ItemTempl."Lead Time Calculation", '');
+
+        // Field Type: Option
+        ItemTempl.Validate("Reordering Policy", ItemTempl."Reordering Policy"::" ");
+
+        ItemTempl.Modify(true);
+    end;
+
+    local procedure VerifyItemAfterApplyTemplate(Item: Record Item; ItemTempl: Record "Item Templ.")
+    begin
+        Assert.IsTrue(Item."Vendor Item No." = ItemTempl."Vendor Item No.", InsertedItemErr);
+        Assert.IsTrue(Item."Gen. Prod. Posting Group" = ItemTempl."Gen. Prod. Posting Group", InsertedItemErr);
+        Assert.IsTrue(Item."Shelf No." = ItemTempl."Shelf No.", InsertedItemErr);
+        Assert.IsTrue(Item."Lead Time Calculation" = ItemTempl."Lead Time Calculation", InsertedItemErr);
+    end;
+
+    local procedure VerifyItemDataNotEqualAfterApplyTemplate(Item: Record Item; ItemTempl: Record "Item Templ.")
+    begin
+        Assert.IsFalse(Item."Vendor Item No." = ItemTempl."Vendor Item No.", InsertedItemErr);
+        Assert.IsFalse(Item."Gen. Prod. Posting Group" = ItemTempl."Gen. Prod. Posting Group", InsertedItemErr);
+        Assert.IsFalse(Item."Shelf No." = ItemTempl."Shelf No.", InsertedItemErr);
+        Assert.IsFalse(Item."Lead Time Calculation" = ItemTempl."Lead Time Calculation", InsertedItemErr);
+        Assert.IsFalse(Item."Reordering Policy" = ItemTempl."Reordering Policy", InsertedItemErr);
+    end;
+
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure VendorTemplateCardHandler(var VendorTemplateCard: TestPage "Vendor Templ. Card")
@@ -2752,6 +2842,12 @@ codeunit 138012 "O365 Templates Test"
     begin
         ConfigTemplateList.FILTER.SetFilter(Code, LibraryVariableStorage.DequeueText);
         ConfigTemplateList.OK.Invoke;
+    end;
+
+    [ConfirmHandler]
+    procedure ConfirmHandler(Queation: Text[1024]; var Reply: Boolean)
+    begin
+        Reply := true;
     end;
 }
 
