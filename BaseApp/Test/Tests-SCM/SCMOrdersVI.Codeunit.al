@@ -2425,6 +2425,202 @@ codeunit 137163 "SCM Orders VI"
           LibraryERM.GetCurrencyAmountRoundingPrecision(CurrencyCode), '');
     end;
 
+    [Test]
+    procedure QtyToReceiveBaseRoundingInPurchOrderAfterPostingSeveralWhseReceipts()
+    var
+        PurchasesPayablesSetup: Record "Purchases & Payables Setup";
+        Location: Record Location;
+        WarehouseEmployee: Record "Warehouse Employee";
+        Item: Record Item;
+        ItemUnitOfMeasure: Record "Item Unit of Measure";
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+    begin
+        // [FEATURE] [Purchase] [Order] [Warehouse Receipt] [Rounding] [Item Unit of Measure]
+        // [SCENARIO 396153] Correction of "Qty. to Receive (Base)" on purchase line because of rounding after posting several warehouse receipts.
+        Initialize();
+
+        // [GIVEN] Set "Default Qty. to Receive" = "Blank" in purchase setup.
+        PurchasesPayablesSetup.Get();
+        PurchasesPayablesSetup.Validate("Default Qty. to Receive", PurchasesPayablesSetup."Default Qty. to Receive"::Blank);
+        PurchasesPayablesSetup.Modify(true);
+
+        // [GIVEN] Location "L" that requires receipt.
+        LibraryWarehouse.CreateLocationWMS(Location, false, false, false, true, false);
+        LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, Location.Code, false);
+
+        // [GIVEN] Item with base unit of measure = "KG" and alternate unit of measure "BUCKET" = 5.55555 "KG".
+        LibraryInventory.CreateItem(Item);
+        LibraryInventory.CreateItemUnitOfMeasureCode(ItemUnitOfMeasure, Item."No.", 5.55555);
+        Item.Validate("Purch. Unit of Measure", ItemUnitOfMeasure.Code);
+        Item.Modify(true);
+
+        // [GIVEN] Purchase order at location "L" for 1 "BUCKET" = 5.55555 "KG".
+        LibraryPurchase.CreatePurchaseDocumentWithItem(
+          PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Order, '', Item."No.", 1, Location.Code, WorkDate);
+        LibraryPurchase.ReleasePurchaseDocument(PurchaseHeader);
+
+        // [GIVEN] Create warehouse receipt.
+        LibraryWarehouse.CreateWhseReceiptFromPO(PurchaseHeader);
+
+        // [GIVEN] Receive 0.3 "BUCKET" = 1.66667 "KG", then another 0.3 "BUCKET".
+        // [GIVEN] That leaves 0.4 "BUCKET" and 2.22221 "KG".
+        PostWhseReceiptForPurchaseOrder(PurchaseHeader."No.", 0.3);
+        PostWhseReceiptForPurchaseOrder(PurchaseHeader."No.", 0.3);
+
+        // [WHEN] Post remaining 0.4 "BUCKET", which is precisely 2.22222 "KG", but there is only 2.22221 "KG" remaining.
+        PostWhseReceiptForPurchaseOrder(PurchaseHeader."No.", 0.4);
+
+        // [THEN] The purchase order is fully received (1 "BUCKET" or 5.55555 "KG")
+        PurchaseLine.Find();
+        PurchaseLine.TestField("Quantity Received", PurchaseLine.Quantity);
+        PurchaseLine.TestField("Qty. Received (Base)", PurchaseLine."Quantity (Base)");
+    end;
+
+    [Test]
+    procedure QtyBaseRoundingInPurchInvoiceViaGetReceiptLines()
+    var
+        Item: Record Item;
+        ItemUnitOfMeasure: Record "Item Unit of Measure";
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        PurchaseHeaderInvoice: Record "Purchase Header";
+        PurchRcptLine: Record "Purch. Rcpt. Line";
+        PurchGetReceipt: Codeunit "Purch.-Get Receipt";
+    begin
+        // [FEATURE] [Purchase] [Order] [Invoice] [Rounding] [Item Unit of Measure] [Get Receipt Lines]
+        // [SCENARIO 396153] Rounding in purchase invoice created via "Get Receipt Lines".
+        Initialize();
+
+        // [GIVEN] Item with base unit of measure = "KG" and alternate unit of measure "BUCKET" = 5.55555 "KG".
+        LibraryInventory.CreateItem(Item);
+        LibraryInventory.CreateItemUnitOfMeasureCode(ItemUnitOfMeasure, Item."No.", 5.55555);
+        Item.Validate("Purch. Unit of Measure", ItemUnitOfMeasure.Code);
+        Item.Modify(true);
+
+        // [GIVEN] Purchase order for 1 "BUCKET" = 5.55555 "KG".
+        LibraryPurchase.CreatePurchaseDocumentWithItem(
+          PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Order, '', Item."No.", 1, '', WorkDate);
+
+        // [GIVEN] Receive the purchase in three iterations - 0.3, 0.3 and 0.4 "BUCKET".
+        PostReceiptForPurchaseOrder(PurchaseHeader, PurchaseLine, 0.3);
+        PostReceiptForPurchaseOrder(PurchaseHeader, PurchaseLine, 0.3);
+        PostReceiptForPurchaseOrder(PurchaseHeader, PurchaseLine, 0.4);
+
+        // [GIVEN] Create purchase invoice via "Get Receipt Lines".
+        LibraryPurchase.CreatePurchHeader(
+          PurchaseHeaderInvoice, PurchaseHeaderInvoice."Document Type"::Invoice, PurchaseHeader."Buy-from Vendor No.");
+        PurchRcptLine.SetRange("Order No.", PurchaseHeader."No.");
+        PurchGetReceipt.SetPurchHeader(PurchaseHeaderInvoice);
+        PurchGetReceipt.CreateInvLines(PurchRcptLine);
+
+        // [WHEN] Post the purchase invoice.
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeaderInvoice, true, true);
+
+        // [THEN] The purchase invoice is completely posted.
+        PurchaseLine.Find();
+        PurchaseLine.TestField("Quantity Invoiced", PurchaseLine.Quantity);
+        PurchaseLine.TestField("Qty. Invoiced (Base)", PurchaseLine."Quantity (Base)");
+    end;
+
+    [Test]
+    procedure QtyToShipBaseRoundingInSalesOrderAfterPostingSeveralWhseShipments()
+    var
+        SalesReceivablesSetup: Record "Sales & Receivables Setup";
+        Location: Record Location;
+        WarehouseEmployee: Record "Warehouse Employee";
+        Item: Record Item;
+        ItemUnitOfMeasure: Record "Item Unit of Measure";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+    begin
+        // [FEATURE] [Sales] [Order] [Warehouse Shipment] [Rounding] [Item Unit of Measure]
+        // [SCENARIO 396153] Correction of "Qty. to Ship (Base)" on sales line because of rounding after posting several warehouse shipments.
+        Initialize();
+
+        // [GIVEN] Set "Default Quantity to Ship" = "Blank" in sales setup.
+        SalesReceivablesSetup.Get();
+        SalesReceivablesSetup.Validate("Default Quantity to Ship", SalesReceivablesSetup."Default Quantity to Ship"::Blank);
+        SalesReceivablesSetup.Modify(true);
+
+        // [GIVEN] Location "L" that requires shipment.
+        LibraryWarehouse.CreateLocationWMS(Location, false, false, false, false, true);
+        LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, Location.Code, false);
+
+        // [GIVEN] Item with base unit of measure = "KG" and alternate unit of measure "BUCKET" = 5.55555 "KG".
+        LibraryInventory.CreateItem(Item);
+        LibraryInventory.CreateItemUnitOfMeasureCode(ItemUnitOfMeasure, Item."No.", 5.55555);
+        Item.Validate("Sales Unit of Measure", ItemUnitOfMeasure.Code);
+        Item.Modify(true);
+
+        // [GIVEN] Sales order at location "L" for 1 "BUCKET" = 5.55555 "KG".
+        LibrarySales.CreateSalesDocumentWithItem(
+          SalesHeader, SalesLine, SalesHeader."Document Type"::Order, '', Item."No.", 1, Location.Code, WorkDate);
+        LibrarySales.ReleaseSalesDocument(SalesHeader);
+
+        // [GIVEN] Create warehouse shipment.
+        LibraryWarehouse.CreateWhseShipmentFromSO(SalesHeader);
+
+        // [GIVEN] Ship 0.3 "BUCKET" = 1.66667 "KG", then another 0.3 "BUCKET".
+        // [GIVEN] That leaves 0.4 "BUCKET" and 2.22221 "KG".
+        PostWhseShipmentForSalesOrder(SalesHeader."No.", 0.3);
+        PostWhseShipmentForSalesOrder(SalesHeader."No.", 0.3);
+
+        // [WHEN] Post remaining 0.4 "BUCKET", which is precisely 2.22222 "KG", but there is only 2.22221 "KG" remaining.
+        PostWhseShipmentForSalesOrder(SalesHeader."No.", 0.4);
+
+        // [THEN] The sales order is fully shipped (1 "BUCKET" or 5.55555 "KG")
+        SalesLine.Find();
+        SalesLine.TestField("Quantity Shipped", SalesLine.Quantity);
+        SalesLine.TestField("Qty. Shipped (Base)", SalesLine."Quantity (Base)");
+    end;
+
+    [Test]
+    procedure QtyBaseRoundingInSalesInvoiceViaGetShipmentLines()
+    var
+        Item: Record Item;
+        ItemUnitOfMeasure: Record "Item Unit of Measure";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        SalesHeaderInvoice: Record "Sales Header";
+        SalesShipmentLine: Record "Sales Shipment Line";
+        SalesGetShipment: Codeunit "Sales-Get Shipment";
+    begin
+        // [FEATURE] [Sales] [Order] [Invoice] [Rounding] [Item Unit of Measure] [Get Shipment Lines]
+        // [SCENARIO 396153] Rounding in sales invoice created via "Get Shipment Lines".
+        Initialize();
+
+        // [GIVEN] Item with base unit of measure = "KG" and alternate unit of measure "BUCKET" = 5.55555 "KG".
+        LibraryInventory.CreateItem(Item);
+        LibraryInventory.CreateItemUnitOfMeasureCode(ItemUnitOfMeasure, Item."No.", 5.55555);
+        Item.Validate("Sales Unit of Measure", ItemUnitOfMeasure.Code);
+        Item.Modify(true);
+
+        // [GIVEN] Sales order for 1 "BUCKET" = 5.55555 "KG".
+        LibrarySales.CreateSalesDocumentWithItem(
+          SalesHeader, SalesLine, SalesHeader."Document Type"::Order, '', Item."No.", 1, '', WorkDate);
+
+        // [GIVEN] Ship the sales order in three iterations - 0.3, 0.3 and 0.4 "BUCKET".
+        PostShipmentForSalesOrder(SalesHeader, SalesLine, 0.3);
+        PostShipmentForSalesOrder(SalesHeader, SalesLine, 0.3);
+        PostShipmentForSalesOrder(SalesHeader, SalesLine, 0.4);
+
+        // [GIVEN] Create sales invoice via "Get Shipment Lines".
+        LibrarySales.CreateSalesHeader(
+          SalesHeaderInvoice, SalesHeaderInvoice."Document Type"::Invoice, SalesHeader."Sell-to Customer No.");
+        SalesShipmentLine.SetRange("Order No.", SalesHeader."No.");
+        SalesGetShipment.SetSalesHeader(SalesHeaderInvoice);
+        SalesGetShipment.CreateInvLines(SalesShipmentLine);
+
+        // [WHEN] Post the sales invoice.
+        LibrarySales.PostSalesDocument(SalesHeaderInvoice, true, true);
+
+        // [THEN] The sales invoice is completely posted.
+        SalesLine.Find();
+        SalesLine.TestField("Quantity Invoiced", SalesLine.Quantity);
+        SalesLine.TestField("Qty. Invoiced (Base)", SalesLine."Quantity (Base)");
+    end;
+
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"SCM Orders VI");
@@ -3565,6 +3761,24 @@ codeunit 137163 "SCM Orders VI"
         LibraryWarehouse.PostWhseReceipt(WarehouseReceiptHeader);
     end;
 
+    local procedure PostReceiptForPurchaseOrder(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; Qty: Decimal)
+    begin
+        PurchaseLine.Find();
+        PurchaseLine.Validate("Qty. to Receive", Qty);
+        PurchaseLine.Modify(true);
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false);
+    end;
+
+    local procedure PostWhseReceiptForPurchaseOrder(PurchaseOrderNo: Code[20]; Qty: Decimal)
+    var
+        WarehouseReceiptLine: Record "Warehouse Receipt Line";
+    begin
+        FindWarehouseReceiptLine(WarehouseReceiptLine, WarehouseReceiptLine."Source Document"::"Purchase Order", PurchaseOrderNo);
+        WarehouseReceiptLine.Validate("Qty. to Receive", Qty);
+        WarehouseReceiptLine.Modify(true);
+        PostWarehouseReceipt(WarehouseReceiptLine."Source Document"::"Purchase Order", PurchaseOrderNo);
+    end;
+
     local procedure PostWarehouseShipment(SourceDocument: Option; SourceNo: Code[20])
     var
         WarehouseShipmentHeader: Record "Warehouse Shipment Header";
@@ -3587,6 +3801,24 @@ codeunit 137163 "SCM Orders VI"
           WarehouseActivityLine."Source Document"::"Purchase Return Order", PurchaseHeader."No.",
           ItemNo, WarehouseActivityLine."Activity Type"::Pick);
         PostWarehouseShipment(WarehouseShipmentLine."Source Document"::"Purchase Return Order", PurchaseHeader."No.");
+    end;
+
+    local procedure PostShipmentForSalesOrder(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; Qty: Decimal)
+    begin
+        SalesLine.Find();
+        SalesLine.Validate("Qty. to Ship", Qty);
+        SalesLine.Modify(true);
+        LibrarySales.PostSalesDocument(SalesHeader, true, false);
+    end;
+
+    local procedure PostWhseShipmentForSalesOrder(SalesOrderNo: Code[20]; Qty: Decimal)
+    var
+        WarehouseShipmentLine: Record "Warehouse Shipment Line";
+    begin
+        FindWarehouseShipmentLine(WarehouseShipmentLine, WarehouseShipmentLine."Source Document"::"Sales Order", SalesOrderNo);
+        WarehouseShipmentLine.Validate("Qty. to Ship", Qty);
+        WarehouseShipmentLine.Modify(true);
+        PostWarehouseShipment(WarehouseShipmentLine."Source Document"::"Sales Order", SalesOrderNo);
     end;
 
     local procedure RegisterWarehouseActivity(SourceDocument: Option; SourceNo: Code[20]; ItemNo: Code[20]; Type: Option)
