@@ -47,20 +47,20 @@ page 9821 "Inherited Permission Sets Part"
 
     trigger OnOpenPage()
     begin
-        if Rec.IsEmpty() then
-            Refresh();
+        Refresh();
     end;
 
-    local procedure Refresh()
+    internal procedure Refresh()
     var
         SecurityGroupMemberBuffer: Record "Security Group Member Buffer";
         SecurityGroup: Codeunit "Security Group";
     begin
-        SecurityGroup.GetMembers(SecurityGroupMemberBuffer);
+        SecurityGroup.GetMembers(SecurityGroupMemberBufferToRefresh);
+        SecurityGroupMemberBuffer.Copy(SecurityGroupMemberBufferToRefresh, true);
         Refresh(SecurityGroupMemberBuffer);
     end;
 
-    internal procedure Refresh(var SecurityGroupMemberBuffer: Record "Security Group Member Buffer")
+    local procedure Refresh(var SecurityGroupMemberBuffer: Record "Security Group Member Buffer")
     var
         AccessControl: Record "Access Control";
         TempDummyAccessControl: Record "Access Control" temporary;
@@ -88,8 +88,13 @@ page 9821 "Inherited Permission Sets Part"
         until SecurityGroupMemberBuffer.Next() = 0;
     end;
 
+    internal procedure SetRecordToRefresh(var SecurityGroupMemberBuffer: Record "Security Group Member Buffer")
+    begin
+        SecurityGroupMemberBufferToRefresh.Copy(SecurityGroupMemberBuffer, true);
+    end;
+
     var
-        [InDataSet]
+        SecurityGroupMemberBufferToRefresh: Record "Security Group Member Buffer";
         PermissionSetNotFound: Boolean;
 }
 

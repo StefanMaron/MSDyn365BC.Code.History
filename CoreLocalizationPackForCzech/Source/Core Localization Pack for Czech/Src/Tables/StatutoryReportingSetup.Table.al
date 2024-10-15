@@ -85,6 +85,13 @@ table 31105 "Statutory Reporting Setup CZL"
             Caption = 'Apartment No.';
             DataClassification = CustomerContent;
         }
+        field(30; City; Text[30])
+        {
+            Caption = 'City';
+            TableRelation = "Post Code".City;
+            ValidateTableRelation = false;
+            DataClassification = CustomerContent;
+        }
         field(40; "VAT Control Report Nos."; Code[20])
         {
             Caption = 'VAT Control Report Nos.';

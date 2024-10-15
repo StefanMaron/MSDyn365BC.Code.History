@@ -4133,6 +4133,27 @@ codeunit 134117 "Price Lists UI"
         Assert.AreEqual("Price Source Type"::Job, PriceSource."Source Type", '');
     end;
 
+    [Test]
+    procedure DefaultAmountTypeInSalesPriceList()
+    var
+        PriceListHeader: Record "Price List Header";
+    begin
+        // [SCENARIO 488342] Verify Assign-to Type to a type that supports both "Price" and "Discount" as Default.
+        Initialize(true);
+
+        // [GIVEN] Create a Sales Price List header.
+        LibraryPriceCalculation.CreatePriceHeader(
+            PriceListHeader,
+            "Price Type"::Sale,
+            "Price Source Type"::"All Customers",
+            '');
+        PriceListHeader.Validate("Source Group", PriceListHeader."Source Group"::Customer);
+        PriceListHeader.Modify(true);
+
+        // [VERIFY] Check different Default View in Sales Price List. 
+        VerifyAmountType(PriceListHeader);
+    end;
+
     local procedure Initialize(Enable: Boolean)
     var
         PriceListHeader: Record "Price List Header";
@@ -4454,6 +4475,26 @@ codeunit 134117 "Price Lists UI"
         // Assert.IsFalse(PurchasePriceList.Lines.Editable(), 'Lines.Editable'); test framework defect?
         Assert.IsFalse(PurchasePriceList.SuggestLines.Enabled(), 'SuggestLines.Enabled');
         Assert.IsFalse(PurchasePriceList.CopyLines.Enabled(), 'CopyLines.Enabled');
+    end;
+
+    local procedure VerifyAmountType(PriceListHeader: Record "Price List Header")
+    var
+        SalesPriceList: TestPage "Sales Price List";
+    begin
+        SalesPriceList.OpenEdit();
+        SalesPriceList.Filter.SetFilter(Code, PriceListHeader.Code);
+        SalesPriceList.SourceType.SetValue(PriceListHeader."Source Type"::"All Customers");
+        SalesPriceList.AmountType.AssertEquals("Price Amount Type"::Any);
+        SalesPriceList.SourceType.SetValue(PriceListHeader."Source Type"::Customer);
+        SalesPriceList.AmountType.AssertEquals("Price Amount Type"::Any);
+        SalesPriceList.SourceType.SetValue(PriceListHeader."Source Type"::Campaign);
+        SalesPriceList.AmountType.AssertEquals("Price Amount Type"::Any);
+        SalesPriceList.SourceType.SetValue(PriceListHeader."Source Type"::Contact);
+        SalesPriceList.AmountType.AssertEquals("Price Amount Type"::Any);
+        SalesPriceList.SourceType.SetValue(PriceListHeader."Source Type"::"Customer Disc. Group");
+        SalesPriceList.AmountType.AssertEquals("Price Amount Type"::Discount);
+        SalesPriceList.SourceType.SetValue(PriceListHeader."Source Type"::"Customer Price Group");
+        SalesPriceList.AmountType.AssertEquals("Price Amount Type"::Price);
     end;
 
     [Scope('OnPrem')]

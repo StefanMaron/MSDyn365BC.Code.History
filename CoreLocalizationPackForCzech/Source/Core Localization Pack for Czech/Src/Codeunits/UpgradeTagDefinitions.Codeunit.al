@@ -29,6 +29,7 @@ codeunit 31016 "Upgrade Tag Definitions CZL"
         PerCompanyUpgradeTags.Add(GetReplaceAllowAlterPostingGroupsUpgradeTag());
         PerCompanyUpgradeTags.Add(GetUseW1RegistrationNumberUpgradeTag());
         PerCompanyUpgradeTags.Add(GetReportPostedDirectTransferCZUpgradeTag());
+        PerCompanyUpgradeTags.Add(GetStatutoryReportingSetupCityUpgradeTag());
     end;
 
     procedure GetDataVersion174PerDatabaseUpgradeTag(): Code[250]
@@ -134,5 +135,10 @@ codeunit 31016 "Upgrade Tag Definitions CZL"
     procedure GetReportPostedDirectTransferCZUpgradeTag(): Code[250]
     begin
         exit('CZL-480581-ReportPostedDirectTransferCZ-20230811');
+    end;
+
+    procedure GetStatutoryReportingSetupCityUpgradeTag(): Code[250]
+    begin
+        exit('CZL-491441-StatutoryReportingSetupCityUpgradeTag-20231114');
     end;
 }
