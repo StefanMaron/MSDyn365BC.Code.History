@@ -2146,6 +2146,49 @@ codeunit 137621 "SCM Costing Bugs II"
         AnalysisView.TestField("Last Entry No.", LastEntryNo + 2);
     end;
 
+    [Test]
+    procedure CostAdjustmentPostCostToGLForItemWithInventoryValueZero()
+    var
+        Item: Record Item;
+        ItemLedgerEntry: Record "Item Ledger Entry";
+        ValueEntry: Record "Value Entry";
+        InventoryAdjustment: Codeunit "Inventory Adjustment";
+        UnitCost: Decimal;
+    begin
+        // [FEATURE] [Adjust Cost Item Entries] [Inventory Value Zero] [Automatic Cost Posting]
+        // [SCENARIO 421553] Cost adjustment succeeds to post cost to G/L for item with Inventory Value Zero.
+        Initialize();
+        UnitCost := LibraryRandom.RandDec(100, 2);
+
+        // [GIVEN] Set Automatic Cost Posting = TRUE.
+        LibraryInventory.SetAutomaticCostPosting(true);
+        LibraryInventory.CreateItem(Item);
+
+        // [GIVEN] Post positive adjustment, quantity = 1, unit cost = 50.
+        LibraryPatterns.POSTPositiveAdjustment(Item, '', '', '', 1, WorkDate(), UnitCost);
+
+        // [GIVEN] Set "Inventory Value Zero" = TRUE on item.
+        Item.Find();
+        Item.Validate("Inventory Value Zero", true);
+        Item.Modify(true);
+
+        // [GIVEN] Post negative adjustment, quantity = 1, unit cost = 0.
+        LibraryPatterns.POSTNegativeAdjustment(Item, '', '', '', 1, WorkDate(), 0);
+
+        // [WHEN] Run the cost adjustment.
+        Item.SetRecFilter();
+        InventoryAdjustment.SetProperties(false, true);
+        InventoryAdjustment.SetFilterItem(Item);
+        InventoryAdjustment.MakeMultiLevelAdjmt();
+
+        // [THEN] "Cost Amount (Actual)" = "Cost Posted to G/L" = -50 for the negative adjustment item entry.
+        FindItemLedgerEntry(ItemLedgerEntry, Item."No.", ItemLedgerEntry."Entry Type"::"Negative Adjmt.", '', false);
+        ValueEntry.SetRange("Item Ledger Entry No.", ItemLedgerEntry."Entry No.");
+        ValueEntry.CalcSums("Cost Amount (Actual)", "Cost Posted to G/L");
+        ValueEntry.TestField("Cost Amount (Actual)", -UnitCost);
+        ValueEntry.TestField("Cost Posted to G/L", -UnitCost);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";

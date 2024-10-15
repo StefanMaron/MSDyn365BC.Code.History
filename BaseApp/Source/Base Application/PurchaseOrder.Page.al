@@ -628,18 +628,20 @@ page 50 "Purchase Order"
                         {
                             ApplicationArea = Basic, Suite;
                             Caption = 'Name';
-                            Editable = PayToOptions = PayToOptions::"Another Vendor";
-                            Enabled = PayToOptions = PayToOptions::"Another Vendor";
+                            Editable = (PayToOptions = PayToOptions::"Another Vendor") or ((PayToOptions = PayToOptions::"Custom Address") and not ShouldSearchForVendByName);
+                            Enabled = (PayToOptions = PayToOptions::"Another Vendor") or ((PayToOptions = PayToOptions::"Custom Address") and not ShouldSearchForVendByName);
                             Importance = Promoted;
                             ToolTip = 'Specifies the name of the vendor sending the invoice.';
 
                             trigger OnValidate()
                             begin
-                                if GetFilter("Pay-to Vendor No.") = xRec."Pay-to Vendor No." then
-                                    if "Pay-to Vendor No." <> xRec."Pay-to Vendor No." then
-                                        SetRange("Pay-to Vendor No.");
+                                if not ((PayToOptions = PayToOptions::"Custom Address") and not ShouldSearchForVendByName) then begin
+                                    if GetFilter("Pay-to Vendor No.") = xRec."Pay-to Vendor No." then
+                                        if "Pay-to Vendor No." <> xRec."Pay-to Vendor No." then
+                                            SetRange("Pay-to Vendor No.");
 
-                                CurrPage.Update();
+                                    CurrPage.Update();
+                                end;
                             end;
                         }
                         field("Pay-to Address"; "Pay-to Address")
@@ -2064,6 +2066,7 @@ page 50 "Purchase Order"
         IsBuyFromCountyVisible: Boolean;
         IsPayToCountyVisible: Boolean;
         IsShipToCountyVisible: Boolean;
+        ShouldSearchForVendByName: Boolean;
 
     protected var
         ShipToOptions: Option "Default (Company Address)",Location,"Customer Address","Custom Address";
@@ -2217,6 +2220,7 @@ page 50 "Purchase Order"
         CanCancelApprovalForRecord := ApprovalsMgmt.CanCancelApprovalForRecord(RecordId);
 
         WorkflowWebhookMgt.GetCanRequestAndCanCancel(RecordId, CanRequestApprovalForFlow, CanCancelApprovalForFlow);
+        ShouldSearchForVendByName := ShouldSearchForVendorByName("Buy-from Vendor No.");
     end;
 
     local procedure ShowPostedConfirmationMessage()

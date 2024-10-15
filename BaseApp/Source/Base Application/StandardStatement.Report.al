@@ -869,6 +869,9 @@ report 1316 "Standard Statement"
 
         trigger OnOpenPage()
         begin
+            if CurrReport.UseRequestPage then
+                InitInteractionLog();
+            LogInteractionEnable := LogInteraction;
             InitRequestPageDataInternal;
         end;
     }
@@ -1158,13 +1161,15 @@ report 1316 "Standard Statement"
         if (not PrintAllHavingEntry) and (not PrintAllHavingBal) then
             PrintAllHavingBal := true;
 
-        LogInteraction := SegManagement.FindInteractTmplCode(7) <> '';
-        LogInteractionEnable := LogInteraction;
-
         if Format(PeriodLength) = '' then
             Evaluate(PeriodLength, '<1M+CM>');
 
         ShowPrintIfEmailIsMissing := SupportedOutputMethod = SupportedOutputMethod::Email;
+    end;
+
+    local procedure InitInteractionLog()
+    begin
+        LogInteraction := SegManagement.FindInteractTmplCode(7) <> '';
     end;
 
     local procedure VerifyDates()
