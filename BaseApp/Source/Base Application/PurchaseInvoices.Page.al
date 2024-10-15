@@ -246,6 +246,14 @@ page 9308 "Purchase Invoices"
         }
         area(factboxes)
         {
+            part(AttachedDocuments; "Document Attachment Factbox")
+            {
+                ApplicationArea = All;
+                Caption = 'Attachments';
+                SubPageLink = "Table ID" = const(38),
+                              "No." = field("No."),
+                              "Document Type" = field("Document Type");
+            }
             part("Power BI Report FactBox"; "Power BI Report FactBox")
             {
                 ApplicationArea = Basic, Suite;

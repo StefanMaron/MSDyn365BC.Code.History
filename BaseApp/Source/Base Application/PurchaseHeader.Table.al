@@ -2021,8 +2021,8 @@
                         if ContBusinessRelation."Contact No." <> Cont."Company No." then
                             Error(Text038, Cont."No.", Cont.Name, "Buy-from Vendor No.");
                 end;
-
-                UpdateBuyFromVend("Buy-from Contact No.");
+                if ("Buy-from Contact No." <> xRec."Buy-from Contact No.") then
+                    UpdateBuyFromVend("Buy-from Contact No.");
             end;
         }
         field(5053; "Pay-to Contact No."; Code[20])
@@ -2821,8 +2821,6 @@
     end;
 
     trigger OnInsert()
-    var
-        StandardCodesMgt: Codeunit "Standard Codes Mgt.";
     begin
         InitInsert();
 
@@ -2834,7 +2832,7 @@
             SetDefaultPurchaser();
 
         if "Buy-from Vendor No." <> '' then
-            StandardCodesMgt.CheckCreatePurchRecurringLines(Rec);
+            StandardCodesMgtGlobal.CheckCreatePurchRecurringLines(Rec);
 
         DocSignMgt.SetDefaults(DATABASE::"Purchase Header", "Document Type".AsInteger(), "No.");
     end;
@@ -2910,6 +2908,7 @@
         DocSignMgt: Codeunit "Doc. Signature Management";
         LeadTimeMgt: Codeunit "Lead-Time Management";
         PostingSetupMgt: Codeunit PostingSetupManagement;
+        StandardCodesMgtGlobal: Codeunit "Standard Codes Mgt.";
         ApplicationAreaMgmt: Codeunit "Application Area Mgmt.";
         CurrencyDate: Date;
         Confirmed: Boolean;
@@ -3092,6 +3091,11 @@
         end;
 
         OnAfterInitNoSeries(Rec, xRec);
+    end;
+
+    procedure SetStandardCodesMgt(var StandardCodesMgtNew: Codeunit "Standard Codes Mgt.")
+    begin
+        StandardCodesMgtGlobal := StandardCodesMgtNew;
     end;
 
     procedure AssistEdit(OldPurchHeader: Record "Purchase Header"): Boolean
