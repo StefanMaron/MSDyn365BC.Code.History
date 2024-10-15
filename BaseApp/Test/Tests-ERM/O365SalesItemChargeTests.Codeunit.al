@@ -1,4 +1,4 @@
-codeunit 135301 "O365 Sales Item Charge Tests"
+﻿codeunit 135301 "O365 Sales Item Charge Tests"
 {
     Subtype = Test;
     TestPermissions = NonRestrictive;
@@ -184,7 +184,7 @@ codeunit 135301 "O365 Sales Item Charge Tests"
 
         LibrarySales.CreateSalesHeader(SalesHeaderOrder, SalesHeaderOrder."Document Type"::Order, Customer."No.");
         SalesHeaderOrder.Validate("VAT Bus. Posting Group", '');
-        SalesHeaderOrder.Modify;
+        SalesHeaderOrder.Modify();
 
         for Index := 1 to ArrayLen(Item) do begin
             LibraryInventory.CreateItemWithoutVAT(Item[Index]);
@@ -225,6 +225,14 @@ codeunit 135301 "O365 Sales Item Charge Tests"
         LibraryVariableStorage.AssertEmpty();
     end;
 
+    [Test]
+    procedure TestRemovePostedShipmentWithChargeItemAssigned()
+    begin
+        // [FEATURE] [Item Charge]
+        // [SCENARIO 438887] System should not allow remove of posted shipment if any shipment lines applied to sales order lines as item charge
+        // Not used for CA
+    end;
+
     local procedure Initialize()
     var
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
@@ -232,7 +240,7 @@ codeunit 135301 "O365 Sales Item Charge Tests"
     begin
         LibraryTestInitialize.OnTestInitialize(Codeunit::"O365 Sales Item Charge Tests");
 
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
         if IsInitialized then
             exit;
 
@@ -281,7 +289,7 @@ codeunit 135301 "O365 Sales Item Charge Tests"
         LibrarySales.CreateSalesLineWithoutVAT(SalesLine, SalesHeader, SalesLineType, '', 1);
         SalesLine.Validate(Quantity, GenerateRandDecimalBetweenOneAndFive);
         SalesLine."Line Amount" := GenerateRandDecimalBetweenOneAndFive;
-        SalesLine."Unit Price" := GenerateRandDecimalBetweenOneAndFive;
+        SalesLine.Validate("Unit Price", GenerateRandDecimalBetweenOneAndFive);
         SalesLine.Modify(true);
     end;
 
@@ -344,12 +352,12 @@ codeunit 135301 "O365 Sales Item Charge Tests"
         LibraryERM: Codeunit "Library - ERM";
     begin
         Currency.SetRange(Code, LibraryERM.CreateCurrencyWithExchangeRate(DMY2Date(1, 1, 2000), 1, 1));
-        Currency.FindFirst;
+        Currency.FindFirst();
         Currency.Validate("Currency Factor", LibraryRandom.RandDecInRange(1, 2, 5));
         Currency.Modify(true);
 
         SalesHeader."Currency Code" := Currency.Code;
-        SalesHeader."Currency Factor" := Currency."Currency Factor";
+        SalesHeader.Validate("Currency Factor", Currency."Currency Factor");
         SalesHeader.Modify(true);
     end;
 
@@ -367,7 +375,7 @@ codeunit 135301 "O365 Sales Item Charge Tests"
         repeat
             SalesLine.CalcFields("Qty. to Assign");
             Assert.AreEqual(SalesLine.Quantity, SalesLine."Qty. to Assign", IncorrectCreditMemoQtyAssignmentErr);
-        until SalesLine.Next = 0;
+        until SalesLine.Next() = 0;
     end;
 
     [Scope('OnPrem')]
@@ -384,7 +392,7 @@ codeunit 135301 "O365 Sales Item Charge Tests"
         repeat
             SalesLine.CalcFields("Qty. to Assign");
             Assert.IsTrue(SalesLine."Qty. to Assign" = 0, IncorrectCreditMemoQtyAssignmentErr);
-        until SalesLine.Next = 0;
+        until SalesLine.Next() = 0;
     end;
 
     local procedure VerifySalesAmountOnValueEntries(var Item: array[4] of Record Item; SalesLine: Record "Sales Line"; ValueEntryDocumentType: Enum "Item Ledger Document Type"; Sign: Integer)

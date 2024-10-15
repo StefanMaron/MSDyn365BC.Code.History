@@ -1,4 +1,4 @@
-codeunit 135300 "O365 Purch Item Charge Tests"
+﻿codeunit 135300 "O365 Purch Item Charge Tests"
 {
     Subtype = Test;
     TestPermissions = NonRestrictive;
@@ -21,7 +21,7 @@ codeunit 135300 "O365 Purch Item Charge Tests"
         IncorrectCreditMemoQtyAssignmentErr: Label 'Item charge assignment incorrect on corrective credit memo.';
         IncorrectAmountOfLinesErr: Label 'The amount of lines must be greater than 0.';
         EnvironmentInfoTestLibrary: Codeunit "Environment Info Test Library";
-
+        IsInitialized: Boolean;
 
     [Test]
     [Scope('OnPrem')]
@@ -38,13 +38,13 @@ codeunit 135300 "O365 Purch Item Charge Tests"
         // [WHEN] Creating a new item charge using the GUI
         ItemChargeNo := LibraryUtility.GenerateRandomCode(ItemCharge.FieldNo("No."), DATABASE::"Item Charge");
 
-        ItemCharges.OpenNew;
+        ItemCharges.OpenNew();
         ItemCharges."No.".SetValue(ItemChargeNo);
         ItemCharges.OK.Invoke;
 
         // [THEN] The record is created
         ItemCharge.SetRange("No.", ItemChargeNo);
-        ItemCharge.FindFirst;
+        ItemCharge.FindFirst();
 
         Assert.RecordIsNotEmpty(ItemCharge);
 
@@ -208,10 +208,9 @@ codeunit 135300 "O365 Purch Item Charge Tests"
     begin
         // [FEATURE] [Copy Document]
         // [SCENARIO 376402] System get Cost Amount (Actual) value from invoice's value entries when it copies document from Invoice to Credit Memo
-        Initialize;
+        Initialize();
 
         LibraryPurchase.CreateVendor(Vendor);
-
         LibraryPurchase.CreatePurchHeader(PurchaseHeaderOrder, PurchaseHeaderOrder."Document Type"::Order, Vendor."No.");
         PurchaseHeaderOrder.Validate("VAT Bus. Posting Group", '');
         PurchaseHeaderOrder.Modify();
@@ -258,6 +257,14 @@ codeunit 135300 "O365 Purch Item Charge Tests"
         LibraryVariableStorage.AssertEmpty();
     end;
 
+    [Test]
+    procedure TestRemovePostedReceiptWithChargeItemAssigned()
+    begin
+        // [FEATURE] [Copy Document]
+        // [SCENARIO 438887] System should not allow remove of posted receipt if any receit lines applied to purchase order lines as item charge
+        // Test not used for CA
+    end;
+
     local procedure Initialize()
     var
         PurchasesPayablesSetup: Record "Purchases & Payables Setup";
@@ -266,6 +273,9 @@ codeunit 135300 "O365 Purch Item Charge Tests"
         LibraryTestInitialize.OnTestInitialize(Codeunit::"O365 Purch Item Charge Tests");
 
         LibraryVariableStorage.Clear();
+        if IsInitialized then
+            exit;
+
         LibraryApplicationArea.EnableItemChargeSetup();
 
         PurchasesPayablesSetup.Get();
@@ -274,6 +284,8 @@ codeunit 135300 "O365 Purch Item Charge Tests"
 
         LibraryERMCountryData.UpdateGeneralLedgerSetup();
         LibraryERMCountryData.UpdateVATPostingSetup();
+
+        IsInitialized := true;
     end;
 
     local procedure PostAndVerifyCorrectiveCreditMemo(PurchaseHeader: Record "Purchase Header")
@@ -377,12 +389,12 @@ codeunit 135300 "O365 Purch Item Charge Tests"
         LibraryERM: Codeunit "Library - ERM";
     begin
         Currency.SetRange(Code, LibraryERM.CreateCurrencyWithExchangeRate(DMY2Date(1, 1, 2000), 1, 1));
-        Currency.FindFirst;
+        Currency.FindFirst();
         Currency.Validate("Currency Factor", LibraryRandom.RandDecInRange(1, 2, 5));
         Currency.Modify(true);
 
         PurchaseHeader."Currency Code" := Currency.Code;
-        PurchaseHeader."Currency Factor" := Currency."Currency Factor";
+        PurchaseHeader.Validate("Currency Factor", Currency."Currency Factor");
         PurchaseHeader.Modify(true);
     end;
 
@@ -400,7 +412,7 @@ codeunit 135300 "O365 Purch Item Charge Tests"
         repeat
             PurchaseLine.CalcFields("Qty. to Assign");
             Assert.AreEqual(PurchaseLine.Quantity, PurchaseLine."Qty. to Assign", IncorrectCreditMemoQtyAssignmentErr)
-        until PurchaseLine.Next = 0;
+        until PurchaseLine.Next() = 0;
     end;
 
     [Scope('OnPrem')]
@@ -417,7 +429,7 @@ codeunit 135300 "O365 Purch Item Charge Tests"
         repeat
             PurchaseLine.CalcFields("Qty. to Assign");
             Assert.IsTrue(PurchaseLine."Qty. to Assign" = 0, IncorrectCreditMemoQtyAssignmentErr);
-        until PurchaseLine.Next = 0;
+        until PurchaseLine.Next() = 0;
     end;
 
     local procedure VerifyCostAmountOnValueEntries(var Item: array[4] of Record Item; PurchaseLine: Record "Purchase Line"; ValueEntryDocumentType: Enum "Item Ledger Document Type"; Sign: Integer)
