@@ -381,7 +381,7 @@ codeunit 418 "User Management"
     [Scope('OnPrem')]
     procedure BasicAuthDepricationNotificationShowMore(Notification: Notification)
     begin
-        Hyperlink('https://go.microsoft.com/fwlink/?linkid=2144416');
+        Hyperlink('https://go.microsoft.com/fwlink/?linkid=2207805');
     end;
 
     procedure RenameUser(OldUserName: Code[50]; NewUserName: Code[50])
