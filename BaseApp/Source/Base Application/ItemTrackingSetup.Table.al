@@ -90,6 +90,14 @@ table 6565 "Item Tracking Setup"
         OnAfterCopyTrackingFromWhseItemTrackingLine(Rec, WhseItemTrackingLine);
     end;
 
+    procedure CopyTrackingFromWhseActivityLine(WhseActivityLine: Record "Warehouse Activity Line");
+    begin
+        "Serial No." := WhseActivityLine."Serial No.";
+        "Lot No." := WhseActivityLine."Lot No.";
+
+        OnAfterCopyTrackingFromWhseActivityLine(Rec, WhseActivityLine);
+    end;
+
     procedure TrackingExists(): Boolean;
     begin
         exit(("Serial No." <> '') or ("Lot No." <> ''));
@@ -122,6 +130,11 @@ table 6565 "Item Tracking Setup"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterCopyTrackingFromWhseItemTrackingLine(var ItemTrackingSetup: Record "Item Tracking Setup"; WhseItemTrackingLine: Record "Whse. Item Tracking Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCopyTrackingFromWhseActivityLine(var ItemTrackingSetup: Record "Item Tracking Setup"; WhseActivityLine: Record "Warehouse Activity Line")
     begin
     end;
 }

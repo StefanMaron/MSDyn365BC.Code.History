@@ -1,4 +1,4 @@
-codeunit 1522 "Workflow Request Page Handling"
+﻿codeunit 1522 "Workflow Request Page Handling"
 {
 
     trigger OnRun()
@@ -25,6 +25,8 @@ codeunit 1522 "Workflow Request Page Handling"
         AssignEntityToWorkflowEvent(DATABASE::"Sales Header", SalesDocumentCodeTxt);
         AssignEntityToWorkflowEvent(DATABASE::"Incoming Document Attachment", IncomingDocumentCodeTxt);
         AssignEntityToWorkflowEvent(DATABASE::"Incoming Document", IncomingDocumentCodeTxt);
+
+        OnAfterAssignEntitiesToWorkflowEvents();
     end;
 
     local procedure InsertRequestPageEntities()
@@ -37,6 +39,8 @@ codeunit 1522 "Workflow Request Page Handling"
           IncomingDocumentCodeTxt, IncomingDocumentDescTxt, DATABASE::"Incoming Document Attachment", DATABASE::"Incoming Document");
         InsertReqPageEntity(
           IncomingDocumentCodeTxt, IncomingDocumentDescTxt, DATABASE::"Incoming Document", DATABASE::"Incoming Document Attachment");
+
+        OnAfterInsertRequestPageEntities();
     end;
 
     local procedure InsertReqPageEntity(Name: Code[20]; Description: Text[100]; TableId: Integer; RelatedTableId: Integer)
@@ -85,6 +89,8 @@ codeunit 1522 "Workflow Request Page Handling"
         InsertGeneralJournalLineReqPageFields;
 
         InsertApprovalEntryReqPageFields;
+
+        OnAfterInsertRequestPageFields();
     end;
 
     local procedure InsertIncomingDocumentReqPageFields()
@@ -216,6 +222,21 @@ codeunit 1522 "Workflow Request Page Handling"
         Vendor: Record Vendor;
     begin
         InsertReqPageField(DATABASE::Vendor, Vendor.FieldNo("No."));
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterAssignEntitiesToWorkflowEvents()
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterInsertRequestPageEntities()
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterInsertRequestPageFields()
+    begin
     end;
 }
 

@@ -36,6 +36,7 @@
         TempFailedReqLine: Record "Requisition Line" temporary;
         PurchasingCode: Record Purchasing;
         TempDocumentEntry: Record "Document Entry" temporary;
+        TempPurchaseOrderToPrint: Record "Purchase Header" temporary;
         ReqWkshMakeOrders: Codeunit "Req. Wksh.-Make Order";
         TransferExtendedText: Codeunit "Transfer Extended Text";
         ReserveReqLine: Codeunit "Req. Line-Reserve";
@@ -153,13 +154,16 @@
 
             ProcessReqLineActions(ReqLine);
 
-            if PrintPurchOrders then
+            IsHandled := false;
+            OnCodeOnBeforeFinalizeOrderHeader(PurchOrderHeader, ReqLine, IsHandled);
+            if not IsHandled then
+                if PurchOrderHeader."Buy-from Vendor No." <> '' then
+                    FinalizeOrderHeader(PurchOrderHeader, ReqLine);
+
+            if PrintPurchOrders then begin
                 PrintTransOrder(TransHeader);
-
-            OnCodeOnBeforeFinalizeOrderHeader(PurchOrderHeader);
-
-            if PurchOrderHeader."Buy-from Vendor No." <> '' then
-                FinalizeOrderHeader(PurchOrderHeader, ReqLine);
+                PrintMultiplePurchaseOrders();
+            end;
 
             if PrevChangedDocOrderNo <> '' then
                 PrintChangedDocument(PrevChangedDocOrderType, PrevChangedDocOrderNo);
@@ -256,11 +260,9 @@
                 if ("Action Message" = "Action Message"::" ") or
                    ("Action Message" = "Action Message"::New)
                 then
-                    if "Replenishment System" = "Replenishment System"::Purchase then begin
-                        if "Planning Line Origin" = "Planning Line Origin"::"Order Planning" then
-                            TestField("Supply From");
-                        TestField("Vendor No.")
-                    end else
+                    if "Replenishment System" = "Replenishment System"::Purchase then
+                        TestFieldsForPurchase(ReqLine2)
+                    else
                         if "Replenishment System" = "Replenishment System"::Transfer then begin
                             TestField("Location Code");
                             if "Planning Line Origin" = "Planning Line Origin"::"Order Planning" then
@@ -319,6 +321,19 @@
         end;
 
         OnAfterCheckReqWkshLine(ReqLine2, SuppressCommit);
+    end;
+
+    local procedure TestFieldsForPurchase(var RequisitionLine: Record "Requisition Line")
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeTestFieldsForPurchase(RequisitionLine, IsHandled);
+        if IsHandled then
+            exit;
+        if RequisitionLine."Planning Line Origin" = RequisitionLine."Planning Line Origin"::"Order Planning" then
+            RequisitionLine.TestField("Supply From");
+        RequisitionLine.TestField("Vendor No.")
     end;
 
     local procedure CarryOutReqLineAction(var ReqLine: Record "Requisition Line")
@@ -505,7 +520,10 @@
         DimensionSetIDArr: array[10] of Integer;
         IsHandled: Boolean;
     begin
-        OnBeforeInsertPurchOrderLine(ReqLine2, PurchOrderHeader, NextLineNo);
+        IsHandled := false;
+        OnBeforeInsertPurchOrderLine(ReqLine2, PurchOrderHeader, NextLineNo, IsHandled);
+        if IsHandled then
+            exit;
 
         with ReqLine2 do begin
             if ("No." = '') or ("Vendor No." = '') or (Quantity = 0) then
@@ -614,7 +632,7 @@
             end;
         end;
 
-        OnAfterInsertPurchOrderLine(PurchOrderLine, NextLineNo, ReqLine2);
+        OnAfterInsertPurchOrderLine(PurchOrderLine, NextLineNo, ReqLine2, PurchOrderHeader);
     end;
 
     local procedure CheckPurchOrderLineShipToCode(var RequisitionLine: Record "Requisition Line")
@@ -655,7 +673,7 @@
             PurchOrderHeader."Your Reference" := ReferenceReq;
             PurchOrderHeader."Order Date" := OrderDateReq;
             PurchOrderHeader."Expected Receipt Date" := ReceiveDateReq;
-            PurchOrderHeader.Validate("Buy-from Vendor No.", "Vendor No.");
+            ValidateBuyFromVendorNo(PurchOrderHeader, ReqLine2);
             if "Order Address Code" <> '' then
                 PurchOrderHeader.Validate("Order Address Code", "Order Address Code");
 
@@ -703,6 +721,16 @@
         end;
     end;
 
+    local procedure ValidateBuyFromVendorNo(var PurchOrderHeader: Record "Purchase Header"; var RequisitionLine: Record "Requisition Line")
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeValidateBuyFromVendorNo(PurchOrderHeader, RequisitionLine, IsHandled);
+        if not IsHandled then
+            PurchOrderHeader.Validate("Buy-from Vendor No.", RequisitionLine."Vendor No.");
+    end;
+
     local procedure UpdateShipToOrLocationCode(var RequisitionLine: Record "Requisition Line"; PurchaseHeader: Record "Purchase Header")
     var
         IsHandled: Boolean;
@@ -721,7 +749,6 @@
     local procedure FinalizeOrderHeader(PurchOrderHeader: Record "Purchase Header"; var ReqLine: Record "Requisition Line")
     var
         ReqLine2: Record "Requisition Line";
-        CarryOutAction: Codeunit "Carry Out Action";
         IsHandled: Boolean;
     begin
         if ReqTemplate.Recurring then begin
@@ -791,8 +818,11 @@
         if not SuppressCommit then
             Commit();
 
-        CarryOutAction.SetPrintOrder(PrintPurchOrders);
-        CarryOutAction.PrintPurchaseOrder(PurchOrderHeader);
+        if PrintPurchOrders then
+            if PurchOrderHeader.Get(PurchOrderHeader."Document Type", PurchOrderHeader."No.") then begin
+                TempPurchaseOrderToPrint := PurchOrderHeader;
+                TempPurchaseOrderToPrint.Insert();
+            end;
     end;
 
     local procedure CheckRecurringLine(var ReqLine2: Record "Requisition Line")
@@ -997,6 +1027,21 @@
         end;
     end;
 
+    local procedure PrintMultiplePurchaseOrders()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        CarryOutAction: Codeunit "Carry Out Action";
+    begin
+        if TempPurchaseOrderToPrint.Count() = 1 then begin
+            TempPurchaseOrderToPrint.FindFirst();
+            PurchaseHeader.Get(TempPurchaseOrderToPrint."Document Type", TempPurchaseOrderToPrint."No.");
+            PrintPurchOrder(PurchaseHeader);
+        end else begin
+            CarryOutAction.SetPrintOrder(PrintPurchOrders);
+            CarryOutAction.PrintMultiplePurchaseOrders(TempPurchaseOrderToPrint);
+        end;
+    end;
+
     local procedure ProcessReqLineActions(var ReqLine: Record "Requisition Line")
     begin
         OnBeforeProcessReqLineActions(ReqLine, SuppressCommit, PlanningResiliency);
@@ -1080,7 +1125,7 @@
               (PrevPurchCode <> "Purchasing Code") or
               CheckAddressDetails("Sales Order No.", "Sales Order Line No.", UpdateAddressDetails);
 
-        OnBeforeCheckInsertFinalizePurchaseOrderHeader(RequisitionLine, PurchOrderHeader, CheckInsert, OrderCounter, PrevPurchCode, PrevLocationCode);
+        OnBeforeCheckInsertFinalizePurchaseOrderHeader(RequisitionLine, PurchOrderHeader, CheckInsert, OrderCounter, PrevPurchCode, PrevLocationCode, PrevShipToCode, UpdateAddressDetails);
         exit(CheckInsert);
     end;
 
@@ -1213,7 +1258,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeInsertPurchOrderLine(var RequisitionLine: Record "Requisition Line"; var PurchaseHeader: Record "Purchase Header"; var NextLineNo: Integer)
+    local procedure OnBeforeInsertPurchOrderLine(var RequisitionLine: Record "Requisition Line"; var PurchaseHeader: Record "Purchase Header"; var NextLineNo: Integer; var IsHandled: Boolean)
     begin
     end;
 
@@ -1242,13 +1287,18 @@
     begin
     end;
 
-    [IntegrationEvent(false, false)]
-    local procedure OnBeforeCheckInsertFinalizePurchaseOrderHeader(RequisitionLine: Record "Requisition Line"; var PurchaseHeader: Record "Purchase Header"; var CheckInsert: Boolean; var OrderCounter: Integer; PrevPurchCode: Code[10]; PrevLocationCode: Code[10])
+    [IntegrationEvent(true, false)]
+    local procedure OnBeforeCheckInsertFinalizePurchaseOrderHeader(RequisitionLine: Record "Requisition Line"; var PurchaseHeader: Record "Purchase Header"; var CheckInsert: Boolean; var OrderCounter: Integer; var PrevPurchCode: Code[10]; PrevLocationCode: Code[10]; var PrevShipToCode: Code[10]; var UpdateAddressDetails: Boolean)
     begin
     end;
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeSetReqLineSortingKey(var RequisitionLine: Record "Requisition Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeTestFieldsForPurchase(var RequisitionLine: Record "Requisition Line"; var IsHandled: Boolean)
     begin
     end;
 
@@ -1293,7 +1343,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterInsertPurchOrderLine(var PurchOrderLine: Record "Purchase Line"; var NextLineNo: Integer; var RequisitionLine: Record "Requisition Line")
+    local procedure OnAfterInsertPurchOrderLine(var PurchOrderLine: Record "Purchase Line"; var NextLineNo: Integer; var RequisitionLine: Record "Requisition Line"; var PurchOrderHeader: Record "Purchase Header")
     begin
     end;
 
@@ -1323,6 +1373,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateBuyFromVendorNo(var PurchOrderHeader: Record "Purchase Header"; var RequisitionLine: Record "Requisition Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnCarryOutReqLineActionOnCaseReplenishmentSystemElse(var ReqLine: Record "Requisition Line");
     begin
     end;
@@ -1348,7 +1403,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnCodeOnBeforeFinalizeOrderHeader(PurchOrderHeader: Record "Purchase Header")
+    local procedure OnCodeOnBeforeFinalizeOrderHeader(PurchOrderHeader: Record "Purchase Header"; var ReqLine: Record "Requisition Line"; var IsHandled: Boolean)
     begin
     end;
 

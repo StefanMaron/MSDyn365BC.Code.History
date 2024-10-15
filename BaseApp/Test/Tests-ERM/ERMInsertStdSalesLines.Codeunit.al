@@ -840,6 +840,81 @@ codeunit 134563 "ERM Insert Std. Sales Lines"
         VerifySalesLine(SalesHeader);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure RecurringSalesLinesAutomaticallyPopulatedToSalesInvoiceWithCurrency()
+    var
+        SalesHeader: Record "Sales Header";
+        StandardCustomerSalesCode: Record "Standard Customer Sales Code";
+        StandardSalesCode: Record "Standard Sales Code";
+        Customer: Record Customer;
+        CurrencyCode: Code[20];
+    begin
+        // [FEATURE] [Automatic mode] [Invoice] [Currency]
+        // [SCENARIO 363058] Recurring Sales Lines are populated automatically on Sales Invoice from Standard Sales Codes with Currency
+        Initialize();
+
+        // [GIVEN] Standard Sales Code with Currency Code specified
+        CurrencyCode := LibraryERM.CreateCurrencyWithRandomExchRates();
+        StandardSalesCode.Get(CreateStandardSalesCodeWithItemLine());
+        StandardSalesCode.Validate("Currency Code", CurrencyCode);
+        StandardSalesCode.Modify(true);
+
+        // [GIVEN] Customer with standard sales Code where Insert Rec. Lines On Invoices = Automatic
+        Customer.Get(GetNewCustNoWithStandardSalesCodeForCode(RefDocType::Invoice, RefMode::Automatic, StandardSalesCode.Code));
+
+        // [GIVEN] Customer has the same Currency Code as Standard Sales Code
+        Customer.Validate("Currency Code", CurrencyCode);
+        Customer.Modify(true);
+
+        // [WHEN] Create new Sales Invoice for created Customer
+        SalesHeader.Init();
+        SalesHeader.Validate("Document Type", SalesHeader."Document Type"::Invoice);
+        SalesHeader.Validate("Sell-to Customer No.", Customer."No.");
+        SalesHeader.Insert(true);
+
+        // [THEN] Recurring Lines should be populated to the Sales Invoice Lines
+        VerifySalesLine(SalesHeader);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure QuoteToOrderAutomaticSalesOrderNoRecurringLines()
+    var
+        SalesQuote: Record "Sales Header";
+        SalesOrder: Record "Sales Header";
+        SalesLineQuote: Record "Sales Line";
+        SalesLineOrder: Record "Sales Line";
+        SalesQuoteToOrder: Codeunit "Sales-Quote to Order";
+    begin
+        // [FEATURE] [Automatic mode] [Order]
+        // [SCENARIO 365580] Recurring purchase lines are NOT added on Quote to Order convert when Insert Rec. Lines On Orders = Automatic
+        Initialize();
+
+        // [GIVEN] Create new sales quote for customer with standard sales code where Insert Rec. Lines On Orders = Automatic
+        LibrarySales.CreateSalesQuoteForCustomerNo(SalesQuote, GetNewCustNoWithStandardSalesCode(RefDocType::Order, RefMode::Automatic));
+
+        // [GIVEN] Sales Line exists on Sales quote
+        SalesLineQuote.SetRange("Document No.", SalesQuote."No.");
+        SalesLineQuote.SetRange("Document Type", SalesQuote."Document Type");
+        SalesLineQuote.FindFirst();
+
+        // [WHEN] Run Sales-Quote to Order codeunit on this quote
+        SalesQuoteToOrder.Run(SalesQuote);
+
+        // [THEN] Order created with no errors
+        SalesQuoteToOrder.GetSalesOrderHeader(SalesOrder);
+
+        // [THEN] Line from Quote exists on this Order
+        FilterOnSalesLine(SalesLineOrder, SalesOrder);
+        SalesLineOrder.SetRange("No.", SalesLineQuote."No.");
+        Assert.RecordIsNotEmpty(SalesLineOrder);
+
+        // [THEN] No other lines were added
+        SalesLineOrder.SetFilter("No.", '<>%1', SalesLineQuote."No.");
+        Assert.RecordIsEmpty(SalesLineOrder);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -977,8 +1052,8 @@ codeunit 134563 "ERM Insert Std. Sales Lines"
         StandardCustomerSalesCode: Record "Standard Customer Sales Code";
     begin
         StandardCustomerSalesCode.Init();
-        StandardCustomerSalesCode."Customer No." := LibrarySales.CreateCustomerNo;
-        StandardCustomerSalesCode.Code := SalesCode;
+        StandardCustomerSalesCode.Validate("Customer No.", LibrarySales.CreateCustomerNo);
+        StandardCustomerSalesCode.Validate(Code, SalesCode);
         case DocType of
             RefDocType::Quote:
                 StandardCustomerSalesCode."Insert Rec. Lines On Quotes" := Mode;

@@ -142,6 +142,7 @@ codeunit 7008 "Price Calculation Buffer Mgt."
     begin
         if PriceListLine."Price Includes VAT" then begin
             VATPostingSetup.Get(PriceListLine."VAT Bus. Posting Gr. (Price)", PriceCalculationBuffer."VAT Prod. Posting Group");
+            OnConvertAmountByTaxOnAfterVATPostingSetupGet(VATPostingSetup);
             if VATPostingSetup."VAT Calculation Type" = VATPostingSetup."VAT Calculation Type"::"Sales Tax" then
                 Error(PricesInclVATErr, VATPostingSetup."VAT Calculation Type");
 
@@ -226,6 +227,11 @@ codeunit 7008 "Price Calculation Buffer Mgt."
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeConvertAmount(AmountType: Enum "Price Amount Type"; var PriceListLine: Record "Price List Line"; PriceCalculationBuffer: Record "Price Calculation Buffer"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnConvertAmountByTaxOnAfterVATPostingSetupGet(var VATPostingSetup: Record "VAT Posting Setup")
     begin
     end;
 }

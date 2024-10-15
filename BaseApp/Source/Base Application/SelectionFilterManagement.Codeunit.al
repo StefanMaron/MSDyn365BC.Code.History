@@ -64,6 +64,59 @@ codeunit 46 SelectionFilterManagement
         end;
     end;
 
+    procedure CreateFilterFromTempTable(var SourceTempRecRef: RecordRef; var RecRef: RecordRef; SelectionFieldID: Integer): Text
+    var
+        FieldRef: FieldRef;
+        FirstRecRef: Text[1024];
+        LastRecRef: Text[1024];
+        SelectionFilter: Text;
+        SavePos: Text;
+        TempRecRefCount: Integer;
+        More: Boolean;
+    begin
+        TempRecRefCount := SourceTempRecRef.Count();
+        if TempRecRefCount = 0 then
+            exit('');
+
+        SourceTempRecRef.Ascending(true);
+        SourceTempRecRef.FindFirst();
+        while TempRecRefCount > 0 do begin
+            TempRecRefCount := TempRecRefCount - 1;
+            RecRef.SetPosition(SourceTempRecRef.GetPosition());
+            RecRef.Find();
+            FieldRef := RecRef.Field(SelectionFieldID);
+            FirstRecRef := Format(FieldRef.Value);
+            LastRecRef := FirstRecRef;
+            More := TempRecRefCount > 0;
+            while More do
+                if RecRef.Next() = 0 then
+                    More := false
+                else begin
+                    SavePos := SourceTempRecRef.GetPosition();
+                    SourceTempRecRef.SetPosition(RecRef.GetPosition());
+                    if not SourceTempRecRef.Find() then begin
+                        More := false;
+                        SourceTempRecRef.SetPosition(SavePos);
+                    end else begin
+                        FieldRef := RecRef.Field(SelectionFieldID);
+                        LastRecRef := Format(FieldRef.Value);
+                        TempRecRefCount := TempRecRefCount - 1;
+                        if TempRecRefCount = 0 then
+                            More := false;
+                    end;
+                end;
+            if SelectionFilter <> '' then
+                SelectionFilter := SelectionFilter + '|';
+            if FirstRecRef = LastRecRef then
+                SelectionFilter := SelectionFilter + AddQuotes(FirstRecRef)
+            else
+                SelectionFilter := SelectionFilter + AddQuotes(FirstRecRef) + '..' + AddQuotes(LastRecRef);
+            if TempRecRefCount > 0 then
+                SourceTempRecRef.Next();
+        end;
+        exit(SelectionFilter);
+    end;
+
     procedure AddQuotes(inString: Text[1024]): Text
     begin
         if DelChr(inString, '=', ' &|()*@<>=.') = inString then

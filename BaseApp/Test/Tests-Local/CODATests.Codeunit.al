@@ -530,11 +530,11 @@ codeunit 144006 "CODA Tests"
 
         // [THEN] "Applies-to ID" is validated
         // [THEN] Amount = "Amt"
-        // [THEN] "Statement Amount" = 0
+        // [THEN] "Statement Amount" = "Amt"
         // [THEN] "Application Status" is changed to "Applied"
         // [THEN] "Unapplied Amount" = 0
         CODAStatementLine.TestField("Applies-to ID", CODAStatementLine."Document No.");
-        CODAStatementLine.TestField("Statement Amount", 0);
+        CODAStatementLine.TestField("Statement Amount", VendLedgerEntry.Amount);
         CODAStatementLine.TestField(Amount, VendLedgerEntry.Amount);
         CODAStatementLine.TestField("Application Status", CODAStatementLine."Application Status"::Applied);
         CODAStatementLine.TESTFIELD("Unapplied Amount", 0);

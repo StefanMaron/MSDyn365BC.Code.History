@@ -325,7 +325,7 @@ table 2000041 "CODA Statement Line"
             trigger OnValidate()
             begin
                 if ("Applies-to ID" <> xRec."Applies-to ID") and ("Applies-to ID" = '') then begin
-                    Validate("Statement Amount", Amount + "Statement Amount");
+                    Validate("Unapplied Amount", "Statement Amount");
                     Validate(Amount, 0);
                 end;
             end;
@@ -435,7 +435,6 @@ table 2000041 "CODA Statement Line"
                 end else begin
                     "Application Status" := "Application Status"::Applied;
                     Validate(Amount, "Statement Amount");
-                    Validate("Statement Amount", 0);
                     "Unapplied Amount" := 0
                 end;
 

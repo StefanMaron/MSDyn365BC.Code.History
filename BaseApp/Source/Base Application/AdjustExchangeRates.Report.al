@@ -1586,14 +1586,14 @@ report 595 "Adjust Exchange Rates"
                             end else begin
                                 AdjAmount := AdjAmount + OldAdjAmount;
                                 TempDtldCustLedgEntry."Amount (LCY)" := -OldAdjAmount;
-                                TempDtldCustLedgEntry."Entry Type" := TempDtldCustLedgEntry."Entry Type"::"Unrealized Gain";
+                                TempDtldCustLedgEntry."Entry Type" := TempDtldCustLedgEntry."Entry Type"::"Unrealized Loss";
                                 HandleCustDebitCredit(Correction, TempDtldCustLedgEntry."Amount (LCY)");
                                 InsertTempDtldCustomerLedgerEntry;
                                 NewEntryNo := NewEntryNo + 1;
                                 AdjExchRateBufIndex :=
                                   AdjExchRateBufferUpdate(
                                     "Currency Code", Customer."Customer Posting Group",
-                                    0, 0, -OldAdjAmount, -OldAdjAmount, 0, DimEntryNo, PostingDate2, Customer."IC Partner Code");
+                                    0, 0, -OldAdjAmount, 0, -OldAdjAmount, DimEntryNo, PostingDate2, Customer."IC Partner Code");
                                 TempDtldCustLedgEntry."Transaction No." := AdjExchRateBufIndex;
                                 ModifyTempDtldCustomerLedgerEntry;
                                 Adjust := false;
@@ -1623,14 +1623,14 @@ report 595 "Adjust Exchange Rates"
                             end else begin
                                 AdjAmount := OldAdjAmount + AdjAmount;
                                 TempDtldCustLedgEntry."Amount (LCY)" := -OldAdjAmount;
-                                TempDtldCustLedgEntry."Entry Type" := TempDtldCustLedgEntry."Entry Type"::"Unrealized Loss";
+                                TempDtldCustLedgEntry."Entry Type" := TempDtldCustLedgEntry."Entry Type"::"Unrealized Gain";
                                 HandleCustDebitCredit(Correction, TempDtldCustLedgEntry."Amount (LCY)");
                                 InsertTempDtldCustomerLedgerEntry;
                                 NewEntryNo := NewEntryNo + 1;
                                 AdjExchRateBufIndex :=
                                   AdjExchRateBufferUpdate(
                                     "Currency Code", Customer."Customer Posting Group",
-                                    0, 0, -OldAdjAmount, 0, -OldAdjAmount, DimEntryNo, PostingDate2, Customer."IC Partner Code");
+                                    0, 0, -OldAdjAmount, -OldAdjAmount, 0, DimEntryNo, PostingDate2, Customer."IC Partner Code");
                                 TempDtldCustLedgEntry."Transaction No." := AdjExchRateBufIndex;
                                 ModifyTempDtldCustomerLedgerEntry;
                                 Adjust := false;
@@ -1755,14 +1755,14 @@ report 595 "Adjust Exchange Rates"
                             end else begin
                                 AdjAmount := AdjAmount + OldAdjAmount;
                                 TempDtldVendLedgEntry."Amount (LCY)" := -OldAdjAmount;
-                                TempDtldVendLedgEntry."Entry Type" := TempDtldVendLedgEntry."Entry Type"::"Unrealized Gain";
+                                TempDtldVendLedgEntry."Entry Type" := TempDtldVendLedgEntry."Entry Type"::"Unrealized Loss";
                                 HandleVendDebitCredit(Correction, TempDtldVendLedgEntry."Amount (LCY)");
                                 InsertTempDtldVendorLedgerEntry;
                                 NewEntryNo := NewEntryNo + 1;
                                 AdjExchRateBufIndex :=
                                   AdjExchRateBufferUpdate(
                                     "Currency Code", Vendor."Vendor Posting Group",
-                                    0, 0, -OldAdjAmount, -OldAdjAmount, 0, DimEntryNo, PostingDate2, Vendor."IC Partner Code");
+                                    0, 0, -OldAdjAmount, 0, -OldAdjAmount, DimEntryNo, PostingDate2, Vendor."IC Partner Code");
                                 TempDtldVendLedgEntry."Transaction No." := AdjExchRateBufIndex;
                                 ModifyTempDtldVendorLedgerEntry;
                                 Adjust := false;
@@ -1792,14 +1792,14 @@ report 595 "Adjust Exchange Rates"
                             end else begin
                                 AdjAmount := OldAdjAmount + AdjAmount;
                                 TempDtldVendLedgEntry."Amount (LCY)" := -OldAdjAmount;
-                                TempDtldVendLedgEntry."Entry Type" := TempDtldVendLedgEntry."Entry Type"::"Unrealized Loss";
+                                TempDtldVendLedgEntry."Entry Type" := TempDtldVendLedgEntry."Entry Type"::"Unrealized Gain";
                                 HandleVendDebitCredit(Correction, TempDtldVendLedgEntry."Amount (LCY)");
                                 InsertTempDtldVendorLedgerEntry;
                                 NewEntryNo := NewEntryNo + 1;
                                 AdjExchRateBufIndex :=
                                   AdjExchRateBufferUpdate(
                                     "Currency Code", Vendor."Vendor Posting Group",
-                                    0, 0, -OldAdjAmount, 0, -OldAdjAmount, DimEntryNo, PostingDate2, Vendor."IC Partner Code");
+                                    0, 0, -OldAdjAmount, -OldAdjAmount, 0, DimEntryNo, PostingDate2, Vendor."IC Partner Code");
                                 TempDtldVendLedgEntry."Transaction No." := AdjExchRateBufIndex;
                                 ModifyTempDtldVendorLedgerEntry;
                                 Adjust := false;

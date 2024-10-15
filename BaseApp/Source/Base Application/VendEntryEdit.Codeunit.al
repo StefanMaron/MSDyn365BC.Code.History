@@ -28,6 +28,7 @@ codeunit 113 "Vend. Entry-Edit"
             VendLedgEntry.Validate("Applying Entry", "Applying Entry");
             VendLedgEntry.Validate("Applies-to Ext. Doc. No.", "Applies-to Ext. Doc. No.");
             VendLedgEntry.Validate("Message to Recipient", "Message to Recipient");
+            VendLedgEntry.Validate("Recipient Bank Account", "Recipient Bank Account");
         end;
         VendLedgEntry.Validate("Exported to Payment File", "Exported to Payment File");
         VendLedgEntry.Validate("Creditor No.", "Creditor No.");
@@ -48,7 +49,7 @@ codeunit 113 "Vend. Entry-Edit"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnRunOnBeforeDtldVendLedgEntryModifyAll(FromVendLedgEntry: Record "Vendor Ledger Entry"; DtldVendLedgEntry: Record "Detailed Vendor Ledg. Entry"; var VendLedgEntry: Record "Vendor Ledger Entry")
+    local procedure OnRunOnBeforeDtldVendLedgEntryModifyAll(FromVendLedgEntry: Record "Vendor Ledger Entry"; var DtldVendLedgEntry: Record "Detailed Vendor Ledg. Entry"; var VendLedgEntry: Record "Vendor Ledger Entry")
     begin
     end;
 }
