@@ -13,7 +13,8 @@ codeunit 361 MoveEntries
                   TableData "Avg. Cost Adjmt. Entry Point" = rd,
                   TableData "Inventory Adjmt. Entry (Order)" = rm,
                   TableData "Service Ledger Entry" = rm,
-                  TableData "Warranty Ledger Entry" = rm;
+                  TableData "Warranty Ledger Entry" = rm,
+                  TableData "Service Contract Header" = rm;
 
     trigger OnRun()
     begin

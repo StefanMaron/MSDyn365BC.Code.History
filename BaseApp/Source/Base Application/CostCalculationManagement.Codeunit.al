@@ -1025,6 +1025,7 @@
         end;
 
         with ResLedgerEntry do begin
+            SetRange("Entry Type", "Entry Type"::Sale);
             SetRange("Source Type", "Source Type"::Customer);
             SetRange("Source No.", Customer."No.");
             SetFilter("Posting Date", Customer.GetFilter("Date Filter"));

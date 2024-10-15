@@ -210,6 +210,16 @@ table 252 "General Posting Setup"
             Caption = 'Sales Credit Memo Account';
             TableRelation = "G/L Account";
 
+            trigger OnLookup()
+            begin
+                if "View All Accounts on Lookup" then
+                    GLAccountCategoryMgt.LookupGLAccountWithoutCategory("Sales Credit Memo Account")
+                else
+                    GLAccountCategoryMgt.LookupGLAccount(
+                        "Sales Credit Memo Account", GLAccountCategory."Account Category"::Income,
+                        StrSubstNo(AccountSubcategoryFilterTxt, GLAccountCategoryMgt.GetIncomeProdSales(), GLAccountCategoryMgt.GetIncomeService()));
+            end;
+
             trigger OnValidate()
             begin
                 CheckGLAcc("Sales Credit Memo Account");
@@ -219,6 +229,16 @@ table 252 "General Posting Setup"
         {
             Caption = 'Purch. Credit Memo Account';
             TableRelation = "G/L Account";
+
+            trigger OnLookup()
+            begin
+                if "View All Accounts on Lookup" then
+                    GLAccountCategoryMgt.LookupGLAccountWithoutCategory("Purch. Credit Memo Account")
+                else
+                    GLAccountCategoryMgt.LookupGLAccount(
+                        "Purch. Credit Memo Account", GLAccountCategory."Account Category"::"Cost of Goods Sold",
+                        StrSubstNo(AccountSubcategoryFilterTxt, GLAccountCategoryMgt.GetCOGSMaterials(), GLAccountCategoryMgt.GetCOGSLabor()));
+            end;
 
             trigger OnValidate()
             begin
@@ -444,6 +464,7 @@ table 252 "General Posting Setup"
         GLAccountCategory: Record "G/L Account Category";
         GLAccountCategoryMgt: Codeunit "G/L Account Category Mgt.";
         YouCannotDeleteErr: Label 'You cannot delete %1 %2.', Comment = '%1 = Location Code; %2 = Posting Group';
+        AccountSubcategoryFilterTxt: Label '%1|%2', Comment = '%1 = Account Subcategory; %2 = Account Subcategory2', Locked = true;
         PostingSetupMgt: Codeunit PostingSetupManagement;
 
     procedure CheckGLAcc(AccNo: Code[20])

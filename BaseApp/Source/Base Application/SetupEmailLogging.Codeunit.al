@@ -548,6 +548,12 @@ codeunit 1641 "Setup Email Logging"
         EnvironmentInformation: Codeunit "Environment Information";
         ClientId: Text;
     begin
+        OnGetEmailLoggingClientId(ClientId);
+        if ClientId <> '' then begin
+            SendTraceTag('0000CMF', EmailLoggingTelemetryCategoryTxt, Verbosity::Normal, InitializedClientIdTelemetryTxt, DataClassification::SystemMetadata);
+            exit(ClientId);
+        end;
+
         if EnvironmentInformation.IsSaaS() then
             if not AzureKeyVault.GetAzureKeyVaultSecret(EmailLoggingClientIdAKVSecretNameLbl, ClientId) then
                 SendTraceTag('0000CFD', EmailLoggingTelemetryCategoryTxt, Verbosity::Normal, MissingClientIdTelemetryTxt, DataClassification::SystemMetadata)
@@ -564,12 +570,6 @@ codeunit 1641 "Setup Email Logging"
             end;
         end;
 
-        OnGetEmailLoggingClientId(ClientId);
-        if ClientId <> '' then begin
-            SendTraceTag('0000CMF', EmailLoggingTelemetryCategoryTxt, Verbosity::Normal, InitializedClientIdTelemetryTxt, DataClassification::SystemMetadata);
-            exit(ClientId);
-        end;
-
         SendTraceTag('0000D9Q', EmailLoggingTelemetryCategoryTxt, Verbosity::Normal, MissingClientIdTelemetryTxt, DataClassification::SystemMetadata);
         Error(MissingClientIdOrSecretErr);
     end;
@@ -583,6 +583,12 @@ codeunit 1641 "Setup Email Logging"
         EnvironmentInformation: Codeunit "Environment Information";
         ClientSecret: Text;
     begin
+        OnGetEmailLoggingClientSecret(ClientSecret);
+        if ClientSecret <> '' then begin
+            SendTraceTag('0000CMI', EmailLoggingTelemetryCategoryTxt, Verbosity::Normal, InitializedClientSecretTelemetryTxt, DataClassification::SystemMetadata);
+            exit(ClientSecret);
+        end;
+
         if EnvironmentInformation.IsSaaS() then
             if not AzureKeyVault.GetAzureKeyVaultSecret(EmailLoggingClientSecretAKVSecretNameLbl, ClientSecret) then
                 SendTraceTag('0000CFE', EmailLoggingTelemetryCategoryTxt, Verbosity::Normal, MissingClientSecretTelemetryTxt, DataClassification::SystemMetadata)
@@ -597,12 +603,6 @@ codeunit 1641 "Setup Email Logging"
                 SendTraceTag('0000CMH', EmailLoggingTelemetryCategoryTxt, Verbosity::Normal, InitializedClientSecretTelemetryTxt, DataClassification::SystemMetadata);
                 exit(ClientSecret);
             end;
-        end;
-
-        OnGetEmailLoggingClientSecret(ClientSecret);
-        if ClientSecret <> '' then begin
-            SendTraceTag('0000CMI', EmailLoggingTelemetryCategoryTxt, Verbosity::Normal, InitializedClientSecretTelemetryTxt, DataClassification::SystemMetadata);
-            exit(ClientSecret);
         end;
 
         SendTraceTag('0000D9R', EmailLoggingTelemetryCategoryTxt, Verbosity::Normal, MissingClientSecretTelemetryTxt, DataClassification::SystemMetadata);

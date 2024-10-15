@@ -2381,11 +2381,11 @@
 
     procedure SetLastDateTimeFilter(DateFilter: DateTime)
     var
+		DotNet_DateTimeOffset: Codeunit DotNet_DateTimeOffset;
         SyncDateTimeUtc: DateTime;
         CurrentFilterGroup: Integer;
     begin
-        SyncDateTimeUtc := DateFilter;
-        SyncDateTimeUtc := SyncDateTimeUtc - GetTimeZoneOffset();
+        SyncDateTimeUtc := DotNet_DateTimeOffset.ConvertToUtcDateTime(DateFilter);
         CurrentFilterGroup := FilterGroup;
         SetFilter("Last Date Modified", '>=%1', DT2Date(SyncDateTimeUtc));
         FilterGroup(-1);
