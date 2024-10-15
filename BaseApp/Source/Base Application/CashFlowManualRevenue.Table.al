@@ -99,10 +99,10 @@ table 849 "Cash Flow Manual Revenue"
     trigger OnInsert()
     var
         BlankCashFlowAccount: Record "Cash Flow Account";
-        ExistingCashFlowManualExpense: Record "Cash Flow Manual Expense";
+        ExistingCashFlowManualRevenue: Record "Cash Flow Manual Revenue";
     begin
         if Rec.Code = '' then
-            if ExistingCashFlowManualExpense.Get('') then
+            if ExistingCashFlowManualRevenue.Get('') then
                 Error(CodeIsNotSetErr, BlankCashFlowAccount.TableCaption(), BlankCashFlowAccount.FieldCaption(BlankCashFlowAccount."Source Type"), BlankCashFlowAccount."Source Type"::"Cash Flow Manual Revenue");
 
         DimMgt.UpdateDefaultDim(
@@ -125,7 +125,7 @@ table 849 "Cash Flow Manual Revenue"
 
         DimMgt.ValidateDimValueCode(FieldNumber, ShortcutDimCode);
         if not IsTemporary then
-            DimMgt.SaveDefaultDim(DATABASE::"Cash Flow Manual Expense", Code, FieldNumber, ShortcutDimCode);
+            DimMgt.SaveDefaultDim(DATABASE::"Cash Flow Manual Revenue", Code, FieldNumber, ShortcutDimCode);
 
         OnAfterValidateShortcutDimCode(Rec, xRec, FieldNumber, ShortcutDimCode);
     end;

@@ -1022,6 +1022,15 @@
       <Cmt Name="Dev"><![CDATA[%1 Provider Caption, %2 = Symbology Caption]D;]A;(LookupHint=Codeunit IDAutomation 1D Test - NamedType CannotFindBarcodeEncoderErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 316361646 - NamedType 94485731" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Provider IDAutomation 2D Barcode Provider: 2D Barcode symbol encoder Unsupported Barcode Symbology is not implemented by this provider!]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 Provider Caption, %2 = Symbology Caption]D;]A;(LookupHint=Codeunit IDAutomation 2D Test - NamedType CannotFindBarcodeEncoderErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 1008664390 - NamedType 1874893006" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAIAAAACUFjqAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAAOSURBVChTYxgFJAMGBgABNgABY8OiGAAAAABJRU5ErkJggg==]]></Val>
@@ -1184,6 +1193,24 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Retention Policy Log Test - NamedType RetentionPolicySetupRecordNotTempErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 3977473530 - NamedType 3148786132" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[0000ABC]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Telemetry Loggers Test - NamedType CurrentEventIdTxt)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 3977473530 - NamedType 1392134702" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Test telemetry message]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Telemetry Loggers Test - NamedType CurrentMessageTxt)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 1462087357 - NamedType 2975766532" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[An element with the given index does not exist.]]></Val>
@@ -1254,6 +1281,24 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Temp Blob Test - NamedType SampleTxt)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 1198197679 - NamedType 3148786132" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[0000ABC]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Test Telemetry Logger - NamedType CurrentEventIdTxt)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 1198197679 - NamedType 1392134702" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Test telemetry message]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Test Telemetry Logger - NamedType CurrentMessageTxt)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 1483780530 - NamedType 122615366" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -1335,6 +1380,15 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit User Settings Tests - NamedType CompanyDisplayNameTxt)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 3906106667 - NamedType 2430332730" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[You cannot access settings for other users.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit User Settings Tests - NamedType NotEnoughPermissionsErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 1141830473 - NamedType 267657989" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -1551,6 +1605,15 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(ObjectTarget=Enum 4011276349)(LookupHint=EnumExtension Unsupported Symbology - EnumValue Unsupported Barcode Symbology - Property Caption)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";EnumExtension 59339856 - EnumValue 954222754 - Property 2879900210" ItemType=";EnumExtension - EnumValue" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Unsupported Barcode Symbology]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(ObjectTarget=Enum 1845188695)(LookupHint=EnumExtension Unsupported Symbology 2D - EnumValue Unsupported Barcode Symbology - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
 </LCX>

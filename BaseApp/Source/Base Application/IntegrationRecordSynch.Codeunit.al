@@ -68,7 +68,7 @@ codeunit 5336 "Integration Record Synch."
             CurrentOptionIndex := TextToOptionValue(Format(DestinationFieldRef.Value()), DestinationFieldRef);
             exit(CurrentOptionIndex <> ConstantOptionIndex);
         end;
-        exit(Format(DestinationFieldRef.Value()) <> ConstantValue);
+        exit(GetTextValue(DestinationFieldRef) <> ConstantValue);
     end;
 
     local procedure TextToOptionValue(InputText: Text; var FieldRef: FieldRef): Integer
@@ -85,6 +85,10 @@ codeunit 5336 "Integration Record Synch."
     begin
         if FieldRef.Type = FieldType::Option then
             exit(EvaluateTextToOptionFieldRef(InputText, FieldRef, ToValidate));
+        if FieldRef.Type = FieldType::Blob then begin
+            SetTextValue(FieldRef, InputText);
+            exit(true);
+        end;
         exit(OutlookSynchTypeConv.EvaluateTextToFieldRef(InputText, FieldRef, ToValidate));
     end;
 
@@ -119,6 +123,9 @@ codeunit 5336 "Integration Record Synch."
     begin
         if DestinationFieldRef.Type = FieldType::Code then
             exit(Format(DestinationFieldRef.Value) <> UpperCase(DelChr(Format(SourceFieldRef.Value), '<>')));
+
+        if DestinationFieldRef.Type = FieldType::Blob then
+            exit(GetTextValue(DestinationFieldRef) <> GetTextValue(SourceFieldRef));
 
         if DestinationFieldRef.Length <> SourceFieldRef.Length then begin
             if DestinationFieldRef.Length < SourceFieldRef.Length then
@@ -169,18 +176,19 @@ codeunit 5336 "Integration Record Synch."
         DestinationFieldRef := ParameterDestinationRecordRef.Field(DestinationFieldNo);
         if SourceFieldNo < 1 then begin // using ConstantValue as a source value
             if (not ParameterOnlyModified) or IsConstantDiffToDestination(ConstantValue, DestinationFieldRef) then begin
-                CurrValue := Format(DestinationFieldRef.Value);
+                CurrValue := GetTextValue(DestinationFieldRef);
                 if EvaluateTextToFieldRef(ConstantValue, DestinationFieldRef, true) then
-                    IsModified := (CurrValue <> Format(DestinationFieldRef.Value)) or not ParameterOnlyModified;
+                    IsModified := (CurrValue <> GetTextValue(DestinationFieldRef)) or not ParameterOnlyModified;
             end;
         end else begin
             SourceFieldRef := ParameterSourceRecordRef.Field(SourceFieldNo);
-            if SourceFieldRef.Class = FieldClass::FlowField then
-                SourceFieldRef.CalcField();
+            if (SourceFieldRef.Class = FieldClass::FlowField) or (SourceFieldRef.Type = FieldType::Blob) then
+                if not IsExternalTable(SourceFieldRef.Record().Number()) then
+                    SourceFieldRef.CalcField();
             if (not ParameterOnlyModified) or IsFieldModified(SourceFieldRef, DestinationFieldRef) then begin
-                CurrValue := Format(DestinationFieldRef.Value);
+                CurrValue := GetTextValue(DestinationFieldRef);
                 if TransferFieldData(SourceFieldRef, DestinationFieldRef, ValidateDestinationField, SkipNullValue) then
-                    IsModified := (CurrValue <> Format(DestinationFieldRef.Value)) or not ParameterOnlyModified;
+                    IsModified := (CurrValue <> GetTextValue(DestinationFieldRef)) or not ParameterOnlyModified;
             end;
         end;
         exit(IsModified);
@@ -197,7 +205,10 @@ codeunit 5336 "Integration Record Synch."
         // OnTransferFieldData is an event for handling an exceptional mapping that is not implemented by integration records
         OnTransferFieldData(SourceFieldRef, DestinationFieldRef, NewValue, IsValueFound, NeedsConversion);
         if not IsValueFound then
-            NewValue := SourceFieldRef.Value
+            if DestinationFieldRef.Type = FieldType::Blob then
+                NewValue := GetTextValue(SourceFieldRef)
+            else
+                NewValue := SourceFieldRef.Value
         else
             if not NeedsConversion then begin
                 if SkipNullGUID and NewValue.IsGuid() then
@@ -213,9 +224,9 @@ codeunit 5336 "Integration Record Synch."
             IsModified := SetDestinationValue(DestinationFieldRef, NewValue, ValidateDestinationField);
             exit(IsModified);
         end;
-        CurrValue := Format(DestinationFieldRef.Value);
+        CurrValue := GetTextValue(DestinationFieldRef);
         if EvaluateTextToFieldRef(Format(NewValue), DestinationFieldRef, ValidateDestinationField) then
-            IsModified := (CurrValue <> Format(DestinationFieldRef.Value)) or not ParameterOnlyModified;
+            IsModified := (CurrValue <> GetTextValue(DestinationFieldRef)) or not ParameterOnlyModified;
         exit(IsModified);
     end;
 
@@ -224,16 +235,79 @@ codeunit 5336 "Integration Record Synch."
         CurrValue: Text;
         IsModified: Boolean;
     begin
-        CurrValue := Format(DestinationFieldRef.Value);
+        CurrValue := GetTextValue(DestinationFieldRef);
         IsModified := (CurrValue <> Format(NewValue)) or not ParameterOnlyModified;
-        DestinationFieldRef.Value := NewValue;
+        if DestinationFieldRef.Type <> FieldType::Blob then
+            DestinationFieldRef.Value := NewValue
+        else
+            SetTextValue(DestinationFieldRef, Format(NewValue));
         if IsModified and ValidateDestinationField then
             DestinationFieldRef.Validate();
         exit(IsModified);
     end;
 
+    internal procedure GetTextValue(var FieldRef: FieldRef): Text
+    var
+        TempBlob: Codeunit "Temp Blob";
+        InStream: InStream;
+        FieldValue: Text;
+    begin
+        if FieldRef.Type <> FieldType::Blob then
+            exit(Format(FieldRef.Value));
+        TempBlob.FromFieldRef(FieldRef);
+        if TempBlob.HasValue() then begin
+            TempBlob.CreateInStream(InStream, GetBlobFieldEncoding(FieldRef));
+            InStream.Read(FieldValue);
+        end;
+        exit(FieldValue);
+    end;
+
+    internal procedure SetTextValue(var FieldRef: FieldRef; FieldValue: Text)
+    var
+        TempBlob: Codeunit "Temp Blob";
+        OutStream: OutStream;
+    begin
+        if FieldRef.Type <> FieldType::Blob then begin
+            FieldRef.Value := FieldValue;
+            exit;
+        end;
+
+        if FieldValue <> '' then begin
+            TempBlob.CreateOutStream(OutStream, GetBlobFieldEncoding(FieldRef));
+            OutStream.Write(FieldValue);
+        end;
+        TempBlob.ToFieldRef(FieldRef);
+    end;
+
+    local procedure GetBlobFieldEncoding(var FieldRef: FieldRef): TextEncoding
+    var
+        Encoding: TextEncoding;
+        Handled: Boolean;
+    begin
+        OnGetBlobFieldEncoding(FieldRef.Record().Number(), FieldRef.Number(), Encoding, Handled);
+        if Handled then
+            exit(Encoding);
+        if IsExternalTable(FieldRef.Record().Number()) then
+            exit(TextEncoding::UTF16);
+        exit(TextEncoding::UTF8);
+    end;
+
+    local procedure IsExternalTable(TableId: Integer): Boolean
+    var
+        TableMetadata: Record "Table Metadata";
+    begin
+        if TableMetadata.Get(TableId) then
+            exit(TableMetadata.TableType <> TableMetadata.TableType::Normal);
+        exit(false);
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnTransferFieldData(SourceFieldRef: FieldRef; DestinationFieldRef: FieldRef; var NewValue: Variant; var IsValueFound: Boolean; var NeedsConversion: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnGetBlobFieldEncoding(TableNo: Integer; FieldNo: Integer; var Encoding: TextEncoding; var Handled: Boolean)
     begin
     end;
 }

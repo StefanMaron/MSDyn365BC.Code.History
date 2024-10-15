@@ -41,6 +41,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit TDS Adjustment Jnl Automation - Method PostTDSAdjustmentForTDSEntriesAlreadyDeductedandPaid - NamedType PaidErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 2251212588 - NamedType 4150595463" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[%1 is incorrect in %2.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 and %2 = Field Caption and Table Caption]D;]A;(LookupHint=Codeunit TDS On Application - NamedType TDSEntryVerifyErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 3227056880 - NamedType 2572654342" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[%1 is incorrect in %2.]]></Val>
