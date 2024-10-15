@@ -964,43 +964,6 @@ codeunit 144051 "ERM EVAT"
     end;
 
     [Test]
-    [HandlerFunctions('CreateElecICPDeclarationRequestPageHandler')]
-    [Scope('OnPrem')]
-    procedure VerifyCountryCodeISOECWhenEmptyEUCountryCode()
-    var
-        VATEntry: Record "VAT Entry";
-        ElecTaxDeclarationHeader: Record "Elec. Tax Declaration Header";
-        CountryRegion: Record "Country/Region";
-        No: Code[20];
-    begin
-        // [SCENARIO 271082] When Country/Region record has empty "EU Country/Region Code", bd-i:CountryCodeISO-EC and bd-i:VATIdentificationNumberNational values are set according to Country Code.
-        Initialize;
-
-        // [GIVEN] Country/Region record with Code = "GR" and empty "EU Country/Region Code".
-        // [GIVEN] VAT Entry with "Country/Region Code" = "GR", "VAT Registration No." = "GR1234567". Posting Date must be less than TODAY.
-        MockCountryRegionRecord(
-          CountryRegion, LibraryUtility.GenerateGUID,
-          CopyStr(LibraryUtility.GenerateRandomXMLText(2), 1, 2), '');
-        MockVATEntry(
-          VATEntry, VATEntry."Document Type"::Invoice, VATEntry."VAT Calculation Type"::"Reverse Charge VAT",
-          VATEntry.Type::Sale, -LibraryRandom.RandDec(100, 2), 0, CalcDate('<-3M>', Today), CountryRegion.Code,
-          CountryRegion.Code + LibraryUtility.GenerateGUID);
-
-        // [WHEN] Create Electronic Tax Declaration
-        No := CreateElectronicTaxDeclaration(ElecTaxDeclarationHeader."Declaration Type"::"ICP Declaration");
-
-        // [THEN] bd-i:CountryCodeISO-EC = "GR", bd-i:VATIdentificationNumberNational = "1234567".
-        VerifyElecTaxDeclarationLine(No, 'bd-i:CountryCodeISO-EC', CountryRegion.Code);
-        VerifyElecTaxDeclarationLine(
-          No, 'bd-i:VATIdentificationNumberNational',
-          DelStr(VATEntry."VAT Registration No.", 1, StrLen(CountryRegion.Code)));
-
-        // Tear down
-        CountryRegion.Delete();
-        VATEntry.Delete();
-    end;
-
-    [Test]
     [HandlerFunctions('CancelSubmitElecTaxDeclarationReportRequestPageHandler')]
     [Scope('OnPrem')]
     procedure SubmitElecTaxDeclarationReportDoesNotRequireUseCertificateSetupOption()
@@ -1134,6 +1097,40 @@ codeunit 144051 "ERM EVAT"
         UnbindSubscription(ERMEVAT);
         LibraryApplicationArea.DisableApplicationAreaSetup();
         NameValueBuffer.Delete();
+    end;
+
+    [Test]
+    [HandlerFunctions('CreateElecICPDeclarationWithFilterRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure ICPDeclarationDoesNotContainEntriesWithCountryOutsideEU()
+    var
+        ElecTaxDeclarationHeader: Record "Elec. Tax Declaration Header";
+        ElecTaxDeclarationLine: Record "Elec. Tax Declaration Line";
+        VATEntry: Record "VAT Entry";
+        CountryRegion: Record "Country/Region";
+        ElecTaxDeclHeaderNo: Code[20];
+    begin
+        // [SCENARIO 405527] ICP declaration does not contains VAT entries with country/region code outside EU
+
+        Initialize();
+
+        // [GIVEN] Country "X" with blank "EU Country/Region Code"
+        LibraryERM.CreateCountryRegion(CountryRegion);
+
+        // [GIVEN] VAT Entry with country "X"
+        CreateReverseChargeSalesVATEntryWithCountryCode(VATEntry, CountryRegion.Code);
+        LibraryVariableStorage.Enqueue(VATEntry."VAT Bus. Posting Group"); // for CreateElecICPDeclarationWithFilterRequestPageHandler to consider only this single VAT entry
+
+        // [WHEN] Create ICP declaration for VAT entry
+        ElecTaxDeclHeaderNo := CreateElectronicTaxDeclaration(ElecTaxDeclarationHeader."Declaration Type"::"ICP Declaration");
+
+        // [THEN] No electronic tax declaration line has been generated with 'bd-i:SuppliesAmount' name
+        FilterOnElecTaxDeclLine(
+          ElecTaxDeclarationLine, ElecTaxDeclarationLine."Declaration Type"::"ICP Declaration", ElecTaxDeclHeaderNo,
+          ElecTaxDeclarationLine."Line Type"::Element, 'bd-i:SuppliesAmount');
+        Assert.IsTrue(ElecTaxDeclarationLine.IsEmpty(), 'Electronic tax declaration line has been generated');
+
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     local procedure Initialize()
@@ -1387,6 +1384,17 @@ codeunit 144051 "ERM EVAT"
         end;
     end;
 
+    local procedure CreateReverseChargeSalesVATEntryWithCountryCode(var VATEntry: Record "VAT Entry"; CountryCode: Code[10])
+    var
+        VATBusinessPostingGroup: Record "VAT Business Posting Group";
+    begin
+        CreateReverseChargeSalesVATEntry(VATEntry, VATEntry."Document Type"::Invoice, 1, 1, false, false);
+        LibraryERM.CreateVATBusinessPostingGroup(VATBusinessPostingGroup);
+        VATEntry."VAT Bus. Posting Group" := VATBusinessPostingGroup.Code;
+        VATEntry."Country/Region Code" := CountryCode;
+        VATEntry.Modify();
+    end;
+
     local procedure CreateElecTaxDeclarationWithLines(var ElecTaxDeclarationHeader: Record "Elec. Tax Declaration Header")
     var
         VATStatementName: Record "VAT Statement Name";
@@ -1617,6 +1625,14 @@ codeunit 144051 "ERM EVAT"
     procedure CreateElecICPDeclarationRequestPageHandler(var CreateElecICPDeclaration: TestRequestPage "Create Elec. ICP Declaration")
     begin
         CreateElecICPDeclaration.OK.Invoke;
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure CreateElecICPDeclarationWithFilterRequestPageHandler(var CreateElecICPDeclaration: TestRequestPage "Create Elec. ICP Declaration")
+    begin
+        CreateElecICPDeclaration."VAT Entry".SetFilter("VAT Bus. Posting Group", LibraryVariableStorage.DequeueText());
+        CreateElecICPDeclaration.OK.Invoke();
     end;
 
     [RequestPageHandler]
