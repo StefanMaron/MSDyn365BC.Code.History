@@ -937,5 +937,10 @@ codeunit 9998 "Upgrade Tag Definitions"
     begin
         exit('MS-433866-GetSanitizeCloudMigrationOnce-20220426');
     end;
+
+    procedure GetPurchaserOnRequisitionLineUpdateTag(): Code[250]
+    begin
+        exit('MS-449640-GetPurchaserOnRequisitionLineUpdateTag-20221117');
+    end;
 }
 
