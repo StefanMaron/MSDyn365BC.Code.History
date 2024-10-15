@@ -97,5 +97,12 @@ page 1012 "Job Item Prices"
     actions
     {
     }
+
+    trigger OnInit()
+    var
+        FeaturePriceCalculation: Codeunit "Feature - Price Calculation";
+    begin
+        FeaturePriceCalculation.FailIfFeatureEnabled();
+    end;
 }
 

@@ -150,6 +150,13 @@ page 7014 "Purchase Line Discounts"
     {
     }
 
+    trigger OnInit()
+    var
+        FeaturePriceCalculation: Codeunit "Feature - Price Calculation";
+    begin
+        FeaturePriceCalculation.FailIfFeatureEnabled();
+    end;
+
     var
         VendNoFilter: Text;
         ItemNoFilter: Text;

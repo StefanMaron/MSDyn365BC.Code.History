@@ -14,6 +14,7 @@ codeunit 136214 "Marketing Campaign Pricing"
         LibraryERM: Codeunit "Library - ERM";
         LibraryInventory: Codeunit "Library - Inventory";
         LibraryMarketing: Codeunit "Library - Marketing";
+        LibraryPriceCalculation: Codeunit "Library - Price Calculation";
         LibrarySales: Codeunit "Library - Sales";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryRandom: Codeunit "Library - Random";
@@ -27,6 +28,7 @@ codeunit 136214 "Marketing Campaign Pricing"
         CampaignActivatedMessage: Label 'Campaign %1 is now activated.';
         ValueMustNotMatch: Label 'Value must not match.';
         ValueMustMatch: Label 'Value must match.';
+        FeatureIsOnErr: Label 'This page is no longer available. It was used by a feature that has been replaced or removed.';
 
     [Test]
     [Scope('OnPrem')]
@@ -510,6 +512,15 @@ codeunit 136214 "Marketing Campaign Pricing"
 
         // [THEN] "Starting Date" field is editable.
         Assert.IsTrue(SalesPrices."Starting Date".Editable, '');
+    end;
+
+    [Test]
+    procedure CannotOpenSalesPriceWorksheetIfNewPricingIsOn()
+    begin
+        Initialize();
+        LibraryPriceCalculation.EnableExtendedPriceCalculation();
+        asserterror Page.Run(Page::"Sales Price Worksheet");
+        Assert.ExpectedError(FeatureIsOnErr);
     end;
 
     local procedure Initialize()

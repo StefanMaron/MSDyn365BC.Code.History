@@ -6329,9 +6329,6 @@ End Function
         <Field Name="TotalNetAmount">
           <DataField>TotalNetAmount</DataField>
         </Field>
-        <Field Name="TotalNetAmountFormat">
-          <DataField>TotalNetAmountFormat</DataField>
-        </Field>
         <Field Name="TotalVATBaseLCY">
           <DataField>TotalVATBaseLCY</DataField>
         </Field>
@@ -6341,14 +6338,8 @@ End Function
         <Field Name="TotalAmountIncludingVAT">
           <DataField>TotalAmountIncludingVAT</DataField>
         </Field>
-        <Field Name="TotalAmountIncludingVATFormat">
-          <DataField>TotalAmountIncludingVATFormat</DataField>
-        </Field>
         <Field Name="TotalVATAmount">
           <DataField>TotalVATAmount</DataField>
-        </Field>
-        <Field Name="TotalVATAmountFormat">
-          <DataField>TotalVATAmountFormat</DataField>
         </Field>
         <Field Name="TotalVATAmountLCY">
           <DataField>TotalVATAmountLCY</DataField>
@@ -6358,9 +6349,6 @@ End Function
         </Field>
         <Field Name="TotalInvoiceDiscountAmount">
           <DataField>TotalInvoiceDiscountAmount</DataField>
-        </Field>
-        <Field Name="TotalInvoiceDiscountAmountFormat">
-          <DataField>TotalInvoiceDiscountAmountFormat</DataField>
         </Field>
         <Field Name="TotalPaymentDiscountOnVAT">
           <DataField>TotalPaymentDiscountOnVAT</DataField>
@@ -6380,14 +6368,8 @@ End Function
         <Field Name="TotalSubTotal">
           <DataField>TotalSubTotal</DataField>
         </Field>
-        <Field Name="TotalSubTotalFormat">
-          <DataField>TotalSubTotalFormat</DataField>
-        </Field>
         <Field Name="TotalSubTotalMinusInvoiceDiscount">
           <DataField>TotalSubTotalMinusInvoiceDiscount</DataField>
-        </Field>
-        <Field Name="TotalSubTotalMinusInvoiceDiscountFormat">
-          <DataField>TotalSubTotalMinusInvoiceDiscountFormat</DataField>
         </Field>
         <Field Name="TotalText">
           <DataField>TotalText</DataField>

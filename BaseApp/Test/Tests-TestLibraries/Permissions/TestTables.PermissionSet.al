@@ -13,7 +13,6 @@ permissionset 132217 "Test Tables"
                   tabledata "Data Type Buffer" = RIMD,
                   tabledata "Delta watch" = RIMD,
                   tabledata "Detailed Entry With Global Dim" = RIMD,
-                  tabledata "Dtld. Entry With Global Dim 2" = RIMD,
                   tabledata "Enabled Test Codeunit" = RIMD,
                   tabledata "Enabled Test Method" = RIMD,
                   tabledata ExchangeContactMock = RIMD,

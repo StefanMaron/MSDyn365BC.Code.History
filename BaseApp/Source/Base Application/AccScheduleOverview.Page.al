@@ -795,7 +795,6 @@ page 490 "Acc. Schedule Overview"
         MatrixMgt: Codeunit "Matrix Management";
         DimensionManagement: Codeunit DimensionManagement;
         CurrentSchedName: Code[10];
-        CurrentColumnName: Code[10];
         NewCurrentSchedName: Code[10];
         NewCurrentColumnName: Code[10];
         ColumnValues: array[12] of Decimal;
@@ -849,6 +848,9 @@ page 490 "Acc. Schedule Overview"
         ColumnStyle11: Text;
         [InDataSet]
         ColumnStyle12: Text;
+
+    protected var
+        CurrentColumnName: Code[10];
 
     procedure SetAccSchedName(NewAccSchedName: Code[10])
     var

@@ -212,11 +212,13 @@ page 9014 "Job Resource Manager RC"
             {
                 Caption = 'Administration';
                 Image = Administration;
+#if not CLEAN19
                 action("Resource Costs")
                 {
                     ApplicationArea = Jobs;
                     Caption = 'Resource Costs';
-                    RunObject = Page "Resource Costs";
+                    RunPageView = WHERE("Object Type" = CONST(Page), "Object ID" = CONST(203)); // "Resource Costs";
+                    RunObject = Page "Role Center Page Dispatcher";
                     ToolTip = 'View or edit alternate costs for resources. Resource costs can apply to all resources, to resource groups or to individual resources. They can also be filtered so that they apply only to a specific work type code. For example, if an employee has a different hourly rate for overtime work, you can set up a resource cost for this work type.';
                     ObsoleteState = Pending;
                     ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation.';
@@ -226,12 +228,31 @@ page 9014 "Job Resource Manager RC"
                 {
                     ApplicationArea = Jobs;
                     Caption = 'Resource Prices';
-                    RunObject = Page "Resource Prices";
+                    RunPageView = WHERE("Object Type" = CONST(Page), "Object ID" = CONST(204)); // "Resource Prices";
+                    RunObject = Page "Role Center Page Dispatcher";
                     ToolTip = 'View the prices of resources.';
                     ObsoleteState = Pending;
                     ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation.';
                     ObsoleteTag = '17.0';
                 }
+#else
+                action(PurchPriceLists)
+                {
+                    ApplicationArea = Jobs;
+                    Caption = 'Purchase Prices';
+                    Image = ResourceCosts;
+                    RunObject = Page "Purchase Job Price Lists";
+                    ToolTip = 'View or change detailed information about costs for the resource.';
+                }
+                action(SalesPriceLists)
+                {
+                    ApplicationArea = Jobs;
+                    Caption = 'Sales Prices';
+                    Image = ResourcePrice;
+                    RunObject = Page "Sales Job Price Lists";
+                    ToolTip = 'View or edit prices for the resource.';
+                }
+#endif
                 action("Resource Service Zones")
                 {
                     ApplicationArea = Jobs;
@@ -272,12 +293,14 @@ page 9014 "Job Resource Manager RC"
                 RunObject = Report "Adjust Resource Costs/Prices";
                 ToolTip = 'Adjust one or more fields on the resource card. For example, you can change the direct unit cost by 10 percent on all resources from a specific resource group. The changes are processed immediately after the batch job is started. The fields on the resource card that are dependent on the adjusted field are also changed.';
             }
+#if not CLEAN19
             action("Resource P&rice Changes")
             {
                 ApplicationArea = Jobs;
                 Caption = 'Resource P&rice Changes';
                 Image = ResourcePrice;
-                RunObject = Page "Resource Price Changes";
+                RunPageView = WHERE("Object Type" = CONST(Page), "Object ID" = CONST(493)); // "Resource Price Changes";
+                RunObject = Page "Role Center Page Dispatcher";
                 ToolTip = 'Edit or update alternate resource prices, by running either the Suggest Res. Price Chg. (Res.) batch job or the Suggest Res. Price Chg. (Price) batch job.';
                 ObsoleteState = Pending;
                 ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation.';
@@ -288,7 +311,8 @@ page 9014 "Job Resource Manager RC"
                 ApplicationArea = Jobs;
                 Caption = 'Resource Pr&ice Chg from Resource';
                 Image = "Report";
-                RunObject = Report "Suggest Res. Price Chg. (Res.)";
+                RunPageView = WHERE("Object Type" = CONST(Report), "Object ID" = CONST(1191)); // "Suggest Res. Price Chg. (Res.)";
+                RunObject = Page "Role Center Page Dispatcher";
                 ToolTip = 'Update the alternate prices in the Resource Prices window with the ones in the Resource Price Change s window.';
                 ObsoleteState = Pending;
                 ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation.';
@@ -299,7 +323,8 @@ page 9014 "Job Resource Manager RC"
                 ApplicationArea = Jobs;
                 Caption = 'Resource Pri&ce Chg from Prices';
                 Image = "Report";
-                RunObject = Report "Suggest Res. Price Chg.(Price)";
+                RunPageView = WHERE("Object Type" = CONST(Report), "Object ID" = CONST(1192)); // "Suggest Res. Price Chg.(Price)";
+                RunObject = Page "Role Center Page Dispatcher";
                 ToolTip = 'Update the alternate prices in the Resource Prices window with the ones in the Resource Price Change s window.';
                 ObsoleteState = Pending;
                 ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation.';
@@ -310,12 +335,24 @@ page 9014 "Job Resource Manager RC"
                 ApplicationArea = Jobs;
                 Caption = 'I&mplement Resource Price Changes';
                 Image = ImplementPriceChange;
-                RunObject = Report "Implement Res. Price Change";
+                RunPageView = WHERE("Object Type" = CONST(Report), "Object ID" = CONST(1193)); // "Implement Res. Price Change";
+                RunObject = Page "Role Center Page Dispatcher";
                 ToolTip = 'Update the alternate prices in the Resource Prices window with the ones in the Resource Price Changes window. Price change suggestions can be created with the Suggest Res. Price Chg.(Price) or the Suggest Res. Price Chg. (Res.) batch job. You can also modify the price change suggestions in the Resource Price Changes window before you implement them.';
+
                 ObsoleteState = Pending;
                 ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation.';
                 ObsoleteTag = '17.0';
             }
+#else
+            action("Pri&ce Worksheet")
+            {
+                ApplicationArea = Jobs;
+                Caption = 'Price Worksheet';
+                Image = ImplementPriceChange;
+                RunObject = Page "Price Worksheet";
+                ToolTip = 'Opens the page where you can add new price lines manually or copy them from the existing price lists or suggest new lines based on data in the product cards.';
+            }
+#endif
             action("Create Time Sheets")
             {
                 ApplicationArea = Jobs;

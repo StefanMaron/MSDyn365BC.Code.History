@@ -232,7 +232,12 @@ page 8905 "Purchasing Manager Role Center"
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'List Price Sheet';
-                        RunObject = Report "List Price Sheet";
+#if not CLEAN19
+                        RunPageView = WHERE("Object Type" = CONST(Report), "Object ID" = CONST(10148)); // "List Price Sheet"
+                        RunObject = Page "Role Center Page Dispatcher";
+#else
+                        RunObject = Report "List Price Sheet V16";
+#endif
                     }
                     action("Item Charges - Specification")
                     {

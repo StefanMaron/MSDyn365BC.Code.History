@@ -2305,7 +2305,13 @@
         SalesLine: Record "Sales Line";
         TempErrorMessage: Record "Error Message" temporary;
         ConfirmManagement: Codeunit "Confirm Management";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeUpdateQuotesFromTemplate(Customer, CustomerTemplateCode, IsHandled);
+        if IsHandled then
+            exit;
+
         if "Company No." <> '' then
             Cont.SetRange("Company No.", "Company No.")
         else
@@ -3625,6 +3631,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeUpdateCompanyNo(var Contact: Record Contact; xContact: Record Contact)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdateQuotesFromTemplate(Customer: Record Customer; CustomerTemplateCode: Code[20]; var IsHandled: Boolean)
     begin
     end;
 

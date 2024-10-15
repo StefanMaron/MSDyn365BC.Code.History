@@ -762,34 +762,68 @@ page 9006 "Order Processor Role Center"
                     RunObject = Page "Sales Journal";
                     ToolTip = 'Open a sales journal where you can batch post sales transactions to G/L, bank, customer, vendor and fixed assets accounts.';
                 }
+#if not CLEAN19
                 action("Sales Price &Worksheet")
                 {
                     ApplicationArea = Basic, Suite;
-                    Caption = 'Sales Price &Worksheet';
+                    Caption = 'Price &Worksheet';
                     Image = PriceWorksheet;
-                    RunObject = Page "Sales Price Worksheet";
+                    RunPageView = WHERE("Object Type" = CONST(Page), "Object ID" = CONST(7023)); // "Sales Price Worksheet";
+                    RunObject = Page "Role Center Page Dispatcher";
                     ToolTip = 'Manage sales prices for individual customers, for a group of customers, for all customers, or for a campaign.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation.';
+                    ObsoleteTag = '19.0';
                 }
+#else
+                action("Price &Worksheet")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Price &Worksheet';
+                    Image = PriceWorksheet;
+                    RunObject = Page "Price Worksheet";
+                    ToolTip = 'Opens the page where you can add new price lines manually or copy them from the existing price lists or suggest new lines based on data in the product cards.';
+                }
+#endif
             }
             group(Action42)
             {
                 Caption = 'Sales';
+#if not CLEAN19
                 action("&Prices")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = '&Prices';
                     Image = SalesPrices;
-                    RunObject = Page "Sales Prices";
+                    RunPageView = WHERE("Object Type" = CONST(Page), "Object ID" = CONST(7002)); // "Sales Prices";
+                    RunObject = Page "Role Center Page Dispatcher";
                     ToolTip = 'Set up different prices for items that you sell to the customer. An item price is automatically granted on invoice lines when the specified criteria are met, such as customer, quantity, or ending date.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Replaced by the Sales Price Lists action.';
+                    ObsoleteTag = '19.0';
                 }
                 action("&Line Discounts")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = '&Line Discounts';
                     Image = SalesLineDisc;
-                    RunObject = Page "Sales Line Discounts";
+                    RunPageView = WHERE("Object Type" = CONST(Page), "Object ID" = CONST(7004)); // "Sales Line Discounts";
+                    RunObject = Page "Role Center Page Dispatcher";
                     ToolTip = 'Set up different discounts for items that you sell to the customer. An item discount is automatically granted on invoice lines when the specified criteria are met, such as customer, quantity, or ending date.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Replaced by the Sales Price Lists action.';
+                    ObsoleteTag = '19.0';
                 }
+#else
+                action("Price Lists")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = '&Prices';
+                    Image = SalesPrices;
+                    RunObject = Page "Sales Price Lists";
+                    ToolTip = 'View or set up sales price lists for products that you sell to the customer. A product price is automatically granted on invoice lines when the specified criteria are met, such as customer, quantity, or ending date.';
+                }
+#endif
                 action("Credit Management")
                 {
                     ApplicationArea = Basic, Suite;
@@ -864,7 +898,12 @@ page 9006 "Order Processor Role Center"
                         ApplicationArea = Basic, Suite;
                         Caption = 'List Price Sheet';
                         Image = "Report";
-                        RunObject = Report "List Price Sheet";
+#if not CLEAN19
+                        RunPageView = WHERE("Object Type" = CONST(Report), "Object ID" = CONST(10148)); // "List Price Sheet"
+                        RunObject = Page "Role Center Page Dispatcher";
+#else
+                        RunObject = Report "List Price Sheet V16";
+#endif
                         ToolTip = 'View a list of your items and their prices, for example, to send to customers. You can create the list for specific customers, campaigns, currencies, or other criteria.';
                     }
                     action("Inventory - Sales &Back Orders")

@@ -293,6 +293,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Electronic Funds Transfer - NamedType NoOfRecordsErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 784540059 - NamedType 1106504963" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Remittance Advice file has not been found]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Electronic Funds Transfer - NamedType RemitAdvFileNotFoundTxt)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 784540059 - NamedType 2808142347" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[.\]]></Val>
@@ -525,6 +534,24 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Misc. Report - NamedType InventoryItemLbl)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 4100550298 - NamedType 843986461" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[MISC-01]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Misc. Report - NamedType IRS1099CodeMisc01Lbl)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 4100550298 - NamedType 2048282298" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[MISC-04]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Misc. Report - NamedType IRS1099CodeMisc04Lbl)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 4100550298 - NamedType 3133125486" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">

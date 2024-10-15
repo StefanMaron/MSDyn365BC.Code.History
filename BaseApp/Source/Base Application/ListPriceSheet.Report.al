@@ -1,3 +1,4 @@
+#if not CLEAN19
 report 10148 "List Price Sheet"
 {
     DefaultLayout = RDLC;
@@ -5,6 +6,9 @@ report 10148 "List Price Sheet"
     ApplicationArea = Basic, Suite;
     Caption = 'List Price Sheet';
     UsageCategory = ReportsAndAnalysis;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Replaced by the List Price Sheet V16.';
+    ObsoleteTag = '19.0';
 
     dataset
     {
@@ -375,4 +379,4 @@ report 10148 "List Price Sheet"
         SalesCodeCtrlEnable: Boolean;
         CurrReport_PAGENOCaptionLbl: Label 'Page';
 }
-
+#endif

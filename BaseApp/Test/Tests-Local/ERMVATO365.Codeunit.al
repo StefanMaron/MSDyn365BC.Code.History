@@ -91,7 +91,7 @@ codeunit 144023 "ERM VAT O365"
         // Test to Amount in G/L entry and VAT Entry after post Sales application.
 
         // Create and Post Sales Order and Sales Credit Memo.
-        Initialize;
+        Initialize();
 
         SourceCodeSetup.Get();
         CreateVatPostingSetup(VATPostingSetup);
@@ -106,7 +106,8 @@ codeunit 144023 "ERM VAT O365"
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
 
         // Exercise: Apply and post Sales application.
-        LibraryLowerPermissions.SetJournalsPost;
+        LibraryLowerPermissions.SetJournalsPost();
+        LibraryLowerPermissions.AddSalesDocsCreate();
         ApplyAndPostCustomerEntry(CustLedgerEntry."Document Type"::Invoice, DocumentNo);
         VATAmount := SalesLine.Quantity * SalesLine."Unit Price" * SalesLine."VAT %" / 100;
 
@@ -124,7 +125,7 @@ codeunit 144023 "ERM VAT O365"
         // Test to validate Amount in G/L entry and VAT Entry after post Sales Order with VAT.
 
         // Setup: Create Sales Order with VAT.
-        Initialize;
+        Initialize();
         CreateVatPostingSetup(VATPostingSetup);
         CreateSalesDocument(
           SalesHeader, SalesLine, DocumentType,
@@ -132,7 +133,7 @@ codeunit 144023 "ERM VAT O365"
           CreateItem(VATPostingSetup."VAT Prod. Posting Group"));
 
         // Exercise: Post Sales order.
-        LibraryLowerPermissions.SetSalesDocsPost;
+        LibraryLowerPermissions.SetSalesDocsPost();
         exit(LibrarySales.PostSalesDocument(SalesHeader, true, true));
     end;
 

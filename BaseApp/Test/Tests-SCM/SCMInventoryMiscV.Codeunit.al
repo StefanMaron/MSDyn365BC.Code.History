@@ -27,6 +27,7 @@ codeunit 137297 "SCM Inventory Misc. V"
         LibraryWarehouse: Codeunit "Library - Warehouse";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryRandom: Codeunit "Library - Random";
+        LibrarySetupStorage: Codeunit "Library - Setup Storage";
         isInitialized: Boolean;
         PickRequestLocationCode: Code[10];
         PickRequestDocumentNo: Code[20];
@@ -629,11 +630,43 @@ codeunit 137297 "SCM Inventory Misc. V"
         NewItem.TestField("No.", NewItem."No.");
     end;
 
+    [Test]
+    [HandlerFunctions('NoSeriesListPageHandler')]
+    procedure CreatingItemFromNoSeriesLookupTakesDefaultCostingMethod()
+    var
+        ConfigTemplateHeader: Record "Config. Template Header";
+        InventorySetup: Record "Inventory Setup";
+        ItemCard: TestPage "Item Card";
+    begin
+        // [SCENARIO 401851] Changing Item No. from No Series lookup takes default Costing Method from setup
+        Initialize(false);
+
+        // [GIVEN] Default costing method in inventory setup is Standard
+        InventorySetup.Get();
+        InventorySetup.Validate("Default Costing Method", InventorySetup."Default Costing Method"::Standard);
+        InventorySetup.Modify(true);
+
+        // [GIVEN] No item templates exist
+        ConfigTemplateHeader.SetRange("Table ID", Database::Item);
+        ConfigTemplateHeader.DeleteAll(true);
+
+        // [GIVEN] Open new item card 
+        ItemCard.OpenNew();
+
+        // [WHEN] Choose an item NoSeries through assist edit
+        ItemCard."No.".AssistEdit();
+        // Selection handled by NoSeriesListPageHandler
+
+        // [THEN] Costing method on this Item is changed to Standard
+        ItemCard."Costing Method".AssertEquals(InventorySetup."Default Costing Method"::Standard);
+    end;
+
     local procedure Initialize(Enable: Boolean)
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"SCM Inventory Misc. V");
         LibraryItemReference.EnableFeature(Enable);
         LibraryVariableStorage.Clear();
+        LibrarySetupStorage.Restore();
 
         // Lazy Setup.
         if isInitialized then
@@ -642,6 +675,7 @@ codeunit 137297 "SCM Inventory Misc. V"
         LibraryERMCountryData.CreateVATData();
         LibraryERMCountryData.UpdateGeneralPostingSetup();
         LibraryERMCountryData.UpdatePurchasesPayablesSetup();
+        LibrarySetupStorage.Save(Database::"Inventory Setup");
 
         isInitialized := true;
         Commit();
@@ -1252,6 +1286,12 @@ codeunit 137297 "SCM Inventory Misc. V"
         ItemTrackingLines."Assign Lot No.".Invoke;
         QtyBase := LibraryVariableStorage.DequeueDecimal;
         ItemTrackingLines."Quantity (Base)".SetValue(QtyBase);
+    end;
+
+    [ModalPageHandler]
+    procedure NoSeriesListPageHandler(var NoSeriesList: TestPage "No. Series List")
+    begin
+        NoSeriesList.OK().Invoke();
     end;
 }
 
