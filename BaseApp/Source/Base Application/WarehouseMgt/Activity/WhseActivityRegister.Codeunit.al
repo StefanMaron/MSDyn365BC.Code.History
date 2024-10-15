@@ -1,3 +1,34 @@
+﻿namespace Microsoft.Warehouse.Activity;
+
+using Microsoft.Assembly.Document;
+using Microsoft.Foundation.AuditCodes;
+using Microsoft.Foundation.NoSeries;
+using Microsoft.Foundation.UOM;
+using Microsoft.Inventory.Item;
+using Microsoft.Inventory.Ledger;
+using Microsoft.Inventory.Location;
+using Microsoft.Inventory.Tracking;
+using Microsoft.Manufacturing.Document;
+using Microsoft.Projects.Project.Job;
+using Microsoft.Projects.Project.Planning;
+using Microsoft.Sales.Customer;
+using Microsoft.Sales.Document;
+using Microsoft.Warehouse.Activity.History;
+using Microsoft.Warehouse.Availability;
+using Microsoft.Warehouse.Comment;
+using Microsoft.Warehouse.Document;
+using Microsoft.Warehouse.History;
+using Microsoft.Warehouse.InternalDocument;
+using Microsoft.Warehouse.InventoryDocument;
+using Microsoft.Warehouse.Journal;
+using Microsoft.Warehouse.Ledger;
+using Microsoft.Warehouse.Request;
+using Microsoft.Warehouse.Setup;
+using Microsoft.Warehouse.Structure;
+using Microsoft.Warehouse.Tracking;
+using Microsoft.Warehouse.Worksheet;
+using System.Utilities;
+
 codeunit 7307 "Whse.-Activity-Register"
 {
     Permissions = TableData "Registered Whse. Activity Hdr." = ri,
@@ -119,7 +150,7 @@ codeunit 7307 "Whse.-Activity-Register"
                     if Type <> Type::Movement then
                         UpdateWhseSourceDocLine(TempWhseActivityLineGrouped);
                     UpdateWhseDocHeader(TempWhseActivityLineGrouped);
-                    TempWhseActivityLineGrouped.DeleteBinContent("Warehouse Action Type"::Take.AsInteger());
+                    TempWhseActivityLineGrouped.DeleteBinContent(Enum::"Warehouse Action Type"::Take.AsInteger());
                 until TempWhseActivityLineGrouped.Next() = 0;
 
             SyncItemTrackingAndReserveSourceDocument(TempWhseActivLineToReserve);
@@ -137,7 +168,7 @@ codeunit 7307 "Whse.-Activity-Register"
                         ShouldDeleteOldLine := (LineCount = 1) and
                             ((OldWhseActivLine."Whse. Document Type" <> GlobalWhseActivLine."Whse. Document Type") or
                              (OldWhseActivLine."Whse. Document No." <> GlobalWhseActivLine."Whse. Document No."));
-                        OnCodeOnAfterCalcShouldDeleteOldLine(OldWhseActivLine, GlobalWhseActivLine, ShouldDeleteOldLine);
+                        OnCodeOnAfterCalcShouldDeleteOldLine(OldWhseActivLine, GlobalWhseActivLine, ShouldDeleteOldLine, LineCount);
                         if ShouldDeleteOldLine then begin
                             LineCount := 0;
                             OldWhseActivLine.Delete();
@@ -526,7 +557,7 @@ codeunit 7307 "Whse.-Activity-Register"
                             WhsePutAwayRqst.SetRange("Document No.", PostedWhseRcptHeader."No.");
                             WhsePutAwayRqst.DeleteAll();
                             ItemTrackingMgt.DeleteWhseItemTrkgLines(
-                              DATABASE::"Posted Whse. Receipt Line", 0, PostedWhseRcptHeader."No.", '', 0, 0, '', false);
+                              Database::"Posted Whse. Receipt Line", 0, PostedWhseRcptHeader."No.", '', 0, 0, '', false);
                         end;
                     end;
                 "Whse. Document Type"::"Internal Pick":
@@ -578,7 +609,7 @@ codeunit 7307 "Whse.-Activity-Register"
                             WhsePickRqst.SetRange("Document No.", ProdOrder."No.");
                             WhsePickRqst.ModifyAll("Completely Picked", true);
                             ItemTrackingMgt.DeleteWhseItemTrkgLines(
-                              DATABASE::"Prod. Order Component", "Source Subtype", "Source No.", '', 0, 0, '', false);
+                              Database::"Prod. Order Component", "Source Subtype", "Source No.", '', 0, 0, '', false);
                         end;
                     end;
                 "Whse. Document Type"::Assembly:
@@ -589,7 +620,7 @@ codeunit 7307 "Whse.-Activity-Register"
                             WhsePickRqst.SetRange("Document No.", AssemblyHeader."No.");
                             WhsePickRqst.ModifyAll("Completely Picked", true);
                             ItemTrackingMgt.DeleteWhseItemTrkgLines(
-                              DATABASE::"Assembly Line", "Source Subtype", "Source No.", '', 0, 0, '', false);
+                              Database::"Assembly Line", "Source Subtype", "Source No.", '', 0, 0, '', false);
                         end;
                     end;
                 "Whse. Document Type"::Job:
@@ -601,20 +632,12 @@ codeunit 7307 "Whse.-Activity-Register"
                             WhsePickRqst.SetRange("Document No.", Job."No.");
                             WhsePickRqst.ModifyAll("Completely Picked", true);
                             ItemTrackingMgt.DeleteWhseItemTrkgLines(
-                              DATABASE::"Job Planning Line", "Source Subtype", "Source No.", '', 0, 0, '', false);
+                              Database::"Job Planning Line", "Source Subtype", "Source No.", '', 0, 0, '', false);
                         end;
                     end;
             end;
         OnAfterUpdateWhseDocHeader(WhseActivLine);
     end;
-
-#if not CLEAN20
-    [Obsolete('Replaced by UpdateWhseShipmentLine with parameter WhseActivityLine', '20.0')]
-    procedure UpdateWhseShptLine(WhseDocNo: Code[20]; WhseDocLineNo: Integer; QtyToHandle: Decimal; QtyToHandleBase: Decimal; QtyPerUOM: Decimal)
-    begin
-        UpdateWhseShipmentLine(GlobalWhseActivLine, WhseDocNo, WhseDocLineNo, QtyToHandle, QtyToHandleBase, QtyPerUOM);
-    end;
-#endif
 
     procedure UpdateWhseShipmentLine(WhseActivityLineGrouped: Record "Warehouse Activity Line"; WhseDocNo: Code[20]; WhseDocLineNo: Integer; QtyToHandle: Decimal; QtyToHandleBase: Decimal; QtyPerUOM: Decimal)
     var
@@ -1057,8 +1080,7 @@ codeunit 7307 "Whse.-Activity-Register"
             until TempWhseActivLine.Next() = 0;
 
         TempWhseActivLine.Reset();
-        TempWhseActivLine.SetCurrentKey(
-          "Source Type", "Source Subtype", "Source No.", "Source Line No.", "Source Subline No.");
+        TempWhseActivLine.SetCurrentKey("Source Type", "Source Subtype", "Source No.", "Source Line No.", "Source Subline No.");
         TempWhseActivLine.SetRange("Breakbulk No.", 0);
         OnCheckWhseItemTrkgLineOnAfterTempWhseActivLineSetFilters(TempWhseActivLine);
         if TempWhseActivLine.Find('-') then
@@ -1198,13 +1220,13 @@ codeunit 7307 "Whse.-Activity-Register"
 
                 if WhseActivLine2."Activity Type" = WhseActivLine2."Activity Type"::"Invt. Movement" then
                     case WhseActivLine2."Source Type" of
-                        DATABASE::"Prod. Order Component":
+                        Database::"Prod. Order Component":
                             begin
                                 ProdOrderComp.Get(WhseActivLine2."Source Subtype", WhseActivLine2."Source No.",
                                   WhseActivLine2."Source Line No.", WhseActivLine2."Source Subline No.");
                                 DueDate := ProdOrderComp."Due Date";
                             end;
-                        DATABASE::"Assembly Line":
+                        Database::"Assembly Line":
                             begin
                                 AssemblyLine.Get(WhseActivLine2."Source Subtype", WhseActivLine2."Source No.",
                                   WhseActivLine2."Source Line No.");
@@ -1472,35 +1494,35 @@ codeunit 7307 "Whse.-Activity-Register"
             case WhseDocType2 of
                 "Whse. Document Type"::Receipt:
                     WhseItemTrkgLine.SetSource(
-                      DATABASE::"Posted Whse. Receipt Line", 0, "Whse. Document No.", "Whse. Document Line No.", '', 0);
+                      Database::"Posted Whse. Receipt Line", 0, "Whse. Document No.", "Whse. Document Line No.", '', 0);
                 "Whse. Document Type"::Shipment:
                     WhseItemTrkgLine.SetSource(
-                      DATABASE::"Warehouse Shipment Line", 0, "Whse. Document No.", "Whse. Document Line No.", '', 0);
+                      Database::"Warehouse Shipment Line", 0, "Whse. Document No.", "Whse. Document Line No.", '', 0);
                 "Whse. Document Type"::"Internal Put-away":
                     WhseItemTrkgLine.SetSource(
-                      DATABASE::"Whse. Internal Put-away Line", 0, "Whse. Document No.", "Whse. Document Line No.", '', 0);
+                      Database::"Whse. Internal Put-away Line", 0, "Whse. Document No.", "Whse. Document Line No.", '', 0);
                 "Whse. Document Type"::"Internal Pick":
                     WhseItemTrkgLine.SetSource(
-                      DATABASE::"Whse. Internal Pick Line", 0, "Whse. Document No.", "Whse. Document Line No.", '', 0);
+                      Database::"Whse. Internal Pick Line", 0, "Whse. Document No.", "Whse. Document Line No.", '', 0);
                 "Whse. Document Type"::Production:
                     WhseItemTrkgLine.SetSource(
-                      DATABASE::"Prod. Order Component", "Source Subtype", "Source No.", "Source Subline No.", '', "Source Line No.");
+                      Database::"Prod. Order Component", "Source Subtype", "Source No.", "Source Subline No.", '', "Source Line No.");
                 "Whse. Document Type"::Assembly:
                     WhseItemTrkgLine.SetSource(
-                      DATABASE::"Assembly Line", "Source Subtype", "Source No.", "Source Line No.", '', 0);
+                      Database::"Assembly Line", "Source Subtype", "Source No.", "Source Line No.", '', 0);
                 "Whse. Document Type"::Job:
                     WhseItemTrkgLine.SetSource(
-                      DATABASE::"Job Planning Line", 2, "Source No.", "Source Line No.", '', 0);
+                      Database::"Job Planning Line", 2, "Source No.", "Source Line No.", '', 0);
                 "Whse. Document Type"::"Movement Worksheet":
                     WhseItemTrkgLine.SetSource(
-                      DATABASE::"Whse. Worksheet Line", 0, "Source No.", "Whse. Document Line No.",
+                      Database::"Whse. Worksheet Line", 0, "Source No.", "Whse. Document Line No.",
                       CopyStr("Whse. Document No.", 1, MaxStrLen(WhseItemTrkgLine."Source Batch Name")), 0);
             end;
             OnSetPointerOnAfterWhseDocTypeSetSource(WhseActivLine, WhseDocType2.AsInteger(), WhseItemTrkgLine);
             WhseItemTrkgLine."Location Code" := "Location Code";
             if "Activity Type" = "Activity Type"::"Invt. Movement" then begin
                 WhseItemTrkgLine.SetSource("Source Type", "Source Subtype", "Source No.", "Source Line No.", '', 0);
-                if "Source Type" = DATABASE::"Prod. Order Component" then
+                if "Source Type" = Database::"Prod. Order Component" then
                     WhseItemTrkgLine.SetSource("Source Type", "Source Subtype", "Source No.", "Source Subline No.", '', "Source Line No.")
                 else
                     WhseItemTrkgLine.SetSource("Source Type", "Source Subtype", "Source No.", "Source Line No.", '', 0);
@@ -1738,7 +1760,7 @@ codeunit 7307 "Whse.-Activity-Register"
         with WhseActivLine2 do begin
             NextEntryNo := TempTrackingSpecification.GetLastEntryNo() + 1;
             TempTrackingSpecification.Init();
-            if WhseActivLine2."Source Type" = DATABASE::"Prod. Order Component" then
+            if WhseActivLine2."Source Type" = Database::"Prod. Order Component" then
                 TempTrackingSpecification.SetSource("Source Type", "Source Subtype", "Source No.", "Source Subline No.", '', "Source Line No.")
             else
                 TempTrackingSpecification.SetSource("Source Type", "Source Subtype", "Source No.", "Source Line No.", '', 0);
@@ -2016,7 +2038,7 @@ codeunit 7307 "Whse.-Activity-Register"
                 SalesLine.Get(
                   SalesLine."Document Type"::Order, TempWhseActivLineToReserve."Source No.", TempWhseActivLineToReserve."Source Line No.");
                 ReservationEntry.SetSourceFilter(
-                  DATABASE::"Sales Line", SalesLine."Document Type".AsInteger(), SalesLine."Document No.", SalesLine."Line No.", true);
+                  Database::"Sales Line", SalesLine."Document Type".AsInteger(), SalesLine."Document No.", SalesLine."Line No.", true);
                 ReservationEntry.SetFilter("Item Tracking", '<>%1', ReservationEntry."Item Tracking"::None);
                 ReservationEntry.SetRange(Binding, ReservationEntry.Binding::"Order-to-Order");
 
@@ -2586,7 +2608,7 @@ codeunit 7307 "Whse.-Activity-Register"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnCodeOnAfterCalcShouldDeleteOldLine(OldWarehouseActivityLine: Record "Warehouse Activity Line"; WarehouseActivityLine: Record "Warehouse Activity Line"; var ShouldDeleteOldLine: Boolean)
+    local procedure OnCodeOnAfterCalcShouldDeleteOldLine(OldWarehouseActivityLine: Record "Warehouse Activity Line"; WarehouseActivityLine: Record "Warehouse Activity Line"; var ShouldDeleteOldLine: Boolean; var LineCount: Integer)
     begin
     end;
 

@@ -1,3 +1,8 @@
+namespace Microsoft.Inventory.Requisition;
+
+using Microsoft.Finance.GeneralLedger.Account;
+using Microsoft.Purchases.Vendor;
+
 codeunit 330 ReqJnlManagement
 {
     Permissions = TableData "Req. Wksh. Template" = rimd,
@@ -17,15 +22,6 @@ codeunit 330 ReqJnlManagement
         Text99000000: Label '%1 Worksheet';
         Text99000001: Label 'Recurring Worksheet';
 
-#if not CLEAN20
-    [Obsolete('Replaced by procedure WkshTemplateSelection()', '20.0')]
-    procedure TemplateSelection(PageID: Integer; RecurringJnl: Boolean; TemplateType: Option "Req.","For. Labor",Planning; var ReqLine: Record "Requisition Line"; var JnlSelected: Boolean)
-    begin
-        WkshTemplateSelection(
-            PageID, RecurringJnl, "Req. Worksheet Template Type".FromInteger(TemplateType), ReqLine, JnlSelected);
-    end;
-#endif
-
     procedure WkshTemplateSelection(PageID: Integer; RecurringJnl: Boolean; TemplateType: Enum "Req. Worksheet Template Type"; var ReqLine: Record "Requisition Line"; var JnlSelected: Boolean)
     var
         ReqWkshTemplate: Record "Req. Wksh. Template";
@@ -36,9 +32,6 @@ codeunit 330 ReqJnlManagement
         ReqWkshTemplate.SetRange("Page ID", PageID);
         ReqWkshTemplate.SetRange(Recurring, RecurringJnl);
         ReqWkshTemplate.SetRange(Type, TemplateType);
-#if not CLEAN20
-        OnTemplateSelectionSetFilter(ReqWkshTemplate, TemplateType);
-#endif        
         OnWkshTemplateSelectionSetFilter(ReqWkshTemplate, TemplateType);
 
         case ReqWkshTemplate.Count() of
@@ -267,14 +260,6 @@ codeunit 330 ReqJnlManagement
     local procedure OnBeforeOpenJnl(var CurrentJnlBatchName: Code[10]; var ReqLine: Record "Requisition Line")
     begin
     end;
-
-#if not CLEAN20
-    [Obsolete('Replaced by event OnWkshTemplateSelectionSetFilter()', '20.0')]
-    [IntegrationEvent(false, false)]
-    local procedure OnTemplateSelectionSetFilter(var ReqWkshTemplate: Record "Req. Wksh. Template"; var Type: Option)
-    begin
-    end;
-#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnWkshTemplateSelectionSetFilter(var ReqWkshTemplate: Record "Req. Wksh. Template"; var Type: Enum "Req. Worksheet Template Type")

@@ -965,12 +965,21 @@ codeunit 134389 "ERM Customer Statistics"
     var
         Currency: Record Currency;
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
+        PurchasesPayablesSetup: Record "Purchases & Payables Setup";
+        SalesReceivablesSetup: Record "Sales & Receivables Setup";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"ERM Customer Statistics");
         if IsInitialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"ERM Customer Statistics");
-        
+
+        PurchasesPayablesSetup.Get();
+        PurchasesPayablesSetup.Validate("Link Doc. Date To Posting Date", true);
+        PurchasesPayablesSetup.Modify();
+        SalesReceivablesSetup.Get();
+        SalesReceivablesSetup.Validate("Link Doc. Date To Posting Date", true);
+        SalesReceivablesSetup.Modify();
+
         FindCurrency(Currency);
         LibraryERM.CreateExchangeRate(Currency.Code, CalcDate('<-1Y>', WorkDate()), LibraryRandom.RandDec(100, 2), LibraryRandom.RandDec(100, 2));
         LibraryERM.CreateExchangeRate(Currency.Code, CalcDate('<-2Y>', WorkDate()), LibraryRandom.RandDec(100, 2), LibraryRandom.RandDec(100, 2));

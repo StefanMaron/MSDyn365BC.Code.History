@@ -1,3 +1,5 @@
+namespace System.Threading;
+
 table 491 "Parallel Session Entry"
 {
     DataClassification = SystemMetadata;

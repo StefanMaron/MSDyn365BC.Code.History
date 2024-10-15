@@ -1,3 +1,5 @@
+namespace Microsoft.Finance.Dimension;
+
 table 482 "Reclas. Dimension Set Buffer"
 {
     Caption = 'Reclas. Dimension Set Buffer';
@@ -28,7 +30,7 @@ table 482 "Reclas. Dimension Set Buffer"
         {
             Caption = 'Dimension Value Code';
             DataClassification = SystemMetadata;
-            TableRelation = "Dimension Value".Code WHERE("Dimension Code" = FIELD("Dimension Code"));
+            TableRelation = "Dimension Value".Code where("Dimension Code" = field("Dimension Code"));
 
             trigger OnValidate()
             begin
@@ -44,7 +46,7 @@ table 482 "Reclas. Dimension Set Buffer"
         {
             Caption = 'New Dimension Value Code';
             DataClassification = SystemMetadata;
-            TableRelation = "Dimension Value".Code WHERE("Dimension Code" = FIELD("Dimension Code"));
+            TableRelation = "Dimension Value".Code where("Dimension Code" = field("Dimension Code"));
 
             trigger OnValidate()
             begin
@@ -58,23 +60,23 @@ table 482 "Reclas. Dimension Set Buffer"
         }
         field(6; "Dimension Name"; Text[30])
         {
-            CalcFormula = Lookup (Dimension.Name WHERE(Code = FIELD("Dimension Code")));
+            CalcFormula = Lookup (Dimension.Name where(Code = field("Dimension Code")));
             Caption = 'Dimension Name';
             Editable = false;
             FieldClass = FlowField;
         }
         field(7; "Dimension Value Name"; Text[50])
         {
-            CalcFormula = Lookup ("Dimension Value".Name WHERE("Dimension Code" = FIELD("Dimension Code"),
-                                                               Code = FIELD("Dimension Value Code")));
+            CalcFormula = Lookup ("Dimension Value".Name where("Dimension Code" = field("Dimension Code"),
+                                                               Code = field("Dimension Value Code")));
             Caption = 'Dimension Value Name';
             Editable = false;
             FieldClass = FlowField;
         }
         field(8; "New Dimension Value Name"; Text[50])
         {
-            CalcFormula = Lookup ("Dimension Value".Name WHERE("Dimension Code" = FIELD("Dimension Code"),
-                                                               Code = FIELD("New Dimension Value Code")));
+            CalcFormula = Lookup ("Dimension Value".Name where("Dimension Code" = field("Dimension Code"),
+                                                               Code = field("New Dimension Value Code")));
             Caption = 'New Dimension Value Name';
             Editable = false;
             FieldClass = FlowField;

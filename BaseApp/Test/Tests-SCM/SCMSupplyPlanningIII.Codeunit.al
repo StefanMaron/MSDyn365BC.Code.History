@@ -47,11 +47,8 @@
         ItemTrackingMode: Option " ","Assign Lot No.","Select Entries";
         QuantityNotCorrectErr: Label 'Quantity is not correct in Planning Worksheet';
         Direction: Option Outbound,Inbound;
-#if not CLEAN20
-        MustSetLocationErr: Label 'You must set a location filter.';
-#endif
         VersionsWillBeClosedMsg: Label 'All versions attached to the BOM will be closed. Close BOM?';
-        CannotPurchaseItemMsg: Label 'You cannot purchase item';
+        CannotPurchaseItemMsg: Label 'You cannot purchase Item %1 because the Purchasing Blocked check box is selected on the Item card.';
 
     [Test]
     [HandlerFunctions('MessageHandler,PlanningErrorLogPageHandler')]
@@ -1267,87 +1264,6 @@
         // [THEN] No Requisition Line is created
         VerifyEmptyRequisitionLine(Item."No.");
     end;
-#if not CLEAN20
-    [Test]
-    [Scope('OnPrem')]
-    procedure SetBlankLocationFilterOnProductionForecastPageForUnrevertedForecast()
-    var
-        Location: Record Location;
-        Item: Record Item;
-        ProductionForecastName: Record "Production Forecast Name";
-        ProductionForecast: TestPage "Demand Forecast";
-        Qty: Integer;
-    begin
-        // [FEATURE] [Production Forecast]
-        // [SCENARIO 201868] User must revert Production Forecast Entry with Location Code if he wants to use blank Location Code for forecast for the Item and the Date.
-        Initialize();
-
-        // [GIVEN] Item "I", Location "L", Production Forecast "F", Quantity "Q", Date "D".
-        LibraryInventory.CreateItem(Item);
-        LibraryWarehouse.CreateLocation(Location);
-        LibraryManufacturing.CreateProductionForecastName(ProductionForecastName);
-        Qty := LibraryRandom.RandIntInRange(10, 20);
-
-        ProductionForecast.OpenEdit;
-        ProductionForecast.ProductionForecastName.SetValue(ProductionForecastName.Name);
-
-        // [GIVEN] On Production Forecast Page for Forecast "F" set Location Filter "L" and for Item "I" set Quantity "Q" for Date "D".
-        UpdateProductionForecastMatrixField(ProductionForecast, Item, Qty, Location.Code);
-
-        // [WHEN] For Forecast "F" set blank Location Filter and for Item "I" set Quantity "Q" for Date "D"
-        asserterror UpdateProductionForecastMatrixField(ProductionForecast, Item, Qty, '');
-
-        // [THEN] Error "You must set a location filter." occurs.
-        Assert.ExpectedError(MustSetLocationErr);
-    end;
-
-    [Test]
-    [HandlerFunctions('CalculatePlanPlanWkshRequestPageHandler')]
-    [Scope('OnPrem')]
-    procedure SetBlankLocationFilterOnProductionForecastPageForRevertedForecastAndCalcRegenPlan()
-    var
-        Location: Record Location;
-        Item: Record Item;
-        ProductionForecastName: Record "Production Forecast Name";
-        RequisitionLine: Record "Requisition Line";
-        ProductionForecast: TestPage "Demand Forecast";
-        Qty: Decimal;
-    begin
-        // [FEATURE] [Production Forecast]
-        // [SCENARIO 201868] Revert Production Forecast Entry with Location Code, set blank Location Code for forecast for the Item and the Date and calculate regenerative plan.
-        Initialize();
-
-        // [GIVEN] Item "I", Location "L", Production Forecast "F", Quantity "Q", Date "D".
-        CreateItem(Item, Item."Reordering Policy"::Order, Item."Replenishment System"::Purchase);
-
-        LibraryWarehouse.CreateLocation(Location);
-        LibraryManufacturing.CreateProductionForecastName(ProductionForecastName);
-        Qty := LibraryRandom.RandIntInRange(10, 20);
-
-        ProductionForecast.OpenEdit;
-        ProductionForecast.ProductionForecastName.SetValue(ProductionForecastName.Name);
-
-        // [GIVEN] On Production Forecast Page for Forecast "F" set Location Filter "L" and for Item "I" set Quantity "Q" for Date "D".
-        UpdateProductionForecastMatrixField(ProductionForecast, Item, Qty, Location.Code);
-
-        // [GIVEN] Revert previously created entry - on Production Forecast Page for Forecast "F" set Location Filter "L" and for Item "I" set Quantity 0 for Date "D".
-        UpdateProductionForecastMatrixField(ProductionForecast, Item, 0, Location.Code);
-
-        // [GIVEN] On Production Forecast Page for Forecast "F" set blank Location Filter and for Item "I" set Quantity "Q" for Date "D".
-        UpdateProductionForecastMatrixField(ProductionForecast, Item, Qty, '');
-
-        // [WHEN]  Calculate regenerative plan for the "I" using "F"
-        UpdateForecastOnManufacturingSetup(ProductionForecastName.Name);
-        CalcRegenPlanForPlanWkshPage(Item."No.", Item."No.");
-
-        // [THEN]  Single Requisition Line is created, quantity is "Q", planning Location Code is blank.
-        SelectRequisitionLine(RequisitionLine, Item."No.");
-        Assert.RecordCount(RequisitionLine, 1);
-        RequisitionLine.FindFirst();
-        RequisitionLine.TestField("Location Code", '');
-        RequisitionLine.TestField(Quantity, Qty);
-    end;
-#endif
 
     [Test]
     [HandlerFunctions('CalculatePlanPlanWkshRequestPageHandler')]
@@ -2976,7 +2892,7 @@
         CreateRequisitionLineForNewPurchase(RequisitionLine, RequisitionWkshName, Item."No.");
 
         // [WHEN] Carry out action messages.
-        LibraryVariableStorage.Enqueue(CannotPurchaseItemMsg);
+        LibraryVariableStorage.Enqueue(StrSubstNo(CannotPurchaseItemMsg, BlockedItem."No."));
         RequisitionLine.SetFilter("No.", '%1|%2', BlockedItem."No.", Item."No.");
         LibraryPlanning.CarryOutActionMsgPlanWksh(RequisitionLine);
 
@@ -4156,15 +4072,6 @@
         ReservationEntry.SetRange("Reservation Status", ReservationEntry."Reservation Status"::Reservation);
         ReservationEntry.SetFilter("Source Type", SourceTypeFilter);
     end;
-
-#if not CLEAN20
-    local procedure UpdateProductionForecastMatrixField(var ProductionForecast: TestPage "Demand Forecast"; Item: Record Item; Qty: Integer; LocationCode: Code[10])
-    begin
-        ProductionForecast.LocationFilter.SetValue(LocationCode);
-        ProductionForecast.Matrix.GotoRecord(Item);
-        ProductionForecast.Matrix.Field1.SetValue(Qty);
-    end;
-#endif
 
     local procedure UpdateDemandForecastVariantMatrixField(var DemandForecastCard: TestPage "Demand Forecast Card"; Item: Record Item; Qty: Integer)
     begin

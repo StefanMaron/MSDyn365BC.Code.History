@@ -1119,7 +1119,7 @@ codeunit 138024 "O365 Totals and Inv.Disc.Purch"
         Assert.IsTrue(PurchaseInvoice.PurchLines."Invoice Disc. Pct.".Editable, FieldShouldBeEditableTxt);
         Assert.IsTrue(PurchaseInvoice.PurchLines.InvoiceDiscountAmount.Editable, FieldShouldBeEditableTxt);
 
-        PurchaseHeader.Get(PurchaseHeader."Document Type"::Invoice, PurchaseInvoice."No.");
+        PurchaseHeader.Get(PurchaseHeader."Document Type"::Invoice, PurchaseInvoice."No.".Value());
         PurchaseInvoice.Close();
 
         PurchaseInvoice.OpenView;

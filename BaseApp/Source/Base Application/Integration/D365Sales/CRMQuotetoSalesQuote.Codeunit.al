@@ -1,3 +1,20 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Integration.D365Sales;
+
+using Microsoft.Integration.Dataverse;
+using Microsoft.Integration.SyncEngine;
+using Microsoft.Inventory.Item;
+using Microsoft.Projects.Resources.Resource;
+using Microsoft.Sales.Customer;
+using Microsoft.Sales.Document;
+using Microsoft.Sales.Setup;
+using Microsoft.Utilities;
+using System.Environment.Configuration;
+using System.Utilities;
+
 codeunit 5348 "CRM Quote to Sales Quote"
 {
     TableNo = "CRM Quote";
@@ -599,20 +616,6 @@ codeunit 5348 "CRM Quote to Sales Quote"
         while not LineDescriptionInStream.EOS() do begin
             LineDescriptionInStream.ReadText(ExtendedDescription);
             CreateExtendedDescriptionQuoteLines(SalesHeader, ExtendedDescription, SalesLine."Line No.");
-        end;
-    end;
-
-    [Obsolete('Replaced with the overload containing QuoteLineNo', '18.0')]
-    procedure CreateExtendedDescriptionQuoteLines(SalesHeader: Record "Sales Header"; FullDescription: Text)
-    var
-        SalesLine: Record "Sales Line";
-    begin
-        while StrLen(FullDescription) > 0 do begin
-            InitNewSalesLine(SalesHeader, SalesLine);
-
-            SalesLine.Validate(Description, CopyStr(FullDescription, 1, MaxStrLen(SalesLine.Description)));
-            SalesLine.Insert();
-            FullDescription := CopyStr(FullDescription, MaxStrLen(SalesLine.Description) + 1);
         end;
     end;
 

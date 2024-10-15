@@ -3458,9 +3458,18 @@
     begin
         LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
         Location.Validate("Require Put-away", true);
+        Location.Validate("Always Create Put-away Line", true);
         Location.Validate("Require Pick", true);
         Location.Validate("Require Receive", RequireReceive);
         Location.Validate("Require Shipment", RequireShipment);
+        if Location."Require Pick" then
+            if Location."Require Shipment" then
+                Location."Prod. Consump. Whse. Handling" := Location."Prod. Consump. Whse. Handling"::"Warehouse Pick (mandatory)"
+            else
+                Location."Prod. Consump. Whse. Handling" := Location."Prod. Consump. Whse. Handling"::"Inventory Pick/Movement";
+
+        if Location."Require Put-away" then
+            Location."Prod. Output Whse. Handling" := Location."Prod. Output Whse. Handling"::"Inventory Put-away";
         Location.Modify(true);
     end;
 

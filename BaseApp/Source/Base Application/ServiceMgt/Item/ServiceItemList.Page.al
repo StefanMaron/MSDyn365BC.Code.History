@@ -1,3 +1,16 @@
+namespace Microsoft.Service.Item;
+
+using Microsoft.Finance.Dimension;
+using Microsoft.Inventory.Item;
+using Microsoft.Service.Comment;
+using Microsoft.Service.Contract;
+using Microsoft.Service.Document;
+using Microsoft.Service.History;
+using Microsoft.Service.Ledger;
+using Microsoft.Service.Maintenance;
+using Microsoft.Service.Reports;
+using Microsoft.Service.Resources;
+
 page 5981 "Service Item List"
 {
     ApplicationArea = Service;
@@ -83,7 +96,7 @@ page 5981 "Service Item List"
                     ToolTip = 'Specifies the status of the service item.';
                     Visible = false;
                 }
-                field(Priority; Priority)
+                field(Priority; Rec.Priority)
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the service priority for this item.';
@@ -150,9 +163,9 @@ page 5981 "Service Item List"
                     Caption = 'Com&ponent List';
                     Image = Components;
                     RunObject = Page "Service Item Component List";
-                    RunPageLink = Active = CONST(true),
-                                  "Parent Service Item No." = FIELD("No.");
-                    RunPageView = SORTING(Active, "Parent Service Item No.", "Line No.");
+                    RunPageLink = Active = const(true),
+                                  "Parent Service Item No." = field("No.");
+                    RunPageView = sorting(Active, "Parent Service Item No.", "Line No.");
                     ToolTip = 'View the list of components in the service item.';
                 }
                 group(Dimensions)
@@ -165,8 +178,8 @@ page 5981 "Service Item List"
                         Caption = '&Dimensions-Single';
                         Image = Dimensions;
                         RunObject = Page "Default Dimensions";
-                        RunPageLink = "Table ID" = CONST(5940),
-                                      "No." = FIELD("No.");
+                        RunPageLink = "Table ID" = const(5940),
+                                      "No." = field("No.");
                         ShortCutKey = 'Alt+D';
                         ToolTip = 'View or edit dimensions, such as area, project, or department, that you can assign to journal lines to distribute costs and analyze transaction history.';
                     }
@@ -184,7 +197,7 @@ page 5981 "Service Item List"
                             DefaultDimMultiple: Page "Default Dimensions-Multiple";
                         begin
                             CurrPage.SetSelectionFilter(ServiceItem);
-                            DefaultDimMultiple.SetMultiRecord(ServiceItem, FieldNo("No."));
+                            DefaultDimMultiple.SetMultiRecord(ServiceItem, Rec.FieldNo("No."));
                             DefaultDimMultiple.RunModal();
                         end;
                     }
@@ -199,7 +212,7 @@ page 5981 "Service Item List"
                         Caption = 'Statistics';
                         Image = Statistics;
                         RunObject = Page "Service Item Statistics";
-                        RunPageLink = "No." = FIELD("No.");
+                        RunPageLink = "No." = field("No.");
                         ShortCutKey = 'F7';
                         ToolTip = 'View statistical information, such as the value of posted entries, for the record.';
                     }
@@ -209,7 +222,7 @@ page 5981 "Service Item List"
                         Caption = 'Tr&endscape';
                         Image = Trendscape;
                         RunObject = Page "Service Item Trendscape";
-                        RunPageLink = "No." = FIELD("No.");
+                        RunPageLink = "No." = field("No.");
                         ToolTip = 'View a detailed account of service item transactions by time intervals.';
                     }
                 }
@@ -223,8 +236,8 @@ page 5981 "Service Item List"
                         Caption = 'Troubleshooting Setup';
                         Image = Troubleshoot;
                         RunObject = Page "Troubleshooting Setup";
-                        RunPageLink = Type = CONST("Service Item"),
-                                      "No." = FIELD("No.");
+                        RunPageLink = Type = const("Service Item"),
+                                      "No." = field("No.");
                         ToolTip = 'View or edit your settings for troubleshooting service items.';
                     }
                     action(Action3)
@@ -248,8 +261,8 @@ page 5981 "Service Item List"
                     Caption = 'Resource Skills';
                     Image = ResourceSkills;
                     RunObject = Page "Resource Skills";
-                    RunPageLink = Type = CONST("Service Item"),
-                                  "No." = FIELD("No.");
+                    RunPageLink = Type = const("Service Item"),
+                                  "No." = field("No.");
                     ToolTip = 'View the assignment of skills to resources, items, service item groups, and service items. You can use skill codes to allocate skilled resources to service items or items that need special skills for servicing.';
                 }
                 action("S&killed Resources")
@@ -262,7 +275,7 @@ page 5981 "Service Item List"
                     trigger OnAction()
                     begin
                         Clear(SkilledResourceList);
-                        SkilledResourceList.Initialize(ResourceSkill.Type::"Service Item", "No.", Description);
+                        SkilledResourceList.Initialize(ResourceSkill.Type::"Service Item", Rec."No.", Rec.Description);
                         SkilledResourceList.RunModal();
                     end;
                 }
@@ -272,9 +285,9 @@ page 5981 "Service Item List"
                     Caption = 'Co&mments';
                     Image = ViewComments;
                     RunObject = Page "Service Comment Sheet";
-                    RunPageLink = "Table Name" = CONST("Service Item"),
-                                  "Table Subtype" = CONST("0"),
-                                  "No." = FIELD("No.");
+                    RunPageLink = "Table Name" = const("Service Item"),
+                                  "Table Subtype" = const("0"),
+                                  "No." = field("No.");
                     ToolTip = 'View or add comments for the record.';
                 }
             }
@@ -292,8 +305,8 @@ page 5981 "Service Item List"
                         Caption = '&Item Lines';
                         Image = ItemLines;
                         RunObject = Page "Service Item Lines";
-                        RunPageLink = "Service Item No." = FIELD("No.");
-                        RunPageView = SORTING("Service Item No.");
+                        RunPageLink = "Service Item No." = field("No.");
+                        RunPageView = sorting("Service Item No.");
                         ToolTip = 'View ongoing service item lines for the item. ';
                     }
                     action("&Service Lines")
@@ -302,8 +315,8 @@ page 5981 "Service Item List"
                         Caption = '&Service Lines';
                         Image = ServiceLines;
                         RunObject = Page "Service Line List";
-                        RunPageLink = "Service Item No." = FIELD("No.");
-                        RunPageView = SORTING("Service Item No.");
+                        RunPageLink = "Service Item No." = field("No.");
+                        RunPageView = sorting("Service Item No.");
                         ToolTip = 'View ongoing service lines for the item.';
                     }
                 }
@@ -317,8 +330,8 @@ page 5981 "Service Item List"
                         Caption = '&Item Lines';
                         Image = ItemLines;
                         RunObject = Page "Posted Shpt. Item Line List";
-                        RunPageLink = "Service Item No." = FIELD("No.");
-                        RunPageView = SORTING("Service Item No.");
+                        RunPageLink = "Service Item No." = field("No.");
+                        RunPageView = sorting("Service Item No.");
                         ToolTip = 'View ongoing service item lines for the item. ';
                     }
                     action(Action68)
@@ -327,8 +340,8 @@ page 5981 "Service Item List"
                         Caption = '&Service Lines';
                         Image = ServiceLines;
                         RunObject = Page "Posted Serv. Shpt. Line List";
-                        RunPageLink = "Service Item No." = FIELD("No.");
-                        RunPageView = SORTING("Service Item No.");
+                        RunPageLink = "Service Item No." = field("No.");
+                        RunPageView = sorting("Service Item No.");
                         ToolTip = 'View ongoing service lines for the item.';
                     }
                 }
@@ -338,8 +351,8 @@ page 5981 "Service Item List"
                     Caption = 'Ser&vice Contracts';
                     Image = ServiceAgreement;
                     RunObject = Page "Serv. Contr. List (Serv. Item)";
-                    RunPageLink = "Service Item No." = FIELD("No.");
-                    RunPageView = SORTING("Service Item No.", "Contract Status");
+                    RunPageLink = "Service Item No." = field("No.");
+                    RunPageView = sorting("Service Item No.", "Contract Status");
                     ToolTip = 'Open the list of ongoing service contracts.';
                 }
             }
@@ -353,7 +366,7 @@ page 5981 "Service Item List"
                     Caption = 'Service Item Lo&g';
                     Image = Log;
                     RunObject = Page "Service Item Log";
-                    RunPageLink = "Service Item No." = FIELD("No.");
+                    RunPageLink = "Service Item No." = field("No.");
                     ToolTip = 'View a list of the service document changes that have been logged. The program creates entries in the window when, for example, the response time or service order status changed, a resource was allocated, a service order was shipped or invoiced, and so on. Each line in this window identifies the event that occurred to the service document. The line contains the information about the field that was changed, its old and new value, the date and time when the change took place, and the ID of the user who actually made the changes.';
                 }
                 action("Service Ledger E&ntries")
@@ -362,11 +375,11 @@ page 5981 "Service Item List"
                     Caption = 'Service Ledger E&ntries';
                     Image = ServiceLedger;
                     RunObject = Page "Service Ledger Entries";
-                    RunPageLink = "Service Item No. (Serviced)" = FIELD("No."),
-                                  "Service Order No." = FIELD("Service Order Filter"),
-                                  "Service Contract No." = FIELD("Contract Filter"),
-                                  "Posting Date" = FIELD("Date Filter");
-                    RunPageView = SORTING("Service Item No. (Serviced)", "Entry Type", "Moved from Prepaid Acc.", Type, "Posting Date");
+                    RunPageLink = "Service Item No. (Serviced)" = field("No."),
+                                  "Service Order No." = field("Service Order Filter"),
+                                  "Service Contract No." = field("Contract Filter"),
+                                  "Posting Date" = field("Date Filter");
+                    RunPageView = sorting("Service Item No. (Serviced)", "Entry Type", "Moved from Prepaid Acc.", Type, "Posting Date");
                     ShortCutKey = 'Ctrl+F7';
                     ToolTip = 'View all the ledger entries for the service item or service order that result from posting transactions in service documents.';
                 }
@@ -376,8 +389,8 @@ page 5981 "Service Item List"
                     Caption = '&Warranty Ledger Entries';
                     Image = WarrantyLedger;
                     RunObject = Page "Warranty Ledger Entries";
-                    RunPageLink = "Service Item No. (Serviced)" = FIELD("No.");
-                    RunPageView = SORTING("Service Item No. (Serviced)", "Posting Date", "Document No.");
+                    RunPageLink = "Service Item No. (Serviced)" = field("No.");
+                    RunPageView = sorting("Service Item No. (Serviced)", "Posting Date", "Document No.");
                     ToolTip = 'View all the ledger entries for the service item or service order that result from posting transactions in service documents that contain warranty agreements.';
                 }
             }

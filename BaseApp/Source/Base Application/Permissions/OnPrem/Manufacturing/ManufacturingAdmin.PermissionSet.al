@@ -1,3 +1,16 @@
+namespace System.Security.AccessControl;
+
+using Microsoft.Manufacturing.Family;
+using Microsoft.Inventory.Item;
+using Microsoft.Inventory.Location;
+using Microsoft.Manufacturing.Setup;
+using Microsoft.Foundation.NoSeries;
+using Microsoft.Manufacturing.Forecast;
+using Microsoft.Manufacturing.Routing;
+using Microsoft.Projects.Project.Journal;
+using Microsoft.Foundation.AuditCodes;
+using Microsoft.Foundation.Reporting;
+
 permissionset 4855 "Manufacturing - Admin"
 {
     Access = Public;

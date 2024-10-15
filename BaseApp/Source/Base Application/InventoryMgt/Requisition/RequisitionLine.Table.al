@@ -1,4 +1,43 @@
-﻿table 246 "Requisition Line"
+﻿namespace Microsoft.Inventory.Requisition;
+
+using Microsoft.Assembly.Document;
+using Microsoft.CRM.Team;
+using Microsoft.Finance.Currency;
+using Microsoft.Finance.Dimension;
+using Microsoft.Finance.GeneralLedger.Account;
+using Microsoft.Finance.GeneralLedger.Setup;
+using Microsoft.Foundation.AuditCodes;
+using Microsoft.Foundation.NoSeries;
+using Microsoft.Foundation.UOM;
+using Microsoft.Inventory;
+using Microsoft.Inventory.Item;
+using Microsoft.Inventory.Item.Catalog;
+using Microsoft.Inventory.Location;
+using Microsoft.Inventory.Planning;
+using Microsoft.Inventory.Tracking;
+using Microsoft.Inventory.Transfer;
+using Microsoft.Manufacturing.Document;
+using Microsoft.Manufacturing.Forecast;
+using Microsoft.Manufacturing.ProductionBOM;
+using Microsoft.Manufacturing.Routing;
+using Microsoft.Manufacturing.Setup;
+using Microsoft.Manufacturing.WorkCenter;
+using Microsoft.Pricing.Calculation;
+using Microsoft.Pricing.PriceList;
+using Microsoft.Projects.Project.Job;
+using Microsoft.Projects.Project.Planning;
+using Microsoft.Purchases.Document;
+using Microsoft.Purchases.Vendor;
+using Microsoft.Sales.Customer;
+using Microsoft.Sales.Document;
+using Microsoft.Service.Document;
+using Microsoft.Warehouse.Journal;
+using Microsoft.Warehouse.Structure;
+using System.Reflection;
+using System.Security.AccessControl;
+using System.Security.User;
+
+table 246 "Requisition Line"
 {
     Caption = 'Requisition Line';
     DataCaptionFields = "Journal Batch Name", "Line No.";
@@ -18,7 +57,7 @@
         field(2; "Journal Batch Name"; Code[10])
         {
             Caption = 'Journal Batch Name';
-            TableRelation = "Requisition Wksh. Name".Name WHERE("Worksheet Template Name" = FIELD("Worksheet Template Name"));
+            TableRelation = "Requisition Wksh. Name".Name where("Worksheet Template Name" = field("Worksheet Template Name"));
         }
         field(3; "Line No."; Integer)
         {
@@ -51,9 +90,9 @@
         field(5; "No."; Code[20])
         {
             Caption = 'No.';
-            TableRelation = IF (Type = CONST("G/L Account")) "G/L Account"
-            ELSE
-            IF (Type = CONST(Item)) Item;
+            TableRelation = if (Type = const("G/L Account")) "G/L Account"
+            else
+            if (Type = const(Item)) Item;
 
             trigger OnValidate()
             var
@@ -148,8 +187,6 @@
         {
             Caption = 'Vendor No.';
             TableRelation = Vendor;
-            //This property is currently not supported
-            //TestTableRelation = false;
             ValidateTableRelation = false;
 
             trigger OnLookup()
@@ -183,7 +220,7 @@
                             if PlanningResiliency then
                                 TempPlanningErrorLog.SetError(
                                   StrSubstNo(Text031, Vend.TableCaption(), Vend."No."),
-                                  DATABASE::Vendor, Vend.GetPosition());
+                                  Database::Vendor, Vend.GetPosition());
                             Vend.VendPrivacyBlockedErrorMessage(Vend, false);
                         end;
                         CheckVendorBlocked(Vend);
@@ -234,7 +271,7 @@
         }
         field(10; "Direct Unit Cost"; Decimal)
         {
-            AutoFormatExpression = "Currency Code";
+            AutoFormatExpression = Rec."Currency Code";
             AutoFormatType = 2;
             Caption = 'Direct Unit Cost';
         }
@@ -271,8 +308,6 @@
         {
             Caption = 'Requester ID';
             TableRelation = User."User Name";
-            //This property is currently not supported
-            //TestTableRelation = false;
             ValidateTableRelation = false;
 
             trigger OnValidate()
@@ -290,30 +325,30 @@
         {
             CaptionClass = '1,2,1';
             Caption = 'Shortcut Dimension 1 Code';
-            TableRelation = "Dimension Value".Code WHERE("Global Dimension No." = CONST(1),
-                                                          Blocked = CONST(false));
+            TableRelation = "Dimension Value".Code where("Global Dimension No." = const(1),
+                                                          Blocked = const(false));
 
             trigger OnValidate()
             begin
-                ValidateShortcutDimCode(1, "Shortcut Dimension 1 Code");
+                Rec.ValidateShortcutDimCode(1, "Shortcut Dimension 1 Code");
             end;
         }
         field(16; "Shortcut Dimension 2 Code"; Code[20])
         {
             CaptionClass = '1,2,2';
             Caption = 'Shortcut Dimension 2 Code';
-            TableRelation = "Dimension Value".Code WHERE("Global Dimension No." = CONST(2),
-                                                          Blocked = CONST(false));
+            TableRelation = "Dimension Value".Code where("Global Dimension No." = const(2),
+                                                          Blocked = const(false));
 
             trigger OnValidate()
             begin
-                ValidateShortcutDimCode(2, "Shortcut Dimension 2 Code");
+                Rec.ValidateShortcutDimCode(2, "Shortcut Dimension 2 Code");
             end;
         }
         field(17; "Location Code"; Code[10])
         {
             Caption = 'Location Code';
-            TableRelation = Location WHERE("Use As In-Transit" = CONST(false));
+            TableRelation = Location where("Use As In-Transit" = const(false));
 
             trigger OnValidate()
             var
@@ -379,7 +414,7 @@
         {
             Caption = 'Sales Order No.';
             Editable = false;
-            TableRelation = "Sales Header"."No." WHERE("Document Type" = CONST(Order));
+            TableRelation = "Sales Header"."No." where("Document Type" = const(Order));
 
             trigger OnValidate()
             begin
@@ -407,7 +442,7 @@
                 if "Sell-to Customer No." = '' then
                     "Ship-to Code" := ''
                 else
-                    Validate("Ship-to Code", '');
+                    Rec.Validate("Ship-to Code", '');
 
                 ReserveReqLine.VerifyChange(Rec, xRec);
             end;
@@ -416,7 +451,7 @@
         {
             Caption = 'Ship-to Code';
             Editable = false;
-            TableRelation = "Ship-to Address".Code WHERE("Customer No." = FIELD("Sell-to Customer No."));
+            TableRelation = "Ship-to Address".Code where("Customer No." = field("Sell-to Customer No."));
 
             trigger OnValidate()
             var
@@ -441,7 +476,7 @@
         field(28; "Order Address Code"; Code[10])
         {
             Caption = 'Order Address Code';
-            TableRelation = "Order Address".Code WHERE("Vendor No." = FIELD("Vendor No."));
+            TableRelation = "Order Address".Code where("Vendor No." = field("Vendor No."));
         }
         field(29; "Currency Code"; Code[10])
         {
@@ -459,9 +494,9 @@
                     if PlanningResiliency then
                         CheckExchRate(Currency);
                     OnValidateCurrencyCodeOnBeforeUpdateCurrencyFactor(Rec, CurrExchRate);
-                    Validate("Currency Factor", CurrExchRate.ExchangeRate("Order Date", "Currency Code"));
+                    Rec.Validate("Currency Factor", CurrExchRate.ExchangeRate("Order Date", "Currency Code"));
                 end else
-                    Validate("Currency Factor", 0);
+                    Rec.Validate("Currency Factor", 0);
 
                 GetDirectCost(FieldNo("Currency Code"));
             end;
@@ -493,13 +528,13 @@
         }
         field(31; "Reserved Quantity"; Decimal)
         {
-            CalcFormula = Sum("Reservation Entry".Quantity WHERE("Source ID" = FIELD("Worksheet Template Name"),
-                                                                  "Source Ref. No." = FIELD("Line No."),
-                                                                  "Source Type" = CONST(246),
-                                                                  "Source Subtype" = CONST("0"),
-                                                                  "Source Batch Name" = FIELD("Journal Batch Name"),
-                                                                  "Source Prod. Order Line" = CONST(0),
-                                                                  "Reservation Status" = CONST(Reservation)));
+            CalcFormula = sum("Reservation Entry".Quantity where("Source ID" = field("Worksheet Template Name"),
+                                                                  "Source Ref. No." = field("Line No."),
+                                                                  "Source Type" = const(246),
+                                                                  "Source Subtype" = const("0"),
+                                                                  "Source Batch Name" = field("Journal Batch Name"),
+                                                                  "Source Prod. Order Line" = const(0),
+                                                                  "Reservation Status" = const(Reservation)));
             Caption = 'Reserved Quantity';
             DecimalPlaces = 0 : 5;
             Editable = false;
@@ -529,7 +564,7 @@
 
             trigger OnLookup()
             begin
-                ShowDimensions();
+                Rec.ShowDimensions();
             end;
 
             trigger OnValidate()
@@ -541,9 +576,7 @@
         {
             Caption = 'Prod. Order No.';
             Editable = false;
-            TableRelation = "Production Order"."No." WHERE(Status = CONST(Released));
-            //This property is currently not supported
-            //TestTableRelation = false;
+            TableRelation = "Production Order"."No." where(Status = const(Released));
             ValidateTableRelation = false;
 
             trigger OnValidate()
@@ -555,7 +588,7 @@
         field(5402; "Variant Code"; Code[10])
         {
             Caption = 'Variant Code';
-            TableRelation = IF (Type = CONST(Item)) "Item Variant".Code WHERE("Item No." = FIELD("No."));
+            TableRelation = if (Type = const(Item)) "Item Variant".Code where("Item No." = field("No."));
 
             trigger OnValidate()
             var
@@ -593,9 +626,9 @@
         field(5403; "Bin Code"; Code[20])
         {
             Caption = 'Bin Code';
-            TableRelation = Bin.Code WHERE("Location Code" = FIELD("Location Code"),
-                                            "Item Filter" = FIELD("No."),
-                                            "Variant Filter" = FIELD("Variant Code"));
+            TableRelation = Bin.Code where("Location Code" = field("Location Code"),
+                                            "Item Filter" = field("No."),
+                                            "Variant Filter" = field("Variant Code"));
 
             trigger OnValidate()
             begin
@@ -646,8 +679,8 @@
         field(5407; "Unit of Measure Code"; Code[10])
         {
             Caption = 'Unit of Measure Code';
-            TableRelation = IF (Type = CONST(Item)) "Item Unit of Measure".Code WHERE("Item No." = FIELD("No."))
-            ELSE
+            TableRelation = if (Type = const(Item)) "Item Unit of Measure".Code where("Item No." = field("No."))
+            else
             "Unit of Measure";
 
             trigger OnValidate()
@@ -691,13 +724,13 @@
         }
         field(5431; "Reserved Qty. (Base)"; Decimal)
         {
-            CalcFormula = Sum("Reservation Entry"."Quantity (Base)" WHERE("Source ID" = FIELD("Worksheet Template Name"),
-                                                                           "Source Ref. No." = FIELD("Line No."),
-                                                                           "Source Type" = CONST(246),
-                                                                           "Source Subtype" = CONST("0"),
-                                                                           "Source Batch Name" = FIELD("Journal Batch Name"),
-                                                                           "Source Prod. Order Line" = CONST(0),
-                                                                           "Reservation Status" = CONST(Reservation)));
+            CalcFormula = sum("Reservation Entry"."Quantity (Base)" where("Source ID" = field("Worksheet Template Name"),
+                                                                           "Source Ref. No." = field("Line No."),
+                                                                           "Source Type" = const(246),
+                                                                           "Source Subtype" = const("0"),
+                                                                           "Source Batch Name" = field("Journal Batch Name"),
+                                                                           "Source Prod. Order Line" = const(0),
+                                                                           "Reservation Status" = const(Reservation)));
             Caption = 'Reserved Qty. (Base)';
             DecimalPlaces = 0 : 5;
             Editable = false;
@@ -707,7 +740,7 @@
         {
             Caption = 'Demand Type';
             Editable = false;
-            TableRelation = AllObjWithCaption."Object ID" WHERE("Object Type" = CONST(Table));
+            TableRelation = AllObjWithCaption."Object ID" where("Object Type" = const(Table));
         }
         field(5521; "Demand Subtype"; Option)
         {
@@ -781,7 +814,7 @@
                 if Item.Reserve <> Item.Reserve::Optional then
                     TestField(Reserve, Item.Reserve = Item.Reserve::Always);
                 if Reserve and
-                   ("Demand Type" = DATABASE::"Prod. Order Component") and
+                   ("Demand Type" = Database::"Prod. Order Component") and
                    ("Demand Subtype" = ProdOrderCapNeed.Status::Planned.AsInteger())
                 then
                     Error(Text030);
@@ -799,14 +832,14 @@
         {
             Caption = 'Unit Of Measure Code (Demand)';
             Editable = false;
-            TableRelation = IF (Type = CONST(Item)) "Item Unit of Measure".Code WHERE("Item No." = FIELD("No."));
+            TableRelation = if (Type = const(Item)) "Item Unit of Measure".Code where("Item No." = field("No."));
         }
         field(5552; "Supply From"; Code[20])
         {
             Caption = 'Supply From';
-            TableRelation = IF ("Replenishment System" = CONST(Purchase)) Vendor
-            ELSE
-            IF ("Replenishment System" = CONST(Transfer)) Location WHERE("Use As In-Transit" = CONST(false));
+            TableRelation = if ("Replenishment System" = const(Purchase)) Vendor
+            else
+            if ("Replenishment System" = const(Transfer)) Location where("Use As In-Transit" = const(false));
 
             trigger OnLookup()
             var
@@ -846,7 +879,7 @@
         {
             Caption = 'Original Variant Code';
             Editable = false;
-            TableRelation = "Item Variant".Code WHERE("Item No." = FIELD("Original Item No."));
+            TableRelation = "Item Variant".Code where("Item No." = field("Original Item No."));
         }
         field(5560; Level; Integer)
         {
@@ -869,7 +902,7 @@
         field(5701; "Item Category Code"; Code[20])
         {
             Caption = 'Item Category Code';
-            TableRelation = IF (Type = CONST(Item)) "Item Category";
+            TableRelation = if (Type = const(Item)) "Item Category";
         }
         field(5702; Nonstock; Boolean)
         {
@@ -890,7 +923,7 @@
         field(5706; "Transfer-from Code"; Code[10])
         {
             Caption = 'Transfer-from Code';
-            TableRelation = Location WHERE("Use As In-Transit" = CONST(false));
+            TableRelation = Location where("Use As In-Transit" = const(false));
 
             trigger OnValidate()
             begin
@@ -916,10 +949,10 @@
         }
         field(7100; "Blanket Purch. Order Exists"; Boolean)
         {
-            CalcFormula = Exist("Purchase Line" WHERE("Document Type" = CONST("Blanket Order"),
-                                                       Type = CONST(Item),
-                                                       "No." = FIELD("No."),
-                                                       "Outstanding Quantity" = FILTER(<> 0)));
+            CalcFormula = exist("Purchase Line" where("Document Type" = const("Blanket Order"),
+                                                       Type = const(Item),
+                                                       "No." = field("No."),
+                                                       "Outstanding Quantity" = filter(<> 0)));
             Caption = 'Blanket Purch. Order Exists';
             Editable = false;
             FieldClass = FlowField;
@@ -956,7 +989,7 @@
                     if PlanningResiliency and (RoutingHeader.Status <> RoutingHeader.Status::Certified) then
                         TempPlanningErrorLog.SetError(
                           StrSubstNo(Text033, RoutingHeader.TableCaption(), RoutingHeader.FieldCaption("No."), RoutingHeader."No."),
-                          DATABASE::"Routing Header", RoutingHeader.GetPosition());
+                          Database::"Routing Header", RoutingHeader.GetPosition());
                     RoutingHeader.TestField(Status, RoutingHeader.Status::Certified);
                     "Routing Type" := RoutingHeader.Type;
                 end;
@@ -965,9 +998,9 @@
         field(99000751; "Operation No."; Code[10])
         {
             Caption = 'Operation No.';
-            TableRelation = "Prod. Order Routing Line"."Operation No." WHERE(Status = CONST(Released),
-                                                                              "Prod. Order No." = FIELD("Prod. Order No."),
-                                                                              "Routing No." = FIELD("Routing No."));
+            TableRelation = "Prod. Order Routing Line"."Operation No." where(Status = const(Released),
+                                                                              "Prod. Order No." = field("Prod. Order No."),
+                                                                              "Routing No." = field("Routing No."));
 
             trigger OnValidate()
             var
@@ -1013,8 +1046,8 @@
         {
             Caption = 'Prod. Order Line No.';
             Editable = false;
-            TableRelation = "Prod. Order Line"."Line No." WHERE(Status = CONST(Finished),
-                                                                 "Prod. Order No." = FIELD("Prod. Order No."));
+            TableRelation = "Prod. Order Line"."Line No." where(Status = const(Finished),
+                                                                 "Prod. Order No." = field("Prod. Order No."));
         }
         field(99000755; "MPS Order"; Boolean)
         {
@@ -1053,7 +1086,7 @@
         field(99000885; "Production BOM Version Code"; Code[20])
         {
             Caption = 'Production BOM Version Code';
-            TableRelation = "Production BOM Version"."Version Code" WHERE("Production BOM No." = FIELD("Production BOM No."));
+            TableRelation = "Production BOM Version"."Version Code" where("Production BOM No." = field("Production BOM No."));
 
             trigger OnValidate()
             var
@@ -1070,7 +1103,7 @@
                         Text034, ProdBOMVersion.TableCaption(),
                         ProdBOMVersion.FieldCaption("Production BOM No."), ProdBOMVersion."Production BOM No.",
                         ProdBOMVersion.FieldCaption("Version Code"), ProdBOMVersion."Version Code"),
-                      DATABASE::"Production BOM Version", ProdBOMVersion.GetPosition());
+                      Database::"Production BOM Version", ProdBOMVersion.GetPosition());
                 ProdBOMVersion.TestField(Status, ProdBOMVersion.Status::Certified);
                 OnAfterValidateProductionBOMVersionCode(Rec, xRec, ProdBOMVersion);
             end;
@@ -1078,7 +1111,7 @@
         field(99000886; "Routing Version Code"; Code[20])
         {
             Caption = 'Routing Version Code';
-            TableRelation = "Routing Version"."Version Code" WHERE("Routing No." = FIELD("Routing No."));
+            TableRelation = "Routing Version"."Version Code" where("Routing No." = field("Routing No."));
 
             trigger OnValidate()
             var
@@ -1095,7 +1128,7 @@
                         Text034, RoutingVersion.TableCaption(),
                         RoutingVersion.FieldCaption("Routing No."), RoutingVersion."Routing No.",
                         RoutingVersion.FieldCaption("Version Code"), RoutingVersion."Version Code"),
-                      DATABASE::"Routing Version", RoutingVersion.GetPosition());
+                      Database::"Routing Version", RoutingVersion.GetPosition());
                 RoutingVersion.TestField(Status, RoutingVersion.Status::Certified);
                 "Routing Type" := RoutingVersion.Type;
             end;
@@ -1230,8 +1263,8 @@
 
                 SetActionMessage();
                 if "Ending Time" = 0T then begin
-                    MfgSetup.Get();
-                    "Ending Time" := MfgSetup."Normal Ending Time";
+                    ManufacturingSetup.Get();
+                    "Ending Time" := ManufacturingSetup."Normal Ending Time";
                 end;
                 UpdateDatetime();
             end;
@@ -1269,7 +1302,7 @@
                             Text033,
                             ProdBOMHeader.TableCaption(),
                             ProdBOMHeader.FieldCaption("No."), ProdBOMHeader."No."),
-                          DATABASE::"Production BOM Header", ProdBOMHeader.GetPosition());
+                          Database::"Production BOM Header", ProdBOMHeader.GetPosition());
 
                     ProdBOMHeader.TestField(Status, ProdBOMHeader.Status::Certified);
                 end;
@@ -1373,14 +1406,14 @@
             Caption = 'Ref. Order No.';
             Editable = false;
 #pragma warning disable AL0603
-            TableRelation = IF ("Ref. Order Type" = CONST("Prod. Order")) "Production Order"."No." WHERE(Status = FIELD("Ref. Order Status"))
+            TableRelation = if ("Ref. Order Type" = const("Prod. Order")) "Production Order"."No." where(Status = field("Ref. Order Status"))
 #pragma warning restore AL0603
-            ELSE
-            IF ("Ref. Order Type" = CONST(Purchase)) "Purchase Header"."No." WHERE("Document Type" = CONST(Order))
-            ELSE
-            IF ("Ref. Order Type" = CONST(Transfer)) "Transfer Header"."No." WHERE("No." = FIELD("Ref. Order No."))
-            ELSE
-            IF ("Ref. Order Type" = CONST(Assembly)) "Assembly Header"."No." WHERE("Document Type" = CONST(Order));
+            else
+            if ("Ref. Order Type" = const(Purchase)) "Purchase Header"."No." where("Document Type" = const(Order))
+            else
+            if ("Ref. Order Type" = const(Transfer)) "Transfer Header"."No." where("No." = field("Ref. Order No."))
+            else
+            if ("Ref. Order Type" = const(Assembly)) "Assembly Header"."No." where("Document Type" = const(Order));
             ValidateTableRelation = false;
 
             trigger OnLookup()
@@ -1423,9 +1456,9 @@
         field(99000909; "Expected Operation Cost Amt."; Decimal)
         {
             AutoFormatType = 1;
-            CalcFormula = Sum("Planning Routing Line"."Expected Operation Cost Amt." WHERE("Worksheet Template Name" = FIELD("Worksheet Template Name"),
-                                                                                            "Worksheet Batch Name" = FIELD("Journal Batch Name"),
-                                                                                            "Worksheet Line No." = FIELD("Line No.")));
+            CalcFormula = sum("Planning Routing Line"."Expected Operation Cost Amt." where("Worksheet Template Name" = field("Worksheet Template Name"),
+                                                                                            "Worksheet Batch Name" = field("Journal Batch Name"),
+                                                                                            "Worksheet Line No." = field("Line No.")));
             Caption = 'Expected Operation Cost Amt.';
             Editable = false;
             FieldClass = FlowField;
@@ -1433,9 +1466,9 @@
         field(99000910; "Expected Component Cost Amt."; Decimal)
         {
             AutoFormatType = 1;
-            CalcFormula = Sum("Planning Component"."Cost Amount" WHERE("Worksheet Template Name" = FIELD("Worksheet Template Name"),
-                                                                        "Worksheet Batch Name" = FIELD("Journal Batch Name"),
-                                                                        "Worksheet Line No." = FIELD("Line No.")));
+            CalcFormula = sum("Planning Component"."Cost Amount" where("Worksheet Template Name" = field("Worksheet Template Name"),
+                                                                        "Worksheet Batch Name" = field("Journal Batch Name"),
+                                                                        "Worksheet Line No." = field("Line No.")));
             Caption = 'Expected Component Cost Amt.';
             Editable = false;
             FieldClass = FlowField;
@@ -1640,8 +1673,8 @@
         ReqWkshTmpl.Get("Worksheet Template Name");
         ReqWkshName.Get("Worksheet Template Name", "Journal Batch Name");
 
-        ValidateShortcutDimCode(1, "Shortcut Dimension 1 Code");
-        ValidateShortcutDimCode(2, "Shortcut Dimension 2 Code");
+        Rec.ValidateShortcutDimCode(1, "Shortcut Dimension 1 Code");
+        Rec.ValidateShortcutDimCode(2, "Shortcut Dimension 2 Code");
 
         OnAfterOnInsert(Rec, ReqWkshTmpl, ReqWkshName);
     end;
@@ -1667,7 +1700,7 @@
         ReqLine: Record "Requisition Line";
         Item: Record Item;
         WorkCenter: Record "Work Center";
-        MfgSetup: Record "Manufacturing Setup";
+        ManufacturingSetup: Record "Manufacturing Setup";
         Location: Record Location;
         Bin: Record Bin;
         ReserveReqLine: Codeunit "Req. Line-Reserve";
@@ -1759,7 +1792,7 @@
         if PlanningResiliency and Item.Blocked then
             TempPlanningErrorLog.SetError(
               StrSubstNo(Text031, Item.TableCaption(), Item."No."),
-              DATABASE::Item, Item.GetPosition());
+              Database::Item, Item.GetPosition());
         CheckBlockedItem();
         "Low-Level Code" := Item."Low-Level Code";
         "Scrap %" := Item."Scrap %";
@@ -1770,7 +1803,7 @@
             TempPlanningErrorLog.SetError(
               StrSubstNo(Text032, Item.TableCaption(), Item."No.",
                 Item.FieldCaption("Base Unit of Measure")),
-              DATABASE::Item, Item.GetPosition());
+              Database::Item, Item.GetPosition());
         Item.TestField("Base Unit of Measure");
         "Indirect Cost %" := Item."Indirect Cost %";
         UpdateReplenishmentSystem();
@@ -1925,7 +1958,7 @@
 
         if (Type <> Type::Item) or ("No." = '') then
             exit;
-        if "Variant Code" = '' then begin
+        if Rec."Variant Code" = '' then begin
             GetItem();
             Description := Item.Description;
             "Description 2" := Item."Description 2";
@@ -1970,7 +2003,7 @@
     begin
         if not ItemReference.FindItemDescription(
                 Description, "Description 2", "No.", "Variant Code", "Unit of Measure Code",
-                "Item Reference Type"::Vendor, "Vendor No.")
+                Rec."Order Date", Enum::"Item Reference Type"::Vendor, "Vendor No.")
         then begin
             Vendor.Get("Vendor No.");
             if Vendor."Language Code" <> '' then
@@ -1992,46 +2025,11 @@
         BlockReservation := SetBlock;
     end;
 
-#if not CLEAN20
-    [Obsolete('Replaced by CreateDim(DefaultDimSource: List of [Dictionary of [Integer, Code[20]]])', '20.0')]
-    procedure CreateDim(Type1: Integer; No1: Code[20]; Type2: Integer; No2: Code[20])
-    var
-        SourceCodeSetup: Record "Source Code Setup";
-        TableID: array[10] of Integer;
-        No: array[10] of Code[20];
-        DefaultDimSource: List of [Dictionary of [Integer, Code[20]]];
-    begin
-        SourceCodeSetup.Get();
-        TableID[1] := Type1;
-        No[1] := No1;
-        TableID[2] := Type2;
-        No[2] := No2;
-        OnAfterCreateDimTableIDs(Rec, CurrFieldNo, TableID, No);
-        CreateDefaultDimSourcesFromDimArray(DefaultDimSource, TableID, No);
-
-        "Shortcut Dimension 1 Code" := '';
-        "Shortcut Dimension 2 Code" := '';
-        "Dimension Set ID" :=
-          DimMgt.GetRecDefaultDimID(
-            Rec, CurrFieldNo, DefaultDimSource, SourceCodeSetup.Purchases, "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code", 0, 0);
-
-        DimMgt.UpdateGlobalDimFromDimSetID("Dimension Set ID", "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
-
-        if "Ref. Order No." <> '' then
-            GetDimFromRefOrderLine(true);
-
-        OnAfterCreateDim(Rec, xRec);
-    end;
-#endif
-
     procedure CreateDim(DefaultDimSource: List of [Dictionary of [Integer, Code[20]]])
     var
         SourceCodeSetup: Record "Source Code Setup";
     begin
         SourceCodeSetup.Get();
-#if not CLEAN20
-        RunEventOnAfterCreateDimTableIDs(DefaultDimSource);
-#endif
 
         "Shortcut Dimension 1 Code" := '';
         "Shortcut Dimension 2 Code" := '';
@@ -2050,25 +2048,6 @@
         OnAfterCreateDim(Rec, xRec);
     end;
 
-#if not CLEAN20
-    [Obsolete('Replaced by UpdateDim(DefaultDimSource: List of [Dictionary of [Integer, Code[20]]])', '20.0')]
-    procedure UpdateDim(Type1: Integer; No1: Code[20]; Type2: Integer; No2: Code[20])
-    var
-        SalesLine: Record "Sales Line";
-        DimManagement: Codeunit DimensionManagement;
-        DimSetIDArr: array[10] of Integer;
-    begin
-        CreateDim(Type1, No1, Type2, No2);
-        if "Demand Type" <> DATABASE::"Sales Line" then
-            exit;
-        SalesLine.Get("Demand Subtype", "Demand Order No.", "Demand Line No.");
-        DimSetIDArr[2] := SalesLine."Dimension Set ID";
-        DimSetIDArr[1] := "Dimension Set ID";
-        DimSetIDArr[1] := DimManagement.GetCombinedDimensionSetID(DimSetIDArr, "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
-        Validate("Dimension Set ID", DimSetIDArr[1]);
-    end;
-#endif
-
     local procedure UpdateDim()
     var
         DefaultDimSource: List of [Dictionary of [Integer, Code[20]]];
@@ -2084,7 +2063,7 @@
         DimSetIDArr: array[10] of Integer;
     begin
         CreateDim(DefaultDimSource);
-        if "Demand Type" <> DATABASE::"Sales Line" then
+        if "Demand Type" <> Database::"Sales Line" then
             exit;
         SalesLine.Get("Demand Subtype", "Demand Order No.", "Demand Line No.");
         DimSetIDArr[2] := SalesLine."Dimension Set ID";
@@ -2112,7 +2091,7 @@
 
     procedure ShowShortcutDimCode(var ShortcutDimCode: array[8] of Code[20])
     begin
-        DimMgt.GetShortcutDimensions("Dimension Set ID", ShortcutDimCode);
+        DimMgt.GetShortcutDimensions(Rec."Dimension Set ID", ShortcutDimCode);
     end;
 
     procedure OpenItemTrackingLines()
@@ -2453,7 +2432,8 @@
 
     procedure SetReservationEntry(var ReservEntry: Record "Reservation Entry")
     begin
-        ReservEntry.SetSource(DATABASE::"Requisition Line", 0, "Worksheet Template Name", "Line No.", "Journal Batch Name", 0);
+        ReservEntry.SetSource(
+            Database::"Requisition Line", 0, "Worksheet Template Name", "Line No.", "Journal Batch Name", 0);
         ReservEntry.SetItemData("No.", Description, "Location Code", "Variant Code", "Qty. per Unit of Measure");
         if Type <> Type::Item then
             ReservEntry."Item No." := '';
@@ -2466,7 +2446,7 @@
 
     procedure SetReservationFilters(var ReservEntry: Record "Reservation Entry")
     begin
-        ReservEntry.SetSourceFilter(DATABASE::"Requisition Line", 0, "Worksheet Template Name", "Line No.", false);
+        ReservEntry.SetSourceFilter(Database::"Requisition Line", 0, "Worksheet Template Name", "Line No.", false);
         ReservEntry.SetSourceFilter("Journal Batch Name", 0);
 
         OnAfterSetReservationFilters(ReservEntry, Rec);
@@ -2541,7 +2521,7 @@
         "Planning Flexibility" := ProdOrderLine."Planning Flexibility";
         "Ref. Order No." := ProdOrderLine."Prod. Order No.";
         "Ref. Order Type" := "Ref. Order Type"::"Prod. Order";
-        "Ref. Order Status" := ProdOrderLine.Status.AsInteger();
+        "Ref. Order Status" := ProdOrderLine.Status;
         "Ref. Line No." := ProdOrderLine."Line No.";
 
         OnAfterTransferFromProdOrderLine(Rec, ProdOrderLine);
@@ -2638,7 +2618,7 @@
         "MPS Order" := AsmHeader."MPS Order";
         "Planning Flexibility" := AsmHeader."Planning Flexibility";
         "Ref. Order Type" := "Ref. Order Type"::Assembly;
-        "Ref. Order Status" := AsmHeader."Document Type".AsInteger();
+        "Ref. Order Status" := AsmHeader."Document Type";
         "Ref. Order No." := AsmHeader."No.";
         "Ref. Line No." := 0;
 
@@ -2752,11 +2732,11 @@
             "Due Date" := WorkDate();
 
         case ReservEntry."Source Type" of
-            DATABASE::"Transfer Line",
-          DATABASE::"Prod. Order Line",
-          DATABASE::"Purchase Line",
-          DATABASE::"Requisition Line",
-          DATABASE::"Assembly Header":
+            Database::"Transfer Line",
+            Database::"Prod. Order Line",
+            Database::"Purchase Line",
+            Database::"Requisition Line",
+            Database::"Assembly Header":
                 "Ending Date" :=
                   LeadTimeMgt.PlannedEndingDate(
                     ReservEntry."Item No.", ReservEntry."Location Code", ReservEntry."Variant Code",
@@ -2769,7 +2749,7 @@
     procedure TransferToTrackingEntry(var TrkgReservEntry: Record "Reservation Entry"; PointerOnly: Boolean)
     begin
         TrkgReservEntry.SetSource(
-          DATABASE::"Requisition Line", 0, "Worksheet Template Name", "Line No.", "Journal Batch Name", 0);
+          Database::"Requisition Line", 0, "Worksheet Template Name", "Line No.", "Journal Batch Name", 0);
         if PointerOnly then
             exit;
 
@@ -2877,7 +2857,7 @@
     begin
         exit(
           ItemTrackingMgt.ComposeRowID(
-            DATABASE::"Requisition Line", 0, "Worksheet Template Name", "Journal Batch Name", 0, "Line No."));
+            Database::"Requisition Line", 0, "Worksheet Template Name", "Journal Batch Name", 0, "Line No."));
     end;
 
     procedure CalcEndingDate(LeadTime: Code[20])
@@ -3011,15 +2991,15 @@
 
         case UnplannedDemand."Demand Type" of
             UnplannedDemand."Demand Type"::Sales:
-                "Demand Type" := DATABASE::"Sales Line";
+                "Demand Type" := Database::"Sales Line";
             UnplannedDemand."Demand Type"::Production:
-                "Demand Type" := DATABASE::"Prod. Order Component";
+                "Demand Type" := Database::"Prod. Order Component";
             UnplannedDemand."Demand Type"::Service:
-                "Demand Type" := DATABASE::"Service Line";
+                "Demand Type" := Database::"Service Line";
             UnplannedDemand."Demand Type"::Job:
-                "Demand Type" := DATABASE::"Job Planning Line";
+                "Demand Type" := Database::"Job Planning Line";
             UnplannedDemand."Demand Type"::Assembly:
-                "Demand Type" := DATABASE::"Assembly Line";
+                "Demand Type" := Database::"Assembly Line";
         end;
         "Demand Subtype" := UnplannedDemand."Demand SubType";
         "Demand Order No." := UnplannedDemand."Demand Order No.";
@@ -3068,8 +3048,8 @@
               LeadTimeMgt.PlannedEndingDate(
                 "No.", "Location Code", "Variant Code", "Due Date", '', "Ref. Order Type"));
             if ("Replenishment System" = "Replenishment System"::"Prod. Order") and ("Starting Time" = 0T) then begin
-                MfgSetup.Get();
-                "Starting Time" := MfgSetup."Normal Starting Time";
+                ManufacturingSetup.Get();
+                "Starting Time" := ManufacturingSetup."Normal Starting Time";
             end;
         end else begin
             Validate("Ending Date", "Due Date");
@@ -3123,21 +3103,21 @@
                   StrSubstNo(
                     Text038,
                     Currency.TableCaption(), Currency.Code, "Vendor No.", "Order Date"),
-                  DATABASE::Currency, Currency.GetPosition());
+                  Database::Currency, Currency.GetPosition());
             CurrExchRate."Exchange Rate Amount" = 0:
                 TempPlanningErrorLog.SetError(
                   StrSubstNo(
                     Text037,
                     Currency.TableCaption(), Currency.Code, "Vendor No.",
                     "Order Date", CurrExchRate.FieldCaption("Exchange Rate Amount")),
-                  DATABASE::Currency, Currency.GetPosition());
+                  Database::Currency, Currency.GetPosition());
             CurrExchRate."Relational Exch. Rate Amount" = 0:
                 TempPlanningErrorLog.SetError(
                   StrSubstNo(
                     Text037,
                     Currency.TableCaption(), Currency.Code, "Vendor No.",
                     "Order Date", CurrExchRate.FieldCaption("Relational Exch. Rate Amount")),
-                  DATABASE::Currency, Currency.GetPosition());
+                  Database::Currency, Currency.GetPosition());
         end;
     end;
 
@@ -3153,12 +3133,12 @@
                   StrSubstNo(
                     Text035,
                     NoSeries.TableCaption(), NoSeries.FieldCaption(Code), NoSeriesCode,
-                    MfgSetup.TableCaption(), MfgSetup.FieldCaption("Planned Order Nos.")),
-                  DATABASE::"No. Series", NoSeries.GetPosition());
+                    ManufacturingSetup.TableCaption(), ManufacturingSetup.FieldCaption("Planned Order Nos.")),
+                  Database::"No. Series", NoSeries.GetPosition());
             not NoSeries."Default Nos.":
                 TempPlanningErrorLog.SetError(
                   StrSubstNo(Text036, NoSeries.TableCaption(), NoSeries.FieldCaption(Code), NoSeries.Code),
-                  DATABASE::"No. Series", NoSeries.GetPosition());
+                  Database::"No. Series", NoSeries.GetPosition());
             else
                 if SeriesDate = 0D then
                     SeriesDate := WorkDate();
@@ -3168,18 +3148,18 @@
                     NoSeriesLine.SetRange("Starting Date");
                     if NoSeriesLine.FindFirst() then begin
                         TempPlanningErrorLog.SetError(
-                          StrSubstNo(Text039, NoSeriesCode, SeriesDate), DATABASE::"No. Series", NoSeries.GetPosition());
+                          StrSubstNo(Text039, NoSeriesCode, SeriesDate), Database::"No. Series", NoSeries.GetPosition());
                         exit;
                     end;
                     TempPlanningErrorLog.SetError(
-                      StrSubstNo(Text040, NoSeriesCode), DATABASE::"No. Series", NoSeries.GetPosition());
+                      StrSubstNo(Text040, NoSeriesCode), Database::"No. Series", NoSeries.GetPosition());
                     exit;
                 end;
 
                 if NoSeries."Date Order" and (SeriesDate < NoSeriesLine."Last Date Used") then begin
                     TempPlanningErrorLog.SetError(
                       StrSubstNo(Text041, NoSeries.Code, NoSeriesLine."Last Date Used"),
-                      DATABASE::"No. Series", NoSeries.GetPosition());
+                      Database::"No. Series", NoSeries.GetPosition());
                     exit;
                 end;
                 NoSeriesLine."Last Date Used" := SeriesDate;
@@ -3189,7 +3169,7 @@
                           StrSubstNo(
                             Text042,
                             NoSeries.Code, NoSeriesLine."Line No.", NoSeriesLine.FieldCaption("Starting No.")),
-                          DATABASE::"No. Series", NoSeries.GetPosition());
+                          Database::"No. Series", NoSeries.GetPosition());
                         exit;
                     end;
                     NoSeriesLine."Last No. Used" := NoSeriesLine."Starting No.";
@@ -3199,7 +3179,7 @@
                             TempPlanningErrorLog.SetError(
                               StrSubstNo(
                                 Text043, NoSeriesLine."Last No. Used", NoSeriesCode),
-                              DATABASE::"No. Series", NoSeries.GetPosition());
+                              Database::"No. Series", NoSeries.GetPosition());
                             exit;
                         end;
                         NoSeriesLine."Last No. Used" := IncStr(NoSeriesLine."Last No. Used")
@@ -3208,7 +3188,7 @@
                             TempPlanningErrorLog.SetError(
                               StrSubstNo(
                                 Text043, NoSeriesLine."Last No. Used", NoSeriesCode),
-                              DATABASE::"No. Series", NoSeries.GetPosition());
+                              Database::"No. Series", NoSeries.GetPosition());
                             exit;
                         end;
                 if (NoSeriesLine."Ending No." <> '') and
@@ -3216,7 +3196,7 @@
                 then
                     TempPlanningErrorLog.SetError(
                       StrSubstNo(Text044, NoSeriesLine."Ending No.", NoSeriesCode),
-                      DATABASE::"No. Series", NoSeries.GetPosition());
+                      Database::"No. Series", NoSeries.GetPosition());
         end;
     end;
 
@@ -3233,7 +3213,7 @@
             if PlanningResiliency then
                 TempPlanningErrorLog.SetError(
                   StrSubstNo(Text031, Vend.TableCaption(), Vend."No."),
-                  DATABASE::Vendor, Vend.GetPosition());
+                  Database::Vendor, Vend.GetPosition());
             Vend.VendBlockedErrorMessage(Vend, false);
         end;
     end;
@@ -3353,7 +3333,7 @@
         UntrackedPlngElement.SetRange("Worksheet Template Name", "Worksheet Template Name");
         UntrackedPlngElement.SetRange("Worksheet Batch Name", "Journal Batch Name");
         UntrackedPlngElement.SetRange("Item No.", "No.");
-        UntrackedPlngElement.SetRange("Source Type", DATABASE::"Production Forecast Entry");
+        UntrackedPlngElement.SetRange("Source Type", Database::"Production Forecast Entry");
         if UntrackedPlngElement.FindFirst() then begin
             ForecastName := CopyStr(UntrackedPlngElement."Source ID", 1, 10);
             exit(true);
@@ -3383,6 +3363,7 @@
 
     local procedure SetFromBinCode()
     var
+        ProdOrderWarehouseMgt: Codeunit "Prod. Order Warehouse Mgt.";
         IsHandled: Boolean;
         ShouldGetDefaultBin: Boolean;
     begin
@@ -3397,7 +3378,7 @@
                 "Ref. Order Type"::"Prod. Order":
                     begin
                         if "Bin Code" = '' then
-                            "Bin Code" := WMSManagement.GetLastOperationFromBinCode("Routing No.", "Routing Version Code", "Location Code", false, 0);
+                            "Bin Code" := ProdOrderWarehouseMgt.GetLastOperationFromBinCode("Routing No.", "Routing Version Code", "Location Code", false, 0);
                         if "Bin Code" = '' then
                             "Bin Code" := Location."From-Production Bin Code";
                     end;
@@ -3504,7 +3485,8 @@
         PurchHeader: Record "Purchase Header";
         ProdOrder: Record "Production Order";
         TransHeader: Record "Transfer Header";
-        AsmHeader: Record "Assembly Header";
+        AssemblyHeader: Record "Assembly Header";
+        AssemblyOrder: Page "Assembly Order";
     begin
         case "Ref. Order Type" of
             "Ref. Order Type"::Purchase:
@@ -3530,10 +3512,11 @@
                 else
                     Message(Text007, TransHeader.TableCaption());
             "Ref. Order Type"::Assembly:
-                if AsmHeader.Get("Ref. Order Status", "Ref. Order No.") then
-                    PAGE.Run(PAGE::"Assembly Order", AsmHeader)
-                else
-                    Message(Text007, AsmHeader.TableCaption());
+                if AssemblyHeader.Get("Ref. Order Status", "Ref. Order No.") then begin
+                    AssemblyOrder.SetRecord(AssemblyHeader);
+                    AssemblyOrder.RunModal();
+                end else
+                    Message(Text007, AssemblyHeader.TableCaption());
             else
                 Message(Text008);
         end;
@@ -3617,7 +3600,7 @@
         if PlanningResiliency and (Item."Base Unit of Measure" = '') then
             TempPlanningErrorLog.SetError(
               StrSubstNo(Text032, Item.TableCaption(), Item."No.", Item.FieldCaption("Base Unit of Measure")),
-              DATABASE::Item, Item.GetPosition());
+              Database::Item, Item.GetPosition());
 
         Item.TestField("Base Unit of Measure");
         IsHandled := false;
@@ -3626,18 +3609,18 @@
             if "Ref. Order No." = '' then begin
                 "Ref. Order Type" := "Ref. Order Type"::"Prod. Order";
                 "Ref. Order Status" := "Ref. Order Status"::Planned;
-                MfgSetup.Get();
-                if PlanningResiliency and (MfgSetup."Planned Order Nos." = '') then
+                ManufacturingSetup.Get();
+                if PlanningResiliency and (ManufacturingSetup."Planned Order Nos." = '') then
                     TempPlanningErrorLog.SetError(
-                      StrSubstNo(Text032, MfgSetup.TableCaption(), '',
-                        MfgSetup.FieldCaption("Planned Order Nos.")),
-                      DATABASE::"Manufacturing Setup", MfgSetup.GetPosition());
-                MfgSetup.TestField("Planned Order Nos.");
+                      StrSubstNo(Text032, ManufacturingSetup.TableCaption(), '',
+                        ManufacturingSetup.FieldCaption("Planned Order Nos.")),
+                      Database::"Manufacturing Setup", ManufacturingSetup.GetPosition());
+                ManufacturingSetup.TestField("Planned Order Nos.");
                 if PlanningResiliency then
-                    CheckNoSeries(MfgSetup."Planned Order Nos.", "Due Date");
+                    CheckNoSeries(ManufacturingSetup."Planned Order Nos.", "Due Date");
                 if not Subcontracting then
                     NoSeriesMgt.InitSeries(
-                      MfgSetup."Planned Order Nos.", xRec."No. Series", "Due Date", "Ref. Order No.", "No. Series");
+                      ManufacturingSetup."Planned Order Nos.", xRec."No. Series", "Due Date", "Ref. Order No.", "No. Series");
             end;
         Validate("Vendor No.", '');
 
@@ -3715,11 +3698,11 @@
               StrSubstNo(
                 Text032, Item.TableCaption(), Item."No.",
                 Item.FieldCaption("Base Unit of Measure")),
-              DATABASE::Item, Item.GetPosition());
+              Database::Item, Item.GetPosition());
         Item.TestField("Base Unit of Measure");
         if "Ref. Order No." = '' then begin
             "Ref. Order Type" := "Ref. Order Type"::Assembly;
-            "Ref. Order Status" := AssemblyHeader."Document Type"::Order.AsInteger();
+            "Ref. Order Status" := AssemblyHeader."Document Type"::Order;
         end;
         Validate("Vendor No.", '');
         Validate("Production BOM No.", '');
@@ -3776,6 +3759,8 @@
     var
         RequisitionLine: Record "Requisition Line";
     begin
+        RequisitionLine.ReadIsolation := RequisitionLine.ReadIsolation::ReadUncommitted;
+        RequisitionLine.SetLoadFields("Journal Batch Name");
         RequisitionLine.SetRange("Worksheet Template Name", '');
         RequisitionLine.SetFilter("Journal Batch Name", '<>%1', '');
         RequisitionLine.SetRange("User ID", UserId());
@@ -3855,48 +3840,6 @@
         "Dimension Set ID" := DimMgt.GetCombinedDimensionSetID(DimSetIDArr, "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
     end;
 
-#if not CLEAN20
-    local procedure CreateDefaultDimSourcesFromDimArray(var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]]; TableID: array[10] of Integer; No: array[10] of Code[20])
-    var
-        DimArrayConversionHelper: Codeunit "Dim. Array Conversion Helper";
-    begin
-        DimArrayConversionHelper.CreateDefaultDimSourcesFromDimArray(Database::"Requisition Line", DefaultDimSource, TableID, No);
-    end;
-
-    local procedure CreateDimTableIDs(DefaultDimSource: List of [Dictionary of [Integer, Code[20]]]; var TableID: array[10] of Integer; var No: array[10] of Code[20])
-    var
-        DimArrayConversionHelper: Codeunit "Dim. Array Conversion Helper";
-    begin
-        DimArrayConversionHelper.CreateDimTableIDs(Database::"Requisition Line", DefaultDimSource, TableID, No);
-    end;
-
-    local procedure RunEventOnAfterCreateDimTableIDs(var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]])
-    var
-        DimArrayConversionHelper: Codeunit "Dim. Array Conversion Helper";
-        TableID: array[10] of Integer;
-        No: array[10] of Code[20];
-        IsHandled: Boolean;
-    begin
-        IsHandled := false;
-        OnBeforeRunEventOnAfterCreateDimTableIDs(Rec, DefaultDimSource, IsHandled);
-        if IsHandled then
-            exit;
-
-        if not DimArrayConversionHelper.IsSubscriberExist(Database::"Requisition Line") then
-            exit;
-
-        CreateDimTableIDs(DefaultDimSource, TableID, No);
-        OnAfterCreateDimTableIDs(Rec, CurrFieldNo, TableID, No);
-        CreateDefaultDimSourcesFromDimArray(DefaultDimSource, TableID, No);
-    end;
-
-    [Obsolete('Temporary event for compatibility', '20.0')]
-    [IntegrationEvent(false, false)]
-    local procedure OnBeforeRunEventOnAfterCreateDimTableIDs(var RequisitionLine: Record "Requisition Line"; var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]]; var IsHandled: Boolean)
-    begin
-    end;
-#endif
-
     [IntegrationEvent(false, false)]
     local procedure OnAfterInitDefaultDimensionSources(var RequisitionLine: Record "Requisition Line"; var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]]; CurrFieldNo: Integer)
     begin
@@ -3916,14 +3859,6 @@
     local procedure OnAfterCreateDim(var ReqLine: Record "Requisition Line"; xReqLine: Record "Requisition Line")
     begin
     end;
-
-#if not CLEAN20
-    [Obsolete('Temporary event for compatibility', '20.0')]
-    [IntegrationEvent(false, false)]
-    local procedure OnAfterCreateDimTableIDs(var RequisitionLine: Record "Requisition Line"; var FieldNo: Integer; var TableID: array[10] of Integer; var No: array[10] of Code[20])
-    begin
-    end;
-#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterDeleteMultiLevel(var RequisitionLine: Record "Requisition Line")

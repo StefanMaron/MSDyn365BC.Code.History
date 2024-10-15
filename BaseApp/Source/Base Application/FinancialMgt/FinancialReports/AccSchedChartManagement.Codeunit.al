@@ -1,3 +1,12 @@
+namespace Microsoft.Finance.FinancialReports;
+
+using Microsoft.CashFlow.Account;
+using Microsoft.CostAccounting.Account;
+using Microsoft.Finance.Analysis;
+using Microsoft.Finance.GeneralLedger.Account;
+using Microsoft.Finance.GeneralLedger.Setup;
+using System.Visualization;
+
 codeunit 762 "Acc. Sched. Chart Management"
 {
 
@@ -9,9 +18,8 @@ codeunit 762 "Acc. Sched. Chart Management"
         GeneralLedgerSetup: Record "General Ledger Setup";
         AccSchedManagement: Codeunit AccSchedManagement;
         GLSetupLoaded: Boolean;
-
-        DuplicateRowDescriptionsMsg: Label 'Row Definition %1 has duplicate Description values.';
-        DuplicateColumnHeaderMsg: Label 'Column Definition %1 has duplicate Column Header values.';
+        DuplicateRowDescriptionsMsg: Label 'Row Definition %1 has duplicate Description values: %2.';
+        DuplicateColumnHeaderMsg: Label 'Column Definition %1 has duplicate Column Header values: %2.';
         ColumnFormulaMsg: Label 'Column formula: %1.';
         DefaultAccSchedTok: Label 'DEFAULT', Comment = 'The default name of the chart setup.';
         DefinitionsModifiedMsg: Label 'The row definition or column definition has been modified since the chart setup was created. Please reset your chart setup.';
@@ -344,7 +352,7 @@ codeunit 762 "Acc. Sched. Chart Management"
         AccScheduleLineQuery.SetRange(Schedule_Name, AccScheduleName);
         AccScheduleLineQuery.Open();
         if AccScheduleLineQuery.Read() then
-            Error(DuplicateRowDescriptionsMsg, AccScheduleName);
+            Error(DuplicateRowDescriptionsMsg, AccScheduleName, AccScheduleLineQuery.Description);
     end;
 
     procedure CheckDuplicateColumnLayoutColumnHeader(ColumnLayoutName: Code[10])
@@ -356,7 +364,7 @@ codeunit 762 "Acc. Sched. Chart Management"
 
         ColumnLayoutQuery.Open();
         if ColumnLayoutQuery.Read() then
-            Error(DuplicateColumnHeaderMsg, ColumnLayoutName);
+            Error(DuplicateColumnHeaderMsg, ColumnLayoutName, ColumnLayoutQuery.Column_Header);
     end;
 
     local procedure DrillDownOnCFAccount(var AccScheduleLine: Record "Acc. Schedule Line"; var ColumnLayout: Record "Column Layout")

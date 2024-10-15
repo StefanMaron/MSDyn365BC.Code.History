@@ -1,3 +1,9 @@
+namespace Microsoft.Utilities;
+
+using Microsoft.Purchases.Document;
+using Microsoft.Sales.Document;
+using System.Environment.Configuration;
+
 codeunit 170 "Standard Codes Mgt."
 {
 

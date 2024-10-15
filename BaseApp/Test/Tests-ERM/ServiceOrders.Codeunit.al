@@ -300,6 +300,74 @@ codeunit 136101 "Service Orders"
     end;
 
     [Test]
+    [Scope('OnPrem')]
+    procedure OrderNoSetWhilePostingServInvCreatedByGetShipmentLines()
+    var
+        ServiceHeader: Record "Service Header";
+        ServiceHeaderInvoice: Record "Service Header";
+        ServiceLine: Record "Service Line";
+        ServiceInvoiceHeader: Record "Service Invoice Header";
+        ServiceMgtSetup: Record "Service Mgt. Setup";
+        LinkServiceToServiceItem: Boolean;
+    begin
+        // [SCENARIO] Order No. is set on the posted Service Invoice Header when all the Service Invoice lines are linked to the same order.
+
+        // [GIVEN] Set "Link Service to Service Item" field to false on Service Management Setup.
+        Initialize();
+        ServiceMgtSetup.Get();
+        LinkServiceToServiceItem := ServiceMgtSetup."Link Service to Service Item";
+        ServiceMgtSetup.Validate("Link Service to Service Item", false);
+        ServiceMgtSetup.Modify(true);
+
+        // [GIVEN] Create Service Order and create Service Line with a quantity.
+        CreateServiceOrder(ServiceHeader, '');
+        LibraryService.CreateServiceLineWithQuantity(ServiceLine, ServiceHeader, ServiceLine.Type::Item, '', 10);
+
+        // [GIVEN] Post 4 shipments for the Service Order.
+        // Shipment 1
+        ServiceLine.Validate("Unit Price", LibraryRandom.RandInt(100));
+        ServiceLine.Validate("Qty. to Ship", 2);
+        ServiceLine.Validate("Qty. to Invoice", 0);
+        ServiceLine.Modify(true);
+        LibraryService.PostServiceOrder(ServiceHeader, true, false, false);
+
+        // Shipment 2
+        ServiceLine.Find();
+        ServiceLine.Validate("Qty. to Ship", 2);
+        ServiceLine.Validate("Qty. to Invoice", 0);
+        ServiceLine.Modify(true);
+        LibraryService.PostServiceOrder(ServiceHeader, true, false, false);
+
+        // Shipment 3
+        ServiceLine.Find();
+        ServiceLine.Validate("Qty. to Ship", 2);
+        ServiceLine.Validate("Qty. to Invoice", 0);
+        ServiceLine.Modify(true);
+        LibraryService.PostServiceOrder(ServiceHeader, true, false, false);
+
+        // Shipment 4
+        ServiceLine.Find();
+        ServiceLine.Validate("Qty. to Ship", 4);
+        ServiceLine.Validate("Qty. to Invoice", 0);
+        ServiceLine.Modify(true);
+        LibraryService.PostServiceOrder(ServiceHeader, true, false, false);
+
+        // [GIVEN] Create Service Invoice and create Service Lines by running GetShipmentLines method.
+        GetServiceShipmentLines(ServiceHeaderInvoice, ServiceHeader."No.", ServiceHeader."Customer No.");
+
+        // [WHEN] Post Service Invoice.
+        LibraryService.PostServiceOrder(ServiceHeaderInvoice, true, false, true);
+
+        // [THEN] Posted Service Invoice Header has the 'Order No.' field set.
+        ServiceInvoiceHeader.SetRange("Order No.", ServiceHeader."No.");
+        Assert.RecordCount(ServiceInvoiceHeader, 1);
+
+        // [CLENAUP] Rollback "Link Service to Service Item" field as false on Service Management Setup.
+        ServiceMgtSetup.Validate("Link Service to Service Item", LinkServiceToServiceItem);
+        ServiceMgtSetup.Modify(true);
+    end;
+
+    [Test]
     [HandlerFunctions('ConfirmMessageHandlerForFalse')]
     [Scope('OnPrem')]
     procedure ContractResponseTimeMandatory()
@@ -7222,7 +7290,7 @@ codeunit 136101 "Service Orders"
         UNTIL TempServiceLine.Next() = 0;
     end;
 
-#if not CLEAN21
+#if not CLEAN23
     [EventSubscriber(ObjectType::table, Database::"Invoice Post. Buffer", 'OnAfterInvPostBufferPrepareService', '', false, false)]
     local procedure OnAfterInvPostBufferPrepareService(var ServiceLine: Record "Service Line"; var InvoicePostBuffer: Record "Invoice Post. Buffer")
     begin
@@ -7382,6 +7450,17 @@ codeunit 136101 "Service Orders"
         ItemLedgEntry.SetRange("Entry Type", EntryType);
         ItemLedgEntry.FindLast();
         exit(ItemLedgEntry."Entry No.");
+    end;
+
+    local procedure GetServiceShipmentLines(var ServiceHeader: Record "Service Header"; OrderNo: Text[20]; CustomerNo: Text[20])
+    var
+        ServiceShipmentLine: Record "Service Shipment Line";
+        ServiceGetShipment: Codeunit "Service-Get Shipment";
+    begin
+        LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Invoice, CustomerNo);
+        ServiceShipmentLine.SetRange("Order No.", OrderNo);
+        ServiceGetShipment.SetServiceHeader(ServiceHeader);
+        ServiceGetShipment.CreateInvLines(ServiceShipmentLine);
     end;
 
     [ConfirmHandler]

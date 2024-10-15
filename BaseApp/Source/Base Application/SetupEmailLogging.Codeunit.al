@@ -1,4 +1,21 @@
 #if not CLEAN22
+namespace System.EMail;
+
+using Microsoft.CRM.Outlook;
+using Microsoft.CRM.Setup;
+using Microsoft.Utilities;
+using System;
+using System.Automation;
+using System.Azure.KeyVault;
+using System.Environment;
+using System.Environment.Configuration;
+using System.Globalization;
+using System.Integration;
+using System.Media;
+using System.Security.Encryption;
+using System.Security.Authentication;
+using System.Threading;
+
 codeunit 1641 "Setup Email Logging"
 {
     ObsoleteReason = 'Feature EmailLoggingUsingGraphApi will be enabled by default in version 22.0';

@@ -1,3 +1,7 @@
+namespace System.Security.AccessControl;
+
+using Microsoft.Finance.VAT.Setup;
+
 permissionset 1002 "LOCAL READ"
 {
     Access = Public;

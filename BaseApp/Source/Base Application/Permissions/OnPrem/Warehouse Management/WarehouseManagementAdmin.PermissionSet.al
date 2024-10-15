@@ -1,3 +1,15 @@
+namespace System.Security.AccessControl;
+
+using Microsoft.Warehouse.Structure;
+using Microsoft.Inventory.Location;
+using Microsoft.Inventory.Counting.Journal;
+using Microsoft.Warehouse.Activity;
+using Microsoft.Warehouse.Setup;
+using System.Security.User;
+using Microsoft.Warehouse.Journal;
+using Microsoft.Warehouse.Worksheet;
+using Microsoft.Foundation.Shipping;
+
 permissionset 8917 "Warehouse Management - Admin"
 {
     Access = Public;

@@ -4596,6 +4596,8 @@ codeunit 137051 "SCM Warehouse - III"
 
         // [GIVEN] An Assembly Order for 2 pieces of the parent item
         LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
+        Location."Asm. Consump. Whse. Handling" := Location."Asm. Consump. Whse. Handling"::"Warehouse Pick (optional)";
+        Location.Modify();
         LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, Location.Code, false);
         LibraryAssembly.CreateAssemblyHeader(AssemblyHeader, WorkDate(), LibraryInventory.CreateItemNo(), Location.Code, 2, '');
 
@@ -4691,6 +4693,8 @@ codeunit 137051 "SCM Warehouse - III"
 
         // [GIVEN] An Assembly Order for 5 pieces of the parent item
         LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
+        Location."Asm. Consump. Whse. Handling" := Location."Asm. Consump. Whse. Handling"::"Warehouse Pick (optional)";
+        Location.Modify(true);
         LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, Location.Code, false);
         LibraryAssembly.CreateAssemblyHeader(AssemblyHeader, WorkDate(), LibraryInventory.CreateItemNo(), Location.Code, 5, '');
 
@@ -4760,6 +4764,8 @@ codeunit 137051 "SCM Warehouse - III"
 
         // [GIVEN] Inventory of Item on Location
         LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
+        Location.Validate("Prod. Consump. Whse. Handling", "Prod. Consump. Whse. Handling"::"Warehouse Pick (optional)");
+        Location.Modify(true);
         LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, Location.Code, false);
         LibraryInventory.CreateItem(Item);
         LibraryInventory.CreateItemJnlLine(ItemJournalLine, ItemJournalLine."Entry Type"::"Positive Adjmt.", WorkDate(), Item."No.", 10, Location.Code);
@@ -4850,6 +4856,8 @@ codeunit 137051 "SCM Warehouse - III"
 
         // [GIVEN] Inventory of Item on Location
         LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
+        Location.Validate("Prod. Consump. Whse. Handling", "Prod. Consump. Whse. Handling"::"Warehouse Pick (optional)");
+        Location.Modify(true);
         LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, Location.Code, false);
         LibraryInventory.CreateItem(Item);
         LibraryInventory.CreateItemJnlLine(ItemJournalLine, ItemJournalLine."Entry Type"::"Positive Adjmt.", WorkDate(), Item."No.", 10, Location.Code);
@@ -5427,6 +5435,8 @@ codeunit 137051 "SCM Warehouse - III"
         LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
         Location.Validate("Require Receive", true);
         Location.Validate("Require Put-away", true);
+        Location.Validate("Always Create Put-away Line", true);
+        Location.Validate("Prod. Output Whse. Handling", "Prod. Output Whse. Handling"::"Inventory Put-away");
         Location.Modify(true);
         LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, Location.Code, false);
     end;
@@ -5857,6 +5867,7 @@ codeunit 137051 "SCM Warehouse - III"
     begin
         LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
         Location.Validate("Require Put-away", true);
+        Location.Validate("Always Create Put-away Line", true);
         Location.Validate("Require Pick", true);
         Location.Validate("Bin Mandatory", true);
         Location.Validate("Pick According to FEFO", true);

@@ -7,6 +7,32 @@ codeunit 135952 "Reten. Pol. Upgrade Test"
         IsInitialized: Boolean;
 
     [Test]
+    procedure TestSentNotificationEntryRetentionPolicyUpdated()
+    var
+        RetentionPolicySetup: Record "Retention Policy Setup";
+        RetentionPeriod: Record "Retention Period";
+        RetentionPolicySetupLine: Record "Retention Policy Setup Line";
+    begin
+        // Init
+        Initialize();
+
+        // Setup
+        RetentionPolicySetup.SetRange("Table Id", Database::"Sent Notification Entry");
+        RetentionPolicySetup.DeleteAll();
+
+        // Exercise
+        RetentionPolicySetup.Init();
+        RetentionPolicySetup.Validate("Table Id", Database::"Sent Notification Entry");
+        RetentionPolicySetup.Insert(true);
+
+        // Verify
+        RetentionPolicySetupLine.Get(Database::"Sent Notification Entry", 10000);
+        LibraryAssert.IsFalse(RetentionPolicySetupLine.IsLocked(), 'Retention Policy Line shouldn''t be locked');
+        RetentionPeriod.Get(RetentionPolicySetupLine."Retention Period");
+        LibraryAssert.AreEqual(Format(Enum::"Retention Period Enum"::"6 Months"), Format(RetentionPeriod."Retention Period"), 'Incorrect period for retention policy setup line');
+    end;
+
+    [Test]
     procedure TestChangeLogRetentionPolicyUpdated()
     var
         RetentionPolicySetup: Record "Retention Policy Setup";

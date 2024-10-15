@@ -4348,12 +4348,34 @@ codeunit 139197 DocumentSendingPostTests
     local procedure FindCustomReportLayout(ReportID: Integer): Code[20]
     var
         CustomReportLayout: Record "Custom Report Layout";
+        ReportLayoutList: Record "Report Layout List";
+        TempBlob: Codeunit "Temp Blob";
+        InStr: InStream;
+        OutStr: OutStream;
     begin
-        with CustomReportLayout do begin
-            SetRange("Report ID", ReportID);
-            FindFirst();
-            exit(Code);
+        CustomReportLayout.SetRange("Report ID", ReportID);
+        if not CustomReportLayout.FindFirst() then begin
+            ReportLayoutList.SetRange("Report ID", ReportID);
+            ReportLayoutList.SetRange("Layout Format", ReportLayoutList."Layout Format"::Word);
+            ReportLayoutList.FindFirst();
+
+            TempBlob.CreateOutStream(OutStr);
+            ReportLayoutList.Layout.ExportStream(OutStr);
+            TempBlob.CreateInStream(InStr);
+
+            CustomReportLayout.Init();
+            CustomReportLayout."Report ID" := ReportID;
+            CustomReportLayout.Code := CopyStr(StrSubstNo('MS-X%1', Random(9999)), 1, 10);
+            CustomReportLayout."File Extension" := 'docx';
+            CustomReportLayout.Description := 'Test report layout';
+            CustomReportLayout.Type := CustomReportLayout.Type::Word;
+            CustomReportLayout.Layout.CreateOutStream(OutStr);
+
+            CopyStream(OutStr, InStr);
+
+            CustomReportLayout.Insert();
         end;
+        exit(CustomReportLayout.Code);
     end;
 
     local procedure UnsupportedDocumentType(DocumentType: Enum "Sales Document Type")

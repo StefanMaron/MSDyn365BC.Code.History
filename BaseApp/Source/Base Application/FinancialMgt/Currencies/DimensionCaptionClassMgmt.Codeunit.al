@@ -1,3 +1,12 @@
+﻿// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Finance.Dimension;
+
+using Microsoft.Finance.GeneralLedger.Setup;
+using System.Text;
+
 codeunit 343 "Dimension CaptionClass Mgmt"
 {
     SingleInstance = true;
@@ -42,12 +51,12 @@ codeunit 343 "Dimension CaptionClass Mgmt"
         // <DataType>   := [SubString]
         // <Length>     <= 10
         // <DataValue>  :=
-        // IF (<DIMCAPTIONTYPE> = 1) 1..2,<DIMOPTIONALPARAM1>,<DIMOPTIONALPARAM2>
-        // IF (<DIMCAPTIONTYPE> = 2) 1..8,<DIMOPTIONALPARAM1>,<DIMOPTIONALPARAM2>
-        // IF (<DIMCAPTIONTYPE> = 3) 1..2,<DIMOPTIONALPARAM1>,<DIMOPTIONALPARAM2>
-        // IF (<DIMCAPTIONTYPE> = 4) 1..8,<DIMOPTIONALPARAM1>,<DIMOPTIONALPARAM2>
-        // IF (<DIMCAPTIONTYPE> = 5) [Table]Dimension.[Field]Code,<DIMOPTIONALPARAM1>,<DIMOPTIONALPARAM2>
-        // IF (<DIMCAPTIONTYPE> = 6) [Table]Dimension.[Field]Code,<DIMOPTIONALPARAM1>,<DIMOPTIONALPARAM2>
+        // if (<DIMCAPTIONTYPE> = 1) 1..2,<DIMOPTIONALPARAM1>,<DIMOPTIONALPARAM2>
+        // if (<DIMCAPTIONTYPE> = 2) 1..8,<DIMOPTIONALPARAM1>,<DIMOPTIONALPARAM2>
+        // if (<DIMCAPTIONTYPE> = 3) 1..2,<DIMOPTIONALPARAM1>,<DIMOPTIONALPARAM2>
+        // if (<DIMCAPTIONTYPE> = 4) 1..8,<DIMOPTIONALPARAM1>,<DIMOPTIONALPARAM2>
+        // if (<DIMCAPTIONTYPE> = 5) [Table]Dimension.[Field]Code,<DIMOPTIONALPARAM1>,<DIMOPTIONALPARAM2>
+        // if (<DIMCAPTIONTYPE> = 6) [Table]Dimension.[Field]Code,<DIMOPTIONALPARAM1>,<DIMOPTIONALPARAM2>
 
         // DIMOPTIONALPARAM1
         // <DataType>   := [SubString]
@@ -230,11 +239,11 @@ codeunit 343 "Dimension CaptionClass Mgmt"
                         exit(DimOptionalParam1);
                     end;
                 else begin
-                        IsHandled := false;
-                        OnTranslateDimCaptionClassOnDimCaptionTypeCaseElse(DimCaptionType, DimCaptionRef, Language, DimOptionalParam1, DimOptionalParam2, Result, IsHandled);
-                        if IsHandled then
-                            exit(Result);
-                    end;
+                    IsHandled := false;
+                    OnTranslateDimCaptionClassOnDimCaptionTypeCaseElse(DimCaptionType, DimCaptionRef, Language, DimOptionalParam1, DimOptionalParam2, Result, IsHandled);
+                    if IsHandled then
+                        exit(Result);
+                end;
             end;
         end;
         Resolved := false;

@@ -1,3 +1,9 @@
+namespace Microsoft.Service.Item;
+
+using Microsoft.Service.Contract;
+using Microsoft.Service.Document;
+using System.Security.AccessControl;
+
 table 5942 "Service Item Log"
 {
     Caption = 'Service Item Log';
@@ -25,13 +31,11 @@ table 5942 "Service Item Log"
         field(4; "Document No."; Code[20])
         {
             Caption = 'Document No.';
-            TableRelation = IF ("Document Type" = CONST(Quote)) "Service Header"."No." WHERE("Document Type" = CONST(Quote))
-            ELSE
-            IF ("Document Type" = CONST(Order)) "Service Header"."No." WHERE("Document Type" = CONST(Order))
-            ELSE
-            IF ("Document Type" = CONST(Contract)) "Service Contract Header"."Contract No." WHERE("Contract Type" = CONST(Contract));
-            //This property is currently not supported
-            //TestTableRelation = false;
+            TableRelation = if ("Document Type" = const(Quote)) "Service Header"."No." where("Document Type" = const(Quote))
+            else
+            if ("Document Type" = const(Order)) "Service Header"."No." where("Document Type" = const(Order))
+            else
+            if ("Document Type" = const(Contract)) "Service Contract Header"."Contract No." where("Contract Type" = const(Contract));
         }
         field(5; After; Text[50])
         {
@@ -54,8 +58,6 @@ table 5942 "Service Item Log"
             Caption = 'User ID';
             DataClassification = EndUserIdentifiableInformation;
             TableRelation = User."User Name";
-            //This property is currently not supported
-            //TestTableRelation = false;
         }
         field(10; "Document Type"; Option)
         {

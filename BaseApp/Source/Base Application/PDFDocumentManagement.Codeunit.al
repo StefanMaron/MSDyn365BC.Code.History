@@ -1,3 +1,16 @@
+﻿namespace Microsoft.EServices.EDocument;
+
+using Microsoft.Foundation.Company;
+using Microsoft.Foundation.Reporting;
+using Microsoft.Integration.Entity;
+using Microsoft.Integration.Graph;
+using Microsoft.Purchases.Document;
+using Microsoft.Purchases.History;
+using Microsoft.Sales.Document;
+using Microsoft.Sales.History;
+using System.EMail;
+using System.Utilities;
+
 codeunit 5467 "PDF Document Management"
 {
 

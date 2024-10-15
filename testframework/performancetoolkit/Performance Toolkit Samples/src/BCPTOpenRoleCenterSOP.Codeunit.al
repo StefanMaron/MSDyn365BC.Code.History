@@ -1,3 +1,7 @@
+namespace System.Test.Tooling;
+
+using Microsoft.Sales.RoleCenters;
+
 codeunit 149113 "BCPT Open RoleCenter SOP"
 {
     // Test codeunits can only run in foreground (UI)

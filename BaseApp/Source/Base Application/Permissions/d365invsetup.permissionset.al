@@ -1,3 +1,9 @@
+namespace System.Security.AccessControl;
+
+using Microsoft.Inventory.Location;
+using Microsoft.Inventory.Transfer;
+using Microsoft.Inventory.Item;
+
 permissionset 8462 "D365 INV, SETUP"
 {
     Assignable = true;

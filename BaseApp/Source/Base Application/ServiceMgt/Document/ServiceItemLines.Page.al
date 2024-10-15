@@ -1,3 +1,8 @@
+namespace Microsoft.Service.Document;
+
+using Microsoft.Service.Comment;
+using Microsoft.Service.Item;
+
 page 5903 "Service Item Lines"
 {
     Caption = 'Service Item Lines';
@@ -46,6 +51,12 @@ page 5903 "Service Item Lines"
                     ApplicationArea = Service;
                     ToolTip = 'Specifies a description of this service item.';
                 }
+                field("Description 2"; Rec."Description 2")
+                {
+                    ApplicationArea = Service;
+                    ToolTip = 'Specifies information in addition to the description.';
+                    Visible = false;
+                }
                 field("Item No."; Rec."Item No.")
                 {
                     ApplicationArea = Service;
@@ -56,7 +67,7 @@ page 5903 "Service Item Lines"
                     ApplicationArea = ItemTracking;
                     ToolTip = 'Specifies the serial number of this item.';
                 }
-                field(Warranty; Warranty)
+                field(Warranty; Rec.Warranty)
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies that warranty on either parts or labor exists for this item.';
@@ -126,11 +137,11 @@ page 5903 "Service Item Lines"
                         Caption = 'Faults';
                         Image = Error;
                         RunObject = Page "Service Comment Sheet";
-                        RunPageLink = "Table Name" = CONST("Service Header"),
-                                      "Table Subtype" = FIELD("Document Type"),
-                                      "No." = FIELD("Document No."),
-                                      "Table Line No." = FIELD("Line No."),
-                                      Type = CONST(Fault);
+                        RunPageLink = "Table Name" = const("Service Header"),
+                                      "Table Subtype" = field("Document Type"),
+                                      "No." = field("Document No."),
+                                      "Table Line No." = field("Line No."),
+                                      Type = const(Fault);
                         ToolTip = 'View or edit the different fault codes that you can assign to service items. You can use fault codes to identify the different service item faults or the actions taken on service items for each combination of fault area and symptom codes.';
                     }
                     action(Resolutions)
@@ -139,11 +150,11 @@ page 5903 "Service Item Lines"
                         Caption = 'Resolutions';
                         Image = Completed;
                         RunObject = Page "Service Comment Sheet";
-                        RunPageLink = "Table Name" = CONST("Service Header"),
-                                      "Table Subtype" = FIELD("Document Type"),
-                                      "No." = FIELD("Document No."),
-                                      "Table Line No." = FIELD("Line No."),
-                                      Type = CONST(Resolution);
+                        RunPageLink = "Table Name" = const("Service Header"),
+                                      "Table Subtype" = field("Document Type"),
+                                      "No." = field("Document No."),
+                                      "Table Line No." = field("Line No."),
+                                      Type = const(Resolution);
                         ToolTip = 'View or edit the different resolution codes that you can assign to service items. You can use resolution codes to identify methods used to solve typical service problems.';
                     }
                     action(Internal)
@@ -152,11 +163,11 @@ page 5903 "Service Item Lines"
                         Caption = 'Internal';
                         Image = Comment;
                         RunObject = Page "Service Comment Sheet";
-                        RunPageLink = "Table Name" = CONST("Service Header"),
-                                      "Table Subtype" = FIELD("Document Type"),
-                                      "No." = FIELD("Document No."),
-                                      "Table Line No." = FIELD("Line No."),
-                                      Type = CONST(Internal);
+                        RunPageLink = "Table Name" = const("Service Header"),
+                                      "Table Subtype" = field("Document Type"),
+                                      "No." = field("Document No."),
+                                      "Table Line No." = field("Line No."),
+                                      Type = const(Internal);
                         ToolTip = 'View or reregister internal comments for the service item. Internal comments are for internal use only and are not printed on reports.';
                     }
                     action(Accessories)
@@ -165,11 +176,11 @@ page 5903 "Service Item Lines"
                         Caption = 'Accessories';
                         Image = ServiceAccessories;
                         RunObject = Page "Service Comment Sheet";
-                        RunPageLink = "Table Name" = CONST("Service Header"),
-                                      "Table Subtype" = FIELD("Document Type"),
-                                      "No." = FIELD("Document No."),
-                                      "Table Line No." = FIELD("Line No."),
-                                      Type = CONST(Accessory);
+                        RunPageLink = "Table Name" = const("Service Header"),
+                                      "Table Subtype" = field("Document Type"),
+                                      "No." = field("Document No."),
+                                      "Table Line No." = field("Line No."),
+                                      Type = const(Accessory);
                         ToolTip = 'View or register comments for the accessories to the service item.';
                     }
                     action(Loaners)
@@ -178,11 +189,11 @@ page 5903 "Service Item Lines"
                         Caption = 'Loaners';
                         Image = Loaners;
                         RunObject = Page "Service Comment Sheet";
-                        RunPageLink = "Table Name" = CONST("Service Header"),
-                                      "Table Subtype" = FIELD("Document Type"),
-                                      "No." = FIELD("Document No."),
-                                      "Table Line No." = FIELD("Line No."),
-                                      Type = CONST("Service Item Loaner");
+                        RunPageLink = "Table Name" = const("Service Header"),
+                                      "Table Subtype" = field("Document Type"),
+                                      "No." = field("Document No."),
+                                      "Table Line No." = field("Line No."),
+                                      Type = const("Service Item Loaner");
                         ToolTip = 'View or select from items that you lend out temporarily to customers to replace items that they have in service.';
                     }
                 }
@@ -196,7 +207,7 @@ page 5903 "Service Item Lines"
                         Caption = 'Card';
                         Image = EditLines;
                         RunObject = Page "Service Item Card";
-                        RunPageLink = "No." = FIELD("Service Item No.");
+                        RunPageLink = "No." = field("Service Item No.");
                         ToolTip = 'View or change detailed information about the record on the document or journal line.';
                     }
                     action("&Log")
@@ -205,7 +216,7 @@ page 5903 "Service Item Lines"
                         Caption = '&Log';
                         Image = Approve;
                         RunObject = Page "Service Item Log";
-                        RunPageLink = "Service Item No." = FIELD("Service Item No.");
+                        RunPageLink = "Service Item No." = field("Service Item No.");
                         ToolTip = 'View a list of the service item changes that have been logged, for example, when the warranty has changed or a component has been added. This window displays the field that was changed, the old value and the new value, and the date and time that the field was changed.';
                     }
                 }
@@ -220,9 +231,9 @@ page 5903 "Service Item Lines"
                     Caption = 'Service Item Worksheet';
                     Image = ServiceItemWorksheet;
                     RunObject = Page "Service Item Worksheet";
-                    RunPageLink = "Document Type" = FIELD("Document Type"),
-                                  "Document No." = FIELD("Document No."),
-                                  "Line No." = FIELD("Line No.");
+                    RunPageLink = "Document Type" = field("Document Type"),
+                                  "Document No." = field("Document No."),
+                                  "Line No." = field("Line No.");
                     ShortCutKey = 'Shift+F7';
                     ToolTip = 'View or edit a worksheet where you record information about service items, such as repair status, fault comments and codes, and cost. In this window, you can update information on the items such as repair status and fault and resolution codes. You can also enter new service lines for resource hours, for the use of spare parts and for specific service costs.';
                 }

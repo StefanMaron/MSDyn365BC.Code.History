@@ -1,3 +1,9 @@
+namespace Microsoft.Utilities;
+
+using Microsoft.Purchases.Document;
+using Microsoft.Sales.Document;
+using Microsoft.Service.Document;
+
 table 9080 "Error Handling Parameters"
 {
     DataClassification = SystemMetadata;

@@ -1427,15 +1427,6 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Fixed Assets Reports - III - NamedType FieldError4)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 3375241914 - NamedType 3482127946" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[%1|%2]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Fixed Assets Reports - III - NamedType FixedAssetFilter)]]></Cmt>
-    </Cmts>
-  </Item>
   <Item ItemId=";Codeunit 3375241914 - NamedType 3385374423" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[GLAccNetChange]]></Val>

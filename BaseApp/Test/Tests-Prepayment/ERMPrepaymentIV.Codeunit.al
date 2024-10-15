@@ -129,6 +129,7 @@ codeunit 134103 "ERM Prepayment IV"
         GLAccountNo: Code[20];
         DocumentNo: Code[20];
         PrepaymentPct: Decimal;
+        FirstPrePaymentPct: Decimal;
         SalesPrepmtAccount: Code[20];
     begin
         // Check Prepayment Amount on GL Entry after Posting Partial Shipment and Modify Prepayment % on Sales Header.
@@ -142,10 +143,11 @@ codeunit 134103 "ERM Prepayment IV"
         // Modify Sales Header for Prepayment % with Greater Random Value.
         PrepaymentPct := LibraryRandom.RandIntInRange(10, 40);
         LibrarySales.ReopenSalesDocument(SalesHeader);
+        FirstPrePaymentPct := SalesHeader."Prepayment %";
         ModifySalesHeaderForPrepaymentPct(SalesHeader, SalesHeader."Prepayment %" + PrepaymentPct);
 
         SalesLine.Get(SalesHeader."Document Type", SalesHeader."No.", SalesLine."Line No.");
-        Amount := Round((SalesLine.Quantity * SalesLine."Unit Price") * PrepaymentPct / 100);
+        Amount := Round(((Salesline.Quantity - SalesLine."Quantity Invoiced") * SalesLine."Unit Price") * (SalesHeader."Prepayment %" - FirstPrePaymentPct) / 100);
         DocumentNo := GetPostedDocumentNo(SalesHeader."Prepayment No. Series");
 
         // Exercise: Post Prepayment Invoice through Page.
@@ -270,6 +272,7 @@ codeunit 134103 "ERM Prepayment IV"
         DocumentNo: Code[20];
         PurchasePrepmtAccount: Code[20];
         PrepaymentPct: Decimal;
+        FirstPrePaymentPct: Decimal;
     begin
         // Check Prepayment Amount on GL Entry after Posting Partial Receive and Modify Prepayment % on Purchase Header.
 
@@ -284,12 +287,15 @@ codeunit 134103 "ERM Prepayment IV"
         // Modify Purchase Header for Prepayment % with Greater Random Value.
         PrepaymentPct := LibraryRandom.RandIntInRange(10, 40);
         LibraryPurchase.ReopenPurchaseDocument(PurchaseHeader);
+        FirstPrePaymentPct := PurchaseHeader."Prepayment %";
         PurchaseHeader.Validate("Prepayment %", PurchaseHeader."Prepayment %" + PrepaymentPct);
         PurchaseHeader.Modify(true);
 
         // Update Purchase Line with Modified Prepayment %.
+        PurchaseLine.get(PurchaseLine."Document Type", PurchaseLine."Document No.", PurchaseLine."Line No.");
         DocumentNo := GetPostedDocumentNo(PurchaseHeader."Prepayment No. Series");
         Amount := Round(PurchaseLine."Line Amount" * PrepaymentPct / 100);
+        Amount := Round(((PurchaseLine.Quantity - PurchaseLine."Quantity Invoiced") * PurchaseLine."Direct Unit Cost") * (PurchaseHeader."Prepayment %" - FirstPrePaymentPct) / 100);
         ModifyVendorInvoiceNoOnPurchaseHeader(PurchaseHeader);
 
         // Exercise: Post Prepayment Invoice through Page.

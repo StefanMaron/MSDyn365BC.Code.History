@@ -1,3 +1,8 @@
+namespace Microsoft.Bank.PositivePay;
+
+using Microsoft.Bank.Check;
+using System.IO;
+
 codeunit 1710 "Exp. User Feedback Pos. Pay"
 {
     Permissions = TableData "Check Ledger Entry" = rimd,
@@ -13,7 +18,7 @@ codeunit 1710 "Exp. User Feedback Pos. Pay"
         LastUpdateDateTime: DateTime;
     begin
         // Update the CheckLedgerEntry for the Data Exch. Entry No. as exported successfully
-        CheckLedgerEntry.SetRange("Data Exch. Entry No.", "Entry No.");
+        CheckLedgerEntry.SetRange("Data Exch. Entry No.", Rec."Entry No.");
         CheckLedgerEntry.SetRange("Positive Pay Exported", false);
         CheckLedgerEntry.SetFilter(
           "Entry Status", '%1|%2|>%3',
@@ -26,7 +31,7 @@ codeunit 1710 "Exp. User Feedback Pos. Pay"
 
         // Update the CheckLedgerEntry for the Data Exch. Voided Entry No. for Checks as exported successfully
         CheckLedgerEntry.SetRange("Data Exch. Entry No.");
-        CheckLedgerEntry.SetRange("Data Exch. Voided Entry No.", "Entry No.");
+        CheckLedgerEntry.SetRange("Data Exch. Voided Entry No.", Rec."Entry No.");
         CheckLedgerEntry.SetFilter(
           "Entry Status", '%1|%2|%3',
           CheckLedgerEntry."Entry Status"::Voided,
@@ -48,10 +53,10 @@ codeunit 1710 "Exp. User Feedback Pos. Pay"
         PositivePayEntry."Last Upload Time" := DT2Time(LastUpdateDateTime);
 
         // Retrieve the range of exported data and move Pos. Pay Entry Detail tables
-        CreatePosPayEntryDetail(PositivePayEntry, "Entry No.", BankAccNo);
+        CreatePosPayEntryDetail(PositivePayEntry, Rec."Entry No.", BankAccNo);
 
-        CalcFields("File Content");
-        PositivePayEntry."Exported File" := "File Content";
+        Rec.CalcFields("File Content");
+        PositivePayEntry."Exported File" := Rec."File Content";
         PositivePayEntry.Insert();
     end;
 

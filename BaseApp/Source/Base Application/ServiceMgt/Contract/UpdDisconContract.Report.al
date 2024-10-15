@@ -1,3 +1,5 @@
+namespace Microsoft.Service.Contract;
+
 report 6035 "Upd. Disc.% on Contract"
 {
     Caption = 'Upd. Disc.% on Contract';

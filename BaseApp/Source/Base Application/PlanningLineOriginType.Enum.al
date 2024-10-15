@@ -1,3 +1,5 @@
+namespace Microsoft.Inventory.Planning;
+
 enum 99000915 "Planning Line Origin Type"
 {
     Extensible = true;

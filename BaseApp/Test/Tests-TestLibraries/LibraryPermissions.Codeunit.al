@@ -413,17 +413,6 @@ codeunit 132214 "Library - Permissions"
     end;
 #endif
 
-#if not CLEAN20
-    [Obsolete('Plan Permission Set is being removed as it is no longer used', '20.0')]
-    procedure RemovePermissionSetFromPlan(PermissionSetCode: Code[20]; PlanID: Guid)
-    var
-        PlanPermissionSet: Record "Plan Permission Set";
-    begin
-        if PlanPermissionSet.Get(PlanID, PermissionSetCode) then
-            PlanPermissionSet.Delete(true);
-    end;
-#endif
-
     local procedure Initialize()
     begin
         CODEUNIT.Run(CODEUNIT::"Users - Create Super User");

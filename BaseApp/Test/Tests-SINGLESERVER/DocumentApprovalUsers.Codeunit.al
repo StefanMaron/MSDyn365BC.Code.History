@@ -2456,6 +2456,50 @@ codeunit 134202 "Document Approval - Users"
         Assert.ExpectedError(PhoneNoCannotContainLettersErr);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure NotificationSettingIsBasedOnRecipientNotificationSetup()
+    var
+        User: Record User;
+        NotificationSetup: Record "Notification Setup";
+        NotificationSetupArray: array[2] of Record "Notification Setup";
+        NotificationEntry: Record "Notification Entry";
+        FileManagement: Codeunit "File Management";
+        BodyTextXML: Text;
+        RecipientUser: Code[50];
+    begin
+        // [SCENARIO 457183] The Approval Notification message allows to modify general Notification settings instead of the Approver Notification Settings.
+        Initialize();
+        NotificationSetup.DeleteAll();
+        NotificationEntry.DeleteAll();
+
+        // [GIVEN] Notification Recipient has User table entry, where Recipient <> USERID
+        RecipientUser := LibraryUtility.GenerateGUID();
+        LibraryPermissions.CreateUser(User, RecipientUser, true);
+
+        // [GIVEN] Notification Setup with Approval type, Email method, for all users, DisplayTarget = Windows
+        CreateNotificationSetupWithDisplayTarget(
+          NotificationSetupArray[1], '', NotificationSetupArray[1]."Notification Type"::Approval,
+          NotificationSetupArray[1]."Notification Method"::Email);
+
+        // [GIVEN] Notification Setup with Approval type, Email method, for Recipient, DisplayTarget = Web
+        CreateNotificationSetupWithDisplayTarget(
+          NotificationSetupArray[2], RecipientUser, NotificationSetupArray[2]."Notification Type"::Approval,
+          NotificationSetupArray[2]."Notification Method"::Email);
+
+        // [GIVEN] Sales Invoice "SI" and Approval Entry created for "SI" for the Recipient
+        // [GIVEN] Notification Entry created for USER based on created Approval Entry
+        CreateApprovalEntryForSalesHeaderWithNotification(NotificationEntry, RecipientUser);
+
+        // [WHEN] Notification Email body generated and saved as XML
+        BodyTextXML := FileManagement.ServerTempFileName('xml');
+        NotificationEntry.SetRecFilter();
+        REPORT.SaveAsXml(REPORT::"Notification Email", BodyTextXML, NotificationEntry);
+
+        // [THEN] Verify URL generated for Notification Setup Settings
+        VerifyNotificationURLForApprovalNotificationEmail(BodyTextXML, UserId);
+    end;
+
     local procedure ApproveRequest(var ApprovalsMgmt: Codeunit "Approvals Mgmt."; TableID: Integer; DocumentType: Enum "Approval Document Type"; DocumentNo: Code[20])
     var
         ApprovalEntry: Record "Approval Entry";
@@ -3448,6 +3492,17 @@ codeunit 134202 "Document Approval - Users"
         LibraryXPathXMLReader.VerifyOptionalAttributeFromNode(Node, 'name', 'Document_Url');
         Assert.IsSubstring(Node.InnerText, SubString);
 
+        LibraryXPathXMLReader.GetNodeByXPath('//ReportDataSet/DataItems/DataItem//Columns/Column[6]', Node);
+        LibraryXPathXMLReader.VerifyOptionalAttributeFromNode(Node, 'name', 'Settings_Url');
+        Assert.IsSubstring(Node.InnerText, SubString);
+    end;
+
+    local procedure VerifyNotificationURLForApprovalNotificationEmail(BodyTextXML: Text; SubString: Text[20])
+    var
+        Node: DotNet XmlNode;
+    begin
+        LibraryXPathXMLReader.SetDefaultNamespaceUsage(true);
+        LibraryXPathXMLReader.Initialize(BodyTextXML, '');
         LibraryXPathXMLReader.GetNodeByXPath('//ReportDataSet/DataItems/DataItem//Columns/Column[6]', Node);
         LibraryXPathXMLReader.VerifyOptionalAttributeFromNode(Node, 'name', 'Settings_Url');
         Assert.IsSubstring(Node.InnerText, SubString);

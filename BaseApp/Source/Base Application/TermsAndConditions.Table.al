@@ -1,3 +1,5 @@
+namespace System.Privacy;
+
 table 9190 "Terms And Conditions"
 {
     Caption = 'Terms And Conditions';

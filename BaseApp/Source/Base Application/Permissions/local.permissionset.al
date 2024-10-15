@@ -1,3 +1,7 @@
+namespace System.Security.AccessControl;
+
+using Microsoft.Finance.VAT.Setup;
+
 permissionset 1001 "LOCAL"
 {
     Access = Public;

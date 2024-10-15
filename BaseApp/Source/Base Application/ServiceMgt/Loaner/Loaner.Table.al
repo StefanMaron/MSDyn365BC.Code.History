@@ -1,3 +1,11 @@
+namespace Microsoft.Service.Loaner;
+
+using Microsoft.Foundation.NoSeries;
+using Microsoft.Foundation.UOM;
+using Microsoft.Inventory.Item;
+using Microsoft.Service.Comment;
+using Microsoft.Service.Setup;
+
 table 5913 Loaner
 {
     Caption = 'Loaner';
@@ -31,8 +39,8 @@ table 5913 Loaner
         field(5; "Unit of Measure Code"; Code[10])
         {
             Caption = 'Unit of Measure Code';
-            TableRelation = IF ("Item No." = CONST('<>''')) "Item Unit of Measure".Code WHERE("Item No." = FIELD("Item No."))
-            ELSE
+            TableRelation = if ("Item No." = const('<>''')) "Item Unit of Measure".Code where("Item No." = field("Item No."))
+            else
             "Unit of Measure";
         }
         field(6; "Item No."; Code[20])
@@ -59,9 +67,9 @@ table 5913 Loaner
         }
         field(8; Comment; Boolean)
         {
-            CalcFormula = Exist ("Service Comment Line" WHERE("Table Name" = CONST(Loaner),
-                                                              "Table Subtype" = CONST("0"),
-                                                              "No." = FIELD("No.")));
+            CalcFormula = Exist("Service Comment Line" where("Table Name" = const(Loaner),
+                                                              "Table Subtype" = const("0"),
+                                                              "No." = field("No.")));
             Caption = 'Comment';
             Editable = false;
             FieldClass = FlowField;
@@ -78,16 +86,16 @@ table 5913 Loaner
         }
         field(12; "Document No."; Code[20])
         {
-            CalcFormula = Lookup ("Loaner Entry"."Document No." WHERE("Loaner No." = FIELD("No."),
-                                                                      Lent = CONST(true)));
+            CalcFormula = Lookup("Loaner Entry"."Document No." where("Loaner No." = field("No."),
+                                                                      Lent = const(true)));
             Caption = 'Document No.';
             Editable = false;
             FieldClass = FlowField;
         }
         field(13; Lent; Boolean)
         {
-            CalcFormula = Exist ("Loaner Entry" WHERE("Loaner No." = FIELD("No."),
-                                                      Lent = CONST(true)));
+            CalcFormula = Exist("Loaner Entry" where("Loaner No." = field("No."),
+                                                      Lent = const(true)));
             Caption = 'Lent';
             Editable = false;
             FieldClass = FlowField;
@@ -98,8 +106,8 @@ table 5913 Loaner
         }
         field(15; "Document Type"; Enum "Service Loaner Document Type")
         {
-            CalcFormula = Lookup ("Loaner Entry"."Document Type" WHERE("Loaner No." = FIELD("No."),
-                                                                       Lent = CONST(true)));
+            CalcFormula = Lookup("Loaner Entry"."Document Type" where("Loaner No." = field("No."),
+                                                                       Lent = const(true)));
             Caption = 'Document Type';
             Editable = false;
             FieldClass = FlowField;

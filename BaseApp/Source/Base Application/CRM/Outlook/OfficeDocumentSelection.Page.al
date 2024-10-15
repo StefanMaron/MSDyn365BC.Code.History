@@ -1,3 +1,5 @@
+namespace Microsoft.CRM.Outlook;
+
 page 1602 "Office Document Selection"
 {
     Caption = 'Document Selection';
@@ -27,12 +29,12 @@ page 1602 "Office Document Selection"
                     Lookup = true;
                     ToolTip = 'Specifies the number of the involved document.';
                 }
-                field(Series; Series)
+                field(Series; Rec.Series)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the series of the involved document, such as Purchasing or Sales.';
                 }
-                field(Posted; Posted)
+                field(Posted; Rec.Posted)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies whether the involved document has been posted.';

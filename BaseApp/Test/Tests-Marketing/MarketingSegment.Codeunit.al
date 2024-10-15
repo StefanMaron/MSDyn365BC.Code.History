@@ -330,7 +330,6 @@ codeunit 136213 "Marketing Segment"
     end;
 
     [Test]
-    [HandlerFunctions('ODataFieldsExportMPH')]
     [Scope('OnPrem')]
     procedure SegmentPageExportContactsSaaS()
     var
@@ -424,50 +423,6 @@ codeunit 136213 "Marketing Segment"
         VerifySegmentLineWithAttachment(SegmentHeader."No.", Line1No, InteractionTemplateCode[1], LanguageCode2, UniqueAttachmentNo);
         VerifySegmentLineWithAttachment(
           SegmentHeader."No.", Line2No, InteractionTemplateCode[1], LanguageCode1, SegmentHeader."Attachment No.");
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure UnwrapCustomLayoutWhenBlobContainsLayoutCode()
-    var
-        CustomReportLayout: Record "Custom Report Layout";
-        Attachment: Record Attachment;
-        SegmentLine: Record "Segment Line";
-        TempBlob: Codeunit "Temp Blob";
-        SegManagement: Codeunit SegManagement;
-        ReportId: Code[20];
-        ZeroString: Text;
-        OutStream: OutStream;
-        Index: Integer;
-    begin
-        // Create a copy of Email Merge report 
-        CustomReportLayout.SetRange("Report ID", Report::"Email Merge");
-        CustomReportLayout.SetRange("Built-In", true);
-        CustomReportLayout.FindFirst();
-        ReportId := CustomReportLayout.CopyReportLayout();
-
-        // Mimic interaction template flow that prefixes 0s to the custom layout code
-        ZeroString := '00000000000000000000';
-        ReportId := CopyStr(ZeroString, 1, MaxStrLen(ReportId) - StrLen(ReportId)) + ReportId;
-
-        // Create a attachemnt and set layout code as the content
-        Attachment.Init();
-        TempBlob.CreateOutStream(OutStream);
-        OutStream.WriteText(ReportId);
-        Attachment.SetAttachmentFileFromBlob(TempBlob);
-        Attachment."Storage Type" := "Attachment Storage Type"::"Disk File";
-        Attachment."File Extension" := 'HTML';
-        Attachment.Insert(true);
-
-        // Set the created attachment on Segment Line
-        SegmentLine.InitLine();
-        SegmentLine."Attachment No." := Attachment."No.";
-
-        // UnwrapAttachmentCustomLayout unwraps he layout and replaces the attachment
-        SegManagement.UnwrapAttachmentCustomLayout(SegmentLine);
-        Attachment.Get(SegmentLine."Attachment No.");
-
-        Assert.AreNotEqual(ReportId, Attachment.Read(), 'Custom report code is not set.');
     end;
 
     [Test]
@@ -790,13 +745,6 @@ codeunit 136213 "Marketing Segment"
     begin
         SaveSegmentCriteria.Code.SetValue(SalesPersonCode2);
         SaveSegmentCriteria.OK.Invoke;
-    end;
-
-    [ModalPageHandler]
-    [Scope('OnPrem')]
-    procedure ODataFieldsExportMPH(var ODataFieldsExport: TestPage "OData Fields Export")
-    begin
-        ODataFieldsExport.Cancel.Invoke;
     end;
 
     [ConfirmHandler]

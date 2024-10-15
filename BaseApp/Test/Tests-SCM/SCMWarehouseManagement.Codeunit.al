@@ -2863,6 +2863,7 @@ codeunit 137064 "SCM Warehouse Management"
     begin
         Location.Validate("Default Bin Selection", DefaultBinSelection);
         Location.Validate("Require Put-away", true);
+        Location.Validate("Always Create Put-away Line", true);
         Location.Validate("Require Receive", RequireReceive);
         Location.Validate("Require Pick", true);
         Location.Validate("Require Shipment", true);

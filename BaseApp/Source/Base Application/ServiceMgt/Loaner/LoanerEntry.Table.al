@@ -1,3 +1,10 @@
+﻿namespace Microsoft.Service.Loaner;
+
+using Microsoft.Sales.Customer;
+using Microsoft.Service.Document;
+using Microsoft.Service.Item;
+using Microsoft.Utilities;
+
 table 5914 "Loaner Entry"
 {
     Caption = 'Loaner Entry';

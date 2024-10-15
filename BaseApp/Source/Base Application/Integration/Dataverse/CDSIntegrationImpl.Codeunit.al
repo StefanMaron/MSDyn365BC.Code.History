@@ -1,3 +1,29 @@
+﻿// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Integration.Dataverse;
+
+using Microsoft.CRM.Outlook;
+using Microsoft.CRM.Team;
+using Microsoft.Finance.Currency;
+using Microsoft.Finance.GeneralLedger.Setup;
+using Microsoft.Integration.D365Sales;
+using Microsoft.Integration.SyncEngine;
+using Microsoft.Utilities;
+using System;
+using System.Azure.Identity;
+using System.Azure.KeyVault;
+using System.Environment;
+using System.Environment.Configuration;
+using System.Globalization;
+using System.Media;
+using System.Reflection;
+using System.Security.AccessControl;
+using System.Security.Authentication;
+using System.Threading;
+using System.Utilities;
+
 codeunit 7201 "CDS Integration Impl."
 {
     SingleInstance = true;
@@ -23,8 +49,8 @@ codeunit 7201 "CDS Integration Impl."
         IntegrationDisabledTxt: Label 'Integration is disabled.', Locked = true;
         BusinessEventsDisabledTxt: Label 'Business Events are disabled.', Locked = true;
         NoPermissionsTxt: Label 'No permissions.', Locked = true;
-        RebuildCouplingTableJobQueueEntryDescriptionTxt: Label 'Rebuilding the Dataverse coupling table after Cloud Migration.';
-        RebuildCouplingTableQst: Label 'You should run this action only if you have migrated your Business Central installation from version 2019 Wave 1 (version 14) to the Cloud.\This will create a job queue entry which will perform the rebuilding of the coupling table in the background. You must specify the starting time and start the job queue entry.\Do you want to continue?';
+        RebuildCouplingTableQst: Label 'You should run this action only if you have migrated your Business Central installation from version 2019 Wave 1 (version 14) to the Cloud.\To rebuild the coupling table you must upload a per-tenant extension to this Business Central environment.\Do you want to navigate to the location where the extension file is uploaded?';
+        RebuildCouplingTableExtensionLinkTxt: Label 'https://go.microsoft.com/fwlink/?linkid=2245902', Locked = true;
         UpdateSynchronizationSetupTxt: Label 'Update synchronization setup.', Locked = true;
         SynchronizationSetupUpdatedTxt: Label 'Synchronization setup has been updated.', Locked = true;
         UpdateBusinessEventsSetupTxt: Label 'Update business events setup.', Locked = true;
@@ -194,6 +220,12 @@ codeunit 7201 "CDS Integration Impl."
         ClientIdTok: Label '{CLIENTID}', Locked = true;
         ConnectionStringFormatTok: Label 'Url=%1; UserName=%2; Password=%3; ProxyVersion=%4; %5', Locked = true;
         ConnectionDisabledNotificationMsg: Label 'Connection to Dataverse is broken and that it has been disabled due to an error: %1', Comment = '%1 = Error text received from Dataverse';
+        MultipleCompaniesNotificationMsg: Label 'There are multiple Business Central companies that are connected to this Dataverse environment. Check the checkbox ''Multi-Company Synchronization Enabled'' on each table mapping to optimize its filters for multi-company synchronization.';
+        MultipleCompaniesNotificationNameTxt: Label 'Suggest to optimize the setup for connecting multiple companies to one Dataverse environment.';
+        MultipleCompaniesNotificationDescriptionTxt: Label 'Suggests to open Integration Table Mappings and set up multi-company support for each table mapping.';
+        OpenIntegrationTableMappingsMsg: Label 'Open Integration Table Mappings';
+        LearnMoreTxt: Label 'Learn more';
+        MultipleCompanySynchHelpLinkTxt: Label 'https://go.microsoft.com/fwlink/?linkid=2237688', Locked = true;
         CDSConnectionSetupTitleTxt: Label 'Set up a connection to Dataverse';
         CDSConnectionSetupShortTitleTxt: Label 'Connect to Dataverse';
         CDSConnectionSetupHelpTxt: Label 'https://go.microsoft.com/fwlink/?linkid=2115257', Locked = true;
@@ -219,6 +251,7 @@ codeunit 7201 "CDS Integration Impl."
         UserNameMustIncludeDomainErr: Label 'The user name must include the domain when the authentication type is set to Active Directory.';
         UserNameMustBeEmailErr: Label 'The user name must be a valid email address when the authentication type is set to Office 365.';
         LCYMustMatchBaseCurrencyErr: Label 'Your local currency code %1 does not match any ISO Currency Code in the Dataverse currency table. To continue, make sure that the local currency code in General Ledger Setup complies with the ISO standard and create a currency in Dataverse currency table that uses it as ISO Currency Code.', Comment = '%1 - ISO currency code';
+        BaseCurrencyMustExistInBCErr: Label 'The base currency %1 of the Dataverse environment must exist in Business Central and it must have an exchange rate.', Comment = '%1 - ISO currency code';
         UserSetupTxt: Label 'User Dataverse Setup';
         CannotResolveUserFromConnectionSetupErr: Label 'The user that is specified in the Dataverse Connection Setup does not exist.';
         MissingUsernameTok: Label '{USER}', Locked = true;
@@ -229,6 +262,8 @@ codeunit 7201 "CDS Integration Impl."
         VirtualTablesIntegrationRoleIdTxt: Label 'd7dbad50-c0f6-4b30-81cf-d2158f1e7c06', Locked = true;
         ErrorNotificationIdTxt: Label '5e9ed8ec-dc7d-42b5-b7fc-da8c08cea60f', Locked = true;
         ConnectionDisabledNotificationIdTxt: Label 'db1b4430-99b7-48c4-94ba-0e4975353134', Locked = true;
+        MultipleCompaniesNotificationIdTxt: Label 'e2416988-361b-4ad9-9409-8cfe161ce2f0', Locked = true;
+        HideNotificationTxt: Label 'Don''t show again';
         ConnectionDefaultNameTok: Label 'Dataverse', Locked = true;
         BaseSolutionUniqueNameTxt: Label 'bcbi_CdsBaseIntegration', Locked = true;
         BaseSolutionDisplayNameTxt: Label 'Business Central Dataverse Base Integration', Locked = true;
@@ -242,7 +277,7 @@ codeunit 7201 "CDS Integration Impl."
         MissingClientIdOrSecretTelemetryTxt: Label 'The client id or client secret have not been initialized.', Locked = true;
         MissingFirstPartyappIdOrCertificateTelemetryTxt: Label 'The first-party app id or certificate have not been initialized.', Locked = true;
         MissingClientIdOrSecretErr: Label 'The client id or client secret have not been initialized.';
-        MissingClientIdOrSecretOnPremErr: Label 'You must register an Azure Active Directory application that will be used to connect to the Dataverse environment and specify the application id, secret and redirect URL in the Dataverse Connection Setup page.', Comment = 'Dataverse and Azure Active Directory are names of a Microsoft service and a Microsoft Azure resource and should not be translated.';
+        MissingClientIdOrSecretOnPremErr: Label 'You must register an Microsoft Entra application that will be used to connect to the Dataverse environment and specify the application id, secret and redirect URL in the Dataverse Connection Setup page.', Comment = 'Dataverse and Microsoft Entra are names of a Microsoft service and a Microsoft Azure resource and should not be translated.';
         AuthTokenOrCodeNotReceivedErr: Label 'No access token or authorization error code received.', Locked = true;
         AccessTokenNotReceivedErr: Label 'Failed to acquire an access token for %1.', Comment = '%1 URL to the Dataverse environment.';
         GuiNotAllowedTxt: Label 'GUI not allowed, so acquiring the auth code through the interactive experience is not possible', Locked = true;
@@ -261,7 +296,7 @@ codeunit 7201 "CDS Integration Impl."
         VTEnableAppTxt: Label 'Enable virtual tables app.', Locked = true;
         VTConfigureNonProdTxt: Label 'Configure virtual tables in non-production.', Locked = true;
         VTEmptyTenantIdTxt: Label 'Tetant Id is empty.', Locked = true;
-        VTEmptyAadUserIdTxt: Label 'AAD User Id is empty.', Locked = true;
+        VTEmptyAadUserIdTxt: Label 'User Id is empty.', Locked = true;
         VTRegisterConnectionTxt: Label 'Registering connection.', Locked = true;
         VTConnectionRegisteredTxt: Label 'Connection is registered.', Locked = true;
         VTConfigureProdTxt: Label 'Configure virtual tables in production.', Locked = true;
@@ -286,12 +321,17 @@ codeunit 7201 "CDS Integration Impl."
         VTSetTargetHostTxt: Label 'Set target host in the virtual tables config.', Locked = true;
         VTSetCompanyIdTxt: Label 'Set company id in the virtual tables config.', Locked = true;
         VTSetTenantIdTxt: Label 'Set tenant id in the virtual tables config.', Locked = true;
-        VTSetAadUserIdTxt: Label 'Set AAD user id in the virtual tables config.', Locked = true;
+        VTSetAadUserIdTxt: Label 'Set user id in the virtual tables config.', Locked = true;
         VTAppNotInstalledTxt: Label 'The Business Central Virtual Table app is not installed in Dataverse. You must install the app from Microsoft AppSource before you can enable business events.';
         VTAppSourceLinkTxt: Label 'https://appsource.microsoft.com/product/dynamics-365/microsoftdynsmb.businesscentral_virtualentity', Locked = true;
         CRMEntityUrlTemplateTxt: Label '%1/main.aspx?pagetype=entityrecord&etn=%2&id=%3', Locked = true;
+        CRMEntityWithAppUrlTemplateTxt: Label '%1/main.aspx?appname=%2&pagetype=entityrecord&etn=%3&id=%4', Locked = true;
         CRMEntityListUrlTemplateTxt: Label '%1/main.aspx?pagetype=entitylist&etn=%2&navbar=on&cmdbar=true', Locked = true;
+        CRMEntityListWithAppUrlTemplateTxt: Label '%1/main.aspx?appname=%2&pagetype=entitylist&etn=%3&navbar=on&cmdbar=true', Locked = true;
         UsingCustomIntegrationUsernameEmailTxt: Label 'Dataverse setup is using custom integration username email, specified via event subscriber.', Locked = true;
+        EnableCDSVirtualTablesJobQueueDescriptionTxt: Label 'Enabling %1 Dataverse virtual table', Comment = '%1 - virtual table name';
+        EnableCDSVirtualTablesJobQueueCategoryTxt: Label 'VIRTUAL T';
+        VirtualTableAppNameTxt: Label 'dyn365bc_BusinessCentralConfiguration', Locked = true;
 
     [Scope('OnPrem')]
     procedure GetBaseSolutionUniqueName(): Text
@@ -808,7 +848,7 @@ codeunit 7201 "CDS Integration Impl."
         TargetHost: Text[255];
         CompanyId: Guid;
         TenantId: Text[150];
-        AadUserId: Text[80];
+        UserId: Text[80];
         IsPPE: Boolean;
     begin
         Session.LogMessage('0000GBK', VTConfigureTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
@@ -823,14 +863,14 @@ codeunit 7201 "CDS Integration Impl."
             TenantId := CopyStr(GetAadTenantId(), 1, MaxStrLen(TenantId));
             if TenantId = '' then
                 Session.LogMessage('0000GEX', VTEmptyTenantIdTxt, Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
-            AadUserId := GetAadUserId();
-            if AadUserId = '' then
+            UserId := GetAadUserId();
+            if UserId = '' then
                 Session.LogMessage('0000GEY', VTEmptyAadUserIdTxt, Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
         end else
             Session.LogMessage('0000GEZ', VTConfigureProdTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
 
-        CheckVirtualTablesConfig(TempAdminCDSConnectionSetup, EnvironmentName, TargetHost, CompanyId, TenantId, AadUserId, IsPPE);
-        UpdateVirtualTablesConfig(TempAdminCDSConnectionSetup, EnvironmentName, TargetHost, CompanyId, TenantId, AadUserId, IsPPE, ConfigId);
+        CheckVirtualTablesConfig(TempAdminCDSConnectionSetup, EnvironmentName, TargetHost, CompanyId, TenantId, UserId, IsPPE);
+        UpdateVirtualTablesConfig(TempAdminCDSConnectionSetup, EnvironmentName, TargetHost, CompanyId, TenantId, UserId, IsPPE, ConfigId);
 
         Session.LogMessage('0000GBP', VTConfiguredTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
     end;
@@ -1642,7 +1682,7 @@ codeunit 7201 "CDS Integration Impl."
                     Error(LCYCodeNotFoundErr);
                 CRMTransactioncurrency.SetRange(ISOCurrencyCode, CopyStr(GeneralLedgerSetup."LCY Code", 1, MaxStrLen(TempAdminCDSConnectionSetup.BaseCurrencyCode)));
                 if CRMTransactioncurrency.IsEmpty() then begin
-                    if Currency.Get(CRMBaseCurrencyCode) then
+                    if Currency.Get(Uppercase(CRMBaseCurrencyCode)) then
                         if CurrExchRate.ExchangeRateAdjmt(Today(), Currency.Code) <> 0 then
                             CRMBaseCurrencyFoundLocally := true;
                     if not CRMBaseCurrencyFoundLocally then begin
@@ -1658,7 +1698,34 @@ codeunit 7201 "CDS Integration Impl."
                         Session.LogMessage('0000K8P', CurrencyMismatchTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
                         Error(LCYMustMatchBaseCurrencyErr, GeneralLedgerSetup."LCY Code");
                     end;
-                end
+                end;
+                if GeneralLedgerSetup."LCY Code" <> Uppercase(CRMBaseCurrencyCode) then begin
+                    CRMTransactioncurrency.FindFirst();
+                    if not Currency.Get(Uppercase(CRMBaseCurrencyCode)) then begin
+                        Currency.Code := CopyStr(Uppercase(CRMBaseCurrencyCode), 1, MaxStrLen(Currency.Code));
+                        Currency.Symbol := CRMTransactioncurrency.CurrencySymbol;
+                        Currency."ISO Code" := CopyStr(CRMTransactioncurrency.ISOCurrencyCode, 1, MaxStrLen(Currency."ISO Code"));
+                        Currency."Amount Decimal Places" := Format(CRMTransactioncurrency.CurrencyPrecision) + ':' + Format(CRMTransactioncurrency.CurrencyPrecision);
+                        Currency.Description := CopyStr(CRMTransactioncurrency.CurrencyName, 1, MaxStrlen(Currency.Description));
+                        if not Currency.Insert() then begin
+                            Session.LogMessage('0000KJE', CurrencyMismatchTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
+                            Error(BaseCurrencyMustExistInBCErr, Uppercase(CRMBaseCurrencyCode));
+                        end;
+                    end;
+                    CurrExchRate.SetRange("Currency Code", Currency.Code);
+                    if CurrExchRate.IsEmpty() then begin
+                        CurrExchRate."Currency Code" := Currency.Code;
+                        CurrExchRate."Relational Exch. Rate Amount" := 1;
+                        CurrExchRate."Relational Adjmt Exch Rate Amt" := 1;
+                        CurrExchRate."Exchange Rate Amount" := 1 / CRMTransactioncurrency.ExchangeRate;
+                        CurrExchRate."Relational Exch. Rate Amount" := CurrExchRate."Exchange Rate Amount";
+                        CurrExchRate."Starting Date" := Today();
+                        if not CurrExchRate.Insert() then begin
+                            Session.LogMessage('0000KJF', CurrencyMismatchTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
+                            Error(BaseCurrencyMustExistInBCErr, Uppercase(CRMBaseCurrencyCode));
+                        end;
+                    end;
+                end;
             end;
             CDSCompany.ExternalId := CompanyId;
             CDSCompany.Name := CompanyName;
@@ -4245,6 +4312,11 @@ codeunit 7201 "CDS Integration Impl."
         exit(TextToGuid(ConnectionDisabledNotificationIdTxt));
     end;
 
+    local procedure GetMultipleCompaniesNotificationId(): Guid
+    begin
+        exit(TextToGuid(MultipleCompaniesNotificationIdTxt));
+    end;
+
     local procedure TextToGuid(TextVar: Text): Guid
     var
         GuidVar: Guid;
@@ -4253,8 +4325,7 @@ codeunit 7201 "CDS Integration Impl."
         exit(GuidVar);
     end;
 
-    [Scope('OnPrem')]
-    procedure SendConnectionDisabledNotification(DisableReason: Text[250])
+    internal procedure SendConnectionDisabledNotification(DisableReason: Text[250])
     var
         Notification: Notification;
     begin
@@ -4262,6 +4333,53 @@ codeunit 7201 "CDS Integration Impl."
         Notification.Message := StrSubstNo(ConnectionDisabledNotificationMsg, DisableReason);
         Notification.Scope := NOTIFICATIONSCOPE::LocalScope;
         Notification.Send();
+    end;
+
+    internal procedure SendMultipleCompaniesNotification()
+    var
+        MyNotifications: Record "My Notifications";
+        Notification: Notification;
+    begin
+        Notification.Id := GetMultipleCompaniesNotificationId();
+        if not MyNotifications.IsEnabled(Notification.Id) then
+            exit;
+
+        Notification.Message := MultipleCompaniesNotificationMsg;
+        Notification.AddAction(OpenIntegrationTableMappingsMsg, Codeunit::"CDS Integration Impl.", 'OpenIntegrationTableMappings');
+        Notification.AddAction(LearnMoreTxt, Codeunit::"CDS Integration Impl.", 'MultipleCompanyNotificationHelpLink');
+        Notification.AddAction(HideNotificationTxt, CODEUNIT::"CDS Integration Impl.", 'DisableMultipleCompanyNotification');
+        Notification.Scope := NOTIFICATIONSCOPE::LocalScope;
+        Notification.Send();
+    end;
+
+    procedure MultipleCompanyNotificationHelpLink(Notification: Notification)
+    begin
+        Hyperlink(MultipleCompanySynchHelpLinkTxt);
+    end;
+
+#if not CLEAN24
+    [Obsolete('Use MultipleCompanyNotificationHelpLink(Notification: Notification) instead', '24.0')]
+    procedure MultipleCompanyNotificationHelpLink()
+    begin
+        Hyperlink(MultipleCompanySynchHelpLinkTxt);
+    end;
+#endif
+
+    procedure DisableMultipleCompanyNotification(Notification: Notification)
+    var
+        MyNotifications: Record "My Notifications";
+    begin
+        if not MyNotifications.Disable(GetMultipleCompaniesNotificationId()) then
+            MyNotifications.InsertDefault(GetMultipleCompaniesNotificationId(), MultipleCompaniesNotificationNameTxt, MultipleCompaniesNotificationDescriptionTxt, false);
+    end;
+
+    procedure OpenIntegrationTableMappings(Notification: Notification)
+    var
+        IntegrationTableMapping: Record "Integration Table Mapping";
+    begin
+        IntegrationTableMapping.SetRange(Type, IntegrationTableMapping.Type::Dataverse);
+        IntegrationTableMapping.SetRange("Delete After Synchronization", false);
+        Page.Run(Page::"Integration Table Mapping List", IntegrationTableMapping);
     end;
 
     local procedure ShowError(ActivityDescription: Text[128]; ErrorMessage: Text)
@@ -4519,6 +4637,17 @@ codeunit 7201 "CDS Integration Impl."
         exit(false);
     end;
 
+    internal procedure MultipleCompaniesConnected(): Boolean
+    var
+        CDSCompany: Record "CDS Company";
+        CRMIntegrationManagement: Codeunit "CRM Integration Management";
+    begin
+        if (CRMIntegrationManagement.IsCDSIntegrationEnabled() or CRMIntegrationManagement.IsCRMIntegrationEnabled()) then
+            exit(CDSCompany.Count() > 1)
+        else
+            exit(false);
+    end;
+
     internal procedure GetBusinessEventsSupported(): Boolean
     var
         Supported: Boolean;
@@ -4694,21 +4823,27 @@ codeunit 7201 "CDS Integration Impl."
     internal procedure ShowVirtualTablesConfig(CDSConnectionSetup: Record "CDS Connection Setup")
     begin
         if not IsNullGuid(CDSConnectionSetup."Virtual Tables Config Id") then
-            Hyperlink(GetCRMEntityUrlFromCRMID(CDSConnectionSetup."Server Address", Database::"CRM BC Virtual Table Config.", CDSConnectionSetup."Virtual Tables Config Id"));
+            Hyperlink(GetCRMEntityUrlFromCRMID(CDSConnectionSetup."Server Address", Database::"CRM BC Virtual Table Config.", CDSConnectionSetup."Virtual Tables Config Id", VirtualTableAppNameTxt));
     end;
 
-    internal procedure GetCRMEntityUrlFromCRMID(ServerAddress: Text; TableId: Integer; CRMId: Guid): Text
+    internal procedure GetCRMEntityUrlFromCRMID(ServerAddress: Text; TableId: Integer; CRMId: Guid; AppName: Text): Text
     var
         CRMIntegrationManagement: Codeunit "CRM Integration Management";
         CRMEntityUrl: Text;
     begin
-        CRMEntityUrl := StrSubstNo(CRMEntityUrlTemplateTxt, ServerAddress, CRMIntegrationManagement.GetCRMEntityTypeName(TableId), CRMId);
+        if AppName <> '' then
+            CRMEntityUrl := StrSubstNo(CRMEntityWithAppUrlTemplateTxt, ServerAddress, AppName, CRMIntegrationManagement.GetCRMEntityTypeName(TableId), CRMId)
+        else
+            CRMEntityUrl := StrSubstNo(CRMEntityUrlTemplateTxt, ServerAddress, CRMIntegrationManagement.GetCRMEntityTypeName(TableId), CRMId);
         exit(CRMEntityUrl);
     end;
 
-    internal procedure GetCRMEntityListUrl(var CDSConnectionSetup: Record "CDS Connection Setup"; EntityTypeName: Text): Text
+    internal procedure GetCRMEntityListUrl(var CDSConnectionSetup: Record "CDS Connection Setup"; EntityTypeName: Text; AppName: Text): Text
     begin
-        exit(StrSubstNo(CRMEntityListUrlTemplateTxt, CDSConnectionSetup."Server Address", EntityTypeName));
+        if AppName <> '' then
+            exit(StrSubstNo(CRMEntityListWithAppUrlTemplateTxt, CDSConnectionSetup."Server Address", AppName, EntityTypeName))
+        else
+            exit(StrSubstNo(CRMEntityListUrlTemplateTxt, CDSConnectionSetup."Server Address", EntityTypeName));
     end;
 
     [EventSubscriber(ObjectType::Table, Database::"Service Connection", 'OnRegisterServiceConnection', '', false, false)]
@@ -4743,34 +4878,11 @@ codeunit 7201 "CDS Integration Impl."
 
     [Scope('OnPrem')]
     procedure ScheduleRebuildingOfCouplingTable()
-    var
-        JobQueueEntry: Record "Job Queue Entry";
     begin
         if not Confirm(RebuildCouplingTableQst) then
-            exit;
-
-        JobQueueEntry.SetRange("Object Type to Run", JobQueueEntry."Object Type to Run"::Codeunit);
-        JobQueueEntry.SetRange("Object ID to Run", Codeunit::"Rebuild Dataverse Coupling Tbl");
-
-        if JobQueueEntry.FindFirst() then begin
-            if JobQueueEntry.Status in [JobQueueEntry.Status::Ready, JobQueueEntry.Status::"In Process"] then begin
-                Page.Run(Page::"Job Queue Entry Card", JobQueueEntry);
-                exit;
-            end;
-            JobQueueEntry.DeleteTasks();
-        end;
-
-        JobQueueEntry.Init();
-        JobQueueEntry."Object Type to Run" := JobQueueEntry."Object Type to Run"::Codeunit;
-        JobQueueEntry."Object ID to Run" := Codeunit::"Rebuild Dataverse Coupling Tbl";
-        JobQueueEntry."Run in User Session" := false;
-        JobQueueEntry.Description := RebuildCouplingTableJobQueueEntryDescriptionTxt;
-        JobQueueEntry."Maximum No. of Attempts to Run" := 5;
-        JobQueueEntry.Status := JobQueueEntry.Status::"On Hold";
-        JobQueueEntry."Rerun Delay (sec.)" := 120;
-        JobQueueEntry.Insert(true);
-
-        Page.Run(Page::"Job Queue Entry Card", JobQueueEntry);
+            exit
+        else
+            Hyperlink(RebuildCouplingTableExtensionLinkTxt);
     end;
 
     procedure GetOptionSetMetadata(EntityName: Text; FieldName: Text): Dictionary of [Integer, Text]
@@ -4838,11 +4950,149 @@ codeunit 7201 "CDS Integration Impl."
             end;
     end;
 
+    [NonDebuggable]
+    internal procedure LoadAvailableVirtualTables(var CDSAvVirtualTableBuffer: Record "CDS Av. Virtual Table Buffer")
+    var
+        CDSAvailableVirtualTable: Record "CDS Available Virtual Table";
+        CDSConnectionSetup: Record "CDS Connection Setup";
+        JobQueueEntry: Record "Job Queue Entry";
+        TempAdminCDSConnectionSetup: Record "CDS Connection Setup" temporary;
+        CrmHelper: DotNet CrmHelper;
+        AccessToken: Text;
+        TempConnectionString: Text;
+        TempConnectionName: Text;
+    begin
+        if CDSConnectionSetup.FindFirst() then
+            if CDSConnectionSetup."Business Events Enabled" then begin
+                if CDSConnectionSetup."Authentication Type" <> CDSConnectionSetup."Authentication Type"::Office365 then begin
+                    Session.LogMessage('0000KN5', VTCannotConfigureTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
+                    CDSConnectionSetup.TestField("Authentication Type", CDSConnectionSetup."Authentication Type"::Office365);
+                end;
+
+                if not CheckConnectionRequiredFields(CDSConnectionSetup, true) then begin
+                    Session.LogMessage('0000KN6', VTCannotConfigureTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
+                    Error(GetLastErrorText());
+                end;
+
+                GetAccessToken(CDSConnectionSetup."Server Address", true, AccessToken);
+                TempConnectionString := StrSubstNo(OAuthConnectionStringFormatTxt, CDSConnectionSetup."Server Address", AccessToken, CDSConnectionSetup.GetProxyVersion(), GetAuthenticationTypeToken(CDSConnectionSetup));
+                if not InitializeConnection(CrmHelper, TempConnectionString) then begin
+                    Session.LogMessage('0000KN7', ConnectionNotRegisteredTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
+                    ProcessConnectionFailures();
+                end;
+
+                GetTempConnectionSetup(TempAdminCDSConnectionSetup, CDSConnectionSetup, AccessToken);
+                TempConnectionName := GetTempConnectionName();
+                RegisterConnection(TempAdminCDSConnectionSetup, TempConnectionName);
+                SetDefaultTableConnection(TableConnectionType::CRM, TempConnectionName, true);
+
+                if CDSAvailableVirtualTable.FindSet() then
+                    repeat
+                        CDSAvVirtualTableBuffer.TransferFields(CDSAvailableVirtualTable);
+
+                        JobQueueEntry.SetRange("Object ID to Run", Codeunit::"Enable CDS Virtual Tables");
+                        JobQueueEntry.SetRange("Object Type to Run", JobQueueEntry."Object Type to Run"::Codeunit);
+                        JobQueueEntry.SetRange("Job Queue Category Code", CopyStr(EnableCDSVirtualTablesJobQueueCategoryTxt, 1, MaxStrLen(JobQueueEntry."Job Queue Category Code")));
+                        JobQueueEntry.SetRange(Description, StrSubstNo(EnableCDSVirtualTablesJobQueueDescriptionTxt, CDSAvailableVirtualTable.mserp_cdsentitylogicalname));
+                        if JobQueueEntry.FindFirst() then
+                            if JobQueueEntry.Status in [JobQueueEntry.Status::"In Process", JobQueueEntry.Status::Ready] then
+                                CDSAvVirtualTableBuffer."In Process" := true;
+
+                        CDSAvVirtualTableBuffer.Insert();
+                    until CDSAvailableVirtualTable.Next() = 0;
+
+                UnregisterTableConnection(TableConnectionType::CRM, TempConnectionName);
+            end;
+    end;
+
+    [NonDebuggable]
+    internal procedure EnableVirtualTables(FilterTxt: Text)
+    var
+        CDSAvailableVirtualTable: Record "CDS Available Virtual Table";
+        CDSConnectionSetup: Record "CDS Connection Setup";
+        TempAdminCDSConnectionSetup: Record "CDS Connection Setup" temporary;
+        CrmHelper: DotNet CrmHelper;
+        AccessToken: Text;
+        TempConnectionString: Text;
+        TempConnectionName: Text;
+    begin
+        if CDSConnectionSetup.FindFirst() then
+            if FilterTxt <> '' then begin
+                if not CheckConnectionRequiredFields(CDSConnectionSetup, true) then begin
+                    Session.LogMessage('0000KN8', VTCannotConfigureTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
+                    Error(GetLastErrorText());
+                end;
+
+                GetAccessToken(CDSConnectionSetup."Server Address", true, AccessToken);
+                TempConnectionString := StrSubstNo(OAuthConnectionStringFormatTxt, CDSConnectionSetup."Server Address", AccessToken, CDSConnectionSetup.GetProxyVersion(), GetAuthenticationTypeToken(CDSConnectionSetup));
+                if not InitializeConnection(CrmHelper, TempConnectionString) then begin
+                    Session.LogMessage('0000KN9', ConnectionNotRegisteredTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
+                    ProcessConnectionFailures();
+                end;
+
+                GetTempConnectionSetup(TempAdminCDSConnectionSetup, CDSConnectionSetup, AccessToken);
+                TempConnectionName := GetTempConnectionName();
+                RegisterConnection(TempAdminCDSConnectionSetup, TempConnectionName);
+                SetDefaultTableConnection(TableConnectionType::CRM, TempConnectionName, true);
+
+                CDSAvailableVirtualTable.SetFilter(mserp_cdsentitylogicalname, FilterTxt);
+                if CDSAvailableVirtualTable.FindFirst() then begin
+                    CDSAvailableVirtualTable.mserp_hasbeengenerated := true;
+                    CDSAvailableVirtualTable.Modify();
+                end;
+
+                UnregisterTableConnection(TableConnectionType::CRM, TempConnectionName);
+            end;
+    end;
+
+    internal procedure ScheduleEnablingVirtualTables(FilterList: List of [Text])
+    var
+        JobQueueEntry: Record "Job Queue Entry";
+        FilterTxt: Text;
+        WaitTime: Integer;
+        EarliestStartDateTime: DateTime;
+    begin
+        EarliestStartDateTime := CurrentDateTime() + 1000;
+        foreach FilterTxt in FilterList do begin
+            Clear(JobQueueEntry);
+            JobQueueEntry."Object Type to Run" := JobQueueEntry."Object Type to Run"::Codeunit;
+            JobQueueEntry."Object ID to Run" := Codeunit::"Enable CDS Virtual Tables";
+            JobQueueEntry."Job Queue Category Code" := CopyStr(EnableCDSVirtualTablesJobQueueCategoryTxt, 1, MaxStrLen(JobQueueEntry."Job Queue Category Code"));
+            EarliestStartDateTime += 90000 * WaitTime;
+            JobQueueEntry."Earliest Start Date/Time" := EarliestStartDateTime;
+            JobQueueEntry."Run in User Session" := false;
+            JobQueueEntry.Description := StrSubstNo(EnableCDSVirtualTablesJobQueueDescriptionTxt, FilterTxt);
+            JobQueueEntry."Maximum No. of Attempts to Run" := 3;
+            JobQueueEntry."Rerun Delay (sec.)" := 30;
+            JobQueueEntry.Insert(true);
+            JobQueueEntry.SetXmlContent(FilterTxt);
+            Commit();
+            Codeunit.Run(Codeunit::"Job Queue - Enqueue", JobQueueEntry);
+            WaitTime += 1;
+        end;
+    end;
+
+    internal procedure OpenEnableVirtualTablesJobFromNotification(ScheduledJobNotification: Notification)
+    var
+        JobQueueEntry: Record "Job Queue Entry";
+    begin
+        JobQueueEntry.SetRange("Job Queue Category Code", EnableCDSVirtualTablesJobQueueCategoryTxt);
+        Page.Run(Page::"Job Queue Entries", JobQueueEntry);
+    end;
+
     [EventSubscriber(ObjectType::Table, Database::"Integration Synch. Job Errors", 'OnIsDataIntegrationEnabled', '', false, false)]
     local procedure IsDataIntegrationEnabled(var IsIntegrationEnabled: Boolean)
     begin
         if not IsIntegrationEnabled then
             IsIntegrationEnabled := CDSIntegrationMgt.IsIntegrationEnabled();
+    end;
+
+    [EventSubscriber(ObjectType::Page, Page::"My Notifications", 'OnInitializingNotificationWithDefaultState', '', false, false)]
+    local procedure InsertDefaultStateOnInitializingNotificationWithDefaultState()
+    var
+        MyNotifications: Record "My Notifications";
+    begin
+        MyNotifications.InsertDefault(GetMultipleCompaniesNotificationId(), MultipleCompaniesNotificationNameTxt, MultipleCompaniesNotificationDescriptionTxt, true);
     end;
 
     [IntegrationEvent(false, false)]
