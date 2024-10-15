@@ -26,7 +26,7 @@
         PostCodeCityLineNo: Integer;
         CountyLineNo: Integer;
         CountryLineNo: Integer;
-        Handled: Boolean;
+        IsHandled: Boolean;
     begin
         Clear(AddrArray);
 
@@ -40,9 +40,10 @@
                 Country.Init();
                 Country.Name := CountryCode;
             end;
-        Handled := false;
-        OnFormatAddrOnAfterGetCountry(AddrArray, Name, Name2, Contact, Addr, Addr2, City, PostCode, County, CountryCode, LanguageCode, Handled);
-        if Handled then
+        IsHandled := false;
+        OnFormatAddrOnAfterGetCountry(
+            AddrArray, Name, Name2, Contact, Addr, Addr2, City, PostCode, County, CountryCode, LanguageCode, IsHandled, Country);
+        if IsHandled then
             exit;
 
         if Country."Address Format" = Country."Address Format"::Custom then begin
@@ -79,11 +80,11 @@
         end else begin
             SetLineNos(Country, NameLineNo, Name2LineNo, AddrLineNo, Addr2LineNo, ContLineNo, PostCodeCityLineNo, CountyLineNo, CountryLineNo);
 
-            Handled := false;
+            IsHandled := false;
             OnBeforeFormatAddress(
               Country, AddrArray, Name, Name2, Contact, Addr, Addr2, City, PostCode, County, CountryCode, NameLineNo, Name2LineNo,
-              AddrLineNo, Addr2LineNo, ContLineNo, PostCodeCityLineNo, CountyLineNo, CountryLineNo, Handled);
-            if Handled then
+              AddrLineNo, Addr2LineNo, ContLineNo, PostCodeCityLineNo, CountyLineNo, CountryLineNo, IsHandled);
+            if IsHandled then
                 exit;
 
             AddrArray[NameLineNo] := Name;
@@ -491,14 +492,14 @@
         end;
     end;
 
-    procedure SalesShptBillTo(var AddrArray: array[8] of Text[100]; ShipToAddr: array[8] of Text[100]; var SalesShptHeader: Record "Sales Shipment Header"): Boolean
+    procedure SalesShptBillTo(var AddrArray: array[8] of Text[100]; ShipToAddr: array[8] of Text[100]; var SalesShptHeader: Record "Sales Shipment Header") Result: Boolean
     var
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeSalesShptBillTo(AddrArray, ShipToAddr, SalesShptHeader, IsHandled);
+        OnBeforeSalesShptBillTo(AddrArray, ShipToAddr, SalesShptHeader, IsHandled, Result);
         if IsHandled then
-            exit;
+            exit(Result);
 
         with SalesShptHeader do begin
             FormatAddr(
@@ -575,7 +576,7 @@
     var
         IsHandled: Boolean;
     begin
-        OnBeforeSalesInvShipTo(AddrArray, SalesInvHeader, IsHandled, Result);
+        OnBeforeSalesInvShipTo(AddrArray, SalesInvHeader, IsHandled, Result, CustAddr);
         if IsHandled then
             exit(Result);
 
@@ -633,14 +634,14 @@
         end;
     end;
 
-    procedure SalesCrMemoShipTo(var AddrArray: array[8] of Text[100]; CustAddr: array[8] of Text[100]; var SalesCrMemoHeader: Record "Sales Cr.Memo Header"): Boolean
+    procedure SalesCrMemoShipTo(var AddrArray: array[8] of Text[100]; CustAddr: array[8] of Text[100]; var SalesCrMemoHeader: Record "Sales Cr.Memo Header") Result: Boolean
     var
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeSalesCrMemoShipTo(AddrArray, CustAddr, SalesCrMemoHeader, IsHandled);
+        OnBeforeSalesCrMemoShipTo(AddrArray, CustAddr, SalesCrMemoHeader, IsHandled, Result);
         if IsHandled then
-            exit;
+            exit(Result);
 
         with SalesCrMemoHeader do begin
             FormatAddr(
@@ -677,14 +678,14 @@
         end;
     end;
 
-    procedure SalesRcptBillTo(var AddrArray: array[8] of Text[100]; ShipToAddr: array[8] of Text[100]; var ReturnRcptHeader: Record "Return Receipt Header"): Boolean
+    procedure SalesRcptBillTo(var AddrArray: array[8] of Text[100]; ShipToAddr: array[8] of Text[100]; var ReturnRcptHeader: Record "Return Receipt Header") Result: Boolean
     var
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeSalesRcptBillTo(AddrArray, ShipToAddr, ReturnRcptHeader, IsHandled);
+        OnBeforeSalesRcptBillTo(AddrArray, ShipToAddr, ReturnRcptHeader, IsHandled, Result);
         if IsHandled then
-            exit;
+            exit(Result);
 
         with ReturnRcptHeader do begin
             FormatAddr(
@@ -2010,7 +2011,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeSalesInvShipTo(var AddrArray: array[8] of Text[100]; var SalesInvHeader: Record "Sales Invoice Header"; var Handled: Boolean; var Result: Boolean)
+    local procedure OnBeforeSalesInvShipTo(var AddrArray: array[8] of Text[100]; var SalesInvHeader: Record "Sales Invoice Header"; var Handled: Boolean; var Result: Boolean; var CustAddr: array[8] of Text[100])
     begin
     end;
 
@@ -2025,7 +2026,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeSalesCrMemoShipTo(var AddrArray: array[8] of Text[100]; var CustAddr: array[8] of Text[100]; var SalesCrMemoHeader: Record "Sales Cr.Memo Header"; var Handled: Boolean)
+    local procedure OnBeforeSalesCrMemoShipTo(var AddrArray: array[8] of Text[100]; var CustAddr: array[8] of Text[100]; var SalesCrMemoHeader: Record "Sales Cr.Memo Header"; var Handled: Boolean; var Result: Boolean)
     begin
     end;
 
@@ -2035,7 +2036,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeSalesShptBillTo(var AddrArray: array[8] of Text[100]; var ShipToAddr: array[8] of Text[100]; var SalesShipmentHeader: Record "Sales Shipment Header"; var Handled: Boolean)
+    local procedure OnBeforeSalesShptBillTo(var AddrArray: array[8] of Text[100]; var ShipToAddr: array[8] of Text[100]; var SalesShipmentHeader: Record "Sales Shipment Header"; var Handled: Boolean; var Result: Boolean)
     begin
     end;
 
@@ -2055,7 +2056,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeSalesRcptBillTo(var AddrArray: array[8] of Text[100]; var ShipToAddr: array[8] of Text[100]; var ReturnRcptHeader: Record "Return Receipt Header"; var IsHandled: Boolean)
+    local procedure OnBeforeSalesRcptBillTo(var AddrArray: array[8] of Text[100]; var ShipToAddr: array[8] of Text[100]; var ReturnRcptHeader: Record "Return Receipt Header"; var IsHandled: Boolean; var Result: Boolean)
     begin
     end;
 
@@ -2150,7 +2151,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnFormatAddrOnAfterGetCountry(var AddrArray: array[8] of Text[100]; var Name: Text[100]; var Name2: Text[100]; var Contact: Text[100]; var Addr: Text[100]; var Addr2: Text[50]; var City: Text[50]; var PostCode: Code[20]; var County: Text[50]; var CountryCode: Code[10]; LanguageCode: Code[10]; var IsHandled: Boolean)
+    local procedure OnFormatAddrOnAfterGetCountry(var AddrArray: array[8] of Text[100]; var Name: Text[100]; var Name2: Text[100]; var Contact: Text[100]; var Addr: Text[100]; var Addr2: Text[50]; var City: Text[50]; var PostCode: Code[20]; var County: Text[50]; var CountryCode: Code[10]; LanguageCode: Code[10]; var IsHandled: Boolean; var Country: Record "Country/Region")
     begin
     end;
 }

@@ -32,7 +32,7 @@ page 1190 "Create Payment"
                         if GeneralJournalTemplates.RunModal = ACTION::LookupOK then begin
                             GeneralJournalTemplates.GetRecord(GenJnlTemplate);
                             JournalTemplateName := GenJnlTemplate.Name;
-                            BatchSelection(JournalTemplateName, JournalBatchName);
+                            BatchSelection(JournalTemplateName, JournalBatchName, false);
                         end;
                     end;
 
@@ -41,7 +41,7 @@ page 1190 "Create Payment"
                         GenJnlTemplate: Record "Gen. Journal Template";
                     begin
                         GenJnlTemplate.Get(JournalTemplateName);
-                        BatchSelection(JournalTemplateName, JournalBatchName);
+                        BatchSelection(JournalTemplateName, JournalBatchName, false);
                     end;
                 }
                 field("Batch Name"; JournalBatchName)
@@ -67,14 +67,14 @@ page 1190 "Create Payment"
                         if GeneralJournalBatches.RunModal = ACTION::LookupOK then begin
                             GeneralJournalBatches.GetRecord(GenJournalBatch);
                             JournalBatchName := GenJournalBatch.Name;
-                            BatchSelection(JournalTemplateName, JournalBatchName);
+                            BatchSelection(JournalTemplateName, JournalBatchName, false);
                         end;
                     end;
 
                     trigger OnValidate()
                     begin
                         if JournalBatchName <> '' then
-                            BatchSelection(JournalTemplateName, JournalBatchName);
+                            BatchSelection(JournalTemplateName, JournalBatchName, false);
                     end;
                 }
                 field("Posting Date"; PostingDate)
@@ -83,6 +83,12 @@ page 1190 "Create Payment"
                     Caption = 'Posting Date';
                     ShowMandatory = true;
                     ToolTip = 'Specifies the entry''s posting date.';
+
+                    trigger OnValidate()
+                    begin
+                        if JournalBatchName <> '' then
+                            BatchSelection(JournalTemplateName, JournalBatchName, false);
+                    end;
                 }
                 field("Starting Document No."; NextDocNo)
                 {
@@ -133,13 +139,10 @@ page 1190 "Create Payment"
             Clear(JournalBatchName);
 
         if JournalTemplateName = '' then
-            if GenJnlManagement.TemplateSelectionSimple(GenJnlTemplate, GenJnlTemplate.Type::Payments, false) then begin
+            if GenJnlManagement.TemplateSelectionSimple(GenJnlTemplate, GenJnlTemplate.Type::Payments, false) then
                 JournalTemplateName := GenJnlTemplate.Name;
-                BatchSelection(JournalTemplateName, JournalBatchName);
-            end;
 
-        if JournalBatchName = '' then
-            BatchSelection(JournalTemplateName, JournalBatchName);
+        BatchSelection(JournalTemplateName, JournalBatchName, true);
     end;
 
     trigger OnQueryClosePage(CloseAction: Action): Boolean
@@ -394,20 +397,21 @@ page 1190 "Create Payment"
     begin
     end;
 
-    local procedure SetNextNo(GenJournalBatchNoSeries: Code[20])
+    local procedure SetNextNo(GenJournalBatchNoSeries: Code[20]; KeepSavedDocumentNo: Boolean)
     var
         GenJournalLine: Record "Gen. Journal Line";
         NoSeriesMgt: Codeunit NoSeriesManagement;
     begin
-        if GenJournalBatchNoSeries = '' then
-            NextDocNo := ''
-        else begin
+        if (GenJournalBatchNoSeries = '') then begin
+            if not KeepSavedDocumentNo then
+                NextDocNo := ''
+        end else begin
             GenJournalLine.SetRange("Journal Template Name", JournalTemplateName);
             GenJournalLine.SetRange("Journal Batch Name", JournalBatchName);
             if GenJournalLine.FindLast then
                 NextDocNo := IncStr(GenJournalLine."Document No.")
             else
-                NextDocNo := NoSeriesMgt.GetNextNo(GenJournalBatchNoSeries, PostingDate, false);
+                NextDocNo := NoSeriesMgt.GetNextNo3(GenJournalBatchNoSeries, PostingDate, false, true);
             Clear(NoSeriesMgt);
         end;
     end;
@@ -449,13 +453,13 @@ page 1190 "Create Payment"
             TempPaymentBuffer."Applies-to Ext. Doc. No."));
     end;
 
-    local procedure BatchSelection(CurrentJnlTemplateName: Code[10]; var CurrentJnlBatchName: Code[10])
+    local procedure BatchSelection(CurrentJnlTemplateName: Code[10]; var CurrentJnlBatchName: Code[10]; KeepSaveDocumentNo: Boolean)
     var
         GenJournalBatch: Record "Gen. Journal Batch";
     begin
         GenJnlManagement.CheckTemplateName(CurrentJnlTemplateName, CurrentJnlBatchName);
         GenJournalBatch.Get(CurrentJnlTemplateName, CurrentJnlBatchName);
-        SetNextNo(GenJournalBatch."No. Series");
+        SetNextNo(GenJournalBatch."No. Series", KeepSaveDocumentNo);
     end;
 }
 

@@ -141,6 +141,7 @@ page 5540 "Item Availability by Timeline"
                         ForecastName2: Code[10];
                     begin
                         ForecastName2 := ForecastName;
+                        OnForecaseNameOnValidateOnBeforeInitAndCreateTimelineEvents(IncludeBlanketOrders, ForecastName);
                         InitAndCreateTimelineEvents;
                         ForecastName := ForecastName2;
                     end;
@@ -601,5 +602,11 @@ page 5540 "Item Availability by Timeline"
     begin
         exit(5);
     end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnForecaseNameOnValidateOnBeforeInitAndCreateTimelineEvents(var IncludeBlanketOrders: Boolean; ForecastName: Code[10])
+    begin
+    end;
+
 }
 

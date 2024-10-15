@@ -9,8 +9,8 @@ codeunit 1310 "O365 Activities Dictionary"
         ActivitiesCue: Record "Activities Cue";
     begin
         results.Add(ActivitiesCue.FieldName("Sales This Month"), Format(ActivitiesMgt.CalcSalesThisMonthAmount(false)));
-        results.Add(ActivitiesCue.FieldName("Overdue Sales Invoice Amount"), Format(ActivitiesMgt.CalcOverdueSalesInvoiceAmount(false)));
-        results.Add(ActivitiesCue.FieldName("Overdue Purch. Invoice Amount"), Format(ActivitiesMgt.CalcOverduePurchaseInvoiceAmount(false)));
+        results.Add(ActivitiesCue.FieldName("Overdue Sales Invoice Amount"), Format(ActivitiesMgt.OverdueSalesInvoiceAmount(false, true)));
+        results.Add(ActivitiesCue.FieldName("Overdue Purch. Invoice Amount"), Format(ActivitiesMgt.OverduePurchaseInvoiceAmount(false, true)));
         results.Add(ActivitiesCue.FieldName("Top 10 Customer Sales YTD"), Format(ActivitiesMgt.CalcTop10CustomerSalesYTD()));
         results.Add(ActivitiesCue.FieldName("Average Collection Days"), Format(ActivitiesMgt.CalcAverageCollectionDays()));
 

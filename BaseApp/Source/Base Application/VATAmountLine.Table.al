@@ -537,6 +537,8 @@ table 290 "VAT Amount Line"
         "Calculated VAT Amount" := "VAT Amount";
         "VAT Difference" := 0;
         Modified := true;
+
+        OnAfterCalcVATFields(Rec, NewPricesIncludingVAT, NewVATBaseDiscPct);
     end;
 
     [Scope('OnPrem')]
@@ -672,6 +674,7 @@ table 290 "VAT Amount Line"
                                     (CalcLineAmount - "VAT Base" - "VAT Difference") *
                                     (1 - VATBaseDiscountPerc / 100),
                                     Currency."Amount Rounding Precision", Currency.VATRoundingDirection);
+                                OnUpdateLinesOnAfterCalcVATAmount(Rec, PrevVATAmountLine, Currency, VATBaseDiscountPerc, PricesIncludingVAT);
                                 "Amount Including VAT" := "VAT Base" + "VAT Amount";
                                 if Positive then
                                     PrevVATAmountLine.Init
@@ -722,6 +725,7 @@ table 290 "VAT Amount Line"
                                     PrevVATAmountLine."VAT Amount" +
                                     "VAT Base" * "VAT %" / 100 * (1 - VATBaseDiscountPerc / 100),
                                     Currency."Amount Rounding Precision", Currency.VATRoundingDirection);
+                                OnUpdateLinesOnAfterCalcVATAmount(Rec, PrevVATAmountLine, Currency, VATBaseDiscountPerc, PricesIncludingVAT);
                                 "Amount Including VAT" := CalcLineAmount + "VAT Amount";
                                 if Positive then
                                     PrevVATAmountLine.Init
@@ -743,6 +747,7 @@ table 290 "VAT Amount Line"
                             end;
                         "VAT Calculation Type"::"Sales Tax":
                             begin
+                                OnUpdateLinesOnBeforeCalcSalesTaxVatBase(Rec);
                                 "VAT Base" := CalcLineAmount;
                                 if "Use Tax" then
                                     "VAT Amount" := 0
@@ -959,6 +964,21 @@ table 290 "VAT Amount Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnInsertLine(var VATAmountLine: Record "VAT Amount Line"; IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateLinesOnAfterCalcVATAmount(var VATAmountLine: Record "VAT Amount Line"; PrevVATAmountLine: Record "VAT Amount Line"; var Currency: Record Currency; VATBaseDiscountPerc: Decimal; PricesIncludingVAT: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateLinesOnBeforeCalcSalesTaxVatBase(var VATAmountLine: Record "VAT Amount Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCalcVATFields(var VATAmountLine: Record "VAT Amount Line"; NewPricesIncludingVAT: Boolean; NewVATBaseDiscPct: Decimal)
     begin
     end;
 }

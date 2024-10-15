@@ -1353,7 +1353,13 @@
         DefaultDim2: Record "Default Dimension";
         ContBusRel: Record "Contact Business Relation";
         OfficeMgt: Codeunit "Office Management";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCreateCustomer(Rec, CustNo, IsHandled);
+        if IsHandled then
+            exit;
+
         CheckForExistingRelationships(ContBusRel."Link to Table"::Customer);
         CheckIfPrivacyBlockedGeneric;
         RMSetup.Get();
@@ -2320,6 +2326,7 @@
         Contact.SetFilter(City, ContactFilterContains);
         Contact.SetFilter("Phone No.", ContactFilterContains);
         Contact.SetFilter("Post Code", ContactFilterContains);
+        OnGetCompNoOnAfterSetFilters(Contact);
         case Contact.Count of
             1:
                 begin
@@ -2912,6 +2919,12 @@
     begin
     end;
 
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCreateCustomer(var Contact: Record Contact; var CustNo: Code[20]; var IsHandled: Boolean)
+    begin
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCreateSalesQuoteFromContact(var Contact: Record Contact; var SalesHeader: Record "Sales Header")
     begin
@@ -2989,6 +3002,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnLookupCustomerTemplateOnBeforeSetTableView(Contact: Record Contact; var CustomerTemplate: Record "Customer Template")
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnGetCompNoOnAfterSetFilters(var Contact: Record Contact)
     begin
     end;
 

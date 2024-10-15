@@ -33,6 +33,7 @@ codeunit 232 "Gen. Jnl.-Post+Print"
         GenJnlTemplate: Record "Gen. Journal Template";
         GeneralLedgerSetup: Record "General Ledger Setup";
         RecRefToPrint: RecordRef;
+        GenJnlPostBatch: Codeunit "Gen. Jnl.-Post Batch";
         GenJnlPostviaJobQueue: Codeunit "Gen. Jnl.-Post via Job Queue";
         BatchPostingPrintMgt: Codeunit "Batch Posting Print Mgt.";
         ConfirmManagement: Codeunit "Confirm Management";
@@ -53,9 +54,12 @@ codeunit 232 "Gen. Jnl.-Post+Print"
 
             OnBeforePostJournalBatch(GenJnlLine, HideDialog);
 
-            if not HideDialog then
+            if not HideDialog then begin
                 if not ConfirmManagement.GetResponseOrDefault(Text001, true) then
                     exit;
+                if not GenJnlPostBatch.ConfirmPostingUnvoidableChecks("Journal Batch Name", "Journal Template Name") then
+                    exit;
+            end;
 
             TempJnlBatchName := "Journal Batch Name";
 

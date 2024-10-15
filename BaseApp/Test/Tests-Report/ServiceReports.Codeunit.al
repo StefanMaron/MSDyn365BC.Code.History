@@ -813,7 +813,7 @@ codeunit 136900 "Service Reports"
     end;
 
     [Test]
-    [HandlerFunctions('ServiceInvoiceHandler')]
+    [HandlerFunctions('ServiceInvoiceRequestPageHandler')]
     [Scope('OnPrem')]
     procedure ServiceInvoiceReport()
     var
@@ -856,7 +856,7 @@ codeunit 136900 "Service Reports"
     end;
 
     [Test]
-    [HandlerFunctions('ServiceInvoiceHandler')]
+    [HandlerFunctions('ServiceInvoiceRequestPageHandler')]
     [Scope('OnPrem')]
     procedure ServiceInvoiceReportCustomCaption()
     var
@@ -2029,6 +2029,43 @@ codeunit 136900 "Service Reports"
         LibraryReportDataset.AssertElementWithValueExists('DimText_Control159', DimText);
     end;
 
+    [Test]
+    [HandlerFunctions('ConfirmHandlerTrue,ContractTemplateListHandler,MessageHandler,ServiceInvoiceToExcelRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure ServiceInvoiceReportSerialNo()
+    var
+        ServiceContractHeader: Record "Service Contract Header";
+        ServiceContractLine: Record "Service Contract Line";
+        ServiceInvoiceHeader: Record "Service Invoice Header";
+        SignServContractDoc: Codeunit SignServContractDoc;
+        SerialNo: Code[50];
+    begin
+        // [FEATURE] [Service Contract]
+        // [SCENARIO 355864] "Serial No." of Service Item is shown in table part on printed page of Service Invoice.
+        Initialize();
+        LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID());
+        SerialNo := LibraryUtility.GenerateGUID();
+
+        // [GIVEN] Signed Service Contract with Service Item "SI", that has "Serial No." = "SN".
+        LibraryService.CreateServiceContractHeader(
+          ServiceContractHeader, ServiceContractHeader."Contract Type"::Contract, LibrarySales.CreateCustomerNo());
+        CreateServiceContractLine(ServiceContractLine, ServiceContractHeader);
+        UpdateSerialNoOnServiceItem(ServiceContractLine."Service Item No.", SerialNo);
+        AmountsInServiceContractHeader(ServiceContractHeader);
+        SignServContractDoc.SignContract(ServiceContractHeader);
+
+        // [GIVEN] Posted Service Inovoice for Service Contract.
+        CreateAndPostServiceInvoice(ServiceContractHeader);
+        FindFirstServiceInvoiceOnServiceContract(ServiceInvoiceHeader, ServiceContractHeader."Contract No.");
+
+        // [WHEN] Run report "Service - Invoice" for Service Invoice, save report output to Excel file.
+        ServiceInvoiceHeader.SetRecFilter();
+        Report.Run(Report::"Service - Invoice", true, false, ServiceInvoiceHeader);
+
+        // [THEN] "Serial No." "SN" is printed in column "Serial No." for Service Invoice Line with "No." = "SI".
+        VerifySerialNoInServiceInvoiceReport(SerialNo);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -2481,6 +2518,12 @@ codeunit 136900 "Service Reports"
         ServiceContractLine.FindSet;
     end;
 
+    local procedure FindFirstServiceInvoiceOnServiceContract(var ServiceInvoiceHeader: Record "Service Invoice Header"; ServiceContractNo: Code[20])
+    begin
+        ServiceInvoiceHeader.SetRange("Contract No.", ServiceContractNo);
+        ServiceInvoiceHeader.FindFirst();
+    end;
+
     local procedure GetServiceLine(var ServiceLine: Record "Service Line"; DocumentType: Option; No: Code[20])
     begin
         ServiceLine.SetRange("Document Type", DocumentType);
@@ -2710,6 +2753,15 @@ codeunit 136900 "Service Reports"
         SalesReceivablesSetup.Modify(true);
     end;
 
+    local procedure UpdateSerialNoOnServiceItem(ServiceItemNo: Code[20]; SerialNo: Code[50])
+    var
+        ServiceItem: Record "Service Item";
+    begin
+        ServiceItem.Get(ServiceItemNo);
+        ServiceItem.Validate("Serial No.", SerialNo);
+        ServiceItem.Modify(true);
+    end;
+
     local procedure VerifyCommentOnReport(ServiceCommentLine: Record "Service Comment Line")
     begin
         LibraryReportDataset.Reset();
@@ -2915,6 +2967,18 @@ codeunit 136900 "Service Reports"
         LibraryReportDataset.AssertCurrentRowValueEquals('SellToAddr_8_', CountryRegion.Name);
     end;
 
+    local procedure VerifySerialNoInServiceInvoiceReport(SerialNo: Code[50])
+    var
+        ColumnNo: Integer;
+        RowNo: Integer;
+    begin
+        LibraryReportValidation.OpenExcelFile();
+        ColumnNo := LibraryReportValidation.FindColumnNoFromColumnCaption('Serial No.');
+        RowNo := LibraryReportValidation.FindRowNoFromColumnNoAndValue(ColumnNo, 'Serial No.');
+        Assert.AreNotEqual(
+          0, LibraryReportValidation.FindRowNoFromColumnNoAndValueInsideArea(ColumnNo, SerialNo, StrSubstNo('>%1', RowNo)), '');
+    end;
+
     [ConfirmHandler]
     [Scope('OnPrem')]
     procedure ConfirmHandlerFalse(Question: Text[1024]; var Reply: Boolean)
@@ -2965,9 +3029,16 @@ codeunit 136900 "Service Reports"
 
     [RequestPageHandler]
     [Scope('OnPrem')]
-    procedure ServiceInvoiceHandler(var ServiceInvoice: TestRequestPage "Service - Invoice")
+    procedure ServiceInvoiceRequestPageHandler(var ServiceInvoice: TestRequestPage "Service - Invoice")
     begin
         ServiceInvoice.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName)
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure ServiceInvoiceToExcelRequestPageHandler(var ServiceInvoice: TestRequestPage "Service - Invoice")
+    begin
+        ServiceInvoice.SaveAsExcel(LibraryReportValidation.GetFileName());
     end;
 
     [RequestPageHandler]

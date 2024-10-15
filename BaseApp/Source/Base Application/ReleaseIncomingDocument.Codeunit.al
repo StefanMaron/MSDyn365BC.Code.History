@@ -1,6 +1,7 @@
 codeunit 132 "Release Incoming Document"
 {
     TableNo = "Incoming Document";
+    Permissions = TableData "Incoming Document" = rm;
 
     trigger OnRun()
     begin
