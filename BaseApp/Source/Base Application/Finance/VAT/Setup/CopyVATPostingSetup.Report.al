@@ -22,12 +22,16 @@ report 85 "Copy - VAT Posting Setup"
             trigger OnAfterGetRecord()
             var
                 ConfirmManagement: Codeunit "Confirm Management";
+                IsHandled: Boolean;
             begin
                 VATPostingSetup.Find();
                 if VATSetup then begin
                     "VAT Calculation Type" := VATPostingSetup."VAT Calculation Type";
-                    "VAT %" := VATPostingSetup."VAT %";
-                    "Deductible %" := VATPostingSetup."Deductible %";
+                    IsHandled := false;
+                    OnBeforeSetVatPercent("VAT Posting Setup", IsHandled);
+                    if not IsHandled then
+                        "VAT %" := VATPostingSetup."VAT %";
+		            "Deductible %" := VATPostingSetup."Deductible %";
                     "Unrealized VAT Type" := VATPostingSetup."Unrealized VAT Type";
                     "Adjust for Payment Discount" := VATPostingSetup."Adjust for Payment Discount";
                     "VAT Identifier" := VATPostingSetup."VAT Identifier";
@@ -48,8 +52,10 @@ report 85 "Copy - VAT Posting Setup"
 
                 OnAfterCopyVATPostingSetup("VAT Posting Setup", VATPostingSetup, Sales, Purch, VATSetup);
 
-                if ConfirmManagement.GetResponseOrDefault(Text000, true) then
+                if ConfirmManagement.GetResponseOrDefault(Text000, true) then begin
+                    OnBeforeModifyVatPostingSetup(VATPostingSetup, UseVATPostingSetup, VATSetup);
                     Modify();
+                end;
             end;
 
             trigger OnPreDataItem()
@@ -183,6 +189,16 @@ report 85 "Copy - VAT Posting Setup"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterCopyVATPostingSetup(var VATPostingSetup: Record "VAT Posting Setup"; FromVATPostingSetup: Record "VAT Posting Setup"; Sales: Boolean; Purch: Boolean; VATSetup: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSetVatPercent(var VATPostingSetup: Record "VAT Posting Setup"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeModifyVatPostingSetup(VATPostingSetup: Record "VAT Posting Setup"; UseVATPostingSetup: Record "VAT Posting Setup"; VATSetup: boolean)
     begin
     end;
 }

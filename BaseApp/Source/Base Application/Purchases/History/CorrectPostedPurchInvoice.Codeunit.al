@@ -844,8 +844,14 @@ codeunit 1313 "Correct Posted Purch. Invoice"
     end;
 
     local procedure IsCheckDirectCostAppliedAccount(PurchInvLine: Record "Purch. Inv. Line") Result: Boolean
+    var
+        Item: Record Item;
     begin
         Result := PurchInvLine.Type in [PurchInvLine.Type::"Charge (Item)", PurchInvLine.Type::"Fixed Asset", PurchInvLine.Type::Item];
+
+        if (PurchInvLine.Type = PurchInvLine.Type::Item) and Item.Get(PurchInvLine."No.") then
+            Result := Item.IsInventoriableType();
+
         OnAfterIsCheckDirectCostAppliedAccount(PurchInvLine, Result);
     end;
 

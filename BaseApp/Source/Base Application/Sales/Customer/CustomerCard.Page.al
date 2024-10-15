@@ -279,6 +279,13 @@ page 21 "Customer Card"
                     Importance = Additional;
                     ToolTip = 'Specifies that you can change the customer name on open sales documents. The change applies only to the documents.';
                 }
+                field(Priority; Rec.Priority)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Importance = Additional;
+                    Visible = false;
+                    ToolTip = 'Specifies a number that corresponds to the priority you give the customer. The higher the number, the higher the priority.';
+                }
             }
             group(Individual)
             {

@@ -494,15 +494,20 @@ table 81 "Gen. Journal Line"
             trigger OnValidate()
             var
                 BankAcc: Record "Bank Account";
+                IsHandled: Boolean;
             begin
-                if "Bal. Account Type" = "Bal. Account Type"::"Bank Account" then begin
-                    if BankAcc.Get("Bal. Account No.") and (BankAcc."Currency Code" <> '') then
-                        BankAcc.TestField("Currency Code", "Currency Code");
+                IsHandled := false;
+                OnValidateCurrencyCodeOnBeforeCheckBankAccountCurrencyCode(Rec, IsHandled);
+                if not IsHandled then begin
+                    if "Bal. Account Type" = "Bal. Account Type"::"Bank Account" then
+                        if BankAcc.Get("Bal. Account No.") and (BankAcc."Currency Code" <> '') then
+                            BankAcc.TestField("Currency Code", "Currency Code");
+
+                    if "Account Type" = "Account Type"::"Bank Account" then
+                        if BankAcc.Get("Account No.") and (BankAcc."Currency Code" <> '') then
+                            BankAcc.TestField("Currency Code", "Currency Code");
                 end;
-                if "Account Type" = "Account Type"::"Bank Account" then begin
-                    if BankAcc.Get("Account No.") and (BankAcc."Currency Code" <> '') then
-                        BankAcc.TestField("Currency Code", "Currency Code");
-                end;
+
                 if ("Recurring Method" in
                     ["Recurring Method"::"B  Balance", "Recurring Method"::"RB Reversing Balance"]) and
                    ("Currency Code" <> '')
@@ -2205,7 +2210,6 @@ table 81 "Gen. Journal Line"
         field(171; "Payment Reference"; Code[50])
         {
             Caption = 'Payment Reference';
-            Numeric = true;
         }
         field(172; "Payment Method Code"; Code[10])
         {
@@ -9893,6 +9897,11 @@ table 81 "Gen. Journal Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeGetAppliesToDocDueDate(var GenJournalLine: Record "Gen. Journal Line"; var Result: Date; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateCurrencyCodeOnBeforeCheckBankAccountCurrencyCode(var GenJournalLine: Record "Gen. Journal Line"; var IsHandled: Boolean)
     begin
     end;
 }

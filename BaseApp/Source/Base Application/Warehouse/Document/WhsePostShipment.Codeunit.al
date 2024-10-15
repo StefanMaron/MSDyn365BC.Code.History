@@ -39,7 +39,7 @@ codeunit 5763 "Whse.-Post Shipment"
 
     trigger OnRun()
     begin
-        OnBeforeRun(Rec);
+        OnBeforeRun(Rec, SuppressCommit, PreviewMode);
 
         WhseShptLine.Copy(Rec);
         Code();
@@ -515,17 +515,15 @@ codeunit 5763 "Whse.-Post Shipment"
                             if "Source Document" = "Source Document"::"Sales Order" then begin
                                 IsHandled := false;
                                 OnPostSourceDocumentOnBeforePrintSalesShipment(SalesHeader, IsHandled, SalesShptHeader, WhseShptHeader);
-                                if not IsHandled then begin
-                                    SalesShptHeader.Get(SalesHeader."Last Shipping No.");
-                                    SalesShptHeader.Mark(true);
-                                end;
+                                if not IsHandled then
+                                    if SalesShptHeader.Get(SalesHeader."Last Shipping No.") then
+                                        SalesShptHeader.Mark(true);
                                 if Invoice then begin
                                     IsHandled := false;
                                     OnPostSourceDocumentOnBeforePrintSalesInvoice(SalesHeader, IsHandled, WhseShptLine);
-                                    if not IsHandled then begin
-                                        SalesInvHeader.Get(SalesHeader."Last Posting No.");
-                                        SalesInvHeader.Mark(true);
-                                    end;
+                                    if not IsHandled then
+                                        if SalesInvHeader.Get(SalesHeader."Last Posting No.") then
+                                            SalesInvHeader.Mark(true);
                                 end;
                             end;
 
@@ -1500,6 +1498,7 @@ codeunit 5763 "Whse.-Post Shipment"
                           ((ServLine."Qty. to Ship" <> 0) or
                            (ServLine."Qty. to Consume" <> 0) or
                            (ServLine."Qty. to Invoice" <> 0));
+                        OnHandleServiceLineOnNonWhseLineOnAfterCalcModifyLine(ServLine, ModifyLine, WhseShptLine);
 
                         if ModifyLine then begin
                             if "Source Document" = "Source Document"::"Service Order" then
@@ -1735,7 +1734,7 @@ codeunit 5763 "Whse.-Post Shipment"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeRun(var WarehouseShipmentLine: Record "Warehouse Shipment Line")
+    local procedure OnBeforeRun(var WarehouseShipmentLine: Record "Warehouse Shipment Line"; var SuppressCommit: Boolean; PreviewMode: Boolean)
     begin
     end;
 
@@ -2281,6 +2280,11 @@ codeunit 5763 "Whse.-Post Shipment"
 
     [IntegrationEvent(false, false)]
     local procedure OnPostSourceDocumentAfterRunServicePost()
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnHandleServiceLineOnNonWhseLineOnAfterCalcModifyLine(var ServiceLine: Record "Service Line"; var ModifyLine: Boolean; WarehouseShipmentLine: Record "Warehouse Shipment Line")
     begin
     end;
 }

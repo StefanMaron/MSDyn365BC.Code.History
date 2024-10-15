@@ -28,6 +28,7 @@ report 5405 "Calc. Consumption"
                 trigger OnAfterGetRecord()
                 var
                     NeededQty: Decimal;
+                    IsHandled: Boolean;
                 begin
                     Window.Update(2, "Item No.");
 
@@ -35,7 +36,10 @@ report 5405 "Calc. Consumption"
                     Item.Get("Item No.");
                     ProdOrderLine.Get(Status, "Prod. Order No.", "Prod. Order Line No.");
 
-                    NeededQty := GetNeededQty(CalcBasedOn, true);
+                    IsHandled := false;
+                    OnBeforeGetNeededQty(NeededQty, CalcBasedOn, "Prod. Order Component", "Production Order", PostingDate, IsHandled);
+                    if not IsHandled then
+                        NeededQty := GetNeededQty(CalcBasedOn, true);
 
                     AdjustQtyToReservedFromInventory(NeededQty, ReservedFromStock);
 
@@ -387,6 +391,11 @@ report 5405 "Calc. Consumption"
 
     [IntegrationEvent(false, false)]
     local procedure OnCreateConsumpJnlLineOnAfterAssignItemTracking(var ItemJnlLine: Record "Item Journal Line"; var NextConsumpJnlLineNo: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetNeededQty(var NeededQty: Decimal; CalcBasedOn: Option "Actual Output","Expected Output"; ProdOrderComponent: Record "Prod. Order Component"; ProductionOrder: Record "Production Order"; PostingDate: Date; var IsHandled: Boolean)
     begin
     end;
 }

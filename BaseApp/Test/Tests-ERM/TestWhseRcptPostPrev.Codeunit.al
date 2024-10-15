@@ -12,6 +12,7 @@ codeunit 134783 "Test Whse. Rcpt. Post Prev."
         Assert: Codeunit Assert;
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         LibraryInventory: Codeunit "Library - Inventory";
+        LibraryItemTracking: Codeunit "Library - Item Tracking";
         LibraryRandom: Codeunit "Library - Random";
         LibraryUtility: Codeunit "Library - Utility";
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
@@ -19,7 +20,9 @@ codeunit 134783 "Test Whse. Rcpt. Post Prev."
         LibraryWarehouse: Codeunit "Library - Warehouse";
         LibraryPurchase: Codeunit "Library - Purchase";
         LibraryManufacturing: Codeunit "Library - Manufacturing";
+        LibraryVariableStorage: Codeunit "Library - Variable Storage";
         IsInitialized: Boolean;
+        Step: Integer;
         WrongPostPreviewErr: Label 'Expected empty error from Preview. Actual error: ';
 
     [Test]
@@ -169,6 +172,124 @@ codeunit 134783 "Test Whse. Rcpt. Post Prev."
         GLPostingPreview.Next();
         VerifyGLPostingPreviewLine(GLPostingPreview, ValueEntry.TableCaption(), 2);
         GLPostingPreview.OK.Invoke;
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    [HandlerFunctions('SetLotItemWithQtyToHandleTrackingPageHandler')]
+    procedure CheckTransferOrderPostingWithLotItemAndUpdatingExpirationDate()
+    var
+        TransferHeader: Record "Transfer Header";
+        TransferLine: Record "Transfer Line";
+        Item: Record Item;
+        ItemTrackingCode: Record "Item Tracking Code";
+        FromLocation: Record Location;
+        ToLocation: Record Location;
+        InTransitLocation: Record Location;
+        LotNo: Code[20];
+        ExpirationDate: Date;
+        NewExpirationDate: Date;
+        ItemInventory: Decimal;
+        TransferQty: Decimal;
+        ErrorMsg: Label 'New Expiration Date must be equal to ''%1''  in Tracking Specification', Comment = '%1 - Expiration Date';
+    begin
+        // [FEATURE] [Transfer] [Lot Tracking] [New Expiration Date]
+        // [SCENARIO] System should not allow to post Transfer Order with Lot Tracking Item if 
+        //New Expiration Date is not equal to Expiration Date in Tracking Specification if qty is less then total inventory of specific lot
+        Initialize();
+
+        // [GIVEN] Warehouse Employee setup for User and Location
+        CreateLocationWMSWithWhseEmployee(FromLocation, false, false, false, false, false);
+        CreateLocationWMSWithWhseEmployee(ToLocation, false, false, false, false, false);
+
+        // [GIVEN] Create Item Tracking Code and LOT tracking Item
+        LibraryItemTracking.CreateItemTrackingCode(ItemTrackingCode, false, true);
+        ItemTrackingCode."Use Expiration Dates" := true;
+        ItemTrackingCode.Modify();
+        Commit();
+        LibraryItemTracking.CreateItemWithItemTrackingCode(Item, ItemTrackingCode);
+
+        // [GIVEN] Create and post Item Journal Line with LOT tracking Item
+        ItemInventory := LibraryRandom.RandIntInRange(10, 20);
+        LotNo := LibraryRandom.RandText(10);
+        ExpirationDate := WorkDate() + 10;
+        NewExpirationDate := WorkDate() + 20;
+        TransferQty := ItemInventory / 2;
+        Step := 1;
+        PostItemPositiveAdjustmentWithLotTracking(Item, FromLocation, '', LotNo, ExpirationDate, ItemInventory);
+
+        // [GIVEN] Create Transfer Order and post Shipment
+        LibraryWarehouse.CreateInTransitLocation(InTransitLocation);
+        LibraryWarehouse.CreateTransferHeader(TransferHeader, FromLocation.Code, ToLocation.Code, InTransitLocation.Code);
+        LibraryWarehouse.CreateTransferLine(TransferHeader, TransferLine, Item."No.", TransferQty);
+        LibraryVariableStorage.Enqueue(LotNo);
+        LibraryVariableStorage.Enqueue(TransferQty);
+        Step := 2;
+        TransferLine.OpenItemTrackingLines(Enum::"Transfer Direction"::Outbound);
+        LibraryWarehouse.ReleaseTransferOrder(TransferHeader);
+        LibraryWarehouse.PostTransferOrder(TransferHeader, true, false);
+
+        // [WHEN] Post update of Expiration Date
+        TransferLine.Get(TransferLine."Document No.", TransferLine."Line No.");
+        Step := 3;
+        LibraryVariableStorage.Enqueue(NewExpirationDate);
+        TransferLine.OpenItemTrackingLines(Enum::"Transfer Direction"::Inbound);
+
+        // [THEN] System should not allow to post Transfer Order
+        asserterror LibraryWarehouse.PostTransferOrder(TransferHeader, false, true);
+        Assert.IsTrue(StrPos(GetLastErrorText, StrSubstNo(ErrorMsg, ExpirationDate)) > 0, '');
+    end;
+
+    local procedure PostItemPositiveAdjustmentWithLotTracking(Item: Record Item; Location: Record Location; BinCode: Code[20]; LotNo: Code[20]; ExpirationDate: Date; Qty: Decimal)
+    var
+        ItemJournalLine: Record "Item Journal Line";
+    begin
+        LibraryInventory.CreateItemJournalLineInItemTemplate(
+          ItemJournalLine, Item."No.", Location.Code, BinCode, Qty);
+
+        LibraryVariableStorage.Enqueue(LotNo);
+        LibraryVariableStorage.Enqueue(Qty);
+        ItemJournalLine.OpenItemTrackingLines(false);
+
+        UpdateReservationEntryWithExpirationDate(Item."No.", LotNo, ExpirationDate);
+
+        LibraryInventory.PostItemJournalLine(
+          ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
+    end;
+
+    local procedure UpdateReservationEntryWithExpirationDate(ItemNo: Code[20]; LotNo: Code[20]; NewExpirationDate: Date)
+    var
+        ReservationEntry: Record "Reservation Entry";
+    begin
+        ReservationEntry.SetRange("Item No.", ItemNo);
+        ReservationEntry.SetRange("Lot No.", LotNo);
+        ReservationEntry.ModifyAll("Expiration Date", NewExpirationDate);
+    end;
+
+    [ModalPageHandler]
+    procedure SetLotItemWithQtyToHandleTrackingPageHandler(var ItemTrackingLines: TestPage "Item Tracking Lines")
+    begin
+        case Step of
+            1:
+                begin
+                    ItemTrackingLines."Lot No.".SetValue(LibraryVariableStorage.DequeueText());
+                    ItemTrackingLines."Quantity (Base)".SetValue(LibraryVariableStorage.DequeueDecimal());
+                    ItemTrackingLines.OK().Invoke();
+                end;
+
+            2:
+                begin
+                    ItemTrackingLines."Lot No.".SetValue(LibraryVariableStorage.DequeueText());
+                    ItemTrackingLines."Quantity (Base)".SetValue(LibraryVariableStorage.DequeueDecimal());
+                    ItemTrackingLines.OK().Invoke();
+                end;
+
+            3:
+                begin
+                    ItemTrackingLines."New Expiration Date".SetValue(LibraryVariableStorage.DequeueDate());
+                    ItemTrackingLines.OK().Invoke();
+                end;
+        end;
     end;
 
     [Test]

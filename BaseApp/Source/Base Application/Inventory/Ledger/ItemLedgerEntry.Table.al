@@ -555,7 +555,7 @@ table 32 "Item Ledger Entry"
         key(Key6; "Item No.", Open, "Variant Code", Positive, "Location Code", "Posting Date")
         {
             SumIndexFields = Quantity, "Remaining Quantity";
-            IncludedFields = "Job No.", "Job Task No.", "Document Type", "Document No.", "Order Type", "Order No.";
+            IncludedFields = "Job No.", "Job Task No.", "Document Type", "Document No.", "Order Type", "Order No.", "Serial No.", "Lot No.", "Package No.";
         }
         key(Key8; "Country/Region Code", "Entry Type", "Posting Date")
         {
@@ -565,7 +565,7 @@ table 32 "Item Ledger Entry"
         }
         key(Key12; "Order Type", "Order No.", "Order Line No.", "Entry Type", "Prod. Order Comp. Line No.")
         {
-            IncludedFields = Quantity;
+            IncludedFields = Quantity, "Posting Date", Positive, "Applies-to Entry";
         }
         key(Key13; "Item No.", "Applied Entry to Adjust")
         {
@@ -866,7 +866,7 @@ table 32 "Item Ledger Entry"
     procedure CalculateRemInventoryValue(ItemLedgEntryNo: Integer; ItemLedgEntryQty: Decimal; RemQty: Decimal; IncludeExpectedCost: Boolean; PostingDate: Date): Decimal
     begin
         exit(
-          CalculateRemInventoryValue(ItemLedgEntryNo, ItemLedgEntryQty, RemQty, IncludeExpectedCost, PostingDate, 0D));
+          CalculateRemInventoryValue(ItemLedgEntryNo, ItemLedgEntryQty, RemQty, IncludeExpectedCost, 0D, PostingDate));
     end;
 
     procedure CalculateRemInventoryValue(ItemLedgEntryNo: Integer; ItemLedgEntryQty: Decimal; RemQty: Decimal; IncludeExpectedCost: Boolean; ValuationDate: Date; PostingDate: Date): Decimal

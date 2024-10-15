@@ -5659,13 +5659,18 @@ table 37 "Sales Line"
     procedure ProcessSalesLine(var SalesLine: Record "Sales Line")
     var
         LastSalesLine: Record "Sales Line";
+        IsHandled: Boolean;
     begin
-        if SalesLine.IsAsmToOrderRequired() then
-            SalesLine.AutoAsmToOrder();
+        IsHandled := false;
+        OnBeforeProcessSalesLine(SalesLine, IsHandled);
+        if not IsHandled then begin
+            if SalesLine.IsAsmToOrderRequired() then
+                SalesLine.AutoAsmToOrder();
 
-        if TransferExtendedText.SalesCheckIfAnyExtText(SalesLine, false) then begin
-            TransferExtendedText.InsertSalesExtTextRetLast(SalesLine, LastSalesLine);
-            SalesLine."Line No." := LastSalesLine."Line No."
+            if TransferExtendedText.SalesCheckIfAnyExtText(SalesLine, false) then begin
+                TransferExtendedText.InsertSalesExtTextRetLast(SalesLine, LastSalesLine);
+                SalesLine."Line No." := LastSalesLine."Line No."
+            end;
         end;
 
         OnAfterAddItem(SalesLine, LastSalesLine);
@@ -5821,7 +5826,7 @@ table 37 "Sales Line"
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeGetUnitCost(Rec, IsHandled);
+        OnBeforeGetUnitCost(Rec, IsHandled, CurrFieldNo);
         if IsHandled then
             exit;
 
@@ -9476,7 +9481,7 @@ table 37 "Sales Line"
     end;
 
     [IntegrationEvent(true, false)]
-    local procedure OnBeforeGetUnitCost(var SalesLine: Record "Sales Line"; var IsHandled: Boolean)
+    local procedure OnBeforeGetUnitCost(var SalesLine: Record "Sales Line"; var IsHandled: Boolean; CurrFieldNo: Integer)
     begin
     end;
 
@@ -10958,6 +10963,11 @@ table 37 "Sales Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnApplToItemEntryValidateOnBeforeMessage(var SalesLine: Record "Sales Line"; CurrFieldNo: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeProcessSalesLine(var SalesLine: Record "Sales Line"; var IsHandled: Boolean)
     begin
     end;
 }

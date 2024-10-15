@@ -126,9 +126,13 @@ codeunit 2677 "Gen. Journal Alloc. Acc. Mgt."
     local procedure HandleBatchPost(var GenJournalLine: Record "Gen. Journal Line"; PreviewMode: Boolean; CommitIsSuppressed: Boolean)
     var
         AllocAccTelemetry: Codeunit "Alloc. Acc. Telemetry";
+        ContainsAllocationAccountLines: Boolean;
     begin
+        VerifyLinesFromBatch(GenJournalLine, ContainsAllocationAccountLines);
+        if not ContainsAllocationAccountLines then
+            exit;
+
         AllocAccTelemetry.LogGeneralJournalPostingUsage();
-        VerifyLinesFromBatch(GenJournalLine);
         CreateLinesFromBatch(GenJournalLine)
     end;
 
@@ -293,7 +297,7 @@ codeunit 2677 "Gen. Journal Alloc. Acc. Mgt."
             AllocAccManualOverride.DeleteAll();
     end;
 
-    local procedure VerifyLinesFromBatch(var GenJournalLine: Record "Gen. Journal Line")
+    local procedure VerifyLinesFromBatch(var GenJournalLine: Record "Gen. Journal Line"; var ContainsAllocationAccountLines: Boolean)
     var
         AllocationAccountGenJournalLine: Record "Gen. Journal Line";
     begin
@@ -301,15 +305,24 @@ codeunit 2677 "Gen. Journal Alloc. Acc. Mgt."
         AllocationAccountGenJournalLine.SetRange("Journal Batch Name", GenJournalLine."Journal Batch Name");
         AllocationAccountGenJournalLine.SetRange("Journal Template Name", GenJournalLine."Journal Template Name");
         AllocationAccountGenJournalLine.SetRange("Bal. Account Type", AllocationAccountGenJournalLine."Bal. Account Type"::"Allocation Account");
-        VerifyGenJournalLines(AllocationAccountGenJournalLine);
-
+        if not AllocationAccountGenJournalLine.IsEmpty() then begin
+            ContainsAllocationAccountLines := true;
+            VerifyGenJournalLines(AllocationAccountGenJournalLine);
+        end;
+        
         AllocationAccountGenJournalLine.SetRange("Bal. Account Type");
         AllocationAccountGenJournalLine.SetRange("Account Type", AllocationAccountGenJournalLine."Account Type"::"Allocation Account");
-        VerifyGenJournalLines(AllocationAccountGenJournalLine);
-
+        if not AllocationAccountGenJournalLine.IsEmpty() then begin
+            ContainsAllocationAccountLines := true;
+            VerifyGenJournalLines(AllocationAccountGenJournalLine);
+        end;
+        
         AllocationAccountGenJournalLine.CopyFilters(GenJournalLine);
         AllocationAccountGenJournalLine.SetFilter("Selected Alloc. Account No.", '<>%1', '');
-        VerifyGenJournalLines(AllocationAccountGenJournalLine);
+        if not AllocationAccountGenJournalLine.IsEmpty() then begin
+            ContainsAllocationAccountLines := true;
+            VerifyGenJournalLines(AllocationAccountGenJournalLine);
+        end;
     end;
 
     local procedure CreateGLLine(var AllocationAccountGenJournalLine: Record "Gen. Journal Line"; var AllocationLine: Record "Allocation Line"; var LastJournalLineNo: Integer; Increment: Integer)

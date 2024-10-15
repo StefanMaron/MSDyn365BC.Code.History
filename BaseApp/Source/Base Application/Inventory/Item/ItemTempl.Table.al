@@ -1212,6 +1212,8 @@ table 1382 "Item Templ."
             else
                 SrcFieldRef.Value := DestFieldRef.Value;
         end;
+
+        OnAfterTransferFieldValues(SrcRecRef, DestRecRef, Reverse);
     end;
 
     [IntegrationEvent(false, false)]
@@ -1226,6 +1228,11 @@ table 1382 "Item Templ."
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeValidateItemField(var ItemTempl: record "Item Templ."; FieldId: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterTransferFieldValues(var SrcRecRef: RecordRef; var DestRecRef: RecordRef; Reverse: Boolean)
     begin
     end;
 }

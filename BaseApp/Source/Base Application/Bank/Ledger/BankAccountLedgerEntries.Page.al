@@ -6,6 +6,7 @@ using Microsoft.Finance.Dimension;
 using Microsoft.Finance.GeneralLedger.Ledger;
 using Microsoft.Finance.GeneralLedger.Reversal;
 using Microsoft.Finance.GeneralLedger.Setup;
+using Microsoft.Foundation.AuditCodes;
 using Microsoft.Foundation.Navigate;
 using System.Security.User;
 
@@ -358,14 +359,19 @@ page 372 "Bank Account Ledger Entries"
                     trigger OnAction()
                     var
                         ReversalEntry: Record "Reversal Entry";
+                        SourceCodeSetup: Record "Source Code Setup";
                         LocalCalcRunningAccBalance: Codeunit "Calc. Running Acc. Balance";
                     begin
                         Clear(ReversalEntry);
                         if Rec.Reversed then
                             ReversalEntry.AlreadyReversedEntry(Rec.TableCaption, Rec."Entry No.");
                         ReversalEntry.CheckReverseDocumentType(Rec."Entry No.", Rec."Document Type");
-                        if Rec."Journal Batch Name" = '' then
-                            ReversalEntry.TestFieldError();
+                        if Rec."Journal Batch Name" = '' then begin
+                            SourceCodeSetup.Get();
+                            if Rec."Source Code" <> SourceCodeSetup."Payment Reconciliation Journal" then
+                                if Rec."Source Code" <> SourceCodeSetup."Trans. Bank Rec. to Gen. Jnl." then
+                                    ReversalEntry.TestFieldError();
+                        end;
                         Rec.TestField("Transaction No.");
                         ReversalEntry.ReverseTransaction(Rec."Transaction No.");
                         LocalCalcRunningAccBalance.FlushDayTotalsForNewestEntries(Rec."Bank Account No.");

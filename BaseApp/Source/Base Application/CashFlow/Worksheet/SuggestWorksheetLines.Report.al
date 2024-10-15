@@ -21,6 +21,7 @@ using Microsoft.Purchases.Document;
 using Microsoft.Purchases.Payables;
 using Microsoft.Purchases.Vendor;
 using Microsoft.Sales.Customer;
+using Microsoft.Sales.History;
 using Microsoft.Sales.Document;
 using Microsoft.Sales.Receivables;
 using Microsoft.Service.Document;
@@ -1050,7 +1051,10 @@ report 840 "Suggest Worksheet Lines"
                     1, MaxStrLen(Description));
                 SetCashFlowDate(CFWorksheetLine2, SalesHeader."Due Date");
                 "Document No." := "Sales Line"."Document No.";
-                "Amount (LCY)" := CalculateLineAmountForSalesLine(SalesHeader, "Sales Line");
+                if SalesHeader."Prepayment %" = 100 then
+                    "Amount (LCY)" := GetSalesOrderPrepaymentAmt("Sales Line")
+                else
+                    "Amount (LCY)" := CalculateLineAmountForSalesLine(SalesHeader, "Sales Line");
 
                 if Summarized and MultiSalesLines then begin
                     "Amount (LCY)" := "Amount (LCY)" + TotalAmt;
@@ -1783,6 +1787,23 @@ report 840 "Suggest Worksheet Lines"
     procedure GetSummarized(): Boolean
     begin
         exit(Summarized);
+    end;
+
+    local procedure GetSalesOrderPrepaymentAmt(SalesLine: Record "Sales Line"): Decimal
+    var
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        RemainingAmount: Decimal;
+    begin
+        SalesInvoiceHeader.SetLoadFields("Prepayment Order No.");
+        SalesInvoiceHeader.SetRange("Prepayment Order No.", SalesLine."Document No.");
+        SalesInvoiceHeader.SetFilter("Remaining Amount", '<>%1', 0);
+        if SalesInvoiceHeader.FindSet() then
+            repeat
+                SalesInvoiceHeader.CalcFields("Remaining Amount");
+                RemainingAmount += SalesInvoiceHeader."Remaining Amount";
+            until SalesInvoiceHeader.Next() = 0;
+
+        exit(RemainingAmount);
     end;
 
     [IntegrationEvent(false, false)]

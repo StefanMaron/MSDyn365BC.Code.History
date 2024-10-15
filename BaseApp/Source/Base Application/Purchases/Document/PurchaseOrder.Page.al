@@ -2393,7 +2393,12 @@ page 50 "Purchase Order"
     end;
 
     trigger OnNewRecord(BelowxRec: Boolean)
+    var
+        LookupStateManager: Codeunit "Lookup State Manager";
     begin
+        if LookupStateManager.IsRecordSaved() then
+            LookupStateManager.ClearSavedRecord();
+
         Rec."Responsibility Center" := UserMgt.GetPurchasesFilter();
 
         if (not DocNoVisible) and (Rec."No." = '') then begin

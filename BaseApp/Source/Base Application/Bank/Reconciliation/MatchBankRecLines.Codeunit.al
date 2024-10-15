@@ -246,6 +246,7 @@ codeunit 1252 "Match Bank Rec. Lines"
         TempBankStatementMatchingBuffer: Record "Bank Statement Matching Buffer" temporary;
         TempBankAccLedgerEntryMatchingBuffer: Record "Ledger Entry Matching Buffer" temporary;
         BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line";
+        UndoMatchOnBankAccReconciliationLine: Record "Bank Acc. Reconciliation Line";
         BankAccountLedgerEntry: Record "Bank Account Ledger Entry";
         ConfirmManagement: Codeunit "Confirm Management";
         FeatureTelemetry: Codeunit "Feature Telemetry";
@@ -254,6 +255,7 @@ codeunit 1252 "Match Bank Rec. Lines"
         RemovedPreviouslyAssigned: Boolean;
         Handled: Boolean;
         BankAccRecLineCounter: Integer;
+        OriginallyMatchedBankAccRecLineNos: List of [Integer];
     begin
         FeatureTelemetry.LogUptake('0000JLB', BankAccReconciliation.GetBankReconciliationTelemetryFeatureName(), Enum::"Feature Uptake Status"::Used);
         Overwrite := true;
@@ -268,7 +270,11 @@ codeunit 1252 "Match Bank Rec. Lines"
                 BankAccReconciliationLine.SetFilter("Bank Account No.", BankAccReconciliation."Bank Account No.");
                 BankAccReconciliationLine.SetFilter("Statement No.", BankAccReconciliation."Statement No.");
                 RemoveMatchesFromRecLines(BankAccReconciliationLine);
-            end;
+            end else
+                if BankAccReconciliationLine.FindSet() then
+                    repeat
+                        OriginallyMatchedBankAccRecLineNos.Add(BankAccReconciliationLine."Statement Line No.");
+                    until BankAccReconciliationLine.Next() = 0;
         end;
 
         if GuiAllowed() then begin
@@ -328,6 +334,16 @@ codeunit 1252 "Match Bank Rec. Lines"
                     InitializeBLEMatchingTempTable(TempBankAccLedgerEntryMatchingBuffer, BankAccountLedgerEntry);
                     BankAccReconciliationLine.Reset();
                     BankAccReconciliationLine.FilterBankRecLinesByDate(BankAccReconciliation, false);
+                end else begin
+                    UndoMatchOnBankAccReconciliationLine.FilterBankRecLines(BankAccReconciliation);
+                    UndoMatchOnBankAccReconciliationLine.SetFilter("Applied Entries", '<>%1', 0);
+                    if UndoMatchOnBankAccReconciliationLine.FindSet() then
+                        repeat
+                            if not OriginallyMatchedBankAccRecLineNos.Contains(UndoMatchOnBankAccReconciliationLine."Statement Line No.") then
+                                UndoMatchOnBankAccReconciliationLine.Mark(true);
+                        until UndoMatchOnBankAccReconciliationLine.Next() = 0;
+                    UndoMatchOnBankAccReconciliationLine.MarkedOnly(true);
+                    RemoveMatchesFromRecLines(UndoMatchOnBankAccReconciliationLine);
                 end;
             end;
         end;

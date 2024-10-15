@@ -929,7 +929,7 @@ page 31 "Item List"
                     Image = InventoryCalculation;
                     Scope = Repeater;
                     ToolTip = 'Increase or decrease the item''s inventory quantity manually by entering a new quantity. Adjusting the inventory quantity manually may be relevant after a physical count or if you do not record purchased quantities.';
-                    Visible = IsFoundationEnabled;
+                    Visible = IsInventoryAdjmtAllowed;
 
                     trigger OnAction()
                     var
@@ -2652,6 +2652,7 @@ page 31 "Item List"
         IntegrationTableMapping: Record "Integration Table Mapping";
         ItemFromPicture: Codeunit "Item From Picture";
         CRMIntegrationManagement: Codeunit "CRM Integration Management";
+        AdjustItemInventory: Codeunit "Adjust Item Inventory";
     begin
         CRMIntegrationEnabled := CRMIntegrationManagement.IsCRMIntegrationEnabled();
         if CRMIntegrationEnabled then
@@ -2659,6 +2660,7 @@ page 31 "Item List"
                 BlockedFilterApplied := IntegrationTableMapping.GetTableFilter().Contains('Field54=1(0)');
         ExtendedPriceEnabled := PriceCalculationMgt.IsExtendedPriceCalculationEnabled();
         IsFoundationEnabled := ApplicationAreaMgmtFacade.IsFoundationEnabled();
+        IsInventoryAdjmtAllowed := AdjustItemInventory.GetInventoryAdjustmentAllowed();
         SetWorkflowManagementEnabledState();
         IsOnPhone := ClientTypeManagement.GetCurrentClientType() = CLIENTTYPE::Phone;
         NewFromPictureVisible := ItemFromPicture.GetNewFromPictureActionVisible();
@@ -2676,6 +2678,7 @@ page 31 "Item List"
         ClientTypeManagement: Codeunit "Client Type Management";
         PriceCalculationMgt: Codeunit "Price Calculation Mgt.";
         SkilledResourceList: Page "Skilled Resource List";
+        IsInventoryAdjmtAllowed: Boolean;
 
     protected var
         IsFoundationEnabled: Boolean;

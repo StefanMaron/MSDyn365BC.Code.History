@@ -719,7 +719,13 @@ page 99000852 "Planning Worksheet"
                     trigger OnAction()
                     var
                         CalcPlan: Report "Calculate Plan - Plan. Wksh.";
+                        IsHandled: Boolean;
                     begin
+                        IsHandled := false;
+                        OnBeforeCalculateNetChangePlan(Rec, IsHandled);
+                        if IsHandled then
+                            exit;
+
                         CalcPlan.SetTemplAndWorksheet(Rec."Worksheet Template Name", Rec."Journal Batch Name", false);
                         CalcPlan.RunModal();
 
@@ -740,7 +746,13 @@ page 99000852 "Planning Worksheet"
                     trigger OnAction()
                     var
                         CalcPlan: Report "Calculate Plan - Plan. Wksh.";
+                        IsHandled: Boolean;
                     begin
+                        IsHandled := false;
+                        OnBeforeCalculateRegenerativePlan(Rec, IsHandled);
+                        if IsHandled then
+                            exit;
+
                         CalcPlan.SetTemplAndWorksheet(Rec."Worksheet Template Name", Rec."Journal Batch Name", true);
                         CalcPlan.RunModal();
 
@@ -1132,6 +1144,16 @@ page 99000852 "Planning Worksheet"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeRefOrderNoOnFormat(var RequisitionLine: Record "Requisition Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCalculateRegenerativePlan(var RequisitionLine: Record "Requisition Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCalculateNetChangePlan(var RequisitionLine: Record "Requisition Line"; var IsHandled: Boolean)
     begin
     end;
 }
