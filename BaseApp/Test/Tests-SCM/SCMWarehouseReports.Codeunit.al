@@ -40,6 +40,9 @@ codeunit 137305 "SCM Warehouse Reports"
         TransferOrderCaptionLbl: Label 'Transfer Order No.';
         ConfirmChangeQst: Label 'Do you want to change';
         RecreateSalesLinesMsg: Label 'If you change';
+        WhsePostAndPrintMsg: Label 'Number of source documents posted: 1 out of a total of 1.\\Number of put-away activities created: 1.';
+        NumberOfDocPrintedMsg: Label 'Number of put-away activities printed: 1.';
+        ReportExecutedErr: Label 'Report Executed should be true';
 
     [Test]
     [HandlerFunctions('PickingListRequestPageHandler')]
@@ -2251,6 +2254,43 @@ codeunit 137305 "SCM Warehouse Reports"
         LibraryVariableStorage.AssertEmpty();
     end;
 
+    [Test]
+    [HandlerFunctions('MessageHandler,PutAwayListReportHandler')]
+    [Scope('OnPrem')]
+    procedure PostAndPrintPutAwayListWithReportSelectionWhse()
+    var
+        WarehouseEmployee: Record "Warehouse Employee";
+        Item: Record Item;
+        PurchaseHeader: Record "Purchase Header";
+        Location: Record Location;
+        WarehouseActivityHeader: Record "Warehouse Activity Header";
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+        WhseRcptLine: Record "Warehouse Receipt Line";
+        ReportSelectionWarehouse: Record "Report Selection Warehouse";
+        ReportExecuted: Boolean;
+    begin
+        // [SCENARIO 432367] To check if system using report selection warehouse to print put away when using post and print Put-away option
+
+        // [GIVEN] Create a new Purchase order with a warehouse location
+        Initialize();
+        CreateWarehouseSetup(Location, WarehouseEmployee, false);
+        CreateItem(Item);
+        CreateWarehouseReceiptFromPurchaseOrder(PurchaseHeader, WhseRcptLine, Location.Code, Item."No.", LibraryRandom.RandDec(100, 2));
+
+        // [WHEN] Post warehouse receipt with post and print put-away option
+        Commit();
+        LibraryVariableStorage.Enqueue(WhsePostAndPrintMsg);  // Enqueue for MessageHandler.
+        LibraryVariableStorage.Enqueue(NumberOfDocPrintedMsg);
+        PostAndPrintRcpt(WhseRcptLine);
+        ReportExecuted := true;
+
+        // [THEN] Report should be executed based on report configured on report selection warehouse.
+        Assert.AreEqual(ReportExecuted, LibraryVariableStorage.DequeueBoolean(), ReportExecutedErr);
+
+        // Tear down.
+        WarehouseEmployee.Delete(true);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -3120,6 +3160,23 @@ codeunit 137305 "SCM Warehouse Reports"
         Assert.RecordCount(SalesLine, ExpectedCount);
     end;
 
+    local procedure CreateWarehouseReceiptFromPurchaseOrder(var PurchaseHeader: Record "Purchase Header"; var WhseRcptLine: Record "Warehouse Receipt Line"; LocationCode: Code[10]; ItemNo: Code[20]; Quantity: Decimal)
+    var
+        WarehouseReceiptNo: Code[20];
+    begin
+        CreateAndReleasePurchaseOrder(PurchaseHeader, LocationCode, ItemNo, Quantity);
+        WarehouseReceiptNo := FindWarehouseReceiptNo;
+        LibraryWarehouse.CreateWhseReceiptFromPO(PurchaseHeader);
+
+        WhseRcptLine.SetRange("No.", WarehouseReceiptNo);
+        WhseRcptLine.FindFirst();
+    end;
+
+    local procedure PostAndPrintRcpt(var WhseRcptLine: Record "Warehouse Receipt Line")
+    begin
+        CODEUNIT.Run(CODEUNIT::"Whse.-Post Receipt + Print", WhseRcptLine);
+    end;
+
     [EventSubscriber(ObjectType::Table, Database::"Report Selections", 'OnBeforePrintDocument', '', false, false)]
     local procedure ChangeReportRunTypeOnBeforePrintDocument(TempReportSelections: Record "Report Selections"; IsGUI: Boolean; RecVarToPrint: Variant; var IsHandled: Boolean)
     begin
@@ -3383,6 +3440,17 @@ codeunit 137305 "SCM Warehouse Reports"
     begin
         LibraryVariableStorage.Enqueue(LibraryVariableStorage.DequeueInteger() + 1);
         WhsePostedShipment.Cancel.Invoke();
+    end;
+
+    [ReportHandler]
+    [Scope('OnPrem')]
+    procedure PutAwayListReportHandler(var PutAwayList: Report "Put-away List")
+    var
+        ReportExecuted: Boolean;
+    begin
+        PutAwayList.SaveAsXml(LibraryReportDataset.GetFileName());
+        ReportExecuted := true;
+        LibraryVariableStorage.Enqueue(ReportExecuted);
     end;
 }
 

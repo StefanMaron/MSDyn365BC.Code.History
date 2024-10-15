@@ -27,6 +27,7 @@ codeunit 1752 "Data Class. Eval. Data Country"
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Data Export Table Relation");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Data Export Record Type");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Data Export Buffer");
+        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Data Export Setup");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Data Exp. Primary Key Buffer");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Sales VAT Advance Notification");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Transmission Log Entry");
