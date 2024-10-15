@@ -505,6 +505,9 @@ table 472 "Job Queue Entry"
         key(Key5; "System Task ID")
         {
         }
+        key(Key6; "User ID", Status, "Recurring Job")
+        {
+        }
     }
 
     fieldgroups

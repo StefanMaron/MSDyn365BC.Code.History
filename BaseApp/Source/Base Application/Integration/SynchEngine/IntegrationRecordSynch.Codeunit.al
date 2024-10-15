@@ -424,9 +424,13 @@ codeunit 5336 "Integration Record Synch."
         DestinationFieldRef: FieldRef;
         CurrValue: Text;
         IsModified: Boolean;
+        UseConstantValue: Boolean;
     begin
         DestinationFieldRef := ParameterDestinationRecordRef.Field(DestinationFieldNo);
-        if SourceFieldNo < 1 then begin // using ConstantValue as a source value
+        UseConstantValue := SourceFieldNo < 1;
+        UseConstantValue := UseConstantValue or ((ConstantValue <> '') and (ParameterDestinationRecordRef.Number() = ParameterSourceRecordRef.Number()) and (SourceFieldNo = DestinationFieldNo));
+
+        if UseConstantValue then begin
             if (not ParameterOnlyModified) or IsConstantDiffToDestination(ConstantValue, DestinationFieldRef) then begin
                 CurrValue := GetTextValue(DestinationFieldRef);
                 if EvaluateTextToFieldRef(ConstantValue, DestinationFieldRef, true) then

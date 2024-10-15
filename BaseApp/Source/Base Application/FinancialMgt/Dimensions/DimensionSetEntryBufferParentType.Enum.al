@@ -22,4 +22,6 @@ enum 136 "Dimension Set Entry Buffer Parent Type"
     value(17; "Purchase Receipt Line") { Caption = 'Purchase Receipt Line'; }
     value(18; "Purchase Order") { Caption = 'Purchase Order'; }
     value(19; "Purchase Order Line") { Caption = 'Purchase Order Line'; }
+    value(20; "Purchase Credit Memo") { Caption = 'Purchase Credit Memo'; }
+    value(21; "Purchase Credit Memo Line") { Caption = 'Purchase Credit Memo Line'; }
 }

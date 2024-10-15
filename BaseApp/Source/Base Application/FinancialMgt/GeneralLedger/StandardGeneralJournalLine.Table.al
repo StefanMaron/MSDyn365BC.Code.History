@@ -33,7 +33,10 @@
                       FieldCaption("Account Type"), FieldCaption("Bal. Account Type"));
 
                 Validate("Account No.", '');
+#if not CLEAN22
                 Validate("IC Partner G/L Acc. No.", '');
+#endif
+                Validate("IC Account No.", '');
 
                 if "Account Type" in ["Account Type"::Customer, "Account Type"::Vendor, "Account Type"::"Bank Account"] then begin
                     Validate("Gen. Posting Type", "Gen. Posting Type"::" ");
@@ -113,7 +116,11 @@
                 UpdateSource();
                 CreateDimFromDefaultDim(FieldNo("Account No."));
 
+#if not CLEAN22
                 Validate("IC Partner G/L Acc. No.", GetDefaultICPartnerGLAccNo());
+#endif
+                if (Rec."IC Account Type" = "IC Journal Account Type"::"G/L Account") then
+                    Validate("IC Account No.", GetDefaultICPartnerGLAccNo());
             end;
         }
         field(6; "Document Type"; Enum "Gen. Journal Document Type")
@@ -237,7 +244,11 @@
                 UpdateSource();
                 CreateDimFromDefaultDim(FieldNo("Bal. Account No."));
 
+#if not CLEAN22
                 Validate("IC Partner G/L Acc. No.", GetDefaultICPartnerGLAccNo());
+#endif
+                if (Rec."IC Account Type" = "IC Journal Account Type"::"G/L Account") then
+                    Validate("IC Account No.", GetDefaultICPartnerGLAccNo());
             end;
         }
         field(12; "Currency Code"; Code[10])
@@ -1160,7 +1171,17 @@
         {
             Caption = 'IC Partner G/L Acc. No.';
             TableRelation = "IC G/L Account";
+#if not CLEAN22
+            ObsoleteReason = 'This field will be replaced by IC Account No.';
+            ObsoleteState = Pending;
+            ObsoleteTag = '22.0';
+#else
+            ObsoleteReason = 'Replaced by IC Account No.';
+            ObsoleteState = Removed;
+            ObsoleteTag = '25.0';
+#endif
 
+#if not CLEAN22
             trigger OnValidate()
             var
                 ICGLAccount: Record "IC G/L Account";
@@ -1171,8 +1192,12 @@
                     GenJnlTemplate.TestField(Type, GenJnlTemplate.Type::Intercompany);
                     if ICGLAccount.Get("IC Partner G/L Acc. No.") then
                         ICGLAccount.TestField(Blocked, false);
-                end
+                end;
+
+                Rec."IC Account Type" := Rec."IC Account Type"::"G/L Account";
+                Rec."IC Account No." := Rec."IC Partner G/L Acc. No.";
             end;
+#endif
         }
         field(118; "Sell-to/Buy-from No."; Code[20])
         {
@@ -1184,6 +1209,36 @@
             IF ("Account Type" = CONST(Vendor)) Vendor
             ELSE
             IF ("Bal. Account Type" = CONST(Vendor)) Vendor;
+        }
+        field(130; "IC Account Type"; Enum "IC Journal Account Type")
+        {
+            Caption = 'IC Account Type';
+        }
+        field(131; "IC Account No."; Code[20])
+        {
+            Caption = 'IC Account No.';
+            TableRelation =
+            IF ("IC Account Type" = const("G/L Account")) "IC G/L Account" where("Account Type" = const(Posting), Blocked = const(false))
+            ELSE
+            IF ("Account Type" = const(Customer), "IC Account Type" = const("Bank Account")) "IC Bank Account" where("IC Partner Code" = field("IC Partner Code"), Blocked = const(false))
+            ELSE
+            IF ("Account Type" = const(Vendor), "IC Account Type" = const("Bank Account")) "IC Bank Account" where("IC Partner Code" = field("IC Partner Code"), Blocked = const(false))
+            ELSE
+            IF ("Account Type" = const("IC Partner"), "IC Account Type" = const("Bank Account")) "IC Bank Account" where("IC Partner Code" = field("Account No."), Blocked = const(false))
+            ELSE
+            IF ("Bal. Account Type" = const(Customer), "IC Account Type" = const("Bank Account")) "IC Bank Account" where("IC Partner Code" = field("IC Partner Code"), Blocked = const(false))
+            ELSE
+            IF ("Bal. Account Type" = const(Vendor), "IC Account Type" = const("Bank Account")) "IC Bank Account" where("IC Partner Code" = field("IC Partner Code"), Blocked = const(false))
+            ELSE
+            IF ("Bal. Account Type" = const("IC Partner"), "IC Account Type" = const("Bank Account")) "IC Bank Account" where("IC Partner Code" = field("Bal. Account No."), Blocked = const(false));
+
+#if not CLEAN22
+            trigger OnValidate()
+            begin
+                if Rec."IC Account Type" = Rec."IC Account Type"::"G/L Account" then
+                    Rec."IC Partner G/L Acc. No." := Rec."IC Account No.";
+            end;
+#endif
         }
         field(480; "Dimension Set ID"; Integer)
         {

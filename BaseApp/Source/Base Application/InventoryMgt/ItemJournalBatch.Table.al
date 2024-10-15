@@ -130,17 +130,27 @@ table 233 "Item Journal Batch"
         Text001: Label 'must not be %1';
 
     procedure SetupNewBatch()
+    var
+        IsHandled: Boolean;
     begin
-        ItemJnlTemplate.Get("Journal Template Name");
-        "No. Series" := ItemJnlTemplate."No. Series";
-        "Posting No. Series" := ItemJnlTemplate."Posting No. Series";
-        "Reason Code" := ItemJnlTemplate."Reason Code";
-
+        IsHandled := false;
+        OnBeforeSetupNewBatch(Rec, ItemJnlTemplate, IsHandled);
+        if not IsHandled then begin
+            ItemJnlTemplate.Get("Journal Template Name");
+            "No. Series" := ItemJnlTemplate."No. Series";
+            "Posting No. Series" := ItemJnlTemplate."Posting No. Series";
+            "Reason Code" := ItemJnlTemplate."Reason Code";
+        end;
         OnAfterSetupNewBatch(Rec, ItemJnlTemplate);
     end;
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterSetupNewBatch(var ItemJournalBatch: Record "Item Journal Batch"; ItemJnlTemplate: Record "Item Journal Template")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSetupNewBatch(var ItemJournalBatch: Record "Item Journal Batch"; var ItemJournalTemplate: Record "Item Journal Template"; var IsHandled: Boolean)
     begin
     end;
 }

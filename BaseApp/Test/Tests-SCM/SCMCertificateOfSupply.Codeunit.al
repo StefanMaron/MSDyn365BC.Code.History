@@ -1125,6 +1125,9 @@ codeunit 137112 "SCM Certificate Of Supply"
         SalesShipmentHeader.Validate("No. Printed", LibraryRandom.RandInt(10));
         SalesShipmentHeader.Modify(true);
 
+        // [GIVEN] "Sales Setup"."Allow Document Deletion Before"
+        LibrarySales.SetAllowDocumentDeletionBeforeDate(SalesShipmentHeader."Posting Date" + 1);
+
         // exercise
         SalesShipmentHeader.Delete(true);
 
@@ -1180,6 +1183,9 @@ codeunit 137112 "SCM Certificate Of Supply"
 
         ReturnShipmentHeader.Validate("No. Printed", LibraryRandom.RandInt(10));
         ReturnShipmentHeader.Modify(true);
+
+        // [GIVEN] "Sales Setup"."Allow Document Deletion Before"
+        LibraryPurchase.SetAllowDocumentDeletionBeforeDate(ReturnShipmentHeader."Posting Date" + 1);
 
         // exercise
         ReturnShipmentHeader.Delete(true);
@@ -1739,6 +1745,33 @@ codeunit 137112 "SCM Certificate Of Supply"
         CertOfSupply.CertificateOfSupply.SetFilter("Document No.", DocumentNo);
         CertOfSupply.PrintLineDetails.SetValue(PrintLineDetails);
         CertOfSupply.SaveAsPdf(FileManagement.ServerTempFileName('.pdf'));
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    [HandlerFunctions('CertificatesOfSupplyPageHandler')]
+    procedure CheckOpeningEmptyCertificateOfSupplyListWithDocumentTypeFilter()
+    var
+        CertificateOfSupply: Record "Certificate of Supply";
+    begin
+        // [SCENARIO 463274] Opening empty 'Certificates of Supply' page with saved filters should not cause a error 
+        // [FEATURE] [Certificate of Supply] [Supply] [Shipment]
+        Initialize();
+
+        // [GIVEN] //there is no entries in "Certificate of Supply" table
+        if not CertificateOfSupply.IsEmpty then
+            CertificateOfSupply.DeleteAll();
+
+        // [WHEN] // "Document Type" filter is set on record and assigned to a page
+        CertificateOfSupply.SetRange("Document Type", LibraryRandom.RandInt(3) - 1);
+
+        // [THEN] // opening page should not cause a error
+        Page.Run(Page::"Certificates of Supply", CertificateOfSupply);
+    end;
+
+    [PageHandler]
+    procedure CertificatesOfSupplyPageHandler(var CertificatesOfSupply: TestPage "Certificates of Supply")
+    begin
     end;
 }
 
