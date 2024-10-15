@@ -1975,6 +1975,7 @@
 
     protected procedure VariantCodeOnAfterValidate()
     begin
+        OnBeforeVariantCodeOnAfterValidate(Rec, xRec);
         SaveAndAutoAsmToOrder();
     end;
 
@@ -2034,12 +2035,16 @@
 
     protected procedure UnitofMeasureCodeOnAfterValidate()
     begin
+        OnBeforeUnitofMeasureCodeOnAfterValidate(Rec, xRec);
+
         DeltaUpdateTotals();
         if Reserve = Reserve::Always then begin
             CurrPage.SaveRecord();
             AutoReserve();
             CurrPage.Update(false);
         end;
+
+        OnAfterUnitofMeasureCodeOnAfterValidate(Rec, xRec);
     end;
 
     protected procedure ShipmentDateOnAfterValidate()
@@ -2355,6 +2360,21 @@
 
     [IntegrationEvent(true, false)]
     local procedure OnBeforeQuantityOnAfterValidate(var SalesLine: Record "Sales Line"; var xSalesLine: Record "Sales Line")
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnBeforeVariantCodeOnAfterValidate(var SalesLine: Record "Sales Line"; var xSalesLine: Record "Sales Line")
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnBeforeUnitofMeasureCodeOnAfterValidate(var SalesLine: Record "Sales Line"; var xSalesLine: Record "Sales Line")
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnAfterUnitofMeasureCodeOnAfterValidate(var SalesLine: Record "Sales Line"; xSalesLine: Record "Sales Line")
     begin
     end;
 }

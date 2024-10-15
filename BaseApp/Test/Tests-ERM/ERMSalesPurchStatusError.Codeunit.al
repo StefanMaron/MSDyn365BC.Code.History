@@ -2152,6 +2152,69 @@ codeunit 134383 "ERM Sales/Purch Status Error"
         Assert.RecordIsNotEmpty(SalesCrMemoHeader); // No Series error not in IT
     end;
 
+    [Test]
+    [HandlerFunctions('PurchaseCreditMemoPageHandler,ConfirmHandlerYes')]
+    [Scope('OnPrem')]
+    procedure PostPurchCorrectiveCrMemoWithDefaultNoSetToFalseOnNoSeriesAndThrowError()
+    var
+        Item: Record Item;
+        Vendor: Record Vendor;
+        PurchInvHeader: Record "Purch. Inv. Header";
+        PurchInvLine: Record "Purch. Inv. Line";
+        PurchCrMemoHdr: Record "Purch. Cr. Memo Hdr.";
+        PurchaseHeader: Record "Purchase Header";
+        NoSeries: Record "No. Series";
+        NoSeriesLine: Record "No. Series Line";
+        PurchasesPayablesSetup: Record "Purchases & Payables Setup";
+        GeneralLedgerSetup: Record "General Ledger Setup";
+        PostedPurchaseInvoice: TestPage "Posted Purchase Invoice";
+        PurchaseCreditMemo: TestPage "Purchase Credit Memo";
+    begin
+        // [SCENARIO 480238] Hole in the Numbering of Purchase Credit Memos
+        Initialize();
+
+        // [GIVEN] Create and Post Purchase Invoice
+        CreateAndPostPurchaseInvForNewItemAndVend(Item, Vendor, 1, 1, PurchInvHeader);
+
+        // [GIVEN] Create No. Series with Default Nos set to false.
+        LibraryUtility.CreateNoSeries(NoSeries, false, true, false);
+        LibraryUtility.CreateNoSeriesLine(NoSeriesLine, NoSeries.Code, '', '');
+
+        // [GIVEN] Update No. series on Purchase & Payables Setup.
+        PurchasesPayablesSetup.Get();
+        PurchasesPayablesSetup."Posted Credit Memo Nos." := NoSeries.Code;
+        PurchasesPayablesSetup.Modify();
+
+        // [GIVEN] Set Journal Templ. Name Mandatory to false on General ledger Setup.
+        GeneralLedgerSetup.Get();
+        GeneralLedgerSetup."Journal Templ. Name Mandatory" := false;
+        GeneralLedgerSetup.Modify();
+
+        // [GIVEN] Find Posted Purchase Invoice & Create Corrective Credit Memo.
+        PostedPurchaseInvoice.OpenEdit();
+        PostedPurchaseInvoice.GotoRecord(PurchInvHeader);
+        PostedPurchaseInvoice.CreateCreditMemo.Invoke();
+
+        // [GIVEN] Find Purchase Invoice Line.
+        PurchInvLine.SetRange("Document No.", PurchInvHeader."No.");
+        PurchInvLine.FindFirst();
+
+        // [GIVEN] Find Purchase Credit Memo & Validate Check Total.
+        PurchaseHeader.SetRange("Buy-from Vendor No.", Vendor."No.");
+        PurchaseHeader.FindFirst();
+        PurchaseHeader.Validate("Check Total", PurchInvLine."Amount Including VAT");
+        PurchaseHeader.Modify();
+
+        // [THEN] Find & Post Purchase Credit Memo.
+        PurchaseCreditMemo.OpenEdit();
+        PurchaseCreditMemo.GoToRecord(PurchaseHeader);
+        PurchaseCreditMemo.Post.Invoke();
+
+        // [VERIFY] Verify Purchase Credit Memo is not posted.
+        PurchCrMemoHdr.SetRange("Buy-from Vendor No.", Vendor."No.");
+        Assert.RecordIsNotEmpty(PurchCrMemoHdr); // No Series error not in IT
+    end;
+
     local procedure Initialize()
     var
         PurchaseHeader: Record "Purchase Header";
@@ -2736,6 +2799,35 @@ codeunit 134383 "ERM Sales/Purch Status Error"
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", Qty);
     end;
 
+    local procedure CreateAndPostPurchaseInvForNewItemAndVend(var Item: Record Item; var Vendor: Record Vendor; LastDirectCost: Decimal; Qty: Decimal; var PurchaseInvoiceHeader: Record "Purch. Inv. Header")
+    begin
+        CreateItemWithCost(Item, LastDirectCost);
+        LibraryPurchase.CreateVendor(Vendor);
+        BuyItem(Vendor, Item, Qty, PurchaseInvoiceHeader);
+    end;
+
+    local procedure CreateItemWithCost(var Item: Record Item; LastDirectCost: Decimal)
+    begin
+        LibraryInventory.CreateItem(Item);
+        Item."Last Direct Cost" := LastDirectCost;
+        Item.Modify();
+    end;
+
+    local procedure BuyItem(var Vendor: Record Vendor; Item: Record Item; Qty: Decimal; var PurchInvHeader: Record "Purch. Inv. Header")
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+    begin
+        CreatePurchaseInvoiceForItem(Vendor, Item, Qty, PurchaseHeader, PurchaseLine);
+        PurchInvHeader.Get(LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true));
+    end;
+
+    local procedure CreatePurchaseInvoiceForItem(Vendor: Record Vendor; Item: Record Item; Qty: Decimal; var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line")
+    begin
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, Vendor."No.");
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, Item."No.", Qty);
+    end;
+
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure ShowMatrixPageHandler(var ItemStatisticsMatrix: TestPage "Item Statistics Matrix")
@@ -2814,6 +2906,12 @@ codeunit 134383 "ERM Sales/Purch Status Error"
     procedure ConfirmHandlerYes(Question: Text; var Reply: Boolean)
     begin
         Reply := true;
+    end;
+
+    [PageHandler]
+    procedure PurchaseCreditMemoPageHandler(var PurchaseCreditMemo: TestPage "Purchase Credit Memo")
+    begin
+        PurchaseCreditMemo."Vendor Cr. Memo No.".SetValue(LibraryRandom.RandInt(100));
     end;
 }
 

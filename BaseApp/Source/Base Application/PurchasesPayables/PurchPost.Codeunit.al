@@ -1623,6 +1623,8 @@
 
         with PurchLine do begin
             ItemJnlLine.Subcontracting := true;
+            ItemJnlLine."Subcontr. Purch. Order No." := "Document No.";
+            ItemJnlLine."Subcontr. Purch. Order Line" := "Line No.";
             ItemJnlLine."Quantity (Base)" := CalcBaseQty("No.", "Unit of Measure Code", QtyToBeReceived, "Qty. Rounding Precision (Base)");
             ItemJnlLine."Invoiced Qty. (Base)" := CalcBaseQty("No.", "Unit of Measure Code", QtyToBeInvoiced, "Qty. Rounding Precision (Base)");
             ItemJnlLine."Unit Cost" := "Unit Cost (LCY)";
@@ -2882,7 +2884,11 @@
                         if "Document Type" in ["Document Type"::"Return Order"] then
                             ResetPostingNoSeriesFromSetup("Posting No. Series", PurchSetup."Posted Credit Memo Nos.")
                         else
-                            ResetPostingNoSeriesFromSetup("Posting No. Series", PurchSetup."Posted Invoice Nos.");
+                            if ("Document Type" <> "Document Type"::"Credit Memo") then
+                                ResetPostingNoSeriesFromSetup("Posting No. Series", PurchSetup."Posted Invoice Nos.");
+                        if "Document Type" = "Document Type"::"Credit Memo" then
+                            if (PurchSetup."Posted Credit Memo Nos." <> '') and ("Posting No. Series" = '') then
+                                CheckDefaultNoSeries(PurchSetup."Posted Credit Memo Nos.");
                         TestField("Posting No. Series");
                         NoSeriesMgt.TestDateOrder("Posting No. Series");
                     end;
@@ -3023,6 +3029,8 @@
         with PurchHeader do begin
             if HasLinks then
                 DeleteLinks();
+            WarehouseRequest.DeleteRequest(DATABASE::"Purchase Line", "Document Type".AsInteger(), "No.");
+
             Delete();
 
             PurchLineReserve.DeleteInvoiceSpecFromHeader(PurchHeader);
@@ -3057,7 +3065,6 @@
             PaymentTermsLine.DeleteAll();
 
             PurchCommentLine.DeleteComments("Document Type".AsInteger(), "No.");
-            WarehouseRequest.DeleteRequest(DATABASE::"Purchase Line", "Document Type".AsInteger(), "No.");
         end;
 
         OnAfterDeleteAfterPosting(PurchHeader, PurchInvHeader, PurchCrMemoHeader, SuppressCommit);
@@ -9373,6 +9380,14 @@
                     PurchaseHeader.FieldNo("Posting Date"), StrSubstNo(PostingDateNotAllowedErr, PurchaseHeader.FieldCaption("Posting Date")),
                     SetupRecID, ErrorMessageMgt.GetFieldNo(SetupRecID.TableNo, GLSetup.FieldName("Allow Posting From")),
                     ForwardLinkMgt.GetHelpCodeForAllowedPostingDate());
+    end;
+
+    local procedure CheckDefaultNoSeries(NoSeriesCode: Code[20])
+    var
+        NoSeries: Record "No. Series";
+    begin
+        if NoSeries.Get(NoSeriesCode) then
+            NoSeries.TestField("Default Nos.", true);
     end;
 
     [IntegrationEvent(false, false)]

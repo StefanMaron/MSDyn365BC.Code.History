@@ -1048,6 +1048,7 @@
                 if IsHandled then
                     exit;
 
+                TestStatusOpen();
                 TestField("Drop Shipment", false);
                 TestField("Special Order", false);
                 TestField("Receipt No.", '');
@@ -1604,6 +1605,7 @@
                     end;
                     Validate("Direct Unit Cost", PurchLine2."Direct Unit Cost");
                     Validate("Line Discount %", PurchLine2."Line Discount %");
+                    OnAfterValidateBlanketOrderLineNo(Rec, PurchLine2);
                 end;
                 ValidateIncludeInDT();
             end;
@@ -2092,6 +2094,7 @@
                 if IsHandled then
                     exit;
 
+                TestStatusOpen();
                 TestField("Receipt No.", '');
                 if "Document Type" = "Document Type"::Order then
                     TestField("Quantity Received", 0);
@@ -6670,6 +6673,7 @@
         AmtToHandle: Decimal;
         RoundingLineInserted: Boolean;
         IsHandled: Boolean;
+        ShouldProcessRounding: Boolean;
     begin
         if IsCalcVATAmountLinesHandled(PurchHeader, PurchLine, VATAmountLine, QtyType) then
             exit;
@@ -6776,11 +6780,14 @@
                 until Next() = 0;
         end;
 
+        OnCalcVATAmountLinesOnBeforeVATAmountLineUpdateLines(PurchLine, VATAmountLine, TotalVATAmount);
         VATAmountLine.UpdateLines(
           TotalVATAmount, Currency, PurchHeader."Currency Factor", PurchHeader."Prices Including VAT",
           PurchHeader."VAT Base Discount %", PurchHeader."Tax Area Code", PurchHeader."Tax Liable", PurchHeader."Posting Date");
 
-        if RoundingLineInserted and (TotalVATAmount <> 0) then
+        ShouldProcessRounding := RoundingLineInserted and (TotalVATAmount <> 0);
+        OnCalcVATAmountLinesOnAfterCalcShouldProcessRounding(PurchLine, VATAmountLine, TotalVATAmount, Currency, ShouldProcessRounding);
+        if ShouldProcessRounding then
             if GetVATAmountLineOfMaxAmt(VATAmountLine, PurchLine) then begin
                 VATAmountLine."VAT Amount" += TotalVATAmount;
                 VATAmountLine."Amount Including VAT" += TotalVATAmount;
@@ -8759,7 +8766,7 @@
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeInitTableValuePair(TableValuePair, FieldNo, IsHandled);
+        OnBeforeInitTableValuePair(TableValuePair, FieldNo, IsHandled, Rec);
         if IsHandled then
             exit;
 
@@ -8773,7 +8780,7 @@
             FieldNo = Rec.FieldNo("Location Code"):
                 TableValuePair.Add(Database::Location, Rec."Location Code");
         end;
-        OnAfterInitTableValuePair(TableValuePair, FieldNo);
+        OnAfterInitTableValuePair(TableValuePair, FieldNo, Rec);
     end;
 
     local procedure InitDefaultDimensionSources(var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]]; FieldNo: Integer)
@@ -10713,12 +10720,12 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeInitTableValuePair(var TableValuePair: Dictionary of [Integer, Code[20]]; FieldNo: Integer; var IsHandled: Boolean)
+    local procedure OnBeforeInitTableValuePair(var TableValuePair: Dictionary of [Integer, Code[20]]; FieldNo: Integer; var IsHandled: Boolean; var PurchaseLine: Record "Purchase Line")
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterInitTableValuePair(var TableValuePair: Dictionary of [Integer, Code[20]]; FieldNo: Integer)
+    local procedure OnAfterInitTableValuePair(var TableValuePair: Dictionary of [Integer, Code[20]]; FieldNo: Integer; var PurchaseLine: Record "Purchase Line")
     begin
     end;
 
@@ -10841,6 +10848,21 @@
 
     [IntegrationEvent(true, false)]
     local procedure OnValidateNoOnBeforeJobTaskIsSet(PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; xPurchaseLine: Record "Purchase Line"; TempPurchaseLine: Record "Purchase Line" temporary; IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterValidateBlanketOrderLineNo(var PurchaseLine: Record "Purchase Line"; BlanketOrderPurchLine: Record "Purchase Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalcVATAmountLinesOnAfterCalcShouldProcessRounding(var PurchaseLine: Record "Purchase Line"; var VATAmountLine: Record "VAT Amount Line"; var TotalVATAmount: Decimal; Currency: Record Currency; var ShouldProcessRounding: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalcVATAmountLinesOnBeforeVATAmountLineUpdateLines(var PurchaseLine: Record "Purchase Line"; var VATAmountLine: Record "VAT Amount Line"; var TotalVATAmount: Decimal)
     begin
     end;
 }

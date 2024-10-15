@@ -1175,7 +1175,14 @@ report 20 "Calc. and Post VAT Settlement"
         if PriorPeriodVATEntry.Get(Format(Date2DMY(EndDateReq, 3)) + '/' +
           ConvertStr(Format(Date2DMY(EndDateReq, 2), 2), ' ', '0'))
         then begin
-            PriorPeriodVATEntry."VAT Settlement" := NewVATAmount;
+            if (NewVATAmount = 0) and (VATAmount = 0) then begin
+                if CreditNextPeriod <> 0 then
+                    PriorPeriodVATEntry."VAT Settlement" := CreditNextPeriod
+                else
+                    PriorPeriodVATEntry."VAT Settlement" := DebitNextPeriod;
+            end else
+                PriorPeriodVATEntry."VAT Settlement" := NewVATAmount;
+
             PriorPeriodVATEntry."VAT Period Closed" := true;
             PriorPeriodVATEntry.Modify();
         end else begin

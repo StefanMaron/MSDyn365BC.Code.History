@@ -677,6 +677,8 @@ codeunit 5341 "CRM Int. Table. Subscriber"
             exit;
 
         SalesHeader.GetBySystemId(SourceRecordRef.Field(SourceRecordRef.SystemIdNo).Value());
+
+        OnChangeSalesOrderStatusOnBeforeCompareStatus(SalesHeader, NewStatus);
         if SalesHeader.Status = NewStatus then
             exit;
         SalesHeader.Status := NewStatus;
@@ -767,6 +769,31 @@ codeunit 5341 "CRM Int. Table. Subscriber"
 #endif
             'Price List Header-CRM Pricelevel':
                 ResetCRMProductpricelevelFromPriceListHeader(SourceRecordRef);
+            'Sales Header-CRM Salesorder':
+                if CRMConnectionSetup.IsBidirectionalSalesOrderIntEnabled() then
+                    ResetCRMSalesorderdetailFromSalesOrderLine(SourceRecordRef, DestinationRecordRef);
+            'CRM Salesorder-Sales Header':
+                if CRMConnectionSetup.IsBidirectionalSalesOrderIntEnabled() then begin
+                    ChangeSalesOrderStatus(DestinationRecordRef, SalesHeader.Status::Open);
+                    ResetSalesOrderLineFromCRMSalesorderdetail(SourceRecordRef, DestinationRecordRef);
+                    ChangeSalesOrderStatus(DestinationRecordRef, SalesHeader.Status::Released);
+                    CreateSalesOrderNotes(SourceRecordRef, DestinationRecordRef);
+                end;
+        end;
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Integration Rec. Synch. Invoke", 'OnBeforeIgnoreUnchangedRecordHandled', '', false, false)]
+    local procedure OnBeforeIgnoreUnchangedRecordHandled(IntegrationTableMapping: Record "Integration Table Mapping"; SourceRecordRef: RecordRef; DestinationRecordRef: RecordRef)
+    var
+        CRMConnectionSetup: Record "CRM Connection Setup";
+        SalesHeader: Record "Sales Header";
+        IsHandled: Boolean;
+    begin
+        OnHandleOnBeforeIgnoreUnchangedRecordHandled(SourceRecordRef, DestinationRecordRef, IsHandled);
+        if IsHandled then
+            exit;
+
+        case GetSourceDestCode(SourceRecordRef, DestinationRecordRef) of
             'Sales Header-CRM Salesorder':
                 if CRMConnectionSetup.IsBidirectionalSalesOrderIntEnabled() then
                     ResetCRMSalesorderdetailFromSalesOrderLine(SourceRecordRef, DestinationRecordRef);
@@ -3124,6 +3151,16 @@ codeunit 5341 "CRM Int. Table. Subscriber"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeGetSourceDestCodeOnAfterTransferRecordFields(var SourceRecordRef: RecordRef; var DestinationRecordRef: RecordRef; var AdditionalFieldsWereModified: Boolean; DestinationIsInserted: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnHandleOnBeforeIgnoreUnchangedRecordHandled(SourceRecordRef: RecordRef; DestinationRecordRef: RecordRef; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnChangeSalesOrderStatusOnBeforeCompareStatus(var SalesHeader: Record "Sales Header"; var NewSalesDocumentStatus: Enum "Sales Document Status")
     begin
     end;
 }

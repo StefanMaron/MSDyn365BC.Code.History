@@ -107,6 +107,7 @@ codeunit 86 "Sales-Quote to Order"
             SalesOrderHeader.Status := SalesOrderHeader.Status::Open;
             SalesOrderHeader."No." := '';
             SalesOrderHeader."Quote No." := "No.";
+            OnCreateSalesHeaderOnBeforeSalesOrderLineLockTable(SalesOrderHeader, SalesHeader);
             SalesOrderLine.LockTable();
             OnBeforeInsertSalesOrderHeader(SalesOrderHeader, SalesHeader);
             SalesOrderHeader.Insert(true);
@@ -328,6 +329,7 @@ codeunit 86 "Sales-Quote to Order"
                     SalesOrderLine.Insert();
                     OnAfterInsertSalesOrderLine(SalesOrderLine, SalesOrderHeader, SalesQuoteLine, SalesQuoteHeader);
                     ATOLink.MakeAsmOrderLinkedToSalesOrderLine(SalesQuoteLine, SalesOrderLine);
+                    OnTransferQuoteToOrderLinesOnAfterATOLinkMakeAsmOrderLinkedToSalesOrderLine(SalesQuoteLine, SalesOrderLine);
                     SalesLineReserve.TransferSaleLineToSalesLine(
                       SalesQuoteLine, SalesOrderLine, SalesQuoteLine."Outstanding Qty. (Base)");
                     SalesLineReserve.VerifyQuantity(SalesOrderLine, SalesQuoteLine);
@@ -472,6 +474,16 @@ codeunit 86 "Sales-Quote to Order"
 
     [IntegrationEvent(false, false)]
     local procedure OnTransferQuoteToOrderLinesOnBeforeDefaultDeferralCode(var SalesLineOrder: Record "Sales Line"; var SalesHeaderOrder: Record "Sales Header"; var SalesLineQuote: Record "Sales Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnTransferQuoteToOrderLinesOnAfterATOLinkMakeAsmOrderLinkedToSalesOrderLine(var SalesLineQuote: Record "Sales Line"; var SalesLineOrder: Record "Sales Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateSalesHeaderOnBeforeSalesOrderLineLockTable(var SalesHeaderOrder: Record "Sales Header"; var SalesHeaderQuote: Record "Sales Header")
     begin
     end;
 }

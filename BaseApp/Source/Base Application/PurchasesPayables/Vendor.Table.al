@@ -1063,6 +1063,15 @@
         {
             Caption = 'Intrastat Partner Type';
         }
+        field(134; "Exclude from Pmt. Practices"; Boolean)
+        {
+            Caption = 'Exclude from Payment Practices';
+        }
+        field(135; "Company Size Code"; Code[20])
+        {
+            Caption = 'Company Size Code';
+            TableRelation = "Company Size";
+        }
         field(140; Image; Media)
         {
             Caption = 'Image';

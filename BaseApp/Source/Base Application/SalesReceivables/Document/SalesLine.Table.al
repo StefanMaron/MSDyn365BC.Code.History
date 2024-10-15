@@ -710,6 +710,7 @@
                             Amount := 0;
                             "Amount Including VAT" := 0;
                             "VAT Base Amount" := 0;
+                            OnValidateQuantityOnAfterInitializeAmounts(Rec)
                         end;
 
                     ValidateIncludeInDT();
@@ -1321,7 +1322,7 @@
                 TestField("Quantity Shipped", 0);
 
                 IsHandled := false;
-                OnValidateDropShipmentOnBeforeTestJobNo(Rec, IsHandled);
+                OnValidateDropShipmentOnBeforeTestJobNo(Rec, IsHandled, CurrFieldNo);
                 if not IsHandled then
                     TestField("Job No.", '');
                 TestField("Qty. to Asm. to Order (Base)", 0);
@@ -2390,12 +2391,18 @@
             trigger OnValidate()
             var
                 Item: Record Item;
+                IsHandled: Boolean;
             begin
                 if "Bin Code" <> '' then
                     CheckBinCodeRelation();
 
                 if "Drop Shipment" then
                     CheckAssocPurchOrder(FieldCaption("Bin Code"));
+
+                IsHandled := false;
+                OnValidateBinCodeOnBeforeTestFields(Rec, IsHandled);
+                if IsHandled then
+                    exit;
 
                 TestField(Type, Type::Item);
                 TestField("Location Code");
@@ -4421,7 +4428,7 @@
             Type::Resource:
                 begin
                     IsHandled := false;
-                    OnUpdateUnitPriceOnBeforeFindPrice(SalesHeader, Rec, CalledByFieldNo, CurrFieldNo, IsHandled);
+                    OnUpdateUnitPriceOnBeforeFindPrice(SalesHeader, Rec, CalledByFieldNo, CurrFieldNo, IsHandled, xRec);
                     if not IsHandled then
                         if not BlanketOrderIsRelated(BlanketOrderSalesLine) then begin
                             GetPriceCalculationHandler(PriceType::Sale, SalesHeader, PriceCalculation);
@@ -5027,13 +5034,15 @@
     local procedure InitQty()
     var
         IsHandled: Boolean;
+        ShouldInitQty: Boolean;
     begin
         IsHandled := false;
-        OnBeforeInitQty(Rec, xRec, IsAsmToOrderAllowed(), IsAsmToOrderRequired(), IsHandled);
+        ShouldInitQty := (xRec.Quantity <> Quantity) or (xRec."Quantity (Base)" <> "Quantity (Base)");
+        OnBeforeInitQty(Rec, xRec, IsAsmToOrderAllowed(), IsAsmToOrderRequired(), IsHandled, ShouldInitQty);
         if IsHandled then
             exit;
 
-        if (xRec.Quantity <> Quantity) or (xRec."Quantity (Base)" <> "Quantity (Base)") then begin
+        if ShouldInitQty then begin
             InitOutstanding();
             if IsCreditDocType() then
                 InitQtyToReceive()
@@ -6304,14 +6313,14 @@
         end;
 
         IsHandled := false;
-        OnCalcVATAmountLinesOnBeforeVATAmountLineUpdateLines(SalesLine, IsHandled);
+        OnCalcVATAmountLinesOnBeforeVATAmountLineUpdateLines(SalesLine, IsHandled, VATAmountLine, TotalVATAmount);
         if not IsHandled then
             VATAmountLine.UpdateLines(
             TotalVATAmount, Currency, SalesHeader."Currency Factor", SalesHeader."Prices Including VAT",
             SalesHeader."VAT Base Discount %", SalesHeader."Tax Area Code", SalesHeader."Tax Liable", SalesHeader."Posting Date");
 
         ShouldProcessRounding := RoundingLineInserted and (TotalVATAmount <> 0);
-        OnCalcVATAmountLinesOnAfterCalcShouldProcessRounding(VATAmountLine, Currency, ShouldProcessRounding);
+        OnCalcVATAmountLinesOnAfterCalcShouldProcessRounding(VATAmountLine, Currency, ShouldProcessRounding, SalesLine, TotalVATAmount);
         if ShouldProcessRounding then
             if GetVATAmountLineOfMaxAmt(VATAmountLine, SalesLine) then begin
                 VATAmountLine."VAT Amount" += TotalVATAmount;
@@ -6452,7 +6461,7 @@
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeCheckWarehouse(Rec, IsHandled);
+        OnBeforeCheckWarehouse(Rec, IsHandled, ShowDialogMessage);
         if IsHandled then
             exit;
 
@@ -8690,7 +8699,7 @@
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeInitTableValuePair(TableValuePair, FieldNo, IsHandled);
+        OnBeforeInitTableValuePair(TableValuePair, FieldNo, IsHandled, Rec);
         if IsHandled then
             exit;
 
@@ -8704,7 +8713,7 @@
             FieldNo = Rec.FieldNo("Location Code"):
                 TableValuePair.Add(Database::Location, Rec."Location Code");
         end;
-        OnAfterInitTableValuePair(TableValuePair, FieldNo);
+        OnAfterInitTableValuePair(TableValuePair, FieldNo, Rec);
     end;
 
     local procedure InitDefaultDimensionSources(var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]]; FieldNo: Integer)
@@ -9325,7 +9334,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeInitQty(var SalesLine: Record "Sales Line"; xSalesLine: Record "Sales Line"; IsAsmToOrderAlwd: Boolean; IsAsmToOrderRqd: Boolean; var IsHandled: Boolean)
+    local procedure OnBeforeInitQty(var SalesLine: Record "Sales Line"; xSalesLine: Record "Sales Line"; IsAsmToOrderAlwd: Boolean; IsAsmToOrderRqd: Boolean; var IsHandled: Boolean; var ShouldInitQty: Boolean)
     begin
     end;
 
@@ -9817,7 +9826,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnUpdateUnitPriceOnBeforeFindPrice(SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; CalledByFieldNo: Integer; CallingFieldNo: Integer; var IsHandled: Boolean)
+    local procedure OnUpdateUnitPriceOnBeforeFindPrice(SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; CalledByFieldNo: Integer; CallingFieldNo: Integer; var IsHandled: Boolean; xSalesLine: Record "Sales Line")
     begin
     end;
 
@@ -10167,12 +10176,12 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnCalcVATAmountLinesOnAfterCalcShouldProcessRounding(var VATAmountLine: Record "VAT Amount Line"; Currency: Record Currency; var IsHandled: Boolean)
+    local procedure OnCalcVATAmountLinesOnAfterCalcShouldProcessRounding(var VATAmountLine: Record "VAT Amount Line"; Currency: Record Currency; var IsHandled: Boolean; var SalesLine: Record "Sales Line"; var TotalVATAmount: Decimal)
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnCalcVATAmountLinesOnBeforeVATAmountLineUpdateLines(var SalesLine: Record "Sales Line"; var IsHandled: Boolean)
+    local procedure OnCalcVATAmountLinesOnBeforeVATAmountLineUpdateLines(var SalesLine: Record "Sales Line"; var IsHandled: Boolean; var VATAmountLine: Record "VAT Amount Line"; var TotalVATAmount: Decimal)
     begin
     end;
 
@@ -10290,7 +10299,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCheckWarehouse(SalesLine: Record "Sales Line"; var IsHandled: Boolean)
+    local procedure OnBeforeCheckWarehouse(SalesLine: Record "Sales Line"; var IsHandled: Boolean; var ShowDialogMessage: Boolean)
     begin
     end;
 
@@ -10478,7 +10487,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnValidateDropShipmentOnBeforeTestJobNo(var SalesLine: Record "Sales Line"; var IsHandled: Boolean)
+    local procedure OnValidateDropShipmentOnBeforeTestJobNo(var SalesLine: Record "Sales Line"; var IsHandled: Boolean; CurrFieldNo: Integer)
     begin
     end;
 
@@ -10663,12 +10672,12 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeInitTableValuePair(var TableValuePair: Dictionary of [Integer, Code[20]]; FieldNo: Integer; var IsHandled: Boolean)
+    local procedure OnBeforeInitTableValuePair(var TableValuePair: Dictionary of [Integer, Code[20]]; FieldNo: Integer; var IsHandled: Boolean; var SalesLine: Record "Sales Line")
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterInitTableValuePair(var TableValuePair: Dictionary of [Integer, Code[20]]; FieldNo: Integer)
+    local procedure OnAfterInitTableValuePair(var TableValuePair: Dictionary of [Integer, Code[20]]; FieldNo: Integer; var SalesLine: Record "Sales Line")
     begin
     end;
 
@@ -10774,6 +10783,16 @@
     [IntegrationEvent(false, false)]
     local procedure OnBeforeDeleteChargeChargeAssgnt(SalesDocumentType: Enum "Sales Document Type"; DocNo: Code[20]; DocLineNo: Integer; var SalesLine: Record "Sales Line"; var xSalesLine: Record "Sales Line"; CurrentFieldNo: Integer; var IsHandled: Boolean)
     begin
-    end;    
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateQuantityOnAfterInitializeAmounts(var SalesLine: Record "Sales Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateBinCodeOnBeforeTestFields(var SalesLine: Record "Sales Line"; var IsHandled: Boolean)
+    begin
+    end;
 }
 

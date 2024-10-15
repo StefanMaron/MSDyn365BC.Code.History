@@ -25,6 +25,7 @@ codeunit 144015 "IT - Calc. And Post VAT Settl."
         LibraryReportDataset: Codeunit "Library - Report Dataset";
         LibraryRandom: Codeunit "Library - Random";
         LibraryUtility: Codeunit "Library - Utility";
+        ValueMustBeEqualErr: Label '%1 must be equal to %2 in %3', Comment = '%1 = Field Caption , %2 = Expected Value , %3 = Table Caption';
 
     [Test]
     [HandlerFunctions('CalcAndPostVATSettlementHandler,ConfirmHandler')]
@@ -389,6 +390,77 @@ codeunit 144015 "IT - Calc. And Post VAT Settl."
             'CreditNextPeriod', CalcDeductVATAmount(PurchAmount, VATPostingSetup."Deductible %", VATPostingSetup."VAT %") + AdvancedAmount);
 
         LibraryVariableStorage.AssertEmpty;
+    end;
+
+    [Test]
+    [HandlerFunctions('CalcAndPostVATSettlementHandler,ConfirmHandler')]
+    [Scope('OnPrem')]
+    procedure VerifyVATSettlementWithZeroVATInCurrentPeriodIfPreviousPeriodHasCreditAmount()
+    var
+        Vendor: Record Vendor;
+        VATPostingSetup: Record "VAT Posting Setup";
+        PeriodicSettlementVATEntry: Record "Periodic Settlement VAT Entry";
+        GeneralLedgerSetup: Record "General Ledger Setup";
+        VATEntry: Record "VAT Entry";
+        PurchAmount: Decimal;
+        ExpectedVATAmount: Decimal;
+        VATPeriod: Code[10];
+    begin
+        // [SCENARIO 477305] Verify VAT settlement when you "calculate and Post a VAT Settlement" for a month with a zero VAT amount 
+        // and the previous period only had a credit amount.
+        Initialize();
+
+        // [GIVEN] Update the Last Settlement Date in General Ledger Setup.
+        InitLastSettlementDate(CalcDate('<1M-1D>', CalcDate('<-CY-1Y>', WorkDate())));
+
+        // [GIVEN] Delete the Periodic Settlement VAT Entry.
+        PeriodicSettlementVATEntry.DeleteAll();
+
+        // [GIVEN] Create VAT Posting Setup.
+        CreateNonDeductibleVATPostingSetup(VATPostingSetup);
+
+        // [GIVEN] Create a vendor with the VAT Bus Posting Group.
+        Vendor.Get(LibraryPurchase.CreateVendorWithVATBusPostingGroup(VATPostingSetup."VAT Bus. Posting Group"));
+
+        // [GIVEN] Generate a random Purchase Amount.
+        PurchAmount := LibraryRandom.RandIntInRange(1000, 2000);
+
+        // [GIVEN] Create and post Purchase Incoice with VAT Bus. Posting Group.
+        CreateAndPostPurchInvoice(
+            LibraryPurchase.CreateVendorWithVATBusPostingGroup(VATPostingSetup."VAT Bus. Posting Group"),
+            GetPostingDate(), CreateGLAccountWithPostingGroups(VATPostingSetup), PurchAmount, '');
+
+        // [GIVEN] Save a transaction.
+        Commit();
+
+        // [GIVEN] Find Posted VAT Entry.
+        VATEntry.FindLast();
+
+        // [GIVEN] Save Expected VAT Amount.
+        GeneralLedgerSetup.Get();
+        if GeneralLedgerSetup."Settlement Round. Factor" <> 0 then
+            ExpectedVATAmount := Round(VATEntry.Amount, GeneralLedgerSetup."Settlement Round. Factor");
+
+        // [GIVEN] Run the report "Calc. and Post VAT Settlement"
+        LibraryVariableStorage.Enqueue(GetPostingDate());
+        VATPostingSetup.SetRecFilter();
+        REPORT.Run(REPORT::"Calc. and Post VAT Settlement", true, false, VATPostingSetup);
+
+        // [WHEN] Run the report "Calc. and Post VAT Settlement" with Zero Amount in the current period.
+        VATPeriod := Format(Date2DMY(GetPostingDate(), 3)) + '/' + ConvertStr(Format(Date2DMY(GetPostingDate(), 2), 2), ' ', '0');
+        LibraryVariableStorage.Enqueue(GetPostingDate());
+        REPORT.Run(REPORT::"Calc. and Post VAT Settlement", true, false, VATPostingSetup);
+
+        // [Verify] Verify the VAT Settlement amount in the periodic settlement VAT Entry.
+        PeriodicSettlementVATEntry.Get(VATPeriod);
+        Assert.AreEqual(
+            ExpectedVATAmount,
+            PeriodicSettlementVATEntry."VAT Settlement",
+            StrSubstNo(
+                ValueMustBeEqualErr,
+                PeriodicSettlementVATEntry.FieldCaption("VAT Settlement"),
+                ExpectedVATAmount,
+                PeriodicSettlementVATEntry.TableCaption()));
     end;
 
     local procedure Initialize()

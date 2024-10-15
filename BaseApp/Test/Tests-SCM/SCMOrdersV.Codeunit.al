@@ -57,7 +57,7 @@ codeunit 137158 "SCM Orders V"
         QuantityBaseErr: Label 'Quantity (Base) is not sufficient to complete this action';
         QuantityMustBeSameErr: Label 'Quantity must be same.';
         ExtendedTxt: Label 'Extended text of the BOM component.';
-        ItemTrackingMode: Option AssignLotNo,SelectEntries,AssignSerialNo,UpdateQtyOnFirstLine,UpdateQtyOnLastLine,VerifyLot,AssignGivenLotNos,UpdateLotQty;
+        ItemTrackingMode: Option AssignLotNo,SelectEntries,AssignSerialNo,UpdateQtyOnFirstLine,UpdateQtyOnLastLine,VerifyLot,AssignGivenLotNos,UpdateLotQty,"Set Lot No.","Get Lot Quantity";
         UndoReturnShipmentMsg: Label 'Do you really want to undo the selected Return Shipment lines?';
         CombineShipmentMsg: Label 'The shipments are now combined';
         SpecialOrderSalesNoErr: Label 'Special Order Sales No in Purchase Line must be equal to Sales Order No';
@@ -69,6 +69,7 @@ codeunit 137158 "SCM Orders V"
         ItemTrackingNotMatchErr: Label 'Item Tracking does not match';
         QtyToInvoiceDoesNotMatchItemTrackingErr: Label 'The quantity to invoice does not match the quantity defined in item tracking.';
         ReservedQtyMustBeZeroErr: Label 'Reserved Qty. (Base) must be equal to ''0''  in Purchase Line';
+        WrongLotQtyOnPurchaseLineErr: Label 'Wrong lot quantity in Item Tracking on Purchase Line.';
 
     [Test]
     [Scope('OnPrem')]
@@ -3728,6 +3729,69 @@ codeunit 137158 "SCM Orders V"
         WarehouseEntry.TestField("Qty. (Base)", 0);
     end;
 
+    [Test]
+    [HandlerFunctions('ItemTrackingPageHandler')]
+    [Scope('OnPrem')]
+    procedure LineShouldNotBeDeletedWhenModifyLotNoInItemTracking()
+    var
+        Vendor: Record Vendor;
+        Item: Record Item;
+        ItemTrackingCode: Record "Item Tracking Code";
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        NoSeriesManagement: Codeunit NoSeriesManagement;
+        Qty2: Decimal;
+        Qty3: Decimal;
+        LotNoCode: Code[20];
+        LotNo4: Code[20];
+        LotNo: array[3] of Code[20];
+    begin
+        // [SCENARIO 478837] Purchase Order Line with Item Tracking results in a deleted Lot No. Line in the Item Tracking window when closing the window after changing the Lot Nos. through swapping of the lines.
+        Initialize();
+
+        // [GIVEN] Create a Vendor.
+        LibraryPurchase.CreateVendor(Vendor);
+
+        // [GIVEN] Create an Item Tracking Code.
+        LibraryItemTracking.CreateItemTrackingCode(ItemTrackingCode, true, true);
+
+        // [GIVEN] Create an Item & Validate Item Tracking Code.
+        LibraryInventory.CreateItem(Item);
+        Item.Validate("Item Tracking Code", ItemTrackingCode.Code);
+        Item.Modify(true);
+
+        // [GIVEN] Create a No Series for Lot No.
+        LotNoCode := LibraryERM.CreateNoSeriesCode();
+
+        // [GIVEN] Create 3 Lot Nos from No Series.
+        LotNo[1] := NoSeriesManagement.GetNextNo(LotNoCode, WorkDate(), false);
+        LotNo[2] := NoSeriesManagement.GetNextNo(LotNoCode, WorkDate(), false);
+        LotNo[3] := NoSeriesManagement.GetNextNo(LotNoCode, WorkDate(), false);
+
+        // [GIVEN] Create two Quantities and save each in a Variable.
+        Qty2 := LibraryRandom.RandIntInRange(200, 200);
+        Qty3 := LibraryRandom.RandIntInRange(300, 300);
+
+        // [GIVEN] Create Lot No 4 from No Series.
+        LotNo4 := NoSeriesManagement.GetNextNo(LotNoCode, WorkDate(), false);
+
+        // [GIVEN] Create a Purchase Order with three Item Tracking Lines & Assign Lot No to each.
+        CreatePurchaseOrderWithItemTrackingMultipleLotNo(PurchaseHeader, LotNo, Vendor."No.", Item."No.", LibraryRandom.RandIntInRange(1000, 1000));
+
+        // [GIVEN] Open Item Tracking Lines & Verify Lot No & Quantity Base of last two Lines.
+        VerifyItemTrackingOnPurchaseOrderLine(PurchaseLine, PurchaseHeader, LotNo[2], Qty2);
+        VerifyItemTrackingOnPurchaseOrderLine(PurchaseLine, PurchaseHeader, LotNo[3], Qty3);
+
+        // [WHEN] Open Item Tracking Lines & Change Lot No of last two Lines.
+        SetLotNoOnPurchaseOrderItemTracking(PurchaseLine, PurchaseHeader, LotNo[2], LotNo4);
+        SetLotNoOnPurchaseOrderItemTracking(PurchaseLine, PurchaseHeader, LotNo[3], LotNo[2]);
+        SetLotNoOnPurchaseOrderItemTracking(PurchaseLine, PurchaseHeader, LotNo4, LotNo[3]);
+
+        // [VERIFY] Open Item Tracking Lines & Verify Lot No of last two Lines is changed.
+        VerifyItemTrackingOnPurchaseOrderLine(PurchaseLine, PurchaseHeader, LotNo[2], Qty3);
+        VerifyItemTrackingOnPurchaseOrderLine(PurchaseLine, PurchaseHeader, LotNo[3], Qty2);
+    end;
+
     local procedure Initialize()
     var
         SalesHeader: Record "Sales Header";
@@ -5578,6 +5642,45 @@ codeunit 137158 "SCM Orders V"
         ItemApplicationEntry.TestField(Quantity, Quantity);
     end;
 
+    local procedure CreatePurchaseOrderWithItemTrackingMultipleLotNo(var PurchaseHeader: Record "Purchase Header"; var AssignedLotNos: array[3] of Code[20]; VendorNo: Code[20]; ItemNo: Code[20]; Qty: Decimal)
+    var
+        PurchaseLine: Record "Purchase Line";
+        i: Integer;
+        IncrementQty: Decimal;
+    begin
+        LibraryVariableStorage.Enqueue(ItemTrackingMode::AssignGivenLotNos);
+        LibraryVariableStorage.Enqueue(ArrayLen(AssignedLotNos));
+        IncrementQty := 0;
+        for i := 1 to ArrayLen(AssignedLotNos) do begin
+            LibraryVariableStorage.Enqueue(AssignedLotNos[i]);
+            IncrementQty += 100;
+            LibraryVariableStorage.Enqueue(IncrementQty);
+        end;
+        CreatePurchaseOrder(PurchaseHeader, PurchaseLine, VendorNo, ItemNo, Qty, '', true);
+    end;
+
+    local procedure SetLotNoOnPurchaseOrderItemTracking(PurchaseLine: Record "Purchase Line"; PurchaseHeader: Record "Purchase Header"; LotNo: Code[50]; NewLotNo: Code[20])
+    begin
+        LibraryVariableStorage.Enqueue(ItemTrackingMode::"Set Lot No.");
+        LibraryVariableStorage.Enqueue(LotNo);
+        LibraryVariableStorage.Enqueue(NewLotNo);
+        PurchaseLine.SetRange("Document Type", PurchaseHeader."Document Type");
+        PurchaseLine.SetRange("Document No.", PurchaseHeader."No.");
+        PurchaseLine.FindFirst();
+        PurchaseLine.OpenItemTrackingLines();
+    end;
+
+    local procedure VerifyItemTrackingOnPurchaseOrderLine(var PurchaseLine: Record "Purchase Line"; PurchaseHeader: Record "Purchase Header"; LotNo: Code[50]; Qty: Decimal)
+    begin
+        LibraryVariableStorage.Enqueue(ItemTrackingMode::"Get Lot Quantity");
+        LibraryVariableStorage.Enqueue(LotNo);
+        PurchaseLine.SetRange("Document Type", PurchaseHeader."Document Type");
+        PurchaseLine.SetRange("Document No.", PurchaseHeader."No.");
+        PurchaseLine.FindFirst();
+        PurchaseLine.OpenItemTrackingLines();
+        Assert.AreEqual(Qty, LibraryVariableStorage.DequeueDecimal, WrongLotQtyOnPurchaseLineErr);
+    end;
+
     [ConfirmHandler]
     [Scope('OnPrem')]
     procedure ConfirmHandler(ConfirmMessage: Text[1024]; var Reply: Boolean)
@@ -5652,6 +5755,16 @@ codeunit 137158 "SCM Orders V"
                 begin
                     GetLotNoFromItemTrackingPageHandler(LotNo);
                     ItemTrackingLines."Lot No.".AssertEquals(LotNo);
+                end;
+            ItemTrackingMode::"Set Lot No.":
+                begin
+                    ItemTrackingLines.FILTER.SetFilter("Lot No.", LibraryVariableStorage.DequeueText);
+                    ItemTrackingLines."Lot No.".SetValue(LibraryVariableStorage.DequeueText);
+                end;
+            ItemTrackingMode::"Get Lot Quantity":
+                begin
+                    ItemTrackingLines.FILTER.SetFilter("Lot No.", LibraryVariableStorage.DequeueText);
+                    LibraryVariableStorage.Enqueue(ItemTrackingLines."Quantity (Base)".AsDecimal);
                 end;
         end;
         ItemTrackingLines.OK.Invoke;

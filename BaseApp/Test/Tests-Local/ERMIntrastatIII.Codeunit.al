@@ -91,6 +91,7 @@ codeunit 144064 "ERM Intrastat - III"
         RoundAmountCap: Label 'RoundAmount_Control1130125';
         LineMustNotExistMsg: Label 'Line must not exist';
         IncorrectLineErr: Label 'Incorrect line in exported file.';
+        ValueMustBeEqualErr: Label '%1 must be equal to %2 in %3', Comment = '%1 = Field Caption , %2 = Expected Value , %3 = Table Caption';
 
     [Test]
     [HandlerFunctions('GetItemLedgerEntriesSetDatesRequestPageHandler')]
@@ -1237,6 +1238,62 @@ codeunit 144064 "ERM Intrastat - III"
         // [THEN] Intrastat Journal Line was created with "Transport Method" value of the Sales Invoice.
         FindIntrastatJournalLine(IntrastatJnlLine, IntrastatJnlBatchName, DocumentNo);
         IntrastatJnlLine.TestField("Transport Method", SalesHeader."Transport Method");
+    end;
+
+    [Test]
+    [HandlerFunctions('CarryOutActionMsgRequisitionRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure VerifySubcontractingOrderNoAndlineNoMustHaveAValueInItemLedgerEntry()
+    var
+        SubConLocation: Record Location;
+        MfgLocation: Record Location;
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        ItemLedgerEntry: Record "Item Ledger Entry";
+        VendorNo: Code[20];
+    begin
+        // [SCENARIO 479439] Verify that "Subcontr. Purch. Order No." and "Subcontr. Purch. Order Line No." must have a value in the item ledger entry.
+        Initialize();
+
+        // [GIVEN] Create a Subcontracting Location.
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(SubConLocation);
+
+        // [GIVEN] Create a Manufacturing Location.
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(MfgLocation);
+
+        // [GIVEN] Create a subcontracting order.
+        VendorNo := CreateSubcontractingOrderSetup(SubConLocation.Code, MfgLocation.Code);
+
+        // [GIVEN] Update Vendor Invoice No. in the Purchase Header.
+        PurchaseHeader.Get(PurchaseHeader."Document Type"::Order, GetSubcontractingOrderNo(VendorNo));
+        PurchaseHeader.Validate("Vendor Invoice No.", VendorNo);
+        PurchaseHeader.Modify();
+
+        // [GIVEN] Find the Purchase Line.
+        FindPurchaseLine(PurchaseLine, PurchaseHeader."Document Type"::Order, PurchaseHeader."No.");
+
+        // [WHEN] Post the Subcontracting Order.
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false);
+
+        // [VERIFY] Verify that "Subcontr. Purch. Order No." and "Subcontr. Purch. Order Line No." must have a value in the item ledger entry.
+        ItemLedgerEntry.FindLast();
+        Assert.AreEqual(
+            PurchaseHeader."No.",
+            ItemLedgerEntry."Subcontr. Purch. Order No.",
+            StrSubstNo(
+                ValueMustBeEqualErr,
+                ItemLedgerEntry.FieldCaption("Subcontr. Purch. Order No."),
+                PurchaseHeader."No.",
+                ItemLedgerEntry.TableCaption()));
+
+        Assert.AreEqual(
+           PurchaseLine."Line No.",
+            ItemLedgerEntry."Subcontr. Purch. Order Line",
+            StrSubstNo(
+                ValueMustBeEqualErr,
+                ItemLedgerEntry.FieldCaption("Subcontr. Purch. Order Line"),
+                 PurchaseLine."Line No.",
+                ItemLedgerEntry.TableCaption()));
     end;
 
     local procedure Initialize()

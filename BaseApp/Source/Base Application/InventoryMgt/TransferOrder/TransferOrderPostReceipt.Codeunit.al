@@ -743,10 +743,7 @@ codeunit 5705 "TransferOrder-Post Receipt"
     local procedure LockTables(AutoCostPosting: Boolean)
     var
         GLEntry: Record "G/L Entry";
-        NoSeriesLine: Record "No. Series Line";
     begin
-        NoSeriesLine.LockTable();
-        if NoSeriesLine.FindLast() then;
         if AutoCostPosting then begin
             GLEntry.LockTable();
             if GLEntry.FindLast() then;

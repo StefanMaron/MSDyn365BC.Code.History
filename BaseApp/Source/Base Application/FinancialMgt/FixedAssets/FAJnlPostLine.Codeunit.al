@@ -132,12 +132,18 @@ codeunit 5632 "FA Jnl.-Post Line"
     end;
 
     local procedure PostFixedAsset()
+    var
+        IsHandled: Boolean;
     begin
         FA.LockTable();
         DeprBook.Get(DeprBookCode);
         FA.Get(FANo);
-        FA.TestField(Blocked, false);
-        FA.TestField(Inactive, false);
+        IsHandled := false;
+        OnPostFixedAssetOnBeforeFixedAssetTestField(FALedgEntry, Amount2, IsHandled);
+        if not IsHandled then begin
+            FA.TestField(Blocked, false);
+            FA.TestField(Inactive, false);
+        end;
         FADeprBook.Get(FANo, DeprBookCode);
         MakeFALedgEntry.CopyFromFACard(FALedgEntry, FA, FADeprBook);
         FAInsertLedgEntry.SetLastEntryNo(true);
@@ -150,15 +156,21 @@ codeunit 5632 "FA Jnl.-Post Line"
         if FAPostingType = FAPostingType::Disposal then
             PostDisposalEntry(FALedgEntry)
         else begin
-            if PostBudget() then
-                SetBudgetAssetNo();
-            if not DeprLine() then begin
-                OnPostFixedAssetOnBeforeInsertEntry(FALedgEntry);
-                FAInsertLedgEntry.SetOrgGenJnlLine(true);
-                FAInsertLedgEntry.InsertFA(FALedgEntry);
-                FAInsertLedgEntry.SetOrgGenJnlLine(false);
+            IsHandled := false;
+            OnPostFixedAssetPostDisposalEntryForOtherFAPostingType(FAPostingType, IsHandled);
+            if IsHandled then
+                PostDisposalEntry(FALedgEntry)
+            else begin
+                if PostBudget() then
+                    SetBudgetAssetNo();
+                if not DeprLine() then begin
+                    OnPostFixedAssetOnBeforeInsertEntry(FALedgEntry);
+                    FAInsertLedgEntry.SetOrgGenJnlLine(true);
+                    FAInsertLedgEntry.InsertFA(FALedgEntry);
+                    FAInsertLedgEntry.SetOrgGenJnlLine(false);
+                end;
+                PostSalvageValue(FALedgEntry);
             end;
-            PostSalvageValue(FALedgEntry);
         end;
         if DeprAcqCost then
             PostDeprUntilDate(FALedgEntry, 1);
@@ -321,8 +333,12 @@ codeunit 5632 "FA Jnl.-Post Line"
         Custom1NumberOfDays: Integer;
         DummyEntryAmounts: array[4] of Decimal;
         Custom2Amount: Decimal;
+	    IsHandled: Boolean;
     begin
-        OnBeforePostDeprUntilDate(FALedgEntry, FAPostingDate);
+        IsHandled := false;
+        OnBeforePostDeprUntilDate(FALedgEntry, FAPostingDate, Type, IsHandled);
+        if IsHandled then
+            exit;
         with FALedgEntry do begin
             "Automatic Entry" := true;
             "FA No./Budgeted FA No." := '';
@@ -450,6 +466,7 @@ codeunit 5632 "FA Jnl.-Post Line"
 
     procedure PostGLBalAcc(FALedgEntry: Record "FA Ledger Entry"; AllocatedPct: Decimal)
     begin
+        OnBeforePostGLBalAcc(FALedgEntry, AllocatedPct);
         if AllocatedPct > 0 then begin
             FALedgEntry."Entry No." := 0;
             FALedgEntry."Automatic Entry" := true;
@@ -489,10 +506,19 @@ codeunit 5632 "FA Jnl.-Post Line"
                     end;
             end;
         end;
+        OnAfterPostAllocation(FALedgEntry);
     end;
 
     local procedure DeprLine(): Boolean
+    var
+        IsHandled: Boolean;
+        Result: Boolean;
     begin
+        IsHandled := false;
+        Result := false;
+        OnBeforeDeprLine(FAPostingType, DeprUntilDate, Amount2, IsHandled, Result);
+        if IsHandled then
+            exit(Result);
         exit((Amount2 = 0) and (FAPostingType = FAPostingType::Depreciation) and DeprUntilDate);
     end;
 
@@ -564,7 +590,12 @@ codeunit 5632 "FA Jnl.-Post Line"
     procedure UpdateRegNo(GLRegNo: Integer)
     var
         FAReg: Record "FA Register";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeUpdateRegNo(GLRegNo, IsHandled);
+        if IsHandled then
+            exit;
         if FAReg.FindLast() then begin
             FAReg."G/L Register No." := GLRegNo;
             FAReg.Modify();
@@ -612,7 +643,7 @@ codeunit 5632 "FA Jnl.-Post Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforePostDeprUntilDate(var FALedgEntry: Record "FA Ledger Entry"; var FAPostingDate: Date)
+    local procedure OnBeforePostDeprUntilDate(var FALedgEntry: Record "FA Ledger Entry"; var FAPostingDate: Date; Type: Option; var IsHandled: Boolean)
     begin
     end;
 
@@ -648,6 +679,36 @@ codeunit 5632 "FA Jnl.-Post Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnPostBudgetAssetOnBeforeInsertFAEntry(var FALedgEntry: Record "FA Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterPostAllocation(var FALedgerEntry: Record "FA Ledger Entry");
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforePostGLBalAcc(FALedgerEntry: Record "FA Ledger Entry"; var AllocatedPct: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPostFixedAssetPostDisposalEntryForOtherFAPostingType(FAPostingType: Enum "FA Journal Line FA Posting Type"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeDeprLine(FAPostingType: Enum "FA Journal Line FA Posting Type"; DeprUntilDate: Boolean; Amount2: Decimal; var IsHandled: Boolean; var Result: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdateRegNo(GLRegNo: Integer; var IsHandled: Boolean);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPostFixedAssetOnBeforeFixedAssetTestField(FALedgerEntry: Record "FA Ledger Entry"; Amount2: Decimal; var IsHandled: Boolean)
     begin
     end;
 }

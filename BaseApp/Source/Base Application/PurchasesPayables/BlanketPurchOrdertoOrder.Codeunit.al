@@ -44,7 +44,7 @@
                     CheckBlanketOrderLineQuantity();
 
                     PurchOrderLine := PurchBlanketOrderLine;
-                    OnRunOnAfterInitPurchOrderLineFromBlanketOrderLine(PurchOrderLine);
+                    OnRunOnAfterInitPurchOrderLineFromBlanketOrderLine(PurchOrderLine, PurchBlanketOrderLine);
                     ResetQuantityFields(PurchOrderLine);
                     PurchOrderLine."Document Type" := PurchOrderHeader."Document Type";
                     PurchOrderLine."Document No." := PurchOrderHeader."No.";
@@ -398,7 +398,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnRunOnAfterInitPurchOrderLineFromBlanketOrderLine(var PurchaseOrderLine: Record "Purchase Line")
+    local procedure OnRunOnAfterInitPurchOrderLineFromBlanketOrderLine(var PurchaseOrderLine: Record "Purchase Line"; var BlanketOrderPurchaseLine: Record "Purchase Line")
     begin
     end;
 

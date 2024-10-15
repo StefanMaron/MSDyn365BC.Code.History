@@ -137,8 +137,11 @@ codeunit 5345 "Integration Rec. Synch. Invoke"
                     SynchAction := SynchActionType::IgnoreUnchanged;
         end;
 
-        if not (SynchAction in [SynchActionType::Insert, SynchActionType::Modify, SynchActionType::ForceModify]) then
+        if not (SynchAction in [SynchActionType::Insert, SynchActionType::Modify, SynchActionType::ForceModify]) then begin
+            if SynchAction = SynchActionType::IgnoreUnchanged then
+                OnBeforeIgnoreUnchangedRecordHandled(IntegrationTableMapping, SourceRecordRef, DestinationRecordRef);
             exit;
+        end;
 
         if SourceWasChanged or (SynchAction = SynchActionType::ForceModify) then
             TransferFields(
@@ -710,6 +713,11 @@ codeunit 5345 "Integration Rec. Synch. Invoke"
 
     [IntegrationEvent(false, false)]
     local procedure OnUpdateIntegrationRecordTimestamp(IntegrationTableMapping: Record "Integration Table Mapping"; var SourceRecordRef: RecordRef; var DestinationRecordRef: RecordRef; IntegrationTableConnectionType: TableConnectionType; JobID: Guid; BothModified: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeIgnoreUnchangedRecordHandled(IntegrationTableMapping: Record "Integration Table Mapping"; SourceRecordRef: RecordRef; DestinationRecordRef: RecordRef)
     begin
     end;
 }
