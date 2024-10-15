@@ -2616,6 +2616,106 @@ codeunit 134154 "ERM Intercompany III"
         LibraryApplicationArea.DisableApplicationAreaSetup();
     end;
 
+    [Test]
+    procedure ICSalesLineCommentTypeWhenPostSalesInvoice()
+    var
+        ICOutboxTransaction: Record "IC Outbox Transaction";
+        Customer: Record Customer;
+        Vendor: Record Vendor;
+        Item: Record Item;
+        SalesHeader: Record "Sales Header";
+        SalesLine: array[3] of Record "Sales Line";
+        Description: array[3] of Text[100];
+        ICPartnerCode: Code[20];
+        PostedInvoiceNo: Code[20];
+    begin
+        // [FEATURE] [Sales]
+        // [SCENARIO 422513] IC Sales Lines with Type Comment (blank) when post Sales Invoice for IC Customer.
+        Initialize();
+        ICOutboxTransaction.DeleteAll();
+
+        // [GIVEN] Vendor with IC Partner. This IC Partner is also set in Company Information.
+        ICPartnerCode := CreateICPartnerWithInbox();
+        CreateVendorWithICPartner(Vendor, ICPartnerCode);
+        UpdateICPartnerCodeOnCompanyInfo(ICPartnerCode);
+
+        // [GIVEN] Sales Invoice with three lines for Customer with IC Partner.
+        // [GIVEN] First and third Sales Lines have Type " " and Description "D1" / "D2" (Quantity = 0).
+        // [GIVEN] Second Sales Line has Type "Item" and Quantity 10.
+        LibraryInventory.CreateItem(Item);
+        Description[1] := LibraryUtility.GenerateGUID();
+        Description[2] := Item.Description;
+        Description[3] := LibraryUtility.GenerateGUID();
+        CreateCustomerWithICPartner(Customer, ICPartnerCode);
+
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesDocType::Invoice, Customer."No.");
+        CreateSalesLineCommentType(SalesLine[1], SalesHeader, Description[1]);
+        CreateSalesLineItemType(SalesLine[2], SalesHeader, Item."No.");
+        CreateSalesLineCommentType(SalesLine[3], SalesHeader, Description[3]);
+
+        // [WHEN] Post Sales Invoice.
+        PostedInvoiceNo := LibrarySales.PostSalesDocument(SalesHeader, false, true);
+
+        // [THEN] Transaction for Sales Invoice is created in IC Outbox. It has three lines - first and third with blank Type, second with Item Type.
+        FindICOutboxTransaction(
+            ICOutboxTransaction, ICOutboxTransaction."Source Type"::"Sales Document", ICTransactionDocType::Invoice, PostedInvoiceNo, ICPartnerCode);
+        Assert.RecordIsNotEmpty(ICOutboxTransaction);
+        VerifyICOutboxSalesLineCount(ICOutboxTransaction, 3);
+        VerifyICOutboxSalesLineTypeAndNoByLineNo(ICOutboxTransaction, SalesLine[1]."Line No.", ICPartnerRefType::" ", '', Description[1]);
+        VerifyICOutboxSalesLineTypeAndNoByLineNo(ICOutboxTransaction, SalesLine[2]."Line No.", ICPartnerRefType::Item, Item."No.", Description[2]);
+        VerifyICOutboxSalesLineTypeAndNoByLineNo(ICOutboxTransaction, SalesLine[3]."Line No.", ICPartnerRefType::" ", '', Description[3]);
+    end;
+
+    [Test]
+    procedure ICSalesLineCommentTypeWhenPostSalesCreditMemo()
+    var
+        ICOutboxTransaction: Record "IC Outbox Transaction";
+        Customer: Record Customer;
+        Vendor: Record Vendor;
+        Item: Record Item;
+        SalesHeader: Record "Sales Header";
+        SalesLine: array[3] of Record "Sales Line";
+        Description: array[3] of Text[100];
+        ICPartnerCode: Code[20];
+        PostedInvoiceNo: Code[20];
+    begin
+        // [FEATURE] [Sales]
+        // [SCENARIO 422513] IC Sales Lines with Type Comment (blank) when post Sales Credit Memo for IC Customer.
+        Initialize();
+        ICOutboxTransaction.DeleteAll();
+
+        // [GIVEN] Vendor with IC Partner. This IC Partner is also set in Company Information.
+        ICPartnerCode := CreateICPartnerWithInbox();
+        CreateVendorWithICPartner(Vendor, ICPartnerCode);
+        UpdateICPartnerCodeOnCompanyInfo(ICPartnerCode);
+
+        // [GIVEN] Sales Credit Memo with three lines for Customer with IC Partner.
+        // [GIVEN] First and third Sales Lines have Type " " and Description "D1" / "D2" (Quantity = 0).
+        // [GIVEN] Second Sales Line has Type "Item" and Quantity 10.
+        LibraryInventory.CreateItem(Item);
+        Description[1] := LibraryUtility.GenerateGUID();
+        Description[2] := Item.Description;
+        Description[3] := LibraryUtility.GenerateGUID();
+        CreateCustomerWithICPartner(Customer, ICPartnerCode);
+
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesDocType::"Credit Memo", Customer."No.");
+        CreateSalesLineCommentType(SalesLine[1], SalesHeader, Description[1]);
+        CreateSalesLineItemType(SalesLine[2], SalesHeader, Item."No.");
+        CreateSalesLineCommentType(SalesLine[3], SalesHeader, Description[3]);
+
+        // [WHEN] Post Sales Credit Memo.
+        PostedInvoiceNo := LibrarySales.PostSalesDocument(SalesHeader, false, true);
+
+        // [THEN] Transaction for Sales Credit Memo is created in IC Outbox. It has three lines - first and third with blank Type, second with Item Type.
+        FindICOutboxTransaction(
+            ICOutboxTransaction, ICOutboxTransaction."Source Type"::"Sales Document", ICTransactionDocType::"Credit Memo", PostedInvoiceNo, ICPartnerCode);
+        Assert.RecordIsNotEmpty(ICOutboxTransaction);
+        VerifyICOutboxSalesLineCount(ICOutboxTransaction, 3);
+        VerifyICOutboxSalesLineTypeAndNoByLineNo(ICOutboxTransaction, SalesLine[1]."Line No.", ICPartnerRefType::" ", '', Description[1]);
+        VerifyICOutboxSalesLineTypeAndNoByLineNo(ICOutboxTransaction, SalesLine[2]."Line No.", ICPartnerRefType::Item, Item."No.", Description[2]);
+        VerifyICOutboxSalesLineTypeAndNoByLineNo(ICOutboxTransaction, SalesLine[3]."Line No.", ICPartnerRefType::" ", '', Description[3]);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -2880,6 +2980,18 @@ codeunit 134154 "ERM Intercompany III"
         LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, LineType::Item, LibraryInventory.CreateItemNo(), LibraryRandom.RandDecInRange(10, 20, 2));
         PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandDecInRange(100, 200, 2));
         PurchaseLine.Modify(true);
+    end;
+
+    local procedure CreateSalesLineCommentType(var SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header"; DescriptionValue: Text[100])
+    begin
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, "Sales Line Type"::" ", '', 0);
+        UpdateDescriptionOnSalesLine(SalesLine, DescriptionValue);
+    end;
+
+    local procedure CreateSalesLineItemType(var SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header"; ItemNo: Code[20])
+    begin
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, "Sales Line Type"::Item, ItemNo, LibraryRandom.RandDecInRange(10, 20, 2));
+        UpdateUnitPriceOnSalesLine(SalesLine, LibraryRandom.RandDecInRange(100, 200, 2));
     end;
 
     local procedure FindLastSalesInvoiceHeaderNo(OrderNo: Code[20]): Code[20]
@@ -3230,6 +3342,12 @@ codeunit 134154 "ERM Intercompany III"
         PurchaseLine.Modify(true);
     end;
 
+    local procedure UpdateDescriptionOnSalesLine(var SalesLine: Record "Sales Line"; DescriptionValue: Text[100]);
+    begin
+        SalesLine.Validate(Description, DescriptionValue);
+        SalesLine.Modify(true);
+    end;
+
     local procedure UpdateDescription2OnSalesLine(var SalesLine: Record "Sales Line"; Description2: Text[50]);
     begin
         SalesLine.Validate("Description 2", Description2);
@@ -3240,6 +3358,12 @@ codeunit 134154 "ERM Intercompany III"
     begin
         PurchaseLine.Validate("Description 2", Description2);
         PurchaseLine.Modify(true);
+    end;
+
+    local procedure UpdateUnitPriceOnSalesLine(var SalesLine: Record "Sales Line"; UnitPrice: Decimal)
+    begin
+        SalesLine.Validate("Unit Price", UnitPrice);
+        SalesLine.Modify(true);
     end;
 
     local procedure UpdateReserveOnCustomer(var Customer: Record Customer; ReserveMethod: Enum "Reserve Method")
@@ -3482,6 +3606,21 @@ codeunit 134154 "ERM Intercompany III"
         HandledICOutboxPurchLine.SetRange("IC Partner Reference", ICPartnerReference);
         HandledICOutboxPurchLine.FindFirst();
         HandledICOutboxPurchLine.TestField("Description 2", ExpectedDescription2);
+    end;
+
+    local procedure VerifyICOutboxSalesLineTypeAndNoByLineNo(ICOutboxTransaction: Record "IC Outbox Transaction"; LineNo: Integer; ExpICPartnerRefType: Enum "IC Partner Reference Type"; ExpICPartnerReference: Code[20]; ExpDescription: Text[100])
+    var
+        ICOutboxSalesLine: Record "IC Outbox Sales Line";
+    begin
+        ICOutboxSalesLine.SetRange("IC Transaction No.", ICOutboxTransaction."Transaction No.");
+        ICOutboxSalesLine.SetRange("IC Partner Code", ICOutboxTransaction."IC Partner Code");
+        ICOutboxSalesLine.SetRange("Transaction Source", ICOutboxTransaction."Transaction Source");
+        ICOutboxSalesLine.SetRange("Line No.", LineNo);
+        ICOutboxSalesLine.FindFirst();
+
+        ICOutboxSalesLine.TestField("IC Partner Ref. Type", ExpICPartnerRefType);
+        ICOutboxSalesLine.TestField("IC Partner Reference", ExpICPartnerReference);
+        ICOutboxSalesLine.TestField(Description, ExpDescription);
     end;
 
     [ConfirmHandler]

@@ -159,18 +159,20 @@ codeunit 134314 "WF Notification Schedule Tests"
 
     [Test]
     [Scope('OnPrem')]
-    procedure TestScheduledReuse()
+    procedure TestScheduledReuseBaseAppEmailFeature()
     var
         NotificationSchedule: Record "Notification Schedule";
         NotificationEntry: Record "Notification Entry";
         JobQueueEntry: Record "Job Queue Entry";
         ApprovalEntry: Record "Approval Entry";
         UserSetup: Record "User Setup";
+        EmailFeature: Codeunit "Library - Email Feature";
         UserName: Code[50];
     begin
         // [SCENARIO] All notification of the same type are reusing the same job.
         // [GIVEN] Monthly schedule exist.
-        Initialize;
+        Initialize();
+        EmailFeature.SetEmailFeatureEnabled(false);
 
         UserName := 'SomeUser';
         AddUserSetup(UserName);
@@ -200,18 +202,105 @@ codeunit 134314 "WF Notification Schedule Tests"
 
     [Test]
     [Scope('OnPrem')]
-    procedure TestModifyExistingSchedule()
+    procedure TestScheduledReuseSystemEmailFeature()
     var
         NotificationSchedule: Record "Notification Schedule";
         NotificationEntry: Record "Notification Entry";
         JobQueueEntry: Record "Job Queue Entry";
+        ApprovalEntry: Record "Approval Entry";
+        UserSetup: Record "User Setup";
+        EmailFeature: Codeunit "Library - Email Feature";
+        UserName: Code[50];
+    begin
+        // [SCENARIO] All notification of the same type are reusing the same job.
+        // [GIVEN] Monthly schedule exist.
+        Initialize;
+        EmailFeature.SetEmailFeatureEnabled(true);
+
+        UserName := 'SomeUser';
+        AddUserSetup(UserName);
+
+        NotificationSchedule.CreateNewRecord(UserName, NotificationSchedule."Notification Type"::Approval);
+        NotificationSchedule.Validate(Recurrence, NotificationSchedule.Recurrence::Monthly);
+        NotificationSchedule.Modify(true);
+
+        // [WHEN] A Notification Entry is created.
+        NotificationEntry.CreateNotificationEntry(
+            NotificationEntry.Type::Approval, UserName, ApprovalEntry, 0, '', '');
+
+        NotificationEntry.CreateNotificationEntry(
+            NotificationEntry.Type::Approval, UserName, ApprovalEntry, 0, '', '');
+
+        // [THEN] A Instant Job Queue Entry is created
+        JobQueueEntry.FindFirst();
+
+        Assert.AreEqual(1, JobQueueEntry.Count(), 'More than one Job Queue Entry exist');
+        Assert.AreEqual(1509, JobQueueEntry."Object ID to Run", 'Invalid Dispatcher');
+        Assert.AreEqual(NotifyLaterLbl, JobQueueEntry."Job Queue Category Code", 'Category should not be instant');
+        NotificationEntry.SetView(JobQueueEntry."Parameter String");
+        Assert.AreEqual(UserName, NotificationEntry.GetRangeMax("Recipient User ID"), 'User should be in the filter');
+        Assert.AreEqual(NotificationEntry.Type::Approval, NotificationEntry.GetRangeMax(Type), 'Type shold be in the filter');
+        NotificationSchedule.Find('=');
+        Assert.AreEqual(JobQueueEntry.ID, NotificationSchedule."Last Scheduled Job", 'Schedule should point to last created job');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure TestModifyExistingInstantSchedule()
+    var
+        NotificationSchedule: Record "Notification Schedule";
+        NotificationEntry: Record "Notification Entry";
+        JobQueueEntry: Record "Job Queue Entry";
+        ApprovalEntry: Record "Approval Entry";
+        EmailFeature: Codeunit "Library - Email Feature";
         EarliestDateTimeOfExecution: DateTime;
         OldEarliestDateTimeOfExecution: DateTime;
-        ApprovalEntry: Record "Approval Entry";
     begin
         // [SCENARIO] Modifying the schedule is reflected in the job queue.
+
+        // [GIVEN] A schedule and an event already exist
+        Initialize();
+        EmailFeature.SetEmailFeatureEnabled(false);
+
+        EarliestDateTimeOfExecution := CurrentDateTime + 3600000;
+        CreateInstantScheduleForApproval(NotificationSchedule);
+        NotificationSchedule.Validate(Time, DT2Time(EarliestDateTimeOfExecution));
+        NotificationSchedule.Modify(true);
+        NotificationEntry.CreateNotificationEntry(
+            NotificationEntry.Type::Approval, UserId(), ApprovalEntry, 0, '', '');
+        JobQueueEntry.FindFirst();
+        OldEarliestDateTimeOfExecution := JobQueueEntry."Earliest Start Date/Time";
+
+        // [WHEN] The existing schedule date/time is modified
+        NotificationSchedule.Find();
+        NotificationSchedule.Validate(Time, DT2Time(EarliestDateTimeOfExecution + 1000));
+        NotificationSchedule.Modify(true);
+
+        // [THEN] The corresponding Job Queue Entry is adjusted accordingly
+        JobQueueEntry.FindFirst();
+        Assert.AreEqual(1, JobQueueEntry.Count(), 'More than one Job Queue Entry exist');
+        Assert.AreEqual(NotifyNowLbl, JobQueueEntry."Job Queue Category Code", 'Category should not be instant');
+        Assert.IsTrue(
+          (JobQueueEntry."Earliest Start Date/Time" = OldEarliestDateTimeOfExecution), 'Job schedule should not be adjusted');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure TestModifyExistingMonthlySchedule()
+    var
+        NotificationSchedule: Record "Notification Schedule";
+        NotificationEntry: Record "Notification Entry";
+        JobQueueEntry: Record "Job Queue Entry";
+        ApprovalEntry: Record "Approval Entry";
+        EmailFeature: Codeunit "Library - Email Feature";
+        EarliestDateTimeOfExecution: DateTime;
+        OldEarliestDateTimeOfExecution: DateTime;
+    begin
+        // [SCENARIO] Modifying the schedule is reflected in the job queue.
+
         // [GIVEN] A schedule and an event already exist
         Initialize;
+        EmailFeature.SetEmailFeatureEnabled(false);
 
         EarliestDateTimeOfExecution := CurrentDateTime + 3600000;
         CreateMonthlyScheduleForApproval(NotificationSchedule);
@@ -228,11 +317,50 @@ codeunit 134314 "WF Notification Schedule Tests"
         NotificationSchedule.Modify(true);
 
         // [THEN] The corresponding Job Queue Entry is adjusted accordingly
+        Assert.AreEqual(1, JobQueueEntry.Count(), 'There is more or less than one job queue entry');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure TestModifyExistingScheduleSystemEmailFeature()
+    var
+        NotificationSchedule: Record "Notification Schedule";
+        NotificationEntry: Record "Notification Entry";
+        JobQueueEntry: Record "Job Queue Entry";
+        JobQueueEntry2: Record "Job Queue Entry";
+        ApprovalEntry: Record "Approval Entry";
+        EmailFeature: Codeunit "Library - Email Feature";
+        EarliestDateTimeOfExecution: DateTime;
+        OldEarliestDateTimeOfExecution: DateTime;
+    begin
+        // [SCENARIO] Modifying the schedule is reflected in the job queue.
+
+        // [GIVEN] A schedule and an event already exist
+        Initialize;
+        EmailFeature.SetEmailFeatureEnabled(true);
+
+        EarliestDateTimeOfExecution := CurrentDateTime + 3600000;
+        CreateMonthlyScheduleForApproval(NotificationSchedule);
+        NotificationSchedule.Validate(Time, DT2Time(EarliestDateTimeOfExecution));
+        NotificationSchedule.Modify(true);
+        NotificationEntry.CreateNotificationEntry(
+            NotificationEntry.Type::Approval, UserId(), ApprovalEntry, 0, '', '');
+        JobQueueEntry.FindFirst();
+        OldEarliestDateTimeOfExecution := JobQueueEntry."Earliest Start Date/Time";
+
+        // [THEN] There is one Job Queue.
         JobQueueEntry.FindFirst();
         Assert.AreEqual(1, JobQueueEntry.Count(), 'More than one Job Queue Entry exist');
-        Assert.AreEqual(NotifyLaterLbl, JobQueueEntry."Job Queue Category Code", 'Category should not be instant');
-        Assert.IsTrue(
-          (JobQueueEntry."Earliest Start Date/Time" - OldEarliestDateTimeOfExecution) = 1000, 'Job schedule has not been adjusted');
+
+        // [WHEN] The existing schedule date/time is modified
+        NotificationSchedule.Find();
+        NotificationSchedule.Validate(Time, DT2Time(EarliestDateTimeOfExecution + 1000));
+        NotificationSchedule.Modify(true);
+
+        // [THEN] The same job queue is still queued.
+        JobQueueEntry2.FindFirst();
+        Assert.AreEqual(1, JobQueueEntry.Count(), 'More than one Job Queue Entry exist');
+        Assert.AreEqual(JobQueueEntry.ID, JobQueueEntry2.ID, 'The job queues are different.');
     end;
 
     [Test]
@@ -243,9 +371,11 @@ codeunit 134314 "WF Notification Schedule Tests"
         NotificationEntry: Record "Notification Entry";
         JobQueueEntry: Record "Job Queue Entry";
         ApprovalEntry: Record "Approval Entry";
+        EmailFeature: Codeunit "Library - Email Feature";
     begin
         // [GIVEN] A schedule and an event already exist
-        Initialize;
+        Initialize();
+        EmailFeature.SetEmailFeatureEnabled(false);
 
         CreateMonthlyScheduleForApproval(NotificationSchedule);
         NotificationEntry.CreateNotificationEntry(
@@ -259,6 +389,39 @@ codeunit 134314 "WF Notification Schedule Tests"
         JobQueueEntry.FindFirst();
         Assert.AreEqual(1, JobQueueEntry.Count(), 'More than one Job Queue Entry exist');
         Assert.AreEqual(NotifyNowLbl, JobQueueEntry."Job Queue Category Code", 'Job should be instant');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure TestDeleteExistingScheduleSystemEmailFeature()
+    var
+        NotificationSchedule: Record "Notification Schedule";
+        NotificationEntry: Record "Notification Entry";
+        JobQueueEntry: Record "Job Queue Entry";
+        JobQueueEntry2: Record "Job Queue Entry";
+        ApprovalEntry: Record "Approval Entry";
+        EmailFeature: Codeunit "Library - Email Feature";
+    begin
+        // [GIVEN] A schedule and an event already exist
+        Initialize;
+        EmailFeature.SetEmailFeatureEnabled(true);
+
+        CreateMonthlyScheduleForApproval(NotificationSchedule);
+        NotificationEntry.CreateNotificationEntry(
+            NotificationEntry.Type::Approval, UserId(), ApprovalEntry, 0, '', '');
+
+        // [THEN] There is one Job Queue.
+        JobQueueEntry.FindFirst();
+        Assert.AreEqual(1, JobQueueEntry.Count(), 'More than one Job Queue Entry exist');
+
+        // [WHEN] The existing schedule is deleted
+        NotificationSchedule.Find();
+        NotificationSchedule.Delete(true);
+
+        // [THEN] The same job queue is still queued.
+        JobQueueEntry2.FindFirst();
+        Assert.AreEqual(1, JobQueueEntry.Count(), 'More than one Job Queue Entry exist');
+        Assert.AreEqual(JobQueueEntry.ID, JobQueueEntry2.ID, 'The job queues are different.');
     end;
 
     [Test]
@@ -408,9 +571,11 @@ codeunit 134314 "WF Notification Schedule Tests"
         NotificationEntry: Record "Notification Entry";
         JobQueueEntry: Record "Job Queue Entry";
         ApprovalEntry: Record "Approval Entry";
+        EmailFeature: Codeunit "Library - Email Feature";
     begin
         // [GIVEN] A schedule and an event already exist
-        Initialize;
+        Initialize();
+        EmailFeature.SetEmailFeatureEnabled(false);
 
         CreateMonthlyScheduleForApproval(NotificationSchedule);
         NotificationEntry.CreateNotificationEntry(
@@ -429,6 +594,38 @@ codeunit 134314 "WF Notification Schedule Tests"
         JobQueueEntry.FindFirst();
         Assert.AreEqual(1, JobQueueEntry.Count(), 'One Instant Job Queue Entry exist');
 
+        JobQueueEntry.SetRange("Job Queue Category Code", NotifyLaterLbl);
+        JobQueueEntry.FindFirst();
+        Assert.AreEqual(1, JobQueueEntry.Count(), 'One Scheduled Job Queue Entry exist');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure TestDeleteExistingScheduleAndReadSystemEmailFeature()
+    var
+        NotificationSchedule: Record "Notification Schedule";
+        NotificationEntry: Record "Notification Entry";
+        JobQueueEntry: Record "Job Queue Entry";
+        ApprovalEntry: Record "Approval Entry";
+        EmailFeature: Codeunit "Library - Email Feature";
+    begin
+        // [GIVEN] A schedule and an event already exist
+        Initialize();
+        EmailFeature.SetEmailFeatureEnabled(true);
+
+        CreateMonthlyScheduleForApproval(NotificationSchedule);
+        NotificationEntry.CreateNotificationEntry(
+            NotificationEntry.Type::Approval, UserId(), ApprovalEntry, 0, '', '');
+
+        // [WHEN] The existing schedule is deleted and then it is readded
+        NotificationSchedule.Find();
+        NotificationSchedule.Delete(true);
+
+        CreateMonthlyScheduleForApproval(NotificationSchedule);
+        NotificationEntry.CreateNotificationEntry(
+            NotificationEntry.Type::Approval, UserId(), ApprovalEntry, 0, '', '');
+
+        // [THEN] We end up with only one Job Queue entries which scheduled and not instant.
         JobQueueEntry.SetRange("Job Queue Category Code", NotifyLaterLbl);
         JobQueueEntry.FindFirst();
         Assert.AreEqual(1, JobQueueEntry.Count(), 'One Scheduled Job Queue Entry exist');
@@ -462,13 +659,21 @@ codeunit 134314 "WF Notification Schedule Tests"
         Rec.Modify(false);
     end;
 
+    local procedure CreateInstantScheduleForApproval(var NotificationSchedule: Record "Notification Schedule")
+    begin
+        CreateScheduleForApproval("Notification Schedule Type"::Instantly, NotificationSchedule);
+    end;
+
     local procedure CreateMonthlyScheduleForApproval(var NotificationSchedule: Record "Notification Schedule")
     begin
-        with NotificationSchedule do begin
-            CreateNewRecord(UserId, "Notification Type"::Approval);
-            Validate(Recurrence, Recurrence::Monthly);
-            Modify(true);
-        end;
+        CreateScheduleForApproval("Notification Schedule Type"::Monthly, NotificationSchedule);
+    end;
+
+    local procedure CreateScheduleForApproval(NotificationType: Enum "Notification Schedule Type"; var NotificationSchedule: Record "Notification Schedule")
+    begin
+        NotificationSchedule.CreateNewRecord(UserId, "Notification Entry Type"::Approval);
+        NotificationSchedule.Validate(Recurrence, NotificationType);
+        NotificationSchedule.Modify(true);
     end;
 
     local procedure Initialize()

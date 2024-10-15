@@ -987,7 +987,13 @@ codeunit 5940 ServContractManagement
     var
         GLAcc: Record "G/L Account";
         ServContractAccGr: Record "Service Contract Account Group";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCheckContractGroupAccounts(ServContractHeader, IsHandled);
+        if IsHandled then
+            exit;
+
         ServContractHeader.TestField("Serv. Contract Acc. Gr. Code");
         ServContractAccGr.Get(ServContractHeader."Serv. Contract Acc. Gr. Code");
         ServContractAccGr.TestField("Non-Prepaid Contract Acc.");
@@ -1534,7 +1540,7 @@ codeunit 5940 ServContractManagement
             Modify();
         end;
 
-        OnAfterCreateAllServLines(ServContractToInvoice, ServContractLine);
+        OnAfterCreateAllServLines(ServContractToInvoice, ServContractLine, ServHeader);
     end;
 
     procedure CheckIfServiceExist(ServContractHeader: Record "Service Contract Header"): Boolean
@@ -2368,7 +2374,7 @@ codeunit 5940 ServContractManagement
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterCreateAllServLines(ServiceContractHeader: Record "Service Contract Header"; var ServContractLine: Record "Service Contract Line")
+    local procedure OnAfterCreateAllServLines(ServiceContractHeader: Record "Service Contract Header"; var ServContractLine: Record "Service Contract Line"; var ServHeader: Record "Service Header")
     begin
     end;
 
@@ -2399,6 +2405,11 @@ codeunit 5940 ServContractManagement
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeChangeCustNoOnServItem(var ServiceItem: Record "Service Item"; NewCustomerNo: Code[20])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckContractGroupAccounts(ServContractHeader: Record "Service Contract Header"; var IsHandled: Boolean)
     begin
     end;
 

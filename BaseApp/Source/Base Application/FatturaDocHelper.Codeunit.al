@@ -1120,6 +1120,33 @@ codeunit 12184 "Fattura Doc. Helper"
         TempFatturaLine := OriginalFatturaLine;
     end;
 
+    local procedure BuildVATExemptionExtTextBuffer(var TempFatturaLine: Record "Fattura Line" temporary; TempFatturaHeader: Record "Fattura Header" temporary)
+    var
+        OriginalFatturaLine: Record "Fattura Line";
+        VATExemption: Record "VAT Exemption";
+    begin
+        if not VATExemption.FindCustVATExemptionOnDate(
+             TempFatturaHeader."Customer No", TempFatturaHeader."Posting Date", TempFatturaHeader."Posting Date")
+        then
+            exit;
+
+        OriginalFatturaLine := TempFatturaLine;
+        TempFatturaLine.Init();
+        TempFatturaLine.SetRange("Line Type", TempFatturaLine."Line Type"::"Extended Text");
+        if TempFatturaLine.FindLast() then
+            TempFatturaLine."Line No." := TempFatturaLine."Line No.";
+        TempFatturaLine."Line Type" := TempFatturaLine."Line Type"::"Extended Text";
+        TempFatturaLine."Line No." += 10000;
+        TempFatturaLine."Ext. Text Source No" := 'INTENTO';
+        TempFatturaLine.Description := VATExemption."VAT Exempt. No.";
+        if VATExemption."Consecutive VAT Exempt. No." <> '' then
+            TempFatturaLine.Description += '-' + VATExemption."Consecutive VAT Exempt. No.";
+        TempFatturaLine."Posting Date" := VATExemption."VAT Exempt. Date";
+        TempFatturaLine.Insert();
+
+        TempFatturaLine := OriginalFatturaLine;
+    end;
+
     local procedure InsertShipmentBuffer(var TempShptFatturaLine: Record "Fattura Line" temporary; Type: Text[20]; LineNo: Integer; ShipmentNo: Code[20]; ShipmentDate: Date; FatturaProjectCode: Code[15]; FatturaTenderCode: Code[15]; CustomerPurchOrderNo: Text[35]; IsSplitLine: Boolean)
     begin
         if TempShptFatturaLine.FindLast() then;
@@ -1179,8 +1206,7 @@ codeunit 12184 "Fattura Doc. Helper"
         LineDiscountPct := LineRecRef.Field(LineDiscountPercFieldNo).Value;
         if (InvDiscAmountByQty <> 0) or (LineDiscountPct <> 0) then begin
             TempFatturaLine."Discount Percent" := LineDiscountPct;
-            if TempFatturaLine."Discount Percent" = 0 then
-                TempFatturaLine."Discount Amount" := InvDiscAmountByQty;
+            TempFatturaLine."Discount Amount" := InvDiscAmountByQty;
         end;
 
         LineAmount := LineRecRef.Field(LineAmountFieldNo).Value;
@@ -1196,6 +1222,7 @@ codeunit 12184 "Fattura Doc. Helper"
 
         if TempFatturaLine.Type <> '' then
             BuildAttachedToLinesExtTextBuffer(TempFatturaLine, LineRecRef);
+        BuildVATExemptionExtTextBuffer(TempFatturaLine, TempFatturaHeader);
     end;
 
     local procedure InsertExtTextFatturaLine(var TempFatturaLine: Record "Fattura Line" temporary; LineRecRef: RecordRef; NoValue: Text)

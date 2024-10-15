@@ -725,7 +725,13 @@ page 9229 "Res. Avail. (Service) Matrix"
     local procedure MatrixOnAfterGetRecord()
     var
         I: Integer;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeMatrixOnAfterGetRecord(MatrixRec, MATRIX_CellData, MatrixColumnDateFilters, IsHandled);
+        if IsHandled then
+            exit;
+
         MatrixRec.Reset();
         MatrixRec.SetRange("No.", "No.");
         for I := 1 to ArrayLen(MatrixColumnDateFilters) do begin
@@ -814,6 +820,11 @@ page 9229 "Res. Avail. (Service) Matrix"
     local procedure QualifiedForServItemsOnAfterVa()
     begin
         CurrPage.Update(false);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeMatrixOnAfterGetRecord(var MatrixRec: Record Resource; var MATRIX_CellData: array[32] of Decimal; var MatrixColumnDateFilters: array[32] of Record Date; var IsHandled: Boolean)
+    begin
     end;
 }
 

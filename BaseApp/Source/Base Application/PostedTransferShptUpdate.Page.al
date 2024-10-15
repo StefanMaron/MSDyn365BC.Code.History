@@ -165,9 +165,9 @@ page 12165 "Posted Transfer Shpt. - Update"
     var
         xTransferShptHeader: Record "Transfer Shipment Header";
 
-    local procedure RecordChanged(): Boolean
+    local procedure RecordChanged() IsChanged: Boolean
     begin
-        exit(
+        IsChanged :=
           ("Transport Reason Code" <> xTransferShptHeader."Transport Reason Code") or
           ("Goods Appearance" <> xTransferShptHeader."Goods Appearance") or
           ("Gross Weight" <> xTransferShptHeader."Gross Weight") or
@@ -183,7 +183,9 @@ page 12165 "Posted Transfer Shpt. - Update"
           ("Additional Information" <> xTransferShptHeader."Additional Information") or
           ("Additional Notes" <> xTransferShptHeader."Additional Notes") or
           ("Additional Instructions" <> xTransferShptHeader."Additional Instructions") or
-          ("TDD Prepared By" <> xTransferShptHeader."TDD Prepared By"));
+          ("TDD Prepared By" <> xTransferShptHeader."TDD Prepared By");
+
+        OnAfterRecordChanged(Rec, xTransferShptHeader, IsChanged);
     end;
 
     [Scope('OnPrem')]
@@ -191,6 +193,11 @@ page 12165 "Posted Transfer Shpt. - Update"
     begin
         Rec := TransferShptHeader;
         Insert;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterRecordChanged(var TransferShptHeader: Record "Transfer Shipment Header"; xTransferShptHeader: Record "Transfer Shipment Header"; var IsChanged: Boolean)
+    begin
     end;
 }
 

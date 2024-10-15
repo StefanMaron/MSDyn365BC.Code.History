@@ -386,10 +386,10 @@ report 593 "Intrastat - Make Disk Tax Auth"
     end;
 
     [Scope('OnPrem')]
-    procedure GetRecordTypeZero(): Text[131]
+    procedure GetRecordTypeZero(): Text
     var
         Vendor: Record Vendor;
-        OutText: Text[131];
+        OutText: Text;
     begin
         OutText += GetFixedPart(0);
         if "Intrastat Jnl. Batch".Type = "Intrastat Jnl. Batch".Type::Sales then
@@ -412,9 +412,9 @@ report 593 "Intrastat - Make Disk Tax Auth"
     end;
 
     [Scope('OnPrem')]
-    procedure GetRecordTypeOne(): Text[119]
+    procedure GetRecordTypeOne(): Text
     var
-        OutText: Text[119];
+        OutText: Text;
     begin
         OutText += GetFixedPart(1);
         OutText += GetCountryCodeVATRegNo;
@@ -431,6 +431,9 @@ report 593 "Intrastat - Make Disk Tax Auth"
                 if "Intrastat Jnl. Batch".Type = "Intrastat Jnl. Batch".Type::Purchases then
                     OutText += FormatAlphaNum("Intra - form Buffer"."Country/Region of Origin Code", 2);
                 OutText += FormatAlphaNum("Intra - form Buffer".Area, 2);
+                OutText += FormatAlphaNum(CopyStr("Intra - form Buffer"."Transaction Type", 2, 1), 1);
+                if "Intrastat Jnl. Batch".Type = "Intrastat Jnl. Batch".Type::Sales then
+                    OutText += FormatAlphaNum('', 2);
             end else begin
                 OutText += FormatNum('', 10);
                 OutText += FormatNum('', 10);
@@ -441,6 +444,9 @@ report 593 "Intrastat - Make Disk Tax Auth"
                 if "Intrastat Jnl. Batch".Type = "Intrastat Jnl. Batch".Type::Purchases then
                     OutText += FormatAlphaNum('', 2);
                 OutText += FormatAlphaNum('', 2);
+                OutText += FormatAlphaNum('', 1);
+                if "Intrastat Jnl. Batch".Type = "Intrastat Jnl. Batch".Type::Sales then
+                    OutText += FormatAlphaNum('', 2);
             end;
         exit(OutText);
     end;
@@ -516,9 +522,9 @@ report 593 "Intrastat - Make Disk Tax Auth"
     end;
 
     [Scope('OnPrem')]
-    procedure GetTotals(): Text[72]
+    procedure GetTotals(): Text
     var
-        OutText: Text[150];
+        OutText: Text;
     begin
         if "Intrastat Jnl. Batch"."EU Service" then begin
             if "Intrastat Jnl. Batch"."Corrective Entry" then begin
@@ -543,6 +549,7 @@ report 593 "Intrastat - Make Disk Tax Auth"
                 OutText += GetTotalRecTotalAmt;
                 OutText += FormatNum('0', 54);
             end;
+        OutText += FormatNum('0', 5);
         exit(OutText);
     end;
 

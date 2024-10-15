@@ -380,6 +380,7 @@ table 221 "Gen. Jnl. Allocation"
                         TotalAmountLCYRnded := TotalAmountLCYRnded + GenJnlAlloc.Amount;
                     end;
                     GenJnlAlloc.UpdateVAT(GenJnlLine);
+                    OnUpdateAllocationsOnBeforeGenJnlAllocModify(GenJnlLine, GenJnlAlloc);
                     GenJnlAlloc.Modify();
                     OnUpdateAllocationsOnAfterGenJnlAllocModify(GenJnlAlloc);
                 end;
@@ -577,6 +578,11 @@ table 221 "Gen. Jnl. Allocation"
 
     [IntegrationEvent(false, false)]
     local procedure OnUpdateAllocationsOnAfterGenJnlAllocModify(var GenJnlAlloc: Record "Gen. Jnl. Allocation")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateAllocationsOnBeforeGenJnlAllocModify(GenJournalLine: Record "Gen. Journal Line"; var GenJnlAlloc: Record "Gen. Jnl. Allocation")
     begin
     end;
 

@@ -117,7 +117,7 @@
                       Location."Bin Mandatory" and not (WhseShip or InvtPickPutaway) and
                       (TransLine.Quantity <> 0) and (TransLine."Qty. to Ship" <> 0);
 
-                    OnCheckTransLine(TransLine, TransHeader, Location, WhseShip, TransShptLine);
+                    OnCheckTransLine(TransLine, TransHeader, Location, WhseShip, TransShptLine, InvtPickPutaway, WhsePosting);
 
                     InsertTransShptLine(TransShptHeader);
                 until TransLine.Next() = 0;
@@ -996,12 +996,12 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeUpdateWithWarehouseShipReceive(TransferLine: Record "Transfer Line")
+    local procedure OnBeforeUpdateWithWarehouseShipReceive(var TransferLine: Record "Transfer Line")
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnCheckTransLine(TransferLine: Record "Transfer Line"; TransferHeader: Record "Transfer Header"; Location: Record Location; WhseShip: Boolean; TransShptLine: Record "Transfer Shipment Line")
+    local procedure OnCheckTransLine(TransferLine: Record "Transfer Line"; TransferHeader: Record "Transfer Header"; Location: Record Location; WhseShip: Boolean; TransShptLine: Record "Transfer Shipment Line"; InvtPickPutaway: Boolean; var WhsePosting: Boolean)
     begin
     end;
 

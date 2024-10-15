@@ -359,17 +359,13 @@
             TableRelation = "Payment Method";
 
             trigger OnValidate()
-            var
-                PaymentMethod: Record "Payment Method";
             begin
                 UpdatePaymentMethodId;
 
                 if "Payment Method Code" = '' then
                     exit;
 
-                PaymentMethod.Get("Payment Method Code");
-                if PaymentMethod."Direct Debit" and ("Payment Terms Code" = '') then
-                    Validate("Payment Terms Code", PaymentMethod."Direct Debit Pmt. Terms Code");
+                UpdateDirectDebitPmtTermsCode();
             end;
         }
         field(53; "Last Modified Date Time"; DateTime)
@@ -3298,6 +3294,22 @@
         "Payment Method Id" := PaymentMethod.SystemId;
     end;
 
+    local procedure UpdateDirectDebitPmtTermsCode()
+    var
+        PaymentMethod: Record "Payment Method";
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeUpdateDirectDebitPmtTermsCode(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
+        PaymentMethod.Get("Payment Method Code");
+        if PaymentMethod."Direct Debit" and ("Payment Terms Code" = '') then
+            Validate("Payment Terms Code", PaymentMethod."Direct Debit Pmt. Terms Code");
+
+    end;
+
     procedure UpdateTaxAreaId()
     var
         VATBusinessPostingGroup: Record "VAT Business Posting Group";
@@ -3464,7 +3476,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeGetCustNoOpenCard(CustomerText: Text; ShowCustomerCard: Boolean; ShowCreateCustomerOption: Boolean; var CustomerNo: Code[20]; var IsHandled: Boolean)
+    local procedure OnBeforeGetCustNoOpenCard(CustomerText: Text; ShowCustomerCard: Boolean; var ShowCreateCustomerOption: Boolean; var CustomerNo: Code[20]; var IsHandled: Boolean)
     begin
     end;
 
@@ -3530,6 +3542,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeTestNoSeries(var Customer: Record Customer; xCustomer: Record Customer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdateDirectDebitPmtTermsCode(var Customer: Record Customer; var IsHandled: Boolean)
     begin
     end;
 

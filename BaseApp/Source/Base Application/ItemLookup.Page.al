@@ -144,7 +144,7 @@ page 32 "Item Lookup"
                 }
                 field("Overhead Rate"; "Overhead Rate")
                 {
-                    ApplicationArea = Manufacturing;
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the item''s indirect cost as an absolute amount.';
                     Visible = false;
                 }

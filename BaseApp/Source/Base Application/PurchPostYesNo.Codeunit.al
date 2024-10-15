@@ -155,7 +155,13 @@ codeunit 91 "Purch.-Post (Yes/No)"
     var
         PurchaseHeader: Record "Purchase Header";
         PurchPost: Codeunit "Purch.-Post";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeRunPreview(Result, RecVar, IsHandled);
+        if IsHandled then
+            exit;
+
         with PurchaseHeader do begin
             Copy(RecVar);
             Ship := "Document Type" = "Document Type"::"Return Order";
@@ -194,6 +200,11 @@ codeunit 91 "Purch.-Post (Yes/No)"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeSelectPostReturnOrderOption(var PurchaseHeader: Record "Purchase Header"; DefaultOption: Integer; var Result: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeRunPreview(var Result: Boolean; RecVar: Variant; var IsHandled: Boolean)
     begin
     end;
 

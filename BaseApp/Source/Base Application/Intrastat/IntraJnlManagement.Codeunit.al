@@ -308,6 +308,8 @@ codeunit 350 IntraJnlManagement
         CreateAdvancedChecklistFieldSetup(Report::"Intrastat - Make Disk Tax Auth", IntrastatJnlLine.FieldNo("Country/Region Code"), '');
         CreateAdvancedChecklistFieldSetup(Report::"Intrastat - Make Disk Tax Auth", IntrastatJnlLine.FieldNo("Partner VAT ID"), '');
         CreateAdvancedChecklistFieldSetup(Report::"Intrastat - Make Disk Tax Auth", IntrastatJnlLine.FieldNo("Country/Region of Origin Code"), 'Type: Shipment');
+
+        OnAfterCreateDefaultAdvancedIntrastatSetup();
     end;
 
     local procedure CreateAdvancedChecklistSetupCommonFields(ReportId: Integer)
@@ -358,6 +360,11 @@ codeunit 350 IntraJnlManagement
             exit(TotalWeight);
 
         exit(Round(TotalWeight, 1));
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCreateDefaultAdvancedIntrastatSetup()
+    begin
     end;
 
     [IntegrationEvent(false, false)]

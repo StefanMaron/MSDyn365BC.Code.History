@@ -96,9 +96,18 @@ codeunit 227 "VendEntry-Apply Posted Entries"
         Window: Dialog;
         EntryNoBeforeApplication: Integer;
         EntryNoAfterApplication: Integer;
+        HideProgressWindow: Boolean;
+        SuppressCommit: Boolean;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeVendPostApplyVendLedgEntry(HideProgressWindow, VendLedgEntry, IsHandled);
+        if IsHandled then
+            exit;
+
         with VendLedgEntry do begin
-            Window.Open(PostingApplicationMsg);
+            if not HideProgressWindow then
+                Window.Open(PostingApplicationMsg);
 
             SourceCodeSetup.Get();
 
@@ -137,8 +146,12 @@ codeunit 227 "VendEntry-Apply Posted Entries"
             if PreviewMode then
                 GenJnlPostPreview.ThrowError;
 
-            Commit();
-            Window.Close;
+            SuppressCommit := false;
+            OnVendPostApplyVendLedgEntryOnBeforeCommit(VendLedgEntry, SuppressCommit);
+            if not SuppressCommit then
+                Commit();
+            if not HideProgressWindow then
+                Window.Close();
             RunUpdateAnalysisView();
         end;
     end;
@@ -393,6 +406,7 @@ codeunit 227 "VendEntry-Apply Posted Entries"
         if ApplyingVendLedgEntry."Applies-to ID" = '' then
             ApplyingVendLedgEntry."Applies-to ID" := VendEntryApplID;
         ApplyingVendLedgEntry."Amount to Apply" := ApplyingVendLedgEntry."Remaining Amount";
+        OnApplyVendEntryFormEntryOnBeforeRunVendEntryEdit(ApplyingVendLedgEntry);
         CODEUNIT.Run(CODEUNIT::"Vend. Entry-Edit", ApplyingVendLedgEntry);
         Commit();
 
@@ -568,6 +582,11 @@ codeunit 227 "VendEntry-Apply Posted Entries"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnApplyVendEntryFormEntryOnBeforeRunVendEntryEdit(var ApplyingVendLedgEntry: Record "Vendor Ledger Entry");
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnApplyVendEntryFormEntryOnAfterVendLedgEntrySetFilters(var VendorLedgEntry: Record "Vendor Ledger Entry"; var ApplyToVendLedgEntry: Record "Vendor Ledger Entry");
     begin
     end;
@@ -598,6 +617,11 @@ codeunit 227 "VendEntry-Apply Posted Entries"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeVendPostApplyVendLedgEntry(var HideProgressWindow: Boolean; VendLedgEntry: Record "Vendor Ledger Entry"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeRunUpdateAnalysisView(var IsHandled: Boolean)
     begin
     end;
@@ -614,6 +638,11 @@ codeunit 227 "VendEntry-Apply Posted Entries"
 
     [IntegrationEvent(false, false)]
     local procedure OnCollectAffectedLedgerEntriesOnAfterSetFilters(var DetailedVendorLedgEntry: Record "Detailed Vendor Ledg. Entry"; DetailedVendorLedgEntry2: Record "Detailed Vendor Ledg. Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnVendPostApplyVendLedgEntryOnBeforeCommit(var VendLedgerEntry: Record "Vendor Ledger Entry"; var SuppressCommit: Boolean);
     begin
     end;
 

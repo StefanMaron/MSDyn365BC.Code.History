@@ -5,7 +5,7 @@ codeunit 134805 "RED Test Unit for Sales Doc"
 
     trigger OnRun()
     begin
-        // [FEATURE] [Revenue Expense Deferral] [Sales]
+        // [FEATURE] [Revenue Expense Deferral] [Sales] [Deferral]
     end;
 
     var
@@ -26,6 +26,7 @@ codeunit 134805 "RED Test Unit for Sales Doc"
         CreditWarningSetup: Option "Both Warnings","Credit Limit","Overdue Balance","No Warning";
         isInitialized: Boolean;
         StockWarningSetup: Boolean;
+        GLAccountOmitErr: Label 'When %1 is selected for';
         NoDeferralScheduleErr: Label 'You must create a deferral schedule because you have specified the deferral code %2 in line %1.', Comment = '%1=The item number of the sales transaction line, %2=The Deferral Template Code';
         ZeroDeferralAmtErr: Label 'Deferral amounts cannot be 0. Line: %1, Deferral Template: %2.', Comment = '%1=The item number of the sales transaction line, %2=The Deferral Template Code';
 
@@ -2189,6 +2190,81 @@ codeunit 134805 "RED Test Unit for Sales Doc"
         LibraryVariableStorage.AssertEmpty();
     end;
 
+    [Test]
+    [HandlerFunctions('ConfirmMessageHandler')]
+    [Scope('OnPrem')]
+    procedure PostDeferralsWithBlankDescriptionWhenOmitDefaultDescriptionEnabledOnDeferralGLAccount()
+    var
+        GLAccountDeferral: Record "G/L Account";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        DeferralTemplateCode: Code[10];
+        ItemNo: Code[20];
+    begin
+        // [SCENARIO 422767] Stan can't post Sales document with Deferral setup when Deferral Account has enabled "Omit Default Descr. in Jnl." and blank Description Deferral Template
+        CreateItemWithDefaultDeferralCode(DeferralTemplateCode, ItemNo, CalcMethod::"Straight-Line", StartDate::"Posting Date", 2);
+        PrepareSalesReceivableSetup(StockWarningSetup, CreditWarningSetup);
+
+        UpdateDescriptionAndOmitDefaultDescriptionOnDeferralGLAccount(GLAccountDeferral, DeferralTemplateCode, '', true);
+
+        CreateSalesDocWithLine(SalesHeader, SalesLine,
+          SalesHeader."Document Type"::Invoice, SalesLine.Type::Item, ItemNo, SetDateDay(1, WorkDate));
+
+        asserterror LibrarySales.PostSalesDocument(SalesHeader, true, true);
+
+        Assert.ExpectedError(StrSubstNo(GLAccountOmitErr, GLAccountDeferral.FieldCaption("Omit Default Descr. in Jnl.")));
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmMessageHandler')]
+    [Scope('OnPrem')]
+    procedure PostDeferralsWithBlankDescriptionWhenOmitDefaultDescriptionDisabledOnDeferralGLAccount()
+    var
+        GLAccountDeferral: Record "G/L Account";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        DeferralTemplateCode: Code[10];
+        ItemNo: Code[20];
+    begin
+        // [SCENARIO 422767] Stan can post Sales document with Deferral setup when Deferral Account has disabled "Omit Default Descr. in Jnl." and blank Description Deferral Template
+        CreateItemWithDefaultDeferralCode(DeferralTemplateCode, ItemNo, CalcMethod::"Straight-Line", StartDate::"Posting Date", 2);
+        PrepareSalesReceivableSetup(StockWarningSetup, CreditWarningSetup);
+
+        UpdateDescriptionAndOmitDefaultDescriptionOnDeferralGLAccount(GLAccountDeferral, DeferralTemplateCode, '', false);
+
+        CreateSalesDocWithLine(SalesHeader, SalesLine,
+          SalesHeader."Document Type"::Invoice, SalesLine.Type::Item, ItemNo, SetDateDay(1, WorkDate));
+
+        LibrarySales.PostSalesDocument(SalesHeader, true, true);
+
+        VerifyGLEntriesExistWithBlankDescription(GLAccountDeferral."No.");
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmMessageHandler')]
+    [Scope('OnPrem')]
+    procedure PostDeferralsWithDescriptionWhenOmitDefaultDescriptionEnabledOnDeferralGLAccount()
+    var
+        GLAccountDeferral: Record "G/L Account";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        DeferralTemplateCode: Code[10];
+        ItemNo: Code[20];
+    begin
+        // [SCENARIO 422767] Stan can post Sales document with Deferral setup when Deferral Account has enabled "Omit Default Descr. in Jnl." and specified Description Deferral Template
+        CreateItemWithDefaultDeferralCode(DeferralTemplateCode, ItemNo, CalcMethod::"Straight-Line", StartDate::"Posting Date", 2);
+        PrepareSalesReceivableSetup(StockWarningSetup, CreditWarningSetup);
+
+        UpdateDescriptionAndOmitDefaultDescriptionOnDeferralGLAccount(GLAccountDeferral, DeferralTemplateCode, LibraryRandom.RandText(10), true);
+
+        CreateSalesDocWithLine(SalesHeader, SalesLine,
+          SalesHeader."Document Type"::Invoice, SalesLine.Type::Item, ItemNo, SetDateDay(1, WorkDate));
+
+        LibrarySales.PostSalesDocument(SalesHeader, true, true);
+
+        VerifyGLEntriesDoNotExistWithBlankDescription(GLAccountDeferral."No.");
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -2453,6 +2529,20 @@ codeunit 134805 "RED Test Unit for Sales Doc"
         SalesReceivablesSetup.Validate("Credit Warnings", Option);
         SalesReceivablesSetup.Modify(true);
         Option := OrigianlOption;
+    end;
+
+    local procedure UpdateDescriptionAndOmitDefaultDescriptionOnDeferralGLAccount(var GLAccountDeferral: Record "G/L Account"; DeferralCode: Code[10]; NewDescription: Text[100]; NewOmit: Boolean)
+    var
+        DeferralTemplate: Record "Deferral Template";
+    begin
+        DeferralTemplate.Get(DeferralCode);
+        DeferralTemplate.Validate("Period Description", NewDescription);
+        DeferralTemplate.Modify(true);
+
+        GLAccountDeferral.Get(DeferralTemplate."Deferral Account");
+        GLAccountDeferral.Validate(Name, NewDescription);
+        GLAccountDeferral.Validate("Omit Default Descr. in Jnl.", NewOmit);
+        GLAccountDeferral.Modify(true);
     end;
 
     local procedure ValidateDeferralHeader(DeferralHeader: Record "Deferral Header"; DeferralCode: Code[10]; AmountToDefer: Decimal; CalcMethod: Enum "Deferral Calculation Method"; StartDate: Date; NoOfPeriods: Integer; ScheduleDesc: Text[100]; CurrencyCode: Code[10])
@@ -3127,6 +3217,26 @@ codeunit 134805 "RED Test Unit for Sales Doc"
     begin
         Assert.AreEqual(DeferralCount, GLCount, 'An incorrect number of lines was posted');
         Assert.AreEqual(DeferralAmount, GLAmt, 'An incorrect Amount was posted for purchase');
+    end;
+
+    local procedure VerifyGLEntriesExistWithBlankDescription(GLAccountNo: Code[20])
+    var
+        GLEntry: Record "G/L Entry";
+    begin
+        GLEntry.SetRange("G/L Account No.", GLAccountNo);
+        Assert.RecordIsNotEmpty(GLEntry);
+        GLEntry.SetFilter(Description, '=%1', '');
+        Assert.RecordIsNotEmpty(GLEntry);
+    end;
+
+    local procedure VerifyGLEntriesDoNotExistWithBlankDescription(GLAccountNo: Code[20])
+    var
+        GLEntry: Record "G/L Entry";
+    begin
+        GLEntry.SetRange("G/L Account No.", GLAccountNo);
+        Assert.RecordIsNotEmpty(GLEntry);
+        GLEntry.SetFilter(Description, '=%1', '');
+        Assert.RecordIsEmpty(GLEntry);
     end;
 
     local procedure VerifyInvoiceVATGLEntryForPostingAccount(SalesInvoiceLine: Record "Sales Invoice Line"; PartialDeferral: Boolean)

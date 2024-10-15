@@ -47,6 +47,7 @@ codeunit 426 "Payment Tolerance Management"
         CustEntryApplId := UserId;
         if CustEntryApplId = '' then
             CustEntryApplId := '***';
+        OnPmtTolCustOnAfterSetCustEntryApplId(CustLedgEntry, CustEntryApplId);
 
         DelCustPmtTolAcc(CustLedgEntry, CustEntryApplId);
         CustLedgEntry.CalcFields("Remaining Amount");
@@ -115,6 +116,7 @@ codeunit 426 "Payment Tolerance Management"
         VendEntryApplID := UserId;
         if VendEntryApplID = '' then
             VendEntryApplID := '***';
+        OnPmtTolVendOnAfterSetVendEntryApplId(VendLedgEntry, VendEntryApplID);
 
         DelVendPmtTolAcc(VendLedgEntry, VendEntryApplID);
         VendLedgEntry.CalcFields("Remaining Amount");
@@ -155,7 +157,7 @@ codeunit 426 "Payment Tolerance Management"
         exit(true);
     end;
 
-    procedure PmtTolGenJnl(var NewGenJnlLine: Record "Gen. Journal Line"): Boolean
+    procedure PmtTolGenJnl(var NewGenJnlLine: Record "Gen. Journal Line") Result: Boolean
     var
         GenJnlLine: Record "Gen. Journal Line" temporary;
     begin
@@ -178,6 +180,8 @@ codeunit 426 "Payment Tolerance Management"
           (GenJnlLine."Bal. Account Type" = GenJnlLine."Bal. Account Type"::Vendor):
                 exit(PurchPmtTolGenJnl(GenJnlLine));
         end;
+
+        OnAfterPmtTolGenJnl(GenJnlLine, SuppressCommit, Result);
     end;
 
     local procedure SalesPmtTolGenJnl(var GenJnlLine: Record "Gen. Journal Line"): Boolean
@@ -239,7 +243,7 @@ codeunit 426 "Payment Tolerance Management"
             GenJnlLine."Currency Code"));
     end;
 
-    procedure PmtTolPmtReconJnl(var NewBankAccReconciliationLine: Record "Bank Acc. Reconciliation Line"): Boolean
+    procedure PmtTolPmtReconJnl(var NewBankAccReconciliationLine: Record "Bank Acc. Reconciliation Line") Result: Boolean
     var
         BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line";
     begin
@@ -251,6 +255,8 @@ codeunit 426 "Payment Tolerance Management"
             BankAccReconciliationLine."Account Type"::Vendor:
                 exit(PurchPmtTolPmtReconJnl(BankAccReconciliationLine));
         end;
+
+        OnAfterPmtTolPmtReconJnl(BankAccReconciliationLine, SuppressCommit, Result);
     end;
 
     local procedure SalesPmtTolPmtReconJnl(var BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line"): Boolean
@@ -956,6 +962,7 @@ codeunit 426 "Payment Tolerance Management"
             AppliedCustLedgEntry.SetRange(Positive, true)
         else
             AppliedCustLedgEntry.SetRange(Positive, false);
+        OnPutCustPmtTolAmountOnAfterAppliedCustLedgEntrySetFilters(AppliedCustLedgEntry, CustledgEntry);
 
         AppliedCustLedgEntry.SetLoadFields("Currency Code");
         if AppliedCustLedgEntry.FindSet(false, false) then
@@ -1040,6 +1047,7 @@ codeunit 426 "Payment Tolerance Management"
             AppliedVendLedgEntry.SetRange(Positive, false)
         else
             AppliedVendLedgEntry.SetRange(Positive, true);
+        OnPutVendPmtTolAmountOnAfterVendLedgEntrySetFilters(AppliedVendLedgEntry, VendLedgEntry);
 
         AppliedVendLedgEntry.SetLoadFields("Currency Code");
         if AppliedVendLedgEntry.FindSet(false, false) then
@@ -1250,6 +1258,7 @@ codeunit 426 "Payment Tolerance Management"
         GLSetup: Record "General Ledger Setup";
         Currency: Record Currency;
         CustLedgEntry: Record "Cust. Ledger Entry";
+        IsHandled: Boolean;
     begin
         GLSetup.Get();
         CustLedgEntry.SetCurrentKey("Customer No.", Open);
@@ -1259,50 +1268,54 @@ codeunit 426 "Payment Tolerance Management"
         if not CustLedgEntry.Find('-') then
             exit;
         repeat
-            if (CustLedgEntry."Document Type" = CustLedgEntry."Document Type"::Invoice) or
-               (CustLedgEntry."Document Type" = CustLedgEntry."Document Type"::"Credit Memo")
-            then begin
-                CustLedgEntry.CalcFields(Amount, "Amount (LCY)");
-                if CustLedgEntry."Pmt. Discount Date" >= CustLedgEntry."Posting Date" then
-                    CustLedgEntry."Pmt. Disc. Tolerance Date" :=
-                      CalcDate(GLSetup."Payment Discount Grace Period", CustLedgEntry."Pmt. Discount Date");
-                if CustLedgEntry."Currency Code" = '' then begin
-                    if (GLSetup."Max. Payment Tolerance Amount" <
-                        Abs(GLSetup."Payment Tolerance %" / 100 * CustLedgEntry."Amount (LCY)")) or (GLSetup."Payment Tolerance %" = 0)
-                    then begin
-                        if (GLSetup."Max. Payment Tolerance Amount" = 0) and (GLSetup."Payment Tolerance %" > 0) then
+            IsHandled := false;
+            OnCalcTolCustLedgEntryOnCustLedgEntryLoopIterationStart(CustLedgEntry, GLSetup, IsHandled);
+            if not IsHandled then begin
+                if (CustLedgEntry."Document Type" = CustLedgEntry."Document Type"::Invoice) or
+                    (CustLedgEntry."Document Type" = CustLedgEntry."Document Type"::"Credit Memo")
+                 then begin
+                    CustLedgEntry.CalcFields(Amount, "Amount (LCY)");
+                    if CustLedgEntry."Pmt. Discount Date" >= CustLedgEntry."Posting Date" then
+                        CustLedgEntry."Pmt. Disc. Tolerance Date" :=
+                          CalcDate(GLSetup."Payment Discount Grace Period", CustLedgEntry."Pmt. Discount Date");
+                    if CustLedgEntry."Currency Code" = '' then begin
+                        if (GLSetup."Max. Payment Tolerance Amount" <
+                            Abs(GLSetup."Payment Tolerance %" / 100 * CustLedgEntry."Amount (LCY)")) or (GLSetup."Payment Tolerance %" = 0)
+                        then begin
+                            if (GLSetup."Max. Payment Tolerance Amount" = 0) and (GLSetup."Payment Tolerance %" > 0) then
+                                CustLedgEntry."Max. Payment Tolerance" :=
+                                  GLSetup."Payment Tolerance %" * CustLedgEntry."Amount (LCY)" / 100
+                            else
+                                if CustLedgEntry."Document Type" = CustLedgEntry."Document Type"::"Credit Memo" then
+                                    CustLedgEntry."Max. Payment Tolerance" := -GLSetup."Max. Payment Tolerance Amount"
+                                else
+                                    CustLedgEntry."Max. Payment Tolerance" := GLSetup."Max. Payment Tolerance Amount"
+                        end else
                             CustLedgEntry."Max. Payment Tolerance" :=
                               GLSetup."Payment Tolerance %" * CustLedgEntry."Amount (LCY)" / 100
-                        else
-                            if CustLedgEntry."Document Type" = CustLedgEntry."Document Type"::"Credit Memo" then
-                                CustLedgEntry."Max. Payment Tolerance" := -GLSetup."Max. Payment Tolerance Amount"
+                    end else begin
+                        Currency.Get(CustLedgEntry."Currency Code");
+                        if (Currency."Max. Payment Tolerance Amount" <
+                            Abs(Currency."Payment Tolerance %" / 100 * CustLedgEntry.Amount)) or (Currency."Payment Tolerance %" = 0)
+                        then begin
+                            if (Currency."Max. Payment Tolerance Amount" = 0) and (Currency."Payment Tolerance %" > 0) then
+                                CustLedgEntry."Max. Payment Tolerance" :=
+                                  Round(Currency."Payment Tolerance %" * CustLedgEntry.Amount / 100, Currency."Amount Rounding Precision")
                             else
-                                CustLedgEntry."Max. Payment Tolerance" := GLSetup."Max. Payment Tolerance Amount"
-                    end else
-                        CustLedgEntry."Max. Payment Tolerance" :=
-                          GLSetup."Payment Tolerance %" * CustLedgEntry."Amount (LCY)" / 100
-                end else begin
-                    Currency.Get(CustLedgEntry."Currency Code");
-                    if (Currency."Max. Payment Tolerance Amount" <
-                        Abs(Currency."Payment Tolerance %" / 100 * CustLedgEntry.Amount)) or (Currency."Payment Tolerance %" = 0)
-                    then begin
-                        if (Currency."Max. Payment Tolerance Amount" = 0) and (Currency."Payment Tolerance %" > 0) then
+                                if CustLedgEntry."Document Type" = CustLedgEntry."Document Type"::"Credit Memo" then
+                                    CustLedgEntry."Max. Payment Tolerance" := -Currency."Max. Payment Tolerance Amount"
+                                else
+                                    CustLedgEntry."Max. Payment Tolerance" := Currency."Max. Payment Tolerance Amount"
+                        end else
                             CustLedgEntry."Max. Payment Tolerance" :=
-                              Round(Currency."Payment Tolerance %" * CustLedgEntry.Amount / 100, Currency."Amount Rounding Precision")
-                        else
-                            if CustLedgEntry."Document Type" = CustLedgEntry."Document Type"::"Credit Memo" then
-                                CustLedgEntry."Max. Payment Tolerance" := -Currency."Max. Payment Tolerance Amount"
-                            else
-                                CustLedgEntry."Max. Payment Tolerance" := Currency."Max. Payment Tolerance Amount"
-                    end else
-                        CustLedgEntry."Max. Payment Tolerance" :=
-                          Round(Currency."Payment Tolerance %" * CustLedgEntry.Amount / 100, Currency."Amount Rounding Precision");
+                              Round(Currency."Payment Tolerance %" * CustLedgEntry.Amount / 100, Currency."Amount Rounding Precision");
+                    end;
                 end;
+                if Abs(CustLedgEntry.Amount) < Abs(CustLedgEntry."Max. Payment Tolerance") then
+                    CustLedgEntry."Max. Payment Tolerance" := CustLedgEntry.Amount;
+                OnCalcTolCustLedgEntryOnBeforeModify(CustLedgEntry);
+                CustLedgEntry.Modify();
             end;
-            if Abs(CustLedgEntry.Amount) < Abs(CustLedgEntry."Max. Payment Tolerance") then
-                CustLedgEntry."Max. Payment Tolerance" := CustLedgEntry.Amount;
-            OnCalcTolCustLedgEntryOnBeforeModify(CustLedgEntry);
-            CustLedgEntry.Modify();
         until CustLedgEntry.Next() = 0;
     end;
 
@@ -1410,6 +1423,8 @@ codeunit 426 "Payment Tolerance Management"
         AppliedCustLedgEntry: Record "Cust. Ledger Entry";
         AppliedVendLedgEntry: Record "Vendor Ledger Entry";
     begin
+        OnBeforeDelPmtTolApllnDocNo(GenJnlLine);
+
         if (GenJnlLine."Bal. Account Type" = GenJnlLine."Bal. Account Type"::Customer) or
            (GenJnlLine."Bal. Account Type" = GenJnlLine."Bal. Account Type"::Vendor)
         then
@@ -1447,6 +1462,8 @@ codeunit 426 "Payment Tolerance Management"
                         Commit();
                 end;
             end;
+
+        OnAfterDelPmtTolApllnDocNo(GenJnlLine, DocumentNo, SuppressCommit);
     end;
 
     local procedure ABSMinTol(Decimal1: Decimal; Decimal2: Decimal; Decimal1Tolerance: Decimal): Decimal
@@ -2234,6 +2251,21 @@ codeunit 426 "Payment Tolerance Management"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterDelPmtTolApllnDocNo(var GenJournalLine: Record "Gen. Journal Line"; DocumentNo: Code[20]; SuppressCommit: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterPmtTolGenJnl(GenJournalLine: Record "Gen. Journal Line"; SuppressCommit: Boolean; var Result: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterPmtTolPmtReconJnl(var BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line"; SuppressCommit: Boolean; var Result: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeCalcMaxPmtTolerance(DocumentType: Option " ",Payment,Invoice,"Credit Memo","Finance Charge Memo",Reminder,Refund; CurrencyCode: Code[10]; Amount: Decimal; AmountLCY: Decimal; Sign: Decimal; var MaxPaymentTolerance: Decimal; var IsHandled: Boolean)
     begin
     end;
@@ -2263,6 +2295,11 @@ codeunit 426 "Payment Tolerance Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckPmtDiscTolCust(NewPostingdate: Date; NewDocType: Enum "Gen. Journal Document Type"; NewAmount: Decimal; OldCustLedgEntry: Record "Cust. Ledger Entry"; ApplnRoundingPrecision: Decimal; MaxPmtTolAmount: Decimal; var IsHandled: Boolean; var Result: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeDelPmtTolApllnDocNo(var GenJournalLine: Record "Gen. Journal Line")
     begin
     end;
 
@@ -2298,6 +2335,31 @@ codeunit 426 "Payment Tolerance Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnCalcTolVendLedgEntryOnBeforeModify(var VendorLedgerEntry: Record "Vendor Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalcTolCustLedgEntryOnCustLedgEntryLoopIterationStart(CustLedgerEntry: Record "Cust. Ledger Entry"; GeneralLedgerSetup: Record "General Ledger Setup"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPmtTolCustOnAfterSetCustEntryApplId(var CustLedgerEntry: Record "Cust. Ledger Entry"; var CustEntryApplId: code[50])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPmtTolVendOnAfterSetVendEntryApplId(var VendorLedgerEntry: Record "Vendor Ledger Entry"; var VendEntryApplId: code[50])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPutCustPmtTolAmountOnAfterAppliedCustLedgEntrySetFilters(var AppliedCustLedgerEntry: Record "Cust. Ledger Entry"; CustLedgerEntry: Record "Cust. Ledger Entry");
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPutVendPmtTolAmountOnAfterVendLedgEntrySetFilters(var AppliedVendorLedgerEntry: Record "Vendor Ledger Entry"; VendorLedgerEntry: Record "Vendor Ledger Entry");
     begin
     end;
 }

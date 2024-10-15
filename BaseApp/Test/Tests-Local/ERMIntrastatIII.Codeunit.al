@@ -795,8 +795,8 @@ codeunit 144064 "ERM Intrastat - III"
 
         // [THEN] "Tariff No." field is exported from 57 till 64 position
         // [THEN] Positions from 65 till 113 filled with initial values 0 and blank
-        // [THEN] Exported line has 103 symbol length
-        VerifyValueInIntrastatFile(FileName, TariffNo, 57, 8, 103);
+        // [THEN] Exported line has 106 symbol length (TFS 422486)
+        VerifyValueInIntrastatFile(FileName, TariffNo, 57, 8, 106);
     end;
 
     [Test]
@@ -826,8 +826,8 @@ codeunit 144064 "ERM Intrastat - III"
 
         // [THEN] "Tariff No." field is exported from 57 till 64 position
         // [THEN] Positions from 65 till 113 filled with initial values 0 and blank
-        // [THEN] Exported line has 103 symbol length
-        VerifyValueInIntrastatFile(FileName, TariffNo, 57, 8, 103);
+        // [THEN] Exported line has 106 symbol length (TFS 422486)
+        VerifyValueInIntrastatFile(FileName, TariffNo, 57, 8, 106);
     end;
 
     [Test]

@@ -392,8 +392,9 @@
                 var
                     VATReportsConfiguration: Record "VAT Reports Configuration";
                 begin
-                    VATReportsConfiguration.SetRange("VAT Report Type", "VAT Report Configuration"::"Intrastat Report");
-                    if VATReportsConfiguration.FindFirst and (VATReportsConfiguration."Suggest Lines Codeunit ID" <> 0) then begin
+                    if FindVATReportsConfiguration(VATReportsConfiguration) and
+                        (VATReportsConfiguration."Suggest Lines Codeunit ID" <> 0)
+                    then begin
                         CODEUNIT.Run(VATReportsConfiguration."Suggest Lines Codeunit ID", Rec);
                         exit;
                     end;
@@ -488,6 +489,13 @@
         StatisticalValueVisible: Boolean;
         IsSaaSExcelAddinEnabled: Boolean;
 
+    local procedure FindVATReportsConfiguration(var VATReportsConfiguration: Record "VAT Reports Configuration"): Boolean
+    begin
+        VATReportsConfiguration.SetRange("VAT Report Type", "VAT Report Configuration"::"Intrastat Report");
+        OnBeforeFindVATReportsConfiguration(Rec, VATReportsConfiguration);
+        exit(VATReportsConfiguration.FindFirst());
+    end;
+
     local procedure UpdateStatisticalValue()
     begin
         IntraJnlManagement.CalcStatisticalValue(
@@ -526,6 +534,11 @@
         CurrPage.ErrorMessagesPart.PAGE.SetRecordID(Rec.RecordId);
         CurrPage.ErrorMessagesPart.PAGE.GetStyleOfRecord(Rec, LineStyleExpression);
         Rec.Mark(ErrorsExistOnCurrentLine());
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeFindVATReportsConfiguration(var IntrastatJnlLine: Record "Intrastat Jnl. Line"; var VATReportsConfiguration: Record "VAT Reports Configuration")
+    begin
     end;
 
     [IntegrationEvent(true, false)]

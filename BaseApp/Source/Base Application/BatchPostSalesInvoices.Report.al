@@ -15,6 +15,8 @@ report 297 "Batch Post Sales Invoices"
             var
                 SalesBatchPostMgt: Codeunit "Sales Batch Post Mgt.";
             begin
+                OnBeforeSalesHeaderPreDataItem("Sales Header");
+
                 SalesBatchPostMgt.SetParameter("Batch Posting Parameter Type"::Print, PrintDoc);
                 SalesBatchPostMgt.RunBatch("Sales Header", ReplacePostingDate, PostingDateReq, ReplaceDocumentDate, CalcInvDisc, false, true);
 
@@ -131,5 +133,10 @@ report 297 "Batch Post Sales Invoices"
         [InDataSet]
         PrintDocVisible: Boolean;
         Text1130000: Label 'The %1 and %2 may be modified automatically if they are greater than the %3.';
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSalesHeaderPreDataItem(var SalesHeader: Record "Sales Header")
+    begin
+    end;
 }
 

@@ -34,6 +34,7 @@ codeunit 920 "Period Form Lines Mgt."
     var
         RecRef: RecordRef;
         ResultSteps: Integer;
+        ShouldInsertLine: Boolean;
     begin
         RecRef.GetTable(BufferRecord);
         CopyPeriodStartFilter(RecRef, DateRec);
@@ -41,7 +42,9 @@ codeunit 920 "Period Form Lines Mgt."
         if ResultSteps = 0 then
             exit(0);
 
-        if not FindLine(RecRef, DateRec) then
+        ShouldInsertLine := not FindLine(RecRef, DateRec);
+        OnNextDateOnAfterCalcShouldInsertLine(BufferRecord, DateRec, ResultSteps, ShouldInsertLine);
+        if ShouldInsertLine then
             if not InsertLine(RecRef, DateRec) then
                 exit(0);
 
@@ -97,4 +100,8 @@ codeunit 920 "Period Form Lines Mgt."
         DateRec.SetFilter("Period Start", GetPeriodStartFilter(RecRef));
     end;
 
+    [IntegrationEvent(false, false)]
+    local procedure OnNextDateOnAfterCalcShouldInsertLine(var BufferRecord: Variant; var DateRec: Record Date; var ResultSteps: Integer; var ShouldInsertLine: Boolean)
+    begin
+    end;
 }

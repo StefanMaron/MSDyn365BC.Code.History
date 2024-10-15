@@ -557,6 +557,84 @@ codeunit 144204 "FatturaPA Discount"
         VerifyLineAndUnitPriceAmount(ServerFileName, SalesLine.Amount, Item."Unit Price");
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure SalesInvWithLineDiscPctAndInvDiscAmount()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        ElectronicDocumentFormat: Record "Electronic Document Format";
+        DocumentNo: Code[20];
+        CustomerNo: Code[20];
+        ClientFileName: Text[250];
+        ServerFileName: Text[250];
+    begin
+        // [FEATURE] [Sales]
+        // [SCENARIO 422467] PrezzoTotale considers both line discount and invoice discount of sales invoice
+
+        Initialize();
+
+        // [GIVEN] Posted Sales Invoice with Quantity = 5, "Line Amount" = 100, "Line Discount %" = 10, "Invoice Discount Amount" = 20
+        CustomerNo := CreateCustomer();
+        CreateSalesDocument(
+          SalesHeader, CreatePaymentMethod, CreatePaymentTerms, CustomerNo, SalesHeader."Document Type"::Invoice);
+        UpdateDiscAmountInSalesLine(
+          SalesLine, SalesHeader, 1 / LibraryRandom.RandIntInRange(3, 10), LibraryRandom.RandIntInRange(3, 10));
+        DocumentNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
+
+        SalesInvoiceHeader.SetRange("No.", DocumentNo);
+
+        // [WHEN] The document is exported to FatturaPA
+        ElectronicDocumentFormat.SendElectronically(ServerFileName,
+          ClientFileName, SalesInvoiceHeader, CopyStr(FatturaPA_ElectronicFormatTxt, 1, 20));
+
+        // [THEN] Import node has value of 20
+        // [THEN] PrezzoTotale node has value 86 (100 - 10 - 20/5)
+        VerifyLineAmountWithInvDisc(
+          ServerFileName, SalesLine."Line Amount" - Round(SalesLine."Inv. Discount Amount" / SalesLine.Quantity),
+          SalesLine."Inv. Discount Amount");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ServInvWithLineDiscPctAndInvDiscAmount()
+    var
+        ServiceHeader: Record "Service Header";
+        ServiceLine: Record "Service Line";
+        ServiceInvoiceHeader: Record "Service Invoice Header";
+        ElectronicDocumentFormat: Record "Electronic Document Format";
+        CustomerNo: Code[20];
+        ClientFileName: Text[250];
+        ServerFileName: Text[250];
+    begin
+        // [FEATURE] [Service]
+        // [SCENARIO 422467] PrezzoTotale considers both line discount and invoice discount of service invoice
+
+        Initialize();
+
+        // [GIVEN] Posted Sales Invoice with Quantity = 5, "Line Amount" = 100, "Line Discount %" = 10, "Invoice Discount Amount" = 20
+        CustomerNo := CreateCustomer();
+        CreateServiceDocument(
+          ServiceHeader, CustomerNo, ServiceHeader."Document Type"::Invoice);
+        UpdateDiscAmountInServiceLine(
+          ServiceLine, ServiceHeader, 1 / LibraryRandom.RandIntInRange(3, 10), LibraryRandom.RandIntInRange(3, 10));
+        LibraryService.PostServiceOrder(ServiceHeader, true, false, true);
+
+        ServiceInvoiceHeader.SetRange("Customer No.", CustomerNo);
+
+        // [WHEN] The document is exported to FatturaPA
+        ElectronicDocumentFormat.SendElectronically(ServerFileName,
+          ClientFileName, ServiceInvoiceHeader, CopyStr(FatturaPA_ElectronicFormatTxt, 1, 20));
+
+        // [THEN] Import node has value of 20
+        // [THEN] PrezzoTotale node has value 86 (100 - 10 - 20/5)
+        VerifyLineAmountWithInvDisc(
+          ServerFileName,
+          ServiceLine."Line Amount" - Round(ServiceLine."Inv. Discount Amount" / ServiceLine.Quantity),
+          ServiceLine."Inv. Discount Amount");
+    end;
+
     local procedure Initialize()
     begin
         LibrarySetupStorage.Restore;
@@ -697,7 +775,7 @@ codeunit 144204 "FatturaPA Discount"
     begin
         FindSalesLine(SalesLine, SalesHeader);
         SalesLine.Validate("Line Discount %", LineDiscPct);
-        SalesLine.Validate("Inv. Discount Amount", SalesLine.Amount * InvDiscFactor);
+        SalesLine.Validate("Inv. Discount Amount", Round(SalesLine.Amount * InvDiscFactor));
         SalesLine.Modify(true);
     end;
 
@@ -723,6 +801,21 @@ codeunit 144204 "FatturaPA Discount"
         AssertCurrentElementValue(
           TempXMLBuffer, '/p:FatturaElettronica/FatturaElettronicaBody/DatiBeniServizi/DettaglioLinee/ScontoMaggiorazione/Importo',
           FormatAmountEightDecimalPlaces(Round(InvDiscAmount / Quantity)));
+
+        DeleteServerFile(ServerFileName);
+    end;
+
+    local procedure VerifyLineAmountWithInvDisc(ServerFileName: Text[250]; LineAmount: Decimal; InvDiscAmount: Decimal)
+    var
+        TempXMLBuffer: Record "XML Buffer" temporary;
+    begin
+        TempXMLBuffer.Load(ServerFileName);
+        AssertCurrentElementValue(
+          TempXMLBuffer, '/p:FatturaElettronica/FatturaElettronicaBody/DatiGenerali/DatiGeneraliDocumento/ScontoMaggiorazione/Importo',
+          FormatAmountEightDecimalPlaces(InvDiscAmount));
+        AssertCurrentElementValue(
+          TempXMLBuffer, '/p:FatturaElettronica/FatturaElettronicaBody/DatiBeniServizi/DettaglioLinee/PrezzoTotale',
+          FormatAmount(LineAmount));
 
         DeleteServerFile(ServerFileName);
     end;
