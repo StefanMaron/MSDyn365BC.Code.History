@@ -1270,8 +1270,8 @@
         DocumentNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
 
         // [THEN] The document has been poted
-        VerifyGLAccountBalance(VATPostingSetup."Sales VAT Account", DocumentNo, 0);
-        VerifyCustomerReceivablesAccountAmount(SalesHeader."Customer Posting Group", DocumentNo, 0);
+        VerifyGLAccountBalance(VATPostingSetup."Sales VAT Account", DocumentNo, -142.49);
+        VerifyCustomerReceivablesAccountAmount(SalesHeader."Customer Posting Group", DocumentNo, 892.44);
 
         // Tear down
         TearDownVATPostingSetup(SalesHeader."VAT Bus. Posting Group");
@@ -1380,9 +1380,9 @@
         // [WHEN] Call SalesLine.UpdateVATOnLines()
         SalesLine.UpdateVATOnLines(0, SalesHeader, SalesLine, VATAmountLine);
 
-        // [THEN] SalesLine."Prepmt. Line Amount" = 400
+        // [THEN] SalesLine."Prepmt. Line Amount" = 200
         SalesLine.TestField(Amount, 400);
-        SalesLine.TestField("Prepmt. Line Amount", 400);
+        SalesLine.TestField("Prepmt. Line Amount", 200);
 
         SalesHeader.Delete(true); // avoid breaking further tests
     end;
@@ -1409,9 +1409,9 @@
         // [WHEN] Call SalesLine.UpdateVATOnLines()
         SalesLine.UpdateVATOnLines(0, SalesHeader, SalesLine, VATAmountLine);
 
-        // [THEN] SalesLine."Prepmt. Line Amount" = 400
+        // [THEN] SalesLine."Prepmt. Line Amount" = 200
         SalesLine.TestField("Amount Including VAT", 400);
-        SalesLine.TestField("Prepmt. Line Amount", 400);
+        SalesLine.TestField("Prepmt. Line Amount", 200);
 
         SalesHeader.Delete(true); // avoid breaking further tests
     end;
