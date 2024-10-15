@@ -833,6 +833,8 @@ page 40 "Item Journal"
         if not JnlSelected then
             Error('');
         ItemJnlMgt.OpenJnl(CurrentJnlBatchName, Rec);
+
+        OnAfterOpenJournal(CurrentJnlBatchName, JnlSelected, ItemJnlMgt);
     end;
 
     procedure ItemNoOnAfterValidate();
@@ -868,6 +870,11 @@ page 40 "Item Journal"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterValidateShortcutDimCode(var ItemJournalLine: Record "Item Journal Line"; var ShortcutDimCode: array[8] of Code[20]; DimIndex: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterOpenJournal(var CurrentJnlBatchName: Code[10]; var JnlSelected: Boolean; var ItemJnlManagement: Codeunit ItemJnlManagement)
     begin
     end;
 
