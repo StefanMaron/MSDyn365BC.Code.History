@@ -102,7 +102,7 @@ report 11000012 "SEPA ISO20022 Pain 01.01.03"
 #if not CLEAN17
         FileMgt.DownloadToFile(ServerTempFileName, ExportFileName);
 #else
-        FileMgt.DownloadHandler(ServerTempFileName, '', '', '', ExportFileName);
+            FileMgt.DownloadHandler(ServerTempFileName, '', '', '', ExportFileName);
 #endif
 
         Clear(XMLDomDoc);
@@ -288,7 +288,8 @@ report 11000012 "SEPA ISO20022 Pain 01.01.03"
         AddElement(XMLNodeCurr, 'IBAN', DelChr(CopyStr(BankAcc.IBAN, 1, 34)), '', XMLNewChild);
         XMLNodeCurr := XMLNodeCurr.ParentNode;
 
-        AddElement(XMLNodeCurr, 'Ccy', GLSetup."LCY Code", '', XMLNewChild);
+        AddElement(XMLNodeCurr, 'Ccy', GetCurrencyCode(BankAcc."Currency Code"), '', XMLNewChild);
+
         XMLNodeCurr := XMLNodeCurr.ParentNode;
 
         AddElement(XMLNodeCurr, 'DbtrAgt', '', '', XMLNewChild);
