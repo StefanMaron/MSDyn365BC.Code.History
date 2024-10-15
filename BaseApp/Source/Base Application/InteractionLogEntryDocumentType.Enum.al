@@ -106,4 +106,8 @@ enum 5099 "Interaction Log Entry Document Type"
     {
         Caption = 'Service Quote';
     }
+    value(26; "Sales Draft Invoice")
+    {
+        Caption = 'Sales Draft Invoice';
+    }
 }

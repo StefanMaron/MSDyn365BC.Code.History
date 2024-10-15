@@ -89,7 +89,7 @@ table 5970 "Filed Service Contract Header"
         field(15; "Salesperson Code"; Code[20])
         {
             Caption = 'Salesperson Code';
-            TableRelation = "Salesperson/Purchaser";
+            TableRelation = "Salesperson/Purchaser" where(Blocked = const(false));
         }
         field(16; "Bill-to Customer No."; Code[20])
         {

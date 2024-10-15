@@ -588,7 +588,8 @@
 
                 UpdateShipToAddress();
                 UpdateInboundWhseHandlingTime;
-                CreateDimFromDefaultDim(Rec.FieldNo("Location Code"));
+                if ("Location Code" <> '') or (("Location Code" = '') and (xRec."Location Code" <> '')) then
+                    CreateDimFromDefaultDim(Rec.FieldNo("Location Code"));
             end;
         }
         field(29; "Shortcut Dimension 1 Code"; Code[20])
@@ -773,7 +774,7 @@
         field(43; "Purchaser Code"; Code[20])
         {
             Caption = 'Purchaser Code';
-            TableRelation = "Salesperson/Purchaser";
+            TableRelation = "Salesperson/Purchaser" where(Blocked = const(false));
 
             trigger OnValidate()
             var
@@ -1423,7 +1424,7 @@
 
             trigger OnValidate()
             begin
-                if xRec."Document Date" <> "Document Date" then
+                if (xRec."Document Date" <> "Document Date") or ReplaceDocumentDate then
                     UpdateDocumentDate := true;
                 Validate("Payment Terms Code");
                 Validate("Prepmt. Payment Terms Code");
@@ -2449,7 +2450,7 @@
         RecreatePurchLinesMsg: Label 'If you change %1, the existing purchase lines will be deleted and new purchase lines based on the new information in the header will be created.\\Do you want to continue?', Comment = '%1: FieldCaption';
         ResetItemChargeAssignMsg: Label 'If you change %1, the existing purchase lines will be deleted and new purchase lines based on the new information in the header will be created.\The amount of the item charge assignment will be reset to 0.\\Do you want to continue?', Comment = '%1: FieldCaption';
         LinesNotUpdatedMsg: Label 'You have changed %1 on the purchase header, but it has not been changed on the existing purchase lines.', Comment = 'You have changed Posting Date on the purchase header, but it has not been changed on the existing purchase lines.';
-        LinesNotUpdatedDateMsg: Label 'You have changed the %1 on the purchase order, which might affect the prices and discounts on the purchase order lines. You should review the lines and manually update prices and discounts if needed.', Comment = '%1: OrderDate';
+        LinesNotUpdatedDateMsg: Label 'You have changed the %1 on the purchase order, which might affect the prices and discounts on the purchase order lines.', Comment = '%1: OrderDate';
         Text020: Label 'You must update the existing purchase lines manually.';
         AffectExchangeRateMsg: Label 'The change may affect the exchange rate that is used for price calculation on the purchase lines.';
         Text022: Label 'Do you want to update the exchange rate?';
@@ -2461,6 +2462,8 @@
         Text029: Label 'Deleting this document will cause a gap in the number series for return shipments. An empty return shipment %1 will be created to fill this gap in the number series.\\Do you want to continue?', Comment = '%1 = Document No.';
         DoYouWantToKeepExistingDimensionsQst: Label 'This will change the dimension specified on the document. Do you want to keep the existing dimensions?';
         Text032: Label 'You have modified %1.\\Do you want to update the lines?', Comment = 'You have modified Currency Factor.\\Do you want to update the lines?';
+        ReviewLinesManuallyMsg: Label 'You should review the lines and manually update prices and discounts if needed.';
+        UpdateLinesOrderDateAutomaticallyQst: Label 'Do you want to update the order date for existing lines?';
         PurchSetup: Record "Purchases & Payables Setup";
         GLSetup: Record "General Ledger Setup";
         GLAcc: Record "G/L Account";
@@ -2512,6 +2515,7 @@
         Text050: Label 'Reservations exist for this order. These reservations will be canceled if a date conflict is caused by this change.\\Do you want to continue?';
         Text051: Label 'You may have changed a dimension.\\Do you want to update the lines?';
         Text052: Label 'The %1 field on the purchase order %2 must be the same as on sales order %3.';
+        ReplaceDocumentDate: Boolean;
         UpdateDocumentDate: Boolean;
         PrepaymentInvoicesNotPaidErr: Label 'You cannot post the document of type %1 with the number %2 before all related prepayment invoices are posted.', Comment = 'You cannot post the document of type Order with the number 1001 before all related prepayment invoices are posted.';
         StatisticsInsuffucientPermissionsErr: Label 'You don''t have permission to view statistics.';
@@ -3227,13 +3231,29 @@
 
     procedure PriceMessageIfPurchLinesExist(ChangedFieldName: Text[100])
     var
+        PurchaseLine: Record "Purchase Line";
         MessageText: Text;
     begin
         if PurchLinesExist and not GetHideValidationDialog then begin
             MessageText := StrSubstNo(LinesNotUpdatedDateMsg, ChangedFieldName);
             if "Currency Code" <> '' then
                 MessageText := StrSubstNo(SplitMessageTxt, MessageText, AffectExchangeRateMsg);
-            Message(MessageText);
+
+            if (ChangedFieldName.Contains(FieldCaption("Order Date"))) then begin
+                if (Confirm(StrSubstNo(SplitMessageTxt, MessageText, UpdateLinesOrderDateAutomaticallyQst))) then begin
+                    Rec.Modify();
+                    PurchaseLine.SetRange("Document Type", Rec."Document Type");
+                    PurchaseLine.SetRange("Document No.", Rec."No.");
+                    if PurchaseLine.FindSet() then
+                        repeat
+                            PurchaseLine.Validate("Order Date", Rec."Order Date");
+                            PurchaseLine.Validate("No.");
+                            PurchaseLine.Modify();
+                        until PurchaseLine.Next() = 0;
+                end;
+            end
+            else
+                Message(StrSubstNo(SplitMessageTxt, MessageText, ReviewLinesManuallyMsg));
         end;
     end;
 
@@ -3537,7 +3557,7 @@
                 else
                     "Dimension Set ID" := NewDimSetID;
 
-        if ("Dimension Set ID" <> NewDimSetID) and (NewDimSetID <> 0) then
+        if ("Dimension Set ID" <> NewDimSetID) and (NewDimSetID <> 0) and (OldDimSetID = 0) then
             "Dimension Set ID" := NewDimSetID;
 
         if (OldDimSetID <> "Dimension Set ID") and PurchLinesExist() then begin
@@ -6015,6 +6035,11 @@
     procedure SetCalledFromWhseDoc(NewCalledFromWhseDoc: Boolean)
     begin
         CalledFromWhseDoc := NewCalledFromWhseDoc;
+    end;
+
+    procedure SetReplaceDocumentDate()
+    begin
+        ReplaceDocumentDate := true;
     end;
 
     local procedure UpdatePrepmtAmounts(var PurchaseLine: Record "Purchase Line")

@@ -1434,6 +1434,38 @@ codeunit 137033 "SCM Item Journal"
 
     [Test]
     [Scope('OnPrem')]
+    procedure OutputJournalCanUseScrapCodeForMachineCenter()
+    begin
+        // [SCENARIO 453592] Scrap Code can be entered in Output Journal for Capacity Type = Machine Center
+        ValidateScrapCodeForOutputJournal("Capacity Type Journal"::"Machine Center", false);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure OutputJournalCanUseScrapCodeForWorkCenter()
+    begin
+        // [SCENARIO 453592] Scrap Code can be entered in Output Journal for Capacity Type = Work Center
+        ValidateScrapCodeForOutputJournal("Capacity Type Journal"::"Work Center", false);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure OutputJournalCanNotUseScrapCodeForResource()
+    begin
+        // [SCENARIO 453592] Scrap Code can be entered in Output Journal for Capacity Type = Resource
+        ValidateScrapCodeForOutputJournal("Capacity Type Journal"::"Resource", true);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure OutputJournalCanNotUseScrapCodeWithoutCapacityType()
+    begin
+        // [SCENARIO 453592] Scrap Code can be entered in Output Journal without Capacity Type
+        ValidateScrapCodeForOutputJournal("Capacity Type Journal"::" ", true);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
     procedure ErrorThrownWhenBaseQtyIsRoundedTo0OnItemJournalLine()
     var
         ItemJournalLine: Record "Item Journal Line";
@@ -2483,6 +2515,41 @@ codeunit 137033 "SCM Item Journal"
         ItemJournalLine.Validate("Location Code", LocationCode);
         ItemJournalLine."Bin Code" := BinCode;
         ItemJournalLine.Modify(true);
+    end;
+
+    local procedure ValidateScrapCodeForOutputJournal(CapacityType: Enum "Capacity Type Journal"; ShouldAssertError: Boolean)
+    var
+        Item: Record Item;
+        ItemJournalLine: Record "Item Journal Line";
+        Scrap: Record Scrap;
+    begin
+        Initialize();
+
+        // [GIVEN] Item "I" with Costing Method = "Standard" and Unit Cost = "X".
+        CreateItemWithCostingMethod(Item, Item."Costing Method"::Standard);
+
+        // [GIVEN] Create output item journal line directly, as UI does not allow this entry type
+        CreateItemJournalLine(ItemJournalLine, Item."No.");
+        case CapacityType of
+            CapacityType::"Machine Center",
+            CapacityType::"Work Center",
+            CapacityType::" ":
+                ItemJournalLine.Validate("Entry Type", "Item ledger Entry Type"::Output);
+            CapacityType::Resource:
+                ItemJournalLine.Validate("Entry Type", "Item ledger Entry Type"::"Assembly Output")
+        end;
+        ItemJournalLine.Validate(Type, CapacityType);
+        ItemJournalLine.Modify();
+
+        Scrap.Init();
+        Scrap.Validate(Code, LibraryUtility.GenerateRandomCode(Scrap.FieldNo(Code), DATABASE::"Scrap"));
+        Scrap.Insert();
+
+        // [THEN] Check if Scrap Code can be defined
+        if ShouldAssertError then
+            asserterror ItemJournalLine.Validate("Scrap Code", Scrap.Code)
+        else
+            ItemJournalLine.Validate("Scrap Code", Scrap.Code);
     end;
 
     [SendNotificationHandler]
