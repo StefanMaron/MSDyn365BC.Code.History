@@ -1868,7 +1868,7 @@
                 ItemJnlLine."Posting Date" := "Posting Date"
             else
                 ItemJnlLine."Posting Date" := PostingDateForClosedPeriod;
-            OnPostItemJnlLineOnAfterSetPostingDate(ItemJnlLine, OrigValueEntry, PostingDateForClosedPeriod);
+            OnPostItemJnlLineOnAfterSetPostingDate(ItemJnlLine, OrigValueEntry, PostingDateForClosedPeriod, Item);
 
             ItemJnlLine."Entry Type" := "Item Ledger Entry Type";
             ItemJnlLine."Document No." := "Document No.";
@@ -2958,7 +2958,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnPostItemJnlLineOnAfterSetPostingDate(var ItemJournalLine: Record "Item Journal Line"; ValueEntry: Record "Value Entry"; PostingDateForClosedPeriod: Date)
+    local procedure OnPostItemJnlLineOnAfterSetPostingDate(var ItemJournalLine: Record "Item Journal Line"; ValueEntry: Record "Value Entry"; PostingDateForClosedPeriod: Date; var Item: Record Item)
     begin
     end;
 

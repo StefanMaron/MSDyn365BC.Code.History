@@ -937,8 +937,10 @@ page 256 "Payment Journal"
                         var
                             GenJnlLine: Record "Gen. Journal Line";
                         begin
+                            FeatureTelemetry.LogUptake('1000HY2', ESElecPaymentsTok, Enum::"Feature Uptake Status"::"Used");
                             GenJnlLine.CopyFilters(Rec);
                             CODEUNIT.Run(CODEUNIT::"Export Payment File (Yes/No)", GenJnlLine);
+                            FeatureTelemetry.LogUsage('1000HY3', ESElecPaymentsTok, 'ES Electronic Payments Exported on the Journal Lines');
                         end;
                     }
                     action(Void)
@@ -1730,6 +1732,7 @@ page 256 "Payment Journal"
         Text000: Label 'Void Check %1?';
         Text001: Label 'Void all printed checks?';
         GeneratingPaymentsMsg: Label 'Generating Payment file...';
+        ESElecPaymentsTok: Label 'ES Electronic Payments', Locked = true;
         GeneralLedgerSetup: Record "General Ledger Setup";
         GenJnlLine: Record "Gen. Journal Line";
         GenJnlLine2: Record "Gen. Journal Line";
@@ -1739,6 +1742,7 @@ page 256 "Payment Journal"
         CheckManagement: Codeunit CheckManagement;
         JournalErrorsMgt: Codeunit "Journal Errors Mgt.";
         BackgroundErrorHandlingMgt: Codeunit "Background Error Handling Mgt.";
+        FeatureTelemetry: Codeunit "Feature Telemetry";
         ChangeExchangeRate: Page "Change Exchange Rate";
         GLReconcile: Page Reconciliation;
         CurrentJnlBatchName: Code[10];

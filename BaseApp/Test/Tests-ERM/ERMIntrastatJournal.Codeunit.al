@@ -2617,6 +2617,21 @@ codeunit 134150 "ERM Intrastat Journal"
         Assert.AreEqual(Format(CountryRegion.Code, 2), CopyStr(Line, 30, 2), '');
     end;
 
+    [Test]
+    [HandlerFunctions('IntrastatMakeDiskTaxAuthVerifyExportFormat2022RPH')]
+    [Scope('OnPrem')]
+    procedure ExportFormat2022IsDefaultForIntrastatExport()
+    var
+        IntrastatMakeDeclaration: Report "Intrastat - Make Declaration";
+    begin
+        // [SCENARIO 438115] Export format "2022" is default for the Intrastat export
+
+        Initialize();
+        Commit();
+        IntrastatMakeDeclaration.Run();
+        // Verification done in the IntrastatMakeDiskTaxAuthVerifyExportFormat2022RPH
+    end;
+
     local procedure Initialize()
     var
         IntrastatSetup: Record "Intrastat Setup";
@@ -3757,6 +3772,14 @@ codeunit 134150 "ERM Intrastat Journal"
     [Scope('OnPrem')]
     procedure MessageHandlerEmpty(Msg: Text[1024])
     begin
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure IntrastatMakeDiskTaxAuthVerifyExportFormat2022RPH(var IntrastatMakeDeclaration: TestRequestPage "Intrastat - Make Declaration")
+    begin
+        IntrastatMakeDeclaration.ExportFormatField.AssertEquals('2022');
+        IntrastatMakeDeclaration.Cancel.Invoke();
     end;
 }
 

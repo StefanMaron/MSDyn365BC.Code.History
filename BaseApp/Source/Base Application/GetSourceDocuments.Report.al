@@ -144,7 +144,7 @@ report 5753 "Get Source Documents"
                         if IsHandled then
                             CurrReport.Skip();
 
-                        VerifyItemNotBlocked("No.");
+                        VerifyPurchaseItemNotBlocked("Purchase Header", "Purchase Line");
                         if "Location Code" = "Warehouse Request"."Location Code" then
                             case RequestType of
                                 RequestType::Receive:
@@ -707,7 +707,19 @@ report 5753 "Get Source Documents"
     begin
         OnBeforeVerifySalesItemNotBlocked(SalesHeader, SalesLine, IsHandled, SkipBlockedItem);
         if not IsHandled then
-            VerifyItemNotBlocked(SalesLine."No.")
+            VerifyItemNotBlocked(SalesLine."No.");
+    end;
+
+    local procedure VerifyPurchaseItemNotBlocked(PurchaseHeader: Record "Purchase Header"; PurchaseLine: Record "Purchase Line")
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeVerifyPurchaseItemNotBlocked(PurchaseHeader, PurchaseLine, SkipBlockedItem, IsHandled);
+        if IsHandled then
+            exit;
+
+        VerifyItemNotBlocked(PurchaseLine."No.");
     end;
 
     local procedure VerifyItemNotBlocked(ItemNo: Code[20])
@@ -767,10 +779,22 @@ report 5753 "Get Source Documents"
     begin
         OnBeforeCheckFillQtyToHandle(DoNotFillQtytoHandle, RequestType);
 
-        if DoNotFillQtytoHandle and (RequestType = RequestType::Receive) then begin
-            WhseReceiptLine.Reset();
-            WhseReceiptLine.SetRange("No.", WhseReceiptHeader."No.");
-            WhseReceiptLine.DeleteQtyToReceive(WhseReceiptLine);
+        if not DoNotFillQtytoHandle then
+            exit;
+
+        case RequestType of
+            RequestType::Receive:
+                begin
+                    WhseReceiptLine.Reset();
+                    WhseReceiptLine.SetRange("No.", WhseReceiptHeader."No.");
+                    WhseReceiptLine.DeleteQtyToReceive(WhseReceiptLine);
+                end;
+            RequestType::Ship:
+                begin
+                    WhseShptLine.Reset();
+                    WhseShptLine.SetRange("No.", WhseShptHeader."No.");
+                    WhseShptLine.DeleteQtyToHandle(WhseShptLine);
+                end;
         end;
     end;
 
@@ -954,6 +978,11 @@ report 5753 "Get Source Documents"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeTransferLineOnAfterGetRecord(TransferLine: Record "Transfer Line"; WarehouseRequest: Record "Warehouse Request"; RequestType: Option; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeVerifyPurchaseItemNotBlocked(PurchaseHeader: Record "Purchase Header"; PurchaseLine: Record "Purchase Line"; SkipBlockedItem: Boolean; var IsHandled: Boolean)
     begin
     end;
 

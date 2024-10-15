@@ -1764,19 +1764,7 @@
         if CustPmtAddress.FindFirst() then
             CustPmtAddress.DeleteAll();
 
-        SalesOrderLine.SetCurrentKey("Document Type", "Bill-to Customer No.");
-        SalesOrderLine.SetRange("Bill-to Customer No.", "No.");
-        if SalesOrderLine.FindFirst() then
-            Error(
-              Text000,
-              TableCaption, "No.", SalesOrderLine."Document Type");
-
-        SalesOrderLine.SetRange("Bill-to Customer No.");
-        SalesOrderLine.SetRange("Sell-to Customer No.", "No.");
-        if SalesOrderLine.FindFirst() then
-            Error(
-              Text000,
-              TableCaption, "No.", SalesOrderLine."Document Type");
+        CheckIfSalesOrderLinesExist();
 
         CampaignTargetGr.SetRange("No.", "No.");
         CampaignTargetGr.SetRange(Type, CampaignTargetGr.Type::Customer);
@@ -2500,6 +2488,7 @@
         BalanceAsVendor := 0;
         LinkedVendorNo := GetLinkedVendor();
         if Vendor.Get(LinkedVendorNo) then begin
+            OnGetBalanceAsVendorOnBeforeCalcBalance(Vendor);
             Vendor.CalcFields("Balance (LCY)");
             BalanceAsVendor := Vendor."Balance (LCY)";
         end;
@@ -3277,6 +3266,26 @@
                 Error(Text003, Cont."No.", Cont.Name, "No.", Name);
     end;
 
+    local procedure CheckIfSalesOrderLinesExist()
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCheckIfOrderSalesLinesExist(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
+        SalesOrderLine.SetCurrentKey("Document Type", "Bill-to Customer No.");
+        SalesOrderLine.SetRange("Bill-to Customer No.", "No.");
+        if SalesOrderLine.FindFirst() then
+            Error(Text000, TableCaption, "No.", SalesOrderLine."Document Type");
+
+        SalesOrderLine.SetRange("Bill-to Customer No.");
+        SalesOrderLine.SetRange("Sell-to Customer No.", "No.");
+        if SalesOrderLine.FindFirst() then
+            Error(Text000, TableCaption, "No.", SalesOrderLine."Document Type");
+    end;
+
     local procedure UpdateCustomerTemplateInvoiceDiscCodes()
     var
         CustomerTempl: Record "Customer Templ.";
@@ -3375,6 +3384,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckBlockedCustOnJnls(Customer: Record Customer; var GenJnlLine: Record "Gen. Journal Line"; Transaction: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckIfOrderSalesLinesExist(var Customer: Record Customer; var IsHandled: Boolean)
     begin
     end;
 
@@ -3550,6 +3564,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCalcAvailableCreditCommon(var Rec: Record Customer; CalledFromUI: Boolean; var CreditLimitLCY: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnGetBalanceAsVendorOnBeforeCalcBalance(var Vendor: Record Vendor)
     begin
     end;
 }

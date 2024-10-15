@@ -379,11 +379,21 @@ page 370 "Bank Account Card"
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the full path of the electronic payment file, starting with the drive letter and with a back slash (\) at the end.';
+
+                    trigger OnValidate()
+                    begin
+                        FeatureTelemetry.LogUptake('1000HW8', ESElecPaymentsTok, Enum::"Feature Uptake Status"::"Set up");
+                    end;
                 }
                 field("Last E-Pay Export File Name"; "Last E-Pay Export File Name")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the name of the file with the extension .txt without the path. This file name should have digits in it.';
+
+                    trigger OnValidate()
+                    begin
+                        FeatureTelemetry.LogUptake('1000HW7', ESElecPaymentsTok, Enum::"Feature Uptake Status"::"Set up");
+                    end;
                 }
                 field("Bank Branch No.2"; "Bank Branch No.")
                 {
@@ -981,6 +991,8 @@ page 370 "Bank Account Card"
     end;
 
     var
+        FeatureTelemetry: Codeunit "Feature Telemetry";
+        ESElecPaymentsTok: Label 'ES Electronic Payments', Locked = true;
         Text001: Label 'There may be a statement using the %1.\\Do you want to change Balance Last Statement?';
         Text002: Label 'Canceled.';
         [InDataSet]

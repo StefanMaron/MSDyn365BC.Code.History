@@ -5,7 +5,13 @@ codeunit 61 "Sales-Disc. (Yes/No)"
     trigger OnRun()
     var
         ConfirmManagement: Codeunit "Confirm Management";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeOnRun(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         SalesLine.Copy(Rec);
         GLSetup.Get();
         with SalesLine do begin
@@ -26,5 +32,10 @@ codeunit 61 "Sales-Disc. (Yes/No)"
         SalesLine: Record "Sales Line";
         Text1100000: Label 'Do you want to calculate the invoice discount and payment discount?';
         GLSetup: Record "General Ledger Setup";
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeOnRun(var SalesLine: Record "Sales Line"; var IsHandled: Boolean)
+    begin
+    end;
 }
 

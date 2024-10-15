@@ -789,6 +789,75 @@ codeunit 144117 "ERM Make 349 Declaration"
     end;
 
     [Test]
+    [HandlerFunctions('MessageHandler,Make349DeclarationRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure Test349DeclarationForeignSalesNormalVAT_LocalNonEUContry()
+    var
+        CompanyInformation: Record "Company Information";
+        CountryRegion: Record "Country/Region";
+        CountryRegionOld: Record "Country/Region";
+        Customer: Record Customer;
+        CustomerNo: Code[20];
+    begin
+        // [SCENARIO 432910] "Make 349 Declaration" report does not export VAT Entries when the report runs for Country without "EU Country/Region Code"
+        Initialize();
+
+        CompanyInformation.Get();
+        CountryRegion.Get(CompanyInformation."Country/Region Code");
+        CountryRegionOld.Copy(CountryRegion);
+        CountryRegion."EU Country/Region Code" := '';
+        CountryRegion.Modify();
+
+        Customer.Get(
+          CreateForeignCustomerWithVATRegNo(
+            CreateCountryWithSpecificVATRegNoFormat(true)));
+
+        CreateAndPostSalesInvoice(Customer."No.");
+
+        asserterror RunMake349DeclarationWithDate(WorkDate());
+
+        Assert.ExpectedError(FileNotfoundErr);
+
+        CountryRegion.Find();
+        CountryRegion."EU Country/Region Code" := CountryRegionOld."EU Country/Region Code";
+        CountryRegion.Modify();
+        TearDownSalesInvLine(CustomerNo);
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandler,MessageHandler,Make349DeclarationRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure Test349DeclarationForeignSalesNoVAT_LocalNonEUContry()
+    var
+        CompanyInformation: Record "Company Information";
+        CountryRegion: Record "Country/Region";
+        CountryRegionOld: Record "Country/Region";
+        CustomerNo: Code[20];
+        PostingDate: Date;
+        SalesAmount: Decimal;
+    begin
+        // [SCENARIO 432910] "Make 349 Declaration" report does not export Non Taxable Entries when the report runs for Country without "EU Country/Region Code"
+        Initialize();
+
+        CompanyInformation.Get();
+        CountryRegion.Get(CompanyInformation."Country/Region Code");
+        CountryRegionOld.Copy(CountryRegion);
+        CountryRegion."EU Country/Region Code" := '';
+        CountryRegion.Modify();
+
+        CreateAndPostSalesInvoiceNoTax(CreateCountryRegion, false, CustomerNo, SalesAmount, PostingDate);
+
+        asserterror RunMake349DeclarationWithDate(PostingDate);
+
+        Assert.ExpectedError(FileNotfoundErr);
+
+        CountryRegion.Find();
+        CountryRegion."EU Country/Region Code" := CountryRegionOld."EU Country/Region Code";
+        CountryRegion.Modify();
+        TearDownSalesInvLine(CustomerNo);
+    end;
+
+    [Test]
     [HandlerFunctions('ConfirmHandler,MessageHandler,Make349DeclarationRequestPageHandler')]
     [Scope('OnPrem')]
     procedure Test349DeclarationForeignSalesNoVATEUService()
@@ -4405,6 +4474,8 @@ codeunit 144117 "ERM Make 349 Declaration"
     procedure CustVendWarn349PrevDeclAmtWhenChangeYearPurchase()
     var
         PurchaseHeader: Record "Purchase Header";
+        InsertedPurchaseLine: Record "Purchase Line";
+        PostingDate: Date;
         PostedInvNo: Code[20];
         ItemNo: Code[20];
         Amount: Decimal;
@@ -4414,12 +4485,17 @@ codeunit 144117 "ERM Make 349 Declaration"
         // [SCENARIO 277864] Previous Declared Amount is calculated correctly for Purchase Documents when Stan runs report Make 349 Declaration for Annual period
         // [SCENARIO 277864] and changes Original Declaration FY on Customer/Vendor Warnings 349 page
         Initialize();
+        PostingDate := LibraryRandom.RandDateFrom(GetFirstDateInEmptyFY, 10);
 
         // [GIVEN] Posted Purchase Invoice with Amount 1000.0 in January, 2018
-        CreatePurchaseInvoiceWithPostingDate(PurchaseHeader, LibraryRandom.RandDateFrom(GetFirstDateInEmptyFY, 10));
+        CreatePurchaseInvoiceWithPostingDate(PurchaseHeader, PostingDate);
         Amount := PurchaseHeader.Amount;
         ItemNo := GetItemFromPurchDoc(PurchaseHeader."Document Type", PurchaseHeader."No.");
         Year := Date2DMY(PurchaseHeader."Posting Date", 3);
+
+        // Bug: 433917
+        InsertPurchaseLineWithDifferentPostingGroups(PurchaseHeader, InsertedPurchaseLine);
+
         PostedInvNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
 
         // [GIVEN] Posted Purchase Corrective Credit Memo with Amount 100.0 in February, 2018
@@ -4435,14 +4511,15 @@ codeunit 144117 "ERM Make 349 Declaration"
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
 
         // [GIVEN] Stan ran report Make 349 Declaration with Year = 2019 and Period = Annual and confirmed correction
-        RunMake349DeclarationReportWithCorrectOrigDeclFY(PurchaseHeader."Posting Date", Year);
+        // [GIVEN] Set "Exclude Gen. Product Posting Group" = "GPPG-1"
+        RunMake349DeclarationReportWithCorrectOrigDeclFY(PurchaseHeader."Posting Date", Year, InsertedPurchaseLine."Gen. Prod. Posting Group");
 
         // [WHEN] Stan sets value "Original Declaration FY" = 2018 on Customer/Vendor Warnings 349 page
         // value is set in CustomerVendorWarnings349ModalPageHandlerWithModifyOrigDeclPeriod
 
         // [THEN] Stan sees "Previous Declared Amount" = 900.0 on Customer/Vendor Warnings 349 page
-        Assert.AreEqual(Amount, LibraryVariableStorage.DequeueDecimal, '');
-        LibraryVariableStorage.AssertEmpty;
+        Assert.AreEqual(Amount, LibraryVariableStorage.DequeueDecimal(), '');
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     local procedure Initialize()
@@ -4657,6 +4734,24 @@ codeunit 144117 "ERM Make 349 Declaration"
         PurchaseHeader.Modify(true);
         CreatePurchLineWithVATProdGrp(PurchaseLine, PurchaseHeader, VATPostingSetup."VAT Prod. Posting Group");
         PurchaseHeader.CalcFields(Amount);
+    end;
+
+    local procedure InsertPurchaseLineWithDifferentPostingGroups(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line")
+    var
+        VATProductPostingGroup: Record "VAT Product Posting Group";
+        VATPostingSetup: Record "VAT Posting Setup";
+        GeneralPostingSetup: Record "General Posting Setup";
+        Vendor: Record Vendor;
+    begin
+        Vendor.Get(PurchaseHeader."Buy-from Vendor No.");
+        LibraryERM.CreateVATProductPostingGroup(VATProductPostingGroup);
+        LibraryERM.CreateVATPostingSetup(VATPostingSetup, Vendor."VAT Bus. Posting Group", VATProductPostingGroup.Code);
+        VATPostingSetup.Validate("EU Service", false);
+        VATPostingSetup.Modify(true);
+        CreateGeneralPostingSetup(GeneralPostingSetup, Vendor."Gen. Bus. Posting Group", VATPostingSetup);
+        CreatePurchLineWithVATProdGrp(PurchaseLine, PurchaseHeader, VATPostingSetup."VAT Prod. Posting Group");
+        PurchaseLine.Validate("Gen. Prod. Posting Group", GeneralPostingSetup."Gen. Prod. Posting Group");
+        PurchaseLine.Modify(true);
     end;
 
     local procedure CreateSalesInvoiceWithLocationAndApplyInvoiceDisc(var SalesHeader: Record "Sales Header"; VATBusPostingGrp: Code[20]; VATProdPostingGrp: Code[20]; LocationCode: Code[10]; EU3PartyTrade: Boolean)
@@ -5258,6 +5353,24 @@ codeunit 144117 "ERM Make 349 Declaration"
         VATPostingSetup.Modify(true);
     end;
 
+    local procedure CreateGeneralPostingSetup(var GeneralPostingSetup: Record "General Posting Setup"; GenBusPostingGroupCode: Code[20]; var VATPostingSetup: Record "VAT Posting Setup")
+    var
+        GenProductPostingGroup: Record "Gen. Product Posting Group";
+    begin
+        LibraryERM.CreateGenProdPostingGroup(GenProductPostingGroup);
+        GenProductPostingGroup.Validate("Def. VAT Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
+        GenProductPostingGroup.Validate("Auto Insert Default", true);
+        GenProductPostingGroup.Modify(true);
+
+        LibraryERM.CreateGeneralPostingSetup(GeneralPostingSetup, GenBusPostingGroupCode, GenProductPostingGroup.Code);
+        GeneralPostingSetup.Validate("Direct Cost Applied Account", LibraryERM.CreateGLAccountNoWithDirectPosting());
+        GeneralPostingSetup.Validate("Sales Account", LibraryERM.CreateGLAccountNoWithDirectPosting());
+        GeneralPostingSetup.Validate("Purch. Account", LibraryERM.CreateGLAccountNoWithDirectPosting());
+        GeneralPostingSetup.Validate("COGS Account", LibraryERM.CreateGLAccountNoWithDirectPosting());
+        GeneralPostingSetup.Validate("Inventory Adjmt. Account", LibraryERM.CreateGLAccountNoWithDirectPosting());
+        GeneralPostingSetup.Modify(true);
+    end;
+
     local procedure CreateVATPostingSetupForBusGroup(var VATPostingSetup: Record "VAT Posting Setup"; VATBusGroupCode: Code[20])
     var
         VATProductPostingGroup: Record "VAT Product Posting Group";
@@ -5542,6 +5655,11 @@ codeunit 144117 "ERM Make 349 Declaration"
     end;
 
     local procedure RunMake349DeclarationReportWithCorrectOrigDeclFY(PostingDate: Date; InvoicePostingYear: Integer)
+    begin
+        RunMake349DeclarationReportWithCorrectOrigDeclFY(PostingDate, InvoicePostingYear, '');
+    end;
+
+    local procedure RunMake349DeclarationReportWithCorrectOrigDeclFY(PostingDate: Date; InvoicePostingYear: Integer; ExcludedGenProductPostingGroup: Text[1024])
     var
         Make349Declaration: Report "Make 349 Declaration";
         FileManagement: Codeunit "File Management";
@@ -5550,7 +5668,9 @@ codeunit 144117 "ERM Make 349 Declaration"
         LibraryVariableStorage.Enqueue(PostingDate);
         LibraryVariableStorage.Enqueue(InvoicePostingYear);
         DummyFileName := FileManagement.ServerTempFileName('.txt');
-        Make349Declaration.InitializeRequest(DummyFileName); // required to avoid DOWNLOAD call
+        Make349Declaration.InitializeRequest(DummyFileName);
+        if ExcludedGenProductPostingGroup <> '' then
+            Make349Declaration.SetFilterString(StrSubstNo('<>%1', ExcludedGenProductPostingGroup));
         Make349Declaration.Run();
     end;
 

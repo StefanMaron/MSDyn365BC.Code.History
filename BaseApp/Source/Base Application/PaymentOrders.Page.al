@@ -179,7 +179,9 @@ page 7000050 "Payment Orders"
 
                     trigger OnAction()
                     begin
+                        FeatureTelemetry.LogUptake('1000HY0', ESElecPaymentsTok, Enum::"Feature Uptake Status"::"Used");
                         ExportToFile;
+                        FeatureTelemetry.LogUsage('1000HY1', ESElecPaymentsTok, 'ES Electronic Payments Exported');
                     end;
                 }
             }
@@ -283,6 +285,8 @@ page 7000050 "Payment Orders"
     var
         PmtOrd: Record "Payment Order";
         PostBGPO: Codeunit "BG/PO-Post and Print";
+        FeatureTelemetry: Codeunit "Feature Telemetry";
         Navigate: Page Navigate;
+        ESElecPaymentsTok: Label 'ES Electronic Payments', Locked = true;
 }
 

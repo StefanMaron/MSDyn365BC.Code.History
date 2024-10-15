@@ -2977,6 +2977,10 @@
         {
             Caption = 'Do Not Send To SII';
         }
+        field(10725; "Issued By Third Party"; Boolean)
+        {
+            Caption = 'Issued By Third Party';
+        }
         field(7000000; "Bill No."; Code[20])
         {
             Caption = 'Bill No.';
@@ -4260,6 +4264,7 @@
         FADeprBook: Record "FA Depreciation Book";
         DefaultFADeprBook: Record "FA Depreciation Book";
     begin
+        OnBeforeGetFADeprBook(Rec, FANo);
         if "Depreciation Book Code" = '' then begin
             FASetup.Get();
 
@@ -5633,12 +5638,15 @@
         OnAfterCleanLine(Rec, xRec);
     end;
 
-    local procedure ReplaceDescription(): Boolean
+    local procedure ReplaceDescription() Result: Boolean
     begin
         if "Bal. Account No." = '' then
-            exit(true);
-        GenJnlBatch.Get("Journal Template Name", "Journal Batch Name");
-        exit(GenJnlBatch."Bal. Account No." <> '');
+            Result := true
+        else begin
+            GenJnlBatch.Get("Journal Template Name", "Journal Batch Name");
+            Result := GenJnlBatch."Bal. Account No." <> '';
+        end;
+        OnAfterReplaceDescription(GenJnlBatch, Result);
     end;
 
     local procedure AddCustVendIC(AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]): Boolean
@@ -6197,6 +6205,7 @@
         if "Account Type" = "Account Type"::Customer then
             "Posting Group" := SalesHeader."Customer Posting Group";
         "Do Not Send To SII" := SalesHeader."Do Not Send To SII";
+        "Issued By Third Party" := SalesHeader."Issued By Third Party";
 
         OnAfterCopyGenJnlLineFromSalesHeader(SalesHeader, Rec);
     end;
@@ -6293,6 +6302,7 @@
         "Sales Special Scheme Code" := ServiceHeader."Special Scheme Code";
         "Succeeded Company Name" := ServiceHeader."Succeeded Company Name";
         "Succeeded VAT Registration No." := ServiceHeader."Succeeded VAT Registration No.";
+        "Issued By Third Party" := ServiceHeader."Issued By Third Party";
         "Do Not Send To SII" := ServiceHeader."Do Not Send To SII";
 
         OnAfterCopyGenJnlLineFromServHeader(ServiceHeader, Rec);
@@ -6621,11 +6631,8 @@
     begin
         GLAcc.Get("Account No.");
         CheckGLAcc(GLAcc);
-        if ReplaceDescription and (not GLAcc."Omit Default Descr. in Jnl.") then
-            UpdateDescription(GLAcc.Name)
-        else
-            if GLAcc."Omit Default Descr. in Jnl." then
-                Description := '';
+        SetDescriptionFromGLAcc(GLAcc);
+
         if ("Bal. Account No." = '') or
            ("Bal. Account Type" in
             ["Bal. Account Type"::"G/L Account", "Bal. Account Type"::"Bank Account"])
@@ -6653,6 +6660,16 @@
         Validate("Deferral Code", GLAcc."Default Deferral Template Code");
 
         OnAfterAccountNoOnValidateGetGLAccount(Rec, GLAcc, CurrFieldNo);
+    end;
+
+    local procedure SetDescriptionFromGLAcc(GLAccount: Record "G/L Account")
+    begin
+        if ReplaceDescription() and (not GLAccount."Omit Default Descr. in Jnl.") then
+            UpdateDescription(GLAccount.Name)
+        else
+            if GLAccount."Omit Default Descr. in Jnl." then
+                Description := '';
+        OnAfterSetDescriptionFromGLAcc(Rec, GLAccount)
     end;
 
     local procedure GetGLBalAccount()
@@ -7340,6 +7357,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterSetDescriptionFromGLAcc(var GenJournalLine: Record "Gen. Journal Line"; GLAccount: Record "G/L Account")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterClearCustApplnEntryFields(var CustLedgerEntry: Record "Cust. Ledger Entry")
     begin
     end;
@@ -7771,6 +7793,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeGetDeferralPostDate(GenJournalLine: Record "Gen. Journal Line"; var DeferralPostDate: Date; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetFADeprBook(var GenJournalLine: Record "Gen. Journal Line"; FANo: Code[20])
     begin
     end;
 
@@ -8700,6 +8727,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterRenumberAppliesToID(GenJournalLine: Record "Gen. Journal Line"; OriginalAppliesToID: Code[50]; NewAppliesToID: Code[50]; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterReplaceDescription(GenJnlBatch: Record "Gen. Journal Batch"; var Result: Boolean)
     begin
     end;
 

@@ -593,6 +593,7 @@ report 10707 "Make 347 Declaration"
             Erase(FileName);
             Message(NothingToExportMsg);
         end;
+        FeatureTelemetry.LogUsage('1000HV5', ESReport347Tok, 'ES 347 Reports Created');
     end;
 
     trigger OnPreReport()
@@ -636,8 +637,10 @@ report 10707 "Make 347 Declaration"
         CompanyInfo: Record "Company Information";
         CustomerCashBuffer: Record "Customer Cash Buffer" temporary;
         FileManagement: Codeunit "File Management";
+        FeatureTelemetry: Codeunit "Feature Telemetry";
         OutFile: File;
         DeclarationMediaType: Option Telematic,"CD-R";
+        ESReport347Tok: Label 'ES Create Report 347', Locked = true;
         ContactName: Text[40];
         ColumnGLAcc: Text[250];
         FilterString: Text[250];

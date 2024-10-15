@@ -62,7 +62,8 @@ codeunit 7010 "Purch. Price Calc. Mgt."
                         PurchLinePriceExists(PurchHeader, PurchLine, false);
                         CalcBestDirectUnitCost(TempPurchPrice);
                         if (FoundPurchPrice or
-                            not ((CalledByFieldNo = FieldNo(Quantity)) or
+                            not ((CalledByFieldNo = FieldNo("Job No.")) or (CalledByFieldNo = FieldNo("Job Task No.")) or
+                                 (CalledByFieldNo = FieldNo(Quantity)) or
                                  ((CalledByFieldNo = FieldNo("Variant Code")) and not PriceInSKU))) and
                            ("Prepmt. Amt. Inv." = 0)
                         then

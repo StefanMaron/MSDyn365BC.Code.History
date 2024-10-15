@@ -60,6 +60,11 @@ page 10766 "Posted Sales Cr. Memo - Update"
                     Editable = true;
                     ToolTip = 'Specifies the Correction Type.';
                 }
+                field("Issued By Third Party"; "Issued By Third Party")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies that the credit memo was issued by a third party.';
+                }
             }
         }
     }

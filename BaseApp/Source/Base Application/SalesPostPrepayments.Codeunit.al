@@ -232,6 +232,7 @@
 
             // Post customer entry
             Window.Update(4, 1);
+            OnCodeOnBeforePostCustomerEntry(SalesHeader, TempPrepmtInvLineBuffer);
             PostCustomerEntry(
               SalesHeader, TotalPrepmtInvLineBuffer, TotalPrepmtInvLineBufferLCY, DocumentType, PostingDescription,
               GenJnlLineDocType, GenJnlLineDocNo, GenJnlLineExtDocNo, SrcCode, PostingNoSeriesCode, CalcPmtDiscOnCrMemos);
@@ -243,6 +244,7 @@
             // Balancing account
             if "Bal. Account No." <> '' then begin
                 Window.Update(5, 1);
+                OnCodeOnBeforePostBalancingEntry(SalesHeader, TempPrepmtInvLineBuffer);
                 PostBalancingEntry(
                   SalesHeader, TotalPrepmtInvLineBuffer, TotalPrepmtInvLineBufferLCY, CustLedgEntry, DocumentType,
                   PostingDescription, GenJnlLineDocType, GenJnlLineDocNo, GenJnlLineExtDocNo, SrcCode, PostingNoSeriesCode);
@@ -403,6 +405,9 @@
                         NoSeriesCode := "Prepmt. Cr. Memo No. Series";
                     end;
             end;
+
+        if PreviewMode and GLSetup."Journal Templ. Name Mandatory" then
+            GenJournalTemplate.Get(SalesHeader."Journal Templ. Name");
     end;
 
     local procedure UpdateInvoiceDocNos(var SalesHeader: Record "Sales Header"; var ModifyHeader: Boolean)
@@ -1448,6 +1453,7 @@
                             SalesLine."Prepmt VAT Diff. to Deduct" :=
                               SalesLine."Prepmt VAT Diff. to Deduct" + SalesLine."Prepayment VAT Difference";
                             SalesLine."Prepayment VAT Difference" := 0;
+                            OnUpdateSalesDocumentOnBeforeModifyInvoiceSalesLine(SalesLine);
                             SalesLine.Modify();
                         end;
                     until SalesLine.Next() = 0;
@@ -1470,6 +1476,7 @@
                         SalesLine."Prepmt Amt to Deduct" := 0;
                         SalesLine."Prepmt VAT Diff. to Deduct" := 0;
                         SalesLine."Prepayment VAT Difference" := 0;
+                        OnUpdateSalesDocumentOnBeforeModifyCreditMemoSalesLine(SalesLine);
                         SalesLine.Modify();
                     until SalesLine.Next() = 0;
             end;
@@ -1921,6 +1928,16 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnCodeOnBeforePostCustomerEntry(var SalesHeader: Record "Sales Header"; var TempPrepaymentInvLineBuffer: Record "Prepayment Inv. Line Buffer" temporary)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCodeOnBeforePostBalancingEntry(var SalesHeader: Record "Sales Header"; var TempPrepaymentInvLineBuffer: Record "Prepayment Inv. Line Buffer" temporary)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnCodeOnBeforeWindowOpen(var SalesHeader: Record "Sales Header"; DocumentType: Option Invoice,"Credit Memo")
     begin
     end;
@@ -1947,6 +1964,16 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnRoundAmountsOnBeforeIncrAmounts(SalesHeader: Record "Sales Header"; VAR PrepmtInvLineBuf: Record "Prepayment Inv. Line Buffer"; VAR TotalPrepmtInvLineBuf: Record "Prepayment Inv. Line Buffer"; VAR TotalPrepmtInvLineBufLCY: Record "Prepayment Inv. Line Buffer")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateSalesDocumentOnBeforeModifyCreditMemoSalesLine(var SalesLine: Record "Sales Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateSalesDocumentOnBeforeModifyInvoiceSalesLine(var SalesLine: Record "Sales Line")
     begin
     end;
 

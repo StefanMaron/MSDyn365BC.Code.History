@@ -146,6 +146,7 @@ report 10710 "Make 349 Declaration"
                         Message(Text1100009)
                     else begin
                         CVWarning349.SetRecord(CustVendWarning349);
+                        CVWarning349.SetExcludeGenProductPostingGroupFilter(FilterString);
                         if (CVWarning349.RunModal in [ACTION::Cancel, ACTION::OK]) and CVWarning349.Cancelled then begin
                             CustVendWarning349.Reset();
                             CustVendWarning349.DeleteAll();
@@ -1069,6 +1070,7 @@ report 10710 "Make 349 Declaration"
             if not Download(FileName, Text1100006, '', Text1100017, ToFile) then
                 exit;
         Message(Text1100010, ToFile);
+        FeatureTelemetry.LogUsage('1000HV6', ESReport349Tok, 'ES 349 Reports Created');
     end;
 
     local procedure ConvertFileEncoding(FileName: Text; OldEncodingCode: Text; NewEncodingCode: Text)
@@ -1168,6 +1170,8 @@ report 10710 "Make 349 Declaration"
         TempServiceInvLines: Record "Service Invoice Line" temporary;
         TempPurchInvLines: Record "Purch. Inv. Line" temporary;
         NoTaxableMgt: Codeunit "No Taxable Mgt.";
+        FeatureTelemetry: Codeunit "Feature Telemetry";
+        ESReport349Tok: Label 'ES Create Report 349', Locked = true;
         TextList: List of [Text];
         OutFile: File;
         CVWarning349: Page "Customer/Vendor Warnings 349";
@@ -1694,6 +1698,12 @@ report 10710 "Make 349 Declaration"
         ReportFileName := ReportTempFileName;
     end;
 
+    [Scope('OnPrem')]
+    procedure SetFilterString(FilterStringNew: Text[1024])
+    begin
+        FilterString := FilterStringNew;
+    end;
+
     local procedure GetExportedAmountIn349(CurrencyCode: Code[20]; CurrencyFactor: Decimal; LineAmount: Decimal): Decimal
     var
         Currency: Record Currency;
@@ -1810,12 +1820,16 @@ report 10710 "Make 349 Declaration"
 
     local procedure CalcNoTaxableAmountVendor(var NormalAmount: Decimal; var EUServiceAmount: Decimal; VendorNo: Code[20]; FromDate: Date; ToDate: Date; FilterString: Text[1024])
     begin
+        if not CompInfShipToCountryRegCode then
+            exit;
         NoTaxableMgt.CalcNoTaxableAmountVendor(
           NormalAmount, EUServiceAmount, VendorNo, FromDate, ToDate, FilterString);
     end;
 
     local procedure CalcNoTaxableAmountCustomer(var NoTaxableNormalAmountSales: array[3] of Decimal)
     begin
+        if not CompInfShipToCountryRegCode then
+            exit;
         NoTaxableMgt.CalcNoTaxableAmountCustomerWithDeliveryCode(
           NoTaxableNormalAmountSales, NoTaxableAmountEUService, NoTaxableAmountOpTri, Customer2."No.", FromDate, ToDate, FilterString);
     end;

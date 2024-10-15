@@ -84,7 +84,14 @@ table 10750 "SII History"
     {
     }
 
+    trigger OnInsert()
+    begin
+        FeatureTelemetry.LogUsage('1000HY2', ESSIITok, 'ES SII - Invoice and Credit Memo Types in Sales and Purchase Documents Feature Used');
+    end;
+
     var
+        FeatureTelemetry: Codeunit "Feature Telemetry";
+        ESSIITok: Label 'ES SII - Invoice and Credit Memo Types in Sales and Purchase Documents', Locked = true;
         CommunicationErrorWithRetriesErr: Label '%1. More details may be available in the content of the response. There are %2 automatic retries left before failure.', Comment = '@1 is the error message.@2 is the number or automatic retries before the upload is considered failed.';
         MarkAsNotAcceptedErr: Label 'Marked as not accepted by %1 on %2.', Comment = '%1 = user id;%2 = date time of mark';
         MarkAsAcceptedErr: Label 'Marked as accepted by %1 on %2.', Comment = '%1 = user id;%2 = date time of mark';

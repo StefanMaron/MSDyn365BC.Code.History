@@ -121,6 +121,7 @@ report 10715 "Telematic VAT Declaration"
 
     trigger OnPostReport()
     begin
+        FeatureTelemetry.LogUptake('1000HV9', ESTelematicVATTok, Enum::"Feature Uptake Status"::"Used");
         TransferenceFormat.Reset();
         TransferenceFormat.Find('-');
         repeat
@@ -155,6 +156,7 @@ report 10715 "Telematic VAT Declaration"
 
         TransferenceFormat.Modify();
         FileGeneration(TransferenceFormat);
+        FeatureTelemetry.LogUsage('0000HW0', ESTelematicVATTok, 'ES Templates for Telematic VAT Statements in Text File Format Created');
     end;
 
     trigger OnPreReport()
@@ -170,6 +172,8 @@ report 10715 "Telematic VAT Declaration"
     end;
 
     var
+        FeatureTelemetry: Codeunit "Feature Telemetry";
+        ESTelematicVATTok: Label 'ES Create Templates for Telematic VAT Statements in Text File Format', Locked = true;
         Text1100000: Label 'Previous and within the period VAT entries';
         Text1100001: Label 'Period: ';
         Text1100003: Label 'E';

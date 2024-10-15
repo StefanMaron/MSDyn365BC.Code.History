@@ -103,6 +103,7 @@ page 10710 "XML Transference Format"
 
     trigger OnOpenPage()
     begin
+        FeatureTelemetry.LogUptake('1000HW1', ESVATXMLTok, Enum::"Feature Uptake Status"::Discovered);
         if "VAT Statement Name" <> '' then
             VATStmtCode := "VAT Statement Name"
         else begin
@@ -113,6 +114,8 @@ page 10710 "XML Transference Format"
 
     var
         VATSmtName: Record "VAT Statement Name";
+        FeatureTelemetry: Codeunit "Feature Telemetry";
+        ESVATXMLTok: Label 'ES Export VAT Statements in XML Format', Locked = true;
         VATStmtCode: Code[10];
         [InDataSet]
         DescriptionEmphasize: Boolean;

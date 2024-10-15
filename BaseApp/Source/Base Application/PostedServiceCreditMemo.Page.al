@@ -355,6 +355,11 @@ page 5972 "Posted Service Credit Memo"
                         Editable = false;
                         ToolTip = 'Specifies the Credit Memo Type.';
                     }
+                    field("Issued By Third Party"; "Issued By Third Party")
+                    {
+                        ApplicationArea = Basic, Suite;
+                        ToolTip = 'Specifies that the credit memo was issued by a third party.';
+                    }
                     field("Do Not Send To SII"; "Do Not Send To SII")
                     {
                         ApplicationArea = Basic, Suite;

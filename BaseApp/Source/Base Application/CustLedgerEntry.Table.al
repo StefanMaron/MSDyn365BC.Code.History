@@ -704,6 +704,10 @@
         {
             Caption = 'Do Not Send To SII';
         }
+        field(10725; "Issued By Third Party"; Boolean)
+        {
+            Caption = 'Issued By Third Party';
+        }
         field(7000000; "Bill No."; Code[20])
         {
             Caption = 'Bill No.';
@@ -1175,6 +1179,7 @@
         "Succeeded Company Name" := GenJnlLine."Succeeded Company Name";
         "Succeeded VAT Registration No." := GenJnlLine."Succeeded VAT Registration No.";
         "ID Type" := GenJnlLine."ID Type";
+        "Issued By Third Party" := GenJnlLine."Issued By Third Party";
         "Do Not Send To SII" := GenJnlLine."Do Not Send To SII";
 
         OnAfterCopyCustLedgerEntryFromGenJnlLine(Rec, GenJnlLine);

@@ -78,6 +78,7 @@ page 425 "Vendor Bank Account Card"
 
                     trigger OnValidate()
                     begin
+                        FeatureTelemetry.LogUptake('1000HW6', ESElecPaymentsTok, Enum::"Feature Uptake Status"::Discovered);
                         UseForElectronicPaymentsOnPush;
                     end;
                 }
@@ -176,5 +177,9 @@ page 425 "Vendor Bank Account Card"
     begin
         CurrPage.Update();
     end;
+
+    var
+        FeatureTelemetry: Codeunit "Feature Telemetry";
+        ESElecPaymentsTok: Label 'ES Electronic Payments', Locked = true;
 }
 

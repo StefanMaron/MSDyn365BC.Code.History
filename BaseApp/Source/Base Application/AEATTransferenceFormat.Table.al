@@ -89,7 +89,15 @@ table 10705 "AEAT Transference Format"
     {
     }
 
+    trigger OnInsert()
+    begin
+        FeatureTelemetry.LogUptake('1000HV8', ESTelematicVATTok, Enum::"Feature Uptake Status"::"Set up");
+    end;
+
+
     var
+        FeatureTelemetry: Codeunit "Feature Telemetry";
+        ESTelematicVATTok: Label 'ES Create Templates for Telematic VAT Statements in Text File Format', Locked = true;
         Text1100000: Label '''Length'' must be at least 1';
         Text1100001: Label 'The value typed is longer than the maximum length allowed';
         i: Integer;

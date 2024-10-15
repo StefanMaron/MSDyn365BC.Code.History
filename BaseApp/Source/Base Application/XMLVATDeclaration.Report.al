@@ -118,6 +118,7 @@ report 10718 "XML VAT Declaration"
     var
         FileManagement: Codeunit "File Management";
     begin
+        FeatureTelemetry.LogUptake('1000HW3', ESVATXMLTok, Enum::"Feature Uptake Status"::"Used");
         TempAEATTransFormatXML.Reset();
         TempAEATTransFormatXML.SetRange("VAT Statement Name", VATStatementName.Name);
         TempAEATTransFormatXML.SetRange(Ask, true);
@@ -138,6 +139,7 @@ report 10718 "XML VAT Declaration"
 
         if not Download(FileName, Text1100002, '', Text1100004, ToFile) then
             exit;
+        FeatureTelemetry.LogUsage('1000HW4', ESVATXMLTok, 'ES VAT Statements in XML Format Exported');
     end;
 
     trigger OnPreReport()
@@ -151,6 +153,7 @@ report 10718 "XML VAT Declaration"
         Text1100000: Label 'VAT declaration must have Template Type %1.';
         Text1100001: Label 'The declaration does not exist.';
         Text1100002: Label 'Path XML VAT Declaration';
+        ESVATXMLTok: Label 'ES Export VAT Statements in XML Format', Locked = true;
         AEATTransFormatXML: Record "AEAT Transference Format XML";
         TempAEATTransFormatXML: Record "AEAT Transference Format XML" temporary;
         GLAccount: Record "G/L Account";
@@ -158,6 +161,7 @@ report 10718 "XML VAT Declaration"
         VATPostingSetup: Record "VAT Posting Setup";
         VATStatementName: Record "VAT Statement Name";
         XMLDOMMgt: Codeunit "XML DOM Management";
+        FeatureTelemetry: Codeunit "Feature Telemetry";
         XMLDoc: DotNet XmlDocument;
         XMLProcessingInstruction: DotNet XmlProcessingInstruction;
         RowNo: array[6] of Code[10];

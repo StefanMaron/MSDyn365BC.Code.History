@@ -134,6 +134,7 @@
                 AppendString(TextString, Finish, CustomerIdentification);
             until (Cust.Next() = 0) or Finish;
         end;
+        OnCheckCustOnBeforeCheck(VATRegNo, Number, TextString, Check);
         if not Check then
             ShowCheckCustMessage(TextString);
     end;
@@ -176,6 +177,7 @@
                 AppendString(TextString, Finish, Vend."No.");
             until (Vend.Next() = 0) or Finish;
         end;
+        OnCheckVendorOnBeforeCheck(VATRegNo, Number, TextString, Check);
         if not Check then
             ShowCheckVendMessage(TextString);
     end;
@@ -217,6 +219,7 @@
                 AppendString(TextString, Finish, Cont."No.");
             until (Cont.Next() = 0) or Finish;
         end;
+        OnCheckContactOnBeforeCheck(VATRegNo, Number, TextString, Check);
         if not Check then
             Message(StrSubstNo(Text004, TextString));
     end;
@@ -478,12 +481,27 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnCheckContactOnBeforeCheck(VATRegNo: Text[20]; Number: Code[20]; TextString: Text; var Check: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnCheckCustOnBeforeCustFindSet(var Customer: Record Customer)
     begin
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnCheckCustOnBeforeCheck(VATRegNo: Text[20]; Number: Code[20]; TextString: Text; var Check: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnCheckVendOnBeforeVendFindSet(var Vendor: Record Vendor)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCheckVendorOnBeforeCheck(VATRegNo: Text[20]; Number: Code[20]; TextString: Text; var Check: Boolean)
     begin
     end;
 

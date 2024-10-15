@@ -513,6 +513,7 @@ report 10743 "Make 340 Declaration"
             DownloadFile;
         end else
             Error(NoRecordsFoundErr);
+        FeatureTelemetry.LogUsage('1000HV4', ESReport340Tok, 'ES 340 Reports Created');
     end;
 
     trigger OnPreReport()
@@ -600,8 +601,10 @@ report 10743 "Make 340 Declaration"
         TempDetailedVendorLedgEntry: Record "Detailed Vendor Ledg. Entry" temporary;
         TempGLEntryVATEntryLink: Record "G/L Entry - VAT Entry Link" temporary;
         FileManagement: Codeunit "File Management";
+        FeatureTelemetry: Codeunit "Feature Telemetry";
         Outstr: OutStream;
         OutFile: File;
+        ESReport340Tok: Label 'ES Create Report 340', Locked = true;
         DeclarationNum: Text[4];
         FileName: Text;
         ContactName: Text[30];

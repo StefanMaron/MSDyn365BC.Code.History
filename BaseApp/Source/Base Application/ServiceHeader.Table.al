@@ -730,6 +730,7 @@
                     ServLine.SetFilter("VAT %", '<>%1', 0);
                     if ServLine.Find('-') then begin
                         RecalculatePrice := ConfirmRecalculatePrice();
+                        OnValidatePricesIncludingVATOnAfterCalcRecalculatePrice(Rec, ServLine, RecalculatePrice);
                         ServLine.SetServHeader(Rec);
 
                         if "Currency Code" = '' then
@@ -860,6 +861,7 @@
 
                 TestField("Bal. Account No.", '');
                 CustLedgEntry.SetApplyToFilters("Bill-to Customer No.", "Applies-to Doc. Type".AsInteger(), "Applies-to Doc. No.", "Applies-to Bill No.", 0);
+                OnValidateAppliestoDocNoOnAfterSetFilters(CustLedgEntry, Rec);
 
                 ApplyCustEntries.SetService(Rec, CustLedgEntry, ServHeader.FieldNo("Applies-to Doc. No."));
                 ApplyCustEntries.SetTableView(CustLedgEntry);
@@ -2496,6 +2498,10 @@
         field(10724; "Do Not Send To SII"; Boolean)
         {
             Caption = 'Do Not Send To SII';
+        }
+        field(10725; "Issued By Third Party"; Boolean)
+        {
+            Caption = 'Issued By Third Party';
         }
         field(7000000; "Applies-to Bill No."; Code[20])
         {
@@ -5099,6 +5105,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnValidateAppliestoDocNoOnAfterSetFilters(var CustLedgerEntry: Record "Cust. Ledger Entry"; var ServiceHeader: Record "Service Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnValidateCustomerNoOnBeforeDeleteLines(var ServiceHeader: Record "Service Header"; var IsHandled: Boolean)
     begin
     end;
@@ -5115,6 +5126,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnValidatePaymentTermsCodeOnBeforeValidateDueDate(var ServiceHeader: Record "Service Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidatePricesIncludingVATOnAfterCalcRecalculatePrice(var ServiceHeader: Record "Service Header"; var ServiceLine: Record "Service Line"; var RecalculatePrice: Boolean)
     begin
     end;
 

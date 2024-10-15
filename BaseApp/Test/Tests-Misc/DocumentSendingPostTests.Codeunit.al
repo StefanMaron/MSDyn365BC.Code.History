@@ -1248,14 +1248,16 @@ codeunit 139197 DocumentSendingPostTests
         LibraryVariableStorage.Enqueue(DocumentSendingProfile);
         LibraryVariableStorage.Enqueue(Customer."E-Mail");
         LibraryVariableStorage.Enqueue(SalesCrMemoHeader1."No.");
+        LibraryVariableStorage.Enqueue(DocumentSendingProfile);
         LibraryVariableStorage.Enqueue(Customer2."E-Mail");
         LibraryVariableStorage.Enqueue(SalesCrMemoHeader2."No.");
 
         SalesCrMemoHeader.SendRecords;
 
-        // [THEN] Both invoices printed in a single document
+        // [THEN] Both invoices printed in seperate documents
         FileName := LibraryVariableStorage.DequeueText;
         VerifyDocumentNosSalesInvoiceCreditMemoReportDifferentCustomer(SalesCrMemoHeader1."No.", FileName);
+        FileName := LibraryVariableStorage.DequeueText;
         VerifyDocumentNosSalesInvoiceCreditMemoReportDifferentCustomer(SalesCrMemoHeader2."No.", FileName);
 
         LibraryVariableStorage.AssertEmpty;
@@ -1308,14 +1310,16 @@ codeunit 139197 DocumentSendingPostTests
         LibraryVariableStorage.Enqueue(DocumentSendingProfile);
         LibraryVariableStorage.Enqueue(Customer."E-Mail");
         LibraryVariableStorage.Enqueue(SalesInvoiceHeader1."No.");
+        LibraryVariableStorage.Enqueue(DocumentSendingProfile);
         LibraryVariableStorage.Enqueue(Customer2."E-Mail");
         LibraryVariableStorage.Enqueue(SalesInvoiceHeader2."No.");
 
         SalesInvoiceHeader.SendRecords;
 
-        // [THEN] Both invoices printed in a single document
+        // [THEN] Both invoices printed in separate documents
         FileName := LibraryVariableStorage.DequeueText;
         VerifyDocumentNosSalesInvoiceCreditMemoReportDifferentCustomer(SalesInvoiceHeader1."No.", FileName);
+        FileName := LibraryVariableStorage.DequeueText;
         VerifyDocumentNosSalesInvoiceCreditMemoReportDifferentCustomer(SalesInvoiceHeader2."No.", FileName);
 
         LibraryVariableStorage.AssertEmpty;
@@ -3361,6 +3365,7 @@ codeunit 139197 DocumentSendingPostTests
         LibraryVariableStorage.Enqueue(DocumentSendingProfile);
         LibraryVariableStorage.Enqueue(Customer."E-Mail");
         LibraryVariableStorage.Enqueue(SalesInvoiceHeader1."No.");
+        LibraryVariableStorage.Enqueue(DocumentSendingProfile);
         LibraryVariableStorage.Enqueue(Customer2."E-Mail");
         LibraryVariableStorage.Enqueue(SalesInvoiceHeader2."No.");
 
@@ -3369,9 +3374,10 @@ codeunit 139197 DocumentSendingPostTests
         SalesInvoiceHeader.FindFirst();
         SalesInvoiceHeader.SendRecords;
 
-        // [THEN] Both invoices printed in a single document
+        // [THEN] Both invoices printed in separate documents
         FileName := LibraryVariableStorage.DequeueText;
         VerifyDocumentNosSalesInvoiceCreditMemoReportDifferentCustomer(SalesInvoiceHeader1."No.", FileName);
+        FileName := LibraryVariableStorage.DequeueText;
         VerifyDocumentNosSalesInvoiceCreditMemoReportDifferentCustomer(SalesInvoiceHeader2."No.", FileName);
 
         LibraryVariableStorage.AssertEmpty;

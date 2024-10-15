@@ -182,6 +182,7 @@ page 9306 "Purchase Quotes"
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies whether the record is open, waiting to be approved, invoiced for prepayment, or released to the next stage of processing.';
                     Visible = false;
+                    StyleExpr = StatusStyleTxt;
                 }
             }
         }
@@ -387,9 +388,10 @@ page 9306 "Purchase Quotes"
 
                     trigger OnAction()
                     var
-                        ReleasePurchDoc: Codeunit "Release Purchase Document";
+                        PurchaseHeader: Record "Purchase Header";
                     begin
-                        ReleasePurchDoc.PerformManualRelease(Rec);
+                        CurrPage.SetSelectionFilter(PurchaseHeader);
+                        Rec.PerformManualRelease(PurchaseHeader);
                     end;
                 }
                 action(Reopen)
@@ -401,9 +403,10 @@ page 9306 "Purchase Quotes"
 
                     trigger OnAction()
                     var
-                        ReleasePurchDoc: Codeunit "Release Purchase Document";
+                        PurchaseHeader: Record "Purchase Header";
                     begin
-                        ReleasePurchDoc.PerformManualReopen(Rec);
+                        CurrPage.SetSelectionFilter(PurchaseHeader);
+                        Rec.PerformManualReopen(PurchaseHeader);
                     end;
                 }
             }
@@ -454,6 +457,11 @@ page 9306 "Purchase Quotes"
         }
     }
 
+    trigger OnAfterGetRecord()
+    begin
+        StatusStyleTxt := Rec.GetStatusStyleText();
+    end;
+
     trigger OnAfterGetCurrRecord()
     begin
         SetControlAppearance;
@@ -471,6 +479,8 @@ page 9306 "Purchase Quotes"
         DocPrint: Codeunit "Document-Print";
         OpenApprovalEntriesExist: Boolean;
         CanCancelApprovalForRecord: Boolean;
+        [InDataSet]
+        StatusStyleTxt: Text;
 
     local procedure SetControlAppearance()
     var

@@ -96,8 +96,15 @@ table 10710 "AEAT Transference Format XML"
             Error(Text1100002);
     end;
 
+    trigger OnInsert()
+    begin
+        FeatureTelemetry.LogUptake('1000HW2', ESVATXMLTok, Enum::"Feature Uptake Status"::"Set up");
+    end;
+
     var
         AEATTransferenceFormatXML: Record "AEAT Transference Format XML";
+        FeatureTelemetry: Codeunit "Feature Telemetry";
+        ESVATXMLTok: Label 'ES Export VAT Statements in XML Format', Locked = true;
         Text1100000: Label 'It is not possible to insert a value and a box at the same time. The data that will appear in this label in the XML file must either come from a Box in the VAT Statement or be introduced manually in the Value field.';
         Text1100001: Label 'If a value is introduced in the Box field, you must specify the format you want for the amounts that will be shown in this line. This means, you must select a format different than blank in the field Value Type.';
         Text1100002: Label 'A value or box is mandatory for Attributes';

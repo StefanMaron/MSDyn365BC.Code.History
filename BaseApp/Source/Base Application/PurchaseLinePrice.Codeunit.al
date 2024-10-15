@@ -63,7 +63,8 @@ codeunit 7021 "Purchase Line - Price" implements "Line With Price"
             else
                 Result :=
                     Result or
-                    not ((CalledByFieldNo = PurchaseLine.FieldNo(Quantity)) or
+                    not ((CalledByFieldNo = PurchaseLine.FieldNo("Job No.")) or (CalledByFieldNo = PurchaseLine.FieldNo("Job Task No.")) or
+                         (CalledByFieldNo = PurchaseLine.FieldNo(Quantity)) or
                         ((CalledByFieldNo = PurchaseLine.FieldNo("Variant Code")) and not IsSKU));
     end;
 
@@ -175,16 +176,19 @@ codeunit 7021 "Purchase Line - Price" implements "Line With Price"
     end;
 
     local procedure AddSources()
-    var
-        SourceType: Enum "Price Source Type";
     begin
         PriceSourceList.Init();
-        PriceSourceList.Add(SourceType::"All Vendors");
-        PriceSourceList.Add(SourceType::Vendor, PurchaseHeader."Buy-from Vendor No.");
-        PriceSourceList.Add(SourceType::Contact, PurchaseHeader."Buy-from Contact No.");
-        PriceSourceList.Add(SourceType::Campaign, PurchaseHeader."Campaign No.");
-
+        AddVendorSources();
+        PriceSourceList.AddJobAsSources(PurchaseLine."Job No.", PurchaseLine."Job Task No.");
         OnAfterAddSources(PurchaseHeader, PurchaseLine, CurrPriceType, PriceSourceList);
+    end;
+
+    local procedure AddVendorSources()
+    begin
+        PriceSourceList.Add("Price Source Type"::"All Vendors");
+        PriceSourceList.Add("Price Source Type"::Vendor, PurchaseHeader."Buy-from Vendor No.");
+        PriceSourceList.Add("Price Source Type"::Contact, PurchaseHeader."Buy-from Contact No.");
+        PriceSourceList.Add("Price Source Type"::Campaign, PurchaseHeader."Campaign No.");
     end;
 
     local procedure GetDocumentDate() DocumentDate: Date;

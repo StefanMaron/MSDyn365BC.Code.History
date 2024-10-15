@@ -136,12 +136,16 @@ codeunit 147330 "Edit Posted Documents ES"
     var
         SalesCrMemoHeader: Record "Sales Cr.Memo Header";
         PostedSalesCreditMemo: TestPage "Posted Sales Credit Memo";
+        SIIDocUploadState: Record "SII Doc. Upload State";
         PostedDocNo: Code[20];
     begin
         // [FEATURE] [Sales Credit Memo] [Permissions]
         // [SCENARIO 308913] New values for editable fields are set in case Stan presses OK on "Pstd. Sales Cr. Memo - Update" modal page.
         Initialize();
         PrepareValuesForEditableFieldsPostedSalesCreditMemo(SalesCrMemoHeader);
+        MockSIIDocUploadState(
+            SIIDocUploadState, SIIDocUploadState."Document Source"::"Customer Ledger",
+            SIIDocUploadState."Document Type"::"Credit Memo", SalesCrMemoHeader."Posting Date", SalesCrMemoHeader."No.");
 
         // [GIVEN] Opened "Pstd. Sales Cr. Memo - Update" page. A user with "D365 Sales Doc, Post" permission set.
         // [GIVEN] New values are set for editable fields.
@@ -158,7 +162,12 @@ codeunit 147330 "Edit Posted Documents ES"
         // [THEN] Values of these fields in Sales Cr.Memo Header were changed.
         Assert.AreEqual(Format(SalesCrMemoHeader."Special Scheme Code"), PostedSalesCreditMemo."Special Scheme Code".Value, '');
         Assert.AreEqual(Format(SalesCrMemoHeader."Cr. Memo Type"), PostedSalesCreditMemo."Cr. Memo Type".Value, '');
-        Assert.AreEqual(Format(SalesCrMemoHeader."Correction Type"), PostedSalesCreditMemo."Correction Type".Value, '');
+        Assert.AreEqual(Format(SalesCrMemoHeader."Correction Type"::Difference), PostedSalesCreditMemo."Correction Type".Value, '');
+
+        // [THEN] "Is Credit Memo Removal" is disabled in the SII Doc. Upload State
+        // Bug 440952: "Is Credit Memo Removal" is disabled when user changeed the correction type from Removal to Difference
+        SIIDocUploadState.Find();
+        SIIDocUploadState.TestField("Is Credit Memo Removal", false);
 
         LibraryVariableStorage.AssertEmpty();
     end;
@@ -202,6 +211,7 @@ codeunit 147330 "Edit Posted Documents ES"
     procedure PostedPurchCrMemoUpdateSetValuesOK()
     var
         PurchCrMemoHdr: Record "Purch. Cr. Memo Hdr.";
+        SIIDocUploadState: Record "SII Doc. Upload State";
         PostedPurchaseCreditMemo: TestPage "Posted Purchase Credit Memo";
         PostedDocNo: Code[20];
     begin
@@ -209,6 +219,9 @@ codeunit 147330 "Edit Posted Documents ES"
         // [SCENARIO 308913] New values for editable fields are set in case Stan presses OK on "Posted Purch. Cr.Memo - Update" modal page.
         Initialize();
         PrepareValuesForEditableFieldsPostedPurchaseCreditMemo(PurchCrMemoHdr);
+        MockSIIDocUploadState(
+            SIIDocUploadState, SIIDocUploadState."Document Source"::"Vendor Ledger",
+            SIIDocUploadState."Document Type"::"Credit Memo", PurchCrMemoHdr."Posting Date", PurchCrMemoHdr."No.");
 
         // [GIVEN] Opened "Posted Purch. Cr.Memo - Update" page. A user with "D365 Purch Doc, Post" permission set.
         // [GIVEN] New values are set for editable fields.
@@ -225,7 +238,12 @@ codeunit 147330 "Edit Posted Documents ES"
         // [THEN] Values of these fields in Purch. Cr. Memo Hdr. were changed.
         Assert.AreEqual(Format(PurchCrMemoHdr."Special Scheme Code"), PostedPurchaseCreditMemo."Special Scheme Code".Value, '');
         Assert.AreEqual(Format(PurchCrMemoHdr."Cr. Memo Type"), PostedPurchaseCreditMemo."Cr. Memo Type".Value, '');
-        Assert.AreEqual(Format(PurchCrMemoHdr."Correction Type"), PostedPurchaseCreditMemo."Correction Type".Value, '');
+        Assert.AreEqual(Format(PurchCrMemoHdr."Correction Type"::Difference), PostedPurchaseCreditMemo."Correction Type".Value, '');
+
+        // [THEN] "Is Credit Memo Removal" is disabled in the SII Doc. Upload State
+        // Bug 440952: "Is Credit Memo Removal" is disabled when user changeed the correction type from Removal to Difference
+        SIIDocUploadState.Find();
+        SIIDocUploadState.TestField("Is Credit Memo Removal", false);
 
         LibraryVariableStorage.AssertEmpty();
     end;
@@ -1340,14 +1358,14 @@ codeunit 147330 "Edit Posted Documents ES"
     begin
         LibraryVariableStorage.Enqueue(SalesCrMemoHeader."Special Scheme Code");
         LibraryVariableStorage.Enqueue(SalesCrMemoHeader."Cr. Memo Type");
-        LibraryVariableStorage.Enqueue(SalesCrMemoHeader."Correction Type");
+        LibraryVariableStorage.Enqueue(Format(SalesCrMemoHeader."Correction Type"::Difference));
     end;
 
     local procedure EnqueValuesForEditableFieldsPostedPurchaseCreditMemo(PurchCrMemoHdr: Record "Purch. Cr. Memo Hdr.")
     begin
         LibraryVariableStorage.Enqueue(PurchCrMemoHdr."Special Scheme Code");
         LibraryVariableStorage.Enqueue(PurchCrMemoHdr."Cr. Memo Type");
-        LibraryVariableStorage.Enqueue(PurchCrMemoHdr."Correction Type");
+        LibraryVariableStorage.Enqueue(Format(PurchCrMemoHdr."Correction Type"::Difference));
     end;
 
     local procedure EnqueValuesForEditableFieldsPostedServiceInvoice(ServiceInvoiceHeader: Record "Service Invoice Header")
@@ -1386,7 +1404,7 @@ codeunit 147330 "Edit Posted Documents ES"
         SalesCrMemoHeader.Init();
         SalesCrMemoHeader."Special Scheme Code" := "SII Sales Special Scheme Code".FromInteger(LibraryRandom.RandIntInRange(1, 10));
         SalesCrMemoHeader."Cr. Memo Type" := "SII Sales Credit Memo Type".FromInteger(LibraryRandom.RandIntInRange(1, 5));
-        SalesCrMemoHeader."Correction Type" := LibraryRandom.RandIntInRange(1, 3);
+        SalesCrMemoHeader."Correction Type" := SalesCrMemoHeader."Correction Type"::Removal;
         SalesInvoiceHeader.Init();
         SalesInvoiceHeader."No." :=
           LibraryUtility.GenerateRandomCode(SalesInvoiceHeader.FieldNo("No."), DATABASE::"Sales Invoice Header");
@@ -1401,7 +1419,7 @@ codeunit 147330 "Edit Posted Documents ES"
         PurchCrMemoHdr.Init();
         PurchCrMemoHdr."Special Scheme Code" := "SII Purch. Special Scheme Code".FromInteger(LibraryRandom.RandIntInRange(1, 10));
         PurchCrMemoHdr."Cr. Memo Type" := "SII Purch. Credit Memo Type".FromInteger(LibraryRandom.RandIntInRange(1, 5));
-        PurchCrMemoHdr."Correction Type" := LibraryRandom.RandIntInRange(1, 3);
+        PurchCrMemoHdr."Correction Type" := PurchCrMemoHdr."Correction Type"::Removal;
         PurchInvHeader.Init();
         PurchInvHeader."No." :=
           LibraryUtility.GenerateRandomCode(PurchInvHeader.FieldNo("No."), DATABASE::"Purch. Inv. Header");
@@ -1436,6 +1454,16 @@ codeunit 147330 "Edit Posted Documents ES"
         ServiceCrMemoHeader.Init();
         ServiceCrMemoHeader."Special Scheme Code" := "SII Sales Special Scheme Code".FromInteger(LibraryRandom.RandIntInRange(1, 10));
         ServiceCrMemoHeader."Cr. Memo Type" := "SII Sales Credit Memo Type".FromInteger(LibraryRandom.RandIntInRange(1, 3));
+    end;
+
+    local procedure MockSIIDocUploadState(var SIIDocUploadState: Record "SII Doc. Upload State"; DocSource: Enum "SII Doc. Upload State Document Source"; DocType: Enum "SII Doc. Upload State Document Type"; PostingDate: Date; DocNo: Code[20])
+    begin
+        SIIDocUploadState.init;
+        SIIDocUploadState."Document Source" := DocSource;
+        SIIDocUploadState."Document Type" := DocType;
+        SIIDocUploadState."Posting Date" := PostingDate;
+        SIIDocUploadState."Document No." := DocNo;
+        SIIDocUploadState.Insert();
     end;
 
     [ConfirmHandler]

@@ -1546,6 +1546,8 @@ codeunit 134265 "Payment Recon. E2E Tests 1"
         LibraryLowerPermissions.AddO365Setup();
         CreateBankAccReconAndImportStmt(BankAccRecon, TempBlobUTF8, '');
         BankAccRecon.Get(BankAccRecon."Statement Type", BankAccRecon."Bank Account No.", BankAccRecon."Statement No.");
+        BankAccRecon."Statement Date" := CalcDate('+20Y', Today());
+        BankAccRecon.Modify();
         PostPayment(CustLedgEntry, BankAccRecon."Bank Account No.");
         CustLedgerAmount := CustLedgEntry."Remaining Amount" - CustLedgEntry."Remaining Pmt. Disc. Possible";
 
@@ -1598,6 +1600,8 @@ codeunit 134265 "Payment Recon. E2E Tests 1"
         LibraryLowerPermissions.AddO365Setup();
         CreateBankAccReconAndImportStmt(BankAccRecon, TempBlobUTF8, '');
         BankAccRecon.Get(BankAccRecon."Statement Type", BankAccRecon."Bank Account No.", BankAccRecon."Statement No.");
+        BankAccRecon."Statement Date" := CalcDate('+20Y', Today());
+        BankAccRecon.Modify();
         PostPayment(CustLedgEntry, BankAccRecon."Bank Account No.");
         PostPayment(CustLedgEntry2, BankAccRecon."Bank Account No.");
 
@@ -1708,6 +1712,8 @@ codeunit 134265 "Payment Recon. E2E Tests 1"
         LibraryLowerPermissions.AddO365Setup();
         CreateBankAccReconAndImportStmt(BankAccRecon, TempBlobUTF8, '');
         BankAccRecon.Get(BankAccRecon."Statement Type", BankAccRecon."Bank Account No.", BankAccRecon."Statement No.");
+        BankAccRecon."Statement Date" := CalcDate('+20Y', Today());
+        BankAccRecon.Modify();
         PostPayment(CustLedgEntry, BankAccRecon."Bank Account No.");
         PostPayment(CustLedgEntry2, BankAccRecon."Bank Account No.");
 

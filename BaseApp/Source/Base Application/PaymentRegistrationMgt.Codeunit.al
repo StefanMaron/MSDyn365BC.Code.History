@@ -197,7 +197,8 @@ codeunit 980 "Payment Registration Mgt."
             SalesHeader.SetFilter("No.", DocNoFilter);
             if SalesHeader.FindSet() then
                 repeat
-                    SalesHeader.CalcFields(Amount, "Amount Including VAT");
+                    SalesHeader.CalcFields("Amount Including VAT");
+                    OnFindSalesHeaderRecordsOnBeforeToleranceCheck(SalesHeader);
                     if IsWithinTolerance(SalesHeader."Amount Including VAT", AmountFilter, AmountTolerancePerc) then
                         InsertDocSearchResult(TempDocumentSearchResult, SalesHeader."No.", SalesHeader."Document Type".AsInteger(), DATABASE::"Sales Header",
                           GetSalesHeaderDescription(SalesHeader), SalesHeader."Amount Including VAT");
@@ -672,6 +673,11 @@ codeunit 980 "Payment Registration Mgt."
 
     [IntegrationEvent(false, false)]
     procedure OnBeforePost(var TempPaymentRegistrationBuffer: Record "Payment Registration Buffer" temporary)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    procedure OnFindSalesHeaderRecordsOnBeforeToleranceCheck(var SalesHeader: Record "Sales Header")
     begin
     end;
 }

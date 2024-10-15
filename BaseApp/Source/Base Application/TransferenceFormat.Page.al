@@ -85,6 +85,7 @@ page 10704 "Transference Format"
 
     trigger OnOpenPage()
     begin
+        FeatureTelemetry.LogUptake('1000HV7', ESTelematicVATTok, Enum::"Feature Uptake Status"::Discovered);
         if "VAT Statement Name" <> '' then
             VATStmtCode := "VAT Statement Name"
         else begin
@@ -95,6 +96,8 @@ page 10704 "Transference Format"
 
     var
         VATSmtName: Record "VAT Statement Name";
+        FeatureTelemetry: Codeunit "Feature Telemetry";
+        ESTelematicVATTok: Label 'ES Create Templates for Telematic VAT Statements in Text File Format', Locked = true;
         VATStmtCode: Code[10];
 
     local procedure VATStmtCodeOnAfterValidate()
