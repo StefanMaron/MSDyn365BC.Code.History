@@ -225,18 +225,18 @@ report 88 "VAT- VIES Declaration Disk"
     local procedure GetCustomerNoToCheck(VATEntry: Record "VAT Entry"): Code[20]
     var
         CustLedgerEntry: Record "Cust. Ledger Entry";
+        DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry";
     begin
         if GeneralLedgerSetup."Bill-to/Sell-to VAT Calc." = GeneralLedgerSetup."Bill-to/Sell-to VAT Calc."::"Bill-to/Pay-to No." then
             exit(VATEntry."Bill-to/Pay-to No.");
 
-        with CustLedgerEntry do begin
-            SetRange("Customer No.", VATEntry."Bill-to/Pay-to No.");
-            SetRange("Document Type", VATEntry."Document Type");
-            SetRange("Document No.", VATEntry."Document No.");
-            SetRange("Posting Date", VATEntry."Posting Date");
-            FindFirst;
-            exit("Sell-to Customer No.");
-        end;
+        DetailedCustLedgEntry.SetRange("Customer No.", VATEntry."Bill-to/Pay-to No.");
+        DetailedCustLedgEntry.SetRange("Document Type", VATEntry."Document Type");
+        DetailedCustLedgEntry.SetRange("Document No.", VATEntry."Document No.");
+        DetailedCustLedgEntry.SetRange("Posting Date", VATEntry."Posting Date");
+        DetailedCustLedgEntry.FindFirst;
+        CustLedgerEntry.Get(DetailedCustLedgEntry."Cust. Ledger Entry No.");
+        exit(CustLedgerEntry."Sell-to Customer No.");
     end;
 
     procedure GetFileName(): Text[1024]

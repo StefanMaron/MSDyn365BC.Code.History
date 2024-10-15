@@ -211,6 +211,42 @@ codeunit 144048 "Sales Document VAT Amount"
         SalesLine.TestField("Amount Including VAT", ExpectedAmountInclVAT);
     end;
 
+    [Test]
+    procedure UpdateSalesOrderShipmentDateAfterPostingPrepayment()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        Item: Record Item;
+    begin
+        // [FEATURE] [Prepayment] [Shipment Date]
+        // [SCENARIO 404747] Sales Order "Shipment Date" can be changed after posting prepayment invoice
+        Initialize();
+
+        // [GIVEN] Sales order with prepayment
+        LibraryInventory.CreateItem(Item);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo());
+        SalesHeader.Validate("Prepayment %", LibraryRandom.RandInt(100));
+        SalesHeader.Modify(true);
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", 1);
+        SalesLine.Validate("Unit Price", LibraryRandom.RandDec(1000, 2));
+        SalesLine.Modify(true);
+
+        // [GIVEN] Post prepayment invoice
+        LibrarySales.PostSalesPrepaymentInvoice(SalesHeader);
+
+        // [GIVEN] Reopen the order
+        LibrarySales.ReopenSalesDocument(SalesHeader);
+
+        // [WHEN] Modify "Shipment Date"
+        SalesHeader.Find();
+        SalesHeader.Validate("Shipment Date", SalesHeader."Shipment Date" + 1);
+        SalesHeader.Modify(true);
+
+        // [THEN] Shipment Date has been updated
+        SalesLine.Find();
+        SalesLine.TestField("Shipment Date", SalesHeader."Shipment Date");
+    end;
+
     local procedure Initialize()
     begin
         if IsInitialized = true then

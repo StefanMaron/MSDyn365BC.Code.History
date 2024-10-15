@@ -1409,7 +1409,7 @@
                 IsHandled: Boolean;
             begin
                 TestStatusOpen();
-                if "Prepmt. Amt. Inv." <> 0 then
+                if ("Prepmt. Amt. Inv." <> 0) and (Rec."VAT Prod. Posting Group" <> xRec."VAT Prod. Posting Group") then
                     Error(CannotChangeVATGroupWithPrepmInvErr);
                 VATPostingSetup.Get("VAT Bus. Posting Group", "VAT Prod. Posting Group");
                 "VAT Difference" := 0;
