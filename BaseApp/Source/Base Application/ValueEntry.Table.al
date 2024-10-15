@@ -773,7 +773,7 @@ table 5802 "Value Entry"
 
     procedure IsDebit() Debit: Boolean
     begin
-        exit(Positive xor "Red Storno");
+        exit((("Cost Amount (Actual)" = 0) and Positive or ("Cost Amount (Actual)" > 0)) xor "Red Storno");
     end;
 
     procedure IsInbound(): Boolean

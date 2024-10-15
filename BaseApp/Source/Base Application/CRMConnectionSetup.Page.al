@@ -380,6 +380,7 @@ page 5330 "CRM Connection Setup"
 
                 trigger OnAction()
                 begin
+                    Commit();
                     DeployCRMSolution(true);
                 end;
             }

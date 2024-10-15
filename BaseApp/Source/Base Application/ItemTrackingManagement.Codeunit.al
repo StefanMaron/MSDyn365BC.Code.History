@@ -2924,6 +2924,20 @@
         end;
     end;
 
+    procedure CalcWhseItemTrkgLineQtyBase(SourceType: Integer; SourceSubtype: Integer; SourceId: Code[20]; SourceBatchName: Code[10]; SourceProdOrderLine: Integer; SourceRefNo: Integer; LocationCode: Code[10]; ItemTrackingSetup: Record "Item Tracking Setup"): Decimal
+    var
+        WhseItemTrackingLine: Record "Whse. Item Tracking Line";
+    begin
+        with WhseItemTrackingLine do begin
+            SetSourceFilter(SourceType, SourceSubtype, SourceId, SourceRefNo, true);
+            SetSourceFilter(SourceBatchName, SourceProdOrderLine);
+            SetRange("Location Code", LocationCode);
+            SetTrackingFilterFromItemTrackingSetupIfNotBlank(ItemTrackingSetup);
+            CalcSums("Quantity (Base)");
+            exit("Quantity (Base)");
+        end;
+    end;
+
     local procedure SetWhseSerialLotNo(var DestNo: Code[50]; SourceNo: Code[50]; NoRequired: Boolean)
     begin
         if NoRequired then

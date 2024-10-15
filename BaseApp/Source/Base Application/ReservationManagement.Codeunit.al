@@ -690,6 +690,9 @@
                 StopReservation := true;
         end;
 
+        if CalcReservEntry."Source Type" = DATABASE::"Job Planning Line" then
+            StopReservation := CalcReservEntry."Source Subtype" <> 2;
+
         OnAutoReserveOnBeforeStopReservation(CalcReservEntry, FullAutoReservation, AvailabilityDate, MaxQtyToReserve, MaxQtyToReserveBase, StopReservation);
         if StopReservation then begin
             FullAutoReservation := true;

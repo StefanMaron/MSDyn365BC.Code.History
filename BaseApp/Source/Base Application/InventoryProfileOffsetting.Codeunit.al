@@ -1275,10 +1275,7 @@
         TempSKU.SetCurrentKey("Item No.", "Transfer-Level Code");
         if TempSKU.Find('-') then
             repeat
-                IsReorderPointPlanning :=
-                  (TempSKU."Reorder Point" > TempSKU."Safety Stock Quantity") or
-                  (TempSKU."Reordering Policy" = TempSKU."Reordering Policy"::"Maximum Qty.") or
-                  (TempSKU."Reordering Policy" = TempSKU."Reordering Policy"::"Fixed Reorder Qty.");
+                IsReorderPointPlanning := IsSKUSetUpForReorderPointPlanning(TempSKU);
                 OnPlanItemAfterCalcIsReorderPointPlanning(TempSKU, IsReorderPointPlanning);
 
                 BucketSize := TempSKU."Time Bucket";
@@ -2736,9 +2733,10 @@
                 ReqLine."Ending Date" :=
                   LeadTimeMgt.PlannedEndingDate(
                     "Item No.", "Location Code", "Variant Code", "Due Date", '', ReqLine."Ref. Order Type");
-                if CalcDate(TempSKU."Safety Lead Time", ReqLine."Ending Date") = ReqLine."Ending Date" then
-                    if CalcDate(ManufacturingSetup."Default Safety Lead Time", ReqLine."Ending Date") = ReqLine."Ending Date" then
-                        ReqLine."Ending Time" := "Due Time";
+                if not IsSKUSetUpForReorderPointPlanning(TempSKU) then
+                    if CalcDate(TempSKU."Safety Lead Time", ReqLine."Ending Date") = ReqLine."Ending Date" then
+                        if CalcDate(ManufacturingSetup."Default Safety Lead Time", ReqLine."Ending Date") = ReqLine."Ending Date" then
+                            ReqLine."Ending Time" := "Due Time";
             end else begin
                 ReqLine."Ending Date" := "Due Date";
                 ReqLine."Ending Time" := "Due Time";
@@ -4626,6 +4624,13 @@
     begin
         if LotAccumulationPeriodStartDate > 0D then
             exit(CalcDate(TempSKU."Lot Accumulation Period", LotAccumulationPeriodStartDate) >= DemandDueDate);
+    end;
+
+    local procedure IsSKUSetUpForReorderPointPlanning(SKU: Record "Stockkeeping Unit"): Boolean
+    begin
+        exit(
+          (SKU."Reorder Point" > SKU."Safety Stock Quantity") or
+          (SKU."Reordering Policy" in [SKU."Reordering Policy"::"Maximum Qty.", SKU."Reordering Policy"::"Fixed Reorder Qty."]));
     end;
 
     local procedure InsertPlanningComponent(var PlanningComponent: Record "Planning Component");
