@@ -1938,7 +1938,7 @@ table 130 "Incoming Document"
         if not DataTypeManagement.FindFieldByName(MainRecordRef, PostingDateFieldRef, SalesInvoiceHeader.FieldName("Posting Date")) then
             exit(false);
 
-        exit(FindByDocumentNoAndPostingDate(MainRecordRef, IncomingDocument, DocumentNoFieldRef.Value, PostingDateFieldRef.Value))
+        exit(FindByDocumentNoAndPostingDate(IncomingDocument, DocumentNoFieldRef.Value, PostingDateFieldRef.Value))
     end;
 
     procedure FindByDocumentNoAndPostingDate(MainRecordRef: RecordRef; var IncomingDocument: Record "Incoming Document"; DocumentNo: Text; PostingDateText: Text): Boolean
@@ -2011,7 +2011,7 @@ table 130 "Incoming Document"
                 end;
         end;
 
-        exit(IncomingDocument.FindFirst);
+        exit(IncomingDocument.FindFirst());
     end;
 
     procedure FindByDocumentNoAndPostingDate(var IncomingDocument: Record "Incoming Document"; DocumentNo: Text; PostingDateText: Text): Boolean

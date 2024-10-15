@@ -13,6 +13,7 @@ codeunit 145403 "AU Feature Bugs"
         LibraryERM: Codeunit "Library - ERM";
         LibraryPurchase: Codeunit "Library - Purchase";
         LibraryRandom: Codeunit "Library - Random";
+        LibrarySales: Codeunit "Library - Sales";
         AmountMustBeZeroMsg: Label 'Amount must be zero.';
 
     [Test]
@@ -66,6 +67,56 @@ codeunit 145403 "AU Feature Bugs"
 
         // [THEN] Verify that reversed GST Purchase Entry gets created.
         VerifyGSTPurchaseEntry(DocumentNo);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure VerifyWHTPostingGroupNotToBeIndicatedForCommentLines()
+    var
+        GeneralLedgerSetup: Record "General Ledger Setup";
+        VATPostingSetup: Record "VAT Posting Setup";
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        PurchaseLine2: Record "Purchase Line";
+        WHTPostingSetup: Record "WHT Posting Setup";
+        StandardText: Record "Standard Text";
+    begin
+        // [SCENARIO 452097] WHT posting group code must be indicated for comment lines on the Purchase invoice page
+
+        // [GIVEN] Create WHT Posting Setup, Update General Ledger Setup and VAT Posting Setup
+        CreateWHTPostingSetup(WHTPostingSetup);
+        UpdateGeneralLedgerSetup(true, true, true, true);  // Using TRUE for EnableTaxInvoices,EnableWHT,PrintTaxInvoicesOnPosting,UnrealizedVAT.
+        FindAndUpdateVATPostingSetup(VATPostingSetup);
+
+        // [GIVEN] Create Purchase Header
+        LibraryPurchase.CreatePurchHeader(
+          PurchaseHeader, PurchaseHeader."Document Type"::Invoice, CreateVendor(VATPostingSetup."VAT Bus. Posting Group",
+            WHTPostingSetup."WHT Business Posting Group"));
+
+        // [GIVEN] Create Purchase Line with Type as G/L Account
+        LibraryPurchase.CreatePurchaseLine(
+          PurchaseLine, PurchaseHeader, PurchaseLine.Type::"G/L Account", CreateGLAccount(VATPostingSetup."VAT Prod. Posting Group",
+            WHTPostingSetup."WHT Product Posting Group"), LibraryRandom.RandDec(10, 2));  // Using random value for Quantity.
+
+        // [GIVEN] Create Standard Text
+        LibrarySales.CreateStandardText(StandardText);
+
+        // [GIVEN] Create Purchase Line with Type as empty
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine2, PurchaseHeader, PurchaseLine2.Type::" ", StandardText.Code, LibraryRandom.RandInt(10));
+
+        // [WHEN] WHT Product Posting Group assigned with empty value when Purchase Line Type as empty
+        PurchaseLine2."WHT Business Posting Group" := WHTPostingSetup."WHT Business Posting Group";
+        PurchaseLine2.Modify();
+
+        // [THEN] Verify Purchase Invoice to be posted without WHT Posting Group indication
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeader, false, true);
+
+        // Tear Down: Roll back VAT Posting Setup and General Ledger Setup
+        UpdateVATPostingSetup(
+          VATPostingSetup."VAT Bus. Posting Group", VATPostingSetup."VAT Prod. Posting Group", VATPostingSetup."Unrealized VAT Type");
+        UpdateGeneralLedgerSetup(
+          GeneralLedgerSetup."Enable Tax Invoices", GeneralLedgerSetup."Enable WHT", GeneralLedgerSetup."Print Tax Invoices on Posting",
+          GeneralLedgerSetup."Unrealized VAT");
     end;
 
     local procedure CreateAndPostGeneralJournalLine(): Code[20]

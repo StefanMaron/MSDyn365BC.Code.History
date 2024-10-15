@@ -4536,11 +4536,14 @@
             "Prepayment VAT Difference" := 0;
             if not PrePaymentLineAmountEntered then
                 if not CalculateFullGST("Prepmt. Line Amount") then begin
-                    "Prepmt. Line Amount" := Round("Line Amount" * "Prepayment %" / 100, Currency."Amount Rounding Precision");
-                    if abs("Inv. Discount Amount" + "Prepmt. Line Amount") > abs("Line Amount") then
-                        "Prepmt. Line Amount" := "Line Amount" - "Inv. Discount Amount";
+                        IsHandled := false;
+                        OnBeforeCalcPrepaymentLineAmount(Rec, Currency, IsHandled);
+                        if not IsHandled then begin
+                            "Prepmt. Line Amount" := Round("Line Amount" * "Prepayment %" / 100, Currency."Amount Rounding Precision");
+                            if abs("Inv. Discount Amount" + "Prepmt. Line Amount") > abs("Line Amount") then
+                                "Prepmt. Line Amount" := "Line Amount" - "Inv. Discount Amount";
+                        end;
                 end;
-
             PrePaymentLineAmountEntered := false;
         end;
 
@@ -8885,6 +8888,11 @@
     begin
     end;
 #endif
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCalcPrepaymentLineAmount(var SalesLine: Record "Sales Line"; Currency: Record Currency; var IsHandled: Boolean)
+    begin
+    end;
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterInitDefaultDimensionSources(var SalesLine: Record "Sales Line"; var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]]; FieldNo: Integer)

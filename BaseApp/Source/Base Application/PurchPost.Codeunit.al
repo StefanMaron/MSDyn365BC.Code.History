@@ -8280,7 +8280,8 @@
         InvoiceWHTEntryExists: Boolean;
     begin
         with PurchHeader do begin
-            WHTPostingSetup.Get(TempPurchLineGlobal."WHT Business Posting Group", TempPurchLineGlobal."WHT Product Posting Group");
+            if TempPurchLineGlobal.Type <> TempPurchLineGlobal.Type::" " then
+                WHTPostingSetup.Get(TempPurchLineGlobal."WHT Business Posting Group", TempPurchLineGlobal."WHT Product Posting Group");
             if "Document Type" in ["Document Type"::Order, "Document Type"::Invoice] then begin
                 if TotalInvAmount >= WHTPostingSetup."WHT Minimum Invoice Amount" then
                     WHTManagement.InsertVendInvoiceWHT(PurchInvHeader);

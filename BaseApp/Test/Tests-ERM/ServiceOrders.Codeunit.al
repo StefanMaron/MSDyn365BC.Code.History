@@ -68,6 +68,7 @@ codeunit 136101 "Service Orders"
         RoundingErr: Label 'is of lesser precision than expected';
         RoundingBalanceErr: Label 'This will cause the quantity and base quantity fields to be out of balance.';
         InvalidDiscCodeErr: Label 'Invalid Invoice Disc. Code';
+        UnitCostErr: Label 'Unit Cost are Not equal.';
 
     [Test]
     [Scope('OnPrem')]
@@ -4969,7 +4970,7 @@ codeunit 136101 "Service Orders"
     begin
         // [SCENARIO 449496] Invoice Disc. Code can be empty without error when trying to delete Invoice Disc. Code from Customer Template
         Initialize();
-        
+
         // [GIVEN] Create Customer Template.
         LibrarySales.CreateCustomer(Customer);
         LibraryTemplates.CreateCustomerTemplate(CustomerTemplate);
@@ -4983,6 +4984,34 @@ codeunit 136101 "Service Orders"
         // [THEN] Invoice Disc. Code can be set as empty without error
         CustomerTemplCard."Invoice Disc. Code".SetValue('');
         CustomerTemplCard.Close();
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure VerifyUnitCostOnServiceLineFromServiceQuote()
+    var
+        ServiceItemLine: Record "Service Item Line";
+        ServiceHeader: Record "Service Header";
+        ServiceLine: Record "Service Line";
+        Item: Record Item;
+    begin
+        // [SCENARIO 443766] Unit Cost on a Service Quote Service line appears as $0.00 when new Sales Pricing Feature is Enabled
+        Initialize();
+
+        // [GIVEN] Create Item and update unit cost to verify same on Service Line
+        LibraryInventory.CreateItem(Item);
+        Item.Validate("Unit Cost", LibraryRandom.RandDecInRange(1000, 2000, 2));
+        Item.Modify();
+
+        // [GIVEN] Create Service quote with Service Item Line.
+        CreateServiceQuoteWithServiceItem(ServiceItemLine);
+        ServiceHeader.Get(ServiceItemLine."Document Type"::Quote, ServiceItemLine."Document No.");
+
+        // [GIVEN] Create Service Line and validate Item on "No." field.
+        LibraryService.CreateServiceLine(ServiceLine, ServiceHeader, ServiceLine.Type::Item, Item."No.");
+
+        // [VERIFY] Verify the Unit cost on Service line will be same as on Item Card.
+        Assert.AreEqual(Item."Unit Cost", ServiceLine."Unit Cost", UnitCostErr);
     end;
 
     local procedure Initialize()
@@ -7259,6 +7288,16 @@ codeunit 136101 "Service Orders"
         ServiceCommentLine.SetRange("No.", No);
         ServiceCommentLine.SetRange("Table Line No.", TableLineNo);
         Assert.RecordCount(ServiceCommentLine, 1);
+    end;
+
+    local procedure CreateServiceQuoteWithServiceItem(var ServiceItemLine: Record "Service Item Line")
+    var
+        ServiceHeader: Record "Service Header";
+        ServiceItem: Record "Service Item";
+    begin
+        LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Quote, '');
+        LibraryService.CreateServiceItem(ServiceItem, ServiceHeader."Customer No.");
+        LibraryService.CreateServiceItemLine(ServiceItemLine, ServiceHeader, ServiceItem."No.");
     end;
 
     [ConfirmHandler]

@@ -652,6 +652,46 @@ codeunit 134390 "ERM Sales Doc. Reports"
         LibraryReportDataset.AssertElementWithValueNotExist('DocNo_CustLedgEntry', CustLedgerEntryInvoice."Document No.");
     end;
 
+    [Test]
+    [HandlerFunctions('ReportHandlerCustomerBalanceToDate')]
+    [Scope('OnPrem')]
+    procedure CustomerBalanceToDateForZeroAmountInvoiceWithShowEntriesWithZeroBalance()
+    var
+        SalesHeaderInvoice: Record "Sales Header";
+        CustLedgerEntryInvoice: Record "Cust. Ledger Entry";
+        InvoiceDocumentNo: Code[20];
+    begin
+        // [SCENARIO 442479] Check Customer Balance To Date for zero amount invoice
+        Initialize();
+
+        // [GIVEN] Create Sales Invoice with GL and Amount will be 0.
+        CreateSalesDocumentWithZeroAmount(
+          SalesHeaderInvoice,
+          SalesHeaderInvoice."Document Type"::Invoice,
+          '',
+          '',
+          LibrarySales.CreateCustomerNo,
+          0,
+          1);
+
+        // [THEN] Post Sale Invoice of 0 amount
+        InvoiceDocumentNo := LibrarySales.PostSalesDocument(SalesHeaderInvoice, true, true);
+
+        // [GIVEN] Found Customer Ledger Entries for created Documents
+        LibraryERM.FindCustomerLedgerEntry(
+          CustLedgerEntryInvoice, CustLedgerEntryInvoice."Document Type"::Invoice, InvoiceDocumentNo);
+        CustLedgerEntryInvoice.CalcFields("Original Amount");
+
+        // [WHEN] Run Report "Customer Balance to Date" with Show Entries with Zero Balance = 'No'
+        SaveCustomerBalanceToDate(SalesHeaderInvoice, false, false, true);
+
+        // [THEN] Report was created
+        LibraryReportDataset.LoadDataSetFile();
+
+        // [VERIFY] Original Amount was filled correctly
+        LibraryReportDataset.AssertElementWithValueExists('OriginalAmt', Format(CustLedgerEntryInvoice."Original Amount"));
+    end;
+
     local procedure FindDetailedCustomerLedgerEntry(CustomerNo: Code[20]): Decimal
     var
         DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry";
@@ -1062,6 +1102,25 @@ codeunit 134390 "ERM Sales Doc. Reports"
             AssertElementWithValueExists('VATAmtLineVATIdentifier1', VATIdentifier);
             AssertElementWithValueExists('VALVATAmountLCY', VATAmount);
         end;
+    end;
+
+    local procedure CreateSalesDocumentWithZeroAmount(
+       var SalesHeader: Record "Sales Header";
+       DocumentType: Enum "Sales Document Type";
+       CurrencyCode: Code[10];
+       GlAccountNo: Code[20];
+       CustomerNo: Code[20];
+       DirectUnitCost: Decimal;
+       Quantity: Integer)
+    var
+        SalesLine: Record "Sales Line";
+    begin
+        LibrarySales.CreateSalesHeader(SalesHeader, DocumentType, CustomerNo);
+        SalesHeader.Validate("Currency Code", CurrencyCode);
+        SalesHeader.Modify(true);
+        LibrarySales.CreateSalesLine(
+          SalesLine, SalesHeader, SalesLine.Type::"G/L Account", '', Quantity);
+        SalesLine.Modify(true);
     end;
 
     [ConfirmHandler]

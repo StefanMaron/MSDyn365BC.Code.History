@@ -718,6 +718,9 @@
         if TempDtldCVLedgEntryBuf.Insert() then;
         InsertExchRateAdjmtReg(
             "Exch. Rate Adjmt. Account Type"::Customer, ExchRateAdjmtBuffer."Posting Group", ExchRateAdjmtBuffer."Currency Code");
+        TempDtldCVLedgEntryBuf.Get(TempDtldCVLedgEntryBuf."Entry No.");
+        TempDtldCVLedgEntryBuf."Exch. Rate Adjmt. Reg. No." := ExchRateAdjmtReg."No.";
+        TempDtldCVLedgEntryBuf.Modify();
     end;
 
     local procedure PostVendAdjmt(ExchRateAdjmtBuffer: Record "Exch. Rate Adjmt. Buffer"; var TempDtldCVLedgEntryBuf: Record "Detailed CV Ledg. Entry Buffer" temporary; var TempDimSetEntry: Record "Dimension Set Entry" temporary)
@@ -726,6 +729,9 @@
         if TempDtldCVLedgEntryBuf.Insert() then;
         InsertExchRateAdjmtReg(
             "Exch. Rate Adjmt. Account Type"::Vendor, ExchRateAdjmtBuffer."Posting Group", ExchRateAdjmtBuffer."Currency Code");
+        TempDtldCVLedgEntryBuf.Get(TempDtldCVLedgEntryBuf."Entry No.");
+        TempDtldCVLedgEntryBuf."Exch. Rate Adjmt. Reg. No." := ExchRateAdjmtReg."No.";
+        TempDtldCVLedgEntryBuf.Modify();
     end;
 
     local procedure GetDimSetEntry(EntryNo: Integer; var TempDimSetEntry: Record "Dimension Set Entry" temporary)
@@ -1000,7 +1006,7 @@
                 else
                     TempDtldCustLedgEntry."Transaction No." := LastTransactionNo;
                 DtldCustLedgEntry2 := TempDtldCustLedgEntry;
-                DtldCustledgEntry2."Exch. Rate Adjmt. Reg. No." := TempDtldCVLedgEntryBuf."Exch. Rate Adjmt. Reg. No.";
+                DtldCustLedgEntry2."Exch. Rate Adjmt. Reg. No." := TempDtldCVLedgEntryBuf."Exch. Rate Adjmt. Reg. No.";
                 DtldCustLedgEntry2.Insert(true);
             until TempDtldCustLedgEntry.Next() = 0;
     end;
@@ -1021,7 +1027,7 @@
                 else
                     TempDtldVendLedgEntry."Transaction No." := LastTransactionNo;
                 DtldVendLedgEntry2 := TempDtldVendLedgEntry;
-                DtldVendledgEntry2."Exch. Rate Adjmt. Reg. No." := TempDtldCVLedgEntryBuf."Exch. Rate Adjmt. Reg. No.";
+                DtldVendLedgEntry2."Exch. Rate Adjmt. Reg. No." := TempDtldCVLedgEntryBuf."Exch. Rate Adjmt. Reg. No.";
                 DtldVendLedgEntry2.Insert(true);
             until TempDtldVendLedgEntry.Next() = 0;
     end;

@@ -6,9 +6,6 @@ codeunit 3999 "Reten. Pol. Install - BaseApp"
     Access = Internal;
     Permissions = tabledata "Retention Period" = ri, tabledata "Retention Policy Setup" = ri;
 
-    var
-        OneMonthTok: Label 'One Month', MaxLength = 20;
-
     trigger OnInstallAppPerCompany()
     var
     begin
@@ -31,14 +28,19 @@ codeunit 3999 "Reten. Pol. Install - BaseApp"
             RetenPolAllowedTables.AddAllowedTable(Database::"Integration Synch. Job", IntegrationSyncJob.FieldNo("Finish Date/Time"));
             RetenPolAllowedTables.AddAllowedTable(Database::"Integration Synch. Job Errors", IntegrationSynchJobErrors.FieldNo("Date/Time"));
             RetenPolAllowedTables.AddAllowedTable(Database::"Report Inbox");
-            CreateRetentionPolicySetup(Database::"Integration Synch. Job", CreateOneMonthRetentionPeriod());
-            CreateRetentionPolicySetup(Database::"Integration Synch. Job Errors", CreateOneMonthRetentionPeriod());
+            CreateRetentionPolicySetup(Database::"Integration Synch. Job", FindOrCreateRetentionPeriod("Retention Period Enum"::"1 Month"));
+            CreateRetentionPolicySetup(Database::"Integration Synch. Job Errors", FindOrCreateRetentionPeriod("Retention Period Enum"::"1 Month"));
             UpgradeTag.SetUpgradeTag(GetRetenPolBaseAppTablesUpgradeTag());
         end;
 
         if not UpgradeTag.HasUpgradeTag(GetRetenPolDocArchivesTablesUpgradeTag()) then begin
             AddDocumentArchiveTablesToAllowedTables();
             UpgradeTag.SetUpgradeTag(GetRetenPolDocArchivesTablesUpgradeTag());
+        end;
+
+        if not UpgradeTag.HasUpgradeTag(GetRetenPolProtectedChangeLogUpgradeTag()) then begin
+            AddChangeLogEntryToAllowedTables();
+            UpgradeTag.SetUpgradeTag(GetRetenPolProtectedChangeLogUpgradeTag());
         end;
     end;
 
@@ -48,17 +50,21 @@ codeunit 3999 "Reten. Pol. Install - BaseApp"
         RetentionPolicySetup: Record "Retention Policy Setup";
         RetenPolAllowedTables: Codeunit "Reten. Pol. Allowed Tables";
         RecRef: RecordRef;
-        RetentionPeriod: Enum "Retention Period Enum";
         TableFilters: JsonArray;
     begin
         ChangeLogEntry.SetRange(Protected, true);
         RecRef.GetTable(ChangeLogEntry);
-        RetenPolAllowedTables.AddTableFilterToJsonArray(TableFilters, RetentionPeriod::"Never Delete", ChangeLogEntry.FieldNo(SystemCreatedAt), true, true, RecRef);
+        RetenPolAllowedTables.AddTableFilterToJsonArray(TableFilters, "Retention Period Enum"::"1 Year", ChangeLogEntry.FieldNo(SystemCreatedAt), true, true, RecRef);
 
         ChangeLogEntry.Reset();
         ChangeLogEntry.SetFilter("Field Log Entry Feature", '%1|%2', ChangeLogEntry."Field Log Entry Feature"::"Monitor Sensitive Fields", ChangeLogEntry."Field Log Entry Feature"::All);
         RecRef.GetTable(ChangeLogEntry);
-        RetenPolAllowedTables.AddTableFilterToJsonArray(TableFilters, RetentionPeriod::"28 Days", ChangeLogEntry.FieldNo(SystemCreatedAt), true, true, RecRef);
+        RetenPolAllowedTables.AddTableFilterToJsonArray(TableFilters, "Retention Period Enum"::"28 Days", ChangeLogEntry.FieldNo(SystemCreatedAt), true, true, RecRef);
+
+        ChangeLogEntry.Reset();
+        ChangeLogEntry.SetRange(Protected, false);
+        RecRef.GetTable(ChangeLogEntry);
+        RetenPolAllowedTables.AddTableFilterToJsonArray(TableFilters, "Retention Period Enum"::"1 Year", ChangeLogEntry.FieldNo(SystemCreatedAt), true, false, RecRef);
 
         RetenPolAllowedTables.AddAllowedTable(Database::"Change Log Entry", ChangeLogEntry.FieldNo(SystemCreatedAt), TableFilters);
 
@@ -75,47 +81,33 @@ codeunit 3999 "Reten. Pol. Install - BaseApp"
         PurchaseHeaderArchive: Record "Purchase Header Archive";
         RetenPolAllowedTables: Codeunit "Reten. Pol. Allowed Tables";
         RecRef: RecordRef;
-        RetentionPeriod: Enum "Retention Period Enum";
-        RetenPolFiltering: Enum "Reten. Pol. Filtering";
-        RetenPolDeleting: Enum "Reten. Pol. Deleting";
         TableFilters: JsonArray;
     begin
         SalesHeaderArchive.SetRange("Source Doc. Exists", true);
         RecRef.GetTable(SalesHeaderArchive);
-        RetenPolAllowedTables.AddTableFilterToJsonArray(TableFilters, RetentionPeriod::"Never Delete", SalesHeaderArchive.FieldNo("Last Archived Date"), true, true, RecRef); // locked
+        RetenPolAllowedTables.AddTableFilterToJsonArray(TableFilters, "Retention Period Enum"::"Never Delete", SalesHeaderArchive.FieldNo("Last Archived Date"), true, true, RecRef); // locked
         SalesHeaderArchive.Reset();
         SalesHeaderArchive.SetRange("Interaction Exist", true);
         RecRef.GetTable(SalesHeaderArchive);
-        RetenPolAllowedTables.AddTableFilterToJsonArray(TableFilters, RetentionPeriod::"Never Delete", SalesHeaderArchive.FieldNo("Last Archived Date"), true, false, RecRef); // not locked
-        RetenPolAllowedTables.AddAllowedTable(Database::"Sales Header Archive", SalesHeaderArchive.FieldNo("Last Archived Date"), 0, RetenPolFiltering::"Document Archive Filtering", RetenPolDeleting::Default, TableFilters);
+        RetenPolAllowedTables.AddTableFilterToJsonArray(TableFilters, "Retention Period Enum"::"Never Delete", SalesHeaderArchive.FieldNo("Last Archived Date"), true, false, RecRef); // not locked
+        RetenPolAllowedTables.AddAllowedTable(Database::"Sales Header Archive", SalesHeaderArchive.FieldNo("Last Archived Date"), 0, "Reten. Pol. Filtering"::"Document Archive Filtering", "Reten. Pol. Deleting"::Default, TableFilters);
 
         Clear(TableFilters);
         PurchaseHeaderArchive.SetRange("Source Doc. Exists", true);
         RecRef.GetTable(PurchaseHeaderArchive);
-        RetenPolAllowedTables.AddTableFilterToJsonArray(TableFilters, RetentionPeriod::"Never Delete", PurchaseHeaderArchive.FieldNo("Last Archived Date"), true, true, RecRef); // locked
+        RetenPolAllowedTables.AddTableFilterToJsonArray(TableFilters, "Retention Period Enum"::"Never Delete", PurchaseHeaderArchive.FieldNo("Last Archived Date"), true, true, RecRef); // locked
         PurchaseHeaderArchive.Reset();
         PurchaseHeaderArchive.SetRange("Interaction Exist", true);
         RecRef.GetTable(SalesHeaderArchive);
-        RetenPolAllowedTables.AddTableFilterToJsonArray(TableFilters, RetentionPeriod::"Never Delete", PurchaseHeaderArchive.FieldNo("Last Archived Date"), true, false, RecRef); // not locked
-        RetenPolAllowedTables.AddAllowedTable(Database::"Purchase Header Archive", PurchaseHeaderArchive.FieldNo("Last Archived Date"), 0, RetenPolFiltering::"Document Archive Filtering", RetenPolDeleting::Default, TableFilters);
+        RetenPolAllowedTables.AddTableFilterToJsonArray(TableFilters, "Retention Period Enum"::"Never Delete", PurchaseHeaderArchive.FieldNo("Last Archived Date"), true, false, RecRef); // not locked
+        RetenPolAllowedTables.AddAllowedTable(Database::"Purchase Header Archive", PurchaseHeaderArchive.FieldNo("Last Archived Date"), 0, "Reten. Pol. Filtering"::"Document Archive Filtering", "Reten. Pol. Deleting"::Default, TableFilters);
     end;
 
-    local procedure CreateOneMonthRetentionPeriod(): Code[20]
+    local procedure FindOrCreateRetentionPeriod(RetentionPeriodEnum: Enum "Retention Period Enum"): Code[20]
     var
-        RetentionPeriod: Record "Retention Period";
+        RetentionPolicySetup: Codeunit "Retention Policy Setup";
     begin
-        if RetentionPeriod.Get(OneMonthTok) then
-            exit(RetentionPeriod.Code);
-
-        RetentionPeriod.SetRange("Retention Period", RetentionPeriod."Retention Period"::"1 Month");
-        if RetentionPeriod.FindFirst() then
-            exit(RetentionPeriod.Code);
-
-        RetentionPeriod.Code := CopyStr(UpperCase(OneMonthTok), 1, MaxStrLen(RetentionPeriod.Code));
-        RetentionPeriod.Description := OneMonthTok;
-        RetentionPeriod.Validate("Retention Period", RetentionPeriod."Retention Period"::"1 Month");
-        RetentionPeriod.Insert(true);
-        exit(RetentionPeriod.Code);
+        exit(RetentionPolicySetup.FindOrCreateRetentionPeriod(RetentionPeriodEnum))
     end;
 
     local procedure CreateRetentionPolicySetup(TableId: Integer; RetentionPeriodCode: Code[20])
@@ -139,6 +131,11 @@ codeunit 3999 "Reten. Pol. Install - BaseApp"
     local procedure GetRetenPolDocArchivesTablesUpgradeTag(): Code[250]
     begin
         exit('MS-378964-RetenPolDocArchives-20210423');
+    end;
+
+    local procedure GetRetenPolProtectedChangeLogUpgradeTag(): Code[250]
+    begin
+        exit('MS-447066-RetenPolProtectedChangeLog-20221003');
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Company-Initialize", 'OnBeforeOnRun', '', false, false)]
