@@ -163,8 +163,8 @@ table 5902 "Service Line"
                        not ReplaceServItemAction
                     then
                         Validate(Quantity, xRec.Quantity);
-                    UpdateUnitPriceByField(FieldNo("No."));
-                    UpdateAmounts;
+                    UpdateUnitPriceByField(FieldNo("No."), true);
+                    UpdateAmounts();
                 end;
                 UpdateReservation(FieldNo("No."));
 
@@ -314,7 +314,7 @@ table 5902 "Service Line"
                 if "Job Planning Line No." <> 0 then
                     Validate("Job Planning Line No.");
 
-                UpdateUnitPriceByField(FieldNo(Quantity));
+                UpdateUnitPriceByField(FieldNo(Quantity), true);
             end;
         }
         field(16; "Outstanding Quantity"; Decimal)
@@ -734,7 +734,7 @@ table 5902 "Service Line"
                 if Type = Type::Item then begin
                     if "Customer Price Group" <> xRec."Customer Price Group" then
                         PlanPriceCalcByField(FieldNo("Customer Price Group"));
-                    UpdateUnitPriceByField(FieldNo("Customer Price Group"));
+                    UpdateUnitPriceByField(FieldNo("Customer Price Group"), false);
                 end;
             end;
         }
@@ -797,7 +797,6 @@ table 5902 "Service Line"
             trigger OnValidate()
             var
                 WorkType: Record "Work Type";
-                PriceType: Enum "Price Type";
             begin
                 if Type = Type::Resource then begin
                     TestStatusOpen;
@@ -805,10 +804,7 @@ table 5902 "Service Line"
                         Validate("Unit of Measure Code", WorkType."Unit of Measure Code");
                     if "Work Type Code" <> xRec."Work Type Code" then
                         PlanPriceCalcByField(FieldNo("Work Type Code"));
-                    UpdateUnitPriceByField(FieldNo("Work Type Code"));
-                    Validate("Unit Price");
-                    ApplyPrice(PriceType::Purchase, ServHeader, FieldNo("Work Type Code"));
-                    Validate("Unit Cost (LCY)");
+                    UpdateUnitPriceByField(FieldNo("Work Type Code"), true);
                 end;
             end;
         }
@@ -1432,11 +1428,11 @@ table 5902 "Service Line"
                 "Description 2" := ItemVariant."Description 2";
                 OnValidateVariantCodeOnAssignItemVariant(Rec, ItemVariant);
 
-                GetServHeader;
+                GetServHeader();
                 if ServHeader."Language Code" <> '' then
-                    GetItemTranslation;
+                    GetItemTranslation();
 
-                UpdateUnitPriceByField(FieldNo("Variant Code"));
+                UpdateUnitPriceByField(FieldNo("Variant Code"), true);
             end;
         }
         field(5403; "Bin Code"; Code[20])
@@ -1526,7 +1522,6 @@ table 5902 "Service Line"
                 UnitOfMeasure: Record "Unit of Measure";
                 UnitOfMeasureTranslation: Record "Unit of Measure Translation";
                 ResUnitofMeasure: Record "Resource Unit of Measure";
-                PriceType: Enum "Price Type";
             begin
                 TestField("Quantity Shipped", 0);
                 TestField("Qty. Shipped (Base)", 0);
@@ -1582,15 +1577,13 @@ table 5902 "Service Line"
                             "Qty. per Unit of Measure" := ResUnitofMeasure."Qty. per Unit of Measure";
                             if "Unit of Measure Code" <> xRec."Unit of Measure Code" then
                                 PlanPriceCalcByField(FieldNo("Unit of Measure Code"));
-                            ApplyPrice(PriceType::Purchase, ServHeader, FieldNo("Unit of Measure Code"));
-                            Validate("Unit Cost (LCY)");
                         end;
                     Type::"G/L Account", Type::" ", Type::Cost:
                         "Qty. per Unit of Measure" := 1;
                 end;
 
                 Validate(Quantity);
-                UpdateUnitPriceByField(FieldNo("Unit of Measure Code"));
+                UpdateUnitPriceByField(FieldNo("Unit of Measure Code"), true);
                 CheckItemAvailable(FieldNo("Unit of Measure Code"));
                 UpdateReservation(FieldNo("Unit of Measure Code"));
             end;
@@ -1631,10 +1624,7 @@ table 5902 "Service Line"
                     FieldError("Quantity (Base)", Text029);
 
                 TestField("Qty. per Unit of Measure", 1);
-                if "Quantity (Base)" <> xRec."Quantity (Base)" then
-                    PlanPriceCalcByField(FieldNo("Quantity (Base)"));
                 Validate(Quantity, "Quantity (Base)");
-                UpdateUnitPriceByField(FieldNo("Quantity (Base)"));
             end;
         }
         field(5416; "Outstanding Qty. (Base)"; Decimal)
@@ -2387,8 +2377,8 @@ table 5902 "Service Line"
             begin
                 if Warranty <> xRec.Warranty then
                     PlanPriceCalcByField(FieldNo(Warranty));
-                UpdateUnitPriceByField(FieldNo(Warranty));
-                UpdateAmounts;
+                UpdateUnitPriceByField(FieldNo(Warranty), false);
+                UpdateAmounts();
             end;
         }
         field(5965; "Component Line No."; Integer)
@@ -2535,7 +2525,7 @@ table 5902 "Service Line"
                         if "Unit Price" = 0 then
                             PlanPriceCalcByField(FieldNo("Return Reason Code"));
                 end;
-                UpdateUnitPriceByField(FieldNo("Return Reason Code"));
+                UpdateUnitPriceByField(FieldNo("Return Reason Code"), false);
             end;
         }
         field(7000; "Price Calculation Method"; Enum "Price Calculation Method")
@@ -2557,7 +2547,7 @@ table 5902 "Service Line"
                 if Type = Type::Item then begin
                     if "Customer Disc. Group" <> xRec."Customer Disc. Group" then
                         PlanPriceCalcByField(FieldNo("Customer Disc. Group"));
-                    UpdateUnitPriceByField(FieldNo("Customer Disc. Group"));
+                    UpdateUnitPriceByField(FieldNo("Customer Disc. Group"), false);
                 end;
             end;
         }
@@ -3470,10 +3460,10 @@ table 5902 "Service Line"
     begin
         ClearFieldCausedPriceCalculation();
         PlanPriceCalcByField(CalledByFieldNo);
-        UpdateUnitPriceByField(CalledByFieldNo);
+        UpdateUnitPriceByField(CalledByFieldNo, false);
     end;
 
-    local procedure UpdateUnitPriceByField(CalledByFieldNo: Integer)
+    local procedure UpdateUnitPriceByField(CalledByFieldNo: Integer; CalcCost: Boolean)
     var
         PriceType: Enum "Price Type";
     begin
@@ -3488,6 +3478,10 @@ table 5902 "Service Line"
         CalculateDiscount;
         ApplyPrice(PriceType::Sale, ServHeader, CalledByFieldNo);
         Validate("Unit Price");
+        if CalcCost then begin
+            ApplyPrice(PriceType::Purchase, ServHeader, CalledByFieldNo);
+            Validate("Unit Cost (LCY)");
+        end;
 
         ClearFieldCausedPriceCalculation();
         OnAfterUpdateUnitPrice(Rec, xRec, CalledByFieldNo, CurrFieldNo);

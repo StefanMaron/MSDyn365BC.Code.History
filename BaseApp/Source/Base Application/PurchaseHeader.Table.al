@@ -2061,8 +2061,8 @@
                         if ContBusinessRelation."Contact No." <> Cont."Company No." then
                             Error(Text038, Cont."No.", Cont.Name, "Buy-from Vendor No.");
                 end;
-
-                UpdateBuyFromVend("Buy-from Contact No.");
+                if ("Buy-from Contact No." <> xRec."Buy-from Contact No.") then
+                    UpdateBuyFromVend("Buy-from Contact No.");
             end;
         }
         field(5053; "Pay-to Contact No."; Code[20])
@@ -5161,19 +5161,23 @@
     local procedure HasMixedDropShipment(): Boolean
     var
         PurchaseLine: Record "Purchase Line";
-        HasDropShipmentLines: Boolean;
     begin
         PurchaseLine.SetRange("Document Type", "Document Type");
         PurchaseLine.SetRange("Document No.", "No.");
         PurchaseLine.SetFilter("No.", '<>%1', '');
         PurchaseLine.SetFilter(Type, '%1|%2', PurchaseLine.Type::Item, PurchaseLine.Type::"Fixed Asset");
         PurchaseLine.SetRange("Drop Shipment", true);
-
-        HasDropShipmentLines := not PurchaseLine.IsEmpty;
+        if PurchaseLine.IsEmpty() then
+            exit(false);
 
         PurchaseLine.SetRange("Drop Shipment", false);
+        if PurchaseLine.FindSet() then
+            repeat
+                if PurchaseLine.IsInventoriableItem() or (PurchaseLine.Type = PurchaseLine.Type::"Fixed Asset") then
+                    exit(true);
+            until PurchaseLine.Next() = 0;
 
-        exit(HasDropShipmentLines and not PurchaseLine.IsEmpty);
+        exit(false);
     end;
 
     local procedure SetDefaultPurchaser()

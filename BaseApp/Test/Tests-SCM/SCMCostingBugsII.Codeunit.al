@@ -2242,6 +2242,59 @@ codeunit 137621 "SCM Costing Bugs II"
         ValueEntry.TestField("Valued By Average Cost", false);
     end;
 
+    [Test]
+    procedure RemainingCostZeroWhenInventoryZeroForAverageCostItem()
+    var
+        Item: Record Item;
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        ValueEntry: Record "Value Entry";
+    begin
+        // [FEATURE] [Adjust Cost Item Entries] [Average Costing Method]
+        // [SCENARIO 429386] Remaining cost must be zero when remaining inventory is zero.
+        Initialize();
+
+        // [GIVEN] Average cost item.
+        LibraryInventory.CreateItem(Item);
+        Item.Validate("Costing Method", Item."Costing Method"::Average);
+        Item.Modify(true);
+
+        // [GIVEN] Purchase order, quantity = 15, direct unit cost = 14.19.
+        // [GIVEN] Post as Receive.
+        LibraryPurchase.CreatePurchaseDocumentWithItem(
+          PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Order, '', Item."No.", 15, '', WorkDate());
+        PurchaseLine.Validate("Direct Unit Cost", 14.19);
+        PurchaseLine.Modify(true);
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false);
+
+        // [GIVEN] Sales order, quantity = 15.
+        // [GIVEN] Ship and invoice.
+        LibrarySales.CreateSalesDocumentWithItem(
+          SalesHeader, SalesLine, SalesHeader."Document Type"::Order, '', Item."No.", 15, '', WorkDate());
+        LibrarySales.PostSalesDocument(SalesHeader, true, true);
+
+        // [GIVEN] Run the cost adjustment.
+        LibraryCosting.AdjustCostItemEntries(Item."No.", '');
+
+        // [GIVEN] Update "Direct Unit Cost" on the purchase line from 14.19 to 14.189.
+        // [GIVEN] Invoice the purchase order.
+        PurchaseHeader.Find();
+        LibraryPurchase.ReopenPurchaseDocument(PurchaseHeader);
+        PurchaseLine.Find();
+        PurchaseLine.Validate("Direct Unit Cost", 14.189);
+        PurchaseLine.Modify(true);
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeader, false, true);
+
+        // [WHEN] Run the cost adjustment.
+        LibraryCosting.AdjustCostItemEntries(Item."No.", '');
+
+        // [THEN] Check the item's remaining quantity and cost:
+        // [THEN] Quantity = 0, "Cost Amount" = 0.
+        VerifyValueEntry(Item."No.", 0, 0);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";

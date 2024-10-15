@@ -240,11 +240,6 @@ report 5812 "Revaluation Posting - Test"
                                 Text007, GenPostingSetup.TableCaption,
                                 "Gen. Bus. Posting Group", "Gen. Prod. Posting Group"));
 
-                    if InvtSetup."Location Mandatory" then begin
-                        if "Location Code" = '' then
-                            AddError(StrSubstNo(Text001, FieldCaption("Location Code")));
-                    end;
-
                     if "Item Journal Batch"."No. Series" <> '' then begin
                         if LastDocNo <> '' then
                             if ("Document No." <> LastDocNo) and ("Document No." <> IncStr(LastDocNo)) then

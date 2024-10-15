@@ -1318,6 +1318,51 @@ codeunit 137034 "SCM Production Journal"
         LibraryWarehouse.PostInventoryActivity(WarehouseActivityHeader, true);
     end;
 
+    [Test]
+    procedure DoNotClearBinCodeOnChangeVariantCodeInOutputJournal()
+    var
+        Location: Record Location;
+        Bin: Record Bin;
+        Item: Record Item;
+        ItemVariant: Record "Item Variant";
+        ProductionOrder: Record "Production Order";
+        ProdOrderLine: Record "Prod. Order Line";
+        ItemJournalLine: Record "Item Journal Line";
+    begin
+        // [FEATURE] [Output] [Item Variant] [Bin]
+        // [SCENARIO 431468] Keep bin code on changing variant code in output journal.
+        Initialize();
+
+        // [GIVEN] Location with bin "B".
+        // [GIVEN] Set up bin "B" as a default bin for output.
+        CreateLocationWithNumberOfBins(Location, 1);
+        LibraryWarehouse.FindBin(Bin, Location.Code, '', 1);
+        Location.Validate("From-Production Bin Code", Bin.Code);
+        Location.Modify(true);
+
+        // [GIVEN] Item with variant "V".
+        LibraryInventory.CreateItem(Item);
+        LibraryInventory.CreateItemVariant(ItemVariant, Item."No.");
+
+        // [GIVEN] Released production order at the location, refresh.
+        // [GIVEN] Update Variant Code = "V" on the prod. order line.
+        LibraryManufacturing.CreateProductionOrder(
+          ProductionOrder, ProductionOrder.Status::Released, ProductionOrder."Source Type"::Item, Item."No.", LibraryRandom.RandInt(10));
+        ProductionOrder.Validate("Location Code", Location.Code);
+        ProductionOrder.Modify(true);
+        LibraryManufacturing.RefreshProdOrder(ProductionOrder, false, true, true, true, false);
+        FindProdOrderLine(ProdOrderLine, ProductionOrder."No.", Item."No.");
+        ProdOrderLine.Validate("Variant Code", ItemVariant.Code);
+        ProdOrderLine.Modify(true);
+
+        // [WHEN] Create output journal, select production order no. and item no.
+        InitOutputJournalLine(ItemJournalLine, ProductionOrder."No.", Item."No.");
+
+        // [THEN] Item variant = "V", bin code = "B" on the output journal line.
+        ItemJournalLine.TestField("Variant Code", ItemVariant.Code);
+        ItemJournalLine.TestField("Bin Code", Bin.Code);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
