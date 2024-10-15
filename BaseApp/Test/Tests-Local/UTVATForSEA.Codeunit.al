@@ -9,6 +9,7 @@ codeunit 141036 "UT VAT For SEA"
     end;
 
     var
+        Assert: Codeunit Assert;
         LibraryUTUtility: Codeunit "Library UT Utility";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryReportDataset: Codeunit "Library - Report Dataset";
@@ -353,6 +354,162 @@ codeunit 141036 "UT VAT For SEA"
             GetAmountLangFromSalesLine(SalesTaxCrMemoHeader."Amount Including VAT", SalesTaxCrMemoHeader."Currency Code")));
     end;
 
+    [Test]
+    procedure TransferFieldsFromSalesInvHeaderToSalesTaxInvHeader()
+    var
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        SalesTaxInvoiceHeader: Record "Sales Tax Invoice Header";
+        SourceRecRef: RecordRef;
+    begin
+        // [FEATURE] [UT] [Sales]
+        CreateRecWithFullTexts(SalesInvoiceHeader, SourceRecRef);
+        SalesTaxInvoiceHeader.TransferFields(SalesInvoiceHeader);
+        VerifyFullTexts(SalesTaxInvoiceHeader, SourceRecRef);
+    end;
+
+    [Test]
+    procedure TransferFieldsFromSalesInvLineToSalesTaxInvLine()
+    var
+        SalesInvoiceLine: Record "Sales Invoice Line";
+        SalesTaxInvoiceLine: Record "Sales Tax Invoice Line";
+        SourceRecRef: RecordRef;
+    begin
+        // [FEATURE] [UT] [Sales]
+        CreateRecWithFullTexts(SalesInvoiceLine, SourceRecRef);
+        SalesTaxInvoiceLine.TransferFieldsFrom(SalesInvoiceLine);
+        VerifyFullTexts(SalesTaxInvoiceLine, SourceRecRef);
+    end;
+
+    [Test]
+    procedure TransferFieldsFromSalesCrMemoHeaderToSalesTaxInvHeader()
+    var
+        SalesCrMemoHeader: Record "Sales Cr.Memo Header";
+        SalesTaxInvoiceHeader: Record "Sales Tax Invoice Header";
+        SourceRecRef: RecordRef;
+    begin
+        // [FEATURE] [UT] [Sales]
+        CreateRecWithFullTexts(SalesCrMemoHeader, SourceRecRef);
+        SalesTaxInvoiceHeader.TransferFields(SalesCrMemoHeader);
+        VerifyFullTexts(SalesTaxInvoiceHeader, SourceRecRef);
+    end;
+
+    [Test]
+    procedure TransferFieldsFromSalesCrMemoLineToSalesTaxInvLine()
+    var
+        SalesCrMemoLine: Record "Sales Cr.Memo Line";
+        SalesTaxInvoiceLine: Record "Sales Tax Invoice Line";
+        SourceRecRef: RecordRef;
+    begin
+        // [FEATURE] [UT] [Sales]
+        CreateRecWithFullTexts(SalesCrMemoLine, SourceRecRef);
+        SalesTaxInvoiceLine.TransferFieldsFrom(SalesCrMemoLine);
+        VerifyFullTexts(SalesTaxInvoiceLine, SourceRecRef);
+    end;
+
+    [Test]
+    procedure TransferFieldsFromSalesCrMemoHeaderToSalesTaxCrMemoHeader()
+    var
+        SalesCrMemoHeader: Record "Sales Cr.Memo Header";
+        SalesTaxCrMemoHeader: Record "Sales Tax Cr.Memo Header";
+        SourceRecRef: RecordRef;
+    begin
+        // [FEATURE] [UT] [Sales]
+        CreateRecWithFullTexts(SalesCrMemoHeader, SourceRecRef);
+        SalesTaxCrMemoHeader.TransferFieldsFrom(SalesCrMemoHeader);
+        VerifyFullTexts(SalesTaxCrMemoHeader, SourceRecRef);
+    end;
+
+    [Test]
+    procedure TransferFieldsFromSalesCrMemoLineToSalesTaxCrMemoLine()
+    var
+        SalesCrMemoLine: Record "Sales Cr.Memo Line";
+        SalesTaxCrMemoLine: Record "Sales Tax Cr.Memo Line";
+        SourceRecRef: RecordRef;
+    begin
+        // [FEATURE] [UT] [Sales]
+        CreateRecWithFullTexts(SalesCrMemoLine, SourceRecRef);
+        SalesTaxCrMemoLine.TransferFieldsFrom(SalesCrMemoLine);
+        VerifyFullTexts(SalesTaxCrMemoLine, SourceRecRef);
+    end;
+
+    [Test]
+    procedure TransferFieldsFromPurchInvHeaderToPurchTaxInvHeader()
+    var
+        PurchInvHeader: Record "Purch. Inv. Header";
+        PurchTaxInvHeader: Record "Purch. Tax Inv. Header";
+        SourceRecRef: RecordRef;
+    begin
+        // [FEATURE] [UT] [Purchase]
+        CreateRecWithFullTexts(PurchInvHeader, SourceRecRef);
+        PurchTaxInvHeader.TransferFieldsFrom(PurchInvHeader);
+        VerifyFullTexts(PurchTaxInvHeader, SourceRecRef);
+    end;
+
+    [Test]
+    procedure TransferFieldsFromPurchInvLineToPurchTaxInvLine()
+    var
+        PurchInvLine: Record "Purch. Inv. Line";
+        PurchTaxInvLine: Record "Purch. Tax Inv. Line";
+        SourceRecRef: RecordRef;
+    begin
+        // [FEATURE] [UT] [Purchase]
+        CreateRecWithFullTexts(PurchInvLine, SourceRecRef);
+        PurchTaxInvLine.TransferFieldsFrom(PurchInvLine);
+        VerifyFullTexts(PurchTaxInvLine, SourceRecRef);
+    end;
+
+    [Test]
+    procedure TransferFieldsFromPurchCrMemoHeaderToPurchTaxInvHeader()
+    var
+        PurchCrMemoHdr: Record "Purch. Cr. Memo Hdr.";
+        PurchTaxInvHeader: Record "Purch. Tax Inv. Header";
+        SourceRecRef: RecordRef;
+    begin
+        // [FEATURE] [UT] [Purchase]
+        CreateRecWithFullTexts(PurchCrMemoHdr, SourceRecRef);
+        PurchTaxInvHeader.TransferFields(PurchCrMemoHdr);
+        VerifyFullTexts(PurchTaxInvHeader, SourceRecRef);
+    end;
+
+    [Test]
+    procedure TransferFieldsFromPurchCrMemoLineToPurchTaxInvLine()
+    var
+        PurchCrMemoLine: Record "Purch. Cr. Memo Line";
+        PurchTaxInvLine: Record "Purch. Tax Inv. Line";
+        SourceRecRef: RecordRef;
+    begin
+        // [FEATURE] [UT] [Purchase]
+        CreateRecWithFullTexts(PurchCrMemoLine, SourceRecRef);
+        PurchTaxInvLine.TransferFieldsFrom(PurchCrMemoLine);
+        VerifyFullTexts(PurchTaxInvLine, SourceRecRef);
+    end;
+
+    [Test]
+    procedure TransferFieldsFromPurchCrMemoHeaderToPurchTaxCrMemoHeader()
+    var
+        PurchCrMemoHdr: Record "Purch. Cr. Memo Hdr.";
+        PurchTaxCrMemoHdr: Record "Purch. Tax Cr. Memo Hdr.";
+        SourceRecRef: RecordRef;
+    begin
+        // [FEATURE] [UT] [Purchase]
+        CreateRecWithFullTexts(PurchCrMemoHdr, SourceRecRef);
+        PurchTaxCrMemoHdr.TransferFieldsFrom(PurchCrMemoHdr);
+        VerifyFullTexts(PurchTaxCrMemoHdr, SourceRecRef);
+    end;
+
+    [Test]
+    procedure TransferFieldsFromPurchCrMemoLineToPurchTaxCrMemoLine()
+    var
+        PurchCrMemoLine: Record "Purch. Cr. Memo Line";
+        PurchTaxCrMemoLine: Record "Purch. Tax Cr. Memo Line";
+        SourceRecRef: RecordRef;
+    begin
+        // [FEATURE] [UT] [Purchase]
+        CreateRecWithFullTexts(PurchCrMemoLine, SourceRecRef);
+        PurchTaxCrMemoLine.TransferFieldsFrom(PurchCrMemoLine);
+        VerifyFullTexts(PurchTaxCrMemoLine, SourceRecRef);
+    end;
+
     local procedure Initialize()
     begin
         LibraryVariableStorage.Clear;
@@ -612,11 +769,103 @@ codeunit 141036 "UT VAT For SEA"
         exit(Vendor."No.");
     end;
 
+    local procedure CreateRecWithFullTexts(var PurchCrMemoHdr: Record "Purch. Cr. Memo Hdr."; var RecRef: RecordRef)
+    begin
+        RecRef.Open(Database::"Purch. Cr. Memo Hdr.");
+        FillRecWithFullTexts(RecRef);
+        RecRef.SetTable(PurchCrMemoHdr);
+    end;
+
+    local procedure CreateRecWithFullTexts(var PurchCrMemoLine: Record "Purch. Cr. Memo Line"; var RecRef: RecordRef)
+    begin
+        RecRef.Open(Database::"Purch. Cr. Memo Line");
+        FillRecWithFullTexts(RecRef);
+        RecRef.SetTable(PurchCrMemoLine);
+    end;
+
+    local procedure CreateRecWithFullTexts(var PurchInvHeader: Record "Purch. Inv. Header"; var RecRef: RecordRef)
+    begin
+        RecRef.Open(Database::"Purch. Inv. Header");
+        FillRecWithFullTexts(RecRef);
+        RecRef.SetTable(PurchInvHeader);
+    end;
+
+    local procedure CreateRecWithFullTexts(var PurchInvLine: Record "Purch. Inv. Line"; var RecRef: RecordRef)
+    begin
+        RecRef.Open(Database::"Purch. Inv. Line");
+        FillRecWithFullTexts(RecRef);
+        RecRef.SetTable(PurchInvLine);
+    end;
+
+    local procedure CreateRecWithFullTexts(var SalesCrMemoHeader: Record "Sales Cr.Memo Header"; var RecRef: RecordRef)
+    begin
+        RecRef.Open(Database::"Sales Cr.Memo Header");
+        FillRecWithFullTexts(RecRef);
+        RecRef.SetTable(SalesCrMemoHeader);
+    end;
+
+    local procedure CreateRecWithFullTexts(var SalesCrMemoLine: Record "Sales Cr.Memo Line"; var RecRef: RecordRef)
+    begin
+        RecRef.Open(Database::"Sales Cr.Memo Line");
+        FillRecWithFullTexts(RecRef);
+        RecRef.SetTable(SalesCrMemoLine);
+    end;
+
+    local procedure CreateRecWithFullTexts(var SalesInvoiceHeader: Record "Sales Invoice Header"; var RecRef: RecordRef)
+    begin
+        RecRef.Open(Database::"Sales Invoice Header");
+        FillRecWithFullTexts(RecRef);
+        RecRef.SetTable(SalesInvoiceHeader);
+    end;
+
+    local procedure CreateRecWithFullTexts(var SalesInvoiceLine: Record "Sales Invoice Line"; var RecRef: RecordRef)
+    begin
+        RecRef.Open(Database::"Sales Invoice Line");
+        FillRecWithFullTexts(RecRef);
+        RecRef.SetTable(SalesInvoiceLine);
+    end;
+
     local procedure EnqueueValueForMiscellaneousHandler(No: Code[20]; ShowInternalInformation: Boolean; ShowTHAmountInWords: Boolean)
     begin
         LibraryVariableStorage.Enqueue(No);
         LibraryVariableStorage.Enqueue(ShowInternalInformation);
         LibraryVariableStorage.Enqueue(ShowTHAmountInWords);
+    end;
+
+    local procedure FillRecWithFullTexts(var RecRef: RecordRef)
+    var
+        FldRef: FieldRef;
+        i: Integer;
+    begin
+        for i := 1 to RecRef.FieldCount() do begin
+            FldRef := RecRef.FieldIndex(i);
+            if (FldRef.Class = FldRef.Class::Normal) and (FldRef.Type in [FieldType::Code, FieldType::Text]) then
+                FldRef.Value := GetTextOfLength(FldRef.Length);
+        end;
+    end;
+
+    local procedure GetTextOfLength(Len: Integer) Result: Text;
+    begin
+        Result := LibraryUTUtility.GetNewCode();
+        while StrLen(Result) < Len do
+            Result += Result;
+        Result := CopyStr(Result, StrLen(Result) - Len + 1, Len);
+    end;
+
+    local procedure VerifyFullTexts(Rec: Variant; SourceRecRef: RecordRef)
+    var
+        RecRef: RecordRef;
+        FldRef: FieldRef;
+        i: Integer;
+    begin
+        RecRef.GetTable(Rec);
+        for i := 1 to RecRef.FieldCount() do begin
+            FldRef := RecRef.FieldIndex(i);
+            if SourceRecRef.FieldExist(FldRef.Number) then
+                if (FldRef.Class = FldRef.Class::Normal) and (FldRef.Type in [FieldType::Code, FieldType::Text]) then
+                    Assert.AreEqual(FldRef.Length(), StrLen(FldRef.Value()), FldRef.Name());
+        end;
+        SourceRecRef.Close();
     end;
 
     local procedure GetAmountLangFromPurchaseLine(AmountIncludingVAT: Decimal; CurrencyCode: Code[10]): Text[80]

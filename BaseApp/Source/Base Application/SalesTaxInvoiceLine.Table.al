@@ -618,5 +618,21 @@ table 28072 "Sales Tax Invoice Line"
         if SalesInvoiceHeader.FindFirst then
             PAGE.RunModal(PAGE::"Posted Sales Invoice", SalesInvoiceHeader);
     end;
+
+    procedure TransferFieldsFrom(SalesInvoiceLine: Record "Sales Invoice Line")
+    begin
+        // cut values to avoid overflow in TransferFields
+        SalesInvoiceLine.Description :=
+            CopyStr(SalesInvoiceLine.Description, 1, MaxStrLen(Description));
+        TransferFields(SalesInvoiceLine);
+    end;
+
+    procedure TransferFieldsFrom(SalesCrMemoLine: Record "Sales Cr.Memo Line")
+    begin
+        // cut values to avoid overflow in TransferFields
+        SalesCrMemoLine.Description :=
+            CopyStr(SalesCrMemoLine.Description, 1, MaxStrLen(Description));
+        TransferFields(SalesCrMemoLine);
+    end;
 }
 

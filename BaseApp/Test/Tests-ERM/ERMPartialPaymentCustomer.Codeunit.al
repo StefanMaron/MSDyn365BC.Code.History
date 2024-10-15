@@ -13,7 +13,9 @@ codeunit 134002 "ERM Partial Payment Customer"
     var
         LibraryERM: Codeunit "Library - ERM";
         LibrarySales: Codeunit "Library - Sales";
+        LibraryJournals: Codeunit "Library - Journals";
         LibraryRandom: Codeunit "Library - Random";
+        LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
         Assert: Codeunit Assert;
         isInitialized: Boolean;
@@ -21,6 +23,7 @@ codeunit 134002 "ERM Partial Payment Customer"
         ErrorMessage: Label 'Error Message must be same.';
         AmountToApplySignError: Label '%1 must have the same sign as %2 in %3 %4=''%5''.', Comment = '%1 = FIELD Caption, %2 = FIELD Caption,%3 =  Table Caption,%4 = Field Caption ,%5 =  FIELD Value';
         NumberOfLineErrorMessage: Label 'Number Of Line Must be %1 in %2';
+        AdjustmentAppliesToQst: Label 'You have not selected the Adjustment Applies-to, Do you still want to continue with the Document';
 
     [Test]
     [Scope('OnPrem')]
@@ -114,7 +117,7 @@ codeunit 134002 "ERM Partial Payment Customer"
         CreatePostMultipleGenJnlLine(TempGenJournalLine, DocumentType, DocumentType2, NoOfLines, Amount * AmountSign, -Amount * AmountSign);
 
         TempGenJournalLine.SetRange("Document Type", DocumentType);
-        DeltaAssert.Init;
+        DeltaAssert.Init();
         CalcRmngAmtForSameDirection(DeltaAssert, TempGenJournalLine, ApplAmount * AmountSign);
         TempGenJournalLine.SetRange("Document Type", DocumentType2);
         CalcRmngAmtForApplngEntry(DeltaAssert, TempGenJournalLine, NoOfLines, ApplAmount * AmountSign);
@@ -223,7 +226,7 @@ codeunit 134002 "ERM Partial Payment Customer"
         CreatePostMultipleGenJnlLine(TempGenJournalLine, DocumentType2, DocumentType, NoOfLines, -Amount * AmountSign, Amount * AmountSign);
 
         TempGenJournalLine.SetRange("Document Type", DocumentType2);
-        DeltaAssert.Init;
+        DeltaAssert.Init();
         CalcRmngAmtForApplOnSameEntry(DeltaAssert, TempGenJournalLine);
         CustLedgerEntry.SetRange("Document No.", TempGenJournalLine."Document No.");  // Filter applying entry.
         CustLedgerEntry.FindFirst;
@@ -634,6 +637,60 @@ codeunit 134002 "ERM Partial Payment Customer"
         VerifyRemainingAmountOnLedger(GenJournalLine."Document Type"::Refund, GenJournalLine."Account No.", 0);
     end;
 
+    [Test]
+    [HandlerFunctions('ApplyCustomerEntriesWithCustomAmountHandler,ConfirmHandlerVerify,MessageHandler')]
+    [Scope('OnPrem')]
+    procedure RefundAppliedToPaymentPartialFCY()
+    var
+        Customer: Record Customer;
+        CustLedgerEntry: Record "Cust. Ledger Entry";
+        PaymentAmount: Decimal;
+        RefundAmount: Decimal;
+    begin
+        Initialize();
+
+        PaymentAmount := -2369.05;
+        RefundAmount := 2369.04;
+
+        ScenarioRefundAppliedToPayment(Customer, PaymentAmount, RefundAmount);
+
+        VerifyAmountRemainingAmountOpenOnLedger(
+          CustLedgerEntry."Document Type"::Payment, Customer."No.", PaymentAmount, -0.01, true);
+
+        VerifyAmountRemainingAmountOpenOnLedger(
+          CustLedgerEntry."Document Type"::Refund, Customer."No.", RefundAmount, 0, false);
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('ApplyCustomerEntriesWithCustomAmountHandler,ConfirmHandlerVerify,MessageHandler')]
+    [Scope('OnPrem')]
+    procedure RefundAppliedToPaymentPartialFCYCustomApplRounding()
+    var
+        Customer: Record Customer;
+        CustLedgerEntry: Record "Cust. Ledger Entry";
+        PaymentAmount: Decimal;
+        RefundAmount: Decimal;
+    begin
+        Initialize();
+
+        LibraryERM.SetApplnRoundingPrecision(5);
+
+        PaymentAmount := -2369.05;
+        RefundAmount := 2369.04;
+
+        ScenarioRefundAppliedToPayment(Customer, PaymentAmount, RefundAmount);
+
+        VerifyAmountRemainingAmountOpenOnLedger(
+          CustLedgerEntry."Document Type"::Payment, Customer."No.", PaymentAmount, -0.01, true);
+
+        VerifyAmountRemainingAmountOpenOnLedger(
+          CustLedgerEntry."Document Type"::Refund, Customer."No.", RefundAmount, 0, false);
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -653,7 +710,7 @@ codeunit 134002 "ERM Partial Payment Customer"
         LibrarySetupStorage.Save(DATABASE::"Sales & Receivables Setup");
 
         isInitialized := true;
-        Commit;
+        Commit();
     end;
 
     local procedure ApplyAndPostGeneralJournal(GenJournalLine: Record "Gen. Journal Line"; DocumentType: Option)
@@ -847,6 +904,36 @@ codeunit 134002 "ERM Partial Payment Customer"
         until TempGenJournalLine.Next = 1;
     end;
 
+    local procedure ScenarioRefundAppliedToPayment(var Customer: Record Customer; PaymentAmount: Decimal; RefundAmount: Decimal)
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+        GeneralJournal: TestPage "General Journal";
+    begin
+        LibrarySales.CreateCustomer(Customer);
+        Customer.Validate("Currency Code", LibraryERM.CreateCurrencyWithRandomExchRates());
+        Customer.Modify(true);
+
+        LibraryJournals.CreateGenJournalLineWithBatch(
+          GenJournalLine, GenJournalLine."Document Type"::Payment, GenJournalLine."Account Type"::Customer, Customer."No.", PaymentAmount);
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+
+        Clear(GenJournalLine);
+        LibraryJournals.CreateGenJournalLineWithBatch(
+          GenJournalLine, GenJournalLine."Document Type"::Refund, GenJournalLine."Account Type"::Customer, Customer."No.", RefundAmount);
+
+        GeneralJournal.Trap();
+        PAGE.Run(PAGE::"General Journal", GenJournalLine);
+
+        LibraryVariableStorage.Enqueue(-RefundAmount);
+        LibraryVariableStorage.Enqueue(AdjustmentAppliesToQst);
+        LibraryVariableStorage.Enqueue(true);
+        LibraryVariableStorage.Enqueue('Do you want to post the journal lines?');
+        LibraryVariableStorage.Enqueue(true);
+        GeneralJournal."Apply Entries".Invoke();
+        GeneralJournal.Post.Invoke();
+        GeneralJournal.Close();
+    end;
+
     local procedure CreatePostMultipleGenJnlLine(var TempGenJournalLine: Record "Gen. Journal Line" temporary; DocumentType: Option; DocumentType2: Option; NoOfLines: Integer; Amount: Decimal; Amount2: Decimal)
     var
         GenJournalBatch: Record "Gen. Journal Batch";
@@ -918,7 +1005,7 @@ codeunit 134002 "ERM Partial Payment Customer"
     var
         GeneralLedgerSetup: Record "General Ledger Setup";
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         GeneralLedgerSetup.Validate("Payment Tolerance %", PaymentTolerancePercent);
         GeneralLedgerSetup.Validate("Max. Payment Tolerance Amount", MaxPaymentToleranceAmount);
         GeneralLedgerSetup.Modify(true);
@@ -931,7 +1018,7 @@ codeunit 134002 "ERM Partial Payment Customer"
         GenJournalLine.FindSet;
         repeat
             TempGenJournalLine := GenJournalLine;
-            TempGenJournalLine.Insert;
+            TempGenJournalLine.Insert();
         until GenJournalLine.Next = 0;
     end;
 
@@ -962,6 +1049,17 @@ codeunit 134002 "ERM Partial Payment Customer"
         CustLedgerEntry.TestField("Remaining Amount", RemainingAmount);
     end;
 
+    local procedure VerifyAmountRemainingAmountOpenOnLedger(DocumentType: Option; CustomerNo: Code[20]; ExpectedAmount: Decimal; ExpectedRemainingAmount: Decimal; ExpectedOpen: Boolean)
+    var
+        CustLedgerEntry: Record "Cust. Ledger Entry";
+    begin
+        FindCustomerLedgerEntry(CustLedgerEntry, CustomerNo, DocumentType);
+        CustLedgerEntry.CalcFields(Amount, "Remaining Amount");
+        CustLedgerEntry.TestField(Amount, ExpectedAmount);
+        CustLedgerEntry.TestField("Remaining Amount", ExpectedRemainingAmount);
+        CustLedgerEntry.TestField(Open, ExpectedOpen);
+    end;
+
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure ApplyCustomerEntriesHandler(var ApplyCustomerEntries: TestPage "Apply Customer Entries")
@@ -970,11 +1068,28 @@ codeunit 134002 "ERM Partial Payment Customer"
         ApplyCustomerEntries.OK.Invoke;
     end;
 
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure ApplyCustomerEntriesWithCustomAmountHandler(var ApplyCustomerEntries: TestPage "Apply Customer Entries")
+    begin
+        ApplyCustomerEntries."Set Applies-to ID".Invoke();
+        ApplyCustomerEntries."Amount to Apply".SetValue(LibraryVariableStorage.DequeueDecimal);
+        ApplyCustomerEntries.OK.Invoke();
+    end;
+
     [ConfirmHandler]
     [Scope('OnPrem')]
     procedure ConfirmHandlerTrue(Question: Text[1024]; var Reply: Boolean)
     begin
         Reply := true;
+    end;
+
+    [ConfirmHandler]
+    [Scope('OnPrem')]
+    procedure ConfirmHandlerVerify(Question: Text[1024]; var Reply: Boolean)
+    begin
+        Assert.ExpectedMessage(LibraryVariableStorage.DequeueText(), Question);
+        Reply := LibraryVariableStorage.DequeueBoolean();
     end;
 
     [MessageHandler]
