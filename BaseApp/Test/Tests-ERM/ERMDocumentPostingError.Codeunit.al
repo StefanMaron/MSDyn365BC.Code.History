@@ -126,14 +126,14 @@ codeunit 134384 "ERM Document Posting Error"
     var
         GeneralLedgerSetup: Record "General Ledger Setup";
         PurchaseHeader: Record "Purchase Header";
-        OldBillToSellToVATCalc: Option;
+        OldBillToSellToVATCalc: Enum "G/L Setup VAT Calculation";
         VATBusPostingGroup: Code[20];
     begin
         // Test VAT Business Posting Group not changing on Purchase Order while Change Pay to Vendor field.
 
         // Setup: Create Purchase Invoice with Negative value.
         Initialize;
-        UpdateGenenralLedgerSetup(OldBillToSellToVATCalc, GeneralLedgerSetup."Bill-to/Sell-to VAT Calc."::"Sell-to/Buy-from No.");
+        UpdateGeneralLedgerSetup(OldBillToSellToVATCalc, GeneralLedgerSetup."Bill-to/Sell-to VAT Calc."::"Sell-to/Buy-from No.");
         CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order);
         VATBusPostingGroup := PurchaseHeader."VAT Bus. Posting Group";
 
@@ -145,7 +145,7 @@ codeunit 134384 "ERM Document Posting Error"
         Assert.AreEqual(VATBusPostingGroup, PurchaseHeader."VAT Bus. Posting Group", 'Posting Group must match');
 
         // Tear Down: Roll back General Ledger Setup.
-        UpdateGenenralLedgerSetup(OldBillToSellToVATCalc, OldBillToSellToVATCalc);
+        UpdateGeneralLedgerSetup(OldBillToSellToVATCalc, OldBillToSellToVATCalc);
     end;
 
     [Test]
@@ -699,7 +699,7 @@ codeunit 134384 "ERM Document Posting Error"
         SalesLine.FindLast;
     end;
 
-    local procedure UpdateGenenralLedgerSetup(var OldBillToSellToVATCalc: Option; BillToSellToVATCalc: Option)
+    local procedure UpdateGeneralLedgerSetup(var OldBillToSellToVATCalc: Enum "G/L Setup VAT Calculation"; BillToSellToVATCalc: Enum "G/L Setup VAT Calculation")
     var
         GeneralLedgerSetup: Record "General Ledger Setup";
     begin

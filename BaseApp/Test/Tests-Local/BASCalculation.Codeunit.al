@@ -896,7 +896,7 @@ codeunit 144003 "BAS Calculation"
         BASXMLFieldIDSetup: Record "BAS XML Field ID Setup";
     begin
         with BASXMLFieldIDSetup do begin
-            BASXMLFieldSetupName.FindSet;
+            BASXMLFieldSetupName.FindSet();
             repeat
                 SetRange("Setup Name", BASXMLFieldSetupName.Name);
                 SetRange("XML Field ID", XmlFieldId);

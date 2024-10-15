@@ -43,7 +43,7 @@ codeunit 143 "ECSL Report Validate"
             repeat
                 ErrorMessage.LogMessage(ECSLVATReportLine, ECSLVATReportLine.FieldNo("Customer VAT Reg. No."),
                   ErrorMessage."Message Type"::Error, StrSubstNo(NoVatRegNoErr, ECSLVATReportLine."Line No."));
-            until ECSLVATReportLine.Next = 0;
+            until ECSLVATReportLine.Next() = 0;
     end;
 
     local procedure CheckZeroAmountOnLines(VATReportHeader: Record "VAT Report Header")
@@ -57,7 +57,7 @@ codeunit 143 "ECSL Report Validate"
             repeat
                 ErrorMessage.LogMessage(ECSLVATReportLine, ECSLVATReportLine.FieldNo("Total Value Of Supplies"),
                   ErrorMessage."Message Type"::Error, StrSubstNo(ZeroTotalValueErr, ECSLVATReportLine."Line No."));
-            until ECSLVATReportLine.Next = 0;
+            until ECSLVATReportLine.Next() = 0;
     end;
 }
 

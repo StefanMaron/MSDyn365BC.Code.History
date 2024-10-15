@@ -4419,7 +4419,7 @@ codeunit 137054 "SCM Supply Planning"
         // [THEN] Two Requisition Line are created for Item: with Quantity = "M" and "Q" accordingly
         with ReqLine do begin
             SetRange("No.", Item."No.");
-            FindSet;
+            FindSet();
             Assert.AreEqual(MaxQty, Quantity, QuantityErr);
             Next;
             Assert.AreEqual(Qty, Quantity, QuantityErr);
@@ -4497,7 +4497,7 @@ codeunit 137054 "SCM Supply Planning"
 
         // [THEN] Assembly Avalailability dialog appeared => Confirmation dialog appeared => Reservation entries modified
         Assert.RecordCount(NameValueBuffer, 4);
-        NameValueBuffer.FindSet;
+        NameValueBuffer.FindSet();
         NameValueBuffer.TestField(Name, AvailabilityTok);
         NameValueBuffer.Next;
         VerifyNameValueBufferSequence(NameValueBuffer, ConfirmTok);
@@ -4529,7 +4529,7 @@ codeunit 137054 "SCM Supply Planning"
 
         // [THEN] Assembly Avalailability dialog appeared => Confirmation dialog appeared => Reservation entries modified
         Assert.RecordCount(NameValueBuffer, 4);
-        NameValueBuffer.FindSet;
+        NameValueBuffer.FindSet();
         NameValueBuffer.TestField(Name, AvailabilityTok);
         NameValueBuffer.Next;
         VerifyNameValueBufferSequence(NameValueBuffer, ConfirmTok);
@@ -5769,7 +5769,7 @@ codeunit 137054 "SCM Supply Planning"
         FilterRequisitionLine(RequisitionLine, ItemNo);
         PlanningLinesCountBeforeCarryOut := RequisitionLine.Count();
         VendorNo := LibraryPurchase.CreateVendorNo;
-        RequisitionLine.FindSet;
+        RequisitionLine.FindSet();
         repeat
             if RequisitionLine."Ref. Order Type" = RequisitionLine."Ref. Order Type"::Purchase then
                 RequisitionLine.Validate("Vendor No.", VendorNo);
@@ -6615,7 +6615,7 @@ codeunit 137054 "SCM Supply Planning"
 
         // Verify quantity on RequisitionLine was less than Maximum Order Quantity of the Item.
         RequisitionLine.SetRange("No.", Item."No.");
-        RequisitionLine.FindSet;
+        RequisitionLine.FindSet();
         repeat
             SupplyQuantity += RequisitionLine.Quantity;
             Assert.IsTrue(
@@ -6838,7 +6838,7 @@ codeunit 137054 "SCM Supply Planning"
         AssemblyAvailability.Yes.Invoke;
     end;
 
-    [EventSubscriber(ObjectType::Table, 337, 'OnBeforeModifyEvent', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Reservation Entry", 'OnBeforeModifyEvent', '', false, false)]
     local procedure InsertRecordBufferOnBeforeModifyEvent(var Rec: Record "Reservation Entry"; var xRec: Record "Reservation Entry"; RunTrigger: Boolean)
     begin
         InsertNameValueBufferEntry(ReservationEntryTok);

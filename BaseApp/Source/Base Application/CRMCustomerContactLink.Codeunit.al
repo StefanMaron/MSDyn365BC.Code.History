@@ -1,6 +1,10 @@
+#if not CLEAN18
 codeunit 5351 "CRM Customer-Contact Link"
 {
     TableNo = "Job Queue Entry";
+    ObsoleteState = Pending;
+    ObsoleteReason = 'This functionality is replaced with updating related records through subscribers.';
+    ObsoleteTag = '18.0';
 
     trigger OnRun()
     var
@@ -42,7 +46,7 @@ codeunit 5351 "CRM Customer-Contact Link"
                     if Customer."Primary Contact No." <> '' then
                         if UpdateCRMAccountPrimaryContactId(CRMAccount, Customer."Primary Contact No.") then
                             FixedLinksQty += 1;
-            until CRMAccount.Next = 0;
+            until CRMAccount.Next() = 0;
     end;
 
     local procedure SyncPrimaryContactLinkFromCRMAccountPrimaryContactId() FixedLinksQty: Integer
@@ -187,4 +191,4 @@ codeunit 5351 "CRM Customer-Contact Link"
         end;
     end;
 }
-
+#endif

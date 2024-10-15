@@ -1121,7 +1121,7 @@ codeunit 141021 "ERM Electronic - Banking"
 
         // [THEN] Customer/Vendor Bank, Bank Branch No., Bank Account No. in suggested payments are taken from the vendors respectively.
         GenJournalLine.SetRange("Journal Batch Name", GenJournalBatch.Name);
-        GenJournalLine.FindSet;
+        GenJournalLine.FindSet();
         repeat
             GenJournalLine.TestField("Customer/Vendor Bank");
             VendBankAcc.Get(GenJournalLine."Account No.", GenJournalLine."Customer/Vendor Bank");
@@ -1832,9 +1832,8 @@ codeunit 141021 "ERM Electronic - Banking"
         Reply := true;
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 11603, 'OnBeforeDownloadFile', '', false, false)]
-    [Scope('OnPrem')]
-    procedure DisableDownloadFile(var DoNotDownloadFile: Boolean)
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"EFT Management", 'OnBeforeDownloadFile', '', false, false)]
+    local procedure DisableDownloadFile(var DoNotDownloadFile: Boolean)
     begin
         DoNotDownloadFile := true;
     end;

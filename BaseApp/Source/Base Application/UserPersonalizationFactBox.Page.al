@@ -1,6 +1,6 @@
 page 9821 "User Personalization FactBox"
 {
-    Caption = 'User Preferences';
+    Caption = 'User Settings';
     Editable = false;
     PageType = CardPart;
     SourceTable = "User Personalization";

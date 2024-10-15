@@ -484,14 +484,14 @@ page 8901 "Finance Manager Role Center"
                             ApplicationArea = Basic, Suite;
                             Caption = 'Cash Flow Statement';
                             RunObject = codeunit "Run Acc. Sched. CashFlow Stmt.";
-                            AccessByPermission = tabledata 15 = R;
+                            AccessByPermission = TableData "G/L Account" = R;
                         }
                         action("Statement of Retained Earnings")
                         {
                             ApplicationArea = Basic, Suite;
                             Caption = 'Retained Earnings Statement';
                             RunObject = codeunit "Run Acc. Sched. Retained Earn.";
-                            AccessByPermission = tabledata 15 = R;
+                            AccessByPermission = TableData "G/L Account" = R;
                         }
                         action("Purchase Receipts")
                         {
@@ -625,7 +625,7 @@ page 8901 "Finance Manager Role Center"
                         ApplicationArea = Basic, Suite;
                         Caption = 'G/L Account Categories';
                         RunObject = page "G/L Account Categories";
-                        AccessByPermission = tabledata 570 = R;
+                        AccessByPermission = TableData "G/L Account Category" = R;
                     }
                     action("XBRL Taxonomies")
                     {
@@ -2170,7 +2170,7 @@ page 8901 "Finance Manager Role Center"
                         ApplicationArea = Basic, Suite;
                         Caption = 'Rounding Methods';
                         RunObject = page "Rounding Methods";
-                        AccessByPermission = tabledata 156 = R;
+                        AccessByPermission = TableData "Resource" = R;
                     }
                     action("Analysis Types")
                     {

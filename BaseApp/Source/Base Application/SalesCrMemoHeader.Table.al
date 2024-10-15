@@ -551,11 +551,9 @@ table 114 "Sales Cr.Memo Header"
         {
             Caption = 'Document Exchange Identifier';
         }
-        field(711; "Document Exchange Status"; Option)
+        field(711; "Document Exchange Status"; Enum "Sales Document Exchange Status")
         {
             Caption = 'Document Exchange Status';
-            OptionCaption = 'Not Sent,Sent to Document Exchange Service,Delivered to Recipient,Delivery Failed,Pending Connection to Recipient';
-            OptionMembers = "Not Sent","Sent to Document Exchange Service","Delivered to Recipient","Delivery Failed","Pending Connection to Recipient";
         }
         field(712; "Doc. Exch. Original Identifier"; Text[50])
         {

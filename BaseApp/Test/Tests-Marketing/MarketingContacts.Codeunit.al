@@ -2,6 +2,7 @@ codeunit 136201 "Marketing Contacts"
 {
     Subtype = Test;
     TestPermissions = Disabled;
+    EventSubscriberInstance = Manual;
 
     trigger OnRun()
     begin
@@ -1162,7 +1163,7 @@ codeunit 136201 "Marketing Contacts"
         MarketingSetup.RunModal;
 
         // 3. Verify: Check that location has been changed for attachments.
-        Attachment.FindSet;
+        Attachment.FindSet();
         repeat
             LibraryUtility.CheckFileNotEmpty(TemporaryPath + Format(Attachment."No."))
         until Attachment.Next = 0;
@@ -2827,13 +2828,13 @@ codeunit 136201 "Marketing Contacts"
 
     [Test]
     [Scope('OnPrem')]
-    procedure PersonalContactPhoneEmailToCustomer()
+    procedure PersonalContactPhoneEmailShouldNotTransferToCustomer()
     var
         CompanyContact: Record Contact;
         PersonContact: Record Contact;
         Customer: Record Customer;
     begin
-        // [SCENARIO 202046] Customer Email and Phone No. updated when Primary Contact field updated
+        // [SCENARIO 202046] Customer Email and Phone No. is not updated when the Primary Contact field is referring to a personal contact.
         Initialize;
 
         // [GIVEN] Company Contact "CC"
@@ -2856,20 +2857,20 @@ codeunit 136201 "Marketing Contacts"
         Customer.Validate("Primary Contact No.", PersonContact."No.");
         Customer.Modify();
 
-        // [THEN] Customer E-Mail = "EMAIL", Phone No. = "PHONENO"
-        Customer.TestField("E-Mail", PersonContact."E-Mail");
-        Customer.TestField("Phone No.", PersonContact."Phone No.");
+        // [THEN] Customer E-Mail and Phone No. stays unchanged.
+        Customer.TestField("E-Mail", CompanyContact."E-Mail");
+        Customer.TestField("Phone No.", CompanyContact."Phone No.");
     end;
 
     [Test]
     [Scope('OnPrem')]
-    procedure PersonalContactPhoneEmailToVendor()
+    procedure PersonalContactPhoneEmailShouldNotTransferToVendor()
     var
         CompanyContact: Record Contact;
         PersonContact: Record Contact;
         Vendor: Record Vendor;
     begin
-        // [SCENARIO 202046] Vendor Email and Phone No. updated when Primary Contact field updated
+        // [SCENARIO 202046] Vendor Email and Phone No.is not updated when the Primary Contact field is referring to a personal contact.
         Initialize;
 
         // [GIVEN] Company Contact "CC"
@@ -2892,9 +2893,9 @@ codeunit 136201 "Marketing Contacts"
         Vendor.Validate("Primary Contact No.", PersonContact."No.");
         Vendor.Modify();
 
-        // [THEN] Vendor E-Mail = "EMAIL", Phone No. = "PHONENO"
-        Vendor.TestField("E-Mail", PersonContact."E-Mail");
-        Vendor.TestField("Phone No.", PersonContact."Phone No.");
+        // [THEN] Vendor E-Mail and Phone No. stays unchanged.
+        Vendor.TestField("E-Mail", CompanyContact."E-Mail");
+        Vendor.TestField("Phone No.", CompanyContact."Phone No.");
     end;
 
     [Test]
@@ -4603,6 +4604,34 @@ codeunit 136201 "Marketing Contacts"
 
     [Test]
     [Scope('OnPrem')]
+    procedure ExportContactShouldOnlyBeEnabledWhenContactSelected()
+    var
+        Contact: Record Contact;
+        ContactList: TestPage "Contact List";
+    begin
+        // [SCENARIO] The Export Contact action should only be enabled if a contact is selected in the contact list.
+        Initialize();
+        Contact.Init();
+        Contact.DeleteAll();
+
+        // [GIVEN] An empty contact list.
+        ContactList.OpenEdit();
+
+        // [THEN] Export contact action is disabled.
+        Assert.IsFalse(ContactList."Export Contact".Enabled(), 'Expected Export Contact action to be disabled.');
+        ContactList.Close();
+
+        // [GIVEN] A non-empty contact list with a selected contact.
+        LibraryMarketing.CreateCompanyContact(Contact);
+        ContactList.OpenEdit();
+
+        // [THEN] Export contact action is enabled.
+        Assert.IsTrue(ContactList."Export Contact".Enabled(), 'Expected Export Contact action to be enabled.');
+        ContactList.Close();
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
     procedure CreateCustomerForPersonContactWithCompanyContactWithCustomer()
     var
         Contact: Record Contact;
@@ -4707,6 +4736,508 @@ codeunit 136201 "Marketing Contacts"
         Vendor.Get(ContBusRel."No.");
     end;
 
+    [Test]
+    procedure T200_ContactLinkedWithCustomerHasBusinessRelationCustomer()
+    var
+        ContactCompany: Record Contact;
+        MarketingContacts: Codeunit "Marketing Contacts";
+    begin
+        // [FEATURE] [Business Relation] [UT]
+        // [SCENARIO 383899] Contact linked with customer has "Business Relation" 'Customer'
+        Initialize();
+        BindSubscription(MarketingContacts); // to subscribe OnAfterIsEnabledCustTemplate
+
+        // [GIVEN] Created Contact with type Company
+        LibraryMarketing.CreateCompanyContact(ContactCompany);
+        // [WHEN] Link the contact with the customer
+        ContactCompany.SetHideValidationDialog(true);
+        ContactCompany.CreateCustomer();
+
+        // [THEN] "Business Relation" is 'Customer'
+        ContactCompany.Find();
+        ContactCompany.TestField("Business Relation", Format("Contact Business Relation Link To Table"::Customer));
+    end;
+
+    [Test]
+    procedure T201_ContactLinkedWithVendorHasBusinessRelationVendor()
+    var
+        ContactCompany: Record Contact;
+    begin
+        // [FEATURE] [Business Relation] [UT]
+        // [SCENARIO 383899] Contact linked with Vendor has "Business Relation" 'Vendor'
+        Initialize();
+
+        // [GIVEN] Created Contact with type Company
+        LibraryMarketing.CreateCompanyContact(ContactCompany);
+        // [WHEN] Link the contact with the Vendor
+        ContactCompany.SetHideValidationDialog(true);
+        ContactCompany.CreateVendor();
+
+        // [WHEN] "Business Relation" is 'Vendor'
+        ContactCompany.Find();
+        ContactCompany.TestField("Business Relation", Format("Contact Business Relation Link To Table"::Vendor));
+    end;
+
+    [Test]
+    procedure T202_ContactLinkedWithBankHasBusinessRelationBank()
+    var
+        ContactCompany: Record Contact;
+        MarketingContacts: Codeunit "Marketing Contacts";
+    begin
+        // [FEATURE] [Business Relation] [UT]
+        // [SCENARIO 383899] Contact linked with Vendor has "Business Relation" 'Bank Account'
+        Initialize();
+        BindSubscription(MarketingContacts); // to subscribe OnAfterIsEnabledCustTemplate
+
+        // [GIVEN] Created Contact with type Company
+        LibraryMarketing.CreateCompanyContact(ContactCompany);
+        // [WHEN] Link the contact with the Bank Account
+        ContactCompany.SetHideValidationDialog(true);
+        ContactCompany.CreateBankAccount();
+
+        // [WHEN] "Business Relation" is 'Bank Account'
+        ContactCompany.Find();
+        ContactCompany.TestField("Business Relation", Format("Contact Business Relation Link To Table"::"Bank Account"));
+    end;
+
+    [Test]
+    procedure T203_ContactLinkedWithCustomerandVendorHasBusinessRelationMultiple()
+    var
+        ContactCompany: Record Contact;
+        MarketingContacts: Codeunit "Marketing Contacts";
+    begin
+        // [FEATURE] [Business Relation] [UT]
+        // [SCENARIO 383899] Contact linked with customer and vendor has "Business Relation" 'Multiple'
+        Initialize();
+        BindSubscription(MarketingContacts); // to subscribe OnAfterIsEnabledCustTemplate
+
+        // [GIVEN] Created Contact with type Company
+        LibraryMarketing.CreateCompanyContact(ContactCompany);
+        // [WHEN] Link the contact with the customer and the vendor
+        ContactCompany.SetHideValidationDialog(true);
+        ContactCompany.CreateCustomer();
+        ContactCompany.CreateVendor();
+
+        // [WHEN] "Business Relation" is 'Multiple'
+        ContactCompany.Find();
+        ContactCompany.TestField("Business Relation", 'Multiple');
+    end;
+
+    [Test]
+    procedure T204_ContactLinkedWithAlternateCustomerandVendorHasBusinessRelationMultiple()
+    var
+        ContactCompany: Record Contact;
+        MarketingContacts: Codeunit "Marketing Contacts";
+    begin
+        // [FEATURE] [Business Relation] [UT]
+        // [SCENARIO 383899] Contact linked with customer (alternate code) and vendor has "Business Relation" 'Multiple'
+        Initialize();
+        BindSubscription(MarketingContacts); // to subscribe OnAfterIsEnabledCustTemplate
+
+        // [GIVEN] Created Contact with type Company
+        LibraryMarketing.CreateCompanyContact(ContactCompany);
+        // [WHEN] Link the contact with the customer and the vendor
+        ContactCompany.SetHideValidationDialog(true);
+        ContactCompany.CreateCustomer();
+        ReplaceBusRelationCode(ContactCompany."No.");
+        ContactCompany.CreateVendor();
+
+        // [WHEN] "Business Relation" is 'Multiple'
+        ContactCompany.Find();
+        ContactCompany.TestField("Business Relation", 'Multiple');
+    end;
+
+    [Test]
+    procedure T205_ContactLinkedWithBankWithAlternateCodeHasBusinessRelationOther()
+    var
+        ContactCompany: Record Contact;
+        BankAccount: Record "Bank Account";
+    begin
+        // [FEATURE] [Business Relation] [UT]
+        // [SCENARIO 383899] Contact linked with bank using  alternate relation code has "Business Relation" 'Other'
+        Initialize();
+
+        // [GIVEN] Created Contact with type Company
+        LibraryMarketing.CreateCompanyContact(ContactCompany);
+        LibraryERM.CreateBankAccount(BankAccount);
+
+        // [WHEN] Link the contact with the bank using relation code 'X' (not 'BANK' from Marketing Setup)
+        CreateBusinessRelationBetweenContactAndBankAccount(ContactCompany."No.", BankAccount."No.");
+
+        // [THEN] "Business Relation" is 'Other'
+        ContactCompany.Find();
+        ContactCompany.TestField("Business Relation", 'Other');
+    end;
+
+    [Test]
+    procedure T206_ContactWithoutRelationsHasBusinessRelationNone()
+    var
+        ContactCompany: Record Contact;
+    begin
+        // [FEATURE] [Business Relation] [UT]
+        // [SCENARIO 383899] Contact without relations has "Business Relation" 'None'
+        Initialize();
+
+        // [WHEN] Created Contact with type Company, has no business relations
+        LibraryMarketing.CreateCompanyContact(ContactCompany);
+
+        // [THEN] "Business Relation" is 'None'
+        ContactCompany.TestField("Business Relation", 'None');
+    end;
+
+    [Test]
+    procedure T210_ContactCardLinkedWithCustomerOpensCustomerCard()
+    var
+        ContactCompany: Record Contact;
+        MarketingContacts: Codeunit "Marketing Contacts";
+        ContactCard: TestPage "Contact Card";
+        CustomerCard: TestPage "Customer Card";
+        CustomerNo: Code[20];
+    begin
+        // [FEATURE] [Business Relation] [UI]
+        // [SCENARIO 383899] Contact linked with customer opens Customer Card on "Business Relation" assist edit.
+        Initialize();
+        BindSubscription(MarketingContacts); // to subscribe OnAfterIsEnabledCustTemplate
+
+        // [GIVEN] Created Contact with type Company
+        LibraryMarketing.CreateCompanyContact(ContactCompany);
+        // [GIVEN] Link the contact with the customer 'X'
+        ContactCompany.SetHideValidationDialog(true);
+        CustomerNo := ContactCompany.CreateCustomer();
+
+        // [GIVEN] Open Contact card
+        ContactCard.OpenView();
+        ContactCard.Filter.SetFilter("No.", ContactCompany."No.");
+
+        // [WHEN] Assit edit on "Business Relation"
+        CustomerCard.Trap();
+        ContactCard."Business Relation".DrillDown();
+        // [THEN] Customer Card is open on customer 'X'
+        CustomerCard."No.".AssertEquals(CustomerNo);
+        CustomerCard.Close();
+
+        // [THEN] "No. of Business Relations" in the factbox is 1
+        ContactCard.Control31."No. of Business Relations".AssertEquals(1);
+        // [WHEN] Drilldown on "No. of Business Relations"
+        CustomerCard.Trap();
+        ContactCard.Control31."No. of Business Relations".Drilldown();
+        // [THEN] Customer Card is open on Customer 'X'
+        CustomerCard."No.".AssertEquals(CustomerNo);
+        CustomerCard.Close();
+    end;
+
+    [Test]
+    procedure T211_ContactCardLinkedWithVendorOpensVendorCard()
+    var
+        ContactCompany: Record Contact;
+        ContactCard: TestPage "Contact Card";
+        VendorCard: TestPage "Vendor Card";
+        VendorNo: Code[20];
+    begin
+        // [FEATURE] [Business Relation] [UI]
+        // [SCENARIO 383899] Contact linked with Vendor opens Vendor Card on "Business Relation" assist edit.
+        Initialize();
+
+        // [GIVEN] Created Contact with type Company
+        LibraryMarketing.CreateCompanyContact(ContactCompany);
+        // [GIVEN] Link the contact with the Vendor 'X'
+        ContactCompany.SetHideValidationDialog(true);
+        VendorNo := ContactCompany.CreateVendor();
+
+        // [GIVEN] Open Contact card
+        ContactCard.OpenView();
+        ContactCard.Filter.SetFilter("No.", ContactCompany."No.");
+
+        // [WHEN] Assit edit on "Business Relation"
+        VendorCard.Trap();
+        ContactCard."Business Relation".DrillDown();
+        // [THEN] Vendor Card is open on Vendor 'X'
+        VendorCard."No.".AssertEquals(VendorNo);
+        VendorCard.Close();
+
+        // [THEN] "No. of Business Relations" in the factbox is 1
+        ContactCard.Control31."No. of Business Relations".AssertEquals(1);
+        // [WHEN] Drilldown on "No. of Business Relations"
+        VendorCard.Trap();
+        ContactCard.Control31."No. of Business Relations".Drilldown();
+        // [THEN] Vendor Card is open on Vendor 'X'
+        VendorCard."No.".AssertEquals(VendorNo);
+        VendorCard.Close();
+    end;
+
+    [Test]
+    procedure T212_ContactCardLinkedWithBankAccountOpensBankAccountCard()
+    var
+        ContactCompany: Record Contact;
+        ContactCard: TestPage "Contact Card";
+        BankAccountCard: TestPage "Bank Account Card";
+        BankAccountNo: Code[20];
+    begin
+        // [FEATURE] [Business Relation] [UI]
+        // [SCENARIO 383899] Contact linked with Bank Account opens Bank Account Card on "Business Relation" assist edit.
+        Initialize();
+
+        // [GIVEN] Created Contact with type Company
+        LibraryMarketing.CreateCompanyContact(ContactCompany);
+        // [GIVEN] Link the contact with the Bank Account 'X'
+        ContactCompany.SetHideValidationDialog(true);
+        BankAccountNo := ContactCompany.CreateBankAccount();
+
+        // [GIVEN] Open Contact card
+        ContactCard.OpenView();
+        ContactCard.Filter.SetFilter("No.", ContactCompany."No.");
+
+        // [WHEN] Assit edit on "Business Relation"
+        BankAccountCard.Trap();
+        ContactCard."Business Relation".DrillDown();
+        // [THEN] Bank Account Card is open on Bank Account 'X'
+        BankAccountCard."No.".AssertEquals(BankAccountNo);
+        BankAccountCard.Close();
+
+        // [THEN] "No. of Business Relations" in the factbox is 1
+        ContactCard.Control31."No. of Business Relations".AssertEquals(1);
+        // [WHEN] Drilldown on "No. of Business Relations"
+        BankAccountCard.Trap();
+        ContactCard.Control31."No. of Business Relations".Drilldown();
+        // [THEN] Bank Account Card is open on Bank Account 'X'
+        BankAccountCard."No.".AssertEquals(BankAccountNo);
+        BankAccountCard.Close();
+    end;
+
+    [Test]
+    procedure T213_ContactCardLinkedWithVendorOpensContactBusRelationsList()
+    var
+        ContactCompany: Record Contact;
+        ContactCard: TestPage "Contact Card";
+        ContactBusinessRelations: TestPage "Contact Business Relations";
+        BankAccountNo: Code[20];
+        VendorNo: Code[20];
+    begin
+        // [FEATURE] [Business Relation] [UI]
+        // [SCENARIO 383899] Contact linked with Vendor and Bank opens "Contact Business Relations" on assist edit.
+        Initialize();
+
+        // [GIVEN] Created Contact with type Company
+        LibraryMarketing.CreateCompanyContact(ContactCompany);
+        // [GIVEN] Link the contact with the Vendor 'V', Bank 'B'
+        ContactCompany.SetHideValidationDialog(true);
+        VendorNo := ContactCompany.CreateVendor();
+        BankAccountNo := ContactCompany.CreateBankAccount();
+
+        // [GIVEN] Open Contact card
+        ContactCard.OpenView();
+        ContactCard.Filter.SetFilter("No.", ContactCompany."No.");
+
+        // [WHEN] Assit edit on "Business Relation"
+        ContactBusinessRelations.Trap();
+        ContactCard."Business Relation".DrillDown();
+        // [THEN] "Contact Business Relations" is open, where are two records: bank 'B' and vendor 'V' 
+        ContactBusinessRelations."No.".AssertEquals(BankAccountNo);
+        ContactBusinessRelations.Next();
+        ContactBusinessRelations."No.".AssertEquals(VendorNo);
+        ContactBusinessRelations.Close();
+
+        // [THEN] "No. of Business Relations" in the factbox is 2
+        ContactCard.Control31."No. of Business Relations".AssertEquals(2);
+        // [WHEN] Drilldown on "No. of Business Relations"
+        ContactBusinessRelations.Trap();
+        ContactCard.Control31."No. of Business Relations".Drilldown();
+        // [THEN] "Contact Business Relations" is open, where are two records: bank 'B' and vendor 'V' 
+        ContactBusinessRelations."No.".AssertEquals(BankAccountNo);
+        ContactBusinessRelations.Next();
+        ContactBusinessRelations."No.".AssertEquals(VendorNo);
+        ContactBusinessRelations.Close();
+    end;
+
+    [Test]
+    procedure T214_ContactCardWithoutRelationsOpensContactBusRelationsList()
+    var
+        ContactCompany: Record Contact;
+        ContactCard: TestPage "Contact Card";
+        ContactBusinessRelations: TestPage "Contact Business Relations";
+    begin
+        // [FEATURE] [Business Relation] [UI]
+        // [SCENARIO 383899] Contact linked with Vendor and Bank opens "Contact Business Relations" on assist edit.
+        Initialize();
+
+        // [GIVEN] Created Contact with type Company, no relations
+        LibraryMarketing.CreateCompanyContact(ContactCompany);
+
+        // [GIVEN] Open Contact card
+        ContactCard.OpenView();
+        ContactCard.Filter.SetFilter("No.", ContactCompany."No.");
+
+        // [WHEN] Assit edit on "Business Relation"
+        ContactBusinessRelations.Trap();
+        ContactCard."Business Relation".DrillDown();
+        // [THEN] Empty "Contact Business Relations" is open 
+        Assert.IsFalse(ContactBusinessRelations.First(), 'Contact Business Relations is not empty');
+    end;
+
+    [Test]
+    procedure T215_ContactPersonWithCompanyLinkedToCustomerHasBusRelationCustomer()
+    var
+        ContactCompany: Record Contact;
+        ContactPerson: Record Contact;
+    begin
+        // [FEATURE] [Business Relation] [UT]
+        // [SCENARIO 388067] Contact (person) of the company contact related to a customer, has "Business Relation" 'Customer'.
+        Initialize();
+
+        // [GIVEN] Contact(company) 'C', where "Business Relation" is 'Customer'
+        LibraryMarketing.CreateCompanyContact(ContactCompany);
+        CreateBusRelationCustomer(ContactCompany);
+        // [GIVEN] Contact(person) 'P', where "Company No." is 'C'
+        LibraryMarketing.CreatePersonContact(ContactPerson);
+
+        // [WHEN] Set "Company No." to 'C' in contact 'P'
+        ContactPerson.Validate("Company No.", ContactCompany."No.");
+
+        // [THEN] Contact 'P', where "Business Relation" is 'Customer' 
+        ContactPerson.TestField("Business Relation", ContactCompany."Business Relation");
+    end;
+
+    [Test]
+    procedure T216_ContactPersonsGotUpdatedBusRelationOnRemovedCompanyRelation()
+    var
+        BusinessRelation: Record "Business Relation";
+        ContactCompany: Record Contact;
+        ContactBusinessRelation: Record "Contact Business Relation";
+        ContactPerson: array[2] of Record Contact;
+    begin
+        // [FEATURE] [Business Relation] [UT]
+        // [SCENARIO 388067] Contacts (person) of the company contact related to a customer, got updated "Business Relation" on the relation removal.
+        Initialize();
+
+        // [GIVEN] Contact(company) 'C', where "Business Relation" is 'Customer'
+        LibraryMarketing.CreateCompanyContact(ContactCompany);
+        CreateBusRelationCustomer(ContactCompany);
+        // [GIVEN] Contact(person) 'P1', where Business Relation" is 'None'
+        LibraryMarketing.CreatePersonContact(ContactPerson[1]);
+        ContactPerson[1].TestField("Business Relation", 'None');
+        // [GIVEN] Contact(person) 'P2', where Business Relation" is 'Other'
+        LibraryMarketing.CreatePersonContact(ContactPerson[2]);
+        ContactBusinessRelation."Contact No." := ContactPerson[2]."No.";
+        LibraryMarketing.CreateBusinessRelation(BusinessRelation);
+        ContactBusinessRelation."Business Relation Code" := BusinessRelation.Code;
+        ContactBusinessRelation.Insert();
+        ContactPerson[2].Find();
+        ContactPerson[2].TestField("Business Relation", 'Other');
+        // [GIVEN] Contact 'P1' got "Company No." as 'C', so "Business Relation" is 'Customer'
+        ContactPerson[1].Validate("Company No.", ContactCompany."No.");
+        ContactPerson[1].Modify();
+        ContactPerson[1].TestField("Business Relation", 'Customer');
+        // [GIVEN] Contact 'P2' got "Company No." as 'C', so "Business Relation" is 'Multiple'
+        ContactPerson[2].Validate("Company No.", ContactCompany."No.");
+        ContactPerson[2].Modify();
+        ContactPerson[2].TestField("Business Relation", 'Multiple');
+
+        // [WHEN] Remove business relation for contact 'C'
+        ContactBusinessRelation.SetRange("Contact No.", ContactCompany."No.");
+        ContactBusinessRelation.FindFirst();
+        ContactBusinessRelation.Delete(true);
+
+        // [THEN] Contact 'P', where "Business Relation" is 'None' and 'Other' in person contacts 
+        ContactPerson[1].Find();
+        ContactPerson[1].TestField("Business Relation", 'None');
+        ContactPerson[2].Find();
+        ContactPerson[2].TestField("Business Relation", 'Other');
+    end;
+
+    [Test]
+    procedure T217_PersonContactOnCustomerGetsBusRelationCustomer()
+    var
+        Customer: Record Customer;
+        ContactPerson: Record Contact;
+    begin
+        // [FEATURE] [Business Relation] [UT]
+        // [SCENARIO] Contact (person) automatically created for the customer has "Business Relation" 'Customer'
+        Initialize();
+        // [GIVEN] Customer 'X'
+        LibrarySales.CreateCustomer(Customer);
+
+        // [WHEN] Set 'Contact' as 'C' on Customer 'X'
+        ContactPerson.Name := LibraryUtility.GenerateGUID();
+        Customer.Validate(Contact, ContactPerson.Name);
+
+        // [THEN] Contact (person) 'C', where "Business Relation" is 'Customer'
+        ContactPerson.SetRange(Name, ContactPerson.Name);
+        ContactPerson.FindFirst();
+        ContactPerson.TestField("Business Relation", 'Customer');
+    end;
+
+    [Test]
+    procedure T218_PersonContactOnVendorGetsBusRelationVendor()
+    var
+        Vendor: Record Vendor;
+        ContactPerson: Record Contact;
+    begin
+        // [FEATURE] [Business Relation] [UT]
+        // [SCENARIO] Contact (person) automatically created for the Vendor has "Business Relation" 'Vendor'
+        Initialize();
+        // [GIVEN] Vendor 'X'
+        LibraryPurchase.CreateVendor(Vendor);
+
+        // [WHEN] Set 'Contact' as 'C' on Vendor 'X'
+        ContactPerson.Name := LibraryUtility.GenerateGUID();
+        Vendor.Validate(Contact, ContactPerson.Name);
+
+        // [THEN] Contact (person) 'C', where "Business Relation" is 'Vendor'
+        ContactPerson.SetRange(Name, ContactPerson.Name);
+        ContactPerson.FindFirst();
+        ContactPerson.TestField("Business Relation", 'Vendor');
+    end;
+
+    [Test]
+    procedure T220_UpdateContactBusinessRelationShouldChangeContact()
+    var
+        BusinessRelation: Record "Business Relation";
+        ContactBusinessRelation: Record "Contact Business Relation";
+        Contact: Record Contact;
+    begin
+        // [FEATURE] [Business Relation] [UT]
+        // [GIVEN] Contact 'X', where "Business Relation" is <blank>
+        LibraryMarketing.CreateCompanyContact(Contact);
+        Contact."Business Relation" := '';
+        Contact.Modify();
+        // [GIVEN] ContactBusinessRelation, where "Contact No." is 'X'
+        ContactBusinessRelation."Contact No." := Contact."No.";
+        LibraryMarketing.CreateBusinessRelation(BusinessRelation);
+        ContactBusinessRelation."Business Relation Code" := BusinessRelation.Code;
+
+        // [WHEN] Insert (runs UpdateContactBusinessRelation())
+        ContactBusinessRelation.Insert();
+
+        // [THEN] Contact 'X' is not changed, "Business Relation" is 'Other'
+        Contact.Find();
+        Contact.TestField("Business Relation", 'Other');
+    end;
+
+    [Test]
+    procedure T221_UpdateTemporaryContactBusinessRelationShouldNotChangeContact()
+    var
+        BusinessRelation: Record "Business Relation";
+        TempContactBusinessRelation: Record "Contact Business Relation" temporary;
+        Contact: Record Contact;
+    begin
+        // [FEATURE] [Business Relation] [UT]
+        // [GIVEN] Contact 'X', where "Business Relation" is <blank>
+        LibraryMarketing.CreateCompanyContact(Contact);
+        Contact."Business Relation" := '';
+        Contact.Modify();
+        // [GIVEN] temporary ContactBusinessRelation, where "Contact No." is 'X'
+        TempContactBusinessRelation."Contact No." := Contact."No.";
+        LibraryMarketing.CreateBusinessRelation(BusinessRelation);
+        TempContactBusinessRelation."Business Relation Code" := BusinessRelation.Code;
+
+        // [WHEN] Insert (runs UpdateContactBusinessRelation())
+        TempContactBusinessRelation.Insert();
+
+        // [THEN] Contact 'X' is not changed, "Business Relation" is still <blank>
+        Contact.Find();
+        Contact.TestField("Business Relation", '');
+    end;
+
     local procedure Initialize()
     var
         MarketingSetup: Record "Marketing Setup";
@@ -4779,6 +5310,22 @@ codeunit 136201 "Marketing Contacts"
         LibraryERM.CreateBankAccount(BankAccount);
         BankAccount.Validate("Currency Code", CurrencyCode);
         BankAccount.Modify(true);
+    end;
+
+    local procedure CreateBusRelationCustomer(var Contact: Record Contact)
+    var
+        ContactBusinessRelation: Record "Contact Business Relation";
+        MarketingSetup: Record "Marketing Setup";
+    begin
+        MarketingSetup.Get();
+        MarketingSetup.TestField("Bus. Rel. Code for Customers");
+        LibraryMarketing.CreateContactBusinessRelation(
+            ContactBusinessRelation, Contact."No.", MarketingSetup."Bus. Rel. Code for Customers");
+        ContactBusinessRelation."Link to Table" := ContactBusinessRelation."Link to Table"::Customer;
+        ContactBusinessRelation."No." := LibrarySales.CreateCustomerNo();
+        ContactBusinessRelation.Modify(true);
+        Contact.Find();
+        Contact.TestField("Business Relation", 'Customer');
     end;
 
     local procedure CreateContactAsPerson(var Contact: Record Contact)
@@ -5188,6 +5735,19 @@ codeunit 136201 "Marketing Contacts"
         SalesQuote.Print.Invoke;
     end;
 
+    local procedure ReplaceBusRelationCode(ContactNo: Code[20])
+    var
+        ContactBusinessRelation: Record "Contact Business Relation";
+        BusinessRelation: Record "Business Relation";
+    begin
+        ContactBusinessRelation.SetRange("Contact No.", ContactNo);
+        ContactBusinessRelation.FindFirst();
+        ContactBusinessRelation.Delete();
+        LibraryMarketing.CreateBusinessRelation(BusinessRelation);
+        ContactBusinessRelation."Business Relation Code" := BusinessRelation.Code;
+        ContactBusinessRelation.Insert();
+    end;
+
     local procedure RunCompanyDetails(Contact: Record Contact)
     var
         CompanyDetails: Page "Company Details";
@@ -5577,7 +6137,11 @@ codeunit 136201 "Marketing Contacts"
         TempSegmentLine."Cost (LCY)" := LibraryVariableStorage.DequeueDecimal;
         TempSegmentLine."Duration (Min.)" := LibraryVariableStorage.DequeueDecimal;
         TempSegmentLine.Modify(true);
+#if CLEAN17
+        TempSegmentLine.FinishSegLineWizard(true);
+#else
         TempSegmentLine.FinishWizard(true);
+#endif
     end;
 
     [ModalPageHandler]
@@ -5666,7 +6230,6 @@ codeunit 136201 "Marketing Contacts"
     end;
 
     [ConfirmHandler]
-    [Scope('OnPrem')]
     procedure ConfirmHandlerTrue(Question: Text[1024]; var Reply: Boolean)
     begin
         if Question = 'Do you want to create a follow-up task?' then
@@ -5676,7 +6239,12 @@ codeunit 136201 "Marketing Contacts"
     end;
 
     [ConfirmHandler]
-    [Scope('OnPrem')]
+    procedure ConfirmHandlerFalse(Question: Text[1024]; var Reply: Boolean)
+    begin
+        Reply := false;
+    end;
+
+    [ConfirmHandler]
     procedure ConfirmHandlerFalseWithTextVerification(Question: Text[1024]; var Reply: Boolean)
     begin
         Assert.AreEqual(LibraryVariableStorage.DequeueText, Question, 'Unexpected confirmation message');
@@ -5747,7 +6315,7 @@ codeunit 136201 "Marketing Contacts"
     [Scope('OnPrem')]
     procedure ContactHandler(var Contact: TestPage "Contact Card")
     begin
-        Contact.New;
+        Contact.New();
         Contact."Company Name".AssertEquals(LibraryVariableStorage.DequeueText);
         Contact.Type.AssertEquals(LibraryVariableStorage.DequeueText);
     end;
@@ -5808,5 +6376,10 @@ codeunit 136201 "Marketing Contacts"
         LibraryVariableStorage.Enqueue(Notification.Message);
     end;
 
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Customer Templ. Mgt.", 'OnAfterIsEnabled', '', false, false)]
+    local procedure OnAfterIsEnabledCustTemplate(var Result: Boolean)
+    begin
+        Result := true;
+    end;
 }
 

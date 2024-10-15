@@ -339,7 +339,7 @@ report 28040 "WHT Certificate - Other"
                             WHTBaseLCY := WHTBaseLCY + WHTEntry2."Base (LCY)";
                         WHTAmountLCY := WHTAmountLCY + WHTEntry2."Amount (LCY)";
                         WHTDate := WHTEntry2."Posting Date";
-                    until WHTEntry2.Next = 0;
+                    until WHTEntry2.Next() = 0;
                 WHTEntry3.CopyFilters("WHT Entry");
                 WHTEntry3.SetRange("WHT Revenue Type", Code);
                 WHTEntry3.SetRange("Document Type", WHTEntry3."Document Type"::Invoice);
@@ -348,7 +348,7 @@ report 28040 "WHT Certificate - Other"
                         WHTBaseLCY := WHTBaseLCY + WHTEntry3."Base (LCY)";
                         WHTAmountLCY := WHTAmountLCY + WHTEntry3."Amount (LCY)";
                         WHTDate := WHTEntry3."Posting Date";
-                    until WHTEntry3.Next = 0;
+                    until WHTEntry3.Next() = 0;
                 WHTEntry4.CopyFilters("WHT Entry");
                 WHTEntry4.SetRange("WHT Revenue Type", Code);
                 WHTEntry4.SetRange("Document Type", WHTEntry4."Document Type"::Refund);
@@ -357,7 +357,7 @@ report 28040 "WHT Certificate - Other"
                         WHTBaseLCY := WHTBaseLCY + WHTEntry4."Base (LCY)";
                         WHTAmountLCY := WHTAmountLCY + WHTEntry4."Amount (LCY)";
                         WHTDate := WHTEntry4."Posting Date";
-                    until WHTEntry4.Next = 0;
+                    until WHTEntry4.Next() = 0;
 
                 WHTEntry5.CopyFilters("WHT Entry");
                 WHTEntry5.SetRange("WHT Revenue Type", Code);
@@ -367,7 +367,7 @@ report 28040 "WHT Certificate - Other"
                         WHTBaseLCY := WHTBaseLCY + WHTEntry5."Base (LCY)";
                         WHTAmountLCY := WHTAmountLCY + WHTEntry5."Amount (LCY)";
                         WHTDate := WHTEntry5."Posting Date";
-                    until WHTEntry5.Next = 0;
+                    until WHTEntry5.Next() = 0;
                 TotalAmountLCY := TotalAmountLCY + WHTAmountLCY;
                 TotalBaseLCY := TotalBaseLCY + WHTBaseLCY;
             end;

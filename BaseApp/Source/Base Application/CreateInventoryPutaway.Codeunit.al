@@ -1,4 +1,4 @@
-﻿codeunit 7321 "Create Inventory Put-away"
+codeunit 7321 "Create Inventory Put-away"
 {
     TableNo = "Warehouse Activity Header";
 
@@ -242,7 +242,7 @@
                                 InsertWhseActivLine(NewWhseActivLine, RemQtyToPutAway, WhseItemTrackingSetup);
                         until RemQtyToPutAway <= 0;
                     end;
-            until Next = 0;
+            until Next() = 0;
         end;
     end;
 
@@ -331,7 +331,7 @@
                                 InsertWhseActivLine(NewWhseActivLine, RemQtyToPutAway, WhseItemTrackingSetup);
                         until RemQtyToPutAway <= 0;
                     end;
-            until Next = 0;
+            until Next() = 0;
         end;
     end;
 
@@ -414,7 +414,7 @@
                                 InsertWhseActivLine(NewWhseActivLine, RemQtyToPutAway, WhseItemTrackingSetup);
                         until RemQtyToPutAway <= 0;
                     end;
-            until Next = 0;
+            until Next() = 0;
         end;
     end;
 
@@ -491,7 +491,7 @@
                                 InsertWhseActivLine(NewWhseActivLine, RemQtyToPutAway, WhseItemTrackingSetup);
                         until RemQtyToPutAway <= 0;
                     end;
-            until Next = 0;
+            until Next() = 0;
         end;
     end;
 
@@ -570,7 +570,7 @@
                                 InsertWhseActivLine(NewWhseActivLine, RemQtyToPutAway, WhseItemTrackingSetup);
                         until RemQtyToPutAway <= 0;
                     end;
-            until Next = 0;
+            until Next() = 0;
         end;
     end;
 
@@ -603,7 +603,7 @@
         end;
     end;
 
-    local procedure FindReservationEntry(SourceType: Integer; DocType: Integer; DocNo: Code[20]; DocLineNo: Integer; WhseItemTrackingSetup: Record "Item Tracking Setup"): Boolean
+    procedure FindReservationEntry(SourceType: Integer; DocType: Integer; DocNo: Code[20]; DocLineNo: Integer; WhseItemTrackingSetup: Record "Item Tracking Setup"): Boolean
     var
         ReservEntry: Record "Reservation Entry";
         ItemTrackMgt: Codeunit "Item Tracking Management";

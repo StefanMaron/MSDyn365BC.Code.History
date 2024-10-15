@@ -229,11 +229,13 @@ codeunit 1001 "Job Post-Line"
         end;
     end;
 
+#if not CLEAN17
     [Obsolete('EntryType parameter converted to Enum', '17.0')]
     procedure PostJobOnSalesLine(JobPlanningLine: Record "Job Planning Line"; SalesHeader: Record "Sales Header"; SalesLine: Record "Sales Line"; EntryType: Option Usage,Sale)
     begin
         PostJobOnSalesLine(JobPlanningLine, SalesHeader, SalesLine, "Job Journal Line Entry Type".FromInteger(EntryType));
     end;
+#endif
 
     procedure PostJobOnSalesLine(JobPlanningLine: Record "Job Planning Line"; SalesHeader: Record "Sales Header"; SalesLine: Record "Sales Line"; EntryType: Enum "Job Journal Line Entry Type")
     var
@@ -425,7 +427,7 @@ codeunit 1001 "Job Post-Line"
                     OnPostPurchaseGLAccountsOnBeforeJobJnlPostLine(TempJobJournalLine, TempPurchaseLineJob, IsHandled);
                     if not IsHandled then
                         JobJnlPostLine.RunWithCheck(TempJobJournalLine);
-                until Next = 0;
+                until Next() = 0;
                 DeleteAll();
             end;
         end;
@@ -451,7 +453,7 @@ codeunit 1001 "Job Post-Line"
                     JobJnlPostLine.SetGLEntryNo(GLEntryNo);
                     OnPostSalesGLAccountsOnBeforeJobJnlPostLine(TempJobJournalLine, TempSalesLineJob);
                     JobJnlPostLine.RunWithCheck(TempJobJournalLine);
-                until Next = 0;
+                until Next() = 0;
                 DeleteAll();
             end;
         end;

@@ -82,7 +82,7 @@ page 11611 "BAS - XML Field IDs"
                                     BasXMLFieldID.Init();
                                     BasXMLFieldID.TransferFields(BasXMLFieldIDSetup);
                                     BasXMLFieldID.Insert();
-                                until BasXMLFieldIDSetup.Next = 0;
+                                until BasXMLFieldIDSetup.Next() = 0;
                             end;
                         end;
                     end;
@@ -110,7 +110,7 @@ page 11611 "BAS - XML Field IDs"
                                 BasXMLFieldIDSetup."Line No." := LineNo;
                                 BasXMLFieldIDSetup.Insert();
                                 LineNo := LineNo + 10000;
-                            until BasXMLFieldID.Next = 0;
+                            until BasXMLFieldID.Next() = 0;
                         end;
                     end;
                 }

@@ -765,7 +765,7 @@ table 254 "VAT Entry"
             if WHTEntry.Find('-') then
                 repeat
                     WHTAmount1 += WHTEntry."Unrealized Amount (LCY)";
-                until WHTEntry.Next = 0;
+                until WHTEntry.Next() = 0;
             GLSetup.Get();
         end;
         WHTAmount := WHTAmount - WHTAmount1;

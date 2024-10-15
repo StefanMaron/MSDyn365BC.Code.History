@@ -538,7 +538,7 @@ page 99000762 "Machine Center Statistics"
                     WorkCtrScrapQty[i] := WorkCtrScrapQty[i] + CapLedgEntry."Scrap Quantity";
                     WorkCtrStopTime[i] := WorkCtrStopTime[i] + CapLedgEntry."Stop Time";
                     WorkCtrRunTime[i] := WorkCtrRunTime[i] + CapLedgEntry."Setup Time" + CapLedgEntry."Run Time";
-                until CapLedgEntry.Next = 0;
+                until CapLedgEntry.Next() = 0;
 
             WorkCtrCapacity[i] := MachineCenter2."Capacity (Total)";
             WorkCtrEffCapacity[i] := MachineCenter2."Capacity (Effective)";

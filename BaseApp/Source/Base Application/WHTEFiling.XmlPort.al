@@ -113,7 +113,7 @@ xmlport 16630 "WHT-EFiling"
                         if TempWHTEntry.Find('-') then
                             repeat
                                 IncomePymt := IncomePymt + TempWHTEntry."Amount (LCY)";
-                            until TempWHTEntry.Next = 0;
+                            until TempWHTEntry.Next() = 0;
                     end;
                 }
 
@@ -134,7 +134,7 @@ xmlport 16630 "WHT-EFiling"
                     if TempWHTEntry.Find('-') then
                         repeat
                             IncomePymt := IncomePymt + TempWHTEntry."Base (LCY)";
-                        until TempWHTEntry.Next = 0;
+                        until TempWHTEntry.Next() = 0;
                 end;
 
                 trigger OnPreXmlItem()

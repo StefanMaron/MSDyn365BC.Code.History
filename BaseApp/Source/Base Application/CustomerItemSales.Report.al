@@ -128,7 +128,7 @@ report 113 "Customer/Item Sales"
                     ValueEntryBuffer."Discount Amount" += "Discount Amount";
 
                     TempItemLedgerEntry.SetRange("Entry No.", "Item Ledger Entry No.");
-                    if TempItemLedgerEntry.IsEmpty then begin
+                    if TempItemLedgerEntry.IsEmpty() then begin
                         TempItemLedgerEntry."Entry No." := "Item Ledger Entry No.";
                         TempItemLedgerEntry.Insert();
 

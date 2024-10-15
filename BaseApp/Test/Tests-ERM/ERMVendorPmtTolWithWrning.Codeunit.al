@@ -583,7 +583,7 @@ codeunit 134016 "ERM Vendor Pmt Tol With Wrning"
         UpdateMaxPaymentToleranceOnVendorLedgerEntry(VendorNo, DocumentType::"Credit Memo", MaxTolAmounts);
 
         // [GIVEN] Refund with Amount = (<sum of Credit Memos Amounts> - <half of sum of Max Payment Tolerance Amounts>), i.e. 400 - 5 = 395.
-        // [GIVEN] Posting Date of Refund is larger than Due Date of posted Purchase Credit Memos to avoid discounts caused by Payment Terms.
+        // [GIVEN] Posting Date of Refund is larger that Due Date of posted Purchase Credit Memos to avoid discounts caused by Payment Terms.
         CreateDocumentLine(
             GenJournalLine, DocumentType::Refund, VendorNo, -TotalCrMemoAmount + TotalTolAmount / 2,
             '', LibraryRandom.RandDateFromInRange(GenJournalLine."Due Date", 10, 20));
@@ -632,7 +632,7 @@ codeunit 134016 "ERM Vendor Pmt Tol With Wrning"
         UpdateMaxPaymentToleranceOnVendorLedgerEntry(VendorNo, DocumentType::"Credit Memo", MaxTolAmounts);
 
         // [GIVEN] Refund with Amount = (<sum of Credit Memos Amounts> + <half of sum of Max Payment Tolerance Amounts>), i.e. 400 + 5 = 405.
-        // [GIVEN] Posting Date of Refund is larger than Due Date of posted Purchase Credit Memos to avoid discounts caused by Payment Terms.
+        // [GIVEN] Posting Date of Refund is larger that Due Date of posted Purchase Credit Memos to avoid discounts caused by Payment Terms.
         CreateDocumentLine(
             GenJournalLine, DocumentType::Refund, VendorNo, -TotalCrMemoAmount - TotalTolAmount / 2,
             '', LibraryRandom.RandDateFromInRange(GenJournalLine."Due Date", 10, 20));
@@ -681,7 +681,7 @@ codeunit 134016 "ERM Vendor Pmt Tol With Wrning"
         UpdateMaxPaymentToleranceOnVendorLedgerEntry(VendorNo, DocumentType::Invoice, MaxTolAmounts);
 
         // [GIVEN] Payment with Amount = (<sum of Invoices Amounts> - <half of sum of Max Payment Tolerance Amounts>), i.e. 400 - 5 = 395.
-        // [GIVEN] Posting Date of Payment is larger than Due Date of posted Purchase Invoices to avoid discounts caused by Payment Terms.
+        // [GIVEN] Posting Date of Payment is larger that Due Date of posted Purchase Invoices to avoid discounts caused by Payment Terms.
         CreateDocumentLine(
             GenJournalLine, DocumentType::Payment, VendorNo, -TotalInvAmount + TotalTolAmount / 2,
             '', LibraryRandom.RandDateFromInRange(GenJournalLine."Due Date", 10, 20));
@@ -730,7 +730,7 @@ codeunit 134016 "ERM Vendor Pmt Tol With Wrning"
         UpdateMaxPaymentToleranceOnVendorLedgerEntry(VendorNo, DocumentType::"Credit Memo", MaxTolAmounts);
 
         // [GIVEN] Refund with Amount = (<sum of Credit Memos Amounts> - <half of sum of Max Payment Tolerance Amounts>), i.e. 400 - 5 = 395.
-        // [GIVEN] Posting Date of Refund is larger than Due Date of posted Purchase Credit Memos to avoid discounts caused by Payment Terms.
+        // [GIVEN] Posting Date of Refund is larger that Due Date of posted Purchase Credit Memos to avoid discounts caused by Payment Terms.
         CreateDocumentLine(
             GenJournalLine, DocumentType::Refund, VendorNo, -TotalCrMemoAmount + TotalTolAmount / 2,
             '', LibraryRandom.RandDateFromInRange(GenJournalLine."Due Date", 10, 20));
@@ -782,7 +782,7 @@ codeunit 134016 "ERM Vendor Pmt Tol With Wrning"
         UpdateMaxPaymentToleranceOnVendorLedgerEntry(VendorNo, DocumentType::"Credit Memo", MaxTolAmounts);
 
         // [GIVEN] Refund with Amount = (<sum of Credit Memos Amounts> - <half of sum of Max Payment Tolerance Amounts>), i.e. 10300 - 5.5 = 10294.5.
-        // [GIVEN] Posting Date of Refund is larger than Due Date of posted Purchase Credit Memos to avoid discounts caused by Payment Terms.
+        // [GIVEN] Posting Date of Refund is larger that Due Date of posted Purchase Credit Memos to avoid discounts caused by Payment Terms.
         CreateDocumentLine(
             GenJournalLine, DocumentType::Refund, VendorNo, -TotalCrMemoAmount + TotalTolAmount / 2,
             '', LibraryRandom.RandDateFromInRange(GenJournalLine."Due Date", 10, 20));
@@ -836,7 +836,7 @@ codeunit 134016 "ERM Vendor Pmt Tol With Wrning"
         UpdateMaxPaymentToleranceOnVendorLedgerEntry(VendorNo, DocumentType::"Credit Memo", MaxTolAmounts);
 
         // [GIVEN] Refund with Amount = (<sum of Credit Memos Amounts> + <half of sum of Max Payment Tolerance Amounts>), i.e. 10300 + 5.5 = 10305.5.
-        // [GIVEN] Posting Date of Refund is larger than Due Date of posted Purchase Credit Memos to avoid discounts caused by Payment Terms.
+        // [GIVEN] Posting Date of Refund is larger that Due Date of posted Purchase Credit Memos to avoid discounts caused by Payment Terms.
         CreateDocumentLine(
             GenJournalLine, DocumentType::Refund, VendorNo, -TotalCrMemoAmount - TotalTolAmount / 2,
             '', LibraryRandom.RandDateFromInRange(GenJournalLine."Due Date", 10, 20));
@@ -847,7 +847,7 @@ codeunit 134016 "ERM Vendor Pmt Tol With Wrning"
         // [THEN] All posted Purchase Credit Memos were closed, i.e. Remaining Amount = 0, Open = false.
         // [THEN] Overpaid Amount = 5.5 was distributed over the first two posted Purchase Credit Memos.
         // [THEN] "Pmt. Tolerance" = -1 for the first Credit Memo, because Abs("Max. Payment Tolerance") < Abs(-5.5) * (10000/10100) ~ 5.45.
-        // [THEN] "Pmt. Tolerance" = -5.5 + 1 = -4.5 for the second Credit Memo.
+        // [THEN] "Pmt. Tolerance" = -5.5 + 1 = 4.5 for the second Credit Memo.
         ExpectedPmtTolAmounts.Add(-MaxTolAmounts.Get(1));
         ExpectedPmtTolAmounts.Add(-TotalTolAmount / 2 + MaxTolAmounts.Get(1));
         ExpectedPmtTolAmounts.Add(0);
@@ -1054,7 +1054,7 @@ codeunit 134016 "ERM Vendor Pmt Tol With Wrning"
         VendorPostingGroup.Get(PostingGroupCode);
         GLAccount.SetRange("Account Type", GLAccount."Account Type"::Posting);
         GLAccount.SetRange(Blocked, false);
-        GLAccount.FindSet;
+        GLAccount.FindSet();
         VendorPostingGroup.Validate("Payment Disc. Debit Acc.", GLAccount."No.");
         VendorPostingGroup.Validate("Payment Disc. Credit Acc.", GLAccount."No.");
         GLAccount.Next;
@@ -1104,7 +1104,7 @@ codeunit 134016 "ERM Vendor Pmt Tol With Wrning"
     end;
 
     [Normal]
-    local procedure VerifyDetldVendorLedgerEntry(DocumentType: Enum "Gen. Journal Document Type"; EntryType: Option; DocumentNo: Code[20]; ToleranceDiscount: Decimal)
+    local procedure VerifyDetldVendorLedgerEntry(DocumentType: Enum "Gen. Journal Document Type"; EntryType: Enum "Detailed CV Ledger Entry Type"; DocumentNo: Code[20]; ToleranceDiscount: Decimal)
     var
         DetailedVendorLedgEntry: Record "Detailed Vendor Ledg. Entry";
         GeneralLedgerSetup: Record "General Ledger Setup";

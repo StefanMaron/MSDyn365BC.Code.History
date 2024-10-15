@@ -80,7 +80,7 @@ report 714 "Inventory - Vendor Purchases"
                     if Number = 1 then
                         TempValueEntry.FindSet
                     else
-                        if TempValueEntry.Next = 0 then
+                        if TempValueEntry.Next() = 0 then
                             CurrReport.Break();
 
                     if not Vend.Get(TempValueEntry."Source No.") then
@@ -89,7 +89,7 @@ report 714 "Inventory - Vendor Purchases"
 
                 trigger OnPreDataItem()
                 begin
-                    if TempValueEntry.IsEmpty then
+                    if TempValueEntry.IsEmpty() then
                         CurrReport.Break();
                 end;
             }

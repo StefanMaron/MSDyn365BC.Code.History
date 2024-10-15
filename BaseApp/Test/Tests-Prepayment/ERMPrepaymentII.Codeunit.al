@@ -1325,8 +1325,7 @@ codeunit 134101 "ERM Prepayment II"
         // [SCENARIO 243217] GL Entry after Posting Prepayment Sales Invoice with Currency.
 
         // [GIVEN] Update General Ledger, Inventory Setup and Create Sales Prepayment Invoice.
-        Initialize;
-        LibraryERM.SetUseLegacyGLEntryLocking(true);
+        Initialize();
         InventorySetup.Get();
         UpdateInventorySetup(true, InventorySetup."Automatic Cost Adjustment"::Always);
         GLAccountNo := SetupAndCreateSalesPrepayment(SalesLine, LibraryRandom.RandDec(10, 2));
@@ -1363,8 +1362,7 @@ codeunit 134101 "ERM Prepayment II"
         // [SCENARIO 243217] GL Entry after Posting Prepayment Sales Invoice and Post as Invoice after modify Currency exchange rate.
 
         // [GIVEN] Update General Ledger, Inventory Setup and Create Sales Prepayment Invoice.
-        Initialize;
-        LibraryERM.SetUseLegacyGLEntryLocking(true);
+        Initialize();
         InventorySetup.Get();
         UpdateInventorySetup(true, InventorySetup."Automatic Cost Adjustment"::Always);
         SalesPrepaymentsAccount := SetupAndCreateSalesPrepayment(SalesLine, LibraryRandom.RandDec(10, 2));
@@ -2159,7 +2157,7 @@ codeunit 134101 "ERM Prepayment II"
     begin
         SalesLine.SetRange("Document Type", DocumentType);
         SalesLine.SetRange("Document No.", DocumentNo);
-        SalesLine.FindSet;
+        SalesLine.FindSet();
     end;
 
     local procedure FindSalesLineAmount(DocumentType: Enum "Sales Document Type"; DocumentNo: Code[20]) TotalLineAmount: Decimal

@@ -232,7 +232,7 @@ report 14311 "Stock Card"
                             ItemLedgEntry1.CalcFields("Cost Amount (Actual)");
                             OpeningStock := OpeningStock + ItemLedgEntry1.Quantity;
                             OpeningStockAmount := OpeningStockAmount + ItemLedgEntry1."Cost Amount (Actual)";
-                        until ItemLedgEntry1.Next = 0;
+                        until ItemLedgEntry1.Next() = 0;
                     BalanceCost := 0;
                 end;
 
@@ -259,7 +259,7 @@ report 14311 "Stock Card"
                                 then
                                     if OpeningStock <> 0 then
                                         OpeningCost := OpeningStockAmount / OpeningStock;
-                            until ItemLedgEntry1.Next = 0;
+                            until ItemLedgEntry1.Next() = 0;
                         BalanceCost := 0;
                         OpeningStock2 := OpeningStock;
                         OpeningStockAmount2 := OpeningStockAmount;
@@ -282,7 +282,7 @@ report 14311 "Stock Card"
                             ItemLedgEntry1.CalcFields("Cost Amount (Actual)");
                             OpeningStock := OpeningStock + ItemLedgEntry1.Quantity;
                             OpeningStockAmount := OpeningStockAmount + ItemLedgEntry1."Cost Amount (Actual)";
-                        until ItemLedgEntry1.Next = 0;
+                        until ItemLedgEntry1.Next() = 0;
                     BalanceCost := 0;
                 end;
 
@@ -309,7 +309,7 @@ report 14311 "Stock Card"
                                 then
                                     if OpeningStock <> 0 then
                                         OpeningCost := OpeningStockAmount / OpeningStock;
-                            until ItemLedgEntry1.Next = 0;
+                            until ItemLedgEntry1.Next() = 0;
                         BalanceCost := 0;
                         OpeningStock2 := OpeningStock;
                         OpeningStockAmount2 := OpeningStockAmount;

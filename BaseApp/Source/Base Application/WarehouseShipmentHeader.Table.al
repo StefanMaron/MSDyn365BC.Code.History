@@ -1,4 +1,4 @@
-﻿table 7320 "Warehouse Shipment Header"
+table 7320 "Warehouse Shipment Header"
 {
     Caption = 'Warehouse Shipment Header';
     DataCaptionFields = "No.";
@@ -36,7 +36,7 @@
                     "Zone Code" := '';
                     "Bin Code" := '';
                     WhseShptLine.SetRange("No.", "No.");
-                    if not WhseShptLine.IsEmpty then
+                    if not WhseShptLine.IsEmpty() then
                         Error(
                           Text001,
                           FieldCaption("Location Code"));
@@ -168,7 +168,7 @@
                 if "Completely Picked" <> xRec."Completely Picked" then begin
                     WhsePickRqst.SetRange("Document Type", WhsePickRqst."Document Type"::Shipment);
                     WhsePickRqst.SetRange("Document No.", "No.");
-                    if not WhsePickRqst.IsEmpty then
+                    if not WhsePickRqst.IsEmpty() then
                         WhsePickRqst.ModifyAll("Completely Picked", "Completely Picked");
                 end;
             end;
@@ -211,7 +211,7 @@
             begin
                 if "Shipment Date" <> xRec."Shipment Date" then begin
                     WhseShptLine.SetRange("No.", "No.");
-                    if not WhseShptLine.IsEmpty then
+                    if not WhseShptLine.IsEmpty() then
                         if Confirm(
                              StrSubstNo(Text008, FieldCaption("Shipment Date")), false)
                         then
@@ -405,7 +405,7 @@
                 WhseShptLine."Sorting Sequence No." := SequenceNo;
                 WhseShptLine.Modify();
                 SequenceNo := SequenceNo + 10000;
-            until WhseShptLine.Next = 0;
+            until WhseShptLine.Next() = 0;
         end;
     end;
 
@@ -453,7 +453,7 @@
         WhseShptLine: Record "Warehouse Shipment Line";
     begin
         WhseShptLine.SetRange("No.", "No.");
-        if not WhseShptLine.IsEmpty then
+        if not WhseShptLine.IsEmpty() then
             if not HideValidationDialog then
                 Message(
                   StrSubstNo(
@@ -527,7 +527,7 @@
     begin
         WhsePickRqst.SetRange("Document Type", WhsePickRqst."Document Type"::Shipment);
         WhsePickRqst.SetRange("Document No.", "No.");
-        if not WhsePickRqst.IsEmpty then
+        if not WhsePickRqst.IsEmpty() then
             WhsePickRqst.DeleteAll();
 
         WhseComment.SetRange("Table Name", WhseComment."Table Name"::"Whse. Shipment");
@@ -554,7 +554,7 @@
                         Confirmed := true;
                     end;
                 end;
-            until (WhseShptLine.Next = 0) or Confirmed;
+            until (WhseShptLine.Next() = 0) or Confirmed;
 
         ItemTrackingMgt.SetDeleteReservationEntries(Confirmed);
 
@@ -567,7 +567,7 @@
 
                 OnBeforeWhseShptLineDelete(WhseShptLine);
                 WhseShptLine.Delete();
-            until WhseShptLine.Next = 0;
+            until WhseShptLine.Next() = 0;
     end;
 
     procedure FindFirstAllowedRec(Which: Text[1024]): Boolean
@@ -632,7 +632,7 @@
 
         if UserId <> '' then begin
             WhseEmployee.SetRange("User ID", UserId);
-            if WhseEmployee.IsEmpty then
+            if WhseEmployee.IsEmpty() then
                 Error(Text002, UserId);
         end;
     end;

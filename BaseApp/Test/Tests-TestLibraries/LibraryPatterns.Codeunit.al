@@ -1049,7 +1049,7 @@ codeunit 132212 "Library - Patterns"
         SHIPSales(SalesLine, Item, RemainingQty2 + RandDec(0, Qty3, 2), WorkDate + 5);
         Cost3 := (RemainingQty2 * UnitCost2 + (SalesLine.Quantity - RemainingQty2) * UnitCost3) / SalesLine.Quantity;
 
-        TempItemJournalLine.FindSet;
+        TempItemJournalLine.FindSet();
     end;
 
     procedure GRPHSplitJoinApplication(Item: Record Item; var SalesLine: Record "Sales Line"; var SalesLineReturn: Record "Sales Line"; var TempItemJournalLine: Record "Item Journal Line" temporary)
@@ -1155,11 +1155,11 @@ codeunit 132212 "Library - Patterns"
         ItemLedgerEntry: Record "Item Ledger Entry";
     begin
         with ItemLedgerEntry do begin
-            RefItemLedgerEntry.FindSet;
+            RefItemLedgerEntry.FindSet();
             SetRange("Item No.", RefItemLedgerEntry."Item No.");
             SetRange("Location Code", RefItemLedgerEntry."Location Code");
             SetRange("Variant Code", RefItemLedgerEntry."Variant Code");
-            FindSet;
+            FindSet();
             repeat
                 TestField("Cost Amount (Expected)", RefItemLedgerEntry."Cost Amount (Expected)");
                 TestField("Cost Amount (Actual)", RefItemLedgerEntry."Cost Amount (Actual)");
@@ -1320,11 +1320,11 @@ codeunit 132212 "Library - Patterns"
                 until ItemLedgerEntry.Next = 0;
 
             if ByLocation then begin
-                TempLocation.FindSet;
+                TempLocation.FindSet();
                 repeat
                     TempItemLedgerEntry.SetRange("Location Code", TempLocation.Code);
                     if ByVariant then begin
-                        TempItemVariant.FindSet;
+                        TempItemVariant.FindSet();
                         repeat
                             TempItemLedgerEntry.SetRange("Variant Code", TempItemVariant.Code);
                             CreateRefJournalLinePerItem(TempItemLedgerEntry, TempRefItemJnlLine, PostingDate, ByLocation, ByVariant);
@@ -1334,7 +1334,7 @@ codeunit 132212 "Library - Patterns"
                 until TempLocation.Next = 0;
             end else begin
                 if ByVariant then begin
-                    TempItemVariant.FindSet;
+                    TempItemVariant.FindSet();
                     repeat
                         TempItemLedgerEntry.SetRange("Variant Code", TempItemVariant.Code);
                         CreateRefJournalLinePerItem(TempItemLedgerEntry, TempRefItemJnlLine, PostingDate, ByLocation, ByVariant);

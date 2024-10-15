@@ -14,7 +14,7 @@ codeunit 5509 "Graph Mgt - Inc Doc Attachment"
         AttachmentCategoryLbl: Label 'AL Attachment', Locked = true;
         NoPermissionErr: Label 'No permission to update a related document (table %1).', Comment = '%1=table number that caused the error', Locked = true;
 
-    [Obsolete('Integration Records will be replaced by SystemID and SystemLastDateTimeModified', '17.0')]
+    [Obsolete('Integration Records will be replaced by SystemID and SystemModifiedAt ', '17.0')]
     procedure UpdateIntegrationRecords(OnlyItemsWithoutId: Boolean)
     var
         DummyIncomingDocumentAttachment: Record "Incoming Document Attachment";
@@ -25,31 +25,31 @@ codeunit 5509 "Graph Mgt - Inc Doc Attachment"
         GraphMgtGeneralTools.UpdateIntegrationRecords(RecRef, DummyIncomingDocumentAttachment.FieldNo(Id), OnlyItemsWithoutId);
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 5465, 'ApiSetup', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Graph Mgt - General Tools", 'ApiSetup', '', false, false)]
     local procedure HandleApiSetup()
     begin
         UpdateIntegrationRecords(false);
     end;
 
-    [EventSubscriber(ObjectType::Table, 133, 'OnAfterInsertEvent', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Incoming Document Attachment", 'OnAfterInsertEvent', '', false, false)]
     local procedure HandleOnAfterInsert(var Rec: Record "Incoming Document Attachment"; RunTrigger: Boolean)
     begin
         UpdateRelatedDocument(Rec);
     end;
 
-    [EventSubscriber(ObjectType::Table, 133, 'OnAfterModifyEvent', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Incoming Document Attachment", 'OnAfterModifyEvent', '', false, false)]
     local procedure HandleOnAfterUpdate(var Rec: Record "Incoming Document Attachment"; var xRec: Record "Incoming Document Attachment"; RunTrigger: Boolean)
     begin
         UpdateRelatedDocument(Rec);
     end;
 
-    [EventSubscriber(ObjectType::Table, 133, 'OnAfterRenameEvent', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Incoming Document Attachment", 'OnAfterRenameEvent', '', false, false)]
     local procedure HandleOnAfterRename(var Rec: Record "Incoming Document Attachment"; var xRec: Record "Incoming Document Attachment"; RunTrigger: Boolean)
     begin
         UpdateRelatedDocument(Rec);
     end;
 
-    [EventSubscriber(ObjectType::Table, 133, 'OnAfterDeleteEvent', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Incoming Document Attachment", 'OnAfterDeleteEvent', '', false, false)]
     local procedure HandleOnAfterDelete(var Rec: Record "Incoming Document Attachment"; RunTrigger: Boolean)
     begin
         UpdateRelatedDocument(Rec);

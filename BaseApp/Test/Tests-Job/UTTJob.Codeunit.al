@@ -794,7 +794,7 @@ codeunit 136350 "UT T Job"
 
         // [THEN] Job tasks "JT1" - "JT3" have dimensionset "DIMSET2"
         JobTask.SetRange("Job No.", Job."No.");
-        JobTask.FindSet;
+        JobTask.FindSet();
         repeat
             VerifyJobTaskDimensionsFromCustDefaultDimensions(CustomerNo[2], JobTask);
         until JobTask.Next = 0;
@@ -840,7 +840,7 @@ codeunit 136350 "UT T Job"
         // [THEN] Job tasks "JT1" - "JT3" have global dimension 1 value empty
         // [THEN] Job tasks "JT1" - "JT3" have global dimension 2 "GLOBALDIM2"
         JobTask.SetRange("Job No.", Job."No.");
-        JobTask.FindSet;
+        JobTask.FindSet();
         repeat
             JobTask.TestField("Global Dimension 1 Code", '');
             JobTask.TestField("Global Dimension 2 Code", Customer[2]."Global Dimension 2 Code");
@@ -1126,7 +1126,7 @@ codeunit 136350 "UT T Job"
     begin
         CustDefaultDimension.SetRange("Table ID", DATABASE::Customer);
         CustDefaultDimension.SetRange("No.", CustomerNo);
-        CustDefaultDimension.FindSet;
+        CustDefaultDimension.FindSet();
         repeat
             JobDefaultDimension.Get(DATABASE::Job, JobNo, CustDefaultDimension."Dimension Code");
             JobDefaultDimension.TestField("Dimension Value Code", CustDefaultDimension."Dimension Value Code");
@@ -1139,13 +1139,13 @@ codeunit 136350 "UT T Job"
     begin
         DefaultDimension.SetRange("Table ID", DATABASE::Customer);
         DefaultDimension.SetRange("No.", CustomerNo);
-        DefaultDimension.FindSet;
+        DefaultDimension.FindSet();
         repeat
             VerifyJobTaskDimension(JobTask, DefaultDimension."Dimension Code", DefaultDimension."Dimension Value Code");
         until DefaultDimension.Next = 0;
     end;
 
-    [EventSubscriber(ObjectType::Table, 167, 'OnAfterModifyEvent', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Job", 'OnAfterModifyEvent', '', false, false)]
     local procedure InsertNameValueBufferOnJobModify(var Rec: Record Job; var xRec: Record Job; RunTrigger: Boolean)
     var
         NameValueBuffer: Record "Name/Value Buffer";

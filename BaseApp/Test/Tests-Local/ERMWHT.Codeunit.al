@@ -2366,7 +2366,7 @@ codeunit 141012 "ERM WHT"
         GenProductPostingGroup: Record "Gen. Product Posting Group";
     begin
         GeneralPostingSetup.SetRange("Gen. Bus. Posting Group", GenBusPostingGroupCode);
-        GeneralPostingSetup.FindSet;
+        GeneralPostingSetup.FindSet();
         repeat
             GenProductPostingGroup.Get(GeneralPostingSetup."Gen. Prod. Posting Group");
             GenProductPostingGroup.Delete();
@@ -2501,7 +2501,7 @@ codeunit 141012 "ERM WHT"
     begin
         GLEntry.SetRange("Document No.", DocumentNo);
         GLEntry.SetRange("G/L Account No.", GLAccountNo);
-        GLEntry.FindSet;
+        GLEntry.FindSet();
         repeat
             i += 1;
             Assert.AreNearlyEqual(
@@ -2632,12 +2632,12 @@ codeunit 141012 "ERM WHT"
         GLEntry.SetRange("Document No.", PaymentNo);
         GLEntry.SetCurrentKey(Amount);
         GLEntry.SetAscending(Amount, false);
-        GLEntry.FindSet;
+        GLEntry.FindSet();
 
         WHTEntry.SetRange("External Document No.", PaymentNo);
         WHTEntry.SetRange("Document Type", WHTEntry."Document Type"::Payment);
         WHTEntry.SetCurrentKey(Amount);
-        WHTEntry.FindSet;
+        WHTEntry.FindSet();
 
         repeat
             WHTEntry.TestField(Amount, -GLEntry.Amount);

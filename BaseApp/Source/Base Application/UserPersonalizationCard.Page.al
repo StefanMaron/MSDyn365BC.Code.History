@@ -1,10 +1,14 @@
 page 9172 "User Personalization Card"
 {
-    Caption = 'User Personalization Card';
-    DataCaptionExpression = "User ID";
+    Caption = 'User Settings Card';
+    AdditionalSearchTerms = 'User Personalization Card,User Preferences Card';
+    DataCaptionExpression = Rec."User ID";
     DelayedInsert = true;
     PageType = Card;
     SourceTable = "User Personalization";
+    HelpLink = 'https://go.microsoft.com/fwlink/?linkid=2149387';
+    AboutTitle = 'About user setting details';
+    AboutText = 'Here, you manage an individual user''s settings. If a setting is left blank, a default value is provided when the user signs in.';
 
     layout
     {
@@ -13,37 +17,43 @@ page 9172 "User Personalization Card"
             group(General)
             {
                 Caption = 'General';
-                field("User ID"; "User ID")
+                field("User ID"; Rec."User ID")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'User ID';
+                    ToolTip = 'Specifies the user’s unique identifier.';
                     DrillDown = false;
                     Editable = false;
-                    ToolTip = 'Specifies the user ID of a user who is using Database Server Authentication to log on to Business Central.';
+
+                    trigger OnAssistEdit()
+                    begin
+                        if CurrPage.Editable() then
+                            if UserSettings.EditUserID(Rec) then
+                                CurrPage.Update();
+                    end;
+                }
+                field("Full Name"; Rec."Full Name")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Full Name';
+                    ToolTip = 'Specifies the user’s full name.';
+                    Editable = false;
+                    Visible = false;
+                }
+                field(Role; Rec.Role)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Role';
+                    ToolTip = 'Specifies the user role that defines the user’s default Role Center and role-specific customizations. Unless restricted by permissions, users can change their role on the My Settings page.';
 
                     trigger OnAssistEdit()
                     var
-                        UserPersonalization: Record "User Personalization";
-                        User: Record User;
-                        UserSelection: Codeunit "User Selection";
                     begin
-                        if not UserSelection.Open(User) then
-                            exit;
-
-                        if (User."User Security ID" <> "User SID") and not IsNullGuid(User."User Security ID") then begin
-                            if UserPersonalization.Get(User."User Security ID") then begin
-                                UserPersonalization.CalcFields("User ID");
-                                Error(Text000, TableCaption, UserPersonalization."User ID");
-                            end;
-
-                            Validate("User SID", User."User Security ID");
-                            CalcFields("User ID");
-
-                            CurrPage.Update;
-                        end;
+                        if CurrPage.Editable() then
+                            UserSettings.EditProfileID(Rec);
                     end;
                 }
-                field(ProfileID; ProfileID)
+                field(ProfileID; Rec."Profile ID")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Profile ID';
@@ -51,82 +61,89 @@ page 9172 "User Personalization Card"
                     Editable = false;
                     LookupPageID = "Profile List";
                     ToolTip = 'Specifies the ID of the profile that is associated with the current user.';
+                    Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'The field "Role" will be used to show the caption associated to the Profile ID';
+                    ObsoleteTag = '18.0';
 
                     trigger OnAssistEdit()
-                    var
-                        AllProfileTable: Record "All Profile";
                     begin
-                        if PAGE.RunModal(PAGE::"Available Roles", AllProfileTable) = ACTION::LookupOK then begin
-                            "Profile ID" := AllProfileTable."Profile ID";
-                            "App ID" := AllProfileTable."App ID";
-                            Scope := AllProfileTable.Scope;
-                            ProfileID := "Profile ID";
-                            SetRestartRequiredIfChangeIsForCurrentUser;
-                        end
+                        if CurrPage.Editable() then
+                            UserSettings.EditProfileID(Rec);
                     end;
                 }
-                field("Language ID"; "Language ID")
+                field("Language"; Rec."Language Name")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Language';
+                    ToolTip = 'Specifies the language in which Business Central will display. Users can change this on the My Settings page.';
+
+                    trigger OnAssistEdit()
+                    begin
+                        if CurrPage.Editable() then
+                            UserSettings.EditLanguage(Rec);
+                    end;
+                }
+                field("Language ID"; Rec."Language ID")
                 {
                     ApplicationArea = Basic, Suite;
                     BlankZero = true;
                     Caption = 'Language ID';
                     ToolTip = 'Specifies the ID of the language that Microsoft Windows is set up to run for the selected user.';
+                    Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'The field "Language" will be used to show the language name instead of the "Language ID"';
+                    ObsoleteTag = '18.0';
 
                     trigger OnLookup(var Text: Text): Boolean
-                    var
-                        Language: Codeunit Language;
                     begin
-                        Language.LookupApplicationLanguageId("Language ID");
-
-                        if "Language ID" <> xRec."Language ID" then begin
-                            Validate("Language ID", "Language ID");
-                            SetRestartRequiredIfChangeIsForCurrentUser;
-                        end;
+                        UserSettings.EditLanguage(Rec);
                     end;
 
                     trigger OnValidate()
-                    var
-                        Language: Codeunit Language;
                     begin
-                        Language.ValidateApplicationLanguageId("Language ID");
-                        SetRestartRequiredIfChangeIsForCurrentUser;
+                        UserSettings.ValidateLanguageID(Rec);
                     end;
                 }
-                field("Locale ID"; "Locale ID")
+                field(Region; Rec.Region)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Region';
+                    ToolTip = 'Specifies the region setting for the user. The region defines display formats, for example, for dates, numbering, symbols, and currency. Users can change this on the My Settings page.';
+
+                    trigger OnAssistEdit()
+                    begin
+                        if CurrPage.Editable() then
+                            UserSettings.EditRegion(Rec);
+                    end;
+                }
+                field("Locale ID"; Rec."Locale ID")
                 {
                     ApplicationArea = Basic, Suite;
                     BlankZero = true;
                     Caption = 'Locale ID';
-                    Importance = Additional;
                     TableRelation = "Windows Language"."Language ID";
                     ToolTip = 'Specifies the ID of the locale that Microsoft Windows is set up to run for the selected user.';
+                    Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'The field "Region" will be used to show the region name instead of the "Locale ID"';
+                    ObsoleteTag = '18.0';
 
                     trigger OnLookup(var Text: Text): Boolean
-                    var
-                        Language: Codeunit Language;
                     begin
-                        Language.LookupWindowsLanguageId("Locale ID");
-
-                        if "Locale ID" <> xRec."Locale ID" then begin
-                            Validate("Locale ID", "Locale ID");
-                            SetRestartRequiredIfChangeIsForCurrentUser;
-                        end;
+                        UserSettings.EditRegion(Rec);
                     end;
 
                     trigger OnValidate()
-                    var
-                        Language: Codeunit Language;
                     begin
-                        Language.ValidateWindowsLanguageId("Locale ID");
-                        SetRestartRequiredIfChangeIsForCurrentUser;
+                        UserSettings.ValidateRegionID(Rec)
                     end;
                 }
-                field("Time Zone"; "Time Zone")
+                field("Time Zone"; Rec."Time Zone")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Time Zone';
-                    Importance = Additional;
-                    ToolTip = 'Specifies the time zone that Microsoft Windows is set up to run for the selected user.';
+                    ToolTip = 'Specifies the time zone for the user. Users can change this on the My Settings page.';
 
                     trigger OnLookup(var Text: Text): Boolean
                     begin
@@ -135,15 +152,25 @@ page 9172 "User Personalization Card"
 
                     trigger OnValidate()
                     begin
-                        ConfPersMgt.ValidateTimeZone("Time Zone");
-                        SetRestartRequiredIfChangeIsForCurrentUser;
+                        UserSettings.ValidateTimeZone(Rec);
                     end;
                 }
-                field(Company; Company)
+                field(Company; Rec.Company)
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Company';
-                    ToolTip = 'Specifies the company that is associated with the user.';
+                    ToolTip = 'Specifies the company that the user works in. Unless restricted by permissions, users can change this on the My Settings page.';
+                }
+                field(CalloutsEnabled; CalloutsEnabled)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Teaching Tips';
+                    ToolTip = 'Specifies whether to display short messages that inform, remind, or teach you about important fields and actions when you open a page.';
+
+                    trigger OnValidate()
+                    begin
+                        UserCallouts.SwitchCalloutsEnabledValue(Rec."User SID");
+                    end;
                 }
             }
         }
@@ -166,10 +193,43 @@ page 9172 "User Personalization Card"
     {
         area(navigation)
         {
+            action(PersonalizedPages)
+            {
+                ApplicationArea = Basic, Suite;
+                Caption = 'Personalized Pages';
+                Image = Link;
+                ToolTip = 'View the list of pages that the user has personalized.';
+                trigger OnAction()
+                var
+                    UserPagePersonalizationList: page "User Page Personalization List";
+                begin
+                    UserPagePersonalizationList.SetUserID(Rec."User SID");
+                    UserPagePersonalizationList.RunModal();
+                end;
+            }
+            action(CustomizedPages)
+            {
+                ApplicationArea = Basic, Suite;
+                Caption = 'Customized Pages';
+                Image = Link;
+                ToolTip = 'View the list of pages that have been customized for the user role.';
+                trigger OnAction()
+                var
+                    TenantProfilePageMetadata: Record "Tenant Profile Page Metadata";
+                begin
+                    TenantProfilePageMetadata.SetFilter("Profile ID", Rec."Profile ID");
+                    Page.RunModal(Page::"Profile Customization List", TenantProfilePageMetadata);
+                end;
+            }
             group("User &Personalization")
             {
                 Caption = 'User &Personalization';
                 Image = Grid;
+                Visible = false;
+                ObsoleteState = Pending;
+                ObsoleteReason = 'List action is redundant';
+                ObsoleteTag = '18.0';
+
                 action(List)
                 {
                     ApplicationArea = Basic, Suite;
@@ -201,6 +261,7 @@ page 9172 "User Personalization Card"
                     Caption = 'C&lear Personalized Pages';
                     Image = Cancel;
                     Promoted = true;
+                    PromotedOnly = true;
                     PromotedCategory = Process;
                     ToolTip = 'Delete all personalizations made by the specified user across display targets.';
 
@@ -215,54 +276,39 @@ page 9172 "User Personalization Card"
 
     trigger OnAfterGetCurrRecord()
     begin
-        ProfileID := "Profile ID";
+        CalloutsEnabled := UserCallouts.AreCalloutsEnabled(Rec."User SID");
     end;
 
     trigger OnInsertRecord(BelowxRec: Boolean): Boolean
     begin
-        TestField("User SID");
+        Rec.TestField("User SID");
     end;
 
     trigger OnModifyRecord(): Boolean
     begin
-        TestField("User SID");
+        Rec.TestField("User SID");
     end;
 
     trigger OnOpenPage()
     begin
-        HideExternalUsers;
+        UserSettings.HideExternalUsers(Rec);
     end;
 
     trigger OnQueryClosePage(CloseAction: Action): Boolean
     begin
-        if RequiresRestart and (CloseAction <> ACTION::Cancel) then
-            RestartSession;
+        if UserSettings.IsRestartRequiredIfChangeIsForCurrentUser() and (CloseAction <> ACTION::Cancel) then
+            UserSettings.RestartSession();
     end;
 
     var
+        UserCallouts: Record "User Callouts";
+        UserSettings: Codeunit "User Settings";
         ConfPersMgt: Codeunit "Conf./Personalization Mgt.";
-        Text000: Label '%1 %2 already exists.', Comment = 'User Personalization User1 already exists.';
+        CalloutsEnabled: Boolean;
         AccountantTxt: Label 'ACCOUNTANT', Comment = 'Please translate all caps';
         ProjectManagerTxt: Label 'PROJECT MANAGER', Comment = 'Please translate all caps';
         TeamMemberTxt: Label 'TEAM MEMBER', Comment = 'Please translate all caps';
         ExperienceMsg: Label 'You are changing to a Role Center that has more functionality. To display the full functionality for this role, your Experience setting will be set to Essential.';
-        ProfileID: Code[30];
-        RequiresRestart: Boolean;
-
-    local procedure HideExternalUsers()
-    var
-        EnvironmentInfo: Codeunit "Environment Information";
-        OriginalFilterGroup: Integer;
-    begin
-        if not EnvironmentInfo.IsSaaS then
-            exit;
-
-        OriginalFilterGroup := FilterGroup;
-        FilterGroup := 2;
-        CalcFields("License Type");
-        SetFilter("License Type", '<>%1', "License Type"::"External User");
-        FilterGroup := OriginalFilterGroup;
-    end;
 
     procedure SetExperienceToEssential(SelectedProfileID: Text[30])
     var
@@ -281,30 +327,4 @@ page 9172 "User Personalization Card"
                         ApplicationAreaMgmtFacade.SaveExperienceTierCurrentCompany(ExperienceTierSetup.FieldCaption(Essential));
                     end;
     end;
-
-    local procedure SetRestartRequiredIfChangeIsForCurrentUser()
-    begin
-        if ((UserSecurityId = "User SID") or IsNullGuid("User SID")) and (CompanyName = Company) then
-            RequiresRestart := true;
-    end;
-
-    local procedure RestartSession()
-    var
-        UserPersonalization: Record "User Personalization";
-        CurrentUserSessionSettings: SessionSettings;
-        ProfileScope: Option System,Tenant;
-    begin
-        UserPersonalization.Get(UserSecurityId);
-
-        CurrentUserSessionSettings.Init();
-        CurrentUserSessionSettings.ProfileId := UserPersonalization."Profile ID";
-        CurrentUserSessionSettings.ProfileAppId := UserPersonalization."App ID";
-        CurrentUserSessionSettings.ProfileSystemScope := UserPersonalization.Scope = ProfileScope::System;
-        CurrentUserSessionSettings.LanguageId := UserPersonalization."Language ID";
-        CurrentUserSessionSettings.LocaleId := UserPersonalization."Locale ID";
-        CurrentUserSessionSettings.Timezone := UserPersonalization."Time Zone";
-
-        CurrentUserSessionSettings.RequestSessionUpdate(true);
-    end;
 }
-

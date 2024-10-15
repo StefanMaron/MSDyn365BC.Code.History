@@ -430,7 +430,7 @@ codeunit 141082 "ERM Payment - Prepayment"
         Index: Integer;
     begin
         SalesLine.SetRange("Document No.", SalesLine."Document No.");
-        SalesLine.FindSet;
+        SalesLine.FindSet();
         for Index := 1 to ArrayLen(QtyToShip) do begin
             SalesLine.Validate("Qty. to Ship", QtyToShip[Index]);
             SalesLine.Modify(true);
@@ -443,7 +443,7 @@ codeunit 141082 "ERM Payment - Prepayment"
         Index: Integer;
     begin
         PurchaseLine.SetRange("Document No.", PurchaseLine."Document No.");
-        PurchaseLine.FindSet;
+        PurchaseLine.FindSet();
         for Index := 1 to ArrayLen(QtyToReceive) do begin
             PurchaseLine.Validate("Qty. to Receive", QtyToReceive[Index]);
             PurchaseLine.Modify(true);

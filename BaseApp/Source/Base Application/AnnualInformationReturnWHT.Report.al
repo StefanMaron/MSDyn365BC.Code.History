@@ -178,7 +178,7 @@ report 16628 "Annual Information Return  WHT"
                 if WHTEntry1.Find('-') then
                     repeat
                         AmtJan := AmtJan + WHTEntry1."Amount (LCY)";
-                    until WHTEntry1.Next = 0;
+                    until WHTEntry1.Next() = 0;
                 WHTEntry1.Reset();
                 WHTEntry1.SetFilter("Applies-to Entry No.", '<>0');
                 WHTEntry1.SetRange("Transaction Type", WHTEntry1."Transaction Type"::Purchase);
@@ -186,7 +186,7 @@ report 16628 "Annual Information Return  WHT"
                 if WHTEntry1.Find('-') then
                     repeat
                         AmtFeb := AmtFeb + WHTEntry1."Amount (LCY)";
-                    until WHTEntry1.Next = 0;
+                    until WHTEntry1.Next() = 0;
                 WHTEntry1.Reset();
                 WHTEntry1.SetFilter("Applies-to Entry No.", '<>0');
                 WHTEntry1.SetRange("Transaction Type", WHTEntry1."Transaction Type"::Purchase);
@@ -194,7 +194,7 @@ report 16628 "Annual Information Return  WHT"
                 if WHTEntry1.Find('-') then
                     repeat
                         AmtMarch := AmtMarch + WHTEntry1."Amount (LCY)";
-                    until WHTEntry1.Next = 0;
+                    until WHTEntry1.Next() = 0;
                 WHTEntry1.Reset();
                 WHTEntry1.SetFilter("Applies-to Entry No.", '<>0');
                 WHTEntry1.SetRange("Transaction Type", WHTEntry1."Transaction Type"::Purchase);
@@ -202,7 +202,7 @@ report 16628 "Annual Information Return  WHT"
                 if WHTEntry1.Find('-') then
                     repeat
                         AmtApril := AmtApril + WHTEntry1."Amount (LCY)";
-                    until WHTEntry1.Next = 0;
+                    until WHTEntry1.Next() = 0;
                 WHTEntry1.Reset();
                 WHTEntry1.SetFilter("Applies-to Entry No.", '<>0');
                 WHTEntry1.SetRange("Transaction Type", WHTEntry1."Transaction Type"::Purchase);
@@ -210,7 +210,7 @@ report 16628 "Annual Information Return  WHT"
                 if WHTEntry1.Find('-') then
                     repeat
                         AmtMay := AmtMay + WHTEntry1."Amount (LCY)";
-                    until WHTEntry1.Next = 0;
+                    until WHTEntry1.Next() = 0;
                 WHTEntry1.Reset();
                 WHTEntry1.SetFilter("Applies-to Entry No.", '<>0');
                 WHTEntry1.SetRange("Transaction Type", WHTEntry1."Transaction Type"::Purchase);
@@ -218,7 +218,7 @@ report 16628 "Annual Information Return  WHT"
                 if WHTEntry1.Find('-') then
                     repeat
                         AmtJune := AmtJune + WHTEntry1."Amount (LCY)";
-                    until WHTEntry1.Next = 0;
+                    until WHTEntry1.Next() = 0;
                 WHTEntry1.Reset();
                 WHTEntry1.SetFilter("Applies-to Entry No.", '<>0');
                 WHTEntry1.SetRange("Transaction Type", WHTEntry1."Transaction Type"::Purchase);
@@ -226,7 +226,7 @@ report 16628 "Annual Information Return  WHT"
                 if WHTEntry1.Find('-') then
                     repeat
                         AmtJuly := AmtJuly + WHTEntry1."Amount (LCY)";
-                    until WHTEntry1.Next = 0;
+                    until WHTEntry1.Next() = 0;
                 WHTEntry1.Reset();
                 WHTEntry1.SetFilter("Applies-to Entry No.", '<>0');
                 WHTEntry1.SetRange("Transaction Type", WHTEntry1."Transaction Type"::Purchase);
@@ -234,7 +234,7 @@ report 16628 "Annual Information Return  WHT"
                 if WHTEntry1.Find('-') then
                     repeat
                         AmtAug := AmtAug + WHTEntry1."Amount (LCY)";
-                    until WHTEntry1.Next = 0;
+                    until WHTEntry1.Next() = 0;
                 WHTEntry1.Reset();
                 WHTEntry1.SetFilter("Applies-to Entry No.", '<>0');
                 WHTEntry1.SetRange("Transaction Type", WHTEntry1."Transaction Type"::Purchase);
@@ -242,7 +242,7 @@ report 16628 "Annual Information Return  WHT"
                 if WHTEntry1.Find('-') then
                     repeat
                         AmtSept := AmtSept + WHTEntry1."Amount (LCY)";
-                    until WHTEntry1.Next = 0;
+                    until WHTEntry1.Next() = 0;
                 WHTEntry1.Reset();
                 WHTEntry1.SetFilter("Applies-to Entry No.", '<>0');
                 WHTEntry1.SetRange("Transaction Type", WHTEntry1."Transaction Type"::Purchase);
@@ -250,7 +250,7 @@ report 16628 "Annual Information Return  WHT"
                 if WHTEntry1.Find('-') then
                     repeat
                         AmtOct := AmtOct + WHTEntry1."Amount (LCY)";
-                    until WHTEntry1.Next = 0;
+                    until WHTEntry1.Next() = 0;
                 WHTEntry1.Reset();
                 WHTEntry1.SetFilter("Applies-to Entry No.", '<>0');
                 WHTEntry1.SetRange("Transaction Type", WHTEntry1."Transaction Type"::Purchase);
@@ -258,7 +258,7 @@ report 16628 "Annual Information Return  WHT"
                 if WHTEntry1.Find('-') then
                     repeat
                         AmtNov := AmtNov + WHTEntry1."Amount (LCY)";
-                    until WHTEntry1.Next = 0;
+                    until WHTEntry1.Next() = 0;
                 WHTEntry1.Reset();
                 WHTEntry1.SetFilter("Applies-to Entry No.", '<>0');
                 WHTEntry1.SetRange("Transaction Type", WHTEntry1."Transaction Type"::Purchase);
@@ -266,7 +266,7 @@ report 16628 "Annual Information Return  WHT"
                 if WHTEntry1.Find('-') then
                     repeat
                         AmtDec := AmtDec + WHTEntry1."Amount (LCY)";
-                    until WHTEntry1.Next = 0;
+                    until WHTEntry1.Next() = 0;
             end;
         }
         dataitem("<WHTEntry3>"; "WHT Entry")

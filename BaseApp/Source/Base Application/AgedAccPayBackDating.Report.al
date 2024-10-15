@@ -272,7 +272,7 @@ report 17117 "Aged Acc. Pay. (BackDating)"
                         repeat
                             "Entry No." := DtldVendorLedgEntry."Vendor Ledger Entry No.";
                             Mark(true);
-                        until DtldVendorLedgEntry.Next = 0;
+                        until DtldVendorLedgEntry.Next() = 0;
 
                     SetCurrentKey("Vendor No.", Open);
                     SetRange("Vendor No.", Vendor."No.");
@@ -281,7 +281,7 @@ report 17117 "Aged Acc. Pay. (BackDating)"
                     if Find('-') then
                         repeat
                             Mark(true);
-                        until Next = 0;
+                        until Next() = 0;
 
                     SetCurrentKey("Entry No.");
                     SetRange(Open);

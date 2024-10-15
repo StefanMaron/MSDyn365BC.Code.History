@@ -109,7 +109,7 @@ codeunit 28090 PostDatedCheckMgt
                         repeat
                             CustLedgEntry."Applies-to ID" := GenJnlLine."Document No.";
                             CustLedgEntry.Modify();
-                        until CustLedgEntry.Next = 0;
+                        until CustLedgEntry.Next() = 0;
                     GenJnlLine."Applies-to ID" := GenJnlLine."Document No.";
                 end;
             end
@@ -121,7 +121,7 @@ codeunit 28090 PostDatedCheckMgt
                             repeat
                                 VendLedgEntry."Applies-to ID" := GenJnlLine."Document No.";
                                 VendLedgEntry.Modify();
-                            until VendLedgEntry.Next = 0;
+                            until VendLedgEntry.Next() = 0;
                         GenJnlLine."Applies-to ID" := GenJnlLine."Document No.";
                     end;
                 end;
@@ -139,7 +139,7 @@ codeunit 28090 PostDatedCheckMgt
             GenJnlLine.Insert(true);
             GenJnlLine2 := GenJnlLine;
             Commit();
-        until PostDatedCheck.Next = 0;
+        until PostDatedCheck.Next() = 0;
         PostDatedCheck.DeleteAll();
 
         case GenJnlLine."Account Type" of
@@ -213,7 +213,7 @@ codeunit 28090 PostDatedCheckMgt
                     repeat
                         CustLedgEntry."Applies-to ID" := PostDatedCheck."Document No.";
                         CustLedgEntry.Modify();
-                    until CustLedgEntry.Next = 0;
+                    until CustLedgEntry.Next() = 0;
                 PostDatedCheck."Applies-to ID" := PostDatedCheck."Document No.";
             end;
         end else
@@ -224,7 +224,7 @@ codeunit 28090 PostDatedCheckMgt
                         repeat
                             VendLedgEntry."Applies-to ID" := PostDatedCheck."Document No.";
                             VendLedgEntry.Modify();
-                        until VendLedgEntry.Next = 0;
+                        until VendLedgEntry.Next() = 0;
                     PostDatedCheck."Applies-to ID" := PostDatedCheck."Document No.";
                 end;
             end;
@@ -305,7 +305,7 @@ codeunit 28090 PostDatedCheckMgt
                     PostDatedCheck."Check Printed" := GenJnlLine."Check Printed";
                     PostDatedCheck.Insert();
                 end;
-            until GenJnlLine.Next = 0;
+            until GenJnlLine.Next() = 0;
             GenJnlLine.DeleteAll();
         end;
     end;

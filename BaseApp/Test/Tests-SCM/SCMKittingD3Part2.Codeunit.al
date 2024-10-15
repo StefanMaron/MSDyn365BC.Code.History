@@ -423,7 +423,7 @@ codeunit 137094 "SCM Kitting - D3 - Part 2"
         // Exercise. Post inventory cost to G/L for selected item.
         PostedAssemblyHeader.Reset();
         PostedAssemblyHeader.SetRange("Order No.", AssemblyHeaderNo1, AssemblyHeaderNo2);
-        PostedAssemblyHeader.FindSet;
+        PostedAssemblyHeader.FindSet();
         LibraryAssembly.PostInvtCostToGL(false, PostedAssemblyHeader."Item No.", '',
           TemporaryPath + AssemblyHeaderNo1 + AssemblyHeaderNo2 + '.pdf');
 

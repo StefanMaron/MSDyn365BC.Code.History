@@ -84,7 +84,7 @@ codeunit 8612 "Config. Template Management"
                     else
                         OnInsertTemplateCaseElse(ConfigTemplateLine, ConfigTemplateHeader2, FieldRef, RecRef2, SkipFields, TempSkipField);
                 end;
-            until ConfigTemplateLine.Next = 0;
+            until ConfigTemplateLine.Next() = 0;
     end;
 
     procedure ApplyTemplate(var OriginalRecRef: RecordRef; var TempFieldsAssigned: Record "Field" temporary; var TemplateAppliedRecRef: RecordRef; var ConfigTemplateHeader: Record "Config. Template Header"): Boolean
@@ -95,7 +95,7 @@ codeunit 8612 "Config. Template Management"
         SkipFields: Boolean;
     begin
         TempFieldsAssigned.Reset();
-        SkipFields := TempFieldsAssigned.FindSet;
+        SkipFields := TempFieldsAssigned.FindSet();
 
         BackupRecRef := OriginalRecRef.Duplicate;
         TemplateAppliedRecRef := OriginalRecRef.Duplicate;
@@ -108,7 +108,7 @@ codeunit 8612 "Config. Template Management"
                 AssignedFieldRef := BackupRecRef.Field(TempFieldsAssigned."No.");
                 APIFieldRef := TemplateAppliedRecRef.Field(TempFieldsAssigned."No.");
                 APIFieldRef.Value := AssignedFieldRef.Value;
-            until TempFieldsAssigned.Next = 0;
+            until TempFieldsAssigned.Next() = 0;
 
         exit(true);
     end;
@@ -151,7 +151,7 @@ codeunit 8612 "Config. Template Management"
                         Error(HierarchyErr, "Data Template Code");
                     DeleteAll();
                     SetFilter("Field ID", '>%1', 0);
-                until Next = 0;
+                until Next() = 0;
         end;
     end;
 
@@ -176,7 +176,7 @@ codeunit 8612 "Config. Template Management"
                         SubConfigTemplateLine."Data Template Code" := "Template Code";
                         GetHierarchicalLines(ConfigTemplateLineBuf, SubConfigTemplateLine);
                     end;
-                until Next = 0;
+                until Next() = 0;
         end;
     end;
 
@@ -277,7 +277,7 @@ codeunit 8612 "Config. Template Management"
                         RecordRef.Modify(false);
                         OnApplyTemplLinesWithoutValidationAfterRecRefCheck(ConfigTemplateHeader, ConfigTemplateLine, RecordRef);
                     end;
-            until ConfigTemplateLine.Next = 0;
+            until ConfigTemplateLine.Next() = 0;
     end;
 
     procedure GetNextAvailableCode(TableID: Integer): Code[10]
@@ -311,7 +311,7 @@ codeunit 8612 "Config. Template Management"
         ConfigTemplateLine.SetRange(Type, ConfigTemplateLine.Type::"Related Template");
         ConfigTemplateLine.SetRange("Template Code", RelatedTemplateCode);
 
-        if not ConfigTemplateLine.IsEmpty then
+        if not ConfigTemplateLine.IsEmpty() then
             exit;
 
         Clear(ConfigTemplateLine);
@@ -349,7 +349,7 @@ codeunit 8612 "Config. Template Management"
                     RelatedConfigTemplateHeader.Delete(true);
                     ConfigTemplateLine.Delete(true);
                 end;
-            until ConfigTemplateLine.Next = 0;
+            until ConfigTemplateLine.Next() = 0;
     end;
 
     procedure ReplaceDefaultValueForAllTemplates(TableID: Integer; FieldID: Integer; DefaultValue: Text[250])
@@ -364,7 +364,7 @@ codeunit 8612 "Config. Template Management"
                 ConfigTemplateLine.SetRange("Field ID", FieldID);
                 ConfigTemplateLine.DeleteAll();
                 InsertConfigTemplateLine(ConfigTemplateHeader.Code, FieldID, DefaultValue, TableID);
-            until ConfigTemplateHeader.Next = 0;
+            until ConfigTemplateHeader.Next() = 0;
     end;
 
     procedure InsertConfigTemplateLineFromField(ConfigTemplateHeaderCode: Code[10]; FieldRef: FieldRef; TableID: Integer)
@@ -418,7 +418,7 @@ codeunit 8612 "Config. Template Management"
                         if Format(FieldRef.Value) = '' then
                             ConfigTemplateLine.Delete();
                     end;
-            until ConfigTemplateLine.Next = 0;
+            until ConfigTemplateLine.Next() = 0;
     end;
 
     local procedure ShouldSkipField(var TempSkipField: Record "Field"; CurrentFieldNo: Integer; CurrentTableNo: Integer): Boolean
@@ -462,7 +462,7 @@ codeunit 8612 "Config. Template Management"
     begin
         TableRelationsMetadata.SetRange("Table ID", ConfigTemplateLine."Table ID");
         TableRelationsMetadata.SetRange("Field No.", ConfigTemplateLine."Field ID");
-        if TableRelationsMetadata.IsEmpty then
+        if TableRelationsMetadata.IsEmpty() then
             exit;
 
         RecRef.Open(ConfigTemplateLine."Table ID");
@@ -499,7 +499,7 @@ codeunit 8612 "Config. Template Management"
                 else
                     FieldRef.Value(
                       TypeHelper.GetOptionNo(ConfigTemplateLine."Default Value", FieldRef.OptionMembers));
-            until ConfigTemplateLine.Next = 0;
+            until ConfigTemplateLine.Next() = 0;
         end;
     end;
 

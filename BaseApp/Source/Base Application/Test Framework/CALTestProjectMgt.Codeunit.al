@@ -39,7 +39,7 @@ codeunit 130404 "CAL Test Project Mgt."
                 TestNode := ProjectXML.CreateElement('Codeunit');
                 XMLDOMMgt.AddAttribute(TestNode, 'ID', Format(CALTestLine."Test Codeunit"));
                 DocumentElement.AppendChild(TestNode);
-            until CALTestLine.Next = 0;
+            until CALTestLine.Next() = 0;
 
         XMLDataFile := FileMgt.ServerTempFileName('');
         FileMgt.IsAllowedPath(XMLDataFile, false);

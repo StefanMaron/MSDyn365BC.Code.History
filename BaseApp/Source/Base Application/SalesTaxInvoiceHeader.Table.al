@@ -620,7 +620,7 @@ table 28071 "Sales Tax Invoice Header"
             ReportSelection.Find('-');
             repeat
                 REPORT.RunModal(ReportSelection."Report ID", ShowRequestForm, false, SalesTaxInvHeader);
-            until ReportSelection.Next = 0;
+            until ReportSelection.Next() = 0;
         end;
     end;
 

@@ -33,7 +33,7 @@ codeunit 1281 "Update Currency Exchange Rates"
                 GetCurrencyExchangeData(CurrExchRateUpdateSetup, ResponseInStream, SourceName);
                 UpdateCurrencyExchangeRates(CurrExchRateUpdateSetup, ResponseInStream, SourceName);
                 LogTelemetryWhenExchangeRateUpdated();
-            until CurrExchRateUpdateSetup.Next = 0
+            until CurrExchRateUpdateSetup.Next() = 0
         else
             Error(NoSyncCurrencyExchangeRatesSetupErr);
     end;

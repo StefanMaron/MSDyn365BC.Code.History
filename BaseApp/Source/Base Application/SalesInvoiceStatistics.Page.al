@@ -343,7 +343,7 @@ page 397 "Sales Invoice Statistics"
                 OnCalculateTotalsOnAfterAddLineTotals(
                     SalesInvLine, CustAmount, AmountInclVAT, InvDiscAmount, CostLCY, TotalAdjCostLCY,
                     LineQty, TotalNetWeight, TotalGrossWeight, TotalVolume, TotalParcels)
-            until SalesInvLine.Next = 0;
+            until SalesInvLine.Next() = 0;
     end;
 
     [IntegrationEvent(false, false)]

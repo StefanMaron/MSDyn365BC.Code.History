@@ -196,7 +196,7 @@ table 320 "Tax Jurisdiction"
             exit;
 
         TaxDetail.SetRange("Tax Jurisdiction Code", Code);
-        if not TaxDetail.IsEmpty then
+        if not TaxDetail.IsEmpty() then
             exit;
 
         TaxDetail.Init();

@@ -74,7 +74,7 @@ page 672 "Job Queue Entries"
                     ApplicationArea = Basic, Suite;
                     Style = Unfavorable;
                     StyleExpr = NOT Scheduled;
-                    ToolTip = 'Specifies the assigned priority of a job queue entry. You can use priority to determine the order in which job queue entries are run.';
+                    ToolTip = 'Specifies if the job queue entry has been scheduled to run automatically, which happens when an entry changes status to Ready. If the field is cleared, the job queue entry is not scheduled to run.';
                 }
                 field("Recurring Job"; "Recurring Job")
                 {
@@ -138,6 +138,12 @@ page 672 "Job Queue Entries"
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the latest time of the day that the recurring job queue entry is to be run.';
+                    Visible = false;
+                }
+                field(Timeout; "Job Timeout")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the maximum time that the job queue entry is allowed to run.';
                     Visible = false;
                 }
             }
@@ -222,6 +228,22 @@ page 672 "Job Queue Entries"
                         Restart;
                     end;
                 }
+                action(RunInForeground)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Run once (foreground)';
+                    Image = DebugNext;
+                    Promoted = true;
+                    PromotedCategory = Process;
+                    ToolTip = 'Run a copy of this job once in foreground.';
+
+                    trigger OnAction()
+                    var
+                        JobQueueManagement: Codeunit "Job Queue Management";
+                    begin
+                        JobQueueManagement.RunJobQueueEntryOnce(Rec);
+                    end;
+                }
             }
         }
         area(navigation)
@@ -293,7 +315,7 @@ page 672 "Job Queue Entries"
         UserDoesNotExist := false;
         if "User ID" = UserId then
             exit;
-        if User.IsEmpty then
+        if User.IsEmpty() then
             exit;
         User.SetRange("User Name", "User ID");
         UserDoesNotExist := User.IsEmpty;

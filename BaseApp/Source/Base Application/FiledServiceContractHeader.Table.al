@@ -629,7 +629,7 @@ table 5970 "Filed Service Contract Header"
                     FiledContractLine."Entry No." := FiledServContractHeader."Entry No.";
                     FiledContractLine.TransferFields(ServContractLine);
                     FiledContractLine.Insert();
-                until ServContractLine.Next = 0;
+                until ServContractLine.Next() = 0;
         end;
 
         OnAfterFileContract(FiledServContractHeader, ServContractHeader);

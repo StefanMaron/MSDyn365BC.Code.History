@@ -1,4 +1,4 @@
-﻿table 295 "Reminder Header"
+table 295 "Reminder Header"
 {
     Caption = 'Reminder Header';
     DataCaptionFields = "No.", Name;
@@ -869,7 +869,7 @@
                 OnBeforeInsertReminderTextLine(ReminderLine, ReminderText, ReminderHeader);
                 OnBeforeInsertReminderLine(ReminderLine);
                 ReminderLine.Insert();
-            until ReminderText.Next = 0;
+            until ReminderText.Next() = 0;
             if ReminderText.Position = ReminderText.Position::Beginning then
                 InsertBlankLine(ReminderLine."Line Type"::"Beginning Text");
         end;

@@ -2571,7 +2571,7 @@ codeunit 134988 "ERM Purchase Reports III"
     begin
         LibraryReportDataset.LoadDataSetFile;
         PurchCrMemoLine.SetRange("Document No.", DocumentNo);
-        PurchCrMemoLine.FindSet;
+        PurchCrMemoLine.FindSet();
         repeat
             LibraryReportDataset.AssertElementWithValueExists('LineNo_PurchCrMemoLine', PurchCrMemoLine."Line No.");
             LibraryReportDataset.AssertElementWithValueExists('No_PurchCrMemoLine', PurchCrMemoLine."No.");

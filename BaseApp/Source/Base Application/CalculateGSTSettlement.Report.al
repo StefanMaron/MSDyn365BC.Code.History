@@ -361,7 +361,7 @@ report 11603 "Calculate GST Settlement"
                                         GenJnlPostLine.Run(GenJnlLine[1]);
                                     end;
                                 end;
-                            until InvPostBuffer.Next = 0;
+                            until InvPostBuffer.Next() = 0;
 
                             // Post settlement account
                             if ((RoundAccNo = '') and (TotalAmt <> 0)) or
@@ -457,7 +457,7 @@ report 11603 "Calculate GST Settlement"
                                 ShowRoundSection := false;
                             if GenJnlLine1.Find('-') then
                                 if InterCompany then
-                                    CODEUNIT.Run(231, GenJnlLine1);
+                                    CODEUNIT.Run(Codeunit::"Gen. Jnl.-Post", GenJnlLine1);
                         end;
 
                         VATEntry1.ModifyAll("Closed by Entry No.", VATApplyEntryNo);

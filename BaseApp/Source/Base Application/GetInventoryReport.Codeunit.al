@@ -70,7 +70,7 @@ codeunit 5845 "Get Inventory Report"
                         InsertItemInvtReportEntry(InventoryReportLine);
 
                     SetFilter("Item No.", InvtReportHeader.GetFilter("Item Filter"));
-                until Next = 0;
+                until Next() = 0;
         end
     end;
 
@@ -182,9 +182,10 @@ codeunit 5845 "Get Inventory Report"
                         InsertGLInvtReportEntry(InventoryReportLine, "WIP Account", InventoryReportLine."WIP Inventory");
                     end;
 
+                    OnCalcInvtPostingSetupOnBeforeAssignTempInvtPostingSetup(InventoryReportLine, TempInvtPostingSetup, InvtReportHeader, InvtPostingSetup);
                     TempInvtPostingSetup := InvtPostingSetup;
                     TempInvtPostingSetup.Insert();
-                until Next = 0;
+                until Next() = 0;
         end;
     end;
 
@@ -251,9 +252,10 @@ codeunit 5845 "Get Inventory Report"
                           InventoryReportLine, "Purchase Variance Account", InventoryReportLine."Purchase Variance");
                     end;
 
+                    OnCalcGenPostingSetupOnBeforeAssignTempGenPostingSetup(InventoryReportLine, TempGenPostingSetup, InvtReportHeader, GenPostingSetup);
                     TempGenPostingSetup := GenPostingSetup;
                     TempGenPostingSetup.Insert();
-                until Next = 0;
+                until Next() = 0;
         end;
     end;
 
@@ -316,11 +318,11 @@ codeunit 5845 "Get Inventory Report"
                         SetRange("Item Charge No.");
                     end else
                         FindLast;
-                until Next = 0;
+                until Next() = 0;
 
                 FindLast;
                 SetFilter("Posting Date", InvtReportHeader.GetFilter("Posting Date Filter"));
-            until Next = 0;
+            until Next() = 0;
     end;
 
     local procedure ValueEntryInFilteredSet(var ValueEntry: Record "Value Entry"; var InvtReportHeader: Record "Inventory Report Header"; Detailed: Boolean): Boolean
@@ -364,6 +366,8 @@ codeunit 5845 "Get Inventory Report"
             Inventory := Inventory + CalcInventory(ValueEntry);
             "Direct Cost Applied" := "Direct Cost Applied" + CalcDirectCostApplied(ValueEntry);
             "Overhead Applied" := "Overhead Applied" + CalcOverheadApplied(ValueEntry);
+
+            OnAfterCalcValueEntries(InventoryReportLine, ValueEntry);
         end;
     end;
 
@@ -394,6 +398,8 @@ codeunit 5845 "Get Inventory Report"
               "Capacity Variance", "Subcontracted Variance", "Capacity Overhead Variance",
               "Mfg. Overhead Variance", "Direct Cost Applied WIP", "Overhead Applied WIP",
               "Inventory To WIP", "WIP To Interim", "Direct Cost Applied", "Overhead Applied");
+
+            OnCalcDiffOnAfterCalcSumsTypeGLAccount(InventoryReportLine);
             CalcInventoryReportLine := InventoryReportLine;
 
             SetRange(Type, Type::Item);
@@ -406,6 +412,8 @@ codeunit 5845 "Get Inventory Report"
               "Capacity Variance", "Subcontracted Variance", "Capacity Overhead Variance",
               "Mfg. Overhead Variance", "Direct Cost Applied WIP", "Overhead Applied WIP",
               "Inventory To WIP", "WIP To Interim", "Direct Cost Applied", "Overhead Applied");
+
+            OnCalcDiffOnAfterCalcSumsTypeItem(InventoryReportLine);
         end;
 
         with CalcInventoryReportLine do begin
@@ -430,6 +438,8 @@ codeunit 5845 "Get Inventory Report"
             "WIP To Interim" := "WIP To Interim" - InventoryReportLine."WIP To Interim";
             "Direct Cost Applied" := "Direct Cost Applied" - InventoryReportLine."Direct Cost Applied";
             "Overhead Applied" := "Overhead Applied" - InventoryReportLine."Overhead Applied";
+
+            OnCalcDiffOnBeforeCopytoInventoryReportEntry(CalcInventoryReportLine, InventoryReportLine);
             InventoryReportLine.Copy(CalcInventoryReportLine);
         end;
     end;
@@ -1427,12 +1437,12 @@ codeunit 5845 "Get Inventory Report"
                             ValueEntry.SetRange("Item Ledger Entry Type");
                             ValueEntry.SetRange("Location Code");
                             ValueEntry.SetRange("Variance Type");
-                        until ValueEntry.Next = 0;
+                        until ValueEntry.Next() = 0;
 
                     if ValueEntry.FindLast then;
                     ValueEntry.SetRange("Item No.");
                     ValueEntry.SetRange("Posting Date");
-                until ValueEntry.Next = 0;
+                until ValueEntry.Next() = 0;
             exit(false);
         end;
     end;
@@ -1483,7 +1493,7 @@ codeunit 5845 "Get Inventory Report"
                     ("Direct Cost Applied" = 0) and
                     ("Overhead Applied" = 0))
             then begin
-                if AccountingPeriod.IsEmpty then
+                if AccountingPeriod.IsEmpty() then
                     exit(false);
 
                 AccountingPeriod.SetFilter("Starting Date", InvtReportHeader.GetFilter("Posting Date Filter"));
@@ -1506,20 +1516,20 @@ codeunit 5845 "Get Inventory Report"
                 if found then
                     repeat
                         repeat
-                        until (AccountingPeriod.Next = 0) or AccountingPeriod."New Fiscal Year";
+                        until (AccountingPeriod.Next() = 0) or AccountingPeriod."New Fiscal Year";
                         if AccountingPeriod."New Fiscal Year" then
                             AccountingPeriod."Starting Date" := ClosingDate(CalcDate('<-1D>', AccountingPeriod."Starting Date"))
                         else
                             AccountingPeriod."Starting Date" := ClosingDate(AccountingPeriod."Starting Date");
                         AccountingPeriod.SetFilter("Starting Date", InvtReportHeader.GetFilter("Posting Date Filter"));
                         GLEntry.SetRange("Posting Date", AccountingPeriod."Starting Date");
-                        if not GLEntry.IsEmpty then begin
+                        if not GLEntry.IsEmpty() then begin
                             "Closing Period Overlap Warning" := true;
                             Modify;
                             exit(true);
                         end;
                         AccountingPeriod.SetRange(Closed, true);
-                    until AccountingPeriod.Next = 0;
+                    until AccountingPeriod.Next() = 0;
             end;
             exit(false);
         end;
@@ -1560,7 +1570,7 @@ codeunit 5845 "Get Inventory Report"
                         TotalInventory := TotalInventory + CalcInventory(ValueEntry);
                     ValueEntry.FindLast;
                     ValueEntry.SetRange("Item No.");
-                until ValueEntry.Next = 0;
+                until ValueEntry.Next() = 0;
 
             if InvtPostingSetup.Find('-') then
                 repeat
@@ -1571,7 +1581,7 @@ codeunit 5845 "Get Inventory Report"
                             TotalInventory := TotalInventory - CalcGLAccount(GLAcc);
                     TempInvtPostingSetup := InvtPostingSetup;
                     TempInvtPostingSetup.Insert();
-                until InvtPostingSetup.Next = 0;
+                until InvtPostingSetup.Next() = 0;
             if TotalInventory = 0 then begin
                 "Posting Date Warning" := true;
                 Modify;
@@ -1611,6 +1621,36 @@ codeunit 5845 "Get Inventory Report"
             end;
             exit(false);
         end;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalcInvtPostingSetupOnBeforeAssignTempInvtPostingSetup(var InventoryReportEntry: Record "Inventory Report Entry"; var TempInventoryPostingSetup: Record "Inventory Posting Setup" temporary; var InventoryReportHeader: Record "Inventory Report Header"; InventoryPostingSetup: Record "Inventory Posting Setup")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalcGenPostingSetupOnBeforeAssignTempGenPostingSetup(var InventoryReportEntry: Record "Inventory Report Entry"; var TempGeneralPostingSetup: Record "General Posting Setup" temporary; var InventoryReportHeader: Record "Inventory Report Header"; GeneralPostingSetup: Record "General Posting Setup")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCalcValueEntries(var InventoryReportEntry: Record "Inventory Report Entry"; var ValueEntry: Record "Value Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalcDiffOnAfterCalcSumsTypeGLAccount(var InventoryReportEntry: Record "Inventory Report Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalcDiffOnAfterCalcSumsTypeItem(var InventoryReportEntry: Record "Inventory Report Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalcDiffOnBeforeCopytoInventoryReportEntry(var CalcInventoryReportEntry: Record "Inventory Report Entry"; var InventoryReportEntry: Record "Inventory Report Entry")
+    begin
     end;
 }
 

@@ -153,7 +153,7 @@ page 5240 "Detailed Empl. Entries Preview"
             repeat
                 Rec := TempDtldEmplLedgEntry;
                 Insert;
-            until TempDtldEmplLedgEntry.Next = 0;
+            until TempDtldEmplLedgEntry.Next() = 0;
     end;
 }
 

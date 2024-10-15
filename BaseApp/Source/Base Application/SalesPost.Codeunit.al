@@ -246,7 +246,7 @@
         GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line";
         ResJnlPostLine: Codeunit "Res. Jnl.-Post Line";
         ItemJnlPostLine: Codeunit "Item Jnl.-Post Line";
-        ReserveSalesLine: Codeunit "Sales Line-Reserve";
+        SalesLineReserve: Codeunit "Sales Line-Reserve";
         ApprovalsMgmt: Codeunit "Approvals Mgmt.";
         ItemTrackingMgt: Codeunit "Item Tracking Management";
         WhseJnlPostLine: Codeunit "Whse. Jnl.-Register Line";
@@ -406,7 +406,7 @@
         CopyToTempLines(SalesHeader, TempSalesLine);
     end;
 
-    local procedure ResetTempLines(var TempSalesLineLocal: Record "Sales Line" temporary)
+    procedure ResetTempLines(var TempSalesLineLocal: Record "Sales Line" temporary)
     begin
         TempSalesLineLocal.Reset();
         TempSalesLineLocal.Copy(TempSalesLineGlobal, true);
@@ -633,8 +633,8 @@
             if Type = Type::Item then begin
                 CostBaseAmount := "Line Amount";
                 OnPostSalesLineOnBeforeTestUnitOfMeasureCode(SalesHeader, SalesLine, TempSalesLineGlobal);
-                // Skip UoM validation for partially shipped documents and lines fetch through "Get Shipment Lines"
-                if ("No." <> '') and ("Qty. Shipped (Base)" = 0) and ("Shipment No." = '') then
+                // Skip UoM validation for partially shipped/received documents and lines fetch through "Get Shipment Lines"
+                if ("No." <> '') and ("Qty. Shipped (Base)" = 0) and ("Shipment No." = '') and ("Return Qty. Received (Base)" = 0) and ("Return Receipt No." = '') then
                     TestField("Unit of Measure Code");
             end;
             if "Qty. per Unit of Measure" = 0 then
@@ -1001,7 +1001,7 @@
                 TrackingSpecificationExists := false
             else
                 TrackingSpecificationExists :=
-                  ReserveSalesLine.RetrieveInvoiceSpecification(SalesLine, TempTrackingSpecification);
+                  SalesLineReserve.RetrieveInvoiceSpecification(SalesLine, TempTrackingSpecification);
         OnPostItemTrackingLineOnAfterRetrieveInvoiceSpecification(SalesLine, TempTrackingSpecification, TrackingSpecificationExists);
 
         PostItemTracking(
@@ -1332,7 +1332,7 @@
 
             if QtyToBeShippedBase <> 0 then begin
                 if SalesLine.IsCreditDocType then
-                    ReserveSalesLine.TransferSalesLineToItemJnlLine(SalesLine, ItemJnlLine, QtyToBeShippedBase, CheckApplFromItemEntry, false)
+                    SalesLineReserve.TransferSalesLineToItemJnlLine(SalesLine, ItemJnlLine, QtyToBeShippedBase, CheckApplFromItemEntry, false)
                 else
                     TransferReservToItemJnlLine(
                       SalesLine, ItemJnlLine, -QtyToBeShippedBase, TempTrackingSpecification, CheckApplFromItemEntry);
@@ -1465,7 +1465,7 @@
                 if IsEmpty() then
                     ItemJnlPostLine.RunWithCheck(ItemJnlLine2)
                 else begin
-                    FindSet;
+                    FindSet();
                     NonDistrItemJnlLine := ItemJnlLine2;
                     OriginalAmt := NonDistrItemJnlLine.Amount;
                     OriginalDiscountAmt := NonDistrItemJnlLine."Discount Amount";
@@ -1520,7 +1520,7 @@
         end;
     end;
 
-    local procedure PostItemChargePerShpt(SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line")
+    procedure PostItemChargePerShpt(SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line")
     var
         SalesShptLine: Record "Sales Shipment Line";
         TempItemLedgEntry: Record "Item Ledger Entry" temporary;
@@ -1617,7 +1617,7 @@
               TempItemChargeAssgntSales."Qty. to Assign")
     end;
 
-    local procedure PostDistributeItemCharge(SalesHeader: Record "Sales Header"; SalesLine: Record "Sales Line"; var TempItemLedgEntry: Record "Item Ledger Entry" temporary; NonDistrQuantity: Decimal; NonDistrQtyToAssign: Decimal; NonDistrAmountToAssign: Decimal)
+    procedure PostDistributeItemCharge(SalesHeader: Record "Sales Header"; SalesLine: Record "Sales Line"; var TempItemLedgEntry: Record "Item Ledger Entry" temporary; NonDistrQuantity: Decimal; NonDistrQtyToAssign: Decimal; NonDistrAmountToAssign: Decimal)
     var
         Factor: Decimal;
         QtyToAssign: Decimal;
@@ -2102,13 +2102,13 @@
     var
         PurchOrderHeader: Record "Purchase Header";
         PurchOrderLine: Record "Purchase Line";
-        ReservePurchLine: Codeunit "Purch. Line-Reserve";
+        PurchLineReserve: Codeunit "Purch. Line-Reserve";
     begin
         TempDropShptPostBuffer.Reset();
         if TempDropShptPostBuffer.IsEmpty() then
             exit;
         Clear(PurchOrderHeader);
-        TempDropShptPostBuffer.FindSet;
+        TempDropShptPostBuffer.FindSet();
         repeat
             if PurchOrderHeader."No." <> TempDropShptPostBuffer."Order No." then begin
                 PurchOrderHeader.Get(PurchOrderHeader."Document Type"::Order, TempDropShptPostBuffer."Order No.");
@@ -2116,7 +2116,7 @@
                 PurchOrderHeader."Receiving No." := '';
                 PurchOrderHeader.Modify();
                 OnUpdateAssosOrderOnAfterPurchOrderHeaderModify(PurchOrderHeader);
-                ReservePurchLine.UpdateItemTrackingAfterPosting(PurchOrderHeader);
+                PurchLineReserve.UpdateItemTrackingAfterPosting(PurchOrderHeader);
             end;
             PurchOrderLine.Get(
               PurchOrderLine."Document Type"::Order,
@@ -2297,7 +2297,7 @@
         if IsHandled then
             exit;
 
-        with SalesLine do
+        with SalesLine do begin
             if SalesHeader.Invoice then begin
                 if Abs("Qty. to Invoice") > Abs(MaxQtyToInvoice()) then
                     InitQtyToInvoice();
@@ -2305,6 +2305,7 @@
                 "Qty. to Invoice" := 0;
                 "Qty. to Invoice (Base)" := 0;
             end;
+        end;
     end;
 
     local procedure UpdateWhseDocuments(SalesHeader: Record "Sales Header"; EverythingInvoiced: Boolean)
@@ -2347,7 +2348,7 @@
                 DeleteLinks;
             OnDeleteAfterPostingOnBeforeDeleteSalesHeader(SalesHeader);
             Delete;
-            ReserveSalesLine.DeleteInvoiceSpecFromHeader(SalesHeader);
+            SalesLineReserve.DeleteInvoiceSpecFromHeader(SalesHeader);
             DeleteATOLinks(SalesHeader);
             ResetTempLines(TempSalesLine);
             if TempSalesLine.FindFirst() then
@@ -2356,9 +2357,9 @@
                         DeferralUtilities.RemoveOrSetDeferralSchedule(
                           '', "Deferral Document Type"::Sales.AsInteger(), '', '', TempSalesLine."Document Type".AsInteger(),
                           TempSalesLine."Document No.", TempSalesLine."Line No.", 0, 0D, TempSalesLine.Description, '', true);
-                    if TempSalesLine.HasLinks then
-                        TempSalesLine.DeleteLinks;
-                    OnDeleteAfterPostingOnAfterDeleteLinks(SalesLine);
+                    if TempSalesLine.HasLinks() then
+                        TempSalesLine.DeleteLinks();
+                    OnDeleteAfterPostingOnAfterDeleteLinks(TempSalesLine);
                 until TempSalesLine.Next() = 0;
 
             SalesLine.SetRange("Document Type", "Document Type");
@@ -2398,6 +2399,7 @@
                 UpdateWhseDocuments(SalesHeader, EverythingInvoiced);
                 WhseSalesRelease.Release(SalesHeader);
                 UpdateItemChargeAssgnt(SalesHeader);
+                OnFinalizePostingOnAfterUpdateItemChargeAssgnt(SalesHeader, TempDropShptPostBuffer);
             end else begin
                 case "Document Type" of
                     "Document Type"::Invoice:
@@ -3932,7 +3934,7 @@
                         Inbound := (Quantity * SignFactor) > 0;
                         ItemTrackingCode.Code := Item."Item Tracking Code";
                         ItemTrackingManagement.GetItemTrackingSetup(
-                            ItemTrackingCode, ItemJnlLine."Entry Type"::Sale.AsInteger(), Inbound, ItemTrackingSetup);
+                            ItemTrackingCode, ItemJnlLine."Entry Type"::Sale, Inbound, ItemTrackingSetup);
                         CheckSalesLine := not ItemTrackingSetup.TrackingRequired();
                         if CheckSalesLine then
                             CheckSalesLine := CheckTrackingExists(TempItemSalesLine);
@@ -4009,7 +4011,7 @@
         TempTrackingSpecification.Reset();
         if not TempTrackingSpecification.IsEmpty() then begin
             TempTrackingSpecification.InsertSpecification;
-            ReserveSalesLine.UpdateItemTrackingAfterPosting(SalesHeader);
+            SalesLineReserve.UpdateItemTrackingAfterPosting(SalesHeader);
         end;
     end;
 
@@ -4041,7 +4043,7 @@
         SalesInvHeader."Payment Instructions Name" := O365PaymentInstructions.GetNameInCurrentLanguage;
     end;
 
-    local procedure PostItemCharge(SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; ItemLedgEntryNo: Integer; QuantityBase: Decimal; AmountToAssign: Decimal; QtyToAssign: Decimal)
+    procedure PostItemCharge(SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; ItemLedgEntryNo: Integer; QuantityBase: Decimal; AmountToAssign: Decimal; QtyToAssign: Decimal)
     var
         DummyTrackingSpecification: Record "Tracking Specification";
         SalesLineToPost: Record "Sales Line";
@@ -4130,30 +4132,30 @@
         if QtyToBeShippedBase = 0 then
             exit;
 
-        Clear(ReserveSalesLine);
+        Clear(SalesLineReserve);
         if not SalesOrderLine."Drop Shipment" then
-            ReserveSalesLine.TransferSalesLineToItemJnlLine(
+            SalesLineReserve.TransferSalesLineToItemJnlLine(
               SalesOrderLine, ItemJnlLine, QtyToBeShippedBase, CheckApplFromItemEntry, false)
         else begin
-            ReserveSalesLine.SetApplySpecificItemTracking(true);
+            SalesLineReserve.SetApplySpecificItemTracking(true);
             TempTrackingSpecification2.Reset();
             TempTrackingSpecification2.SetSourceFilter(
               DATABASE::"Purchase Line", 1, SalesOrderLine."Purchase Order No.", SalesOrderLine."Purch. Order Line No.", false);
             TempTrackingSpecification2.SetSourceFilter('', 0);
             if TempTrackingSpecification2.IsEmpty() then
-                ReserveSalesLine.TransferSalesLineToItemJnlLine(
+                SalesLineReserve.TransferSalesLineToItemJnlLine(
                   SalesOrderLine, ItemJnlLine, QtyToBeShippedBase, CheckApplFromItemEntry, false)
             else begin
-                ReserveSalesLine.SetOverruleItemTracking(true);
-                ReserveSalesLine.SetItemTrkgAlreadyOverruled(ItemTrkgAlreadyOverruled);
-                TempTrackingSpecification2.FindSet;
+                SalesLineReserve.SetOverruleItemTracking(true);
+                SalesLineReserve.SetItemTrkgAlreadyOverruled(ItemTrkgAlreadyOverruled);
+                TempTrackingSpecification2.FindSet();
                 if TempTrackingSpecification2."Quantity (Base)" / QtyToBeShippedBase < 0 then
                     Error(ItemTrackingWrongSignErr);
                 repeat
                     ItemJnlLine.CopyTrackingFromSpec(TempTrackingSpecification2);
                     ItemJnlLine."Applies-to Entry" := TempTrackingSpecification2."Item Ledger Entry No.";
                     RemainingQuantity :=
-                      ReserveSalesLine.TransferSalesLineToItemJnlLine(
+                      SalesLineReserve.TransferSalesLineToItemJnlLine(
                         SalesOrderLine, ItemJnlLine, TempTrackingSpecification2."Quantity (Base)", CheckApplFromItemEntry, false);
                     if RemainingQuantity <> 0 then
                         Error(ItemTrackingMismatchErr);
@@ -4168,7 +4170,7 @@
     var
         ReservEntry: Record "Reservation Entry";
         TempTrackingSpecification2: Record "Tracking Specification" temporary;
-        ReservePurchLine: Codeunit "Purch. Line-Reserve";
+        PurchLineReserve: Codeunit "Purch. Line-Reserve";
         RemainingQuantity: Decimal;
         CheckApplToItemEntry: Boolean;
     begin
@@ -4185,20 +4187,20 @@
             ItemTrackingMgt.SumUpItemTracking(ReservEntry, TempTrackingSpecification2, false, true);
         TempTrackingSpecification2.SetFilter("Qty. to Handle (Base)", '<>0');
         if TempTrackingSpecification2.IsEmpty() then begin
-            ReserveSalesLine.SetApplySpecificItemTracking(true);
-            ReservePurchLine.TransferPurchLineToItemJnlLine(
+            SalesLineReserve.SetApplySpecificItemTracking(true);
+            PurchLineReserve.TransferPurchLineToItemJnlLine(
               PurchOrderLine, ItemJnlLine, QtyToBeShippedBase, CheckApplToItemEntry)
         end else begin
-            ReservePurchLine.SetOverruleItemTracking(true);
+            PurchLineReserve.SetOverruleItemTracking(true);
             ItemTrkgAlreadyOverruled := true;
-            TempTrackingSpecification2.FindSet;
+            TempTrackingSpecification2.FindSet();
             if -TempTrackingSpecification2."Quantity (Base)" / QtyToBeShippedBase < 0 then
                 Error(ItemTrackingWrongSignErr);
             if PurchOrderLine.ReservEntryExist then
                 repeat
                     ItemJnlLine.CopyTrackingFromSpec(TempTrackingSpecification2);
                     RemainingQuantity :=
-                      ReservePurchLine.TransferPurchLineToItemJnlLine(
+                      PurchLineReserve.TransferPurchLineToItemJnlLine(
                         PurchOrderLine, ItemJnlLine,
                         -TempTrackingSpecification2."Qty. to Handle (Base)", CheckApplToItemEntry);
                     if RemainingQuantity <> 0 then
@@ -4379,7 +4381,7 @@
                                 if SalesLine2.Find('-') then
                                     repeat
                                         InvDiscAmount += ("Inv. Discount Amount" * SalesLine2."Prepayment %" / 100);
-                                    until SalesLine2.Next = 0;
+                                    until SalesLine2.Next() = 0;
                                 InvDiscAmt := InvDiscAmount;
                             end;
                             OnBeforeTempPrepmtSalesLineInsert(TempPrepmtSalesLine, TempSalesLine, SalesHeader, CompleteFunctionality);
@@ -5119,6 +5121,7 @@
         SalesLine: Record "Sales Line";
         PurchOrderHeader: Record "Purchase Header";
         PurchOrderLine: Record "Purchase Line";
+        InvSetup: Record "Inventory Setup";
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -5131,7 +5134,7 @@
         PurchOrderLine.LockTable();
         PurchOrderHeader.LockTable();
         GetGLSetup();
-        if not GLSetup.OptimGLEntLockForMultiuserEnv then begin
+        if not InvSetup.OptimGLEntLockForMultiuserEnv() then begin
             GLEntry.LockTable();
             if GLEntry.FindLast() then;
         end;
@@ -5253,7 +5256,7 @@
         OnPostBalancingEntryOnBeforeFindCustLedgEntry(
           SalesHeader, TotalSalesLine2, DocType.AsInteger(), DocNo, ExtDocNo, CustLedgEntry, EntryFound, IsHandled);
         if IsHandled then
-        exit;
+            exit;
 
         if not EntryFound then
             FindCustLedgEntry(DocType, DocNo, CustLedgEntry);
@@ -6267,7 +6270,7 @@
 
             if SalesHeader."Document Type" = SalesHeader."Document Type"::Invoice then
                 SalesInvHeader."Draft Invoice SystemId" := SalesHeader.SystemId;
-                
+
             OnInsertInvoiceHeaderOnBeforeSetPaymentInstructions(SalesHeader, SalesInvHeader);
 
             SetPaymentInstructions(SalesHeader);
@@ -6714,7 +6717,7 @@
                     RecGSTReport.Insert();
                     EntryNo += 1;
                 end;
-            until InvoicePostBufferGST[1].Next = 0;
+            until InvoicePostBufferGST[1].Next() = 0;
     end;
 
     local procedure FillInvPostingBufferGST(SalesHeader: Record "Sales Header"; SalesLine: Record "Sales Line"; SalesLineACY: Record "Sales Line")
@@ -7141,7 +7144,7 @@
             FindNotShippedLines(SalesHeader, TempSalesLine);
             if IsEmpty() then
                 exit(false);
-            FindSet;
+            FindSet();
             repeat
                 if WarehouseActivityLine.ActivityExists(
                      DATABASE::"Sales Line", "Document Type".AsInteger(), "Document No.", "Line No.", 0,
@@ -7165,7 +7168,7 @@
             SetRange("Return Receipt No.", '');
             if IsEmpty() then
                 exit(false);
-            FindSet;
+            FindSet();
             repeat
                 if WarehouseActivityLine.ActivityExists(
                      DATABASE::"Sales Line", "Document Type".AsInteger(), "Document No.", "Line No.", 0,
@@ -7177,7 +7180,7 @@
         end;
     end;
 
-    local procedure CalcInvoiceDiscountPosting(SalesHeader: Record "Sales Header"; SalesLine: Record "Sales Line"; SalesLineACY: Record "Sales Line"; var InvoicePostBuffer: Record "Invoice Post. Buffer")
+    procedure CalcInvoiceDiscountPosting(SalesHeader: Record "Sales Header"; SalesLine: Record "Sales Line"; SalesLineACY: Record "Sales Line"; var InvoicePostBuffer: Record "Invoice Post. Buffer")
     var
         IsHandled: Boolean;
     begin
@@ -7193,7 +7196,7 @@
               SalesHeader."Prices Including VAT", -SalesLine."Inv. Discount Amount", -SalesLineACY."Inv. Discount Amount");
     end;
 
-    local procedure CalcLineDiscountPosting(SalesHeader: Record "Sales Header"; SalesLine: Record "Sales Line"; SalesLineACY: Record "Sales Line"; var InvoicePostBuffer: Record "Invoice Post. Buffer")
+    procedure CalcLineDiscountPosting(SalesHeader: Record "Sales Header"; SalesLine: Record "Sales Line"; SalesLineACY: Record "Sales Line"; var InvoicePostBuffer: Record "Invoice Post. Buffer")
     var
         IsHandled: Boolean;
     begin
@@ -8010,7 +8013,7 @@
                                 GenJnlPostLine.IncreaseWHTEntryNo;
                                 GenJnlPostLine.Run(GenJnlLine);
                             end;
-                    until WHTEntry.Next = 0;
+                    until WHTEntry.Next() = 0;
 
                 if WHTEntry.Find('+') then
                     if GLReg.FindLast then begin
@@ -8034,7 +8037,7 @@
                                 GenJnlPostLine.IncreaseWHTEntryNo;
                                 GenJnlPostLine.Run(GenJnlLine);
                             end;
-                    until WHTEntry.Next = 0;
+                    until WHTEntry.Next() = 0;
 
                 if WHTEntry.Find('+') then
                     if GLReg.FindLast then begin
@@ -9173,10 +9176,10 @@
         OnBeforeValidatePostingAndDocumentDate(SalesHeader, SuppressCommit);
 
         PostingDateExists :=
-          BatchProcessingMgt.GetParameterBoolean(SalesHeader.RecordId, "Batch Posting Parameter Type"::"Replace Posting Date", ReplacePostingDate) and
-          BatchProcessingMgt.GetParameterBoolean(
+          BatchProcessingMgt.GetBooleanParameter(SalesHeader.RecordId, "Batch Posting Parameter Type"::"Replace Posting Date", ReplacePostingDate) and
+          BatchProcessingMgt.GetBooleanParameter(
             SalesHeader.RecordId, "Batch Posting Parameter Type"::"Replace Document Date", ReplaceDocumentDate) and
-          BatchProcessingMgt.GetParameterDate(SalesHeader.RecordId, "Batch Posting Parameter Type"::"Posting Date", PostingDate);
+          BatchProcessingMgt.GetDateParameter(SalesHeader.RecordId, "Batch Posting Parameter Type"::"Posting Date", PostingDate);
 
         if PostingDateExists and (ReplacePostingDate or (SalesHeader."Posting Date" = 0D)) then begin
             SalesHeader."Posting Date" := PostingDate;
@@ -9774,6 +9777,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnFillInvoicePostingBufferOnBeforeSetLineDiscAccount(SalesLine: Record "Sales Line"; GenPostingSetup: Record "General Posting Setup"; var LineDiscAccount: Code[20]; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnFinalizePostingOnAfterUpdateItemChargeAssgnt(var SalesHeader: Record "Sales Header"; var TempDropShptPostBuffer: Record "Drop Shpt. Post. Buffer" temporary)
     begin
     end;
 

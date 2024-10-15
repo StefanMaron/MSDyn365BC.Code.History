@@ -361,7 +361,7 @@ page 5915 "Service Tasks"
                                 ServItemLine.Reset();
                                 ServItemLine.CopyFilters(Rec);
                                 if ServItemLine.GetRangeMin("Document No.") = ServItemLine.GetRangeMax("Document No.") then
-                                    if ServItemLine.IsEmpty then begin
+                                    if ServItemLine.IsEmpty() then begin
                                         ServOrderFilter := '';
                                         SetServOrderFilter;
                                     end
@@ -453,7 +453,7 @@ page 5915 "Service Tasks"
 
         SetAllFilters;
 
-        if IsEmpty then begin
+        if IsEmpty() then begin
             ServOrderFilter := '';
             SetServOrderFilter;
         end;
@@ -624,7 +624,7 @@ page 5915 "Service Tasks"
         if ServOrderFilter <> '' then begin
             FilterGroup(2);
             if GetRangeMin("Document No.") = GetRangeMax("Document No.") then
-                if IsEmpty then begin
+                if IsEmpty() then begin
                     FilterGroup(0);
                     exit(false);
                 end;

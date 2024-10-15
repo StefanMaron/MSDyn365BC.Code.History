@@ -1510,7 +1510,7 @@ codeunit 141008 "ERM - Miscellaneous APAC"
             SetRange("Document No.", PostedDocNo);
             SetRange("Document Type", "Document Type"::Invoice);
             SetFilter("G/L Account No.", StrSubstNo('<>%1', GetReceivablesAccountFromCustomerPostingGroup(CustomerNo)));
-            FindSet;
+            FindSet();
             repeat
                 TestField(Description, ExpectedDescription);
             until Next = 0;
@@ -1538,7 +1538,7 @@ codeunit 141008 "ERM - Miscellaneous APAC"
             SetRange("Document No.", PostedDocNo);
             SetRange("Document Type", "Document Type"::Invoice);
             SetFilter("G/L Account No.", StrSubstNo('<>%1', GetPayablesAccountFromVendorPostingGroup(VendorNo)));
-            FindSet;
+            FindSet();
             repeat
                 TestField(Description, ExpectedDescription);
             until Next = 0;

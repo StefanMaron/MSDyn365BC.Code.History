@@ -92,7 +92,7 @@ report 28140 "Adjust Settlement Exch. Rates"
                                 end;
                             end;
                         end;
-                    until VATEntry.Next = 0;
+                    until VATEntry.Next() = 0;
             end;
 
             trigger OnPreDataItem()

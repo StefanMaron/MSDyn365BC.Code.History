@@ -147,7 +147,7 @@ table 1520 "Workflow Event"
         if WorkflowEvent.FindSet then
             repeat
                 WorkflowEventHandling.AddEventPredecessor("Function Name", WorkflowEvent."Function Name");
-            until WorkflowEvent.Next = 0;
+            until WorkflowEvent.Next() = 0;
     end;
 
     procedure MakeIndependent()

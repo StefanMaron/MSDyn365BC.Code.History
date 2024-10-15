@@ -99,7 +99,7 @@ codeunit 7151 ItemAViewEntryToValueEntries
                                 TempValueEntry := ValueEntry;
                                 TempValueEntry.Insert();
                             end;
-                until Next = 0;
+                until Next() = 0;
         end;
     end;
 

@@ -39,7 +39,7 @@ page 1263 Certificate
                                     IsUploadedCertValid := not IsNewRecord;
                                 end;
 
-                                CurrPage.Update;
+                                CurrPage.Update();
                             end else
                                 Error(CertWrongPasswordErr);
                         end;
@@ -121,7 +121,7 @@ page 1263 Certificate
                         end;
                     end;
 
-                    CurrPage.Update;
+                    CurrPage.Update();
                 end;
             }
         }

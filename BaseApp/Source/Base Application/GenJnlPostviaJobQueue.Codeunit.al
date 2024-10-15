@@ -153,7 +153,7 @@ codeunit 250 "Gen. Jnl.-Post via Job Queue"
             if not IsNullGuid("Job Queue Entry ID") then
                 JobQueueEntry.SetRange(ID, "Job Queue Entry ID");
             JobQueueEntry.SetRange("Record ID to Process", RecordId);
-            if not JobQueueEntry.IsEmpty then
+            if not JobQueueEntry.IsEmpty() then
                 JobQueueEntry.DeleteAll(true);
         end;
     end;

@@ -11,7 +11,7 @@
     begin
         ParentRecNo := 0;
         FindDistinctRecordNos(TempIntegerHeaderRecords, "Entry No.", DATABASE::"Purchase Header", ParentRecNo);
-        if not TempIntegerHeaderRecords.FindSet then
+        if not TempIntegerHeaderRecords.FindSet() then
             exit;
 
         repeat
@@ -29,7 +29,7 @@
             PersistHeaderData("Entry No.", CurrRecNo, BuyFromVendorNo, PayToVendorNo);
 
             ProcessLines("Entry No.", CurrRecNo, BuyFromVendorNo);
-        until TempIntegerHeaderRecords.Next = 0;
+        until TempIntegerHeaderRecords.Next() = 0;
     end;
 
     var
@@ -55,6 +55,7 @@
         InvalidCompanyInfoAddressErr: Label 'The customer''s address ''%1'' on the incoming document does not match the Address in the Company Information window.', Comment = '%1 = customer address, street name';
         TempIntegerHeaderRecords: Record "Integer" temporary;
         TempIntegerLineRecords: Record "Integer" temporary;
+        ItemReferenceMgt: Codeunit "Item Reference Management";
         FieldMustHaveAValueErr: Label 'You must specify a value for field ''%1''.', Comment = '%1 - field caption';
         DocumentTypeUnknownErr: Label 'You must make a new entry in the %1 of the %2 window, and enter ''%3'' or ''%4'' in the %5 field. Then, you must map it to the %6 field in the %7 table.', Comment = '%1 - Column Definitions (page caption),%2 - Data Exchange Definition (page caption),%3 - invoice (option caption),%4 - credit memo (option caption),%5 - Constant (field name),%6 - Document Type (field caption),%7 - Purchase Header (table caption)';
         YouMustFirstPostTheRelatedInvoiceErr: Label 'The incoming document references invoice %1 from the vendor. You must post related purchase invoice %2 before you create a new purchase document from this incoming document.', Comment = '%1 - vendor invoice no.,%2 posted purchase invoice no.';
@@ -85,7 +86,7 @@
                 VatRegNo := Value;
 
             SetRange("Field ID", CompanyInformation.FieldNo(GLN));
-            if FindFirst then
+            if FindFirst() then
                 GLN := Value;
 
             if (GLN = '') and (VatRegNo = '') then begin
@@ -107,10 +108,10 @@
                 SetRange("Field ID", CompanyInformation.FieldNo("VAT Registration No."));
                 SetFilter(Value, StrSubstNo('<>%1', ''''''));
 
-                if FindSet then begin
+                if FindSet() then begin
                     repeat
                         VatRegNoFound := ExtractVatRegNo(Value, '') = ExtractVatRegNo(CompanyInformation."VAT Registration No.", '');
-                    until (Next = 0) or VatRegNoFound;
+                    until (Next() = 0) or VatRegNoFound;
                     if not VatRegNoFound then
                         LogErrorMessage(EntryNo, CompanyInformation, CompanyInformation.FieldNo("VAT Registration No."),
                           StrSubstNo(InvalidCompanyInfoVATRegNoErr, VatRegNo));
@@ -138,13 +139,13 @@
             if FindEntry(EntryNo, DATABASE::"Company Information", CompanyInfo.FieldNo(Name), 0, RecordNo) then
                 ImportedName := Value;
 
-            NameNearness := RecordMatchMgt.CalculateStringNearness(CompanyName, ImportedName, MatchThreshold, NormalizingFactor);
+            NameNearness := RecordMatchMgt.CalculateStringNearness(CompanyName, ImportedName, MatchThreshold(), NormalizingFactor());
 
             SetRange("Field ID", CompanyInfo.FieldNo(Address));
-            if FindFirst then
+            if FindFirst() then
                 ImportedAddress := Value;
 
-            AddressNearness := RecordMatchMgt.CalculateStringNearness(CompanyAddr, ImportedAddress, MatchThreshold, NormalizingFactor);
+            AddressNearness := RecordMatchMgt.CalculateStringNearness(CompanyAddr, ImportedAddress, MatchThreshold(), NormalizingFactor());
 
             if (ImportedName <> '') and (NameNearness < RequiredNearness) then
                 LogErrorMessage(EntryNo, CompanyInfo, CompanyInfo.FieldNo(Name), StrSubstNo(InvalidCompanyInfoNameErr, ImportedName));
@@ -186,7 +187,7 @@
             // Ensure the currencies all match the same document currency
             SetRange("Field ID", PurchaseHeader.FieldNo("Tax Area Code"));
             SetFilter(Value, '<>%1', DocumentCurrency);
-            if FindFirst then
+            if FindFirst() then
                 LogSimpleErrorMessage(EntryNo, StrSubstNo(CurrencyCodeDifferentErr, Value, DocumentCurrency));
 
             // Clear the additional currency values on header
@@ -199,7 +200,7 @@
             SetRange("Record No.");
             SetRange("Parent Record No.", RecordNo);
             SetFilter(Value, '<>%1', DocumentCurrency);
-            if FindFirst then
+            if FindFirst() then
                 LogSimpleErrorMessage(EntryNo, StrSubstNo(ItemCurrencyCodeDifferentErr, Value, "Record No.", DocumentCurrency));
 
             // Clear the additional currency values on lines
@@ -221,14 +222,14 @@
         end;
 
         FindDistinctRecordNos(TempIntegerLineRecords, EntryNo, DATABASE::"Purchase Line", HeaderRecordNo);
-        if not TempIntegerLineRecords.FindSet then begin
+        if not TempIntegerLineRecords.FindSet() then begin
             InsertLineForTotalDocumentAmount(EntryNo, HeaderRecordNo, 1, VendorNo);
             exit;
         end;
 
         repeat
             ProcessLine(EntryNo, HeaderRecordNo, TempIntegerLineRecords.Number, VendorNo);
-        until TempIntegerLineRecords.Next = 0;
+        until TempIntegerLineRecords.Next() = 0;
     end;
 
     local procedure CorrectHeaderData(EntryNo: Integer; RecordNo: Integer)
@@ -420,16 +421,16 @@
                 BuyFromName := Value;
 
             SetRange("Field ID", PurchaseHeader.FieldNo("Buy-from Address"));
-            if FindFirst then
+            if FindFirst() then
                 BuyFromAddress := Value;
 
             // Lookup GLN
             SetRange("Field ID", PurchaseHeader.FieldNo("Buy-from Vendor No."));
-            if FindFirst then
+            if FindFirst() then
                 if Value <> '' then begin
                     GLN := Value;
                     Vendor.SetRange(GLN, Value);
-                    if Vendor.FindFirst then begin
+                    if Vendor.FindFirst() then begin
                         InsertOrUpdateEntry(EntryNo, DATABASE::"Purchase Header",
                           PurchaseHeader.FieldNo("Buy-from Vendor No."), 0, RecordNo, Vendor."No.");
                         exit(Vendor."No.");
@@ -443,7 +444,7 @@
             SetRange("Table ID", DATABASE::Vendor);
             SetRange("Field ID", Vendor.FieldNo(ABN));
 
-            if FindFirst then begin
+            if FindFirst() then begin
                 if (Value = '') and (GLN = '') then begin
                     VendorNo := FindVendorByBankAccount(EntryNo, RecordNo, PurchaseHeader.FieldNo("Buy-from Vendor No."));
                     if VendorNo <> '' then
@@ -503,15 +504,15 @@
                 PayToName := Value;
 
             SetRange("Field ID", PurchaseHeader.FieldNo("Pay-to Address"));
-            if FindFirst then
+            if FindFirst() then
                 PayToAddress := Value;
 
             SetRange("Field ID", PurchaseHeader.FieldNo(ABN));
-            if FindFirst then
+            if FindFirst() then
                 VatRegNo := Value;
 
             SetRange("Field ID", PurchaseHeader.FieldNo("Pay-to Vendor No."));
-            if FindFirst then
+            if FindFirst() then
                 GLN := Value;
 
             if (VatRegNo = '') and (GLN = '') then begin
@@ -523,7 +524,7 @@
             // Lookup GLN
             if GLN <> '' then begin
                 Vendor.SetRange(GLN, GLN);
-                if Vendor.FindFirst then begin
+                if Vendor.FindFirst() then begin
                     InsertOrUpdateEntry(EntryNo, DATABASE::"Purchase Header",
                       PurchaseHeader.FieldNo("Pay-to Vendor No."), 0, RecordNo, Vendor."No.");
 
@@ -561,18 +562,18 @@
         AddressNearness: Integer;
     begin
         with IntermediateDataImport do begin
-            if Vendor.FindSet then
+            if Vendor.FindSet() then
                 repeat
-                    NameNearness := RecordMatchMgt.CalculateStringNearness(VendorName, Vendor.Name, MatchThreshold, NormalizingFactor);
+                    NameNearness := RecordMatchMgt.CalculateStringNearness(VendorName, Vendor.Name, MatchThreshold(), NormalizingFactor());
                     if VendorAddress = '' then
                         AddressNearness := RequiredNearness
                     else
-                        AddressNearness := RecordMatchMgt.CalculateStringNearness(VendorAddress, Vendor.Address, MatchThreshold, NormalizingFactor);
+                        AddressNearness := RecordMatchMgt.CalculateStringNearness(VendorAddress, Vendor.Address, MatchThreshold(), NormalizingFactor());
                     if (NameNearness >= RequiredNearness) and (AddressNearness >= RequiredNearness) then begin
                         InsertOrUpdateEntry(EntryNo, DATABASE::"Purchase Header", FieldID, 0, RecordNo, Vendor."No.");
                         exit(Vendor."No.");
                     end;
-                until Vendor.Next = 0;
+                until Vendor.Next() = 0;
 
             DataExch.Get(EntryNo);
             IncomingDocument.Get(DataExch."Incoming Entry No.");
@@ -597,16 +598,16 @@
                 VendorIBAN := CopyStr(Value, 1, MaxStrLen(VendorIBAN));
 
             SetRange("Field ID", VendorBankAccount.FieldNo("Bank Branch No."));
-            if FindFirst then
+            if FindFirst() then
                 VendorBankBranchNo := CopyStr(Value, 1, MaxStrLen(VendorBankBranchNo));
 
             SetRange("Field ID", VendorBankAccount.FieldNo("Bank Account No."));
-            if FindFirst then
+            if FindFirst() then
                 VendorBankAccountNo := CopyStr(Value, 1, MaxStrLen(VendorBankAccountNo));
 
             if VendorIBAN <> '' then begin
                 VendorBankAccount.SetRange(IBAN, VendorIBAN);
-                if VendorBankAccount.FindFirst then
+                if VendorBankAccount.FindFirst() then
                     VendorNo := VendorBankAccount."Vendor No.";
             end;
 
@@ -614,7 +615,7 @@
                 VendorBankAccount.Reset();
                 VendorBankAccount.SetRange("Bank Branch No.", VendorBankBranchNo);
                 VendorBankAccount.SetRange("Bank Account No.", VendorBankAccountNo);
-                if VendorBankAccount.FindFirst then
+                if VendorBankAccount.FindFirst() then
                     VendorNo := VendorBankAccount."Vendor No.";
             end;
 
@@ -639,14 +640,14 @@
 
         PhoneNo := DelChr(PhoneNo, '=', DelChr(PhoneNo, '=', '0123456789'));
         with IntermediateDataImport do begin
-            if Vendor.FindSet then
+            if Vendor.FindSet() then
                 repeat
-                    PhoneNoNearness := RecordMatchMgt.CalculateStringNearness(PhoneNo, Vendor."Phone No.", MatchThreshold, NormalizingFactor);
+                    PhoneNoNearness := RecordMatchMgt.CalculateStringNearness(PhoneNo, Vendor."Phone No.", MatchThreshold(), NormalizingFactor());
                     if PhoneNoNearness >= RequiredNearness then begin
                         InsertOrUpdateEntry(EntryNo, DATABASE::"Purchase Header", FieldID, 0, RecordNo, Vendor."No.");
                         exit(Vendor."No.");
                     end;
-                until Vendor.Next = 0;
+                until Vendor.Next() = 0;
 
             exit('');
         end;
@@ -686,7 +687,7 @@
 
             // Find a posted purchase invoice that has the specified Vendor Invoice No.
             PurchInvHeader.SetRange("Vendor Invoice No.", VendorInvoiceNo);
-            if PurchInvHeader.FindFirst then begin
+            if PurchInvHeader.FindFirst() then begin
                 AppliesToDocTypeAsInteger := PurchaseHeader."Applies-to Doc. Type"::Invoice.AsInteger();
                 InsertOrUpdateEntry(EntryNo, DATABASE::"Purchase Header",
                   PurchaseHeader.FieldNo("Applies-to Doc. Type"), 0, RecordNo, Format(AppliesToDocTypeAsInteger));
@@ -699,7 +700,7 @@
             // This is an error - the user first needs to post the related invoice before importing this document.
             // If we can find an unposted invoice with this Vendor Invoice No. we will link to it in the error message.
             PurchaseHeader.SetRange("Vendor Invoice No.", VendorInvoiceNo);
-            if PurchaseHeader.FindFirst then begin
+            if PurchaseHeader.FindFirst() then begin
                 LogErrorMessage(EntryNo, PurchaseHeader, PurchaseHeader.FieldNo("No."),
                   StrSubstNo(YouMustFirstPostTheRelatedInvoiceErr, VendorInvoiceNo, PurchaseHeader."No."));
                 exit;
@@ -723,11 +724,20 @@
         end;
 
         // Lookup Cross Ref, then GTIN/Bar Code, else G/L Account
-        if ResolveUnitOfMeasureFromDataImport(ImportedUnitCode, EntryNo, HeaderRecordNo, RecordNo) then
-            if not FindItemCrossReferenceForLine(ImportedUnitCode, EntryNo, HeaderRecordNo, RecordNo, VendorNo) then
-                if not FindItemForLine(ImportedUnitCode, EntryNo, HeaderRecordNo, RecordNo) then
-                    if not FindGLAccountForLine(EntryNo, HeaderRecordNo, RecordNo, VendorNo) then
-                        LogErrorIfItemNotFound(EntryNo, HeaderRecordNo, RecordNo, VendorNo);
+#if not CLEAN16        
+        if not ItemReferenceMgt.IsEnabled() then
+            if ResolveUnitOfMeasureFromDataImport(ImportedUnitCode, EntryNo, HeaderRecordNo, RecordNo) then
+                if not FindItemCrossReferenceForLine(ImportedUnitCode, EntryNo, HeaderRecordNo, RecordNo, VendorNo) then
+                    if not FindItemForLine(ImportedUnitCode, EntryNo, HeaderRecordNo, RecordNo) then
+                        if not FindGLAccountForLine(EntryNo, HeaderRecordNo, RecordNo, VendorNo) then
+                            LogErrorIfItemNotFound(EntryNo, HeaderRecordNo, RecordNo, VendorNo);
+#endif
+        if ItemReferenceMgt.IsEnabled() then
+            if ResolveUnitOfMeasureFromDataImport(ImportedUnitCode, EntryNo, HeaderRecordNo, RecordNo) then
+                if not FindItemReferenceForLine(ImportedUnitCode, EntryNo, HeaderRecordNo, RecordNo, VendorNo) then
+                    if not FindItemForLine(ImportedUnitCode, EntryNo, HeaderRecordNo, RecordNo) then
+                        if not FindGLAccountForLine(EntryNo, HeaderRecordNo, RecordNo, VendorNo) then
+                            LogErrorIfItemNotFound(EntryNo, HeaderRecordNo, RecordNo, VendorNo);
 
         ValidateLineDiscount(EntryNo, HeaderRecordNo, RecordNo);
     end;
@@ -793,7 +803,7 @@
             exit(false);
 
         Item.SetRange(GTIN, GTIN);
-        if not Item.FindFirst then
+        if not Item.FindFirst() then
             exit(false);
 
         IntermediateDataImport.Value := Item."No.";
@@ -807,6 +817,7 @@
         exit(true);
     end;
 
+#if not CLEAN16
     local procedure FindItemCrossReferenceForLine(ImportedUnitCode: Code[10]; EntryNo: Integer; HeaderNo: Integer; RecordNo: Integer; VendorNo: Code[20]): Boolean
     var
         IntermediateDataImport: Record "Intermediate Data Import";
@@ -842,25 +853,82 @@
 
     local procedure FindMatchingItemCrossReference(var ItemCrossReference: Record "Item Cross Reference"; ImportedUnitCode: Code[10]): Boolean
     begin
-        if not ItemCrossReference.FindFirst then
+        if not ItemCrossReference.FindFirst() then
             exit(false);
 
         ItemCrossReference.SetRange("Unit of Measure", ImportedUnitCode);
-        if ItemCrossReference.FindSet then
+        if ItemCrossReference.FindSet() then
             repeat
-                if ItemCrossReference.HasValidUnitOfMeasure then
+                if ItemCrossReference.HasValidUnitOfMeasure() then
                     exit(true);
-            until ItemCrossReference.Next = 0;
+            until ItemCrossReference.Next() = 0;
 
         ItemCrossReference.SetRange("Unit of Measure", '');
-        if ItemCrossReference.FindSet then
+        if ItemCrossReference.FindSet() then
             repeat
-                if ItemCrossReference.HasValidUnitOfMeasure then
+                if ItemCrossReference.HasValidUnitOfMeasure() then
                     exit(true);
-            until ItemCrossReference.Next = 0;
+            until ItemCrossReference.Next() = 0;
 
         ItemCrossReference.SetRange("Unit of Measure");
-        exit(ItemCrossReference.FindFirst);
+        exit(ItemCrossReference.FindFirst());
+    end;
+#endif
+
+    local procedure FindItemReferenceForLine(ImportedUnitCode: Code[10]; EntryNo: Integer; HeaderNo: Integer; RecordNo: Integer; VendorNo: Code[20]): Boolean
+    var
+        IntermediateDataImport: Record "Intermediate Data Import";
+        PurchaseLine: Record "Purchase Line";
+        ItemReference: Record "Item Reference";
+        Vendor: Record Vendor;
+    begin
+        if not Vendor.Get(VendorNo) then
+            exit(false);
+
+        if not IntermediateDataImport.FindEntry(
+             EntryNo, DATABASE::"Purchase Line", PurchaseLine.FieldNo("Item Reference No."), HeaderNo, RecordNo)
+        then
+            exit(false);
+
+        ItemReference.SetRange("Reference Type", ItemReference."Reference Type"::Vendor);
+        ItemReference.SetRange("Reference Type No.", VendorNo);
+        ItemReference.SetRange(
+          "Reference No.", CopyStr(IntermediateDataImport.Value, 1, MaxStrLen(ItemReference."Reference No.")));
+
+        if not FindMatchingItemReference(ItemReference, ImportedUnitCode) then
+            exit(false);
+
+        IntermediateDataImport.InsertOrUpdateEntry(
+          EntryNo, DATABASE::"Purchase Line", PurchaseLine.FieldNo("No."), HeaderNo, RecordNo, Format(ItemReference."Item No.", 0, 9));
+        IntermediateDataImport.InsertOrUpdateEntry(
+          EntryNo, DATABASE::"Purchase Line", PurchaseLine.FieldNo(Type), HeaderNo, RecordNo, Format(PurchaseLine.Type::Item, 0, 9));
+
+        ResolveUnitOfMeasureFromItemReference(ItemReference, ImportedUnitCode, EntryNo, HeaderNo, RecordNo);
+
+        exit(true);
+    end;
+
+    local procedure FindMatchingItemReference(var ItemReference: Record "Item Reference"; ImportedUnitCode: Code[10]): Boolean
+    begin
+        if not ItemReference.FindFirst() then
+            exit(false);
+
+        ItemReference.SetRange("Unit of Measure", ImportedUnitCode);
+        if ItemReference.FindSet() then
+            repeat
+                if ItemReference.HasValidUnitOfMeasure() then
+                    exit(true);
+            until ItemReference.Next() = 0;
+
+        ItemReference.SetRange("Unit of Measure", '');
+        if ItemReference.FindSet() then
+            repeat
+                if ItemReference.HasValidUnitOfMeasure() then
+                    exit(true);
+            until ItemReference.Next() = 0;
+
+        ItemReference.SetRange("Unit of Measure");
+        exit(ItemReference.FindFirst());
     end;
 
     local procedure IsDescriptionOnlyLine(EntryNo: Integer; HeaderRecordNo: Integer; RecordNo: Integer): Boolean
@@ -915,8 +983,16 @@
             GTIN := GetEntryValue(EntryNo, DATABASE::"Purchase Line", PurchaseLine.FieldNo("No."),
                 HeaderRecordNo, RecordNo);
 
-            VendorItemNo := GetEntryValue(EntryNo, DATABASE::"Purchase Line", PurchaseLine.FieldNo("Cross-Reference No."),
-                HeaderRecordNo, RecordNo);
+#if not CLEAN16
+            if not ItemReferenceMgt.IsEnabled() then
+                VendorItemNo :=
+                    GetEntryValue(
+                        EntryNo, DATABASE::"Purchase Line", PurchaseLine.FieldNo("Cross-Reference No."), HeaderRecordNo, RecordNo);
+#endif
+            if ItemReferenceMgt.IsEnabled() then
+                VendorItemNo :=
+                    GetEntryValue(
+                        EntryNo, DATABASE::"Purchase Line", PurchaseLine.FieldNo("Item Reference No."), HeaderRecordNo, RecordNo);
 
             ItemName := GetEntryValue(EntryNo, DATABASE::"Purchase Line", PurchaseLine.FieldNo(Description),
                 HeaderRecordNo, RecordNo);
@@ -979,6 +1055,7 @@
           EntryNo, DATABASE::"Purchase Line", PurchaseLine.FieldNo("Unit of Measure Code"), HeaderNo, RecordNo, UnitCode);
     end;
 
+#if not CLEAN16
     local procedure ResolveUnitOfMeasureFromItemCrossReference(var ItemCrossReference: Record "Item Cross Reference"; ImportedUnitCode: Code[10]; EntryNo: Integer; HeaderNo: Integer; RecordNo: Integer): Boolean
     var
         Item: Record Item;
@@ -996,8 +1073,36 @@
             exit(false);
         end;
 
-        if not ItemCrossReference.HasValidUnitOfMeasure then begin
+        if not ItemCrossReference.HasValidUnitOfMeasure() then begin
             LogErrorMessage(EntryNo, ItemCrossReference, ItemCrossReference.FieldNo("Unit of Measure"),
+              StrSubstNo(UOMConflictCrossRefWithItemErr, UnitCodeToString(ResolvedUnitCode)));
+            exit(false);
+        end;
+
+        InsertOrUpdateUnitOfMeasureCode(EntryNo, HeaderNo, RecordNo, ResolvedUnitCode);
+        exit(true);
+    end;
+#endif
+
+    local procedure ResolveUnitOfMeasureFromItemReference(var ItemReference: Record "Item Reference"; ImportedUnitCode: Code[10]; EntryNo: Integer; HeaderNo: Integer; RecordNo: Integer): Boolean
+    var
+        Item: Record Item;
+        ResolvedUnitCode: Code[10];
+    begin
+        ResolvedUnitCode := ItemReference."Unit of Measure";
+        if ResolvedUnitCode = '' then begin
+            Item.Get(ItemReference."Item No.");
+            exit(ResolveUnitOfMeasureFromItem(Item, ImportedUnitCode, EntryNo, HeaderNo, RecordNo));
+        end;
+
+        if (ImportedUnitCode <> '') and (ImportedUnitCode <> ResolvedUnitCode) then begin
+            LogErrorMessage(EntryNo, ItemReference, ItemReference.FieldNo("Unit of Measure"),
+              StrSubstNo(UOMConflictWithCrossRefErr, ImportedUnitCode, RecordNo, UnitCodeToString(ResolvedUnitCode)));
+            exit(false);
+        end;
+
+        if not ItemReference.HasValidUnitOfMeasure() then begin
+            LogErrorMessage(EntryNo, ItemReference, ItemReference.FieldNo("Unit of Measure"),
               StrSubstNo(UOMConflictCrossRefWithItemErr, UnitCodeToString(ResolvedUnitCode)));
             exit(false);
         end;
@@ -1046,7 +1151,7 @@
         end;
 
         UnitOfMeasure.SetRange(Code, CopyStr(ImportedUnitString, 1, MaxStrLen(UnitOfMeasure.Code)));
-        if UnitOfMeasure.FindFirst then begin
+        if UnitOfMeasure.FindFirst() then begin
             ImportedUnitCode := UnitOfMeasure.Code;
             InsertOrUpdateUnitOfMeasureCode(EntryNo, HeaderNo, RecordNo, ImportedUnitCode);
             exit(true);
@@ -1055,7 +1160,7 @@
         UnitOfMeasure.SetRange(Code);
         UnitOfMeasure.SetRange(
           "International Standard Code", CopyStr(ImportedUnitString, 1, MaxStrLen(UnitOfMeasure."International Standard Code")));
-        if UnitOfMeasure.FindFirst then begin
+        if UnitOfMeasure.FindFirst() then begin
             ImportedUnitCode := UnitOfMeasure.Code;
             InsertOrUpdateUnitOfMeasureCode(EntryNo, HeaderNo, RecordNo, ImportedUnitCode);
             exit(true);
@@ -1063,7 +1168,7 @@
 
         UnitOfMeasure.SetRange("International Standard Code");
         UnitOfMeasure.SetRange(Description, ImportedUnitString);
-        if UnitOfMeasure.FindFirst then begin
+        if UnitOfMeasure.FindFirst() then begin
             ImportedUnitCode := UnitOfMeasure.Code;
             InsertOrUpdateUnitOfMeasureCode(EntryNo, HeaderNo, RecordNo, ImportedUnitCode);
             exit(true);
@@ -1148,7 +1253,7 @@
             SetRange("Table ID", TableID);
             SetRange("Parent Record No.", ParentRecNo);
             SetCurrentKey("Record No.");
-            if not FindSet then
+            if not FindSet() then
                 exit;
 
             repeat
@@ -1158,7 +1263,7 @@
                     TempInteger.Number := CurrRecNo;
                     TempInteger.Insert();
                 end;
-            until Next = 0;
+            until Next() = 0;
         end;
     end;
 
@@ -1346,7 +1451,7 @@
                    ExtractVatRegNo(VATRegNo, Vendor."Country/Region Code")
                 then
                     exit(true);
-            until Vendor.Next = 0;
+            until Vendor.Next() = 0;
 
         exit(false);
     end;

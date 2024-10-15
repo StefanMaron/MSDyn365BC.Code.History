@@ -536,7 +536,7 @@ page 9229 "Res. Avail. (Service) Matrix"
             if ServItemLine.Find('-') then
                 repeat
                     QualifiedForAll := ServOrderAllocMgt.QualifiedForServiceItemLine(ServItemLine, "No.")
-                until (QualifiedForAll = false) or (ServItemLine.Next = 0);
+                until (QualifiedForAll = false) or (ServItemLine.Next() = 0);
             if QualifiedForAll then
                 Qualified := true
             else
@@ -738,7 +738,7 @@ page 9229 "Res. Avail. (Service) Matrix"
                     MatrixRec.CalcFields(Capacity, "Qty. on Service Order");
                     MATRIX_CellData[I] := MatrixRec.Capacity -
                       MatrixRec."Qty. on Service Order";
-                until MatrixRec.Next = 0;
+                until MatrixRec.Next() = 0;
         end;
 
         SetVisible;

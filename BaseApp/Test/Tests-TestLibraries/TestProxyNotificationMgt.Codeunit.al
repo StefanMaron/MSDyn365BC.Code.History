@@ -30,7 +30,7 @@ codeunit 130231 "Test Proxy Notification Mgt."
     var
         Ignore: Boolean;
     begin
-        if TempNotificationContext.IsEmpty then
+        if TempNotificationContext.IsEmpty() then
             exit;
 
         TempNotificationContext.FindSet(true);
@@ -42,27 +42,27 @@ codeunit 130231 "Test Proxy Notification Mgt."
         until TempNotificationContext.Next = 0;
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 1511, 'OnAfterInsertNotificationContext', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Notification Lifecycle Mgt.", 'OnAfterInsertNotificationContext', '', false, false)]
     local procedure InsertEntryOnAfterInsertNotificationContext(NotificationContext: Record "Notification Context")
     begin
         TempNotificationContext.TransferFields(NotificationContext);
         TempNotificationContext.Insert();
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 1511, 'OnAfterDeleteNotificationContext', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Notification Lifecycle Mgt.", 'OnAfterDeleteNotificationContext', '', false, false)]
     local procedure DeleteEntryOnAfterDeleteNotificationContext(NotificationContext: Record "Notification Context")
     begin
         if TempNotificationContext.Get(NotificationContext."Notification ID") then
             TempNotificationContext.Delete();
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 130220, 'OnBeforeTestFunctionRun', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Test Proxy", 'OnBeforeTestFunctionRun', '', false, false)]
     local procedure PrepareOnBeforeTestFunctionRun(CodeunitID: Integer; CodeunitName: Text[30]; FunctionName: Text[128]; FunctionTestPermissions: TestPermissions)
     begin
         DeleteNotificationContextEntries;
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 130220, 'OnAfterTestFunctionRun', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Test Proxy", 'OnAfterTestFunctionRun', '', false, false)]
     local procedure VerifyOnAfterTestFunctionRun(CodeunitID: Integer; CodeunitName: Text[30]; FunctionName: Text[128]; FunctionTestPermissions: TestPermissions; var IsSuccess: Boolean)
     begin
         if IsSuccess then begin

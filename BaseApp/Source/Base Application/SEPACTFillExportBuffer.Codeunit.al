@@ -1,4 +1,4 @@
-﻿codeunit 1221 "SEPA CT-Fill Export Buffer"
+codeunit 1221 "SEPA CT-Fill Export Buffer"
 {
     Permissions = TableData "Payment Export Data" = rimd;
     TableNo = "Payment Export Data";
@@ -33,7 +33,7 @@
         CODEUNIT.Run(CODEUNIT::"SEPA CT-Prepare Source", TempGenJnlLine);
 
         TempGenJnlLine.Reset();
-        TempGenJnlLine.FindSet;
+        TempGenJnlLine.FindSet();
         BankAccount.Get(TempGenJnlLine."Bal. Account No.");
         BankAccount.TestField(IBAN);
         BankAccount.GetBankExportImportSetup(BankExportImportSetup);
@@ -43,7 +43,7 @@
             CODEUNIT.Run(BankExportImportSetup."Check Export Codeunit", TempGenJnlLine);
             if TempGenJnlLine."Bal. Account No." <> BankAccount."No." then
                 TempGenJnlLine.InsertPaymentFileError(SameBankErr);
-        until TempGenJnlLine.Next = 0;
+        until TempGenJnlLine.Next() = 0;
 
         if TempGenJnlLine.HasPaymentFileErrorsInBatch then begin
             Commit();
@@ -61,7 +61,7 @@
             Reset;
             if FindLast then;
 
-            TempGenJnlLine.FindSet;
+            TempGenJnlLine.FindSet();
             repeat
                 Init;
                 "Entry No." += 1;
@@ -253,7 +253,7 @@
                 repeat
                     TempInteger.Number := FieldRef.Value;
                     TempInteger.Insert();
-                until Next = 0;
+                until Next() = 0;
         end;
     end;
 

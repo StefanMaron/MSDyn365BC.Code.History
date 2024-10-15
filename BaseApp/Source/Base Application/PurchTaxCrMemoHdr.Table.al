@@ -222,9 +222,7 @@ table 28077 "Purch. Tax Cr. Memo Hdr."
             Editable = false;
             FieldClass = FlowField;
         }
-#pragma warning disable AS0086 // Breaking change required for #369413
         field(69; "Vendor Cr. Memo No."; Code[35])
-#pragma warning restore AS0086        
         {
             Caption = 'Vendor Cr. Memo No.';
         }
@@ -566,7 +564,7 @@ table 28077 "Purch. Tax Cr. Memo Hdr."
             ReportSelection.Find('-');
             repeat
                 REPORT.RunModal(ReportSelection."Report ID", ShowRequestForm, false, PurchTaxCrMemoHeader);
-            until ReportSelection.Next = 0;
+            until ReportSelection.Next() = 0;
         end;
     end;
 

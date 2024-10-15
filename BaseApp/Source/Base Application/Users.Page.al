@@ -1,16 +1,20 @@
 page 9800 Users
 {
-    AdditionalSearchTerms = 'permission,office 365 admin center';
+    AdditionalSearchTerms = 'permission,office 365 admin center,microsoft 365 admin center';
     ApplicationArea = Basic, Suite;
     Caption = 'Users';
     CardPageID = "User Card";
     DelayedInsert = true;
     PageType = List;
+    Editable = false;
     PromotedActionCategories = 'New,Process,Report,Navigate';
     RefreshOnActivate = true;
     SourceTable = User;
     SourceTableView = sorting("User Name");
     UsageCategory = Lists;
+
+    AboutTitle = 'About user accounts';
+    AboutText = 'Here, you manage who has access, and who can do what. Assign specific permissions to individual users, and organize users in user groups with group-level permissions.';
 
     layout
     {
@@ -45,8 +49,8 @@ page 9800 Users
                 field(State; State)
                 {
                     ApplicationArea = Basic, Suite;
+                    Caption = 'Status';
                     ToolTip = 'Specifies if the user''s login is enabled.';
-                    Visible = not IsSaaS;
                 }
                 field("Windows Security ID"; "Windows Security ID")
                 {
@@ -91,20 +95,13 @@ page 9800 Users
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ExtendedDatatype = EMail;
-                    ToolTip = 'Specifies the Microsoft account that this user signs into Office 365 or SharePoint Online with.';
+                    ToolTip = 'Specifies the Microsoft account that this user signs into Microsoft 365 or SharePoint Online with.';
                     Visible = IsSaaS;
                 }
             }
         }
         area(factboxes)
         {
-            part(Plans; "User Plans FactBox")
-            {
-                Caption = 'Licenses';
-                ApplicationArea = Basic, Suite;
-                SubPageLink = "User Security ID" = field("User Security ID");
-                Visible = IsSaaS;
-            }
             part(Control18; "Permission Sets FactBox")
             {
                 ApplicationArea = Basic, Suite;
@@ -115,6 +112,13 @@ page 9800 Users
                 ApplicationArea = Basic, Suite;
                 Caption = 'User Group Memberships';
                 SubPageLink = "User Security ID" = field("User Security ID");
+            }
+            part(Plans; "User Plans FactBox")
+            {
+                Caption = 'Licenses';
+                ApplicationArea = Basic, Suite;
+                SubPageLink = "User Security ID" = field("User Security ID");
+                Visible = IsSaaS;
             }
             part(Control20; "User Setup FactBox")
             {
@@ -182,7 +186,7 @@ page 9800 Users
                     Caption = 'User Groups';
                     Image = Users;
                     Promoted = true;
-                    PromotedCategory = Process;
+                    PromotedCategory = Category4;
                     PromotedIsBig = true;
                     RunObject = Page "User Groups";
                     ToolTip = 'Set up or modify user groups as a fast way of giving users access to the functionality that is relevant to their work.';
@@ -193,7 +197,7 @@ page 9800 Users
                     Caption = 'User Task Groups';
                     Image = Users;
                     Promoted = true;
-                    PromotedCategory = Process;
+                    PromotedCategory = Category4;
                     PromotedIsBig = true;
                     RunObject = Page "User Task Groups";
                     ToolTip = 'Add or modify groups of users that you can assign user tasks to in this company.';
@@ -210,6 +214,7 @@ page 9800 Users
                     Promoted = true;
                     PromotedCategory = Process;
                     PromotedIsBig = true;
+                    Scope = Repeater;
                     ToolTip = 'View this user''s actual permissions for all objects per assigned permission set, and edit the user''s permissions in permission sets of type User-Defined.';
 
                     trigger OnAction()
@@ -225,7 +230,7 @@ page 9800 Users
                     Caption = 'Permission Sets';
                     Image = Permission;
                     Promoted = true;
-                    PromotedCategory = Process;
+                    PromotedCategory = Category4;
                     RunObject = Page "Permission Sets";
                     ToolTip = 'View or edit which feature objects that users need to access and set up the related permissions in permission sets that you can assign to the users of the database.';
                 }
@@ -234,8 +239,6 @@ page 9800 Users
                     ApplicationArea = Basic, Suite;
                     Caption = 'Permission Set by User';
                     Image = Permission;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     RunObject = Page "Permission Set by User";
                     ToolTip = 'View or edit the available permission sets and apply permission sets to existing users.';
                 }
@@ -244,11 +247,20 @@ page 9800 Users
                     ApplicationArea = Basic, Suite;
                     Caption = 'Permission Set by User Group';
                     Image = Permission;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     RunObject = Page "Permission Set by User Group";
                     ToolTip = 'View or edit the available permission sets and apply permission sets to existing user groups.';
                 }
+            }
+            action("User Settings")
+            {
+                ApplicationArea = Basic, Suite;
+                Caption = 'User Settings';
+                Image = UserInterface;
+                Promoted = true;
+                PromotedOnly = true;
+                PromotedCategory = Category4;
+                RunObject = Page "User Personalization List";
+                ToolTip = 'Manage the user interface settings for the users.';
             }
             action("User Setup")
             {
@@ -256,9 +268,13 @@ page 9800 Users
                 Caption = 'User Setup';
                 Image = UserSetup;
                 Promoted = true;
+                PromotedOnly = true;
                 PromotedCategory = Category4;
                 RunObject = Page "User Setup";
-                ToolTip = 'Set up users and define their permissions..';
+                ToolTip = 'Make additional choices for certain users.';
+
+                AboutTitle = 'Additional setup for users';
+                AboutText = 'Here, you can define when certain users can post transactions. You can also designate time sheet roles or associate users with sales/purchaser codes.';
             }
             action("Printer Selections")
             {
@@ -266,6 +282,7 @@ page 9800 Users
                 Caption = 'Printer Selections';
                 Image = Print;
                 Promoted = true;
+                PromotedOnly = true;
                 PromotedCategory = Category4;
                 RunObject = Page "Printer Selections";
                 ToolTip = 'Assign printers to users and/or reports so that a user always uses a specific printer, or a specific report only prints on a specific printer.';
@@ -276,6 +293,7 @@ page 9800 Users
                 Caption = 'Warehouse Employees';
                 Image = WarehouseSetup;
                 Promoted = true;
+                PromotedOnly = true;
                 PromotedCategory = Category4;
                 RunObject = Page "Warehouse Employees";
                 ToolTip = 'View the warehouse employees that exist in the system.';
@@ -286,6 +304,7 @@ page 9800 Users
                 Caption = 'FA Journal Setup';
                 Image = FixedAssets;
                 Promoted = true;
+                PromotedOnly = true;
                 PromotedCategory = Category4;
                 RunObject = Page "FA Journal Setup";
                 ToolTip = 'Set up journals, journal templates, and journal batches for fixed assets.';
@@ -321,7 +340,7 @@ page 9800 Users
                 ToolTip = 'Retrieve new users or new user information from the Office 365 portal. Note that existing, unchanged users will not be updated.';
                 Visible = IsSaaS;
                 ObsoleteState = Pending;
-                ObsoleteReason = 'Use the ''Update users from Office'' action instead.';
+                ObsoleteReason = 'Use the ''Update users from Microsoft 365'' action instead.';
                 ObsoleteTag = '16.0';
 
                 trigger OnAction()
@@ -329,17 +348,16 @@ page 9800 Users
                     AzureADUserManagement: Codeunit "Azure AD User Management";
                 begin
                     AzureADUserManagement.CreateNewUsersFromAzureAD;
-                    CurrPage.Update;
+                    CurrPage.Update();
                 end;
             }
             action("Invite External Accountant")
             {
                 ApplicationArea = Basic, Suite;
-                Caption = 'Invite External Accountant';
+                Caption = 'Invite external accountant';
                 Image = SalesPerson;
                 Promoted = true;
                 PromotedCategory = Process;
-                PromotedIsBig = true;
                 PromotedOnly = true;
                 ToolTip = 'Set up an external accountant with access to your Dynamics 365.';
                 Visible = IsSaaS;
@@ -401,14 +419,18 @@ page 9800 Users
             action("Update users from Office")
             {
                 ApplicationArea = Basic, Suite;
-                Caption = 'Update users from Office 365';
+                Caption = 'Update users from Microsoft 365';
                 Promoted = true;
                 PromotedCategory = Process;
                 PromotedIsBig = true;
+                PromotedOnly = true;
                 Image = Users;
-                ToolTip = 'Update the names, authentication email addresses, contact email addresses, plans etc. from Office 365 for all users.';
+                ToolTip = 'Update the names, authentication email addresses, contact email addresses, plans etc. from Microsoft 365 for all users.';
                 Visible = IsSaaS and CanManageUsersOnTenant;
                 RunObject = page "Azure AD User Update Wizard";
+
+                AboutTitle = 'Keep in sync with Microsoft 365';
+                AboutText = 'When licenses or user accounts change in the Microsoft 365 Admin center, you must sync the changes back to this list.';
             }
             action("Refresh User Groups")
             {
@@ -521,7 +543,7 @@ page 9800 Users
         CurrentUserIsSuper: Boolean;
         RestoreUserGroupsForAnotherUser: Boolean;
         RefreshAllUserPlansQst: Label 'Do you want to refresh plans for all users?';
-        UpdateAllSelectedUsersQst: Label 'Do you want to update details about the selected users with information from Office 365?';
+        UpdateAllSelectedUsersQst: Label 'Do you want to update details about the selected users with information from Microsoft 365?';
         RefreshAllSelectedUserPlansQst: Label 'Do you want to refresh plans for all selected users?';
         MixedSKUsWithoutBasicErr: Label 'You cannot mix plans of type Essential and Premium. Make sure all users are on the same plan.';
         CanManageUsers: Boolean;
@@ -542,7 +564,7 @@ page 9800 Users
 
         User.SetFilter("Windows Security ID", "Windows Security ID");
         User.SetFilter("User Security ID", '<>%1', "User Security ID");
-        if not User.IsEmpty then
+        if not User.IsEmpty() then
             Error(Text002Err, WindowsUserName);
     end;
 
@@ -551,7 +573,7 @@ page 9800 Users
         UserMgt: Codeunit "User Management";
     begin
         UserMgt.ValidateUserName(Rec, xRec, WindowsUserName);
-        CurrPage.Update;
+        CurrPage.Update();
     end;
 
     local procedure SetUserName()

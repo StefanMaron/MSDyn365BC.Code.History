@@ -234,7 +234,7 @@ report 28072 "Sales - Tax Invoice"
                                     Continue := true;
                                     exit;
                                 end;
-                            until (DimSetEntry1.Next = 0);
+                            until (DimSetEntry1.Next() = 0);
                         end;
 
                         trigger OnPreDataItem()
@@ -456,7 +456,7 @@ report 28072 "Sales - Tax Invoice"
                                         Continue := true;
                                         exit;
                                     end;
-                                until (DimSetEntry2.Next = 0);
+                                until (DimSetEntry2.Next() = 0);
                             end;
 
                             trigger OnPreDataItem()

@@ -5713,7 +5713,7 @@ codeunit 134629 "Test Graph Collection Mgmt."
         FromPos := 1;
         RlshpMgtCommentLine.SetRange("Table Name", RlshpMgtCommentLine."Table Name"::Contact);
         RlshpMgtCommentLine.SetRange("No.", Contact."No.");
-        RlshpMgtCommentLine.FindSet;
+        RlshpMgtCommentLine.FindSet();
         repeat
             PNLine := CopyStr(PersonalNotesString, FromPos, StrLen(RlshpMgtCommentLine.Comment));
             Assert.AreEqual(StrLen(RlshpMgtCommentLine.Comment), StrLen(PNLine), '');

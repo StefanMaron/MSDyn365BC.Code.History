@@ -1,4 +1,4 @@
-﻿codeunit 370 "Bank Acc. Reconciliation Post"
+codeunit 370 "Bank Acc. Reconciliation Post"
 {
     Permissions = TableData "Bank Account Ledger Entry" = rm,
                   TableData "Check Ledger Entry" = rm,
@@ -82,7 +82,7 @@
             TotalAppliedAmount := 0;
             TotalDiff := 0;
             Lines := 0;
-            if BankAccReconLine.IsEmpty then
+            if BankAccReconLine.IsEmpty() then
                 Error(Text002);
             BankAccLedgEntry.LockTable();
             CheckLedgEntry.LockTable();
@@ -111,7 +111,7 @@
                     BankAccReconLine.TestField("Applied Amount", AppliedAmount);
                     TotalAmount += BankAccReconLine."Statement Amount";
                     TotalAppliedAmount += AppliedAmount;
-                until BankAccReconLine.Next = 0;
+                until BankAccReconLine.Next() = 0;
 
             // Test amount
             if "Statement Type" = "Statement Type"::"Payment Application" then
@@ -167,7 +167,7 @@
 
                     BankAccReconLine.Delete();
                     BankAccReconLine.ClearDataExchEntries;
-                until BankAccReconLine.Next = 0;
+                until BankAccReconLine.Next() = 0;
 
             Find;
             Delete;
@@ -232,8 +232,8 @@
                         CheckLedgEntry.Open := false;
                         CheckLedgEntry."Statement Status" := CheckLedgEntry."Statement Status"::Closed;
                         CheckLedgEntry.Modify();
-                    until CheckLedgEntry.Next = 0;
-            until BankAccLedgEntry.Next = 0;
+                    until CheckLedgEntry.Next() = 0;
+            until BankAccLedgEntry.Next() = 0;
     end;
 
     local procedure CloseCheckLedgEntry(BankAccReconLine: Record "Bank Acc. Reconciliation Line"; var AppliedAmount: Decimal)
@@ -280,7 +280,7 @@
                         BankAccLedgEntry."Statement Status" := BankAccLedgEntry."Statement Status"::Open;
                 end;
                 BankAccLedgEntry.Modify();
-            until CheckLedgEntry.Next = 0;
+            until CheckLedgEntry.Next() = 0;
     end;
 
     local procedure PostPaymentApplications(BankAccReconLine: Record "Bank Acc. Reconciliation Line"; var AppliedAmount: Decimal)
@@ -316,7 +316,10 @@
             "Document Type" := "Document Type"::Payment;
 
             if IsRefund(BankAccReconLine) then
-                "Document Type" := "Document Type"::Refund;
+                if BankAccReconLine."Account Type" = BankAccReconLine."Account Type"::Employee then
+                    "Document Type" := "Document Type"::" "
+                else
+                    "Document Type" := "Document Type"::Refund;
 
             "Posting Date" := BankAccReconLine."Transaction Date";
             "Account Type" := "Gen. Journal Account Type".FromInteger(BankAccReconLine.GetAppliedToAccountType());
@@ -361,6 +364,9 @@
                             "Account Type"::Vendor:
                                 ApplyVendLedgEntry(
                                   AppliedPmtEntry, GenJnlLine."Applies-to ID", GenJnlLine."Posting Date", 0D, 0D, "Applied Pmt. Discount");
+                            "Account Type"::Employee:
+                                ApplyEmployeeLedgEntry(
+                                  AppliedPmtEntry, GenJnlLine."Applies-to ID", GenJnlLine."Posting Date", 0D, 0D, "Applied Pmt. Discount");
                             "Account Type"::"Bank Account":
                                 begin
                                     BankAccountLedgerEntry.Get("Applies-to Entry No.");
@@ -391,7 +397,7 @@
                         end;
                         IsApplied := true;
                     end;
-                until Next = 0;
+                until Next() = 0;
 
         if PaymentLineAmount <> 0 then begin
             GLSetup.Get();
@@ -465,7 +471,7 @@
                 BankAccStmtLine."Statement No." := BankAccStmt."Statement No.";
                 BankAccStmtLine.Insert();
                 BankAccReconLine.ClearDataExchEntries;
-            until BankAccReconLine.Next = 0;
+            until BankAccReconLine.Next() = 0;
 
         OnBeforeBankAccStmtInsert(BankAccStmt, BankAccRecon);
         BankAccStmt.Insert();
@@ -501,7 +507,7 @@
 
                 PostedPmtReconLine.Insert();
                 BankAccReconLine.ClearDataExchEntries;
-            until BankAccReconLine.Next = 0;
+            until BankAccReconLine.Next() = 0;
 
         PostedPmtReconHdr.TransferFields(BankAccRecon);
         OnBeforePostedPmtReconInsert(PostedPmtReconHdr, BankAccRecon);
@@ -560,6 +566,23 @@
         end;
     end;
 
+    procedure ApplyEmployeeLedgEntry(AppliedPmtEntry: Record "Applied Payment Entry"; AppliesToID: Code[50]; PostingDate: Date; PmtDiscDueDate: Date; PmtDiscToleranceDate: Date; RemPmtDiscPossible: Decimal)
+    var
+        EmployeeLedgerEntry: Record "Employee Ledger Entry";
+    begin
+        with EmployeeLedgerEntry do begin
+            Get(AppliedPmtEntry."Applies-to Entry No.");
+            TestField(Open);
+            BankAcc.Get(AppliedPmtEntry."Bank Account No.");
+            if AppliesToID <> '' then begin
+                "Applies-to ID" := AppliesToID;
+                "Amount to Apply" := AppliedPmtEntry.CalcAmountToApply(PostingDate);
+            end;
+
+            CODEUNIT.Run(CODEUNIT::"Empl. Entry-Edit", EmployeeLedgerEntry);
+        end;
+    end;
+
     local procedure CloseBankAccountLedgerEntry(EntryNo: Integer; AppliedAmount: Decimal)
     var
         BankAccountLedgerEntry: Record "Bank Account Ledger Entry";
@@ -584,7 +607,7 @@
                     CheckLedgerEntry.Open := false;
                     CheckLedgerEntry."Statement Status" := CheckLedgerEntry."Statement Status"::Closed;
                     CheckLedgerEntry.Modify();
-                until CheckLedgerEntry.Next = 0;
+                until CheckLedgerEntry.Next() = 0;
         end;
     end;
 
@@ -607,7 +630,7 @@
     begin
         with BankAccReconLine do
             if ("Account Type" = "Account Type"::Customer) and ("Statement Amount" < 0) or
-               ("Account Type" = "Account Type"::Vendor) and ("Statement Amount" > 0)
+               ("Account Type" in ["Account Type"::Vendor, "Account Type"::Employee]) and ("Statement Amount" > 0)
             then
                 exit(true);
         exit(false);

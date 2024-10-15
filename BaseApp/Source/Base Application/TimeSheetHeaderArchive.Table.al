@@ -78,12 +78,10 @@ table 954 "Time Sheet Header Archive"
             Caption = 'Posted Filter';
             FieldClass = FlowFilter;
         }
-        field(35; "Type Filter"; Option)
+        field(35; "Type Filter"; Enum "Time Sheet Line Type")
         {
             Caption = 'Type Filter';
             FieldClass = FlowFilter;
-            OptionCaption = ' ,Resource,Job,Service,Absence,Assembly Order';
-            OptionMembers = " ",Resource,Job,Service,Absence,"Assembly Order";
         }
     }
 

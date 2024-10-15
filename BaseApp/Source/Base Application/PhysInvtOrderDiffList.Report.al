@@ -533,7 +533,7 @@ report 5875 "Phys. Invt. Order Diff. List"
                                     Continue := true;
                                     exit;
                                 end;
-                            until (DimSetEntry.Next = 0);
+                            until (DimSetEntry.Next() = 0);
                         end;
 
                         trigger OnPreDataItem()
@@ -596,7 +596,7 @@ report 5875 "Phys. Invt. Order Diff. List"
 
             trigger OnAfterGetRecord()
             begin
-                StatusInt := Status;
+                StatusInt := Status.AsInteger();
             end;
         }
     }
@@ -697,7 +697,7 @@ report 5875 "Phys. Invt. Order Diff. List"
                     TempPhysInvtCountBuffer."Exp. Lot No." := ExpPhysInvtTracking."Lot No.";
                     TempPhysInvtCountBuffer."Exp. Qty. (Base)" := ExpPhysInvtTracking."Quantity (Base)";
                     TempPhysInvtCountBuffer.Modify();
-                until ExpPhysInvtTracking.Next = 0;
+                until ExpPhysInvtTracking.Next() = 0;
 
             NextLineNo := 1;
             PhysInvtRecordLine.Reset();
@@ -713,7 +713,7 @@ report 5875 "Phys. Invt. Order Diff. List"
                     TempPhysInvtCountBuffer."Rec. Lot No." := PhysInvtRecordLine."Lot No.";
                     TempPhysInvtCountBuffer."Rec. Qty. (Base)" := PhysInvtRecordLine."Quantity (Base)";
                     TempPhysInvtCountBuffer.Modify();
-                until PhysInvtRecordLine.Next = 0;
+                until PhysInvtRecordLine.Next() = 0;
 
             NextLineNo := 1;
             ReservEntry.Reset();
@@ -732,7 +732,7 @@ report 5875 "Phys. Invt. Order Diff. List"
                         TempPhysInvtCountBuffer."Track. Qty. Pos. (Base)" := 0;
                     end;
                     TempPhysInvtCountBuffer.Modify();
-                until ReservEntry.Next = 0;
+                until ReservEntry.Next() = 0;
         end;
     end;
 

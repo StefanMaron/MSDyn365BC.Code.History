@@ -786,7 +786,7 @@ codeunit 145401 "WHT Purch.Pmt Disc. Jnl ApplTo"
     begin
         with PmtWHTEntry do begin
             SetRange("Unrealized WHT Entry No.", UnrealizedWHTEntryNo);
-            FindSet;
+            FindSet();
             repeat
                 TotalRealizedBase += Base;
                 TotalRealizedAmount += Amount;

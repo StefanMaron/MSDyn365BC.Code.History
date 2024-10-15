@@ -323,7 +323,7 @@ table 1107 "Cost Allocation Target"
                     Percent := Round(100 * Share / TotalShare, 0.00001);
                     "Share Updated on" := Today;
                     Modify;
-                until Next = 0;
+                until Next() = 0;
             Rec.Percent := Round(100 * Rec.Share / TotalShare, 0.00001);
             Rec."Share Updated on" := Today;
             Rec.Modify();

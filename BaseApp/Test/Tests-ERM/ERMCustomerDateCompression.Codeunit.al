@@ -270,7 +270,7 @@ codeunit 134032 "ERM Customer Date Compression"
     begin
         CustLedgerEntry.SetRange("Customer No.", CustomerNo);
         CustLedgerEntry.SetRange("Document Type", CustLedgerEntry."Document Type"::Payment);
-        CustLedgerEntry.FindSet;
+        CustLedgerEntry.FindSet();
         repeat
             CustLedgerEntry.CalcFields(Amount);
             CustLedgEntryAmt += CustLedgerEntry.Amount;

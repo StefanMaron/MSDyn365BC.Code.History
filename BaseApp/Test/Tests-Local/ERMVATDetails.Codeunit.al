@@ -323,7 +323,7 @@ codeunit 141038 "ERM VAT - Details"
         CurrencyFactor := CurrencyExchangeRate.GetCurrentCurrencyFactor(CurrencyCode);
         with SalesInvLine do begin
             SetRange("Document No.", DocumentNo);
-            FindSet;
+            FindSet();
             repeat
                 VerifyVATEntryACY(
                   DocumentNo, -Amount,
@@ -344,7 +344,7 @@ codeunit 141038 "ERM VAT - Details"
         CurrencyFactor := CurrencyExchangeRate.GetCurrentCurrencyFactor(CurrencyCode);
         with PurchInvLine do begin
             SetRange("Document No.", DocumentNo);
-            FindSet;
+            FindSet();
             repeat
                 VerifyVATEntryACY(
                   DocumentNo, Amount,

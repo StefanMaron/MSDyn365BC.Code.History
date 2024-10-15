@@ -34,7 +34,7 @@ report 16630 "E-Filing"
                         WHTAmount := "Amount (LCY)" + WHTAmount;
                         "WHT%" := "WHT%" + "WHT %";
                         TotAmt := TotAmt + "Base (LCY)";
-                    until WHTEntry1.Next = 0;
+                    until WHTEntry1.Next() = 0;
 
                     if TempWHTEntry.FindLast then
                         TempWHTEntry."Entry No." := TempWHTEntry."Entry No." + 1

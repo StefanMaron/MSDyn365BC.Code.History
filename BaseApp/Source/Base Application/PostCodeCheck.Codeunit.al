@@ -298,7 +298,7 @@ codeunit 28000 "Post Code Check"
                 ToAddressID."Table No." := ToTableNo;
                 ToAddressID."Table Key" := ToTableKey;
                 ToAddressID.Insert();
-            until FromAddressID.Next = 0;
+            until FromAddressID.Next() = 0;
     end;
 
     [Scope('OnPrem')]
@@ -346,7 +346,7 @@ codeunit 28000 "Post Code Check"
                 ToAddressID."Table No." := ToTableNo;
                 ToAddressID."Table Key" := ToTableKey;
                 ToAddressID.Insert();
-            until FromAddressID.Next = 0;
+            until FromAddressID.Next() = 0;
 
         FromAddressID.DeleteAll();
     end;

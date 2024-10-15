@@ -6,11 +6,9 @@ table 7154 "Item Analysis View Entry"
 
     fields
     {
-        field(1; "Analysis Area"; Option)
+        field(1; "Analysis Area"; Enum "Analysis Area Type")
         {
             Caption = 'Analysis Area';
-            OptionCaption = 'Sales,Purchase,Inventory';
-            OptionMembers = Sales,Purchase,Inventory;
         }
         field(2; "Analysis View Code"; Code[10])
         {
@@ -24,11 +22,9 @@ table 7154 "Item Analysis View Entry"
             Caption = 'Item No.';
             TableRelation = Item;
         }
-        field(4; "Source Type"; Option)
+        field(4; "Source Type"; Enum "Analysis Source Type")
         {
             Caption = 'Source Type';
-            OptionCaption = ' ,Customer,Vendor,Item';
-            OptionMembers = " ",Customer,Vendor,Item;
         }
         field(5; "Source No."; Code[20])
         {

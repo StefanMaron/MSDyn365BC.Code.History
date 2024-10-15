@@ -185,14 +185,14 @@ codeunit 11601 "BAS Management"
             Modify;
 
             if "Group Consolidated" then begin
-                BASBusUnits.FindSet;
+                BASBusUnits.FindSet();
                 repeat
                     BASCalcSheetSubsid.ChangeCompany(BASBusUnits."Company Name");
                     if not BASCalcSheetSubsid.Get(BASBusUnits."Document No.", BASBusUnits."BAS Version") then
                         Error(Text1450007, BASBusUnits."Document No.", BASBusUnits."BAS Version", BASBusUnits."Company Name");
                     BASCalcSheetSubsid.Exported := true;
                     BASCalcSheetSubsid.Modify();
-                until BASBusUnits.Next = 0;
+                until BASBusUnits.Next() = 0;
             end;
 
             BASCalcEntry.Reset();
@@ -234,7 +234,7 @@ codeunit 11601 "BAS Management"
                                 VATEntry.Modify();
                             end;
                     end;
-                until BASCalcEntry.Next = 0;
+                until BASCalcEntry.Next() = 0;
             end;
         end;
         DownloadBASToClient(XMLDocument, ToFile);
@@ -411,17 +411,17 @@ codeunit 11601 "BAS Management"
                 BASCalcEntry.SetRange("Company Name", BASBusUnits."Company Name");
                 BASCalcEntry.SetRange("BAS Document No.", BASCalcSheetSubsid.A1);
                 BASCalcEntry.SetRange("BAS Version", BASCalcSheetSubsid."BAS Version");
-                if not BASCalcEntry.IsEmpty then begin
+                if not BASCalcEntry.IsEmpty() then begin
                     BASCalcEntry.ModifyAll("Consol. BAS Doc. No.", A1);
                     BASCalcEntry.ModifyAll("Consol. Version No.", "BAS Version");
                 end;
-            until BASBusUnits.Next = 0;
+            until BASBusUnits.Next() = 0;
 
             BASCalcEntry.Reset();
             BASCalcEntry.SetRange("Company Name", CompanyName);
             BASCalcEntry.SetRange("BAS Document No.", A1);
             BASCalcEntry.SetRange("BAS Version", "BAS Version");
-            if not BASCalcEntry.IsEmpty then begin
+            if not BASCalcEntry.IsEmpty() then begin
                 BASCalcEntry.ModifyAll("Consol. BAS Doc. No.", A1);
                 BASCalcEntry.ModifyAll("Consol. Version No.", "BAS Version");
             end;

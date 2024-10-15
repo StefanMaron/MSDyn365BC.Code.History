@@ -291,7 +291,7 @@ page 404 "Check Preview"
                             WHTAmount := WHTAmount + WHTManagement.WHTAmountJournal(GenJnlLine1, false)
                         else
                             WHTAmount := WHTAmount + Abs(WHTManagement.CalcVendExtraWHTForEarliest(GenJnlLine1));
-            until GenJnlLine.Next = 0;
+            until GenJnlLine.Next() = 0;
         CheckAmount := CheckAmount - WHTAmount;
 
         if CheckAmount < 0 then

@@ -250,7 +250,7 @@ codeunit 1520 "Workflow Event Handling"
             exit;
 
         WorkflowEvent.SetRange(Description, Description);
-        if not WorkflowEvent.IsEmpty then begin
+        if not WorkflowEvent.IsEmpty() then begin
             if SystemInitialization.IsInProgress or (GetExecutionContext() <> ExecutionContext::Normal) then
                 exit;
             Error(EventAlreadyExistErr, Description);
@@ -504,123 +504,107 @@ codeunit 1520 "Workflow Event Handling"
         exit(UpperCase('RunWorkflowOnAfterCreateGenJnlLineFromIncomingDoFailCode'));
     end;
 
-    [EventSubscriber(ObjectType::Table, 130, 'OnAfterInsertEvent', '', false, false)]
-    [Scope('OnPrem')]
+    [EventSubscriber(ObjectType::Table, Database::"Incoming Document", 'OnAfterInsertEvent', '', false, false)]
     procedure RunWorkflowOnAfterInsertIncomingDocument(var Rec: Record "Incoming Document"; RunTrigger: Boolean)
     begin
         WorkflowManagement.HandleEvent(RunWorkflowOnAfterInsertIncomingDocumentCode, Rec);
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 1535, 'OnSendPurchaseDocForApproval', '', false, false)]
-    [Scope('OnPrem')]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Approvals Mgmt.", 'OnSendPurchaseDocForApproval', '', false, false)]
     procedure RunWorkflowOnSendPurchaseDocForApproval(var PurchaseHeader: Record "Purchase Header")
     begin
         OnBeforeRunWorkflowOnSendPurchaseDocForApproval(PurchaseHeader);
         WorkflowManagement.HandleEvent(RunWorkflowOnSendPurchaseDocForApprovalCode, PurchaseHeader);
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 1535, 'OnCancelPurchaseApprovalRequest', '', false, false)]
-    [Scope('OnPrem')]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Approvals Mgmt.", 'OnCancelPurchaseApprovalRequest', '', false, false)]
     procedure RunWorkflowOnCancelPurchaseApprovalRequest(var PurchaseHeader: Record "Purchase Header")
     begin
         WorkflowManagement.HandleEvent(RunWorkflowOnCancelPurchaseApprovalRequestCode, PurchaseHeader);
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 1535, 'OnSendIncomingDocForApproval', '', false, false)]
-    [Scope('OnPrem')]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Approvals Mgmt.", 'OnSendIncomingDocForApproval', '', false, false)]
     procedure RunWorkflowOnSendIncomingDocForApproval(var IncomingDocument: Record "Incoming Document")
     begin
         WorkflowManagement.HandleEvent(RunWorkflowOnSendIncomingDocForApprovalCode, IncomingDocument);
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 1535, 'OnCancelIncomingDocApprovalRequest', '', false, false)]
-    [Scope('OnPrem')]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Approvals Mgmt.", 'OnCancelIncomingDocApprovalRequest', '', false, false)]
     procedure RunWorkflowOnCancelIncomingDocApprovalRequest(var IncomingDocument: Record "Incoming Document")
     begin
         WorkflowManagement.HandleEvent(RunWorkflowOnCancelIncomingDocApprovalRequestCode, IncomingDocument);
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 415, 'OnAfterReleasePurchaseDoc', '', false, false)]
-    [Scope('OnPrem')]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Release Purchase Document", 'OnAfterReleasePurchaseDoc', '', false, false)]
     procedure RunWorkflowOnAfterReleasePurchaseDoc(var PurchaseHeader: Record "Purchase Header"; PreviewMode: Boolean)
     begin
         if not PreviewMode then
             WorkflowManagement.HandleEvent(RunWorkflowOnAfterReleasePurchaseDocCode, PurchaseHeader);
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 1535, 'OnSendSalesDocForApproval', '', false, false)]
-    [Scope('OnPrem')]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Approvals Mgmt.", 'OnSendSalesDocForApproval', '', false, false)]
     procedure RunWorkflowOnSendSalesDocForApproval(var SalesHeader: Record "Sales Header")
     begin
         WorkflowManagement.HandleEvent(RunWorkflowOnSendSalesDocForApprovalCode, SalesHeader);
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 1535, 'OnCancelSalesApprovalRequest', '', false, false)]
-    [Scope('OnPrem')]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Approvals Mgmt.", 'OnCancelSalesApprovalRequest', '', false, false)]
     procedure RunWorkflowOnCancelSalesApprovalRequest(var SalesHeader: Record "Sales Header")
     begin
         WorkflowManagement.HandleEvent(RunWorkflowOnCancelSalesApprovalRequestCode, SalesHeader);
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 414, 'OnAfterReleaseSalesDoc', '', false, false)]
-    [Scope('OnPrem')]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Release Sales Document", 'OnAfterReleaseSalesDoc', '', false, false)]
     procedure RunWorkflowOnAfterReleaseSalesDoc(var SalesHeader: Record "Sales Header"; PreviewMode: Boolean)
     begin
         if not PreviewMode then
             WorkflowManagement.HandleEvent(RunWorkflowOnAfterReleaseSalesDocCode, SalesHeader);
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 132, 'OnAfterReleaseIncomingDoc', '', false, false)]
-    [Scope('OnPrem')]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Release Incoming Document", 'OnAfterReleaseIncomingDoc', '', false, false)]
     procedure RunWorkflowOnAfterReleaseIncomingDoc(var IncomingDocument: Record "Incoming Document")
     begin
         WorkflowManagement.HandleEvent(RunWorkflowOnAfterReleaseIncomingDocCode, IncomingDocument);
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 132, 'OnAfterCreateDocFromIncomingDocSuccess', '', false, false)]
-    [Scope('OnPrem')]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Release Incoming Document", 'OnAfterCreateDocFromIncomingDocSuccess', '', false, false)]
     procedure RunWorkflowOnAfterCreateDocFromIncomingDocSuccess(var IncomingDocument: Record "Incoming Document")
     begin
         WorkflowManagement.HandleEvent(RunWorkflowOnAfterCreateDocFromIncomingDocSuccessCode, IncomingDocument);
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 132, 'OnAfterCreateDocFromIncomingDocFail', '', false, false)]
-    [Scope('OnPrem')]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Release Incoming Document", 'OnAfterCreateDocFromIncomingDocFail', '', false, false)]
     procedure RunWorkflowOnAfterCreateDocFromIncomingDocFail(var IncomingDocument: Record "Incoming Document")
     begin
         WorkflowManagement.HandleEvent(RunWorkflowOnAfterCreateDocFromIncomingDocFailCode, IncomingDocument);
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 133, 'OnAfterIncomingDocReadyForOCR', '', false, false)]
-    [Scope('OnPrem')]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Send Incoming Document to OCR", 'OnAfterIncomingDocReadyForOCR', '', false, false)]
     procedure RunWorkflowOnAfterIncomingDocReadyForOCR(var IncomingDocument: Record "Incoming Document")
     begin
         WorkflowManagement.HandleEvent(RunWorkflowOnAfterReadyForOCRIncomingDocCode, IncomingDocument);
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 133, 'OnAfterIncomingDocSentToOCR', '', false, false)]
-    [Scope('OnPrem')]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Send Incoming Document to OCR", 'OnAfterIncomingDocSentToOCR', '', false, false)]
     procedure RunWorkflowOnAfterIncomingDocSentToOCR(var IncomingDocument: Record "Incoming Document")
     begin
         WorkflowManagement.HandleEvent(RunWorkflowOnAfterSendToOCRIncomingDocCode, IncomingDocument);
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 133, 'OnAfterIncomingDocReceivedFromOCR', '', false, false)]
-    [Scope('OnPrem')]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Send Incoming Document to OCR", 'OnAfterIncomingDocReceivedFromOCR', '', false, false)]
     procedure RunWorkflowOnAfterIncomingDocReceivedFromOCR(var IncomingDocument: Record "Incoming Document")
     begin
         WorkflowManagement.HandleEvent(RunWorkflowOnAfterReceiveFromOCRIncomingDocCode, IncomingDocument);
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 1410, 'OnAfterIncomingDocReceivedFromDocExch', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Doc. Exch. Service Mgt.", 'OnAfterIncomingDocReceivedFromDocExch', '', false, false)]
     [Scope('OnPrem')]
     procedure RunWorkflowOnAfterIncomingDocReceivedFromDocExch(var IncomingDocument: Record "Incoming Document")
     begin
         WorkflowManagement.HandleEvent(RunWorkflowOnAfterReceiveFromDocExchIncomingDocCode, IncomingDocument);
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 90, 'OnAfterPostPurchaseDoc', '', false, false)]
-    [Scope('OnPrem')]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Purch.-Post", 'OnAfterPostPurchaseDoc', '', false, false)]
     procedure RunWorkflowOnAfterPostPurchaseDoc(var PurchaseHeader: Record "Purchase Header"; var GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line"; PurchRcpHdrNo: Code[20]; RetShptHdrNo: Code[20]; PurchInvHdrNo: Code[20]; PurchCrMemoHdrNo: Code[20])
     var
         PurchInvHeader: Record "Purch. Inv. Header";
@@ -634,39 +618,34 @@ codeunit 1520 "Workflow Event Handling"
         end;
     end;
 
-    [EventSubscriber(ObjectType::Table, 81, 'OnAfterInsertEvent', '', false, false)]
-    [Scope('OnPrem')]
+    [EventSubscriber(ObjectType::Table, Database::"Gen. Journal Line", 'OnAfterInsertEvent', '', false, false)]
     procedure RunWorkflowOnAfterInsertGeneralJournalLine(var Rec: Record "Gen. Journal Line"; RunTrigger: Boolean)
     begin
         WorkflowManagement.HandleEvent(RunWorkflowOnAfterInsertGeneralJournalLineCode, Rec);
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 1535, 'OnApproveApprovalRequest', '', false, false)]
-    [Scope('OnPrem')]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Approvals Mgmt.", 'OnApproveApprovalRequest', '', false, false)]
     procedure RunWorkflowOnApproveApprovalRequest(var ApprovalEntry: Record "Approval Entry")
     begin
         WorkflowManagement.HandleEventOnKnownWorkflowInstance(RunWorkflowOnApproveApprovalRequestCode,
           ApprovalEntry, ApprovalEntry."Workflow Step Instance ID");
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 1535, 'OnDelegateApprovalRequest', '', false, false)]
-    [Scope('OnPrem')]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Approvals Mgmt.", 'OnDelegateApprovalRequest', '', false, false)]
     procedure RunWorkflowOnDelegateApprovalRequest(var ApprovalEntry: Record "Approval Entry")
     begin
         WorkflowManagement.HandleEventOnKnownWorkflowInstance(RunWorkflowOnDelegateApprovalRequestCode,
           ApprovalEntry, ApprovalEntry."Workflow Step Instance ID");
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 1535, 'OnRejectApprovalRequest', '', false, false)]
-    [Scope('OnPrem')]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Approvals Mgmt.", 'OnRejectApprovalRequest', '', false, false)]
     procedure RunWorkflowOnRejectApprovalRequest(var ApprovalEntry: Record "Approval Entry")
     begin
         WorkflowManagement.HandleEventOnKnownWorkflowInstance(RunWorkflowOnRejectApprovalRequestCode,
           ApprovalEntry, ApprovalEntry."Workflow Step Instance ID");
     end;
 
-    [EventSubscriber(ObjectType::Report, 1509, 'OnSendOverdueNotifications', '', false, false)]
-    [Scope('OnPrem')]
+    [EventSubscriber(ObjectType::Report, Report::"Send Overdue Appr. Notif.", 'OnSendOverdueNotifications', '', false, false)]
     procedure RunWorkflowOnSendOverdueNotifications()
     var
         ApprovalEntry: Record "Approval Entry";
@@ -675,129 +654,112 @@ codeunit 1520 "Workflow Event Handling"
         WorkflowManagement.HandleEvent(RunWorkflowOnSendOverdueNotificationsCode, ApprovalEntry);
     end;
 
-    [EventSubscriber(ObjectType::Table, 36, 'OnCustomerCreditLimitExceeded', '', false, false)]
-    [Scope('OnPrem')]
+    [EventSubscriber(ObjectType::Table, Database::"Sales Header", 'OnCustomerCreditLimitExceeded', '', false, false)]
     procedure RunWorkflowOnCustomerCreditLimitExceeded(var Sender: Record "Sales Header")
     begin
         WorkflowManagement.HandleEvent(RunWorkflowOnCustomerCreditLimitExceededCode, Sender);
     end;
 
-    [EventSubscriber(ObjectType::Table, 36, 'OnCustomerCreditLimitNotExceeded', '', false, false)]
-    [Scope('OnPrem')]
+    [EventSubscriber(ObjectType::Table, Database::"Sales Header", 'OnCustomerCreditLimitNotExceeded', '', false, false)]
     procedure RunWorkflowOnCustomerCreditLimitNotExceeded(var Sender: Record "Sales Header")
     begin
         WorkflowManagement.HandleEvent(RunWorkflowOnCustomerCreditLimitNotExceededCode, Sender);
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 1535, 'OnSendCustomerForApproval', '', false, false)]
-    [Scope('OnPrem')]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Approvals Mgmt.", 'OnSendCustomerForApproval', '', false, false)]
     procedure RunWorkflowOnSendCustomerForApproval(Customer: Record Customer)
     begin
         WorkflowManagement.HandleEvent(RunWorkflowOnSendCustomerForApprovalCode, Customer);
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 1535, 'OnSendVendorForApproval', '', false, false)]
-    [Scope('OnPrem')]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Approvals Mgmt.", 'OnSendVendorForApproval', '', false, false)]
     procedure RunWorkflowOnSendVendorForApproval(Vendor: Record Vendor)
     begin
         WorkflowManagement.HandleEvent(RunWorkflowOnSendVendorForApprovalCode, Vendor);
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 1535, 'OnSendItemForApproval', '', false, false)]
-    [Scope('OnPrem')]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Approvals Mgmt.", 'OnSendItemForApproval', '', false, false)]
     procedure RunWorkflowOnSendItemForApproval(Item: Record Item)
     begin
         WorkflowManagement.HandleEvent(RunWorkflowOnSendItemForApprovalCode, Item);
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 1535, 'OnCancelCustomerApprovalRequest', '', false, false)]
-    [Scope('OnPrem')]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Approvals Mgmt.", 'OnCancelCustomerApprovalRequest', '', false, false)]
     procedure RunWorkflowOnCancelCustomerApprovalRequest(Customer: Record Customer)
     begin
         WorkflowManagement.HandleEvent(RunWorkflowOnCancelCustomerApprovalRequestCode, Customer);
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 1535, 'OnCancelVendorApprovalRequest', '', false, false)]
-    [Scope('OnPrem')]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Approvals Mgmt.", 'OnCancelVendorApprovalRequest', '', false, false)]
     procedure RunWorkflowOnCancelVendorApprovalRequest(Vendor: Record Vendor)
     begin
         WorkflowManagement.HandleEvent(RunWorkflowOnCancelVendorApprovalRequestCode, Vendor);
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 1535, 'OnCancelItemApprovalRequest', '', false, false)]
-    [Scope('OnPrem')]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Approvals Mgmt.", 'OnCancelItemApprovalRequest', '', false, false)]
     procedure RunWorkflowOnCancelItemApprovalRequest(Item: Record Item)
     begin
         WorkflowManagement.HandleEvent(RunWorkflowOnCancelItemApprovalRequestCode, Item);
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 1535, 'OnSendGeneralJournalBatchForApproval', '', false, false)]
-    [Scope('OnPrem')]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Approvals Mgmt.", 'OnSendGeneralJournalBatchForApproval', '', false, false)]
     procedure RunWorkflowOnSendGeneralJournalBatchForApproval(var GenJournalBatch: Record "Gen. Journal Batch")
     begin
         WorkflowManagement.HandleEvent(RunWorkflowOnSendGeneralJournalBatchForApprovalCode, GenJournalBatch);
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 1535, 'OnCancelGeneralJournalBatchApprovalRequest', '', false, false)]
-    [Scope('OnPrem')]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Approvals Mgmt.", 'OnCancelGeneralJournalBatchApprovalRequest', '', false, false)]
     procedure RunWorkflowOnCancelGeneralJournalBatchApprovalRequest(var GenJournalBatch: Record "Gen. Journal Batch")
     begin
         WorkflowManagement.HandleEvent(RunWorkflowOnCancelGeneralJournalBatchApprovalRequestCode, GenJournalBatch);
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 1535, 'OnSendGeneralJournalLineForApproval', '', false, false)]
-    [Scope('OnPrem')]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Approvals Mgmt.", 'OnSendGeneralJournalLineForApproval', '', false, false)]
     procedure RunWorkflowOnSendGeneralJournalLineForApproval(var GenJournalLine: Record "Gen. Journal Line")
     begin
         WorkflowManagement.HandleEvent(RunWorkflowOnSendGeneralJournalLineForApprovalCode, GenJournalLine);
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 1535, 'OnCancelGeneralJournalLineApprovalRequest', '', false, false)]
-    [Scope('OnPrem')]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Approvals Mgmt.", 'OnCancelGeneralJournalLineApprovalRequest', '', false, false)]
     procedure RunWorkflowOnCancelGeneralJournalLineApprovalRequest(var GenJournalLine: Record "Gen. Journal Line")
     begin
         WorkflowManagement.HandleEvent(RunWorkflowOnCancelGeneralJournalLineApprovalRequestCode, GenJournalLine);
     end;
 
-    [EventSubscriber(ObjectType::Table, 232, 'OnGeneralJournalBatchBalanced', '', false, false)]
-    [Scope('OnPrem')]
+    [EventSubscriber(ObjectType::Table, Database::"Gen. Journal Batch", 'OnGeneralJournalBatchBalanced', '', false, false)]
     procedure RunWorkflowOnGeneralJournalBatchBalanced(var Sender: Record "Gen. Journal Batch")
     begin
         WorkflowManagement.HandleEvent(RunWorkflowOnGeneralJournalBatchBalancedCode, Sender);
     end;
 
-    [EventSubscriber(ObjectType::Table, 232, 'OnGeneralJournalBatchNotBalanced', '', false, false)]
-    [Scope('OnPrem')]
+    [EventSubscriber(ObjectType::Table, Database::"Gen. Journal Batch", 'OnGeneralJournalBatchNotBalanced', '', false, false)]
     procedure RunWorkflowOnGeneralJournalBatchNotBalanced(var Sender: Record "Gen. Journal Batch")
     begin
         WorkflowManagement.HandleEvent(RunWorkflowOnGeneralJournalBatchNotBalancedCode, Sender);
     end;
 
-    [EventSubscriber(ObjectType::Table, 133, 'OnAttachBinaryFile', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Incoming Document Attachment", 'OnAttachBinaryFile', '', false, false)]
     [Scope('OnPrem')]
     procedure RunWorkflowOnBinaryFileAttached(var Sender: Record "Incoming Document Attachment")
     begin
         WorkflowManagement.HandleEvent(RunWorkflowOnBinaryFileAttachedCode, Sender);
     end;
 
-    [EventSubscriber(ObjectType::Table, 18, 'OnAfterModifyEvent', '', false, false)]
-    [Scope('OnPrem')]
+    [EventSubscriber(ObjectType::Table, Database::"Customer", 'OnAfterModifyEvent', '', false, false)]
     procedure RunWorkflowOnCustomerChanged(var Rec: Record Customer; var xRec: Record Customer; RunTrigger: Boolean)
     begin
         if Format(xRec) <> Format(Rec) then
             WorkflowManagement.HandleEventWithxRec(RunWorkflowOnCustomerChangedCode, Rec, xRec);
     end;
 
-    [EventSubscriber(ObjectType::Table, 23, 'OnAfterModifyEvent', '', false, false)]
-    [Scope('OnPrem')]
+    [EventSubscriber(ObjectType::Table, Database::"Vendor", 'OnAfterModifyEvent', '', false, false)]
     procedure RunWorkflowOnVendorChanged(var Rec: Record Vendor; var xRec: Record Vendor; RunTrigger: Boolean)
     begin
         if Format(xRec) <> Format(Rec) then
             WorkflowManagement.HandleEventWithxRec(RunWorkflowOnVendorChangedCode, Rec, xRec);
     end;
 
-    [EventSubscriber(ObjectType::Table, 27, 'OnAfterModifyEvent', '', false, false)]
-    [Scope('OnPrem')]
+    [EventSubscriber(ObjectType::Table, Database::"Item", 'OnAfterModifyEvent', '', false, false)]
     procedure RunWorkflowOnItemChanged(var Rec: Record Item; var xRec: Record Item; RunTrigger: Boolean)
     var
         GenJnlPostPreview: Codeunit "Gen. Jnl.-Post Preview";
@@ -809,15 +771,13 @@ codeunit 1520 "Workflow Event Handling"
             WorkflowManagement.HandleEventWithxRec(RunWorkflowOnItemChangedCode, Rec, xRec);
     end;
 
-    [EventSubscriber(ObjectType::Table, 130, 'OnAfterCreateGenJnlLineFromIncomingDocSuccess', '', false, false)]
-    [Scope('OnPrem')]
+    [EventSubscriber(ObjectType::Table, Database::"Incoming Document", 'OnAfterCreateGenJnlLineFromIncomingDocSuccess', '', false, false)]
     procedure RunWorkflowOnAfterCreateGenJnlLineFromIncomingDocSuccess(var IncomingDocument: Record "Incoming Document")
     begin
         WorkflowManagement.HandleEvent(RunWorkflowOnAfterCreateGenJnlLineFromIncomingDocSuccessCode, IncomingDocument);
     end;
 
-    [EventSubscriber(ObjectType::Table, 130, 'OnAfterCreateGenJnlLineFromIncomingDocFail', '', false, false)]
-    [Scope('OnPrem')]
+    [EventSubscriber(ObjectType::Table, Database::"Incoming Document", 'OnAfterCreateGenJnlLineFromIncomingDocFail', '', false, false)]
     procedure RunWorkflowOnAfterCreateGenJnlLineFromIncomingDocFail(var IncomingDocument: Record "Incoming Document")
     begin
         WorkflowManagement.HandleEvent(RunWorkflowOnAfterCreateGenJnlLineFromIncomingDocFailCode, IncomingDocument);

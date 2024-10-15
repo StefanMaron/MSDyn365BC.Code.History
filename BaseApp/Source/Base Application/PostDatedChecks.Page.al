@@ -447,7 +447,7 @@ page 28090 "Post Dated Checks"
         if PostDatedCheck.FindSet then begin
             repeat
                 LineAmount := LineAmount + PostDatedCheck."Amount (LCY)";
-            until PostDatedCheck.Next = 0;
+            until PostDatedCheck.Next() = 0;
             LineCount := PostDatedCheck.Count();
         end;
     end;

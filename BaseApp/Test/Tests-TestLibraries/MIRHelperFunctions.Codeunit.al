@@ -86,18 +86,18 @@ codeunit 132477 "MIR - Helper Functions"
         SalesInvoiceLine.FindFirst;
 
         FinanceChargeInterestRate.SetRange("Fin. Charge Terms Code", FinanceChargeMemoHeader."Fin. Charge Terms Code");
-        FinanceChargeInterestRate.FindSet;
+        FinanceChargeInterestRate.FindSet();
 
         // Create First instance of Finance Charge Memo Line to validate Remaining Amount, Posting Date and Due Dates.
         FinanceChargeMemoLine.SetRange("Finance Charge Memo No.", FinanceChargeMemoHeader."No.");
         FinanceChargeMemoLine.SetRange("Detailed Interest Rates Entry", true);
-        FinanceChargeMemoLine.FindSet;
+        FinanceChargeMemoLine.FindSet();
 
         // Creating another instance of Finance Charge Memo Line to store the values of first instance and then use them to calculate
         // the differences between Due Dates.
         SecondFinanceChargeMemoLine.SetRange("Finance Charge Memo No.", FinanceChargeMemoHeader."No.");
         SecondFinanceChargeMemoLine.SetRange("Detailed Interest Rates Entry", true);
-        SecondFinanceChargeMemoLine.FindSet;
+        SecondFinanceChargeMemoLine.FindSet();
 
         // Validate Remaining Amount, Posting Date and Due Date on Finance Charge Memo Lines.
         repeat

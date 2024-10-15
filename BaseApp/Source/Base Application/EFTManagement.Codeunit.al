@@ -40,10 +40,9 @@ codeunit 11603 "EFT Management"
                 VendLedgEntry.SetRange("EFT Register No.", EFTRegister."No.");
                 if not VendLedgEntry.FindFirst then
                     EFTRegister.Delete();
-            until EFTRegister.Next = 0;
+            until EFTRegister.Next() = 0;
     end;
 
-    [Scope('OnPrem')]
     procedure Date2Text(Date: Date; Length: Integer): Text[6]
     begin
         if (Length < 1) or (Length > 6) then
@@ -53,13 +52,11 @@ codeunit 11603 "EFT Management"
         exit(PadStr('', Length));
     end;
 
-    [Scope('OnPrem')]
     procedure ClearText(Text: Text[250]): Text[250]
     begin
         exit(DelChr(Text, '=', DelChr(Text, '=', '0123456789')));
     end;
 
-    [Scope('OnPrem')]
     procedure NFL(Text: Text[250]; Length: Integer): Text[250]
     begin
         Text := DelChr(Text, '<>');
@@ -70,7 +67,6 @@ codeunit 11603 "EFT Management"
         exit(PadStr('', Length - StrLen(Text), '0') + Text);
     end;
 
-    [Scope('OnPrem')]
     procedure TFL(Text: Text[250]; Length: Integer): Text[250]
     begin
         Text := DelChr(Text, '<>');
@@ -80,7 +76,6 @@ codeunit 11603 "EFT Management"
         exit(PadStr('', Length - StrLen(Text), ' ') + Text);
     end;
 
-    [Scope('OnPrem')]
     procedure TFR(Text: Text[250]; Length: Integer): Text[250]
     begin
         Text := DelChr(Text, '<>');
@@ -89,7 +84,6 @@ codeunit 11603 "EFT Management"
         exit(UpperCase(PadStr(Text, Length)));
     end;
 
-    [Scope('OnPrem')]
     procedure BLK(Length: Integer): Text[250]
     begin
         if (Length < 1) or (Length > 250) then
@@ -97,13 +91,11 @@ codeunit 11603 "EFT Management"
         exit(PadStr('', Length));
     end;
 
-    [Scope('OnPrem')]
     procedure Value1(Dec: Decimal; Length: Integer): Text[250]
     begin
         exit(NFL(ClearText(Format(Round(Dec, 1.0))), Length));
     end;
 
-    [Scope('OnPrem')]
     procedure Value100(Dec: Decimal; Length: Integer): Text[250]
     begin
         if Dec = 0 then
@@ -196,7 +188,7 @@ codeunit 11603 "EFT Management"
                   TFR("Document No.", 18) + TFR(FormatBranchNumber(BankAccount."EFT BSB No."), 7) + TFL(
                     BankAccount."Bank Account No.", 9) +
                   TFR(BankAccount."EFT Security Name", 16) + NFL(Value100("WHT Absorb Base", 8), 8));
-            until Next = 0;
+            until Next() = 0;
             if BankAccount."EFT Balancing Record Required" then begin
                 WriteFile(
                   120, '1' + TFR(FormatBranchNumber(BankAccount."EFT BSB No."), 7) + TFL(BankAccount."Bank Account No.", 9) + BLK(1) +
@@ -338,7 +330,7 @@ codeunit 11603 "EFT Management"
                         FillBufferFromAppliedEntries(PaymentBufferGenJournalLine, GenJournalLine)
                     else
                         FillBufferFromPaymentLine(PaymentBufferGenJournalLine, GenJournalLine);
-            until GenJournalLine.Next = 0;
+            until GenJournalLine.Next() = 0;
     end;
 
     local procedure FillBufferFromPostedPayments(EFTRegister: Record "EFT Register"; var PaymentBufferGenJournalLine: Record "Gen. Journal Line")
@@ -360,10 +352,10 @@ codeunit 11603 "EFT Management"
                       VendorLedgerEntry.Amount);
                     repeat
                         UpdatePaymentBufferAmounts(PaymentBufferGenJournalLine, TempVendorLedgerEntry, true);
-                    until TempVendorLedgerEntry.Next = 0;
+                    until TempVendorLedgerEntry.Next() = 0;
                     PaymentBufferGenJournalLine.Insert();
                 end;
-            until VendorLedgerEntry.Next = 0;
+            until VendorLedgerEntry.Next() = 0;
     end;
 
     local procedure FillBufferFromAppliedDoc(var PaymentBufferGenJournalLine: Record "Gen. Journal Line"; GenJournalLine: Record "Gen. Journal Line")
@@ -401,7 +393,7 @@ codeunit 11603 "EFT Management"
               GenJournalLine.Amount);
             repeat
                 UpdatePaymentBufferAmounts(PaymentBufferGenJournalLine, VendorLedgerEntry, false);
-            until VendorLedgerEntry.Next = 0;
+            until VendorLedgerEntry.Next() = 0;
             PaymentBufferGenJournalLine.Insert();
         end;
     end;
@@ -464,12 +456,12 @@ codeunit 11603 "EFT Management"
                                 VendorLedgerEntry.Get(DtldVendLedgEntry2."Vendor Ledger Entry No.");
                                 AddAppliedEntryToBuffer(VendorLedgerEntry, AppliedVendorLedgerEntry);
                             end;
-                        until DtldVendLedgEntry2.Next = 0;
+                        until DtldVendLedgEntry2.Next() = 0;
                 end else begin
                     VendorLedgerEntry.Get(DtldVendLedgEntry1."Applied Vend. Ledger Entry No.");
                     AddAppliedEntryToBuffer(VendorLedgerEntry, AppliedVendorLedgerEntry);
                 end;
-            until DtldVendLedgEntry1.Next = 0;
+            until DtldVendLedgEntry1.Next() = 0;
     end;
 
     local procedure AddAppliedEntryToBuffer(VendorLedgerEntry: Record "Vendor Ledger Entry"; var ApliedVendorLedgerEntry: Record "Vendor Ledger Entry")

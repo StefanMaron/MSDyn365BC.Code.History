@@ -117,8 +117,8 @@ page 742 "VAT Report Statement Subform"
                                         TempVATEntry.Copy(VATEntry);
                                         TempVATEntry.Insert();
                                     end;
-                                until VATEntry.Next = 0;
-                        until VATStatementLine2.Next = 0;
+                                until VATEntry.Next() = 0;
+                        until VATStatementLine2.Next() = 0;
                     TempVATEntry.Reset();
                     PAGE.Run(PAGE::"VAT Entries", TempVATEntry);
                 end;

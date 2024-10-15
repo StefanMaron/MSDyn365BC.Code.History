@@ -339,7 +339,7 @@ report 33 "Reconcile Cust. and Vend. Accs"
                         ReconCustVendBuffer."G/L Account No." := CustPostingGr."Credit Rounding Account";
                         ReconCustVendBuffer.Insert();
 
-                    until CustPostingGr.Next = 0;
+                    until CustPostingGr.Next() = 0;
                 end;
 
                 if VendPostingGr.Find('-') then begin
@@ -385,7 +385,7 @@ report 33 "Reconcile Cust. and Vend. Accs"
                         ReconCustVendBuffer."G/L Account No." := VendPostingGr."Credit Rounding Account";
                         ReconCustVendBuffer.Insert();
 
-                    until VendPostingGr.Next = 0;
+                    until VendPostingGr.Next() = 0;
                 end;
 
                 if Currency.Find('-') then begin
@@ -410,14 +410,14 @@ report 33 "Reconcile Cust. and Vend. Accs"
                         ReconCustVendBuffer."G/L Account No." := Currency."Realized Losses Acc.";
                         ReconCustVendBuffer.Insert();
 
-                    until Currency.Next = 0;
+                    until Currency.Next() = 0;
                 end;
 
                 if ReconCustVendBuffer.Find('-') then begin
                     repeat
                         "G/L Account"."No." := ReconCustVendBuffer."G/L Account No.";
                         "G/L Account".Mark(true);
-                    until ReconCustVendBuffer.Next = 0;
+                    until ReconCustVendBuffer.Next() = 0;
                     "G/L Account".MarkedOnly(true);
                 end else
                     CurrReport.Break();
@@ -481,12 +481,12 @@ report 33 "Reconcile Cust. and Vend. Accs"
                 "G/L Account".CopyFilter("Date Filter", DtldCustLedgEntry."Posting Date");
                 DtldCustLedgEntry.CalcSums("Amount (LCY)");
                 CustAccAmount := CustAccAmount + DtldCustLedgEntry."Amount (LCY)";
-            until Cust.Next = 0;
+            until Cust.Next() = 0;
 
         exit(CustAccAmount);
     end;
 
-    local procedure CalcCustCreditAmount(PostingGr: Code[20]; EntryType: Option): Decimal
+    local procedure CalcCustCreditAmount(PostingGr: Code[20]; EntryType: Enum "Detailed CV Ledger Entry Type"): Decimal
     var
         Cust: Record Customer;
         DtldCustLedgEntry: Record "Detailed Cust. Ledg. Entry";
@@ -503,12 +503,12 @@ report 33 "Reconcile Cust. and Vend. Accs"
                 "G/L Account".CopyFilter("Date Filter", DtldCustLedgEntry."Posting Date");
                 DtldCustLedgEntry.CalcSums("Credit Amount (LCY)");
                 CustCreditAmount := CustCreditAmount + DtldCustLedgEntry."Credit Amount (LCY)";
-            until Cust.Next = 0;
+            until Cust.Next() = 0;
 
         exit(CustCreditAmount);
     end;
 
-    local procedure CalcCustDebitAmount(PostingGr: Code[20]; EntryType: Option): Decimal
+    local procedure CalcCustDebitAmount(PostingGr: Code[20]; EntryType: Enum "Detailed CV Ledger Entry Type"): Decimal
     var
         Cust: Record Customer;
         DtldCustLedgEntry: Record "Detailed Cust. Ledg. Entry";
@@ -525,7 +525,7 @@ report 33 "Reconcile Cust. and Vend. Accs"
                 "G/L Account".CopyFilter("Date Filter", DtldCustLedgEntry."Posting Date");
                 DtldCustLedgEntry.CalcSums("Debit Amount (LCY)");
                 CustDebitAmount := CustDebitAmount + DtldCustLedgEntry."Debit Amount (LCY)";
-            until Cust.Next = 0;
+            until Cust.Next() = 0;
 
         exit(-CustDebitAmount);
     end;
@@ -546,12 +546,12 @@ report 33 "Reconcile Cust. and Vend. Accs"
                 "G/L Account".CopyFilter("Date Filter", DtldVendLedgEntry."Posting Date");
                 DtldVendLedgEntry.CalcSums("Amount (LCY)");
                 VendAccAmount := VendAccAmount + DtldVendLedgEntry."Amount (LCY)";
-            until Vend.Next = 0;
+            until Vend.Next() = 0;
 
         exit(VendAccAmount);
     end;
 
-    local procedure CalcVendCreditAmount(PostingGr: Code[20]; EntryType: Option): Decimal
+    local procedure CalcVendCreditAmount(PostingGr: Code[20]; EntryType: Enum "Detailed CV Ledger Entry Type"): Decimal
     var
         Vend: Record Vendor;
         DtldVendLedgEntry: Record "Detailed Vendor Ledg. Entry";
@@ -568,12 +568,12 @@ report 33 "Reconcile Cust. and Vend. Accs"
                 "G/L Account".CopyFilter("Date Filter", DtldVendLedgEntry."Posting Date");
                 DtldVendLedgEntry.CalcSums("Credit Amount (LCY)");
                 VendCreditAmount := VendCreditAmount + DtldVendLedgEntry."Credit Amount (LCY)";
-            until Vend.Next = 0;
+            until Vend.Next() = 0;
 
         exit(VendCreditAmount);
     end;
 
-    local procedure CalcVendDebitAmount(PostingGr: Code[20]; EntryType: Option): Decimal
+    local procedure CalcVendDebitAmount(PostingGr: Code[20]; EntryType: Enum "Detailed CV Ledger Entry Type"): Decimal
     var
         Vend: Record Vendor;
         DtldVendLedgEntry: Record "Detailed Vendor Ledg. Entry";
@@ -590,12 +590,12 @@ report 33 "Reconcile Cust. and Vend. Accs"
                 "G/L Account".CopyFilter("Date Filter", DtldVendLedgEntry."Posting Date");
                 DtldVendLedgEntry.CalcSums("Debit Amount (LCY)");
                 VendDebitAmount := VendDebitAmount + DtldVendLedgEntry."Debit Amount (LCY)";
-            until Vend.Next = 0;
+            until Vend.Next() = 0;
 
         exit(-VendDebitAmount);
     end;
 
-    local procedure CalcCurrGainLossAmount(CurrencyCode: Code[20]; EntryType: Option): Decimal
+    local procedure CalcCurrGainLossAmount(CurrencyCode: Code[20]; EntryType: Enum "Detailed CV Ledger Entry Type"): Decimal
     var
         Cust: Record Customer;
         DtldCustLedgEntry: Record "Detailed Cust. Ledg. Entry";
@@ -612,7 +612,7 @@ report 33 "Reconcile Cust. and Vend. Accs"
                 "G/L Account".CopyFilter("Date Filter", DtldCustLedgEntry."Posting Date");
                 DtldCustLedgEntry.CalcSums("Amount (LCY)");
                 CurrGainLossAmount := CurrGainLossAmount + DtldCustLedgEntry."Amount (LCY)";
-            until Cust.Next = 0;
+            until Cust.Next() = 0;
 
         if Vend.Find('-') then
             repeat
@@ -623,7 +623,7 @@ report 33 "Reconcile Cust. and Vend. Accs"
                 "G/L Account".CopyFilter("Date Filter", DtldVendLedgEntry."Posting Date");
                 DtldVendLedgEntry.CalcSums("Amount (LCY)");
                 CurrGainLossAmount := CurrGainLossAmount + DtldVendLedgEntry."Amount (LCY)";
-            until Vend.Next = 0;
+            until Vend.Next() = 0;
 
         exit(-CurrGainLossAmount);
     end;

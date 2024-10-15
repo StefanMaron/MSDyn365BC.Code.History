@@ -506,11 +506,11 @@
             exit;
 
         ECSLVATReportLineRelation.SetRange("ECSL Report No.", "No.");
-        if not ECSLVATReportLineRelation.IsEmpty then
+        if not ECSLVATReportLineRelation.IsEmpty() then
             ECSLVATReportLineRelation.DeleteAll(true);
 
         ECSLVATReportLine.SetRange("Report No.", "No.");
-        if not ECSLVATReportLine.IsEmpty then
+        if not ECSLVATReportLine.IsEmpty() then
             ECSLVATReportLine.DeleteAll(true);
     end;
 }

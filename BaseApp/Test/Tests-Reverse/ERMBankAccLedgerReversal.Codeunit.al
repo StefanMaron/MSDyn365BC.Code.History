@@ -323,7 +323,7 @@ codeunit 134140 "ERM Bank Acc Ledger Reversal"
     begin
         BankAccountLedgerEntry.SetRange("Document No.", DocumentNo);
         BankAccountLedgerEntry.SetFilter("Reversed Entry No.", '<>0');
-        BankAccountLedgerEntry.FindSet;
+        BankAccountLedgerEntry.FindSet();
         repeat
             BankAccountLedgerEntryAmt += BankAccountLedgerEntry.Amount;
         until BankAccountLedgerEntry.Next = 0;

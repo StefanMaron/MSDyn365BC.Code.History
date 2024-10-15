@@ -277,7 +277,7 @@ codeunit 131305 "Library - ERM Country Data"
         GLAccount: Record "G/L Account";
     begin
         VATPostingSetup.SetRange("VAT Bus. Posting Group", '');
-        VATPostingSetup.FindSet;
+        VATPostingSetup.FindSet();
         repeat
             VATPostingSetup.Validate("VAT %", 0);
             VATPostingSetup.Modify(true);

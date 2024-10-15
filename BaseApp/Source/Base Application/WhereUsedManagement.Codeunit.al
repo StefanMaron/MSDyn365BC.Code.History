@@ -93,7 +93,7 @@ codeunit 99000770 "Where-Used Management"
                           CalcDate,
                           Level + 1,
                           WhereUsedList."Quantity Needed");
-                until ItemAssembly.Next = 0;
+                until ItemAssembly.Next() = 0;
         end;
 
         ProdBOMComponent.SetCurrentKey(Type, "No.");
@@ -119,7 +119,7 @@ codeunit 99000770 "Where-Used Management"
                           Level,
                           CostCalcMgt.CalcCompItemQtyBase(ProdBOMComponent, CalcDate, Quantity, '', false));
                 end;
-            until ProdBOMComponent.Next = 0;
+            until ProdBOMComponent.Next() = 0;
     end;
 
     local procedure IsActiveProductionBOM(ProductionBOMLine: Record "Production BOM Line"): Boolean

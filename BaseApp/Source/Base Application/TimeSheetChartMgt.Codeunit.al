@@ -108,7 +108,7 @@ codeunit 952 "Time Sheet Chart Mgt."
         if Resource.FindSet then
             repeat
                 BusChartBuf.AddColumn(Resource."No.");
-            until Resource.Next = 0;
+            until Resource.Next() = 0;
     end;
 
     local procedure AddMeasures(var BusChartBuf: Record "Business Chart Buffer"; TimeSheetChartSetup: Record "Time Sheet Chart Setup")
@@ -117,26 +117,26 @@ codeunit 952 "Time Sheet Chart Mgt."
             case TimeSheetChartSetup."Show by" of
                 TimeSheetChartSetup."Show by"::Status:
                     begin
-                        AddMeasure(GetMeasureCaption(MeasureType::Open), '', "Data Type"::Decimal, "Chart Type"::StackedColumn);
-                        AddMeasure(GetMeasureCaption(MeasureType::Submitted), '', "Data Type"::Decimal, "Chart Type"::StackedColumn);
-                        AddMeasure(GetMeasureCaption(MeasureType::Rejected), '', "Data Type"::Decimal, "Chart Type"::StackedColumn);
-                        AddMeasure(GetMeasureCaption(MeasureType::Approved), '', "Data Type"::Decimal, "Chart Type"::StackedColumn);
+                        AddDecimalMeasure(GetMeasureCaption(MeasureType::Open), '', "Chart Type"::StackedColumn);
+                        AddDecimalMeasure(GetMeasureCaption(MeasureType::Submitted), '', "Chart Type"::StackedColumn);
+                        AddDecimalMeasure(GetMeasureCaption(MeasureType::Rejected), '', "Chart Type"::StackedColumn);
+                        AddDecimalMeasure(GetMeasureCaption(MeasureType::Approved), '', "Chart Type"::StackedColumn);
                     end;
                 TimeSheetChartSetup."Show by"::Type:
                     begin
-                        AddMeasure(GetMeasureCaption(MeasureType::Resource), '', "Data Type"::Decimal, "Chart Type"::StackedColumn);
-                        AddMeasure(GetMeasureCaption(MeasureType::Job), '', "Data Type"::Decimal, "Chart Type"::StackedColumn);
-                        AddMeasure(GetMeasureCaption(MeasureType::Service), '', "Data Type"::Decimal, "Chart Type"::StackedColumn);
-                        AddMeasure(GetMeasureCaption(MeasureType::Absence), '', "Data Type"::Decimal, "Chart Type"::StackedColumn);
-                        AddMeasure(GetMeasureCaption(MeasureType::"Assembly Order"), '', "Data Type"::Decimal, "Chart Type"::StackedColumn);
+                        AddDecimalMeasure(GetMeasureCaption(MeasureType::Resource), '', "Chart Type"::StackedColumn);
+                        AddDecimalMeasure(GetMeasureCaption(MeasureType::Job), '', "Chart Type"::StackedColumn);
+                        AddDecimalMeasure(GetMeasureCaption(MeasureType::Service), '', "Chart Type"::StackedColumn);
+                        AddDecimalMeasure(GetMeasureCaption(MeasureType::Absence), '', "Chart Type"::StackedColumn);
+                        AddDecimalMeasure(GetMeasureCaption(MeasureType::"Assembly Order"), '', "Chart Type"::StackedColumn);
                     end;
                 TimeSheetChartSetup."Show by"::Posted:
                     begin
-                        AddMeasure(GetMeasureCaption(MeasureType::Posted), '', "Data Type"::Decimal, "Chart Type"::StackedColumn);
-                        AddMeasure(GetMeasureCaption(MeasureType::"Not Posted"), '', "Data Type"::Decimal, "Chart Type"::StackedColumn);
+                        AddDecimalMeasure(GetMeasureCaption(MeasureType::Posted), '', "Chart Type"::StackedColumn);
+                        AddDecimalMeasure(GetMeasureCaption(MeasureType::"Not Posted"), '', "Chart Type"::StackedColumn);
                     end;
             end;
-            AddMeasure(GetMeasureCaption(MeasureType::Scheduled), '', "Data Type"::Decimal, "Chart Type"::Point);
+            AddDecimalMeasure(GetMeasureCaption(MeasureType::Scheduled), '', "Chart Type"::Point);
         end;
     end;
 
