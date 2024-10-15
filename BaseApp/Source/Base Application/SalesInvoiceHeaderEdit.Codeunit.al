@@ -8,15 +8,17 @@ codeunit 10765 "Sales Invoice Header - Edit"
         SalesInvoiceHeader: Record "Sales Invoice Header";
     begin
         SalesInvoiceHeader := Rec;
-        SalesInvoiceHeader.LockTable;
-        SalesInvoiceHeader.Find;
+        SalesInvoiceHeader.LockTable();
+        SalesInvoiceHeader.Find();
+        SalesInvoiceHeader."Operation Description" := "Operation Description";
+        SalesInvoiceHeader."Operation Description 2" := "Operation Description 2";
         SalesInvoiceHeader."Special Scheme Code" := "Special Scheme Code";
         SalesInvoiceHeader."Invoice Type" := "Invoice Type";
         SalesInvoiceHeader."ID Type" := "ID Type";
         SalesInvoiceHeader."Succeeded Company Name" := "Succeeded Company Name";
         SalesInvoiceHeader."Succeeded VAT Registration No." := "Succeeded VAT Registration No.";
         SalesInvoiceHeader.TestField("No.", "No.");
-        SalesInvoiceHeader.Modify;
+        SalesInvoiceHeader.Modify();
         Rec := SalesInvoiceHeader;
         UpdateSIIDocUploadState(Rec);
     end;
@@ -42,7 +44,7 @@ codeunit 10765 "Sales Invoice Header - Edit"
         SIIDocUploadState.IDType := SalesInvoiceHeader."ID Type";
         SIIDocUploadState."Succeeded Company Name" := SalesInvoiceHeader."Succeeded Company Name";
         SIIDocUploadState."Succeeded VAT Registration No." := SalesInvoiceHeader."Succeeded VAT Registration No.";
-        SIIDocUploadState.Modify;
+        SIIDocUploadState.Modify();
     end;
 }
 

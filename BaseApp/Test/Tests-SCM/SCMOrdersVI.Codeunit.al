@@ -1910,6 +1910,162 @@ codeunit 137163 "SCM Orders VI"
         PurchaseLine.TestField("Qty. to Receive", PurchaseLine.Quantity);
     end;
 
+    [Test]
+    [HandlerFunctions('YesConfirmHandler')]
+    [Scope('OnPrem')]
+    procedure SalesLineDropShipmentRemainsTrueOnRecreateSalesLinesWhenItemDropShipmentTrue()
+    var
+        Item: Record Item;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+    begin
+        // [FEATURE] [Drop Shipment]
+        // [SCENARIO 374832] Change "Bill-to Customer No." on Sales Order when Drop Shipment is set for Sales Line and Item from Sales Line has Drop Shipment = true.
+        Initialize();
+
+        // [GIVEN] Purchasing Code "P" with Drop Shipment = true. Item with Purchasing Code "P". Sales Order that has Sales Line with Item.
+        // [GIVEN] Drop Shipment value for Sales Line is true and it is taken from item's Purchasing Code "P".
+        LibraryInventory.CreateItem(Item);
+        UpdatePurchasingCodeOnItem(Item, CreatePurchasingCode(true, false));
+        CreateSalesOrder(SalesHeader, SalesLine, SalesLine.Type::Item, LibrarySales.CreateCustomerNo(), Item."No.", LibraryRandom.RandDecInRange(10, 20, 2), '');
+        SalesLine.TestField("Purchasing Code", Item."Purchasing Code");
+        SalesLine.TestField("Drop Shipment");
+
+        // [WHEN] Change "Bill-to Customer No." for Sales Order.
+        SalesHeader.Validate("Bill-to Customer No.", LibrarySales.CreateCustomerNo());
+        SalesHeader.Modify(true);
+
+        // [THEN] Sales Line is recreated. Purchasing Code = "P" and Drop Shipment = true for Sales Line. Drop Shipment value is saved after recreation.
+        SalesLine.Get(SalesLine."Document Type", SalesLine."Document No.", SalesLine."Line No.");
+        SalesLine.TestField("Purchasing Code", Item."Purchasing Code");
+        SalesLine.TestField("Drop Shipment");
+    end;
+
+    [Test]
+    [HandlerFunctions('YesConfirmHandler')]
+    [Scope('OnPrem')]
+    procedure SalesLineDropShipmentRemainsFalseOnRecreateSalesLinesWhenItemDropShipmentTrue()
+    var
+        Item: Record Item;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+    begin
+        // [FEATURE] [Drop Shipment]
+        // [SCENARIO 374832] Change "Bill-to Customer No." on Sales Order when Drop Shipment is not set for Sales Line and Item from Sales Line has Drop Shipment = true.
+        Initialize();
+
+        // [GIVEN] Purchasing Code "P" with Drop Shipment = true. Item with Purchasing Code "P". Sales Order that has Sales Line with Item.
+        // [GIVEN] Drop Shipment value for Sales Line is manually set to false.
+        LibraryInventory.CreateItem(Item);
+        UpdatePurchasingCodeOnItem(Item, CreatePurchasingCode(true, false));
+        CreateSalesOrder(SalesHeader, SalesLine, SalesLine.Type::Item, LibrarySales.CreateCustomerNo(), Item."No.", LibraryRandom.RandDecInRange(10, 20, 2), '');
+        UpdateDropShipmentOnSalesLine(SalesLine, false);
+
+        // [WHEN] Change "Bill-to Customer No." for Sales Order.
+        SalesHeader.Validate("Bill-to Customer No.", LibrarySales.CreateCustomerNo());
+        SalesHeader.Modify(true);
+
+        // [THEN] Sales Line is recreated. Purchasing Code = "P" and Drop Shipment = false for Sales Line. Drop Shipment value is saved after recreation.
+        SalesLine.Get(SalesLine."Document Type", SalesLine."Document No.", SalesLine."Line No.");
+        SalesLine.TestField("Purchasing Code", Item."Purchasing Code");
+        SalesLine.TestField("Drop Shipment", false);
+    end;
+
+    [Test]
+    [HandlerFunctions('YesConfirmHandler')]
+    [Scope('OnPrem')]
+    procedure SalesLineDropShipmentRemainsTrueOnRecreateSalesLinesWhenItemDropShipmentFalse()
+    var
+        Item: Record Item;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+    begin
+        // [FEATURE] [Drop Shipment]
+        // [SCENARIO 374832] Change "Bill-to Customer No." on Sales Order when Drop Shipment is set for Sales Line and Item from Sales Line has Drop Shipment = false.
+        Initialize();
+
+        // [GIVEN] Purchasing Code "P" with Drop Shipment = false. Item with Purchasing Code "P". Sales Order that has Sales Line with Item.
+        // [GIVEN] Drop Shipment value for Sales Line is manually set to true.
+        LibraryInventory.CreateItem(Item);
+        UpdatePurchasingCodeOnItem(Item, CreatePurchasingCode(false, false));
+        CreateSalesOrder(SalesHeader, SalesLine, SalesLine.Type::Item, LibrarySales.CreateCustomerNo(), Item."No.", LibraryRandom.RandDecInRange(10, 20, 2), '');
+        UpdateDropShipmentOnSalesLine(SalesLine, true);
+
+        // [WHEN] Change "Bill-to Customer No." for Sales Order.
+        SalesHeader.Validate("Bill-to Customer No.", LibrarySales.CreateCustomerNo());
+        SalesHeader.Modify(true);
+
+        // [THEN] Sales Line is recreated. Purchasing Code = "P" and Drop Shipment = true for Sales Line. Drop Shipment value is saved after recreation.
+        SalesLine.Get(SalesLine."Document Type", SalesLine."Document No.", SalesLine."Line No.");
+        SalesLine.TestField("Purchasing Code", Item."Purchasing Code");
+        SalesLine.TestField("Drop Shipment");
+    end;
+
+    [Test]
+    [HandlerFunctions('YesConfirmHandler')]
+    [Scope('OnPrem')]
+    procedure SalesLineDropShipmentRemainsFalseOnRecreateSalesLinesWhenItemDropShipmentFalse()
+    var
+        Item: Record Item;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+    begin
+        // [FEATURE] [Drop Shipment]
+        // [SCENARIO 374832] Change "Bill-to Customer No." on Sales Order when Drop Shipment is not set for Sales Line and Item from Sales Line has Drop Shipment = false.
+        Initialize();
+
+        // [GIVEN] Purchasing Code "P" with Drop Shipment = false. Item with Purchasing Code "P". Sales Order that has Sales Line with Item.
+        // [GIVEN] Drop Shipment value for Sales Line is false and it is taken from item's Purchasing Code "P".
+        LibraryInventory.CreateItem(Item);
+        UpdatePurchasingCodeOnItem(Item, CreatePurchasingCode(false, false));
+        CreateSalesOrder(SalesHeader, SalesLine, SalesLine.Type::Item, LibrarySales.CreateCustomerNo(), Item."No.", LibraryRandom.RandDecInRange(10, 20, 2), '');
+        SalesLine.TestField("Drop Shipment", false);
+
+        // [WHEN] Change "Bill-to Customer No." for Sales Order.
+        SalesHeader.Validate("Bill-to Customer No.", LibrarySales.CreateCustomerNo());
+        SalesHeader.Modify(true);
+
+        // [THEN] Sales Line is recreated. Purchasing Code = "P" and Drop Shipment = false for Sales Line. Drop Shipment value is saved after recreation.
+        SalesLine.Get(SalesLine."Document Type", SalesLine."Document No.", SalesLine."Line No.");
+        SalesLine.TestField("Purchasing Code", Item."Purchasing Code");
+        SalesLine.TestField("Drop Shipment", false);
+    end;
+
+    [Test]
+    [HandlerFunctions('SalesListModalPageHandler,YesConfirmHandler')]
+    [Scope('OnPrem')]
+    procedure SalesLineDropShptOnRecreateSalesLinesWhenItemDropShptTrueAndPurchaseOrderLinked()
+    var
+        Item: Record Item;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        PurchaseHeader: Record "Purchase Header";
+    begin
+        // [FEATURE] [Drop Shipment]
+        // [SCENARIO 374832] Change "Bill-to Customer No." on Sales Order when Drop Shipment is set for Sales Line and Sales Order has linked Purchase Order for drop shipment.
+        Initialize();
+
+        // [GIVEN] Purchasing Code "P" with Drop Shipment = true. Item with Purchasing Code "P". Sales Order that has Sales Line with Item.
+        // [GIVEN] Purchase Order that is prepared for drop shipment, it is linked to Sales Order.
+        LibraryInventory.CreateItem(Item);
+        UpdatePurchasingCodeOnItem(Item, CreatePurchasingCode(true, false));
+        CreateSalesOrder(SalesHeader, SalesLine, SalesLine.Type::Item, LibrarySales.CreateCustomerNo(), Item."No.", LibraryRandom.RandDecInRange(10, 20, 2), '');
+        CreatePurchOrderWithSelltoCustomerNo(PurchaseHeader, LibraryPurchase.CreateVendorNo(), SalesHeader."Sell-to Customer No.");
+        LibraryVariableStorage.Enqueue(SalesHeader."No.");
+        LibraryPurchase.GetDropShipment(PurchaseHeader);
+        Commit();
+
+        // [WHEN] Change "Bill-to Customer No." for Sales Order.
+        asserterror SalesHeader.Validate("Bill-to Customer No.", LibrarySales.CreateCustomerNo());
+
+        // [THEN] Sales Line is not recreated. Purchasing Code = "P" and Drop Shipment = true for Sales Line.
+        Assert.ExpectedError('You cannot delete the order line because it is associated with purchase order');
+        Assert.ExpectedErrorCode('Dialog');
+        SalesLine.Get(SalesLine."Document Type", SalesLine."Document No.", SalesLine."Line No.");
+        SalesLine.TestField("Purchasing Code", Item."Purchasing Code");
+        SalesLine.TestField("Drop Shipment");
+    end;
+
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"SCM Orders VI");
@@ -3271,6 +3427,18 @@ codeunit 137163 "SCM Orders VI"
         ItemCrossReference.Validate(Description, LibraryUtility.GenerateRandomText(MaxStrLen(ItemCrossReference.Description)));
         ItemCrossReference.Validate("Description 2", LibraryUtility.GenerateRandomText(MaxStrLen(ItemCrossReference."Description 2")));
         ItemCrossReference.Modify(true);
+    end;
+
+    local procedure UpdatePurchasingCodeOnItem(var Item: Record Item; PurchasingCode: Code[10])
+    begin
+        Item.Validate("Purchasing Code", PurchasingCode);
+        Item.Modify(true);
+    end;
+
+    local procedure UpdateDropShipmentOnSalesLine(var SalesLine: Record "Sales Line"; DropShipment: Boolean)
+    begin
+        SalesLine.Validate("Drop Shipment", DropShipment);
+        SalesLine.Modify(true);
     end;
 
     local procedure UpdateJobNoAndJobTaskNoOnPurchaseLine(var PurchaseLine: Record "Purchase Line"; JobTask: Record "Job Task")

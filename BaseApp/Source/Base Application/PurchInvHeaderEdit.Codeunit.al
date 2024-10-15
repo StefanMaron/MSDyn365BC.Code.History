@@ -8,11 +8,13 @@ codeunit 1405 "Purch. Inv. Header - Edit"
         PurchInvHeader: Record "Purch. Inv. Header";
     begin
         PurchInvHeader := Rec;
-        PurchInvHeader.LockTable;
-        PurchInvHeader.Find;
+        PurchInvHeader.LockTable();
+        PurchInvHeader.Find();
         PurchInvHeader."Payment Reference" := "Payment Reference";
         PurchInvHeader."Creditor No." := "Creditor No.";
         PurchInvHeader."Ship-to Code" := "Ship-to Code";
+        PurchInvHeader."Operation Description" := "Operation Description";
+        PurchInvHeader."Operation Description 2" := "Operation Description 2";
         PurchInvHeader."Special Scheme Code" := "Special Scheme Code";
         PurchInvHeader."Invoice Type" := "Invoice Type";
         PurchInvHeader."ID Type" := "ID Type";
@@ -20,11 +22,11 @@ codeunit 1405 "Purch. Inv. Header - Edit"
         PurchInvHeader."Succeeded VAT Registration No." := "Succeeded VAT Registration No.";
         OnBeforePurchInvHeaderModify(PurchInvHeader, Rec);
         PurchInvHeader.TestField("No.", "No.");
-        PurchInvHeader.Modify;
+        PurchInvHeader.Modify();
         Rec := PurchInvHeader;
         UpdateSIIDocUploadState(Rec);
     end;
-    
+
     local procedure UpdateSIIDocUploadState(PurchInvHeader: Record "Purch. Inv. Header")
     var
         SIIDocUploadState: Record "SII Doc. Upload State";
@@ -46,7 +48,7 @@ codeunit 1405 "Purch. Inv. Header - Edit"
         SIIDocUploadState.IDType := PurchInvHeader."ID Type";
         SIIDocUploadState."Succeeded Company Name" := PurchInvHeader."Succeeded Company Name";
         SIIDocUploadState."Succeeded VAT Registration No." := PurchInvHeader."Succeeded VAT Registration No.";
-        SIIDocUploadState.Modify;
+        SIIDocUploadState.Modify();
     end;
 
     [IntegrationEvent(false, false)]

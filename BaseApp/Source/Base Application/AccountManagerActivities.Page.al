@@ -259,7 +259,7 @@ page 9030 "Account Manager Activities"
 
         SetFilter("Due Date Filter", '<=%1', WorkDate);
         SetFilter("Overdue Date Filter", '<%1', WorkDate);
-        SetFilter("User ID Filter", UserId);
+        SetRange("User ID Filter", UserId);
         ShowCheckForOCR := OCRServiceMgt.OcrServiceIsEnable;
     end;
 

@@ -338,6 +338,26 @@
                     ShowActivityLog;
                 end;
             }
+            action("Update Document")
+            {
+                ApplicationArea = Service;
+                Caption = 'Update Document';
+                Image = Edit;
+                Promoted = true;
+                PromotedCategory = Process;
+                PromotedIsBig = true;
+                PromotedOnly = true;
+                ToolTip = 'Add new information that is relevant to the document. You can only edit a few fields because the document has already been posted.';
+
+                trigger OnAction()
+                var
+                    PostedServInvoiceUpdate: Page "Posted Serv. Invoice - Update";
+                begin
+                    PostedServInvoiceUpdate.LookupMode := true;
+                    PostedServInvoiceUpdate.SetRec(Rec);
+                    PostedServInvoiceUpdate.RunModal();
+                end;
+            }
         }
     }
 

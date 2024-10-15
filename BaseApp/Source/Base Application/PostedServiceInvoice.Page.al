@@ -81,6 +81,7 @@
                     field("Country/Region Code"; "Country/Region Code")
                     {
                         ApplicationArea = Service;
+                        Editable = false;
                         ToolTip = 'Specifies the country/region of the address.';
                     }
                     field("Contact Name"; "Contact Name")
@@ -226,6 +227,7 @@
                     field("Bill-to Country/Region Code"; "Bill-to Country/Region Code")
                     {
                         ApplicationArea = Service;
+                        Editable = false;
                         Caption = 'Country/Region';
                     }
                     field("Bill-to Contact"; "Bill-to Contact")
@@ -279,26 +281,31 @@
                     field("Special Scheme Code"; "Special Scheme Code")
                     {
                         ApplicationArea = Basic, Suite;
+                        Editable = false;
                         ToolTip = 'Specifies the Special Scheme Code.';
                     }
                     field("Invoice Type"; "Invoice Type")
                     {
                         ApplicationArea = Basic, Suite;
+                        Editable = false;
                         ToolTip = 'Specifies the Invoice Type.';
                     }
                     field("ID Type"; "ID Type")
                     {
                         ApplicationArea = Basic, Suite;
+                        Editable = false;
                         ToolTip = 'Specifies the ID Type.';
                     }
                     field("Succeeded Company Name"; "Succeeded Company Name")
                     {
                         ApplicationArea = Basic, Suite;
+                        Editable = false;
                         ToolTip = 'Specifies the name of the company sucessor in connection with corporate restructuring.';
                     }
                     field("Succeeded VAT Registration No."; "Succeeded VAT Registration No.")
                     {
                         ApplicationArea = Basic, Suite;
+                        Editable = false;
                         ToolTip = 'Specifies the VAT registration number of the company sucessor in connection with corporate restructuring.';
                     }
                 }
@@ -366,6 +373,7 @@
                     field("Ship-to Country/Region Code"; "Ship-to Country/Region Code")
                     {
                         ApplicationArea = Service;
+                        Editable = false;
                         Caption = 'Country/Region';
                     }
                     field("Ship-to Contact"; "Ship-to Contact")
@@ -582,6 +590,26 @@
                 trigger OnAction()
                 begin
                     ShowActivityLog;
+                end;
+            }
+            action("Update Document")
+            {
+                ApplicationArea = Service;
+                Caption = 'Update Document';
+                Image = Edit;
+                Promoted = true;
+                PromotedCategory = Process;
+                PromotedIsBig = true;
+                PromotedOnly = true;
+                ToolTip = 'Add new information that is relevant to the document. You can only edit a few fields because the document has already been posted.';
+
+                trigger OnAction()
+                var
+                    PostedServInvoiceUpdate: Page "Posted Serv. Invoice - Update";
+                begin
+                    PostedServInvoiceUpdate.LookupMode := true;
+                    PostedServInvoiceUpdate.SetRec(Rec);
+                    PostedServInvoiceUpdate.RunModal();
                 end;
             }
         }
