@@ -374,9 +374,7 @@
                 </TablixMember>
               </TablixMembers>
             </TablixRowHierarchy>
-            <PageBreak>
-              <BreakLocation>End</BreakLocation>
-            </PageBreak>
+            <KeepTogether>true</KeepTogether>
             <Filters>
               <Filter>
                 <FilterExpression>=Fields!CompanyInformation_1_.Value</FilterExpression>
@@ -3616,7 +3614,7 @@
                 <Paragraph>
                   <TextRuns>
                     <TextRun>
-                      <Value>= ReportItems!textbox54.Value.ToString().Substring(0,4) &amp;" " &amp; iif(Code.GetCompanyInfo2Value(), Globals!PageNumber - 1,Globals!PageNumber)</Value>
+                      <Value>= ReportItems!textbox54.Value.ToString().Substring(0,6) &amp;" " &amp; iif(Code.GetCompanyInfo2Value(), Globals!PageNumber - 1,Globals!PageNumber)</Value>
                       <Style>
                         <FontSize>7pt</FontSize>
                       </Style>
@@ -3823,7 +3821,7 @@
                 <Paragraph>
                   <TextRuns>
                     <TextRun>
-                      <Value>= ReportItems!textbox29.Value.ToString().Substring(0,4) &amp;" " &amp; iif(Code.GetCompanyInfo1Value(), Globals!PageNumber - 1,Globals!PageNumber)</Value>
+                      <Value>= ReportItems!textbox29.Value.ToString().Substring(0,6) &amp;" " &amp; iif(Code.GetCompanyInfo1Value(), Globals!PageNumber - 1,Globals!PageNumber)</Value>
                       <Style>
                         <FontSize>7pt</FontSize>
                       </Style>

@@ -3534,6 +3534,7 @@
         TempFirstDocNo: Code[20];
         First: Boolean;
         IsHandled: Boolean;
+        PrevPostingDate: Date;
     begin
         IsHandled := false;
         OnBeforeRenumberDocNoOnLines(DocNo, GenJnlLine2, IsHandled);
@@ -3562,11 +3563,14 @@
                     if "Document No." = FirstDocNo then
                         exit;
                     if not First and
-                        (("Document No." <> PrevDocNo) or (("Bal. Account No." <> '') and ("Document No." = ''))) and
+                        (("Document No." <> PrevDocNo) or
+                          ("Posting Date" <> PrevPostingDate) or
+                        (("Bal. Account No." <> '') and ("Document No." = ''))) and
                         not LastGenJnlLine.EmptyLine
                     then
                         DocNo := IncStr(DocNo);
                     PrevDocNo := "Document No.";
+                    PrevPostingDate := "Posting Date";
                     if "Document No." <> '' then begin
                         if "Applies-to ID" = "Document No." then
                             RenumberAppliesToID(GenJnlLine2, "Document No.", DocNo);
