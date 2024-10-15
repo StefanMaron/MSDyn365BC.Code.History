@@ -214,6 +214,9 @@ page 5902 "Service Order Subform"
                             CurrPage.SaveRecord();
                             Rec.LendLoanerWithConfirmation(true);
                         end;
+
+                        if Rec."Loaner No." <> '' then
+                            CurrPage.SaveRecord();
                     end;
                 }
                 field("Vendor No."; Rec."Vendor No.")

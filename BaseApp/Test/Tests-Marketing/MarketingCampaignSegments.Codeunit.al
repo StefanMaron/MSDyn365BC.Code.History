@@ -32,6 +32,7 @@ codeunit 136200 "Marketing Campaign Segments"
         InteractionTemplateCode2: Code[10];
         SegmentHeaderNo2: Code[20];
         InterTemplateSalesInvoicesNotSpecifiedErr: Label 'The Invoices field on the Sales FastTab in the Interaction Template Setup window must be filled in.';
+        ValueMustBeEqualErr: Label '%1 must be equal to %2 in the %3.', Comment = '%1 = Field Caption , %2 = Expected Value, %3 = Table Caption';
 
     [Test]
     [HandlerFunctions('CreateInteractModalFormHandler')]
@@ -1245,6 +1246,45 @@ codeunit 136200 "Marketing Campaign Segments"
         VerifyCampaignTargetGroupExists(CampaignTargetGroup.Type::Contact, CompanyContact."No.", Campaign."No.");
     end;
 
+    [Test]
+    [HandlerFunctions('CallVeryPositiveModalFormHandler')]
+    [Scope('OnPrem')]
+    procedure VerifySegmentNoExistOnCreatedOpportunity()
+    var
+        SegmentHeader: Record "Segment Header";
+        SegmentLine: Record "Segment Line";
+        Opportunity: Record Opportunity;
+        MakePhoneCall: TestPage "Make Phone Call";
+        Segment: TestPage Segment;
+    begin
+        // [SCENARIO 486119] No opportunity is created from segments, when choosing Yes in the dialog.
+        Initialize();
+
+        // [GIVEN] Setup: Create new Segment Header, Segment Line, Campaign, Opportunity for Contact in Segment Line.
+        LibraryMarketing.CreateSegmentHeader(SegmentHeader);
+        CreateSegmentLineWithContact(SegmentLine, SegmentHeader."No.");
+
+        // [GIVEN] Open Segment Card and Invoke Make Phone Call action for the Segment Line
+        Segment.OpenView();
+        Segment.GoToRecord(SegmentHeader);
+        MakePhoneCall.Trap();
+        Segment.SegLines."Make &Phone Call".Invoke();
+        Segment.Close();
+
+        // [THEN] Get newly created opportunity
+        Opportunity.Get(LibraryVariableStorage.DequeueText());
+
+        // [VERIFY] Verify: Opportunity "Segment No." field values equals to the Segment "No." field
+        Assert.AreEqual(
+            SegmentHeader."No.",
+            Opportunity."Segment No.",
+            StrSubstNo(
+                ValueMustBeEqualErr,
+                Opportunity.FieldCaption("Segment No."),
+                SegmentHeader."No.",
+                Opportunity.TableCaption()));
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -1893,7 +1933,6 @@ codeunit 136200 "Marketing Campaign Segments"
     end;
 
     local procedure CreateSegmentLineWithContCampaign(var SegmentLine: Record "Segment Line"; ContactNo: Code[20]; CampaignNo: Code[20])
-    var
     begin
         LibraryMarketing.CreateSegmentLine(SegmentLine, '');
         SegmentLine.Validate("Contact No.", ContactNo);
@@ -2045,6 +2084,27 @@ codeunit 136200 "Marketing Campaign Segments"
             SavedSegmentCriteriaLine.Insert(true);
         until SegmentCriteriaLine.Next() = 0;
         Response := ACTION::OK;
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure CallVeryPositiveModalFormHandler(var MakePhoneCall: Page "Make Phone Call"; var Response: Action)
+    var
+        TempSegmentLine: Record "Segment Line" temporary;
+        OpportunityNo: Code[20];
+    begin
+        MakePhoneCall.GetRecord(TempSegmentLine);
+        CreateTemporarySegmentLine(TempSegmentLine);
+        NextStepMakePhoneCallWizard(TempSegmentLine);
+
+        TempSegmentLine.Validate(Evaluation, TempSegmentLine.Evaluation::"Very Positive");
+        NextStepMakePhoneCallWizard(TempSegmentLine);
+
+        OpportunityNo := TempSegmentLine.CreateOpportunity();
+        LibraryVariableStorage.Enqueue(OpportunityNo);
+
+        TempSegmentLine.Validate("Opportunity No.", OpportunityNo);
+        FinishMakePhoneCallWizard(TempSegmentLine);
     end;
 
     [ConfirmHandler]

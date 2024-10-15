@@ -168,7 +168,7 @@ table 5077 "Segment Line"
                     Rec."Campaign No." := '';
                 Modify();
 
-                if Rec."Segment No." <> '' then begin
+                if (Rec."Segment No." <> '') and (Rec.Description <> '') then begin
                     SegInteractLanguage.Reset();
                     SegInteractLanguage.SetRange("Segment No.", Rec."Segment No.");
                     SegInteractLanguage.SetRange("Segment Line No.", Rec."Line No.");
@@ -610,7 +610,7 @@ table 5077 "Segment Line"
             exit;
 
         // Delete old attachment if changed
-        if Rec."Attachment No." <> 0 then begin
+        if (Rec."Attachment No." <> 0) and (Rec."Contact No." <> xRec."Contact No.") then begin
             Attachment.Get(Rec."Attachment No.");
             Attachment.Delete();
         end;
@@ -811,6 +811,7 @@ table 5077 "Segment Line"
             exit;
 
         ContactGlobal.Get("Contact No.");
+        TempSegmentLine."Segment No." := "Segment No.";
         TempSegmentLine."Contact No." := ContactGlobal."No.";
         TempSegmentLine."Contact Via" := ContactGlobal."Phone No.";
         TempSegmentLine."Contact Company No." := ContactGlobal."Company No.";
