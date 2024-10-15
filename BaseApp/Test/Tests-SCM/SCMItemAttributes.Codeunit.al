@@ -31,6 +31,7 @@ codeunit 137413 "SCM Item Attributes"
         WrongAttrNameForUnknownLanguageErr: Label 'Default attribute name should be used when the selected system language is not set up';
         IsInitialized: Boolean;
         ItemAttributeValueNotFoundErr: Label 'Item Attribute Value of type %1 and value %2 was not found.';
+        MissingAttributeNameErr: Label 'Name must have a value in Item Attribute: ID=0. It cannot be zero or empty.';
 
     local procedure CreateItemAndSetOfItemsAttributes(var Item: Record Item)
     begin
@@ -2496,6 +2497,25 @@ codeunit 137413 "SCM Item Attributes"
         Assert.AreEqual(Item."No.", ItemList."No.".Value, '');
 
         ItemList.Close();
+    end;
+
+    [Test]
+    procedure VerifyForbiddenInsertItemAttributeWithBlankName()
+    var
+        ItemAttribute: Record "Item Attribute";
+    begin
+        // [SCENARIO 464054] Verify that is not allowed to create new Item Attribute without Name value
+        // [GIVEN] Init Item Attribute rec
+        ItemAttribute.Init();
+
+        // [GIVEN] Set Item Attribute type
+        ItemAttribute.Validate(Type, ItemAttribute.Type::Date);
+
+        // [WHEN] Try to insert new record
+        asserterror ItemAttribute.Insert(true);
+
+        // [THEN] Verify error for missing Name value
+        Assert.AreEqual(GetLastErrorText(), MissingAttributeNameErr, 'Different error occur from expected.');
     end;
 
     local procedure Initialize()
