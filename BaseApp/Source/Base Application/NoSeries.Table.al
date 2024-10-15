@@ -109,7 +109,7 @@ table 308 "No. Series"
         AllowGaps := NoSeriesLine."Allow Gaps in Nos.";
     end;
 
-    internal procedure FindNoSeriesLineToShow(var NoSeriesLine: Record "No. Series Line")
+    procedure FindNoSeriesLineToShow(var NoSeriesLine: Record "No. Series Line")
     var
         NoSeriesMgt: Codeunit NoSeriesManagement;
     begin
