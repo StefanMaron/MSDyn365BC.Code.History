@@ -8,6 +8,7 @@ page 9308 "Purchase Invoices"
     Editable = false;
     PageType = List;
     QueryCategory = 'Purchase Invoices';
+    RefreshOnActivate = true;
     SourceTable = "Purchase Header";
     SourceTableView = WHERE("Document Type" = CONST(Invoice));
     UsageCategory = Lists;

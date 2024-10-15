@@ -84,6 +84,8 @@ table 44 "Sales Comment Line"
     var
         SalesCommentLine: Record "Sales Comment Line";
     begin
+        OnBeforeSetUpNewLine(Rec, SalesCommentLine);
+
         SalesCommentLine.SetRange("Document Type", "Document Type");
         SalesCommentLine.SetRange("No.", "No.");
         SalesCommentLine.SetRange("Document Line No.", "Document Line No.");
@@ -250,6 +252,11 @@ table 44 "Sales Comment Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCopyCommentsOnBeforeInsert(var NewSalesCommentLine: Record "Sales Comment Line"; OldSalesCommentLine: Record "Sales Comment Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSetUpNewLine(var SalesCommentLineRec: Record "Sales Comment Line"; var SalesCommentLineFilter: Record "Sales Comment Line")
     begin
     end;
 }

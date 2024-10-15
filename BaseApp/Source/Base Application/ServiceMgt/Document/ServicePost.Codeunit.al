@@ -81,7 +81,7 @@
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforePostWithLines(PassedServHeader, PassedServLine, PassedShip, PassedConsume, PassedInvoice, PostingDateExists, HideValidationDialog, IsHandled);
+        OnBeforePostWithLines(PassedServHeader, PassedServLine, PassedShip, PassedConsume, PassedInvoice, PostingDateExists, HideValidationDialog, IsHandled, PreviewMode);
         if not IsHandled then begin
 
             ServiceHeader := PassedServHeader;
@@ -651,7 +651,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforePostWithLines(var PassedServHeader: Record "Service Header"; var PassedServLine: Record "Service Line"; var PassedShip: Boolean; var PassedConsume: Boolean; var PassedInvoice: Boolean; var PostingDateExists: Boolean; var HideValidationDialog: Boolean; var IsHandled: Boolean)
+    local procedure OnBeforePostWithLines(var PassedServHeader: Record "Service Header"; var PassedServLine: Record "Service Line"; var PassedShip: Boolean; var PassedConsume: Boolean; var PassedInvoice: Boolean; var PostingDateExists: Boolean; var HideValidationDialog: Boolean; var IsHandled: Boolean; PreviewMode: Boolean)
     begin
     end;
 

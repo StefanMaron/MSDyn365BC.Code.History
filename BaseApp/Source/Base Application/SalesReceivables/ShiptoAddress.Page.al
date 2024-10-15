@@ -1,4 +1,4 @@
-page 300 "Ship-to Address"
+﻿page 300 "Ship-to Address"
 {
     Caption = 'Ship-to Address';
     DataCaptionExpression = Caption();
@@ -165,6 +165,12 @@ page 300 "Ship-to Address"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the customer number.';
                     Visible = false;
+                }
+                field("SAT Address ID"; Rec."SAT Address ID")
+                {
+                    ApplicationArea = BasicMX;
+                    ToolTip = 'Specifies the SAT address that the goods or merchandise are moved to.';
+                    BlankZero = true;
                 }
             }
         }

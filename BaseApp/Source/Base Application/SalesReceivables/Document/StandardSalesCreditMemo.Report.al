@@ -940,6 +940,8 @@ report 1307 "Standard Sales - Credit Memo"
                 if not IsReportInPreviewMode() then
                     CODEUNIT.Run(CODEUNIT::"Sales Cr. Memo-Printed", Header);
 
+                OnHeaderOnAfterGetRecordOnAfterUpdateNoPrinted(IsReportInPreviewMode(), Header);
+
                 CalcFields("Work Description");
                 ShowWorkDescription := "Work Description".HasValue;
                 CurrReport.Language := Language.GetLanguageIdOrDefault("Language Code");
@@ -1390,6 +1392,11 @@ report 1307 "Standard Sales - Credit Memo"
 
     [IntegrationEvent(false, false)]
     local procedure OnLineOnAfterGetRecordOnBeforeCheckLineDiscount(var SalesCrMemoLine: Record "Sales Cr.Memo Line"; var SalesCrMemoHeader: Record "Sales Cr.Memo Header")
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnHeaderOnAfterGetRecordOnAfterUpdateNoPrinted(ReportInPreviewMode: Boolean; var SalesCrMemoHeader: Record "Sales Cr.Memo Header")
     begin
     end;
 }

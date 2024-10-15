@@ -3,7 +3,7 @@ codeunit 1876 "Business Setup Subscribers"
 
     trigger OnRun()
     begin
-    end;
+    end; 
 
     var
         CompanyShortTitleTxt: Label 'Company';

@@ -108,7 +108,7 @@
         DataExchLineDef.Init();
         DataExchLineDef.SetRange("Data Exch. Def Code", DataExchDefCode);
         DataExchLineDef.SetRange("Line Type", DataExchLineDef."Line Type"::Header);
-        if DataExchLineDef.FindSet() then begin
+        if DataExchLineDef.FindSet() then
             repeat
                 // Insert the Data Exchange Header records
                 DataExch."Entry No." := 0;
@@ -183,7 +183,6 @@
                 if DataExchDef."Reading/Writing Codeunit" = CODEUNIT::"Exp. Writing EFT" then
                     EFTExportMgt.ExportDataExchToFlatFile(DataExch."Entry No.", Filename, DataExchLineDef."Line Type", HdrCount);
             until DataExchLineDef.Next() = 0;
-        end;
     end;
 
     local procedure ProcessDetails(var TempEFTExportWorkset: Record "EFT Export Workset" temporary; var BankAccount: Record "Bank Account"; DataExchDefCode: Code[20]; var DataExchEntryCodeDetail: Integer; var DetailArray: array[100] of Integer; Filename: Text; var EFTValues: Codeunit "EFT Values")

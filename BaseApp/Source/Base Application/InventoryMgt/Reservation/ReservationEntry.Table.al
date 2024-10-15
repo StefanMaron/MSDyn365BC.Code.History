@@ -988,6 +988,7 @@ table 337 "Reservation Entry"
                     OldReservEntry.TestItemFields(ItemNo, VariantCode, LocationCode);
 
                     NewReservEntry := OldReservEntry;
+                    OnTransferReservationsOnBeforeSetSourceForNewEntry(OldReservEntry, NewReservEntry);
                     NewReservEntry.SetSource(SourceType, SourceSubtype, SourceID, SourceRefNo, SourceBatchName, SourceProdOrderLine);
 
                     CreateReservEntry.SetQtyToHandleAndInvoiceForReservationWithoutItemTracking(NewReservEntry, NewReservEntry."Quantity (Base)", NewReservEntry."Quantity (Base)", false);
@@ -1379,6 +1380,11 @@ table 337 "Reservation Entry"
 
     [IntegrationEvent(false, false)]
     local procedure OnTransferReservationsOnAfterNewReservEntryUpdateActionMessageEntries(var OldReservEntry: Record "Reservation Entry"; var NewReservEntry: Record "Reservation Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnTransferReservationsOnBeforeSetSourceForNewEntry(var OldReservationEntry: Record "Reservation Entry"; var NewReservationEntry: Record "Reservation Entry")
     begin
     end;
 }

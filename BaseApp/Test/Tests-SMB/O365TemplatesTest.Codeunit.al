@@ -2731,6 +2731,7 @@ codeunit 138012 "O365 Templates Test"
 
         // Field Type: Option
         ItemTempl.Validate("Reordering Policy", ItemTempl."Reordering Policy"::"Fixed Reorder Qty.");
+        ItemTempl.Validate("Replenishment System", ItemTempl."Replenishment System"::"Prod. Order");
 
         ItemTempl.Modify(true);
     end;
@@ -2749,6 +2750,7 @@ codeunit 138012 "O365 Templates Test"
 
         // Field Type: Option
         ItemTempl.Validate("Reordering Policy", ItemTempl."Reordering Policy"::" ");
+        ItemTempl.Validate("Replenishment System", ItemTempl."Replenishment System"::Purchase);
 
         ItemTempl.Modify(true);
     end;
@@ -2759,6 +2761,7 @@ codeunit 138012 "O365 Templates Test"
         Assert.IsTrue(Item."Gen. Prod. Posting Group" = ItemTempl."Gen. Prod. Posting Group", InsertedItemErr);
         Assert.IsTrue(Item."Shelf No." = ItemTempl."Shelf No.", InsertedItemErr);
         Assert.IsTrue(Item."Lead Time Calculation" = ItemTempl."Lead Time Calculation", InsertedItemErr);
+        Assert.IsTrue(Item."Replenishment System" = ItemTempl."Replenishment System", InsertedItemErr);
     end;
 
     local procedure VerifyItemDataNotEqualAfterApplyTemplate(Item: Record Item; ItemTempl: Record "Item Templ.")
@@ -2768,6 +2771,7 @@ codeunit 138012 "O365 Templates Test"
         Assert.IsFalse(Item."Shelf No." = ItemTempl."Shelf No.", InsertedItemErr);
         Assert.IsFalse(Item."Lead Time Calculation" = ItemTempl."Lead Time Calculation", InsertedItemErr);
         Assert.IsFalse(Item."Reordering Policy" = ItemTempl."Reordering Policy", InsertedItemErr);
+        Assert.IsFalse(Item."Replenishment System" = ItemTempl."Replenishment System", InsertedItemErr);
     end;
 
     [ModalPageHandler]

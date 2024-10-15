@@ -43,7 +43,7 @@
                 exit;
 
             IsHandled := false;
-            OnBeforeReleaseSalesDoc(SalesHeader, PreviewMode, IsHandled, SkipCheckReleaseRestrictions);
+            OnBeforeReleaseSalesDoc(SalesHeader, PreviewMode, IsHandled, SkipCheckReleaseRestrictions, SkipWhseRequestOperations);
             if IsHandled then
                 exit;
             if not (PreviewMode or SkipCheckReleaseRestrictions) then
@@ -102,7 +102,7 @@
             if ShouldSetStatusPrepayment then begin
                 Status := Status::"Pending Prepayment";
                 Modify(true);
-                OnAfterReleaseSalesDoc(SalesHeader, PreviewMode, LinesWereModified);
+                OnAfterReleaseSalesDoc(SalesHeader, PreviewMode, LinesWereModified, SkipWhseRequestOperations);
                 exit;
             end;
 
@@ -124,7 +124,7 @@
                     if not SkipWhseRequestOperations then
                         WhseSalesRelease.Release(SalesHeader);
 
-            OnAfterReleaseSalesDoc(SalesHeader, PreviewMode, LinesWereModified);
+            OnAfterReleaseSalesDoc(SalesHeader, PreviewMode, LinesWereModified, SkipWhseRequestOperations);
         end;
     end;
 
@@ -133,7 +133,7 @@
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeCheckSalesLines(SalesHeader, SalesLine, IsHandled);
+        OnBeforeCheckSalesLines(SalesHeader, SalesLine, IsHandled, LinesWereModified);
         if IsHandled then
             exit;
 
@@ -196,7 +196,7 @@
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeReopenSalesDoc(SalesHeader, PreviewMode, IsHandled);
+        OnBeforeReopenSalesDoc(SalesHeader, PreviewMode, IsHandled, SkipWhseRequestOperations);
         if IsHandled then
             exit;
 
@@ -215,7 +215,7 @@
                     WhseSalesRelease.Reopen(SalesHeader);
         end;
 
-        OnAfterReopenSalesDoc(SalesHeader, PreviewMode);
+        OnAfterReopenSalesDoc(SalesHeader, PreviewMode, SkipWhseRequestOperations);
     end;
 
     procedure PerformManualRelease(var SalesHeader: Record "Sales Header")
@@ -409,12 +409,12 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeReleaseSalesDoc(var SalesHeader: Record "Sales Header"; PreviewMode: Boolean; var IsHandled: Boolean; var SkipCheckReleaseRestrictions: Boolean)
+    local procedure OnBeforeReleaseSalesDoc(var SalesHeader: Record "Sales Header"; PreviewMode: Boolean; var IsHandled: Boolean; var SkipCheckReleaseRestrictions: Boolean; SkipWhseRequestOperations: Boolean)
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterReleaseSalesDoc(var SalesHeader: Record "Sales Header"; PreviewMode: Boolean; var LinesWereModified: Boolean)
+    local procedure OnAfterReleaseSalesDoc(var SalesHeader: Record "Sales Header"; PreviewMode: Boolean; var LinesWereModified: Boolean; SkipWhseRequestOperations: Boolean)
     begin
     end;
 
@@ -429,7 +429,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCheckSalesLines(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; var IsHandled: Boolean)
+    local procedure OnBeforeCheckSalesLines(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; var IsHandled: Boolean; var LinesWereModified: Boolean)
     begin
     end;
 
@@ -439,7 +439,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeReopenSalesDoc(var SalesHeader: Record "Sales Header"; PreviewMode: Boolean; var IsHandled: Boolean)
+    local procedure OnBeforeReopenSalesDoc(var SalesHeader: Record "Sales Header"; PreviewMode: Boolean; var IsHandled: Boolean; SkipWhseRequestOperations: Boolean)
     begin
     end;
 
@@ -464,7 +464,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterReopenSalesDoc(var SalesHeader: Record "Sales Header"; PreviewMode: Boolean)
+    local procedure OnAfterReopenSalesDoc(var SalesHeader: Record "Sales Header"; PreviewMode: Boolean; SkipWhseRequestOperations: Boolean)
     begin
     end;
 
