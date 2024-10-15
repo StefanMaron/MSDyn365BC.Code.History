@@ -34,7 +34,7 @@ page 466 "Tax Jurisdictions"
                     DecimalPlaces = 1 : 4;
                     Enabled = DefaultTaxIsEnabled;
                     Style = Subordinate;
-                    StyleExpr = NOT DefaultTaxIsEnabled;
+                    StyleExpr = not DefaultTaxIsEnabled;
                     ToolTip = 'Specifies the default tax in locations where the sales tax and use tax are identical.';
 
                     trigger OnLookup(var Text: Text): Boolean

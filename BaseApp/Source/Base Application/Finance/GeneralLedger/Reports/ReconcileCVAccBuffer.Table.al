@@ -7,6 +7,7 @@ table 384 "Reconcile CV Acc Buffer"
 {
     Caption = 'Reconcile CV Acc Buffer';
     ReplicateData = false;
+    DataClassification = CustomerContent;
 
     fields
     {

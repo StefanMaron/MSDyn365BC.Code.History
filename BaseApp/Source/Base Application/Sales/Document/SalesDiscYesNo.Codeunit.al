@@ -17,9 +17,8 @@ codeunit 61 "Sales-Disc. (Yes/No)"
             exit;
 
         SalesLine.Copy(Rec);
-        with SalesLine do
-            if ConfirmManagement.GetResponseOrDefault(Text000, true) then
-                CODEUNIT.Run(CODEUNIT::"Sales-Calc. Discount", SalesLine);
+        if ConfirmManagement.GetResponseOrDefault(Text000, true) then
+            CODEUNIT.Run(CODEUNIT::"Sales-Calc. Discount", SalesLine);
         Rec := SalesLine;
     end;
 

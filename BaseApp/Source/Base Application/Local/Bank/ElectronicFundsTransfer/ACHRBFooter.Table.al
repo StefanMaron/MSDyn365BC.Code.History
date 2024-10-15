@@ -9,6 +9,7 @@ using System.IO;
 table 10305 "ACH RB Footer"
 {
     Caption = 'ACH RB Footer';
+    DataClassification = CustomerContent;
 
     fields
     {

@@ -10,6 +10,7 @@ table 320 "Tax Jurisdiction"
     Caption = 'Tax Jurisdiction';
     DataCaptionFields = "Code", Description;
     LookupPageID = "Tax Jurisdictions";
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -251,20 +252,6 @@ table 320 "Tax Jurisdiction"
         TaxDetail.SetRange("Tax Jurisdiction Code", Code);
         TaxDetail.DeleteAll();
     end;
-
-#if not CLEAN21
-    [Obsolete('Replaced with GetDescriptionInCurrentLanguageFullLength.', '21.0')]
-    procedure GetDescriptionInCurrentLanguage(): Text[50]
-    var
-        TaxJurisdictionTranslation: Record "Tax Jurisdiction Translation";
-        Language: Codeunit Language;
-    begin
-        if TaxJurisdictionTranslation.Get(Code, Language.GetUserLanguageCode()) then
-            exit(CopyStr(TaxJurisdictionTranslation.Description, 1, 50));
-
-        exit(CopyStr(Description, 1, 50));
-    end;
-#endif
 
     procedure GetDescriptionInCurrentLanguageFullLength(): Text[100]
     var

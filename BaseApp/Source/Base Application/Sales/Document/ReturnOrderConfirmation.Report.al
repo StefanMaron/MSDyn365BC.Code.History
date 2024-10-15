@@ -757,8 +757,8 @@ report 6631 "Return Order Confirmation"
 
             trigger OnAfterGetRecord()
             begin
-                CurrReport.Language := Language.GetLanguageIdOrDefault("Language Code");
-                CurrReport.FormatRegion := Language.GetFormatRegionOrDefault("Format Region");
+                CurrReport.Language := LanguageMgt.GetLanguageIdOrDefault("Language Code");
+                CurrReport.FormatRegion := LanguageMgt.GetFormatRegionOrDefault("Format Region");
                 FormatAddr.SetLanguageCode("Language Code");
 
                 FormatAddressFields("Sales Header");
@@ -886,7 +886,6 @@ report 6631 "Return Order Confirmation"
     var
         GLSetup: Record "General Ledger Setup";
         SalesPurchPerson: Record "Salesperson/Purchaser";
-        CompanyInfo: Record "Company Information";
         TempVATAmountLine: Record "VAT Amount Line" temporary;
         TempSalesLine: Record "Sales Line" temporary;
         DimSetEntry1: Record "Dimension Set Entry";
@@ -896,7 +895,7 @@ report 6631 "Return Order Confirmation"
         SellToContact: Record Contact;
         BillToContact: Record Contact;
         Cust: Record Customer;
-        Language: Codeunit Language;
+        LanguageMgt: Codeunit Language;
         FormatAddr: Codeunit "Format Address";
         FormatDocument: Codeunit "Format Document";
         SegManagement: Codeunit SegManagement;
@@ -980,6 +979,7 @@ report 6631 "Return Order Confirmation"
         BillToContactEmailLbl: Label 'Bill-to Contact E-Mail';
 
     protected var
+        CompanyInfo: Record "Company Information";
         CompanyInfo1: Record "Company Information";
         CompanyInfo2: Record "Company Information";
         CompanyInfo3: Record "Company Information";
@@ -1013,13 +1013,11 @@ report 6631 "Return Order Confirmation"
 
     local procedure FormatDocumentFields(SalesHeader: Record "Sales Header")
     begin
-        with SalesHeader do begin
-            FormatDocument.SetTotalLabels("Currency Code", TotalText, TotalInclVATText, TotalExclVATText);
-            FormatDocument.SetSalesPerson(SalesPurchPerson, "Salesperson Code", SalesPersonText);
+        FormatDocument.SetTotalLabels(SalesHeader."Currency Code", TotalText, TotalInclVATText, TotalExclVATText);
+        FormatDocument.SetSalesPerson(SalesPurchPerson, SalesHeader."Salesperson Code", SalesPersonText);
 
-            ReferenceText := FormatDocument.SetText("Your Reference" <> '', FieldCaption("Your Reference"));
-            VATNoText := FormatDocument.SetText("VAT Registration No." <> '', FieldCaption("VAT Registration No."));
-        end;
+        ReferenceText := FormatDocument.SetText(SalesHeader."Your Reference" <> '', SalesHeader.FieldCaption("Your Reference"));
+        VATNoText := FormatDocument.SetText(SalesHeader."VAT Registration No." <> '', SalesHeader.FieldCaption("VAT Registration No."));
     end;
 
     [IntegrationEvent(true, false)]

@@ -10,6 +10,7 @@ table 27010 "SAT Classification"
     DataPerCompany = false;
     DrillDownPageID = "SAT Classifications";
     LookupPageID = "SAT Classifications";
+    DataClassification = CustomerContent;
 
     fields
     {

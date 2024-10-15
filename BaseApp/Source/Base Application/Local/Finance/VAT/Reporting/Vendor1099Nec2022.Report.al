@@ -1,4 +1,5 @@
-﻿// ------------------------------------------------------------------------------------------------
+﻿#if not CLEAN25
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -16,6 +17,9 @@ report 10182 "Vendor 1099 Nec 2022"
     RDLCLayout = './Local/Finance/VAT/Reporting/Vendor1099Nec2022.rdlc';
     ApplicationArea = Basic, Suite;
     UsageCategory = ReportsAndAnalysis;
+    ObsoleteReason = 'Moved to IRS Forms App.';
+    ObsoleteState = Pending;
+    ObsoleteTag = '25.0';
 
     dataset
     {
@@ -256,16 +260,14 @@ report 10182 "Vendor 1099 Nec 2022"
     begin
         EntryApplicationManagement.GetAppliedVendorEntries(
           TempVendorLedgerEntry, VendorNo, PeriodDate, true);
-        with TempVendorLedgerEntry do begin
-            SetFilter("Document Type", '%1|%2', "Document Type"::Invoice, "Document Type"::"Credit Memo");
-            SetFilter("IRS 1099 Amount", '<>0');
-            SetFilter("IRS 1099 Code", 'NEC*');
-            if FindSet() then
-                repeat
-                    IRS1099Management.Calculate1099Amount(
-                      Invoice1099Amount, Amounts, Codes, LastLineNo, TempVendorLedgerEntry, "Amount to Apply");
-                until Next() = 0;
-        end;
+        TempVendorLedgerEntry.SetFilter("Document Type", '%1|%2', TempVendorLedgerEntry."Document Type"::Invoice, TempVendorLedgerEntry."Document Type"::"Credit Memo");
+        TempVendorLedgerEntry.SetFilter("IRS 1099 Amount", '<>0');
+        TempVendorLedgerEntry.SetFilter("IRS 1099 Code", 'NEC*');
+        if TempVendorLedgerEntry.FindSet() then
+            repeat
+                IRS1099Management.Calculate1099Amount(
+                  Invoice1099Amount, Amounts, Codes, LastLineNo, TempVendorLedgerEntry, TempVendorLedgerEntry."Amount to Apply");
+            until TempVendorLedgerEntry.Next() = 0;
     end;
 
     local procedure UpdatePeriodDateArray()
@@ -275,3 +277,4 @@ report 10182 "Vendor 1099 Nec 2022"
     end;
 }
 
+#endif

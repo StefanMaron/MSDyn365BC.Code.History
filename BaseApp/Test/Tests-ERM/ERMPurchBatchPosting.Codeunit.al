@@ -1,4 +1,4 @@
-﻿codeunit 134337 "ERM Purch. Batch Posting"
+codeunit 134337 "ERM Purch. Batch Posting"
 {
     Permissions = TableData "Batch Processing Parameter" = rimd,
                   TableData "Batch Processing Session Map" = rimd;
@@ -120,7 +120,7 @@
         LibraryJobQueue.SetDoNotHandleCodeunitJobQueueEnqueueEvent(true);
 
         // [GIVEN] Purchase Setup has "Posted Invoice Nos." = "Invoice Nos." and "Receipt on Invoice" = No
-        UpdateReceiptOnInvoiceOnPurchasePayablesSetup;
+        UpdateReceiptOnInvoiceOnPurchasePayablesSetup();
 
         // [GIVEN] Released Purchase Invoice with posting nos are already assigned
         CreatePurchaseDocument(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, true);
@@ -306,12 +306,12 @@
         LibraryJobQueue.FindAndRunJobQueueEntryByRecordId(PurchaseHeader.RecordId);
 
         // [THEN] Notification: 'An error occured during operation: batch processing of Purchase Header records.'
-        VerifyPurchHeaderNotification;
+        VerifyPurchHeaderNotification();
 
         // Verify that Posted Purchase Invoice Exists.
         VerifyPostedPurchaseInvoice(PurchaseHeader."No.", PurchaseHeader."Posting Date", false);
         asserterror VerifyPostedPurchaseInvoice(PurchaseHeader2."No.", PurchaseHeader."Posting Date", false);
-        Assert.AssertNothingInsideFilter;
+        Assert.AssertNothingInsideFilter();
 
         Assert.TableIsEmpty(DATABASE::"Batch Processing Parameter");
     end;
@@ -336,7 +336,7 @@
         CreatePurchaseDocument(PurchaseHeader, PurchaseHeader."Document Type"::"Credit Memo", false);
         LibraryPurchase.ReleasePurchaseDocument(PurchaseHeader);
 
-        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.PurchaseCreditMemoApprovalWorkflowCode);
+        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.PurchaseCreditMemoApprovalWorkflowCode());
 
         // Create Purchase Cr. Memo.
         CreatePurchaseDocument(PurchaseHeader2, PurchaseHeader."Document Type"::"Credit Memo", false);
@@ -346,12 +346,12 @@
         LibraryJobQueue.FindAndRunJobQueueEntryByRecordId(PurchaseHeader.RecordId);
 
         // [THEN] Notification: 'An error occured during operation: batch processing of Purchase Header records.'
-        VerifyPurchHeaderNotification;
+        VerifyPurchHeaderNotification();
 
         // Verify that Posted Purchase Cr. Memo Exists.
         VerifyPostedPurchaseCrMemo(PurchaseHeader."No.", PurchaseHeader."Posting Date", false);
         asserterror VerifyPostedPurchaseCrMemo(PurchaseHeader2."No.", PurchaseHeader."Posting Date", false);
-        Assert.AssertNothingInsideFilter;
+        Assert.AssertNothingInsideFilter();
 
         Assert.TableIsEmpty(DATABASE::"Batch Processing Parameter");
     end;
@@ -376,7 +376,7 @@
         CreatePurchaseDocument(PurchaseHeader, PurchaseHeader."Document Type"::Order, false);
         LibraryPurchase.ReleasePurchaseDocument(PurchaseHeader);
 
-        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.PurchaseOrderApprovalWorkflowCode);
+        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.PurchaseOrderApprovalWorkflowCode());
 
         // Create Purchase Order.
         CreatePurchaseDocument(PurchaseHeader2, PurchaseHeader."Document Type"::Order, false);
@@ -386,12 +386,12 @@
         LibraryJobQueue.FindAndRunJobQueueEntryByRecordId(PurchaseHeader.RecordId);
 
         // [THEN] Notification: 'An error occured during operation: batch processing of Purchase Header records.'
-        VerifyPurchHeaderNotification;
+        VerifyPurchHeaderNotification();
 
         // Verify that Posted Purchase Order Exists.
         VerifyPostedPurchaseOrder(PurchaseHeader."No.", PurchaseHeader."Posting Date", false);
         asserterror VerifyPostedPurchaseOrder(PurchaseHeader2."No.", PurchaseHeader."Posting Date", false);
-        Assert.AssertNothingInsideFilter;
+        Assert.AssertNothingInsideFilter();
 
         Assert.TableIsEmpty(DATABASE::"Batch Processing Parameter");
     end;
@@ -416,7 +416,7 @@
         CreatePurchaseDocument(PurchaseHeader, PurchaseHeader."Document Type"::"Return Order", false);
         LibraryPurchase.ReleasePurchaseDocument(PurchaseHeader);
 
-        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.PurchaseReturnOrderApprovalWorkflowCode);
+        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.PurchaseReturnOrderApprovalWorkflowCode());
 
         // Create Purchase return order.
         CreatePurchaseDocument(PurchaseHeader2, PurchaseHeader."Document Type"::"Return Order", false);
@@ -426,12 +426,12 @@
         LibraryJobQueue.FindAndRunJobQueueEntryByRecordId(PurchaseHeader.RecordId);
 
         // [THEN] Notification: 'An error occured during operation: batch processing of Purchase Header records.'
-        VerifyPurchHeaderNotification;
+        VerifyPurchHeaderNotification();
 
         // Verify that Posted Purchase return order Exists.
         VerifyPostedPurchaseReturnOrder(PurchaseHeader."No.", PurchaseHeader."Posting Date", false);
         asserterror VerifyPostedPurchaseReturnOrder(PurchaseHeader2."No.", PurchaseHeader."Posting Date", false);
-        Assert.AssertNothingInsideFilter;
+        Assert.AssertNothingInsideFilter();
 
         Assert.TableIsEmpty(DATABASE::"Batch Processing Parameter");
     end;
@@ -452,7 +452,7 @@
 
         // [GIVEN] Purchase setup with enabled "Calc. Invoice Discount" and "Post with Job Queue"
         LibraryVariableStorageCounter.Clear();
-        LibraryWorkflow.DisableAllWorkflows;
+        LibraryWorkflow.DisableAllWorkflows();
         LibraryJobQueue.SetDoNotHandleCodeunitJobQueueEnqueueEvent(true);
         BindSubscription(LibraryJobQueue);
 
@@ -472,8 +472,8 @@
         end;
 
         // [THEN] Messages of Job Queue Entry creation have been omitted
-        Assert.ExpectedMessage(Format(BatchCompletedMsg), LibraryVariableStorageCounter.DequeueText);
-        LibraryVariableStorageCounter.AssertEmpty;
+        Assert.ExpectedMessage(Format(BatchCompletedMsg), LibraryVariableStorageCounter.DequeueText());
+        LibraryVariableStorageCounter.AssertEmpty();
 
         // [THEN] Invoices has been posted after queues execution
         for Index := 1 to ArrayLen(PurchaseHeader) do begin
@@ -502,7 +502,7 @@
 
         // [GIVEN] Purchase setup with enabled "Calc. Invoice Discount" and "Post with Job Queue"
         LibraryVariableStorageCounter.Clear();
-        LibraryWorkflow.DisableAllWorkflows;
+        LibraryWorkflow.DisableAllWorkflows();
         LibraryJobQueue.SetDoNotHandleCodeunitJobQueueEnqueueEvent(true);
         BindSubscription(LibraryJobQueue);
 
@@ -518,10 +518,10 @@
         // [THEN] Notification: 'An error occured during operation: batch processing of Purchase Header records.'
         // [THEN] Click on 'Details' action: opened "Error Messages" page with list of bad documents each time
         for Index := 1 to ArrayLen(PurchaseHeader) do begin
-            ErrorMessages.Trap;
+            ErrorMessages.Trap();
             RunBatchPostPurchase(PurchaseHeader[1]."Document Type", PurchaseHeader[1]."No." + '|' + PurchaseHeader[2]."No.", 0D, true);
 
-            VerifyPurchHeaderNotification;
+            VerifyPurchHeaderNotification();
             LibraryNotificationMgt.RecallNotificationsForRecordID(PurchaseHeader[1].RecordId);
             // Bug: 306600
             ErrorMessages.Source.AssertEquals(Format(PurchaseHeader[1].RecordId));
@@ -558,8 +558,8 @@
         BindSubscription(LibraryJobQueue);
         LibraryJobQueue.SetDoNotHandleCodeunitJobQueueEnqueueEvent(true);
 
-        BatchSessionID[1] := SessionId;
-        BatchSessionID[2] := SessionId - 1;
+        BatchSessionID[1] := SessionId();
+        BatchSessionID[2] := SessionId() - 1;
 
         PostingDate[1] := WorkDate() - 1;
         PostingDate[2] := WorkDate();
@@ -680,7 +680,7 @@
           PurchaseHeader[1]."Document Type", PurchaseHeader[1]."No." + '|' + PurchaseHeader[2]."No.", 0D, FALSE);
 
         // [THEN] 'Print' checkbox is not visible, so number "Purchase - Invoice" report runs = 0 (calculated in PurchaseInvoiceReportHandler)
-        Assert.AreEqual(0, LibraryVariableStorage.DequeueInteger, 'Number of printed invoice is not correct');
+        Assert.AreEqual(0, LibraryVariableStorage.DequeueInteger(), 'Number of printed invoice is not correct');
         Assert.IsFalse(LibraryVariableStorage.DequeueBoolean(), 'Print checkbox should not be invisible');
     end;
 
@@ -725,7 +725,6 @@
         JobQueueEntry: Record "Job Queue Entry";
         BatchProcessingSessionMap: Record "Batch Processing Session Map";
         LibraryJobQueue: Codeunit "Library - Job Queue";
-        PurchaseBatchPostMgt: Codeunit "Purchase Batch Post Mgt.";
         PostingDate: array[2] of Date;
     begin
         // [FEATURE] [Job Queue]
@@ -733,7 +732,7 @@
         Initialize();
 
         // [GIVEN] Purchase Setup has "Posted Invoice Nos." = "Invoice Nos." and "Receipt on Invoice" = No
-        UpdateReceiptOnInvoiceOnPurchasePayablesSetup;
+        UpdateReceiptOnInvoiceOnPurchasePayablesSetup();
 
         // [GIVEN] "Post & Print with Job Queue" and "Post with Job Queue" enabled in Purchase setup
         LibraryPurchase.SetPostAndPrintWithJobQueue(true);
@@ -768,7 +767,7 @@
         CODEUNIT.Run(JobQueueEntry."Object ID to Run", JobQueueEntry);
 
         // [THEN] Invoice 'B' is posted directly. 
-        Assert.IsFalse(PurchaseHeader[2].Find, 'Second Invoice should be posted');
+        Assert.IsFalse(PurchaseHeader[2].Find(), 'Second Invoice should be posted');
 
         // [THEN] InvoiceDiscount is calculated and Posting Date is updated in Invoices "A"
         VerifyPostedPurchaseInvoice(PurchaseHeader[1]."No.", PostingDate[1] + 1, true);
@@ -1197,7 +1196,7 @@
             PurchaseHeader.Modify(true);
         end;
         LibraryPurchase.CreatePurchaseLine(
-          PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, LibraryInventory.CreateItemNo, DocQuantity);
+          PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, LibraryInventory.CreateItemNo(), DocQuantity);
         PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandInt(100));
         PurchaseLine.Modify(true);
     end;
@@ -1215,7 +1214,7 @@
 
         BatchProcessingSessionMap."Record ID" := PurchaseHeader.RecordId;
         BatchProcessingSessionMap."Batch ID" := BatchProcessingParameter."Batch ID";
-        BatchProcessingSessionMap."User ID" := UserSecurityId;
+        BatchProcessingSessionMap."User ID" := UserSecurityId();
         BatchProcessingSessionMap."Session ID" := BachSessionID;
         BatchProcessingSessionMap.Insert();
     end;
@@ -1392,8 +1391,8 @@
     var
         PurchaseHeader: Record "Purchase Header";
     begin
-        Assert.ExpectedMessage(NotificationMsg, LibraryVariableStorage.DequeueText); // from SentNotificationHandler
-        LibraryVariableStorage.AssertEmpty;
+        Assert.ExpectedMessage(NotificationMsg, LibraryVariableStorage.DequeueText()); // from SentNotificationHandler
+        LibraryVariableStorage.AssertEmpty();
         Clear(PurchaseHeader);
         LibraryNotificationMgt.RecallNotificationsForRecord(PurchaseHeader);
     end;
@@ -1438,7 +1437,7 @@
         BatchPostPurchaseInvoices.ReplacePostingDate.SetValue(RunReplacePostingDate);
         BatchPostPurchaseInvoices.ReplaceDocumentDate.SetValue(RunReplacePostingDate);
         // CalcInvDiscount is set from Purchase Setup
-        BatchPostPurchaseInvoices.OK.Invoke;
+        BatchPostPurchaseInvoices.OK().Invoke();
     end;
 
     [RequestPageHandler]
@@ -1461,7 +1460,7 @@
         else
             BatchPostPurchaseCrMemos.ReplacePostingDate.SetValue(false);
         // CalcInvDiscount is set from Purchase Setup
-        BatchPostPurchaseCrMemos.OK.Invoke;
+        BatchPostPurchaseCrMemos.OK().Invoke();
     end;
 
     [RequestPageHandler]
@@ -1485,7 +1484,7 @@
             BatchPostPurchaseOrders.ReplacePostingDate.SetValue(false);
         BatchPostPurchaseOrders.Receive.SetValue(true);
         BatchPostPurchaseOrders.Invoice.SetValue(true);
-        BatchPostPurchaseOrders.OK.Invoke;
+        BatchPostPurchaseOrders.OK().Invoke();
     end;
 
     [RequestPageHandler]
@@ -1509,7 +1508,7 @@
             BatchPostPurchRetOrders.ReplacePostingDate.SetValue(false);
         BatchPostPurchRetOrders.Ship.SetValue(true);
         BatchPostPurchRetOrders.Invoice.SetValue(true);
-        BatchPostPurchRetOrders.OK.Invoke;
+        BatchPostPurchRetOrders.OK().Invoke();
     end;
 
     [RequestPageHandler]
@@ -1530,7 +1529,7 @@
         PrintVisible := BatchPostPurchaseInvoices.PrintDoc.Visible();
         if PrintVisible then
             BatchPostPurchaseInvoices.PrintDoc.SETVALUE(TRUE);
-        BatchPostPurchaseInvoices.OK.INVOKE;
+        BatchPostPurchaseInvoices.OK().Invoke();
 
         LibraryVariableStorage.Enqueue(PrintVisible);
         LibraryVariableStorage.Enqueue(0); // initialize report run counter
@@ -1540,7 +1539,7 @@
     [Scope('OnPrem')]
     PROCEDURE PurchaseInvoiceReportHandler(var PurchaseInvoice: Report "Purchase - Invoice");
     BEGIN
-        LibraryVariableStorage.Enqueue(LibraryVariableStorage.DequeueInteger + 1);
+        LibraryVariableStorage.Enqueue(LibraryVariableStorage.DequeueInteger() + 1);
     END;
 
     [MessageHandler]
@@ -1587,7 +1586,7 @@
             PostBatchForm.ReplaceDocumentDate.SetValue(true);
             PostBatchForm.CalcInvDisc.SetValue(not PurchasesPayablesSetup."Calc. Inv. Discount");
             PostBatchForm.PrintDoc.SetValue(true);
-            PostBatchForm.OK.Invoke();
+            PostBatchForm.OK().Invoke();
         end else begin
             Assert.AreEqual(PostBatchForm.PostingDate.AsDate(), 20200101D, 'Expected value to be restored.');
             Assert.AreEqual(PostBatchForm.ReplacePostingDate.AsBoolean(), true, 'Expected value to be restored.');
@@ -1615,7 +1614,7 @@
             PostBatchForm.ReplaceDocumentDate.SetValue(true);
             PostBatchForm.CalcInvDiscount.SetValue(not PurchasesPayablesSetup."Calc. Inv. Discount");
             PostBatchForm.PrintDoc.SetValue(true);
-            PostBatchForm.OK.Invoke();
+            PostBatchForm.OK().Invoke();
         end else begin
             Assert.AreEqual(PostBatchForm.PostingDate.AsDate(), 20200101D, 'Expected value to be restored.');
             Assert.AreEqual(PostBatchForm.ReplacePostingDate.AsBoolean(), true, 'Expected value to be restored.');

@@ -51,8 +51,12 @@ page 9004 "Bookkeeper Role Center"
     {
         area(rolecenter)
         {
+#if not CLEAN24
             group(Control1900724808)
             {
+                ObsoleteReason = 'Group removed for better alignment of Role Centers parts';
+                ObsoleteState = Pending;
+                ObsoleteTag = '24.0';
                 ShowCaption = false;
                 part(Control1901197008; "Bookkeeper Activities")
                 {
@@ -73,6 +77,9 @@ page 9004 "Bookkeeper Role Center"
             }
             group(Control1900724708)
             {
+                ObsoleteReason = 'Group removed for better alignment of Role Centers parts';
+                ObsoleteState = Pending;
+                ObsoleteTag = '24.0';
                 ShowCaption = false;
                 part(Control17; "My Job Queue")
                 {
@@ -92,6 +99,41 @@ page 9004 "Bookkeeper Role Center"
                     ApplicationArea = Basic, Suite;
                 }
             }
+#else
+            part(Control1901197008; "Bookkeeper Activities")
+            {
+                ApplicationArea = Basic, Suite;
+            }
+            part("User Tasks Activities"; "User Tasks Activities")
+            {
+                ApplicationArea = Suite;
+            }
+            part(ApprovalsActivities; "Approvals Activities")
+            {
+                ApplicationArea = Basic, Suite;
+            }
+            part(Control1907692008; "My Customers")
+            {
+                ApplicationArea = Basic, Suite;
+            }
+            part(Control17; "My Job Queue")
+            {
+                ApplicationArea = Basic, Suite;
+                Visible = false;
+            }
+            part(Control1902476008; "My Vendors")
+            {
+                ApplicationArea = Basic, Suite;
+            }
+            part(Control18; "Report Inbox Part")
+            {
+                ApplicationArea = Basic, Suite;
+            }
+            systempart(Control1901377608; MyNotes)
+            {
+                ApplicationArea = Basic, Suite;
+            }
+#endif
         }
     }
 
@@ -638,13 +680,18 @@ page 9004 "Bookkeeper Role Center"
                     RunObject = Page "No. Series";
                     ToolTip = 'View or edit the number series that are used to organize transactions';
                 }
+#if not CLEAN25
                 action("IRS 1099 Form-Box")
                 {
                     Caption = 'IRS 1099 Form-Box';
                     Image = "1099Form";
                     RunObject = Page "IRS 1099 Form-Box";
                     ToolTip = 'Set up 1099 tax forms to use on vendor cards, track posted amounts, and print or export 1099 information. After you have set up a 1099 code, you can enter it as a default 1099 form for a vendor.';
+                    ObsoleteReason = 'Moved to IRS Forms App.';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '25.0';
                 }
+#endif
                 action("GIFI Codes")
                 {
                     Caption = 'GIFI Codes';

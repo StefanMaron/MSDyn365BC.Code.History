@@ -64,7 +64,7 @@ codeunit 137402 "SCM Costing Batch"
 
         // Setup: Update Sales Receivable and Inventory Setup. Create and post Item Journal Lines.
         Initialize();
-        DisableAutomaticCostPosting;
+        DisableAutomaticCostPosting();
 
         Quantity := LibraryRandom.RandDec(100, 2);  // Use Random Quantity.
         SalesUnitAmount := SetPurchaseAndSaleAmount(PurchaseUnitAmount, PurchaseUnitAmount2);
@@ -81,7 +81,7 @@ codeunit 137402 "SCM Costing Batch"
 
         // Exercise: Run Adjust Cost Item Entries.
         RunAdjustCostItemEntries(Item."No.");
-        PostInvtCostToGL;
+        PostInvtCostToGL();
 
         // Verify: Verify Item Ledger Entry after running Adjust Cost Item Entries.
         VerifyItemLedgerEntry(
@@ -112,7 +112,7 @@ codeunit 137402 "SCM Costing Batch"
 
         // Setup: Update Sales Receivable and Inventory Setup. Create and post Item Journal Lines.
         Initialize();
-        DisableAutomaticCostPosting;
+        DisableAutomaticCostPosting();
 
         Quantity := LibraryRandom.RandDec(100, 2);  // Use Random Quantity.
         SalesUnitAmount := SetPurchaseAndSaleAmount(PurchaseUnitAmount, PurchaseUnitAmount2);
@@ -129,7 +129,7 @@ codeunit 137402 "SCM Costing Batch"
 
         // Exercise: Run Adjust Cost Item Entries.
         RunAdjustCostItemEntries(Item."No.");
-        PostInvtCostToGL;
+        PostInvtCostToGL();
 
         // Verify: Verify Value Entry after running Adjust Cost Item Entries.
         VerifyValueEntry(DocumentNo, ItemJournalLine."Entry Type"::Purchase, Item."No.", Quantity, Quantity * PurchaseUnitAmount, 0, false);
@@ -157,7 +157,7 @@ codeunit 137402 "SCM Costing Batch"
 
         // Setup: Update Sales Receivable and Inventory Setup. Create and post Item Journal Lines.
         Initialize();
-        DisableAutomaticCostPosting;
+        DisableAutomaticCostPosting();
 
         Quantity := LibraryRandom.RandDec(100, 2);  // Use Random Quantity.
         SalesUnitAmount := SetPurchaseAndSaleAmount(PurchaseUnitAmount, PurchaseUnitAmount2);
@@ -171,7 +171,7 @@ codeunit 137402 "SCM Costing Batch"
 
         // Exercise: Run Adjust Cost Item Entries.
         RunAdjustCostItemEntries(Item."No.");
-        PostInvtCostToGL;
+        PostInvtCostToGL();
 
         // Verify: Verify Item Statistics and Turnover after running Adjust Cost Item Entries.
         RunItemStatistics(Item."No.", "Analysis Rounding Factor"::None);
@@ -193,7 +193,7 @@ codeunit 137402 "SCM Costing Batch"
         Initialize();
 
         // [GIVEN] Turned off Warnings in Sales Receivable Setup, "Automatic Cost Posting"/Adjustment in Inventory Setup
-        DisableAutomaticCostPosting;
+        DisableAutomaticCostPosting();
 
         // [GIVEN] Sales Item Journal line with Sales Amount = "X"
         CreateItemDataRoundingFactor(ItemNo, Quantity, SalesUnitAmount, 1);
@@ -219,7 +219,7 @@ codeunit 137402 "SCM Costing Batch"
         Initialize();
 
         // [GIVEN] Turned off Warnings in Sales Receivable Setup, "Automatic Cost Posting"/Adjustment in Inventory Setup
-        DisableAutomaticCostPosting;
+        DisableAutomaticCostPosting();
 
         // [GIVEN] Sales Item Journal line with Sales Amount = "X"
         CreateItemDataRoundingFactor(ItemNo, Quantity, SalesUnitAmount, 1000);
@@ -249,7 +249,7 @@ codeunit 137402 "SCM Costing Batch"
 
         // Setup: Update Sales Receivable and Inventory Setup. Create and post Item Journal Lines.
         Initialize();
-        DisableAutomaticCostPosting;
+        DisableAutomaticCostPosting();
 
         Quantity := LibraryRandom.RandDec(100, 2);  // Use Random Quantity.
         SalesUnitAmount := SetPurchaseAndSaleAmount(PurchaseUnitAmount, PurchaseUnitAmount2);
@@ -263,10 +263,10 @@ codeunit 137402 "SCM Costing Batch"
             ItemJournalLine, ItemJournalLine."Entry Type"::Sale, Item."No.", Quantity + Quantity / 2, SalesUnitAmount);  // Quantity + Quantity / 2 is required for Adjust Cost Item Entries.
 
         // Exercise: Run Adjust Cost Item Entries.
-        PostInvtCostToGL;
+        PostInvtCostToGL();
         EntryNo := GetGLEntryNo(DocumentNo);
         RunAdjustCostItemEntries(Item."No.");
-        PostInvtCostToGL;
+        PostInvtCostToGL();
 
         // Verify: Verify G/L Entry after running Adjust Cost Item Entries.
         VerifyGLEntry(DocumentNo, EntryNo, -Quantity / 2 * (PurchaseUnitAmount2 - PurchaseUnitAmount));
@@ -287,7 +287,7 @@ codeunit 137402 "SCM Costing Batch"
         // Setup: Create Item and Standard Cost Worksheet Name. Run Suggest Item Standard Cost report.
         Initialize();
         CreateItem(Item);
-        StandardCostWorksheetName := CreateStandardCostWorksheetName;
+        StandardCostWorksheetName := CreateStandardCostWorksheetName();
         LibraryCosting.SuggestItemStandardCost(Item, StandardCostWorksheetName, LibraryRandom.RandInt(5), '');  // Use random value for Standard Cost Adjustment Factor.
 
         // Exercise: Run Implement Standard Cost Change.
@@ -317,7 +317,7 @@ codeunit 137402 "SCM Costing Batch"
         CreateItem(Item);
         CreateWorkCenter(WorkCenter);
         CreateMachineCenter(MachineCenter);
-        StandardCostWorksheetName := CreateStandardCostWorksheetName;
+        StandardCostWorksheetName := CreateStandardCostWorksheetName();
         LibraryCosting.SuggestItemStandardCost(Item, StandardCostWorksheetName, LibraryRandom.RandInt(5), '');  // Use random value for Standard Cost Adjustment Factor.
         LibraryCosting.SuggestCapacityStandardCost(
           WorkCenter, MachineCenter, StandardCostWorksheetName, LibraryRandom.RandInt(5), '');  // Use random value for Standard Cost Adjustment Factor.
@@ -366,7 +366,7 @@ codeunit 137402 "SCM Costing Batch"
     begin
         // Setup: Create Item and Standard Cost Worksheet Name.
         CreateItem(Item);
-        StandardCostWorksheetName := CreateStandardCostWorksheetName;
+        StandardCostWorksheetName := CreateStandardCostWorksheetName();
 
         // Exercise: Run Suggest Item Standard Cost.
         StandardCostAdjustmentFactor := LibraryRandom.RandInt(5);  // Use random value for Standard Cost Adjustment Factor.
@@ -415,7 +415,7 @@ codeunit 137402 "SCM Costing Batch"
         // Setup: Create Work Center, Machine Center and Standard Cost Worksheet Name.
         CreateWorkCenter(WorkCenter);
         CreateMachineCenter(MachineCenter);
-        StandardCostWorksheetName := CreateStandardCostWorksheetName;
+        StandardCostWorksheetName := CreateStandardCostWorksheetName();
 
         // Exercise: Run Implement Standard Cost Change.
         StandardCostAdjustmentFactor := LibraryRandom.RandInt(5);  // Use random value for Standard Cost Adjustment Factor.
@@ -448,7 +448,7 @@ codeunit 137402 "SCM Costing Batch"
 
         // Setup: Create Standard Cost Worksheet Name.
         Initialize();
-        StandardCostWorksheetName := CreateStandardCostWorksheetName;
+        StandardCostWorksheetName := CreateStandardCostWorksheetName();
         CreateItem(Item);
 
         // Exercise: Run Suggest Item Standard Cost.
@@ -471,7 +471,7 @@ codeunit 137402 "SCM Costing Batch"
 
         // Setup: Create Standard Cost Worksheet Name. Run Suggest Item Standard Cost.
         Initialize();
-        StandardCostWorksheetName := CreateStandardCostWorksheetName;
+        StandardCostWorksheetName := CreateStandardCostWorksheetName();
         CreateItem(Item);
         LibraryCosting.SuggestItemStandardCost(Item, StandardCostWorksheetName, LibraryRandom.RandInt(10), '');  // Use random value for Standard Cost Adjustment Factor.
 
@@ -498,7 +498,7 @@ codeunit 137402 "SCM Costing Batch"
 
         // Setup: Create Standard Cost Worksheet Name. Run Suggest Item Standard Cost.
         Initialize();
-        StandardCostWorksheetName := CreateStandardCostWorksheetName;
+        StandardCostWorksheetName := CreateStandardCostWorksheetName();
         CreateItem(Item);
         LibraryCosting.SuggestItemStandardCost(Item, StandardCostWorksheetName, LibraryRandom.RandInt(10), '');  // Use random value for Standard Cost Adjustment Factor.
         CountRowsBeforeRollup := GetNumberOfStandardCostWorksheetLines(StandardCostWorksheetName);
@@ -513,7 +513,7 @@ codeunit 137402 "SCM Costing Batch"
           GetNumberOfStandardCostWorksheetLines(StandardCostWorksheetName) > CountRowsBeforeRollup, StandardCostWorksheetMustExist);
     end;
 
-#if not CLEAN21
+#if not CLEAN23
     [Test]
     [Scope('OnPrem')]
     procedure SuggestItemPriceOnWorksheetWithSalesTypeCustomer()
@@ -523,7 +523,7 @@ codeunit 137402 "SCM Costing Batch"
         // Test functionality of Suggest Item Price On Worksheet report with Sales Type as Customer.
 
         Initialize();
-        SuggestItemPriceOnWorksheet(SalesPriceWorksheet."Sales Type"::Customer, CreateCustomer, '');
+        SuggestItemPriceOnWorksheet(SalesPriceWorksheet."Sales Type"::Customer, CreateCustomer(), '');
     end;
 
     [Test]
@@ -535,7 +535,7 @@ codeunit 137402 "SCM Costing Batch"
         // Test functionality of Suggest Item Price On Worksheet report with Sales Type as All Customers.
 
         Initialize();
-        SuggestItemPriceOnWorksheet(SalesPriceWorksheet."Sales Type"::"All Customers", '', CreateCurrency);
+        SuggestItemPriceOnWorksheet(SalesPriceWorksheet."Sales Type"::"All Customers", '', CreateCurrency());
     end;
 
     [Test]
@@ -547,7 +547,7 @@ codeunit 137402 "SCM Costing Batch"
         // Test functionality of Suggest Item Price On Worksheet report with Sales Type as Campaign.
 
         Initialize();
-        SuggestItemPriceOnWorksheet(SalesPriceWorksheet."Sales Type"::Campaign, CreateCampaign, CreateCurrency);
+        SuggestItemPriceOnWorksheet(SalesPriceWorksheet."Sales Type"::Campaign, CreateCampaign(), CreateCurrency());
     end;
 
     [Test]
@@ -559,7 +559,7 @@ codeunit 137402 "SCM Costing Batch"
         // Test functionality of Suggest Item Price On Worksheet report with Sales Type as Customer Price Group.
 
         Initialize();
-        SuggestItemPriceOnWorksheet(SalesPriceWorksheet."Sales Type"::"Customer Price Group", CreateCustomerPriceGroup, CreateCurrency);
+        SuggestItemPriceOnWorksheet(SalesPriceWorksheet."Sales Type"::"Customer Price Group", CreateCustomerPriceGroup(), CreateCurrency());
     end;
 
     local procedure SuggestItemPriceOnWorksheet(SalesType: Enum "Sales Price Type"; SalesCode: Code[20]; CurrencyCode: Code[10])
@@ -734,10 +734,10 @@ codeunit 137402 "SCM Costing Batch"
         // Setup: Create Work Center, Machine Center, Standard Cost Worksheet Name and Run Suggest Work And Machine Center Standard Cost Report.
         CreateWorkCenter(WorkCenter);
         CreateMachineCenter(MachineCenter);
-        StandardCostWorksheetName := CreateStandardCostWorksheetName;
+        StandardCostWorksheetName := CreateStandardCostWorksheetName();
         LibraryCosting.SuggestCapacityStandardCost(
           WorkCenter, MachineCenter, StandardCostWorksheetName, LibraryRandom.RandInt(5), StandardCostRoundingMethod);  // Use random value for Standard Cost Adjustment Factor.
-        StandardCostWorksheetName2 := CreateStandardCostWorksheetName;  // Create new Worksheet Name.
+        StandardCostWorksheetName2 := CreateStandardCostWorksheetName();  // Create new Worksheet Name.
 
         // Exercise: Run Copy Standard Cost Worksheet Report.
         LibraryCosting.CopyStandardCostWorksheet(StandardCostWorksheetName, StandardCostWorksheetName2);
@@ -747,7 +747,7 @@ codeunit 137402 "SCM Costing Batch"
         VerifyCopyStandardCostWorkSheet(StandardCostWorksheetName2, StandardCostWorksheet.Type::"Machine Center", MachineCenter."No.");
     end;
 
-#if not CLEAN21
+#if not CLEAN23
     [Test]
     [Scope('OnPrem')]
     procedure SuggestSalesPriceOnWorksheetWithSalesTypeCustomer()
@@ -755,7 +755,7 @@ codeunit 137402 "SCM Costing Batch"
         // Test functionality of Suggest Sales Price on Worksheet report with Sales Type as Customer.
 
         Initialize();
-        SuggestSalesPriceOnWorksheet("Sales Price Type"::Customer, CreateCustomer);
+        SuggestSalesPriceOnWorksheet("Sales Price Type"::Customer, CreateCustomer());
     end;
 
     [Test]
@@ -775,7 +775,7 @@ codeunit 137402 "SCM Costing Batch"
         // Test functionality of Suggest Sales Price on Worksheet report with Sales Type as Campaign.
 
         Initialize();
-        SuggestSalesPriceOnWorksheet("Sales Price Type"::Campaign, CreateCampaign);
+        SuggestSalesPriceOnWorksheet("Sales Price Type"::Campaign, CreateCampaign());
     end;
 
     [Test]
@@ -785,7 +785,7 @@ codeunit 137402 "SCM Costing Batch"
         // Test functionality of Suggest Sales Price on Worksheet report with Sales Type as Customer Price Group.
 
         Initialize();
-        SuggestSalesPriceOnWorksheet("Sales Price Type"::"Customer Price Group", CreateCustomerPriceGroup);
+        SuggestSalesPriceOnWorksheet("Sales Price Type"::"Customer Price Group", CreateCustomerPriceGroup());
     end;
 
     local procedure SuggestSalesPriceOnWorksheet(SalesType: Enum "Sales Price Type"; SalesCode: Code[20])
@@ -864,7 +864,7 @@ codeunit 137402 "SCM Costing Batch"
         // Test to check the functionality of Adjust Item Cost Prices report for Stock keeping Unit Last Direct Cost with Rounding method.
 
         // Setup: Create Item with Standard Cost. Create Stock keeping Unit and update Last Direct Cost. Set values to global variables. Find first Rounding method.
-        DeleteObjectOptionsIfNeeded;
+        DeleteObjectOptionsIfNeeded();
         CreateAndModifyItem(Item, Item."Costing Method"::Standard, LibraryRandom.RandDec(100, 2), 0);  // Taking Random value for Standard Cost. Taking 0 for Unit Price as it is not required in the test.
         CreateStockkeepingUnit(Item);
         LastDirectCost := UpdateLastDirectCostOnStockkeepingUnit(Item."No.");
@@ -910,7 +910,7 @@ codeunit 137402 "SCM Costing Batch"
         // Setup: Find a Stock Keeping Unit and update Last Direct Cost. Create Item with Vendor No.
         // Create Stock keeping Unit and update Last Direct Cost. Set values for global variables.
         NotChangedLastDirectCost := CreateSKUWithLastDirectCost(Item, '');
-        LastDirectCost := CreateSKUWithLastDirectCost(Item2, CreateVendor);
+        LastDirectCost := CreateSKUWithLastDirectCost(Item2, CreateVendor());
         DefineGlobalValues(
           Adjust::"Stockkeeping Unit Card", AdjustField::"Last Direct Cost", LibraryRandom.RandIntInRange(2, 5), '');
 
@@ -978,7 +978,7 @@ codeunit 137402 "SCM Costing Batch"
         LibraryInventory.PostItemJournalLine(ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name);
 
         // [WHEN] Post inventory cost to G/L
-        PostInvtCostToGL;
+        PostInvtCostToGL();
 
         // [THEN] "Cost Posted to G/L" is "X" in all value entries
         VerifyProdOrderCostPostedToGL(ProductionOrder."No.", WorkCenter."Unit Cost");
@@ -991,13 +991,13 @@ codeunit 137402 "SCM Costing Batch"
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"SCM Costing Batch");
         LibrarySetupStorage.Restore();
         LibraryVariableStorage.Clear();
-        LibrarySales.SetCreditWarningsToNoWarnings;
+        LibrarySales.SetCreditWarningsToNoWarnings();
         LibrarySales.SetStockoutWarning(false);
 
         // Clear global variables.
-        ClearGlobalVariables;
+        ClearGlobalVariables();
 
-        DeleteObjectOptionsIfNeeded;
+        DeleteObjectOptionsIfNeeded();
 
         // Lazy Setup.
         if isInitialized then
@@ -1079,7 +1079,7 @@ codeunit 137402 "SCM Costing Batch"
         PurchaseHeader: Record "Purchase Header";
     begin
         // Use random Quantity and Direct Unit Cost.
-        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, CreateVendor);
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, CreateVendor());
         LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, No, LibraryRandom.RandDec(100, 2));
         PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandDec(100, 2));
         PurchaseLine.Modify(true);
@@ -1091,7 +1091,7 @@ codeunit 137402 "SCM Costing Batch"
         SalesHeader: Record "Sales Header";
     begin
         // Use random Quantity and Unit Price.
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, CreateCustomer);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, CreateCustomer());
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, No, LibraryRandom.RandDec(100, 2));
         SalesLine.Validate("Unit Price", LibraryRandom.RandDec(100, 2));
         SalesLine.Modify(true);
@@ -1208,7 +1208,7 @@ codeunit 137402 "SCM Costing Batch"
     begin
         LibraryManufacturing.CreateRoutingHeader(RoutingHeader, RoutingHeader.Type::Serial);
         LibraryManufacturing.CreateRoutingLine(
-          RoutingHeader, RoutingLine, '', LibraryUtility.GenerateGUID, RoutingLine.Type::"Work Center", WorkCenterNo);
+          RoutingHeader, RoutingLine, '', LibraryUtility.GenerateGUID(), RoutingLine.Type::"Work Center", WorkCenterNo);
         RoutingLine.Validate("Run Time", LibraryRandom.RandInt(10));
         RoutingLine.Modify(true);
 
@@ -1216,7 +1216,7 @@ codeunit 137402 "SCM Costing Batch"
         RoutingHeader.Modify(true);
     end;
 
-#if not CLEAN21
+#if not CLEAN23
     local procedure CreateSalesPrice(Item: Record Item; SalesType: Enum "Sales Price Type"; SalesCode: Code[20])
     var
         SalesPrice: Record "Sales Price";
@@ -1241,12 +1241,11 @@ codeunit 137402 "SCM Costing Batch"
     var
         Location: Record Location;
         LibraryWarehouse: Codeunit "Library - Warehouse";
-        CreatePer: Option Location,Variant,"Location & Variant";
     begin
         LibraryWarehouse.CreateLocation(Location);
         Item.SetRange("No.", Item."No.");
         Item.SetRange("Location Filter", Location.Code);
-        LibraryInventory.CreateStockKeepingUnit(Item, CreatePer::Location, false, false);
+        LibraryInventory.CreateStockKeepingUnit(Item, "SKU Creation Method"::Location, false, false);
     end;
 
     local procedure CreateSKUWithLastDirectCost(var Item: Record Item; VendorNo: Code[20]): Decimal
@@ -1338,7 +1337,7 @@ codeunit 137402 "SCM Costing Batch"
         PostInventoryCosttoGL.InitializeRequest(PostMethod, '', true);
         PostInventoryCosttoGL.SetTableView(PostValueEntryToGL);
         PostInventoryCosttoGL.UseRequestPage(false);
-        PostInventoryCosttoGL.SaveAsPdf(StrSubstNo(FileName, TemporaryPath, LibraryUtility.GetGlobalNoSeriesCode));
+        PostInventoryCosttoGL.SaveAsPdf(StrSubstNo(FileName, TemporaryPath, LibraryUtility.GetGlobalNoSeriesCode()));
     end;
 
     local procedure RunAdjustCostItemEntries(ItemNoFilter: Text[250])
@@ -1427,9 +1426,9 @@ codeunit 137402 "SCM Costing Batch"
         ItemCard: TestPage "Item Card";
     begin
         LibraryVariableStorage.Enqueue(RoundingFactor);
-        ItemCard.OpenView;
+        ItemCard.OpenView();
         ItemCard.FILTER.SetFilter("No.", ItemNo);
-        ItemCard.Statistics.Invoke;
+        ItemCard.Statistics.Invoke();
     end;
 
     local procedure SelectItemJournalBatch(var ItemJournalBatch: Record "Item Journal Batch")
@@ -1452,7 +1451,7 @@ codeunit 137402 "SCM Costing Batch"
     begin
         RunAdjustCostItemEntries('');
         LibraryInventory.SetAutomaticCostPosting(false);
-        LibraryInventory.SetAutomaticCostAdjmtNever;
+        LibraryInventory.SetAutomaticCostAdjmtNever();
     end;
 
     local procedure UpdateLastDirectCostOnStockkeepingUnit(ItemNo: Code[20]): Decimal
@@ -1468,7 +1467,7 @@ codeunit 137402 "SCM Costing Batch"
     local procedure VerifyAverageCostCalcOverview(var AverageCostCalcOverview: TestPage "Average Cost Calc. Overview"; Type: Option; Quantity: Decimal)
     begin
         AverageCostCalcOverview.FILTER.SetFilter(Type, Format(Type));
-        AverageCostCalcOverview.AverageCostCntrl.AssertEquals(Round(AverageCost, LibraryERM.GetAmountRoundingPrecision));
+        AverageCostCalcOverview.AverageCostCntrl.AssertEquals(Round(AverageCost, LibraryERM.GetAmountRoundingPrecision()));
         AverageCostCalcOverview.Quantity.AssertEquals(Quantity);
     end;
 
@@ -1488,7 +1487,7 @@ codeunit 137402 "SCM Costing Batch"
         GLEntry.SetFilter("Entry No.", '>%1', EntryNo);
         GLEntry.FindFirst();
         Assert.AreNearlyEqual(
-          Amount, GLEntry.Amount, LibraryERM.GetAmountRoundingPrecision, StrSubstNo(ValidationError, GLEntry.FieldCaption(Amount), Amount));
+          Amount, GLEntry.Amount, LibraryERM.GetAmountRoundingPrecision(), StrSubstNo(ValidationError, GLEntry.FieldCaption(Amount), Amount));
     end;
 
     local procedure VerifyItemLedgerEntry(DocumentNo: Code[20]; EntryType: Enum "Item Ledger Document Type"; ItemNo: Code[20]; InvoicedQuantity: Decimal; CostAmountActual: Decimal; SalesAmountActual: Decimal; Open: Boolean)
@@ -1503,10 +1502,10 @@ codeunit 137402 "SCM Costing Batch"
         ItemLedgerEntry.CalcFields("Cost Amount (Actual)", "Sales Amount (Actual)");
         ItemLedgerEntry.TestField("Invoiced Quantity", InvoicedQuantity);
         Assert.AreNearlyEqual(
-          CostAmountActual, ItemLedgerEntry."Cost Amount (Actual)", LibraryERM.GetAmountRoundingPrecision,
+          CostAmountActual, ItemLedgerEntry."Cost Amount (Actual)", LibraryERM.GetAmountRoundingPrecision(),
           StrSubstNo(ValidationError, ItemLedgerEntry.FieldCaption("Cost Amount (Actual)"), CostAmountActual));
         Assert.AreNearlyEqual(
-          SalesAmountActual, ItemLedgerEntry."Sales Amount (Actual)", LibraryERM.GetAmountRoundingPrecision,
+          SalesAmountActual, ItemLedgerEntry."Sales Amount (Actual)", LibraryERM.GetAmountRoundingPrecision(),
           StrSubstNo(ValidationError, ItemLedgerEntry.FieldCaption("Sales Amount (Actual)"), SalesAmountActual));
     end;
 
@@ -1521,23 +1520,23 @@ codeunit 137402 "SCM Costing Batch"
     begin
         SalesLCY := MatrixMgt.RoundAmount((Quantity + Quantity / 2) * SalesUnitAmount, RoundingFactor);
         Assert.AreNearlyEqual(
-          SalesLCY, SalesLCY2, LibraryERM.GetAmountRoundingPrecision,
+          SalesLCY, SalesLCY2, LibraryERM.GetAmountRoundingPrecision(),
           StrSubstNo(ValidationError, ItemStatisticsBuffer.FieldCaption("Sales (LCY)"), SalesLCY));
 
         COGSLCY := -MatrixMgt.RoundAmount((Quantity * PurchaseUnitAmount) + (Quantity / 2 * PurchaseUnitAmount2), RoundingFactor);
         Assert.AreNearlyEqual(
-          COGSLCY, COGSLCY2, LibraryERM.GetAmountRoundingPrecision,
+          COGSLCY, COGSLCY2, LibraryERM.GetAmountRoundingPrecision(),
           StrSubstNo(ValidationError, ItemStatisticsBuffer.FieldCaption("COGS (LCY)"), COGSLCY));
         Assert.AreEqual(0, NonInvtblCostsLCY2, StrSubstNo(ValidationError, ItemStatisticsBuffer.FieldCaption("Inventoriable Costs"), 0));
 
         ProfitLCY := SalesLCY + COGSLCY;
         Assert.AreNearlyEqual(
-          ProfitLCY, ProfitLCY2, LibraryERM.GetAmountRoundingPrecision,
+          ProfitLCY, ProfitLCY2, LibraryERM.GetAmountRoundingPrecision(),
           StrSubstNo(ValidationError, ItemStatisticsBuffer.FieldCaption("Profit (LCY)"), ProfitLCY));
 
         ProfitPercentage := ProfitLCY / SalesLCY * 100;
         Assert.AreNearlyEqual(
-          ProfitPercentage, ProfitPercentage2, LibraryERM.GetAmountRoundingPrecision,
+          ProfitPercentage, ProfitPercentage2, LibraryERM.GetAmountRoundingPrecision(),
           StrSubstNo(ValidationError, ItemStatisticsBuffer.FieldCaption("Profit %"), ProfitPercentage));
     end;
 
@@ -1551,35 +1550,35 @@ codeunit 137402 "SCM Costing Batch"
         SalesQty: Decimal;
         SalesLCY: Decimal;
     begin
-        ItemCard.OpenView;
+        ItemCard.OpenView();
         ItemCard.FILTER.SetFilter("No.", ItemNo);
-        ItemTurnover.Trap;
-        ItemCard."T&urnover".Invoke;
+        ItemTurnover.Trap();
+        ItemCard."T&urnover".Invoke();
         ItemTurnover.PeriodType.SetValue(Format(ItemTurnover.PeriodType.GetOption(5)));  // Use 5 for Year Required for Test Case.
         ItemTurnover.ItemTurnoverLines.FILTER.SetFilter("Period Start", Format(DMY2Date(1, 1, Date2DMY(WorkDate(), 3))));
 
         PurchasesQty := Quantity + Quantity;  // Total Purchase Quantity.
         Assert.AreNearlyEqual(
-          PurchasesQty, ItemTurnover.ItemTurnoverLines.PurchasesQty.AsDEcimal, LibraryERM.GetAmountRoundingPrecision,
+          PurchasesQty, ItemTurnover.ItemTurnoverLines.PurchasesQty.AsDecimal(), LibraryERM.GetAmountRoundingPrecision(),
           StrSubstNo(ValidationError, Item.FieldCaption("Purchases (Qty.)"), PurchasesQty));
 
         PurchasesLCY := (Quantity * PurchaseUnitAmount) + (Quantity * PurchaseUnitAmount2);
         Assert.AreNearlyEqual(
-          PurchasesLCY, ItemTurnover.ItemTurnoverLines.PurchasesLCY.AsDEcimal, LibraryERM.GetAmountRoundingPrecision,
+          PurchasesLCY, ItemTurnover.ItemTurnoverLines.PurchasesLCY.AsDecimal(), LibraryERM.GetAmountRoundingPrecision(),
           StrSubstNo(ValidationError, Item.FieldCaption("Purchases (LCY)"), PurchasesLCY));
 
         SalesQty := Quantity + Quantity / 2;  // Total Sale Quantity.
         Assert.AreNearlyEqual(
-          SalesQty, ItemTurnover.ItemTurnoverLines.SalesQty.AsDEcimal, LibraryERM.GetAmountRoundingPrecision,
+          SalesQty, ItemTurnover.ItemTurnoverLines.SalesQty.AsDecimal(), LibraryERM.GetAmountRoundingPrecision(),
           StrSubstNo(ValidationError, Item.FieldCaption("Sales (Qty.)"), SalesQty));
 
         SalesLCY := (Quantity + Quantity / 2) * SalesUnitAmount;
         Assert.AreNearlyEqual(
-          SalesLCY, ItemTurnover.ItemTurnoverLines.SalesLCY.AsDEcimal, LibraryERM.GetAmountRoundingPrecision,
+          SalesLCY, ItemTurnover.ItemTurnoverLines.SalesLCY.AsDecimal(), LibraryERM.GetAmountRoundingPrecision(),
           StrSubstNo(ValidationError, Item.FieldCaption("Sales (LCY)"), SalesLCY));
     end;
 
-#if not CLEAN21
+#if not CLEAN23
     local procedure VerifySalesPriceWorksheet(SalesType: Enum "Sales Price Type"; SalesCode: Code[20]; CurrencyCode: Code[10]; ItemNo: Code[20])
     var
         SalesPriceWorksheet: Record "Sales Price Worksheet";
@@ -1641,10 +1640,10 @@ codeunit 137402 "SCM Costing Batch"
         ValueEntry.FindFirst();
         ValueEntry.TestField("Invoiced Quantity", InvoicedQuantity);
         Assert.AreNearlyEqual(
-          CostAmountActual, ValueEntry."Cost Amount (Actual)", LibraryERM.GetAmountRoundingPrecision,
+          CostAmountActual, ValueEntry."Cost Amount (Actual)", LibraryERM.GetAmountRoundingPrecision(),
           StrSubstNo(ValidationError, ValueEntry.FieldCaption("Cost Amount (Actual)"), CostAmountActual));
         Assert.AreNearlyEqual(
-          SalesAmountActual, ValueEntry."Sales Amount (Actual)", LibraryERM.GetAmountRoundingPrecision,
+          SalesAmountActual, ValueEntry."Sales Amount (Actual)", LibraryERM.GetAmountRoundingPrecision(),
           StrSubstNo(ValidationError, ValueEntry.FieldCaption("Sales Amount (Actual)"), SalesAmountActual));
     end;
 
@@ -1653,7 +1652,7 @@ codeunit 137402 "SCM Costing Batch"
     procedure AdjustCostItemEntriesHandler(var AdjustCostItemEntries: TestRequestPage "Adjust Cost - Item Entries")
     begin
         CurrentSaveValuesId := REPORT::"Adjust Cost - Item Entries";
-        AdjustCostItemEntries.OK.Invoke;
+        AdjustCostItemEntries.OK().Invoke();
     end;
 
     [RequestPageHandler]
@@ -1665,7 +1664,7 @@ codeunit 137402 "SCM Costing Batch"
         AdjustItemCostsPrices.AdjustField.SetValue(AdjustField);
         AdjustItemCostsPrices.AdjustmentFactor.SetValue(AdjustmentFactor);
         AdjustItemCostsPrices.Rounding_Method.SetValue(RoundingMethodCode);
-        AdjustItemCostsPrices.OK.Invoke;
+        AdjustItemCostsPrices.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -1677,22 +1676,22 @@ codeunit 137402 "SCM Costing Batch"
         ItemStatistics.DateFilter.SetValue(WorkDate());
         LibraryVariableStorage.Dequeue(RoundingFactor);
         ItemStatistics.RoundingFactor.SetValue(RoundingFactor);
-        ItemStatistics.ShowMatrix.Invoke;
+        ItemStatistics.ShowMatrix.Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure ItemStatisticsMatrixHandler(var ItemStatisticsMatrix: TestPage "Item Statistics Matrix")
     begin
-        SalesLCY2 := ItemStatisticsMatrix.Amount.AsDEcimal;  // Use SalesLCY2 as global for Test Page Handler.
+        SalesLCY2 := ItemStatisticsMatrix.Amount.AsDecimal();  // Use SalesLCY2 as global for Test Page Handler.
         ItemStatisticsMatrix.Next();
-        COGSLCY2 := ItemStatisticsMatrix.Amount.AsDEcimal;  // Use COGSLCY2 as global for Test Page Handler.
+        COGSLCY2 := ItemStatisticsMatrix.Amount.AsDecimal();  // Use COGSLCY2 as global for Test Page Handler.
         ItemStatisticsMatrix.Next();
-        NonInvtblCostsLCY2 := ItemStatisticsMatrix.Amount.AsDEcimal;  // Use NonInvtblCostsLCY2 as global for Test Page Handler.
+        NonInvtblCostsLCY2 := ItemStatisticsMatrix.Amount.AsDecimal();  // Use NonInvtblCostsLCY2 as global for Test Page Handler.
         ItemStatisticsMatrix.Next();
-        ProfitLCY2 := ItemStatisticsMatrix.Amount.AsDEcimal;  // Use ProfitLCY2 as global for Test Page Handler.
+        ProfitLCY2 := ItemStatisticsMatrix.Amount.AsDecimal();  // Use ProfitLCY2 as global for Test Page Handler.
         ItemStatisticsMatrix.Next();
-        ProfitPercentage2 := ItemStatisticsMatrix.Amount.AsDEcimal;  // Use ProfitPercentage2 as global for Test Page Handler.
+        ProfitPercentage2 := ItemStatisticsMatrix.Amount.AsDecimal();  // Use ProfitPercentage2 as global for Test Page Handler.
     end;
 
     [RequestPageHandler]
@@ -1711,7 +1710,7 @@ codeunit 137402 "SCM Costing Batch"
         if ShowError then
             ImplementStandardCostChange.DocumentNo.SetValue('');
 
-        ImplementStandardCostChange.OK.Invoke;
+        ImplementStandardCostChange.OK().Invoke();
     end;
 
     [RequestPageHandler]
@@ -1720,7 +1719,7 @@ codeunit 137402 "SCM Costing Batch"
     begin
         CurrentSaveValuesId := REPORT::"Roll Up Standard Cost";
         RollUpStandardCost.CalculationDate.SetValue(CalculationDate);
-        RollUpStandardCost.OK.Invoke;
+        RollUpStandardCost.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -1750,7 +1749,7 @@ codeunit 137402 "SCM Costing Batch"
         ItemStatistics.DateFilter.SetValue(StrSubstNo('%1..%2', CalcDate('<-CW>', WorkDate()), CalcDate('<CW>', WorkDate())));
         ItemStatistics.ViewBy.SetValue(ViewBy::Week);
         LibraryVariableStorage.Enqueue(ItemStatistics.MATRIX_CaptionRange.Value);
-        ItemStatistics.ShowMatrix.Invoke;
+        ItemStatistics.ShowMatrix.Invoke();
     end;
 
     [ModalPageHandler]

@@ -369,7 +369,7 @@ page 9303 "Blanket Sales Orders"
                 {
                     ApplicationArea = Suite;
                     Caption = 'Send A&pproval Request';
-                    Enabled = NOT OpenApprovalEntriesExist;
+                    Enabled = not OpenApprovalEntriesExist;
                     Image = SendApprovalRequest;
                     ToolTip = 'Request approval of the document.';
 

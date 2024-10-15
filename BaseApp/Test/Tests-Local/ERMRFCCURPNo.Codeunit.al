@@ -92,7 +92,7 @@ codeunit 144054 "ERM RFC/CURP No."
         ErrorOnUpdatingWrongRFCNoOnCustomer(Customer."Tax Identification Type"::"Natural Person");
     end;
 
-    local procedure ErrorOnUpdatingWrongRFCNoOnCustomer(TaxIdentificationType: Option)
+    local procedure ErrorOnUpdatingWrongRFCNoOnCustomer(TaxIdentificationType: Enum "Tax Identification Type")
     var
         Customer: Record Customer;
         RFCNo: Code[10];
@@ -293,7 +293,7 @@ codeunit 144054 "ERM RFC/CURP No."
         ErrorOnUpdatingWrongRFCNoOnVendor(Vendor."Tax Identification Type"::"Natural Person");
     end;
 
-    local procedure ErrorOnUpdatingWrongRFCNoOnVendor(TaxIdentificationType: Option)
+    local procedure ErrorOnUpdatingWrongRFCNoOnVendor(TaxIdentificationType: Enum "Tax Identification Type")
     var
         Vendor: Record Vendor;
         RFCNo: Code[10];
@@ -363,11 +363,11 @@ codeunit 144054 "ERM RFC/CURP No."
         UpdateSpanishBankCommunicationOnBankAccount(BankAccountNo);
 
         // Exercise: Invoke Print Check from Payment Journal.
-        PaymentJournal.OpenEdit;
+        PaymentJournal.OpenEdit();
         PaymentJournal.FILTER.SetFilter("Account No.", Vendor."No.");
         Commit();  // COMMIT is required here.
         LibraryVariableStorage.Enqueue(BankAccountNo);  // Enqueue for CheckHandler.
-        asserterror PaymentJournal.PrintCheck.Invoke;
+        asserterror PaymentJournal.PrintCheck.Invoke();
 
         // Verify: Error for Spanish Bank Communication option.
         Assert.ExpectedError(StrSubstNo(SpanishBankCommunicationErr, Vendor."No."));
@@ -389,16 +389,16 @@ codeunit 144054 "ERM RFC/CURP No."
     begin
         // Setup: Create Customer with RFC No. and CURP No. Create and Post Sales Invoice.
         Initialize();
-        UpdateSATCertificateOnGeneralLedgerSetup;
+        UpdateSATCertificateOnGeneralLedgerSetup();
 
         CreateCustomerWithRFCNoAndCURPNo(Customer);
         UpdateCompanyInformation(CompanyInformation);
         DocumentNo := CreateAndPostSalesInvoice(SalesHeader, Customer."No.");
         SalesInvoiceHeader.Get(DocumentNo);
-        ErrorMessages.Trap;
+        ErrorMessages.Trap();
 
         // Exercise.
-        asserterror SalesInvoiceHeader.RequestStampEDocument;
+        asserterror SalesInvoiceHeader.RequestStampEDocument();
 
         // Verify: Error message for valid certificate.
         GeneralLedgerSetup.Get();
@@ -445,7 +445,7 @@ codeunit 144054 "ERM RFC/CURP No."
         Customer.Modify(true);
     end;
 
-    local procedure CreateCustomerWithTaxIdentificationType(var Customer: Record Customer; TaxIdentificationType: Option)
+    local procedure CreateCustomerWithTaxIdentificationType(var Customer: Record Customer; TaxIdentificationType: Enum "Tax Identification Type")
     begin
         LibrarySales.CreateCustomer(Customer);
         Customer.Validate("Tax Identification Type", TaxIdentificationType);
@@ -476,7 +476,7 @@ codeunit 144054 "ERM RFC/CURP No."
         Vendor.Modify(true);
     end;
 
-    local procedure CreateVendorWithTaxIdentificationType(var Vendor: Record Vendor; TaxIdentificationType: Option)
+    local procedure CreateVendorWithTaxIdentificationType(var Vendor: Record Vendor; TaxIdentificationType: Enum "Tax Identification Type")
     begin
         LibraryPurchase.CreateVendor(Vendor);
         Vendor.Validate("Tax Identification Type", TaxIdentificationType);
@@ -497,7 +497,7 @@ codeunit 144054 "ERM RFC/CURP No."
         CompanyInformation.Validate("RFC Number", GetRandomCode(12)); // RFC Number is 12 or 13 characters.
         CompanyInformation.Validate("CURP No.",
           GetRandomCode(LibraryUtility.GetFieldLength(DATABASE::"Company Information", CompanyInformation.FieldNo("CURP No."))));
-        CompanyInformation.Validate("E-Mail", LibraryUtility.GenerateRandomEmail);
+        CompanyInformation.Validate("E-Mail", LibraryUtility.GenerateRandomEmail());
         CompanyInformation.Validate("Tax Scheme", LibraryUtility.GenerateGUID());
         CompanyInformation.Modify(true);
     end;

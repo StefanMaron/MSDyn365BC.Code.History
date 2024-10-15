@@ -253,7 +253,7 @@
         Initialize();
         LibraryLowerPermissions.SetOutsideO365Scope();
         CreateEmployee(Employee);
-        ExpenseAccNo := CreateBalanceSheetAccount;
+        ExpenseAccNo := CreateBalanceSheetAccount();
         PostedDocumentNo := CreateAndPostEmplExpense(Employee, ExpenseAccNo, LibraryRandom.RandInt(100));
         LibraryERM.FindEmployeeLedgerEntry(EmployeeLedgerEntry, EmployeeLedgerEntry."Document Type"::" ", PostedDocumentNo);
         EmployeeLedgerEntry.CalcFields(Amount);
@@ -263,7 +263,7 @@
         GenJournalLine.Modify();
 
         // Exericse.
-        LibraryLowerPermissions.AddO365HREdit;
+        LibraryLowerPermissions.AddO365HREdit();
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
 
         // Verify: Verify Remaining Amount on Employee Ledger Entry.
@@ -292,7 +292,7 @@
         CreateEmployee(Employee);
         Employee.Validate("Application Method", Employee."Application Method"::"Apply to Oldest");
         Employee.Modify(true);
-        ExpenseAccNo := CreateBalanceSheetAccount;
+        ExpenseAccNo := CreateBalanceSheetAccount();
         Amount := LibraryRandom.RandDec(100, 2);
         DocumentNo := CreateAndPostEmplExpense(Employee, ExpenseAccNo, Amount);
 
@@ -321,7 +321,7 @@
         Initialize();
         LibraryLowerPermissions.SetOutsideO365Scope();
         CreateEmployee(Employee);
-        ExpenseAccNo := CreateBalanceSheetAccount;
+        ExpenseAccNo := CreateBalanceSheetAccount();
         CreateAndPostEmplExpense(Employee, ExpenseAccNo, -LibraryRandom.RandIntInRange(100, 200));
 
         CreateAndPostEmplExpense(Employee, ExpenseAccNo, -LibraryRandom.RandIntInRange(100, 200));
@@ -331,12 +331,12 @@
         ModifyGenJournalLine(GenJournalLine);
 
         // Exercise: Apply Set Applies To ID and Amount Apply.
-        LibraryLowerPermissions.SetO365HREdit;
+        LibraryLowerPermissions.SetO365HREdit();
         SetAppliesToIDAndAmountToApply(GenJournalLine."Account No.", GenJournalLine."Document No.");
 
         // Verify: Verification done in ApplyingEmployeeEntriesPageHandler.
         OpenGenJournalPage(DummyGeneralJournal, GenJournalLine."Document No.", GenJournalLine."Document Type");
-        DummyGeneralJournal."Apply Entries".Invoke;
+        DummyGeneralJournal."Apply Entries".Invoke();
     end;
 
     [Test]
@@ -371,12 +371,12 @@
         LibraryERM.CreateGenJournalBatch(GenJournalBatch, GenJournalTemplate.Name);
         LibraryERM.CreateGeneralJnlLineWithBalAcc(
           GenJournalLine, GenJournalTemplate.Name, GenJournalBatch.Name, GenJournalLine."Document Type"::" ",
-          GenJournalLine."Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo, GenJournalLine."Bal. Account Type"::Employee,
+          GenJournalLine."Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo(), GenJournalLine."Bal. Account Type"::Employee,
           Employee."No.", Amount);
         DocNo := GenJournalLine."Document No.";
         LibraryERM.CreateGeneralJnlLineWithBalAcc(
           GenJournalLine, GenJournalTemplate.Name, GenJournalBatch.Name, GenJournalLine."Document Type"::Payment,
-          GenJournalLine."Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo, GenJournalLine."Bal. Account Type"::Employee,
+          GenJournalLine."Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo(), GenJournalLine."Bal. Account Type"::Employee,
           Employee."No.", -Amount);
         GenJournalLine.Validate("Document No.", DocNo);
         GenJournalLine.Modify(true);
@@ -403,7 +403,7 @@
         LibraryVariableStorage.Clear();
         EmployeePostingGroup.DeleteAll();
         Employee.DeleteAll();
-        CreateEmployeePostingGroup(LibraryERM.CreateGLAccountNoWithDirectPosting);
+        CreateEmployeePostingGroup(LibraryERM.CreateGLAccountNoWithDirectPosting());
 
         if IsInitialized then
             exit;
@@ -531,7 +531,7 @@
         Employee.Modify(true);
     end;
 
-    local procedure FindDetailedLedgerEntry(var DetailedEmployeeLedgEntry: Record "Detailed Employee Ledger Entry"; EntryType: Option; DocumentNo: Code[20]; EmployeeNo: Code[20])
+    local procedure FindDetailedLedgerEntry(var DetailedEmployeeLedgEntry: Record "Detailed Employee Ledger Entry"; EntryType: Enum "Detailed CV Ledger Entry Type"; DocumentNo: Code[20]; EmployeeNo: Code[20])
     begin
         DetailedEmployeeLedgEntry.SetRange("Entry Type", EntryType);
         DetailedEmployeeLedgEntry.SetRange("Document No.", DocumentNo);
@@ -557,7 +557,7 @@
             repeat
                 CalcFields(Amount);
                 TotalAmount += Amount;
-            until Next = 0;
+            until Next() = 0;
             exit(TotalAmount);
         end;
     end;
@@ -574,7 +574,7 @@
 
     local procedure OpenGenJournalPage(DummyGeneralJournal: TestPage "General Journal"; DocumentNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type")
     begin
-        DummyGeneralJournal.OpenEdit;
+        DummyGeneralJournal.OpenEdit();
         DummyGeneralJournal.FILTER.SetFilter("Document No.", DocumentNo);
         DummyGeneralJournal.FILTER.SetFilter("Document Type", Format(DocumentType));
     end;
@@ -604,7 +604,7 @@
                 CalcFields("Remaining Amount");
                 Validate("Amount to Apply", "Remaining Amount");
                 Modify(true);
-            until Next = 0;
+            until Next() = 0;
         end;
     end;
 
@@ -678,7 +678,7 @@
         DetailedEmployeeLedgEntry.SetRange("Document No.", DocumentNo);
         DetailedEmployeeLedgEntry.SetRange("Document Type", DocumentType);
         DetailedEmployeeLedgEntry.SetRange("Source Code", SourceCode);
-        Assert.IsTrue(DetailedEmployeeLedgEntry.FindFirst, DetailedEmployeeLedgerErr);
+        Assert.IsTrue(DetailedEmployeeLedgEntry.FindFirst(), DetailedEmployeeLedgerErr);
     end;
 
     local procedure VerifyGLEntries(DocumentNo: Code[20])

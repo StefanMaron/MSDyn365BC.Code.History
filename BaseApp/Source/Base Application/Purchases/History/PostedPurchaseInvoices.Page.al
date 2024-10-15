@@ -20,7 +20,7 @@ page 146 "Posted Purchase Invoices"
     QueryCategory = 'Posted Purchase Invoices';
     SourceTable = "Purch. Inv. Header";
     SourceTableView = sorting("Posting Date")
-                      order(Descending);
+                      order(descending);
     UsageCategory = History;
 
     layout
@@ -287,7 +287,7 @@ page 146 "Posted Purchase Invoices"
             {
                 ApplicationArea = Basic, Suite;
                 ShowFilter = false;
-                Visible = NOT IsOfficeAddin;
+                Visible = not IsOfficeAddin;
             }
             part(GLEntriesPart; "G/L Entries Part")
             {
@@ -382,7 +382,7 @@ page 146 "Posted Purchase Invoices"
                 Ellipsis = true;
                 Image = Print;
                 ToolTip = 'Prepare to print the document. A report request window for the document opens where you can specify what to include on the print-out.';
-                Visible = NOT IsOfficeAddin;
+                Visible = not IsOfficeAddin;
 
                 trigger OnAction()
                 var
@@ -446,7 +446,7 @@ page 146 "Posted Purchase Invoices"
                 Scope = Repeater;
                 ShortCutKey = 'Ctrl+Alt+Q';
                 ToolTip = 'Find entries and documents that exist for the document number and posting date on the selected document. (Formerly this action was named Navigate.)';
-                Visible = NOT IsOfficeAddin;
+                Visible = not IsOfficeAddin;
 
                 trigger OnAction()
                 begin

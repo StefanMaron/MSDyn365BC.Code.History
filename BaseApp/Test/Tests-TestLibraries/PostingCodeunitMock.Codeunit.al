@@ -34,7 +34,7 @@ codeunit 132479 "Posting Codeunit Mock"
                 "Message Type"::Information:
                     ErrorMessageMgt.Finish("Context Record ID");
             end;
-        until Next = 0;
+        until Next() = 0;
     end;
 
     var
@@ -60,7 +60,7 @@ codeunit 132479 "Posting Codeunit Mock"
         Commit();
         if not PostingCodeunitMock.Run(TempErrorMessage) then begin
             if Log then
-                exit(ErrorMessageHandler.WriteMessagesToFile(GetLogFileName, true));
+                exit(ErrorMessageHandler.WriteMessagesToFile(GetLogFileName(), true));
             exit(ErrorMessageHandler.ShowErrors());
         end;
     end;

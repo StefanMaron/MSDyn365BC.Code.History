@@ -3,6 +3,7 @@ namespace System.Xml;
 table 9610 "XML Schema Element"
 {
     Caption = 'XML Schema Element';
+    DataClassification = CustomerContent;
 
     fields
     {

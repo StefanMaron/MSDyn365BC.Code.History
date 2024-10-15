@@ -29,6 +29,7 @@ table 32 "Item Ledger Entry"
     DrillDownPageID = "Item Ledger Entries";
     LookupPageID = "Item Ledger Entries";
     Permissions = TableData "Item Ledger Entry" = rimd;
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -277,17 +278,17 @@ table 32 "Item Ledger Entry"
         }
         field(1000; "Job No."; Code[20])
         {
-            Caption = 'Job No.';
+            Caption = 'Project No.';
             TableRelation = Job."No.";
         }
         field(1001; "Job Task No."; Code[20])
         {
-            Caption = 'Job Task No.';
+            Caption = 'Project Task No.';
             TableRelation = "Job Task"."Job Task No." where("Job No." = field("Job No."));
         }
         field(1002; "Job Purchase"; Boolean)
         {
-            Caption = 'Job Purchase';
+            Caption = 'Project Purchase';
         }
         field(5402; "Variant Code"; Code[10])
         {
@@ -526,6 +527,7 @@ table 32 "Item Ledger Entry"
         }
         key(Key3; "Item No.", "Posting Date")
         {
+            IncludedFields = Quantity, "Location Code";
         }
         key(Key4; "Item No.", "Entry Type", "Variant Code", "Drop Shipment", "Location Code", "Posting Date")
         {
@@ -545,7 +547,7 @@ table 32 "Item Ledger Entry"
         }
         key(Key9; "Document No.", "Document Type", "Document Line No.")
         {
-            IncludedFields = "Entry Type";
+            IncludedFields = "Entry Type", "Item No.", Correction;
         }
         key(Key12; "Order Type", "Order No.", "Order Line No.", "Entry Type", "Prod. Order Comp. Line No.")
         {
@@ -585,6 +587,8 @@ table 32 "Item Ledger Entry"
         fieldgroup(DropDown; "Entry No.", Description, "Item No.", "Posting Date", "Entry Type", "Document No.")
         {
         }
+        fieldgroup(Brick; "Item No.", Description, Quantity, "Document No.", "Document Date")
+        { }
     }
 
     var
@@ -642,10 +646,11 @@ table 32 "Item Ledger Entry"
 
         ItemApplnEntry.SetCurrentKey("Item Ledger Entry No.");
         ItemApplnEntry.SetRange("Item Ledger Entry No.", "Entry No.");
-        ItemApplnEntry.Find('-');
+        ItemApplnEntry.FindSet();
         if not "Completely Invoiced" then begin
             CompletelyInvoiced := true;
             repeat
+                InbndItemLedgEntry.SetLoadFields("Completely Invoiced");
                 InbndItemLedgEntry.Get(ItemApplnEntry."Inbound Item Entry No.");
                 if not InbndItemLedgEntry."Completely Invoiced" then
                     CompletelyInvoiced := false;
@@ -667,6 +672,8 @@ table 32 "Item Ledger Entry"
         end;
     end;
 
+#if not CLEAN24
+    [Obsolete('Unused', '24.0')]
     procedure AppliedEntryToAdjustExists(ItemNo: Code[20]): Boolean
     begin
         Reset();
@@ -675,6 +682,7 @@ table 32 "Item Ledger Entry"
         SetRange("Applied Entry to Adjust", true);
         exit(Find('-'));
     end;
+#endif
 
     procedure IsOutbndConsump(): Boolean
     begin

@@ -1,4 +1,4 @@
-// ------------------------------------------------------------------------------------------------
+﻿// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -36,8 +36,10 @@ page 1803 "Assisted Company Setup Wizard"
             {
                 Editable = false;
                 ShowCaption = false;
-                Visible = TopBannerVisible AND NOT DoneVisible;
+                Visible = TopBannerVisible and not DoneVisible;
+#pragma warning disable AA0100
                 field("MediaResourcesStandard.""Media Reference"""; MediaResourcesStandard."Media Reference")
+#pragma warning restore AA0100
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
@@ -48,8 +50,10 @@ page 1803 "Assisted Company Setup Wizard"
             {
                 Editable = false;
                 ShowCaption = false;
-                Visible = TopBannerVisible AND DoneVisible;
+                Visible = TopBannerVisible and DoneVisible;
+#pragma warning disable AA0100
                 field("MediaResourcesDone.""Media Reference"""; MediaResourcesDone."Media Reference")
+#pragma warning restore AA0100
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
@@ -71,58 +75,6 @@ page 1803 "Assisted Company Setup Wizard"
                     InstructionalText = 'Choose Next so you can specify basic company information.';
                 }
             }
-#if not CLEAN21
-#pragma warning disable AL0432
-            group(Control18)
-            {
-                ShowCaption = false;
-                Visible = false;
-                ObsoleteState = Pending;
-                ObsoleteReason = 'Configuration package importing logic is seperated from this wizard, after introducting checklist.';
-                ObsoleteTag = '21.0';
-                group("Standard Setup")
-                {
-                    Caption = 'Standard Setup';
-                    InstructionalText = 'The company will be ready to use when Setup has completed.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Configuration package importing logic is seperated from this wizard, after introducting checklist.';
-                    ObsoleteTag = '21.0';
-                    field(Standard; TypeStandard)
-                    {
-                        ApplicationArea = Basic, Suite;
-                        Caption = 'Set up as Standard';
-                        ObsoleteState = Pending;
-                        ObsoleteReason = 'Configuration package importing logic is seperated from this wizard, after introducting checklist.';
-                        ObsoleteTag = '21.0';
-                    }
-                }
-                group("Evaluation Setup")
-                {
-                    Caption = 'Evaluation Setup';
-                    InstructionalText = 'The company will be set up in demonstration mode for exploring and testing.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Configuration package importing logic is seperated from this wizard, after introducting checklist.';
-                    ObsoleteTag = '21.0';
-                    field(Evaluation; TypeEvaluation)
-                    {
-                        ApplicationArea = Basic, Suite;
-                        Caption = 'Set up as Evaluation';
-                        ObsoleteState = Pending;
-                        ObsoleteReason = 'Configuration package importing logic is seperated from this wizard, after introducting checklist.';
-                        ObsoleteTag = '21.0';
-                    }
-                }
-                group(Important)
-                {
-                    Caption = 'Important';
-                    InstructionalText = 'You cannot change your choice of setup after you choose Next.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Configuration package importing logic is seperated from this wizard, after introducting checklist.';
-                    ObsoleteTag = '21.0';
-                }
-            }
-#pragma warning restore
-#endif
             group(Control56)
             {
                 ShowCaption = false;
@@ -436,10 +388,6 @@ page 1803 "Assisted Company Setup Wizard"
         ClientTypeManagement: Codeunit "Client Type Management";
         CompanyInfoNotification: Notification;
         AccountingPeriodStartDate: Date;
-#if not CLEAN21
-        TypeStandard: Boolean;
-        TypeEvaluation: Boolean;
-#endif
         Step: Option Intro,"Company Details","Communication Details","Payment Details",Done;
         BackEnabled: Boolean;
         NextEnabled: Boolean;

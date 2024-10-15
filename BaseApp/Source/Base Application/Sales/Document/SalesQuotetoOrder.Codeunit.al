@@ -111,43 +111,41 @@ codeunit 86 "Sales-Quote to Order"
     begin
         OnBeforeCreateSalesHeader(SalesHeader);
 
-        with SalesHeader do begin
-            SalesOrderHeader := SalesHeader;
-            SalesOrderHeader."Document Type" := SalesOrderHeader."Document Type"::Order;
+        SalesOrderHeader := SalesHeader;
+        SalesOrderHeader."Document Type" := SalesOrderHeader."Document Type"::Order;
 
-            SalesOrderHeader."No. Printed" := 0;
-            SalesOrderHeader.Status := SalesOrderHeader.Status::Open;
-            SalesOrderHeader."No." := '';
-            SalesOrderHeader."Quote No." := "No.";
-            OnCreateSalesHeaderOnBeforeSalesOrderLineLockTable(SalesOrderHeader, SalesHeader);
-            SalesOrderLine.LockTable();
-            OnBeforeInsertSalesOrderHeader(SalesOrderHeader, SalesHeader);
-            SalesOrderHeader.Insert(true);
-            OnAfterInsertSalesOrderHeader(SalesOrderHeader, SalesHeader);
+        SalesOrderHeader."No. Printed" := 0;
+        SalesOrderHeader.Status := SalesOrderHeader.Status::Open;
+        SalesOrderHeader."No." := '';
+        SalesOrderHeader."Quote No." := SalesHeader."No.";
+        OnCreateSalesHeaderOnBeforeSalesOrderLineLockTable(SalesOrderHeader, SalesHeader);
+        SalesOrderLine.LockTable();
+        OnBeforeInsertSalesOrderHeader(SalesOrderHeader, SalesHeader);
+        SalesOrderHeader.Insert(true);
+        OnAfterInsertSalesOrderHeader(SalesOrderHeader, SalesHeader);
 
-            SalesOrderHeader."Order Date" := "Order Date";
-            if "Posting Date" <> 0D then
-                SalesOrderHeader."Posting Date" := "Posting Date";
+        SalesOrderHeader."Order Date" := SalesHeader."Order Date";
+        if SalesHeader."Posting Date" <> 0D then
+            SalesOrderHeader."Posting Date" := SalesHeader."Posting Date";
 
-            SalesOrderHeader.InitFromSalesHeader(SalesHeader);
-            SalesOrderHeader."Outbound Whse. Handling Time" := "Outbound Whse. Handling Time";
-            SalesOrderHeader.Reserve := Reserve;
+        SalesOrderHeader.InitFromSalesHeader(SalesHeader);
+        SalesOrderHeader."Outbound Whse. Handling Time" := SalesHeader."Outbound Whse. Handling Time";
+        SalesOrderHeader.Reserve := SalesHeader.Reserve;
 
-            SalesOrderHeader."Prepayment %" := Customer."Prepayment %";
-            if SalesOrderHeader."Posting Date" = 0D then
-                SalesOrderHeader."Posting Date" := WorkDate();
+        SalesOrderHeader."Prepayment %" := Customer."Prepayment %";
+        if SalesOrderHeader."Posting Date" = 0D then
+            SalesOrderHeader."Posting Date" := WorkDate();
 
-            if SalesOrderHeader."VAT Registration No." = '' then
-                SalesOrderHeader."VAT Registration No." := Customer."VAT Registration No.";
+        if SalesOrderHeader."VAT Registration No." = '' then
+            SalesOrderHeader."VAT Registration No." := Customer."VAT Registration No.";
 
-            SalesOrderHeader."VAT Reporting Date" := GlSetup.GetVATDate(SalesOrderHeader."Posting Date", SalesOrderHeader."Document Date");
+        SalesOrderHeader."VAT Reporting Date" := GlSetup.GetVATDate(SalesOrderHeader."Posting Date", SalesOrderHeader."Document Date");
 
-            CalcFields("Work Description");
-            SalesOrderHeader."Work Description" := "Work Description";
+        SalesHeader.CalcFields("Work Description");
+        SalesOrderHeader."Work Description" := SalesHeader."Work Description";
 
-            OnBeforeModifySalesOrderHeader(SalesOrderHeader, SalesHeader);
-            SalesOrderHeader.Modify();
-        end;
+        OnBeforeModifySalesOrderHeader(SalesOrderHeader, SalesHeader);
+        SalesOrderHeader.Modify();
 
         OnAfterCreateSalesHeader(SalesOrderHeader, SalesHeader);
     end;
@@ -291,7 +289,6 @@ codeunit 86 "Sales-Quote to Order"
             OnAfterMoveWonLostOpportunites(SalesQuoteHeader, SalesOrderHeader);
 #endif
         end;
-
         OnAfterMoveWonLostOpportunity(SalesQuoteHeader, SalesOrderHeader, Opp);
     end;
 

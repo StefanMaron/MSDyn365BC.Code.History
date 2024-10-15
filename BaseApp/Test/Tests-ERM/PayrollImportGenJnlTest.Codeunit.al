@@ -422,7 +422,7 @@ codeunit 134162 "Payroll Import Gen. Jnl Test"
     begin
         LibraryJournals.CreateGenJournalLineWithBatch(
           GenJournalLine, GenJournalLine."Document Type"::" ",
-          GenJournalLine."Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo, 0);
+          GenJournalLine."Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo(), 0);
         GenJournalLine."Document No." := '';
         GenJournalLine.Modify();
     end;
@@ -465,7 +465,7 @@ codeunit 134162 "Payroll Import Gen. Jnl Test"
         OutStream.WriteText(GenJournalLineDocNo, 10);
         OutStream.WriteText(PadStr(AccountNo, 20));
         OutStream.WriteText(Format(GenJournalLineAmount, 10));
-        OutStream.WriteText;
+        OutStream.WriteText();
     end;
 
     local procedure CreateTempBlobStringDocAccAfterDimension(var OutStream: OutStream; GenJournalLineDocNo: Code[20]; DimensionValueCode: Code[20]; AccountNo: Code[20])
@@ -482,9 +482,9 @@ codeunit 134162 "Payroll Import Gen. Jnl Test"
     begin
         TempBlob.CreateOutStream(OutStream, TEXTENCODING::Windows);
         OutStream.WriteText(GenJournalLineDocNo[1] + ',' + Format(GenJournalLineAmount[1]));
-        OutStream.WriteText;
+        OutStream.WriteText();
         OutStream.WriteText(GenJournalLineDocNo[2] + ',' + Format(GenJournalLineAmount[2]));
-        OutStream.WriteText;
+        OutStream.WriteText();
     end;
 
     local procedure VerifyGenJnlLine(var GenJournalLine: Record "Gen. Journal Line"; ExpDocNo: array[2] of Code[20]; ExpAmount: array[2] of Decimal; ExpCountOfGenJournalLine: Integer)

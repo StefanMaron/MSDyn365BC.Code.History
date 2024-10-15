@@ -443,30 +443,27 @@ report 10042 "Customer Account Detail"
 
                 if Currency.ReadPermission then begin
                     TempCurrency.DeleteAll();
-                    with CustLedgerEntry2 do begin
-                        Reset();
-                        if not SetCurrentKey("Customer No.", "Currency Code", "Posting Date") then
-                            SetCurrentKey("Customer No.", "Posting Date", "Currency Code");
-                        SetRange("Customer No.", Customer."No.");
-                        SetFilter("Currency Code", '=%1', '');
-                        if FindFirst() then begin
-                            TempCurrency.Init();
-                            TempCurrency.Code := '';
-                            TempCurrency.Description := GLSetup."LCY Code";
-                            TempCurrency.Insert();
-                        end;
+                    CustLedgerEntry2.Reset();
+                    if not CustLedgerEntry2.SetCurrentKey("Customer No.", "Currency Code", "Posting Date") then
+                        CustLedgerEntry2.SetCurrentKey("Customer No.", "Posting Date", "Currency Code");
+                    CustLedgerEntry2.SetRange("Customer No.", Customer."No.");
+                    CustLedgerEntry2.SetFilter("Currency Code", '=%1', '');
+                    if CustLedgerEntry2.FindFirst() then begin
+                        TempCurrency.Init();
+                        TempCurrency.Code := '';
+                        TempCurrency.Description := GLSetup."LCY Code";
+                        TempCurrency.Insert();
                     end;
-                    with Currency do
-                        if Find('-') then
-                            repeat
-                                CustLedgerEntry2.SetRange("Currency Code", Code);
-                                if CustLedgerEntry2.FindFirst() then begin
-                                    TempCurrency.Init();
-                                    TempCurrency.Code := Code;
-                                    TempCurrency.Description := Description;
-                                    TempCurrency.Insert();
-                                end;
-                            until Next() = 0;
+                    if Currency.Find('-') then
+                        repeat
+                            CustLedgerEntry2.SetRange("Currency Code", Currency.Code);
+                            if CustLedgerEntry2.FindFirst() then begin
+                                TempCurrency.Init();
+                                TempCurrency.Code := Currency.Code;
+                                TempCurrency.Description := Currency.Description;
+                                TempCurrency.Insert();
+                            end;
+                        until Currency.Next() = 0;
                     GetCurrencyRecord(Currency, "Currency Code");
                 end;
 

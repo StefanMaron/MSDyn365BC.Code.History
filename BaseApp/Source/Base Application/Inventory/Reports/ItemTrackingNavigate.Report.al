@@ -199,15 +199,6 @@ report 6529 "Item Tracking Navigate"
             until NewRecordBuffer.Next() = 0;
     end;
 
-    [Obsolete('Replaced by SetItemFilters().', '18.0')]
-    procedure TransferFilters(NewSerialNoFilter: Text; NewLotNoFilter: Text; NewItemNoFilter: Text; NewVariantFilter: Text)
-    begin
-        ItemFilters.SetFilter("Serial No. Filter", NewSerialNoFilter);
-        ItemFilters.SetFilter("Lot No. Filter", NewLotNoFilter);
-        ItemFilters.SetFilter("No.", NewItemNoFilter);
-        ItemFilters.SetFilter("Variant Filter", NewVariantFilter);
-    end;
-
     procedure SetTrackingFilters(var NewItemFilters: Record Item)
     begin
         ItemFilters.CopyFilters(NewItemFilters);

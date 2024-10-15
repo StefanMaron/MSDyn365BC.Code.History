@@ -81,25 +81,23 @@ codeunit 5674 FADimensionManagement
             TempSelectedDim3.Reset();
             TempSelectedDim3.DeleteAll();
         end;
-        with DimSetEntry do begin
-            SetRange("Dimension Set ID", DimSetID);
-            if Find('-') then
-                repeat
-                    TempSelectedDim.SetRange("Dimension Code", "Dimension Code");
-                    if TempSelectedDim.FindFirst() then begin
-                        if Type = 0 then begin
-                            TempSelectedDim2."Dimension Code" := "Dimension Code";
-                            TempSelectedDim2."New Dimension Value Code" := "Dimension Value Code";
-                            TempSelectedDim2.Insert();
-                        end;
-                        if Type = 1 then begin
-                            TempSelectedDim3."Dimension Code" := "Dimension Code";
-                            TempSelectedDim3."New Dimension Value Code" := "Dimension Value Code";
-                            TempSelectedDim3.Insert();
-                        end;
+        DimSetEntry.SetRange("Dimension Set ID", DimSetID);
+        if DimSetEntry.Find('-') then
+            repeat
+                TempSelectedDim.SetRange("Dimension Code", DimSetEntry."Dimension Code");
+                if TempSelectedDim.FindFirst() then begin
+                    if Type = 0 then begin
+                        TempSelectedDim2."Dimension Code" := DimSetEntry."Dimension Code";
+                        TempSelectedDim2."New Dimension Value Code" := DimSetEntry."Dimension Value Code";
+                        TempSelectedDim2.Insert();
                     end;
-                until Next() = 0;
-        end;
+                    if Type = 1 then begin
+                        TempSelectedDim3."Dimension Code" := DimSetEntry."Dimension Code";
+                        TempSelectedDim3."New Dimension Value Code" := DimSetEntry."Dimension Value Code";
+                        TempSelectedDim3.Insert();
+                    end;
+                end;
+            until DimSetEntry.Next() = 0;
     end;
 
     procedure TestEqualFALedgEntryDimID(DimSetID: Integer): Boolean

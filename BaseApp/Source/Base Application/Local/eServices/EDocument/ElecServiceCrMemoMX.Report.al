@@ -942,8 +942,8 @@ report 10478 "Elec. Service Cr Memo MX"
                 if "Source Code" = SourceCodeSetup."Deleted Document" then
                     Error(Text008);
 
-                CurrReport.Language := Language.GetLanguageIdOrDefault("Language Code");
-                CurrReport.FormatRegion := Language.GetFormatRegionOrDefault("Format Region");
+                CurrReport.Language := LanguageMgt.GetLanguageIdOrDefault("Language Code");
+                CurrReport.FormatRegion := LanguageMgt.GetFormatRegionOrDefault("Format Region");
 
                 if not CompanyBankAccount.Get("Service Cr.Memo Header"."Company Bank Account Code") then
                     CompanyBankAccount.CopyBankFieldsFromCompanyInfo(CompanyInfo);
@@ -1099,7 +1099,7 @@ report 10478 "Elec. Service Cr Memo MX"
         Cust: Record Customer;
         Customer: Record Customer;
         SourceCodeSetup: Record "Source Code Setup";
-        Language: Codeunit Language;
+        LanguageMgt: Codeunit Language;
         ServiceCrMemoCountPrinted: Codeunit "Service Cr. Memo-Printed";
         FormatAddr: Codeunit "Format Address";
         CustAddr: array[8] of Text[100];
@@ -1270,18 +1270,16 @@ report 10478 "Elec. Service Cr Memo MX"
             exit;
         end;
 
-        with ServiceShipmentBuffer do begin
-            Init();
-            "Document No." := ServiceCrMemoLine."Document No.";
-            "Line No." := ServiceCrMemoLine."Line No.";
-            "Entry No." := NextEntryNo;
-            Type := ServiceCrMemoLine.Type;
-            "No." := ServiceCrMemoLine."No.";
-            Quantity := -QtyOnShipment;
-            "Posting Date" := PostingDate;
-            Insert();
-            NextEntryNo := NextEntryNo + 1
-        end;
+        ServiceShipmentBuffer.Init();
+        ServiceShipmentBuffer."Document No." := ServiceCrMemoLine."Document No.";
+        ServiceShipmentBuffer."Line No." := ServiceCrMemoLine."Line No.";
+        ServiceShipmentBuffer."Entry No." := NextEntryNo;
+        ServiceShipmentBuffer.Type := ServiceCrMemoLine.Type;
+        ServiceShipmentBuffer."No." := ServiceCrMemoLine."No.";
+        ServiceShipmentBuffer.Quantity := -QtyOnShipment;
+        ServiceShipmentBuffer."Posting Date" := PostingDate;
+        ServiceShipmentBuffer.Insert();
+        NextEntryNo := NextEntryNo + 1
     end;
 
     procedure FindDimTxt(DimSetID: Integer)

@@ -14,6 +14,7 @@ table 7333 "Whse. Internal Pick Header"
     Caption = 'Whse. Internal Pick Header';
     DataCaptionFields = "No.";
     LookupPageID = "Whse. Internal Pick List";
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -26,7 +27,7 @@ table 7333 "Whse. Internal Pick Header"
                 TestField(Status, Status::Open);
                 WhseSetup.Get();
                 if "No." <> xRec."No." then begin
-                    NoSeriesMgt.TestManual(WhseSetup."Whse. Internal Pick Nos.");
+                    NoSeries.TestManual(WhseSetup."Whse. Internal Pick Nos.");
                     "No. Series" := '';
                 end;
             end;
@@ -218,12 +219,27 @@ table 7333 "Whse. Internal Pick Header"
     end;
 
     trigger OnInsert()
+#if not CLEAN24
+    var
+        NoSeriesMgt: Codeunit NoSeriesManagement;
+        IsHandled: Boolean;
+#endif
     begin
         WhseSetup.Get();
         if "No." = '' then begin
             WhseSetup.TestField("Whse. Internal Pick Nos.");
-            NoSeriesMgt.InitSeries(
-              WhseSetup."Whse. Internal Pick Nos.", xRec."No. Series", 0D, "No.", "No. Series");
+#if not CLEAN24
+            NoSeriesMgt.RaiseObsoleteOnBeforeInitSeries(WhseSetup."Whse. Internal Pick Nos.", xRec."No. Series", 0D, "No.", "No. Series", IsHandled);
+            if not IsHandled then begin
+#endif
+                "No. Series" := WhseSetup."Whse. Internal Pick Nos.";
+                if NoSeries.AreRelated("No. Series", xRec."No. Series") then
+                    "No. Series" := xRec."No. Series";
+                "No." := NoSeries.GetNextNo("No. Series");
+#if not CLEAN24
+                NoSeriesMgt.RaiseObsoleteOnAfterInitSeries("No. Series", WhseSetup."Whse. Internal Pick Nos.", 0D, "No.");
+            end;
+#endif
         end;
     end;
 
@@ -236,7 +252,7 @@ table 7333 "Whse. Internal Pick Header"
         Location: Record Location;
         WhseSetup: Record "Warehouse Setup";
         ItemTrackingMgt: Codeunit "Item Tracking Management";
-        NoSeriesMgt: Codeunit NoSeriesManagement;
+        NoSeries: Codeunit "No. Series";
         WmsManagement: Codeunit "WMS Management";
 
         Text000: Label 'You cannot rename a %1.';
@@ -254,16 +270,12 @@ table 7333 "Whse. Internal Pick Header"
         WhseInternalPickHeader: Record "Whse. Internal Pick Header";
     begin
         WhseSetup.Get();
-        with WhseInternalPickHeader do begin
-            WhseInternalPickHeader := Rec;
-            WhseSetup.TestField("Whse. Internal Pick Nos.");
-            if NoSeriesMgt.SelectSeries(
-                 WhseSetup."Whse. Internal Pick Nos.", OldWhseInternalPickHeader."No. Series", "No. Series")
-            then begin
-                NoSeriesMgt.SetSeries("No.");
-                Rec := WhseInternalPickHeader;
-                exit(true);
-            end;
+        WhseInternalPickHeader := Rec;
+        WhseSetup.TestField("Whse. Internal Pick Nos.");
+        if NoSeries.LookupRelatedNoSeries(WhseSetup."Whse. Internal Pick Nos.", OldWhseInternalPickHeader."No. Series", WhseInternalPickHeader."No. Series") then begin
+            WhseInternalPickHeader."No." := NoSeries.GetNextNo(WhseInternalPickHeader."No. Series");
+            Rec := WhseInternalPickHeader;
+            exit(true);
         end;
     end;
 
@@ -272,33 +284,31 @@ table 7333 "Whse. Internal Pick Header"
         WhseInternalPickLine: Record "Whse. Internal Pick Line";
         SequenceNo: Integer;
     begin
-        with WhseInternalPickLine do begin
-            SetRange("No.", Rec."No.");
-            case "Sorting Method" of
-                "Sorting Method"::Item:
-                    SetCurrentKey("No.", "Item No.");
-                "Sorting Method"::"Shelf or Bin":
-                    begin
-                        GetLocation(Rec."Location Code");
-                        if Location."Bin Mandatory" then
-                            SetCurrentKey("No.", "To Bin Code")
-                        else
-                            SetCurrentKey("No.", "Shelf No.");
-                    end;
-                "Sorting Method"::"Due Date":
-                    SetCurrentKey("No.", "Due Date");
-                else
-                    OnSortWhseDocOnCaseSortingMethodElse(Rec);
-            end;
+        WhseInternalPickLine.SetRange("No.", Rec."No.");
+        case "Sorting Method" of
+            "Sorting Method"::Item:
+                WhseInternalPickLine.SetCurrentKey("No.", WhseInternalPickLine."Item No.");
+            "Sorting Method"::"Shelf or Bin":
+                begin
+                    GetLocation(Rec."Location Code");
+                    if Location."Bin Mandatory" then
+                        WhseInternalPickLine.SetCurrentKey("No.", WhseInternalPickLine."To Bin Code")
+                    else
+                        WhseInternalPickLine.SetCurrentKey("No.", WhseInternalPickLine."Shelf No.");
+                end;
+            "Sorting Method"::"Due Date":
+                WhseInternalPickLine.SetCurrentKey("No.", WhseInternalPickLine."Due Date");
+            else
+                OnSortWhseDocOnCaseSortingMethodElse(Rec);
+        end;
 
-            if Find('-') then begin
-                SequenceNo := 10000;
-                repeat
-                    "Sorting Sequence No." := SequenceNo;
-                    Modify();
-                    SequenceNo := SequenceNo + 10000;
-                until Next() = 0;
-            end;
+        if WhseInternalPickLine.Find('-') then begin
+            SequenceNo := 10000;
+            repeat
+                WhseInternalPickLine."Sorting Sequence No." := SequenceNo;
+                WhseInternalPickLine.Modify();
+                SequenceNo := SequenceNo + 10000;
+            until WhseInternalPickLine.Next() = 0;
         end;
     end;
 
@@ -307,27 +317,25 @@ table 7333 "Whse. Internal Pick Header"
         WhseInternalPickLine: Record "Whse. Internal Pick Line";
     begin
         WhseInternalPickLine.SetRange("No.", "No.");
-        with WhseInternalPickLine do begin
-            if LineNo <> 0 then
-                SetFilter("Line No.", '<>%1', LineNo);
-            if not FindFirst() then
-                exit(Status::" ");
+        if LineNo <> 0 then
+            WhseInternalPickLine.SetFilter("Line No.", '<>%1', LineNo);
+        if not WhseInternalPickLine.FindFirst() then
+            exit(WhseInternalPickLine.Status::" ");
 
-            SetRange(Status, Status::"Partially Picked");
-            if FindFirst() then
-                exit(Status);
+        WhseInternalPickLine.SetRange(Status, WhseInternalPickLine.Status::"Partially Picked");
+        if WhseInternalPickLine.FindFirst() then
+            exit(WhseInternalPickLine.Status);
 
-            SetRange(Status, Status::"Completely Picked");
-            if FindFirst() then begin
-                SetFilter(Status, '<%1', Status::"Completely Picked");
-                if FindFirst() then
-                    exit(Status::"Partially Picked");
+        WhseInternalPickLine.SetRange(Status, WhseInternalPickLine.Status::"Completely Picked");
+        if WhseInternalPickLine.FindFirst() then begin
+            WhseInternalPickLine.SetFilter(Status, '<%1', WhseInternalPickLine.Status::"Completely Picked");
+            if WhseInternalPickLine.FindFirst() then
+                exit(WhseInternalPickLine.Status::"Partially Picked");
 
-                exit(Status);
-            end;
-
-            exit(Status);
+            exit(WhseInternalPickLine.Status);
         end;
+
+        exit(WhseInternalPickLine.Status);
     end;
 
     procedure MessageIfInternalPickLinesExist(ChangedFieldName: Text[80])

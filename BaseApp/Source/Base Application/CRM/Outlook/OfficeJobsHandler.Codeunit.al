@@ -15,7 +15,7 @@ codeunit 1638 "Office Jobs Handler"
 
     var
         JobsRegExTxt: Label '([^:]+):([^:]+):([0-9]+)', Locked = true;
-        UnableToFindJobErr: Label 'Cannot find job number %1, job task number %2, line number %3.', Comment = '%1 = Job No; %2 = Job Task No; %3 = Job Planning Line';
+        UnableToFindJobErr: Label 'Cannot find project number %1, project task number %2, line number %3.', Comment = '%1 = Project No; %2 = Project Task No; %3 = Project Planning Line';
 
     procedure IsJobsHostType(OfficeAddinContext: Record "Office Add-in Context") IsJob: Boolean
     var
@@ -37,8 +37,8 @@ codeunit 1638 "Office Jobs Handler"
         Match := RegEx.Match(OfficeAddinContext.Subject, JobsRegExTxt);
 
         if Match.Success then begin
-            JobNo := Match.Groups.Item(1).Value;
-            JobTaskNo := Match.Groups.Item(2).Value;
+            JobNo := Match.Groups.Item(1).Value();
+            JobTaskNo := Match.Groups.Item(2).Value();
             Evaluate(JobPlanningLineNo, Match.Groups.Item(3).Value);
         end;
     end;

@@ -10,6 +10,7 @@ table 45 "G/L Register"
     Caption = 'G/L Register';
     LookupPageID = "G/L Registers";
     Permissions = TableData "G/L Register" = rimd;
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -30,6 +31,14 @@ table 45 "G/L Register"
         field(4; "Creation Date"; Date)
         {
             Caption = 'Creation Date';
+#if not CLEAN24
+            ObsoleteState = Pending;
+            ObsoleteTag = '24.0';
+#else
+            ObsoleteState = Removed;
+            ObsoleteTag = '26.0';
+#endif
+            ObsoleteReason = 'Use the system audit field "System Created at" instead.';
         }
         field(5; "Source Code"; Code[10])
         {
@@ -63,6 +72,14 @@ table 45 "G/L Register"
         field(11; "Creation Time"; Time)
         {
             Caption = 'Creation Time';
+#if not CLEAN24
+            ObsoleteState = Pending;
+            ObsoleteTag = '24.0';
+#else
+            ObsoleteState = Removed;
+            ObsoleteTag = '26.0';
+#endif
+            ObsoleteReason = 'Use the system audit field "System Created at" instead.';
         }
         field(12; "Journal Templ. Name"; Code[10])
         {
@@ -76,23 +93,43 @@ table 45 "G/L Register"
         {
             Clustered = true;
         }
+#if not CLEAN24
         key(Key2; "Creation Date")
         {
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Creation Date is obsoleted';
+            ObsoleteTag = '24.0';
         }
+#endif
+#if not CLEAN24
         key(Key3; "Source Code", "Journal Batch Name", "Creation Date")
         {
         }
+#else
+        key(Key3; "Source Code", "Journal Batch Name")
+        {
+        }
+#endif
         key(key4; "From Entry No.", "To Entry No.")
         {
+#if not CLEAN24
             IncludedFields = "Creation Date";
+#endif
         }
     }
 
     fieldgroups
     {
+#if not CLEAN24
         fieldgroup(DropDown; "No.", "From Entry No.", "To Entry No.", "Creation Date", "Source Code")
         {
         }
+#else
+        fieldgroup(DropDown; "No.", "From Entry No.", "To Entry No.", SystemCreatedAt, "Source Code")
+        {
+        }
+#endif
+
     }
 
     procedure GetLastEntryNo(): Integer;
@@ -107,8 +144,10 @@ table 45 "G/L Register"
         Init();
         OnInitializeOnAfterGLRegisterInit(Rec, TemplateName);
         "No." := NextRegNo;
+#if not CLEAN24            
         "Creation Date" := Today;
         "Creation Time" := Time;
+#endif
         "Source Code" := SourceCode;
         "User ID" := CopyStr(UserId(), 1, MaxStrLen("User ID"));
         "From Entry No." := FromEntryNo;

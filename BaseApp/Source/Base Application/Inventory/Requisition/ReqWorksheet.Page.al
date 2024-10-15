@@ -534,24 +534,6 @@ page 291 "Req. Worksheet"
                             ItemAvailFormsMgt.ShowItemAvailFromReqLine(Rec, ItemAvailFormsMgt.ByBOM())
                         end;
                     }
-#if not CLEAN21
-                    action(Timeline)
-                    {
-                        ApplicationArea = Planning;
-                        Caption = 'Timeline';
-                        Image = Timeline;
-                        ToolTip = 'Get a graphical view of an item''s projected inventory based on future supply and demand events, with or without planning suggestions. The result is a graphical representation of the inventory profile.';
-                        Visible = false;
-                        ObsoleteState = Pending;
-                        ObsoleteReason = 'TimelineVisualizer control has been deprecated.';
-                        ObsoleteTag = '21.0';
-
-                        trigger OnAction()
-                        begin
-                            Rec.ShowTimeline(Rec);
-                        end;
-                    }
-#endif                
                 }
                 action(Dimensions)
                 {
@@ -710,7 +692,7 @@ page 291 "Req. Worksheet"
                     ApplicationArea = Reservation;
                     Caption = '&Reserve';
                     Image = Reserve;
-                    ToolTip = 'Reserve one or more units of the item on the job planning line, either from inventory or from incoming supply.';
+                    ToolTip = 'Reserve one or more units of the item on the project planning line, either from inventory or from incoming supply.';
 
                     trigger OnAction()
                     begin
@@ -879,15 +861,6 @@ page 291 "Req. Worksheet"
                 actionref("Item &Tracking Lines_Promoted"; "Item &Tracking Lines")
                 {
                 }
-#if not CLEAN21
-                actionref(Card_Promoted; Card)
-                {
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Action is being demoted based on overall low usage.';
-                    ObsoleteTag = '21.0';
-                }
-#endif
             }
             group(Category_Category7)
             {
@@ -911,14 +884,6 @@ page 291 "Req. Worksheet"
                 actionref(Lot_Promoted; Lot)
                 {
                 }
-#if not CLEAN21
-                actionref(Timeline_Promoted; Timeline)
-                {
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'TimelineVisualizer control has been deprecated.';
-                    ObsoleteTag = '21.0';
-                }
-#endif
             }
             group(Category_Report)
             {

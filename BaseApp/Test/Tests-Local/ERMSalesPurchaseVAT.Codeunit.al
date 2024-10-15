@@ -42,7 +42,7 @@ codeunit 144051 "ERM Sales/Purchase VAT"
         // Setup: Update General Ledger Setup.
         Initialize();
         GeneralLedgerSetup.Get();
-        CurrencyCode := CreateCurrencyACY;
+        CurrencyCode := CreateCurrencyACY();
         UpdateGeneralLedgerSetup(CurrencyCode, true);
         PurchInvSetup(CurrencyCode);
 
@@ -98,7 +98,7 @@ codeunit 144051 "ERM Sales/Purchase VAT"
         // Setup: Update General Ledger Setup.
         Initialize();
         GeneralLedgerSetup.Get();
-        CurrencyCode := CreateCurrencyACY;
+        CurrencyCode := CreateCurrencyACY();
         UpdateGeneralLedgerSetup(CurrencyCode, true);
         UnApplyPstdPurchInvSetup(CurrencyCode);
 
@@ -156,7 +156,7 @@ codeunit 144051 "ERM Sales/Purchase VAT"
         // Setup: Update General Ledger Setup.
         Initialize();
         GeneralLedgerSetup.Get();
-        CurrencyCode := CreateCurrencyACY;
+        CurrencyCode := CreateCurrencyACY();
         UpdateGeneralLedgerSetup(CurrencyCode, true);
         PurchCrMemoSetup(CurrencyCode);
 
@@ -211,7 +211,7 @@ codeunit 144051 "ERM Sales/Purchase VAT"
         // Setup: Update General Ledger Setup.
         Initialize();
         GeneralLedgerSetup.Get();
-        CurrencyCode := CreateCurrencyACY;
+        CurrencyCode := CreateCurrencyACY();
         UpdateGeneralLedgerSetup(CurrencyCode, true);
         UnApplyPstdPurchCrMemoSetup(CurrencyCode);
 
@@ -265,7 +265,7 @@ codeunit 144051 "ERM Sales/Purchase VAT"
         // Setup: Update General Ledger Setup.
         Initialize();
         GeneralLedgerSetup.Get();
-        CurrencyCode := CreateCurrencyACY;
+        CurrencyCode := CreateCurrencyACY();
         UpdateGeneralLedgerSetup(CurrencyCode, true);
         SalesInvSetup(CurrencyCode);
 
@@ -321,7 +321,7 @@ codeunit 144051 "ERM Sales/Purchase VAT"
         // Setup: Update General Ledger Setup.
         Initialize();
         GeneralLedgerSetup.Get();
-        CurrencyCode := CreateCurrencyACY;
+        CurrencyCode := CreateCurrencyACY();
         UpdateGeneralLedgerSetup(CurrencyCode, true);
         UnApplyPstdSalesInvSetup(CurrencyCode);
 
@@ -380,7 +380,7 @@ codeunit 144051 "ERM Sales/Purchase VAT"
         // Setup: Update General Ledger Setup.
         Initialize();
         GeneralLedgerSetup.Get();
-        CurrencyCode := CreateCurrencyACY;
+        CurrencyCode := CreateCurrencyACY();
         UpdateGeneralLedgerSetup(CurrencyCode, true);
         SalesCrMemoSetup(CurrencyCode);
 
@@ -434,7 +434,7 @@ codeunit 144051 "ERM Sales/Purchase VAT"
 
         // Setup: Update General Ledger Setup.
         Initialize();
-        CurrencyCode := CreateCurrencyACY;
+        CurrencyCode := CreateCurrencyACY();
         GeneralLedgerSetup.Get();
         UpdateGeneralLedgerSetup(CurrencyCode, true);
         UnApplyPstdSalesCrMemoSetup(CurrencyCode);
@@ -581,7 +581,7 @@ codeunit 144051 "ERM Sales/Purchase VAT"
         isInitialized := true;
     end;
 
-    local procedure CreateAndPostGeneralJournalLine(var GenJournalLine: Record "Gen. Journal Line"; DocumentType: Option; AccountType: Option; AccountNo: Code[20]; Amount: Decimal; AppliesToDocNo: Code[20])
+    local procedure CreateAndPostGeneralJournalLine(var GenJournalLine: Record "Gen. Journal Line"; DocumentType: Enum "Gen. Journal Document Type"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; Amount: Decimal; AppliesToDocNo: Code[20])
     var
         BankAccount: Record "Bank Account";
         GenJournalBatch: Record "Gen. Journal Batch";
@@ -752,7 +752,7 @@ codeunit 144051 "ERM Sales/Purchase VAT"
         exit(0);
     end;
 
-    local procedure UnApplyCustomerLedgerEntries(DocumentType: Option; DocumentNo: Code[20])
+    local procedure UnApplyCustomerLedgerEntries(DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20])
     var
         CustomerLedgerEntry: Record "Cust. Ledger Entry";
     begin
@@ -760,7 +760,7 @@ codeunit 144051 "ERM Sales/Purchase VAT"
         LibraryERM.UnapplyCustomerLedgerEntry(CustomerLedgerEntry);
     end;
 
-    local procedure UnApplyVendorLedgerEntries(DocumentType: Option; DocumentNo: Code[20])
+    local procedure UnApplyVendorLedgerEntries(DocumentType: Enum "Purchase Document Type"; DocumentNo: Code[20])
     var
         VendorLedgerEntry: Record "Vendor Ledger Entry";
     begin
@@ -798,7 +798,7 @@ codeunit 144051 "ERM Sales/Purchase VAT"
         exit(PaymentAmount * 2);
     end;
 
-    local procedure VerifyVATEntries(DocumentType: Option; DocumentNo: Code[20]; AdditionalCurrencyAmount: Decimal; VATProdPostingGroup: Code[20])
+    local procedure VerifyVATEntries(DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20]; AdditionalCurrencyAmount: Decimal; VATProdPostingGroup: Code[20])
     var
         VATEntry: Record "VAT Entry";
     begin
@@ -808,12 +808,12 @@ codeunit 144051 "ERM Sales/Purchase VAT"
         VATEntry.SetFilter(Base, '<>0');
         VATEntry.FindFirst();
         Assert.AreNearlyEqual(
-          AdditionalCurrencyAmount, VATEntry."Additional-Currency Amount", LibraryERM.GetAmountRoundingPrecision,
+          AdditionalCurrencyAmount, VATEntry."Additional-Currency Amount", LibraryERM.GetAmountRoundingPrecision(),
           StrSubstNo(
             AmountError, VATEntry.FieldCaption("Additional-Currency Amount"), VATEntry."Additional-Currency Amount", VATEntry.TableCaption()));
     end;
 
-    local procedure VerifyGLEntries(DocumentType: Option; DocumentNo: Code[20]; GLAccountNo: Code[20]; AdditionalCurrencyAmount: Decimal)
+    local procedure VerifyGLEntries(DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20]; GLAccountNo: Code[20]; AdditionalCurrencyAmount: Decimal)
     var
         GLEntry: Record "G/L Entry";
     begin
@@ -822,7 +822,7 @@ codeunit 144051 "ERM Sales/Purchase VAT"
         GLEntry.SetRange("G/L Account No.", GLAccountNo);
         GLEntry.FindFirst();
         Assert.AreNearlyEqual(
-          AdditionalCurrencyAmount, GLEntry."Additional-Currency Amount", LibraryERM.GetAmountRoundingPrecision,
+          AdditionalCurrencyAmount, GLEntry."Additional-Currency Amount", LibraryERM.GetAmountRoundingPrecision(),
           StrSubstNo(
             AmountError, GLEntry.FieldCaption("Additional-Currency Amount"), GLEntry."Additional-Currency Amount", GLEntry.TableCaption()));
     end;
@@ -841,14 +841,14 @@ codeunit 144051 "ERM Sales/Purchase VAT"
     [Scope('OnPrem')]
     procedure PostedPurchaseDocumentLinePageHandler(var PostedPurchaseDocumentLines: TestPage "Posted Purchase Document Lines")
     begin
-        PostedPurchaseDocumentLines.OK.Invoke;
+        PostedPurchaseDocumentLines.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure PostedSalesDocumentLinesPageHandler(var PostedSalesDocumentLines: TestPage "Posted Sales Document Lines")
     begin
-        PostedSalesDocumentLines.OK.Invoke;
+        PostedSalesDocumentLines.OK().Invoke();
     end;
 }
 

@@ -9,9 +9,8 @@ table 7330 "Bin Content Buffer"
 {
     Caption = 'Bin Content Buffer';
     ReplicateData = false;
-#pragma warning disable AS0034
     TableType = Temporary;
-#pragma warning restore AS0034
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -27,17 +26,17 @@ table 7330 "Bin Content Buffer"
             Caption = 'Zone Code';
             DataClassification = SystemMetadata;
             NotBlank = true;
-            TableRelation = Zone.Code WHERE("Location Code" = FIELD("Location Code"));
+            TableRelation = Zone.Code where("Location Code" = field("Location Code"));
         }
         field(3; "Bin Code"; Code[20])
         {
             Caption = 'Bin Code';
             DataClassification = SystemMetadata;
             NotBlank = true;
-            TableRelation = IF ("Zone Code" = FILTER('')) Bin.Code WHERE("Location Code" = FIELD("Location Code"))
-            ELSE
-            IF ("Zone Code" = FILTER(<> '')) Bin.Code WHERE("Location Code" = FIELD("Location Code"),
-                                                                               "Zone Code" = FIELD("Zone Code"));
+            TableRelation = if ("Zone Code" = filter('')) Bin.Code where("Location Code" = field("Location Code"))
+            else
+            if ("Zone Code" = filter(<> '')) Bin.Code where("Location Code" = field("Location Code"),
+                                                                               "Zone Code" = field("Zone Code"));
         }
         field(4; "Item No."; Code[20])
         {
@@ -50,13 +49,13 @@ table 7330 "Bin Content Buffer"
         {
             Caption = 'Variant Code';
             DataClassification = SystemMetadata;
-            TableRelation = "Item Variant".Code WHERE("Item No." = FIELD("Item No."));
+            TableRelation = "Item Variant".Code where("Item No." = field("Item No."));
         }
         field(6; "Unit of Measure Code"; Code[10])
         {
             Caption = 'Unit of Measure Code';
             DataClassification = SystemMetadata;
-            TableRelation = "Item Unit of Measure".Code WHERE("Item No." = FIELD("Item No."));
+            TableRelation = "Item Unit of Measure".Code where("Item No." = field("Item No."));
         }
         field(10; Cubage; Decimal)
         {
@@ -74,7 +73,7 @@ table 7330 "Bin Content Buffer"
         {
             Caption = 'Base Unit of Measure';
             DataClassification = SystemMetadata;
-            TableRelation = "Item Unit of Measure".Code WHERE("Item No." = FIELD("Item No."));
+            TableRelation = "Item Unit of Measure".Code where("Item No." = field("Item No."));
         }
         field(50; "Qty. to Handle (Base)"; Decimal)
         {

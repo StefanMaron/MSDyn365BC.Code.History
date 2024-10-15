@@ -24,12 +24,16 @@ codeunit 137062 "SCM Sales & Receivables"
         LibraryWarehouse: Codeunit "Library - Warehouse";
         LibraryUtility: Codeunit "Library - Utility";
         LibrarySales: Codeunit "Library - Sales";
+#if not CLEAN23
         LibraryCosting: Codeunit "Library - Costing";
+#endif
         LibraryRandom: Codeunit "Library - Random";
         LibraryManufacturing: Codeunit "Library - Manufacturing";
         LibraryFiscalYear: Codeunit "Library - Fiscal Year";
         LibraryTimeSheet: Codeunit "Library - Time Sheet";
+#if not CLEAN23
         CopyFromToPriceListLine: Codeunit CopyFromToPriceListLine;
+#endif
         NumberofLineErr: Label 'Number of Line must be same.';
         QuantityErr: Label 'Quantity must be same.';
         QtyToReceiveErr: Label 'Qty. to Receive must be equal.';
@@ -45,8 +49,6 @@ codeunit 137062 "SCM Sales & Receivables"
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
         LibraryApplicationArea: Codeunit "Library - Application Area";
         Initialized: Boolean;
-        ItemCrossRefErr: Label 'There are no items with cross reference %1.';
-        ItemReferenceErr: Label 'There are no items with item reference %1.';
         AutomaticReservationMsg: Label 'Automatic reservation is not possible.';
         UndoShipmentQst: Label 'Do you really want to undo the selected Shipment lines?';
         DeletesEntriesMsg: Label 'This batch job deletes entries';
@@ -131,7 +133,7 @@ codeunit 137062 "SCM Sales & Receivables"
         Assert.AreEqual(Quantity, SalesLine.Quantity, QuantityErr);
     end;
 
-#if not CLEAN21
+#if not CLEAN23
     [Test]
     [HandlerFunctions('RetrieveDimStrMenuHandler')]
     [Scope('OnPrem')]
@@ -378,7 +380,7 @@ codeunit 137062 "SCM Sales & Receivables"
         // Run Date Compress Item Budget Entries when Same dimension in both Item Budget entry lines.
         // 1. Setup.
         Initialize(false);
-        ClearEntries;
+        ClearEntries();
         LibraryFiscalYear.CreateClosedAccountingPeriods();
         LibraryInventory.CreateItem(Item);
 
@@ -442,7 +444,7 @@ codeunit 137062 "SCM Sales & Receivables"
         // Run Date Compress Item Budget Entries when Different dimension in both Item Budget entry lines.
         // 1. Setup.
         Initialize(false);
-        ClearEntries;
+        ClearEntries();
         LibraryFiscalYear.CreateClosedAccountingPeriods();
         LibraryInventory.CreateItem(Item);
 
@@ -663,7 +665,7 @@ codeunit 137062 "SCM Sales & Receivables"
 
         // Create a Blanket Order.
         CreateSalesDocument(
-          SalesHeader, SalesLine, SalesHeader."Document Type"::"Blanket Order", LibrarySales.CreateCustomerNo, Item."No.",
+          SalesHeader, SalesLine, SalesHeader."Document Type"::"Blanket Order", LibrarySales.CreateCustomerNo(), Item."No.",
           2 * LibraryRandom.RandDec(100, 2));
         UpdateLocationOnSalesLine(SalesLine, '');
 
@@ -763,7 +765,7 @@ codeunit 137062 "SCM Sales & Receivables"
         LibraryInventory.CreateItem(Item);
         UpdateItemInventory(Item."No.", LibraryRandom.RandDec(100, 2));
         CreateSalesDocument(
-          SalesHeader, SalesLine, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo, Item."No.", LibraryRandom.RandDec(10, 2));
+          SalesHeader, SalesLine, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo(), Item."No.", LibraryRandom.RandDec(10, 2));
 
         // Exercise: Post Sales Order with Ship and Invoice.
         DocumentNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
@@ -804,7 +806,6 @@ codeunit 137062 "SCM Sales & Receivables"
     var
         Item: Record Item;
         ItemReference: Record "Item Reference";
-        SalesLine: Record "Sales Line";
         SalesHeader: Record "Sales Header";
         DocumentNo: Code[20];
     begin
@@ -863,13 +864,13 @@ codeunit 137062 "SCM Sales & Receivables"
         CreateItemWithReserveAlways(Item);
         CreateSalesDocument(
           SalesHeader, SalesLine, SalesHeader."Document Type"::"Return Order",
-          LibrarySales.CreateCustomerNo, Item."No.", LibraryRandom.RandDec(10, 2));
+          LibrarySales.CreateCustomerNo(), Item."No.", LibraryRandom.RandDec(10, 2));
 
         // Exercise: Create Sales Orders.
-        CreateSalesDocument(SalesHeader2, SalesLine2, SalesHeader2."Document Type"::Order, LibrarySales.CreateCustomerNo, Item."No.", 0);
+        CreateSalesDocument(SalesHeader2, SalesLine2, SalesHeader2."Document Type"::Order, LibrarySales.CreateCustomerNo(), Item."No.", 0);
         UpdateQuantityOnSalesLinePage(SalesHeader2."No.", SalesLine.Quantity);
         if MultipleSalesOrder then begin
-            CreateSalesDocument(SalesHeader3, SalesLine3, SalesHeader3."Document Type"::Order, LibrarySales.CreateCustomerNo, Item."No.", 0);
+            CreateSalesDocument(SalesHeader3, SalesLine3, SalesHeader3."Document Type"::Order, LibrarySales.CreateCustomerNo(), Item."No.", 0);
             LibraryVariableStorage.Enqueue(AutomaticReservationMsg);  // Enqueue Value for Confirm Handler.
             UpdateQuantityOnSalesLinePage(SalesHeader3."No.", SalesLine.Quantity);
         end;
@@ -899,11 +900,11 @@ codeunit 137062 "SCM Sales & Receivables"
         // Setup: Create Item and Bin. Create and Post Sales Order with Ship Option.
         Initialize(false);
         LibraryInventory.CreateItem(Item);
-        LibraryWarehouse.CreateBin(Bin, LocationSilver.Code, LibraryUtility.GenerateGUID, '', '');
+        LibraryWarehouse.CreateBin(Bin, LocationSilver.Code, LibraryUtility.GenerateGUID(), '', '');
         UpdateItemInventoryWithLocationAndBin(Item."No.", LocationSilver.Code, Bin.Code, LibraryRandom.RandDec(10, 2) + 100);  // Using large Random Value for Quantity.
 
         CreateSalesDocument(
-          SalesHeader, SalesLine, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo, Item."No.", LibraryRandom.RandDec(10, 2));
+          SalesHeader, SalesLine, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo(), Item."No.", LibraryRandom.RandDec(10, 2));
         UpdateLocationOnSalesLine(SalesLine, LocationSilver.Code);
         LibrarySales.PostSalesDocument(SalesHeader, true, false);
 
@@ -943,7 +944,7 @@ codeunit 137062 "SCM Sales & Receivables"
         // [GIVEN] Sales Order with item "A" (line1) and auto inserted item's auto text "A_ExtText" (line2)
         CreateSalesDocument(
           SalesHeader, SalesLine, SalesHeader."Document Type"::Order,
-          LibrarySales.CreateCustomerNo, ParentItem."No.", LibraryRandom.RandInt(10));
+          LibrarySales.CreateCustomerNo(), ParentItem."No.", LibraryRandom.RandInt(10));
         TransferSalesLineExtendedText(SalesLine);
 
         // [WHEN] Perform Item's Sales Line "Explode BOM" action
@@ -1282,19 +1283,19 @@ codeunit 137062 "SCM Sales & Receivables"
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
     begin
         SalesReceivablesSetup.Get();
-        SalesReceivablesSetup.Validate("Order Nos.", LibraryUtility.GetGlobalNoSeriesCode);
-        SalesReceivablesSetup.Validate("Invoice Nos.", LibraryUtility.GetGlobalNoSeriesCode);
-        SalesReceivablesSetup.Validate("Credit Memo Nos.", LibraryUtility.GetGlobalNoSeriesCode);
-        SalesReceivablesSetup.Validate("Blanket Order Nos.", LibraryUtility.GetGlobalNoSeriesCode);
-        SalesReceivablesSetup.Validate("Posted Shipment Nos.", LibraryUtility.GetGlobalNoSeriesCode);
-        SalesReceivablesSetup.Validate("Return Order Nos.", LibraryUtility.GetGlobalNoSeriesCode);
+        SalesReceivablesSetup.Validate("Order Nos.", LibraryUtility.GetGlobalNoSeriesCode());
+        SalesReceivablesSetup.Validate("Invoice Nos.", LibraryUtility.GetGlobalNoSeriesCode());
+        SalesReceivablesSetup.Validate("Credit Memo Nos.", LibraryUtility.GetGlobalNoSeriesCode());
+        SalesReceivablesSetup.Validate("Blanket Order Nos.", LibraryUtility.GetGlobalNoSeriesCode());
+        SalesReceivablesSetup.Validate("Posted Shipment Nos.", LibraryUtility.GetGlobalNoSeriesCode());
+        SalesReceivablesSetup.Validate("Return Order Nos.", LibraryUtility.GetGlobalNoSeriesCode());
         SalesReceivablesSetup.Modify(true);
 
         PurchasesPayablesSetup.Get();
-        PurchasesPayablesSetup.Validate("Order Nos.", LibraryUtility.GetGlobalNoSeriesCode);
-        PurchasesPayablesSetup.Validate("Invoice Nos.", LibraryUtility.GetGlobalNoSeriesCode);
-        PurchasesPayablesSetup.Validate("Blanket Order Nos.", LibraryUtility.GetGlobalNoSeriesCode);
-        PurchasesPayablesSetup.Validate("Order Nos.", LibraryUtility.GetGlobalNoSeriesCode);
+        PurchasesPayablesSetup.Validate("Order Nos.", LibraryUtility.GetGlobalNoSeriesCode());
+        PurchasesPayablesSetup.Validate("Invoice Nos.", LibraryUtility.GetGlobalNoSeriesCode());
+        PurchasesPayablesSetup.Validate("Blanket Order Nos.", LibraryUtility.GetGlobalNoSeriesCode());
+        PurchasesPayablesSetup.Validate("Order Nos.", LibraryUtility.GetGlobalNoSeriesCode());
         PurchasesPayablesSetup.Modify(true);
     end;
 
@@ -1303,13 +1304,13 @@ codeunit 137062 "SCM Sales & Receivables"
         Clear(ItemJournalTemplate);
         ItemJournalTemplate.Init();
         LibraryInventory.SelectItemJournalTemplateName(ItemJournalTemplate, ItemJournalTemplate.Type::Item);
-        ItemJournalTemplate.Validate("No. Series", LibraryUtility.GetGlobalNoSeriesCode);
+        ItemJournalTemplate.Validate("No. Series", LibraryUtility.GetGlobalNoSeriesCode());
         ItemJournalTemplate.Modify(true);
 
         Clear(ItemJournalBatch);
         ItemJournalBatch.Init();
         LibraryInventory.SelectItemJournalBatchName(ItemJournalBatch, ItemJournalTemplate.Type, ItemJournalTemplate.Name);
-        ItemJournalBatch.Validate("No. Series", LibraryUtility.GetGlobalNoSeriesCode);
+        ItemJournalBatch.Validate("No. Series", LibraryUtility.GetGlobalNoSeriesCode());
         ItemJournalBatch.Modify(true);
     end;
 
@@ -1480,9 +1481,9 @@ codeunit 137062 "SCM Sales & Receivables"
         ItemBudgetEntry: Record "Item Budget Entry";
     begin
         LibraryInventory.CreateItemBudgetEntry(
-          ItemBudgetEntry, ItemBudgetEntry."Analysis Area"::Sales, FindItemBudgetName, Date, Item."No.");
+          ItemBudgetEntry, ItemBudgetEntry."Analysis Area"::Sales, FindItemBudgetName(), Date, Item."No.");
         ItemBudgetEntry.Validate("Source Type", ItemBudgetEntry."Source Type"::Customer);
-        ItemBudgetEntry.Validate("Source No.", LibrarySales.CreateCustomerNo);
+        ItemBudgetEntry.Validate("Source No.", LibrarySales.CreateCustomerNo());
         ItemBudgetEntry.Validate("Global Dimension 1 Code", DepartmentCode);
         ItemBudgetEntry.Validate("Global Dimension 2 Code", ProjectCode);
         ItemBudgetEntry.Validate(Quantity, 1);  // Value is important for Test.
@@ -1700,7 +1701,7 @@ codeunit 137062 "SCM Sales & Receivables"
     var
         SalesOrder: TestPage "Sales Order";
     begin
-        SalesOrder.OpenEdit;
+        SalesOrder.OpenEdit();
         SalesOrder.FILTER.SetFilter("No.", No);
         SalesOrder.SalesLines.Quantity.SetValue(Quantity);
     end;
@@ -1709,10 +1710,10 @@ codeunit 137062 "SCM Sales & Receivables"
     var
         PostedSalesShipment: TestPage "Posted Sales Shipment";
     begin
-        PostedSalesShipment.OpenEdit;
+        PostedSalesShipment.OpenEdit();
         PostedSalesShipment.FILTER.SetFilter("No.", No);
         LibraryVariableStorage.Enqueue(UndoShipmentQst);  // Enqueue Value for Confirm Handler.
-        PostedSalesShipment.SalesShipmLines.UndoShipment.Invoke;
+        PostedSalesShipment.SalesShipmLines.UndoShipment.Invoke();
     end;
 
     local procedure FindSalesShipmentHeader(var SalesShipmentHeader: Record "Sales Shipment Header"; OrderNo: Code[20])
@@ -1736,7 +1737,7 @@ codeunit 137062 "SCM Sales & Receivables"
         until ItemBudgetEntry.Next() = 0;
     end;
 
-#if not CLEAN21
+#if not CLEAN23
     local procedure VerifyPurchUnitPrice(ItemNo: Text[30]; QtyOfUOMPerUOM2: Decimal; UnitCostOnItemCard: Decimal; UnitPurchPrice: Decimal; UnitOfMeasureCode: Code[10]; UnitOfMeasureCode2: Code[10])
     var
         PurchaseLine: Record "Purchase Line";
@@ -1776,7 +1777,7 @@ codeunit 137062 "SCM Sales & Receivables"
         until DateComprRegister.Next() = 0;
     end;
 
-#if not CLEAN21
+#if not CLEAN23
     local procedure VerifySalesUnitPrice(ItemNo: Text[30]; QtyOfUOMPerUOM2: Decimal; UnitPriceOnItemCard: Decimal; UnitSalesPrice: Decimal; UnitOfMeasureCode: Code[10]; UnitOfMeasureCode2: Code[10])
     var
         SalesLine: Record "Sales Line";
@@ -1913,7 +1914,7 @@ codeunit 137062 "SCM Sales & Receivables"
     [ModalPageHandler]
     procedure PostAndSendHandlerYes(var PostandSendConfirm: TestPage "Post and Send Confirmation")
     begin
-        PostandSendConfirm.Yes.Invoke();
+        PostandSendConfirm.Yes().Invoke();
     end;
 
     [StrMenuHandler]

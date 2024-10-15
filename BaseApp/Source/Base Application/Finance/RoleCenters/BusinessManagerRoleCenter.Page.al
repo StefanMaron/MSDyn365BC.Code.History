@@ -137,17 +137,6 @@ page 9022 "Business Manager Role Center"
                 SubPageView = where(Context = const('Power BI Part III'));
                 Visible = false;
             }
-#if not CLEAN21
-            part(Control98; "Power BI Report Spinner Part")
-            {
-                AccessByPermission = TableData "Power BI Context Settings" = I;
-                ApplicationArea = Basic, Suite;
-                ObsoleteState = Pending;
-                ObsoleteReason = 'Replaced by PowerBIEmbeddedReportPart';
-                Visible = false;
-                ObsoleteTag = '21.0';
-            }
-#endif
             systempart(MyNotes; MyNotes)
             {
                 ApplicationArea = Basic, Suite;
@@ -608,20 +597,6 @@ page 9022 "Business Manager Role Center"
                     RunObject = Page "Posted General Journal";
                     ToolTip = 'Open the list of posted general journal lines.';
                 }
-#if not CLEAN21
-                action(Deposits)
-                {
-                    ApplicationArea = Basic, Suite;
-                    Caption = 'Bank Deposits';
-                    Promoted = true;
-                    PromotedCategory = Process;
-                    RunObject = codeunit "Open Deposits Page";
-                    ToolTip = 'Manage bank deposits to your bank accounts.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'The action is already available in the Cash Management group.';
-                    ObsoleteTag = '21.0';
-                }
-#endif
             }
             group("Cash Management")
             {

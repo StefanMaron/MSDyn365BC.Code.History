@@ -39,7 +39,9 @@ page 498 Reservation
                     Editable = false;
                     ToolTip = 'Specifies the item number of the item that the reservation is for.';
                 }
+#pragma warning disable AA0100
                 field("ReservEntry.""Shipment Date"""; ReservEntry."Shipment Date")
+#pragma warning restore AA0100
                 {
                     ApplicationArea = Reservation;
                     Caption = 'Shipment Date';
@@ -124,7 +126,9 @@ page 498 Reservation
                     Editable = false;
                     ToolTip = 'Specifies the quantity of the item that is allocated to activities in the warehouse.';
                 }
+#pragma warning disable AA0100
                 field("ReservMgt.FormatQty(""Res. Qty. on Picks & Shipmts."")"; ReservMgt.FormatQty(Rec."Res. Qty. on Picks & Shipmts."))
+#pragma warning restore AA0100
                 {
                     ApplicationArea = Warehouse;
                     BlankZero = true;
@@ -175,28 +179,36 @@ page 498 Reservation
             group(Filters)
             {
                 Caption = 'Filters';
+#pragma warning disable AA0100
                 field("ReservEntry.""Variant Code"""; ReservEntry."Variant Code")
+#pragma warning restore AA0100
                 {
                     ApplicationArea = Reservation;
                     Caption = 'Variant Code';
                     Editable = false;
                     ToolTip = 'Specifies the variant code for the reservation.';
                 }
+#pragma warning disable AA0100
                 field("ReservEntry.""Location Code"""; ReservEntry."Location Code")
+#pragma warning restore AA0100
                 {
                     ApplicationArea = Reservation;
                     Caption = 'Location Code';
                     Editable = false;
                     ToolTip = 'Specifies the location code for the reservation.';
                 }
+#pragma warning disable AA0100
                 field("ReservEntry.""Serial No."""; ReservEntry."Serial No.")
+#pragma warning restore AA0100
                 {
                     ApplicationArea = ItemTracking;
                     Caption = 'Serial No.';
                     Editable = false;
                     ToolTip = 'Specifies the serial number for an item in the reservation.';
                 }
+#pragma warning disable AA0100
                 field("ReservEntry.""Lot No."""; ReservEntry."Lot No.")
+#pragma warning restore AA0100
                 {
                     ApplicationArea = ItemTracking;
                     Caption = 'Lot No.';
@@ -723,7 +735,7 @@ page 498 Reservation
     begin
     end;
 
-    [IntegrationEvent(TRUE, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnAfterGetQtyPerUOMFromSource(ReservationEntry: Record "Reservation Entry"; var QtyPerUOM: Decimal)
     begin
     end;
@@ -738,7 +750,7 @@ page 498 Reservation
     begin
     end;
 
-    [IntegrationEvent(TRUE, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnAfterUpdateReservFrom(var EntrySummary: Record "Entry Summary")
     begin
     end;
@@ -843,7 +855,7 @@ page 498 Reservation
     begin
     end;
 
-    [IntegrationEvent(TRUE, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnUpdateReservMgt(var ReservationEntry: Record "Reservation Entry"; var ReservationManagement: Codeunit "Reservation Management")
     begin
     end;

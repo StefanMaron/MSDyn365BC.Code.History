@@ -131,13 +131,13 @@ page 516 "Sales Lines"
                 field("Job No."; Rec."Job No.")
                 {
                     ApplicationArea = Jobs;
-                    ToolTip = 'Specifies the number of the related job. If you fill in this field and the Job Task No. field, then a job ledger entry will be posted together with the sales line.';
+                    ToolTip = 'Specifies the number of the related project. If you fill in this field and the Project Task No. field, then a project ledger entry will be posted together with the sales line.';
                     Visible = false;
                 }
                 field("Work Type Code"; Rec."Work Type Code")
                 {
                     ApplicationArea = Jobs;
-                    ToolTip = 'Specifies which work type the resource applies to when the sale is related to a job.';
+                    ToolTip = 'Specifies which work type the resource applies to when the sale is related to a project.';
                     Visible = false;
                 }
                 field("Shortcut Dimension 1 Code"; Rec."Shortcut Dimension 1 Code")
@@ -262,7 +262,7 @@ page 516 "Sales Lines"
                     ApplicationArea = ItemTracking;
                     Caption = 'Item &Tracking Lines';
                     Image = ItemTrackingLines;
-                    ShortCutKey = 'Ctrl+Alt+I'; 
+                    ShortCutKey = 'Ctrl+Alt+I';
                     ToolTip = 'View or edit serial numbers and lot numbers that are assigned to the item on the document or journal line.';
 
                     trigger OnAction()

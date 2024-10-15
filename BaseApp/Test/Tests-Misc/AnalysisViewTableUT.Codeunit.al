@@ -27,7 +27,7 @@ codeunit 134066 "Analysis View Table-UT"
         LibraryERM.CreateAnalysisView(AnalysisView);
         AnalysisView.Validate(Blocked, true); // As  Blocked True.
         AnalysisView.Modify(true);
-        asserterror AnalysisView.Validate("Dimension 2 Code", CreateDimension);
+        asserterror AnalysisView.Validate("Dimension 2 Code", CreateDimension());
 
         // Verify: Verify Error Message.
         Assert.ExpectedError(StrSubstNo(Expected, AnalysisView.Code));
@@ -43,7 +43,7 @@ codeunit 134066 "Analysis View Table-UT"
         LibraryERM.CreateAnalysisView(AnalysisView);
         AnalysisView.Validate(Blocked, true); // As  Blocked True.
         AnalysisView.Modify(true);
-        asserterror AnalysisView.Validate("Dimension 3 Code", CreateDimension);
+        asserterror AnalysisView.Validate("Dimension 3 Code", CreateDimension());
 
         // Verify: Verify Error Message.
         Assert.ExpectedError(StrSubstNo(Expected, AnalysisView.Code));
@@ -59,7 +59,7 @@ codeunit 134066 "Analysis View Table-UT"
         LibraryERM.CreateAnalysisView(AnalysisView);
         AnalysisView.Validate(Blocked, true); // As  Blocked True.
         AnalysisView.Modify(true);
-        asserterror AnalysisView.Validate("Dimension 4 Code", CreateDimension);
+        asserterror AnalysisView.Validate("Dimension 4 Code", CreateDimension());
 
         // Verify: Verify Error Message.
         Assert.ExpectedError(StrSubstNo(Expected, AnalysisView.Code));
@@ -124,7 +124,7 @@ codeunit 134066 "Analysis View Table-UT"
         LibraryERM.CreateAnalysisView(AnalysisView);
         UpdateDimensionsOnAnalysisView(AnalysisView, DimensionCode::Code2);
         Dimension2Code := AnalysisView."Dimension 2 Code";
-        AnalysisView.Validate("Dimension 2 Code", CreateDimension);
+        AnalysisView.Validate("Dimension 2 Code", CreateDimension());
         AnalysisView.Modify(true);
 
         // Verify: Verifying Modified Analysis View Dimension 2 code.
@@ -142,7 +142,7 @@ codeunit 134066 "Analysis View Table-UT"
         LibraryERM.CreateAnalysisView(AnalysisView);
         UpdateDimensionsOnAnalysisView(AnalysisView, DimensionCode::Code3);
         Dimension3Code := AnalysisView."Dimension 3 Code";
-        AnalysisView.Validate("Dimension 3 Code", CreateDimension);
+        AnalysisView.Validate("Dimension 3 Code", CreateDimension());
         AnalysisView.Modify(true);
 
         // Verify: Verifying Modified Analysis View Dimension 3 code.
@@ -160,7 +160,7 @@ codeunit 134066 "Analysis View Table-UT"
         LibraryERM.CreateAnalysisView(AnalysisView);
         UpdateDimensionsOnAnalysisView(AnalysisView, DimensionCode::Code4);
         Dimension4Code := AnalysisView."Dimension 4 Code";
-        AnalysisView.Validate("Dimension 4 Code", CreateDimension);
+        AnalysisView.Validate("Dimension 4 Code", CreateDimension());
         AnalysisView.Modify(true);
 
         // Verify: Verify Modified Analysis View Dimension 4 code.
@@ -193,7 +193,7 @@ codeunit 134066 "Analysis View Table-UT"
         AnalysisViewEntryToGLEntries.GetGLEntries(AnalysisViewEntry, TempGLEntry);
     end;
 
-    local procedure CreateDimension() DimensionCode: Code[20]
+    local procedure CreateDimension(): Code[20]
     var
         Dimension: Record Dimension;
     begin
@@ -205,13 +205,13 @@ codeunit 134066 "Analysis View Table-UT"
     begin
         case DimensionCode of
             DimensionCode::Code1:
-                AnalysisView.Validate("Dimension 1 Code", CreateDimension);
+                AnalysisView.Validate("Dimension 1 Code", CreateDimension());
             DimensionCode::Code2:
-                AnalysisView.Validate("Dimension 2 Code", CreateDimension);
+                AnalysisView.Validate("Dimension 2 Code", CreateDimension());
             DimensionCode::Code3:
-                AnalysisView.Validate("Dimension 3 Code", CreateDimension);
+                AnalysisView.Validate("Dimension 3 Code", CreateDimension());
             DimensionCode::Code4:
-                AnalysisView.Validate("Dimension 4 Code", CreateDimension);
+                AnalysisView.Validate("Dimension 4 Code", CreateDimension());
         end;
         AnalysisView.Modify(true);
     end;

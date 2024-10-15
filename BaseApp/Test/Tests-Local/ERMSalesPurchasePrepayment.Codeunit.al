@@ -30,7 +30,7 @@ codeunit 142075 "ERM Sales/Purchase Prepayment"
 
         // Setup: Create and Post Purchase Prepayment Invoice.
         Initialize();
-        No := CreateAndPostPurchasePrepaymentInvoice;
+        No := CreateAndPostPurchasePrepaymentInvoice();
         OpenPurchaseOrder(PurchaseOrder, No);
 
         // Exercise.
@@ -53,7 +53,7 @@ codeunit 142075 "ERM Sales/Purchase Prepayment"
 
         // Setup: Create and Post Purchase Prepayment Invoice.
         Initialize();
-        No := CreateAndPostPurchasePrepaymentInvoice;
+        No := CreateAndPostPurchasePrepaymentInvoice();
         OpenPurchaseOrder(PurchaseOrder, No);
 
         // Exercise.
@@ -75,7 +75,7 @@ codeunit 142075 "ERM Sales/Purchase Prepayment"
 
         // Setup: Create and Post Purchase Prepayment Invoice.
         Initialize();
-        No := CreateAndPostPurchasePrepaymentInvoice;
+        No := CreateAndPostPurchasePrepaymentInvoice();
         OpenPurchaseOrder(PurchaseOrder, No);
 
         // Exercise.
@@ -98,7 +98,7 @@ codeunit 142075 "ERM Sales/Purchase Prepayment"
 
         // Setup: Create and Post Purchase Prepayment Invoice.
         Initialize();
-        No := CreateAndPostPurchasePrepaymentInvoice;
+        No := CreateAndPostPurchasePrepaymentInvoice();
         OpenPurchaseOrder(PurchaseOrder, No);
 
         // Exercise.
@@ -122,7 +122,7 @@ codeunit 142075 "ERM Sales/Purchase Prepayment"
 
         // Setup: Create and Post Sales Prepayment Invoice.
         Initialize();
-        No := CreateAndPostSalesPrepaymentInvoice;
+        No := CreateAndPostSalesPrepaymentInvoice();
         OpenSalesOrder(SalesOrder, No);
 
         // Exercise.
@@ -144,7 +144,7 @@ codeunit 142075 "ERM Sales/Purchase Prepayment"
 
         // Setup: Create and Post Sales Prepayment Invoice.
         Initialize();
-        No := CreateAndPostSalesPrepaymentInvoice;
+        No := CreateAndPostSalesPrepaymentInvoice();
         OpenSalesOrder(SalesOrder, No);
 
         // Exercise.
@@ -166,7 +166,7 @@ codeunit 142075 "ERM Sales/Purchase Prepayment"
 
         // Setup: Create and Post Sales Prepayment Invoice.
         Initialize();
-        No := CreateAndPostSalesPrepaymentInvoice;
+        No := CreateAndPostSalesPrepaymentInvoice();
         OpenSalesOrder(SalesOrder, No);
 
         // Exercise.
@@ -188,7 +188,7 @@ codeunit 142075 "ERM Sales/Purchase Prepayment"
 
         // Setup: Create and Post Sales Prepayment Invoice.
         Initialize();
-        No := CreateAndPostSalesPrepaymentInvoice;
+        No := CreateAndPostSalesPrepaymentInvoice();
         OpenSalesOrder(SalesOrder, No);
 
         // Exercise.
@@ -210,7 +210,7 @@ codeunit 142075 "ERM Sales/Purchase Prepayment"
 
         // Setup: Create and Post Sales Prepayment Invoice.
         Initialize();
-        No := CreateAndPostSalesPrepaymentInvoice;
+        No := CreateAndPostSalesPrepaymentInvoice();
         OpenSalesOrder(SalesOrder, No);
 
         // Exercise.
@@ -229,7 +229,7 @@ codeunit 142075 "ERM Sales/Purchase Prepayment"
             exit;
 
         LibraryERMCountryData.CreateVATData();
-        ModifySalesReceivablesSetup;  // Modify Stock out Warning.
+        ModifySalesReceivablesSetup();  // Modify Stock out Warning.
         LibraryPurchase.SetDiscountPostingSilent(0);
         LibrarySales.SetDiscountPostingSilent(0);
 
@@ -242,10 +242,9 @@ codeunit 142075 "ERM Sales/Purchase Prepayment"
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
         LineGLAccount: Record "G/L Account";
-        VATCalculationType: Option "Normal VAT","Reverse Charge VAT","Full VAT","Sales Tax";
     begin
         // Using Random for Quantity and Direct Unit and Prepayment %.
-        LibraryPurchase.CreatePrepaymentVATSetup(LineGLAccount, VATCalculationType::"Normal VAT");
+        LibraryPurchase.CreatePrepaymentVATSetup(LineGLAccount, "Tax Calculation Type"::"Normal VAT");
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, CreateVendor(LineGLAccount));
         PurchaseHeader.Validate("Prepayment %", LibraryRandom.RandDec(10, 2));
         PurchaseHeader.Modify(true);
@@ -264,10 +263,9 @@ codeunit 142075 "ERM Sales/Purchase Prepayment"
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
         LineGLAccount: Record "G/L Account";
-        VATCalculationType: Option "Normal VAT","Reverse Charge VAT","Full VAT","Sales Tax";
     begin
         // Using Random for Quantity and Unit Price and Prepayment %.
-        LibrarySales.CreatePrepaymentVATSetup(LineGLAccount, VATCalculationType::"Normal VAT");
+        LibrarySales.CreatePrepaymentVATSetup(LineGLAccount, "Tax Calculation Type"::"Normal VAT");
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, CreateCustomer(LineGLAccount));
         SalesHeader.Validate("Prepayment %", LibraryRandom.RandDec(10, 2));
         SalesHeader.Modify(true);
@@ -314,13 +312,13 @@ codeunit 142075 "ERM Sales/Purchase Prepayment"
 
     local procedure OpenPurchaseOrder(var PurchaseOrder: TestPage "Purchase Order"; No: Code[20])
     begin
-        PurchaseOrder.OpenEdit;
+        PurchaseOrder.OpenEdit();
         PurchaseOrder.FILTER.SetFilter("No.", No);
     end;
 
     local procedure OpenSalesOrder(var SalesOrder: TestPage "Sales Order"; No: Code[20])
     begin
-        SalesOrder.OpenEdit;
+        SalesOrder.OpenEdit();
         SalesOrder.FILTER.SetFilter("No.", No);
     end;
 

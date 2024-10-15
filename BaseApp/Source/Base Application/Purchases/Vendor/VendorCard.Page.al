@@ -41,7 +41,9 @@ using System.Integration.Word;
 using System.Privacy;
 using System.Utilities;
 using Microsoft.Inventory.Location;
+#if not CLEAN25
 using Microsoft.Finance.VAT.Reporting;
+#endif
 
 page 26 "Vendor Card"
 {
@@ -248,7 +250,7 @@ page 26 "Vendor Card"
                         Editable = false;
                         ShowCaption = false;
                         Style = StrongAccent;
-                        StyleExpr = TRUE;
+                        StyleExpr = true;
                         ToolTip = 'Specifies you can view the vendor''s address on your preferred map website.';
 
                         trigger OnDrillDown()
@@ -514,17 +516,25 @@ page 26 "Vendor Card"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a payment term that will be used for calculating cash flow.';
                 }
+#if not CLEAN25
                 field("IRS 1099 Code"; Rec."IRS 1099 Code")
                 {
                     ApplicationArea = BasicUS;
                     Importance = Additional;
                     ToolTip = 'Specifies a 1099 code for the vendor.';
+                    ObsoleteReason = 'Moved to IRS Forms App.';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '25.0';
                 }
                 field("FATCA filing requirement"; Rec."FATCA filing requirement")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies if the vendor is set up to require FATCA filing.';
+                    ObsoleteReason = 'Moved to IRS Forms App.';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '25.0';
                 }
+#endif
                 field("Federal ID No."; Rec."Federal ID No.")
                 {
                     ApplicationArea = Basic, Suite;
@@ -635,7 +645,7 @@ page 26 "Vendor Card"
             {
                 ApplicationArea = Basic, Suite;
                 SubPageLink = "No." = field("No.");
-                Visible = NOT IsOfficeAddin;
+                Visible = not IsOfficeAddin;
             }
             part("Attached Documents"; "Document Attachment Factbox")
             {
@@ -910,7 +920,7 @@ page 26 "Vendor Card"
                         PriceUXManagement.ShowPriceListLines(PriceSource, Enum::"Price Amount Type"::Discount);
                     end;
                 }
-#if not CLEAN21
+#if not CLEAN23
                 action(PriceListsDiscounts)
                 {
                     ApplicationArea = Basic, Suite;
@@ -931,7 +941,7 @@ page 26 "Vendor Card"
                     end;
                 }
 #endif
-#if not CLEAN21
+#if not CLEAN23
                 action(Prices)
                 {
                     ApplicationArea = Basic, Suite;
@@ -1047,7 +1057,7 @@ page 26 "Vendor Card"
                     RunObject = Page "Vendor Ledger Entries";
                     RunPageLink = "Vendor No." = field("No.");
                     RunPageView = sorting("Vendor No.")
-                                  order(Descending);
+                                  order(descending);
                     ShortCutKey = 'Ctrl+F7';
                     ToolTip = 'View the history of transactions that have been posted for the selected record.';
                 }
@@ -1086,6 +1096,7 @@ page 26 "Vendor Card"
                                   "Global Dimension 2 Filter" = field("Global Dimension 2 Filter");
                     ToolTip = 'View entry statistics for the record.';
                 }
+#if not CLEAN25
                 action("1099 Statistics")
                 {
                     ApplicationArea = BasicUS;
@@ -1095,7 +1106,11 @@ page 26 "Vendor Card"
                     RunPageLink = "No." = field("No.");
                     ShortCutKey = 'Shift+F11';
                     ToolTip = 'View the vendor 1099 statistics that you can use to create 1099 reports and generate the files necessary to submit 1099 information to the Internal Revenue Service (IRS). This information is required to report paid vendor income.';
+                    ObsoleteReason = 'Moved to IRS Forms App.';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '25.0';
                 }
+#endif
                 action("Statistics by C&urrencies")
                 {
                     ApplicationArea = Suite;
@@ -1260,7 +1275,7 @@ page 26 "Vendor Card"
                 RunPageLink = "Buy-from Vendor No." = field("No.");
                 RunPageMode = Create;
                 ToolTip = 'Create a new purchase invoice for items or services.';
-                Visible = NOT IsOfficeAddin;
+                Visible = not IsOfficeAddin;
             }
             action(NewPurchaseOrder)
             {
@@ -1271,7 +1286,7 @@ page 26 "Vendor Card"
                 RunPageLink = "Buy-from Vendor No." = field("No.");
                 RunPageMode = Create;
                 ToolTip = 'Create a new purchase order.';
-                Visible = NOT IsOfficeAddin;
+                Visible = not IsOfficeAddin;
             }
             action(NewPurchaseCrMemo)
             {
@@ -1282,7 +1297,7 @@ page 26 "Vendor Card"
                 RunPageLink = "Buy-from Vendor No." = field("No.");
                 RunPageMode = Create;
                 ToolTip = 'Create a new purchase credit memo to revert a posted purchase invoice.';
-                Visible = NOT IsOfficeAddin;
+                Visible = not IsOfficeAddin;
             }
             action(NewPurchaseReturnOrder)
             {
@@ -1410,7 +1425,7 @@ page 26 "Vendor Card"
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Send A&pproval Request';
-                    Enabled = NOT OpenApprovalEntriesExist AND CanRequestApprovalForFlow;
+                    Enabled = not OpenApprovalEntriesExist and CanRequestApprovalForFlow;
                     Image = SendApprovalRequest;
                     ToolTip = 'Request approval to change the record.';
 
@@ -1426,7 +1441,7 @@ page 26 "Vendor Card"
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Cancel Approval Re&quest';
-                    Enabled = CanCancelApprovalForRecord OR CanCancelApprovalForFlow;
+                    Enabled = CanCancelApprovalForRecord or CanCancelApprovalForFlow;
                     Image = CancelApprovalRequest;
                     ToolTip = 'Cancel the approval request.';
 
@@ -1476,20 +1491,6 @@ page 26 "Vendor Card"
                             FlowTemplateSelector.SetSearchText(FlowServiceManagement.GetVendorTemplateFilter());
                             FlowTemplateSelector.Run();
                         end;
-                    }
-#endif
-#if not CLEAN21
-                    action(SeeFlows)
-                    {
-                        ApplicationArea = Basic, Suite;
-                        Caption = 'See my flows';
-                        Image = Flow;
-                        RunObject = Page "Flow Selector";
-                        ToolTip = 'View and configure Power Automate flows that you created.';
-                        Visible = false;
-                        ObsoleteState = Pending;
-                        ObsoleteReason = 'This action has been moved to the tab dedicated to Power Automate';
-                        ObsoleteTag = '21.0';
                     }
 #endif
                 }
@@ -1712,6 +1713,7 @@ page 26 "Vendor Card"
                     RunReport(REPORT::"Projected Cash Payments");
                 end;
             }
+#if not CLEAN25
             action("Vendor 1099 Div")
             {
                 ApplicationArea = BasicUS;
@@ -1720,6 +1722,9 @@ page 26 "Vendor Card"
                 //The property 'PromotedCategory' can only be set if the property 'Promoted' is set to 'true'
                 //PromotedCategory = "Report";
                 ToolTip = 'View the federal form 1099-DIV for dividends and distribution.';
+                ObsoleteReason = 'Moved to IRS Forms App.';
+                ObsoleteState = Pending;
+                ObsoleteTag = '25.0';
 
                 trigger OnAction()
                 begin
@@ -1734,6 +1739,9 @@ page 26 "Vendor Card"
                 //The property 'PromotedCategory' can only be set if the property 'Promoted' is set to 'true'
                 //PromotedCategory = "Report";
                 ToolTip = 'View the federal form 1099-INT for interest income.';
+                ObsoleteReason = 'Moved to IRS Forms App.';
+                ObsoleteState = Pending;
+                ObsoleteTag = '25.0';               
 
                 trigger OnAction()
                 begin
@@ -1748,6 +1756,9 @@ page 26 "Vendor Card"
                 //The property 'PromotedCategory' can only be set if the property 'Promoted' is set to 'true'
                 //PromotedCategory = "Report";
                 ToolTip = 'View the federal form 1099-MISC for miscellaneous income.';
+                ObsoleteReason = 'Moved to IRS Forms App.';
+                ObsoleteState = Pending;
+                ObsoleteTag = '25.0';
 
                 trigger OnAction()
                 var
@@ -1764,12 +1775,16 @@ page 26 "Vendor Card"
                 //The property 'PromotedCategory' can only be set if the property 'Promoted' is set to 'true'
                 //PromotedCategory = "Report";
                 ToolTip = 'View the vendors'' 1099 information. The report includes all 1099 information for the vendors that have been set up using the IRS 1099 Form-Box table. This includes only amounts that have been paid. It does not include amounts billed but not yet paid. You must enter a date filter before you can print this report.';
+                ObsoleteReason = 'Moved to IRS Forms App.';
+                ObsoleteState = Pending;
+                ObsoleteTag = '25.0';
 
                 trigger OnAction()
                 begin
                     RunReport(REPORT::"Vendor 1099 Information");
                 end;
             }
+#endif
             action("Vendor/Item Statistics")
             {
                 ApplicationArea = Basic, Suite;
@@ -1817,15 +1832,6 @@ page 26 "Vendor Card"
                 actionref(PayVendor_Promoted; PayVendor)
                 {
                 }
-#if not CLEAN21
-                actionref("Create Payments_Promoted"; "Create Payments")
-                {
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Action is being demoted based on overall low usage.';
-                    ObsoleteTag = '21.0';
-                }
-#endif
             }
             group(Category_Category4)
             {
@@ -1854,24 +1860,6 @@ page 26 "Vendor Card"
                 actionref(CancelApprovalRequest_Promoted; CancelApprovalRequest)
                 {
                 }
-#if not CLEAN21
-                actionref(CreateFlow_Promoted; CreateFlow)
-                {
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Action is being demoted based on overall low usage.';
-                    ObsoleteTag = '21.0';
-                }
-#endif
-#if not CLEAN21
-                actionref(SeeFlows_Promoted; SeeFlows)
-                {
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'This action has been moved to the tab dedicated to Power Automate';
-                    ObsoleteTag = '21.0';
-                }
-#endif
             }
             group(Category_Category6)
             {
@@ -1949,29 +1937,6 @@ page 26 "Vendor Card"
                 actionref("Item References_Promoted"; "Item References")
                 {
                 }
-#if not CLEAN21
-                actionref(Quotes_Promoted; Quotes)
-                {
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Demoted: The page can be accessed from the FactBox.';
-                    ObsoleteTag = '21.0';
-                }
-                actionref(Orders_Promoted; Orders)
-                {
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Demoted: The page can be accessed from the FactBox.';
-                    ObsoleteTag = '21.0';
-                }
-                actionref("Return Orders_Promoted"; "Return Orders")
-                {
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Demoted: The page can be accessed from the FactBox.';
-                    ObsoleteTag = '21.0';
-                }
-#endif
             }
             group("Category_Prices & Discounts")
             {
@@ -1986,7 +1951,7 @@ page 26 "Vendor Card"
                 actionref(DiscountLines_Promoted; DiscountLines)
                 {
                 }
-#if not CLEAN21
+#if not CLEAN23
                 actionref(Prices_Promoted; Prices)
                 {
                     ObsoleteState = Pending;
@@ -1994,7 +1959,7 @@ page 26 "Vendor Card"
                     ObsoleteTag = '17.0';
                 }
 #endif
-#if not CLEAN21
+#if not CLEAN23
                 actionref("Line Discounts_Promoted"; "Line Discounts")
                 {
                     ObsoleteState = Pending;

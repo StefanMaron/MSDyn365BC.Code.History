@@ -7,6 +7,7 @@ table 7336 "Bin Creation Wksh. Template"
     Caption = 'Bin Creation Wksh. Template';
     LookupPageID = "Bin Creation Wksh. Templ. List";
     ReplicateData = true;
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -22,7 +23,7 @@ table 7336 "Bin Creation Wksh. Template"
         field(6; "Page ID"; Integer)
         {
             Caption = 'Page ID';
-            TableRelation = AllObjWithCaption."Object ID" WHERE("Object Type" = CONST(Page));
+            TableRelation = AllObjWithCaption."Object ID" where("Object Type" = const(Page));
 
             trigger OnValidate()
             begin
@@ -48,8 +49,8 @@ table 7336 "Bin Creation Wksh. Template"
         }
         field(16; "Page Caption"; Text[250])
         {
-            CalcFormula = Lookup(AllObjWithCaption."Object Caption" WHERE("Object Type" = CONST(Page),
-                                                                           "Object ID" = FIELD("Page ID")));
+            CalcFormula = lookup(AllObjWithCaption."Object Caption" where("Object Type" = const(Page),
+                                                                           "Object ID" = field("Page ID")));
             Caption = 'Page Caption';
             Editable = false;
             FieldClass = FlowField;

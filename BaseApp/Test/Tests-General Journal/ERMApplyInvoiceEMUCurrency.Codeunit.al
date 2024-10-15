@@ -38,7 +38,7 @@
         Initialize();
         ModifySalesAndReceivablesSetup(ApplnbetweenCurrencies, SalesReceivablesSetup."Appln. between Currencies"::EMU);
 
-        CurrencyCode := CreateCurrency;
+        CurrencyCode := CreateCurrency();
         ModifyExchangeRate(CurrencyCode);
         PostedDocumentNo := CreateAndPostSalesInvoice(SalesHeader, CurrencyCode);
         FindSalesInvoiceHeaderAmt(SalesInvoiceHeader, PostedDocumentNo);
@@ -78,7 +78,7 @@
         Initialize();
         ModifySalesAndReceivablesSetup(ApplnbetweenCurrencies, SalesReceivablesSetup."Appln. between Currencies"::EMU);
 
-        PostedDocumentNo := CreateAndPostSalesInvoice(SalesHeader, CreateCurrency);
+        PostedDocumentNo := CreateAndPostSalesInvoice(SalesHeader, CreateCurrency());
         ModifyExchangeRate(SalesHeader."Currency Code");
 #if not CLEAN23
         LibraryERM.RunAdjustExchangeRates(SalesHeader."Currency Code", 0D, WorkDate(), 'Test', WorkDate(), PostedDocumentNo, false);
@@ -124,7 +124,7 @@
         LibrarySales: Codeunit "Library - Sales";
     begin
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, CreateCustomer(CurrencyCode));
-        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, CreateItem, LibraryRandom.RandInt(50));
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, CreateItem(), LibraryRandom.RandInt(50));
         PostedDocumentNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
     end;
 
@@ -175,7 +175,7 @@
         GenJournalLine.Validate("Applies-to Doc. Type", GenJournalLine."Applies-to Doc. Type"::Invoice);
         GenJournalLine.Validate("Applies-to Doc. No.", AppliedToDocNo);
         GenJournalLine.Validate(Amount, Amount);
-        GenJournalLine.Validate("Currency Code", CreateCurrency);
+        GenJournalLine.Validate("Currency Code", CreateCurrency());
         GenJournalLine.Modify(true);
     end;
 
@@ -202,7 +202,7 @@
     begin
         CurrencyExchangeRate.SetRange("Currency Code", CurrencyCode);
         CurrencyExchangeRate.FindFirst();
-        CurrencyExchangeRate.Validate("Relational Currency Code", CreateCurrency);
+        CurrencyExchangeRate.Validate("Relational Currency Code", CreateCurrency());
         CurrencyExchangeRate.Modify(true);
     end;
 

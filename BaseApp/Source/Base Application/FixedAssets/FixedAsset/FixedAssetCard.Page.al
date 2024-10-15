@@ -93,10 +93,17 @@ page 5600 "Fixed Asset Card"
                         var
                             IsHandled: Boolean;
                         begin
+#if not CLEAN24
                             IsHandled := false;
                             OnBeforeOnValidateFASubclassCode(Rec, xRec, IsHandled);
                             if IsHandled then
                                 exit;
+#endif
+                            IsHandled := false;
+                            OnBeforeOnValidateFASubclassCodePage(Rec, xRec, IsHandled);
+                            if IsHandled then
+                                exit;
+
                             SetDefaultDepreciationBook();
                             SetDefaultPostingGroup();
                             ShowAcquisitionNotification();
@@ -328,7 +335,7 @@ page 5600 "Fixed Asset Card"
                         Editable = false;
                         ShowCaption = false;
                         Style = StrongAccent;
-                        StyleExpr = TRUE;
+                        StyleExpr = true;
 
                         trigger OnDrillDown()
                         begin
@@ -342,7 +349,7 @@ page 5600 "Fixed Asset Card"
                 ApplicationArea = FixedAssets;
                 Caption = 'Depreciation Books';
                 SubPageLink = "FA No." = field("No.");
-                Visible = NOT Simple;
+                Visible = not Simple;
             }
             group(Maintenance)
             {
@@ -599,7 +606,7 @@ page 5600 "Fixed Asset Card"
                     RunObject = Page "FA Ledger Entries";
                     RunPageLink = "FA No." = field("No.");
                     RunPageView = sorting("FA No.")
-                                  order(Descending);
+                                  order(descending);
                     ShortCutKey = 'Ctrl+F7';
                     ToolTip = 'View the history of transactions that have been posted for the selected record.';
                 }
@@ -611,7 +618,7 @@ page 5600 "Fixed Asset Card"
                     RunObject = Page "FA Error Ledger Entries";
                     RunPageLink = "Canceled from FA No." = field("No.");
                     RunPageView = sorting("Canceled from FA No.")
-                                  order(Descending);
+                                  order(descending);
                     ToolTip = 'View the entries that have been posted as a result of you using the Cancel function to cancel an entry.';
                 }
                 action("Main&tenance Ledger Entries")
@@ -991,8 +998,18 @@ page 5600 "Fixed Asset Card"
     begin
     end;
 
+#if not CLEAN24
+#pragma warning disable AL0523
+    [Obsolete('Replaced by event OnBeforeOnValidateFASubclassCodePage', '24.0')]
     [IntegrationEvent(false, false)]
     local procedure OnBeforeOnValidateFASubclassCode(var FixedAsset: Record "Fixed Asset"; var xFixedAsset: Record "Fixed Asset"; var IsHandled: Boolean)
+    begin
+    end;
+#pragma warning restore AL0523
+#endif
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeOnValidateFASubclassCodePage(var FixedAsset: Record "Fixed Asset"; var xFixedAsset: Record "Fixed Asset"; var IsHandled: Boolean)
     begin
     end;
 
@@ -1004,6 +1021,6 @@ page 5600 "Fixed Asset Card"
     [IntegrationEvent(true, false)]
     local procedure OnBeforeSetDefaultDepreciationBook(var FixedAsset: Record "Fixed Asset"; FADepreciationBook: Record "FA Depreciation Book"; var Simple: Boolean; var FADepreciationBookOld: Record "FA Depreciation Book"; var ShowAddMoreDeprBooksLbl: Boolean; var AllowEditDepBookCode: Boolean; var IsHandled: Boolean)
     begin
-    end;    
+    end;
 }
 

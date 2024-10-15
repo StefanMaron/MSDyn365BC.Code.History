@@ -463,30 +463,28 @@ report 10155 "Purchase Advice"
     begin
         // Calculates the quantity that should be ordered based
         // on the quantity that you expect the inventory to be.
-        with Item do begin
-            if QtyExpected >= "Reorder Point" then
+        if QtyExpected >= Item."Reorder Point" then
+            exit(0);
+
+        if Item."Maximum Inventory" <= 0 then begin
+            QtyToOrder := Item."Reorder Point" - QtyExpected;
+            RoundingDirection := '>';
+        end else begin
+            if (Item."Reorder Point" > Item."Maximum Inventory") or
+               (QtyExpected + Item."Reorder Quantity" > Item."Maximum Inventory")
+            then
                 exit(0);
-
-            if "Maximum Inventory" <= 0 then begin
-                QtyToOrder := "Reorder Point" - QtyExpected;
-                RoundingDirection := '>';
-            end else begin
-                if ("Reorder Point" > "Maximum Inventory") or
-                   (QtyExpected + "Reorder Quantity" > "Maximum Inventory")
-                then
-                    exit(0);
-                QtyToOrder := "Maximum Inventory" - QtyExpected;
-                RoundingDirection := '<';
-            end;
-
-            if "Reorder Quantity" > 0 then
-                QtyToOrder := Round(QtyToOrder / "Reorder Quantity", 1, RoundingDirection) * "Reorder Quantity";
-
-            if "Order Multiple" > 0 then
-                QtyToOrder := Round(QtyToOrder, "Order Multiple", '>');
-
-            exit(QtyToOrder);
+            QtyToOrder := Item."Maximum Inventory" - QtyExpected;
+            RoundingDirection := '<';
         end;
+
+        if Item."Reorder Quantity" > 0 then
+            QtyToOrder := Round(QtyToOrder / Item."Reorder Quantity", 1, RoundingDirection) * Item."Reorder Quantity";
+
+        if Item."Order Multiple" > 0 then
+            QtyToOrder := Round(QtyToOrder, Item."Order Multiple", '>');
+
+        exit(QtyToOrder);
     end;
 
     procedure CalculateReorderSKU(QtyExpected: Decimal): Decimal
@@ -496,30 +494,28 @@ report 10155 "Purchase Advice"
     begin
         // Calculates the quantity that should be ordered based
         // on the quantity that you expect the inventory to be.
-        with "Stockkeeping Unit" do begin
-            if QtyExpected >= "Reorder Point" then
+        if QtyExpected >= "Stockkeeping Unit"."Reorder Point" then
+            exit(0);
+
+        if "Stockkeeping Unit"."Maximum Inventory" <= 0 then begin
+            QtyToOrder := "Stockkeeping Unit"."Reorder Point" - QtyExpected;
+            RoundingDirection := '>';
+        end else begin
+            if ("Stockkeeping Unit"."Reorder Point" > "Stockkeeping Unit"."Maximum Inventory") or
+               (QtyExpected + "Stockkeeping Unit"."Reorder Quantity" > "Stockkeeping Unit"."Maximum Inventory")
+            then
                 exit(0);
-
-            if "Maximum Inventory" <= 0 then begin
-                QtyToOrder := "Reorder Point" - QtyExpected;
-                RoundingDirection := '>';
-            end else begin
-                if ("Reorder Point" > "Maximum Inventory") or
-                   (QtyExpected + "Reorder Quantity" > "Maximum Inventory")
-                then
-                    exit(0);
-                QtyToOrder := "Maximum Inventory" - QtyExpected;
-                RoundingDirection := '<';
-            end;
-
-            if "Reorder Quantity" > 0 then
-                QtyToOrder := Round(QtyToOrder / "Reorder Quantity", 1, RoundingDirection) * "Reorder Quantity";
-
-            if "Order Multiple" > 0 then
-                QtyToOrder := Round(QtyToOrder, "Order Multiple", '>');
-
-            exit(QtyToOrder);
+            QtyToOrder := "Stockkeeping Unit"."Maximum Inventory" - QtyExpected;
+            RoundingDirection := '<';
         end;
+
+        if "Stockkeeping Unit"."Reorder Quantity" > 0 then
+            QtyToOrder := Round(QtyToOrder / "Stockkeeping Unit"."Reorder Quantity", 1, RoundingDirection) * "Stockkeeping Unit"."Reorder Quantity";
+
+        if "Stockkeeping Unit"."Order Multiple" > 0 then
+            QtyToOrder := Round(QtyToOrder, "Stockkeeping Unit"."Order Multiple", '>');
+
+        exit(QtyToOrder);
     end;
 }
 

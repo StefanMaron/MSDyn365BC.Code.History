@@ -514,10 +514,10 @@
         // [SCENARIO 422335] Cannot cancel Sales Invoice without CFDI Cancellation Reason Code
         Initialize();
         UpdateGLSetupSAT();
-        SalesInvoiceHeader."No." := LibraryUtility.GenerateGUID;
-        SalesInvoiceHeader."Fiscal Invoice Number PAC" := LibraryUtility.GenerateGUID;
+        SalesInvoiceHeader."No." := LibraryUtility.GenerateGUID();
+        SalesInvoiceHeader."Fiscal Invoice Number PAC" := LibraryUtility.GenerateGUID();
         SalesInvoiceHeader."Electronic Document Status" := SalesInvoiceHeader."Electronic Document Status"::"Stamp Received";
-        asserterror SalesInvoiceHeader.CancelEDocument;
+        asserterror SalesInvoiceHeader.CancelEDocument();
         Assert.ExpectedErrorCode('TestField');
         Assert.ExpectedError(StrSubstNo(MustHaveValueErr, SalesInvoiceHeader.FieldCaption("CFDI Cancellation Reason Code")));
     end;
@@ -532,10 +532,10 @@
         // [SCENARIO 422335] Cannot cancel Sales Credit Memo without CFDI Cancellation Reason Code
         Initialize();
         UpdateGLSetupSAT();
-        SalesCrMemoHeader."No." := LibraryUtility.GenerateGUID;
-        SalesCrMemoHeader."Fiscal Invoice Number PAC" := LibraryUtility.GenerateGUID;
+        SalesCrMemoHeader."No." := LibraryUtility.GenerateGUID();
+        SalesCrMemoHeader."Fiscal Invoice Number PAC" := LibraryUtility.GenerateGUID();
         SalesCrMemoHeader."Electronic Document Status" := SalesCrMemoHeader."Electronic Document Status"::"Stamp Received";
-        asserterror SalesCrMemoHeader.CancelEDocument;
+        asserterror SalesCrMemoHeader.CancelEDocument();
         Assert.ExpectedErrorCode('TestField');
         Assert.ExpectedError(StrSubstNo(MustHaveValueErr, SalesCrMemoHeader.FieldCaption("CFDI Cancellation Reason Code")));
     end;
@@ -550,10 +550,10 @@
         // [SCENARIO 422335] Cannot cancel Service Invoice without CFDI Cancellation Reason Code
         Initialize();
         UpdateGLSetupSAT();
-        ServiceInvoiceHeader."No." := LibraryUtility.GenerateGUID;
-        ServiceInvoiceHeader."Fiscal Invoice Number PAC" := LibraryUtility.GenerateGUID;
+        ServiceInvoiceHeader."No." := LibraryUtility.GenerateGUID();
+        ServiceInvoiceHeader."Fiscal Invoice Number PAC" := LibraryUtility.GenerateGUID();
         ServiceInvoiceHeader."Electronic Document Status" := ServiceInvoiceHeader."Electronic Document Status"::"Stamp Received";
-        asserterror ServiceInvoiceHeader.CancelEDocument;
+        asserterror ServiceInvoiceHeader.CancelEDocument();
         Assert.ExpectedErrorCode('TestField');
         Assert.ExpectedError(StrSubstNo(MustHaveValueErr, ServiceInvoiceHeader.FieldCaption("CFDI Cancellation Reason Code")));
     end;
@@ -568,10 +568,10 @@
         // [SCENARIO 422335] Cannot cancel Service Credit Memo without CFDI Cancellation Reason Code
         Initialize();
         UpdateGLSetupSAT();
-        ServiceCrMemoHeader."No." := LibraryUtility.GenerateGUID;
-        ServiceCrMemoHeader."Fiscal Invoice Number PAC" := LibraryUtility.GenerateGUID;
+        ServiceCrMemoHeader."No." := LibraryUtility.GenerateGUID();
+        ServiceCrMemoHeader."Fiscal Invoice Number PAC" := LibraryUtility.GenerateGUID();
         ServiceCrMemoHeader."Electronic Document Status" := ServiceCrMemoHeader."Electronic Document Status"::"Stamp Received";
-        asserterror ServiceCrMemoHeader.CancelEDocument;
+        asserterror ServiceCrMemoHeader.CancelEDocument();
         Assert.ExpectedErrorCode('TestField');
         Assert.ExpectedError(StrSubstNo(MustHaveValueErr, ServiceCrMemoHeader."CFDI Cancellation Reason Code"));
     end;
@@ -586,10 +586,10 @@
         // [SCENARIO 422335] Cannot cancel Sales Shipment without CFDI Cancellation Reason Code
         Initialize();
         UpdateGLSetupSAT();
-        SalesShipmentHeader."No." := LibraryUtility.GenerateGUID;
-        SalesShipmentHeader."Fiscal Invoice Number PAC" := LibraryUtility.GenerateGUID;
+        SalesShipmentHeader."No." := LibraryUtility.GenerateGUID();
+        SalesShipmentHeader."Fiscal Invoice Number PAC" := LibraryUtility.GenerateGUID();
         SalesShipmentHeader."Electronic Document Status" := SalesShipmentHeader."Electronic Document Status"::"Stamp Received";
-        asserterror SalesShipmentHeader.CancelEDocument;
+        asserterror SalesShipmentHeader.CancelEDocument();
         Assert.ExpectedErrorCode('TestField');
         Assert.ExpectedError(StrSubstNo(MustHaveValueErr, SalesShipmentHeader."CFDI Cancellation Reason Code"));
     end;
@@ -604,10 +604,10 @@
         // [SCENARIO 422335] Cannot cancel Transfer Shipment without CFDI Cancellation Reason Code
         Initialize();
         UpdateGLSetupSAT();
-        TransferShipmentHeader."No." := LibraryUtility.GenerateGUID;
-        TransferShipmentHeader."Fiscal Invoice Number PAC" := LibraryUtility.GenerateGUID;
+        TransferShipmentHeader."No." := LibraryUtility.GenerateGUID();
+        TransferShipmentHeader."Fiscal Invoice Number PAC" := LibraryUtility.GenerateGUID();
         TransferShipmentHeader."Electronic Document Status" := TransferShipmentHeader."Electronic Document Status"::"Stamp Received";
-        asserterror TransferShipmentHeader.CancelEDocument;
+        asserterror TransferShipmentHeader.CancelEDocument();
         Assert.ExpectedErrorCode('TestField');
         Assert.ExpectedError(StrSubstNo(MustHaveValueErr, TransferShipmentHeader."CFDI Cancellation Reason Code"));
     end;
@@ -623,9 +623,9 @@
         Initialize();
         UpdateGLSetupSAT();
         CustLedgerEntry."Entry No." := LibraryUtility.GetNewRecNo(CustLedgerEntry, CustLedgerEntry.FieldNo("Entry No."));
-        CustLedgerEntry."Fiscal Invoice Number PAC" := LibraryUtility.GenerateGUID;
+        CustLedgerEntry."Fiscal Invoice Number PAC" := LibraryUtility.GenerateGUID();
         CustLedgerEntry."Electronic Document Status" := CustLedgerEntry."Electronic Document Status"::"Stamp Received";
-        asserterror CustLedgerEntry.CancelEDocument;
+        asserterror CustLedgerEntry.CancelEDocument();
         Assert.ExpectedErrorCode('TestField');
         Assert.ExpectedError(StrSubstNo(MustHaveValueErr, CustLedgerEntry."CFDI Cancellation Reason Code"));
     end;
@@ -640,11 +640,11 @@
         // [SCENARIO 422335] Cannot cancel Sales Invoice without substitution document
         Initialize();
         UpdateGLSetupSAT();
-        SalesInvoiceHeader."No." := LibraryUtility.GenerateGUID;
-        SalesInvoiceHeader."Fiscal Invoice Number PAC" := LibraryUtility.GenerateGUID;
+        SalesInvoiceHeader."No." := LibraryUtility.GenerateGUID();
+        SalesInvoiceHeader."Fiscal Invoice Number PAC" := LibraryUtility.GenerateGUID();
         SalesInvoiceHeader."Electronic Document Status" := SalesInvoiceHeader."Electronic Document Status"::"Stamp Received";
         SalesInvoiceHeader."CFDI Cancellation Reason Code" := '01';
-        asserterror SalesInvoiceHeader.CancelEDocument;
+        asserterror SalesInvoiceHeader.CancelEDocument();
         Assert.ExpectedErrorCode('DB:RecordNotFound');
     end;
 
@@ -658,11 +658,11 @@
         // [SCENARIO 422335] Cannot cancel Sales Credit Memo without substitution document
         Initialize();
         UpdateGLSetupSAT();
-        SalesCrMemoHeader."No." := LibraryUtility.GenerateGUID;
-        SalesCrMemoHeader."Fiscal Invoice Number PAC" := LibraryUtility.GenerateGUID;
+        SalesCrMemoHeader."No." := LibraryUtility.GenerateGUID();
+        SalesCrMemoHeader."Fiscal Invoice Number PAC" := LibraryUtility.GenerateGUID();
         SalesCrMemoHeader."Electronic Document Status" := SalesCrMemoHeader."Electronic Document Status"::"Stamp Received";
         SalesCrMemoHeader."CFDI Cancellation Reason Code" := '01';
-        asserterror SalesCrMemoHeader.CancelEDocument;
+        asserterror SalesCrMemoHeader.CancelEDocument();
         Assert.ExpectedErrorCode('DB:RecordNotFound');
     end;
 
@@ -676,11 +676,11 @@
         // [SCENARIO 422335] Cannot cancel Service Invoice without substitution document
         Initialize();
         UpdateGLSetupSAT();
-        ServiceInvoiceHeader."No." := LibraryUtility.GenerateGUID;
-        ServiceInvoiceHeader."Fiscal Invoice Number PAC" := LibraryUtility.GenerateGUID;
+        ServiceInvoiceHeader."No." := LibraryUtility.GenerateGUID();
+        ServiceInvoiceHeader."Fiscal Invoice Number PAC" := LibraryUtility.GenerateGUID();
         ServiceInvoiceHeader."Electronic Document Status" := ServiceInvoiceHeader."Electronic Document Status"::"Stamp Received";
         ServiceInvoiceHeader."CFDI Cancellation Reason Code" := '01';
-        asserterror ServiceInvoiceHeader.CancelEDocument;
+        asserterror ServiceInvoiceHeader.CancelEDocument();
         Assert.ExpectedErrorCode('DB:RecordNotFound');
     end;
 
@@ -694,11 +694,11 @@
         // [SCENARIO 422335] Cannot cancel Service Credit Memo without substitution document
         Initialize();
         UpdateGLSetupSAT();
-        ServiceCrMemoHeader."No." := LibraryUtility.GenerateGUID;
-        ServiceCrMemoHeader."Fiscal Invoice Number PAC" := LibraryUtility.GenerateGUID;
+        ServiceCrMemoHeader."No." := LibraryUtility.GenerateGUID();
+        ServiceCrMemoHeader."Fiscal Invoice Number PAC" := LibraryUtility.GenerateGUID();
         ServiceCrMemoHeader."Electronic Document Status" := ServiceCrMemoHeader."Electronic Document Status"::"Stamp Received";
         ServiceCrMemoHeader."CFDI Cancellation Reason Code" := '01';
-        asserterror ServiceCrMemoHeader.CancelEDocument;
+        asserterror ServiceCrMemoHeader.CancelEDocument();
         Assert.ExpectedErrorCode('DB:RecordNotFound');
     end;
 
@@ -712,11 +712,11 @@
         // [SCENARIO 422335] Cannot cancel Sales Shipment without substitution document
         Initialize();
         UpdateGLSetupSAT();
-        SalesShipmentHeader."No." := LibraryUtility.GenerateGUID;
-        SalesShipmentHeader."Fiscal Invoice Number PAC" := LibraryUtility.GenerateGUID;
+        SalesShipmentHeader."No." := LibraryUtility.GenerateGUID();
+        SalesShipmentHeader."Fiscal Invoice Number PAC" := LibraryUtility.GenerateGUID();
         SalesShipmentHeader."Electronic Document Status" := SalesShipmentHeader."Electronic Document Status"::"Stamp Received";
         SalesShipmentHeader."CFDI Cancellation Reason Code" := '01';
-        asserterror SalesShipmentHeader.CancelEDocument;
+        asserterror SalesShipmentHeader.CancelEDocument();
         Assert.ExpectedErrorCode('DB:RecordNotFound');
     end;
 
@@ -730,11 +730,11 @@
         // [SCENARIO 422335] Cannot cancel Transfer Shipment without substitution document
         Initialize();
         UpdateGLSetupSAT();
-        TransferShipmentHeader."No." := LibraryUtility.GenerateGUID;
-        TransferShipmentHeader."Fiscal Invoice Number PAC" := LibraryUtility.GenerateGUID;
+        TransferShipmentHeader."No." := LibraryUtility.GenerateGUID();
+        TransferShipmentHeader."Fiscal Invoice Number PAC" := LibraryUtility.GenerateGUID();
         TransferShipmentHeader."Electronic Document Status" := TransferShipmentHeader."Electronic Document Status"::"Stamp Received";
         TransferShipmentHeader."CFDI Cancellation Reason Code" := '01';
-        asserterror TransferShipmentHeader.CancelEDocument;
+        asserterror TransferShipmentHeader.CancelEDocument();
         Assert.ExpectedErrorCode('DB:RecordNotFound');
     end;
 
@@ -749,10 +749,10 @@
         Initialize();
         UpdateGLSetupSAT();
         CustLedgerEntry."Entry No." := LibraryUtility.GetNewRecNo(CustLedgerEntry, CustLedgerEntry.FieldNo("Entry No."));
-        CustLedgerEntry."Fiscal Invoice Number PAC" := LibraryUtility.GenerateGUID;
+        CustLedgerEntry."Fiscal Invoice Number PAC" := LibraryUtility.GenerateGUID();
         CustLedgerEntry."Electronic Document Status" := CustLedgerEntry."Electronic Document Status"::"Stamp Received";
         CustLedgerEntry."CFDI Cancellation Reason Code" := '01';
-        asserterror CustLedgerEntry.CancelEDocument;
+        asserterror CustLedgerEntry.CancelEDocument();
         Assert.ExpectedErrorCode('DB:RecordNotFound');
     end;
 
@@ -765,11 +765,11 @@
     begin
         // [FEATURE] [UI]
         // [SCENARIO 422335] Set fields for cancellation on Posted Sales Invoice page
-        Initialize;
-        MockSalesInvHeader(SalesInvoiceHeader, LibrarySales.CreateCustomerNo);
-        PostedSalesInvoice.OpenEdit;
+        Initialize();
+        MockSalesInvHeader(SalesInvoiceHeader, LibrarySales.CreateCustomerNo());
+        PostedSalesInvoice.OpenEdit();
         PostedSalesInvoice.FILTER.SetFilter("No.", SalesInvoiceHeader."No.");
-        PostedSalesInvoice."CFDI Cancellation Reason Code".SetValue(FindCancellationReasonCode);
+        PostedSalesInvoice."CFDI Cancellation Reason Code".SetValue(FindCancellationReasonCode());
         PostedSalesInvoice."Substitution Document No.".SetValue(SalesInvoiceHeader."No.");
         PostedSalesInvoice.Close();
         SalesInvoiceHeader.Get(SalesInvoiceHeader."No.");
@@ -786,11 +786,11 @@
     begin
         // [FEATURE] [UI]
         // [SCENARIO 422335] Set fields for cancellation on Posted Sales Credit Memo page
-        Initialize;
-        MockSalesCrMemoHeader(SalesCrMemoHeader, LibrarySales.CreateCustomerNo, '');
-        PostedSalesCreditMemo.OpenEdit;
+        Initialize();
+        MockSalesCrMemoHeader(SalesCrMemoHeader, LibrarySales.CreateCustomerNo(), '');
+        PostedSalesCreditMemo.OpenEdit();
         PostedSalesCreditMemo.FILTER.SetFilter("No.", SalesCrMemoHeader."No.");
-        PostedSalesCreditMemo."CFDI Cancellation Reason Code".SetValue(FindCancellationReasonCode);
+        PostedSalesCreditMemo."CFDI Cancellation Reason Code".SetValue(FindCancellationReasonCode());
         PostedSalesCreditMemo."Substitution Document No.".SetValue(SalesCrMemoHeader."No.");
         PostedSalesCreditMemo.Close();
         SalesCrMemoHeader.Get(SalesCrMemoHeader."No.");
@@ -807,11 +807,11 @@
     begin
         // [FEATURE] [UI]
         // [SCENARIO 422335] Set fields for cancellation on Posted Sales Shipment page
-        Initialize;
-        MockSalesShipmentHeader(SalesShipmentHeader, LibrarySales.CreateCustomerNo);
-        PostedSalesShipment.OpenEdit;
+        Initialize();
+        MockSalesShipmentHeader(SalesShipmentHeader, LibrarySales.CreateCustomerNo());
+        PostedSalesShipment.OpenEdit();
         PostedSalesShipment.FILTER.SetFilter("No.", SalesShipmentHeader."No.");
-        PostedSalesShipment."CFDI Cancellation Reason Code".SetValue(FindCancellationReasonCode);
+        PostedSalesShipment."CFDI Cancellation Reason Code".SetValue(FindCancellationReasonCode());
         PostedSalesShipment."Substitution Document No.".SetValue(SalesShipmentHeader."No.");
         PostedSalesShipment.Close();
         SalesShipmentHeader.Get(SalesShipmentHeader."No.");
@@ -828,11 +828,11 @@
     begin
         // [FEATURE] [UI]
         // [SCENARIO 422335] Set fields for cancellation on Posted Transfer Shipment page
-        Initialize;
+        Initialize();
         MockTransferShipmentHeader(TransferShipmentHeader);
-        PostedTransferShipment.OpenEdit;
+        PostedTransferShipment.OpenEdit();
         PostedTransferShipment.FILTER.SetFilter("No.", TransferShipmentHeader."No.");
-        PostedTransferShipment."CFDI Cancellation Reason Code".SetValue(FindCancellationReasonCode);
+        PostedTransferShipment."CFDI Cancellation Reason Code".SetValue(FindCancellationReasonCode());
         PostedTransferShipment."Substitution Document No.".SetValue(TransferShipmentHeader."No.");
         PostedTransferShipment.Close();
         TransferShipmentHeader.Get(TransferShipmentHeader."No.");
@@ -850,13 +850,13 @@
     begin
         // [FEATURE] [UI]
         // [SCENARIO 422335] Set fields for cancellation on Posted Sales Invpoce page
-        Initialize;
-        PaymentNo := LibraryUtility.GenerateGUID;
-        MockCustomerLedgerEntry(LibrarySales.CreateCustomerNo, CustLedgerEntry."Document Type"::Payment, PaymentNo);
+        Initialize();
+        PaymentNo := LibraryUtility.GenerateGUID();
+        MockCustomerLedgerEntry(LibrarySales.CreateCustomerNo(), CustLedgerEntry."Document Type"::Payment, PaymentNo);
         LibraryERM.FindCustomerLedgerEntry(CustLedgerEntry, CustLedgerEntry."Document Type"::Payment, PaymentNo);
-        CustomerLedgerEntries.OpenEdit;
+        CustomerLedgerEntries.OpenEdit();
         CustomerLedgerEntries.FILTER.SetFilter("Entry No.", Format(CustLedgerEntry."Entry No."));
-        CustomerLedgerEntries."CFDI Cancellation Reason Code".SetValue(FindCancellationReasonCode);
+        CustomerLedgerEntries."CFDI Cancellation Reason Code".SetValue(FindCancellationReasonCode());
         CustomerLedgerEntries."Substitution Entry No.".SetValue(CustLedgerEntry."Entry No.");
         CustomerLedgerEntries.Close();
         CustLedgerEntry.Get(CustLedgerEntry."Entry No.");
@@ -954,87 +954,87 @@
         LibraryApplicationArea.EnableFoundationSetup();
 
         SalesOrder.OpenNew();
-        Assert.IsTrue(SalesOrder."CFDI Purpose".Enabled, '');
-        Assert.IsTrue(SalesOrder."CFDI Relation".Enabled, '');
-        Assert.IsTrue(SalesOrder."CFDI Export Code".Enabled, '');
-        Assert.IsTrue(SalesOrder."CFDI Export Code".Editable, '');
-        Assert.IsTrue(SalesOrder.Control1310005.Enabled, ''); // Foreign Trade
-        Assert.IsTrue(SalesOrder.Control1310005.Editable, ''); // Foreign Trade
-        Assert.IsTrue(SalesOrder."SAT Address ID".Enabled, '');
-        Assert.IsTrue(SalesOrder."SAT Address ID".Editable, '');
-        Assert.IsTrue(SalesOrder."SAT International Trade Term".Enabled, '');
-        Assert.IsTrue(SalesOrder."SAT International Trade Term".Editable, '');
+        Assert.IsTrue(SalesOrder."CFDI Purpose".Enabled(), '');
+        Assert.IsTrue(SalesOrder."CFDI Relation".Enabled(), '');
+        Assert.IsTrue(SalesOrder."CFDI Export Code".Enabled(), '');
+        Assert.IsTrue(SalesOrder."CFDI Export Code".Editable(), '');
+        Assert.IsTrue(SalesOrder.Control1310005.Enabled(), ''); // Foreign Trade
+        Assert.IsTrue(SalesOrder.Control1310005.Editable(), ''); // Foreign Trade
+        Assert.IsTrue(SalesOrder."SAT Address ID".Enabled(), '');
+        Assert.IsTrue(SalesOrder."SAT Address ID".Editable(), '');
+        Assert.IsTrue(SalesOrder."SAT International Trade Term".Enabled(), '');
+        Assert.IsTrue(SalesOrder."SAT International Trade Term".Editable(), '');
         Assert.IsTrue(SalesOrder."SAT Customs Regime".Enabled(), '');
         Assert.IsTrue(SalesOrder."SAT Customs Regime".Editable(), '');
         Assert.IsTrue(SalesOrder."SAT Transfer Reason".Enabled(), '');
         Assert.IsTrue(SalesOrder."SAT Transfer Reason".Editable(), '');
-        Assert.IsTrue(SalesOrder."Exchange Rate USD".Enabled, '');
-        Assert.IsTrue(SalesOrder."Exchange Rate USD".Editable, '');
+        Assert.IsTrue(SalesOrder."Exchange Rate USD".Enabled(), '');
+        Assert.IsTrue(SalesOrder."Exchange Rate USD".Editable(), '');
         SalesOrder.Close();
 
         SalesInvoice.OpenNew();
-        Assert.IsTrue(SalesInvoice."CFDI Purpose".Enabled, '');
-        Assert.IsTrue(SalesInvoice."CFDI Relation".Enabled, '');
-        Assert.IsTrue(SalesInvoice."CFDI Export Code".Enabled, '');
-        Assert.IsTrue(SalesInvoice."CFDI Export Code".Editable, '');
-        Assert.IsTrue(SalesInvoice.Control1310005.Enabled, ''); // Foreign Trade
-        Assert.IsTrue(SalesInvoice.Control1310005.Editable, ''); // Foreign Trade
-        Assert.IsTrue(SalesInvoice."SAT Address ID".Enabled, '');
-        Assert.IsTrue(SalesInvoice."SAT Address ID".Editable, '');
-        Assert.IsTrue(SalesInvoice."SAT International Trade Term".Enabled, '');
-        Assert.IsTrue(SalesInvoice."SAT International Trade Term".Editable, '');
+        Assert.IsTrue(SalesInvoice."CFDI Purpose".Enabled(), '');
+        Assert.IsTrue(SalesInvoice."CFDI Relation".Enabled(), '');
+        Assert.IsTrue(SalesInvoice."CFDI Export Code".Enabled(), '');
+        Assert.IsTrue(SalesInvoice."CFDI Export Code".Editable(), '');
+        Assert.IsTrue(SalesInvoice.Control1310005.Enabled(), ''); // Foreign Trade
+        Assert.IsTrue(SalesInvoice.Control1310005.Editable(), ''); // Foreign Trade
+        Assert.IsTrue(SalesInvoice."SAT Address ID".Enabled(), '');
+        Assert.IsTrue(SalesInvoice."SAT Address ID".Editable(), '');
+        Assert.IsTrue(SalesInvoice."SAT International Trade Term".Enabled(), '');
+        Assert.IsTrue(SalesInvoice."SAT International Trade Term".Editable(), '');
         Assert.IsTrue(SalesInvoice."SAT Customs Regime".Enabled(), '');
         Assert.IsTrue(SalesInvoice."SAT Customs Regime".Editable(), '');
         Assert.IsTrue(SalesInvoice."SAT Transfer Reason".Enabled(), '');
         Assert.IsTrue(SalesInvoice."SAT Transfer Reason".Editable(), '');
-        Assert.IsTrue(SalesInvoice."Exchange Rate USD".Enabled, '');
-        Assert.IsTrue(SalesInvoice."Exchange Rate USD".Editable, '');
+        Assert.IsTrue(SalesInvoice."Exchange Rate USD".Enabled(), '');
+        Assert.IsTrue(SalesInvoice."Exchange Rate USD".Editable(), '');
         SalesInvoice.Close();
 
         SalesCreditMemo.OpenNew();
-        Assert.IsTrue(SalesCreditMemo."CFDI Purpose".Enabled, '');
-        Assert.IsTrue(SalesCreditMemo."CFDI Relation".Enabled, '');
-        Assert.IsTrue(SalesCreditMemo."CFDI Purpose".Enabled, '');
-        Assert.IsTrue(SalesCreditMemo."CFDI Relation".Enabled, '');
-        Assert.IsTrue(SalesCreditMemo."CFDI Export Code".Enabled, '');
-        Assert.IsTrue(SalesCreditMemo."CFDI Export Code".Editable, '');
-        Assert.IsTrue(SalesCreditMemo.Control1310005.Enabled, ''); // Foreign Trade
-        Assert.IsTrue(SalesCreditMemo.Control1310005.Editable, ''); // Foreign Trade
-        Assert.IsTrue(SalesCreditMemo."SAT Address ID".Enabled, '');
-        Assert.IsTrue(SalesCreditMemo."SAT Address ID".Editable, '');
-        Assert.IsTrue(SalesCreditMemo."SAT International Trade Term".Enabled, '');
-        Assert.IsTrue(SalesCreditMemo."SAT International Trade Term".Editable, '');
-        Assert.IsTrue(SalesCreditMemo."Exchange Rate USD".Enabled, '');
-        Assert.IsTrue(SalesCreditMemo."Exchange Rate USD".Editable, '');
+        Assert.IsTrue(SalesCreditMemo."CFDI Purpose".Enabled(), '');
+        Assert.IsTrue(SalesCreditMemo."CFDI Relation".Enabled(), '');
+        Assert.IsTrue(SalesCreditMemo."CFDI Purpose".Enabled(), '');
+        Assert.IsTrue(SalesCreditMemo."CFDI Relation".Enabled(), '');
+        Assert.IsTrue(SalesCreditMemo."CFDI Export Code".Enabled(), '');
+        Assert.IsTrue(SalesCreditMemo."CFDI Export Code".Editable(), '');
+        Assert.IsTrue(SalesCreditMemo.Control1310005.Enabled(), ''); // Foreign Trade
+        Assert.IsTrue(SalesCreditMemo.Control1310005.Editable(), ''); // Foreign Trade
+        Assert.IsTrue(SalesCreditMemo."SAT Address ID".Enabled(), '');
+        Assert.IsTrue(SalesCreditMemo."SAT Address ID".Editable(), '');
+        Assert.IsTrue(SalesCreditMemo."SAT International Trade Term".Enabled(), '');
+        Assert.IsTrue(SalesCreditMemo."SAT International Trade Term".Editable(), '');
+        Assert.IsTrue(SalesCreditMemo."Exchange Rate USD".Enabled(), '');
+        Assert.IsTrue(SalesCreditMemo."Exchange Rate USD".Editable(), '');
         SalesCreditMemo.Close();
 
-        PostedSalesInvoice.OpenView;
-        Assert.IsTrue(PostedSalesInvoice."CFDI Purpose".Enabled, '');
-        Assert.IsTrue(PostedSalesInvoice."CFDI Relation".Enabled, '');
-        Assert.IsFalse(PostedSalesInvoice."CFDI Purpose".Editable, '');
-        Assert.IsFalse(PostedSalesInvoice."CFDI Relation".Editable, '');
-        Assert.IsTrue(PostedSalesInvoice."CFDI Export Code".Enabled, '');
-        Assert.IsTrue(PostedSalesInvoice.Control1310005.Enabled, ''); // Foreign Trade
-        Assert.IsTrue(PostedSalesInvoice."SAT Address ID".Enabled, '');
-        Assert.IsTrue(PostedSalesInvoice."SAT International Trade Term".Enabled, '');
-        Assert.IsTrue(PostedSalesInvoice."Exchange Rate USD".Enabled, '');
-        PostedSalesInvoice.Close;
+        PostedSalesInvoice.OpenView();
+        Assert.IsTrue(PostedSalesInvoice."CFDI Purpose".Enabled(), '');
+        Assert.IsTrue(PostedSalesInvoice."CFDI Relation".Enabled(), '');
+        Assert.IsFalse(PostedSalesInvoice."CFDI Purpose".Editable(), '');
+        Assert.IsFalse(PostedSalesInvoice."CFDI Relation".Editable(), '');
+        Assert.IsTrue(PostedSalesInvoice."CFDI Export Code".Enabled(), '');
+        Assert.IsTrue(PostedSalesInvoice.Control1310005.Enabled(), ''); // Foreign Trade
+        Assert.IsTrue(PostedSalesInvoice."SAT Address ID".Enabled(), '');
+        Assert.IsTrue(PostedSalesInvoice."SAT International Trade Term".Enabled(), '');
+        Assert.IsTrue(PostedSalesInvoice."Exchange Rate USD".Enabled(), '');
+        PostedSalesInvoice.Close();
 
-        PostedSalesCreditMemo.OpenView;
-        Assert.IsTrue(PostedSalesCreditMemo."CFDI Purpose".Enabled, '');
-        Assert.IsTrue(PostedSalesCreditMemo."CFDI Relation".Enabled, '');
-        Assert.IsFalse(PostedSalesCreditMemo."CFDI Purpose".Editable, '');
-        Assert.IsFalse(PostedSalesCreditMemo."CFDI Relation".Editable, '');
-        Assert.IsTrue(PostedSalesCreditMemo."CFDI Export Code".Enabled, '');
-        Assert.IsTrue(PostedSalesCreditMemo."Foreign Trade".Enabled, '');
-        Assert.IsTrue(PostedSalesCreditMemo."SAT Address ID".Enabled, '');
-        Assert.IsTrue(PostedSalesCreditMemo."SAT International Trade Term".Enabled, '');
-        Assert.IsTrue(PostedSalesCreditMemo."Exchange Rate USD".Enabled, '');
-        PostedSalesCreditMemo.Close;
+        PostedSalesCreditMemo.OpenView();
+        Assert.IsTrue(PostedSalesCreditMemo."CFDI Purpose".Enabled(), '');
+        Assert.IsTrue(PostedSalesCreditMemo."CFDI Relation".Enabled(), '');
+        Assert.IsFalse(PostedSalesCreditMemo."CFDI Purpose".Editable(), '');
+        Assert.IsFalse(PostedSalesCreditMemo."CFDI Relation".Editable(), '');
+        Assert.IsTrue(PostedSalesCreditMemo."CFDI Export Code".Enabled(), '');
+        Assert.IsTrue(PostedSalesCreditMemo."Foreign Trade".Enabled(), '');
+        Assert.IsTrue(PostedSalesCreditMemo."SAT Address ID".Enabled(), '');
+        Assert.IsTrue(PostedSalesCreditMemo."SAT International Trade Term".Enabled(), '');
+        Assert.IsTrue(PostedSalesCreditMemo."Exchange Rate USD".Enabled(), '');
+        PostedSalesCreditMemo.Close();
 
         SalesReturnOrder.OpenNew();
-        Assert.IsTrue(SalesReturnOrder."CFDI Purpose".Enabled, '');
-        Assert.IsTrue(SalesReturnOrder."CFDI Relation".Enabled, '');
+        Assert.IsTrue(SalesReturnOrder."CFDI Purpose".Enabled(), '');
+        Assert.IsTrue(SalesReturnOrder."CFDI Relation".Enabled(), '');
         SalesReturnOrder.Close();
     end;
 
@@ -1051,18 +1051,18 @@
         LibraryApplicationArea.EnableFoundationSetup();
 
         ServiceOrder.OpenNew();
-        Assert.IsTrue(ServiceOrder."CFDI Purpose".Enabled, '');
-        Assert.IsTrue(ServiceOrder."CFDI Relation".Enabled, '');
+        Assert.IsTrue(ServiceOrder."CFDI Purpose".Enabled(), '');
+        Assert.IsTrue(ServiceOrder."CFDI Relation".Enabled(), '');
         ServiceOrder.Close();
 
         ServiceInvoice.OpenNew();
-        Assert.IsTrue(ServiceInvoice."CFDI Purpose".Enabled, '');
-        Assert.IsTrue(ServiceInvoice."CFDI Relation".Enabled, '');
+        Assert.IsTrue(ServiceInvoice."CFDI Purpose".Enabled(), '');
+        Assert.IsTrue(ServiceInvoice."CFDI Relation".Enabled(), '');
         ServiceInvoice.Close();
 
         ServiceCreditMemo.OpenNew();
-        Assert.IsTrue(ServiceCreditMemo."CFDI Purpose".Enabled, '');
-        Assert.IsTrue(ServiceCreditMemo."CFDI Relation".Enabled, '');
+        Assert.IsTrue(ServiceCreditMemo."CFDI Purpose".Enabled(), '');
+        Assert.IsTrue(ServiceCreditMemo."CFDI Relation".Enabled(), '');
         ServiceCreditMemo.Close();
     end;
 
@@ -1286,7 +1286,7 @@
         MockSalesInvHeader(SalesInvoiceHeaderRel, Customer."No.");
         MockSalesCrMemoHeader(SalesCrMemoHeaderRel, Customer."No.", SalesInvoiceHeaderRel."No.");
         CreateCFDIRelationDocument(
-          DATABASE::"Sales Header", SalesHeader."Document Type", SalesHeader."No.", Customer."No.",
+          DATABASE::"Sales Header", SalesHeader."Document Type".AsInteger(), SalesHeader."No.", Customer."No.",
           SalesInvoiceHeaderRel."No.", SalesInvoiceHeaderRel."Fiscal Invoice Number PAC");
 
         SalesInvoiceHeader.Get(LibrarySales.PostSalesDocument(SalesHeader, true, true));
@@ -1298,7 +1298,7 @@
           DATABASE::"Sales Invoice Header", 0, SalesInvoiceHeader."No.",
           SalesCrMemoHeaderRel."No.", SalesCrMemoHeaderRel."Fiscal Invoice Number PAC");
         VerifyNoCFDIRelationDocuments(
-          DATABASE::"Sales Header", SalesHeader."Document Type", SalesHeader."No.", Customer."No.");
+          DATABASE::"Sales Header", SalesHeader."Document Type".AsInteger(), SalesHeader."No.", Customer."No.");
     end;
 
     [Test]
@@ -1320,7 +1320,7 @@
         MockServiceInvHeader(ServiceInvoiceHeaderRel, Customer."No.");
         MockServiceCrMemoHeader(ServiceCrMemoHeaderRel, Customer."No.", ServiceInvoiceHeaderRel."No.");
         CreateCFDIRelationDocument(
-          DATABASE::"Service Header", ServiceHeader."Document Type", ServiceHeader."No.", Customer."No.",
+          DATABASE::"Service Header", ServiceHeader."Document Type".AsInteger(), ServiceHeader."No.", Customer."No.",
           ServiceInvoiceHeaderRel."No.", ServiceInvoiceHeaderRel."Fiscal Invoice Number PAC");
 
         LibraryService.PostServiceOrder(ServiceHeader, true, false, true);
@@ -1334,7 +1334,8 @@
         VerifyFiscalInvoiceNumberInRelatedDoc(
           DATABASE::"Service Invoice Header", 0, ServiceInvoiceHeader."No.",
           ServiceCrMemoHeaderRel."No.", ServiceCrMemoHeaderRel."Fiscal Invoice Number PAC");
-        VerifyNoCFDIRelationDocuments(DATABASE::"Service Header", ServiceHeader."Document Type", ServiceHeader."No.", Customer."No.");
+        VerifyNoCFDIRelationDocuments(
+            DATABASE::"Service Header", ServiceHeader."Document Type".AsInteger(), ServiceHeader."No.", Customer."No.");
     end;
 
     [Test]
@@ -1351,21 +1352,21 @@
         // [SCENARIO 319131] Add CFDI Related Documents from Sales Invoice page
         Initialize();
 
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo());
         MockSalesInvHeader(SalesInvoiceHeader, SalesHeader."Sell-to Customer No.");
         MockSalesCrMemoHeader(SalesCrMemoHeader, SalesHeader."Sell-to Customer No.", SalesInvoiceHeader."No.");
 
-        SalesInvoice.OpenEdit;
+        SalesInvoice.OpenEdit();
         SalesInvoice.FILTER.SetFilter("No.", SalesHeader."No.");
-        CFDIRelationDocuments.Trap;
-        SalesInvoice.CFDIRelationDocuments.Invoke;
+        CFDIRelationDocuments.Trap();
+        SalesInvoice.CFDIRelationDocuments.Invoke();
         CreateCFDIRelationDocumentsOnPage(CFDIRelationDocuments, SalesInvoiceHeader."No.", SalesCrMemoHeader."No.");
 
         VerifyFiscalInvoiceNumberInRelatedDoc(
-          DATABASE::"Sales Header", SalesHeader."Document Type", SalesHeader."No.",
+          DATABASE::"Sales Header", SalesHeader."Document Type".AsInteger(), SalesHeader."No.",
           SalesInvoiceHeader."No.", SalesInvoiceHeader."Fiscal Invoice Number PAC");
         VerifyFiscalInvoiceNumberInRelatedDoc(
-          DATABASE::"Sales Header", SalesHeader."Document Type", SalesHeader."No.",
+          DATABASE::"Sales Header", SalesHeader."Document Type".AsInteger(), SalesHeader."No.",
           SalesCrMemoHeader."No.", SalesCrMemoHeader."Fiscal Invoice Number PAC");
     end;
 
@@ -1383,21 +1384,21 @@
         // [SCENARIO 319131] Add CFDI Related Documents from Sales Order page
         Initialize();
 
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo());
         MockSalesInvHeader(SalesInvoiceHeader, SalesHeader."Sell-to Customer No.");
         MockSalesCrMemoHeader(SalesCrMemoHeader, SalesHeader."Sell-to Customer No.", SalesInvoiceHeader."No.");
 
-        SalesOrder.OpenEdit;
+        SalesOrder.OpenEdit();
         SalesOrder.FILTER.SetFilter("No.", SalesHeader."No.");
-        CFDIRelationDocuments.Trap;
-        SalesOrder.CFDIRelationDocuments.Invoke;
+        CFDIRelationDocuments.Trap();
+        SalesOrder.CFDIRelationDocuments.Invoke();
         CreateCFDIRelationDocumentsOnPage(CFDIRelationDocuments, SalesInvoiceHeader."No.", SalesCrMemoHeader."No.");
 
         VerifyFiscalInvoiceNumberInRelatedDoc(
-          DATABASE::"Sales Header", SalesHeader."Document Type", SalesHeader."No.",
+          DATABASE::"Sales Header", SalesHeader."Document Type".AsInteger(), SalesHeader."No.",
           SalesInvoiceHeader."No.", SalesInvoiceHeader."Fiscal Invoice Number PAC");
         VerifyFiscalInvoiceNumberInRelatedDoc(
-          DATABASE::"Sales Header", SalesHeader."Document Type", SalesHeader."No.",
+          DATABASE::"Sales Header", SalesHeader."Document Type".AsInteger(), SalesHeader."No.",
           SalesCrMemoHeader."No.", SalesCrMemoHeader."Fiscal Invoice Number PAC");
     end;
 
@@ -1418,33 +1419,33 @@
 
         // [GIVEN] Sales Order for customer, posted sales invoice and two credit memos applied to the invoice
         // [GIVEN] Fiscal Invoice Numbers assigned to invoice and credit memos as "UUID-Inv","UUID-1", "UUID-2"
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo());
         MockSalesInvHeader(SalesInvoiceHeader, SalesHeader."Sell-to Customer No.");
         MockSalesCrMemoHeader(SalesCrMemoHeader1, SalesHeader."Sell-to Customer No.", SalesInvoiceHeader."No.");
         MockSalesCrMemoHeader(SalesCrMemoHeader2, SalesHeader."Sell-to Customer No.", SalesInvoiceHeader."No.");
 
         // [GIVEN] CFDI Related Document for the invoice is added
-        SalesOrder.OpenEdit;
+        SalesOrder.OpenEdit();
         SalesOrder.FILTER.SetFilter("No.", SalesHeader."No.");
-        CFDIRelationDocuments.Trap;
-        SalesOrder.CFDIRelationDocuments.Invoke;
-        CFDIRelationDocuments."Related Doc. Type".SetValue(GetCFDIRelatedDocTypeInvoice);
+        CFDIRelationDocuments.Trap();
+        SalesOrder.CFDIRelationDocuments.Invoke();
+        CFDIRelationDocuments."Related Doc. Type".SetValue(GetCFDIRelatedDocTypeInvoice());
         CFDIRelationDocuments."Related Doc. No.".SetValue(SalesInvoiceHeader."No.");
 
         // [WHEN] Invoice Insert Related Credit Memos action
-        CFDIRelationDocuments.InsertRelatedCreditMemos.Invoke;
+        CFDIRelationDocuments.InsertRelatedCreditMemos.Invoke();
         CFDIRelationDocuments.Close();
 
         // [THEN] Three CFDI Related Document lines are shown on CFDI Relation Documents page
         // [THEN] Invoice is shown with "UUID-Inv", credit memos - with "UUID-1" and "UUID-2" respectively
         VerifyFiscalInvoiceNumberInRelatedDoc(
-          DATABASE::"Sales Header", SalesHeader."Document Type", SalesHeader."No.",
+          DATABASE::"Sales Header", SalesHeader."Document Type".AsInteger(), SalesHeader."No.",
           SalesInvoiceHeader."No.", SalesInvoiceHeader."Fiscal Invoice Number PAC");
         VerifyFiscalInvoiceNumberInRelatedDoc(
-          DATABASE::"Sales Header", SalesHeader."Document Type", SalesHeader."No.",
+          DATABASE::"Sales Header", SalesHeader."Document Type".AsInteger(), SalesHeader."No.",
           SalesCrMemoHeader1."No.", SalesCrMemoHeader1."Fiscal Invoice Number PAC");
         VerifyFiscalInvoiceNumberInRelatedDoc(
-          DATABASE::"Sales Header", SalesHeader."Document Type", SalesHeader."No.",
+          DATABASE::"Sales Header", SalesHeader."Document Type".AsInteger(), SalesHeader."No.",
           SalesCrMemoHeader2."No.", SalesCrMemoHeader2."Fiscal Invoice Number PAC");
     end;
 
@@ -1462,21 +1463,21 @@
         // [SCENARIO 319131] Add CFDI Related Documents from Service Invoice page
         Initialize();
 
-        LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo);
+        LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo());
         MockServiceInvHeader(ServiceInvoiceHeader, ServiceHeader."Customer No.");
         MockServiceCrMemoHeader(ServiceCrMemoHeader, ServiceHeader."Customer No.", ServiceInvoiceHeader."No.");
 
-        ServiceInvoice.OpenEdit;
+        ServiceInvoice.OpenEdit();
         ServiceInvoice.FILTER.SetFilter("No.", ServiceHeader."No.");
-        CFDIRelationDocuments.Trap;
-        ServiceInvoice.CFDIRelationDocuments.Invoke;
+        CFDIRelationDocuments.Trap();
+        ServiceInvoice.CFDIRelationDocuments.Invoke();
         CreateCFDIRelationDocumentsOnPage(CFDIRelationDocuments, ServiceInvoiceHeader."No.", ServiceCrMemoHeader."No.");
 
         VerifyFiscalInvoiceNumberInRelatedDoc(
-          DATABASE::"Service Header", ServiceHeader."Document Type", ServiceHeader."No.",
+          DATABASE::"Service Header", ServiceHeader."Document Type".AsInteger(), ServiceHeader."No.",
           ServiceInvoiceHeader."No.", ServiceInvoiceHeader."Fiscal Invoice Number PAC");
         VerifyFiscalInvoiceNumberInRelatedDoc(
-          DATABASE::"Service Header", ServiceHeader."Document Type", ServiceHeader."No.",
+          DATABASE::"Service Header", ServiceHeader."Document Type".AsInteger(), ServiceHeader."No.",
           ServiceCrMemoHeader."No.", ServiceCrMemoHeader."Fiscal Invoice Number PAC");
     end;
 
@@ -1494,21 +1495,21 @@
         // [SCENARIO 319131] Add CFDI Related Documents from Service Order page
         Initialize();
 
-        LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Order, LibrarySales.CreateCustomerNo);
+        LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Order, LibrarySales.CreateCustomerNo());
         MockServiceInvHeader(ServiceInvoiceHeader, ServiceHeader."Customer No.");
         MockServiceCrMemoHeader(ServiceCrMemoHeader, ServiceHeader."Customer No.", ServiceInvoiceHeader."No.");
 
-        ServiceOrder.OpenEdit;
+        ServiceOrder.OpenEdit();
         ServiceOrder.FILTER.SetFilter("No.", ServiceHeader."No.");
-        CFDIRelationDocuments.Trap;
-        ServiceOrder.CFDIRelationDocuments.Invoke;
+        CFDIRelationDocuments.Trap();
+        ServiceOrder.CFDIRelationDocuments.Invoke();
         CreateCFDIRelationDocumentsOnPage(CFDIRelationDocuments, ServiceInvoiceHeader."No.", ServiceCrMemoHeader."No.");
 
         VerifyFiscalInvoiceNumberInRelatedDoc(
-          DATABASE::"Service Header", ServiceHeader."Document Type", ServiceHeader."No.",
+          DATABASE::"Service Header", ServiceHeader."Document Type".AsInteger(), ServiceHeader."No.",
           ServiceInvoiceHeader."No.", ServiceInvoiceHeader."Fiscal Invoice Number PAC");
         VerifyFiscalInvoiceNumberInRelatedDoc(
-          DATABASE::"Service Header", ServiceHeader."Document Type", ServiceHeader."No.",
+          DATABASE::"Service Header", ServiceHeader."Document Type".AsInteger(), ServiceHeader."No.",
           ServiceCrMemoHeader."No.", ServiceCrMemoHeader."Fiscal Invoice Number PAC");
     end;
 
@@ -1529,33 +1530,33 @@
 
         // [GIVEN] Service Order for customer, posted service invoice and two credit memos applied to the invoice
         // [GIVEN] Fiscal Invoice Numbers assigned to invoice and credit memos as "UUID-Inv","UUID-1", "UUID-2"
-        LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Order, LibrarySales.CreateCustomerNo);
+        LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Order, LibrarySales.CreateCustomerNo());
         MockServiceInvHeader(ServiceInvoiceHeader, ServiceHeader."Customer No.");
         MockServiceCrMemoHeader(ServiceCrMemoHeader1, ServiceHeader."Customer No.", ServiceInvoiceHeader."No.");
         MockServiceCrMemoHeader(ServiceCrMemoHeader2, ServiceHeader."Customer No.", ServiceInvoiceHeader."No.");
 
         // [GIVEN] CFDI Related Document for the invoice is added
-        ServiceOrder.OpenEdit;
+        ServiceOrder.OpenEdit();
         ServiceOrder.FILTER.SetFilter("No.", ServiceHeader."No.");
-        CFDIRelationDocuments.Trap;
-        ServiceOrder.CFDIRelationDocuments.Invoke;
-        CFDIRelationDocuments."Related Doc. Type".SetValue(GetCFDIRelatedDocTypeInvoice);
+        CFDIRelationDocuments.Trap();
+        ServiceOrder.CFDIRelationDocuments.Invoke();
+        CFDIRelationDocuments."Related Doc. Type".SetValue(GetCFDIRelatedDocTypeInvoice());
         CFDIRelationDocuments."Related Doc. No.".SetValue(ServiceInvoiceHeader."No.");
 
         // [WHEN] Invoice Insert Related Credit Memos action
-        CFDIRelationDocuments.InsertRelatedCreditMemos.Invoke;
+        CFDIRelationDocuments.InsertRelatedCreditMemos.Invoke();
         CFDIRelationDocuments.Close();
 
         // [THEN] Three CFDI Related Document lines are shown on CFDI Relation Documents page
         // [THEN] Invoice is shown with "UUID-Inv", credit memos - with "UUID-1" and "UUID-2" respectively
         VerifyFiscalInvoiceNumberInRelatedDoc(
-          DATABASE::"Service Header", ServiceHeader."Document Type", ServiceHeader."No.",
+          DATABASE::"Service Header", ServiceHeader."Document Type".AsInteger(), ServiceHeader."No.",
           ServiceInvoiceHeader."No.", ServiceInvoiceHeader."Fiscal Invoice Number PAC");
         VerifyFiscalInvoiceNumberInRelatedDoc(
-          DATABASE::"Service Header", ServiceHeader."Document Type", ServiceHeader."No.",
+          DATABASE::"Service Header", ServiceHeader."Document Type".AsInteger(), ServiceHeader."No.",
           ServiceCrMemoHeader1."No.", ServiceCrMemoHeader1."Fiscal Invoice Number PAC");
         VerifyFiscalInvoiceNumberInRelatedDoc(
-          DATABASE::"Service Header", ServiceHeader."Document Type", ServiceHeader."No.",
+          DATABASE::"Service Header", ServiceHeader."Document Type".AsInteger(), ServiceHeader."No.",
           ServiceCrMemoHeader2."No.", ServiceCrMemoHeader2."Fiscal Invoice Number PAC");
     end;
 
@@ -1572,14 +1573,14 @@
         // [FEATURE] [UT] [Sales]
         // [SCENARIO 319131] Cannot request for Replacement Sales Invoice stamp when "CFDI Relation" = Substitution of previous CFDIs
         Initialize();
-        UpdateGLSetupSAT;
+        UpdateGLSetupSAT();
         CreateCustomerWithCFDIFields(Customer);
         LibrarySales.CreateSalesInvoiceForCustomerNo(SalesHeader, Customer."No.");
         SalesInvoiceHeader.Get(LibrarySales.PostSalesDocument(SalesHeader, true, true));
         SalesInvoiceHeader."CFDI Relation" := '04';
         SalesInvoiceHeader.Modify();
-        ErrorMessages.Trap;
-        asserterror SalesInvoiceHeader.RequestStampEDocument;
+        ErrorMessages.Trap();
+        asserterror SalesInvoiceHeader.RequestStampEDocument();
         ErrorMessages.FILTER.SetFilter("Table Number", Format(DATABASE::"Sales Invoice Header"));
         ErrorMessages.FILTER.SetFilter("Field Number", Format(SalesInvoiceHeader.FieldNo("CFDI Relation")));
         ErrorMessages.Description.AssertEquals(NoRelationDocumentsExistErr);
@@ -1598,7 +1599,7 @@
         // [FEATURE] [UT] [Service]
         // [SCENARIO 319131] Cannot request for Replacement Service Invoice stamp when "CFDI Relation" = Substitution of previous CFDIs
         Initialize();
-        UpdateGLSetupSAT;
+        UpdateGLSetupSAT();
 
         CreateCustomerWithCFDIFields(Customer);
         CreateServiceDocument(ServiceHeader, ServiceHeader."Document Type"::Invoice, Customer."No.");
@@ -1607,8 +1608,8 @@
         ServiceInvoiceHeader.FindFirst();
         ServiceInvoiceHeader."CFDI Relation" := '04';
         ServiceInvoiceHeader.Modify();
-        ErrorMessages.Trap;
-        asserterror ServiceInvoiceHeader.RequestStampEDocument;
+        ErrorMessages.Trap();
+        asserterror ServiceInvoiceHeader.RequestStampEDocument();
 
         ErrorMessages.FILTER.SetFilter("Table Number", Format(DATABASE::"Service Invoice Header"));
         ErrorMessages.FILTER.SetFilter("Field Number", Format(ServiceInvoiceHeader.FieldNo("CFDI Relation")));
@@ -1628,7 +1629,7 @@
         // [FEATURE] [UT] [Sales]
         // [SCENARIO 419768] Error on request stamp  for Sales Invoice having CFDI relations when "CFDI Relation" is blank
         Initialize();
-        UpdateGLSetupSAT;
+        UpdateGLSetupSAT();
         CreateCustomerWithCFDIFields(Customer);
         LibrarySales.CreateSalesInvoiceForCustomerNo(SalesHeader, Customer."No.");
         SalesInvoiceHeader.Get(LibrarySales.PostSalesDocument(SalesHeader, true, true));
@@ -1637,7 +1638,7 @@
         CreateCFDIRelationDocument(
             DATABASE::"Sales Invoice Header", 0, SalesInvoiceHeader."No.", Customer."No.", '', '');
         ErrorMessages.Trap();
-        asserterror SalesInvoiceHeader.RequestStampEDocument;
+        asserterror SalesInvoiceHeader.RequestStampEDocument();
         ErrorMessages.FILTER.SetFilter("Table Number", Format(DATABASE::"Sales Invoice Header"));
         ErrorMessages.FILTER.SetFilter("Field Number", Format(SalesInvoiceHeader.FieldNo("CFDI Relation")));
         ErrorMessages.Description.AssertEquals(
@@ -1661,7 +1662,7 @@
         // [GIVEN] Sales Invoice Header, fields "Bill-to Name/Address/Contact", "Sell-to Customer Name/Address/Contact" contain values with maximum field length.
         // [GIVEN] Sales Invoice Line, field "Description" contains value with maximum field length.
         LibraryERM.CreateVATPostingSetupWithAccounts(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT", 0);
-        MockSalesInvHeader(SalesInvoiceHeader, LibrarySales.CreateCustomerNo);
+        MockSalesInvHeader(SalesInvoiceHeader, LibrarySales.CreateCustomerNo());
         UpdateDocumentTextFieldsValuesToMaxLength(SalesInvoiceHeader);
         MockSalesInvLine(SalesInvoiceLine, SalesInvoiceHeader, VATPostingSetup);
         UpdateDocumentLineTextFieldsValuesToMaxLength(SalesInvoiceLine);
@@ -1694,7 +1695,7 @@
         // [GIVEN] Sales Credit Memo Header, fields "Bill-to Name/Address/Contact", "Sell-to Customer Name/Address/Contact" contain values with maximum field length.
         // [GIVEN] Sales Credit Memo Line, field "Description" contains value with maximum field length.
         LibraryERM.CreateVATPostingSetupWithAccounts(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT", 0);
-        MockSalesCrMemoHeader(SalesCrMemoHeader, LibrarySales.CreateCustomerNo, '');
+        MockSalesCrMemoHeader(SalesCrMemoHeader, LibrarySales.CreateCustomerNo(), '');
         UpdateDocumentTextFieldsValuesToMaxLength(SalesCrMemoHeader);
         MockSalesCrMemoLine(SalesCrMemoLine, SalesCrMemoHeader, VATPostingSetup);
         UpdateDocumentLineTextFieldsValuesToMaxLength(SalesCrMemoLine);
@@ -1727,7 +1728,7 @@
         // [GIVEN] Service Invoice Header, fields "Bill-to Name/Address/Contact", "Name/Address/Contact Name" contain values with maximum field length.
         // [GIVEN] Service Invoice Line, field "Description" contains value with maximum field length.
         LibraryERM.CreateVATPostingSetupWithAccounts(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT", 0);
-        MockServiceInvHeader(ServiceInvoiceHeader, LibrarySales.CreateCustomerNo);
+        MockServiceInvHeader(ServiceInvoiceHeader, LibrarySales.CreateCustomerNo());
         UpdateDocumentTextFieldsValuesToMaxLength(ServiceInvoiceHeader);
         MockServiceInvLine(ServiceInvoiceLine, ServiceInvoiceHeader, VATPostingSetup);
         UpdateDocumentLineTextFieldsValuesToMaxLength(ServiceInvoiceLine);
@@ -1760,7 +1761,7 @@
         // [GIVEN] Service Credit Memo Header, fields "Bill-to Name/Address/Contact", "Sell-to Customer Name/Address/Contact" contain values with maximum field length.
         // [GIVEN] Service Credit Memo Line, field "Description" contains value with maximum field length.
         LibraryERM.CreateVATPostingSetupWithAccounts(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT", 0);
-        MockServiceCrMemoHeader(ServiceCrMemoHeader, LibrarySales.CreateCustomerNo, '');
+        MockServiceCrMemoHeader(ServiceCrMemoHeader, LibrarySales.CreateCustomerNo(), '');
         UpdateDocumentTextFieldsValuesToMaxLength(ServiceCrMemoHeader);
         MockServiceCrMemoLine(ServiceCrMemoLine, ServiceCrMemoHeader, VATPostingSetup);
         UpdateDocumentLineTextFieldsValuesToMaxLength(ServiceCrMemoLine);
@@ -1793,13 +1794,13 @@
 
         CreateCustomerWithCFDIFields(Customer);
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::"Credit Memo", Customer."No.");
-        SalesHeader."Payment Method Code" := CreatePaymentMethod;
+        SalesHeader."Payment Method Code" := CreatePaymentMethod();
         SalesHeader.Modify();
-        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo, 1);
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo(), 1);
         MockSalesInvHeader(SalesInvoiceHeaderRel, Customer."No.");
         MockSalesCrMemoHeader(SalesCrMemoHeaderRel, Customer."No.", SalesInvoiceHeaderRel."No.");
         CreateCFDIRelationDocument(
-          DATABASE::"Sales Header", SalesHeader."Document Type", SalesHeader."No.", Customer."No.",
+          DATABASE::"Sales Header", SalesHeader."Document Type".AsInteger(), SalesHeader."No.", Customer."No.",
           SalesInvoiceHeaderRel."No.", SalesInvoiceHeaderRel."Fiscal Invoice Number PAC");
 
         SalesCrMemoHeader.Get(LibrarySales.PostSalesDocument(SalesHeader, true, true));
@@ -1811,7 +1812,7 @@
           DATABASE::"Sales Cr.Memo Header", 0, SalesCrMemoHeader."No.",
           SalesCrMemoHeaderRel."No.", SalesCrMemoHeaderRel."Fiscal Invoice Number PAC");
         VerifyNoCFDIRelationDocuments(
-          DATABASE::"Sales Header", SalesHeader."Document Type", SalesHeader."No.", Customer."No.");
+          DATABASE::"Sales Header", SalesHeader."Document Type".AsInteger(), SalesHeader."No.", Customer."No.");
     end;
 
     [Test]
@@ -1830,12 +1831,12 @@
 
         CreateCustomerWithCFDIFields(Customer);
         CreateServiceDocument(ServiceHeader, ServiceHeader."Document Type"::"Credit Memo", Customer."No.");
-        ServiceHeader."Payment Method Code" := CreatePaymentMethod;
+        ServiceHeader."Payment Method Code" := CreatePaymentMethod();
         ServiceHeader.Modify();
         MockServiceInvHeader(ServiceInvoiceHeaderRel, Customer."No.");
         MockServiceCrMemoHeader(ServiceCrMemoHeaderRel, Customer."No.", ServiceInvoiceHeaderRel."No.");
         CreateCFDIRelationDocument(
-          DATABASE::"Service Header", ServiceHeader."Document Type", ServiceHeader."No.", Customer."No.",
+          DATABASE::"Service Header", ServiceHeader."Document Type".AsInteger(), ServiceHeader."No.", Customer."No.",
           ServiceInvoiceHeaderRel."No.", ServiceInvoiceHeaderRel."Fiscal Invoice Number PAC");
 
         LibraryService.PostServiceOrder(ServiceHeader, true, false, true);
@@ -1849,7 +1850,8 @@
         VerifyFiscalInvoiceNumberInRelatedDoc(
           DATABASE::"Service Cr.Memo Header", 0, ServiceCrMemoHeader."No.",
           ServiceCrMemoHeaderRel."No.", ServiceCrMemoHeaderRel."Fiscal Invoice Number PAC");
-        VerifyNoCFDIRelationDocuments(DATABASE::"Service Header", ServiceHeader."Document Type", ServiceHeader."No.", Customer."No.");
+        VerifyNoCFDIRelationDocuments(
+            DATABASE::"Service Header", ServiceHeader."Document Type".AsInteger(), ServiceHeader."No.", Customer."No.");
     end;
 
     [Test]
@@ -1866,21 +1868,21 @@
         // [SCENARIO 334952] Add CFDI Related Documents from Sales Credit Memo page
         Initialize();
 
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::"Credit Memo", LibrarySales.CreateCustomerNo);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::"Credit Memo", LibrarySales.CreateCustomerNo());
         MockSalesInvHeader(SalesInvoiceHeader, SalesHeader."Sell-to Customer No.");
         MockSalesCrMemoHeader(SalesCrMemoHeader, SalesHeader."Sell-to Customer No.", SalesInvoiceHeader."No.");
 
-        SalesCreditMemo.OpenEdit;
+        SalesCreditMemo.OpenEdit();
         SalesCreditMemo.FILTER.SetFilter("No.", SalesHeader."No.");
-        CFDIRelationDocuments.Trap;
-        SalesCreditMemo.CFDIRelationDocuments.Invoke;
+        CFDIRelationDocuments.Trap();
+        SalesCreditMemo.CFDIRelationDocuments.Invoke();
         CreateCFDIRelationDocumentsOnPage(CFDIRelationDocuments, SalesInvoiceHeader."No.", SalesCrMemoHeader."No.");
 
         VerifyFiscalInvoiceNumberInRelatedDoc(
-          DATABASE::"Sales Header", SalesHeader."Document Type", SalesHeader."No.",
+          DATABASE::"Sales Header", SalesHeader."Document Type".AsInteger(), SalesHeader."No.",
           SalesInvoiceHeader."No.", SalesInvoiceHeader."Fiscal Invoice Number PAC");
         VerifyFiscalInvoiceNumberInRelatedDoc(
-          DATABASE::"Sales Header", SalesHeader."Document Type", SalesHeader."No.",
+          DATABASE::"Sales Header", SalesHeader."Document Type".AsInteger(), SalesHeader."No.",
           SalesCrMemoHeader."No.", SalesCrMemoHeader."Fiscal Invoice Number PAC");
     end;
 
@@ -1898,21 +1900,21 @@
         // [SCENARIO 334952] Add CFDI Related Documents from Service Credit Memo page
         Initialize();
 
-        LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::"Credit Memo", LibrarySales.CreateCustomerNo);
+        LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::"Credit Memo", LibrarySales.CreateCustomerNo());
         MockServiceInvHeader(ServiceInvoiceHeader, ServiceHeader."Customer No.");
         MockServiceCrMemoHeader(ServiceCrMemoHeader, ServiceHeader."Customer No.", ServiceInvoiceHeader."No.");
 
-        ServiceCreditMemo.OpenEdit;
+        ServiceCreditMemo.OpenEdit();
         ServiceCreditMemo.FILTER.SetFilter("No.", ServiceHeader."No.");
-        CFDIRelationDocuments.Trap;
-        ServiceCreditMemo.CFDIRelationDocuments.Invoke;
+        CFDIRelationDocuments.Trap();
+        ServiceCreditMemo.CFDIRelationDocuments.Invoke();
         CreateCFDIRelationDocumentsOnPage(CFDIRelationDocuments, ServiceInvoiceHeader."No.", ServiceCrMemoHeader."No.");
 
         VerifyFiscalInvoiceNumberInRelatedDoc(
-          DATABASE::"Service Header", ServiceHeader."Document Type", ServiceHeader."No.",
+          DATABASE::"Service Header", ServiceHeader."Document Type".AsInteger(), ServiceHeader."No.",
           ServiceInvoiceHeader."No.", ServiceInvoiceHeader."Fiscal Invoice Number PAC");
         VerifyFiscalInvoiceNumberInRelatedDoc(
-          DATABASE::"Service Header", ServiceHeader."Document Type", ServiceHeader."No.",
+          DATABASE::"Service Header", ServiceHeader."Document Type".AsInteger(), ServiceHeader."No.",
           ServiceCrMemoHeader."No.", ServiceCrMemoHeader."Fiscal Invoice Number PAC");
     end;
 
@@ -2001,17 +2003,17 @@
         // [SCENARIO 338353] 'VAT Exemption' and 'No Taxable' fields are enabled in VAT Posting Setup
         LibraryApplicationArea.EnableFoundationSetup();
 
-        VATPostingSetup.OpenEdit;
-        Assert.IsTrue(VATPostingSetup."CFDI VAT Exemption".Enabled, '');
-        Assert.IsTrue(VATPostingSetup."CFDI Non-Taxable".Enabled, '');
+        VATPostingSetup.OpenEdit();
+        Assert.IsTrue(VATPostingSetup."CFDI VAT Exemption".Enabled(), '');
+        Assert.IsTrue(VATPostingSetup."CFDI Non-Taxable".Enabled(), '');
         VATPostingSetup.Close();
 
-        VATPostingSetupCard.OpenEdit;
-        Assert.IsTrue(VATPostingSetupCard."CFDI VAT Exemption".Enabled, '');
-        Assert.IsTrue(VATPostingSetupCard."CFDI Non-Taxable".Enabled, '');
+        VATPostingSetupCard.OpenEdit();
+        Assert.IsTrue(VATPostingSetupCard."CFDI VAT Exemption".Enabled(), '');
+        Assert.IsTrue(VATPostingSetupCard."CFDI Non-Taxable".Enabled(), '');
         VATPostingSetupCard.Close();
 
-        LibraryApplicationArea.DisableApplicationAreaSetup;
+        LibraryApplicationArea.DisableApplicationAreaSetup();
     end;
 
     [Test]
@@ -2026,23 +2028,23 @@
         // [SCENARIO 389401] 'Retention Attached to Line No.' and 'Retention VAT %' are not visible in sales document lines when PAC Environment is disabled
         UpdateGLSetupPACEnvironment(false);
 
-        SalesOrderSubform.OpenEdit;
+        SalesOrderSubform.OpenEdit();
         Assert.IsFalse(
-          SalesOrderSubform."Retention Attached to Line No.".Visible, SalesOrderSubform."Retention Attached to Line No.".Caption);
+          SalesOrderSubform."Retention Attached to Line No.".Visible(), SalesOrderSubform."Retention Attached to Line No.".Caption);
         Assert.IsFalse(
-          SalesOrderSubform."Retention VAT %".Visible, SalesOrderSubform."Retention VAT %".Caption);
+          SalesOrderSubform."Retention VAT %".Visible(), SalesOrderSubform."Retention VAT %".Caption);
 
-        SalesInvoiceSubform.OpenEdit;
+        SalesInvoiceSubform.OpenEdit();
         Assert.IsFalse(
-          SalesInvoiceSubform."Retention Attached to Line No.".Visible, SalesInvoiceSubform."Retention Attached to Line No.".Caption);
+          SalesInvoiceSubform."Retention Attached to Line No.".Visible(), SalesInvoiceSubform."Retention Attached to Line No.".Caption);
         Assert.IsFalse(
-          SalesInvoiceSubform."Retention VAT %".Visible, SalesInvoiceSubform."Retention VAT %".Caption);
+          SalesInvoiceSubform."Retention VAT %".Visible(), SalesInvoiceSubform."Retention VAT %".Caption);
 
-        SalesCrMemoSubform.OpenEdit;
+        SalesCrMemoSubform.OpenEdit();
         Assert.IsFalse(
-          SalesCrMemoSubform."Retention Attached to Line No.".Visible, SalesCrMemoSubform."Retention Attached to Line No.".Caption);
+          SalesCrMemoSubform."Retention Attached to Line No.".Visible(), SalesCrMemoSubform."Retention Attached to Line No.".Caption);
         Assert.IsFalse(
-          SalesCrMemoSubform."Retention VAT %".Visible, SalesCrMemoSubform."Retention VAT %".Caption);
+          SalesCrMemoSubform."Retention VAT %".Visible(), SalesCrMemoSubform."Retention VAT %".Caption);
     end;
 
     [Test]
@@ -2057,23 +2059,23 @@
         // [SCENARIO 389401] 'Retention Attached to Line No.' and 'Retention VAT %' are visible in sales document lines when PAC Environment is enabled
         UpdateGLSetupPACEnvironment(true);
 
-        SalesOrderSubform.OpenEdit;
+        SalesOrderSubform.OpenEdit();
         Assert.IsTrue(
-          SalesOrderSubform."Retention Attached to Line No.".Visible, SalesOrderSubform."Retention Attached to Line No.".Caption);
+          SalesOrderSubform."Retention Attached to Line No.".Visible(), SalesOrderSubform."Retention Attached to Line No.".Caption);
         Assert.IsTrue(
-          SalesOrderSubform."Retention VAT %".Visible, SalesOrderSubform."Retention VAT %".Caption);
+          SalesOrderSubform."Retention VAT %".Visible(), SalesOrderSubform."Retention VAT %".Caption);
 
-        SalesInvoiceSubform.OpenEdit;
+        SalesInvoiceSubform.OpenEdit();
         Assert.IsTrue(
-          SalesInvoiceSubform."Retention Attached to Line No.".Visible, SalesInvoiceSubform."Retention Attached to Line No.".Caption);
+          SalesInvoiceSubform."Retention Attached to Line No.".Visible(), SalesInvoiceSubform."Retention Attached to Line No.".Caption);
         Assert.IsTrue(
-          SalesInvoiceSubform."Retention VAT %".Visible, SalesInvoiceSubform."Retention VAT %".Caption);
+          SalesInvoiceSubform."Retention VAT %".Visible(), SalesInvoiceSubform."Retention VAT %".Caption);
 
-        SalesCrMemoSubform.OpenEdit;
+        SalesCrMemoSubform.OpenEdit();
         Assert.IsTrue(
-          SalesCrMemoSubform."Retention Attached to Line No.".Visible, SalesCrMemoSubform."Retention Attached to Line No.".Caption);
+          SalesCrMemoSubform."Retention Attached to Line No.".Visible(), SalesCrMemoSubform."Retention Attached to Line No.".Caption);
         Assert.IsTrue(
-          SalesCrMemoSubform."Retention VAT %".Visible, SalesCrMemoSubform."Retention VAT %".Caption);
+          SalesCrMemoSubform."Retention VAT %".Visible(), SalesCrMemoSubform."Retention VAT %".Caption);
     end;
 
     [Test]
@@ -2285,8 +2287,8 @@
         UpdateGLSetupPACEnvironment(true);
 
         FixedAssetCard.OpenEdit();
-        Assert.IsTrue(FixedAssetCard."SAT Classification Code".Enabled, '');
-        Assert.IsTrue(FixedAssetCard."SAT Classification Code".Editable, '');
+        Assert.IsTrue(FixedAssetCard."SAT Classification Code".Enabled(), '');
+        Assert.IsTrue(FixedAssetCard."SAT Classification Code".Editable(), '');
         FixedAssetCard.Close();
     end;
 
@@ -2300,8 +2302,8 @@
         UpdateGLSetupPACEnvironment(true);
 
         ItemCharges.OpenEdit();
-        Assert.IsTrue(ItemCharges."SAT Classification Code".Enabled, '');
-        Assert.IsTrue(ItemCharges."SAT Classification Code".Editable, '');
+        Assert.IsTrue(ItemCharges."SAT Classification Code".Enabled(), '');
+        Assert.IsTrue(ItemCharges."SAT Classification Code".Editable(), '');
         ItemCharges.Close();
     end;
 
@@ -2331,8 +2333,8 @@
         UpdateGLSetupPACEnvironment(true);
 
         GLAccountCard.OpenEdit();
-        Assert.IsTrue(GLAccountCard."SAT Classification Code".Enabled, '');
-        Assert.IsTrue(GLAccountCard."SAT Classification Code".Editable, '');
+        Assert.IsTrue(GLAccountCard."SAT Classification Code".Enabled(), '');
+        Assert.IsTrue(GLAccountCard."SAT Classification Code".Editable(), '');
         GLAccountCard.Close();
     end;
 
@@ -2346,8 +2348,8 @@
         UpdateGLSetupPACEnvironment(true);
 
         CustomerCard.OpenEdit();
-        Assert.IsTrue(CustomerCard."CFDI General Public".Enabled, '');
-        Assert.IsTrue(CustomerCard."CFDI General Public".Editable, '');
+        Assert.IsTrue(CustomerCard."CFDI General Public".Enabled(), '');
+        Assert.IsTrue(CustomerCard."CFDI General Public".Editable(), '');
         CustomerCard.Close();
     end;
 
@@ -2362,10 +2364,10 @@
         UpdateGLSetupPACEnvironment(true);
 
         FixedAssetCard.OpenEdit();
-        Assert.IsTrue(FixedAssetCard."SCT Permission No.".Enabled, '');
-        Assert.IsTrue(FixedAssetCard."SCT Permission No.".Editable, '');
-        Assert.IsTrue(FixedAssetCard."SCT Permission Type".Enabled, '');
-        Assert.IsTrue(FixedAssetCard."SCT Permission Type".Editable, '');
+        Assert.IsTrue(FixedAssetCard."SCT Permission No.".Enabled(), '');
+        Assert.IsTrue(FixedAssetCard."SCT Permission No.".Editable(), '');
+        Assert.IsTrue(FixedAssetCard."SCT Permission Type".Enabled(), '');
+        Assert.IsTrue(FixedAssetCard."SCT Permission Type".Editable(), '');
         Assert.IsTrue(FixedAssetCard."Vehicle Gross Weight".Enabled(), '');
         Assert.IsTrue(FixedAssetCard."Vehicle Gross Weight".Editable(), '');
         FixedAssetCard.Close();
@@ -2406,8 +2408,8 @@
         UpdateGLSetupPACEnvironment(true);
 
         CFDIRelationDocuments.OpenEdit();
-        Assert.IsTrue(CFDIRelationDocuments."SAT Relation Type".Enabled, '');
-        Assert.IsTrue(CFDIRelationDocuments."SAT Relation Type".Editable, '');
+        Assert.IsTrue(CFDIRelationDocuments."SAT Relation Type".Enabled(), '');
+        Assert.IsTrue(CFDIRelationDocuments."SAT Relation Type".Editable(), '');
         CFDIRelationDocuments.Close();
     end;
 
@@ -2432,9 +2434,9 @@
         GeneralLedgerSetup.Modify(true);
         ExchRateAmount := LibraryRandom.RandDecInRange(10, 20, 2);
         LibraryERM.CreateExchangeRate(
-          GeneralLedgerSetup."USD Currency Code", WorkDate, 1 / ExchRateAmount, 1 / ExchRateAmount);
+          GeneralLedgerSetup."USD Currency Code", WorkDate(), 1 / ExchRateAmount, 1 / ExchRateAmount);
         LibrarySales.CreateSalesHeader(
-          SalesHeader, SalesHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo);
+          SalesHeader, SalesHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo());
 
         SalesHeader.Validate("CFDI Export Code", CFDIExportCode.Code);
         SalesHeader.TestField("Foreign Trade", true);
@@ -2549,7 +2551,7 @@
         if IsInitialized then
             exit;
 
-        UpdateCompanyInfo;
+        UpdateCompanyInfo();
 
         LibrarySetupStorage.Save(DATABASE::"General Ledger Setup");
         LibrarySales.SetStockoutWarning(false);
@@ -2606,13 +2608,13 @@
         exit(PaymentMethod.Code);
     end;
 
-    local procedure CreateServiceDocument(var ServiceHeader: Record "Service Header"; DocumentType: Option; CustomerNo: Code[20])
+    local procedure CreateServiceDocument(var ServiceHeader: Record "Service Header"; DocumentType: Enum "Service Document Type"; CustomerNo: Code[20])
     var
         ServiceLine: Record "Service Line";
     begin
         LibraryService.CreateServiceHeader(ServiceHeader, DocumentType, CustomerNo);
         LibraryService.CreateServiceLineWithQuantity(
-          ServiceLine, ServiceHeader, ServiceLine.Type::Item, LibraryInventory.CreateItemNo, 1);
+          ServiceLine, ServiceHeader, ServiceLine.Type::Item, LibraryInventory.CreateItemNo(), 1);
         ServiceLine.Validate("Unit Price", LibraryRandom.RandDec(1000, 2));
         ServiceLine.Modify(true);
     end;
@@ -2629,16 +2631,16 @@
         CFDIRelationDocument."Related Doc. No." := RelatedDocNo;
         CFDIRelationDocument."Fiscal Invoice Number PAC" := FiscalInvoiceNumber;
         CFDIRelationDocument.Insert();
-        CFDIRelationDocument.InsertRelatedCreditMemos;
+        CFDIRelationDocument.InsertRelatedCreditMemos();
     end;
 
     local procedure CreateCFDIRelationDocumentsOnPage(var CFDIRelationDocuments: TestPage "CFDI Relation Documents"; InvoiceNo: Code[20]; CrMemoNo: Code[20])
     begin
-        CFDIRelationDocuments.New;
-        CFDIRelationDocuments."Related Doc. Type".SetValue(GetCFDIRelatedDocTypeInvoice);
+        CFDIRelationDocuments.New();
+        CFDIRelationDocuments."Related Doc. Type".SetValue(GetCFDIRelatedDocTypeInvoice());
         CFDIRelationDocuments."Related Doc. No.".SetValue(InvoiceNo);
-        CFDIRelationDocuments.New;
-        CFDIRelationDocuments."Related Doc. Type".SetValue(GetCFDIRelatedDocTypeCreditMemo);
+        CFDIRelationDocuments.New();
+        CFDIRelationDocuments."Related Doc. Type".SetValue(GetCFDIRelatedDocTypeCreditMemo());
         CFDIRelationDocuments."Related Doc. No.".SetValue(CrMemoNo);
         CFDIRelationDocuments.Close();
     end;
@@ -2647,21 +2649,21 @@
     var
         SalesLine: Record "Sales Line";
     begin
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo());
         SalesHeader."CFDI Purpose" := Format(LibraryRandom.RandIntInRange(10000, 9999));
         SalesHeader."CFDI Relation" := Format(LibraryRandom.RandIntInRange(10000, 9999));
         SalesHeader.Modify();
-        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo, 1);
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo(), 1);
         SalesLine.Validate("Unit Price", LibraryRandom.RandIntInRange(100, 200));
         SalesLine.Modify(true);
         LibrarySales.CreateSalesLine(
-          SalesLineRetention1, SalesHeader, SalesLineRetention1.Type::Item, LibraryInventory.CreateItemNo, -1);
+          SalesLineRetention1, SalesHeader, SalesLineRetention1.Type::Item, LibraryInventory.CreateItemNo(), -1);
         SalesLineRetention1.Validate("Retention Attached to Line No.", SalesLine."Line No.");
         SalesLineRetention1.Validate("Retention VAT %", LibraryRandom.RandIntInRange(10, 20));
         SalesLineRetention1.Modify(true);
         LibrarySales.CreateSalesLine(
-          SalesLineRetention2, SalesHeader, SalesLineRetention2.Type::Item, LibraryInventory.CreateItemNo, -1);
-        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo, 1);
+          SalesLineRetention2, SalesHeader, SalesLineRetention2.Type::Item, LibraryInventory.CreateItemNo(), -1);
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo(), 1);
         SalesLine.Validate("Unit Price", LibraryRandom.RandIntInRange(100, 200));
         SalesLine.Modify(true);
         SalesLineRetention2.Validate("Retention Attached to Line No.", SalesLine."Line No.");
@@ -2746,7 +2748,7 @@
         MockCustomerLedgerEntry(CustomerNo, DummyCustLedgerEntry."Document Type"::"Credit Memo", ServiceCrMemoHeader."No.");
     end;
 
-    local procedure MockCustomerLedgerEntry(CustomerNo: Code[20]; DocumentType: Option; DocumentNo: Code[20])
+    local procedure MockCustomerLedgerEntry(CustomerNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20])
     var
         CustLedgerEntry: Record "Cust. Ledger Entry";
     begin
@@ -2818,20 +2820,20 @@
     local procedure MockSalesShipmentHeader(var SalesShipmentHeader: Record "Sales Shipment Header"; CustomerNo: Code[20])
     begin
         SalesShipmentHeader.Init();
-        SalesShipmentHeader."No." := LibraryUtility.GenerateGUID;
+        SalesShipmentHeader."No." := LibraryUtility.GenerateGUID();
         SalesShipmentHeader."Bill-to Customer No." := CustomerNo;
-        SalesShipmentHeader."Fiscal Invoice Number PAC" := LibraryUtility.GenerateGUID;
+        SalesShipmentHeader."Fiscal Invoice Number PAC" := LibraryUtility.GenerateGUID();
         SalesShipmentHeader."Electronic Document Status" := SalesShipmentHeader."Electronic Document Status"::"Stamp Received";
-        SalesShipmentHeader.Insert;
+        SalesShipmentHeader.Insert();
     end;
 
     local procedure MockTransferShipmentHeader(var TransferShipmentHeader: Record "Transfer Shipment Header")
     begin
         TransferShipmentHeader.Init();
-        TransferShipmentHeader."No." := LibraryUtility.GenerateGUID;
-        TransferShipmentHeader."Fiscal Invoice Number PAC" := LibraryUtility.GenerateGUID;
+        TransferShipmentHeader."No." := LibraryUtility.GenerateGUID();
+        TransferShipmentHeader."Fiscal Invoice Number PAC" := LibraryUtility.GenerateGUID();
         TransferShipmentHeader."Electronic Document Status" := TransferShipmentHeader."Electronic Document Status"::"Stamp Received";
-        TransferShipmentHeader.Insert;
+        TransferShipmentHeader.Insert();
     end;
 
     local procedure RunCreateTempDocument(DocumentHeaderVariant: Variant; var TempDocumentHeader: Record "Document Header" temporary; var TempDocumentLine: Record "Document Line" temporary)
@@ -2986,7 +2988,7 @@
         repeat
             DocHeaderFieldRef := DocHeaderRecRef.Field(Field."No.");
             CustDocFieldRef := CustDocRecRef.Field(Field."No.");
-            CustDocFieldValue := CustDocFieldRef.Value;
+            CustDocFieldValue := CustDocFieldRef.Value();
             Assert.AreEqual(CustDocFieldValue, DocHeaderFieldRef.Value, '');
             Assert.IsTrue(DocHeaderFieldRef.Length >= CustDocFieldRef.Length, '');
         until Field.Next() = 0;
@@ -3011,7 +3013,7 @@
         repeat
             DocLineFieldRef := DocLineRecRef.Field(Field."No.");
             CustDocLineFieldRef := CustDocLineRecRef.Field(Field."No.");
-            CustDocLineFieldValue := CustDocLineFieldRef.Value;
+            CustDocLineFieldValue := CustDocLineFieldRef.Value();
             Assert.AreEqual(CustDocLineFieldValue, DocLineFieldRef.Value, '');
             Assert.IsTrue(DocLineFieldRef.Length >= CustDocLineFieldRef.Length, '');
         until Field.Next() = 0;

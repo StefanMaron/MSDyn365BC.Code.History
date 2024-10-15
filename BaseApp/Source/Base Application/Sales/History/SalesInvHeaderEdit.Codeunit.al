@@ -5,6 +5,7 @@
 namespace Microsoft.Sales.History;
 
 using Microsoft.Sales.Receivables;
+using Microsoft.Sales.Customer;
 
 codeunit 1409 "Sales Inv. Header - Edit"
 {
@@ -23,7 +24,9 @@ codeunit 1409 "Sales Inv. Header - Edit"
         SalesInvoiceHeader."Payment Reference" := Rec."Payment Reference";
         SalesInvoiceHeader."Company Bank Account Code" := Rec."Company Bank Account Code";
         SalesInvoiceHeader."Posting Description" := Rec."Posting Description";
-        SalesInvoiceHeader."Fiscal Invoice Number PAC" := Rec."Fiscal Invoice Number PAC";
+        SalesInvoiceHeader."Dispute Status" := Rec."Dispute Status";
+        SalesInvoiceHeader."Promised Pay Date" := Rec."Promised Pay Date";
+        SalesInvoiceHeader."Due Date" := Rec."Due Date";
         OnOnRunOnBeforeTestFieldNo(SalesInvoiceHeader, Rec);
         SalesInvoiceHeader.TestField("No.", Rec."No.");
         SalesInvoiceHeader.Modify();
@@ -37,14 +40,41 @@ codeunit 1409 "Sales Inv. Header - Edit"
     local procedure UpdateCustLedgerEntry(SalesInvoiceHeader: Record "Sales Invoice Header")
     var
         CustLedgerEntry: Record "Cust. Ledger Entry";
+        DisputeStatus: Record "Dispute Status";
+        CustEntryEdit: Codeunit "Cust. Entry-Edit";
+        MarkedAsOnHoldLbl: label 'X', Locked = true;
     begin
         if not GetCustLedgerEntry(CustLedgerEntry, SalesInvoiceHeader) then
             exit;
+
         CustLedgerEntry."Payment Method Code" := SalesInvoiceHeader."Payment Method Code";
         CustLedgerEntry."Payment Reference" := SalesInvoiceHeader."Payment Reference";
         CustLedgerEntry.Description := SalesInvoiceHeader."Posting Description";
+        CustLedgerEntry."Promised Pay Date" := SalesInvoiceHeader."Promised Pay Date";
+        CustLedgerEntry."Due Date" := SalesInvoiceHeader."Due Date";
+        if CustLedgerEntry."Dispute Status" <> '' then begin
+            if DisputeStatus.get(CustLedgerEntry."Dispute Status") then
+                if (DisputeStatus."Overwrite on hold") and ClearOnHold(SalesInvoiceHeader) then
+                    CustLedgerEntry."On Hold" := ''
+        end else
+            if SalesInvoiceHeader."Dispute Status" <> '' then
+                if DisputeStatus.get(SalesInvoiceHeader."Dispute Status") then
+                    if DisputeStatus."Overwrite on hold" then
+                        CustLedgerEntry."On Hold" := Copystr(MarkedAsOnHoldLbl, 1, MaxStrLen(CustLedgerEntry."On Hold"));
+        CustLedgerEntry."Dispute Status" := SalesInvoiceHeader."Dispute Status";
         OnBeforeUpdateCustLedgerEntryAfterSetValues(CustLedgerEntry, SalesInvoiceHeader);
-        Codeunit.Run(Codeunit::"Cust. Entry-Edit", CustLedgerEntry);
+        CustEntryEdit.SetCalledFromSalesInvoice(true);
+        CustEntryEdit.Run(CustLedgerEntry);
+    end;
+
+    local procedure ClearOnHold(SalesInvoiceHeader: Record "Sales Invoice Header"): Boolean
+    var
+        DisputeStatus: Record "Dispute Status";
+    begin
+        if SalesInvoiceHeader."Dispute Status" = '' then
+            exit(true);
+        if DisputeStatus.get(SalesInvoiceHeader."Dispute Status") then
+            exit(not DisputeStatus."Overwrite on hold");
     end;
 
     local procedure GetCustLedgerEntry(var CustLedgerEntry: Record "Cust. Ledger Entry"; SalesInvoiceHeader: Record "Sales Invoice Header"): Boolean

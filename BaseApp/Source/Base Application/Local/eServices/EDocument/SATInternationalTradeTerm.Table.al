@@ -9,6 +9,7 @@ table 27045 "SAT International Trade Term"
     DataPerCompany = false;
     DrillDownPageID = "SAT International Trade Terms";
     LookupPageID = "SAT International Trade Terms";
+    DataClassification = CustomerContent;
 
     fields
     {

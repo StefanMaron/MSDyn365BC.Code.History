@@ -213,7 +213,7 @@ codeunit 10331 "EFT Export Mgt"
         if Optional then
             exit;
 
-        Value := FieldRef.Value;
+        Value := FieldRef.Value();
         StringValue := Format(Value);
 
         // There are fields that are required that can be 0 so this check is not valid for EFT
@@ -226,6 +226,7 @@ codeunit 10331 "EFT Export Mgt"
         ValueAsDecimal: Decimal;
         ValueAsDate: Date;
         ValueAsDateTime: DateTime;
+        ValueAsBoolean: Boolean;
         IsHandled: Boolean;
     begin
         OnBeforeCastToDestinationType(DestinationValue, SourceValue, DataExchColumnDef, Multiplier, IsHandled);
@@ -256,6 +257,11 @@ codeunit 10331 "EFT Export Mgt"
                         SourceValue := CreateDateTime(SourceValue, 0T);
                     Evaluate(ValueAsDateTime, Format(SourceValue, 0, 9), 9);
                     DestinationValue := ValueAsDateTime;
+                end;
+            DataExchColumnDef."Data Type"::Boolean:
+                begin
+                    Evaluate(ValueAsBoolean, Format(SourceValue));
+                    DestinationValue := ValueAsBoolean;
                 end;
         end;
     end;

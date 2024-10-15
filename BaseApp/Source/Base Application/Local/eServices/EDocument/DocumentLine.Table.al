@@ -7,6 +7,7 @@ namespace Microsoft.eServices.EDocument;
 table 10003 "Document Line"
 {
     Caption = 'Document Line';
+    DataClassification = CustomerContent;
 
     fields
     {

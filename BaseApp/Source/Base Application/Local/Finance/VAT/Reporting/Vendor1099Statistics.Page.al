@@ -1,4 +1,5 @@
-﻿// ------------------------------------------------------------------------------------------------
+﻿#if not CLEAN25
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -15,6 +16,9 @@ page 10016 "Vendor 1099 Statistics"
     LinksAllowed = false;
     PageType = Card;
     SourceTable = Vendor;
+    ObsoleteReason = 'Moved to IRS Forms App.';
+    ObsoleteState = Pending;
+    ObsoleteTag = '25.0';
 
     layout
     {
@@ -213,37 +217,33 @@ page 10016 "Vendor 1099 Statistics"
         Year := Date2DMY(WorkDate(), 3);
         PeriodDate[1] := DMY2Date(1, 1, Year);
         PeriodDate[2] := DMY2Date(31, 12, Year);
-        with PaymentEntry do begin
-            SetCurrentKey("Document Type", "Vendor No.", "Posting Date");
-            SetRange("Document Type", "Document Type"::Payment);
-            SetRange("Vendor No.", Rec."No.");
-            SetRange("Posting Date", PeriodDate[1], PeriodDate[2]);
-            OnCalculateVendor1099OnAfterSetFilters(PaymentEntry);
-            if Find('-') then
-                repeat
-                    ProcessInvoices();
-                until Next() = 0;
+        PaymentEntry.SetCurrentKey("Document Type", "Vendor No.", "Posting Date");
+        PaymentEntry.SetRange("Document Type", PaymentEntry."Document Type"::Payment);
+        PaymentEntry.SetRange("Vendor No.", Rec."No.");
+        PaymentEntry.SetRange("Posting Date", PeriodDate[1], PeriodDate[2]);
+        OnCalculateVendor1099OnAfterSetFilters(PaymentEntry);
+        if PaymentEntry.Find('-') then
+            repeat
+                ProcessInvoices();
+            until PaymentEntry.Next() = 0;
 
-            if LastLineNo > 1 then
-                SortHiToLo();
+        if LastLineNo > 1 then
+            SortHiToLo();
 
-            if LastLineNo > HiLineOnScreen then
-                ConsolidateLast();
-        end;
+        if LastLineNo > HiLineOnScreen then
+            ConsolidateLast();
     end;
 
     procedure ProcessInvoices()
     begin
         EntryAppMgt.GetAppliedVendEntries(TempAppliedEntry, PaymentEntry, true);
-        with TempAppliedEntry do begin
-            SetFilter("Document Type", '%1|%2', "Document Type"::Invoice, "Document Type"::"Credit Memo");
-            SetFilter("IRS 1099 Amount", '<>0');
-            OnProcessInvoicesOnAfterTempAppliedEntrySetFilters(TempAppliedEntry, PaymentEntry);
-            if Find('-') then
-                repeat
-                    Calculate1099Amount("Amount to Apply");
-                until Next() = 0;
-        end;
+        TempAppliedEntry.SetFilter("Document Type", '%1|%2', TempAppliedEntry."Document Type"::Invoice, TempAppliedEntry."Document Type"::"Credit Memo");
+        TempAppliedEntry.SetFilter("IRS 1099 Amount", '<>0');
+        OnProcessInvoicesOnAfterTempAppliedEntrySetFilters(TempAppliedEntry, PaymentEntry);
+        if TempAppliedEntry.Find('-') then
+            repeat
+                Calculate1099Amount(TempAppliedEntry."Amount to Apply");
+            until TempAppliedEntry.Next() = 0;
     end;
 
     procedure Calculate1099Amount(AppliedAmount: Decimal)
@@ -346,3 +346,4 @@ page 10016 "Vendor 1099 Statistics"
     end;
 }
 
+#endif

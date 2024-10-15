@@ -1,4 +1,5 @@
-﻿// ------------------------------------------------------------------------------------------------
+﻿#if not CLEAN24
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -6,6 +7,10 @@ namespace Microsoft.eServices.EDocument;
 
 interface "EInvoice Communication"
 {
+    ObsoleteReason = 'Replaced by "EInvoice Communication V2"';
+    ObsoleteState = Pending;
+    ObsoleteTag = '24.0';
+
     /// <summary>
     /// Sends request to PAC service with a specific method.
     /// </summary>
@@ -31,3 +36,4 @@ interface "EInvoice Communication"
     /// <param name="Parameter">Parameter that accepts different data type like string, or boolean</param>
     procedure AddParameters(Parameter: Variant);
 }
+#endif

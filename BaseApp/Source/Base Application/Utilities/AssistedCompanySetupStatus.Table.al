@@ -16,6 +16,7 @@ table 1802 "Assisted Company Setup Status"
     InherentPermissions = rX;
 #pragma warning restore AS0034
     Permissions = tabledata "Assisted Company Setup Status" = r;
+    DataClassification = CustomerContent;
 
     fields
     {

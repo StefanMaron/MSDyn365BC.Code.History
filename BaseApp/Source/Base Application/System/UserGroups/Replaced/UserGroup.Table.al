@@ -25,6 +25,7 @@ table 9000 "User Group"
     ObsoleteTag = '25.0';
 #endif 
     ObsoleteReason = '[220_UserGroups] Replaced by the Security Group table and Security Group codeunit in the security groups system; by Tenant Permission Set table in the permission sets system. To learn more, go to https://go.microsoft.com/fwlink/?linkid=2245709.';
+    DataClassification = CustomerContent;
 
     fields
     {

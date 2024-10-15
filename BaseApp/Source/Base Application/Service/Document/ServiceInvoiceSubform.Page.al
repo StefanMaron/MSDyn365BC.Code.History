@@ -1,9 +1,11 @@
 namespace Microsoft.Service.Document;
 
 using Microsoft.Finance.Dimension;
+using Microsoft.Foundation.Attachment;
 using Microsoft.Foundation.ExtendedText;
 using Microsoft.Inventory.Availability;
 using Microsoft.Inventory.Item;
+using Microsoft.Inventory.Item.Catalog;
 using Microsoft.Inventory.Location;
 using Microsoft.Pricing.Calculation;
 using Microsoft.Sales.Pricing;
@@ -50,6 +52,23 @@ page 5934 "Service Invoice Subform"
                         NoOnAfterValidate();
                         if Rec."Variant Code" = '' then
                             VariantCodeMandatory := Item.IsVariantMandatory(Rec.Type = Rec.Type::Item, Rec."No.");
+                    end;
+                }
+                field("Item Reference No."; Rec."Item Reference No.")
+                {
+                    AccessByPermission = tabledata "Item Reference" = R;
+                    ApplicationArea = Service, ItemReferences;
+                    QuickEntry = false;
+                    ToolTip = 'Specifies the referenced item number. If you enter a cross reference between yours and your vendor''s or customer''s item number, then this number will override the standard item number when you enter the reference number on a sales or purchase document.';
+                    Visible = ItemReferenceVisible;
+
+                    trigger OnLookup(var Text: Text): Boolean
+                    var
+                        ServItemReferenceMgt: Codeunit "Serv. Item Reference Mgt.";
+                    begin
+                        ServItemReferenceMgt.ServiceReferenceNoLookup(Rec);
+                        NoOnAfterValidate();
+                        CurrPage.Update();
                     end;
                 }
                 field("Variant Code"; Rec."Variant Code")
@@ -363,6 +382,20 @@ page 5934 "Service Invoice Subform"
     {
         area(processing)
         {
+            action(SelectMultiItems)
+            {
+                AccessByPermission = TableData Item = R;
+                ApplicationArea = Service;
+                Caption = 'Select items';
+                Ellipsis = true;
+                Image = NewItem;
+                ToolTip = 'Add two or more items from the full list of available items.';
+
+                trigger OnAction()
+                begin
+                    Rec.SelectMultipleItems();
+                end;
+            }
             group("F&unctions")
             {
                 Caption = 'F&unctions';
@@ -380,7 +413,7 @@ page 5934 "Service Invoice Subform"
                         Rec.PickPrice();
                     end;
                 }
-#if not CLEAN21
+#if not CLEAN23
                 action("Get Li&ne Discount")
                 {
                     AccessByPermission = TableData "Sales Line Discount" = R;
@@ -550,6 +583,23 @@ page 5934 "Service Invoice Subform"
                         Rec.OpenItemTrackingLines();
                     end;
                 }
+                action(DocAttach)
+                {
+                    ApplicationArea = Service;
+                    Caption = 'Attachments';
+                    Image = Attach;
+                    ToolTip = 'Add a file as an attachment. You can attach images as well as documents.';
+
+                    trigger OnAction()
+                    var
+                        DocumentAttachmentDetails: Page "Document Attachment Details";
+                        RecRef: RecordRef;
+                    begin
+                        RecRef.GetTable(Rec);
+                        DocumentAttachmentDetails.OpenForRecRef(RecRef);
+                        DocumentAttachmentDetails.RunModal();
+                    end;
+                }
             }
             group(Errors)
             {
@@ -625,17 +675,20 @@ page 5934 "Service Invoice Subform"
         ExtendedPriceEnabled := PriceCalculationMgt.IsExtendedPriceCalculationEnabled();
         BackgroundErrorCheck := DocumentErrorsMgt.BackgroundValidationEnabled();
         SetDimensionsVisibility();
+        SetItemReferenceVisibility();
     end;
 
     var
         ServHeader: Record "Service Header";
         TransferExtendedText: Codeunit "Transfer Extended Text";
         ItemAvailFormsMgt: Codeunit "Item Availability Forms Mgt";
-        Text000: Label 'This service invoice was created from the service contract. If you want to get shipment lines, you must create another service invoice.';
         ExtendedPriceEnabled: Boolean;
         BackgroundErrorCheck: Boolean;
+        ItemReferenceVisible: Boolean;
         ShowAllLinesEnabled: Boolean;
         VariantCodeMandatory: Boolean;
+
+        ServiceContractErr: Label 'This service invoice was created from the service contract. If you want to get shipment lines, you must create another service invoice.';
 
     protected var
         ShortcutDimCode: array[8] of Code[20];
@@ -657,7 +710,8 @@ page 5934 "Service Invoice Subform"
     begin
         ServHeader.Get(Rec."Document Type", Rec."Document No.");
         if ServHeader."Contract No." <> '' then
-            Error(Text000);
+            Error(ServiceContractErr);
+
         CODEUNIT.Run(CODEUNIT::"Service-Get Shipment", Rec);
     end;
 
@@ -670,6 +724,13 @@ page 5934 "Service Invoice Subform"
         end;
         if TransferExtendedText.MakeUpdate() then
             UpdateForm(true);
+    end;
+
+    local procedure SetItemReferenceVisibility()
+    var
+        ItemReference: Record "Item Reference";
+    begin
+        ItemReferenceVisible := not ItemReference.IsEmpty();
     end;
 
     procedure UpdateForm(SetSaveRecord: Boolean)

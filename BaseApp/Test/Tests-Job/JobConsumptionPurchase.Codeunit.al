@@ -22,7 +22,7 @@ codeunit 136302 "Job Consumption Purchase"
         Assert: Codeunit Assert;
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         JobTaskBlankErr: Label '%1 must have a value in %2: %3=%4, %5=%6, %7=%8. It cannot be zero or empty.', Comment = '%1=Field name,%2=Table name,%3=Field name,%4=Field value,%5=Field name,%6=Field value,%7=Field name,%8=Field value';
-        CodeMandatoryDimensionErr: Label 'The dimensions used in Order %1, line no. %2 are invalid (Error: Select a %3 for the %4 %5 for Job %6.).', Comment = '%1=Field value,%2=Field value,%3=Field value,%4=Field name,%5=Field name,%6=Field name';
+        CodeMandatoryDimensionErr: Label 'The dimensions used in Order %1, line no. %2 are invalid (Error: Select a %3 for the %4 %5 for Project %6.).', Comment = '%1=Field value,%2=Field value,%3=Field value,%4=Field name,%5=Field name,%6=Field name';
         SameCodeOrNoCodeDimensionErr: Label 'The dimensions used in Order %1, line no. %2 are invalid (Error: The %3 must be %4 for %5 %6 for %7 %8. Currently it''s %9.', Comment = '%1=Field value,%2=Field value, %3 = "Dimension value code" caption, %4 = expected "Dimension value code" value, %5 = "Dimension code" caption, %6 = "Dimension Code" value, %7 = Table caption (Vendor), %8 = Table value (XYZ), %9 = current "Dimension value code" value';
         BlankLbl: Label 'blank';
         LibraryUtility: Codeunit "Library - Utility";
@@ -34,18 +34,18 @@ codeunit 136302 "Job Consumption Purchase"
         LibraryDimension: Codeunit "Library - Dimension";
         LibraryTemplates: Codeunit "Library - Templates";
         Initialized: Boolean;
-        WrongDimJobLedgerEntryErr: Label 'Wrong Dim on Job Ledger entry %1! Expected ID: %2, Actual ID: %3.';
+        WrongDimJobLedgerEntryErr: Label 'Wrong Dim on Project Ledger entry %1! Expected ID: %2, Actual ID: %3.';
         FieldErr: Label '%1 must be equal  %2 in %3.';
-        TypeReservationErr: Label '%1 must be equal to ''Item''  in %2: %3=%4, %5=%6, %7=%8. Current value is ''Resource''.', Comment = '%1 Type Field Caption,%2 Table Caption,%3 Job No. FieldCaption,%4 Job No.,%5 Job Task No. Field Caption,%6 Job Task No.,%7 Line No. Field Caption,%8 Line No.';
-        PlanningDateErr: Label '%1 must have a value in %2: %3=%4, %5=%6, %7=%8. It cannot be zero or empty.', Comment = '%1 Planning Date Field Caption,%2 Table Caption,%3 Job No. FieldCaption,%4 Job No.,%5 Job Task No. Field Caption,%6 Job Task No.,%7 Line No. Field Caption,%8 Line No.';
-        EmptyFieldErr: Label '%1 must have a value in %2: %3=%4, %5=%6, %7=%8. It cannot be zero or empty.', Comment = '%1 Field Caption,%2 Table Caption,%3 Job No. FieldCaption,%4 Job No.,%5 Job Task No. Field Caption,%6 Job Task No.,%7 Line No. Field Caption,%8 Line No.';
+        TypeReservationErr: Label '%1 must be equal to ''Item''  in %2: %3=%4, %5=%6, %7=%8. Current value is ''Resource''.', Comment = '%1 Type Field Caption,%2 Table Caption,%3 Project No. FieldCaption,%4 Project No.,%5 Project Task No. Field Caption,%6 Project Task No.,%7 Line No. Field Caption,%8 Line No.';
+        PlanningDateErr: Label '%1 must have a value in %2: %3=%4, %5=%6, %7=%8. It cannot be zero or empty.', Comment = '%1 Planning Date Field Caption,%2 Table Caption,%3 Project No. FieldCaption,%4 Project No.,%5 Project Task No. Field Caption,%6 Project Task No.,%7 Line No. Field Caption,%8 Line No.';
+        EmptyFieldErr: Label '%1 must have a value in %2: %3=%4, %5=%6, %7=%8. It cannot be zero or empty.', Comment = '%1 Field Caption,%2 Table Caption,%3 Project No. FieldCaption,%4 Project No.,%5 Project Task No. Field Caption,%6 Project Task No.,%7 Line No. Field Caption,%8 Line No.';
         JobStatusErr: Label '%1 must be equal to ''%2''  in %3: %4=%5. Current value is ''%6''.', Comment = '%1: Field Caption1,%2: Field Value1,%3: Table Caption,%4: Field Caption2,%5: Field Value2,%6: Field Value3';
         QtyPerUOMErr: Label '%1 must be equal to ''%2''  in %3: %4=%5, %6=%7, %8=%9. Current value is ''%10''.', Comment = '%1=Fieldname ,%2=FieldValue,%3=TableName,%4=FieldName,%5=FieldValue,%6=FieldName,%7=FieldValue,%8=FieldName,%9=FieldValue,%10=FieldValue';
-        JobNoErr: Label 'Job No. must be equal to ''''  in Purchase Line';
+        JobNoErr: Label 'Project No. must be equal to ''''  in Purchase Line';
         ValueMustMatchErr: Label '%1 must equal to %2.';
         EmptyValueErr: Label '%1 is empty in %2';
-        WrongTotalCostAmtErr: Label 'Total cost amount must be 0 in Posted Purchase Receipt %1.', Comment = '%1 = Document No. (e.g. "Total cost amount must be 0 in Posted Purchase Receipt 107031").';
-        JobPlanningLineQuantityErr: Label 'The Job Planning Line Quantity should not change.';
+        WrongTotalCostAmtErr: Label 'Total cost amount must  be 0 in Posted Purchase Receipt %1.', Comment = '%1 = Document No. (e.g. "Total cost amount must be 0 in Posted Purchase Receipt 107031").';
+        JobPlanningLineQuantityErr: Label 'The Project Planning Line Quantity should not change.';
 
     [Test]
     [Scope('OnPrem')]
@@ -62,7 +62,7 @@ codeunit 136302 "Job Consumption Purchase"
         Initialize();
         CreateJobWithJobTask(JobTask);
         CreatePurchaseDocumentWithJobTask(
-          PurchaseHeader, JobTask, PurchaseHeader."Document Type"::Invoice, PurchaseLine.Type::Item, CreateItem);
+          PurchaseHeader, JobTask, PurchaseHeader."Document Type"::Invoice, PurchaseLine.Type::Item, CreateItem());
 
         // [WHEN] Post the Purhcase Invoice.
         DocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
@@ -485,7 +485,7 @@ codeunit 136302 "Job Consumption Purchase"
         PurchaseHeader.Invoice := true;
         PurchaseHeader.Modify();
         Commit();
-        LibraryErrorMessage.TrapErrorMessages;
+        LibraryErrorMessage.TrapErrorMessages();
     end;
 
     [Test]
@@ -560,7 +560,7 @@ codeunit 136302 "Job Consumption Purchase"
         // [SCENARIO] Test integration of Jobs with posting of Purchase Order as Receive and Invoice with foreign currency on Purchase Order.
         // [SCENARIO] Check Receipt Lines, Item Ledger Entry, G/L Entry, Value Entry, Job Ledger Entry, Job Planning Line created.
 
-        PostJobPurchaseOrder('', FindFCY);
+        PostJobPurchaseOrder('', FindFCY());
     end;
 
     [Test]
@@ -570,7 +570,7 @@ codeunit 136302 "Job Consumption Purchase"
         // [SCENARIO] Test integration of Jobs with posting of Purchase Order as Receive and Invoice with foreign currency on Job.
         // [SCENARIO] Check Receipt Lines, Item Ledger Entry, Value Entry, Job Ledger Entry, Job Planning Line created.
 
-        PostJobPurchaseOrder(FindFCY, '');
+        PostJobPurchaseOrder(FindFCY(), '');
     end;
 
     [Test]
@@ -580,7 +580,7 @@ codeunit 136302 "Job Consumption Purchase"
         // [SCENARIO] Test integration of Jobs with posting of Purchase Order as Receive and Invoice with foreign currency on both Purchase Order and
         // [SCENARIO] Job. Check Receipt Lines, Item Ledger Entry, Value Entry, Job Ledger Entry, Job Planning Line created.
 
-        PostJobPurchaseOrder(FindFCY, FindFCY);
+        PostJobPurchaseOrder(FindFCY(), FindFCY());
     end;
 
     [Test]
@@ -598,7 +598,7 @@ codeunit 136302 "Job Consumption Purchase"
     begin
         // [SCENARIO] Test integration of Jobs with posting of Purchase Order as Receive and Invoice with foreign currency on Purchase Order.
         // [SCENARIO] Verifying "G/L Entry","Job Ledger Entry" values
-        PostJobPurchaseOrderWithTypeGLAccount('', FindFCY);
+        PostJobPurchaseOrderWithTypeGLAccount('', FindFCY());
     end;
 
     [Test]
@@ -607,7 +607,7 @@ codeunit 136302 "Job Consumption Purchase"
     begin
         // [SCENARIO] Test integration of Jobs with posting of Purchase Order as Receive and Invoice with foreign currency on Job.
         // [SCENARIO] Verifying "G/L Entry","Job Ledger Entry" values
-        PostJobPurchaseOrderWithTypeGLAccount(FindFCY, '');
+        PostJobPurchaseOrderWithTypeGLAccount(FindFCY(), '');
     end;
 
     [Test]
@@ -616,7 +616,7 @@ codeunit 136302 "Job Consumption Purchase"
     begin
         // [SCENARIO] Test integration of Jobs with posting of Purchase Order as Receive and Invoice with foreign currency on Purchase Order and
         // [SCENARIO] Verifying "G/L Entry","Job Ledger Entry" values
-        PostJobPurchaseOrderWithTypeGLAccount(FindFCY, FindFCY);
+        PostJobPurchaseOrderWithTypeGLAccount(FindFCY(), FindFCY());
     end;
 
     [Test]
@@ -634,7 +634,7 @@ codeunit 136302 "Job Consumption Purchase"
     begin
         // [SCENARIO] Test integration of Jobs with posting of Item Purchase Order as Receive and Invoice with foreign currency on Purchase Order.
         // [SCENARIO] Verifying "G/L Entry","Job Ledger Entry" values
-        PostJobPurchaseOrderWithTypeItem('', FindFCY);
+        PostJobPurchaseOrderWithTypeItem('', FindFCY());
     end;
 
     [Test]
@@ -643,7 +643,7 @@ codeunit 136302 "Job Consumption Purchase"
     begin
         // [SCENARIO] Test integration of Jobs with posting of Item Purchase Order as Receive and Invoice with foreign currency on Job.
         // [SCENARIO] Verifying "G/L Entry","Job Ledger Entry" values
-        PostJobPurchaseOrderWithTypeItem(FindFCY, '');
+        PostJobPurchaseOrderWithTypeItem(FindFCY(), '');
     end;
 
     [Test]
@@ -652,7 +652,7 @@ codeunit 136302 "Job Consumption Purchase"
     begin
         // [SCENARIO] Test integration of Jobs with posting of Item Purchase Order as Receive and Invoice with foreign currency on Purchase Order and
         // [SCENARIO] Verifying "G/L Entry","Job Ledger Entry" values
-        PostJobPurchaseOrderWithTypeItem(FindFCY, FindFCY);
+        PostJobPurchaseOrderWithTypeItem(FindFCY(), FindFCY());
     end;
 
     [Test]
@@ -699,7 +699,7 @@ codeunit 136302 "Job Consumption Purchase"
         CreateSerialTrackedItem(Item);
 
         // [GIVEN] Job Purchase Order with Unit Cost = "X"
-        CreateJobPurchaseOrderWithTracking(PurchaseHeader, PurchaseLine, Item."No.", FindFCY);
+        CreateJobPurchaseOrderWithTracking(PurchaseHeader, PurchaseLine, Item."No.", FindFCY());
 
         // [WHEN] Post Purchase Order as Receive and Invoice
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
@@ -840,7 +840,7 @@ codeunit 136302 "Job Consumption Purchase"
 
         // [GIVEN] Create Purchase Order and Job Plan. Update Job Planning Line with Type Resource.
         Initialize();
-        CreatePurchaseOrderAndJobPlanningLine(JobPlanningLine, CreateItem, LibraryRandom.RandDec(10, 2));  // Use Random for Quantity.
+        CreatePurchaseOrderAndJobPlanningLine(JobPlanningLine, CreateItem(), LibraryRandom.RandDec(10, 2));  // Use Random for Quantity.
         JobPlanningLine.Validate(Type, JobPlanningLine.Type::Resource);
         JobPlanningLine.Modify(true);
 
@@ -866,7 +866,7 @@ codeunit 136302 "Job Consumption Purchase"
 
         // [GIVEN] Create Purchase Order and Job Plan. Update Job Planning Line with blank Planning Date.
         Initialize();
-        CreatePurchaseOrderAndJobPlanningLine(JobPlanningLine, CreateItem, LibraryRandom.RandDec(10, 2));  // Use Random for Quantity.
+        CreatePurchaseOrderAndJobPlanningLine(JobPlanningLine, CreateItem(), LibraryRandom.RandDec(10, 2));  // Use Random for Quantity.
         UpdatePlanningDateOnJobPlanninglLine(JobPlanningLine, 0D);
 
         // [WHEN] Reserve Item from Job Planning Line.
@@ -887,7 +887,7 @@ codeunit 136302 "Job Consumption Purchase"
     begin
         // [SCENARIO] Verify reservation lines when Planning Date is earlier than Expected Receipt Date on Job Planning Line.
         Initialize();
-        JobOrderReservationWithPlanningDate(CreateItem, LibraryRandom.RandDec(10, 2), -1);  // Use Random for Quantity and take -1 as SignFactor.
+        JobOrderReservationWithPlanningDate(CreateItem(), LibraryRandom.RandDec(10, 2), -1);  // Use Random for Quantity and take -1 as SignFactor.
 
         // [THEN] Verify Reservation Line. Verification done in 'NoQuantityOnReservePageHandler'.
     end;
@@ -903,7 +903,7 @@ codeunit 136302 "Job Consumption Purchase"
     begin
         // [SCENARIO] Verify reservation lines when Planning Date is later than Expected Receipt Date on Job Planning Line.
         Initialize();
-        ItemNumber := CreateItem;  // Assign Item No. in global variable.
+        ItemNumber := CreateItem();  // Assign Item No. in global variable.
         OriginalQuantity := LibraryRandom.RandDec(10, 2);  // Assign Random Quantity in global variable.
         QuantityOnJobPlanningLine := OriginalQuantity;  // Assign in global variable.
         EnqueueVariables(ItemNumber, QuantityOnJobPlanningLine, OriginalQuantity);
@@ -937,7 +937,7 @@ codeunit 136302 "Job Consumption Purchase"
 
         // [GIVEN] Create Purchase Order and Job Plan. Update Job Planning Line with Random negative Quantity.
         Initialize();
-        CreatePurchaseOrderAndJobPlanningLine(JobPlanningLine, CreateItem, LibraryRandom.RandDec(10, 2));  // Use Random for Quantity.
+        CreatePurchaseOrderAndJobPlanningLine(JobPlanningLine, CreateItem(), LibraryRandom.RandDec(10, 2));  // Use Random for Quantity.
         UpdateJobPlanningLineQuantity(JobPlanningLine, -LibraryRandom.RandInt(10));
 
         // [WHEN] Reserve Item from Job Planning Line.
@@ -957,8 +957,8 @@ codeunit 136302 "Job Consumption Purchase"
 
         // [GIVEN] Create Purchase Order and Job Plan. Update Job Planning Line with new Location.
         Initialize();
-        CreatePurchaseOrderAndJobPlanningLine(JobPlanningLine, CreateItem, LibraryRandom.RandDec(10, 2));  // Use Random for Quantity.
-        JobPlanningLine.Validate("Location Code", FindLocation);
+        CreatePurchaseOrderAndJobPlanningLine(JobPlanningLine, CreateItem(), LibraryRandom.RandDec(10, 2));  // Use Random for Quantity.
+        JobPlanningLine.Validate("Location Code", FindLocation());
         JobPlanningLine.Modify(true);
 
         // [WHEN] Reserve Item from Job Planning Line.
@@ -1019,7 +1019,7 @@ codeunit 136302 "Job Consumption Purchase"
 
         // [GIVEN] Create Purchase Order and Job Plan.
         Initialize();
-        ItemNumber := CreateItem;  // Assign in global variable.
+        ItemNumber := CreateItem();  // Assign in global variable.
         OriginalQuantity := LibraryRandom.RandDec(10, 2);  // Assign Random Quantity in global variable.
         CreatePurchaseOrderAndJobPlanningLine(JobPlanningLine, ItemNumber, OriginalQuantity);
         QuantityOnJobPlanningLine := OriginalQuantity;  // Assign in global variable.
@@ -1130,7 +1130,7 @@ codeunit 136302 "Job Consumption Purchase"
 
         // [GIVEN] Create Purchase Order and Job Plan. Open Reservation page and Reserve Item from Job Planning Line in handler 'ReserveFromCurrentLineHandler'.
         Initialize();
-        ItemNumber := CreateItem;  // Assign in global variable.
+        ItemNumber := CreateItem();  // Assign in global variable.
         OriginalQuantity := LibraryRandom.RandDec(10, 2);  // Assign Random Quantity in global variable.
         CreatePurchaseOrderAndJobPlanningLine(JobPlanningLine, ItemNumber, OriginalQuantity);
         QuantityOnJobPlanningLine := OriginalQuantity;  // Assign in global variable.
@@ -1161,7 +1161,7 @@ codeunit 136302 "Job Consumption Purchase"
 
         // [GIVEN] Create Production Order and Job Plan. Open Reservation page and Reserve Item from Job Planning Line in handler 'ReserveFromCurrentLineHandler'.
         Initialize();
-        ItemNumber := CreateItem;  // Assign in global variable.
+        ItemNumber := CreateItem();  // Assign in global variable.
         OriginalQuantity := LibraryRandom.RandDec(100, 2);  // Assign Random Quantity in global variable.
         LibraryManufacturing.CreateProductionOrder(
           ProductionOrder, ProductionOrder.Status::Released, ProductionOrder."Source Type"::Item, ItemNumber, OriginalQuantity);
@@ -1448,7 +1448,7 @@ codeunit 136302 "Job Consumption Purchase"
         JobTask: Record "Job Task";
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
-        NoSeriesManagement: Codeunit NoSeriesManagement;
+        NoSeries: Codeunit "No. Series";
         DocumentNo: Code[20];
         GLAccountNo: Code[20];
     begin
@@ -1457,7 +1457,7 @@ codeunit 136302 "Job Consumption Purchase"
         // [GIVEN] Create Job and Job Task, Create Purchase Order, update Prepayment Account in General Posting Setup.
         Initialize();
         CreatePurchaseOrderWithPrepaymentAndJob(PurchaseHeader, PurchaseLine, GeneralPostingSetup, JobTask, GLAccountNo);
-        DocumentNo := NoSeriesManagement.GetNextNo(PurchaseHeader."Prepayment No. Series", WorkDate(), false);  // Store Prepayment Invoice No.
+        DocumentNo := NoSeries.PeekNextNo(PurchaseHeader."Prepayment No. Series");  // Store Prepayment Invoice No.
 
         // [WHEN] Post Prepayment Invoice.
         LibraryPurchase.PostPurchasePrepaymentInvoice(PurchaseHeader);
@@ -1585,7 +1585,7 @@ codeunit 136302 "Job Consumption Purchase"
         Initialize();
         CreateJobWithJobTask(JobTask);
         CreatePurchaseDocumentWithJobTask(
-          PurchaseHeader, JobTask, PurchaseHeader."Document Type"::Order, PurchaseLine.Type::Item, CreateItemWithMultipleUOM);
+          PurchaseHeader, JobTask, PurchaseHeader."Document Type"::Order, PurchaseLine.Type::Item, CreateItemWithMultipleUOM());
         UpdatePurchaseLine(PurchaseLine, PurchaseHeader);
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false);
         QtyPerUnitOfMeasure := 1 + LibraryRandom.RandInt(3);  // Using Random for Qty Per Unit Of Measure more than one.
@@ -1619,7 +1619,7 @@ codeunit 136302 "Job Consumption Purchase"
         Initialize();
         CreateJobWithJobTask(JobTask);
         CreatePurchaseDocumentWithJobTask(
-          PurchaseHeader, JobTask, PurchaseHeader."Document Type"::Order, PurchaseLine.Type::Item, CreateItemWithMultipleUOM);
+          PurchaseHeader, JobTask, PurchaseHeader."Document Type"::Order, PurchaseLine.Type::Item, CreateItemWithMultipleUOM());
         UpdatePurchaseLine(PurchaseLine, PurchaseHeader);
         LibraryJob.CopyPurchaseLines(PurchaseLine, TempPurchaseLine);
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false);
@@ -1650,7 +1650,7 @@ codeunit 136302 "Job Consumption Purchase"
         LibraryJob.CreateJobTask(Job, JobTask);
 
         // [WHEN] Create Job Planning Line with Item which has Reserve as Optional and Usage Link.
-        CreateJobPlanningLine(JobPlanningLine, JobTask, JobPlanningLine.Type::Item, CreateItem, LibraryRandom.RandDec(10, 2), true);  // Use Random for Quantity.
+        CreateJobPlanningLine(JobPlanningLine, JobTask, JobPlanningLine.Type::Item, CreateItem(), LibraryRandom.RandDec(10, 2), true);  // Use Random for Quantity.
 
         // [THEN] Verify Reserve field on Job Planning line.
         JobPlanningLine.TestField(Reserve, Job.Reserve);
@@ -1732,13 +1732,13 @@ codeunit 136302 "Job Consumption Purchase"
 
         // [GIVEN] Find a Currency and update it on Job Card.
         Initialize();
-        CurrencyCode := FindFCY;
+        CurrencyCode := FindFCY();
         CreateJobWithJobTask(JobTask);
         UpdateCurrencyOnJob(JobTask."Job No.", CurrencyCode);
 
         // [WHEN] Create Purchase Order with Job.
         CreatePurchaseDocumentWithJobTask(
-          PurchaseHeader, JobTask, PurchaseHeader."Document Type"::Order, PurchaseLine.Type::Item, CreateItem);
+          PurchaseHeader, JobTask, PurchaseHeader."Document Type"::Order, PurchaseLine.Type::Item, CreateItem());
 
         // [THEN] Verify that Job Currency Code and Job Currency Factor updated correctly on Purchase Line.
         GetPurchaseLines(PurchaseHeader, PurchaseLine);
@@ -1763,16 +1763,16 @@ codeunit 136302 "Job Consumption Purchase"
 
         // [GIVEN] Attach Currency on Job, Create Purchase Order with Job, Update General Posting Setup, Post Purchase Order as Receive and Remove Currency from Job.
         Initialize();
-        CurrencyCode := FindFCY;
+        CurrencyCode := FindFCY();
         CreateJobWithJobTask(JobTask);
         UpdateCurrencyOnJob(JobTask."Job No.", CurrencyCode);
         CreatePurchaseDocumentWithJobTask(
-          PurchaseHeader, JobTask, PurchaseHeader."Document Type"::Order, PurchaseLine.Type::Item, CreateItem);
+          PurchaseHeader, JobTask, PurchaseHeader."Document Type"::Order, PurchaseLine.Type::Item, CreateItem());
         GetPurchaseLines(PurchaseHeader, PurchaseLine);
         TotalCost := Round(PurchaseLine."Direct Unit Cost" * PurchaseLine.Quantity);
         GeneralPostingSetup.Get(PurchaseLine."Gen. Bus. Posting Group", PurchaseLine."Gen. Prod. Posting Group");
         UpdateAdjustmentAccounts(
-          PurchaseLine."Gen. Bus. Posting Group", PurchaseLine."Gen. Prod. Posting Group", LibraryERM.CreateGLAccountNo);
+          PurchaseLine."Gen. Bus. Posting Group", PurchaseLine."Gen. Prod. Posting Group", LibraryERM.CreateGLAccountNo());
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false);  // Post Purchase Order as Receive.
         UpdateCurrencyOnJob(JobTask."Job No.", '');  // Update the Currency Code as Blank on Job.
 
@@ -1863,7 +1863,7 @@ codeunit 136302 "Job Consumption Purchase"
         JobPlanningLine.Validate(Quantity, LibraryRandom.RandInt(10));
         JobPlanningLine.Modify(true);
 
-        LibraryJob.CreateJobJournalLineForPlan(JobPlanningLine, LibraryJob.UsageLineTypeBlank,
+        LibraryJob.CreateJobJournalLineForPlan(JobPlanningLine, LibraryJob.UsageLineTypeBlank(),
           LibraryRandom.RandDecInRange(10, 20, 2), JobJournalLine);
         LibraryJob.PostJobJournal(JobJournalLine);
 
@@ -2071,7 +2071,7 @@ codeunit 136302 "Job Consumption Purchase"
         CreateJobWithJobTask(JobTask);
         // [GIVEN] Purchase Invoice (FCY) with G/L Account line and Job/Job Task defined
         CreatePurchaseHeaderWithGLAccountLineAttachedToJobTask(
-          PurchaseHeader, PurchaseHeader."Document Type"::Invoice, JobTask, FindFCY, 1, TotalUnitCostLCY, TotalUnitCost);
+          PurchaseHeader, PurchaseHeader."Document Type"::Invoice, JobTask, FindFCY(), 1, TotalUnitCostLCY, TotalUnitCost);
         // [WHEN] User Posts Purchase Invoice
         DocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
         // [THEN] Job Ledger Entries Total Unit Cost/(LCY) are calculated without including VAT Amount
@@ -2091,10 +2091,10 @@ codeunit 136302 "Job Consumption Purchase"
         // [SCENARIO 120877] Verify Total Unit Cost/(LCY) in Job LE when Purch. Doc. Price Incl. VAT = TRUE,  Job - FCY/Incoice - FCY
         // [GIVEN] Job/Job Task with Currency defined
         Initialize();
-        CreateJobWithCurrecy(JobTask, FindFCY);
+        CreateJobWithCurrecy(JobTask, FindFCY());
         // [GIVEN] Purchase Order (FCY) with G/L Account line and Job/Job Task defined
         CreatePurchaseHeaderWithGLAccountLineAttachedToJobTask(
-          PurchaseHeader, PurchaseHeader."Document Type"::Invoice, JobTask, FindFCY, 1, TotalUnitCostLCY, TotalUnitCost);
+          PurchaseHeader, PurchaseHeader."Document Type"::Invoice, JobTask, FindFCY(), 1, TotalUnitCostLCY, TotalUnitCost);
         // [WHEN] User Posts Purchase Invoice
         DocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
         // [THEN] Job Ledger Entries Total Unit Cost/(LCY) are calculated without including VAT Amount
@@ -2114,7 +2114,7 @@ codeunit 136302 "Job Consumption Purchase"
         // [SCENARIO 120877] Verify Total Unit Cost/(LCY) in Job LE when Purch. Doc. Price Incl. VAT = TRUE,  Job - FCY/Incoice - LCY
         // [GIVEN] Job/Job Task with Currency defined
         Initialize();
-        CreateJobWithCurrecy(JobTask, FindFCY);
+        CreateJobWithCurrecy(JobTask, FindFCY());
         // [GIVEN] Purchase Order (LCY) with G/L Account line and Job/Job Task defined
         CreatePurchaseHeaderWithGLAccountLineAttachedToJobTask(
           PurchaseHeader, PurchaseHeader."Document Type"::Invoice, JobTask, '', 1, TotalUnitCostLCY, TotalUnitCost);
@@ -2198,7 +2198,7 @@ codeunit 136302 "Job Consumption Purchase"
         CreateJobWithJobTask(JobTask);
         // [GIVEN] Purchase Credit Memo (FCY) with G/L Account line and Job/Job Task defined
         CreatePurchaseHeaderWithGLAccountLineAttachedToJobTask(
-          PurchaseHeader, PurchaseHeader."Document Type"::"Return Order", JobTask, FindFCY,
+          PurchaseHeader, PurchaseHeader."Document Type"::"Return Order", JobTask, FindFCY(),
           1 / LibraryRandom.RandIntInRange(3, 5), TotalUnitCostLCY, TotalUnitCost);
         // [WHEN] User Posts Purchase Credit Memo
         DocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
@@ -2222,10 +2222,10 @@ codeunit 136302 "Job Consumption Purchase"
         // [SCENARIO 364512] Verify negative Total Unit Cost/(LCY) in Job Ledger Entry when Posting Purch. Cr. Memo with FCY and Job with FCY
         // [GIVEN] Job/Job Task with Currency defined
         Initialize();
-        CreateJobWithCurrecy(JobTask, FindFCY);
+        CreateJobWithCurrecy(JobTask, FindFCY());
         // [GIVEN] Purchase Credit Memo (FCY) with G/L Account line and Job/Job Task defined
         CreatePurchaseHeaderWithGLAccountLineAttachedToJobTask(
-          PurchaseHeader, PurchaseHeader."Document Type"::"Return Order", JobTask, FindFCY,
+          PurchaseHeader, PurchaseHeader."Document Type"::"Return Order", JobTask, FindFCY(),
           1 / LibraryRandom.RandIntInRange(3, 5), TotalUnitCostLCY, TotalUnitCost);
         // [WHEN] User Posts Purchase Credit Memo
         DocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
@@ -2249,7 +2249,7 @@ codeunit 136302 "Job Consumption Purchase"
         // [SCENARIO 364512] Verify negative Total Unit Cost/(LCY) in Job Ledger Entry when Posting Purch. Cr. Memo with LCY and Job with FCY
         // [GIVEN] Job/Job Task with Currency defined
         Initialize();
-        CreateJobWithCurrecy(JobTask, FindFCY);
+        CreateJobWithCurrecy(JobTask, FindFCY());
         // [GIVEN] Purchase Credit Memo (LCY) with G/L Account line and Job/Job Task defined
         CreatePurchaseHeaderWithGLAccountLineAttachedToJobTask(
           PurchaseHeader, PurchaseHeader."Document Type"::"Return Order", JobTask, '',
@@ -2515,7 +2515,7 @@ codeunit 136302 "Job Consumption Purchase"
         PostPositiveAdjustment(Item."No.", Quantity);
 
         // [GIVEN] Job Journal Line with Job "X", Item "Y" and Quantity = 10
-        LibraryJob.CreateJobJournalLineForType(LibraryJob.UsageLineTypeBoth, JobJournalLine.Type::Item, JobTask, JobJournalLine);
+        LibraryJob.CreateJobJournalLineForType(LibraryJob.UsageLineTypeBoth(), JobJournalLine.Type::Item, JobTask, JobJournalLine);
         JobJournalLine.Validate("No.", Item."No.");
         JobJournalLine.Validate(Quantity, Quantity);
         JobJournalLine.Modify(true);
@@ -2772,8 +2772,8 @@ codeunit 136302 "Job Consumption Purchase"
         Initialize();
 
         // [GIVEN] Purchase Receipt Line that was Undone
-        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo);
-        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, LibraryInventory.CreateItemNo, 1);
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo());
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, LibraryInventory.CreateItemNo(), 1);
         PurchaseReceiptNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false);
         PurchaseReceiptLineNo := FindPurchRcptLineNo(PurchaseReceiptNo);
         UndoPurchRcptLine(PurchaseReceiptNo, PurchaseReceiptLineNo);
@@ -2853,7 +2853,7 @@ codeunit 136302 "Job Consumption Purchase"
         LibraryPurchase.CreateVendor(Vendor);
         CreateJobWithJobTask(JobTask);
         CreatePurchaseHeader(PurchaseHeader."Document Type"::Order, Vendor."No.", PurchaseHeader);
-        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, LibraryInventory.CreateItemNo, -Qty);
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, LibraryInventory.CreateItemNo(), -Qty);
         PurchaseLine.Validate("Direct Unit Cost", UnitCost);
         PurchaseLine.Validate("Job No.", JobTask."Job No.");
         PurchaseLine.Validate("Job Task No.", JobTask."Job Task No.");
@@ -2898,10 +2898,10 @@ codeunit 136302 "Job Consumption Purchase"
         // [GIVEN] Purchase invoice with two lines having the same G/L Account and job but different dimensions
         LibraryJob.CreateJob(Job);
         LibraryJob.CreateJobTask(Job, JobTask);
-        GLAccountNo := LibraryERM.CreateGLAccountWithPurchSetup;
+        GLAccountNo := LibraryERM.CreateGLAccountWithPurchSetup();
 
         LibraryPurchase.CreatePurchHeader(
-          PurchaseHeader, PurchaseHeader."Document Type"::Invoice, LibraryPurchase.CreateVendorNo);
+          PurchaseHeader, PurchaseHeader."Document Type"::Invoice, LibraryPurchase.CreateVendorNo());
         CreatePurchaseLineWithGLAccDimAndJob(PurchaseHeader, JobTask, GLAccountNo);
         CreatePurchaseLineWithGLAccDimAndJob(PurchaseHeader, JobTask, GLAccountNo);
 
@@ -3261,7 +3261,7 @@ codeunit 136302 "Job Consumption Purchase"
 
         // [GIVEN] Create Job, Job Task, and attach Currency on Job
         CreateJobWithJobTask(JobTask);
-        UpdateCurrencyOnJob(JobTask."Job No.", FindFCY);
+        UpdateCurrencyOnJob(JobTask."Job No.", FindFCY());
 
         // [GIVEN] Create Purchase Invoice with Job
         CreatePurchaseDocumentWithJobTask(
@@ -3269,7 +3269,7 @@ codeunit 136302 "Job Consumption Purchase"
             JobTask,
             PurchaseHeader."Document Type"::Invoice,
             PurchaseLine.Type::Item,
-            CreateItem);
+            CreateItem());
 
         // [THEN] Update Purchase Line Item Direct Unit Cost and calculate Total Cost expected
         UpdatePurchaseLineDirectUnitCost(PurchaseHeader);
@@ -3363,7 +3363,7 @@ codeunit 136302 "Job Consumption Purchase"
 
     local procedure Initialize()
     var
-#if not CLEAN21
+#if not CLEAN23
         PurchasePrice: Record "Purchase Price";
         SalesPrice: Record "Sales Price";
 #endif
@@ -3377,15 +3377,15 @@ codeunit 136302 "Job Consumption Purchase"
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"Job Consumption Purchase");
 
-        LibrarySales.SetCreditWarningsToNoWarnings;
+        LibrarySales.SetCreditWarningsToNoWarnings();
         LibraryERMCountryData.CreateVATData();
         LibraryERMCountryData.UpdateGeneralLedgerSetup();
         LibraryERMCountryData.UpdatePrepaymentAccounts();
         LibraryERMCountryData.CreateGeneralPostingSetupData();
         LibraryERMCountryData.UpdateGeneralPostingSetup();
         LibraryERMCountryData.UpdatePurchasesPayablesSetup();
-        LibraryInventory.UpdateGenProdPostingSetup;
-#if not CLEAN21
+        LibraryInventory.UpdateGenProdPostingSetup();
+#if not CLEAN23
         // Removing special prices
         PurchasePrice.DeleteAll(true);
         SalesPrice.DeleteAll(true);
@@ -3606,7 +3606,7 @@ codeunit 136302 "Job Consumption Purchase"
     begin
         with JobPlanningLine do begin
             CreateJobPlanningLine(JobPlanningLine, JobTask,
-              Type::Item, CreateItem, NewQuantity, true);
+              Type::Item, CreateItem(), NewQuantity, true);
             Validate("Document No.", DocNo);
             Validate("Unit Cost", LibraryRandom.RandDec(100, 2));
             Modify(true);
@@ -3617,7 +3617,7 @@ codeunit 136302 "Job Consumption Purchase"
     var
         JobJnlBatch: Record "Job Journal Batch";
     begin
-        LibraryJob.CreateJobJournalLineForPlan(JobPlanningLine, LibraryJob.UsageLineTypeBoth, 1, JobJournalLine);
+        LibraryJob.CreateJobJournalLineForPlan(JobPlanningLine, LibraryJob.UsageLineTypeBoth(), 1, JobJournalLine);
         JobJournalLine.Validate("Document No.", JobPlanningLine."Document No.");
         JobJournalLine.Modify(true);
         // Disable "No. Series" in order to post Job Journal Line with specific "Document No."
@@ -3712,7 +3712,7 @@ codeunit 136302 "Job Consumption Purchase"
         LibraryPurchase.CreateVendor(Vendor);
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, Vendor."No.");
         LibraryPurchase.CreatePurchaseLine(
-          PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, CreateItem, LibraryRandom.RandDec(100, 2));
+          PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, CreateItem(), LibraryRandom.RandDec(100, 2));
         PurchaseLine.Validate("Job No.", JobTask."Job No.");
         PurchaseLine.Modify(true);
         ShortcutDimension1Code := PurchaseLine."Shortcut Dimension 1 Code";
@@ -3727,7 +3727,7 @@ codeunit 136302 "Job Consumption Purchase"
         LibraryPurchase.CreateVendor(Vendor);
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, Vendor."No.");
         LibraryPurchase.CreatePurchaseLine(
-          PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, CreateItem, LibraryRandom.RandDec(100, 2));
+          PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, CreateItem(), LibraryRandom.RandDec(100, 2));
         PurchaseLine.Validate("Job No.", JobTask."Job No.");
         PurchaseLine.Modify(true);
         ShortcutDimension1Code := PurchaseLine."Shortcut Dimension 1 Code";
@@ -3807,7 +3807,7 @@ codeunit 136302 "Job Consumption Purchase"
         JobTask: Record "Job Task";
     begin
         CreateJobWithJobTask(JobTask);
-        CreatePurchaseHeader(PurchHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo, PurchHeader);
+        CreatePurchaseHeader(PurchHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo(), PurchHeader);
         CreateItemPurchaseLine(PurchHeader);
         AttachJobTaskToPurchaseDoc(JobTask, PurchHeader);
         UpdatePurchaseLineQuantities(PurchHeader);
@@ -3833,7 +3833,7 @@ codeunit 136302 "Job Consumption Purchase"
     begin
         CreateJobWithJobTask(JobTask);
         CreatePurchaseDocumentWithJobTask(
-          PurchaseHeader, JobTask, DocumentType, PurchaseLine.Type::Item, CreateItem);
+          PurchaseHeader, JobTask, DocumentType, PurchaseLine.Type::Item, CreateItem());
         GetPurchaseLines(PurchaseHeader, PurchaseLine);
         PurchaseLine.Validate("Location Code", LocationCode);
         PurchaseLine.Validate(Quantity, SignFactor * PurchaseLine.Quantity);
@@ -3847,7 +3847,7 @@ codeunit 136302 "Job Consumption Purchase"
         CreatePurchaseHeader(PurchaseHeader."Document Type"::Order, VendorNo, PurchaseHeader);
         PurchaseHeader.Validate("Prepayment %", LibraryRandom.RandDec(10, 2));  // Take Random Value.
         PurchaseHeader.Modify(true);
-        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, CreateItem, LibraryRandom.RandDec(10, 2));
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, CreateItem(), LibraryRandom.RandDec(10, 2));
         PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandDec(100, 2));
         PurchaseLine.Modify(true);
         AttachJobToPurchaseDocument(JobTask, PurchaseHeader, 0);
@@ -3871,7 +3871,7 @@ codeunit 136302 "Job Consumption Purchase"
 
     local procedure CreateJobPurchaseOrderWithItem(var PurchHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; JobTask: Record "Job Task"; ItemNo: Code[20])
     begin
-        CreatePurchaseHeader(PurchHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo, PurchHeader);
+        CreatePurchaseHeader(PurchHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo(), PurchHeader);
         LibraryPurchase.CreatePurchaseLine(
           PurchaseLine, PurchHeader, PurchaseLine.Type::Item, ItemNo, LibraryRandom.RandInt(100));
         PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandDec(100, 2));
@@ -4021,11 +4021,11 @@ codeunit 136302 "Job Consumption Purchase"
                       CurrencyExchRate.ExchangeRate(PurchaseHeader."Posting Date", CurrencyCode)),
                     Currency."Unit-Amount Rounding Precision");
             end else begin
-                AmountRoundingPrecision := LibraryERM.GetAmountRoundingPrecision;
+                AmountRoundingPrecision := LibraryERM.GetAmountRoundingPrecision();
                 JobUnitCost := PurchaseLine."Unit Cost (LCY)"
             end;
             JobTotalCostLCY :=
-              PurchaseLine."Qty. to Invoice" * Round(PurchaseLine."Unit Cost (LCY)", LibraryERM.GetUnitAmountRoundingPrecision);
+              PurchaseLine."Qty. to Invoice" * Round(PurchaseLine."Unit Cost (LCY)", LibraryERM.GetUnitAmountRoundingPrecision());
             TotalCostLCY += Round(JobTotalCostLCY, AmountRoundingPrecision);
             TotalCost += Round(JobUnitCost * PurchaseLine."Qty. to Invoice", AmountRoundingPrecision);
 
@@ -4052,9 +4052,9 @@ codeunit 136302 "Job Consumption Purchase"
         PurchaseLine.FindSet();
         repeat
             if CurrencyFactor <> 0 then
-                Total += Round(PurchaseLine."Line Amount" / CurrencyFactor, LibraryERM.GetAmountRoundingPrecision)
+                Total += Round(PurchaseLine."Line Amount" / CurrencyFactor, LibraryERM.GetAmountRoundingPrecision())
             else
-                Total += Round(PurchaseLine.Quantity * PurchaseLine."Direct Unit Cost", LibraryERM.GetAmountRoundingPrecision);
+                Total += Round(PurchaseLine.Quantity * PurchaseLine."Direct Unit Cost", LibraryERM.GetAmountRoundingPrecision());
         until PurchaseLine.Next() = 0;
     end;
 
@@ -4093,7 +4093,7 @@ codeunit 136302 "Job Consumption Purchase"
         FindVATPostingSetup(VATPostingSetup);
         LibraryERM.FindGeneralPostingSetup(GeneralPostingSetup);
         for Counter := 1 to 4 do begin
-            LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, CreateItem, LibraryRandom.RandInt(10));
+            LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, CreateItem(), LibraryRandom.RandInt(10));
             PurchaseLine.Validate(Description, Format(LibraryUtility.GenerateGUID()));
             PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandInt(100) / 10);
             PurchaseLine.Modify(true);
@@ -4128,7 +4128,7 @@ codeunit 136302 "Job Consumption Purchase"
     begin
         LibraryPurchase.CreatePurchaseLine(
           PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item,
-          CreateItem, LibraryRandom.RandDec(15, 2));
+          CreateItem(), LibraryRandom.RandDec(15, 2));
         PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandDec(15, 2));
         PurchaseLine.Modify(true);
     end;
@@ -4181,12 +4181,12 @@ codeunit 136302 "Job Consumption Purchase"
             if CurrentGroupNo in [3, 4] then
                 VATRate := 0;
             VATPostingSetupArray[CurrentGroupNo].Validate("VAT %", VATRate);
-            VATPostingSetupArray[CurrentGroupNo].Validate("Sales VAT Account", LibraryERM.CreateGLAccountNo);
-            VATPostingSetupArray[CurrentGroupNo].Validate("Purchase VAT Account", LibraryERM.CreateGLAccountNo);
+            VATPostingSetupArray[CurrentGroupNo].Validate("Sales VAT Account", LibraryERM.CreateGLAccountNo());
+            VATPostingSetupArray[CurrentGroupNo].Validate("Purchase VAT Account", LibraryERM.CreateGLAccountNo());
             VATPostingSetupArray[CurrentGroupNo].Validate(
               "VAT Identifier",
               CopyStr(
-                LibraryERM.CreateRandomVATIdentifierAndGetCode, 1, MaxStrLen(VATPostingSetupArray[CurrentGroupNo]."VAT Identifier")));
+                LibraryERM.CreateRandomVATIdentifierAndGetCode(), 1, MaxStrLen(VATPostingSetupArray[CurrentGroupNo]."VAT Identifier")));
             VATPostingSetupArray[CurrentGroupNo].Modify(true);
         end;
     end;
@@ -4267,11 +4267,11 @@ codeunit 136302 "Job Consumption Purchase"
         Vendor.Get(LibraryPurchase.CreateVendorWithVATBusPostingGroup(VATBusPostingGroupCode));
         LibraryERM.CreateGeneralPostingSetup(GeneralPostingSetup, Vendor."Gen. Bus. Posting Group", GenProdPostingGroupCode);
         with GeneralPostingSetup do begin
-            Validate("Direct Cost Applied Account", LibraryERM.CreateGLAccountNo);
-            Validate("Inventory Adjmt. Account", LibraryERM.CreateGLAccountNo);
-            Validate("COGS Account", LibraryERM.CreateGLAccountNo);
-            Validate("Sales Account", LibraryERM.CreateGLAccountNo);
-            Validate("Purch. Account", LibraryERM.CreateGLAccountNo);
+            Validate("Direct Cost Applied Account", LibraryERM.CreateGLAccountNo());
+            Validate("Inventory Adjmt. Account", LibraryERM.CreateGLAccountNo());
+            Validate("COGS Account", LibraryERM.CreateGLAccountNo());
+            Validate("Sales Account", LibraryERM.CreateGLAccountNo());
+            Validate("Purch. Account", LibraryERM.CreateGLAccountNo());
             Modify(true);
         end;
         exit(Vendor."No.");
@@ -4293,7 +4293,7 @@ codeunit 136302 "Job Consumption Purchase"
 
         LibraryPurchase.CreatePurchaseLine(
           PurchaseLine, PurchaseHeader, PurchaseLine.Type::"Charge (Item)",
-          LibraryInventory.CreateItemChargeNo, LibraryRandom.RandDec(10, 2));  // Used Random value for Quantity.
+          LibraryInventory.CreateItemChargeNo(), LibraryRandom.RandDec(10, 2));  // Used Random value for Quantity.
         PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandDec(100, 2));  // Used Random value for Direct Unit Cost.
         PurchaseLine.Validate("VAT Prod. Posting Group", PurchRcptLine."VAT Prod. Posting Group");
         PurchaseLine.Modify(true);
@@ -4340,7 +4340,7 @@ codeunit 136302 "Job Consumption Purchase"
             Validate("Accept Action Message", true);
             Modify(true);
         end;
-        LibraryPlanning.CarryOutReqWksh(RequisitionLine, WorkDate(), WorkDate, WorkDate(), WorkDate, '');
+        LibraryPlanning.CarryOutReqWksh(RequisitionLine, WorkDate(), WorkDate(), WorkDate(), WorkDate(), '');
     end;
 
     local procedure SetupDocumentDimPurchaseLine(PurchaseLine: Record "Purchase Line")
@@ -4435,7 +4435,7 @@ codeunit 136302 "Job Consumption Purchase"
             end;
     end;
 
-    local procedure SelectRequisitionTemplate(var ReqWkshTemplate: Record "Req. Wksh. Template"; Type: Option)
+    local procedure SelectRequisitionTemplate(var ReqWkshTemplate: Record "Req. Wksh. Template"; Type: Enum "Req. Worksheet Template Type")
     begin
         ReqWkshTemplate.SetRange(Type, Type);
         ReqWkshTemplate.SetRange(Recurring, false);
@@ -4596,29 +4596,29 @@ codeunit 136302 "Job Consumption Purchase"
     var
         JobPlanningLines: TestPage "Job Planning Lines";
     begin
-        JobPlanningLines.OpenView;
+        JobPlanningLines.OpenView();
         JobPlanningLines.FILTER.SetFilter("Job No.", JobNo);
         JobPlanningLines.FILTER.SetFilter("Job Task No.", JobTaskNo);
-        JobPlanningLines.DemandOverview.Invoke;
+        JobPlanningLines.DemandOverview.Invoke();
     end;
 
     local procedure OpenReservationPage(JobNo: Code[20]; JobTaskNo: Code[20])
     var
         JobPlanningLines: TestPage "Job Planning Lines";
     begin
-        JobPlanningLines.OpenView;
+        JobPlanningLines.OpenView();
         JobPlanningLines.FILTER.SetFilter("Job No.", JobNo);
         JobPlanningLines.FILTER.SetFilter("Job Task No.", JobTaskNo);
-        JobPlanningLines.Reserve.Invoke;
+        JobPlanningLines.Reserve.Invoke();
     end;
 
     local procedure OpenReservationPageFromPurchaseOrder(No: Code[20])
     var
         PurchaseOrder: TestPage "Purchase Order";
     begin
-        PurchaseOrder.OpenView;
+        PurchaseOrder.OpenView();
         PurchaseOrder.FILTER.SetFilter("No.", No);
-        PurchaseOrder.PurchLines.Reserve.Invoke;
+        PurchaseOrder.PurchLines.Reserve.Invoke();
     end;
 
     local procedure PostPartialPurchaseOrder(var PurchaseLine: Record "Purchase Line"; PurchaseHeader: Record "Purchase Header")
@@ -4670,7 +4670,7 @@ codeunit 136302 "Job Consumption Purchase"
     begin
         LibraryInventory.SelectItemJournalTemplateName(ItemJournalTemplate, ItemJournalTemplate.Type::Item);
         LibraryInventory.SelectItemJournalBatchName(ItemJournalBatch, ItemJournalTemplate.Type::Item, ItemJournalTemplate.Name);
-        ItemJournalBatch.Validate("No. Series", LibraryUtility.GetGlobalNoSeriesCode);
+        ItemJournalBatch.Validate("No. Series", LibraryUtility.GetGlobalNoSeriesCode());
         ItemJournalBatch.Modify(true);
         LibraryInventory.ClearItemJournal(ItemJournalTemplate, ItemJournalBatch);
     end;
@@ -4685,7 +4685,7 @@ codeunit 136302 "Job Consumption Purchase"
         LibraryPurchase.CreateVendor(Vendor);
         CreateJobWithJobTask(JobTask);
         CreatePurchaseHeader(PurchaseHeader."Document Type"::Order, Vendor."No.", PurchaseHeader);
-        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, CreateItem, LibraryRandom.RandDec(10, 2));
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, CreateItem(), LibraryRandom.RandDec(10, 2));
         PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandDec(100, 2));
         PurchaseLine.Modify(true);
         AttachJobToPurchaseDocument(JobTask, PurchaseHeader, 0);
@@ -4752,7 +4752,7 @@ codeunit 136302 "Job Consumption Purchase"
             "Entry No." := LibraryUtility.GetNewRecNo(ValueEntry, FieldNo("Entry No."));
             "Item Ledger Entry Type" := "Item Ledger Entry Type"::"Negative Adjmt.";
             "Entry Type" := "Entry Type"::Rounding;
-            "Item No." := CreateItem;
+            "Item No." := CreateItem();
             "Document No." := DocNo;
             "Job No." := JobTask."Job No.";
             "Job Task No." := JobTask."Job Task No.";
@@ -4771,7 +4771,7 @@ codeunit 136302 "Job Consumption Purchase"
         GeneralPostingSetup.Modify(true);
     end;
 
-    local procedure UpdateAutomaticCostPosting(AutomaticCostPosting: Boolean; AutomaticCostAdjustment: Option)
+    local procedure UpdateAutomaticCostPosting(AutomaticCostPosting: Boolean; AutomaticCostAdjustment: Enum "Automatic Cost Adjustment Type")
     var
         InventorySetup: Record "Inventory Setup";
     begin
@@ -4985,24 +4985,24 @@ codeunit 136302 "Job Consumption Purchase"
             FindSet();
             repeat
                 Assert.AreNearlyEqual(
-                  DirectUnitCost, "Total Cost", LibraryERM.GetAmountRoundingPrecision,
+                  DirectUnitCost, "Total Cost", LibraryERM.GetAmountRoundingPrecision(),
                   StrSubstNo(ValueMustMatchErr, FieldCaption("Total Cost"), DirectUnitCost));
                 Assert.AreNearlyEqual(
-                  UnitPriceLCY, "Total Price (LCY)", LibraryERM.GetAmountRoundingPrecision,
+                  UnitPriceLCY, "Total Price (LCY)", LibraryERM.GetAmountRoundingPrecision(),
                   StrSubstNo(ValueMustMatchErr, FieldCaption("Total Price (LCY)"), UnitPriceLCY));
                 Assert.AreNearlyEqual(
-                  DirectUnitCostLCY, "Total Cost (LCY)", LibraryERM.GetAmountRoundingPrecision,
+                  DirectUnitCostLCY, "Total Cost (LCY)", LibraryERM.GetAmountRoundingPrecision(),
                   StrSubstNo(ValueMustMatchErr, FieldCaption("Total Cost (LCY)"), DirectUnitCostLCY));
                 Assert.AreNearlyEqual(
-                  UnitPrice, "Total Price", LibraryERM.GetAmountRoundingPrecision,
+                  UnitPrice, "Total Price", LibraryERM.GetAmountRoundingPrecision(),
                   StrSubstNo(ValueMustMatchErr, FieldCaption("Total Price"), UnitPrice));
                 Assert.AreNearlyEqual(
-                  UnitPrice, "Line Amount", LibraryERM.GetAmountRoundingPrecision,
+                  UnitPrice, "Line Amount", LibraryERM.GetAmountRoundingPrecision(),
                   StrSubstNo(ValueMustMatchErr, FieldCaption("Line Amount"), UnitPrice));
                 Assert.AreNearlyEqual(
-                  UnitPriceLCY, "Line Amount (LCY)", LibraryERM.GetAmountRoundingPrecision,
+                  UnitPriceLCY, "Line Amount (LCY)", LibraryERM.GetAmountRoundingPrecision(),
                   StrSubstNo(ValueMustMatchErr, FieldCaption("Line Amount (LCY)"), UnitPriceLCY));
-            until Next = 0;
+            until Next() = 0;
         end;
     end;
 
@@ -5146,7 +5146,7 @@ codeunit 136302 "Job Consumption Purchase"
             FindSet();
             repeat
                 TestField("Unit of Measure Code", Item."Base Unit of Measure");
-            until Next = 0;
+            until Next() = 0;
         end;
     end;
 
@@ -5164,7 +5164,7 @@ codeunit 136302 "Job Consumption Purchase"
                 TestField("Cost Amount (Expected)", 0);
                 TestField("Cost Amount (Actual)", ExpectedActualCost * GetILEAmountSign(ItemLedgerEntry));
                 VerifyValueEntry("Entry Type", "Document Type", ItemNo, "Document No.", "Job No.", "Cost Amount (Actual)", 0);
-            until Next = 0;
+            until Next() = 0;
         end;
     end;
 
@@ -5274,7 +5274,7 @@ codeunit 136302 "Job Consumption Purchase"
         repeat
             TotalGLAmount += GLEntry.Amount + GLEntry."VAT Amount";
         until GLEntry.Next() = 0;
-        Assert.AreNearlyEqual(Amount, TotalGLAmount, LibraryERM.GetAmountRoundingPrecision,
+        Assert.AreNearlyEqual(Amount, TotalGLAmount, LibraryERM.GetAmountRoundingPrecision(),
           StrSubstNo(FieldErr, GLEntry.FieldCaption(Amount), Amount, GLEntry.TableCaption()));
     end;
 
@@ -5432,7 +5432,7 @@ codeunit 136302 "Job Consumption Purchase"
             SetRange("Order No.", PurchLine."Document No.");
             CalcSums(
               "Job Line Amount", "Job Line Amount (LCY)", "Job Total Price", "Job Total Price (LCY)");
-            AmountRoundingPrecision := LibraryERM.GetAmountRoundingPrecision;
+            AmountRoundingPrecision := LibraryERM.GetAmountRoundingPrecision();
             Assert.AreNearlyEqual(
               "Job Line Amount", PurchLine."Job Line Amount", AmountRoundingPrecision, FieldCaption("Job Line Amount"));
             Assert.AreNearlyEqual(
@@ -5599,15 +5599,15 @@ codeunit 136302 "Job Consumption Purchase"
     [Scope('OnPrem')]
     procedure PageHandler(var PostedPurchaseDocumentLines: TestPage "Posted Purchase Document Lines")
     begin
-        PostedPurchaseDocumentLines.OK.Invoke;
+        PostedPurchaseDocumentLines.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure ItemChargeAssignmentHandler(var ItemChargeAssignmentPurch: TestPage "Item Charge Assignment (Purch)")
     begin
-        ItemChargeAssignmentPurch.SuggestItemChargeAssignment.Invoke;
-        ItemChargeAssignmentPurch.OK.Invoke;
+        ItemChargeAssignmentPurch.SuggestItemChargeAssignment.Invoke();
+        ItemChargeAssignmentPurch.OK().Invoke();
     end;
 
     [ConfirmHandler]
@@ -5623,17 +5623,17 @@ codeunit 136302 "Job Consumption Purchase"
     begin
         // Verify that no Quantity available when there is no source available to Reserve from.
         Reservation."Total Quantity".AssertEquals(0);
-        Reservation.OK.Invoke;
+        Reservation.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure ReservationPageHandler(var Reservation: TestPage Reservation)
     begin
-        Reservation.ItemNo.AssertEquals(LibraryVariableStorage.DequeueText);
-        Reservation.QtyToReserveBase.AssertEquals(LibraryVariableStorage.DequeueDecimal);
-        Reservation."Total Quantity".AssertEquals(LibraryVariableStorage.DequeueDecimal);
-        Reservation.OK.Invoke;
+        Reservation.ItemNo.AssertEquals(LibraryVariableStorage.DequeueText());
+        Reservation.QtyToReserveBase.AssertEquals(LibraryVariableStorage.DequeueDecimal());
+        Reservation."Total Quantity".AssertEquals(LibraryVariableStorage.DequeueDecimal());
+        Reservation.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -5642,24 +5642,24 @@ codeunit 136302 "Job Consumption Purchase"
     var
         QuantityOnJobPlanningLine: Variant;
     begin
-        Reservation."Reserve from Current Line".Invoke;
-        Reservation.ItemNo.AssertEquals(LibraryVariableStorage.DequeueText);
+        Reservation."Reserve from Current Line".Invoke();
+        Reservation.ItemNo.AssertEquals(LibraryVariableStorage.DequeueText());
         LibraryVariableStorage.Dequeue(QuantityOnJobPlanningLine);
         Reservation.QtyToReserveBase.AssertEquals(QuantityOnJobPlanningLine);
         Reservation.QtyReservedBase.AssertEquals(QuantityOnJobPlanningLine);
-        Reservation."Total Quantity".AssertEquals(LibraryVariableStorage.DequeueDecimal);
+        Reservation."Total Quantity".AssertEquals(LibraryVariableStorage.DequeueDecimal());
         Reservation."Current Reserved Quantity".AssertEquals(QuantityOnJobPlanningLine);
-        Reservation.OK.Invoke;
+        Reservation.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure DemandOverviewPageHandler(var DemandOverview: TestPage "Demand Overview")
     begin
-        DemandOverview.FILTER.SetFilter("Item No.", LibraryVariableStorage.DequeueText);
+        DemandOverview.FILTER.SetFilter("Item No.", LibraryVariableStorage.DequeueText());
         DemandOverview.FILTER.SetFilter(Type, DemandOverview.Type.GetOption(4));  // Use 4 as the Index for Supply.
         DemandOverview.FILTER.SetFilter(Type, DemandOverview.Type.GetOption(6));  // Use 6 as the Index for Demand.
-        DemandOverview.OK.Invoke;
+        DemandOverview.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -5670,36 +5670,36 @@ codeunit 136302 "Job Consumption Purchase"
         QuantityOnJobPlanningLine: Decimal;
         OriginalQuantity: Decimal;
     begin
-        CancelReservation := LibraryVariableStorage.DequeueBoolean;
+        CancelReservation := LibraryVariableStorage.DequeueBoolean();
         if CancelReservation then begin
             // 2. Exercise.
-            Reservation.CancelReservationCurrentLine.Invoke;
+            Reservation.CancelReservationCurrentLine.Invoke();
 
             // 3. Verify: Verify Reservation page for Item No.,Quantity Reserved and Current Reserved Quantity.
-            Reservation.ItemNo.AssertEquals(LibraryVariableStorage.DequeueText);
+            Reservation.ItemNo.AssertEquals(LibraryVariableStorage.DequeueText());
             Reservation.QtyReservedBase.AssertEquals(0);
             Reservation."Current Reserved Quantity".AssertEquals(0);
         end else begin
             // 2. Exercise.
-            Reservation."Reserve from Current Line".Invoke;
+            Reservation."Reserve from Current Line".Invoke();
 
             // 3. Verify: Verify Reservation page.
-            Reservation.ItemNo.AssertEquals(LibraryVariableStorage.DequeueText);
-            QuantityOnJobPlanningLine := LibraryVariableStorage.DequeueDecimal;
-            OriginalQuantity := LibraryVariableStorage.DequeueDecimal;
+            Reservation.ItemNo.AssertEquals(LibraryVariableStorage.DequeueText());
+            QuantityOnJobPlanningLine := LibraryVariableStorage.DequeueDecimal();
+            OriginalQuantity := LibraryVariableStorage.DequeueDecimal();
             Reservation.QtyToReserveBase.AssertEquals(OriginalQuantity);
             Reservation.QtyReservedBase.AssertEquals(QuantityOnJobPlanningLine);
             Reservation."Total Quantity".AssertEquals(QuantityOnJobPlanningLine);
             Reservation."Current Reserved Quantity".AssertEquals(-QuantityOnJobPlanningLine);
         end;
-        Reservation.OK.Invoke;
+        Reservation.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure ItemTrackingPageHandler(var ItemTrackingLines: TestPage "Item Tracking Lines")
     begin
-        ItemTrackingLines."Assign Serial No.".Invoke;
+        ItemTrackingLines."Assign Serial No.".Invoke();
     end;
 
     [ModalPageHandler]
@@ -5714,7 +5714,7 @@ codeunit 136302 "Job Consumption Purchase"
     [Scope('OnPrem')]
     procedure QuantityToCreatePageHandler(var EnterQuantityToCreate: TestPage "Enter Quantity to Create")
     begin
-        EnterQuantityToCreate.OK.Invoke;
+        EnterQuantityToCreate.OK().Invoke();
     end;
 
     local procedure UndoPurchReciptAndAdjustCostItemEntries(var PurchaseLine: Record "Purchase Line"; var Item: Record Item)

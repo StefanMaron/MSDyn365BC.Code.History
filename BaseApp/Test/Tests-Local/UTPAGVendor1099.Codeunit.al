@@ -1,7 +1,11 @@
+#if not CLEAN25
 codeunit 142081 "UT PAG Vendor 1099"
 {
     Subtype = Test;
     TestPermissions = Disabled;
+    ObsoleteReason = 'Moved to IRS Forms App.';
+    ObsoleteState = Pending;
+    ObsoleteTag = '25.0';
 
     trigger OnRun()
     begin
@@ -33,11 +37,11 @@ codeunit 142081 "UT PAG Vendor 1099"
         // Setup: Create Vendor and Detailed Leger Entry.
         Initialize();
         CreateMultipleVendorLedgerEntry(VendorLedgerEntry);
-        VendorCard.OpenEdit;
+        VendorCard.OpenEdit();
         VendorCard.FILTER.SetFilter("No.", VendorLedgerEntry."Vendor No.");
 
         // [WHEN] Open "Vendor 1099 Statistics" page
-        VendorCard."1099 Statistics".Invoke;
+        VendorCard."1099 Statistics".Invoke();
 
         // Verify: Amount verifying in Handler.
     end;
@@ -95,7 +99,7 @@ codeunit 142081 "UT PAG Vendor 1099"
         LibraryVariableStorage.Clear();
     end;
 
-    local procedure CreateDetailedVendorLedgerEntry(VendorLedgerEntry: Record "Vendor Ledger Entry"; AppliedVendLedgerEntryNo: Integer; EntryType: Option; Amount: Decimal)
+    local procedure CreateDetailedVendorLedgerEntry(VendorLedgerEntry: Record "Vendor Ledger Entry"; AppliedVendLedgerEntryNo: Integer; EntryType: Enum "Detailed CV Ledger Entry Type"; Amount: Decimal)
     var
         DetailedVendorLedgEntry: Record "Detailed Vendor Ledg. Entry";
         DetailedVendorLedgEntry2: Record "Detailed Vendor Ledg. Entry";
@@ -115,18 +119,18 @@ codeunit 142081 "UT PAG Vendor 1099"
     var
         Vendor: Record Vendor;
     begin
-        Vendor."No." := LibraryUTUtility.GetNewCode;
+        Vendor."No." := LibraryUTUtility.GetNewCode();
         Vendor.Insert(true);
         exit(Vendor."No.");
     end;
 
-    local procedure CreateVendorLedgerEntry(var VendorLedgerEntry: Record "Vendor Ledger Entry"; DocumentType: Option; VendorNo: Code[20]; IRS1099Code: Code[10]; IRSAmount: Decimal)
+    local procedure CreateVendorLedgerEntry(var VendorLedgerEntry: Record "Vendor Ledger Entry"; DocumentType: Enum "Gen. Journal Document Type"; VendorNo: Code[20]; IRS1099Code: Code[10]; IRSAmount: Decimal)
     var
         VendorLedgerEntry2: Record "Vendor Ledger Entry";
     begin
         VendorLedgerEntry2.FindLast();
         VendorLedgerEntry."Entry No." := VendorLedgerEntry2."Entry No." + 1;  // Adding 1 to take next Entry No.
-        VendorLedgerEntry."Document No." := LibraryUTUtility.GetNewCode;
+        VendorLedgerEntry."Document No." := LibraryUTUtility.GetNewCode();
         VendorLedgerEntry."Document Type" := DocumentType;
         VendorLedgerEntry."Vendor No." := VendorNo;
         VendorLedgerEntry."Posting Date" := WorkDate();
@@ -142,7 +146,7 @@ codeunit 142081 "UT PAG Vendor 1099"
         Amount: Decimal;
     begin
         Amount := 100 * LibraryRandom.RandInt(10);  // Using Random value for Amount.
-        CreateVendorLedgerEntry(VendorLedgerEntry, VendorLedgerEntry."Document Type"::Invoice, CreateVendor, IRS1099CodeDiv, Amount);
+        CreateVendorLedgerEntry(VendorLedgerEntry, VendorLedgerEntry."Document Type"::Invoice, CreateVendor(), IRS1099CodeDiv, Amount);
         CreateVendorLedgerEntry(
           VendorLedgerEntry2, VendorLedgerEntry."Document Type"::Payment, VendorLedgerEntry."Vendor No.", IRS1099CodeDiv, Amount);
         CreateMultipleDetailedVendorLedgerEntry(VendorLedgerEntry, VendorLedgerEntry2, Amount);
@@ -179,7 +183,7 @@ codeunit 142081 "UT PAG Vendor 1099"
     begin
         LibraryVariableStorage.Dequeue(Amounts);
         Vendor1099Statistics."Amounts[1]".AssertEquals(Amounts);
-        Vendor1099Statistics.OK.Invoke;
+        Vendor1099Statistics.OK().Invoke();
     end;
 }
-
+#endif

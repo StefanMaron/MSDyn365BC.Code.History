@@ -8,6 +8,7 @@ table 1506 "Workflow Table Relation Value"
     Permissions = TableData "Workflow Step Instance" = r,
                   tabledata "Workflow Table Relation Value" = ri;
     ReplicateData = true;
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -82,7 +83,7 @@ table 1506 "Workflow Table Relation Value"
         "Related Table ID" := WorkflowTableRelation."Related Table ID";
         "Related Field ID" := WorkflowTableRelation."Related Field ID";
         FieldRef := RecRef.Field(WorkflowTableRelation."Field ID");
-        Value := FieldRef.Value;
+        Value := FieldRef.Value();
         "Record ID" := RecRef.RecordId;
         Insert();
     end;
@@ -94,7 +95,7 @@ table 1506 "Workflow Table Relation Value"
         FieldRef := RecRef.Field("Field ID");
 
         if (Value <> Format(FieldRef.Value)) or ("Record ID" <> RecRef.RecordId) then begin
-            Value := FieldRef.Value;
+            Value := FieldRef.Value();
             "Record ID" := RecRef.RecordId;
 
             Modify();

@@ -50,13 +50,11 @@ codeunit 10327 "Exp. Pre-Mapping Det EFT US"
     begin
         BankAccount.Get(BankAccountFromExport);
 
-        with ACHUSDetail do begin
-            Init();
-            "Data Exch. Entry No." := DataExchangeEntryNo;
-            "Payee Bank Account Number" := BankAccount."Bank Account No.";
-            "Data Exch. Line Def Code" := DataExchLineDefCode;
-            Insert(true);
-        end;
+        ACHUSDetail.Init();
+        ACHUSDetail."Data Exch. Entry No." := DataExchangeEntryNo;
+        ACHUSDetail."Payee Bank Account Number" := BankAccount."Bank Account No.";
+        ACHUSDetail."Data Exch. Line Def Code" := DataExchLineDefCode;
+        ACHUSDetail.Insert(true);
     end;
 }
 

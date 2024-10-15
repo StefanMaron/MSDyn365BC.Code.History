@@ -26,9 +26,8 @@ using Microsoft.Purchases.Setup;
 using Microsoft.Purchases.Vendor;
 using Microsoft.Sales.Document;
 using Microsoft.Utilities;
-using System.Environment.Configuration;
-using System.Security.User;
 using System.Utilities;
+using System.Security.User;
 
 report 402 "Purchase Document - Test"
 {
@@ -936,173 +935,171 @@ report 402 "Purchase Document - Test"
 
                             OnRoundLoopOnBeforeAfterGetRecord("Purchase Line", ErrorCounter, ErrorText);
 
-                            with "Purchase Line" do begin
-                                if SalesTax and not HeaderTaxArea."Use External Tax Engine" then begin
-                                    SalesTaxCalculate.AddPurchLine("Purchase Line");
+                            if SalesTax and not HeaderTaxArea."Use External Tax Engine" then
+                                SalesTaxCalculate.AddPurchLine("Purchase Line");
+
+                            if not "Purchase Header"."Prices Including VAT" and
+                               ("Purchase Line"."VAT Calculation Type" = "Purchase Line"."VAT Calculation Type"::"Full VAT")
+                            then
+                                TempPurchLine."Line Amount" := 0;
+                            DimSetEntry2.SetRange("Dimension Set ID", "Purchase Line"."Dimension Set ID");
+                            DimMgt.GetDimensionSet(TempDimSetEntry, "Purchase Line"."Dimension Set ID");
+
+                            if "Purchase Line"."Document Type" in ["Purchase Line"."Document Type"::"Return Order", "Purchase Line"."Document Type"::"Credit Memo"]
+                            then begin
+                                if "Purchase Line"."Document Type" = "Purchase Line"."Document Type"::"Credit Memo" then begin
+                                    if ("Purchase Line"."Return Qty. to Ship" <> "Purchase Line".Quantity) and ("Purchase Line"."Return Shipment No." = '') then
+                                        AddError(StrSubstNo(Text019, "Purchase Line".FieldCaption("Return Qty. to Ship"), "Purchase Line".Quantity));
+                                    if "Purchase Line"."Qty. to Invoice" <> "Purchase Line".Quantity then
+                                        AddError(StrSubstNo(Text019, "Purchase Line".FieldCaption("Qty. to Invoice"), "Purchase Line".Quantity));
                                 end;
-                                if not "Purchase Header"."Prices Including VAT" and
-                                   ("VAT Calculation Type" = "VAT Calculation Type"::"Full VAT")
-                                then
-                                    TempPurchLine."Line Amount" := 0;
-                                DimSetEntry2.SetRange("Dimension Set ID", "Dimension Set ID");
-                                DimMgt.GetDimensionSet(TempDimSetEntry, "Dimension Set ID");
-
-                                if "Document Type" in ["Document Type"::"Return Order", "Document Type"::"Credit Memo"]
-                                then begin
-                                    if "Document Type" = "Document Type"::"Credit Memo" then begin
-                                        if ("Return Qty. to Ship" <> Quantity) and ("Return Shipment No." = '') then
-                                            AddError(StrSubstNo(Text019, FieldCaption("Return Qty. to Ship"), Quantity));
-                                        if "Qty. to Invoice" <> Quantity then
-                                            AddError(StrSubstNo(Text019, FieldCaption("Qty. to Invoice"), Quantity));
-                                    end;
-                                    if "Qty. to Receive" <> 0 then
-                                        AddError(StrSubstNo(Text040, FieldCaption("Qty. to Receive")));
-                                end else begin
-                                    if "Document Type" = "Document Type"::Invoice then begin
-                                        if ("Qty. to Receive" <> Quantity) and ("Receipt No." = '') then
-                                            AddError(StrSubstNo(Text019, FieldCaption("Qty. to Receive"), Quantity));
-                                        if "Qty. to Invoice" <> Quantity then
-                                            AddError(StrSubstNo(Text019, FieldCaption("Qty. to Invoice"), Quantity));
-                                    end;
-                                    if "Return Qty. to Ship" <> 0 then
-                                        AddError(StrSubstNo(Text040, FieldCaption("Return Qty. to Ship")));
+                                if "Purchase Line"."Qty. to Receive" <> 0 then
+                                    AddError(StrSubstNo(Text040, "Purchase Line".FieldCaption("Qty. to Receive")));
+                            end else begin
+                                if "Purchase Line"."Document Type" = "Purchase Line"."Document Type"::Invoice then begin
+                                    if ("Purchase Line"."Qty. to Receive" <> "Purchase Line".Quantity) and ("Purchase Line"."Receipt No." = '') then
+                                        AddError(StrSubstNo(Text019, "Purchase Line".FieldCaption("Qty. to Receive"), "Purchase Line".Quantity));
+                                    if "Purchase Line"."Qty. to Invoice" <> "Purchase Line".Quantity then
+                                        AddError(StrSubstNo(Text019, "Purchase Line".FieldCaption("Qty. to Invoice"), "Purchase Line".Quantity));
                                 end;
+                                if "Purchase Line"."Return Qty. to Ship" <> 0 then
+                                    AddError(StrSubstNo(Text040, "Purchase Line".FieldCaption("Return Qty. to Ship")));
+                            end;
 
-                                if not "Purchase Header".Receive then
-                                    "Qty. to Receive" := 0;
-                                if not "Purchase Header".Ship then
-                                    "Return Qty. to Ship" := 0;
+                            if not "Purchase Header".Receive then
+                                "Purchase Line"."Qty. to Receive" := 0;
+                            if not "Purchase Header".Ship then
+                                "Purchase Line"."Return Qty. to Ship" := 0;
 
-                                if ("Document Type" = "Document Type"::Invoice) and ("Receipt No." <> '') then begin
-                                    "Quantity Received" := Quantity;
-                                    "Qty. to Receive" := 0;
-                                end;
+                            if ("Purchase Line"."Document Type" = "Purchase Line"."Document Type"::Invoice) and ("Purchase Line"."Receipt No." <> '') then begin
+                                "Purchase Line"."Quantity Received" := "Purchase Line".Quantity;
+                                "Purchase Line"."Qty. to Receive" := 0;
+                            end;
 
-                                if ("Document Type" = "Document Type"::"Credit Memo") and ("Return Shipment No." <> '') then begin
-                                    "Return Qty. Shipped" := Quantity;
-                                    "Return Qty. to Ship" := 0;
-                                end;
+                            if ("Purchase Line"."Document Type" = "Purchase Line"."Document Type"::"Credit Memo") and ("Purchase Line"."Return Shipment No." <> '') then begin
+                                "Purchase Line"."Return Qty. Shipped" := "Purchase Line".Quantity;
+                                "Purchase Line"."Return Qty. to Ship" := 0;
+                            end;
 
-                                if "Purchase Header".Invoice then begin
-                                    if "Document Type" = "Document Type"::"Credit Memo" then
-                                        MaxQtyToBeInvoiced := "Return Qty. to Ship" + "Return Qty. Shipped" - "Quantity Invoiced"
-                                    else
-                                        MaxQtyToBeInvoiced := "Qty. to Receive" + "Quantity Received" - "Quantity Invoiced";
-                                    if Abs("Qty. to Invoice") > Abs(MaxQtyToBeInvoiced) then
-                                        "Qty. to Invoice" := MaxQtyToBeInvoiced;
-                                end else
-                                    "Qty. to Invoice" := 0;
+                            if "Purchase Header".Invoice then begin
+                                if "Purchase Line"."Document Type" = "Purchase Line"."Document Type"::"Credit Memo" then
+                                    MaxQtyToBeInvoiced := "Purchase Line"."Return Qty. to Ship" + "Purchase Line"."Return Qty. Shipped" - "Purchase Line"."Quantity Invoiced"
+                                else
+                                    MaxQtyToBeInvoiced := "Purchase Line"."Qty. to Receive" + "Purchase Line"."Quantity Received" - "Purchase Line"."Quantity Invoiced";
+                                if Abs("Purchase Line"."Qty. to Invoice") > Abs(MaxQtyToBeInvoiced) then
+                                    "Purchase Line"."Qty. to Invoice" := MaxQtyToBeInvoiced;
+                            end else
+                                "Purchase Line"."Qty. to Invoice" := 0;
 
-                                if "Purchase Header".Receive then begin
-                                    QtyToHandle := "Qty. to Receive";
-                                    QtyToHandleCaption := FieldCaption("Qty. to Receive");
-                                end;
+                            if "Purchase Header".Receive then begin
+                                QtyToHandle := "Purchase Line"."Qty. to Receive";
+                                QtyToHandleCaption := "Purchase Line".FieldCaption("Qty. to Receive");
+                            end;
 
-                                if "Purchase Header".Ship then begin
-                                    QtyToHandle := "Return Qty. to Ship";
-                                    QtyToHandleCaption := FieldCaption("Return Qty. to Ship");
-                                end;
+                            if "Purchase Header".Ship then begin
+                                QtyToHandle := "Purchase Line"."Return Qty. to Ship";
+                                QtyToHandleCaption := "Purchase Line".FieldCaption("Return Qty. to Ship");
+                            end;
 
-                                if "Gen. Prod. Posting Group" <> '' then begin
-                                    Clear(GenPostingSetup);
-                                    GenPostingSetup.Reset();
-                                    GenPostingSetup.SetRange("Gen. Bus. Posting Group", "Gen. Bus. Posting Group");
-                                    GenPostingSetup.SetRange("Gen. Prod. Posting Group", "Gen. Prod. Posting Group");
-                                    if not GenPostingSetup.FindLast() then
+                            if "Purchase Line"."Gen. Prod. Posting Group" <> '' then begin
+                                Clear(GenPostingSetup);
+                                GenPostingSetup.Reset();
+                                GenPostingSetup.SetRange("Gen. Bus. Posting Group", "Purchase Line"."Gen. Bus. Posting Group");
+                                GenPostingSetup.SetRange("Gen. Prod. Posting Group", "Purchase Line"."Gen. Prod. Posting Group");
+                                if not GenPostingSetup.FindLast() then
+                                    AddError(
+                                      StrSubstNo(
+                                        Text020,
+                                        GenPostingSetup.TableCaption(), "Purchase Line"."Gen. Bus. Posting Group", "Purchase Line"."Gen. Prod. Posting Group"));
+                            end;
+
+                            if "Purchase Line".Quantity <> 0 then begin
+                                if "Purchase Line"."No." = '' then
+                                    AddError(StrSubstNo(Text006, "Purchase Line".FieldCaption("No.")));
+                                if "Purchase Line".Type = "Purchase Line".Type::" " then
+                                    AddError(StrSubstNo(Text006, "Purchase Line".FieldCaption(Type)));
+                            end else
+                                if "Purchase Line".Amount <> 0 then
+                                    AddError(StrSubstNo(Text021, "Purchase Line".FieldCaption(Amount), "Purchase Line".FieldCaption(Quantity)));
+
+                            PurchLine := "Purchase Line";
+                            TestJobFields(PurchLine);
+                            if "Purchase Line"."Document Type" in ["Purchase Line"."Document Type"::"Return Order", "Purchase Line"."Document Type"::"Credit Memo"]
+                            then begin
+                                PurchLine."Return Qty. to Ship" := -PurchLine."Return Qty. to Ship";
+                                PurchLine."Qty. to Invoice" := -PurchLine."Qty. to Invoice";
+                            end;
+
+                            RemQtyToBeInvoiced := PurchLine."Qty. to Invoice";
+
+                            case "Purchase Line"."Document Type" of
+                                "Purchase Line"."Document Type"::"Return Order", "Purchase Line"."Document Type"::"Credit Memo":
+                                    CheckShptLines("Purchase Line");
+                                "Purchase Line"."Document Type"::Order, "Purchase Line"."Document Type"::Invoice:
+                                    CheckRcptLines("Purchase Line");
+                            end;
+
+                            if ("Purchase Line".Type <> "Purchase Line".Type::" ") and ("Purchase Line"."Qty. to Invoice" <> 0) then
+                                if GLSetup."VAT in Use" then
+                                    if not GenPostingSetup.Get("Purchase Line"."Gen. Bus. Posting Group", "Purchase Line"."Gen. Prod. Posting Group") then
                                         AddError(
                                           StrSubstNo(
                                             Text020,
-                                            GenPostingSetup.TableCaption(), "Gen. Bus. Posting Group", "Gen. Prod. Posting Group"));
-                                end;
+                                            GenPostingSetup.TableCaption(), "Purchase Line"."Gen. Bus. Posting Group", "Purchase Line"."Gen. Prod. Posting Group"));
 
-                                if Quantity <> 0 then begin
-                                    if "No." = '' then
-                                        AddError(StrSubstNo(Text006, FieldCaption("No.")));
-                                    if Type = Type::" " then
-                                        AddError(StrSubstNo(Text006, FieldCaption(Type)));
-                                end else
-                                    if Amount <> 0 then
-                                        AddError(StrSubstNo(Text021, FieldCaption(Amount), FieldCaption(Quantity)));
+                            if "Purchase Line"."Prepayment %" > 0 then
+                                if not "Purchase Line"."Prepayment Line" and ("Purchase Line".Quantity > 0) then begin
+                                    Fraction := ("Purchase Line"."Qty. to Invoice" + "Purchase Line"."Quantity Invoiced") / "Purchase Line".Quantity;
+                                    if Fraction > 1 then
+                                        Fraction := 1;
 
-                                PurchLine := "Purchase Line";
-                                TestJobFields(PurchLine);
-                                if "Document Type" in ["Document Type"::"Return Order", "Document Type"::"Credit Memo"]
-                                then begin
-                                    PurchLine."Return Qty. to Ship" := -PurchLine."Return Qty. to Ship";
-                                    PurchLine."Qty. to Invoice" := -PurchLine."Qty. to Invoice";
-                                end;
-
-                                RemQtyToBeInvoiced := PurchLine."Qty. to Invoice";
-
-                                case "Document Type" of
-                                    "Document Type"::"Return Order", "Document Type"::"Credit Memo":
-                                        CheckShptLines("Purchase Line");
-                                    "Document Type"::Order, "Document Type"::Invoice:
-                                        CheckRcptLines("Purchase Line");
-                                end;
-
-                                if (Type <> Type::" ") and ("Qty. to Invoice" <> 0) then
-                                    if GLSetup."VAT in Use" then
-                                        if not GenPostingSetup.Get("Gen. Bus. Posting Group", "Gen. Prod. Posting Group") then
+                                    case true of
+                                        (Fraction * "Purchase Line"."Line Amount" < "Purchase Line"."Prepmt Amt to Deduct") and
+                                      ("Purchase Line"."Prepmt Amt to Deduct" <> 0):
                                             AddError(
                                               StrSubstNo(
-                                                Text020,
-                                                GenPostingSetup.TableCaption(), "Gen. Bus. Posting Group", "Gen. Prod. Posting Group"));
-
-                                if "Prepayment %" > 0 then
-                                    if not "Prepayment Line" and (Quantity > 0) then begin
-                                        Fraction := ("Qty. to Invoice" + "Quantity Invoiced") / Quantity;
-                                        if Fraction > 1 then
-                                            Fraction := 1;
-
-                                        case true of
-                                            (Fraction * "Line Amount" < "Prepmt Amt to Deduct") and
-                                          ("Prepmt Amt to Deduct" <> 0):
-                                                AddError(
-                                                  StrSubstNo(
-                                                    Text053,
-                                                    FieldCaption("Prepmt Amt to Deduct"),
-                                                    Round(Fraction * "Line Amount", GLSetup."Amount Rounding Precision")));
-                                            (1 - Fraction) * "Line Amount" <
-                                          "Prepmt. Amt. Inv." - "Prepmt Amt Deducted" - "Prepmt Amt to Deduct":
-                                                AddError(
-                                                  StrSubstNo(
-                                                    Text054,
-                                                    FieldCaption("Prepmt Amt to Deduct"),
-                                                    Round(
-                                                      "Prepmt. Amt. Inv." - "Prepmt Amt Deducted" - (1 - Fraction) * "Line Amount",
-                                                      GLSetup."Amount Rounding Precision")));
-                                        end;
+                                                Text053,
+                                                "Purchase Line".FieldCaption("Prepmt Amt to Deduct"),
+                                                Round(Fraction * "Purchase Line"."Line Amount", GLSetup."Amount Rounding Precision")));
+                                        (1 - Fraction) * "Purchase Line"."Line Amount" <
+                                      "Purchase Line"."Prepmt. Amt. Inv." - "Purchase Line"."Prepmt Amt Deducted" - "Purchase Line"."Prepmt Amt to Deduct":
+                                            AddError(
+                                              StrSubstNo(
+                                                Text054,
+                                                "Purchase Line".FieldCaption("Prepmt Amt to Deduct"),
+                                                Round(
+                                                  "Purchase Line"."Prepmt. Amt. Inv." - "Purchase Line"."Prepmt Amt Deducted" - (1 - Fraction) * "Purchase Line"."Line Amount",
+                                                  GLSetup."Amount Rounding Precision")));
                                     end;
-                                if not "Prepayment Line" and ("Prepmt. Line Amount" > 0) then
-                                    if "Prepmt. Line Amount" > "Prepmt. Amt. Inv." then
-                                        AddError(StrSubstNo(Text042, FieldCaption("Prepmt. Line Amount")));
-
-                                CheckPurchLine("Purchase Line");
-
-                                if "Line No." > OrigMaxLineNo then begin
-                                    AddDimToTempLine("Purchase Line", TempDimSetEntry);
-                                    if not DimMgt.CheckDimIDComb("Dimension Set ID") then
-                                        AddError(DimMgt.GetDimCombErr());
-                                    if not DimMgt.CheckDimValuePosting(TableID, No, "Dimension Set ID") then
-                                        AddError(DimMgt.GetDimValuePostingErr());
-                                end else begin
-                                    if not DimMgt.CheckDimIDComb("Dimension Set ID") then
-                                        AddError(DimMgt.GetDimCombErr());
-
-                                    TableID[1] := DimMgt.PurchLineTypeToTableID(Type);
-                                    No[1] := "No.";
-                                    TableID[2] := Database::Job;
-                                    No[2] := "Job No.";
-                                    TableID[3] := Database::"Work Center";
-                                    No[3] := "Work Center No.";
-                                    OnBeforeCheckDimValuePostingLine("Purchase Line", TableID, No);
-                                    if not DimMgt.CheckDimValuePosting(TableID, No, "Dimension Set ID") then
-                                        AddError(DimMgt.GetDimValuePostingErr());
                                 end;
+                            if not "Purchase Line"."Prepayment Line" and ("Purchase Line"."Prepmt. Line Amount" > 0) then
+                                if "Purchase Line"."Prepmt. Line Amount" > "Purchase Line"."Prepmt. Amt. Inv." then
+                                    AddError(StrSubstNo(Text042, "Purchase Line".FieldCaption("Prepmt. Line Amount")));
 
-                                AllowInvDisctxt := Format("Allow Invoice Disc.");
+                            CheckPurchLine("Purchase Line");
+
+                            if "Purchase Line"."Line No." > OrigMaxLineNo then begin
+                                AddDimToTempLine("Purchase Line", TempDimSetEntry);
+                                if not DimMgt.CheckDimIDComb("Purchase Line"."Dimension Set ID") then
+                                    AddError(DimMgt.GetDimCombErr());
+                                if not DimMgt.CheckDimValuePosting(TableID, No, "Purchase Line"."Dimension Set ID") then
+                                    AddError(DimMgt.GetDimValuePostingErr());
+                            end else begin
+                                if not DimMgt.CheckDimIDComb("Purchase Line"."Dimension Set ID") then
+                                    AddError(DimMgt.GetDimCombErr());
+
+                                TableID[1] := DimMgt.PurchLineTypeToTableID("Purchase Line".Type);
+                                No[1] := "Purchase Line"."No.";
+                                TableID[2] := Database::Job;
+                                No[2] := "Purchase Line"."Job No.";
+                                TableID[3] := Database::"Work Center";
+                                No[3] := "Purchase Line"."Work Center No.";
+                                OnBeforeCheckDimValuePostingLine("Purchase Line", TableID, No);
+                                if not DimMgt.CheckDimValuePosting(TableID, No, "Purchase Line"."Dimension Set ID") then
+                                    AddError(DimMgt.GetDimValuePostingErr());
                             end;
+
+                            AllowInvDisctxt := Format("Purchase Line"."Allow Invoice Disc.");
                             totAmount := totAmount + "Purchase Line"."Line Amount";
                             AllowInvDisctxt := Format("Purchase Line"."Allow Invoice Disc.");
 
@@ -1114,12 +1111,12 @@ report 402 "Purchase Document - Test"
                                         SalesTaxCalculate.EndSalesTaxCalculation("Purchase Header"."Posting Date");
                                     SalesTaxCalculate.GetSalesTaxAmountLineTable(TempSalesTaxAmountLine);
                                     VATAmount := TempSalesTaxAmountLine.GetTotalTaxAmountFCY();
-                                    VATBaseAmount := TempSalesTaxAmountLine.GetTotalTaxBase;
+                                    VATBaseAmount := TempSalesTaxAmountLine.GetTotalTaxBase();
                                 end;
                                 if SalesTax then
-                                    TaxText := TempSalesTaxAmountLine.TaxAmountText
+                                    TaxText := TempSalesTaxAmountLine.TaxAmountText()
                                 else
-                                    TaxText := TempVATAmountLine.VATAmountText;
+                                    TaxText := TempVATAmountLine.VATAmountText();
                             end;
                             OnRoundLoopOnAfterGetRecord("Purchase Line", ErrorText, ErrorCounter);
                         end;
@@ -2087,7 +2084,6 @@ report 402 "Purchase Document - Test"
         FormatAddr: Codeunit "Format Address";
         DimMgt: Codeunit DimensionManagement;
         DocumentErrorsMgt: Codeunit "Document Errors Mgt.";
-        ApplicationAreaMgmt: Codeunit "Application Area Mgmt.";
         SalesTaxCalculate: Codeunit "Sales Tax Calculate";
         PayToAddr: array[8] of Text[100];
         BuyFromAddr: array[8] of Text[100];
@@ -2233,283 +2229,278 @@ report 402 "Purchase Document - Test"
         ErrorText: Text[250];
         ItemItemVariantLbl: Label '%1 %2', Comment = '%1 - Item No., %2 - Variant Code';
     begin
-        with PurchaseLine do
-            case Type of
-                Type::"G/L Account":
-                    begin
-                        if ("No." = '') and (Amount = 0) then
-                            exit;
+        case PurchaseLine.Type of
+            PurchaseLine.Type::"G/L Account":
+                begin
+                    if (PurchaseLine."No." = '') and (PurchaseLine.Amount = 0) then
+                        exit;
 
-                        if "No." <> '' then
-                            if GLAcc.Get("No.") then begin
-                                if GLAcc.Blocked then
-                                    AddError(
-                                      StrSubstNo(
-                                        MustBeForErr,
-                                        GLAcc.FieldCaption(Blocked), false, GLAcc.TableCaption(), "No."));
-                                if (not GLAcc."Direct Posting") and (not "System-Created Entry") and ("Line No." <= OrigMaxLineNo) then
-                                    AddError(
-                                      StrSubstNo(
-                                        MustBeForErr,
-                                        GLAcc.FieldCaption("Direct Posting"), true, GLAcc.TableCaption(), "No."));
-                            end else
+                    if PurchaseLine."No." <> '' then
+                        if GLAcc.Get(PurchaseLine."No.") then begin
+                            if GLAcc.Blocked then
                                 AddError(
                                   StrSubstNo(
-                                    Text008,
-                                    GLAcc.TableCaption(), "No."));
-                    end;
-                Type::Item:
-                    begin
-                        if ("No." = '') and (Quantity = 0) then
-                            exit;
-
-                        if "No." <> '' then
-                            if Item.Get("No.") then begin
-                                if Item.Blocked then
-                                    AddError(StrSubstNo(MustBeForErr, Item.FieldCaption(Blocked), false, Item.TableCaption(), "No."));
-
-                                if PurchaseLine."Variant Code" <> '' then begin
-                                    ItemVariant.SetLoadFields(Blocked);
-                                    if ItemVariant.Get(PurchaseLine."No.", PurchaseLine."Variant Code") then begin
-                                        if ItemVariant.Blocked then
-                                            AddError(StrSubstNo(MustBeForErr, ItemVariant.FieldCaption(Blocked), false, ItemVariant.TableCaption(), StrSubstNo(ItemItemVariantLbl, PurchaseLine."No.", PurchaseLine."Variant Code")));
-                                    end else
-                                        AddError(StrSubstNo(Text008, ItemVariant.TableCaption(), StrSubstNo(ItemItemVariantLbl, PurchaseLine."No.", PurchaseLine."Variant Code")));
-                                end;
-
-                                if Item."Costing Method" = Item."Costing Method"::Specific then
-                                    if Item.Reserve = Item.Reserve::Always then begin
-                                        CalcFields("Reserved Quantity");
-                                        if (Signed(Quantity) < 0) and (Abs("Reserved Quantity") < Abs("Qty. to Receive")) then
-                                            AddError(StrSubstNo(Text019, FieldCaption("Reserved Quantity"), Signed("Qty. to Receive")));
-                                    end;
-                            end else
-                                AddError(StrSubstNo(Text008, Item.TableCaption(), "No."));
-                    end;
-                Type::"Fixed Asset":
-                    begin
-                        if ("No." = '') and (Quantity = 0) then
-                            exit;
-
-                        if "No." <> '' then
-                            if FA.Get("No.") then begin
-                                if FA.Blocked then
-                                    AddError(
-                                      StrSubstNo(
-                                        MustBeForErr,
-                                        FA.FieldCaption(Blocked), false, FA.TableCaption(), "No."));
-                                if FA.Inactive then
-                                    AddError(
-                                      StrSubstNo(
-                                        MustBeForErr,
-                                        FA.FieldCaption(Inactive), false, FA.TableCaption(), "No."));
-                            end else
+                                    MustBeForErr,
+                                    GLAcc.FieldCaption(Blocked), false, GLAcc.TableCaption(), PurchaseLine."No."));
+                            if (not GLAcc."Direct Posting") and (not PurchaseLine."System-Created Entry") and (PurchaseLine."Line No." <= OrigMaxLineNo) then
                                 AddError(
                                   StrSubstNo(
-                                    Text008,
-                                    FA.TableCaption(), "No."));
-                    end;
-                Type::Resource:
-                    begin
-                        if ("No." = '') and (Quantity = 0) then
-                            exit;
-
-                        if Resource.Get("No.") then begin
-                            if Resource."Privacy Blocked" then
-                                AddError(StrSubstNo(MustBeForErr, Resource.FieldCaption("Privacy Blocked"), false, Resource.TableCaption(), "No."));
-                            if Resource.Blocked then
-                                AddError(StrSubstNo(MustBeForErr, Resource.FieldCaption(Blocked), false, Resource.TableCaption(), "No."));
+                                    MustBeForErr,
+                                    GLAcc.FieldCaption("Direct Posting"), true, GLAcc.TableCaption(), PurchaseLine."No."));
                         end else
-                            AddError(StrSubstNo(Text008, Resource.TableCaption(), "No."));
-                    end
-                else begin
-                    OnCheckPurchLineCaseTypeElse(Type, "No.", ErrorText);
-                    if ErrorText <> '' then
-                        AddError(ErrorText);
+                            AddError(
+                              StrSubstNo(
+                                Text008,
+                                GLAcc.TableCaption(), PurchaseLine."No."));
                 end;
+            PurchaseLine.Type::Item:
+                begin
+                    if (PurchaseLine."No." = '') and (PurchaseLine.Quantity = 0) then
+                        exit;
+
+                    if PurchaseLine."No." <> '' then
+                        if Item.Get(PurchaseLine."No.") then begin
+                            if Item.Blocked then
+                                AddError(StrSubstNo(MustBeForErr, Item.FieldCaption(Blocked), false, Item.TableCaption(), PurchaseLine."No."));
+
+                            if PurchaseLine."Variant Code" <> '' then begin
+                                ItemVariant.SetLoadFields(Blocked);
+                                if ItemVariant.Get(PurchaseLine."No.", PurchaseLine."Variant Code") then begin
+                                    if ItemVariant.Blocked then
+                                        AddError(StrSubstNo(MustBeForErr, ItemVariant.FieldCaption(Blocked), false, ItemVariant.TableCaption(), StrSubstNo(ItemItemVariantLbl, PurchaseLine."No.", PurchaseLine."Variant Code")));
+                                end else
+                                    AddError(StrSubstNo(Text008, ItemVariant.TableCaption(), StrSubstNo(ItemItemVariantLbl, PurchaseLine."No.", PurchaseLine."Variant Code")));
+                            end;
+
+                            if Item."Costing Method" = Item."Costing Method"::Specific then
+                                if Item.Reserve = Item.Reserve::Always then begin
+                                    PurchaseLine.CalcFields("Reserved Quantity");
+                                    if (PurchaseLine.Signed(PurchaseLine.Quantity) < 0) and (Abs(PurchaseLine."Reserved Quantity") < Abs(PurchaseLine."Qty. to Receive")) then
+                                        AddError(StrSubstNo(Text019, PurchaseLine.FieldCaption("Reserved Quantity"), PurchaseLine.Signed(PurchaseLine."Qty. to Receive")));
+                                end;
+                        end else
+                            AddError(StrSubstNo(Text008, Item.TableCaption(), PurchaseLine."No."));
+                end;
+            PurchaseLine.Type::"Fixed Asset":
+                begin
+                    if (PurchaseLine."No." = '') and (PurchaseLine.Quantity = 0) then
+                        exit;
+
+                    if PurchaseLine."No." <> '' then
+                        if FA.Get(PurchaseLine."No.") then begin
+                            if FA.Blocked then
+                                AddError(
+                                  StrSubstNo(
+                                    MustBeForErr,
+                                    FA.FieldCaption(Blocked), false, FA.TableCaption(), PurchaseLine."No."));
+                            if FA.Inactive then
+                                AddError(
+                                  StrSubstNo(
+                                    MustBeForErr,
+                                    FA.FieldCaption(Inactive), false, FA.TableCaption(), PurchaseLine."No."));
+                        end else
+                            AddError(
+                              StrSubstNo(
+                                Text008,
+                                FA.TableCaption(), PurchaseLine."No."));
+                end;
+            PurchaseLine.Type::Resource:
+                begin
+                    if (PurchaseLine."No." = '') and (PurchaseLine.Quantity = 0) then
+                        exit;
+
+                    if Resource.Get(PurchaseLine."No.") then begin
+                        if Resource."Privacy Blocked" then
+                            AddError(StrSubstNo(MustBeForErr, Resource.FieldCaption("Privacy Blocked"), false, Resource.TableCaption(), PurchaseLine."No."));
+                        if Resource.Blocked then
+                            AddError(StrSubstNo(MustBeForErr, Resource.FieldCaption(Blocked), false, Resource.TableCaption(), PurchaseLine."No."));
+                    end else
+                        AddError(StrSubstNo(Text008, Resource.TableCaption(), PurchaseLine."No."));
+                end
+            else begin
+                OnCheckPurchLineCaseTypeElse(PurchaseLine.Type.AsInteger(), PurchaseLine."No.", ErrorText);
+                if ErrorText <> '' then
+                    AddError(ErrorText);
             end;
+        end;
     end;
 
     local procedure CheckRcptLines(PurchLine2: Record "Purchase Line")
     var
         TempPostedDimSetEntry: Record "Dimension Set Entry" temporary;
     begin
-        with PurchLine2 do begin
-            if Abs(RemQtyToBeInvoiced) > Abs("Qty. to Receive") then begin
-                PurchRcptLine.Reset();
-                case "Document Type" of
-                    "Document Type"::Order:
-                        begin
-                            PurchRcptLine.SetCurrentKey("Order No.", "Order Line No.");
-                            PurchRcptLine.SetRange("Order No.", "Document No.");
-                            PurchRcptLine.SetRange("Order Line No.", "Line No.");
-                        end;
-                    "Document Type"::Invoice:
-                        begin
-                            PurchRcptLine.SetRange("Document No.", "Receipt No.");
-                            PurchRcptLine.SetRange("Line No.", "Receipt Line No.");
-                        end;
-                end;
-
-                PurchRcptLine.SetFilter("Qty. Rcd. Not Invoiced", '<>0');
-                if PurchRcptLine.Find('-') then
-                    repeat
-                        DimMgt.GetDimensionSet(TempPostedDimSetEntry, PurchRcptLine."Dimension Set ID");
-                        if not DimMgt.CheckDimIDConsistency(
-                             TempDimSetEntry, TempPostedDimSetEntry, Database::"Purchase Line", Database::"Purch. Rcpt. Line")
-                        then
-                            AddError(DimMgt.GetDocDimConsistencyErr());
-                        if PurchRcptLine."Buy-from Vendor No." <> "Buy-from Vendor No." then
-                            AddError(
-                              StrSubstNo(
-                                Text022,
-                                FieldCaption("Buy-from Vendor No.")));
-                        if PurchRcptLine.Type <> Type then
-                            AddError(
-                              StrSubstNo(
-                                Text022,
-                                FieldCaption(Type)));
-                        if PurchRcptLine."No." <> "No." then
-                            AddError(
-                              StrSubstNo(
-                                Text022,
-                                FieldCaption("No.")));
-                        if PurchRcptLine."Gen. Bus. Posting Group" <> "Gen. Bus. Posting Group" then
-                            AddError(
-                              StrSubstNo(
-                                Text022,
-                                FieldCaption("Gen. Bus. Posting Group")));
-                        if PurchRcptLine."Gen. Prod. Posting Group" <> "Gen. Prod. Posting Group" then
-                            AddError(
-                              StrSubstNo(
-                                Text022,
-                                FieldCaption("Gen. Prod. Posting Group")));
-                        if PurchRcptLine."Location Code" <> "Location Code" then
-                            AddError(
-                              StrSubstNo(
-                                Text022,
-                                FieldCaption("Location Code")));
-                        if PurchRcptLine."Job No." <> "Job No." then
-                            AddError(
-                              StrSubstNo(
-                                Text022,
-                                FieldCaption("Job No.")));
-
-                        if PurchLine."Qty. to Invoice" * PurchRcptLine.Quantity < 0 then
-                            AddError(StrSubstNo(Text023, FieldCaption("Qty. to Invoice")));
-
-                        QtyToBeInvoiced := RemQtyToBeInvoiced - PurchLine."Qty. to Receive";
-                        if Abs(QtyToBeInvoiced) > Abs(PurchRcptLine.Quantity - PurchRcptLine."Quantity Invoiced") then
-                            QtyToBeInvoiced := PurchRcptLine.Quantity - PurchRcptLine."Quantity Invoiced";
-                        RemQtyToBeInvoiced := RemQtyToBeInvoiced - QtyToBeInvoiced;
-                        PurchRcptLine."Quantity Invoiced" := PurchRcptLine."Quantity Invoiced" + QtyToBeInvoiced;
-                    until (PurchRcptLine.Next() = 0) or (Abs(RemQtyToBeInvoiced) <= Abs("Qty. to Receive"))
-                else
-                    AddError(
-                      StrSubstNo(
-                        Text033,
-                        "Receipt Line No.",
-                        "Receipt No."));
+        if Abs(RemQtyToBeInvoiced) > Abs(PurchLine2."Qty. to Receive") then begin
+            PurchRcptLine.Reset();
+            case PurchLine2."Document Type" of
+                PurchLine2."Document Type"::Order:
+                    begin
+                        PurchRcptLine.SetCurrentKey("Order No.", "Order Line No.");
+                        PurchRcptLine.SetRange("Order No.", PurchLine2."Document No.");
+                        PurchRcptLine.SetRange("Order Line No.", PurchLine2."Line No.");
+                    end;
+                PurchLine2."Document Type"::Invoice:
+                    begin
+                        PurchRcptLine.SetRange("Document No.", PurchLine2."Receipt No.");
+                        PurchRcptLine.SetRange("Line No.", PurchLine2."Receipt Line No.");
+                    end;
             end;
 
-            if Abs(RemQtyToBeInvoiced) > Abs("Qty. to Receive") then
-                if "Document Type" = "Document Type"::Invoice then
-                    AddError(
-                      StrSubstNo(
-                        Text037,
-                        "Receipt No."))
+            PurchRcptLine.SetFilter("Qty. Rcd. Not Invoiced", '<>0');
+            if PurchRcptLine.Find('-') then
+                repeat
+                    DimMgt.GetDimensionSet(TempPostedDimSetEntry, PurchRcptLine."Dimension Set ID");
+                    if not DimMgt.CheckDimIDConsistency(
+                         TempDimSetEntry, TempPostedDimSetEntry, Database::"Purchase Line", Database::"Purch. Rcpt. Line")
+                    then
+                        AddError(DimMgt.GetDocDimConsistencyErr());
+                    if PurchRcptLine."Buy-from Vendor No." <> PurchLine2."Buy-from Vendor No." then
+                        AddError(
+                          StrSubstNo(
+                            Text022,
+                            PurchLine2.FieldCaption("Buy-from Vendor No.")));
+                    if PurchRcptLine.Type <> PurchLine2.Type then
+                        AddError(
+                          StrSubstNo(
+                            Text022,
+                            PurchLine2.FieldCaption(Type)));
+                    if PurchRcptLine."No." <> PurchLine2."No." then
+                        AddError(
+                          StrSubstNo(
+                            Text022,
+                            PurchLine2.FieldCaption("No.")));
+                    if PurchRcptLine."Gen. Bus. Posting Group" <> PurchLine2."Gen. Bus. Posting Group" then
+                        AddError(
+                          StrSubstNo(
+                            Text022,
+                            PurchLine2.FieldCaption("Gen. Bus. Posting Group")));
+                    if PurchRcptLine."Gen. Prod. Posting Group" <> PurchLine2."Gen. Prod. Posting Group" then
+                        AddError(
+                          StrSubstNo(
+                            Text022,
+                            PurchLine2.FieldCaption("Gen. Prod. Posting Group")));
+                    if PurchRcptLine."Location Code" <> PurchLine2."Location Code" then
+                        AddError(
+                          StrSubstNo(
+                            Text022,
+                            PurchLine2.FieldCaption("Location Code")));
+                    if PurchRcptLine."Job No." <> PurchLine2."Job No." then
+                        AddError(
+                          StrSubstNo(
+                            Text022,
+                            PurchLine2.FieldCaption("Job No.")));
+
+                    if PurchLine."Qty. to Invoice" * PurchRcptLine.Quantity < 0 then
+                        AddError(StrSubstNo(Text023, PurchLine2.FieldCaption("Qty. to Invoice")));
+
+                    QtyToBeInvoiced := RemQtyToBeInvoiced - PurchLine."Qty. to Receive";
+                    if Abs(QtyToBeInvoiced) > Abs(PurchRcptLine.Quantity - PurchRcptLine."Quantity Invoiced") then
+                        QtyToBeInvoiced := PurchRcptLine.Quantity - PurchRcptLine."Quantity Invoiced";
+                    RemQtyToBeInvoiced := RemQtyToBeInvoiced - QtyToBeInvoiced;
+                    PurchRcptLine."Quantity Invoiced" := PurchRcptLine."Quantity Invoiced" + QtyToBeInvoiced;
+                until (PurchRcptLine.Next() = 0) or (Abs(RemQtyToBeInvoiced) <= Abs(PurchLine2."Qty. to Receive"))
+            else
+                AddError(
+                  StrSubstNo(
+                    Text033,
+                    PurchLine2."Receipt Line No.",
+                    PurchLine2."Receipt No."));
         end;
+
+        if Abs(RemQtyToBeInvoiced) > Abs(PurchLine2."Qty. to Receive") then
+            if PurchLine2."Document Type" = PurchLine2."Document Type"::Invoice then
+                AddError(
+                  StrSubstNo(
+                    Text037,
+                    PurchLine2."Receipt No."))
     end;
 
     local procedure CheckShptLines(PurchLine2: Record "Purchase Line")
     var
         TempPostedDimSetEntry: Record "Dimension Set Entry" temporary;
     begin
-        with PurchLine2 do begin
-            if Abs(RemQtyToBeInvoiced) > Abs("Return Qty. to Ship") then begin
-                ReturnShptLine.Reset();
-                case "Document Type" of
-                    "Document Type"::"Return Order":
-                        begin
-                            ReturnShptLine.SetCurrentKey("Return Order No.", "Return Order Line No.");
-                            ReturnShptLine.SetRange("Return Order No.", "Document No.");
-                            ReturnShptLine.SetRange("Return Order Line No.", "Line No.");
-                        end;
-                    "Document Type"::"Credit Memo":
-                        begin
-                            ReturnShptLine.SetRange("Document No.", "Return Shipment No.");
-                            ReturnShptLine.SetRange("Line No.", "Return Shipment Line No.");
-                        end;
-                end;
-
-                ReturnShptLine.SetFilter("Return Qty. Shipped Not Invd.", '<>0');
-                if ReturnShptLine.Find('-') then
-                    repeat
-                        DimMgt.GetDimensionSet(TempPostedDimSetEntry, ReturnShptLine."Dimension Set ID");
-                        if not DimMgt.CheckDimIDConsistency(
-                             TempDimSetEntry, TempPostedDimSetEntry, Database::"Purchase Line", Database::"Return Shipment Line")
-                        then
-                            AddError(DimMgt.GetDocDimConsistencyErr());
-
-                        if ReturnShptLine."Buy-from Vendor No." <> "Buy-from Vendor No." then
-                            AddError(
-                              StrSubstNo(
-                                Text036,
-                                FieldCaption("Buy-from Vendor No.")));
-                        if ReturnShptLine.Type <> Type then
-                            AddError(
-                              StrSubstNo(
-                                Text036,
-                                FieldCaption(Type)));
-                        if ReturnShptLine."No." <> "No." then
-                            AddError(
-                              StrSubstNo(
-                                Text036,
-                                FieldCaption("No.")));
-                        if ReturnShptLine."Gen. Bus. Posting Group" <> "Gen. Bus. Posting Group" then
-                            AddError(
-                              StrSubstNo(
-                                Text036,
-                                FieldCaption("Gen. Bus. Posting Group")));
-                        if ReturnShptLine."Gen. Prod. Posting Group" <> "Gen. Prod. Posting Group" then
-                            AddError(
-                              StrSubstNo(
-                                Text036,
-                                FieldCaption("Gen. Prod. Posting Group")));
-                        if ReturnShptLine."Location Code" <> "Location Code" then
-                            AddError(
-                              StrSubstNo(
-                                Text036,
-                                FieldCaption("Location Code")));
-                        if ReturnShptLine."Job No." <> "Job No." then
-                            AddError(
-                              StrSubstNo(
-                                Text036,
-                                FieldCaption("Job No.")));
-
-                        if -PurchLine."Qty. to Invoice" * ReturnShptLine.Quantity < 0 then
-                            AddError(StrSubstNo(Text025, FieldCaption("Qty. to Invoice")));
-                        QtyToBeInvoiced := RemQtyToBeInvoiced - PurchLine."Return Qty. to Ship";
-                        if Abs(QtyToBeInvoiced) > Abs(ReturnShptLine.Quantity - ReturnShptLine."Quantity Invoiced") then
-                            QtyToBeInvoiced := ReturnShptLine.Quantity - ReturnShptLine."Quantity Invoiced";
-                        RemQtyToBeInvoiced := RemQtyToBeInvoiced - QtyToBeInvoiced;
-                        ReturnShptLine."Quantity Invoiced" := ReturnShptLine."Quantity Invoiced" + QtyToBeInvoiced;
-                    until (ReturnShptLine.Next() = 0) or (Abs(RemQtyToBeInvoiced) <= Abs("Return Qty. to Ship"))
-                else
-                    AddError(
-                      StrSubstNo(
-                        Text034,
-                        "Return Shipment Line No.",
-                        "Return Shipment No."));
+        if Abs(RemQtyToBeInvoiced) > Abs(PurchLine2."Return Qty. to Ship") then begin
+            ReturnShptLine.Reset();
+            case PurchLine2."Document Type" of
+                PurchLine2."Document Type"::"Return Order":
+                    begin
+                        ReturnShptLine.SetCurrentKey("Return Order No.", "Return Order Line No.");
+                        ReturnShptLine.SetRange("Return Order No.", PurchLine2."Document No.");
+                        ReturnShptLine.SetRange("Return Order Line No.", PurchLine2."Line No.");
+                    end;
+                PurchLine2."Document Type"::"Credit Memo":
+                    begin
+                        ReturnShptLine.SetRange("Document No.", PurchLine2."Return Shipment No.");
+                        ReturnShptLine.SetRange("Line No.", PurchLine2."Return Shipment Line No.");
+                    end;
             end;
 
-            if Abs(RemQtyToBeInvoiced) > Abs("Return Qty. to Ship") then
-                if "Document Type" = "Document Type"::"Credit Memo" then
-                    AddError(
-                      StrSubstNo(
-                        Text038,
-                        "Return Shipment No."));
+            ReturnShptLine.SetFilter("Return Qty. Shipped Not Invd.", '<>0');
+            if ReturnShptLine.Find('-') then
+                repeat
+                    DimMgt.GetDimensionSet(TempPostedDimSetEntry, ReturnShptLine."Dimension Set ID");
+                    if not DimMgt.CheckDimIDConsistency(
+                         TempDimSetEntry, TempPostedDimSetEntry, Database::"Purchase Line", Database::"Return Shipment Line")
+                    then
+                        AddError(DimMgt.GetDocDimConsistencyErr());
+
+                    if ReturnShptLine."Buy-from Vendor No." <> PurchLine2."Buy-from Vendor No." then
+                        AddError(
+                          StrSubstNo(
+                            Text036,
+                            PurchLine2.FieldCaption("Buy-from Vendor No.")));
+                    if ReturnShptLine.Type <> PurchLine2.Type then
+                        AddError(
+                          StrSubstNo(
+                            Text036,
+                            PurchLine2.FieldCaption(Type)));
+                    if ReturnShptLine."No." <> PurchLine2."No." then
+                        AddError(
+                          StrSubstNo(
+                            Text036,
+                            PurchLine2.FieldCaption("No.")));
+                    if ReturnShptLine."Gen. Bus. Posting Group" <> PurchLine2."Gen. Bus. Posting Group" then
+                        AddError(
+                          StrSubstNo(
+                            Text036,
+                            PurchLine2.FieldCaption("Gen. Bus. Posting Group")));
+                    if ReturnShptLine."Gen. Prod. Posting Group" <> PurchLine2."Gen. Prod. Posting Group" then
+                        AddError(
+                          StrSubstNo(
+                            Text036,
+                            PurchLine2.FieldCaption("Gen. Prod. Posting Group")));
+                    if ReturnShptLine."Location Code" <> PurchLine2."Location Code" then
+                        AddError(
+                          StrSubstNo(
+                            Text036,
+                            PurchLine2.FieldCaption("Location Code")));
+                    if ReturnShptLine."Job No." <> PurchLine2."Job No." then
+                        AddError(
+                          StrSubstNo(
+                            Text036,
+                            PurchLine2.FieldCaption("Job No.")));
+
+                    if -PurchLine."Qty. to Invoice" * ReturnShptLine.Quantity < 0 then
+                        AddError(StrSubstNo(Text025, PurchLine2.FieldCaption("Qty. to Invoice")));
+                    QtyToBeInvoiced := RemQtyToBeInvoiced - PurchLine."Return Qty. to Ship";
+                    if Abs(QtyToBeInvoiced) > Abs(ReturnShptLine.Quantity - ReturnShptLine."Quantity Invoiced") then
+                        QtyToBeInvoiced := ReturnShptLine.Quantity - ReturnShptLine."Quantity Invoiced";
+                    RemQtyToBeInvoiced := RemQtyToBeInvoiced - QtyToBeInvoiced;
+                    ReturnShptLine."Quantity Invoiced" := ReturnShptLine."Quantity Invoiced" + QtyToBeInvoiced;
+                until (ReturnShptLine.Next() = 0) or (Abs(RemQtyToBeInvoiced) <= Abs(PurchLine2."Return Qty. to Ship"))
+            else
+                AddError(
+                  StrSubstNo(
+                    Text034,
+                    PurchLine2."Return Shipment Line No.",
+                    PurchLine2."Return Shipment No."));
         end;
+
+        if Abs(RemQtyToBeInvoiced) > Abs(PurchLine2."Return Qty. to Ship") then
+            if PurchLine2."Document Type" = PurchLine2."Document Type"::"Credit Memo" then
+                AddError(
+                  StrSubstNo(
+                    Text038,
+                    PurchLine2."Return Shipment No."));
     end;
 
     procedure TestJobFields(var PurchLine: Record "Purchase Line")
@@ -2523,56 +2514,52 @@ report 402 "Purchase Document - Test"
         if IsHandled then
             exit;
 
-        with PurchLine do begin
-            if "Job No." = '' then
-                exit;
-            if (Type <> Type::"G/L Account") and (Type <> Type::Item) then
-                exit;
-            if ("Document Type" <> "Document Type"::Invoice) and
-               ("Document Type" <> "Document Type"::"Credit Memo")
-            then
-                exit;
-            if not Job.Get("Job No.") then
-                AddError(StrSubstNo(Text053, Job.TableCaption(), "Job No."))
-            else
-                if Job.Blocked <> Job.Blocked::" " then
-                    AddError(
-                      StrSubstNo(
-                        Text041, Job.FieldCaption(Blocked), Job.Blocked, Job.TableCaption(), "Job No."));
+        if PurchLine."Job No." = '' then
+            exit;
+        if (PurchLine.Type <> PurchLine.Type::"G/L Account") and (PurchLine.Type <> PurchLine.Type::Item) then
+            exit;
+        if (PurchLine."Document Type" <> PurchLine."Document Type"::Invoice) and
+           (PurchLine."Document Type" <> PurchLine."Document Type"::"Credit Memo")
+        then
+            exit;
+        if not Job.Get(PurchLine."Job No.") then
+            AddError(StrSubstNo(Text053, Job.TableCaption(), PurchLine."Job No."))
+        else
+            if Job.Blocked <> Job.Blocked::" " then
+                AddError(
+                  StrSubstNo(
+                    Text041, Job.FieldCaption(Blocked), Job.Blocked, Job.TableCaption(), PurchLine."Job No."));
 
-            if "Job Task No." = '' then
-                AddError(StrSubstNo(Text006, FieldCaption("Job Task No.")))
-            else
-                if not JT.Get("Job No.", "Job Task No.") then
-                    AddError(StrSubstNo(Text053, JT.TableCaption(), "Job Task No."))
-        end;
+        if PurchLine."Job Task No." = '' then
+            AddError(StrSubstNo(Text006, PurchLine.FieldCaption("Job Task No.")))
+        else
+            if not JT.Get(PurchLine."Job No.", PurchLine."Job Task No.") then
+                AddError(StrSubstNo(Text053, JT.TableCaption(), PurchLine."Job Task No."))
     end;
 
     local procedure IsInvtPosting(): Boolean
     var
         PurchLine: Record "Purchase Line";
     begin
-        with "Purchase Header" do begin
-            PurchLine.SetRange("Document Type", "Document Type");
-            PurchLine.SetRange("Document No.", "No.");
-            PurchLine.SetFilter(Type, '%1|%2', PurchLine.Type::Item, PurchLine.Type::"Charge (Item)");
-            if PurchLine.IsEmpty() then
-                exit(false);
-            if Receive then begin
-                PurchLine.SetFilter("Qty. to Receive", '<>%1', 0);
-                if not PurchLine.IsEmpty() then
-                    exit(true);
-            end;
-            if Ship then begin
-                PurchLine.SetFilter("Return Qty. to Ship", '<>%1', 0);
-                if not PurchLine.IsEmpty() then
-                    exit(true);
-            end;
-            if Invoice then begin
-                PurchLine.SetFilter("Qty. to Invoice", '<>%1', 0);
-                if not PurchLine.IsEmpty() then
-                    exit(true);
-            end;
+        PurchLine.SetRange("Document Type", "Purchase Header"."Document Type");
+        PurchLine.SetRange("Document No.", "Purchase Header"."No.");
+        PurchLine.SetFilter(Type, '%1|%2', PurchLine.Type::Item, PurchLine.Type::"Charge (Item)");
+        if PurchLine.IsEmpty() then
+            exit(false);
+        if "Purchase Header".Receive then begin
+            PurchLine.SetFilter("Qty. to Receive", '<>%1', 0);
+            if not PurchLine.IsEmpty() then
+                exit(true);
+        end;
+        if "Purchase Header".Ship then begin
+            PurchLine.SetFilter("Return Qty. to Ship", '<>%1', 0);
+            if not PurchLine.IsEmpty() then
+                exit(true);
+        end;
+        if "Purchase Header".Invoice then begin
+            PurchLine.SetFilter("Qty. to Invoice", '<>%1', 0);
+            if not PurchLine.IsEmpty() then
+                exit(true);
         end;
     end;
 
@@ -2583,18 +2570,16 @@ report 402 "Purchase Document - Test"
     begin
         SourceCodesetup.Get();
 
-        with PurchLine do begin
-            DimMgt.AddDimSource(DefaultDimSource, DimMgt.PurchLineTypeToTableID(Type), "No.");
-            DimMgt.AddDimSource(DefaultDimSource, Database::Job, "Job No.");
-            DimMgt.AddDimSource(DefaultDimSource, Database::"Responsibility Center", "Responsibility Center");
+        DimMgt.AddDimSource(DefaultDimSource, DimMgt.PurchLineTypeToTableID(PurchLine.Type), PurchLine."No.");
+        DimMgt.AddDimSource(DefaultDimSource, Database::Job, PurchLine."Job No.");
+        DimMgt.AddDimSource(DefaultDimSource, Database::"Responsibility Center", PurchLine."Responsibility Center");
 
-            "Shortcut Dimension 1 Code" := '';
-            "Shortcut Dimension 2 Code" := '';
+        PurchLine."Shortcut Dimension 1 Code" := '';
+        PurchLine."Shortcut Dimension 2 Code" := '';
 
-            "Dimension Set ID" :=
-              DimMgt.GetDefaultDimID(DefaultDimSource, SourceCodesetup.Purchases, "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code",
-                "Dimension Set ID", Database::Vendor);
-        end;
+        PurchLine."Dimension Set ID" :=
+          DimMgt.GetDefaultDimID(DefaultDimSource, SourceCodesetup.Purchases, PurchLine."Shortcut Dimension 1 Code", PurchLine."Shortcut Dimension 2 Code",
+            PurchLine."Dimension Set ID", Database::Vendor);
 
         OnAfterAddDimToTempLine(PurchLine);
     end;
@@ -2609,46 +2594,44 @@ report 402 "Purchase Document - Test"
 
     local procedure VerifyBuyFromVend(PurchaseHeader: Record "Purchase Header")
     begin
-        with PurchaseHeader do
-            if "Buy-from Vendor No." = '' then
-                AddError(StrSubstNo(Text006, FieldCaption("Buy-from Vendor No.")))
-            else
-                if Vend.Get("Buy-from Vendor No.") then begin
-                    if Vend."Privacy Blocked" then
-                        AddError(Vend.GetPrivacyBlockedGenericErrorText(Vend));
+        if PurchaseHeader."Buy-from Vendor No." = '' then
+            AddError(StrSubstNo(Text006, PurchaseHeader.FieldCaption("Buy-from Vendor No.")))
+        else
+            if Vend.Get(PurchaseHeader."Buy-from Vendor No.") then begin
+                if Vend."Privacy Blocked" then
+                    AddError(Vend.GetPrivacyBlockedGenericErrorText(Vend));
 
-                    if Vend.Blocked = Vend.Blocked::All then
-                        AddError(
-                          StrSubstNo(
-                            Text041,
-                            Vend.FieldCaption(Blocked), Vend.Blocked, Vend.TableCaption(), "Buy-from Vendor No."));
-                end else
+                if Vend.Blocked = Vend.Blocked::All then
                     AddError(
                       StrSubstNo(
-                        Text008,
-                        Vend.TableCaption(), "Buy-from Vendor No."));
+                        Text041,
+                        Vend.FieldCaption(Blocked), Vend.Blocked, Vend.TableCaption(), PurchaseHeader."Buy-from Vendor No."));
+            end else
+                AddError(
+                  StrSubstNo(
+                    Text008,
+                    Vend.TableCaption(), PurchaseHeader."Buy-from Vendor No."));
     end;
 
     local procedure VerifyPayToVend(PurchaseHeader: Record "Purchase Header")
     begin
-        with PurchaseHeader do
-            if "Pay-to Vendor No." = '' then
-                AddError(StrSubstNo(Text006, FieldCaption("Pay-to Vendor No.")))
-            else
-                if "Pay-to Vendor No." <> "Buy-from Vendor No." then
-                    if Vend.Get("Pay-to Vendor No.") then begin
-                        if Vend."Privacy Blocked" then
-                            AddError(Vend.GetPrivacyBlockedGenericErrorText(Vend));
-                        if Vend.Blocked = Vend.Blocked::All then
-                            AddError(
-                              StrSubstNo(
-                                Text041,
-                                Vend.FieldCaption(Blocked), Vend.Blocked::All, Vend.TableCaption(), "Pay-to Vendor No."));
-                    end else
+        if PurchaseHeader."Pay-to Vendor No." = '' then
+            AddError(StrSubstNo(Text006, PurchaseHeader.FieldCaption("Pay-to Vendor No.")))
+        else
+            if PurchaseHeader."Pay-to Vendor No." <> PurchaseHeader."Buy-from Vendor No." then
+                if Vend.Get(PurchaseHeader."Pay-to Vendor No.") then begin
+                    if Vend."Privacy Blocked" then
+                        AddError(Vend.GetPrivacyBlockedGenericErrorText(Vend));
+                    if Vend.Blocked = Vend.Blocked::All then
                         AddError(
                           StrSubstNo(
-                            Text008,
-                            Vend.TableCaption(), "Pay-to Vendor No."));
+                            Text041,
+                            Vend.FieldCaption(Blocked), Vend.Blocked::All, Vend.TableCaption(), PurchaseHeader."Pay-to Vendor No."));
+                end else
+                    AddError(
+                      StrSubstNo(
+                        Text008,
+                        Vend.TableCaption(), PurchaseHeader."Pay-to Vendor No."));
     end;
 
     local procedure VerifyPostingDate(PurchaseHeader: Record "Purchase Header")
@@ -2657,22 +2640,21 @@ report 402 "Purchase Document - Test"
         InvtPeriodEndDate: Date;
         TempErrorText: Text[250];
     begin
-        with PurchaseHeader do
-            if "Posting Date" = 0D then
-                AddError(StrSubstNo(Text006, FieldCaption("Posting Date")))
-            else
-                if "Posting Date" <> NormalDate("Posting Date") then
-                    AddError(StrSubstNo(Text009, FieldCaption("Posting Date")))
-                else begin
-                    if not UserSetupManagement.TestAllowedPostingDate("Posting Date", TempErrorText) then
-                        AddError(TempErrorText);
-                    if IsInvtPosting() then begin
-                        InvtPeriodEndDate := "Posting Date";
-                        if not InvtPeriod.IsValidDate(InvtPeriodEndDate) then
-                            AddError(
-                              StrSubstNo(Text010, Format("Posting Date")))
-                    end;
+        if PurchaseHeader."Posting Date" = 0D then
+            AddError(StrSubstNo(Text006, PurchaseHeader.FieldCaption("Posting Date")))
+        else
+            if PurchaseHeader."Posting Date" <> NormalDate(PurchaseHeader."Posting Date") then
+                AddError(StrSubstNo(Text009, PurchaseHeader.FieldCaption("Posting Date")))
+            else begin
+                if not UserSetupManagement.TestAllowedPostingDate(PurchaseHeader."Posting Date", TempErrorText) then
+                    AddError(TempErrorText);
+                if IsInvtPosting() then begin
+                    InvtPeriodEndDate := PurchaseHeader."Posting Date";
+                    if not InvtPeriod.IsValidDate(InvtPeriodEndDate) then
+                        AddError(
+                          StrSubstNo(Text010, Format(PurchaseHeader."Posting Date")))
                 end;
+            end;
     end;
 
     [IntegrationEvent(false, false)]

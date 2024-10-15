@@ -9,6 +9,7 @@ table 5208 "Human Resource Comment Line"
     DataCaptionFields = "No.";
     DrillDownPageID = "Human Resource Comment List";
     LookupPageID = "Human Resource Comment List";
+    DataClassification = CustomerContent;
 
     fields
     {

@@ -130,7 +130,7 @@ codeunit 141018 "UT PAG Sales Tax Statistics"
         // Setup: Create Tax Setup and Service Credit Memo. The Transaction Model is AutoCommit for explicit commit used in On Action - Statistics trigger.
         Initialize();
         OldInvoiceRounding := UpdateInvoiceRoundingOnSalesReceivablesSetup(false);  // Update Invoice Rounding to FALSE on Sales & Receivables Setup.
-        CreateTaxDetail(TaxDetail, CreateTaxGroup, LibraryRandom.RandDec(10, 2));
+        CreateTaxDetail(TaxDetail, CreateTaxGroup(), LibraryRandom.RandDec(10, 2));
         CreateServiceDocument(ServiceLine, ServiceLine."Document Type"::"Credit Memo", CreateTaxAreaWithLine(TaxDetail."Tax Jurisdiction Code"), TaxDetail."Tax Group Code", true);  // Tax Liable TRUE.
         TaxAmount := ServiceLine.Quantity * ServiceLine."Unit Price" * TaxDetail."Tax Below Maximum" / 100;
         AmountIncTax := ServiceLine.Quantity * ServiceLine."Unit Price" + TaxAmount;
@@ -185,7 +185,7 @@ codeunit 141018 "UT PAG Sales Tax Statistics"
 
         // Setup: Create Tax Setup, Create a Sales Quote. The Transaction Model is AutoCommit for explicit commit used in On Action - Statistics trigger.
         Initialize();
-        CreateTaxDetail(TaxDetail, CreateTaxGroup, LibraryRandom.RandDec(10, 2));
+        CreateTaxDetail(TaxDetail, CreateTaxGroup(), LibraryRandom.RandDec(10, 2));
         CreateSalesDocument(SalesLine, SalesLine."Document Type"::Quote, TaxDetail."Tax Group Code", CreateTaxAreaWithLine(TaxDetail."Tax Jurisdiction Code"), true);  // Tax Liable TRUE.
         TaxAmount := SalesLine."Line Amount" * TaxDetail."Tax Below Maximum" / 100;
         AmountIncTax := SalesLine.Quantity * SalesLine."Unit Price" + TaxAmount;
@@ -238,7 +238,7 @@ codeunit 141018 "UT PAG Sales Tax Statistics"
 
         // Setup: Create Tax Setup, Create a Sales Order. The Transaction Model is AutoCommit for explicit commit used in On Action - Statistics trigger.
         Initialize();
-        CreateTaxDetail(TaxDetail, CreateTaxGroup, LibraryRandom.RandDec(10, 2));
+        CreateTaxDetail(TaxDetail, CreateTaxGroup(), LibraryRandom.RandDec(10, 2));
         CreateSalesDocument(SalesLine, SalesLine."Document Type"::Order, TaxDetail."Tax Group Code", CreateTaxAreaWithLine(TaxDetail."Tax Jurisdiction Code"), true);  // Tax Liable TRUE.
         TaxAmount := SalesLine.Quantity * SalesLine."Unit Price" * TaxDetail."Tax Below Maximum" / 100;
         AmountIncTax := SalesLine.Quantity * SalesLine."Unit Price" + TaxAmount;
@@ -291,7 +291,7 @@ codeunit 141018 "UT PAG Sales Tax Statistics"
 
         // Setup: Create Tax Setup, Create a Sales Invoice. The Transaction Model is AutoCommit for explicit commit used in On Action - Statistics trigger.
         Initialize();
-        CreateTaxDetail(TaxDetail, CreateTaxGroup, LibraryRandom.RandDec(10, 2));
+        CreateTaxDetail(TaxDetail, CreateTaxGroup(), LibraryRandom.RandDec(10, 2));
         CreateSalesDocument(SalesLine, SalesLine."Document Type"::Invoice, TaxDetail."Tax Group Code", CreateTaxAreaWithLine(TaxDetail."Tax Jurisdiction Code"), true);  // Tax Liable TRUE.
         TaxAmount := SalesLine.Quantity * SalesLine."Unit Price" * TaxDetail."Tax Below Maximum" / 100;
         AmountIncTax := SalesLine.Quantity * SalesLine."Unit Price" + TaxAmount;
@@ -344,7 +344,7 @@ codeunit 141018 "UT PAG Sales Tax Statistics"
 
         // Setup: Create Tax Setup. Create a Blanket Sales Order. The Transaction Model is AutoCommit for explicit commit used in On Action - Statistics trigger.
         Initialize();
-        CreateTaxDetail(TaxDetail, CreateTaxGroup, LibraryRandom.RandDec(10, 2));
+        CreateTaxDetail(TaxDetail, CreateTaxGroup(), LibraryRandom.RandDec(10, 2));
         CreateSalesDocument(SalesLine, SalesLine."Document Type"::"Blanket Order", TaxDetail."Tax Group Code", CreateTaxAreaWithLine(TaxDetail."Tax Jurisdiction Code"), true);  // Tax Liable TRUE.
         TaxAmount := SalesLine.Quantity * SalesLine."Unit Price" * TaxDetail."Tax Below Maximum" / 100;
         AmountIncTax := SalesLine.Quantity * SalesLine."Unit Price" + TaxAmount;
@@ -397,7 +397,7 @@ codeunit 141018 "UT PAG Sales Tax Statistics"
 
         // Setup: Create Tax Setup, Create a Sales Return Order. The Transaction Model is AutoCommit for explicit commit used in On Action - Statistics trigger.
         Initialize();
-        CreateTaxDetail(TaxDetail, CreateTaxGroup, LibraryRandom.RandDec(10, 2));
+        CreateTaxDetail(TaxDetail, CreateTaxGroup(), LibraryRandom.RandDec(10, 2));
         CreateSalesDocument(SalesLine, SalesLine."Document Type"::"Return Order", TaxDetail."Tax Group Code", CreateTaxAreaWithLine(TaxDetail."Tax Jurisdiction Code"), true);  // Tax Liable TRUE.
         TaxAmount := SalesLine.Quantity * SalesLine."Unit Price" * TaxDetail."Tax Below Maximum" / 100;
         AmountIncTax := SalesLine.Quantity * SalesLine."Unit Price" + TaxAmount;
@@ -450,7 +450,7 @@ codeunit 141018 "UT PAG Sales Tax Statistics"
 
         // Setup: Create Tax Setup, Create a Sales Credit Memo. The Transaction Model is AutoCommit for explicit commit used in On Action - Statistics trigger.
         Initialize();
-        CreateTaxDetail(TaxDetail, CreateTaxGroup, LibraryRandom.RandDec(10, 2));
+        CreateTaxDetail(TaxDetail, CreateTaxGroup(), LibraryRandom.RandDec(10, 2));
         CreateSalesDocument(SalesLine, SalesLine."Document Type"::"Credit Memo", TaxDetail."Tax Group Code", CreateTaxAreaWithLine(TaxDetail."Tax Jurisdiction Code"), true);  // Tax Liable TRUE.
         TaxAmount := SalesLine.Quantity * SalesLine."Unit Price" * TaxDetail."Tax Below Maximum" / 100;
         AmountIncTax := SalesLine.Quantity * SalesLine."Unit Price" + TaxAmount;
@@ -477,7 +477,7 @@ codeunit 141018 "UT PAG Sales Tax Statistics"
 
         // Setup: Create Purchase Order with Tax Area Code. The Transaction Model is AutoCommit for explicit commit used in On Action - Statistics trigger.
         Initialize();
-        CreateTaxDetail(TaxDetail, CreateTaxGroup, LibraryRandom.RandDec(10, 2));
+        CreateTaxDetail(TaxDetail, CreateTaxGroup(), LibraryRandom.RandDec(10, 2));
         CreatePurchaseDocument(PurchaseLine, PurchaseLine."Document Type"::Order, CreateTaxAreaWithLine(TaxDetail."Tax Jurisdiction Code"), TaxDetail."Tax Group Code", true);
         TaxAmount := PurchaseLine."Direct Unit Cost" * PurchaseLine.Quantity * TaxDetail."Tax Below Maximum" / 100;
         AmountIncTax := PurchaseLine."Direct Unit Cost" * PurchaseLine.Quantity + TaxAmount;
@@ -529,7 +529,7 @@ codeunit 141018 "UT PAG Sales Tax Statistics"
 
         // Setup: Create Purchase Return Order with Tax Area Code. The Transaction Model is AutoCommit for explicit commit used in On Action - Statistics trigger.
         Initialize();
-        CreateTaxDetail(TaxDetail, CreateTaxGroup, LibraryRandom.RandDec(10, 2));
+        CreateTaxDetail(TaxDetail, CreateTaxGroup(), LibraryRandom.RandDec(10, 2));
         CreatePurchaseDocument(PurchaseLine, PurchaseLine."Document Type"::"Return Order", CreateTaxAreaWithLine(TaxDetail."Tax Jurisdiction Code"), TaxDetail."Tax Group Code", true);
         TaxAmount := PurchaseLine."Direct Unit Cost" * PurchaseLine.Quantity * TaxDetail."Tax Below Maximum" / 100;
         AmountIncTax := PurchaseLine."Direct Unit Cost" * PurchaseLine.Quantity + TaxAmount;
@@ -581,7 +581,7 @@ codeunit 141018 "UT PAG Sales Tax Statistics"
 
         // Setup: Create Blanket Purchase Order with Tax Area Code. The Transaction Model is AutoCommit for explicit commit used in On Action - Statistics trigger.
         Initialize();
-        CreateTaxDetail(TaxDetail, CreateTaxGroup, LibraryRandom.RandDec(10, 2));
+        CreateTaxDetail(TaxDetail, CreateTaxGroup(), LibraryRandom.RandDec(10, 2));
         CreatePurchaseDocument(PurchaseLine, PurchaseLine."Document Type"::"Blanket Order", CreateTaxAreaWithLine(TaxDetail."Tax Jurisdiction Code"), TaxDetail."Tax Group Code", true);
         TaxAmount := PurchaseLine."Direct Unit Cost" * PurchaseLine.Quantity * TaxDetail."Tax Below Maximum" / 100;
         AmountIncTax := PurchaseLine."Direct Unit Cost" * PurchaseLine.Quantity + TaxAmount;
@@ -633,7 +633,7 @@ codeunit 141018 "UT PAG Sales Tax Statistics"
 
         // Setup: Create Purchase Quote with Tax Area Code. The Transaction Model is AutoCommit for explicit commit used in On Action - Statistics trigger.
         Initialize();
-        CreateTaxDetail(TaxDetail, CreateTaxGroup, LibraryRandom.RandDec(10, 2));
+        CreateTaxDetail(TaxDetail, CreateTaxGroup(), LibraryRandom.RandDec(10, 2));
         CreatePurchaseDocument(PurchaseLine, PurchaseLine."Document Type"::Quote, CreateTaxAreaWithLine(TaxDetail."Tax Jurisdiction Code"), TaxDetail."Tax Group Code", true);
         TaxAmount := PurchaseLine."Line Amount" * TaxDetail."Tax Below Maximum" / 100;
         AmountIncTax := PurchaseLine."Direct Unit Cost" * PurchaseLine.Quantity + TaxAmount;
@@ -685,7 +685,7 @@ codeunit 141018 "UT PAG Sales Tax Statistics"
 
         // Setup: Create Purchase Credit Memo with Tax Area Code. The Transaction Model is AutoCommit for explicit commit used in On Action - Statistics trigger.
         Initialize();
-        CreateTaxDetail(TaxDetail, CreateTaxGroup, LibraryRandom.RandDec(10, 2));
+        CreateTaxDetail(TaxDetail, CreateTaxGroup(), LibraryRandom.RandDec(10, 2));
         CreatePurchaseDocument(PurchaseLine, PurchaseLine."Document Type"::"Credit Memo", CreateTaxAreaWithLine(TaxDetail."Tax Jurisdiction Code"), TaxDetail."Tax Group Code", true);
         TaxAmount := PurchaseLine."Line Amount" * TaxDetail."Tax Below Maximum" / 100;
         AmountIncTax := PurchaseLine."Direct Unit Cost" * PurchaseLine.Quantity + TaxAmount;
@@ -737,7 +737,7 @@ codeunit 141018 "UT PAG Sales Tax Statistics"
 
         // Setup: Create Purchase Invoice with Tax Area Code. The Transaction Model is AutoCommit for explicit commit used in On Action - Statistics trigger.
         Initialize();
-        CreateTaxDetail(TaxDetail, CreateTaxGroup, LibraryRandom.RandDec(10, 2));
+        CreateTaxDetail(TaxDetail, CreateTaxGroup(), LibraryRandom.RandDec(10, 2));
         CreatePurchaseDocument(PurchaseLine, PurchaseLine."Document Type"::Invoice, CreateTaxAreaWithLine(TaxDetail."Tax Jurisdiction Code"), TaxDetail."Tax Group Code", true);
         TaxAmount := PurchaseLine."Line Amount" * TaxDetail."Tax Below Maximum" / 100;
         AmountIncTax := PurchaseLine."Direct Unit Cost" * PurchaseLine.Quantity + TaxAmount;
@@ -791,7 +791,7 @@ codeunit 141018 "UT PAG Sales Tax Statistics"
         // Setup: Create Service Invoice with Tax Area Code. The Transaction Model is AutoCommit for explicit commit used in On Action - Statistics trigger.
         Initialize();
         OldInvoiceRounding := UpdateInvoiceRoundingOnSalesReceivablesSetup(false);  // Update Invoice Rounding to FALSE on Sales & Receivables Setup.
-        CreateTaxDetail(TaxDetail, CreateTaxGroup, LibraryRandom.RandDec(10, 2));
+        CreateTaxDetail(TaxDetail, CreateTaxGroup(), LibraryRandom.RandDec(10, 2));
         CreateServiceDocument(ServiceLine, ServiceLine."Document Type"::Invoice, CreateTaxAreaWithLine(TaxDetail."Tax Jurisdiction Code"), TaxDetail."Tax Group Code", true);
         TaxAmount := ServiceLine."Unit Price" * ServiceLine.Quantity * TaxDetail."Tax Below Maximum" / 100;
         AmountIncTax := ServiceLine."Unit Price" * ServiceLine.Quantity + TaxAmount;
@@ -853,7 +853,7 @@ codeunit 141018 "UT PAG Sales Tax Statistics"
 
         // [GIVEN] Tax Area with two Tax Jurisdictions, each with fractional tax percents: 6.875 % and 0.25 %.
         Initialize();
-        TaxGroupCode := CreateTaxGroup;
+        TaxGroupCode := CreateTaxGroup();
         CreateTaxDetail(TaxDetail[1], TaxGroupCode, 6.875); // specific value needed for test
         CreateTaxDetail(TaxDetail[2], TaxGroupCode, 0.25); // specific value needed for test
         TaxAreaCode := CreateTaxAreaWithLine(TaxDetail[1]."Tax Jurisdiction Code");
@@ -886,7 +886,7 @@ codeunit 141018 "UT PAG Sales Tax Statistics"
 
         // [GIVEN] Three Tax Areas with with tax percents: 10 %.
         Initialize();
-        TaxGroupCode := CreateTaxGroup;
+        TaxGroupCode := CreateTaxGroup();
         CreateTaxDetail(TaxDetail, TaxGroupCode, 10); // specific value needed for test
         for i := 1 to 3 do
             TaxAreaCode[i] := CreateTaxAreaWithLine(TaxDetail."Tax Jurisdiction Code");
@@ -920,7 +920,7 @@ codeunit 141018 "UT PAG Sales Tax Statistics"
 
         // [GIVEN] Tax Area with two Tax Jurisdictions for Country/Region = "CA", each with fractional tax percents: 6.875 % and 0.25 %.
         Initialize();
-        TaxGroupCode := CreateTaxGroup;
+        TaxGroupCode := CreateTaxGroup();
         CreateTaxDetail(TaxDetail[1], TaxGroupCode, 6.875); // specific value needed for test
         CreateTaxDetail(TaxDetail[2], TaxGroupCode, 0.25); // specific value needed for test
         TaxAreaCode := CreateTaxAreaWithSpecificCountryRegionAndLine(TaxDetail[1]."Tax Jurisdiction Code", TaxArea."Country/Region"::CA);
@@ -952,7 +952,7 @@ codeunit 141018 "UT PAG Sales Tax Statistics"
         Initialize();
 
         // [GIVEN] Tax setup with Tax Detail having "Tax Below Maximum" := 1, "Maximum Amount/Qty." = 5000.
-        TaxGroupCode := CreateTaxGroup;
+        TaxGroupCode := CreateTaxGroup();
         CreateTaxDetail(TaxDetail, TaxGroupCode, 1);
         TaxDetail."Maximum Amount/Qty." := 5000;
         TaxDetail.Modify();
@@ -1220,7 +1220,7 @@ codeunit 141018 "UT PAG Sales Tax Statistics"
     begin
         with SalesHeader do begin
             "Document Type" := DocumentType;
-            "No." := LibraryUTUtility.GetNewCode;
+            "No." := LibraryUTUtility.GetNewCode();
             "Tax Area Code" := TaxAreaCode;
             Status := Status::Released;
             Insert();
@@ -1252,12 +1252,12 @@ codeunit 141018 "UT PAG Sales Tax Statistics"
         end;
     end;
 
-    local procedure CreatePurchaseDocument(var PurchaseLine: Record "Purchase Line"; DocumentType: Option; TaxAreaCode: Code[20]; TaxGroupCode: Code[20]; TaxLiable: Boolean)
+    local procedure CreatePurchaseDocument(var PurchaseLine: Record "Purchase Line"; DocumentType: Enum "Purchase Document Type"; TaxAreaCode: Code[20]; TaxGroupCode: Code[20]; TaxLiable: Boolean)
     var
         PurchaseHeader: Record "Purchase Header";
     begin
         PurchaseHeader."Document Type" := DocumentType;
-        PurchaseHeader."No." := LibraryUTUtility.GetNewCode;
+        PurchaseHeader."No." := LibraryUTUtility.GetNewCode();
         PurchaseHeader."Tax Area Code" := TaxAreaCode;
         PurchaseHeader.Insert();
 
@@ -1275,12 +1275,12 @@ codeunit 141018 "UT PAG Sales Tax Statistics"
         PurchaseLine.Insert();
     end;
 
-    local procedure CreateServiceDocument(var ServiceLine: Record "Service Line"; DocumentType: Option; TaxAreaCode: Code[20]; TaxGroupCode: Code[20]; TaxLiable: Boolean)
+    local procedure CreateServiceDocument(var ServiceLine: Record "Service Line"; DocumentType: Enum "Service Document Type"; TaxAreaCode: Code[20]; TaxGroupCode: Code[20]; TaxLiable: Boolean)
     var
         ServiceHeader: Record "Service Header";
     begin
         ServiceHeader."Document Type" := DocumentType;
-        ServiceHeader."No." := LibraryUTUtility.GetNewCode;
+        ServiceHeader."No." := LibraryUTUtility.GetNewCode();
         ServiceHeader."Tax Area Code" := TaxAreaCode;
         ServiceHeader.Insert();
 
@@ -1316,17 +1316,15 @@ codeunit 141018 "UT PAG Sales Tax Statistics"
     var
         TaxAreaLine: Record "Tax Area Line";
     begin
-        with TaxAreaLine do begin
-            Init();
-            "Tax Area" := TaxAreaCode;
-            "Tax Jurisdiction Code" := TaxJurisdictionCode;
-            Insert();
-        end;
+        TaxAreaLine.Init();
+        TaxAreaLine."Tax Area" := TaxAreaCode;
+        TaxAreaLine."Tax Jurisdiction Code" := TaxJurisdictionCode;
+        TaxAreaLine.Insert();
     end;
 
     local procedure CreateTaxDetail(var TaxDetail: Record "Tax Detail"; TaxGroupCode: Code[20]; TaxBelowMax: Decimal)
     begin
-        TaxDetail."Tax Jurisdiction Code" := CreateTaxJurisdiction;
+        TaxDetail."Tax Jurisdiction Code" := CreateTaxJurisdiction();
         TaxDetail."Tax Group Code" := TaxGroupCode;
         TaxDetail."Tax Below Maximum" := TaxBelowMax;
         TaxDetail.Insert();
@@ -1336,7 +1334,7 @@ codeunit 141018 "UT PAG Sales Tax Statistics"
     var
         TaxGroup: Record "Tax Group";
     begin
-        TaxGroup.Code := LibraryUTUtility.GetNewCode10;
+        TaxGroup.Code := LibraryUTUtility.GetNewCode10();
         TaxGroup.Insert();
         exit(TaxGroup.Code);
     end;
@@ -1345,7 +1343,7 @@ codeunit 141018 "UT PAG Sales Tax Statistics"
     var
         TaxJurisdiction: Record "Tax Jurisdiction";
     begin
-        TaxJurisdiction.Code := LibraryUTUtility.GetNewCode10;
+        TaxJurisdiction.Code := LibraryUTUtility.GetNewCode10();
         TaxJurisdiction.Insert();
         exit(TaxJurisdiction.Code);
     end;
@@ -1364,9 +1362,9 @@ codeunit 141018 "UT PAG Sales Tax Statistics"
     var
         ServiceCreditMemos: TestPage "Service Credit Memos";
     begin
-        ServiceCreditMemos.OpenEdit;
+        ServiceCreditMemos.OpenEdit();
         ServiceCreditMemos.FILTER.SetFilter("No.", No);
-        ServiceCreditMemos.Statistics.Invoke;  // Opens Handler - ServiceStatisticsPageHandler and ServiceStatsPageHandler.
+        ServiceCreditMemos.Statistics.Invoke();  // Opens Handler - ServiceStatisticsPageHandler and ServiceStatsPageHandler.
         ServiceCreditMemos.Close();
     end;
 
@@ -1374,9 +1372,9 @@ codeunit 141018 "UT PAG Sales Tax Statistics"
     var
         SalesQuotes: TestPage "Sales Quotes";
     begin
-        SalesQuotes.OpenEdit;
+        SalesQuotes.OpenEdit();
         SalesQuotes.FILTER.SetFilter("No.", No);
-        SalesQuotes.Statistics.Invoke;  // Opens Handler - SalesStatisticsPageHandler and SalesQuotesStatsPageHandler.
+        SalesQuotes.Statistics.Invoke();  // Opens Handler - SalesStatisticsPageHandler and SalesQuotesStatsPageHandler.
         SalesQuotes.Close();
     end;
 
@@ -1384,9 +1382,9 @@ codeunit 141018 "UT PAG Sales Tax Statistics"
     var
         SalesOrderList: TestPage "Sales Order List";
     begin
-        SalesOrderList.OpenEdit;
+        SalesOrderList.OpenEdit();
         SalesOrderList.FILTER.SetFilter("No.", No);
-        SalesOrderList.Statistics.Invoke;  // Opens Handler - SalesOrderStatisticsPageHandler and SalesOrderStatsPageHandler.
+        SalesOrderList.Statistics.Invoke();  // Opens Handler - SalesOrderStatisticsPageHandler and SalesOrderStatsPageHandler.
         SalesOrderList.Close();
     end;
 
@@ -1394,9 +1392,9 @@ codeunit 141018 "UT PAG Sales Tax Statistics"
     var
         SalesInvoiceList: TestPage "Sales Invoice List";
     begin
-        SalesInvoiceList.OpenEdit;
+        SalesInvoiceList.OpenEdit();
         SalesInvoiceList.FILTER.SetFilter("No.", No);
-        SalesInvoiceList.Statistics.Invoke;  // Opens Handler - SalesOrderStatisticsPageHandler and SalesOrderStatsPageHandler.
+        SalesInvoiceList.Statistics.Invoke();  // Opens Handler - SalesOrderStatisticsPageHandler and SalesOrderStatsPageHandler.
         SalesInvoiceList.Close();
     end;
 
@@ -1404,9 +1402,9 @@ codeunit 141018 "UT PAG Sales Tax Statistics"
     var
         BlanketSalesOrders: TestPage "Blanket Sales Orders";
     begin
-        BlanketSalesOrders.OpenEdit;
+        BlanketSalesOrders.OpenEdit();
         BlanketSalesOrders.FILTER.SetFilter("No.", No);
-        BlanketSalesOrders.Statistics.Invoke;  // Opens Handler - SalesOrderStatisticsPageHandler and SalesOrderStatsPageHandler.
+        BlanketSalesOrders.Statistics.Invoke();  // Opens Handler - SalesOrderStatisticsPageHandler and SalesOrderStatsPageHandler.
         BlanketSalesOrders.Close();
     end;
 
@@ -1414,9 +1412,9 @@ codeunit 141018 "UT PAG Sales Tax Statistics"
     var
         SalesReturnOrderList: TestPage "Sales Return Order List";
     begin
-        SalesReturnOrderList.OpenEdit;
+        SalesReturnOrderList.OpenEdit();
         SalesReturnOrderList.FILTER.SetFilter("No.", No);
-        SalesReturnOrderList.Statistics.Invoke;  // Opens Handler - SalesOrderStatisticsPageHandler and SalesOrderStatsPageHandler.
+        SalesReturnOrderList.Statistics.Invoke();  // Opens Handler - SalesOrderStatisticsPageHandler and SalesOrderStatsPageHandler.
         SalesReturnOrderList.Close();
     end;
 
@@ -1424,9 +1422,9 @@ codeunit 141018 "UT PAG Sales Tax Statistics"
     var
         SalesCreditMemos: TestPage "Sales Credit Memos";
     begin
-        SalesCreditMemos.OpenEdit;
+        SalesCreditMemos.OpenEdit();
         SalesCreditMemos.FILTER.SetFilter("No.", No);
-        SalesCreditMemos.Statistics.Invoke;  // Opens Handler - SalesStatisticsPageHandler and SalesOrderStatsPageHandler.
+        SalesCreditMemos.Statistics.Invoke();  // Opens Handler - SalesStatisticsPageHandler and SalesOrderStatsPageHandler.
         SalesCreditMemos.Close();
     end;
 
@@ -1434,9 +1432,9 @@ codeunit 141018 "UT PAG Sales Tax Statistics"
     var
         PurchaseOrderList: TestPage "Purchase Order List";
     begin
-        PurchaseOrderList.OpenEdit;
+        PurchaseOrderList.OpenEdit();
         PurchaseOrderList.FILTER.SetFilter("No.", No);
-        PurchaseOrderList.Statistics.Invoke;  // Opens Handler - PurchaseOrderStatsPageHandler and PurchaseOrderStatisticsPageHandler.
+        PurchaseOrderList.Statistics.Invoke();  // Opens Handler - PurchaseOrderStatsPageHandler and PurchaseOrderStatisticsPageHandler.
         PurchaseOrderList.Close();
     end;
 
@@ -1444,9 +1442,9 @@ codeunit 141018 "UT PAG Sales Tax Statistics"
     var
         PurchaseReturnOrderList: TestPage "Purchase Return Order List";
     begin
-        PurchaseReturnOrderList.OpenEdit;
+        PurchaseReturnOrderList.OpenEdit();
         PurchaseReturnOrderList.FILTER.SetFilter("No.", No);
-        PurchaseReturnOrderList.Statistics.Invoke;  // Opens Handler - PurchaseOrderStatsPageHandler and PurchaseOrderStatisticsPageHandler.
+        PurchaseReturnOrderList.Statistics.Invoke();  // Opens Handler - PurchaseOrderStatsPageHandler and PurchaseOrderStatisticsPageHandler.
         PurchaseReturnOrderList.Close();
     end;
 
@@ -1454,9 +1452,9 @@ codeunit 141018 "UT PAG Sales Tax Statistics"
     var
         BlanketPurchaseOrders: TestPage "Blanket Purchase Orders";
     begin
-        BlanketPurchaseOrders.OpenEdit;
+        BlanketPurchaseOrders.OpenEdit();
         BlanketPurchaseOrders.FILTER.SetFilter("No.", No);
-        BlanketPurchaseOrders.Statistics.Invoke;  // Opens Handler - PurchaseOrderStatisticsPageHandler and PurchaseOrderStatsPageHandler.
+        BlanketPurchaseOrders.Statistics.Invoke();  // Opens Handler - PurchaseOrderStatisticsPageHandler and PurchaseOrderStatsPageHandler.
         BlanketPurchaseOrders.Close();
     end;
 
@@ -1464,9 +1462,9 @@ codeunit 141018 "UT PAG Sales Tax Statistics"
     var
         PurchaseQuotes: TestPage "Purchase Quotes";
     begin
-        PurchaseQuotes.OpenEdit;
+        PurchaseQuotes.OpenEdit();
         PurchaseQuotes.FILTER.SetFilter("No.", No);
-        PurchaseQuotes.Statistics.Invoke;  // Opens Handler - PurchaseStatsPageHandler and PurchaseStatisticsPageHandler.
+        PurchaseQuotes.Statistics.Invoke();  // Opens Handler - PurchaseStatsPageHandler and PurchaseStatisticsPageHandler.
         PurchaseQuotes.Close();
     end;
 
@@ -1474,9 +1472,9 @@ codeunit 141018 "UT PAG Sales Tax Statistics"
     var
         PurchaseCreditMemos: TestPage "Purchase Credit Memos";
     begin
-        PurchaseCreditMemos.OpenEdit;
+        PurchaseCreditMemos.OpenEdit();
         PurchaseCreditMemos.FILTER.SetFilter("No.", No);
-        PurchaseCreditMemos.Statistics.Invoke;  // Opens Handler-  PurchaseStatsPageHandler and PurchaseStatisticsPageHandler..
+        PurchaseCreditMemos.Statistics.Invoke();  // Opens Handler-  PurchaseStatsPageHandler and PurchaseStatisticsPageHandler..
         PurchaseCreditMemos.Close();
     end;
 
@@ -1484,9 +1482,9 @@ codeunit 141018 "UT PAG Sales Tax Statistics"
     var
         PurchaseInvoices: TestPage "Purchase Invoices";
     begin
-        PurchaseInvoices.OpenEdit;
+        PurchaseInvoices.OpenEdit();
         PurchaseInvoices.FILTER.SetFilter("No.", No);
-        PurchaseInvoices.Statistics.Invoke;  // Opens Handler - PurchaseStatsPageHandler and PurchaseStatisticsPageHandler.
+        PurchaseInvoices.Statistics.Invoke();  // Opens Handler - PurchaseStatsPageHandler and PurchaseStatisticsPageHandler.
         PurchaseInvoices.Close();
     end;
 
@@ -1494,9 +1492,9 @@ codeunit 141018 "UT PAG Sales Tax Statistics"
     var
         ServiceInvoices: TestPage "Service Invoices";
     begin
-        ServiceInvoices.OpenEdit;
+        ServiceInvoices.OpenEdit();
         ServiceInvoices.FILTER.SetFilter("No.", No);
-        ServiceInvoices.Statistics.Invoke;  // Opens Handler - ServiceStatsPageHandler and ServiceStatisticsPageHandler.
+        ServiceInvoices.Statistics.Invoke();  // Opens Handler - ServiceStatsPageHandler and ServiceStatisticsPageHandler.
         ServiceInvoices.Close();
     end;
 
@@ -1547,11 +1545,11 @@ codeunit 141018 "UT PAG Sales Tax Statistics"
 
     local procedure VerifyPosAndNegSalesTaxLinesFromStatPage(ExpectedTaxPctPos: Decimal; ExpectedTaxAmtPos: Decimal; ExpectedTaxPctNeg: Decimal; ExpectedTaxAmtNeg: Decimal)
     begin
-        Assert.AreEqual(ExpectedTaxPctPos, LibraryVariableStorage.DequeueDecimal, 'tax % for positive line');
-        Assert.AreEqual(ExpectedTaxAmtPos, LibraryVariableStorage.DequeueDecimal, 'tax amount for positive line');
+        Assert.AreEqual(ExpectedTaxPctPos, LibraryVariableStorage.DequeueDecimal(), 'tax % for positive line');
+        Assert.AreEqual(ExpectedTaxAmtPos, LibraryVariableStorage.DequeueDecimal(), 'tax amount for positive line');
 
-        Assert.AreEqual(ExpectedTaxPctNeg, LibraryVariableStorage.DequeueDecimal, 'tax % for negative line');
-        Assert.AreEqual(ExpectedTaxAmtNeg, LibraryVariableStorage.DequeueDecimal, 'tax amount for negative line');
+        Assert.AreEqual(ExpectedTaxPctNeg, LibraryVariableStorage.DequeueDecimal(), 'tax % for negative line');
+        Assert.AreEqual(ExpectedTaxAmtNeg, LibraryVariableStorage.DequeueDecimal(), 'tax amount for negative line');
     end;
 
     local procedure VerifySalesTaxAmountDifferenceCount(DocumentNo: Code[20]; ExpectedCount: Integer)
@@ -1577,88 +1575,88 @@ codeunit 141018 "UT PAG Sales Tax Statistics"
     [Scope('OnPrem')]
     procedure SalesOrderStatsPageHandler(var SalesOrderStats: TestPage "Sales Order Stats.")
     begin
-        VerifyTaxOnStatisticsPage(SalesOrderStats."VATAmount[2]".AsDEcimal, SalesOrderStats."TotalAmount2[1]".AsDEcimal);
-        SalesOrderStats.OK.Invoke;
+        VerifyTaxOnStatisticsPage(SalesOrderStats."VATAmount[2]".AsDecimal(), SalesOrderStats."TotalAmount2[1]".AsDecimal());
+        SalesOrderStats.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure SalesOrderStatsPageHandler2(var SalesOrderStats: TestPage "Sales Order Stats.")
     begin
-        SalesOrderStats.TaxAmount.AssertEquals(LibraryVariableStorage.DequeueDecimal);
-        SalesOrderStats.OK.Invoke;
+        SalesOrderStats.TaxAmount.AssertEquals(LibraryVariableStorage.DequeueDecimal());
+        SalesOrderStats.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure SalesQuotesStatsPageHandler(var SalesStats: TestPage "Sales Stats.")
     begin
-        VerifyTaxOnStatisticsPage(SalesStats.TaxAmount.AsDEcimal, SalesStats.TotalAmount2.AsDEcimal);
-        SalesStats.OK.Invoke;
+        VerifyTaxOnStatisticsPage(SalesStats.TaxAmount.AsDecimal(), SalesStats.TotalAmount2.AsDecimal());
+        SalesStats.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure SalesStatisticsPageHandler(var SalesStatistics: TestPage "Sales Statistics")
     begin
-        VerifyTaxOnStatisticsPage(SalesStatistics.VATAmount.AsDEcimal, SalesStatistics.TotalAmount2.AsDEcimal);
-        SalesStatistics.OK.Invoke;
+        VerifyTaxOnStatisticsPage(SalesStatistics.VATAmount.AsDecimal(), SalesStatistics.TotalAmount2.AsDecimal());
+        SalesStatistics.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure SalesOrderStatisticsPageHandler(var SalesOrderStatistics: TestPage "Sales Order Statistics")
     begin
-        VerifyTaxOnStatisticsPage(SalesOrderStatistics.VATAmount.AsDEcimal, SalesOrderStatistics."TotalAmount2[1]".AsDEcimal);
-        SalesOrderStatistics.OK.Invoke;
+        VerifyTaxOnStatisticsPage(SalesOrderStatistics.VATAmount.AsDecimal(), SalesOrderStatistics."TotalAmount2[1]".AsDecimal());
+        SalesOrderStatistics.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure ServiceStatsPageHandler(var ServiceStats: TestPage "Service Stats.")
     begin
-        VerifyTaxOnStatisticsPage(ServiceStats.VATAmount.AsDEcimal, ServiceStats."TotalAmount2[1]".AsDEcimal);
-        ServiceStats.OK.Invoke;
+        VerifyTaxOnStatisticsPage(ServiceStats.VATAmount.AsDecimal(), ServiceStats."TotalAmount2[1]".AsDecimal());
+        ServiceStats.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure ServiceStatisticsPageHandler(var ServiceStatistics: TestPage "Service Statistics")
     begin
-        VerifyTaxOnStatisticsPage(ServiceStatistics."VAT Amount_General".AsDEcimal, ServiceStatistics."Total Incl. VAT_General".AsDEcimal);
-        ServiceStatistics.OK.Invoke;
+        VerifyTaxOnStatisticsPage(ServiceStatistics."VAT Amount_General".AsDecimal(), ServiceStatistics."Total Incl. VAT_General".AsDecimal());
+        ServiceStatistics.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure PurchaseOrderStatsPageHandler(var PurchaseOrderStats: TestPage "Purchase Order Stats.")
     begin
-        VerifyTaxOnStatisticsPage(PurchaseOrderStats."VATAmount[2]".AsDEcimal, PurchaseOrderStats."TotalAmount2[1]".AsDEcimal);
-        PurchaseOrderStats.OK.Invoke;
+        VerifyTaxOnStatisticsPage(PurchaseOrderStats."VATAmount[2]".AsDecimal(), PurchaseOrderStats."TotalAmount2[1]".AsDecimal());
+        PurchaseOrderStats.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure PurchaseStatsPageHandler(var PurchaseStats: TestPage "Purchase Stats.")
     begin
-        VerifyTaxOnStatisticsPage(PurchaseStats.TaxAmount.AsDEcimal, PurchaseStats.TotalAmount2.AsDEcimal);
-        PurchaseStats.OK.Invoke;
+        VerifyTaxOnStatisticsPage(PurchaseStats.TaxAmount.AsDecimal(), PurchaseStats.TotalAmount2.AsDecimal());
+        PurchaseStats.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure PurchaseOrderStatisticsPageHandler(var PurchaseOrderStatistics: TestPage "Purchase Order Statistics")
     begin
-        VerifyTaxOnStatisticsPage(PurchaseOrderStatistics."VATAmount[1]".AsDEcimal, PurchaseOrderStatistics.TotalInclVAT_General.AsDEcimal);
-        PurchaseOrderStatistics.OK.Invoke;
+        VerifyTaxOnStatisticsPage(PurchaseOrderStatistics."VATAmount[1]".AsDecimal(), PurchaseOrderStatistics.TotalInclVAT_General.AsDecimal());
+        PurchaseOrderStatistics.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure PurchaseStatisticsPageHandler(var PurchaseStatistics: TestPage "Purchase Statistics")
     begin
-        VerifyTaxOnStatisticsPage(PurchaseStatistics.VATAmount.AsDEcimal, PurchaseStatistics.TotalAmount2.AsDEcimal);
-        PurchaseStatistics.OK.Invoke;
+        VerifyTaxOnStatisticsPage(PurchaseStatistics.VATAmount.AsDecimal(), PurchaseStatistics.TotalAmount2.AsDecimal());
+        PurchaseStatistics.OK().Invoke();
     end;
 
     [ModalPageHandler]

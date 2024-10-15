@@ -25,7 +25,6 @@ codeunit 137463 "Phys. Invt. Item Journal"
     var
         Item: Record Item;
         ItemJournalLine: Record "Item Journal Line";
-        NewDocNo: Code[20];
         EntryType: Enum "Item Ledger Entry Type";
         OldDocNo: Code[20];
     begin
@@ -45,7 +44,7 @@ codeunit 137463 "Phys. Invt. Item Journal"
 
         // [WHEN] Enable the functionality renumber document no. on Item journal
         Commit();
-        ItemJournalLine.RenumberDocumentNo;
+        ItemJournalLine.RenumberDocumentNo();
 
         // [THEN] The lines must have the first value from the No. Series
         VerifyItemJnlLineDocNo(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name",
@@ -61,7 +60,7 @@ codeunit 137463 "Phys. Invt. Item Journal"
         Item2: Record Item;
         ItemJournalLine: Record "Item Journal Line";
         EntryType: Enum "Item Ledger Entry Type";
-        NoSeriesManagement: Codeunit NoSeriesManagement;
+        NoSeries: Codeunit "No. Series";
         NoSeriesCode: Code[20];
         NewDocNo: Code[20];
         ItemJnlBatch: Record "Item Journal Batch";
@@ -82,13 +81,13 @@ codeunit 137463 "Phys. Invt. Item Journal"
 
         // [WHEN] Enable the functionality renumber "Document No." on Item journal
         Commit();
-        ItemJournalLine.RenumberDocumentNo;
+        ItemJournalLine.RenumberDocumentNo();
 
         // [THEN] All the lines must have the same "Document No."
         if ItemJnlBatch.Get(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name") then
             NoSeriesCode := ItemJnlBatch."No. Series";
 
-        NewDocNo := NoSeriesManagement.GetNextNo(NoSeriesCode, WorkDate(), false);
+        NewDocNo := NoSeries.PeekNextNo(NoSeriesCode);
         VerifyItemJnlLineDocNo(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name",
           10000, NewDocNo);
         VerifyItemJnlLineDocNo(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name",
@@ -106,7 +105,7 @@ codeunit 137463 "Phys. Invt. Item Journal"
         Item2: Record Item;
         ItemJournalLine: Record "Item Journal Line";
         EntryType: Enum "Item Ledger Entry Type";
-        NoSeriesManagement: Codeunit NoSeriesManagement;
+        NoSeries: Codeunit "No. Series";
         NoSeriesCode: Code[20];
         NewDocNo: Code[20];
         ItemJnlBatch: Record "Item Journal Batch";
@@ -127,13 +126,13 @@ codeunit 137463 "Phys. Invt. Item Journal"
 
         // [WHEN] Enable the functionality renumber document no. on Item journal
         Commit();
-        ItemJournalLine.RenumberDocumentNo;
+        ItemJournalLine.RenumberDocumentNo();
 
         // [THEN] Line 10000 must have a different value then line 20000 and 30000
         if ItemJnlBatch.Get(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name") then
             NoSeriesCode := ItemJnlBatch."No. Series";
 
-        NewDocNo := NoSeriesManagement.GetNextNo(NoSeriesCode, WorkDate(), false);
+        NewDocNo := NoSeries.PeekNextNo(NoSeriesCode);
         VerifyItemJnlLineDocNo(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name",
           10000, NewDocNo);
         VerifyItemJnlLineDocNo(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name",
@@ -144,13 +143,10 @@ codeunit 137463 "Phys. Invt. Item Journal"
 
     [Test]
     [Scope('OnPrem')]
-    [HandlerFunctions('ItemJournalTemplateListModalPageHandler,ItemReferenceList2ItemReferencesModalPageHandler')]
     procedure ItemReferenceOnValidatePhysInvtJournalItemJournal()
     var
-        Item: Record Item;
-        ItemReference, AdditionalItemReference : Record "Item Reference";
+        ItemReference: Record "Item Reference";
         ItemJournalLine: Record "Item Journal Line";
-        PhysInventoryJournal: TestPage "Phys. Inventory Journal";
     begin
         // [GIVEN] Empty Physical Journal Line (Item Journal Line) exists
         CreatePhysInvtJournalLineWithNoItem(ItemJournalLine);
@@ -159,10 +155,8 @@ codeunit 137463 "Phys. Invt. Item Journal"
         CreateDifferentItemReferencesWithSameReferenceNo(ItemReference);
 
         // [WHEN] Validate item reference no using existing refernce no
-        PhysInventoryJournal.OpenEdit();
-        PhysInventoryJournal.GoToRecord(ItemJournalLine);
-        PhysInventoryJournal."Item Reference No.".Value(ItemReference."Reference No.");
-        PhysInventoryJournal.Close();
+        ItemJournalLine.Validate("Item Reference No.", ItemReference."Reference No.");
+        ItemJournalLine.Modify(true);
 
         // [THEN] Info from item reference is copied
         TestItemJournalLineReferenceFields(ItemJournalLine, ItemReference);
@@ -173,8 +167,7 @@ codeunit 137463 "Phys. Invt. Item Journal"
     [HandlerFunctions('ItemJournalTemplateListModalPageHandler,ItemReferenceList1ItemReferenceModalPageHandler')]
     procedure ItemReferenceOnLookupPhysInvtJournalItemJournal()
     var
-        Item: Record Item;
-        ItemReference, AdditionalItemReference : Record "Item Reference";
+        ItemReference: Record "Item Reference";
         ItemJournalLine: Record "Item Journal Line";
         PhysInventoryJournal: TestPage "Phys. Inventory Journal";
     begin
@@ -217,8 +210,9 @@ codeunit 137463 "Phys. Invt. Item Journal"
         // [WHEN] Validate item reference no using existing refernce no that has non-base unit of measure
         ItemJournalLine.Validate("Item Reference No.", ItemReference."Reference No.");
 
-        // [THEN] No error is thrown
-
+        // [THEN] Unit of measure is applied in the line
+        Assert.AreEqual(ItemReference."Unit of Measure", ItemJournalLine."Unit of Measure Code", ItemJournalLine.FieldCaption("Unit of Measure Code"));
+        Assert.AreEqual(ItemUnitOfMeasure."Qty. per Unit of Measure", ItemJournalLine."Qty. per Unit of Measure", ItemJournalLine.FieldCaption("Qty. per Unit of Measure"));
     end;
 
     [ConfirmHandler]
@@ -270,6 +264,8 @@ codeunit 137463 "Phys. Invt. Item Journal"
         ItemJournalLine.SetRecFilter();
         ItemJournalLine.FindFirst();
         ItemJournalLine.TestField("Item No.", ItemReference."Item No.");
+        ItemJournalLine.TestField("Unit of Measure Code", ItemReference."Unit of Measure");
+        ItemJournalLine.TestField("Variant Code", ItemReference."Variant Code");
         ItemJournalLine.TestField("Description", ItemReference."Description");
         ItemJournalLine.TestField("Item Reference Type", ItemReference."Reference Type");
         ItemJournalLine.TestField("Item Reference Type No.", ItemReference."Reference Type No.");
@@ -280,11 +276,16 @@ codeunit 137463 "Phys. Invt. Item Journal"
     var
         Item: Record Item;
         AdditionalItemReference: Record "Item Reference";
+        ItemUnitOfMeasure: Record "Item Unit of Measure";
+        ItemVariant: Record "Item Variant";
     begin
         FirstItemReference.DeleteAll();
         LibraryInventory.CreateItem(Item);
         LibraryVariableStorage.Enqueue(Item."No.");
+        LibraryInventory.CreateItemUnitOfMeasureCode(ItemUnitOfMeasure, Item."No.", 10);
+        LibraryInventory.CreateItemVariant(ItemVariant, Item."No.");
         LibraryItemReference.CreateItemReference(FirstItemReference, Item."No.", "Item Reference Type"::" ", '');
+        FirstItemReference.Rename(FirstItemReference."Item No.", ItemVariant.Code, ItemUnitOfMeasure.Code, FirstItemReference."Reference Type", FirstItemReference."Reference Type No.", FirstItemReference."Reference No.");
         FirstItemReference.Validate(Description, LibraryUtility.GenerateRandomText(MaxStrLen(FirstItemReference.Description)));
         FirstItemReference.Validate("Description 2", LibraryUtility.GenerateRandomText(MaxStrLen(FirstItemReference."Description 2")));
         FirstItemReference.Modify(true);

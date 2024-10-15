@@ -1,4 +1,4 @@
-﻿// ------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -79,12 +79,10 @@ report 10070 "Sales Invoice (Pre-Printed)"
 
                 trigger OnPreDataItem()
                 begin
-                    with TempSalesInvoiceLine do begin
-                        Init();
-                        "Document No." := "Sales Invoice Header"."No.";
-                        "Line No." := HighestLineNo + 1000;
-                        HighestLineNo := "Line No.";
-                    end;
+                    TempSalesInvoiceLine.Init();
+                    TempSalesInvoiceLine."Document No." := "Sales Invoice Header"."No.";
+                    TempSalesInvoiceLine."Line No." := HighestLineNo + 1000;
+                    HighestLineNo := TempSalesInvoiceLine."Line No.";
                     TempSalesInvoiceLine.Insert();
                 end;
             }
@@ -306,69 +304,68 @@ report 10070 "Sales Invoice (Pre-Printed)"
                         begin
                             OnLineNumber := OnLineNumber + 1;
 
-                            with TempSalesInvoiceLine do begin
-                                if OnLineNumber = 1 then
-                                    Find('-')
-                                else
-                                    Next();
+                            if OnLineNumber = 1 then
+                                TempSalesInvoiceLine.Find('-')
+                            else
+                                TempSalesInvoiceLine.Next();
 
-                                OrderedQuantity := 0;
-                                if "Sales Invoice Header"."Order No." = '' then
-                                    OrderedQuantity := Quantity
-                                else
-                                    if OrderLine.Get(1, "Sales Invoice Header"."Order No.", "Line No.") then
-                                        OrderedQuantity := OrderLine.Quantity
-                                    else begin
-                                        ShipmentLine.SetRange("Order No.", "Sales Invoice Header"."Order No.");
-                                        ShipmentLine.SetRange("Order Line No.", "Line No.");
-                                        if ShipmentLine.Find('-') then
-                                            repeat
-                                                OrderedQuantity := OrderedQuantity + ShipmentLine.Quantity;
-                                            until 0 = ShipmentLine.Next();
-                                    end;
-
-                                DescriptionToPrint := Description + ' ' + "Description 2";
-                                if Type = Type::" " then begin
-                                    if OnLineNumber < NumberOfLines then begin
-                                        Next();
-                                        if Type = Type::" " then begin
-                                            DescriptionToPrint :=
-                                              CopyStr(DescriptionToPrint + ' ' + Description + ' ' + "Description 2", 1, MaxStrLen(DescriptionToPrint));
-                                            OnLineNumber := OnLineNumber + 1;
-                                            SalesInvLine.Next();
-                                        end else
-                                            Next(-1);
-                                    end;
-                                    "No." := '';
-                                    "Unit of Measure" := '';
-                                    Amount := 0;
-                                    "Amount Including VAT" := 0;
-                                    "Inv. Discount Amount" := 0;
-                                    Quantity := 0;
-                                end else
-                                    if Type = Type::"G/L Account" then
-                                        "No." := '';
-
-                                if "No." = '' then begin
-                                    HighDescriptionToPrint := DescriptionToPrint;
-                                    LowDescriptionToPrint := '';
-                                end else begin
-                                    HighDescriptionToPrint := '';
-                                    LowDescriptionToPrint := DescriptionToPrint;
+                            OrderedQuantity := 0;
+                            if "Sales Invoice Header"."Order No." = '' then
+                                OrderedQuantity := TempSalesInvoiceLine.Quantity
+                            else
+                                if OrderLine.Get(1, "Sales Invoice Header"."Order No.", TempSalesInvoiceLine."Line No.") then
+                                    OrderedQuantity := OrderLine.Quantity
+                                else begin
+                                    ShipmentLine.SetRange("Order No.", "Sales Invoice Header"."Order No.");
+                                    ShipmentLine.SetRange("Order Line No.", TempSalesInvoiceLine."Line No.");
+                                    if ShipmentLine.Find('-') then
+                                        repeat
+                                            OrderedQuantity := OrderedQuantity + ShipmentLine.Quantity;
+                                        until 0 = ShipmentLine.Next();
                                 end;
 
-                                if Amount <> "Amount Including VAT" then
-                                    TaxLiable := Amount
-                                else
-                                    TaxLiable := 0;
+                            DescriptionToPrint := TempSalesInvoiceLine.Description + ' ' + TempSalesInvoiceLine."Description 2";
+                            if TempSalesInvoiceLine.Type = TempSalesInvoiceLine.Type::" " then begin
+                                if OnLineNumber < NumberOfLines then begin
+                                    TempSalesInvoiceLine.Next();
+                                    if TempSalesInvoiceLine.Type = TempSalesInvoiceLine.Type::" " then begin
+                                        DescriptionToPrint :=
+                                          CopyStr(DescriptionToPrint + ' ' + TempSalesInvoiceLine.Description + ' ' + TempSalesInvoiceLine."Description 2", 1, MaxStrLen(DescriptionToPrint));
+                                        OnLineNumber := OnLineNumber + 1;
+                                        SalesInvLine.Next();
+                                    end else
+                                        TempSalesInvoiceLine.Next(-1);
+                                end;
+                                TempSalesInvoiceLine."No." := '';
+                                TempSalesInvoiceLine."Unit of Measure" := '';
+                                TempSalesInvoiceLine.Amount := 0;
+                                TempSalesInvoiceLine."Amount Including VAT" := 0;
+                                TempSalesInvoiceLine."Inv. Discount Amount" := 0;
+                                TempSalesInvoiceLine.Quantity := 0;
+                            end else
+                                if TempSalesInvoiceLine.Type = TempSalesInvoiceLine.Type::"G/L Account" then
+                                    TempSalesInvoiceLine."No." := '';
 
-                                AmountExclInvDisc := Amount + "Inv. Discount Amount";
-
-                                if Quantity = 0 then
-                                    UnitPriceToPrint := 0 // so it won't print
-                                else
-                                    UnitPriceToPrint := Round(AmountExclInvDisc / Quantity, 0.00001);
+                            if TempSalesInvoiceLine."No." = '' then begin
+                                HighDescriptionToPrint := DescriptionToPrint;
+                                LowDescriptionToPrint := '';
+                            end else begin
+                                HighDescriptionToPrint := '';
+                                LowDescriptionToPrint := DescriptionToPrint;
                             end;
+
+                            if TempSalesInvoiceLine.Amount <> TempSalesInvoiceLine."Amount Including VAT" then
+                                TaxLiable := TempSalesInvoiceLine.Amount
+                            else
+                                TaxLiable := 0;
+
+                            AmountExclInvDisc := TempSalesInvoiceLine.Amount + TempSalesInvoiceLine."Inv. Discount Amount";
+
+                            if TempSalesInvoiceLine.Quantity = 0 then
+                                UnitPriceToPrint := 0
+                            // so it won't print
+                            else
+                                UnitPriceToPrint := Round(AmountExclInvDisc / TempSalesInvoiceLine.Quantity, 0.00001);
                             if OnLineNumber = NumberOfLines then
                                 PrintFooter := true;
                         end;
@@ -410,8 +407,8 @@ report 10070 "Sales Invoice (Pre-Printed)"
 
             trigger OnAfterGetRecord()
             begin
-                CurrReport.Language := Language.GetLanguageIdOrDefault("Language Code");
-                CurrReport.FormatRegion := Language.GetFormatRegionOrDefault("Format Region");
+                CurrReport.Language := LanguageMgt.GetLanguageIdOrDefault("Language Code");
+                CurrReport.FormatRegion := LanguageMgt.GetFormatRegionOrDefault("Format Region");
 
                 if PrintCompany then
                     if RespCenter.Get("Responsibility Center") then begin
@@ -472,31 +469,29 @@ report 10070 "Sales Invoice (Pre-Printed)"
                     BrkIdx := 0;
                     PrevPrintOrder := 0;
                     PrevTaxPercent := 0;
-                    with TempSalesTaxAmtLine do begin
-                        Reset();
-                        SetCurrentKey("Print Order", "Tax Area Code for Key", "Tax Jurisdiction Code");
-                        if Find('-') then
-                            repeat
-                                if ("Print Order" = 0) or
-                                   ("Print Order" <> PrevPrintOrder) or
-                                   ("Tax %" <> PrevTaxPercent)
-                                then begin
-                                    BrkIdx := BrkIdx + 1;
-                                    if BrkIdx > 1 then begin
-                                        if TaxArea."Country/Region" = TaxArea."Country/Region"::CA then
-                                            BreakdownTitle := Text006
-                                        else
-                                            BreakdownTitle := Text003;
-                                    end;
-                                    if BrkIdx > ArrayLen(BreakdownAmt) then begin
-                                        BrkIdx := BrkIdx - 1;
-                                        BreakdownLabel[BrkIdx] := Text004;
-                                    end else
-                                        BreakdownLabel[BrkIdx] := StrSubstNo("Print Description", "Tax %");
+                    TempSalesTaxAmtLine.Reset();
+                    TempSalesTaxAmtLine.SetCurrentKey("Print Order", "Tax Area Code for Key", "Tax Jurisdiction Code");
+                    if TempSalesTaxAmtLine.Find('-') then
+                        repeat
+                            if (TempSalesTaxAmtLine."Print Order" = 0) or
+                               (TempSalesTaxAmtLine."Print Order" <> PrevPrintOrder) or
+                               (TempSalesTaxAmtLine."Tax %" <> PrevTaxPercent)
+                            then begin
+                                BrkIdx := BrkIdx + 1;
+                                if BrkIdx > 1 then begin
+                                    if TaxArea."Country/Region" = TaxArea."Country/Region"::CA then
+                                        BreakdownTitle := Text006
+                                    else
+                                        BreakdownTitle := Text003;
                                 end;
-                                BreakdownAmt[BrkIdx] := BreakdownAmt[BrkIdx] + "Tax Amount";
-                            until Next() = 0;
-                    end;
+                                if BrkIdx > ArrayLen(BreakdownAmt) then begin
+                                    BrkIdx := BrkIdx - 1;
+                                    BreakdownLabel[BrkIdx] := Text004;
+                                end else
+                                    BreakdownLabel[BrkIdx] := StrSubstNo(TempSalesTaxAmtLine."Print Description", TempSalesTaxAmtLine."Tax %");
+                            end;
+                            BreakdownAmt[BrkIdx] := BreakdownAmt[BrkIdx] + TempSalesTaxAmtLine."Tax Amount";
+                        until TempSalesTaxAmtLine.Next() = 0;
                     if BrkIdx = 1 then begin
                         Clear(BreakdownLabel);
                         Clear(BreakdownAmt);
@@ -592,7 +587,7 @@ report 10070 "Sales Invoice (Pre-Printed)"
         RespCenter: Record "Responsibility Center";
         TempSalesTaxAmtLine: Record "Sales Tax Amount Line" temporary;
         TaxArea: Record "Tax Area";
-        Language: Codeunit Language;
+        LanguageMgt: Codeunit Language;
         SalesInvPrinted: Codeunit "Sales Inv.-Printed";
         FormatAddress: Codeunit "Format Address";
         FormatDocument: Codeunit "Format Document";
@@ -616,8 +611,6 @@ report 10070 "Sales Invoice (Pre-Printed)"
         HighestLineNo: Integer;
         LogInteraction: Boolean;
         Text000: Label 'COPY';
-        Text001: Label 'Transferred from page %1';
-        Text002: Label 'Transferred to page %1';
         TaxRegNo: Text[30];
         TaxRegLabel: Text;
         TotalTaxLabel: Text;
@@ -643,21 +636,17 @@ report 10070 "Sales Invoice (Pre-Printed)"
 
     local procedure FormatDocumentFields(SalesInvoiceHeader: Record "Sales Invoice Header")
     begin
-        with SalesInvoiceHeader do begin
-            FormatDocument.SetSalesPerson(SalesPurchPerson, "Salesperson Code", SalespersonText);
-            FormatDocument.SetPaymentTerms(PaymentTerms, "Payment Terms Code", "Language Code");
-            FormatDocument.SetShipmentMethod(ShipmentMethod, "Shipment Method Code", "Language Code");
-        end;
+        FormatDocument.SetSalesPerson(SalesPurchPerson, SalesInvoiceHeader."Salesperson Code", SalespersonText);
+        FormatDocument.SetPaymentTerms(PaymentTerms, SalesInvoiceHeader."Payment Terms Code", SalesInvoiceHeader."Language Code");
+        FormatDocument.SetShipmentMethod(ShipmentMethod, SalesInvoiceHeader."Shipment Method Code", SalesInvoiceHeader."Language Code");
     end;
 
     local procedure InsertTempLine(Comment: Text[80]; IncrNo: Integer)
     begin
-        with TempSalesInvoiceLine do begin
-            Init();
-            "Document No." := "Sales Invoice Header"."No.";
-            "Line No." := HighestLineNo + IncrNo;
-            HighestLineNo := "Line No.";
-        end;
+        TempSalesInvoiceLine.Init();
+        TempSalesInvoiceLine."Document No." := "Sales Invoice Header"."No.";
+        TempSalesInvoiceLine."Line No." := HighestLineNo + IncrNo;
+        HighestLineNo := TempSalesInvoiceLine."Line No.";
         FormatDocument.ParseComment(Comment, TempSalesInvoiceLine.Description, TempSalesInvoiceLine."Description 2");
         TempSalesInvoiceLine.Insert();
     end;

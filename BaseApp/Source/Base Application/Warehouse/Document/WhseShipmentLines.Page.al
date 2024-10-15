@@ -267,15 +267,6 @@ page 7341 "Whse. Shipment Lines"
                 actionref("Show &Whse. Document_Promoted"; ShowDocument)
                 {
                 }
-#if not CLEAN21
-                actionref(ShowSourceDocumentLine_Promoted; ShowSourceDocumentLine)
-                {
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Action is being demoted based on overall low usage.';
-                    ObsoleteTag = '21.0';
-                }
-#endif
             }
         }
     }

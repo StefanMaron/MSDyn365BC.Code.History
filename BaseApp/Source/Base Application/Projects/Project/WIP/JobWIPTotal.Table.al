@@ -4,9 +4,10 @@ using Microsoft.Projects.Project.Job;
 
 table 1021 "Job WIP Total"
 {
-    Caption = 'Job WIP Total';
+    Caption = 'Project WIP Total';
     DrillDownPageID = "Job WIP Totals";
     LookupPageID = "Job WIP Totals";
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -17,14 +18,14 @@ table 1021 "Job WIP Total"
         }
         field(2; "Job No."; Code[20])
         {
-            Caption = 'Job No.';
+            Caption = 'Project No.';
             Editable = false;
             NotBlank = true;
             TableRelation = Job;
         }
         field(3; "Job Task No."; Code[20])
         {
-            Caption = 'Job Task No.';
+            Caption = 'Project Task No.';
             NotBlank = true;
             TableRelation = "Job Task"."Job Task No." where("Job No." = field("Job No."));
             ValidateTableRelation = false;
@@ -52,7 +53,7 @@ table 1021 "Job WIP Total"
         }
         field(8; "WIP Warnings"; Boolean)
         {
-            CalcFormula = Exist("Job WIP Warning" where("Job WIP Total Entry No." = field("Entry No.")));
+            CalcFormula = exist("Job WIP Warning" where("Job WIP Total Entry No." = field("Entry No.")));
             Caption = 'WIP Warnings';
             FieldClass = FlowField;
         }

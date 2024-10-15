@@ -5,9 +5,11 @@ codeunit 140002 "Library - Local Functionality"
     begin
     end;
 
+#if not CLEAN25
     var
         LibraryUtility: Codeunit "Library - Utility";
 
+    [Obsolete('Moved to IRS Forms', '25.0')]
     procedure CreateIRS1099FormBox(var IRS1099FormBox: Record "IRS 1099 Form-Box"; MinimumReportable: Decimal)
     begin
         IRS1099FormBox.Init();
@@ -22,6 +24,7 @@ codeunit 140002 "Library - Local Functionality"
         IRS1099FormBox.Insert(true);
     end;
 
+    [Obsolete('Moved to IRS Forms', '25.0')]
     procedure CreateIRS1099Adjustment(var IRS1099Adjustment: Record "IRS 1099 Adjustment"; VendorNo: Code[20]; IRS1099Code: Code[10]; Year: Integer; Amount: Decimal)
     begin
         IRS1099Adjustment.Init();
@@ -31,5 +34,5 @@ codeunit 140002 "Library - Local Functionality"
         IRS1099Adjustment.Validate(Amount, Amount);
         IRS1099Adjustment.Insert(true);
     end;
+#endif
 }
-

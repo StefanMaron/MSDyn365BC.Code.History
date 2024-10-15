@@ -89,7 +89,9 @@ report 191 "Create Finance Charge Memos"
                 group(Options)
                 {
                     Caption = 'Options';
+#pragma warning disable AA0100
                     field("FinChrgMemoHeaderReq.""Posting Date"""; FinChrgMemoHeaderReq."Posting Date")
+#pragma warning restore AA0100
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Posting Date';

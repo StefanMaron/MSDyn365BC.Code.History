@@ -15,6 +15,7 @@ codeunit 142073 "UT PAG Order Entry"
         LibraryUTUtility: Codeunit "Library UT Utility";
         LibraryRandom: Codeunit "Library - Random";
         LibrarySales: Codeunit "Library - Sales";
+        LibraryService: Codeunit "Library - Service";
         IsInitialized: Boolean;
 
     [Test]
@@ -647,8 +648,8 @@ codeunit 142073 "UT PAG Order Entry"
         if IsInitialized then
             exit;
 
-        CreateBlankVATPostingSetup;
-        UpdateStockOutWarningOnSalesReceivableSetup;
+        CreateBlankVATPostingSetup();
+        UpdateStockOutWarningOnSalesReceivableSetup();
         LibrarySales.DisableWarningOnCloseUnpostedDoc();
         LibrarySales.SetDiscountPostingSilent(0);
 
@@ -1612,7 +1613,7 @@ codeunit 142073 "UT PAG Order Entry"
         CustomerPostingGroup: Record "Customer Posting Group";
     begin
         CustomerPostingGroup.FindFirst();
-        Customer."No." := LibraryUTUtility.GetNewCode;
+        Customer."No." := LibraryUTUtility.GetNewCode();
         Customer."Customer Posting Group" := CustomerPostingGroup.Code;  // Use Hardcode Value due to Posting routine Call.
         Customer.Insert();
         exit(Customer."No.")
@@ -1626,7 +1627,7 @@ codeunit 142073 "UT PAG Order Entry"
     begin
         FindGeneralPostingSetup(GeneralPostingSetup);
         InventoryPostingGroup.FindFirst();
-        Item."No." := LibraryUTUtility.GetNewCode;
+        Item."No." := LibraryUTUtility.GetNewCode();
         Item."Base Unit of Measure" := CreateUnitOfMeasure(Item."No.");
         Item."Inventory Posting Group" := InventoryPostingGroup.Code;  // Use Hardcode Value due to Posting routine Call.
         Item."Gen. Prod. Posting Group" := GeneralPostingSetup."Gen. Prod. Posting Group";  // Use Hardcode Value due to Posting routine Call.
@@ -1638,12 +1639,12 @@ codeunit 142073 "UT PAG Order Entry"
     var
         Location: Record Location;
     begin
-        Location.Code := LibraryUTUtility.GetNewCode10;
+        Location.Code := LibraryUTUtility.GetNewCode10();
         Location.Insert();
         exit(Location.Code)
     end;
 
-    local procedure CreateSalesDocument(var SalesLine: Record "Sales Line"; DocumentType: Option)
+    local procedure CreateSalesDocument(var SalesLine: Record "Sales Line"; DocumentType: Enum "Sales Document Type")
     var
         Item: Record Item;
         GeneralPostingSetup: Record "General Posting Setup";
@@ -1655,8 +1656,8 @@ codeunit 142073 "UT PAG Order Entry"
         Item.Get(CreateItem());
 
         SalesHeader."Document Type" := DocumentType;
-        SalesHeader."No." := LibraryUTUtility.GetNewCode;
-        SalesHeader."Sell-to Customer No." := CreateCustomer;
+        SalesHeader."No." := LibraryUTUtility.GetNewCode();
+        SalesHeader."Sell-to Customer No." := CreateCustomer();
         SalesHeader."Bill-to Customer No." := SalesHeader."Sell-to Customer No.";
         SalesHeader."Posting Date" := WorkDate();
         SalesHeader."Document Date" := WorkDate();
@@ -1669,7 +1670,7 @@ codeunit 142073 "UT PAG Order Entry"
         SalesLine."Document No." := SalesHeader."No.";
         SalesLine."Sell-to Customer No." := SalesHeader."Sell-to Customer No.";
         SalesLine."Bill-to Customer No." := SalesLine."Sell-to Customer No.";
-        SalesLine.Description := LibraryUTUtility.GetNewCode;
+        SalesLine.Description := LibraryUTUtility.GetNewCode();
         SalesLine.Type := SalesLine.Type::Item;
         SalesLine."Line No." := LibraryRandom.RandInt(100);
         SalesLine."Shipment Date" := WorkDate();
@@ -1691,21 +1692,23 @@ codeunit 142073 "UT PAG Order Entry"
         SalesLine.Insert();
     end;
 
-    local procedure CreateServiceDocument(var ServiceLine: Record "Service Line"; DocumentType: Option)
+    local procedure CreateServiceDocument(var ServiceLine: Record "Service Line"; DocumentType: Enum "Service Document Type")
     var
+        ServiceItem: Record "Service Item";
         ServiceHeader: Record "Service Header";
         ServiceItemLine: Record "Service Item Line";
     begin
         ServiceHeader."Document Type" := DocumentType;
-        ServiceHeader."No." := LibraryUTUtility.GetNewCode;
-        ServiceHeader."Customer No." := CreateCustomer;
+        ServiceHeader."No." := LibraryUTUtility.GetNewCode();
+        ServiceHeader."Customer No." := CreateCustomer();
         ServiceHeader.Insert();
 
         ServiceItemLine."Document Type" := ServiceHeader."Document Type";
         ServiceItemLine."Document No." := ServiceHeader."No.";
         ServiceItemLine."Line No." := LibraryRandom.RandInt(100);
-        ServiceItemLine."Item No." := CreateItem;
-        ServiceItemLine."Service Item No." := CreateItem;
+        ServiceItemLine."Item No." := CreateItem();
+        LibraryService.CreateServiceItem(ServiceItem, ServiceHeader."Customer No.");
+        ServiceItemLine."Service Item No." := ServiceItem."No.";
         ServiceItemLine.Insert();
 
         ServiceLine."Document Type" := ServiceItemLine."Document Type";
@@ -1726,7 +1729,7 @@ codeunit 142073 "UT PAG Order Entry"
         UnitOfMeasure: Record "Unit of Measure";
         ItemUnitOfMeasure: Record "Item Unit of Measure";
     begin
-        UnitOfMeasure.Code := LibraryUTUtility.GetNewCode10;
+        UnitOfMeasure.Code := LibraryUTUtility.GetNewCode10();
         UnitOfMeasure.Insert();
         ItemUnitOfMeasure."Item No." := ItemNo;
         ItemUnitOfMeasure.Code := UnitOfMeasure.Code;
@@ -1739,7 +1742,7 @@ codeunit 142073 "UT PAG Order Entry"
     var
         GLAccount: Record "G/L Account";
     begin
-        GLAccount."No." := LibraryUTUtility.GetNewCode;
+        GLAccount."No." := LibraryUTUtility.GetNewCode();
         GLAccount.Insert();
         GeneralPostingSetup.SetFilter("Gen. Bus. Posting Group", '<>%1', '');
         GeneralPostingSetup.SetFilter("Gen. Prod. Posting Group", '<>%1', '');
@@ -1753,22 +1756,22 @@ codeunit 142073 "UT PAG Order Entry"
         SalesOrderShipment: TestPage "Sales Order Shipment";
         SalesOrderInvoice: TestPage "Sales Order Invoice";
     begin
-        SalesOrderShipment.OpenEdit;
+        SalesOrderShipment.OpenEdit();
         SalesOrderShipment.FILTER.SetFilter("No.", No);
-        SalesOrderShipment."P&ost".Invoke;
+        SalesOrderShipment."P&ost".Invoke();
         SalesOrderShipment.Close();
-        SalesOrderInvoice.OpenEdit;
+        SalesOrderInvoice.OpenEdit();
         SalesOrderInvoice.FILTER.SetFilter("No.", No);
-        SalesOrderInvoice."P&ost".Invoke;
+        SalesOrderInvoice."P&ost".Invoke();
     end;
 
     local procedure OpenPageSalesOrderShipmentPostAndPrint(No: Code[20])
     var
         SalesOrderShipment: TestPage "Sales Order Shipment";
     begin
-        SalesOrderShipment.OpenEdit;
+        SalesOrderShipment.OpenEdit();
         SalesOrderShipment.FILTER.SetFilter("No.", No);
-        SalesOrderShipment."Post and &Print".Invoke;
+        SalesOrderShipment."Post and &Print".Invoke();
         SalesOrderShipment.Close();
     end;
 
@@ -1777,18 +1780,18 @@ codeunit 142073 "UT PAG Order Entry"
         SalesOrderShipment: TestPage "Sales Order Shipment";
         SalesOrderInvoice: TestPage "Sales Order Invoice";
     begin
-        SalesOrderShipment.OpenEdit;
+        SalesOrderShipment.OpenEdit();
         SalesOrderShipment.FILTER.SetFilter("No.", No);
-        SalesOrderShipment."P&ost".Invoke;
+        SalesOrderShipment."P&ost".Invoke();
         SalesOrderShipment.Close();
-        SalesOrderInvoice.OpenEdit;
+        SalesOrderInvoice.OpenEdit();
         SalesOrderInvoice.FILTER.SetFilter("No.", No);
-        SalesOrderInvoice."Post and &Print".Invoke;
+        SalesOrderInvoice."Post and &Print".Invoke();
     end;
 
     local procedure OpenServiceCreditMemoToEnterQuantity(var ServiceCreditMemo: TestPage "Service Credit Memo"; No: Code[20])
     begin
-        ServiceCreditMemo.OpenEdit;
+        ServiceCreditMemo.OpenEdit();
         ServiceCreditMemo.FILTER.SetFilter("No.", No);
         ServiceCreditMemo.ServLines.Quantity.SetValue(LibraryRandom.RandInt(10));
         ServiceCreditMemo.Close();
@@ -1796,7 +1799,7 @@ codeunit 142073 "UT PAG Order Entry"
 
     local procedure OpenServiceCreditMemoToEnterUnitOfMeasure(var ServiceCreditMemo: TestPage "Service Credit Memo"; No: Code[20]; UnitOfMeasureCode: Code[10])
     begin
-        ServiceCreditMemo.OpenEdit;
+        ServiceCreditMemo.OpenEdit();
         ServiceCreditMemo.FILTER.SetFilter("No.", No);
         ServiceCreditMemo.ServLines."Unit of Measure Code".SetValue(UnitOfMeasureCode);
         ServiceCreditMemo.Close();
@@ -1804,7 +1807,7 @@ codeunit 142073 "UT PAG Order Entry"
 
     local procedure OpenServiceInvoiceToEnterQuantity(var ServiceInvoice: TestPage "Service Invoice"; No: Code[20])
     begin
-        ServiceInvoice.OpenEdit;
+        ServiceInvoice.OpenEdit();
         ServiceInvoice.FILTER.SetFilter("No.", No);
         ServiceInvoice.ServLines.Quantity.SetValue(LibraryRandom.RandInt(10));
         ServiceInvoice.Close();
@@ -1812,7 +1815,7 @@ codeunit 142073 "UT PAG Order Entry"
 
     local procedure OpenServiceInvoiceToEnterUnitOfMeasure(var ServiceInvoice: TestPage "Service Invoice"; No: Code[20]; UnitOfMeasureCode: Code[10])
     begin
-        ServiceInvoice.OpenEdit;
+        ServiceInvoice.OpenEdit();
         ServiceInvoice.FILTER.SetFilter("No.", No);
         ServiceInvoice.ServLines."Unit of Measure Code".SetValue(UnitOfMeasureCode);
         ServiceInvoice.Close();
@@ -1820,15 +1823,15 @@ codeunit 142073 "UT PAG Order Entry"
 
     local procedure OpenServiceItemWorksheetToEnterLocation(var ServiceItemWorksheet: TestPage "Service Item Worksheet"; DocumentNo: Code[20])
     begin
-        ServiceItemWorksheet.OpenEdit;
+        ServiceItemWorksheet.OpenEdit();
         ServiceItemWorksheet.FILTER.SetFilter("Document No.", DocumentNo);
-        ServiceItemWorksheet.ServInvLines."Location Code".SetValue(CreateLocation);
+        ServiceItemWorksheet.ServInvLines."Location Code".SetValue(CreateLocation());
         ServiceItemWorksheet.Close();
     end;
 
     local procedure OpenServiceItemWorksheetToEnterNo(var ServiceItemWorksheet: TestPage "Service Item Worksheet"; DocumentNo: Code[20]; ItemNo: Code[20])
     begin
-        ServiceItemWorksheet.OpenEdit;
+        ServiceItemWorksheet.OpenEdit();
         ServiceItemWorksheet.FILTER.SetFilter("Document No.", DocumentNo);
         ServiceItemWorksheet.ServInvLines."No.".SetValue(ItemNo);
         ServiceItemWorksheet.Close();
@@ -1836,7 +1839,7 @@ codeunit 142073 "UT PAG Order Entry"
 
     local procedure OpenServiceItemWorksheetToEnterQuantity(var ServiceItemWorksheet: TestPage "Service Item Worksheet"; DocumentNo: Code[20])
     begin
-        ServiceItemWorksheet.OpenEdit;
+        ServiceItemWorksheet.OpenEdit();
         ServiceItemWorksheet.FILTER.SetFilter("Document No.", DocumentNo);
         ServiceItemWorksheet.ServInvLines.Quantity.SetValue(LibraryRandom.RandDec(10, 2));
         ServiceItemWorksheet.Close();
@@ -1844,22 +1847,22 @@ codeunit 142073 "UT PAG Order Entry"
 
     local procedure OpenServiceLinesToEnterLocationCode(var ServiceOrder: TestPage "Service Order"; var ServiceLines: TestPage "Service Lines"; No: Code[20]; LineNo: Integer)
     begin
-        ServiceOrder.OpenEdit;
+        ServiceOrder.OpenEdit();
         ServiceOrder.FILTER.SetFilter("No.", No);
-        ServiceOrder.ServItemLines."Service Lines".Invoke;
-        ServiceLines.OpenEdit;
+        ServiceOrder.ServItemLines."Service Lines".Invoke();
+        ServiceLines.OpenEdit();
         ServiceLines.FILTER.SetFilter("Document No.", No);
         ServiceLines.FILTER.SetFilter("Service Item Line No.", Format(LineNo));
-        ServiceLines."Location Code".SetValue(CreateLocation);
+        ServiceLines."Location Code".SetValue(CreateLocation());
         ServiceOrder.Close();
     end;
 
     local procedure OpenServiceLinesToEnterNo(var ServiceOrder: TestPage "Service Order"; var ServiceLines: TestPage "Service Lines"; No: Code[20]; ItemNo: Code[20]; LineNo: Integer)
     begin
-        ServiceOrder.OpenEdit;
+        ServiceOrder.OpenEdit();
         ServiceOrder.FILTER.SetFilter("No.", No);
-        ServiceOrder.ServItemLines."Service Lines".Invoke;
-        ServiceLines.OpenEdit;
+        ServiceOrder.ServItemLines."Service Lines".Invoke();
+        ServiceLines.OpenEdit();
         ServiceLines.FILTER.SetFilter("Document No.", No);
         ServiceLines.FILTER.SetFilter("Service Item Line No.", Format(LineNo));
         ServiceLines."No.".SetValue(ItemNo);
@@ -1869,18 +1872,18 @@ codeunit 142073 "UT PAG Order Entry"
 
     local procedure OpenServiceLinesToEnterPostingDate(var ServiceOrder: TestPage "Service Order"; No: Code[20])
     begin
-        ServiceOrder.OpenEdit;
+        ServiceOrder.OpenEdit();
         ServiceOrder.FILTER.SetFilter("No.", No);
-        ServiceOrder.ServItemLines."Service Lines".Invoke;
+        ServiceOrder.ServItemLines."Service Lines".Invoke();
         ServiceOrder.Close();
     end;
 
     local procedure OpenServiceLinesToEnterQuantity(var ServiceOrder: TestPage "Service Order"; var ServiceLines: TestPage "Service Lines"; No: Code[20]; LineNo: Integer)
     begin
-        ServiceOrder.OpenEdit;
+        ServiceOrder.OpenEdit();
         ServiceOrder.FILTER.SetFilter("No.", No);
-        ServiceOrder.ServItemLines."Service Lines".Invoke;
-        ServiceLines.OpenEdit;
+        ServiceOrder.ServItemLines."Service Lines".Invoke();
+        ServiceLines.OpenEdit();
         ServiceLines.FILTER.SetFilter("Document No.", No);
         ServiceLines.FILTER.SetFilter("Service Item Line No.", Format(LineNo));
         ServiceLines.Quantity.SetValue(LibraryRandom.RandDec(10, 2));
@@ -1890,10 +1893,10 @@ codeunit 142073 "UT PAG Order Entry"
 
     local procedure OpenServiceQuoteLinesToEnterQuantity(var ServiceQuote: TestPage "Service Quote"; var ServiceQuoteLines: TestPage "Service Quote Lines"; No: Code[20])
     begin
-        ServiceQuote.OpenEdit;
+        ServiceQuote.OpenEdit();
         ServiceQuote.FILTER.SetFilter("No.", No);
-        ServiceQuote.ServItemLine.ServiceLines.Invoke;
-        ServiceQuoteLines.OpenEdit;
+        ServiceQuote.ServItemLine.ServiceLines.Invoke();
+        ServiceQuoteLines.OpenEdit();
         ServiceQuoteLines.FILTER.SetFilter("Document No.", No);
         ServiceQuoteLines.Quantity.SetValue(LibraryRandom.RandDec(10, 2));
         ServiceQuoteLines.Close();
@@ -1902,11 +1905,11 @@ codeunit 142073 "UT PAG Order Entry"
 
     local procedure UpdateBlanketSalesOrder(var BlanketSalesOrder: TestPage "Blanket Sales Order"; No: Code[20]; UnitOfMeasureCode: Code[10]; Quantity: Decimal)
     begin
-        BlanketSalesOrder.OpenEdit;
+        BlanketSalesOrder.OpenEdit();
         BlanketSalesOrder.FILTER.SetFilter("No.", No);
         BlanketSalesOrder.SalesLines.Quantity.SetValue(Quantity);
         BlanketSalesOrder.SalesLines."Unit of Measure Code".SetValue(UnitOfMeasureCode);
-        BlanketSalesOrder.OK.Invoke;
+        BlanketSalesOrder.OK().Invoke();
     end;
 
     local procedure UpdateQuantityOnSalesOrder(var SalesOrder: TestPage "Sales Order"; No: Code[20])
@@ -1914,50 +1917,50 @@ codeunit 142073 "UT PAG Order Entry"
         Quantity: Decimal;
     begin
         Quantity := LibraryRandom.RandDec(10, 2);
-        SalesOrder.OpenEdit;
+        SalesOrder.OpenEdit();
         SalesOrder.FILTER.SetFilter("No.", No);
 
         // Enqueue values for use in ReservationPageHandler.
         LibraryVariableStorage.Enqueue(Format(SalesOrder.SalesLines."No."));
         LibraryVariableStorage.Enqueue(Quantity);
         SalesOrder.SalesLines.Quantity.SetValue(Quantity);
-        SalesOrder.OK.Invoke;
+        SalesOrder.OK().Invoke();
     end;
 
     local procedure UpdateSalesInvoice(var SalesInvoice: TestPage "Sales Invoice"; No: Code[20]; UnitOfMeasureCode: Code[10]; Quantity: Decimal)
     begin
-        SalesInvoice.OpenEdit;
+        SalesInvoice.OpenEdit();
         SalesInvoice.FILTER.SetFilter("No.", No);
         SalesInvoice.SalesLines.Quantity.SetValue(Quantity);
         SalesInvoice.SalesLines."Unit of Measure Code".SetValue(UnitOfMeasureCode);
-        SalesInvoice.OK.Invoke;
+        SalesInvoice.OK().Invoke();
     end;
 
     local procedure UpdateSalesQuote(var SalesQuote: TestPage "Sales Quote"; No: Code[20]; UnitOfMeasureCode: Code[10]; Quantity: Decimal)
     begin
-        SalesQuote.OpenEdit;
+        SalesQuote.OpenEdit();
         SalesQuote.FILTER.SetFilter("No.", No);
         SalesQuote.SalesLines.Quantity.SetValue(Quantity);
         SalesQuote.SalesLines."Unit of Measure Code".SetValue(UnitOfMeasureCode);
-        SalesQuote.OK.Invoke;
+        SalesQuote.OK().Invoke();
     end;
 
     local procedure UpdateSalesCreditMemo(var SalesCreditMemo: TestPage "Sales Credit Memo"; No: Code[20]; UnitOfMeasureCode: Code[10]; Quantity: Decimal)
     begin
-        SalesCreditMemo.OpenEdit;
+        SalesCreditMemo.OpenEdit();
         SalesCreditMemo.FILTER.SetFilter("No.", No);
         SalesCreditMemo.SalesLines.Quantity.SetValue(Quantity);
         SalesCreditMemo.SalesLines."Unit of Measure Code".SetValue(UnitOfMeasureCode);
-        SalesCreditMemo.OK.Invoke;
+        SalesCreditMemo.OK().Invoke();
     end;
 
     local procedure UpdateSalesReturnOrder(var SalesReturnOrder: TestPage "Sales Return Order"; No: Code[20]; UnitOfMeasureCode: Code[10]; Quantity: Decimal)
     begin
-        SalesReturnOrder.OpenEdit;
+        SalesReturnOrder.OpenEdit();
         SalesReturnOrder.FILTER.SetFilter("No.", No);
         SalesReturnOrder.SalesLines.Quantity.SetValue(Quantity);
         SalesReturnOrder.SalesLines."Unit of Measure Code".SetValue(UnitOfMeasureCode);
-        SalesReturnOrder.OK.Invoke;
+        SalesReturnOrder.OK().Invoke();
     end;
 
     local procedure UpdateStockOutWarningOnSalesReceivableSetup()
@@ -1971,10 +1974,10 @@ codeunit 142073 "UT PAG Order Entry"
 
     local procedure UpdateUnitOfMeasureOnSalesOrder(var SalesOrder: TestPage "Sales Order"; No: Code[20]; UnitOfMeasureCode: Code[10])
     begin
-        SalesOrder.OpenEdit;
+        SalesOrder.OpenEdit();
         SalesOrder.FILTER.SetFilter("No.", No);
         SalesOrder.SalesLines."Unit of Measure Code".SetValue(UnitOfMeasureCode);
-        SalesOrder.OK.Invoke;
+        SalesOrder.OK().Invoke();
     end;
 
     [ConfirmHandler]

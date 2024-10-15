@@ -40,7 +40,7 @@ codeunit 138085 "O365 Ship-to Addr. P.Q"
 
         // Setup - Update address in Company Information
         LibraryPurchase.CreateVendor(Vendor);
-        LibraryERM.UpdateCompanyAddress;
+        LibraryERM.UpdateCompanyAddress();
 
         // Exercise - Open a New Purchase Quote
         PurchaseQuote.OpenNew();
@@ -81,7 +81,7 @@ codeunit 138085 "O365 Ship-to Addr. P.Q"
         LibraryWarehouse.CreateLocationWithAddress(Location);
 
         // Exercise - Open the Purchase Quote, select ShipToOption to Location and select a Location
-        PurchaseQuote.OpenEdit;
+        PurchaseQuote.OpenEdit();
         PurchaseQuote.GotoRecord(PurchaseHeader);
         PurchaseQuote.ShippingOptionWithLocation.SetValue(ShipToOptions::Location);
         PurchaseQuote."Location Code".SetValue(Location.Code);
@@ -113,7 +113,7 @@ codeunit 138085 "O365 Ship-to Addr. P.Q"
         LibraryPurchase.CreatePurchaseQuote(PurchaseHeader);
 
         // Exercise - Select the ShipToOption to Custom Address on the Purchase Quote
-        PurchaseQuote.OpenEdit;
+        PurchaseQuote.OpenEdit();
         PurchaseQuote.GotoRecord(PurchaseHeader);
         PurchaseQuote.ShippingOptionWithLocation.SetValue(ShipToOptions::"Custom Address");
 
@@ -142,7 +142,7 @@ codeunit 138085 "O365 Ship-to Addr. P.Q"
         LibraryWarehouse.CreateLocationWithAddress(Location);
 
         // Exercise - Select the ShipToOption to Location on the Purchase Quote
-        PurchaseQuote.OpenEdit;
+        PurchaseQuote.OpenEdit();
         PurchaseQuote.GotoRecord(PurchaseHeader);
         PurchaseQuote.ShippingOptionWithLocation.SetValue(ShipToOptions::Location);
         PurchaseQuote."Location Code".SetValue(Location.Code);
@@ -167,7 +167,7 @@ codeunit 138085 "O365 Ship-to Addr. P.Q"
         LibraryPurchase.CreatePurchaseQuote(PurchaseHeader);
 
         // Exercise - Select the ShipToOption to Default on the Purchase Quote
-        PurchaseQuote.OpenEdit;
+        PurchaseQuote.OpenEdit();
         PurchaseQuote.GotoRecord(PurchaseHeader);
         PurchaseQuote.ShippingOptionWithLocation.SetValue(ShipToOptions::"Default (Company Address)");
 
@@ -191,7 +191,7 @@ codeunit 138085 "O365 Ship-to Addr. P.Q"
         LibraryPurchase.CreatePurchaseQuote(PurchaseHeader);
 
         // Exercise - Reopen the created Purchase Quote
-        PurchaseQuote.OpenEdit;
+        PurchaseQuote.OpenEdit();
         PurchaseQuote.GotoRecord(PurchaseHeader);
 
         // Verify - Verify that the ShipToOption is set to "Default (Company Address)"
@@ -218,7 +218,7 @@ codeunit 138085 "O365 Ship-to Addr. P.Q"
         PurchaseHeader.Modify(true);
 
         // Exercise - Reopen the created Purchase Quote
-        PurchaseQuote.OpenEdit;
+        PurchaseQuote.OpenEdit();
         PurchaseQuote.GotoRecord(PurchaseHeader);
 
         // Verify - Verify that the ShipToOption is set to Location
@@ -243,7 +243,7 @@ codeunit 138085 "O365 Ship-to Addr. P.Q"
         PurchaseHeader.Modify(true);
 
         // Exercise - Reopen the created Purchase Quote
-        PurchaseQuote.OpenEdit;
+        PurchaseQuote.OpenEdit();
         PurchaseQuote.GotoRecord(PurchaseHeader);
 
         // Verify - Verify that the ShipToOption is set to "Custom Address"
@@ -266,26 +266,26 @@ codeunit 138085 "O365 Ship-to Addr. P.Q"
 
         // Setup - Create a Purchase Quote
         LibraryPurchase.CreatePurchaseQuote(PurchaseHeader);
-        PurchaseQuote.OpenEdit;
+        PurchaseQuote.OpenEdit();
         PurchaseQuote.GotoRecord(PurchaseHeader);
 
         // Exercise - Set the ShipToOption to Default
         PurchaseQuote.ShippingOptionWithLocation.SetValue(ShipToOptions::"Default (Company Address)");
 
         // Verify - Verify that the Locaiton Code field is not visible
-        Assert.IsFalse(PurchaseQuote."Location Code".Visible, FieldShouldNotBeVisibleTxt);
+        Assert.IsFalse(PurchaseQuote."Location Code".Visible(), FieldShouldNotBeVisibleTxt);
 
         // Exercise - Set the ShipToOption to Custom
         PurchaseQuote.ShippingOptionWithLocation.SetValue(ShipToOptions::"Custom Address");
 
         // Verify - Verify that the Location Code field is not visible
-        Assert.IsFalse(PurchaseQuote."Location Code".Visible, FieldShouldNotBeVisibleTxt);
+        Assert.IsFalse(PurchaseQuote."Location Code".Visible(), FieldShouldNotBeVisibleTxt);
 
         // Exercise - Set the ShipToOption to Location
         PurchaseQuote.ShippingOptionWithLocation.SetValue(ShipToOptions::Location);
 
         // Verify - Verify that the Location Code field is visible
-        Assert.IsTrue(PurchaseQuote."Location Code".Visible, FieldShouldBeVisibleTxt);
+        Assert.IsTrue(PurchaseQuote."Location Code".Visible(), FieldShouldBeVisibleTxt);
     end;
 
     [Test]
@@ -307,26 +307,26 @@ codeunit 138085 "O365 Ship-to Addr. P.Q"
         LibraryPurchase.CreatePurchaseQuote(PurchaseHeader);
 
         // Setup - Enable Location app area
-        LibraryApplicationArea.EnableLocationsSetup;
+        LibraryApplicationArea.EnableLocationsSetup();
 
         // Exercise - Open the Purchase Quote page
-        PurchaseQuote.OpenEdit;
+        PurchaseQuote.OpenEdit();
         PurchaseQuote.GotoRecord(PurchaseHeader);
 
         // Verify - ShippingOptionWithLocation is visible and ShippignWithoutLocation is not visible
-        Assert.IsTrue(PurchaseQuote.ShippingOptionWithLocation.Visible, FieldShouldBeVisibleTxt);
+        Assert.IsTrue(PurchaseQuote.ShippingOptionWithLocation.Visible(), FieldShouldBeVisibleTxt);
         VerifyShippingOptionWithoutLocationIsHiddenForLocation(PurchaseQuote, false); // TFS 255272, 305512
         PurchaseQuote.Close();
 
         // Setup - Enable Return Order app area(Location app area is disabled)
-        LibraryApplicationArea.EnableReturnOrderSetup;
+        LibraryApplicationArea.EnableReturnOrderSetup();
 
         // Exercise - Open the Purchase Quote page
-        PurchaseQuote.OpenEdit;
+        PurchaseQuote.OpenEdit();
         PurchaseQuote.GotoRecord(PurchaseHeader);
 
         // Verify - ShippingOptionWithLocation is not visible and ShippignWithoutLocation is visible
-        Assert.IsTrue(PurchaseQuote.ShippingOptionWithLocation.Visible, FieldShouldNotBeVisibleTxt);
+        Assert.IsTrue(PurchaseQuote.ShippingOptionWithLocation.Visible(), FieldShouldNotBeVisibleTxt);
         VerifyShippingOptionWithoutLocationIsHiddenForLocation(PurchaseQuote, true); // TFS 255272, 305512
     end;
 
@@ -356,7 +356,7 @@ codeunit 138085 "O365 Ship-to Addr. P.Q"
         // [THEN] "Location Code" is not visible
         // [THEN] "Ship-to Name" = <Company.Name>
         PurchaseQuote.ShippingOptionWithLocation.AssertEquals(ShipToOptions::"Default (Company Address)");
-        Assert.IsFalse(PurchaseQuote."Location Code".Visible, FieldShouldNotBeVisibleTxt);
+        Assert.IsFalse(PurchaseQuote."Location Code".Visible(), FieldShouldNotBeVisibleTxt);
         PurchaseQuote."Ship-to Name".AssertEquals(CompanyInformation.Name);
     end;
 
@@ -387,7 +387,7 @@ codeunit 138085 "O365 Ship-to Addr. P.Q"
         // [THEN] "Location Code" = "A"
         // [THEN] "Ship-to Name" = "B"
         PurchaseQuote.ShippingOptionWithLocation.AssertEquals(ShipToOptions::Location);
-        Assert.IsTrue(PurchaseQuote."Location Code".Visible, FieldShouldBeVisibleTxt);
+        Assert.IsTrue(PurchaseQuote."Location Code".Visible(), FieldShouldBeVisibleTxt);
         PurchaseQuote."Location Code".AssertEquals(Location.Code);
         PurchaseQuote."Ship-to Name".AssertEquals(Location.Name);
     end;
@@ -418,7 +418,7 @@ codeunit 138085 "O365 Ship-to Addr. P.Q"
         // [THEN] "Location Code" is not visible
         // [THEN] "Ship-to Name" = ""
         PurchaseQuote.ShippingOptionWithLocation.AssertEquals(ShipToOptions::"Custom Address");
-        Assert.IsFalse(PurchaseQuote."Location Code".Visible, FieldShouldNotBeVisibleTxt);
+        Assert.IsFalse(PurchaseQuote."Location Code".Visible(), FieldShouldNotBeVisibleTxt);
         PurchaseQuote."Ship-to Name".AssertEquals('');
     end;
 
@@ -448,7 +448,7 @@ codeunit 138085 "O365 Ship-to Addr. P.Q"
         // [THEN] "Location Code" is not visible
         // [THEN] "Ship-to Name" = ""
         PurchaseQuote.ShippingOptionWithLocation.AssertEquals(ShipToOptions::"Custom Address");
-        Assert.IsFalse(PurchaseQuote."Location Code".Visible, FieldShouldBeVisibleTxt);
+        Assert.IsFalse(PurchaseQuote."Location Code".Visible(), FieldShouldBeVisibleTxt);
         PurchaseQuote."Ship-to Name".AssertEquals('');
     end;
 
@@ -477,7 +477,7 @@ codeunit 138085 "O365 Ship-to Addr. P.Q"
 
     local procedure PrepareVendor(var Vendor: Record Vendor; LocationCode: Code[10]; ManualNosSeries: Boolean)
     begin
-        LibraryApplicationArea.EnableLocationsSetup;
+        LibraryApplicationArea.EnableLocationsSetup();
         UpdatePurchaseNoSeries(ManualNosSeries);
         CreateVendorWithLocation(Vendor, LocationCode);
     end;
@@ -519,20 +519,20 @@ codeunit 138085 "O365 Ship-to Addr. P.Q"
     var
         VendorCard: TestPage "Vendor Card";
     begin
-        VendorCard.OpenEdit;
+        VendorCard.OpenEdit();
         VendorCard.GotoRecord(Vendor);
-        PurchaseQuote.Trap;
-        VendorCard.NewPurchaseQuote.Invoke;
+        PurchaseQuote.Trap();
+        VendorCard.NewPurchaseQuote.Invoke();
     end;
 
     local procedure VerifyShipToEditableState(PurchaseQuote: TestPage "Purchase Quote"; ExpectedState: Boolean)
     begin
-        Assert.AreEqual(ExpectedState, PurchaseQuote."Ship-to Name".Editable, StrSubstNo(WrongEditableStateTxt, ExpectedState));
-        Assert.AreEqual(ExpectedState, PurchaseQuote."Ship-to Address".Editable, StrSubstNo(WrongEditableStateTxt, ExpectedState));
-        Assert.AreEqual(ExpectedState, PurchaseQuote."Ship-to Address 2".Editable, StrSubstNo(WrongEditableStateTxt, ExpectedState));
-        Assert.AreEqual(ExpectedState, PurchaseQuote."Ship-to City".Editable, StrSubstNo(WrongEditableStateTxt, ExpectedState));
-        Assert.AreEqual(ExpectedState, PurchaseQuote."Ship-to Contact".Editable, StrSubstNo(WrongEditableStateTxt, ExpectedState));
-        Assert.AreEqual(ExpectedState, PurchaseQuote."Ship-to Post Code".Editable, StrSubstNo(WrongEditableStateTxt, ExpectedState));
+        Assert.AreEqual(ExpectedState, PurchaseQuote."Ship-to Name".Editable(), StrSubstNo(WrongEditableStateTxt, ExpectedState));
+        Assert.AreEqual(ExpectedState, PurchaseQuote."Ship-to Address".Editable(), StrSubstNo(WrongEditableStateTxt, ExpectedState));
+        Assert.AreEqual(ExpectedState, PurchaseQuote."Ship-to Address 2".Editable(), StrSubstNo(WrongEditableStateTxt, ExpectedState));
+        Assert.AreEqual(ExpectedState, PurchaseQuote."Ship-to City".Editable(), StrSubstNo(WrongEditableStateTxt, ExpectedState));
+        Assert.AreEqual(ExpectedState, PurchaseQuote."Ship-to Contact".Editable(), StrSubstNo(WrongEditableStateTxt, ExpectedState));
+        Assert.AreEqual(ExpectedState, PurchaseQuote."Ship-to Post Code".Editable(), StrSubstNo(WrongEditableStateTxt, ExpectedState));
     end;
 
     local procedure VerifyShipToAddressValues(PurchaseQuote: TestPage "Purchase Quote"; Name: Text[100]; Address: Text[100]; Address2: Text[50]; City: Text[30]; Contact: Text[100]; PostCode: Code[20])
@@ -548,13 +548,13 @@ codeunit 138085 "O365 Ship-to Addr. P.Q"
     local procedure VerifyShippingOptionWithoutLocationIsHiddenForLocation(var PurchaseQuote: TestPage "Purchase Quote"; ExpectedHideValue: Boolean)
     begin
         PurchaseQuote.ShippingOptionWithLocation.SetValue(ShipToOptions::"Default (Company Address)");
-        Assert.IsFalse(PurchaseQuote.ShippingOptionWithLocation.HideValue, FieldValueShouldNotBeHiddenTxt);
+        Assert.IsFalse(PurchaseQuote.ShippingOptionWithLocation.HideValue(), FieldValueShouldNotBeHiddenTxt);
 
         PurchaseQuote.ShippingOptionWithLocation.SetValue(ShipToOptions::"Custom Address");
-        Assert.IsFalse(PurchaseQuote.ShippingOptionWithLocation.HideValue, FieldValueShouldNotBeHiddenTxt);
+        Assert.IsFalse(PurchaseQuote.ShippingOptionWithLocation.HideValue(), FieldValueShouldNotBeHiddenTxt);
 
         PurchaseQuote.ShippingOptionWithLocation.SetValue(ShipToOptions::Location);
-        Assert.AreEqual(ExpectedHideValue, PurchaseQuote.ShippingOptionWithLocation.HideValue, FieldValueShouldBeHiddenTxt);
+        Assert.AreEqual(ExpectedHideValue, PurchaseQuote.ShippingOptionWithLocation.HideValue(), FieldValueShouldBeHiddenTxt);
     end;
 
     [MessageHandler]

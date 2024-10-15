@@ -15,6 +15,7 @@ table 232 "Gen. Journal Batch"
     Caption = 'Gen. Journal Batch';
     DataCaptionFields = Name, Description;
     LookupPageID = "General Journal Batches";
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -153,14 +154,14 @@ table 232 "Gen. Journal Batch"
         }
         field(21; "Template Type"; Enum "Gen. Journal Template Type")
         {
-            CalcFormula = Lookup("Gen. Journal Template".Type where(Name = field("Journal Template Name")));
+            CalcFormula = lookup("Gen. Journal Template".Type where(Name = field("Journal Template Name")));
             Caption = 'Template Type';
             Editable = false;
             FieldClass = FlowField;
         }
         field(22; Recurring; Boolean)
         {
-            CalcFormula = Lookup("Gen. Journal Template".Recurring where(Name = field("Journal Template Name")));
+            CalcFormula = lookup("Gen. Journal Template".Recurring where(Name = field("Journal Template Name")));
             Caption = 'Recurring';
             Editable = false;
             FieldClass = FlowField;
@@ -393,23 +394,23 @@ table 232 "Gen. Journal Batch"
             OnGeneralJournalBatchNotBalanced();
     end;
 
-    [IntegrationEvent(TRUE, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnGeneralJournalBatchBalanced()
     begin
     end;
 
-    [IntegrationEvent(TRUE, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnGeneralJournalBatchNotBalanced()
     begin
     end;
 
-    [IntegrationEvent(TRUE, false)]
+    [IntegrationEvent(true, false)]
     [Scope('OnPrem')]
     procedure OnCheckGenJournalLineExportRestrictions()
     begin
     end;
 
-    [IntegrationEvent(TRUE, false)]
+    [IntegrationEvent(true, false)]
     [Scope('OnPrem')]
     procedure OnMoveGenJournalBatch(ToRecordID: RecordID)
     begin

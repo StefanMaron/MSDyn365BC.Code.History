@@ -1,4 +1,5 @@
-﻿// ------------------------------------------------------------------------------------------------
+﻿#if not CLEAN25
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -11,6 +12,9 @@ page 10015 "IRS 1099 Form-Box"
     PageType = List;
     SourceTable = "IRS 1099 Form-Box";
     UsageCategory = Lists;
+    ObsoleteReason = 'Moved to IRS Forms App.';
+    ObsoleteState = Pending;
+    ObsoleteTag = '25.0';
 
     layout
     {
@@ -106,7 +110,7 @@ page 10015 "IRS 1099 Form-Box"
                 var
                     IRS1099Management: Codeunit "IRS 1099 Management";
                 begin
-                    IRS1099Management.Run1099IntReport;
+                    IRS1099Management.Run1099IntReport();
                 end;
             }
             action("Vendor 1099 Misc")
@@ -192,4 +196,4 @@ page 10015 "IRS 1099 Form-Box"
         IRS1099Management.ShowUpgradeFormBoxesNotificationIfUpgradeNeeded();
     end;
 }
-
+#endif

@@ -213,7 +213,6 @@ codeunit 137140 "SCM Inventory Documents"
         Bin: Record Bin;
         TransferHeader: Record "Transfer Header";
         TransferLine: Record "Transfer Line";
-        WarehouseEntry: Record "Warehouse Entry";
         Qty: Integer;
     begin
         // [FEATURE] [Location] [Warehouse] [Direct Transfer]
@@ -297,8 +296,6 @@ codeunit 137140 "SCM Inventory Documents"
         ToLocation: Record Location;
         Bin: Record Bin;
         TransferHeader: Record "Transfer Header";
-        TransferLine: Record "Transfer Line";
-        WarehouseEntry: Record "Warehouse Entry";
         Qty: Integer;
     begin
         // [FEATURE] [Location] [Warehouse] [Direct Transfer] 
@@ -339,7 +336,7 @@ codeunit 137140 "SCM Inventory Documents"
 
         // [GIVEN] Location with a bin.
         LibraryWarehouse.CreateLocationWMS(Location, true, false, false, false, false);
-        LibraryWarehouse.CreateBin(Bin, Location.Code, LibraryUtility.GenerateGUID, '', '');
+        LibraryWarehouse.CreateBin(Bin, Location.Code, LibraryUtility.GenerateGUID(), '', '');
 
         // [GIVEN] Serial no.-tracked item. "SN Warehouse Tracking" is enabled.
         CreateSNTrackedItem(Item);
@@ -384,7 +381,7 @@ codeunit 137140 "SCM Inventory Documents"
 
         // [GIVEN] Location with a bin.
         LibraryWarehouse.CreateLocationWMS(Location, true, false, false, false, false);
-        LibraryWarehouse.CreateBin(Bin, Location.Code, LibraryUtility.GenerateGUID, '', '');
+        LibraryWarehouse.CreateBin(Bin, Location.Code, LibraryUtility.GenerateGUID(), '', '');
 
         // [GIVEN] Serial no.-tracked item. "SN Warehouse Tracking" is enabled.
         CreateSNTrackedItem(Item);
@@ -778,7 +775,6 @@ codeunit 137140 "SCM Inventory Documents"
         DimensionValue: Record "Dimension Value";
         NonBaseQtyPerUOM: Decimal;
         BaseQtyPerUOM: Decimal;
-        QtyRoundingPrecision: Decimal;
     begin
         Initialize();
         SetupForItemDocument(SalespersonPurchaser, Location, DimensionValue);
@@ -972,7 +968,6 @@ codeunit 137140 "SCM Inventory Documents"
     procedure LocationWithRequireReceiptAllowed()
     var
         InvtDocumentHeader: Record "Invt. Document Header";
-        InvtDocumentLine: Record "Invt. Document Line";
         Item: Record Item;
         LocationReceipt: Record Location;
         LocationPutAwayAndPick: Record Location;
@@ -1005,7 +1000,6 @@ codeunit 137140 "SCM Inventory Documents"
     procedure LocationWithRequireShipmentAllowed()
     var
         InvtDocumentHeader: Record "Invt. Document Header";
-        InvtDocumentLine: Record "Invt. Document Line";
         Item: Record Item;
         LocationShipment: Record Location;
         LocationPutAwayAndPick: Record Location;
@@ -1124,7 +1118,6 @@ codeunit 137140 "SCM Inventory Documents"
     var
         InvtDocumentHeader: Record "Invt. Document Header";
         InvtDocumentLine: Record "Invt. Document Line";
-        SalespersonPurchaser: Record "Salesperson/Purchaser";
         Location: Record Location;
         Item: Record Item;
         UnitOfMeasure: Record "Unit of Measure";
@@ -1211,12 +1204,10 @@ codeunit 137140 "SCM Inventory Documents"
     var
         InvtDocumentHeader: Record "Invt. Document Header";
         InvtDocumentLine: Record "Invt. Document Line";
-        SalespersonPurchaser: Record "Salesperson/Purchaser";
         Location: Record Location;
         Item: Record Item;
         UnitOfMeasure: Record "Unit of Measure";
         ItemUnitOfMeasure: Record "Item Unit of Measure";
-        ItemLedgerEntry: Record "Item Ledger Entry";
     begin
         // [SCENARIO 469309] Unit cost is not populated when item no. is entered or Uom is changed in Inventory receipt lines
         Initialize();
@@ -1307,80 +1298,6 @@ codeunit 137140 "SCM Inventory Documents"
 
         // [VERIFY] Verify: Unit Cost will update when Unit Of Measure Code 2 applied.
         Assert.AreEqual(Item."Unit Cost" * ItemUnitOfMeasure[2]."Qty. per Unit of Measure", InvtDocumentLine."Unit Cost", UnitCostErr);
-    end;
-
-    [Test]
-    procedure InventoryReceiptDoesNotRequireWarehouseHandling()
-    var
-        Location: Record Location;
-        Bin: Record Bin;
-        Item: Record Item;
-        InvtDocumentHeader: Record "Invt. Document Header";
-        InvtDocumentLine: Record "Invt. Document Line";
-        WarehouseEntry: Record "Warehouse Entry";
-    begin
-        // [FEATURE] [Item Receipt] [Warehouse]
-        // [SCENARIO 481855] Inventory Receipt does not require warehouse handling.
-        Initialize();
-
-        LibraryInventory.CreateItem(Item);
-
-        LibraryWarehouse.CreateLocationWMS(Location, true, false, false, true, false);
-        LibraryWarehouse.CreateBin(Bin, Location.Code, LibraryUtility.GenerateGUID(), '', '');
-
-        LibraryInventory.CreateInvtDocument(InvtDocumentHeader, InvtDocumentHeader."Document Type"::Receipt, Location.Code);
-        LibraryInventory.CreateInvtDocumentLine(InvtDocumentHeader, InvtDocumentLine, Item."No.", 0, 1);
-        InvtDocumentLine.Validate("Bin Code", Bin.Code);
-        InvtDocumentLine.Modify(true);
-        LibraryInventory.PostInvtDocument(InvtDocumentHeader);
-
-        Item.CalcFields(Inventory);
-        Item.TestField(Inventory, 1);
-
-        WarehouseEntry.SetRange("Item No.", Item."No.");
-        WarehouseEntry.SetRange("Location Code", Location.Code);
-        WarehouseEntry.SetRange("Bin Code", Bin.Code);
-        WarehouseEntry.CalcSums("Qty. (Base)");
-        WarehouseEntry.TestField("Qty. (Base)", 1);
-    end;
-
-    [Test]
-    procedure InventoryShipmentDoesNotRequireWarehouseHandling()
-    var
-        Location: Record Location;
-        Bin: Record Bin;
-        Item: Record Item;
-        InvtDocumentHeader: Record "Invt. Document Header";
-        InvtDocumentLine: Record "Invt. Document Line";
-        WarehouseEntry: Record "Warehouse Entry";
-        QtyInStock: Decimal;
-    begin
-        // [FEATURE] [Item Shipment] [Warehouse]
-        // [SCENARIO 481855] Inventory Shipment does not require warehouse handling.
-        Initialize();
-
-        LibraryInventory.CreateItem(Item);
-
-        LibraryWarehouse.CreateLocationWMS(Location, true, false, false, false, true);
-        LibraryWarehouse.CreateBin(Bin, Location.Code, LibraryUtility.GenerateGUID(), '', '');
-
-        QtyInStock := CreateAndPostItemJournalLine(Item."No.", Location.Code, Bin.Code);
-
-        LibraryInventory.CreateInvtDocument(InvtDocumentHeader, InvtDocumentHeader."Document Type"::Shipment, Location.Code);
-        LibraryInventory.CreateInvtDocumentLine(InvtDocumentHeader, InvtDocumentLine, Item."No.", 0, 1);
-        InvtDocumentLine.Validate("Bin Code", Bin.Code);
-        InvtDocumentLine.Modify(true);
-        LibraryInventory.PostInvtDocument(InvtDocumentHeader);
-
-        Item.Get(InvtDocumentLine."Item No.");
-        Item.CalcFields(Inventory);
-        Item.TestField(Inventory, QtyInStock - 1);
-
-        WarehouseEntry.SetRange("Item No.", Item."No.");
-        WarehouseEntry.SetRange("Location Code", Location.Code);
-        WarehouseEntry.SetRange("Bin Code", Bin.Code);
-        WarehouseEntry.CalcSums("Qty. (Base)");
-        WarehouseEntry.TestField("Qty. (Base)", QtyInStock - 1);
     end;
 
     [Test]
@@ -1518,7 +1435,81 @@ codeunit 137140 "SCM Inventory Documents"
         // [VERIFY] Verify: Shortcut Dimension 3 on Posted Invt. Shipment Subform
         PostedInvtShipmentSubform."ShortcutDimCode[3]".AssertEquals(DimValue);
     end;
-    
+
+    [Test]
+    procedure InventoryReceiptDoesNotRequireWarehouseHandling()
+    var
+        Location: Record Location;
+        Bin: Record Bin;
+        Item: Record Item;
+        InvtDocumentHeader: Record "Invt. Document Header";
+        InvtDocumentLine: Record "Invt. Document Line";
+        WarehouseEntry: Record "Warehouse Entry";
+    begin
+        // [FEATURE] [Item Receipt] [Warehouse]
+        // [SCENARIO 481855] Inventory Receipt does not require warehouse handling.
+        Initialize();
+
+        LibraryInventory.CreateItem(Item);
+
+        LibraryWarehouse.CreateLocationWMS(Location, true, false, false, true, false);
+        LibraryWarehouse.CreateBin(Bin, Location.Code, LibraryUtility.GenerateGUID(), '', '');
+
+        LibraryInventory.CreateInvtDocument(InvtDocumentHeader, InvtDocumentHeader."Document Type"::Receipt, Location.Code);
+        LibraryInventory.CreateInvtDocumentLine(InvtDocumentHeader, InvtDocumentLine, Item."No.", 0, 1);
+        InvtDocumentLine.Validate("Bin Code", Bin.Code);
+        InvtDocumentLine.Modify(true);
+        LibraryInventory.PostInvtDocument(InvtDocumentHeader);
+
+        Item.CalcFields(Inventory);
+        Item.TestField(Inventory, 1);
+
+        WarehouseEntry.SetRange("Item No.", Item."No.");
+        WarehouseEntry.SetRange("Location Code", Location.Code);
+        WarehouseEntry.SetRange("Bin Code", Bin.Code);
+        WarehouseEntry.CalcSums("Qty. (Base)");
+        WarehouseEntry.TestField("Qty. (Base)", 1);
+    end;
+
+    [Test]
+    procedure InventoryShipmentDoesNotRequireWarehouseHandling()
+    var
+        Location: Record Location;
+        Bin: Record Bin;
+        Item: Record Item;
+        InvtDocumentHeader: Record "Invt. Document Header";
+        InvtDocumentLine: Record "Invt. Document Line";
+        WarehouseEntry: Record "Warehouse Entry";
+        QtyInStock: Decimal;
+    begin
+        // [FEATURE] [Item Shipment] [Warehouse]
+        // [SCENARIO 481855] Inventory Shipment does not require warehouse handling.
+        Initialize();
+
+        LibraryInventory.CreateItem(Item);
+
+        LibraryWarehouse.CreateLocationWMS(Location, true, false, false, false, true);
+        LibraryWarehouse.CreateBin(Bin, Location.Code, LibraryUtility.GenerateGUID(), '', '');
+
+        QtyInStock := CreateAndPostItemJournalLine(Item."No.", Location.Code, Bin.Code);
+
+        LibraryInventory.CreateInvtDocument(InvtDocumentHeader, InvtDocumentHeader."Document Type"::Shipment, Location.Code);
+        LibraryInventory.CreateInvtDocumentLine(InvtDocumentHeader, InvtDocumentLine, Item."No.", 0, 1);
+        InvtDocumentLine.Validate("Bin Code", Bin.Code);
+        InvtDocumentLine.Modify(true);
+        LibraryInventory.PostInvtDocument(InvtDocumentHeader);
+
+        Item.Get(InvtDocumentLine."Item No.");
+        Item.CalcFields(Inventory);
+        Item.TestField(Inventory, QtyInStock - 1);
+
+        WarehouseEntry.SetRange("Item No.", Item."No.");
+        WarehouseEntry.SetRange("Location Code", Location.Code);
+        WarehouseEntry.SetRange("Bin Code", Bin.Code);
+        WarehouseEntry.CalcSums("Qty. (Base)");
+        WarehouseEntry.TestField("Qty. (Base)", QtyInStock - 1);
+    end;
+
     [Test]
     [HandlerFunctions('ConfirmHandlerNo')]
     procedure VerifyDimIsNotUpdatedOnLineAfterLocationCodeIsValidatedOnHeaderAndUserDontWantToUpdateDimOnLines()
@@ -1732,7 +1723,7 @@ codeunit 137140 "SCM Inventory Documents"
         LibraryItemTracking.CreateItemTrackingCode(ItemTrackingCode, true, false);
         ItemTrackingCode.Validate("SN Warehouse Tracking", true);
         ItemTrackingCode.Modify(true);
-        LibraryInventory.CreateTrackedItem(Item, '', LibraryUtility.GetGlobalNoSeriesCode, ItemTrackingCode.Code);
+        LibraryInventory.CreateTrackedItem(Item, '', LibraryUtility.GetGlobalNoSeriesCode(), ItemTrackingCode.Code);
     end;
 
     local procedure CreateInvtDocumentWithLine(var InvtDocumentHeader: Record "Invt. Document Header"; var InvtDocumentLine: Record "Invt. Document Line"; Item: Record Item; DocumentType: Enum "Invt. Doc. Document Type"; LocationCode: Code[10]; SalespersonPurchaserCode: Code[20])
@@ -1802,7 +1793,7 @@ codeunit 137140 "SCM Inventory Documents"
         InventorySetup: Record "Inventory Setup";
     begin
         InventorySetup.Get();
-        InventorySetup.Validate("Posted Direct Trans. Nos.", LibraryUtility.GetGlobalNoSeriesCode);
+        InventorySetup.Validate("Posted Direct Trans. Nos.", LibraryUtility.GetGlobalNoSeriesCode());
         InventorySetup.Validate("Direct Transfer Posting", InventorySetup."Direct Transfer Posting"::"Direct Transfer");
         InventorySetup.Modify(true);
     end;
@@ -1813,13 +1804,13 @@ codeunit 137140 "SCM Inventory Documents"
     begin
         InventorySetup.Get();
         if InventorySetup."Invt. Receipt Nos." = '' then
-            InventorySetup.Validate("Invt. Receipt Nos.", LibraryUtility.GetGlobalNoSeriesCode);
+            InventorySetup.Validate("Invt. Receipt Nos.", LibraryUtility.GetGlobalNoSeriesCode());
         if InventorySetup."Posted Invt. Receipt Nos." = '' then
-            InventorySetup.Validate("Posted Invt. Receipt Nos.", LibraryUtility.GetGlobalNoSeriesCode);
+            InventorySetup.Validate("Posted Invt. Receipt Nos.", LibraryUtility.GetGlobalNoSeriesCode());
         if InventorySetup."Invt. Shipment Nos." = '' then
-            InventorySetup.Validate("Invt. Shipment Nos.", LibraryUtility.GetGlobalNoSeriesCode);
+            InventorySetup.Validate("Invt. Shipment Nos.", LibraryUtility.GetGlobalNoSeriesCode());
         if InventorySetup."Posted Invt. Shipment Nos." = '' then
-            InventorySetup.Validate("Posted Invt. Shipment Nos.", LibraryUtility.GetGlobalNoSeriesCode);
+            InventorySetup.Validate("Posted Invt. Shipment Nos.", LibraryUtility.GetGlobalNoSeriesCode());
         InventorySetup.Modify(true);
     end;
 
@@ -1855,14 +1846,13 @@ codeunit 137140 "SCM Inventory Documents"
         ItemJournalTemplate: Record "Item Journal Template";
         ItemJournalBatch: Record "Item Journal Batch";
         ItemJournalLine: Record "Item Journal Line";
-        CalculatePer: Option "Item Ledger Entry",Item;
     begin
         LibraryCosting.AdjustCostItemEntries(ItemNo, '');
 
         Item.SetRange("No.", ItemNo);
         LibraryInventory.CreateItemJournalBatchByType(ItemJournalBatch, ItemJournalTemplate.Type::Revaluation);
         LibraryCosting.CreateRevaluationJournal(
-          ItemJournalBatch, Item, WorkDate(), LibraryUtility.GenerateGUID, CalculatePer::Item, false, false, false, 0, false);
+          ItemJournalBatch, Item, WorkDate(), LibraryUtility.GenerateGUID(), "Inventory Value Calc. Per"::Item, false, false, false, "Inventory Value Calc. Base"::" ", false);
         ItemJournalLine.SetRange("Journal Template Name", ItemJournalBatch."Journal Template Name");
         ItemJournalLine.SetRange("Journal Batch Name", ItemJournalBatch.Name);
         ItemJournalLine.FindFirst();
@@ -1985,7 +1975,7 @@ codeunit 137140 "SCM Inventory Documents"
     [Scope('OnPrem')]
     procedure ItemTrackingLinesModalPageHandler(var ItemTrackingLines: TestPage "Item Tracking Lines")
     begin
-        case LibraryVariableStorage.DequeueInteger of
+        case LibraryVariableStorage.DequeueInteger() of
             ItemTrackingAction::AssignSerialNo:
                 ItemTrackingLines."Assign Serial No.".Invoke();
             ItemTrackingAction::SelectEntries:
@@ -1997,14 +1987,14 @@ codeunit 137140 "SCM Inventory Documents"
     [Scope('OnPrem')]
     procedure EnterQuantityToCreateModalPageHandler(var EnterQuantityToCreate: TestPage "Enter Quantity to Create")
     begin
-        EnterQuantityToCreate.OK.Invoke();
+        EnterQuantityToCreate.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure ItemTrackingSummaryModalPageHandler(var ItemTrackingSummary: TestPage "Item Tracking Summary")
     begin
-        ItemTrackingSummary.OK.Invoke();
+        ItemTrackingSummary.OK().Invoke();
     end;
 
     [ModalPageHandler]

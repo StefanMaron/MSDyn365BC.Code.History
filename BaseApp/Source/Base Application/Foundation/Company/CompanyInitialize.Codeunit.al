@@ -68,7 +68,6 @@ using System.Integration;
 using System.Globalization;
 using System.Feedback;
 using System.IO;
-using System.Reflection;
 #if not CLEAN22
 using System.Security.AccessControl;
 #endif
@@ -129,7 +128,6 @@ codeunit 2 "Company-Initialize"
         InitBankExportImportSetup();
         InitDocExchServiceSetup();
         BankPmtApplRule.InsertDefaultMatchingRules();
-        InsertClientAddIns();
         VATRegistrationLogMgt.InitServiceSetup();
         WorkflowSetup.InitWorkflow();
         TransformationRule.CreateDefaultTransformations();
@@ -169,7 +167,7 @@ codeunit 2 "Company-Initialize"
         Text018: Label 'ITEMJNL';
         Text020: Label 'PHYSINVJNL';
         Text022: Label 'RESJNL';
-        Text023: Label 'JOBJNL';
+        Text023: Label 'PROJJNL';
         Text024: Label 'SALESAPPL';
         Text025: Label 'Sales Entry Application';
         PaymentReconJnlTok: Label 'PAYMTRECON', Comment = 'Payment Reconciliation Journal Code';
@@ -183,7 +181,7 @@ codeunit 2 "Company-Initialize"
         Text031: Label 'COMPRCUST';
         Text032: Label 'COMPRVEND';
         Text035: Label 'COMPRRES';
-        Text036: Label 'COMPRJOB';
+        Text036: Label 'COMPRPROJ';
         Text037: Label 'COMPRBANK';
         Text038: Label 'COMPRCHECK';
         Text039: Label 'FINVOIDCHK';
@@ -241,10 +239,10 @@ codeunit 2 "Company-Initialize"
         Text092: Label 'PRODORDER';
         Text99000004: Label 'FLUSHING';
         Text99000005: Label 'Flushing';
-        Text096: Label 'JOBGLJNL';
-        Text097: Label 'JOBGLWIP';
+        Text096: Label 'PROJGLJNL';
+        Text097: Label 'PROJGLWIP';
         Text098: Label 'WIP Entry';
-        Text099: Label 'Date Compress Job Ledge';
+        Text099: Label 'Date Compress Project Ledger';
         Text100: Label 'COMPRIBUDG', Locked = true;
         Text101: Label 'Completed Contract';
         Text102: Label 'Cost of Sales';
@@ -319,145 +317,122 @@ codeunit 2 "Company-Initialize"
         ICSetup: Record "IC Setup";
         VATSetup: Record "VAT Setup";
     begin
-        with GLSetup do
-            if not FindFirst() then begin
-                Init();
-                Insert();
+        if not GLSetup.FindFirst() then begin
+            GLSetup.Init();
+            GLSetup.Insert();
+        end;
+
+        if not SalesSetup.FindFirst() then begin
+            SalesSetup.Init();
+            SalesSetup.Insert();
+        end;
+
+        if not MarketingSetup.FindFirst() then begin
+            MarketingSetup.Init();
+            MarketingSetup.Insert();
+        end;
+
+        if not InteractionTemplateSetup.FindFirst() then begin
+            InteractionTemplateSetup.Init();
+            InteractionTemplateSetup.Insert();
+        end;
+
+        if not ServiceMgtSetup.FindFirst() then begin
+            ServiceMgtSetup.Init();
+            ServiceMgtSetup.Insert();
+        end;
+
+        if not PurchSetup.FindFirst() then begin
+            PurchSetup.Init();
+            PurchSetup.Insert();
+        end;
+
+        if not InvtSetup.FindFirst() then begin
+            InvtSetup.Init();
+            InvtSetup.Insert();
+        end;
+
+        if not ResourcesSetup.FindFirst() then begin
+            ResourcesSetup.Init();
+            ResourcesSetup.Insert();
+        end;
+
+        if not JobsSetup.FindFirst() then begin
+            JobsSetup.Init();
+            JobsSetup.Insert();
+        end;
+
+        if not FASetup.FindFirst() then begin
+            FASetup.Init();
+            FASetup.Insert();
+        end;
+
+        if not HumanResourcesSetup.FindFirst() then begin
+            HumanResourcesSetup.Init();
+            HumanResourcesSetup.Insert();
+        end;
+
+        if not WhseSetup.FindFirst() then begin
+            WhseSetup.Init();
+            WhseSetup.Insert();
+        end;
+
+        if not NonstockItemSetup.FindFirst() then begin
+            NonstockItemSetup.Init();
+            NonstockItemSetup.Insert();
+        end;
+
+        if not CashFlowSetup.FindFirst() then begin
+            CashFlowSetup.Init();
+            CashFlowSetup.Insert();
+        end;
+
+        if CostAccSetup.WritePermission then
+            if not CostAccSetup.FindFirst() then begin
+                CostAccSetup.Init();
+                CostAccSetup.Insert();
             end;
 
-        with SalesSetup do
-            if not FindFirst() then begin
-                Init();
-                Insert();
-            end;
+        if not AssemblySetup.FindFirst() then begin
+            AssemblySetup.Init();
+            AssemblySetup.Insert();
+        end;
 
-        with MarketingSetup do
-            if not FindFirst() then begin
-                Init();
-                Insert();
-            end;
+        if not VATReportSetup.FindFirst() then begin
+            VATReportSetup.Init();
+            VATReportSetup.Insert();
+        end;
 
-        with InteractionTemplateSetup do
-            if not FindFirst() then begin
-                Init();
-                Insert();
-            end;
+        if not TaxSetup.FindFirst() then begin
+            TaxSetup.Init();
+            TaxSetup.Insert();
+        end;
 
-        with ServiceMgtSetup do
-            if not FindFirst() then begin
-                Init();
-                Insert();
-            end;
+        if not ConfigSetup.FindFirst() then begin
+            ConfigSetup.Init();
+            ConfigSetup.Insert();
+        end;
 
-        with PurchSetup do
-            if not FindFirst() then begin
-                Init();
-                Insert();
-            end;
+        if not DataMigrationSetup.FindFirst() then begin
+            DataMigrationSetup.Init();
+            DataMigrationSetup.Insert();
+        end;
 
-        with InvtSetup do
-            if not FindFirst() then begin
-                Init();
-                Insert();
-            end;
+        if not IncomingDocumentsSetup.FindFirst() then begin
+            IncomingDocumentsSetup.Init();
+            IncomingDocumentsSetup.Insert();
+        end;
 
-        with ResourcesSetup do
-            if not FindFirst() then begin
-                Init();
-                Insert();
-            end;
+        if not TrialBalanceSetup.FindFirst() then begin
+            TrialBalanceSetup.Init();
+            TrialBalanceSetup.Insert();
+        end;
 
-        with JobsSetup do
-            if not FindFirst() then begin
-                Init();
-                Insert();
-            end;
-
-        with FASetup do
-            if not FindFirst() then begin
-                Init();
-                Insert();
-            end;
-
-        with HumanResourcesSetup do
-            if not FindFirst() then begin
-                Init();
-                Insert();
-            end;
-
-        with WhseSetup do
-            if not FindFirst() then begin
-                Init();
-                Insert();
-            end;
-
-        with NonstockItemSetup do
-            if not FindFirst() then begin
-                Init();
-                Insert();
-            end;
-
-        with CashFlowSetup do
-            if not FindFirst() then begin
-                Init();
-                Insert();
-            end;
-
-        with CostAccSetup do
-            if WritePermission then
-                if not FindFirst() then begin
-                    Init();
-                    Insert();
-                end;
-
-        with AssemblySetup do
-            if not FindFirst() then begin
-                Init();
-                Insert();
-            end;
-
-        with VATReportSetup do
-            if not FindFirst() then begin
-                Init();
-                Insert();
-            end;
-
-        with TaxSetup do
-            if not FindFirst() then begin
-                Init();
-                Insert();
-            end;
-
-        with ConfigSetup do
-            if not FindFirst() then begin
-                Init();
-                Insert();
-            end;
-
-        with DataMigrationSetup do
-            if not FindFirst() then begin
-                Init();
-                Insert();
-            end;
-
-        with IncomingDocumentsSetup do
-            if not FindFirst() then begin
-                Init();
-                Insert();
-            end;
-
-        with TrialBalanceSetup do
-            if not FindFirst() then begin
-                Init();
-                Insert();
-            end;
-
-        with CompanyInfo do
-            if not FindFirst() then begin
-                Init();
-                "Created DateTime" := CurrentDateTime;
-                Insert();
-            end;
+        if not CompanyInfo.FindFirst() then begin
+            CompanyInfo.Init();
+            CompanyInfo."Created DateTime" := CurrentDateTime;
+            CompanyInfo.Insert();
+        end;
 
         if not ICSetup.Get() then begin
             ICSetup.Init();
@@ -477,95 +452,94 @@ codeunit 2 "Company-Initialize"
         SourceCode: Record "Source Code";
         SourceCodeSetup: Record "Source Code Setup";
     begin
-        if not (SourceCodeSetup.FindFirst() or SourceCode.FindFirst()) then
-            with SourceCodeSetup do begin
-                Init();
-                InsertSourceCode(Sales, Text001, Text002);
-                InsertSourceCode(Purchases, Text003, Text004);
-                InsertSourceCode("Deleted Document", Text005, DocumentCreatedToAvoidGapInNoSeriesTxt);
-                InsertSourceCode("Inventory Post Cost", Text006, ReportName(REPORT::"Post Inventory Cost to G/L"));
+        if not (SourceCodeSetup.FindFirst() or SourceCode.FindFirst()) then begin
+            SourceCodeSetup.Init();
+            InsertSourceCode(SourceCodeSetup.Sales, Text001, Text002);
+            InsertSourceCode(SourceCodeSetup.Purchases, Text003, Text004);
+            InsertSourceCode(SourceCodeSetup."Deleted Document", Text005, DocumentCreatedToAvoidGapInNoSeriesTxt);
+            InsertSourceCode(SourceCodeSetup."Inventory Post Cost", Text006, ReportName(REPORT::"Post Inventory Cost to G/L"));
 #if not CLEAN23
-                InsertSourceCode("Exchange Rate Adjmt.", Text007, ReportName(REPORT::"Adjust Exchange Rates"));
+            InsertSourceCode(SourceCodeSetup."Exchange Rate Adjmt.", Text007, ReportName(REPORT::"Adjust Exchange Rates"));
 #else
-                InsertSourceCode("Exchange Rate Adjmt.", Text007, ReportName(REPORT::"Exch. Rate Adjustment"));
+            InsertSourceCode(SourceCodeSetup."Exchange Rate Adjmt.", Text007, ReportName(REPORT::"Exch. Rate Adjustment"));
 #endif
-                InsertSourceCode("Close Income Statement", Text010, ReportName(REPORT::"Close Income Statement"));
-                InsertSourceCode(Consolidation, Text011, Text012);
-                InsertSourceCode("General Journal", Text013, PageName(PAGE::"General Journal"));
-                InsertSourceCode("Sales Journal", Text014, PageName(PAGE::"Sales Journal"));
-                InsertSourceCode("Purchase Journal", Text015, PageName(PAGE::"Purchase Journal"));
-                InsertSourceCode("Cash Receipt Journal", Text016, PageName(PAGE::"Cash Receipt Journal"));
-                InsertSourceCode("Payment Journal", Text017, PageName(PAGE::"Payment Journal"));
-                InsertSourceCode("Payment Reconciliation Journal", PaymentReconJnlTok, PageName(PAGE::"Payment Reconciliation Journal"));
-                InsertSourceCode("Item Journal", Text018, PageName(PAGE::"Item Journal"));
-                InsertSourceCode(Transfer, Text063, Text064);
-                InsertSourceCode("Item Reclass. Journal", Text065, PageName(PAGE::"Item Reclass. Journal"));
-                InsertSourceCode("Phys. Inventory Journal", Text020, PageName(PAGE::"Phys. Inventory Journal"));
-                InsertSourceCode("Revaluation Journal", Text066, PageName(PAGE::"Revaluation Journal"));
-                InsertSourceCode("Consumption Journal", Text067, PageName(PAGE::"Consumption Journal"));
-                InsertSourceCode("Output Journal", Text069, PageName(PAGE::"Output Journal"));
-                InsertSourceCode("Production Journal", Text092, PageName(PAGE::"Production Journal"));
-                InsertSourceCode("Capacity Journal", Text070, PageName(PAGE::"Capacity Journal"));
-                InsertSourceCode("Resource Journal", Text022, PageName(PAGE::"Resource Journal"));
-                InsertSourceCode("Job Journal", Text023, PageName(PAGE::"Job Journal"));
-                InsertSourceCode("Job G/L Journal", Text096, PageName(PAGE::"Job G/L Journal"));
-                InsertSourceCode("Job G/L WIP", Text097, Text098);
-                InsertSourceCode("Sales Entry Application", Text024, Text025);
-                InsertSourceCode("Unapplied Sales Entry Appln.", Text086, Text087);
-                InsertSourceCode("Unapplied Purch. Entry Appln.", Text088, Text089);
-                InsertSourceCode("Unapplied Empl. Entry Appln.", UnappliedEmplEntryApplnCodeTxt, UnappliedEmplEntryApplnTxt);
-                InsertSourceCode(Reversal, Text090, Text091);
-                InsertSourceCode("Purchase Entry Application", Text026, Text027);
-                InsertSourceCode("Employee Entry Application", EmployeeEntryApplicationCodeTxt, EmployeeEntryApplicationTxt);
-                InsertSourceCode("VAT Settlement", Text028, ReportName(REPORT::"Calc. and Post VAT Settlement"));
-                InsertSourceCode("Compress G/L", Text029, ReportName(REPORT::"Date Compress General Ledger"));
-                InsertSourceCode("Compress VAT Entries", Text030, ReportName(REPORT::"Date Compress VAT Entries"));
-                InsertSourceCode("Compress Cust. Ledger", Text031, ReportName(REPORT::"Date Compress Customer Ledger"));
-                InsertSourceCode("Compress Vend. Ledger", Text032, ReportName(REPORT::"Date Compress Vendor Ledger"));
-                InsertSourceCode("Compress Res. Ledger", Text035, ReportName(REPORT::"Date Compress Resource Ledger"));
-                InsertSourceCode("Compress Job Ledger", Text036, Text099);
-                InsertSourceCode("Compress Bank Acc. Ledger", Text037, ReportName(REPORT::"Date Compress Bank Acc. Ledger"));
-                InsertSourceCode("Compress Check Ledger", Text038, ReportName(REPORT::"Delete Check Ledger Entries"));
-                InsertSourceCode("Financially Voided Check", Text039, Text040);
-                InsertSourceCode(Reminder, Text041, Text042);
-                InsertSourceCode("Finance Charge Memo", Text043, Text044);
-                InsertSourceCode("Trans. Bank Rec. to Gen. Jnl.", Text076, ReportName(REPORT::"Trans. Bank Rec. to Gen. Jnl."));
-                InsertSourceCode("Fixed Asset G/L Journal", Text045, PageName(PAGE::"Fixed Asset G/L Journal"));
-                InsertSourceCode("Fixed Asset Journal", Text046, PageName(PAGE::"Fixed Asset Journal"));
-                InsertSourceCode("Insurance Journal", Text047, PageName(PAGE::"Insurance Journal"));
-                InsertSourceCode("Compress FA Ledger", Text048, ReportName(REPORT::"Date Compress FA Ledger"));
-                InsertSourceCode("Compress Maintenance Ledger", Text049, ReportName(REPORT::"Date Compress Maint. Ledger"));
-                InsertSourceCode("Compress Insurance Ledger", Text050, ReportName(REPORT::"Date Compress Insurance Ledger"));
-                InsertSourceCode("Adjust Add. Reporting Currency", Text051, ReportName(REPORT::"Adjust Add. Reporting Currency"));
-                InsertSourceCode(Flushing, Text99000004, Text99000005);
-                InsertSourceCode("Adjust Cost", Text068, ReportName(REPORT::"Adjust Cost - Item Entries"));
-                InsertSourceCode("Compress Item Budget", Text100, ReportName(REPORT::"Date Comp. Item Budget Entries"));
-                InsertSourceCode("Whse. Item Journal", Text071, PageName(PAGE::"Whse. Item Journal"));
-                InsertSourceCode("Whse. Phys. Invt. Journal", Text072, PageName(PAGE::"Whse. Phys. Invt. Journal"));
-                InsertSourceCode("Whse. Reclassification Journal", Text073, PageName(PAGE::"Whse. Reclassification Journal"));
-                InsertSourceCode("Compress Whse. Entries", Text083, ReportName(REPORT::"Date Compress Whse. Entries"));
-                InsertSourceCode("Whse. Put-away", Text077, Text080);
-                InsertSourceCode("Whse. Pick", Text078, Text081);
-                InsertSourceCode("Whse. Movement", Text079, Text082);
-                InsertSourceCode("Service Management", Text074, Text075);
-                InsertSourceCode("IC General Journal", Text084, Text085);
-                InsertSourceCode("Cash Flow Worksheet", Text109, Text110);
-                InsertSourceCode(Assembly, Text107, Text108);
-                InsertSourceCode("G/L Entry to CA", Text111, Text112);
-                InsertSourceCode("Cost Journal", Text113, Text114);
-                InsertSourceCode("Cost Allocation", Text115, Text116);
-                InsertSourceCode("Transfer Budget to Actual", Text117, Text118);
-                InsertSourceCode("Phys. Invt. Orders", InvtOrderTxt, PageName(PAGE::"Physical Inventory Order"));
-                InsertSourceCode("Invt. Receipt", InvtReceiptsTxt, PageName(PAGE::"Invt. Receipts"));
-                InsertSourceCode("Invt. Shipment", InvtShipmentsTxt, PageName(PAGE::"Invt. Shipments"));
-                InsertSourceCode("General Deferral", SourceCodeGeneralDeferralLbl, SourceCodeGeneralDeferralTxt);
-                InsertSourceCode("Sales Deferral", SourceCodeSalesDeferralLbl, SourceCodeSalesDeferralTxt);
-                InsertSourceCode("Purchase Deferral", SourceCodePurchaseDeferralLbl, SourceCodePurchaseDeferralTxt);
-                InsertSourceCode("Bank Rec. Adjustment", Text1020000, Text1020001);
-                InsertSourceCode(Deposits, Text1020002, Text1020003);
-                InsertSourceCode("Production Order", ProductionOrderLbl, ProductionOrderTxt);
-                Insert();
-            end;
+            InsertSourceCode(SourceCodeSetup."Close Income Statement", Text010, ReportName(REPORT::"Close Income Statement"));
+            InsertSourceCode(SourceCodeSetup.Consolidation, Text011, Text012);
+            InsertSourceCode(SourceCodeSetup."General Journal", Text013, PageName(PAGE::"General Journal"));
+            InsertSourceCode(SourceCodeSetup."Sales Journal", Text014, PageName(PAGE::"Sales Journal"));
+            InsertSourceCode(SourceCodeSetup."Purchase Journal", Text015, PageName(PAGE::"Purchase Journal"));
+            InsertSourceCode(SourceCodeSetup."Cash Receipt Journal", Text016, PageName(PAGE::"Cash Receipt Journal"));
+            InsertSourceCode(SourceCodeSetup."Payment Journal", Text017, PageName(PAGE::"Payment Journal"));
+            InsertSourceCode(SourceCodeSetup."Payment Reconciliation Journal", PaymentReconJnlTok, PageName(PAGE::"Payment Reconciliation Journal"));
+            InsertSourceCode(SourceCodeSetup."Item Journal", Text018, PageName(PAGE::"Item Journal"));
+            InsertSourceCode(SourceCodeSetup.Transfer, Text063, Text064);
+            InsertSourceCode(SourceCodeSetup."Item Reclass. Journal", Text065, PageName(PAGE::"Item Reclass. Journal"));
+            InsertSourceCode(SourceCodeSetup."Phys. Inventory Journal", Text020, PageName(PAGE::"Phys. Inventory Journal"));
+            InsertSourceCode(SourceCodeSetup."Revaluation Journal", Text066, PageName(PAGE::"Revaluation Journal"));
+            InsertSourceCode(SourceCodeSetup."Consumption Journal", Text067, PageName(PAGE::"Consumption Journal"));
+            InsertSourceCode(SourceCodeSetup."Output Journal", Text069, PageName(PAGE::"Output Journal"));
+            InsertSourceCode(SourceCodeSetup."Production Journal", Text092, PageName(PAGE::"Production Journal"));
+            InsertSourceCode(SourceCodeSetup."Capacity Journal", Text070, PageName(PAGE::"Capacity Journal"));
+            InsertSourceCode(SourceCodeSetup."Resource Journal", Text022, PageName(PAGE::"Resource Journal"));
+            InsertSourceCode(SourceCodeSetup."Job Journal", Text023, PageName(PAGE::"Job Journal"));
+            InsertSourceCode(SourceCodeSetup."Job G/L Journal", Text096, PageName(PAGE::"Job G/L Journal"));
+            InsertSourceCode(SourceCodeSetup."Job G/L WIP", Text097, Text098);
+            InsertSourceCode(SourceCodeSetup."Sales Entry Application", Text024, Text025);
+            InsertSourceCode(SourceCodeSetup."Unapplied Sales Entry Appln.", Text086, Text087);
+            InsertSourceCode(SourceCodeSetup."Unapplied Purch. Entry Appln.", Text088, Text089);
+            InsertSourceCode(SourceCodeSetup."Unapplied Empl. Entry Appln.", UnappliedEmplEntryApplnCodeTxt, UnappliedEmplEntryApplnTxt);
+            InsertSourceCode(SourceCodeSetup.Reversal, Text090, Text091);
+            InsertSourceCode(SourceCodeSetup."Purchase Entry Application", Text026, Text027);
+            InsertSourceCode(SourceCodeSetup."Employee Entry Application", EmployeeEntryApplicationCodeTxt, EmployeeEntryApplicationTxt);
+            InsertSourceCode(SourceCodeSetup."VAT Settlement", Text028, ReportName(REPORT::"Calc. and Post VAT Settlement"));
+            InsertSourceCode(SourceCodeSetup."Compress G/L", Text029, ReportName(REPORT::"Date Compress General Ledger"));
+            InsertSourceCode(SourceCodeSetup."Compress VAT Entries", Text030, ReportName(REPORT::"Date Compress VAT Entries"));
+            InsertSourceCode(SourceCodeSetup."Compress Cust. Ledger", Text031, ReportName(REPORT::"Date Compress Customer Ledger"));
+            InsertSourceCode(SourceCodeSetup."Compress Vend. Ledger", Text032, ReportName(REPORT::"Date Compress Vendor Ledger"));
+            InsertSourceCode(SourceCodeSetup."Compress Res. Ledger", Text035, ReportName(REPORT::"Date Compress Resource Ledger"));
+            InsertSourceCode(SourceCodeSetup."Compress Job Ledger", Text036, Text099);
+            InsertSourceCode(SourceCodeSetup."Compress Bank Acc. Ledger", Text037, ReportName(REPORT::"Date Compress Bank Acc. Ledger"));
+            InsertSourceCode(SourceCodeSetup."Compress Check Ledger", Text038, ReportName(REPORT::"Delete Check Ledger Entries"));
+            InsertSourceCode(SourceCodeSetup."Financially Voided Check", Text039, Text040);
+            InsertSourceCode(SourceCodeSetup.Reminder, Text041, Text042);
+            InsertSourceCode(SourceCodeSetup."Finance Charge Memo", Text043, Text044);
+            InsertSourceCode(SourceCodeSetup."Trans. Bank Rec. to Gen. Jnl.", Text076, ReportName(REPORT::"Trans. Bank Rec. to Gen. Jnl."));
+            InsertSourceCode(SourceCodeSetup."Fixed Asset G/L Journal", Text045, PageName(PAGE::"Fixed Asset G/L Journal"));
+            InsertSourceCode(SourceCodeSetup."Fixed Asset Journal", Text046, PageName(PAGE::"Fixed Asset Journal"));
+            InsertSourceCode(SourceCodeSetup."Insurance Journal", Text047, PageName(PAGE::"Insurance Journal"));
+            InsertSourceCode(SourceCodeSetup."Compress FA Ledger", Text048, ReportName(REPORT::"Date Compress FA Ledger"));
+            InsertSourceCode(SourceCodeSetup."Compress Maintenance Ledger", Text049, ReportName(REPORT::"Date Compress Maint. Ledger"));
+            InsertSourceCode(SourceCodeSetup."Compress Insurance Ledger", Text050, ReportName(REPORT::"Date Compress Insurance Ledger"));
+            InsertSourceCode(SourceCodeSetup."Adjust Add. Reporting Currency", Text051, ReportName(REPORT::"Adjust Add. Reporting Currency"));
+            InsertSourceCode(SourceCodeSetup.Flushing, Text99000004, Text99000005);
+            InsertSourceCode(SourceCodeSetup."Adjust Cost", Text068, ReportName(REPORT::"Adjust Cost - Item Entries"));
+            InsertSourceCode(SourceCodeSetup."Compress Item Budget", Text100, ReportName(REPORT::"Date Comp. Item Budget Entries"));
+            InsertSourceCode(SourceCodeSetup."Whse. Item Journal", Text071, PageName(PAGE::"Whse. Item Journal"));
+            InsertSourceCode(SourceCodeSetup."Whse. Phys. Invt. Journal", Text072, PageName(PAGE::"Whse. Phys. Invt. Journal"));
+            InsertSourceCode(SourceCodeSetup."Whse. Reclassification Journal", Text073, PageName(PAGE::"Whse. Reclassification Journal"));
+            InsertSourceCode(SourceCodeSetup."Compress Whse. Entries", Text083, ReportName(REPORT::"Date Compress Whse. Entries"));
+            InsertSourceCode(SourceCodeSetup."Whse. Put-away", Text077, Text080);
+            InsertSourceCode(SourceCodeSetup."Whse. Pick", Text078, Text081);
+            InsertSourceCode(SourceCodeSetup."Whse. Movement", Text079, Text082);
+            InsertSourceCode(SourceCodeSetup."Service Management", Text074, Text075);
+            InsertSourceCode(SourceCodeSetup."IC General Journal", Text084, Text085);
+            InsertSourceCode(SourceCodeSetup."Cash Flow Worksheet", Text109, Text110);
+            InsertSourceCode(SourceCodeSetup.Assembly, Text107, Text108);
+            InsertSourceCode(SourceCodeSetup."G/L Entry to CA", Text111, Text112);
+            InsertSourceCode(SourceCodeSetup."Cost Journal", Text113, Text114);
+            InsertSourceCode(SourceCodeSetup."Cost Allocation", Text115, Text116);
+            InsertSourceCode(SourceCodeSetup."Transfer Budget to Actual", Text117, Text118);
+            InsertSourceCode(SourceCodeSetup."Phys. Invt. Orders", InvtOrderTxt, PageName(PAGE::"Physical Inventory Order"));
+            InsertSourceCode(SourceCodeSetup."Invt. Receipt", InvtReceiptsTxt, PageName(PAGE::"Invt. Receipts"));
+            InsertSourceCode(SourceCodeSetup."Invt. Shipment", InvtShipmentsTxt, PageName(PAGE::"Invt. Shipments"));
+            InsertSourceCode(SourceCodeSetup."General Deferral", SourceCodeGeneralDeferralLbl, SourceCodeGeneralDeferralTxt);
+            InsertSourceCode(SourceCodeSetup."Sales Deferral", SourceCodeSalesDeferralLbl, SourceCodeSalesDeferralTxt);
+            InsertSourceCode(SourceCodeSetup."Purchase Deferral", SourceCodePurchaseDeferralLbl, SourceCodePurchaseDeferralTxt);
+            InsertSourceCode(SourceCodeSetup."Production Order", ProductionOrderLbl, ProductionOrderTxt);
+            InsertSourceCode(SourceCodeSetup."Bank Rec. Adjustment", Text1020000, Text1020001);
+            InsertSourceCode(SourceCodeSetup.Deposits, Text1020002, Text1020003);
+            SourceCodeSetup.Insert();
+        end;
     end;
 
     local procedure InitStandardTexts()
@@ -637,12 +611,11 @@ codeunit 2 "Company-Initialize"
     var
         DocExchServiceSetup: Record "Doc. Exch. Service Setup";
     begin
-        with DocExchServiceSetup do
-            if not Get() then begin
-                Init();
-                SetURLsToDefault();
-                Insert();
-            end;
+        if not DocExchServiceSetup.Get() then begin
+            DocExchServiceSetup.Init();
+            DocExchServiceSetup.SetURLsToDefault();
+            DocExchServiceSetup.Insert();
+        end;
     end;
 
     local procedure InitElectronicFormats()
@@ -709,75 +682,6 @@ codeunit 2 "Company-Initialize"
         exit(CopyStr(ObjectTranslation.TranslateObject(ObjectTranslation."Object Type"::Report, ReportID), 1, 100));
     end;
 
-    local procedure InsertClientAddIns()
-    var
-        ClientAddIn: Record "Add-in";
-    begin
-        InsertClientAddIn(
-          'Microsoft.Dynamics.Nav.Client.BusinessChart', '31bf3856ad364e35', '',
-          ClientAddIn.Category::"JavaScript Control Add-in",
-          'Microsoft Dynamics BusinessChart control add-in',
-          ApplicationPath + 'Add-ins\BusinessChart\Microsoft.Dynamics.Nav.Client.BusinessChart.zip');
-        InsertClientAddIn(
-          'Microsoft.Dynamics.Nav.Client.VideoPlayer', '31bf3856ad364e35', '',
-          ClientAddIn.Category::"JavaScript Control Add-in",
-          'Microsoft Dynamics VideoPlayer control add-in',
-          ApplicationPath + 'Add-ins\VideoPlayer\Microsoft.Dynamics.Nav.Client.VideoPlayer.zip');
-        InsertClientAddIn(
-          'Microsoft.Dynamics.Nav.Client.PageReady', '31bf3856ad364e35', '',
-          ClientAddIn.Category::"JavaScript Control Add-in",
-          'Microsoft Dynamics PageReady control add-in',
-          ApplicationPath + 'Add-ins\PageReady\Microsoft.Dynamics.Nav.Client.PageReady.zip');
-        InsertClientAddIn(
-          'Microsoft.Dynamics.Nav.Client.WebPageViewer', '31bf3856ad364e35', '',
-          ClientAddIn.Category::"JavaScript Control Add-in",
-          'Microsoft Web Page Viewer control add-in',
-          ApplicationPath + 'Add-ins\WebPageViewer\Microsoft.Dynamics.Nav.Client.WebPageViewer.zip');
-        InsertClientAddIn(
-          'Microsoft.Dynamics.Nav.Client.OAuthIntegration', '31bf3856ad364e35', '',
-          ClientAddIn.Category::"JavaScript Control Add-in",
-          'Microsoft OAuth Integration control add-in',
-          ApplicationPath + 'Add-ins\OAuthIntegration\Microsoft.Dynamics.Nav.Client.OAuthIntegration.zip');
-        InsertClientAddIn(
-          'Microsoft.Dynamics.Nav.Client.FlowIntegration', '31bf3856ad364e35', '',
-          ClientAddIn.Category::"JavaScript Control Add-in",
-          'Power Automate Integration control add-in',
-          ApplicationPath + 'Add-ins\FlowIntegration\Microsoft.Dynamics.Nav.Client.FlowIntegration.zip');
-        InsertClientAddIn(
-          'Microsoft.Dynamics.Nav.Client.RoleCenterSelector', '31bf3856ad364e35', '',
-          ClientAddIn.Category::"JavaScript Control Add-in",
-          'Microsoft Role Center Selector control add-in',
-          ApplicationPath + 'Add-ins\RoleCenterSelector\Microsoft.Dynamics.Nav.Client.RoleCenterSelector.zip');
-        InsertClientAddIn(
-          'Microsoft.Dynamics.Nav.Client.WelcomeWizard', '31bf3856ad364e35', '',
-          ClientAddIn.Category::"JavaScript Control Add-in",
-          'Microsoft Welcome Wizard control add-in',
-          ApplicationPath + 'Add-ins\WelcomeWizard\Microsoft.Dynamics.Nav.Client.WelcomeWizard.zip');
-        InsertClientAddIn(
-          'Microsoft.Dynamics.Nav.Client.PowerBIManagement', '31bf3856ad364e35', '',
-          ClientAddIn.Category::"JavaScript Control Add-in",
-          'Microsoft Power BI Management control add-in',
-          ApplicationPath + 'Add-ins\PowerBIManagement\Microsoft.Dynamics.Nav.Client.PowerBIManagement.zip');
-    end;
-
-    local procedure InsertClientAddIn(ControlAddInName: Text[220]; PublicKeyToken: Text[20]; Version: Text[25]; Category: Option; Description: Text[250]; ResourceFilePath: Text[250])
-    var
-        ClientAddIn: Record "Add-in";
-    begin
-        if ClientAddIn.Get(ControlAddInName, PublicKeyToken, Version) then
-            exit;
-
-        ClientAddIn.Init();
-        ClientAddIn."Add-in Name" := ControlAddInName;
-        ClientAddIn."Public Key Token" := PublicKeyToken;
-        ClientAddIn.Version := Version;
-        ClientAddIn.Category := Category;
-        ClientAddIn.Description := Description;
-        if Exists(ResourceFilePath) then
-            ClientAddIn.Resource.Import(ResourceFilePath);
-        if ClientAddIn.Insert() then;
-    end;
-
     local procedure InsertJobWIPMethod("Code": Code[20]; Description: Text[100]; RecognizedCosts: Enum "Job WIP Recognized Costs Type"; RecognizedSales: Enum "Job WIP Recognized Sales Type"; SystemDefinedIndex: Integer)
     var
         JobWIPMethod: Record "Job WIP Method";
@@ -799,17 +703,15 @@ codeunit 2 "Company-Initialize"
     var
         BankExportImportSetup: Record "Bank Export/Import Setup";
     begin
-        with BankExportImportSetup do begin
-            Init();
-            Code := CodeTxt;
-            Name := NameTxt;
-            Direction := DirectionOpt;
-            "Processing Codeunit ID" := CodeunitID;
-            "Processing XMLport ID" := XMLPortID;
-            "Check Export Codeunit" := CheckCodeunitID;
-            "Preserve Non-Latin Characters" := false;
-            Insert();
-        end;
+        BankExportImportSetup.Init();
+        BankExportImportSetup.Code := CodeTxt;
+        BankExportImportSetup.Name := NameTxt;
+        BankExportImportSetup.Direction := DirectionOpt;
+        BankExportImportSetup."Processing Codeunit ID" := CodeunitID;
+        BankExportImportSetup."Processing XMLport ID" := XMLPortID;
+        BankExportImportSetup."Check Export Codeunit" := CheckCodeunitID;
+        BankExportImportSetup."Preserve Non-Latin Characters" := false;
+        BankExportImportSetup.Insert();
     end;
 
     local procedure InitApplicationAreasForSaaS()

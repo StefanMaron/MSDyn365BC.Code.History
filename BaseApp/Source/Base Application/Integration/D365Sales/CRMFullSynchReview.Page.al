@@ -127,7 +127,7 @@ page 5331 "CRM Full Synch. Review"
                 Caption = 'Sync All';
                 Enabled = ActionStartEnabled;
                 Image = Start;
-                ToolTip = 'Start all the default integration jobs for synchronizing Business Central record types and Dataverse entities, as defined on the Integration Table Mappings page. Mappings with finished job status will be skipped.';
+                ToolTip = 'Start all the default integration projects for synchronizing Business Central record types and Dataverse entities, as defined on the Integration Table Mappings page. Mappings with finished project status will be skipped.';
 
                 trigger OnAction()
                 var
@@ -152,7 +152,7 @@ page 5331 "CRM Full Synch. Review"
                 Caption = 'Restart';
                 Enabled = ActionRestartEnabled;
                 Image = Refresh;
-                ToolTip = 'Restart the integration job for synchronizing Business Central record types and Dataverse entities, as defined on the Integration Table Mappings page.';
+                ToolTip = 'Restart the integration project for synchronizing Business Central record types and Dataverse entities, as defined on the Integration Table Mappings page.';
                 trigger OnAction()
                 begin
                     Rec.Delete();

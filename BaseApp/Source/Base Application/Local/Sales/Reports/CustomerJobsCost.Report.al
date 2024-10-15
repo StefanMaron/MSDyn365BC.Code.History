@@ -15,7 +15,8 @@ report 10213 "Customer Jobs (Cost)"
     DefaultLayout = RDLC;
     RDLCLayout = './Local/Sales/Reports/CustomerJobsCost.rdlc';
     ApplicationArea = Jobs;
-    Caption = 'Customer Jobs (Cost)';
+    Caption = 'Customer Projects (Cost)';
+    AdditionalSearchTerms = 'Customer Jobs (Cost)';
     UsageCategory = ReportsAndAnalysis;
 
     dataset
@@ -185,7 +186,7 @@ report 10213 "Customer Jobs (Cost)"
         JobFilter: Text;
         ScheduledCost: Decimal;
         UsageCost: Decimal;
-        Customer_Jobs___CostCaptionLbl: Label 'Customer Jobs - Cost';
+        Customer_Jobs___CostCaptionLbl: Label 'Customer Projects - Cost';
         CurrReport_PAGENOCaptionLbl: Label 'Page';
         ScheduledCostCaptionLbl: Label 'Budget Cost';
         UsageCostCaptionLbl: Label 'Actual Cost';

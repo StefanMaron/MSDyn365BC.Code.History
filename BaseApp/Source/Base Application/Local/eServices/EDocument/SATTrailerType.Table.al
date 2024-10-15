@@ -9,6 +9,7 @@ table 27022 "SAT Trailer Type"
     DataPerCompany = false;
     DrillDownPageID = "SAT Trailer Types";
     LookupPageID = "SAT Trailer Types";
+    DataClassification = CustomerContent;
 
     fields
     {

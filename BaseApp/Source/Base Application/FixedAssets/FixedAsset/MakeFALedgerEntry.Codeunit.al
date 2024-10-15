@@ -103,27 +103,25 @@ codeunit 5604 "Make FA Ledger Entry"
     begin
         OnBeforeCopyFromFACard(FALedgEntry, FA, FADeprBook, xFALedgerEntry);
 
-        with FALedgEntry do begin
-            "FA Class Code" := FA."FA Class Code";
-            "FA Subclass Code" := FA."FA Subclass Code";
-            "FA Location Code" := FA."FA Location Code";
-            "Location Code" := FA."Location Code";
-            "FA Exchange Rate" := FADeprBook.GetExchangeRate();
-            "Depreciation Method" := FADeprBook."Depreciation Method";
-            "Depreciation Starting Date" := FADeprBook."Depreciation Starting Date";
-            "Depreciation Ending Date" := FADeprBook."Depreciation Ending Date";
-            "Straight-Line %" := FADeprBook."Straight-Line %";
-            "No. of Depreciation Years" := FADeprBook."No. of Depreciation Years";
-            "Fixed Depr. Amount" := FADeprBook."Fixed Depr. Amount";
-            "Declining-Balance %" := FADeprBook."Declining-Balance %";
-            "Depreciation Table Code" := FADeprBook."Depreciation Table Code";
-            "Use FA Ledger Check" := FADeprBook."Use FA Ledger Check";
-            "Depr. Starting Date (Custom 1)" := FADeprBook."Depr. Starting Date (Custom 1)";
-            "Depr. Ending Date (Custom 1)" := FADeprBook."Depr. Ending Date (Custom 1)";
-            "Accum. Depr. % (Custom 1)" := FADeprBook."Accum. Depr. % (Custom 1)";
-            "Depr. % this year (Custom 1)" := FADeprBook."Depr. This Year % (Custom 1)";
-            "Property Class (Custom 1)" := FADeprBook."Property Class (Custom 1)";
-        end;
+        FALedgEntry."FA Class Code" := FA."FA Class Code";
+        FALedgEntry."FA Subclass Code" := FA."FA Subclass Code";
+        FALedgEntry."FA Location Code" := FA."FA Location Code";
+        FALedgEntry."Location Code" := FA."Location Code";
+        FALedgEntry."FA Exchange Rate" := FADeprBook.GetExchangeRate();
+        FALedgEntry."Depreciation Method" := FADeprBook."Depreciation Method";
+        FALedgEntry."Depreciation Starting Date" := FADeprBook."Depreciation Starting Date";
+        FALedgEntry."Depreciation Ending Date" := FADeprBook."Depreciation Ending Date";
+        FALedgEntry."Straight-Line %" := FADeprBook."Straight-Line %";
+        FALedgEntry."No. of Depreciation Years" := FADeprBook."No. of Depreciation Years";
+        FALedgEntry."Fixed Depr. Amount" := FADeprBook."Fixed Depr. Amount";
+        FALedgEntry."Declining-Balance %" := FADeprBook."Declining-Balance %";
+        FALedgEntry."Depreciation Table Code" := FADeprBook."Depreciation Table Code";
+        FALedgEntry."Use FA Ledger Check" := FADeprBook."Use FA Ledger Check";
+        FALedgEntry."Depr. Starting Date (Custom 1)" := FADeprBook."Depr. Starting Date (Custom 1)";
+        FALedgEntry."Depr. Ending Date (Custom 1)" := FADeprBook."Depr. Ending Date (Custom 1)";
+        FALedgEntry."Accum. Depr. % (Custom 1)" := FADeprBook."Accum. Depr. % (Custom 1)";
+        FALedgEntry."Depr. % this year (Custom 1)" := FADeprBook."Depr. This Year % (Custom 1)";
+        FALedgEntry."Property Class (Custom 1)" := FADeprBook."Property Class (Custom 1)";
 
         OnAfterCopyFromFACard(FALedgEntry, FA, FADeprBook, xFALedgerEntry);
     end;

@@ -11,6 +11,7 @@ table 10000 "PAC Web Service"
 {
     Caption = 'PAC Web Service';
     LookupPageID = "PAC Web Services";
+    DataClassification = CustomerContent;
 
     fields
     {

@@ -7,7 +7,9 @@ using Microsoft.Foundation.Address;
 using Microsoft.Foundation.Company;
 using System.Email;
 
+#pragma warning disable AA0215
 report 5085 "Contact Cover Sheet"
+#pragma warning restore AA0215
 {
     RDLCLayout = './CRM/Reports/ContactCoverSheet.5085.rdlc';
     WordLayout = './CRM/Reports/ContactCoverSheet.docx';

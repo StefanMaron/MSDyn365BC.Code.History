@@ -214,24 +214,22 @@ codeunit 99000833 "Req. Line-Reserve"
         if Blocked then
             exit;
 
-        with NewRequisitionLine do begin
-            if "Line No." = OldRequisitionLine."Line No." then
-                if "Quantity (Base)" = OldRequisitionLine."Quantity (Base)" then
-                    exit;
-            if "Line No." = 0 then
-                if not RequisitionLine.Get("Worksheet Template Name", "Journal Batch Name", "Line No.") then
-                    exit;
-            ReservationManagement.SetReservSource(NewRequisitionLine);
-            if "Qty. per Unit of Measure" <> OldRequisitionLine."Qty. per Unit of Measure" then
-                ReservationManagement.ModifyUnitOfMeasure();
-            if "Quantity (Base)" * OldRequisitionLine."Quantity (Base)" < 0 then
-                ReservationManagement.DeleteReservEntries(true, 0)
-            else
-                ReservationManagement.DeleteReservEntries(false, "Quantity (Base)");
-            ReservationManagement.ClearSurplus();
-            ReservationManagement.AutoTrack("Quantity (Base)");
-            AssignForPlanning(NewRequisitionLine);
-        end;
+        if NewRequisitionLine."Line No." = OldRequisitionLine."Line No." then
+            if NewRequisitionLine."Quantity (Base)" = OldRequisitionLine."Quantity (Base)" then
+                exit;
+        if NewRequisitionLine."Line No." = 0 then
+            if not RequisitionLine.Get(NewRequisitionLine."Worksheet Template Name", NewRequisitionLine."Journal Batch Name", NewRequisitionLine."Line No.") then
+                exit;
+        ReservationManagement.SetReservSource(NewRequisitionLine);
+        if NewRequisitionLine."Qty. per Unit of Measure" <> OldRequisitionLine."Qty. per Unit of Measure" then
+            ReservationManagement.ModifyUnitOfMeasure();
+        if NewRequisitionLine."Quantity (Base)" * OldRequisitionLine."Quantity (Base)" < 0 then
+            ReservationManagement.DeleteReservEntries(true, 0)
+        else
+            ReservationManagement.DeleteReservEntries(false, NewRequisitionLine."Quantity (Base)");
+        ReservationManagement.ClearSurplus();
+        ReservationManagement.AutoTrack(NewRequisitionLine."Quantity (Base)");
+        AssignForPlanning(NewRequisitionLine);
     end;
 
     procedure UpdatePlanningFlexibility(var RequisitionLine: Record "Requisition Line")
@@ -315,7 +313,7 @@ codeunit 99000833 "Req. Line-Reserve"
         OldReservationEntry.TransferReservations(
           OldReservationEntry, OldRequisitionLine."No.", OldRequisitionLine."Variant Code", OldRequisitionLine."Location Code",
           TransferAll, TransferQty, PurchaseLine."Qty. per Unit of Measure",
-          Database::"Purchase Line", PurchaseLine."Document Type", PurchaseLine."Document No.", '', 0, PurchaseLine."Line No.");
+          Database::"Purchase Line", PurchaseLine."Document Type".AsInteger(), PurchaseLine."Document No.", '', 0, PurchaseLine."Line No.");
     end;
 
     procedure TransferPlanningLineToPOLine(var OldRequisitionLine: Record "Requisition Line"; var NewProdOrderLine: Record "Prod. Order Line"; TransferQty: Decimal; TransferAll: Boolean)
@@ -344,7 +342,7 @@ codeunit 99000833 "Req. Line-Reserve"
         OldReservationEntry.TransferReservations(
             OldReservationEntry, OldRequisitionLine."No.", OldRequisitionLine."Variant Code", OldRequisitionLine."Location Code",
             TransferAll, TransferQty, NewProdOrderLine."Qty. per Unit of Measure",
-            Database::"Prod. Order Line", NewProdOrderLine.Status, NewProdOrderLine."Prod. Order No.", '', NewProdOrderLine."Line No.", 0);
+            Database::"Prod. Order Line", NewProdOrderLine.Status.AsInteger(), NewProdOrderLine."Prod. Order No.", '', NewProdOrderLine."Line No.", 0);
     end;
 
     procedure TransferPlanningLineToAsmHdr(var OldRequisitionLine: Record "Requisition Line"; var NewAssemblyHeader: Record "Assembly Header"; TransferQty: Decimal; TransferAll: Boolean)
@@ -363,7 +361,7 @@ codeunit 99000833 "Req. Line-Reserve"
         OldReservationEntry.TransferReservations(
             OldReservationEntry, OldRequisitionLine."No.", OldRequisitionLine."Variant Code", OldRequisitionLine."Location Code",
             TransferAll, TransferQty, NewAssemblyHeader."Qty. per Unit of Measure",
-            Database::"Assembly Header", NewAssemblyHeader."Document Type", NewAssemblyHeader."No.", '', 0, 0);
+            Database::"Assembly Header", NewAssemblyHeader."Document Type".AsInteger(), NewAssemblyHeader."No.", '', 0, 0);
     end;
 
     procedure TransferReqLineToTransLine(var RequisitionLine: Record "Requisition Line"; var TransferLine: Record "Transfer Line"; TransferQty: Decimal; TransferAll: Boolean)
@@ -452,12 +450,10 @@ codeunit 99000833 "Req. Line-Reserve"
     var
         PlanningAssignment: Record "Planning Assignment";
     begin
-        with RequisitionLine do begin
-            if Type <> Type::Item then
-                exit;
-            if "No." <> '' then
-                PlanningAssignment.ChkAssignOne("No.", "Variant Code", "Location Code", WorkDate());
-        end;
+        if RequisitionLine.Type <> RequisitionLine.Type::Item then
+            exit;
+        if RequisitionLine."No." <> '' then
+            PlanningAssignment.ChkAssignOne(RequisitionLine."No.", RequisitionLine."Variant Code", RequisitionLine."Location Code", WorkDate());
     end;
 
     procedure Block(SetBlocked: Boolean)
@@ -474,40 +470,38 @@ codeunit 99000833 "Req. Line-Reserve"
         if Blocked then
             exit;
 
-        with RequisitionLine do begin
-            ReservationManagement.SetReservSource(RequisitionLine);
-            ReservationManagement.SetItemTrackingHandling(1); // Allow Deletion
-            ReservationManagement.DeleteReservEntries(true, 0);
-            CalcFields("Reserved Qty. (Base)");
-            AssignForPlanning(RequisitionLine);
-
-            // Retracking of components:
-            if ("Action Message" = "Action Message"::Cancel) and
-               ("Planning Line Origin" = "Planning Line Origin"::Planning) and
-               ("Ref. Order Type" = "Ref. Order Type"::"Prod. Order")
-            then begin
-                ProdOrderComponent.SetCurrentKey(Status, "Prod. Order No.", "Prod. Order Line No.");
-                ProdOrderComponent.SetRange(Status, "Ref. Order Status");
-                ProdOrderComponent.SetRange("Prod. Order No.", "Ref. Order No.");
-                ProdOrderComponent.SetRange("Prod. Order Line No.", "Ref. Line No.");
-                if ProdOrderComponent.FindSet() then
-                    repeat
-                        ProdOrderComponent.CalcFields("Reserved Qty. (Base)");
-                        QtyTracked := ProdOrderComponent."Reserved Qty. (Base)";
-                        ReservationEntry.Reset();
-                        ReservationEntry.SetCurrentKey("Source ID", "Source Ref. No.", "Source Type", "Source Subtype");
-                        ProdOrderComponent.SetReservationFilters(ReservationEntry);
-                        ReservationEntry.SetFilter("Reservation Status", '<>%1', ReservationEntry."Reservation Status"::Reservation);
-                        if ReservationEntry.FindSet() then
-                            repeat
-                                QtyTracked := QtyTracked - ReservationEntry."Quantity (Base)";
-                            until ReservationEntry.Next() = 0;
-                        ReservationManagement.SetReservSource(ProdOrderComponent);
-                        ReservationManagement.DeleteReservEntries(QtyTracked = 0, QtyTracked);
-                        ReservationManagement.AutoTrack(ProdOrderComponent."Remaining Qty. (Base)");
-                    until ProdOrderComponent.Next() = 0;
-            end
-        end;
+        ReservationManagement.SetReservSource(RequisitionLine);
+        ReservationManagement.SetItemTrackingHandling(1);
+        // Allow Deletion
+        ReservationManagement.DeleteReservEntries(true, 0);
+        RequisitionLine.CalcFields("Reserved Qty. (Base)");
+        AssignForPlanning(RequisitionLine);
+        // Retracking of components:
+        if (RequisitionLine."Action Message" = RequisitionLine."Action Message"::Cancel) and
+           (RequisitionLine."Planning Line Origin" = RequisitionLine."Planning Line Origin"::Planning) and
+           (RequisitionLine."Ref. Order Type" = RequisitionLine."Ref. Order Type"::"Prod. Order")
+        then begin
+            ProdOrderComponent.SetCurrentKey(Status, "Prod. Order No.", "Prod. Order Line No.");
+            ProdOrderComponent.SetRange(Status, RequisitionLine."Ref. Order Status");
+            ProdOrderComponent.SetRange("Prod. Order No.", RequisitionLine."Ref. Order No.");
+            ProdOrderComponent.SetRange("Prod. Order Line No.", RequisitionLine."Ref. Line No.");
+            if ProdOrderComponent.FindSet() then
+                repeat
+                    ProdOrderComponent.CalcFields("Reserved Qty. (Base)");
+                    QtyTracked := ProdOrderComponent."Reserved Qty. (Base)";
+                    ReservationEntry.Reset();
+                    ReservationEntry.SetCurrentKey("Source ID", "Source Ref. No.", "Source Type", "Source Subtype");
+                    ProdOrderComponent.SetReservationFilters(ReservationEntry);
+                    ReservationEntry.SetFilter("Reservation Status", '<>%1', ReservationEntry."Reservation Status"::Reservation);
+                    if ReservationEntry.FindSet() then
+                        repeat
+                            QtyTracked := QtyTracked - ReservationEntry."Quantity (Base)";
+                        until ReservationEntry.Next() = 0;
+                    ReservationManagement.SetReservSource(ProdOrderComponent);
+                    ReservationManagement.DeleteReservEntries(QtyTracked = 0, QtyTracked);
+                    ReservationManagement.AutoTrack(ProdOrderComponent."Remaining Qty. (Base)");
+                until ProdOrderComponent.Next() = 0;
+        end
     end;
 
     procedure UpdateDerivedTracking(var RequisitionLine: Record "Requisition Line")
@@ -519,35 +513,33 @@ codeunit 99000833 "Req. Line-Reserve"
         ReservationEntry.InitSortingAndFilters(false);
         ActionMessageEntry.SetCurrentKey("Reservation Entry");
 
-        with ReservationEntry do begin
-            SetFilter("Expected Receipt Date", '<>%1', RequisitionLine."Due Date");
-            case RequisitionLine."Ref. Order Type" of
-                RequisitionLine."Ref. Order Type"::Purchase:
-                    SetSourceFilter(Database::"Purchase Line", 1, RequisitionLine."Ref. Order No.", RequisitionLine."Ref. Line No.", true);
-                RequisitionLine."Ref. Order Type"::"Prod. Order":
-                    begin
-                        SetSourceFilter(Database::"Prod. Order Line", RequisitionLine."Ref. Order Status", RequisitionLine."Ref. Order No.", -1, true);
-                        SetRange("Source Prod. Order Line", RequisitionLine."Ref. Line No.");
-                    end;
-                RequisitionLine."Ref. Order Type"::Transfer:
-                    SetSourceFilter(Database::"Transfer Line", 1, RequisitionLine."Ref. Order No.", RequisitionLine."Ref. Line No.", true);
-                RequisitionLine."Ref. Order Type"::Assembly:
-                    SetSourceFilter(Database::"Assembly Header", 1, RequisitionLine."Ref. Order No.", 0, true);
-            end;
+        ReservationEntry.SetFilter("Expected Receipt Date", '<>%1', RequisitionLine."Due Date");
+        case RequisitionLine."Ref. Order Type" of
+            RequisitionLine."Ref. Order Type"::Purchase:
+                ReservationEntry.SetSourceFilter(Database::"Purchase Line", 1, RequisitionLine."Ref. Order No.", RequisitionLine."Ref. Line No.", true);
+            RequisitionLine."Ref. Order Type"::"Prod. Order":
+                begin
+                    ReservationEntry.SetSourceFilter(Database::"Prod. Order Line", RequisitionLine."Ref. Order Status", RequisitionLine."Ref. Order No.", -1, true);
+                    ReservationEntry.SetRange("Source Prod. Order Line", RequisitionLine."Ref. Line No.");
+                end;
+            RequisitionLine."Ref. Order Type"::Transfer:
+                ReservationEntry.SetSourceFilter(Database::"Transfer Line", 1, RequisitionLine."Ref. Order No.", RequisitionLine."Ref. Line No.", true);
+            RequisitionLine."Ref. Order Type"::Assembly:
+                ReservationEntry.SetSourceFilter(Database::"Assembly Header", 1, RequisitionLine."Ref. Order No.", 0, true);
+        end;
 
-            if FindSet() then
-                repeat
-                    ReservationEntry2 := ReservationEntry;
+        if ReservationEntry.FindSet() then
+            repeat
+                ReservationEntry2 := ReservationEntry;
+                ReservationEntry2."Expected Receipt Date" := RequisitionLine."Due Date";
+                ReservationEntry2.Modify();
+                if ReservationEntry2.Get(ReservationEntry2."Entry No.", not ReservationEntry2.Positive) then begin
                     ReservationEntry2."Expected Receipt Date" := RequisitionLine."Due Date";
                     ReservationEntry2.Modify();
-                    if ReservationEntry2.Get(ReservationEntry2."Entry No.", not ReservationEntry2.Positive) then begin
-                        ReservationEntry2."Expected Receipt Date" := RequisitionLine."Due Date";
-                        ReservationEntry2.Modify();
-                    end;
-                    ActionMessageEntry.SetRange("Reservation Entry", "Entry No.");
-                    ActionMessageEntry.DeleteAll();
-                until Next() = 0;
-        end;
+                end;
+                ActionMessageEntry.SetRange("Reservation Entry", ReservationEntry."Entry No.");
+                ActionMessageEntry.DeleteAll();
+            until ReservationEntry.Next() = 0;
     end;
 
     procedure CallItemTracking(var RequisitionLine: Record "Requisition Line")

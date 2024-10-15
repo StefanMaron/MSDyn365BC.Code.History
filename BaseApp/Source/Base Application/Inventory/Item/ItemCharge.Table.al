@@ -14,6 +14,7 @@ table 5800 "Item Charge"
     DataCaptionFields = "No.", Description;
     DrillDownPageID = "Item Charges";
     LookupPageID = "Item Charges";
+    DataClassification = CustomerContent;
 
     fields
     {

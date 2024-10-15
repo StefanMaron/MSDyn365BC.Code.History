@@ -10,6 +10,7 @@ table 27018 "SAT Payment Method"
     DataPerCompany = false;
     DrillDownPageID = "SAT Payment Methods";
     LookupPageID = "SAT Payment Methods";
+    DataClassification = CustomerContent;
 
     fields
     {

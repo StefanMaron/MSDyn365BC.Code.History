@@ -36,49 +36,47 @@ codeunit 7320 "Whse. Undo Quantity"
         WhseEntry: Record "Warehouse Entry";
         WhseMgt: Codeunit "Whse. Management";
     begin
-        with ItemJnlLine do begin
-            WhseEntry.Reset();
-            WhseEntry.SetSourceFilter(SourceType, SourceSubType, SourceNo, SourceLineNo, true);
-            WhseEntry.SetRange("Reference No.", "Document No.");
-            WhseEntry.SetRange("Item No.", "Item No.");
-            OnInsertTempWhseJnlLineOnAfterWhseEntrySetFilters(ItemJnlLine, SourceType, SourceSubType, SourceNo, SourceLineNo, RefDoc, WhseEntry);
-            if WhseEntry.Find('+') then
-                repeat
-                    TempWhseJnlLine.Init();
-                    OnInsertTempWhseJnlLineOnAfterTempWhseJnlLineInit(ItemJnlLine, WhseEntry, TempWhseJnlLine);
-                    if WhseEntry."Entry Type" = WhseEntry."Entry Type"::"Positive Adjmt." then
-                        "Entry Type" := "Entry Type"::"Negative Adjmt."
-                    else
-                        "Entry Type" := "Entry Type"::"Positive Adjmt.";
-                    Quantity := Abs(WhseEntry.Quantity);
-                    "Quantity (Base)" := Abs(WhseEntry."Qty. (Base)");
-                    "Qty. per Unit of Measure" := WhseEntry."Qty. per Unit of Measure";
-                    WMSMgmt.CreateWhseJnlLine(ItemJnlLine, 0, TempWhseJnlLine, false);
-                    TempWhseJnlLine.SetSource(SourceType, SourceSubType, SourceNo, SourceLineNo, 0);
-                    TempWhseJnlLine."Source Document" :=
-                      WhseMgt.GetWhseJnlSourceDocument(TempWhseJnlLine."Source Type", TempWhseJnlLine."Source Subtype");
-                    TempWhseJnlLine."Reference Document" := Enum::"Whse. Reference Document Type".FromInteger(RefDoc);
-                    TempWhseJnlLine."Reference No." := "Document No.";
-                    TempWhseJnlLine."Location Code" := "Location Code";
-                    TempWhseJnlLine."Zone Code" := WhseEntry."Zone Code";
-                    TempWhseJnlLine."Bin Code" := WhseEntry."Bin Code";
-                    TempWhseJnlLine.SetWhseDocument(WhseEntry."Whse. Document Type", WhseEntry."Whse. Document No.", 0);
-                    TempWhseJnlLine."Unit of Measure Code" := WhseEntry."Unit of Measure Code";
-                    TempWhseJnlLine."Line No." := NextLineNo;
-                    TempWhseJnlLine.CopyTrackingFromWhseEntry(WhseEntry);
-                    TempWhseJnlLine."Expiration Date" := WhseEntry."Expiration Date";
-                    if "Entry Type" = "Entry Type"::"Negative Adjmt." then begin
-                        TempWhseJnlLine."From Zone Code" := TempWhseJnlLine."Zone Code";
-                        TempWhseJnlLine."From Bin Code" := TempWhseJnlLine."Bin Code";
-                    end else begin
-                        TempWhseJnlLine."To Zone Code" := TempWhseJnlLine."Zone Code";
-                        TempWhseJnlLine."To Bin Code" := TempWhseJnlLine."Bin Code";
-                    end;
-                    OnBeforeTempWhseJnlLineInsert(TempWhseJnlLine, WhseEntry, ItemJnlLine);
-                    TempWhseJnlLine.Insert();
-                    NextLineNo := TempWhseJnlLine."Line No." + 10000;
-                until WhseEntry.Next(-1) = 0;
-        end;
+        WhseEntry.Reset();
+        WhseEntry.SetSourceFilter(SourceType, SourceSubType, SourceNo, SourceLineNo, true);
+        WhseEntry.SetRange("Reference No.", ItemJnlLine."Document No.");
+        WhseEntry.SetRange("Item No.", ItemJnlLine."Item No.");
+        OnInsertTempWhseJnlLineOnAfterWhseEntrySetFilters(ItemJnlLine, SourceType, SourceSubType, SourceNo, SourceLineNo, RefDoc, WhseEntry);
+        if WhseEntry.Find('+') then
+            repeat
+                TempWhseJnlLine.Init();
+                OnInsertTempWhseJnlLineOnAfterTempWhseJnlLineInit(ItemJnlLine, WhseEntry, TempWhseJnlLine);
+                if WhseEntry."Entry Type" = WhseEntry."Entry Type"::"Positive Adjmt." then
+                    ItemJnlLine."Entry Type" := ItemJnlLine."Entry Type"::"Negative Adjmt."
+                else
+                    ItemJnlLine."Entry Type" := ItemJnlLine."Entry Type"::"Positive Adjmt.";
+                ItemJnlLine.Quantity := Abs(WhseEntry.Quantity);
+                ItemJnlLine."Quantity (Base)" := Abs(WhseEntry."Qty. (Base)");
+                ItemJnlLine."Qty. per Unit of Measure" := WhseEntry."Qty. per Unit of Measure";
+                WMSMgmt.CreateWhseJnlLine(ItemJnlLine, 0, TempWhseJnlLine, false);
+                TempWhseJnlLine.SetSource(SourceType, SourceSubType, SourceNo, SourceLineNo, 0);
+                TempWhseJnlLine."Source Document" :=
+                  WhseMgt.GetWhseJnlSourceDocument(TempWhseJnlLine."Source Type", TempWhseJnlLine."Source Subtype");
+                TempWhseJnlLine."Reference Document" := Enum::"Whse. Reference Document Type".FromInteger(RefDoc);
+                TempWhseJnlLine."Reference No." := ItemJnlLine."Document No.";
+                TempWhseJnlLine."Location Code" := ItemJnlLine."Location Code";
+                TempWhseJnlLine."Zone Code" := WhseEntry."Zone Code";
+                TempWhseJnlLine."Bin Code" := WhseEntry."Bin Code";
+                TempWhseJnlLine.SetWhseDocument(WhseEntry."Whse. Document Type", WhseEntry."Whse. Document No.", 0);
+                TempWhseJnlLine."Unit of Measure Code" := WhseEntry."Unit of Measure Code";
+                TempWhseJnlLine."Line No." := NextLineNo;
+                TempWhseJnlLine.CopyTrackingFromWhseEntry(WhseEntry);
+                TempWhseJnlLine."Expiration Date" := WhseEntry."Expiration Date";
+                if ItemJnlLine."Entry Type" = ItemJnlLine."Entry Type"::"Negative Adjmt." then begin
+                    TempWhseJnlLine."From Zone Code" := TempWhseJnlLine."Zone Code";
+                    TempWhseJnlLine."From Bin Code" := TempWhseJnlLine."Bin Code";
+                end else begin
+                    TempWhseJnlLine."To Zone Code" := TempWhseJnlLine."Zone Code";
+                    TempWhseJnlLine."To Bin Code" := TempWhseJnlLine."Bin Code";
+                end;
+                OnBeforeTempWhseJnlLineInsert(TempWhseJnlLine, WhseEntry, ItemJnlLine);
+                TempWhseJnlLine.Insert();
+                NextLineNo := TempWhseJnlLine."Line No." + 10000;
+            until WhseEntry.Next(-1) = 0;
     end;
 
     procedure PostTempWhseJnlLine(var TempWhseJnlLine: Record "Warehouse Journal Line" temporary)
@@ -142,24 +140,23 @@ codeunit 7320 "Whse. Undo Quantity"
 
         if not PostedWhseRcptLine.ReadPermission then
             exit;
-        with PostedWhseRcptLine do begin
-            Reset();
-            case UndoType of
-                Database::"Purch. Rcpt. Line":
-                    SetRange("Posted Source Document", "Posted Source Document"::"Posted Receipt");
-                Database::"Return Receipt Line":
-                    SetRange("Posted Source Document", "Posted Source Document"::"Posted Return Receipt");
-                else
-                    exit;
-            end;
-            WhseManagement.SetSourceFilterForPostedWhseRcptLine(PostedWhseRcptLine, SourceType, SourceSubtype, SourceID, SourceRefNo, true);
-            SetRange("Posted Source No.", UndoID);
-            OnFindPostedWhseRcptLineOnAfterSetFilters(PostedWhseRcptLine);
-            if FindFirst() then begin
-                if Count > 1 then
-                    Error(Text000, TableCaption); // Assert: only one posted line.
-                Ok := true;
-            end;
+        PostedWhseRcptLine.Reset();
+        case UndoType of
+            Database::"Purch. Rcpt. Line":
+                PostedWhseRcptLine.SetRange("Posted Source Document", PostedWhseRcptLine."Posted Source Document"::"Posted Receipt");
+            Database::"Return Receipt Line":
+                PostedWhseRcptLine.SetRange("Posted Source Document", PostedWhseRcptLine."Posted Source Document"::"Posted Return Receipt");
+            else
+                exit;
+        end;
+        WhseManagement.SetSourceFilterForPostedWhseRcptLine(PostedWhseRcptLine, SourceType, SourceSubtype, SourceID, SourceRefNo, true);
+        PostedWhseRcptLine.SetRange("Posted Source No.", UndoID);
+        OnFindPostedWhseRcptLineOnAfterSetFilters(PostedWhseRcptLine);
+        if PostedWhseRcptLine.FindFirst() then begin
+            if PostedWhseRcptLine.Count > 1 then
+                Error(Text000, PostedWhseRcptLine.TableCaption);
+            // Assert: only one posted line.
+            Ok := true;
         end;
     end;
 
@@ -176,30 +173,29 @@ codeunit 7320 "Whse. Undo Quantity"
 
         if not PostedWhseShptLine.ReadPermission then
             exit;
-        with PostedWhseShptLine do begin
-            Reset();
-            case UndoType of
-                Database::"Sales Shipment Line",
-              Database::"Service Shipment Line":
-                    SetRange("Posted Source Document", "Posted Source Document"::"Posted Shipment");
-                Database::"Return Shipment Line":
-                    SetRange("Posted Source Document", "Posted Source Document"::"Posted Return Shipment");
-                Database::"Transfer Shipment Line":
-                    SetRange("Posted Source Document", "Posted Source Document"::"Posted Transfer Shipment");
-                else
-                    exit;
-            end;
-            WhseManagement.SetSourceFilterForPostedWhseShptLine(PostedWhseShptLine, SourceType, SourceSubtype, SourceID, SourceRefNo, true);
-            SetRange("Posted Source No.", UndoID);
-            OnFindPostedWhseShptLineOnAfterSetFilters(PostedWhseShptLine);
-            if FindFirst() then begin
-                PostedWhseShptLine2.CopyFilters(PostedWhseShptLine);
-                PostedWhseShptLine2.SetFilter("No.", '<>%1', "No.");
-                PostedWhseShptLine2.SetFilter("Line No.", '<>%1', "Line No.");
-                if not PostedWhseShptLine2.IsEmpty() and not IsATO(UndoType, UndoID, SourceRefNo) then
-                    Error(Text000, TableCaption); // Assert: only one posted line.
-                Ok := true;
-            end;
+        PostedWhseShptLine.Reset();
+        case UndoType of
+            Database::"Sales Shipment Line",
+          Database::"Service Shipment Line":
+                PostedWhseShptLine.SetRange("Posted Source Document", PostedWhseShptLine."Posted Source Document"::"Posted Shipment");
+            Database::"Return Shipment Line":
+                PostedWhseShptLine.SetRange("Posted Source Document", PostedWhseShptLine."Posted Source Document"::"Posted Return Shipment");
+            Database::"Transfer Shipment Line":
+                PostedWhseShptLine.SetRange("Posted Source Document", PostedWhseShptLine."Posted Source Document"::"Posted Transfer Shipment");
+            else
+                exit;
+        end;
+        WhseManagement.SetSourceFilterForPostedWhseShptLine(PostedWhseShptLine, SourceType, SourceSubtype, SourceID, SourceRefNo, true);
+        PostedWhseShptLine.SetRange("Posted Source No.", UndoID);
+        OnFindPostedWhseShptLineOnAfterSetFilters(PostedWhseShptLine);
+        if PostedWhseShptLine.FindFirst() then begin
+            PostedWhseShptLine2.CopyFilters(PostedWhseShptLine);
+            PostedWhseShptLine2.SetFilter("No.", '<>%1', PostedWhseShptLine."No.");
+            PostedWhseShptLine2.SetFilter("Line No.", '<>%1', PostedWhseShptLine."Line No.");
+            if not PostedWhseShptLine2.IsEmpty() and not IsATO(UndoType, UndoID, SourceRefNo) then
+                Error(Text000, PostedWhseShptLine.TableCaption);
+            // Assert: only one posted line.
+            Ok := true;
         end;
     end;
 
@@ -208,34 +204,32 @@ codeunit 7320 "Whse. Undo Quantity"
         NewPostedWhseRcptLine: Record "Posted Whse. Receipt Line";
         LineSpacing: Integer;
     begin
-        with OldPostedWhseRcptLine do begin
-            "Qty. Put Away" := Quantity;
-            "Qty. Put Away (Base)" := "Qty. (Base)";
-            OnBeforeOldPostedWhseRcptLineModify(OldPostedWhseRcptLine);
-            Modify();
+        OldPostedWhseRcptLine."Qty. Put Away" := OldPostedWhseRcptLine.Quantity;
+        OldPostedWhseRcptLine."Qty. Put Away (Base)" := OldPostedWhseRcptLine."Qty. (Base)";
+        OnBeforeOldPostedWhseRcptLineModify(OldPostedWhseRcptLine);
+        OldPostedWhseRcptLine.Modify();
 
-            NewPostedWhseRcptLine.SetRange("No.", "No.");
-            NewPostedWhseRcptLine."No." := "No.";
-            NewPostedWhseRcptLine."Line No." := "Line No.";
-            NewPostedWhseRcptLine.Find('=');
+        NewPostedWhseRcptLine.SetRange("No.", OldPostedWhseRcptLine."No.");
+        NewPostedWhseRcptLine."No." := OldPostedWhseRcptLine."No.";
+        NewPostedWhseRcptLine."Line No." := OldPostedWhseRcptLine."Line No.";
+        NewPostedWhseRcptLine.Find('=');
 
-            LineSpacing := GetWhseRcptLineSpacing(OldPostedWhseRcptLine, NewPostedWhseRcptLine);
+        LineSpacing := GetWhseRcptLineSpacing(OldPostedWhseRcptLine, NewPostedWhseRcptLine);
 
-            NewPostedWhseRcptLine.Reset();
-            NewPostedWhseRcptLine.Init();
-            NewPostedWhseRcptLine.Copy(OldPostedWhseRcptLine);
-            NewPostedWhseRcptLine."Line No." := "Line No." + LineSpacing;
-            NewPostedWhseRcptLine.Quantity := -Quantity;
-            NewPostedWhseRcptLine."Qty. (Base)" := -"Qty. (Base)";
-            NewPostedWhseRcptLine."Qty. Put Away" := -"Qty. Put Away";
-            NewPostedWhseRcptLine."Qty. Put Away (Base)" := -"Qty. Put Away (Base)";
-            NewPostedWhseRcptLine.Status := NewPostedWhseRcptLine.Status::"Completely Put Away";
-            OnBeforePostedWhseRcptLineInsert(NewPostedWhseRcptLine, OldPostedWhseRcptLine, LineSpacing);
-            NewPostedWhseRcptLine.Insert();
+        NewPostedWhseRcptLine.Reset();
+        NewPostedWhseRcptLine.Init();
+        NewPostedWhseRcptLine.Copy(OldPostedWhseRcptLine);
+        NewPostedWhseRcptLine."Line No." := OldPostedWhseRcptLine."Line No." + LineSpacing;
+        NewPostedWhseRcptLine.Quantity := -OldPostedWhseRcptLine.Quantity;
+        NewPostedWhseRcptLine."Qty. (Base)" := -OldPostedWhseRcptLine."Qty. (Base)";
+        NewPostedWhseRcptLine."Qty. Put Away" := -OldPostedWhseRcptLine."Qty. Put Away";
+        NewPostedWhseRcptLine."Qty. Put Away (Base)" := -OldPostedWhseRcptLine."Qty. Put Away (Base)";
+        NewPostedWhseRcptLine.Status := NewPostedWhseRcptLine.Status::"Completely Put Away";
+        OnBeforePostedWhseRcptLineInsert(NewPostedWhseRcptLine, OldPostedWhseRcptLine, LineSpacing);
+        NewPostedWhseRcptLine.Insert();
 
-            Status := Status::"Completely Put Away";
-            Modify();
-        end;
+        OldPostedWhseRcptLine.Status := OldPostedWhseRcptLine.Status::"Completely Put Away";
+        OldPostedWhseRcptLine.Modify();
     end;
 
     local procedure GetWhseRcptLineSpacing(OldPostedWhseRcptLine: Record "Posted Whse. Receipt Line"; var NewPostedWhseRcptLine: Record "Posted Whse. Receipt Line") LineSpacing: Integer
@@ -260,23 +254,21 @@ codeunit 7320 "Whse. Undo Quantity"
         NewPostedWhseShptLine: Record "Posted Whse. Shipment Line";
         LineSpacing: Integer;
     begin
-        with OldPostedWhseShptLine do begin
-            NewPostedWhseShptLine.SetRange("No.", "No.");
-            NewPostedWhseShptLine."No." := "No.";
-            NewPostedWhseShptLine."Line No." := "Line No.";
-            NewPostedWhseShptLine.Find('=');
+        NewPostedWhseShptLine.SetRange("No.", OldPostedWhseShptLine."No.");
+        NewPostedWhseShptLine."No." := OldPostedWhseShptLine."No.";
+        NewPostedWhseShptLine."Line No." := OldPostedWhseShptLine."Line No.";
+        NewPostedWhseShptLine.Find('=');
 
-            LineSpacing := GetWhseShptLineSpacing(OldPostedWhseShptLine, NewPostedWhseShptLine);
+        LineSpacing := GetWhseShptLineSpacing(OldPostedWhseShptLine, NewPostedWhseShptLine);
 
-            NewPostedWhseShptLine.Reset();
-            NewPostedWhseShptLine.Init();
-            NewPostedWhseShptLine.Copy(OldPostedWhseShptLine);
-            NewPostedWhseShptLine."Line No." := "Line No." + LineSpacing;
-            NewPostedWhseShptLine.Quantity := -Quantity;
-            NewPostedWhseShptLine."Qty. (Base)" := -"Qty. (Base)";
-            OnBeforePostedWhseShptLineInsert(NewPostedWhseShptLine, OldPostedWhseShptLine, LineSpacing);
-            NewPostedWhseShptLine.Insert();
-        end;
+        NewPostedWhseShptLine.Reset();
+        NewPostedWhseShptLine.Init();
+        NewPostedWhseShptLine.Copy(OldPostedWhseShptLine);
+        NewPostedWhseShptLine."Line No." := OldPostedWhseShptLine."Line No." + LineSpacing;
+        NewPostedWhseShptLine.Quantity := -OldPostedWhseShptLine.Quantity;
+        NewPostedWhseShptLine."Qty. (Base)" := -OldPostedWhseShptLine."Qty. (Base)";
+        OnBeforePostedWhseShptLineInsert(NewPostedWhseShptLine, OldPostedWhseShptLine, LineSpacing);
+        NewPostedWhseShptLine.Insert();
     end;
 
     local procedure GetWhseShptLineSpacing(OldPostedWhseShptLine: Record "Posted Whse. Shipment Line"; var NewPostedWhseShptLine: Record "Posted Whse. Shipment Line") LineSpacing: Integer
@@ -349,20 +341,18 @@ codeunit 7320 "Whse. Undo Quantity"
         if IsHandled then
             exit;
 
-        with PostedWhseRcptLine do begin
-            WhseManagement.SetSourceFilterForWhseRcptLine(WhseRcptLine, "Source Type", "Source Subtype", "Source No.", "Source Line No.", true);
-            if WhseRcptLine.FindFirst() then begin
-                WhseRcptLine.Validate("Qty. Received", WhseRcptLine."Qty. Received" - Quantity);
-                WhseRcptLine.Validate("Qty. Outstanding", WhseRcptLine."Qty. Outstanding" + Quantity);
-                if WhseRcptLine."Qty. Received" = 0 then begin
-                    WhseRcptLine.Status := WhseRcptLine.Status::" ";
-                    WhseRcptHeader.Get(WhseRcptLine."No.");
-                    WhseRcptHeader."Document Status" := WhseRcptHeader."Document Status"::" ";
-                    WhseRcptHeader.Modify();
-                end;
-                OnBeforeWhseRcptLineModify(WhseRcptLine, PostedWhseRcptLine);
-                WhseRcptLine.Modify();
+        WhseManagement.SetSourceFilterForWhseRcptLine(WhseRcptLine, PostedWhseRcptLine."Source Type", PostedWhseRcptLine."Source Subtype", PostedWhseRcptLine."Source No.", PostedWhseRcptLine."Source Line No.", true);
+        if WhseRcptLine.FindFirst() then begin
+            WhseRcptLine.Validate("Qty. Received", WhseRcptLine."Qty. Received" - PostedWhseRcptLine.Quantity);
+            WhseRcptLine.Validate("Qty. Outstanding", WhseRcptLine."Qty. Outstanding" + PostedWhseRcptLine.Quantity);
+            if WhseRcptLine."Qty. Received" = 0 then begin
+                WhseRcptLine.Status := WhseRcptLine.Status::" ";
+                WhseRcptHeader.Get(WhseRcptLine."No.");
+                WhseRcptHeader."Document Status" := WhseRcptHeader."Document Status"::" ";
+                WhseRcptHeader.Modify();
             end;
+            OnBeforeWhseRcptLineModify(WhseRcptLine, PostedWhseRcptLine);
+            WhseRcptLine.Modify();
         end;
 
         OnAfterUpdateWhseRcptLine(PostedWhseRcptLine, WhseRcptLine);
@@ -379,37 +369,33 @@ codeunit 7320 "Whse. Undo Quantity"
         if IsHandled then
             exit;
 
-        with PostedWhseShptLine do begin
-            WhseShptLine.SetSourceFilter("Source Type", "Source Subtype", "Source No.", "Source Line No.", true);
-            if WhseShptLine.FindFirst() then begin
-                if WhseShptLine."Qty. Shipped" <> 0 then begin
-                    WhseShptLine.Validate("Qty. Shipped", WhseShptLine."Qty. Shipped" - Quantity);
-                    WhseShptLine.Validate("Qty. Outstanding", WhseShptLine."Qty. Outstanding" + Quantity);
-                end else
-                    WhseShptLine.Validate(Quantity, WhseShptLine.Quantity + Quantity);
+        WhseShptLine.SetSourceFilter(PostedWhseShptLine."Source Type", PostedWhseShptLine."Source Subtype", PostedWhseShptLine."Source No.", PostedWhseShptLine."Source Line No.", true);
+        if WhseShptLine.FindFirst() then begin
+            if WhseShptLine."Qty. Shipped" <> 0 then begin
+                WhseShptLine.Validate("Qty. Shipped", WhseShptLine."Qty. Shipped" - PostedWhseShptLine.Quantity);
+                WhseShptLine.Validate("Qty. Outstanding", WhseShptLine."Qty. Outstanding" + PostedWhseShptLine.Quantity);
+            end else
+                WhseShptLine.Validate(Quantity, WhseShptLine.Quantity + PostedWhseShptLine.Quantity);
 
-                if WhseShptLine."Qty. Shipped" = 0 then begin
-                    WhseShptLine.Status := WhseShptLine.Status::" ";
-                    WhseShptHeader.Get(WhseShptLine."No.");
-                    WhseShptHeader."Document Status" := WhseShptHeader."Document Status"::" ";
-                    WhseShptHeader.Modify();
-                end;
-                OnBeforeWhseShptLineModify(WhseShptLine, PostedWhseShptLine);
-                WhseShptLine.Modify();
+            if WhseShptLine."Qty. Shipped" = 0 then begin
+                WhseShptLine.Status := WhseShptLine.Status::" ";
+                WhseShptHeader.Get(WhseShptLine."No.");
+                WhseShptHeader."Document Status" := WhseShptHeader."Document Status"::" ";
+                WhseShptHeader.Modify();
             end;
+            OnBeforeWhseShptLineModify(WhseShptLine, PostedWhseShptLine);
+            WhseShptLine.Modify();
         end;
     end;
 
     local procedure DeleteWhseItemEntryRelationRcpt(NewPostedWhseRcptLine: Record "Posted Whse. Receipt Line")
     begin
-        with NewPostedWhseRcptLine do
-            DeleteWhseItemEntryRelation(Database::"Posted Whse. Receipt Line", "No.", "Line No.");
+        DeleteWhseItemEntryRelation(Database::"Posted Whse. Receipt Line", NewPostedWhseRcptLine."No.", NewPostedWhseRcptLine."Line No.");
     end;
 
     local procedure DeleteWhseItemEntryRelationShpt(NewPostedWhseShptLine: Record "Posted Whse. Shipment Line")
     begin
-        with NewPostedWhseShptLine do
-            DeleteWhseItemEntryRelation(Database::"Posted Whse. Shipment Line", "No.", "Line No.");
+        DeleteWhseItemEntryRelation(Database::"Posted Whse. Shipment Line", NewPostedWhseShptLine."No.", NewPostedWhseShptLine."Line No.");
     end;
 
     local procedure DeleteWhseItemEntryRelation(SourceType: Integer; SourceNo: Code[20]; SourceLineNo: Integer)
@@ -425,23 +411,21 @@ codeunit 7320 "Whse. Undo Quantity"
         PurchLine: Record "Purchase Line";
         SalesLine: Record "Sales Line";
     begin
-        with PostedWhseRcptLine do begin
-            case "Source Type" of
-                Database::"Purchase Line":
-                    begin
-                        PurchLine.Get("Source Subtype", "Source No.", "Source Line No.");
-                        if not (PurchLine."Quantity Received" < PurchLine.Quantity) then
-                            exit;
-                    end;
-                Database::"Sales Line":
-                    begin
-                        SalesLine.Get("Source Subtype", "Source No.", "Source Line No.");
-                        if not (SalesLine."Return Qty. Received" < SalesLine.Quantity) then
-                            exit;
-                    end;
-            end;
-            UpdateWhseRequest("Source Type", "Source Subtype", "Source No.", "Location Code");
+        case PostedWhseRcptLine."Source Type" of
+            Database::"Purchase Line":
+                begin
+                    PurchLine.Get(PostedWhseRcptLine."Source Subtype", PostedWhseRcptLine."Source No.", PostedWhseRcptLine."Source Line No.");
+                    if not (PurchLine."Quantity Received" < PurchLine.Quantity) then
+                        exit;
+                end;
+            Database::"Sales Line":
+                begin
+                    SalesLine.Get(PostedWhseRcptLine."Source Subtype", PostedWhseRcptLine."Source No.", PostedWhseRcptLine."Source Line No.");
+                    if not (SalesLine."Return Qty. Received" < SalesLine.Quantity) then
+                        exit;
+                end;
         end;
+        UpdateWhseRequest(PostedWhseRcptLine."Source Type", PostedWhseRcptLine."Source Subtype", PostedWhseRcptLine."Source No.", PostedWhseRcptLine."Location Code");
 
         OnAfterUpdateWhseRequestRcpt(PostedWhseRcptLine);
     end;
@@ -458,29 +442,27 @@ codeunit 7320 "Whse. Undo Quantity"
         if IsHandled then
             exit;
 
-        with PostedWhseShptLine do begin
-            case "Source Type" of
-                Database::"Sales Line":
-                    begin
-                        SalesLine.Get("Source Subtype", "Source No.", "Source Line No.");
-                        if not (SalesLine."Quantity Shipped" < SalesLine.Quantity) then
-                            exit;
-                    end;
-                Database::"Purchase Line":
-                    begin
-                        PurchLine.Get("Source Subtype", "Source No.", "Source Line No.");
-                        if not (PurchLine."Return Qty. Shipped" < PurchLine.Quantity) then
-                            exit;
-                    end;
-                Database::"Transfer Line":
-                    begin
-                        TransferLine.Get("Source No.", "Source Line No.");
-                        if not (TransferLine."Quantity Shipped" < TransferLine.Quantity) then
-                            exit;
-                    end;
-            end;
-            UpdateWhseRequest("Source Type", "Source Subtype", "Source No.", "Location Code");
+        case PostedWhseShptLine."Source Type" of
+            Database::"Sales Line":
+                begin
+                    SalesLine.Get(PostedWhseShptLine."Source Subtype", PostedWhseShptLine."Source No.", PostedWhseShptLine."Source Line No.");
+                    if not (SalesLine."Quantity Shipped" < SalesLine.Quantity) then
+                        exit;
+                end;
+            Database::"Purchase Line":
+                begin
+                    PurchLine.Get(PostedWhseShptLine."Source Subtype", PostedWhseShptLine."Source No.", PostedWhseShptLine."Source Line No.");
+                    if not (PurchLine."Return Qty. Shipped" < PurchLine.Quantity) then
+                        exit;
+                end;
+            Database::"Transfer Line":
+                begin
+                    TransferLine.Get(PostedWhseShptLine."Source No.", PostedWhseShptLine."Source Line No.");
+                    if not (TransferLine."Quantity Shipped" < TransferLine.Quantity) then
+                        exit;
+                end;
         end;
+        UpdateWhseRequest(PostedWhseShptLine."Source Type", PostedWhseShptLine."Source Subtype", PostedWhseShptLine."Source No.", PostedWhseShptLine."Location Code");
 
         OnAfterUpdateWhseRequestShpt(PostedWhseShptLine);
     end;
@@ -489,16 +471,14 @@ codeunit 7320 "Whse. Undo Quantity"
     var
         WhseRequest: Record "Warehouse Request";
     begin
-        with WhseRequest do begin
-            SetCurrentKey("Source Type", "Source Subtype", "Source No.");
-            SetRange("Source Type", SourceType);
-            SetRange("Source Subtype", SourceSubType);
-            SetRange("Source No.", SourceNo);
-            SetRange("Location Code", LocationCode);
-            if FindFirst() and "Completely Handled" then begin
-                "Completely Handled" := false;
-                Modify();
-            end;
+        WhseRequest.SetCurrentKey("Source Type", "Source Subtype", "Source No.");
+        WhseRequest.SetRange("Source Type", SourceType);
+        WhseRequest.SetRange("Source Subtype", SourceSubType);
+        WhseRequest.SetRange("Source No.", SourceNo);
+        WhseRequest.SetRange("Location Code", LocationCode);
+        if WhseRequest.FindFirst() and WhseRequest."Completely Handled" then begin
+            WhseRequest."Completely Handled" := false;
+            WhseRequest.Modify();
         end;
     end;
 

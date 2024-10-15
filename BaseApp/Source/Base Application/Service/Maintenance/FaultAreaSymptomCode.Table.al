@@ -3,6 +3,7 @@ namespace Microsoft.Service.Maintenance;
 table 5921 "Fault Area/Symptom Code"
 {
     Caption = 'Fault Area/Symptom Code';
+    DataClassification = CustomerContent;
 
     fields
     {

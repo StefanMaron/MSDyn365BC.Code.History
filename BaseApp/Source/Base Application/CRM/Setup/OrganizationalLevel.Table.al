@@ -4,6 +4,7 @@ table 5070 "Organizational Level"
 {
     Caption = 'Organizational Level';
     DataCaptionFields = "Code", Description;
+    DataClassification = CustomerContent;
     LookupPageID = "Organizational Levels";
 
     fields

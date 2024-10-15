@@ -1,6 +1,7 @@
 table 132564 "Master Data Setup Sample"
 {
     ReplicateData = false;
+    DataClassification = CustomerContent;
 
     fields
     {

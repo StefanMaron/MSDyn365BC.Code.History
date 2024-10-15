@@ -31,48 +31,46 @@ codeunit 272 "Res. Jnl.-Post+Print"
     var
         HideDialog: Boolean;
     begin
-        with ResJnlLine do begin
-            ResJnlTemplate.Get("Journal Template Name");
-            ResJnlTemplate.TestField("Posting Report ID");
-            if ResJnlTemplate.Recurring and (GetFilter("Posting Date") <> '') then
-                FieldError("Posting Date", Text000);
+        ResJnlTemplate.Get(ResJnlLine."Journal Template Name");
+        ResJnlTemplate.TestField("Posting Report ID");
+        if ResJnlTemplate.Recurring and (ResJnlLine.GetFilter("Posting Date") <> '') then
+            ResJnlLine.FieldError("Posting Date", Text000);
 
-            HideDialog := false;
-            OnBeforePostJournalBatch(ResJnlLine, HideDialog);
-            if not HideDialog then
-                if not Confirm(Text001) then
-                    exit;
+        HideDialog := false;
+        OnBeforePostJournalBatch(ResJnlLine, HideDialog);
+        if not HideDialog then
+            if not Confirm(Text001) then
+                exit;
 
-            TempJnlBatchName := "Journal Batch Name";
+        TempJnlBatchName := ResJnlLine."Journal Batch Name";
 
-            CODEUNIT.Run(CODEUNIT::"Res. Jnl.-Post Batch", ResJnlLine);
+        CODEUNIT.Run(CODEUNIT::"Res. Jnl.-Post Batch", ResJnlLine);
 
-            OnAfterPostJournalBatch(ResJnlLine);
+        OnAfterPostJournalBatch(ResJnlLine);
 
-            if ResReg.Get("Line No.") then begin
-                ResReg.SetRecFilter();
-                REPORT.Run(ResJnlTemplate."Posting Report ID", false, false, ResReg);
-            end;
+        if ResReg.Get(ResJnlLine."Line No.") then begin
+            ResReg.SetRecFilter();
+            REPORT.Run(ResJnlTemplate."Posting Report ID", false, false, ResReg);
+        end;
 
-            if "Line No." = 0 then
-                Message(JournalErrorsMgt.GetNothingToPostErrorMsg())
+        if ResJnlLine."Line No." = 0 then
+            Message(JournalErrorsMgt.GetNothingToPostErrorMsg())
+        else
+            if TempJnlBatchName = ResJnlLine."Journal Batch Name" then
+                Message(Text003)
             else
-                if TempJnlBatchName = "Journal Batch Name" then
-                    Message(Text003)
-                else
-                    Message(
-                      Text004 +
-                      Text005,
-                      "Journal Batch Name");
+                Message(
+                  Text004 +
+                  Text005,
+                  ResJnlLine."Journal Batch Name");
 
-            if not Find('=><') or (TempJnlBatchName <> "Journal Batch Name") then begin
-                Reset();
-                FilterGroup(2);
-                SetRange("Journal Template Name", "Journal Template Name");
-                SetRange("Journal Batch Name", "Journal Batch Name");
-                FilterGroup(0);
-                "Line No." := 1;
-            end;
+        if not ResJnlLine.Find('=><') or (TempJnlBatchName <> ResJnlLine."Journal Batch Name") then begin
+            ResJnlLine.Reset();
+            ResJnlLine.FilterGroup(2);
+            ResJnlLine.SetRange("Journal Template Name", ResJnlLine."Journal Template Name");
+            ResJnlLine.SetRange("Journal Batch Name", ResJnlLine."Journal Batch Name");
+            ResJnlLine.FilterGroup(0);
+            ResJnlLine."Line No." := 1;
         end;
     end;
 

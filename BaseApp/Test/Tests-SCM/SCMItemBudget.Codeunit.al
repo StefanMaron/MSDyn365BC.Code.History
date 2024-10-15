@@ -34,10 +34,10 @@ codeunit 137401 "SCM Item Budget"
 
         // Setup: Create Item Budget Entries.
         Initialize();
-        LibraryApplicationArea.DisableApplicationAreaSetup;
+        LibraryApplicationArea.DisableApplicationAreaSetup();
         LibraryInventory.CreateItemBudgetEntry(
-          ItemBudgetEntry, ItemBudgetEntry."Analysis Area"::Sales, FindItemBudgetName, LibraryFiscalYear.GetFirstPostingDate(true),
-          CreateItem);
+          ItemBudgetEntry, ItemBudgetEntry."Analysis Area"::Sales, FindItemBudgetName(), LibraryFiscalYear.GetFirstPostingDate(true),
+          CreateItem());
         LibraryInventory.CreateItemBudgetEntry(
           ItemBudgetEntry, ItemBudgetEntry."Analysis Area"::Sales, ItemBudgetEntry."Budget Name",
           CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'D>', LibraryFiscalYear.GetFirstPostingDate(true)),
@@ -49,7 +49,7 @@ codeunit 137401 "SCM Item Budget"
 
         // Verify: Verify Compressed Item Budget Entry.
         ItemBudgetEntry.SetRange(Description, PostingDescription);
-        Assert.IsTrue(ItemBudgetEntry.FindFirst, ItemBudgetEntryMustExist);
+        Assert.IsTrue(ItemBudgetEntry.FindFirst(), ItemBudgetEntryMustExist);
     end;
 
     [Test]
@@ -121,7 +121,7 @@ codeunit 137401 "SCM Item Budget"
         RunSalesBudgetOverview(
           SalesBudgetOverview, ItemBudgetEntry."Budget Name", Customer.TableCaption(), ItemBudgetEntry."Item No.",
           ItemBudgetEntry."Source No.", RoundingFactor::"1");
-        SalesBudgetOverview.DeleteBudget.Invoke;
+        SalesBudgetOverview.DeleteBudget.Invoke();
 
         // Verify: Verify overview amount is zero after delete item budget entries.
         SalesBudgetOverview.MATRIX.Field1.AssertEquals(0);
@@ -147,7 +147,7 @@ codeunit 137401 "SCM Item Budget"
         RunSalesBudgetOverview(
           SalesBudgetOverview, ItemBudgetEntry."Budget Name", Customer.TableCaption(), ItemBudgetEntry."Item No.",
           ItemBudgetEntry."Source No.", RoundingFactor::"1");
-        SalesBudgetOverview.DeleteBudget.Invoke;
+        SalesBudgetOverview.DeleteBudget.Invoke();
 
         // Verify: Verify overview amount is unchanged after decline delete item budget entries.
         SalesBudgetOverview.MATRIX.Field1.AssertEquals(Round(ItemBudgetEntry."Sales Amount", 1));  // Use 1 for Rounding Factor.
@@ -167,7 +167,7 @@ codeunit 137401 "SCM Item Budget"
 
         // Setup: Create Item Budget Entries. Run Date Compress Item Budget Entries.
         Initialize();
-        CreateItemBudgetEntryWithSourceNo(ItemBudgetEntry, FindItemBudgetName, CreateItem, LibrarySales.CreateCustomerNo);
+        CreateItemBudgetEntryWithSourceNo(ItemBudgetEntry, FindItemBudgetName(), CreateItem(), LibrarySales.CreateCustomerNo());
         CreateItemBudgetEntryWithSourceNo(
           ItemBudgetEntry, ItemBudgetEntry."Budget Name", ItemBudgetEntry."Item No.", ItemBudgetEntry."Source No.");
         ItemBudgetEntry.SetRange("Item No.", ItemBudgetEntry."Item No.");
@@ -202,7 +202,7 @@ codeunit 137401 "SCM Item Budget"
         CreateAndPostSalesOrder(SalesHeader, SalesLine);
         Quantity := SalesLine.Quantity;  // Quantity is made Global as it is used in handler for verification.
         Amount := SalesLine."Line Amount";  // Amount is made Global as it is used in handler for verification.
-        CreateItemBudgetEntryWithSourceNo(ItemBudgetEntry, FindItemBudgetName, SalesLine."No.", SalesHeader."Sell-to Customer No.");
+        CreateItemBudgetEntryWithSourceNo(ItemBudgetEntry, FindItemBudgetName(), SalesLine."No.", SalesHeader."Sell-to Customer No.");
         InvokeUpdateItemAnalysisViewOnAnalysisViewListSales(AnalysisViewListSales, ItemAnalysisView.Code);
 
         // Exercise: Open Sales Analysis By Dimensions page and invoke Show Matrix to open Sales Analysis By Dim Matrix page.
@@ -228,7 +228,7 @@ codeunit 137401 "SCM Item Budget"
         LibraryFiscalYear.CreateClosedAccountingPeriods();
         LibraryERMCountryData.CreateVATData();
         LibraryERMCountryData.UpdateGeneralPostingSetup();
-        LibraryApplicationArea.EnableItemBudgetSetup;
+        LibraryApplicationArea.EnableItemBudgetSetup();
 
         isInitialized := true;
         Commit();
@@ -242,7 +242,7 @@ codeunit 137401 "SCM Item Budget"
     begin
         LibrarySales.CreateCustomer(Customer);
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, Customer."No.");
-        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, CreateItem, LibraryRandom.RandDec(100, 2)); // Use Random Quantity.
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, CreateItem(), LibraryRandom.RandDec(100, 2)); // Use Random Quantity.
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
     end;
 
@@ -251,7 +251,7 @@ codeunit 137401 "SCM Item Budget"
         Item: Record Item;
     begin
         LibraryInventory.CreateItem(Item);
-        Item.Validate("Inventory Posting Group", FindInventoryPostingSetup);
+        Item.Validate("Inventory Posting Group", FindInventoryPostingSetup());
         Item.Modify(true);
         exit(Item."No.");
     end;
@@ -259,9 +259,9 @@ codeunit 137401 "SCM Item Budget"
     local procedure CreateItemBudgetEntry(var ItemBudgetEntry: Record "Item Budget Entry")
     begin
         LibraryInventory.CreateItemBudgetEntry(
-          ItemBudgetEntry, ItemBudgetEntry."Analysis Area"::Sales, FindItemBudgetName, WorkDate(), CreateItem);
+          ItemBudgetEntry, ItemBudgetEntry."Analysis Area"::Sales, FindItemBudgetName(), WorkDate(), CreateItem());
         ItemBudgetEntry.Validate("Source Type", ItemBudgetEntry."Source Type"::Customer);
-        ItemBudgetEntry.Validate("Source No.", LibrarySales.CreateCustomerNo);
+        ItemBudgetEntry.Validate("Source No.", LibrarySales.CreateCustomerNo());
         ItemBudgetEntry.Validate("Sales Amount", LibraryRandom.RandDec(100, 2));  // Use Random Value.
         ItemBudgetEntry.Modify(true);
     end;
@@ -300,18 +300,18 @@ codeunit 137401 "SCM Item Budget"
     var
         SalesAnalysisbyDimensions: TestPage "Sales Analysis by Dimensions";
     begin
-        SalesAnalysisbyDimensions.Trap;
-        AnalysisViewListSales.EditAnalysisView.Invoke;
+        SalesAnalysisbyDimensions.Trap();
+        AnalysisViewListSales.EditAnalysisView.Invoke();
         SalesAnalysisbyDimensions.ItemFilter.SetValue(ItemNo);
         SalesAnalysisbyDimensions.BudgetFilter.SetValue(BudgetName);
-        SalesAnalysisbyDimensions.ShowMatrix_Process.Invoke;
+        SalesAnalysisbyDimensions.ShowMatrix_Process.Invoke();
     end;
 
     local procedure InvokeUpdateItemAnalysisViewOnAnalysisViewListSales(var AnalysisViewListSales: TestPage "Analysis View List Sales"; ItemAnalysisViewCode: Code[10])
     begin
-        AnalysisViewListSales.OpenEdit;
+        AnalysisViewListSales.OpenEdit();
         AnalysisViewListSales.FILTER.SetFilter(Code, ItemAnalysisViewCode);
-        AnalysisViewListSales."&Update".Invoke;
+        AnalysisViewListSales."&Update".Invoke();
     end;
 
     local procedure RunDateCompressItemBudgetEntries(var ItemBudgetEntry: Record "Item Budget Entry")
@@ -326,7 +326,7 @@ codeunit 137401 "SCM Item Budget"
 
     local procedure RunSalesBudgetOverview(var SalesBudgetOverview: TestPage "Sales Budget Overview"; CurrentBudgetName: Code[10]; ColumnDimCode: Text[30]; ItemFilter: Code[20]; CustomerFilter: Code[20]; RoundingFactor: Option)
     begin
-        SalesBudgetOverview.OpenEdit;
+        SalesBudgetOverview.OpenEdit();
         SalesBudgetOverview.CurrentBudgetName.SetValue(CurrentBudgetName);
         SalesBudgetOverview.ColumnDimCode.SetValue(ColumnDimCode);
         SalesBudgetOverview.ItemFilter.SetValue(ItemFilter);
@@ -346,8 +346,8 @@ codeunit 137401 "SCM Item Budget"
         DateCompItemBudgetEntries.EndingDate.SetValue(DateCompression.CalcMaxEndDate());
         DateCompItemBudgetEntries.PeriodLength.SetValue(DateComprRegister."Period Length"::Week);
         DateCompItemBudgetEntries.PostingDescription.SetValue(PostingDescription);
-        DateCompItemBudgetEntries.RetainDimensions.AssistEdit;
-        DateCompItemBudgetEntries.OK.Invoke;
+        DateCompItemBudgetEntries.RetainDimensions.AssistEdit();
+        DateCompItemBudgetEntries.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -355,11 +355,11 @@ codeunit 137401 "SCM Item Budget"
     procedure DimensionSelectionHandler(var DimensionSelectionMultiple: TestPage "Dimension Selection-Multiple")
     begin
         // Set Dimension Selection Multiple for all the rows.
-        DimensionSelectionMultiple.First;
+        DimensionSelectionMultiple.First();
         repeat
             DimensionSelectionMultiple.Selected.SetValue(true);
         until not DimensionSelectionMultiple.Next();
-        DimensionSelectionMultiple.OK.Invoke;
+        DimensionSelectionMultiple.OK().Invoke();
     end;
 
     [ModalPageHandler]

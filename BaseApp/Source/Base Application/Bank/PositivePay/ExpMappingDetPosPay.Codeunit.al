@@ -65,12 +65,10 @@ codeunit 1705 "Exp. Mapping Det Pos. Pay"
     var
         DataExchLineDef: Record "Data Exch. Line Def";
     begin
-        with DataExchLineDef do begin
-            Init();
-            SetRange("Data Exch. Def Code", DataExchDefCode);
-            SetRange("Line Type", "Line Type"::Detail);
-            exit(IsEmpty);
-        end;
+        DataExchLineDef.Init();
+        DataExchLineDef.SetRange(DataExchLineDef."Data Exch. Def Code", DataExchDefCode);
+        DataExchLineDef.SetRange(DataExchLineDef."Line Type", DataExchLineDef."Line Type"::Detail);
+        exit(DataExchLineDef.IsEmpty());
     end;
 }
 

@@ -40,67 +40,62 @@ codeunit 1103 "CA Jnl.-Post Batch"
         if IsHandled then
             exit;
 
-        with CostJnlLine do begin
-            SetRange("Journal Template Name", "Journal Template Name");
-            SetRange("Journal Batch Name", "Journal Batch Name");
-            LockTable();
+        CostJnlLine.SetRange("Journal Template Name", CostJnlLine."Journal Template Name");
+        CostJnlLine.SetRange("Journal Batch Name", CostJnlLine."Journal Batch Name");
+        CostJnlLine.LockTable();
 
-            CostJnlTemplate.Get("Journal Template Name");
-            CostJnlBatch.Get("Journal Template Name", "Journal Batch Name");
+        CostJnlTemplate.Get(CostJnlLine."Journal Template Name");
+        CostJnlBatch.Get(CostJnlLine."Journal Template Name", CostJnlLine."Journal Batch Name");
 
-            if not Find('=><') then begin
-                "Line No." := 0;
-                if not SuppressCommit then
-                    Commit();
-                exit;
-            end;
-
-            Window.Open(Text001);
-            Window.Update(1, "Journal Batch Name");
-
-            // Check lines
-            LineCount := 0;
-            StartLineNo := "Line No.";
-            repeat
-                LineCount := LineCount + 1;
-                Window.Update(2, LineCount);
-                CAJnlCheckLine.RunCheck(CostJnlLine);
-                if Next() = 0 then
-                    FindFirst();
-            until "Line No." = StartLineNo;
-            NoOfRecords := LineCount;
-
-            // CheckBalance
-            CheckBalance();
-
-            CostReg.LockTable();
-            if CostReg.FindLast() then
-                CostRegNo := CostReg."No." + 1
-            else
-                CostRegNo := 1;
-
-            // Post lines
-            LineCount := 0;
-            FindSet();
-            repeat
-                LineCount := LineCount + 1;
-                Window.Update(3, LineCount);
-                Window.Update(4, Round(LineCount / NoOfRecords * 10000, 1));
-                CAJnlPostLine.RunWithCheck(CostJnlLine);
-            until Next() = 0;
-
-            if not CostReg.FindLast() or (CostReg."No." <> CostRegNo) then
-                CostRegNo := 0;
-            Init();
-            "Line No." := CostRegNo;
-            OnAfterAssignCostRegNo(CostJnlLine, CostReg, CostRegNo);
-
-            if CostJnlBatch."Delete after Posting" then
-                DeleteAll();
-
+        if not CostJnlLine.Find('=><') then begin
+            CostJnlLine."Line No." := 0;
             if not SuppressCommit then
                 Commit();
+            exit;
         end;
+
+        Window.Open(Text001);
+        Window.Update(1, CostJnlLine."Journal Batch Name");
+        // Check lines
+        LineCount := 0;
+        StartLineNo := CostJnlLine."Line No.";
+        repeat
+            LineCount := LineCount + 1;
+            Window.Update(2, LineCount);
+            CAJnlCheckLine.RunCheck(CostJnlLine);
+            if CostJnlLine.Next() = 0 then
+                CostJnlLine.FindFirst();
+        until CostJnlLine."Line No." = StartLineNo;
+        NoOfRecords := LineCount;
+        // CheckBalance
+        CheckBalance();
+
+        CostReg.LockTable();
+        if CostReg.FindLast() then
+            CostRegNo := CostReg."No." + 1
+        else
+            CostRegNo := 1;
+        // Post lines
+        LineCount := 0;
+        CostJnlLine.FindSet();
+        repeat
+            LineCount := LineCount + 1;
+            Window.Update(3, LineCount);
+            Window.Update(4, Round(LineCount / NoOfRecords * 10000, 1));
+            CAJnlPostLine.RunWithCheck(CostJnlLine);
+        until CostJnlLine.Next() = 0;
+
+        if not CostReg.FindLast() or (CostReg."No." <> CostRegNo) then
+            CostRegNo := 0;
+        CostJnlLine.Init();
+        CostJnlLine."Line No." := CostRegNo;
+        OnAfterAssignCostRegNo(CostJnlLine, CostReg, CostRegNo);
+
+        if CostJnlBatch."Delete after Posting" then
+            CostJnlLine.DeleteAll();
+
+        if not SuppressCommit then
+            Commit();
 
         OnAfterCode(CostJnlLine);
     end;

@@ -76,25 +76,22 @@ codeunit 10098 "Generate EFT"
         if IsHandled then
             exit;
 
-        with BankAccount do begin
-            LockTable();
-            Get(BankAccountNo);
-            TestField(Blocked, false);
-            TestField("Export Format");
-            TestField("Last Remittance Advice No.");
-        end;
+        BankAccount.LockTable();
+        BankAccount.Get(BankAccountNo);
+        BankAccount.TestField(Blocked, false);
+        BankAccount.TestField("Export Format");
+        BankAccount.TestField("Last Remittance Advice No.");
     end;
 
     procedure GenJnlLineChecks(var EFTExportWorkset: Record "EFT Export Workset" temporary)
     var
         GenJnlLine: Record "Gen. Journal Line";
     begin
-        with EFTExportWorkset do
-            if FindSet() then
-                repeat
-                    if GenJnlLine.Get("Journal Template Name", "Journal Batch Name", "Line No.") then
-                        CODEUNIT.Run(CODEUNIT::"Gen. Jnl.-Check Line", GenJnlLine);
-                until Next() = 0;
+        if EFTExportWorkset.FindSet() then
+            repeat
+                if GenJnlLine.Get(EFTExportWorkset."Journal Template Name", EFTExportWorkset."Journal Batch Name", EFTExportWorkset."Line No.") then
+                    CODEUNIT.Run(CODEUNIT::"Gen. Jnl.-Check Line", GenJnlLine);
+            until EFTExportWorkset.Next() = 0;
     end;
 
     local procedure CheckAndStartExport(var TempEFTExportWorkset: Record "EFT Export Workset" temporary; var EFTValues: Codeunit "EFT Values")
@@ -105,13 +102,12 @@ codeunit 10098 "Generate EFT"
             (TempEFTExportWorkset."Bank Payment Type" = TempEFTExportWorkset."Bank Payment Type"::"Electronic Payment")) or
            (not IATFileCreated and
             (TempEFTExportWorkset."Bank Payment Type" = TempEFTExportWorkset."Bank Payment Type"::"Electronic Payment-IAT"))
-        then
-            with TempEFTExportWorkset do begin
-                if not FindSet() then
-                    Error(NothingToExportErr);
+        then begin
+            if not TempEFTExportWorkset.FindSet() then
+                Error(NothingToExportErr);
 
-                ExpLauncherEFT.EFTPaymentProcess(TempEFTExportWorkset, TempNameValueBuffer, DataCompression, ZipFileName, EFTValues);
-            end;
+            ExpLauncherEFT.EFTPaymentProcess(TempEFTExportWorkset, TempNameValueBuffer, DataCompression, ZipFileName, EFTValues);
+        end;
     end;
 
     procedure SetGenJrnlCheckTransmitted(EFTExportWorkset: Record "EFT Export Workset")
@@ -172,29 +168,27 @@ codeunit 10098 "Generate EFT"
         end;
 
         repeat
-            with TempEFTExportWorkset do begin
-                Pathname := CopyStr(Path, 1, MaxStrLen(Pathname));
-                UserSettleDate := SettlementDate;
-                if "Bank Payment Type" = "Bank Payment Type"::"Electronic Payment-IAT" then
-                    if (DummyLastEFTExportWorkset."Account Type" <> "Account Type") or
-                       (DummyLastEFTExportWorkset."Account No." <> "Account No.") or
-                       (DummyLastEFTExportWorkset."Foreign Exchange Indicator" <> "Foreign Exchange Indicator") or
-                       (DummyLastEFTExportWorkset."Foreign Exchange Ref.Indicator" <> "Foreign Exchange Ref.Indicator") or
-                       (DummyLastEFTExportWorkset."Foreign Exchange Reference" <> "Foreign Exchange Reference")
-                    then begin
-                        ProcessOrderNo := ProcessOrderNo + 1;
-                        ProcessOrder := ProcessOrderNo;
-                        DummyLastEFTExportWorkset."Account Type" := "Account Type";
-                        DummyLastEFTExportWorkset."Account No." := "Account No.";
-                        DummyLastEFTExportWorkset."Foreign Exchange Indicator" := "Foreign Exchange Indicator";
-                        DummyLastEFTExportWorkset."Foreign Exchange Ref.Indicator" := "Foreign Exchange Ref.Indicator";
-                        DummyLastEFTExportWorkset."Foreign Exchange Reference" := "Foreign Exchange Reference";
-                    end else
-                        ProcessOrder := ProcessOrderNo;
-                if "Bank Payment Type" = "Bank Payment Type"::"Electronic Payment" then
-                    ProcessOrder := 1;
-                Modify();
-            end;
+            TempEFTExportWorkset.Pathname := CopyStr(Path, 1, MaxStrLen(TempEFTExportWorkset.Pathname));
+            TempEFTExportWorkset.UserSettleDate := SettlementDate;
+            if TempEFTExportWorkset."Bank Payment Type" = TempEFTExportWorkset."Bank Payment Type"::"Electronic Payment-IAT" then
+                if (DummyLastEFTExportWorkset."Account Type" <> TempEFTExportWorkset."Account Type") or
+                   (DummyLastEFTExportWorkset."Account No." <> TempEFTExportWorkset."Account No.") or
+                   (DummyLastEFTExportWorkset."Foreign Exchange Indicator" <> TempEFTExportWorkset."Foreign Exchange Indicator") or
+                   (DummyLastEFTExportWorkset."Foreign Exchange Ref.Indicator" <> TempEFTExportWorkset."Foreign Exchange Ref.Indicator") or
+                   (DummyLastEFTExportWorkset."Foreign Exchange Reference" <> TempEFTExportWorkset."Foreign Exchange Reference")
+                then begin
+                    ProcessOrderNo := ProcessOrderNo + 1;
+                    TempEFTExportWorkset.ProcessOrder := ProcessOrderNo;
+                    DummyLastEFTExportWorkset."Account Type" := TempEFTExportWorkset."Account Type";
+                    DummyLastEFTExportWorkset."Account No." := TempEFTExportWorkset."Account No.";
+                    DummyLastEFTExportWorkset."Foreign Exchange Indicator" := TempEFTExportWorkset."Foreign Exchange Indicator";
+                    DummyLastEFTExportWorkset."Foreign Exchange Ref.Indicator" := TempEFTExportWorkset."Foreign Exchange Ref.Indicator";
+                    DummyLastEFTExportWorkset."Foreign Exchange Reference" := TempEFTExportWorkset."Foreign Exchange Reference";
+                end else
+                    TempEFTExportWorkset.ProcessOrder := ProcessOrderNo;
+            if TempEFTExportWorkset."Bank Payment Type" = TempEFTExportWorkset."Bank Payment Type"::"Electronic Payment" then
+                TempEFTExportWorkset.ProcessOrder := 1;
+            TempEFTExportWorkset.Modify();
         until TempEFTExportWorkset.Next() = 0;
         Commit();
 

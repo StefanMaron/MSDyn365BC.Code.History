@@ -54,11 +54,11 @@ codeunit 142085 PurchDocTotalsSalesEntryUI
         OpenPurchaseInvoicePageEdit(PurchaseInvoice, PurchaseHeader);
 
         // Store values from window before setting the Tax Group Code
-        SetCompareAmounts(PurchaseInvoice.PurchLines.InvoiceDiscountAmount.AsDEcimal,
-          PurchaseInvoice.PurchLines."Total Amount Excl. VAT".AsDEcimal,
-          PurchaseInvoice.PurchLines."Total VAT Amount".AsDEcimal,
-          PurchaseInvoice.PurchLines."Total Amount Incl. VAT".AsDEcimal,
-          PurchaseInvoice.PurchLines."Invoice Disc. Pct.".AsDEcimal,
+        SetCompareAmounts(PurchaseInvoice.PurchLines.InvoiceDiscountAmount.AsDecimal(),
+          PurchaseInvoice.PurchLines."Total Amount Excl. VAT".AsDecimal(),
+          PurchaseInvoice.PurchLines."Total VAT Amount".AsDecimal(),
+          PurchaseInvoice.PurchLines."Total Amount Incl. VAT".AsDecimal(),
+          PurchaseInvoice.PurchLines."Invoice Disc. Pct.".AsDecimal(),
           PreAmounts);
 
         PurchaseInvoice.PurchLines."Total VAT Amount".AssertEquals(0);
@@ -75,11 +75,11 @@ codeunit 142085 PurchDocTotalsSalesEntryUI
         PurchaseInvoice.PurchLines."Direct Unit Cost".SetValue(PurchaseLine."Direct Unit Cost");
         PurchaseInvoice.PurchLines.Next();
 
-        SetCompareAmounts(PurchaseInvoice.PurchLines.InvoiceDiscountAmount.AsDEcimal,
-          PurchaseInvoice.PurchLines."Total Amount Excl. VAT".AsDEcimal,
-          PurchaseInvoice.PurchLines."Total VAT Amount".AsDEcimal,
-          PurchaseInvoice.PurchLines."Total Amount Incl. VAT".AsDEcimal,
-          PurchaseInvoice.PurchLines."Invoice Disc. Pct.".AsDEcimal,
+        SetCompareAmounts(PurchaseInvoice.PurchLines.InvoiceDiscountAmount.AsDecimal(),
+          PurchaseInvoice.PurchLines."Total Amount Excl. VAT".AsDecimal(),
+          PurchaseInvoice.PurchLines."Total VAT Amount".AsDecimal(),
+          PurchaseInvoice.PurchLines."Total Amount Incl. VAT".AsDecimal(),
+          PurchaseInvoice.PurchLines."Invoice Disc. Pct.".AsDecimal(),
           PostAmounts);
 
         // Calculate the TotalTax, and flowfields
@@ -128,11 +128,11 @@ codeunit 142085 PurchDocTotalsSalesEntryUI
         OpenPurchaseInvoicePageEdit(PurchaseInvoice, PurchaseHeader);
 
         // Store values from window before setting the Tax Group Code
-        SetCompareAmounts(PurchaseInvoice.PurchLines.InvoiceDiscountAmount.AsDEcimal,
-          PurchaseInvoice.PurchLines."Total Amount Excl. VAT".AsDEcimal,
-          PurchaseInvoice.PurchLines."Total VAT Amount".AsDEcimal,
-          PurchaseInvoice.PurchLines."Total Amount Incl. VAT".AsDEcimal,
-          PurchaseInvoice.PurchLines."Invoice Disc. Pct.".AsDEcimal,
+        SetCompareAmounts(PurchaseInvoice.PurchLines.InvoiceDiscountAmount.AsDecimal(),
+          PurchaseInvoice.PurchLines."Total Amount Excl. VAT".AsDecimal(),
+          PurchaseInvoice.PurchLines."Total VAT Amount".AsDecimal(),
+          PurchaseInvoice.PurchLines."Total Amount Incl. VAT".AsDecimal(),
+          PurchaseInvoice.PurchLines."Invoice Disc. Pct.".AsDecimal(),
           PreAmounts);
 
         // [WHEN] User changes the quantity
@@ -140,11 +140,11 @@ codeunit 142085 PurchDocTotalsSalesEntryUI
         if PurchaseInvoice.PurchLines.Next() then
             PurchaseInvoice.PurchLines.Previous();
 
-        SetCompareAmounts(PurchaseInvoice.PurchLines.InvoiceDiscountAmount.AsDEcimal,
-          PurchaseInvoice.PurchLines."Total Amount Excl. VAT".AsDEcimal,
-          PurchaseInvoice.PurchLines."Total VAT Amount".AsDEcimal,
-          PurchaseInvoice.PurchLines."Total Amount Incl. VAT".AsDEcimal,
-          PurchaseInvoice.PurchLines."Invoice Disc. Pct.".AsDEcimal,
+        SetCompareAmounts(PurchaseInvoice.PurchLines.InvoiceDiscountAmount.AsDecimal(),
+          PurchaseInvoice.PurchLines."Total Amount Excl. VAT".AsDecimal(),
+          PurchaseInvoice.PurchLines."Total VAT Amount".AsDecimal(),
+          PurchaseInvoice.PurchLines."Total Amount Incl. VAT".AsDecimal(),
+          PurchaseInvoice.PurchLines."Invoice Disc. Pct.".AsDecimal(),
           PostAmounts);
 
         // Calculate the TotalTax, and flowfields
@@ -197,11 +197,11 @@ codeunit 142085 PurchDocTotalsSalesEntryUI
         OpenPurchaseInvoicePageEdit(PurchaseInvoice, PurchaseHeader);
 
         // Store values from window before setting the Tax Group Code
-        SetCompareAmounts(PurchaseInvoice.PurchLines.InvoiceDiscountAmount.AsDEcimal,
-          PurchaseInvoice.PurchLines."Total Amount Excl. VAT".AsDEcimal,
-          PurchaseInvoice.PurchLines."Total VAT Amount".AsDEcimal,
-          PurchaseInvoice.PurchLines."Total Amount Incl. VAT".AsDEcimal,
-          PurchaseInvoice.PurchLines."Invoice Disc. Pct.".AsDEcimal,
+        SetCompareAmounts(PurchaseInvoice.PurchLines.InvoiceDiscountAmount.AsDecimal(),
+          PurchaseInvoice.PurchLines."Total Amount Excl. VAT".AsDecimal(),
+          PurchaseInvoice.PurchLines."Total VAT Amount".AsDecimal(),
+          PurchaseInvoice.PurchLines."Total Amount Incl. VAT".AsDecimal(),
+          PurchaseInvoice.PurchLines."Invoice Disc. Pct.".AsDecimal(),
           PreAmounts);
 
         PurchaseInvoice.PurchLines.InvoiceDiscountAmount.AssertEquals(0);
@@ -221,11 +221,11 @@ codeunit 142085 PurchDocTotalsSalesEntryUI
         PurchaseInvoice.PurchLines."Direct Unit Cost".SetValue(OriginalDirectUnitCost);
         PurchaseInvoice.PurchLines.Next();
 
-        SetCompareAmounts(PurchaseInvoice.PurchLines.InvoiceDiscountAmount.AsDEcimal,
-          PurchaseInvoice.PurchLines."Total Amount Excl. VAT".AsDEcimal,
-          PurchaseInvoice.PurchLines."Total VAT Amount".AsDEcimal,
-          PurchaseInvoice.PurchLines."Total Amount Incl. VAT".AsDEcimal,
-          PurchaseInvoice.PurchLines."Invoice Disc. Pct.".AsDEcimal,
+        SetCompareAmounts(PurchaseInvoice.PurchLines.InvoiceDiscountAmount.AsDecimal(),
+          PurchaseInvoice.PurchLines."Total Amount Excl. VAT".AsDecimal(),
+          PurchaseInvoice.PurchLines."Total VAT Amount".AsDecimal(),
+          PurchaseInvoice.PurchLines."Total Amount Incl. VAT".AsDecimal(),
+          PurchaseInvoice.PurchLines."Invoice Disc. Pct.".AsDecimal(),
           PostAmounts);
 
         // Calculate the TotalTax, and flowfields
@@ -281,11 +281,11 @@ codeunit 142085 PurchDocTotalsSalesEntryUI
         OpenPurchaseInvoicePageEdit(PurchaseInvoice, PurchaseHeader);
 
         // Store values from window before setting the Tax Group Code
-        SetCompareAmounts(PurchaseInvoice.PurchLines.InvoiceDiscountAmount.AsDEcimal,
-          PurchaseInvoice.PurchLines."Total Amount Excl. VAT".AsDEcimal,
-          PurchaseInvoice.PurchLines."Total VAT Amount".AsDEcimal,
-          PurchaseInvoice.PurchLines."Total Amount Incl. VAT".AsDEcimal,
-          PurchaseInvoice.PurchLines."Invoice Disc. Pct.".AsDEcimal,
+        SetCompareAmounts(PurchaseInvoice.PurchLines.InvoiceDiscountAmount.AsDecimal(),
+          PurchaseInvoice.PurchLines."Total Amount Excl. VAT".AsDecimal(),
+          PurchaseInvoice.PurchLines."Total VAT Amount".AsDecimal(),
+          PurchaseInvoice.PurchLines."Total Amount Incl. VAT".AsDecimal(),
+          PurchaseInvoice.PurchLines."Invoice Disc. Pct.".AsDecimal(),
           PreAmounts);
         PurchaseInvoice.Close();
 
@@ -300,11 +300,11 @@ codeunit 142085 PurchDocTotalsSalesEntryUI
         PurchaseInvoice.PurchLines."Direct Unit Cost".SetValue(PurchaseLine."Direct Unit Cost");
         PurchaseInvoice.PurchLines.Next();
 
-        SetCompareAmounts(PurchaseInvoice.PurchLines.InvoiceDiscountAmount.AsDEcimal,
-          PurchaseInvoice.PurchLines."Total Amount Excl. VAT".AsDEcimal,
-          PurchaseInvoice.PurchLines."Total VAT Amount".AsDEcimal,
-          PurchaseInvoice.PurchLines."Total Amount Incl. VAT".AsDEcimal,
-          PurchaseInvoice.PurchLines."Invoice Disc. Pct.".AsDEcimal,
+        SetCompareAmounts(PurchaseInvoice.PurchLines.InvoiceDiscountAmount.AsDecimal(),
+          PurchaseInvoice.PurchLines."Total Amount Excl. VAT".AsDecimal(),
+          PurchaseInvoice.PurchLines."Total VAT Amount".AsDecimal(),
+          PurchaseInvoice.PurchLines."Total Amount Incl. VAT".AsDecimal(),
+          PurchaseInvoice.PurchLines."Invoice Disc. Pct.".AsDecimal(),
           PostAmounts);
 
         // Calculate the TotalTax, and flowfields
@@ -361,21 +361,21 @@ codeunit 142085 PurchDocTotalsSalesEntryUI
         OpenPurchaseInvoicePageEdit(PurchaseInvoice, PurchaseHeader);
 
         // Store values from window before setting the Invoice Discount Amount
-        SetCompareAmounts(PurchaseInvoice.PurchLines.InvoiceDiscountAmount.AsDEcimal,
-          PurchaseInvoice.PurchLines."Total Amount Excl. VAT".AsDEcimal,
-          PurchaseInvoice.PurchLines."Total VAT Amount".AsDEcimal,
-          PurchaseInvoice.PurchLines."Total Amount Incl. VAT".AsDEcimal,
-          PurchaseInvoice.PurchLines."Invoice Disc. Pct.".AsDEcimal,
+        SetCompareAmounts(PurchaseInvoice.PurchLines.InvoiceDiscountAmount.AsDecimal(),
+          PurchaseInvoice.PurchLines."Total Amount Excl. VAT".AsDecimal(),
+          PurchaseInvoice.PurchLines."Total VAT Amount".AsDecimal(),
+          PurchaseInvoice.PurchLines."Total Amount Incl. VAT".AsDecimal(),
+          PurchaseInvoice.PurchLines."Invoice Disc. Pct.".AsDecimal(),
           PreAmounts);
 
         // [WHEN] User sets the Invoice Discount Amount
         PurchaseInvoice.PurchLines.InvoiceDiscountAmount.SetValue(LibraryRandom.RandIntInRange(1, 1));
 
-        SetCompareAmounts(PurchaseInvoice.PurchLines.InvoiceDiscountAmount.AsDEcimal,
-          PurchaseInvoice.PurchLines."Total Amount Excl. VAT".AsDEcimal,
-          PurchaseInvoice.PurchLines."Total VAT Amount".AsDEcimal,
-          PurchaseInvoice.PurchLines."Total Amount Incl. VAT".AsDEcimal,
-          PurchaseInvoice.PurchLines."Invoice Disc. Pct.".AsDEcimal,
+        SetCompareAmounts(PurchaseInvoice.PurchLines.InvoiceDiscountAmount.AsDecimal(),
+          PurchaseInvoice.PurchLines."Total Amount Excl. VAT".AsDecimal(),
+          PurchaseInvoice.PurchLines."Total VAT Amount".AsDecimal(),
+          PurchaseInvoice.PurchLines."Total Amount Incl. VAT".AsDecimal(),
+          PurchaseInvoice.PurchLines."Invoice Disc. Pct.".AsDecimal(),
           PostAmounts);
 
         // Calculate the TotalTax, and flowfields
@@ -434,11 +434,11 @@ codeunit 142085 PurchDocTotalsSalesEntryUI
         PurchaseInvoice.PurchLines.Next();
 
         // Store values from window before setting the Tax Group Code
-        SetCompareAmounts(PurchaseInvoice.PurchLines.InvoiceDiscountAmount.AsDEcimal,
-          PurchaseInvoice.PurchLines."Total Amount Excl. VAT".AsDEcimal,
-          PurchaseInvoice.PurchLines."Total VAT Amount".AsDEcimal,
-          PurchaseInvoice.PurchLines."Total Amount Incl. VAT".AsDEcimal,
-          PurchaseInvoice.PurchLines."Invoice Disc. Pct.".AsDEcimal,
+        SetCompareAmounts(PurchaseInvoice.PurchLines.InvoiceDiscountAmount.AsDecimal(),
+          PurchaseInvoice.PurchLines."Total Amount Excl. VAT".AsDecimal(),
+          PurchaseInvoice.PurchLines."Total VAT Amount".AsDecimal(),
+          PurchaseInvoice.PurchLines."Total Amount Incl. VAT".AsDecimal(),
+          PurchaseInvoice.PurchLines."Invoice Disc. Pct.".AsDecimal(),
           PurchHeaderAmounts);
 
         // [WHEN] User Posts the invoice
@@ -493,11 +493,11 @@ codeunit 142085 PurchDocTotalsSalesEntryUI
         OpenPurchaseOrderPageEdit(PurchaseOrder, PurchaseHeader);
 
         // Store values from window before setting the Tax Group Code
-        SetCompareAmounts(PurchaseOrder.PurchLines."Invoice Discount Amount".AsDEcimal,
-          PurchaseOrder.PurchLines."Total Amount Excl. VAT".AsDEcimal,
-          PurchaseOrder.PurchLines."Total VAT Amount".AsDEcimal,
-          PurchaseOrder.PurchLines."Total Amount Incl. VAT".AsDEcimal,
-          PurchaseOrder.PurchLines."Invoice Disc. Pct.".AsDEcimal,
+        SetCompareAmounts(PurchaseOrder.PurchLines."Invoice Discount Amount".AsDecimal(),
+          PurchaseOrder.PurchLines."Total Amount Excl. VAT".AsDecimal(),
+          PurchaseOrder.PurchLines."Total VAT Amount".AsDecimal(),
+          PurchaseOrder.PurchLines."Total Amount Incl. VAT".AsDecimal(),
+          PurchaseOrder.PurchLines."Invoice Disc. Pct.".AsDecimal(),
           PreAmounts);
 
         PurchaseOrder.PurchLines."Total VAT Amount".AssertEquals(0);
@@ -514,11 +514,11 @@ codeunit 142085 PurchDocTotalsSalesEntryUI
         PurchaseOrder.PurchLines."Direct Unit Cost".SetValue(PurchaseLine."Direct Unit Cost");
         PurchaseOrder.PurchLines.Next();
 
-        SetCompareAmounts(PurchaseOrder.PurchLines."Invoice Discount Amount".AsDEcimal,
-          PurchaseOrder.PurchLines."Total Amount Excl. VAT".AsDEcimal,
-          PurchaseOrder.PurchLines."Total VAT Amount".AsDEcimal,
-          PurchaseOrder.PurchLines."Total Amount Incl. VAT".AsDEcimal,
-          PurchaseOrder.PurchLines."Invoice Disc. Pct.".AsDEcimal,
+        SetCompareAmounts(PurchaseOrder.PurchLines."Invoice Discount Amount".AsDecimal(),
+          PurchaseOrder.PurchLines."Total Amount Excl. VAT".AsDecimal(),
+          PurchaseOrder.PurchLines."Total VAT Amount".AsDecimal(),
+          PurchaseOrder.PurchLines."Total Amount Incl. VAT".AsDecimal(),
+          PurchaseOrder.PurchLines."Invoice Disc. Pct.".AsDecimal(),
           PostAmounts);
 
         // Calculate the TotalTax, and flowfields
@@ -567,11 +567,11 @@ codeunit 142085 PurchDocTotalsSalesEntryUI
         OpenPurchaseOrderPageEdit(PurchaseOrder, PurchaseHeader);
 
         // Store values from window before setting the Tax Group Code
-        SetCompareAmounts(PurchaseOrder.PurchLines."Invoice Discount Amount".AsDEcimal,
-          PurchaseOrder.PurchLines."Total Amount Excl. VAT".AsDEcimal,
-          PurchaseOrder.PurchLines."Total VAT Amount".AsDEcimal,
-          PurchaseOrder.PurchLines."Total Amount Incl. VAT".AsDEcimal,
-          PurchaseOrder.PurchLines."Invoice Disc. Pct.".AsDEcimal,
+        SetCompareAmounts(PurchaseOrder.PurchLines."Invoice Discount Amount".AsDecimal(),
+          PurchaseOrder.PurchLines."Total Amount Excl. VAT".AsDecimal(),
+          PurchaseOrder.PurchLines."Total VAT Amount".AsDecimal(),
+          PurchaseOrder.PurchLines."Total Amount Incl. VAT".AsDecimal(),
+          PurchaseOrder.PurchLines."Invoice Disc. Pct.".AsDecimal(),
           PreAmounts);
 
         // [WHEN] User changes the quantity
@@ -579,11 +579,11 @@ codeunit 142085 PurchDocTotalsSalesEntryUI
         if PurchaseOrder.PurchLines.Next() then
             PurchaseOrder.PurchLines.Previous();
 
-        SetCompareAmounts(PurchaseOrder.PurchLines."Invoice Discount Amount".AsDEcimal,
-          PurchaseOrder.PurchLines."Total Amount Excl. VAT".AsDEcimal,
-          PurchaseOrder.PurchLines."Total VAT Amount".AsDEcimal,
-          PurchaseOrder.PurchLines."Total Amount Incl. VAT".AsDEcimal,
-          PurchaseOrder.PurchLines."Invoice Disc. Pct.".AsDEcimal,
+        SetCompareAmounts(PurchaseOrder.PurchLines."Invoice Discount Amount".AsDecimal(),
+          PurchaseOrder.PurchLines."Total Amount Excl. VAT".AsDecimal(),
+          PurchaseOrder.PurchLines."Total VAT Amount".AsDecimal(),
+          PurchaseOrder.PurchLines."Total Amount Incl. VAT".AsDecimal(),
+          PurchaseOrder.PurchLines."Invoice Disc. Pct.".AsDecimal(),
           PostAmounts);
 
         // Calculate the TotalTax, and flowfields
@@ -635,11 +635,11 @@ codeunit 142085 PurchDocTotalsSalesEntryUI
         OpenPurchaseOrderPageEdit(PurchaseOrder, PurchaseHeader);
 
         // Store values from window before setting the Tax Group Code
-        SetCompareAmounts(PurchaseOrder.PurchLines."Invoice Discount Amount".AsDEcimal,
-          PurchaseOrder.PurchLines."Total Amount Excl. VAT".AsDEcimal,
-          PurchaseOrder.PurchLines."Total VAT Amount".AsDEcimal,
-          PurchaseOrder.PurchLines."Total Amount Incl. VAT".AsDEcimal,
-          PurchaseOrder.PurchLines."Invoice Disc. Pct.".AsDEcimal,
+        SetCompareAmounts(PurchaseOrder.PurchLines."Invoice Discount Amount".AsDecimal(),
+          PurchaseOrder.PurchLines."Total Amount Excl. VAT".AsDecimal(),
+          PurchaseOrder.PurchLines."Total VAT Amount".AsDecimal(),
+          PurchaseOrder.PurchLines."Total Amount Incl. VAT".AsDecimal(),
+          PurchaseOrder.PurchLines."Invoice Disc. Pct.".AsDecimal(),
           PreAmounts);
 
         PurchaseOrder.PurchLines."Invoice Discount Amount".AssertEquals(0);
@@ -657,11 +657,11 @@ codeunit 142085 PurchDocTotalsSalesEntryUI
         PurchaseOrder.PurchLines."Direct Unit Cost".SetValue(PurchaseLine."Direct Unit Cost");
         PurchaseOrder.PurchLines.Next();
 
-        SetCompareAmounts(PurchaseOrder.PurchLines."Invoice Discount Amount".AsDEcimal,
-          PurchaseOrder.PurchLines."Total Amount Excl. VAT".AsDEcimal,
-          PurchaseOrder.PurchLines."Total VAT Amount".AsDEcimal,
-          PurchaseOrder.PurchLines."Total Amount Incl. VAT".AsDEcimal,
-          PurchaseOrder.PurchLines."Invoice Disc. Pct.".AsDEcimal,
+        SetCompareAmounts(PurchaseOrder.PurchLines."Invoice Discount Amount".AsDecimal(),
+          PurchaseOrder.PurchLines."Total Amount Excl. VAT".AsDecimal(),
+          PurchaseOrder.PurchLines."Total VAT Amount".AsDecimal(),
+          PurchaseOrder.PurchLines."Total Amount Incl. VAT".AsDecimal(),
+          PurchaseOrder.PurchLines."Invoice Disc. Pct.".AsDecimal(),
           PostAmounts);
 
         // Calculate the TotalTax, and flowfields
@@ -718,11 +718,11 @@ codeunit 142085 PurchDocTotalsSalesEntryUI
         OpenPurchaseOrderPageEdit(PurchaseOrder, PurchaseHeader);
 
         // Store values from window before setting the Tax Group Code
-        SetCompareAmounts(PurchaseOrder.PurchLines."Invoice Discount Amount".AsDEcimal,
-          PurchaseOrder.PurchLines."Total Amount Excl. VAT".AsDEcimal,
-          PurchaseOrder.PurchLines."Total VAT Amount".AsDEcimal,
-          PurchaseOrder.PurchLines."Total Amount Incl. VAT".AsDEcimal,
-          PurchaseOrder.PurchLines."Invoice Disc. Pct.".AsDEcimal,
+        SetCompareAmounts(PurchaseOrder.PurchLines."Invoice Discount Amount".AsDecimal(),
+          PurchaseOrder.PurchLines."Total Amount Excl. VAT".AsDecimal(),
+          PurchaseOrder.PurchLines."Total VAT Amount".AsDecimal(),
+          PurchaseOrder.PurchLines."Total Amount Incl. VAT".AsDecimal(),
+          PurchaseOrder.PurchLines."Invoice Disc. Pct.".AsDecimal(),
           PreAmounts);
         PurchaseOrder.Close();
 
@@ -739,11 +739,11 @@ codeunit 142085 PurchDocTotalsSalesEntryUI
         PurchaseOrder.PurchLines."Direct Unit Cost".SetValue(OriginalDirectUnitCost);
         PurchaseOrder.PurchLines.Next();
 
-        SetCompareAmounts(PurchaseOrder.PurchLines."Invoice Discount Amount".AsDEcimal,
-          PurchaseOrder.PurchLines."Total Amount Excl. VAT".AsDEcimal,
-          PurchaseOrder.PurchLines."Total VAT Amount".AsDEcimal,
-          PurchaseOrder.PurchLines."Total Amount Incl. VAT".AsDEcimal,
-          PurchaseOrder.PurchLines."Invoice Disc. Pct.".AsDEcimal,
+        SetCompareAmounts(PurchaseOrder.PurchLines."Invoice Discount Amount".AsDecimal(),
+          PurchaseOrder.PurchLines."Total Amount Excl. VAT".AsDecimal(),
+          PurchaseOrder.PurchLines."Total VAT Amount".AsDecimal(),
+          PurchaseOrder.PurchLines."Total Amount Incl. VAT".AsDecimal(),
+          PurchaseOrder.PurchLines."Invoice Disc. Pct.".AsDecimal(),
           PostAmounts);
 
         // Calculate the TotalTax, and flowfields
@@ -800,21 +800,21 @@ codeunit 142085 PurchDocTotalsSalesEntryUI
         OpenPurchaseOrderPageEdit(PurchaseOrder, PurchaseHeader);
 
         // Store values from window before setting the Invoice Discount Amount
-        SetCompareAmounts(PurchaseOrder.PurchLines."Invoice Discount Amount".AsDEcimal,
-          PurchaseOrder.PurchLines."Total Amount Excl. VAT".AsDEcimal,
-          PurchaseOrder.PurchLines."Total VAT Amount".AsDEcimal,
-          PurchaseOrder.PurchLines."Total Amount Incl. VAT".AsDEcimal,
-          PurchaseOrder.PurchLines."Invoice Disc. Pct.".AsDEcimal,
+        SetCompareAmounts(PurchaseOrder.PurchLines."Invoice Discount Amount".AsDecimal(),
+          PurchaseOrder.PurchLines."Total Amount Excl. VAT".AsDecimal(),
+          PurchaseOrder.PurchLines."Total VAT Amount".AsDecimal(),
+          PurchaseOrder.PurchLines."Total Amount Incl. VAT".AsDecimal(),
+          PurchaseOrder.PurchLines."Invoice Disc. Pct.".AsDecimal(),
           PreAmounts);
 
         // [WHEN] User sets the Invoice Discount Amount
         PurchaseOrder.PurchLines."Invoice Discount Amount".SetValue(LibraryRandom.RandIntInRange(1, 1));
 
-        SetCompareAmounts(PurchaseOrder.PurchLines."Invoice Discount Amount".AsDEcimal,
-          PurchaseOrder.PurchLines."Total Amount Excl. VAT".AsDEcimal,
-          PurchaseOrder.PurchLines."Total VAT Amount".AsDEcimal,
-          PurchaseOrder.PurchLines."Total Amount Incl. VAT".AsDEcimal,
-          PurchaseOrder.PurchLines."Invoice Disc. Pct.".AsDEcimal,
+        SetCompareAmounts(PurchaseOrder.PurchLines."Invoice Discount Amount".AsDecimal(),
+          PurchaseOrder.PurchLines."Total Amount Excl. VAT".AsDecimal(),
+          PurchaseOrder.PurchLines."Total VAT Amount".AsDecimal(),
+          PurchaseOrder.PurchLines."Total Amount Incl. VAT".AsDecimal(),
+          PurchaseOrder.PurchLines."Invoice Disc. Pct.".AsDecimal(),
           PostAmounts);
 
         // Calculate the TotalTax, and flowfields
@@ -873,11 +873,11 @@ codeunit 142085 PurchDocTotalsSalesEntryUI
         PurchaseOrder.PurchLines.Next();
 
         // Store values from window before setting the Tax Group Code
-        SetCompareAmounts(PurchaseOrder.PurchLines."Invoice Discount Amount".AsDEcimal,
-          PurchaseOrder.PurchLines."Total Amount Excl. VAT".AsDEcimal,
-          PurchaseOrder.PurchLines."Total VAT Amount".AsDEcimal,
-          PurchaseOrder.PurchLines."Total Amount Incl. VAT".AsDEcimal,
-          PurchaseOrder.PurchLines."Invoice Disc. Pct.".AsDEcimal,
+        SetCompareAmounts(PurchaseOrder.PurchLines."Invoice Discount Amount".AsDecimal(),
+          PurchaseOrder.PurchLines."Total Amount Excl. VAT".AsDecimal(),
+          PurchaseOrder.PurchLines."Total VAT Amount".AsDecimal(),
+          PurchaseOrder.PurchLines."Total Amount Incl. VAT".AsDecimal(),
+          PurchaseOrder.PurchLines."Invoice Disc. Pct.".AsDecimal(),
           PurchaseHeaderAmounts);
 
         // [WHEN] User Posts the invoice
@@ -932,11 +932,11 @@ codeunit 142085 PurchDocTotalsSalesEntryUI
         OpenPurchaseReturnOrderPageEdit(PurchaseReturnOrder, PurchaseHeader);
 
         // Store values from window before setting the Tax Group Code
-        SetCompareAmounts(PurchaseReturnOrder.PurchLines."Invoice Discount Amount".AsDEcimal,
-          PurchaseReturnOrder.PurchLines."Total Amount Excl. VAT".AsDEcimal,
-          PurchaseReturnOrder.PurchLines."Total VAT Amount".AsDEcimal,
-          PurchaseReturnOrder.PurchLines."Total Amount Incl. VAT".AsDEcimal,
-          PurchaseReturnOrder.PurchLines."Invoice Disc. Pct.".AsDEcimal,
+        SetCompareAmounts(PurchaseReturnOrder.PurchLines."Invoice Discount Amount".AsDecimal(),
+          PurchaseReturnOrder.PurchLines."Total Amount Excl. VAT".AsDecimal(),
+          PurchaseReturnOrder.PurchLines."Total VAT Amount".AsDecimal(),
+          PurchaseReturnOrder.PurchLines."Total Amount Incl. VAT".AsDecimal(),
+          PurchaseReturnOrder.PurchLines."Invoice Disc. Pct.".AsDecimal(),
           PreAmounts);
 
         PurchaseReturnOrder.PurchLines."Total VAT Amount".AssertEquals(0);
@@ -953,11 +953,11 @@ codeunit 142085 PurchDocTotalsSalesEntryUI
         PurchaseReturnOrder.PurchLines."Direct Unit Cost".SetValue(PurchaseLine."Direct Unit Cost");
         PurchaseReturnOrder.PurchLines.Next();
 
-        SetCompareAmounts(PurchaseReturnOrder.PurchLines."Invoice Discount Amount".AsDEcimal,
-          PurchaseReturnOrder.PurchLines."Total Amount Excl. VAT".AsDEcimal,
-          PurchaseReturnOrder.PurchLines."Total VAT Amount".AsDEcimal,
-          PurchaseReturnOrder.PurchLines."Total Amount Incl. VAT".AsDEcimal,
-          PurchaseReturnOrder.PurchLines."Invoice Disc. Pct.".AsDEcimal,
+        SetCompareAmounts(PurchaseReturnOrder.PurchLines."Invoice Discount Amount".AsDecimal(),
+          PurchaseReturnOrder.PurchLines."Total Amount Excl. VAT".AsDecimal(),
+          PurchaseReturnOrder.PurchLines."Total VAT Amount".AsDecimal(),
+          PurchaseReturnOrder.PurchLines."Total Amount Incl. VAT".AsDecimal(),
+          PurchaseReturnOrder.PurchLines."Invoice Disc. Pct.".AsDecimal(),
           PostAmounts);
 
         // Calculate the TotalTax, and flowfields
@@ -1006,11 +1006,11 @@ codeunit 142085 PurchDocTotalsSalesEntryUI
         OpenPurchaseReturnOrderPageEdit(PurchaseReturnOrder, PurchaseHeader);
 
         // Store values from window before setting the Tax Group Code
-        SetCompareAmounts(PurchaseReturnOrder.PurchLines."Invoice Discount Amount".AsDEcimal,
-          PurchaseReturnOrder.PurchLines."Total Amount Excl. VAT".AsDEcimal,
-          PurchaseReturnOrder.PurchLines."Total VAT Amount".AsDEcimal,
-          PurchaseReturnOrder.PurchLines."Total Amount Incl. VAT".AsDEcimal,
-          PurchaseReturnOrder.PurchLines."Invoice Disc. Pct.".AsDEcimal,
+        SetCompareAmounts(PurchaseReturnOrder.PurchLines."Invoice Discount Amount".AsDecimal(),
+          PurchaseReturnOrder.PurchLines."Total Amount Excl. VAT".AsDecimal(),
+          PurchaseReturnOrder.PurchLines."Total VAT Amount".AsDecimal(),
+          PurchaseReturnOrder.PurchLines."Total Amount Incl. VAT".AsDecimal(),
+          PurchaseReturnOrder.PurchLines."Invoice Disc. Pct.".AsDecimal(),
           PreAmounts);
 
         // [WHEN] User changes the quantity
@@ -1018,11 +1018,11 @@ codeunit 142085 PurchDocTotalsSalesEntryUI
         if PurchaseReturnOrder.PurchLines.Next() then
             PurchaseReturnOrder.PurchLines.Previous();
 
-        SetCompareAmounts(PurchaseReturnOrder.PurchLines."Invoice Discount Amount".AsDEcimal,
-          PurchaseReturnOrder.PurchLines."Total Amount Excl. VAT".AsDEcimal,
-          PurchaseReturnOrder.PurchLines."Total VAT Amount".AsDEcimal,
-          PurchaseReturnOrder.PurchLines."Total Amount Incl. VAT".AsDEcimal,
-          PurchaseReturnOrder.PurchLines."Invoice Disc. Pct.".AsDEcimal,
+        SetCompareAmounts(PurchaseReturnOrder.PurchLines."Invoice Discount Amount".AsDecimal(),
+          PurchaseReturnOrder.PurchLines."Total Amount Excl. VAT".AsDecimal(),
+          PurchaseReturnOrder.PurchLines."Total VAT Amount".AsDecimal(),
+          PurchaseReturnOrder.PurchLines."Total Amount Incl. VAT".AsDecimal(),
+          PurchaseReturnOrder.PurchLines."Invoice Disc. Pct.".AsDecimal(),
           PostAmounts);
 
         // Calculate the TotalTax, and flowfields
@@ -1074,11 +1074,11 @@ codeunit 142085 PurchDocTotalsSalesEntryUI
         OpenPurchaseReturnOrderPageEdit(PurchaseReturnOrder, PurchaseHeader);
 
         // Store values from window before setting the Tax Group Code
-        SetCompareAmounts(PurchaseReturnOrder.PurchLines."Invoice Discount Amount".AsDEcimal,
-          PurchaseReturnOrder.PurchLines."Total Amount Excl. VAT".AsDEcimal,
-          PurchaseReturnOrder.PurchLines."Total VAT Amount".AsDEcimal,
-          PurchaseReturnOrder.PurchLines."Total Amount Incl. VAT".AsDEcimal,
-          PurchaseReturnOrder.PurchLines."Invoice Disc. Pct.".AsDEcimal,
+        SetCompareAmounts(PurchaseReturnOrder.PurchLines."Invoice Discount Amount".AsDecimal(),
+          PurchaseReturnOrder.PurchLines."Total Amount Excl. VAT".AsDecimal(),
+          PurchaseReturnOrder.PurchLines."Total VAT Amount".AsDecimal(),
+          PurchaseReturnOrder.PurchLines."Total Amount Incl. VAT".AsDecimal(),
+          PurchaseReturnOrder.PurchLines."Invoice Disc. Pct.".AsDecimal(),
           PreAmounts);
 
         PurchaseReturnOrder.PurchLines."Invoice Discount Amount".AssertEquals(0);
@@ -1096,11 +1096,11 @@ codeunit 142085 PurchDocTotalsSalesEntryUI
         PurchaseReturnOrder.PurchLines."Direct Unit Cost".SetValue(PurchaseLine."Direct Unit Cost");
         PurchaseReturnOrder.PurchLines.Next();
 
-        SetCompareAmounts(PurchaseReturnOrder.PurchLines."Invoice Discount Amount".AsDEcimal,
-          PurchaseReturnOrder.PurchLines."Total Amount Excl. VAT".AsDEcimal,
-          PurchaseReturnOrder.PurchLines."Total VAT Amount".AsDEcimal,
-          PurchaseReturnOrder.PurchLines."Total Amount Incl. VAT".AsDEcimal,
-          PurchaseReturnOrder.PurchLines."Invoice Disc. Pct.".AsDEcimal,
+        SetCompareAmounts(PurchaseReturnOrder.PurchLines."Invoice Discount Amount".AsDecimal(),
+          PurchaseReturnOrder.PurchLines."Total Amount Excl. VAT".AsDecimal(),
+          PurchaseReturnOrder.PurchLines."Total VAT Amount".AsDecimal(),
+          PurchaseReturnOrder.PurchLines."Total Amount Incl. VAT".AsDecimal(),
+          PurchaseReturnOrder.PurchLines."Invoice Disc. Pct.".AsDecimal(),
           PostAmounts);
 
         // Calculate the TotalTax, and flowfields
@@ -1157,11 +1157,11 @@ codeunit 142085 PurchDocTotalsSalesEntryUI
         OpenPurchaseReturnOrderPageEdit(PurchaseReturnOrder, PurchaseHeader);
 
         // Store values from window before setting the Tax Group Code
-        SetCompareAmounts(PurchaseReturnOrder.PurchLines."Invoice Discount Amount".AsDEcimal,
-          PurchaseReturnOrder.PurchLines."Total Amount Excl. VAT".AsDEcimal,
-          PurchaseReturnOrder.PurchLines."Total VAT Amount".AsDEcimal,
-          PurchaseReturnOrder.PurchLines."Total Amount Incl. VAT".AsDEcimal,
-          PurchaseReturnOrder.PurchLines."Invoice Disc. Pct.".AsDEcimal,
+        SetCompareAmounts(PurchaseReturnOrder.PurchLines."Invoice Discount Amount".AsDecimal(),
+          PurchaseReturnOrder.PurchLines."Total Amount Excl. VAT".AsDecimal(),
+          PurchaseReturnOrder.PurchLines."Total VAT Amount".AsDecimal(),
+          PurchaseReturnOrder.PurchLines."Total Amount Incl. VAT".AsDecimal(),
+          PurchaseReturnOrder.PurchLines."Invoice Disc. Pct.".AsDecimal(),
           PreAmounts);
         PurchaseReturnOrder.Close();
 
@@ -1178,11 +1178,11 @@ codeunit 142085 PurchDocTotalsSalesEntryUI
         PurchaseReturnOrder.PurchLines."Direct Unit Cost".SetValue(OriginalDirectUnitCost);
         PurchaseReturnOrder.PurchLines.Next();
 
-        SetCompareAmounts(PurchaseReturnOrder.PurchLines."Invoice Discount Amount".AsDEcimal,
-          PurchaseReturnOrder.PurchLines."Total Amount Excl. VAT".AsDEcimal,
-          PurchaseReturnOrder.PurchLines."Total VAT Amount".AsDEcimal,
-          PurchaseReturnOrder.PurchLines."Total Amount Incl. VAT".AsDEcimal,
-          PurchaseReturnOrder.PurchLines."Invoice Disc. Pct.".AsDEcimal,
+        SetCompareAmounts(PurchaseReturnOrder.PurchLines."Invoice Discount Amount".AsDecimal(),
+          PurchaseReturnOrder.PurchLines."Total Amount Excl. VAT".AsDecimal(),
+          PurchaseReturnOrder.PurchLines."Total VAT Amount".AsDecimal(),
+          PurchaseReturnOrder.PurchLines."Total Amount Incl. VAT".AsDecimal(),
+          PurchaseReturnOrder.PurchLines."Invoice Disc. Pct.".AsDecimal(),
           PostAmounts);
 
         // Calculate the TotalTax, and flowfields
@@ -1239,21 +1239,21 @@ codeunit 142085 PurchDocTotalsSalesEntryUI
         OpenPurchaseReturnOrderPageEdit(PurchaseReturnOrder, PurchaseHeader);
 
         // Store values from window before setting the Invoice Discount Amount
-        SetCompareAmounts(PurchaseReturnOrder.PurchLines."Invoice Discount Amount".AsDEcimal,
-          PurchaseReturnOrder.PurchLines."Total Amount Excl. VAT".AsDEcimal,
-          PurchaseReturnOrder.PurchLines."Total VAT Amount".AsDEcimal,
-          PurchaseReturnOrder.PurchLines."Total Amount Incl. VAT".AsDEcimal,
-          PurchaseReturnOrder.PurchLines."Invoice Disc. Pct.".AsDEcimal,
+        SetCompareAmounts(PurchaseReturnOrder.PurchLines."Invoice Discount Amount".AsDecimal(),
+          PurchaseReturnOrder.PurchLines."Total Amount Excl. VAT".AsDecimal(),
+          PurchaseReturnOrder.PurchLines."Total VAT Amount".AsDecimal(),
+          PurchaseReturnOrder.PurchLines."Total Amount Incl. VAT".AsDecimal(),
+          PurchaseReturnOrder.PurchLines."Invoice Disc. Pct.".AsDecimal(),
           PreAmounts);
 
         // [WHEN] User sets the Invoice Discount Amount
         PurchaseReturnOrder.PurchLines."Invoice Discount Amount".SetValue(LibraryRandom.RandIntInRange(1, 1));
 
-        SetCompareAmounts(PurchaseReturnOrder.PurchLines."Invoice Discount Amount".AsDEcimal,
-          PurchaseReturnOrder.PurchLines."Total Amount Excl. VAT".AsDEcimal,
-          PurchaseReturnOrder.PurchLines."Total VAT Amount".AsDEcimal,
-          PurchaseReturnOrder.PurchLines."Total Amount Incl. VAT".AsDEcimal,
-          PurchaseReturnOrder.PurchLines."Invoice Disc. Pct.".AsDEcimal,
+        SetCompareAmounts(PurchaseReturnOrder.PurchLines."Invoice Discount Amount".AsDecimal(),
+          PurchaseReturnOrder.PurchLines."Total Amount Excl. VAT".AsDecimal(),
+          PurchaseReturnOrder.PurchLines."Total VAT Amount".AsDecimal(),
+          PurchaseReturnOrder.PurchLines."Total Amount Incl. VAT".AsDecimal(),
+          PurchaseReturnOrder.PurchLines."Invoice Disc. Pct.".AsDecimal(),
           PostAmounts);
 
         // Calculate the TotalTax, and flowfields
@@ -1312,11 +1312,11 @@ codeunit 142085 PurchDocTotalsSalesEntryUI
         PurchaseReturnOrder.PurchLines.Next();
 
         // Store values from window before setting the Tax Group Code
-        SetCompareAmounts(PurchaseReturnOrder.PurchLines."Invoice Discount Amount".AsDEcimal,
-          PurchaseReturnOrder.PurchLines."Total Amount Excl. VAT".AsDEcimal,
-          PurchaseReturnOrder.PurchLines."Total VAT Amount".AsDEcimal,
-          PurchaseReturnOrder.PurchLines."Total Amount Incl. VAT".AsDEcimal,
-          PurchaseReturnOrder.PurchLines."Invoice Disc. Pct.".AsDEcimal,
+        SetCompareAmounts(PurchaseReturnOrder.PurchLines."Invoice Discount Amount".AsDecimal(),
+          PurchaseReturnOrder.PurchLines."Total Amount Excl. VAT".AsDecimal(),
+          PurchaseReturnOrder.PurchLines."Total VAT Amount".AsDecimal(),
+          PurchaseReturnOrder.PurchLines."Total Amount Incl. VAT".AsDecimal(),
+          PurchaseReturnOrder.PurchLines."Invoice Disc. Pct.".AsDecimal(),
           PurchaseHeaderAmounts);
 
         // [WHEN] User Posts the invoice
@@ -1371,11 +1371,11 @@ codeunit 142085 PurchDocTotalsSalesEntryUI
         OpenPurchaseCreditMemoPageEdit(PurchaseCreditMemo, PurchaseHeader);
 
         // Store values from window before setting the Tax Group Code
-        SetCompareAmounts(PurchaseCreditMemo.PurchLines."Invoice Discount Amount".AsDEcimal,
-          PurchaseCreditMemo.PurchLines."Total Amount Excl. VAT".AsDEcimal,
-          PurchaseCreditMemo.PurchLines."Total VAT Amount".AsDEcimal,
-          PurchaseCreditMemo.PurchLines."Total Amount Incl. VAT".AsDEcimal,
-          PurchaseCreditMemo.PurchLines."Invoice Disc. Pct.".AsDEcimal,
+        SetCompareAmounts(PurchaseCreditMemo.PurchLines."Invoice Discount Amount".AsDecimal(),
+          PurchaseCreditMemo.PurchLines."Total Amount Excl. VAT".AsDecimal(),
+          PurchaseCreditMemo.PurchLines."Total VAT Amount".AsDecimal(),
+          PurchaseCreditMemo.PurchLines."Total Amount Incl. VAT".AsDecimal(),
+          PurchaseCreditMemo.PurchLines."Invoice Disc. Pct.".AsDecimal(),
           PreAmounts);
 
         PurchaseCreditMemo.PurchLines."Total VAT Amount".AssertEquals(0);
@@ -1392,11 +1392,11 @@ codeunit 142085 PurchDocTotalsSalesEntryUI
         PurchaseCreditMemo.PurchLines."Direct Unit Cost".SetValue(PurchaseLine."Direct Unit Cost");
         PurchaseCreditMemo.PurchLines.Next();
 
-        SetCompareAmounts(PurchaseCreditMemo.PurchLines."Invoice Discount Amount".AsDEcimal,
-          PurchaseCreditMemo.PurchLines."Total Amount Excl. VAT".AsDEcimal,
-          PurchaseCreditMemo.PurchLines."Total VAT Amount".AsDEcimal,
-          PurchaseCreditMemo.PurchLines."Total Amount Incl. VAT".AsDEcimal,
-          PurchaseCreditMemo.PurchLines."Invoice Disc. Pct.".AsDEcimal,
+        SetCompareAmounts(PurchaseCreditMemo.PurchLines."Invoice Discount Amount".AsDecimal(),
+          PurchaseCreditMemo.PurchLines."Total Amount Excl. VAT".AsDecimal(),
+          PurchaseCreditMemo.PurchLines."Total VAT Amount".AsDecimal(),
+          PurchaseCreditMemo.PurchLines."Total Amount Incl. VAT".AsDecimal(),
+          PurchaseCreditMemo.PurchLines."Invoice Disc. Pct.".AsDecimal(),
           PostAmounts);
 
         // Calculate the TotalTax, and flowfields
@@ -1445,11 +1445,11 @@ codeunit 142085 PurchDocTotalsSalesEntryUI
         OpenPurchaseCreditMemoPageEdit(PurchaseCreditMemo, PurchaseHeader);
 
         // Store values from window before setting the Tax Group Code
-        SetCompareAmounts(PurchaseCreditMemo.PurchLines."Invoice Discount Amount".AsDEcimal,
-          PurchaseCreditMemo.PurchLines."Total Amount Excl. VAT".AsDEcimal,
-          PurchaseCreditMemo.PurchLines."Total VAT Amount".AsDEcimal,
-          PurchaseCreditMemo.PurchLines."Total Amount Incl. VAT".AsDEcimal,
-          PurchaseCreditMemo.PurchLines."Invoice Disc. Pct.".AsDEcimal,
+        SetCompareAmounts(PurchaseCreditMemo.PurchLines."Invoice Discount Amount".AsDecimal(),
+          PurchaseCreditMemo.PurchLines."Total Amount Excl. VAT".AsDecimal(),
+          PurchaseCreditMemo.PurchLines."Total VAT Amount".AsDecimal(),
+          PurchaseCreditMemo.PurchLines."Total Amount Incl. VAT".AsDecimal(),
+          PurchaseCreditMemo.PurchLines."Invoice Disc. Pct.".AsDecimal(),
           PreAmounts);
 
         // [WHEN] User changes the quantity
@@ -1457,11 +1457,11 @@ codeunit 142085 PurchDocTotalsSalesEntryUI
         if PurchaseCreditMemo.PurchLines.Next() then
             PurchaseCreditMemo.PurchLines.Previous();
 
-        SetCompareAmounts(PurchaseCreditMemo.PurchLines."Invoice Discount Amount".AsDEcimal,
-          PurchaseCreditMemo.PurchLines."Total Amount Excl. VAT".AsDEcimal,
-          PurchaseCreditMemo.PurchLines."Total VAT Amount".AsDEcimal,
-          PurchaseCreditMemo.PurchLines."Total Amount Incl. VAT".AsDEcimal,
-          PurchaseCreditMemo.PurchLines."Invoice Disc. Pct.".AsDEcimal,
+        SetCompareAmounts(PurchaseCreditMemo.PurchLines."Invoice Discount Amount".AsDecimal(),
+          PurchaseCreditMemo.PurchLines."Total Amount Excl. VAT".AsDecimal(),
+          PurchaseCreditMemo.PurchLines."Total VAT Amount".AsDecimal(),
+          PurchaseCreditMemo.PurchLines."Total Amount Incl. VAT".AsDecimal(),
+          PurchaseCreditMemo.PurchLines."Invoice Disc. Pct.".AsDecimal(),
           PostAmounts);
 
         // Calculate the TotalTax, and flowfields
@@ -1513,11 +1513,11 @@ codeunit 142085 PurchDocTotalsSalesEntryUI
         OpenPurchaseCreditMemoPageEdit(PurchaseCreditMemo, PurchaseHeader);
 
         // Store values from window before setting the Tax Group Code
-        SetCompareAmounts(PurchaseCreditMemo.PurchLines."Invoice Discount Amount".AsDEcimal,
-          PurchaseCreditMemo.PurchLines."Total Amount Excl. VAT".AsDEcimal,
-          PurchaseCreditMemo.PurchLines."Total VAT Amount".AsDEcimal,
-          PurchaseCreditMemo.PurchLines."Total Amount Incl. VAT".AsDEcimal,
-          PurchaseCreditMemo.PurchLines."Invoice Disc. Pct.".AsDEcimal,
+        SetCompareAmounts(PurchaseCreditMemo.PurchLines."Invoice Discount Amount".AsDecimal(),
+          PurchaseCreditMemo.PurchLines."Total Amount Excl. VAT".AsDecimal(),
+          PurchaseCreditMemo.PurchLines."Total VAT Amount".AsDecimal(),
+          PurchaseCreditMemo.PurchLines."Total Amount Incl. VAT".AsDecimal(),
+          PurchaseCreditMemo.PurchLines."Invoice Disc. Pct.".AsDecimal(),
           PreAmounts);
 
         PurchaseCreditMemo.PurchLines."Invoice Discount Amount".AssertEquals(0);
@@ -1535,11 +1535,11 @@ codeunit 142085 PurchDocTotalsSalesEntryUI
         PurchaseCreditMemo.PurchLines."Direct Unit Cost".SetValue(PurchaseLine."Direct Unit Cost");
         PurchaseCreditMemo.PurchLines.Next();
 
-        SetCompareAmounts(PurchaseCreditMemo.PurchLines."Invoice Discount Amount".AsDEcimal,
-          PurchaseCreditMemo.PurchLines."Total Amount Excl. VAT".AsDEcimal,
-          PurchaseCreditMemo.PurchLines."Total VAT Amount".AsDEcimal,
-          PurchaseCreditMemo.PurchLines."Total Amount Incl. VAT".AsDEcimal,
-          PurchaseCreditMemo.PurchLines."Invoice Disc. Pct.".AsDEcimal,
+        SetCompareAmounts(PurchaseCreditMemo.PurchLines."Invoice Discount Amount".AsDecimal(),
+          PurchaseCreditMemo.PurchLines."Total Amount Excl. VAT".AsDecimal(),
+          PurchaseCreditMemo.PurchLines."Total VAT Amount".AsDecimal(),
+          PurchaseCreditMemo.PurchLines."Total Amount Incl. VAT".AsDecimal(),
+          PurchaseCreditMemo.PurchLines."Invoice Disc. Pct.".AsDecimal(),
           PostAmounts);
 
         // Calculate the TotalTax, and flowfields
@@ -1596,11 +1596,11 @@ codeunit 142085 PurchDocTotalsSalesEntryUI
         OpenPurchaseCreditMemoPageEdit(PurchaseCreditMemo, PurchaseHeader);
 
         // Store values from window before setting the Tax Group Code
-        SetCompareAmounts(PurchaseCreditMemo.PurchLines."Invoice Discount Amount".AsDEcimal,
-          PurchaseCreditMemo.PurchLines."Total Amount Excl. VAT".AsDEcimal,
-          PurchaseCreditMemo.PurchLines."Total VAT Amount".AsDEcimal,
-          PurchaseCreditMemo.PurchLines."Total Amount Incl. VAT".AsDEcimal,
-          PurchaseCreditMemo.PurchLines."Invoice Disc. Pct.".AsDEcimal,
+        SetCompareAmounts(PurchaseCreditMemo.PurchLines."Invoice Discount Amount".AsDecimal(),
+          PurchaseCreditMemo.PurchLines."Total Amount Excl. VAT".AsDecimal(),
+          PurchaseCreditMemo.PurchLines."Total VAT Amount".AsDecimal(),
+          PurchaseCreditMemo.PurchLines."Total Amount Incl. VAT".AsDecimal(),
+          PurchaseCreditMemo.PurchLines."Invoice Disc. Pct.".AsDecimal(),
           PreAmounts);
         PurchaseCreditMemo.Close();
 
@@ -1617,11 +1617,11 @@ codeunit 142085 PurchDocTotalsSalesEntryUI
         PurchaseCreditMemo.PurchLines."Direct Unit Cost".SetValue(OriginalDirectUnitCost);
         PurchaseCreditMemo.PurchLines.Next();
 
-        SetCompareAmounts(PurchaseCreditMemo.PurchLines."Invoice Discount Amount".AsDEcimal,
-          PurchaseCreditMemo.PurchLines."Total Amount Excl. VAT".AsDEcimal,
-          PurchaseCreditMemo.PurchLines."Total VAT Amount".AsDEcimal,
-          PurchaseCreditMemo.PurchLines."Total Amount Incl. VAT".AsDEcimal,
-          PurchaseCreditMemo.PurchLines."Invoice Disc. Pct.".AsDEcimal,
+        SetCompareAmounts(PurchaseCreditMemo.PurchLines."Invoice Discount Amount".AsDecimal(),
+          PurchaseCreditMemo.PurchLines."Total Amount Excl. VAT".AsDecimal(),
+          PurchaseCreditMemo.PurchLines."Total VAT Amount".AsDecimal(),
+          PurchaseCreditMemo.PurchLines."Total Amount Incl. VAT".AsDecimal(),
+          PurchaseCreditMemo.PurchLines."Invoice Disc. Pct.".AsDecimal(),
           PostAmounts);
 
         // Calculate the TotalTax, and flowfields
@@ -1678,21 +1678,21 @@ codeunit 142085 PurchDocTotalsSalesEntryUI
         OpenPurchaseCreditMemoPageEdit(PurchaseCreditMemo, PurchaseHeader);
 
         // Store values from window before setting the Invoice Discount Amount
-        SetCompareAmounts(PurchaseCreditMemo.PurchLines."Invoice Discount Amount".AsDEcimal,
-          PurchaseCreditMemo.PurchLines."Total Amount Excl. VAT".AsDEcimal,
-          PurchaseCreditMemo.PurchLines."Total VAT Amount".AsDEcimal,
-          PurchaseCreditMemo.PurchLines."Total Amount Incl. VAT".AsDEcimal,
-          PurchaseCreditMemo.PurchLines."Invoice Disc. Pct.".AsDEcimal,
+        SetCompareAmounts(PurchaseCreditMemo.PurchLines."Invoice Discount Amount".AsDecimal(),
+          PurchaseCreditMemo.PurchLines."Total Amount Excl. VAT".AsDecimal(),
+          PurchaseCreditMemo.PurchLines."Total VAT Amount".AsDecimal(),
+          PurchaseCreditMemo.PurchLines."Total Amount Incl. VAT".AsDecimal(),
+          PurchaseCreditMemo.PurchLines."Invoice Disc. Pct.".AsDecimal(),
           PreAmounts);
 
         // [WHEN] User sets the Invoice Discount Amount
         PurchaseCreditMemo.PurchLines."Invoice Discount Amount".SetValue(LibraryRandom.RandIntInRange(1, 1));
 
-        SetCompareAmounts(PurchaseCreditMemo.PurchLines."Invoice Discount Amount".AsDEcimal,
-          PurchaseCreditMemo.PurchLines."Total Amount Excl. VAT".AsDEcimal,
-          PurchaseCreditMemo.PurchLines."Total VAT Amount".AsDEcimal,
-          PurchaseCreditMemo.PurchLines."Total Amount Incl. VAT".AsDEcimal,
-          PurchaseCreditMemo.PurchLines."Invoice Disc. Pct.".AsDEcimal,
+        SetCompareAmounts(PurchaseCreditMemo.PurchLines."Invoice Discount Amount".AsDecimal(),
+          PurchaseCreditMemo.PurchLines."Total Amount Excl. VAT".AsDecimal(),
+          PurchaseCreditMemo.PurchLines."Total VAT Amount".AsDecimal(),
+          PurchaseCreditMemo.PurchLines."Total Amount Incl. VAT".AsDecimal(),
+          PurchaseCreditMemo.PurchLines."Invoice Disc. Pct.".AsDecimal(),
           PostAmounts);
 
         // Calculate the TotalTax, and flowfields
@@ -1751,11 +1751,11 @@ codeunit 142085 PurchDocTotalsSalesEntryUI
         PurchaseCreditMemo.PurchLines.Next();
 
         // Store values from window before setting the Tax Group Code
-        SetCompareAmounts(PurchaseCreditMemo.PurchLines."Invoice Discount Amount".AsDEcimal,
-          PurchaseCreditMemo.PurchLines."Total Amount Excl. VAT".AsDEcimal,
-          PurchaseCreditMemo.PurchLines."Total VAT Amount".AsDEcimal,
-          PurchaseCreditMemo.PurchLines."Total Amount Incl. VAT".AsDEcimal,
-          PurchaseCreditMemo.PurchLines."Invoice Disc. Pct.".AsDEcimal,
+        SetCompareAmounts(PurchaseCreditMemo.PurchLines."Invoice Discount Amount".AsDecimal(),
+          PurchaseCreditMemo.PurchLines."Total Amount Excl. VAT".AsDecimal(),
+          PurchaseCreditMemo.PurchLines."Total VAT Amount".AsDecimal(),
+          PurchaseCreditMemo.PurchLines."Total Amount Incl. VAT".AsDecimal(),
+          PurchaseCreditMemo.PurchLines."Invoice Disc. Pct.".AsDecimal(),
           PurchaseHeaderAmounts);
 
         // [WHEN] User Posts the invoice
@@ -1810,11 +1810,11 @@ codeunit 142085 PurchDocTotalsSalesEntryUI
         OpenBlanketPurchaseOrderPageEdit(BlanketPurchaseOrder, PurchaseHeader);
 
         // Store values from window before setting the Tax Group Code
-        SetCompareAmounts(BlanketPurchaseOrder.PurchLines."Invoice Discount Amount".AsDEcimal,
-          BlanketPurchaseOrder.PurchLines."Total Amount Excl. VAT".AsDEcimal,
-          BlanketPurchaseOrder.PurchLines."Total VAT Amount".AsDEcimal,
-          BlanketPurchaseOrder.PurchLines."Total Amount Incl. VAT".AsDEcimal,
-          BlanketPurchaseOrder.PurchLines."Invoice Disc. Pct.".AsDEcimal,
+        SetCompareAmounts(BlanketPurchaseOrder.PurchLines."Invoice Discount Amount".AsDecimal(),
+          BlanketPurchaseOrder.PurchLines."Total Amount Excl. VAT".AsDecimal(),
+          BlanketPurchaseOrder.PurchLines."Total VAT Amount".AsDecimal(),
+          BlanketPurchaseOrder.PurchLines."Total Amount Incl. VAT".AsDecimal(),
+          BlanketPurchaseOrder.PurchLines."Invoice Disc. Pct.".AsDecimal(),
           PreAmounts);
 
         BlanketPurchaseOrder.PurchLines."Total VAT Amount".AssertEquals(0);
@@ -1831,11 +1831,11 @@ codeunit 142085 PurchDocTotalsSalesEntryUI
         BlanketPurchaseOrder.PurchLines."Direct Unit Cost".SetValue(PurchaseLine."Direct Unit Cost");
         BlanketPurchaseOrder.PurchLines.Next();
 
-        SetCompareAmounts(BlanketPurchaseOrder.PurchLines."Invoice Discount Amount".AsDEcimal,
-          BlanketPurchaseOrder.PurchLines."Total Amount Excl. VAT".AsDEcimal,
-          BlanketPurchaseOrder.PurchLines."Total VAT Amount".AsDEcimal,
-          BlanketPurchaseOrder.PurchLines."Total Amount Incl. VAT".AsDEcimal,
-          BlanketPurchaseOrder.PurchLines."Invoice Disc. Pct.".AsDEcimal,
+        SetCompareAmounts(BlanketPurchaseOrder.PurchLines."Invoice Discount Amount".AsDecimal(),
+          BlanketPurchaseOrder.PurchLines."Total Amount Excl. VAT".AsDecimal(),
+          BlanketPurchaseOrder.PurchLines."Total VAT Amount".AsDecimal(),
+          BlanketPurchaseOrder.PurchLines."Total Amount Incl. VAT".AsDecimal(),
+          BlanketPurchaseOrder.PurchLines."Invoice Disc. Pct.".AsDecimal(),
           PostAmounts);
 
         // Calculate the TotalTax, and flowfields
@@ -1884,11 +1884,11 @@ codeunit 142085 PurchDocTotalsSalesEntryUI
         OpenBlanketPurchaseOrderPageEdit(BlanketPurchaseOrder, PurchaseHeader);
 
         // Store values from window before setting the Tax Group Code
-        SetCompareAmounts(BlanketPurchaseOrder.PurchLines."Invoice Discount Amount".AsDEcimal,
-          BlanketPurchaseOrder.PurchLines."Total Amount Excl. VAT".AsDEcimal,
-          BlanketPurchaseOrder.PurchLines."Total VAT Amount".AsDEcimal,
-          BlanketPurchaseOrder.PurchLines."Total Amount Incl. VAT".AsDEcimal,
-          BlanketPurchaseOrder.PurchLines."Invoice Disc. Pct.".AsDEcimal,
+        SetCompareAmounts(BlanketPurchaseOrder.PurchLines."Invoice Discount Amount".AsDecimal(),
+          BlanketPurchaseOrder.PurchLines."Total Amount Excl. VAT".AsDecimal(),
+          BlanketPurchaseOrder.PurchLines."Total VAT Amount".AsDecimal(),
+          BlanketPurchaseOrder.PurchLines."Total Amount Incl. VAT".AsDecimal(),
+          BlanketPurchaseOrder.PurchLines."Invoice Disc. Pct.".AsDecimal(),
           PreAmounts);
 
         // [WHEN] User changes the quantity
@@ -1896,11 +1896,11 @@ codeunit 142085 PurchDocTotalsSalesEntryUI
         if BlanketPurchaseOrder.PurchLines.Next() then
             BlanketPurchaseOrder.PurchLines.Previous();
 
-        SetCompareAmounts(BlanketPurchaseOrder.PurchLines."Invoice Discount Amount".AsDEcimal,
-          BlanketPurchaseOrder.PurchLines."Total Amount Excl. VAT".AsDEcimal,
-          BlanketPurchaseOrder.PurchLines."Total VAT Amount".AsDEcimal,
-          BlanketPurchaseOrder.PurchLines."Total Amount Incl. VAT".AsDEcimal,
-          BlanketPurchaseOrder.PurchLines."Invoice Disc. Pct.".AsDEcimal,
+        SetCompareAmounts(BlanketPurchaseOrder.PurchLines."Invoice Discount Amount".AsDecimal(),
+          BlanketPurchaseOrder.PurchLines."Total Amount Excl. VAT".AsDecimal(),
+          BlanketPurchaseOrder.PurchLines."Total VAT Amount".AsDecimal(),
+          BlanketPurchaseOrder.PurchLines."Total Amount Incl. VAT".AsDecimal(),
+          BlanketPurchaseOrder.PurchLines."Invoice Disc. Pct.".AsDecimal(),
           PostAmounts);
 
         // Calculate the TotalTax, and flowfields
@@ -1952,11 +1952,11 @@ codeunit 142085 PurchDocTotalsSalesEntryUI
         OpenBlanketPurchaseOrderPageEdit(BlanketPurchaseOrder, PurchaseHeader);
 
         // Store values from window before setting the Tax Group Code
-        SetCompareAmounts(BlanketPurchaseOrder.PurchLines."Invoice Discount Amount".AsDEcimal,
-          BlanketPurchaseOrder.PurchLines."Total Amount Excl. VAT".AsDEcimal,
-          BlanketPurchaseOrder.PurchLines."Total VAT Amount".AsDEcimal,
-          BlanketPurchaseOrder.PurchLines."Total Amount Incl. VAT".AsDEcimal,
-          BlanketPurchaseOrder.PurchLines."Invoice Disc. Pct.".AsDEcimal,
+        SetCompareAmounts(BlanketPurchaseOrder.PurchLines."Invoice Discount Amount".AsDecimal(),
+          BlanketPurchaseOrder.PurchLines."Total Amount Excl. VAT".AsDecimal(),
+          BlanketPurchaseOrder.PurchLines."Total VAT Amount".AsDecimal(),
+          BlanketPurchaseOrder.PurchLines."Total Amount Incl. VAT".AsDecimal(),
+          BlanketPurchaseOrder.PurchLines."Invoice Disc. Pct.".AsDecimal(),
           PreAmounts);
 
         BlanketPurchaseOrder.PurchLines."Invoice Discount Amount".AssertEquals(0);
@@ -1974,11 +1974,11 @@ codeunit 142085 PurchDocTotalsSalesEntryUI
         BlanketPurchaseOrder.PurchLines."Direct Unit Cost".SetValue(PurchaseLine."Direct Unit Cost");
         BlanketPurchaseOrder.PurchLines.Next();
 
-        SetCompareAmounts(BlanketPurchaseOrder.PurchLines."Invoice Discount Amount".AsDEcimal,
-          BlanketPurchaseOrder.PurchLines."Total Amount Excl. VAT".AsDEcimal,
-          BlanketPurchaseOrder.PurchLines."Total VAT Amount".AsDEcimal,
-          BlanketPurchaseOrder.PurchLines."Total Amount Incl. VAT".AsDEcimal,
-          BlanketPurchaseOrder.PurchLines."Invoice Disc. Pct.".AsDEcimal,
+        SetCompareAmounts(BlanketPurchaseOrder.PurchLines."Invoice Discount Amount".AsDecimal(),
+          BlanketPurchaseOrder.PurchLines."Total Amount Excl. VAT".AsDecimal(),
+          BlanketPurchaseOrder.PurchLines."Total VAT Amount".AsDecimal(),
+          BlanketPurchaseOrder.PurchLines."Total Amount Incl. VAT".AsDecimal(),
+          BlanketPurchaseOrder.PurchLines."Invoice Disc. Pct.".AsDecimal(),
           PostAmounts);
 
         // Calculate the TotalTax, and flowfields
@@ -2035,11 +2035,11 @@ codeunit 142085 PurchDocTotalsSalesEntryUI
         OpenBlanketPurchaseOrderPageEdit(BlanketPurchaseOrder, PurchaseHeader);
 
         // Store values from window before setting the Tax Group Code
-        SetCompareAmounts(BlanketPurchaseOrder.PurchLines."Invoice Discount Amount".AsDEcimal,
-          BlanketPurchaseOrder.PurchLines."Total Amount Excl. VAT".AsDEcimal,
-          BlanketPurchaseOrder.PurchLines."Total VAT Amount".AsDEcimal,
-          BlanketPurchaseOrder.PurchLines."Total Amount Incl. VAT".AsDEcimal,
-          BlanketPurchaseOrder.PurchLines."Invoice Disc. Pct.".AsDEcimal,
+        SetCompareAmounts(BlanketPurchaseOrder.PurchLines."Invoice Discount Amount".AsDecimal(),
+          BlanketPurchaseOrder.PurchLines."Total Amount Excl. VAT".AsDecimal(),
+          BlanketPurchaseOrder.PurchLines."Total VAT Amount".AsDecimal(),
+          BlanketPurchaseOrder.PurchLines."Total Amount Incl. VAT".AsDecimal(),
+          BlanketPurchaseOrder.PurchLines."Invoice Disc. Pct.".AsDecimal(),
           PreAmounts);
         BlanketPurchaseOrder.Close();
 
@@ -2056,11 +2056,11 @@ codeunit 142085 PurchDocTotalsSalesEntryUI
         BlanketPurchaseOrder.PurchLines."Direct Unit Cost".SetValue(OriginalDirectUnitCost);
         BlanketPurchaseOrder.PurchLines.Next();
 
-        SetCompareAmounts(BlanketPurchaseOrder.PurchLines."Invoice Discount Amount".AsDEcimal,
-          BlanketPurchaseOrder.PurchLines."Total Amount Excl. VAT".AsDEcimal,
-          BlanketPurchaseOrder.PurchLines."Total VAT Amount".AsDEcimal,
-          BlanketPurchaseOrder.PurchLines."Total Amount Incl. VAT".AsDEcimal,
-          BlanketPurchaseOrder.PurchLines."Invoice Disc. Pct.".AsDEcimal,
+        SetCompareAmounts(BlanketPurchaseOrder.PurchLines."Invoice Discount Amount".AsDecimal(),
+          BlanketPurchaseOrder.PurchLines."Total Amount Excl. VAT".AsDecimal(),
+          BlanketPurchaseOrder.PurchLines."Total VAT Amount".AsDecimal(),
+          BlanketPurchaseOrder.PurchLines."Total Amount Incl. VAT".AsDecimal(),
+          BlanketPurchaseOrder.PurchLines."Invoice Disc. Pct.".AsDecimal(),
           PostAmounts);
 
         // Calculate the TotalTax, and flowfields
@@ -2117,21 +2117,21 @@ codeunit 142085 PurchDocTotalsSalesEntryUI
         OpenBlanketPurchaseOrderPageEdit(BlanketPurchaseOrder, PurchaseHeader);
 
         // Store values from window before setting the Invoice Discount Amount
-        SetCompareAmounts(BlanketPurchaseOrder.PurchLines."Invoice Discount Amount".AsDEcimal,
-          BlanketPurchaseOrder.PurchLines."Total Amount Excl. VAT".AsDEcimal,
-          BlanketPurchaseOrder.PurchLines."Total VAT Amount".AsDEcimal,
-          BlanketPurchaseOrder.PurchLines."Total Amount Incl. VAT".AsDEcimal,
-          BlanketPurchaseOrder.PurchLines."Invoice Disc. Pct.".AsDEcimal,
+        SetCompareAmounts(BlanketPurchaseOrder.PurchLines."Invoice Discount Amount".AsDecimal(),
+          BlanketPurchaseOrder.PurchLines."Total Amount Excl. VAT".AsDecimal(),
+          BlanketPurchaseOrder.PurchLines."Total VAT Amount".AsDecimal(),
+          BlanketPurchaseOrder.PurchLines."Total Amount Incl. VAT".AsDecimal(),
+          BlanketPurchaseOrder.PurchLines."Invoice Disc. Pct.".AsDecimal(),
           PreAmounts);
 
         // [WHEN] User sets the Invoice Discount Amount
         BlanketPurchaseOrder.PurchLines."Invoice Discount Amount".SetValue(LibraryRandom.RandIntInRange(1, 1));
 
-        SetCompareAmounts(BlanketPurchaseOrder.PurchLines."Invoice Discount Amount".AsDEcimal,
-          BlanketPurchaseOrder.PurchLines."Total Amount Excl. VAT".AsDEcimal,
-          BlanketPurchaseOrder.PurchLines."Total VAT Amount".AsDEcimal,
-          BlanketPurchaseOrder.PurchLines."Total Amount Incl. VAT".AsDEcimal,
-          BlanketPurchaseOrder.PurchLines."Invoice Disc. Pct.".AsDEcimal,
+        SetCompareAmounts(BlanketPurchaseOrder.PurchLines."Invoice Discount Amount".AsDecimal(),
+          BlanketPurchaseOrder.PurchLines."Total Amount Excl. VAT".AsDecimal(),
+          BlanketPurchaseOrder.PurchLines."Total VAT Amount".AsDecimal(),
+          BlanketPurchaseOrder.PurchLines."Total Amount Incl. VAT".AsDecimal(),
+          BlanketPurchaseOrder.PurchLines."Invoice Disc. Pct.".AsDecimal(),
           PostAmounts);
 
         // Calculate the TotalTax, and flowfields
@@ -2183,11 +2183,11 @@ codeunit 142085 PurchDocTotalsSalesEntryUI
         OpenPurchaseQuotePageEdit(PurchaseQuote, PurchaseHeader);
 
         // Store values from window before setting the Tax Group Code
-        SetCompareAmounts(PurchaseQuote.PurchLines."Invoice Discount Amount".AsDEcimal,
-          PurchaseQuote.PurchLines."Total Amount Excl. VAT".AsDEcimal,
-          PurchaseQuote.PurchLines."Total VAT Amount".AsDEcimal,
-          PurchaseQuote.PurchLines."Total Amount Incl. VAT".AsDEcimal,
-          PurchaseQuote.PurchLines."Invoice Disc. Pct.".AsDEcimal,
+        SetCompareAmounts(PurchaseQuote.PurchLines."Invoice Discount Amount".AsDecimal(),
+          PurchaseQuote.PurchLines."Total Amount Excl. VAT".AsDecimal(),
+          PurchaseQuote.PurchLines."Total VAT Amount".AsDecimal(),
+          PurchaseQuote.PurchLines."Total Amount Incl. VAT".AsDecimal(),
+          PurchaseQuote.PurchLines."Invoice Disc. Pct.".AsDecimal(),
           PreAmounts);
 
         PurchaseQuote.PurchLines."Total VAT Amount".AssertEquals(0);
@@ -2204,11 +2204,11 @@ codeunit 142085 PurchDocTotalsSalesEntryUI
         PurchaseQuote.PurchLines."Direct Unit Cost".SetValue(PurchaseLine."Direct Unit Cost");
         PurchaseQuote.PurchLines.Next();
 
-        SetCompareAmounts(PurchaseQuote.PurchLines."Invoice Discount Amount".AsDEcimal,
-          PurchaseQuote.PurchLines."Total Amount Excl. VAT".AsDEcimal,
-          PurchaseQuote.PurchLines."Total VAT Amount".AsDEcimal,
-          PurchaseQuote.PurchLines."Total Amount Incl. VAT".AsDEcimal,
-          PurchaseQuote.PurchLines."Invoice Disc. Pct.".AsDEcimal,
+        SetCompareAmounts(PurchaseQuote.PurchLines."Invoice Discount Amount".AsDecimal(),
+          PurchaseQuote.PurchLines."Total Amount Excl. VAT".AsDecimal(),
+          PurchaseQuote.PurchLines."Total VAT Amount".AsDecimal(),
+          PurchaseQuote.PurchLines."Total Amount Incl. VAT".AsDecimal(),
+          PurchaseQuote.PurchLines."Invoice Disc. Pct.".AsDecimal(),
           PostAmounts);
 
         // Calculate the TotalTax, and flowfields
@@ -2257,11 +2257,11 @@ codeunit 142085 PurchDocTotalsSalesEntryUI
         OpenPurchaseQuotePageEdit(PurchaseQuote, PurchaseHeader);
 
         // Store values from window before setting the Tax Group Code
-        SetCompareAmounts(PurchaseQuote.PurchLines."Invoice Discount Amount".AsDEcimal,
-          PurchaseQuote.PurchLines."Total Amount Excl. VAT".AsDEcimal,
-          PurchaseQuote.PurchLines."Total VAT Amount".AsDEcimal,
-          PurchaseQuote.PurchLines."Total Amount Incl. VAT".AsDEcimal,
-          PurchaseQuote.PurchLines."Invoice Disc. Pct.".AsDEcimal,
+        SetCompareAmounts(PurchaseQuote.PurchLines."Invoice Discount Amount".AsDecimal(),
+          PurchaseQuote.PurchLines."Total Amount Excl. VAT".AsDecimal(),
+          PurchaseQuote.PurchLines."Total VAT Amount".AsDecimal(),
+          PurchaseQuote.PurchLines."Total Amount Incl. VAT".AsDecimal(),
+          PurchaseQuote.PurchLines."Invoice Disc. Pct.".AsDecimal(),
           PreAmounts);
 
         // [WHEN] User changes the quantity
@@ -2269,11 +2269,11 @@ codeunit 142085 PurchDocTotalsSalesEntryUI
         if PurchaseQuote.PurchLines.Next() then
             PurchaseQuote.PurchLines.Previous();
 
-        SetCompareAmounts(PurchaseQuote.PurchLines."Invoice Discount Amount".AsDEcimal,
-          PurchaseQuote.PurchLines."Total Amount Excl. VAT".AsDEcimal,
-          PurchaseQuote.PurchLines."Total VAT Amount".AsDEcimal,
-          PurchaseQuote.PurchLines."Total Amount Incl. VAT".AsDEcimal,
-          PurchaseQuote.PurchLines."Invoice Disc. Pct.".AsDEcimal,
+        SetCompareAmounts(PurchaseQuote.PurchLines."Invoice Discount Amount".AsDecimal(),
+          PurchaseQuote.PurchLines."Total Amount Excl. VAT".AsDecimal(),
+          PurchaseQuote.PurchLines."Total VAT Amount".AsDecimal(),
+          PurchaseQuote.PurchLines."Total Amount Incl. VAT".AsDecimal(),
+          PurchaseQuote.PurchLines."Invoice Disc. Pct.".AsDecimal(),
           PostAmounts);
 
         // Calculate the TotalTax, and flowfields
@@ -2325,11 +2325,11 @@ codeunit 142085 PurchDocTotalsSalesEntryUI
         OpenPurchaseQuotePageEdit(PurchaseQuote, PurchaseHeader);
 
         // Store values from window before setting the Tax Group Code
-        SetCompareAmounts(PurchaseQuote.PurchLines."Invoice Discount Amount".AsDEcimal,
-          PurchaseQuote.PurchLines."Total Amount Excl. VAT".AsDEcimal,
-          PurchaseQuote.PurchLines."Total VAT Amount".AsDEcimal,
-          PurchaseQuote.PurchLines."Total Amount Incl. VAT".AsDEcimal,
-          PurchaseQuote.PurchLines."Invoice Disc. Pct.".AsDEcimal,
+        SetCompareAmounts(PurchaseQuote.PurchLines."Invoice Discount Amount".AsDecimal(),
+          PurchaseQuote.PurchLines."Total Amount Excl. VAT".AsDecimal(),
+          PurchaseQuote.PurchLines."Total VAT Amount".AsDecimal(),
+          PurchaseQuote.PurchLines."Total Amount Incl. VAT".AsDecimal(),
+          PurchaseQuote.PurchLines."Invoice Disc. Pct.".AsDecimal(),
           PreAmounts);
 
         PurchaseQuote.PurchLines."Invoice Discount Amount".AssertEquals(0);
@@ -2347,11 +2347,11 @@ codeunit 142085 PurchDocTotalsSalesEntryUI
         PurchaseQuote.PurchLines."Direct Unit Cost".SetValue(PurchaseLine."Direct Unit Cost");
         PurchaseQuote.PurchLines.Next();
 
-        SetCompareAmounts(PurchaseQuote.PurchLines."Invoice Discount Amount".AsDEcimal,
-          PurchaseQuote.PurchLines."Total Amount Excl. VAT".AsDEcimal,
-          PurchaseQuote.PurchLines."Total VAT Amount".AsDEcimal,
-          PurchaseQuote.PurchLines."Total Amount Incl. VAT".AsDEcimal,
-          PurchaseQuote.PurchLines."Invoice Disc. Pct.".AsDEcimal,
+        SetCompareAmounts(PurchaseQuote.PurchLines."Invoice Discount Amount".AsDecimal(),
+          PurchaseQuote.PurchLines."Total Amount Excl. VAT".AsDecimal(),
+          PurchaseQuote.PurchLines."Total VAT Amount".AsDecimal(),
+          PurchaseQuote.PurchLines."Total Amount Incl. VAT".AsDecimal(),
+          PurchaseQuote.PurchLines."Invoice Disc. Pct.".AsDecimal(),
           PostAmounts);
 
         // Calculate the TotalTax, and flowfields
@@ -2408,11 +2408,11 @@ codeunit 142085 PurchDocTotalsSalesEntryUI
         OpenPurchaseQuotePageEdit(PurchaseQuote, PurchaseHeader);
 
         // Store values from window before setting the Tax Group Code
-        SetCompareAmounts(PurchaseQuote.PurchLines."Invoice Discount Amount".AsDEcimal,
-          PurchaseQuote.PurchLines."Total Amount Excl. VAT".AsDEcimal,
-          PurchaseQuote.PurchLines."Total VAT Amount".AsDEcimal,
-          PurchaseQuote.PurchLines."Total Amount Incl. VAT".AsDEcimal,
-          PurchaseQuote.PurchLines."Invoice Disc. Pct.".AsDEcimal,
+        SetCompareAmounts(PurchaseQuote.PurchLines."Invoice Discount Amount".AsDecimal(),
+          PurchaseQuote.PurchLines."Total Amount Excl. VAT".AsDecimal(),
+          PurchaseQuote.PurchLines."Total VAT Amount".AsDecimal(),
+          PurchaseQuote.PurchLines."Total Amount Incl. VAT".AsDecimal(),
+          PurchaseQuote.PurchLines."Invoice Disc. Pct.".AsDecimal(),
           PreAmounts);
         PurchaseQuote.Close();
 
@@ -2429,11 +2429,11 @@ codeunit 142085 PurchDocTotalsSalesEntryUI
         PurchaseQuote.PurchLines."Direct Unit Cost".SetValue(OriginalDirectUnitCost);
         PurchaseQuote.PurchLines.Next();
 
-        SetCompareAmounts(PurchaseQuote.PurchLines."Invoice Discount Amount".AsDEcimal,
-          PurchaseQuote.PurchLines."Total Amount Excl. VAT".AsDEcimal,
-          PurchaseQuote.PurchLines."Total VAT Amount".AsDEcimal,
-          PurchaseQuote.PurchLines."Total Amount Incl. VAT".AsDEcimal,
-          PurchaseQuote.PurchLines."Invoice Disc. Pct.".AsDEcimal,
+        SetCompareAmounts(PurchaseQuote.PurchLines."Invoice Discount Amount".AsDecimal(),
+          PurchaseQuote.PurchLines."Total Amount Excl. VAT".AsDecimal(),
+          PurchaseQuote.PurchLines."Total VAT Amount".AsDecimal(),
+          PurchaseQuote.PurchLines."Total Amount Incl. VAT".AsDecimal(),
+          PurchaseQuote.PurchLines."Invoice Disc. Pct.".AsDecimal(),
           PostAmounts);
 
         // Calculate the TotalTax, and flowfields
@@ -2490,21 +2490,21 @@ codeunit 142085 PurchDocTotalsSalesEntryUI
         OpenPurchaseQuotePageEdit(PurchaseQuote, PurchaseHeader);
 
         // Store values from window before setting the Invoice Discount Amount
-        SetCompareAmounts(PurchaseQuote.PurchLines."Invoice Discount Amount".AsDEcimal,
-          PurchaseQuote.PurchLines."Total Amount Excl. VAT".AsDEcimal,
-          PurchaseQuote.PurchLines."Total VAT Amount".AsDEcimal,
-          PurchaseQuote.PurchLines."Total Amount Incl. VAT".AsDEcimal,
-          PurchaseQuote.PurchLines."Invoice Disc. Pct.".AsDEcimal,
+        SetCompareAmounts(PurchaseQuote.PurchLines."Invoice Discount Amount".AsDecimal(),
+          PurchaseQuote.PurchLines."Total Amount Excl. VAT".AsDecimal(),
+          PurchaseQuote.PurchLines."Total VAT Amount".AsDecimal(),
+          PurchaseQuote.PurchLines."Total Amount Incl. VAT".AsDecimal(),
+          PurchaseQuote.PurchLines."Invoice Disc. Pct.".AsDecimal(),
           PreAmounts);
 
         // [WHEN] User sets the Invoice Discount Amount
         PurchaseQuote.PurchLines."Invoice Discount Amount".SetValue(LibraryRandom.RandIntInRange(1, 1));
 
-        SetCompareAmounts(PurchaseQuote.PurchLines."Invoice Discount Amount".AsDEcimal,
-          PurchaseQuote.PurchLines."Total Amount Excl. VAT".AsDEcimal,
-          PurchaseQuote.PurchLines."Total VAT Amount".AsDEcimal,
-          PurchaseQuote.PurchLines."Total Amount Incl. VAT".AsDEcimal,
-          PurchaseQuote.PurchLines."Invoice Disc. Pct.".AsDEcimal,
+        SetCompareAmounts(PurchaseQuote.PurchLines."Invoice Discount Amount".AsDecimal(),
+          PurchaseQuote.PurchLines."Total Amount Excl. VAT".AsDecimal(),
+          PurchaseQuote.PurchLines."Total VAT Amount".AsDecimal(),
+          PurchaseQuote.PurchLines."Total Amount Incl. VAT".AsDecimal(),
+          PurchaseQuote.PurchLines."Invoice Disc. Pct.".AsDecimal(),
           PostAmounts);
 
         // Calculate the TotalTax, and flowfields
@@ -2560,7 +2560,7 @@ codeunit 142085 PurchDocTotalsSalesEntryUI
             exit;
 
         LibraryERMCountryData.CreateVATData();
-        CreateVATPostingSetup;
+        CreateVATPostingSetup();
         LibraryInventory.NoSeriesSetup(InventorySetup);
         LibraryERMCountryData.UpdateSalesReceivablesSetup();
 
@@ -2600,7 +2600,7 @@ codeunit 142085 PurchDocTotalsSalesEntryUI
         Item.Modify(true);
     end;
 
-    local procedure CreatePurchaseHeader(var PurchaseHeader: Record "Purchase Header"; DocumentType: Option; VendorNo: Code[20])
+    local procedure CreatePurchaseHeader(var PurchaseHeader: Record "Purchase Header"; DocumentType: Enum "Purchase Document Type"; VendorNo: Code[20])
     begin
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, DocumentType, VendorNo);
     end;
@@ -2610,7 +2610,7 @@ codeunit 142085 PurchDocTotalsSalesEntryUI
         TaxGroup: Record "Tax Group";
     begin
         LibraryERM.CreateTaxGroup(TaxGroup);
-        LibraryERM.CreateTaxDetail(TaxDetail, CreateSalesTaxJurisdiction, TaxGroup.Code, TaxDetail."Tax Type"::"Sales Tax Only", WorkDate());
+        LibraryERM.CreateTaxDetail(TaxDetail, CreateSalesTaxJurisdiction(), TaxGroup.Code, TaxDetail."Tax Type"::"Sales Tax Only", WorkDate());
         TaxDetail.Validate("Tax Below Maximum", TaxPercentage);  // Using RANDOM value for Tax Below Maximum.
         TaxDetail.Modify(true);
     end;
@@ -2641,7 +2641,7 @@ codeunit 142085 PurchDocTotalsSalesEntryUI
         exit(TaxArea.Code);
     end;
 
-    local procedure CreatePurchaseDocument(var PurchaseLine: Record "Purchase Line"; DocumentType: Option; TaxPercentage: Integer; DefaultTaxCodeOnItem: Boolean; var TaxGroupCode: Code[20])
+    local procedure CreatePurchaseDocument(var PurchaseLine: Record "Purchase Line"; DocumentType: Enum "Purchase Document Type"; TaxPercentage: Integer; DefaultTaxCodeOnItem: Boolean; var TaxGroupCode: Code[20])
     var
         TaxDetail: Record "Tax Detail";
         TaxGroupCodeItem: Code[20];
@@ -2654,7 +2654,7 @@ codeunit 142085 PurchDocTotalsSalesEntryUI
         CreatePurchaseDocumentWithCertainTax(PurchaseLine, DocumentType, TaxAreaCode, TaxGroupCodeItem);
     end;
 
-    local procedure CreatePurchaseDocumentWithCertainTax(var PurchaseLine: Record "Purchase Line"; DocumentType: Option; TaxAreaCode: Code[20]; TaxGroupCode: Code[20])
+    local procedure CreatePurchaseDocumentWithCertainTax(var PurchaseLine: Record "Purchase Line"; DocumentType: Enum "Purchase Document Type"; TaxAreaCode: Code[20]; TaxGroupCode: Code[20])
     var
         PurchaseHeader: Record "Purchase Header";
     begin
@@ -2670,7 +2670,7 @@ codeunit 142085 PurchDocTotalsSalesEntryUI
         PurchaseLine.Modify();
     end;
 
-    local procedure CreatePurchaseDocumentWithInvDisc(var PurchaseLine: Record "Purchase Line"; DocumentType: Option; TaxPercentage: Integer; DefaultTaxCodeOnItem: Boolean; var TaxGroupCode: Code[20])
+    local procedure CreatePurchaseDocumentWithInvDisc(var PurchaseLine: Record "Purchase Line"; DocumentType: Enum "Purchase Document Type"; TaxPercentage: Integer; DefaultTaxCodeOnItem: Boolean; var TaxGroupCode: Code[20])
     var
         TaxDetail: Record "Tax Detail";
         Vendor: Record Vendor;
@@ -2688,13 +2688,13 @@ codeunit 142085 PurchDocTotalsSalesEntryUI
         CreatePurchaseDocumentWithCertainTaxAndDisc(PurchaseLine, DocumentType, Vendor."No.", ItemNo, TaxAreaCode);
     end;
 
-    local procedure CreatePurchaseDocumentWithCertainTaxAndDisc(var PurchaseLine: Record "Purchase Line"; DocumentType: Option; VendorNo: Code[20]; ItemNo: Code[20]; TaxAreaCode: Code[20])
+    local procedure CreatePurchaseDocumentWithCertainTaxAndDisc(var PurchaseLine: Record "Purchase Line"; DocumentType: Enum "Purchase Document Type"; VendorNo: Code[20]; ItemNo: Code[20]; TaxAreaCode: Code[20])
     var
         PurchaseHeader: Record "Purchase Header";
         Item: Record Item;
     begin
         CreatePurchaseHeader(PurchaseHeader, DocumentType, VendorNo);
-        if IsCalcInvDiscountMarked then
+        if IsCalcInvDiscountMarked() then
             PurchaseHeader.Validate("Invoice Discount Calculation", PurchaseHeader."Invoice Discount Calculation"::"%");
         PurchaseHeader.Validate("Tax Area Code", TaxAreaCode);
         PurchaseHeader.Modify();
@@ -2710,37 +2710,37 @@ codeunit 142085 PurchDocTotalsSalesEntryUI
 
     local procedure OpenPurchaseOrderPageEdit(var PurchaseOrder: TestPage "Purchase Order"; PurchaseHeader: Record "Purchase Header")
     begin
-        PurchaseOrder.OpenEdit;
+        PurchaseOrder.OpenEdit();
         PurchaseOrder.GotoRecord(PurchaseHeader);
     end;
 
     local procedure OpenPurchaseInvoicePageEdit(var PurchaseInvoice: TestPage "Purchase Invoice"; PurchaseHeader: Record "Purchase Header")
     begin
-        PurchaseInvoice.OpenEdit;
+        PurchaseInvoice.OpenEdit();
         PurchaseInvoice.GotoRecord(PurchaseHeader);
     end;
 
     local procedure OpenPurchaseQuotePageEdit(var PurchaseQuote: TestPage "Purchase Quote"; PurchaseHeader: Record "Purchase Header")
     begin
-        PurchaseQuote.OpenEdit;
+        PurchaseQuote.OpenEdit();
         PurchaseQuote.GotoRecord(PurchaseHeader);
     end;
 
     local procedure OpenPurchaseCreditMemoPageEdit(var PurchaseCreditMemo: TestPage "Purchase Credit Memo"; PurchaseHeader: Record "Purchase Header")
     begin
-        PurchaseCreditMemo.OpenEdit;
+        PurchaseCreditMemo.OpenEdit();
         PurchaseCreditMemo.GotoRecord(PurchaseHeader);
     end;
 
     local procedure OpenBlanketPurchaseOrderPageEdit(var BlanketPurchaseOrder: TestPage "Blanket Purchase Order"; PurchaseHeader: Record "Purchase Header")
     begin
-        BlanketPurchaseOrder.OpenEdit;
+        BlanketPurchaseOrder.OpenEdit();
         BlanketPurchaseOrder.GotoRecord(PurchaseHeader);
     end;
 
     local procedure OpenPurchaseReturnOrderPageEdit(var PurchaseReturnOrder: TestPage "Purchase Return Order"; PurchaseHeader: Record "Purchase Header")
     begin
-        PurchaseReturnOrder.OpenEdit;
+        PurchaseReturnOrder.OpenEdit();
         PurchaseReturnOrder.GotoRecord(PurchaseHeader);
     end;
 

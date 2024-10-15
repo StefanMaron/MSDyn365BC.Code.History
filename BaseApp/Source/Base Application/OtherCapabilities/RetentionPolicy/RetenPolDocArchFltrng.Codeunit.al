@@ -3,8 +3,9 @@ namespace System.DataAdministration;
 using System.Reflection;
 using Microsoft.Sales.Archive;
 using Microsoft.Purchases.Archive;
+using Microsoft.Projects.Project.Archive;
 
-codeunit 3994 "Reten. Pol. Doc. Arch. Fltrng." Implements "Reten. Pol. Filtering"
+codeunit 3994 "Reten. Pol. Doc. Arch. Fltrng." implements "Reten. Pol. Filtering"
 {
     Access = Internal;
 
@@ -61,7 +62,7 @@ codeunit 3994 "Reten. Pol. Doc. Arch. Fltrng." Implements "Reten. Pol. Filtering
         end;
 
         CurrDate := OldestRecordDate;
-        For i := 1 to NumberOfDays do begin
+        for i := 1 to NumberOfDays do begin
             CurrDate := CalcDate('<+1D>', CurrDate);
             RecordRef.MarkedOnly(false);
 
@@ -95,7 +96,7 @@ codeunit 3994 "Reten. Pol. Doc. Arch. Fltrng." Implements "Reten. Pol. Filtering
     begin
         RetentionPolicySetupLine.SetRange("Table ID", RetentionPolicySetup."Table Id");
         RetentionPolicySetupLine.SetRange(Enabled, true);
-        if RetentionPolicySetupLine.FindSet(false, false) then
+        if RetentionPolicySetupLine.FindSet(false) then
             repeat
                 if RetentionPeriod.Get(RetentionPolicySetupLine."Retention Period") then
                     ExpirationDate := CalculateExpirationDate(RetentionPeriod);
@@ -117,7 +118,7 @@ codeunit 3994 "Reten. Pol. Doc. Arch. Fltrng." Implements "Reten. Pol. Filtering
         RetentionPolicySetupLine.SetCurrentKey("Date Field No.");
         RetentionPolicySetupLine.SetRange("Table ID", RetentionPolicySetup."Table ID");
         RetentionPolicySetupLine.SetRange(Enabled, true);
-        if RetentionPolicySetupLine.FindSet(false, false) then
+        if RetentionPolicySetupLine.FindSet(false) then
             repeat
                 if RetentionPolicySetupLine."Date Field No." <> PrevDateFieldNo then begin
                     RecordRef.SetView(StrSubstNo(ViewStringTxt, RetentionPolicySetupLine."Date Field No."));
@@ -184,7 +185,7 @@ codeunit 3994 "Reten. Pol. Doc. Arch. Fltrng." Implements "Reten. Pol. Filtering
         UsingKeepLastVersion := UseKeepLastVersion(RetentionPolicySetup."Table ID");
         RetentionPolicySetupLine.SetRange("Table ID", RetentionPolicySetup."Table ID");
         RetentionPolicySetupLine.SetRange(Enabled, true);
-        if RetentionPolicySetupLine.FindSet(false, false) then
+        if RetentionPolicySetupLine.FindSet(false) then
             repeat
                 if not RetentionPeriod.Get(RetentionPolicySetupLine."Retention Period") then
                     exit;
@@ -253,6 +254,7 @@ codeunit 3994 "Reten. Pol. Doc. Arch. Fltrng." Implements "Reten. Pol. Filtering
     var
         SalesHeaderArchive: Record "Sales Header Archive";
         PurchaseHeaderArchive: Record "Purchase Header Archive";
+        JobArchive: Record "Job Archive";
         VersionFieldRef: FieldRef;
         MaxVersionFieldRef: FieldRef;
         Version: Integer;
@@ -269,7 +271,11 @@ codeunit 3994 "Reten. Pol. Doc. Arch. Fltrng." Implements "Reten. Pol. Filtering
                     VersionFieldRef := RecRef.Field(PurchaseHeaderArchive.FieldNo("Version No."));
                     MaxVersionFieldRef := RecRef.Field(PurchaseHeaderArchive.FieldNo("No. of Archived Versions"));
                 end;
-
+            Database::"Job Archive":
+                begin
+                    VersionFieldRef := RecRef.Field(JobArchive.FieldNo("Version No."));
+                    MaxVersionFieldRef := RecRef.Field(JobArchive.FieldNo("No. of Archived Versions"));
+                end;
             else
                 exit(false);
         end;
@@ -300,7 +306,7 @@ codeunit 3994 "Reten. Pol. Doc. Arch. Fltrng." Implements "Reten. Pol. Filtering
 
     local procedure Yesterday(): Date
     begin
-        Exit(CalcDate('<-1D>', Today()))
+        exit(CalcDate('<-1D>', Today()))
     end;
 
     procedure MaxNumberOfRecordsToDelete(): Integer

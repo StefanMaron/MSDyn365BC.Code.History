@@ -17,7 +17,8 @@ report 10215 "Job Cost Budget"
     DefaultLayout = RDLC;
     RDLCLayout = './Local/Projects/Project/Reports/JobCostBudget.rdlc';
     ApplicationArea = Jobs;
-    Caption = 'Job Cost Budget';
+    Caption = 'Project Cost Budget';
+    AdditionalSearchTerms = 'Job Cost Budget';
     UsageCategory = ReportsAndAnalysis;
 
     dataset
@@ -281,14 +282,14 @@ report 10215 "Job Cost Budget"
         CompanyInformation: Record "Company Information";
         JobFilter: Text;
         Title: Text[100];
-        Text000: Label 'Job Cost Budget for Job: %1';
+        Text000: Label 'Project Cost Budget for Project: %1';
         BudgetAmountsPer: Option Schedule,Contract;
         BudgetOptionText: Text[50];
         Text003: Label 'Budgeted Amounts are per the Budget';
         Text004: Label 'Budgeted Amounts are per the Contract';
         CurrReport_PAGENOCaptionLbl: Label 'Page';
-        Job_DescriptionCaptionLbl: Label 'Job Description';
-        PADSTR____2____Job_Task__Indentation_____Job_Task__DescriptionCaptionLbl: Label 'Job Task Description';
+        Job_DescriptionCaptionLbl: Label 'Project Description';
+        PADSTR____2____Job_Task__Indentation_____Job_Task__DescriptionCaptionLbl: Label 'Project Task Description';
 
     procedure GetItemDescription(Type: Option Resource,Item,"G/L Account"; No: Code[20]): Text[50]
     var

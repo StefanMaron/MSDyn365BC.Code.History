@@ -77,12 +77,10 @@ report 10082 "Return Receipt"
 
                 trigger OnPreDataItem()
                 begin
-                    with TempReturnReceiptLine do begin
-                        Init();
-                        "Document No." := "Return Receipt Header"."No.";
-                        "Line No." := HighestLineNo + 1000;
-                        HighestLineNo := "Line No.";
-                    end;
+                    TempReturnReceiptLine.Init();
+                    TempReturnReceiptLine."Document No." := "Return Receipt Header"."No.";
+                    TempReturnReceiptLine."Line No." := HighestLineNo + 1000;
+                    HighestLineNo := TempReturnReceiptLine."Line No.";
                     TempReturnReceiptLine.Insert();
                 end;
             }
@@ -286,40 +284,38 @@ report 10082 "Return Receipt"
                         begin
                             OnLineNumber := OnLineNumber + 1;
 
-                            with TempReturnReceiptLine do begin
-                                if OnLineNumber = 1 then
-                                    Find('-')
-                                else
-                                    Next();
+                            if OnLineNumber = 1 then
+                                TempReturnReceiptLine.Find('-')
+                            else
+                                TempReturnReceiptLine.Next();
 
+                            OrderedQuantity := 0;
+                            BackOrderedQuantity := 0;
+                            if TempReturnReceiptLine."Return Order No." = '' then
+                                OrderedQuantity := TempReturnReceiptLine.Quantity
+                            else
+                                if OrderLine.Get(5, TempReturnReceiptLine."Return Order No.", TempReturnReceiptLine."Return Order Line No.") then begin
+                                    OrderedQuantity := OrderLine.Quantity;
+                                    BackOrderedQuantity := OrderLine."Outstanding Quantity";
+                                end else begin
+                                    ReceiptLine.SetCurrentKey("Return Order No.", "Return Order Line No.");
+                                    ReceiptLine.SetRange("Return Order No.", TempReturnReceiptLine."Return Order No.");
+                                    ReceiptLine.SetRange("Return Order Line No.", TempReturnReceiptLine."Return Order Line No.");
+                                    ReceiptLine.Find('-');
+                                    repeat
+                                        OrderedQuantity := OrderedQuantity + ReceiptLine.Quantity;
+                                    until 0 = ReceiptLine.Next();
+                                end;
+
+                            if TempReturnReceiptLine.Type = TempReturnReceiptLine.Type::" " then begin
                                 OrderedQuantity := 0;
                                 BackOrderedQuantity := 0;
-                                if "Return Order No." = '' then
-                                    OrderedQuantity := Quantity
-                                else
-                                    if OrderLine.Get(5, "Return Order No.", "Return Order Line No.") then begin
-                                        OrderedQuantity := OrderLine.Quantity;
-                                        BackOrderedQuantity := OrderLine."Outstanding Quantity";
-                                    end else begin
-                                        ReceiptLine.SetCurrentKey("Return Order No.", "Return Order Line No.");
-                                        ReceiptLine.SetRange("Return Order No.", "Return Order No.");
-                                        ReceiptLine.SetRange("Return Order Line No.", "Return Order Line No.");
-                                        ReceiptLine.Find('-');
-                                        repeat
-                                            OrderedQuantity := OrderedQuantity + ReceiptLine.Quantity;
-                                        until 0 = ReceiptLine.Next();
-                                    end;
-
-                                if Type = Type::" " then begin
-                                    OrderedQuantity := 0;
-                                    BackOrderedQuantity := 0;
-                                    "No." := '';
-                                    "Unit of Measure" := '';
-                                    Quantity := 0;
-                                end else
-                                    if Type = Type::"G/L Account" then
-                                        "No." := '';
-                            end;
+                                TempReturnReceiptLine."No." := '';
+                                TempReturnReceiptLine."Unit of Measure" := '';
+                                TempReturnReceiptLine.Quantity := 0;
+                            end else
+                                if TempReturnReceiptLine.Type = TempReturnReceiptLine.Type::"G/L Account" then
+                                    TempReturnReceiptLine."No." := '';
                         end;
 
                         trigger OnPreDataItem()
@@ -358,8 +354,8 @@ report 10082 "Return Receipt"
 
             trigger OnAfterGetRecord()
             begin
-                CurrReport.Language := Language.GetLanguageIdOrDefault("Language Code");
-                CurrReport.FormatRegion := Language.GetFormatRegionOrDefault("Format Region");
+                CurrReport.Language := LanguageMgt.GetLanguageIdOrDefault("Language Code");
+                CurrReport.FormatRegion := LanguageMgt.GetFormatRegionOrDefault("Format Region");
 
                 if PrintCompany then
                     if RespCenter.Get("Responsibility Center") then begin
@@ -482,7 +478,7 @@ report 10082 "Return Receipt"
         TempReturnReceiptLine: Record "Return Receipt Line" temporary;
         RespCenter: Record "Responsibility Center";
         TaxArea: Record "Tax Area";
-        Language: Codeunit Language;
+        LanguageMgt: Codeunit Language;
         ReturnReceiptPrinted: Codeunit "Return Receipt - Printed";
         FormatAddress: Codeunit "Format Address";
         FormatDocument: Codeunit "Format Document";
@@ -533,28 +529,24 @@ report 10082 "Return Receipt"
 
     local procedure FormatDocumentFields(ReturnReceiptHeader: Record "Return Receipt Header")
     begin
-        with ReturnReceiptHeader do begin
-            FormatDocument.SetSalesPerson(SalesPurchPerson, "Salesperson Code", SalespersonText);
-            if "Salesperson Code" = '' then
-                Clear(SalesPurchPerson)
-            else
-                SalesPurchPerson.Get("Salesperson Code");
+        FormatDocument.SetSalesPerson(SalesPurchPerson, ReturnReceiptHeader."Salesperson Code", SalespersonText);
+        if ReturnReceiptHeader."Salesperson Code" = '' then
+            Clear(SalesPurchPerson)
+        else
+            SalesPurchPerson.Get(ReturnReceiptHeader."Salesperson Code");
 
-            if "Shipment Method Code" = '' then
-                Clear(ShipmentMethod)
-            else
-                ShipmentMethod.Get("Shipment Method Code");
-        end;
+        if ReturnReceiptHeader."Shipment Method Code" = '' then
+            Clear(ShipmentMethod)
+        else
+            ShipmentMethod.Get(ReturnReceiptHeader."Shipment Method Code");
     end;
 
     local procedure InsertTempLine(Comment: Text[80]; IncrNo: Integer)
     begin
-        with TempReturnReceiptLine do begin
-            Init();
-            "Document No." := "Return Receipt Header"."No.";
-            "Line No." := HighestLineNo + IncrNo;
-            HighestLineNo := "Line No.";
-        end;
+        TempReturnReceiptLine.Init();
+        TempReturnReceiptLine."Document No." := "Return Receipt Header"."No.";
+        TempReturnReceiptLine."Line No." := HighestLineNo + IncrNo;
+        HighestLineNo := TempReturnReceiptLine."Line No.";
         if StrLen(Comment) <= MaxStrLen(TempReturnReceiptLine.Description) then begin
             TempReturnReceiptLine.Description := CopyStr(Comment, 1, MaxStrLen(TempReturnReceiptLine.Description));
             TempReturnReceiptLine."Description 2" := '';

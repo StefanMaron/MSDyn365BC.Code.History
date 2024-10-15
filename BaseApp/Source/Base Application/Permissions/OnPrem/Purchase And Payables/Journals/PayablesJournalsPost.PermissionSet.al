@@ -66,6 +66,7 @@ permissionset 3602 "Payables Journals - Post"
                   tabledata "Employee Ledger Entry" = rim,
                   tabledata "Employee Posting Group" = R,
                   tabledata "G/L Account" = R,
+                  tabledata "G/L Account Source Currency" = Ri,
                   tabledata "G/L Entry - VAT Entry Link" = Ri,
                   tabledata "G/L Entry" = Ri,
                   tabledata "G/L Register" = Rim,

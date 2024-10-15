@@ -15,6 +15,7 @@ table 5207 "Employee Absence"
     DataCaptionFields = "Employee No.";
     DrillDownPageID = "Employee Absences";
     LookupPageID = "Employee Absences";
+    DataClassification = CustomerContent;
 
     fields
     {

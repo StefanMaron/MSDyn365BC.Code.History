@@ -10,6 +10,7 @@ table 27007 "CFDI Transport Operator"
 {
     DrillDownPageID = "CFDI Transport Operators";
     LookupPageID = "CFDI Transport Operators";
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -34,7 +35,7 @@ table 27007 "CFDI Transport Operator"
         field(5; "Operator Name"; Text[30])
         {
             Caption = 'Operator Name';
-            CalcFormula = Lookup(Employee.Initials WHERE("No." = FIELD("Operator Code")));
+            CalcFormula = lookup(Employee.Initials where("No." = field("Operator Code")));
             FieldClass = FlowField;
         }
     }

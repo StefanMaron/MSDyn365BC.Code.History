@@ -563,12 +563,17 @@ page 50 "Purchase Order"
                     ApplicationArea = OrderPromising;
                     ToolTip = 'Specifies the date that the vendor has promised to deliver the order.';
                 }
+#if not CLEAN25
                 field("IRS 1099 Code"; Rec."IRS 1099 Code")
                 {
                     ApplicationArea = BasicUS;
                     Importance = Additional;
                     ToolTip = 'Specifies the 1099 code of the vendor if one was entered on the vendor card.';
+                    ObsoleteReason = 'Moved to IRS Forms App.';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '25.0';
                 }
+#endif
             }
             group("Shipping and Payment")
             {
@@ -583,7 +588,7 @@ page 50 "Purchase Order"
                         {
                             ApplicationArea = Basic, Suite;
                             Caption = 'Ship-to';
-                            HideValue = NOT ShowShippingOptionsWithLocation AND (ShipToOptions = ShipToOptions::Location);
+                            HideValue = not ShowShippingOptionsWithLocation and (ShipToOptions = ShipToOptions::Location);
                             OptionCaption = 'Default (Company Address),Location,Customer Address,Custom Address';
                             ToolTip = 'Specifies the address that the products on the purchase document are shipped to. Default (Company Address): The same as the company address specified in the Company Information window. Location: One of the company''s location addresses. Customer Address: Used in connection with drop shipment. Custom Address: Any ship-to address that you specify in the fields below.';
 
@@ -732,7 +737,7 @@ page 50 "Purchase Order"
                     group(Control95)
                     {
                         ShowCaption = false;
-                        Visible = NOT (PayToOptions = PayToOptions::"Default (Vendor)");
+                        Visible = not (PayToOptions = PayToOptions::"Default (Vendor)");
                         field("Pay-to Name"; Rec."Pay-to Name")
                         {
                             ApplicationArea = Basic, Suite;
@@ -1503,7 +1508,7 @@ page 50 "Purchase Order"
                     begin
                         ApproveCalcInvDisc();
                         PurchCalcDiscByType.ResetRecalculateInvoiceDisc(Rec);
-                        Rec.RecalculateTaxesOnLines;
+                        Rec.RecalculateTaxesOnLines();
                     end;
                 }
                 action(GetRecurringPurchaseLines)
@@ -1747,7 +1752,7 @@ page 50 "Purchase Order"
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Send A&pproval Request';
-                    Enabled = NOT OpenApprovalEntriesExist AND CanRequestApprovalForFlow;
+                    Enabled = not OpenApprovalEntriesExist and CanRequestApprovalForFlow;
                     Image = SendApprovalRequest;
                     ToolTip = 'Request approval of the document.';
 
@@ -1763,7 +1768,7 @@ page 50 "Purchase Order"
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Cancel Approval Re&quest';
-                    Enabled = CanCancelApprovalForRecord OR CanCancelApprovalForFlow;
+                    Enabled = CanCancelApprovalForRecord or CanCancelApprovalForFlow;
                     Image = CancelApprovalRequest;
                     ToolTip = 'Cancel the approval request.';
 
@@ -1815,20 +1820,6 @@ page 50 "Purchase Order"
                             FlowTemplateSelector.SetSearchText(FlowServiceManagement.GetPurchasingTemplateFilter());
                             FlowTemplateSelector.Run();
                         end;
-                    }
-#endif
-#if not CLEAN21
-                    action(SeeFlows)
-                    {
-                        ApplicationArea = Basic, Suite;
-                        Caption = 'See my flows';
-                        Image = Flow;
-                        RunObject = Page "Flow Selector";
-                        ToolTip = 'View and configure Power Automate flows that you created.';
-                        Visible = false;
-                        ObsoleteState = Pending;
-                        ObsoleteReason = 'This action has been moved to the tab dedicated to Power Automate';
-                        ObsoleteTag = '21.0';
                     }
 #endif
                 }
@@ -2290,24 +2281,6 @@ page 50 "Purchase Order"
                 actionref(CancelApprovalRequest_Promoted; CancelApprovalRequest)
                 {
                 }
-#if not CLEAN21
-                actionref(CreateFlow_Promoted; CreateFlow)
-                {
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Action is being demoted based on overall low usage.';
-                    ObsoleteTag = '21.0';
-                }
-#endif
-#if not CLEAN21
-                actionref(SeeFlows_Promoted; SeeFlows)
-                {
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'This action has been moved to the tab dedicated to Power Automate';
-                    ObsoleteTag = '21.0';
-                }
-#endif
             }
             group(Category_Category8)
             {
@@ -2607,7 +2580,7 @@ page 50 "Purchase Order"
         CurrPage.PurchLines.PAGE.ApproveCalcInvDisc();
     end;
 
-    local procedure SaveInvoiceDiscountAmount()
+    protected procedure SaveInvoiceDiscountAmount()
     var
         DocumentTotals: Codeunit "Document Totals";
     begin

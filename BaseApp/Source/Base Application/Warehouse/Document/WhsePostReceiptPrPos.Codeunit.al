@@ -29,20 +29,18 @@ codeunit 5766 "Whse.-Post Receipt + Pr. Pos."
         if IsHandled then
             exit;
 
-        with WhseReceiptLine do begin
-            WhsePostReceipt.Run(WhseReceiptLine);
-            WhsePostReceipt.GetResultMessage();
+        WhsePostReceipt.Run(WhseReceiptLine);
+        WhsePostReceipt.GetResultMessage();
 
-            PostedWhseRcptHeader.SetRange("Whse. Receipt No.", "No.");
-            PostedWhseRcptHeader.SetRange("Location Code", "Location Code");
-            PostedWhseRcptHeader.FindLast();
+        PostedWhseRcptHeader.SetRange("Whse. Receipt No.", WhseReceiptLine."No.");
+        PostedWhseRcptHeader.SetRange("Location Code", WhseReceiptLine."Location Code");
+        PostedWhseRcptHeader.FindLast();
 
-            Commit();
-            WarehouseDocumentPrint.PrintPostedRcptHeader(PostedWhseRcptHeader);
-            Message(Text001);
+        Commit();
+        WarehouseDocumentPrint.PrintPostedRcptHeader(PostedWhseRcptHeader);
+        Message(Text001);
 
-            Clear(WhsePostReceipt);
-        end;
+        Clear(WhsePostReceipt);
 
         OnAfterCode(WhseReceiptLine);
     end;

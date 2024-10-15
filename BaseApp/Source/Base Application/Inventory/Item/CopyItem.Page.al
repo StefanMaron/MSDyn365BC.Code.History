@@ -49,10 +49,12 @@ page 729 "Copy Item"
                     ToolTip = 'Specifies the number series that is used to assign a number to the new item.';
 
                     trigger OnAssistEdit()
+                    var
+                        NoSeries: Codeunit "No. Series";
                     begin
                         InventorySetup.Get();
                         InventorySetup.TestField("Item Nos.");
-                        NoSeriesMgt.SelectSeries(InventorySetup."Item Nos.", SourceItem."No. Series", Rec."Target No. Series");
+                        NoSeries.LookupRelatedNoSeries(InventorySetup."Item Nos.", SourceItem."No. Series", Rec."Target No. Series");
                         Rec."Target Item No." := '';
                     end;
                 }
@@ -216,7 +218,6 @@ page 729 "Copy Item"
         TempItem: Record Item temporary;
         InventorySetup: Record "Inventory Setup";
         CopyItemParameters: Record "Copy Item Parameters";
-        NoSeriesMgt: Codeunit NoSeriesManagement;
         SpecifyTargetItemNoErr: Label 'You must specify the target item number.';
         TargetItemNoTxt: Label 'Target Item No.';
         UnincrementableStringErr: Label 'The value in the %1 field must have a number so that we can assign the next number in the series.', Comment = '%1 = New Field Name';

@@ -9,6 +9,7 @@ table 1220 "Data Exch."
     Permissions = TableData "Data Exch." = ri,
                   TableData "Data Exch. Field" = rimd;
     ReplicateData = false;
+    DataClassification = CustomerContent;
 
     fields
     {

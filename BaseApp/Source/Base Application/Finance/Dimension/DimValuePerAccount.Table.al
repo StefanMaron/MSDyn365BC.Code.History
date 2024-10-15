@@ -22,7 +22,7 @@ table 356 "Dim. Value per Account"
         }
         field(6; "Dimension Value Name"; Text[50])
         {
-            CalcFormula = Lookup("Dimension Value".Name where("Dimension Code" = field("Dimension Code"),
+            CalcFormula = lookup("Dimension Value".Name where("Dimension Code" = field("Dimension Code"),
                                                                Code = field("Dimension Value Code")));
             Caption = 'Dimension Value Name';
             Editable = false;
@@ -35,7 +35,7 @@ table 356 "Dim. Value per Account"
             OptionMembers = Standard,Heading,Total,"Begin-Total","End-Total";
             Editable = false;
             FieldClass = FlowField;
-            CalcFormula = Lookup("Dimension Value"."Dimension Value Type" where("Dimension Code" = field("Dimension Code"),
+            CalcFormula = lookup("Dimension Value"."Dimension Value Type" where("Dimension Code" = field("Dimension Code"),
                                                                Code = field("Dimension Value Code")));
         }
         field(8; Indentation; Integer)
@@ -43,7 +43,7 @@ table 356 "Dim. Value per Account"
             Caption = 'Indentation';
             Editable = false;
             FieldClass = FlowField;
-            CalcFormula = Lookup("Dimension Value".Indentation where("Dimension Code" = field("Dimension Code"),
+            CalcFormula = lookup("Dimension Value".Indentation where("Dimension Code" = field("Dimension Code"),
                                                                Code = field("Dimension Value Code")));
         }
         field(10; Allowed; Boolean)

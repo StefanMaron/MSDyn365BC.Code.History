@@ -6,6 +6,7 @@ namespace Microsoft.Projects.Project.Job;
 
 using Microsoft.Foundation.UOM;
 using Microsoft.Projects.Project.Journal;
+using Microsoft.Assembly.History;
 using Microsoft.Projects.Project.Ledger;
 using Microsoft.Projects.Project.Planning;
 using Microsoft.Projects.Project.Posting;
@@ -23,8 +24,8 @@ codeunit 1026 "Job Link Usage"
         UOMMgt: Codeunit "Unit of Measure Management";
         CalledFromInvtPutawayPick: Boolean;
 
-        Text001: Label 'The specified %1 does not have %2 enabled.', Comment = 'The specified Job Planning Line does not have Usage Link enabled.';
-        ConfirmUsageWithBlankLineTypeQst: Label 'Usage will not be linked to the job planning line because the Line Type field is empty.\\Do you want to continue?';
+        Text001: Label 'The specified %1 does not have %2 enabled.', Comment = 'The specified Project Planning Line does not have Usage Link enabled.';
+        ConfirmUsageWithBlankLineTypeQst: Label 'Usage will not be linked to the project planning line because the Line Type field is empty.\\Do you want to continue?';
 
     internal procedure ApplyUsage(JobLedgerEntry: Record "Job Ledger Entry"; JobJournalLine: Record "Job Journal Line"; IsCalledFromInventoryPutawayPick: Boolean)
     begin
@@ -38,6 +39,8 @@ codeunit 1026 "Job Link Usage"
             MatchUsageUnspecified(JobLedgerEntry, JobJournalLine."Line Type" = JobJournalLine."Line Type"::" ")
         else
             MatchUsageSpecified(JobLedgerEntry, JobJournalLine);
+
+        OnAfterApplyUsage(JobLedgerEntry, JobJournalLine);
     end;
 
     local procedure MatchUsageUnspecified(JobLedgerEntry: Record "Job Ledger Entry"; EmptyLineType: Boolean)
@@ -120,8 +123,13 @@ codeunit 1026 "Job Link Usage"
         TotalRemainingQtyPrePostBase: Decimal;
         PartialJobPlanningLineQuantityPosting, UpdateQuantity : Boolean;
     begin
-        PostedQtyBase := JobPlanningLine."Quantity (Base)" - JobPlanningLine."Remaining Qty. (Base)";
-        TotalRemainingQtyPrePostBase := JobJournalLine."Quantity (Base)" + JobJournalLine."Remaining Qty. (Base)";
+        if JobPlanningLine."Assemble to Order" then begin
+            PostedQtyBase := JobPlanningLine."Quantity (Base)" - AssembledQtyBase(JobPlanningLine);
+            TotalRemainingQtyPrePostBase := JobJournalLine."Quantity (Base)" + JobJournalLine."Remaining Qty. (Base)" - AssembledQtyBase(JobPlanningLine);
+        end else begin
+            PostedQtyBase := JobPlanningLine."Quantity (Base)" - JobPlanningLine."Remaining Qty. (Base)";
+            TotalRemainingQtyPrePostBase := JobJournalLine."Quantity (Base)" + JobJournalLine."Remaining Qty. (Base)";
+        end;
         TotalQtyBase := PostedQtyBase + TotalRemainingQtyPrePostBase;
         OnBeforeHandleMatchUsageSpecifiedJobPlanningLine(PostedQtyBase, TotalRemainingQtyPrePostBase, TotalQtyBase, JobPlanningLine, JobJournalLine);
         JobPlanningLine.SetBypassQtyValidation(true);
@@ -269,6 +277,20 @@ codeunit 1026 "Job Link Usage"
         end;
     end;
 
+    local procedure AssembledQtyBase(var JobPlanningLine: Record "Job Planning Line") AssembledQty: Decimal
+    var
+        PostedATOLink: Record "Posted Assemble-to-Order Link";
+    begin
+        PostedATOLink.SetCurrentKey("Job No.", "Job Task No.", "Document Line No.");
+        PostedATOLink.SetRange("Job No.", JobPlanningLine."Job No.");
+        PostedATOLink.SetRange("Job Task No.", JobPlanningLine."Job Task No.");
+        PostedATOLink.SetRange("Document Line No.", JobPlanningLine."Line No.");
+        if PostedATOLink.FindSet() then
+            repeat
+                AssembledQty += PostedATOLink."Assembled Quantity (Base)";
+            until PostedATOLink.Next() = 0;
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnAfterFindMatchingJobPlanningLine(var JobPlanningLine: Record "Job Planning Line"; JobLedgerEntry: Record "Job Ledger Entry"; var JobPlanningLineFound: Boolean)
     begin
@@ -346,6 +368,11 @@ codeunit 1026 "Job Link Usage"
 
     [IntegrationEvent(false, false)]
     local procedure OnMatchUsageUnspecifiedOnBeforeCheckPostedQty(JobPlanningLine: Record "Job Planning Line"; JobLedgerEntry: Record "Job Ledger Entry"; RemainingQtyToMatch: Decimal; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterApplyUsage(var JobLedgerEntry: Record "Job Ledger Entry"; var JobJournalLine: Record "Job Journal Line")
     begin
     end;
 }

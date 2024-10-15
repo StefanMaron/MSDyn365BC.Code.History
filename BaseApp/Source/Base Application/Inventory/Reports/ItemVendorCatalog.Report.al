@@ -13,6 +13,7 @@ report 10164 "Item/Vendor Catalog"
     RDLCLayout = './Inventory/Reports/ItemVendorCatalog.rdlc';
     ApplicationArea = Basic, Suite;
     Caption = 'Item/Vendor Catalog';
+    PreviewMode = PrintLayout;
     UsageCategory = ReportsAndAnalysis;
 
     dataset

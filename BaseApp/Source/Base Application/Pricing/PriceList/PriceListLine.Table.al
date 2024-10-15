@@ -26,6 +26,8 @@ using Microsoft.Utilities;
 
 table 7001 "Price List Line"
 {
+    DataClassification = CustomerContent;
+
     fields
     {
         field(1; "Price List Code"; Code[20])
@@ -1117,7 +1119,7 @@ table 7001 "Price List Line"
         if "Asset No." = '' then
             exit;
 
-        Case "Asset Type" of
+        case "Asset Type" of
             "Asset Type"::Item:
                 begin
                     Item.Get("Asset No.");

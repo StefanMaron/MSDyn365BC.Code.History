@@ -6,6 +6,7 @@ using Microsoft.Foundation.Attachment;
 using Microsoft.Foundation.Comment;
 using Microsoft.Foundation.ExtendedText;
 using Microsoft.Integration.Dataverse;
+using Microsoft.Integration.FieldService;
 using Microsoft.Integration.SyncEngine;
 using Microsoft.Pricing.Calculation;
 using Microsoft.Pricing.PriceList;
@@ -13,7 +14,7 @@ using Microsoft.Projects.Project.Analysis;
 using Microsoft.Projects.Resources.Analysis;
 using Microsoft.Projects.Resources.Ledger;
 using Microsoft.Projects.Resources.Reports;
-#if not CLEAN21
+#if not CLEAN23
 using Microsoft.Projects.Resources.Pricing;
 #endif
 using Microsoft.Service.Analysis;
@@ -512,11 +513,130 @@ page 76 "Resource Card"
                     end;
                 }
             }
+            group(ActionGroupFS)
+            {
+                Caption = 'Dynamics 365 Field Service';
+                Visible = FSIntegrationEnabled;
+                Enabled = (BlockedFilterApplied and (not Rec.Blocked)) or not BlockedFilterApplied;
+                action(FSGoToProduct)
+                {
+                    ApplicationArea = Suite;
+                    Caption = 'Product';
+                    Image = CoupledItem;
+                    ToolTip = 'Open the coupled Dynamics 365 Field Service product.';
+
+                    trigger OnAction()
+                    var
+                        CRMIntegrationManagement: Codeunit "CRM Integration Management";
+                    begin
+                        CRMIntegrationManagement.ShowCRMEntityFromRecordID(Rec.RecordId);
+                    end;
+                }
+                action(FSSynchronizeNow)
+                {
+                    AccessByPermission = TableData "CRM Integration Record" = IM;
+                    ApplicationArea = Suite;
+                    Caption = 'Synchronize';
+                    Image = Refresh;
+                    ToolTip = 'Send updated data to Dynamics 365 Sales.';
+
+                    trigger OnAction()
+                    var
+                        Resource: Record Resource;
+                        CRMIntegrationManagement: Codeunit "CRM Integration Management";
+                        ResourceRecordRef: RecordRef;
+                    begin
+                        CurrPage.SetSelectionFilter(Resource);
+                        Resource.Next();
+
+                        if Resource.Count = 1 then
+                            CRMIntegrationManagement.UpdateOneNow(Resource.RecordId)
+                        else begin
+                            ResourceRecordRef.GetTable(Resource);
+                            CRMIntegrationManagement.UpdateMultipleNow(ResourceRecordRef);
+                        end
+                    end;
+                }
+                group(FSCoupling)
+                {
+                    Caption = 'Coupling', Comment = 'Coupling is a noun';
+                    Image = LinkAccount;
+                    ToolTip = 'Create, change, or delete a coupling between the Business Central record and a Dynamics 365 Sales record.';
+                    action(ManageFSCoupling)
+                    {
+                        AccessByPermission = TableData "CRM Integration Record" = IM;
+                        ApplicationArea = Suite;
+                        Caption = 'Set Up Coupling';
+                        Image = LinkAccount;
+                        ToolTip = 'Create or modify the coupling to a Dynamics 365 Sales product.';
+
+                        trigger OnAction()
+                        var
+                            CRMIntegrationManagement: Codeunit "CRM Integration Management";
+                        begin
+                            CRMIntegrationManagement.DefineCoupling(Rec.RecordId);
+                        end;
+                    }
+                    action(MatchBasedCouplingFS)
+                    {
+                        AccessByPermission = TableData "CRM Integration Record" = IM;
+                        ApplicationArea = Suite;
+                        Caption = 'Match-Based Coupling';
+                        Image = CoupledItem;
+                        ToolTip = 'Couple resources to products in Dynamics 365 Sales based on matching criteria.';
+
+                        trigger OnAction()
+                        var
+                            Resource: Record Resource;
+                            CRMIntegrationManagement: Codeunit "CRM Integration Management";
+                            RecRef: RecordRef;
+                        begin
+                            CurrPage.SetSelectionFilter(Resource);
+                            RecRef.GetTable(Resource);
+                            CRMIntegrationManagement.MatchBasedCoupling(RecRef);
+                        end;
+                    }
+                    action(DeleteFSCoupling)
+                    {
+                        AccessByPermission = TableData "CRM Integration Record" = D;
+                        ApplicationArea = Suite;
+                        Caption = 'Delete Coupling';
+                        Enabled = CRMIsCoupledToRecord;
+                        Image = UnLinkAccount;
+                        ToolTip = 'Delete the coupling to a Dynamics 365 Sales product.';
+
+                        trigger OnAction()
+                        var
+                            Resource: Record Resource;
+                            CRMCouplingManagement: Codeunit "CRM Coupling Management";
+                            RecRef: RecordRef;
+                        begin
+                            CurrPage.SetSelectionFilter(Resource);
+                            RecRef.GetTable(Resource);
+                            CRMCouplingManagement.RemoveCoupling(RecRef);
+                        end;
+                    }
+                }
+                action(ShowLogFS)
+                {
+                    ApplicationArea = Suite;
+                    Caption = 'Synchronization Log';
+                    Image = Log;
+                    ToolTip = 'View integration synchronization jobs for the resource table.';
+
+                    trigger OnAction()
+                    var
+                        CRMIntegrationManagement: Codeunit "CRM Integration Management";
+                    begin
+                        CRMIntegrationManagement.ShowLog(Rec.RecordId);
+                    end;
+                }
+            }
             group("&Prices")
             {
                 Caption = '&Prices';
                 Image = Price;
-#if not CLEAN21
+#if not CLEAN23
                 action(Costs)
                 {
                     ApplicationArea = Jobs;
@@ -590,16 +710,16 @@ page 76 "Resource Card"
                     Image = Capacity;
                     RunObject = Page "Resource Capacity";
                     RunPageOnRec = true;
-                    ToolTip = 'View this job''s resource capacity.';
+                    ToolTip = 'View this project''s resource capacity.';
                 }
                 action("Resource &Allocated per Job")
                 {
                     ApplicationArea = Jobs;
-                    Caption = 'Resource &Allocated per Job';
+                    Caption = 'Resource &Allocated per Project';
                     Image = ViewJob;
                     RunObject = Page "Resource Allocated per Job";
                     RunPageLink = "Resource Filter" = field("No.");
-                    ToolTip = 'View this job''s resource allocation.';
+                    ToolTip = 'View this project''s resource allocation.';
                 }
                 action("Resource Allocated per Service &Order")
                 {
@@ -619,7 +739,7 @@ page 76 "Resource Card"
                     RunPageLink = "No." = field("No."),
                                   "Base Unit of Measure" = field("Base Unit of Measure"),
                                   "Chargeable Filter" = field("Chargeable Filter");
-                    ToolTip = 'View a summary of resource capacities, the quantity of resource hours allocated to jobs on order, the quantity allocated to service orders, the capacity assigned to jobs on quote, and the resource availability.';
+                    ToolTip = 'View a summary of resource capacities, the quantity of resource hours allocated to projects on order, the quantity allocated to service orders, the capacity assigned to projects on quote, and the resource availability.';
                 }
             }
             group(Service)
@@ -648,7 +768,7 @@ page 76 "Resource Card"
                     RunObject = Page "Resource Ledger Entries";
                     RunPageLink = "Resource No." = field("No.");
                     RunPageView = sorting("Resource No.")
-                                  order(Descending);
+                                  order(descending);
                     ShortCutKey = 'Ctrl+F7';
                     ToolTip = 'View the history of transactions that have been posted for the selected record.';
                 }
@@ -754,7 +874,7 @@ page 76 "Resource Card"
                 actionref("Resource L&ocations_Promoted"; "Resource L&ocations")
                 {
                 }
-#if not CLEAN21
+#if not CLEAN23
                 actionref(Costs_Promoted; Costs)
                 {
                     ObsoleteState = Pending;
@@ -762,7 +882,7 @@ page 76 "Resource Card"
                     ObsoleteTag = '17.0';
                 }
 #endif
-#if not CLEAN21
+#if not CLEAN23
                 actionref(Prices_Promoted; Prices)
                 {
                     ObsoleteState = Pending;
@@ -780,24 +900,6 @@ page 76 "Resource Card"
             {
                 Caption = 'Planning', Comment = 'Generated from the PromotedActionCategories property index 6.';
 
-#if not CLEAN21
-                actionref("Resource &Capacity_Promoted"; "Resource &Capacity")
-                {
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Action is being demoted based on overall low usage.';
-                    ObsoleteTag = '21.0';
-                }
-#endif
-#if not CLEAN21
-                actionref("Resource A&vailability_Promoted"; "Resource A&vailability")
-                {
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Action is being demoted based on overall low usage.';
-                    ObsoleteTag = '21.0';
-                }
-#endif
             }
             group(Category_Category5)
             {
@@ -814,6 +916,39 @@ page 76 "Resource Card"
                 {
                 }
                 actionref("Cost Breakdown_Promoted"; "Cost Breakdown")
+                {
+                }
+            }
+            group(Category_Synchronize_FS)
+            {
+                Caption = 'Synchronize';
+                Visible = FSIntegrationEnabled;
+
+                group(Category_Coupling_FS)
+                {
+                    Caption = 'Coupling';
+                    ShowAs = SplitButton;
+
+                    actionref(ManageFSCoupling_Promoted; ManageFSCoupling)
+                    {
+                    }
+                    actionref(DeleteFSCoupling_Promoted; DeleteFSCoupling)
+                    {
+                    }
+                    actionref(MatchBasedCouplingFS_Promoted; MatchBasedCouplingFS)
+                    {
+                    }
+                }
+                actionref(FSSynchronizeNow_Promoted; FSSynchronizeNow)
+                {
+                }
+                actionref(FSGoToProduct_Promoted; FSGoToProduct)
+                {
+                }
+                actionref(ShowLogFS_Promoted; ShowLogFS)
+                {
+                }
+                actionref("Unit Group_Promoted_FS"; "Unit Group")
                 {
                 }
             }
@@ -864,11 +999,26 @@ page 76 "Resource Card"
     trigger OnOpenPage()
     var
         IntegrationTableMapping: Record "Integration Table Mapping";
+        FSConnectionSetup: Record "FS Connection Setup";
     begin
         CRMIntegrationEnabled := CRMIntegrationManagement.IsCRMIntegrationEnabled();
-        if CRMIntegrationEnabled then
-            if IntegrationTableMapping.Get('RESOURCE-PRODUCT') then
-                BlockedFilterApplied := IntegrationTableMapping.GetTableFilter().Contains('Field38=1(0)');
+        if CRMIntegrationEnabled then begin
+            FSIntegrationEnabled := FSConnectionSetup.IsEnabled();
+            case FSIntegrationEnabled of
+                true:
+                    begin
+                        IntegrationTableMapping.SetRange(Type, IntegrationTableMapping.Type::Dataverse);
+                        IntegrationTableMapping.SetRange("Delete After Synchronization", false);
+                        IntegrationTableMapping.SetRange("Table ID", Database::Resource);
+                        IntegrationTableMapping.SetRange("Integration Table ID", Database::"FS Bookable Resource");
+                        if IntegrationTableMapping.FindFirst() then
+                            BlockedFilterApplied := IntegrationTableMapping.GetTableFilter().Contains('Field38=1(0)');
+                    end;
+                false:
+                    if IntegrationTableMapping.Get('RESOURCE-PRODUCT') then
+                        BlockedFilterApplied := IntegrationTableMapping.GetTableFilter().Contains('Field38=1(0)');
+            end;
+        end;
         SetNoFieldVisible();
         IsCountyVisible := FormatAddress.UseCounty(Rec."Country/Region Code");
         ExtendedPriceEnabled := PriceCalculationMgt.IsExtendedPriceCalculationEnabled();
@@ -879,6 +1029,7 @@ page 76 "Resource Card"
         PriceCalculationMgt: Codeunit "Price Calculation Mgt.";
         FormatAddress: Codeunit "Format Address";
         CRMIntegrationEnabled: Boolean;
+        FSIntegrationEnabled: Boolean;
         CRMIsCoupledToRecord: Boolean;
         BlockedFilterApplied: Boolean;
         ExtendedPriceEnabled: Boolean;

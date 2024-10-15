@@ -5,6 +5,7 @@ table 7862 "MS- PayPal Transaction"
     ObsoleteState = Removed;
     ObsoleteTag = '15.0';
     ReplicateData = false;
+    DataClassification = CustomerContent;
 
     fields
     {

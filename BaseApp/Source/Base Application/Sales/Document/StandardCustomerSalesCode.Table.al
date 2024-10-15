@@ -11,6 +11,7 @@ using Microsoft.Sales.Customer;
 table 172 "Standard Customer Sales Code"
 {
     Caption = 'Standard Customer Sales Code';
+    DataClassification = CustomerContent;
 
     fields
     {

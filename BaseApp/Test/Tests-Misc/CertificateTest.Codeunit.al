@@ -2,6 +2,7 @@ codeunit 134666 "Certificate Test"
 {
     Subtype = Test;
     TestPermissions = Disabled;
+    Permissions = TableData "No. Series Tenant" = rimd;
 
     trigger OnRun()
     begin
@@ -121,14 +122,14 @@ codeunit 134666 "Certificate Test"
 
         // [Then] Company Name should equal current company name, and user should equal current userID.
         Assert.AreEqual(CompanyName, IsolatedCertificate."Company ID", CertCompanyNameErr);
-        Assert.AreEqual(Format(UserSecurityId), IsolatedCertificate."User ID", CertUserIDErr);
+        Assert.AreEqual(Format(UserSecurityId()), IsolatedCertificate."User ID", CertUserIDErr);
 
         // [WHEN] Inserting a certificate with scope User.
         InsertCertificateWithScope(IsolatedCertificate, IsolatedCertificate.Scope::User);
 
         // [Then] Company Name should be empty, and user should equal current userID.
         Assert.AreEqual('', IsolatedCertificate."Company ID", CertCompanyNameEmptyErr);
-        Assert.AreEqual(Format(UserSecurityId), IsolatedCertificate."User ID", CertUserIDErr);
+        Assert.AreEqual(Format(UserSecurityId()), IsolatedCertificate."User ID", CertUserIDErr);
     end;
 
     [Test]
@@ -138,9 +139,9 @@ codeunit 134666 "Certificate Test"
         CertificateList: TestPage "Certificate List";
     begin
         // [WHEN] Open Certificate list page
-        CertificateList.OpenView;
+        CertificateList.OpenView();
         // [THEN] Page should not be editable
-        Assert.IsFalse(CertificateList.Editable, CertListPageReadOnlyErr);
+        Assert.IsFalse(CertificateList.Editable(), CertListPageReadOnlyErr);
     end;
 
     [Test]
@@ -168,12 +169,17 @@ codeunit 134666 "Certificate Test"
     end;
 
     local procedure InsertCertificateWithTestBlob(var IsolatedCertificate: Record "Isolated Certificate"; var CertificateManagement: Codeunit "Certificate Management")
+    var
+        Cert: Text;
+        CertPass: Text;
     begin
         InsertCertificate(IsolatedCertificate);
 
         // Add saved test Password
-        CertificateManagement.SetCertPassword(TestCertPasswordTxt);
-        CertificateManagement.VerifyCertFromString(IsolatedCertificate, TestCertTxt);
+        CertPass := TestCertPasswordTxt;
+        CertificateManagement.SetCertPassword(CertPass);
+        Cert := TestCertTxt;
+        CertificateManagement.VerifyCertFromString(IsolatedCertificate, Cert);
 
         // Save to Isolated storage
         CertificateManagement.SaveCertToIsolatedStorage(IsolatedCertificate);
@@ -194,14 +200,14 @@ codeunit 134666 "Certificate Test"
         ChangeUser: TestPage "Change User";
     begin
         // Open Certificate list page
-        CertificateList.OpenView;
+        CertificateList.OpenView();
         CertificateList.GotoRecord(IsolatedCertificate);
-        CertificateList."Change User".Invoke;
+        CertificateList."Change User".Invoke();
 
-        ChangeUser.Trap;
-        CertificateList."Change User".Invoke;
+        ChangeUser.Trap();
+        CertificateList."Change User".Invoke();
         ChangeUser."User ID".Value('');
-        ChangeUser.OK.Invoke;
+        ChangeUser.OK().Invoke();
     end;
 
     local procedure SetScope(var IsolatedCertificate: Record "Isolated Certificate")
@@ -211,11 +217,11 @@ codeunit 134666 "Certificate Test"
                 Scope::Company:
                     Validate("Company ID", CompanyName);
                 Scope::User:
-                    "User ID" := Format(UserSecurityId);
+                    "User ID" := Format(UserSecurityId());
                 Scope::CompanyAndUser:
                     begin
                         Validate("Company ID", CompanyName);
-                        "User ID" := Format(UserSecurityId);
+                        "User ID" := Format(UserSecurityId());
                     end;
             end;
             Modify();

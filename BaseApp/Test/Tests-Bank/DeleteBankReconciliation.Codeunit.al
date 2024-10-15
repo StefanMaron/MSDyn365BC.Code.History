@@ -19,7 +19,6 @@ codeunit 134255 "Delete Bank Reconciliation"
     var
         BankAccountReconciliation: Record "Bank Acc. Reconciliation";
         BankAccountLedgerEntry: Record "Bank Account Ledger Entry";
-        BankAccountReconciliationLine: Record "Bank Acc. Reconciliation Line";
         BankAccount: Record "Bank Account";
         BankAccLedgerEntryNo1, BankAccLedgerEntryNo2 : Integer;
         BankAccountNo, StatementNo : Code[20];
@@ -67,7 +66,6 @@ codeunit 134255 "Delete Bank Reconciliation"
         BankAccountReconciliation: Record "Bank Acc. Reconciliation";
         BankAccountLedgerEntry: Record "Bank Account Ledger Entry";
         CheckLedgerEntry: Record "Check Ledger Entry";
-        BankAccountReconciliationLine: Record "Bank Acc. Reconciliation Line";
         BankAccount: Record "Bank Account";
         CheckLedgerEntryNo1, CheckLedgerEntryNo2 : Integer;
         BankAccountNo, StatementNo : Code[20];
@@ -208,11 +206,6 @@ codeunit 134255 "Delete Bank Reconciliation"
         CheckLedgerEntry."Bank Account Ledger Entry No." := EntryNo;
 
         CheckLedgerEntry.Insert();
-    end;
-
-    local procedure GetLedgerEntryLatestDate(BankAccountLedgerEntry: Record "Bank Account Ledger Entry")
-    begin
-
     end;
 
     local procedure CreateBankAccount(BankAccountNo: Code[20])

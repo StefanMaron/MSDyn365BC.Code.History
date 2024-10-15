@@ -376,79 +376,71 @@ report 6521 "Item Tracking Appendix"
     local procedure AddressSalesHdr(SalesHdr: Record "Sales Header")
     begin
         ShowAddr2 := false;
-        with SalesHdr do begin
-            case "Document Type" of
-                "Document Type"::Invoice, "Document Type"::"Credit Memo":
-                    begin
-                        FormatAddr.SalesHeaderSellTo(Addr, SalesHdr);
-                        if "Bill-to Customer No." <> "Sell-to Customer No." then begin
-                            FormatAddr.SalesHeaderBillTo(Addr2, SalesHdr);
-                            ShowAddr2 := true;
-                        end;
-                    end
-                else
-                    FormatAddr.SalesHeaderBillTo(Addr, SalesHdr);
-            end;
-            DocumentDate := "Document Date";
-            SourceCaption := StrSubstNo('%1 %2 %3', Text006, "Document Type", "No.");
-            Addr2Caption := Text003;
+        case SalesHdr."Document Type" of
+            SalesHdr."Document Type"::Invoice, SalesHdr."Document Type"::"Credit Memo":
+                begin
+                    FormatAddr.SalesHeaderSellTo(Addr, SalesHdr);
+                    if SalesHdr."Bill-to Customer No." <> SalesHdr."Sell-to Customer No." then begin
+                        FormatAddr.SalesHeaderBillTo(Addr2, SalesHdr);
+                        ShowAddr2 := true;
+                    end;
+                end
+            else
+                FormatAddr.SalesHeaderBillTo(Addr, SalesHdr);
         end;
+        DocumentDate := SalesHdr."Document Date";
+        SourceCaption := StrSubstNo('%1 %2 %3', Text006, SalesHdr."Document Type", SalesHdr."No.");
+        Addr2Caption := Text003;
     end;
 
     local procedure AddressPurchaseHdr(PurchaseHdr: Record "Purchase Header")
     begin
         ShowAddr2 := false;
-        with PurchaseHdr do begin
-            case "Document Type" of
-                "Document Type"::Quote, "Document Type"::"Blanket Order":
+        case PurchaseHdr."Document Type" of
+            PurchaseHdr."Document Type"::Quote, PurchaseHdr."Document Type"::"Blanket Order":
+                FormatAddr.PurchHeaderPayTo(Addr, PurchaseHdr);
+            PurchaseHdr."Document Type"::Order, PurchaseHdr."Document Type"::"Return Order":
+                begin
+                    FormatAddr.PurchHeaderBuyFrom(Addr, PurchaseHdr);
+                    if PurchaseHdr."Buy-from Vendor No." <> PurchaseHdr."Pay-to Vendor No." then begin
+                        FormatAddr.PurchHeaderPayTo(Addr2, PurchaseHdr);
+                        ShowAddr2 := true;
+                    end;
+                end;
+            PurchaseHdr."Document Type"::Invoice, PurchaseHdr."Document Type"::"Credit Memo":
+                begin
                     FormatAddr.PurchHeaderPayTo(Addr, PurchaseHdr);
-                "Document Type"::Order, "Document Type"::"Return Order":
-                    begin
-                        FormatAddr.PurchHeaderBuyFrom(Addr, PurchaseHdr);
-                        if "Buy-from Vendor No." <> "Pay-to Vendor No." then begin
-                            FormatAddr.PurchHeaderPayTo(Addr2, PurchaseHdr);
-                            ShowAddr2 := true;
-                        end;
+                    if not (PurchaseHdr."Pay-to Vendor No." in ['', PurchaseHdr."Buy-from Vendor No."]) then begin
+                        FormatAddr.PurchHeaderBuyFrom(Addr2, PurchaseHdr);
+                        ShowAddr2 := true;
                     end;
-                "Document Type"::Invoice, "Document Type"::"Credit Memo":
-                    begin
-                        FormatAddr.PurchHeaderPayTo(Addr, PurchaseHdr);
-                        if not ("Pay-to Vendor No." in ['', "Buy-from Vendor No."]) then begin
-                            FormatAddr.PurchHeaderBuyFrom(Addr2, PurchaseHdr);
-                            ShowAddr2 := true;
-                        end;
-                    end;
-            end;
-            DocumentDate := "Document Date";
-            SourceCaption := StrSubstNo('%1 %2 %3', Text007, "Document Type", "No.");
-            Addr2Caption := Text002;
+                end;
         end;
+        DocumentDate := PurchaseHdr."Document Date";
+        SourceCaption := StrSubstNo('%1 %2 %3', Text007, PurchaseHdr."Document Type", PurchaseHdr."No.");
+        Addr2Caption := Text002;
     end;
 
     local procedure AddressShipmentHdr(SalesShipHdr: Record "Sales Shipment Header")
     begin
         ShowAddr2 := false;
-        with SalesShipHdr do begin
-            FormatAddr.SalesShptShipTo(Addr, SalesShipHdr);
-            if "Bill-to Customer No." <> "Sell-to Customer No." then begin
-                FormatAddr.SalesShptBillTo(Addr2, Addr2, SalesShipHdr);
-                ShowAddr2 := true;
-            end;
-            DocumentDate := "Document Date";
-            SourceCaption := StrSubstNo('%1 %2', Text004, "No.");
-            Addr2Caption := Text003;
+        FormatAddr.SalesShptShipTo(Addr, SalesShipHdr);
+        if SalesShipHdr."Bill-to Customer No." <> SalesShipHdr."Sell-to Customer No." then begin
+            FormatAddr.SalesShptBillTo(Addr2, Addr2, SalesShipHdr);
+            ShowAddr2 := true;
         end;
+        DocumentDate := SalesShipHdr."Document Date";
+        SourceCaption := StrSubstNo('%1 %2', Text004, SalesShipHdr."No.");
+        Addr2Caption := Text003;
     end;
 
     local procedure AddressInvoiceHdr(SalesInvHdr: Record "Sales Invoice Header")
     begin
         ShowAddr2 := false;
-        with SalesInvHdr do begin
-            FormatAddr.SalesInvBillTo(Addr, SalesInvHdr);
-            DocumentDate := "Document Date";
-            SourceCaption := StrSubstNo('%1 %2', Text005, "No.");
-            Addr2Caption := Text002;
-        end;
+        FormatAddr.SalesInvBillTo(Addr, SalesInvHdr);
+        DocumentDate := SalesInvHdr."Document Date";
+        SourceCaption := StrSubstNo('%1 %2', Text005, SalesInvHdr."No.");
+        Addr2Caption := Text002;
     end;
 
     procedure IsStartNewGroup(var TempTrackingSpecification: Record "Tracking Specification" temporary): Boolean

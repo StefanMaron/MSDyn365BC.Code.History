@@ -35,9 +35,7 @@ codeunit 7304 "Whse. Jnl.-Register Batch"
         WhseJnlLine3: Record "Warehouse Journal Line";
         WhseReg: Record "Warehouse Register";
         TempBinContentBuffer: Record "Bin Content Buffer" temporary;
-        TempNoSeries: Record "No. Series" temporary;
-        NoSeriesMgt: Codeunit NoSeriesManagement;
-        NoSeriesMgt2: array[10] of Codeunit NoSeriesManagement;
+        NoSeriesBatch: Codeunit "No. Series - Batch";
         WMSMgt: Codeunit "WMS Management";
         ItemJnlPostLine: Codeunit "Item Jnl.-Post Line";
         ItemTrackingMgt: Codeunit "Item Tracking Management";
@@ -50,15 +48,12 @@ codeunit 7304 "Whse. Jnl.-Register Batch"
         LastDocNo: Code[20];
         LastDocNo2: Code[20];
         LastRegisteredDocNo: Code[20];
-        NoOfRegisteringNoSeries: Integer;
-        RegisteringNoSeriesNo: Integer;
         SuppressCommit: Boolean;
         PhysInvtCount: Boolean;
 
         Text001: Label 'Journal Batch Name    #1##########\\';
         Text002: Label 'Checking lines        #2######\';
         Text003: Label 'Registering lines     #3###### @4@@@@@@@@@@@@@';
-        Text004: Label 'A maximum of %1 registering number series can be used in each journal.';
         Text005: Label 'Item tracking lines defined for the source line must account for the same quantity as you have entered.';
         Text006: Label 'Item tracking lines do not match the bin content.';
         Text007: Label 'One or more reservation entries exist for the item with %1 = %2, %3 = %4, %5 = %6 which may be disrupted if you post this negative adjustment. Do you want to continue?', Comment = 'One or more reservation entries exist for the item with Item No. = 1000, Location Code = BLUE, Variant Code = NEW which may be disrupted if you post this negative adjustment. Do you want to continue?';
@@ -78,138 +73,112 @@ codeunit 7304 "Whse. Jnl.-Register Batch"
         if IsHandled then
             exit;
 
-        with WhseJnlLine do begin
-            LockTable();
-            SetRange("Journal Template Name", "Journal Template Name");
-            SetRange("Journal Batch Name", "Journal Batch Name");
-            SetRange("Location Code", "Location Code");
-            WhseJnlTemplate.Get("Journal Template Name");
-            WhseJnlBatch.Get("Journal Template Name", "Journal Batch Name", "Location Code");
-            OnCodeOnAfterWhseJnlBatchGet(WhseJnlBatch);
+        WhseJnlLine.LockTable();
+        WhseJnlLine.SetRange("Journal Template Name", WhseJnlLine."Journal Template Name");
+        WhseJnlLine.SetRange("Journal Batch Name", WhseJnlLine."Journal Batch Name");
+        WhseJnlLine.SetRange("Location Code", WhseJnlLine."Location Code");
+        WhseJnlTemplate.Get(WhseJnlLine."Journal Template Name");
+        WhseJnlBatch.Get(WhseJnlLine."Journal Template Name", WhseJnlLine."Journal Batch Name", WhseJnlLine."Location Code");
+        OnCodeOnAfterWhseJnlBatchGet(WhseJnlBatch);
 
-            if not Find('=><') then begin
-                "Line No." := 0;
-                if not SuppressCommit then
-                    Commit();
-                exit;
-            end;
-
-            if not HideDialog then begin
-                Window.Open(
-                  Text001 +
-                  Text002 +
-                  Text003);
-                Window.Update(1, "Journal Batch Name");
-            end;
-            CheckItemAvailability(WhseJnlLine);
-
-            CheckLines(TempHandlingSpecification, HideDialog);
-
-            // Find next register no.
-            WhseRegNo := FindWhseRegNo();
-
-            PhysInvtCount := false;
-
-            // Register lines
-            LineCount := 0;
-            LastDocNo := '';
-            LastDocNo2 := '';
-            LastRegisteredDocNo := '';
-            Find('-');
-            OnBeforeRegisterLines(WhseJnlLine, TempHandlingSpecification);
-
-            repeat
-                if not EmptyLine() and
-                   (WhseJnlBatch."No. Series" <> '') and
-                   ("Whse. Document No." <> LastDocNo2)
-                then
-                    TestField("Whse. Document No.",
-                      NoSeriesMgt.GetNextNo(WhseJnlBatch."No. Series", "Registering Date", false));
-                if not EmptyLine() then
-                    LastDocNo2 := "Whse. Document No.";
-                if "Registering No. Series" = '' then
-                    "Registering No. Series" := WhseJnlBatch."No. Series"
-                else
-                    if not EmptyLine() then
-                        if "Whse. Document No." = LastDocNo then
-                            "Whse. Document No." := LastRegisteredDocNo
-                        else begin
-                            if not TempNoSeries.Get("Registering No. Series") then begin
-                                NoOfRegisteringNoSeries := NoOfRegisteringNoSeries + 1;
-                                if NoOfRegisteringNoSeries > ArrayLen(NoSeriesMgt2) then
-                                    Error(
-                                      Text004,
-                                      ArrayLen(NoSeriesMgt2));
-                                TempNoSeries.Init();
-                                TempNoSeries.Code := "Registering No. Series";
-                                TempNoSeries.Description := Format(NoOfRegisteringNoSeries);
-                                TempNoSeries.Insert();
-                            end;
-                            LastDocNo := "Whse. Document No.";
-                            Evaluate(RegisteringNoSeriesNo, TempNoSeries.Description);
-                            "Whse. Document No." :=
-                              NoSeriesMgt2[RegisteringNoSeriesNo].GetNextNo(
-                                "Registering No. Series", "Registering Date", false);
-                            LastRegisteredDocNo := "Whse. Document No.";
-                        end;
-
-                LineCount := LineCount + 1;
-                if not HideDialog then begin
-                    Window.Update(3, LineCount);
-                    Window.Update(4, Round(LineCount / NoOfRecords * 10000, 1));
-                end;
-
-                if Quantity < 0 then
-                    WMSMgt.CalcCubageAndWeight(
-                      "Item No.", "Unit of Measure Code", "Qty. (Absolute)", Cubage, Weight);
-
-                ItemTrackingMgt.SplitWhseJnlLine(WhseJnlLine, TempWhseJnlLine2, TempHandlingSpecification, false);
-                if TempWhseJnlLine2.Find('-') then
-                    repeat
-                        OnBeforeWhseJnlRegisterLineRun(TempWhseJnlLine2, WhseJnlTemplate);
-                        WhseJnlRegisterLine.Run(TempWhseJnlLine2);
-                    until TempWhseJnlLine2.Next() = 0;
-
-                PostItemJnlLine();
-
-                if IsPhysInvtCount(WhseJnlTemplate, "Phys Invt Counting Period Code", "Phys Invt Counting Period Type") then begin
-                    if not PhysInvtCount then begin
-                        PhysInvtCountMgt.InitTempItemSKUList();
-                        PhysInvtCount := true;
-                    end;
-                    PhysInvtCountMgt.AddToTempItemSKUList("Item No.", "Location Code", "Variant Code", "Phys Invt Counting Period Type");
-                end;
-            until Next() = 0;
-
-            // Copy register no. and current journal batch name to Whse journal
-            if not WhseReg.FindLast() or (WhseReg."No." <> WhseRegNo) then
-                WhseRegNo := 0;
-
-            Init();
-            "Line No." := WhseRegNo;
-
-            // Update/delete lines
-            UpdateDeleteLines();
-
-            if WhseJnlBatch."No. Series" <> '' then
-                NoSeriesMgt.SaveNoSeries();
-            if TempNoSeries.Find('-') then
-                repeat
-                    Evaluate(RegisteringNoSeriesNo, TempNoSeries.Description);
-                    NoSeriesMgt2[RegisteringNoSeriesNo].SaveNoSeries();
-                until TempNoSeries.Next() = 0;
-
-            if PhysInvtCount then
-                PhysInvtCountMgt.UpdateItemSKUListPhysInvtCount();
-
-            OnAfterPostJnlLines(WhseJnlBatch, WhseJnlLine, WhseRegNo, WhseJnlRegisterLine, SuppressCommit);
-
-            if not HideDialog then
-                Window.Close();
+        if not WhseJnlLine.Find('=><') then begin
+            WhseJnlLine."Line No." := 0;
             if not SuppressCommit then
                 Commit();
-            Clear(WhseJnlRegisterLine);
+            exit;
         end;
+
+        if not HideDialog then begin
+            Window.Open(
+              Text001 +
+              Text002 +
+              Text003);
+            Window.Update(1, WhseJnlLine."Journal Batch Name");
+        end;
+        CheckItemAvailability(WhseJnlLine);
+
+        CheckLines(TempHandlingSpecification, HideDialog);
+        // Find next register no.
+        WhseRegNo := FindWhseRegNo();
+
+        PhysInvtCount := false;
+        // Register lines
+        LineCount := 0;
+        LastDocNo := '';
+        LastDocNo2 := '';
+        LastRegisteredDocNo := '';
+        WhseJnlLine.Find('-');
+        OnBeforeRegisterLines(WhseJnlLine, TempHandlingSpecification);
+
+        repeat
+            if not WhseJnlLine.EmptyLine() and
+               (WhseJnlBatch."No. Series" <> '') and
+               (WhseJnlLine."Whse. Document No." <> LastDocNo2)
+            then
+                WhseJnlLine.TestField("Whse. Document No.", NoSeriesBatch.GetNextNo(WhseJnlBatch."No. Series", WhseJnlLine."Registering Date"));
+            if not WhseJnlLine.EmptyLine() then
+                LastDocNo2 := WhseJnlLine."Whse. Document No.";
+            if WhseJnlLine."Registering No. Series" = '' then
+                WhseJnlLine."Registering No. Series" := WhseJnlBatch."No. Series"
+            else
+                if not WhseJnlLine.EmptyLine() then
+                    if WhseJnlLine."Whse. Document No." = LastDocNo then
+                        WhseJnlLine."Whse. Document No." := LastRegisteredDocNo
+                    else begin
+                        LastDocNo := WhseJnlLine."Whse. Document No.";
+                        WhseJnlLine."Whse. Document No." := NoSeriesBatch.GetNextNo(WhseJnlLine."Registering No. Series", WhseJnlLine."Registering Date");
+                        LastRegisteredDocNo := WhseJnlLine."Whse. Document No.";
+                    end;
+
+            LineCount := LineCount + 1;
+            if not HideDialog then begin
+                Window.Update(3, LineCount);
+                Window.Update(4, Round(LineCount / NoOfRecords * 10000, 1));
+            end;
+
+            if WhseJnlLine.Quantity < 0 then
+                WMSMgt.CalcCubageAndWeight(
+                  WhseJnlLine."Item No.", WhseJnlLine."Unit of Measure Code", WhseJnlLine."Qty. (Absolute)", WhseJnlLine.Cubage, WhseJnlLine.Weight);
+
+            ItemTrackingMgt.SplitWhseJnlLine(WhseJnlLine, TempWhseJnlLine2, TempHandlingSpecification, false);
+            if TempWhseJnlLine2.Find('-') then
+                repeat
+                    OnBeforeWhseJnlRegisterLineRun(TempWhseJnlLine2, WhseJnlTemplate);
+                    WhseJnlRegisterLine.Run(TempWhseJnlLine2);
+                until TempWhseJnlLine2.Next() = 0;
+
+            PostItemJnlLine();
+
+            if IsPhysInvtCount(WhseJnlTemplate, WhseJnlLine."Phys Invt Counting Period Code", WhseJnlLine."Phys Invt Counting Period Type") then begin
+                if not PhysInvtCount then begin
+                    PhysInvtCountMgt.InitTempItemSKUList();
+                    PhysInvtCount := true;
+                end;
+                PhysInvtCountMgt.AddToTempItemSKUList(WhseJnlLine."Item No.", WhseJnlLine."Location Code", WhseJnlLine."Variant Code", WhseJnlLine."Phys Invt Counting Period Type");
+            end;
+        until WhseJnlLine.Next() = 0;
+        // Copy register no. and current journal batch name to Whse journal
+        if not WhseReg.FindLast() or (WhseReg."No." <> WhseRegNo) then
+            WhseRegNo := 0;
+
+        WhseJnlLine.Init();
+        WhseJnlLine."Line No." := WhseRegNo;
+        // Update/delete lines
+        UpdateDeleteLines();
+
+        if WhseJnlBatch."No. Series" <> '' then
+            NoSeriesBatch.SaveState();
+
+        if PhysInvtCount then
+            PhysInvtCountMgt.UpdateItemSKUListPhysInvtCount();
+
+        OnAfterPostJnlLines(WhseJnlBatch, WhseJnlLine, WhseRegNo, WhseJnlRegisterLine, SuppressCommit);
+
+        if not HideDialog then
+            Window.Close();
+        if not SuppressCommit then
+            Commit();
+        Clear(WhseJnlRegisterLine);
 
         OnAfterCode(WhseJnlLine, WhseJnlBatch, WhseRegNo);
     end;
@@ -236,44 +205,42 @@ codeunit 7304 "Whse. Jnl.-Register Batch"
         WhseItemTrackingSetup: Record "Item Tracking Setup";
         IsHandled: Boolean;
     begin
-        with WhseJnlLine do begin
-            LineCount := 0;
-            StartLineNo := "Line No.";
-            ItemTrackingMgt.InitCollectItemTrkgInformation();
-            repeat
-                LineCount := LineCount + 1;
-                if not HideDialog then
-                    Window.Update(2, LineCount);
-                IsHandled := false;
-                OnCheckLinesOnBeforeCheckWhseJnlLine(WhseJnlLine, IsHandled);
-                if not IsHandled then
-                    WMSMgt.CheckWhseJnlLine(WhseJnlLine, 4, "Qty. (Absolute, Base)", false);
-                if "Entry Type" in ["Entry Type"::"Positive Adjmt.", "Entry Type"::Movement] then
-                    UpdateTempBinContentBuffer(WhseJnlLine, "To Bin Code", true);
-                if "Entry Type" in ["Entry Type"::"Negative Adjmt.", "Entry Type"::Movement] then
-                    UpdateTempBinContentBuffer(WhseJnlLine, "From Bin Code", false);
+        LineCount := 0;
+        StartLineNo := WhseJnlLine."Line No.";
+        ItemTrackingMgt.InitCollectItemTrkgInformation();
+        repeat
+            LineCount := LineCount + 1;
+            if not HideDialog then
+                Window.Update(2, LineCount);
+            IsHandled := false;
+            OnCheckLinesOnBeforeCheckWhseJnlLine(WhseJnlLine, IsHandled);
+            if not IsHandled then
+                WMSMgt.CheckWhseJnlLine(WhseJnlLine, 4, WhseJnlLine."Qty. (Absolute, Base)", false);
+            if WhseJnlLine."Entry Type" in [WhseJnlLine."Entry Type"::"Positive Adjmt.", WhseJnlLine."Entry Type"::Movement] then
+                UpdateTempBinContentBuffer(WhseJnlLine, WhseJnlLine."To Bin Code", true);
+            if WhseJnlLine."Entry Type" in [WhseJnlLine."Entry Type"::"Negative Adjmt.", WhseJnlLine."Entry Type"::Movement] then
+                UpdateTempBinContentBuffer(WhseJnlLine, WhseJnlLine."From Bin Code", false);
 
-                ItemTrackingMgt.GetWhseItemTrkgSetup("Item No.", WhseItemTrackingSetup);
-                OnCheckLinesOnAfterGetWhseItemTrkgSetup(WhseJnlLine, WhseItemTrackingSetup);
-                if WhseItemTrackingSetup.TrackingRequired() then begin
-                    if WhseItemTrackingSetup."Serial No. Required" then
-                        TestField("Qty. per Unit of Measure", 1);
-                    if WhseJnlTemplate.Type <> WhseJnlTemplate.Type::"Physical Inventory" then
-                        CreateTrackingSpecification(WhseJnlLine, TempTrackingSpecification)
-                    else begin
-                        OnCheckWhseJnlLine(WhseJnlLine);
-                        CheckTrackingIfRequired(WhseItemTrackingSetup);
-                    end;
+            ItemTrackingMgt.GetWhseItemTrkgSetup(WhseJnlLine."Item No.", WhseItemTrackingSetup);
+            OnCheckLinesOnAfterGetWhseItemTrkgSetup(WhseJnlLine, WhseItemTrackingSetup);
+            if WhseItemTrackingSetup.TrackingRequired() then begin
+                if WhseItemTrackingSetup."Serial No. Required" then
+                    WhseJnlLine.TestField("Qty. per Unit of Measure", 1);
+                if WhseJnlTemplate.Type <> WhseJnlTemplate.Type::"Physical Inventory" then
+                    CreateTrackingSpecification(WhseJnlLine, TempTrackingSpecification)
+                else begin
+                    OnCheckWhseJnlLine(WhseJnlLine);
+                    WhseJnlLine.CheckTrackingIfRequired(WhseItemTrackingSetup);
                 end;
-                ItemTrackingMgt.CollectItemTrkgInfWhseJnlLine(WhseJnlLine);
-                OnAfterCollectTrackingInformation(WhseJnlLine);
-                if Next() = 0 then
-                    Find('-');
-            until "Line No." = StartLineNo;
-            ItemTrackingMgt.CheckItemTrkgInfBeforePost();
-            CheckIncreaseBin();
-            NoOfRecords := LineCount;
-        end;
+            end;
+            ItemTrackingMgt.CollectItemTrkgInfWhseJnlLine(WhseJnlLine);
+            OnAfterCollectTrackingInformation(WhseJnlLine);
+            if WhseJnlLine.Next() = 0 then
+                WhseJnlLine.Find('-');
+        until WhseJnlLine."Line No." = StartLineNo;
+        ItemTrackingMgt.CheckItemTrkgInfBeforePost();
+        CheckIncreaseBin();
+        NoOfRecords := LineCount;
     end;
 
     local procedure UpdateDeleteLines()
@@ -285,41 +252,38 @@ codeunit 7304 "Whse. Jnl.-Register Batch"
         OnBeforeUpdateDeleteLines(WhseJnlLine, WhseRegNo, SkipUpdate);
         if SkipUpdate then
             exit;
+        // Not a recurring journal
+        WhseJnlLine2.CopyFilters(WhseJnlLine);
+        WhseJnlLine2.SetFilter("Item No.", '<>%1', '');
+        if WhseJnlLine2.FindLast() then;
+        // Remember the last line
+        if WhseJnlLine.Find('-') then begin
+            repeat
+                ItemTrackingMgt.DeleteWhseItemTrkgLines(
+                    Database::"Warehouse Journal Line", 0, WhseJnlLine."Journal Batch Name",
+                    WhseJnlLine."Journal Template Name", 0, WhseJnlLine."Line No.", WhseJnlLine."Location Code", true);
+            until WhseJnlLine.Next() = 0;
+            WhseJnlLine.DeleteAll();
+        end;
 
-        with WhseJnlLine do begin
-            // Not a recurring journal
-            WhseJnlLine2.CopyFilters(WhseJnlLine);
-            WhseJnlLine2.SetFilter("Item No.", '<>%1', '');
-            if WhseJnlLine2.FindLast() then; // Remember the last line
+        WhseJnlLine3.SetRange("Journal Template Name", WhseJnlLine."Journal Template Name");
+        WhseJnlLine3.SetRange("Journal Batch Name", WhseJnlLine."Journal Batch Name");
+        WhseJnlLine3.SetRange("Location Code", WhseJnlLine."Location Code");
+        if not WhseJnlLine3.FindLast() then
+            IncrBatchName := IncStr(WhseJnlLine."Journal Batch Name") <> '';
+        if WhseJnlTemplate."Increment Batch Name" then
+            IncreaseBatchName(IncrBatchName);
 
-            if Find('-') then begin
-                repeat
-                    ItemTrackingMgt.DeleteWhseItemTrkgLines(
-                        Database::"Warehouse Journal Line", 0, "Journal Batch Name",
-                        "Journal Template Name", 0, "Line No.", "Location Code", true);
-                until Next() = 0;
-                DeleteAll();
-            end;
-
-            WhseJnlLine3.SetRange("Journal Template Name", "Journal Template Name");
-            WhseJnlLine3.SetRange("Journal Batch Name", "Journal Batch Name");
-            WhseJnlLine3.SetRange("Location Code", "Location Code");
-            if not WhseJnlLine3.FindLast() then
-                IncrBatchName := IncStr("Journal Batch Name") <> '';
-            if WhseJnlTemplate."Increment Batch Name" then
-                IncreaseBatchName(IncrBatchName);
-
-            WhseJnlLine3.SetRange("Journal Batch Name", "Journal Batch Name");
-            if (WhseJnlBatch."No. Series" = '') and not WhseJnlLine3.FindLast() then begin
-                WhseJnlLine3.Init();
-                WhseJnlLine3."Journal Template Name" := "Journal Template Name";
-                WhseJnlLine3."Journal Batch Name" := "Journal Batch Name";
-                WhseJnlLine3."Location Code" := "Location Code";
-                WhseJnlLine3."Line No." := 10000;
-                WhseJnlLine3.Insert();
-                WhseJnlLine3.SetUpNewLine(WhseJnlLine2);
-                WhseJnlLine3.Modify();
-            end;
+        WhseJnlLine3.SetRange("Journal Batch Name", WhseJnlLine."Journal Batch Name");
+        if (WhseJnlBatch."No. Series" = '') and not WhseJnlLine3.FindLast() then begin
+            WhseJnlLine3.Init();
+            WhseJnlLine3."Journal Template Name" := WhseJnlLine."Journal Template Name";
+            WhseJnlLine3."Journal Batch Name" := WhseJnlLine."Journal Batch Name";
+            WhseJnlLine3."Location Code" := WhseJnlLine."Location Code";
+            WhseJnlLine3."Line No." := 10000;
+            WhseJnlLine3.Insert();
+            WhseJnlLine3.SetUpNewLine(WhseJnlLine2);
+            WhseJnlLine3.Modify();
         end;
     end;
 
@@ -401,16 +365,14 @@ codeunit 7304 "Whse. Jnl.-Register Batch"
                 OnBeforeTempHandlingSpecificationInsert(TempHandlingSpecification, WhseItemTrkgLine);
                 TempHandlingSpecification.Insert();
 
-                with WhseJnlLine do begin
-                    Location.Get("Location Code");
-                    if ("From Bin Code" <> '') and
-                       ("From Bin Code" <> Location."Adjustment Bin Code") and
-                       Location."Directed Put-away and Pick"
-                    then begin
-                        BinContent.Get("Location Code", "From Bin Code", "Item No.", "Variant Code", "Unit of Measure Code");
-                        BinContent.SetTrackingFilterFromTrackingSpecification(TempHandlingSpecification);
-                        BinContent.CheckDecreaseBinContent("Qty. (Absolute)", "Qty. (Absolute, Base)", "Qty. (Absolute, Base)");
-                    end;
+                Location.Get(WhseJnlLine."Location Code");
+                if (WhseJnlLine."From Bin Code" <> '') and
+                   (WhseJnlLine."From Bin Code" <> Location."Adjustment Bin Code") and
+                   Location."Directed Put-away and Pick"
+                then begin
+                    BinContent.Get(WhseJnlLine."Location Code", WhseJnlLine."From Bin Code", WhseJnlLine."Item No.", WhseJnlLine."Variant Code", WhseJnlLine."Unit of Measure Code");
+                    BinContent.SetTrackingFilterFromTrackingSpecification(TempHandlingSpecification);
+                    BinContent.CheckDecreaseBinContent(WhseJnlLine."Qty. (Absolute)", WhseJnlLine."Qty. (Absolute, Base)", WhseJnlLine."Qty. (Absolute, Base)");
                 end;
             until WhseItemTrkgLine.Next() = 0;
     end;
@@ -418,28 +380,26 @@ codeunit 7304 "Whse. Jnl.-Register Batch"
     local procedure UpdateTempBinContentBuffer(WhseJnlLine: Record "Warehouse Journal Line"; BinCode: Code[20]; Increase: Boolean)
     begin
         // Calculate cubage and weight per bin
-        with WhseJnlLine do begin
-            if not TempBinContentBuffer.Get(
-                 "Location Code", BinCode, '', '', '', '', '')
-            then begin
-                TempBinContentBuffer.Init();
-                TempBinContentBuffer."Location Code" := "Location Code";
-                TempBinContentBuffer."Bin Code" := BinCode;
-                TempBinContentBuffer.Insert();
-            end;
-            if Increase then begin
-                TempBinContentBuffer."Qty. to Handle (Base)" := TempBinContentBuffer."Qty. to Handle (Base)" + "Qty. (Absolute, Base)";
-                TempBinContentBuffer.Cubage := TempBinContentBuffer.Cubage + Cubage;
-                TempBinContentBuffer.Weight := TempBinContentBuffer.Weight + Weight;
-            end else begin
-                WMSMgt.CalcCubageAndWeight(
-                  "Item No.", "Unit of Measure Code", "Qty. (Absolute)", Cubage, Weight);
-                TempBinContentBuffer."Qty. to Handle (Base)" := TempBinContentBuffer."Qty. to Handle (Base)" - "Qty. (Absolute, Base)";
-                TempBinContentBuffer.Cubage := TempBinContentBuffer.Cubage - Cubage;
-                TempBinContentBuffer.Weight := TempBinContentBuffer.Weight - Weight;
-            end;
-            TempBinContentBuffer.Modify();
+        if not TempBinContentBuffer.Get(
+            WhseJnlLine."Location Code", BinCode, '', '', '', '', '')
+        then begin
+            TempBinContentBuffer.Init();
+            TempBinContentBuffer."Location Code" := WhseJnlLine."Location Code";
+            TempBinContentBuffer."Bin Code" := BinCode;
+            TempBinContentBuffer.Insert();
         end;
+        if Increase then begin
+            TempBinContentBuffer."Qty. to Handle (Base)" := TempBinContentBuffer."Qty. to Handle (Base)" + WhseJnlLine."Qty. (Absolute, Base)";
+            TempBinContentBuffer.Cubage := TempBinContentBuffer.Cubage + WhseJnlLine.Cubage;
+            TempBinContentBuffer.Weight := TempBinContentBuffer.Weight + WhseJnlLine.Weight;
+        end else begin
+            WMSMgt.CalcCubageAndWeight(
+              WhseJnlLine."Item No.", WhseJnlLine."Unit of Measure Code", WhseJnlLine."Qty. (Absolute)", WhseJnlLine.Cubage, WhseJnlLine.Weight);
+            TempBinContentBuffer."Qty. to Handle (Base)" := TempBinContentBuffer."Qty. to Handle (Base)" - WhseJnlLine."Qty. (Absolute, Base)";
+            TempBinContentBuffer.Cubage := TempBinContentBuffer.Cubage - WhseJnlLine.Cubage;
+            TempBinContentBuffer.Weight := TempBinContentBuffer.Weight - WhseJnlLine.Weight;
+        end;
+        TempBinContentBuffer.Modify();
     end;
 
     local procedure CheckIncreaseBin()
@@ -452,15 +412,13 @@ codeunit 7304 "Whse. Jnl.-Register Batch"
         if IsHandled then
             exit;
 
-        with TempBinContentBuffer do begin
-            SetFilter("Qty. to Handle (Base)", '>0');
-            if Find('-') then
-                repeat
-                    Bin.Get("Location Code", "Bin Code");
-                    Bin.CheckIncreaseBin(
-                      "Bin Code", '', "Qty. to Handle (Base)", Cubage, Weight, Cubage, Weight, true, false);
-                until Next() = 0;
-        end;
+        TempBinContentBuffer.SetFilter("Qty. to Handle (Base)", '>0');
+        if TempBinContentBuffer.Find('-') then
+            repeat
+                Bin.Get(TempBinContentBuffer."Location Code", TempBinContentBuffer."Bin Code");
+                Bin.CheckIncreaseBin(
+                  TempBinContentBuffer."Bin Code", '', TempBinContentBuffer."Qty. to Handle (Base)", TempBinContentBuffer.Cubage, TempBinContentBuffer.Weight, TempBinContentBuffer.Cubage, TempBinContentBuffer.Weight, true, false);
+            until TempBinContentBuffer.Next() = 0;
     end;
 
     local procedure FindWhseRegNo(): Integer
@@ -499,30 +457,28 @@ codeunit 7304 "Whse. Jnl.-Register Batch"
             ItemJnlLine.Init();
             ItemJnlLine."Line No." := 0;
             ItemJnlLine.Validate("Entry Type", ItemJnlLine."Entry Type"::Transfer);
-            with WhseJnlLine2 do begin
-                repeat
-                    ShouldCreateReservEntry := not WhseItemTrkgLine.HasSameNewTracking() or
-                        (WhseItemTrkgLine."New Expiration Date" <> WhseItemTrkgLine."Expiration Date");
-                    OnCreateItemJnlLineOnAfterCalcShouldCreateReservEntry(WhseJnlLine2, WhseItemTrkgLine, ShouldCreateReservEntry);
-                    if ShouldCreateReservEntry then begin
-                        ReservEntry.CopyTrackingFromWhseItemTrackingLine(WhseItemTrkgLine);
-                        CreateReservEntry.CreateReservEntryFor(
-                          Database::"Item Journal Line", ItemJnlLine."Entry Type".AsInteger(), '', '', 0, "Line No.", WhseItemTrkgLine."Qty. per Unit of Measure",
-                          Abs(WhseItemTrkgLine."Qty. to Handle"), Abs(WhseItemTrkgLine."Qty. to Handle (Base)"), ReservEntry);
-                        CreateReservEntry.SetNewTrackingFromNewWhseItemTrackingLine(WhseItemTrkgLine);
-                        CreateReservEntry.SetDates(WhseItemTrkgLine."Warranty Date", WhseItemTrkgLine."Expiration Date");
-                        CreateReservEntry.SetNewExpirationDate(WhseItemTrkgLine."New Expiration Date");
-                        OnBeforeCreateReservEntry(WhseJnlLine2, WhseItemTrkgLine);
-                        CreateReservEntry.CreateEntry(
-                          "Item No.", "Variant Code", "Location Code", Description, 0D, 0D, 0, ReservEntry."Reservation Status"::Prospect);
-                        QtyToHandleBase += Abs(WhseItemTrkgLine."Qty. to Handle (Base)");
-                    end;
-                until WhseItemTrkgLine.Next() = 0;
-
-                if QtyToHandleBase <> 0 then begin
-                    CopyFieldsFromWhseJnlLineToItemJnlLine(WhseJnlLine2, ItemJnlLine, QtyToHandleBase);
-                    OnAfterCreateItemJnlLine(ItemJnlLine, WhseItemTrkgLine, WhseJnlLine2, QtyToHandleBase);
+            repeat
+                ShouldCreateReservEntry := not WhseItemTrkgLine.HasSameNewTracking() or
+                    (WhseItemTrkgLine."New Expiration Date" <> WhseItemTrkgLine."Expiration Date");
+                OnCreateItemJnlLineOnAfterCalcShouldCreateReservEntry(WhseJnlLine2, WhseItemTrkgLine, ShouldCreateReservEntry);
+                if ShouldCreateReservEntry then begin
+                    ReservEntry.CopyTrackingFromWhseItemTrackingLine(WhseItemTrkgLine);
+                    CreateReservEntry.CreateReservEntryFor(
+                      Database::"Item Journal Line", ItemJnlLine."Entry Type".AsInteger(), '', '', 0, WhseJnlLine2."Line No.", WhseItemTrkgLine."Qty. per Unit of Measure",
+                      Abs(WhseItemTrkgLine."Qty. to Handle"), Abs(WhseItemTrkgLine."Qty. to Handle (Base)"), ReservEntry);
+                    CreateReservEntry.SetNewTrackingFromNewWhseItemTrackingLine(WhseItemTrkgLine);
+                    CreateReservEntry.SetDates(WhseItemTrkgLine."Warranty Date", WhseItemTrkgLine."Expiration Date");
+                    CreateReservEntry.SetNewExpirationDate(WhseItemTrkgLine."New Expiration Date");
+                    OnBeforeCreateReservEntry(WhseJnlLine2, WhseItemTrkgLine);
+                    CreateReservEntry.CreateEntry(
+                      WhseJnlLine2."Item No.", WhseJnlLine2."Variant Code", WhseJnlLine2."Location Code", WhseJnlLine2.Description, 0D, 0D, 0, ReservEntry."Reservation Status"::Prospect);
+                    QtyToHandleBase += Abs(WhseItemTrkgLine."Qty. to Handle (Base)");
                 end;
+            until WhseItemTrkgLine.Next() = 0;
+
+            if QtyToHandleBase <> 0 then begin
+                CopyFieldsFromWhseJnlLineToItemJnlLine(WhseJnlLine2, ItemJnlLine, QtyToHandleBase);
+                OnAfterCreateItemJnlLine(ItemJnlLine, WhseItemTrkgLine, WhseJnlLine2, QtyToHandleBase);
             end;
         end;
 
@@ -595,39 +551,33 @@ codeunit 7304 "Whse. Jnl.-Register Batch"
     var
         Item: Record Item;
     begin
-        with Item do begin
-            Get(ItemNo);
-            SetFilter("Location Filter", LocationCode);
-            SetFilter("Variant Filter", VariantCode);
-            CalcFields("Reserved Qty. on Inventory");
-            exit("Reserved Qty. on Inventory")
-        end;
+        Item.Get(ItemNo);
+        Item.SetFilter("Location Filter", LocationCode);
+        Item.SetFilter("Variant Filter", VariantCode);
+        Item.CalcFields("Reserved Qty. on Inventory");
+        exit(Item."Reserved Qty. on Inventory")
     end;
 
     local procedure CalcQtyOnWarehouseEntry(ItemNo: Code[20]; LocationCode: Code[20]; VariantCode: Code[20]): Decimal
     var
         WarehouseEntry: Record "Warehouse Entry";
     begin
-        with WarehouseEntry do begin
-            Reset();
-            SetCurrentKey("Item No.", "Location Code", "Variant Code", "Bin Type Code", "Unit of Measure Code", "Lot No.", "Serial No.");
-            SetRange("Item No.", ItemNo);
-            SetRange("Location Code", LocationCode);
-            SetRange("Variant Code", VariantCode);
-            CalcSums("Qty. (Base)");
-            exit("Qty. (Base)");
-        end;
+        WarehouseEntry.Reset();
+        WarehouseEntry.SetCurrentKey("Item No.", "Location Code", "Variant Code", "Bin Type Code", "Unit of Measure Code", "Lot No.", "Serial No.");
+        WarehouseEntry.SetRange("Item No.", ItemNo);
+        WarehouseEntry.SetRange("Location Code", LocationCode);
+        WarehouseEntry.SetRange("Variant Code", VariantCode);
+        WarehouseEntry.CalcSums(WarehouseEntry."Qty. (Base)");
+        exit(WarehouseEntry."Qty. (Base)");
     end;
 
     local procedure InsertTempSKU(var TempSKU: Record "Stockkeeping Unit" temporary; WhseJnlLine: Record "Warehouse Journal Line")
     begin
-        with TempSKU do begin
-            Init();
-            "Location Code" := WhseJnlLine."Location Code";
-            "Item No." := WhseJnlLine."Item No.";
-            "Variant Code" := WhseJnlLine."Variant Code";
-            Insert();
-        end;
+        TempSKU.Init();
+        TempSKU."Location Code" := WhseJnlLine."Location Code";
+        TempSKU."Item No." := WhseJnlLine."Item No.";
+        TempSKU."Variant Code" := WhseJnlLine."Variant Code";
+        TempSKU.Insert();
     end;
 
     procedure SetSuppressCommit(NewSuppressCommit: Boolean)

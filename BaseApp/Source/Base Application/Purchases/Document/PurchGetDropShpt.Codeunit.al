@@ -40,103 +40,102 @@ codeunit 76 "Purch.-Get Drop Shpt."
         PurchLine2: Record "Purchase Line";
         IsHandled: Boolean;
     begin
-        with PurchHeader do begin
-            TestField("Document Type", "Document Type"::Order);
+        PurchHeader.TestField("Document Type", PurchHeader."Document Type"::Order);
 
-            if "Sell-to Customer No." = '' then
-                Error(SelltoCustomerBlankErr);
+        if PurchHeader."Sell-to Customer No." = '' then
+            Error(SelltoCustomerBlankErr);
 
-            IsHandled := false;
-            OnCodeOnBeforeSelectSalesHeader(PurchHeader, SalesHeader, IsHandled);
-            if not IsHandled then begin
-                SalesHeader.SetCurrentKey("Document Type", "Sell-to Customer No.");
-                SalesHeader.SetRange("Document Type", SalesHeader."Document Type"::Order);
-                SalesHeader.SetRange("Sell-to Customer No.", "Sell-to Customer No.");
-                if (PAGE.RunModal(PAGE::"Sales List", SalesHeader) <> ACTION::LookupOK) or
-                   (SalesHeader."No." = '')
-                then
-                    exit;
-            end;
-
-            LockTable();
-            SalesHeader.TestField("Document Type", SalesHeader."Document Type"::Order);
-            TestField("Sell-to Customer No.", SalesHeader."Sell-to Customer No.");
-            TestField("Ship-to Code", SalesHeader."Ship-to Code");
-            if DropShptOrderExists(SalesHeader) then
-                AddShipToAddress(SalesHeader, true);
-
-            PurchLine.LockTable();
-            SalesLine.LockTable();
-
-            PurchLine.SetRange("Document Type", PurchLine."Document Type"::Order);
-            PurchLine.SetRange("Document No.", "No.");
-            if PurchLine.FindLast() then
-                NextLineNo := PurchLine."Line No." + 10000
-            else
-                NextLineNo := 10000;
-
-            SalesLine.SetRange("Document Type", SalesLine."Document Type"::Order);
-            SalesLine.SetRange("Document No.", SalesHeader."No.");
-            SalesLine.SetRange("Drop Shipment", true);
-            SalesLine.SetFilter("Outstanding Quantity", '<>0');
-            SalesLine.SetRange(Type, SalesLine.Type::Item);
-            SalesLine.SetFilter("No.", '<>%1', '');
-            SalesLine.SetRange("Purch. Order Line No.", 0);
-            OnCodeOnAfterSalesLineSetFilters(SalesLine, PurchHeader);
-
-            if SalesLine.Find('-') then
-                repeat
-                    CheckSalesLineQtyPerUnitOfMeasure();
-                    IsHandled := false;
-                    OnCodeOnBeforeProcessPurchaseLine(SalesLine, IsHandled, PurchHeader, NextLineNo);
-                    if not IsHandled then begin
-                        PurchLine.Init();
-                        PurchLine."Document Type" := PurchLine."Document Type"::Order;
-                        PurchLine."Document No." := "No.";
-                        PurchLine."Line No." := NextLineNo;
-                        CopyDocMgt.TransfldsFromSalesToPurchLine(SalesLine, PurchLine);
-                        GetDescription(PurchLine, SalesLine);
-                        PurchLine."Sales Order No." := SalesLine."Document No.";
-                        PurchLine."Sales Order Line No." := SalesLine."Line No.";
-                        PurchLine."Drop Shipment" := true;
-                        PurchLine."Purchasing Code" := SalesLine."Purchasing Code";
-                        Evaluate(PurchLine."Inbound Whse. Handling Time", '<0D>');
-                        PurchLine.Validate("Inbound Whse. Handling Time");
-                        OnBeforePurchaseLineInsert(PurchLine, SalesLine);
-                        PurchLine.Insert();
-                        OnAfterPurchaseLineInsert(PurchLine, SalesLine, NextLineNo);
-
-                        NextLineNo := NextLineNo + 10000;
-
-                        UpdateSalesLineUnitCostLCY();
-                        SalesLine."Purchase Order No." := PurchLine."Document No.";
-                        SalesLine."Purch. Order Line No." := PurchLine."Line No.";
-                        OnBeforeSalesLineModify(SalesLine, PurchLine, SalesHeader);
-                        SalesLine.Modify();
-                        OnAfterSalesLineModify(SalesLine, PurchLine);
-                        ItemTrackingMgt.CopyItemTracking(SalesLine.RowID1(), PurchLine.RowID1(), true);
-
-                        if TransferExtendedText.PurchCheckIfAnyExtText(PurchLine, false) then begin
-                            TransferExtendedText.InsertPurchExtText(PurchLine);
-                            PurchLine2.SetRange("Document Type", "Document Type");
-                            PurchLine2.SetRange("Document No.", "No.");
-                            if PurchLine2.FindLast() then
-                                NextLineNo := PurchLine2."Line No.";
-                            NextLineNo := NextLineNo + 10000;
-                        end;
-                        OnCodeOnAfterInsertPurchExtText(SalesLine, PurchHeader, NextLineNo);
-                    end;
-                until SalesLine.Next() = 0
-            else
-                Error(
-                  Text000,
-                  SalesHeader."No.");
-
-            OnCodeOnBeforeModify(PurchHeader, SalesHeader);
-
-            Modify(); // Only version check
-            SalesHeader.Modify(); // Only version check
+        IsHandled := false;
+        OnCodeOnBeforeSelectSalesHeader(PurchHeader, SalesHeader, IsHandled);
+        if not IsHandled then begin
+            SalesHeader.SetCurrentKey("Document Type", "Sell-to Customer No.");
+            SalesHeader.SetRange("Document Type", SalesHeader."Document Type"::Order);
+            SalesHeader.SetRange("Sell-to Customer No.", PurchHeader."Sell-to Customer No.");
+            if (PAGE.RunModal(PAGE::"Sales List", SalesHeader) <> ACTION::LookupOK) or
+               (SalesHeader."No." = '')
+            then
+                exit;
         end;
+
+        PurchHeader.LockTable();
+        SalesHeader.TestField("Document Type", SalesHeader."Document Type"::Order);
+        PurchHeader.TestField("Sell-to Customer No.", SalesHeader."Sell-to Customer No.");
+        PurchHeader.TestField("Ship-to Code", SalesHeader."Ship-to Code");
+        if PurchHeader.DropShptOrderExists(SalesHeader) then
+            PurchHeader.AddShipToAddress(SalesHeader, true);
+
+        PurchLine.LockTable();
+        SalesLine.LockTable();
+
+        PurchLine.SetRange("Document Type", PurchLine."Document Type"::Order);
+        PurchLine.SetRange("Document No.", PurchHeader."No.");
+        if PurchLine.FindLast() then
+            NextLineNo := PurchLine."Line No." + 10000
+        else
+            NextLineNo := 10000;
+
+        SalesLine.SetRange("Document Type", SalesLine."Document Type"::Order);
+        SalesLine.SetRange("Document No.", SalesHeader."No.");
+        SalesLine.SetRange("Drop Shipment", true);
+        SalesLine.SetFilter("Outstanding Quantity", '<>0');
+        SalesLine.SetRange(Type, SalesLine.Type::Item);
+        SalesLine.SetFilter("No.", '<>%1', '');
+        SalesLine.SetRange("Purch. Order Line No.", 0);
+        OnCodeOnAfterSalesLineSetFilters(SalesLine, PurchHeader);
+
+        if SalesLine.Find('-') then
+            repeat
+                CheckSalesLineQtyPerUnitOfMeasure();
+                IsHandled := false;
+                OnCodeOnBeforeProcessPurchaseLine(SalesLine, IsHandled, PurchHeader, NextLineNo);
+                if not IsHandled then begin
+                    PurchLine.Init();
+                    PurchLine."Document Type" := PurchLine."Document Type"::Order;
+                    PurchLine."Document No." := PurchHeader."No.";
+                    PurchLine."Line No." := NextLineNo;
+                    CopyDocMgt.TransfldsFromSalesToPurchLine(SalesLine, PurchLine);
+                    GetDescription(PurchLine, SalesLine);
+                    PurchLine."Sales Order No." := SalesLine."Document No.";
+                    PurchLine."Sales Order Line No." := SalesLine."Line No.";
+                    PurchLine."Drop Shipment" := true;
+                    PurchLine."Purchasing Code" := SalesLine."Purchasing Code";
+                    Evaluate(PurchLine."Inbound Whse. Handling Time", '<0D>');
+                    PurchLine.Validate("Inbound Whse. Handling Time");
+                    OnBeforePurchaseLineInsert(PurchLine, SalesLine);
+                    PurchLine.Insert();
+                    OnAfterPurchaseLineInsert(PurchLine, SalesLine, NextLineNo);
+
+                    NextLineNo := NextLineNo + 10000;
+
+                    UpdateSalesLineUnitCostLCY();
+                    SalesLine."Purchase Order No." := PurchLine."Document No.";
+                    SalesLine."Purch. Order Line No." := PurchLine."Line No.";
+                    OnBeforeSalesLineModify(SalesLine, PurchLine, SalesHeader);
+                    SalesLine.Modify();
+                    OnAfterSalesLineModify(SalesLine, PurchLine);
+                    ItemTrackingMgt.CopyItemTracking(SalesLine.RowID1(), PurchLine.RowID1(), true);
+
+                    if TransferExtendedText.PurchCheckIfAnyExtText(PurchLine, false) then begin
+                        TransferExtendedText.InsertPurchExtText(PurchLine);
+                        PurchLine2.SetRange("Document Type", PurchHeader."Document Type");
+                        PurchLine2.SetRange("Document No.", PurchHeader."No.");
+                        if PurchLine2.FindLast() then
+                            NextLineNo := PurchLine2."Line No.";
+                        NextLineNo := NextLineNo + 10000;
+                    end;
+                    OnCodeOnAfterInsertPurchExtText(SalesLine, PurchHeader, NextLineNo);
+                end;
+            until SalesLine.Next() = 0
+        else
+            Error(
+              Text000,
+              SalesHeader."No.");
+
+        OnCodeOnBeforeModify(PurchHeader, SalesHeader);
+
+        PurchHeader.Modify();
+        // Only version check
+        SalesHeader.Modify(); // Only version check
         OnAfterCode(PurchHeader, SalesHeader);
     end;
 

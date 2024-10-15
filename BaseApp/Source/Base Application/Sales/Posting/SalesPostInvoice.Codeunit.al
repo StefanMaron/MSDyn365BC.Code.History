@@ -437,6 +437,12 @@ codeunit 815 "Sales Post Invoice" implements "Invoice Posting"
         JobSalesLine.SetRange("VAT Prod. Posting Group", InvoicePostingBuffer."VAT Prod. Posting Group");
         JobSalesLine.SetRange("Dimension Set ID", InvoicePostingBuffer."Dimension Set ID");
 
+        if InvoicePostingBuffer."Fixed Asset Line No." <> 0 then begin
+            SalesSetup.Get();
+            if SalesSetup."Copy Line Descr. to G/L Entry" then
+                JobSalesLine.SetRange("Line No.", InvoicePostingBuffer."Fixed Asset Line No.");
+        end;
+
         SalesPostInvoiceEvents.RunOnAfterSetJobLineFilters(JobSalesLine, InvoicePostingBuffer);
     end;
 

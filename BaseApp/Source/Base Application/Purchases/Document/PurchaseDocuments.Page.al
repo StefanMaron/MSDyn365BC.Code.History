@@ -12,7 +12,7 @@ page 1159 "Purchase Documents"
     PageType = ListPart;
     SourceTable = "Vendor Ledger Entry";
     SourceTableView = sorting("Entry No.")
-                      order(Descending);
+                      order(descending);
 
     layout
     {

@@ -177,7 +177,9 @@ page 1290 "Payment Reconciliation Journal"
                     ToolTip = 'Specifies the posting date on the open entry that the payment is applied to.';
                     Visible = false;
                 }
+#pragma warning disable AA0100
                 field("AppliedPmtEntry.""Currency Code"""; AppliedPmtEntry."Currency Code")
+#pragma warning restore AA0100
                 {
                     ApplicationArea = Suite;
                     Caption = 'Entry Currency Code';
@@ -1417,7 +1419,7 @@ page 1290 "Payment Reconciliation Journal"
     begin
     end;
 
-    [IntegrationEvent(TRUE, false)]
+    [IntegrationEvent(true, false)]
     [Scope('OnPrem')]
     procedure OnUpdateSorting(BankAccReconciliation: Record "Bank Acc. Reconciliation"; var SubscriberInvoked: Boolean)
     begin

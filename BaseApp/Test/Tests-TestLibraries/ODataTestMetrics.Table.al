@@ -1,6 +1,7 @@
 table 130640 "OData Test Metrics"
 {
     ReplicateData = false;
+    DataClassification = CustomerContent;
 
     fields
     {

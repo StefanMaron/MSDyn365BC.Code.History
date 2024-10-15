@@ -33,7 +33,7 @@ page 1330 "Update Address"
                 Editable = false;
                 MultiLine = true;
                 Style = Strong;
-                StyleExpr = TRUE;
+                StyleExpr = true;
                 ToolTip = 'Specifies the entered full address of the customer or vendor.';
             }
         }

@@ -4,6 +4,7 @@ table 1507 "Workflow Step Buffer"
 {
     Caption = 'Workflow Step Buffer';
     ReplicateData = false;
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -172,7 +173,7 @@ table 1507 "Workflow Step Buffer"
         }
         field(18; Template; Boolean)
         {
-            CalcFormula = Lookup(Workflow.Template where(Code = field("Workflow Code")));
+            CalcFormula = lookup(Workflow.Template where(Code = field("Workflow Code")));
             Caption = 'Template';
             FieldClass = FlowField;
         }
@@ -824,7 +825,7 @@ table 1507 "Workflow Step Buffer"
 
         TempWorkflowEvent.SetView(EventFilter);
         if PAGE.RunModal(0, TempWorkflowEvent) = ACTION::LookupOK then begin
-            If ("Event Description" <> '') and ("Event Description" <> TempWorkflowEvent.Description) then
+            if ("Event Description" <> '') and ("Event Description" <> TempWorkflowEvent.Description) then
                 if Dialog.Confirm(ResponseDeleteLbl, false) then
                     DeleteResponse()
                 else

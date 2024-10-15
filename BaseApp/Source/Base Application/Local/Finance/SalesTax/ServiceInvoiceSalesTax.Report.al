@@ -381,51 +381,50 @@ report 10474 "Service Invoice-Sales Tax"
                         begin
                             OnLineNumber := OnLineNumber + 1;
 
-                            with TempServInvoiceLine do begin
-                                if OnLineNumber = 1 then
-                                    Find('-')
-                                else
-                                    Next();
+                            if OnLineNumber = 1 then
+                                TempServInvoiceLine.Find('-')
+                            else
+                                TempServInvoiceLine.Next();
 
-                                OrderedQuantity := 0;
-                                if "Service Invoice Header"."Order No." = '' then
-                                    OrderedQuantity := Quantity
-                                else
-                                    if OrderLine.Get(1, "Service Invoice Header"."Order No.", "Line No.") then
-                                        OrderedQuantity := OrderLine.Quantity
-                                    else begin
-                                        ShipmentLine.SetRange("Order No.", "Service Invoice Header"."Order No.");
-                                        ShipmentLine.SetRange("Order Line No.", "Line No.");
-                                        if ShipmentLine.Find('-') then
-                                            repeat
-                                                OrderedQuantity := OrderedQuantity + ShipmentLine.Quantity;
-                                            until 0 = ShipmentLine.Next();
-                                    end;
+                            OrderedQuantity := 0;
+                            if "Service Invoice Header"."Order No." = '' then
+                                OrderedQuantity := TempServInvoiceLine.Quantity
+                            else
+                                if OrderLine.Get(1, "Service Invoice Header"."Order No.", TempServInvoiceLine."Line No.") then
+                                    OrderedQuantity := OrderLine.Quantity
+                                else begin
+                                    ShipmentLine.SetRange("Order No.", "Service Invoice Header"."Order No.");
+                                    ShipmentLine.SetRange("Order Line No.", TempServInvoiceLine."Line No.");
+                                    if ShipmentLine.Find('-') then
+                                        repeat
+                                            OrderedQuantity := OrderedQuantity + ShipmentLine.Quantity;
+                                        until 0 = ShipmentLine.Next();
+                                end;
 
-                                DescriptionToPrint := Description + ' ' + "Description 2";
-                                if Type = Type::" " then begin
-                                    "No." := '';
-                                    "Unit of Measure" := '';
-                                    Amount := 0;
-                                    "Amount Including VAT" := 0;
-                                    "Inv. Discount Amount" := 0;
-                                    Quantity := 0;
-                                end else
-                                    if Type = Type::"G/L Account" then
-                                        "No." := '';
+                            DescriptionToPrint := TempServInvoiceLine.Description + ' ' + TempServInvoiceLine."Description 2";
+                            if TempServInvoiceLine.Type = TempServInvoiceLine.Type::" " then begin
+                                TempServInvoiceLine."No." := '';
+                                TempServInvoiceLine."Unit of Measure" := '';
+                                TempServInvoiceLine.Amount := 0;
+                                TempServInvoiceLine."Amount Including VAT" := 0;
+                                TempServInvoiceLine."Inv. Discount Amount" := 0;
+                                TempServInvoiceLine.Quantity := 0;
+                            end else
+                                if TempServInvoiceLine.Type = TempServInvoiceLine.Type::"G/L Account" then
+                                    TempServInvoiceLine."No." := '';
 
-                                if Amount <> "Amount Including VAT" then
-                                    TaxLiable := Amount
-                                else
-                                    TaxLiable := 0;
+                            if TempServInvoiceLine.Amount <> TempServInvoiceLine."Amount Including VAT" then
+                                TaxLiable := TempServInvoiceLine.Amount
+                            else
+                                TaxLiable := 0;
 
-                                AmountExclInvDisc := Amount + "Inv. Discount Amount";
+                            AmountExclInvDisc := TempServInvoiceLine.Amount + TempServInvoiceLine."Inv. Discount Amount";
 
-                                if Quantity = 0 then
-                                    UnitPriceToPrint := 0 // so it won't print
-                                else
-                                    UnitPriceToPrint := Round(AmountExclInvDisc / Quantity, 0.00001);
-                            end;
+                            if TempServInvoiceLine.Quantity = 0 then
+                                UnitPriceToPrint := 0
+                            // so it won't print
+                            else
+                                UnitPriceToPrint := Round(AmountExclInvDisc / TempServInvoiceLine.Quantity, 0.00001);
 
                             if OnLineNumber = NumberOfLines then
                                 PrintFooter := true;
@@ -493,8 +492,8 @@ report 10474 "Service Invoice-Sales Tax"
                         CompanyInformation."Phone No." := RespCenter."Phone No.";
                         CompanyInformation."Fax No." := RespCenter."Fax No.";
                     end;
-                CurrReport.Language := Language.GetLanguageIdOrDefault("Language Code");
-                CurrReport.FormatRegion := Language.GetFormatRegionOrDefault("Format Region");
+                CurrReport.Language := LanguageMgt.GetLanguageIdOrDefault("Language Code");
+                CurrReport.FormatRegion := LanguageMgt.GetFormatRegionOrDefault("Format Region");
                 /*?????
                 IF "Order No." = '' THEN
                   OrderNoText := ''
@@ -550,31 +549,29 @@ report 10474 "Service Invoice-Sales Tax"
                     BrkIdx := 0;
                     PrevPrintOrder := 0;
                     PrevTaxPercent := 0;
-                    with TempSalesTaxAmtLine do begin
-                        Reset();
-                        SetCurrentKey("Print Order", "Tax Area Code for Key", "Tax Jurisdiction Code");
-                        if Find('-') then
-                            repeat
-                                if ("Print Order" = 0) or
-                                   ("Print Order" <> PrevPrintOrder) or
-                                   ("Tax %" <> PrevTaxPercent)
-                                then begin
-                                    BrkIdx := BrkIdx + 1;
-                                    if BrkIdx > 1 then begin
-                                        if TaxArea."Country/Region" = TaxArea."Country/Region"::CA then
-                                            BreakdownTitle := Text006
-                                        else
-                                            BreakdownTitle := Text003;
-                                    end;
-                                    if BrkIdx > ArrayLen(BreakdownAmt) then begin
-                                        BrkIdx := BrkIdx - 1;
-                                        BreakdownLabel[BrkIdx] := Text004;
-                                    end else
-                                        BreakdownLabel[BrkIdx] := StrSubstNo("Print Description", "Tax %");
+                    TempSalesTaxAmtLine.Reset();
+                    TempSalesTaxAmtLine.SetCurrentKey("Print Order", "Tax Area Code for Key", "Tax Jurisdiction Code");
+                    if TempSalesTaxAmtLine.Find('-') then
+                        repeat
+                            if (TempSalesTaxAmtLine."Print Order" = 0) or
+                               (TempSalesTaxAmtLine."Print Order" <> PrevPrintOrder) or
+                               (TempSalesTaxAmtLine."Tax %" <> PrevTaxPercent)
+                            then begin
+                                BrkIdx := BrkIdx + 1;
+                                if BrkIdx > 1 then begin
+                                    if TaxArea."Country/Region" = TaxArea."Country/Region"::CA then
+                                        BreakdownTitle := Text006
+                                    else
+                                        BreakdownTitle := Text003;
                                 end;
-                                BreakdownAmt[BrkIdx] := BreakdownAmt[BrkIdx] + "Tax Amount";
-                            until Next() = 0;
-                    end;
+                                if BrkIdx > ArrayLen(BreakdownAmt) then begin
+                                    BrkIdx := BrkIdx - 1;
+                                    BreakdownLabel[BrkIdx] := Text004;
+                                end else
+                                    BreakdownLabel[BrkIdx] := StrSubstNo(TempSalesTaxAmtLine."Print Description", TempSalesTaxAmtLine."Tax %");
+                            end;
+                            BreakdownAmt[BrkIdx] := BreakdownAmt[BrkIdx] + TempSalesTaxAmtLine."Tax Amount";
+                        until TempSalesTaxAmtLine.Next() = 0;
                     if BrkIdx = 1 then begin
                         Clear(BreakdownLabel);
                         Clear(BreakdownAmt);
@@ -678,7 +675,7 @@ report 10474 "Service Invoice-Sales Tax"
         TempSalesTaxAmtLine: Record "Sales Tax Amount Line" temporary;
         TempLineFeeNoteOnReportHist: Record "Line Fee Note on Report Hist." temporary;
         TaxArea: Record "Tax Area";
-        Language: Codeunit Language;
+        LanguageMgt: Codeunit Language;
         CompanyAddress: array[8] of Text[100];
         BillToAddress: array[8] of Text[100];
         ShipToAddress: array[8] of Text[100];
@@ -889,17 +886,15 @@ report 10474 "Service Invoice-Sales Tax"
             exit;
         end;
 
-        with ServiceShipmentBuffer do begin
-            "Document No." := ServiceInvoiceLine."Document No.";
-            "Line No." := ServiceInvoiceLine."Line No.";
-            "Entry No." := NextEntryNo;
-            Type := ServiceInvoiceLine.Type;
-            "No." := ServiceInvoiceLine."No.";
-            Quantity := QtyOnShipment;
-            "Posting Date" := PostingDate;
-            Insert();
-            NextEntryNo := NextEntryNo + 1
-        end;
+        ServiceShipmentBuffer."Document No." := ServiceInvoiceLine."Document No.";
+        ServiceShipmentBuffer."Line No." := ServiceInvoiceLine."Line No.";
+        ServiceShipmentBuffer."Entry No." := NextEntryNo;
+        ServiceShipmentBuffer.Type := ServiceInvoiceLine.Type;
+        ServiceShipmentBuffer."No." := ServiceInvoiceLine."No.";
+        ServiceShipmentBuffer.Quantity := QtyOnShipment;
+        ServiceShipmentBuffer."Posting Date" := PostingDate;
+        ServiceShipmentBuffer.Insert();
+        NextEntryNo := NextEntryNo + 1
     end;
 
     local procedure GetLineFeeNoteOnReportHist(SalesInvoiceHeaderNo: Code[20])
@@ -926,7 +921,7 @@ report 10474 "Service Invoice-Sales Tax"
                 TempLineFeeNoteOnReportHist.Insert();
             until LineFeeNoteOnReportHist.Next() = 0;
         end else begin
-            LineFeeNoteOnReportHist.SetRange("Language Code", Language.GetUserLanguageCode());
+            LineFeeNoteOnReportHist.SetRange("Language Code", LanguageMgt.GetUserLanguageCode());
             if LineFeeNoteOnReportHist.FindSet() then
                 repeat
                     TempLineFeeNoteOnReportHist.Init();

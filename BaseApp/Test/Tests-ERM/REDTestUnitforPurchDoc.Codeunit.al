@@ -54,7 +54,7 @@ codeunit 134804 "RED Test Unit for Purch Doc"
         // [THEN] The deferral schedule was created
         ValidateDeferralSchedule(
           PurchaseLine."Document Type", PurchaseLine."Document No.", PurchaseLine."Line No.",
-          DeferralTemplateCode, PurchaseHeader."Posting Date", PurchaseLine.GetDeferralAmount, 2);
+          DeferralTemplateCode, PurchaseHeader."Posting Date", PurchaseLine.GetDeferralAmount(), 2);
     end;
 
     [Test]
@@ -87,7 +87,7 @@ codeunit 134804 "RED Test Unit for Purch Doc"
         // [THEN] The deferral schedule was created
         ValidateDeferralSchedule(
           PurchaseLine."Document Type", PurchaseLine."Document No.", PurchaseLine."Line No.",
-          DeferralTemplateCode, PurchaseHeader."Posting Date", PurchaseLine.GetDeferralAmount, 3);
+          DeferralTemplateCode, PurchaseHeader."Posting Date", PurchaseLine.GetDeferralAmount(), 3);
     end;
 
     [Test]
@@ -120,7 +120,7 @@ codeunit 134804 "RED Test Unit for Purch Doc"
         // [THEN] The deferral schedule was created
         ValidateDeferralSchedule(
           PurchaseLine."Document Type", PurchaseLine."Document No.", PurchaseLine."Line No.",
-          DeferralTemplateCode, PurchaseHeader."Posting Date", PurchaseLine.GetDeferralAmount, 3);
+          DeferralTemplateCode, PurchaseHeader."Posting Date", PurchaseLine.GetDeferralAmount(), 3);
     end;
 
     [Test]
@@ -153,7 +153,7 @@ codeunit 134804 "RED Test Unit for Purch Doc"
         DeferralHeader.TestField("Deferral Code", DeferralTemplateCode);
         DeferralHeader.TestField("Start Date",
           GetStartDate(StartDate::"Beginning of Period", PurchaseHeader."Posting Date"));
-        DeferralHeader.TestField("Amount to Defer", PurchaseLine.GetDeferralAmount);
+        DeferralHeader.TestField("Amount to Defer", PurchaseLine.GetDeferralAmount());
         DeferralHeader.TestField("No. of Periods", 4);
 
         // [THEN] Returns Deferral Start Date is set correctly
@@ -194,7 +194,7 @@ codeunit 134804 "RED Test Unit for Purch Doc"
           PurchaseLine."Document Type", PurchaseLine."Document No.", PurchaseLine."Line No.");
         DeferralHeader.TestField("Deferral Code", DeferralTemplateCode);
         DeferralHeader.TestField("Start Date", PurchaseLine."Returns Deferral Start Date");
-        DeferralHeader.TestField("Amount to Defer", PurchaseLine.GetDeferralAmount);
+        DeferralHeader.TestField("Amount to Defer", PurchaseLine.GetDeferralAmount());
         DeferralHeader.TestField("No. of Periods", 4);
 
         // [THEN] Returns Deferral Start Date is set correctly
@@ -429,7 +429,7 @@ codeunit 134804 "RED Test Unit for Purch Doc"
         PurchaseLine.SetRange("Document No.", PurchaseHeader."No.");
         PurchaseLine.Find('-');
         ModifyDeferral(PurchaseLine, DeferralHeader."Calc. Method"::"Equal per Period", 3,
-          PurchaseLine.GetDeferralAmount * 0.8, SetDateDay(15, WorkDate()));
+          PurchaseLine.GetDeferralAmount() * 0.8, SetDateDay(15, WorkDate()));
 
         // [WHEN] Create New purchase invoice document and copy the existing one with recalculate unmarked
         CreatePurchHeaderForVendor(PurchaseHeaderDest,
@@ -606,7 +606,7 @@ codeunit 134804 "RED Test Unit for Purch Doc"
         // [THEN] The deferral schedule was created
         ValidateDeferralSchedule(
           PurchaseLineDest."Document Type", PurchaseLineDest."Document No.", PurchaseLineDest."Line No.",
-          DeferralTemplateCode, PurchaseHeaderDest."Posting Date", PurchaseLineDest.GetDeferralAmount, 3);
+          DeferralTemplateCode, PurchaseHeaderDest."Posting Date", PurchaseLineDest.GetDeferralAmount(), 3);
     end;
 
     [Test]
@@ -708,7 +708,7 @@ codeunit 134804 "RED Test Unit for Purch Doc"
         CreatePurchDocWithLine(PurchaseHeader, PurchaseLine,
           PurchaseHeader."Document Type"::Order, PurchaseLine.Type::Item, ItemNo, SetDateDay(1, WorkDate()));
         ModifyDeferral(PurchaseLine, DeferralHeader."Calc. Method"::"Days per Period", 4,
-          PurchaseLine.GetDeferralAmount * 0.7, SetDateDay(12, WorkDate()));
+          PurchaseLine.GetDeferralAmount() * 0.7, SetDateDay(12, WorkDate()));
 
         // [WHEN] Document is archive
         ArchiveManagement.StorePurchDocument(PurchaseHeader, false);
@@ -742,7 +742,7 @@ codeunit 134804 "RED Test Unit for Purch Doc"
         CreatePurchDocWithLine(PurchaseHeader, PurchaseLine,
           PurchaseHeader."Document Type"::Order, PurchaseLine.Type::Item, ItemNo, SetDateDay(1, WorkDate()));
         ModifyDeferral(PurchaseLine, DeferralHeader."Calc. Method"::"Days per Period", 4,
-          PurchaseLine.GetDeferralAmount * 0.7, SetDateDay(12, WorkDate()));
+          PurchaseLine.GetDeferralAmount() * 0.7, SetDateDay(12, WorkDate()));
 
         // [GIVEN] Document is archived
         ArchiveManagement.StorePurchDocument(PurchaseHeader, false);
@@ -818,7 +818,7 @@ codeunit 134804 "RED Test Unit for Purch Doc"
         CreatePurchDocWithLine(PurchHeader, PurchLine,
           PurchHeader."Document Type"::Order, PurchLine.Type::Item, ItemNo, SetDateDay(1, WorkDate()));
         UpdateQtyToReceiveInvoiceOnPurchLine(PurchLine, 5, 2, 1);
-        AmtToDefer := GetInvoiceQtyAmtToDefer(PurchLine, PurchLine.GetDeferralAmount, PurchHeader."Currency Code");
+        AmtToDefer := GetInvoiceQtyAmtToDefer(PurchLine, PurchLine.GetDeferralAmount(), PurchHeader."Currency Code");
 
         // [WHEN] Invoice the partial Purchase Order
         DocNo := LibraryPurchase.PostPurchaseDocument(PurchHeader, true, true);
@@ -854,7 +854,7 @@ codeunit 134804 "RED Test Unit for Purch Doc"
         CreatePurchDocWithCurrencyAndLine(PurchHeader, PurchLine,
           PurchHeader."Document Type"::Order, PurchLine.Type::Item, ItemNo, SetDateDay(1, WorkDate()));
         UpdateQtyToReceiveInvoiceOnPurchLine(PurchLine, 6, 3, 2);
-        AmtToDefer := GetInvoiceQtyAmtToDefer(PurchLine, PurchLine.GetDeferralAmount, PurchHeader."Currency Code");
+        AmtToDefer := GetInvoiceQtyAmtToDefer(PurchLine, PurchLine.GetDeferralAmount(), PurchHeader."Currency Code");
         AmtToDeferLCY :=
           Round(CurrExchRate.ExchangeAmtFCYToLCY(SetDateDay(1, WorkDate()),
               PurchHeader."Currency Code", AmtToDefer, PurchHeader."Currency Factor"));
@@ -940,11 +940,11 @@ codeunit 134804 "RED Test Unit for Purch Doc"
           PurchHeader."Document Type"::Order, PurchLine.Type::Item, ItemNo, SetDateDay(1, WorkDate()));
         UpdateQtyToReceiveInvoiceOnPurchLine(PurchLine, 5, 1, 1);
         AccNo := GetDeferralTemplateAccount(DeferralTemplateCode);
-        AmtToDefer := Round(PurchLine.GetDeferralAmount * 0.7);
+        AmtToDefer := Round(PurchLine.GetDeferralAmount() * 0.7);
         ModifyDeferral(PurchLine, DeferralHeader."Calc. Method"::"Straight-Line", 2,
           AmtToDefer, SetDateDay(1, WorkDate()));
         AmtToDefer := GetInvoiceQtyAmtToDefer(PurchLine, AmtToDefer, PurchHeader."Currency Code");
-        PurchAmount := GetInvoiceQtyAmtToDefer(PurchLine, PurchLine.GetDeferralAmount, PurchHeader."Currency Code") - AmtToDefer;
+        PurchAmount := GetInvoiceQtyAmtToDefer(PurchLine, PurchLine.GetDeferralAmount(), PurchHeader."Currency Code") - AmtToDefer;
         GenPostingSetup.Get(PurchLine."Gen. Bus. Posting Group", PurchLine."Gen. Prod. Posting Group");
         PurchAccount := GenPostingSetup."Purch. Account";
 
@@ -981,7 +981,7 @@ codeunit 134804 "RED Test Unit for Purch Doc"
           PurchHeader."Document Type"::Order, PurchLine.Type::Item, ItemNo, SetDateDay(1, WorkDate()));
         UpdateQtyToReceiveInvoiceOnPurchLine(PurchLine, 5, 1, 1);
         AccNo := GetDeferralTemplateAccount(DeferralTemplateCode);
-        AmtToDefer := GetInvoiceQtyAmtToDefer(PurchLine, PurchLine.GetDeferralAmount, PurchHeader."Currency Code");
+        AmtToDefer := GetInvoiceQtyAmtToDefer(PurchLine, PurchLine.GetDeferralAmount(), PurchHeader."Currency Code");
 
         // [WHEN] Invoice the partial order the first time
         DocNo := LibraryPurchase.PostPurchaseDocument(PurchHeader, true, true);
@@ -991,7 +991,7 @@ codeunit 134804 "RED Test Unit for Purch Doc"
         PurchHeader.Modify();
         FindPurchLine(PurchHeader, PurchLine);
         UpdateQtyToReceiveInvoiceOnPurchLine(PurchLine, 5, 2, 2);
-        AmtToDefer := GetInvoiceQtyAmtToDefer(PurchLine, PurchLine.GetDeferralAmount, PurchHeader."Currency Code");
+        AmtToDefer := GetInvoiceQtyAmtToDefer(PurchLine, PurchLine.GetDeferralAmount(), PurchHeader."Currency Code");
 
         // [WHEN] Invoice the partial order the second time
         DocNo := LibraryPurchase.PostPurchaseDocument(PurchHeader, true, true);
@@ -1075,7 +1075,7 @@ codeunit 134804 "RED Test Unit for Purch Doc"
           REPORT::"Batch Post Purchase Invoices");
 
         // [THEN] Confirm is called once
-        Assert.AreEqual(1, LibraryVariableStorage.DequeueInteger, ConfirmCallOnceErr);
+        Assert.AreEqual(1, LibraryVariableStorage.DequeueInteger(), ConfirmCallOnceErr);
 
         // [THEN] Posting Date of Purchase Invoices is 01.11.16
         VerifyInvoicePostingDate(DocNo1, NewPostDate);
@@ -1125,7 +1125,7 @@ codeunit 134804 "RED Test Unit for Purch Doc"
         LibraryJobQueue.FindAndRunJobQueueEntryByRecordId(PurchaseHeader2.RecordId);
 
         // [THEN] Confirm is called once
-        Assert.AreEqual(1, LibraryVariableStorage.DequeueInteger, ConfirmCallOnceErr);
+        Assert.AreEqual(1, LibraryVariableStorage.DequeueInteger(), ConfirmCallOnceErr);
 
         // [THEN] Posting Date of Purchase Invoices is 01.11.16
         VerifyInvoicePostingDate(DocNo1, NewPostDate);
@@ -1175,7 +1175,7 @@ codeunit 134804 "RED Test Unit for Purch Doc"
         LibraryJobQueue.FindAndRunJobQueueEntryByRecordId(PurchaseHeader2.RecordId);
 
         // [THEN] Confirm is called once
-        Assert.AreEqual(1, LibraryVariableStorage.DequeueInteger, ConfirmCallOnceErr);
+        Assert.AreEqual(1, LibraryVariableStorage.DequeueInteger(), ConfirmCallOnceErr);
 
         // [THEN] Posting Date of Purchase Invoices is 01.11.16
         VerifyInvoicePostingDate(DocNo1, NewPostDate);
@@ -1225,7 +1225,7 @@ codeunit 134804 "RED Test Unit for Purch Doc"
         LibraryJobQueue.FindAndRunJobQueueEntryByRecordId(PurchaseHeader2.RecordId);
 
         // [THEN] Confirm is called once
-        Assert.AreEqual(1, LibraryVariableStorage.DequeueInteger, ConfirmCallOnceErr);
+        Assert.AreEqual(1, LibraryVariableStorage.DequeueInteger(), ConfirmCallOnceErr);
 
         // [THEN] Posting Date in Posted Credit Memos is 01.11.16
         VerifyCrMemoPostingDate(DocNo1, NewPostDate);
@@ -1275,7 +1275,7 @@ codeunit 134804 "RED Test Unit for Purch Doc"
         LibraryJobQueue.FindAndRunJobQueueEntryByRecordId(PurchaseHeader2.RecordId);
 
         // [THEN] Confirm is called once
-        Assert.AreEqual(1, LibraryVariableStorage.DequeueInteger, ConfirmCallOnceErr);
+        Assert.AreEqual(1, LibraryVariableStorage.DequeueInteger(), ConfirmCallOnceErr);
 
         // [THEN] Posting Date of Purchase Invoices is 01.11.16
         VerifyInvoicePostingDate(DocNo1, NewPostDate);
@@ -1325,7 +1325,7 @@ codeunit 134804 "RED Test Unit for Purch Doc"
         LibraryJobQueue.FindAndRunJobQueueEntryByRecordId(PurchaseHeader2.RecordId);
 
         // [THEN] Confirm is called once
-        Assert.AreEqual(1, LibraryVariableStorage.DequeueInteger, ConfirmCallOnceErr);
+        Assert.AreEqual(1, LibraryVariableStorage.DequeueInteger(), ConfirmCallOnceErr);
 
         // [THEN] Posting Date of Purchase Invoices is 01.11.16
         VerifyInvoicePostingDate(DocNo1, NewPostDate);
@@ -1375,7 +1375,7 @@ codeunit 134804 "RED Test Unit for Purch Doc"
         LibraryJobQueue.FindAndRunJobQueueEntryByRecordId(PurchaseHeader2.RecordId);
 
         // [THEN] Confirm is called once
-        Assert.AreEqual(1, LibraryVariableStorage.DequeueInteger, ConfirmCallOnceErr);
+        Assert.AreEqual(1, LibraryVariableStorage.DequeueInteger(), ConfirmCallOnceErr);
 
         // [THEN] Posting Date in Posted Credit Memos is 01.11.16
         VerifyCrMemoPostingDate(DocNo1, NewPostDate);
@@ -1549,8 +1549,8 @@ codeunit 134804 "RED Test Unit for Purch Doc"
         // [GIVEN] Creating Purchase Line for Item should default deferral code
         CreatePurchDocWithLine(PurchaseHeader, PurchaseLine,
           PurchaseHeader."Document Type"::Invoice, PurchaseLine.Type::Item, ItemNo, SetDateDay(1, WorkDate()));
-        AmtToDefer := Round(PurchaseLine.GetDeferralAmount * 0.7);
-        PurchAmount := PurchaseLine.GetDeferralAmount - AmtToDefer;
+        AmtToDefer := Round(PurchaseLine.GetDeferralAmount() * 0.7);
+        PurchAmount := PurchaseLine.GetDeferralAmount() - AmtToDefer;
         ModifyDeferral(PurchaseLine, DeferralHeader."Calc. Method"::"Straight-Line", 2,
           AmtToDefer, SetDateDay(1, WorkDate()));
         GenPostingSetup.Get(PurchaseLine."Gen. Bus. Posting Group", PurchaseLine."Gen. Prod. Posting Group");
@@ -1772,8 +1772,8 @@ codeunit 134804 "RED Test Unit for Purch Doc"
         // [GIVEN] Creating Purchase Line for Item should default deferral code
         CreatePurchDocWithLine(PurchaseHeader, PurchaseLine,
           PurchaseHeader."Document Type"::"Credit Memo", PurchaseLine.Type::Item, ItemNo, SetDateDay(1, WorkDate()));
-        AmtToDefer := Round(PurchaseLine.GetDeferralAmount * 0.7);
-        PurchAmount := PurchaseLine.GetDeferralAmount - AmtToDefer;
+        AmtToDefer := Round(PurchaseLine.GetDeferralAmount() * 0.7);
+        PurchAmount := PurchaseLine.GetDeferralAmount() - AmtToDefer;
         ModifyDeferral(PurchaseLine, DeferralHeader."Calc. Method"::"Straight-Line", 2,
           AmtToDefer, SetDateDay(1, WorkDate()));
 
@@ -1864,15 +1864,15 @@ codeunit 134804 "RED Test Unit for Purch Doc"
         PurchaseLine.Modify(true);
 
         // [WHEN] Run "Deferral Schedule" action on the line
-        PurchaseInvoice.OpenEdit;
+        PurchaseInvoice.OpenEdit();
         PurchaseInvoice.GotoRecord(PurchaseHeader);
-        PurchaseInvoice.PurchLines.DeferralSchedule.Invoke;
+        PurchaseInvoice.PurchLines.DeferralSchedule.Invoke();
         // [THEN] Page "Deferral Schedule" is open, where "Amount to Defer" is 'X'
-        Assert.AreEqual(PurchaseLine.GetDeferralAmount, LibraryVariableStorage.DequeueDecimal, 'Amount to defer.');
-        Assert.AreEqual(PurchaseHeader."Posting Date", LibraryVariableStorage.DequeueDate, 'Header Posting Date');
+        Assert.AreEqual(PurchaseLine.GetDeferralAmount(), LibraryVariableStorage.DequeueDecimal(), 'Amount to defer.');
+        Assert.AreEqual(PurchaseHeader."Posting Date", LibraryVariableStorage.DequeueDate(), 'Header Posting Date');
         DeferralTemplate.Get(DeferralTemplateCode);
-        Assert.AreEqual(Format(DeferralTemplate."Start Date"), LibraryVariableStorage.DequeueText, 'Start date calc method');
-        LibraryVariableStorage.AssertEmpty;
+        Assert.AreEqual(Format(DeferralTemplate."Start Date"), LibraryVariableStorage.DequeueText(), 'Start date calc method');
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -1887,15 +1887,15 @@ codeunit 134804 "RED Test Unit for Purch Doc"
         // [SCENARIO 127771] Entering a Purchase Invoice with Fixed Asset does not allow editing of the deferral code or accessing schedule
         Initialize();
         // [GIVEN] User has created a Purchase Document
-        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, CreateVendor);
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, CreateVendor());
 
         // [WHEN] Open the Purchase Invoice as edit with the document
-        PurchaseInvoice.OpenEdit;
+        PurchaseInvoice.OpenEdit();
         PurchaseInvoice.FILTER.SetFilter("No.", PurchaseHeader."No.");
         PurchaseInvoice.PurchLines.Type.Value(Format(PurchaseLine.Type::"Fixed Asset"));
 
         // [THEN] Deferral Code and Deferral Schedule menu are not enabled
-        Assert.IsFalse(PurchaseInvoice.PurchLines.DeferralSchedule.Enabled, 'Deferral Schedule should NOT be enabled');
+        Assert.IsFalse(PurchaseInvoice.PurchLines.DeferralSchedule.Enabled(), 'Deferral Schedule should NOT be enabled');
 
         PurchaseInvoice.Close();
     end;
@@ -1928,13 +1928,13 @@ codeunit 134804 "RED Test Unit for Purch Doc"
         Assert.AreEqual(2, DeferralLine.Count, 'An incorrect number of lines was created');
 
         // [GIVEN] Open the Purchase Invoice as edit with the document
-        PurchaseInvoice.OpenEdit;
+        PurchaseInvoice.OpenEdit();
         PurchaseInvoice.FILTER.SetFilter("No.", PurchaseHeader."No.");
-        PurchaseInvoice.PurchLines.First;
+        PurchaseInvoice.PurchLines.First();
 
         // [WHEN] Deferral Schedule is updated - happens in the handler function
         LibraryVariableStorage.Enqueue(3);
-        PurchaseInvoice.PurchLines.DeferralSchedule.Invoke;
+        PurchaseInvoice.PurchLines.DeferralSchedule.Invoke();
 
         // [THEN] Three periods have created three deferral lines
         FindDeferralHeader(PurchaseLine, DeferralHeader);
@@ -1964,15 +1964,15 @@ codeunit 134804 "RED Test Unit for Purch Doc"
         PurchaseLine.Modify(true);
 
         // [WHEN] Run "Deferral Schedule" action on the line
-        PurchaseOrder.OpenEdit;
+        PurchaseOrder.OpenEdit();
         PurchaseOrder.GotoRecord(PurchaseHeader);
-        PurchaseOrder.PurchLines.DeferralSchedule.Invoke;
+        PurchaseOrder.PurchLines.DeferralSchedule.Invoke();
         // [THEN] Page "Deferral Schedule" is open, where "Amount to Defer" is 'X'
-        Assert.AreEqual(PurchaseLine.GetDeferralAmount, LibraryVariableStorage.DequeueDecimal, 'Amount to defer.');
-        Assert.AreEqual(PurchaseHeader."Posting Date", LibraryVariableStorage.DequeueDate, 'Header Posting Date');
+        Assert.AreEqual(PurchaseLine.GetDeferralAmount(), LibraryVariableStorage.DequeueDecimal(), 'Amount to defer.');
+        Assert.AreEqual(PurchaseHeader."Posting Date", LibraryVariableStorage.DequeueDate(), 'Header Posting Date');
         DeferralTemplate.Get(DeferralTemplateCode);
-        Assert.AreEqual(Format(DeferralTemplate."Start Date"), LibraryVariableStorage.DequeueText, 'Start date calc method');
-        LibraryVariableStorage.AssertEmpty;
+        Assert.AreEqual(Format(DeferralTemplate."Start Date"), LibraryVariableStorage.DequeueText(), 'Start date calc method');
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -1987,15 +1987,15 @@ codeunit 134804 "RED Test Unit for Purch Doc"
         // [SCENARIO 127771] Entering a Purchase Order with Fixed Asset does not allow editing of the deferral code or accessing schedule
         Initialize();
         // [GIVEN] User has created a Purchase Document
-        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, CreateVendor);
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, CreateVendor());
 
         // [WHEN] Open the Purchase Order as edit with the document
-        PurchaseOrder.OpenEdit;
+        PurchaseOrder.OpenEdit();
         PurchaseOrder.FILTER.SetFilter("No.", PurchaseHeader."No.");
         PurchaseOrder.PurchLines.Type.Value(Format(PurchaseLine.Type::"Fixed Asset"));
 
         // [THEN] Deferral Code and Deferral Schedule menu are not enabled
-        Assert.IsFalse(PurchaseOrder.PurchLines.DeferralSchedule.Enabled, 'Deferral Schedule should NOT be enabled');
+        Assert.IsFalse(PurchaseOrder.PurchLines.DeferralSchedule.Enabled(), 'Deferral Schedule should NOT be enabled');
 
         PurchaseOrder.Close();
     end;
@@ -2023,15 +2023,15 @@ codeunit 134804 "RED Test Unit for Purch Doc"
         PurchaseLine.Modify(true);
 
         // [WHEN] Run "Deferral Schedule" action on the line
-        PurchaseCreditMemo.OpenEdit;
+        PurchaseCreditMemo.OpenEdit();
         PurchaseCreditMemo.GotoRecord(PurchaseHeader);
-        PurchaseCreditMemo.PurchLines.DeferralSchedule.Invoke;
+        PurchaseCreditMemo.PurchLines.DeferralSchedule.Invoke();
         // [THEN] Page "Deferral Schedule" is open, where "Amount to Defer" is 'X'
-        Assert.AreEqual(PurchaseLine.GetDeferralAmount, LibraryVariableStorage.DequeueDecimal, 'Amount to defer.');
-        Assert.AreEqual(PurchaseHeader."Posting Date", LibraryVariableStorage.DequeueDate, 'Header Posting Date');
+        Assert.AreEqual(PurchaseLine.GetDeferralAmount(), LibraryVariableStorage.DequeueDecimal(), 'Amount to defer.');
+        Assert.AreEqual(PurchaseHeader."Posting Date", LibraryVariableStorage.DequeueDate(), 'Header Posting Date');
         DeferralTemplate.Get(DeferralTemplateCode);
-        Assert.AreEqual(Format(DeferralTemplate."Start Date"), LibraryVariableStorage.DequeueText, 'Start date calc method');
-        LibraryVariableStorage.AssertEmpty;
+        Assert.AreEqual(Format(DeferralTemplate."Start Date"), LibraryVariableStorage.DequeueText(), 'Start date calc method');
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -2046,15 +2046,15 @@ codeunit 134804 "RED Test Unit for Purch Doc"
         // [SCENARIO 127771] Entering a Purchase Credit Memo with Fixed Asset does not allow editing of the deferral code or accessing schedule
         Initialize();
         // [GIVEN] User has created a Purchase Document
-        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::"Credit Memo", CreateVendor);
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::"Credit Memo", CreateVendor());
 
         // [WHEN] Open the Purchase Invoice as edit with the document
-        PurchaseCreditMemo.OpenEdit;
+        PurchaseCreditMemo.OpenEdit();
         PurchaseCreditMemo.FILTER.SetFilter("No.", PurchaseHeader."No.");
         PurchaseCreditMemo.PurchLines.Type.Value(Format(PurchaseLine.Type::"Fixed Asset"));
 
         // [THEN] Deferral Code and Deferral Schedule menu are not enabled
-        Assert.IsFalse(PurchaseCreditMemo.PurchLines.DeferralSchedule.Enabled, 'Deferral Schedule should NOT be enabled');
+        Assert.IsFalse(PurchaseCreditMemo.PurchLines.DeferralSchedule.Enabled(), 'Deferral Schedule should NOT be enabled');
 
         PurchaseCreditMemo.Close();
     end;
@@ -2082,15 +2082,15 @@ codeunit 134804 "RED Test Unit for Purch Doc"
         PurchaseLine.Modify(true);
 
         // [WHEN] Run "Deferral Schedule" action on the line
-        PurchaseReturnOrder.OpenEdit;
+        PurchaseReturnOrder.OpenEdit();
         PurchaseReturnOrder.GotoRecord(PurchaseHeader);
-        PurchaseReturnOrder.PurchLines.DeferralSchedule.Invoke;
+        PurchaseReturnOrder.PurchLines.DeferralSchedule.Invoke();
         // [THEN] Page "Deferral Schedule" is open, where "Amount to Defer" is 'X'
-        Assert.AreEqual(PurchaseLine.GetDeferralAmount, LibraryVariableStorage.DequeueDecimal, 'Amount to defer.');
-        Assert.AreEqual(PurchaseHeader."Posting Date", LibraryVariableStorage.DequeueDate, 'Header Posting Date');
+        Assert.AreEqual(PurchaseLine.GetDeferralAmount(), LibraryVariableStorage.DequeueDecimal(), 'Amount to defer.');
+        Assert.AreEqual(PurchaseHeader."Posting Date", LibraryVariableStorage.DequeueDate(), 'Header Posting Date');
         DeferralTemplate.Get(DeferralTemplateCode);
-        Assert.AreEqual(Format(DeferralTemplate."Start Date"), LibraryVariableStorage.DequeueText, 'Start date calc method');
-        LibraryVariableStorage.AssertEmpty;
+        Assert.AreEqual(Format(DeferralTemplate."Start Date"), LibraryVariableStorage.DequeueText(), 'Start date calc method');
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -2105,15 +2105,15 @@ codeunit 134804 "RED Test Unit for Purch Doc"
         // [SCENARIO 127771] Entering a Purchase Return Order with Fixed Asset does not allow editing of the deferral code or accessing schedule
         Initialize();
         // [GIVEN] User has created a Purchase Document
-        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::"Return Order", CreateVendor);
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::"Return Order", CreateVendor());
 
         // [WHEN] Open the Purchase Return Order as edit with the document
-        PurchaseReturnOrder.OpenEdit;
+        PurchaseReturnOrder.OpenEdit();
         PurchaseReturnOrder.FILTER.SetFilter("No.", PurchaseHeader."No.");
         PurchaseReturnOrder.PurchLines.Type.Value(Format(PurchaseLine.Type::"Fixed Asset"));
 
         // [THEN] Deferral Code and Deferral Schedule menu are not enabled
-        Assert.IsFalse(PurchaseReturnOrder.PurchLines.DeferralSchedule.Enabled, 'Deferral Schedule should NOT be enabled');
+        Assert.IsFalse(PurchaseReturnOrder.PurchLines.DeferralSchedule.Enabled(), 'Deferral Schedule should NOT be enabled');
 
         PurchaseReturnOrder.Close();
     end;
@@ -2144,12 +2144,12 @@ codeunit 134804 "RED Test Unit for Purch Doc"
         PurchInvHeader.Get(DocNo);
 
         // [WHEN] Open the Posted Purchase Invoice
-        PostedPurchaseInvoice.OpenView;
+        PostedPurchaseInvoice.OpenView();
         PostedPurchaseInvoice.FILTER.SetFilter("No.", DocNo);
-        PostedPurchaseInvoice.PurchInvLines.First;
+        PostedPurchaseInvoice.PurchInvLines.First();
 
         // [THEN] Deferral Schedule can be opened for line
-        PostedPurchaseInvoice.PurchInvLines.DeferralSchedule.Invoke;
+        PostedPurchaseInvoice.PurchInvLines.DeferralSchedule.Invoke();
 
         PostedPurchaseInvoice.Close();
     end;
@@ -2181,12 +2181,12 @@ codeunit 134804 "RED Test Unit for Purch Doc"
         PurchCrMemoHdr.Get(DocNo);
 
         // [WHEN] Open the Posted Purchase Invoice
-        PostedPurchaseCreditMemo.OpenView;
+        PostedPurchaseCreditMemo.OpenView();
         PostedPurchaseCreditMemo.FILTER.SetFilter("No.", DocNo);
-        PostedPurchaseCreditMemo.PurchCrMemoLines.First;
+        PostedPurchaseCreditMemo.PurchCrMemoLines.First();
 
         // [THEN] Deferral Schedule can be opened for line
-        PostedPurchaseCreditMemo.PurchCrMemoLines.DeferralSchedule.Invoke;
+        PostedPurchaseCreditMemo.PurchCrMemoLines.DeferralSchedule.Invoke();
 
         PostedPurchaseCreditMemo.Close();
     end;
@@ -2219,14 +2219,14 @@ codeunit 134804 "RED Test Unit for Purch Doc"
         FindPurchOrderArchive(PurchHeaderArchive, PurchaseHeader."No.");
 
         // [WHEN] Open the Posted Purchase Order Archive
-        PurchaseOrderArchive.OpenView;
+        PurchaseOrderArchive.OpenView();
         PurchaseOrderArchive.FILTER.SetFilter("No.", PurchaseHeader."No.");
         PurchaseOrderArchive.FILTER.SetFilter("Doc. No. Occurrence", '1');
         PurchaseOrderArchive.FILTER.SetFilter("Version No.", '1');
-        PurchaseOrderArchive.PurchLinesArchive.First;
+        PurchaseOrderArchive.PurchLinesArchive.First();
 
         // [THEN] Deferral Schedule Archive can be opened for line
-        PurchaseOrderArchive.PurchLinesArchive.DeferralSchedule.Invoke;
+        PurchaseOrderArchive.PurchLinesArchive.DeferralSchedule.Invoke();
 
         PurchaseOrderArchive.Close();
     end;
@@ -2257,14 +2257,14 @@ codeunit 134804 "RED Test Unit for Purch Doc"
         FindPurchReturnOrderArchive(PurchHeaderArchive, PurchaseHeader."No.");
 
         // [WHEN] Open the Posted Purchase Invoice
-        PurchaseReturnOrderArchive.OpenView;
+        PurchaseReturnOrderArchive.OpenView();
         PurchaseReturnOrderArchive.FILTER.SetFilter("No.", PurchaseHeader."No.");
         PurchaseReturnOrderArchive.FILTER.SetFilter("Doc. No. Occurrence", '1');
         PurchaseReturnOrderArchive.FILTER.SetFilter("Version No.", '1');
-        PurchaseReturnOrderArchive.PurchLinesArchive.First;
+        PurchaseReturnOrderArchive.PurchLinesArchive.First();
 
         // [THEN] Deferral Schedule Archive can be opened for line
-        PurchaseReturnOrderArchive.PurchLinesArchive.DeferralSchedule.Invoke;
+        PurchaseReturnOrderArchive.PurchLinesArchive.DeferralSchedule.Invoke();
 
         PurchaseReturnOrderArchive.Close();
     end;
@@ -2294,7 +2294,7 @@ codeunit 134804 "RED Test Unit for Purch Doc"
         // [THEN] The deferral schedule was created
         ValidateDeferralSchedule(
           PurchaseLine."Document Type", PurchaseLine."Document No.", PurchaseLine."Line No.",
-          Resource."Default Deferral Template Code", PurchaseHeader."Posting Date", PurchaseLine.GetDeferralAmount, 2);
+          Resource."Default Deferral Template Code", PurchaseHeader."Posting Date", PurchaseLine.GetDeferralAmount(), 2);
     end;
 
     [Test]
@@ -2303,13 +2303,9 @@ codeunit 134804 "RED Test Unit for Purch Doc"
     var
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
-        PurchaseHeaderDest: Record "Purchase Header";
-        PurchaseLineDest: Record "Purchase Line";
         PurchInvHeader: Record "Purch. Inv. Header";
         PurchInvLine: Record "Purch. Inv. Line";
         Resource: Record Resource;
-        DeferralTemplateCode: Code[10];
-        ItemNo: Code[20];
         DocNo: Code[20];
     begin
         // [FEATURE] [Resources]
@@ -2387,7 +2383,6 @@ codeunit 134804 "RED Test Unit for Purch Doc"
     [Scope('OnPrem')]
     procedure UpdateAmountToDeferOnDeferralScheduleCreatedAfterAmountValidation()
     var
-        DeferralTemplate: Record "Deferral Template";
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
         PurchaseInvoice: TestPage "Purchase Invoice";
@@ -2427,7 +2422,6 @@ codeunit 134804 "RED Test Unit for Purch Doc"
     [Scope('OnPrem')]
     procedure PostDeferralsWithBlankDescriptionWhenOmitDefaultDescriptionEnabledOnDeferralGLAccount()
     var
-        DeferralTemplate: Record "Deferral Template";
         GLAccountDeferral: Record "G/L Account";
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
@@ -2452,7 +2446,6 @@ codeunit 134804 "RED Test Unit for Purch Doc"
     [Scope('OnPrem')]
     procedure PostDeferralsWithBlankDescriptionWhenOmitDefaultDescriptionDisabledOnDeferralGLAccount()
     var
-        DeferralTemplate: Record "Deferral Template";
         GLAccountDeferral: Record "G/L Account";
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
@@ -2477,7 +2470,6 @@ codeunit 134804 "RED Test Unit for Purch Doc"
     [Scope('OnPrem')]
     procedure PostDeferralsWithDescriptionWhenOmitDefaultDescriptionEnabledOnDeferralGLAccount()
     var
-        DeferralTemplate: Record "Deferral Template";
         GLAccountDeferral: Record "G/L Account";
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
@@ -2659,7 +2651,7 @@ codeunit 134804 "RED Test Unit for Purch Doc"
     var
         No: Code[20];
     begin
-        No := LibraryERM.CreateGLAccountWithPurchSetup;
+        No := LibraryERM.CreateGLAccountWithPurchSetup();
         GLAccount.Get(No);
     end;
 
@@ -2667,7 +2659,7 @@ codeunit 134804 "RED Test Unit for Purch Doc"
     var
         Item: Record Item;
     begin
-        LibraryPurchase.CreatePurchHeader(PurchaseHeader, DocumentType, CreateVendor);
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, DocumentType, CreateVendor());
         PurchaseHeader.Validate("Posting Date", PostingDate);
         PurchaseHeader.Modify(true);
         LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchLineType, No, 2);
@@ -2703,12 +2695,12 @@ codeunit 134804 "RED Test Unit for Purch Doc"
     local procedure CreatePurchDocument(var PurchaseHeader: Record "Purchase Header"; var AmtToDefer: Decimal; var PostingDocNo: Code[20]; DocumentType: Enum "Purchase Document Type"; ItemNo: Code[20])
     var
         PurchaseLine: Record "Purchase Line";
-        NoSeriesManagement: Codeunit NoSeriesManagement;
+        NoSeries: Codeunit "No. Series";
     begin
         CreatePurchDocWithLine(PurchaseHeader, PurchaseLine,
           DocumentType, PurchaseLine.Type::Item, ItemNo, SetDateDay(1, WorkDate()));
         AmtToDefer := PurchaseLine.GetDeferralAmount();
-        PostingDocNo := NoSeriesManagement.GetNextNo(PurchaseHeader."Posting No. Series", PurchaseHeader."Posting Date", false);
+        PostingDocNo := NoSeries.PeekNextNo(PurchaseHeader."Posting No. Series", PurchaseHeader."Posting Date");
     end;
 
     local procedure CreateTwoPurchDocsWithDeferral(var PurchaseHeader1: Record "Purchase Header"; var PurchaseHeader2: Record "Purchase Header"; var DeferralTemplateCode: Code[10]; var AccNo: Code[20]; var DocNo1: Code[20]; var DocNo2: Code[20]; var AmtToDefer1: Decimal; var AmtToDefer2: Decimal; DocType: Enum "Purchase Document Type")
@@ -2953,7 +2945,7 @@ codeunit 134804 "RED Test Unit for Purch Doc"
           PurchaseLine."Document Type".AsInteger(), PurchaseLine."Document No.", PurchaseLine."Line No.",
           CalcMethod, NoOfPeriods, DeferralAmount, StartDate,
           DeferralHeader."Deferral Code", DeferralHeader."Schedule Description",
-          PurchaseLine.GetDeferralAmount, true, DeferralHeader."Currency Code");
+          PurchaseLine.GetDeferralAmount(), true, DeferralHeader."Currency Code");
         DeferralUtilities.CreateDeferralSchedule(DeferralHeader."Deferral Code", DeferralHeader."Deferral Doc. Type".AsInteger(),
           DeferralHeader."Gen. Jnl. Template Name", DeferralHeader."Gen. Jnl. Batch Name",
           DeferralHeader."Document Type", DeferralHeader."Document No.", DeferralHeader."Line No.",
@@ -3270,8 +3262,8 @@ codeunit 134804 "RED Test Unit for Purch Doc"
     var
         Item: Record Item;
     begin
-        LibraryPurchase.CreatePurchHeader(PurchaseHeader, DocumentType, CreateVendor);
-        PurchaseHeader.Validate("Currency Code", CreateCurrency);
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, DocumentType, CreateVendor());
+        PurchaseHeader.Validate("Currency Code", CreateCurrency());
         PurchaseHeader.Validate("Posting Date", PostingDate);
         PurchaseHeader.Modify(true);
         LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchLineType, No, 2);
@@ -3661,29 +3653,25 @@ codeunit 134804 "RED Test Unit for Purch Doc"
         LibraryVariableStorage.Dequeue(NoOfPeriods);
         DeferralSchedule."No. of Periods".SetValue(NoOfPeriods);
         DeferralSchedule.CalculateSchedule.Invoke();
-        DeferralSchedule.OK.Invoke();
+        DeferralSchedule.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure UpdateAmountToDeferOnDeferralScheduleModalPageHandler(var DeferralSchedule: TestPage "Deferral Schedule")
-    var
-        NoOfPeriods: Variant;
     begin
         DeferralSchedule."Amount to Defer".SetValue(LibraryVariableStorage.DequeueDecimal());
         DeferralSchedule.CalculateSchedule.Invoke();
-        DeferralSchedule.OK.Invoke();
+        DeferralSchedule.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure UpdateStartDateOnDeferralScheduleModalPageHandler(var DeferralSchedule: TestPage "Deferral Schedule")
-    var
-        StartDate: Variant;
     begin
         DeferralSchedule."Start Date".SetValue(LibraryVariableStorage.DequeueDate());
         DeferralSchedule.CalculateSchedule.Invoke();
-        DeferralSchedule.OK.Invoke();
+        DeferralSchedule.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -3691,7 +3679,7 @@ codeunit 134804 "RED Test Unit for Purch Doc"
     procedure DeferralScheduleViewHandler(var DeferralScheduleView: TestPage "Deferral Schedule View")
     begin
         // Modal Page Handler.
-        DeferralScheduleView.OK.Invoke();
+        DeferralScheduleView.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -3699,7 +3687,7 @@ codeunit 134804 "RED Test Unit for Purch Doc"
     procedure DeferralScheduleArchiveHandler(var DeferralScheduleArchive: TestPage "Deferral Schedule Archive")
     begin
         // Modal Page Handler.
-        DeferralScheduleArchive.OK.Invoke();
+        DeferralScheduleArchive.OK().Invoke();
     end;
 
     [RequestPageHandler]
@@ -3708,7 +3696,7 @@ codeunit 134804 "RED Test Unit for Purch Doc"
     begin
         BatchPostPurchaseInvoices.ReplacePostingDate.SetValue(true);
         BatchPostPurchaseInvoices.PostingDate.SetValue(LibraryVariableStorage.DequeueDate());
-        BatchPostPurchaseInvoices.OK.Invoke();
+        BatchPostPurchaseInvoices.OK().Invoke();
     end;
 
     [RequestPageHandler]
@@ -3719,7 +3707,7 @@ codeunit 134804 "RED Test Unit for Purch Doc"
         BatchPostPurchaseOrders.Invoice.SetValue(true);
         BatchPostPurchaseOrders.ReplacePostingDate.SetValue(true);
         BatchPostPurchaseOrders.PostingDate.SetValue(LibraryVariableStorage.DequeueDate());
-        BatchPostPurchaseOrders.OK.Invoke();
+        BatchPostPurchaseOrders.OK().Invoke();
     end;
 
     [RequestPageHandler]
@@ -3728,7 +3716,7 @@ codeunit 134804 "RED Test Unit for Purch Doc"
     begin
         BatchPostPurchCreditMemos.ReplacePostingDate.SetValue(true);
         BatchPostPurchCreditMemos.PostingDate.SetValue(LibraryVariableStorage.DequeueDate());
-        BatchPostPurchCreditMemos.OK.Invoke();
+        BatchPostPurchCreditMemos.OK().Invoke();
     end;
 
     [ConfirmHandler]

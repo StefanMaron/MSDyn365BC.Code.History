@@ -107,7 +107,7 @@ codeunit 130013 "Snapshot Management"
 
         TempSnapshot.Reset();
         TempSnapshot.Init();
-        TempSnapshot."Snapshot No." := GetAvailableSnapshotNo;
+        TempSnapshot."Snapshot No." := GetAvailableSnapshotNo();
         TempSnapshot."Snapshot Name" := SnapshotName;
         TempSnapshot.Description := '';
         TempSnapshot.Incremental := Incremental;
@@ -137,7 +137,7 @@ codeunit 130013 "Snapshot Management"
     var
         i: Integer;
     begin
-        for i := 1 to BackupStorage.MaxBackups do
+        for i := 1 to BackupStorage.MaxBackups() do
             if not SnapshotNoExists(i) then
                 exit(true);
 
@@ -147,7 +147,7 @@ codeunit 130013 "Snapshot Management"
     [Scope('OnPrem')]
     procedure SnapshotOverflowErrorMessage(): Text
     begin
-        exit(StrSubstNo(TooManySnapshots, BackupStorage.MaxBackups))
+        exit(StrSubstNo(TooManySnapshots, BackupStorage.MaxBackups()))
     end;
 
     [Scope('OnPrem')]
@@ -155,11 +155,11 @@ codeunit 130013 "Snapshot Management"
     var
         i: Integer;
     begin
-        for i := 1 to BackupStorage.MaxBackups do
+        for i := 1 to BackupStorage.MaxBackups() do
             if not SnapshotNoExists(i) then
                 exit(i);
 
-        Error(SnapshotOverflowErrorMessage)
+        Error(SnapshotOverflowErrorMessage());
     end;
 
     [Scope('OnPrem')]
@@ -179,7 +179,7 @@ codeunit 130013 "Snapshot Management"
         UnbindSubscription(BackupSubscriber);
         if Enabled then begin
             BindSubscription(BackupSubscriber);
-            BackupManagement.CheckSubscribtionToCOD1;
+            BackupManagement.CheckSubscribtionToCOD1();
         end;
 
         IsEnabled := Enabled;
@@ -269,7 +269,7 @@ codeunit 130013 "Snapshot Management"
     begin
         TempSnapshot.Get(SnapshotNo);
         TempSnapshot.Description := Description;
-        TempSnapshot.Modify
+        TempSnapshot.Modify();
     end;
 }
 

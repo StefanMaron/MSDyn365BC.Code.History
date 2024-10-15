@@ -21,6 +21,7 @@ table 10124 "Posted Bank Rec. Line"
     Caption = 'Posted Bank Rec. Line';
     DrillDownPageID = "Posted Bank Rec. Lines";
     LookupPageID = "Posted Bank Rec. Lines";
+    DataClassification = CustomerContent;
 
     fields
     {

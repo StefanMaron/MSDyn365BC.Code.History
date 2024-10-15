@@ -5,6 +5,24 @@
     <Cmt Name="LcxAdmin" />
     <Cmt Name="Rccx" />
   </OwnedComments>
+  <Item ItemId=";Codeunit 1953968830 - NamedType 725517822" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[D365 BUS FULL ACCESS]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Experience Tier Test - NamedType BusFullAccessRoleIdTok)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 1953968830 - NamedType 4149381570" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[D365 BUS PREMIUM]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Experience Tier Test - NamedType BusPremiumRoleIdTok)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 4199409546 - NamedType 552006252" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Test Company]]></Val>
@@ -39,15 +57,6 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Permissions Test - NamedType PermissionSetBasicTxt)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 4167983346 - NamedType 476327919" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[D365 FINANCIAL REP.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Permissions Test - NamedType PermissionSetFinancialReportsTxt)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 4167983346 - NamedType 3454973337" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -165,15 +174,6 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Permissions Test - NamedType UserGroupFinanceTxt)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 4167983346 - NamedType 2962998383" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Wron user group exported.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Permissions Test - NamedType WrongUserGroupCodeErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 1454349401 - NamedType 4066316276" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">

@@ -82,9 +82,9 @@ codeunit 132205 "Library - Kitting"
     var
         Item: Record Item;
         InvtPostingGroup: Record "Inventory Posting Group";
-        noSeriesMgt: Codeunit NoSeriesManagement;
+        NoSeries: Codeunit "No. Series";
     begin
-        Item.Get(ItemCreate(noSeriesMgt.GetNextNo(CreateNoSeries, WorkDate(), true), ITEM_DESC, UOM, Price, Cost));
+        Item.Get(ItemCreate(NoSeries.GetNextNo(CreateNoSeries()), ITEM_DESC, UOM, Price, Cost));
         CreateInvPostGroup(InvtPostingGroup);
         Item.Validate("Inventory Posting Group", InvtPostingGroup.Code);
         Item.Modify();
@@ -103,10 +103,10 @@ codeunit 132205 "Library - Kitting"
     var
         Item: Record Item;
         InvtPostingGroup: Record "Inventory Posting Group";
-        noSeriesMgt: Codeunit NoSeriesManagement;
+        NoSeries: Codeunit "No. Series";
     begin
         if Number = '' then
-            Number := noSeriesMgt.GetNextNo(CreateNoSeries, WorkDate(), true);
+            Number := NoSeries.GetNextNo(CreateNoSeries());
         Item.Get(ItemCreate(Number, ITEM_DESC, UOM, Price, Cost));
         CreateInvPostGroup(InvtPostingGroup);
         Item.Validate("Inventory Posting Group", InvtPostingGroup.Code);
@@ -126,9 +126,9 @@ codeunit 132205 "Library - Kitting"
     var
         Item: Record Item;
         InvtPostingGroup: Record "Inventory Posting Group";
-        noSeriesMgt: Codeunit NoSeriesManagement;
+        NoSeries: Codeunit "No. Series";
     begin
-        Item.Get(ItemCreate(noSeriesMgt.GetNextNo(CreateNoSeries, WorkDate(), true), ITEM_DESC, UOM, Price, Cost));
+        Item.Get(ItemCreate(NoSeries.GetNextNo(CreateNoSeries()), ITEM_DESC, UOM, Price, Cost));
         Item."Lot Size" := Lot;
         CreateInvPostGroup(InvtPostingGroup);
         Item.Validate("Inventory Posting Group", InvtPostingGroup.Code);
@@ -148,9 +148,9 @@ codeunit 132205 "Library - Kitting"
     var
         Item: Record Item;
         InvtPostingGroup: Record "Inventory Posting Group";
-        noSeriesMgt: Codeunit NoSeriesManagement;
+        NoSeries: Codeunit "No. Series";
     begin
-        Item.Get(ItemCreate(noSeriesMgt.GetNextNo(CreateNoSeries, WorkDate(), true), ITEM_DESC, UOM, Price, Cost));
+        Item.Get(ItemCreate(NoSeries.GetNextNo(CreateNoSeries()), ITEM_DESC, UOM, Price, Cost));
         Item."Lot Size" := Lot;
         CreateInvPostGroup(InvtPostingGroup);
         Item.Validate("Inventory Posting Group", InvtPostingGroup.Code);
@@ -171,10 +171,10 @@ codeunit 132205 "Library - Kitting"
     var
         Item: Record Item;
         InventoryPostingGroup: Record "Inventory Posting Group";
-        noSeriesMgt: Codeunit NoSeriesManagement;
+        NoSeries: Codeunit "No. Series";
     begin
         if Number = '' then
-            Number := noSeriesMgt.GetNextNo(CreateNoSeries, WorkDate(), true);
+            Number := NoSeries.GetNextNo(CreateNoSeries());
         Item.Get(ItemCreate(Number, ITEM_DESC, UOM, Price, Cost));
         Item."Lot Size" := Lot;
         CreateInvPostGroup(InventoryPostingGroup);
@@ -195,10 +195,10 @@ codeunit 132205 "Library - Kitting"
     var
         Item: Record Item;
         InvtPostingGroup: Record "Inventory Posting Group";
-        noSeriesMgt: Codeunit NoSeriesManagement;
+        NoSeries: Codeunit "No. Series";
     begin
         if Number = '' then
-            Number := noSeriesMgt.GetNextNo(CreateNoSeries, WorkDate(), true);
+            Number := NoSeries.GetNextNo(CreateNoSeries());
         Item.Get(ItemCreate(Number, ITEM_DESC, UOM, Price, Cost));
         Item."Lot Size" := Lot;
         CreateInvPostGroup(InvtPostingGroup);
@@ -241,7 +241,7 @@ codeunit 132205 "Library - Kitting"
     var
         AssemblyHeader: Record "Assembly Header";
     begin
-        CreateAssemblySetup;
+        CreateAssemblySetup();
         LibraryAssembly.CreateAssemblyHeader(AssemblyHeader, DueDate, ItemNo, '', Quantity, '');
         exit(AssemblyHeader."No.");
     end;
@@ -250,7 +250,7 @@ codeunit 132205 "Library - Kitting"
     var
         AssemblyHeader: Record "Assembly Header";
     begin
-        CreateAssemblySetup;
+        CreateAssemblySetup();
         Clear(AssemblyHeader);
         AssemblyHeader."Document Type" := AssemblyHeader."Document Type"::Order;
         AssemblyHeader."No." := Number;
@@ -286,7 +286,7 @@ codeunit 132205 "Library - Kitting"
         NoSeriesLine: Record "No. Series Line";
     begin
         NoSeries.Init();
-        NoSeries.Code := CopyStr(CreateGuid, 1, 10);    // todo: use the last instead of the first charackters
+        NoSeries.Code := CopyStr(CreateGuid(), 1, 10);    // todo: use the last instead of the first charackters
         NoSeries."Default Nos." := true;
         NoSeries."Manual Nos." := true;
         if not NoSeries.Insert() then;
@@ -306,7 +306,7 @@ codeunit 132205 "Library - Kitting"
     begin
         AssemblySetup.Init();
         AssemblySetup."Primary Key" := '';
-        AssemblySetup."Assembly Order Nos." := CreateNoSeries;
+        AssemblySetup."Assembly Order Nos." := CreateNoSeries();
         if not AssemblySetup.Insert() then;
     end;
 
@@ -380,7 +380,7 @@ codeunit 132205 "Library - Kitting"
             ProdBOMHeader.Insert();
             MfgItem."Production BOM No." := ProdBOMHeader."No.";
             MfgItem."Replenishment System" := MfgItem."Replenishment System"::"Prod. Order";
-            MfgItem.Modify
+            MfgItem.Modify();
         end;
         ProdBOMLine."Production BOM No." := ProdBOMHeader."No.";
         BOMItemLineNo += 1;

@@ -1,13 +1,11 @@
 ﻿namespace System.Azure.Identity;
 
-#if not CLEAN21
-using System.Integration.PowerBI;
-#endif
 using System.Reflection;
 
 table 6303 "Azure AD Mgt. Setup"
 {
     Caption = 'Microsoft Entra ID Mgt. Setup';
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -30,13 +28,8 @@ table 6303 "Azure AD Mgt. Setup"
             Caption = 'PBI Service Mgt. Codeunit ID';
             TableRelation = "CodeUnit Metadata".ID;
             ObsoleteReason = 'Disabling the Power BI integration through AzureADMgtSetup has been discontinued.';
-#if not CLEAN21
-            ObsoleteState = Pending;
-            ObsoleteTag = '21.0';
-#else
             ObsoleteState = Removed;
             ObsoleteTag = '24.0';
-#endif
         }
     }
 
@@ -56,21 +49,12 @@ table 6303 "Azure AD Mgt. Setup"
     begin
         Validate("Auth Flow Codeunit ID", CODEUNIT::"Azure AD Auth Flow");
         Validate("Azure AD User Mgt. Codeunit ID", CODEUNIT::"Azure AD User Management");
-#if not CLEAN21
-        Validate("PBI Service Mgt. Codeunit ID", CODEUNIT::"Power BI Service Mgt.");
-#endif
     end;
 
     internal procedure IsSetupDifferentFromDefault(): Boolean
     begin
-#if not CLEAN21
-        exit(("Auth Flow Codeunit ID" <> CODEUNIT::"Azure AD Auth Flow") or
-             ("Azure AD User Mgt. Codeunit ID" <> CODEUNIT::"Azure AD User Management") or
-             ("PBI Service Mgt. Codeunit ID" <> CODEUNIT::"Power BI Service Mgt."));
-#else
         exit(("Auth Flow Codeunit ID" <> CODEUNIT::"Azure AD Auth Flow") or
              ("Azure AD User Mgt. Codeunit ID" <> CODEUNIT::"Azure AD User Management"));
-#endif
     end;
 }
 

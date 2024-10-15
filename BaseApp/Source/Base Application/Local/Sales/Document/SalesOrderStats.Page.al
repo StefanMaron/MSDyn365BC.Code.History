@@ -694,7 +694,7 @@ page 10038 "Sales Order Stats."
                     trigger OnValidate()
                     begin
                         SalesPostPrepmt.UpdatePrepmtAmountOnSaleslines(Rec, PrepmtTotalAmount);
-                        FillPrepmtAmount;
+                        FillPrepmtAmount();
                     end;
                 }
                 field(PrepmtVATAmount; PrepmtVATAmount)
@@ -883,31 +883,29 @@ page 10038 "Sales Order Stats."
                 BreakdownTitle := Text1020010
             else
                 BreakdownTitle := Text1020011;
-            with TempSalesTaxAmtLine do begin
-                Reset();
-                SetCurrentKey("Print Order", "Tax Area Code for Key", "Tax Jurisdiction Code");
-                if Find('-') then
-                    repeat
-                        if ("Print Order" = 0) or
-                           ("Print Order" <> PrevPrintOrder) or
-                           ("Tax %" <> PrevTaxPercent)
-                        then begin
-                            BrkIdx := BrkIdx + 1;
-                            if BrkIdx > ArrayLen(BreakdownAmt, 2) then begin
-                                BrkIdx := BrkIdx - 1;
-                                BreakdownLabel[i, BrkIdx] := Text1020012;
-                            end else
-                                BreakdownLabel[i, BrkIdx] := CopyStr(StrSubstNo("Print Description", "Tax %"), 1, MaxStrLen(BreakdownLabel[i, BrkIdx]));
-                        end;
-                        BreakdownAmt[i, BrkIdx] := BreakdownAmt[i, BrkIdx] + "Tax Amount";
-                        VATAmount[i] := VATAmount[i] + "Tax Amount";
-                    until Next() = 0;
-                TotalAmount2[i] := TotalAmount2[i] + VATAmount[i];
-            end;
+            TempSalesTaxAmtLine.Reset();
+            TempSalesTaxAmtLine.SetCurrentKey("Print Order", "Tax Area Code for Key", "Tax Jurisdiction Code");
+            if TempSalesTaxAmtLine.Find('-') then
+                repeat
+                    if (TempSalesTaxAmtLine."Print Order" = 0) or
+                       (TempSalesTaxAmtLine."Print Order" <> PrevPrintOrder) or
+                       (TempSalesTaxAmtLine."Tax %" <> PrevTaxPercent)
+                    then begin
+                        BrkIdx := BrkIdx + 1;
+                        if BrkIdx > ArrayLen(BreakdownAmt, 2) then begin
+                            BrkIdx := BrkIdx - 1;
+                            BreakdownLabel[i, BrkIdx] := Text1020012;
+                        end else
+                            BreakdownLabel[i, BrkIdx] := CopyStr(StrSubstNo(TempSalesTaxAmtLine."Print Description", TempSalesTaxAmtLine."Tax %"), 1, MaxStrLen(BreakdownLabel[i, BrkIdx]));
+                    end;
+                    BreakdownAmt[i, BrkIdx] := BreakdownAmt[i, BrkIdx] + TempSalesTaxAmtLine."Tax Amount";
+                    VATAmount[i] := VATAmount[i] + TempSalesTaxAmtLine."Tax Amount";
+                until TempSalesTaxAmtLine.Next() = 0;
+            TotalAmount2[i] := TotalAmount2[i] + VATAmount[i];
         end;
         TempSalesLine.DeleteAll();
         Clear(TempSalesLine);
-        FillPrepmtAmount;
+        FillPrepmtAmount();
 
         if Cust.Get(Rec."Bill-to Customer No.") then
             Cust.CalcFields("Balance (LCY)")
@@ -951,7 +949,7 @@ page 10038 "Sales Order Stats."
     begin
         GetVATSpecification(PrevTab);
         if TempSalesTaxLine1.GetAnyLineModified() or TempSalesTaxLine2.GetAnyLineModified() then
-            UpdateTaxOnSalesLines;
+            UpdateTaxOnSalesLines();
         exit(true);
     end;
 
@@ -1038,7 +1036,7 @@ page 10038 "Sales Order Stats."
             if (Rec."Document Type" in [Rec."Document Type"::"Blanket Order", Rec."Document Type"::Quote]) and
                (Rec."Posting Date" = 0D)
             then
-                UseDate := WorkDate
+                UseDate := WorkDate()
             else
                 UseDate := Rec."Posting Date";
 
@@ -1108,8 +1106,7 @@ page 10038 "Sales Order Stats."
             TotalAmount1[IndexNo] := SaveTotalAmount;
         end;
 
-        with TotalSalesLine[IndexNo] do
-            "Inv. Discount Amount" := "Line Amount" - TotalAmount1[IndexNo];
+        TotalSalesLine[IndexNo]."Inv. Discount Amount" := TotalSalesLine[IndexNo]."Line Amount" - TotalAmount1[IndexNo];
         UpdateInvDiscAmount(IndexNo);
     end;
 
@@ -1154,37 +1151,36 @@ page 10038 "Sales Order Stats."
             else
                 TotalSalesLine[1]."Inv. Discount Amount" := TotalSalesLine[2]."Inv. Discount Amount";
 
-        for i := 1 to MaxIndexNo do
-            with TotalSalesLine[IndexNo[i]] do begin
-                if (i = 1) or not PartialInvoicing then
-                    if IndexNo[i] = 1 then begin
-                        TempSalesTaxLine1.SetInvoiceDiscountAmount(
-                          "Inv. Discount Amount", "Currency Code", Rec."Prices Including VAT", Rec."VAT Base Discount %");
-                    end else
-                        TempSalesTaxLine2.SetInvoiceDiscountAmount(
-                          "Inv. Discount Amount", "Currency Code", Rec."Prices Including VAT", Rec."VAT Base Discount %");
+        for i := 1 to MaxIndexNo do begin
+            if (i = 1) or not PartialInvoicing then
+                if IndexNo[i] = 1 then begin
+                    TempSalesTaxLine1.SetInvoiceDiscountAmount(
+                      TotalSalesLine[IndexNo[i]]."Inv. Discount Amount", TotalSalesLine[IndexNo[i]]."Currency Code", Rec."Prices Including VAT", Rec."VAT Base Discount %");
+                end else
+                    TempSalesTaxLine2.SetInvoiceDiscountAmount(
+                      TotalSalesLine[IndexNo[i]]."Inv. Discount Amount", TotalSalesLine[IndexNo[i]]."Currency Code", Rec."Prices Including VAT", Rec."VAT Base Discount %");
 
-                if (i = 2) and PartialInvoicing then
-                    if IndexNo[i] = 1 then begin
-                        InvDiscBaseAmount := TempSalesTaxLine2.GetTotalInvDiscBaseAmount(false, "Currency Code");
-                        if InvDiscBaseAmount = 0 then
-                            TempSalesTaxLine1.SetInvoiceDiscountPercent(
-                              0, "Currency Code", Rec."Prices Including VAT", false, Rec."VAT Base Discount %")
-                        else
-                            TempSalesTaxLine1.SetInvoiceDiscountPercent(
-                              100 * TempSalesTaxLine2.GetTotalInvDiscAmount() / InvDiscBaseAmount,
-                              "Currency Code", Rec."Prices Including VAT", false, Rec."VAT Base Discount %");
-                    end else begin
-                        InvDiscBaseAmount := TempSalesTaxLine1.GetTotalInvDiscBaseAmount(false, "Currency Code");
-                        if InvDiscBaseAmount = 0 then
-                            TempSalesTaxLine2.SetInvoiceDiscountPercent(
-                              0, "Currency Code", Rec."Prices Including VAT", false, Rec."VAT Base Discount %")
-                        else
-                            TempSalesTaxLine2.SetInvoiceDiscountPercent(
-                              100 * TempSalesTaxLine1.GetTotalInvDiscAmount() / InvDiscBaseAmount,
-                              "Currency Code", Rec."Prices Including VAT", false, Rec."VAT Base Discount %");
-                    end;
-            end;
+            if (i = 2) and PartialInvoicing then
+                if IndexNo[i] = 1 then begin
+                    InvDiscBaseAmount := TempSalesTaxLine2.GetTotalInvDiscBaseAmount(false, TotalSalesLine[IndexNo[i]]."Currency Code");
+                    if InvDiscBaseAmount = 0 then
+                        TempSalesTaxLine1.SetInvoiceDiscountPercent(
+                          0, TotalSalesLine[IndexNo[i]]."Currency Code", Rec."Prices Including VAT", false, Rec."VAT Base Discount %")
+                    else
+                        TempSalesTaxLine1.SetInvoiceDiscountPercent(
+                          100 * TempSalesTaxLine2.GetTotalInvDiscAmount() / InvDiscBaseAmount,
+                          TotalSalesLine[IndexNo[i]]."Currency Code", Rec."Prices Including VAT", false, Rec."VAT Base Discount %");
+                end else begin
+                    InvDiscBaseAmount := TempSalesTaxLine1.GetTotalInvDiscBaseAmount(false, TotalSalesLine[IndexNo[i]]."Currency Code");
+                    if InvDiscBaseAmount = 0 then
+                        TempSalesTaxLine2.SetInvoiceDiscountPercent(
+                          0, TotalSalesLine[IndexNo[i]]."Currency Code", Rec."Prices Including VAT", false, Rec."VAT Base Discount %")
+                    else
+                        TempSalesTaxLine2.SetInvoiceDiscountPercent(
+                          100 * TempSalesTaxLine1.GetTotalInvDiscAmount() / InvDiscBaseAmount,
+                          TotalSalesLine[IndexNo[i]]."Currency Code", Rec."Prices Including VAT", false, Rec."VAT Base Discount %");
+                end;
+        end;
 
         UpdateHeaderInfo(1, TempSalesTaxLine1);
         UpdateHeaderInfo(2, TempSalesTaxLine2);
@@ -1198,7 +1194,7 @@ page 10038 "Sales Order Stats."
         Rec."Invoice Discount Value" := TotalSalesLine[1]."Inv. Discount Amount";
         Rec.Modify();
 
-        UpdateTaxOnSalesLines;
+        UpdateTaxOnSalesLines();
     end;
 
     local procedure FillPrepmtAmount()
@@ -1242,7 +1238,7 @@ page 10038 "Sales Order Stats."
             SalesTaxCalculate.StartSalesTaxCalculation();
             SalesTaxCalculate.PutSalesTaxAmountLineTable(
               TempSalesTaxLine1,
-              SalesTaxDifference."Document Product Area"::Sales,
+              SalesTaxDifference."Document Product Area"::Sales.AsInteger(),
               Rec."Document Type".AsInteger(), Rec."No.");
             SalesTaxCalculate.DistTaxOverSalesLines(SalesLine);
             SalesTaxCalculate.SaveTaxDifferences();
@@ -1251,7 +1247,7 @@ page 10038 "Sales Order Stats."
             SalesTaxCalculate.StartSalesTaxCalculation();
             SalesTaxCalculate.PutSalesTaxAmountLineTable(
               TempSalesTaxLine2,
-              SalesTaxDifference."Document Product Area"::Sales,
+              SalesTaxDifference."Document Product Area"::Sales.AsInteger(),
               Rec."Document Type".AsInteger(), Rec."No.");
             SalesTaxCalculate.DistTaxOverSalesLines(SalesLine);
             SalesTaxCalculate.SaveTaxDifferences();
@@ -1299,12 +1295,10 @@ page 10038 "Sales Order Stats."
 
     local procedure TotalAmount21OnAfterValidate()
     begin
-        with TotalSalesLine[1] do begin
-            if Rec."Prices Including VAT" then
-                "Inv. Discount Amount" := "Line Amount" - "Amount Including VAT"
-            else
-                "Inv. Discount Amount" := "Line Amount" - Amount;
-        end;
+        if Rec."Prices Including VAT" then
+            TotalSalesLine[1]."Inv. Discount Amount" := TotalSalesLine[1]."Line Amount" - TotalSalesLine[1]."Amount Including VAT"
+        else
+            TotalSalesLine[1]."Inv. Discount Amount" := TotalSalesLine[1]."Line Amount" - TotalSalesLine[1].Amount;
         UpdateInvDiscAmount(1);
     end;
 

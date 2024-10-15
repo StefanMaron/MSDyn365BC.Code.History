@@ -31,18 +31,17 @@ codeunit 10022 "Invoice-Post + Print"
 
     local procedure "Code"()
     begin
-        with SalesHeader do
-            if "Document Type" = "Document Type"::Order then begin
-                if not Confirm(Text1020001, false, "Document Type") then
-                    exit;
-                Ship := false;
-                Invoice := true;
-                SalesPost.Run(SalesHeader);
+        if SalesHeader."Document Type" = SalesHeader."Document Type"::Order then begin
+            if not Confirm(Text1020001, false, SalesHeader."Document Type") then
+                exit;
+            SalesHeader.Ship := false;
+            SalesHeader.Invoice := true;
+            SalesPost.Run(SalesHeader);
 
-                SalesInvHeader."No." := "Last Posting No.";
-                SalesInvHeader.SetRecFilter();
-                PrintReport(ReportSelection.Usage::"S.Invoice");
-            end;
+            SalesInvHeader."No." := SalesHeader."Last Posting No.";
+            SalesInvHeader.SetRecFilter();
+            PrintReport(ReportSelection.Usage::"S.Invoice");
+        end;
     end;
 
     local procedure PrintReport(ReportUsage: Enum "Report Selection Usage")

@@ -10,7 +10,7 @@ page 857 "Cash Flow Manual Revenues"
     PageType = List;
     SourceTable = "Cash Flow Manual Revenue";
     SourceTableView = sorting("Starting Date")
-                      order(Ascending);
+                      order(ascending);
     UsageCategory = Lists;
 
     layout

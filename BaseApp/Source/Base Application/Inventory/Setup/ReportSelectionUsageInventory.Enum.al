@@ -1,6 +1,8 @@
 namespace Microsoft.Inventory.Setup;
 
+#pragma warning disable AL0659
 enum 5754 "Report Selection Usage Inventory"
+#pragma warning restore AL0659
 {
     Extensible = true;
     AssignmentCompatibility = true;

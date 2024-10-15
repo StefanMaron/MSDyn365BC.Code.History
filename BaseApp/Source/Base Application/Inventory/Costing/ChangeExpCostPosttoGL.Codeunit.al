@@ -77,30 +77,28 @@ codeunit 5811 "Change Exp. Cost Post. to G/L"
                 UpdatePostValueEntryToGL(ValueEntry."Item Ledger Entry No.");
             until PostValueEntryToGL.Next() = 0;
 
-        with ItemLedgEntry do begin
-            SetCurrentKey("Item No.", "Entry Type");
-            SetFilter("Entry Type", '%1|%2|%3', "Entry Type"::Sale, "Entry Type"::Purchase, "Entry Type"::Output);
-            NoOfRecords := Count;
-            OldItemNo := '';
-            if Find('-') then
-                repeat
-                    RecordNo := RecordNo + 1;
+        ItemLedgEntry.SetCurrentKey("Item No.", "Entry Type");
+        ItemLedgEntry.SetFilter("Entry Type", '%1|%2|%3', ItemLedgEntry."Entry Type"::Sale, ItemLedgEntry."Entry Type"::Purchase, ItemLedgEntry."Entry Type"::Output);
+        NoOfRecords := ItemLedgEntry.Count;
+        OldItemNo := '';
+        if ItemLedgEntry.Find('-') then
+            repeat
+                RecordNo := RecordNo + 1;
 
-                    if "Item No." <> OldItemNo then begin
-                        Window.Update(1, "Item No.");
-                        OldItemNo := "Item No.";
-                    end;
+                if ItemLedgEntry."Item No." <> OldItemNo then begin
+                    Window.Update(1, ItemLedgEntry."Item No.");
+                    OldItemNo := ItemLedgEntry."Item No.";
+                end;
 
-                    if CurrentDateTime - LastUpdateDateTime >= 1000 then begin
-                        Window.Update(2, Round(RecordNo / NoOfRecords * 10000, 1));
-                        LastUpdateDateTime := CurrentDateTime;
-                    end;
+                if CurrentDateTime - LastUpdateDateTime >= 1000 then begin
+                    Window.Update(2, Round(RecordNo / NoOfRecords * 10000, 1));
+                    LastUpdateDateTime := CurrentDateTime;
+                end;
 
-                    if (Quantity <> "Invoiced Quantity") and (Quantity <> 0) then
-                        UpdatePostValueEntryToGL("Entry No.");
+                if (ItemLedgEntry.Quantity <> ItemLedgEntry."Invoiced Quantity") and (ItemLedgEntry.Quantity <> 0) then
+                    UpdatePostValueEntryToGL(ItemLedgEntry."Entry No.");
 
-                until Next() = 0;
-        end;
+            until ItemLedgEntry.Next() = 0;
 
         Window.Close();
     end;
@@ -110,25 +108,23 @@ codeunit 5811 "Change Exp. Cost Post. to G/L"
         PostValueEntryToGL: Record "Post Value Entry to G/L";
         ValueEntry: Record "Value Entry";
     begin
-        with ValueEntry do begin
-            SetCurrentKey("Item Ledger Entry No.");
-            SetRange("Item Ledger Entry No.", ItemLedgEntryNo);
-            if Find('-') then
-                repeat
-                    if not EntriesModified then
-                        EntriesModified := true;
-                    if not PostValueEntryToGL.Get("Entry No.") and
-                       (("Cost Amount (Expected)" <> "Expected Cost Posted to G/L") or
-                        ("Cost Amount (Expected) (ACY)" <> "Exp. Cost Posted to G/L (ACY)"))
-                    then begin
-                        PostValueEntryToGL."Value Entry No." := "Entry No.";
-                        PostValueEntryToGL."Item No." := "Item No.";
-                        PostValueEntryToGL."Posting Date" := "Posting Date";
-                        OnBeforePostValueEntryToGLInsert(PostValueEntryToGL, ValueEntry);
-                        PostValueEntryToGL.Insert();
-                    end;
-                until Next() = 0;
-        end;
+        ValueEntry.SetCurrentKey("Item Ledger Entry No.");
+        ValueEntry.SetRange("Item Ledger Entry No.", ItemLedgEntryNo);
+        if ValueEntry.Find('-') then
+            repeat
+                if not EntriesModified then
+                    EntriesModified := true;
+                if not PostValueEntryToGL.Get(ValueEntry."Entry No.") and
+                   ((ValueEntry."Cost Amount (Expected)" <> ValueEntry."Expected Cost Posted to G/L") or
+                    (ValueEntry."Cost Amount (Expected) (ACY)" <> ValueEntry."Exp. Cost Posted to G/L (ACY)"))
+                then begin
+                    PostValueEntryToGL."Value Entry No." := ValueEntry."Entry No.";
+                    PostValueEntryToGL."Item No." := ValueEntry."Item No.";
+                    PostValueEntryToGL."Posting Date" := ValueEntry."Posting Date";
+                    OnBeforePostValueEntryToGLInsert(PostValueEntryToGL, ValueEntry);
+                    PostValueEntryToGL.Insert();
+                end;
+            until ValueEntry.Next() = 0;
     end;
 
     local procedure DisableExpCostPostingToGL()
@@ -136,16 +132,14 @@ codeunit 5811 "Change Exp. Cost Post. to G/L"
         PostValueEntryToGL: Record "Post Value Entry to G/L";
         ValueEntry: Record "Value Entry";
     begin
-        with PostValueEntryToGL do begin
-            Window.Open(StrSubstNo(Text008, TableCaption));
-            if FindSet(true, true) then
-                repeat
-                    ValueEntry.Get("Value Entry No.");
-                    if ValueEntry."Expected Cost" then
-                        Delete();
+        Window.Open(StrSubstNo(Text008, PostValueEntryToGL.TableCaption));
+        if PostValueEntryToGL.FindSet(true) then
+            repeat
+                ValueEntry.Get(PostValueEntryToGL."Value Entry No.");
+                if ValueEntry."Expected Cost" then
+                    PostValueEntryToGL.Delete();
 
-                until Next() = 0;
-        end;
+            until PostValueEntryToGL.Next() = 0;
         Window.Close();
     end;
 
@@ -153,14 +147,12 @@ codeunit 5811 "Change Exp. Cost Post. to G/L"
     var
         ObjTransl: Record "Object Translation";
     begin
-        with InvtSetup do begin
-            "Expected Cost Posting to G/L" := ExpCostPostingToGL;
-            Modify();
-            if EntriesModified then
-                Message(
-                  Text007, FieldCaption("Expected Cost Posting to G/L"), "Expected Cost Posting to G/L",
-                  ObjTransl.TranslateObject(ObjTransl."Object Type"::Report, REPORT::"Post Inventory Cost to G/L"));
-        end;
+        InvtSetup."Expected Cost Posting to G/L" := ExpCostPostingToGL;
+        InvtSetup.Modify();
+        if EntriesModified then
+            Message(
+              Text007, InvtSetup.FieldCaption("Expected Cost Posting to G/L"), InvtSetup."Expected Cost Posting to G/L",
+              ObjTransl.TranslateObject(ObjTransl."Object Type"::Report, REPORT::"Post Inventory Cost to G/L"));
     end;
 
     [IntegrationEvent(false, false)]

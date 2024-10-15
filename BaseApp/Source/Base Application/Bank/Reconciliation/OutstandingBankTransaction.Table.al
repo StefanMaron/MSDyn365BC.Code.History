@@ -1,4 +1,4 @@
-namespace Microsoft.Bank.Reconciliation;
+﻿namespace Microsoft.Bank.Reconciliation;
 
 using Microsoft.Bank.BankAccount;
 using Microsoft.Bank.Ledger;
@@ -7,6 +7,7 @@ using Microsoft.Bank.Deposit;
 table 1284 "Outstanding Bank Transaction"
 {
     Caption = 'Outstanding Bank Transaction';
+    DataClassification = CustomerContent;
 
     fields
     {

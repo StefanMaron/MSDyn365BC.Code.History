@@ -39,7 +39,7 @@ codeunit 142069 "UT REP Sales Tax Prepayment"
         REPORT.Run(REPORT::"Purchase Prepmt. Doc. - Test");
 
         // Verify.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(PurchaseLinePrepmtLineAmountCap, PurchaseLine."Prepmt. Line Amount");
     end;
 
@@ -60,7 +60,7 @@ codeunit 142069 "UT REP Sales Tax Prepayment"
         REPORT.Run(REPORT::"Purchase Prepmt. Doc. - Test");
 
         // Verify.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(PurchaseLinePrepmtLineAmountCap, PurchaseLine."Prepmt. Line Amount");
         LibraryReportDataset.AssertElementWithValueExists(DimTextCap, FindDimensionCode(PurchaseLine.Area));
     end;
@@ -76,13 +76,13 @@ codeunit 142069 "UT REP Sales Tax Prepayment"
         // The purpose of the test is to verify trigger OnPreDataItem - Purchase Line with tax for Invoice of Report 412.
 
         // Setup.
-        CreatePurchaseSetup(PurchaseLine, 0, CreateTaxArea, LibraryUTUtility.GetNewCode10, true, false);  // Using 0 for Invoice.
+        CreatePurchaseSetup(PurchaseLine, 0, CreateTaxArea(), LibraryUTUtility.GetNewCode10(), true, false);  // Using 0 for Invoice.
 
         // Exercise.
         REPORT.Run(REPORT::"Purchase Prepmt. Doc. - Test");
 
         // Verify.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         VerifyPrepaymentValues(PrepaymentInvoiceCap, FORMATPurchaseHeaderPrepmtIncludeTaxCap);
     end;
 
@@ -97,13 +97,13 @@ codeunit 142069 "UT REP Sales Tax Prepayment"
         // The purpose of the test is to verify trigger OnPreDataItem - Purchase Line with tax for Credit Memo of Report 412.
 
         // Setup.
-        CreatePurchaseSetup(PurchaseLine, 1, CreateTaxArea, LibraryUTUtility.GetNewCode10, true, false);  // Using 1 for Credit Memo.
+        CreatePurchaseSetup(PurchaseLine, 1, CreateTaxArea(), LibraryUTUtility.GetNewCode10(), true, false);  // Using 1 for Credit Memo.
 
         // Exercise.
         REPORT.Run(REPORT::"Purchase Prepmt. Doc. - Test");
 
         // Verify.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         VerifyPrepaymentValues(PrepaymentCreditMemoCap, FORMATPurchaseHeaderPrepmtIncludeTaxCap);
     end;
 
@@ -118,13 +118,13 @@ codeunit 142069 "UT REP Sales Tax Prepayment"
         // The purpose of the test is to verify trigger OnPreDataItem - Purchase Line with tax and Show dimension as true for Credit Memo of Report 412.
 
         // Setup.
-        CreatePurchaseSetup(PurchaseLine, 1, CreateTaxArea, LibraryUTUtility.GetNewCode10, true, true);  // Using 1 for Credit Memo.
+        CreatePurchaseSetup(PurchaseLine, 1, CreateTaxArea(), LibraryUTUtility.GetNewCode10(), true, true);  // Using 1 for Credit Memo.
 
         // Exercise.
         REPORT.Run(REPORT::"Purchase Prepmt. Doc. - Test");
 
         // Verify.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         VerifyPrepaymentValues(PrepaymentCreditMemoCap, FORMATPurchaseHeaderPrepmtIncludeTaxCap);
         LibraryReportDataset.AssertElementWithValueExists(DimTextCap, FindDimensionCode(PurchaseLine.Area));
     end;
@@ -146,7 +146,7 @@ codeunit 142069 "UT REP Sales Tax Prepayment"
         REPORT.Run(REPORT::"Sales Prepmt. Document Test");
 
         // Verify.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(SalesLinePrepmtLineAmountCap, SalesLine."Prepmt. Line Amount");
     end;
 
@@ -167,7 +167,7 @@ codeunit 142069 "UT REP Sales Tax Prepayment"
         REPORT.Run(REPORT::"Sales Prepmt. Document Test");
 
         // Verify.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(SalesLinePrepmtLineAmountCap, SalesLine."Prepmt. Line Amount");
         LibraryReportDataset.AssertElementWithValueExists(DimTextCap, FindDimensionCode(SalesLine.Area));
     end;
@@ -183,13 +183,13 @@ codeunit 142069 "UT REP Sales Tax Prepayment"
         // The purpose of the test is to verify trigger OnPreDataItem - Sales Line with tax for Invoice of Report 212.
 
         // Setup.
-        CreateSalesSetup(SalesLine, 0, CreateTaxArea, LibraryUTUtility.GetNewCode10, true, false);  // Using 0 for Invoice.
+        CreateSalesSetup(SalesLine, 0, CreateTaxArea(), LibraryUTUtility.GetNewCode10(), true, false);  // Using 0 for Invoice.
 
         // Exercise.
         REPORT.Run(REPORT::"Sales Prepmt. Document Test");
 
         // Verify.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         VerifyPrepaymentValues(PrepaymentInvoiceCap, SalesHeaderPrepmtIncludeTaxCap);
     end;
 
@@ -204,13 +204,13 @@ codeunit 142069 "UT REP Sales Tax Prepayment"
         // The purpose of the test is to verify trigger OnPreDataItem - Sales Line with tax for Credit Memo of Report 212.
 
         // Setup.
-        CreateSalesSetup(SalesLine, 1, CreateTaxArea, LibraryUTUtility.GetNewCode10, true, false);  // Using 1 for Credit Memo.
+        CreateSalesSetup(SalesLine, 1, CreateTaxArea(), LibraryUTUtility.GetNewCode10(), true, false);  // Using 1 for Credit Memo.
 
         // Exercise.
         REPORT.Run(REPORT::"Sales Prepmt. Document Test");
 
         // Verify.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         VerifyPrepaymentValues(PrepaymentCreditMemoCap, SalesHeaderPrepmtIncludeTaxCap);
     end;
 
@@ -225,13 +225,13 @@ codeunit 142069 "UT REP Sales Tax Prepayment"
         // The purpose of the test is to verify trigger OnPreDataItem - Sales Line with tax and Show dimension as true for Credit Memo of Report 212.
 
         // Setup.
-        CreateSalesSetup(SalesLine, 1, CreateTaxArea, LibraryUTUtility.GetNewCode10, true, true);  // Using 1 for Credit Memo.
+        CreateSalesSetup(SalesLine, 1, CreateTaxArea(), LibraryUTUtility.GetNewCode10(), true, true);  // Using 1 for Credit Memo.
 
         // Exercise.
         REPORT.Run(REPORT::"Sales Prepmt. Document Test");
 
         // Verify.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         VerifyPrepaymentValues(PrepaymentCreditMemoCap, SalesHeaderPrepmtIncludeTaxCap);
         LibraryReportDataset.AssertElementWithValueExists(DimTextCap, FindDimensionCode(SalesLine.Area));
     end;
@@ -240,8 +240,8 @@ codeunit 142069 "UT REP Sales Tax Prepayment"
     var
         DimensionSetEntry: Record "Dimension Set Entry";
     begin
-        DimensionSetEntry."Dimension Code" := LibraryUTUtility.GetNewCode10;
-        DimensionSetEntry."Dimension Value Code" := LibraryUTUtility.GetNewCode10;
+        DimensionSetEntry."Dimension Code" := LibraryUTUtility.GetNewCode10();
+        DimensionSetEntry."Dimension Value Code" := LibraryUTUtility.GetNewCode10();
         DimensionSetEntry.Insert();
         exit(DimensionSetEntry."Dimension Code");
     end;
@@ -251,21 +251,21 @@ codeunit 142069 "UT REP Sales Tax Prepayment"
         GeneralPostingSetup: Record "General Posting Setup";
         PurchaseHeader: Record "Purchase Header";
     begin
-        PurchaseHeader."No." := LibraryUTUtility.GetNewCode;
+        PurchaseHeader."No." := LibraryUTUtility.GetNewCode();
         PurchaseHeader."Document Type" := PurchaseHeader."Document Type"::Order;
-        PurchaseHeader."Buy-from Vendor No." := LibraryUTUtility.GetNewCode;
+        PurchaseHeader."Buy-from Vendor No." := LibraryUTUtility.GetNewCode();
         PurchaseHeader."Tax Area Code" := TaxAreaCode;
         PurchaseHeader."Prepayment %" := LibraryRandom.RandInt(10);
         PurchaseHeader."Posting Date" := WorkDate();
         PurchaseHeader."Prepmt. Include Tax" := PrepmtIncludeTax;
-        PurchaseHeader.Area := CreateDimensionCode;
+        PurchaseHeader.Area := CreateDimensionCode();
         PurchaseHeader.Insert();
         PurchaseLine."Document Type" := PurchaseHeader."Document Type";
         PurchaseLine."Document No." := PurchaseHeader."No.";
         PurchaseLine."Line No." := LibraryRandom.RandInt(10);
         PurchaseLine."Buy-from Vendor No." := PurchaseHeader."Buy-from Vendor No.";
         PurchaseLine.Type := PurchaseLine.Type::Item;
-        PurchaseLine."No." := LibraryUTUtility.GetNewCode;
+        PurchaseLine."No." := LibraryUTUtility.GetNewCode();
         LibraryERM.FindGeneralPostingSetup(GeneralPostingSetup);
         PurchaseLine."Gen. Bus. Posting Group" := GeneralPostingSetup."Gen. Bus. Posting Group";
         PurchaseLine."Gen. Prod. Posting Group" := GeneralPostingSetup."Gen. Prod. Posting Group";
@@ -294,23 +294,23 @@ codeunit 142069 "UT REP Sales Tax Prepayment"
         GeneralPostingSetup: Record "General Posting Setup";
         SalesHeader: Record "Sales Header";
     begin
-        SalesHeader."No." := LibraryUTUtility.GetNewCode;
+        SalesHeader."No." := LibraryUTUtility.GetNewCode();
         SalesHeader."Document Type" := SalesHeader."Document Type"::Order;
-        SalesHeader."Sell-to Customer No." := LibraryUTUtility.GetNewCode;
+        SalesHeader."Sell-to Customer No." := LibraryUTUtility.GetNewCode();
         SalesHeader."Tax Area Code" := TaxAreaCode;
         SalesHeader."Prepayment %" := LibraryRandom.RandInt(10);
         SalesHeader."Posting Date" := WorkDate();
         SalesHeader."Document Date" := WorkDate();
         SalesHeader."Prepayment Due Date" := WorkDate();
         SalesHeader."Prepmt. Include Tax" := PrepmtIncludeTax;
-        SalesHeader.Area := CreateDimensionCode;
+        SalesHeader.Area := CreateDimensionCode();
         SalesHeader.Insert();
         SalesLine."Document Type" := SalesHeader."Document Type";
         SalesLine."Document No." := SalesHeader."No.";
         SalesLine."Line No." := LibraryRandom.RandInt(10);
         SalesLine."Sell-to Customer No." := SalesHeader."Sell-to Customer No.";
         SalesLine.Type := SalesLine.Type::Item;
-        SalesLine."No." := LibraryUTUtility.GetNewCode;
+        SalesLine."No." := LibraryUTUtility.GetNewCode();
         LibraryERM.FindGeneralPostingSetup(GeneralPostingSetup);
         SalesLine."Gen. Bus. Posting Group" := GeneralPostingSetup."Gen. Bus. Posting Group";
         SalesLine."Gen. Prod. Posting Group" := GeneralPostingSetup."Gen. Prod. Posting Group";
@@ -326,7 +326,7 @@ codeunit 142069 "UT REP Sales Tax Prepayment"
     var
         TaxArea: Record "Tax Area";
     begin
-        TaxArea.Code := LibraryUTUtility.GetNewCode;
+        TaxArea.Code := LibraryUTUtility.GetNewCode();
         TaxArea.Insert();
         exit(TaxArea.Code);
     end;
@@ -361,7 +361,7 @@ codeunit 142069 "UT REP Sales Tax Prepayment"
         PurchasePrepmtDocTest."Purchase Header".SetFilter("No.", No);
         PurchasePrepmtDocTest.PrepaymentDocumentType.SetValue(PrepaymentDocumentType);
         PurchasePrepmtDocTest.ShowDimensions.SetValue(ShowDimensions);
-        PurchasePrepmtDocTest.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        PurchasePrepmtDocTest.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -378,7 +378,7 @@ codeunit 142069 "UT REP Sales Tax Prepayment"
         SalesPrepmtDocumentTest."Sales Header".SetFilter("No.", No);
         SalesPrepmtDocumentTest.PrepaymentDocumentType.SetValue(PrepaymentDocumentType);
         SalesPrepmtDocumentTest.ShowDimensions.SetValue(ShowDimensions);
-        SalesPrepmtDocumentTest.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        SalesPrepmtDocumentTest.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     local procedure VerifyPrepaymentValues(PrepaymentValue: Text[250]; PrepmtIncludeTaxCap: Text[250])

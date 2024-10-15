@@ -481,29 +481,26 @@ report 10057 "Projected Cash Receipts"
                     else
                         SubTitle := Text003;
                     TempCurrency.DeleteAll();
-                    with CustLedgEntry2 do begin
-                        SetCurrentKey("Customer No.", Open, Positive, "Due Date", "Currency Code");
-                        SetRange("Customer No.", Customer."No.");
-                        SetRange(Open, true);
-                        SetFilter("On Hold", '');
-                        SetFilter("Currency Code", '=%1', '');
-                        if FindFirst() then begin
+                    CustLedgEntry2.SetCurrentKey("Customer No.", Open, Positive, "Due Date", "Currency Code");
+                    CustLedgEntry2.SetRange("Customer No.", Customer."No.");
+                    CustLedgEntry2.SetRange(Open, true);
+                    CustLedgEntry2.SetFilter("On Hold", '');
+                    CustLedgEntry2.SetFilter("Currency Code", '=%1', '');
+                    if CustLedgEntry2.FindFirst() then begin
+                        TempCurrency.Init();
+                        TempCurrency.Code := '';
+                        TempCurrency.Description := GLSetup."LCY Code";
+                        TempCurrency.Insert();
+                    end;
+                    repeat
+                        CustLedgEntry2.SetRange("Currency Code", Currency.Code);
+                        if CustLedgEntry2.FindFirst() then begin
                             TempCurrency.Init();
-                            TempCurrency.Code := '';
-                            TempCurrency.Description := GLSetup."LCY Code";
+                            TempCurrency.Code := Currency.Code;
+                            TempCurrency.Description := Currency.Description;
                             TempCurrency.Insert();
                         end;
-                    end;
-                    with Currency do
-                        repeat
-                            CustLedgEntry2.SetRange("Currency Code", Code);
-                            if CustLedgEntry2.FindFirst() then begin
-                                TempCurrency.Init();
-                                TempCurrency.Code := Code;
-                                TempCurrency.Description := Description;
-                                TempCurrency.Insert();
-                            end;
-                        until Next() = 0;
+                    until Currency.Next() = 0;
                 end;
 
                 GetCurrencyRecord(Currency, "Currency Code");

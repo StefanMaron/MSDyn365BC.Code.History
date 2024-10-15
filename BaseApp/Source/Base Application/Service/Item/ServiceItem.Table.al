@@ -21,6 +21,7 @@ using Microsoft.Service.Resources;
 using Microsoft.Service.Setup;
 using Microsoft.Utilities;
 using System.Utilities;
+using Microsoft.Integration.Dataverse;
 
 table 5940 "Service Item"
 {
@@ -28,6 +29,7 @@ table 5940 "Service Item"
     DataCaptionFields = "No.", Description;
     DrillDownPageID = "Service Item List";
     LookupPageID = "Service Item List";
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -39,7 +41,7 @@ table 5940 "Service Item"
             begin
                 if "No." <> xRec."No." then begin
                     ServMgtSetup.Get();
-                    NoSeriesMgt.TestManual(ServMgtSetup."Service Item Nos.");
+                    NoSeries.TestManual(ServMgtSetup."Service Item Nos.");
                     "No. Series" := '';
                 end;
             end;
@@ -241,7 +243,7 @@ table 5940 "Service Item"
         field(10; "Item No."; Code[20])
         {
             Caption = 'Item No.';
-            TableRelation = Item;
+            TableRelation = Item."No." where(Blocked = const(false), "Service Blocked" = const(false));
 
             trigger OnValidate()
             var
@@ -583,6 +585,17 @@ table 5940 "Service Item"
         {
             Caption = 'Vendor Item No.';
         }
+        field(40; Blocked; Enum "Service Item Blocked")
+        {
+            Caption = 'Blocked';
+            DataClassification = CustomerContent;
+
+            trigger OnValidate()
+            begin
+                if Blocked <> xRec.Blocked then
+                    ServLogMgt.ServItemBlockedChange(Rec, xRec);
+            end;
+        }
         field(47; "No. Series"; Code[20])
         {
             Caption = 'No. Series';
@@ -590,42 +603,42 @@ table 5940 "Service Item"
         }
         field(48; "Item Description"; Text[100])
         {
-            CalcFormula = Lookup(Item.Description where("No." = field("Item No.")));
+            CalcFormula = lookup(Item.Description where("No." = field("Item No.")));
             Caption = 'Item Description';
             Editable = false;
             FieldClass = FlowField;
         }
         field(49; Name; Text[100])
         {
-            CalcFormula = Lookup(Customer.Name where("No." = field("Customer No.")));
+            CalcFormula = lookup(Customer.Name where("No." = field("Customer No.")));
             Caption = 'Name';
             Editable = false;
             FieldClass = FlowField;
         }
         field(50; Address; Text[100])
         {
-            CalcFormula = Lookup(Customer.Address where("No." = field("Customer No.")));
+            CalcFormula = lookup(Customer.Address where("No." = field("Customer No.")));
             Caption = 'Address';
             Editable = false;
             FieldClass = FlowField;
         }
         field(51; "Address 2"; Text[50])
         {
-            CalcFormula = Lookup(Customer."Address 2" where("No." = field("Customer No.")));
+            CalcFormula = lookup(Customer."Address 2" where("No." = field("Customer No.")));
             Caption = 'Address 2';
             Editable = false;
             FieldClass = FlowField;
         }
         field(52; "Post Code"; Code[20])
         {
-            CalcFormula = Lookup(Customer."Post Code" where("No." = field("Customer No.")));
+            CalcFormula = lookup(Customer."Post Code" where("No." = field("Customer No.")));
             Caption = 'Post Code';
             Editable = false;
             FieldClass = FlowField;
         }
         field(53; City; Text[30])
         {
-            CalcFormula = Lookup(Customer.City where("No." = field("Customer No.")));
+            CalcFormula = lookup(Customer.City where("No." = field("Customer No.")));
             Caption = 'City';
             Editable = false;
             FieldClass = FlowField;
@@ -634,14 +647,14 @@ table 5940 "Service Item"
         }
         field(54; Contact; Text[100])
         {
-            CalcFormula = Lookup(Customer.Contact where("No." = field("Customer No.")));
+            CalcFormula = lookup(Customer.Contact where("No." = field("Customer No.")));
             Caption = 'Contact';
             Editable = false;
             FieldClass = FlowField;
         }
         field(55; "Phone No."; Text[30])
         {
-            CalcFormula = Lookup(Customer."Phone No." where("No." = field("Customer No.")));
+            CalcFormula = lookup(Customer."Phone No." where("No." = field("Customer No.")));
             Caption = 'Phone No.';
             Editable = false;
             ExtendedDatatype = PhoneNo;
@@ -649,7 +662,7 @@ table 5940 "Service Item"
         }
         field(56; "Ship-to Name"; Text[100])
         {
-            CalcFormula = Lookup("Ship-to Address".Name where("Customer No." = field("Customer No."),
+            CalcFormula = lookup("Ship-to Address".Name where("Customer No." = field("Customer No."),
                                                                Code = field("Ship-to Code")));
             Caption = 'Ship-to Name';
             Editable = false;
@@ -657,7 +670,7 @@ table 5940 "Service Item"
         }
         field(57; "Ship-to Address"; Text[100])
         {
-            CalcFormula = Lookup("Ship-to Address".Address where("Customer No." = field("Customer No."),
+            CalcFormula = lookup("Ship-to Address".Address where("Customer No." = field("Customer No."),
                                                                   Code = field("Ship-to Code")));
             Caption = 'Ship-to Address';
             Editable = false;
@@ -665,7 +678,7 @@ table 5940 "Service Item"
         }
         field(58; "Ship-to Address 2"; Text[50])
         {
-            CalcFormula = Lookup("Ship-to Address"."Address 2" where("Customer No." = field("Customer No."),
+            CalcFormula = lookup("Ship-to Address"."Address 2" where("Customer No." = field("Customer No."),
                                                                       Code = field("Ship-to Code")));
             Caption = 'Ship-to Address 2';
             Editable = false;
@@ -673,7 +686,7 @@ table 5940 "Service Item"
         }
         field(59; "Ship-to Post Code"; Code[20])
         {
-            CalcFormula = Lookup("Ship-to Address"."Post Code" where("Customer No." = field("Customer No."),
+            CalcFormula = lookup("Ship-to Address"."Post Code" where("Customer No." = field("Customer No."),
                                                                       Code = field("Ship-to Code")));
             Caption = 'Ship-to Post Code';
             Editable = false;
@@ -681,7 +694,7 @@ table 5940 "Service Item"
         }
         field(60; "Ship-to City"; Text[30])
         {
-            CalcFormula = Lookup("Ship-to Address".City where("Customer No." = field("Customer No."),
+            CalcFormula = lookup("Ship-to Address".City where("Customer No." = field("Customer No."),
                                                                Code = field("Ship-to Code")));
             Caption = 'Ship-to City';
             Editable = false;
@@ -691,7 +704,7 @@ table 5940 "Service Item"
         }
         field(61; "Ship-to Contact"; Text[100])
         {
-            CalcFormula = Lookup("Ship-to Address".Contact where("Customer No." = field("Customer No."),
+            CalcFormula = lookup("Ship-to Address".Contact where("Customer No." = field("Customer No."),
                                                                   Code = field("Ship-to Code")));
             Caption = 'Ship-to Contact';
             Editable = false;
@@ -699,7 +712,7 @@ table 5940 "Service Item"
         }
         field(62; "Ship-to Phone No."; Text[30])
         {
-            CalcFormula = Lookup("Ship-to Address"."Phone No." where("Customer No." = field("Customer No."),
+            CalcFormula = lookup("Ship-to Address"."Phone No." where("Customer No." = field("Customer No."),
                                                                       Code = field("Ship-to Code")));
             Caption = 'Ship-to Phone No.';
             Editable = false;
@@ -808,7 +821,7 @@ table 5940 "Service Item"
         }
         field(71; "Vendor Name"; Text[100])
         {
-            CalcFormula = Lookup(Vendor.Name where("No." = field("Vendor No.")));
+            CalcFormula = lookup(Vendor.Name where("No." = field("Vendor No.")));
             Caption = 'Vendor Name';
             Editable = false;
             FieldClass = FlowField;
@@ -863,7 +876,7 @@ table 5940 "Service Item"
         field(76; "Variant Code"; Code[10])
         {
             Caption = 'Variant Code';
-            TableRelation = "Item Variant".Code where("Item No." = field("Item No."));
+            TableRelation = "Item Variant".Code where("Item No." = field("Item No."), Blocked = const(false), "Service Blocked" = const(false));
 
             trigger OnValidate()
             begin
@@ -873,7 +886,7 @@ table 5940 "Service Item"
         }
         field(77; County; Text[30])
         {
-            CalcFormula = Lookup(Customer.County where("No." = field("Customer No.")));
+            CalcFormula = lookup(Customer.County where("No." = field("Customer No.")));
             CaptionClass = '5,1,' + "Country/Region Code";
             Caption = 'County';
             Editable = false;
@@ -881,7 +894,7 @@ table 5940 "Service Item"
         }
         field(78; "Ship-to County"; Text[30])
         {
-            CalcFormula = Lookup("Ship-to Address".County where("Customer No." = field("Customer No."),
+            CalcFormula = lookup("Ship-to Address".County where("Customer No." = field("Customer No."),
                                                                  Code = field("Ship-to Code")));
             CaptionClass = '5,4,' + "Ship-to Country/Region Code";
             Caption = 'Ship-to County';
@@ -901,14 +914,14 @@ table 5940 "Service Item"
         }
         field(81; "Country/Region Code"; Code[10])
         {
-            CalcFormula = Lookup(Customer."Country/Region Code" where("No." = field("Customer No.")));
+            CalcFormula = lookup(Customer."Country/Region Code" where("No." = field("Customer No.")));
             Caption = 'Country/Region Code';
             Editable = false;
             FieldClass = FlowField;
         }
         field(82; "Ship-to Country/Region Code"; Code[10])
         {
-            CalcFormula = Lookup("Ship-to Address"."Country/Region Code" where("Customer No." = field("Customer No."),
+            CalcFormula = lookup("Ship-to Address"."Country/Region Code" where("Customer No." = field("Customer No."),
                                                                                 Code = field("Ship-to Code")));
             Caption = 'Ship-to Country/Region Code';
             Editable = false;
@@ -916,14 +929,14 @@ table 5940 "Service Item"
         }
         field(83; "Name 2"; Text[50])
         {
-            CalcFormula = Lookup(Customer."Name 2" where("No." = field("Customer No.")));
+            CalcFormula = lookup(Customer."Name 2" where("No." = field("Customer No.")));
             Caption = 'Name 2';
             Editable = false;
             FieldClass = FlowField;
         }
         field(84; "Ship-to Name 2"; Text[50])
         {
-            CalcFormula = Lookup("Ship-to Address"."Name 2" where("Customer No." = field("Customer No."),
+            CalcFormula = lookup("Ship-to Address"."Name 2" where("Customer No." = field("Customer No."),
                                                                    Code = field("Ship-to Code")));
             Caption = 'Ship-to Name 2';
             Editable = false;
@@ -1019,6 +1032,13 @@ table 5940 "Service Item"
         {
             Caption = 'Shipment Type';
         }
+        field(721; "Coupled to Dataverse"; Boolean)
+        {
+            FieldClass = FlowField;
+            Caption = 'Coupled to Dynamics 365 Sales';
+            Editable = false;
+            CalcFormula = exist("CRM Integration Record" where("Integration ID" = field(SystemId), "Table ID" = const(Database::"Service Item")));
+        }
     }
 
     keys
@@ -1046,9 +1066,11 @@ table 5940 "Service Item"
 
     fieldgroups
     {
-        fieldgroup(DropDown; "No.", Description, Status, "Item No.", "Service Contracts")
+        fieldgroup(DropDown; "No.", Description, Status, Blocked, "Item No.", "Service Contracts")
         {
         }
+        fieldgroup(Brick; "No.", Description, "Item No.", "Customer No.", "Name")
+        { }
     }
 
     trigger OnDelete()
@@ -1083,6 +1105,9 @@ table 5940 "Service Item"
 
     trigger OnInsert()
     var
+#if not CLEAN24
+        NoSeriesMgt: Codeunit NoSeriesManagement;
+#endif
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -1093,7 +1118,18 @@ table 5940 "Service Item"
         ServMgtSetup.Get();
         if "No." = '' then begin
             ServMgtSetup.TestField("Service Item Nos.");
-            NoSeriesMgt.InitSeries(ServMgtSetup."Service Item Nos.", xRec."No. Series", 0D, "No.", "No. Series");
+#if not CLEAN24
+            NoSeriesMgt.RaiseObsoleteOnBeforeInitSeries(ServMgtSetup."Service Item Nos.", xRec."No. Series", 0D, "No.", "No. Series", IsHandled);
+            if not IsHandled then begin
+#endif
+            "No. Series" := ServMgtSetup."Service Item Nos.";
+            if NoSeries.AreRelated("No. Series", xRec."No. Series") then
+                "No. Series" := xRec."No. Series";
+            "No." := NoSeries.GetNextNo("No. Series");
+#if not CLEAN24
+                NoSeriesMgt.RaiseObsoleteOnAfterInitSeries("No. Series", ServMgtSetup."Service Item Nos.", 0D, "No.");
+            end;
+#endif
         end;
         "Response Time (Hours)" := ServMgtSetup."Default Response Time (Hours)";
 
@@ -1131,10 +1167,9 @@ table 5940 "Service Item"
         ServLedgEntry: Record "Service Ledger Entry";
         ServItemLine: Record "Service Item Line";
         ServItemComponent: Record "Service Item Component";
-        PostCodeRec: Record "Post Code";
         ResSkill: Record "Resource Skill";
         Currency: Record Currency;
-        NoSeriesMgt: Codeunit NoSeriesManagement;
+        NoSeries: Codeunit "No. Series";
         ServLogMgt: Codeunit ServLogManagement;
         MoveEntries: Codeunit MoveEntries;
         ResSkillMgt: Codeunit "Resource Skill Mgt.";
@@ -1155,15 +1190,13 @@ table 5940 "Service Item"
 
     procedure AssistEdit(OldServItem: Record "Service Item"): Boolean
     begin
-        with ServItem do begin
-            ServItem := Rec;
-            ServMgtSetup.Get();
-            ServMgtSetup.TestField("Service Item Nos.");
-            if NoSeriesMgt.SelectSeries(ServMgtSetup."Service Item Nos.", OldServItem."No. Series", "No. Series") then begin
-                NoSeriesMgt.SetSeries("No.");
-                Rec := ServItem;
-                exit(true);
-            end;
+        ServItem := Rec;
+        ServMgtSetup.Get();
+        ServMgtSetup.TestField("Service Item Nos.");
+        if NoSeries.LookupRelatedNoSeries(ServMgtSetup."Service Item Nos.", OldServItem."No. Series", ServItem."No. Series") then begin
+            ServItem."No." := NoSeries.GetNextNo(ServItem."No. Series");
+            Rec := ServItem;
+            exit(true);
         end;
     end;
 
@@ -1280,6 +1313,19 @@ table 5940 "Service Item"
     begin
         CancelResSkillAssignment := IsSetOmitted;
     end;
+
+    # region Service Item Blocked checks
+    internal procedure ErrorIfBlockedForServiceContract()
+    begin
+        TestField(Blocked, Blocked::" ");
+    end;
+
+    internal procedure ErrorIfBlockedForAll()
+    begin
+        if Blocked = Blocked::All then
+            FieldError(Blocked);
+    end;
+    #endregion Service Item Blocked checks
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterAssignItemValues(var ServiceItem: Record "Service Item"; var xServiceItem: Record "Service Item"; Item: Record Item; CurrFieldNo: Integer)

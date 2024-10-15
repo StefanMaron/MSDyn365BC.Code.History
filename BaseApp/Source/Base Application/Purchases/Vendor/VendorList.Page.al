@@ -27,7 +27,9 @@ using System.Integration.PowerBI;
 using System.Integration.Word;
 using System.Text;
 using Microsoft.Inventory.Location;
+#if not CLEAN25
 using Microsoft.Finance.VAT.Reporting;
+#endif
 using Microsoft.Finance.SalesTax;
 
 page 27 "Vendor List"
@@ -314,16 +316,6 @@ page 27 "Vendor List"
                               "Global Dimension 2 Filter" = field("Global Dimension 2 Filter");
                 Visible = false;
             }
-#if not CLEAN21
-            part("Power BI Report FactBox"; "Power BI Report FactBox")
-            {
-                ApplicationArea = Basic, Suite;
-                Visible = false;
-                ObsoleteReason = 'Use the part PowerBIEmbeddedReportPart instead';
-                ObsoleteState = Pending;
-                ObsoleteTag = '21.0';
-            }
-#endif
             systempart(Control1900383207; Links)
             {
                 ApplicationArea = RecordLinks;
@@ -540,7 +532,7 @@ page 27 "Vendor List"
                         PriceUXManagement.ShowPriceListLines(PriceSource, Enum::"Price Amount Type"::Discount);
                     end;
                 }
-#if not CLEAN21
+#if not CLEAN23
                 action(PriceListsDiscounts)
                 {
                     ApplicationArea = Basic, Suite;
@@ -561,7 +553,7 @@ page 27 "Vendor List"
                     end;
                 }
 #endif
-#if not CLEAN21
+#if not CLEAN23
                 action(Prices)
                 {
                     ApplicationArea = Advanced;
@@ -677,7 +669,7 @@ page 27 "Vendor List"
                     RunObject = Page "Vendor Ledger Entries";
                     RunPageLink = "Vendor No." = field("No.");
                     RunPageView = sorting("Vendor No.")
-                                  order(Descending);
+                                  order(descending);
                     ShortCutKey = 'Ctrl+F7';
                     ToolTip = 'View the history of transactions that have been posted for the selected record.';
                 }
@@ -717,6 +709,7 @@ page 27 "Vendor List"
                                   "Global Dimension 2 Filter" = field("Global Dimension 2 Filter");
                     ToolTip = 'View entry statistics for the record.';
                 }
+#if not CLEAN25
                 action("1099 Statistics")
                 {
                     ApplicationArea = BasicUS;
@@ -726,7 +719,11 @@ page 27 "Vendor List"
                     RunPageLink = "No." = field("No.");
                     ShortCutKey = 'Shift+F11';
                     ToolTip = 'View the vendor 1099 statistics that you can use to create 1099 reports and generate the files necessary to submit 1099 information to the Internal Revenue Service (IRS). This information is required to report paid vendor income.';
+                    ObsoleteReason = 'Moved to IRS Forms App.';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '25.0';
                 }
+#endif
                 action("Statistics by C&urrencies")
                 {
                     ApplicationArea = Suite;
@@ -1000,7 +997,7 @@ page 27 "Vendor List"
                 {
                     ApplicationArea = Suite;
                     Caption = 'Send A&pproval Request';
-                    Enabled = NOT OpenApprovalEntriesExist AND CanRequestApprovalForFlow;
+                    Enabled = not OpenApprovalEntriesExist and CanRequestApprovalForFlow;
                     Image = SendApprovalRequest;
                     ToolTip = 'Request approval to change the record.';
 
@@ -1016,7 +1013,7 @@ page 27 "Vendor List"
                 {
                     ApplicationArea = Suite;
                     Caption = 'Cancel Approval Re&quest';
-                    Enabled = CanCancelApprovalForRecord OR CanCancelApprovalForFlow;
+                    Enabled = CanCancelApprovalForRecord or CanCancelApprovalForFlow;
                     Image = CancelApprovalRequest;
                     ToolTip = 'Cancel the approval request.';
 
@@ -1120,32 +1117,6 @@ page 27 "Vendor List"
                     TempEmailItem.Send(false, EmailScenario::Default);
                 end;
             }
-#if not CLEAN21
-            group(Display)
-            {
-                Caption = 'Display';
-                Visible = false;
-                ObsoleteState = Pending;
-                ObsoleteReason = 'Use the Personalization mode to hide and show this factbox.';
-                ObsoleteTag = '21.0';
-                action(ReportFactBoxVisibility)
-                {
-                    ApplicationArea = Basic, Suite;
-                    Caption = 'Show/Hide Power BI Reports';
-                    Image = "Report";
-                    ToolTip = 'Select if the Power BI FactBox is visible or not.';
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Use the Personalization mode to hide and show this factbox.';
-                    ObsoleteTag = '21.0';
-                    trigger OnAction()
-                    begin
-                        // save visibility value into the table
-                        CurrPage."Power BI Report FactBox".PAGE.SetFactBoxVisibility(PowerBIVisible);
-                    end;
-                }
-            }
-#endif
             group(OCR)
             {
                 Caption = 'OCR';
@@ -1240,6 +1211,7 @@ page 27 "Vendor List"
                     RunObject = Report "Item/Vendor Catalog";
                     ToolTip = 'View a list of the items that your vendors supply.';
                 }
+#if not CLEAN25
                 action("Vendor 1099 Div")
                 {
                     ApplicationArea = BasicUS;
@@ -1248,12 +1220,15 @@ page 27 "Vendor List"
                     //The property 'PromotedCategory' can only be set if the property 'Promoted' is set to 'true'
                     //PromotedCategory = "Report";
                     ToolTip = 'View the federal form 1099-DIV for dividends and distribution.';
+                    ObsoleteReason = 'Moved to IRS Forms App.';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '25.0';
 
                     trigger OnAction()
                     var
                         IRS1099Management: Codeunit "IRS 1099 Management";
                     begin
-                        IRS1099Management.Run1099DivReport;
+                        IRS1099Management.Run1099DivReport();
                     end;
                 }
                 action("Vendor 1099 Information")
@@ -1265,6 +1240,9 @@ page 27 "Vendor List"
                     //PromotedCategory = "Report";
                     RunObject = Report "Vendor 1099 Information";
                     ToolTip = 'View the vendors'' 1099 information. The report includes all 1099 information for the vendors that have been set up using the IRS 1099 Form-Box table. This includes only amounts that have been paid. It does not include amounts billed but not yet paid. You must enter a date filter before you can print this report.';
+                    ObsoleteReason = 'Moved to IRS Forms App.';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '25.0';
                 }
                 action("Vendor 1099 Int")
                 {
@@ -1274,12 +1252,15 @@ page 27 "Vendor List"
                     //The property 'PromotedCategory' can only be set if the property 'Promoted' is set to 'true'
                     //PromotedCategory = "Report";
                     ToolTip = 'View the federal form 1099-INT for interest income.';
+                    ObsoleteReason = 'Moved to IRS Forms App.';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '25.0';
 
                     trigger OnAction()
                     var
                         IRS1099Management: Codeunit "IRS 1099 Management";
                     begin
-                        IRS1099Management.Run1099IntReport;
+                        IRS1099Management.Run1099IntReport();
                     end;
                 }
                 action("Vendor 1099 Misc")
@@ -1290,6 +1271,9 @@ page 27 "Vendor List"
                     //The property 'PromotedCategory' can only be set if the property 'Promoted' is set to 'true'
                     //PromotedCategory = "Report";
                     ToolTip = 'View the federal form 1099-MISC for miscellaneous income.';
+                    ObsoleteReason = 'Moved to IRS Forms App.';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '25.0';
 
                     trigger OnAction()
                     var
@@ -1306,6 +1290,9 @@ page 27 "Vendor List"
                     //The property 'PromotedCategory' can only be set if the property 'Promoted' is set to 'true'
                     //PromotedCategory = "Report";
                     ToolTip = 'View the federal form 1099-NEC for nonemployee compensation.';
+                    ObsoleteReason = 'Moved to IRS Forms App.';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '25.0';
 
                     trigger OnAction()
                     var
@@ -1314,6 +1301,7 @@ page 27 "Vendor List"
                         IRS1099Management.Run1099NecReport();
                     end;
                 }
+#endif
                 action("Vendor - Top 10 List")
                 {
                     ApplicationArea = Suite;
@@ -1321,6 +1309,9 @@ page 27 "Vendor List"
                     Image = "Report";
                     RunObject = Report "Top __ Vendor List";
                     ToolTip = 'View a list of the vendors from whom you purchase the most or to whom you owe the most.';
+                    ObsoleteReason = 'Moved to IRS Forms App.';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '25.0';
                 }
             }
             group(Action5)
@@ -1451,10 +1442,14 @@ page 27 "Vendor List"
                 actionref("Co&mments_Promoted"; "Co&mments")
                 {
                 }
+#if not CLEAN25
                 actionref("1099 Statistics_Promoted"; "1099 Statistics")
                 {
+                    ObsoleteReason = 'Moved to IRS Forms App.';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '25.0';
                 }
-
+#endif
                 separator(Navigate_Separator)
                 {
                 }
@@ -1480,24 +1475,6 @@ page 27 "Vendor List"
                 actionref("Return Orders_Promoted"; "Return Orders")
                 {
                 }
-#if not CLEAN21
-                actionref("Payment Journal_Promoted"; "Payment Journal")
-                {
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Action is being demoted based on overall low usage.';
-                    ObsoleteTag = '21.0';
-                }
-#endif
-#if not CLEAN21
-                actionref("Purchase Journal_Promoted"; "Purchase Journal")
-                {
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Action is being demoted based on overall low usage.';
-                    ObsoleteTag = '21.0';
-                }
-#endif
             }
             group("Category_Prices & Discounts")
             {
@@ -1512,7 +1489,7 @@ page 27 "Vendor List"
                 actionref(DiscountLines_Promoted; DiscountLines)
                 {
                 }
-#if not CLEAN21
+#if not CLEAN23
                 actionref(Prices_Promoted; Prices)
                 {
                     ObsoleteState = Pending;
@@ -1520,7 +1497,7 @@ page 27 "Vendor List"
                     ObsoleteTag = '17.0';
                 }
 #endif
-#if not CLEAN21
+#if not CLEAN23
                 actionref("Line Discounts_Promoted"; "Line Discounts")
                 {
                     ObsoleteState = Pending;
@@ -1585,10 +1562,6 @@ page 27 "Vendor List"
         if CRMIsCoupledToRecord then
             CRMIsCoupledToRecord := CRMCouplingManagement.IsRecordCoupledToCRM(Rec.RecordId);
 
-#if not CLEAN21
-        // Contextual Power BI FactBox: send data to filter the report in the FactBox
-        CurrPage."Power BI Report FactBox".PAGE.SetCurrentListSelection(Rec."No.", false, PowerBIVisible);
-#endif
         CurrPage.SetSelectionFilter(Vendor);
         CanSendEmail := Vendor.Count() = 1;
 
@@ -1597,10 +1570,6 @@ page 27 "Vendor List"
 
     trigger OnInit()
     begin
-#if not CLEAN21
-        PowerBIVisible := false;
-        CurrPage."Power BI Report FactBox".PAGE.InitFactBox(CurrPage.ObjectId(false), CurrPage.Caption, PowerBIVisible);
-#endif
         CurrPage.PowerBIEmbeddedReportPart.PAGE.InitPageRatio(PowerBIServiceMgt.GetFactboxRatio());
         CurrPage.PowerBIEmbeddedReportPart.PAGE.SetPageContext(CurrPage.ObjectId(false));
     end;
@@ -1633,9 +1602,6 @@ page 27 "Vendor List"
         CanSendEmail: Boolean;
         OpenApprovalEntriesExist: Boolean;
         CanCancelApprovalForRecord: Boolean;
-#if not CLEAN21
-        PowerBIVisible: Boolean;
-#endif
         ResyncVisible: Boolean;
         CanRequestApprovalForFlow: Boolean;
         CanCancelApprovalForFlow: Boolean;

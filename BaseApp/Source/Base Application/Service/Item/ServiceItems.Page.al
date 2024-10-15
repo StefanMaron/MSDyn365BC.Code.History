@@ -1,5 +1,6 @@
 namespace Microsoft.Service.Item;
 
+using Microsoft.Foundation.Attachment;
 using Microsoft.Inventory.Item;
 using Microsoft.Sales.Customer;
 using Microsoft.Service.Comment;
@@ -73,10 +74,22 @@ page 5988 "Service Items"
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the ending date of the labor warranty for this item.';
                 }
+                field(Blocked; Rec.Blocked)
+                {
+                    ApplicationArea = Service;
+                    ToolTip = 'Specifies that the service item is blocked from being used in service contracts or used and posted in transactions via service documents, except credit memos.';
+                }
             }
         }
         area(factboxes)
         {
+            part("Attached Documents"; "Document Attachment Factbox")
+            {
+                ApplicationArea = Service;
+                Caption = 'Attachments';
+                SubPageLink = "Table ID" = const(Database::"Service Item"),
+                              "No." = field("No.");
+            }
             systempart(Control1900383207; Links)
             {
                 ApplicationArea = RecordLinks;

@@ -7,6 +7,7 @@ namespace Microsoft.eServices.EDocument;
 table 10001 "PAC Web Service Detail"
 {
     Caption = 'PAC Web Service Detail';
+    DataClassification = CustomerContent;
 
     fields
     {

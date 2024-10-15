@@ -83,12 +83,10 @@ report 10077 "Sales Shipment NA"
 
                 trigger OnPreDataItem()
                 begin
-                    with TempSalesShipmentLine do begin
-                        Init();
-                        "Document No." := "Sales Shipment Header"."No.";
-                        "Line No." := HighestLineNo + 1000;
-                        HighestLineNo := "Line No.";
-                    end;
+                    TempSalesShipmentLine.Init();
+                    TempSalesShipmentLine."Document No." := "Sales Shipment Header"."No.";
+                    TempSalesShipmentLine."Line No." := HighestLineNo + 1000;
+                    HighestLineNo := TempSalesShipmentLine."Line No.";
                     TempSalesShipmentLine.Insert();
                 end;
             }
@@ -364,52 +362,50 @@ report 10077 "Sales Shipment NA"
                         begin
                             OnLineNumber := OnLineNumber + 1;
 
-                            with TempSalesShipmentLine do begin
-                                if OnLineNumber = 1 then
-                                    Find('-')
-                                else
-                                    Next();
+                            if OnLineNumber = 1 then
+                                TempSalesShipmentLine.Find('-')
+                            else
+                                TempSalesShipmentLine.Next();
 
+                            OrderedQuantity := 0;
+                            BackOrderedQuantity := 0;
+                            if TempSalesShipmentLine."Order No." = '' then
+                                OrderedQuantity := TempSalesShipmentLine.Quantity
+                            else
+                                if OrderLine.Get(1, TempSalesShipmentLine."Order No.", TempSalesShipmentLine."Order Line No.") then begin
+                                    OrderedQuantity := OrderLine.Quantity;
+                                    BackOrderedQuantity := OrderLine."Outstanding Quantity";
+                                end else begin
+                                    ReceiptLine.SetCurrentKey("Order No.", "Order Line No.");
+                                    ReceiptLine.SetRange("Order No.", TempSalesShipmentLine."Order No.");
+                                    ReceiptLine.SetRange("Order Line No.", TempSalesShipmentLine."Order Line No.");
+                                    ReceiptLine.Find('-');
+                                    repeat
+                                        OrderedQuantity := OrderedQuantity + ReceiptLine.Quantity;
+                                    until 0 = ReceiptLine.Next();
+                                end;
+
+                            if TempSalesShipmentLine.Type = TempSalesShipmentLine.Type::" " then begin
                                 OrderedQuantity := 0;
                                 BackOrderedQuantity := 0;
-                                if "Order No." = '' then
-                                    OrderedQuantity := Quantity
-                                else
-                                    if OrderLine.Get(1, "Order No.", "Order Line No.") then begin
-                                        OrderedQuantity := OrderLine.Quantity;
-                                        BackOrderedQuantity := OrderLine."Outstanding Quantity";
-                                    end else begin
-                                        ReceiptLine.SetCurrentKey("Order No.", "Order Line No.");
-                                        ReceiptLine.SetRange("Order No.", "Order No.");
-                                        ReceiptLine.SetRange("Order Line No.", "Order Line No.");
-                                        ReceiptLine.Find('-');
-                                        repeat
-                                            OrderedQuantity := OrderedQuantity + ReceiptLine.Quantity;
-                                        until 0 = ReceiptLine.Next();
-                                    end;
+                                TempSalesShipmentLine."No." := '';
+                                TempSalesShipmentLine."Unit of Measure" := '';
+                                TempSalesShipmentLine.Quantity := 0;
+                            end else
+                                if TempSalesShipmentLine.Type = TempSalesShipmentLine.Type::"G/L Account" then
+                                    TempSalesShipmentLine."No." := '';
 
-                                if Type = Type::" " then begin
-                                    OrderedQuantity := 0;
-                                    BackOrderedQuantity := 0;
-                                    "No." := '';
-                                    "Unit of Measure" := '';
-                                    Quantity := 0;
-                                end else
-                                    if Type = Type::"G/L Account" then
-                                        "No." := '';
+                            PackageTrackingText := '';
+                            if (TempSalesShipmentLine."Package Tracking No." <> "Sales Shipment Header"."Package Tracking No.") and
+                               (TempSalesShipmentLine."Package Tracking No." <> '') and PrintPackageTrackingNos
+                            then
+                                PackageTrackingText := Text002 + ' ' + TempSalesShipmentLine."Package Tracking No.";
 
-                                PackageTrackingText := '';
-                                if ("Package Tracking No." <> "Sales Shipment Header"."Package Tracking No.") and
-                                   ("Package Tracking No." <> '') and PrintPackageTrackingNos
-                                then
-                                    PackageTrackingText := Text002 + ' ' + "Package Tracking No.";
-
-                                if DisplayAssemblyInformation then
-                                    if TempSalesShipmentLineAsm.Get("Document No.", "Line No.") then begin
-                                        SalesShipmentLine.Get("Document No.", "Line No.");
-                                        AsmHeaderExists := SalesShipmentLine.AsmToShipmentExists(PostedAsmHeader);
-                                    end;
-                            end;
+                            if DisplayAssemblyInformation then
+                                if TempSalesShipmentLineAsm.Get(TempSalesShipmentLine."Document No.", TempSalesShipmentLine."Line No.") then begin
+                                    SalesShipmentLine.Get(TempSalesShipmentLine."Document No.", TempSalesShipmentLine."Line No.");
+                                    AsmHeaderExists := SalesShipmentLine.AsmToShipmentExists(PostedAsmHeader);
+                                end;
 
                             if OnLineNumber = NumberOfLines then
                                 PrintFooter := true;
@@ -456,8 +452,8 @@ report 10077 "Sales Shipment NA"
                         CompanyInformation."Phone No." := RespCenter."Phone No.";
                         CompanyInformation."Fax No." := RespCenter."Fax No.";
                     end;
-                CurrReport.Language := Language.GetLanguageIdOrDefault("Language Code");
-                CurrReport.FormatRegion := Language.GetFormatRegionOrDefault("Format Region");
+                CurrReport.Language := LanguageMgt.GetLanguageIdOrDefault("Language Code");
+                CurrReport.FormatRegion := LanguageMgt.GetFormatRegionOrDefault("Format Region");
 
                 if "Salesperson Code" = '' then
                     Clear(SalesPurchPerson)
@@ -652,7 +648,7 @@ report 10077 "Sales Shipment NA"
         Cust: Record Customer;
         PostedAsmHeader: Record "Posted Assembly Header";
         PostedAsmLine: Record "Posted Assembly Line";
-        Language: Codeunit Language;
+        LanguageMgt: Codeunit Language;
         SalesShipmentPrinted: Codeunit "Sales Shpt.-Printed";
         FormatAddress: Codeunit "Format Address";
         FormatDocument: Codeunit "Format Document";
@@ -732,12 +728,10 @@ report 10077 "Sales Shipment NA"
 
     local procedure InsertTempLine(Comment: Text[80]; IncrNo: Integer)
     begin
-        with TempSalesShipmentLine do begin
-            Init();
-            "Document No." := "Sales Shipment Header"."No.";
-            "Line No." := HighestLineNo + IncrNo;
-            HighestLineNo := "Line No.";
-        end;
+        TempSalesShipmentLine.Init();
+        TempSalesShipmentLine."Document No." := "Sales Shipment Header"."No.";
+        TempSalesShipmentLine."Line No." := HighestLineNo + IncrNo;
+        HighestLineNo := TempSalesShipmentLine."Line No.";
         FormatDocument.ParseComment(Comment, TempSalesShipmentLine.Description, TempSalesShipmentLine."Description 2");
         TempSalesShipmentLine.Insert();
     end;

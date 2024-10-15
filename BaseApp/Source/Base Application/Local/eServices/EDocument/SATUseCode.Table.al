@@ -10,6 +10,7 @@ table 27012 "SAT Use Code"
     DataPerCompany = false;
     DrillDownPageID = "SAT Use Codes";
     LookupPageID = "SAT Use Codes";
+    DataClassification = CustomerContent;
 
     fields
     {

@@ -1,4 +1,4 @@
-// ------------------------------------------------------------------------------------------------
+﻿// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -329,25 +329,25 @@ codeunit 229 "Document-Print"
         ReportSelections.PrintReport(ReportSelections.Usage::Inv1, TransHeader);
     end;
 
-    procedure PrintServiceContract(ServiceContract: Record "Service Contract Header")
+    procedure PrintServiceContract(ServiceContractHeader: Record "Service Contract Header")
     var
         ReportSelection: Record "Report Selections";
         ReportUsage: Enum "Report Selection Usage";
         IsPrinted: Boolean;
     begin
-        ReportUsage := GetServContractTypeUsage(ServiceContract);
+        ReportUsage := GetServContractTypeUsage(ServiceContractHeader);
 
-        ServiceContract.SetRange("Contract No.", ServiceContract."Contract No.");
-        OnBeforePrintServiceContract(ServiceContract, ReportUsage.AsInteger(), IsPrinted);
+        ServiceContractHeader.SetRange("Contract No.", ServiceContractHeader."Contract No.");
+        OnBeforePrintServiceContract(ServiceContractHeader, ReportUsage.AsInteger(), IsPrinted);
         if IsPrinted then
             exit;
 
         ReportSelection.Reset();
         ReportSelection.SetRange(Usage, ReportUsage);
         if ReportSelection.IsEmpty() then
-            Error(Text001, ReportSelection.TableCaption(), Format(ServiceContract."Contract Type"), ServiceContract."Contract No.");
+            Error(Text001, ReportSelection.TableCaption(), Format(ServiceContractHeader."Contract Type"), ServiceContractHeader."Contract No.");
 
-        ReportSelection.PrintForCust(ReportUsage, ServiceContract, ServiceContract.FieldNo("Bill-to Customer No."));
+        ReportSelection.PrintForCust(ReportUsage, ServiceContractHeader, ServiceContractHeader.FieldNo("Bill-to Customer No."));
     end;
 
     procedure PrintServiceHeader(ServiceHeader: Record "Service Header")
@@ -859,6 +859,51 @@ codeunit 229 "Document-Print"
             ServHeader.Get(ServHeader."Document Type", ServHeader."No.");
             Commit();
         end;
+    end;
+
+    procedure PrintServiceHeaderToDocumentAttachment(var ServiceHeader: Record "Service Header");
+    var
+        ShowNotificationAction: Boolean;
+    begin
+        ShowNotificationAction := ServiceHeader.Count() = 1;
+        if ServiceHeader.FindSet() then
+            repeat
+                DoPrintServiceHeaderToDocumentAttachment(ServiceHeader, ShowNotificationAction);
+            until ServiceHeader.Next() = 0;
+    end;
+
+    local procedure DoPrintServiceHeaderToDocumentAttachment(ServiceHeader: Record "Service Header"; ShowNotificationAction: Boolean);
+    var
+        ReportUsage: Enum "Report Selection Usage";
+    begin
+        ReportUsage := GetServHeaderDocTypeUsage(ServiceHeader);
+
+        ServiceHeader.SetRecFilter();
+        CalcServDisc(ServiceHeader);
+
+        RunSaveAsDocumentAttachment(ReportUsage.AsInteger(), ServiceHeader, ServiceHeader."No.", ServiceHeader."Customer No.", ShowNotificationAction);
+    end;
+
+    procedure PrintServiceContractToDocumentAttachment(var ServiceContractHeader: Record "Service Contract Header");
+    var
+        ShowNotificationAction: Boolean;
+    begin
+        ShowNotificationAction := ServiceContractHeader.Count() = 1;
+        if ServiceContractHeader.FindSet() then
+            repeat
+                DoPrintServiceContractToDocumentAttachment(ServiceContractHeader, ShowNotificationAction);
+            until ServiceContractHeader.Next() = 0;
+    end;
+
+    local procedure DoPrintServiceContractToDocumentAttachment(ServiceContractHeader: Record "Service Contract Header"; ShowNotificationAction: Boolean);
+    var
+        ReportUsage: Enum "Report Selection Usage";
+    begin
+        ReportUsage := GetServContractTypeUsage(ServiceContractHeader);
+
+        ServiceContractHeader.SetRecFilter();
+
+        RunSaveAsDocumentAttachment(ReportUsage.AsInteger(), ServiceContractHeader, ServiceContractHeader."Contract No.", ServiceContractHeader."Bill-to Customer No.", ShowNotificationAction);
     end;
 
     [IntegrationEvent(false, false)]

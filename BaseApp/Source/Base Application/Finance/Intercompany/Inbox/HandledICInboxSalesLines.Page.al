@@ -67,7 +67,7 @@ page 649 "Handled IC Inbox Sales Lines"
                 field("Job No."; Rec."Job No.")
                 {
                     ApplicationArea = Jobs;
-                    ToolTip = 'Specifies the number of the related job.';
+                    ToolTip = 'Specifies the number of the related project.';
                     Visible = false;
                 }
                 field("Drop Shipment"; Rec."Drop Shipment")
@@ -112,9 +112,6 @@ page 649 "Handled IC Inbox Sales Lines"
                     ApplicationArea = Dimensions;
                     Caption = 'Dimensions';
                     Image = Dimensions;
-                    Promoted = true;
-                    PromotedCategory = Process;
-                    PromotedOnly = true;
                     ShortCutKey = 'Alt+D';
                     ToolTip = 'View or edit dimensions, such as area, project, or department, that you can assign to sales and purchase documents to distribute costs and analyze transaction history.';
 

@@ -25,16 +25,16 @@ codeunit 141039 "UT PAG Electronic Payment"
     begin
         // Purpose of the test is to validate Export Format - OnValidate Trigger of Page ID - 370 Bank Account Card.
         // Setup.
-        BankAccountNo := CreateBankAccount;
+        BankAccountNo := CreateBankAccount();
 
         // Exercise.
         ExportFormatBankAccountCard(BankAccountCard, BankAccountNo, BankAccount."Export Format"::US);
 
         // Verify: Verify various fields are Enabled or Disabled with respect to Export Format US on Bank Account Card.
-        Assert.IsTrue(BankAccountCard."SWIFT Code".Enabled, ControlEnabledMsg);
-        Assert.IsTrue(BankAccountCard.IBAN.Enabled, ControlEnabledMsg);
-        Assert.IsFalse(BankAccountCard."Client No.".Enabled, ControlDisabledMsg);
-        Assert.IsFalse(BankAccountCard."Client Name".Enabled, ControlDisabledMsg);
+        Assert.IsTrue(BankAccountCard."SWIFT Code".Enabled(), ControlEnabledMsg);
+        Assert.IsTrue(BankAccountCard.IBAN.Enabled(), ControlEnabledMsg);
+        Assert.IsFalse(BankAccountCard."Client No.".Enabled(), ControlDisabledMsg);
+        Assert.IsFalse(BankAccountCard."Client Name".Enabled(), ControlDisabledMsg);
         BankAccountCard.Close();
     end;
 
@@ -49,16 +49,16 @@ codeunit 141039 "UT PAG Electronic Payment"
     begin
         // Purpose of the test is to validate Export Format - OnValidate Trigger of Page ID - 370 Bank Account Card.
         // Setup.
-        BankAccountNo := CreateBankAccount;
+        BankAccountNo := CreateBankAccount();
 
         // Exercise.
         ExportFormatBankAccountCard(BankAccountCard, BankAccountNo, BankAccount."Export Format"::MX);
 
         // Verify: Verify various fields are Enabled or Disabled with respect to Export Format MX on Bank Account Card.
-        Assert.IsTrue(BankAccountCard."SWIFT Code".Enabled, ControlEnabledMsg);
-        Assert.IsTrue(BankAccountCard.IBAN.Enabled, ControlEnabledMsg);
-        Assert.IsFalse(BankAccountCard."Client No.".Enabled, ControlDisabledMsg);
-        Assert.IsFalse(BankAccountCard."Client Name".Enabled, ControlDisabledMsg);
+        Assert.IsTrue(BankAccountCard."SWIFT Code".Enabled(), ControlEnabledMsg);
+        Assert.IsTrue(BankAccountCard.IBAN.Enabled(), ControlEnabledMsg);
+        Assert.IsFalse(BankAccountCard."Client No.".Enabled(), ControlDisabledMsg);
+        Assert.IsFalse(BankAccountCard."Client Name".Enabled(), ControlDisabledMsg);
         BankAccountCard.Close();
     end;
 
@@ -73,16 +73,16 @@ codeunit 141039 "UT PAG Electronic Payment"
     begin
         // Purpose of the test is to validate Export Format - OnValidate Trigger of Page ID - 370 Bank Account Card.
         // Setup.
-        BankAccountNo := CreateBankAccount;
+        BankAccountNo := CreateBankAccount();
 
         // Exercise.
         ExportFormatBankAccountCard(BankAccountCard, BankAccountNo, BankAccount."Export Format"::CA);
 
         // Verify: Verify various fields are Enabled or Disabled with respect to Export Format CA on Bank Account Card.
-        Assert.IsTrue(BankAccountCard."SWIFT Code".Enabled, ControlEnabledMsg);
-        Assert.IsTrue(BankAccountCard.IBAN.Enabled, ControlEnabledMsg);
-        Assert.IsTrue(BankAccountCard."Client No.".Enabled, ControlDisabledMsg);
-        Assert.IsTrue(BankAccountCard."Client Name".Enabled, ControlDisabledMsg);
+        Assert.IsTrue(BankAccountCard."SWIFT Code".Enabled(), ControlEnabledMsg);
+        Assert.IsTrue(BankAccountCard.IBAN.Enabled(), ControlEnabledMsg);
+        Assert.IsTrue(BankAccountCard."Client No.".Enabled(), ControlDisabledMsg);
+        Assert.IsTrue(BankAccountCard."Client Name".Enabled(), ControlDisabledMsg);
         BankAccountCard.Close();
     end;
 
@@ -90,14 +90,14 @@ codeunit 141039 "UT PAG Electronic Payment"
     var
         BankAccount: Record "Bank Account";
     begin
-        BankAccount."No." := LibraryUTUtility.GetNewCode;
+        BankAccount."No." := LibraryUTUtility.GetNewCode();
         BankAccount.Insert();
         exit(BankAccount."No.");
     end;
 
     local procedure ExportFormatBankAccountCard(BankAccountCard: TestPage "Bank Account Card"; No: Code[20]; ExportFormat: Option)
     begin
-        BankAccountCard.OpenEdit;
+        BankAccountCard.OpenEdit();
         BankAccountCard.FILTER.SetFilter("No.", No);
         BankAccountCard."Export Format".SetValue(ExportFormat);
     end;

@@ -13,6 +13,7 @@ table 289 "Payment Method"
     DataCaptionFields = "Code", Description;
     DrillDownPageID = "Payment Methods";
     LookupPageID = "Payment Methods";
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -108,9 +109,9 @@ table 289 "Payment Method"
         field(10; "Use for Invoicing"; Boolean)
         {
             Caption = 'Use for Invoicing';
-            ObsoleteState = Pending;
             ObsoleteReason = 'Microsoft Invoicing is not supported on Business Central';
-            ObsoleteTag = '15.0';
+            ObsoleteState = Removed;
+            ObsoleteTag = '24.0';
         }
         field(11; "Last Modified Date Time"; DateTime)
         {

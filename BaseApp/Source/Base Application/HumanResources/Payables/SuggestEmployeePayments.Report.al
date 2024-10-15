@@ -327,7 +327,6 @@ report 394 "Suggest Employee Payments"
         TempEmployeePaymentBufferOld: Record "Employee Payment Buffer" temporary;
         SelectedDim: Record "Selected Dimension";
         TempEmployeeLedgerEntry: Record "Employee Ledger Entry" temporary;
-        NoSeriesMgt: Codeunit NoSeriesManagement;
         DimMgt: Codeunit DimensionManagement;
         DimBufMgt: Codeunit "Dimension Buffer Management";
         Window: Dialog;
@@ -373,14 +372,14 @@ report 394 "Suggest Employee Payments"
     end;
 
     local procedure ValidatePostingDate()
+    var
+        NoSeries: Codeunit "No. Series";
     begin
         GenJnlBatch.Get(GenJnlLine."Journal Template Name", GenJnlLine."Journal Batch Name");
         if GenJnlBatch."No. Series" = '' then
             NextDocNo := ''
-        else begin
-            NextDocNo := NoSeriesMgt.GetNextNo(GenJnlBatch."No. Series", PostingDateReq, false);
-            Clear(NoSeriesMgt);
-        end;
+        else
+            NextDocNo := NoSeries.PeekNextNo(GenJnlBatch."No. Series", PostingDateReq);
     end;
 
     procedure InitializeRequest(NewAvailableAmount: Decimal; NewSkipExportedPayments: Boolean; NewPostingDate: Date; NewStartDocNo: Code[20]; NewSummarizePerEmpl: Boolean; BalAccType: Enum "Gen. Journal Account Type"; BalAccNo: Code[20]; BankPmtType: Enum "Bank Payment Type")
@@ -420,27 +419,25 @@ report 394 "Suggest Employee Payments"
 
     local procedure SaveAmount()
     begin
-        with GenJnlLine do begin
-            Init();
-            Validate("Posting Date", PostingDateReq);
-            "Document Type" := "Document Type"::Payment;
-            "Account Type" := "Account Type"::Employee;
-            Empl2.Get(EmployeeLedgerEntry."Employee No.");
-            Description := CopyStr(Empl2.FullName(), 1, MaxStrLen(Description));
-            "Posting Group" := Empl2."Employee Posting Group";
-            "Salespers./Purch. Code" := Empl2."Salespers./Purch. Code";
-            Validate("Bill-to/Pay-to No.", "Account No.");
-            Validate("Sell-to/Buy-from No.", "Account No.");
-            "Gen. Posting Type" := "Gen. Posting Type"::" ";
-            "Gen. Prod. Posting Group" := '';
-            "Gen. Bus. Posting Group" := '';
-            "VAT Bus. Posting Group" := '';
-            "VAT Prod. Posting Group" := '';
-            Validate("Currency Code", EmployeeLedgerEntry."Currency Code");
-            EmployeeLedgerEntry.CalcFields("Remaining Amount");
-            Amount := -EmployeeLedgerEntry."Remaining Amount";
-            Validate(Amount);
-        end;
+        GenJnlLine.Init();
+        GenJnlLine.Validate("Posting Date", PostingDateReq);
+        GenJnlLine."Document Type" := GenJnlLine."Document Type"::Payment;
+        GenJnlLine."Account Type" := GenJnlLine."Account Type"::Employee;
+        Empl2.Get(EmployeeLedgerEntry."Employee No.");
+        GenJnlLine.Description := CopyStr(Empl2.FullName(), 1, MaxStrLen(GenJnlLine.Description));
+        GenJnlLine."Posting Group" := Empl2."Employee Posting Group";
+        GenJnlLine."Salespers./Purch. Code" := Empl2."Salespers./Purch. Code";
+        GenJnlLine.Validate("Bill-to/Pay-to No.", GenJnlLine."Account No.");
+        GenJnlLine.Validate("Sell-to/Buy-from No.", GenJnlLine."Account No.");
+        GenJnlLine."Gen. Posting Type" := GenJnlLine."Gen. Posting Type"::" ";
+        GenJnlLine."Gen. Prod. Posting Group" := '';
+        GenJnlLine."Gen. Bus. Posting Group" := '';
+        GenJnlLine."VAT Bus. Posting Group" := '';
+        GenJnlLine."VAT Prod. Posting Group" := '';
+        GenJnlLine.Validate("Currency Code", EmployeeLedgerEntry."Currency Code");
+        EmployeeLedgerEntry.CalcFields("Remaining Amount");
+        GenJnlLine.Amount := -EmployeeLedgerEntry."Remaining Amount";
+        GenJnlLine.Validate(Amount);
 
         TempPayableEmployeeLedgerEntry."Employee No." := EmployeeLedgerEntry."Employee No.";
         TempPayableEmployeeLedgerEntry."Entry No." := NextEntryNo;
@@ -506,6 +503,7 @@ report 394 "Suggest Employee Payments"
     local procedure CopyEmployeeLedgerEntriesToTempEmplPaymentBuffer(RemainingAmtAvailable: Decimal)
     var
         DimBuf: Record "Dimension Buffer";
+        NoSeriesBatch: Codeunit "No. Series - Batch";
     begin
         if TempPayableEmployeeLedgerEntry.Find('-') then
             repeat
@@ -534,7 +532,7 @@ report 394 "Suggest Employee Payments"
                             TempEmplPaymentBuffer.Modify();
                         end else begin
                             TempEmplPaymentBuffer."Document No." := NextDocNo;
-                            GenJnlLine.IncrementDocumentNo(GenJnlBatch, NextDocNo);
+                            NextDocNo := NoSeriesBatch.SimulateGetNextNo(GenJnlBatch."No. Series", GenJnlLine."Posting Date", NextDocNo);
                             TempEmplPaymentBuffer.Amount := TempPayableEmployeeLedgerEntry.Amount;
                             Window2.Update(1, EmployeeLedgerEntry."Employee No.");
                             TempEmplPaymentBuffer.Insert();
@@ -571,6 +569,7 @@ report 394 "Suggest Employee Payments"
     local procedure CopyTempEmpPaymentBuffersToGenJnlLines()
     var
         Employee: Record Employee;
+        NoSeriesBatch: Codeunit "No. Series - Batch";
     begin
         Clear(TempEmployeePaymentBufferOld);
         TempEmplPaymentBuffer.SetCurrentKey("Document No.");
@@ -579,68 +578,66 @@ report 394 "Suggest Employee Payments"
           TempEmplPaymentBuffer."Employee Ledg. Entry Doc. Type"::Payment);
         if TempEmplPaymentBuffer.FindSet() then
             repeat
-                with GenJnlLine do begin
-                    Init();
-                    Window2.Update(1, TempEmplPaymentBuffer."Employee No.");
-                    LastLineNo := LastLineNo + 10000;
-                    "Line No." := LastLineNo;
-                    "Document Type" := "Document Type"::Payment;
-                    "Posting No. Series" := GenJnlBatch."Posting No. Series";
-                    if SummarizePerEmpl then
-                        "Document No." := TempEmplPaymentBuffer."Document No."
-                    else
-                        if DocNoPerLine then begin
-                            if TempEmplPaymentBuffer.Amount < 0 then
-                                "Document Type" := "Document Type"::Refund;
+                Window2.Update(1, TempEmplPaymentBuffer."Employee No.");
+                LastLineNo := LastLineNo + 10000;
+                GenJnlLine.Init();
+                GenJnlLine."Line No." := LastLineNo;
+                GenJnlLine."Document Type" := GenJnlLine."Document Type"::Payment;
+                GenJnlLine."Posting No. Series" := GenJnlBatch."Posting No. Series";
+                if SummarizePerEmpl then
+                    GenJnlLine."Document No." := TempEmplPaymentBuffer."Document No."
+                else
+                    if DocNoPerLine then begin
+                        if TempEmplPaymentBuffer.Amount < 0 then
+                            GenJnlLine."Document Type" := GenJnlLine."Document Type"::Refund;
 
-                            "Document No." := NextDocNo;
-                            IncrementDocumentNo(GenJnlBatch, NextDocNo);
-                        end else
-                            if (TempEmplPaymentBuffer."Employee No." = TempEmployeePaymentBufferOld."Employee No.") and
-                               (TempEmplPaymentBuffer."Currency Code" = TempEmployeePaymentBufferOld."Currency Code")
-                            then
-                                "Document No." := TempEmployeePaymentBufferOld."Document No."
-                            else begin
-                                "Document No." := NextDocNo;
-                                IncrementDocumentNo(GenJnlBatch, NextDocNo);
-                                TempEmployeePaymentBufferOld := TempEmplPaymentBuffer;
-                                TempEmployeePaymentBufferOld."Document No." := "Document No.";
-                            end;
-                    "Account Type" := "Account Type"::Employee;
-                    SetHideValidation(true);
-                    Validate("Posting Date", PostingDateReq);
-                    Validate("Account No.", TempEmplPaymentBuffer."Employee No.");
-                    Validate("Recipient Bank Account", TempEmplPaymentBuffer."Employee No.");
-                    Employee.Get(TempEmplPaymentBuffer."Employee No.");
+                        GenJnlLine."Document No." := NextDocNo;
+                        NextDocNo := NoSeriesBatch.SimulateGetNextNo(GenJnlBatch."No. Series", GenJnlLine."Posting Date", NextDocNo);
+                    end else
+                        if (TempEmplPaymentBuffer."Employee No." = TempEmployeePaymentBufferOld."Employee No.") and
+                           (TempEmplPaymentBuffer."Currency Code" = TempEmployeePaymentBufferOld."Currency Code")
+                        then
+                            GenJnlLine."Document No." := TempEmployeePaymentBufferOld."Document No."
+                        else begin
+                            GenJnlLine."Document No." := NextDocNo;
+                            NextDocNo := NoSeriesBatch.SimulateGetNextNo(GenJnlBatch."No. Series", GenJnlLine."Posting Date", NextDocNo);
+                            TempEmployeePaymentBufferOld := TempEmplPaymentBuffer;
+                            TempEmployeePaymentBufferOld."Document No." := GenJnlLine."Document No.";
+                        end;
+                GenJnlLine."Account Type" := GenJnlLine."Account Type"::Employee;
+                GenJnlLine.SetHideValidation(true);
+                GenJnlLine.Validate("Posting Date", PostingDateReq);
+                GenJnlLine.Validate("Account No.", TempEmplPaymentBuffer."Employee No.");
+                GenJnlLine.Validate("Recipient Bank Account", TempEmplPaymentBuffer."Employee No.");
+                Employee.Get(TempEmplPaymentBuffer."Employee No.");
 
-                    "Bal. Account Type" := BalAccType;
-                    Validate("Bal. Account No.", BalAccNo);
-                    Validate("Currency Code", TempEmplPaymentBuffer."Currency Code");
-                    "Message to Recipient" := CompanyInformation.Name;
-                    "Bank Payment Type" := BankPmtType;
-                    if SummarizePerEmpl then
-                        "Applies-to ID" := "Document No.";
-                    Description := CopyStr(Employee.FullName(), 1, MaxStrLen(Description));
-                    "Source Line No." := TempEmplPaymentBuffer."Employee Ledg. Entry No.";
-                    "Shortcut Dimension 1 Code" := TempEmplPaymentBuffer."Global Dimension 1 Code";
-                    "Shortcut Dimension 2 Code" := TempEmplPaymentBuffer."Global Dimension 2 Code";
-                    "Dimension Set ID" := TempEmplPaymentBuffer."Dimension Set ID";
-                    "Source Code" := GenJnlTemplate."Source Code";
-                    "Reason Code" := GenJnlBatch."Reason Code";
-                    Validate(Amount, TempEmplPaymentBuffer.Amount);
-                    "Applies-to Doc. Type" := TempEmplPaymentBuffer."Employee Ledg. Entry Doc. Type";
-                    "Applies-to Doc. No." := TempEmplPaymentBuffer."Employee Ledg. Entry Doc. No.";
-                    "Payment Method Code" := TempEmplPaymentBuffer."Payment Method Code";
-                    "Creditor No." := CopyStr(TempEmplPaymentBuffer."Creditor No.", 1, MaxStrLen("Creditor No."));
-                    "Payment Reference" := CopyStr(TempEmplPaymentBuffer."Payment Reference", 1, MaxStrLen("Payment Reference"));
-                    "Exported to Payment File" := TempEmplPaymentBuffer."Exported to Payment File";
-                    "Applies-to Ext. Doc. No." := TempEmplPaymentBuffer."Applies-to Ext. Doc. No.";
+                GenJnlLine."Bal. Account Type" := BalAccType;
+                GenJnlLine.Validate("Bal. Account No.", BalAccNo);
+                GenJnlLine.Validate("Currency Code", TempEmplPaymentBuffer."Currency Code");
+                GenJnlLine."Message to Recipient" := CompanyInformation.Name;
+                GenJnlLine."Bank Payment Type" := BankPmtType;
+                if SummarizePerEmpl then
+                    GenJnlLine."Applies-to ID" := GenJnlLine."Document No.";
+                GenJnlLine.Description := CopyStr(Employee.FullName(), 1, MaxStrLen(GenJnlLine.Description));
+                GenJnlLine."Source Line No." := TempEmplPaymentBuffer."Employee Ledg. Entry No.";
+                GenJnlLine."Shortcut Dimension 1 Code" := TempEmplPaymentBuffer."Global Dimension 1 Code";
+                GenJnlLine."Shortcut Dimension 2 Code" := TempEmplPaymentBuffer."Global Dimension 2 Code";
+                GenJnlLine."Dimension Set ID" := TempEmplPaymentBuffer."Dimension Set ID";
+                GenJnlLine."Source Code" := GenJnlTemplate."Source Code";
+                GenJnlLine."Reason Code" := GenJnlBatch."Reason Code";
+                GenJnlLine.Validate(Amount, TempEmplPaymentBuffer.Amount);
+                GenJnlLine."Applies-to Doc. Type" := TempEmplPaymentBuffer."Employee Ledg. Entry Doc. Type";
+                GenJnlLine."Applies-to Doc. No." := TempEmplPaymentBuffer."Employee Ledg. Entry Doc. No.";
+                GenJnlLine."Payment Method Code" := TempEmplPaymentBuffer."Payment Method Code";
+                GenJnlLine."Creditor No." := CopyStr(TempEmplPaymentBuffer."Creditor No.", 1, MaxStrLen(GenJnlLine."Creditor No."));
+                GenJnlLine."Payment Reference" := CopyStr(TempEmplPaymentBuffer."Payment Reference", 1, MaxStrLen(GenJnlLine."Payment Reference"));
+                GenJnlLine."Exported to Payment File" := TempEmplPaymentBuffer."Exported to Payment File";
+                GenJnlLine."Applies-to Ext. Doc. No." := TempEmplPaymentBuffer."Applies-to Ext. Doc. No.";
 
-                    OnBeforeUpdateGnlJnlLineDimensionsFromTempBuffer(GenJnlLine, TempEmplPaymentBuffer);
-                    UpdateDimensions(GenJnlLine);
-                    Insert();
-                    GenJnlLineInserted := true;
-                end;
+                OnBeforeUpdateGnlJnlLineDimensionsFromTempBuffer(GenJnlLine, TempEmplPaymentBuffer);
+                UpdateDimensions(GenJnlLine);
+                GenJnlLine.Insert();
+                GenJnlLineInserted := true;
             until TempEmplPaymentBuffer.Next() = 0;
     end;
 
@@ -653,38 +650,36 @@ report 394 "Suggest Employee Payments"
         NewDimensionID: Integer;
         DimSetIDArr: array[10] of Integer;
     begin
-        with GenJnlLine3 do begin
-            NewDimensionID := "Dimension Set ID";
-            if SummarizePerEmpl then begin
-                DimBuf.Reset();
-                DimBuf.DeleteAll();
-                DimBufMgt.GetDimensions(TempEmplPaymentBuffer."Dimension Entry No.", DimBuf);
-                if DimBuf.FindSet() then
-                    repeat
-                        DimVal.Get(DimBuf."Dimension Code", DimBuf."Dimension Value Code");
-                        TempDimSetEntry."Dimension Code" := DimBuf."Dimension Code";
-                        TempDimSetEntry."Dimension Value ID" := DimVal."Dimension Value ID";
-                        TempDimSetEntry."Dimension Value Code" := DimBuf."Dimension Value Code";
-                        TempDimSetEntry.Insert();
-                    until DimBuf.Next() = 0;
-                NewDimensionID := DimMgt.GetDimensionSetID(TempDimSetEntry);
-                "Dimension Set ID" := NewDimensionID;
-            end;
-            CreateDimFromDefaultDim(0);
-            if NewDimensionID <> "Dimension Set ID" then begin
-                DimSetIDArr[2] := NewDimensionID;
-                DimSetIDArr[1] := "Dimension Set ID";
-                "Dimension Set ID" :=
-                  DimMgt.GetCombinedDimensionSetID(DimSetIDArr, "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
-            end;
+        NewDimensionID := GenJnlLine3."Dimension Set ID";
+        if SummarizePerEmpl then begin
+            DimBuf.Reset();
+            DimBuf.DeleteAll();
+            DimBufMgt.GetDimensions(TempEmplPaymentBuffer."Dimension Entry No.", DimBuf);
+            if DimBuf.FindSet() then
+                repeat
+                    DimVal.Get(DimBuf."Dimension Code", DimBuf."Dimension Value Code");
+                    TempDimSetEntry."Dimension Code" := DimBuf."Dimension Code";
+                    TempDimSetEntry."Dimension Value ID" := DimVal."Dimension Value ID";
+                    TempDimSetEntry."Dimension Value Code" := DimBuf."Dimension Value Code";
+                    TempDimSetEntry.Insert();
+                until DimBuf.Next() = 0;
+            NewDimensionID := DimMgt.GetDimensionSetID(TempDimSetEntry);
+            GenJnlLine3."Dimension Set ID" := NewDimensionID;
+        end;
+        GenJnlLine3.CreateDimFromDefaultDim(0);
+        if NewDimensionID <> GenJnlLine3."Dimension Set ID" then begin
+            DimSetIDArr[2] := NewDimensionID;
+            DimSetIDArr[1] := GenJnlLine3."Dimension Set ID";
+            GenJnlLine3."Dimension Set ID" :=
+              DimMgt.GetCombinedDimensionSetID(DimSetIDArr, GenJnlLine3."Shortcut Dimension 1 Code", GenJnlLine3."Shortcut Dimension 2 Code");
+        end;
 
-            if SummarizePerEmpl then begin
-                DimMgt.GetDimensionSet(TempDimSetEntry, "Dimension Set ID");
-                if AdjustAgainstSelectedDim(TempDimSetEntry, TempDimSetEntry2) then
-                    "Dimension Set ID" := DimMgt.GetDimensionSetID(TempDimSetEntry2);
-                DimMgt.UpdateGlobalDimFromDimSetID("Dimension Set ID", "Shortcut Dimension 1 Code",
-                  "Shortcut Dimension 2 Code");
-            end;
+        if SummarizePerEmpl then begin
+            DimMgt.GetDimensionSet(TempDimSetEntry, GenJnlLine3."Dimension Set ID");
+            if AdjustAgainstSelectedDim(TempDimSetEntry, TempDimSetEntry2) then
+                GenJnlLine3."Dimension Set ID" := DimMgt.GetDimensionSetID(TempDimSetEntry2);
+            DimMgt.UpdateGlobalDimFromDimSetID(GenJnlLine3."Dimension Set ID", GenJnlLine3."Shortcut Dimension 1 Code",
+              GenJnlLine3."Shortcut Dimension 2 Code");
         end;
 
         OnAfterUpdateDimensions(GenJnlLine, SummarizePerEmpl);

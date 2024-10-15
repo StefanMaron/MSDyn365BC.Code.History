@@ -24,9 +24,9 @@ codeunit 142065 "Job Reports NA"
         LibraryResource: Codeunit "Library - Resource";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         AmountError: Label 'Amount must be Equal.';
-        BillToCustomerNoCap: Label 'Job: Bill-to Customer No.: %1';
-        PostingDateFilterCap: Label 'Job: Posting Date Filter: %1';
-        JobNoAndPostingDateFilterCap: Label 'Job: No.: %1, Posting Date Filter: %2';
+        BillToCustomerNoCap: Label 'Project: Bill-to Customer No.: %1';
+        PostingDateFilterCap: Label 'Project: Posting Date Filter: %1';
+        JobNoAndPostingDateFilterCap: Label 'Project: No.: %1, Posting Date Filter: %2';
         DateFilter: Label 'Date Filter';
         ResDescriptionCap: Label 'ResDescription';
         ResourceNoCap: Label 'Resource__No__';
@@ -85,7 +85,7 @@ codeunit 142065 "Job Reports NA"
         RunResourceRegisterReport('', '', '', false);  // Using blank values for register no, source code, source no and Print Resource Desc fields.
 
         // Verify.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         VerifyValuesOnReport(ResLedgerEntryResourceNoCap, ResourceNo, ResourceNo2);
     end;
 
@@ -106,8 +106,8 @@ codeunit 142065 "Job Reports NA"
         RunResourceRegisterReport(Format(ResourceRegister."No." + 1), '', '', false);
 
         // Verify: Verify that blank report is generated.
-        LibraryReportDataset.LoadDataSetFile;
-        Assert.IsFalse(LibraryReportDataset.GetNextRow, RowMustNotExistErr);
+        LibraryReportDataset.LoadDataSetFile();
+        Assert.IsFalse(LibraryReportDataset.GetNextRow(), RowMustNotExistErr);
     end;
 
     [Test]
@@ -126,7 +126,7 @@ codeunit 142065 "Job Reports NA"
         RunResourceRegisterReport('', '', '', true);  // Using blank values for register no, source code, source no and Print Resource Desc fields.
 
         // Verify.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(ResDescriptionCap, ResourceNo);
     end;
 
@@ -147,7 +147,7 @@ codeunit 142065 "Job Reports NA"
         RunResourceUsageReport('', '', 0D);  // Using blank values for register no, source code, source no and Print Resource Desc fields.
 
         // Verify.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         VerifyValuesOnReport(ResourceNoCap, ResourceNo, ResourceNo2);
     end;
 
@@ -167,7 +167,7 @@ codeunit 142065 "Job Reports NA"
         RunResourceUsageReport(Resource."No.", '', 0D);
 
         // Verify.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         VerifyResourceUsage(Resource);
     end;
 
@@ -187,7 +187,7 @@ codeunit 142065 "Job Reports NA"
         RunResourceUsageReport('', Resource."Base Unit of Measure", 0D);
 
         // Verify.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(ResourceBaseUnitofMeasure, Resource."Base Unit of Measure");
     end;
 
@@ -210,7 +210,7 @@ codeunit 142065 "Job Reports NA"
         RunResourceUsageReport('', '', PostingDate); // Using blank values for resource no and base unit of measure fields.
 
         // Verify.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         CaptionValue := Resource.TableCaption + ': ' + DateFilter + ': ' + Format(PostingDate); // Using random value for Posting Date.
         LibraryReportDataset.AssertElementWithValueExists(ResourceTABLECAPTIONResFilterCap, CaptionValue);
     end;
@@ -234,7 +234,7 @@ codeunit 142065 "Job Reports NA"
         RunReportJobCostTransacDtl('', '', 0D);  // Using blank values for Job no, customer no, and Posting date fields.
 
         // Verify.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         VerifyValuesOnReport(JobNoCap, Job."No.", Job2."No.");
     end;
 
@@ -310,7 +310,7 @@ codeunit 142065 "Job Reports NA"
         Initialize();
         CreateJobAndPostJobJournal(Job, JobJournalLine."Line Type"::" ", CalcDate('<1Y>', WorkDate()));
         FindJobTask(JobTask, Job."No.");
-        CreateAndPostJobJournalLine(JobTask, CreateItem, JobJournalLine.Type::Item, JobJournalLine."Line Type"::" ", WorkDate());
+        CreateAndPostJobJournalLine(JobTask, CreateItem(), JobJournalLine.Type::Item, JobJournalLine."Line Type"::" ", WorkDate());
 
         // Exercise & Verify.
         RunAndVerifyReportJobCostTransacDtl(JobTABLECAPTIONJobFiltercap,
@@ -347,10 +347,10 @@ codeunit 142065 "Job Reports NA"
         FindJobLedgerEntry(JobLedgerEntry, Job."No.", JobJournalLine.Type::Resource);
 
         // Exercise: Run report Job Register with Print Job Description filter.
-        RunJobRegisterReport('', '', PrintJobDescriptionFilter, 0);
+        RunJobRegisterReport('', '', PrintJobDescriptionFilter, "Job Journal Line Type"::Resource);
 
         // Verify: Verify Job Register report.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         VerifyJobRegisterReport(
           JobDescriptionCap, JobLedgerEntry.Description, PrintJobDescriptionsCap, PrintJobDescriptionValue, JobLedgerEntry."Job No.");
     end;
@@ -376,10 +376,10 @@ codeunit 142065 "Job Reports NA"
 
         // Exercise.
         // Using '%1..%2' Apply filter for the created Job Registers.
-        RunJobRegisterReport(StrSubstNo('%1..%2', JobRegister."No." - 1, JobRegister."No."), JobLedgerEntry."Job No.", false, 0);
+        RunJobRegisterReport(StrSubstNo('%1..%2', JobRegister."No." - 1, JobRegister."No."), JobLedgerEntry."Job No.", false, "Job Journal Line Type"::Resource);
 
         // Verify.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         VerifyJobRegisterReport(
           JobLedgerEntryTotalCostLCYCap,
           JobLedgerEntry."Total Cost (LCY)",
@@ -401,14 +401,14 @@ codeunit 142065 "Job Reports NA"
         Initialize();
         CreateJobAndPostJobJournal(Job, JobJournalLine."Line Type"::" ", WorkDate());
         FindJobTask(JobTask, Job."No.");
-        CreateAndPostJobJournalLine(JobTask, CreateItem, JobJournalLine.Type::Item, JobJournalLine."Line Type"::" ", WorkDate());
+        CreateAndPostJobJournalLine(JobTask, CreateItem(), JobJournalLine.Type::Item, JobJournalLine."Line Type"::" ", WorkDate());
         FindJobLedgerEntry(JobLedgerEntry, Job."No.", JobJournalLine.Type::Item);
 
         // Exercise.
         RunJobRegisterReport('', Job."No.", false, JobJournalLine.Type::Item);
 
         // Verify.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         VerifyJobRegisterReport(
           JobLedgerEntryTypeCap, Format(JobLedgerEntry.Type), JobLedgerEntryNoCap, JobLedgerEntry."No.", JobLedgerEntry."Job No.");
     end;
@@ -430,7 +430,7 @@ codeunit 142065 "Job Reports NA"
         RunJobCostSuggestedBillingReport(Job."Bill-to Customer No.");
 
         // Verify.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         VerifyContractPriceOnJobReports(Job, ContractPriceCap, TotalPrice);
     end;
 
@@ -465,7 +465,7 @@ codeunit 142065 "Job Reports NA"
         RunCompletedJobReport(Job."Bill-to Customer No.");
 
         // Verify.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         VerifyContractPriceOnJobReports(Job, ContractPriceCap, JobPlanningLine."Total Price (LCY)");
     end;
 
@@ -503,7 +503,7 @@ codeunit 142065 "Job Reports NA"
         // Verify Job Ledger Entry for posted purchase invoice with Use Tax and Currency.
         // Setup: Create Purch Invoice for Job with Sales Tax and a Tax Detail.
         Initialize();
-        CreateAndPostPurchaseDocument(PurchaseLine, CreateCurrency);
+        CreateAndPostPurchaseDocument(PurchaseLine, CreateCurrency());
         PurchaseHeader.Get(PurchaseLine."Document Type", PurchaseLine."Document No.");
 
         // Exercise.
@@ -574,7 +574,7 @@ codeunit 142065 "Job Reports NA"
         REPORT.Run(REPORT::"Sales Invoice NA");
 
         // Verify.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists('No_SalesInvHeader', DocumentNo);
         LibraryReportDataset.AssertElementWithValueExists('TempSalesInvoiceLineNo', SalesLine."No.");
         LibraryReportDataset.AssertElementWithValueExists('TempSalesInvoiceLineQty', SalesLine.Quantity);
@@ -602,7 +602,7 @@ codeunit 142065 "Job Reports NA"
         REPORT.Run(REPORT::"Purchase Invoice NA");
 
         // Veirfy.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists('No_PurchInvHeader', DocumentNo);
         LibraryReportDataset.AssertElementWithValueExists('ItemNumberToPrint', PurchaseLine."No.");
         LibraryReportDataset.AssertElementWithValueExists('Quantity_PurchInvLine', PurchaseLine.Quantity);
@@ -630,7 +630,7 @@ codeunit 142065 "Job Reports NA"
         REPORT.Run(REPORT::"Service - Shipment");
 
         // Verify.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists('No_ServiceShptHrd', DocumentNo);
         LibraryReportDataset.AssertElementWithValueExists('No_ServiceShptItemLn', ServiceLine."No.");
         LibraryReportDataset.AssertElementWithValueExists('QtyInvoiced_ServShptLine', ServiceLine.Quantity);
@@ -702,7 +702,7 @@ codeunit 142065 "Job Reports NA"
 
         LibraryVariableStorage.Clear();
         LibraryERMCountryData.CreateVATData();
-        LibraryApplicationArea.EnableEssentialSetup;
+        LibraryApplicationArea.EnableEssentialSetup();
 
         SetJobNoSeries(JobsSetup, NoSeries);
 
@@ -757,7 +757,7 @@ codeunit 142065 "Job Reports NA"
         SeriesCode := Code;
     end;
 
-    local procedure CreateAndPostPurchaseInvoice(var PurchaseLine: Record "Purchase Line"; DocumentType: Option): Code[20]
+    local procedure CreateAndPostPurchaseInvoice(var PurchaseLine: Record "Purchase Line"; DocumentType: Enum "Purchase Document Type"): Code[20]
     var
         Item: Record Item;
         PurchaseHeader: Record "Purchase Header";
@@ -812,7 +812,7 @@ codeunit 142065 "Job Reports NA"
         ServiceHeader.Validate("Tax Area Code", TaxAreaCode);
         ServiceHeader.Validate("Tax Liable", true);
         ServiceHeader.Modify(true);
-        LibraryService.CreateServiceLine(ServiceLine, ServiceHeader, ServiceLine.Type::Resource, CreateResource);
+        LibraryService.CreateServiceLine(ServiceLine, ServiceHeader, ServiceLine.Type::Resource, CreateResource());
         ServiceLine.Validate("Tax Group Code", TaxDetail."Tax Group Code");
         ServiceLine.Validate(Quantity, LibraryRandom.RandDec(10, 2));  // Take Random Quantity.
         ServiceLine.Modify(true);
@@ -879,7 +879,7 @@ codeunit 142065 "Job Reports NA"
         Job.Modify(true);
     end;
 
-    local procedure CreateJobAndPostJobJournal(var Job: Record Job; LineType: Option; PostingDate: Date)
+    local procedure CreateJobAndPostJobJournal(var Job: Record Job; LineType: Enum "Job Line Type"; PostingDate: Date)
     var
         JobTask: Record "Job Task";
         Customer: Record Customer;
@@ -888,10 +888,10 @@ codeunit 142065 "Job Reports NA"
         LibrarySales.CreateCustomer(Customer);
         LibraryJob.CreateJob(Job, Customer."No.");
         LibraryJob.CreateJobTask(Job, JobTask);
-        CreateAndPostJobJournalLine(JobTask, CreateResource, JobJournalLine.Type::Resource, LineType, PostingDate);
+        CreateAndPostJobJournalLine(JobTask, CreateResource(), JobJournalLine.Type::Resource, LineType, PostingDate);
     end;
 
-    local procedure CreateAndPostJobJournalLine(JobTask: Record "Job Task"; No: Code[20]; Type: Option; LineType: Option; PostingDate: Date)
+    local procedure CreateAndPostJobJournalLine(JobTask: Record "Job Task"; No: Code[20]; Type: Enum "Job Journal Line Type"; LineType: Enum "Job Line Type"; PostingDate: Date)
     var
         JobJournalLine: Record "Job Journal Line";
     begin
@@ -923,8 +923,8 @@ codeunit 142065 "Job Reports NA"
         ResJournalBatch: Record "Res. Journal Batch";
         ResJournalLine: Record "Res. Journal Line";
     begin
-        ResourceNo := CreateResource;
-        ResourceNo2 := CreateResource;
+        ResourceNo := CreateResource();
+        ResourceNo2 := CreateResource();
         CreateResourceJournalBatch(ResJournalBatch);
         CreateResourceJournalLine(ResJournalLine, ResJournalBatch, ResourceNo, WorkDate());
         CreateResourceJournalLine(ResJournalLine, ResJournalBatch, ResourceNo2, WorkDate());
@@ -963,7 +963,7 @@ codeunit 142065 "Job Reports NA"
     var
         ServiceLine: Record "Service Line";
     begin
-        LibraryService.CreateServiceLine(ServiceLine, ServiceHeader, ServiceLine.Type::Resource, CreateResource);
+        LibraryService.CreateServiceLine(ServiceLine, ServiceHeader, ServiceLine.Type::Resource, CreateResource());
         ServiceLine.Validate("Service Item Line No.", ServiceItemLineNo);
         ServiceLine.Validate(Quantity, Quantity);
         ServiceLine.Validate("Unit Price", LibraryRandom.RandDec(100, 2));  // Using RANDOM value for Unit Price.
@@ -998,7 +998,7 @@ codeunit 142065 "Job Reports NA"
         ResJournalBatch: Record "Res. Journal Batch";
         ResJournalLine: Record "Res. Journal Line";
     begin
-        ResourceNo := CreateResource;
+        ResourceNo := CreateResource();
         CreateResourceJournalBatch(ResJournalBatch);
         CreateResourceJournalLine(ResJournalLine, ResJournalBatch, ResourceNo, PostingDate);
         LibraryResource.PostResourceJournalLine(ResJournalLine);
@@ -1037,7 +1037,7 @@ codeunit 142065 "Job Reports NA"
     begin
         LibraryERM.CreateTaxGroup(TaxGroup);
         LibraryERM.CreateTaxDetail(
-          TaxDetail, CreateSalesTaxJurisdiction, TaxGroup.Code, TaxDetail."Tax Type"::"Sales and Use Tax", EffectiveDate);
+          TaxDetail, CreateSalesTaxJurisdiction(), TaxGroup.Code, TaxDetail."Tax Type"::"Sales and Use Tax", EffectiveDate);
         TaxDetail.Validate("Tax Below Maximum", LibraryRandom.RandInt(10));  // Using RANDOM value for Tax Below Maximum.
         TaxDetail.Validate("Expense/Capitalize", true);
         TaxDetail.Modify(true);
@@ -1081,7 +1081,7 @@ codeunit 142065 "Job Reports NA"
         Vendor.Modify(true);
     end;
 
-    local procedure FindJobLedgerEntry(var JobLedgerEntry: Record "Job Ledger Entry"; JobNo: Code[20]; Type: Option)
+    local procedure FindJobLedgerEntry(var JobLedgerEntry: Record "Job Ledger Entry"; JobNo: Code[20]; Type: Enum "Job Journal Line Type")
     begin
         JobLedgerEntry.SetRange("Job No.", JobNo);
         JobLedgerEntry.SetRange(Type, Type);
@@ -1158,7 +1158,7 @@ codeunit 142065 "Job Reports NA"
         // Setup: Create Customer, Customer Invoice Discount, Update Sales & Receivable Setup with Calc. Inv. Discount as True, Service
         // Item, Service Header with Document Type as Order, Service Item Line and Service Line with Type Resource.
         Initialize();
-        ModifySalesReceivablesSetup;
+        ModifySalesReceivablesSetup();
         LibrarySales.CreateCustomer(Customer);
         CreateCustomerInvoiceDiscount(Customer."No.", DiscountPct, 0);  // Using Zero for Service Charge.
         LibraryInventory.CreateItem(Item);
@@ -1176,10 +1176,10 @@ codeunit 142065 "Job Reports NA"
         VerifyResourceLedgerEntry(ServiceLine, TotalPrice);
     end;
 
-    local procedure RunAndVerifyReportJobCostTransacDtl(RowCaption: Text[50]; RowValue: Text[50]; JobNoFilter: Code[20]; BillToCustomerNoFilter: Code[20]; JobNo: Code[20]; Type: Option; PostingDateFilter: Date)
+    local procedure RunAndVerifyReportJobCostTransacDtl(RowCaption: Text[50]; RowValue: Text[100]; JobNoFilter: Code[20]; BillToCustomerNoFilter: Code[20]; JobNo: Code[20]; Type: Enum "Job Journal Line Type"; PostingDateFilter: Date)
     begin
         RunReportJobCostTransacDtl(JobNoFilter, BillToCustomerNoFilter, PostingDateFilter);
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         VerifyJobCostTransactionDetail(RowCaption, RowValue, JobNo, Type);
     end;
 
@@ -1230,7 +1230,7 @@ codeunit 142065 "Job Reports NA"
         REPORT.Run(REPORT::"Resource Register", true, false);
     end;
 
-    local procedure RunJobRegisterReport(JobRegisterNo: Text; JobNo: Code[20]; PrintJobDescriptions: Boolean; Type: Option)
+    local procedure RunJobRegisterReport(JobRegisterNo: Text; JobNo: Code[20]; PrintJobDescriptions: Boolean; Type: Enum "Job Journal Line Type")
     begin
         LibraryVariableStorage.Enqueue(JobNo);  // Enqueue value for ResourceRegisterReqPageHandler.
         LibraryVariableStorage.Enqueue(JobRegisterNo);  // Enqueue value for ResourceRegisterReqPageHandler.
@@ -1247,7 +1247,7 @@ codeunit 142065 "Job Reports NA"
         REPORT.Run(REPORT::"Completed Jobs", true, false);
     end;
 
-    local procedure RunJobCostBudgetReportWithBudgetAmountsPerFilter(BudgetOptionTextValue: Text; LineType: Option; BudgetAmountsPerFilter: Option)
+    local procedure RunJobCostBudgetReportWithBudgetAmountsPerFilter(BudgetOptionTextValue: Text; LineType: Enum "Job Line Type"; BudgetAmountsPerFilter: Option)
     var
         Job: Record Job;
         JobJournalLine: Record "Job Journal Line";
@@ -1258,16 +1258,16 @@ codeunit 142065 "Job Reports NA"
         Initialize();
         CreateJobAndPostJobJournal(Job, LineType, WorkDate());
         FindJobTask(JobTask, Job."No.");
-        CreateAndPostJobJournalLine(JobTask, LibraryJob.FindItem, JobJournalLine.Type::Item, JobJournalLine."Line Type"::Budget, WorkDate());
+        CreateAndPostJobJournalLine(JobTask, LibraryJob.FindItem(), JobJournalLine.Type::Item, JobJournalLine."Line Type"::Budget, WorkDate());
         FindJobLedgerEntry(JobLedgerEntry, Job."No.", JobJournalLine.Type::Resource);
 
         // Exercise: Run report Job Cost Budget.
         RunReportJobCostBudget(Job."No.", BudgetAmountsPerFilter);
 
         // Verify: Verify Job Cost Budget report.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.SetRange(JobPlanningLineTypeCap, Format(JobJournalLine.Type::Resource));
-        LibraryReportDataset.GetNextRow;
+        LibraryReportDataset.GetNextRow();
         LibraryReportDataset.AssertCurrentRowValueEquals(BudgetOptionTextCap, BudgetOptionTextValue);
         LibraryReportDataset.AssertCurrentRowValueEquals(JobPlanningLineTotalCostLCYCap, JobLedgerEntry."Total Cost (LCY)");
         LibraryReportDataset.AssertCurrentRowValueEquals(JobPlanningLineTotalPriceLCYCap, JobLedgerEntry."Total Price (LCY)");
@@ -1278,7 +1278,7 @@ codeunit 142065 "Job Reports NA"
         JobCard: TestPage "Job Card";
     begin
         Job.Get(Job."No.");
-        JobCard.OpenEdit;
+        JobCard.OpenEdit();
         JobCard.GotoRecord(Job);
         JobCard.Status.SetValue(Job.Status::Completed);
         JobCard.Close();
@@ -1288,17 +1288,17 @@ codeunit 142065 "Job Reports NA"
     begin
         LibraryReportDataset.SetRange(JobNoCap1, Job."No.");
         LibraryReportDataset.SetRange(JobBilltoCustomerNoCap, Job."Bill-to Customer No.");
-        LibraryReportDataset.GetNextRow;
+        LibraryReportDataset.GetNextRow();
         LibraryReportDataset.AssertCurrentRowValueEquals(RowCaption, RowcaptionValue);
     end;
 
-    local procedure VerifyJobCostTransactionDetail(RowCaption: Text[50]; RowValue: Text[50]; JobNo: Code[20]; Type: Option)
+    local procedure VerifyJobCostTransactionDetail(RowCaption: Text[50]; RowValue: Text[100]; JobNo: Code[20]; Type: Enum "Job Journal Line Type")
     var
         JobLedgerEntry: Record "Job Ledger Entry";
     begin
         FindJobLedgerEntry(JobLedgerEntry, JobNo, Type);
         LibraryReportDataset.SetRange(RowCaption, RowValue);
-        LibraryReportDataset.GetNextRow;
+        LibraryReportDataset.GetNextRow();
         LibraryReportDataset.AssertCurrentRowValueEquals(TotalCost1Cap, JobLedgerEntry."Total Cost (LCY)");
         LibraryReportDataset.AssertCurrentRowValueEquals(TotalPrice1Cap, JobLedgerEntry."Total Price (LCY)");
     end;
@@ -1317,7 +1317,7 @@ codeunit 142065 "Job Reports NA"
     begin
         Resource.CalcFields(Capacity, "Usage (Qty.)");
         LibraryReportDataset.SetRange(ResourceNoCap, Resource."No.");
-        LibraryReportDataset.GetNextRow;
+        LibraryReportDataset.GetNextRow();
         LibraryReportDataset.AssertCurrentRowValueEquals(ResourceCapacityCap, Resource.Capacity);
         LibraryReportDataset.AssertCurrentRowValueEquals(ResourceUsageQtyCap, Resource."Usage (Qty.)");
         LibraryReportDataset.AssertCurrentRowValueEquals(CapacityUsageQtyCap, Resource.Capacity - Resource."Usage (Qty.)");
@@ -1332,7 +1332,7 @@ codeunit 142065 "Job Reports NA"
     local procedure VerifyJobRegisterReport(RowCaption: Text[250]; RowValue: Variant; RowCaption2: Text[250]; RowValue2: Variant; JobNo: Code[20])
     begin
         LibraryReportDataset.SetRange(JobLedgerEntryJobNo, JobNo);
-        LibraryReportDataset.GetNextRow;
+        LibraryReportDataset.GetNextRow();
         LibraryReportDataset.AssertCurrentRowValueEquals(RowCaption, RowValue);
         LibraryReportDataset.AssertCurrentRowValueEquals(RowCaption2, RowValue2);
     end;
@@ -1346,7 +1346,7 @@ codeunit 142065 "Job Reports NA"
         ResLedgerEntry.SetRange("Entry Type", ResLedgerEntry."Entry Type"::Usage);
         ResLedgerEntry.FindFirst();
         ResLedgerEntry.TestField(Quantity, ServiceLine.Quantity);
-        Assert.AreNearlyEqual(TotalPrice, ResLedgerEntry."Total Price", LibraryERM.GetAmountRoundingPrecision, AmountError);
+        Assert.AreNearlyEqual(TotalPrice, ResLedgerEntry."Total Price", LibraryERM.GetAmountRoundingPrecision(), AmountError);
     end;
 
     local procedure CreateJobWithPlanningUsageLinkAndSpecificItem(var JobPlanningLine: Record "Job Planning Line"; ItemNo: Code[20])
@@ -1399,7 +1399,7 @@ codeunit 142065 "Job Reports NA"
     begin
         LibraryVariableStorage.Dequeue(No);
         PurchaseInvoice."Purch. Inv. Header".SetFilter("No.", No);
-        PurchaseInvoice.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        PurchaseInvoice.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -1410,7 +1410,7 @@ codeunit 142065 "Job Reports NA"
     begin
         LibraryVariableStorage.Dequeue(No);
         SalesInvoice."Sales Invoice Header".SetFilter("No.", No);
-        SalesInvoice.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        SalesInvoice.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -1421,7 +1421,7 @@ codeunit 142065 "Job Reports NA"
     begin
         LibraryVariableStorage.Dequeue(No);
         ServiceShipment."Service Shipment Header".SetFilter("No.", No);
-        ServiceShipment.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        ServiceShipment.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -1438,7 +1438,7 @@ codeunit 142065 "Job Reports NA"
         ResourceUsage.Resource.SetFilter("No.", ResourceNo);
         ResourceUsage.Resource.SetFilter("Base Unit of Measure", BaseUnitofMeasure);
         ResourceUsage.Resource.SetFilter("Date Filter", Format(DateFilter));
-        ResourceUsage.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        ResourceUsage.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -1461,7 +1461,7 @@ codeunit 142065 "Job Reports NA"
         ResourceRegister."Resource Register".SetFilter("Creation Date", Format(CreationDate));
         ResourceRegister."Resource Register".SetFilter("Source Code", SourceCode);
         ResourceRegister."Res. Ledger Entry".SetFilter("Source No.", SourceNo);
-        ResourceRegister.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        ResourceRegister.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -1478,7 +1478,7 @@ codeunit 142065 "Job Reports NA"
         JobCostTransactionDetail.Job.SetFilter("No.", JobNo);
         JobCostTransactionDetail.Job.SetFilter("Bill-to Customer No.", CustomerNo);
         JobCostTransactionDetail.Job.SetFilter("Posting Date Filter", Format(PostingDate));
-        JobCostTransactionDetail.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        JobCostTransactionDetail.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -1498,7 +1498,7 @@ codeunit 142065 "Job Reports NA"
         JobRegister."Job Register".SetFilter("No.", JobRegisterNo);
         JobRegister."Job Ledger Entry".SetFilter("Job No.", JobNo);
         JobRegister."Job Ledger Entry".SetFilter(Type, Format(Type));
-        JobRegister.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        JobRegister.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -1509,7 +1509,7 @@ codeunit 142065 "Job Reports NA"
     begin
         LibraryVariableStorage.Dequeue(BillToCustomerNo);  // Dequeue for Bill To Customer No.
         CompletedJobs.Job.SetFilter("Bill-to Customer No.", BillToCustomerNo);
-        CompletedJobs.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        CompletedJobs.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -1520,14 +1520,14 @@ codeunit 142065 "Job Reports NA"
     begin
         LibraryVariableStorage.Dequeue(BillToCustomerNo);  // Dequeue for Bill To Customer No.
         JobCostSuggestedBilling.Job.SetFilter("Bill-to Customer No.", BillToCustomerNo);
-        JobCostSuggestedBilling.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        JobCostSuggestedBilling.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure JobTransferToSalesInvoiceRequestPageHandler(var JobTransfertoSalesInvoice: TestRequestPage "Job Transfer to Sales Invoice")
     begin
-        JobTransfertoSalesInvoice.OK.Invoke;
+        JobTransfertoSalesInvoice.OK().Invoke();
     end;
 
     [RequestPageHandler]
@@ -1541,7 +1541,7 @@ codeunit 142065 "Job Reports NA"
         LibraryVariableStorage.Dequeue(BudgetAmountsPer);  // Dequeue for Budget Amounts Per.
         JobCostBudget.BudgetAmountsPer.SetValue(JobCostBudget.BudgetAmountsPer.GetOption(BudgetAmountsPer));
         JobCostBudget.Job.SetFilter("No.", JobNo);
-        JobCostBudget.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        JobCostBudget.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [ConfirmHandler]
@@ -1562,7 +1562,7 @@ codeunit 142065 "Job Reports NA"
     [Scope('OnPrem')]
     procedure ConfirmHandlerMultipleResponses(Question: Text[1024]; var Reply: Boolean)
     begin
-        Reply := LibraryVariableStorage.DequeueBoolean;
+        Reply := LibraryVariableStorage.DequeueBoolean();
     end;
 
     [ConfirmHandler]

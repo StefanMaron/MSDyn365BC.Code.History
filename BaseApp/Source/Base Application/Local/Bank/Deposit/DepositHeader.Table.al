@@ -21,21 +21,13 @@ table 10140 "Deposit Header"
     ObsoleteState = Removed;
     ObsoleteTag = '23.0';
     ReplicateData = false;
+    DataClassification = CustomerContent;
 
     fields
     {
         field(1; "No."; Code[20])
         {
             Caption = 'No.';
-
-            trigger OnValidate()
-            begin
-                if "No." <> xRec."No." then begin
-                    GLSetup.Get();
-                    NoSeriesMgt.TestManual(GLSetup."Deposit Nos.");
-                    "No. Series" := '';
-                end;
-            end;
         }
         field(2; "Bank Account No."; Code[20])
         {
@@ -271,7 +263,6 @@ table 10140 "Deposit Header"
         GLSetup: Record "General Ledger Setup";
         DepositHeader2: Record "Deposit Header";
         GenJnlBatch: Record "Gen. Journal Batch";
-        NoSeriesMgt: Codeunit NoSeriesManagement;
         DimMgt: Codeunit DimensionManagement;
         GenJnlManagement: Codeunit GenJnlManagement;
         Text000: Label 'Deposit %1 %2';
@@ -280,6 +271,10 @@ table 10140 "Deposit Header"
 
     local procedure InitInsert()
     var
+        NoSeries: Codeunit "No. Series";
+#if not CLEAN24
+        NoSeriesMgt: Codeunit NoSeriesManagement;
+#endif
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -287,7 +282,18 @@ table 10140 "Deposit Header"
         if not IsHandled then
             if "No." = '' then begin
                 TestNoSeries();
-                NoSeriesMgt.InitSeries(GetNoSeriesCode(), xRec."No. Series", "Posting Date", "No.", "No. Series");
+                "No. Series" := GetNoSeriesCode();
+#if not CLEAN24
+                NoSeriesMgt.RaiseObsoleteOnBeforeInitSeries("No. Series", xRec."No. Series", "Posting Date", "No.", "No. Series", IsHandled);
+                if not IsHandled then begin
+#endif
+                    if NoSeries.AreRelated("No. Series", xRec."No. Series") then
+                        "No. Series" := xRec."No. Series";
+                    "No." := NoSeries.GetNextNo("No. Series", "Posting Date");
+#if not CLEAN24
+                    NoSeriesMgt.RaiseObsoleteOnAfterInitSeries("No. Series", GetNoSeriesCode(), "Posting Date", "No.");
+                end;
+#endif
             end;
 
         OnInitInsertOnBeforeInitRecord(xRec);
@@ -390,16 +396,15 @@ table 10140 "Deposit Header"
     procedure AssistEdit(OldDepositHeader: Record "Deposit Header"): Boolean
     var
         DepositHeader: Record "Deposit Header";
+        NoSeries: Codeunit "No. Series";
     begin
-        with DepositHeader do begin
-            DepositHeader := Rec;
-            GLSetup.Get();
-            GLSetup.TestField("Deposit Nos.");
-            if NoSeriesMgt.SelectSeries(GLSetup."Deposit Nos.", OldDepositHeader."No. Series", "No. Series") then begin
-                NoSeriesMgt.SetSeries("No.");
-                Rec := DepositHeader;
-                exit(true);
-            end;
+        DepositHeader := Rec;
+        GLSetup.Get();
+        GLSetup.TestField("Deposit Nos.");
+        if NoSeries.LookupRelatedNoSeries(GLSetup."Deposit Nos.", OldDepositHeader."No. Series", DepositHeader."No. Series") then begin
+            DepositHeader."No." := NoSeries.GetNextNo(DepositHeader."No. Series");
+            Rec := DepositHeader;
+            exit(true);
         end;
         exit(false);
     end;

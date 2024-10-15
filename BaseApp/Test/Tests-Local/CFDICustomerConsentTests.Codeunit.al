@@ -9,7 +9,6 @@ codeunit 144057 "CFDI Customer Consent Tests"
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
         Assert: Codeunit Assert;
         IsInitialized: Boolean;
-        SetupNotCompletedLbl: Label 'The setup has not yet been completed.\\Are you sure that you want to exit?';
 
     trigger OnRun()
     begin

@@ -475,7 +475,7 @@ codeunit 134101 "ERM Prepayment II"
 
         // [GIVEN] Purchase Order, where "Prepayment %" is 100, "Payment Method" is "CASH"
         CreatePurchaseOrderWithPrepaymentVAT(PurchHeader, PurchLine, 100);
-        PurchHeader.Validate("Payment Method Code", CreatePaymentMethodToGlAcc);
+        PurchHeader.Validate("Payment Method Code", CreatePaymentMethodToGlAcc());
         PurchHeader.Modify(true);
 
         // [GIVEN] Posted Prepayment Invoice
@@ -876,7 +876,7 @@ codeunit 134101 "ERM Prepayment II"
         Initialize();
         // [GIVEN] Sales Order, where "Prepayment %" is 100, "Payment Method" is "CASH"
         CreateSalesOrderWithPrepaymentVAT(SalesHeader, SalesLine, 100);
-        SalesHeader.Validate("Payment Method Code", CreatePaymentMethodToGlAcc);
+        SalesHeader.Validate("Payment Method Code", CreatePaymentMethodToGlAcc());
         SalesHeader.Modify(true);
 
         // [GIVEN] Posted Prepayment Invoice
@@ -1136,10 +1136,10 @@ codeunit 134101 "ERM Prepayment II"
         SalesHeader.Modify();
 
         // [WHEN] Post Prepayment Invoice
-        ErrorMessagesPage.Trap;
-        SalesOrder.OpenEdit;
+        ErrorMessagesPage.Trap();
+        SalesOrder.OpenEdit();
         SalesOrder.GotoRecord(SalesHeader);
-        SalesOrder.PostPrepaymentInvoice.Invoke;
+        SalesOrder.PostPrepaymentInvoice.Invoke();
 
         // [THEN] Error Messages list shows one error: "Tax Group Code must have a value", Context = <blank>
         Assert.ExpectedMessage(MissingTaxGroupCodeErr, ErrorMessagesPage.Description.Value);
@@ -1434,7 +1434,7 @@ codeunit 134101 "ERM Prepayment II"
         PrePaymentAmount := Round(LibraryERM.ConvertCurrency(SalesLine."Prepmt. Line Amount", SalesHeader."Currency Code", '', WorkDate()));
 
         // [GIVEN] Modify Currency again on Sales Header through page.
-        SalesOrder.OpenEdit;
+        SalesOrder.OpenEdit();
         SalesOrder.FILTER.SetFilter("No.", SalesHeader."No.");
         SalesOrder."Currency Code".SetValue(SalesHeader."Currency Code");
 
@@ -1634,7 +1634,6 @@ codeunit 134101 "ERM Prepayment II"
         SalesHeader: Record "Sales Header";
         Salesline: Record "Sales Line";
         GeneralPostingSetup: Record "General Posting Setup";
-        SalesLineType: Enum "Sales Line Type";
         PrepmtGLAccountNo: Code[20];
         ItemNo: Code[20];
         CustomerNo: Code[20];
@@ -1779,13 +1778,13 @@ codeunit 134101 "ERM Prepayment II"
         // [FEATURE] [UT] [UI] [Sales] [Prepmt. Auto Update]
         // [SCENARIO 273807] Prepmt. Auto Update Frequency is accessible and editable on Sales & Receivables Setup page
         Initialize();
-        LibraryApplicationArea.EnablePrepaymentsSetup;
-        SalesReceivablesSetup.OpenEdit;
+        LibraryApplicationArea.EnablePrepaymentsSetup();
+        SalesReceivablesSetup.OpenEdit();
         Assert.IsTrue(
-          SalesReceivablesSetup."Prepmt. Auto Update Frequency".Enabled, '');
+          SalesReceivablesSetup."Prepmt. Auto Update Frequency".Enabled(), '');
         Assert.IsTrue(
-          SalesReceivablesSetup."Prepmt. Auto Update Frequency".Editable, '');
-        LibraryApplicationArea.DisableApplicationAreaSetup;
+          SalesReceivablesSetup."Prepmt. Auto Update Frequency".Editable(), '');
+        LibraryApplicationArea.DisableApplicationAreaSetup();
     end;
 
     [Test]
@@ -1797,13 +1796,13 @@ codeunit 134101 "ERM Prepayment II"
         // [FEATURE] [UT] [UI] [Purchase] [Prepmt. Auto Update]
         // [SCENARIO 273807] Prepmt. Auto Update Frequency is accessible and editable on Purchases & Payables Setup page
         Initialize();
-        LibraryApplicationArea.EnablePrepaymentsSetup;
-        PurchasesPayablesSetup.OpenEdit;
+        LibraryApplicationArea.EnablePrepaymentsSetup();
+        PurchasesPayablesSetup.OpenEdit();
         Assert.IsTrue(
-          PurchasesPayablesSetup."Prepmt. Auto Update Frequency".Enabled, '');
+          PurchasesPayablesSetup."Prepmt. Auto Update Frequency".Enabled(), '');
         Assert.IsTrue(
-          PurchasesPayablesSetup."Prepmt. Auto Update Frequency".Editable, '');
-        LibraryApplicationArea.DisableApplicationAreaSetup;
+          PurchasesPayablesSetup."Prepmt. Auto Update Frequency".Editable(), '');
+        LibraryApplicationArea.DisableApplicationAreaSetup();
     end;
 
     [Test]
@@ -1946,16 +1945,16 @@ codeunit 134101 "ERM Prepayment II"
 
         LibraryPurchase.SetInvoiceRounding(false);
         LibrarySales.SetInvoiceRounding(false);
-        VATCalculationType := LibraryERMCountryData.GetVATCalculationType;
+        VATCalculationType := LibraryERMCountryData.GetVATCalculationType();
         LibraryERMCountryData.CreateVATData();
-        LibraryERMCountryData.UpdatePrepaymentAccounts;
+        LibraryERMCountryData.UpdatePrepaymentAccounts();
         LibraryERMCountryData.UpdatePurchasesPayablesSetup();
-        LibraryInventory.UpdateGenProdPostingSetup;
+        LibraryInventory.UpdateGenProdPostingSetup();
         LibraryERMCountryData.RemoveBlankGenJournalTemplate();
         LibraryERMCountryData.UpdateGeneralLedgerSetup();
         LibraryERMCountryData.UpdateGeneralPostingSetup();
         LibraryERMCountryData.UpdateSalesReceivablesSetup();
-        UpdateInventorySetupCostPosting;
+        UpdateInventorySetupCostPosting();
 
         LibrarySetupStorage.Save(DATABASE::"Sales & Receivables Setup");
         LibrarySetupStorage.Save(DATABASE::"Purchases & Payables Setup");
@@ -1969,10 +1968,10 @@ codeunit 134101 "ERM Prepayment II"
     var
         GeneralJournal: TestPage "General Journal";
     begin
-        GeneralJournal.OpenView;
+        GeneralJournal.OpenView();
         GeneralJournal.FILTER.SetFilter("Document Type", Format(DocumentType));
         GeneralJournal.FILTER.SetFilter("Account No.", AccountNo);
-        GeneralJournal."Apply Entries".Invoke;
+        GeneralJournal."Apply Entries".Invoke();
     end;
 
     local procedure CreateAndVerifyPurchPrepayment(var PurchaseLine: Record "Purchase Line"; var PrepaymentAmount: Decimal; PrepaymentPct: Decimal)
@@ -2041,8 +2040,8 @@ codeunit 134101 "ERM Prepayment II"
         CurrencyExchangeRateCopy."Adjustment Exch. Rate Amount" := CurrencyExchangeRate."Adjustment Exch. Rate Amount" / 2;
         CurrencyExchangeRateCopy.Insert();
         Currency.Get(CurrencyCode);
-        Currency.Validate("Realized Gains Acc.", LibraryERM.CreateGLAccountNo);
-        Currency.Validate("Realized Losses Acc.", LibraryERM.CreateGLAccountNo);
+        Currency.Validate("Realized Gains Acc.", LibraryERM.CreateGLAccountNo());
+        Currency.Validate("Realized Losses Acc.", LibraryERM.CreateGLAccountNo());
         Currency.Modify(true);
     end;
 
@@ -2262,12 +2261,11 @@ codeunit 134101 "ERM Prepayment II"
         until SalesLine.Next() = 0;
     end;
 
-    local procedure GetPostedDocumentNo(NoSeriesCode: Code[20]) DocumentNo: Code[20]
+    local procedure GetPostedDocumentNo(NoSeriesCode: Code[20]): Code[20]
     var
-        NoSeriesManagement: Codeunit NoSeriesManagement;
+        NoSeries: Codeunit "No. Series";
     begin
-        Clear(NoSeriesManagement);
-        DocumentNo := NoSeriesManagement.GetNextNo(NoSeriesCode, WorkDate(), false);
+        exit(NoSeries.PeekNextNo(NoSeriesCode));
     end;
 
     local procedure GetSalesInvAmount(DocumentNo: Code[20]): Decimal
@@ -2427,7 +2425,7 @@ codeunit 134101 "ERM Prepayment II"
         CustomerNo := CreateCustomerWithPostingSetup(LineGLAccount);
         CreateSalesDocument(
           SalesHeader, SalesLine, CustomerNo, SalesLine.Type::Item, ItemNo,
-          PrepmtPct, CreateCurrencyAndExchangeRate);
+          PrepmtPct, CreateCurrencyAndExchangeRate());
     end;
 
     local procedure SetupPrepaymentOrder(var SalesHeader: Record "Sales Header"; var LineGLAccount: Record "G/L Account") SalesPrepaymentsAccount: Code[20]
@@ -2467,7 +2465,7 @@ codeunit 134101 "ERM Prepayment II"
         ItemNo := CreateItemWithPostingSetup(LineGLAccount);
         VendorNo := CreateVendorWithPostingSetup(LineGLAccount);
         CreatePurchaseDocument(
-          PurchaseHeader, PurchaseLine, VendorNo, ItemNo, PrepmtPct, CreateCurrencyAndExchangeRate);
+          PurchaseHeader, PurchaseLine, VendorNo, ItemNo, PrepmtPct, CreateCurrencyAndExchangeRate());
     end;
 
     local procedure UpdateInventoryAdjmtAccount(InventoryAdjmtAccount: Code[20]; GenBusPostingGroup: Code[20]; GenProdPostingGroup: Code[20]) OldInventoryAdjmtAccount: Code[20]
@@ -2611,8 +2609,8 @@ codeunit 134101 "ERM Prepayment II"
     [Scope('OnPrem')]
     procedure ApplyCustEntryPageHandler(var ApplyCustomerEntries: TestPage "Apply Customer Entries")
     begin
-        ApplyCustomerEntries."Set Applies-to ID".Invoke;
-        ApplyCustomerEntries.OK.Invoke;
+        ApplyCustomerEntries."Set Applies-to ID".Invoke();
+        ApplyCustomerEntries.OK().Invoke();
     end;
 
     [ConfirmHandler]
@@ -2696,7 +2694,7 @@ codeunit 134101 "ERM Prepayment II"
     begin
         LibraryVariableStorage.Dequeue(QtytoInvoice);
         ItemChargeAssignmentPurch."Qty. to Assign".SetValue(QtytoInvoice);
-        ItemChargeAssignmentPurch.OK.Invoke;
+        ItemChargeAssignmentPurch.OK().Invoke();
     end;
 
     local procedure PrepareShptLinesWithPrepmtPerc(var SalesLine2: Record "Sales Line"; PrepaymentPct: Integer; PartialShipment: Boolean)
@@ -2808,7 +2806,7 @@ codeunit 134101 "ERM Prepayment II"
     var
         "Count": Integer;
     begin
-        if GetShptLines.First then
+        if GetShptLines.First() then
             repeat
                 Count += 1;
             until not GetShptLines.Next();
@@ -2819,7 +2817,7 @@ codeunit 134101 "ERM Prepayment II"
     var
         "Count": Integer;
     begin
-        if GetRcptLines.First then
+        if GetRcptLines.First() then
             repeat
                 Count += 1;
             until not GetRcptLines.Next();
@@ -2859,24 +2857,20 @@ codeunit 134101 "ERM Prepayment II"
     [Scope('OnPrem')]
     procedure VerifyDocNoInGetShipmentLinesPageHandler(var GetShipmentLines: TestPage "Get Shipment Lines")
     begin
-        with GetShipmentLines do begin
-            if First then
-                repeat
-                    Assert.AreNotEqual('', Format("Document No."), ShipmentLinesDocNoErr);
-                until not Next;
-        end;
+        if GetShipmentLines.First() then
+            repeat
+                Assert.AreNotEqual('', Format(GetShipmentLines."Document No."), ShipmentLinesDocNoErr);
+            until not GetShipmentLines.Next();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure VerifyDocNoInGetReceiptLinesPageHandler(var GetReceiptLines: TestPage "Get Receipt Lines")
     begin
-        with GetReceiptLines do begin
-            if First then
-                repeat
-                    Assert.AreNotEqual('', Format("Document No."), ReceiptLinesDocNoErr);
-                until not Next;
-        end;
+        if GetReceiptLines.First() then
+            repeat
+                Assert.AreNotEqual('', Format(GetReceiptLines."Document No."), ReceiptLinesDocNoErr);
+            until not GetReceiptLines.Next();
     end;
 
     local procedure VerifyStatusOnSalesHeader(var SalesHeader: Record "Sales Header"; ExpectedStatus: Enum "Sales Document Status")

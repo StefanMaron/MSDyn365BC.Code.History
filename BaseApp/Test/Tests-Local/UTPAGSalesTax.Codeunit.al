@@ -36,9 +36,9 @@ codeunit 142058 "UT PAG Sales Tax"
         LibraryVariableStorage.Enqueue(TaxAmount);  // Required inside ServiceOrderStatsPageHandler.
 
         // Exercise and verify: Invokes Action - Statistics on Page Service Order and verified Tax Amount on ServiceOrderStatsPageHandler.
-        ServiceOrders.OpenEdit;
+        ServiceOrders.OpenEdit();
         ServiceOrders.FILTER.SetFilter("No.", ServiceLine."Document No.");
-        ServiceOrders.Statistics.Invoke;  // Opens ServiceOrderStatsPageHandlerr.
+        ServiceOrders.Statistics.Invoke();  // Opens ServiceOrderStatsPageHandlerr.
         ServiceOrders.Close();
     end;
 
@@ -64,9 +64,9 @@ codeunit 142058 "UT PAG Sales Tax"
         LibraryVariableStorage.Enqueue(TaxAmount);  // Required inside ServiceStatsPageHandler.
 
         // Exercise and verify: Invokes Action - Statistics on Page Service Quotes and verified Tax Amount on ServiceStatsPageHandler.
-        ServiceQuotes.OpenEdit;
+        ServiceQuotes.OpenEdit();
         ServiceQuotes.FILTER.SetFilter("No.", ServiceLine."Document No.");
-        ServiceQuotes.Statistics.Invoke;  // Opens ServiceStatsPageHandler.
+        ServiceQuotes.Statistics.Invoke();  // Opens ServiceStatsPageHandler.
         ServiceQuotes.Close();
     end;
 
@@ -92,9 +92,9 @@ codeunit 142058 "UT PAG Sales Tax"
         LibraryVariableStorage.Enqueue(TaxAmount);  // Required inside ServiceInvoiceStatsPageHandler.
 
         // Exercise and verify: Invokes Action - Statistics on Page Service Invoices and verified Tax Amount on ServiceInvoiceStatsPageHandler.
-        PostedServiceInvoice.OpenEdit;
+        PostedServiceInvoice.OpenEdit();
         PostedServiceInvoice.FILTER.SetFilter("No.", ServiceInvoiceLine."Document No.");
-        PostedServiceInvoice.Statistics.Invoke;  // Opens ServiceInvoiceStatsPageHandler.
+        PostedServiceInvoice.Statistics.Invoke();  // Opens ServiceInvoiceStatsPageHandler.
         PostedServiceInvoice.Close();
     end;
 
@@ -120,9 +120,9 @@ codeunit 142058 "UT PAG Sales Tax"
         LibraryVariableStorage.Enqueue(TaxAmount);  // Required inside ServiceCreditMemoStatsPageHandler.
 
         // Exercise and verify: Invokes Action - Statistics on Page Service Credit Memos and verified Tax Amount on ServiceCreditMemoStatsPageHandler.
-        PostedServiceCreditMemo.OpenEdit;
+        PostedServiceCreditMemo.OpenEdit();
         PostedServiceCreditMemo.FILTER.SetFilter("No.", ServiceCrMemoLine."Document No.");
-        PostedServiceCreditMemo.Statistics.Invoke;  // Opens ServiceCreditMemoStatsPageHandler.
+        PostedServiceCreditMemo.Statistics.Invoke();  // Opens ServiceCreditMemoStatsPageHandler.
         PostedServiceCreditMemo.Close();
     end;
 
@@ -148,9 +148,9 @@ codeunit 142058 "UT PAG Sales Tax"
         DocumentNo := CreateSalesCreditMemo(CustLedgerEntry."Customer No.");
 
         // Exercise and verify: Invokes Action - ApplyEntries on Page Sales Credit Memo and verified Apply Entries on ApplyCustomerEntriesPageHandler.
-        SalesCreditMemo.OpenEdit;
+        SalesCreditMemo.OpenEdit();
         SalesCreditMemo.FILTER.SetFilter("No.", DocumentNo);
-        SalesCreditMemo.ApplyEntries.Invoke;  // ApplyCustomerEntriesPageHandler
+        SalesCreditMemo.ApplyEntries.Invoke();  // ApplyCustomerEntriesPageHandler
         SalesCreditMemo.Close();
     end;
 
@@ -169,16 +169,16 @@ codeunit 142058 "UT PAG Sales Tax"
 
         // Setup: Create Purchase Credit Memo with Tax Area Code.
         Initialize();
-        LibraryPurchase.DisableWarningOnCloseUnpostedDoc;
+        LibraryPurchase.DisableWarningOnCloseUnpostedDoc();
         CreateVendorLedgerEntry(VendorLedgerEntry);
         LibraryVariableStorage.Enqueue(VendorLedgerEntry."Document No.");  // ApplyVendorEntriesPageHandler
         CreateDetailedVendorLedgerEntries(VendorLedgerEntry."Entry No.", VendorLedgerEntry."Vendor No.");
         DocumentNo := CreatePurchaseCreditMemo(VendorLedgerEntry."Vendor No.");
 
         // Exercise and verify: Invokes Action - ApplyEntries on Page Purchase Credit Memo and verified Apply Entries on ApplyVendorEntriesPageHandler.
-        PurchaseCreditMemo.OpenEdit;
+        PurchaseCreditMemo.OpenEdit();
         PurchaseCreditMemo.FILTER.SetFilter("No.", DocumentNo);
-        PurchaseCreditMemo.ApplyEntries.Invoke;  // ApplyVendorEntriesPageHandler
+        PurchaseCreditMemo.ApplyEntries.Invoke();  // ApplyVendorEntriesPageHandler
         PurchaseCreditMemo.Close();
     end;
 
@@ -199,7 +199,7 @@ codeunit 142058 "UT PAG Sales Tax"
         CreateServiceDocument(ServiceLine, ServiceLine."Document Type"::Order, TaxArea, TaxDetail."Tax Group Code");
 
         // [WHEN] Service Lines page is opened
-        ServiceLines.OpenEdit;
+        ServiceLines.OpenEdit();
         ServiceLines.FILTER.SetFilter("Document No.", ServiceLine."Document No.");
 
         // [THEN] "Tax Liable" and "Tax Area Code" fields are visible and editable
@@ -220,9 +220,9 @@ codeunit 142058 "UT PAG Sales Tax"
         Customer: Record Customer;
         CustomerPostingGroup: Record "Customer Posting Group";
     begin
-        CustomerPostingGroup.Code := LibraryUTUtility.GetNewCode10;
+        CustomerPostingGroup.Code := LibraryUTUtility.GetNewCode10();
         CustomerPostingGroup.Insert();
-        Customer."No." := LibraryUTUtility.GetNewCode;
+        Customer."No." := LibraryUTUtility.GetNewCode();
         Customer."Customer Posting Group" := CustomerPostingGroup.Code;
         Customer.Insert();
         exit(Customer."No.")
@@ -235,9 +235,9 @@ codeunit 142058 "UT PAG Sales Tax"
         CustLedgerEntry2.FindLast();
         CustLedgerEntry."Entry No." := CustLedgerEntry2."Entry No." + 1;
         CustLedgerEntry."Document Type" := CustLedgerEntry."Document Type"::Invoice;
-        CustLedgerEntry."Document No." := LibraryUTUtility.GetNewCode;
+        CustLedgerEntry."Document No." := LibraryUTUtility.GetNewCode();
         CustLedgerEntry.Open := true;
-        CustLedgerEntry."Customer No." := CreateCustomer;
+        CustLedgerEntry."Customer No." := CreateCustomer();
         CustLedgerEntry.Insert();
     end;
 
@@ -276,7 +276,7 @@ codeunit 142058 "UT PAG Sales Tax"
         TaxDetail: Record "Tax Detail";
     begin
         PurchaseHeader."Document Type" := PurchaseHeader."Document Type"::"Credit Memo";
-        PurchaseHeader."No." := LibraryUTUtility.GetNewCode;
+        PurchaseHeader."No." := LibraryUTUtility.GetNewCode();
         PurchaseHeader."Buy-from Vendor No." := BuyfromVendorNo;
         PurchaseHeader."Pay-to Vendor No." := PurchaseHeader."Buy-from Vendor No.";
         PurchaseHeader."Tax Area Code" := CreateTaxAreaWithTaxDetail(TaxDetail);
@@ -298,8 +298,8 @@ codeunit 142058 "UT PAG Sales Tax"
     var
         ServiceInvoiceHeader: Record "Service Invoice Header";
     begin
-        ServiceInvoiceHeader."No." := LibraryUTUtility.GetNewCode;
-        ServiceInvoiceHeader."Customer No." := CreateCustomer;
+        ServiceInvoiceHeader."No." := LibraryUTUtility.GetNewCode();
+        ServiceInvoiceHeader."Customer No." := CreateCustomer();
         ServiceInvoiceHeader."Bill-to Customer No." := ServiceInvoiceHeader."Customer No.";
         ServiceInvoiceHeader."Tax Area Code" := TaxAreaCode;
         ServiceInvoiceHeader.Insert();
@@ -317,8 +317,8 @@ codeunit 142058 "UT PAG Sales Tax"
     var
         ServiceCrMemoHeader: Record "Service Cr.Memo Header";
     begin
-        ServiceCrMemoHeader."No." := LibraryUTUtility.GetNewCode;
-        ServiceCrMemoHeader."Customer No." := CreateCustomer;
+        ServiceCrMemoHeader."No." := LibraryUTUtility.GetNewCode();
+        ServiceCrMemoHeader."Customer No." := CreateCustomer();
         ServiceCrMemoHeader."Bill-to Customer No." := ServiceCrMemoHeader."Customer No.";
         ServiceCrMemoHeader."Tax Area Code" := TaxAreaCode;
         ServiceCrMemoHeader.Insert();
@@ -339,7 +339,7 @@ codeunit 142058 "UT PAG Sales Tax"
         TaxDetail: Record "Tax Detail";
     begin
         SalesHeader."Document Type" := SalesHeader."Document Type"::"Credit Memo";
-        SalesHeader."No." := LibraryUTUtility.GetNewCode;
+        SalesHeader."No." := LibraryUTUtility.GetNewCode();
         SalesHeader."Sell-to Customer No." := SellToCustomerNo;
         SalesHeader."Bill-to Customer No." := SalesHeader."Sell-to Customer No.";
         SalesHeader."Tax Area Code" := CreateTaxAreaWithTaxDetail(TaxDetail);
@@ -357,13 +357,13 @@ codeunit 142058 "UT PAG Sales Tax"
         exit(SalesLine."Document No.");
     end;
 
-    local procedure CreateServiceDocument(var ServiceLine: Record "Service Line"; DocumentType: Option; TaxAreaCode: Code[20]; TaxGroupCode: Code[20])
+    local procedure CreateServiceDocument(var ServiceLine: Record "Service Line"; DocumentType: Enum "Service Document Type"; TaxAreaCode: Code[20]; TaxGroupCode: Code[20])
     var
         ServiceHeader: Record "Service Header";
     begin
         ServiceHeader."Document Type" := DocumentType;
-        ServiceHeader."No." := LibraryUTUtility.GetNewCode;
-        ServiceHeader."Customer No." := CreateCustomer;
+        ServiceHeader."No." := LibraryUTUtility.GetNewCode();
+        ServiceHeader."Customer No." := CreateCustomer();
         ServiceHeader."Bill-to Customer No." := ServiceHeader."Customer No.";
         ServiceHeader."Tax Area Code" := TaxAreaCode;
         ServiceHeader.Insert();
@@ -382,7 +382,7 @@ codeunit 142058 "UT PAG Sales Tax"
     var
         TaxArea: Record "Tax Area";
     begin
-        TaxArea.Code := LibraryUTUtility.GetNewCode;
+        TaxArea.Code := LibraryUTUtility.GetNewCode();
         TaxArea.Insert();
         exit(TaxArea.Code);
     end;
@@ -391,12 +391,12 @@ codeunit 142058 "UT PAG Sales Tax"
     var
         TaxAreaLine: Record "Tax Area Line";
     begin
-        TaxDetail."Tax Jurisdiction Code" := CreateTaxJurisdiction;
-        TaxDetail."Tax Group Code" := CreateTaxGroup;
+        TaxDetail."Tax Jurisdiction Code" := CreateTaxJurisdiction();
+        TaxDetail."Tax Group Code" := CreateTaxGroup();
         TaxDetail."Tax Below Maximum" := LibraryRandom.RandInt(10);
         TaxDetail.Insert();
 
-        TaxAreaLine."Tax Area" := CreateTaxArea;
+        TaxAreaLine."Tax Area" := CreateTaxArea();
         TaxAreaLine."Tax Jurisdiction Code" := TaxDetail."Tax Jurisdiction Code";
         TaxAreaLine.Insert();
         exit(TaxAreaLine."Tax Area");
@@ -406,7 +406,7 @@ codeunit 142058 "UT PAG Sales Tax"
     var
         TaxGroup: Record "Tax Group";
     begin
-        TaxGroup.Code := LibraryUTUtility.GetNewCode10;
+        TaxGroup.Code := LibraryUTUtility.GetNewCode10();
         TaxGroup.Insert();
         exit(TaxGroup.Code);
     end;
@@ -415,7 +415,7 @@ codeunit 142058 "UT PAG Sales Tax"
     var
         TaxJurisdiction: Record "Tax Jurisdiction";
     begin
-        TaxJurisdiction.Code := LibraryUTUtility.GetNewCode10;
+        TaxJurisdiction.Code := LibraryUTUtility.GetNewCode10();
         TaxJurisdiction."Report-to Jurisdiction" := TaxJurisdiction.Code;
         TaxJurisdiction.Insert();
         exit(TaxJurisdiction.Code);
@@ -426,9 +426,9 @@ codeunit 142058 "UT PAG Sales Tax"
         Vendor: Record Vendor;
         VendorPostingGroup: Record "Vendor Posting Group";
     begin
-        VendorPostingGroup.Code := LibraryUTUtility.GetNewCode10;
+        VendorPostingGroup.Code := LibraryUTUtility.GetNewCode10();
         VendorPostingGroup.Insert();
-        Vendor."No." := LibraryUTUtility.GetNewCode;
+        Vendor."No." := LibraryUTUtility.GetNewCode();
         Vendor."Vendor Posting Group" := VendorPostingGroup.Code;
         Vendor.Insert();
         exit(Vendor."No.")
@@ -441,9 +441,9 @@ codeunit 142058 "UT PAG Sales Tax"
         VendorLedgerEntry2.FindLast();
         VendorLedgerEntry."Entry No." := VendorLedgerEntry2."Entry No." + 1;
         VendorLedgerEntry."Document Type" := VendorLedgerEntry."Document Type"::Invoice;
-        VendorLedgerEntry."Document No." := LibraryUTUtility.GetNewCode;
+        VendorLedgerEntry."Document No." := LibraryUTUtility.GetNewCode();
         VendorLedgerEntry.Open := true;
-        VendorLedgerEntry."Vendor No." := CreateVendor;
+        VendorLedgerEntry."Vendor No." := CreateVendor();
         VendorLedgerEntry.Insert();
     end;
 
@@ -455,7 +455,7 @@ codeunit 142058 "UT PAG Sales Tax"
     begin
         LibraryVariableStorage.Dequeue(TaxAmount);
         ServiceOrderStats."VATAmount[2]".AssertEquals(TaxAmount);
-        ServiceOrderStats.OK.Invoke;
+        ServiceOrderStats.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -466,7 +466,7 @@ codeunit 142058 "UT PAG Sales Tax"
     begin
         LibraryVariableStorage.Dequeue(TaxAmount);
         ServiceStats.VATAmount.AssertEquals(TaxAmount);
-        ServiceStats.OK.Invoke;
+        ServiceStats.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -477,7 +477,7 @@ codeunit 142058 "UT PAG Sales Tax"
     begin
         LibraryVariableStorage.Dequeue(TaxAmount);
         ServiceInvoiceStats.TaxAmount.AssertEquals(TaxAmount);
-        ServiceInvoiceStats.OK.Invoke;
+        ServiceInvoiceStats.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -488,7 +488,7 @@ codeunit 142058 "UT PAG Sales Tax"
     begin
         LibraryVariableStorage.Dequeue(TaxAmount);
         ServiceCreditMemoStats.TaxAmount.AssertEquals(TaxAmount);
-        ServiceCreditMemoStats.OK.Invoke;
+        ServiceCreditMemoStats.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -502,7 +502,7 @@ codeunit 142058 "UT PAG Sales Tax"
         LibraryVariableStorage.Dequeue(RemainingAmount);
         ApplyCustomerEntries.AppliesToID.SetValue(AppliesToID);
         ApplyCustomerEntries."Remaining Amount".AssertEquals(RemainingAmount);
-        ApplyCustomerEntries.OK.Invoke;
+        ApplyCustomerEntries.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -516,7 +516,7 @@ codeunit 142058 "UT PAG Sales Tax"
         LibraryVariableStorage.Dequeue(RemainingAmount);
         ApplyVendorEntries.AppliesToID.SetValue(AppliesToID);
         ApplyVendorEntries."Remaining Amount".AssertEquals(RemainingAmount);
-        ApplyVendorEntries.OK.Invoke;
+        ApplyVendorEntries.OK().Invoke();
     end;
 }
 

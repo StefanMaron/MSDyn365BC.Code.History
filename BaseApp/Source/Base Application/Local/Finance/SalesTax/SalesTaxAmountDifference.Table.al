@@ -14,6 +14,7 @@ using Microsoft.Service.History;
 table 10012 "Sales Tax Amount Difference"
 {
     Caption = 'Sales Tax Amount Difference';
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -30,11 +31,13 @@ table 10012 "Sales Tax Amount Difference"
         field(3; "Document No."; Code[20])
         {
             Caption = 'Document No.';
+#pragma warning disable AL0603
             TableRelation = if ("Document Product Area" = const(Sales)) "Sales Header"."No." where("Document Type" = field("Document Type"))
             else
             if ("Document Product Area" = const(Purchase)) "Purchase Header"."No." where("Document Type" = field("Document Type"))
             else
             if ("Document Product Area" = const(Service)) "Service Header"."No." where("Document Type" = field("Document Type"))
+#pragma warning restore AL0603
             else
             if ("Document Type" = const(Invoice),
                                      "Document Product Area" = const("Posted Sale")) "Sales Invoice Header"

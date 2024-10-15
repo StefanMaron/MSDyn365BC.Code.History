@@ -37,7 +37,7 @@ codeunit 139049 "SMB Office Addin Mgmt Test"
         OfficeAddin.DeleteAll();
 
         // [WHEN] Office add-in management page is run.
-        OfficeAddinManagement.Trap;
+        OfficeAddinManagement.Trap();
         PAGE.Run(PAGE::"Office Add-in Management");
 
         // [THEN] The default add-ins are created and available to deploy.
@@ -55,7 +55,7 @@ codeunit 139049 "SMB Office Addin Mgmt Test"
 
         // Setup
         Initialize();
-        InitializeHyperLinkNoSeries5Prefix;
+        InitializeHyperLinkNoSeries5Prefix();
         AddinManifestManagement.GetAddin(OfficeAddin, CODEUNIT::"Hyperlink Manifest");
 
         // Exercise
@@ -98,7 +98,7 @@ codeunit 139049 "SMB Office Addin Mgmt Test"
 
         // Setup
         Initialize();
-        InitializeHyperLinkNoSeries5Prefix;
+        InitializeHyperLinkNoSeries5Prefix();
         AddinManifestManagement.GetAddin(OfficeAddin, CODEUNIT::"Hyperlink Manifest");
 
         // Exercise
@@ -120,7 +120,7 @@ codeunit 139049 "SMB Office Addin Mgmt Test"
 
         // Setup
         Initialize();
-        InitializeHyperLinkNoSeries1Prefix;
+        InitializeHyperLinkNoSeries1Prefix();
         OfficeAddin."Manifest Codeunit" := CODEUNIT::"Hyperlink Manifest";
         OfficeAddin.FindFirst();
 
@@ -143,7 +143,7 @@ codeunit 139049 "SMB Office Addin Mgmt Test"
 
         // Setup
         Initialize();
-        InitializeHyperLinkNoSeries5Prefix;
+        InitializeHyperLinkNoSeries5Prefix();
         OfficeAddin."Manifest Codeunit" := CODEUNIT::"Hyperlink Manifest";
         OfficeAddin.FindFirst();
 
@@ -164,7 +164,7 @@ codeunit 139049 "SMB Office Addin Mgmt Test"
     begin
         // Validate that the Hyperlink add in manifest generates properly
         Initialize();
-        InitializeHyperLinkNoSeries5Prefix;
+        InitializeHyperLinkNoSeries5Prefix();
         AddinManifestManagement.GetAddin(OfficeAddin, CODEUNIT::"Hyperlink Manifest");
 
         AddinManifestManagement.SetTestMode(true);
@@ -186,16 +186,16 @@ codeunit 139049 "SMB Office Addin Mgmt Test"
 
         // Setup
         Initialize();
-        InitializeHyperLinkNoSeries5Prefix;
+        InitializeHyperLinkNoSeries5Prefix();
         AddinManifestManagement.GetAddin(OfficeAddin, CODEUNIT::"Hyperlink Manifest");
-        XMLDomManagement.LoadXMLNodeFromText(OfficeAddin.GetDefaultManifestText, OldManifestXML);
+        XMLDomManagement.LoadXMLNodeFromText(OfficeAddin.GetDefaultManifestText(), OldManifestXML);
 
         // Exercise
         AddinManifestManagement.SetTestMode(true);
         AddinManifestManagement.SaveManifestToServer(OfficeAddin);
 
         // Validate
-        XMLDomManagement.LoadXMLNodeFromText(OfficeAddin.GetDefaultManifestText, NewManifestXML);
+        XMLDomManagement.LoadXMLNodeFromText(OfficeAddin.GetDefaultManifestText(), NewManifestXML);
         VerifySameServerInformation(OldManifestXML, NewManifestXML);
     end;
 
@@ -219,7 +219,7 @@ codeunit 139049 "SMB Office Addin Mgmt Test"
         // Verify
         TempOfficeAdminCredentials.Find();
         Assert.AreEqual(AdminEmail, TempOfficeAdminCredentials.Email, 'Credential mismatch: Email');
-        Assert.AreEqual(AdminPassword, TempOfficeAdminCredentials.GetPassword, 'Credential mismatch: Password');
+        Assert.AreEqual(AdminPassword, TempOfficeAdminCredentials.GetPassword(), 'Credential mismatch: Password');
     end;
 
     [Test]
@@ -242,8 +242,8 @@ codeunit 139049 "SMB Office Addin Mgmt Test"
         // Verify
         TempOfficeAdminCredentials.Find();
         Assert.AreEqual(AdminEmail, TempOfficeAdminCredentials.Email, 'Credential mismatch: Email');
-        Assert.AreEqual(AdminPassword, TempOfficeAdminCredentials.GetPassword, 'Credential mismatch: Password');
-        Assert.AreEqual(TempOfficeAdminCredentials.DefaultEndpoint, TempOfficeAdminCredentials.Endpoint, 'Default endpoint not set.');
+        Assert.AreEqual(AdminPassword, TempOfficeAdminCredentials.GetPassword(), 'Credential mismatch: Password');
+        Assert.AreEqual(TempOfficeAdminCredentials.DefaultEndpoint(), TempOfficeAdminCredentials.Endpoint, 'Default endpoint not set.');
     end;
 
     [Test]
@@ -268,7 +268,7 @@ codeunit 139049 "SMB Office Addin Mgmt Test"
         TempOfficeAdminCredentials.Modify(true);
 
         // Verify
-        Assert.AreEqual(TempOfficeAdminCredentials.DefaultEndpoint, TempOfficeAdminCredentials.Endpoint, 'Default endpoint not set.');
+        Assert.AreEqual(TempOfficeAdminCredentials.DefaultEndpoint(), TempOfficeAdminCredentials.Endpoint, 'Default endpoint not set.');
     end;
 
     [Test]
@@ -298,10 +298,10 @@ codeunit 139049 "SMB Office Addin Mgmt Test"
 
         // Exercise
         XMLDomManagement.FindNodesWithNamespaceManager(XMLRootNode, 'x:DisplayName', XMLNamespaceMgr, XMLFoundNodes);
-        Name := XMLFoundNodes.Item(0).Attributes.ItemOf('DefaultValue').Value;
+        Name := XMLFoundNodes.Item(0).Attributes.ItemOf('DefaultValue').Value();
 
         XMLDomManagement.FindNodesWithNamespaceManager(XMLRootNode, 'x:Description', XMLNamespaceMgr, XMLFoundNodes);
-        Description := XMLFoundNodes.Item(0).Attributes.ItemOf('DefaultValue').Value;
+        Description := XMLFoundNodes.Item(0).Attributes.ItemOf('DefaultValue').Value();
 
         XMLDomManagement.FindNodesWithNamespaceManager(XMLRootNode, 'x:Id', XMLNamespaceMgr, XMLFoundNodes);
         Id := XMLFoundNodes.Item(0).InnerText;
@@ -327,7 +327,7 @@ codeunit 139049 "SMB Office Addin Mgmt Test"
 
         // Setup
         Initialize();
-        InitializeHyperLinkNoSeries5Prefix;
+        InitializeHyperLinkNoSeries5Prefix();
         AddinManifestManagement.GetAddin(OfficeAddin, CODEUNIT::"Hyperlink Manifest");
         OldManifest := OfficeAddin.GetDefaultManifestText();
 
@@ -409,13 +409,13 @@ codeunit 139049 "SMB Office Addin Mgmt Test"
     begin
         // Setup
         Initialize();
-        OfficeAddinManagement.OpenView;
+        OfficeAddinManagement.OpenView();
 
         // Exercise
         OfficeAddinManagement.FindFirstField(OfficeAddinManagement."Manifest Codeunit", CODEUNIT::"Intelligent Info Manifest");
 
         // Verify that an error is thrown - generation will fail due to HTTPS restraints
-        asserterror OfficeAddinManagement."Download Add-in Manifest".Invoke;
+        asserterror OfficeAddinManagement."Download Add-in Manifest".Invoke();
     end;
 
     [Test]
@@ -740,8 +740,8 @@ codeunit 139049 "SMB Office Addin Mgmt Test"
     begin
         // Set up appropriate number series for the document types for hyperlink:
 
-        InitializeHyperLinkNoSeries5PrefixSales;
-        InitializeHyperLinkNoSeries5PrefixPurchases;
+        InitializeHyperLinkNoSeries5PrefixSales();
+        InitializeHyperLinkNoSeries5PrefixPurchases();
     end;
 
     [Normal]
@@ -784,8 +784,8 @@ codeunit 139049 "SMB Office Addin Mgmt Test"
     begin
         // Set up appropriate number series for the document types for hyperlink:
 
-        InitializeHyperLinkNoSeries1PrefixPurchases;
-        InitializeHyperLinkNoSeries1PrefixSales;
+        InitializeHyperLinkNoSeries1PrefixPurchases();
+        InitializeHyperLinkNoSeries1PrefixSales();
     end;
 
     [Normal]
@@ -826,46 +826,46 @@ codeunit 139049 "SMB Office Addin Mgmt Test"
     [Scope('OnPrem')]
     procedure ExchangeCredentialsHandler(var OfficeAdminCredentialsDlg: TestPage "Office Admin. Credentials")
     begin
-        OfficeAdminCredentialsDlg.New;
+        OfficeAdminCredentialsDlg.New();
         AdminEmail := CreateGuid();
         AdminPassword := CreateGuid();
-        Assert.IsTrue(OfficeAdminCredentialsDlg.UseO365.Visible, 'Could not find O365 selection field.');
+        Assert.IsTrue(OfficeAdminCredentialsDlg.UseO365.Visible(), 'Could not find O365 selection field.');
         OfficeAdminCredentialsDlg.UseO365.SetValue(false);
-        OfficeAdminCredentialsDlg.ActionNext.Invoke;
+        OfficeAdminCredentialsDlg.ActionNext.Invoke();
 
         // If there's an issue with the visibility of the below items, do not proceed.
-        Assert.IsTrue(OfficeAdminCredentialsDlg.OnPremUsername.Visible, 'Could not find Exchange username field.');
-        Assert.IsTrue(OfficeAdminCredentialsDlg.OnPremPassword.Visible, 'Could not find Exchange password field.');
-        Assert.IsTrue(OfficeAdminCredentialsDlg.Endpoint.Visible, 'Could not find Exchange PS endpoint field.');
-        Assert.IsFalse(OfficeAdminCredentialsDlg.O365Email.Visible, 'Could not find O365 email field.');
-        Assert.IsFalse(OfficeAdminCredentialsDlg.O365Password.Visible, 'Could not find O365 password field.');
+        Assert.IsTrue(OfficeAdminCredentialsDlg.OnPremUsername.Visible(), 'Could not find Exchange username field.');
+        Assert.IsTrue(OfficeAdminCredentialsDlg.OnPremPassword.Visible(), 'Could not find Exchange password field.');
+        Assert.IsTrue(OfficeAdminCredentialsDlg.Endpoint.Visible(), 'Could not find Exchange PS endpoint field.');
+        Assert.IsFalse(OfficeAdminCredentialsDlg.O365Email.Visible(), 'Could not find O365 email field.');
+        Assert.IsFalse(OfficeAdminCredentialsDlg.O365Password.Visible(), 'Could not find O365 password field.');
 
         OfficeAdminCredentialsDlg.OnPremUsername.SetValue(AdminEmail);
         OfficeAdminCredentialsDlg.OnPremPassword.SetValue(AdminPassword);
-        OfficeAdminCredentialsDlg.ActionFinish.Invoke;
+        OfficeAdminCredentialsDlg.ActionFinish.Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure O365CredentialsHandler(var OfficeAdminCredentialsDlg: TestPage "Office Admin. Credentials")
     begin
-        OfficeAdminCredentialsDlg.New;
+        OfficeAdminCredentialsDlg.New();
         AdminEmail := CreateGuid();
         AdminPassword := CreateGuid();
-        Assert.IsTrue(OfficeAdminCredentialsDlg.UseO365.Visible, 'Could not find O365 selection field.');
+        Assert.IsTrue(OfficeAdminCredentialsDlg.UseO365.Visible(), 'Could not find O365 selection field.');
         OfficeAdminCredentialsDlg.UseO365.SetValue(true);
-        OfficeAdminCredentialsDlg.ActionNext.Invoke;
+        OfficeAdminCredentialsDlg.ActionNext.Invoke();
 
         // If there's an issue with the visibility of the below items, do not proceed.
-        Assert.IsFalse(OfficeAdminCredentialsDlg.OnPremUsername.Visible, 'Expected Exchange username field to be hidden.');
-        Assert.IsFalse(OfficeAdminCredentialsDlg.OnPremPassword.Visible, 'Expected Exchange password field to be hidden.');
-        Assert.IsFalse(OfficeAdminCredentialsDlg.Endpoint.Visible, 'Expected Exchange PS endpoint field to be hidden.');
-        Assert.IsTrue(OfficeAdminCredentialsDlg.O365Email.Visible, 'Could not find O365 email field.');
-        Assert.IsTrue(OfficeAdminCredentialsDlg.O365Password.Visible, 'Could not find O365 password field.');
+        Assert.IsFalse(OfficeAdminCredentialsDlg.OnPremUsername.Visible(), 'Expected Exchange username field to be hidden.');
+        Assert.IsFalse(OfficeAdminCredentialsDlg.OnPremPassword.Visible(), 'Expected Exchange password field to be hidden.');
+        Assert.IsFalse(OfficeAdminCredentialsDlg.Endpoint.Visible(), 'Expected Exchange PS endpoint field to be hidden.');
+        Assert.IsTrue(OfficeAdminCredentialsDlg.O365Email.Visible(), 'Could not find O365 email field.');
+        Assert.IsTrue(OfficeAdminCredentialsDlg.O365Password.Visible(), 'Could not find O365 password field.');
 
         OfficeAdminCredentialsDlg.O365Email.SetValue(AdminEmail);
         OfficeAdminCredentialsDlg.O365Password.SetValue(AdminPassword);
-        OfficeAdminCredentialsDlg.ActionFinish.Invoke;
+        OfficeAdminCredentialsDlg.ActionFinish.Invoke();
     end;
 
     [ModalPageHandler]
@@ -873,12 +873,12 @@ codeunit 139049 "SMB Office Addin Mgmt Test"
     procedure CloseAndReopenCredentialsHandler(var OfficeAdminCredentialsDlg: TestPage "Office Admin. Credentials")
     begin
         OfficeAdminCredentialsDlg.UseO365.SetValue(false);
-        OfficeAdminCredentialsDlg.ActionNext.Invoke;
+        OfficeAdminCredentialsDlg.ActionNext.Invoke();
 
         if CloseReopenHandlerAction = CloseReopenHandlerAction::EnterCredentials then begin
             OfficeAdminCredentialsDlg.OnPremUsername.SetValue(LibraryUtility.GenerateRandomAlphabeticText(10, 0));
             OfficeAdminCredentialsDlg.OnPremPassword.SetValue(LibraryUtility.GenerateRandomText(10));
-            OfficeAdminCredentialsDlg.ActionFinish.Invoke;
+            OfficeAdminCredentialsDlg.ActionFinish.Invoke();
         end;
 
         LibraryVariableStorage.Enqueue(true);
@@ -999,7 +999,7 @@ codeunit 139049 "SMB Office Addin Mgmt Test"
     var
         RegExPrefix: Text;
     begin
-        RegExPrefix := HyperlinkManifest.GetNoSeriesPrefixes(HyperlinkManifest.GetNoSeriesForPurchaseOrder);
+        RegExPrefix := HyperlinkManifest.GetNoSeriesPrefixes(HyperlinkManifest.GetNoSeriesForPurchaseOrder());
         if ShouldInclude then
             Assert.IsTrue(StrPos(RegexText, RegExPrefix) <> 0, StrSubstNo(NoRuleFoundErr, 'Purchase Order', RegExPrefix, RegexText))
         else
@@ -1011,7 +1011,7 @@ codeunit 139049 "SMB Office Addin Mgmt Test"
     var
         RegExPrefix: Text;
     begin
-        RegExPrefix := HyperlinkManifest.GetNoSeriesPrefixes(HyperlinkManifest.GetNoSeriesForPurchaseQuote);
+        RegExPrefix := HyperlinkManifest.GetNoSeriesPrefixes(HyperlinkManifest.GetNoSeriesForPurchaseQuote());
         if ShouldInclude then
             Assert.IsTrue(StrPos(RegexText, RegExPrefix) <> 0, StrSubstNo(NoRuleFoundErr, 'Purchase Quote', RegExPrefix, RegexText))
         else
@@ -1023,7 +1023,7 @@ codeunit 139049 "SMB Office Addin Mgmt Test"
     var
         RegExPrefix: Text;
     begin
-        RegExPrefix := HyperlinkManifest.GetNoSeriesPrefixes(HyperlinkManifest.GetNoSeriesForPurchaseInvoice);
+        RegExPrefix := HyperlinkManifest.GetNoSeriesPrefixes(HyperlinkManifest.GetNoSeriesForPurchaseInvoice());
         if ShouldInclude then
             Assert.IsTrue(StrPos(RegexText, RegExPrefix) <> 0, StrSubstNo(NoRuleFoundErr, 'Purchase Invoice', RegExPrefix, RegexText))
         else
@@ -1035,7 +1035,7 @@ codeunit 139049 "SMB Office Addin Mgmt Test"
     var
         RegExPrefix: Text;
     begin
-        RegExPrefix := HyperlinkManifest.GetNoSeriesPrefixes(HyperlinkManifest.GetNoSeriesForPurchaseCrMemo);
+        RegExPrefix := HyperlinkManifest.GetNoSeriesPrefixes(HyperlinkManifest.GetNoSeriesForPurchaseCrMemo());
         if ShouldInclude then
             Assert.IsTrue(StrPos(RegexText, RegExPrefix) <> 0, StrSubstNo(NoRuleFoundErr, 'Purchase CrMemo', RegExPrefix, RegexText))
         else
@@ -1047,7 +1047,7 @@ codeunit 139049 "SMB Office Addin Mgmt Test"
     var
         RegExPrefix: Text;
     begin
-        RegExPrefix := HyperlinkManifest.GetNoSeriesPrefixes(HyperlinkManifest.GetNoSeriesForSalesOrder);
+        RegExPrefix := HyperlinkManifest.GetNoSeriesPrefixes(HyperlinkManifest.GetNoSeriesForSalesOrder());
         if ShouldInclude then
             Assert.IsTrue(StrPos(RegexText, RegExPrefix) <> 0, StrSubstNo(NoRuleFoundErr, 'Sales Order', RegExPrefix, RegexText))
         else
@@ -1059,7 +1059,7 @@ codeunit 139049 "SMB Office Addin Mgmt Test"
     var
         RegExPrefix: Text;
     begin
-        RegExPrefix := HyperlinkManifest.GetNoSeriesPrefixes(HyperlinkManifest.GetNoSeriesForSalesQuote);
+        RegExPrefix := HyperlinkManifest.GetNoSeriesPrefixes(HyperlinkManifest.GetNoSeriesForSalesQuote());
         if ShouldInclude then
             Assert.IsTrue(StrPos(RegexText, RegExPrefix) <> 0, StrSubstNo(NoRuleFoundErr, 'Sales Quote', RegExPrefix, RegexText))
         else
@@ -1071,7 +1071,7 @@ codeunit 139049 "SMB Office Addin Mgmt Test"
     var
         RegExPrefix: Text;
     begin
-        RegExPrefix := HyperlinkManifest.GetNoSeriesPrefixes(HyperlinkManifest.GetNoSeriesForSalesInvoice);
+        RegExPrefix := HyperlinkManifest.GetNoSeriesPrefixes(HyperlinkManifest.GetNoSeriesForSalesInvoice());
         if ShouldInclude then
             Assert.IsTrue(StrPos(RegexText, RegExPrefix) <> 0, StrSubstNo(NoRuleFoundErr, 'Sales Invoice', RegExPrefix, RegexText))
         else
@@ -1083,7 +1083,7 @@ codeunit 139049 "SMB Office Addin Mgmt Test"
     var
         RegExPrefix: Text;
     begin
-        RegExPrefix := HyperlinkManifest.GetNoSeriesPrefixes(HyperlinkManifest.GetNoSeriesForSalesCrMemo);
+        RegExPrefix := HyperlinkManifest.GetNoSeriesPrefixes(HyperlinkManifest.GetNoSeriesForSalesCrMemo());
         if ShouldInclude then
             Assert.IsTrue(StrPos(RegexText, RegExPrefix) <> 0, StrSubstNo(NoRuleFoundErr, 'Sales CrMemo', RegExPrefix, RegexText))
         else

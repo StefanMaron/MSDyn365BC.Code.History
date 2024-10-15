@@ -66,6 +66,11 @@ page 5200 "Employee Card"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the employee''s initials.';
                 }
+                field("Balance (LCY)"; Rec."Balance (LCY)")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the value of the the employee''s balance.';
+                }
                 field("Search Name"; Rec."Search Name")
                 {
                     ApplicationArea = Basic, Suite;
@@ -153,7 +158,7 @@ page 5200 "Employee Card"
                         Editable = false;
                         ShowCaption = false;
                         Style = StrongAccent;
-                        StyleExpr = TRUE;
+                        StyleExpr = true;
                         ToolTip = 'Specifies the employee''s address on your preferred online map.';
 
                         trigger OnDrillDown()
@@ -305,6 +310,12 @@ page 5200 "Employee Card"
                     ApplicationArea = BasicHR;
                     LookupPageID = "Employee Posting Groups";
                     ToolTip = 'Specifies the employee''s type to link business transactions made for the employee with the appropriate account in the general ledger.';
+                }
+                field("Currency Code"; Rec."Currency Code")
+                {
+                    ApplicationArea = BasicHR;
+                    Importance = Additional;
+                    ToolTip = 'Specifies the currency code that is inserted by default when you create entries for the employee.';
                 }
                 field("Application Method"; Rec."Application Method")
                 {
@@ -506,7 +517,7 @@ page 5200 "Employee Card"
                     RunObject = Page "Employee Ledger Entries";
                     RunPageLink = "Employee No." = field("No.");
                     RunPageView = sorting("Employee No.")
-                                  order(Descending);
+                                  order(descending);
                     ShortCutKey = 'Ctrl+F7';
                     ToolTip = 'View the history of transactions that have been posted for the selected record.';
                 }

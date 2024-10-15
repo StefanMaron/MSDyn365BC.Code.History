@@ -1996,7 +1996,7 @@ codeunit 137079 "SCM Production Order III"
 
         // Setup: Create Item with Routing. Create Item UOM. Create and refresh Release Production Order.
         Initialize();
-        ItemNo := CreateItemWithRouting;
+        ItemNo := CreateItemWithRouting();
         LibraryInventory.CreateItemUnitOfMeasureCode(ItemUnitOfMeasure, ItemNo, LibraryRandom.RandInt(10));
         CreateAndRefreshReleasedProductionOrder(
           ProductionOrder, ItemNo, LibraryRandom.RandInt(20),
@@ -2768,7 +2768,7 @@ codeunit 137079 "SCM Production Order III"
         BinContent.Modify(true);
 
         // [WHEN] Show routing for the production order.
-        ProdOrderLine.ShowRouting;
+        ProdOrderLine.ShowRouting();
 
         // [THEN] "Bin Code" on the prod. order line is updated to "B".
         ProdOrderLine.Find();
@@ -3246,7 +3246,7 @@ codeunit 137079 "SCM Production Order III"
 
         LibraryWarehouse.CreateLocationWMS(Location, true, false, false, false, false);
 
-        LibraryWarehouse.CreateBin(Bin, Location.Code, LibraryUtility.GenerateGUID, '', '');
+        LibraryWarehouse.CreateBin(Bin, Location.Code, LibraryUtility.GenerateGUID(), '', '');
         LibraryWarehouse.CreateBinContent(BinContent, Location.Code, '', Bin.Code, Item."No.", '', Item."Base Unit of Measure");
         BinContent.Validate(Default, true);
         BinContent.Modify(true);
@@ -3275,33 +3275,13 @@ codeunit 137079 "SCM Production Order III"
         CalendarEntry.Init();
         CalendarEntry."No." := LibraryUtility.GenerateGUID();
         CalendarEntry."Starting Date-Time" := CreateDateTime(WorkDate(), 120000T);
-        CalendarEntry."Ending Date-Time" := CreateDateTime(WorkDate + 30, 120000T);
+        CalendarEntry."Ending Date-Time" := CreateDateTime(WorkDate() + 30, 120000T);
 
         CalendarEntry.GetStartingEndingDateAndTime(StartingTime, EndingTime, CurrDate);
 
         Assert.AreEqual(DT2Time(CalendarEntry."Starting Date-Time"), StartingTime, '');
         Assert.AreEqual(DT2Time(CalendarEntry."Ending Date-Time"), EndingTime, '');
         Assert.AreEqual(DT2Date(CalendarEntry."Ending Date-Time"), CurrDate, '');
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure StartingEndingDatesOnProductionOrderLists()
-    var
-        FirmPlannedProdOrder: Record "Production Order";
-        FirmPlannedProdOrders: TestPage "Firm Planned Prod. Orders";
-    begin
-        // [FEATURE] [UI]
-        // [SCENARIO 331428] "Starting Date" and "Ending Date" controls on production order lists are expressions calculated from "Starting Date-Time" and "Ending Date-Time" fields in accordance with the current time zone.
-        Initialize();
-
-        MockProductionOrder(FirmPlannedProdOrder, FirmPlannedProdOrder.Status::"Firm Planned");
-
-        FirmPlannedProdOrders.OpenView();
-        FirmPlannedProdOrders.FILTER.SetFilter("No.", FirmPlannedProdOrder."No.");
-        FirmPlannedProdOrders."Starting Date".AssertEquals(DT2Date(FirmPlannedProdOrder."Starting Date-Time"));
-        FirmPlannedProdOrders."Ending Date".AssertEquals(DT2Date(FirmPlannedProdOrder."Ending Date-Time"));
-        FirmPlannedProdOrders.Close();
     end;
 
     [Test]
@@ -3355,14 +3335,9 @@ codeunit 137079 "SCM Production Order III"
 
         FirmPlannedProdOrderCard.OpenEdit();
         FirmPlannedProdOrderCard.FILTER.SetFilter("No.", FirmPlannedProdOrder."No.");
-        FirmPlannedProdOrderCard."Starting Time".AssertEquals(DT2Time(FirmPlannedProdOrder."Starting Date-Time"));
-        FirmPlannedProdOrderCard."Starting Date".AssertEquals(DT2Date(FirmPlannedProdOrder."Starting Date-Time"));
-        FirmPlannedProdOrderCard."Ending Time".AssertEquals(DT2Time(FirmPlannedProdOrder."Ending Date-Time"));
-        FirmPlannedProdOrderCard."Ending Date".AssertEquals(DT2Date(FirmPlannedProdOrder."Ending Date-Time"));
 
         NewDate := LibraryRandom.RandDate(30);
         FirmPlannedProdOrderCard."Due Date".SetValue(NewDate);
-        FirmPlannedProdOrderCard."Ending Date".AssertEquals(NewDate - 1);
 
         ItemNo := LibraryInventory.CreateItemNo();
         FirmPlannedProdOrderCard.ProdOrderLines.New();
@@ -3537,8 +3512,7 @@ codeunit 137079 "SCM Production Order III"
 
         // [WHEN] Change status of Firm Planned Production Order to Released.
         ReleasedProdOrderNo :=
-            LibraryManufacturing.ChangeStatusFirmPlanToReleased(
-                ProductionOrder."No.", ProductionOrder.Status::"Firm Planned", ProductionOrder.Status::Released);
+            LibraryManufacturing.ChangeStatusFirmPlanToReleased(ProductionOrder."No.");
 
         // [THEN] "Starting Date-Time" and "Ending Date-Time" are corresponded with "Starting Date" + "Starting Time" and "Ending Date" + "Ending Time".
         ProductionOrder.Get(ProductionOrder.Status::Released, ReleasedProdOrderNo);
@@ -4954,8 +4928,8 @@ codeunit 137079 "SCM Production Order III"
         LibraryInventory.CreateItem(ProdItem);
 
         // [GIVEN] Production BOM with two lines:
-        // [GIVEN] Line 1: item "Old", ending date = WORKDATE - 5 days.
-        // [GIVEN] Line 2: item "New", starting date = WORKDATE - 5 days.
+        // [GIVEN] Line 1: item "Old", ending date = WorkDate() - 5 days.
+        // [GIVEN] Line 2: item "New", starting date = WorkDate() - 5 days.
         LibraryManufacturing.CreateProductionBOMHeader(ProductionBOMHeader, ProdItem."Base Unit of Measure");
         LibraryManufacturing.CreateProductionBOMLine(
           ProductionBOMHeader, ProductionBOMLine, '', ProductionBOMLine.Type::Item, OldCompItem."No.", 1);

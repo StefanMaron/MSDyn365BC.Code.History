@@ -951,57 +951,49 @@ page 9233 "G/L Balance by Dim. Matrix"
 
     local procedure CopyGLAccToBuf(var TheGLAcc: Record "G/L Account"; var TheDimCodeBuf: Record "Dimension Code Buffer")
     begin
-        with TheDimCodeBuf do begin
-            Init();
-            Code := TheGLAcc."No.";
-            Name := TheGLAcc.Name;
-            Totaling := TheGLAcc.Totaling;
-            Indentation := TheGLAcc.Indentation;
-            "Show in Bold" := TheGLAcc."Account Type" <> TheGLAcc."Account Type"::Posting;
-        end;
+        TheDimCodeBuf.Init();
+        TheDimCodeBuf.Code := TheGLAcc."No.";
+        TheDimCodeBuf.Name := TheGLAcc.Name;
+        TheDimCodeBuf.Totaling := TheGLAcc.Totaling;
+        TheDimCodeBuf.Indentation := TheGLAcc.Indentation;
+        TheDimCodeBuf."Show in Bold" := TheGLAcc."Account Type" <> TheGLAcc."Account Type"::Posting;
     end;
 
     local procedure CopyPeriodToBuf(var ThePeriod: Record Date; var TheDimCodeBuf: Record "Dimension Code Buffer")
     var
         Period2: Record Date;
     begin
-        with TheDimCodeBuf do begin
-            Init();
-            Code := Format(ThePeriod."Period Start");
-            "Period Start" := ThePeriod."Period Start";
-            if AnalysisByDimParameters."Closing Entries" = AnalysisByDimParameters."Closing Entries"::Include then
-                "Period End" := ClosingDate(ThePeriod."Period End")
-            else
-                "Period End" := ThePeriod."Period End";
-            if AnalysisByDimParameters."Date Filter" <> '' then begin
-                Period2.SetFilter("Period End", AnalysisByDimParameters."Date Filter");
-                if Period2.GetRangeMax("Period End") < "Period End" then
-                    "Period End" := Period2.GetRangeMax("Period End");
-            end;
-            Name := ThePeriod."Period Name";
+        TheDimCodeBuf.Init();
+        TheDimCodeBuf.Code := Format(ThePeriod."Period Start");
+        TheDimCodeBuf."Period Start" := ThePeriod."Period Start";
+        if AnalysisByDimParameters."Closing Entries" = AnalysisByDimParameters."Closing Entries"::Include then
+            TheDimCodeBuf."Period End" := ClosingDate(ThePeriod."Period End")
+        else
+            TheDimCodeBuf."Period End" := ThePeriod."Period End";
+        if AnalysisByDimParameters."Date Filter" <> '' then begin
+            Period2.SetFilter("Period End", AnalysisByDimParameters."Date Filter");
+            if Period2.GetRangeMax("Period End") < TheDimCodeBuf."Period End" then
+                TheDimCodeBuf."Period End" := Period2.GetRangeMax("Period End");
         end;
+        TheDimCodeBuf.Name := ThePeriod."Period Name";
     end;
 
     local procedure CopyBusUnitToBuf(var TheBusUnit: Record "Business Unit"; var TheDimCodeBuf: Record "Dimension Code Buffer")
     begin
-        with TheDimCodeBuf do begin
-            Init();
-            Code := TheBusUnit.Code;
-            Name := TheBusUnit.Name;
-        end;
+        TheDimCodeBuf.Init();
+        TheDimCodeBuf.Code := TheBusUnit.Code;
+        TheDimCodeBuf.Name := TheBusUnit.Name;
     end;
 
     local procedure CopyDimValueToBuf(var TheDimVal: Record "Dimension Value"; var TheDimCodeBuf: Record "Dimension Code Buffer")
     begin
-        with TheDimCodeBuf do begin
-            Init();
-            Code := TheDimVal.Code;
-            Name := TheDimVal.Name;
-            Totaling := TheDimVal.Totaling;
-            Indentation := TheDimVal.Indentation;
-            "Show in Bold" :=
-              TheDimVal."Dimension Value Type" <> TheDimVal."Dimension Value Type"::Standard;
-        end;
+        TheDimCodeBuf.Init();
+        TheDimCodeBuf.Code := TheDimVal.Code;
+        TheDimCodeBuf.Name := TheDimVal.Name;
+        TheDimCodeBuf.Totaling := TheDimVal.Totaling;
+        TheDimCodeBuf.Indentation := TheDimVal.Indentation;
+        TheDimCodeBuf."Show in Bold" :=
+          TheDimVal."Dimension Value Type" <> TheDimVal."Dimension Value Type"::Standard;
     end;
 
     local procedure FindPeriod(SearchText: Code[10])
@@ -1094,41 +1086,39 @@ page 9233 "G/L Balance by Dim. Matrix"
         DateFilter2: Text;
     begin
         Clear(TheGLAcc);
-        with TheGLAcc do begin
-            if AnalysisByDimParameters."Date Filter" = '' then
-                DateFilter2 := ExcludeClosingDateFilter
+        if AnalysisByDimParameters."Date Filter" = '' then
+            DateFilter2 := ExcludeClosingDateFilter
+        else begin
+            if AnalysisByDimParameters."Amount Type" = AnalysisByDimParameters."Amount Type"::"Net Change" then
+                DateFilter2 := AnalysisByDimParameters."Date Filter"
             else begin
-                if AnalysisByDimParameters."Amount Type" = AnalysisByDimParameters."Amount Type"::"Net Change" then begin
-                    DateFilter2 := AnalysisByDimParameters."Date Filter";
-                end else begin
-                    SetFilter("Date Filter", AnalysisByDimParameters."Date Filter");
-                    DateFilter2 := StrSubstNo('..%1', GetRangeMax("Date Filter"));
-                end;
-                if ExcludeClosingDateFilter <> '' then
-                    DateFilter2 := StrSubstNo('%1 & %2', DateFilter2, ExcludeClosingDateFilter);
+                TheGLAcc.SetFilter("Date Filter", AnalysisByDimParameters."Date Filter");
+                DateFilter2 := StrSubstNo('..%1', TheGLAcc.GetRangeMax(TheGLAcc."Date Filter"));
             end;
-            Reset();
-            if AnalysisByDimParameters."Account Filter" <> '' then
-                SetFilter("No.", AnalysisByDimParameters."Account Filter")
-            else
-                SetRange("No.");
-            if AnalysisByDimParameters."Account Filter" <> '' then
-                Totaling := CopyStr(AnalysisByDimParameters."Account Filter", 1, MaxStrLen(Totaling))
-            else
-                if "No." = '' then
-                    Totaling := StrSubstNo('>%1', '''''');
-            SetFilter("Date Filter", DateFilter2);
-            if AnalysisByDimParameters."Bus. Unit Filter" <> '' then
-                SetFilter("Business Unit Filter", AnalysisByDimParameters."Bus. Unit Filter");
-            if AnalysisByDimParameters."Dimension 1 Filter" <> '' then
-                SetFilter("Global Dimension 1 Filter", GetDimValueTotaling(AnalysisByDimParameters."Dimension 1 Filter", GLSetup."Global Dimension 1 Code"));
-            if AnalysisByDimParameters."Dimension 2 Filter" <> '' then
-                SetFilter("Global Dimension 2 Filter", GetDimValueTotaling(AnalysisByDimParameters."Dimension 2 Filter", GLSetup."Global Dimension 2 Code"));
-            if AnalysisByDimParameters."Budget Filter" = '' then
-                SetRange("Budget Filter")
-            else
-                SetFilter("Budget Filter", AnalysisByDimParameters."Budget Filter");
+            if ExcludeClosingDateFilter <> '' then
+                DateFilter2 := StrSubstNo('%1 & %2', DateFilter2, ExcludeClosingDateFilter);
         end;
+        TheGLAcc.Reset();
+        if AnalysisByDimParameters."Account Filter" <> '' then
+            TheGLAcc.SetFilter("No.", AnalysisByDimParameters."Account Filter")
+        else
+            TheGLAcc.SetRange(TheGLAcc."No.");
+        if AnalysisByDimParameters."Account Filter" <> '' then
+            TheGLAcc.Totaling := CopyStr(AnalysisByDimParameters."Account Filter", 1, MaxStrLen(TheGLAcc.Totaling))
+        else
+            if TheGLAcc."No." = '' then
+                TheGLAcc.Totaling := StrSubstNo('>%1', '''''');
+        TheGLAcc.SetFilter("Date Filter", DateFilter2);
+        if AnalysisByDimParameters."Bus. Unit Filter" <> '' then
+            TheGLAcc.SetFilter("Business Unit Filter", AnalysisByDimParameters."Bus. Unit Filter");
+        if AnalysisByDimParameters."Dimension 1 Filter" <> '' then
+            TheGLAcc.SetFilter("Global Dimension 1 Filter", GetDimValueTotaling(AnalysisByDimParameters."Dimension 1 Filter", GLSetup."Global Dimension 1 Code"));
+        if AnalysisByDimParameters."Dimension 2 Filter" <> '' then
+            TheGLAcc.SetFilter("Global Dimension 2 Filter", GetDimValueTotaling(AnalysisByDimParameters."Dimension 2 Filter", GLSetup."Global Dimension 2 Code"));
+        if AnalysisByDimParameters."Budget Filter" = '' then
+            TheGLAcc.SetRange(TheGLAcc."Budget Filter")
+        else
+            TheGLAcc.SetFilter("Budget Filter", AnalysisByDimParameters."Budget Filter");
 
         OnAfterSetCommonFilters(TheGLAcc, AnalysisByDimParameters);
     end;
@@ -1197,43 +1187,39 @@ page 9233 "G/L Balance by Dim. Matrix"
             exit;
 
         if AnalysisByDimParameters."Show Actual/Budgets" = AnalysisByDimParameters."Show Actual/Budgets"::"Actual Amounts" then begin
-            with GLEntry do begin
-                if GLAcc."No." <> '' then
-                    SetRange("G/L Account No.", GLAcc."No.");
-                if GLAcc.Totaling <> '' then
-                    SetFilter("G/L Account No.", GLAcc.Totaling);
-                GLAcc.CopyFilter("Date Filter", "Posting Date");
-                GLAcc.CopyFilter("Global Dimension 1 Filter", "Global Dimension 1 Code");
-                GLAcc.CopyFilter("Global Dimension 2 Filter", "Global Dimension 2 Code");
-                GLAcc.CopyFilter("Business Unit Filter", "Business Unit Code");
-                if (GetFilter("Global Dimension 1 Code") <> '') or (GetFilter("Global Dimension 2 Code") <> '') or
-                   (GetFilter("Business Unit Code") <> '')
-                then
-                    SetCurrentKey("G/L Account No.", "Business Unit Code", "Global Dimension 1 Code")
-                else
-                    SetCurrentKey("G/L Account No.", "Posting Date");
-            end;
+            if GLAcc."No." <> '' then
+                GLEntry.SetRange("G/L Account No.", GLAcc."No.");
+            if GLAcc.Totaling <> '' then
+                GLEntry.SetFilter(GLEntry."G/L Account No.", GLAcc.Totaling);
+            GLAcc.CopyFilter("Date Filter", GLEntry."Posting Date");
+            GLAcc.CopyFilter("Global Dimension 1 Filter", GLEntry."Global Dimension 1 Code");
+            GLAcc.CopyFilter("Global Dimension 2 Filter", GLEntry."Global Dimension 2 Code");
+            GLAcc.CopyFilter("Business Unit Filter", GLEntry."Business Unit Code");
+            if (GLEntry.GetFilter("Global Dimension 1 Code") <> '') or (GLEntry.GetFilter("Global Dimension 2 Code") <> '') or
+               (GLEntry.GetFilter("Business Unit Code") <> '')
+            then
+                GLEntry.SetCurrentKey("G/L Account No.", "Business Unit Code", "Global Dimension 1 Code")
+            else
+                GLEntry.SetCurrentKey("G/L Account No.", "Posting Date");
             OnDrillDownOnBeforeRunGeneralLedgerEntriesPage(GLAcc, GLEntry);
             PAGE.Run(PAGE::"General Ledger Entries", GLEntry);
         end;
         if AnalysisByDimParameters."Show Actual/Budgets" = AnalysisByDimParameters."Show Actual/Budgets"::"Budgeted Amounts" then begin
-            with GLBudgetEntry do begin
-                GLAcc.CopyFilter("Budget Filter", "Budget Name");
-                if GLAcc."No." <> '' then
-                    SetRange("G/L Account No.", GLAcc."No.");
-                if GLAcc.Totaling <> '' then
-                    SetFilter("G/L Account No.", GLAcc.Totaling);
-                GLAcc.CopyFilter("Date Filter", Date);
-                GLAcc.CopyFilter("Global Dimension 1 Filter", "Global Dimension 1 Code");
-                GLAcc.CopyFilter("Global Dimension 2 Filter", "Global Dimension 2 Code");
-                GLAcc.CopyFilter("Business Unit Filter", "Business Unit Code");
-                if (GetFilter("Global Dimension 1 Code") <> '') or (GetFilter("Global Dimension 2 Code") <> '') or
-                   (GetFilter("Business Unit Code") <> '')
-                then
-                    SetCurrentKey("Budget Name", "G/L Account No.", "Business Unit Code", "Global Dimension 1 Code")
-                else
-                    SetCurrentKey("Budget Name", "G/L Account No.", Date);
-            end;
+            GLAcc.CopyFilter("Budget Filter", GLBudgetEntry."Budget Name");
+            if GLAcc."No." <> '' then
+                GLBudgetEntry.SetRange("G/L Account No.", GLAcc."No.");
+            if GLAcc.Totaling <> '' then
+                GLBudgetEntry.SetFilter(GLBudgetEntry."G/L Account No.", GLAcc.Totaling);
+            GLAcc.CopyFilter("Date Filter", GLBudgetEntry.Date);
+            GLAcc.CopyFilter("Global Dimension 1 Filter", GLBudgetEntry."Global Dimension 1 Code");
+            GLAcc.CopyFilter("Global Dimension 2 Filter", GLBudgetEntry."Global Dimension 2 Code");
+            GLAcc.CopyFilter("Business Unit Filter", GLBudgetEntry."Business Unit Code");
+            if (GLBudgetEntry.GetFilter("Global Dimension 1 Code") <> '') or (GLBudgetEntry.GetFilter("Global Dimension 2 Code") <> '') or
+               (GLBudgetEntry.GetFilter("Business Unit Code") <> '')
+            then
+                GLBudgetEntry.SetCurrentKey("Budget Name", "G/L Account No.", "Business Unit Code", "Global Dimension 1 Code")
+            else
+                GLBudgetEntry.SetCurrentKey("Budget Name", "G/L Account No.", Date);
             OnDrillDownOnBeforeRunGLBudgetEntriesPage(GLAcc, GLBudgetEntry);
             PAGE.Run(PAGE::"G/L Budget Entries", GLBudgetEntry);
         end;

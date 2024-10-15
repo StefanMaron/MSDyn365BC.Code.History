@@ -142,7 +142,7 @@ page 527 "Posted Sales Credit Memo Lines"
                 field("Job No."; Rec."Job No.")
                 {
                     ApplicationArea = Jobs;
-                    ToolTip = 'Specifies the number of the related job.';
+                    ToolTip = 'Specifies the number of the related project.';
                     Visible = false;
                 }
             }

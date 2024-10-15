@@ -9,6 +9,7 @@ table 27024 "SAT Hazardous Material"
     DataPerCompany = false;
     DrillDownPageID = "SAT Hazardous Materials";
     LookupPageID = "SAT Hazardous Materials";
+    DataClassification = CustomerContent;
 
     fields
     {

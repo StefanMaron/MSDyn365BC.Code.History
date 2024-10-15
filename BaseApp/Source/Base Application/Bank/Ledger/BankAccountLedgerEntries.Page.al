@@ -22,7 +22,7 @@ page 372 "Bank Account Ledger Entries"
     PageType = List;
     SourceTable = "Bank Account Ledger Entry";
     SourceTableView = sorting("Bank Account No.", "Posting Date")
-                      order(Descending);
+                      order(descending);
     UsageCategory = History;
 
     layout
@@ -383,7 +383,6 @@ page 372 "Bank Account Ledger Entries"
                         end;
                         Rec.TestField("Transaction No.");
                         ReversalEntry.ReverseTransaction(Rec."Transaction No.");
-                        Clear(CalcRunningAccBalance);
                         CurrPage.Update(false);
                     end;
                 }

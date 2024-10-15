@@ -249,7 +249,7 @@ codeunit 132208 "Library - Trees"
                       ProdBOMHeader, ProdBOMLine, '', ProdBOMLine.Type::Item, Item2."No.", LibraryRandom.RandInt(5));
 
                     LibraryManufacturing.CreateCertifProdBOMWithTwoComp(
-                      ProdBOMHeaderChild, LibraryInventory.CreateItemNo, LibraryInventory.CreateItemNo, LibraryRandom.RandInt(5));
+                      ProdBOMHeaderChild, LibraryInventory.CreateItemNo(), LibraryInventory.CreateItemNo(), LibraryRandom.RandInt(5));
                     LibraryManufacturing.CreateProductionBOMLine(
                       ProdBOMHeader, ProdBOMLine, '', ProdBOMLine.Type::"Production BOM", ProdBOMHeaderChild."No.", LibraryRandom.RandInt(5));
 
@@ -522,7 +522,7 @@ codeunit 132208 "Library - Trees"
                 end;
         end;
 
-        RoundingPrecision := LibraryERM.GetUnitAmountRoundingPrecision;
+        RoundingPrecision := LibraryERM.GetUnitAmountRoundingPrecision();
         RolledUpMaterialCost := Round(RolledUpMaterialCost, RoundingPrecision);
         RolledUpCapacityCost := Round(RolledUpCapacityCost, RoundingPrecision);
         RolledUpCapOvhd := Round(RolledUpCapOvhd, RoundingPrecision);
@@ -691,7 +691,7 @@ codeunit 132208 "Library - Trees"
                 RolledUpScrapAmount := Item."Unit Cost";
         end;
 
-        RolledUpScrapAmount := Round(RolledUpScrapAmount, LibraryERM.GetUnitAmountRoundingPrecision);
+        RolledUpScrapAmount := Round(RolledUpScrapAmount, LibraryERM.GetUnitAmountRoundingPrecision());
     end;
 
     [Normal]

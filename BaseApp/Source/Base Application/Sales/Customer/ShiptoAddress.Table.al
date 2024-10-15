@@ -1,6 +1,7 @@
 namespace Microsoft.Sales.Customer;
 
 using Microsoft.EServices.OnlineMap;
+using Microsoft.CRM.Team;
 using Microsoft.Finance.SalesTax;
 using Microsoft.Foundation.Address;
 using Microsoft.Foundation.Shipping;
@@ -15,6 +16,7 @@ table 222 "Ship-to Address"
     Caption = 'Ship-to Address';
     DataCaptionFields = "Customer No.", Name, "Code";
     LookupPageID = "Ship-to Address List";
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -85,6 +87,16 @@ table 222 "Ship-to Address"
         field(10; "Telex No."; Text[30])
         {
             Caption = 'Telex No.';
+        }
+        field(29; "Salesperson Code"; Code[20])
+        {
+            Caption = 'Salesperson Code';
+            TableRelation = "Salesperson/Purchaser" where(Blocked = const(false));
+
+            trigger OnValidate()
+            begin
+                ValidateSalesPersonCode();
+            end;
         }
         field(30; "Shipment Method Code"; Code[10])
         {
@@ -190,11 +202,24 @@ table 222 "Ship-to Address"
                 ValidateEmail()
             end;
         }
+#if not CLEAN24
         field(103; "Home Page"; Text[80])
         {
             Caption = 'Home Page';
             ExtendedDatatype = URL;
+            ObsoleteReason = 'Field length will be increased to 255.';
+            ObsoleteState = Pending;
+            ObsoleteTag = '24.0';
         }
+#else
+#pragma warning disable AS0086
+        field(103; "Home Page"; Text[255])
+        {
+            Caption = 'Home Page';
+            ExtendedDatatype = URL;
+        }
+#pragma warning restore AS0086
+#endif
         field(108; "Tax Area Code"; Code[20])
         {
             Caption = 'Tax Area Code';
@@ -311,8 +336,22 @@ table 222 "Ship-to Address"
         SATAddress: Record "SAT Address";
     begin
         if SATAddress.Get("SAT Address ID") then
-            exit(SATAddress.GetSATPostalCode);
+            exit(SATAddress.GetSATPostalCode());
         exit('');
+    end;
+
+    local procedure ValidateSalesPersonCode()
+    var
+        SalespersonPurchaser: Record "Salesperson/Purchaser";
+    begin
+        if "Salesperson Code" = '' then
+            exit;
+
+        if not SalespersonPurchaser.Get("Salesperson Code") then
+            exit;
+
+        if SalespersonPurchaser.VerifySalesPersonPurchaserPrivacyBlocked(SalespersonPurchaser) then
+            Error(SalespersonPurchaser.GetPrivacyBlockedGenericText(SalespersonPurchaser, true))
     end;
 
     [IntegrationEvent(false, false)]

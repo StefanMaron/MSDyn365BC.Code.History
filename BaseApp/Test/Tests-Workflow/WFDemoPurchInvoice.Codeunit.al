@@ -43,11 +43,11 @@ codeunit 134185 "WF Demo Purch. Invoice"
         CreatePurchInvoice(PurchaseHeader);
 
         // Execute
-        LibraryLowerPermissions.SetPurchDocsPost;
+        LibraryLowerPermissions.SetPurchDocsPost();
         LibraryLowerPermissions.AddJournalsPost();
-        LibraryLowerPermissions.AddJobs;
+        LibraryLowerPermissions.AddJobs();
         LibraryPurchase.ReleasePurchaseDocument(PurchaseHeader);
-        LibraryLowerPermissions.SetO365Full;
+        LibraryLowerPermissions.SetO365Full();
 
         // Verify
         WorkflowStepInstanceArchive.SetRange("Workflow Code", Workflow.Code);
@@ -82,12 +82,12 @@ codeunit 134185 "WF Demo Purch. Invoice"
         Commit(); // need to commit to run posting preview later
 
         // Execute
-        LibraryLowerPermissions.SetPurchDocsPost;
-        LibraryLowerPermissions.AddJobs;
-        GLPostingPreview.Trap;
+        LibraryLowerPermissions.SetPurchDocsPost();
+        LibraryLowerPermissions.AddJobs();
+        GLPostingPreview.Trap();
         asserterror LibraryPurchase.PreviewPostPurchaseDocument(PurchaseHeader);
         GLPostingPreview.Close();
-        LibraryLowerPermissions.SetO365Full;
+        LibraryLowerPermissions.SetO365Full();
 
         // Verify
         Assert.AreEqual('', GetLastErrorText, 'Non blank error was thrown');
@@ -218,7 +218,7 @@ codeunit 134185 "WF Demo Purch. Invoice"
             exit;
 
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"WF Demo Purch. Invoice");
-        LibraryERMCountryData.InitializeCountry;
+        LibraryERMCountryData.InitializeCountry();
         LibraryERMCountryData.UpdateGeneralPostingSetup();
         LibraryERMCountryData.CreateVATData();
         LibraryERMCountryData.UpdatePurchasesPayablesSetup();
@@ -237,18 +237,18 @@ codeunit 134185 "WF Demo Purch. Invoice"
         WorkflowResponseHandling: Codeunit "Workflow Response Handling";
         WorkflowSetup: Codeunit "Workflow Setup";
     begin
-        LibraryWorkflow.CopyWorkflowTemplate(Workflow, WorkflowSetup.PurchaseInvoiceWorkflowCode);
+        LibraryWorkflow.CopyWorkflowTemplate(Workflow, WorkflowSetup.PurchaseInvoiceWorkflowCode());
 
         WorkflowStep.SetRange("Workflow Code", Workflow.Code);
-        WorkflowStep.SetRange("Function Name", WorkflowResponseHandling.PostDocumentAsyncCode);
+        WorkflowStep.SetRange("Function Name", WorkflowResponseHandling.PostDocumentAsyncCode());
         WorkflowStep.FindFirst();
-        WorkflowStep.Validate("Function Name", WorkflowResponseHandling.PostDocumentCode);
+        WorkflowStep.Validate("Function Name", WorkflowResponseHandling.PostDocumentCode());
         WorkflowStep.Modify(true);
 
         WorkflowStep.SetRange("Workflow Code", Workflow.Code);
-        WorkflowStep.SetRange("Function Name", WorkflowResponseHandling.CreatePmtLineForPostedPurchaseDocAsyncCode);
+        WorkflowStep.SetRange("Function Name", WorkflowResponseHandling.CreatePmtLineForPostedPurchaseDocAsyncCode());
         WorkflowStep.FindFirst();
-        WorkflowStep."Function Name" := WorkflowResponseHandling.CreatePmtLineForPostedPurchaseDocCode;
+        WorkflowStep."Function Name" := WorkflowResponseHandling.CreatePmtLineForPostedPurchaseDocCode();
         WorkflowStep.Modify(true);
         WorkflowStepArgument.Get(WorkflowStep.Argument);
 
@@ -259,7 +259,7 @@ codeunit 134185 "WF Demo Purch. Invoice"
         WorkflowStepArgument.Modify(true);
 
         WorkflowStep.SetRange("Workflow Code", Workflow.Code);
-        WorkflowStep.SetRange("Function Name", WorkflowResponseHandling.CreateNotificationEntryCode);
+        WorkflowStep.SetRange("Function Name", WorkflowResponseHandling.CreateNotificationEntryCode());
         WorkflowStep.FindFirst();
         WorkflowStepArgument.Get(WorkflowStep.Argument);
 

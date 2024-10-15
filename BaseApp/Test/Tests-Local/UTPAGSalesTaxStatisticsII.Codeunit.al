@@ -546,7 +546,7 @@ codeunit 141020 "UT PAG Sales Tax Statistics II"
         CustomerPostingGroup: Record "Customer Posting Group";
     begin
         CustomerPostingGroup.FindFirst();
-        Customer."No." := LibraryUTUtility.GetNewCode;
+        Customer."No." := LibraryUTUtility.GetNewCode();
         Customer."Customer Posting Group" := CustomerPostingGroup.Code;
         Customer.Insert();
         exit(Customer."No.")
@@ -556,7 +556,7 @@ codeunit 141020 "UT PAG Sales Tax Statistics II"
     var
         SalesCrMemoHeader: Record "Sales Cr.Memo Header";
     begin
-        SalesCrMemoHeader."No." := LibraryUTUtility.GetNewCode;
+        SalesCrMemoHeader."No." := LibraryUTUtility.GetNewCode();
         SalesCrMemoHeader."Tax Area Code" := TaxAreaCode;
         SalesCrMemoHeader.Insert();
 
@@ -575,12 +575,12 @@ codeunit 141020 "UT PAG Sales Tax Statistics II"
         SalesCrMemoLine.Insert();
     end;
 
-    local procedure CreateSalesDocument(var SalesLine: Record "Sales Line"; DocumentType: Option; TaxGroupCode: Code[20]; TaxAreaCode: Code[20]; TaxLiable: Boolean)
+    local procedure CreateSalesDocument(var SalesLine: Record "Sales Line"; DocumentType: Enum "Sales Document Type"; TaxGroupCode: Code[20]; TaxAreaCode: Code[20]; TaxLiable: Boolean)
     var
         SalesHeader: Record "Sales Header";
     begin
         SalesHeader."Document Type" := DocumentType;
-        SalesHeader."No." := LibraryUTUtility.GetNewCode;
+        SalesHeader."No." := LibraryUTUtility.GetNewCode();
         SalesHeader."Tax Area Code" := TaxAreaCode;
         SalesHeader.Insert();
 
@@ -602,7 +602,7 @@ codeunit 141020 "UT PAG Sales Tax Statistics II"
     var
         SalesInvoiceHeader: Record "Sales Invoice Header";
     begin
-        SalesInvoiceHeader."No." := LibraryUTUtility.GetNewCode;
+        SalesInvoiceHeader."No." := LibraryUTUtility.GetNewCode();
         SalesInvoiceHeader."Tax Area Code" := TaxAreaCode;
         SalesInvoiceHeader.Insert();
 
@@ -621,12 +621,12 @@ codeunit 141020 "UT PAG Sales Tax Statistics II"
         SalesInvoiceLine.Insert();
     end;
 
-    local procedure CreatePurchaseDocument(var PurchaseLine: Record "Purchase Line"; DocumentType: Option; TaxAreaCode: Code[20]; TaxGroupCode: Code[20]; TaxLiable: Boolean)
+    local procedure CreatePurchaseDocument(var PurchaseLine: Record "Purchase Line"; DocumentType: Enum "Purchase Document Type"; TaxAreaCode: Code[20]; TaxGroupCode: Code[20]; TaxLiable: Boolean)
     var
         PurchaseHeader: Record "Purchase Header";
     begin
         PurchaseHeader."Document Type" := DocumentType;
-        PurchaseHeader."No." := LibraryUTUtility.GetNewCode;
+        PurchaseHeader."No." := LibraryUTUtility.GetNewCode();
         PurchaseHeader."Tax Area Code" := TaxAreaCode;
         PurchaseHeader.Insert();
 
@@ -644,13 +644,13 @@ codeunit 141020 "UT PAG Sales Tax Statistics II"
         PurchaseLine.Insert();
     end;
 
-    local procedure CreateServiceDocument(var ServiceLine: Record "Service Line"; DocumentType: Option; TaxAreaCode: Code[20]; TaxGroupCode: Code[20]; TaxLiable: Boolean)
+    local procedure CreateServiceDocument(var ServiceLine: Record "Service Line"; DocumentType: Enum "Service Document Type"; TaxAreaCode: Code[20]; TaxGroupCode: Code[20]; TaxLiable: Boolean)
     var
         ServiceHeader: Record "Service Header";
     begin
         ServiceHeader."Document Type" := DocumentType;
-        ServiceHeader."No." := LibraryUTUtility.GetNewCode;
-        ServiceHeader."Customer No." := CreateCustomer;
+        ServiceHeader."No." := LibraryUTUtility.GetNewCode();
+        ServiceHeader."Customer No." := CreateCustomer();
         ServiceHeader."Bill-to Customer No." := ServiceHeader."Customer No.";
         ServiceHeader."Tax Area Code" := TaxAreaCode;
         ServiceHeader.Insert();
@@ -669,7 +669,7 @@ codeunit 141020 "UT PAG Sales Tax Statistics II"
     var
         TaxArea: Record "Tax Area";
     begin
-        TaxArea.Code := LibraryUTUtility.GetNewCode;
+        TaxArea.Code := LibraryUTUtility.GetNewCode();
         TaxArea.Insert();
         exit(TaxArea.Code);
     end;
@@ -678,7 +678,7 @@ codeunit 141020 "UT PAG Sales Tax Statistics II"
     var
         TaxAreaLine: Record "Tax Area Line";
     begin
-        TaxAreaLine."Tax Area" := CreateTaxArea;
+        TaxAreaLine."Tax Area" := CreateTaxArea();
         TaxAreaLine."Tax Jurisdiction Code" := TaxJurisdictionCode;
         TaxAreaLine.Insert();
         exit(TaxAreaLine."Tax Area");
@@ -686,8 +686,8 @@ codeunit 141020 "UT PAG Sales Tax Statistics II"
 
     local procedure CreateTaxDetail(var TaxDetail: Record "Tax Detail")
     begin
-        TaxDetail."Tax Jurisdiction Code" := CreateTaxJurisdiction;
-        TaxDetail."Tax Group Code" := CreateTaxGroup;
+        TaxDetail."Tax Jurisdiction Code" := CreateTaxJurisdiction();
+        TaxDetail."Tax Group Code" := CreateTaxGroup();
         TaxDetail."Tax Below Maximum" := LibraryRandom.RandDec(10, 2);
         TaxDetail.Insert();
     end;
@@ -696,7 +696,7 @@ codeunit 141020 "UT PAG Sales Tax Statistics II"
     var
         TaxGroup: Record "Tax Group";
     begin
-        TaxGroup.Code := LibraryUTUtility.GetNewCode10;
+        TaxGroup.Code := LibraryUTUtility.GetNewCode10();
         TaxGroup.Insert();
         exit(TaxGroup.Code);
     end;
@@ -705,7 +705,7 @@ codeunit 141020 "UT PAG Sales Tax Statistics II"
     var
         TaxJurisdiction: Record "Tax Jurisdiction";
     begin
-        TaxJurisdiction.Code := LibraryUTUtility.GetNewCode10;
+        TaxJurisdiction.Code := LibraryUTUtility.GetNewCode10();
         TaxJurisdiction.Insert();
         exit(TaxJurisdiction.Code);
     end;
@@ -714,9 +714,9 @@ codeunit 141020 "UT PAG Sales Tax Statistics II"
     var
         BlanketSalesOrder: TestPage "Blanket Sales Order";
     begin
-        BlanketSalesOrder.OpenEdit;
+        BlanketSalesOrder.OpenEdit();
         BlanketSalesOrder.FILTER.SetFilter("No.", No);
-        BlanketSalesOrder.Statistics.Invoke;  // Opens Handler - SalesInvoiceStatisticsPageHandler or SalesOrderStatsPageHandler.
+        BlanketSalesOrder.Statistics.Invoke();  // Opens Handler - SalesInvoiceStatisticsPageHandler or SalesOrderStatsPageHandler.
         BlanketSalesOrder.Close();
     end;
 
@@ -724,9 +724,9 @@ codeunit 141020 "UT PAG Sales Tax Statistics II"
     var
         SalesOrder: TestPage "Sales Order";
     begin
-        SalesOrder.OpenEdit;
+        SalesOrder.OpenEdit();
         SalesOrder.FILTER.SetFilter("No.", No);
-        SalesOrder.Statistics.Invoke;  // Opens Handler - SalesOrderStatisticsPageHandler and SalesOrderStatsPageHandler.
+        SalesOrder.Statistics.Invoke();  // Opens Handler - SalesOrderStatisticsPageHandler and SalesOrderStatsPageHandler.
         SalesOrder.Close();
     end;
 
@@ -734,9 +734,9 @@ codeunit 141020 "UT PAG Sales Tax Statistics II"
     var
         SalesQuote: TestPage "Sales Quote";
     begin
-        SalesQuote.OpenEdit;
+        SalesQuote.OpenEdit();
         SalesQuote.FILTER.SetFilter("No.", No);
-        SalesQuote.Statistics.Invoke;  // Opens Handler - SalesStatisticsQuotePageHandler or SalesStatsQuotePageHandler.
+        SalesQuote.Statistics.Invoke();  // Opens Handler - SalesStatisticsQuotePageHandler or SalesStatsQuotePageHandler.
         SalesQuote.Close();
     end;
 
@@ -744,9 +744,9 @@ codeunit 141020 "UT PAG Sales Tax Statistics II"
     var
         SalesReturnOrder: TestPage "Sales Return Order";
     begin
-        SalesReturnOrder.OpenEdit;
+        SalesReturnOrder.OpenEdit();
         SalesReturnOrder.FILTER.SetFilter("No.", No);
-        SalesReturnOrder.Statistics.Invoke;  // Opens Handler - SalesOrderStatsPageHandler and SalesOrderStatisticsPageHandler.
+        SalesReturnOrder.Statistics.Invoke();  // Opens Handler - SalesOrderStatsPageHandler and SalesOrderStatisticsPageHandler.
         SalesReturnOrder.Close();
     end;
 
@@ -754,9 +754,9 @@ codeunit 141020 "UT PAG Sales Tax Statistics II"
     var
         PostedSalesCreditMemo: TestPage "Posted Sales Credit Memo";
     begin
-        PostedSalesCreditMemo.OpenEdit;
+        PostedSalesCreditMemo.OpenEdit();
         PostedSalesCreditMemo.FILTER.SetFilter("No.", No);
-        PostedSalesCreditMemo.Statistics.Invoke;  // SalesCreditMemoStatisticsPageHandler or SalesCreditMemoStatsPageHandler.
+        PostedSalesCreditMemo.Statistics.Invoke();  // SalesCreditMemoStatisticsPageHandler or SalesCreditMemoStatsPageHandler.
         PostedSalesCreditMemo.Close();
     end;
 
@@ -764,9 +764,9 @@ codeunit 141020 "UT PAG Sales Tax Statistics II"
     var
         PostedSalesCreditMemos: TestPage "Posted Sales Credit Memos";
     begin
-        PostedSalesCreditMemos.OpenEdit;
+        PostedSalesCreditMemos.OpenEdit();
         PostedSalesCreditMemos.FILTER.SetFilter("No.", No);
-        PostedSalesCreditMemos.Statistics.Invoke;  // SalesCreditMemoStatisticsPageHandler or SalesCreditMemoStatsPageHandler.
+        PostedSalesCreditMemos.Statistics.Invoke();  // SalesCreditMemoStatisticsPageHandler or SalesCreditMemoStatsPageHandler.
         PostedSalesCreditMemos.Close();
     end;
 
@@ -774,9 +774,9 @@ codeunit 141020 "UT PAG Sales Tax Statistics II"
     var
         PostedSalesInvoice: TestPage "Posted Sales Invoice";
     begin
-        PostedSalesInvoice.OpenEdit;
+        PostedSalesInvoice.OpenEdit();
         PostedSalesInvoice.FILTER.SetFilter("No.", No);
-        PostedSalesInvoice.Statistics.Invoke;  // Opens Handler - SalesInvoiceStatisticsPageHandler or SalesOrderStatsPageHandler.
+        PostedSalesInvoice.Statistics.Invoke();  // Opens Handler - SalesInvoiceStatisticsPageHandler or SalesOrderStatsPageHandler.
         PostedSalesInvoice.Close();
     end;
 
@@ -784,9 +784,9 @@ codeunit 141020 "UT PAG Sales Tax Statistics II"
     var
         PostedSalesInvoices: TestPage "Posted Sales Invoices";
     begin
-        PostedSalesInvoices.OpenEdit;
+        PostedSalesInvoices.OpenEdit();
         PostedSalesInvoices.FILTER.SetFilter("No.", No);
-        PostedSalesInvoices.Statistics.Invoke;  // Opens Handler - SalesInvoiceStatisticsPageHandler or SalesOrderStatsPageHandler.
+        PostedSalesInvoices.Statistics.Invoke();  // Opens Handler - SalesInvoiceStatisticsPageHandler or SalesOrderStatsPageHandler.
         PostedSalesInvoices.Close();
     end;
 
@@ -794,9 +794,9 @@ codeunit 141020 "UT PAG Sales Tax Statistics II"
     var
         PurchaseOrder: TestPage "Purchase Order";
     begin
-        PurchaseOrder.OpenEdit;
+        PurchaseOrder.OpenEdit();
         PurchaseOrder.FILTER.SetFilter("No.", No);
-        PurchaseOrder.Statistics.Invoke;  // Opens Handler - PurchaseOrderStatsPageHandler and PurchaseOrderStatisticsPageHandler.
+        PurchaseOrder.Statistics.Invoke();  // Opens Handler - PurchaseOrderStatsPageHandler and PurchaseOrderStatisticsPageHandler.
         PurchaseOrder.Close();
     end;
 
@@ -804,9 +804,9 @@ codeunit 141020 "UT PAG Sales Tax Statistics II"
     var
         PurchaseReturnOrder: TestPage "Purchase Return Order";
     begin
-        PurchaseReturnOrder.OpenEdit;
+        PurchaseReturnOrder.OpenEdit();
         PurchaseReturnOrder.FILTER.SetFilter("No.", No);
-        PurchaseReturnOrder.Statistics.Invoke;  // Opens Handler - PurchaseOrderStatsPageHandler and PurchaseOrderStatisticsPageHandler.
+        PurchaseReturnOrder.Statistics.Invoke();  // Opens Handler - PurchaseOrderStatsPageHandler and PurchaseOrderStatisticsPageHandler.
         PurchaseReturnOrder.Close();
     end;
 
@@ -814,9 +814,9 @@ codeunit 141020 "UT PAG Sales Tax Statistics II"
     var
         ServiceOrder: TestPage "Service Order";
     begin
-        ServiceOrder.OpenEdit;
+        ServiceOrder.OpenEdit();
         ServiceOrder.FILTER.SetFilter("No.", No);
-        ServiceOrder.Statistics.Invoke;  // Opens Handler - ServiceOrderStatsPageHandler and ServiceOrderStatisticsPageHandlerPageHandler.
+        ServiceOrder.Statistics.Invoke();  // Opens Handler - ServiceOrderStatsPageHandler and ServiceOrderStatisticsPageHandlerPageHandler.
         ServiceOrder.Close();
     end;
 
@@ -838,32 +838,32 @@ codeunit 141020 "UT PAG Sales Tax Statistics II"
     [Scope('OnPrem')]
     procedure SalesOrderStatsPageHandler(var SalesOrderStats: TestPage "Sales Order Stats.")
     begin
-        VerifyTaxOnStatisticsPage(SalesOrderStats."VATAmount[2]".AsDEcimal, SalesOrderStats."TotalAmount2[1]".AsDEcimal);
-        SalesOrderStats.OK.Invoke;
+        VerifyTaxOnStatisticsPage(SalesOrderStats."VATAmount[2]".AsDecimal(), SalesOrderStats."TotalAmount2[1]".AsDecimal());
+        SalesOrderStats.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure SalesOrderStatisticsPageHandler(var SalesOrderStatistics: TestPage "Sales Order Statistics")
     begin
-        VerifyTaxOnStatisticsPage(SalesOrderStatistics.VATAmount.AsDEcimal, SalesOrderStatistics."TotalAmount2[1]".AsDEcimal);
-        SalesOrderStatistics.OK.Invoke;
+        VerifyTaxOnStatisticsPage(SalesOrderStatistics.VATAmount.AsDecimal(), SalesOrderStatistics."TotalAmount2[1]".AsDecimal());
+        SalesOrderStatistics.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure PurchaseOrderStatsPageHandler(var PurchaseOrderStats: TestPage "Purchase Order Stats.")
     begin
-        VerifyTaxOnStatisticsPage(PurchaseOrderStats."VATAmount[2]".AsDEcimal, PurchaseOrderStats."TotalAmount2[1]".AsDEcimal);
-        PurchaseOrderStats.OK.Invoke;
+        VerifyTaxOnStatisticsPage(PurchaseOrderStats."VATAmount[2]".AsDecimal(), PurchaseOrderStats."TotalAmount2[1]".AsDecimal());
+        PurchaseOrderStats.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure PurchaseOrderStatisticsPageHandler(var PurchaseOrderStatistics: TestPage "Purchase Order Statistics")
     begin
-        VerifyTaxOnStatisticsPage(PurchaseOrderStatistics."VATAmount[1]".AsDEcimal, PurchaseOrderStatistics.TotalInclVAT_General.AsDEcimal);
-        PurchaseOrderStatistics.OK.Invoke;
+        VerifyTaxOnStatisticsPage(PurchaseOrderStatistics."VATAmount[1]".AsDecimal(), PurchaseOrderStatistics.TotalInclVAT_General.AsDecimal());
+        PurchaseOrderStatistics.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -874,7 +874,7 @@ codeunit 141020 "UT PAG Sales Tax Statistics II"
     begin
         LibraryVariableStorage.Dequeue(TaxAmount);
         ServiceOrderStats."VATAmount[2]".AssertEquals(TaxAmount);
-        ServiceOrderStats.OK.Invoke;
+        ServiceOrderStats.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -885,7 +885,7 @@ codeunit 141020 "UT PAG Sales Tax Statistics II"
     begin
         LibraryVariableStorage.Dequeue(TaxAmount);
         ServiceOrderStatistics."VATAmount[2]".AssertEquals(TaxAmount);
-        ServiceOrderStatistics.OK.Invoke;
+        ServiceOrderStatistics.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -896,7 +896,7 @@ codeunit 141020 "UT PAG Sales Tax Statistics II"
     begin
         LibraryVariableStorage.Dequeue(VATAmount);
         SalesStatistics.VATAmount.AssertEquals(VATAmount);
-        SalesStatistics.OK.Invoke;
+        SalesStatistics.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -907,7 +907,7 @@ codeunit 141020 "UT PAG Sales Tax Statistics II"
     begin
         LibraryVariableStorage.Dequeue(TaxAmount);
         SalesStats.TaxAmount.AssertEquals(TaxAmount);
-        SalesStats.OK.Invoke;
+        SalesStats.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -918,7 +918,7 @@ codeunit 141020 "UT PAG Sales Tax Statistics II"
     begin
         LibraryVariableStorage.Dequeue(VATAmount);
         SalesInvoiceStatistics.Subform."VAT Amount".AssertEquals(VATAmount);
-        SalesInvoiceStatistics.OK.Invoke;
+        SalesInvoiceStatistics.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -929,7 +929,7 @@ codeunit 141020 "UT PAG Sales Tax Statistics II"
     begin
         LibraryVariableStorage.Dequeue(TaxAmount);
         SalesInvoiceStats.Subform."Tax Amount".AssertEquals(TaxAmount);
-        SalesInvoiceStats.OK.Invoke;
+        SalesInvoiceStats.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -940,7 +940,7 @@ codeunit 141020 "UT PAG Sales Tax Statistics II"
     begin
         LibraryVariableStorage.Dequeue(VATAmount);
         SalesCreditMemoStatistics.Subform."VAT Amount".AssertEquals(VATAmount);
-        SalesCreditMemoStatistics.OK.Invoke;
+        SalesCreditMemoStatistics.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -951,7 +951,7 @@ codeunit 141020 "UT PAG Sales Tax Statistics II"
     begin
         LibraryVariableStorage.Dequeue(TaxAmount);
         SalesCreditMemoStats.Subform."Tax Amount".AssertEquals(TaxAmount);
-        SalesCreditMemoStats.OK.Invoke;
+        SalesCreditMemoStats.OK().Invoke();
     end;
 }
 

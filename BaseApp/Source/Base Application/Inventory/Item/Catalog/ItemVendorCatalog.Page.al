@@ -70,7 +70,7 @@ page 114 "Item Vendor Catalog"
             {
                 Caption = '&Item Vendor';
                 Image = Item;
-#if not CLEAN21
+#if not CLEAN23
                 action("Purch. &Prices")
                 {
                     ApplicationArea = Planning;
@@ -142,7 +142,7 @@ page 114 "Item Vendor Catalog"
             {
                 Caption = 'Prices & Discounts', Comment = 'Generated from the PromotedActionCategories property index 3.';
 
-#if not CLEAN21
+#if not CLEAN23
                 actionref("Purch. &Prices_Promoted"; "Purch. &Prices")
                 {
                     ObsoleteState = Pending;

@@ -9,7 +9,13 @@ using System.Azure.Functions;
 using System.Azure.KeyVault;
 using System.Utilities;
 
-codeunit 10175 "EInvoice SaaS Communication" implements "EInvoice Communication"
+#if not CLEAN24
+#pragma warning disable AL0432
+codeunit 10175 "EInvoice SaaS Communication" implements "EInvoice Communication", "EInvoice Communication V2"
+#pragma warning restore AL0432
+#else
+codeunit 10175 "EInvoice SaaS Communication" implements "EInvoice Communication V2"
+#endif
 {
     Access = Internal;
 
@@ -27,7 +33,9 @@ codeunit 10175 "EInvoice SaaS Communication" implements "EInvoice Communication"
         RequestFailedMsg: label 'CFDI request failed with reason: %1, and error message: %2', Locked = true;
         SecretsMissingMsg: label 'CFDI Az Function secrets are  missing', Locked = true;
 
+#if not CLEAN24
     [NonDebuggable]
+    [Obsolete('Replaced by InvokeMethodWithCertificate with SecretText datatype for CertPassword parameter.', '24.0')]
     procedure InvokeMethodWithCertificate(Uri: Text; MethodName: Text; CertBase64: Text; CertPassword: Text): Text
     var
         JsonObj: JsonObject;
@@ -49,6 +57,7 @@ codeunit 10175 "EInvoice SaaS Communication" implements "EInvoice Communication"
     end;
 
     [NonDebuggable]
+    [Obsolete('Replaced by SignDataWithCertificate with SecretText datatype for CertPassword parameter.', '24.0')]
     procedure SignDataWithCertificate(OriginalString: Text; Cert: Text; CertPassword: Text): Text
     var
         SerializedText, Token : Text;
@@ -60,6 +69,49 @@ codeunit 10175 "EInvoice SaaS Communication" implements "EInvoice Communication"
         JsonObj.Add('data', OriginalString);
         JsonObj.Add('certificateString', Cert);
         JsonObj.Add('certificatePassword', CertPassword);
+        JsonObj.WriteTo(SerializedText);
+
+        Token := CommunicateWithAzureFunction('api/SignDataWithCertificate', SerializedText);
+        if JValue.ReadFrom(Token) then
+            exit(JValue.AsText())
+        else
+            exit(Token);
+    end;
+#endif
+
+    [NonDebuggable]
+    procedure InvokeMethodWithCertificate(Uri: Text; MethodName: Text; CertBase64: Text; CertPassword: SecretText): Text
+    var
+        JsonObj: JsonObject;
+        JValue: JsonValue;
+        SerializedText, Token : Text;
+    begin
+        JsonObj.Add('url', Uri);
+        JsonObj.Add('methodName', MethodName);
+        JsonObj.Add('parameters', Parameters);
+        CheckToDownloadSaaSRequest(JsonObj);
+
+        JsonObj.Add('certificateString', CertBase64);
+        JsonObj.Add('certificatePassword', CertPassword.Unwrap());
+        JsonObj.WriteTo(SerializedText);
+
+        Token := CommunicateWithAzureFunction('api/InvokeMethodWithCertificate', SerializedText);
+        JValue.ReadFrom(Token);
+        exit(JValue.AsText());
+    end;
+
+    [NonDebuggable]
+    procedure SignDataWithCertificate(OriginalString: Text; Cert: Text; CertPassword: SecretText): Text
+    var
+        SerializedText, Token : Text;
+        JValue: JsonValue;
+        JsonObj: JsonObject;
+    begin
+        ExportCertAsPFX(Cert, CertPassword);
+
+        JsonObj.Add('data', OriginalString);
+        JsonObj.Add('certificateString', Cert);
+        JsonObj.Add('certificatePassword', CertPassword.Unwrap());
         JsonObj.WriteTo(SerializedText);
 
         Token := CommunicateWithAzureFunction('api/SignDataWithCertificate', SerializedText);
@@ -133,16 +185,15 @@ codeunit 10175 "EInvoice SaaS Communication" implements "EInvoice Communication"
     end;
 
     [NonDebuggable]
-    local procedure ExportCertAsPFX(var CertBase64: Text; CertPassword: Text)
+    local procedure ExportCertAsPFX(var CertBase64: Text; CertPassword: SecretText)
     var
         X509Certificate2: DotNet X509Certificate2;
         X509Content: DotNet X509ContentType;
         X509KeyFlags: DotNet X509KeyStorageFlags;
         Convert: DotNet Convert;
-
     begin
-        X509Certificate2 := X509Certificate2.X509Certificate2(Convert.FromBase64String(CertBase64), CertPassword, X509KeyFlags.Exportable);
-        CertBase64 := Convert.ToBase64String(X509Certificate2.Export(X509Content.Pfx, CertPassword));
+        X509Certificate2 := X509Certificate2.X509Certificate2(Convert.FromBase64String(CertBase64), CertPassword.Unwrap(), X509KeyFlags.Exportable);
+        CertBase64 := Convert.ToBase64String(X509Certificate2.Export(X509Content.Pfx, CertPassword.Unwrap()));
     end;
 
     [NonDebuggable]

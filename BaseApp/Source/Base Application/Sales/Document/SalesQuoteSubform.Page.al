@@ -490,7 +490,7 @@ page 95 "Sales Quote Subform"
                 field("Work Type Code"; Rec."Work Type Code")
                 {
                     ApplicationArea = Jobs;
-                    ToolTip = 'Specifies which work type the resource applies to when the sale is related to a job.';
+                    ToolTip = 'Specifies which work type the resource applies to when the sale is related to a project.';
                     Visible = false;
                 }
                 field("Blanket Order No."; Rec."Blanket Order No.")
@@ -986,7 +986,7 @@ page 95 "Sales Quote Subform"
             {
                 Caption = 'F&unctions';
                 Image = "Action";
-#if not CLEAN21
+#if not CLEAN23
                 action("Get &Price")
                 {
                     AccessByPermission = TableData "Sales Price" = R;
@@ -1120,10 +1120,6 @@ page 95 "Sales Quote Subform"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Edit in Excel';
                     Image = Excel;
-                    Promoted = true;
-                    PromotedCategory = Category8;
-                    PromotedIsBig = true;
-                    PromotedOnly = true;
                     Visible = IsSaaSExcelAddinEnabled;
                     ToolTip = 'Send the data in the sub page to an Excel file for analysis or editing';
                     AccessByPermission = System "Allow Action Export To Excel" = X;
@@ -1544,7 +1540,7 @@ page 95 "Sales Quote Subform"
             Rec.Type := Rec.GetDefaultLineType();
     end;
 
-    [IntegrationEvent(TRUE, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnAfterNoOnAfterValidate(var SalesLine: Record "Sales Line"; xSalesLine: Record "Sales Line")
     begin
     end;

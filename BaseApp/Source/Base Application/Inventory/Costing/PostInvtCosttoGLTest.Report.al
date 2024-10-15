@@ -99,16 +99,14 @@ report 1003 "Post Invt. Cost to G/L - Test"
                 begin
                     ItemValueEntry.Get("Value Entry No.");
 
-                    with ItemValueEntry do begin
-                        if "Item Ledger Entry No." = 0 then begin
-                            TempCapValueEntry."Entry No." := "Entry No.";
-                            TempCapValueEntry."Order Type" := "Order Type";
-                            TempCapValueEntry."Order No." := "Order No.";
-                            TempCapValueEntry.Insert();
-                        end;
-                        if ("Item Ledger Entry No." = 0) or not Inventoriable then
-                            CurrReport.Skip();
+                    if ItemValueEntry."Item Ledger Entry No." = 0 then begin
+                        TempCapValueEntry."Entry No." := ItemValueEntry."Entry No.";
+                        TempCapValueEntry."Order Type" := ItemValueEntry."Order Type";
+                        TempCapValueEntry."Order No." := ItemValueEntry."Order No.";
+                        TempCapValueEntry.Insert();
                     end;
+                    if (ItemValueEntry."Item Ledger Entry No." = 0) or not ItemValueEntry.Inventoriable then
+                        CurrReport.Skip();
 
                     FillInvtPostToGLTestBuf(ItemValueEntry);
                 end;
@@ -252,53 +250,51 @@ report 1003 "Post Invt. Cost to G/L - Test"
                     WrongEntryTypeComb: Boolean;
                     TempErrorText: Text[250];
                 begin
-                    with TempInvtPostToGLTestBuf do begin
-                        if Number = 1 then
-                            Find('-')
-                        else
-                            Next();
+                    if Number = 1 then
+                        TempInvtPostToGLTestBuf.Find('-')
+                    else
+                        TempInvtPostToGLTestBuf.Next();
 
-                        AccName := '';
+                    AccName := '';
 
-                        if "Value Entry No." <> 0 then begin
-                            ItemValueEntry.Get("Value Entry No.");
-                            WrongEntryTypeComb := not CheckEntryCombination(ItemValueEntry);
-                        end else
-                            Clear(ItemValueEntry);
+                    if TempInvtPostToGLTestBuf."Value Entry No." <> 0 then begin
+                        ItemValueEntry.Get(TempInvtPostToGLTestBuf."Value Entry No.");
+                        WrongEntryTypeComb := not CheckEntryCombination(ItemValueEntry);
+                    end else
+                        Clear(ItemValueEntry);
 
-                        if CheckPostingSetup(TempInvtPostToGLTestBuf) and not WrongEntryTypeComb then begin
-                            if "Account No." = '' then
-                                if "Invt. Posting Group Code" <> '' then
-                                    AddError(
-                                      StrSubstNo(
-                                        Text012, GetAccountName(), InvtPostSetup.TableCaption(), "Location Code", "Invt. Posting Group Code"))
-                                else
-                                    AddError(
-                                      StrSubstNo(
-                                        Text012, GetAccountName(), GenPostSetup.TableCaption(), "Gen. Bus. Posting Group", "Gen. Prod. Posting Group"));
+                    if CheckPostingSetup(TempInvtPostToGLTestBuf) and not WrongEntryTypeComb then begin
+                        if TempInvtPostToGLTestBuf."Account No." = '' then
+                            if TempInvtPostToGLTestBuf."Invt. Posting Group Code" <> '' then
+                                AddError(
+                                  StrSubstNo(
+                                    Text012, GetAccountName(), InvtPostSetup.TableCaption(), TempInvtPostToGLTestBuf."Location Code", TempInvtPostToGLTestBuf."Invt. Posting Group Code"))
+                            else
+                                AddError(
+                                  StrSubstNo(
+                                    Text012, GetAccountName(), GenPostSetup.TableCaption(), TempInvtPostToGLTestBuf."Gen. Bus. Posting Group", TempInvtPostToGLTestBuf."Gen. Prod. Posting Group"));
 
-                            if not UserSetupManagement.TestAllowedPostingDate("Posting Date", TempErrorText) then
-                                AddError(TempErrorText);
+                        if not UserSetupManagement.TestAllowedPostingDate(TempInvtPostToGLTestBuf."Posting Date", TempErrorText) then
+                            AddError(TempErrorText);
 
-                            if "Account No." <> '' then
-                                CheckGLAcc(TempInvtPostToGLTestBuf);
+                        if TempInvtPostToGLTestBuf."Account No." <> '' then
+                            CheckGLAcc(TempInvtPostToGLTestBuf);
 
-                            if not DimMgt.CheckDimIDComb("Dimension Set ID") then
-                                AddError(DimMgt.GetDimCombErr());
+                        if not DimMgt.CheckDimIDComb(TempInvtPostToGLTestBuf."Dimension Set ID") then
+                            AddError(DimMgt.GetDimCombErr());
 
-                            TableID[1] := DimMgt.TypeToTableID1(0);
-                            No[1] := "Account No.";
-                            TableID[2] := DimMgt.TypeToTableID1(0);
-                            No[2] := '';
-                            TableID[3] := Database::Job;
-                            No[3] := '';
-                            TableID[4] := Database::"Salesperson/Purchaser";
-                            No[4] := '';
-                            TableID[5] := Database::Campaign;
-                            No[5] := '';
-                            if not DimMgt.CheckDimValuePosting(TableID, No, "Dimension Set ID") then
-                                AddError(DimMgt.GetDimValuePostingErr());
-                        end;
+                        TableID[1] := DimMgt.TypeToTableID1(0);
+                        No[1] := TempInvtPostToGLTestBuf."Account No.";
+                        TableID[2] := DimMgt.TypeToTableID1(0);
+                        No[2] := '';
+                        TableID[3] := Database::Job;
+                        No[3] := '';
+                        TableID[4] := Database::"Salesperson/Purchaser";
+                        No[4] := '';
+                        TableID[5] := Database::Campaign;
+                        No[5] := '';
+                        if not DimMgt.CheckDimValuePosting(TableID, No, TempInvtPostToGLTestBuf."Dimension Set ID") then
+                            AddError(DimMgt.GetDimValuePostingErr());
                     end;
 
                     if ShowOnlyWarnings and (ErrorCounter = 0) then
@@ -426,6 +422,8 @@ report 1003 "Post Invt. Cost to G/L - Test"
     }
 
     trigger OnPreReport()
+    var
+        NoSeries: Codeunit "No. Series";
     begin
         OnBeforePreReport(PostValueEntryToGL, ItemValueEntry);
 
@@ -436,11 +434,10 @@ report 1003 "Post Invt. Cost to G/L - Test"
             if GenJnlLineReq."Journal Batch Name" = '' then
                 Error(MissingJournalFieldErr, GenJnlLineReq.FieldCaption("Journal Batch Name"));
 
-            Clear(NoSeriesMgt);
             Clear(DocNo);
             GenJnlBatch.Get(GenJnlLineReq."Journal Template Name", GenJnlLineReq."Journal Batch Name");
             GenJnlBatch.TestField("No. Series");
-            DocNo := NoSeriesMgt.GetNextNo(GenJnlBatch."No. Series", 0D, true);
+            DocNo := NoSeries.GetNextNo(GenJnlBatch."No. Series", 0D);
         end;
 
         ValueEntryFilter := PostValueEntryToGL.GetFilters();
@@ -464,7 +461,6 @@ report 1003 "Post Invt. Cost to G/L - Test"
         GenPostSetup: Record "General Posting Setup";
         GenJnlBatch: Record "Gen. Journal Batch";
         GenJnlLineReq: Record "Gen. Journal Line";
-        NoSeriesMgt: Codeunit NoSeriesManagement;
         InvtPostToGL: Codeunit "Inventory Posting To G/L";
         PostMethod: Option "per Posting Group","per Entry";
         DocNo: Code[20];
@@ -505,18 +501,16 @@ report 1003 "Post Invt. Cost to G/L - Test"
     var
         SkipFillInvtPost: Boolean;
     begin
-        with ValueEntry do begin
-            SkipFillInvtPost := not InvtPostToGL.BufferInvtPosting(ValueEntry);
-            OnFillInvtPostToGLTestBufOnAfterCalcSkipFillInvtPost(ValueEntry, SkipFillInvtPost);
-            if SkipFillInvtPost then
-                exit;
+        SkipFillInvtPost := not InvtPostToGL.BufferInvtPosting(ValueEntry);
+        OnFillInvtPostToGLTestBufOnAfterCalcSkipFillInvtPost(ValueEntry, SkipFillInvtPost);
+        if SkipFillInvtPost then
+            exit;
 
-            if PostMethod = PostMethod::"per Entry" then begin
-                GLSetup.GetRecordOnce();
-                if GLSetup."Journal Templ. Name Mandatory" then
-                    InvtPostToGL.SetGenJnlBatch(GenJnlLineReq."Journal Template Name", GenJnlLineReq."Journal Batch Name");
-                InvtPostToGL.PostInvtPostBufPerEntry(ValueEntry);
-            end;
+        if PostMethod = PostMethod::"per Entry" then begin
+            GLSetup.GetRecordOnce();
+            if GLSetup."Journal Templ. Name Mandatory" then
+                InvtPostToGL.SetGenJnlBatch(GenJnlLineReq."Journal Template Name", GenJnlLineReq."Journal Batch Name");
+            InvtPostToGL.PostInvtPostBufPerEntry(ValueEntry);
         end;
     end;
 
@@ -528,43 +522,41 @@ report 1003 "Post Invt. Cost to G/L - Test"
 
     local procedure CheckEntryCombination(ValueEntry: Record "Value Entry"): Boolean
     begin
-        with ValueEntry do begin
-            if not ("Entry Type" in ["Entry Type"::"Direct Cost", "Entry Type"::Revaluation]) then begin
-                if "Expected Cost" then
-                    AddError(
-                      StrSubstNo(
-                        Text013, FieldCaption("Expected Cost"), FieldCaption("Entry Type")));
-                if ("Cost Amount (Expected)" <> 0) or ("Cost Amount (Expected) (ACY)" <> 0) then
-                    AddError(
-                      StrSubstNo(
-                        Text014, FieldCaption("Cost Amount (Expected)"), FieldCaption("Cost Amount (Expected) (ACY)"),
-                        FieldCaption("Entry Type")));
-            end;
-            case "Item Ledger Entry Type" of
-                "Item Ledger Entry Type"::Sale,
-              "Item Ledger Entry Type"::"Positive Adjmt.",
-              "Item Ledger Entry Type"::"Negative Adjmt.",
-              "Item Ledger Entry Type"::Transfer,
-              "Item Ledger Entry Type"::Consumption,
-              "Item Ledger Entry Type"::"Assembly Consumption":
-                    if "Entry Type" in ["Entry Type"::Variance, "Entry Type"::"Indirect Cost"] then begin
-                        ErrorNonValidCombination(ValueEntry);
-                        exit(false);
-                    end;
-                "Item Ledger Entry Type"::Output,
-              "Item Ledger Entry Type"::"Assembly Output":
-                    if ("Entry Type" = "Entry Type"::Variance) and
-                       ("Variance Type" in ["Variance Type"::" ", "Variance Type"::Purchase])
-                    then begin
-                        ErrorNonValidCombination(ValueEntry);
-                        exit(false);
-                    end;
-                "Item Ledger Entry Type"::" ":
-                    if not ("Entry Type" in ["Entry Type"::"Direct Cost", "Entry Type"::"Indirect Cost"]) then begin
-                        ErrorNonValidCombination(ValueEntry);
-                        exit(false);
-                    end;
-            end;
+        if not (ValueEntry."Entry Type" in [ValueEntry."Entry Type"::"Direct Cost", ValueEntry."Entry Type"::Revaluation]) then begin
+            if ValueEntry."Expected Cost" then
+                AddError(
+                  StrSubstNo(
+                    Text013, ValueEntry.FieldCaption("Expected Cost"), ValueEntry.FieldCaption("Entry Type")));
+            if (ValueEntry."Cost Amount (Expected)" <> 0) or (ValueEntry."Cost Amount (Expected) (ACY)" <> 0) then
+                AddError(
+                  StrSubstNo(
+                    Text014, ValueEntry.FieldCaption("Cost Amount (Expected)"), ValueEntry.FieldCaption("Cost Amount (Expected) (ACY)"),
+                    ValueEntry.FieldCaption("Entry Type")));
+        end;
+        case ValueEntry."Item Ledger Entry Type" of
+            ValueEntry."Item Ledger Entry Type"::Sale,
+          ValueEntry."Item Ledger Entry Type"::"Positive Adjmt.",
+          ValueEntry."Item Ledger Entry Type"::"Negative Adjmt.",
+          ValueEntry."Item Ledger Entry Type"::Transfer,
+          ValueEntry."Item Ledger Entry Type"::Consumption,
+          ValueEntry."Item Ledger Entry Type"::"Assembly Consumption":
+                if ValueEntry."Entry Type" in [ValueEntry."Entry Type"::Variance, ValueEntry."Entry Type"::"Indirect Cost"] then begin
+                    ErrorNonValidCombination(ValueEntry);
+                    exit(false);
+                end;
+            ValueEntry."Item Ledger Entry Type"::Output,
+          ValueEntry."Item Ledger Entry Type"::"Assembly Output":
+                if (ValueEntry."Entry Type" = ValueEntry."Entry Type"::Variance) and
+                   (ValueEntry."Variance Type" in [ValueEntry."Variance Type"::" ", ValueEntry."Variance Type"::Purchase])
+                then begin
+                    ErrorNonValidCombination(ValueEntry);
+                    exit(false);
+                end;
+            ValueEntry."Item Ledger Entry Type"::" ":
+                if not (ValueEntry."Entry Type" in [ValueEntry."Entry Type"::"Direct Cost", ValueEntry."Entry Type"::"Indirect Cost"]) then begin
+                    ErrorNonValidCombination(ValueEntry);
+                    exit(false);
+                end;
         end;
         exit(true);
     end;
@@ -578,36 +570,34 @@ report 1003 "Post Invt. Cost to G/L - Test"
         if IsHandled then
             exit;
 
-        with ValueEntry do
-            AddError(
+        AddError(
               StrSubstNo(
                 FieldCombinationErr,
-                FieldCaption("Item Ledger Entry Type"), "Item Ledger Entry Type",
-                FieldCaption("Entry Type"), "Entry Type",
-                FieldCaption("Expected Cost"), "Expected Cost"))
+                ValueEntry.FieldCaption("Item Ledger Entry Type"), ValueEntry."Item Ledger Entry Type",
+                ValueEntry.FieldCaption("Entry Type"), ValueEntry."Entry Type",
+                ValueEntry.FieldCaption("Expected Cost"), ValueEntry."Expected Cost"))
     end;
 
     local procedure CheckGLAcc(InvtPostToGLTestBuf: Record "Invt. Post to G/L Test Buffer")
     begin
-        with InvtPostToGLTestBuf do
-            if not GLAcc.Get("Account No.") then
+        if not GLAcc.Get(InvtPostToGLTestBuf."Account No.") then
+            AddError(
+              StrSubstNo(DoesNotExistErr, GLAcc.TableCaption(), InvtPostToGLTestBuf."Account No."))
+        else begin
+            AccName := GLAcc.Name;
+            if GLAcc.Blocked then
                 AddError(
-                  StrSubstNo(DoesNotExistErr, GLAcc.TableCaption(), "Account No."))
-            else begin
-                AccName := GLAcc.Name;
-                if GLAcc.Blocked then
-                    AddError(
-                      StrSubstNo(
-                        MustBeForErr,
-                        GLAcc.FieldCaption(Blocked), false, GLAcc.TableCaption(), "Account No."));
-                if GLAcc."Account Type" <> GLAcc."Account Type"::Posting then begin
-                    GLAcc."Account Type" := GLAcc."Account Type"::Posting;
-                    AddError(
-                      StrSubstNo(
-                        MustBeForErr,
-                        GLAcc.FieldCaption("Account Type"), GLAcc."Account Type", GLAcc.TableCaption(), "Account No."));
-                end;
+                  StrSubstNo(
+                    MustBeForErr,
+                    GLAcc.FieldCaption(Blocked), false, GLAcc.TableCaption(), InvtPostToGLTestBuf."Account No."));
+            if GLAcc."Account Type" <> GLAcc."Account Type"::Posting then begin
+                GLAcc."Account Type" := GLAcc."Account Type"::Posting;
+                AddError(
+                  StrSubstNo(
+                    MustBeForErr,
+                    GLAcc.FieldCaption("Account Type"), GLAcc."Account Type", GLAcc.TableCaption(), InvtPostToGLTestBuf."Account No."));
             end;
+        end;
     end;
 
     local procedure CheckPostingSetup(InvtPostToGLTestBuf: Record "Invt. Post to G/L Test Buffer") Result: Boolean
@@ -619,37 +609,36 @@ report 1003 "Post Invt. Cost to G/L - Test"
         if IsHandled then
             exit(Result);
 
-        with InvtPostToGLTestBuf do
-            if "Invt. Posting Group Code" <> '' then begin
-                if not InvtPostSetup.Get("Location Code", "Invt. Posting Group Code") then begin
-                    AddError(
-                      StrSubstNo(
-                        Text011,
-                        InvtPostSetup.TableCaption(),
-                        FieldCaption("Location Code"), "Location Code",
-                        FieldCaption("Invt. Posting Group Code"), "Invt. Posting Group Code"));
-                    exit(false);
-                end
-            end else begin
-                if not GenPostSetup.Get("Gen. Bus. Posting Group", "Gen. Prod. Posting Group") then begin
-                    AddError(
-                      StrSubstNo(
-                        Text011,
-                        GenPostSetup.TableCaption(),
-                        FieldCaption("Gen. Bus. Posting Group"), "Gen. Bus. Posting Group",
-                        FieldCaption("Gen. Prod. Posting Group"), "Gen. Prod. Posting Group"));
-                    exit(false);
-                end;
-                if GenPostSetup.Blocked then begin
-                    AddError(
-                      StrSubstNo(
-                        SetupBlockedErr,
-                        GenPostSetup.TableCaption(),
-                        FieldCaption("Gen. Bus. Posting Group"), "Gen. Bus. Posting Group",
-                        FieldCaption("Gen. Prod. Posting Group"), "Gen. Prod. Posting Group"));
-                    exit(false);
-                end;
+        if InvtPostToGLTestBuf."Invt. Posting Group Code" <> '' then begin
+            if not InvtPostSetup.Get(InvtPostToGLTestBuf."Location Code", InvtPostToGLTestBuf."Invt. Posting Group Code") then begin
+                AddError(
+                  StrSubstNo(
+                    Text011,
+                    InvtPostSetup.TableCaption(),
+                    InvtPostToGLTestBuf.FieldCaption("Location Code"), InvtPostToGLTestBuf."Location Code",
+                    InvtPostToGLTestBuf.FieldCaption("Invt. Posting Group Code"), InvtPostToGLTestBuf."Invt. Posting Group Code"));
+                exit(false);
+            end
+        end else begin
+            if not GenPostSetup.Get(InvtPostToGLTestBuf."Gen. Bus. Posting Group", InvtPostToGLTestBuf."Gen. Prod. Posting Group") then begin
+                AddError(
+                  StrSubstNo(
+                    Text011,
+                    GenPostSetup.TableCaption(),
+                    InvtPostToGLTestBuf.FieldCaption("Gen. Bus. Posting Group"), InvtPostToGLTestBuf."Gen. Bus. Posting Group",
+                    InvtPostToGLTestBuf.FieldCaption("Gen. Prod. Posting Group"), InvtPostToGLTestBuf."Gen. Prod. Posting Group"));
+                exit(false);
             end;
+            if GenPostSetup.Blocked then begin
+                AddError(
+                  StrSubstNo(
+                    SetupBlockedErr,
+                    GenPostSetup.TableCaption(),
+                    InvtPostToGLTestBuf.FieldCaption("Gen. Bus. Posting Group"), InvtPostToGLTestBuf."Gen. Bus. Posting Group",
+                    InvtPostToGLTestBuf.FieldCaption("Gen. Prod. Posting Group"), InvtPostToGLTestBuf."Gen. Prod. Posting Group"));
+                exit(false);
+            end;
+        end;
         exit(true);
     end;
 
@@ -658,45 +647,44 @@ report 1003 "Post Invt. Cost to G/L - Test"
         AccountName: Text[80];
         IsHandled: Boolean;
     begin
-        with TempInvtPostToGLTestBuf do
-            case "Inventory Account Type" of
-                "Inventory Account Type"::Inventory:
-                    exit(InvtPostSetup.FieldCaption("Inventory Account"));
-                "Inventory Account Type"::"Inventory (Interim)":
-                    exit(InvtPostSetup.FieldCaption("Inventory Account (Interim)"));
-                "Inventory Account Type"::"WIP Inventory":
-                    exit(InvtPostSetup.FieldCaption("WIP Account"));
-                "Inventory Account Type"::"Material Variance":
-                    exit(InvtPostSetup.FieldCaption("Material Variance Account"));
-                "Inventory Account Type"::"Capacity Variance":
-                    exit(InvtPostSetup.FieldCaption("Capacity Variance Account"));
-                "Inventory Account Type"::"Subcontracted Variance":
-                    exit(InvtPostSetup.FieldCaption("Subcontracted Variance Account"));
-                "Inventory Account Type"::"Cap. Overhead Variance":
-                    exit(InvtPostSetup.FieldCaption("Cap. Overhead Variance Account"));
-                "Inventory Account Type"::"Mfg. Overhead Variance":
-                    exit(InvtPostSetup.FieldCaption("Mfg. Overhead Variance Account"));
-                "Inventory Account Type"::"Inventory Adjmt.":
-                    exit(GenPostSetup.FieldCaption("Inventory Adjmt. Account"));
-                "Inventory Account Type"::"Direct Cost Applied":
-                    exit(GenPostSetup.FieldCaption("Direct Cost Applied Account"));
-                "Inventory Account Type"::"Overhead Applied":
-                    exit(GenPostSetup.FieldCaption("Overhead Applied Account"));
-                "Inventory Account Type"::"Purchase Variance":
-                    exit(GenPostSetup.FieldCaption("Purchase Variance Account"));
-                "Inventory Account Type"::COGS:
-                    exit(GenPostSetup.FieldCaption("COGS Account"));
-                "Inventory Account Type"::"COGS (Interim)":
-                    exit(GenPostSetup.FieldCaption("COGS Account (Interim)"));
-                "Inventory Account Type"::"Invt. Accrual (Interim)":
-                    exit(GenPostSetup.FieldCaption("Invt. Accrual Acc. (Interim)"));
-                else begin
-                    IsHandled := false;
-                    OnGetAccountNameInventoryAccountTypeCase(TempInvtPostToGLTestBuf, AccountName, IsHandled, InvtPostSetup, GenPostSetup);
-                    if IsHandled then
-                        exit(AccountName);
-                end;
+        case TempInvtPostToGLTestBuf."Inventory Account Type" of
+            TempInvtPostToGLTestBuf."Inventory Account Type"::Inventory:
+                exit(InvtPostSetup.FieldCaption("Inventory Account"));
+            TempInvtPostToGLTestBuf."Inventory Account Type"::"Inventory (Interim)":
+                exit(InvtPostSetup.FieldCaption("Inventory Account (Interim)"));
+            TempInvtPostToGLTestBuf."Inventory Account Type"::"WIP Inventory":
+                exit(InvtPostSetup.FieldCaption("WIP Account"));
+            TempInvtPostToGLTestBuf."Inventory Account Type"::"Material Variance":
+                exit(InvtPostSetup.FieldCaption("Material Variance Account"));
+            TempInvtPostToGLTestBuf."Inventory Account Type"::"Capacity Variance":
+                exit(InvtPostSetup.FieldCaption("Capacity Variance Account"));
+            TempInvtPostToGLTestBuf."Inventory Account Type"::"Subcontracted Variance":
+                exit(InvtPostSetup.FieldCaption("Subcontracted Variance Account"));
+            TempInvtPostToGLTestBuf."Inventory Account Type"::"Cap. Overhead Variance":
+                exit(InvtPostSetup.FieldCaption("Cap. Overhead Variance Account"));
+            TempInvtPostToGLTestBuf."Inventory Account Type"::"Mfg. Overhead Variance":
+                exit(InvtPostSetup.FieldCaption("Mfg. Overhead Variance Account"));
+            TempInvtPostToGLTestBuf."Inventory Account Type"::"Inventory Adjmt.":
+                exit(GenPostSetup.FieldCaption("Inventory Adjmt. Account"));
+            TempInvtPostToGLTestBuf."Inventory Account Type"::"Direct Cost Applied":
+                exit(GenPostSetup.FieldCaption("Direct Cost Applied Account"));
+            TempInvtPostToGLTestBuf."Inventory Account Type"::"Overhead Applied":
+                exit(GenPostSetup.FieldCaption("Overhead Applied Account"));
+            TempInvtPostToGLTestBuf."Inventory Account Type"::"Purchase Variance":
+                exit(GenPostSetup.FieldCaption("Purchase Variance Account"));
+            TempInvtPostToGLTestBuf."Inventory Account Type"::COGS:
+                exit(GenPostSetup.FieldCaption("COGS Account"));
+            TempInvtPostToGLTestBuf."Inventory Account Type"::"COGS (Interim)":
+                exit(GenPostSetup.FieldCaption("COGS Account (Interim)"));
+            TempInvtPostToGLTestBuf."Inventory Account Type"::"Invt. Accrual (Interim)":
+                exit(GenPostSetup.FieldCaption("Invt. Accrual Acc. (Interim)"));
+            else begin
+                IsHandled := false;
+                OnGetAccountNameInventoryAccountTypeCase(TempInvtPostToGLTestBuf, AccountName, IsHandled, InvtPostSetup, GenPostSetup);
+                if IsHandled then
+                    exit(AccountName);
             end;
+        end;
 
         OnAfterGetAccountName(TempInvtPostToGLTestBuf, InvtPostSetup, GenPostSetup, AccountName);
         exit(AccountName);

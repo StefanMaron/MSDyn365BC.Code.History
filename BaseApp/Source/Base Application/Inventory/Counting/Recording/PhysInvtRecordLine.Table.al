@@ -5,6 +5,7 @@ using Microsoft.HumanResources.Employee;
 using Microsoft.Inventory.Counting.Document;
 using Microsoft.Inventory.Counting.Tracking;
 using Microsoft.Inventory.Item;
+using Microsoft.Inventory.Tracking;
 using Microsoft.Inventory.Item.Catalog;
 using Microsoft.Inventory.Ledger;
 using Microsoft.Inventory.Location;
@@ -17,37 +18,44 @@ table 5878 "Phys. Invt. Record Line"
     Caption = 'Phys. Invt. Record Line';
     DrillDownPageID = "Phys. Invt. Recording Lines";
     LookupPageID = "Phys. Invt. Recording Lines";
+    DataClassification = CustomerContent;
 
     fields
     {
         field(1; "Order No."; Code[20])
         {
             Caption = 'Order No.';
+            DataClassification = SystemMetadata;
             TableRelation = "Phys. Invt. Record Header";
         }
         field(2; "Recording No."; Integer)
         {
             Caption = 'Recording No.';
+            DataClassification = SystemMetadata;
             TableRelation = "Phys. Invt. Record Header"."Recording No." where("Order No." = field("Order No."));
         }
         field(3; "Line No."; Integer)
         {
             Caption = 'Line No.';
+            DataClassification = SystemMetadata;
         }
         field(16; "Order Line No."; Integer)
         {
             Caption = 'Order Line No.';
+            DataClassification = SystemMetadata;
             Editable = false;
             TableRelation = "Phys. Invt. Order Line"."Line No." where("Document No." = field("Order No."));
         }
         field(17; "Recorded Without Order"; Boolean)
         {
             Caption = 'Recorded Without Order';
+            DataClassification = SystemMetadata;
             Editable = false;
         }
         field(20; "Item No."; Code[20])
         {
             Caption = 'Item No.';
+            DataClassification = SystemMetadata;
             TableRelation = Item;
 
             trigger OnValidate()
@@ -74,7 +82,7 @@ table 5878 "Phys. Invt. Record Line"
 
                 IsHandled := false;
                 OnValidateItemNoOnBeforeTestfieldBlocked(Rec, Item, IsHandled);
-                If not IsHandled then
+                if not IsHandled then
                     Item.TestField(Blocked, false);
 
                 Validate(Description, Item.Description);
@@ -101,6 +109,7 @@ table 5878 "Phys. Invt. Record Line"
         field(21; "Variant Code"; Code[10])
         {
             Caption = 'Variant Code';
+            DataClassification = SystemMetadata;
             TableRelation = "Item Variant".Code where("Item No." = field("Item No."));
 
             trigger OnValidate()
@@ -117,7 +126,7 @@ table 5878 "Phys. Invt. Record Line"
 
                 IsHandled := false;
                 OnValidateVariantCodeOnBeforeTestFieldBlocked(Rec, ItemVariant, IsHandled);
-                If not IsHandled then
+                if not IsHandled then
                     ItemVariant.TestField(Blocked, false);
 
                 Description := ItemVariant.Description;
@@ -128,6 +137,7 @@ table 5878 "Phys. Invt. Record Line"
         field(22; "Location Code"; Code[10])
         {
             Caption = 'Location Code';
+            DataClassification = SystemMetadata;
             TableRelation = Location;
 
             trigger OnValidate()
@@ -138,6 +148,7 @@ table 5878 "Phys. Invt. Record Line"
         field(23; "Bin Code"; Code[20])
         {
             Caption = 'Bin Code';
+            DataClassification = SystemMetadata;
             TableRelation = Bin.Code where("Location Code" = field("Location Code"));
 
             trigger OnValidate()
@@ -160,18 +171,22 @@ table 5878 "Phys. Invt. Record Line"
         field(30; Description; Text[100])
         {
             Caption = 'Description';
+            DataClassification = SystemMetadata;
         }
         field(31; "Description 2"; Text[50])
         {
             Caption = 'Description 2';
+            DataClassification = SystemMetadata;
         }
         field(32; "Unit of Measure"; Text[50])
         {
             Caption = 'Unit of Measure';
+            DataClassification = SystemMetadata;
         }
         field(33; "Qty. Rounding Precision"; Decimal)
         {
             Caption = 'Qty. Rounding Precision';
+            DataClassification = SystemMetadata;
             InitValue = 0;
             DecimalPlaces = 0 : 5;
             MinValue = 0;
@@ -181,6 +196,7 @@ table 5878 "Phys. Invt. Record Line"
         field(34; "Qty. Rounding Precision (Base)"; Decimal)
         {
             Caption = 'Qty. Rounding Precision (Base)';
+            DataClassification = SystemMetadata;
             InitValue = 0;
             DecimalPlaces = 0 : 5;
             MinValue = 0;
@@ -190,6 +206,7 @@ table 5878 "Phys. Invt. Record Line"
         field(40; "Unit of Measure Code"; Code[10])
         {
             Caption = 'Unit of Measure Code';
+            DataClassification = SystemMetadata;
             TableRelation = "Item Unit of Measure".Code where("Item No." = field("Item No."));
 
             trigger OnValidate()
@@ -205,6 +222,7 @@ table 5878 "Phys. Invt. Record Line"
         field(41; Quantity; Decimal)
         {
             Caption = 'Quantity';
+            DataClassification = SystemMetadata;
             DecimalPlaces = 0 : 5;
 
             trigger OnValidate()
@@ -223,8 +241,7 @@ table 5878 "Phys. Invt. Record Line"
                 "Quantity (Base)" := UOMMgt.CalcBaseQty(
                     "Item No.", "Variant Code", "Unit of Measure Code", Quantity,
                     "Qty. per Unit of Measure", "Qty. Rounding Precision (Base)",
-                    FieldCaption("Qty. Rounding Precision"), FieldCaption(Quantity), FieldCaption("Quantity (Base)")
-                );
+                    FieldCaption("Qty. Rounding Precision"), FieldCaption(Quantity), FieldCaption("Quantity (Base)"));
 
                 CheckSerialNo();
                 Recorded := true;
@@ -236,6 +253,7 @@ table 5878 "Phys. Invt. Record Line"
         field(42; "Quantity (Base)"; Decimal)
         {
             Caption = 'Quantity (Base)';
+            DataClassification = SystemMetadata;
             DecimalPlaces = 0 : 5;
 
             trigger OnValidate()
@@ -247,6 +265,7 @@ table 5878 "Phys. Invt. Record Line"
         field(43; "Qty. per Unit of Measure"; Decimal)
         {
             Caption = 'Qty. per Unit of Measure';
+            DataClassification = SystemMetadata;
             DecimalPlaces = 0 : 5;
             Editable = false;
             InitValue = 1;
@@ -254,27 +273,33 @@ table 5878 "Phys. Invt. Record Line"
         field(45; Recorded; Boolean)
         {
             Caption = 'Recorded';
+            DataClassification = SystemMetadata;
         }
         field(53; "Use Item Tracking"; Boolean)
         {
             Caption = 'Use Item Tracking';
+            DataClassification = SystemMetadata;
             Editable = false;
         }
         field(99; "Shelf No."; Code[10])
         {
             Caption = 'Shelf No.';
+            DataClassification = SystemMetadata;
         }
         field(100; "Date Recorded"; Date)
         {
             Caption = 'Date Recorded';
+            DataClassification = SystemMetadata;
         }
         field(101; "Time Recorded"; Time)
         {
             Caption = 'Time Recorded';
+            DataClassification = SystemMetadata;
         }
         field(102; "Person Recorded"; Code[20])
         {
             Caption = 'Person Recorded';
+            DataClassification = SystemMetadata;
             TableRelation = Employee;
             ValidateTableRelation = false;
         }
@@ -287,6 +312,7 @@ table 5878 "Phys. Invt. Record Line"
         field(130; "Serial No."; Code[50])
         {
             Caption = 'Serial No.';
+            DataClassification = SystemMetadata;
 
             trigger OnLookup()
             begin
@@ -303,6 +329,17 @@ table 5878 "Phys. Invt. Record Line"
         field(131; "Lot No."; Code[50])
         {
             Caption = 'Lot No.';
+            DataClassification = SystemMetadata;
+
+            trigger OnLookup()
+            begin
+                ShowUsedTrackLines();
+            end;
+        }
+        field(132; "Package No."; Code[50])
+        {
+            Caption = 'Package No.';
+            DataClassification = SystemMetadata;
 
             trigger OnLookup()
             begin
@@ -312,6 +349,7 @@ table 5878 "Phys. Invt. Record Line"
         field(5725; "Item Reference No."; Code[50])
         {
             AccessByPermission = TableData "Item Reference" = R;
+            DataClassification = SystemMetadata;
             Caption = 'Item Reference No.';
 
             trigger OnLookup()
@@ -330,15 +368,18 @@ table 5878 "Phys. Invt. Record Line"
         {
             AccessByPermission = TableData "Item Reference" = R;
             Caption = 'Reference Unit of Measure';
+            DataClassification = SystemMetadata;
             TableRelation = "Item Unit of Measure".Code where("Item No." = field("Item No."));
         }
         field(5727; "Item Reference Type"; Enum "Item Reference Type")
         {
             Caption = 'Item Reference Type';
+            DataClassification = SystemMetadata;
         }
         field(5728; "Item Reference Type No."; Code[30])
         {
             Caption = 'Item Reference Type No.';
+            DataClassification = SystemMetadata;
         }
     }
 
@@ -439,9 +480,16 @@ table 5878 "Phys. Invt. Record Line"
     var
         PhysInvtOrderHeader: Record "Phys. Invt. Order Header";
         ItemLedgEntry: Record "Item Ledger Entry";
+        ItemTrackingSetup: Record "Item Tracking Setup";
         WhseEntry: Record "Warehouse Entry";
+#if not CLEAN24
         TempPhysInvtTracking: Record "Phys. Invt. Tracking" temporary;
+#endif
+        TempInvtOrderTracking: Record "Invt. Order Tracking" temporary;
+#if not CLEAN24
         PhysInvtTrackingLines: Page "Phys. Invt. Tracking Lines";
+#endif
+        InvtOrderTrackingLines: Page "Invt. Order Tracking Lines";
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -451,9 +499,17 @@ table 5878 "Phys. Invt. Record Line"
 
         GetItem();
 
-        TempPhysInvtTracking.Reset();
-        TempPhysInvtTracking.DeleteAll();
-
+#if not CLEAN24
+        if not PhysInvtTrackingMgt.IsPackageTrackingEnabled() then begin
+            TempPhysInvtTracking.Reset();
+            TempPhysInvtTracking.DeleteAll();
+        end else begin
+#endif
+            TempInvtOrderTracking.Reset();
+            TempInvtOrderTracking.DeleteAll();
+#if not CLEAN24
+        end;
+#endif
         PhysInvtOrderHeader.Get("Order No.");
 
         if PhysInvtTrackingMgt.LocationIsBinMandatory("Location Code") and
@@ -470,33 +526,76 @@ table 5878 "Phys. Invt. Record Line"
             if WhseEntry.Find('-') then
                 repeat
                     OnBeforeInsertTrackingBufferLocationIsBinMandatory(WhseEntry, Rec);
-                    InsertTrackingBuffer(
-                      TempPhysInvtTracking, WhseEntry."Serial No.", WhseEntry."Lot No.", WhseEntry."Qty. (Base)");
-                    OnShowUsedTrackLinesOnAfterInsertFromWhseEntry(TempPhysInvtTracking, WhseEntry);
+#if not CLEAN24
+                    if not PhysInvtTrackingMgt.IsPackageTrackingEnabled() then begin
+                        InsertTrackingBuffer(TempPhysInvtTracking, WhseEntry."Serial No.", WhseEntry."Lot No.", WhseEntry."Qty. (Base)");
+                        OnShowUsedTrackLinesOnAfterInsertFromWhseEntry(TempPhysInvtTracking, WhseEntry);
+                    end else begin
+#endif
+                        ItemTrackingSetup.CopyTrackingFromWhseEntry(WhseEntry);
+                        InsertTrackingBuffer(TempInvtOrderTracking, ItemTrackingSetup, WhseEntry."Expiration Date", WhseEntry."Qty. (Base)");
+                        OnShowUsedTrackLinesOnAfterInsertFromWhseEntry2(TempInvtOrderTracking, WhseEntry);
+#if not CLEAN24
+                    end;
+#endif
                 until WhseEntry.Next() = 0;
         end else begin
             ItemLedgEntry.SetItemVariantLocationFilters(
               "Item No.", "Variant Code", "Location Code", PhysInvtOrderHeader."Posting Date");
-            OnShowUsedTrackLinesSetItemLedgerEntryFilters(ItemLedgEntry, Rec, TempPhysInvtTracking);
+#if not CLEAN24
+            if not PhysInvtTrackingMgt.IsPackageTrackingEnabled() then
+                OnShowUsedTrackLinesSetItemLedgerEntryFilters(ItemLedgEntry, Rec, TempPhysInvtTracking)
+            else
+#endif
+            OnShowUsedTrackLinesSetItemLedgerEntryFilters2(ItemLedgEntry, Rec);
             if ItemLedgEntry.Find('-') then
                 repeat
-                    InsertTrackingBuffer(
-                      TempPhysInvtTracking, ItemLedgEntry."Serial No.", ItemLedgEntry."Lot No.", ItemLedgEntry.Quantity);
-                    OnShowUsedTrackLinesOnAfterInsertFromItemLedgEntry(TempPhysInvtTracking, ItemLedgEntry);
+#if not CLEAN24
+                    if not PhysInvtTrackingMgt.IsPackageTrackingEnabled() then begin
+                        InsertTrackingBuffer(TempPhysInvtTracking, ItemLedgEntry."Serial No.", ItemLedgEntry."Lot No.", ItemLedgEntry.Quantity);
+                        OnShowUsedTrackLinesOnAfterInsertFromItemLedgEntry(TempPhysInvtTracking, ItemLedgEntry);
+                    end else begin
+#endif
+                        ItemTrackingSetup.CopyTrackingFromItemLedgerEntry(ItemLedgEntry);
+                        InsertTrackingBuffer(TempInvtOrderTracking, ItemTrackingSetup, ItemLedgEntry."Expiration Date", ItemLedgEntry.Quantity);
+                        OnShowUsedTrackLinesOnAfterInsertFromItemLedgEntry2(TempInvtOrderTracking, ItemLedgEntry);
+#if not CLEAN24
+                    end;
+#endif
                 until ItemLedgEntry.Next() = 0;
         end;
 
-        if TempPhysInvtTracking.FindFirst() then begin
-            PhysInvtTrackingLines.SetRecord(TempPhysInvtTracking);
-            PhysInvtTrackingLines.SetSources(TempPhysInvtTracking);
-            PhysInvtTrackingLines.LookupMode(true);
-            if PhysInvtTrackingLines.RunModal() = ACTION::LookupOK then begin
-                PhysInvtTrackingLines.GetRecord(TempPhysInvtTracking);
-                Validate("Serial No.", TempPhysInvtTracking."Serial No.");
-                Validate("Lot No.", TempPhysInvtTracking."Lot No");
-                OnShowUsedTrackLinesOnAfterLookupOK(Rec, TempPhysInvtTracking);
+#if not CLEAN24
+        if not PhysInvtTrackingMgt.IsPackageTrackingEnabled() then
+            if TempPhysInvtTracking.FindFirst() then begin
+                PhysInvtTrackingLines.SetRecord(TempPhysInvtTracking);
+                PhysInvtTrackingLines.SetSources(TempPhysInvtTracking);
+                PhysInvtTrackingLines.LookupMode(true);
+                if PhysInvtTrackingLines.RunModal() = ACTION::LookupOK then begin
+                    PhysInvtTrackingLines.GetRecord(TempPhysInvtTracking);
+                    Validate("Serial No.", TempPhysInvtTracking."Serial No.");
+                    Validate("Lot No.", TempPhysInvtTracking."Lot No");
+                    OnShowUsedTrackLinesOnAfterLookupOK(Rec, TempPhysInvtTracking);
+                end;
             end;
-        end;
+#endif
+
+#if not CLEAN24
+        if PhysInvtTrackingMgt.IsPackageTrackingEnabled() then
+#endif
+            if TempInvtOrderTracking.FindFirst() then begin
+                Clear(InvtOrderTrackingLines);
+                InvtOrderTrackingLines.SetRecord(TempInvtOrderTracking);
+                InvtOrderTrackingLines.SetSources(TempInvtOrderTracking);
+                InvtOrderTrackingLines.LookupMode(true);
+                if InvtOrderTrackingLines.RunModal() = ACTION::LookupOK then begin
+                    InvtOrderTrackingLines.GetRecord(TempInvtOrderTracking);
+                    Validate("Serial No.", TempInvtOrderTracking."Serial No.");
+                    Validate("Lot No.", TempInvtOrderTracking."Lot No.");
+                    Validate("Package No.", TempInvtOrderTracking."Package No.");
+                    OnShowUsedTrackLinesOnAfterLookupOK2(Rec, TempInvtOrderTracking);
+                end;
+            end;
     end;
 
     procedure CheckSerialNo()
@@ -516,6 +615,7 @@ table 5878 "Phys. Invt. Record Line"
             until PhysInvtRecordLine.Next() = 0;
     end;
 
+#if not CLEAN24
     local procedure InsertTrackingBuffer(var TempPhysInvtTracking: Record "Phys. Invt. Tracking" temporary; SerialNo: Code[50]; LotNo: Code[50]; QtyBase: Decimal)
     begin
         if (SerialNo <> '') or (LotNo <> '') then begin
@@ -527,6 +627,23 @@ table 5878 "Phys. Invt. Record Line"
             end;
             TempPhysInvtTracking."Qty. Expected (Base)" += QtyBase;
             TempPhysInvtTracking.Modify();
+        end;
+    end;
+#endif
+
+    local procedure InsertTrackingBuffer(var TempInvtOrderTracking: Record "Invt. Order Tracking" temporary; ItemTrackingSetup: Record "Item Tracking Setup"; ExpirationDate: Date; QtyBase: Decimal)
+    begin
+        if ItemTrackingSetup.TrackingExists() then begin
+            if not TempInvtOrderTracking.Get(ItemTrackingSetup."Serial No.", ItemTrackingSetup."Lot No.", ItemTrackingSetup."Package No.") then begin
+                TempInvtOrderTracking.Init();
+                TempInvtOrderTracking."Serial No." := ItemTrackingSetup."Serial No.";
+                TempInvtOrderTracking."Lot No." := ItemTrackingSetup."Lot No.";
+                TempInvtOrderTracking."Package No." := ItemTrackingSetup."Package No.";
+                TempInvtOrderTracking."Expiration Date" := ExpirationDate;
+                TempInvtOrderTracking.Insert();
+            end;
+            TempInvtOrderTracking."Qty. Expected (Base)" += QtyBase;
+            TempInvtOrderTracking.Modify();
         end;
     end;
 
@@ -547,6 +664,11 @@ table 5878 "Phys. Invt. Record Line"
             CalculationDate := WorkDate();
     end;
 
+    procedure TrackingExists() IsTrackingExist: Boolean
+    begin
+        IsTrackingExist := ("Serial No." <> '') or ("Lot No." <> '') or ("Package No." <> '');
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnBeforeInsertTrackingBufferLocationIsBinMandatory(var WarehouseEntry: Record "Warehouse Entry"; PhysInvtRecordLine: Record "Phys. Invt. Record Line")
     begin
@@ -557,23 +679,55 @@ table 5878 "Phys. Invt. Record Line"
     begin
     end;
 
+#if not CLEAN24
     [IntegrationEvent(false, false)]
+    [Obsolete('Replaced by event OnShowUsedTrackLinesOnAfterInsertFromItemLedgEntry2', '24.0')]
     local procedure OnShowUsedTrackLinesOnAfterInsertFromItemLedgEntry(var TempPhysInvtTracking: Record "Phys. Invt. Tracking" temporary; ItemLedgerEntry: Record "Item Ledger Entry")
     begin
     end;
+#endif
 
+    [IntegrationEvent(false, false)]
+    local procedure OnShowUsedTrackLinesOnAfterInsertFromItemLedgEntry2(var TempInvtOrderTracking: Record "Invt. Order Tracking" temporary; ItemLedgerEntry: Record "Item Ledger Entry")
+    begin
+    end;
+
+#if not CLEAN24
+    [Obsolete('Replaced by event OnShowUsedTrackLinesOnAfterInsertFromWhseEntry2', '24.0')]
     [IntegrationEvent(false, false)]
     local procedure OnShowUsedTrackLinesOnAfterInsertFromWhseEntry(var TempPhysInvtTracking: Record "Phys. Invt. Tracking" temporary; WarehouseEntry: Record "Warehouse Entry")
     begin
     end;
+#endif
 
+    [IntegrationEvent(false, false)]
+    local procedure OnShowUsedTrackLinesOnAfterInsertFromWhseEntry2(var TempInvtOrderTracking: Record "Invt. Order Tracking" temporary; WarehouseEntry: Record "Warehouse Entry")
+    begin
+    end;
+
+#if not CLEAN24
+    [Obsolete('Replaced by event OnShowUsedTrackLinesOnAfterLookupOK2', '24.0')]
     [IntegrationEvent(false, false)]
     local procedure OnShowUsedTrackLinesOnAfterLookupOK(var PhysInvtRecordLine: Record "Phys. Invt. Record Line"; var TempPhysInvtTracking: Record "Phys. Invt. Tracking" temporary)
     begin
     end;
+#endif
 
     [IntegrationEvent(false, false)]
+    local procedure OnShowUsedTrackLinesOnAfterLookupOK2(var PhysInvtRecordLine: Record "Phys. Invt. Record Line"; var TempInvtOrderTracking: Record "Invt. Order Tracking" temporary)
+    begin
+    end;
+
+#if not CLEAN24
+    [Obsolete('Replaced by event OnShowUsedTrackLinesSetItemLedgerEntryFilters2', '24.0')]
+    [IntegrationEvent(false, false)]
     local procedure OnShowUsedTrackLinesSetItemLedgerEntryFilters(var ItemLedgerEntry: Record "Item Ledger Entry"; PhysInvtRecordLine: Record "Phys. Invt. Record Line"; var TempPhysInvtTracking: Record "Phys. Invt. Tracking" temporary)
+    begin
+    end;
+#endif
+
+    [IntegrationEvent(false, false)]
+    local procedure OnShowUsedTrackLinesSetItemLedgerEntryFilters2(var ItemLedgerEntry: Record "Item Ledger Entry"; PhysInvtRecordLine: Record "Phys. Invt. Record Line")
     begin
     end;
 

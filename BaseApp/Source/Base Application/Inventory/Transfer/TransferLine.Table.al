@@ -25,6 +25,7 @@ table 5741 "Transfer Line"
     Caption = 'Transfer Line';
     DrillDownPageID = "Transfer Lines";
     LookupPageID = "Transfer Lines";
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -1024,7 +1025,7 @@ table 5741 "Transfer Line"
     begin
         IsHandled := false;
         OnBeforeOnInsert(Rec, xRec, TransHeader, IsHandled);
-        If IsHandled then
+        if IsHandled then
             exit;
 
         TestStatusOpen();

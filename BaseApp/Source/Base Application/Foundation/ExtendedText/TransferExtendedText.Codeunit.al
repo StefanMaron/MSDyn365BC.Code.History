@@ -5,6 +5,8 @@ using Microsoft.Inventory.Item;
 using Microsoft.Projects.Resources.Resource;
 using Microsoft.Purchases.Document;
 using Microsoft.Purchases.History;
+using Microsoft.Projects.Project.Job;
+using Microsoft.Projects.Project.Planning;
 using Microsoft.Sales.Document;
 using Microsoft.Sales.FinanceCharge;
 using Microsoft.Sales.History;
@@ -296,7 +298,7 @@ codeunit 378 "Transfer Extended Text"
 #if not CLEAN22
         CompatibilityMode := false; // Disable previous LineSpacing assignment
         OnInsertSalesExtTextRetLastOnBeforeSetCompatibilityMode(CompatibilityMode);
-        If CompatibilityMode then
+        if CompatibilityMode then
             if ToSalesLine.Find('>') then begin
                 LineSpacing :=
                     (ToSalesLine."Line No." - SalesLine."Line No.") div
@@ -320,12 +322,6 @@ codeunit 378 "Transfer Extended Text"
                 NextLineNo := NextLineNo + LineSpacing;
                 ToSalesLine.Description := TempExtTextLine.Text;
                 ToSalesLine."Attached to Line No." := SalesLine."Line No.";
-#if not CLEAN21
-                IsHandled := false;
-                OnBeforeToSalesLineInsert(ToSalesLine, SalesLine, TempExtTextLine, NextLineNo, LineSpacing, IsHandled);
-                if IsHandled then
-                    exit;
-#endif
 
                 IsHandled := false;
                 OnInsertSalesExtTextRetLastOnBeforeToSalesLineInsert(ToSalesLine, SalesLine, TempExtTextLine, NextLineNo, LineSpacing, IsHandled);
@@ -744,6 +740,104 @@ codeunit 378 "Transfer Extended Text"
         TempExtTextLine.DeleteAll();
     end;
 
+    procedure JobCheckIfAnyExtText(var JobPlanningLine: Record "Job Planning Line"; Unconditionally: Boolean): Boolean
+    var
+        Job: Record Job;
+    begin
+        exit(JobCheckIfAnyExtText(JobPlanningLine, Unconditionally, Job));
+    end;
+
+    procedure JobCheckIfAnyExtText(var JobPlanningLine: Record "Job Planning Line"; Unconditionally: Boolean; Job: Record Job) Result: Boolean
+    var
+        ExtTextHeader: Record "Extended Text Header";
+    begin
+        MakeUpdateRequired := false;
+        if IsDeleteAttachedLines(JobPlanningLine."Line No.", JobPlanningLine."No.", JobPlanningLine."Attached to Line No.") and not JobPlanningLine.IsExtendedText() then
+            MakeUpdateRequired := DeleteJobPlanningLines(JobPlanningLine);
+
+        AutoText := false;
+
+        if Unconditionally then
+            AutoText := true
+        else
+            case JobPlanningLine.Type of
+                JobPlanningLine.Type::"G/L Account":
+                    if GLAcc.Get(JobPlanningLine."No.") then
+                        AutoText := GLAcc."Automatic Ext. Texts";
+                JobPlanningLine.Type::Item:
+                    if Item.Get(JobPlanningLine."No.") then
+                        AutoText := Item."Automatic Ext. Texts";
+                JobPlanningLine.Type::Resource:
+                    if Res.Get(JobPlanningLine."No.") then
+                        AutoText := Res."Automatic Ext. Texts";
+            end;
+
+        if not AutoText then
+            exit;
+
+        JobPlanningLine.TestField("Document No.");
+        if Job."No." = '' then
+            Job.Get(JobPlanningLine."Job No.");
+
+        ExtTextHeader.SetRange("Table Name", JobPlanningLine.Type);
+        ExtTextHeader.SetRange("No.", JobPlanningLine."No.");
+        exit(ReadExtTextLines(ExtTextHeader, JobPlanningLine."Document Date", Job."Language Code"));
+    end;
+
+    local procedure DeleteJobPlanningLines(var JobPlanningLine: Record "Job Planning Line"): Boolean
+    var
+        JobPlanningLine2: Record "Job Planning Line";
+    begin
+        JobPlanningLine2.SetRange("Job No.", JobPlanningLine."Job No.");
+        JobPlanningLine2.SetRange("Job Task No.", JobPlanningLine."Job Task No.");
+        JobPlanningLine2.SetRange("Attached to Line No.", JobPlanningLine."Line No.");
+        JobPlanningLine2 := JobPlanningLine;
+        if JobPlanningLine2.Find('>') then begin
+            repeat
+                JobPlanningLine2.Delete(true);
+            until JobPlanningLine2.Next() = 0;
+            exit(true);
+        end;
+    end;
+
+    procedure InsertJobExtText(var JobPlanningLine: Record "Job Planning Line")
+    var
+        DummyJobPlanningLine: Record "Job Planning Line";
+    begin
+        InsertJobExtTextRetLast(JobPlanningLine, DummyJobPlanningLine);
+    end;
+
+    procedure InsertJobExtTextRetLast(var JobPlanningLine: Record "Job Planning Line"; var LastInsertedJobPlanningLine: Record "Job Planning Line")
+    var
+        ToJobPlanningLine: Record "Job Planning Line";
+    begin
+        LineSpacing := 10; // New fixed Line Spacing method
+
+        ToJobPlanningLine.Reset();
+        ToJobPlanningLine.SetRange("Job No.", JobPlanningLine."Job No.");
+        ToJobPlanningLine.SetRange("Job Task No.", JobPlanningLine."Job Task No.");
+        ToJobPlanningLine := JobPlanningLine;
+
+        NextLineNo := JobPlanningLine."Line No." + LineSpacing;
+
+        TempExtTextLine.Reset();
+        if TempExtTextLine.Find('-') then begin
+            repeat
+                ToJobPlanningLine.Init();
+                ToJobPlanningLine."Job No." := JobPlanningLine."Job No.";
+                ToJobPlanningLine."Job Task No." := JobPlanningLine."Job Task No.";
+                ToJobPlanningLine."Line No." := NextLineNo;
+                NextLineNo := NextLineNo + LineSpacing;
+                ToJobPlanningLine.Description := TempExtTextLine.Text;
+                ToJobPlanningLine."Attached to Line No." := JobPlanningLine."Line No.";
+                ToJobPlanningLine.Insert();
+            until TempExtTextLine.Next() = 0;
+            MakeUpdateRequired := true;
+        end;
+        TempExtTextLine.DeleteAll();
+        LastInsertedJobPlanningLine := ToJobPlanningLine;
+    end;
+
     local procedure IsDeleteAttachedLines(LineNo: Integer; No: Code[20]; AttachedToLineNo: Integer): Boolean
     begin
         exit((LineNo <> 0) and (AttachedToLineNo = 0) and (No <> ''));
@@ -763,14 +857,6 @@ codeunit 378 "Transfer Extended Text"
     local procedure OnBeforeToPurchLineInsert(var ToPurchLine: Record "Purchase Line"; PurchLine: Record "Purchase Line"; TempExtTextLine: Record "Extended Text Line" temporary; var NextLineNo: Integer; LineSpacing: Integer)
     begin
     end;
-
-#if not CLEAN21
-    [IntegrationEvent(false, false)]
-    [Obsolete('Replaced by OnInsertSalesExtTextRetLastOnBeforeToSalesLineInsert', '21.0')]
-    local procedure OnBeforeToSalesLineInsert(var ToSalesLine: Record "Sales Line"; SalesLine: Record "Sales Line"; TempExtTextLine: Record "Extended Text Line" temporary; var NextLineNo: Integer; LineSpacing: Integer; var IsHandled: Boolean)
-    begin
-    end;
-#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnInsertSalesExtTextRetLastOnBeforeToSalesLineInsert(var ToSalesLine: Record "Sales Line"; var SalesLine: Record "Sales Line"; TempExtTextLine: Record "Extended Text Line" temporary; var NextLineNo: Integer; LineSpacing: Integer; var IsHandled: Boolean)

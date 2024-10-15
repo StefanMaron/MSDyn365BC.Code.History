@@ -5,6 +5,7 @@ using Microsoft.Inventory.Tracking;
 using Microsoft.Purchases.Document;
 using Microsoft.Purchases.Setup;
 using Microsoft.Utilities;
+using Microsoft.Finance.GeneralLedger.Setup;
 
 codeunit 364 "PostPurch-Delete"
 {
@@ -41,66 +42,64 @@ codeunit 364 "PostPurch-Delete"
         if IsHandled then
             exit;
 
-        with PurchHeader do begin
-            SourceCodeSetup.Get();
-            SourceCodeSetup.TestField("Deleted Document");
-            SourceCode.Get(SourceCodeSetup."Deleted Document");
+        SourceCodeSetup.Get();
+        SourceCodeSetup.TestField("Deleted Document");
+        SourceCode.Get(SourceCodeSetup."Deleted Document");
 
-            InitDeleteHeader(
-              PurchHeader, PurchRcptHeader, PurchInvHeader, PurchCrMemoHdr,
-              ReturnShptHeader, PurchInvHeaderPrepmt, PurchCrMemoHdrPrepmt, SourceCode.Code);
-            if PurchRcptHeader."No." <> '' then begin
-                PurchRcptHeader.Insert();
-                PurchRcptLine.Init();
-                PurchRcptLine."Document No." := PurchRcptHeader."No.";
-                PurchRcptLine."Line No." := 10000;
-                PurchRcptLine.Description := SourceCode.Description;
-                PurchRcptLine.Insert();
-            end;
+        InitDeleteHeader(
+          PurchHeader, PurchRcptHeader, PurchInvHeader, PurchCrMemoHdr,
+          ReturnShptHeader, PurchInvHeaderPrepmt, PurchCrMemoHdrPrepmt, SourceCode.Code);
+        if PurchRcptHeader."No." <> '' then begin
+            PurchRcptHeader.Insert();
+            PurchRcptLine.Init();
+            PurchRcptLine."Document No." := PurchRcptHeader."No.";
+            PurchRcptLine."Line No." := 10000;
+            PurchRcptLine.Description := SourceCode.Description;
+            PurchRcptLine.Insert();
+        end;
 
-            if ReturnShptHeader."No." <> '' then begin
-                ReturnShptHeader.Insert();
-                ReturnShptLine.Init();
-                ReturnShptLine."Document No." := ReturnShptHeader."No.";
-                ReturnShptLine."Line No." := 10000;
-                ReturnShptLine.Description := SourceCode.Description;
-                ReturnShptLine.Insert();
-            end;
+        if ReturnShptHeader."No." <> '' then begin
+            ReturnShptHeader.Insert();
+            ReturnShptLine.Init();
+            ReturnShptLine."Document No." := ReturnShptHeader."No.";
+            ReturnShptLine."Line No." := 10000;
+            ReturnShptLine.Description := SourceCode.Description;
+            ReturnShptLine.Insert();
+        end;
 
-            if PurchInvHeader."No." <> '' then begin
-                PurchInvHeader.Insert();
-                PurchInvLine.Init();
-                PurchInvLine."Document No." := PurchInvHeader."No.";
-                PurchInvLine."Line No." := 10000;
-                PurchInvLine.Description := SourceCode.Description;
-                PurchInvLine.Insert();
-            end;
+        if PurchInvHeader."No." <> '' then begin
+            PurchInvHeader.Insert();
+            PurchInvLine.Init();
+            PurchInvLine."Document No." := PurchInvHeader."No.";
+            PurchInvLine."Line No." := 10000;
+            PurchInvLine.Description := SourceCode.Description;
+            PurchInvLine.Insert();
+        end;
 
-            if PurchCrMemoHdr."No." <> '' then begin
-                PurchCrMemoHdr.Insert(true);
-                PurchCrMemoLine.Init();
-                PurchCrMemoLine."Document No." := PurchCrMemoHdr."No.";
-                PurchCrMemoLine."Line No." := 10000;
-                PurchCrMemoLine.Description := SourceCode.Description;
-                PurchCrMemoLine.Insert();
-            end;
+        if PurchCrMemoHdr."No." <> '' then begin
+            PurchCrMemoHdr.Insert(true);
+            PurchCrMemoLine.Init();
+            PurchCrMemoLine."Document No." := PurchCrMemoHdr."No.";
+            PurchCrMemoLine."Line No." := 10000;
+            PurchCrMemoLine.Description := SourceCode.Description;
+            PurchCrMemoLine.Insert();
+        end;
 
-            if PurchInvHeaderPrepmt."No." <> '' then begin
-                PurchInvHeaderPrepmt.Insert();
-                PurchInvLine."Document No." := PurchInvHeaderPrepmt."No.";
-                PurchInvLine."Line No." := 10000;
-                PurchInvLine.Description := SourceCode.Description;
-                PurchInvLine.Insert();
-            end;
+        if PurchInvHeaderPrepmt."No." <> '' then begin
+            PurchInvHeaderPrepmt.Insert();
+            PurchInvLine."Document No." := PurchInvHeaderPrepmt."No.";
+            PurchInvLine."Line No." := 10000;
+            PurchInvLine.Description := SourceCode.Description;
+            PurchInvLine.Insert();
+        end;
 
-            if PurchCrMemoHdrPrepmt."No." <> '' then begin
-                PurchCrMemoHdrPrepmt.Insert();
-                PurchCrMemoLine.Init();
-                PurchCrMemoLine."Document No." := PurchCrMemoHdrPrepmt."No.";
-                PurchCrMemoLine."Line No." := 10000;
-                PurchCrMemoLine.Description := SourceCode.Description;
-                PurchCrMemoLine.Insert();
-            end;
+        if PurchCrMemoHdrPrepmt."No." <> '' then begin
+            PurchCrMemoHdrPrepmt.Insert();
+            PurchCrMemoLine.Init();
+            PurchCrMemoLine."Document No." := PurchCrMemoHdrPrepmt."No.";
+            PurchCrMemoLine."Line No." := 10000;
+            PurchCrMemoLine.Description := SourceCode.Description;
+            PurchCrMemoLine.Insert();
         end;
 
         OnAfterDeleteHeader(
@@ -190,70 +189,68 @@ codeunit 364 "PostPurch-Delete"
           PurchHeader, PurchRcptHeader, PurchInvHeader, PurchCrMemoHdr, ReturnShptHeader, PurchInvHeaderPrepmt, PurchCrMemoHdrPrepmt,
           SourceCode);
 
-        with PurchHeader do begin
-            Clear(PurchRcptHeader);
-            Clear(PurchInvHeader);
-            Clear(PurchCrMemoHdr);
-            Clear(ReturnShptHeader);
-            PurchSetup.Get();
+        Clear(PurchRcptHeader);
+        Clear(PurchInvHeader);
+        Clear(PurchCrMemoHdr);
+        Clear(ReturnShptHeader);
+        PurchSetup.Get();
 
-            if ("Receiving No. Series" <> '') and ("Receiving No." <> '') then begin
-                PurchRcptHeader.TransferFields(PurchHeader);
-                PurchRcptHeader."No." := "Receiving No.";
-                PurchRcptHeader."Posting Date" := Today;
-                PurchRcptHeader."User ID" := CopyStr(UserId(), 1, MaxStrLen(PurchRcptHeader."User ID"));
-                PurchRcptHeader."Source Code" := SourceCode;
-            end;
+        if (PurchHeader."Receiving No. Series" <> '') and (PurchHeader."Receiving No." <> '') then begin
+            PurchRcptHeader.TransferFields(PurchHeader);
+            PurchRcptHeader."No." := PurchHeader."Receiving No.";
+            PurchRcptHeader."Posting Date" := Today;
+            PurchRcptHeader."User ID" := CopyStr(UserId(), 1, MaxStrLen(PurchRcptHeader."User ID"));
+            PurchRcptHeader."Source Code" := SourceCode;
+        end;
 
-            if ("Return Shipment No. Series" <> '') and ("Return Shipment No." <> '') then begin
-                ReturnShptHeader.TransferFields(PurchHeader);
-                ReturnShptHeader."No." := "Return Shipment No.";
-                ReturnShptHeader."Posting Date" := Today;
-                ReturnShptHeader."User ID" := CopyStr(UserId(), 1, MaxStrLen(ReturnShptHeader."User ID"));
-                ReturnShptHeader."Source Code" := SourceCode;
-            end;
+        if (PurchHeader."Return Shipment No. Series" <> '') and (PurchHeader."Return Shipment No." <> '') then begin
+            ReturnShptHeader.TransferFields(PurchHeader);
+            ReturnShptHeader."No." := PurchHeader."Return Shipment No.";
+            ReturnShptHeader."Posting Date" := Today;
+            ReturnShptHeader."User ID" := CopyStr(UserId(), 1, MaxStrLen(ReturnShptHeader."User ID"));
+            ReturnShptHeader."Source Code" := SourceCode;
+        end;
 
-            if ("Posting No. Series" <> '') and
-               (("Document Type" in ["Document Type"::Order, "Document Type"::Invoice]) and
-                ("Posting No." <> '') or
-                ("Document Type" = "Document Type"::Invoice) and
-                ("No. Series" = "Posting No. Series"))
-            then
-                InitPurchInvHeader(PurchInvHeader, PurchHeader, SourceCode);
+        if (PurchHeader."Posting No. Series" <> '') and
+           ((PurchHeader."Document Type" in [PurchHeader."Document Type"::Order, PurchHeader."Document Type"::Invoice]) and
+            (PurchHeader."Posting No." <> '') or
+            (PurchHeader."Document Type" = PurchHeader."Document Type"::Invoice) and
+            (PurchHeader."No. Series" = PurchHeader."Posting No. Series"))
+        then
+            InitPurchInvHeader(PurchInvHeader, PurchHeader, SourceCode);
 
-            if ("Posting No. Series" <> '') and
-               (("Document Type" in ["Document Type"::"Return Order", "Document Type"::"Credit Memo"]) and
-                ("Posting No." <> '') or
-                ("Document Type" = "Document Type"::"Credit Memo") and
-                ("No. Series" = "Posting No. Series"))
-            then begin
-                PurchCrMemoHdr.TransferFields(PurchHeader);
-                if "Posting No." <> '' then
-                    PurchCrMemoHdr."No." := "Posting No.";
-                PurchCrMemoHdr."Pre-Assigned No. Series" := "No. Series";
-                PurchCrMemoHdr."Pre-Assigned No." := "No.";
-                PurchCrMemoHdr."Posting Date" := Today;
-                PurchCrMemoHdr."User ID" := CopyStr(UserId(), 1, MaxStrLen(PurchCrMemoHdr."User ID"));
-                PurchCrMemoHdr."Source Code" := SourceCode;
-            end;
+        if (PurchHeader."Posting No. Series" <> '') and
+           ((PurchHeader."Document Type" in [PurchHeader."Document Type"::"Return Order", PurchHeader."Document Type"::"Credit Memo"]) and
+            (PurchHeader."Posting No." <> '') or
+            (PurchHeader."Document Type" = PurchHeader."Document Type"::"Credit Memo") and
+            (PurchHeader."No. Series" = PurchHeader."Posting No. Series"))
+        then begin
+            PurchCrMemoHdr.TransferFields(PurchHeader);
+            if PurchHeader."Posting No." <> '' then
+                PurchCrMemoHdr."No." := PurchHeader."Posting No.";
+            PurchCrMemoHdr."Pre-Assigned No. Series" := PurchHeader."No. Series";
+            PurchCrMemoHdr."Pre-Assigned No." := PurchHeader."No.";
+            PurchCrMemoHdr."Posting Date" := Today;
+            PurchCrMemoHdr."User ID" := CopyStr(UserId(), 1, MaxStrLen(PurchCrMemoHdr."User ID"));
+            PurchCrMemoHdr."Source Code" := SourceCode;
+        end;
 
-            if ("Prepayment No. Series" <> '') and ("Prepayment No." <> '') then begin
-                TestField("Document Type", "Document Type"::Order);
-                InitPurchInvHeaderPrepmt(PurchInvHeaderPrepmt, PurchHeader, SourceCode);
-            end;
+        if (PurchHeader."Prepayment No. Series" <> '') and (PurchHeader."Prepayment No." <> '') then begin
+            PurchHeader.TestField("Document Type", PurchHeader."Document Type"::Order);
+            InitPurchInvHeaderPrepmt(PurchInvHeaderPrepmt, PurchHeader, SourceCode);
+        end;
 
-            if ("Prepmt. Cr. Memo No. Series" <> '') and ("Prepmt. Cr. Memo No." <> '') then begin
-                TestField("Document Type", "Document Type"::Order);
-                PurchCrMemoHdrPrepmt.TransferFields(PurchHeader);
-                PurchCrMemoHdrPrepmt."No." := "Prepmt. Cr. Memo No.";
-                PurchCrMemoHdrPrepmt."Prepayment Order No." := "No.";
-                PurchCrMemoHdrPrepmt."Posting Date" := Today;
-                PurchCrMemoHdrPrepmt."Pre-Assigned No. Series" := '';
-                PurchCrMemoHdrPrepmt."Pre-Assigned No." := '';
-                PurchCrMemoHdrPrepmt."User ID" := CopyStr(UserId(), 1, MaxStrLen(PurchCrMemoHdrPrepmt."User ID"));
-                PurchCrMemoHdrPrepmt."Source Code" := SourceCode;
-                PurchCrMemoHdrPrepmt."Prepayment Credit Memo" := true;
-            end;
+        if (PurchHeader."Prepmt. Cr. Memo No. Series" <> '') and (PurchHeader."Prepmt. Cr. Memo No." <> '') then begin
+            PurchHeader.TestField("Document Type", PurchHeader."Document Type"::Order);
+            PurchCrMemoHdrPrepmt.TransferFields(PurchHeader);
+            PurchCrMemoHdrPrepmt."No." := PurchHeader."Prepmt. Cr. Memo No.";
+            PurchCrMemoHdrPrepmt."Prepayment Order No." := PurchHeader."No.";
+            PurchCrMemoHdrPrepmt."Posting Date" := Today;
+            PurchCrMemoHdrPrepmt."Pre-Assigned No. Series" := '';
+            PurchCrMemoHdrPrepmt."Pre-Assigned No." := '';
+            PurchCrMemoHdrPrepmt."User ID" := CopyStr(UserId(), 1, MaxStrLen(PurchCrMemoHdrPrepmt."User ID"));
+            PurchCrMemoHdrPrepmt."Source Code" := SourceCode;
+            PurchCrMemoHdrPrepmt."Prepayment Credit Memo" := true;
         end;
 
         OnAfterInitDeleteHeader(
@@ -262,41 +259,37 @@ codeunit 364 "PostPurch-Delete"
 
     local procedure InitPurchInvHeader(var PurchInvHeader: Record "Purch. Inv. Header"; PurchHeader: Record "Purchase Header"; SourceCode: Code[10])
     begin
-        with PurchHeader do begin
-            PurchInvHeader.TransferFields(PurchHeader);
-            if "Posting No." <> '' then
-                PurchInvHeader."No." := "Posting No.";
-            if "Document Type" = "Document Type"::Invoice then begin
-                PurchInvHeader."Pre-Assigned No. Series" := "No. Series";
-                PurchInvHeader."Pre-Assigned No." := "No.";
-            end else begin
-                PurchInvHeader."Pre-Assigned No. Series" := '';
-                PurchInvHeader."Pre-Assigned No." := '';
-                PurchInvHeader."Order No. Series" := "No. Series";
-                PurchInvHeader."Order No." := "No.";
-            end;
-            PurchInvHeader."Posting Date" := Today;
-            PurchInvHeader."User ID" := CopyStr(UserId(), 1, MaxStrLen(PurchInvHeader."User ID"));
-            PurchInvHeader."Source Code" := SourceCode;
+        PurchInvHeader.TransferFields(PurchHeader);
+        if PurchHeader."Posting No." <> '' then
+            PurchInvHeader."No." := PurchHeader."Posting No.";
+        if PurchHeader."Document Type" = PurchHeader."Document Type"::Invoice then begin
+            PurchInvHeader."Pre-Assigned No. Series" := PurchHeader."No. Series";
+            PurchInvHeader."Pre-Assigned No." := PurchHeader."No.";
+        end else begin
+            PurchInvHeader."Pre-Assigned No. Series" := '';
+            PurchInvHeader."Pre-Assigned No." := '';
+            PurchInvHeader."Order No. Series" := PurchHeader."No. Series";
+            PurchInvHeader."Order No." := PurchHeader."No.";
         end;
+        PurchInvHeader."Posting Date" := Today;
+        PurchInvHeader."User ID" := CopyStr(UserId(), 1, MaxStrLen(PurchInvHeader."User ID"));
+        PurchInvHeader."Source Code" := SourceCode;
 
         OnAfterInitPurchInvHeader(PurchInvHeader, PurchHeader);
     end;
 
     local procedure InitPurchInvHeaderPrepmt(var PurchInvHeaderPrepmt: Record "Purch. Inv. Header"; PurchHeader: Record "Purchase Header"; SourceCode: Code[10])
     begin
-        with PurchHeader do begin
-            PurchInvHeaderPrepmt.TransferFields(PurchHeader);
-            PurchInvHeaderPrepmt."No." := "Prepayment No.";
-            PurchInvHeaderPrepmt."Order No. Series" := "No. Series";
-            PurchInvHeaderPrepmt."Prepayment Order No." := "No.";
-            PurchInvHeaderPrepmt."Posting Date" := Today;
-            PurchInvHeaderPrepmt."Pre-Assigned No. Series" := '';
-            PurchInvHeaderPrepmt."Pre-Assigned No." := '';
-            PurchInvHeaderPrepmt."User ID" := CopyStr(UserId(), 1, MaxStrLen(PurchInvHeaderPrepmt."User ID"));
-            PurchInvHeaderPrepmt."Source Code" := SourceCode;
-            PurchInvHeaderPrepmt."Prepayment Invoice" := true;
-        end;
+        PurchInvHeaderPrepmt.TransferFields(PurchHeader);
+        PurchInvHeaderPrepmt."No." := PurchHeader."Prepayment No.";
+        PurchInvHeaderPrepmt."Order No. Series" := PurchHeader."No. Series";
+        PurchInvHeaderPrepmt."Prepayment Order No." := PurchHeader."No.";
+        PurchInvHeaderPrepmt."Posting Date" := Today;
+        PurchInvHeaderPrepmt."Pre-Assigned No. Series" := '';
+        PurchInvHeaderPrepmt."Pre-Assigned No." := '';
+        PurchInvHeaderPrepmt."User ID" := CopyStr(UserId(), 1, MaxStrLen(PurchInvHeaderPrepmt."User ID"));
+        PurchInvHeaderPrepmt."Source Code" := SourceCode;
+        PurchInvHeaderPrepmt."Prepayment Invoice" := true;
 
         OnAfterInitPurchInvHeaderPrepmt(PurchInvHeaderPrepmt, PurchHeader);
     end;
@@ -304,7 +297,13 @@ codeunit 364 "PostPurch-Delete"
     procedure IsDocumentDeletionAllowed(PostingDate: Date)
     var
         PurchSetup: Record "Purchases & Payables Setup";
+        GeneralLedgerSetup: Record "General Ledger Setup";
+        DocumentsRetentionPeriod: Interface "Documents - Retention Period";
     begin
+        GeneralLedgerSetup.Get();
+        DocumentsRetentionPeriod := GeneralLedgerSetup."Document Retention Period";
+        DocumentsRetentionPeriod.CheckDocumentDeletionAllowedByLaw(PostingDate);
+
         PurchSetup.Get();
         PurchSetup.TestField("Allow Document Deletion Before");
         if PostingDate >= PurchSetup."Allow Document Deletion Before" then

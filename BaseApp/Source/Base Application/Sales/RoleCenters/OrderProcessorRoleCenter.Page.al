@@ -13,7 +13,7 @@ using Microsoft.Inventory.Location;
 using Microsoft.Inventory.Reports;
 using Microsoft.Inventory.Tracking;
 using Microsoft.Inventory.Transfer;
-#if CLEAN21
+#if CLEAN23
 using Microsoft.Pricing.Worksheet;
 #endif
 using Microsoft.Purchases.Document;
@@ -26,7 +26,7 @@ using Microsoft.Sales.Customer;
 using Microsoft.Sales.Document;
 using Microsoft.Sales.FinanceCharge;
 using Microsoft.Sales.History;
-#if CLEAN21
+#if CLEAN23
 using Microsoft.Sales.Pricing;
 #endif
 using Microsoft.Sales.Reminder;
@@ -104,16 +104,6 @@ page 9006 "Order Processor Role Center"
                 AccessByPermission = TableData "Report Inbox" = R;
                 ApplicationArea = Suite;
             }
-#if not CLEAN21
-            part(Control13; "Power BI Report Spinner Part")
-            {
-                ApplicationArea = Basic, Suite;
-                ObsoleteState = Pending;
-                ObsoleteReason = 'Replaced by PowerBIEmbeddedReportPart';
-                Visible = false;
-                ObsoleteTag = '21.0';
-            }
-#endif
             systempart(Control1901377608; MyNotes)
             {
                 ApplicationArea = Basic, Suite;
@@ -685,7 +675,7 @@ page 9006 "Order Processor Role Center"
                     RunObject = Page "Sales Journal";
                     ToolTip = 'Open a sales journal where you can batch post sales transactions to G/L, bank, customer, vendor and fixed assets accounts.';
                 }
-#if not CLEAN21
+#if not CLEAN23
                 action("Sales Price &Worksheet")
                 {
                     ApplicationArea = Basic, Suite;
@@ -712,7 +702,7 @@ page 9006 "Order Processor Role Center"
             group(Action42)
             {
                 Caption = 'Sales';
-#if not CLEAN21
+#if not CLEAN23
                 action("&Prices")
                 {
                     ApplicationArea = Basic, Suite;
@@ -821,7 +811,7 @@ page 9006 "Order Processor Role Center"
                         ApplicationArea = Basic, Suite;
                         Caption = 'List Price Sheet';
                         Image = "Report";
-#if not CLEAN21
+#if not CLEAN23
                         RunPageView = where("Object Type" = const(Report), "Object ID" = const(10148)); // "List Price Sheet"
                         RunObject = Page "Role Center Page Dispatcher";
 #else

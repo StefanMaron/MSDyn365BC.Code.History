@@ -6,6 +6,7 @@ using Microsoft.Finance.Currency;
 using Microsoft.Finance.Dimension;
 using Microsoft.Finance.VAT.Calculation;
 using Microsoft.Foundation.Address;
+using Microsoft.Foundation.Attachment;
 using Microsoft.Service.Comment;
 using Microsoft.Service.Document;
 
@@ -170,6 +171,13 @@ page 5972 "Posted Service Credit Memo"
                     ApplicationArea = Service;
                     Editable = false;
                     ToolTip = 'Specifies the number of the credit memo from which the posted credit memo was created.';
+                }
+                field("External Document No."; Rec."External Document No.")
+                {
+                    ApplicationArea = Service;
+                    Editable = false;
+                    Importance = Additional;
+                    ToolTip = 'Specifies the external document number that is entered on the service header that this line was posted from.';
                 }
                 field("Salesperson Code"; Rec."Salesperson Code")
                 {
@@ -475,58 +483,115 @@ page 5972 "Posted Service Credit Memo"
             group("Electronic Invoice")
             {
                 Caption = 'Electronic Invoice';
+                field("CFDI Purpose"; Rec."CFDI Purpose")
+                {
+                    ApplicationArea = BasicMX;
+                    Importance = Additional;
+                    ToolTip = 'Specifies the CFDI purpose required for reporting to the Mexican tax authorities (SAT).';
+                }
+                field("CFDI Relation"; Rec."CFDI Relation")
+                {
+                    ApplicationArea = BasicMX;
+                    Importance = Additional;
+                    ToolTip = 'Specifies the relation of the CFDI document. ';
+                }
+                field("CFDI Period"; Rec."CFDI Period")
+                {
+                    ApplicationArea = BasicMX;
+                    ToolTip = 'Specifies the period to use when reporting for general public customers';
+                }
+                field("SAT Address ID"; Rec."SAT Address ID")
+                {
+                    ApplicationArea = BasicMX;
+                    ToolTip = 'Specifies the SAT address that the goods or merchandise are moved to.';
+                    BlankZero = true;
+                }
                 field("CFDI Export Code"; Rec."CFDI Export Code")
                 {
+                    ApplicationArea = BasicMX;
                     ToolTip = 'Specifies a code to indicate if the document is used for exports to other countries.';
+                }
+                field(Control1310005; Rec."Foreign Trade")
+                {
+                    ApplicationArea = BasicMX;
+                    ToolTip = 'Specifies whether the goods or merchandise that are transported enter or leave the national territory.';
+                }
+                field("SAT International Trade Term"; Rec."SAT International Trade Term")
+                {
+                    ApplicationArea = BasicMX;
+                    ToolTip = 'Specifies an international commercial terms code that are used in international sale contracts according to the SAT internatoinal trade terms definition.';
+                }
+                field("Exchange Rate USD"; Rec."Exchange Rate USD")
+                {
+                    ApplicationArea = BasicMX;
+                    ToolTip = 'Specifies the USD to MXN exchange rate that is used to report foreign trade documents to Mexican SAT authorities. This rate must match the rate used by the Mexican National Bank.';
                 }
                 field("Electronic Document Status"; Rec."Electronic Document Status")
                 {
+                    ApplicationArea = BasicMX;
                     ToolTip = 'Specifies the status of the document.';
                 }
                 field("Date/Time Stamped"; Rec."Date/Time Stamped")
                 {
+                    ApplicationArea = BasicMX;
                     ToolTip = 'Specifies the date and time that the document received a digital stamp from the authorized service provider.';
                 }
                 field("Date/Time Sent"; Rec."Date/Time Sent")
                 {
+                    ApplicationArea = BasicMX;
                     ToolTip = 'Specifies the date and time that the document was sent to the customer.';
                 }
                 field("Date/Time Canceled"; Rec."Date/Time Canceled")
                 {
+                    ApplicationArea = BasicMX;
                     ToolTip = 'Specifies the date and time that the document was canceled.';
                 }
                 field("Error Code"; Rec."Error Code")
                 {
+                    ApplicationArea = BasicMX;
                     ToolTip = 'Specifies the error code that the authorized service provider, PAC, has returned to Business Central.';
                 }
                 field("Error Description"; Rec."Error Description")
                 {
+                    ApplicationArea = BasicMX;
                     ToolTip = 'Specifies the error message that the authorized service provider, PAC, has returned to Business Central.';
                 }
                 field("PAC Web Service Name"; Rec."PAC Web Service Name")
                 {
+                    ApplicationArea = BasicMX;
                     ToolTip = 'Specifies the name of the authorized service provider, PAC, which has processed the electronic document.';
                 }
                 field("Fiscal Invoice Number PAC"; Rec."Fiscal Invoice Number PAC")
                 {
+                    ApplicationArea = BasicMX;
                     ToolTip = 'Specifies the official invoice number for the electronic document.';
                 }
                 field("No. of E-Documents Sent"; Rec."No. of E-Documents Sent")
                 {
+                    ApplicationArea = BasicMX;
                     ToolTip = 'Specifies the number of times that this document has been sent electronically.';
                 }
                 field("CFDI Cancellation Reason Code"; Rec."CFDI Cancellation Reason Code")
                 {
+                    ApplicationArea = BasicMX;
                     ToolTip = 'Specifies the reason for the cancellation as a code.';
                 }
                 field("Substitution Document No."; Rec."Substitution Document No.")
                 {
+                    ApplicationArea = BasicMX;
                     ToolTip = 'Specifies the document number that replaces the canceled one. It is required when the cancellation reason is 01.';
                 }
             }
         }
         area(factboxes)
         {
+            part("Attached Documents"; "Document Attachment Factbox")
+            {
+                ApplicationArea = Service;
+                Caption = 'Attachments';
+                SubPageLink = "Table ID" = const(Database::"Service Cr.Memo Header"),
+                              "No." = field("No.");
+            }
             systempart(Control1900383207; Links)
             {
                 ApplicationArea = RecordLinks;
@@ -591,6 +656,23 @@ page 5972 "Posted Service Credit Memo"
                         CurrPage.SaveRecord();
                     end;
                 }
+                action(DocAttach)
+                {
+                    ApplicationArea = Service;
+                    Caption = 'Attachments';
+                    Image = Attach;
+                    ToolTip = 'Add a file as an attachment. You can attach images as well as documents.';
+
+                    trigger OnAction()
+                    var
+                        DocumentAttachmentDetails: Page "Document Attachment Details";
+                        RecRef: RecordRef;
+                    begin
+                        RecRef.GetTable(Rec);
+                        DocumentAttachmentDetails.OpenForRecRef(RecRef);
+                        DocumentAttachmentDetails.RunModal();
+                    end;
+                }
                 action("Service Document Lo&g")
                 {
                     ApplicationArea = Service;
@@ -623,6 +705,7 @@ page 5972 "Posted Service Credit Memo"
                 Caption = '&Electronic Document';
                 action("S&end")
                 {
+                    ApplicationArea = BasicMX;
                     Caption = 'S&end';
                     Ellipsis = true;
                     Image = SendTo;
@@ -635,6 +718,7 @@ page 5972 "Posted Service Credit Memo"
                 }
                 action("Export E-Document as &XML")
                 {
+                    ApplicationArea = BasicMX;
                     Caption = 'Export E-Document as &XML';
                     Image = ExportElectronicDocument;
                     ToolTip = 'Export the posted service credit memo as an electronic credit memo, an XML file, and save it to a specified location.';
@@ -646,6 +730,7 @@ page 5972 "Posted Service Credit Memo"
                 }
                 action(ExportEDocumentPDF)
                 {
+                    ApplicationArea = BasicMX;
                     Caption = 'Export E-Document as PDF';
                     Image = ExportToBank;
                     ToolTip = 'Export the posted service credit memo as an electronic credit memo, a PDF document, when the stamp is received.';
@@ -669,6 +754,7 @@ page 5972 "Posted Service Credit Memo"
                 }
                 action("&Cancel")
                 {
+                    ApplicationArea = BasicMX;
                     Caption = '&Cancel';
                     Image = Cancel;
                     ToolTip = 'Cancel the sending of the electronic service credit memo.';
@@ -708,6 +794,22 @@ page 5972 "Posted Service Credit Memo"
                     ServCrMemoHeader.PrintRecords(true);
                 end;
             }
+            action(AttachAsPDF)
+            {
+                ApplicationArea = Service;
+                Caption = 'Attach as PDF';
+                Image = PrintAttachment;
+                ToolTip = 'Create a PDF file and attach it to the document.';
+
+                trigger OnAction()
+                var
+                    ServCrMemoHeader: Record "Service Cr.Memo Header";
+                begin
+                    ServCrMemoHeader := Rec;
+                    ServCrMemoHeader.SetRecFilter();
+                    Rec.PrintToDocumentAttachment(ServCrMemoHeader);
+                end;
+            }
             action("&Navigate")
             {
                 ApplicationArea = Service;
@@ -740,8 +842,16 @@ page 5972 "Posted Service Credit Memo"
             {
                 Caption = 'Process';
 
-                actionref("&Print_Promoted"; "&Print")
+                group(Category_CategoryPrint)
                 {
+                    ShowAs = SplitButton;
+
+                    actionref("&Print_Promoted"; "&Print")
+                    {
+                    }
+                    actionref(AttachAsPDF_Promoted; AttachAsPDF)
+                    {
+                    }
                 }
                 actionref(SendCustom_Promoted; SendCustom)
                 {
@@ -761,6 +871,9 @@ page 5972 "Posted Service Credit Memo"
                 {
                 }
                 actionref("Co&mments_Promoted"; "Co&mments")
+                {
+                }
+                actionref(DocAttach_Promoted; DocAttach)
                 {
                 }
                 actionref(ActivityLog_Promoted; ActivityLog)

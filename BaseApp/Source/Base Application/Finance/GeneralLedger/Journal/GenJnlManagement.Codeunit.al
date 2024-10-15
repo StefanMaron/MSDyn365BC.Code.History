@@ -32,9 +32,6 @@ codeunit 230 GenJnlManagement
         Text003: Label 'Recurring General Journal';
         Text004: Label 'DEFAULT';
         Text005: Label 'Default Journal';
-#if not CLEAN21
-        USText000: Label 'Deposit Document';
-#endif
 
     procedure TemplateSelection(PageID: Integer; PageTemplate: Enum "Gen. Journal Template Type"; RecurringJnl: Boolean; var GenJnlLine: Record "Gen. Journal Line"; var JnlSelected: Boolean)
     var
@@ -541,11 +538,6 @@ codeunit 230 GenJnlManagement
                         if TemplateType = GenJnlTemplate.Type::Assets then
                             GenJnlTemplate.Description := Text000
                         else
-#if not CLEAN21
-                            if TemplateType = GenJnlTemplate.Type::Deposits then
-                                GenJnlTemplate.Description := USText000
-                            else
-#endif
                                 GenJnlTemplate.Description := StrSubstNo(Text001, GenJnlTemplate.Type);
                     end else begin
                         GenJnlTemplate.Name := Text002;

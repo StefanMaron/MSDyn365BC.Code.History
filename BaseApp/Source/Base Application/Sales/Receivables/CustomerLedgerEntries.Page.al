@@ -218,6 +218,14 @@ page 25 "Customer Ledger Entries"
                     StyleExpr = StyleTxt;
                     ToolTip = 'Specifies the due date on the entry.';
                 }
+                field("Promised Pay Date"; Rec."Promised Pay Date")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Visible = false;
+                    Importance = Promoted;
+                    ToolTip = 'Specifies the date on which the customer have promised to pay this invoice.';
+                }
+
                 field("Pmt. Discount Date"; Rec."Pmt. Discount Date")
                 {
                     ApplicationArea = Basic, Suite;
@@ -260,11 +268,17 @@ page 25 "Customer Ledger Entries"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies when the entry was closed.';
                 }
+                field("Dispute Status"; Rec."Dispute Status")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Tooltip = 'Specifies if there is an ongoing dispute for this Invoice';
+                }
                 field("On Hold"; Rec."On Hold")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies that the related entry represents an unpaid invoice for which either a payment suggestion, a reminder, or a finance charge memo exists.';
                 }
+
                 field("User ID"; Rec."User ID")
                 {
                     ApplicationArea = Basic, Suite;
@@ -710,7 +724,7 @@ page 25 "Customer Ledger Entries"
                         AccessByPermission = TableData "Incoming Document" = R;
                         ApplicationArea = Basic, Suite;
                         Caption = 'Select Incoming Document';
-                        Enabled = NOT HasIncomingDocument;
+                        Enabled = not HasIncomingDocument;
                         Image = SelectLineToApply;
                         ToolTip = 'Select an incoming document record and file attachment that you want to link to the entry or document.';
 
@@ -726,7 +740,7 @@ page 25 "Customer Ledger Entries"
                         ApplicationArea = Basic, Suite;
                         Caption = 'Create Incoming Document from File';
                         Ellipsis = true;
-                        Enabled = NOT HasIncomingDocument;
+                        Enabled = not HasIncomingDocument;
                         Image = Attach;
                         ToolTip = 'Create an incoming document record by selecting a file to attach, and then link the incoming document record to the entry or document.';
 

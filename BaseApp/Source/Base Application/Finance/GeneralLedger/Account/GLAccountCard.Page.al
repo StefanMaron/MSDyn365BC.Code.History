@@ -1,7 +1,8 @@
-namespace Microsoft.Finance.GeneralLedger.Account;
+﻿namespace Microsoft.Finance.GeneralLedger.Account;
 
 using Microsoft.EServices.EDocument;
 using Microsoft.Finance.Analysis;
+using Microsoft.Finance.Consolidation;
 using Microsoft.Finance.Dimension;
 using Microsoft.Finance.GeneralLedger.Ledger;
 using Microsoft.Finance.GeneralLedger.Reports;
@@ -11,8 +12,10 @@ using Microsoft.Foundation.Comment;
 using Microsoft.Foundation.ExtendedText;
 using Microsoft.Pricing.Calculation;
 using Microsoft.Pricing.PriceList;
+#if not CLEAN24
+using System.Environment.Configuration;
+#endif
 using System.IO;
-using Microsoft.Finance.Consolidation;
 
 page 17 "G/L Account Card"
 {
@@ -237,6 +240,49 @@ page 17 "G/L Account Card"
                     ToolTip = 'Specifies the default deferral template that governs how to defer revenues and expenses to the periods when they occurred.';
                 }
             }
+            group(Revaluation)
+            {
+                Caption = 'Revaluation';
+#if not CLEAN24
+                Visible = SourceCurrencyVisible;
+#endif
+                field("Source Currency Posting"; Rec."Source Currency Posting")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Source Currency Posting';
+                    ToolTip = 'Specifies which source currencies can be posted to this account.';
+#if not CLEAN24
+                    Visible = SourceCurrencyVisible;
+#endif
+                }
+                field("Source Currency Code"; Rec."Source Currency Code")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Source Currency Code';
+                    ToolTip = 'Specifies the source currency code which can be posted to this account, if Source Currency Posting is set as Same Code.';
+#if not CLEAN24
+                    Visible = SourceCurrencyVisible;
+#endif
+                }
+                field("Source Currency Revaluation"; Rec."Source Currency Revaluation")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Source Currency Revaluation';
+                    ToolTip = 'Specifies if source currency revaluation should be done for this account.';
+#if not CLEAN24
+                    Visible = SourceCurrencyVisible;
+#endif
+                }
+                field("Unrealized Revaluation"; Rec."Unrealized Revaluation")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Unrealized Revaluation';
+                    ToolTip = 'Specifies if revaluation should be posted to currency realized or unrealized gains and losses accounts.';
+#if not CLEAN24
+                    Visible = SourceCurrencyVisible;
+#endif
+                }
+            }
             group(Consolidation)
             {
                 Caption = 'Consolidation';
@@ -257,6 +303,12 @@ page 17 "G/L Account Card"
                     ApplicationArea = Suite;
                     Importance = Promoted;
                     ToolTip = 'Specifies the account''s consolidation translation method, which identifies the currency translation rate to be applied to the account.';
+                }
+                field("Exclude From Consolidation"; Rec."Exclude From Consolidation")
+                {
+                    ApplicationArea = Suite;
+                    Importance = Promoted;
+                    ToolTip = 'Specifies whether the account is excluded from consolidation.';
                 }
             }
             group(Reporting)
@@ -289,6 +341,17 @@ page 17 "G/L Account Card"
                               "No." = field("No.");
                 Visible = false;
             }
+            part(Control1905532108; "G/L Account Currency FactBox")
+            {
+                ApplicationArea = Basic, Suite;
+                SubPageLink = "G/L Account No." = field("No."),
+                              "Global Dimension 1 Filter" = field("Global Dimension 1 Filter"),
+                              "Global Dimension 2 Filter" = field("Global Dimension 2 Filter"),
+                              "Date Filter" = field("Date Filter");
+#if not CLEAN24
+                Visible = SourceCurrencyVisible;
+#endif
+            }
             systempart(Control1900383207; Links)
             {
                 ApplicationArea = RecordLinks;
@@ -318,7 +381,7 @@ page 17 "G/L Account Card"
                     RunObject = Page "General Ledger Entries";
                     RunPageLink = "G/L Account No." = field("No.");
                     RunPageView = sorting("G/L Account No.")
-                                  order(Descending);
+                                  order(descending);
                     ShortCutKey = 'Ctrl+F7';
                     ToolTip = 'View the history of transactions that have been posted for the selected record.';
                 }
@@ -342,6 +405,15 @@ page 17 "G/L Account Card"
                                   "No." = field("No.");
                     ShortCutKey = 'Alt+D';
                     ToolTip = 'View or edit dimensions, such as area, project, or department, that you can assign to sales and purchase documents to distribute costs and analyze transaction history.';
+                }
+                action(SourceCurrencies)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Source Currencies';
+                    Image = Currency;
+                    RunObject = Page "G/L Account Source Currencies";
+                    RunPageLink = "G/L Account No." = field("No.");
+                    ToolTip = 'View or edit source currencies posting setup.';
                 }
                 action("E&xtended Texts")
                 {
@@ -691,10 +763,8 @@ page 17 "G/L Account Card"
     }
 
     trigger OnOpenPage()
-    var
-        PriceCalculationMgt: Codeunit "Price Calculation Mgt.";
     begin
-        ExtendedPriceEnabled := PriceCalculationMgt.IsExtendedPriceCalculationEnabled();
+        SetControlVisibility();
     end;
 
     trigger OnAfterGetRecord()
@@ -709,12 +779,28 @@ page 17 "G/L Account Card"
 
     var
         ExtendedPriceEnabled: Boolean;
+#if not CLEAN24
+        SourceCurrencyVisible: Boolean;
+#endif
         SubCategoryDescription: Text[80];
 
     local procedure UpdateAccountSubcategoryDescription()
     begin
         Rec.CalcFields("Account Subcategory Descript.");
         SubCategoryDescription := Rec."Account Subcategory Descript.";
+    end;
+
+    local procedure SetControlVisibility()
+    var
+        PriceCalculationMgt: Codeunit "Price Calculation Mgt.";
+#if not CLEAN24
+        FeatureKeyManagement: Codeunit "Feature Key Management";
+#endif
+    begin
+        ExtendedPriceEnabled := PriceCalculationMgt.IsExtendedPriceCalculationEnabled();
+#if not CLEAN24
+        SourceCurrencyVisible := FeatureKeyManagement.IsGLCurrencyRevaluationEnabled();
+#endif
     end;
 }
 

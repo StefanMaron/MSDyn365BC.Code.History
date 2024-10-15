@@ -104,15 +104,15 @@ codeunit 134305 "Workflow Delete Tests"
         Initialize();
 
         // Setup
-        LibraryWorkflow.DeleteAllExistingWorkflows;
+        LibraryWorkflow.DeleteAllExistingWorkflows();
         CreateWorkflow(Workflow);
 
-        LibraryIncomingDocuments.InitIncomingDocuments;
+        LibraryIncomingDocuments.InitIncomingDocuments();
         LibraryIncomingDocuments.CreateNewIncomingDocument(IncomingDocument);
         LibraryIncomingDocuments.CreateNewIncomingDocument(IncomingDocument);
 
         WorkflowStepInstance.SetRange("Workflow Code", Workflow.Code);
-        Assert.IsTrue(WorkflowStepInstance.FindFirst, SetupFailedErr);
+        Assert.IsTrue(WorkflowStepInstance.FindFirst(), SetupFailedErr);
         InstanceGuid := WorkflowStepInstance.ID;
 
         // Execute
@@ -147,27 +147,27 @@ codeunit 134305 "Workflow Delete Tests"
         Initialize();
 
         // Setup
-        LibraryWorkflow.DeleteAllExistingWorkflows;
+        LibraryWorkflow.DeleteAllExistingWorkflows();
         CreateWorkflow(Workflow);
 
-        WorkflowPage.OpenView;
+        WorkflowPage.OpenView();
         WorkflowPage.GotoRecord(Workflow);
 
         // Validate
-        Assert.IsFalse(WorkflowPage.WorkflowStepInstances.Enabled, 'The action should be disabled.');
+        Assert.IsFalse(WorkflowPage.WorkflowStepInstances.Enabled(), 'The action should be disabled.');
         WorkflowPage.Close();
 
-        LibraryIncomingDocuments.InitIncomingDocuments;
+        LibraryIncomingDocuments.InitIncomingDocuments();
         LibraryIncomingDocuments.CreateNewIncomingDocument(IncomingDocument);
         LibraryIncomingDocuments.CreateNewIncomingDocument(IncomingDocument);
 
         // Validate
-        WorkflowPage.OpenView;
+        WorkflowPage.OpenView();
         WorkflowPage.GotoRecord(Workflow);
-        Assert.IsTrue(WorkflowPage.WorkflowStepInstances.Enabled, 'The action should be enabled.');
+        Assert.IsTrue(WorkflowPage.WorkflowStepInstances.Enabled(), 'The action should be enabled.');
 
         // Execute
-        WorkflowPage.WorkflowStepInstances.Invoke;
+        WorkflowPage.WorkflowStepInstances.Invoke();
 
         // Validate
     end;
@@ -190,22 +190,22 @@ codeunit 134305 "Workflow Delete Tests"
         Initialize();
 
         // Setup
-        LibraryWorkflow.DeleteAllExistingWorkflows;
+        LibraryWorkflow.DeleteAllExistingWorkflows();
 
         LibraryWorkflow.CreateWorkflow(Workflow);
 
         EntryPointEventStep :=
-          LibraryWorkflow.InsertEntryPointEventStep(Workflow, WorkflowEventHandling.RunWorkflowOnAfterInsertIncomingDocumentCode);
-        ResponseStep := LibraryWorkflow.InsertResponseStep(Workflow, WorkflowResponseHandling.CreateNotificationEntryCode,
+          LibraryWorkflow.InsertEntryPointEventStep(Workflow, WorkflowEventHandling.RunWorkflowOnAfterInsertIncomingDocumentCode());
+        ResponseStep := LibraryWorkflow.InsertResponseStep(Workflow, WorkflowResponseHandling.CreateNotificationEntryCode(),
             EntryPointEventStep);
 
         LibraryWorkflow.InsertNotificationArgument(ResponseStep, UserId, 0, '');
 
-        LibraryWorkflow.InsertEventStep(Workflow, WorkflowEventHandling.RunWorkflowOnAfterPostPurchaseDocCode, ResponseStep);
+        LibraryWorkflow.InsertEventStep(Workflow, WorkflowEventHandling.RunWorkflowOnAfterPostPurchaseDocCode(), ResponseStep);
 
         EnableWorkflow(Workflow);
 
-        LibraryIncomingDocuments.InitIncomingDocuments;
+        LibraryIncomingDocuments.InitIncomingDocuments();
         LibraryIncomingDocuments.CreateNewIncomingDocument(IncomingDocument);
 
         DisableWorkflow(Workflow);
@@ -236,17 +236,17 @@ codeunit 134305 "Workflow Delete Tests"
         // [THEN] The achived workflow steps will be deleted.
 
         // Setup
-        LibraryWorkflow.DeleteAllExistingWorkflows;
+        LibraryWorkflow.DeleteAllExistingWorkflows();
 
         LibraryWorkflow.CreateWorkflow(Workflow);
 
         EntryPointEventStep :=
-          LibraryWorkflow.InsertEntryPointEventStep(Workflow, WorkflowEventHandling.RunWorkflowOnAfterInsertIncomingDocumentCode);
+          LibraryWorkflow.InsertEntryPointEventStep(Workflow, WorkflowEventHandling.RunWorkflowOnAfterInsertIncomingDocumentCode());
         LibraryWorkflow.InsertEventArgument(EntryPointEventStep, 'Dummy conditions');
 
         EnableWorkflow(Workflow);
 
-        LibraryIncomingDocuments.InitIncomingDocuments;
+        LibraryIncomingDocuments.InitIncomingDocuments();
         LibraryIncomingDocuments.CreateNewIncomingDocument(IncomingDocument);
 
         Assert.RecordIsNotEmpty(WorkflowStepInstanceArchive);
@@ -257,8 +257,8 @@ codeunit 134305 "Workflow Delete Tests"
         Assert.RecordIsNotEmpty(WorkflowStepArgumentArchive);
 
         // Execute
-        ArchivedWFStepInstances.OpenView;
-        ArchivedWFStepInstances.DeleteArchive.Invoke;
+        ArchivedWFStepInstances.OpenView();
+        ArchivedWFStepInstances.DeleteArchive.Invoke();
 
         // Validate
         Assert.RecordIsEmpty(WorkflowStepInstanceArchive);
@@ -292,24 +292,24 @@ codeunit 134305 "Workflow Delete Tests"
         // Validate
         WorkflowPage.OpenView();
         WorkflowPage.GotoRecord(Workflow);
-        Assert.IsFalse(WorkflowPage.ArchivedWorkflowStepInstances.Enabled, 'The action should be disabled.');
+        Assert.IsFalse(WorkflowPage.ArchivedWorkflowStepInstances.Enabled(), 'The action should be disabled.');
         WorkflowPage.Close();
 
         EntryPointEventStep :=
-          LibraryWorkflow.InsertEntryPointEventStep(Workflow, WorkflowEventHandling.RunWorkflowOnAfterInsertIncomingDocumentCode);
+          LibraryWorkflow.InsertEntryPointEventStep(Workflow, WorkflowEventHandling.RunWorkflowOnAfterInsertIncomingDocumentCode());
         LibraryWorkflow.InsertEventArgument(EntryPointEventStep, 'Dummy conditions');
 
         EnableWorkflow(Workflow);
 
-        LibraryIncomingDocuments.InitIncomingDocuments;
+        LibraryIncomingDocuments.InitIncomingDocuments();
         LibraryIncomingDocuments.CreateNewIncomingDocument(IncomingDocument);
 
         Assert.RecordIsNotEmpty(WorkflowStepInstanceArchive);
 
         // Validate
-        WorkflowPage.OpenView;
+        WorkflowPage.OpenView();
         WorkflowPage.GotoRecord(Workflow);
-        Assert.IsTrue(WorkflowPage.ArchivedWorkflowStepInstances.Enabled, 'The action should be enabled.');
+        Assert.IsTrue(WorkflowPage.ArchivedWorkflowStepInstances.Enabled(), 'The action should be enabled.');
         WorkflowPage.Close();
 
         DisableWorkflow(Workflow);
@@ -319,8 +319,8 @@ codeunit 134305 "Workflow Delete Tests"
         Assert.RecordIsNotEmpty(WorkflowStepArgumentArchive);
 
         // Execute;
-        ArchivedWFStepInstances.OpenView;
-        ArchivedWFStepInstances.DeleteArchive.Invoke;
+        ArchivedWFStepInstances.OpenView();
+        ArchivedWFStepInstances.DeleteArchive.Invoke();
 
         // Validate
         Assert.RecordIsNotEmpty(WorkflowStepInstanceArchive);
@@ -343,7 +343,6 @@ codeunit 134305 "Workflow Delete Tests"
         WorkflowStepArgumentArchive: Record "Workflow Step Argument Archive";
         WorkflowEventHandling: Codeunit "Workflow Event Handling";
         WorkflowResponseHandling: Codeunit "Workflow Response Handling";
-        WorkflowManagement: Codeunit "Workflow Management";
         EntryPointEventStep: Integer;
         ResponseStep: Integer;
     begin
@@ -360,10 +359,10 @@ codeunit 134305 "Workflow Delete Tests"
         EntryPointEventStep :=
           LibraryWorkflow.InsertEntryPointEventStep(Workflow, WorkflowEventHandling.RunWorkflowOnCustomerChangedCode());
         LibraryWorkflow.InsertEventRule(EntryPointEventStep, 20, WorkflowRule.Operator::Changed);
-        ResponseStep := LibraryWorkflow.InsertResponseStep(Workflow, WorkflowResponseHandling.RevertValueForFieldCode,
+        ResponseStep := LibraryWorkflow.InsertResponseStep(Workflow, WorkflowResponseHandling.RevertValueForFieldCode(),
             EntryPointEventStep);
         LibraryWorkflow.InsertRecChangeValueArgument(ResponseStep, DATABASE::Customer, 20);
-        LibraryWorkflow.InsertResponseStep(Workflow, WorkflowResponseHandling.ApplyNewValuesCode, ResponseStep);
+        LibraryWorkflow.InsertResponseStep(Workflow, WorkflowResponseHandling.ApplyNewValuesCode(), ResponseStep);
         EnableWorkflow(Workflow);
 
         // Bug: 437824
@@ -416,14 +415,14 @@ codeunit 134305 "Workflow Delete Tests"
         LibraryWorkflow.CreateWorkflow(Workflow);
 
         OnCreateIncDocEventID :=
-          LibraryWorkflow.InsertEntryPointEventStep(Workflow, WorkflowEventHandling.RunWorkflowOnAfterInsertIncomingDocumentCode);
-        CreateNotifResponseID := LibraryWorkflow.InsertResponseStep(Workflow, WorkflowResponseHandling.CreateNotificationEntryCode,
+          LibraryWorkflow.InsertEntryPointEventStep(Workflow, WorkflowEventHandling.RunWorkflowOnAfterInsertIncomingDocumentCode());
+        CreateNotifResponseID := LibraryWorkflow.InsertResponseStep(Workflow, WorkflowResponseHandling.CreateNotificationEntryCode(),
             OnCreateIncDocEventID);
 
         PmtLineCreatedEventID :=
-          LibraryWorkflow.InsertEventStep(Workflow, WorkflowEventHandling.RunWorkflowOnAfterInsertGeneralJournalLineCode,
+          LibraryWorkflow.InsertEventStep(Workflow, WorkflowEventHandling.RunWorkflowOnAfterInsertGeneralJournalLineCode(),
             CreateNotifResponseID);
-        LibraryWorkflow.InsertResponseStep(Workflow, WorkflowResponseHandling.DoNothingCode, PmtLineCreatedEventID);
+        LibraryWorkflow.InsertResponseStep(Workflow, WorkflowResponseHandling.DoNothingCode(), PmtLineCreatedEventID);
 
         LibraryWorkflow.InsertNotificationArgument(CreateNotifResponseID, UserId, 0, '');
 

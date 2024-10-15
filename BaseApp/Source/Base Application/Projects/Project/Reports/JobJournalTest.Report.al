@@ -18,9 +18,10 @@ using System.Utilities;
 
 report 1005 "Job Journal - Test"
 {
+    AdditionalSearchTerms = 'Job Journal - Test';
     DefaultLayout = RDLC;
     RDLCLayout = './Projects/Project/Reports/JobJournalTest.rdlc';
-    Caption = 'Job Journal - Test';
+    Caption = 'Project Journal - Test';
 
     dataset
     {
@@ -431,8 +432,8 @@ report 1005 "Job Journal - Test"
 
         Text000: Label '%1 cannot be filtered when you post recurring journals.';
         Text001: Label '%1 must be specified.';
-        Text002: Label 'Job %1 does not exist.';
-        Text003: Label '%1 must not be %2 for job %3.';
+        Text002: Label 'Project %1 does not exist.';
+        Text003: Label '%1 must not be %2 for project %3.';
         Text004: Label '%1 %2 %3 does not exist.';
         Text005: Label 'Resource %1 does not exist.';
         Text006: Label '%1 must be %2 for resource %3.';
@@ -446,7 +447,7 @@ report 1005 "Job Journal - Test"
         Text015: Label '%1 %2 does not exist.';
         Job_Journal_Batch___Journal_Template_Name_CaptionLbl: Label 'Journal Template';
         Job_Journal_Batch__NameCaptionLbl: Label 'Journal Batch';
-        Job_Journal___TestCaptionLbl: Label 'Job Journal - Test';
+        Job_Journal___TestCaptionLbl: Label 'Project Journal - Test';
         CurrReport_PAGENOCaptionLbl: Label 'Page';
         Job_Journal_Line__Posting_Date_CaptionLbl: Label 'Posting Date';
         DimensionsCaptionLbl: Label 'Dimensions';
@@ -454,21 +455,20 @@ report 1005 "Job Journal - Test"
 
     local procedure CheckRecurringLine(JobJnlLine2: Record "Job Journal Line")
     begin
-        with JobJnlLine2 do
-            if JobJnlTemplate.Recurring then begin
-                if "Recurring Method" = 0 then
-                    AddError(StrSubstNo(Text001, FieldCaption("Recurring Method")));
-                if Format("Recurring Frequency") = '' then
-                    AddError(StrSubstNo(Text001, FieldCaption("Recurring Frequency")));
-                if "Recurring Method" = "Recurring Method"::Variable then
-                    if Quantity = 0 then
-                        AddError(StrSubstNo(Text001, FieldCaption(Quantity)));
-            end else begin
-                if "Recurring Method" <> 0 then
-                    AddError(StrSubstNo(Text013, FieldCaption("Recurring Method")));
-                if Format("Recurring Frequency") <> '' then
-                    AddError(StrSubstNo(Text013, FieldCaption("Recurring Frequency")));
-            end;
+        if JobJnlTemplate.Recurring then begin
+            if JobJnlLine2."Recurring Method" = 0 then
+                AddError(StrSubstNo(Text001, JobJnlLine2.FieldCaption("Recurring Method")));
+            if Format(JobJnlLine2."Recurring Frequency") = '' then
+                AddError(StrSubstNo(Text001, JobJnlLine2.FieldCaption("Recurring Frequency")));
+            if JobJnlLine2."Recurring Method" = JobJnlLine2."Recurring Method"::Variable then
+                if JobJnlLine2.Quantity = 0 then
+                    AddError(StrSubstNo(Text001, JobJnlLine2.FieldCaption(Quantity)));
+        end else begin
+            if JobJnlLine2."Recurring Method" <> 0 then
+                AddError(StrSubstNo(Text013, JobJnlLine2.FieldCaption("Recurring Method")));
+            if Format(JobJnlLine2."Recurring Frequency") <> '' then
+                AddError(StrSubstNo(Text013, JobJnlLine2.FieldCaption("Recurring Frequency")));
+        end;
     end;
 
     local procedure CheckJob(var JobJournalLine: Record "Job Journal Line")
@@ -492,9 +492,8 @@ report 1005 "Job Journal - Test"
 
     local procedure MakeRecurringTexts(var JobJnlLine2: Record "Job Journal Line")
     begin
-        with JobJnlLine2 do
-            if ("Posting Date" <> 0D) and ("No." <> '') and ("Recurring Method" <> 0) then
-                AccountingPeriod.MakeRecurringTexts("Posting Date", "Document No.", Description);
+        if (JobJnlLine2."Posting Date" <> 0D) and (JobJnlLine2."No." <> '') and (JobJnlLine2."Recurring Method" <> 0) then
+            AccountingPeriod.MakeRecurringTexts(JobJnlLine2."Posting Date", JobJnlLine2."Document No.", JobJnlLine2.Description);
     end;
 
     procedure AddError(Text: Text[250])
@@ -524,7 +523,7 @@ report 1005 "Job Journal - Test"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCheckJob(var JobJournalLine: Record "Job Journal Line"; var ErrorCounter: Integer; var ErrorText: Array[50] of Text[250]; var IsHandled: Boolean)
+    local procedure OnBeforeCheckJob(var JobJournalLine: Record "Job Journal Line"; var ErrorCounter: Integer; var ErrorText: array[50] of Text[250]; var IsHandled: Boolean)
     begin
     end;
 }

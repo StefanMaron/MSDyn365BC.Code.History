@@ -13,6 +13,7 @@ table 5745 "Transfer Shipment Line"
 {
     Caption = 'Transfer Shipment Line';
     LookupPageID = "Posted Transfer Shipment Lines";
+    DataClassification = CustomerContent;
 
     fields
     {

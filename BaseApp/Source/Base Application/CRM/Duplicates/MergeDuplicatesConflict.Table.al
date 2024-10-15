@@ -5,6 +5,7 @@ using System.Reflection;
 table 66 "Merge Duplicates Conflict"
 {
     Caption = 'Merge Duplicates Conflict';
+    DataClassification = CustomerContent;
     ReplicateData = false;
 
     fields
@@ -12,7 +13,6 @@ table 66 "Merge Duplicates Conflict"
         field(1; "Table ID"; Integer)
         {
             Caption = 'Table ID';
-            DataClassification = SystemMetadata;
 
             trigger OnValidate()
             var
@@ -25,22 +25,18 @@ table 66 "Merge Duplicates Conflict"
         field(2; Duplicate; RecordID)
         {
             Caption = 'Duplicate';
-            DataClassification = CustomerContent;
         }
         field(3; Current; RecordID)
         {
             Caption = 'Current';
-            DataClassification = CustomerContent;
         }
         field(4; "Field ID"; Integer)
         {
             Caption = 'Field ID';
-            DataClassification = SystemMetadata;
         }
         field(5; "Table Name"; Text[249])
         {
             Caption = 'Table Name';
-            DataClassification = SystemMetadata;
         }
     }
 
@@ -56,7 +52,6 @@ table 66 "Merge Duplicates Conflict"
     {
     }
 
-    [Scope('OnPrem')]
     procedure Merge(): Boolean
     var
         MergeDuplicate: Page "Merge Duplicate";

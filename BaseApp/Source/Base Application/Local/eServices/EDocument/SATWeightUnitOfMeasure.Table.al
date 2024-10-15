@@ -9,6 +9,7 @@ table 27019 "SAT Weight Unit of Measure"
     DataPerCompany = false;
     DrillDownPageID = "SAT Weight Unit Of Measures";
     LookupPageID = "SAT Weight Unit Of Measures";
+    DataClassification = CustomerContent;
 
     fields
     {

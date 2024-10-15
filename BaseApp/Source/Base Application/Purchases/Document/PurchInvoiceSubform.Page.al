@@ -506,7 +506,7 @@ page 55 "Purch. Invoice Subform"
                 field("Job No."; Rec."Job No.")
                 {
                     ApplicationArea = Jobs;
-                    ToolTip = 'Specifies the number of the related job. If you fill in this field and the Job Task No. field, then a job ledger entry will be posted together with the purchase line.';
+                    ToolTip = 'Specifies the number of the related project. If you fill in this field and the Project Task No. field, then a project ledger entry will be posted together with the purchase line.';
                     Visible = false;
 
                     trigger OnValidate()
@@ -517,7 +517,7 @@ page 55 "Purch. Invoice Subform"
                 field("Job Task No."; Rec."Job Task No.")
                 {
                     ApplicationArea = Jobs;
-                    ToolTip = 'Specifies the number of the related job task.';
+                    ToolTip = 'Specifies the number of the related project task.';
                     Visible = false;
 
                     trigger OnValidate()
@@ -528,13 +528,13 @@ page 55 "Purch. Invoice Subform"
                 field("Job Planning Line No."; Rec."Job Planning Line No.")
                 {
                     ApplicationArea = Jobs;
-                    ToolTip = 'Specifies the job planning line number that the usage should be linked to when the job journal is posted. You can only link to job planning lines that have the Apply Usage Link option enabled.';
+                    ToolTip = 'Specifies the project planning line number that the usage should be linked to when the project journal is posted. You can only link to project planning lines that have the Apply Usage Link option enabled.';
                     Visible = false;
                 }
                 field("Job Line Type"; Rec."Job Line Type")
                 {
                     ApplicationArea = Jobs;
-                    ToolTip = 'Specifies the type of planning line that was created when the job ledger entry is posted from the purchase line. If the field is empty, no planning lines were created for this entry.';
+                    ToolTip = 'Specifies the type of planning line that was created when the project ledger entry is posted from the purchase line. If the field is empty, no planning lines were created for this entry.';
                     Visible = false;
                 }
                 field("Job Unit Price"; Rec."Job Unit Price")
@@ -546,19 +546,19 @@ page 55 "Purch. Invoice Subform"
                 field("Job Line Amount"; Rec."Job Line Amount")
                 {
                     ApplicationArea = Jobs;
-                    ToolTip = 'Specifies the line amount of the job ledger entry that is related to the purchase line.';
+                    ToolTip = 'Specifies the line amount of the project ledger entry that is related to the purchase line.';
                     Visible = false;
                 }
                 field("Job Line Discount Amount"; Rec."Job Line Discount Amount")
                 {
                     ApplicationArea = Jobs;
-                    ToolTip = 'Specifies the line discount amount of the job ledger entry that is related to the purchase line.';
+                    ToolTip = 'Specifies the line discount amount of the project ledger entry that is related to the purchase line.';
                     Visible = false;
                 }
                 field("Job Line Discount %"; Rec."Job Line Discount %")
                 {
                     ApplicationArea = Jobs;
-                    ToolTip = 'Specifies the line discount percentage of the job ledger entry that is related to the purchase line.';
+                    ToolTip = 'Specifies the line discount percentage of the project ledger entry that is related to the purchase line.';
                     Visible = false;
                 }
                 field("Job Total Price"; Rec."Job Total Price")
@@ -582,13 +582,13 @@ page 55 "Purch. Invoice Subform"
                 field("Job Line Amount (LCY)"; Rec."Job Line Amount (LCY)")
                 {
                     ApplicationArea = Jobs;
-                    ToolTip = 'Specifies the line amount of the job ledger entry that is related to the purchase line.';
+                    ToolTip = 'Specifies the line amount of the project ledger entry that is related to the purchase line.';
                     Visible = false;
                 }
                 field("Job Line Disc. Amount (LCY)"; Rec."Job Line Disc. Amount (LCY)")
                 {
                     ApplicationArea = Jobs;
-                    ToolTip = 'Specifies the line discount amount of the job ledger entry that is related to the purchase line.';
+                    ToolTip = 'Specifies the line discount amount of the project ledger entry that is related to the purchase line.';
                     Visible = false;
                 }
                 field("Prod. Order No."; Rec."Prod. Order No.")
@@ -672,7 +672,7 @@ page 55 "Purch. Invoice Subform"
                 field("Deferral Code"; Rec."Deferral Code")
                 {
                     ApplicationArea = Suite;
-                    Enabled = (Rec.Type <> Rec.Type::"Fixed Asset") AND (Rec.Type <> Rec.Type::" ");
+                    Enabled = (Rec.Type <> Rec.Type::"Fixed Asset") and (Rec.Type <> Rec.Type::" ");
                     TableRelation = "Deferral Template"."Deferral Code";
                     ToolTip = 'Specifies the deferral template that governs how expenses paid with this purchase document are deferred to the different accounting periods when the expenses were incurred.';
                     Visible = false;
@@ -792,12 +792,17 @@ page 55 "Purch. Invoice Subform"
                         OnAfterValidateShortcutDimCode(Rec, ShortcutDimCode, 8);
                     end;
                 }
+#if not CLEAN25
                 field("IRS 1099 Liable"; Rec."IRS 1099 Liable")
                 {
                     ApplicationArea = BasicUS;
                     ToolTip = 'Specifies if the amount is to be a 1099 amount.';
+                    ObsoleteReason = 'Moved to IRS Forms App.';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '25.0';
                     Visible = false;
                 }
+#endif
                 field("Document No."; Rec."Document No.")
                 {
                     ApplicationArea = Basic, Suite;
@@ -1252,10 +1257,6 @@ page 55 "Purch. Invoice Subform"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Edit in Excel';
                     Image = Excel;
-                    Promoted = true;
-                    PromotedCategory = Category8;
-                    PromotedIsBig = true;
-                    PromotedOnly = true;
                     Visible = IsSaaSExcelAddinEnabled;
                     ToolTip = 'Send the data in the sub page to an Excel file for analysis or editing';
                     AccessByPermission = System "Allow Action Export To Excel" = X;
@@ -1613,7 +1614,7 @@ page 55 "Purch. Invoice Subform"
             Rec.Type := Rec.GetDefaultLineType();
     end;
 
-    [IntegrationEvent(TRUE, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnAfterNoOnAfterValidate(var PurchaseLine: Record "Purchase Line"; var xPurchaseLine: Record "Purchase Line")
     begin
     end;

@@ -3,6 +3,7 @@ namespace System.IO;
 table 1239 "Data Exch. FlowField Gr. Buff."
 {
     TableType = Temporary;
+    DataClassification = CustomerContent;
 
     fields
     {

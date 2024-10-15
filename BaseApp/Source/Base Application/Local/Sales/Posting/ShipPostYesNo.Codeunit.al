@@ -24,16 +24,15 @@ codeunit 10011 "Ship-Post (Yes/No)"
 
     local procedure "Code"()
     begin
-        with SalesHeader do
-            if "Document Type" = "Document Type"::Order then begin
-                if not Confirm(Text1020001, false, "Document Type") then begin
-                    "Shipping No." := '-1';
-                    exit;
-                end;
-                Ship := true;
-                Invoice := false;
-                SalesPost.Run(SalesHeader);
+        if SalesHeader."Document Type" = SalesHeader."Document Type"::Order then begin
+            if not Confirm(Text1020001, false, SalesHeader."Document Type") then begin
+                SalesHeader."Shipping No." := '-1';
+                exit;
             end;
+            SalesHeader.Ship := true;
+            SalesHeader.Invoice := false;
+            SalesPost.Run(SalesHeader);
+        end;
     end;
 }
 

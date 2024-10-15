@@ -1,4 +1,5 @@
-﻿// ------------------------------------------------------------------------------------------------
+﻿#if not CLEAN25
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -12,6 +13,9 @@ using Microsoft.Purchases.Vendor;
 
 codeunit 10501 "Upgrade IRS 1099 Form Boxes"
 {
+    ObsoleteReason = 'Moved to IRS Forms App.';
+    ObsoleteState = Pending;
+    ObsoleteTag = '25.0';
     Permissions = TableData Vendor = rim,
                   TableData "Vendor Ledger Entry" = rim,
                   TableData "Purchase Header" = rim,
@@ -162,3 +166,4 @@ codeunit 10501 "Upgrade IRS 1099 Form Boxes"
     end;
 }
 
+#endif

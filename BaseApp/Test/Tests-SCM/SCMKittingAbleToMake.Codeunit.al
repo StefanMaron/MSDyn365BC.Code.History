@@ -17,6 +17,7 @@ codeunit 137107 "SCM Kitting - Able To Make"
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
         LibraryManufacturing: Codeunit "Library - Manufacturing";
         LibraryTrees: Codeunit "Library - Trees";
+        LibraryNotificationMgt: Codeunit "Library - Notification Mgt.";
         LibraryWarehouse: Codeunit "Library - Warehouse";
         Assert: Codeunit Assert;
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
@@ -237,6 +238,8 @@ codeunit 137107 "SCM Kitting - Able To Make"
         VerifyTreeAsmOrder(
           BOMBuffer, ShowTotalAvailability, BottleneckFactor, InitialAbleToMake / BottleneckFactor, 1, DirectAvailFactor, AssemblyHeader,
           AsmOrderFilterType);
+
+        LibraryNotificationMgt.RecallNotificationsForRecordID(AssemblyHeader.RecordId);
     end;
 
     [Test]
@@ -256,7 +259,7 @@ codeunit 137107 "SCM Kitting - Able To Make"
         CreateBOMItemWithSKUonLocation(Item, SKU, LocationCode);
 
         // [WHEN] Set "Location Filter" on Availability by BOM level to "L"
-        ItemAvailabilityPage.OpenEdit;
+        ItemAvailabilityPage.OpenEdit();
         ItemAvailabilityPage.ItemFilter.SetValue(Item."No.");
         ItemAvailabilityPage.LocationFilter.SetValue(LocationCode);
 
@@ -281,7 +284,7 @@ codeunit 137107 "SCM Kitting - Able To Make"
         CreateBOMItemWithSKUonLocation(Item, SKU, LocationCode);
 
         // [WHEN] "Location Filter" on Availability by BOM is empty
-        ItemAvailabilityPage.OpenEdit;
+        ItemAvailabilityPage.OpenEdit();
         ItemAvailabilityPage.ItemFilter.SetValue(Item."No.");
 
         // [THEN] Replenishment System on Availability by BOM level Page is "X"
@@ -313,7 +316,7 @@ codeunit 137107 "SCM Kitting - Able To Make"
     end;
 
     [Test]
-    [HandlerFunctions('MessageHandler,AvailabilityWindowHandler')]
+    [HandlerFunctions('MessageHandler')]
     [Scope('OnPrem')]
     procedure PosAvailForLeafAsmOrder()
     begin
@@ -321,7 +324,7 @@ codeunit 137107 "SCM Kitting - Able To Make"
     end;
 
     [Test]
-    [HandlerFunctions('MessageHandler,AvailabilityWindowHandler')]
+    [HandlerFunctions('MessageHandler')]
     [Scope('OnPrem')]
     procedure PosAvailForLeafAsmOrderUnbalancedTree()
     begin
@@ -329,7 +332,7 @@ codeunit 137107 "SCM Kitting - Able To Make"
     end;
 
     [Test]
-    [HandlerFunctions('MessageHandler,AvailabilityWindowHandler')]
+    [HandlerFunctions('MessageHandler')]
     [Scope('OnPrem')]
     procedure NegAvailForLeafAsmOrder()
     begin
@@ -337,7 +340,7 @@ codeunit 137107 "SCM Kitting - Able To Make"
     end;
 
     [Test]
-    [HandlerFunctions('MessageHandler,AvailabilityWindowHandler')]
+    [HandlerFunctions('MessageHandler')]
     [Scope('OnPrem')]
     procedure NegAvailForLeafAsmOrderUnbalancedTree()
     begin
@@ -345,7 +348,7 @@ codeunit 137107 "SCM Kitting - Able To Make"
     end;
 
     [Test]
-    [HandlerFunctions('MessageHandler,AvailabilityWindowHandler')]
+    [HandlerFunctions('MessageHandler')]
     [Scope('OnPrem')]
     procedure DateFilterAsmOrder()
     begin
@@ -353,7 +356,7 @@ codeunit 137107 "SCM Kitting - Able To Make"
     end;
 
     [Test]
-    [HandlerFunctions('AvailabilityWindowHandler,MessageHandler,BOMLevelAbleToMakeHandler')]
+    [HandlerFunctions('MessageHandler,BOMLevelAbleToMakeHandler')]
     [Scope('OnPrem')]
     procedure CyclicalAsmOrder()
     var
@@ -375,11 +378,13 @@ codeunit 137107 "SCM Kitting - Able To Make"
         CalculateBOMTree.GenerateTreeForAsm(AssemblyHeader, BOMBuffer, TreeType::Availability);
 
         // Verify: BOM Level - Able to Make page.
-        AssemblyOrder.OpenEdit;
+        AssemblyOrder.OpenEdit();
         AssemblyOrder.FILTER.SetFilter("No.", AssemblyHeader."No.");
 
-        AssemblyOrder."BOM Level".Invoke;
-        AssemblyOrder.OK.Invoke;
+        AssemblyOrder."BOM Level".Invoke();
+        AssemblyOrder.OK().Invoke();
+
+        LibraryNotificationMgt.RecallNotificationsForRecordID(AssemblyHeader.RecordId);
     end;
 
     local procedure GenerateTreeForProdOrder(TestLocation: Boolean; DueDateDelay: Text)
@@ -434,11 +439,11 @@ codeunit 137107 "SCM Kitting - Able To Make"
         VerifyTopItem(BOMBuffer, ProdOrderLine."Item No.", AbleToMake, 0, true);
 
         // Verify: BOM Level - Able to Make page.
-        ReleasedProductionOrder.OpenEdit;
+        ReleasedProductionOrder.OpenEdit();
         ReleasedProductionOrder.FILTER.SetFilter("No.", ProductionOrder."No.");
 
-        ReleasedProductionOrder.ProdOrderLines.ItemAvailabilityByBOMLevel.Invoke;
-        ReleasedProductionOrder.OK.Invoke;
+        ReleasedProductionOrder.ProdOrderLines.ItemAvailabilityByBOMLevel.Invoke();
+        ReleasedProductionOrder.OK().Invoke();
     end;
 
     [Test]
@@ -1035,13 +1040,6 @@ codeunit 137107 "SCM Kitting - Able To Make"
         ParentItem.Modify(true);
     end;
 
-    [ModalPageHandler]
-    [Scope('OnPrem')]
-    procedure AvailabilityWindowHandler(var AsmAvailability: Page "Assembly Availability"; var Response: Action)
-    begin
-        Response := ACTION::Yes; // always confirm
-    end;
-
     [MessageHandler]
     [Scope('OnPrem')]
     procedure MessageHandler(Message: Text)
@@ -1052,7 +1050,7 @@ codeunit 137107 "SCM Kitting - Able To Make"
     [Scope('OnPrem')]
     procedure BOMLevelAbleToMakeHandler(var BOMLevelAbleToMake: TestPage "Item Availability by BOM Level")
     begin
-        BOMLevelAbleToMake.First;
+        BOMLevelAbleToMake.First();
     end;
 }
 

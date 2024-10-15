@@ -1,6 +1,7 @@
 namespace Microsoft.Service.Document;
 
 using Microsoft.Finance.Dimension;
+using Microsoft.Foundation.Attachment;
 using Microsoft.Sales.Customer;
 using Microsoft.Service.Comment;
 using Microsoft.Service.Posting;
@@ -59,6 +60,11 @@ page 9319 "Service Invoices"
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the name of the customer to whom the items on the document will be shipped.';
+                }
+                field("External Document No."; Rec."External Document No.")
+                {
+                    ApplicationArea = Service;
+                    ToolTip = 'Specifies a document number that refers to the customer''s numbering system.';
                 }
                 field("Location Code"; Rec."Location Code")
                 {
@@ -121,6 +127,14 @@ page 9319 "Service Invoices"
         }
         area(factboxes)
         {
+            part("Attached Documents"; "Document Attachment Factbox")
+            {
+                ApplicationArea = Service;
+                Caption = 'Attachments';
+                SubPageLink = "Table ID" = const(Database::"Service Header"),
+                              "No." = field("No."),
+                              "Document Type" = field("Document Type");
+            }
             part(Control1902018507; "Customer Statistics FactBox")
             {
                 ApplicationArea = Service;
@@ -220,12 +234,14 @@ page 9319 "Service Invoices"
                 }
                 action(CFDIRelationDocuments)
                 {
-                    ApplicationArea = BasicMX, Service;
+                    ApplicationArea = Service, BasicMX;
                     Caption = 'CFDI Relation Documents';
                     Image = Allocations;
                     RunObject = Page "CFDI Relation Documents";
                     RunPageLink = "Document Table ID" = const(5900),
+#pragma warning disable AL0603
                                   "Document Type" = field("Document Type"),
+#pragma warning restore AL0603
                                   "Document No." = field("No."),
                                   "Customer No." = field("Bill-to Customer No.");
                     ToolTip = 'View or add CFDI relation documents for the record.';
@@ -261,8 +277,11 @@ page 9319 "Service Invoices"
 
                     trigger OnAction()
                     var
+                        SelectedServiceHeader: Record "Service Header";
                         ServPostYesNo: Codeunit "Service-Post (Yes/No)";
                     begin
+                        CurrPage.SetSelectionFilter(SelectedServiceHeader);
+                        ServPostYesNo.MessageIfPostingPreviewMultipleDocuments(SelectedServiceHeader, Rec."No.");
                         ServPostYesNo.PreviewDocument(Rec);
                     end;
                 }

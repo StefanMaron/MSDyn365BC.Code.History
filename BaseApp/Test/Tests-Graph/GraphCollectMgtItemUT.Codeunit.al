@@ -160,7 +160,7 @@ codeunit 134627 "Graph Collect Mgt Item UT"
         CreateTestItem(Item);
 
         // Execute
-        UpdateBaseUnitOfMeasure(Item, GenerateNoUOMJSONString);
+        UpdateBaseUnitOfMeasure(Item, GenerateNoUOMJSONString());
 
         // Verify
         Assert.IsFalse(DummyUnitOfMeasure.Get(''), 'No blank units of measure should have been created');
@@ -212,7 +212,7 @@ codeunit 134627 "Graph Collect Mgt Item UT"
         UpdateBaseUnitOfMeasure(Item, ItemUOMJSON);
 
         // Verify
-        Assert.IsTrue(UnitOfMeasure.Find, 'Old unit of measure should not have been removed');
+        Assert.IsTrue(UnitOfMeasure.Find(), 'Old unit of measure should not have been removed');
         Assert.AreEqual(Item."Base Unit of Measure", UnitOfMeasureNew.Code, 'Base UOM was not updated');
         VerifyUOMJSON(ItemUOMJSON, Item."Base Unit of Measure");
     end;
@@ -238,7 +238,7 @@ codeunit 134627 "Graph Collect Mgt Item UT"
         UpdateBaseUnitOfMeasure(Item, ItemUOMJSON);
 
         // Verify
-        Assert.IsTrue(UnitOfMeasure.Find, 'Old unit of measure should not have been removed');
+        Assert.IsTrue(UnitOfMeasure.Find(), 'Old unit of measure should not have been removed');
         Assert.AreNotEqual(Item."Base Unit of Measure", UnitOfMeasure.Code, 'Base UOM was not updated');
         Assert.IsTrue(UnitOfMeasureNew.Get(Item."Base Unit of Measure"), 'New unit of measure was not inserted');
         VerifyUOMJSON(ItemUOMJSON, Item."Base Unit of Measure");
@@ -266,10 +266,10 @@ codeunit 134627 "Graph Collect Mgt Item UT"
         UpdateBaseUnitOfMeasure(Item, ItemBaseUOMJSON);
 
         // Verify
-        Assert.IsTrue(UnitOfMeasure.Find, 'Old unit of measure should not have been removed');
+        Assert.IsTrue(UnitOfMeasure.Find(), 'Old unit of measure should not have been removed');
         Assert.AreEqual(Item."Base Unit of Measure", UnitOfMeasureNew.Code, 'Base UOM was not updated');
         Assert.AreEqual(UnitOfMeasureNew.Code, Item."Sales Unit of Measure", 'Sales UOM should be set to base');
-        Assert.IsTrue(SalesUnitOfMeasure.Find, 'Sales UOM should not have been removed');
+        Assert.IsTrue(SalesUnitOfMeasure.Find(), 'Sales UOM should not have been removed');
         VerifyUOMJSON(ItemBaseUOMJSON, Item."Base Unit of Measure");
 
         // Test blank Base UOM with Sales UOM Existing - error

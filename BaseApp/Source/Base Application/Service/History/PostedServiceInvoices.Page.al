@@ -2,6 +2,7 @@ namespace Microsoft.Service.History;
 
 using Microsoft.EServices.EDocument;
 using Microsoft.Finance.Dimension;
+using Microsoft.Foundation.Attachment;
 using Microsoft.Service.Comment;
 
 page 5977 "Posted Service Invoices"
@@ -13,7 +14,7 @@ page 5977 "Posted Service Invoices"
     PageType = List;
     SourceTable = "Service Invoice Header";
     SourceTableView = sorting("Posting Date")
-                      order(Descending);
+                      order(descending);
     UsageCategory = History;
 
     layout
@@ -44,6 +45,11 @@ page 5977 "Posted Service Invoices"
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the name of the customer on the service invoice.';
                 }
+                field("External Document No."; Rec."External Document No.")
+                {
+                    ApplicationArea = Service;
+                    ToolTip = 'Specifies a document number that refers to the customer''s numbering system.';
+                }		
                 field("Currency Code"; Rec."Currency Code")
                 {
                     ApplicationArea = Service;
@@ -217,6 +223,13 @@ page 5977 "Posted Service Invoices"
         }
         area(factboxes)
         {
+            part("Attached Documents"; "Document Attachment Factbox")
+            {
+                ApplicationArea = Service;
+                Caption = 'Attachments';
+                SubPageLink = "Table ID" = const(Database::"Service Invoice Header"),
+                              "No." = field("No.");
+            }
             systempart(Control1900383207; Links)
             {
                 ApplicationArea = RecordLinks;
@@ -396,6 +409,22 @@ page 5977 "Posted Service Invoices"
                     ServiceInvHeader.PrintRecords(true);
                 end;
             }
+            action(AttachAsPDF)
+            {
+                ApplicationArea = Service;
+                Caption = 'Attach as PDF';
+                Image = PrintAttachment;
+                ToolTip = 'Create a PDF file and attach it to the document.';
+
+                trigger OnAction()
+                var
+                    ServiceInvoiceHeader: Record "Service Invoice Header";
+                begin
+                    ServiceInvoiceHeader := Rec;
+                    ServiceInvoiceHeader.SetRecFilter();
+                    Rec.PrintToDocumentAttachment(ServiceInvoiceHeader);
+                end;
+            }
             action("&Navigate")
             {
                 ApplicationArea = Service;
@@ -444,8 +473,16 @@ page 5977 "Posted Service Invoices"
             {
                 Caption = 'Process';
 
-                actionref("&Print_Promoted"; "&Print")
+                group(Category_CategoryPrint)
                 {
+                    ShowAs = SplitButton;
+
+                    actionref("&Print_Promoted"; "&Print")
+                    {
+                    }
+                    actionref(AttachAsPDF_Promoted; AttachAsPDF)
+                    {
+                    }
                 }
                 actionref(SendCustom_Promoted; SendCustom)
                 {

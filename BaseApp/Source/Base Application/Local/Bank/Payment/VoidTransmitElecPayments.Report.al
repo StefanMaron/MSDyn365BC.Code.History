@@ -118,20 +118,18 @@ report 10084 "Void/Transmit Elec. Payments"
 
     trigger OnPreReport()
     begin
-        with BankAccount do begin
-            Get("No.");
-            TestField(Blocked, false);
-            TestField("Export Format");
+        BankAccount.Get(BankAccount."No.");
+        BankAccount.TestField(Blocked, false);
+        BankAccount.TestField("Export Format");
 
-            if UsageType <> UsageType::Transmit then
-                if not Confirm(Text000,
-                     false,
-                     UsageType,
-                     TableCaption,
-                     "No.")
-                then
-                    CurrReport.Quit();
-        end;
+        if UsageType <> UsageType::Transmit then
+            if not Confirm(Text000,
+                 false,
+                 UsageType,
+                 BankAccount.TableCaption,
+                 BankAccount."No.")
+            then
+                CurrReport.Quit();
     end;
 
     var

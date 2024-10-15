@@ -27,8 +27,7 @@ codeunit 134919 "ERM Batch Job II"
         CopyToErrorMessage: Label 'You must specify a budget name to copy to.';
         BudgetName: Code[10];
         BudgetError: Label 'G/L Budget: %1 must not exist.', Comment = '%1=G/L Budget Name';
-        JobsCopyMsg: Label 'The job no. %1 was successfully copied to the new job no. %2 with the status %3.', Comment = '%1 - The "No." of source job; %2 - The "No." of target job, %3 - job status.';
-        TestFieldCodeErr: Label 'TestField';
+        JobsCopyMsg: Label 'The project no. %1 was successfully copied to the new project no. %2 with the status %3.', Comment = '%1 - The "No." of source project; %2 - The "No." of target project, %3 - project status.';
 
     [Test]
     [Scope('OnPrem')]
@@ -130,7 +129,7 @@ codeunit 134919 "ERM Batch Job II"
 
         // Verify: Verify that new GL Budget must not exists after declining to create a new Budget.
         GLBudgetName.SetRange(Name, NewBudgetName);
-        Assert.IsFalse(GLBudgetName.FindFirst, StrSubstNo(BudgetError, NewBudgetName));
+        Assert.IsFalse(GLBudgetName.FindFirst(), StrSubstNo(BudgetError, NewBudgetName));
     end;
 
     [Test]
@@ -271,7 +270,7 @@ codeunit 134919 "ERM Batch Job II"
           JobPlanningLine."Line Type"::"Both Budget and Billable", JobPlanningLine.Type::Resource, JobTask, JobPlanningLine);
         LibraryJob.CreateJobPlanningLine(
           JobPlanningLine."Line Type"::"Both Budget and Billable", JobPlanningLine.Type::Resource, JobTask, JobPlanningLine);
-        Commit;
+        Commit();
 
         // [GIVEN] Added line to Sales Invoice
         LibraryVariableStorage.Enqueue(SalesHeader."No.");
@@ -282,7 +281,7 @@ codeunit 134919 "ERM Batch Job II"
 
         // [THEN] 3 created lines in Job Planning Line Invoice in field "Job Ledger Entry No." had different value, not equal to 0.
         CompareJobLedgerEntryNos(Job, JobTask);
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -316,7 +315,7 @@ codeunit 134919 "ERM Batch Job II"
         JobList.CopyJob.Invoke();
 
         // [THEN] The Message is correct
-        Assert.AreEqual(STRSUBSTNO(JobsCopyMsg, Job."No.", TargetJobNo, "Job Status"::Planning), LibraryVariableStorage.DequeueText, '');
+        Assert.AreEqual(STRSUBSTNO(JobsCopyMsg, Job."No.", TargetJobNo, "Job Status"::Planning), LibraryVariableStorage.DequeueText(), '');
         LibraryVariableStorage.AssertEmpty();
     end;
 
@@ -395,7 +394,7 @@ codeunit 134919 "ERM Batch Job II"
         JobList.CopyJob.Invoke();
 
         // [THEN] The Message is correct
-        Assert.AreEqual(STRSUBSTNO(JobsCopyMsg, Job."No.", TargetJobNo, "Job Status"::Completed), LibraryVariableStorage.DequeueText, '');
+        Assert.AreEqual(STRSUBSTNO(JobsCopyMsg, Job."No.", TargetJobNo, "Job Status"::Completed), LibraryVariableStorage.DequeueText(), '');
         LibraryVariableStorage.AssertEmpty();
         UnbindSubscription(ERMBatchJobII);
     end;
@@ -403,7 +402,7 @@ codeunit 134919 "ERM Batch Job II"
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"ERM Batch Job II");
-        ClearGlobalVariables;
+        ClearGlobalVariables();
     end;
 
     local procedure CalculateAmountUsingRoundingMethod(OldAmount: Decimal): Code[10]
@@ -434,7 +433,7 @@ codeunit 134919 "ERM Batch Job II"
         RunCopyGLBudget(FromSource, FromGLBudgetName, GLAccountNo, Format(WorkDate()), BudgetName, AdjustmentFactor, RoundingMethodCode);
 
         // Verify: Verify Amount on GL Budget Page.
-        OpenGLBudgetPage;
+        OpenGLBudgetPage();
 
         // Tear Down: Delete earlier created GL Budget.
         GLBudgetName.Get(BudgetName);
@@ -485,9 +484,9 @@ codeunit 134919 "ERM Batch Job II"
     var
         GLBudgetNamesPage: TestPage "G/L Budget Names";
     begin
-        GLBudgetNamesPage.OpenEdit;
+        GLBudgetNamesPage.OpenEdit();
         GLBudgetNamesPage.FILTER.SetFilter(Name, BudgetName);
-        GLBudgetNamesPage.EditBudget.Invoke;
+        GLBudgetNamesPage.EditBudget.Invoke();
     end;
 
     local procedure RunCopyGLBudget(FromSource: Option; FromGLBudgetName: Code[10]; FromGLAccount: Code[20]; DateInterval: Text[30]; ToGlBudgetName: Code[10]; AdjustmentFactor: Decimal; RoundingMethodCode: Code[10])
@@ -536,7 +535,7 @@ codeunit 134919 "ERM Batch Job II"
         Budget.GLAccCategory.SetValue(0);
         Budget.GLAccFilter.SetValue(GLAccountNo);
         Budget.MatrixForm.TotalBudgetedAmount.AssertEquals(Amount);
-        Budget.OK.Invoke;
+        Budget.OK().Invoke();
     end;
 
     [MessageHandler]
@@ -565,17 +564,17 @@ codeunit 134919 "ERM Batch Job II"
     procedure CreateInvoiceRequestHandler(var JobTransfertoSalesInvoice: TestRequestPage "Job Transfer to Sales Invoice")
     begin
         JobTransfertoSalesInvoice.CreateNewInvoice.SetValue(false);
-        JobTransfertoSalesInvoice.AppendToSalesInvoiceNo.SetValue(LibraryVariableStorage.DequeueText);
-        JobTransfertoSalesInvoice.OK.Invoke;
+        JobTransfertoSalesInvoice.AppendToSalesInvoiceNo.SetValue(LibraryVariableStorage.DequeueText());
+        JobTransfertoSalesInvoice.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure CopyJobModalPageHandler(var CopyJob: TestPage "Copy Job")
     begin
-        CopyJob.TargetJobNo.SetValue(LibraryVariableStorage.DequeueText);
-        CopyJob.TargetJobDescription.SetValue(LibraryVariableStorage.DequeueText);
-        CopyJob.OK.Invoke();
+        CopyJob.TargetJobNo.SetValue(LibraryVariableStorage.DequeueText());
+        CopyJob.TargetJobDescription.SetValue(LibraryVariableStorage.DequeueText());
+        CopyJob.OK().Invoke();
     end;
 
     [MessageHandler]

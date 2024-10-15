@@ -6,6 +6,7 @@ using Microsoft.CRM.Campaign;
 using Microsoft.CRM.Contact;
 using Microsoft.CRM.Opportunity;
 using Microsoft.CRM.Team;
+using Microsoft.EServices.EDocument;
 using Microsoft.Finance.Currency;
 using Microsoft.Finance.Deferral;
 using Microsoft.Finance.Dimension;
@@ -40,6 +41,7 @@ table 5107 "Sales Header Archive"
     DataCaptionFields = "No.", "Sell-to Customer Name", "Version No.";
     DrillDownPageID = "Sales List Archive";
     LookupPageID = "Sales List Archive";
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -489,10 +491,22 @@ table 5107 "Sales Header Archive"
             Caption = 'Shipping Agent Code';
             TableRelation = "Shipping Agent";
         }
+#if not CLEAN24
         field(106; "Package Tracking No."; Text[30])
         {
             Caption = 'Package Tracking No.';
+            ObsoleteReason = 'Field length will be increased to 50.';
+            ObsoleteState = Pending;
+            ObsoleteTag = '24.0';
         }
+#else
+#pragma warning disable AS0086
+        field(106; "Package Tracking No."; Text[50])
+        {
+            Caption = 'Package Tracking No.';
+        }
+#pragma warning restore AS0086
+#endif
         field(107; "No. Series"; Code[20])
         {
             Caption = 'No. Series';
@@ -665,6 +679,11 @@ table 5107 "Sales Header Archive"
         {
             Caption = 'Company Bank Account Code';
             TableRelation = "Bank Account" where("Currency Code" = field("Currency Code"));
+        }
+        field(165; "Incoming Document Entry No."; Integer)
+        {
+            Caption = 'Incoming Document Entry No.';
+            TableRelation = "Incoming Document";
         }
         field(171; "Sell-to Phone No."; Text[30])
         {
@@ -955,6 +974,9 @@ table 5107 "Sales Header Archive"
         {
         }
         key(Key3; "Document Type", "Bill-to Customer No.")
+        {
+        }
+        key(Key4; "Incoming Document Entry No.")
         {
         }
     }

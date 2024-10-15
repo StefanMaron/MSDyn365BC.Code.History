@@ -5,6 +5,7 @@ using Microsoft.Finance.GeneralLedger.Account;
 table 1828 "Business Unit Information"
 {
     Caption = 'Business Unit Information';
+    DataClassification = CustomerContent;
 
     fields
     {

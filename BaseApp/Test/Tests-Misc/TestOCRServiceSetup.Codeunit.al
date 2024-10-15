@@ -74,9 +74,9 @@ codeunit 134415 "Test OCR Service Setup"
             OCRServiceSetup.Delete(true);
 
         // Exectute
-        OCRServiceSetupCard.OpenEdit;
+        OCRServiceSetupCard.OpenEdit();
         Assert.AreNotEqual('', OCRServiceSetupCard."Service URL".Value, '');
-        OCRServiceSetupCard.SetURLsToDefault.Invoke;
+        OCRServiceSetupCard.SetURLsToDefault.Invoke();
         OCRServiceSetupCard.Close();
 
         // Validate
@@ -102,7 +102,7 @@ codeunit 134415 "Test OCR Service Setup"
         AuthTxt := Format(CreateGuid());
 
         // Execute
-        OCRServiceSetupCard.OpenEdit;
+        OCRServiceSetupCard.OpenEdit();
         OCRServiceSetupCard."User Name".Value := 'username';
         OCRServiceSetupCard.Password.Value := PasswordTxt;
         OCRServiceSetupCard.AuthorizationKey.VALUE := PasswordTxt; // To provoke an update of the Isolated Storage
@@ -135,7 +135,7 @@ codeunit 134415 "Test OCR Service Setup"
         AuthTxt := Format(CreateGuid());
 
         // Execute
-        OCRServiceSetupCard.OpenEdit;
+        OCRServiceSetupCard.OpenEdit();
         OCRServiceSetupCard."User Name".Value := 'username';
         OCRServiceSetupCard.Password.Value := PasswordTxt;
         OCRServiceSetupCard.Password.Value := '';
@@ -163,10 +163,10 @@ codeunit 134415 "Test OCR Service Setup"
         OCRServiceSetup.Insert(true);
 
         // Execute
-        asserterror OCRServiceMgt.CheckCredentials; // triggers a confirm and page.runmodal
+        asserterror OCRServiceMgt.CheckCredentials(); // triggers a confirm and page.runmodal
 
         // Verify
-        Assert.AreEqual(OCRServiceMgt.GetCredentialsErrText, GetLastErrorText, '');
+        Assert.AreEqual(OCRServiceMgt.GetCredentialsErrText(), GetLastErrorText, '');
     end;
 
     [Test]
@@ -182,10 +182,10 @@ codeunit 134415 "Test OCR Service Setup"
             OCRServiceSetup.Delete(true);
 
         // Execute
-        asserterror OCRServiceMgt.CheckCredentials;  // triggers a confirm
+        asserterror OCRServiceMgt.CheckCredentials();  // triggers a confirm
 
         // Verify
-        Assert.AreEqual(OCRServiceMgt.GetCredentialsErrText, GetLastErrorText, '');
+        Assert.AreEqual(OCRServiceMgt.GetCredentialsErrText(), GetLastErrorText, '');
     end;
 
     [Test]
@@ -239,7 +239,7 @@ codeunit 134415 "Test OCR Service Setup"
     [Scope('OnPrem')]
     procedure ConfirmHandlerFalseWithTextValidation(Question: Text[1024]; var Answer: Boolean)
     begin
-        Assert.ExpectedMessage(LibraryVariableStorage.DequeueText, Question);
+        Assert.ExpectedMessage(LibraryVariableStorage.DequeueText(), Question);
         Answer := false;
     end;
 
@@ -254,7 +254,7 @@ codeunit 134415 "Test OCR Service Setup"
     [Scope('OnPrem')]
     procedure PageHandlerOcrServiceSetup(var OCRServiceSetup: TestPage "OCR Service Setup")
     begin
-        OCRServiceSetup.OK.Invoke;
+        OCRServiceSetup.OK().Invoke();
     end;
 }
 

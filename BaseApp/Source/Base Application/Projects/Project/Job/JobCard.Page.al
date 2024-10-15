@@ -1,11 +1,13 @@
 ﻿namespace Microsoft.Projects.Project.Job;
 
+using Microsoft.Assembly.Document;
 using Microsoft.CRM.Contact;
 using Microsoft.Finance.Dimension;
 using Microsoft.Foundation.Address;
 using Microsoft.Foundation.Attachment;
 using Microsoft.Foundation.Comment;
 using Microsoft.Foundation.Reporting;
+using Microsoft.Inventory.BOM;
 using Microsoft.Inventory.Ledger;
 using Microsoft.Pricing.Calculation;
 using Microsoft.Pricing.PriceList;
@@ -13,11 +15,13 @@ using Microsoft.Pricing.Source;
 using Microsoft.Projects.Project.Analysis;
 using Microsoft.Projects.Project.Ledger;
 using Microsoft.Projects.Project.Planning;
-#if not CLEAN21
+#if not CLEAN23
 using Microsoft.Projects.Project.Pricing;
 #endif
 using Microsoft.Projects.Project.Reports;
+using Microsoft.Projects.Project.Archive;
 using Microsoft.Projects.Project.WIP;
+using Microsoft.Projects.TimeSheet;
 using Microsoft.Purchases.Pricing;
 using Microsoft.Sales.Customer;
 using Microsoft.Sales.Document;
@@ -31,11 +35,11 @@ using System.Telemetry;
 
 page 88 "Job Card"
 {
-    Caption = 'Job Card';
+    Caption = 'Project Card';
     PageType = Document;
     RefreshOnActivate = true;
     SourceTable = Job;
-    AdditionalSearchTerms = 'Project';
+    AdditionalSearchTerms = 'Job Card';
 
     layout
     {
@@ -61,7 +65,7 @@ page 88 "Job Card"
                 {
                     ApplicationArea = Jobs;
                     Importance = Promoted;
-                    ToolTip = 'Specifies a short description of the job.';
+                    ToolTip = 'Specifies a short description of the project.';
                 }
                 field("Sell-to Customer No."; Rec."Sell-to Customer No.")
                 {
@@ -223,7 +227,7 @@ page 88 "Job Card"
                 {
                     ApplicationArea = Jobs;
                     Importance = Additional;
-                    ToolTip = 'Specifies an additional description of the job for searching purposes.';
+                    ToolTip = 'Specifies an additional description of the project for searching purposes.';
                 }
                 field("External Document No."; Rec."External Document No.")
                 {
@@ -241,7 +245,7 @@ page 88 "Job Card"
                 {
                     ApplicationArea = Jobs;
                     Importance = Promoted;
-                    ToolTip = 'Specifies the person at your company who is responsible for the job.';
+                    ToolTip = 'Specifies the person at your company who is responsible for the project.';
                 }
                 field(Blocked; Rec.Blocked)
                 {
@@ -251,12 +255,18 @@ page 88 "Job Card"
                 field("Last Date Modified"; Rec."Last Date Modified")
                 {
                     ApplicationArea = Jobs;
-                    ToolTip = 'Specifies when the job card was last modified.';
+                    ToolTip = 'Specifies when the project card was last modified.';
                 }
                 field("Project Manager"; Rec."Project Manager")
                 {
                     ApplicationArea = Jobs;
-                    ToolTip = 'Specifies the person who is assigned to manage the job.';
+                    ToolTip = 'Specifies the person who is assigned to manage the project.';
+                }
+                field("No. of Archived Versions"; Rec."No. of Archived Versions")
+                {
+                    ApplicationArea = Jobs;
+                    Importance = Additional;
+                    ToolTip = 'Specifies the number of archived versions of this project.';
                 }
             }
             part(JobTaskLines; "Job Task Lines Subform")
@@ -265,7 +275,7 @@ page 88 "Job Card"
                 Caption = 'Tasks';
                 SubPageLink = "Job No." = field("No.");
                 SubPageView = sorting("Job Task No.")
-                              order(Ascending);
+                              order(ascending);
                 UpdatePropagation = Both;
                 Editable = JobTaskLinesEditable;
                 Enabled = JobTaskLinesEditable;
@@ -277,7 +287,7 @@ page 88 "Job Card"
                 {
                     ApplicationArea = Jobs;
                     Importance = Promoted;
-                    ToolTip = 'Specifies a current status of the job. You can change the status for the job as it progresses. Final calculations can be made on completed jobs.';
+                    ToolTip = 'Specifies a current status of the project. You can change the status for the project as it progresses. Final calculations can be made on completed projects.';
 
                     trigger OnValidate()
                     begin
@@ -291,32 +301,44 @@ page 88 "Job Card"
                 {
                     ApplicationArea = Jobs;
                     Importance = Promoted;
-                    ToolTip = 'Specifies the posting group that links transactions made for the job with the appropriate general ledger accounts according to the general posting setup.';
+                    ToolTip = 'Specifies the posting group that links transactions made for the project with the appropriate general ledger accounts according to the general posting setup.';
+                }
+                field("Location Code"; Rec."Location Code")
+                {
+                    ApplicationArea = Jobs;
+                    Importance = Promoted;
+                    ToolTip = 'Specifies the location code of the project.';
+                }
+                field("Bin Code"; Rec."Bin Code")
+                {
+                    ApplicationArea = Jobs;
+                    Importance = Promoted;
+                    ToolTip = 'Specifies a bin code for specific location of the project.';
                 }
                 field("WIP Method"; Rec."WIP Method")
                 {
                     ApplicationArea = Jobs;
                     Importance = Additional;
-                    ToolTip = 'Specifies the method that is used to calculate the value of work in process for the job.';
+                    ToolTip = 'Specifies the method that is used to calculate the value of work in process for the project.';
                 }
                 field("WIP Posting Method"; Rec."WIP Posting Method")
                 {
                     ApplicationArea = Jobs;
                     Importance = Additional;
-                    ToolTip = 'Specifies how WIP posting is performed. Per Job: The total WIP costs and the sales value is used to calculate WIP. Per Job Ledger Entry: The accumulated values of WIP costs and sales are used to calculate WIP.';
+                    ToolTip = 'Specifies how WIP posting is performed. Per Project: The total WIP costs and the sales value is used to calculate WIP. Per Project Ledger Entry: The accumulated values of WIP costs and sales are used to calculate WIP.';
                 }
                 field("Allow Schedule/Contract Lines"; Rec."Allow Schedule/Contract Lines")
                 {
                     ApplicationArea = Jobs;
                     Caption = 'Allow Budget/Billable Lines';
                     Importance = Additional;
-                    ToolTip = 'Specifies if you can add planning lines of both type Budget and type Billable to the job.';
+                    ToolTip = 'Specifies if you can add planning lines of both type Budget and type Billable to the project.';
                 }
                 field("Apply Usage Link"; Rec."Apply Usage Link")
                 {
                     ApplicationArea = Jobs;
                     Importance = Additional;
-                    ToolTip = 'Specifies whether usage entries, from the job journal or purchase line, for example, are linked to job planning lines. Select this check box if you want to be able to track the quantities and amounts of the remaining work needed to complete a job and to create a relationship between demand planning, usage, and sales. On a job card, you can select this check box if there are no existing job planning lines that include type Budget that have been posted. The usage link only applies to job planning lines that include type Budget.';
+                    ToolTip = 'Specifies whether usage entries, from the project journal or purchase line, for example, are linked to project planning lines. Select this check box if you want to be able to track the quantities and amounts of the remaining work needed to complete a project and to create a relationship between demand planning, usage, and sales. On a project card, you can select this check box if there are no existing project planning lines that include type Budget that have been posted. The usage link only applies to project planning lines that include type Budget.';
                 }
                 field("% Completed"; Rec.PercentCompleted())
                 {
@@ -324,7 +346,7 @@ page 88 "Job Card"
                     Caption = '% Completed';
                     Editable = false;
                     Importance = Promoted;
-                    ToolTip = 'Specifies the percentage of the job''s estimated resource usage that has been posted as used.';
+                    ToolTip = 'Specifies the percentage of the project''s estimated resource usage that has been posted as used.';
                 }
                 field("% Invoiced"; Rec.PercentInvoiced())
                 {
@@ -332,7 +354,7 @@ page 88 "Job Card"
                     Caption = '% Invoiced';
                     Editable = false;
                     Importance = Promoted;
-                    ToolTip = 'Specifies the percentage of the job''s invoice value that has been posted as invoiced.';
+                    ToolTip = 'Specifies the percentage of the project''s invoice value that has been posted as invoiced.';
                 }
                 field("% of Overdue Planning Lines"; Rec.PercentOverdue())
                 {
@@ -340,13 +362,24 @@ page 88 "Job Card"
                     Caption = '% of Overdue Planning Lines';
                     Editable = false;
                     Importance = Additional;
-                    ToolTip = 'Specifies the percentage of the job''s planning lines where the planned delivery date has been exceeded.';
+                    ToolTip = 'Specifies the percentage of the project''s planning lines where the planned delivery date has been exceeded.';
                 }
             }
             group("Invoice and Shipping")
             {
                 Caption = 'Invoice and Shipping';
 
+                field("Task Billing Method"; Rec."Task Billing Method")
+                {
+                    ApplicationArea = Jobs;
+                    ToolTip = 'Specify whether to use the customer specified for the project for all tasks or allow people to specify different customers. One customer lets you invoice only the customer specified for the project. Multiple customers lets you invoice customers specified on each task, which can be different customers.';
+
+                    trigger OnValidate()
+                    begin
+                        CurrPage.JobTaskLines.Page.SetPerTaskBillingFieldsVisible(Rec."Task Billing Method" = Rec."Task Billing Method"::"Multiple customers");
+                        CurrPage.Update(false);
+                    end;
+                }
                 group("Bill-to")
                 {
                     Caption = 'Bill-to';
@@ -369,14 +402,14 @@ page 88 "Job Card"
                     group(Control205)
                     {
                         ShowCaption = false;
-                        Visible = NOT (BillToOptions = BillToOptions::"Default (Customer)");
+                        Visible = not (BillToOptions = BillToOptions::"Default (Customer)");
 
                         field("Bill-to Customer No."; Rec."Bill-to Customer No.")
                         {
                             ApplicationArea = Jobs;
                             Importance = Promoted;
                             ShowMandatory = true;
-                            ToolTip = 'Specifies the number of the customer who pays for the job.';
+                            ToolTip = 'Specifies the number of the customer who pays for the project.';
                             Visible = false;
 
                             trigger OnValidate()
@@ -389,7 +422,7 @@ page 88 "Job Card"
                             Caption = 'Name';
                             ApplicationArea = Jobs;
                             Importance = Promoted;
-                            ToolTip = 'Specifies the name of the customer who pays for the job.';
+                            ToolTip = 'Specifies the name of the customer who pays for the project.';
                             Editable = ((BillToOptions = BillToOptions::"Another Customer") or ((BillToOptions = BillToOptions::"Custom Address") and not ShouldSearchForCustByName));
                             Enabled = ((BillToOptions = BillToOptions::"Another Customer") or ((BillToOptions = BillToOptions::"Custom Address") and not ShouldSearchForCustByName));
                             NotBlank = true;
@@ -456,7 +489,7 @@ page 88 "Job Card"
                             ApplicationArea = Jobs;
                             Importance = Additional;
                             QuickEntry = false;
-                            ToolTip = 'Specifies the postal code of the customer who pays for the job.';
+                            ToolTip = 'Specifies the postal code of the customer who pays for the project.';
                             Editable = BillToInformationEditable;
                             Enabled = BillToInformationEditable;
                         }
@@ -505,7 +538,7 @@ page 88 "Job Card"
                             Editable = false;
                             Importance = Additional;
                             ExtendedDatatype = PhoneNo;
-                            ToolTip = 'Specifies the telephone number of the customer contact person for the job.';
+                            ToolTip = 'Specifies the telephone number of the customer contact person for the project.';
                         }
                         field(ContactMobilePhoneNo; BillToContact."Mobile Phone No.")
                         {
@@ -514,7 +547,7 @@ page 88 "Job Card"
                             Editable = false;
                             Importance = Additional;
                             ExtendedDatatype = PhoneNo;
-                            ToolTip = 'Specifies the mobile telephone number of the customer contact person for the job.';
+                            ToolTip = 'Specifies the mobile telephone number of the customer contact person for the project.';
                         }
                         field(ContactEmail; BillToContact."E-Mail")
                         {
@@ -523,14 +556,14 @@ page 88 "Job Card"
                             ExtendedDatatype = EMail;
                             Editable = false;
                             Importance = Additional;
-                            ToolTip = 'Specifies the email address of the customer contact person for the job.';
+                            ToolTip = 'Specifies the email address of the customer contact person for the project.';
                         }
                         field("Bill-to Contact"; Rec."Bill-to Contact")
                         {
                             Caption = 'Contact';
                             ApplicationArea = Jobs;
                             Importance = Additional;
-                            ToolTip = 'Specifies the name of the contact person at the customer who pays for the job.';
+                            ToolTip = 'Specifies the name of the contact person at the customer who pays for the project.';
                             Editable = BillToInformationEditable;
                             Enabled = BillToInformationEditable;
                         }
@@ -597,7 +630,7 @@ page 88 "Job Card"
                     group(Control202)
                     {
                         ShowCaption = false;
-                        Visible = NOT (ShipToOptions = ShipToOptions::"Default (Sell-to Address)");
+                        Visible = not (ShipToOptions = ShipToOptions::"Default (Sell-to Address)");
                         field("Ship-to Code"; Rec."Ship-to Code")
                         {
                             ApplicationArea = Jobs;
@@ -701,18 +734,18 @@ page 88 "Job Card"
                 {
                     ApplicationArea = Jobs;
                     Importance = Promoted;
-                    ToolTip = 'Specifies the date on which the job actually starts.';
+                    ToolTip = 'Specifies the date on which the project actually starts.';
                 }
                 field("Ending Date"; Rec."Ending Date")
                 {
                     ApplicationArea = Jobs;
                     Importance = Promoted;
-                    ToolTip = 'Specifies the date on which the job is expected to be completed.';
+                    ToolTip = 'Specifies the date on which the project is expected to be completed.';
                 }
                 field("Creation Date"; Rec."Creation Date")
                 {
                     ApplicationArea = Jobs;
-                    ToolTip = 'Specifies the date on which you set up the job.';
+                    ToolTip = 'Specifies the date on which you set up the project.';
                 }
             }
             group("Foreign Trade")
@@ -722,12 +755,12 @@ page 88 "Job Card"
                 {
                     ApplicationArea = Suite;
                     Importance = Promoted;
-                    ToolTip = 'Specifies the currency code for the job. By default, the currency code is empty. If you enter a foreign currency code, it results in the job being planned and invoiced in that currency.';
+                    ToolTip = 'Specifies the currency code for the project. By default, the currency code is empty. If you enter a foreign currency code, it results in the project being planned and invoiced in that currency.';
                 }
                 field("Invoice Currency Code"; Rec."Invoice Currency Code")
                 {
                     ApplicationArea = Suite;
-                    ToolTip = 'Specifies the currency code you want to apply when creating invoices for a job. By default, the invoice currency code for a job is based on what currency code is defined on the customer card.';
+                    ToolTip = 'Specifies the currency code you want to apply when creating invoices for a project. By default, the invoice currency code for a project is based on what currency code is defined on the customer card.';
                 }
                 field("Price Calculation Method"; Rec."Price Calculation Method")
                 {
@@ -746,12 +779,18 @@ page 88 "Job Card"
                 field("Exch. Calculation (Cost)"; Rec."Exch. Calculation (Cost)")
                 {
                     ApplicationArea = Suite;
-                    ToolTip = 'Specifies how job costs are calculated if you change the Currency Date or the Currency Code fields on a job planning Line or run the Change Job Planning Line Dates batch job. Fixed LCY option: The job costs in the local currency are fixed. Any change in the currency exchange rate will change the value of job costs in a foreign currency. Fixed FCY option: The job costs in a foreign currency are fixed. Any change in the currency exchange rate will change the value of job costs in the local currency.';
+                    ToolTip = 'Specifies how project costs are calculated if you change the Currency Date or the Currency Code fields on a project planning Line or run the Change Project Planning Line Dates batch job. Fixed LCY option: The project costs in the local currency are fixed. Any change in the currency exchange rate will change the value of project costs in a foreign currency. Fixed FCY option: The project costs in a foreign currency are fixed. Any change in the currency exchange rate will change the value of project costs in the local currency.';
                 }
                 field("Exch. Calculation (Price)"; Rec."Exch. Calculation (Price)")
                 {
                     ApplicationArea = Suite;
-                    ToolTip = 'Specifies how job sales prices are calculated if you change the Currency Date or the Currency Code fields on a job planning Line or run the Change Job Planning Line Dates batch job. Fixed LCY option: The job prices in the local currency are fixed. Any change in the currency exchange rate will change the value of job prices in a foreign currency. Fixed FCY option: The job prices in a foreign currency are fixed. Any change in the currency exchange rate will change the value of job prices in the local currency.';
+                    ToolTip = 'Specifies how project sales prices are calculated if you change the Currency Date or the Currency Code fields on a project planning Line or run the Change Project Planning Line Dates batch job. Fixed LCY option: The project prices in the local currency are fixed. Any change in the currency exchange rate will change the value of project prices in a foreign currency. Fixed FCY option: The project prices in a foreign currency are fixed. Any change in the currency exchange rate will change the value of project prices in the local currency.';
+                }
+                field("Language Code"; Rec."Language Code")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the language to be used on printouts for this project.';
+                    Visible = false;
                 }
             }
             group("WIP and Recognition")
@@ -763,76 +802,76 @@ page 88 "Job Card"
                     field("WIP Posting Date"; Rec."WIP Posting Date")
                     {
                         ApplicationArea = Jobs;
-                        ToolTip = 'Specifies the posting date that was entered when the Job Calculate WIP batch job was last run.';
+                        ToolTip = 'Specifies the posting date that was entered when the Project Calculate WIP batch job was last run.';
                     }
                     field("Total WIP Sales Amount"; Rec."Total WIP Sales Amount")
                     {
                         ApplicationArea = Jobs;
-                        ToolTip = 'Specifies the total WIP sales amount that was last calculated for the job. The WIP sales amount is the value in the WIP Sales Job WIP Entries window minus the value of the Recognized Sales Job WIP Entries window. For jobs with the Cost Value or Cost of Sales WIP methods, the WIP sales amount is normally 0.';
+                        ToolTip = 'Specifies the total WIP sales amount that was last calculated for the project. The WIP sales amount is the value in the WIP Sales Project WIP Entries window minus the value of the Recognized Sales Project WIP Entries window. For projects with the Cost Value or Cost of Sales WIP methods, the WIP sales amount is normally 0.';
                     }
                     field("Applied Sales G/L Amount"; Rec."Applied Sales G/L Amount")
                     {
                         ApplicationArea = Jobs;
-                        ToolTip = 'Specifies the sum of all applied sales in the general ledger that are related to the job.';
+                        ToolTip = 'Specifies the sum of all applied sales in the general ledger that are related to the project.';
                         Visible = false;
                     }
                     field("Total WIP Cost Amount"; Rec."Total WIP Cost Amount")
                     {
                         ApplicationArea = Jobs;
-                        ToolTip = 'Specifies the total WIP cost amount that was last calculated for the job. The WIP cost amount is the value in the WIP Cost Job WIP Entries window minus the value of the Recognized Cost Job WIP Entries window. For jobs with Sales Value or Percentage of Completion WIP methods, the WIP cost amount is normally 0.';
+                        ToolTip = 'Specifies the total WIP cost amount that was last calculated for the project. The WIP cost amount is the value in the WIP Cost Project WIP Entries window minus the value of the Recognized Cost Project WIP Entries window. For projects with Sales Value or Percentage of Completion WIP methods, the WIP cost amount is normally 0.';
                     }
                     field("Applied Costs G/L Amount"; Rec."Applied Costs G/L Amount")
                     {
                         ApplicationArea = Jobs;
-                        ToolTip = 'Specifies the sum of all applied costs that is based on to the selected job in the general ledger.';
+                        ToolTip = 'Specifies the sum of all applied costs that is based on to the selected project in the general ledger.';
                         Visible = false;
                     }
                     field("Recog. Sales Amount"; Rec."Recog. Sales Amount")
                     {
                         ApplicationArea = Jobs;
-                        ToolTip = 'Specifies the recognized sales amount that was last calculated for the job, which is the sum of the Recognized Sales Job WIP Entries.';
+                        ToolTip = 'Specifies the recognized sales amount that was last calculated for the project, which is the sum of the Recognized Sales Project WIP Entries.';
                     }
                     field("Recog. Costs Amount"; Rec."Recog. Costs Amount")
                     {
                         ApplicationArea = Jobs;
-                        ToolTip = 'Specifies the recognized cost amount that was last calculated for the job. The value is the sum of the entries in the Recognized Cost Job WIP Entries window.';
+                        ToolTip = 'Specifies the recognized cost amount that was last calculated for the project. The value is the sum of the entries in the Recognized Cost Project WIP Entries window.';
                     }
                     field("Recog. Profit Amount"; Rec.CalcRecognizedProfitAmount())
                     {
                         ApplicationArea = Jobs;
                         Caption = 'Recog. Profit Amount';
-                        ToolTip = 'Specifies the recognized profit amount for the job.';
+                        ToolTip = 'Specifies the recognized profit amount for the project.';
                     }
                     field("Recog. Profit %"; Rec.CalcRecognizedProfitPercentage())
                     {
                         ApplicationArea = Jobs;
                         Caption = 'Recog. Profit %';
-                        ToolTip = 'Specifies the recognized profit percentage for the job.';
+                        ToolTip = 'Specifies the recognized profit percentage for the project.';
                     }
                     field("Acc. WIP Costs Amount"; Rec.CalcAccWIPCostsAmount())
                     {
                         ApplicationArea = Jobs;
                         Caption = 'Acc. WIP Costs Amount';
-                        ToolTip = 'Specifies the total WIP costs for the job.';
+                        ToolTip = 'Specifies the total WIP costs for the project.';
                         Visible = false;
                     }
                     field("Acc. WIP Sales Amount"; Rec.CalcAccWIPSalesAmount())
                     {
                         ApplicationArea = Jobs;
                         Caption = 'Acc. WIP Sales Amount';
-                        ToolTip = 'Specifies the total WIP sales for the job.';
+                        ToolTip = 'Specifies the total WIP sales for the project.';
                         Visible = false;
                     }
                     field("Calc. Recog. Sales Amount"; Rec."Calc. Recog. Sales Amount")
                     {
                         ApplicationArea = Jobs;
-                        ToolTip = 'Specifies the sum of the recognized sales amount that is associated with job tasks for the job.';
+                        ToolTip = 'Specifies the sum of the recognized sales amount that is associated with project tasks for the project.';
                         Visible = false;
                     }
                     field("Calc. Recog. Costs Amount"; Rec."Calc. Recog. Costs Amount")
                     {
                         ApplicationArea = Jobs;
-                        ToolTip = 'Specifies the sum of the recognized costs amount that is associated with job tasks for the job.';
+                        ToolTip = 'Specifies the sum of the recognized costs amount that is associated with project tasks for the project.';
                         Visible = false;
                     }
                 }
@@ -842,50 +881,50 @@ page 88 "Job Card"
                     field("WIP G/L Posting Date"; Rec."WIP G/L Posting Date")
                     {
                         ApplicationArea = Jobs;
-                        ToolTip = 'Specifies the posting date that was entered when the Job Post WIP to General Ledger batch job was last run.';
+                        ToolTip = 'Specifies the posting date that was entered when the Project Post WIP to General Ledger batch job was last run.';
                     }
                     field("Total WIP Sales G/L Amount"; Rec."Total WIP Sales G/L Amount")
                     {
                         ApplicationArea = Jobs;
-                        ToolTip = 'Specifies the total WIP sales amount that was last posted to the general ledger for the job. The WIP sales amount is the value in the WIP Sales Job WIP G/L Entries window minus the value in the Recognized Sales Job WIP G/L Entries window. For jobs with the Cost Value or Cost of Sales WIP methods, the WIP sales amount is normally 0.';
+                        ToolTip = 'Specifies the total WIP sales amount that was last posted to the general ledger for the project. The WIP sales amount is the value in the WIP Sales Project WIP G/L Entries window minus the value in the Recognized Sales Project WIP G/L Entries window. For projects with the Cost Value or Cost of Sales WIP methods, the WIP sales amount is normally 0.';
                     }
                     field("Total WIP Cost G/L Amount"; Rec."Total WIP Cost G/L Amount")
                     {
                         ApplicationArea = Jobs;
-                        ToolTip = 'Specifies the total WIP Cost amount that was last posted to the G/L for the job. The WIP Cost Amount for the job is the value WIP Cost Job WIP G/L Entries less the value of the Recognized Cost Job WIP G/L Entries. For jobs with WIP Methods of Sales Value or Percentage of Completion, the WIP Cost Amount is normally 0.';
+                        ToolTip = 'Specifies the total WIP Cost amount that was last posted to the G/L for the project. The WIP Cost Amount for the project is the value WIP Cost Project WIP G/L Entries less the value of the Recognized Cost Project WIP G/L Entries. For projects with WIP Methods of Sales Value or Percentage of Completion, the WIP Cost Amount is normally 0.';
                     }
                     field("Recog. Sales G/L Amount"; Rec."Recog. Sales G/L Amount")
                     {
                         ApplicationArea = Jobs;
-                        ToolTip = 'Specifies the total recognized sales amount that was last posted to the general ledger for the job. The recognized sales G/L amount for the job is the sum of the entries in the Recognized Sales Job WIP G/L Entries window.';
+                        ToolTip = 'Specifies the total recognized sales amount that was last posted to the general ledger for the project. The recognized sales G/L amount for the project is the sum of the entries in the Recognized Sales Project WIP G/L Entries window.';
                     }
                     field("Recog. Costs G/L Amount"; Rec."Recog. Costs G/L Amount")
                     {
                         ApplicationArea = Jobs;
-                        ToolTip = 'Specifies the total Recognized Cost amount that was last posted to the general ledger for the job. The Recognized Cost G/L amount for the job is the sum of the Recognized Cost Job WIP G/L Entries.';
+                        ToolTip = 'Specifies the total Recognized Cost amount that was last posted to the general ledger for the project. The Recognized Cost G/L amount for the project is the sum of the Recognized Cost Project WIP G/L Entries.';
                     }
                     field("Recog. Profit G/L Amount"; Rec.CalcRecognizedProfitGLAmount())
                     {
                         ApplicationArea = Jobs;
                         Caption = 'Recog. Profit G/L Amount';
-                        ToolTip = 'Specifies the profit amount that is recognized with the general ledger for the job.';
+                        ToolTip = 'Specifies the profit amount that is recognized with the general ledger for the project.';
                     }
                     field("Recog. Profit G/L %"; Rec.CalcRecognProfitGLPercentage())
                     {
                         ApplicationArea = Jobs;
                         Caption = 'Recog. Profit G/L %';
-                        ToolTip = 'Specifies the profit percentage that is recognized with the general ledger for the job.';
+                        ToolTip = 'Specifies the profit percentage that is recognized with the general ledger for the project.';
                     }
                     field("Calc. Recog. Sales G/L Amount"; Rec."Calc. Recog. Sales G/L Amount")
                     {
                         ApplicationArea = Jobs;
-                        ToolTip = 'Specifies the sum of the recognized sales general ledger amount that is associated with job tasks for the job.';
+                        ToolTip = 'Specifies the sum of the recognized sales general ledger amount that is associated with project tasks for the project.';
                         Visible = false;
                     }
                     field("Calc. Recog. Costs G/L Amount"; Rec."Calc. Recog. Costs G/L Amount")
                     {
                         ApplicationArea = Jobs;
-                        ToolTip = 'Specifies the sum of the recognized costs general ledger amount that is associated with job tasks for the job.';
+                        ToolTip = 'Specifies the sum of the recognized costs general ledger amount that is associated with project tasks for the project.';
                         Visible = false;
                     }
                 }
@@ -929,7 +968,7 @@ page 88 "Job Card"
             part("Job Details"; "Job Cost Factbox")
             {
                 ApplicationArea = Jobs;
-                Caption = 'Job Details';
+                Caption = 'Project Details';
                 SubPageLink = "No." = field("No.");
             }
             systempart(Control1900383207; Links)
@@ -951,14 +990,14 @@ page 88 "Job Card"
         {
             group("&Job")
             {
-                Caption = '&Job';
+                Caption = '&Project';
                 Image = Job;
                 action(JobPlanningLines)
                 {
                     ApplicationArea = Jobs;
-                    Caption = 'Job &Planning Lines';
+                    Caption = 'Project &Planning Lines';
                     Image = JobLines;
-                    ToolTip = 'View all planning lines for the job. You use this window to plan what items, resources, and general ledger expenses that you expect to use on a job (Budget) or you can specify what you actually agreed with your customer that he should pay for the job (Billable).';
+                    ToolTip = 'View all planning lines for the project. You use this window to plan what items, resources, and general ledger expenses that you expect to use on a project (Budget) or you can specify what you actually agreed with your customer that he should pay for the project (Billable).';
 
                     trigger OnAction()
                     var
@@ -1000,14 +1039,36 @@ page 88 "Job Card"
                     RunObject = Page "Job Statistics";
                     RunPageLink = "No." = field("No.");
                     ShortCutKey = 'F7';
-                    ToolTip = 'View this job''s statistics.';
+                    ToolTip = 'View this project''s statistics.';
+                }
+                action(TimeSheetLines)
+                {
+                    ApplicationArea = Jobs;
+                    Caption = 'Time Sheet Lines';
+                    Image = LinesFromTimesheet;
+                    ToolTip = 'View which time sheet lines are referencing this project.';
+
+                    trigger OnAction()
+                    var
+                        TimeSheetLine: Record "Time Sheet Line";
+                        TimeSheetLineList: Page "Time Sheet Line List";
+                    begin
+                        TimeSheetLine.FilterGroup(2);
+                        TimeSheetLine.SetRange(Type, TimeSheetLine.Type::Job);
+                        TimeSheetLine.SetRange("Job No.", Rec."No.");
+                        TimeSheetLine.SetRange(Posted, false);
+                        TimeSheetLine.FilterGroup(0);
+
+                        TimeSheetLineList.SetTableView(TimeSheetLine);
+                        TimeSheetLineList.Run();
+                    end;
                 }
                 action(SalesInvoicesCreditMemos)
                 {
                     ApplicationArea = Jobs;
                     Caption = 'Sales &Invoices/Credit Memos';
                     Image = GetSourceDoc;
-                    ToolTip = 'View sales invoices or sales credit memos that are related to the selected job.';
+                    ToolTip = 'View sales invoices or sales credit memos that are related to the selected project.';
 
                     trigger OnAction()
                     var
@@ -1035,7 +1096,7 @@ page 88 "Job Card"
                     ApplicationArea = Jobs;
                     Caption = '&Online Map';
                     Image = Map;
-                    ToolTip = 'View online map for addresses assigned to this job.';
+                    ToolTip = 'View online map for addresses assigned to this project.';
 
                     trigger OnAction()
                     begin
@@ -1059,6 +1120,21 @@ page 88 "Job Card"
                         DocumentAttachmentDetails.RunModal();
                     end;
                 }
+                action(AssemblyOrders)
+                {
+                    AccessByPermission = TableData "BOM Component" = R;
+                    ApplicationArea = Assembly;
+                    Caption = 'Assembly Orders';
+                    Image = AssemblyOrder;
+                    ToolTip = 'View ongoing assembly orders related to the project. ';
+
+                    trigger OnAction()
+                    var
+                        AssembleToOrderLink: Record "Assemble-to-Order Link";
+                    begin
+                        AssembleToOrderLink.ShowAsmOrders(Rec, '');
+                    end;
+                }
             }
             group("W&IP")
             {
@@ -1072,8 +1148,8 @@ page 88 "Job Card"
                     RunObject = Page "Job WIP Entries";
                     RunPageLink = "Job No." = field("No.");
                     RunPageView = sorting("Job No.", "Job Posting Group", "WIP Posting Date")
-                                  order(Descending);
-                    ToolTip = 'View entries for the job that are posted as work in process.';
+                                  order(descending);
+                    ToolTip = 'View entries for the project that are posted as work in process.';
                 }
                 action("WIP &G/L Entries")
                 {
@@ -1083,11 +1159,11 @@ page 88 "Job Card"
                     RunObject = Page "Job WIP G/L Entries";
                     RunPageLink = "Job No." = field("No.");
                     RunPageView = sorting("Job No.")
-                                  order(Descending);
-                    ToolTip = 'View the job''s WIP G/L entries.';
+                                  order(descending);
+                    ToolTip = 'View the project''s WIP G/L entries.';
                 }
             }
-#if not CLEAN21
+#if not CLEAN23
             group("&Prices")
             {
                 Caption = '&Prices';
@@ -1104,7 +1180,7 @@ page 88 "Job Card"
                     Visible = not ExtendedPriceEnabled;
                     RunObject = Page "Job Resource Prices";
                     RunPageLink = "Job No." = field("No.");
-                    ToolTip = 'View this job''s resource prices.';
+                    ToolTip = 'View this project''s resource prices.';
                     ObsoleteState = Pending;
                     ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation.';
                     ObsoleteTag = '17.0';
@@ -1117,7 +1193,7 @@ page 88 "Job Card"
                     Visible = not ExtendedPriceEnabled;
                     RunObject = Page "Job Item Prices";
                     RunPageLink = "Job No." = field("No.");
-                    ToolTip = 'View this job''s item prices.';
+                    ToolTip = 'View this project''s item prices.';
                     ObsoleteState = Pending;
                     ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation.';
                     ObsoleteTag = '17.0';
@@ -1130,7 +1206,7 @@ page 88 "Job Card"
                     Visible = not ExtendedPriceEnabled;
                     RunObject = Page "Job G/L Account Prices";
                     RunPageLink = "Job No." = field("No.");
-                    ToolTip = 'View this job''s G/L account prices.';
+                    ToolTip = 'View this project''s G/L account prices.';
                     ObsoleteState = Pending;
                     ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation.';
                     ObsoleteTag = '17.0';
@@ -1194,7 +1270,7 @@ page 88 "Job Card"
                         PriceUXManagement.ShowPriceListLines(PriceSource, Enum::"Price Amount Type"::Discount);
                     end;
                 }
-#if not CLEAN21
+#if not CLEAN23
                 action(SalesPriceListsDiscounts)
                 {
                     ApplicationArea = Basic, Suite;
@@ -1269,7 +1345,7 @@ page 88 "Job Card"
                         PriceUXManagement.ShowPriceListLines(PriceSource, Enum::"Price Amount Type"::Discount);
                     end;
                 }
-#if not CLEAN21
+#if not CLEAN23
                 action(PurchasePriceListsDiscounts)
                 {
                     ApplicationArea = Basic, Suite;
@@ -1299,18 +1375,18 @@ page 88 "Job Card"
                 action("Resource &Allocated per Job")
                 {
                     ApplicationArea = Jobs;
-                    Caption = 'Resource &Allocated per Job';
+                    Caption = 'Resource &Allocated per Project';
                     Image = ViewJob;
                     RunObject = Page "Resource Allocated per Job";
-                    ToolTip = 'View this job''s resource allocation.';
+                    ToolTip = 'View this project''s resource allocation.';
                 }
                 action("Res. Gr. All&ocated per Job")
                 {
                     ApplicationArea = Jobs;
-                    Caption = 'Res. Gr. All&ocated per Job';
+                    Caption = 'Res. Gr. All&ocated per Project';
                     Image = ResourceGroup;
                     RunObject = Page "Res. Gr. Allocated per Job";
-                    ToolTip = 'View the job''s resource group allocation.';
+                    ToolTip = 'View the project''s resource group allocation.';
                 }
             }
             group(Warehouse_Related)
@@ -1322,12 +1398,26 @@ page 88 "Job Card"
                     ApplicationArea = Warehouse;
                     Caption = 'Put-away/Pick Lines/Movement Lines';
                     Image = PutawayLines;
-                    RunObject = Page "Warehouse Activity Lines";
-                    RunPageLink = "Source Type" = filter(167),
-                                  "Source Subtype" = const("0"),
-                                  "Source No." = field("No.");
-                    RunPageView = sorting("Source Type", "Source Subtype", "Source No.", "Source Line No.", "Source Subline No.", "Unit of Measure Code", "Action Type", "Breakbulk No.", "Original Breakbulk");
-                    ToolTip = 'View the list of ongoing inventory put-aways, picks, or movements for the job.';
+                    ToolTip = 'View the list of ongoing inventory put-aways, picks, or movements for the project.';
+
+                    trigger OnAction()
+                    var
+                        WarehouseActivityLine: Record "Warehouse Activity Line";
+                        WarehouseActivityLines: Page "Warehouse Activity Lines";
+                    begin
+                        WarehouseActivityLine.SetCurrentKey("Whse. Document No.", "Whse. Document Type", "Activity Type");
+                        WarehouseActivityLine.SetRange("Whse. Document Type", WarehouseActivityLine."Whse. Document Type"::Job);
+                        WarehouseActivityLine.SetRange("Whse. Document No.", Rec."No.");
+                        if WarehouseActivityLine.IsEmpty() then begin
+                            WarehouseActivityLine.Reset();
+                            WarehouseActivityLine.SetCurrentKey("Source Type", "Source Subtype", "Source No.", "Source Line No.", "Source Subline No.", "Unit of Measure Code", "Action Type", "Breakbulk No.", "Original Breakbulk");
+                            WarehouseActivityLine.SetRange("Source Type", Database::Job);
+                            WarehouseActivityLine.SetRange("Source Subtype", 0);
+                            WarehouseActivityLine.SetRange("Source No.", Rec."No.");
+                        end;
+                        WarehouseActivityLines.SetTableView(WarehouseActivityLine);
+                        WarehouseActivityLines.Run();
+                    end;
                 }
                 action("Registered P&ick Lines")
                 {
@@ -1339,7 +1429,7 @@ page 88 "Job Card"
                                   "Source Subtype" = const("0"),
                                   "Source No." = field("No.");
                     RunPageView = sorting("Source Type", "Source Subtype", "Source No.", "Source Line No.", "Source Subline No.");
-                    ToolTip = 'View the list of warehouse picks that have been made for the job.';
+                    ToolTip = 'View the list of warehouse picks that have been made for the project.';
                 }
             }
             group(History)
@@ -1354,7 +1444,7 @@ page 88 "Job Card"
                     RunObject = Page "Job Ledger Entries";
                     RunPageLink = "Job No." = field("No.");
                     RunPageView = sorting("Job No.", "Job Task No.", "Entry Type", "Posting Date")
-                                  order(Descending);
+                                  order(descending);
                     ShortCutKey = 'Ctrl+F7';
                     ToolTip = 'View the history of transactions that have been posted for the selected record.';
                 }
@@ -1364,8 +1454,8 @@ page 88 "Job Card"
                     Caption = 'Item Ledger Entries';
                     Image = ItemLedger;
                     RunObject = Page "Item Ledger Entries";
-                    RunPageLink = "Job No." = Field("No.");
-                    ToolTip = 'View the item ledger entries of items consumed by the job.';
+                    RunPageLink = "Job No." = field("No.");
+                    ToolTip = 'View the item ledger entries of items consumed by the project.';
                 }
                 action("Whse. Ledger E&ntries")
                 {
@@ -1374,8 +1464,8 @@ page 88 "Job Card"
                     Image = Warehouse;
                     RunObject = Page "Warehouse Entries";
                     RunPageLink = "Source Type" = filter(210 | 167),
-                                    "Source No." = Field("No.");
-                    ToolTip = 'View the warehouse entries of items consumed by the job.';
+                                    "Source No." = field("No.");
+                    ToolTip = 'View the warehouse entries of items consumed by the project.';
                 }
             }
         }
@@ -1388,10 +1478,10 @@ page 88 "Job Card"
                 action("Copy Job Tasks &from...")
                 {
                     ApplicationArea = Jobs;
-                    Caption = 'Copy Job Tasks &from...';
+                    Caption = 'Copy Project Tasks &from...';
                     Ellipsis = true;
                     Image = CopyToTask;
-                    ToolTip = 'Open the Copy Job Tasks page.';
+                    ToolTip = 'Open the Copy Project Tasks page.';
 
                     trigger OnAction()
                     var
@@ -1404,10 +1494,10 @@ page 88 "Job Card"
                 action("Copy Job Tasks &to...")
                 {
                     ApplicationArea = Jobs;
-                    Caption = 'Copy Job Tasks &to...';
+                    Caption = 'Copy Project Tasks &to...';
                     Ellipsis = true;
                     Image = CopyFromTask;
-                    ToolTip = 'Open the Copy Jobs To page.';
+                    ToolTip = 'Open the Copy Projects To page.';
 
                     trigger OnAction()
                     var
@@ -1428,7 +1518,7 @@ page 88 "Job Card"
                     Caption = '&Calculate WIP';
                     Ellipsis = true;
                     Image = CalculateWIP;
-                    ToolTip = 'Run the Job Calculate WIP batch job.';
+                    ToolTip = 'Run the Project Calculate WIP batch job.';
 
                     trigger OnAction()
                     var
@@ -1449,7 +1539,7 @@ page 88 "Job Card"
                     Ellipsis = true;
                     Image = PostOrder;
                     ShortCutKey = 'F9';
-                    ToolTip = 'Run the Job Post WIP to G/L batch job.';
+                    ToolTip = 'Run the Project Post WIP to G/L batch job.';
 
                     trigger OnAction()
                     var
@@ -1471,7 +1561,7 @@ page 88 "Job Card"
                     ApplicationArea = Warehouse;
                     Caption = 'Create Inventory Pick';
                     Image = CreateInventoryPick;
-                    ToolTip = 'Create inventory picks for the item on the job planning lines.';
+                    ToolTip = 'Create inventory picks for the item on the project planning lines.';
 
                     trigger OnAction()
                     begin
@@ -1485,7 +1575,7 @@ page 88 "Job Card"
                     ApplicationArea = Warehouse;
                     Caption = 'Create Warehouse Pick';
                     Image = CreateWarehousePick;
-                    ToolTip = 'Create warehouse pick documents for the job planning lines.';
+                    ToolTip = 'Create warehouse pick documents for the project planning lines.';
 
                     trigger OnAction()
                     begin
@@ -1494,95 +1584,132 @@ page 88 "Job Card"
                     end;
                 }
             }
+            group("F&unctions")
+            {
+                Caption = 'F&unctions';
+                Image = "Action";
+
+                action("Archive Job")
+                {
+                    ApplicationArea = Jobs;
+                    Caption = 'Archi&ve Project';
+                    Image = Archive;
+                    ToolTip = 'Send the project to the archive. Later, you can restore the archived project.';
+
+                    trigger OnAction()
+                    begin
+                        JobArchiveManagement.ArchiveJob(Rec);
+                        CurrPage.Update(false);
+                    end;
+                }
+            }
         }
         area(reporting)
         {
+            action("Job Actual to Budget")
+            {
+                ApplicationArea = Suite;
+                Caption = 'Project Actual to Budget';
+                Image = "Report";
+                RunObject = Report "Job Actual To Budget";
+                ToolTip = 'Compare budgeted and usage amounts for selected projects. All lines of the selected project show quantity, total cost, and line amount.';
+                Visible = false;
+            }
             action("Job Cost Budget")
             {
                 ApplicationArea = Jobs;
-                Caption = 'Job Cost Budget';
+                Caption = 'Project Cost Budget';
                 Image = "Report";
                 //The property 'PromotedCategory' can only be set if the property 'Promoted' is set to 'true'
                 //PromotedCategory = "Report";
                 RunObject = Report "Job Cost Budget";
-                ToolTip = 'View the job cost budgets for specific jobs or for all jobs. This report lists the step, task, and phase and the description of the activity. For each activity, the report includes the quantity, unit and total cost, and unit and total price.';
+                ToolTip = 'View the project cost budgets for specific projects or for all projects. This report lists the step, task, and phase and the description of the activity. For each activity, the report includes the quantity, unit and total cost, and unit and total price.';
             }
             action("Job Analysis")
             {
                 ApplicationArea = Suite;
-                Caption = 'Job Analysis';
+                Caption = 'Project Analysis';
                 Image = "Report";
                 RunObject = Report "Job Analysis";
-                ToolTip = 'Analyze the job, such as the budgeted prices, usage prices, and billable prices, and then compares the three sets of prices.';
+                ToolTip = 'Analyze the project, such as the budgeted prices, usage prices, and billable prices, and then compares the three sets of prices.';
             }
             action("Job - Planning Lines")
             {
                 ApplicationArea = Suite;
-                Caption = 'Job - Planning Lines';
+                Caption = 'Project - Planning Lines';
                 Image = "Report";
                 RunObject = Report "Job - Planning Lines";
-                ToolTip = 'View all planning lines for the job. You use this window to plan what items, resources, and general ledger expenses that you expect to use on a job (budget) or you can specify what you actually agreed with your customer that he should pay for the job (billable).';
+                ToolTip = 'View all planning lines for the project. You use this window to plan what items, resources, and general ledger expenses that you expect to use on a project (budget) or you can specify what you actually agreed with your customer that he should pay for the project (billable).';
+            }
+            action("Job - Suggested Billing")
+            {
+                ApplicationArea = Suite;
+                Caption = 'Project - Suggested Billing';
+                Image = "Report";
+                RunObject = Report "Job Suggested Billing";
+                ToolTip = 'View a list of all projects, grouped by customer, how much the customer has already been invoiced, and how much remains to be invoiced, that is, the suggested billing.';
+                Visible = false;
             }
             action("Job Cost Transaction Detail")
             {
                 ApplicationArea = Jobs;
-                Caption = 'Job Cost Transaction Detail';
+                Caption = 'Project Cost Transaction Detail';
                 Image = "Report";
                 RunObject = Report "Job Cost Transaction Detail";
-                ToolTip = 'List the details of your job transactions. The report includes the job number and description followed by a list of the transactions that occurred in the period you specify.';
+                ToolTip = 'List the details of your project transactions. The report includes the project number and description followed by a list of the transactions that occurred in the period you specify.';
             }
             action("Job Actual to Budget (Cost)")
             {
                 ApplicationArea = Jobs;
-                Caption = 'Job Actual to Budget (Cost)';
+                Caption = 'Project Actual to Budget (Cost)';
                 Image = "Report";
                 RunObject = Report "Job Actual to Budget (Cost)";
-                ToolTip = 'Compare the actual cost of your jobs to the price that was budgeted. The report shows budget and actual amounts for each phase, task, and steps.';
+                ToolTip = 'Compare the actual cost of your projects to the price that was budgeted. The report shows budget and actual amounts for each phase, task, and steps.';
             }
             action("Job Actual to Budget (Price)")
             {
                 ApplicationArea = Jobs;
-                Caption = 'Job Actual to Budget (Price)';
+                Caption = 'Project Actual to Budget (Price)';
                 Image = "Report";
                 //The property 'PromotedCategory' can only be set if the property 'Promoted' is set to 'true'
                 //PromotedCategory = "Report";
                 RunObject = Report "Job Actual to Budget (Price)";
-                ToolTip = 'Compare the actual price of your jobs to the price that was budgeted. The report shows budget and actual amounts for each phase, task, and steps.';
+                ToolTip = 'Compare the actual price of your projects to the price that was budgeted. The report shows budget and actual amounts for each phase, task, and steps.';
             }
             action("Open Purchase Invoices by Job")
             {
                 ApplicationArea = Jobs;
-                Caption = 'Open Purchase Invoices by Job';
+                Caption = 'Open Purchase Invoices by Project';
                 Image = "Report";
                 //The property 'PromotedCategory' can only be set if the property 'Promoted' is set to 'true'
                 //PromotedCategory = "Report";
                 RunObject = Report "Open Purchase Invoices by Job";
-                ToolTip = 'View open purchase invoices by job.';
+                ToolTip = 'View open purchase invoices by project.';
             }
             action("Open Sales Invoices by Job")
             {
                 ApplicationArea = Jobs;
-                Caption = 'Open Sales Invoices by Job';
+                Caption = 'Open Sales Invoices by Project';
                 Image = "Report";
                 //The property 'PromotedCategory' can only be set if the property 'Promoted' is set to 'true'
                 //PromotedCategory = "Report";
                 RunObject = Report "Open Sales Invoices by Job";
-                ToolTip = 'View open sales invoices by job.';
+                ToolTip = 'View open sales invoices by project.';
             }
             action("Job Cost Suggested Billing")
             {
                 ApplicationArea = Jobs;
-                Caption = 'Job Cost Suggested Billing';
+                Caption = 'Project Cost Suggested Billing';
                 Image = "Report";
                 RunObject = Report "Job Cost Suggested Billing";
-                ToolTip = 'Get suggestions on the amount you should bill a customer for a job. The suggested billing is based on the actual cost of the job less any amount that has already been invoiced to the customer.';
+                ToolTip = 'Get suggestions on the amount you should bill a customer for a project. The suggested billing is based on the actual cost of the project less any amount that has already been invoiced to the customer.';
             }
             action("Report Job Quote")
             {
                 ApplicationArea = Suite;
-                Caption = 'Preview Job Quote';
+                Caption = 'Preview Project Quote';
                 Image = "Report";
-                ToolTip = 'Open the Job Quote report.';
+                ToolTip = 'Open the Project Quote report.';
 
                 trigger OnAction()
                 var
@@ -1598,9 +1725,9 @@ page 88 "Job Card"
             action("Send Job Quote")
             {
                 ApplicationArea = Suite;
-                Caption = 'Send Job Quote';
+                Caption = 'Send Project Quote';
                 Image = SendTo;
-                ToolTip = 'Send the job quote to the customer. You can change the way that the document is sent in the window that appears.';
+                ToolTip = 'Send the project quote to the customer. You can change the way that the document is sent in the window that appears.';
 
                 trigger OnAction()
                 begin
@@ -1660,7 +1787,7 @@ page 88 "Job Card"
                 actionref(PurchDiscountLines_Promoted; PurchDiscountLines)
                 {
                 }
-#if not CLEAN21
+#if not CLEAN23
                 actionref(SalesPriceListsDiscounts_Promoted; SalesPriceListsDiscounts)
                 {
                     ObsoleteState = Pending;
@@ -1668,7 +1795,7 @@ page 88 "Job Card"
                     ObsoleteTag = '18.0';
                 }
 #endif
-#if not CLEAN21
+#if not CLEAN23
                 actionref(PurchasePriceListsDiscounts_Promoted; PurchasePriceListsDiscounts)
                 {
                     ObsoleteState = Pending;
@@ -1676,7 +1803,7 @@ page 88 "Job Card"
                     ObsoleteTag = '18.0';
                 }
 #endif
-#if not CLEAN21
+#if not CLEAN23
                 actionref("&Resource_Promoted"; "&Resource")
                 {
                     ObsoleteState = Pending;
@@ -1684,7 +1811,7 @@ page 88 "Job Card"
                     ObsoleteTag = '17.0';
                 }
 #endif
-#if not CLEAN21
+#if not CLEAN23
                 actionref("&Item_Promoted"; "&Item")
                 {
                     ObsoleteState = Pending;
@@ -1692,7 +1819,7 @@ page 88 "Job Card"
                     ObsoleteTag = '17.0';
                 }
 #endif
-#if not CLEAN21
+#if not CLEAN23
                 actionref("&G/L Account_Promoted"; "&G/L Account")
                 {
                     ObsoleteState = Pending;
@@ -1720,7 +1847,7 @@ page 88 "Job Card"
             }
             group(Category_Category7)
             {
-                Caption = 'Job', Comment = 'Generated from the PromotedActionCategories property index 6.';
+                Caption = 'Project', Comment = 'Generated from the PromotedActionCategories property index 6.';
 
                 actionref("&Dimensions_Promoted"; "&Dimensions")
                 {
@@ -1800,11 +1927,14 @@ page 88 "Job Card"
         BillToContact.GetOrClear(Rec."Bill-to Contact No.");
         UpdateBillToInformationEditable();
         JobTaskLinesEditable := Rec.CalcJobTaskLinesEditable();
+        CurrPage.JobTaskLines.Page.SetPerTaskBillingFieldsVisible(Rec."Task Billing Method" = Rec."Task Billing Method"::"Multiple customers");
+        CurrPage.Update(false);
     end;
 
     var
         FormatAddress: Codeunit "Format Address";
         FeatureTelemetry: Codeunit "Feature Telemetry";
+        JobArchiveManagement: Codeunit "Job Archive Management";
         EmptyShipToCodeErr: Label 'The Code field can only be empty if you select Custom Address in the Ship-to field.';
         NoFieldVisible: Boolean;
         JobTaskLinesEditable: Boolean;
@@ -1863,7 +1993,7 @@ page 88 "Job Card"
     local procedure UpdateBillToInformationEditable()
     begin
         BillToInformationEditable :=
-            (BillToOptions = BillToOptions::"Custom Address") OR
+            (BillToOptions = BillToOptions::"Custom Address") or
             (Rec."Bill-to Customer No." <> Rec."Sell-to Customer No.");
     end;
 

@@ -28,7 +28,7 @@ codeunit 142071 "UT REP Order Entry"
 
         // Setup.
         Initialize();
-        DocumentNo := CreateSalesShipmentDocument;
+        DocumentNo := CreateSalesShipmentDocument();
         Commit();  // Codeunit 314 Sales Shpt.-Printed OnRun trigger calls Commit();
 
         // Exercise.
@@ -50,9 +50,9 @@ codeunit 142071 "UT REP Order Entry"
         SalesShipmentHeader: Record "Sales Shipment Header";
         SalesShipmentLine: Record "Sales Shipment Line";
     begin
-        SalesShipmentHeader."No." := LibraryUTUtility.GetNewCode;
-        SalesShipmentHeader."Sell-to Customer No." := LibraryUTUtility.GetNewCode;
-        SalesShipmentHeader."Package Tracking No." := LibraryUTUtility.GetNewCode;
+        SalesShipmentHeader."No." := LibraryUTUtility.GetNewCode();
+        SalesShipmentHeader."Sell-to Customer No." := LibraryUTUtility.GetNewCode();
+        SalesShipmentHeader."Package Tracking No." := LibraryUTUtility.GetNewCode();
         SalesShipmentHeader.Insert();
         SalesShipmentLine."Document No." := SalesShipmentHeader."No.";
         SalesShipmentLine."Sell-to Customer No." := SalesShipmentHeader."Sell-to Customer No.";
@@ -72,7 +72,7 @@ codeunit 142071 "UT REP Order Entry"
     begin
         LibraryVariableStorage.Dequeue(DocumentNo);
         SalesShipmentPerPackage."Sales Shipment Header".SetFilter("No.", DocumentNo);
-        SalesShipmentPerPackage.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        SalesShipmentPerPackage.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 }
 

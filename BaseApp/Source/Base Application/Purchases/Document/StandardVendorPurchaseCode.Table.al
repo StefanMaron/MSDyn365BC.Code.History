@@ -8,6 +8,7 @@ using Microsoft.Purchases.Vendor;
 table 175 "Standard Vendor Purchase Code"
 {
     Caption = 'Standard Vendor Purchase Code';
+    DataClassification = CustomerContent;
 
     fields
     {

@@ -10,6 +10,7 @@ table 5972 "Contract/Service Discount"
     Caption = 'Contract/Service Discount';
     DataCaptionFields = "Contract Type", "Contract No.";
     LookupPageID = "Contract/Service Discounts";
+    DataClassification = CustomerContent;
 
     fields
     {

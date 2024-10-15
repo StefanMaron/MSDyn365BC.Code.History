@@ -14,6 +14,8 @@ using System.Utilities;
 table 5804 "Avg. Cost Adjmt. Entry Point"
 {
     Caption = 'Avg. Cost Adjmt. Entry Point';
+    LookupPageId = "Avg. Cost Adjmt. Entry Points";
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -127,7 +129,7 @@ table 5804 "Avg. Cost Adjmt. Entry Point"
         SetRange("Item No.", ValueEntry."Item No.");
         SetRange("Cost Is Adjusted", false);
         SetRange("Valuation Date", 0D, CalcDate('<-1D>', ValueEntry."Valuation Date"));
-        ValuationAdjusted := IsEmpty;
+        ValuationAdjusted := IsEmpty();
         Copy(CopyOfAvgCostAdjmtPoint);
         exit(ValuationAdjusted);
     end;

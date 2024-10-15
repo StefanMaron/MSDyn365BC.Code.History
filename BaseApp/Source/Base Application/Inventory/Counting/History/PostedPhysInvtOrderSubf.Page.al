@@ -74,7 +74,17 @@ page 5885 "Posted Phys. Invt. Order Subf."
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the item''s current expected inventory quantity in the base unit of measure.';
                 }
+#if not CLEAN24
                 field("Qty. Exp. Item Tracking (Base)"; Rec."Qty. Exp. Item Tracking (Base)")
+                {
+                    ApplicationArea = Warehouse;
+                    ToolTip = 'Specifies the item''s current expected inventory of serial and lot numbers in the base unit of measure.';
+                    ObsoleteReason = 'Replaced by field "Qty. Exp. Tracking (Base)"';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '24.0';
+                }
+#endif
+                field("Qty. Exp. Tracking (Base)"; Rec."Qty. Exp. Tracking (Base)")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the item''s current expected inventory of serial and lot numbers in the base unit of measure.';

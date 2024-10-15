@@ -517,13 +517,18 @@ page 140 "Posted Purchase Credit Memo"
                         Editable = false;
                         ToolTip = 'Specifies the name of the person you should contact at the vendor who you received the credit memo from.';
                     }
+#if not CLEAN25
                     field("IRS 1099 Code"; Rec."IRS 1099 Code")
                     {
                         ApplicationArea = BasicUS;
                         Editable = false;
                         Importance = Additional;
                         ToolTip = 'Specifies the Internal Revenue Service (IRS) 1099 code for the purchase credit memo header.';
+                        ObsoleteReason = 'Moved to IRS Forms App.';
+                        ObsoleteState = Pending;
+                        ObsoleteTag = '25.0';
                     }
+#endif
                 }
             }
         }
@@ -540,7 +545,7 @@ page 140 "Posted Purchase Credit Memo"
             {
                 ApplicationArea = Basic, Suite;
                 ShowFilter = false;
-                Visible = NOT IsOfficeAddin;
+                Visible = not IsOfficeAddin;
             }
             systempart(Control1900383207; Links)
             {
@@ -656,7 +661,7 @@ page 140 "Posted Purchase Credit Memo"
                 Ellipsis = true;
                 Image = Print;
                 ToolTip = 'Prepare to print the document. A report request window for the document opens where you can specify what to include on the print-out.';
-                Visible = NOT IsOfficeAddin;
+                Visible = not IsOfficeAddin;
 
                 trigger OnAction()
                 begin
@@ -686,7 +691,7 @@ page 140 "Posted Purchase Credit Memo"
                 Image = Navigate;
                 ShortCutKey = 'Ctrl+Alt+Q';
                 ToolTip = 'Find entries and documents that exist for the document number and posting date on the selected document. (Formerly this action was named Navigate.)';
-                Visible = NOT IsOfficeAddin;
+                Visible = not IsOfficeAddin;
 
                 trigger OnAction()
                 begin
@@ -751,7 +756,7 @@ page 140 "Posted Purchase Credit Memo"
                     Enabled = HasIncomingDocument;
                     Image = ViewOrder;
                     ToolTip = 'View any incoming document records and file attachments that exist for the entry or document.';
-                    Visible = NOT IsOfficeAddin;
+                    Visible = not IsOfficeAddin;
 
                     trigger OnAction()
                     var
@@ -765,7 +770,7 @@ page 140 "Posted Purchase Credit Memo"
                     AccessByPermission = TableData "Incoming Document" = R;
                     ApplicationArea = Basic, Suite;
                     Caption = 'Select Incoming Document';
-                    Enabled = NOT HasIncomingDocument;
+                    Enabled = not HasIncomingDocument;
                     Image = SelectLineToApply;
                     ToolTip = 'Select an incoming document record and file attachment that you want to link to the entry or document.';
 
@@ -781,7 +786,7 @@ page 140 "Posted Purchase Credit Memo"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Create Incoming Document from File';
                     Ellipsis = true;
-                    Enabled = NOT HasIncomingDocument;
+                    Enabled = not HasIncomingDocument;
                     Image = Attach;
                     ToolTip = 'Create an incoming document record by selecting a file to attach, and then link the incoming document record to the entry or document.';
 

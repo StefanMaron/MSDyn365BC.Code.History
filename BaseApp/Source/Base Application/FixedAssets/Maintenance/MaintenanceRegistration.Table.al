@@ -6,6 +6,7 @@ using Microsoft.Purchases.Vendor;
 table 5616 "Maintenance Registration"
 {
     Caption = 'Maintenance Registration';
+    DataClassification = CustomerContent;
 
     fields
     {

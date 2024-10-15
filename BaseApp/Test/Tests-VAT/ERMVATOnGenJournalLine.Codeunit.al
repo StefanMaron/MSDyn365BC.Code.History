@@ -36,7 +36,7 @@ codeunit 134029 "ERM VAT On Gen Journal Line"
     procedure PositiveVATDiffOnGenJnlLine()
     begin
         // Covers document TFS_TC_ID = 11117, 11118.
-        LibraryLowerPermissions.SetJournalsPost;
+        LibraryLowerPermissions.SetJournalsPost();
         LibraryLowerPermissions.AddO365Setup();
         CreateGenJnlLineWithVATAmt(VerificationType::"VAT Diff. Positive", false);
     end;
@@ -47,7 +47,7 @@ codeunit 134029 "ERM VAT On Gen Journal Line"
     procedure NegativeVATDiffOnGenJnlLine()
     begin
         // Covers document TFS_TC_ID = 11117, 11119.
-        LibraryLowerPermissions.SetJournalsPost;
+        LibraryLowerPermissions.SetJournalsPost();
         LibraryLowerPermissions.AddO365Setup();
         CreateGenJnlLineWithVATAmt(VerificationType::"VAT Diff. Negative", false);
     end;
@@ -58,7 +58,7 @@ codeunit 134029 "ERM VAT On Gen Journal Line"
     procedure VATBaseAmountOnGenJnlLine()
     begin
         // Covers document TFS_TC_ID = 11117, 11120.
-        LibraryLowerPermissions.SetJournalsPost;
+        LibraryLowerPermissions.SetJournalsPost();
         LibraryLowerPermissions.AddO365Setup();
         CreateGenJnlLineWithVATAmt(VerificationType::"VAT Base", false);
     end;
@@ -69,7 +69,7 @@ codeunit 134029 "ERM VAT On Gen Journal Line"
     procedure CheckVATAfterGenJnlLinePost()
     begin
         // Covers document TFS_TC_ID = 11117, 11121, 11122.
-        LibraryLowerPermissions.SetJournalsPost;
+        LibraryLowerPermissions.SetJournalsPost();
         LibraryLowerPermissions.AddO365Setup();
         CreateGenJnlLineWithVATAmt(VerificationType::Posting, true);
     end;
@@ -87,7 +87,7 @@ codeunit 134029 "ERM VAT On Gen Journal Line"
         LibraryLowerPermissions.SetOutsideO365Scope(); // This test is inside O365 scope but can only run on O365 DB / Company
         // 1. Setup: Update Sales & Receivables Setup and GeneralLedgerSetup.
         Initialize();
-        LibrarySales.SetCreditWarningsToNoWarnings;
+        LibrarySales.SetCreditWarningsToNoWarnings();
         LibrarySales.SetStockoutWarning(false);
         UpdateAdditionalCurrency(CurrencyCode);
 
@@ -121,12 +121,12 @@ codeunit 134029 "ERM VAT On Gen Journal Line"
 
         // [GIVEN] Two Posting Dates "D1", "D2". "D2" > "D1".
         for i := 1 to 2 do begin
-            PostingDate[i] := WorkDate + i;
+            PostingDate[i] := WorkDate() + i;
             Amount[i] := LibraryRandom.RandDec(100, 2);
         end;
 
         // [GIVEN] G/L Account "S" with posting type "Sale"
-        GLAccountNo := LibraryERM.CreateGLAccountWithSalesSetup;
+        GLAccountNo := LibraryERM.CreateGLAccountWithSalesSetup();
 
         // [GIVEN] Customer "C1" with "Country Code" = "X1" and "VAT Registration No." = "Y1"
         LibrarySales.CreateCustomerWithVATRegNo(Customer[1]);
@@ -136,7 +136,7 @@ codeunit 134029 "ERM VAT On Gen Journal Line"
 
         // [GIVEN] 1st Journal Line with "Posting Date" = "D2", empty "Account No.", "Bal. Account Type"="Customer", "Bal. Account No." = "C2"
         FindAndClearGenJnlBatch(GenJournalBatch);
-        LibraryLowerPermissions.SetJournalsEdit;
+        LibraryLowerPermissions.SetJournalsEdit();
         CreateCustGenJournalLine(GenJournalLine, GenJournalBatch, PostingDate[2], Customer[2]."No.", Amount[2]);
 
         // [GIVEN] 2nd Journal Line with "Posting Date" = "D1", empty "Account No.", "Bal. Account Type"="Customer", "Bal. Account No." = "C1"
@@ -152,7 +152,7 @@ codeunit 134029 "ERM VAT On Gen Journal Line"
         GenJournalLine.SetCurrentKey("Journal Template Name", "Journal Batch Name", "Posting Date", "Document No.");
 
         // [WHEN] Post Gen. Journal lines
-        LibraryLowerPermissions.SetJournalsPost;
+        LibraryLowerPermissions.SetJournalsPost();
         CODEUNIT.Run(CODEUNIT::"Gen. Jnl.-Post Batch", GenJournalLine);
 
         // [THEN] Posted VAT Entry related to Customer "C1" has "Country Code" = "X1", "VAT Registration No." = "Y1", "Bill-to/Pay-to No." = "C1"
@@ -186,12 +186,12 @@ codeunit 134029 "ERM VAT On Gen Journal Line"
 
         // [GIVEN] Two Posting Dates "D1", "D2". "D2" > "D1".
         for i := 1 to 2 do begin
-            PostingDate[i] := WorkDate + i;
+            PostingDate[i] := WorkDate() + i;
             Amount[i] := LibraryRandom.RandDec(100, 2);
         end;
 
         // [GIVEN] G/L Account "S" with posting type "Purchase"
-        GLAccountNo := LibraryERM.CreateGLAccountWithPurchSetup;
+        GLAccountNo := LibraryERM.CreateGLAccountWithPurchSetup();
 
         // [GIVEN] Vendor "V1" with "Country Code" = "X1" and "VAT Registration No." = "Y1"
         CreateVendorWithVATRegNo(Vendor[1]);
@@ -201,7 +201,7 @@ codeunit 134029 "ERM VAT On Gen Journal Line"
 
         // [GIVEN] 1st Journal Line with "Posting Date" = "D2", empty "Account No.", "Bal. Account Type"="Vendor", "Bal. Account No." = "V2"
         FindAndClearGenJnlBatch(GenJournalBatch);
-        LibraryLowerPermissions.SetJournalsEdit;
+        LibraryLowerPermissions.SetJournalsEdit();
         CreateVendGenJournalLine(GenJournalLine, GenJournalBatch, PostingDate[2], Vendor[2]."No.", -Amount[2]);
 
         // [GIVEN] 2nd Journal Line with "Posting Date" = "D1", empty "Account No.", "Bal. Account Type"="Vendor", "Bal. Account No." = "V1"
@@ -217,7 +217,7 @@ codeunit 134029 "ERM VAT On Gen Journal Line"
         GenJournalLine.SetCurrentKey("Journal Template Name", "Journal Batch Name", "Posting Date", "Document No.");
 
         // [WHEN] Post Gen. Journal lines
-        LibraryLowerPermissions.SetJournalsPost;
+        LibraryLowerPermissions.SetJournalsPost();
         CODEUNIT.Run(CODEUNIT::"Gen. Jnl.-Post Batch", GenJournalLine);
 
         // [THEN] Posted VAT Entry related to Vendor "V1" has "Country Code" = "X1", "VAT Registration No." = "Y1", "Bill-to/Pay-to No." = "V1"
@@ -255,7 +255,7 @@ codeunit 134029 "ERM VAT On Gen Journal Line"
         // [GIVEN] 1st Journal Line with G/L Account, Amount = "X" and Document No = "D1"
         CreateRecurringGenJournalLine(
           GenJournalLine, GenJournalBatch, GenJournalLine."Document Type"::Payment, GenJournalLine."Account Type"::"G/L Account",
-          LibraryERM.CreateGLAccountWithSalesSetup, LibraryRandom.RandDec(50, 2));
+          LibraryERM.CreateGLAccountWithSalesSetup(), LibraryRandom.RandDec(50, 2));
         DocumentNo := GenJournalLine."Document No.";
 
         // [GIVEN] 2nd Journal Line with Customer, Amount = -"X" and Document No = "D1"
@@ -294,7 +294,7 @@ codeunit 134029 "ERM VAT On Gen Journal Line"
         // [GIVEN] 1st Journal Line with G/L Account, Amount = "X" and Document No = "D1"
         CreateRecurringGenJournalLine(
           GenJournalLine, GenJournalBatch, GenJournalLine."Document Type"::Invoice,
-          GenJournalLine."Account Type"::"G/L Account", LibraryERM.CreateGLAccountWithPurchSetup, LibraryRandom.RandDec(50, 2));
+          GenJournalLine."Account Type"::"G/L Account", LibraryERM.CreateGLAccountWithPurchSetup(), LibraryRandom.RandDec(50, 2));
         DocumentNo := GenJournalLine."Document No.";
 
         // [GIVEN] 2nd Journal Line with Vendor, Amount = -"X" and Document No = "D1"
@@ -421,7 +421,7 @@ codeunit 134029 "ERM VAT On Gen Journal Line"
                                       GenJournalBatch,
                                       GenJournalLine."Document Type"::Invoice,
                                       GenJournalLine."Account Type"::"G/L Account",
-                                      LibraryERM.CreateGLAccountWithPurchSetup,
+                                      LibraryERM.CreateGLAccountWithPurchSetup(),
                                       -1 * Amount);
         DocumentNo := GenJournalLine."Document No.";
         GenJournalLine.Validate("Gen. Posting Type", GenJournalLine."Gen. Posting Type"::Sale);
@@ -467,7 +467,7 @@ codeunit 134029 "ERM VAT On Gen Journal Line"
         LibrarySales.CreateCustomerWithVATRegNo(Customer);
 
         // [GIVEN] Create Recurring Journal Batch
-        GLAccountNo := LibraryERM.CreateGLAccountWithSalesSetup;
+        GLAccountNo := LibraryERM.CreateGLAccountWithSalesSetup();
 
         // [GIVEN] Create Journal Line With Gl
         Amount := LibraryRandom.RandDec(1000, 0);
@@ -626,7 +626,7 @@ codeunit 134029 "ERM VAT On Gen Journal Line"
         // Post the General Journal Line if option selected.
         LibraryERM.CreateGeneralJnlLine(
           GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, GenJournalLine."Document Type"::" ",
-          GenJournalLine."Account Type"::"G/L Account", LibraryERM.CreateGLAccountWithSalesSetup,
+          GenJournalLine."Account Type"::"G/L Account", LibraryERM.CreateGLAccountWithSalesSetup(),
           1000 + LibraryRandom.RandInt(100));
 
         if Posting then
@@ -711,7 +711,7 @@ codeunit 134029 "ERM VAT On Gen Journal Line"
           -LibraryRandom.RandDec(100, 2));
         GenJournalLine.Validate("Currency Code", CurrencyCode);
         GenJournalLine.Validate("Bal. Account Type", GenJournalLine."Bal. Account Type"::"G/L Account");
-        GenJournalLine.Validate("Bal. Account No.", LibraryERM.CreateGLAccountWithSalesSetup);
+        GenJournalLine.Validate("Bal. Account No.", LibraryERM.CreateGLAccountWithSalesSetup());
         GenJournalLine.Modify(true);
     end;
 
@@ -784,19 +784,19 @@ codeunit 134029 "ERM VAT On Gen Journal Line"
         // Calculate the VAT Amount and then VAT Base Amount.
         VATAmount :=
           Round(GenJournalLine.Amount * VATPostingSetup."VAT %" / (100 + VATPostingSetup."VAT %"),
-            LibraryERM.GetAmountRoundingPrecision);
+            LibraryERM.GetAmountRoundingPrecision());
 
-        VATBaseAmount := Round(GenJournalLine.Amount - VATAmount, LibraryERM.GetAmountRoundingPrecision);
+        VATBaseAmount := Round(GenJournalLine.Amount - VATAmount, LibraryERM.GetAmountRoundingPrecision());
         exit(VATBaseAmount);
     end;
 
     local procedure UpdateAdditionalCurrency(var CurrencyCode: Code[10])
     begin
         // Call the Adjust Add. Reporting Currency Report.
-        CurrencyCode := CreateCurrency;
+        CurrencyCode := CreateCurrency();
         LibraryERM.CreateRandomExchangeRate(CurrencyCode);
         LibraryERM.SetAddReportingCurrency(CurrencyCode);
-        LibraryERM.RunAddnlReportingCurrency(CurrencyCode, CurrencyCode, LibraryERM.CreateGLAccountNo);
+        LibraryERM.RunAddnlReportingCurrency(CurrencyCode, CurrencyCode, LibraryERM.CreateGLAccountNo());
     end;
 
     local procedure UpdateGenJnlTemplate(GenJournalBatch: Record "Gen. Journal Batch")
@@ -811,7 +811,7 @@ codeunit 134029 "ERM VAT On Gen Journal Line"
 
         // Sometimes this function triggers a confirm dialog, Use the function below to make sure that the corresponding handler will always
         // get executed otherwise the tests might fail in continuous execution.
-        ExecuteUIHandler;
+        ExecuteUIHandler();
     end;
 
     local procedure UpdateVATAmtOnGenJnlLine(var GenJournalLine: Record "Gen. Journal Line"; NewVATAmount: Decimal; Positive: Boolean)
@@ -848,7 +848,7 @@ codeunit 134029 "ERM VAT On Gen Journal Line"
         GLEntry.FindFirst();
 
         // Calculate the VAT Amount.
-        VATAmount := Round(Amount * VATPercent / (100 + VATPercent), LibraryERM.GetInvoiceRoundingPrecisionLCY);
+        VATAmount := Round(Amount * VATPercent / (100 + VATPercent), LibraryERM.GetInvoiceRoundingPrecisionLCY());
 
         Assert.AreEqual(GLEntry.Amount, Amount - VATAmount, 'Incorrect Amount Found on GL Entry.');
         Assert.AreEqual(GLEntry."VAT Amount", VATAmount, 'Incorrect VAT Amount Calculated.');
@@ -862,7 +862,7 @@ codeunit 134029 "ERM VAT On Gen Journal Line"
         GLEntry.SetRange("Bal. Account No.", BalAccountNo);
         GLEntry.FindFirst();
         Assert.AreNearlyEqual(
-          VATAmount, GLEntry."VAT Amount", LibraryERM.GetAmountRoundingPrecision,
+          VATAmount, GLEntry."VAT Amount", LibraryERM.GetAmountRoundingPrecision(),
           StrSubstNo(VATAmountError, GLEntry.FieldCaption("VAT Amount"), GLEntry."VAT Amount",
             GLEntry.TableCaption(), GLEntry.FieldCaption("Entry No."), GLEntry."Entry No."));
     end;
@@ -874,7 +874,7 @@ codeunit 134029 "ERM VAT On Gen Journal Line"
         VATEntry.SetRange("Document No.", DocumentNo);
         VATEntry.FindFirst();
         Assert.AreNearlyEqual(
-          Amount, VATEntry.Amount, LibraryERM.GetAmountRoundingPrecision,
+          Amount, VATEntry.Amount, LibraryERM.GetAmountRoundingPrecision(),
           StrSubstNo(VATAmountError, VATEntry.FieldCaption(Amount), VATEntry.Amount,
             VATEntry.TableCaption(), VATEntry.FieldCaption("Entry No."), VATEntry."Entry No."));
     end;
@@ -927,7 +927,7 @@ codeunit 134029 "ERM VAT On Gen Journal Line"
         GenJnlAllocation: Record "Gen. Jnl. Allocation";
         GLAccount: Code[20];
     begin
-        GLAccount := LibraryERM.CreateGLAccountWithSalesSetup;
+        GLAccount := LibraryERM.CreateGLAccountWithSalesSetup();
         FindGeneralJournalLine(GenJournalLine);
 
         repeat

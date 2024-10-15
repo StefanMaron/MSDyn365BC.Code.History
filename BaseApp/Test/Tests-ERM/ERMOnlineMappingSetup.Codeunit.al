@@ -53,10 +53,10 @@ codeunit 134915 "ERM Online Mapping Setup"
 
         // Verify: Check that the default entries exist.
         OnlineMapSetup.SetFilter("Map Parameter Setup Code", '%1', Bing);
-        Assert.IsTrue(OnlineMapSetup.FindFirst, 'Cannot find a Bing Maps entry in the Online Map Setup table.');
+        Assert.IsTrue(OnlineMapSetup.FindFirst(), 'Cannot find a Bing Maps entry in the Online Map Setup table.');
 
         OnlineMapParameterSetup.SetFilter(Code, '%1', OnlineMapSetup."Map Parameter Setup Code");
-        Assert.IsTrue(OnlineMapParameterSetup.FindFirst, 'Cannot find a Bing Maps entry in the Online Map Parameter Setup table.');
+        Assert.IsTrue(OnlineMapParameterSetup.FindFirst(), 'Cannot find a Bing Maps entry in the Online Map Parameter Setup table.');
 
         OnlineMapParameterSetup.TestField(Name, BingMaps);
         OnlineMapParameterSetup.TestField("Map Service", BingMapsURL);

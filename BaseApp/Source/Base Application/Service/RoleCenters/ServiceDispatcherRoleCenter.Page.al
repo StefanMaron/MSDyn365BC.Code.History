@@ -79,17 +79,6 @@ page 9016 "Service Dispatcher Role Center"
                 ApplicationArea = Service;
                 Visible = false;
             }
-#if not CLEAN21
-            part("Power BI Report Spinner Part"; "Power BI Report Spinner Part")
-            {
-                AccessByPermission = TableData "Power BI Context Settings" = I;
-                ApplicationArea = Basic, Suite;
-                ObsoleteState = Pending;
-                ObsoleteReason = 'Replaced by PowerBIEmbeddedReportPart';
-                Visible = false;
-                ObsoleteTag = '21.0';
-            }
-#endif
             systempart(Control1901377608; MyNotes)
             {
                 ApplicationArea = Service;
@@ -254,6 +243,22 @@ page 9016 "Service Dispatcher Role Center"
                     Image = Document;
                     RunObject = Page "Service Orders";
                     ToolTip = 'Open the list of ongoing service orders.';
+                }
+                action("Service Invoices")
+                {
+                    ApplicationArea = Service;
+                    Caption = 'Service Invoices';
+                    Image = Invoice;
+                    RunObject = Page "Service Invoices";
+                    ToolTip = 'Open the list of ongoing service invoices.';
+                }
+                action("Service Credit Memos")
+                {
+                    ApplicationArea = Service;
+                    Caption = 'Service Credit Memos';
+                    Image = CreditMemo;
+                    RunObject = Page "Service Credit Memos";
+                    ToolTip = 'Open the list of ongoing service credit memos.';
                 }
                 action("Standard Service Codes")
                 {

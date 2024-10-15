@@ -19,7 +19,7 @@ report 7320 "Whse. Adjustment Bin"
     {
         dataitem("Warehouse Entry"; "Warehouse Entry")
         {
-            DataItemTableView = SORTING("Item No.", "Bin Code", "Location Code", "Variant Code", "Unit of Measure Code");
+            DataItemTableView = sorting("Item No.", "Bin Code", "Location Code", "Variant Code", "Unit of Measure Code");
             RequestFilterFields = "Location Code", "Item No.";
             column(CompanyName; COMPANYPROPERTY.DisplayName())
             {
@@ -62,7 +62,7 @@ report 7320 "Whse. Adjustment Bin"
             }
             dataitem("Integer"; "Integer")
             {
-                DataItemTableView = SORTING(Number) WHERE(Number = CONST(1));
+                DataItemTableView = sorting(Number) where(Number = const(1));
                 column(WarehouseEntryLocCode; "Warehouse Entry"."Location Code")
                 {
                 }
@@ -137,8 +137,8 @@ report 7320 "Whse. Adjustment Bin"
             }
             dataitem(WhseEntry2; "Warehouse Entry")
             {
-                DataItemLink = "Location Code" = FIELD("Location Code"), "Bin Code" = FIELD("Bin Code"), "Item No." = FIELD("Item No."), "Variant Code" = FIELD("Variant Code"), "Unit of Measure Code" = FIELD("Unit of Measure Code");
-                DataItemTableView = SORTING("Item No.", "Bin Code", "Location Code", "Variant Code", "Unit of Measure Code");
+                DataItemLink = "Location Code" = field("Location Code"), "Bin Code" = field("Bin Code"), "Item No." = field("Item No."), "Variant Code" = field("Variant Code"), "Unit of Measure Code" = field("Unit of Measure Code");
+                DataItemTableView = sorting("Item No.", "Bin Code", "Location Code", "Variant Code", "Unit of Measure Code");
                 column(WhseEntry2LocCode; "Location Code")
                 {
                 }

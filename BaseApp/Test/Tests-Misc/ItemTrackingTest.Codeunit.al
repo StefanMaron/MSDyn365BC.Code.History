@@ -1,7 +1,6 @@
 namespace Microsoft.Inventory.Tracking;
 
 using Microsoft.Inventory.Item;
-using Microsoft.Inventory.Ledger;
 using Microsoft.Inventory.Journal;
 using Microsoft.Purchases.Document;
 
@@ -73,23 +72,23 @@ codeunit 133008 "Item Tracking Test"
         LibraryInventory.CreateItem(Item);
 
         // [WHEN] The user opens the item card
-        ItemCard.OpenEdit;
+        ItemCard.OpenEdit();
         ItemCard.GotoRecord(Item);
 
         // [THEN] He can not edit the expiration calculation since there is no tracking code yet
-        Assert.IsFalse(ItemCard."Expiration Calculation".Editable, 'Expiration calculation should not be editable at this point.');
+        Assert.IsFalse(ItemCard."Expiration Calculation".Editable(), 'Expiration calculation should not be editable at this point.');
 
         // [WHEN] The user assigns the tracking code that ignores expiration dates to this item
         ItemCard."Item Tracking Code".Value := ItemTrackingCodeNoExp.Code;
 
         // [THEN] Expiration calculation can't be edited anymore
-        Assert.IsFalse(ItemCard."Expiration Calculation".Editable, 'Expiration calculation should not be editable at this point.');
+        Assert.IsFalse(ItemCard."Expiration Calculation".Editable(), 'Expiration calculation should not be editable at this point.');
 
         // [WHEN] The user clears the item tracking code for this item
         ItemCard."Item Tracking Code".Value := '';
 
         // [THEN] He still can not edit the expiration calculation again
-        Assert.IsFalse(ItemCard."Expiration Calculation".Editable, 'Expiration calculation should not be editable at this point.');
+        Assert.IsFalse(ItemCard."Expiration Calculation".Editable(), 'Expiration calculation should not be editable at this point.');
 
         ItemCard.Close();
     end;
@@ -106,7 +105,7 @@ codeunit 133008 "Item Tracking Test"
 
         // [GIVEN] An item tracking code with "manual expiration date required" set
         CreateTrackingCodeWithExp(ItemTrackingCode);
-        ItemTrackingCodeCard.OpenEdit;
+        ItemTrackingCodeCard.OpenEdit();
         ItemTrackingCodeCard.GotoRecord(ItemTrackingCode);
         ItemTrackingCodeCard."Man. Expir. Date Entry Reqd.".Value := 'Yes';
 
@@ -132,7 +131,7 @@ codeunit 133008 "Item Tracking Test"
 
         // [GIVEN] An item tracking code with "string expiration posting" set
         CreateTrackingCodeWithExp(ItemTrackingCode);
-        ItemTrackingCodeCard.OpenEdit;
+        ItemTrackingCodeCard.OpenEdit();
         ItemTrackingCodeCard.GotoRecord(ItemTrackingCode);
         ItemTrackingCodeCard."Strict Expiration Posting".Value := 'Yes';
 
@@ -159,31 +158,31 @@ codeunit 133008 "Item Tracking Test"
         CreateTrackingCodeWithExp(ItemTrackingCode);
 
         // [WHEN] the user opens the item tracking code card
-        ItemTrackingCodeCard.OpenEdit;
+        ItemTrackingCodeCard.OpenEdit();
         ItemTrackingCodeCard.GotoRecord(ItemTrackingCode);
 
         // [THEN] "Manual expiration date required" and "string expiration posting" are editable
-        Assert.IsTrue(ItemTrackingCodeCard."Man. Expir. Date Entry Reqd.".Editable,
+        Assert.IsTrue(ItemTrackingCodeCard."Man. Expir. Date Entry Reqd.".Editable(),
           'Manual expiration date entry required should be editable at this point.');
-        Assert.IsTrue(ItemTrackingCodeCard."Strict Expiration Posting".Editable,
+        Assert.IsTrue(ItemTrackingCodeCard."Strict Expiration Posting".Editable(),
           'String expiration posting should be editable at this point.');
 
         // [WHEN] Ignore expiration date is set
         ItemTrackingCodeCard."Use Expiration Dates".Value := 'No';
 
         // [THEN] "Manual expiration date required" and "string expiration posting" are not editable anymore
-        Assert.IsFalse(ItemTrackingCodeCard."Man. Expir. Date Entry Reqd.".Editable,
+        Assert.IsFalse(ItemTrackingCodeCard."Man. Expir. Date Entry Reqd.".Editable(),
           'Manual expiration date entry required should not be editable at this point.');
-        Assert.IsFalse(ItemTrackingCodeCard."Strict Expiration Posting".Editable,
+        Assert.IsFalse(ItemTrackingCodeCard."Strict Expiration Posting".Editable(),
           'String expiration posting should not be editable at this point.');
 
         // [WHEN] Ignore expiration date is unset
         ItemTrackingCodeCard."Use Expiration Dates".Value := 'Yes';
 
         // [THEN] "Manual expiration date required" and "string expiration posting" are editable again
-        Assert.IsTrue(ItemTrackingCodeCard."Man. Expir. Date Entry Reqd.".Editable,
+        Assert.IsTrue(ItemTrackingCodeCard."Man. Expir. Date Entry Reqd.".Editable(),
           'Manual expiration date entry required should be editable at this point.');
-        Assert.IsTrue(ItemTrackingCodeCard."Strict Expiration Posting".Editable,
+        Assert.IsTrue(ItemTrackingCodeCard."Strict Expiration Posting".Editable(),
           'String expiration posting should be editable at this point.');
     end;
 
@@ -209,7 +208,7 @@ codeunit 133008 "Item Tracking Test"
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
 
         // [THEN] the expiration date check is skipped. Performance happens here!
-        Assert.AreEqual(0, ItemTrackingTest.GetSubscriberCallNumber,
+        Assert.AreEqual(0, ItemTrackingTest.GetSubscriberCallNumber(),
           'Subscriber should not have been invoked');
         UnbindSubscription(ItemTrackingTest);
     end;
@@ -237,7 +236,7 @@ codeunit 133008 "Item Tracking Test"
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
 
         // [THEN] the expiration subscriber is called, which could be slow on big databases
-        Assert.IsTrue(ItemTrackingTest.GetSubscriberCallNumber > 0,
+        Assert.IsTrue(ItemTrackingTest.GetSubscriberCallNumber() > 0,
           'Subscriber should have been invoked');
         ItemTrackingTest.SetExpirationDateSubscriberExpectedToBeCalled(false);
         UnbindSubscription(ItemTrackingTest);
@@ -245,7 +244,7 @@ codeunit 133008 "Item Tracking Test"
         // [GIVEN] The item now has item ledger entries with expiration date, since we posted the order
 
         // [WHEN] The user tries to set "ignore expiration date" for this item's tracking code
-        ItemTrackingCodeCard.OpenEdit;
+        ItemTrackingCodeCard.OpenEdit();
         ItemTrackingCodeCard.GotoRecord(ItemTrackingCode);
         asserterror ItemTrackingCodeCard."Use Expiration Dates".Value := 'No';
 
@@ -296,7 +295,7 @@ codeunit 133008 "Item Tracking Test"
         CreateItemWithExpirationCalcFormulaAndItemTrackingCode(Item2, ItemTrackingCode, '+2D');
 
         // [WHEN] the user tries to ignore the expiration date on this item tracking code, then click No when asked to fix the items.
-        ItemTrackingCodeCard.OpenEdit;
+        ItemTrackingCodeCard.OpenEdit();
         ItemTrackingCodeCard.GotoRecord(ItemTrackingCode);
         ConfirmHandlerReply := false;
         asserterror ItemTrackingCodeCard."Use Expiration Dates".Value := 'No';
@@ -326,889 +325,13 @@ codeunit 133008 "Item Tracking Test"
         CreateItemWithExpirationCalcFormulaAndItemTrackingCode(Item2, ItemTrackingCode, '+2D');
 
         // [WHEN] the user tries to ignore the expiration date on this item tracking code, then click Yes when asked to fix the items. And fixes them one by one.
-        ItemTrackingCodeCard.OpenEdit;
+        ItemTrackingCodeCard.OpenEdit();
         ItemTrackingCodeCard.GotoRecord(ItemTrackingCode);
         ConfirmHandlerReply := true;
         ModalHandlerExpectedToBeCalledNTimes := 2;
         ItemTrackingCodeCard."Use Expiration Dates".Value := 'No';
 
         // [THEN] No error occurs
-    end;
-
-    //================================TESTS FOR BARCODE SCANNING===========================================
-
-    procedure CreateItemTrackingLines(var ItemJournalLine: Record "Item Journal Line"; var ItemTrackingLines: Page "Item Tracking Lines")
-    var
-        TrackingSpecification: Record "Tracking Specification";
-    begin
-        TrackingSpecification.InitFromItemJnlLine(ItemJournalLine);
-        ItemTrackingLines.SetSourceSpec(TrackingSpecification, ItemJournalLine."Posting Date");
-        ItemTrackingLines.SetInbound(ItemJournalLine.IsInbound());
-        ItemTrackingLines.RunModal();
-    end;
-
-    [Test]
-    [HandlerFunctions('ItemTrackingLinePageModalHandler')]
-    procedure ContiniousScanSerialNoInBoundTest()
-    var
-        Item: Record Item;
-        ItemJournalLine: Record "Item Journal Line";
-        TrackingSpecification: Record "Tracking Specification";
-        ItemTrackingLines: Page "Item Tracking Lines";
-    begin
-        // [SCENARIO] [Barcode Scanner] [InBound] [Serial No]
-        // Continiously scan the serial number, and all the quantity should be set to 1.
-        Initialize();
-
-        // [GIVEN] Create serial specific tracked item
-        LibraryItemTracking.CreateSerialItem(Item);
-
-        // [GIVEN] Positive adjustment Item journal line for the item
-        LibraryInventory.CreateItemJnlLine(ItemJournalLine, ItemJournalLine."Entry Type"::"Positive Adjmt.", WorkDate(), Item."No.", 10, '');
-
-        // [GIVEN] Init ItemTrackingLines
-        CreateItemTrackingLines(ItemJournalLine, ItemTrackingLines);
-
-        // [THEN] There is no line in item tracking lines
-        Assert.AreEqual(0, ItemTrackingLines.CountLines(), 'Before starting test, the item tracking line should contain nothing!');
-
-        // [GIVEN] Scan Serial1
-        ItemTrackingLines.ScanSerialNoInBound('Serial1');
-        // [THEN] The qty of Serial1 is 1  
-        CheckQuantityInTrackingSpecification(ItemTrackingLines, TrackingSpecification, 1);
-        // [GIVEN] Scan Serial2
-        ItemTrackingLines.ScanSerialNoInBound('Serial2');
-        // [THEN] The qty of Serial2 is 1  
-        CheckQuantityInTrackingSpecification(ItemTrackingLines, TrackingSpecification, 1);
-        // [GIVEN] Scan Serial3
-        ItemTrackingLines.ScanSerialNoInBound('Serial3');
-        // [THEN] The qty of Serial3 is 1  
-        CheckQuantityInTrackingSpecification(ItemTrackingLines, TrackingSpecification, 1);
-
-        // [THEN] Now there are five lines in item tracking lines.
-        Assert.AreEqual(3, ItemTrackingLines.CountLines(), 'After test, there should be five records inserted.');
-    end;
-
-    [Test]
-    [HandlerFunctions('ItemTrackingLinePageModalHandler')]
-    procedure ContiniousScanSerialNoInBoundWithDulplicatedSerialNoTest()
-    var
-        Item: Record Item;
-        ItemJournalLine: Record "Item Journal Line";
-        TrackingSpecification: Record "Tracking Specification";
-        ItemTrackingLines: Page "Item Tracking Lines";
-    begin
-        // [SCENARIO] [Barcode Scanner] [InBound] [Serial No]
-        // Continiously scan the serial number with dulpicalted serial number, throw new error message and all the quantity should be set to 1.
-        Initialize();
-
-        // [GIVEN] Create serial specific tracked item
-        LibraryItemTracking.CreateSerialItem(Item);
-
-        // [GIVEN] Positive adjustment Item journal line for the item
-        LibraryInventory.CreateItemJnlLine(ItemJournalLine, ItemJournalLine."Entry Type"::"Positive Adjmt.", WorkDate(), Item."No.", 10, '');
-
-        // [GIVEN] Init ItemTrackingLines
-        CreateItemTrackingLines(ItemJournalLine, ItemTrackingLines);
-
-        // [THEN] There is no line in ItemTrackingLine
-        Assert.AreEqual(0, ItemTrackingLines.CountLines(), 'Before starting test, the item tracking line should contain nothing!');
-
-        // [GIVEN] Scan Serial No. Serial1
-        ItemTrackingLines.ScanSerialNoInBound('Serial1');
-
-        // [THEN] Now the quantity of Serial1 is 1.
-        CheckQuantityInTrackingSpecification(ItemTrackingLines, TrackingSpecification, 1);
-
-        // [GIVEN] Scan Serial No. Serial2
-        ItemTrackingLines.ScanSerialNoInBound('Serial2');
-
-        // [THEN] Now the initial quantity of every line is 1.
-        CheckQuantityInTrackingSpecification(ItemTrackingLines, TrackingSpecification, 1);
-
-        // [THEN] Now there are two lines in item tracking lines.
-        Assert.AreEqual(2, ItemTrackingLines.CountLines(), 'After test, there should be two records inserted.');
-
-        // [GIVEN] Scan 'Serial1' again 
-        asserterror ItemTrackingLines.ScanSerialNoInBound('Serial2');
-
-        // [THEN] Get error message. 
-        Assert.ExpectedError('Serial No. SERIAL2 already exists.');
-
-        // [THEN] Now there are two lines in item tracking lines.
-        Assert.AreEqual(2, ItemTrackingLines.CountLines(), 'After test, there should be two records inserted.');
-
-        // [THEN] Now the initial quantity of every line is 1.
-        CheckQuantityInTrackingSpecification(ItemTrackingLines, TrackingSpecification, 1);
-    end;
-
-    [Test]
-    [HandlerFunctions('ItemTrackingLinePageModalHandler')]
-    procedure ContiniousScanSerialNoInBoundMinusTest()
-    var
-        Item: Record Item;
-        ItemJournalLine: Record "Item Journal Line";
-        TrackingSpecification: Record "Tracking Specification";
-        ItemTrackingLines: Page "Item Tracking Lines";
-    begin
-        // [SCENARIO] [Barcode Scanner] [InBound] [Serial No]
-        // Continiously scan the serial number with a minus qty ItemJnlLine, and quantity should be set to -1.
-        Initialize();
-
-        // [GIVEN] Create serial specific tracked item
-        LibraryItemTracking.CreateSerialItem(Item);
-
-        // [GIVEN] Positive adjustment Item journal line for the item
-        LibraryInventory.CreateItemJnlLine(ItemJournalLine, ItemJournalLine."Entry Type"::"Positive Adjmt.", WorkDate(), Item."No.", -10, '');
-
-        // [GIVEN] Init ItemTrackingLines
-        CreateItemTrackingLines(ItemJournalLine, ItemTrackingLines);
-
-        // [THEN] There is no line in item tracking lines
-        Assert.AreEqual(0, ItemTrackingLines.CountLines(), 'Before starting test, the item tracking line should contain nothing!');
-
-        // [GIVEN] Scan Serial1
-        ItemTrackingLines.ScanSerialNoInBound('Serial1');
-        // [THEN] Now the quantity of Serial1 is -1.
-        CheckQuantityInTrackingSpecification(ItemTrackingLines, TrackingSpecification, -1);
-
-        // [GIVEN] Scan Serial2
-        ItemTrackingLines.ScanSerialNoInBound('Serial2');
-        // [THEN] Now the quantity of Serial2 is -1.
-        CheckQuantityInTrackingSpecification(ItemTrackingLines, TrackingSpecification, -1);
-
-        // [GIVEN] Scan Serial3
-        ItemTrackingLines.ScanSerialNoInBound('Serial3');
-        // [THEN] Now the quantity of Serial3 is -1.
-        CheckQuantityInTrackingSpecification(ItemTrackingLines, TrackingSpecification, -1);
-
-        // [THEN] Now there are 3 lines in item tracking lines.
-        Assert.AreEqual(3, ItemTrackingLines.CountLines(), 'After test, there should be 3 records inserted.');
-    end;
-
-    [Test]
-    [HandlerFunctions('ItemTrackingLinePageModalHandler')]
-    procedure ContiniousScanSerialNoInBoundWithDulplicatedSerialNoMinusTest()
-    var
-        Item: Record Item;
-        ItemJournalLine: Record "Item Journal Line";
-        TrackingSpecification: Record "Tracking Specification";
-        ItemTrackingLines: Page "Item Tracking Lines";
-    begin
-        // [SCENARIO] [Barcode Scanner] [InBound] [Serial No]
-        // Continiously scan the serial number with dulpicalted serial number and minus qty itemtrackingline, throw new error message and all the quantity should be set to -1.
-        Initialize();
-
-        // [GIVEN] Create serial specific tracked item
-        LibraryItemTracking.CreateSerialItem(Item);
-
-        // [GIVEN] Positive adjustment Item journal line for the item
-        LibraryInventory.CreateItemJnlLine(ItemJournalLine, ItemJournalLine."Entry Type"::"Positive Adjmt.", WorkDate(), Item."No.", -10, '');
-
-        // [GIVEN] Init ItemTrackingLines
-        CreateItemTrackingLines(ItemJournalLine, ItemTrackingLines);
-
-        // [THEN] There is no line in item tracking lines
-        Assert.AreEqual(0, ItemTrackingLines.CountLines(), 'Before starting test, the item tracking line should contain nothing!');
-
-        // [GIVEN] Scan Serial No. Serial1
-        ItemTrackingLines.ScanSerialNoInBound('Serial1');
-        // [THEN] Now the quantity of Serial1 is -1.
-        CheckQuantityInTrackingSpecification(ItemTrackingLines, TrackingSpecification, -1);
-
-        // [GIVEN] Scan Serial No. Serial2
-        ItemTrackingLines.ScanSerialNoInBound('Serial2');
-        // [THEN] Now the quantity of Serial2 is -1.
-        CheckQuantityInTrackingSpecification(ItemTrackingLines, TrackingSpecification, -1);
-
-        // [GIVEN] Scan Serial No. Serial3
-        ItemTrackingLines.ScanSerialNoInBound('Serial3');
-        // [THEN] Now the quantity of Serial3 is -1.
-        CheckQuantityInTrackingSpecification(ItemTrackingLines, TrackingSpecification, -1);
-
-        // [GIVEN] Try to Add Scan Serial No. Serial1 again
-        asserterror ItemTrackingLines.ScanSerialNoInBound('Serial1');
-        // [THEN] Get error message. 
-        Assert.ExpectedError('Tracking specification with Serial No. SERIAL1 already exists.');
-        // [THEN] Now the quantity of Serial1 is -1.
-        CheckQuantityInTrackingSpecification(ItemTrackingLines, TrackingSpecification, -1);
-
-        // [GIVEN] Try to Add Scan Serial No. Serial2 again
-        asserterror ItemTrackingLines.ScanSerialNoInBound('Serial2');
-        // [THEN] Get error message. 
-        Assert.ExpectedError('Tracking specification with Serial No. SERIAL2 already exists.');
-        // [THEN] Now the quantity of Serial2 is -1.
-        CheckQuantityInTrackingSpecification(ItemTrackingLines, TrackingSpecification, -1);
-
-        // [GIVEN] Try to Add Scan Serial No. Serial3 again
-        asserterror ItemTrackingLines.ScanSerialNoInBound('Serial3');
-        // [THEN] Get error message. 
-        Assert.ExpectedError('Tracking specification with Serial No. SERIAL3 already exists.');
-        // [THEN] Now the quantity of Serial3 is -1.
-        CheckQuantityInTrackingSpecification(ItemTrackingLines, TrackingSpecification, -1);
-    end;
-
-    [Test]
-    [HandlerFunctions('ItemTrackingLinePageModalHandler')]
-    procedure ContiniousScanLotNoInBoundTest()
-    var
-        Item: Record Item;
-        ItemJournalLine: Record "Item Journal Line";
-        TrackingSpecification: Record "Tracking Specification";
-        ItemTrackingLines: Page "Item Tracking Lines";
-    begin
-        // [SCENARIO] [Barcode Scanner] [InBound] [Lot No]
-        // [SCENARIO] Continiously scan the lot number, and all the quantity should be set to 0.
-
-        Initialize();
-
-        // [GIVEN] Create 'Lot No' specific tracked item
-        LibraryItemTracking.CreateLotItem(Item);
-
-        // [GIVEN] Positive adjustment Item journal line for the item
-        LibraryInventory.CreateItemJnlLine(ItemJournalLine, ItemJournalLine."Entry Type"::"Positive Adjmt.", WorkDate(), Item."No.", 10, '');
-
-        // [GIVEN] Init ItemTrackingLines
-        CreateItemTrackingLines(ItemJournalLine, ItemTrackingLines);
-
-        // [THEN] There is no line in item tracking lines
-        Assert.AreEqual(0, ItemTrackingLines.CountLines(), 'Before starting test, the item tracking line should contain nothing!');
-
-        // [GIVEN] Scan Lot1 
-        ItemTrackingLines.ScanLotNoInBound('Lot1');
-        // [THEN] Now the quantity of Lot1 is 0.
-        CheckQuantityInTrackingSpecification(ItemTrackingLines, TrackingSpecification, 0);
-
-        // [GIVEN] Scan Lot2
-        ItemTrackingLines.ScanLotNoInBound('Lot2');
-        // [THEN] Now the quantity of Lot2 is 0.
-        CheckQuantityInTrackingSpecification(ItemTrackingLines, TrackingSpecification, 0);
-
-        // [GIVEN] Scan Lot3
-        ItemTrackingLines.ScanLotNoInBound('Lot3');
-        // [THEN] Now the quantity of Lot3 is 0.
-        CheckQuantityInTrackingSpecification(ItemTrackingLines, TrackingSpecification, 0);
-
-        // [THEN] Now there are 3 lines in item tracking lines.
-        Assert.AreEqual(3, ItemTrackingLines.CountLines(), 'After test, there should be 3 record inserted.');
-    end;
-
-
-    [Test]
-    [HandlerFunctions('ItemTrackingLinePageModalHandler')]
-    procedure ContiniousScanLotNoInBoundWithDulplicatedLotNoTest()
-    var
-        Item: Record Item;
-        ItemJournalLine: Record "Item Journal Line";
-        TrackingSpecification: Record "Tracking Specification";
-        ItemTrackingLines: Page "Item Tracking Lines";
-    begin
-        // [SCENARIO] [Barcode Scanner] [InBound] [Lot No]
-        // [SCENARIO] Continiously scan the lot number with dulplicated lot numbers.
-        // [SCENARIO] The rule is: for the first time scan, set qty as 0, for the second time, it should be set to 2, and then 3,4,5...
-
-        Initialize();
-
-        // [GIVEN] Create 'Lot No' specific tracked item
-        LibraryItemTracking.CreateLotItem(Item);
-
-        // [GIVEN] Positive adjustment Item journal line for the item
-        LibraryInventory.CreateItemJnlLine(ItemJournalLine, ItemJournalLine."Entry Type"::"Positive Adjmt.", WorkDate(), Item."No.", 10, '');
-
-        // [GIVEN] Init ItemTrackingLines
-        CreateItemTrackingLines(ItemJournalLine, ItemTrackingLines);
-
-        // [THEN] There is no line in item tracking lines
-        Assert.AreEqual(0, ItemTrackingLines.CountLines(), 'Before starting test, the item tracking line should contain nothing!');
-
-        // [GIVEN] Scan Lot1 
-        ItemTrackingLines.ScanLotNoInBound('Lot1');
-        // [THEN] Now the quantity of Lot1 is 0.
-        CheckQuantityInTrackingSpecification(ItemTrackingLines, TrackingSpecification, 0);
-
-        // [GIVEN] Scan Lot2
-        ItemTrackingLines.ScanLotNoInBound('Lot2');
-        // [THEN] Now the quantity of Lot2 is 0.
-        CheckQuantityInTrackingSpecification(ItemTrackingLines, TrackingSpecification, 0);
-
-        // [THEN] Now there are two lines in item tracking lines.
-        Assert.AreEqual(2, ItemTrackingLines.CountLines(), 'After test, there should be two records inserted.');
-
-        // [GIVEN] Scan Lot1 
-        ItemTrackingLines.ScanLotNoInBound('Lot1');
-        // [THEN] Now the quantity of Lot1 is 2.
-        CheckQuantityInTrackingSpecification(ItemTrackingLines, TrackingSpecification, 2);
-
-        // [GIVEN] Scan Lot2 
-        ItemTrackingLines.ScanLotNoInBound('Lot2');
-        // [THEN] Now the quantity of Lot2 is 2.
-        CheckQuantityInTrackingSpecification(ItemTrackingLines, TrackingSpecification, 2);
-
-        // [GIVEN] Scan Lot1 
-        ItemTrackingLines.ScanLotNoInBound('Lot1');
-        // [THEN] Now the quantity of Lot1 is 3.
-        CheckQuantityInTrackingSpecification(ItemTrackingLines, TrackingSpecification, 3);
-
-        // [GIVEN] Scan Lot2 
-        ItemTrackingLines.ScanLotNoInBound('Lot2');
-        // [THEN] Now the quantity of Lot2 is 3.
-        CheckQuantityInTrackingSpecification(ItemTrackingLines, TrackingSpecification, 3);
-
-        // [THEN] Now there are two lines in item tracking lines.
-        Assert.AreEqual(2, ItemTrackingLines.CountLines(), 'After test, there should be 3 records inserted.');
-    end;
-
-
-    [Test]
-    [HandlerFunctions('ItemTrackingLinePageModalHandler')]
-    procedure ContiniousScanLotNoInPOWithDulplicatedLotNoTest()
-    var
-        Item: Record Item;
-        ItemJournalLine: Record "Item Journal Line";
-        TrackingSpecification: Record "Tracking Specification";
-        ItemTrackingLines: Page "Item Tracking Lines";
-    begin
-        // [SCENARIO] [Barcode Scanner] [InBound] [Lot No]
-        // [SCENARIO] Continiously scan the lot number with dulplicated lot numbers.
-        // [SCENARIO] The rule is: for the first time scan, set qty as 0, for the second time, it should be set to 2, and then 3,4,5...
-
-        Initialize();
-
-        // [GIVEN] Create 'Lot No' specific tracked item
-        LibraryItemTracking.CreateLotItem(Item);
-
-        // [GIVEN] Positive adjustment Item journal line for the item
-        LibraryInventory.CreateItemJnlLine(ItemJournalLine, ItemJournalLine."Entry Type"::Purchase, WorkDate(), Item."No.", 10, '');
-
-        // [GIVEN] Init ItemTrackingLines
-        CreateItemTrackingLines(ItemJournalLine, ItemTrackingLines);
-
-        // [THEN] There is no line in item tracking lines
-        Assert.AreEqual(0, ItemTrackingLines.CountLines(), 'Before starting test, the item tracking line should contain nothing!');
-
-        // [GIVEN] Scan Lot1 
-        ItemTrackingLines.ScanLotNoInBound('Lot1');
-        // [THEN] Now the quantity of Lot1 is 0.
-        CheckQuantityInTrackingSpecification(ItemTrackingLines, TrackingSpecification, 0);
-
-        // [GIVEN] Scan Lot2
-        ItemTrackingLines.ScanLotNoInBound('Lot2');
-        // [THEN] Now the quantity of Lot2 is 0.
-        CheckQuantityInTrackingSpecification(ItemTrackingLines, TrackingSpecification, 0);
-
-        // [THEN] Now there are two lines in item tracking lines.
-        Assert.AreEqual(2, ItemTrackingLines.CountLines(), 'After test, there should be two records inserted.');
-
-        // [GIVEN] Scan Lot1 
-        ItemTrackingLines.ScanLotNoInBound('Lot1');
-        // [THEN] Now the quantity of Lot1 is 2.
-        CheckQuantityInTrackingSpecification(ItemTrackingLines, TrackingSpecification, 2);
-
-        // [GIVEN] Scan Lot2 
-        ItemTrackingLines.ScanLotNoInBound('Lot2');
-        // [THEN] Now the quantity of Lot2 is 2.
-        CheckQuantityInTrackingSpecification(ItemTrackingLines, TrackingSpecification, 2);
-
-        // [GIVEN] Scan Lot1 
-        ItemTrackingLines.ScanLotNoInBound('Lot1');
-        // [THEN] Now the quantity of Lot1 is 3.
-        CheckQuantityInTrackingSpecification(ItemTrackingLines, TrackingSpecification, 3);
-
-        // [GIVEN] Scan Lot2 
-        ItemTrackingLines.ScanLotNoInBound('Lot2');
-        // [THEN] Now the quantity of Lot2 is 3.
-        CheckQuantityInTrackingSpecification(ItemTrackingLines, TrackingSpecification, 3);
-
-        // [THEN] Now there are two lines in item tracking lines.
-        Assert.AreEqual(2, ItemTrackingLines.CountLines(), 'After test, there should be 3 records inserted.');
-    end;
-
-    [Test]
-    [HandlerFunctions('ItemTrackingLinePageModalHandler')]
-    procedure ContiniousScanLotNoInBoundMinusTest()
-    var
-        Item: Record Item;
-        ItemJournalLine: Record "Item Journal Line";
-        TrackingSpecification: Record "Tracking Specification";
-        ItemTrackingLines: Page "Item Tracking Lines";
-    begin
-        // [SCENARIO] [Barcode Scanner] [InBound] [Lot No]
-        // [SCENARIO] Continiously scan the lot number with a minus qty ItemJnlLine, and quantity should be set to -1.
-        Initialize();
-
-        // [GIVEN] Create 'Lot No' specific tracked item
-        LibraryItemTracking.CreateLotItem(Item);
-
-        // [GIVEN] Positive adjustment Item journal line for the item
-        LibraryInventory.CreateItemJnlLine(ItemJournalLine, ItemJournalLine."Entry Type"::"Positive Adjmt.", WorkDate(), Item."No.", -10, '');
-
-        // [GIVEN] Init ItemTrackingLines
-        CreateItemTrackingLines(ItemJournalLine, ItemTrackingLines);
-
-        // [THEN] There is no line in item tracking lines
-        Assert.AreEqual(0, ItemTrackingLines.CountLines(), 'Before starting test, the item tracking line should contain nothing!');
-
-        // [GIVEN] Scan Lot1 
-        ItemTrackingLines.ScanLotNoInBound('Lot1');
-        // [THEN] Now the quantity of Lot1 is -1.
-        CheckQuantityInTrackingSpecification(ItemTrackingLines, TrackingSpecification, -1);
-
-        // [GIVEN] Scan Lot2 
-        ItemTrackingLines.ScanLotNoInBound('Lot2');
-        // [THEN] Now the quantity of Lot2 is -1.
-        CheckQuantityInTrackingSpecification(ItemTrackingLines, TrackingSpecification, -1);
-
-        // [GIVEN] Scan Lot1 
-        ItemTrackingLines.ScanLotNoInBound('Lot3');
-        // [THEN] Now the quantity of Lot3 is -1.
-        CheckQuantityInTrackingSpecification(ItemTrackingLines, TrackingSpecification, -1);
-
-        // [THEN] Now there are 3 lines in item tracking lines.
-        Assert.AreEqual(3, ItemTrackingLines.CountLines(), 'After test, there should be 3 record inserted.');
-    end;
-
-
-    [Test]
-    [HandlerFunctions('ItemTrackingLinePageModalHandler')]
-    procedure ContiniousScanLotNoInBoundWithDulplicatedLotNoMinusTest()
-    var
-        Item: Record Item;
-        ItemJournalLine: Record "Item Journal Line";
-        TrackingSpecification: Record "Tracking Specification";
-        ItemTrackingLines: Page "Item Tracking Lines";
-    begin
-        // [SCENARIO] [Barcode Scanner] [InBound] [Lot No]
-        // [SCENARIO] Continiously scan the lot number with dulplicated lot number in minus qty itemTrackingLines.
-        Initialize();
-
-        // [GIVEN] Create 'Lot No' specific tracked item
-        LibraryItemTracking.CreateLotItem(Item);
-
-        // [GIVEN] Positive adjustment Item journal line for the item
-        LibraryInventory.CreateItemJnlLine(ItemJournalLine, ItemJournalLine."Entry Type"::"Positive Adjmt.", WorkDate(), Item."No.", -10, '');
-
-        // [GIVEN] Init ItemTrackingLines
-        CreateItemTrackingLines(ItemJournalLine, ItemTrackingLines);
-
-        // [THEN] There is no line in item tracking lines
-        Assert.AreEqual(0, ItemTrackingLines.CountLines(), 'Before starting test, the item tracking line should contain nothing!');
-
-        // [GIVEN] Scan Lot1 
-        ItemTrackingLines.ScanLotNoInBound('Lot1');
-        // [THEN] Now the quantity of Lot1 is -1.
-        CheckQuantityInTrackingSpecification(ItemTrackingLines, TrackingSpecification, -1);
-
-        // [GIVEN] Scan Lot2 
-        ItemTrackingLines.ScanLotNoInBound('Lot2');
-        // [THEN] Now the quantity of Lot2 is -1.
-        CheckQuantityInTrackingSpecification(ItemTrackingLines, TrackingSpecification, -1);
-
-        // [THEN] Now there are two lines in item tracking lines.
-        Assert.AreEqual(2, ItemTrackingLines.CountLines(), 'After test, there should be two records inserted.');
-
-        // [GIVEN] Scan Lot1 
-        asserterror ItemTrackingLines.ScanLotNoInBound('Lot1');
-        // [THEN] Get error message. The error message contains Lot No. Lot1.
-        Assert.ExpectedError('Lot No. LOT1');
-        // [THEN] Now the quantity of Lot1 is still -1.
-        CheckQuantityInTrackingSpecification(ItemTrackingLines, TrackingSpecification, -1);
-
-        // [GIVEN] Scan Lot2 
-        asserterror ItemTrackingLines.ScanLotNoInBound('Lot2');
-        // [THEN] Get error message. 
-        Assert.ExpectedError('Lot No. LOT2');
-        // [THEN] Now the quantity of Lot2 is still -1.
-        CheckQuantityInTrackingSpecification(ItemTrackingLines, TrackingSpecification, -1);
-
-        // [THEN] Now there are two lines in item tracking lines.
-        Assert.AreEqual(2, ItemTrackingLines.CountLines(), 'After test, there should be 2 records inserted.');
-    end;
-
-    local procedure CheckQuantityInTrackingSpecification(ItemTrackingLines: Page "Item Tracking Lines"; TrackingSpecification: Record "Tracking Specification"; expectedQuantity: Integer)
-    begin
-        ItemTrackingLines.GetRecord(TrackingSpecification);
-        Assert.AreEqual(expectedQuantity, TrackingSpecification."Quantity (Base)", 'The expected quantity is unequal to current quantity!');
-    end;
-
-    [Test]
-    [HandlerFunctions('ItemTrackingLinePageModalHandler')]
-    procedure ContiniousScanPackageNoInBoundTest()
-    var
-        Item: Record Item;
-        ItemJournalLine: Record "Item Journal Line";
-        TrackingSpecification: Record "Tracking Specification";
-        ItemTrackingLines: Page "Item Tracking Lines";
-    begin
-        // [SCENARIO] [Barcode Scanner] [InBound] [Lot No]
-        // [SCENARIO] Continiously scan the lot number
-        Initialize();
-
-        // [GIVEN] Create serial specific tracked item
-        LibraryItemTracking.CreateSerialItem(Item);
-
-        // [GIVEN] Positive adjustment Item journal line for the item
-        LibraryInventory.CreateItemJnlLine(ItemJournalLine, ItemJournalLine."Entry Type"::"Positive Adjmt.", WorkDate(), Item."No.", 10, '');
-
-        // [GIVEN] Init ItemTrackingLines
-        CreateItemTrackingLines(ItemJournalLine, ItemTrackingLines);
-
-        // [THEN] There is no line in item tracking lines
-        Assert.AreEqual(0, ItemTrackingLines.CountLines(), 'Before starting test, the item tracking line should contain nothing!');
-
-        // [GIVEN] Add Scan Serial No. five times
-        ItemTrackingLines.ScanPackageNoInBound('Pack1');
-        // [THEN] Now the initial quantity of every line is 3.
-        CheckQuantityInTrackingSpecification(ItemTrackingLines, TrackingSpecification, 0);
-
-        ItemTrackingLines.ScanPackageNoInBound('Pack2');
-        // [THEN] Now the initial quantity of every line is 3.
-        CheckQuantityInTrackingSpecification(ItemTrackingLines, TrackingSpecification, 0);
-
-        // [THEN] Now there are two lines in item tracking lines.
-        Assert.AreEqual(2, ItemTrackingLines.CountLines(), 'After test, there should be two records inserted.');
-    end;
-
-
-    [Test]
-    [HandlerFunctions('ItemTrackingLinePageModalHandler')]
-    procedure ContiniousScanPackageNoInBoundWithDulplicatedPackageNoTest()
-    var
-        Item: Record Item;
-        ItemJournalLine: Record "Item Journal Line";
-        TrackingSpecification: Record "Tracking Specification";
-        ItemTrackingLines: Page "Item Tracking Lines";
-    begin
-        // [SCENARIO] [Barcode Scanner] [InBound] [Package No]
-        // [SCENARIO] Continiously scan the package number, and all the quantity should be set to 0.
-        Initialize();
-
-        // [GIVEN] Create item 
-        LibraryItemTracking.CreateSerialItem(Item);
-
-        // [GIVEN] Positive adjustment Item journal line for the item
-        LibraryInventory.CreateItemJnlLine(ItemJournalLine, ItemJournalLine."Entry Type"::"Positive Adjmt.", WorkDate(), Item."No.", 10, '');
-
-        // [GIVEN] Init ItemTrackingLines
-        CreateItemTrackingLines(ItemJournalLine, ItemTrackingLines);
-
-        // [THEN] There is no line in item tracking lines
-        Assert.AreEqual(0, ItemTrackingLines.CountLines(), 'Before starting test, the item tracking line should contain nothing!');
-
-        // [GIVEN] Scan Pack1
-        ItemTrackingLines.ScanPackageNoInBound('Pack1');
-        // [THEN] Now the quantity of Pack1 is 0.
-        CheckQuantityInTrackingSpecification(ItemTrackingLines, TrackingSpecification, 0);
-
-        // [GIVEN] Scan Pack2
-        ItemTrackingLines.ScanPackageNoInBound('Pack2');
-        // [THEN] Now the quantity of Pack2 is 0.
-        CheckQuantityInTrackingSpecification(ItemTrackingLines, TrackingSpecification, 0);
-
-        // [GIVEN] Scan Pack1
-        ItemTrackingLines.ScanPackageNoInBound('Pack1');
-        // [THEN] Now the quantity of Pack1 is 2.
-        CheckQuantityInTrackingSpecification(ItemTrackingLines, TrackingSpecification, 2);
-
-        // [GIVEN] Scan Pack2
-        ItemTrackingLines.ScanPackageNoInBound('Pack2');
-        // [THEN] Now the quantity of Pack2 is 2.
-        CheckQuantityInTrackingSpecification(ItemTrackingLines, TrackingSpecification, 2);
-
-        // [GIVEN] Scan Pack1
-        ItemTrackingLines.ScanPackageNoInBound('Pack1');
-        // [THEN] Now the quantity of Pack1 is 3.
-        CheckQuantityInTrackingSpecification(ItemTrackingLines, TrackingSpecification, 3);
-
-        // [GIVEN] Scan Pack2
-        ItemTrackingLines.ScanPackageNoInBound('Pack2');
-        // [THEN] Now the quantity of Pack2 is 3.
-        CheckQuantityInTrackingSpecification(ItemTrackingLines, TrackingSpecification, 3);
-
-        // [THEN] Now there are two lines in item tracking lines.
-        Assert.AreEqual(2, ItemTrackingLines.CountLines(), 'After test, there should be two records inserted.');
-    end;
-
-    [Test]
-    [HandlerFunctions('ItemTrackingLinePageModalHandler')]
-    procedure ContiniousScanPackageNoInBoundMinusTest()
-    var
-        Item: Record Item;
-        ItemJournalLine: Record "Item Journal Line";
-        TrackingSpecification: Record "Tracking Specification";
-        ItemTrackingLines: Page "Item Tracking Lines";
-    begin
-        // [SCENARIO] [Barcode Scanner] [InBound] [package No]
-        // [SCENARIO] Continiously scan the package number with a minus qty ItemJnlLine, and quantity should be set to -1.
-        Initialize();
-
-        // [GIVEN] Create item
-        LibraryItemTracking.CreateSerialItem(Item);
-
-        // [GIVEN] Positive adjustment Item journal line for the item
-        LibraryInventory.CreateItemJnlLine(ItemJournalLine, ItemJournalLine."Entry Type"::"Positive Adjmt.", WorkDate(), Item."No.", -10, '');
-
-        // [GIVEN] Init ItemTrackingLines
-        CreateItemTrackingLines(ItemJournalLine, ItemTrackingLines);
-
-        // [THEN] There is no line in item tracking lines
-        Assert.AreEqual(0, ItemTrackingLines.CountLines(), 'Before starting test, the item tracking line should contain nothing!');
-
-        // [GIVEN] Scan Pack1.
-        ItemTrackingLines.ScanPackageNoInBound('Pack1');
-        // [THEN] Now the quantity of Pack1 is -1.
-        CheckQuantityInTrackingSpecification(ItemTrackingLines, TrackingSpecification, -1);
-
-        // [GIVEN] Scan Pack2.
-        ItemTrackingLines.ScanPackageNoInBound('Pack2');
-        // [THEN] Now the quantity of Pack2 is -1.
-        CheckQuantityInTrackingSpecification(ItemTrackingLines, TrackingSpecification, -1);
-
-        // [THEN] Now there are two lines in item tracking lines.
-        Assert.AreEqual(2, ItemTrackingLines.CountLines(), 'After test, there should be two records inserted.');
-    end;
-
-
-    [Test]
-    [HandlerFunctions('ItemTrackingLinePageModalHandler')]
-    procedure ContiniousScanPackageNoInBoundWithDulplicatedPackageNoMinusTest()
-    var
-        Item: Record Item;
-        ItemJournalLine: Record "Item Journal Line";
-        TrackingSpecification: Record "Tracking Specification";
-        ItemTrackingLines: Page "Item Tracking Lines";
-    begin
-        // [SCENARIO] [Barcode Scanner] [InBound] [Package No]
-        // [SCENARIO] Continiously scan the dulplicated package numbers with a minus qty ItemJnlLine, and quantity should be set to -1.
-        Initialize();
-
-        // [GIVEN] Create item
-        LibraryItemTracking.CreateSerialItem(Item);
-
-        // [GIVEN] Positive adjustment Item journal line for the item
-        LibraryInventory.CreateItemJnlLine(ItemJournalLine, ItemJournalLine."Entry Type"::"Positive Adjmt.", WorkDate(), Item."No.", -10, '');
-
-        // [GIVEN] Init ItemTrackingLines
-        CreateItemTrackingLines(ItemJournalLine, ItemTrackingLines);
-
-        // [THEN] There is no line in item tracking lines
-        Assert.AreEqual(0, ItemTrackingLines.CountLines(), 'Before starting test, the item tracking line should contain nothing!');
-
-        // [GIVEN] Scan Pack1.
-        ItemTrackingLines.ScanPackageNoInBound('Pack1');
-        // [THEN] Now the quantity of Pack1 is -1.
-        CheckQuantityInTrackingSpecification(ItemTrackingLines, TrackingSpecification, -1);
-
-        // [GIVEN] Scan Pack2.
-        ItemTrackingLines.ScanPackageNoInBound('Pack2');
-        // [THEN] Now the quantity of Pack2 is -1.
-        CheckQuantityInTrackingSpecification(ItemTrackingLines, TrackingSpecification, -1);
-
-        // [GIVEN] Scan Pack1 again.
-        asserterror ItemTrackingLines.ScanPackageNoInBound('Pack1');
-        // [THEN] Get error message. 
-        Assert.ExpectedError('Package PACK1');
-        // [THEN] Now the quantity of Pack1 is -1.
-        CheckQuantityInTrackingSpecification(ItemTrackingLines, TrackingSpecification, -1);
-
-        // [GIVEN] Scan Pack2 again.
-        asserterror ItemTrackingLines.ScanPackageNoInBound('Pack2');
-        // [THEN] Get error message. 
-        Assert.ExpectedError('Package PACK2');
-        // [THEN] Now the quantity of Pack2 is -1.
-        CheckQuantityInTrackingSpecification(ItemTrackingLines, TrackingSpecification, -1);
-
-        // [THEN] Now there are two lines in item tracking lines.
-        Assert.AreEqual(2, ItemTrackingLines.CountLines(), 'After test, there should be two records inserted.');
-    end;
-
-    [Test]
-    [HandlerFunctions('ItemTrackingLinePageModalHandler')]
-    procedure ContiniousScanSerialNoOutBoundWithExistingItemTest()
-    var
-        Item: Record Item;
-        ItemJournalLine: Record "Item Journal Line";
-        TrackingSpecification: Record "Tracking Specification";
-        ItemTrackingLines: Page "Item Tracking Lines";
-    begin
-        // [SCENARIO] [Barcode Scanner] [OutBound] [Serial No]
-        // Continiously scan the serial number, and set the corresponding quantity to 1 if serial no has been post.
-        // Set the quantity to 0 if it is not post.
-        Initialize();
-
-        // [GIVEN] Create serial specific tracked item
-        LibraryItemTracking.CreateSerialItem(Item);
-
-        CreateItemJournalLineWithItemTrackingOnLines(ItemJournalLine, ItemJournalLine."Entry Type"::"Positive Adjmt.", Item."No.", 1);
-
-        ItemJournalLine."Serial No." := 'Serial1';
-        ItemJournalLine.Modify(true);
-
-        // [GIVEN] Post this journal line
-        LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
-
-        // [GIVEN] Add items 
-        LibraryInventory.CreateItemJnlLine(ItemJournalLine, ItemJournalLine."Entry Type"::"Negative Adjmt.", WorkDate(), Item."No.", 10, '');
-        // [GIVEN] Init ItemTrackingLines
-        CreateItemTrackingLines(ItemJournalLine, ItemTrackingLines);
-
-        //[GIVEN] Scan Serial1
-        ItemTrackingLines.ScanSerialNoOutBound('Serial1');
-        // [THEN] Now the quantity of Serial1 is 1.
-        CheckQuantityInTrackingSpecification(ItemTrackingLines, TrackingSpecification, 1);
-
-        //[GIVEN] Scan Serial2
-        ItemTrackingLines.ScanSerialNoOutBound('Serial2');
-        // [THEN] Now the quantity of Serial1 is 2.
-        CheckQuantityInTrackingSpecification(ItemTrackingLines, TrackingSpecification, 0);
-
-    end;
-
-    local procedure CreateItemJournalLineWithItemTrackingOnLines(var ItemJournalLine: Record "Item Journal Line"; EntryType: Enum "Item Ledger Entry Type"; ItemNo: Code[20]; Qty: Integer)
-    var
-        ItemJournalBatch: Record "Item Journal Batch";
-    begin
-        SelectItemJournal(ItemJournalBatch);
-        ItemJournalBatch."Item Tracking on Lines" := true;
-        ItemJournalBatch.Modify();
-        LibraryInventory.CreateItemJournalLine(
-          ItemJournalLine, ItemJournalBatch."Journal Template Name",
-          ItemJournalBatch.Name, EntryType, ItemNo, Qty);
-    end;
-
-    local procedure SelectItemJournal(var ItemJournalBatch: Record "Item Journal Batch")
-    var
-        ItemJournalTemplate: Record "Item Journal Template";
-    begin
-        LibraryInventory.SelectItemJournalTemplateName(ItemJournalTemplate, ItemJournalTemplate.Type::Item);
-        LibraryInventory.SelectItemJournalBatchName(ItemJournalBatch, ItemJournalTemplate.Type::Item, ItemJournalTemplate.Name);
-        LibraryInventory.ClearItemJournal(ItemJournalTemplate, ItemJournalBatch);
-    end;
-
-    [Test]
-    [HandlerFunctions('ItemTrackingLinePageModalHandler')]
-    procedure ContiniousScanSerialNoOutBoundWithOutExistingItemTest()
-    var
-        Item: Record Item;
-        ItemJournalLine: Record "Item Journal Line";
-        TrackingSpecification: Record "Tracking Specification";
-        ItemTrackingLines: Page "Item Tracking Lines";
-    begin
-        // [SCENARIO] [Barcode Scanner] [OutBound] [Serial No]
-        // Continiously scan the serial number for out bound, the serail number doesn't exist, so init it with 0.
-        Initialize();
-
-        // [GIVEN] Create serial specific tracked item
-        LibraryItemTracking.CreateSerialItem(Item);
-
-        // [GIVEN] Add items 
-        LibraryInventory.CreateItemJnlLine(ItemJournalLine, ItemJournalLine."Entry Type"::"Negative Adjmt.", WorkDate(), Item."No.", 10, '');
-        // [GIVEN] Init ItemTrackingLines
-        CreateItemTrackingLines(ItemJournalLine, ItemTrackingLines);
-
-        // [GIVEN] Scan Serial1.
-        ItemTrackingLines.ScanSerialNoOutBound('Serial1');
-        // [THEN] Now the quantity of Serial1 is 0.
-        CheckQuantityInTrackingSpecification(ItemTrackingLines, TrackingSpecification, 0);
-
-        // [GIVEN] Scan Serial2.
-        ItemTrackingLines.ScanSerialNoOutBound('Serial2');
-        // [THEN] Now the quantity of Serial2 is 0.
-        CheckQuantityInTrackingSpecification(ItemTrackingLines, TrackingSpecification, 0);
-    end;
-
-    [Test]
-    [HandlerFunctions('ItemTrackingLinePageModalHandler')]
-    procedure ContiniousScanLotNoOutBoundWithOutExistingItemTest()
-    var
-        Item: Record Item;
-        ItemJournalLine: Record "Item Journal Line";
-        TrackingSpecification: Record "Tracking Specification";
-        ItemTrackingLines: Page "Item Tracking Lines";
-    begin
-        // [SCENARIO] [Barcode Scanner] [OutBound] [Lot No]
-        // Continiously scan the serial number for out bound, the serail number doesn't exist, so init it with 0.
-        Initialize();
-
-        // [GIVEN] Create serial specific tracked item
-        LibraryItemTracking.CreateLotItem(Item);
-
-        // [GIVEN] Add items 
-        LibraryInventory.CreateItemJnlLine(ItemJournalLine, ItemJournalLine."Entry Type"::"Negative Adjmt.", WorkDate(), Item."No.", 10, '');
-        // [GIVEN] Init ItemTrackingLines
-        CreateItemTrackingLines(ItemJournalLine, ItemTrackingLines);
-
-        // [GIVEN] Scan Lot1.
-        ItemTrackingLines.ScanLotNoOutBound('Lot1');
-        // [THEN] Now the quantity of Lot1 is 0.
-        CheckQuantityInTrackingSpecification(ItemTrackingLines, TrackingSpecification, 0);
-
-        // [GIVEN] Scan Lot2.
-        ItemTrackingLines.ScanLotNoOutBound('Lot2');
-        // [THEN] Now the quantity of Lot2 is 0.
-        CheckQuantityInTrackingSpecification(ItemTrackingLines, TrackingSpecification, 0);
-    end;
-
-    [Test]
-    [HandlerFunctions('ItemTrackingLinePageModalHandler')]
-    procedure ContiniousScanPackageNoOutBoundWithOutExistingItemTest()
-    var
-        Item: Record Item;
-        ItemJournalLine: Record "Item Journal Line";
-        TrackingSpecification: Record "Tracking Specification";
-        ItemTrackingLines: Page "Item Tracking Lines";
-    begin
-        // [SCENARIO] [Barcode Scanner] [OutBound] [Package No]
-        // Continiously scan the serial number for out bound, the serail number doesn't exist, so init it with 0.
-        Initialize();
-
-        // [GIVEN] Create item
-        LibraryItemTracking.CreateSerialItem(Item);
-
-        // [GIVEN] Add items 
-        LibraryInventory.CreateItemJnlLine(ItemJournalLine, ItemJournalLine."Entry Type"::"Negative Adjmt.", WorkDate(), Item."No.", 10, '');
-        // [GIVEN] Init ItemTrackingLines
-        CreateItemTrackingLines(ItemJournalLine, ItemTrackingLines);
-
-        // [GIVEN] Scan Pack1.
-        ItemTrackingLines.ScanPackageNoOutBound('Pack1');
-        // [THEN] Now the quantity of Pack1 is 0.
-        CheckQuantityInTrackingSpecification(ItemTrackingLines, TrackingSpecification, 0);
-
-        // [GIVEN] Scan Pack2.
-        ItemTrackingLines.ScanPackageNoOutBound('Pack2');
-        // [THEN] Now the quantity of Pack1 is 0.
-        CheckQuantityInTrackingSpecification(ItemTrackingLines, TrackingSpecification, 0);
-    end;
-
-    [Test]
-    [HandlerFunctions('ItemTrackingLinePageModalWithQtyZeroHandler,ExitingWithQtyZeroComfirmHandler')]
-    procedure WarningOfBlankQtyLinesWhenExitingWithYesReplyTest()
-    var
-        Item: Record Item;
-        TrackingSpecification: Record "Tracking Specification";
-        ItemJournalLine: Record "Item Journal Line";
-        ItemTrackingLines: Page "Item Tracking Lines";
-    begin
-        // [SCENARIO][DELIVERABLE 481052][Barcode Scanner] 
-        // When user exits the page "Item Tracking Lines", if any line's qty is 0, inform user.
-        Initialize();
-
-        // [GIVEN] Create item
-        LibraryItemTracking.CreateLotItem(Item);
-
-        // [GIVEN] Add items 
-        LibraryInventory.CreateItemJnlLine(ItemJournalLine, ItemJournalLine."Entry Type"::"Positive Adjmt.", WorkDate(), Item."No.", 10, '');
-
-        // [GIVEN] Init ItemTrackingLines
-        TrackingSpecification.InitFromItemJnlLine(ItemJournalLine);
-        ItemTrackingLines.SetSourceSpec(TrackingSpecification, ItemJournalLine."Posting Date");
-        ItemTrackingLines.SetInbound(ItemJournalLine.IsInbound());
-
-        // [GIVEN] Choose 'yes' for ConfirmDialog 
-        ConfirmHandlerReply := true;
-
-        // [THEN] Open the Item Tracking Lines, and call the ItemTrackingLinePageModalWithQtyZeroHandler, an warning will show up.
-        ItemJournalLine.OpenItemTrackingLines(false);
     end;
 
     [Test]
@@ -1261,6 +384,70 @@ codeunit 133008 "Item Tracking Test"
         Assert.ExpectedError('Lot No. LOT1');
     end;
 
+    [Test]
+    [HandlerFunctions('ItemTrackingLinePageModalHandler')]
+    procedure ScanLotNoAndPostWithOneItemTrackingLineTest()
+    var
+        Item: Record Item;
+        ItemJournalLine: Record "Item Journal Line";
+        ItemTrackingLines: Page "Item Tracking Lines";
+        ItemTrackingSetup: Record "Item Tracking Setup";
+    begin
+        // [SCENARIO] [BUG 481811]
+        // When use Barcode Scanning, user scans to define one item tracking, then post it successfully.
+        Initialize();
+
+        // [GIVEN] Create item
+        LibraryItemTracking.CreateLotItem(Item);
+
+        // [GIVEN] Add items 
+        LibraryInventory.CreateItemJnlLine(ItemJournalLine, ItemJournalLine."Entry Type"::Purchase, WorkDate(), Item."No.", 4, '');
+        ItemTrackingSetup."Serial No. Required" := false;
+
+        // [GIVEN] Init ItemTrackingLines
+        CreateItemTrackingLines(ItemJournalLine, ItemTrackingLines);
+
+        // [GIVEN] Scan Lot1 4 times.
+        ItemTrackingLines.ScanLotNoInBound('Lot1');
+        ItemTrackingLines.ScanLotNoInBound('Lot1');
+        ItemTrackingLines.ScanLotNoInBound('Lot1');
+        ItemTrackingLines.ScanLotNoInBound('Lot1');
+        ItemTrackingLines.RunModal();
+
+        //[THEN] Post successfully without any error.
+        LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
+    end;
+
+    [Test]
+    [HandlerFunctions('ItemTrackingLinePageModalHandler')]
+    procedure ScanSerialNoAndPostWithOneItemTrackingLineTest()
+    var
+        Item: Record Item;
+        ItemJournalLine: Record "Item Journal Line";
+        ItemTrackingLines: Page "Item Tracking Lines";
+    begin
+        // [SCENARIO] [BUG 481811]
+        // When use Barcode Scanning, user scans to define one item tracking, then post it successfully.
+        Initialize();
+
+        // [GIVEN] Create item
+        LibraryItemTracking.CreateSerialItem(Item);
+
+        // [GIVEN] Add items 
+        LibraryInventory.CreateItemJnlLine(ItemJournalLine, ItemJournalLine."Entry Type"::Purchase, WorkDate(), Item."No.", 1, '');
+
+        // [GIVEN] Init ItemTrackingLines
+        CreateItemTrackingLines(ItemJournalLine, ItemTrackingLines);
+
+        // [GIVEN] Scan SN1.
+        ItemTrackingLines.ScanSerialNoInBound('SN1');
+        ItemTrackingLines.RunModal();
+
+        //[THEN] Post successfully without any error.
+        LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
+    end;
+
+
     local procedure Initialize()
     begin
         LibrarytestInitialize.OnTestInitialize(Codeunit::"Item Tracking Test");
@@ -1278,6 +465,16 @@ codeunit 133008 "Item Tracking Test"
         LibraryItemTracking.CreateItemTrackingCode(ItemTrackingCode, true, false);
         ItemTrackingCode.Validate("Use Expiration Dates", false);
         ItemTrackingCode.Modify();
+    end;
+
+    local procedure CreateItemTrackingLines(var ItemJournalLine: Record "Item Journal Line"; var ItemTrackingLines: Page "Item Tracking Lines")
+    var
+        TrackingSpecification: Record "Tracking Specification";
+    begin
+        TrackingSpecification.InitFromItemJnlLine(ItemJournalLine);
+        ItemTrackingLines.SetSourceSpec(TrackingSpecification, ItemJournalLine."Posting Date");
+        ItemTrackingLines.SetInbound(ItemJournalLine.IsInbound());
+        ItemTrackingLines.RunModal();
     end;
 
     local procedure CreateItemWithExpirationCalcFormulaAndItemTrackingCode(var Item: Record Item; ItemTrackingCode: Record "Item Tracking Code"; ExpirationDateFormulaText: Text)
@@ -1310,11 +507,11 @@ codeunit 133008 "Item Tracking Test"
           'Unexpected call to the modal page handler.');
 
         // Go to the first item
-        ItemList.First;
+        ItemList.First();
 
         // Open the item card for this item
         Item.Get(ItemList."No.".Value());
-        ItemCard.OpenEdit;
+        ItemCard.OpenEdit();
         ItemCard.GotoRecord(Item);
         // Fix the item by removing the expiration date calculation
         ItemCard."Expiration Calculation".Value := '';
@@ -1400,27 +597,7 @@ codeunit 133008 "Item Tracking Test"
     end;
 
     [ModalPageHandler]
-    procedure ItemTrackingLinePageModalWithQtyZeroHandler(var ItemTrackingLinesTestPage: TestPage "Item Tracking Lines")
-    begin
-        // [WHEN] User enters the three lot number with Qty=0
-        ItemTrackingLinesTestPage.New();
-        ItemTrackingLinesTestPage."Lot No.".SetValue('Lot1');
-        ItemTrackingLinesTestPage."Quantity (Base)".SetValue(0);
-        ItemTrackingLinesTestPage.New();
-        ItemTrackingLinesTestPage."Lot No.".SetValue('Lot2');
-        ItemTrackingLinesTestPage."Quantity (Base)".SetValue(0);
-        ItemTrackingLinesTestPage.New();
-        ItemTrackingLinesTestPage."Lot No.".SetValue('Lot3');
-        ItemTrackingLinesTestPage."Quantity (Base)".SetValue(0);
-    end;
-
-    [ModalPageHandler]
     procedure ItemTrackingLinePageModalHandler(var ItemTrackingLinesTestPage: TestPage "Item Tracking Lines")
-    begin
-    end;
-
-    [PageHandler]
-    procedure ItemTrackingLinePageHandler(var ItemTrackingLinesTestPage: TestPage "Item Tracking Lines")
     begin
     end;
 }

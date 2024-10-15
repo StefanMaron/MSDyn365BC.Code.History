@@ -55,16 +55,6 @@ page 427 "Payment Methods"
                     ApplicationArea = BasicMX;
                     ToolTip = 'Specifies the payment method for paying to the Mexican tax authorities (SAT)';
                 }
-#if not CLEAN21
-                field("Use for Invoicing"; Rec."Use for Invoicing")
-                {
-                    ApplicationArea = Invoicing;
-                    ToolTip = 'Specifies whether or not payment term is used for Invoicing app.';
-                    ObsoleteReason = 'Microsoft Invoicing has been discontinued.';
-                    ObsoleteState = Pending;
-                    ObsoleteTag = '21.0';
-                }
-#endif
             }
         }
         area(factboxes)

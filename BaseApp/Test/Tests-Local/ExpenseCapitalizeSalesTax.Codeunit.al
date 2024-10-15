@@ -643,7 +643,7 @@
     local procedure CreateJobPurchaseOrderInForeignCurrency(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; TaxGroupCode: Code[20]; TaxAreaCode: Code[20]; Quantity: Decimal; UnitCost: Decimal)
     begin
         CreateJobPurchaseOrder(
-          PurchaseHeader, PurchaseLine, TaxGroupCode, TaxAreaCode, Quantity, UnitCost, CreateCurrencyWithExchangeRate);
+          PurchaseHeader, PurchaseLine, TaxGroupCode, TaxAreaCode, Quantity, UnitCost, CreateCurrencyWithExchangeRate());
     end;
 
     local procedure CreateJobPurchaseOrderInLocalCurrency(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; TaxGroupCode: Code[20]; TaxAreaCode: Code[20]; Quantity: Decimal; UnitCost: Decimal)
@@ -784,7 +784,7 @@
 
         LibrarySales.CreateSalesLine(
           SalesLine, SalesHeader, SalesLine.Type::"G/L Account",
-          LibraryERM.CreateGLAccountNo, 1);
+          LibraryERM.CreateGLAccountNo(), 1);
         SalesLine.Validate("Unit Price", LibraryRandom.RandDecInRange(1000, 2000, 2));
         SalesLine.Validate("Tax Group Code", TaxGroupCode);
         SalesLine.Modify(true);
@@ -938,14 +938,14 @@
     [Scope('OnPrem')]
     procedure SalesDocumentTest_RPH(var SalesDocumentTest: TestRequestPage "Sales Document - Test")
     begin
-        SalesDocumentTest.Cancel.Invoke;
+        SalesDocumentTest.Cancel().Invoke();
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure PurchaseDocumentTest_RPH(var PurchaseDocumentTest: TestRequestPage "Purchase Document - Test")
     begin
-        PurchaseDocumentTest.Cancel.Invoke;
+        PurchaseDocumentTest.Cancel().Invoke();
     end;
 }
 

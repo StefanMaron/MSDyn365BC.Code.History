@@ -242,11 +242,11 @@ codeunit 134555 "ERM CF Accounts"
         RecRef.Modify(true);
 
         LibraryCashFlow.CreateCashFlowCard(CashFlowForecast);
-        LibraryCashFlow.ClearJournal;
+        LibraryCashFlow.ClearJournal();
 
         // Exercise
         LibraryCashFlow.FillJournal(ConsiderSource, CashFlowForecast."No.", false);
-        LibraryCashFlow.PostJournal;
+        LibraryCashFlow.PostJournal();
 
         // Verify
         VerifyLedgerEntryAccount(CashFlowForecast, CashFlowAccount);
@@ -269,7 +269,7 @@ codeunit 134555 "ERM CF Accounts"
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM CF Accounts");
     end;
 
-    local procedure CreateCashFlowAccount(var CashFlowAccount: Record "Cash Flow Account"; var AccountNo: Code[20]; AccountType: Option)
+    local procedure CreateCashFlowAccount(var CashFlowAccount: Record "Cash Flow Account"; var AccountNo: Code[20]; AccountType: Enum "Cash Flow Account Type")
     begin
         AccountNo := IncStr(AccountNo);
         CashFlowAccount.Init();

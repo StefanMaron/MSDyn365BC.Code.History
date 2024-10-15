@@ -61,12 +61,12 @@ page 9305 "Sales Order List"
                 field("Sell-to Customer No."; Rec."Sell-to Customer No.")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the name of the customer that you’re selling to. By default, the same customer is suggested as the ship-to customer. If needed, you can specify a different ship-to customer on the document.';
+                    ToolTip = 'Specifies the number of the customer that you''re selling to. By default, the same customer is suggested as the ship-to customer. If needed, you can specify a different ship-to customer on the document.';
                 }
                 field("Sell-to Customer Name"; Rec."Sell-to Customer Name")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the name of the customer that you’re selling to. By default, the same customer is suggested as the ship-to customer. If needed, you can specify a different ship-to customer on the document.';
+                    ToolTip = 'Specifies the name of the customer that you''re selling to. By default, the same customer is suggested as the ship-to customer. If needed, you can specify a different ship-to customer on the document.';
                 }
                 field("External Document No."; Rec."External Document No.")
                 {
@@ -383,16 +383,6 @@ page 9305 "Sales Order List"
                 ShowFilter = false;
                 Visible = false;
             }
-#if not CLEAN21
-            part("Power BI Report FactBox"; "Power BI Report FactBox")
-            {
-                ApplicationArea = Basic, Suite;
-                Visible = false;
-                ObsoleteReason = 'Use the part PowerBIEmbeddedReportPart instead';
-                ObsoleteState = Pending;
-                ObsoleteTag = '21.0';
-            }
-#endif
             systempart(Control1900383207; Links)
             {
                 ApplicationArea = RecordLinks;
@@ -468,12 +458,14 @@ page 9305 "Sales Order List"
                 }
                 action(CFDIRelationDocuments)
                 {
-                    ApplicationArea = BasicMX, Suite;
+                    ApplicationArea = Suite, BasicMX;
                     Caption = 'CFDI Relation Documents';
                     Image = Allocations;
                     RunObject = Page "CFDI Relation Documents";
                     RunPageLink = "Document Table ID" = const(36),
+#pragma warning disable AL0603
                                   "Document Type" = field("Document Type"),
+#pragma warning restore AL0603
                                   "Document No." = field("No."),
                                   "Customer No." = field("Bill-to Customer No.");
                     ToolTip = 'View or add CFDI relation documents for the record.';
@@ -597,7 +589,7 @@ page 9305 "Sales Order List"
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Sales Order';
-                    Enabled = CRMIntegrationEnabled AND CRMIsCoupledToRecord;
+                    Enabled = CRMIntegrationEnabled and CRMIsCoupledToRecord;
                     Image = CoupledOrder;
                     ToolTip = 'View the selected sales order.';
                     Visible = BidirectionalSalesOrderIntEnabled;
@@ -804,7 +796,7 @@ page 9305 "Sales Order List"
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Send A&pproval Request';
-                    Enabled = NOT OpenApprovalEntriesExist AND CanRequestApprovalForFlow;
+                    Enabled = not OpenApprovalEntriesExist and CanRequestApprovalForFlow;
                     Image = SendApprovalRequest;
                     ToolTip = 'Request approval of the document.';
 
@@ -820,7 +812,7 @@ page 9305 "Sales Order List"
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Cancel Approval Re&quest';
-                    Enabled = CanCancelApprovalForRecord OR CanCancelApprovalForFlow;
+                    Enabled = CanCancelApprovalForRecord or CanCancelApprovalForFlow;
                     Image = CancelApprovalRequest;
                     ToolTip = 'Cancel the approval request.';
 
@@ -1038,7 +1030,7 @@ page 9305 "Sales Order List"
                     Ellipsis = true;
                     Image = Print;
                     ToolTip = 'Print an order confirmation. A report request window opens where you can specify what to include on the print-out.';
-                    Visible = NOT IsOfficeAddin;
+                    Visible = not IsOfficeAddin;
 
                     trigger OnAction()
                     begin
@@ -1063,33 +1055,6 @@ page 9305 "Sales Order List"
                     end;
                 }
             }
-#if not CLEAN21
-            group(Display)
-            {
-                Caption = 'Display';
-                Visible = false;
-                ObsoleteState = Pending;
-                ObsoleteReason = 'Use the Personalization mode to hide and show this factbox.';
-                ObsoleteTag = '21.0';
-                action(ReportFactBoxVisibility)
-                {
-                    ApplicationArea = Basic, Suite;
-                    Caption = 'Show/Hide Power BI Reports';
-                    Image = "Report";
-                    ToolTip = 'Select if the Power BI FactBox is visible or not.';
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Use the Personalization mode to hide and show this factbox.';
-                    ObsoleteTag = '21.0';
-
-                    trigger OnAction()
-                    begin
-                        // save visibility value into the table
-                        CurrPage."Power BI Report FactBox".PAGE.SetFactBoxVisibility(PowerBIVisible);
-                    end;
-                }
-            }
-#endif
         }
         area(reporting)
         {
@@ -1203,15 +1168,6 @@ page 9305 "Sales Order List"
             {
                 Caption = 'Report', Comment = 'Generated from the PromotedActionCategories property index 2.';
 
-#if not CLEAN21
-                actionref("Sales Reservation Avail._Promoted"; "Sales Reservation Avail.")
-                {
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Action is being demoted based on overall low usage.';
-                    ObsoleteTag = '21.0';
-                }
-#endif
             }
             group(Category_Synchronize)
             {
@@ -1222,6 +1178,40 @@ page 9305 "Sales Order List"
                 {
                 }
             }
+        }
+    }
+
+    views
+    {
+        view(ShippedNotInvoiced)
+        {
+            Caption = 'Shipped Not Invoiced';
+            Filters = where("Document Type" = const(Order), "Shipped Not Invoiced" = const(true));
+        }
+        view(SalesOrdersOpen)
+        {
+            Caption = 'Open Sales Orders';
+            Filters = where("Document Type" = const(Order), Status = const(Open));
+        }
+        view(ReadyToShip)
+        {
+            Caption = 'Ready to Ship';
+            Filters = where("Document Type" = const(Order), Status = const(Released), "Completely Shipped" = const(false), "Shipment Date" = filter(<= '%workdate'));
+        }
+        view(PartiallyShipped)
+        {
+            Caption = 'Partially Shipped';
+            Filters = where("Document Type" = const(Order), Status = const(Released), "Completely Shipped" = const(false), Shipped = const(true));
+        }
+        view(Delayed)
+        {
+            Caption = 'Delayed';
+            Filters = where("Document Type" = const(Order), Status = const(Released), "Completely Shipped" = const(false), "Late Order Shipping" = const(true));
+        }
+        view(Released)
+        {
+            Caption = 'Released';
+            Filters = where("Document Type" = const(Order), Status = const(Released));
         }
     }
 
@@ -1236,10 +1226,6 @@ page 9305 "Sales Order List"
         if CRMIntegrationEnabled then
             CRMIsCoupledToRecord := CRMCouplingManagement.IsRecordCoupledToCRM(Rec.RecordId);
 
-#if not CLEAN21
-        // Contextual Power BI FactBox: send data to filter the report in the FactBox
-        CurrPage."Power BI Report FactBox".PAGE.SetCurrentListSelection(Rec."No.", false, PowerBIVisible);
-#endif
         CurrPage.SetSelectionFilter(FilteredSalesHeader);
         CurrPage.PowerBIEmbeddedReportPart.PAGE.SetFilterToMultipleValues(FilteredSalesHeader, FilteredSalesHeader.FieldNo("No."));
     end;
@@ -1251,10 +1237,6 @@ page 9305 "Sales Order List"
 
     trigger OnInit()
     begin
-#if not CLEAN21
-        PowerBIVisible := false;
-        CurrPage."Power BI Report FactBox".PAGE.InitFactBox(CurrPage.ObjectId(false), CurrPage.Caption, PowerBIVisible);
-#endif
         CurrPage.PowerBIEmbeddedReportPart.PAGE.InitPageRatio(PowerBIServiceMgt.GetFactboxRatio());
         CurrPage.PowerBIEmbeddedReportPart.PAGE.SetPageContext(CurrPage.ObjectId(false));
     end;
@@ -1293,9 +1275,6 @@ page 9305 "Sales Order List"
         CRMIsCoupledToRecord: Boolean;
         IsOfficeAddin: Boolean;
         CanCancelApprovalForRecord: Boolean;
-#if not CLEAN21
-        PowerBIVisible: Boolean;
-#endif
         StatusStyleTxt: Text;
         ReadyToPostQst: Label 'The number of orders that will be posted is %1. \Do you want to continue?', Comment = '%1 - selected count';
         CanRequestApprovalForFlow: Boolean;
@@ -1303,8 +1282,11 @@ page 9305 "Sales Order List"
 
     procedure ShowPreview()
     var
+        SelectedSalesHeader: Record "Sales Header";
         SalesPostYesNo: Codeunit "Sales-Post (Yes/No)";
     begin
+        CurrPage.SetSelectionFilter(SelectedSalesHeader);
+        SalesPostYesNo.MessageIfPostingPreviewMultipleDocuments(SelectedSalesHeader, Rec."No.");
         SalesPostYesNo.Preview(Rec);
     end;
 

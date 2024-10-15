@@ -68,34 +68,48 @@ page 9325 "Firm Planned Prod. Orders"
                     ToolTip = 'Specifies the location code to which you want to post the finished product from this production order.';
                     Visible = false;
                 }
+#if not CLEAN24
                 field("Starting Time"; StartingTime)
                 {
                     ApplicationArea = Manufacturing;
                     Caption = 'Starting Time';
                     ToolTip = 'Specifies the starting time of the production order.';
-                    Visible = DateAndTimeFieldVisible;
+                    Visible = false;
+                    ObsoleteReason = 'Replaced by "Starting Date-Time" field';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '24.0';
                 }
                 field("Starting Date"; StartingDate)
                 {
                     ApplicationArea = Manufacturing;
                     Caption = 'Starting Date';
                     ToolTip = 'Specifies the starting date of the production order.';
-                    Visible = DateAndTimeFieldVisible;
+                    Visible = false;
+                    ObsoleteReason = 'Replaced by "Starting Date-Time" field';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '24.0';
                 }
                 field("Ending Time"; EndingTime)
                 {
                     ApplicationArea = Manufacturing;
                     Caption = 'Ending Time';
                     ToolTip = 'Specifies the ending time of the production order.';
-                    Visible = DateAndTimeFieldVisible;
+                    Visible = false;
+                    ObsoleteReason = 'Replaced by "Ending Date-Time" field';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '24.0';
                 }
                 field("Ending Date"; EndingDate)
                 {
                     ApplicationArea = Manufacturing;
                     Caption = 'Ending Date';
                     ToolTip = 'Specifies the ending date of the production order.';
-                    Visible = DateAndTimeFieldVisible;
+                    Visible = false;
+                    ObsoleteReason = 'Replaced by "Ending Date-Time" field';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '24.0';
                 }
+#endif
                 field("Starting Date-Time"; Rec."Starting Date-Time")
                 {
                     ApplicationArea = Manufacturing;
@@ -420,25 +434,29 @@ page 9325 "Firm Planned Prod. Orders"
 
     trigger OnAfterGetRecord()
     begin
-        Rec.GetStartingEndingDateAndTime(StartingTime, StartingDate, EndingTime, EndingDate);
+#if not CLEAN24
+        StartingTime := DT2Time(Rec."Starting Date-Time");
+        StartingDate := DT2Date(Rec."Starting Date-Time");
+        EndingTime := DT2Time(Rec."Ending Date-Time");
+        EndingDate := DT2Date(Rec."Ending Date-Time");
+#endif
     end;
 
     trigger OnInit()
     begin
-        DateAndTimeFieldVisible := false;
     end;
 
     trigger OnOpenPage()
     begin
-        DateAndTimeFieldVisible := false;
     end;
 
     var
         ManuPrintReport: Codeunit "Manu. Print Report";
+#if not CLEAN24
         StartingTime: Time;
         EndingTime: Time;
         StartingDate: Date;
         EndingDate: Date;
-        DateAndTimeFieldVisible: Boolean;
+#endif
 }
 

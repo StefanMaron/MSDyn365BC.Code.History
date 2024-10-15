@@ -1,6 +1,8 @@
 namespace Microsoft.Service.History;
 
 using Microsoft.Finance.Dimension;
+using Microsoft.Foundation.Attachment;
+using Microsoft.Inventory.Item.Catalog;
 
 page 5979 "Posted Service Invoice Subform"
 {
@@ -10,7 +12,7 @@ page 5979 "Posted Service Invoice Subform"
     LinksAllowed = false;
     PageType = ListPart;
     SourceTable = "Service Invoice Line";
-    SourceTableView = sorting("Document No.", "Service Item Line No.") order(Ascending);
+    SourceTableView = sorting("Document No.", "Service Item Line No.") order(ascending);
 
     layout
     {
@@ -28,6 +30,12 @@ page 5979 "Posted Service Invoice Subform"
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the number of the involved entry or record, according to the specified number series.';
+                }
+                field("Item Reference No."; Rec."Item Reference No.")
+                {
+                    AccessByPermission = tabledata "Item Reference" = R;
+                    ApplicationArea = Service, ItemReferences;
+                    ToolTip = 'Specifies the referenced item number.';
                 }
                 field("Variant Code"; Rec."Variant Code")
                 {
@@ -272,6 +280,23 @@ page 5979 "Posted Service Invoice Subform"
                     trigger OnAction()
                     begin
                         PageShowItemShipmentLines();
+                    end;
+                }
+                action(DocAttach)
+                {
+                    ApplicationArea = Service;
+                    Caption = 'Attachments';
+                    Image = Attach;
+                    ToolTip = 'Add a file as an attachment. You can attach images as well as documents.';
+
+                    trigger OnAction()
+                    var
+                        DocumentAttachmentDetails: Page "Document Attachment Details";
+                        RecRef: RecordRef;
+                    begin
+                        RecRef.GetTable(Rec);
+                        DocumentAttachmentDetails.OpenForRecRef(RecRef);
+                        DocumentAttachmentDetails.RunModal();
                     end;
                 }
             }

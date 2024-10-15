@@ -7,6 +7,7 @@ namespace Microsoft.eServices.EDocument;
 table 10004 "MX Electronic Invoicing Setup"
 {
     Caption = 'MX Electronic Invoicing Setup';
+    DataClassification = CustomerContent;
 
     fields
     {

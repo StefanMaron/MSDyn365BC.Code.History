@@ -140,20 +140,18 @@ codeunit 782 "Opportunity Chart Mgt."
         I: Integer;
         OppCount: Integer;
     begin
-        with BusinessChartBuffer do begin
-            Initialize();
-            AddIntegerMeasure(SalespersonPurchaser.FieldCaption("No. of Opportunities"), 1, "Chart Type"::Pie);
-            SetXAxis(SalespersonPurchaser.TableCaption(), "Data Type"::String);
-            if SalespersonPurchaser.FindSet() then
-                repeat
-                    OppCount := GetOppCount(Period, SalespersonPurchaser.Code, OpportunityStatus);
-                    if OppCount <> 0 then begin
-                        I += 1;
-                        AddColumn(SalespersonPurchaser.Name);
-                        SetValueByIndex(0, I - 1, OppCount);
-                    end;
-                until SalespersonPurchaser.Next() = 0;
-        end;
+        BusinessChartBuffer.Initialize();
+        BusinessChartBuffer.AddIntegerMeasure(SalespersonPurchaser.FieldCaption("No. of Opportunities"), 1, BusinessChartBuffer."Chart Type"::Pie);
+        BusinessChartBuffer.SetXAxis(SalespersonPurchaser.TableCaption(), BusinessChartBuffer."Data Type"::String);
+        if SalespersonPurchaser.FindSet() then
+            repeat
+                OppCount := GetOppCount(Period, SalespersonPurchaser.Code, OpportunityStatus);
+                if OppCount <> 0 then begin
+                    I += 1;
+                    BusinessChartBuffer.AddColumn(SalespersonPurchaser.Name);
+                    BusinessChartBuffer.SetValueByIndex(0, I - 1, OppCount);
+                end;
+            until SalespersonPurchaser.Next() = 0;
     end;
 
     [IntegrationEvent(false, false)]

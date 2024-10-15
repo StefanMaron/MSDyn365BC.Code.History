@@ -10,13 +10,13 @@ codeunit 132204 "Library - Warehouse"
     end;
 
     var
-        Text003: Label 'Inbound Whse. Requests are created.';
-        Text004: Label 'No Inbound Whse. Request is created.';
-        Text005: Label 'Inbound Whse. Requests have already been created.';
         LibraryInventory: Codeunit "Library - Inventory";
         LibraryAssembly: Codeunit "Library - Assembly";
         LibraryUtility: Codeunit "Library - Utility";
         Assert: Codeunit Assert;
+        Text003Msg: Label 'Inbound Whse. Requests are created.';
+        Text004Msg: Label 'No Inbound Whse. Request is created.';
+        Text005Msg: Label 'Inbound Whse. Requests have already been created.';
 
     procedure AutoFillQtyHandleWhseActivity(WarehouseActivityHeaderRec: Record "Warehouse Activity Header")
     var
@@ -67,7 +67,7 @@ codeunit 132204 "Library - Warehouse"
         PhysInvtCountManagement.Run();
     end;
 
-    procedure CalculatePlannedDate(OrgDateExpression: Text[30]; OrgDate: Date; CustomCalendarChange: Array[2] of Record "Customized Calendar Change"; CheckBothCalendars: Boolean) PlannedDate: Date
+    procedure CalculatePlannedDate(OrgDateExpression: Text[30]; OrgDate: Date; CustomCalendarChange: array[2] of Record "Customized Calendar Change"; CheckBothCalendars: Boolean) PlannedDate: Date
     var
         CalendarManagement: Codeunit "Calendar Management";
     begin
@@ -79,7 +79,7 @@ codeunit 132204 "Library - Warehouse"
         ItemJournalLine: Record "Item Journal Line";
         TmpItem: Record Item;
         CalcWhseAdjmt: Report "Calculate Whse. Adjustment";
-        NoSeriesMgt: Codeunit NoSeriesManagement;
+        NoSeries: Codeunit "No. Series";
         DocumentNo: Text[20];
     begin
         Clear(ItemJournalLine);
@@ -90,7 +90,7 @@ codeunit 132204 "Library - Warehouse"
         Commit();
         CalcWhseAdjmt.SetItemJnlLine(ItemJournalLine);
         if (DocumentNo = '') and (ItemJournalBatch."No. Series" <> '') then
-            DocumentNo := NoSeriesMgt.GetNextNo(ItemJournalBatch."No. Series", WorkDate(), false);
+            DocumentNo := NoSeries.PeekNextNo(ItemJournalBatch."No. Series");
         CalcWhseAdjmt.InitializeRequest(WorkDate(), DocumentNo);
         if Item.HasFilter then
             TmpItem.CopyFilters(Item)
@@ -110,18 +110,18 @@ codeunit 132204 "Library - Warehouse"
         TmpItem: Record Item;
         ItemJournalTemplate: Record "Item Journal Template";
         ItemJournalBatch: Record "Item Journal Batch";
-        CalculateWhseAdjustment: Report "Calculate Whse. Adjustment";
-        NoSeriesMgt: Codeunit NoSeriesManagement;
+        CalculateWhseAdjustmentReport: Report "Calculate Whse. Adjustment";
+        NoSeries: Codeunit "No. Series";
     begin
         LibraryAssembly.SetupItemJournal(ItemJournalTemplate, ItemJournalBatch);
         ItemJournalLine.Validate("Journal Template Name", ItemJournalBatch."Journal Template Name");
         ItemJournalLine.Validate("Journal Batch Name", ItemJournalBatch.Name);
 
         Commit();
-        CalculateWhseAdjustment.SetItemJnlLine(ItemJournalLine);
+        CalculateWhseAdjustmentReport.SetItemJnlLine(ItemJournalLine);
         if DocumentNo = '' then
-            DocumentNo := NoSeriesMgt.GetNextNo(ItemJournalBatch."No. Series", NewPostingDate, false);
-        CalculateWhseAdjustment.InitializeRequest(NewPostingDate, DocumentNo);
+            DocumentNo := NoSeries.PeekNextNo(ItemJournalBatch."No. Series", NewPostingDate);
+        CalculateWhseAdjustmentReport.InitializeRequest(NewPostingDate, DocumentNo);
         if Item.HasFilter then
             TmpItem.CopyFilters(Item)
         else begin
@@ -129,21 +129,21 @@ codeunit 132204 "Library - Warehouse"
             TmpItem.SetRange("No.", Item."No.");
         end;
 
-        CalculateWhseAdjustment.SetTableView(TmpItem);
-        CalculateWhseAdjustment.UseRequestPage(false);
-        CalculateWhseAdjustment.RunModal();
+        CalculateWhseAdjustmentReport.SetTableView(TmpItem);
+        CalculateWhseAdjustmentReport.UseRequestPage(false);
+        CalculateWhseAdjustmentReport.RunModal();
     end;
 
     procedure CalculateBinReplenishment(BinContent: Record "Bin Content"; WhseWorksheetName: Record "Whse. Worksheet Name"; LocationCode: Code[10]; AllowBreakBulk: Boolean; HideDialog: Boolean; DoNotFillQtyToHandle: Boolean)
     var
-        CalculateBinReplenishment: Report "Calculate Bin Replenishment";
+        CalculateBinReplenishmentReport: Report "Calculate Bin Replenishment";
     begin
-        CalculateBinReplenishment.InitializeRequest(
+        CalculateBinReplenishmentReport.InitializeRequest(
           WhseWorksheetName."Worksheet Template Name", WhseWorksheetName.Name, LocationCode, AllowBreakBulk, HideDialog,
           DoNotFillQtyToHandle);
-        CalculateBinReplenishment.SetTableView(BinContent);
-        CalculateBinReplenishment.UseRequestPage(false);
-        CalculateBinReplenishment.Run();
+        CalculateBinReplenishmentReport.SetTableView(BinContent);
+        CalculateBinReplenishmentReport.UseRequestPage(false);
+        CalculateBinReplenishmentReport.Run();
     end;
 
     procedure CalculateCrossDockLines(var WhseCrossDockOpportunity: Record "Whse. Cross-Dock Opportunity"; NewTemplateName: Code[10]; NewNameNo: Code[20]; NewLocationCode: Code[10])
@@ -350,13 +350,13 @@ codeunit 132204 "Library - Warehouse"
         WhseOutputProdRelease: Codeunit "Whse.-Output Prod. Release";
     begin
         if WhseOutputProdRelease.CheckWhseRqst(ProductionOrder) then
-            Message(Text005)
+            Message(Text005Msg)
         else begin
             Clear(WhseOutputProdRelease);
             if WhseOutputProdRelease.Release(ProductionOrder) then
-                Message(Text003)
+                Message(Text003Msg)
             else
-                Message(Text004);
+                Message(Text004Msg);
         end;
     end;
 
@@ -625,7 +625,7 @@ codeunit 132204 "Library - Warehouse"
     procedure CreatePickFromPickWorksheet(var WhseWorksheetLine: Record "Whse. Worksheet Line"; LineNo: Integer; WkshTemplateName: Code[10]; Name: Code[10]; LocationCode: Code[10]; AssignedID: Code[10]; MaxNoOfLines: Integer; MaxNoOfSourceDoc: Integer; SortPick: Enum "Whse. Activity Sorting Method"; PerShipTo: Boolean; PerItem: Boolean; PerZone: Boolean; PerBin: Boolean; PerWhseDoc: Boolean; PerDate: Boolean; PrintPick: Boolean)
     var
         WhseWorksheetLine2: Record "Whse. Worksheet Line";
-        CreatePick: Report "Create Pick";
+        CreatePickReport: Report "Create Pick";
     begin
         WhseWorksheetLine2 := WhseWorksheetLine;
         WhseWorksheetLine2.SetRange("Worksheet Template Name", WkshTemplateName);
@@ -634,13 +634,13 @@ codeunit 132204 "Library - Warehouse"
         if LineNo <> 0 then
             WhseWorksheetLine2.SetRange("Line No.", LineNo);
 
-        CreatePick.InitializeReport(
+        CreatePickReport.InitializeReport(
           AssignedID, MaxNoOfLines, MaxNoOfSourceDoc, SortPick, PerShipTo, PerItem,
           PerZone, PerBin, PerWhseDoc, PerDate, PrintPick, false, false);
-        CreatePick.UseRequestPage(false);
-        CreatePick.SetWkshPickLine(WhseWorksheetLine2);
-        CreatePick.RunModal();
-        Clear(CreatePick);
+        CreatePickReport.UseRequestPage(false);
+        CreatePickReport.SetWkshPickLine(WhseWorksheetLine2);
+        CreatePickReport.RunModal();
+        Clear(CreatePickReport);
 
         WhseWorksheetLine := WhseWorksheetLine2;
     end;
@@ -863,9 +863,9 @@ codeunit 132204 "Library - Warehouse"
     procedure CreateWhseJournalTemplate(var WarehouseJournalTemplate: Record "Warehouse Journal Template"; WarehouseJournalTemplateType: Enum "Warehouse Journal Template Type")
     begin
         WarehouseJournalTemplate.Init();
-        WarehouseJournalTemplate.VALIDATE(Name, LibraryUtility.GenerateGUID());
-        WarehouseJournalTemplate.VALIDATE(Type, WarehouseJournalTemplateType);
-        WarehouseJournalTemplate.INSERT(TRUE);
+        WarehouseJournalTemplate.Validate(Name, LibraryUtility.GenerateGUID());
+        WarehouseJournalTemplate.Validate(Type, WarehouseJournalTemplateType);
+        WarehouseJournalTemplate.Insert(true);
     end;
 
     procedure CreateWarehouseJournalBatch(var WarehouseJournalBatch: Record "Warehouse Journal Batch"; WarehouseJournalTemplateType: Enum "Warehouse Journal Template Type"; LocationCode: Code[10])
@@ -894,7 +894,7 @@ codeunit 132204 "Library - Warehouse"
     var
         NoSeries: Record "No. Series";
         WarehouseJournalBatch: Record "Warehouse Journal Batch";
-        NoSeriesManagement: Codeunit NoSeriesManagement;
+        NoSeriesCodeunit: Codeunit "No. Series";
         RecRef: RecordRef;
         DocumentNo: Code[20];
         JnlSelected: Boolean;
@@ -931,7 +931,7 @@ codeunit 132204 "Library - Warehouse"
         WarehouseJournalLine.Validate("Registering Date", WorkDate());
         WarehouseJournalLine.Validate("Entry Type", EntryType);
         if NoSeries.Get(WarehouseJournalBatch."No. Series") then
-            DocumentNo := NoSeriesManagement.GetNextNo(WarehouseJournalBatch."No. Series", WarehouseJournalLine."Registering Date", false)
+            DocumentNo := NoSeriesCodeunit.PeekNextNo(WarehouseJournalBatch."No. Series", WarehouseJournalLine."Registering Date")
         else
             DocumentNo := 'Default Document No.';
         WarehouseJournalLine.Validate("Whse. Document No.", DocumentNo);
@@ -956,7 +956,7 @@ codeunit 132204 "Library - Warehouse"
         WhseWorksheetLine.FindFirst();
 
         WhseSrcCreateDocument.SetWhseWkshLine(WhseWorksheetLine);
-        WhseSrcCreateDocument.Initialize(UserId, SortActivity, false, DoNotFillQtyToHandle, BreakBulkFilter);
+        WhseSrcCreateDocument.Initialize(CopyStr(UserId(), 1, 50), SortActivity, false, DoNotFillQtyToHandle, BreakBulkFilter);
         WhseSrcCreateDocument.UseRequestPage(false);
         WhseSrcCreateDocument.RunModal();
         WhseSrcCreateDocument.GetResultMessage(WarehouseActivityHeader.Type::Movement.AsInteger());
@@ -982,7 +982,7 @@ codeunit 132204 "Library - Warehouse"
     procedure CreateWhsePickFromProduction(ProductionOrder: Record "Production Order")
     begin
         ProductionOrder.SetHideValidationDialog(true);
-        ProductionOrder.CreatePick(UserId, 0, false, false, false);
+        ProductionOrder.CreatePick(CopyStr(UserId(), 1, 50), 0, false, false, false);
     end;
 
     procedure CreateWhseReceiptFromPO(var PurchaseHeader: Record "Purchase Header")
@@ -1065,12 +1065,12 @@ codeunit 132204 "Library - Warehouse"
 
     procedure DeleteEmptyWhseRegisters()
     var
-        DeleteEmptyWhseRegisters: Report "Delete Empty Whse. Registers";
+        DeleteEmptyWhseRegistersReport: Report "Delete Empty Whse. Registers";
     begin
         Commit();  // Commit required for batch job report.
-        Clear(DeleteEmptyWhseRegisters);
-        DeleteEmptyWhseRegisters.UseRequestPage(false);
-        DeleteEmptyWhseRegisters.Run();
+        Clear(DeleteEmptyWhseRegistersReport);
+        DeleteEmptyWhseRegistersReport.UseRequestPage(false);
+        DeleteEmptyWhseRegistersReport.Run();
     end;
 
     procedure FindBin(var Bin: Record Bin; LocationCode: Code[10]; ZoneCode: Code[10]; BinIndex: Integer)
@@ -1090,45 +1090,39 @@ codeunit 132204 "Library - Warehouse"
     var
         WhseRcptLine: Record "Warehouse Receipt Line";
     begin
-        with WhseRcptLine do begin
-            SetRange("Source Type", SourceType);
-            SetRange("Source Subtype", SourceSubtype);
-            SetRange("Source No.", SourceNo);
-            if FindFirst() then
-                exit("No.");
+        WhseRcptLine.SetRange("Source Type", SourceType);
+        WhseRcptLine.SetRange("Source Subtype", SourceSubtype);
+        WhseRcptLine.SetRange("Source No.", SourceNo);
+        if WhseRcptLine.FindFirst() then
+            exit(WhseRcptLine."No.");
 
-            exit('');
-        end;
+        exit('');
     end;
 
     procedure FindWhseActivityNoBySourceDoc(SourceType: Option; SourceSubtype: Option; SourceNo: Code[20]): Code[20]
     var
         WhseActivityLine: Record "Warehouse Activity Line";
     begin
-        with WhseActivityLine do begin
-            SetRange("Source Type", SourceType);
-            SetRange("Source Subtype", SourceSubtype);
-            SetRange("Source No.", SourceNo);
-            if FindFirst() then
-                exit("No.");
+        WhseActivityLine.SetRange("Source Type", SourceType);
+        WhseActivityLine.SetRange("Source Subtype", SourceSubtype);
+        WhseActivityLine.SetRange("Source No.", SourceNo);
+        if WhseActivityLine.FindFirst() then
+            exit(WhseActivityLine."No.");
 
-            exit('');
-        end;
+        exit('');
     end;
 
     procedure FindWhseShipmentNoBySourceDoc(SourceType: Option; SourceSubtype: Option; SourceNo: Code[20]): Code[20]
     var
         WhseShptLine: Record "Warehouse Shipment Line";
     begin
-        with WhseShptLine do begin
-            SetRange("Source Type", SourceType);
-            SetRange("Source Subtype", SourceSubtype);
-            SetRange("Source No.", SourceNo);
-            if FindFirst() then
-                exit("No.");
+        WhseShptLine.SetRange("Source Type", SourceType);
+        WhseShptLine.SetRange("Source Subtype", SourceSubtype);
+        WhseShptLine.SetRange("Source No.", SourceNo);
+        if WhseShptLine.FindFirst() then
+            exit(WhseShptLine."No.");
 
-            exit('');
-        end;
+        exit('');
     end;
 
     [Scope('OnPrem')]
@@ -1164,7 +1158,7 @@ codeunit 132204 "Library - Warehouse"
     procedure GetBinContentInternalMovement(InternalMovementHeader: Record "Internal Movement Header"; LocationCodeFilter: Text[30]; ItemFilter: Text[30]; BinCodeFilter: Text[100])
     var
         BinContent: Record "Bin Content";
-        WhseGetBinContent: Report "Whse. Get Bin Content";
+        WhseGetBinContentReport: Report "Whse. Get Bin Content";
     begin
         BinContent.Init();
         BinContent.Reset();
@@ -1174,16 +1168,16 @@ codeunit 132204 "Library - Warehouse"
             BinContent.SetFilter("Item No.", ItemFilter);
         if BinCodeFilter <> '' then
             BinContent.SetFilter("Bin Code", BinCodeFilter);
-        WhseGetBinContent.SetTableView(BinContent);
-        WhseGetBinContent.InitializeInternalMovement(InternalMovementHeader);
-        WhseGetBinContent.UseRequestPage(false);
-        WhseGetBinContent.RunModal();
+        WhseGetBinContentReport.SetTableView(BinContent);
+        WhseGetBinContentReport.InitializeInternalMovement(InternalMovementHeader);
+        WhseGetBinContentReport.UseRequestPage(false);
+        WhseGetBinContentReport.RunModal();
     end;
 
     procedure GetBinContentTransferOrder(var TransferHeader: Record "Transfer Header"; LocationCodeFilter: Text[30]; ItemFilter: Text[30]; BinCodeFilter: Text[100])
     var
         BinContent: Record "Bin Content";
-        WhseGetBinContent: Report "Whse. Get Bin Content";
+        WhseGetBinContentReport: Report "Whse. Get Bin Content";
     begin
         BinContent.Init();
         BinContent.Reset();
@@ -1193,32 +1187,32 @@ codeunit 132204 "Library - Warehouse"
             BinContent.SetFilter("Item No.", ItemFilter);
         if BinCodeFilter <> '' then
             BinContent.SetFilter("Bin Code", BinCodeFilter);
-        WhseGetBinContent.SetTableView(BinContent);
-        WhseGetBinContent.InitializeTransferHeader(TransferHeader);
-        WhseGetBinContent.UseRequestPage(false);
-        WhseGetBinContent.Run();
+        WhseGetBinContentReport.SetTableView(BinContent);
+        WhseGetBinContentReport.InitializeTransferHeader(TransferHeader);
+        WhseGetBinContentReport.UseRequestPage(false);
+        WhseGetBinContentReport.Run();
     end;
 
     procedure GetInboundSourceDocuments(var WhsePutAwayRqst: Record "Whse. Put-away Request"; WhseWorksheetName: Record "Whse. Worksheet Name"; LocationCode: Code[10])
     var
-        GetInboundSourceDocuments: Report "Get Inbound Source Documents";
+        GetInboundSourceDocumentsReport: Report "Get Inbound Source Documents";
     begin
-        Clear(GetInboundSourceDocuments);
-        GetInboundSourceDocuments.SetWhseWkshName(WhseWorksheetName."Worksheet Template Name", WhseWorksheetName.Name, LocationCode);
-        GetInboundSourceDocuments.UseRequestPage(false);
-        GetInboundSourceDocuments.SetTableView(WhsePutAwayRqst);
-        GetInboundSourceDocuments.Run();
+        Clear(GetInboundSourceDocumentsReport);
+        GetInboundSourceDocumentsReport.SetWhseWkshName(WhseWorksheetName."Worksheet Template Name", WhseWorksheetName.Name, LocationCode);
+        GetInboundSourceDocumentsReport.UseRequestPage(false);
+        GetInboundSourceDocumentsReport.SetTableView(WhsePutAwayRqst);
+        GetInboundSourceDocumentsReport.Run();
     end;
 
     procedure GetOutboundSourceDocuments(var WhsePickRequest: Record "Whse. Pick Request"; WhseWorksheetName: Record "Whse. Worksheet Name"; LocationCode: Code[10])
     var
-        GetOutboundSourceDocuments: Report "Get Outbound Source Documents";
+        GetOutboundSourceDocumentsReport: Report "Get Outbound Source Documents";
     begin
-        Clear(GetOutboundSourceDocuments);
-        GetOutboundSourceDocuments.SetPickWkshName(WhseWorksheetName."Worksheet Template Name", WhseWorksheetName.Name, LocationCode);
-        GetOutboundSourceDocuments.UseRequestPage(false);
-        GetOutboundSourceDocuments.SetTableView(WhsePickRequest);
-        GetOutboundSourceDocuments.Run();
+        Clear(GetOutboundSourceDocumentsReport);
+        GetOutboundSourceDocumentsReport.SetPickWkshName(WhseWorksheetName."Worksheet Template Name", WhseWorksheetName.Name, LocationCode);
+        GetOutboundSourceDocumentsReport.UseRequestPage(false);
+        GetOutboundSourceDocumentsReport.SetTableView(WhsePickRequest);
+        GetOutboundSourceDocumentsReport.Run();
     end;
 
     procedure GetSourceDocumentsShipment(var WarehouseShipmentHeader: Record "Warehouse Shipment Header"; var WarehouseSourceFilter: Record "Warehouse Source Filter"; LocationCode: Code[10])
@@ -1277,7 +1271,7 @@ codeunit 132204 "Library - Warehouse"
         WhsePickRqst2: Record "Whse. Pick Request";
         WhseWkshTemplate: Record "Whse. Worksheet Template";
         WhseWkshName: Record "Whse. Worksheet Name";
-        GetOutboundSourceDocuments: Report "Get Outbound Source Documents";
+        GetOutboundSourceDocumentsReport: Report "Get Outbound Source Documents";
     begin
         WhsePickRequest.TestField("Location Code");
         WhsePickRequest.TestField("Completely Picked", false);
@@ -1293,17 +1287,16 @@ codeunit 132204 "Library - Warehouse"
         end;
 
         WhsePickRqst2 := WhsePickRequest;
-        GetOutboundSourceDocuments.SetPickWkshName(
-          WhseWkshTemplate.Name, WhseWkshName.Name, WhsePickRequest."Location Code");
+        GetOutboundSourceDocumentsReport.SetPickWkshName(WhseWkshTemplate.Name, WhseWkshName.Name, WhsePickRequest."Location Code");
         WhsePickRqst2.MarkedOnly(true);
         if not WhsePickRqst2.FindFirst() then begin
             WhsePickRqst2.MarkedOnly(false);
             WhsePickRqst2.SetRecFilter();
         end;
 
-        GetOutboundSourceDocuments.UseRequestPage(false);
-        GetOutboundSourceDocuments.SetTableView(WhsePickRqst2);
-        GetOutboundSourceDocuments.RunModal();
+        GetOutboundSourceDocumentsReport.UseRequestPage(false);
+        GetOutboundSourceDocumentsReport.SetTableView(WhsePickRqst2);
+        GetOutboundSourceDocumentsReport.RunModal();
 
         Clear(WhseWkshLine);
         WhseWkshLine.SetRange("Worksheet Template Name", WhseWkshTemplate.Name);
@@ -1325,20 +1318,18 @@ codeunit 132204 "Library - Warehouse"
 
     procedure NoSeriesSetup(var WarehouseSetup: Record "Warehouse Setup")
     begin
-        with WarehouseSetup do begin
-            Get();
-            Validate("Posted Whse. Receipt Nos.", LibraryUtility.GetGlobalNoSeriesCode);
-            Validate("Posted Whse. Shipment Nos.", LibraryUtility.GetGlobalNoSeriesCode);
-            Validate("Registered Whse. Movement Nos.", LibraryUtility.GetGlobalNoSeriesCode);
-            Validate("Registered Whse. Pick Nos.", LibraryUtility.GetGlobalNoSeriesCode);
-            Validate("Registered Whse. Put-away Nos.", LibraryUtility.GetGlobalNoSeriesCode);
-            Validate("Whse. Movement Nos.", LibraryUtility.GetGlobalNoSeriesCode);
-            Validate("Whse. Pick Nos.", LibraryUtility.GetGlobalNoSeriesCode);
-            Validate("Whse. Put-away Nos.", LibraryUtility.GetGlobalNoSeriesCode);
-            Validate("Whse. Receipt Nos.", LibraryUtility.GetGlobalNoSeriesCode);
-            Validate("Whse. Ship Nos.", LibraryUtility.GetGlobalNoSeriesCode);
-            Modify(true);
-        end;
+        WarehouseSetup.Get();
+        WarehouseSetup.Validate("Posted Whse. Receipt Nos.", LibraryUtility.GetGlobalNoSeriesCode());
+        WarehouseSetup.Validate("Posted Whse. Shipment Nos.", LibraryUtility.GetGlobalNoSeriesCode());
+        WarehouseSetup.Validate("Registered Whse. Movement Nos.", LibraryUtility.GetGlobalNoSeriesCode());
+        WarehouseSetup.Validate("Registered Whse. Pick Nos.", LibraryUtility.GetGlobalNoSeriesCode());
+        WarehouseSetup.Validate("Registered Whse. Put-away Nos.", LibraryUtility.GetGlobalNoSeriesCode());
+        WarehouseSetup.Validate("Whse. Movement Nos.", LibraryUtility.GetGlobalNoSeriesCode());
+        WarehouseSetup.Validate("Whse. Pick Nos.", LibraryUtility.GetGlobalNoSeriesCode());
+        WarehouseSetup.Validate("Whse. Put-away Nos.", LibraryUtility.GetGlobalNoSeriesCode());
+        WarehouseSetup.Validate("Whse. Receipt Nos.", LibraryUtility.GetGlobalNoSeriesCode());
+        WarehouseSetup.Validate("Whse. Ship Nos.", LibraryUtility.GetGlobalNoSeriesCode());
+        WarehouseSetup.Modify(true);
     end;
 
     procedure PostInventoryActivity(var WarehouseActivityHeader: Record "Warehouse Activity Header"; Invoice: Boolean)
@@ -1656,11 +1647,11 @@ codeunit 132204 "Library - Warehouse"
         WarehouseJournalLine: Record "Warehouse Journal Line";
     begin
         SelectWhseJournalTemplateName(WarehouseJournalTemplate, WarehouseJournalTemplate.Type::Item);
-        WarehouseJournalTemplate.Validate("No. Series", LibraryUtility.GetGlobalNoSeriesCode);
+        WarehouseJournalTemplate.Validate("No. Series", LibraryUtility.GetGlobalNoSeriesCode());
         WarehouseJournalTemplate.Modify(true);
         SelectWhseJournalBatchName(
           WarehouseJournalBatch, WarehouseJournalTemplate.Type, WarehouseJournalTemplate.Name, Bin."Location Code");
-        WarehouseJournalBatch.Validate("No. Series", LibraryUtility.GetGlobalNoSeriesCode);
+        WarehouseJournalBatch.Validate("No. Series", LibraryUtility.GetGlobalNoSeriesCode());
         WarehouseJournalBatch.Modify(true);
 
         CreateWhseJournalLine(
@@ -1676,47 +1667,47 @@ codeunit 132204 "Library - Warehouse"
 
     procedure WhseCalculateInventory(WarehouseJournalLine: Record "Warehouse Journal Line"; var BinContent: Record "Bin Content"; NewRegisteringDate: Date; WhseDocNo: Code[20]; ItemsNotOnInvt: Boolean)
     var
-        WhseCalculateInventory: Report "Whse. Calculate Inventory";
+        WhseCalculateInventoryReport: Report "Whse. Calculate Inventory";
     begin
         Commit();  // Commit is required to run the report.
-        WhseCalculateInventory.SetWhseJnlLine(WarehouseJournalLine);
-        WhseCalculateInventory.InitializeRequest(NewRegisteringDate, WhseDocNo, ItemsNotOnInvt);
-        WhseCalculateInventory.SetTableView(BinContent);
-        WhseCalculateInventory.UseRequestPage(false);
-        WhseCalculateInventory.Run();
+        WhseCalculateInventoryReport.SetWhseJnlLine(WarehouseJournalLine);
+        WhseCalculateInventoryReport.InitializeRequest(NewRegisteringDate, WhseDocNo, ItemsNotOnInvt);
+        WhseCalculateInventoryReport.SetTableView(BinContent);
+        WhseCalculateInventoryReport.UseRequestPage(false);
+        WhseCalculateInventoryReport.Run();
     end;
 
     procedure WhseSourceCreateDocument(var WhseWorksheetLine: Record "Whse. Worksheet Line"; SortActivity: Enum "Whse. Activity Sorting Method"; PrintDoc: Boolean;
                                                                                                                DoNotFillQtytoHandle: Boolean;
                                                                                                                BreakbulkFilter: Boolean)
     var
-        WhseSourceCreateDocument: Report "Whse.-Source - Create Document";
+        WhseSourceCreateDocumentReport: Report "Whse.-Source - Create Document";
     begin
-        WhseSourceCreateDocument.Initialize(UserId, SortActivity, PrintDoc, DoNotFillQtytoHandle, BreakbulkFilter);
-        WhseSourceCreateDocument.UseRequestPage(false);
-        WhseSourceCreateDocument.SetWhseWkshLine(WhseWorksheetLine);
-        WhseSourceCreateDocument.Run();
+        WhseSourceCreateDocumentReport.Initialize(CopyStr(UserId(), 1, 50), SortActivity, PrintDoc, DoNotFillQtytoHandle, BreakbulkFilter);
+        WhseSourceCreateDocumentReport.UseRequestPage(false);
+        WhseSourceCreateDocumentReport.SetWhseWkshLine(WhseWorksheetLine);
+        WhseSourceCreateDocumentReport.Run();
     end;
 
     procedure WhseGetBinContent(var BinContent: Record "Bin Content"; WhseWorksheetLine: Record "Whse. Worksheet Line"; WhseInternalPutAwayHeader: Record "Whse. Internal Put-away Header"; DestinationType: Enum "Warehouse Destination Type 2")
     var
-        WhseGetBinContent: Report "Whse. Get Bin Content";
+        WhseGetBinContentReport: Report "Whse. Get Bin Content";
     begin
-        WhseGetBinContent.SetParameters(WhseWorksheetLine, WhseInternalPutAwayHeader, DestinationType);
-        WhseGetBinContent.SetTableView(BinContent);
-        WhseGetBinContent.UseRequestPage(false);
-        WhseGetBinContent.Run();
+        WhseGetBinContentReport.SetParameters(WhseWorksheetLine, WhseInternalPutAwayHeader, DestinationType);
+        WhseGetBinContentReport.SetTableView(BinContent);
+        WhseGetBinContentReport.UseRequestPage(false);
+        WhseGetBinContentReport.Run();
     end;
 
     procedure WhseGetBinContentFromItemJournalLine(var BinContent: Record "Bin Content"; ItemJournalLine: Record "Item Journal Line")
     var
-        WhseGetBinContent: Report "Whse. Get Bin Content";
+        WhseGetBinContentReport: Report "Whse. Get Bin Content";
     begin
-        Clear(WhseGetBinContent);
-        WhseGetBinContent.SetTableView(BinContent);
-        WhseGetBinContent.InitializeItemJournalLine(ItemJournalLine);
-        WhseGetBinContent.UseRequestPage(false);
-        WhseGetBinContent.Run();
+        Clear(WhseGetBinContentReport);
+        WhseGetBinContentReport.SetTableView(BinContent);
+        WhseGetBinContentReport.InitializeItemJournalLine(ItemJournalLine);
+        WhseGetBinContentReport.UseRequestPage(false);
+        WhseGetBinContentReport.Run();
     end;
 
     procedure WarehouseJournalSetup(LocationCode: Code[10]; var WarehouseJournalTemplate: Record "Warehouse Journal Template"; var WarehouseJournalBatch: Record "Warehouse Journal Batch")
@@ -1724,14 +1715,14 @@ codeunit 132204 "Library - Warehouse"
         Clear(WarehouseJournalTemplate);
         WarehouseJournalTemplate.Init();
         SelectWhseJournalTemplateName(WarehouseJournalTemplate, WarehouseJournalTemplate.Type::Item);
-        WarehouseJournalTemplate.Validate("No. Series", LibraryUtility.GetGlobalNoSeriesCode);
+        WarehouseJournalTemplate.Validate("No. Series", LibraryUtility.GetGlobalNoSeriesCode());
         WarehouseJournalTemplate.Modify(true);
 
         Clear(WarehouseJournalBatch);
         WarehouseJournalBatch.Init();
         SelectWhseJournalBatchName(
           WarehouseJournalBatch, WarehouseJournalTemplate.Type, WarehouseJournalTemplate.Name, LocationCode);
-        WarehouseJournalBatch.Validate("No. Series", LibraryUtility.GetGlobalNoSeriesCode);
+        WarehouseJournalBatch.Validate("No. Series", LibraryUtility.GetGlobalNoSeriesCode());
         WarehouseJournalBatch.Modify(true);
     end;
 

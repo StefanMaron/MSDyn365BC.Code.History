@@ -31,7 +31,7 @@ codeunit 135021 "Data Migr. Notification Tests"
         // [GIVEN] No Migration has started
         DataMigrationStatus.DeleteAll();
         // [WHEN] User opens Data Migration Overview page
-        DataMigrationOverview.OpenView;
+        DataMigrationOverview.OpenView();
         // [THEN] A notification is fired with an action to start the data migration wizzard
         // Verify on EmptyDashBoardNotificationHandler and DataMigrationWizardPageHandler
     end;
@@ -50,11 +50,11 @@ codeunit 135021 "Data Migr. Notification Tests"
         InitializeMigration(DataMigrationStatus.Status::"In Progress", JobQueueEntry.Status::"In Process");
 
         // [WHEN] User opens Data Migration Overview page
-        DataMigrationOverview.OpenView;
+        DataMigrationOverview.OpenView();
 
         // [THEN] A notification is fired
         // Verify on EmptyDashBoardNotificationHandler
-        CleanUp;
+        CleanUp();
     end;
 
     [Test]
@@ -71,11 +71,11 @@ codeunit 135021 "Data Migr. Notification Tests"
         InitializeMigration(DataMigrationStatus.Status::"In Progress", JobQueueEntry.Status::"In Process");
 
         // [WHEN] The role center is opened
-        AccountantActivities.OpenView;
+        AccountantActivities.OpenView();
 
         // [THEN] A notification is shown
         // Verify in MigrationInProgressNotification, MoreInfoPageHandler and DataMigrationOverviewPageHandler
-        CleanUp;
+        CleanUp();
     end;
 
     [Test]
@@ -92,11 +92,11 @@ codeunit 135021 "Data Migr. Notification Tests"
         InitializeMigration(DataMigrationStatus.Status::"Completed with Errors", JobQueueEntry.Status::Finished);
 
         // [WHEN] The role center is opened
-        AccountantActivities.OpenView;
+        AccountantActivities.OpenView();
 
         // [THEN] A notification is shown
         // Verify in MigrationCompletedWithErrorsNotificationHandler, DataMigrationOverviewPageHandler
-        CleanUp;
+        CleanUp();
     end;
 
     [Test]
@@ -113,11 +113,11 @@ codeunit 135021 "Data Migr. Notification Tests"
         InitializeMigration(DataMigrationStatus.Status::Completed, JobQueueEntry.Status::Finished);
 
         // [WHEN] The role center is opened
-        AccountantActivities.OpenView;
+        AccountantActivities.OpenView();
 
         // [THEN] A notification is shown
         // Verify in MigrationCompletedNotificationHandler
-        CleanUp;
+        CleanUp();
     end;
 
     [Test]
@@ -135,11 +135,11 @@ codeunit 135021 "Data Migr. Notification Tests"
         InitializeCompletedMigrationWithCustVendEntriesToBePosted(DATABASE::Customer);
 
         // [WHEN] The role center is opened
-        AccountantActivities.OpenView;
+        AccountantActivities.OpenView();
 
         // [THEN] A notification is shown
         // Verify in MigrationEntriesToBePostedNotificationHandler
-        CleanUp;
+        CleanUp();
         UnbindSubscription(DataMigrNotificationTests);
     end;
 
@@ -158,11 +158,11 @@ codeunit 135021 "Data Migr. Notification Tests"
         InitializeCompletedMigrationWithCustVendEntriesToBePosted(DATABASE::Vendor);
 
         // [WHEN] The role center is opened
-        AccountantActivities.OpenView;
+        AccountantActivities.OpenView();
 
         // [THEN] A notification is shown
         // Verify in MigrationEntriesToBePostedNotificationHandler
-        CleanUp;
+        CleanUp();
         UnbindSubscription(DataMigrNotificationTests);
     end;
 
@@ -178,14 +178,14 @@ codeunit 135021 "Data Migr. Notification Tests"
         // but there are still records to be posted and has an action that lead to the overview page
         BindSubscription(DataMigrNotificationTests);
         // [GIVEN] Data Migration is completed and there are entries to be posted
-        InitializeCompletedMigrationWithItemEntriesToBePosted;
+        InitializeCompletedMigrationWithItemEntriesToBePosted();
 
         // [WHEN] The role center is opened
-        AccountantActivities.OpenView;
+        AccountantActivities.OpenView();
 
         // [THEN] A notification is shown
         // Verify in MigrationEntriesToBePostedNotificationHandler
-        CleanUp;
+        CleanUp();
         UnbindSubscription(DataMigrNotificationTests);
     end;
 
@@ -201,14 +201,14 @@ codeunit 135021 "Data Migr. Notification Tests"
         // but there are still records to be posted and has an action that lead to the overview page
         BindSubscription(DataMigrNotificationTests);
         // [GIVEN] Data Migration is completed and there are entries to be posted
-        InitializeCompletedMigrationWithAccountEntriesToBePosted;
+        InitializeCompletedMigrationWithAccountEntriesToBePosted();
 
         // [WHEN] The role center is opened
-        AccountantActivities.OpenView;
+        AccountantActivities.OpenView();
 
         // [THEN] A notification is shown
         // Verify in MigrationEntriesToBePostedNotificationHandler
-        CleanUp;
+        CleanUp();
         UnbindSubscription(DataMigrNotificationTests);
     end;
 
@@ -223,14 +223,14 @@ codeunit 135021 "Data Migr. Notification Tests"
         // but the extension has not subscribed to OnFindBatchForItemTransactions event,
         // then the completed notification is fired
         // [GIVEN] Data Migration is completed and there are entries to be posted
-        InitializeCompletedMigrationWithItemEntriesToBePosted;
+        InitializeCompletedMigrationWithItemEntriesToBePosted();
 
         // [WHEN] The role center is opened
-        AccountantActivities.OpenView;
+        AccountantActivities.OpenView();
 
         // [THEN] A notification is shown
         // Verify in MigrationCompletedNotificationHandler
-        CleanUp;
+        CleanUp();
     end;
 
     local procedure InitializeMigration(MigrationStatus: Option; JobQueueStatus: Option)
@@ -373,7 +373,7 @@ codeunit 135021 "Data Migr. Notification Tests"
     begin
         JobQueueEntry.DeleteAll();
         DataMigrationStatus.DeleteAll();
-        if MyNotifications.Get(UserId, DataMigrationMgt.GetGlobalNotificationId) then begin
+        if MyNotifications.Get(UserId, DataMigrationMgt.GetGlobalNotificationId()) then begin
             MyNotifications.Enabled := true;
             MyNotifications.Modify(true);
         end;
@@ -416,7 +416,7 @@ codeunit 135021 "Data Migr. Notification Tests"
     [Scope('OnPrem')]
     procedure MigrationInProgressNotificationHandler(var Notification: Notification): Boolean
     begin
-        if Notification.Id <> DataMigrationMgt.GetGlobalNotificationId then
+        if Notification.Id <> DataMigrationMgt.GetGlobalNotificationId() then
             exit;
         Assert.ExpectedMessage(StrSubstNo(DataMigrationInProgressMsg, PRODUCTNAME.Short()), Notification.Message);
         DataMigrationMgt.ShowMoreInfoPage(Notification);
@@ -441,7 +441,7 @@ codeunit 135021 "Data Migr. Notification Tests"
     var
         DataMigrationOverview: Page "Data Migration Overview";
     begin
-        if Notification.Id <> DataMigrationMgt.GetGlobalNotificationId then
+        if Notification.Id <> DataMigrationMgt.GetGlobalNotificationId() then
             exit;
         Assert.ExpectedMessage(StrSubstNo(DataMigrationCompletedWithErrosMsg, DataMigrationOverview.Caption), Notification.Message);
         DataMigrationMgt.ShowDataMigrationOverviewFromNotification(Notification);
@@ -453,19 +453,19 @@ codeunit 135021 "Data Migr. Notification Tests"
     var
         MyNotifications: Record "My Notifications";
     begin
-        if Notification.Id <> DataMigrationMgt.GetGlobalNotificationId then
+        if Notification.Id <> DataMigrationMgt.GetGlobalNotificationId() then
             exit;
         Assert.ExpectedMessage(DataMigrationFinishedMsg, Notification.Message);
         DataMigrationMgt.DisableDataMigrationRelatedGlobalNotifications(Notification);
         // Verify Notification is disabled
-        Assert.IsFalse(MyNotifications.IsEnabled(DataMigrationMgt.GetGlobalNotificationId), 'Notification should have been disabled');
+        Assert.IsFalse(MyNotifications.IsEnabled(DataMigrationMgt.GetGlobalNotificationId()), 'Notification should have been disabled');
     end;
 
     [SendNotificationHandler]
     [Scope('OnPrem')]
     procedure MigrationEntriesToBePostedNotificationHandler(var Notification: Notification): Boolean
     begin
-        if Notification.Id <> DataMigrationMgt.GetGlobalNotificationId then
+        if Notification.Id <> DataMigrationMgt.GetGlobalNotificationId() then
             exit;
         Assert.ExpectedMessage(DataMigrationEntriesToPostMsg, Notification.Message);
         DataMigrationMgt.ShowDataMigrationOverviewFromNotification(Notification);

@@ -5,6 +5,7 @@ table 7826 "MS-QBO Start Sync. Service"
     ObsoleteState = Removed;
     ObsoleteTag = '18.0';
     ReplicateData = false;
+    DataClassification = CustomerContent;
 
     fields
     {

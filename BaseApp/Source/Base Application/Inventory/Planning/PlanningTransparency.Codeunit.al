@@ -172,138 +172,143 @@ codeunit 99000856 "Planning Transparency"
 
         QtyRemaining := SurplusQty(ReqLine, ReservEntry);
         QtyTracked := SupplyInvProfile."Quantity (Base)" - QtyRemaining;
-        if (QtyRemaining > 0) or not TempPlanningWarning.IsEmpty() then
-            with TempInvProfileTrack do begin
-                PlanningElement.SetRange("Worksheet Template Name", CurrTemplateName);
-                PlanningElement.SetRange("Worksheet Batch Name", CurrWorksheetName);
-                PlanningElement.SetRange("Worksheet Line No.", SupplyInvProfile."Planning Line No.");
-                if not PlanningElement.FindLast() then begin
-                    PlanningElement."Worksheet Template Name" := CurrTemplateName;
-                    PlanningElement."Worksheet Batch Name" := CurrWorksheetName;
-                    PlanningElement."Worksheet Line No." := SupplyInvProfile."Planning Line No.";
-                end;
-                if QtyRemaining <= 0 then
-                    SetFilter("Warning Level", '<>%1', 0);
-                if FindSet() then
-                    repeat
-                        SetRange(Priority, Priority);
-                        SetRange("Demand Line No.", "Demand Line No.");
-                        PlanningElement.Init();
-                        FindLast();
-                        PlanningElement."Track Quantity From" := QtyRemaining;
-                        PlanningElement."Warning Level" := "Warning Level";
-                        case Priority of
-                            1:
-                                begin  // Anticipated demand
-                                    CalcSums("Quantity Tracked");
-                                    if "Surplus Type" = "Surplus Type"::SafetyStock then begin
-                                        PlanningElement."Parameter Value" := SKU."Safety Stock Quantity";
-                                        "Source ID" := SKU."Item No.";
-                                    end else
-                                        if "Surplus Type" = "Surplus Type"::ReorderPoint then begin
-                                            PlanningElement."Parameter Value" := SKU."Reorder Point";
-                                            "Source ID" := SKU."Item No.";
-                                            "Quantity Tracked" := 0;
-                                        end;
-                                    PlanningElement."Untracked Quantity" := "Quantity Tracked";
-                                end;
-                            2:
-                                // Emergency Order
-                                PlanningElement."Untracked Quantity" := "Quantity Tracked";
-                            3:
-                                begin  // Order size
-                                    QtyReorder := "Quantity Tracked";
-                                    if QtyTracked < QtyReorder then begin
-                                        OrderSizeParticipated := true;
-                                        PlanningElement."Untracked Quantity" := QtyReorder - QtyTracked;
-                                        case "Surplus Type" of
-                                            "Surplus Type"::ReorderPoint:
-                                                PlanningElement."Parameter Value" := SKU."Reorder Point";
-                                            "Surplus Type"::FixedOrderQty:
-                                                PlanningElement."Parameter Value" := SKU."Reorder Quantity";
-                                            "Surplus Type"::MaxInventory:
-                                                PlanningElement."Parameter Value" := SKU."Maximum Inventory";
-                                        end;
-                                    end else
-                                        OrderSizeParticipated := false
-                                end;
-                            4:
-                                // Maximum Order
-                                if OrderSizeParticipated then begin
-                                    PlanningElement."Untracked Quantity" := "Quantity Tracked";
-                                    PlanningElement."Parameter Value" := SKU."Maximum Order Quantity";
-                                end;
-                            5:
-                                begin  // Minimum Order
-                                    QtyMin := "Quantity Tracked";
-                                    if QtyTracked < QtyMin then
-                                        PlanningElement."Untracked Quantity" := QtyMin - QtyTracked;
-                                    PlanningElement."Parameter Value" := SKU."Minimum Order Quantity";
-                                end;
-                            6:
-                                begin  // Rounding
-                                    QtyRound := SKU."Order Multiple"
-                                      - Round(SupplyInvProfile."Quantity (Base)", SKU."Order Multiple", '>')
-                                      + SupplyInvProfile."Quantity (Base)";
-                                    if QtyRound > "Quantity Tracked" then
-                                        QtyRound := "Quantity Tracked";
-                                    if QtyRound > QtyRemaining then
-                                        QtyRound := QtyRemaining;
-                                    PlanningElement."Untracked Quantity" := QtyRound;
-                                    PlanningElement."Parameter Value" := SKU."Order Multiple";
-                                end;
-                            7:
-                                begin  // Dampener
-                                    DampenerQty := "Quantity Tracked";
-                                    if DampenerQty < QtyRemaining then
-                                        PlanningElement."Untracked Quantity" := DampenerQty
-                                    else
-                                        PlanningElement."Untracked Quantity" := QtyRemaining;
-                                    PlanningElement."Parameter Value" := DampenerQty;
-                                end;
-                        end;
-                        if (PlanningElement."Untracked Quantity" <> 0) or
-                           ("Surplus Type" = "Surplus Type"::ReorderPoint) or
-                           ("Warning Level" > 0)
-                        then begin
-                            PlanningElement."Track Line No." += 1;
-                            PlanningElement."Item No." := SupplyInvProfile."Item No.";
-                            PlanningElement."Variant Code" := SupplyInvProfile."Variant Code";
-                            PlanningElement."Location Code" := SupplyInvProfile."Location Code";
-                            PlanningElement."Source Type" := "Source Type";
-                            PlanningElement."Source ID" := "Source ID";
-                            PlanningElement.Source := ShowSurplusReason("Surplus Type");
-                            QtyTracked += PlanningElement."Untracked Quantity";
-                            QtyRemaining -= PlanningElement."Untracked Quantity";
-                            PlanningElement."Track Quantity To" := QtyRemaining;
-                            TransferWarningSourceText(TempInvProfileTrack, PlanningElement);
-                            IsHandled := false;
-                            OnPublishSurplusOnBeforePlanningElementInsert(PlanningElement, IsHandled, TempInvProfileTrack);
-                            if not IsHandled then
-                                PlanningElement.Insert();
-                        end;
-                        SetRange(Priority);
-                        SetRange("Demand Line No.");
-                    until (Next() = 0);
-
-                if QtyRemaining > 0 then begin // just in case that something by accident has not been captured
-                    PlanningElement.Init();
-                    PlanningElement."Track Line No." += 1;
-                    PlanningElement."Item No." := SupplyInvProfile."Item No.";
-                    PlanningElement."Variant Code" := SupplyInvProfile."Variant Code";
-                    PlanningElement."Location Code" := SupplyInvProfile."Location Code";
-                    PlanningElement.Source := ShowSurplusReason("Surplus Type"::Undefined);
-                    PlanningElement."Track Quantity From" := QtyRemaining;
-                    PlanningElement."Untracked Quantity" := QtyRemaining;
-                    QtyTracked += PlanningElement."Untracked Quantity";
-                    QtyRemaining -= PlanningElement."Untracked Quantity";
-                    PlanningElement."Track Quantity To" := QtyRemaining;
-                    IsHandled := false;
-                    OnPublishSurplusOnBeforeExceptionPlanningElementInsert(PlanningElement, IsHandled);
-                    if not IsHandled then
-                        PlanningElement.Insert();
-                end;
+        if (QtyRemaining > 0) or not TempPlanningWarning.IsEmpty() then begin
+            PlanningElement.SetRange("Worksheet Template Name", CurrTemplateName);
+            PlanningElement.SetRange("Worksheet Batch Name", CurrWorksheetName);
+            PlanningElement.SetRange("Worksheet Line No.", SupplyInvProfile."Planning Line No.");
+            if not PlanningElement.FindLast() then begin
+                PlanningElement."Worksheet Template Name" := CurrTemplateName;
+                PlanningElement."Worksheet Batch Name" := CurrWorksheetName;
+                PlanningElement."Worksheet Line No." := SupplyInvProfile."Planning Line No.";
             end;
+            if QtyRemaining <= 0 then
+                TempInvProfileTrack.SetFilter(TempInvProfileTrack."Warning Level", '<>%1', 0);
+            if TempInvProfileTrack.FindSet() then
+                repeat
+                    TempInvProfileTrack.SetRange(TempInvProfileTrack.Priority, TempInvProfileTrack.Priority);
+                    TempInvProfileTrack.SetRange(TempInvProfileTrack."Demand Line No.", TempInvProfileTrack."Demand Line No.");
+                    PlanningElement.Init();
+                    TempInvProfileTrack.FindLast();
+                    PlanningElement."Track Quantity From" := QtyRemaining;
+                    PlanningElement."Warning Level" := TempInvProfileTrack."Warning Level";
+                    case TempInvProfileTrack.Priority of
+                        1:
+                            begin
+                                // Anticipated demand
+                                TempInvProfileTrack.CalcSums(TempInvProfileTrack."Quantity Tracked");
+                                if TempInvProfileTrack."Surplus Type" = TempInvProfileTrack."Surplus Type"::SafetyStock then begin
+                                    PlanningElement."Parameter Value" := SKU."Safety Stock Quantity";
+                                    TempInvProfileTrack."Source ID" := SKU."Item No.";
+                                end else
+                                    if TempInvProfileTrack."Surplus Type" = TempInvProfileTrack."Surplus Type"::ReorderPoint then begin
+                                        PlanningElement."Parameter Value" := SKU."Reorder Point";
+                                        TempInvProfileTrack."Source ID" := SKU."Item No.";
+                                        TempInvProfileTrack."Quantity Tracked" := 0;
+                                    end;
+                                PlanningElement."Untracked Quantity" := TempInvProfileTrack."Quantity Tracked";
+                            end;
+                        2:
+                            // Emergency Order
+                            PlanningElement."Untracked Quantity" := TempInvProfileTrack."Quantity Tracked";
+                        3:
+                            begin
+                                // Order size
+                                QtyReorder := TempInvProfileTrack."Quantity Tracked";
+                                if QtyTracked < QtyReorder then begin
+                                    OrderSizeParticipated := true;
+                                    PlanningElement."Untracked Quantity" := QtyReorder - QtyTracked;
+                                    case TempInvProfileTrack."Surplus Type" of
+                                        TempInvProfileTrack."Surplus Type"::ReorderPoint:
+                                            PlanningElement."Parameter Value" := SKU."Reorder Point";
+                                        TempInvProfileTrack."Surplus Type"::FixedOrderQty:
+                                            PlanningElement."Parameter Value" := SKU."Reorder Quantity";
+                                        TempInvProfileTrack."Surplus Type"::MaxInventory:
+                                            PlanningElement."Parameter Value" := SKU."Maximum Inventory";
+                                    end;
+                                end else
+                                    OrderSizeParticipated := false
+                            end;
+                        4:
+                            // Maximum Order
+                            if OrderSizeParticipated then begin
+                                PlanningElement."Untracked Quantity" := TempInvProfileTrack."Quantity Tracked";
+                                PlanningElement."Parameter Value" := SKU."Maximum Order Quantity";
+                            end;
+                        5:
+                            begin
+                                // Minimum Order
+                                QtyMin := TempInvProfileTrack."Quantity Tracked";
+                                if QtyTracked < QtyMin then
+                                    PlanningElement."Untracked Quantity" := QtyMin - QtyTracked;
+                                PlanningElement."Parameter Value" := SKU."Minimum Order Quantity";
+                            end;
+                        6:
+                            begin
+                                // Rounding
+                                QtyRound := SKU."Order Multiple"
+                                  - Round(SupplyInvProfile."Quantity (Base)", SKU."Order Multiple", '>')
+                                  + SupplyInvProfile."Quantity (Base)";
+                                if QtyRound > TempInvProfileTrack."Quantity Tracked" then
+                                    QtyRound := TempInvProfileTrack."Quantity Tracked";
+                                if QtyRound > QtyRemaining then
+                                    QtyRound := QtyRemaining;
+                                PlanningElement."Untracked Quantity" := QtyRound;
+                                PlanningElement."Parameter Value" := SKU."Order Multiple";
+                            end;
+                        7:
+                            begin
+                                // Dampener
+                                DampenerQty := TempInvProfileTrack."Quantity Tracked";
+                                if DampenerQty < QtyRemaining then
+                                    PlanningElement."Untracked Quantity" := DampenerQty
+                                else
+                                    PlanningElement."Untracked Quantity" := QtyRemaining;
+                                PlanningElement."Parameter Value" := DampenerQty;
+                            end;
+                    end;
+                    if (PlanningElement."Untracked Quantity" <> 0) or
+                       (TempInvProfileTrack."Surplus Type" = TempInvProfileTrack."Surplus Type"::ReorderPoint) or
+                       (TempInvProfileTrack."Warning Level" > 0)
+                    then begin
+                        PlanningElement."Track Line No." += 1;
+                        PlanningElement."Item No." := SupplyInvProfile."Item No.";
+                        PlanningElement."Variant Code" := SupplyInvProfile."Variant Code";
+                        PlanningElement."Location Code" := SupplyInvProfile."Location Code";
+                        PlanningElement."Source Type" := TempInvProfileTrack."Source Type";
+                        PlanningElement."Source ID" := TempInvProfileTrack."Source ID";
+                        PlanningElement.Source := ShowSurplusReason(TempInvProfileTrack."Surplus Type");
+                        QtyTracked += PlanningElement."Untracked Quantity";
+                        QtyRemaining -= PlanningElement."Untracked Quantity";
+                        PlanningElement."Track Quantity To" := QtyRemaining;
+                        TransferWarningSourceText(TempInvProfileTrack, PlanningElement);
+                        IsHandled := false;
+                        OnPublishSurplusOnBeforePlanningElementInsert(PlanningElement, IsHandled, TempInvProfileTrack);
+                        if not IsHandled then
+                            PlanningElement.Insert();
+                    end;
+                    TempInvProfileTrack.SetRange(TempInvProfileTrack.Priority);
+                    TempInvProfileTrack.SetRange(TempInvProfileTrack."Demand Line No.");
+                until (TempInvProfileTrack.Next() = 0);
+
+            if QtyRemaining > 0 then begin
+                // just in case that something by accident has not been captured
+                PlanningElement.Init();
+                PlanningElement."Track Line No." += 1;
+                PlanningElement."Item No." := SupplyInvProfile."Item No.";
+                PlanningElement."Variant Code" := SupplyInvProfile."Variant Code";
+                PlanningElement."Location Code" := SupplyInvProfile."Location Code";
+                PlanningElement.Source := ShowSurplusReason(TempInvProfileTrack."Surplus Type"::Undefined);
+                PlanningElement."Track Quantity From" := QtyRemaining;
+                PlanningElement."Untracked Quantity" := QtyRemaining;
+                QtyTracked += PlanningElement."Untracked Quantity";
+                QtyRemaining -= PlanningElement."Untracked Quantity";
+                PlanningElement."Track Quantity To" := QtyRemaining;
+                IsHandled := false;
+                OnPublishSurplusOnBeforeExceptionPlanningElementInsert(PlanningElement, IsHandled);
+                if not IsHandled then
+                    PlanningElement.Insert();
+            end;
+        end;
         TempInvProfileTrack.SetRange("Line No.");
         TempInvProfileTrack.SetRange("Warning Level");
         CleanLog(SupplyInvProfile."Line No.");
@@ -320,45 +325,44 @@ codeunit 99000856 "Planning Transparency"
         CrntReservEntry.Copy(ReservEntry);
         ReservEntry.InitSortingAndFilters(false);
         ReqLine.SetReservationFilters(ReservEntry);
-        with ReservEntry do begin
-            SetRange("Reservation Status", "Reservation Status"::Surplus);
-            if FindSet() then
-                repeat
-                    QtyTracked1 += "Quantity (Base)";
-                until Next() = 0;
-            Reset();
-            if ReqLine."Action Message".AsInteger() > ReqLine."Action Message"::New.AsInteger() then begin
-                case ReqLine."Ref. Order Type" of
-                    ReqLine."Ref. Order Type"::Purchase:
-                        begin
-                            SetRange("Source ID", ReqLine."Ref. Order No.");
-                            SetRange("Source Ref. No.", ReqLine."Ref. Line No.");
-                            SetRange("Source Type", Database::"Purchase Line");
-                            SetRange("Source Subtype", 1);
-                        end;
-                    ReqLine."Ref. Order Type"::"Prod. Order":
-                        begin
-                            SetRange("Source ID", ReqLine."Ref. Order No.");
-                            SetRange("Source Type", Database::"Prod. Order Line");
-                            SetRange("Source Subtype", ReqLine."Ref. Order Status");
-                            SetRange("Source Prod. Order Line", ReqLine."Ref. Line No.");
-                        end;
-                    ReqLine."Ref. Order Type"::Transfer:
-                        begin
-                            SetRange("Source ID", ReqLine."Ref. Order No.");
-                            SetRange("Source Ref. No.", ReqLine."Ref. Line No.");
-                            SetRange("Source Type", Database::"Transfer Line");
-                            SetRange("Source Subtype", 1); // Inbound
-                            SetRange("Source Prod. Order Line", 0);
-                        end;
-                end;
-                SetRange("Reservation Status", "Reservation Status"::Surplus);
-                if FindSet() then
-                    repeat
-                        QtyTracked2 += "Quantity (Base)";
-                    until Next() = 0;
-                Reset();
+        ReservEntry.SetRange("Reservation Status", "Reservation Status"::Surplus);
+        if ReservEntry.FindSet() then
+            repeat
+                QtyTracked1 += ReservEntry."Quantity (Base)";
+            until ReservEntry.Next() = 0;
+        ReservEntry.Reset();
+        if ReqLine."Action Message".AsInteger() > ReqLine."Action Message"::New.AsInteger() then begin
+            case ReqLine."Ref. Order Type" of
+                ReqLine."Ref. Order Type"::Purchase:
+                    begin
+                        ReservEntry.SetRange("Source ID", ReqLine."Ref. Order No.");
+                        ReservEntry.SetRange("Source Ref. No.", ReqLine."Ref. Line No.");
+                        ReservEntry.SetRange("Source Type", Database::"Purchase Line");
+                        ReservEntry.SetRange("Source Subtype", 1);
+                    end;
+                ReqLine."Ref. Order Type"::"Prod. Order":
+                    begin
+                        ReservEntry.SetRange("Source ID", ReqLine."Ref. Order No.");
+                        ReservEntry.SetRange("Source Type", Database::"Prod. Order Line");
+                        ReservEntry.SetRange("Source Subtype", ReqLine."Ref. Order Status");
+                        ReservEntry.SetRange("Source Prod. Order Line", ReqLine."Ref. Line No.");
+                    end;
+                ReqLine."Ref. Order Type"::Transfer:
+                    begin
+                        ReservEntry.SetRange("Source ID", ReqLine."Ref. Order No.");
+                        ReservEntry.SetRange("Source Ref. No.", ReqLine."Ref. Line No.");
+                        ReservEntry.SetRange("Source Type", Database::"Transfer Line");
+                        ReservEntry.SetRange("Source Subtype", 1);
+                        // Inbound
+                        ReservEntry.SetRange("Source Prod. Order Line", 0);
+                    end;
             end;
+            ReservEntry.SetRange("Reservation Status", ReservEntry."Reservation Status"::Surplus);
+            if ReservEntry.FindSet() then
+                repeat
+                    QtyTracked2 += ReservEntry."Quantity (Base)";
+                until ReservEntry.Next() = 0;
+            ReservEntry.Reset();
         end;
         ReservEntry.Copy(CrntReservEntry);
         exit(QtyTracked1 + QtyTracked2);
@@ -406,80 +410,72 @@ codeunit 99000856 "Planning Transparency"
         PlanningElement: Record "Untracked Planning Element";
         SurplusTrackForm: Page "Untracked Planning Elements";
     begin
-        with CurrReqLine do begin
-            if not ("Planning Line Origin" <> "Planning Line Origin"::" ") then // IsPlanning
-                exit;
+        if not (CurrReqLine."Planning Line Origin" <> CurrReqLine."Planning Line Origin"::" ") then
+            exit;
 
-            PlanningElement.SetRange("Worksheet Template Name", "Worksheet Template Name");
-            PlanningElement.SetRange("Worksheet Batch Name", "Journal Batch Name");
-            PlanningElement.SetRange("Worksheet Line No.", "Line No.");
+        PlanningElement.SetRange("Worksheet Template Name", CurrReqLine."Worksheet Template Name");
+        PlanningElement.SetRange("Worksheet Batch Name", CurrReqLine."Journal Batch Name");
+        PlanningElement.SetRange("Worksheet Line No.", CurrReqLine."Line No.");
 
-            SurplusTrackForm.SetTableView(PlanningElement);
-            SurplusTrackForm.SetCaption(CaptionText);
-            SurplusTrackForm.RunModal();
-        end;
+        SurplusTrackForm.SetTableView(PlanningElement);
+        SurplusTrackForm.SetCaption(CaptionText);
+        SurplusTrackForm.RunModal();
     end;
 
     procedure ReqLineWarningLevel(ReqLine: Record "Requisition Line") WarningLevel: Integer
     var
         PlanningElement: Record "Untracked Planning Element";
     begin
-        with ReqLine do begin
-            PlanningElement.SetRange("Worksheet Template Name", "Worksheet Template Name");
-            PlanningElement.SetRange("Worksheet Batch Name", "Journal Batch Name");
-            PlanningElement.SetRange("Worksheet Line No.", "Line No.");
-            PlanningElement.SetFilter("Warning Level", '>%1', 0);
-            if PlanningElement.FindSet() then
-                repeat
-                    if (PlanningElement."Warning Level" < WarningLevel) or (WarningLevel = 0) then
-                        WarningLevel := PlanningElement."Warning Level";
-                until PlanningElement.Next() = 0;
-        end;
+        PlanningElement.SetRange("Worksheet Template Name", ReqLine."Worksheet Template Name");
+        PlanningElement.SetRange("Worksheet Batch Name", ReqLine."Journal Batch Name");
+        PlanningElement.SetRange("Worksheet Line No.", ReqLine."Line No.");
+        PlanningElement.SetFilter("Warning Level", '>%1', 0);
+        if PlanningElement.FindSet() then
+            repeat
+                if (PlanningElement."Warning Level" < WarningLevel) or (WarningLevel = 0) then
+                    WarningLevel := PlanningElement."Warning Level";
+            until PlanningElement.Next() = 0;
     end;
 
     procedure LogWarning(SupplyLineNo: Integer; ReqLine: Record "Requisition Line"; WarningLevel: Option; Source: Text[200]): Boolean
     var
         PlanningElement: Record "Untracked Planning Element";
     begin
-        if SupplyLineNo = 0 then
-            with ReqLine do begin
-                PlanningElement.SetRange("Worksheet Template Name", "Worksheet Template Name");
-                PlanningElement.SetRange("Worksheet Batch Name", "Journal Batch Name");
-                PlanningElement.SetRange("Worksheet Line No.", "Line No.");
-
-                if not PlanningElement.FindLast() then begin
-                    PlanningElement."Worksheet Template Name" := "Worksheet Template Name";
-                    PlanningElement."Worksheet Batch Name" := "Journal Batch Name";
-                    PlanningElement."Worksheet Line No." := "Line No.";
-                end;
-
-                PlanningElement.Init();
-                PlanningElement."Track Line No." += 1;
-                PlanningElement.Source := Source;
-                PlanningElement."Warning Level" := WarningLevel;
-                PlanningElement.Insert();
-            end
-        else
-            with TempInvProfileTrack do begin
-                Init();
-                "Line No." := SupplyLineNo;
-                Priority := 10;
-                "Sequence No." := GetSequenceNo();
-                "Demand Line No." := 0;
-                "Surplus Type" := 0;
-                "Source Type" := 0;
-                "Source ID" := '';
-                "Quantity Tracked" := 0;
-                "Warning Level" := WarningLevel;
-                Insert();
-                TempPlanningWarning.Init();
-                TempPlanningWarning."Worksheet Template Name" := '';
-                TempPlanningWarning."Worksheet Batch Name" := '';
-                TempPlanningWarning."Worksheet Line No." := SupplyLineNo;
-                TempPlanningWarning."Track Line No." := "Sequence No.";
-                TempPlanningWarning.Source := Source;
-                TempPlanningWarning.Insert();
+        if SupplyLineNo = 0 then begin
+            PlanningElement.SetRange("Worksheet Template Name", ReqLine."Worksheet Template Name");
+            PlanningElement.SetRange("Worksheet Batch Name", ReqLine."Journal Batch Name");
+            PlanningElement.SetRange("Worksheet Line No.", ReqLine."Line No.");
+            if not PlanningElement.FindLast() then begin
+                PlanningElement."Worksheet Template Name" := ReqLine."Worksheet Template Name";
+                PlanningElement."Worksheet Batch Name" := ReqLine."Journal Batch Name";
+                PlanningElement."Worksheet Line No." := ReqLine."Line No.";
             end;
+
+            PlanningElement.Init();
+            PlanningElement."Track Line No." += 1;
+            PlanningElement.Source := Source;
+            PlanningElement."Warning Level" := WarningLevel;
+            PlanningElement.Insert();
+        end else begin
+            TempInvProfileTrack.Init();
+            TempInvProfileTrack."Line No." := SupplyLineNo;
+            TempInvProfileTrack.Priority := 10;
+            TempInvProfileTrack."Sequence No." := GetSequenceNo();
+            TempInvProfileTrack."Demand Line No." := 0;
+            TempInvProfileTrack."Surplus Type" := 0;
+            TempInvProfileTrack."Source Type" := 0;
+            TempInvProfileTrack."Source ID" := '';
+            TempInvProfileTrack."Quantity Tracked" := 0;
+            TempInvProfileTrack."Warning Level" := WarningLevel;
+            TempInvProfileTrack.Insert();
+            TempPlanningWarning.Init();
+            TempPlanningWarning."Worksheet Template Name" := '';
+            TempPlanningWarning."Worksheet Batch Name" := '';
+            TempPlanningWarning."Worksheet Line No." := SupplyLineNo;
+            TempPlanningWarning."Track Line No." := TempInvProfileTrack."Sequence No.";
+            TempPlanningWarning.Source := Source;
+            TempPlanningWarning.Insert();
+        end;
         exit(true);
     end;
 

@@ -11,15 +11,12 @@ codeunit 139020 "Test Job Queue SNAP"
 
     var
         Assert: Codeunit Assert;
-        Text003: Label 'GetTimeOut must not be zero.';
-        Text004: Label 'GetTimeOut must return the value set in the "Timeout" field.';
         Text005: Label 'Job Queue Entry was not deleted after execution.';
         UnhandledBufferedTransactionErr: Label 'Codeunit.Run should fail when running target codeunit %1. Either COMMIT was removed from the end of COD449.OnRun, or the test object %1 no longer inserts a record with existing key into a table without autoincrementing primary key.', Comment = '%1 is the ID of a test codeunit supplied to the Job Queue Entry as the Object ID to Run.';
         UnhandledBufferedTransactionNoFailureTextErr: Label 'Test expected some error text to be set by the platform: this should indicate that a record cannot be inserted with primary key field values which already exist.';
         StartDateTimeDelayErr: Label 'Earliest Start Date/Time should be delayed by about 1 sec. Current delay: %1 ms.';
         LibraryRandom: Codeunit "Library - Random";
         LibraryUtility: Codeunit "Library - Utility";
-        LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryJobQueue: Codeunit "Library - Job Queue";
         JobQueueDispatcher: Codeunit "Job Queue Dispatcher";
 
@@ -294,7 +291,7 @@ codeunit 139020 "Test Job Queue SNAP"
 
         JobQueueEntry."Recurring Job" := false;
         JobQueueEntry.Status := JobQueueEntry.Status::Finished;
-        JobQueueEntry.FinalizeRun;
+        JobQueueEntry.FinalizeRun();
         if JobQueueEntry.Get(JobQueueEntry.ID) then
             Error(Text005);
     end;
@@ -313,7 +310,7 @@ codeunit 139020 "Test Job Queue SNAP"
         JobQueueEntry.Status := JobQueueEntry.Status::Error;
         JobQueueEntry.Insert(true);
         // [WHEN] run Restart()
-        JobQueueEntry.Restart;
+        JobQueueEntry.Restart();
 
         // [THEN] "No. of Attempts to Run" is 0, Status is Ready
         JobQueueEntry.TestField(Status, JobQueueEntry.Status::Ready);
@@ -338,7 +335,7 @@ codeunit 139020 "Test Job Queue SNAP"
         JobQueueEntry.TestField(Status, JobQueueEntry.Status::Ready);
         // [WHEN] run FinalizeRun() while Status is Error
         JobQueueEntry.Status := JobQueueEntry.Status::Error;
-        JobQueueEntry.FinalizeRun;
+        JobQueueEntry.FinalizeRun();
         LibraryJobQueue.RunSendNotification(JobQueueEntry);
 
         // [THEN] Job Status is Error
@@ -367,7 +364,7 @@ codeunit 139020 "Test Job Queue SNAP"
 
         // [WHEN] run HandleExecutionError() 1st time
         JobQueueEntry.Status := JobQueueEntry.Status::Error;
-        JobQueueEntry.FinalizeRun;
+        JobQueueEntry.FinalizeRun();
         // [THEN] Job Status is "On Hold"
         JobQueueEntry.TestField(Status, JobQueueEntry.Status::"On Hold");
         // [THEN] "No. of Attempts to Run" is 1, "Earliest Start Date/Time" is set
@@ -380,7 +377,7 @@ codeunit 139020 "Test Job Queue SNAP"
 
         // [WHEN] run HandleExecutionError() 2nd time
         JobQueueEntry.Status := JobQueueEntry.Status::Error;
-        JobQueueEntry.FinalizeRun;
+        JobQueueEntry.FinalizeRun();
         // [THEN] Job Status is "On Hold"
         JobQueueEntry.TestField(Status, JobQueueEntry.Status::"On Hold");
         // [THEN] "No. of Attempts to Run" is 2, "Earliest Start Date/Time" is set
@@ -393,7 +390,7 @@ codeunit 139020 "Test Job Queue SNAP"
 
         // [WHEN] run HandleExecutionError() 3rd time
         JobQueueEntry.Status := JobQueueEntry.Status::Error;
-        JobQueueEntry.FinalizeRun;
+        JobQueueEntry.FinalizeRun();
         // [THEN] Job Status is "Error"
         JobQueueEntry.TestField(Status, JobQueueEntry.Status::Error);
         // [THEN] "No. of Attempts to Run" is still 2, "Earliest Start Date/Time" is not changed
@@ -1128,9 +1125,9 @@ codeunit 139020 "Test Job Queue SNAP"
         JobQueueEntry."Error Message" := 'Part 1' + 'Part 2' + 'Part 3' + 'Part 4';
         JobQueueEntry.Modify(true);
 
-        JobQueueEntries.OpenView;
+        JobQueueEntries.OpenView();
         JobQueueEntries.GotoKey(JobQueueEntry.ID);
-        JobQueueEntries.ShowError.Invoke;
+        JobQueueEntries.ShowError.Invoke();
     end;
 
     [Test]
@@ -1143,9 +1140,9 @@ codeunit 139020 "Test Job Queue SNAP"
     begin
         CreateSucceedingJobQueueEntry(JobQueueEntry);
 
-        JobQueueEntries.OpenView;
+        JobQueueEntries.OpenView();
         JobQueueEntries.GotoKey(JobQueueEntry.ID);
-        JobQueueEntries.ShowError.Invoke;
+        JobQueueEntries.ShowError.Invoke();
     end;
 
     [Test]
@@ -1481,7 +1478,7 @@ codeunit 139020 "Test Job Queue SNAP"
         JobQueueEntry."Object ID to Run" := 132450;
         JobQueueEntry.Status := JobQueueEntry.Status::"In Process";
         JobQueueEntry."User Service Instance ID" := ServiceInstanceId();
-        JobQueueEntry."User Session ID" := SessionId;
+        JobQueueEntry."User Session ID" := SessionId();
         JobQueueEntry."System Task ID" := SystemTaskId;
         JobQueueEntry.Insert(true);
     end;
@@ -1494,7 +1491,7 @@ codeunit 139020 "Test Job Queue SNAP"
         JobQueueEntry."Object ID to Run" := 132453;
         JobQueueEntry.Status := JobQueueEntry.Status::"In Process";
         // Do not set "User Service Instance ID", that is set is a separate session
-        JobQueueEntry."User Session ID" := SessionId;
+        JobQueueEntry."User Session ID" := SessionId();
         JobQueueEntry.Insert(true);
     end;
 

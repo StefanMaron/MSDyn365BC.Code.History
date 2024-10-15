@@ -44,7 +44,7 @@ using Microsoft.Inventory.Item;
 using Microsoft.Inventory.Journal;
 using Microsoft.Inventory.Reports;
 using Microsoft.Inventory.Requisition;
-#if CLEAN21
+#if CLEAN23
 using Microsoft.Pricing.Worksheet;
 #endif
 using Microsoft.Projects.Resources.Journal;
@@ -98,20 +98,30 @@ page 9020 "Small Business Owner RC"
                 {
                     ApplicationArea = Basic, Suite;
                 }
+#if not CLEAN24                
                 part(Control66; "Finance Performance")
                 {
-                    ApplicationArea = Basic, Suite;
+                    ApplicationArea = Advanced;
                     Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '24.0';
+                    ObsoleteReason = 'Duplicate - see control 69';
                 }
+#endif
                 part(Control70; "Sales Performance")
                 {
                     ApplicationArea = Basic, Suite;
                 }
+#if not CLEAN24                
                 part(Control68; "Sales Performance")
                 {
-                    ApplicationArea = Basic, Suite;
+                    ApplicationArea = Advanced;
                     Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '24.0';
+                    ObsoleteReason = 'Duplicate - see control 70';
                 }
+#endif
                 part(Control2; "Trailing Sales Orders Chart")
                 {
                     ApplicationArea = Basic, Suite;
@@ -200,7 +210,7 @@ page 9020 "Small Business Owner RC"
             {
                 ApplicationArea = Basic, Suite;
                 Caption = 'List Price Sheet';
-#if not CLEAN21
+#if not CLEAN23
                 RunPageView = where("Object Type" = const(Report), "Object ID" = const(10148)); // "List Price Sheet"
                 RunObject = Page "Role Center Page Dispatcher";
 #else
@@ -839,7 +849,7 @@ page 9020 "Small Business Owner RC"
                     RunObject = Page "Resource Groups";
                     ToolTip = 'View all resource groups.';
                 }
-#if not CLEAN21
+#if not CLEAN23
                 action("Resource Price Changes")
                 {
                     ApplicationArea = Basic, Suite;
@@ -946,13 +956,18 @@ page 9020 "Small Business Owner RC"
                     ObsoleteTag = '23.0';
                 }
 #endif
+#if not CLEAN25
                 action("IRS 1099 Form-Box")
                 {
                     Caption = 'IRS 1099 Form-Box';
                     Image = "1099Form";
                     RunObject = Page "IRS 1099 Form-Box";
                     ToolTip = 'Set up 1099 tax forms to use on vendor cards, track posted amounts, and print or export 1099 information. After you have set up a 1099 code, you can enter it as a default 1099 form for a vendor.';
+                    ObsoleteReason = 'Moved to IRS Forms App.';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '25.0';
                 }
+#endif
                 action("GIFI Codes")
                 {
                     Caption = 'GIFI Codes';
@@ -1110,7 +1125,7 @@ page 9020 "Small Business Owner RC"
                 RunObject = Page "Purchase Journal";
                 ToolTip = 'Open the list of purchase journals where you can batch post purchase transactions to G/L, bank, customer, vendor and fixed assets accounts.';
             }
-#if not CLEAN21
+#if not CLEAN23
             action("Sales Price &Worksheet")
             {
                 ApplicationArea = Basic, Suite;

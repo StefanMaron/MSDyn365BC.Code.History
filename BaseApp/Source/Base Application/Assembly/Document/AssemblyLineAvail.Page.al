@@ -11,7 +11,7 @@ page 909 "Assembly Line Avail."
     SourceTable = "Assembly Line";
     SourceTableTemporary = true;
     SourceTableView = sorting("Document Type", "Document No.", Type)
-                      ORDER(Ascending)
+                      order(ascending)
                       where("Document Type" = const(Order),
                             Type = const(Item),
                             "No." = filter(<> ''));

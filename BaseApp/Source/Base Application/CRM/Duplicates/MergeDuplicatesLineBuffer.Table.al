@@ -6,6 +6,7 @@ using System.Utilities;
 table 65 "Merge Duplicates Line Buffer"
 {
     Caption = 'Merge Duplicates Line Buffer';
+    DataClassification = CustomerContent;
     ReplicateData = false;
 
     fields
@@ -13,24 +14,20 @@ table 65 "Merge Duplicates Line Buffer"
         field(1; Type; Option)
         {
             Caption = 'Type';
-            DataClassification = SystemMetadata;
             OptionCaption = ',Field,Table';
             OptionMembers = ,"Field","Table";
         }
         field(2; ID; Integer)
         {
             Caption = 'ID';
-            DataClassification = SystemMetadata;
         }
         field(3; Name; Text[30])
         {
             Caption = 'Name';
-            DataClassification = SystemMetadata;
         }
         field(4; "Duplicate Value"; Text[2048])
         {
             Caption = 'Duplicate Value';
-            DataClassification = SystemMetadata;
 
             trigger OnValidate()
             begin
@@ -42,12 +39,10 @@ table 65 "Merge Duplicates Line Buffer"
         field(5; "Current Value"; Text[2048])
         {
             Caption = 'Current Value';
-            DataClassification = SystemMetadata;
         }
         field(6; Override; Boolean)
         {
             Caption = 'Override';
-            DataClassification = SystemMetadata;
 
             trigger OnValidate()
             begin
@@ -58,27 +53,22 @@ table 65 "Merge Duplicates Line Buffer"
         field(7; "Duplicate Count"; Integer)
         {
             Caption = 'Duplicate Count';
-            DataClassification = SystemMetadata;
         }
         field(8; "Current Count"; Integer)
         {
             Caption = 'Current Count';
-            DataClassification = SystemMetadata;
         }
         field(9; "Table ID"; Integer)
         {
             Caption = 'Table ID';
-            DataClassification = SystemMetadata;
         }
         field(10; "Table Name"; Text[30])
         {
             Caption = 'Table Name';
-            DataClassification = SystemMetadata;
         }
         field(11; "In Primary Key"; Option)
         {
             Caption = 'In Primary Key';
-            DataClassification = SystemMetadata;
             InitValue = No;
             OptionCaption = 'Yes,No';
             OptionMembers = Yes,No;
@@ -86,23 +76,19 @@ table 65 "Merge Duplicates Line Buffer"
         field(12; Conflicts; Integer)
         {
             Caption = 'Conflicts';
-            DataClassification = SystemMetadata;
         }
         field(13; Modified; Boolean)
         {
             Caption = 'Modified';
-            DataClassification = SystemMetadata;
         }
         field(14; "Data Type"; Text[30])
         {
             Caption = 'Data Type';
-            DataClassification = SystemMetadata;
             Editable = false;
         }
         field(15; "Can Be Renamed"; Boolean)
         {
             Caption = 'Can Be Renamed';
-            DataClassification = SystemMetadata;
         }
     }
 
@@ -193,7 +179,6 @@ table 65 "Merge Duplicates Line Buffer"
         exit(TableRelationsMetadata.FindFirst());
     end;
 
-    [Scope('OnPrem')]
     procedure FindConflicts(OldKey: Text; NewKey: Text; var TempMergeDuplicatesConflict: Record "Merge Duplicates Conflict" temporary): Integer
     var
         RecordRef: RecordRef;
@@ -256,7 +241,6 @@ table 65 "Merge Duplicates Line Buffer"
         exit("In Primary Key"::No);
     end;
 
-    [Scope('OnPrem')]
     procedure HasFieldToOverride() Result: Boolean
     var
         TempMergeDuplicatesLineBuffer: Record "Merge Duplicates Line Buffer" temporary;
@@ -267,7 +251,6 @@ table 65 "Merge Duplicates Line Buffer"
         Result := not TempMergeDuplicatesLineBuffer.IsEmpty();
     end;
 
-    [Scope('OnPrem')]
     procedure HasModifiedField() Result: Boolean
     var
         TempMergeDuplicatesLineBuffer: Record "Merge Duplicates Line Buffer" temporary;

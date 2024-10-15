@@ -20,7 +20,6 @@ codeunit 142064 SalesDocTotalsSalesEntryCopy
         LibraryDimension: Codeunit "Library - Dimension";
         LibrarySmallBusiness: Codeunit "Library - Small Business";
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
-        DocumentType: Option Quote,"Blanket Order","Order",Invoice,"Return Order","Credit Memo","Posted Receipt","Posted Invoice","Posted Return Shipment","Posted Credit Memo";
         isInitialized: Boolean;
 
     [Test]
@@ -68,7 +67,7 @@ codeunit 142064 SalesDocTotalsSalesEntryCopy
 
         // [WHEN] User creates new header and copies the posted document where "Recalculate Lines" is No
         CreateSalesDocumentHeader(SalesHeader, SalesHeader."Document Type"::Invoice, CustomerNo, TaxAreaCode);
-        SalesCopyDocument(SalesHeader, PostedSalesDocNo, DocumentType::"Posted Invoice", false);
+        SalesCopyDocument(SalesHeader, PostedSalesDocNo, "Sales Document Type From"::"Posted Invoice", false);
         CollectDataFromSalesInvoicePage(SalesHeader, SalesInvoice, PostAmounts, TotalTax);
 
         // [THEN] Taxes are calculated and totals updated on page
@@ -122,7 +121,7 @@ codeunit 142064 SalesDocTotalsSalesEntryCopy
 
         // [WHEN] User creates new header and copies the posted document where "Recalculate Lines" is Yes
         CreateSalesDocumentHeader(SalesHeader, SalesHeader."Document Type"::Invoice, CustomerNo, TaxAreaCode);
-        SalesCopyDocument(SalesHeader, PostedSalesDocNo, DocumentType::"Posted Invoice", true);
+        SalesCopyDocument(SalesHeader, PostedSalesDocNo, "Sales Document Type From"::"Posted Invoice", true);
         CollectDataFromSalesInvoicePage(SalesHeader, SalesInvoice, PostAmounts, TotalTax);
 
         // [THEN] Taxes are calculated and totals updated on page
@@ -173,7 +172,7 @@ codeunit 142064 SalesDocTotalsSalesEntryCopy
         // [WHEN] User creates new order and copies the Invoice where "Recalculate Lines" is No
         CreateSalesDocumentHeader(SalesHeader2, SalesHeader2."Document Type"::Order,
           SalesHeader."Sell-to Customer No.", SalesHeader."Tax Area Code");
-        SalesCopyDocument(SalesHeader2, SalesHeader."No.", DocumentType::Invoice, false);
+        SalesCopyDocument(SalesHeader2, SalesHeader."No.", "Sales Document Type From"::Invoice, false);
         CollectDataFromSalesOrderPage(SalesHeader2, SalesOrder, OrderAmounts, TotalTax);
 
         // [THEN] Taxes are calculated and totals updated on page
@@ -224,7 +223,7 @@ codeunit 142064 SalesDocTotalsSalesEntryCopy
         // [WHEN] User creates new order and copies the invoice where "Recalculate Lines" is Yes
         CreateSalesDocumentHeader(SalesHeader2, SalesHeader2."Document Type"::Order,
           SalesHeader."Sell-to Customer No.", SalesHeader."Tax Area Code");
-        SalesCopyDocument(SalesHeader2, SalesHeader."No.", DocumentType::Invoice, true);
+        SalesCopyDocument(SalesHeader2, SalesHeader."No.", "Sales Document Type From"::Invoice, true);
         CollectDataFromSalesOrderPage(SalesHeader2, SalesOrder, OrderAmounts, TotalTax);
 
         // [THEN] Taxes are calculated and totals updated on page
@@ -280,7 +279,7 @@ codeunit 142064 SalesDocTotalsSalesEntryCopy
         // [WHEN] User creates new order and copies the invoice where "Recalculate Lines" is Yes
         CreateSalesDocumentHeaderWithInvDisc(SalesHeader2, SalesHeader2."Document Type"::Order,
           SalesHeader."Sell-to Customer No.", SalesHeader."Tax Area Code");
-        SalesCopyDocument(SalesHeader2, SalesHeader."No.", DocumentType::Invoice, true);
+        SalesCopyDocument(SalesHeader2, SalesHeader."No.", "Sales Document Type From"::Invoice, true);
         FindSalesLine(SalesHeader2, SalesLine2);
         DocumentTotals.SalesRedistributeInvoiceDiscountAmounts(SalesLine2, VATAmount, TotalSalesLine);
         DiscountPercent := SalesCalcDiscByType.GetCustInvoiceDiscountPct(SalesLine2);
@@ -457,11 +456,11 @@ codeunit 142064 SalesDocTotalsSalesEntryCopy
         FindOrder(SalesLine, SalesHeader2, SalesLine2);
         OpenSalesOrderPageEdit(SalesOrder, SalesHeader2);
 
-        SetCompareAmounts(SalesOrder.SalesLines."Invoice Discount Amount".AsDEcimal,
-          SalesOrder.SalesLines."Total Amount Excl. VAT".AsDEcimal,
-          SalesOrder.SalesLines."Total VAT Amount".AsDEcimal,
-          SalesOrder.SalesLines."Total Amount Incl. VAT".AsDEcimal,
-          SalesOrder.SalesLines."Invoice Disc. Pct.".AsDEcimal,
+        SetCompareAmounts(SalesOrder.SalesLines."Invoice Discount Amount".AsDecimal(),
+          SalesOrder.SalesLines."Total Amount Excl. VAT".AsDecimal(),
+          SalesOrder.SalesLines."Total VAT Amount".AsDecimal(),
+          SalesOrder.SalesLines."Total Amount Incl. VAT".AsDecimal(),
+          SalesOrder.SalesLines."Invoice Disc. Pct.".AsDecimal(),
           OrderAmounts);
 
         // Calculate the TotalTax, and flowfields
@@ -585,11 +584,11 @@ codeunit 142064 SalesDocTotalsSalesEntryCopy
         Reopen(SalesHeader);
         OpenSalesOrderPageEdit(SalesOrder, SalesHeader);
 
-        SetCompareAmounts(SalesOrder.SalesLines."Invoice Discount Amount".AsDEcimal,
-          SalesOrder.SalesLines."Total Amount Excl. VAT".AsDEcimal,
-          SalesOrder.SalesLines."Total VAT Amount".AsDEcimal,
-          SalesOrder.SalesLines."Total Amount Incl. VAT".AsDEcimal,
-          SalesOrder.SalesLines."Invoice Disc. Pct.".AsDEcimal,
+        SetCompareAmounts(SalesOrder.SalesLines."Invoice Discount Amount".AsDecimal(),
+          SalesOrder.SalesLines."Total Amount Excl. VAT".AsDecimal(),
+          SalesOrder.SalesLines."Total VAT Amount".AsDecimal(),
+          SalesOrder.SalesLines."Total Amount Incl. VAT".AsDecimal(),
+          SalesOrder.SalesLines."Invoice Disc. Pct.".AsDecimal(),
           OrderAmounts);
 
         // Calculate the TotalTax, and flowfields
@@ -712,7 +711,7 @@ codeunit 142064 SalesDocTotalsSalesEntryCopy
         LibraryERMCountryData.CreateVATData();
         VATEntry.DeleteAll();
         Commit();
-        CreateVATPostingSetup;
+        CreateVATPostingSetup();
         LibraryERMCountryData.UpdateGeneralLedgerSetup();
         LibraryERMCountryData.CreateGeneralPostingSetupData();
         LibraryInventory.NoSeriesSetup(InventorySetup);
@@ -754,7 +753,7 @@ codeunit 142064 SalesDocTotalsSalesEntryCopy
         TaxGroup: Record "Tax Group";
     begin
         LibraryERM.CreateTaxGroup(TaxGroup);
-        LibraryERM.CreateTaxDetail(TaxDetail, CreateSalesTaxJurisdiction, TaxGroup.Code, TaxDetail."Tax Type"::"Sales Tax Only", WorkDate());
+        LibraryERM.CreateTaxDetail(TaxDetail, CreateSalesTaxJurisdiction(), TaxGroup.Code, TaxDetail."Tax Type"::"Sales Tax Only", WorkDate());
         TaxDetail.Validate("Tax Below Maximum", TaxPercentage);  // Using RANDOM value for Tax Below Maximum.
         TaxDetail.Modify(true);
     end;
@@ -785,7 +784,7 @@ codeunit 142064 SalesDocTotalsSalesEntryCopy
         exit(TaxArea.Code);
     end;
 
-    local procedure CreateSalesDocument(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; DocumentType: Option; TaxPercentage: Integer)
+    local procedure CreateSalesDocument(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; DocumentType: Enum "Sales Document Type"; TaxPercentage: Integer)
     var
         TaxDetail: Record "Tax Detail";
         TaxAreaCode: Code[20];
@@ -794,7 +793,7 @@ codeunit 142064 SalesDocTotalsSalesEntryCopy
         CreateSalesDocumentWithCertainTax(SalesHeader, SalesLine, DocumentType, TaxAreaCode, TaxDetail."Tax Group Code");
     end;
 
-    local procedure CreateSalesDocumentWithCertainTax(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; DocumentType: Option; TaxAreaCode: Code[20]; TaxGroupCode: Code[20])
+    local procedure CreateSalesDocumentWithCertainTax(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; DocumentType: Enum "Sales Document Type"; TaxAreaCode: Code[20]; TaxGroupCode: Code[20])
     begin
         LibrarySales.CreateSalesHeader(SalesHeader, DocumentType, CreateCustomer(TaxAreaCode));
         SalesHeader.Validate("Invoice Discount Calculation", SalesHeader."Invoice Discount Calculation"::None);
@@ -807,7 +806,7 @@ codeunit 142064 SalesDocTotalsSalesEntryCopy
           LibraryRandom.RandInt(10));  // Using RANDOM value for Quantity.
     end;
 
-    local procedure CreateSalesDocumentWithInvDisc(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; DocumentType: Option; TaxPercentage: Integer)
+    local procedure CreateSalesDocumentWithInvDisc(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; DocumentType: Enum "Sales Document Type"; TaxPercentage: Integer)
     var
         TaxDetail: Record "Tax Detail";
         Customer: Record Customer;
@@ -821,7 +820,7 @@ codeunit 142064 SalesDocTotalsSalesEntryCopy
         CreateSalesDocumentWithCertainTaxAndDisc(SalesHeader, SalesLine, DocumentType, Customer."No.", ItemNo, TaxAreaCode);
     end;
 
-    local procedure CreateSalesDocumentWithCertainTaxAndDisc(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; DocumentType: Option; CustomerNo: Code[20]; ItemNo: Code[20]; TaxAreaCode: Code[20])
+    local procedure CreateSalesDocumentWithCertainTaxAndDisc(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; DocumentType: Enum "Sales Document Type"; CustomerNo: Code[20]; ItemNo: Code[20]; TaxAreaCode: Code[20])
     begin
         LibrarySales.CreateSalesHeader(SalesHeader, DocumentType, CustomerNo);
         SalesHeader.Validate("Invoice Discount Calculation", SalesHeader."Invoice Discount Calculation"::"%");
@@ -833,7 +832,7 @@ codeunit 142064 SalesDocTotalsSalesEntryCopy
           LibraryRandom.RandInt(10));  // Using RANDOM value for Quantity.
     end;
 
-    local procedure CreateSalesDocumentHeader(var SalesHeader: Record "Sales Header"; DocumentType: Option; CustomerNo: Code[20]; TaxAreaCode: Code[20])
+    local procedure CreateSalesDocumentHeader(var SalesHeader: Record "Sales Header"; DocumentType: Enum "Sales Document Type"; CustomerNo: Code[20]; TaxAreaCode: Code[20])
     begin
         LibrarySales.CreateSalesHeader(SalesHeader, DocumentType, CustomerNo);
         SalesHeader.Validate("Invoice Discount Calculation", SalesHeader."Invoice Discount Calculation"::None);
@@ -841,7 +840,7 @@ codeunit 142064 SalesDocTotalsSalesEntryCopy
         SalesHeader.Modify();
     end;
 
-    local procedure CreateSalesDocumentHeaderWithInvDisc(var SalesHeader: Record "Sales Header"; DocumentType: Option; CustomerNo: Code[20]; TaxAreaCode: Code[20])
+    local procedure CreateSalesDocumentHeaderWithInvDisc(var SalesHeader: Record "Sales Header"; DocumentType: Enum "Sales Document Type"; CustomerNo: Code[20]; TaxAreaCode: Code[20])
     begin
         LibrarySales.CreateSalesHeader(SalesHeader, DocumentType, CustomerNo);
         SalesHeader.Validate("Invoice Discount Calculation", SalesHeader."Invoice Discount Calculation"::"%");
@@ -859,13 +858,13 @@ codeunit 142064 SalesDocTotalsSalesEntryCopy
 
     local procedure OpenSalesInvoicePageEdit(var SalesInvoice: TestPage "Sales Invoice"; SalesHeader: Record "Sales Header")
     begin
-        SalesInvoice.OpenEdit;
+        SalesInvoice.OpenEdit();
         SalesInvoice.GotoRecord(SalesHeader);
     end;
 
     local procedure OpenSalesOrderPageEdit(var SalesOrder: TestPage "Sales Order"; SalesHeader: Record "Sales Header")
     begin
-        SalesOrder.OpenEdit;
+        SalesOrder.OpenEdit();
         SalesOrder.GotoRecord(SalesHeader);
     end;
 
@@ -1011,7 +1010,7 @@ codeunit 142064 SalesDocTotalsSalesEntryCopy
         CreateCustomerWithDiscount(Customer, TaxAreaCode, DiscPct, MinAmt);
     end;
 
-    local procedure SalesCopyDocument(SalesHeader: Record "Sales Header"; DocumentNo: Code[20]; DocumentType: Option; ReCalculateLines: Boolean)
+    local procedure SalesCopyDocument(SalesHeader: Record "Sales Header"; DocumentNo: Code[20]; DocumentType: Enum "Sales Document Type From"; ReCalculateLines: Boolean)
     var
         CopySalesDocument: Report "Copy Sales Document";
     begin
@@ -1022,7 +1021,7 @@ codeunit 142064 SalesDocTotalsSalesEntryCopy
         CopySalesDocument.RunModal();
     end;
 
-    local procedure CreateItemWithDimension(DimensionCode: Code[20]; ValuePosting: Option; TaxGroupCode: Code[20]) ItemNo: Code[20]
+    local procedure CreateItemWithDimension(DimensionCode: Code[20]; ValuePosting: Enum "Default Dimension Value Posting Type"; TaxGroupCode: Code[20]) ItemNo: Code[20]
     var
         Item: Record Item;
         DefaultDimension: Record "Default Dimension";
@@ -1032,7 +1031,7 @@ codeunit 142064 SalesDocTotalsSalesEntryCopy
     begin
         LibraryInventory.CreateItem(Item);
         // Use Random because value is not important.
-        Item.Validate("Unit Price", LibraryRandom.RandDec(100, 2) + LibraryUtility.GenerateRandomFraction);
+        Item.Validate("Unit Price", LibraryRandom.RandDec(100, 2) + LibraryUtility.GenerateRandomFraction());
         Item.Validate("Tax Group Code", TaxGroupCode);
         Item.Modify(true);
         ItemNo := Item."No.";
@@ -1058,7 +1057,7 @@ codeunit 142064 SalesDocTotalsSalesEntryCopy
         LibraryService.CreateExtendedTextLineItem(ExtendedTextLine, ExtendedTextHeader);
     end;
 
-    local procedure CreateStandardSalesLine(var StandardSalesLine: Record "Standard Sales Line"; StandardSalesCode: Code[10]; Type: Option; No: Code[20])
+    local procedure CreateStandardSalesLine(var StandardSalesLine: Record "Standard Sales Line"; StandardSalesCode: Code[10]; Type: Enum "Sales Line Type"; No: Code[20])
     begin
         LibrarySales.CreateStandardSalesLine(StandardSalesLine, StandardSalesCode);
         StandardSalesLine.Validate(Type, Type);
@@ -1154,11 +1153,11 @@ codeunit 142064 SalesDocTotalsSalesEntryCopy
     begin
         OpenSalesInvoicePageEdit(SalesInvoice, SalesHeader);
 
-        SetCompareAmounts(SalesInvoice.SalesLines."Invoice Discount Amount".AsDEcimal,
-          SalesInvoice.SalesLines."Total Amount Excl. VAT".AsDEcimal,
-          SalesInvoice.SalesLines."Total VAT Amount".AsDEcimal,
-          SalesInvoice.SalesLines."Total Amount Incl. VAT".AsDEcimal,
-          SalesInvoice.SalesLines."Invoice Disc. Pct.".AsDEcimal,
+        SetCompareAmounts(SalesInvoice.SalesLines."Invoice Discount Amount".AsDecimal(),
+          SalesInvoice.SalesLines."Total Amount Excl. VAT".AsDecimal(),
+          SalesInvoice.SalesLines."Total VAT Amount".AsDecimal(),
+          SalesInvoice.SalesLines."Total Amount Incl. VAT".AsDecimal(),
+          SalesInvoice.SalesLines."Invoice Disc. Pct.".AsDecimal(),
           PostAmounts);
 
         // Calculate the TotalTax, and flowfields
@@ -1171,11 +1170,11 @@ codeunit 142064 SalesDocTotalsSalesEntryCopy
     begin
         OpenSalesOrderPageEdit(SalesOrder, SalesHeader);
 
-        SetCompareAmounts(SalesOrder.SalesLines."Invoice Discount Amount".AsDEcimal,
-          SalesOrder.SalesLines."Total Amount Excl. VAT".AsDEcimal,
-          SalesOrder.SalesLines."Total VAT Amount".AsDEcimal,
-          SalesOrder.SalesLines."Total Amount Incl. VAT".AsDEcimal,
-          SalesOrder.SalesLines."Invoice Disc. Pct.".AsDEcimal,
+        SetCompareAmounts(SalesOrder.SalesLines."Invoice Discount Amount".AsDecimal(),
+          SalesOrder.SalesLines."Total Amount Excl. VAT".AsDecimal(),
+          SalesOrder.SalesLines."Total VAT Amount".AsDecimal(),
+          SalesOrder.SalesLines."Total Amount Incl. VAT".AsDecimal(),
+          SalesOrder.SalesLines."Invoice Disc. Pct.".AsDecimal(),
           OrderAmounts);
 
         // Calculate the TotalTax, and flowfields

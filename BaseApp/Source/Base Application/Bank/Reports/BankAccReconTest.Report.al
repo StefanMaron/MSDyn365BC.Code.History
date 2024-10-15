@@ -305,9 +305,6 @@ report 1408 "Bank Acc. Recon. - Test"
                             end else
                                 BankAccLedgEntry.SetRange("Statement Line No.", "Statement Line No.");
                             OnBankAccReconciliationLineAfterGetRecordOnAfterBankAccLedgEntrySetFilters("Bank Acc. Reconciliation Line", BankAccLedgEntry);
-#if not CLEAN21
-                            OnBankAccReconciliationLineAfterGetRecordOnAfterCheckLedgEntrySetFilters("Bank Acc. Reconciliation Line", CheckLedgEntry);
-#endif
                             if not BankAccLedgEntry.IsEmpty() then begin
                                 BankAccLedgEntry.FindSet();
                                 repeat
@@ -833,27 +830,15 @@ report 1408 "Bank Acc. Recon. - Test"
 
     local procedure SetupRecord()
     begin
-        with "Bank Acc. Reconciliation" do
-#if not CLEAN21
-            CalcFields("Total Balance on Bank Account",
-              "Bank Account Balance (LCY)",
-              "Total Positive Adjustments",
-              "Total Negative Adjustments",
-              "Total Outstd Bank Transactions",
-              "Total Outstd Payments",
-              "Total Applied Amount",
-              "Total Unposted Applied Amount",
-              "Total Negative Difference");
-#else
-            CalcFields("Total Balance on Bank Account",
-              "Bank Account Balance (LCY)",
-              "Total Positive Adjustments",
-              "Total Negative Adjustments",
-              "Total Outstd Bank Transactions",
-              "Total Outstd Payments",
-              "Total Applied Amount",
-              "Total Unposted Applied Amount");
-#endif
+        "Bank Acc. Reconciliation".CalcFields(
+            "Total Balance on Bank Account",
+            "Bank Account Balance (LCY)",
+            "Total Positive Adjustments",
+            "Total Negative Adjustments",
+            "Total Outstd Bank Transactions",
+            "Total Outstd Payments",
+            "Total Applied Amount",
+            "Total Unposted Applied Amount");
     end;
 
     local procedure CheckForDirectEntries(BankAcc: Record "Bank Account"; BankAccPostingGroup: Record "Bank Account Posting Group"; StatementDate: Date)
@@ -878,14 +863,6 @@ report 1408 "Bank Acc. Recon. - Test"
     local procedure OnBankAccReconciliationLineAfterGetRecordOnAfterBankAccLedgEntrySetFilters(var BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line"; var BankAccLedgEntry: Record "Bank Account Ledger Entry")
     begin
     end;
-
-#if not CLEAN21
-    [IntegrationEvent(false, false)]
-    [Obsolete('This event will be removed, displaying check ledger entries is done via Bank Account Ledger Entries.', '21.0')]
-    local procedure OnBankAccReconciliationLineAfterGetRecordOnAfterCheckLedgEntrySetFilters(var BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line"; var CheckLedgEntry: Record "Check Ledger Entry")
-    begin
-    end;
-#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckAppliedAmount(var BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line"; AppliedAmount: Decimal)
