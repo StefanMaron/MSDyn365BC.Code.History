@@ -694,6 +694,8 @@ page 1811 "Setup Email Logging"
         ClientSecretLocal: Text;
     begin
         LoadTopBanners();
+        if SetupEmailLogging.IsEmailLoggingUsingGraphApiFeatureEnabled() then
+            Error(EmailLoggingUsingGraphApiFeatureEnabledErr);
         SoftwareAsAService := EnvrionmentInformation.IsSaaSInfrastructure();
         DefaultFolderSetup := true;
         QueueFolderPath := QueueFolderPathTxt;
@@ -792,7 +794,7 @@ page 1811 "Setup Email Logging"
         ConnectingToExchangeMsg: Label 'Connecting to Exchange.', Comment = 'Exchange is a name of a Microsoft service and should not be translated.';
         ValidatePublicFoldersMsg: Label 'Validating public folders.';
         HelpLinkTxt: Label 'Track Email Message Exchanges';
-        HelpLinkUrlTxt: Label 'https://docs.microsoft.com/en-us/dynamics365/business-central/marketing-set-up-email-logging', Locked = true;
+        HelpLinkUrlTxt: Label 'https://go.microsoft.com/fwlink/?linkid=2115467', Locked = true;
         SuccesfullyLoggedInTxt: Label 'The administrator is signed in.';
         UnsuccesfullyLoggedInTxt: Label 'Could not sign in the administrator.';
         DefaultClientCredentialsTxt: Label 'The default client credentials will be used to connect to Exchange.', Comment = 'Exchange is a name of a Microsoft service and should not be translated.';
@@ -822,6 +824,7 @@ page 1811 "Setup Email Logging"
         EmailLoggingSetupCompletedTxt: Label 'Email Logging Setup completed.', Locked = true;
         CreateEmailLoggingJobTxt: Label 'Create email logging job', Locked = true;
         SkipCreatingEmailLoggingJobTxt: Label 'Skip creating email logging job', Locked = true;
+        EmailLoggingUsingGraphApiFeatureEnabledErr: Label 'The feature Email Logging using Graph API has been enabled. Please use the new setup.';
         HasAdminSignedIn: Boolean;
         AreAdminCredentialsCorrect: Boolean;
         CustomCredentialsSpecified: Boolean;
