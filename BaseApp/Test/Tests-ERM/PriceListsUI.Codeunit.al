@@ -574,6 +574,7 @@ codeunit 134117 "Price Lists UI"
         PurchasePriceList.Lines.SourceNo.SetValue(Vendor[2]."No.");
         PurchasePriceList.Lines."Asset Type".SetValue("Price Asset Type"::"G/L Account");
         PurchasePriceList.Lines."Asset No.".SetValue(LibraryERM.CreateGLAccountNo());
+        Assert.IsTrue(PurchasePriceList.Lines.StartingDate.Visible(), 'Starting Date must be visible');
 
         // [THEN] Price list line added, where "Currency Code" is 'EUR'
         PriceListLine.SetRange("Price List Code", PriceListHeader.Code);
