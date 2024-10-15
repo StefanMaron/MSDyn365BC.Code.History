@@ -3335,6 +3335,11 @@
             DecimalPlaces = 0 : 5;
             MaxValue = 100;
             MinValue = 0;
+
+            trigger OnValidate()
+            begin
+                UpdateDeferralAmounts();
+            end;
         }
         field(11306; "Prepmt. Pmt. Disc. Amount"; Decimal)
         {
@@ -7461,9 +7466,45 @@
     begin
     end;
 
+    procedure GetDeductibleVATAmount(): Decimal
+    var
+        VATPostingSetupLocal: Record "VAT Posting Setup";
+        Result: Decimal;
+    begin
+        Result := 0;
+
+        if ("VAT Calculation Type" = "VAT Calculation Type"::"Reverse Charge VAT") and ("Non Deductible VAT %" <> 0) then begin
+            VATPostingSetupLocal.Get("VAT Bus. Posting Group", "VAT Prod. Posting Group");
+            Result := Round(Amount * VATPostingSetupLocal."VAT %" / 100);
+        end else
+            Result := "Amount Including VAT" - Amount;
+
+        Result -= GetNonDeductibleVATAmount();
+
+        exit(Result);
+    end;
+
+    procedure GetNonDeductibleVATAmount(): Decimal
+    var
+        VATPostingSetupLocal: Record "VAT Posting Setup";
+        Result: Decimal;
+    begin
+        Result := 0;
+
+        if ("VAT Calculation Type" = "VAT Calculation Type"::"Reverse Charge VAT") and ("Non Deductible VAT %" <> 0) then begin
+            VATPostingSetupLocal.Get("VAT Bus. Posting Group", "VAT Prod. Posting Group");
+            Result := Amount * VATPostingSetupLocal."VAT %" / 100;
+        end else
+            Result := "Amount Including VAT" - Amount;
+
+        Result := Round(Result * "Non Deductible VAT %" / 100);
+
+        exit(Result);
+    end;
+
     procedure GetDeferralAmount() DeferralAmount: Decimal
     var
-        NonDeductibleBase: Decimal;
+        DeductibleVAT: Decimal;
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -7471,12 +7512,10 @@
         if IsHandled then
             exit;
 
-        if "Non Deductible VAT %" <> 0 then begin
-            NonDeductibleBase := "Amount Including VAT" - Amount;
-            NonDeductibleBase -= Round(NonDeductibleBase * (100 - "Non Deductible VAT %") / 100);
-        end;
+        DeductibleVAT := GetNonDeductibleVATAmount();
+
         if "VAT Base Amount" <> 0 then
-            DeferralAmount := "VAT Base Amount" + NonDeductibleBase
+            DeferralAmount := "VAT Base Amount" + DeductibleVAT
         else
             DeferralAmount := CalcLineAmount;
 
