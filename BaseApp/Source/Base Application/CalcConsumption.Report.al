@@ -233,6 +233,8 @@
         TempReservEntry: Record "Reservation Entry" temporary;
         ItemTrackingMgt: Codeunit "Item Tracking Management";
         ItemTrackingLines: Page "Item Tracking Lines";
+        Qty: Decimal;
+        MinQty: Decimal;
     begin
         if ItemJournalLine.Quantity >= 0 then
             ItemTrackingMgt.CopyItemTracking(ProdOrderComponent.RowID1, ItemJournalLine.RowID1, false)
@@ -246,10 +248,17 @@
             if ItemLedgerEntry.IsEmpty then
                 exit;
 
-            ItemLedgerEntry.FindSet;
+            MinQty := ItemJournalLine."Quantity (Base)";
+            ItemLedgerEntry.FindSet();
             repeat
+                if Qty + ItemLedgerEntry.Quantity < MinQty then begin
+                    ItemLedgerEntry.Quantity := MinQty - Qty;
+                    Qty := MinQty;
+                end else
+                    Qty += ItemLedgerEntry.Quantity;
+
                 TempReservEntry.SetTrackingFilterFromItemLedgEntry(ItemLedgerEntry);
-                if TempReservEntry.FindFirst then begin
+                if TempReservEntry.FindFirst() then begin
                     TempReservEntry."Quantity (Base)" += ItemLedgerEntry.Quantity;
                     OnAssignItemTrackingOnBeforeTempReservEntryModify(TempReservEntry, ItemLedgerEntry);
                     TempReservEntry.Modify();
@@ -260,7 +269,7 @@
                     OnAssignItemTrackingOnBeforeTempReservEntryInsert(TempReservEntry, ItemLedgerEntry);
                     TempReservEntry.Insert();
                 end;
-            until ItemLedgerEntry.Next = 0;
+            until (ItemLedgerEntry.Next() = 0) or (Qty = MinQty);
 
             TempReservEntry.Reset();
             ItemTrackingMgt.SumUpItemTracking(TempReservEntry, TempTrackingSpecification, false, true);
