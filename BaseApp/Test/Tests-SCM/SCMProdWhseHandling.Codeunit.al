@@ -20,6 +20,7 @@ codeunit 137298 "SCM Prod. Whse. Handling"
         LibraryWarehouse: Codeunit "Library - Warehouse";
         LibraryInventory: Codeunit "Library - Inventory";
         LibraryManufacturing: Codeunit "Library - Manufacturing";
+        LibraryItemTracking: Codeunit "Library - Item Tracking";
         LibraryUtility: Codeunit "Library - Utility";
         LibraryRandom: Codeunit "Library - Random";
         isInitialized: Boolean;
@@ -326,8 +327,8 @@ codeunit 137298 "SCM Prod. Whse. Handling"
         Bin.SetRange("Location Code", Location.Code);
         Bin.FindSet(true);
         repeat
-            CreateAndPostItemJournalLine(CompItem1."No.", "Item Ledger Entry Type"::"Positive Adjmt.", 20, Location.Code, Bin.Code, false);
-            CreateAndPostItemJournalLine(CompItem2."No.", "Item Ledger Entry Type"::"Positive Adjmt.", 20, Location.Code, Bin.Code, false);
+            CreateAndPostItemJournalLine(CompItem1."No.", "Item Ledger Entry Type"::"Positive Adjmt.", 20, Location.Code, Bin.Code, '');
+            CreateAndPostItemJournalLine(CompItem2."No.", "Item Ledger Entry Type"::"Positive Adjmt.", 20, Location.Code, Bin.Code, '');
         until Bin.Next() = 0;
 
         // [GIVEN] Create Released Produciton Order for 1 quantity of the parent item.
@@ -695,8 +696,8 @@ codeunit 137298 "SCM Prod. Whse. Handling"
         Bin.SetRange("Location Code", Location.Code);
         Bin.FindSet(true);
         repeat
-            CreateAndPostItemJournalLine(CompItem1."No.", "Item Ledger Entry Type"::"Positive Adjmt.", 20, Location.Code, Bin.Code, false);
-            CreateAndPostItemJournalLine(CompItem2."No.", "Item Ledger Entry Type"::"Positive Adjmt.", 20, Location.Code, Bin.Code, false);
+            CreateAndPostItemJournalLine(CompItem1."No.", "Item Ledger Entry Type"::"Positive Adjmt.", 20, Location.Code, Bin.Code, '');
+            CreateAndPostItemJournalLine(CompItem2."No.", "Item Ledger Entry Type"::"Positive Adjmt.", 20, Location.Code, Bin.Code, '');
         until Bin.Next() = 0;
 
         // [GIVEN] Create Released Produciton Order for 1 quantity of the parent item.
@@ -758,18 +759,11 @@ codeunit 137298 "SCM Prod. Whse. Handling"
         ProductionOrder.Modify(true);
         LibraryManufacturing.RefreshProdOrder(ProductionOrder, false, true, true, true, false);
 
-        ProdOrderLine.SetRange(Status, ProductionOrder.Status);
-        ProdOrderLine.SetRange("Prod. Order No.", ProductionOrder."No.");
-        ProdOrderLine.FindFirst();
+        FindFirstProdOrderLine(ProdOrderLine, ProductionOrder);
 
         // [GIVEN] Create prod. order component with negative quantity.
         LibraryInventory.CreateItem(Item);
-        LibraryManufacturing.CreateProductionOrderComponent(
-          ProdOrderComponent, ProdOrderLine.Status, ProdOrderLine."Prod. Order No.", ProdOrderLine."Line No.");
-        ProdOrderComponent.Validate("Item No.", Item."No.");
-        ProdOrderComponent.Validate("Location Code", ProdOrderLine."Location Code");
-        ProdOrderComponent.Validate("Quantity per", -1);
-        ProdOrderComponent.Modify(true);
+        CreateProdOrderComponent(ProdOrderComponent, ProdOrderLine, Item."No.", -1);
 
         WhseProdRelease.ReleaseLine(ProdOrderComponent, xProdOrderComponent);
 
@@ -835,18 +829,11 @@ codeunit 137298 "SCM Prod. Whse. Handling"
         ProductionOrder.Modify(true);
         LibraryManufacturing.RefreshProdOrder(ProductionOrder, false, true, true, true, false);
 
-        ProdOrderLine.SetRange(Status, ProductionOrder.Status);
-        ProdOrderLine.SetRange("Prod. Order No.", ProductionOrder."No.");
-        ProdOrderLine.FindFirst();
+        FindFirstProdOrderLine(ProdOrderLine, ProductionOrder);
 
         // [GIVEN] Create prod. order component with negative quantity.
         LibraryInventory.CreateItem(Item);
-        LibraryManufacturing.CreateProductionOrderComponent(
-          ProdOrderComponent, ProdOrderLine.Status, ProdOrderLine."Prod. Order No.", ProdOrderLine."Line No.");
-        ProdOrderComponent.Validate("Item No.", Item."No.");
-        ProdOrderComponent.Validate("Location Code", ProdOrderLine."Location Code");
-        ProdOrderComponent.Validate("Quantity per", -1);
-        ProdOrderComponent.Modify(true);
+        CreateProdOrderComponent(ProdOrderComponent, ProdOrderLine, Item."No.", -1);
 
         WhseProdRelease.ReleaseLine(ProdOrderComponent, xProdOrderComponent);
 
@@ -921,7 +908,7 @@ codeunit 137298 "SCM Prod. Whse. Handling"
         ParentItem.Modify(true);
 
         // [GIVEN] Ensure necessary quantity of component is available on the Open Shop Floor bin.
-        CreateAndPostItemJournalLine(CompItem."No.", "Item Ledger Entry Type"::"Positive Adjmt.", 20, Location.Code, OpenShopFloorBin.Code, false);
+        CreateAndPostItemJournalLine(CompItem."No.", "Item Ledger Entry Type"::"Positive Adjmt.", 20, Location.Code, OpenShopFloorBin.Code, '');
 
         // [GIVEN] Create Form-Planned Produciton Order for 1 quantity of the parent item.
         CreateAndRefreshProductionOrder(ProductionOrder, "Production Order Status"::"Firm Planned", "Prod. Order Source Type"::Item, ParentItem."No.", 1, Location.Code);
@@ -930,6 +917,84 @@ codeunit 137298 "SCM Prod. Whse. Handling"
         LibraryManufacturing.ChangeStatusFirmPlanToReleased(ProductionOrder."No.");
 
         // [THEN] Caller validates the outcome.
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    [HandlerFunctions('SimpleMessageHandler')]
+    procedure InventoryMovementProdComponentAfterPartialPick()
+    var
+        Item: Record Item;
+        Location: Record Location;
+        WarehouseEmployee: Record "Warehouse Employee";
+        ProductionOrder: Record "Production Order";
+        ProdOrderLine: Record "Prod. Order Line";
+        ProdOrderComponent: Record "Prod. Order Component";
+        WarehouseActivityHeader: Record "Warehouse Activity Header";
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+        ProdBin, StorageBin : Record Bin;
+        LotNo: Code[50];
+    begin
+        // [SCENARIO 542288] Inventory movement of production components with item tracking after partial movement.
+        Initialize();
+        LotNo := LibraryUtility.GenerateGUID();
+
+        // [GIVEN] Lot-tracked item "C".
+        LibraryItemTracking.CreateLotItem(Item);
+
+        // [GIVEN] Location set up for required inventory pick for production consumption.
+        LibraryWarehouse.CreateLocationWMS(Location, true, false, false, false, false);
+        LibraryWarehouse.CreateBin(ProdBin, Location.Code, LibraryUtility.GenerateGUID(), '', '');
+        LibraryWarehouse.CreateBin(StorageBin, Location.Code, LibraryUtility.GenerateGUID(), '', '');
+        Location.Validate("Prod. Consump. Whse. Handling", Location."Prod. Consump. Whse. Handling"::"Inventory Pick/Movement");
+        Location.Validate("To-Production Bin Code", ProdBin.Code);
+        Location.Modify(true);
+        LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, Location.Code, false);
+
+        // [GIVEN] Production order for 3 pcs of any item "A".
+        // [GIVEN] Add item "C" as a component to the production order.
+        // [GIVEN] NOTE! that the item "C" is not the first component on the list.
+        CreateAndRefreshProductionOrder(
+          ProductionOrder, "Production Order Status"::Released, "Prod. Order Source Type"::Item, LibraryInventory.CreateItemNo(), 3, Location.Code);
+        FindFirstProdOrderLine(ProdOrderLine, ProductionOrder);
+        CreateProdOrderComponent(ProdOrderComponent, ProdOrderLine, LibraryInventory.CreateItemNo(), 1);
+        CreateProdOrderComponent(ProdOrderComponent, ProdOrderLine, Item."No.", 1);
+        ProdOrderComponent.Validate("Bin Code", ProdBin.Code);
+        ProdOrderComponent.Modify(true);
+
+        // [GIVEN] Post 1 pcs of item "C" with lot to the location.
+        CreateAndPostItemJournalLine(Item."No.", "Item Ledger Entry Type"::"Positive Adjmt.", 1, Location.Code, StorageBin.Code, LotNo);
+
+        // [GIVEN] Create inventory movement for the production consumption.
+        // [GIVEN] Select lot no. and register the inventory movement.
+        LibraryWarehouse.CreateInvtPutPickMovement("Warehouse Request Source Document"::"Prod. Consumption", ProductionOrder."No.", false, false, true);
+        FindWarehouseActivityLine(
+          WarehouseActivityLine, ProductionOrder."No.", WarehouseActivityLine."Activity Type"::"Invt. Movement",
+          Location.Code, WarehouseActivityLine."Action Type"::Take);
+        WarehouseActivityLine.SetRange("Action Type");
+        WarehouseActivityLine.ModifyAll("Lot No.", LotNo, true);
+        WarehouseActivityHeader.Get(WarehouseActivityLine."Activity Type", WarehouseActivityLine."No.");
+        LibraryWarehouse.AutoFillQtyInventoryActivity(WarehouseActivityHeader);
+        LibraryWarehouse.RegisterWhseActivity(WarehouseActivityHeader);
+
+        // [GIVEN] Add 2 more pcs of item "C" with lot to the location.
+        CreateAndPostItemJournalLine(Item."No.", "Item Ledger Entry Type"::"Positive Adjmt.", 2, Location.Code, StorageBin.Code, LotNo);
+
+        // [WHEN] Create the second inventory movement for the remaining 2 pcs of item "C".
+        LibraryWarehouse.CreateInvtPutPickMovement("Warehouse Request Source Document"::"Prod. Consumption", ProductionOrder."No.", false, false, true);
+
+        // [THEN] The system suggests to move 2 pieces.
+        FindWarehouseActivityLine(
+          WarehouseActivityLine, ProductionOrder."No.", WarehouseActivityLine."Activity Type"::"Invt. Movement",
+          Location.Code, WarehouseActivityLine."Action Type"::Take);
+        WarehouseActivityLine.TestField(Quantity, 2);
+
+        // [THEN] The second inventory movement can be registered.
+        WarehouseActivityLine.SetRange("Action Type");
+        WarehouseActivityLine.ModifyAll("Lot No.", LotNo, true);
+        WarehouseActivityHeader.Get(WarehouseActivityLine."Activity Type", WarehouseActivityLine."No.");
+        LibraryWarehouse.AutoFillQtyInventoryActivity(WarehouseActivityHeader);
+        LibraryWarehouse.RegisterWhseActivity(WarehouseActivityHeader);
     end;
 
     local procedure Initialize()
@@ -1028,20 +1093,30 @@ codeunit 137298 "SCM Prod. Whse. Handling"
         Bin.SetRange("Location Code", Location.Code);
         Bin.FindSet(true);
         repeat
-            CreateAndPostItemJournalLine(CompItem1."No.", "Item Ledger Entry Type"::"Positive Adjmt.", 20, Location.Code, Bin.Code, false);
-            CreateAndPostItemJournalLine(CompItem2."No.", "Item Ledger Entry Type"::"Positive Adjmt.", 20, Location.Code, Bin.Code, false);
+            CreateAndPostItemJournalLine(CompItem1."No.", "Item Ledger Entry Type"::"Positive Adjmt.", 20, Location.Code, Bin.Code, '');
+            CreateAndPostItemJournalLine(CompItem2."No.", "Item Ledger Entry Type"::"Positive Adjmt.", 20, Location.Code, Bin.Code, '');
         until Bin.Next() = 0;
 
         // [GIVEN] Create Released Produciton Order for 1 quantity of the parent item.
         CreateAndRefreshProductionOrder(ProductionOrder, "Production Order Status"::Released, "Prod. Order Source Type"::Item, ParentItem."No.", 1, Location.Code);
     end;
 
-    procedure CreateAndRefreshProductionOrder(var ProductionOrder: Record "Production Order"; ProdOrderStatus: Enum "Production Order Status"; SourceType: Enum "Prod. Order Source Type"; SourceNo: Code[20]; Quantity: Decimal; LocationCode: Code[10])
+    local procedure CreateAndRefreshProductionOrder(var ProductionOrder: Record "Production Order"; ProdOrderStatus: Enum "Production Order Status"; SourceType: Enum "Prod. Order Source Type"; SourceNo: Code[20]; Quantity: Decimal; LocationCode: Code[10])
     begin
         LibraryManufacturing.CreateProductionOrder(ProductionOrder, ProdOrderStatus, SourceType, SourceNo, Quantity);
         ProductionOrder.Validate("Location Code", LocationCode);
         ProductionOrder.Modify(true);
         LibraryManufacturing.RefreshProdOrder(ProductionOrder, false, true, true, true, false);
+    end;
+
+    local procedure CreateProdOrderComponent(var ProdOrderComponent: Record "Prod. Order Component"; ProdOrderLine: Record "Prod. Order Line"; ItemNo: Code[20]; QtyPer: Decimal)
+    begin
+        LibraryManufacturing.CreateProductionOrderComponent(
+          ProdOrderComponent, ProdOrderLine.Status, ProdOrderLine."Prod. Order No.", ProdOrderLine."Line No.");
+        ProdOrderComponent.Validate("Item No.", ItemNo);
+        ProdOrderComponent.Validate("Location Code", ProdOrderLine."Location Code");
+        ProdOrderComponent.Validate("Quantity per", QtyPer);
+        ProdOrderComponent.Modify(true);
     end;
 
     local procedure CreateProductionOrderWithLocationBinsAndNoComponents(var ProductionOrder: Record "Production Order"; var Location: Record Location; var ProdItem: Record Item)
@@ -1072,6 +1147,13 @@ codeunit 137298 "SCM Prod. Whse. Handling"
         // [THEN] Bin is set
         WarehouseActivityLine.SetFilter("Bin Code", '<>%1', '');
         Assert.RecordCount(WarehouseActivityLine, ExpectedPickLines);
+    end;
+
+    local procedure FindFirstProdOrderLine(var ProdOrderLine: Record "Prod. Order Line"; ProductionOrder: Record "Production Order")
+    begin
+        ProdOrderLine.SetRange(Status, ProductionOrder.Status);
+        ProdOrderLine.SetRange("Prod. Order No.", ProductionOrder."No.");
+        ProdOrderLine.FindFirst();
     end;
 
     local procedure FindWarehouseActivityLine(var WarehouseActivityLine: Record "Warehouse Activity Line"; SourceNo: Code[20]; ActivityType: Enum "Warehouse Activity Type"; LocationCode: Code[10]; ActionType: Enum "Warehouse Action Type")
@@ -1130,9 +1212,10 @@ codeunit 137298 "SCM Prod. Whse. Handling"
     local procedure CreateAndPostItemJournalLine(ItemNo: Code[20]; EntryType: Enum "Item Ledger Entry Type"; Quantity: Decimal;
                                                                                   LocationCode: Code[10];
                                                                                   BinCode: Code[20];
-                                                                                  UseTracking: Boolean)
+                                                                                  LotNo: Code[50])
     var
         ItemJournalLine: Record "Item Journal Line";
+        ReservationEntry: Record "Reservation Entry";
     begin
         UpdateNoSeriesOnItemJournalBatch(ItemJournalBatch, '');
         LibraryInventory.ClearItemJournal(ItemJournalTemplate, ItemJournalBatch);
@@ -1143,8 +1226,8 @@ codeunit 137298 "SCM Prod. Whse. Handling"
         if BinCode <> '' then
             ItemJournalLine.Validate("Bin Code", BinCode);
         ItemJournalLine.Modify(true);
-        if UseTracking then
-            ItemJournalLine.OpenItemTrackingLines(false);
+        if LotNo <> '' then
+            LibraryItemTracking.CreateItemJournalLineItemTracking(ReservationEntry, ItemJournalLine, '', LotNo, ItemJournalLine.Quantity);
         LibraryInventory.PostItemJournalLine(ItemJournalTemplate.Name, ItemJournalBatch.Name);
     end;
 
@@ -1154,9 +1237,7 @@ codeunit 137298 "SCM Prod. Whse. Handling"
         ItemJournalLine: Record "Item Journal Line";
         ProductionJournalMgt: Codeunit "Production Journal Mgt";
     begin
-        ProdOrderLine.SetRange(Status, ProductionOrder.Status);
-        ProdOrderLine.SetRange("Prod. Order No.", ProductionOrder."No.");
-        ProdOrderLine.FindFirst();
+        FindFirstProdOrderLine(ProdOrderLine, ProductionOrder);
 
         ProductionJournalMgt.InitSetupValues();
         ProductionJournalMgt.SetTemplateAndBatchName();
@@ -1200,13 +1281,7 @@ codeunit 137298 "SCM Prod. Whse. Handling"
     begin
         ProductionJournal.First();
         repeat
-            /*if Bin.Code = '' then begin
-                Bin.SetRange("Location Code", ProductionJournal."Location Code".Value);
-                Bin.FindFirst();
-            end;*/
             ProductionJournal.Quantity.AssertEquals(LibraryVariableStorage.DequeueInteger());
-        /*if ProductionJournal."Bin Code".Value = '' then
-            ProductionJournal."Bin Code".Value := Bin.Code;*/
         until ProductionJournal.Next() = false;
 
         ProductionJournal.Post.Invoke();

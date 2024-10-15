@@ -404,7 +404,10 @@ codeunit 2679 "Purchase Alloc. Acc. Mgt."
             LinePercentage := Round(AllocationLine.Quantity / AllocationPurchaseLine.Quantity * 100, AllocationLine.GetQuantityPrecision());
 
         PurchaseLine.Quantity := 0;
-        PurchaseLine.Validate(Quantity, AllocationLine.Quantity);
+        if PurchaseLine.IsInvoiceDocType() then
+            PurchaseLine.Validate(Quantity, Round(AllocationPurchaseLine.Quantity * LinePercentage / 100, AllocationLine.GetQuantityPrecision()))
+        else
+            PurchaseLine.Validate(Quantity, AllocationLine.Quantity);
         PurchaseLine."Outstanding Quantity" := Round(AllocationPurchaseLine."Outstanding Quantity" * LinePercentage / 100, AllocationLine.GetQuantityPrecision());
         PurchaseLine."Quantity Received" := Round(AllocationPurchaseLine."Quantity Received" * LinePercentage / 100, AllocationLine.GetQuantityPrecision());
         PurchaseLine."Quantity Invoiced" := Round(AllocationPurchaseLine."Quantity Invoiced" * LinePercentage / 100, AllocationLine.GetQuantityPrecision());

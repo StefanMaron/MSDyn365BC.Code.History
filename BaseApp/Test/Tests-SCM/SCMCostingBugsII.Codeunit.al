@@ -2524,6 +2524,47 @@ codeunit 137621 "SCM Costing Bugs II"
             until TempItemLedgerEntry.Next() = 0;
     end;
 
+    [Test]
+    procedure CostOfNegativeTransferEntryAppliedToThreePositiveEntries()
+    var
+        Item: Record Item;
+        FromLocation, ToLocation, InTransitLocation : Record Location;
+        ItemLedgerEntry: Record "Item Ledger Entry";
+        TransferHeader: Record "Transfer Header";
+    begin
+        // [FEATURE] [Costing] [Cost Adjustment]
+        // [SCENARIO 548066] Verify correct cost of negative transfer entry applied to three positive entries.
+        Initialize();
+
+        // [GIVEN] Locations "From", "To", "In Transit".
+        // [GIVEN] Item with FIFO costing method.
+        CreateLocationsChain(FromLocation, ToLocation, InTransitLocation);
+        LibraryPatterns.MAKEItemSimple(Item, Item."Costing Method"::FIFO, 8.0);
+
+        // [GIVEN] Post 5 pcs of the item to location "From". Unit cost = 8.
+        PostPositiveAdjustment(Item, FromLocation.Code, 5, 40.0, 0);
+
+        // [GIVEN] Post -1 pcs of the item from location "From". Unit cost = 9.
+        // [GIVEN] Post 1 pcs of the item to location "From". Unit cost = 9. Apply to the negative entry.
+        LibraryPatterns.POSTNegativeAdjustment(Item, FromLocation.Code, '', '', 1, WorkDate(), 9.0);
+        FindLastItemLedgerEntry(ItemLedgerEntry, Item."No.", FromLocation.Code, false);
+        PostPositiveAdjustment(Item, FromLocation.Code, 1, 9.0, ItemLedgerEntry."Entry No.");
+
+        // [GIVEN] Post -1 pcs of the item from location "From". Unit cost = 9.
+        // [GIVEN] Post 1 pcs of the item to location "From". Unit cost = 9. Apply to the negative entry.
+        LibraryPatterns.POSTNegativeAdjustment(Item, FromLocation.Code, '', '', 1, WorkDate(), 9.0);
+        FindLastItemLedgerEntry(ItemLedgerEntry, Item."No.", FromLocation.Code, false);
+        PostPositiveAdjustment(Item, FromLocation.Code, 1, 9.0, ItemLedgerEntry."Entry No.");
+
+        // [GIVEN] Transfer 5 pcs of the item from location "From" to location "To".
+        LibraryPatterns.POSTTransferOrder(
+          TransferHeader, Item, FromLocation, ToLocation, InTransitLocation, '', 5, WorkDate(), WorkDate(), true, true);
+
+        // [WHEN] Run the cost adjustment.
+        // [THEN] Unit cost of the item is equal to 8, because the source of cost for all further entries is the positive entry with unit cost = 8.
+        AdjustCostAndVerify(Item."No.", 8.0);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";

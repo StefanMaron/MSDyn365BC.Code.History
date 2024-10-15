@@ -508,6 +508,8 @@ report 11518 "Old Swiss VAT Statement"
             end;
 
             trigger OnPreDataItem()
+            var
+                DateCreated: Date;
             begin
                 GLSetup.Get();
                 if GLSetup."Unrealized VAT" then
@@ -532,7 +534,12 @@ report 11518 "Old Swiss VAT Statement"
                     if GLRegister."Source Code" <> BalanceVATEntry2."Source Code" then
                         Error(NotVATSettlementErr, GLRegister."No.", BalanceVATEntry2."Source Code");
 
-                    FilterTxt := StrSubstNo(ClosedEntriesTxt, GLRegister."No.", DT2Date(GLRegister.SystemCreatedAt));
+                    if GLRegister.SystemCreatedAt <> 0DT then
+                        DateCreated := DT2Date(GLRegister.SystemCreatedAt)
+                    else
+                        DateCreated := GLRegister."Creation Date";
+
+                    FilterTxt := StrSubstNo(ClosedEntriesTxt, GLRegister."No.", DateCreated);
                 end else
                     FilterTxt := StrSubstNo(OpenEntriesTxt, OpenTillDate);
 
