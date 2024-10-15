@@ -323,6 +323,36 @@ codeunit 134777 "Test Item Journal Post Preview"
         // [THEN] Preview does not throw any exceptions.
     end;
 
+    [Test]
+    [HandlerFunctions('ProductionJournalWithPrewviewHandler')]
+    procedure TestPreviewPostingNotShowingErrorFromProductionJournal()
+    var
+        ItemJournalLine: Record "Item Journal Line";
+        ProductionOrder: Record "Production Order";
+        ProdOrderComponent: Record "Prod. Order Component";
+        ReleasedProductionOrder: TestPage "Released Production Order";
+    begin
+        // [SCENARIO 495874] Preview Posting shows "There is nothing to post the journal does not contain a quantity or amount" message in Production Journal. 
+        Initialize();
+
+        // [GIVEN] Create a Item Revaluation Journal by entering Random value to Description field only
+        CreateRevaluationJournal(ItemJournalLine);
+
+        // [GIVEN] Create and Release Production Order.
+        CreateInitialSetupForReleasedProductionOrder(ProductionOrder, ProdOrderComponent);
+
+        // [GIVEN] Open Release Production Order page.
+        ReleasedProductionOrder.OpenEdit();
+        ReleasedProductionOrder.GoToRecord(ProductionOrder);
+
+        // [WHEN] Open Production Journal page for the selected line and preview is called.
+        ReleasedProductionOrder.ProdOrderLines.First();
+        ReleasedProductionOrder.ProdOrderLines.ProductionJournal.Invoke();
+
+        // [THEN] Preview does not throw any exceptions.
+        // Handled in ProductionJournalWithPrewviewHandler Handler Function
+    end;
+
     local procedure Initialize()
     var
         ItemJournalLine: Record "Item Journal Line";
@@ -535,6 +565,29 @@ codeunit 134777 "Test Item Journal Post Preview"
         if ItemTracking then
             PurchaseLine.OpenItemTrackingLines();
         LibraryPurchase.ReleasePurchaseDocument(PurchaseHeader);
+    end;
+
+    local procedure CreateRevaluationJournal(var ItemJournalLine: Record "Item Journal Line")
+    var
+        ItemJournalBatch: Record "Item Journal Batch";
+    begin
+        ClearRevaluationJournalLines(ItemJournalBatch);
+        LibraryInventory.CreateItemJnlLineWithNoItem(
+            ItemJournalLine, ItemJournalBatch, ItemJournalBatch."Journal Template Name",
+            ItemJournalBatch.Name, ItemJournalLine."Entry Type"::" ");
+        ItemJournalLine.Validate("Value Entry Type", ItemJournalLine."Value Entry Type"::Revaluation);
+        ItemJournalLine.Description := LibraryRandom.RandText(100);
+        ItemJournalLine.Modify(true);
+    end;
+
+    local procedure ClearRevaluationJournalLines(var ItemJournalBatch: Record "Item Journal Batch")
+    var
+        ItemJournalTemplate: Record "Item Journal Template";
+    begin
+        LibraryInventory.SelectItemJournalTemplateName(ItemJournalTemplate, ItemJournalTemplate.Type::Revaluation);
+        LibraryInventory.SelectItemJournalBatchName(ItemJournalBatch, ItemJournalTemplate.Type, ItemJournalTemplate.Name);
+        ItemJournalBatch.SetupNewBatch();
+        LibraryInventory.ClearItemJournal(ItemJournalTemplate, ItemJournalBatch);
     end;
 
     local procedure VerifyGLPostingPreviewLine(GLPostingPreview: TestPage "G/L Posting Preview"; TableName: Text; ExpectedEntryCount: Integer)

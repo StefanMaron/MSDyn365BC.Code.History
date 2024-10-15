@@ -197,7 +197,8 @@ codeunit 9017 "Azure AD User Mgmt. Impl."
     begin
         exit(AzureADPlan.IsPlanAssignedToUser(PlanIds.GetDelegatedAdminPlanId(), UserSecID) or
             AzureADPlan.IsPlanAssignedToUser(PlanIds.GetHelpDeskPlanId(), UserSecID) or
-            AzureADPlan.IsPlanAssignedToUser(PlanIds.GetD365AdminPartnerPlanId(), UserSecID))
+            AzureADPlan.IsPlanAssignedToUser(PlanIds.GetD365AdminPartnerPlanId(), UserSecID) or
+            AzureADPlan.IsPlanAssignedToUser(PlanIds.GetDelegatedBCAdminPlanId(), UserSecID))
     end;
 
     [NonDebuggable]
