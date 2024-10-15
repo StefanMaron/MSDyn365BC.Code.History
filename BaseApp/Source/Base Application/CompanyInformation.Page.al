@@ -91,6 +91,12 @@ Page 1 "Company Information"
                     ApplicationArea = BasicEU;
                     ToolTip = 'Specifies whether the GLN is used in electronic documents as a party identification number.';
                 }
+                field("EORI Number"; "EORI Number")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the Economic Operators Registration and Identification number that is used when you exchange information with the customs authorities due to trade into or out of the European Union.';
+                    Visible = false;
+                }
                 field("Industrial Classification"; "Industrial Classification")
                 {
                     ApplicationArea = Basic, Suite;
