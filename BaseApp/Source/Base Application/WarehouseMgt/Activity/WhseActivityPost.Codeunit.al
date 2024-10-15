@@ -24,6 +24,7 @@ codeunit 7324 "Whse.-Activity-Post"
         WhseActivHeader: Record "Warehouse Activity Header";
         WhseActivLine: Record "Warehouse Activity Line";
         TempWhseActivLine: Record "Warehouse Activity Line" temporary;
+        TempWarehouseActivityLineForItemTrackingChecking: Record "Warehouse Activity Line" temporary;
         WhseSetup: Record "Warehouse Setup";
         WhseRequest: Record "Warehouse Request";
         PurchHeader: Record "Purchase Header";
@@ -115,6 +116,7 @@ codeunit 7324 "Whse.-Activity-Post"
                     if ItemTrackingRequired then
                         CheckAvailability(WhseActivLine);
                     InsertTempWhseActivLine(WhseActivLine, ItemTrackingRequired);
+                    InsertTempWhseActivLineForChecking(WhseActivLine, ItemTrackingRequired);
                 until WhseActivLine.Next() = 0;
                 CheckWhseItemTrackingAgainstSource();
             end;
@@ -231,6 +233,27 @@ codeunit 7324 "Whse.-Activity-Post"
                 then
                     ItemTrackingMgt.SynchronizeWhseActivItemTrkg(WhseActivLine, IsPreview);
             end;
+        end;
+    end;
+
+    local procedure InsertTempWhseActivLineForChecking(WhseActivLine: Record "Warehouse Activity Line"; ItemTrackingRequired: Boolean)
+    begin
+        TempWarehouseActivityLineForItemTrackingChecking.SetSourceFilter(
+            WhseActivLine."Source Type", WhseActivLine."Source Subtype", WhseActivLine."Source No.", WhseActivLine."Source Line No.", WhseActivLine."Source Subline No.", false);
+
+        if TempWarehouseActivityLineForItemTrackingChecking.Find('-') then begin
+            TempWarehouseActivityLineForItemTrackingChecking."Qty. to Handle" += WhseActivLine."Qty. to Handle";
+            TempWarehouseActivityLineForItemTrackingChecking."Qty. to Handle (Base)" += WhseActivLine."Qty. to Handle (Base)";
+            TempWarehouseActivityLineForItemTrackingChecking.Modify();
+        end else begin
+            TempWarehouseActivityLineForItemTrackingChecking.Init();
+            TempWarehouseActivityLineForItemTrackingChecking := WhseActivLine;
+
+            TempWarehouseActivityLineForItemTrackingChecking.Insert();
+            if ItemTrackingRequired and
+               (WhseActivLine."Activity Type" in [WhseActivLine."Activity Type"::"Invt. Pick", WhseActivLine."Activity Type"::"Invt. Put-away"])
+            then
+                ItemTrackingMgt.SynchronizeWhseActivItemTrkg(WhseActivLine, IsPreview);
         end;
     end;
 
@@ -1176,7 +1199,7 @@ codeunit 7324 "Whse.-Activity-Post"
         TrackingSpecification: Record "Tracking Specification";
         JobPlanningLine: Record "Job Planning Line";
     begin
-        with TempWhseActivLine do begin
+        with TempWarehouseActivityLineForItemTrackingChecking do begin
             Reset();
             if FindSet() then
                 repeat
