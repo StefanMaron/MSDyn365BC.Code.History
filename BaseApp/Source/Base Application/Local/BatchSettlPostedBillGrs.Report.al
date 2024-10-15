@@ -26,6 +26,7 @@ report 7000086 "Batch Settl. Posted Bill Grs."
                 begin
                     IsRedrawn := CarteraManagement.CheckFromRedrawnDoc("No.");
                     BankAcc.Get(PostedBillGr."Bank Account No.");
+                    OnReadPostedBillGroupOnAfterGetBankAcc(BankAcc);
                     Delay := BankAcc."Delay for Notices";
 
                     if DueOnly and (PostingDate < "Due Date" + Delay) then
@@ -524,6 +525,11 @@ report 7000086 "Batch Settl. Posted Bill Grs."
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeGenJournalLineInsert(var PostedCarteraDoc: Record "Posted Cartera Doc."; var GenJournalLine: Record "Gen. Journal Line"; var VATPostingSetup: Record "VAT Posting Setup"; var CustLedgerEntry: Record "Cust. Ledger Entry"; var CustLedgerEntry2: Record "Cust. Ledger Entry"; var PostedBillGroup: Record "Posted Bill Group")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnReadPostedBillGroupOnAfterGetBankAcc(BankAccount: Record "Bank Account")
     begin
     end;
 }

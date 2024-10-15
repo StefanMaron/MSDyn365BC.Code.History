@@ -777,10 +777,11 @@
         Modify();
     end;
 
-    procedure UpdateLines(var TotalVATAmount: Decimal; Currency: Record Currency; CurrencyFactor: Decimal; PricesIncludingVAT: Boolean; VATBaseDiscountPerc: Decimal; TaxAreaCode: Code[20]; TaxLiable: Boolean; PostingDate: Date)
+    procedure UpdateLines(var TotalVATAmount: Decimal; Currency: Record Currency; CurrencyFactor: Decimal; PricesIncludingVAT: Boolean; VATBaseDiscountPercHeader: Decimal; TaxAreaCode: Code[20]; TaxLiable: Boolean; PostingDate: Date)
     var
         PrevVATAmountLine: Record "VAT Amount Line";
         SalesTaxCalculate: Codeunit "Sales Tax Calculate";
+        VATBaseDiscountPerc: Decimal;
     begin
         if FindSet() then
             repeat
@@ -790,6 +791,8 @@
                    (PrevVATAmountLine."Use Tax" <> "Use Tax")
                 then
                     PrevVATAmountLine.Init();
+
+                VATBaseDiscountPerc := GetVATBaseDiscountPerc(VATBaseDiscountPercHeader);
                 if PricesIncludingVAT and not ("VAT %" = 0) then
                     case "VAT Calculation Type" of
                         "VAT Calculation Type"::"Normal VAT",
@@ -1007,27 +1010,27 @@
         OnAfterCopyFromPurchCrMemoLine(Rec, PurchCrMemoLine);
     end;
 
-    procedure CopyFromSalesInvLine(SalesInvLine: Record "Sales Invoice Line")
+    procedure CopyFromSalesInvLine(SalesInvoiceLine: Record "Sales Invoice Line")
     begin
-        "VAT Identifier" := SalesInvLine."VAT Identifier";
-        "VAT Calculation Type" := SalesInvLine."VAT Calculation Type";
-        "Tax Group Code" := SalesInvLine."Tax Group Code";
-        "VAT %" := SalesInvLine."VAT %";
-        "VAT Base" := SalesInvLine.Amount;
-        "VAT Amount" := SalesInvLine."Amount Including VAT" - SalesInvLine.Amount;
-        "Amount Including VAT" := SalesInvLine."Amount Including VAT";
-        "Line Amount" := SalesInvLine."Line Amount";
-        if SalesInvLine."Allow Invoice Disc." then
-            "Inv. Disc. Base Amount" := SalesInvLine."Line Amount";
-        "Invoice Discount Amount" := SalesInvLine."Inv. Discount Amount";
-        Quantity := SalesInvLine."Quantity (Base)";
+        "VAT Identifier" := SalesInvoiceLine."VAT Identifier";
+        "VAT Calculation Type" := SalesInvoiceLine."VAT Calculation Type";
+        "Tax Group Code" := SalesInvoiceLine."Tax Group Code";
+        "VAT %" := SalesInvoiceLine."VAT %";
+        "VAT Base" := SalesInvoiceLine.Amount;
+        "VAT Amount" := SalesInvoiceLine."Amount Including VAT" - SalesInvoiceLine.Amount;
+        "Amount Including VAT" := SalesInvoiceLine."Amount Including VAT";
+        "Line Amount" := SalesInvoiceLine."Line Amount";
+        if SalesInvoiceLine."Allow Invoice Disc." then
+            "Inv. Disc. Base Amount" := SalesInvoiceLine."Line Amount";
+        "Invoice Discount Amount" := SalesInvoiceLine."Inv. Discount Amount";
+        Quantity := SalesInvoiceLine."Quantity (Base)";
         "Calculated VAT Amount" :=
-          SalesInvLine."Amount Including VAT" - SalesInvLine.Amount - SalesInvLine."VAT Difference";
-        "VAT Difference" := SalesInvLine."VAT Difference";
-        "EC %" := SalesInvLine."EC %";
-        "EC Difference" := SalesInvLine."EC Difference";
+          SalesInvoiceLine."Amount Including VAT" - SalesInvoiceLine.Amount - SalesInvoiceLine."VAT Difference";
+        "VAT Difference" := SalesInvoiceLine."VAT Difference";
+        "EC %" := SalesInvoiceLine."EC %";
+        "EC Difference" := SalesInvoiceLine."EC Difference";
 
-        OnAfterCopyFromSalesInvLine(Rec, SalesInvLine);
+        OnAfterCopyFromSalesInvLine(Rec, SalesInvoiceLine);
     end;
 
     procedure CopyFromSalesCrMemoLine(SalesCrMemoLine: Record "Sales Cr.Memo Line")
@@ -1052,50 +1055,60 @@
         OnAfterCopyFromSalesCrMemoLine(Rec, SalesCrMemoLine);
     end;
 
-    procedure CopyFromServInvLine(ServInvLine: Record "Service Invoice Line")
+    procedure CopyFromServInvLine(ServiceInvoiceLine: Record "Service Invoice Line")
     begin
-        "VAT Identifier" := ServInvLine."VAT Identifier";
-        "VAT Calculation Type" := ServInvLine."VAT Calculation Type";
-        "Tax Group Code" := ServInvLine."Tax Group Code";
-        "VAT %" := ServInvLine."VAT %";
-        "VAT Base" := ServInvLine.Amount;
-        "VAT Amount" := ServInvLine."Amount Including VAT" - ServInvLine.Amount;
-        "Amount Including VAT" := ServInvLine."Amount Including VAT";
-        "Line Amount" := ServInvLine."Line Amount";
-        if ServInvLine."Allow Invoice Disc." then
-            "Inv. Disc. Base Amount" := ServInvLine."Line Amount";
-        "Invoice Discount Amount" := ServInvLine."Inv. Discount Amount";
-        Quantity := ServInvLine."Quantity (Base)";
+        "VAT Identifier" := ServiceInvoiceLine."VAT Identifier";
+        "VAT Calculation Type" := ServiceInvoiceLine."VAT Calculation Type";
+        "Tax Group Code" := ServiceInvoiceLine."Tax Group Code";
+        "VAT %" := ServiceInvoiceLine."VAT %";
+        "VAT Base" := ServiceInvoiceLine.Amount;
+        "VAT Amount" := ServiceInvoiceLine."Amount Including VAT" - ServiceInvoiceLine.Amount;
+        "Amount Including VAT" := ServiceInvoiceLine."Amount Including VAT";
+        "Line Amount" := ServiceInvoiceLine."Line Amount";
+        if ServiceInvoiceLine."Allow Invoice Disc." then
+            "Inv. Disc. Base Amount" := ServiceInvoiceLine."Line Amount";
+        "Invoice Discount Amount" := ServiceInvoiceLine."Inv. Discount Amount";
+        Quantity := ServiceInvoiceLine."Quantity (Base)";
         "Calculated VAT Amount" :=
-          ServInvLine."Amount Including VAT" - ServInvLine.Amount - ServInvLine."VAT Difference";
-        "VAT Difference" := ServInvLine."VAT Difference";
-        "EC %" := ServInvLine."EC %";
-        "EC Difference" := ServInvLine."EC Difference";
+          ServiceInvoiceLine."Amount Including VAT" - ServiceInvoiceLine.Amount - ServiceInvoiceLine."VAT Difference";
+        "VAT Difference" := ServiceInvoiceLine."VAT Difference";
+        "EC %" := ServiceInvoiceLine."EC %";
+        "EC Difference" := ServiceInvoiceLine."EC Difference";
 
-        OnAfterCopyFromServInvLine(Rec, ServInvLine);
+        OnAfterCopyFromServInvLine(Rec, ServiceInvoiceLine);
     end;
 
-    procedure CopyFromServCrMemoLine(ServCrMemoLine: Record "Service Cr.Memo Line")
+    procedure CopyFromServCrMemoLine(ServiceCrMemoLine: Record "Service Cr.Memo Line")
     begin
-        "VAT Identifier" := ServCrMemoLine."VAT Identifier";
-        "VAT Calculation Type" := ServCrMemoLine."VAT Calculation Type";
-        "Tax Group Code" := ServCrMemoLine."Tax Group Code";
-        "VAT %" := ServCrMemoLine."VAT %";
-        "VAT Base" := ServCrMemoLine.Amount;
-        "VAT Amount" := ServCrMemoLine."Amount Including VAT" - ServCrMemoLine.Amount;
-        "Amount Including VAT" := ServCrMemoLine."Amount Including VAT";
-        "Line Amount" := ServCrMemoLine."Line Amount";
-        if ServCrMemoLine."Allow Invoice Disc." then
-            "Inv. Disc. Base Amount" := ServCrMemoLine."Line Amount";
-        "Invoice Discount Amount" := ServCrMemoLine."Inv. Discount Amount";
-        Quantity := ServCrMemoLine."Quantity (Base)";
+        "VAT Identifier" := ServiceCrMemoLine."VAT Identifier";
+        "VAT Calculation Type" := ServiceCrMemoLine."VAT Calculation Type";
+        "Tax Group Code" := ServiceCrMemoLine."Tax Group Code";
+        "VAT %" := ServiceCrMemoLine."VAT %";
+        "VAT Base" := ServiceCrMemoLine.Amount;
+        "VAT Amount" := ServiceCrMemoLine."Amount Including VAT" - ServiceCrMemoLine.Amount;
+        "Amount Including VAT" := ServiceCrMemoLine."Amount Including VAT";
+        "Line Amount" := ServiceCrMemoLine."Line Amount";
+        if ServiceCrMemoLine."Allow Invoice Disc." then
+            "Inv. Disc. Base Amount" := ServiceCrMemoLine."Line Amount";
+        "Invoice Discount Amount" := ServiceCrMemoLine."Inv. Discount Amount";
+        Quantity := ServiceCrMemoLine."Quantity (Base)";
         "Calculated VAT Amount" :=
-          ServCrMemoLine."Amount Including VAT" - ServCrMemoLine.Amount - ServCrMemoLine."VAT Difference";
-        "VAT Difference" := ServCrMemoLine."VAT Difference";
-        "EC %" := ServCrMemoLine."EC %";
-        "EC Difference" := ServCrMemoLine."EC Difference";
+          ServiceCrMemoLine."Amount Including VAT" - ServiceCrMemoLine.Amount - ServiceCrMemoLine."VAT Difference";
+        "VAT Difference" := ServiceCrMemoLine."VAT Difference";
+        "EC %" := ServiceCrMemoLine."EC %";
+        "EC Difference" := ServiceCrMemoLine."EC Difference";
 
-        OnAfterCopyFromServCrMemoLine(Rec, ServCrMemoLine);
+        OnAfterCopyFromServCrMemoLine(Rec, ServiceCrMemoLine);
+    end;
+
+    local procedure GetVATBaseDiscountPerc(VATBaseDiscountPerc: Decimal) NewVATBaseDiscountPerc: Decimal
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeGetVATBaseDiscountPerc(Rec, VATBaseDiscountPerc, NewVATBaseDiscountPerc, IsHandled);
+        if not IsHandled then
+            NewVATBaseDiscountPerc := VATBaseDiscountPerc;
     end;
 
     [IntegrationEvent(false, false)]
@@ -1215,6 +1228,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnDeductVATAmountLineOnBeforeModify(var VATAmountLine: Record "VAT Amount Line"; VATAmountLineDeduct: Record "VAT Amount Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetVATBaseDiscountPerc(var VATAmountLine: Record "VAT Amount Line"; VATBaseDiscountPerc: Decimal; var NewVATBaseDiscountPerc: decimal; var IsHandled: Boolean)
     begin
     end;
 }

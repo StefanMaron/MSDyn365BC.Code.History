@@ -11,6 +11,7 @@ codeunit 1259 "Certificate Management"
         FileManagement: Codeunit "File Management";
         CryptographyManagement: Codeunit "Cryptography Management";
         UploadedCertFileName: Text;
+        [NonDebuggable]
         CertPassword: Text;
 
         PasswordSuffixTxt: Label 'Password', Locked = true;

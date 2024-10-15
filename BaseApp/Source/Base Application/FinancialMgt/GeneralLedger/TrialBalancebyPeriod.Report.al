@@ -1,7 +1,7 @@
 report 38 "Trial Balance by Period"
 {
     DefaultLayout = RDLC;
-    RDLCLayout = './TrialBalancebyPeriod.rdlc';
+    RDLCLayout = './FinancialMgt/GeneralLedger/TrialBalancebyPeriod.rdlc';
     ApplicationArea = Basic, Suite;
     Caption = 'Trial Balance by Period';
     PreviewMode = PrintLayout;

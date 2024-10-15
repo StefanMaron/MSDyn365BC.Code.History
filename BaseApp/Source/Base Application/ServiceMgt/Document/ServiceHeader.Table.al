@@ -115,12 +115,15 @@
                     CopyCustomerFields(Cust);
                 end;
 
-                if "Customer No." = xRec."Customer No." then
-                    if ShippedServLinesExist() then
-                        if not ApplicationAreaMgmt.IsSalesTaxEnabled() then begin
-                            TestField("VAT Bus. Posting Group", xRec."VAT Bus. Posting Group");
-                            TestField("Gen. Bus. Posting Group", xRec."Gen. Bus. Posting Group");
-                        end;
+                IsHandled := false;
+                OnValidateCustomerNoOnBeforeShippedServLinesExist(Rec, xRec, IsHandled);
+                if not IsHandled then
+                    if "Customer No." = xRec."Customer No." then
+                        if ShippedServLinesExist() then
+                            if not ApplicationAreaMgmt.IsSalesTaxEnabled() then begin
+                                TestField("VAT Bus. Posting Group", xRec."VAT Bus. Posting Group");
+                                TestField("Gen. Bus. Posting Group", xRec."Gen. Bus. Posting Group");
+                            end;
 
                 Validate("Ship-to Code", Cust."Ship-to Code");
                 if Cust."Bill-to Customer No." <> '' then
@@ -164,36 +167,39 @@
                 SIIManagement: Codeunit "SII Management";
                 IsHandled: Boolean;
             begin
-                if (xRec."Bill-to Customer No." <> "Bill-to Customer No.") and
-                   (xRec."Bill-to Customer No." <> '')
-                then begin
-                    if HideValidationDialog then
-                        Confirmed := true
-                    else
-                        Confirmed :=
-                          ConfirmManagement.GetResponseOrDefault(
-                            StrSubstNo(Text005, FieldCaption("Bill-to Customer No.")), true);
-                    if Confirmed then begin
-                        ServLine.SetRange("Document Type", "Document Type");
-                        ServLine.SetRange("Document No.", "No.");
-                        if "Document Type" = "Document Type"::Order then
-                            ServLine.SetFilter("Quantity Shipped", '<>0')
-                        else
-                            if "Document Type" = "Document Type"::Invoice then
-                                ServLine.SetFilter("Shipment No.", '<>%1', '');
+	    	    IsHandled := false;
+                OnValidateBillToCustomerNoOnBeforeConfirmChange(Rec, xRec, IsHandled);
+                if not IsHandled then
+	                if (xRec."Bill-to Customer No." <> "Bill-to Customer No.") and
+	                   (xRec."Bill-to Customer No." <> '')
+	                then begin
+	                    if HideValidationDialog then
+	                        Confirmed := true
+	                    else
+	                        Confirmed :=
+	                          ConfirmManagement.GetResponseOrDefault(
+	                            StrSubstNo(Text005, FieldCaption("Bill-to Customer No.")), true);
+	                    if Confirmed then begin
+	                        ServLine.SetRange("Document Type", "Document Type");
+	                        ServLine.SetRange("Document No.", "No.");
+	                        if "Document Type" = "Document Type"::Order then
+	                            ServLine.SetFilter("Quantity Shipped", '<>0')
+	                        else
+	                            if "Document Type" = "Document Type"::Invoice then
+	                                ServLine.SetFilter("Shipment No.", '<>%1', '');
 
-                        if xRec."Bill-to Customer No." <> "Bill-to Customer No." then
-                            "Corrected Invoice No." := '';
+	                        if xRec."Bill-to Customer No." <> "Bill-to Customer No." then
+	                            "Corrected Invoice No." := '';
 
-                        if ServLine.FindFirst() then
-                            if "Document Type" = "Document Type"::Order then
-                                ServLine.TestField("Quantity Shipped", 0)
-                            else
-                                ServLine.TestField("Shipment No.", '');
-                        ServLine.Reset();
-                    end else
-                        "Bill-to Customer No." := xRec."Bill-to Customer No.";
-                end;
+	                        if ServLine.FindFirst() then
+	                            if "Document Type" = "Document Type"::Order then
+	                                ServLine.TestField("Quantity Shipped", 0)
+	                            else
+	                                ServLine.TestField("Shipment No.", '');
+	                        ServLine.Reset();
+	                    end else
+	                        "Bill-to Customer No." := xRec."Bill-to Customer No.";
+	                end;
 
                 GetCust("Bill-to Customer No.");
 
@@ -1518,6 +1524,8 @@
                                 end;
                             end else
                                 UpdateFinishingDateTime();
+
+                            OnValidateStatusFinishedOnAferUpdateFinishingDateTime(Rec, xRec);
                         end;
                 end;
 
@@ -1870,8 +1878,13 @@
             TableRelation = "Service Order Type";
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
-                CreateDimFromDefaultDim(Rec.FieldNo("Service Order Type"));
+                IsHandled := false;
+                OnValidateServiceOrderTypeOnBeforeCreateDim(Rec, xRec, IsHandled);
+                if not IsHandled then
+                    CreateDimFromDefaultDim(Rec.FieldNo("Service Order Type"));
             end;
         }
         field(5905; "Link Service to Service Item"; Boolean)
@@ -2135,6 +2148,8 @@
             Caption = 'Finishing Time';
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
                 TestField("Finishing Date");
                 if "Finishing Time" <> 0T then begin
@@ -2157,13 +2172,16 @@
                     ServItemLine.SetRange("Document Type", "Document Type");
                     ServItemLine.SetRange("Document No.", "No.");
                     ServItemLine.SetFilter("Finishing Date", '<>%1', 0D);
-                    if ServItemLine.Find('-') then
-                        repeat
-                            if (ServItemLine."Finishing Date" = "Finishing Date") and
-                               (ServItemLine."Finishing Time" > "Finishing Time")
-                            then
-                                Error(Text025, FieldCaption("Finishing Time"));
-                        until ServItemLine.Next() = 0;
+                    IsHandled := false;
+                    OnValidateFinishingTimeOnBeforeCheckServItemLines(Rec, xRec, ServItemLine, IsHandled);
+                    if not IsHandled then
+                        if ServItemLine.Find('-') then
+                            repeat
+                                if (ServItemLine."Finishing Date" = "Finishing Date") and
+                                   (ServItemLine."Finishing Time" > "Finishing Time")
+                                then
+                                    Error(Text025, FieldCaption("Finishing Time"));
+                            until ServItemLine.Next() = 0;
 
                     CalcFields("Contract Serv. Hours Exist");
                     "Service Time (Hours)" :=
@@ -2428,9 +2446,14 @@
             TableRelation = "User Setup";
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
-                if not UserSetupMgt.CheckRespCenter(2, "Responsibility Center", "Assigned User ID") then
-                    Error(Text060, "Assigned User ID", UserSetupMgt.GetServiceFilter("Assigned User ID"));
+                IsHandled := false;
+                OnValidateAssignedUserIdOnBeforeCheckRespCenter(Rec, xRec, IsHandled);
+                if not IsHandled then
+                    if not UserSetupMgt.CheckRespCenter(2, "Responsibility Center", "Assigned User ID") then
+                        Error(Text060, "Assigned User ID", UserSetupMgt.GetServiceFilter("Assigned User ID"));
             end;
         }
         field(9001; "Quote No."; Code[20])
@@ -3058,9 +3081,12 @@
         if NewParentDimSetID = OldParentDimSetID then
             exit;
 
-        if not HideValidationDialog and GuiAllowed then
-            if not ConfirmManagement.GetResponseOrDefault(Text061, true) then
-                exit;
+        IsHandled := false;
+        OnUpdateAllLineDimOnBeforeGetResponse(Rec, NewParentDimSetID, OldParentDimSetID, IsHandled);
+        if not IsHandled then
+            if not HideValidationDialog and GuiAllowed then
+                if not ConfirmManagement.GetResponseOrDefault(Text061, true) then
+                    exit;
 
         ServLine.Reset();
         ServLine.SetRange("Document Type", "Document Type");
@@ -5470,6 +5496,41 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckCustomerPostingGroupChange(var ServiceHeader: Record "Service Header"; var xServiceHeader: Record "Service Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnValidateBillToCustomerNoOnBeforeConfirmChange(var ServiceHeader: Record "Service Header"; xServiceHeader: Record "Service Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnValidateCustomerNoOnBeforeShippedServLinesExist(var ServiceHeader: Record "Service Header"; xServiceHeader: Record "Service Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateFinishingTimeOnBeforeCheckServItemLines(var ServiceHeader: Record "Service Header"; xServiceHeader: Record "Service Header"; var ServiceItemLine: Record "Service Item Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateStatusFinishedOnAferUpdateFinishingDateTime(var ServiceHeader: Record "Service Header"; xServiceHeader: Record "Service Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateServiceOrderTypeOnBeforeCreateDim(var ServiceHeader: Record "Service Header"; xServiceHeader: Record "Service Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateAllLineDimOnBeforeGetResponse(var ServiceHeader: Record "Service Header"; NewParentDimSetID: Integer; OldParentDimSetID: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateAssignedUserIdOnBeforeCheckRespCenter(var ServiceHeader: Record "Service Header"; xServiceHeader: Record "Service Header"; var IsHandled: Boolean)
     begin
     end;
 }

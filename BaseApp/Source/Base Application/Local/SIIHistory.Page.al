@@ -401,6 +401,22 @@ page 10752 "SII History"
                     FileManagement.BLOBExportWithEncoding(TempBlob, FileName, true, TEXTENCODING::UTF8);
                 end;
             }
+            action(DownloadRequestXML)
+            {
+                ApplicationArea = All;
+                Caption = 'Download Request Xml';
+                Image = Filed;
+                ToolTip = 'Downlod a single request xml for selected documents.';
+
+                trigger OnAction()
+                var
+                    SIIHistory: Record "SII History";
+                    SIIDocUploadManagement: Codeunit "SII Doc. Upload Management";
+                begin
+                    CurrPage.SetSelectionFilter(SIIHistory);
+                    SIIDocUploadManagement.DownloadRequestForMultipleDocuments(SIIHistory);
+                end;
+            }
         }
         area(Promoted)
         {
@@ -445,6 +461,9 @@ page 10752 "SII History"
                 {
                 }
                 actionref(ShowResponse_Promoted; ShowResponse)
+                {
+                }
+                actionref(DownloadRequestXL_Promoted; DownloadRequestXML)
                 {
                 }
             }

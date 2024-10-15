@@ -504,8 +504,12 @@ table 96 "G/L Budget Entry"
     local procedure VerifyNoRelatedAnalysisViewBudgetEntries(GLBudgetEntry: Record "G/L Budget Entry")
     var
         AnalysisViewBudgetEntry: Record "Analysis View Budget Entry";
+        IsHandled: Boolean;
     begin
-        OnBeforeVerifyNoRelatedAnalysisViewBudgetEntries(Rec, xRec);
+        IsHandled := false;
+        OnBeforeVerifyNoRelatedAnalysisViewBudgetEntries(Rec, xRec, IsHandled);
+        if IsHandled then
+            exit;
         AnalysisViewBudgetEntry.SetRange("Budget Name", GLBudgetEntry."Budget Name");
         AnalysisViewBudgetEntry.SetRange("G/L Account No.", GLBudgetEntry."G/L Account No.");
         AnalysisViewBudgetEntry.SetRange("Posting Date", GLBudgetEntry.Date);
@@ -540,7 +544,7 @@ table 96 "G/L Budget Entry"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeVerifyNoRelatedAnalysisViewBudgetEntries(var GLBudgetEntry: Record "G/L Budget Entry"; xGLBudgetEntry: Record "G/L Budget Entry")
+    local procedure OnBeforeVerifyNoRelatedAnalysisViewBudgetEntries(var GLBudgetEntry: Record "G/L Budget Entry"; xGLBudgetEntry: Record "G/L Budget Entry"; var IsHandled: Boolean)
     begin
     end;
 }

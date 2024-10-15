@@ -1,7 +1,7 @@
-﻿report 322 "Aged Accounts Payable"
+report 322 "Aged Accounts Payable"
 {
     DefaultLayout = RDLC;
-    RDLCLayout = './AgedAccountsPayable.rdlc';
+    RDLCLayout = './PurchasesPayables/AgedAccountsPayable.rdlc';
     ApplicationArea = Basic, Suite;
     Caption = 'Aged Accounts Payable';
     UsageCategory = ReportsAndAnalysis;

@@ -528,6 +528,8 @@ page 7022 "Price Worksheet"
         PriceListLine: Record "Price List Line";
         ServerSetting: Codeunit "Server Setting";
     begin
+        OnBeforeOpenPage(TempWorksheetPriceListHeader, TempWorksheetPriceListLine, UpdateMultiplePriceLists);
+
         UseCustomLookup := PriceListLine.UseCustomizedLookup();
         IsSaaSExcelAddinEnabled := ServerSetting.GetIsSaasExcelAddinEnabled();
         CopyLinesEnabled := PriceListManagement.VerifySourceGroupInLines();
@@ -684,6 +686,8 @@ page 7022 "Price Worksheet"
         Result += GetDefaults(TempWorksheetPriceListHeader.FieldCaption("Currency Code"), TempWorksheetPriceListHeader."Currency Code", false);
         Result += GetDefaults(TempWorksheetPriceListHeader.FieldCaption("Starting Date"), format(TempWorksheetPriceListHeader."Starting Date"), false);
         Result += GetDefaults(TempWorksheetPriceListHeader.FieldCaption("Ending Date"), format(TempWorksheetPriceListHeader."Ending Date"), false);
+
+        OnAfterGetDefaults(Result, TempWorksheetPriceListHeader);
     end;
 
     local procedure GetDefaults(FldName: Text; FldValue: Text; ShowBlank: Boolean): Text;
@@ -914,5 +918,15 @@ page 7022 "Price Worksheet"
         CalcSourceNoEditable();
         CurrPage.SaveRecord();
         CurrPage.Update();
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterGetDefaults(var Result: Text; TempWorksheetPriceListHeader: Record "Price List Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeOpenPage(var TempWorksheetPriceListHeader: Record "Price List Header" temporary; var TempWorksheetPriceListLine: Record "Price List Line" temporary; var UpdateMultiplePriceLists: Boolean)
+    begin
     end;
 }

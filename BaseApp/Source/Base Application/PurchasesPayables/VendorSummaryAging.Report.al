@@ -1,7 +1,7 @@
 report 305 "Vendor - Summary Aging"
 {
     DefaultLayout = RDLC;
-    RDLCLayout = './VendorSummaryAging.rdlc';
+    RDLCLayout = './PurchasesPayables/VendorSummaryAging.rdlc';
     ApplicationArea = Basic, Suite;
     Caption = 'Vendor - Summary Aging';
     UsageCategory = ReportsAndAnalysis;

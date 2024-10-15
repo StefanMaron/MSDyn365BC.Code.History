@@ -481,6 +481,7 @@
                 ServiceCrMemoLine.Insert();
             end;
         end;
+        OnAfterDeleteHeader(ServiceHeader, ServiceShptHeader, ServiceInvHeader, ServiceCrMemoHeader);
     end;
 
     local procedure CollectWhseShipmentInformation(ServiceHeader: Record "Service Header")
@@ -730,6 +731,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnInitializeOnAfterCheckAndSetPostingConstants(var PassedServiceHeader: Record "Service Header"; var PassedServiceLine: Record "Service Line"; var PassedShip: Boolean; var PassedConsume: Boolean; var PassedInvoice: Boolean; PreviewMode: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterDeleteHeader(var ServiceHeader: Record "Service Header"; var ServiceShipmentHeader: Record "Service Shipment Header"; var ServiceInvoiceHeader: Record "Service Invoice Header"; var ServiceCrMemoHeader: Record "Service Cr.Memo Header");
     begin
     end;
 }

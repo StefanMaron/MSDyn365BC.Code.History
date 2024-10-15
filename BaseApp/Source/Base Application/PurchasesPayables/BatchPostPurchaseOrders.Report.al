@@ -154,6 +154,7 @@ report 496 "Batch Post Purchase Orders"
             ClientTypeManagement: Codeunit "Client Type Management";
             UserSetupManagement: Codeunit "User Setup Management";
             Receive: Boolean;
+            Invoice: Boolean;
         begin
             if not VATReportingDateMgt.IsVATDateEnabled() then begin
                 ReplaceVATDateReq := ReplacePostingDate;
@@ -166,7 +167,9 @@ report 496 "Batch Post Purchase Orders"
             PrintDoc := false;
             PrintDocVisible := PurchasesPayablesSetup."Post & Print with Job Queue";
             VATDateEnabled := VATReportingDateMgt.IsVATDateEnabled();
-            UserSetupManagement.GetPurchaseInvoicePostingPolicy(Receive, InvReq);
+            UserSetupManagement.GetPurchaseInvoicePostingPolicy(Receive, Invoice);
+            if Receive then
+                InvReq := Invoice;
             PostInvoiceEditable := not Receive;
             OnAfterOnOpenPage(ReceiveReq, InvReq, PostingDateReq, ReplacePostingDate, ReplaceDocumentDate, CalcInvDisc, ReplaceVATDateReq, VATDateReq);
         end;

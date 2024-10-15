@@ -259,6 +259,7 @@
             exit;
 
         InsertReversalEntry(Number, RevType);
+        OnReverseEntriesOnAfterInsertReversalEntry(TempReversalEntry, Number, RevType);
         TempReversalEntry.SetCurrentKey("Document No.", "Posting Date", "Entry Type", "Entry No.");
         if not HideDialog then begin
             if (BankAccountStatement."Statement No." <> '') and (BankAccountStatement."Bank Account No." <> '') then
@@ -531,8 +532,12 @@
     var
         BankAcc: Record "Bank Account";
         CheckLedgEntry: Record "Check Ledger Entry";
+        IsHandled: Boolean;
     begin
-        OnBeforeCheckBankAcc(BankAccLedgEntry);
+        IsHandled := false;
+        OnBeforeCheckBankAcc(BankAccLedgEntry, IsHandled);
+        if IsHandled then
+            exit;
 
         BankAcc.Get(BankAccLedgEntry."Bank Account No.");
         CheckPostingDate(
@@ -559,8 +564,13 @@
         FA: Record "Fixed Asset";
         FADeprBook: Record "FA Depreciation Book";
         DeprCalc: Codeunit "Depreciation Calculation";
+        IsHandled: Boolean;
     begin
-        OnBeforeCheckFA(FALedgEntry);
+        IsHandled := false;
+        OnBeforeCheckFA(FALedgEntry, IsHandled);
+        if IsHandled then
+            exit;
+
         FA.Get(FALedgEntry."FA No.");
         CheckPostingDate(
           FALedgEntry."Posting Date", FALedgEntry.TableCaption(), FALedgEntry."Entry No.");
@@ -602,8 +612,13 @@
     end;
 
     local procedure CheckVAT(VATEntry: Record "VAT Entry")
+    var
+        IsHandled: Boolean;
     begin
-        OnBeforeCheckVAT(VATEntry);
+        IsHandled := false;
+        OnBeforeCheckVAT(VATEntry, IsHandled);
+        if IsHandled then
+            exit;
 
         CheckPostingDate(VATEntry."Posting Date", VATEntry.TableCaption(), VATEntry."Entry No.");
         if VATEntry.Closed then
@@ -706,7 +721,14 @@
     end;
 
     procedure SetReverseFilter(Number: Integer; RevType: Option Transaction,Register)
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeSetReverseFilter(Number, RevType, GLEntry, CustLedgEntry, VendLedgEntry, EmployeeLedgerEntry, BankAccLedgEntry, VATEntry, FALedgEntry, MaintenanceLedgEntry, GLReg, Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         if RevType = RevType::Transaction then begin
             GLEntry.SetCurrentKey("Transaction No.");
             CustLedgEntry.SetCurrentKey("Transaction No.");
@@ -857,7 +879,7 @@
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeCheckPostingDate(PostingDate, CopyStr(Caption, 1, 50), EntryNo, IsHandled, Rec);
+        OnBeforeCheckPostingDate(PostingDate, CopyStr(Caption, 1, 50), EntryNo, IsHandled, Rec, MaxPostingDate);
         if IsHandled then
             exit;
 
@@ -874,7 +896,7 @@
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeCheckFAPostingDate(FAPostingDate, CopyStr(Caption, 1, 50), EntryNo, IsHandled, Rec);
+        OnBeforeCheckFAPostingDate(FAPostingDate, CopyStr(Caption, 1, 50), EntryNo, IsHandled, Rec, MaxPostingDate, AllowPostingFrom, AllowPostingto, xRec);
         if IsHandled then
             exit;
 
@@ -1075,6 +1097,7 @@
     begin
         if BankAccLedgEntry.FindSet() then
             repeat
+                OnInsertFromBankAccLedgEntryOnStartRepeatBankAccLedgEntry(BankAccLedgEntry);
                 Clear(TempReversalEntry);
                 if RevType = RevType::Register then
                     TempReversalEntry."G/L Register No." := Number;
@@ -1095,7 +1118,13 @@
     protected procedure InsertFromFALedgEntry(TempRevertTransactionNo: Record "Integer" temporary; Number: Integer; RevType: Option Transaction,Register; var NextLineNo: Integer)
     var
         FA: Record "Fixed Asset";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeInsertFromFALedgEntry(TempRevertTransactionNo, Number, RevType, NextLineNo, TempReversalEntry, FALedgEntry, IsHandled);
+        if IsHandled then
+            exit;
+
         if FALedgEntry.FindSet() then
             repeat
                 Clear(TempReversalEntry);
@@ -1146,8 +1175,10 @@
         repeat
             if RevType = RevType::Transaction then
                 VATEntry.SetRange("Transaction No.", TempRevertTransactionNo.Number);
+            OnInsertFromVATEntryOnAfterVATEntrySetRange(VATEntry, RevType, TempRevertTransactionNo);
             if VATEntry.FindSet() then
                 repeat
+                    OnInsertFromVATEntryOnStartRepeatVATEntry(VATEntry);
                     Clear(TempReversalEntry);
                     if RevType = RevType::Register then
                         TempReversalEntry."G/L Register No." := Number;
@@ -1156,6 +1187,7 @@
                     TempReversalEntry.CopyFromVATEntry(VATEntry);
                     TempReversalEntry."Line No." := NextLineNo;
                     NextLineNo := NextLineNo + 1;
+                    OnInsertFromVATEntryOnBeforeTempReversalEntryInsert(TempReversalEntry, RevType, TempRevertTransactionNo);
                     TempReversalEntry.Insert();
                 until VATEntry.Next() = 0;
         until TempRevertTransactionNo.Next() = 0;
@@ -1171,6 +1203,7 @@
         repeat
             if RevType = RevType::Transaction then
                 GLEntry.SetRange("Transaction No.", TempRevertTransactionNo.Number);
+            OnInsertFromGLEntryOnAfterGLEntrySetRange(GLEntry, RevType, TempRevertTransactionNo);
             if GLEntry.FindSet() then
                 repeat
                     OnInsertFromGLEntryOnBeforeClearTempReversalEntry(GLEntry);
@@ -1186,7 +1219,7 @@
                     TempReversalEntry.CopyFromGLEntry(GLEntry);
                     TempReversalEntry."Line No." := NextLineNo;
                     NextLineNo := NextLineNo + 1;
-                    OnInsertFromGLEntryOnBeforeTempReversalEntryInsert(TempReversalEntry, GLEntry);
+                    OnInsertFromGLEntryOnBeforeTempReversalEntryInsert(TempReversalEntry, GLEntry, RevType, TempRevertTransactionNo, Rec);
                     TempReversalEntry.Insert();
                 until GLEntry.Next() = 0;
         until TempRevertTransactionNo.Next() = 0;
@@ -1390,7 +1423,13 @@
     local procedure InsertCustTempRevertTransNo(var TempRevertTransactionNo: Record "Integer" temporary; CustLedgEntryNo: Integer)
     var
         DtldCustLedgEntry: Record "Detailed Cust. Ledg. Entry";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeInsertCustTempRevertTransNo(TempRevertTransactionNo, CustLedgEntryNo, IsHandled);
+        if IsHandled then
+            exit;
+
         DtldCustLedgEntry.Get(CustLedgEntryNo);
         if DtldCustLedgEntry."Transaction No." <> 0 then begin
             TempRevertTransactionNo.Number := DtldCustLedgEntry."Transaction No.";
@@ -1401,9 +1440,16 @@
     local procedure InsertVendTempRevertTransNo(var TempRevertTransactionNo: Record "Integer" temporary; VendLedgEntryNo: Integer)
     var
         DtldVendLedgEntry: Record "Detailed Vendor Ledg. Entry";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeInsertVendTempRevertTransNo(TempRevertTransactionNo, VendLedgEntryNo, IsHandled);
+        if IsHandled then
+            exit;
+
         DtldVendLedgEntry.Get(VendLedgEntryNo);
-        if DtldVendLedgEntry."Transaction No." <> 0 then begin
+        if DtldVendLedgEntry."Transaction No." <> 0 then
+        begin
             TempRevertTransactionNo.Number := DtldVendLedgEntry."Transaction No.";
             if TempRevertTransactionNo.Insert() then;
         end;
@@ -1601,12 +1647,12 @@
     end;
 
     [IntegrationEvent(true, false)]
-    local procedure OnBeforeCheckFA(var FALedgerEntry: Record "FA Ledger Entry")
+    local procedure OnBeforeCheckFA(var FALedgerEntry: Record "FA Ledger Entry"; var IsHandled: Boolean)
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCheckFAPostingDate(FAPostingDate: Date; Caption: Text[50]; EntryNo: Integer; var IsHandled: Boolean; var ReversalEntry: Record "Reversal Entry")
+    local procedure OnBeforeCheckFAPostingDate(FAPostingDate: Date; Caption: Text[50]; EntryNo: Integer; var IsHandled: Boolean; var ReversalEntry: Record "Reversal Entry"; var MaxPostingDate: Date; var AllowPostingFrom: Date; var AllowPostingto: Date; var xReversalEntry: Record "Reversal Entry")
     begin
     end;
 
@@ -1651,7 +1697,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnInsertFromGLEntryOnBeforeTempReversalEntryInsert(var TempReversalEntry: Record "Reversal Entry" temporary; GLEntry: Record "G/L Entry");
+    local procedure OnInsertFromGLEntryOnBeforeTempReversalEntryInsert(var TempReversalEntry: Record "Reversal Entry" temporary; GLEntry: Record "G/L Entry"; RevType: Option Transaction,Register; var TempRevertTransactionNoRecordInteger: Record "Integer" temporary; ReversalEntry: Record "Reversal Entry");
     begin
     end;
 
@@ -1661,12 +1707,12 @@
     end;
 
     [IntegrationEvent(true, false)]
-    local procedure OnBeforeCheckVAT(var VATEntry: Record "VAT Entry")
+    local procedure OnBeforeCheckVAT(var VATEntry: Record "VAT Entry"; var IsHandled: Boolean)
     begin
     end;
 
     [IntegrationEvent(true, false)]
-    local procedure OnBeforeCheckBankAcc(var BankAccLedgEntry: Record "Bank Account Ledger Entry")
+    local procedure OnBeforeCheckBankAcc(var BankAccLedgEntry: Record "Bank Account Ledger Entry"; var IsHandled: Boolean)
     begin
     end;
 
@@ -1686,7 +1732,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCheckPostingDate(PostingDate: Date; Caption: Text[50]; EntryNo: Integer; var IsHandled: Boolean; var ReversalEntry: Record "Reversal Entry")
+    local procedure OnBeforeCheckPostingDate(PostingDate: Date; Caption: Text[50]; EntryNo: Integer; var IsHandled: Boolean; var ReversalEntry: Record "Reversal Entry"; var MaxPostingDate: Date)
     begin
     end;
 
@@ -1707,6 +1753,56 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnInsertFromCustLedgEntryOnBeforeCheckSameTransaction(CustLedgEntry: Record "Cust. Ledger Entry"; var DtldCustLedgEntry: Record "Detailed Cust. Ledg. Entry"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnReverseEntriesOnAfterInsertReversalEntry(var TempReversalEntry: Record "Reversal Entry" temporary; Number: Integer; RevType: Option Transaction,Register)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSetReverseFilter(Number: Integer; RevType: Option Transaction,Register; var GLEntry: Record "G/L Entry"; var CustLedgerEntry: Record "Cust. Ledger Entry"; var VendLedgerEntry: Record "Vendor Ledger Entry"; var EmployeeLedgerEntry: Record "Employee Ledger Entry"; var BankAccountLedgerEntry: Record "Bank Account Ledger Entry"; var VATEntry: Record "VAT Entry"; var FALedgerEntry: Record "FA Ledger Entry"; var MaintenanceLedgerEntry: Record "Maintenance Ledger Entry"; var GLRegister: Record "G/L Register"; var ReversalEntry: Record "Reversal Entry"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInsertFromBankAccLedgEntryOnStartRepeatBankAccLedgEntry(var BankAccountLedgerEntry: Record "Bank Account Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeInsertFromFALedgEntry(var TempRevertTransactionNoRecordInteger: Record "Integer"; Number: Integer; RevType: Option Transaction,Register; var NextLineNo: Integer; var TempReversalEntry: Record "Reversal Entry" temporary; var FALedgerEntry: Record "FA Ledger Entry"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInsertFromVATEntryOnAfterVATEntrySetRange(var VATEntry: Record "VAT Entry"; RevType: Option Transaction,Register; var TempRevertTransactionNoRecordInteger: Record "Integer" temporary)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInsertFromVATEntryOnStartRepeatVATEntry(var VATEntry: Record "VAT Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInsertFromVATEntryOnBeforeTempReversalEntryInsert(var TempReversalEntry: Record "Reversal Entry" temporary; RevType: Option Transaction,Register; var TempRevertTransactionNo: Record "Integer" temporary)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInsertFromGLEntryOnAfterGLEntrySetRange(var GLEntry: Record "G/L Entry"; RevType: Option Transaction,Register; var TempRevertTransactionNoRecordInteger: Record "Integer" temporary)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeInsertCustTempRevertTransNo(var TempRevertTransactionNoRecordInteger: Record "Integer" temporary; CustLedgEntryNo: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeInsertVendTempRevertTransNo(var TempRevertTransactionNoRecordInteger: Record "Integer" temporary; VendLedgEntryNo: Integer; var IsHandled: Boolean)
     begin
     end;
 }

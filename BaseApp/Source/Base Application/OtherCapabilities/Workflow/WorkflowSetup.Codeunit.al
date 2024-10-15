@@ -11,7 +11,6 @@ codeunit 1502 "Workflow Setup"
         WorkflowRequestPageHandling: Codeunit "Workflow Request Page Handling";
         BlankDateFormula: DateFormula;
         CustomTemplateToken: Code[3];
-
         MsTemplateTok: Label 'MS-', Locked = true;
         MsWizardWorkflowTok: Label 'WZ-', Locked = true;
         JobQueueEntryDescTxt: Label 'Auto-created for sending of delegated approval requests. Can be deleted if not used. Will be recreated when the feature is activated.';
@@ -124,6 +123,7 @@ codeunit 1502 "Workflow Setup"
         InsertJobQueueData();
 
         Workflow.SetRange(Template, true);
+        Workflow.SetFilter(Code, '%1', GetWorkflowTemplateToken() + '*');
         if Workflow.IsEmpty() then
             InsertWorkflowTemplates();
 
@@ -218,6 +218,17 @@ codeunit 1502 "Workflow Setup"
         Workflow.Category := CategoryCode;
         Workflow.Enabled := false;
         if Workflow.Insert() then;
+    end;
+
+    internal procedure ResetWorkflowTemplates()
+    var
+        Workflow: Record Workflow;
+    begin
+        Workflow.SetRange(Template, true);
+        Workflow.SetFilter(Code, '%1', GetWorkflowTemplateToken() + '*');
+        Workflow.DeleteAll();
+
+        InitWorkflow();
     end;
 
     procedure InsertApprovalsTableRelations()
@@ -921,7 +932,7 @@ codeunit 1502 "Workflow Setup"
 
         OnRequestApprovedEventID := InsertEventStep(Workflow, WorkflowEventHandling.RunWorkflowOnApproveApprovalRequestCode(),
             SendApprovalRequestResponseID);
-        InsertEventArgument(OnRequestApprovedEventID, BuildPendingApprovalsConditions);
+        InsertEventArgument(OnRequestApprovedEventID, BuildPendingApprovalsConditions());
         SendApprovalRequestResponseID2 := InsertResponseStep(Workflow, WorkflowResponseHandling.SendApprovalRequestForApprovalCode(),
             OnRequestApprovedEventID);
 
@@ -1482,12 +1493,12 @@ codeunit 1502 "Workflow Setup"
 
         OnAllRequestsApprovedEventID := InsertEventStep(Workflow, WorkflowEventHandling.RunWorkflowOnApproveApprovalRequestCode(),
             SendApprovalRequestResponseID);
-        InsertEventArgument(OnAllRequestsApprovedEventID, BuildNoPendingApprovalsConditions);
+        InsertEventArgument(OnAllRequestsApprovedEventID, BuildNoPendingApprovalsConditions());
         InsertResponseStep(Workflow, WorkflowResponseHandling.AllowRecordUsageCode(), OnAllRequestsApprovedEventID);
 
         OnRequestApprovedEventID := InsertEventStep(Workflow, WorkflowEventHandling.RunWorkflowOnApproveApprovalRequestCode(),
             SendApprovalRequestResponseID);
-        InsertEventArgument(OnRequestApprovedEventID, BuildPendingApprovalsConditions);
+        InsertEventArgument(OnRequestApprovedEventID, BuildPendingApprovalsConditions());
         SendApprovalRequestResponseID2 := InsertResponseStep(Workflow, WorkflowResponseHandling.SendApprovalRequestForApprovalCode(),
             OnRequestApprovedEventID);
 
@@ -1561,14 +1572,14 @@ codeunit 1502 "Workflow Setup"
 
         OnAllRequestsApprovedEventID := InsertEventStep(Workflow, WorkflowEventHandling.RunWorkflowOnApproveApprovalRequestCode(),
             ShowMessageResponseID);
-        InsertEventArgument(OnAllRequestsApprovedEventID, BuildNoPendingApprovalsConditions);
+        InsertEventArgument(OnAllRequestsApprovedEventID, BuildNoPendingApprovalsConditions());
         ApplyNewValuesResponseID := InsertResponseStep(Workflow, WorkflowResponseHandling.ApplyNewValuesCode(),
             OnAllRequestsApprovedEventID);
         InsertChangeRecValueArgument(ApplyNewValuesResponseID, TableNo, FieldNo);
 
         OnRequestApprovedEventID := InsertEventStep(Workflow, WorkflowEventHandling.RunWorkflowOnApproveApprovalRequestCode(),
             ShowMessageResponseID);
-        InsertEventArgument(OnRequestApprovedEventID, BuildPendingApprovalsConditions);
+        InsertEventArgument(OnRequestApprovedEventID, BuildPendingApprovalsConditions());
         SendApprovalRequestResponseID2 := InsertResponseStep(Workflow, WorkflowResponseHandling.SendApprovalRequestForApprovalCode(),
             OnRequestApprovedEventID);
 
@@ -1633,12 +1644,12 @@ codeunit 1502 "Workflow Setup"
 
         OnAllRequestsApprovedEventID := InsertEventStep(Workflow, WorkflowEventHandling.RunWorkflowOnApproveApprovalRequestCode(),
             SendApprovalRequestResponseID);
-        InsertEventArgument(OnAllRequestsApprovedEventID, BuildNoPendingApprovalsConditions);
+        InsertEventArgument(OnAllRequestsApprovedEventID, BuildNoPendingApprovalsConditions());
         InsertResponseStep(Workflow, WorkflowResponseHandling.AllowRecordUsageCode(), OnAllRequestsApprovedEventID);
 
         OnRequestApprovedEventID := InsertEventStep(Workflow, WorkflowEventHandling.RunWorkflowOnApproveApprovalRequestCode(),
             SendApprovalRequestResponseID);
-        InsertEventArgument(OnRequestApprovedEventID, BuildPendingApprovalsConditions);
+        InsertEventArgument(OnRequestApprovedEventID, BuildPendingApprovalsConditions());
         SendApprovalRequestResponseID2 := InsertResponseStep(Workflow, WorkflowResponseHandling.SendApprovalRequestForApprovalCode(),
             OnRequestApprovedEventID);
 
@@ -1867,13 +1878,13 @@ codeunit 1502 "Workflow Setup"
 
         OnAllRequestsApprovedEventID := InsertEventStep(Workflow, WorkflowEventHandling.RunWorkflowOnApproveApprovalRequestCode(),
             SendApprovalRequestResponseID);
-        InsertEventArgument(OnAllRequestsApprovedEventID, BuildNoPendingApprovalsConditions);
+        InsertEventArgument(OnAllRequestsApprovedEventID, BuildNoPendingApprovalsConditions());
         AllowRecordUsageID := InsertResponseStep(Workflow, WorkflowResponseHandling.AllowRecordUsageCode(), OnAllRequestsApprovedEventID);
         InsertResponseStep(Workflow, WorkflowResponseHandling.EnableJobQueueEntryCode(), AllowRecordUsageID);
 
         OnRequestApprovedEventID := InsertEventStep(Workflow, WorkflowEventHandling.RunWorkflowOnApproveApprovalRequestCode(),
             SendApprovalRequestResponseID);
-        InsertEventArgument(OnRequestApprovedEventID, BuildPendingApprovalsConditions);
+        InsertEventArgument(OnRequestApprovedEventID, BuildPendingApprovalsConditions());
         SendApprovalRequestResponseID2 := InsertResponseStep(Workflow, WorkflowResponseHandling.SendApprovalRequestForApprovalCode(),
             OnRequestApprovedEventID);
 
@@ -2333,6 +2344,11 @@ codeunit 1502 "Workflow Setup"
     procedure GetGeneralJournalBatchIsNotBalancedMsg() Message: Text[250]
     begin
         Message := GeneralJournalBatchIsNotBalancedMsg;
+    end;
+
+    [InternalEvent(false, false)]
+    internal procedure OnAllowEditOfWorkflowTemplates(var Allow: Boolean)
+    begin
     end;
 
     [IntegrationEvent(false, false)]

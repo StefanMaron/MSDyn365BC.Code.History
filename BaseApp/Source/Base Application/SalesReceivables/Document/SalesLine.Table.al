@@ -273,6 +273,8 @@
                 if not IsHandled then
                     CreateDimFromDefaultDim(Rec.FieldNo("No."));
 
+                OnValidateNoOnAfterCreateDimFromDefaultDim(Rec, xRec, SalesHeader, CurrFieldNo);
+
                 if "No." <> xRec."No." then begin
                     if Type = Type::Item then
                         if (Quantity <> 0) and ItemExists(xRec."No.") then begin
@@ -575,6 +577,11 @@
                 ShouldCalcWithReturnQtyReceived: Boolean;
                 ShouldVerifyQtyForItem: Boolean;
             begin
+                IsHandled := false;
+                OnBeforeValidateQuantity(Rec, xRec, CurrFieldNo, IsHandled);
+                if IsHandled then
+                    exit;
+
                 Quantity := UOMMgt.RoundAndValidateQty(Quantity, "Qty. Rounding Precision", FieldCaption(Quantity));
 
                 TestJobPlanningLine();
@@ -650,7 +657,7 @@
 
                     if Type = Type::Item then begin
                         ShouldVerifyQtyForItem := (xRec.Quantity <> Quantity) or (xRec."Quantity (Base)" <> "Quantity (Base)"); // <-- NEW VARIABLE
-                        OnValidateQuantityOnAfterCalcShouldVerifyQtyForItem(Rec, ShouldVerifyQtyForItem);
+                        OnValidateQuantityOnAfterCalcShouldVerifyQtyForItem(Rec, ShouldVerifyQtyForItem, xRec);
                         if ShouldVerifyQtyForItem then begin
                             OnBeforeVerifyReservedQty(Rec, xRec, FieldNo(Quantity));
                             SalesLineReserve.VerifyQuantity(Rec, xRec);
@@ -1477,7 +1484,7 @@
                 CheckPrepmtAmtInvEmpty();
 
                 IsHandled := false;
-                OnValidateVATProdPostingGroupOnBeforeVATPostingSetupGet(Rec, xRec, IsHandled);
+                OnValidateVATProdPostingGroupOnBeforeVATPostingSetupGet(Rec, xRec, IsHandled, VATPostingSetup);
                 if not IsHandled then
                     VATPostingSetup.Get("VAT Bus. Posting Group", "VAT Prod. Posting Group");
                 "VAT Difference" := 0;
@@ -3965,7 +3972,7 @@
         else
             "Unit of Measure Code" := Item."Base Unit of Measure";
 
-        if "Document Type" in ["Document Type"::Quote, "Document Type"::Order] then
+        if "Document Type" in ["Document Type"::Quote, "Document Type"::Order, "Document Type"::Invoice, "Document Type"::"Blanket Order"] then
             Validate("Purchasing Code", Item."Purchasing Code");
         OnAfterCopyFromItem(Rec, Item, CurrFieldNo, xRec);
 
@@ -4594,17 +4601,16 @@
         if IsHandled then
             exit;
 
-        if (Rec."Outstanding Quantity" = 0) and (Rec."Qty. Shipped Not Invoiced" = 0) then
+        if (Rec.Quantity <> 0) and (Rec."Outstanding Quantity" = 0) and (Rec."Qty. Shipped Not Invoiced" = 0) then
             if SalesHeader."Document Type" <> SalesHeader."Document Type"::Invoice then
                 exit;
 
         if SalesHeader."Document Type" <> SalesHeader."Document Type"::Invoice then begin
             "Prepayment VAT Difference" := 0;
-            if not PrePaymentLineAmountEntered then begin
-                "Prepmt. Line Amount" := Round("Line Amount" * "Prepayment %" / 100, Currency."Amount Rounding Precision");
-                if abs("Inv. Discount Amount" + "Prepmt. Line Amount") > abs("Line Amount") then
-                    "Prepmt. Line Amount" := "Line Amount" - "Inv. Discount Amount";
-            end;
+            if not PrePaymentLineAmountEntered then
+                "Prepmt. Line Amount" := Round(
+                    ("Line Amount" - "Inv. Discount Amount") * "Prepayment %" / 100,
+                    Currency."Amount Rounding Precision");
             PrePaymentLineAmountEntered := false;
         end;
 
@@ -4636,7 +4642,7 @@
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeCheckPrepmtAmounts(Rec, IsHandled);
+        OnBeforeCheckPrepmtAmounts(Rec, IsHandled, xRec, CurrFieldNo);
         if IsHandled then
             exit;
 
@@ -5133,7 +5139,16 @@
     end;
 
     procedure GetDate(): Date
+    var
+        ResultDate: Date;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        ResultDate := 0D;
+        OnBeforeGetDate(ResultDate, IsHandled);
+        if IsHandled then
+            exit(ResultDate);
+
         GetSalesHeader();
         if SalesHeader."Posting Date" <> 0D then
             exit(SalesHeader."Posting Date");
@@ -5350,7 +5365,7 @@
         DimMgt.UpdateGlobalDimFromDimSetID("Dimension Set ID", "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
         ATOLink.UpdateAsmDimFromSalesLine(Rec);
 
-        OnAfterCreateDim(Rec, CurrFieldNo, xRec);
+        OnAfterCreateDim(Rec, CurrFieldNo, xRec, DefaultDimSource);
     end;
 #endif
 
@@ -5381,7 +5396,7 @@
         DimMgt.UpdateGlobalDimFromDimSetID("Dimension Set ID", "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
         ATOLink.UpdateAsmDimFromSalesLine(Rec);
 
-        OnAfterCreateDim(Rec, CurrFieldNo, xRec);
+        OnAfterCreateDim(Rec, CurrFieldNo, xRec, DefaultDimSource);
     end;
 
     procedure ValidateShortcutDimCode(FieldNumber: Integer; var ShortcutDimCode: Code[20])
@@ -6216,7 +6231,7 @@
                                 end;
                         end;
                         TotalVATAmount += "Amount Including VAT" - Amount;
-                        OnCalcVATAmountLinesOnAfterCalcLineTotals(VATAmountLine, SalesHeader, SalesLine, Currency, QtyType, TotalVATAmount);
+                        OnCalcVATAmountLinesOnAfterCalcLineTotals(VATAmountLine, SalesHeader, SalesLine, Currency, QtyType, TotalVATAmount, QtyToHandle);
                     end;
                 until Next() = 0;
             SetRange(Type);
@@ -6594,6 +6609,7 @@
 
                 if not IsShipmentBinOverridesDefaultBin(Location) then begin
                     WMSManagement.GetDefaultBin("No.", "Variant Code", "Location Code", "Bin Code");
+                    OnGetDefaultBinOnAfterWMSGetDefaultBin(Rec);
                     HandleDedicatedBin(false);
                 end;
             end;
@@ -7061,6 +7077,11 @@
         SalesOrderHeader: Record "Sales Header";
         IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeUpdatePrePaymentAmounts(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         if ("Document Type" <> "Document Type"::Invoice) or ("Prepayment %" = 0) then
             exit;
 
@@ -7951,7 +7972,13 @@
     local procedure InitDeferralCode()
     var
         Item: Record Item;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeInitDeferralCode(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         if "Document Type" in
            ["Document Type"::Order, "Document Type"::Invoice, "Document Type"::"Credit Memo", "Document Type"::"Return Order"]
         then
@@ -9047,7 +9074,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCheckPrepmtAmounts(var SalesLine: Record "Sales Line"; var IsHandled: Boolean)
+    local procedure OnBeforeCheckPrepmtAmounts(var SalesLine: Record "Sales Line"; var IsHandled: Boolean; xSalesLine: Record "Sales Line"; CurrFieldNo: Integer)
     begin
     end;
 
@@ -9562,7 +9589,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterCreateDim(var SalesLine: Record "Sales Line"; CallingFieldNo: Integer; xSalesLine: Record "Sales Line");
+    local procedure OnAfterCreateDim(var SalesLine: Record "Sales Line"; CallingFieldNo: Integer; xSalesLine: Record "Sales Line"; DefaultDimSource: List of [Dictionary of [Integer, Code[20]]]);
     begin
     end;
 
@@ -9984,7 +10011,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnCalcVATAmountLinesOnAfterCalcLineTotals(var VATAmountLine: Record "VAT Amount Line"; SalesHeader: Record "Sales Header"; SalesLine: Record "Sales Line"; Currency: Record Currency; QtyType: Option General,Invoicing,Shipping; var TotalVATAmount: Decimal)
+    local procedure OnCalcVATAmountLinesOnAfterCalcLineTotals(var VATAmountLine: Record "VAT Amount Line"; SalesHeader: Record "Sales Header"; SalesLine: Record "Sales Line"; Currency: Record Currency; QtyType: Option General,Invoicing,Shipping; var TotalVATAmount: Decimal; QtyToHandle: Decimal)
     begin
     end;
 
@@ -10385,7 +10412,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnValidateVATProdPostingGroupOnBeforeVATPostingSetupGet(var SalesLine: Record "Sales Line"; xSalesLine: Record "Sales Line"; var IsHandled: Boolean)
+    local procedure OnValidateVATProdPostingGroupOnBeforeVATPostingSetupGet(var SalesLine: Record "Sales Line"; xSalesLine: Record "Sales Line"; var IsHandled: Boolean; var VATPostingSetup: Record "VAT Posting Setup")
     begin
     end;
 
@@ -10470,7 +10497,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnValidateQuantityOnAfterCalcShouldVerifyQtyForItem(var SalesLine: Record "Sales Line"; var ShouldVerifyQtyForItem: Boolean)
+    local procedure OnValidateQuantityOnAfterCalcShouldVerifyQtyForItem(var SalesLine: Record "Sales Line"; var ShouldVerifyQtyForItem: Boolean; xSalesLine: Record "Sales Line")
     begin
     end;
 
@@ -10506,5 +10533,36 @@
     begin
     end;
 #endif
+
+
+    [IntegrationEvent(false, false)]
+    local procedure OnGetDefaultBinOnAfterWMSGetDefaultBin(var SalesLine: Record "Sales Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeInitDeferralCode(var SalesLine: Record "Sales Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetDate(var ResultDate: Date; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateQuantity(var SalesLine: Record "Sales Line"; xSalesLine: Record "Sales Line"; CallingFieldNo: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdatePrePaymentAmounts(var SalesLine: Record "Sales Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateNoOnAfterCreateDimFromDefaultDim(var SalesLine: Record "Sales Line"; xSalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header"; CallingFieldNo: Integer)
+    begin
+    end;
 }
 

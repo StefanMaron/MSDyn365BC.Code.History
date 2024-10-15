@@ -108,7 +108,7 @@
                             end;
 
                             if (TempEntryNoAmountBuffer.Amount <> 0) or (TempEntryNoAmountBuffer.Amount2 <> 0) then begin
-                                GenJnlLine."Line No." := GenJnlLine."Line No." + 10000;
+                                GenJnlLine."Line No." := GenJnlLine."Line No." + 10;
                                 GenJnlLine."Account No." := "G/L Account No.";
                                 GenJnlLine."Source Code" := SourceCodeSetup."Close Income Statement";
                                 GenJnlLine."Reason Code" := GenJnlBatch."Reason Code";

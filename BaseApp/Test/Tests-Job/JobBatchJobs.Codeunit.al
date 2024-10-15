@@ -57,7 +57,6 @@
         XDefaultJobWIPNoTxt: Label 'WIP0000001', Comment = 'CF stands for Cash Flow.';
         XDefaultJobWIPEndNoTxt: Label 'WIP9999999';
         XJobWIPDescriptionTxt: Label 'Job-WIP';
-        QuantityNegativeErr: Label '%1 must be positive to create Sales Invoice in Job Planning Line Job No.=''%2'',Job Task No.=''%3'',Line No.=''%4''.', Comment = '%1 = Quantity, %2 = Job No., %3 = Job Task No., %4 = Line No.';
 
     [Test]
     [HandlerFunctions('ChangeJobDatesHandler')]
@@ -1440,35 +1439,6 @@
         Assert.IsTrue(JobJournalLine.IsEmpty(), '');
     end;
 
-    [Test]
-    [HandlerFunctions('ConfirmHandlerTrue,JobTransferToSalesInvoiceHandler,MessageHandler')]
-    [Scope('OnPrem')]
-    procedure VerifySalesInvoiceNotCreatedForNegativeJobPlanningLine()
-    var
-        JobTask: Record "Job Task";
-        JobJournalLine: Record "Job Journal Line";
-        JobPlanningLine: Record "Job Planning Line";
-    begin
-        // [SCENARIO 459398] Sales invoice with negative line created from job cannot be posted
-        Initialize();
-
-        // [GIVEN] Create Job, Job Task, Job Journal Line and post it after updating quantity.
-        CreateJobAndJobTask(JobTask);
-        CreateAndPostJobJournalLineWithResourceAndNegativeQuantity(JobJournalLine, JobTask);
-        FindJobPlanningLine(JobPlanningLine, JobTask);
-
-        // [WHEN] Create Sales Invoice from Job Planning Lines.
-        asserterror JobCreateInvoice.CreateSalesInvoice(JobPlanningLine, false);  // Use False for Invoice.
-
-        // [VERIFY] Verify: Error Quantity must be positive to create Sales Invoice in Job Planning Line Job No., Job Task No. and Line No.
-        Assert.ExpectedError(
-            StrSubstNo(QuantityNegativeErr,
-            JobPlanningLine.FieldCaption(Quantity),
-            JobPlanningLine."Job No.",
-            JobPlanningLine."Job Task No.",
-            JobPlanningLine."Line No."));
-    end;
-
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Job Batch Jobs");
@@ -2704,16 +2674,6 @@
     begin
         // Post job journal batch
         Codeunit.Run(Codeunit::"Job Jnl.-Post Batch", JobJournalLine);
-    end;
-
-    local procedure CreateAndPostJobJournalLineWithResourceAndNegativeQuantity(var JobJournalLine: Record "Job Journal Line"; JobTask: Record "Job Task")
-    begin
-        LibraryJob.CreateJobJournalLineForType("Job Line Type"::Billable, JobJournalLine.Type::Resource, JobTask, JobJournalLine);
-        JobJournalLine.Validate("No.", CreateResource);
-        JobJournalLine.Validate(Quantity, -LibraryRandom.RandInt(10));  // Use Random because value is not important.
-        JobJournalLine.Validate("Line Amount", JobJournalLine."Line Amount" - LibraryUtility.GenerateRandomFraction);  // Update Line Amount for generating Line Discount Amount.
-        JobJournalLine.Modify(true);
-        LibraryJob.PostJobJournal(JobJournalLine);
     end;
 }
 

@@ -6,8 +6,14 @@ codeunit 5883 "Phys. Invt. Order-Post (Y/N)"
     trigger OnRun()
     var
         PhysInvtOrderHeader: Record "Phys. Invt. Order Header";
+        IsHandled: Boolean;
     begin
         PhysInvtOrderHeader.Copy(Rec);
+
+        IsHandled := false;
+        OnPhysInvtOrderPostOnAfterCopyBeforeConfirm(PhysInvtOrderHeader, Rec, IsHandled);
+        if IsHandled then
+            exit;
 
         if Confirm(ConfirmPostQst, false) then
             CODEUNIT.Run(CODEUNIT::"Phys. Invt. Order-Post", PhysInvtOrderHeader);
@@ -36,6 +42,11 @@ codeunit 5883 "Phys. Invt. Order-Post (Y/N)"
         PhysInvtOrderHeader.Copy(RecVar);
         PhysInvtOrderPost.SetPreviewMode(true);
         Result := PhysInvtOrderPost.Run(PhysInvtOrderHeader);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPhysInvtOrderPostOnAfterCopyBeforeConfirm(var PhysInvtOrderHeaderCopy: Record "Phys. Invt. Order Header"; var PhysInvtOrderHeader: Record "Phys. Invt. Order Header"; var IsHandled: Boolean)
+    begin
     end;
 }
 

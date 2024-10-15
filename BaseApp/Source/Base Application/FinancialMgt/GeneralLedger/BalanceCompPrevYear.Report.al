@@ -1,7 +1,7 @@
 report 37 "Balance Comp. - Prev. Year"
 {
     DefaultLayout = RDLC;
-    RDLCLayout = './BalanceCompPrevYear.rdlc';
+    RDLCLayout = './FinancialMgt/GeneralLedger/BalanceCompPrevYear.rdlc';
     ApplicationArea = Basic, Suite;
     Caption = 'Balance Comp. - Prev. Year';
     UsageCategory = ReportsAndAnalysis;

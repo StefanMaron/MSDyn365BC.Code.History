@@ -40,7 +40,15 @@ codeunit 7000005 "Invoice-Split Payment"
         ExistsVATNoReal: Boolean;
         ErrorMessage: Boolean;
 
+#if not CLEAN23
+    [Obsolete('Use the SplitSalesInv with additional parameter HideProgressWindow instead', '23.0')]
     procedure SplitSalesInv(var SalesHeader: Record "Sales Header"; var CustLedgEntry: Record "Cust. Ledger Entry"; var Window: Dialog; SourceCode: Code[10]; GenJnlLineExtDocNo: Code[35]; GenJnlLineDocNo: Code[20]; VATAmount: Decimal)
+    begin
+        SplitSalesInv(SalesHeader, CustLedgEntry, Window, SourceCode, GenJnlLineExtDocNo, GenJnlLineDocNo, VATAmount, false);
+    end;
+#endif
+
+    procedure SplitSalesInv(var SalesHeader: Record "Sales Header"; var CustLedgEntry: Record "Cust. Ledger Entry"; var Window: Dialog; SourceCode: Code[10]; GenJnlLineExtDocNo: Code[35]; GenJnlLineDocNo: Code[20]; VATAmount: Decimal; HideProgressWindow: Boolean)
     var
         VATPostingSetup: Record "VAT Posting Setup";
         SepaDirectDebitMandate: Record "SEPA Direct Debit Mandate";
@@ -197,7 +205,8 @@ codeunit 7000005 "Invoice-Split Payment"
 
             CurrDocNo := 1;
             repeat
-                Window.Update(6, CurrDocNo);
+                if not HideProgressWindow then
+                    Window.Update(6, CurrDocNo);
                 GenJnlLine."Due Date" := NextDueDate;
                 CheckSalesDueDate(SalesHeader, GenJnlLine."Due Date", PaymentTerms."Max. No. of Days till Due Date");
                 if not "Due Date Modified" then

@@ -166,6 +166,9 @@ table 5405 "Production Order"
                     Item.Get("Source No.");
                     "Routing No." := Item."Routing No.";
                 end;
+
+                InitRecord();
+                UpdateDatetime();
             end;
         }
         field(15; "Inventory Posting Group"; Code[20])
@@ -724,7 +727,7 @@ table 5405 "Production Order"
         if ("Source Type" = "Source Type"::Item) and ("Source No." <> '') then
             "Ending Date" :=
               LeadTimeMgt.PlannedEndingDate(
-                "Source No.", "Location Code", '', "Due Date", '', 2)
+                "Source No.", "Location Code", "Variant Code", "Due Date", '', 2)
         else
             "Ending Date" := "Due Date";
         "Starting Date" := "Ending Date";

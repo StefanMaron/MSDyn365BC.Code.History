@@ -43,6 +43,7 @@ codeunit 5342 "CRM Synch. Helper"
         RecordMustBeCoupledExtErr: Label '%1 %2 must be coupled to a %3 row.', Comment = '%1 = BC table caption, %2 = primary key value, %3 - Dataverse table caption';
         CannotUseSameUnitGroupErr: Label 'Unit group %1 is assigned to multiple products. You cannot use the same unit group for multiple products.', Comment = '%1 - Unit group name';
         UnitOfMeasureDoesNotExistErr: Label 'Unit of measure %1 does not exist.', Comment = '%1 - unit of measure code';
+        IncorrectFormatOrTypeErr: Label 'The value that you are trying to convert is in incorrect format.';
 
     procedure ClearCache()
     begin
@@ -80,7 +81,6 @@ codeunit 5342 "CRM Synch. Helper"
                 Name := GetDefaultPriceListName();
                 FindNAVLocalCurrencyInCRM(CRMTransactioncurrency);
                 TransactionCurrencyId := CRMTransactioncurrency.TransactionCurrencyId;
-                TransactionCurrencyIdName := CRMTransactioncurrency.CurrencyName;
                 Insert();
 
                 AddToCacheCRMPriceLevel(CRMPricelevel);
@@ -1863,6 +1863,38 @@ codeunit 5342 "CRM Synch. Helper"
         if Ignored then
             Session.LogMessage('0000F2F', ContactTypeCheckIgnoredTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
         exit(Ignored);
+    end;
+
+    procedure TransformValue(SourceRecordRef: RecordRef; DestinationRecordRef: RecordRef; TransformationRule: Record "Transformation Rule"; SourceFieldNo: Integer; DestinationFieldNo: Integer)
+    var
+        SourceFieldRef: FieldRef;
+        DestinationFieldRef: FieldRef;
+        TransformedValue: Text;
+    begin
+        SourceFieldRef := SourceRecordRef.Field(SourceFieldNo);
+        DestinationFieldRef := DestinationRecordRef.Field(DestinationFieldNo);
+        TransformedValue := TransformationRule.TransformText(SourceFieldRef.Value());
+
+        case DestinationFieldRef.Type() of
+            FieldType::Date, FieldType::DateTime:
+                SetDateField(TransformedValue, SourceFieldRef, DestinationFieldRef);
+            else
+                SourceFieldRef.Value := TransformedValue;
+        end;
+    end;
+
+    local procedure SetDateField(ValueText: Text; var SourceFieldRef: FieldRef; DestinationFieldRef: FieldRef)
+    var
+        TypeHelper: Codeunit "Type Helper";
+        Value: Variant;
+    begin
+        Value := DestinationFieldRef.Value();
+
+        if not TypeHelper.Evaluate(Value, ValueText, '', '')
+        then
+            Error(IncorrectFormatOrTypeErr);
+
+        SourceFieldRef.Value := Value;
     end;
 
     [IntegrationEvent(false, false)]

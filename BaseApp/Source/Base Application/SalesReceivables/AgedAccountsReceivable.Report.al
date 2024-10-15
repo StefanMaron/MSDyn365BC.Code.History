@@ -1,7 +1,7 @@
-﻿report 120 "Aged Accounts Receivable"
+report 120 "Aged Accounts Receivable"
 {
     DefaultLayout = RDLC;
-    RDLCLayout = './AgedAccountsReceivable.rdlc';
+    RDLCLayout = './SalesReceivables/AgedAccountsReceivable.rdlc';
     ApplicationArea = Basic, Suite;
     Caption = 'Aged Accounts Receivable';
     PreviewMode = PrintLayout;

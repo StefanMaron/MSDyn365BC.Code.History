@@ -1355,7 +1355,13 @@
         TotalPrepmtAmount: Decimal;
         TotalPrepmtAmtInv: Decimal;
         LastLineNo: Integer;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeUpdatePrepmtAmountOnSaleslines(SalesHeader, NewTotalPrepmtAmount, IsHandled);
+        if IsHandled then
+            exit;
+
         Currency.Initialize(SalesHeader."Currency Code");
 
         with SalesLine do begin
@@ -2032,6 +2038,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeGetSalesLines(SalesHeader: Record "Sales Header"; DocumentType: Option Invoice,"Credit Memo",Statistic; var ToSalesLine: Record "Sales Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdatePrepmtAmountOnSaleslines(SalesHeader: Record "Sales Header"; NewTotalPrepmtAmount: Decimal; var IsHandled: Boolean);
     begin
     end;
 }

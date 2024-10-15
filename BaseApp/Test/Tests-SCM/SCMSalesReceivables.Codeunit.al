@@ -3,6 +3,7 @@ codeunit 137062 "SCM Sales & Receivables"
     Permissions = TableData "Date Compr. Register" = rimd;
     Subtype = Test;
     TestPermissions = Disabled;
+    EventSubscriberInstance = Manual;
 
     trigger OnRun()
     begin
@@ -1156,6 +1157,81 @@ codeunit 137062 "SCM Sales & Receivables"
         LibraryVariableStorage.AssertEmpty();
     end;
 
+    [Test]
+    [HandlerFunctions('ConfirmHandlerTRUE,MessageHandler')]
+    procedure PostWhseShptForSalesOrderWithInvoicePostingPolicy()
+    var
+        Location: Record Location;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        WarehouseShipmentHeader: Record "Warehouse Shipment Header";
+        Qty: Decimal;
+    begin
+        // [FEATURE] [Posting Selection] [Order] [Warehouse Shipment]
+        // [SCENARIO 461826] Posting warehouse shipment for sales order with "Prohibited" settings of invoice posting policy.
+        Initialize(false);
+        Qty := LibraryRandom.RandInt(10);
+
+        LibraryWarehouse.CreateLocationWMS(Location, false, false, false, false, true);
+
+        LibrarySales.CreateSalesDocumentWithItem(
+          SalesHeader, SalesLine, SalesHeader."Document Type"::Order, '',
+          LibraryInventory.CreateItemNo(), Qty, Location.Code, WorkDate());
+        LibrarySales.ReleaseSalesDocument(SalesHeader);
+        LibraryWarehouse.CreateWhseShipmentFromSO(SalesHeader);
+        WarehouseShipmentHeader.Get(
+          LibraryWarehouse.FindWhseShipmentNoBySourceDoc(
+              DATABASE::"Sales Line", SalesHeader."Document Type".AsInteger(), SalesHeader."No."));
+
+        CreateUserSetupWithPostingPolicy("Invoice Posting Policy"::Prohibited);
+
+        LibraryVariableStorage.Enqueue(ShipConfirmQst);
+        PostWarehouseShipment(WarehouseShipmentHeader);
+
+        VerifyQtyOnSalesOrderLine(SalesLine, Qty, 0);
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandlerTRUE,MessageHandler')]
+    procedure PostAndPrintWhseShptForSalesOrderWithInvoicePostingPolicy()
+    var
+        Location: Record Location;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        WarehouseShipmentHeader: Record "Warehouse Shipment Header";
+        SCMSalesReceivables: Codeunit "SCM Sales & Receivables";
+        Qty: Decimal;
+    begin
+        // [FEATURE] [Posting Selection] [Order] [Warehouse Shipment]
+        // [SCENARIO 471180] Posting and printing warehouse shipment for sales order with "Prohibited" settings of invoice posting policy.
+        Initialize(false);
+        Qty := LibraryRandom.RandInt(10);
+
+        LibraryWarehouse.CreateLocationWMS(Location, false, false, false, false, true);
+
+        LibrarySales.CreateSalesDocumentWithItem(
+          SalesHeader, SalesLine, SalesHeader."Document Type"::Order, '',
+          LibraryInventory.CreateItemNo(), Qty, Location.Code, WorkDate());
+        LibrarySales.ReleaseSalesDocument(SalesHeader);
+        LibraryWarehouse.CreateWhseShipmentFromSO(SalesHeader);
+        WarehouseShipmentHeader.Get(
+          LibraryWarehouse.FindWhseShipmentNoBySourceDoc(
+              DATABASE::"Sales Line", SalesHeader."Document Type".AsInteger(), SalesHeader."No."));
+
+        CreateUserSetupWithPostingPolicy("Invoice Posting Policy"::Prohibited);
+
+        BindSubscription(SCMSalesReceivables);
+        LibraryVariableStorage.Enqueue(ShipConfirmQst);
+        PostAndPrintWarehouseShipment(WarehouseShipmentHeader);
+        UnbindSubscription(SCMSalesReceivables);
+
+        VerifyQtyOnSalesOrderLine(SalesLine, Qty, 0);
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
     local procedure Initialize(Enable: Boolean)
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -1564,6 +1640,24 @@ codeunit 137062 "SCM Sales & Receivables"
         Codeunit.Run(Codeunit::"Sales-Post and Send", SalesHeader);
     end;
 
+    local procedure PostWarehouseShipment(var WarehouseShipmentHeader: Record "Warehouse Shipment Header")
+    var
+        WarehouseShipmentLine: Record "Warehouse Shipment Line";
+    begin
+        WarehouseShipmentLine.SetRange("No.", WarehouseShipmentHeader."No.");
+        WarehouseShipmentLine.FindFirst();
+        Codeunit.Run(Codeunit::"Whse.-Post Shipment (Yes/No)", WarehouseShipmentLine);
+    end;
+
+    local procedure PostAndPrintWarehouseShipment(var WarehouseShipmentHeader: Record "Warehouse Shipment Header")
+    var
+        WarehouseShipmentLine: Record "Warehouse Shipment Line";
+    begin
+        WarehouseShipmentLine.SetRange("No.", WarehouseShipmentHeader."No.");
+        WarehouseShipmentLine.FindFirst();
+        Codeunit.Run(Codeunit::"Whse.-Post Shipment + Print", WarehouseShipmentLine);
+    end;
+
     local procedure TransferSalesLineExtendedText(SalesLine: Record "Sales Line")
     var
         TransferExtendedText: Codeunit "Transfer Extended Text";
@@ -1847,6 +1941,12 @@ codeunit 137062 "SCM Sales & Receivables"
     [RecallNotificationHandler]
     procedure RecallNotificationHandler(var Notification: Notification): Boolean
     begin
+    end;
+
+    [EventSubscriber(ObjectType::Table, Database::"Sales Shipment Header", 'OnBeforePrintRecords', '', false, false)]
+    local procedure SetSalesShipmentAsPrinted(var SalesShipmentHeader: Record "Sales Shipment Header"; ShowDialog: Boolean; var IsHandled: Boolean)
+    begin
+        IsHandled := true;
     end;
 }
 

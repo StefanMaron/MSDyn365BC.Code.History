@@ -13,6 +13,7 @@ codeunit 1173 "Document Attachment Mgmt"
         NoSaveToPDFReportTxt: Label 'There are no reports which could be saved to PDF for this document.';
         ShowAttachmentsTxt: Label 'Show Attachments';
         DeleteAttachmentsConfirmQst: Label 'Do you want to delete the attachments for this document?';
+        RelatedAttachmentsFilterTxt: Label '%1|%2', Comment = '%1 = Source Table ID, %2 = Related Table ID';
 
     procedure DeleteAttachedDocuments(RecRef: RecordRef)
     var
@@ -55,13 +56,19 @@ codeunit 1173 "Document Attachment Mgmt"
         exit(not DocumentAttachment.IsEmpty())
     end;
 
-    procedure SetDocumentAttachmentFiltersForRecRef(var DocumentAttachment: Record "Document Attachment"; RecRef: RecordRef)
+    procedure SetDocumentAttachmentRelatedFiltersForRecRef(var DocumentAttachment: Record "Document Attachment"; RecRef: RecordRef)
     begin
-        SetDocumentAttachmentFiltersForRecRefInternal(DocumentAttachment, RecRef);
+        SetDocumentAttachmentFiltersForRecRefInternal(DocumentAttachment, RecRef, true);
         OnAfterSetDocumentAttachmentFiltersForRecRef(DocumentAttachment, RecRef);
     end;
 
-    internal procedure SetDocumentAttachmentFiltersForRecRefInternal(var DocumentAttachment: Record "Document Attachment"; RecRef: RecordRef)
+    procedure SetDocumentAttachmentFiltersForRecRef(var DocumentAttachment: Record "Document Attachment"; RecRef: RecordRef)
+    begin
+        SetDocumentAttachmentFiltersForRecRefInternal(DocumentAttachment, RecRef, false);
+        OnAfterSetDocumentAttachmentFiltersForRecRef(DocumentAttachment, RecRef);
+    end;
+
+    internal procedure SetDocumentAttachmentFiltersForRecRefInternal(var DocumentAttachment: Record "Document Attachment"; RecRef: RecordRef; GetRelatedAttachments: Boolean)
     var
         FieldRef: FieldRef;
         RecNo: Code[20];
@@ -70,7 +77,10 @@ codeunit 1173 "Document Attachment Mgmt"
         FieldNo: Integer;
         VATRepConfigType: Enum "VAT Report Configuration";
     begin
-        DocumentAttachment.SetRange("Table ID", RecRef.Number);
+        if GetRelatedAttachments then
+            SetRelatedAttachmentsFilter(RecRef.Number(), DocumentAttachment)
+        else
+            DocumentAttachment.SetRange("Table ID", RecRef.Number());
 
         if TableHasNumberFieldPrimayKey(RecRef.Number(), FieldNo) then begin
             FieldRef := RecRef.Field(FieldNo);
@@ -95,6 +105,29 @@ codeunit 1173 "Document Attachment Mgmt"
             VATRepConfigType := FieldRef.Value();
             DocumentAttachment.SetRange("VAT Report Config. Code", VATRepConfigType);
         end;
+    end;
+
+    local procedure SetRelatedAttachmentsFilter(TableNo: Integer; var DocumentAttachment: Record "Document Attachment")
+        RelatedTable: Integer;
+    begin
+        case TableNo of
+            Database::"Sales Header":
+                RelatedTable := Database::"Sales Line";
+            Database::"Sales Invoice Header":
+                RelatedTable := Database::"Sales Invoice Line";
+            Database::"Sales Cr.Memo Header":
+                RelatedTable := Database::"Sales Cr.Memo Line";
+            Database::"Purchase Header":
+                RelatedTable := Database::"Purchase Line";
+            Database::"Purch. Inv. Header":
+                RelatedTable := Database::"Purch. Inv. Line";
+            Database::"Purch. Cr. Memo Hdr.":
+                RelatedTable := Database::"Purch. Cr. Memo Line";
+            else
+                DocumentAttachment.SetFilter("Table ID", '%1', TableNo);
+                exit;
+        end;
+        DocumentAttachment.SetFilter("Table ID", RelatedAttachmentsFilterTxt, TableNo, RelatedTable);
     end;
 
     internal procedure IsSalesDocumentFlow(TableNo: Integer): Boolean
@@ -141,6 +174,8 @@ codeunit 1173 "Document Attachment Mgmt"
     end;
 
     internal procedure TableHasNumberFieldPrimayKey(TableNo: Integer; var FieldNo: Integer): Boolean
+    var
+        Result: Boolean;
     begin
         if TableNo in
             [DATABASE::Customer,
@@ -174,10 +209,14 @@ codeunit 1173 "Document Attachment Mgmt"
             exit(true);
         end;
 
-        exit(false);
+        Result := false;
+        OnAfterTableHasNumberFieldPrimaryKey(TableNo, Result, FieldNo);
+        exit(Result);
     end;
 
     internal procedure TableHasDocTypePrimaryKey(TableNo: Integer; var FieldNo: Integer): Boolean
+    var
+        Result: Boolean;
     begin
         if TableNo in
             [DATABASE::"Sales Header",
@@ -189,10 +228,14 @@ codeunit 1173 "Document Attachment Mgmt"
             exit(true);
         end;
 
-        exit(false);
+        Result := false;
+        OnAfterTableHasDocTypePrimaryKey(TableNo, Result, FieldNo);
+        exit(Result);
     end;
 
     internal procedure TableHasLineNumberPrimaryKey(TableNo: Integer; var FieldNo: Integer): Boolean
+    var
+        Result: Boolean;
     begin
         if TableNo in
             [DATABASE::"Sales Line",
@@ -206,9 +249,10 @@ codeunit 1173 "Document Attachment Mgmt"
             exit(true);
         end;
 
-        exit(false);
+        Result := false;
+        OnAfterTableHasLineNumberPrimaryKey(TableNo, Result, FieldNo);
+        exit(Result);
     end;
-
 
     [EventSubscriber(ObjectType::Table, Database::"Customer", 'OnAfterDeleteEvent', '', false, false)]
     local procedure DeleteAttachedDocumentsOnAfterDeleteCustomer(var Rec: Record Customer; RunTrigger: Boolean)
@@ -1012,6 +1056,16 @@ codeunit 1173 "Document Attachment Mgmt"
         exit(false);
     end;
 
+    procedure CopyAttachments(FromRec: Variant; ToRec: Variant)
+    var
+        FromRecRef: RecordRef;
+        ToRecRef: RecordRef;
+    begin
+        FromRecRef.GetTable(FromRec);
+        ToRecRef.GetTable(ToRec);
+        CopyAttachments(FromRecRef, ToRecRef);
+    end;
+
     procedure CopyAttachments(var FromRecRef: RecordRef; var ToRecRef: RecordRef)
     var
         FromDocumentAttachment: Record "Document Attachment";
@@ -1375,6 +1429,21 @@ codeunit 1173 "Document Attachment Mgmt"
 
     [IntegrationEvent(false, false)]
     local procedure OnIsDuplicateFileOnAfterSetFilters(var DocumentAttachment: Record "Document Attachment")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterTableHasNumberFieldPrimaryKey(TableNo: Integer; var Result: Boolean; var FieldNo: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterTableHasDocTypePrimaryKey(TableNo: Integer; var Result: Boolean; var FieldNo: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterTableHasLineNumberPrimaryKey(TableNo: Integer; var Result: Boolean; var FieldNo: Integer)
     begin
     end;
 }

@@ -904,6 +904,7 @@ report 417 "Arch.Purch. Return Order"
             trigger OnAfterGetRecord()
             begin
                 CurrReport.Language := Language.GetLanguageIdOrDefault("Language Code");
+                FormatAddr.SetLanguageCode("Language Code");
 
                 FormatAddressFields("Purchase Header Archive");
                 FormatDocumentFields("Purchase Header Archive");

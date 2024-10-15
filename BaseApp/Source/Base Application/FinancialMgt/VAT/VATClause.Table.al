@@ -219,6 +219,7 @@ table 560 "VAT Clause"
                     exit;
             end;
 
+        OnGetDescriptionByExtendedTextOnBeforeReadExtTextLines(Rec, RecRef, ExtendedTextHeader, LanguageCode, DocDate);
         if not TransferExtendedText.ReadExtTextLines(ExtendedTextHeader, DocDate, LanguageCode) then
             exit;
 
@@ -326,6 +327,11 @@ table 560 "VAT Clause"
 
     [IntegrationEvent(false, false)]
     local procedure OnFilterExtendedTextHeaderFromDoc(RecRelatedVariant: Variant; var ExtendedTextHeader: Record "Extended Text Header"; var IsHandled: Boolean; var LanguageCode: Code[10]; var DocDate: Date)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnGetDescriptionByExtendedTextOnBeforeReadExtTextLines(var VATClause: Record "VAT Clause"; var RelatedRecordRef: RecordRef; var ExtendedTextHeader: Record "Extended Text Header"; LanguageCode: Code[10]; DocDate: Date)
     begin
     end;
 }

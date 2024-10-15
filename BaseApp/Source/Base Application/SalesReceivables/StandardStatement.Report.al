@@ -668,6 +668,7 @@ report 1316 "Standard Statement"
             begin
                 TempAgingBandBuf.DeleteAll();
                 CurrReport.Language := Language.GetLanguageIdOrDefault("Language Code");
+                FormatAddr.SetLanguageCode("Language Code");
                 PrintLine := false;
                 if PrintAllHavingBal and (not PrintAllHavingEntry) then
                     PrintLine := true;

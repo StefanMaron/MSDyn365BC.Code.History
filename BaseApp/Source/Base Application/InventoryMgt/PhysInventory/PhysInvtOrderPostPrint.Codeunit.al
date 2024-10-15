@@ -3,10 +3,21 @@ codeunit 5885 "Phys. Invt. Order-Post + Print"
     TableNo = "Phys. Invt. Order Header";
 
     trigger OnRun()
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnRunOnBeforeConfirm(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         PhysInvtOrderHeader.Copy(Rec);
 
         if not Confirm(ConfirmPostQst, false) then
+            exit;
+
+        OnPhysInvtOrderPostPrintOnAfterConfirmBeforePost(PhysInvtOrderHeader, IsHandled);
+        if IsHandled then
             exit;
 
         CODEUNIT.Run(CODEUNIT::"Phys. Invt. Order-Post", PhysInvtOrderHeader);
@@ -29,6 +40,16 @@ codeunit 5885 "Phys. Invt. Order-Post + Print"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterPostPhysInvtOrder(var PhysInvtOrderHeader: Record "Phys. Invt. Order Header");
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPhysInvtOrderPostPrintOnAfterConfirmBeforePost(var PhysInvtOrderHeader: Record "Phys. Invt. Order Header"; var IsHandled: Boolean);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnRunOnBeforeConfirm(var PhysInvtOrderHeader: Record "Phys. Invt. Order Header"; var IsHandled: Boolean)
     begin
     end;
 }

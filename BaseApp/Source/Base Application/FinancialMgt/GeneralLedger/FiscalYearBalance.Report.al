@@ -1,7 +1,7 @@
 report 36 "Fiscal Year Balance"
 {
     DefaultLayout = RDLC;
-    RDLCLayout = './FiscalYearBalance.rdlc';
+    RDLCLayout = './FinancialMgt/GeneralLedger/FiscalYearBalance.rdlc';
     AdditionalSearchTerms = 'closing balance';
     ApplicationArea = Basic, Suite;
     Caption = 'Fiscal Year Balance';

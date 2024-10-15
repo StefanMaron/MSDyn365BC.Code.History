@@ -1,7 +1,7 @@
 report 101 "Customer - List"
 {
     DefaultLayout = RDLC;
-    RDLCLayout = './CustomerList.rdlc';
+    RDLCLayout = './SalesReceivables/CustomerList.rdlc';
     ApplicationArea = Basic, Suite;
     Caption = 'Customer List';
     UsageCategory = ReportsAndAnalysis;

@@ -26,6 +26,7 @@ codeunit 10752 "SII Doc. Upload Management"
         GeneratingXmlMsg: Label 'Generating xml for document type %1', Locked = true;
         GeneratingXmlSuccMsg: Label 'Xml successfully generated for document type %1', Locked = true;
         GeneratingXmlErrMsg: Label 'Cannot generate xml: %1', Locked = true;
+        CannotDownloadRequestXmlErr: Label 'Not possible to download request XML for selected documents because of the following error: %1.', Comment = '%1 = error message';
 
     local procedure InvokeBatchSoapRequest(SIISession: Record "SII Session"; var TempSIIHistoryBuffer: Record "SII History" temporary; RequestText: Text; RequestType: Option InvoiceIssuedRegistration,InvoiceReceivedRegistration,PaymentSentRegistration,PaymentReceivedRegistration,CollectionInCashRegistration; var ResponseText: Text): Boolean
     var
@@ -67,6 +68,7 @@ codeunit 10752 "SII Doc. Upload Management"
         OnInvokeBatchSoapRequestOnBeforeStoreRequestXML(RequestText, RequestType, WebServiceUrl);
 
         SIISession.StoreRequestXml(RequestText);
+        Commit();
 
         HttpWebRequest := WebRequest.Create(Uri.Uri(WebServiceUrl));
         HttpWebRequest.ClientCertificates.Add(Cert);
@@ -149,6 +151,32 @@ codeunit 10752 "SII Doc. Upload Management"
     begin
         StreamReader := StreamReader.StreamReader(HttpWebResponse.GetResponseStream());
         ResponseText := StreamReader.ReadToEnd();
+    end;
+
+    procedure DownloadRequestForMultipleDocuments(var SIIHistory: Record "SII History")
+    var
+        SIIDocUploadState: Record "SII Doc. Upload State";
+        SIISession: Record "SII Session";
+        TempBlob: Codeunit "Temp Blob";
+        FileManagement: Codeunit "File Management";
+        XMLDoc: DotNet XmlDocument;
+        OutStream: OutStream;
+        IsSupported: Boolean;
+        Message: Text;
+        FileName: Text;
+    begin
+        if not SIIHistory.FindSet() then
+            exit;
+
+        repeat
+            SIIDocUploadState.Get(SIIHistory."Document State Id");
+            if not TryGenerateXml(SIIDocUploadState, SIIHistory, XMLDoc, IsSupported, Message) then
+                Error(CannotDownloadRequestXmlErr, Message);
+        until SIIHistory.Next() = 0;
+        TempBlob.CreateOutStream(OutStream, TEXTENCODING::UTF8);
+        OutStream.WriteText(SIISession.XMLTextIndent((XMLDoc.OuterXml)));
+        FileName := FileManagement.ServerTempFileName('xml');
+        FileManagement.BLOBExportWithEncoding(TempBlob, FileName, true, TEXTENCODING::UTF8);
     end;
 
     local procedure ExecutePendingRequests(var SIIDocUploadState: Record "SII Doc. Upload State"; var TempSIIHistoryBuffer: Record "SII History" temporary; BatchSubmissions: Boolean)

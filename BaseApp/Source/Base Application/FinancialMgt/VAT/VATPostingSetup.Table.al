@@ -59,6 +59,7 @@ table 325 "VAT Posting Setup"
                     GLSetup.Get();
                     if not GLSetup."Unrealized VAT" and not GLSetup."Prepayment Unrealized VAT" then
                         GLSetup.TestField("Unrealized VAT", true);
+                    NonDeductibleVAT.CheckUnrealizedVATWithNonDeductibleVATInVATPostingSetup(Rec);
                 end;
             end;
         }
@@ -158,6 +159,7 @@ table 325 "VAT Posting Setup"
                 "VAT %" := GetVATPtc();
                 "EC %" := GetECPercentage();
                 "VAT+EC %" := "VAT %" + "EC %";
+                NonDeductibleVAT.CheckVATPostingSetupChangeIsAllowed(Rec);
             end;
         }
         field(14; "EU Service"; Boolean)
@@ -200,6 +202,8 @@ table 325 "VAT Posting Setup"
             trigger OnValidate()
             begin
                 TestNotSalesTax(CopyStr(FieldCaption("VAT %"), 1, 100));
+                TestField("Allow Non-Deductible VAT", "Allow Non-Deductible VAT"::Allow);
+                NonDeductibleVAT.CheckVATPostingSetupChangeIsAllowed(Rec);
             end;
         }
         field(6201; "Non-Ded. Sales VAT Account"; Code[20])
@@ -227,6 +231,11 @@ table 325 "VAT Posting Setup"
         field(6203; "Allow Non-Deductible VAT"; Enum "Allow Non-Deductible VAT Type")
         {
             Caption = 'Allow Non-Deductible VAT';
+
+            trigger OnValidate()
+            begin
+                NonDeductibleVAT.CheckVATPostingSetupChangeIsAllowed(Rec);
+            end;
         }
         field(10700; "EC %"; Decimal)
         {
@@ -320,6 +329,7 @@ table 325 "VAT Posting Setup"
     var
         GLSetup: Record "General Ledger Setup";
         PostingSetupMgt: Codeunit PostingSetupManagement;
+        NonDeductibleVAT: Codeunit "Non-Deductible VAT";
 
         Text000: Label '%1 must be entered on the tax jurisdiction line when %2 is %3.';
         Text001: Label '%1 = %2 has already been used for %3 = %4 in %5 for %6 = %7 and %8 = %9.';

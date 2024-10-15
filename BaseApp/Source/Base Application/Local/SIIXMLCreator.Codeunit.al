@@ -667,6 +667,8 @@ codeunit 10750 "SII XML Creator"
               VendNo, CuotaDeducibleValue, SIIDocUploadState.IDType, RegimeCodes, ECVATEntryExists, InvoiceType,
               not TempVATEntryReverseChargeCalculated.IsEmpty());
 
+            OnAfterAddPurchTail(XMLNode, VendorLedgerEntry);
+
             exit(true);
         end;
 
@@ -799,13 +801,18 @@ codeunit 10750 "SII XML Creator"
         Vendor: Record Vendor;
         TempXMLNode: DotNet XmlNode;
         XmlNodeInnerXml: Text;
+        IsHandled: Boolean;
     begin
         XMLDOMManagement.AddElementWithPrefix(XMLNode, 'RegistroLRFacturasRecibidas', '', 'siiLR', SiiLRTxt, XMLNode);
         XMLDOMManagement.AddElementWithPrefix(XMLNode, FillDocHeaderNode(), '', 'sii', SiiTxt, XMLNode);
-        XMLDOMManagement.AddElementWithPrefix(
-          XMLNode, 'Ejercicio', GetYear(VendorLedgerEntry."Posting Date"), 'sii', SiiTxt, TempXMLNode);
-        XMLDOMManagement.AddElementWithPrefix(
-          XMLNode, 'Periodo', Format(VendorLedgerEntry."Posting Date", 0, '<Month,2>'), 'sii', SiiTxt, TempXMLNode);
+
+        OnInitializePurchXmlBodyOnBeforeAssignExerciseAndPeriod(XMLNode, VendorLedgerEntry, IsHandled);
+        if not IsHandled then begin
+            XMLDOMManagement.AddElementWithPrefix(
+            XMLNode, 'Ejercicio', GetYear(VendorLedgerEntry."Posting Date"), 'sii', SiiTxt, TempXMLNode);
+            XMLDOMManagement.AddElementWithPrefix(
+            XMLNode, 'Periodo', Format(VendorLedgerEntry."Posting Date", 0, '<Month,2>'), 'sii', SiiTxt, TempXMLNode);
+        end;
         XMLDOMManagement.FindNode(XMLNode, '..', XMLNode);
         XMLDOMManagement.AddElementWithPrefix(XMLNode, 'IDFactura', '', 'siiLR', SiiLRTxt, XMLNode);
         XMLDOMManagement.AddElementWithPrefix(XMLNode, 'IDEmisorFactura', '', 'sii', SiiTxt, XMLNode);
@@ -857,6 +864,9 @@ codeunit 10750 "SII XML Creator"
         if VatNo = '' then
             VatNo := BackupVatId;
         IDType := GetIDTypeToExport(IDTypeInt);
+
+        OnFillThirdPartyIdOnBeforeCheckCountryAndVATRegNo(CountryCode);
+
         if SIIManagement.CountryAndVATRegNoAreLocal(CountryCode, VatNo) then begin
             if NeedNombreRazon then
                 XMLDOMManagement.AddElementWithPrefix(XMLNode, 'NombreRazon', Name, 'sii', SiiTxt, TempXMLNode);
@@ -1500,6 +1510,9 @@ codeunit 10750 "SII XML Creator"
                 XMLDOMManagement.AddElementWithPrefix(XMLNode, 'CuotaSoportada', FormatNumber(VATAmountDiff), 'sii', SiiTxt, TempXMLNode);
 
                 GenerateRecargoEquivalenciaNodes(XMLNode, ECPercentDiff, ECAmountDiff);
+
+                OnHandleReplacementPurchCorrectiveInvoiceOnAfterGenerateRecargoEquivalenciaNodes(XMLNode, TempVATEntryPerPercent);
+
                 XMLDOMManagement.FindNode(XMLNode, '..', XMLNode);
                 ECVATEntryExists := ECVATEntryExists or (ECPercentDiff <> 0);
             until TempVATEntryPerPercent.Next() = 0;
@@ -1523,6 +1536,8 @@ codeunit 10750 "SII XML Creator"
                 ECVATEntryExists, InvoiceType, true, CuotaDeducibleDecValue);
             XMLDOMManagement.AddElementWithPrefix(
               XMLNode, 'CuotaDeducible', FormatNumber(CuotaDeducibleDecValue), 'sii', SiiTxt, TempXMLNode);
+
+            OnHandleReplacementPurchCorrectiveInvoiceOnAfterCuotaDeducible(XMLNode, VendorLedgerEntry);
         end;
     end;
 
@@ -2572,6 +2587,9 @@ codeunit 10750 "SII XML Creator"
             XMLDOMManagement.AddElementWithPrefix(XMLNode, AmountNodeName, FormatNumber(Amount), 'sii', SiiTxt, TempXmlNode);
         if (ECPercent <> 0) and FillEUServiceNodes then
             GenerateRecargoEquivalenciaNodes(XMLNode, ECPercent, ECAmount);
+
+        OnFillDetalleIVANodeOnAfterGenerateRecargoEquivalenciaNodes(XMLNode, TempVATEntry);
+
         XMLDOMManagement.FindNode(XMLNode, '..', XMLNode);
     end;
 
@@ -2950,6 +2968,36 @@ codeunit 10750 "SII XML Creator"
 
     [IntegrationEvent(false, false)]
     local procedure HandleReplacementSalesCorrectiveInvoiceOnBeforeContraparteNode(var XMLNode: DotNet XmlNode; var CustLedgerEntry: Record "Cust. Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterAddPurchTail(var XMLNode: DotNet XmlNode; VendorLedgerEntry: Record "Vendor Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInitializePurchXmlBodyOnBeforeAssignExerciseAndPeriod(var XMLNode: DotNet XmlNode; VendorLedgerEntry: Record "Vendor Ledger Entry"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnFillThirdPartyIdOnBeforeCheckCountryAndVATRegNo(var CountryCode: Code[20])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnHandleReplacementPurchCorrectiveInvoiceOnAfterGenerateRecargoEquivalenciaNodes(var XMLNode: DotNet XmlNode; TempVATEntry: Record "VAT Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnFillDetalleIVANodeOnAfterGenerateRecargoEquivalenciaNodes(var XMLNode: DotNet XmlNode; TempVATEntry: Record "VAT Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnHandleReplacementPurchCorrectiveInvoiceOnAfterCuotaDeducible(var XMLNode: DotNet XmlNode; VendorLedgerEntry: Record "Vendor Ledger Entry")
     begin
     end;
 }

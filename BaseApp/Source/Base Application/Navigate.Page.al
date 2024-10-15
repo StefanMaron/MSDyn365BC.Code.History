@@ -359,7 +359,13 @@
                     var
                         ItemTrackingNavigate: Report "Item Tracking Navigate";
                         DocumentEntries: Report "Document Entries";
+                        IsHandled: Boolean;
                     begin
+                        IsHandled := false;
+                        OnBeforePrint(Rec, SearchBasedOn, TempRecordBuffer, ItemTrackingFilters, DocNoFilter, PostingDateFilter, IsHandled);
+                        if IsHandled then
+                            exit;
+
                         if ItemTrackingSearch() then begin
                             Clear(ItemTrackingNavigate);
                             ItemTrackingNavigate.TransferDocEntries(Rec);
@@ -2710,7 +2716,7 @@
     end;
 
     [IntegrationEvent(true, false)]
-    local procedure OnBeforeFindRecordsSetSources(DocumentEntry: Record "Document Entry"; DocNoFilter: Text; PostingDateFilter: Text; ExtDocNo: Text; var IsHandled: Boolean)
+    local procedure OnBeforeFindRecordsSetSources(var DocumentEntry: Record "Document Entry"; DocNoFilter: Text; PostingDateFilter: Text; ExtDocNo: Text; var IsHandled: Boolean)
     begin
     end;
 
@@ -2793,4 +2799,9 @@
     local procedure OnFindBankEntriesOnAfterSetFilters(var BankAccountLedgerEntry: Record "Bank Account Ledger Entry")
     begin
     end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforePrint(var Rec: Record "Document Entry"; SearchBasedOn: Enum "Navigate Search Type"; var TempRecordBuffer: Record "Record Buffer"; var ItemTrackingFilters: Record Item; DocNoFilter: Text; PostingDateFilter: Text; var IsHandled: Boolean);
+    begin
+    end;    
 }

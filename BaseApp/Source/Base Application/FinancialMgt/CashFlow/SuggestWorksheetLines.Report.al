@@ -777,6 +777,8 @@
     end;
 
     procedure InsertTempCFWorksheetLine(CashFlowWorksheetLine: Record "Cash Flow Worksheet Line"; MaxPmtTolerance: Decimal)
+    var
+        IsHandled: Boolean;
     begin
         with TempCFWorksheetLine do begin
             LineNo := LineNo + 100;
@@ -784,7 +786,10 @@
             "Cash Flow Forecast No." := "Cash Flow Forecast"."No.";
             "Line No." := LineNo;
 
-            CalculateCFAmountAndCFDate();
+            IsHandled := false;
+            OnInsertTempCFWorksheetLineOnBeforeCalculateCFAmountAndCFDate(TempCFWorksheetLine, IsHandled);
+            if not IsHandled then
+                CalculateCFAmountAndCFDate();
             SetCashFlowDate(TempCFWorksheetLine, "Cash Flow Date");
 
             if Abs("Amount (LCY)") < Abs(MaxPmtTolerance) then
@@ -2212,6 +2217,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterInitCFLineForFixedAssetsBudget(var CashFlowWorksheetLine: Record "Cash Flow Worksheet Line"; FADepreciationBook: Record "FA Depreciation Book"; InvestmentFixedAsset: Record "Fixed Asset")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInsertTempCFWorksheetLineOnBeforeCalculateCFAmountAndCFDate(TempCashFlowWorksheetLine: Record "Cash Flow Worksheet Line" temporary; var IsHandled: Boolean);
     begin
     end;
 }

@@ -26,6 +26,7 @@ codeunit 137294 "SCM Inventory Miscellaneous II"
         LibraryWarehouse: Codeunit "Library - Warehouse";
         LibraryAssembly: Codeunit "Library - Assembly";
         LibraryRandom: Codeunit "Library - Random";
+        LibraryService: Codeunit "Library - Service";
         RegisterJournalLine: Label 'Do you want to register the journal lines?';
         RegisterJournalLineMessage: Label 'The journal lines were successfully registered.You are now';
         UpdatePhysicalInventoryError: Label 'You cannot change the Qty. (Phys. Inventory) because this item journal line is created from warehouse entries';
@@ -836,6 +837,55 @@ codeunit 137294 "SCM Inventory Miscellaneous II"
         // [THEN] Posting date is updated on the sales document.
         SalesHeader.Find();
         SalesHeader.TestField("Posting Date", WorkDate());
+    end;
+
+    [Test]
+    procedure InvPickUpdatesPostingDateInServiceDoc()
+    var
+        ServiceHeader: Record "Service Header";
+        WarehouseActivityHeader: Record "Warehouse Activity Header";
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+        WhseShipmentHeader: Record "Warehouse Shipment Header";
+        LocationCode: Code[10];
+    begin
+        // [Scenario] Verify Posting Date on Service Doc gets updated when Pick posting date is updates.
+        // [GIVEN] Setup: Create Location, create Service Order, release, set Posting Date and create and post Shipment and Pick
+        Initialize();
+
+        // [GIVEN] Create and Release Service Order with a Posting Date
+        LocationCode := CreateReleasedItemServiceOrderFromLocation(ServiceHeader);
+        ServiceHeader.Validate("Posting Date", CalcDate('<CD+20D>', WorkDate()));
+        ServiceHeader.Modify();
+
+        Commit();
+
+        // [GIVEN] Create Warehouse Shipment From Service Order
+        LibraryWarehouse.CreateWhseShipmentFromServiceOrder(ServiceHeader);
+        FindWhseShipmentHeader(WhseShipmentHeader, LocationCode, Enum::"Warehouse Activity Source Document"::"Service Order", ServiceHeader."No.");
+
+        // [GIVEN] Create a warehouse pick from the shipment
+        LibraryWarehouse.CreateWhsePick(WhseShipmentHeader);
+
+        // [GIVEN] Change the Posting Date on the Inventory Pick.
+        FindWarehouseActivityLine(
+          WarehouseActivityLine, Database::"Service Line", ServiceHeader."No.", WarehouseActivityLine."Activity Type"::"Pick");
+        WarehouseActivityLine.TestField("Destination Type", WarehouseActivityLine."Destination Type"::Customer);
+
+        WarehouseActivityHeader.Get(WarehouseActivityLine."Activity Type", WarehouseActivityLine."No.");
+        WarehouseActivityHeader.Validate("Posting Date", WorkDate());
+        WarehouseActivityHeader.Modify();
+        WarehouseActivityLine.Validate("Qty. to Handle", WarehouseActivityLine.Quantity - 1);
+        WarehouseActivityLine.Modify();
+
+        // [GIVEN] Pick is registered
+        LibraryWarehouse.RegisterWhseActivity(WarehouseActivityHeader);
+
+        // [WHEN] Post Warehouse Shipment
+        LibraryWarehouse.PostWhseShipment(WhseShipmentHeader, false);
+
+        // [THEN] Posting date is updated on the service document
+        ServiceHeader.Find();
+        ServiceHeader.TestField("Posting Date", WorkDate());
     end;
 
     [Test]
@@ -3022,12 +3072,12 @@ codeunit 137294 "SCM Inventory Miscellaneous II"
         LibraryWarehouse.FindBin(Bin, Location.Code, FindPickZone(Location.Code), 1);  // 1 is for Bin Index.
     end;
 
-    local procedure CreateItemInventoryAtLocation(var ItemNo: Code[20]; var LocationCode: Code[10]; var Quantity: Decimal)
+    local procedure CreateItemInventoryAtLocation(var ItemNo: Code[20]; var LocationCode: Code[10]; var Quantity: Decimal; BinMandatory: Boolean; RequireShipment: Boolean)
     var
         ItemJournalLine: Record "Item Journal Line";
         Location: Record Location;
     begin
-        CreateLocation(Location, false, false);
+        CreateLocation(Location, BinMandatory, RequireShipment);
         LocationCode := Location.Code;
         ItemNo := LibraryInventory.CreateItemNo();
         Quantity := LibraryRandom.RandIntInRange(3, 10);
@@ -3042,7 +3092,7 @@ codeunit 137294 "SCM Inventory Miscellaneous II"
         LocationCode: Code[10];
         Quantity: Decimal;
     begin
-        CreateItemInventoryAtLocation(ItemNo, LocationCode, Quantity);
+        CreateItemInventoryAtLocation(ItemNo, LocationCode, Quantity, false, false);
         LibrarySales.CreateSalesDocumentWithItem(
           SalesHeader, SalesLine, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo, ItemNo,
           Quantity, LocationCode, WorkDate());
@@ -3056,7 +3106,7 @@ codeunit 137294 "SCM Inventory Miscellaneous II"
         LocationCode: Code[10];
         Quantity: Decimal;
     begin
-        CreateItemInventoryAtLocation(ItemNo, LocationCode, Quantity);
+        CreateItemInventoryAtLocation(ItemNo, LocationCode, Quantity, false, false);
         LibraryPurchase.CreatePurchaseDocumentWithItem(
           PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::"Return Order", LibraryPurchase.CreateVendorNo, ItemNo,
           Quantity, LocationCode, WorkDate());
@@ -3073,7 +3123,7 @@ codeunit 137294 "SCM Inventory Miscellaneous II"
         FromLocationCode: Code[10];
         Quantity: Decimal;
     begin
-        CreateItemInventoryAtLocation(ItemNo, FromLocationCode, Quantity);
+        CreateItemInventoryAtLocation(ItemNo, FromLocationCode, Quantity, false, false);
         LibraryWarehouse.CreateLocation(ToLocation);
         LibraryWarehouse.CreateInTransitLocation(TransitLocation);
         LibraryInventory.CreateTransferRoute(TransferRoute, FromLocationCode, ToLocation.Code);
@@ -3270,6 +3320,80 @@ codeunit 137294 "SCM Inventory Miscellaneous II"
         Zone.SetRange("Bin Type Code", BinTypeCode);
         Zone.SetRange("Cross-Dock Bin Zone", false);
         Zone.FindFirst();
+    end;
+
+    local procedure CreateReleasedItemServiceOrderFromLocation(var ServiceHeader: Record "Service Header") LocationCode: Code[10];
+    var
+        ServiceLine: Record "Service Line";
+        ItemNo: Code[20];
+        Quantity: Decimal;
+        ServiceItemLineNo: Integer;
+    begin
+        CreateItemInventoryAtLocation(ItemNo, LocationCode, Quantity, false, true);
+        ServiceItemLineNo := CreateServiceOrder(ServiceHeader);
+        AddItemServiceLinesToOrder(ServiceHeader, ServiceItemLineNo, ItemNo, Quantity, LocationCode);
+        LibraryService.ReleaseServiceDocument(ServiceHeader);
+    end;
+
+    local procedure AddItemServiceLinesToOrder(var ServiceHeader: Record "Service Header"; ServiceItemLineNo: Integer; ItemNo: Code[20]; ItemQuantity: Integer; LocationCode: Code[10]): Integer
+    var
+        ServiceLine: Record "Service Line";
+    begin
+        LibraryService.CreateServiceLine(ServiceLine, ServiceHeader, ServiceLine.Type::Item, ItemNo);
+        UpdateServiceLine(ServiceLine, ServiceItemLineNo, ItemQuantity);
+        ServiceLine.SetHideReplacementDialog(true);
+        ServiceLine.Validate("Location Code", LocationCode);
+        ServiceLine.Validate("Unit Price", LibraryRandom.RandDec(100, 2));
+        ServiceLine.Modify();
+        exit(ServiceLine."Line No.");
+    end;
+
+    local procedure UpdateServiceLine(var ServiceLine: Record "Service Line"; ServiceItemLineNo: Integer; ItemQuantity: Integer)
+    begin
+        ServiceLine.Validate("Service Item Line No.", ServiceItemLineNo);
+        ServiceLine.Validate(Quantity, ItemQuantity);  // Use Random to select Random Quantity.
+        ServiceLine.Modify(true);
+    end;
+
+    local procedure CreateServiceOrder(var ServiceHeader: Record "Service Header"): Integer
+    var
+        Customer: Record Customer;
+        ServiceItemLine: Record "Service Item Line";
+        ServiceItem: Record "Service Item";
+    begin
+        LibrarySales.CreateCustomer(Customer);
+        LibraryService.CreateServiceItem(ServiceItem, Customer."No.");
+        UpdateAccountsInCustPostingGroup(ServiceItem."Customer No.");
+        LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Order, ServiceItem."Customer No.");
+        LibraryService.CreateServiceItemLine(ServiceItemLine, ServiceHeader, ServiceItem."No.");
+        exit(ServiceItemLine."Line No.");
+    end;
+
+    local procedure UpdateAccountsInCustPostingGroup(CustNo: Code[20])
+    var
+        Customer: Record Customer;
+        CustPostingGroup: Record "Customer Posting Group";
+    begin
+        Customer.Get(CustNo);
+        CustPostingGroup.Get(Customer."Customer Posting Group");
+        if CustPostingGroup."Payment Disc. Debit Acc." = '' then
+            CustPostingGroup.Validate("Payment Disc. Debit Acc.", LibraryERM.CreateGLAccountNo);
+        if CustPostingGroup."Payment Disc. Credit Acc." = '' then
+            CustPostingGroup.Validate("Payment Disc. Credit Acc.", LibraryERM.CreateGLAccountNo);
+        CustPostingGroup.Modify(true);
+    end;
+
+    local procedure FindWhseShipmentHeader(
+        var WhseShipmentHeader: Record "Warehouse Shipment Header"; LocationCode: Code[10]; SourceDocType: Enum "Warehouse Activity Source Document";
+        SourceDocNo: Code[20])
+    var
+        WhseShipmentLine: Record "Warehouse Shipment Line";
+    begin
+        WhseShipmentLine.SetRange("Location Code", LocationCode);
+        WhseShipmentLine.SetRange("Source Document", SourceDocType);
+        WhseShipmentLine.SetRange("Source No.", SourceDocNo);
+        WhseShipmentLine.FindFirst();
+        WhseShipmentHeader.Get(WhseShipmentLine."No.");
     end;
 
     [ModalPageHandler]

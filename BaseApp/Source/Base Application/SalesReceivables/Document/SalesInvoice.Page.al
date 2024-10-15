@@ -1974,6 +1974,7 @@ page 43 "Sales Invoice"
         SellToContact.GetOrClear("Sell-to Contact No.");
         BillToContact.GetOrClear("Bill-to Contact No.");
         UpdateDocHasRegimeCode();
+	    CurrPage.IncomingDocAttachFactBox.Page.SetCurrentRecordID(RecordId);
 
         SIIFirstSummaryDocNo := Copystr(GetSIIFirstSummaryDocNo(), 1, 35);
         SIILastSummaryDocNo := Copystr(GetSIILastSummaryDocNo(), 1, 35);
