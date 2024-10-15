@@ -9,22 +9,22 @@
   },
   "folders": [
     {
-      "path": "./System Application/Test/System Application Test"
-    },
-    {
-      "path": "./System Application/Test/System Application Test Library"
-    },
-    {
-      "path": "./System Application/Test/System Application Test/Extension Management/testArtifacts"
-    },
-    {
-      "path": "./System Application/Source/System Application/Email/src/Test Email"
-    },
-    {
       "path": "./INGateEntry/Test/India Gate Entry Tests"
     },
     {
       "path": "./INFADepreciation/Test/Fixed Asset Depreciation Tests"
+    },
+    {
+      "path": "./system application/test/System Application Test"
+    },
+    {
+      "path": "./system application/test/System Application Test Library"
+    },
+    {
+      "path": "./system application/test/System Application Test/Extension Management/testArtifacts"
+    },
+    {
+      "path": "./system application/source/System Application/Email/src/Test Email"
     },
     {
       "path": "./INTaxBase/Test/India Tax Base Tests"
@@ -46,9 +46,6 @@
     },
     {
       "path": "./EssentialBusinessHeadlines/Test/Essential Business Headlines Test"
-    },
-    {
-      "path": "./PayPalPaymentsStandard/Test/PayPal Payments Standard Tests"
     },
     {
       "path": "./INReports/Test/India Reports Tests"
@@ -159,7 +156,16 @@
       "path": "./BaseApp/Source/Base Application/Test Framework"
     },
     {
+      "path": "./onprem permissions/test/OnPrem Permissions Tests"
+    },
+    {
+      "path": "./salesandinventoryforecast/test/Sales and Inventory Forecast Tests"
+    },
+    {
       "path": "./CompanyHub/Test/Company Hub Tests"
+    },
+    {
+      "path": "./paypalpaymentsstandard/test/PayPal Payments Standard Tests"
     },
     {
       "path": "./INTDS/Test/India TDS Tests"
@@ -168,13 +174,7 @@
       "path": "./INGST/Test/India GST Tests"
     },
     {
-      "path": "./Onprem Permissions/Test/OnPrem Permissions Tests"
-    },
-    {
       "path": "./Email - SMTP Connector/Test/Email - SMTP Connector Tests"
-    },
-    {
-      "path": "./SalesAndInventoryForecast/Test/Sales and Inventory Forecast Tests"
     },
     {
       "path": "./INVoucherInterface/Test/India Voucher Interface Tests"
