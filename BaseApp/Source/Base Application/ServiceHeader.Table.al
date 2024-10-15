@@ -4270,6 +4270,11 @@
             Result := ConfirmManagement.GetResponseOrDefault(StrSubstNo(Text012, ChangedFieldName), true);
     end;
 
+    procedure IsCreditDocType(): Boolean
+    begin
+        exit("Document Type" = "Document Type"::"Credit Memo");
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnBeforeGetFullDocTypeTxt(var ServiceHeader: Record "Service Header"; var FullDocTypeTxt: Text; var IsHandled: Boolean)
     begin

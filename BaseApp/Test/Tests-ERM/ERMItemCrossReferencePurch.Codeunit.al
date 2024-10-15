@@ -1377,6 +1377,48 @@ codeunit 134461 "ERM Item Cross Reference Purch"
         ItemCrossReference.TestField("Cross-Reference No.", ItemVendor."Vendor Item No.");
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure ItemVendorCatalogPageUpdateItemCrossRefAfterValidateVendorItemNoThenModifyRec()
+    var
+        ItemVendor: Record "Item Vendor";
+        ItemCrossReference: Record "Item Cross Reference";
+        ItemVendorCatalog: TestPage "Item Vendor Catalog";
+        ItemNo: Code[20];
+        VendorNo: Code[20];
+        VendorItemNo: Code[20];
+    begin
+        // [SCENARIO 380113] "Item Cross Reference" updated correctly after updating "Vendor Item No." on the "Item Vendor Catalog" Page and modifying the record
+        Initialize();
+
+        // [GIVEN] Item = "I", Vendor = "V"
+        ItemNo := LibraryInventory.CreateItemNo();
+        VendorNo := LibraryPurchase.CreateVendorNo();
+
+        // [GIVEN] "Item Vendor" - "Vendor No." = "V", "Item No." = "I"
+        ItemVendor.Init();
+        ItemVendor.Validate("Item No.", ItemNo);
+        ItemVendor.Validate("Vendor No.", VendorNo);
+        ItemVendor.Insert(true);
+
+        // [GIVEN] "Vendor Item No." changed to "VI" on the Item Vendor Catalog Page
+        VendorItemNo := LibraryUtility.GenerateGUID();
+        ItemVendorCatalog.OpenEdit();
+        ItemVendorCatalog.FILTER.SetFilter("Item No.", ItemNo);
+        ItemVendorCatalog."Vendor Item No.".SetValue(VendorItemNo);
+
+        // [WHEN] Finish record modification
+        ItemVendorCatalog.Close();
+
+        // [THEN] Record modified without errors
+        // [THEN] "Item Cross Reference"."Cross-Reference No." = "VI"
+        ItemCrossReference.SetRange("Item No.", ItemNo);
+        ItemCrossReference.SetRange("Cross-Reference Type", ItemCrossReference."Cross-Reference Type"::Vendor);
+        ItemCrossReference.SetRange("Cross-Reference Type No.", VendorNo);
+        ItemCrossReference.FindFirst();
+        ItemCrossReference.TestField("Cross-Reference No.", VendorItemNo);
+    end;
+
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(Codeunit::"ERM Item Cross Reference Purch");

@@ -229,7 +229,7 @@ codeunit 138500 "Common Demodata"
         CountryRegion.SetFilter("VAT Scheme", '*%1', ':VAT');
         Assert.RecordIsEmpty(CountryRegion);
         CountryRegion.SetFilter("VAT Scheme", '<>%1', '');
-        Assert.RecordCount(CountryRegion, 30);
+        Assert.RecordCount(CountryRegion, 31);
     end;
 }
 
