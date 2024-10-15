@@ -1,4 +1,28 @@
-﻿codeunit 333 "Req. Wksh.-Make Order"
+﻿namespace Microsoft.Inventory.Requisition;
+
+using Microsoft.Assembly.Document;
+using Microsoft.Finance.Dimension;
+using Microsoft.Foundation.Company;
+using Microsoft.Foundation.ExtendedText;
+using Microsoft.Foundation.Navigate;
+using Microsoft.Foundation.Period;
+using Microsoft.Foundation.UOM;
+using Microsoft.Inventory;
+using Microsoft.Inventory.Item;
+using Microsoft.Inventory.Item.Catalog;
+using Microsoft.Inventory.Location;
+using Microsoft.Inventory.Setup;
+using Microsoft.Inventory.Tracking;
+using Microsoft.Inventory.Transfer;
+using Microsoft.Manufacturing.Document;
+using Microsoft.Projects.Project.Planning;
+using Microsoft.Purchases.Document;
+using Microsoft.Purchases.Setup;
+using Microsoft.Purchases.Vendor;
+using Microsoft.Sales.Document;
+using Microsoft.Service.Document;
+
+codeunit 333 "Req. Wksh.-Make Order"
 {
     Permissions = TableData "Sales Line" = m;
     TableNo = "Requisition Line";
@@ -13,7 +37,7 @@
             exit;
 
         if PlanningResiliency then
-            LockTable();
+            Rec.LockTable();
 
         CarryOutReqLineAction(Rec);
     end;
@@ -342,7 +366,7 @@
                 Item.SetLoadFields("Variant Mandatory if Exists");
                 if Item.Get("No.") then
                     if Item.IsVariantMandatory() then
-                        TestField("Variant Code");
+                        ReqLine2.TestField("Variant Code");
             end;
 
             if IsDropShipment() then
@@ -835,7 +859,7 @@
             PurchOrderHeader.Modify();
             PurchOrderHeader.Mark(true);
             TempDocumentEntry.Init();
-            TempDocumentEntry."Table ID" := DATABASE::"Purchase Header";
+            TempDocumentEntry."Table ID" := Database::"Purchase Header";
             TempDocumentEntry."Document Type" := PurchOrderHeader."Document Type"::Order;
             TempDocumentEntry."Document No." := PurchOrderHeader."No.";
             TempDocumentEntry."Entry No." := TempDocumentEntry.Count + 1;
@@ -1023,13 +1047,13 @@
         end;
 
         case ReqLine."Demand Type" of
-            DATABASE::"Prod. Order Component":
+            Database::"Prod. Order Component":
                 begin
                     ProdOrderComp.Get(
                       ReqLine."Demand Subtype", ReqLine."Demand Order No.", ReqLine."Demand Line No.", ReqLine."Demand Ref. No.");
                     ProdOrderCompReserve.BindToPurchase(ProdOrderComp, PurchLine, ReservQty, ReservQtyBase);
                 end;
-            DATABASE::"Sales Line":
+            Database::"Sales Line":
                 begin
                     SalesLine.Get(ReqLine."Demand Subtype", ReqLine."Demand Order No.", ReqLine."Demand Line No.");
                     SalesLineReserve.BindToPurchase(SalesLine, PurchLine, ReservQty, ReservQtyBase);
@@ -1038,7 +1062,7 @@
                         SalesLine.Modify();
                     end;
                 end;
-            DATABASE::"Service Line":
+            Database::"Service Line":
                 begin
                     ServLine.Get(ReqLine."Demand Subtype", ReqLine."Demand Order No.", ReqLine."Demand Line No.");
                     ServLineReserve.BindToPurchase(ServLine, PurchLine, ReservQty, ReservQtyBase);
@@ -1047,7 +1071,7 @@
                         ServLine.Modify();
                     end;
                 end;
-            DATABASE::"Job Planning Line":
+            Database::"Job Planning Line":
                 begin
                     JobPlanningLine.SetRange("Job Contract Entry No.", ReqLine."Demand Line No.");
                     JobPlanningLine.FindFirst();
@@ -1057,7 +1081,7 @@
                         JobPlanningLine.Modify();
                     end;
                 end;
-            DATABASE::"Assembly Line":
+            Database::"Assembly Line":
                 begin
                     AsmLine.Get(ReqLine."Demand Subtype", ReqLine."Demand Order No.", ReqLine."Demand Line No.");
                     AsmLineReserve.BindToPurchase(AsmLine, PurchLine, ReservQty, ReservQtyBase);
@@ -1408,7 +1432,7 @@
         JobPlanningLine: Record "Job Planning Line";
     begin
         if (RequisitionLine."Planning Line Origin" = RequisitionLine."Planning Line Origin"::"Order Planning") and
-           (RequisitionLine."Demand Type" = DATABASE::"Job Planning Line")
+           (RequisitionLine."Demand Type" = Database::"Job Planning Line")
         then begin
             JobPlanningLine.SetRange("Job Contract Entry No.", RequisitionLine."Demand Line No.");
             JobPlanningLine.FindFirst();

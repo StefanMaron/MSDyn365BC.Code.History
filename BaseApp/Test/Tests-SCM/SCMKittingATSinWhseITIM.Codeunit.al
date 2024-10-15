@@ -510,6 +510,7 @@ codeunit 137105 "SCM Kitting ATS in Whse/IT IM"
         LocationSetupBM(Location);
         // Skip validate trigger to improve performance.
         Location."Require Pick" := true;
+        Location."Asm. Consump. Whse. Handling" := Enum::"Asm. Consump. Whse. Handling"::"Inventory Movement";
 
         AssignBinCodesInvtMvmt;
 

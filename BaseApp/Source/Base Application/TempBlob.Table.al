@@ -1,4 +1,6 @@
 #pragma warning disable AS0018
+namespace System.Utilities;
+
 table 99008535 TempBlob
 {
     ObsoleteState = Removed;

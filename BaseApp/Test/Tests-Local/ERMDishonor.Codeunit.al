@@ -863,6 +863,7 @@ codeunit 144133 "ERM Dishonor"
     local procedure PostCustomerApplicationEntry(CustLedgerEntry: Record "Cust. Ledger Entry"; DocumentNo: Code[20]; ApplicationDate: Date)
     var
         CustLedgerEntry2: Record "Cust. Ledger Entry";
+        ApplyUnapplyParameters: Record "Apply Unapply Parameters";
         CustEntryApplyPostedEntries: Codeunit "CustEntry-Apply Posted Entries";
     begin
         CustLedgerEntry.CalcFields("Remaining Amount");
@@ -873,7 +874,10 @@ codeunit 144133 "ERM Dishonor"
         CustLedgerEntry2.Validate("Amount to Apply", CustLedgerEntry2."Remaining Amount");
         CustLedgerEntry2.Modify(true);
         LibraryERM.SetAppliestoIdCustomer(CustLedgerEntry2);
-        CustEntryApplyPostedEntries.Apply(CustLedgerEntry, DocumentNo, ApplicationDate);
+
+        ApplyUnapplyParameters."Document No." := DocumentNo;
+        ApplyUnapplyParameters."Posting Date" := ApplicationDate;
+        CustEntryApplyPostedEntries.Apply(CustLedgerEntry, ApplyUnapplyParameters);
     end;
 
     local procedure PostCustLedgerApplicationAfterSetAppliesToId(CustomerNo: Code[20]; DocumentNo: Code[20])

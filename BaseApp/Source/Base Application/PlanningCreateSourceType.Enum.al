@@ -1,3 +1,5 @@
+namespace Microsoft.Inventory.Planning;
+
 enum 5524 "Planning Create Source Type"
 {
     Extensible = true;

@@ -312,7 +312,7 @@ codeunit 134810 "ERM Cost Accounting Setup"
         CostType.SetFilter("Balance at Date", '%1', 0);
         CostType.SetFilter("Balance to Allocate", '%1', 0);
         if not CostType.FindFirst() then
-            Error(StrSubstNo(NoRecordsInFilterError, CostType.TableCaption(), CostType.GetFilters));
+            Error(NoRecordsInFilterError, CostType.TableCaption(), CostType.GetFilters);
         CostType.Delete(true);
 
         // Exercise:
@@ -773,7 +773,7 @@ codeunit 134810 "ERM Cost Accounting Setup"
 
         CostType.SetFilter("G/L Account Range", '%1', GLAccount."No.");
         if not CostType.FindFirst() then
-            Error(StrSubstNo(NoRecordsInFilterError, CostType.TableCaption(), CostType.GetFilters));
+            Error(NoRecordsInFilterError, CostType.TableCaption(), CostType.GetFilters);
         CostTypeNo := CostType."No.";
 
         CostType.Delete(true);

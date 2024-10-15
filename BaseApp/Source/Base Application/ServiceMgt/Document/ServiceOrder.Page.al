@@ -1,10 +1,33 @@
-﻿page 5900 "Service Order"
+﻿namespace Microsoft.Service.Document;
+
+using Microsoft.CRM.Contact;
+using Microsoft.Finance.Currency;
+using Microsoft.Finance.Dimension;
+using Microsoft.Finance.VAT.Calculation;
+using Microsoft.Foundation.Address;
+using Microsoft.Foundation.Reporting;
+using Microsoft.Inventory.Availability;
+using Microsoft.Projects.Project.Ledger;
+using Microsoft.Sales.Customer;
+using Microsoft.Service.Comment;
+using Microsoft.Service.Email;
+using Microsoft.Service.History;
+using Microsoft.Service.Ledger;
+using Microsoft.Service.Posting;
+using Microsoft.Utilities;
+using Microsoft.Warehouse.Activity;
+using Microsoft.Warehouse.Document;
+using Microsoft.Warehouse.Request;
+using System.Security.User;
+using Microsoft.Foundation.PaymentTerms;
+
+page 5900 "Service Order"
 {
     Caption = 'Service Order';
     PageType = Document;
     RefreshOnActivate = true;
     SourceTable = "Service Header";
-    SourceTableView = WHERE("Document Type" = FILTER(Order));
+    SourceTableView = where("Document Type" = filter(Order));
 
     layout
     {
@@ -21,7 +44,7 @@
 
                     trigger OnAssistEdit()
                     begin
-                        if AssistEdit(xRec) then
+                        if Rec.AssistEdit(xRec) then
                             CurrPage.Update();
                     end;
                 }
@@ -48,9 +71,9 @@
 
                     trigger OnValidate()
                     begin
-                        if GetFilter("Contact No.") = xRec."Contact No." then
-                            if "Contact No." <> xRec."Contact No." then
-                                SetRange("Contact No.");
+                        if Rec.GetFilter("Contact No.") = xRec."Contact No." then
+                            if Rec."Contact No." <> xRec."Contact No." then
+                                Rec.SetRange("Contact No.");
                     end;
                 }
                 group("Sell-To")
@@ -61,7 +84,7 @@
                         ApplicationArea = Service;
                         ToolTip = 'Specifies the name of the customer to whom the items on the document will be shipped.';
                     }
-                    field(Address; Address)
+                    field(Address; Rec.Address)
                     {
                         ApplicationArea = Service;
                         QuickEntry = false;
@@ -74,7 +97,7 @@
                         QuickEntry = false;
                         ToolTip = 'Specifies additional address information.';
                     }
-                    field(City; City)
+                    field(City; Rec.City)
                     {
                         ApplicationArea = Service;
                         QuickEntry = false;
@@ -84,7 +107,7 @@
                     {
                         ShowCaption = false;
                         Visible = IsSellToCountyVisible;
-                        field(County; County)
+                        field(County; Rec.County)
                         {
                             ApplicationArea = Service;
                             QuickEntry = false;
@@ -105,7 +128,7 @@
 
                         trigger OnValidate()
                         begin
-                            IsSellToCountyVisible := FormatAddress.UseCounty("Country/Region Code");
+                            IsSellToCountyVisible := FormatAddress.UseCounty(Rec."Country/Region Code");
                         end;
                     }
                     field("Contact Name"; Rec."Contact Name")
@@ -167,7 +190,7 @@
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the estimated time when work on the order starts, that is, when the service order status changes from Pending, to In Process.';
                 }
-                field(Priority; Priority)
+                field(Priority; Rec.Priority)
                 {
                     ApplicationArea = Service;
                     Importance = Promoted;
@@ -222,7 +245,7 @@
                 ApplicationArea = Service;
                 Enabled = IsServiceLinesEditable;
                 Editable = IsServiceLinesEditable;
-                SubPageLink = "Document No." = FIELD("No.");
+                SubPageLink = "Document No." = field("No.");
             }
             group(Invoicing)
             {
@@ -302,7 +325,7 @@
 
                         trigger OnValidate()
                         begin
-                            IsBillToCountyVisible := FormatAddress.UseCounty("Bill-to Country/Region Code");
+                            IsBillToCountyVisible := FormatAddress.UseCounty(Rec."Bill-to Country/Region Code");
                         end;
                     }
                     field("Bill-to Contact"; Rec."Bill-to Contact")
@@ -443,9 +466,9 @@
                     trigger OnAssistEdit()
                     begin
                         Clear(ChangeExchangeRate);
-                        ChangeExchangeRate.SetParameter("Currency Code", "Currency Factor", "Posting Date");
+                        ChangeExchangeRate.SetParameter(Rec."Currency Code", Rec."Currency Factor", Rec."Posting Date");
                         if ChangeExchangeRate.RunModal() = ACTION::OK then begin
-                            Validate("Currency Factor", ChangeExchangeRate.GetParameter());
+                            Rec.Validate("Currency Factor", ChangeExchangeRate.GetParameter());
                             CurrPage.Update();
                         end;
                         Clear(ChangeExchangeRate);
@@ -577,7 +600,7 @@
 
                         trigger OnValidate()
                         begin
-                            IsShipToCountyVisible := FormatAddress.UseCounty("Ship-to Country/Region Code");
+                            IsShipToCountyVisible := FormatAddress.UseCounty(Rec."Ship-to Country/Region Code");
                         end;
                     }
                     field("Ship-to Contact"; Rec."Ship-to Contact")
@@ -785,7 +808,7 @@
                     ApplicationArea = BasicEU;
                     ToolTip = 'Specifies the point of exit through which you ship the items out of your country/region, for reporting to Intrastat.';
                 }
-                field("Area"; Area)
+                field("Area"; Rec.Area)
                 {
                     ApplicationArea = BasicEU;
                     ToolTip = 'Specifies the area of the customer or vendor, for the purpose of reporting to INTRASTAT.';
@@ -804,7 +827,7 @@
                     ApplicationArea = Service;
                     ToolTip = 'Specifies if the customer is an individual person.';
                 }
-                field(Resident; Resident)
+                field(Resident; Rec.Resident)
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies if the individual is a resident or non-resident of Italy.';
@@ -838,34 +861,34 @@
                 ApplicationArea = All;
                 Caption = 'Document Check';
                 Visible = ServiceDocCheckFactboxVisible;
-                SubPageLink = "No." = FIELD("No."),
-                              "Document Type" = FIELD("Document Type");
+                SubPageLink = "No." = field("No."),
+                              "Document Type" = field("Document Type");
             }
             part(Control1902018507; "Customer Statistics FactBox")
             {
                 ApplicationArea = Service;
-                SubPageLink = "No." = FIELD("Bill-to Customer No."),
+                SubPageLink = "No." = field("Bill-to Customer No."),
                               "Date Filter" = field("Date Filter");
                 Visible = false;
             }
             part(Control1900316107; "Customer Details FactBox")
             {
                 ApplicationArea = Service;
-                SubPageLink = "No." = FIELD("Customer No."),
+                SubPageLink = "No." = field("Customer No."),
                               "Date Filter" = field("Date Filter");
                 Visible = false;
             }
             part(Control1907829707; "Service Hist. Sell-to FactBox")
             {
                 ApplicationArea = Service;
-                SubPageLink = "No." = FIELD("Customer No."),
+                SubPageLink = "No." = field("Customer No."),
                               "Date Filter" = field("Date Filter");
                 Visible = true;
             }
             part(Control1902613707; "Service Hist. Bill-to FactBox")
             {
                 ApplicationArea = Service;
-                SubPageLink = "No." = FIELD("Bill-to Customer No."),
+                SubPageLink = "No." = field("Bill-to Customer No."),
                               "Date Filter" = field("Date Filter");
                 Visible = false;
             }
@@ -873,9 +896,9 @@
             {
                 ApplicationArea = Service;
                 Provider = ServItemLines;
-                SubPageLink = "Document Type" = FIELD("Document Type"),
-                              "Document No." = FIELD("Document No."),
-                              "Line No." = FIELD("Line No.");
+                SubPageLink = "Document Type" = field("Document Type"),
+                              "Document No." = field("Document No."),
+                              "Line No." = field("Line No.");
                 Visible = true;
             }
             systempart(Control1900383207; Links)
@@ -911,7 +934,7 @@
                         DemandOverview: Page "Demand Overview";
                     begin
                         DemandOverview.SetCalculationParameter(true);
-                        DemandOverview.Initialize(0D, 4, "No.", '', '');
+                        DemandOverview.Initialize(0D, 4, Rec."No.", '', '');
                         DemandOverview.RunModal();
                     end;
                 }
@@ -932,7 +955,7 @@
                         OrderPromisingLines.SetSource(OrderPromisingLine."Source Type"::"Service Order");
                         Clear(OrderPromisingLine);
                         OrderPromisingLine.SetRange("Source Type", OrderPromisingLine."Source Type"::"Service Order");
-                        OrderPromisingLine.SetRange("Source ID", "No.");
+                        OrderPromisingLine.SetRange("Source ID", Rec."No.");
                         OrderPromisingLines.SetTableView(OrderPromisingLine);
                         OrderPromisingLines.RunModal();
                     end;
@@ -943,7 +966,7 @@
                     Caption = '&Customer Card';
                     Image = Customer;
                     RunObject = Page "Customer Card";
-                    RunPageLink = "No." = FIELD("Customer No.");
+                    RunPageLink = "No." = field("Customer No.");
                     ShortCutKey = 'Shift+F7';
                     ToolTip = 'View detailed information about the customer.';
                 }
@@ -952,14 +975,14 @@
                     AccessByPermission = TableData Dimension = R;
                     ApplicationArea = Dimensions;
                     Caption = '&Dimensions';
-                    Enabled = "No." <> '';
+                    Enabled = Rec."No." <> '';
                     Image = Dimensions;
                     ShortCutKey = 'Alt+D';
                     ToolTip = 'View or edit dimensions, such as area, project, or department, that you can assign to journal lines to distribute costs and analyze transaction history.';
 
                     trigger OnAction()
                     begin
-                        ShowDocDim();
+                        Rec.ShowDocDim();
                     end;
                 }
                 action("Service Document Lo&g")
@@ -982,9 +1005,9 @@
                     Caption = 'Email &Queue';
                     Image = Email;
                     RunObject = Page "Service Email Queue";
-                    RunPageLink = "Document Type" = CONST("Service Order"),
-                                  "Document No." = FIELD("No.");
-                    RunPageView = SORTING("Document Type", "Document No.");
+                    RunPageLink = "Document Type" = const("Service Order"),
+                                  "Document No." = field("No.");
+                    RunPageView = sorting("Document Type", "Document No.");
                     ToolTip = 'View the list of emails that are waiting to be sent automatically to notify customers about their service item.';
                 }
                 action("Co&mments")
@@ -993,10 +1016,10 @@
                     Caption = 'Co&mments';
                     Image = ViewComments;
                     RunObject = Page "Service Comment Sheet";
-                    RunPageLink = "Table Name" = CONST("Service Header"),
-                                  "Table Subtype" = FIELD("Document Type"),
-                                  "No." = FIELD("No."),
-                                  Type = CONST(General);
+                    RunPageLink = "Table Name" = const("Service Header"),
+                                  "Table Subtype" = field("Document Type"),
+                                  "No." = field("No."),
+                                  Type = const(General);
                     ToolTip = 'View or add comments for the record.';
                 }
             }
@@ -1014,7 +1037,7 @@
 
                     trigger OnAction()
                     begin
-                        OpenOrderStatistics();
+                        Rec.OpenOrderStatistics();
                     end;
                 }
             }
@@ -1028,8 +1051,8 @@
                     Caption = 'S&hipments';
                     Image = Shipment;
                     RunObject = Page "Posted Service Shipments";
-                    RunPageLink = "Order No." = FIELD("No.");
-                    RunPageView = SORTING("Order No.");
+                    RunPageLink = "Order No." = field("No.");
+                    RunPageView = sorting("Order No.");
                     ToolTip = 'View related posted service shipments.';
                 }
                 action(Invoices)
@@ -1037,10 +1060,16 @@
                     ApplicationArea = Service;
                     Caption = 'Invoices';
                     Image = Invoice;
-                    RunObject = Page "Posted Service Invoices";
-                    RunPageLink = "Order No." = FIELD("No.");
-                    RunPageView = SORTING("Order No.");
                     ToolTip = 'View a list of ongoing sales invoices for the order.';
+
+                    trigger OnAction()
+                    var
+                        TempServiceInvoiceHeader: Record "Service Invoice Header" temporary;
+                        ServiceGetShipment: Codeunit "Service-Get Shipment";
+                    begin
+                        ServiceGetShipment.GetServiceOrderInvoices(TempServiceInvoiceHeader, Rec."No.");
+                        Page.Run(Page::"Posted Service Invoices", TempServiceInvoiceHeader);
+                    end;
                 }
             }
             group("W&arehouse")
@@ -1053,12 +1082,12 @@
                     Caption = 'Warehouse Shipment Lines';
                     Image = ShipmentLines;
                     RunObject = Page "Whse. Shipment Lines";
-                    RunPageLink = "Source Type" = CONST(5902),
+                    RunPageLink = "Source Type" = const(5902),
 #pragma warning disable AL0603
-                                  "Source Subtype" = FIELD("Document Type"),
+                                  "Source Subtype" = field("Document Type"),
 #pragma warning restore
-                                  "Source No." = FIELD("No.");
-                    RunPageView = SORTING("Source Type", "Source Subtype", "Source No.", "Source Line No.");
+                                  "Source No." = field("No.");
+                    RunPageView = sorting("Source Type", "Source Subtype", "Source No.", "Source Line No.");
                     ToolTip = 'View ongoing warehouse shipments for the document, in advanced warehouse configurations.';
                 }
                 action("Whse. Pick Lines")
@@ -1082,8 +1111,8 @@
                     Caption = 'Service Ledger E&ntries';
                     Image = ServiceLedger;
                     RunObject = Page "Service Ledger Entries";
-                    RunPageLink = "Service Order No." = FIELD("No.");
-                    RunPageView = SORTING("Service Order No.", "Service Item No. (Serviced)", "Entry Type", "Moved from Prepaid Acc.", "Posting Date", Open, Type);
+                    RunPageLink = "Service Order No." = field("No.");
+                    RunPageView = sorting("Service Order No.", "Service Item No. (Serviced)", "Entry Type", "Moved from Prepaid Acc.", "Posting Date", Open, Type);
                     ShortCutKey = 'Ctrl+F7';
                     ToolTip = 'View all the ledger entries for the service item or service order that result from posting transactions in service documents.';
                 }
@@ -1093,8 +1122,8 @@
                     Caption = '&Warranty Ledger Entries';
                     Image = WarrantyLedger;
                     RunObject = Page "Warranty Ledger Entries";
-                    RunPageLink = "Service Order No." = FIELD("No.");
-                    RunPageView = SORTING("Service Order No.", "Posting Date", "Document No.");
+                    RunPageLink = "Service Order No." = field("No.");
+                    RunPageView = sorting("Service Order No.", "Posting Date", "Document No.");
                     ToolTip = 'View all the ledger entries for the service item or service order that result from posting transactions in service documents that contain warranty agreements.';
                 }
                 action("&Job Ledger Entries")
@@ -1103,9 +1132,9 @@
                     Caption = '&Job Ledger Entries';
                     Image = JobLedger;
                     RunObject = Page "Job Ledger Entries";
-                    RunPageLink = "Service Order No." = FIELD("No.");
-                    RunPageView = SORTING("Service Order No.", "Posting Date")
-                                  WHERE("Entry Type" = CONST(Usage));
+                    RunPageLink = "Service Order No." = field("No.");
+                    RunPageView = sorting("Service Order No.", "Posting Date")
+                                  where("Entry Type" = const(Usage));
                     ToolTip = 'View all the job ledger entries that result from posting transactions in the service document that involve a job.';
                 }
             }
@@ -1122,9 +1151,9 @@
                     Caption = 'Pa&yments';
                     Image = Payment;
                     RunObject = Page "Payment Date Lines";
-                    RunPageLink = "Sales/Purchase" = CONST(Service),
-                                  Type = FIELD("Document Type"),
-                                  Code = FIELD("No.");
+                    RunPageLink = "Sales/Purchase" = const(Service),
+                                  Type = field("Document Type"),
+                                  Code = field("No.");
                     ToolTip = 'View the related payments.';
                 }
                 action("Create Customer")
@@ -1187,8 +1216,8 @@
                     begin
                         Rec.PerformManualRelease();
                         GetSourceDocOutbound.CreateFromServiceOrder(Rec);
-                        if not Find('=><') then
-                            Init();
+                        if not Rec.Find('=><') then
+                            Rec.Init();
                     end;
                 }
             }
@@ -1224,7 +1253,7 @@
                     var
                         InstructionMgt: Codeunit "Instruction Mgt.";
                     begin
-                        DocumentIsPosted := SendToPost(Codeunit::"Service-Post (Yes/No)");
+                        DocumentIsPosted := Rec.SendToPost(Codeunit::"Service-Post (Yes/No)");
                         if InstructionMgt.IsEnabled(InstructionMgt.ShowPostedConfirmationMessageCode()) then
                             ShowPostedConfirmationMessage();
                         CurrPage.Update(false);
@@ -1242,9 +1271,9 @@
                     var
                         ServPostYesNo: Codeunit "Service-Post (Yes/No)";
                     begin
-                        ServHeader.Get("Document Type", "No.");
+                        ServHeader.Get(Rec."Document Type", Rec."No.");
                         ServPostYesNo.PreviewDocument(ServHeader);
-                        DocumentIsPosted := not ServHeader.Get("Document Type", "No.");
+                        DocumentIsPosted := not ServHeader.Get(Rec."Document Type", Rec."No.");
                     end;
                 }
                 action("Post and &Print")
@@ -1258,7 +1287,7 @@
 
                     trigger OnAction()
                     begin
-                        DocumentIsPosted := SendToPost(Codeunit::"Service-Post+Print");
+                        DocumentIsPosted := Rec.SendToPost(Codeunit::"Service-Post+Print");
                     end;
                 }
                 action(PostBatch)
@@ -1404,7 +1433,7 @@
 
     trigger OnInsertRecord(BelowxRec: Boolean): Boolean
     begin
-        CheckCreditMaxBeforeInsert(false);
+        Rec.CheckCreditMaxBeforeInsert(false);
     end;
 
     trigger OnNewRecord(BelowxRec: Boolean)
@@ -1466,9 +1495,7 @@
         IsSellToCountyVisible: Boolean;
         IsShipToCountyVisible: Boolean;
         ServiceDocCheckFactboxVisible: Boolean;
-        [InDataSet]
         IsServiceLinesEditable: Boolean;
-        [InDataSet]
         VATDateEnabled: Boolean;
 
     local procedure ActivateFields()

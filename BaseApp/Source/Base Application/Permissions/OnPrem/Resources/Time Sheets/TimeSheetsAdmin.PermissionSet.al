@@ -1,3 +1,7 @@
+namespace System.Security.AccessControl;
+
+using Microsoft.Projects.TimeSheet;
+
 permissionset 7682 "Time Sheets - Admin"
 {
     Access = Public;

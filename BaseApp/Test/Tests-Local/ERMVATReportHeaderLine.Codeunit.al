@@ -404,7 +404,7 @@ codeunit 134056 "ERM VAT Report Header Line"
         VATReport.OpenNew();
         VATReport.GotoRecord(VATReportHdr);
         VATReport."Original Report No.".Lookup;
-        VATReportHdr.Get(VATReport."No.");
+        VATReportHdr.Get(VATReport."No.".Value);
         VATReport.OK.Invoke;
         VATReportHdr.Find(); // Refresh record.
         VATReportHdr.TestField("Original Report No.", VATReportHdr2."No.");

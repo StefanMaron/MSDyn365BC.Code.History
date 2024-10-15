@@ -1,4 +1,59 @@
-﻿table 5900 "Service Header"
+﻿namespace Microsoft.Service.Document;
+
+using Microsoft.Bank.BankAccount;
+using Microsoft.Bank.DirectDebit;
+using Microsoft.Bank.Payment;
+using Microsoft.CRM.BusinessRelation;
+using Microsoft.CRM.Contact;
+using Microsoft.CRM.Team;
+using Microsoft.Finance.Currency;
+using Microsoft.Finance.Dimension;
+using Microsoft.Finance.GeneralLedger.Account;
+using Microsoft.Finance.GeneralLedger.Journal;
+using Microsoft.Finance.GeneralLedger.Setup;
+using Microsoft.Finance.ReceivablesPayables;
+using Microsoft.Finance.SalesTax;
+using Microsoft.Finance.VAT.Setup;
+using Microsoft.Foundation.Address;
+using Microsoft.Foundation.AuditCodes;
+using Microsoft.Foundation.Company;
+using Microsoft.Foundation.ExtendedText;
+using Microsoft.Foundation.NoSeries;
+using Microsoft.Foundation.PaymentTerms;
+using Microsoft.Foundation.Shipping;
+using Microsoft.Inventory.Intrastat;
+using Microsoft.Inventory.Ledger;
+using Microsoft.Inventory.Location;
+using Microsoft.Inventory.Tracking;
+using Microsoft.Pricing.Calculation;
+using Microsoft.Projects.Resources.Resource;
+using Microsoft.Purchases.Vendor;
+using Microsoft.Sales.Customer;
+using Microsoft.Sales.Document;
+using Microsoft.Sales.Pricing;
+using Microsoft.Sales.Receivables;
+using Microsoft.Sales.Setup;
+using Microsoft.Service.Comment;
+using Microsoft.Service.Contract;
+using Microsoft.Service.History;
+using Microsoft.Service.Loaner;
+using Microsoft.Service.Maintenance;
+using Microsoft.Service.Posting;
+using Microsoft.Service.Setup;
+using Microsoft.Warehouse.Activity;
+using Microsoft.Warehouse.Document;
+using Microsoft.Warehouse.Request;
+using Microsoft.Utilities;
+using System.Email;
+using System.Environment.Configuration;
+using System.Globalization;
+using System.Reflection;
+using System.Security.User;
+using System.Threading;
+using System.Utilities;
+using Microsoft.EServices.EDocument;
+
+table 5900 "Service Header"
 {
     Caption = 'Service Header';
     DataCaptionFields = "No.", Name, Description;
@@ -286,11 +341,9 @@
         field(9; "Bill-to City"; Text[30])
         {
             Caption = 'Bill-to City';
-            TableRelation = IF ("Bill-to Country/Region Code" = CONST('')) "Post Code".City
-            ELSE
-            IF ("Bill-to Country/Region Code" = FILTER(<> '')) "Post Code".City WHERE("Country/Region Code" = FIELD("Bill-to Country/Region Code"));
-            //This property is currently not supported
-            //TestTableRelation = false;
+            TableRelation = if ("Bill-to Country/Region Code" = const('')) "Post Code".City
+            else
+            if ("Bill-to Country/Region Code" = filter(<> '')) "Post Code".City where("Country/Region Code" = field("Bill-to Country/Region Code"));
             ValidateTableRelation = false;
 
             trigger OnLookup()
@@ -320,7 +373,7 @@
         field(12; "Ship-to Code"; Code[10])
         {
             Caption = 'Ship-to Code';
-            TableRelation = "Ship-to Address".Code WHERE("Customer No." = FIELD("Customer No."));
+            TableRelation = "Ship-to Address".Code where("Customer No." = field("Customer No."));
 
             trigger OnValidate()
             var
@@ -430,11 +483,9 @@
         field(17; "Ship-to City"; Text[30])
         {
             Caption = 'Ship-to City';
-            TableRelation = IF ("Ship-to Country/Region Code" = CONST('')) "Post Code".City
-            ELSE
-            IF ("Ship-to Country/Region Code" = FILTER(<> '')) "Post Code".City WHERE("Country/Region Code" = FIELD("Ship-to Country/Region Code"));
-            //This property is currently not supported
-            //TestTableRelation = false;
+            TableRelation = if ("Ship-to Country/Region Code" = const('')) "Post Code".City
+            else
+            if ("Ship-to Country/Region Code" = filter(<> '')) "Post Code".City where("Country/Region Code" = field("Ship-to Country/Region Code"));
             ValidateTableRelation = false;
 
             trigger OnLookup()
@@ -523,7 +574,6 @@
                 end;
 
                 TestField("Posting Date");
-
                 if "Posting No." <> '' then
                     if "Document Type" in ["Document Type"::Invoice, "Document Type"::"Credit Memo"] then
                         Error(Text1130013, FieldCaption("Posting Date"), FieldCaption("Posting No."));
@@ -654,26 +704,26 @@
         {
             CaptionClass = '1,2,1';
             Caption = 'Shortcut Dimension 1 Code';
-            TableRelation = "Dimension Value".Code WHERE("Global Dimension No." = CONST(1),
-                                                          Blocked = CONST(false));
+            TableRelation = "Dimension Value".Code where("Global Dimension No." = const(1),
+                                                          Blocked = const(false));
 
             trigger OnValidate()
             begin
                 CheckHeaderDimension();
-                ValidateShortcutDimCode(1, "Shortcut Dimension 1 Code");
+                Rec.ValidateShortcutDimCode(1, "Shortcut Dimension 1 Code");
             end;
         }
         field(30; "Shortcut Dimension 2 Code"; Code[20])
         {
             CaptionClass = '1,2,2';
             Caption = 'Shortcut Dimension 2 Code';
-            TableRelation = "Dimension Value".Code WHERE("Global Dimension No." = CONST(2),
-                                                          Blocked = CONST(false));
+            TableRelation = "Dimension Value".Code where("Global Dimension No." = const(2),
+                                                          Blocked = const(false));
 
             trigger OnValidate()
             begin
                 CheckHeaderDimension();
-                ValidateShortcutDimCode(2, "Shortcut Dimension 2 Code");
+                Rec.ValidateShortcutDimCode(2, "Shortcut Dimension 2 Code");
             end;
         }
         field(31; "Customer Posting Group"; Code[20])
@@ -848,6 +898,11 @@
                 MessageIfServLinesExist(FieldCaption("Language Code"));
             end;
         }
+        field(42; "Format Region"; Text[80])
+        {
+            Caption = 'Format Region';
+            TableRelation = "Language Selection"."Language Tag";
+        }
         field(43; "Salesperson Code"; Code[20])
         {
             Caption = 'Salesperson Code';
@@ -862,10 +917,10 @@
         }
         field(46; Comment; Boolean)
         {
-            CalcFormula = Exist("Service Comment Line" WHERE("Table Name" = CONST("Service Header"),
-                                                              "Table Subtype" = FIELD("Document Type"),
-                                                              "No." = FIELD("No."),
-                                                              Type = CONST(General)));
+            CalcFormula = exist("Service Comment Line" where("Table Name" = const("Service Header"),
+                                                              "Table Subtype" = field("Document Type"),
+                                                              "No." = field("No."),
+                                                              Type = const(General)));
             Caption = 'Comment';
             Editable = false;
             FieldClass = FlowField;
@@ -944,9 +999,9 @@
         field(55; "Bal. Account No."; Code[20])
         {
             Caption = 'Bal. Account No.';
-            TableRelation = IF ("Bal. Account Type" = CONST("G/L Account")) "G/L Account"
-            ELSE
-            IF ("Bal. Account Type" = CONST("Bank Account")) "Bank Account";
+            TableRelation = if ("Bal. Account Type" = const("G/L Account")) "G/L Account"
+            else
+            if ("Bal. Account Type" = const("Bank Account")) "Bank Account";
 
             trigger OnValidate()
             var
@@ -1073,11 +1128,9 @@
         field(83; City; Text[30])
         {
             Caption = 'City';
-            TableRelation = IF ("Country/Region Code" = CONST('')) "Post Code".City
-            ELSE
-            IF ("Country/Region Code" = FILTER(<> '')) "Post Code".City WHERE("Country/Region Code" = FIELD("Country/Region Code"));
-            //This property is currently not supported
-            //TestTableRelation = false;
+            TableRelation = if ("Country/Region Code" = const('')) "Post Code".City
+            else
+            if ("Country/Region Code" = filter(<> '')) "Post Code".City where("Country/Region Code" = field("Country/Region Code"));
             ValidateTableRelation = false;
 
             trigger OnLookup()
@@ -1103,11 +1156,9 @@
         field(85; "Bill-to Post Code"; Code[20])
         {
             Caption = 'Bill-to Post Code';
-            TableRelation = IF ("Bill-to Country/Region Code" = CONST('')) "Post Code"
-            ELSE
-            IF ("Bill-to Country/Region Code" = FILTER(<> '')) "Post Code" WHERE("Country/Region Code" = FIELD("Bill-to Country/Region Code"));
-            //This property is currently not supported
-            //TestTableRelation = false;
+            TableRelation = if ("Bill-to Country/Region Code" = const('')) "Post Code"
+            else
+            if ("Bill-to Country/Region Code" = filter(<> '')) "Post Code" where("Country/Region Code" = field("Bill-to Country/Region Code"));
             ValidateTableRelation = false;
 
             trigger OnLookup()
@@ -1140,18 +1191,16 @@
             var
                 FormatAddress: Codeunit "Format Address";
             begin
-                if not FormatAddress.UseCounty("Bill-to Country/Region Code") then
+                if not FormatAddress.UseCounty(Rec."Bill-to Country/Region Code") then
                     "Bill-to County" := '';
             end;
         }
         field(88; "Post Code"; Code[20])
         {
             Caption = 'Post Code';
-            TableRelation = IF ("Country/Region Code" = CONST('')) "Post Code"
-            ELSE
-            IF ("Country/Region Code" = FILTER(<> '')) "Post Code" WHERE("Country/Region Code" = FIELD("Country/Region Code"));
-            //This property is currently not supported
-            //TestTableRelation = false;
+            TableRelation = if ("Country/Region Code" = const('')) "Post Code"
+            else
+            if ("Country/Region Code" = filter(<> '')) "Post Code" where("Country/Region Code" = field("Country/Region Code"));
             ValidateTableRelation = false;
 
             trigger OnLookup()
@@ -1199,11 +1248,9 @@
         field(91; "Ship-to Post Code"; Code[20])
         {
             Caption = 'Ship-to Post Code';
-            TableRelation = IF ("Ship-to Country/Region Code" = CONST('')) "Post Code"
-            ELSE
-            IF ("Ship-to Country/Region Code" = FILTER(<> '')) "Post Code" WHERE("Country/Region Code" = FIELD("Ship-to Country/Region Code"));
-            //This property is currently not supported
-            //TestTableRelation = false;
+            TableRelation = if ("Ship-to Country/Region Code" = const('')) "Post Code"
+            else
+            if ("Ship-to Country/Region Code" = filter(<> '')) "Post Code" where("Country/Region Code" = field("Ship-to Country/Region Code"));
             ValidateTableRelation = false;
 
             trigger OnLookup()
@@ -1232,7 +1279,7 @@
             Caption = 'Ship-to Country/Region Code';
             TableRelation = "Country/Region";
         }
-        field(94; "Bal. Account Type"; enum "Payment Balance Account Type")
+        field(94; "Bal. Account Type"; Enum "Payment Balance Account Type")
         {
             Caption = 'Bal. Account Type';
         }
@@ -1612,14 +1659,12 @@
         field(129; "Company Bank Account Code"; Code[20])
         {
             Caption = 'Bank Account Code';
-            TableRelation = "Bank Account" where("Currency Code" = FIELD("Currency Code"));
+            TableRelation = "Bank Account" where("Currency Code" = field("Currency Code"));
         }
-        field(130; "Release Status"; Option)
+        field(130; "Release Status"; Enum "Service Doc. Release Status")
         {
             Caption = 'Release Status';
             Editable = false;
-            OptionCaption = 'Open,Released to Ship';
-            OptionMembers = Open,"Released to Ship";
         }
         field(131; "VAT Reporting Date"; Date)
         {
@@ -1635,7 +1680,7 @@
         field(178; "Journal Templ. Name"; Code[10])
         {
             Caption = 'Journal Template Name';
-            TableRelation = "Gen. Journal Template" WHERE(Type = FILTER(Sales));
+            TableRelation = "Gen. Journal Template" where(Type = filter(Sales));
 
             trigger OnValidate()
             begin
@@ -1652,7 +1697,7 @@
 
             trigger OnLookup()
             begin
-                ShowDocDim();
+                Rec.ShowDocDim();
             end;
 
             trigger OnValidate()
@@ -1663,9 +1708,9 @@
         field(1200; "Direct Debit Mandate ID"; Code[35])
         {
             Caption = 'Direct Debit Mandate ID';
-            TableRelation = "SEPA Direct Debit Mandate" WHERE("Customer No." = FIELD("Bill-to Customer No."),
-                                                               Closed = CONST(false),
-                                                               Blocked = CONST(false));
+            TableRelation = "SEPA Direct Debit Mandate" where("Customer No." = field("Bill-to Customer No."),
+                                                               Closed = const(false),
+                                                               Blocked = const(false));
             DataClassification = SystemMetadata;
         }
         field(5052; "Contact No."; Code[20])
@@ -1858,22 +1903,22 @@
 
             trigger OnValidate()
             var
-                WhseValidateSourceHeader: Codeunit "Whse. Validate Source Header";
+                ServiceWarehouseMgt: Codeunit "Service Warehouse Mgt.";
             begin
                 TestField("Release Status", "Release Status"::Open);
                 if WhsePickConflict("Document Type", "No.", "Shipping Advice") then
                     Error(Text064, FieldCaption("Shipping Advice"), Format("Shipping Advice"), TableCaption);
                 if WhseShipmentConflict("Document Type", "No.", "Shipping Advice") then
                     Error(Text065, FieldCaption("Shipping Advice"), Format("Shipping Advice"), TableCaption);
-                WhseValidateSourceHeader.ServiceHeaderVerifyChange(Rec, xRec);
+                ServiceWarehouseMgt.ServiceHeaderVerifyChange(Rec, xRec);
             end;
         }
         field(5752; "Completely Shipped"; Boolean)
         {
-            CalcFormula = Min("Service Line"."Completely Shipped" WHERE("Document Type" = FIELD("Document Type"),
-                                                                         "Document No." = FIELD("No."),
-                                                                         Type = FILTER(<> " "),
-                                                                         "Location Code" = FIELD("Location Filter")));
+            CalcFormula = min("Service Line"."Completely Shipped" where("Document Type" = field("Document Type"),
+                                                                         "Document No." = field("No."),
+                                                                         Type = filter(<> " "),
+                                                                         "Location Code" = field("Location Filter")));
             Caption = 'Completely Shipped';
             Editable = false;
             FieldClass = FlowField;
@@ -1899,7 +1944,7 @@
         field(5794; "Shipping Agent Service Code"; Code[10])
         {
             Caption = 'Shipping Agent Service Code';
-            TableRelation = "Shipping Agent Services".Code WHERE("Shipping Agent Code" = FIELD("Shipping Agent Code"));
+            TableRelation = "Shipping Agent Services".Code where("Shipping Agent Code" = field("Shipping Agent Code"));
 
             trigger OnValidate()
             begin
@@ -1960,12 +2005,12 @@
         }
         field(5911; "Allocated Hours"; Decimal)
         {
-            CalcFormula = Sum("Service Order Allocation"."Allocated Hours" WHERE("Document Type" = FIELD("Document Type"),
-                                                                                  "Document No." = FIELD("No."),
-                                                                                  "Allocation Date" = FIELD("Date Filter"),
-                                                                                  "Resource No." = FIELD("Resource Filter"),
-                                                                                  Status = FILTER(Active | Finished),
-                                                                                  "Resource Group No." = FIELD("Resource Group Filter")));
+            CalcFormula = sum("Service Order Allocation"."Allocated Hours" where("Document Type" = field("Document Type"),
+                                                                                  "Document No." = field("No."),
+                                                                                  "Allocation Date" = field("Date Filter"),
+                                                                                  "Resource No." = field("Resource Filter"),
+                                                                                  Status = filter(Active | Finished),
+                                                                                  "Resource Group No." = field("Resource Group Filter")));
             Caption = 'Allocated Hours';
             DecimalPlaces = 0 : 5;
             Editable = false;
@@ -1999,9 +2044,9 @@
         }
         field(5921; "No. of Unallocated Items"; Integer)
         {
-            CalcFormula = Count("Service Item Line" WHERE("Document Type" = FIELD("Document Type"),
-                                                           "Document No." = FIELD("No."),
-                                                           "No. of Active/Finished Allocs" = CONST(0)));
+            CalcFormula = count("Service Item Line" where("Document Type" = field("Document Type"),
+                                                           "Document No." = field("No."),
+                                                           "No. of Active/Finished Allocs" = const(0)));
             Caption = 'No. of Unallocated Items';
             Editable = false;
             FieldClass = FlowField;
@@ -2239,18 +2284,18 @@
         }
         field(5933; "Contract Serv. Hours Exist"; Boolean)
         {
-            CalcFormula = Exist("Service Hour" WHERE("Service Contract No." = FIELD("Contract No.")));
+            CalcFormula = exist("Service Hour" where("Service Contract No." = field("Contract No.")));
             Caption = 'Contract Serv. Hours Exist';
             Editable = false;
             FieldClass = FlowField;
         }
         field(5934; "Reallocation Needed"; Boolean)
         {
-            CalcFormula = Exist("Service Order Allocation" WHERE(Status = CONST("Reallocation Needed"),
-                                                                  "Resource No." = FIELD("Resource Filter"),
-                                                                  "Document Type" = FIELD("Document Type"),
-                                                                  "Document No." = FIELD("No."),
-                                                                  "Resource Group No." = FIELD("Resource Group Filter")));
+            CalcFormula = exist("Service Order Allocation" where(Status = const("Reallocation Needed"),
+                                                                  "Resource No." = field("Resource Filter"),
+                                                                  "Document Type" = field("Document Type"),
+                                                                  "Document No." = field("No."),
+                                                                  "Resource Group No." = field("Resource Group Filter")));
             Caption = 'Reallocation Needed';
             Editable = false;
             FieldClass = FlowField;
@@ -2263,7 +2308,7 @@
         }
         field(5937; "Max. Labor Unit Price"; Decimal)
         {
-            AutoFormatExpression = "Currency Code";
+            AutoFormatExpression = Rec."Currency Code";
             AutoFormatType = 2;
             BlankZero = true;
             Caption = 'Max. Labor Unit Price';
@@ -2285,12 +2330,12 @@
         }
         field(5939; "No. of Allocations"; Integer)
         {
-            CalcFormula = Count("Service Order Allocation" WHERE("Document Type" = FIELD("Document Type"),
-                                                                  "Document No." = FIELD("No."),
-                                                                  "Resource No." = FIELD("Resource Filter"),
-                                                                  "Resource Group No." = FIELD("Resource Group Filter"),
-                                                                  "Allocation Date" = FIELD("Date Filter"),
-                                                                  Status = FILTER(Active | Finished)));
+            CalcFormula = count("Service Order Allocation" where("Document Type" = field("Document Type"),
+                                                                  "Document No." = field("No."),
+                                                                  "Resource No." = field("Resource Filter"),
+                                                                  "Resource Group No." = field("Resource Group Filter"),
+                                                                  "Allocation Date" = field("Date Filter"),
+                                                                  Status = filter(Active | Finished)));
             Caption = 'No. of Allocations';
             Editable = false;
             FieldClass = FlowField;
@@ -2298,10 +2343,10 @@
         field(5940; "Contract No."; Code[20])
         {
             Caption = 'Contract No.';
-            TableRelation = "Service Contract Header"."Contract No." WHERE("Contract Type" = CONST(Contract),
-                                                                            "Customer No." = FIELD("Customer No."),
-                                                                            "Ship-to Code" = FIELD("Ship-to Code"),
-                                                                            "Bill-to Customer No." = FIELD("Bill-to Customer No."));
+            TableRelation = "Service Contract Header"."Contract No." where("Contract Type" = const(Contract),
+                                                                            "Customer No." = field("Customer No."),
+                                                                            "Ship-to Code" = field("Ship-to Code"),
+                                                                            "Bill-to Customer No." = field("Bill-to Customer No."));
 
             trigger OnLookup()
             var
@@ -2408,7 +2453,7 @@
         {
             Caption = 'Contract Filter';
             FieldClass = FlowFilter;
-            TableRelation = "Service Contract Header"."Contract No." WHERE("Contract Type" = CONST(Contract));
+            TableRelation = "Service Contract Header"."Contract No." where("Contract Type" = const(Contract));
         }
         field(5955; "Ship-to Fax No."; Text[30])
         {
@@ -2514,7 +2559,7 @@
         field(12100; "Operation Type"; Code[20])
         {
             Caption = 'Operation Type';
-            TableRelation = "No. Series" WHERE("No. Series Type" = FILTER(Sales));
+            TableRelation = "No. Series" where("No. Series Type" = filter(Sales));
 
             trigger OnLookup()
             begin
@@ -2632,9 +2677,9 @@
         }
         field(12170; "Payment %"; Decimal)
         {
-            CalcFormula = Sum("Payment Lines"."Payment %" WHERE("Sales/Purchase" = CONST(Sales),
-                                                                 Type = FIELD("Document Type"),
-                                                                 Code = FIELD("No.")));
+            CalcFormula = sum("Payment Lines"."Payment %" where("Sales/Purchase" = const(Sales),
+                                                                 Type = field("Document Type"),
+                                                                 Code = field("No.")));
             Caption = 'Payment %';
             Editable = false;
             FieldClass = FlowField;
@@ -2646,7 +2691,7 @@
         field(12172; "Bank Account"; Code[20])
         {
             Caption = 'Bank Account';
-            TableRelation = "Customer Bank Account".Code WHERE("Customer No." = FIELD("Bill-to Customer No."));
+            TableRelation = "Customer Bank Account".Code where("Customer No." = field("Bill-to Customer No."));
         }
         field(12173; "Cumulative Bank Receipts"; Boolean)
         {
@@ -2669,9 +2714,9 @@
         field(12175; "3rd Party Loader No."; Code[20])
         {
             Caption = '3rd Party Loader No.';
-            TableRelation = IF ("3rd Party Loader Type" = CONST(Vendor)) Vendor
-            ELSE
-            IF ("3rd Party Loader Type" = CONST(Contact)) Contact WHERE(Type = FILTER(Company));
+            TableRelation = if ("3rd Party Loader Type" = const(Vendor)) Vendor
+            else
+            if ("3rd Party Loader Type" = const(Contact)) Contact where(Type = filter(Company));
 
             trigger OnValidate()
             begin
@@ -2714,9 +2759,9 @@
         field(12181; "Tax Representative No."; Code[20])
         {
             Caption = 'Tax Representative No.';
-            TableRelation = IF ("Tax Representative Type" = FILTER(Customer)) Customer
-            ELSE
-            IF ("Tax Representative Type" = FILTER(Contact)) Contact;
+            TableRelation = if ("Tax Representative Type" = filter(Customer)) Customer
+            else
+            if ("Tax Representative Type" = filter(Contact)) Contact;
 
             trigger OnValidate()
             begin
@@ -2727,12 +2772,12 @@
         field(12182; "Fattura Project Code"; Code[15])
         {
             Caption = 'Fattura Project Code';
-            TableRelation = "Fattura Project Info".Code WHERE(Type = FILTER(Project));
+            TableRelation = "Fattura Project Info".Code where(Type = filter(Project));
         }
         field(12183; "Fattura Tender Code"; Code[15])
         {
             Caption = 'Fattura Tender Code';
-            TableRelation = "Fattura Project Info".Code WHERE(Type = FILTER(Tender));
+            TableRelation = "Fattura Project Info".Code where(Type = filter(Tender));
         }
         field(12184; "Customer Purchase Order No."; Text[35])
         {
@@ -2828,7 +2873,7 @@
 
         ReservMgt.DeleteDocumentReservation(DATABASE::"Service Line", "Document Type".AsInteger(), "No.", HideValidationDialog);
 
-        WhseRequest.DeleteRequest(DATABASE::"Service Line", "Document Type".AsInteger(), "No.");
+        WhseRequest.DeleteRequest(DATABASE::"Service Line", Rec."Document Type".AsInteger(), Rec."No.");
 
         ServLine.SetRange("Document Type", "Document Type");
         ServLine.SetRange("Document No.", "No.");
@@ -3093,65 +3138,6 @@
         end;
     end;
 
-#if not CLEAN20
-    [Obsolete('Replaced by CreateDim(DefaultDimSource: List of [Dictionary of [Integer, Code[20]]])', '20.0')]
-    procedure CreateDim(Type1: Integer; No1: Code[20]; Type2: Integer; No2: Code[20]; Type3: Integer; No3: Code[20]; Type4: Integer; No4: Code[20]; Type5: Integer; No5: Code[20])
-    var
-        SourceCodeSetup: Record "Source Code Setup";
-        ServiceContractHeader: Record "Service Contract Header";
-        No: array[10] of Code[20];
-        TableID: array[10] of Integer;
-        ContractDimensionSetID: Integer;
-        OldDimSetID: Integer;
-        IsHandled: Boolean;
-        DefaultDimSource: List of [Dictionary of [Integer, Code[20]]];
-    begin
-        IsHandled := false;
-        OnBeforeCreateDim(Rec, CurrFieldNo, IsHandled);
-        if IsHandled then
-            exit;
-
-        SourceCodeSetup.Get();
-
-        TableID[1] := Type1;
-        No[1] := No1;
-        TableID[2] := Type2;
-        No[2] := No2;
-        TableID[3] := Type3;
-        No[3] := No3;
-        TableID[4] := Type4;
-        No[4] := No4;
-        TableID[5] := Type5;
-        No[5] := No5;
-        OnAfterCreateDimTableIDs(Rec, CurrFieldNo, TableID, No);
-        CreateDefaultDimSourcesFromDimArray(DefaultDimSource, TableID, No);
-
-        "Shortcut Dimension 1 Code" := '';
-        "Shortcut Dimension 2 Code" := '';
-        OldDimSetID := "Dimension Set ID";
-
-        if "Contract No." <> '' then begin
-            ServiceContractHeader.Get(ServiceContractHeader."Contract Type"::Contract, "Contract No.");
-            ContractDimensionSetID := ServiceContractHeader."Dimension Set ID";
-        end;
-
-        "Dimension Set ID" :=
-          DimMgt.GetRecDefaultDimID(
-            Rec, CurrFieldNo, DefaultDimSource, SourceCodeSetup."Service Management",
-            "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code", ContractDimensionSetID, DATABASE::"Service Contract Header");
-
-        OnCreateDimOnBeforeUpdateLines(Rec, xRec, CurrFieldNo);
-
-        if "Dimension Set ID" <> OldDimSetID then begin
-            DimMgt.UpdateGlobalDimFromDimSetID("Dimension Set ID", "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
-            if ServItemLineExists() or ServLineExists() then begin
-                Modify();
-                UpdateAllLineDim("Dimension Set ID", OldDimSetID);
-            end;
-        end;
-    end;
-#endif
-
     procedure CreateDim(DefaultDimSource: List of [Dictionary of [Integer, Code[20]]])
     var
         SourceCodeSetup: Record "Source Code Setup";
@@ -3166,9 +3152,6 @@
             exit;
 
         SourceCodeSetup.Get();
-#if not CLEAN20
-        RunEventOnAfterCreateDimTableIDs(DefaultDimSource);
-#endif
 
         "Shortcut Dimension 1 Code" := '';
         "Shortcut Dimension 2 Code" := '';
@@ -3402,7 +3385,7 @@
         ServiceCommentLine.SetRange("Table Name", ServiceCommentLine."Table Name"::"Service Header");
         ServiceCommentLine.SetRange("Table Subtype", "Document Type");
         ServiceCommentLine.SetRange("No.", "No.");
-        ServiceCommentLine.SetRange(Type, "Service Comment Line Type"::General);
+        ServiceCommentLine.SetRange(Type, ServiceCommentLine.Type::General);
         if ServiceCommentLine.FindSet() then
             repeat
                 TempServiceCommentLine := ServiceCommentLine;
@@ -5235,6 +5218,7 @@
         "Invoice Disc. Code" := Cust."Invoice Disc. Code";
         "Customer Disc. Group" := Cust."Customer Disc. Group";
         "Language Code" := Cust."Language Code";
+        "Format Region" := Cust."Format Region";
         SetSalespersonCode(Cust."Salesperson Code", "Salesperson Code");
         Reserve := Cust.Reserve;
 
@@ -5448,47 +5432,28 @@
         end;
     end;
 
-#if not CLEAN20
-    local procedure CreateDefaultDimSourcesFromDimArray(var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]]; TableID: array[10] of Integer; No: array[10] of Code[20])
+    internal procedure GetQtyReservedFromStockState() Result: Enum "Reservation From Stock"
     var
-        DimArrayConversionHelper: Codeunit "Dim. Array Conversion Helper";
+        ServiceLineLocal: Record "Service Line";
+        ServiceLineReserve: Codeunit "Service Line-Reserve";
+        QtyReservedFromStock: Decimal;
     begin
-        DimArrayConversionHelper.CreateDefaultDimSourcesFromDimArray(Database::"Service Header", DefaultDimSource, TableID, No);
+        QtyReservedFromStock := ServiceLineReserve.GetReservedQtyFromInventory(Rec);
+
+        ServiceLineLocal.SetRange("Document Type", Rec."Document Type");
+        ServiceLineLocal.SetRange("Document No.", Rec."No.");
+        ServiceLineLocal.SetRange(Type, ServiceLineLocal.Type::Item);
+        ServiceLineLocal.CalcSums("Outstanding Qty. (Base)");
+
+        case QtyReservedFromStock of
+            0:
+                exit(Result::None);
+            ServiceLineLocal."Outstanding Qty. (Base)":
+                exit(Result::Full);
+            else
+                exit(Result::Partial);
+        end;
     end;
-
-    local procedure CreateDimTableIDs(DefaultDimSource: List of [Dictionary of [Integer, Code[20]]]; var TableID: array[10] of Integer; var No: array[10] of Code[20])
-    var
-        DimArrayConversionHelper: Codeunit "Dim. Array Conversion Helper";
-    begin
-        DimArrayConversionHelper.CreateDimTableIDs(Database::"Service Header", DefaultDimSource, TableID, No);
-    end;
-
-    local procedure RunEventOnAfterCreateDimTableIDs(var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]])
-    var
-        DimArrayConversionHelper: Codeunit "Dim. Array Conversion Helper";
-        TableID: array[10] of Integer;
-        No: array[10] of Code[20];
-        IsHandled: Boolean;
-    begin
-        IsHandled := false;
-        OnBeforeRunEventOnAfterCreateDimTableIDs(Rec, DefaultDimSource, IsHandled);
-        if IsHandled then
-            exit;
-
-        if not DimArrayConversionHelper.IsSubscriberExist(Database::"Service Header") then
-            exit;
-
-        CreateDimTableIDs(DefaultDimSource, TableID, No);
-        OnAfterCreateDimTableIDs(Rec, CurrFieldNo, TableID, No);
-        CreateDefaultDimSourcesFromDimArray(DefaultDimSource, TableID, No);
-    end;
-
-    [Obsolete('Temporary event for compatibility', '20.0')]
-    [IntegrationEvent(false, false)]
-    local procedure OnBeforeRunEventOnAfterCreateDimTableIDs(var ServiceHeader: Record "Service Header"; var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]]; var IsHandled: Boolean)
-    begin
-    end;
-#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterInitDefaultDimensionSources(var ServiceHeader: Record "Service Header"; var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]]; FieldNo: Integer)
@@ -5610,13 +5575,6 @@
     begin
     end;
 
-#if not CLEAN20
-    [Obsolete('Temporary event for compatibility', '20.0')]
-    [IntegrationEvent(false, false)]
-    local procedure OnAfterCreateDimTableIDs(var ServiceHeader: Record "Service Header"; CallingFieldNo: Integer; var TableID: array[10] of Integer; var No: array[10] of Code[20])
-    begin
-    end;
-#endif
     [IntegrationEvent(false, false)]
     local procedure OnAfterValidateShortcutDimCode(var ServiceHeader: Record "Service Header"; xServiceHeader: Record "Service Header"; FieldNumber: Integer; var ShortcutDimCode: Code[20])
     begin

@@ -1,10 +1,28 @@
-﻿page 5935 "Service Credit Memo"
+﻿namespace Microsoft.Service.Document;
+
+using Microsoft.CRM.Contact;
+using Microsoft.Finance.Currency;
+using Microsoft.Finance.Dimension;
+using Microsoft.Finance.VAT.Calculation;
+using Microsoft.Foundation.Address;
+using Microsoft.Foundation.Reporting;
+using Microsoft.Sales.Customer;
+using Microsoft.Sales.Pricing;
+using Microsoft.Service.Comment;
+using Microsoft.Service.Contract;
+using Microsoft.Service.History;
+using Microsoft.Service.Posting;
+using Microsoft.Utilities;
+using System.Security.User;
+using Microsoft.Foundation.PaymentTerms;
+
+page 5935 "Service Credit Memo"
 {
     Caption = 'Service Credit Memo';
     PageType = Document;
     RefreshOnActivate = true;
     SourceTable = "Service Header";
-    SourceTableView = WHERE("Document Type" = FILTER("Credit Memo"));
+    SourceTableView = where("Document Type" = filter("Credit Memo"));
 
     layout
     {
@@ -20,7 +38,7 @@
 
                     trigger OnAssistEdit()
                     begin
-                        if AssistEdit(xRec) then
+                        if Rec.AssistEdit(xRec) then
                             CurrPage.Update();
                     end;
                 }
@@ -41,9 +59,9 @@
 
                     trigger OnValidate()
                     begin
-                        if GetFilter("Contact No.") = xRec."Contact No." then
-                            if "Contact No." <> xRec."Contact No." then
-                                SetRange("Contact No.");
+                        if Rec.GetFilter("Contact No.") = xRec."Contact No." then
+                            if Rec."Contact No." <> xRec."Contact No." then
+                                Rec.SetRange("Contact No.");
                     end;
                 }
                 group("Sell-to")
@@ -54,7 +72,7 @@
                         ApplicationArea = Service;
                         ToolTip = 'Specifies the name of the customer to whom the items on the document will be shipped.';
                     }
-                    field(Address; Address)
+                    field(Address; Rec.Address)
                     {
                         ApplicationArea = Service;
                         QuickEntry = false;
@@ -70,7 +88,7 @@
                     {
                         ShowCaption = false;
                         Visible = IsSellToCountyVisible;
-                        field(County; County)
+                        field(County; Rec.County)
                         {
                             ApplicationArea = Service;
                             QuickEntry = false;
@@ -83,7 +101,7 @@
                         QuickEntry = false;
                         ToolTip = 'Specifies the postal code.';
                     }
-                    field(City; City)
+                    field(City; Rec.City)
                     {
                         ApplicationArea = Service;
                         QuickEntry = false;
@@ -97,7 +115,7 @@
 
                         trigger OnValidate()
                         begin
-                            IsSellToCountyVisible := FormatAddress.UseCounty("Country/Region Code");
+                            IsSellToCountyVisible := FormatAddress.UseCounty(Rec."Country/Region Code");
                         end;
                     }
                     field("Contact Name"; Rec."Contact Name")
@@ -201,7 +219,7 @@
                 ApplicationArea = Service;
                 Editable = IsServiceLinesEditable;
                 Enabled = IsServiceLinesEditable;
-                SubPageLink = "Document No." = FIELD("No.");
+                SubPageLink = "Document No." = field("No.");
             }
             group(Invoicing)
             {
@@ -279,7 +297,7 @@
 
                         trigger OnValidate()
                         begin
-                            IsBillToCountyVisible := FormatAddress.UseCounty("Bill-to Country/Region Code");
+                            IsBillToCountyVisible := FormatAddress.UseCounty(Rec."Bill-to Country/Region Code");
                         end;
                     }
                     field("Bill-to Contact"; Rec."Bill-to Contact")
@@ -368,9 +386,9 @@
                     trigger OnAssistEdit()
                     begin
                         Clear(ChangeExchangeRate);
-                        ChangeExchangeRate.SetParameter("Currency Code", "Currency Factor", "Posting Date");
+                        ChangeExchangeRate.SetParameter(Rec."Currency Code", Rec."Currency Factor", Rec."Posting Date");
                         if ChangeExchangeRate.RunModal() = ACTION::OK then begin
-                            Validate("Currency Factor", ChangeExchangeRate.GetParameter());
+                            Rec.Validate("Currency Factor", ChangeExchangeRate.GetParameter());
                             CurrPage.Update();
                         end;
                         Clear(ChangeExchangeRate);
@@ -494,7 +512,7 @@
 
                         trigger OnValidate()
                         begin
-                            IsShipToCountyVisible := FormatAddress.UseCounty("Ship-to Country/Region Code");
+                            IsShipToCountyVisible := FormatAddress.UseCounty(Rec."Ship-to Country/Region Code");
                         end;
                     }
                     field("Ship-to Contact"; Rec."Ship-to Contact")
@@ -533,7 +551,7 @@
                     ApplicationArea = BasicEU;
                     ToolTip = 'Specifies the point of exit through which you ship the items out of your country/region, for reporting to Intrastat.';
                 }
-                field("Area"; Area)
+                field("Area"; Rec.Area)
                 {
                     ApplicationArea = BasicEU;
                     ToolTip = 'Specifies the area of the customer or vendor, for the purpose of reporting to INTRASTAT.';
@@ -586,7 +604,7 @@
                     ApplicationArea = Service;
                     ToolTip = 'Specifies if the customer is an individual person.';
                 }
-                field(Resident; Resident)
+                field(Resident; Rec.Resident)
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies if the individual is a resident or non-resident of Italy.';
@@ -620,20 +638,20 @@
                 ApplicationArea = All;
                 Caption = 'Document Check';
                 Visible = ServiceDocCheckFactboxVisible;
-                SubPageLink = "No." = FIELD("No."),
-                              "Document Type" = FIELD("Document Type");
+                SubPageLink = "No." = field("No."),
+                              "Document Type" = field("Document Type");
             }
             part(Control1902018507; "Customer Statistics FactBox")
             {
                 ApplicationArea = Service;
-                SubPageLink = "No." = FIELD("Bill-to Customer No."),
+                SubPageLink = "No." = field("Bill-to Customer No."),
                               "Date Filter" = field("Date Filter");
                 Visible = true;
             }
             part(Control1900316107; "Customer Details FactBox")
             {
                 ApplicationArea = Service;
-                SubPageLink = "No." = FIELD("Customer No."),
+                SubPageLink = "No." = field("Customer No."),
                               "Date Filter" = field("Date Filter");
                 Visible = false;
             }
@@ -668,7 +686,7 @@
 
                     trigger OnAction()
                     begin
-                        OpenStatistics();
+                        Rec.OpenStatistics();
                     end;
                 }
                 action(Card)
@@ -677,7 +695,7 @@
                     Caption = 'Card';
                     Image = EditLines;
                     RunObject = Page "Customer Card";
-                    RunPageLink = "No." = FIELD("Customer No.");
+                    RunPageLink = "No." = field("Customer No.");
                     ShortCutKey = 'Shift+F7';
                     ToolTip = 'View or change detailed information about the record on the document or journal line.';
                 }
@@ -687,10 +705,10 @@
                     Caption = 'Co&mments';
                     Image = ViewComments;
                     RunObject = Page "Service Comment Sheet";
-                    RunPageLink = "Table Name" = CONST("Service Header"),
-                                  "Table Subtype" = FIELD("Document Type"),
-                                  "No." = FIELD("No."),
-                                  Type = CONST(General);
+                    RunPageLink = "Table Name" = const("Service Header"),
+                                  "Table Subtype" = field("Document Type"),
+                                  "No." = field("No."),
+                                  Type = const(General);
                     ToolTip = 'View or add comments for the record.';
                 }
                 action(Dimensions)
@@ -698,14 +716,14 @@
                     AccessByPermission = TableData Dimension = R;
                     ApplicationArea = Dimensions;
                     Caption = 'Dimensions';
-                    Enabled = "No." <> '';
+                    Enabled = Rec."No." <> '';
                     Image = Dimensions;
                     ShortCutKey = 'Alt+D';
                     ToolTip = 'View or edit dimensions, such as area, project, or department, that you can assign to sales and purchase documents to distribute costs and analyze transaction history.';
 
                     trigger OnAction()
                     begin
-                        ShowDocDim();
+                        Rec.ShowDocDim();
                         CurrPage.SaveRecord();
                     end;
                 }
@@ -722,7 +740,7 @@
                     begin
                         TempServDocLog.Reset();
                         TempServDocLog.DeleteAll();
-                        TempServDocLog.CopyServLog(TempServDocLog."Document Type"::"Credit Memo".AsInteger(), "No.");
+                        TempServDocLog.CopyServLog(TempServDocLog."Document Type"::"Credit Memo".AsInteger(), Rec."No.");
 
                         TempServDocLog.Reset();
                         TempServDocLog.SetCurrentKey("Change Date", "Change Time");
@@ -745,9 +763,9 @@
                     Caption = 'Pa&yments';
                     Image = Payment;
                     RunObject = Page "Payment Date Lines";
-                    RunPageLink = "Sales/Purchase" = CONST(Service),
-                                  Type = FIELD("Document Type"),
-                                  Code = FIELD("No.");
+                    RunPageLink = "Sales/Purchase" = const(Service),
+                                  Type = field("Document Type"),
+                                  Code = field("No.");
                     ToolTip = 'View the related payments.';
                 }
                 action("Calculate Invoice Discount")
@@ -846,7 +864,7 @@
                         PreAssignedNo := Rec."No.";
                         xLastPostingNo := Rec."Last Posting No.";
 
-                        DocumentIsPosted := SendToPost(Codeunit::"Service-Post (Yes/No)");
+                        DocumentIsPosted := Rec.SendToPost(Codeunit::"Service-Post (Yes/No)");
 
                         if InstructionMgt.IsEnabled(InstructionMgt.ShowPostedConfirmationMessageCode()) then
                             ShowPostedConfirmationMessage(PreAssignedNo, xLastPostingNo);
@@ -866,7 +884,7 @@
                         ServPostYesNo: Codeunit "Service-Post (Yes/No)";
                     begin
                         ServPostYesNo.PreviewDocument(Rec);
-                        DocumentIsPosted := not ServiceHeader.Get("Document Type", "No.");
+                        DocumentIsPosted := not ServiceHeader.Get(Rec."Document Type", Rec."No.");
                     end;
                 }
                 action(PostAndSend)
@@ -879,7 +897,7 @@
 
                     trigger OnAction()
                     begin
-                        DocumentIsPosted := SendToPost(Codeunit::"Service-Post and Send");
+                        DocumentIsPosted := Rec.SendToPost(Codeunit::"Service-Post and Send");
                     end;
                 }
                 action("Post and &Print")
@@ -892,7 +910,7 @@
 
                     trigger OnAction()
                     begin
-                        DocumentIsPosted := SendToPost(Codeunit::"Service-Post+Print");
+                        DocumentIsPosted := Rec.SendToPost(Codeunit::"Service-Post+Print");
                     end;
                 }
                 action("Post &Batch")
@@ -919,7 +937,7 @@
 
                     trigger OnAction()
                     begin
-                        GenerateSplitVATLines;
+                        Rec.GenerateSplitVATLines();
                     end;
                 }
             }
@@ -1066,16 +1084,14 @@
         IsShipToCountyVisible: Boolean;
         IsPostingGroupEditable: Boolean;
         ServiceDocCheckFactboxVisible: Boolean;
-        [InDataSet]
         IsServiceLinesEditable: Boolean;
-        [InDataSet]
         VATDateEnabled: Boolean;
 
     local procedure ActivateFields()
     begin
-        IsSellToCountyVisible := FormatAddress.UseCounty("Country/Region Code");
-        IsBillToCountyVisible := FormatAddress.UseCounty("Bill-to Country/Region Code");
-        IsShipToCountyVisible := FormatAddress.UseCounty("Ship-to Country/Region Code");
+        IsSellToCountyVisible := FormatAddress.UseCounty(Rec."Country/Region Code");
+        IsBillToCountyVisible := FormatAddress.UseCounty(Rec."Bill-to Country/Region Code");
+        IsShipToCountyVisible := FormatAddress.UseCounty(Rec."Ship-to Country/Region Code");
         ServiceDocCheckFactboxVisible := DocumentErrorsMgt.BackgroundValidationEnabled();
         IsServiceLinesEditable := Rec.ServiceLinesEditable();
     end;

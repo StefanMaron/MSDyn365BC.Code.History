@@ -1,3 +1,27 @@
+﻿namespace Microsoft.Service.Document;
+
+using Microsoft.CRM.Contact;
+using Microsoft.CRM.Segment;
+using Microsoft.Finance.Dimension;
+using Microsoft.Foundation.AuditCodes;
+using Microsoft.Foundation.Calendar;
+using Microsoft.Inventory.Item;
+using Microsoft.Inventory.Ledger;
+using Microsoft.Inventory.Location;
+using Microsoft.Projects.Resources.Resource;
+using Microsoft.Purchases.Vendor;
+using Microsoft.Sales.Customer;
+using Microsoft.Service.Comment;
+using Microsoft.Service.Contract;
+using Microsoft.Service.History;
+using Microsoft.Service.Item;
+using Microsoft.Service.Loaner;
+using Microsoft.Service.Maintenance;
+using Microsoft.Service.Pricing;
+using Microsoft.Service.Setup;
+using System.Security.User;
+using System.Utilities;
+
 table 5901 "Service Item Line"
 {
     Caption = 'Service Item Line';
@@ -12,7 +36,7 @@ table 5901 "Service Item Line"
         {
             Caption = 'Document No.';
             Editable = false;
-            TableRelation = "Service Header"."No." WHERE("Document Type" = FIELD("Document Type"));
+            TableRelation = "Service Header"."No." where("Document Type" = field("Document Type"));
 
             trigger OnValidate()
             begin
@@ -93,7 +117,10 @@ table 5901 "Service Item Line"
                         OnValidateServiceItemNoOnBeforeValidateServicePeriod(Rec, xRec, CurrFieldNo, IsHandled);
                         if not IsHandled then
                             ServContractLine.ValidateServicePeriod(ServHeader."Order Date");
-                        ServContractExist := true;
+                        IsHandled := false;
+                        OnBeforeSetServContractExistTrue(ServContractLine, ServHeader, IsHandled);
+                        if not IsHandled then
+                            ServContractExist := true;
                     end;
 
                     ShouldFindServContractLine := ServHeader."Contract No." = '';
@@ -288,6 +315,7 @@ table 5901 "Service Item Line"
             trigger OnValidate()
             var
                 RepairStatusInProgress: Boolean;
+                IsHandled: Boolean;
             begin
                 UpdateResponseTimeHours();
                 if "Repair Status Code" <> '' then begin
@@ -314,28 +342,40 @@ table 5901 "Service Item Line"
                         "Starting Time" := 0T;
                         "Finishing Date" := 0D;
                         "Finishing Time" := 0T;
-                        UpdateStartFinishDateTime("Document Type", "Document No.", "Line No.", "Starting Date", "Starting Time",
-                          "Finishing Date", "Finishing Time", false);
-                        ServOrderAlloc.SetFilters(Rec);
-                        ServOrderAlloc.ModifyAll("Service Started", false, false);
+                        UpdateStartFinishDateTime(
+                            "Document Type", "Document No.", "Line No.", "Starting Date", "Starting Time",
+                            "Finishing Date", "Finishing Time", false);
+                        IsHandled := false;
+                        OnValidateRepairStatusCodeInitialOnBeforeServOrderAllocModify(Rec, IsHandled);
+                        if not IsHandled then begin
+                            ServOrderAlloc.SetFilters(Rec);
+                            ServOrderAlloc.ModifyAll("Service Started", false, false);
+                        end;
                     end;
 
                     RepairStatusInProgress := RepairStatus."In Process";
                     OnRepairStatusCodeValidateOnAfterSetRepairStatusInProgress(Rec, RepairStatusInProgress);
                     if RepairStatusInProgress then begin
                         GetServHeader();
-                        if ServHeader."Order Date" > WorkDate() then begin
-                            "Starting Date" := ServHeader."Order Date";
-                            Validate("Starting Time", ServHeader."Order Time");
-                        end else begin
-                            "Starting Date" := WorkDate();
-                            if (ServHeader."Order Date" = "Starting Date") and (ServHeader."Order Time" > Time) then
-                                Validate("Starting Time", ServHeader."Order Time")
-                            else
-                                Validate("Starting Time", Time);
+                        IsHandled := false;
+                        OnValidateRepairStatusCodeOnBeforeCheckOrderDateRepairStatusInProgress(ServOrderAlloc, Rec, IsHandled);
+                        if not IsHandled then
+                            if ServHeader."Order Date" > WorkDate() then begin
+                                "Starting Date" := ServHeader."Order Date";
+                                Validate("Starting Time", ServHeader."Order Time");
+                            end else begin
+                                "Starting Date" := WorkDate();
+                                if (ServHeader."Order Date" = "Starting Date") and (ServHeader."Order Time" > Time) then
+                                    Validate("Starting Time", ServHeader."Order Time")
+                                else
+                                    Validate("Starting Time", Time);
+                            end;
+                        IsHandled := false;
+                        OnValidateRepairStatusCodeInProgressOnBeforeServOrderAllocModify(Rec, IsHandled);
+                        if not IsHandled then begin
+                            ServOrderAlloc.SetFilters(Rec);
+                            ServOrderAlloc.ModifyAll("Service Started", true, false);
                         end;
-                        ServOrderAlloc.SetFilters(Rec);
-                        ServOrderAlloc.ModifyAll("Service Started", true, false);
                     end;
 
                     if RepairStatus.Finished then begin
@@ -343,9 +383,13 @@ table 5901 "Service Item Line"
                         if ServMgtSetup."Fault Reason Code Mandatory" then
                             TestField("Fault Reason Code");
                         GetServHeader();
-                        CalculateDates();
-                        ServOrderAlloc.SetFilters(Rec);
-                        ServOrderAlloc.ModifyAll(Status, ServOrderAlloc.Status::Finished, false);
+                        IsHandled := false;
+                        OnValidateRepairStatusCodeFinishedOnBeforeServOrderAllocModify(Rec, IsHandled);
+                        if not IsHandled then begin
+                            CalculateDates();
+                            ServOrderAlloc.SetFilters(Rec);
+                            ServOrderAlloc.ModifyAll(Status, ServOrderAlloc.Status::Finished, false);
+                        end;
                     end;
 
                     if RepairStatus."Quote Finished" then begin
@@ -385,7 +429,7 @@ table 5901 "Service Item Line"
                         RepairStatus.Get(ServItemLine."Repair Status Code");
                     end else
                         RepairStatus.Get("Repair Status Code");
-                    ServHeader2.Get("Document Type", "Document No.");
+                    ServHeader2.Get(Rec."Document Type", Rec."Document No.");
                     ServHeader3 := ServHeader2;
                     if ServHeader2.Status <> RepairStatus."Service Order Status" then begin
                         ServHeader2.SetValidatingFromLines(true);
@@ -435,23 +479,28 @@ table 5901 "Service Item Line"
             Caption = 'Response Date';
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
                 SkipResponseTimeHrsUpdate := true;
                 if "Response Date" <> xRec."Response Date" then begin
                     GetServHeader();
-                    if "Response Date" <> 0D then begin
-                        if "Response Date" < ServHeader."Order Date" then
-                            Error(
-                              Text022,
-                              FieldCaption("Response Date"), ServHeader.TableCaption(),
-                              ServHeader.FieldCaption("Order Date"));
-                        if "Response Date" = ServHeader."Order Date" then
-                            if Time < ServHeader."Order Time" then
-                                "Response Time" := ServHeader."Order Time"
-                            else
-                                "Response Time" := Time;
-                    end else
-                        "Response Time" := 0T;
+                    IsHandled := false;
+                    OnValidateResponseDateOnBeforeCheckResponseDate(Rec, IsHandled);
+                    if not IsHandled then
+                        if "Response Date" <> 0D then begin
+                            if "Response Date" < ServHeader."Order Date" then
+                                Error(
+                                    Text022,
+                                    FieldCaption("Response Date"), ServHeader.TableCaption(),
+                                    ServHeader.FieldCaption("Order Date"));
+                            if "Response Date" = ServHeader."Order Date" then
+                                if Time < ServHeader."Order Time" then
+                                    "Response Time" := ServHeader."Order Time"
+                                else
+                                    "Response Time" := Time;
+                        end else
+                            "Response Time" := 0T;
 
                     "Response Time (Hours)" := 0;
                 end;
@@ -462,17 +511,20 @@ table 5901 "Service Item Line"
             Caption = 'Response Time';
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
                 SkipResponseTimeHrsUpdate := true;
                 if "Response Time" <> xRec."Response Time" then begin
                     GetServHeader();
-                    if ("Response Date" = ServHeader."Order Date") and
-                       ("Response Time" < ServHeader."Order Time")
-                    then
-                        Error(
-                          Text022,
-                          FieldCaption("Response Time"), ServHeader.TableCaption(),
-                          ServHeader.FieldCaption("Order Time"));
+                    IsHandled := false;
+                    OnValidateResponseTimeOnBeforeCheckResponseTime(Rec, IsHandled);
+                    if not IsHandled then
+                        if ("Response Date" = ServHeader."Order Date") and ("Response Time" < ServHeader."Order Time") then
+                            Error(
+                                Text022,
+                                FieldCaption("Response Time"), ServHeader.TableCaption(),
+                                ServHeader.FieldCaption("Order Time"));
 
                     "Response Time (Hours)" := 0;
                 end;
@@ -483,15 +535,20 @@ table 5901 "Service Item Line"
             Caption = 'Starting Date';
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
                 SkipResponseTimeHrsUpdate := true;
                 GetServHeader();
                 if "Starting Date" <> 0D then begin
-                    if "Starting Date" < ServHeader."Order Date" then
-                        Error(
-                          Text022,
-                          FieldCaption("Starting Date"), ServHeader.TableCaption(),
-                          ServHeader.FieldCaption("Order Date"));
+                    IsHandled := false;
+                    OnValidateStartingDateOnBeforeCheckIfLessThanOrderDate(Rec, IsHandled);
+                    if not IsHandled then
+                        if "Starting Date" < ServHeader."Order Date" then
+                            Error(
+                                Text022,
+                                FieldCaption("Starting Date"), ServHeader.TableCaption(),
+                                ServHeader.FieldCaption("Order Date"));
 
                     if ("Starting Date" > ServHeader."Finishing Date") and
                        (ServHeader."Finishing Date" <> 0D)
@@ -507,12 +564,13 @@ table 5901 "Service Item Line"
                         "Finishing Time" := 0T;
                     end;
 
-                    if ("Starting Date" = ServHeader."Order Date") and
-                       (Time < ServHeader."Order Time")
-                    then
-                        Validate("Starting Time", ServHeader."Order Time")
-                    else
-                        Validate("Starting Time", Time);
+                    IsHandled := false;
+                    OnValidateStartingDateOnBeforeValidateStartingTime(Rec, IsHandled);
+                    if not IsHandled then
+                        if ("Starting Date" = ServHeader."Order Date") and (Time < ServHeader."Order Time") then
+                            Validate("Starting Time", ServHeader."Order Time")
+                        else
+                            Validate("Starting Time", Time);
                 end else begin
                     "Starting Time" := 0T;
                     Validate("Finishing Date", 0D);
@@ -546,24 +604,33 @@ table 5901 "Service Item Line"
             Caption = 'Finishing Date';
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
                 SkipResponseTimeHrsUpdate := true;
                 GetServHeader();
                 if "Finishing Date" <> 0D then begin
-                    if "Finishing Date" < ServHeader."Order Date" then
-                        Error(
-                          Text022,
-                          FieldCaption("Finishing Date"), ServHeader.TableCaption(),
-                          ServHeader.FieldCaption("Order Date"));
-
+                    if "Finishing Date" < ServHeader."Order Date" then begin
+                        IsHandled := false;
+                        OnValidateFinishingDateOnBeforeCheckIfLessThanOrderDate(Rec, IsHandled);
+                        if not IsHandled then
+                            Error(
+                                Text022,
+                                FieldCaption("Finishing Date"), ServHeader.TableCaption(),
+                                ServHeader.FieldCaption("Order Date"));
+                    end;
                     if "Finishing Date" < "Starting Date" then
                         Error(
                           Text019,
                           FieldCaption("Finishing Date"), FieldCaption("Starting Date"));
-                    if ("Starting Date" = "Finishing Date") and ("Starting Time" > Time) then
-                        Validate("Finishing Time", "Starting Time")
-                    else
-                        Validate("Finishing Time", Time);
+
+                    IsHandled := false;
+                    OnValidateFinishingDateOnBeforeValidateFinishingTime(Rec, IsHandled);
+                    if not IsHandled then
+                        if ("Starting Date" = "Finishing Date") and ("Starting Time" > Time) then
+                            Validate("Finishing Time", "Starting Time")
+                        else
+                            Validate("Finishing Time", Time);
                     UpdateStartFinishDateTime("Document Type", "Document No.", "Line No.", "Starting Date", "Starting Time",
                       "Finishing Date", "Finishing Time", false);
                 end else begin
@@ -808,7 +875,7 @@ table 5901 "Service Item Line"
         field(26; "Contract No."; Code[20])
         {
             Caption = 'Contract No.';
-            TableRelation = "Service Contract Header"."Contract No." WHERE("Contract Type" = CONST(Contract));
+            TableRelation = "Service Contract Header"."Contract No." where("Contract Type" = const(Contract));
 
             trigger OnLookup()
             var
@@ -851,7 +918,7 @@ table 5901 "Service Item Line"
             var
                 IsHandled: Boolean;
             begin
-                ServHeader.Get("Document Type", "Document No.");
+                ServHeader.Get(Rec."Document Type", Rec."Document No.");
                 if (ServHeader."Contract No." <> '') and
                    ("Contract No." <> ServHeader."Contract No.")
                 then
@@ -879,8 +946,12 @@ table 5901 "Service Item Line"
                         Error(Text049, "Contract No.", "Service Item No.");
                     if ServContractLine."Customer No." <> ServHeader."Customer No." then
                         Error(Text051, "Contract No.");
-                    if ServContractLine."Contract Status" <> ServContractLine."Contract Status"::Signed then
-                        Error(Text052, "Contract No.");
+
+                    IsHandled := false;
+                    OnValidateContractNoOnBeforeCheckCOntractStatusSigned(ServContractLine, IsHandled);
+                    if not IsHandled then
+                        if ServContractLine."Contract Status" <> ServContractLine."Contract Status"::Signed then
+                            Error(Text052, "Contract No.");
                     ServHeader.TestField("Order Date");
                     IsHandled := false;
                     OnValidateContractNoOnBeforeValidateServicePeriod(Rec, xRec, CurrFieldNo, IsHandled, ServHeader);
@@ -897,7 +968,7 @@ table 5901 "Service Item Line"
         }
         field(27; "Location of Service Item"; Text[30])
         {
-            CalcFormula = Lookup("Service Item"."Location of Service Item" WHERE("No." = FIELD("Service Item No.")));
+            CalcFormula = Lookup("Service Item"."Location of Service Item" where("No." = field("Service Item No.")));
             Caption = 'Location of Service Item';
             Editable = false;
             FieldClass = FlowField;
@@ -1086,8 +1157,8 @@ table 5901 "Service Item Line"
         field(35; "Fault Code"; Code[10])
         {
             Caption = 'Fault Code';
-            TableRelation = "Fault Code".Code WHERE("Fault Area Code" = FIELD("Fault Area Code"),
-                                                     "Symptom Code" = FIELD("Symptom Code"));
+            TableRelation = "Fault Code".Code where("Fault Area Code" = field("Fault Area Code"),
+                                                     "Symptom Code" = field("Symptom Code"));
         }
         field(36; "Resolution Code"; Code[10])
         {
@@ -1096,22 +1167,22 @@ table 5901 "Service Item Line"
         }
         field(37; "Fault Comment"; Boolean)
         {
-            CalcFormula = Exist("Service Comment Line" WHERE("Table Name" = CONST("Service Header"),
-                                                              "Table Subtype" = FIELD("Document Type"),
-                                                              "No." = FIELD("Document No."),
-                                                              Type = CONST(Fault),
-                                                              "Table Line No." = FIELD("Line No.")));
+            CalcFormula = exist("Service Comment Line" where("Table Name" = const("Service Header"),
+                                                              "Table Subtype" = field("Document Type"),
+                                                              "No." = field("Document No."),
+                                                              Type = const(Fault),
+                                                              "Table Line No." = field("Line No.")));
             Caption = 'Fault Comment';
             Editable = false;
             FieldClass = FlowField;
         }
         field(38; "Resolution Comment"; Boolean)
         {
-            CalcFormula = Exist("Service Comment Line" WHERE("Table Name" = CONST("Service Header"),
-                                                              "Table Subtype" = FIELD("Document Type"),
-                                                              "No." = FIELD("Document No."),
-                                                              Type = CONST(Resolution),
-                                                              "Table Line No." = FIELD("Line No.")));
+            CalcFormula = exist("Service Comment Line" where("Table Name" = const("Service Header"),
+                                                              "Table Subtype" = field("Document Type"),
+                                                              "No." = field("Document No."),
+                                                              Type = const(Resolution),
+                                                              "Table Line No." = field("Line No.")));
             Caption = 'Resolution Comment';
             Editable = false;
             FieldClass = FlowField;
@@ -1119,7 +1190,7 @@ table 5901 "Service Item Line"
         field(40; "Variant Code"; Code[10])
         {
             Caption = 'Variant Code';
-            TableRelation = "Item Variant".Code WHERE("Item No." = FIELD("Item No."));
+            TableRelation = "Item Variant".Code where("Item No." = field("Item No."));
 
             trigger OnValidate()
             begin
@@ -1131,11 +1202,11 @@ table 5901 "Service Item Line"
         }
         field(41; "Service Item Loaner Comment"; Boolean)
         {
-            CalcFormula = Exist("Service Comment Line" WHERE("Table Name" = CONST("Service Header"),
-                                                              "Table Subtype" = FIELD("Document Type"),
-                                                              "No." = FIELD("Document No."),
-                                                              Type = CONST("Service Item Loaner"),
-                                                              "Table Line No." = FIELD("Line No.")));
+            CalcFormula = exist("Service Comment Line" where("Table Name" = const("Service Header"),
+                                                              "Table Subtype" = field("Document Type"),
+                                                              "No." = field("Document No."),
+                                                              Type = const("Service Item Loaner"),
+                                                              "Table Line No." = field("Line No.")));
             Caption = 'Service Item Loaner Comment';
             Editable = false;
             FieldClass = FlowField;
@@ -1170,33 +1241,33 @@ table 5901 "Service Item Line"
         }
         field(60; "No. of Active/Finished Allocs"; Integer)
         {
-            CalcFormula = Count("Service Order Allocation" WHERE("Document Type" = FIELD("Document Type"),
-                                                                  "Document No." = FIELD("Document No."),
-                                                                  "Service Item Line No." = FIELD("Line No."),
-                                                                  "Resource No." = FIELD("Resource Filter"),
-                                                                  "Resource Group No." = FIELD("Resource Group Filter"),
-                                                                  "Allocation Date" = FIELD("Allocation Date Filter"),
-                                                                  Status = FILTER(Active | Finished)));
+            CalcFormula = count("Service Order Allocation" where("Document Type" = field("Document Type"),
+                                                                  "Document No." = field("Document No."),
+                                                                  "Service Item Line No." = field("Line No."),
+                                                                  "Resource No." = field("Resource Filter"),
+                                                                  "Resource Group No." = field("Resource Group Filter"),
+                                                                  "Allocation Date" = field("Allocation Date Filter"),
+                                                                  Status = filter(Active | Finished)));
             Caption = 'No. of Active/Finished Allocs';
             Editable = false;
             FieldClass = FlowField;
         }
         field(61; "No. of Allocations"; Integer)
         {
-            CalcFormula = Count("Service Order Allocation" WHERE(Status = FIELD("Allocation Status Filter"),
-                                                                  "Resource No." = FIELD("Resource Filter"),
-                                                                  "Resource Group No." = FIELD("Resource Group Filter"),
-                                                                  "Document Type" = FIELD("Document Type"),
-                                                                  "Document No." = FIELD("Document No."),
-                                                                  "Service Item Line No." = FIELD("Line No.")));
+            CalcFormula = count("Service Order Allocation" where(Status = field("Allocation Status Filter"),
+                                                                  "Resource No." = field("Resource Filter"),
+                                                                  "Resource Group No." = field("Resource Group Filter"),
+                                                                  "Document Type" = field("Document Type"),
+                                                                  "Document No." = field("Document No."),
+                                                                  "Service Item Line No." = field("Line No.")));
             Caption = 'No. of Allocations';
             Editable = false;
             FieldClass = FlowField;
         }
         field(62; "No. of Previous Services"; Integer)
         {
-            CalcFormula = Count("Service Shipment Item Line" WHERE("Item No." = FIELD("Item No."),
-                                                                    "Serial No." = FIELD("Serial No.")));
+            CalcFormula = count("Service Shipment Item Line" where("Item No." = field("Item No."),
+                                                                    "Serial No." = field("Serial No.")));
             Caption = 'No. of Previous Services';
             Editable = false;
             FieldClass = FlowField;
@@ -1204,14 +1275,14 @@ table 5901 "Service Item Line"
         field(63; "Contract Line No."; Integer)
         {
             Caption = 'Contract Line No.';
-            TableRelation = "Service Contract Line"."Line No." WHERE("Contract Type" = CONST(Contract),
-                                                                      "Contract No." = FIELD("Contract No."));
+            TableRelation = "Service Contract Line"."Line No." where("Contract Type" = const(Contract),
+                                                                      "Contract No." = field("Contract No."));
         }
         field(64; "Ship-to Code"; Code[10])
         {
             Caption = 'Ship-to Code';
             Editable = false;
-            TableRelation = "Ship-to Address".Code WHERE("Customer No." = FIELD("Customer No."));
+            TableRelation = "Ship-to Address".Code where("Customer No." = field("Customer No."));
         }
         field(65; "Customer No."; Code[20])
         {
@@ -1270,24 +1341,24 @@ table 5901 "Service Item Line"
         {
             CaptionClass = '1,2,1';
             Caption = 'Shortcut Dimension 1 Code';
-            TableRelation = "Dimension Value".Code WHERE("Global Dimension No." = CONST(1),
-                                                          Blocked = CONST(false));
+            TableRelation = "Dimension Value".Code where("Global Dimension No." = const(1),
+                                                          Blocked = const(false));
 
             trigger OnValidate()
             begin
-                ValidateShortcutDimCode(1, "Shortcut Dimension 1 Code");
+                Rec.ValidateShortcutDimCode(1, "Shortcut Dimension 1 Code");
             end;
         }
         field(101; "Shortcut Dimension 2 Code"; Code[20])
         {
             CaptionClass = '1,2,2';
             Caption = 'Shortcut Dimension 2 Code';
-            TableRelation = "Dimension Value".Code WHERE("Global Dimension No." = CONST(2),
-                                                          Blocked = CONST(false));
+            TableRelation = "Dimension Value".Code where("Global Dimension No." = const(2),
+                                                          Blocked = const(false));
 
             trigger OnValidate()
             begin
-                ValidateShortcutDimCode(2, "Shortcut Dimension 2 Code");
+                Rec.ValidateShortcutDimCode(2, "Shortcut Dimension 2 Code");
             end;
         }
         field(130; "Release Status"; Option)
@@ -1304,7 +1375,7 @@ table 5901 "Service Item Line"
 
             trigger OnLookup()
             begin
-                ShowDimensions();
+                Rec.ShowDimensions();
             end;
 
             trigger OnValidate()
@@ -1489,11 +1560,11 @@ table 5901 "Service Item Line"
             Clear(SegManagement);
             if ServHeader."Bill-to Contact No." <> '' then
                 SegManagement.LogDocument(
-                  9, "Document No.", 0, 0, DATABASE::Contact, ServHeader."Bill-to Contact No.",
+                  9, "Document No.", 0, 0, Database::Contact, ServHeader."Bill-to Contact No.",
                   ServHeader."Salesperson Code", '', ServHeader.Description, '')
             else
                 SegManagement.LogDocument(
-                  9, "Document No.", 0, 0, DATABASE::Customer, ServHeader."Bill-to Customer No.",
+                  9, "Document No.", 0, 0, Database::Customer, ServHeader."Bill-to Customer No.",
                   ServHeader."Salesperson Code", '', ServHeader.Description, '');
         end;
     end;
@@ -1627,13 +1698,15 @@ table 5901 "Service Item Line"
         Text053: Label 'You cannot change the contract number because some of the service lines have already been posted.';
         Text054: Label 'If you change the contract number, the existing service lines for this order line will be re-created.\Do you want to continue?';
         UseServItemLineAsxRec: Boolean;
-        SkipResponseTimeHrsUpdate: Boolean;
         Text055: Label 'You cannot change the %1 because %2 %3 has not been received.', Comment = '2%=FIELDCAPTION("Loaner No."); 3%="Loaner No.";';
         Text056: Label 'One or more service lines of %6 %7 and/or %8 exist for %1, %2 %3, %4 %5. There is a check mark in the %9 field of %10 %11, therefore %10 %11 cannot be applied to service line of %6 %7 and/or %8.\\ Do you want to apply it for other service lines?';
         Text057: Label 'Default Service Hours';
         Text058: Label 'Service Hours';
         Text059: Label 'Default warranty duration is negative. The warranty cannot be activated.';
         Text060: Label 'You may have changed a dimension.\\Do you want to update the lines?';
+
+    protected var
+        SkipResponseTimeHrsUpdate: Boolean;
 
     procedure SetUpNewLine()
     begin
@@ -1675,7 +1748,7 @@ table 5901 "Service Item Line"
     local procedure GetServHeader()
     begin
         if ServHeader."No." <> "Document No." then
-            ServHeader.Get("Document Type", "Document No.");
+            ServHeader.Get(Rec."Document Type", Rec."Document No.");
     end;
 
     local procedure CheckCustomerNo()
@@ -1813,7 +1886,13 @@ table 5901 "Service Item Line"
         ErrorDate: Date;
         WholeResponseDays: Integer;
         StartingTime: Time;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCalculateResponseDateTime(Rec, OrderDate, OrderTime, IsHandled);
+        if IsHandled then
+            exit;
+
         ServMgtSetup.Get();
         ServMgtSetup.TestField("Base Calendar Code");
         CalendarMgmt.SetSource(ServMgtSetup, CalChange);
@@ -2007,13 +2086,21 @@ table 5901 "Service Item Line"
     end;
 
     procedure CheckIfServHourExist(ContractNo: Code[20]): Boolean
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCheckIfServHourExist(Rec, ContractNo, IsHandled);
+        if IsHandled then
+            exit;
+
         if ContractNo = '' then
             exit(false);
 
         ServHour2.Reset();
         ServHour2.SetRange("Service Contract Type", ServHour."Service Contract Type"::Contract);
         ServHour2.SetRange("Service Contract No.", ContractNo);
+        OnCheckIfServHourexistOnBeforeFindServHour(ServHour);
         exit(ServHour2.FindFirst())
     end;
 
@@ -2195,7 +2282,7 @@ table 5901 "Service Item Line"
 
     procedure ShowComments(Type: Option General,Fault,Resolution,Accessory,Internal,"Service Item Loaner")
     begin
-        ServHeader.Get("Document Type", "Document No.");
+        ServHeader.Get(Rec."Document Type", Rec."Document No.");
         ServHeader.TestField("Customer No.");
         TestField("Line No.");
 
@@ -2292,7 +2379,14 @@ table 5901 "Service Item Line"
     end;
 
     local procedure CalculateDates()
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCalculateDates(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         if ServHeader."Order Date" > WorkDate() then begin
             if "Starting Date" = 0D then begin
                 "Starting Date" := ServHeader."Order Date";
@@ -2378,6 +2472,8 @@ table 5901 "Service Item Line"
                     "Response Time (Hours)" := CalculateResponseTimeHours();
             SkipResponseTimeHrsUpdate := false
         end;
+
+        OnAfterUpdateResponseTimeHours(Rec);
     end;
 
     procedure UpdateServiceOrderChangeLog(var OldServItemLine: Record "Service Item Line")
@@ -2401,46 +2497,6 @@ table 5901 "Service Item Line"
         OnAfterUpdateServiceOrderChangeLog(Rec, OldServItemLine);
     end;
 
-#if not CLEAN20
-    [Obsolete('Replaced by CreateDim(DefaultDimSource: List of [Dictionary of [Integer, Code[20]]])', '20.0')]
-    procedure CreateDim(Type1: Integer; No1: Code[20]; Type2: Integer; No2: Code[20]; Type3: Integer; No3: Code[20])
-    var
-        SourceCodeSetup: Record "Source Code Setup";
-        TableID: array[10] of Integer;
-        No: array[10] of Code[20];
-        IsHandled: Boolean;
-    begin
-        IsHandled := false;
-        OnBeforeCreateDim(Rec, CurrFieldNo, IsHandled);
-        if IsHandled then
-            exit;
-
-        SourceCodeSetup.Get();
-
-        if "Document No." = '' then
-            exit;
-
-        GetServHeader();
-
-        TableID[1] := Type1;
-        No[1] := No1;
-        TableID[2] := Type2;
-        No[2] := No2;
-        TableID[3] := Type3;
-        No[3] := No3;
-        OnAfterCreateDimTableIDs(Rec, CurrFieldNo, TableID, No);
-
-        "Shortcut Dimension 1 Code" := '';
-        "Shortcut Dimension 2 Code" := '';
-
-        "Dimension Set ID" :=
-          DimMgt.GetRecDefaultDimID(
-            Rec, CurrFieldNo, TableID, No, SourceCodeSetup."Service Management",
-            "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code", ServHeader."Dimension Set ID", DATABASE::"Service Header");
-        DimMgt.UpdateGlobalDimFromDimSetID("Dimension Set ID", "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
-    end;
-#endif
-
     procedure CreateDim(DefaultDimSource: List of [Dictionary of [Integer, Code[20]]])
     var
         SourceCodeSetup: Record "Source Code Setup";
@@ -2457,9 +2513,6 @@ table 5901 "Service Item Line"
             exit;
 
         GetServHeader();
-#if not CLEAN20
-        RunEventOnAfterCreateDimTableIDs(DefaultDimSource);
-#endif
 
         "Shortcut Dimension 1 Code" := '';
         "Shortcut Dimension 2 Code" := '';
@@ -2467,7 +2520,7 @@ table 5901 "Service Item Line"
         "Dimension Set ID" :=
           DimMgt.GetRecDefaultDimID(
             Rec, CurrFieldNo, DefaultDimSource, SourceCodeSetup."Service Management",
-            "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code", ServHeader."Dimension Set ID", DATABASE::"Service Header");
+            "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code", ServHeader."Dimension Set ID", Database::"Service Header");
         DimMgt.UpdateGlobalDimFromDimSetID("Dimension Set ID", "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
     end;
 
@@ -2661,7 +2714,7 @@ table 5901 "Service Item Line"
             FilterGroup(0);
         end;
 
-        SetRange("Date Filter", 0D, WorkDate());
+        Rec.SetRange("Date Filter", 0D, WorkDate());
     end;
 
     procedure CreateDimFromDefaultDim(FieldNo: Integer)
@@ -2702,48 +2755,11 @@ table 5901 "Service Item Line"
         OnAfterInitDefaultDimensionSources(Rec, DefaultDimSource, FieldNo);
     end;
 
-#if not CLEAN20
-    local procedure CreateDefaultDimSourcesFromDimArray(var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]]; TableID: array[10] of Integer; No: array[10] of Code[20])
-    var
-        DimArrayConversionHelper: Codeunit "Dim. Array Conversion Helper";
-    begin
-        DimArrayConversionHelper.CreateDefaultDimSourcesFromDimArray(Database::"Service Item Line", DefaultDimSource, TableID, No);
-    end;
-
-    local procedure CreateDimTableIDs(DefaultDimSource: List of [Dictionary of [Integer, Code[20]]]; var TableID: array[10] of Integer; var No: array[10] of Code[20])
-    var
-        DimArrayConversionHelper: Codeunit "Dim. Array Conversion Helper";
-    begin
-        DimArrayConversionHelper.CreateDimTableIDs(Database::"Service Item Line", DefaultDimSource, TableID, No);
-    end;
-
-    local procedure RunEventOnAfterCreateDimTableIDs(var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]])
-    var
-        DimArrayConversionHelper: Codeunit "Dim. Array Conversion Helper";
-        TableID: array[10] of Integer;
-        No: array[10] of Code[20];
-    begin
-        if not DimArrayConversionHelper.IsSubscriberExist(Database::"Service Item Line") then
-            exit;
-
-        CreateDimTableIDs(DefaultDimSource, TableID, No);
-        OnAfterCreateDimTableIDs(Rec, CurrFieldNo, TableID, No);
-        CreateDefaultDimSourcesFromDimArray(DefaultDimSource, TableID, No);
-    end;
-#endif
-
     [IntegrationEvent(false, false)]
     local procedure OnAfterInitDefaultDimensionSources(var ServiceItemLine: Record "Service Item Line"; var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]]; FieldNo: Integer)
     begin
     end;
 
-#if not CLEAN20
-    [Obsolete('Temporary event for compatibility', '20.0')]
-    [IntegrationEvent(false, false)]
-    local procedure OnAfterCreateDimTableIDs(var ServiceItemLine: Record "Service Item Line"; CallingFieldNo: Integer; var TableID: array[10] of Integer; var No: array[10] of Code[20])
-    begin
-    end;
-#endif
     [IntegrationEvent(false, false)]
     local procedure OnAfterAssignItemValues(var ServiceItemLine: Record "Service Item Line"; var xServiceItemLine: Record "Service Item Line"; Item: Record Item; ServiceHeader: Record "Service Header"; CurrFieldNo: Integer)
     begin
@@ -2945,6 +2961,91 @@ table 5901 "Service Item Line"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnValidateFinishingDateOnBeforeCheckIfLessThanOrderDate(var ServiceItemLine: Record "Service Item Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateStartingDateOnBeforeCheckIfLessThanOrderDate(var ServiceItemLine: Record "Service Item Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateResponseTimeOnBeforeCheckResponseTime(var ServiceItemLine: Record "Service Item Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateResponseDateOnBeforeCheckResponseDate(var ServiceItemLine: Record "Service Item Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateContractNoOnBeforeCheckCOntractStatusSigned(var ServiceContractLine: Record "Service Contract Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateStartingDateOnBeforeValidateStartingTime(var ServiceItemLine: Record "Service Item Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateFinishingDateOnBeforeValidateFinishingTime(var ServiceItemLine: Record "Service Item Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateRepairStatusCodeOnBeforeCheckOrderDateRepairStatusInProgress(var ServiceOrderAllocation: Record "Service Order Allocation"; var ServiceItemLine: Record "Service Item Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateRepairStatusCodeInitialOnBeforeServOrderAllocModify(var ServiceItemLine: Record "Service Item Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateRepairStatusCodeInProgressOnBeforeServOrderAllocModify(var ServiceItemLine: Record "Service Item Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateRepairStatusCodeFinishedOnBeforeServOrderAllocModify(var ServiceItemLine: Record "Service Item Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterUpdateResponseTimeHours(var ServiceItemLine: Record "Service Item Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCalculateDates(var ServiceItemLine: Record "Service Item Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckIfServHourExist(var ServiceItemLine: Record "Service Item Line"; var ContractNo: Code[20]; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCalculateResponseDateTime(var ServiceItemLine: Record "Service Item Line"; OrderDate: Date; OrderTime: Time; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCheckIfServHourexistOnBeforeFindServHour(var ServiceHour: Record "Service Hour")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSetServContractExistTrue(var ServiceContractLine: Record "Service Contract Line"; var ServiceHeader: Record "Service Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnValidateServiceItemNoOnBeforeCheckServContractExist(var ServiceContractLine: Record "Service Contract Line"; ServiceItem: Record "Service Item"; ServiceHeader: Record "Service Header"; var ServContractExist: Boolean; var ServiceItemLine: Record "Service Item Line"; var IsHandled: Boolean)
     begin
     end;
@@ -3059,4 +3160,3 @@ table 5901 "Service Item Line"
     begin
     end;
 }
-

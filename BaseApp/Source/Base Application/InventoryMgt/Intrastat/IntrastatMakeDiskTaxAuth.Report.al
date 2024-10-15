@@ -1,4 +1,19 @@
 #if not CLEAN22
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Inventory.Intrastat;
+
+using Microsoft.Bank.BankAccount;
+using Microsoft.Finance.VAT.Ledger;
+using Microsoft.Foundation.Company;
+using Microsoft.Inventory.Item;
+using Microsoft.Inventory.Ledger;
+using Microsoft.Purchases.Vendor;
+using Microsoft.Sales.History;
+using Microsoft.Service.History;
+
 report 593 "Intrastat - Make Disk Tax Auth"
 {
     Caption = 'Intrastat - Make Diskette';
@@ -11,13 +26,13 @@ report 593 "Intrastat - Make Disk Tax Auth"
     {
         dataitem("Intrastat Jnl. Batch"; "Intrastat Jnl. Batch")
         {
-            DataItemTableView = SORTING("File Disk No.");
+            DataItemTableView = sorting("File Disk No.");
             RequestFilterFields = "Journal Template Name", Name;
             dataitem(IntrastatJnlLine; "Intrastat Jnl. Line")
             {
-                DataItemLink = "Journal Template Name" = FIELD("Journal Template Name"), "Journal Batch Name" = FIELD(Name);
+                DataItemLink = "Journal Template Name" = field("Journal Template Name"), "Journal Batch Name" = field(Name);
                 DataItemLinkReference = "Intrastat Jnl. Batch";
-                DataItemTableView = SORTING(Type, "Country/Region Code", "Partner VAT ID", "Transaction Type", "Tariff No.", "Group Code", "Transport Method", "Transaction Specification", "Country/Region of Origin Code", Area, "Corrective entry") ORDER(Ascending);
+                DataItemTableView = sorting(Type, "Country/Region Code", "Partner VAT ID", "Transaction Type", "Tariff No.", "Group Code", "Transport Method", "Transaction Specification", "Country/Region of Origin Code", Area, "Corrective entry") order(Ascending);
                 trigger OnAfterGetRecord()
                 var
                     EU3PartyTrade: Boolean;
@@ -141,9 +156,9 @@ report 593 "Intrastat - Make Disk Tax Auth"
             }
             dataitem("Intra - form Buffer"; "Intra - form Buffer")
             {
-                DataItemLink = "Journal Template Name" = FIELD("Journal Template Name"), "Journal Batch Name" = FIELD(Name);
+                DataItemLink = "Journal Template Name" = field("Journal Template Name"), "Journal Batch Name" = field(Name);
                 DataItemLinkReference = "Intrastat Jnl. Batch";
-                DataItemTableView = SORTING("VAT Registration No.", "Transaction Type", "Tariff No.", "Group Code", "Transport Method", "Transaction Specification", "Country/Region of Origin Code", Area, "Corrective entry") ORDER(Ascending);
+                DataItemTableView = sorting("VAT Registration No.", "Transaction Type", "Tariff No.", "Group Code", "Transport Method", "Transaction Specification", "Country/Region of Origin Code", Area, "Corrective entry") order(Ascending);
 
                 trigger OnAfterGetRecord()
                 begin
@@ -774,14 +789,6 @@ report 593 "Intrastat - Make Disk Tax Auth"
 
         exit(false);
     end;
-
-#if not CLEAN20
-    [Obsolete('Replaced by new InitializeRequest(OutStream)', '20.0')]
-    procedure InitializeRequest(newServerFileName: Text)
-    begin
-        IntrastatFileWriter.SetServerFileName(newServerFileName);
-    end;
-#endif
 
     procedure InitializeRequest(var newResultFileOutStream: OutStream)
     begin

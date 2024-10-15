@@ -1,9 +1,15 @@
+#if not CLEAN22
 codeunit 144062 "UT REP Intrastat"
 {
     // Test for feature Intrastat.
 
     Subtype = Test;
     TestPermissions = Disabled;
+    ObsoleteState = Pending;
+#pragma warning disable AS0072
+    ObsoleteTag = '22.0';
+#pragma warning restore AS0072
+    ObsoleteReason = 'Intrastat related functionalities are moved to Intrastat extensions.';
 
     trigger OnRun()
     begin
@@ -298,3 +304,4 @@ codeunit 144062 "UT REP Intrastat"
     end;
 }
 
+#endif

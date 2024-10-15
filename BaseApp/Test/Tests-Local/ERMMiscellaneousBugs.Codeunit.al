@@ -564,9 +564,13 @@ codeunit 144105 "ERM Miscellaneous Bugs"
         PostedPurchaseCreditMemo.OK.Invoke;
     end;
 
+#if not CLEAN22
     [Test]
     [HandlerFunctions('GetItemLedgerEntriesRequestPageHandler,ConfirmHandler')]
     [Scope('OnPrem')]
+#pragma warning disable AS0072
+    [Obsolete('Intrastat related functionalities are moved to Intrastat extensions.', '22.0')]
+#pragma warning restore AS0072
     procedure DocumentNoOnSalesInvoiceIntrastatJournal()
     var
         SalesHeader: Record "Sales Header";
@@ -578,6 +582,9 @@ codeunit 144105 "ERM Miscellaneous Bugs"
     [Test]
     [HandlerFunctions('GetItemLedgerEntriesRequestPageHandler,ConfirmHandler')]
     [Scope('OnPrem')]
+#pragma warning disable AS0072
+    [Obsolete('Intrastat related functionalities are moved to Intrastat extensions.', '22.0')]
+#pragma warning restore AS0072
     procedure DocumentNoOnSalesCreditMemoIntrastatJournal()
     var
         SalesHeader: Record "Sales Header";
@@ -609,6 +616,9 @@ codeunit 144105 "ERM Miscellaneous Bugs"
     [Test]
     [HandlerFunctions('GetItemLedgerEntriesRequestPageHandler,ConfirmHandler')]
     [Scope('OnPrem')]
+#pragma warning disable AS0072
+    [Obsolete('Intrastat related functionalities are moved to Intrastat extensions.', '22.0')]
+#pragma warning restore AS0072
     procedure DocumentNoOnPurchaseInvoiceIntrastatJournal()
     var
         IntrastatJnlBatch: Record "Intrastat Jnl. Batch";
@@ -630,6 +640,7 @@ codeunit 144105 "ERM Miscellaneous Bugs"
         // Verify: Verify Purchases Intrastat journal use the Reverse Charge VAT serial No. as Document No.
         VerifyDocNoOnIntrastatJournalLine(IntrastatJournal, VendorNo, PurchaseHeader."Service Tariff No.");
     end;
+#endif
 
     [Test]
     [Scope('OnPrem')]
@@ -787,9 +798,13 @@ codeunit 144105 "ERM Miscellaneous Bugs"
         LibraryReportDataSet.AssertElementWithValueExists(WithholdTaxAmountTok, WithholdingTaxAmount);
     end;
 
+#if not CLEAN22
     [Test]
     [HandlerFunctions('GetItemLedgerEntriesRequestPageHandler,ConfirmHandler')]
     [Scope('OnPrem')]
+#pragma warning disable AS0072
+    [Obsolete('Intrastat related functionalities are moved to Intrastat extensions.', '22.0')]
+#pragma warning restore AS0072
     procedure AmountOnSalesInvoiceWithChargeItemIntrastatJournal()
     var
         SalesHeader: Record "Sales Header";
@@ -801,6 +816,9 @@ codeunit 144105 "ERM Miscellaneous Bugs"
     [Test]
     [HandlerFunctions('GetItemLedgerEntriesRequestPageHandler,ConfirmHandler')]
     [Scope('OnPrem')]
+#pragma warning disable AS0072
+    [Obsolete('Intrastat related functionalities are moved to Intrastat extensions.', '22.0')]
+#pragma warning restore AS0072
     procedure AmountOnSalesCreditMemoWithChargeItemIntrastatJournal()
     var
         SalesHeader: Record "Sales Header";
@@ -837,6 +855,9 @@ codeunit 144105 "ERM Miscellaneous Bugs"
     [Test]
     [HandlerFunctions('GetItemLedgerEntriesRequestPageHandler,ConfirmHandler')]
     [Scope('OnPrem')]
+#pragma warning disable AS0072
+    [Obsolete('Intrastat related functionalities are moved to Intrastat extensions.', '22.0')]
+#pragma warning restore AS0072
     procedure AmountOnPurchaseInvoiceWithChargeItemIntrastatJournal()
     var
         IntrastatJnlBatch: Record "Intrastat Jnl. Batch";
@@ -862,6 +883,7 @@ codeunit 144105 "ERM Miscellaneous Bugs"
         // Verify: Verify Amount on Purchase Intrastat Journal Page.
         VerifyAmountOnIntrastatJournalPage(IntrastatJournal, FindLineAmount(PurchaseHeader."Document Type", Amount), DocumentNo);
     end;
+#endif
 
     [Test]
     [Scope('OnPrem')]
@@ -1173,8 +1195,12 @@ codeunit 144105 "ERM Miscellaneous Bugs"
         VendorNameOnVATRegisterPrint(PurchaseHeader."Document Type"::"Credit Memo");
     end;
 
+#if not CLEAN22
     [Test]
     [Scope('OnPrem')]
+#pragma warning disable AS0072
+    [Obsolete('Intrastat related functionalities are moved to Intrastat extensions.', '22.0')]
+#pragma warning restore AS0072
     procedure BlankReferencePeriod()
     var
         IntrastatJnlLine: Record "Intrastat Jnl. Line";
@@ -1197,6 +1223,9 @@ codeunit 144105 "ERM Miscellaneous Bugs"
 
     [Test]
     [Scope('OnPrem')]
+#pragma warning disable AS0072
+    [Obsolete('Intrastat related functionalities are moved to Intrastat extensions.', '22.0')]
+#pragma warning restore AS0072
     procedure ReferencePeriodNotEqualsStatisticsPeriod()
     var
         IntrastatJnlLine: Record "Intrastat Jnl. Line";
@@ -1212,6 +1241,7 @@ codeunit 144105 "ERM Miscellaneous Bugs"
         // Verify: Verify error message.
         Assert.ExpectedError(CorrectedIntrastatReportNoMsg);
     end;
+#endif
 
     [Test]
     [Scope('OnPrem')]
@@ -1549,6 +1579,7 @@ codeunit 144105 "ERM Miscellaneous Bugs"
 
         LibraryVariableStorage.AssertEmpty();
     end;
+
     [Test]
     [HandlerFunctions('ManualVendorPaymentLinePageHandler,ConfirmHandler,MessageHandler,ApplyVendorEntriesModalPageHandler,PostApplicationModalPageHandler')]
     [Scope('OnPrem')]
@@ -1674,11 +1705,15 @@ codeunit 144105 "ERM Miscellaneous Bugs"
     end;
 
     local procedure Initialize()
+#if not CLEAN22
     var
         IntrastatJnlTemplate: Record "Intrastat Jnl. Template";
+#endif
     begin
         LibraryVariableStorage.Clear();
+#if not CLEAN22
         IntrastatJnlTemplate.DeleteAll();
+#endif
         LibrarySetupStorage.Restore();
         if IsInitialized then
             exit;
@@ -2040,6 +2075,7 @@ codeunit 144105 "ERM Miscellaneous Bugs"
         exit(Item."No.");
     end;
 
+#if not CLEAN22
     local procedure CreateIntrastatJournalBatch(var IntrastatJnlBatch: Record "Intrastat Jnl. Batch"; DocumentType: Option; CorrectiveEntry: Boolean)
     var
         IntrastatJnlTemplate: Record "Intrastat Jnl. Template";
@@ -2061,6 +2097,7 @@ codeunit 144105 "ERM Miscellaneous Bugs"
         CreateIntrastatJournalBatch(IntrastatJnlBatch, DocumentType, CorrectiveEntry);
         LibraryERM.CreateIntrastatJnlLine(IntrastatJnlLine, IntrastatJnlBatch."Journal Template Name", IntrastatJnlBatch.Name);
     end;
+#endif
 
     local procedure CreateItemWithVATProdPostingGroup(VATProdPostingGroup: Code[20]): Code[20]
     var
@@ -2576,12 +2613,14 @@ codeunit 144105 "ERM Miscellaneous Bugs"
         Assert.AreEqual(ExpectedCount, VATReportLine.Count, SuggestedLinesCountMismatchErr);
     end;
 
+#if not CLEAN22
     local procedure RunIntrastatJournalGetEntries(var IntrastatJournal: TestPage "Intrastat Journal")
     begin
         Commit();  // Commit required.
         IntrastatJournal.OpenEdit;
         IntrastatJournal.GetEntries.Invoke;
     end;
+#endif
 
     local procedure RunIssuingCustomerBillReport(CustomerNo: Code[20])
     var
@@ -2605,7 +2644,7 @@ codeunit 144105 "ERM Miscellaneous Bugs"
         SuggestCustomerBills.UseRequestPage(false);
         SuggestCustomerBills.Run();
     end;
-
+#if not CLEAN22
     local procedure VerifyDocNoOnIntrastatJournalLine(IntrastatJournal: TestPage "Intrastat Journal"; BillToPayToNo: Code[20]; ServiceTariffNo: Code[10])
     var
         VATEntry: Record "VAT Entry";
@@ -2616,6 +2655,7 @@ codeunit 144105 "ERM Miscellaneous Bugs"
         IntrastatJournal."Document No.".AssertEquals(VATEntry."Document No.");
         IntrastatJournal.Close();
     end;
+#endif
 
     local procedure OpenWithholdTaxesContributionCardUsingPurchInvoicePage(PurchaseHeader: Record "Purchase Header")
     var
@@ -2881,14 +2921,14 @@ codeunit 144105 "ERM Miscellaneous Bugs"
         VATReportSubform."Amount Incl. VAT".AssertEquals(AmountIncludingVAT);
         VATReportSubform.Close();
     end;
-
+#if not CLEAN22
     local procedure VerifyAmountOnIntrastatJournalPage(IntrastatJournal: TestPage "Intrastat Journal"; Amount: Decimal; DocumentNo: Code[20])
     begin
         IntrastatJournal.FILTER.SetFilter("Document No.", DocumentNo);
         IntrastatJournal.Amount.AssertEquals(Amount);
         IntrastatJournal.Close();
     end;
-
+#endif
     local procedure VerifyDetailedCustomerLedgerEntry(DocumentNo: Code[20]; CustomerNo: Code[20]; AmountFilter: Text[30]; Amount: Decimal)
     var
         DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry";
@@ -3031,7 +3071,7 @@ codeunit 144105 "ERM Miscellaneous Bugs"
         LibraryReportDataSet.LoadDataSetFile;
         LibraryReportDataSet.SetRange(VATBookEntrySellToBuyFromNoTok, Vendor."No.");
         if not LibraryReportDataSet.GetNextRow then
-            Error(StrSubstNo(RowNotFoundErr, VATBookEntrySellToBuyFromNoTok, Vendor."No."));
+            Error(RowNotFoundErr, VATBookEntrySellToBuyFromNoTok, Vendor."No.");
         LibraryReportDataSet.AssertCurrentRowValueEquals(NameTok, Vendor.Name);
     end;
 
@@ -3123,14 +3163,19 @@ codeunit 144105 "ERM Miscellaneous Bugs"
         CustomerBillsList.SaveAsXml(LibraryReportDataSet.GetParametersFileName, LibraryReportDataSet.GetFileName);
     end;
 
+#if not CLEAN22
     [RequestPageHandler]
     [Scope('OnPrem')]
+#pragma warning disable AS0072
+    [Obsolete('Intrastat related functionalities are moved to Intrastat extensions.', '22.0')]
+#pragma warning restore AS0072
     procedure GetItemLedgerEntriesRequestPageHandler(var GetItemLedgerEntries: TestRequestPage "Get Item Ledger Entries")
     begin
         GetItemLedgerEntries.StartingDate.SetValue(WorkDate());
         GetItemLedgerEntries.EndingDate.SetValue(WorkDate());
         GetItemLedgerEntries.OK.Invoke();
     end;
+#endif
 
     [ModalPageHandler]
     [Scope('OnPrem')]

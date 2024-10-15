@@ -123,7 +123,7 @@ codeunit 143005 "Library - IT Datifattura"
     local procedure ThrowErrorOnAfterInsertEventTableErrorMessage(var Rec: Record "Error Message"; RunTrigger: Boolean)
     begin
         if Rec."Message Type" = Rec."Message Type"::Error then
-            Error(StrSubstNo('%1: <%2> in %3', Rec."Message Type", Rec.Description, Rec."Context Record ID"));
+            Error('%1: <%2> in %3', Rec."Message Type", Rec.Message, Rec."Context Record ID");
     end;
 }
 

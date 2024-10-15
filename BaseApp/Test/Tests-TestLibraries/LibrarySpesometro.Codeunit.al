@@ -188,7 +188,7 @@ codeunit 143001 "Library - Spesometro"
         VATReportSetup.Get();
         RecordType := ReadValue(TextFile, LineNo, 1, 1);
         if not (RecordType in ['A' .. 'E', 'Z']) then
-            Error(StrSubstNo(InvalidRecordTypeErr, RecordType));
+            Error(InvalidRecordTypeErr, RecordType);
 
         if RecordType in ['B', 'C', 'E'] then
             VerifyValue(TextFile, GetCompanyRegNo, LineNo, 2, 16, ConstFormat::AN);

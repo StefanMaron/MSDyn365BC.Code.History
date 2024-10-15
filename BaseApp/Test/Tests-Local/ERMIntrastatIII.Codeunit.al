@@ -1,3 +1,4 @@
+﻿#if not CLEAN22
 codeunit 144064 "ERM Intrastat - III"
 {
     // // [FEATURE] [Intrastat]
@@ -60,6 +61,11 @@ codeunit 144064 "ERM Intrastat - III"
 
     Subtype = Test;
     TestPermissions = Disabled;
+    ObsoleteState = Pending;
+#pragma warning disable AS0072
+    ObsoleteTag = '22.0';
+#pragma warning restore AS0072
+    ObsoleteReason = 'Intrastat related functionalities are moved to Intrastat extensions.';
 
     trigger OnRun()
     begin
@@ -767,71 +773,6 @@ codeunit 144064 "ERM Intrastat - III"
     end;
 
     [Test]
-    [HandlerFunctions('MessageHandler')]
-    [Scope('OnPrem')]
-    procedure IntrastatTriangularSales()
-    var
-        SalesHeader: Record "Sales Header";
-        IntrastatJnlBatch: Record "Intrastat Jnl. Batch";
-        FileName: Text;
-        ItemNo: Code[20];
-        TariffNo: Code[20];
-    begin
-        // [FEATURE] [EU 3-Party Trade] [Sales]
-        // [SCENARIO] Run "Intrastat - Make Disk" for Sales Order with "EU 3-Party Trade" = Yes
-        Initialize();
-
-        // [GIVEN] Posted Sales Order with "EU 3-Party Trade" = Yes
-        ItemNo := CreateSalesDocument(SalesHeader, CreateEUCustomer, false, SalesHeader."Document Type"::Invoice);
-        UpdateSalesDocEU3PartyTrade(SalesHeader);
-        LibrarySales.PostSalesDocument(SalesHeader, true, true);
-
-        // [GIVEN] Instrastat Journal Batch with "EU Service" = No, Intrastat Journal Line for Sales Order
-        TariffNo := CreateIntrastatJnlLineItemEntry(IntrastatJnlBatch, FindItemLedgerEntryNo(ItemNo));
-        Commit();
-
-        // [WHEN] Run 'Intrastat - Make Disk Tax Auth'
-        FileName := FileManagement.ServerTempFileName('txt');
-        RunIntrastatMakeDiskTaxAuth(IntrastatJnlBatch, FileName);
-
-        // [THEN] "Tariff No." field is exported from 57 till 64 position
-        // [THEN] Positions from 65 till 113 filled with initial values 0 and blank
-        // [THEN] Exported line has 106 symbol length (TFS 422486)
-        VerifyValueInIntrastatFile(FileName, TariffNo, 57, 8, 106);
-    end;
-
-    [Test]
-    [HandlerFunctions('MessageHandler')]
-    [Scope('OnPrem')]
-    procedure IntrastatTriangularService()
-    var
-        IntrastatJnlBatch: Record "Intrastat Jnl. Batch";
-        FileName: Text;
-        TariffNo: Code[20];
-        ItemNo: Code[20];
-    begin
-        // [FEATURE] [EU 3-Party Trade] [Services]
-        // [SCENARIO] Run "Intrastat - Make Disk" for Service Order with "EU 3-Party Trade" = Yes
-        Initialize();
-
-        // [GIVEN] Posted Service Order with "EU 3-Party Trade" = Yes
-        ItemNo := CreateAndPostServiceInvoice;
-
-        // [GIVEN] Instrastat Journal Batch with "EU Service" = No, Intrastat Journal Line for Service Order
-        TariffNo := CreateIntrastatJnlLineItemEntry(IntrastatJnlBatch, FindItemLedgerEntryNo(ItemNo));
-        Commit();
-
-        // [WHEN] Run 'Intrastat - Make Disk Tax Auth'
-        FileName := FileManagement.ServerTempFileName('txt');
-        RunIntrastatMakeDiskTaxAuth(IntrastatJnlBatch, FileName);
-
-        // [THEN] "Tariff No." field is exported from 57 till 64 position
-        // [THEN] Positions from 65 till 113 filled with initial values 0 and blank
-        // [THEN] Exported line has 106 symbol length (TFS 422486)
-        VerifyValueInIntrastatFile(FileName, TariffNo, 57, 8, 106);
-    end;
-
-    [Test]
     [HandlerFunctions('ItemChargeAssignmentPurchPageHandler,PurchReceiptLinesPageHandler,GetItemLedgerEntriesSetDatesRequestPageHandler')]
     [Scope('OnPrem')]
     procedure NotToShowItemCharges()
@@ -1106,80 +1047,6 @@ codeunit 144064 "ERM Intrastat - III"
         VerifyIntrastatJnlLineAmount(
           IntrastatJnlLine, IntrastatJnlBatchName, PurchInvLine."Service Tariff No.",
           Abs(PurchInvLine.Amount - FindPurchaseCrMemoLine(DocumentNo, PurchCrMemoLine.Type::Item)));
-    end;
-
-    [Test]
-    [HandlerFunctions('GetItemLedgerEntriesRequestPageHandler,MessageHandler')]
-    [Scope('OnPrem')]
-    procedure CheckTransportMethodIsNotValidatedForServiceItemTypeInPurchaseDocument()
-    var
-        IntrastatJnlBatch: Record "Intrastat Jnl. Batch";
-        IntrastatJnlLine: Record "Intrastat Jnl. Line";
-        PurchaseHeader: Record "Purchase Header";
-        FileName: Text;
-        IntrastatJnlBatchName: Code[10];
-        DocumentNo: Code[20];
-    begin
-        // [FEATURE] [Purchase] [Non-Inventoriable]
-        // [SCENARIO 323469] Get Intrastat Journal entries for posted Purchase Invoice with Item and Item.Type = Service.
-
-        Initialize();
-
-        // [GIVEN] Purchase Invoice with Item.Type = Service is created and posted.
-        // [GIVEN] PurchaseHeader."Transport Method" is blank .
-        CreatePurchaseDocumentWithoutTransportMethodWithServiceTypeItem(
-          PurchaseHeader, CreateEUVendor, PurchaseHeader."Document Type"::Invoice, true);  // EU Service - TRUE.
-        DocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
-
-        // [WHEN] Get Entries on Intrastat Journal.
-        IntrastatJnlBatchName := GetEntriesIntrastatJournal(
-            IntrastatJnlBatch.Type::Purchases, true, false, false, Format(WorkDate(), 0, LibraryFiscalYear.GetStatisticsPeriod), true);  // EU Service - TRUE, CorrectiveEntry - FALSE, AmountsInAddCurrency - FALSE, ShowItemCharges - TRUE
-
-        // [THEN] Intrastat Journal Line was created with blank "Transport Method"
-        FindIntrastatJournalLine(IntrastatJnlLine, IntrastatJnlBatchName, DocumentNo);
-        IntrastatJnlLine.TestField("Transport Method", '');
-
-        // [THEN] 'Intrastat - Make Disk Tax Auth' run successfully
-        FileName := FileManagement.ServerTempFileName('txt');
-        IntrastatJnlBatch.Get(IntrastatJnlLine."Journal Template Name", IntrastatJnlBatchName);
-        RunIntrastatMakeDiskTaxAuth(IntrastatJnlBatch, FileName);
-    end;
-
-    [Test]
-    [HandlerFunctions('GetItemLedgerEntriesRequestPageHandler,MessageHandler')]
-    [Scope('OnPrem')]
-    procedure CheckTransportMethodIsNotValidatedForServiceItemTypeInSalesDocument()
-    var
-        IntrastatJnlBatch: Record "Intrastat Jnl. Batch";
-        IntrastatJnlLine: Record "Intrastat Jnl. Line";
-        SalesHeader: Record "Sales Header";
-        FileName: Text;
-        IntrastatJnlBatchName: Code[10];
-        DocumentNo: Code[20];
-    begin
-        // [FEATURE] [Sales] [Non-Inventoriable]
-        // [SCENARIO 323469] Get Intrastat Journal entries for posted Sales Invoice with Item and Item.Type = Service.
-
-        Initialize();
-
-        // [GIVEN] Sales Invoice with Item.Type = Service is created and posted.
-        // [GIVEN] SalesHeader."Transport Method" is blank.
-        CreateSalesDocumentWithoutTransportMethodWithServiceTypeItem(
-          SalesHeader, CreateEUCustomer, true, SalesHeader."Document Type"::Invoice);  // EU Service - TRUE.
-        DocumentNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
-
-        // [WHEN] Get Entries on Intrastat Journal.
-        IntrastatJnlBatchName := GetEntriesIntrastatJournal(
-            IntrastatJnlBatch.Type::Sales, true, false, false, Format(WorkDate(), 0, LibraryFiscalYear.GetStatisticsPeriod), true);  // EU Service - TRUE, CorrectiveEntry - FALSE, AmountsInAddCurrency - FALSE, ShowItemCharges - TRUE
-
-        // [THEN] Intrastat Journal Line was created with blank "Transport Method"
-        FindIntrastatJournalLine(IntrastatJnlLine, IntrastatJnlBatchName, DocumentNo);
-        IntrastatJnlLine.TestField("Transport Method", '');
-
-        // [THEN] 'Intrastat - Make Disk Tax Auth' run successfully
-        FileName := FileManagement.ServerTempFileName('txt');
-        IntrastatJnlBatch.Get(IntrastatJnlLine."Journal Template Name", IntrastatJnlBatchName);
-        RunIntrastatMakeDiskTaxAuth(IntrastatJnlBatch, FileName);
     end;
 
     [Test]
@@ -2246,23 +2113,6 @@ codeunit 144064 "ERM Intrastat - III"
         PurchaseInvoice.Close();
     end;
 
-    local procedure RunIntrastatMakeDiskTaxAuth(var IntrastatJnlBatch: Record "Intrastat Jnl. Batch"; Filename: Text)
-    var
-        IntrastatJnlLine: Record "Intrastat Jnl. Line";
-        IntrastatMakeDiskTaxAuth: Report "Intrastat - Make Disk Tax Auth";
-    begin
-        IntrastatJnlLine.SetRange("Journal Template Name", IntrastatJnlBatch."Journal Template Name");
-        IntrastatJnlLine.SetRange("Journal Batch Name", IntrastatJnlBatch.Name);
-        IntrastatJnlBatch.SetRange("Journal Template Name", IntrastatJnlBatch."Journal Template Name");
-        IntrastatJnlBatch.SetRange(Name, IntrastatJnlBatch.Name);
-
-        IntrastatMakeDiskTaxAuth.InitializeRequest(Filename);
-        IntrastatMakeDiskTaxAuth.UseRequestPage(false);
-        IntrastatMakeDiskTaxAuth.SetTableView(IntrastatJnlBatch);
-        IntrastatMakeDiskTaxAuth.SetTableView(IntrastatJnlLine);
-        IntrastatMakeDiskTaxAuth.RunModal();
-    end;
-
     local procedure VerifyIntrastatJnlLine(JournalBatchName: Code[10]; DocumentNo: Code[20]; Amount: Decimal)
     var
         IntrastatJnlLine: Record "Intrastat Jnl. Line";
@@ -2465,4 +2315,4 @@ codeunit 144064 "ERM Intrastat - III"
     begin
     end;
 }
-
+#endif

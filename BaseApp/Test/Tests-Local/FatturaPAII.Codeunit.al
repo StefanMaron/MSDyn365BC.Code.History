@@ -1575,7 +1575,7 @@
 
     [Test]
     [Scope('OnPrem')]
-    procedure RiferimentoNumeroLineaNodeDoesNotExistUnderSalesDatiDDTNodeWithSingleShipment()
+    procedure RiferimentoNumeroLineaNodeDoesExistsUnderSalesDatiDDTNodeWithSingleShipment()
     var
         SalesInvoiceHeader: Record "Sales Invoice Header";
         ElectronicDocumentFormat: Record "Electronic Document Format";
@@ -1585,7 +1585,7 @@
         ClientFileName: Text[250];
     begin
         // [FEATURE] [Sales] [Invoice] [Shipment]
-        // [SCENARIO 355434] RiferimentoNumeroLinea xml node does not exist under the DatiDDT xml node after posting Sales Invoice with the single shipment
+        // [SCENARIO 355434] RiferimentoNumeroLinea xml node exists under the DatiDDT xml node after posting Sales Invoice with the single shipment
 
         Initialize();
         CustomerNo := LibraryITLocalization.CreateCustomer();
@@ -1601,13 +1601,13 @@
         ElectronicDocumentFormat.SendElectronically(TempBlob,
           ClientFileName, SalesInvoiceHeader, CopyStr(FatturaPA_ElectronicFormatTxt, 1, 20));
 
-        // [THEN] RiferimentoNumeroLinea does not exist in the exported file
-        VerifyNoRiferimentoNumeroLineaNodeExists(TempBlob);
+        // [THEN] RiferimentoNumeroLinea exist in the exported file
+        VerifyRiferimentoNumeroLineaNodeExists(TempBlob);
     end;
 
     [Test]
     [Scope('OnPrem')]
-    procedure RiferimentoNumeroLineaNodeDoesNotExistUnderServDatiDDTNodeWithSingleShipment()
+    procedure RiferimentoNumeroLineaNodeExistsUnderServDatiDDTNodeWithSingleShipment()
     var
         ServiceInvoiceHeader: Record "Service Invoice Header";
         ElectronicDocumentFormat: Record "Electronic Document Format";
@@ -1632,8 +1632,8 @@
         ElectronicDocumentFormat.SendElectronically(TempBlob,
           ClientFileName, ServiceInvoiceHeader, CopyStr(FatturaPA_ElectronicFormatTxt, 1, 20));
 
-        // [THEN] RiferimentoNumeroLinea does not exist in the exported file
-        VerifyNoRiferimentoNumeroLineaNodeExists(TempBlob);
+        // [THEN] RiferimentoNumeroLinea exist in the exported file
+        VerifyRiferimentoNumeroLineaNodeExists(TempBlob);
     end;
 
     [Test]
@@ -2884,14 +2884,14 @@
         AssertElementValue(TempXMLBuffer, 'RiferimentoNumeroLinea', Format(LineNumber));
     end;
 
-    local procedure VerifyNoRiferimentoNumeroLineaNodeExists(TempBlob: Codeunit "Temp Blob")
+    local procedure VerifyRiferimentoNumeroLineaNodeExists(TempBlob: Codeunit "Temp Blob")
     var
         TempXMLBuffer: Record "XML Buffer" temporary;
     begin
         LibraryITLocalization.LoadTempXMLBufferFromTempBlob(TempXMLBuffer, TempBlob);
         TempXMLBuffer.FindNodesByXPath(
           TempXMLBuffer, '/p:FatturaElettronica/FatturaElettronicaBody/DatiGenerali/DatiDDT/RiferimentoNumeroLinea');
-        Assert.IsTrue(TempXMLBuffer.IsEmpty(), 'RiferimentoNumeroLinea xml node exists');
+        Assert.IsFalse(TempXMLBuffer.IsEmpty(), 'RiferimentoNumeroLinea xml node does not exists');
     end;
 
     local procedure VerifyIDCodiceNode(TempBlob: Codeunit "Temp Blob"; ExpectedValue: Text)

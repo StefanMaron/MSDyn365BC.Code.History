@@ -1,3 +1,50 @@
+namespace System.Security.AccessControl;
+
+using Microsoft.Finance.Analysis;
+using Microsoft.Projects.Project.Ledger;
+using Microsoft.Inventory.Item;
+using Microsoft.Foundation.Period;
+using Microsoft.Bank.Payment;
+using Microsoft.Bank.Reconciliation;
+using Microsoft.Bank.BankAccount;
+using Microsoft.Bank.Ledger;
+using Microsoft.Bank.Statement;
+using Microsoft.Finance.Currency;
+using Microsoft.Sales.Receivables;
+using Microsoft.Finance.GeneralLedger.Setup;
+using Microsoft.Inventory.Analysis;
+using Microsoft.Purchases.Document;
+using Microsoft.Inventory.Journal;
+using Microsoft.Inventory.Ledger;
+using Microsoft.Inventory.Item.Catalog;
+using Microsoft.Inventory.Tracking;
+using System.Threading;
+using System.Environment.Configuration;
+using Microsoft.Purchases.Vendor;
+using Microsoft.HumanResources.Payables;
+using Microsoft.Purchases.Payables;
+using Microsoft.Utilities;
+using Microsoft.Finance.VAT.Setup;
+using Microsoft.Warehouse.History;
+using Microsoft.Pricing.Asset;
+using Microsoft.Pricing.Calculation;
+using Microsoft.Pricing.PriceList;
+using Microsoft.Pricing.Source;
+using Microsoft.Pricing.Worksheet;
+using Microsoft.Purchases.History;
+using Microsoft.Purchases.Pricing;
+using Microsoft.Purchases.Archive;
+using Microsoft.Purchases.Remittance;
+using Microsoft.Inventory.Requisition;
+#if not CLEAN21
+using Microsoft.Projects.Resources.Pricing;
+#endif
+using Microsoft.Projects.Resources.Resource;
+using Microsoft.Sales.Document;
+using Microsoft.Sales.History;
+using Microsoft.Finance.VAT.Registration;
+using System.IO;
+
 permissionset 5289 "D365 ACC. PAYABLE"
 {
     Assignable = true;

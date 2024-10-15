@@ -1,3 +1,5 @@
+namespace Microsoft.Finance.Dimension;
+
 page 548 "Dimension List"
 {
     Caption = 'Dimension List';
@@ -12,7 +14,7 @@ page 548 "Dimension List"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("Code"; Code)
+                field("Code"; Rec.Code)
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies the code for the dimension.';
@@ -45,7 +47,7 @@ page 548 "Dimension List"
 
     trigger OnAfterGetRecord()
     begin
-        Name := GetMLName(GlobalLanguage);
+        Rec.Name := Rec.GetMLName(GlobalLanguage);
     end;
 }
 

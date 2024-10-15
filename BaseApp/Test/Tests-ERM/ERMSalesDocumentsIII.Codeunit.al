@@ -69,7 +69,7 @@
         UpdateManuallyMsg: Label 'You must update the existing sales lines manually.';
         ReviewLinesManuallyMsg: Label ' You should review the lines and manually update prices and discounts if needed.';
         AffectExchangeRateMsg: Label 'The change may affect the exchange rate that is used for price calculation on the sales lines.';
-        SplitMessageTxt: Label '%1\%2', Comment = 'Some message text 1.\Some message text 2.';
+        SplitMessageTxt: Label '%1\%2', Comment = 'Some message text 1.\Some message text 2.', Locked = true;
         TaxAreaCodeInvalidErr: Label 'The Tax Area does not exist. Identification fields and values: Code=''%1''';
         ConfirmZeroQuantityPostingMsg: Label 'One or more document lines with a value in the No. field do not have a quantity specified. \Do you want to continue?';
         InternetURLTxt: Label 'www.microsoft.com', Locked = true;
@@ -5636,6 +5636,71 @@
     end;
 
     [Test]
+    procedure EditDescriptionCustLedgerEntryLoggedInChangeLog()
+    var
+        CustLedgerEntry: Record "Cust. Ledger Entry";
+        CustomerLedgerEntries: TestPage "Customer Ledger Entries";
+        RecordRef: RecordRef;
+        NewDescription, OldDescription : Text;
+    begin
+        Initialize();
+
+        // [GIVEN] Create Customer Ledger Entry
+        LibrarySales.MockCustLedgerEntry(CustLedgerEntry, LibrarySales.CreateCustomerNo());
+        OldDescription := LibraryRandom.RandText(MaxStrLen(CustLedgerEntry.Description));
+        CustLedgerEntry.Description := OldDescription;
+        CustLedgerEntry.Modify();
+
+        // [WHEN] Description is modified in customer ledger entries
+        NewDescription := LibraryRandom.RandText(MaxStrLen(CustLedgerEntry.Description));
+        CustomerLedgerEntries.OpenEdit();
+        CustomerLedgerEntries.GoToRecord(CustLedgerEntry);
+        CustomerLedgerEntries.Description.Value(NewDescription);
+        CustomerLedgerEntries.Close();
+
+        // [THEN] Description is changed & the change is logged in change log entry
+        CustLedgerEntry.Get(CustLedgerEntry."Entry No.");
+        Assert.AreEqual(NewDescription, CustLedgerEntry.Description, CustLedgerEntry.FieldCaption(Description));
+        RecordRef.GetTable(CustLedgerEntry);
+        VerifyChangeLogFieldValue(RecordRef, CustLedgerEntry.FieldNo(Description), OldDescription, NewDescription);
+    end;
+
+    [Test]
+    [HandlerFunctions('ChangeLogEntriesModalPageHandler')]
+    procedure ShowLoggedDescriptionChangesInCustLedgerEntries()
+    var
+        CustLedgerEntry: Record "Cust. Ledger Entry";
+        CustomerLedgerEntries: TestPage "Customer Ledger Entries";
+        RecordRef: RecordRef;
+        NewDescription, OldDescription : Text;
+    begin
+        Initialize();
+
+        // [GIVEN] Create Customer Ledger Entry
+        LibrarySales.MockCustLedgerEntry(CustLedgerEntry, LibrarySales.CreateCustomerNo());
+        OldDescription := LibraryRandom.RandText(MaxStrLen(CustLedgerEntry.Description));
+        CustLedgerEntry.Description := OldDescription;
+        CustLedgerEntry.Modify();
+
+        // [GIVEN] Description is modified
+        NewDescription := LibraryRandom.RandText(MaxStrLen(CustLedgerEntry.Description));
+        CustomerLedgerEntries.OpenEdit();
+        CustomerLedgerEntries.GoToRecord(CustLedgerEntry);
+        CustomerLedgerEntries.Description.Value(NewDescription);
+        CustomerLedgerEntries.Close();
+
+        LibraryVariableStorage.Enqueue(OldDescription);
+        LibraryVariableStorage.Enqueue(NewDescription);
+
+        // [WHEN] Show change log action is run
+        CustomerLedgerEntries.OpenView();
+        CustomerLedgerEntries.GoToRecord(CustLedgerEntry);
+        CustomerLedgerEntries.ShowChangeHistory.Invoke();
+
+        // [THEN] Modal page Change Log Entries with logged changed is open
+    end;
+
+    [Test]
     [Scope('OnPrem')]
     procedure VerifyReceivedFromCountryIsSetOnSalesCreditMemo()
     var
@@ -7046,6 +7111,19 @@
         SalesLine.Modify(true);
     end;
 
+    local procedure VerifyChangeLogFieldValue(RecordRef: RecordRef; FieldNo: Integer; OldValue: Text; NewValue: Text)
+    var
+        ChangeLogEntry: Record "Change Log Entry";
+    begin
+        ChangeLogEntry.SetRange("Table No.", RecordRef.Number);
+        ChangeLogEntry.SetRange("User ID", UserId);
+        ChangeLogEntry.SetRange("Primary Key", RecordRef.GetPosition(false));
+        ChangeLogEntry.SetRange("Field No.", FieldNo);
+        ChangeLogEntry.FindLast();
+        Assert.AreEqual(ChangeLogEntry."Old Value", OldValue, 'Change Log Entry (old value) for field ' + Format(FieldNo));
+        Assert.AreEqual(ChangeLogEntry."New Value", NewValue, 'Change Log Entry (new value) for field ' + Format(FieldNo));
+    end;
+
     local procedure SetSalesAllowMultiplePostingGroups(AllowMultiplePostingGroups: Boolean)
     var
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
@@ -7331,6 +7409,14 @@
     [Scope('OnPrem')]
     procedure SalespersonCommissionRequestPageHandler(var SalespersonCommission: TestRequestPage "Salesperson - Commission")
     begin
+    end;
+
+    [ModalPageHandler]
+    procedure ChangeLogEntriesModalPageHandler(var ChangeLogEntries: TestPage "Change Log Entries");
+    begin
+        Assert.AreEqual(LibraryVariableStorage.DequeueText(), ChangeLogEntries."Old Value".Value(), ChangeLogEntries."Old Value".Caption());
+        Assert.AreEqual(LibraryVariableStorage.DequeueText(), ChangeLogEntries."New Value".Value(), ChangeLogEntries."New Value".Caption());
+        ChangeLogEntries.OK().Invoke();
     end;
 }
 

@@ -1,3 +1,5 @@
+namespace Microsoft.Warehouse.ADCS;
+
 page 7707 "Item Identifiers List"
 {
     Caption = 'Item Identifiers List';
@@ -13,7 +15,7 @@ page 7707 "Item Identifiers List"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("Code"; Code)
+                field("Code"; Rec.Code)
                 {
                     ApplicationArea = ADCS;
                     ToolTip = 'Specifies a unique code for a particular item in terms that are useful for automatic data capture.';

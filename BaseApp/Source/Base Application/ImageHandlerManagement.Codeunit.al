@@ -1,3 +1,8 @@
+namespace System.Media;
+
+using System;
+using System.Utilities;
+
 codeunit 5080 "Image Handler Management"
 {
 

@@ -18,7 +18,7 @@ codeunit 134998 "Reminder - Add. Fee Setup"
         CaptionErr: Label 'Page Captions must match.';
         ReminderTermsTxt: Label 'Reminder Terms:';
         ReminderLevelTxt: Label 'Level:';
-        AddFeePerLineTxt: Label 'Edit - Additional Fee Setup - Additional Fee per Line Setup -';
+        AddFeePerLineTxt: Label 'Additional Fee Setup - Additional Fee per Line Setup -';
 
     [Test]
     [Scope('OnPrem')]

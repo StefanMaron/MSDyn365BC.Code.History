@@ -1,4 +1,17 @@
-﻿table 383 "Detailed CV Ledg. Entry Buffer"
+﻿namespace Microsoft.Finance.ReceivablesPayables;
+
+using Microsoft.Finance.Currency;
+using Microsoft.Finance.GeneralLedger.Journal;
+using Microsoft.Finance.GeneralLedger.Setup;
+using Microsoft.Finance.SalesTax;
+using Microsoft.Finance.VAT.Ledger;
+using Microsoft.Finance.VAT.Setup;
+using Microsoft.Foundation.AuditCodes;
+using Microsoft.Foundation.Enums;
+using Microsoft.Sales.Receivables;
+using System.Security.AccessControl;
+
+table 383 "Detailed CV Ledg. Entry Buffer"
 {
     Caption = 'Detailed CV Ledg. Entry Buffer';
     DrillDownPageID = "Detailed Cust. Ledg. Entries";
@@ -39,7 +52,7 @@
         }
         field(7; Amount; Decimal)
         {
-            AutoFormatExpression = "Currency Code";
+            AutoFormatExpression = Rec."Currency Code";
             AutoFormatType = 1;
             Caption = 'Amount';
             DataClassification = SystemMetadata;
@@ -66,8 +79,6 @@
             Caption = 'User ID';
             DataClassification = SystemMetadata;
             TableRelation = User."User Name";
-            //This property is currently not supported
-            //TestTableRelation = false;
         }
         field(12; "Source Code"; Code[10])
         {
@@ -84,8 +95,6 @@
         {
             Caption = 'Journal Batch Name';
             DataClassification = SystemMetadata;
-            //This property is currently not supported
-            //TestTableRelation = false;
         }
         field(15; "Reason Code"; Code[10])
         {
@@ -95,7 +104,7 @@
         }
         field(16; "Debit Amount"; Decimal)
         {
-            AutoFormatExpression = "Currency Code";
+            AutoFormatExpression = Rec."Currency Code";
             AutoFormatType = 1;
             BlankZero = true;
             Caption = 'Debit Amount';
@@ -103,7 +112,7 @@
         }
         field(17; "Credit Amount"; Decimal)
         {
-            AutoFormatExpression = "Currency Code";
+            AutoFormatExpression = Rec."Currency Code";
             AutoFormatType = 1;
             BlankZero = true;
             Caption = 'Credit Amount';
@@ -218,14 +227,14 @@
         }
         field(39; "Remaining Pmt. Disc. Possible"; Decimal)
         {
-            AutoFormatExpression = "Currency Code";
+            AutoFormatExpression = Rec."Currency Code";
             AutoFormatType = 1;
             Caption = 'Remaining Pmt. Disc. Possible';
             DataClassification = SystemMetadata;
         }
         field(40; "Max. Payment Tolerance"; Decimal)
         {
-            AutoFormatExpression = "Currency Code";
+            AutoFormatExpression = Rec."Currency Code";
             AutoFormatType = 1;
             Caption = 'Max. Payment Tolerance';
             DataClassification = SystemMetadata;

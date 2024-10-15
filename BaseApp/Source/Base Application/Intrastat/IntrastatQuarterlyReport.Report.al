@@ -1,14 +1,20 @@
+#if not CLEAN22
 report 12161 "Intrastat - Quarterly Report"
 {
     DefaultLayout = RDLC;
     RDLCLayout = './Intrastat/IntrastatQuarterlyReport.rdlc';
     Caption = 'Intrastat - Quarterly Report';
+    ObsoleteState = Pending;
+#pragma warning disable AS0072
+    ObsoleteTag = '22.0';
+#pragma warning restore AS0072
+    ObsoleteReason = 'Intrastat related functionalities are moving to Intrastat extension.';
 
     dataset
     {
         dataitem("Intrastat Jnl. Batch"; "Intrastat Jnl. Batch")
         {
-            DataItemTableView = SORTING("Journal Template Name", Name);
+            DataItemTableView = sorting("Journal Template Name", Name);
             column(Intrastat_Jnl__Batch_Journal_Template_Name; "Journal Template Name")
             {
             }
@@ -17,8 +23,8 @@ report 12161 "Intrastat - Quarterly Report"
             }
             dataitem("Intrastat Jnl. Line"; "Intrastat Jnl. Line")
             {
-                DataItemLink = "Journal Template Name" = FIELD("Journal Template Name"), "Journal Batch Name" = FIELD(Name);
-                DataItemTableView = SORTING(Type, "Country/Region Code", "Partner VAT ID", "Transaction Type", "Tariff No.", "Group Code", "Transport Method", "Transaction Specification", "Country/Region of Origin Code", Area, "Corrective entry") ORDER(Ascending);
+                DataItemLink = "Journal Template Name" = field("Journal Template Name"), "Journal Batch Name" = field(Name);
+                DataItemTableView = sorting(Type, "Country/Region Code", "Partner VAT ID", "Transaction Type", "Tariff No.", "Group Code", "Transport Method", "Transaction Specification", "Country/Region of Origin Code", Area, "Corrective entry") order(Ascending);
                 RequestFilterFields = "Journal Template Name", "Journal Batch Name";
                 column(STRSUBSTNO_Text001__Intrastat_Jnl__Batch___Statistics_Period__; StrSubstNo(Text001, "Intrastat Jnl. Batch"."Statistics Period"))
                 {
@@ -467,7 +473,7 @@ report 12161 "Intrastat - Quarterly Report"
         }
         dataitem("Intra - form Buffer"; "Intra - form Buffer")
         {
-            DataItemTableView = SORTING("VAT Registration No.", "Transaction Type", "Tariff No.", "Group Code", "Transport Method", "Transaction Specification", "Country/Region of Origin Code", Area, "Corrective entry") ORDER(Ascending);
+            DataItemTableView = sorting("VAT Registration No.", "Transaction Type", "Tariff No.", "Group Code", "Transport Method", "Transaction Specification", "Country/Region of Origin Code", Area, "Corrective entry") order(Ascending);
             column(Sales_Old; Sales)
             {
             }
@@ -716,4 +722,4 @@ report 12161 "Intrastat - Quarterly Report"
         end;
     end;
 }
-
+#endif

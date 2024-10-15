@@ -1,3 +1,8 @@
+namespace System.Security.AccessControl;
+
+using Microsoft.Finance.VAT.Reporting;
+using Microsoft.EServices.EDocument;
+
 permissionset 9276 "VAT Report - Edit"
 {
     Access = Public;

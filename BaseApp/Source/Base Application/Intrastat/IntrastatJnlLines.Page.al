@@ -1,9 +1,15 @@
+#if not CLEAN22
 page 12116 "Intrastat Jnl. Lines"
 {
     Caption = 'Intrastat Jnl. Lines';
     Editable = false;
     PageType = Card;
     SourceTable = "Intrastat Jnl. Line";
+    ObsoleteState = Pending;
+#pragma warning disable AS0072
+    ObsoleteTag = '22.0';
+#pragma warning restore AS0072
+    ObsoleteReason = 'Intrastat related functionalities are moving to Intrastat extension.';
 
     layout
     {
@@ -22,7 +28,7 @@ page 12116 "Intrastat Jnl. Lines"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the reference period.';
                 }
-                field(Date; Date)
+                field(Date; Rec.Date)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the date of the transaction.';
@@ -32,14 +38,12 @@ page 12116 "Intrastat Jnl. Lines"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a identification number that refers to the source document.';
                 }
-#if not CLEAN18
                 field("VAT Registration No."; Rec."VAT Registration No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies VAT registration number that is associated with the Intrastat journal.';
                     Visible = false;
                 }
-#endif
                 field("Partner VAT ID"; Rec."Partner VAT ID")
                 {
                     ApplicationArea = Basic, Suite;
@@ -115,7 +119,7 @@ page 12116 "Intrastat Jnl. Lines"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the group code that corresponds with the Intrastat journal.';
                 }
-                field("Area"; Area)
+                field("Area"; Rec.Area)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the area that the transaction takes place in.';
@@ -193,4 +197,4 @@ page 12116 "Intrastat Jnl. Lines"
     {
     }
 }
-
+#endif

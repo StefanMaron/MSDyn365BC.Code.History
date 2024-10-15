@@ -18,7 +18,6 @@ codeunit 139453 "O365 Customer Permission Test"
         LibraryRandom: Codeunit "Library - Random";
         LibrarySales: Codeunit "Library - Sales";
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
-        LibraryService: Codeunit "Library - Service";
         IsInitialized: Boolean;
 
     [Test]
@@ -122,56 +121,6 @@ codeunit 139453 "O365 Customer Permission Test"
     end;
 
     [Test]
-    [HandlerFunctions('PostedServiceShptUpdateOKModalPageHandler')]
-    [Scope('OnPrem')]
-    procedure RunPostedServiceShptUpdateFromCard()
-    var
-        PostedServiceShipment: TestPage "Posted Service Shipment";
-    begin
-        // [FEATURE] [Service Shipment]
-        // [SCENARIO 308913] Edit Posted Service Shipment with "Posted Service Shpt. - Update" from "Posted Service Shipment" card with "D365PREM SMG, VIEW" permission set.
-        Initialize();
-        CreateAndPostServiceOrder();
-        LibraryVariableStorage.Enqueue(LibraryUtility.GenerateGUID());  // "Additional Information"
-
-        // [GIVEN] A user with "D365PREM SMG, VIEW" permission set.
-        LibraryLowerPermissions.SetO365ServiceMgtRead();
-
-        // [WHEN] Open "Posted Service Shpt. - Update" page from "Posted Service Shipment" card. Set new value for "Additional Information", press OK.
-        PostedServiceShipment.OpenView();
-        PostedServiceShipment."Update Document".Invoke();
-
-        // [THEN] "Posted Service Shpt. - Update" opens, Posted Service Shipment is updated.
-
-        LibraryVariableStorage.AssertEmpty();
-    end;
-
-    [Test]
-    [HandlerFunctions('PostedServiceShptUpdateOKModalPageHandler')]
-    [Scope('OnPrem')]
-    procedure RunPostedServiceShptUpdateFromList()
-    var
-        PostedServiceShipments: TestPage "Posted Service Shipments";
-    begin
-        // [FEATURE] [Service Shipment]
-        // [SCENARIO 308913] Edit Posted Service Shipment with "Posted Service Shpt. - Update" from "Posted Service Shipments" list with "D365PREM SMG, VIEW" permission set.
-        Initialize();
-        CreateAndPostServiceOrder();
-        LibraryVariableStorage.Enqueue(LibraryUtility.GenerateGUID());  // "Additional Information"
-
-        // [GIVEN] A user with "D365PREM SMG, VIEW" permission set.
-        LibraryLowerPermissions.SetO365ServiceMgtRead();
-
-        // [WHEN] Open "Posted Service Shpt. - Update" page from "Posted Service Shipments" list. Set new value for "Additional Information", press OK.
-        PostedServiceShipments.OpenView();
-        PostedServiceShipments."Update Document".Invoke();
-
-        // [THEN] "Posted Service Shpt. - Update" opens, Posted Service Shipment is updated.
-
-        LibraryVariableStorage.AssertEmpty();
-    end;
-
-    [Test]
     [Scope('OnPrem')]
     procedure TestO365CustomerEdit()
     var
@@ -270,25 +219,6 @@ codeunit 139453 "O365 Customer Permission Test"
         LibrarySales.PostSalesDocument(SalesHeader, true, false);
     end;
 
-    local procedure CreateAndPostServiceOrder() OrderNo: Code[20]
-    var
-        ServiceHeader: Record "Service Header";
-        ServiceLine: Record "Service Line";
-        ServiceItem: Record "Service Item";
-        ServiceItemLine: Record "Service Item Line";
-    begin
-        LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Order, LibrarySales.CreateCustomerNo());
-        LibraryService.CreateServiceItem(ServiceItem, ServiceHeader."Customer No.");
-        LibraryService.CreateServiceItemLine(ServiceItemLine, ServiceHeader, ServiceItem."No.");
-        LibraryService.CreateServiceLine(ServiceLine, ServiceHeader, ServiceLine.Type::Item, LibraryInventory.CreateItemNo());
-        ServiceLine.Validate("Service Item No.", ServiceItem."No.");
-        ServiceLine.Validate(Quantity, LibraryRandom.RandDecInRange(10, 20, 2));
-        ServiceLine.Modify(true);
-
-        LibraryService.PostServiceOrder(ServiceHeader, true, false, true);
-        OrderNo := ServiceHeader."No.";
-    end;
-
     [Scope('OnPrem')]
     procedure InsertTablesExcludedFromCustomerView(var ExcludedTables: DotNet GenericList1)
     begin
@@ -317,14 +247,6 @@ codeunit 139453 "O365 Customer Permission Test"
     begin
         PostedReturnReceiptUpdate."Package Tracking No.".SetValue(LibraryVariableStorage.DequeueText());
         PostedReturnReceiptUpdate.OK().Invoke();
-    end;
-
-    [ModalPageHandler]
-    [Scope('OnPrem')]
-    procedure PostedServiceShptUpdateOKModalPageHandler(var PostedServiceShptUpdate: TestPage "Posted Service Shpt. - Update")
-    begin
-        PostedServiceShptUpdate."Additional Information".SetValue(LibraryVariableStorage.DequeueText());
-        PostedServiceShptUpdate.OK().Invoke();
     end;
 }
 

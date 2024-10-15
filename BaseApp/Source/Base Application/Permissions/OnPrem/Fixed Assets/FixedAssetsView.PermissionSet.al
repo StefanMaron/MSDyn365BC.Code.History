@@ -1,3 +1,18 @@
+namespace System.Security.AccessControl;
+
+using Microsoft.Finance.GeneralLedger.Setup;
+using Microsoft.FixedAssets.Depreciation;
+using Microsoft.FixedAssets.FixedAsset;
+using Microsoft.FixedAssets.Journal;
+using Microsoft.FixedAssets.Ledger;
+using Microsoft.Finance.GeneralLedger.Ledger;
+using Microsoft.Finance.GeneralLedger.Journal;
+using Microsoft.FixedAssets.Insurance;
+using Microsoft.FixedAssets.Maintenance;
+using Microsoft.Foundation.Period;
+using Microsoft.Finance.VAT.Setup;
+using Microsoft.Foundation.AuditCodes;
+
 permissionset 8689 "Fixed Assets - View"
 {
     Access = Public;
@@ -33,8 +48,5 @@ permissionset 8689 "Fixed Assets - View"
                   tabledata "Insurance Journal Template" = R,
                   tabledata "Insurance Register" = Rimd,
                   tabledata "Maintenance Ledger Entry" = Rimd,
-#if not CLEAN20
-                  tabledata "Native - Payment" = Ri,
-#endif
                   tabledata "Source Code Setup" = R;
 }

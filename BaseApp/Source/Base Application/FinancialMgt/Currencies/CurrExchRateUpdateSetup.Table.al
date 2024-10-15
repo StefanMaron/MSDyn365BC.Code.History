@@ -1,3 +1,14 @@
+﻿// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Finance.Currency;
+
+using System.Integration;
+using System.IO;
+using System.Privacy;
+using System.Threading;
+
 table 1650 "Curr. Exch. Rate Update Setup"
 {
     Caption = 'Curr. Exch. Rate Update Setup';

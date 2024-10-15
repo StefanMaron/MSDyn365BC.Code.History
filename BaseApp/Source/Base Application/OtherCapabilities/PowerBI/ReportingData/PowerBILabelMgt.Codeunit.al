@@ -1,3 +1,12 @@
+﻿// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Integration.PowerBI;
+
+using System.Environment.Configuration;
+using System.Integration.PowerBI;
+
 codeunit 6302 "Power BI Label Mgt."
 {
     // // Codeunit for generating the static values that Power BI reports use for titles or other

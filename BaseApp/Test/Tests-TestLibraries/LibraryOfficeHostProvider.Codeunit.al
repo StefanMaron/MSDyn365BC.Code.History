@@ -38,43 +38,6 @@ codeunit 131010 "Library - Office Host Provider"
         exit(false);
     end;
 
-#if not CLEAN20
-    [Obsolete('Use the alternative procedure using RecordRef.', '20.0')]
-    procedure CreateEmailAttachments(ContentType: Text[250]; AttachmentCount: Integer; OCRAction: Option InitiateSendToOCR,InitiateSendToIncomingDocuments,InitiateSendToWorkFlow; VendorNumber: Code[20])
-    var
-        TempExchangeObject: Record "Exchange Object" temporary;
-        TempBlob: Codeunit "Temp Blob";
-        LibraryUtility: Codeunit "Library - Utility";
-        BlobInStream: InStream;
-        OutStream: OutStream;
-        FileContent: BigText;
-    begin
-        with TempExchangeObject do begin
-            repeat
-                Init();
-                Validate(Type, Type::Attachment);
-                Validate("Item ID", CreateGuid);
-                Validate(Name, CreateGuid);
-                Validate("Parent ID", CreateGuid);
-                Validate("Content Type", ContentType);
-                Validate(InitiatedAction, OCRAction);
-                Validate(VendorNo, VendorNumber);
-                // add an attachment
-                FileContent.AddText(LibraryUtility.GenerateRandomAlphabeticText(10, 0));
-                TempBlob.CreateOutStream(OutStream);
-                FileContent.Write(OutStream);
-                TempBlob.CreateInStream(BlobInStream);
-                SetContent(BlobInStream);
-                if not Insert(true) then
-                    Modify(true);
-                AttachmentCount := AttachmentCount - 1;
-            until AttachmentCount = 0;
-            Commit
-        end;
-        TempExchangeObjectInternal.Copy(TempExchangeObject, true);
-    end;
-#endif
-
     procedure CreateEmailAttachments(ContentType: Text[250]; AttachmentCount: Integer; OCRAction: Option InitiateSendToOCR,InitiateSendToIncomingDocuments,InitiateSendToWorkFlow; RecRef: RecordRef)
     var
         TempExchangeObject: Record "Exchange Object" temporary;

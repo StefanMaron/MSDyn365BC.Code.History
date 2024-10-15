@@ -1,7 +1,11 @@
+namespace System.Security.AccessControl;
+
+using System.Security.User;
+
 page 9812 "Set Web Service Access Key"
 {
     Caption = 'Set Web Service Access Key';
-    DataCaptionExpression = "Full Name";
+    DataCaptionExpression = Rec."Full Name";
     InstructionalText = 'Set Web Service Access Key';
     PageType = StandardDialog;
     SourceTable = User;
@@ -24,7 +28,7 @@ page 9812 "Set Web Service Access Key"
             {
                 ApplicationArea = Basic, Suite;
                 Caption = 'Key Expiration Date';
-                Editable = NOT NeverExpires;
+                Editable = not NeverExpires;
                 ToolTip = 'Specifies when the web service access key expires.';
             }
         }
@@ -47,9 +51,9 @@ page 9812 "Set Web Service Access Key"
     begin
         if CloseAction = ACTION::OK then
             if NeverExpires then
-                IdentityManagement.CreateWebServicesKeyNoExpiry("User Security ID")
+                IdentityManagement.CreateWebServicesKeyNoExpiry(Rec."User Security ID")
             else
-                IdentityManagement.CreateWebServicesKey("User Security ID", ExpirationDate);
+                IdentityManagement.CreateWebServicesKey(Rec."User Security ID", ExpirationDate);
     end;
 
     var

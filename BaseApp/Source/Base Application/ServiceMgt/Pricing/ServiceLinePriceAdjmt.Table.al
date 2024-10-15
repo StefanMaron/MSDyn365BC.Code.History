@@ -1,3 +1,11 @@
+namespace Microsoft.Service.Pricing;
+
+using Microsoft.Finance.Currency;
+using Microsoft.Inventory.Item;
+using Microsoft.Projects.Resources.Resource;
+using Microsoft.Service.Document;
+using Microsoft.Service.Item;
+
 table 6084 "Service Line Price Adjmt."
 {
     Caption = 'Service Line Price Adjmt.';
@@ -39,11 +47,11 @@ table 6084 "Service Line Price Adjmt."
         {
             Caption = 'No.';
             Editable = false;
-            TableRelation = IF (Type = CONST(Item)) Item
-            ELSE
-            IF (Type = CONST(Resource)) Resource
-            ELSE
-            IF (Type = CONST(Cost)) "Service Cost";
+            TableRelation = if (Type = const(Item)) Item
+            else
+            if (Type = const(Resource)) Resource
+            else
+            if (Type = const(Cost)) "Service Cost";
         }
         field(9; Description; Text[100])
         {
@@ -223,7 +231,7 @@ table 6084 "Service Line Price Adjmt."
         if ("Document Type" <> ServHeader."Document Type") or
            ("Document No." <> ServHeader."No.")
         then begin
-            ServHeader.Get("Document Type", "Document No.");
+            ServHeader.Get(Rec."Document Type", Rec."Document No.");
             if ServHeader."Currency Code" = '' then
                 Currency.InitRoundingPrecision()
             else begin

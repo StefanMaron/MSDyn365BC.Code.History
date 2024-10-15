@@ -1,3 +1,9 @@
+namespace System.Security.AccessControl;
+
+using Microsoft.Finance.ReceivablesPayables;
+using Microsoft.Purchases.Document;
+using Microsoft.Sales.Document;
+
 permissionset 3914 "Prepayment - View"
 {
     Access = Public;

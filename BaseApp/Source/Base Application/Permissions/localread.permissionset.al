@@ -1,3 +1,29 @@
+namespace System.Security.AccessControl;
+
+using Microsoft.Bank.BankAccount;
+using Microsoft.Utilities;
+using Microsoft.Inventory.Costing;
+using Microsoft.Bank.Payment;
+using Microsoft;
+using Microsoft.Foundation.Company;
+using Microsoft.FixedAssets.Depreciation;
+using Microsoft.Finance.WithholdingTax;
+using Microsoft.Purchases.Vendor;
+using Microsoft.Inventory.Intrastat;
+using Microsoft.Foundation.PaymentTerms;
+using Microsoft.EServices.EDocument;
+using Microsoft.Finance.GeneralLedger.Ledger;
+using Microsoft.Inventory.Item;
+using Microsoft.Finance.VAT.Reporting;
+using Microsoft.Finance.FinancialReports;
+using Microsoft.Foundation.NoSeries;
+using Microsoft.Finance.GeneralLedger.Setup;
+using Microsoft.Manufacturing.Document;
+using Microsoft.Inventory.Setup;
+using Microsoft.Finance.VAT.Ledger;
+using Microsoft.Finance.VAT.Setup;
+using Microsoft.Finance.VAT.TransactionNature;
+
 permissionset 1002 "LOCAL READ"
 {
     Access = Public;
@@ -40,7 +66,9 @@ permissionset 1002 "LOCAL READ"
                   tabledata "Goods Appearance" = R,
                   tabledata "Incl. in VAT Report Error Log" = R,
                   tabledata "Interest on Arrears" = R,
+#if not CLEAN22
                   tabledata "Intra - form Buffer" = R,
+#endif
                   tabledata "Issued Customer Bill Header" = R,
                   tabledata "Issued Customer Bill Line" = R,
                   tabledata "Item Cost History" = R,

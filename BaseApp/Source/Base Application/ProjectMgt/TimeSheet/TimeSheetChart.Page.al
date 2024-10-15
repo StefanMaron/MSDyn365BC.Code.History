@@ -1,3 +1,12 @@
+﻿// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Projects.TimeSheet;
+
+using System;
+using System.Visualization;
+
 page 972 "Time Sheet Chart"
 {
     Caption = 'Time Sheets';
@@ -21,7 +30,7 @@ page 972 "Time Sheet Chart"
 
                 trigger DataPointClicked(point: DotNet BusinessChartDataPoint)
                 begin
-                    SetDrillDownIndexes(point);
+                    Rec.SetDrillDownIndexes(point);
                     TimeSheetChartMgt.DrillDown(Rec);
                 end;
 
@@ -153,7 +162,7 @@ page 972 "Time Sheet Chart"
         if not IsChartAddInReady then
             exit;
         TimeSheetChartMgt.UpdateData(Rec);
-        Update(CurrPage.BusinessChart);
+        Rec.Update(CurrPage.BusinessChart);
         UpdateStatus();
 
         NeedsUpdate := false;

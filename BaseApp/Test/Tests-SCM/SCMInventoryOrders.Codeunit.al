@@ -2574,6 +2574,117 @@ codeunit 137400 "SCM Inventory - Orders"
     end;
 #endif
 
+    [Test]
+    [HandlerFunctions('GetShipmentLinesPageHandler')]
+    procedure OrderNoIsSetOnSalesInvoiceHeaderIfAllLinesBelongToTheSameSalesOrder()
+    var
+        ItemJournalLine: Record "Item Journal Line";
+        SalesHeader, SalesHeaderInvoice : Record "Sales Header";
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        SalesLine: Record "Sales Line";
+        ItemNo: Code[20];
+        CustomerNo: Code[20];
+    begin
+        // [SCENARIO] Order No. is set on the Sales Invoice Header when all the lines belong to the same Sales Order.
+        Initialize(false);
+
+        // [GIVEN] Create Customer and Item.
+        CustomerNo := LibrarySales.CreateCustomerNo();
+        ItemNo := LibraryInventory.CreateItemNo();
+
+        // [GIVEN] Add item to the inventory.
+        CreateAndPostItemJournalLine(ItemJournalLine."Entry Type"::Purchase, 10, ItemNo, 1, '');
+
+        // [GIVEN] Create Sales Order.
+        CreateSalesOrder(SalesHeader, SalesLine, CustomerNo, ItemNo, 10);
+
+        // [GIVEN] Posting Sales Shipment multiple times creates multiple Sales Shipment Lines.
+        SalesLine.Validate("Qty. to Ship", 2);
+        SalesLine.Validate("Qty. to Invoice", 0);
+        SalesLine.Modify();
+        LibrarySales.PostSalesDocument(SalesHeader, true, false);
+
+        SalesLine.Find();
+        SalesLine.Validate("Qty. to Ship", 2);
+        SalesLine.Validate("Qty. to Invoice", 0);
+        SalesLine.Modify();
+        LibrarySales.PostSalesDocument(SalesHeader, true, false);
+
+        SalesLine.Find();
+        SalesLine.Validate("Qty. to Ship", 2);
+        SalesLine.Validate("Qty. to Invoice", 0);
+        SalesLine.Modify();
+        LibrarySales.PostSalesDocument(SalesHeader, true, false);
+
+        // [GIVEN] Create Sales Invoice via Get Shipment Lines.
+        GetShipmentLineInSalesInvoice(SalesHeaderInvoice, CustomerNo);
+
+        // [WHEN] Post the Sales Invoice.
+        SalesInvoiceHeader.Get(LibrarySales.PostSalesDocument(SalesHeaderInvoice, true, true));
+
+        // [THEN] Sales Invoice Header has Order No. set.
+        SalesInvoiceHeader.TestField("Order No.", SalesHeader."No.");
+    end;
+
+    [Test]
+    [HandlerFunctions('PostedSalesShipmentLinesPageHandler,PostedSalesInvoiceLinesPageHandler')]
+    procedure DrillDownOnQtyShippedShowsPostedShipmentLines()
+    var
+        ItemJournalLine: Record "Item Journal Line";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        SalesOrder: TestPage "Sales Order";
+        ItemNo: Code[20];
+        CustomerNo: Code[20];
+    begin
+        // [SCENARIO] DrillDown on the 'Qty. Shipped' shows the posted shipment lines associated with.
+        Initialize(false);
+
+        // [GIVEN] Create Customer and Item.
+        CustomerNo := LibrarySales.CreateCustomerNo();
+        ItemNo := LibraryInventory.CreateItemNo();
+
+        // [GIVEN] Add item to the inventory.
+        CreateAndPostItemJournalLine(ItemJournalLine."Entry Type"::Purchase, 10, ItemNo, 1, '');
+
+        // [GIVEN] Create Sales Order.
+        CreateSalesOrder(SalesHeader, SalesLine, CustomerNo, ItemNo, 10);
+
+        // [GIVEN] Posting Sales Shipment multiple times creates multiple Sales Shipment Lines.
+        SalesLine.Validate("Qty. to Ship", 2);
+        SalesLine.Validate("Qty. to Invoice", 2);
+        SalesLine.Modify();
+        LibrarySales.PostSalesDocument(SalesHeader, true, true);
+
+        SalesLine.Find();
+        SalesLine.Validate("Qty. to Ship", 2);
+        SalesLine.Validate("Qty. to Invoice", 2);
+        SalesLine.Modify();
+        LibrarySales.PostSalesDocument(SalesHeader, true, true);
+
+        SalesLine.Find();
+        SalesLine.Validate("Qty. to Ship", 2);
+        SalesLine.Validate("Qty. to Invoice", 2);
+        SalesLine.Modify();
+        LibrarySales.PostSalesDocument(SalesHeader, true, true);
+
+        // [GIVEN] Open Sales Order
+        SalesOrder.OpenEdit();
+        SalesOrder.GoToRecord(SalesHeader);
+
+        // [WHEN] DrillDown on the 'Qty. Shipped' field.
+        SalesOrder.SalesLines."Quantity Shipped".Drilldown();
+
+        // [THEN] Posted Sales Shipment Lines page is opened and related lines are shown.
+        Assert.AreEqual(3, LibraryVariableStorage.DequeueInteger(), 'Expected number of lines not found in Posted Sales Shipment Lines page.');
+
+        // [WHEN] DrillDown on the 'Qty. Invoiced' field.
+        SalesOrder.SalesLines."Quantity Invoiced".Drilldown();
+
+        // [THEN] Posted Sales Invoice Lines page is opened and related lines are shown.
+        Assert.AreEqual(3, LibraryVariableStorage.DequeueInteger(), 'Expected number of lines not found in Posted Sales Invoice Lines page.');
+    end;
+
     local procedure Initialize(Enable: Boolean)
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -2588,6 +2699,7 @@ codeunit 137400 "SCM Inventory - Orders"
         LibraryItemReference.EnableFeature(Enable);
         LibraryPriceCalculation.DisableExtendedPriceCalculation();
         LibrarySetupStorage.Restore();
+        LibraryVariableStorage.Clear();
         if IsInitialized then
             exit;
 
@@ -3914,6 +4026,40 @@ codeunit 137400 "SCM Inventory - Orders"
     procedure GetShipmentLinesPageHandler(var GetShipmentLines: TestPage "Get Shipment Lines")
     begin
         GetShipmentLines.OK.Invoke;
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure PostedSalesShipmentLinesPageHandler(var PostedSalesShipmentLines: TestPage "Posted Sales Shipment Lines")
+    var
+        NoOfLines: Integer;
+    begin
+        if PostedSalesShipmentLines.First() then
+            NoOfLines := 1;
+
+        while PostedSalesShipmentLines.Next() do
+            NoOfLines += 1;
+
+        LibraryVariableStorage.Enqueue(NoOfLines);
+
+        PostedSalesShipmentLines.OK.Invoke();
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure PostedSalesInvoiceLinesPageHandler(var PostedSalesInvoiceLines: TestPage "Posted Sales Invoice Lines")
+    var
+        NoOfLines: Integer;
+    begin
+        if PostedSalesInvoiceLines.First() then
+            NoOfLines := 1;
+
+        while PostedSalesInvoiceLines.Next() do
+            NoOfLines += 1;
+
+        LibraryVariableStorage.Enqueue(NoOfLines);
+
+        PostedSalesInvoiceLines.OK.Invoke();
     end;
 
     [ConfirmHandler]

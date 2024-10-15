@@ -1,3 +1,5 @@
+namespace Microsoft.Foundation.Reporting;
+
 page 360 "Document Sending Profile"
 {
     Caption = 'Document Sending Profile';
@@ -11,7 +13,7 @@ page 360 "Document Sending Profile"
             group(General)
             {
                 Caption = 'General';
-                field("Code"; Code)
+                field("Code"; Rec.Code)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a code to identify the document sending method in the system.';
@@ -30,7 +32,7 @@ page 360 "Document Sending Profile"
             group("Sending Options")
             {
                 Caption = 'Sending Options';
-                field(Printer; Printer)
+                field(Printer; Rec.Printer)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies if and how the document is printed when you choose the Post and Send button. If you choose the Yes (Prompt for Settings) option, the document is printed according to settings that you must make on the printer setup dialog.';
@@ -43,7 +45,7 @@ page 360 "Document Sending Profile"
                 group(Control15)
                 {
                     ShowCaption = false;
-                    Visible = "E-Mail" <> "E-Mail"::No;
+                    Visible = Rec."E-Mail" <> Rec."E-Mail"::No;
                     field("E-Mail Attachment"; Rec."E-Mail Attachment")
                     {
                         ApplicationArea = Basic, Suite;
@@ -51,13 +53,13 @@ page 360 "Document Sending Profile"
 
                         trigger OnValidate()
                         begin
-                            "E-Mail Format" := GetFormat();
+                            Rec."E-Mail Format" := GetFormat();
                         end;
                     }
                     group(Control16)
                     {
                         ShowCaption = false;
-                        Visible = "E-Mail Attachment" <> "E-Mail Attachment"::PDF;
+                        Visible = Rec."E-Mail Attachment" <> Rec."E-Mail Attachment"::PDF;
                         field("E-Mail Format"; Rec."E-Mail Format")
                         {
                             ApplicationArea = Basic, Suite;
@@ -66,12 +68,12 @@ page 360 "Document Sending Profile"
 
                             trigger OnLookup(var Text: Text): Boolean
                             begin
-                                LookupElectronicFormat("E-Mail Format");
+                                LookupElectronicFormat(Rec."E-Mail Format");
                             end;
 
                             trigger OnValidate()
                             begin
-                                LastFormat := "E-Mail Format";
+                                LastFormat := Rec."E-Mail Format";
                             end;
                         }
                     }
@@ -99,20 +101,20 @@ page 360 "Document Sending Profile"
                         }
                     }
                 }
-                field(Disk; Disk)
+                field(Disk; Rec.Disk)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specify if the document is saved as a PDF file when you choose the Post and Send button.';
 
                     trigger OnValidate()
                     begin
-                        "Disk Format" := GetFormat();
+                        Rec."Disk Format" := GetFormat();
                     end;
                 }
                 group(Control17)
                 {
                     ShowCaption = false;
-                    Visible = (Disk <> Disk::No) AND (Disk <> Disk::PDF);
+                    Visible = (Rec.Disk <> Rec.Disk::No) AND (Rec.Disk <> Rec.Disk::PDF);
                     field("Disk Format"; Rec."Disk Format")
                     {
                         ApplicationArea = Basic, Suite;
@@ -121,12 +123,12 @@ page 360 "Document Sending Profile"
 
                         trigger OnLookup(var Text: Text): Boolean
                         begin
-                            LookupElectronicFormat("Disk Format");
+                            LookupElectronicFormat(Rec."Disk Format");
                         end;
 
                         trigger OnValidate()
                         begin
-                            LastFormat := "Disk Format";
+                            LastFormat := Rec."Disk Format";
                         end;
                     }
                 }
@@ -138,13 +140,13 @@ page 360 "Document Sending Profile"
 
                     trigger OnValidate()
                     begin
-                        "Electronic Format" := GetFormat();
+                        Rec."Electronic Format" := GetFormat();
                     end;
                 }
                 group(Control18)
                 {
                     ShowCaption = false;
-                    Visible = "Electronic Document" <> "Electronic Document"::No;
+                    Visible = Rec."Electronic Document" <> Rec."Electronic Document"::No;
                     field("Electronic Format"; Rec."Electronic Format")
                     {
                         ApplicationArea = Basic, Suite;
@@ -153,12 +155,12 @@ page 360 "Document Sending Profile"
 
                         trigger OnLookup(var Text: Text): Boolean
                         begin
-                            LookupElectronicFormat("Electronic Format");
+                            LookupElectronicFormat(Rec."Electronic Format");
                         end;
 
                         trigger OnValidate()
                         begin
-                            LastFormat := "Electronic Format";
+                            LastFormat := Rec."Electronic Format";
                         end;
                     }
                 }
@@ -178,17 +180,17 @@ page 360 "Document Sending Profile"
         ElectronicDocumentsVisible := not ElectronicDocumentFormat.IsEmpty();
     end;
 
-    var
+    protected var
         LastFormat: Code[20];
         ElectronicDocumentsVisible: Boolean;
 
-    local procedure LookupElectronicFormat(var ElectronicFormat: Code[20])
+    procedure LookupElectronicFormat(var ElectronicFormat: Code[20])
     var
         ElectronicDocumentFormat: Record "Electronic Document Format";
         ElectronicDocumentFormats: Page "Electronic Document Formats";
     begin
         LastFormat := ElectronicFormat;
-        ElectronicDocumentFormat.SetRange(Usage, Usage);
+        ElectronicDocumentFormat.SetRange(Usage, Rec.Usage);
         ElectronicDocumentFormats.SetTableView(ElectronicDocumentFormat);
         ElectronicDocumentFormats.LookupMode := true;
 
@@ -202,7 +204,7 @@ page 360 "Document Sending Profile"
         ElectronicFormat := GetFormat();
     end;
 
-    local procedure GetFormat(): Code[20]
+    procedure GetFormat(): Code[20]
     var
         ElectronicDocumentFormat: Record "Electronic Document Format";
         FindNewFormat: Boolean;
@@ -213,14 +215,14 @@ page 360 "Document Sending Profile"
             FindNewFormat := true
         else begin
             ElectronicDocumentFormat.SetRange(Code, LastFormat);
-            ElectronicDocumentFormat.SetRange(Usage, Usage);
+            ElectronicDocumentFormat.SetRange(Usage, Rec.Usage);
             if not ElectronicDocumentFormat.FindFirst() then
                 FindNewFormat := true;
         end;
 
         if FindNewFormat then begin
             ElectronicDocumentFormat.SetRange(Code);
-            ElectronicDocumentFormat.SetRange(Usage, Usage);
+            ElectronicDocumentFormat.SetRange(Usage, Rec.Usage);
             if not ElectronicDocumentFormat.FindFirst() then
                 LastFormat := ''
             else

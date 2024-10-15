@@ -1,3 +1,9 @@
+﻿namespace Microsoft.CRM.Outlook;
+
+using Microsoft.Utilities;
+using System.Integration;
+using System.Security.AccessControl;
+
 page 1607 "Office Update Available Dlg"
 {
     Caption = 'Office Add-in Update Available';
@@ -106,7 +112,7 @@ page 1607 "Office Update Available Dlg"
         if User.FindFirst() then
             Email := User."Authentication Email";
         UserCanUpdate := (Email <> '') and not ExchangeAddinSetup.CredentialsRequired(CopyStr(Email, 1, 80));
-        UserCanContinue := not Breaking;
+        UserCanContinue := not Rec.Breaking;
     end;
 
     trigger OnQueryClosePage(CloseAction: Action): Boolean
@@ -117,7 +123,7 @@ page 1607 "Office Update Available Dlg"
             InstructionMgt.DisableMessageForCurrentUser(InstructionMgt.OfficeUpdateNotificationCode());
         end;
 
-        if Breaking then
+        if Rec.Breaking then
             exit(false);
     end;
 
@@ -131,7 +137,6 @@ page 1607 "Office Update Available Dlg"
         ExchangeAddinSetup: Codeunit "Exchange Add-in Setup";
         InstructionMgt: Codeunit "Instruction Mgt.";
         DontShowAgain: Boolean;
-        [InDataSet]
         UserCanContinue: Boolean;
         UserCanUpdate: Boolean;
 

@@ -1,3 +1,11 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Inventory.Intrastat;
+
+using Microsoft.Finance.Currency;
+
 table 262 "Intrastat Jnl. Batch"
 {
     Caption = 'Intrastat Jnl. Batch';
@@ -100,6 +108,7 @@ table 262 "Intrastat Jnl. Batch"
             Caption = 'File Disk No.';
             Numeric = true;
 
+#if not CLEAN22
             trigger OnValidate()
             var
                 IntrastatJnlBatch: Record "Intrastat Jnl. Batch";
@@ -113,22 +122,24 @@ table 262 "Intrastat Jnl. Batch"
                     end;
                 end;
             end;
+#endif
         }
         field(12110; "Corrective Entry"; Boolean)
         {
             Caption = 'Corrective Entry';
-
+#if not CLEAN22
             trigger OnValidate()
             begin
                 TestField(Reported, false);
                 if ("Corrective Entry" <> xRec."Corrective Entry") then
                     ErrorIfIntrastatJnlLineExist(FieldCaption("Corrective Entry"));
             end;
+#endif
         }
         field(12111; "EU Service"; Boolean)
         {
             Caption = 'EU Service';
-
+#if not CLEAN22
             trigger OnValidate()
             begin
                 TestField(Reported, false);
@@ -137,6 +148,7 @@ table 262 "Intrastat Jnl. Batch"
                 if ("EU Service" <> xRec."EU Service") then
                     ErrorIfIntrastatJnlLineExist(FieldCaption("EU Service"));
             end;
+#endif
         }
     }
 

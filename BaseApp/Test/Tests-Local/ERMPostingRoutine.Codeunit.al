@@ -810,52 +810,6 @@ codeunit 144069 "ERM Posting Routine"
 
     [Test]
     [Scope('OnPrem')]
-    procedure CheckTotalPurchaseInvoiceLCY()
-    var
-        PurchaseHeader: Record "Purchase Header";
-        AmountIncludingVAT: Decimal;
-    begin
-        // [FEATURE] [Purchase]
-        // [SCENARIO 382392] Error have to rise when value of "Purchase Order"."Check Total" are not equal to previewing "Gen. Journal Line"."Amount (LCY)" if LCY "Purchase Order" and not Preview Mode
-        Initialize();
-
-        // [GIVEN] Purchase Invoice with "Currency Code" = '' and "Check Total" = 100 and "Amount Including VAT" = 200
-        CreatePurchInvoice(PurchaseHeader, AmountIncludingVAT, '');
-
-        // [WHEN] Post purchase invoice
-        asserterror CODEUNIT.Run(CODEUNIT::"Purch.-Post", PurchaseHeader);
-
-        // [THEN] Arrise error 'Total Reg. 200 is different from total Document 100'
-        Assert.ExpectedError(
-          StrSubstNo(CheckTotalMsgErr, Abs(AmountIncludingVAT), PurchaseHeader."Check Total"));
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure CheckTotalPurchaseInvoiceFCY()
-    var
-        PurchaseHeader: Record "Purchase Header";
-        CurrencyCode: Code[10];
-        AmountIncludingVAT: Decimal;
-    begin
-        // [FEATURE] [Purchase]
-        // [SCENARIO 382392] Error have to rise when value of "Purchase Order"."Check Total" are not equal to SUM of "Purchase Line"."Amount Including VAT" if FCY "Purchase Order" and not Preview Mode
-        Initialize();
-
-        // [GIVEN] Purchase Invoice with "Currency Code" = "USD" and "Check Total" = 100 and "Amount Including VAT" = 200
-        CurrencyCode := LibraryERM.CreateCurrencyWithRandomExchRates;
-        CreatePurchInvoice(PurchaseHeader, AmountIncludingVAT, CurrencyCode);
-
-        // [WHEN] Post purchase invoice
-        asserterror CODEUNIT.Run(CODEUNIT::"Purch.-Post", PurchaseHeader);
-
-        // [THEN] Arrise error 'Total Reg. 200 USD is different from total Document 100 USD'
-        Assert.ExpectedError(
-          StrSubstNo(CheckTotalCurrMsgErr, Abs(AmountIncludingVAT), PurchaseHeader."Check Total", CurrencyCode));
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
     procedure CheckTotalPurchaseInvoiceLCYPreviewMode()
     var
         PurchaseHeader: Record "Purchase Header";

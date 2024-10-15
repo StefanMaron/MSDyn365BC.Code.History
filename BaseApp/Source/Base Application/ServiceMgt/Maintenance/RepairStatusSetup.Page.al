@@ -1,3 +1,5 @@
+namespace Microsoft.Service.Maintenance;
+
 page 5941 "Repair Status Setup"
 {
     ApplicationArea = Service;
@@ -13,7 +15,7 @@ page 5941 "Repair Status Setup"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("Code"; Code)
+                field("Code"; Rec.Code)
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the code for the repair status.';
@@ -28,12 +30,12 @@ page 5941 "Repair Status Setup"
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the service order status that is linked to this repair status.';
                 }
-                field(Priority; Priority)
+                field(Priority; Rec.Priority)
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the priority of the service order status.';
                 }
-                field(Initial; Initial)
+                field(Initial; Rec.Initial)
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies that no service has been performed.';
@@ -43,7 +45,7 @@ page 5941 "Repair Status Setup"
                     ApplicationArea = Service;
                     ToolTip = 'Specifies that the service of the item is in process.';
                 }
-                field(Finished; Finished)
+                field(Finished; Rec.Finished)
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies that the service of the item has been finished.';
@@ -53,7 +55,7 @@ page 5941 "Repair Status Setup"
                     ApplicationArea = Service;
                     ToolTip = 'Specifies that the service item has been partly serviced. Further work is needed.';
                 }
-                field(Referred; Referred)
+                field(Referred; Rec.Referred)
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies that the service of the item has been referred to another resource. No service has been performed on the service item.';

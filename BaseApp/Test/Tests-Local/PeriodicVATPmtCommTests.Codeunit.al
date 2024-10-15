@@ -1503,7 +1503,7 @@ codeunit 144150 "Periodic VAT Pmt. Comm. Tests"
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Application System Constants", 'OnAfterGetApplicationVersion', '', false, false)]
-    local procedure OnAfterGetApplicationVersion(var ApplicationVersion: Text[80])
+    local procedure OnAfterGetApplicationVersion(var ApplicationVersion: Text[248])
     begin
         ApplicationVersion := '13.01.02';
     end;

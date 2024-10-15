@@ -2403,6 +2403,31 @@ codeunit 134761 "Test Custom Reports"
         Assert.IsTrue(FilesList.Contains(StrSubstNo('%1 for %2 as of %3 (2).pdf', ReportName, CustomerName, DateText)), '');
     end;
 
+    [Test]
+    [HandlerFunctions('StandardSalesInvoice_SaveAsXML_RPH')]
+    [Scope('OnPrem')]
+    procedure VerifySubTotalsOnStandardSalesInvoice_ReportTotalsWithCorrectDecimalPlaces()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        CurrencyCode: Code[10];
+    begin
+        // [SCENARIO 463222] Sales Invoice report does not print subtotals with correct number of decimals
+        Initialize();
+
+        // [GIVEN] Currency "C" with "Amount Decimal Places" = '3:3' and "Amount Rounding Precision" = '0.001'
+        CurrencyCode := CreateCurrencyWithDecimalPlaces();
+
+        // [GIVEN] Create sales invoice with "Prices Including VAT" = false and Currency
+        CreateSalesInvoiceWithCurrencyCode(SalesHeader, SalesLine, false, CurrencyCode);
+
+        // [WHEN] Print the invoice using REP1306 "Standard Sales - Invoice"
+        RunStandardSalesInvoice(LibrarySales.PostSalesDocument(SalesHeader, true, true));
+
+        // [VERIFY] Verify: Sub Total Amount on Report Total Lines
+        VerifySubTotalAmtStdSalesInvoiceReportTotalsLines(SalesLine."Line Amount")
+    end;
+
     [Scope('OnPrem')]
     procedure Initialize()
     var
@@ -2996,6 +3021,53 @@ codeunit 134761 "Test Custom Reports"
     begin
         LibraryReportDataset.AssertElementTagWithValueExists(
           'RemainAmt_CustLedgEntry2', Format(VerifyAmount, 0, 2));
+    end;
+
+    local procedure CreateCurrencyWithDecimalPlaces(): Code[10]
+    var
+        Currency: Record Currency;
+        CurrencyCode: Code[10];
+    begin
+        CurrencyCode := LibraryERM.CreateCurrencyWithExchangeRate(WorkDate(), 1, 1);
+        Currency.Get(CurrencyCode);
+        Currency.Validate("Amount Decimal Places", '3:3');
+        Currency.Validate("Amount Rounding Precision", 0.001);
+        Currency.Validate("Invoice Rounding Precision", 0.001);
+        Currency.Modify(true);
+        exit(CurrencyCode);
+    end;
+
+    local procedure CreateSalesInvoiceWithCurrencyCode(
+        var SalesHeader: Record "Sales Header";
+        var SalesLine: Record "Sales Line";
+        PricesIncludingVAT: Boolean;
+        CurrencyCode: Code[10])
+    begin
+        LibrarySales.CreateSalesHeader(
+            SalesHeader,
+            SalesHeader."Document Type"::Invoice,
+            LibrarySales.CreateCustomerNo());
+        SalesHeader.Validate("Currency Code", CurrencyCode);
+        SalesHeader.Validate("Prices Including VAT", PricesIncludingVAT);
+        SalesHeader.Modify(true);
+
+        LibrarySales.CreateSalesLine(
+            SalesLine,
+            SalesHeader,
+            SalesLine.Type::Item,
+            LibraryInventory.CreateItemNo(),
+            1);
+        SalesLine.Validate("Unit Price", LibraryRandom.RandDecInRange(1000, 2000, 3));
+        SalesLine.Modify(true);
+    end;
+
+    local procedure VerifySubTotalAmtStdSalesInvoiceReportTotalsLines(SubTotalAmt: Decimal)
+    var
+        Row: Integer;
+    begin
+        LibraryReportDataset.LoadDataSetFile();
+        Row := LibraryReportDataset.FindRow(DescriptionReportTotalsLineTxt, SubtotalTxt) + 1;
+        VerifyStdSalesInvoiceReportTotalsLine(Row, SubtotalTxt, SubTotalAmt);
     end;
 
     [ModalPageHandler]

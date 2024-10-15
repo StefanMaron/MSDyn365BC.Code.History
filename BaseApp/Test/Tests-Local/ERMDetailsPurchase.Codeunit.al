@@ -379,7 +379,7 @@ codeunit 144123 "ERM Details Purchase"
     begin
         // Setup: Create Currency with Exchange rate, create and post Purchase Invoice with that Currency and Apply payment for Invoice on next year.
         CurrencyCode := LibraryERM.CreateCurrencyWithRandomExchRates;
-#if not CLEAN20
+#if not CLEAN23
         LibraryERM.RunAdjustExchangeRatesSimple(CurrencyCode, WorkDate(), WorkDate());  // Ending Date, Posting Date - WORKDATE.
 #else
         LibraryERM.RunExchRateAdjustmentSimple(CurrencyCode, WorkDate(), WorkDate());  // Ending Date, Posting Date - WORKDATE.

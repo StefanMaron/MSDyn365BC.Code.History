@@ -1,18 +1,26 @@
+﻿// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Finance.Dimension;
+
+using System.Threading;
+
 codeunit 485 "Change Global Dim Err. Handler"
 {
     TableNo = "Change Global Dim. Log Entry";
 
     trigger OnRun()
     begin
-        LockTable();
-        if not Get("Table ID") then
+        Rec.LockTable();
+        if not Rec.Get(Rec."Table ID") then
             exit;
-        Status := Status::Incomplete;
-        "Session ID" := -1;
-        "Server Instance ID" := -1;
-        Modify();
+        Rec.Status := Rec.Status::Incomplete;
+        Rec."Session ID" := -1;
+        Rec."Server Instance ID" := -1;
+        Rec.Modify();
         LogError(Rec);
-        SendTraceTagOnError();
+        Rec.SendTraceTagOnError();
     end;
 
     local procedure LogError(ChangeGlobalDimLogEntry: Record "Change Global Dim. Log Entry")
@@ -31,9 +39,6 @@ codeunit 485 "Change Global Dim Err. Handler"
         JobQueueLogEntry."Start Date/Time" := CurrentDateTime;
         JobQueueLogEntry."End Date/Time" := JobQueueLogEntry."Start Date/Time";
         JobQueueLogEntry."User ID" := CopyStr(UserId(), 1, MaxStrLen(JobQueueLogEntry."User ID"));
-#if not CLEAN20
-        JobQueueLogEntry."Processed by User ID" := UserId;
-#endif
         JobQueueLogEntry.Insert(true);
     end;
 }

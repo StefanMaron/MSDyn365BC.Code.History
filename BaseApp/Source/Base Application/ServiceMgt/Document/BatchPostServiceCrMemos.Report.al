@@ -1,3 +1,9 @@
+namespace Microsoft.Service.Document;
+
+using Microsoft.Sales.Setup;
+using Microsoft.Service.Posting;
+using System.Environment;
+
 report 6005 "Batch Post Service Cr. Memos"
 {
     Caption = 'Batch Post Service Cr. Memos';
@@ -7,7 +13,7 @@ report 6005 "Batch Post Service Cr. Memos"
     {
         dataitem("Service Header"; "Service Header")
         {
-            DataItemTableView = SORTING("Document Type", "No.") WHERE("Document Type" = CONST("Credit Memo"));
+            DataItemTableView = sorting("Document Type", "No.") where("Document Type" = const("Credit Memo"));
             RequestFilterFields = "No.";
 
             trigger OnAfterGetRecord()

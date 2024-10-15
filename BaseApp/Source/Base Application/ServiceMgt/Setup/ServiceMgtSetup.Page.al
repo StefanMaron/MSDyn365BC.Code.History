@@ -1,4 +1,9 @@
-﻿page 5919 "Service Mgt. Setup"
+﻿namespace Microsoft.Service.Setup;
+
+using Microsoft.Finance.GeneralLedger.Setup;
+using Microsoft.Foundation.Calendar;
+
+page 5919 "Service Mgt. Setup"
 {
     ApplicationArea = Service;
     Caption = 'Service Management Setup';
@@ -97,10 +102,12 @@
                     ToolTip = 'Specifies a customizable calendar for service planning that holds the service department''s working days and holidays. Choose the field to select another base calendars or to set up a customized calendar for your service department.';
 
                     trigger OnDrillDown()
+                    var
+                        CalendarManagement: Codeunit "Calendar Management";
                     begin
                         CurrPage.SaveRecord();
-                        TestField("Base Calendar Code");
-                        CalendarMgmt.ShowCustomizedCalendar(Rec);
+                        Rec.TestField("Base Calendar Code");
+                        CalendarManagement.ShowCustomizedCalendar(Rec);
                     end;
                 }
                 field("Copy Comments Order to Invoice"; Rec."Copy Comments Order to Invoice")
@@ -140,14 +147,12 @@
                     ApplicationArea = Basic, Suite;
                     Importance = Additional;
                     ToolTip = 'Specifies if multiple posting groups can be used for the same customer in sales documents.';
-                    Visible = MultiplePostingGroupsVisible;
                 }
                 field("Check Multiple Posting Groups"; Rec."Check Multiple Posting Groups")
                 {
                     ApplicationArea = Basic, Suite;
                     Importance = Additional;
                     ToolTip = 'Specifies implementation method of checking which posting groups can be used for the customer.';
-                    Visible = MultiplePostingGroupsVisible;
                 }
                 field("Validate Document On Posting"; Rec."Validate Document On Posting")
                 {
@@ -160,19 +165,6 @@
                     Caption = 'Posting Date after Operation Occurred Date notification';
                     ToolTip = 'Specifies that you will get a notification when changing the Posting Date field to a date later than currently in the Operation Occurred Date field.';
                 }
-#if not CLEAN20
-                field("Invoice Posting Setup"; Rec."Invoice Posting Setup")
-                {
-                    ApplicationArea = Advanced;
-                    Editable = false;
-                    Importance = Additional;
-                    ToolTip = 'Specifies invoice posting implementation codeunit which is used for posting of service invoices.';
-                    Visible = false;
-                    ObsoleteReason = 'Replaced by direct selection of posting interface in codeunits.';
-                    ObsoleteState = Pending;
-                    ObsoleteTag = '20.0';
-                }
-#endif
             }
             group("Mandatory Fields")
             {
@@ -419,22 +411,18 @@
     trigger OnOpenPage()
     var
         GeneralLedgerSetup: Record "General Ledger Setup";
-        FeatureKeyManagement: Codeunit "Feature Key Management";
     begin
-        Reset();
-        if not Get() then begin
-            Init();
-            Insert();
+        Rec.Reset();
+        if not Rec.Get() then begin
+            Rec.Init();
+            Rec.Insert();
         end;
 
         GeneralLedgerSetup.Get();
         JnlTemplateNameVisible := GeneralLedgerSetup."Journal Templ. Name Mandatory";
-        MultiplePostingGroupsVisible := FeatureKeyManagement.IsAllowMultipleCustVendPostingGroupsEnabled();
     end;
 
     var
-        CalendarMgmt: Codeunit "Calendar Management";
         JnlTemplateNameVisible: Boolean;
-        MultiplePostingGroupsVisible: Boolean;
 }
 

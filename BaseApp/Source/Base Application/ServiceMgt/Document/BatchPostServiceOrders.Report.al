@@ -1,3 +1,9 @@
+namespace Microsoft.Service.Document;
+
+using Microsoft.Sales.Setup;
+using Microsoft.Service.Posting;
+using System.Environment;
+
 report 6001 "Batch Post Service Orders"
 {
     Caption = 'Batch Post Service Orders';
@@ -7,7 +13,7 @@ report 6001 "Batch Post Service Orders"
     {
         dataitem("Service Header"; "Service Header")
         {
-            DataItemTableView = SORTING("Document Type", "No.") WHERE("Document Type" = CONST(Order));
+            DataItemTableView = sorting("Document Type", "No.") where("Document Type" = const(Order));
             RequestFilterFields = "No.", Status, Priority;
 
             trigger OnAfterGetRecord()

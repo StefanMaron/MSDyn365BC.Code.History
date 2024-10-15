@@ -1786,7 +1786,7 @@ codeunit 144081 "SCM Subcontracting"
                 end;
             OptionString::Post:
                 begin
-                    TransferHeader.Get(SubcontrTransferOrder."No.");
+                    TransferHeader.Get(SubcontrTransferOrder."No.".Value);
                     LibraryInventory.PostTransferHeader(TransferHeader, true, true);
                 end;
         end;

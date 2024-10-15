@@ -1,4 +1,40 @@
-﻿table 263 "Intrastat Jnl. Line"
+﻿// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Inventory.Intrastat;
+
+using Microsoft.Foundation.Address;
+using Microsoft.Foundation.Shipping;
+#if not CLEAN22
+using Microsoft.Inventory.Item;
+#endif
+using Microsoft.Inventory.Ledger;
+using Microsoft.Inventory.Location;
+#if not CLEAN22
+using Microsoft.Bank.BankAccount;
+using Microsoft.Finance.Currency;
+using Microsoft.Finance.GeneralLedger.Setup;
+using Microsoft.Finance.VAT.Ledger;
+using Microsoft.Foundation.Company;
+using Microsoft.Foundation.Enums;
+using Microsoft.Inventory.Item.Catalog;
+using Microsoft.Inventory.Transfer;
+using Microsoft.Projects.Project.Job;
+#endif
+using Microsoft.Projects.Project.Ledger;
+#if not CLEAN22
+using Microsoft.Purchases.History;
+using Microsoft.Purchases.Payables;
+using Microsoft.Purchases.Vendor;
+using Microsoft.Sales.Customer;
+using Microsoft.Sales.History;
+using Microsoft.Sales.Receivables;
+using Microsoft.Service.History;
+using System.Utilities;
+#endif
+
+table 263 "Intrastat Jnl. Line"
 {
     Caption = 'Intrastat Jnl. Line';
 #if not CLEAN22
@@ -23,7 +59,7 @@
         {
             Caption = 'Journal Batch Name';
 #if not CLEAN22
-            TableRelation = "Intrastat Jnl. Batch".Name WHERE("Journal Template Name" = FIELD("Journal Template Name"));
+            TableRelation = "Intrastat Jnl. Batch".Name where("Journal Template Name" = field("Journal Template Name"));
 #endif
         }
         field(3; "Line No."; Integer)
@@ -92,7 +128,7 @@
         field(12; "Source Entry No."; Integer)
         {
             Caption = 'Source Entry No.';
-
+#if not CLEAN22
             trigger OnLookup()
             begin
                 LookUpSourceEntryNo();
@@ -125,12 +161,13 @@
                         end;
                 end;
             end;
+#endif
         }
         field(13; "Net Weight"; Decimal)
         {
             Caption = 'Net Weight';
             DecimalPlaces = 2 : 5;
-
+#if not CLEAN22
             trigger OnValidate()
             begin
                 if Quantity <> 0 then
@@ -138,13 +175,14 @@
                 else
                     "Total Weight" := 0;
             end;
+#endif
         }
         field(14; Amount; Decimal)
         {
             AutoFormatType = 1;
             Caption = 'Amount';
             DecimalPlaces = 0 : 0;
-
+#if not CLEAN22
             trigger OnValidate()
             begin
                 if "Cost Regulation %" <> 0 then
@@ -152,6 +190,7 @@
                 else
                     CheckIndirectCost();
             end;
+#endif
         }
         field(15; Quantity; Decimal)
         {
@@ -174,25 +213,27 @@
             DecimalPlaces = 2 : 2;
             MaxValue = 100;
             MinValue = -100;
-
+#if not CLEAN22
             trigger OnValidate()
             begin
                 "Indirect Cost" := Round(Amount * "Cost Regulation %" / 100, 1);
                 "Statistical Value" := Round(Amount + "Indirect Cost", 1);
                 CheckIndirectCost();
             end;
+#endif
         }
         field(17; "Indirect Cost"; Decimal)
         {
             AutoFormatType = 1;
             Caption = 'Indirect Cost';
             DecimalPlaces = 0 : 0;
-
+#if not CLEAN22
             trigger OnValidate()
             begin
                 "Cost Regulation %" := 0;
                 CheckIndirectCost();
             end;
+#endif
         }
         field(18; "Statistical Value"; Decimal)
         {
@@ -255,7 +296,7 @@
         {
             Caption = 'Entry/Exit Point';
             TableRelation = "Entry/Exit Point";
-
+#if not CLEAN22
             trigger OnValidate()
             begin
                 if EntryExitPoint.Get("Entry/Exit Point") then
@@ -264,6 +305,7 @@
                     "Group Code" := '';
                 Validate("Indirect Cost");
             end;
+#endif
         }
         field(27; "Area"; Code[10])
         {
@@ -274,7 +316,7 @@
         {
             Caption = 'Transaction Specification';
             TableRelation = "Transaction Specification";
-
+#if not CLEAN22
             trigger OnValidate()
             var
                 Country: Record "Country/Region";
@@ -283,6 +325,7 @@
                 if Country.IsEmpty() then
                     FieldError("Transaction Specification");
             end;
+#endif
         }
         field(29; "Shpt. Method Code"; Code[10])
         {
@@ -305,25 +348,19 @@
         field(12100; "Currency Code"; Code[10])
         {
             Caption = 'Currency Code';
+#if not CLEAN22
             TableRelation = Currency;
+#endif
         }
         field(12101; "Source Currency Amount"; Decimal)
         {
-            AutoFormatExpression = "Currency Code";
+            AutoFormatExpression = Rec."Currency Code";
             AutoFormatType = 1;
             Caption = 'Source Currency Amount';
         }
         field(12102; "VAT Registration No."; Code[20])
         {
             Caption = 'VAT Registration No.';
-            ObsoleteReason = 'Merged to W1';
-#if CLEAN18
-            ObsoleteTag = '21.0';
-            ObsoleteState = Removed;
-#else
-            ObsoleteTag = '18.0';
-            ObsoleteState = Pending;
-#endif
         }
         field(12103; "Corrective entry"; Boolean)
         {
@@ -348,39 +385,42 @@
         {
             Caption = 'Service Tariff No.';
             TableRelation = "Service Tariff Number";
-
+#if not CLEAN22
             trigger OnValidate()
             begin
                 if "Service Tariff No." <> '' then
                     IntrastatJnlBatch.CheckEUServAndCorrection("Journal Template Name", "Journal Batch Name", true, false);
             end;
+#endif
         }
         field(12178; "Payment Method"; Code[10])
         {
             Caption = 'Payment Method';
+#if not CLEAN22
             TableRelation = "Payment Method";
-
             trigger OnValidate()
             begin
                 if "Payment Method" <> '' then
                     IntrastatJnlBatch.CheckEUServAndCorrection("Journal Template Name", "Journal Batch Name", true, false);
             end;
+#endif
         }
         field(12179; "Custom Office No."; Code[6])
         {
             Caption = 'Custom Office No.';
             TableRelation = "Customs Office";
-
+#if not CLEAN22
             trigger OnValidate()
             begin
                 if "Custom Office No." <> '' then
                     IntrastatJnlBatch.CheckEUServAndCorrection("Journal Template Name", "Journal Batch Name", true, true);
             end;
+#endif
         }
         field(12180; "Corrected Intrastat Report No."; Code[10])
         {
             Caption = 'Corrected Intrastat Report No.';
-
+#if not CLEAN22
             trigger OnLookup()
             var
                 IntrastatJnlBatch2: Record "Intrastat Jnl. Batch";
@@ -405,11 +445,13 @@
                         Validate("Reference Period", IntrastatJnlBatch2."Statistics Period");
                 end;
             end;
+#endif
         }
         field(12181; "Corrected Document No."; Code[20])
         {
             Caption = 'Corrected Document No.';
 
+#if not CLEAN22
             trigger OnLookup()
             var
                 IntrastatJnlLine: Record "Intrastat Jnl. Line";
@@ -438,6 +480,7 @@
                           Text12100, FieldCaption("Document No."), IntrastatJnlLine.GetFilters);
                 end;
             end;
+#endif
         }
         field(12182; "Country/Region of Payment Code"; Code[10])
         {
@@ -1223,10 +1266,10 @@
     begin
         if not Customer.Get(CustomerNo) then
             exit(false);
-        if Customer."Intrastat Partner Type" <> "Partner Type"::" " then
-            exit(Customer."Intrastat Partner Type" = "Partner Type"::Person)
+        if Customer."Intrastat Partner Type" <> Customer."Intrastat Partner Type"::" " then
+            exit(Customer."Intrastat Partner Type" = Customer."Intrastat Partner Type"::Person)
         else
-            exit(Customer."Partner Type" = "Partner Type"::Person);
+            exit(Customer."Partner Type" = Customer."Partner Type"::Person);
     end;
 
     protected procedure IsVendorPrivatePerson(VendorNo: Code[20]): Boolean
@@ -1235,10 +1278,10 @@
     begin
         if not Vendor.Get(VendorNo) then
             exit(false);
-        if Vendor."Intrastat Partner Type" <> "Partner Type"::" " then
-            exit(Vendor."Intrastat Partner Type" = "Partner Type"::Person)
+        if Vendor."Intrastat Partner Type" <> Vendor."Intrastat Partner Type"::" " then
+            exit(Vendor."Intrastat Partner Type" = Vendor."Intrastat Partner Type"::Person)
         else
-            exit(Vendor."Partner Type" = "Partner Type"::Person);
+            exit(Vendor."Partner Type" = Vendor."Partner Type"::Person);
     end;
 
     [IntegrationEvent(false, false)]

@@ -1841,6 +1841,7 @@ codeunit 137289 "SCM Inventory Costing IV"
     begin
         LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
         Location.Validate("Require Put-away", true);
+        Location.Validate("Always Create Put-away Line", true);
         Location.Validate("Require Pick", true);
         Location.Validate("Require Receive", true);
         Location.Validate("Require Shipment", true);

@@ -785,7 +785,7 @@
         VerifyInvAndCrMemoVATEntries(InvoiceNo, CrMemoNo, 8, 1.44, 4.99, 0.9);
     end;
 
-#if not CLEAN20
+#if not CLEAN23
     [Test]
     [HandlerFunctions('MessageHandler')]
     [Scope('OnPrem')]

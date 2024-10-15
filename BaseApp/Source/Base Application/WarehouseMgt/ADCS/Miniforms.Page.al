@@ -1,3 +1,5 @@
+namespace Microsoft.Warehouse.ADCS;
+
 page 7703 Miniforms
 {
     AdditionalSearchTerms = 'scanner,handheld,automated data capture,barcode,paper-free';
@@ -16,7 +18,7 @@ page 7703 Miniforms
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("Code"; Code)
+                field("Code"; Rec.Code)
                 {
                     ApplicationArea = ADCS;
                     ToolTip = 'Specifies a unique code for a specific miniform.';

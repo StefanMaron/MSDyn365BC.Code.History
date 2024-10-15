@@ -1,3 +1,8 @@
+namespace System.Utilities;
+
+using System;
+using System.IO;
+
 codeunit 1292 Trace
 {
 

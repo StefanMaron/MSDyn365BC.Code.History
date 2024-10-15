@@ -1620,6 +1620,7 @@ codeunit 137293 "SCM Inventory Miscellaneous"
         TransferHeader.Get(TransferLine."Document No.");
         Location.Get(TransferHeader."Transfer-to Code");
         Location.Validate("Require Put-away", true);
+        Location.Validate("Always Create Put-away Line", true);
         Location.Modify(true);
         LibraryInventory.PostTransferHeader(TransferHeader, true, false);
         TransferHeader.CreateInvtPutAwayPick;

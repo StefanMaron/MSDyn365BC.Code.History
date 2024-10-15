@@ -210,7 +210,7 @@ codeunit 144021 "IT - CU 2015 Unit Test"
             WithholdingTax."Withholding Tax Amount" := WithholdingTax."Taxable Base" + 2;
             WithholdingTax.Modify();
         end;
-        
+
         SigningCompanyOfficialNo := CreateCompanyOfficial;
 
         // [WHEN] Run Withholding Tax Export

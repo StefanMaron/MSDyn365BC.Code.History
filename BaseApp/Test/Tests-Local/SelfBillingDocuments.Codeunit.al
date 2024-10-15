@@ -775,7 +775,6 @@ codeunit 144206 "Self-Billing Documents"
         SecondFileInStream: InStream;
         FirstFileOutStream: OutStream;
         SecondFileOutStream: OutStream;
-        Length: Integer;
     begin
         DataCompression.OpenZipArchive(TempBlob, false);
         DataCompression.GetEntryList(EntryList);
@@ -783,7 +782,7 @@ codeunit 144206 "Self-Billing Documents"
         // verify first file
         VerifyFileName(FileManagement.GetFileNameWithoutExtension(EntryList.Get(1)));
         ZipTempBlob.CreateOutStream(FirstFileOutStream);
-        DataCompression.ExtractEntry(EntryList.Get(1), FirstFileOutStream, Length);
+        DataCompression.ExtractEntry(EntryList.Get(1), FirstFileOutStream);
         ZipTempBlob.CreateInStream(FirstFileInStream);
         TempVATEntry.Reset();
         TempVATEntry.FindSet();
@@ -793,7 +792,7 @@ codeunit 144206 "Self-Billing Documents"
         clear(ZipTempBlob);
         VerifyFileName(FileManagement.GetFileNameWithoutExtension(EntryList.Get(2)));
         ZipTempBlob.CreateOutStream(SecondFileOutStream);
-        DataCompression.ExtractEntry(EntryList.Get(2), SecondFileOutStream, Length);
+        DataCompression.ExtractEntry(EntryList.Get(2), SecondFileOutStream);
         ZipTempBlob.CreateInStream(SecondFileInStream);
         TempVATEntry.Next();
         VerifySingleSelfBillingDocumentFromStream(SecondFileInStream, ProgressiveNo[2], TempVATEntry);

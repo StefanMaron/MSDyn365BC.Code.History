@@ -1,3 +1,37 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Utilities;
+
+using Microsoft.Finance.VAT.Reporting;
+using Microsoft.HumanResources.Absence;
+using Microsoft.HumanResources.Employee;
+using Microsoft.HumanResources.Payables;
+using Microsoft.Sales.Archive;
+using System.Privacy;
+using Microsoft.FixedAssets.Depreciation;
+using Microsoft.Finance.FinancialReports;
+using Microsoft.Finance.WithholdingTax;
+using Microsoft.Bank.Payment;
+using Microsoft.Inventory.Intrastat;
+using Microsoft.Purchases.Vendor;
+using Microsoft.Inventory.Costing;
+using Microsoft.Finance.VAT.Setup;
+using Microsoft.Finance.VAT.Ledger;
+using Microsoft.Finance.GeneralLedger.Ledger;
+using Microsoft.Manufacturing.Document;
+using Microsoft.Foundation.NoSeries;
+using Microsoft.Finance.GeneralLedger.Setup;
+using Microsoft.Inventory.Item;
+using Microsoft.Foundation.PaymentTerms;
+using Microsoft.Foundation.Company;
+using Microsoft.Bank.BankAccount;
+using Microsoft.EServices.EDocument;
+using Microsoft.Inventory.Setup;
+using Microsoft.Finance.VAT.TransactionNature;
+using Microsoft;
+
 codeunit 1752 "Data Class. Eval. Data Country"
 {
 

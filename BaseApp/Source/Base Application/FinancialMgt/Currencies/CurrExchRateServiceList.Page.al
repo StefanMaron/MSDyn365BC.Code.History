@@ -1,3 +1,9 @@
+﻿// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Finance.Currency;
+
 page 1650 "Curr. Exch. Rate Service List"
 {
     ApplicationArea = Suite;
@@ -16,7 +22,7 @@ page 1650 "Curr. Exch. Rate Service List"
             repeater(General)
             {
                 Caption = 'General';
-                field("Code"; Code)
+                field("Code"; Rec.Code)
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the setup of a service to update currency exchange rates.';
@@ -26,7 +32,7 @@ page 1650 "Curr. Exch. Rate Service List"
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the setup of a service to update currency exchange rates.';
                 }
-                field(Enabled; Enabled)
+                field(Enabled; Rec.Enabled)
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies if the currency exchange rate service is enabled.';
@@ -48,8 +54,8 @@ page 1650 "Curr. Exch. Rate Service List"
 
                 trigger OnAction()
                 begin
-                    Validate(Enabled, true);
-                    Modify(true);
+                    Rec.Validate(Enabled, true);
+                    Rec.Modify(true);
                 end;
             }
             action(TestUpdate)
@@ -96,7 +102,7 @@ page 1650 "Curr. Exch. Rate Service List"
 
     trigger OnOpenPage()
     begin
-        SetupService();
+        Rec.SetupService();
     end;
 }
 

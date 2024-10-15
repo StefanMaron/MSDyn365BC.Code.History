@@ -1,3 +1,14 @@
+namespace System.Security.AccessControl;
+
+using Microsoft.HumanResources.Employee;
+using Microsoft.Finance.GeneralLedger.Ledger;
+using Microsoft.Inventory.Setup;
+using Microsoft.Foundation.NoSeries;
+using Microsoft.Inventory.Planning;
+using Microsoft.Inventory.Location;
+using Microsoft.Inventory.Transfer;
+using Microsoft.Warehouse.Activity;
+
 permissionset 9556 "D365 INV DOC, CREATE"
 {
     Assignable = true;

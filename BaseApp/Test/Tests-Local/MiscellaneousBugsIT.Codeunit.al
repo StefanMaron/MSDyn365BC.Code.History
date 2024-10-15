@@ -279,9 +279,13 @@ codeunit 144106 "Miscellaneous Bugs IT"
         LibraryReportDataset.AssertElementWithValueExists(NameCaption, Name);
     end;
 
+#if not CLEAN22
     [Test]
     [HandlerFunctions('GetItemLedgerEntriesRequestPageHandler')]
     [Scope('OnPrem')]
+#pragma warning disable AS0072
+    [Obsolete('Intrastat related functionalities are moved to Intrastat extensions.', '22.0')]
+#pragma warning restore AS0072
     procedure AmountOnIntrastatJnlLineWithSamePostingDate()
     begin
         // Test to verify Amount on Intrastat Journal Line after posting the Purchase Invoice and Payment on same Posting Date.
@@ -292,6 +296,9 @@ codeunit 144106 "Miscellaneous Bugs IT"
     [Test]
     [HandlerFunctions('GetItemLedgerEntriesRequestPageHandler')]
     [Scope('OnPrem')]
+#pragma warning disable AS0072
+    [Obsolete('Intrastat related functionalities are moved to Intrastat extensions.', '22.0')]
+#pragma warning restore AS0072
     procedure AmountOnIntrastatJnlLineWithDiffPostingDate()
     begin
         // Test to verify Amount on Intrastat Journal Line after posting the Purchase Invoice and Payment on different Posting Date.
@@ -327,6 +334,7 @@ codeunit 144106 "Miscellaneous Bugs IT"
         // Verify:
         VerifyIntrastatJnlLine(IntrastatJnlBatchName, PurchaseLine."Service Tariff No.", GetPurchaseInvoiceLineAmount(DocumentNo));
     end;
+#endif
 
     [Test]
     [Scope('OnPrem')]
@@ -361,10 +369,14 @@ codeunit 144106 "Miscellaneous Bugs IT"
     end;
 
     local procedure Initialize()
+#if not CLEAN22
     var
         IntrastatJnlTemplate: Record "Intrastat Jnl. Template";
+#endif
     begin
+#if not CLEAN22
         IntrastatJnlTemplate.DeleteAll();
+#endif
         LibraryVariableStorage.Clear();
     end;
 
@@ -389,7 +401,7 @@ codeunit 144106 "Miscellaneous Bugs IT"
         Vendor.Modify(true);
         exit(Vendor."No.");
     end;
-
+#if not CLEAN22
     local procedure CreateIntrastatJnlBatch(): Code[10]
     var
         IntrastatJnlBatch: Record "Intrastat Jnl. Batch";
@@ -405,7 +417,7 @@ codeunit 144106 "Miscellaneous Bugs IT"
         IntrastatJnlBatch.Modify(true);
         exit(IntrastatJnlBatch.Name);
     end;
-
+#endif
     local procedure CreateGLAccount(VATProdPostingGroup: Code[20]): Code[20]
     var
         GeneralPostingSetup: Record "General Posting Setup";
@@ -621,7 +633,7 @@ codeunit 144106 "Miscellaneous Bugs IT"
         GeneralLedgerSetup.Validate("Unrealized VAT", UnrealizedVAT);
         GeneralLedgerSetup.Modify(true);
     end;
-
+#if not CLEAN22
     local procedure VerifyIntrastatJnlLine(JournalBatchName: Code[10]; ServiceTariffNo: Code[10]; Amount: Decimal)
     var
         IntrastatJnlLine: Record "Intrastat Jnl. Line";
@@ -631,6 +643,7 @@ codeunit 144106 "Miscellaneous Bugs IT"
         IntrastatJnlLine.FindFirst();
         IntrastatJnlLine.TestField(Amount, Amount);
     end;
+#endif
 
     local procedure VerifyGLEntry(DocumentNo: Code[20]; GLAccountNo: Code[20]; Amount: Decimal)
     var
@@ -652,14 +665,19 @@ codeunit 144106 "Miscellaneous Bugs IT"
         Assert.AreNearlyEqual(Base, VATEntry.Base, LibraryERM.GetAmountRoundingPrecision, AmountErr);
     end;
 
+#if not CLEAN22
     [RequestPageHandler]
     [Scope('OnPrem')]
+#pragma warning disable AS0072
+    [Obsolete('Intrastat related functionalities are moved to Intrastat extensions.', '22.0')]
+#pragma warning restore AS0072
     procedure GetItemLedgerEntriesRequestPageHandler(var GetItemLedgerEntries: TestRequestPage "Get Item Ledger Entries")
     begin
         GetItemLedgerEntries.StartingDate.SetValue(WorkDate());
         GetItemLedgerEntries.EndingDate.SetValue(WorkDate());
         GetItemLedgerEntries.OK.Invoke;
     end;
+#endif
 
     [RequestPageHandler]
     [Scope('OnPrem')]

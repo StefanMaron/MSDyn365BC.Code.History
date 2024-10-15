@@ -1,4 +1,38 @@
-﻿codeunit 427 ICInboxOutboxMgt
+﻿// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Intercompany;
+
+using Microsoft.Bank.BankAccount;
+using Microsoft.Finance.Currency;
+using Microsoft.Finance.Dimension;
+using Microsoft.Finance.GeneralLedger.Account;
+using Microsoft.Finance.GeneralLedger.Journal;
+using Microsoft.Finance.GeneralLedger.Setup;
+using Microsoft.Foundation.Company;
+using Microsoft.Intercompany.Comment;
+using Microsoft.Intercompany.DataExchange;
+using Microsoft.Intercompany.Dimension;
+using Microsoft.Intercompany.GLAccount;
+using Microsoft.Intercompany.Inbox;
+using Microsoft.Intercompany.Journal;
+using Microsoft.Intercompany.Outbox;
+using Microsoft.Intercompany.Partner;
+using Microsoft.Intercompany.Setup;
+using Microsoft.Inventory.Item;
+using Microsoft.Inventory.Item.Catalog;
+using Microsoft.Inventory.Tracking;
+using Microsoft.Purchases.Document;
+using Microsoft.Purchases.History;
+using Microsoft.Purchases.Vendor;
+using Microsoft.Sales.Customer;
+using Microsoft.Sales.Document;
+using Microsoft.Sales.History;
+using System.Telemetry;
+using System.Utilities;
+
+codeunit 427 ICInboxOutboxMgt
 {
     Permissions = TableData "General Ledger Setup" = rm;
 
@@ -270,6 +304,7 @@
         Item: Record Item;
         FeatureTelemetry: Codeunit "Feature Telemetry";
         ICMapping: Codeunit "IC Mapping";
+        ToDate: Date;
         TransactionNo: Integer;
         RoundingLineNo: Integer;
         IsCommentType: Boolean;
@@ -360,6 +395,11 @@
                                         ItemReference.SetRange("Reference Type", "Item Reference Type"::Customer);
                                         ItemReference.SetRange("Reference Type No.", SalesInvLine."Bill-to Customer No.");
                                         ItemReference.SetRange("Item No.", SalesInvLine."No.");
+                                        ToDate := SalesInvLine.GetDateForCalculations();
+                                        if ToDate <> 0D then begin
+                                            ItemReference.SetFilter("Starting Date", '<=%1', ToDate);
+                                            ItemReference.SetFilter("Ending Date", '>=%1|%2', ToDate, 0D);
+                                        end;
                                         if ItemReference.FindFirst() then
                                             "IC Item Reference No." := ItemReference."Reference No.";
                                     end;
@@ -649,9 +689,9 @@
             ICOutboxJnlLine."Document No." := "Document No.";
             if BalancingLine then begin
                 ICOutboxJnlLine."Line No." := "Line No.";
-                if TempGenJnlLine."IC Account Type" = "IC Journal Account Type"::"G/L Account" then
+                if TempGenJnlLine."IC Account Type" = TempGenJnlLine."IC Account Type"::"G/L Account" then
                     ICOutboxJnlLine."Account Type" := ICOutboxJnlLine."Account Type"::"G/L Account";
-                if TempGenJnlLine."IC Account Type" = "IC Journal Account Type"::"Bank Account" then
+                if TempGenJnlLine."IC Account Type" = TempGenJnlLine."IC Account Type"::"Bank Account" then
                     ICOutboxJnlLine."Account Type" := ICOutboxJnlLine."Account Type"::"Bank Account";
                 ICOutboxJnlLine."Account No." := "IC Account No.";
                 ICOutboxJnlLine.Amount := -Amount;
@@ -972,7 +1012,7 @@
                         SalesLine.Validate(Type, SalesLine.Type::Item);
                         SalesLine."No." :=
                             GetItemFromItemRef(
-                                ICInboxSalesLine."IC Partner Reference", "Item Reference Type"::Customer, SalesHeader."Sell-to Customer No.");
+                                ICInboxSalesLine."IC Partner Reference", "Item Reference Type"::Customer, SalesHeader."Sell-to Customer No.", SalesLine.GetDateForCalculations());
                         if SalesLine."No." <> '' then
                             SalesLine.Validate("No.", SalesLine."No.")
                         else
@@ -983,7 +1023,7 @@
                         SalesLine.Validate(Type, SalesLine.Type::Item);
                         SalesLine."No." :=
                             GetItemFromItemRef(
-                                ICInboxSalesLine."IC Item Reference No.", "Item Reference Type"::Customer, SalesHeader."Sell-to Customer No.");
+                                ICInboxSalesLine."IC Item Reference No.", "Item Reference Type"::Customer, SalesHeader."Sell-to Customer No.", SalesLine.GetDateForCalculations());
                         if SalesLine."No." <> '' then
                             SalesLine.Validate("No.", SalesLine."No.")
                         else
@@ -1237,7 +1277,7 @@
                         PurchLine.Validate(Type, PurchLine.Type::Item);
                         PurchLine."No." :=
                             GetItemFromItemRef(
-                                ICInboxPurchLine."IC Partner Reference", "Item Reference Type"::Vendor, PurchHeader."Buy-from Vendor No.");
+                                ICInboxPurchLine."IC Partner Reference", "Item Reference Type"::Vendor, PurchHeader."Buy-from Vendor No.", PurchLine.GetDateForCalculations());
                         if PurchLine."No." <> '' then
                             PurchLine.Validate("No.", PurchLine."No.")
                         else
@@ -2067,7 +2107,13 @@
         exit(Item."No.");
     end;
 
+    [Obsolete('Use another implementation of GetItemFromItemRef.', '23.0')]
     procedure GetItemFromItemRef(RefNo: Code[50]; RefType: Enum "Item Reference Type"; RefTypeNo: Code[20]): Code[20]
+    begin
+        exit(GetItemFromItemRef(RefNo, RefType, RefTypeNo, 0D));
+    end;
+
+    procedure GetItemFromItemRef(RefNo: Code[50]; RefType: Enum "Item Reference Type"; RefTypeNo: Code[20]; ToDate: Date): Code[20]
     var
         Item: Record Item;
         ItemReference: Record "Item Reference";
@@ -2080,6 +2126,10 @@
         ItemReference.SetRange("Reference Type", RefType);
         ItemReference.SetRange("Reference Type No.", RefTypeNo);
         ItemReference.SetRange("Reference No.", RefNo);
+        if ToDate <> 0D then begin
+            ItemReference.SetFilter("Starting Date", '<=%1', ToDate);
+            ItemReference.SetFilter("Ending Date", '>=%1|%2', ToDate, 0D);
+        end;
         if ItemReference.FindFirst() then
             exit(ItemReference."Item No.");
 
@@ -2129,12 +2179,13 @@
 
     procedure OutboxTransToInbox(var ICOutboxTrans: Record "IC Outbox Transaction"; var ICInboxTrans: Record "IC Inbox Transaction"; FromICPartnerCode: Code[20])
     var
-        PartnerICInboxTransaction: Record "IC Inbox Transaction";
-        PartnerHandledICInboxTrans: Record "Handled IC Inbox Trans.";
+        TempPartnerICInboxTransaction: Record "IC Inbox Transaction" temporary;
+        TempPartnerHandledICInboxTrans: Record "Handled IC Inbox Trans." temporary;
         ICPartner: Record "IC Partner";
         ICSetup: Record "IC Setup";
         FeatureTelemetry: Codeunit "Feature Telemetry";
         ICMapping: Codeunit "IC Mapping";
+        ICDataExchange: Interface "IC Data Exchange";
     begin
         FeatureTelemetry.LogUptake('0000IJL', ICMapping.GetFeatureTelemetryName(), Enum::"Feature Uptake Status"::Used);
         FeatureTelemetry.LogUsage('0000IKC', ICMapping.GetFeatureTelemetryName(), 'Outbox Transaction to Inbox');
@@ -2170,25 +2221,26 @@
         else
             ICPartner.Get(ICInboxTrans."IC Partner Code");
 
+        ICDataExchange := ICPartner."Data Exchange Type";
         if ICPartner."Inbox Type" = ICPartner."Inbox Type"::Database then
-            PartnerICInboxTransaction.ChangeCompany(ICPartner."Inbox Details");
-        if PartnerICInboxTransaction.Get(
+            ICDataExchange.GetICPartnerICInboxTransaction(ICPartner, TempPartnerICInboxTransaction);
+        if TempPartnerICInboxTransaction.Get(
              ICInboxTrans."Transaction No.", ICInboxTrans."IC Partner Code",
              ICInboxTrans."Transaction Source", ICInboxTrans."Document Type")
         then
             Error(
               Text004, ICInboxTrans."Transaction No.", ICInboxTrans.FieldCaption("IC Partner Code"),
-              ICInboxTrans."IC Partner Code", PartnerICInboxTransaction.TableCaption());
+              ICInboxTrans."IC Partner Code", TempPartnerICInboxTransaction.TableCaption());
 
         if ICPartner."Inbox Type" = ICPartner."Inbox Type"::Database then
-            PartnerHandledICInboxTrans.ChangeCompany(ICPartner."Inbox Details");
-        if PartnerHandledICInboxTrans.Get(
+            ICDataExchange.GetICPartnerHandledICInboxTransaction(ICPartner, TempPartnerHandledICInboxTrans);
+        if TempPartnerHandledICInboxTrans.Get(
              ICInboxTrans."Transaction No.", ICInboxTrans."IC Partner Code",
              ICInboxTrans."Transaction Source", ICInboxTrans."Document Type")
         then
             Error(
               Text004, ICInboxTrans."Transaction No.", ICInboxTrans.FieldCaption("IC Partner Code"),
-              ICInboxTrans."IC Partner Code", PartnerHandledICInboxTrans.TableCaption());
+              ICInboxTrans."IC Partner Code", TempPartnerHandledICInboxTrans.TableCaption());
 
         OnBeforeICInboxTransInsert(ICInboxTrans, ICOutboxTrans);
         ICInboxTrans.Insert();
@@ -2199,9 +2251,10 @@
     var
         ICSetup: Record "IC Setup";
         LocalICPartner: Record "IC Partner";
-        PartnerICPartner: Record "IC Partner";
+        TempPartnerICPartner: Record "IC Partner" temporary;
         FeatureTelemetry: Codeunit "Feature Telemetry";
         ICMapping: Codeunit "IC Mapping";
+        ICDataExchange: Interface "IC Data Exchange";
     begin
         FeatureTelemetry.LogUptake('0000IJM', ICMapping.GetFeatureTelemetryName(), Enum::"Feature Uptake Status"::Used);
         FeatureTelemetry.LogUsage('0000IKD', ICMapping.GetFeatureTelemetryName(), 'Outbox Journal Line to Inbox');
@@ -2215,13 +2268,13 @@
 
         if ICOutboxJnlLine."IC Partner Code" = ICSetup."IC Partner Code" then begin
             LocalICPartner.Get(ICInboxTrans."IC Partner Code");
-            PartnerICPartner.Get(ICInboxTrans."IC Partner Code");
+            TempPartnerICPartner := LocalICPartner;
         end
         else begin
             LocalICPartner.Get(ICOutboxJnlLine."IC Partner Code");
             LocalICPartner.TestField("Inbox Type", LocalICPartner."Inbox Type"::Database);
-            PartnerICPartner.ChangeCompany(LocalICPartner."Inbox Details");
-            PartnerICPartner.Get(ICInboxJnlLine."IC Partner Code");
+            ICDataExchange := LocalICPartner."Data Exchange Type";
+            ICDataExchange.GetICPartnerFromICPartner(LocalICPartner, ICInboxJnlLine."IC Partner Code", TempPartnerICPartner);
         end;
 
         case ICOutboxJnlLine."Account Type" of
@@ -2233,14 +2286,14 @@
             ICOutboxJnlLine."Account Type"::Vendor:
                 begin
                     ICInboxJnlLine."Account Type" := ICInboxJnlLine."Account Type"::Customer;
-                    PartnerICPartner.TestField("Customer No.");
-                    ICInboxJnlLine."Account No." := PartnerICPartner."Customer No.";
+                    TempPartnerICPartner.TestField("Customer No.");
+                    ICInboxJnlLine."Account No." := TempPartnerICPartner."Customer No.";
                 end;
             ICOutboxJnlLine."Account Type"::Customer:
                 begin
                     ICInboxJnlLine."Account Type" := ICInboxJnlLine."Account Type"::Vendor;
-                    PartnerICPartner.TestField("Vendor No.");
-                    ICInboxJnlLine."Account No." := PartnerICPartner."Vendor No.";
+                    TempPartnerICPartner.TestField("Vendor No.");
+                    ICInboxJnlLine."Account No." := TempPartnerICPartner."Vendor No.";
                 end;
             ICOutboxJnlLine."Account Type"::"IC Partner":
                 begin
@@ -2272,32 +2325,36 @@
     procedure OutboxSalesHdrToInbox(var ICInboxTrans: Record "IC Inbox Transaction"; var ICOutboxSalesHeader: Record "IC Outbox Sales Header"; var ICInboxPurchHeader: Record "IC Inbox Purchase Header")
     var
         ICSetup: Record "IC Setup";
-        ICPartner: Record "IC Partner";
+        LocalICPartner: Record "IC Partner";
+        TempPartnerICPartner: Record "IC Partner" temporary;
         Vendor: Record Vendor;
         FeatureTelemetry: Codeunit "Feature Telemetry";
         ICMapping: Codeunit "IC Mapping";
+        ICDataExchange: Interface "IC Data Exchange";
         IsHandled: Boolean;
     begin
         FeatureTelemetry.LogUptake('0000IJN', ICMapping.GetFeatureTelemetryName(), Enum::"Feature Uptake Status"::Used);
         FeatureTelemetry.LogUsage('0000IKE', ICMapping.GetFeatureTelemetryName(), 'Outbox Sales Header to Inbox');
 
         IsHandled := false;
-        OnBeforeOutboxSalesHdrToInbox(ICInboxTrans, ICOutboxSalesHeader, ICInboxPurchHeader, ICPartner, IsHandled);
+        OnBeforeOutboxSalesHdrToInbox(ICInboxTrans, ICOutboxSalesHeader, ICInboxPurchHeader, LocalICPartner, IsHandled);
         if IsHandled then
             exit;
 
         ICSetup.Get();
-        if ICOutboxSalesHeader."IC Partner Code" = ICSetup."IC Partner Code" then
-            ICPartner.Get(ICInboxTrans."IC Partner Code")
+        if ICOutboxSalesHeader."IC Partner Code" = ICSetup."IC Partner Code" then begin
+            LocalICPartner.Get(ICInboxTrans."IC Partner Code");
+            TempPartnerICPartner := LocalICPartner;
+        end
         else begin
-            ICPartner.Get(ICOutboxSalesHeader."IC Partner Code");
-            ICPartner.TestField("Inbox Type", ICPartner."Inbox Type"::Database);
-            ICPartner.TestField("Inbox Details");
-            ICPartner.ChangeCompany(ICPartner."Inbox Details");
-            ICPartner.Get(ICInboxTrans."IC Partner Code");
+            LocalICPartner.Get(ICOutboxSalesHeader."IC Partner Code");
+            LocalICPartner.TestField("Inbox Type", LocalICPartner."Inbox Type"::Database);
+            LocalICPartner.TestField("Inbox Details");
+            ICDataExchange := LocalICPartner."Data Exchange Type";
+            ICDataExchange.GetICPartnerFromICPartner(LocalICPartner, ICInboxTrans."IC Partner Code", TempPartnerICPartner);
         end;
-        if ICPartner."Vendor No." = '' then
-            Error(Text001, ICPartner.TableCaption(), ICPartner.Code, Vendor.TableCaption(), ICOutboxSalesHeader."IC Partner Code");
+        if TempPartnerICPartner."Vendor No." = '' then
+            Error(Text001, TempPartnerICPartner.TableCaption(), TempPartnerICPartner.Code, Vendor.TableCaption(), ICOutboxSalesHeader."IC Partner Code");
 
         with ICInboxPurchHeader do begin
             "IC Transaction No." := ICInboxTrans."Transaction No.";
@@ -2318,8 +2375,8 @@
             "Pmt. Discount Date" := ICOutboxSalesHeader."Pmt. Discount Date";
             "Currency Code" := ICOutboxSalesHeader."Currency Code";
             "Document Date" := ICOutboxSalesHeader."Document Date";
-            "Buy-from Vendor No." := ICPartner."Vendor No.";
-            "Pay-to Vendor No." := ICPartner."Vendor No.";
+            "Buy-from Vendor No." := TempPartnerICPartner."Vendor No.";
+            "Pay-to Vendor No." := TempPartnerICPartner."Vendor No.";
             "Vendor Invoice No." := ICOutboxSalesHeader."No.";
             "Vendor Order No." := ICOutboxSalesHeader."Order No.";
             "Vendor Cr. Memo No." := ICOutboxSalesHeader."No.";
@@ -2388,35 +2445,33 @@
     procedure OutboxPurchHdrToInbox(var ICInboxTrans: Record "IC Inbox Transaction"; var ICOutboxPurchHeader: Record "IC Outbox Purchase Header"; var ICInboxSalesHeader: Record "IC Inbox Sales Header")
     var
         ICSetup: Record "IC Setup";
-        ICPartner: Record "IC Partner";
+        LocalICPartner: Record "IC Partner";
+        TempPartnerICPartner: Record "IC Partner" temporary;
         Customer: Record Customer;
         FeatureTelemetry: Codeunit "Feature Telemetry";
         ICMapping: Codeunit "IC Mapping";
+        ICDataExchange: Interface "IC Data Exchange";
         IsHandled: Boolean;
     begin
         FeatureTelemetry.LogUptake('0000IJP', ICMapping.GetFeatureTelemetryName(), Enum::"Feature Uptake Status"::Used);
         FeatureTelemetry.LogUsage('0000IKG', ICMapping.GetFeatureTelemetryName(), 'Outbox Purchase Header to Inbox');
-#if not CLEAN20
-        GetCompanyInfo();
-#endif
         ICSetup.Get();
         IsHandled := false;
-#if not CLEAN20
-        OnBeforeOutboxPurchHdrToInbox(ICInboxTrans, ICOutboxPurchHeader, ICInboxSalesHeader, CompanyInfo, IsHandled, ICPartner);
-#endif
-        OnBeforeOutboxPurchHdrToInboxProcedure(ICInboxTrans, ICOutboxPurchHeader, ICInboxSalesHeader, ICSetup, IsHandled, ICPartner);
+        OnBeforeOutboxPurchHdrToInboxProcedure(ICInboxTrans, ICOutboxPurchHeader, ICInboxSalesHeader, ICSetup, IsHandled, LocalICPartner);
         if not IsHandled then
-            if ICOutboxPurchHeader."IC Partner Code" = ICSetup."IC Partner Code" then
-                ICPartner.Get(ICInboxTrans."IC Partner Code")
+            if ICOutboxPurchHeader."IC Partner Code" = ICSetup."IC Partner Code" then begin
+                LocalICPartner.Get(ICInboxTrans."IC Partner Code");
+                TempPartnerICPartner := LocalICPartner;
+            end
             else begin
-                ICPartner.Get(ICOutboxPurchHeader."IC Partner Code");
-                ICPartner.TestField("Inbox Type", ICPartner."Inbox Type"::Database);
-                ICPartner.TestField("Inbox Details");
-                ICPartner.ChangeCompany(ICPartner."Inbox Details");
-                ICPartner.Get(ICInboxTrans."IC Partner Code");
+                LocalICPartner.Get(ICOutboxPurchHeader."IC Partner Code");
+                LocalICPartner.TestField("Inbox Type", LocalICPartner."Inbox Type"::Database);
+                LocalICPartner.TestField("Inbox Details");
+                ICDataExchange := LocalICPartner."Data Exchange Type";
+                ICDataExchange.GetICPartnerFromICPartner(LocalICPartner, ICInboxTrans."IC Partner Code", TempPartnerICPartner);
             end;
-        if ICPartner."Customer No." = '' then
-            Error(Text001, ICPartner.TableCaption(), ICPartner.Code, Customer.TableCaption(), ICOutboxPurchHeader."IC Partner Code");
+        if TempPartnerICPartner."Customer No." = '' then
+            Error(Text001, TempPartnerICPartner.TableCaption(), TempPartnerICPartner.Code, Customer.TableCaption(), ICOutboxPurchHeader."IC Partner Code");
 
         with ICInboxSalesHeader do begin
             "IC Transaction No." := ICInboxTrans."Transaction No.";
@@ -2437,8 +2492,8 @@
             "Pmt. Discount Date" := ICOutboxPurchHeader."Pmt. Discount Date";
             "Currency Code" := ICOutboxPurchHeader."Currency Code";
             "Document Date" := ICOutboxPurchHeader."Document Date";
-            "Sell-to Customer No." := ICPartner."Customer No.";
-            "Bill-to Customer No." := ICPartner."Customer No.";
+            "Sell-to Customer No." := TempPartnerICPartner."Customer No.";
+            "Bill-to Customer No." := TempPartnerICPartner."Customer No.";
             "Prices Including VAT" := ICOutboxPurchHeader."Prices Including VAT";
             "Requested Delivery Date" := ICOutboxPurchHeader."Requested Receipt Date";
             "Promised Delivery Date" := ICOutboxPurchHeader."Promised Receipt Date";
@@ -2817,6 +2872,7 @@
         ICPartner: Record "IC Partner";
         ItemReference: Record "Item Reference";
         GLAccount: Record "G/L Account";
+        ToDate: Date;
     begin
         with ICInboxSalesLine do
             if ("IC Partner Ref. Type" <> "IC Partner Ref. Type"::"G/L Account") and
@@ -2839,6 +2895,11 @@
                             ItemReference.SetRange("Reference Type", "Item Reference Type"::Customer);
                             ItemReference.SetRange("Reference Type No.", SalesHeader."Sell-to Customer No.");
                             ItemReference.SetRange("Item No.", "IC Item Reference No.");
+                            ToDate := SalesLine.GetDateForCalculations();
+                            if ToDate <> 0D then begin
+                                ItemReference.SetFilter("Starting Date", '<=%1', ToDate);
+                                ItemReference.SetFilter("Ending Date", '>=%1|%2', ToDate, 0D);
+                            end;
                             if ItemReference.FindFirst() then
                                 SalesLine."IC Item Reference No." := ItemReference."Reference No.";
                         end;
@@ -2859,6 +2920,7 @@
         ICPartner: Record "IC Partner";
         ItemReference: Record "Item Reference";
         GLAccount: Record "G/L Account";
+        ToDate: Date;
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -2887,6 +2949,11 @@
                             ItemReference.SetRange("Reference Type", "Item Reference Type"::Vendor);
                             ItemReference.SetRange("Reference Type No.", PurchaseHeader."Buy-from Vendor No.");
                             ItemReference.SetRange("Item No.", "IC Item Reference No.");
+                            ToDate := PurchaseLine.GetDateForCalculations();
+                            if ToDate <> 0D then begin
+                                ItemReference.SetFilter("Starting Date", '<=%1', ToDate);
+                                ItemReference.SetFilter("Ending Date", '>=%1|%2', ToDate, 0D);
+                            end;
                             if ItemReference.FindFirst() then
                                 PurchaseLine."IC Item Reference No." := ItemReference."Reference No.";
                         end;
@@ -2983,16 +3050,18 @@
 
     local procedure AssignCurrencyCodeInOutBoxDoc(var CurrencyCode: Code[10]; ICPartnerCode: Code[20])
     var
-        AnotherCompGLSetup: Record "General Ledger Setup";
+        TempAnotherCompGLSetup: Record "General Ledger Setup" temporary;
         ICPartner: Record "IC Partner";
+        ICDataExchange: Interface "IC Data Exchange";
     begin
         if CurrencyCode = '' then begin
             ICPartner.Get(ICPartnerCode);
             if ICPartner."Inbox Type" = ICPartner."Inbox Type"::Database then begin
                 GetGLSetup();
-                AnotherCompGLSetup.ChangeCompany(ICPartner."Inbox Details");
-                AnotherCompGLSetup.Get();
-                if GLSetup."LCY Code" <> AnotherCompGLSetup."LCY Code" then
+                ICDataExchange := ICPartner."Data Exchange Type";
+                ICDataExchange.GetICPartnerGeneralLedgerSetup(ICPartner, TempAnotherCompGLSetup);
+                TempAnotherCompGLSetup.Get();
+                if GLSetup."LCY Code" <> TempAnotherCompGLSetup."LCY Code" then
                     CurrencyCode := GLSetup."LCY Code";
             end;
             if ICPartner."Inbox Type" = ICPartner."Inbox Type"::"File Location" then begin
@@ -3004,8 +3073,9 @@
 
     local procedure AssignCountryCode(ICPartnerCode: Code[20]; var OriginalCountryCode: Code[10])
     var
-        CompanyInformation: Record "Company Information";
+        TempCompanyInformation: Record "Company Information" temporary;
         ICPartner: Record "IC Partner";
+        ICDataExchange: Interface "IC Data Exchange";
     begin
         if OriginalCountryCode <> '' then
             exit;
@@ -3016,13 +3086,14 @@
         end;
         if ICPartner."Inbox Type" <> ICPartner."Inbox Type"::Database then
             exit;
-        if not CompanyInformation.ChangeCompany(ICPartner."Inbox Details") then
+
+        ICDataExchange := ICPartner."Data Exchange Type";
+        ICDataExchange.GetICPartnerCompanyInformation(ICPartner, TempCompanyInformation);
+
+        if not TempCompanyInformation.Get() then
             exit;
-        if not CompanyInformation.ReadPermission() then
-            exit;
-        if not CompanyInformation.Get() then
-            exit;
-        OriginalCountryCode := CompanyInformation."Country/Region Code";
+
+        OriginalCountryCode := TempCompanyInformation."Country/Region Code";
     end;
 
     local procedure CheckICSalesDocumentAlreadySent(SalesHeader: Record "Sales Header")
@@ -3556,14 +3627,6 @@
     local procedure OnBeforeHandledInboxTransactionInsert(var HandledICInboxTrans: Record "Handled IC Inbox Trans."; ICInboxTransaction: Record "IC Inbox Transaction")
     begin
     end;
-
-#if not CLEAN20
-    [Obsolete('Replaced by OnBeforeOutboxPurchHdrToInbox() event.', '20.0')]
-    [IntegrationEvent(false, false)]
-    local procedure OnBeforeOutboxPurchHdrToInbox(var ICInboxTrans: Record "IC Inbox Transaction"; var ICOutboxPurchHeader: Record "IC Outbox Purchase Header"; var ICInboxSalesHeader: Record "IC Inbox Sales Header"; CompanyInfo: Record "Company Information"; var IsHandled: Boolean; var ICPartner: Record "IC Partner")
-    begin
-    end;
-#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeOutboxPurchHdrToInboxProcedure(var ICInboxTrans: Record "IC Inbox Transaction"; var ICOutboxPurchHeader: Record "IC Outbox Purchase Header"; var ICInboxSalesHeader: Record "IC Inbox Sales Header"; ICSetup: Record "IC Setup"; var IsHandled: Boolean; var ICPartner: Record "IC Partner")

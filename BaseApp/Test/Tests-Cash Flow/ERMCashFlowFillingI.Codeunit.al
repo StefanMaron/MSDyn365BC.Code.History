@@ -2186,7 +2186,7 @@ codeunit 134551 "ERM Cash Flow Filling I"
                 CFHelper.UpdatePmtDiscountDateOnCustomerLedgerEntry(CustLedgerEntry);
                 ExpectedDate := CustLedgerEntry."Pmt. Discount Date";
             end else
-                Error(StrSubstNo(UnsupportedDateField, DateField));
+                Error(UnsupportedDateField, DateField);
         end;
     end;
 
@@ -2203,7 +2203,7 @@ codeunit 134551 "ERM Cash Flow Filling I"
                 CFHelper.UpdatePmtDiscountDateOnVendorLedgerEntry(VendorLedgerEntry);
                 ExpectedDate := VendorLedgerEntry."Pmt. Discount Date";
             end else
-                Error(StrSubstNo(UnsupportedDateField, DateField));
+                Error(UnsupportedDateField, DateField);
         end;
     end;
 

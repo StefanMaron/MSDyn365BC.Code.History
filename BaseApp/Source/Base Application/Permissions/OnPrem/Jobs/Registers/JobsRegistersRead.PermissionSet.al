@@ -1,3 +1,7 @@
+namespace System.Security.AccessControl;
+
+using Microsoft.Projects.Project.Ledger;
+
 permissionset 3871 "Jobs Registers - Read"
 {
     Access = Public;

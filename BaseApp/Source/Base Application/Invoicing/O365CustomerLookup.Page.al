@@ -7,8 +7,8 @@ page 2116 "O365 Customer Lookup"
     PageType = List;
     RefreshOnActivate = true;
     SourceTable = Customer;
-    SourceTableView = SORTING(Name)
-                      WHERE(Blocked = CONST(" "));
+    SourceTableView = sorting(Name)
+                      where(Blocked = const(" "));
     ObsoleteReason = 'Microsoft Invoicing has been discontinued.';
     ObsoleteState = Pending;
     ObsoleteTag = '21.0';
@@ -36,7 +36,7 @@ page 2116 "O365 Customer Lookup"
                     ApplicationArea = Invoicing, Basic, Suite;
                     ToolTip = 'Specifies the customer''s telephone number.';
                 }
-                field(Contact; Contact)
+                field(Contact; Rec.Contact)
                 {
                     ApplicationArea = Invoicing, Basic, Suite;
                     ToolTip = 'Specifies the name of the person you regularly contact when you do business with this customer.';
@@ -53,7 +53,7 @@ page 2116 "O365 Customer Lookup"
 
                     trigger OnDrillDown()
                     begin
-                        OpenCustomerLedgerEntries(true);
+                        Rec.OpenCustomerLedgerEntries(true);
                     end;
                 }
                 field("Sales (LCY)"; Rec."Sales (LCY)")
@@ -70,7 +70,7 @@ page 2116 "O365 Customer Lookup"
             part(Control3; "O365 Sales Hist.Sell-toFactBox")
             {
                 ApplicationArea = Basic, Suite;
-                SubPageLink = "No." = FIELD("No.");
+                SubPageLink = "No." = field("No.");
             }
         }
     }
@@ -84,12 +84,12 @@ page 2116 "O365 Customer Lookup"
 
     trigger OnAfterGetRecord()
     begin
-        "Balance Due (LCY)" := CalcOverdueBalance();
+        Rec."Balance Due (LCY)" := Rec.CalcOverdueBalance();
     end;
 
     trigger OnOpenPage()
     begin
-        SetRange("Date Filter", 0D, WorkDate());
+        Rec.SetRange("Date Filter", 0D, WorkDate());
         OverdueBalanceAutoFormatExpr := StrSubstNo(AutoFormatExprWithPrefixTxt, OverdueTxt);
     end;
 

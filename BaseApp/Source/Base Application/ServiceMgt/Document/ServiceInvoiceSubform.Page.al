@@ -1,3 +1,14 @@
+namespace Microsoft.Service.Document;
+
+using Microsoft.Finance.Dimension;
+using Microsoft.Foundation.ExtendedText;
+using Microsoft.Inventory.Availability;
+using Microsoft.Inventory.Item;
+using Microsoft.Inventory.Location;
+using Microsoft.Pricing.Calculation;
+using Microsoft.Sales.Pricing;
+using Microsoft.Utilities;
+
 page 5934 "Service Invoice Subform"
 {
     AutoSplitKey = true;
@@ -7,7 +18,7 @@ page 5934 "Service Invoice Subform"
     MultipleNewLines = true;
     PageType = ListPart;
     SourceTable = "Service Line";
-    SourceTableView = WHERE("Document Type" = FILTER(Invoice));
+    SourceTableView = where("Document Type" = filter(Invoice));
 
     layout
     {
@@ -15,7 +26,7 @@ page 5934 "Service Invoice Subform"
         {
             repeater(Control1)
             {
-                Editable = "Automatically Generated" = FALSE;
+                Editable = Rec."Automatically Generated" = FALSE;
                 ShowCaption = false;
                 field(Type; Rec.Type)
                 {
@@ -25,7 +36,7 @@ page 5934 "Service Invoice Subform"
                     trigger OnValidate()
                     begin
                         NoOnAfterValidate();
-                        UpdateSplitVATLinesPage(CopyStr(FieldCaption(Type), 1, 100));
+                        UpdateSplitVATLinesPage(CopyStr(Rec.FieldCaption(Type), 1, 100));
                     end;
                 }
                 field("No."; Rec."No.")
@@ -37,11 +48,11 @@ page 5934 "Service Invoice Subform"
                     var
                         Item: Record "Item";
                     begin
-                        ShowShortcutDimCode(ShortcutDimCode);
+                        Rec.ShowShortcutDimCode(ShortcutDimCode);
                         NoOnAfterValidate();
-                        UpdateSplitVATLinesPage(CopyStr(FieldCaption("No."), 1, 100));
-                        if "Variant Code" = '' then
-                            VariantCodeMandatory := Item.IsVariantMandatory(Type = Type::Item, "No.");
+                        UpdateSplitVATLinesPage(CopyStr(Rec.FieldCaption("No."), 1, 100));
+                        if Rec."Variant Code" = '' then
+                            VariantCodeMandatory := Item.IsVariantMandatory(Rec.Type = Rec.Type::Item, Rec."No.");
                     end;
                 }
                 field("Service Tariff No."; Rec."Service Tariff No.")
@@ -60,8 +71,8 @@ page 5934 "Service Invoice Subform"
                     var
                         Item: Record "Item";
                     begin
-                        if "Variant Code" = '' then
-                            VariantCodeMandatory := Item.IsVariantMandatory(Type = Type::Item, "No.");
+                        if Rec."Variant Code" = '' then
+                            VariantCodeMandatory := Item.IsVariantMandatory(Rec.Type = Rec.Type::Item, Rec."No.");
                     end;
                 }
                 field("Include in VAT Transac. Rep."; Rec."Include in VAT Transac. Rep.")
@@ -69,7 +80,7 @@ page 5934 "Service Invoice Subform"
                     ApplicationArea = Service;
                     ToolTip = 'Specifies if the entry must be included in the VAT transaction report.';
                 }
-                field(Nonstock; Nonstock)
+                field(Nonstock; Rec.Nonstock)
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies that the item is a catalog item.';
@@ -101,7 +112,7 @@ page 5934 "Service Invoice Subform"
 
                     trigger OnValidate()
                     begin
-                        UpdateSplitVATLinesPage(CopyStr(FieldCaption("VAT Prod. Posting Group"), 1, 100));
+                        UpdateSplitVATLinesPage(CopyStr(Rec.FieldCaption("VAT Prod. Posting Group"), 1, 100));
                     end;
                 }
                 field(Description; Rec.Description)
@@ -142,7 +153,7 @@ page 5934 "Service Invoice Subform"
                     trigger OnValidate()
                     begin
                         QuantityOnAfterValidate();
-                        UpdateSplitVATLinesPage(CopyStr(FieldCaption(Quantity), 1, 100));
+                        UpdateSplitVATLinesPage(CopyStr(Rec.FieldCaption(Quantity), 1, 100));
                     end;
                 }
                 field("Unit of Measure Code"; Rec."Unit of Measure Code")
@@ -153,7 +164,7 @@ page 5934 "Service Invoice Subform"
                     trigger OnValidate()
                     begin
                         UnitofMeasureCodeOnAfterValidate();
-                        UpdateSplitVATLinesPage(CopyStr(FieldCaption("Unit of Measure Code"), 1, 100));
+                        UpdateSplitVATLinesPage(CopyStr(Rec.FieldCaption("Unit of Measure Code"), 1, 100));
                     end;
                 }
                 field("Unit of Measure"; Rec."Unit of Measure")
@@ -176,7 +187,7 @@ page 5934 "Service Invoice Subform"
 
                     trigger OnValidate()
                     begin
-                        UpdateSplitVATLinesPage(CopyStr(FieldCaption("Unit Price"), 1, 100));
+                        UpdateSplitVATLinesPage(CopyStr(Rec.FieldCaption("Unit Price"), 1, 100));
                     end;
                 }
                 field("Tax Liable"; Rec."Tax Liable")
@@ -195,7 +206,7 @@ page 5934 "Service Invoice Subform"
                 field("Tax Group Code"; Rec."Tax Group Code")
                 {
                     ApplicationArea = SalesTax;
-                    ShowMandatory = "Tax Area Code" <> '';
+                    ShowMandatory = Rec."Tax Area Code" <> '';
                     ToolTip = 'Specifies the tax group that is used to calculate and post sales tax.';
                 }
                 field("Line Discount %"; Rec."Line Discount %")
@@ -206,7 +217,7 @@ page 5934 "Service Invoice Subform"
 
                     trigger OnValidate()
                     begin
-                        UpdateSplitVATLinesPage(CopyStr(FieldCaption("Line Discount %"), 1, 100));
+                        UpdateSplitVATLinesPage(CopyStr(Rec.FieldCaption("Line Discount %"), 1, 100));
                     end;
                 }
                 field("Line Amount"; Rec."Line Amount")
@@ -217,7 +228,7 @@ page 5934 "Service Invoice Subform"
 
                     trigger OnValidate()
                     begin
-                        UpdateSplitVATLinesPage(CopyStr(FieldCaption("Line Amount"), 1, 100));
+                        UpdateSplitVATLinesPage(CopyStr(Rec.FieldCaption("Line Amount"), 1, 100));
                     end;
                 }
                 field("Line Discount Amount"; Rec."Line Discount Amount")
@@ -228,7 +239,7 @@ page 5934 "Service Invoice Subform"
 
                     trigger OnValidate()
                     begin
-                        UpdateSplitVATLinesPage(CopyStr(FieldCaption("Line Discount Amount"), 1, 100));
+                        UpdateSplitVATLinesPage(CopyStr(Rec.FieldCaption("Line Discount Amount"), 1, 100));
                     end;
                 }
                 field("Allow Invoice Disc."; Rec."Allow Invoice Disc.")
@@ -300,84 +311,84 @@ page 5934 "Service Invoice Subform"
                 {
                     ApplicationArea = Dimensions;
                     CaptionClass = '1,2,3';
-                    TableRelation = "Dimension Value".Code WHERE("Global Dimension No." = CONST(3),
-                                                                  "Dimension Value Type" = CONST(Standard),
-                                                                  Blocked = CONST(false));
+                    TableRelation = "Dimension Value".Code where("Global Dimension No." = const(3),
+                                                                  "Dimension Value Type" = const(Standard),
+                                                                  Blocked = const(false));
                     Visible = DimVisible3;
 
                     trigger OnValidate()
                     begin
-                        ValidateShortcutDimCode(3, ShortcutDimCode[3]);
+                        Rec.ValidateShortcutDimCode(3, ShortcutDimCode[3]);
                     end;
                 }
                 field("ShortcutDimCode[4]"; ShortcutDimCode[4])
                 {
                     ApplicationArea = Dimensions;
                     CaptionClass = '1,2,4';
-                    TableRelation = "Dimension Value".Code WHERE("Global Dimension No." = CONST(4),
-                                                                  "Dimension Value Type" = CONST(Standard),
-                                                                  Blocked = CONST(false));
+                    TableRelation = "Dimension Value".Code where("Global Dimension No." = const(4),
+                                                                  "Dimension Value Type" = const(Standard),
+                                                                  Blocked = const(false));
                     Visible = DimVisible4;
 
                     trigger OnValidate()
                     begin
-                        ValidateShortcutDimCode(4, ShortcutDimCode[4]);
+                        Rec.ValidateShortcutDimCode(4, ShortcutDimCode[4]);
                     end;
                 }
                 field("ShortcutDimCode[5]"; ShortcutDimCode[5])
                 {
                     ApplicationArea = Dimensions;
                     CaptionClass = '1,2,5';
-                    TableRelation = "Dimension Value".Code WHERE("Global Dimension No." = CONST(5),
-                                                                  "Dimension Value Type" = CONST(Standard),
-                                                                  Blocked = CONST(false));
+                    TableRelation = "Dimension Value".Code where("Global Dimension No." = const(5),
+                                                                  "Dimension Value Type" = const(Standard),
+                                                                  Blocked = const(false));
                     Visible = DimVisible5;
 
                     trigger OnValidate()
                     begin
-                        ValidateShortcutDimCode(5, ShortcutDimCode[5]);
+                        Rec.ValidateShortcutDimCode(5, ShortcutDimCode[5]);
                     end;
                 }
                 field("ShortcutDimCode[6]"; ShortcutDimCode[6])
                 {
                     ApplicationArea = Dimensions;
                     CaptionClass = '1,2,6';
-                    TableRelation = "Dimension Value".Code WHERE("Global Dimension No." = CONST(6),
-                                                                  "Dimension Value Type" = CONST(Standard),
-                                                                  Blocked = CONST(false));
+                    TableRelation = "Dimension Value".Code where("Global Dimension No." = const(6),
+                                                                  "Dimension Value Type" = const(Standard),
+                                                                  Blocked = const(false));
                     Visible = DimVisible6;
 
                     trigger OnValidate()
                     begin
-                        ValidateShortcutDimCode(6, ShortcutDimCode[6]);
+                        Rec.ValidateShortcutDimCode(6, ShortcutDimCode[6]);
                     end;
                 }
                 field("ShortcutDimCode[7]"; ShortcutDimCode[7])
                 {
                     ApplicationArea = Dimensions;
                     CaptionClass = '1,2,7';
-                    TableRelation = "Dimension Value".Code WHERE("Global Dimension No." = CONST(7),
-                                                                  "Dimension Value Type" = CONST(Standard),
-                                                                  Blocked = CONST(false));
+                    TableRelation = "Dimension Value".Code where("Global Dimension No." = const(7),
+                                                                  "Dimension Value Type" = const(Standard),
+                                                                  Blocked = const(false));
                     Visible = DimVisible7;
 
                     trigger OnValidate()
                     begin
-                        ValidateShortcutDimCode(7, ShortcutDimCode[7]);
+                        Rec.ValidateShortcutDimCode(7, ShortcutDimCode[7]);
                     end;
                 }
                 field("ShortcutDimCode[8]"; ShortcutDimCode[8])
                 {
                     ApplicationArea = Dimensions;
                     CaptionClass = '1,2,8';
-                    TableRelation = "Dimension Value".Code WHERE("Global Dimension No." = CONST(8),
-                                                                  "Dimension Value Type" = CONST(Standard),
-                                                                  Blocked = CONST(false));
+                    TableRelation = "Dimension Value".Code where("Global Dimension No." = const(8),
+                                                                  "Dimension Value Type" = const(Standard),
+                                                                  Blocked = const(false));
                     Visible = DimVisible8;
 
                     trigger OnValidate()
                     begin
-                        ValidateShortcutDimCode(8, ShortcutDimCode[8]);
+                        Rec.ValidateShortcutDimCode(8, ShortcutDimCode[8]);
                     end;
                 }
                 field("Automatically Generated"; Rec."Automatically Generated")
@@ -409,7 +420,7 @@ page 5934 "Service Invoice Subform"
 
                     trigger OnAction()
                     begin
-                        PickPrice();
+                        Rec.PickPrice();
                     end;
                 }
 #if not CLEAN21
@@ -428,7 +439,7 @@ page 5934 "Service Invoice Subform"
 
                     trigger OnAction()
                     begin
-                        PickDiscount();
+                        Rec.PickDiscount();
                     end;
                 }
 #endif
@@ -444,7 +455,7 @@ page 5934 "Service Invoice Subform"
 
                     trigger OnAction()
                     begin
-                        PickDiscount();
+                        Rec.PickDiscount();
                     end;
                 }
                 action("Insert &Ext. Texts")
@@ -566,7 +577,7 @@ page 5934 "Service Invoice Subform"
 
                     trigger OnAction()
                     begin
-                        ShowDimensions();
+                        Rec.ShowDimensions();
                     end;
                 }
                 action("Item &Tracking Lines")
@@ -579,7 +590,7 @@ page 5934 "Service Invoice Subform"
 
                     trigger OnAction()
                     begin
-                        OpenItemTrackingLines();
+                        Rec.OpenItemTrackingLines();
                     end;
                 }
             }
@@ -601,7 +612,7 @@ page 5934 "Service Invoice Subform"
 
                     trigger OnAction()
                     begin
-                        SwitchLinesWithErrorsFilter(ShowAllLinesEnabled);
+                        Rec.SwitchLinesWithErrorsFilter(ShowAllLinesEnabled);
                     end;
                 }
                 action(ShowAllLines)
@@ -615,7 +626,7 @@ page 5934 "Service Invoice Subform"
 
                     trigger OnAction()
                     begin
-                        SwitchLinesWithErrorsFilter(ShowAllLinesEnabled);
+                        Rec.SwitchLinesWithErrorsFilter(ShowAllLinesEnabled);
                     end;
                 }
             }
@@ -626,16 +637,16 @@ page 5934 "Service Invoice Subform"
     var
         Item: Record Item;
     begin
-        ShowShortcutDimCode(ShortcutDimCode);
-        if "Variant Code" = '' then
-            VariantCodeMandatory := Item.IsVariantMandatory(Type = Type::Item, "No.");
+        Rec.ShowShortcutDimCode(ShortcutDimCode);
+        if Rec."Variant Code" = '' then
+            VariantCodeMandatory := Item.IsVariantMandatory(Rec.Type = Rec.Type::Item, Rec."No.");
     end;
 
     trigger OnDeleteRecord(): Boolean
     var
         ServiceLineReserve: Codeunit "Service Line-Reserve";
     begin
-        if (Quantity <> 0) and ItemExists("No.") then begin
+        if (Rec.Quantity <> 0) and Rec.ItemExists(Rec."No.") then begin
             Commit();
             if not ServiceLineReserve.DeleteLineConfirm(Rec) then
                 exit(false);
@@ -645,12 +656,12 @@ page 5934 "Service Invoice Subform"
 
     trigger OnInsertRecord(BelowxRec: Boolean): Boolean
     begin
-        UpdateSplitVATLines(TableCaption);
+        Rec.UpdateSplitVATLines(Rec.TableCaption);
     end;
 
     trigger OnNewRecord(BelowxRec: Boolean)
     begin
-        Type := xRec.Type;
+        Rec.Type := xRec.Type;
         Clear(ShortcutDimCode);
     end;
 
@@ -692,7 +703,7 @@ page 5934 "Service Invoice Subform"
 
     procedure GetShipment()
     begin
-        ServHeader.Get("Document Type", "Document No.");
+        ServHeader.Get(Rec."Document Type", Rec."Document No.");
         if ServHeader."Contract No." <> '' then
             Error(Text000);
         CODEUNIT.Run(CODEUNIT::"Service-Get Shipment", Rec);
@@ -721,17 +732,17 @@ page 5934 "Service Invoice Subform"
 
     protected procedure QuantityOnAfterValidate()
     begin
-        if Reserve = Reserve::Always then begin
+        if Rec.Reserve = Rec.Reserve::Always then begin
             CurrPage.SaveRecord();
-            AutoReserve();
+            Rec.AutoReserve();
         end;
     end;
 
     protected procedure UnitofMeasureCodeOnAfterValidate()
     begin
-        if Reserve = Reserve::Always then begin
+        if Rec.Reserve = Rec.Reserve::Always then begin
             CurrPage.SaveRecord();
-            AutoReserve();
+            Rec.AutoReserve();
         end;
     end;
 
@@ -757,7 +768,7 @@ page 5934 "Service Invoice Subform"
     local procedure UpdateSplitVATLinesPage(ChangedFieldName: Text[100])
     begin
         CurrPage.SaveRecord();
-        UpdateSplitVATLines(ChangedFieldName);
+        Rec.UpdateSplitVATLines(ChangedFieldName);
     end;
 
     [IntegrationEvent(false, false)]

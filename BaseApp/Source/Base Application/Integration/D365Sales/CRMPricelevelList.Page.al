@@ -1,3 +1,12 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Integration.D365Sales;
+
+using Microsoft.Integration.Dataverse;
+using Microsoft.Sales.Pricing;
+
 page 5346 "CRM Pricelevel List"
 {
     Caption = 'Price List - Microsoft Dynamics 365 Sales';
@@ -18,25 +27,25 @@ page 5346 "CRM Pricelevel List"
                     StyleExpr = FirstColumnStyle;
                     ToolTip = 'Specifies the name of the record.';
                 }
-                field(StateCode; StateCode)
+                field(StateCode; Rec.StateCode)
                 {
                     ApplicationArea = Suite;
                     Caption = 'Status';
                     ToolTip = 'Specifies information related to the Dynamics 365 Sales connection. ';
                 }
-                field(StatusCode; StatusCode)
+                field(StatusCode; Rec.StatusCode)
                 {
                     ApplicationArea = Suite;
                     Caption = 'Status Reason';
                     ToolTip = 'Specifies information related to the Dynamics 365 Sales connection. ';
                 }
-                field(TransactionCurrencyIdName; TransactionCurrencyIdName)
+                field(TransactionCurrencyIdName; Rec.TransactionCurrencyIdName)
                 {
                     ApplicationArea = Suite;
                     Caption = 'Currency';
                     ToolTip = 'Specifies the currency that amounts are shown in.';
                 }
-                field(ExchangeRate; ExchangeRate)
+                field(ExchangeRate; Rec.ExchangeRate)
                 {
                     ApplicationArea = Suite;
                     Caption = 'Exchange Rate';
@@ -65,7 +74,7 @@ page 5346 "CRM Pricelevel List"
 
                 trigger OnAction()
                 begin
-                    MarkedOnly(true);
+                    Rec.MarkedOnly(true);
                 end;
             }
             action(ShowAll)
@@ -77,7 +86,7 @@ page 5346 "CRM Pricelevel List"
 
                 trigger OnAction()
                 begin
-                    MarkedOnly(false);
+                    Rec.MarkedOnly(false);
                 end;
             }
         }
@@ -102,20 +111,20 @@ page 5346 "CRM Pricelevel List"
         CRMIntegrationRecord: Record "CRM Integration Record";
         RecordID: RecordID;
     begin
-        if CRMIntegrationRecord.FindRecordIDFromID(PriceLevelId, DATABASE::"Customer Price Group", RecordID) then
-            if CurrentlyCoupledCRMPricelevel.PriceLevelId = PriceLevelId then begin
+        if CRMIntegrationRecord.FindRecordIDFromID(Rec.PriceLevelId, DATABASE::"Customer Price Group", RecordID) then
+            if CurrentlyCoupledCRMPricelevel.PriceLevelId = Rec.PriceLevelId then begin
                 Coupled := 'Current';
                 FirstColumnStyle := 'Strong';
-                Mark(true);
+                Rec.Mark(true);
             end else begin
                 Coupled := 'Yes';
                 FirstColumnStyle := 'Subordinate';
-                Mark(false);
+                Rec.Mark(false);
             end
         else begin
             Coupled := 'No';
             FirstColumnStyle := 'None';
-            Mark(true);
+            Rec.Mark(true);
         end;
     end;
 

@@ -321,7 +321,7 @@ codeunit 144010 "IT - VAT Reporting - Get Lines"
 
         // Verify Original Report No. is filled.
         VATReport."Original Report No.".AssertEquals(VATReportHeader."No.");
-        VATReportHeader2.Get(VATReport."No."); // Important to get record before closing page.
+        VATReportHeader2.Get(VATReport."No.".Value); // Important to get record before closing page.
         VATReport.OK.Invoke;
         VATReportHeader2.Find(); // Refresh record.
         VATReportHeader2.TestField("Original Report No.", VATReportHeader."No.");

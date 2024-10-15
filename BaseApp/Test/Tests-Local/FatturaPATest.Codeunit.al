@@ -2787,8 +2787,8 @@ codeunit 144200 "FatturaPA Test"
     begin
         CompanyInformation.Get();
         // 2.4. DatiPagamento - Payment Data
-        PaymentTerms.Get(HeaderRecRef.Field(PaymentTermsCodeFieldNo));
-        PaymentMethod.Get(HeaderRecRef.Field(PaymentMethodCodeFieldNo));
+        PaymentTerms.Get(HeaderRecRef.Field(PaymentTermsCodeFieldNo).Value);
+        PaymentMethod.Get(HeaderRecRef.Field(PaymentMethodCodeFieldNo).Value);
         with TempXMLBuffer do begin
             CustLedgerEntry.SetRange("Document Type", DocumentType);
             CustLedgerEntry.SetRange("Document No.", DocNo);
@@ -2818,7 +2818,6 @@ codeunit 144200 "FatturaPA Test"
         SecondFileOutStream: OutStream;
         CustomerNo1: Code[20];
         CustomerNo2: Code[20];
-        Length: Integer;
     begin
         // verify zip file
         DataCompression.OpenZipArchive(TempBlob, false);
@@ -2826,7 +2825,7 @@ codeunit 144200 "FatturaPA Test"
 
         // verify first file
         ZipTempBlob.CreateOutStream(FirstFileOutStream);
-        DataCompression.ExtractEntry(EntryList.Get(1), FirstFileOutStream, Length);
+        DataCompression.ExtractEntry(EntryList.Get(1), FirstFileOutStream);
         ZipTempBlob.CreateInStream(FirstFileInStream);
         VerifyFileName(FileManagement.GetFileNameWithoutExtension(EntryList.Get(1)));
         TempXMLBuffer.LoadFromStream(FirstFileInStream);
@@ -2841,7 +2840,7 @@ codeunit 144200 "FatturaPA Test"
         TempXMLBuffer.DeleteAll();
 
         ZipTempBlob.CreateOutStream(SecondFileOutStream);
-        DataCompression.ExtractEntry(EntryList.Get(2), SecondFileOutStream, Length);
+        DataCompression.ExtractEntry(EntryList.Get(2), SecondFileOutStream);
         ZipTempBlob.CreateInStream(SecondFileInStream);
         VerifyFileName(FileManagement.GetFileNameWithoutExtension(EntryList.Get(2)));
         TempXMLBuffer.LoadFromStream(SecondFileInStream);

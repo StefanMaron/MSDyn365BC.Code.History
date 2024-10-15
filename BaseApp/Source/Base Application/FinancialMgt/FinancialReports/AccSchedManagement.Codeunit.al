@@ -1,4 +1,23 @@
-﻿codeunit 8 AccSchedManagement
+﻿namespace Microsoft.Finance.FinancialReports;
+
+using Microsoft.CashFlow.Account;
+using Microsoft.CashFlow.Forecast;
+using Microsoft.CostAccounting.Account;
+using Microsoft.CostAccounting.Budget;
+using Microsoft.CostAccounting.Ledger;
+using Microsoft.CostAccounting.Setup;
+using Microsoft.Finance.Analysis;
+using Microsoft.Finance.Currency;
+using Microsoft.Finance.Dimension;
+using Microsoft.Finance.GeneralLedger.Account;
+using Microsoft.Finance.GeneralLedger.Budget;
+using Microsoft.Finance.GeneralLedger.Ledger;
+using Microsoft.Finance.GeneralLedger.Setup;
+using Microsoft.Foundation.Enums;
+using Microsoft.Foundation.Period;
+using System.Utilities;
+
+codeunit 8 AccSchedManagement
 {
     TableNo = "Acc. Schedule Line";
 
@@ -2417,6 +2436,16 @@
         if GLSetup."Additional Reporting Currency" <> '' then
             exit(Round(ExchangeAmtAddCurrToLCY(ColValue), AddRepCurrency."Amount Rounding Precision"));
         exit(0);
+    end;
+
+    procedure SetFiscalStartDate(NewFiscalStartDate: Date)
+    begin
+        FiscalStartDate := NewFiscalStartDate;
+    end;
+
+    procedure GetFiscalStartDate(): Date
+    begin
+        exit(FiscalStartDate);
     end;
 
     [IntegrationEvent(false, false)]

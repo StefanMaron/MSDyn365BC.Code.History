@@ -1,4 +1,4 @@
-#if not CLEAN20
+﻿#if not CLEAN23
 codeunit 134080 "ERM Adjust Exch Rate Cust/Bank"
 {
     Permissions = TableData "Cust. Ledger Entry" = rimd;
@@ -23,10 +23,10 @@ codeunit 134080 "ERM Adjust Exch Rate Cust/Bank"
         IsInitialized: Boolean;
         AmountErr: Label '%1 field must be %2 in %3 table for %4 field %5.';
         ExchRateWasAdjustedTxt: Label 'One or more currency exchange rates have been adjusted.';
+        ReversalSuccessfullTxt: Label 'The entries were successfully reversed.';
         GLEntryAmountErr: Label '%1 must be %2 in %3.';
         PostingDate: Date;
         SetHandler: Boolean;
-        ReversalErr: Label 'You cannot reverse %1 No. %2 because the entry has an associated Realized Gain/Loss entry.';
         DocTypeReversalErr: Label 'You cannot reverse the entry %1 because it''s an %2 Document.';
 
     [Test]
@@ -527,7 +527,7 @@ codeunit 134080 "ERM Adjust Exch Rate Cust/Bank"
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmHandlerTrue')]
+    [HandlerFunctions('ConfirmHandlerTrue,ReversalMessageHandler')]
     [Scope('OnPrem')]
     procedure ReversePaymentWithUnrealizedGainLossforVendor()
     var
@@ -550,14 +550,13 @@ codeunit 134080 "ERM Adjust Exch Rate Cust/Bank"
         UnapplyVendorEntry(VendorLedgerEntry, VendorLedgerEntry."Document Type"::Payment, GenJournalLine."Document No.");
 
         // [WHEN] Reverse Payment
-        asserterror LibraryERM.ReverseTransaction(VendorLedgerEntry."Transaction No.");
+        LibraryERM.ReverseTransaction(VendorLedgerEntry."Transaction No.");
 
-        // [THEN] Error raised that you cannot reverse transaction because the entry has an associated Realized Gain/Loss entry.
-        Assert.ExpectedError(StrSubstNo(ReversalErr, VendorLedgerEntry.TableCaption(), VendorLedgerEntry."Entry No."));
+        // [THEN] Validation of succesful reversal in message handler
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmHandlerTrue')]
+    [HandlerFunctions('ConfirmHandlerTrue,ReversalMessageHandler')]
     [Scope('OnPrem')]
     procedure ReversePaymentWithUnrealizedGainLossforCustomer()
     var
@@ -580,14 +579,13 @@ codeunit 134080 "ERM Adjust Exch Rate Cust/Bank"
         UnapplyCustomerEntry(CustLedgerEntry, CustLedgerEntry."Document Type"::Payment, GenJournalLine."Document No.");
 
         // [WHEN] Reverse Payment
-        asserterror LibraryERM.ReverseTransaction(CustLedgerEntry."Transaction No.");
+        LibraryERM.ReverseTransaction(CustLedgerEntry."Transaction No.");
 
-        // [THEN] Error raised that you cannot reverse transaction because the entry has an associated Realized Gain/Loss entry.
-        Assert.ExpectedError(StrSubstNo(ReversalErr, CustLedgerEntry.TableCaption(), CustLedgerEntry."Entry No."));
+        // [THEN] Validation of succesful reversal in message handler
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmHandlerTrue')]
+    [HandlerFunctions('ConfirmHandlerTrue,ReversalMessageHandler')]
     [Scope('OnPrem')]
     procedure ReverseUnappliedLCYPaymentWithGainLossforVendor()
     var
@@ -610,14 +608,13 @@ codeunit 134080 "ERM Adjust Exch Rate Cust/Bank"
         UnapplyVendorEntry(VendorLedgerEntry, VendorLedgerEntry."Document Type"::Payment, GenJournalLine."Document No.");
 
         // [WHEN] Reverse Payment
-        asserterror LibraryERM.ReverseTransaction(VendorLedgerEntry."Transaction No.");
+        LibraryERM.ReverseTransaction(VendorLedgerEntry."Transaction No.");
 
-        // [THEN] Error raised that you cannot reverse transaction because the entry has an associated Realized Gain/Loss entry.
-        Assert.ExpectedError(StrSubstNo(ReversalErr, VendorLedgerEntry.TableCaption(), VendorLedgerEntry."Entry No."));
+        // [THEN] Validation of succesful reversal in message handler
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmHandlerTrue')]
+    [HandlerFunctions('ConfirmHandlerTrue,ReversalMessageHandler')]
     [Scope('OnPrem')]
     procedure ReverseUnappliedLCYPaymentWithGainLossforCustomer()
     var
@@ -640,10 +637,9 @@ codeunit 134080 "ERM Adjust Exch Rate Cust/Bank"
         UnapplyCustomerEntry(CustLedgerEntry, CustLedgerEntry."Document Type"::Payment, GenJournalLine."Document No.");
 
         // [WHEN] Reverse Payment
-        asserterror LibraryERM.ReverseTransaction(CustLedgerEntry."Transaction No.");
+        LibraryERM.ReverseTransaction(CustLedgerEntry."Transaction No.");
 
-        // [THEN] Error raised that you cannot reverse transaction because the entry has an associated Realized Gain/Loss entry.
-        Assert.ExpectedError(StrSubstNo(ReversalErr, CustLedgerEntry.TableCaption(), CustLedgerEntry."Entry No."));
+        // [THEN] Validation of succesful reversal in message handler
     end;
 
     [Test]
@@ -1663,6 +1659,13 @@ codeunit 134080 "ERM Adjust Exch Rate Cust/Bank"
     procedure StatisticsMessageHandler(Message: Text[1024])
     begin
         Assert.ExpectedMessage(ExchRateWasAdjustedTxt, Message);
+    end;
+
+    [MessageHandler]
+    [Scope('OnPrem')]
+    procedure ReversalMessageHandler(Message: Text[1024])
+    begin
+        Assert.ExpectedMessage(ReversalSuccessfullTxt, Message);
     end;
 }
 #endif

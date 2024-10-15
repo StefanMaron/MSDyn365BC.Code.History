@@ -137,6 +137,7 @@ codeunit 134003 "ERM Payment Tolerance Vendor"
     procedure PmtUndrInvAmtBfrDiscDtLCY()
     var
         GenJournalLine: Record "Gen. Journal Line";
+        DeltaAssert: Codeunit "Delta Assert";
         InvAmount: Decimal;
         PmtAmount: Decimal;
         DiscountAmount: Decimal;
@@ -154,8 +155,16 @@ codeunit 134003 "ERM Payment Tolerance Vendor"
           '', '', CalcDate('<-1D>', GetDueDate));
 
         // Apply Payment on Invoice. Verify Discount Amount, Additional-Currency Amount in GL Entry.
-        BeforeDiscountDateEntry(
-          GenJournalLine."Document Type"::Payment, GenJournalLine."Document No.", DiscountAmount, -DiscountAmount);
+        // Watch Expected Discount value calculated as per Delta amount.
+        DeltaAssert.Init();
+        WatchPaymentDiscountAmount(DeltaAssert, GenJournalLine."Document No.", DiscountAmount);
+
+        // Exercise: Apply Payment/Refund Amount on Invoice/Credit Memo.
+        ApplyAndPostVendorEntry(GenJournalLine."Document Type"::Payment, GenJournalLine."Document No.");
+
+        // Verify: Verify Discount Amount and Additional-Currency Amount in GL Entry.
+        DeltaAssert.Assert;
+        VerifyRefundUnderInvoiceAmountBeforeDiscountDateFCY(-DiscountAmount, GenJournalLine."Document No.");
     end;
 
     [Test]
@@ -163,6 +172,7 @@ codeunit 134003 "ERM Payment Tolerance Vendor"
     procedure RefUndrCrMAmtBfrDisDtFCY()
     var
         GenJournalLine: Record "Gen. Journal Line";
+        DeltaAssert: Codeunit "Delta Assert";
         CurrencyCode: Code[10];
         CrMemoAmount: Decimal;
         CrMemoAmountFCY: Decimal;
@@ -183,9 +193,16 @@ codeunit 134003 "ERM Payment Tolerance Vendor"
           CurrencyCode, CurrencyCode, CalcDate('<-1D>', GetDueDate));
 
         // Apply Refund on Credit Memo. Verify Discount Amount, Additional-Currency Amount in GL Entry.
-        BeforeDiscountDateEntry(
-          GenJournalLine."Document Type"::Refund, GenJournalLine."Document No.", -GetDiscountAmount(CrMemoAmount),
-          DiscountAmountFCY);
+        // Watch Expected Discount value calculated as per Delta amount.
+        DeltaAssert.Init();
+        WatchPaymentDiscountAmount(DeltaAssert, GenJournalLine."Document No.", -GetDiscountAmount(CrMemoAmount));
+
+        // Exercise: Apply Payment/Refund Amount on Invoice/Credit Memo.
+        ApplyAndPostVendorEntry(GenJournalLine."Document Type"::Refund, GenJournalLine."Document No.");
+
+        // Verify: Verify Discount Amount and Additional-Currency Amount in GL Entry.
+        DeltaAssert.Assert;
+        VerifyRefundUnderCreditMemoAmountBeforeDiscountDateFCY(DiscountAmountFCY, GenJournalLine."Document No.");
     end;
 
     [Test]
@@ -436,9 +453,12 @@ codeunit 134003 "ERM Payment Tolerance Vendor"
           '', '', CalcDate('<-1D>', ComputeDueDateForGracePeriod));
 
         // Apply Payment on Invoice. Verify Payment Discount Tolerance Amount, Additional Currency Amount in GL Entry.
-        ToleranceDiscountEntry(
-          GenJournalLine."Document Type"::Payment, DetailedVendorLedgEntry."Entry Type"::"Payment Discount Tolerance",
-          GenJournalLine."Document No.", CurrencyCode, DiscountAmount, -DiscountAmount);
+        // Exercise: Apply Payment/Refund Amount on Invoice/Credit Memo.
+        ApplyAndPostVendorEntry(GenJournalLine."Document Type"::Payment, GenJournalLine."Document No.");
+
+        // Verification: Verify Payment Tolerance Amount and Additional-Currency Amount in GL Entry.
+        VerifyPaymentUnderInvoiceDiscountTolAmount(GenJournalLine."Document No.", -DiscountAmount, CurrencyCode, DetailedVendorLedgEntry."Entry Type"::Application);
+        VerifyPaymentUnderInvoiceAmountWithinToleranceDateLCY(-DiscountAmount, GenJournalLine."Document No.");
     end;
 
     [Test]
@@ -446,7 +466,7 @@ codeunit 134003 "ERM Payment Tolerance Vendor"
     procedure RefUndrCrMAmtWithnTolDtFCY()
     var
         GenJournalLine: Record "Gen. Journal Line";
-        DetailedVendorLedgEntry: Record "Detailed Vendor Ledg. Entry";
+        VendorLedgEntry: Record "Vendor Ledger Entry";
         CrMemoAmount: Decimal;
         RefAmount: Decimal;
         CurrencyCode: Code[10];
@@ -466,9 +486,12 @@ codeunit 134003 "ERM Payment Tolerance Vendor"
           CurrencyCode, CurrencyCode, CalcDate('<-1D>', ComputeDueDateForGracePeriod));
 
         // Apply Refund on Credit Memo. Verify Payment Discount Tolerance Amount, Additional-Currency Amount in GL Entry.
-        ToleranceDiscountEntry(
-          GenJournalLine."Document Type"::Refund, DetailedVendorLedgEntry."Entry Type"::"Payment Discount Tolerance",
-          GenJournalLine."Document No.", CurrencyCode, -DiscountAmountFCY, DiscountAmountFCY);
+        // Exercise: Apply Payment/Refund Amount on Invoice/Credit Memo.
+        ApplyAndPostVendorEntry(GenJournalLine."Document Type"::Refund, GenJournalLine."Document No.");
+
+        // Verification: Verify Payment Tolerance Amount and Additional-Currency Amount in GL Entry.
+        VerifyRefundTolAmount(GenJournalLine."Document No.", DiscountAmountFCY, CurrencyCode, VendorLedgEntry."Document Type"::"Credit Memo");
+        VeryifyRefundUnderAmountWithinToleranceDateFCY(-DiscountAmountFCY, GenJournalLine."Document No.");
     end;
 
     [Test]
@@ -854,6 +877,16 @@ codeunit 134003 "ERM Payment Tolerance Vendor"
         VerifyGLEntry(Amount2, DocumentNo);
     end;
 
+    local procedure ToleranceDiscountEntryVendorLedger(DocumentType: Enum "Gen. Journal Document Type"; EntryType: Enum "Detailed CV Ledger Entry Type"; DocumentNo: Code[20]; CurrencyCode: Code[10]; Amount: Decimal; Amount2: Decimal)
+    begin
+        // Exercise: Apply Payment/Refund Amount on Invoice/Credit Memo.
+        ApplyAndPostVendorEntry(DocumentType, DocumentNo);
+
+        // Verification: Verify Payment Tolerance Amount and Additional-Currency Amount in GL Entry.
+        VerifyPaymentDiscountTolAmount(DocumentNo, Amount, CurrencyCode, EntryType);
+        VerifyRefundUnderInvoiceAmountBeforeDiscountDateFCY(Amount2, DocumentNo);
+    end;
+
     local procedure CreateAndPostDocumentLine(var GenJournalLine: Record "Gen. Journal Line"; DocumentType: Enum "Gen. Journal Document Type"; DocumentType2: Enum "Gen. Journal Document Type"; Amount: Decimal; Amount2: Decimal; CurrencyCode: Code[10]; CurrencyCode2: Code[10]; PostingDate: Date)
     var
         GenJournalBatch: Record "Gen. Journal Batch";
@@ -1097,6 +1130,40 @@ codeunit 134003 "ERM Payment Tolerance Vendor"
             DetailedVendorLedgEntry."Entry No."));
     end;
 
+    local procedure VerifyRefundTolAmount(DocumentNo: Code[20]; Amount: Decimal; CurrencyCode: Code[10]; DocumentType: Enum "Gen. Journal Document Type")
+    var
+        VendorLedgerEntry: Record "Vendor Ledger Entry";
+        Currency: Record Currency;
+        Assert: Codeunit Assert;
+    begin
+        Currency.Get(CurrencyCode);
+        Currency.InitRoundingPrecision();
+        VendorLedgerEntry.SetRange("Document No.", DocumentNo);
+        VendorLedgerEntry.SetRange("Document Type", DocumentType);
+        VendorLedgerEntry.FindFirst();
+        Assert.AreNearlyEqual(
+          VendorLedgerEntry."Pmt. Disc. Rcd.(LCY)", Amount, Currency."Amount Rounding Precision", StrSubstNo(PaymentToleranceError,
+            Amount, VendorLedgerEntry.TableCaption(), VendorLedgerEntry.FieldCaption("Entry No."),
+            VendorLedgerEntry."Entry No."));
+    end;
+
+    local procedure VerifyPaymentUnderInvoiceDiscountTolAmount(DocumentNo: Code[20]; Amount: Decimal; CurrencyCode: Code[10]; EntryType: Enum "Detailed CV Ledger Entry Type")
+    var
+        DetailedVendorLedgEntry: Record "Detailed Vendor Ledg. Entry";
+        Currency: Record Currency;
+        Assert: Codeunit Assert;
+    begin
+        Currency.Get(CurrencyCode);
+        Currency.InitRoundingPrecision();
+        DetailedVendorLedgEntry.SetRange("Document No.", DocumentNo);
+        DetailedVendorLedgEntry.SetRange("Entry Type", EntryType);
+        DetailedVendorLedgEntry.FindFirst();
+        Assert.AreNearlyEqual(
+          DetailedVendorLedgEntry."Remaining Pmt. Disc. Possible", Amount, Currency."Amount Rounding Precision", StrSubstNo(PaymentToleranceError,
+            Amount, DetailedVendorLedgEntry.TableCaption(), DetailedVendorLedgEntry.FieldCaption("Entry No."),
+            DetailedVendorLedgEntry."Entry No."));
+    end;
+
     local procedure VerifyGLEntry(Amount: Decimal; DocumentNo: Code[20])
     var
         GLRegister: Record "G/L Register";
@@ -1125,6 +1192,107 @@ codeunit 134003 "ERM Payment Tolerance Vendor"
           AdditionalCurrencyAmount, GLEntry."Additional-Currency Amount", Currency."Amount Rounding Precision",
           StrSubstNo(RoundingMessage, GLEntry.FieldCaption("Additional-Currency Amount"), GLEntry."Additional-Currency Amount",
             GLEntry.TableCaption(), GLEntry.FieldCaption("Entry No."), GLEntry."Entry No."));
+    end;
+
+    local procedure VerifyRefundUnderInvoiceAmountBeforeDiscountDateFCY(Amount: Decimal; DocumentNo: Code[20])
+    var
+        VendorLedgerEntry: Record "Vendor Ledger Entry";
+        Currency: Record Currency;
+        GeneralLedgerSetup: Record "General Ledger Setup";
+        Assert: Codeunit Assert;
+        AdditionalCurrencyAmount: Decimal;
+    begin
+        GeneralLedgerSetup.Get();
+        Currency.Get(GeneralLedgerSetup."Additional Reporting Currency");
+        Currency.InitRoundingPrecision();
+        VendorLedgerEntry.SetRange("Document No.", DocumentNo);
+        VendorLedgerEntry.FindFirst();
+        Assert.AreNearlyEqual(
+          Amount, VendorLedgerEntry."Original Pmt. Disc. Possible", Currency."Amount Rounding Precision", StrSubstNo(RoundingMessage, VendorLedgerEntry.FieldCaption(Amount),
+            VendorLedgerEntry.Amount, VendorLedgerEntry.TableCaption(), VendorLedgerEntry.FieldCaption("Entry No."), VendorLedgerEntry."Entry No."));
+
+        // Verify Additional Reporting Currency Amount.
+        AdditionalCurrencyAmount := LibraryERM.ConvertCurrency(Amount, '', Currency.Code, WorkDate());
+        Assert.AreNearlyEqual(
+          AdditionalCurrencyAmount, VendorLedgerEntry."Max. Payment Tolerance", Currency."Amount Rounding Precision",
+          StrSubstNo(RoundingMessage, VendorLedgerEntry.FieldCaption("Max. Payment Tolerance"), VendorLedgerEntry."Max. Payment Tolerance",
+            VendorLedgerEntry.TableCaption(), VendorLedgerEntry.FieldCaption("Entry No."), VendorLedgerEntry."Entry No."));
+    end;
+
+    local procedure VerifyRefundUnderCreditMemoAmountBeforeDiscountDateFCY(Amount: Decimal; DocumentNo: Code[20])
+    var
+        VendorLedgerEntry: Record "Vendor Ledger Entry";
+        Currency: Record Currency;
+        GeneralLedgerSetup: Record "General Ledger Setup";
+        Assert: Codeunit Assert;
+        AdditionalCurrencyAmount: Decimal;
+    begin
+        GeneralLedgerSetup.Get();
+        Currency.Get(GeneralLedgerSetup."Additional Reporting Currency");
+        Currency.InitRoundingPrecision();
+        VendorLedgerEntry.SetRange("Document No.", DocumentNo);
+        VendorLedgerEntry.FindFirst();
+        Assert.AreNearlyEqual(
+          Amount, VendorLedgerEntry."Pmt. Disc. Rcd.(LCY)", Currency."Amount Rounding Precision", StrSubstNo(RoundingMessage, VendorLedgerEntry.FieldCaption(Amount),
+            VendorLedgerEntry.Amount, VendorLedgerEntry.TableCaption(), VendorLedgerEntry.FieldCaption("Entry No."), VendorLedgerEntry."Entry No."));
+
+        // Verify Additional Reporting Currency Amount.
+        AdditionalCurrencyAmount := LibraryERM.ConvertCurrency(Amount, '', Currency.Code, WorkDate());
+        Assert.AreNearlyEqual(
+          AdditionalCurrencyAmount, VendorLedgerEntry."Original Pmt. Disc. Possible", Currency."Amount Rounding Precision",
+          StrSubstNo(RoundingMessage, VendorLedgerEntry.FieldCaption("Original Pmt. Disc. Possible"), VendorLedgerEntry."Original Pmt. Disc. Possible",
+            VendorLedgerEntry.TableCaption(), VendorLedgerEntry.FieldCaption("Entry No."), VendorLedgerEntry."Entry No."));
+    end;
+
+    local procedure VerifyPaymentUnderInvoiceAmountWithinToleranceDateLCY(Amount: Decimal; DocumentNo: Code[20])
+    var
+        VendorLedgerEntry: Record "Vendor Ledger Entry";
+        Currency: Record Currency;
+        GeneralLedgerSetup: Record "General Ledger Setup";
+        Assert: Codeunit Assert;
+        AdditionalCurrencyAmount: Decimal;
+    begin
+        GeneralLedgerSetup.Get();
+        Currency.Get(GeneralLedgerSetup."Additional Reporting Currency");
+        Currency.InitRoundingPrecision();
+        VendorLedgerEntry.SetRange("Document No.", DocumentNo);
+        VendorLedgerEntry.FindFirst();
+        Assert.AreNearlyEqual(
+          Amount, VendorLedgerEntry."Original Pmt. Disc. Possible", Currency."Amount Rounding Precision", StrSubstNo(RoundingMessage, VendorLedgerEntry.FieldCaption(Amount),
+            VendorLedgerEntry.Amount, VendorLedgerEntry.TableCaption(), VendorLedgerEntry.FieldCaption("Entry No."), VendorLedgerEntry."Entry No."));
+
+        // Verify Additional Reporting Currency Amount.
+        AdditionalCurrencyAmount := LibraryERM.ConvertCurrency(Amount, '', Currency.Code, WorkDate());
+        Assert.AreNearlyEqual(
+          AdditionalCurrencyAmount, VendorLedgerEntry."Max. Payment Tolerance", Currency."Amount Rounding Precision",
+          StrSubstNo(RoundingMessage, VendorLedgerEntry.FieldCaption("Max. Payment Tolerance"), VendorLedgerEntry."Max. Payment Tolerance",
+            VendorLedgerEntry.TableCaption(), VendorLedgerEntry.FieldCaption("Entry No."), VendorLedgerEntry."Entry No."));
+    end;
+
+    local procedure VeryifyRefundUnderAmountWithinToleranceDateFCY(Amount: Decimal; DocumentNo: Code[20])
+    var
+        DetailedVendorLedgEntry: Record "Detailed Vendor Ledg. Entry";
+        Currency: Record Currency;
+        GeneralLedgerSetup: Record "General Ledger Setup";
+        Assert: Codeunit Assert;
+        AdditionalCurrencyAmount: Decimal;
+    begin
+        GeneralLedgerSetup.Get();
+        Currency.Get(GeneralLedgerSetup."Additional Reporting Currency");
+        Currency.InitRoundingPrecision();
+        DetailedVendorLedgEntry.SetRange("Entry Type", DetailedVendorLedgEntry."Entry Type"::"Payment Discount Tolerance");
+        DetailedVendorLedgEntry.SetRange("Document No.", DocumentNo);
+        DetailedVendorLedgEntry.FindFirst();
+        Assert.AreNearlyEqual(
+          Amount, DetailedVendorLedgEntry."Amount (LCY)", Currency."Amount Rounding Precision", StrSubstNo(RoundingMessage, DetailedVendorLedgEntry.FieldCaption(Amount),
+            DetailedVendorLedgEntry.Amount, DetailedVendorLedgEntry.TableCaption(), DetailedVendorLedgEntry.FieldCaption("Entry No."), DetailedVendorLedgEntry."Entry No."));
+
+        // Verify Additional Reporting Currency Amount.
+        AdditionalCurrencyAmount := LibraryERM.ConvertCurrency(Amount, '', Currency.Code, WorkDate());
+        Assert.AreNearlyEqual(
+          AdditionalCurrencyAmount, DetailedVendorLedgEntry.Amount, Currency."Amount Rounding Precision",
+          StrSubstNo(RoundingMessage, DetailedVendorLedgEntry.FieldCaption(Amount), DetailedVendorLedgEntry.Amount,
+            DetailedVendorLedgEntry.TableCaption(), DetailedVendorLedgEntry.FieldCaption("Entry No."), DetailedVendorLedgEntry."Entry No."));
     end;
 
     local procedure WatchPaymentDiscountAmount(var DeltaAssert: Codeunit "Delta Assert"; DocumentNo: Code[20]; PmtDiscAmount: Decimal)
