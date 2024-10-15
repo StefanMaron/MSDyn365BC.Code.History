@@ -234,7 +234,7 @@ page 9309 "Purchase Credit Memos"
             {
                 ApplicationArea = All;
                 Caption = 'Attachments';
-                SubPageLink = "Table ID" = const(38),
+                SubPageLink = "Table ID" = const(Database::"Purchase Header"),
                               "No." = field("No."),
                               "Document Type" = field("Document Type");
             }

@@ -1154,7 +1154,7 @@
         TestClientTypeSubscriber.SetClientType(ClientType::Web);
         BindSubscription(TestClientTypeSubscriber);
         CreateExportReportSelection(Layout::RDLC);
-        
+
         // [WHEN] Use CA EFT DEFAULT Data Exch format
         DataExchDef.SetRange(Code, 'CA EFT DEFAULT');
         DataExchDef.FindFirst();
@@ -1179,11 +1179,11 @@
 
         // [WHEN] Reading exported file into lines
         Lines := ReadEFTFileOutputLines(DataExchDef.Code, DetailCode);
-        
+
         // [THEN] Validate CA Header, Detail and Footer from file
         Lines.Get(1, TextLine);
         ValidateEFTCAHeader(TextLine);
-        
+
         Lines.Get(2, TextLine);
         ValidateEFTCADetail(TextLine);
 
@@ -1224,7 +1224,7 @@
         TestClientTypeSubscriber.SetClientType(ClientType::Web);
         BindSubscription(TestClientTypeSubscriber);
         CreateExportReportSelection(Layout::RDLC);
-        
+
         // [WHEN] Use US EFT DEFAULT Data Exch format
         DataExchDef.SetRange(Code, 'US EFT DEFAULT');
         DataExchDef.FindFirst();
@@ -1246,10 +1246,10 @@
         ERMElectronicFundsTransfer.GetTempACHUSDetail(TempACHUSDetail);
         ERMElectronicFundsTransfer.GetTempACHUSHeader(TempACHUSHeader);
         ERMElectronicFundsTransfer.GetTempACHUSFooter(TempACHUSFooter);
-    
+
         // [WHEN] Reading exported file into lines
         Lines := ReadEFTFileOutputLines(DataExchDef.Code, DetailCode);
-        
+
         // [THEN] Validate US Header, Detail and Footer from file
         Lines.Get(1, TextLine);
         TempACHUSHeader.FindFirst();
@@ -1266,7 +1266,7 @@
         TempACHUSFooter.FindFirst();
         Lines.Get(4, TextLine);
         ValidateEFTUSFooterA(TextLine);
-        
+
         TempACHUSFooter.Next();
         Lines.Get(5, TextLine);
         ValidateEFTUSFooterB(TextLine);
@@ -2662,6 +2662,52 @@
         Assert.IsTrue(IsCodeunitRun, '');
     end;
 
+    [Test]
+    [HandlerFunctions('ExportElecPaymentsWord_SaveAsXmlRPH')]
+    procedure RunExportElecPaymentsWordAfterValidatingAppliesToDocNo()
+    var
+        Vendor: Record Vendor;
+        BankAccount: Record "Bank Account";
+        VendorBankAccount: Record "Vendor Bank Account";
+        GenJournalBatch: Record "Gen. Journal Batch";
+        GenJournalLine: Record "Gen. Journal Line";
+        PurchaseHeader: Record "Purchase Header";
+        PostedInvoiceAmount: Decimal;
+        InvoiceNo: Code[20];
+    begin
+        // [SCENARIO 455654] Run report "ExportElecPayments - Word" after validating Applies to Doc. No on Gen Journal line
+        Initialize();
+
+        // [GIVEN] Prepare Bank Accout, Vendor and Journal Batch
+        CreateBankAccountForCountry(BankAccount, BankAccount."Export Format"::US, CreateBankExportImportSetup(CreateDataExchDefForUS()), '', '');
+        CreateVendorWithVendorBankAccount(Vendor, VendorBankAccount, 'US');
+        CreateGeneralJournalBatch(GenJournalBatch, BankAccount."No.");
+
+        // [GIVEN] Create and post invoice for vendor
+        LibraryPurchase.CreatePurchaseInvoiceForVendorNo(PurchaseHeader, Vendor."No.");
+        InvoiceNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+        PostedInvoiceAmount := GetInvoiceAmount(InvoiceNo);
+
+        // [GIVEN] Create a payment line for vendor with Applies-to Doc. No. = InvoiceNo
+        CreateVendorPaymentLine(GenJournalLine, GenJournalBatch, VendorBankAccount."Vendor No.", VendorBankAccount.Code, BankAccount."No.");
+        GenJournalLine.Validate("Applies-to Doc. Type", GenJournalLine."Applies-to Doc. Type"::Invoice);
+        GenJournalLine.Validate("Applies-to Doc. No.", InvoiceNo);
+        GenJournalLine.Validate(Amount, -PostedInvoiceAmount);
+        GenJournalLine.Modify(true);
+
+        // [WHEN] Run report "ExportElecPayments - Word" with request page on General Journal Line from Payment Journal.
+        // [WHEN] On the request page set Bank Account No.; filters for Gen. Journal Batch/Template are empty.
+        LibraryVariableStorage.Enqueue(GenJournalLine."Bal. Account No.");
+        LibraryVariableStorage.Enqueue('');
+        LibraryVariableStorage.Enqueue('');
+        RunReportExportElecPaymentsWord(GenJournalLine, true);
+
+        // [THEN] Report was printed. There are no unapplied lines in dataset
+        LibraryReportDataset.LoadDataSetFile();
+        LibraryReportDataset.AssertElementWithValueNotExist('Unapplied_Number', 1);
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
     local procedure Initialize()
     var
         EFTExport: Record "EFT Export";
@@ -2676,28 +2722,28 @@
     var
         StrConvMangement: Codeunit StringConversionManagement;
         EFTCAOutputFileFormatErr: Label 'Error in EFT CA file output';
-        Expected, Actual: Text;
+        Expected, Actual : Text;
     begin
         Expected := StrConvMangement.GetPaddedString(Format(TempACHRBHeader."Record Count"), 6, '0', 0);
         Actual := Line.Substring(1, 6);
         Assert.AreEqual(Expected, Actual, EFTCAOutputFileFormatErr);
-        
+
         Expected := TempACHRBHeader."Record Type";
         Actual := Line.Substring(7, 1);
         Assert.AreEqual(Expected, Actual, EFTCAOutputFileFormatErr);
-        
+
         Expected := TempACHRBHeader."Transaction Code";
         Actual := Line.Substring(8, 3);
         Assert.AreEqual(Expected, Actual, EFTCAOutputFileFormatErr);
-        
+
         Expected := StrConvMangement.GetPaddedString(Format(TempACHRBHeader."Client Number"), 10, '0', 1);
         Actual := Line.Substring(11, 10);
         Assert.AreEqual(Expected, Actual, EFTCAOutputFileFormatErr);
-        
+
         Expected := StrConvMangement.GetPaddedString(Format(TempACHRBHeader."Client Name"), 30, ' ', 1);
-        Actual :=  Line.Substring(21, 30);
+        Actual := Line.Substring(21, 30);
         Assert.AreEqual(Expected, Actual, EFTCAOutputFileFormatErr);
-        
+
         Expected := StrConvMangement.GetPaddedString(Format(TempACHRBHeader."File Creation Number"), 4, '0', 0);
         Actual := Line.Substring(51, 4);
         Assert.AreEqual(Expected, Actual, EFTCAOutputFileFormatErr);
@@ -2714,8 +2760,8 @@
         Actual := Line.Substring(65, 1);
         Assert.AreEqual(Expected, Actual, EFTCAOutputFileFormatErr);
     end;
-    
-    local procedure ReadText(Line: Text; var Pos: Integer; Length: Integer) SubString : Text
+
+    local procedure ReadText(Line: Text; var Pos: Integer; Length: Integer) SubString: Text
     begin
         SubString := Line.Substring(Pos, Length);
         Pos += Length;
@@ -2725,7 +2771,7 @@
     var
         StrConvMangement: Codeunit StringConversionManagement;
         EFTUSOutputFileFormatErr: Label 'Error in EFT US file output';
-        Expected, Actual: Text;
+        Expected, Actual : Text;
         ValueAsDateTime: DateTime;
         Pos: Integer;
     begin
@@ -2733,27 +2779,27 @@
         Expected := '1';
         Actual := ReadText(Line, Pos, 1);
         Assert.AreEqual(Expected, Actual, EFTUSOutputFileFormatErr);
-        
+
         Expected := '01';
         Actual := ReadText(Line, Pos, 2);
         Assert.AreEqual(Expected, Actual, EFTUSOutputFileFormatErr);
-        
+
         Expected := StrConvMangement.GetPaddedString(CopyStr(TempACHUSHeader."Transit Routing Number", 1, 10), 10, ' ', 1);
-        Actual := ReadText(Line, Pos, 10); 
+        Actual := ReadText(Line, Pos, 10);
         Assert.AreEqual(Expected, Actual, EFTUSOutputFileFormatErr);
-        
+
         Expected := '1';
         Actual := ReadText(Line, Pos, 1);
         Assert.AreEqual(Expected, Actual, EFTUSOutputFileFormatErr);
-        
+
         Expected := CopyStr(TempACHUSHeader."Federal ID No.", 1, 9);
         Actual := ReadText(Line, Pos, 9);
         Assert.AreEqual(Expected, Actual, EFTUSOutputFileFormatErr);
-        
+
         Expected := Format(TempACHUSHeader."File Creation Date", 0, '<Year,2><Month,2><Day,2>');
         Actual := ReadText(Line, Pos, 6);
         Assert.AreEqual(Expected, Actual, EFTUSOutputFileFormatErr);
-        
+
         Evaluate(ValueAsDateTime, Format(TempACHUSHeader."File Creation Time", 0, 9), 9);
         Expected := Format(ValueAsDateTime, 0, '<Hours24,2><Minutes,2>');
         Actual := ReadText(Line, Pos, 4);
@@ -2792,7 +2838,7 @@
     var
         StrConvMangement: Codeunit StringConversionManagement;
         EFTUSOutputFileFormatErr: Label 'Error in EFT US file output';
-        Expected, Actual: Text;
+        Expected, Actual : Text;
         Pos: Integer;
     begin
         Pos := 1;
@@ -2804,7 +2850,7 @@
         Actual := ReadText(Line, Pos, 3);
         Assert.AreEqual(Expected, Actual, EFTUSOutputFileFormatErr);
 
-        Expected := StrConvMangement.GetPaddedString(CopyStr(Uppercase(TempACHUSHeader."Company Name"),1,36), 36, ' ', 1);
+        Expected := StrConvMangement.GetPaddedString(CopyStr(Uppercase(TempACHUSHeader."Company Name"), 1, 36), 36, ' ', 1);
         Actual := ReadText(Line, Pos, 36);
         Assert.AreEqual(Expected, Actual, EFTUSOutputFileFormatErr);
 
@@ -2820,7 +2866,7 @@
         Actual := ReadText(Line, Pos, 3);
         Assert.AreEqual(Expected, Actual, EFTUSOutputFileFormatErr);
 
-        Expected := StrConvMangement.GetPaddedString(CopyStr(TempACHUSHeader."Company Entry Description",1,10), 10, ' ', 1);
+        Expected := StrConvMangement.GetPaddedString(CopyStr(TempACHUSHeader."Company Entry Description", 1, 10), 10, ' ', 1);
         Actual := ReadText(Line, Pos, 10);
         Assert.AreEqual(Expected, Actual, EFTUSOutputFileFormatErr);
 
@@ -2832,14 +2878,14 @@
         Actual := ReadText(Line, Pos, 6);
         Assert.AreEqual(Expected, Actual, EFTUSOutputFileFormatErr);
 
-        Expected := StrConvMangement.GetPaddedString(CopyStr(TempACHUSHeader."Filler/Reserved", 1, 3), 3, ' ', 1); 
+        Expected := StrConvMangement.GetPaddedString(CopyStr(TempACHUSHeader."Filler/Reserved", 1, 3), 3, ' ', 1);
         Actual := ReadText(Line, Pos, 3);
         Assert.AreEqual(Expected, Actual, EFTUSOutputFileFormatErr);
 
         Expected := '1';
         Actual := ReadText(Line, Pos, 1);
         Assert.AreEqual(Expected, Actual, EFTUSOutputFileFormatErr);
-        
+
         Expected := CopyStr(TempACHUSHeader."Transit Routing Number", 1, 8);
         Actual := ReadText(Line, Pos, 8);
         Assert.AreEqual(Expected, Actual, EFTUSOutputFileFormatErr);
@@ -2854,28 +2900,28 @@
     var
         StrConvMangement: Codeunit StringConversionManagement;
         EFTCAOutputFileFormatErr: Label 'Error in EFT CA file output';
-        Expected, Actual: Text;
+        Expected, Actual : Text;
     begin
         Expected := StrConvMangement.GetPaddedString(Format(TempACHRBDetail."Record Count"), 6, '0', 0);
         Actual := Line.Substring(1, 6);
         Assert.AreEqual(Expected, Actual, EFTCAOutputFileFormatErr);
-        
+
         Expected := 'C';
         Actual := Line.Substring(7, 1);
         Assert.AreEqual(Expected, Actual, EFTCAOutputFileFormatErr);
-        
-        Expected :=  StrConvMangement.GetPaddedString(Format(TempACHRBDetail."Transaction Code"), 3, ' ', 1);
+
+        Expected := StrConvMangement.GetPaddedString(Format(TempACHRBDetail."Transaction Code"), 3, ' ', 1);
         Actual := Line.Substring(8, 3);
         Assert.AreEqual(Expected, Actual, EFTCAOutputFileFormatErr);
-        
+
         Expected := StrConvMangement.GetPaddedString(Format(TempACHRBDetail."Client Number"), 10, '0', 1);
         Actual := Line.Substring(11, 10);
         Assert.AreEqual(Expected, Actual, EFTCAOutputFileFormatErr);
-        
+
         Expected := ' ';
-        Actual :=  Line.Substring(21, 1);
+        Actual := Line.Substring(21, 1);
         Assert.AreEqual(Expected, Actual, EFTCAOutputFileFormatErr);
-        
+
         Expected := StrConvMangement.GetPaddedString(Format(TempACHRBDetail."Customer/Vendor Number"), 19, ' ', 1);
         Actual := Line.Substring(22, 19);
         Assert.AreEqual(Expected, Actual, EFTCAOutputFileFormatErr);
@@ -2920,10 +2966,10 @@
         Expected := CopyStr(TempACHRBDetail."Language Code", 1, 1);
         Actual := Line.Substring(124, 1);
         Assert.AreEqual(Expected, Actual, EFTCAOutputFileFormatErr);
-        
+
         Expected := ' ';
         Actual := Line.Substring(125, 1);
-        Assert.AreEqual(Expected, Actual,EFTCAOutputFileFormatErr);
+        Assert.AreEqual(Expected, Actual, EFTCAOutputFileFormatErr);
 
         Expected := StrConvMangement.GetPaddedString(Format(TempACHRBDetail."Client Name"), 15, ' ', 1);
         Actual := Line.Substring(126, 15);
@@ -2931,7 +2977,7 @@
 
         Expected := CopyStr(TempACHRBDetail."Currency Code", 1, 3);
         Actual := Line.Substring(141, 3);
-        Assert.AreEqual(Expected, Actual, EFTCAOutputFileFormatErr);    
+        Assert.AreEqual(Expected, Actual, EFTCAOutputFileFormatErr);
 
         Expected := ' ';
         Actual := Line.Substring(144, 1);
@@ -2939,7 +2985,7 @@
 
         Expected := StrConvMangement.GetPaddedString(Format(TempACHRBDetail."Country"), 3, ' ', 1);
         Actual := Line.Substring(145, 3);
-        Assert.AreEqual(Expected, Actual, EFTCAOutputFileFormatErr);  
+        Assert.AreEqual(Expected, Actual, EFTCAOutputFileFormatErr);
 
         Expected := '  ';
         Actual := Line.Substring(148, 2);
@@ -2958,7 +3004,7 @@
     var
         StrConvMangement: Codeunit StringConversionManagement;
         EFTUSOutputFileFormatErr: Label 'Error in EFT US file output';
-        Expected, Actual: Text;
+        Expected, Actual : Text;
         Pos: Integer;
     begin
         Pos := 1;
@@ -2970,35 +3016,35 @@
         Actual := ReadText(Line, Pos, 2);
         Assert.AreEqual(Expected, Actual, EFTUSOutputFileFormatErr);
 
-        Expected := StrConvMangement.GetPaddedString(CopyStr(TempACHUSDetail."Payee Transit Routing Number",1,9), 9, ' ', 0);
+        Expected := StrConvMangement.GetPaddedString(CopyStr(TempACHUSDetail."Payee Transit Routing Number", 1, 9), 9, ' ', 0);
         Actual := ReadText(Line, Pos, 9);
         Assert.AreEqual(Expected, Actual, EFTUSOutputFileFormatErr);
 
-        Expected := StrConvMangement.GetPaddedString(CopyStr(TempACHUSDetail."Payee Bank Account Number",1,17), 17, ' ', 1);
+        Expected := StrConvMangement.GetPaddedString(CopyStr(TempACHUSDetail."Payee Bank Account Number", 1, 17), 17, ' ', 1);
         Actual := ReadText(Line, Pos, 17);
         Assert.AreEqual(Expected, Actual, EFTUSOutputFileFormatErr);
 
-        Expected := StrConvMangement.GetPaddedString(Format(TempACHUSDetail."Payment Amount" * 100,0,1), 10, '0', 0);
+        Expected := StrConvMangement.GetPaddedString(Format(TempACHUSDetail."Payment Amount" * 100, 0, 1), 10, '0', 0);
         Actual := ReadText(Line, Pos, 10);
         Assert.AreEqual(Expected, Actual, EFTUSOutputFileFormatErr);
 
-        Expected := StrConvMangement.GetPaddedString(CopyStr(TempACHUSDetail."Payee ID/Cross Reference Numbe",1,15), 15, ' ', 1);
+        Expected := StrConvMangement.GetPaddedString(CopyStr(TempACHUSDetail."Payee ID/Cross Reference Numbe", 1, 15), 15, ' ', 1);
         Actual := ReadText(Line, Pos, 15);
         Assert.AreEqual(Expected, Actual, EFTUSOutputFileFormatErr);
-        
+
         Expected := StrConvMangement.GetPaddedString(Format(TempACHUSDetail."Addenda Record Indicator"), 4, '0', 0);
         Actual := ReadText(Line, Pos, 4);
         Assert.AreEqual(Expected, Actual, EFTUSOutputFileFormatErr);
 
-        Expected := StrConvMangement.GetPaddedString(CopyStr(Uppercase(TempACHUSDetail."Payee Name"),1,22), 22, ' ', 1);
+        Expected := StrConvMangement.GetPaddedString(CopyStr(Uppercase(TempACHUSDetail."Payee Name"), 1, 22), 22, ' ', 1);
         Actual := ReadText(Line, Pos, 22);
         Assert.AreEqual(Expected, Actual, EFTUSOutputFileFormatErr);
 
-        Expected := StrConvMangement.GetPaddedString(CopyStr(TempACHUSDetail."Filler/Reserved", 1, 2), 2, ' ', 1); 
+        Expected := StrConvMangement.GetPaddedString(CopyStr(TempACHUSDetail."Filler/Reserved", 1, 2), 2, ' ', 1);
         Actual := ReadText(Line, Pos, 2);
         Assert.AreEqual(Expected, Actual, EFTUSOutputFileFormatErr);
 
-        Expected := StrConvMangement.GetPaddedString(CopyStr(TempACHUSDetail."Discretionary Data", 1, 2), 2, ' ', 1); 
+        Expected := StrConvMangement.GetPaddedString(CopyStr(TempACHUSDetail."Discretionary Data", 1, 2), 2, ' ', 1);
         Actual := ReadText(Line, Pos, 2);
         Assert.AreEqual(Expected, Actual, EFTUSOutputFileFormatErr);
 
@@ -3016,12 +3062,12 @@
     var
         StrConvMangement: Codeunit StringConversionManagement;
         EFTCAOutputFileFormatErr: Label 'Error in EFT CA file output';
-        Expected, Actual: Text;
+        Expected, Actual : Text;
     begin
         Expected := StrConvMangement.GetPaddedString(Format(TempACHRBDetail."Record Count"), 6, '0', 0);
         Actual := Line.Substring(1, 6);
         Assert.AreEqual(Expected, Actual, EFTCAOutputFileFormatErr);
-        
+
         Expected := 'C';
         Actual := Line.Substring(7, 1);
         Assert.AreEqual(Expected, Actual, EFTCAOutputFileFormatErr);
@@ -3029,25 +3075,25 @@
         Expected := 'AD1';
         Actual := Line.Substring(8, 3);
         Assert.AreEqual(Expected, Actual, EFTCAOutputFileFormatErr);
-        
+
         Expected := StrConvMangement.GetPaddedString(Format(TempACHRBDetail."AD1Client No"), 10, '0', 1);
         Actual := Line.Substring(11, 10);
         Assert.AreEqual(Expected, Actual, EFTCAOutputFileFormatErr);
-        
+
         Expected := StrConvMangement.GetPaddedString(UpperCase(TempACHRBDetail."AD1Company Name"), 30, ' ', 1);
         Actual := Line.Substring(21, 30);
         Assert.AreEqual(Expected, Actual, EFTCAOutputFileFormatErr);
-        
+
         Expected := StrConvMangement.GetPaddedString(UpperCase(CopyStr(TempACHRBDetail.AD1Address, 1, 35)), 35, ' ', 1);
-        Actual :=  Line.Substring(51, 35);
+        Actual := Line.Substring(51, 35);
         Assert.AreEqual(Expected, Actual, EFTCAOutputFileFormatErr);
 
         Expected := StrConvMangement.GetPaddedString(UpperCase(TempACHRBDetail."AD1City State"), 35, ' ', 1);
-        Actual :=  Line.Substring(86, 35);
+        Actual := Line.Substring(86, 35);
         Assert.AreEqual(Expected, Actual, EFTCAOutputFileFormatErr);
 
         Expected := StrConvMangement.GetPaddedString(UpperCase(TempACHRBDetail."AD1Region Code/Post Code"), 32, ' ', 1);
-        Actual :=  Line.Substring(121, 32);
+        Actual := Line.Substring(121, 32);
         Assert.AreEqual(Expected, Actual, EFTCAOutputFileFormatErr);
     end;
 
@@ -3055,12 +3101,12 @@
     var
         StrConvMangement: Codeunit StringConversionManagement;
         EFTCAOutputFileFormatErr: Label 'Error in EFT CA file output';
-        Expected, Actual: Text;
+        Expected, Actual : Text;
     begin
         Expected := StrConvMangement.GetPaddedString(Format(TempACHRBDetail."Record Count"), 6, '0', 0);
         Actual := Line.Substring(1, 6);
         Assert.AreEqual(Expected, Actual, EFTCAOutputFileFormatErr);
-        
+
         Expected := 'C';
         Actual := Line.Substring(7, 1);
         Assert.AreEqual(Expected, Actual, EFTCAOutputFileFormatErr);
@@ -3068,29 +3114,29 @@
         Expected := 'AD2';
         Actual := Line.Substring(8, 3);
         Assert.AreEqual(Expected, Actual, EFTCAOutputFileFormatErr);
-        
+
         Expected := StrConvMangement.GetPaddedString(Format(TempACHRBDetail."AD2Client No"), 10, '0', 1);
         Actual := Line.Substring(11, 10);
         Assert.AreEqual(Expected, Actual, EFTCAOutputFileFormatErr);
-        
+
         Expected := StrConvMangement.GetPaddedString(Format(TempACHRBDetail."AD2Recipient Address"), 35, ' ', 1);
         Actual := Line.Substring(21, 35);
         Assert.AreEqual(Expected, Actual, EFTCAOutputFileFormatErr);
-        
+
         Expected := StrConvMangement.GetPaddedString(Format(TempACHRBDetail."AD2Recipient City/County"), 35, ' ', 1);
-        Actual :=  Line.Substring(56, 35);
+        Actual := Line.Substring(56, 35);
         Assert.AreEqual(Expected, Actual, EFTCAOutputFileFormatErr);
 
         Expected := StrConvMangement.GetPaddedString(Format(TempACHRBDetail."AD2Region Code/Post Code"), 35, ' ', 1);
-        Actual :=  Line.Substring(91, 35);
+        Actual := Line.Substring(91, 35);
         Assert.AreEqual(Expected, Actual, EFTCAOutputFileFormatErr);
 
         Expected := StrConvMangement.GetPaddedString(Format(TempACHRBDetail."AD2Transaction Type Code"), 3, ' ', 1);
-        Actual :=  Line.Substring(126, 3);
+        Actual := Line.Substring(126, 3);
         Assert.AreEqual(Expected, Actual, EFTCAOutputFileFormatErr);
 
         Expected := StrConvMangement.GetPaddedString(Format(TempACHRBDetail."AD2Company Entry Description"), 10, ' ', 1);
-        Actual :=  Line.Substring(129, 10);
+        Actual := Line.Substring(129, 10);
         Assert.AreEqual(Expected, Actual, EFTCAOutputFileFormatErr);
 
         Expected := '              ';
@@ -3102,28 +3148,28 @@
     var
         StrConvMangement: Codeunit StringConversionManagement;
         EFTCAOutputFileFormatErr: Label 'Error in EFT CA file output';
-        Expected, Actual: Text;
+        Expected, Actual : Text;
     begin
         Expected := StrConvMangement.GetPaddedString(Format(TempACHRBFooter."Record Count"), 6, '0', 0);
         Actual := Line.Substring(1, 6);
         Assert.AreEqual(Expected, Actual, EFTCAOutputFileFormatErr);
-        
+
         Expected := 'Z';
         Actual := Line.Substring(7, 1);
         Assert.AreEqual(Expected, Actual, EFTCAOutputFileFormatErr);
-        
+
         Expected := TempACHRBFooter."Transaction Code";
         Actual := Line.Substring(8, 3);
         Assert.AreEqual(Expected, Actual, EFTCAOutputFileFormatErr);
-        
+
         Expected := StrConvMangement.GetPaddedString(Format(TempACHRBFooter."Client Number"), 10, '0', 1);
         Actual := Line.Substring(11, 10);
         Assert.AreEqual(Expected, Actual, EFTCAOutputFileFormatErr);
-        
+
         Expected := StrConvMangement.GetPaddedString(Format(TempACHRBFooter."Credit Payment Transactions"), 6, '0', 0);
-        Actual :=  Line.Substring(21, 6);
+        Actual := Line.Substring(21, 6);
         Assert.AreEqual(Expected, Actual, EFTCAOutputFileFormatErr);
-        
+
         Expected := StrConvMangement.GetPaddedString(Format(TempACHRBFooter."Total File Credit" * 100, 0, 1), 14, '0', 0);
         Actual := Line.Substring(27, 14);
         Assert.AreEqual(Expected, Actual, EFTCAOutputFileFormatErr);
@@ -3164,12 +3210,12 @@
         Actual := Line.Substring(152, 1);
         Assert.AreEqual(Expected, Actual, EFTCAOutputFileFormatErr);
     end;
-    
+
     local procedure ValidateEFTUSFooterA(Line: Text)
     var
         StrConvMangement: Codeunit StringConversionManagement;
         EFTUSOutputFileFormatErr: Label 'Error in EFT US file output';
-        Expected, Actual: Text;
+        Expected, Actual : Text;
         Pos: Integer;
     begin
         Pos := 1;
@@ -3201,19 +3247,19 @@
         Actual := ReadText(Line, Pos, 1);
         Assert.AreEqual(Expected, Actual, EFTUSOutputFileFormatErr);
 
-        Expected := StrConvMangement.GetPaddedString(CopyStr(TempACHUSFooter."Federal ID No.",1,9), 9, ' ', 1);
+        Expected := StrConvMangement.GetPaddedString(CopyStr(TempACHUSFooter."Federal ID No.", 1, 9), 9, ' ', 1);
         Actual := ReadText(Line, Pos, 9);
         Assert.AreEqual(Expected, Actual, EFTUSOutputFileFormatErr);
 
-        Expected := StrConvMangement.GetPaddedString(CopyStr(TempACHUSFooter."Filler/Reserved",1,19), 19, ' ', 1);
+        Expected := StrConvMangement.GetPaddedString(CopyStr(TempACHUSFooter."Filler/Reserved", 1, 19), 19, ' ', 1);
         Actual := ReadText(Line, Pos, 19);
         Assert.AreEqual(Expected, Actual, EFTUSOutputFileFormatErr);
 
-        Expected := StrConvMangement.GetPaddedString(CopyStr(TempACHUSFooter."Filler/Reserved",1,6), 6, ' ', 1);
+        Expected := StrConvMangement.GetPaddedString(CopyStr(TempACHUSFooter."Filler/Reserved", 1, 6), 6, ' ', 1);
         Actual := ReadText(Line, Pos, 6);
         Assert.AreEqual(Expected, Actual, EFTUSOutputFileFormatErr);
 
-        Expected := StrConvMangement.GetPaddedString(CopyStr(TempACHUSFooter."Transit Routing Number",1,8), 8, ' ', 1);
+        Expected := StrConvMangement.GetPaddedString(CopyStr(TempACHUSFooter."Transit Routing Number", 1, 8), 8, ' ', 1);
         Actual := ReadText(Line, Pos, 8);
         Assert.AreEqual(Expected, Actual, EFTUSOutputFileFormatErr);
 
@@ -3221,12 +3267,12 @@
         Actual := ReadText(Line, Pos, 7);
         Assert.AreEqual(Expected, Actual, EFTUSOutputFileFormatErr);
     end;
-    
+
     local procedure ValidateEFTUSFooterB(Line: Text)
     var
         StrConvMangement: Codeunit StringConversionManagement;
         EFTUSOutputFileFormatErr: Label 'Error in EFT US file output';
-        Expected, Actual: Text;
+        Expected, Actual : Text;
         Pos: Integer;
     begin
         Pos := 1;
@@ -3258,13 +3304,13 @@
         Actual := ReadText(Line, Pos, 12);
         Assert.AreEqual(Expected, Actual, EFTUSOutputFileFormatErr);
 
-        Expected := StrConvMangement.GetPaddedString(CopyStr(TempACHUSFooter."Filler/Reserved",1,39), 39, ' ', 1);
+        Expected := StrConvMangement.GetPaddedString(CopyStr(TempACHUSFooter."Filler/Reserved", 1, 39), 39, ' ', 1);
         Actual := ReadText(Line, Pos, 39);
         Assert.AreEqual(Expected, Actual, EFTUSOutputFileFormatErr);
 
     end;
 
-    local procedure ReadEFTFileOutputLines(DataExchDefCode: Code[20]; DetailCode: Code[20]) Lines : List of [Text]
+    local procedure ReadEFTFileOutputLines(DataExchDefCode: Code[20]; DetailCode: Code[20]) Lines: List of [Text]
     var
         DataExch: Record "Data Exch.";
         Text: Text;
@@ -4064,6 +4110,15 @@
         EFTExport.TestField("Check Printed", true);
     end;
 
+    local procedure GetInvoiceAmount(InvoiceNo: Code[20]) InvoiceAmount: Decimal
+    var
+        PurchInvHeader: Record "Purch. Inv. Header";
+    begin
+        PurchInvHeader.Get(InvoiceNo);
+        PurchInvHeader.CalcFields(Amount);
+        exit(PurchInvHeader.Amount)
+    end;
+
     local procedure PrepareEFTSequenceNoScenario(var GenJournalBatch: Record "Gen. Journal Batch"; var VendorBankAccount: Record "Vendor Bank Account"; var BankAccountNo: Code[20]; var LastSequenceNo: Integer)
     var
         EFTExport: Record "EFT Export";
@@ -4812,7 +4867,7 @@
         TempACHUSHeader := ACHUSHeader;
         if TempACHUSHeader.Insert() then;
     end;
-    
+
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Export EFT (ACH)", 'OnStartExportFileOnBeforeACHUSHeaderModify', '', false, false)]
     local procedure StoreTempACHUSHeaderOnBeforeACHUSHeaderModify2(var ACHUSHeader: Record "ACH US Header");
     begin

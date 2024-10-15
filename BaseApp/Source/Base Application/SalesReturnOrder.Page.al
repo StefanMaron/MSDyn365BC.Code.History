@@ -200,7 +200,8 @@ page 6630 "Sales Return Order"
                 {
                     ApplicationArea = VAT;
                     Importance = Promoted;
-                    Editable = true;
+                    Editable = VATDateEnabled;
+                    Visible = VATDateEnabled;
                     ToolTip = 'Specifies the date used to include entries on VAT reports in a VAT period. This is either the date that the document was created or posted, depending on your setting on the General Ledger Setup page.';
                 }
                 field("Order Date"; Rec."Order Date")
@@ -705,7 +706,7 @@ page 6630 "Sales Return Order"
             {
                 ApplicationArea = All;
                 Caption = 'Attachments';
-                SubPageLink = "Table ID" = CONST(36),
+                SubPageLink = "Table ID" = CONST(Database::"Sales Header"),
                               "No." = FIELD("No."),
                               "Document Type" = FIELD("Document Type");
             }
@@ -1579,6 +1580,8 @@ page 6630 "Sales Return Order"
     end;
 
     trigger OnOpenPage()
+    var
+        VATReportingDateMgt: Codeunit "VAT Reporting Date Mgt";
     begin
         Rec.SetSecurityFilterOnRespCenter();
 
@@ -1590,6 +1593,7 @@ page 6630 "Sales Return Order"
 
         SetPostingGroupEditable();
         CheckShowBackgrValidationNotification();
+        VATDateEnabled := VATReportingDateMgt.IsVATDateEnabled();
     end;
 
     trigger OnQueryClosePage(CloseAction: Action): Boolean
@@ -1638,6 +1642,8 @@ page 6630 "Sales Return Order"
         IsPostingGroupEditable: Boolean;
         [InDataSet]
         IsSalesLinesEditable: Boolean;
+        [InDataSet]
+        VATDateEnabled: Boolean;
 
     local procedure ActivateFields()
     begin

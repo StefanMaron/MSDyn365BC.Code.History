@@ -93,17 +93,19 @@ codeunit 762 "Acc. Sched. Chart Management"
         if AccScheduleLine.Totaling = '' then
             exit;
 
-        if AccScheduleLine."Totaling Type" in [AccScheduleLine."Totaling Type"::"Cash Flow Entry Accounts",
-                                               AccScheduleLine."Totaling Type"::"Cash Flow Total Accounts"]
-        then
-            DrillDownOnCFAccount(AccScheduleLine, ColumnLayout)
-        else
-            if AccScheduleLine."Totaling Type" in [AccScheduleLine."Totaling Type"::"Cost Type",
-                                                   AccScheduleLine."Totaling Type"::"Cost Type Total"]
-            then
-                DrillDownOnCostType(AccScheduleLine, ColumnLayout)
-            else
+        case AccScheduleLine."Totaling Type" of
+            AccScheduleLine."Totaling Type"::"Posting Accounts",
+            AccScheduleLine."Totaling Type"::"Total Accounts":
                 DrillDownOnGLAccount(AccScheduleLine, ColumnLayout);
+            AccScheduleLine."Totaling Type"::"Cost Type",
+            AccScheduleLine."Totaling Type"::"Cost Type Total":
+                DrillDownOnCostType(AccScheduleLine, ColumnLayout);
+            AccScheduleLine."Totaling Type"::"Cash Flow Entry Accounts",
+            AccScheduleLine."Totaling Type"::"Cash Flow Total Accounts":
+                DrillDownOnCFAccount(AccScheduleLine, ColumnLayout);
+            else
+                OnDrillDownTotalingTypeElseCase(AccScheduleLine, ColumnLayout, BusChartBuf);
+        end;
     end;
 
     procedure UpdateData(var BusChartBuf: Record "Business Chart Buffer"; Period: Option " ",Next,Previous; AccountSchedulesChartSetup: Record "Account Schedules Chart Setup")
@@ -506,6 +508,11 @@ codeunit 762 "Acc. Sched. Chart Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnDrillDownOnGLAccountOnBeforeRunChartOfAccsAnalysisView(var GLAccount: Record "G/L Account"; var ColumnLayout: Record "Column Layout")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnDrillDownTotalingTypeElseCase(var AccScheduleLine: Record "Acc. Schedule Line"; var ColumnLayout: Record "Column Layout"; var BusChartBuf: Record "Business Chart Buffer")
     begin
     end;
 }

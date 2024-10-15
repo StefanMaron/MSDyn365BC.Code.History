@@ -54,8 +54,7 @@ page 379 "Bank Acc. Reconciliation"
                     ToolTip = 'Specifies the date on the bank account statement.';
                     trigger OnValidate()
                     begin
-                        UnmatchBLEAfterStatementDate();
-                        UpdateBankAccountLedgerEntrySubPage("Statement Date");
+                        UpdateBankAccountLedgerEntrySubPage(Rec."Statement Date", true);
                     end;
                 }
                 field(BalanceLastStatement; "Balance Last Statement")
@@ -159,7 +158,8 @@ page 379 "Bank Acc. Reconciliation"
                     trigger OnAction()
                     begin
                         RecallEmptyListNotification();
-                        UpdateBankAccountLedgerEntrySubpage(Rec."Statement Date", false);
+                        ShowingReversed := true;
+                        UpdateBankAccountLedgerEntrySubpage(Rec."Statement Date");
                     end;
                 }
                 action(HideReversedEntries)
@@ -173,7 +173,8 @@ page 379 "Bank Acc. Reconciliation"
                     trigger OnAction()
                     begin
                         RecallEmptyListNotification();
-                        UpdateBankAccountLedgerEntrySubpage(Rec."Statement Date", true);
+                        ShowingReversed := false;
+                        UpdateBankAccountLedgerEntrySubpage(Rec."Statement Date");
                     end;
                 }
                 action("Transfer to General Journal")
@@ -302,7 +303,8 @@ page 379 "Bank Acc. Reconciliation"
                     trigger OnAction()
                     begin
                         CurrPage.StmtLine.PAGE.ToggleMatchedFilter(false);
-                        CurrPage.ApplyBankLedgerEntries.PAGE.ToggleMatchedFilter(false);
+                        ClearBankLedgerEntryFilters();
+                        ShowingNonMatched := false;
                     end;
                 }
                 action(NotMatched)
@@ -315,7 +317,7 @@ page 379 "Bank Acc. Reconciliation"
                     trigger OnAction()
                     begin
                         CurrPage.StmtLine.PAGE.ToggleMatchedFilter(true);
-                        CurrPage.ApplyBankLedgerEntries.PAGE.ToggleMatchedFilter(true);
+                        ShowingNonMatched := true;
                     end;
                 }
             }
@@ -560,27 +562,71 @@ page 379 "Bank Acc. Reconciliation"
         end;
     end;
 
-    local procedure UpdateBankAccountLedgerEntrySubpage(StatementDate: Date)
-    begin
-        UpdateBankAccountLedgerEntrySubpage(StatementDate, true);
-    end;
-
-    local procedure UpdateBankAccountLedgerEntrySubpage(StatementDate: Date; ExcludeReversedEntries: Boolean)
+    local procedure ClearBankLedgerEntryFilters()
     var
         BankAccountLedgerEntry: Record "Bank Account Ledger Entry";
         FilterDate: Date;
     begin
+        FilterDate := Rec.MatchCandidateFilterDate();
+        if Rec."Statement Date" > FilterDate then
+            FilterDate := Rec."Statement Date";
+        CurrPage.ApplyBankLedgerEntries.Page.CopyCurrentFilters(BankAccountLedgerEntry);       
+        BankAccountLedgerEntry.SetFilter("Posting Date", '<= %1', FilterDate);
+        BankAccountLedgerEntry.SetRange("Document No.");
+        BankAccountLedgerEntry.SetRange(Description);
+        BankAccountLedgerEntry.SetRange(Amount);
+        CurrPage.ApplyBankLedgerEntries.Page.SetTableView(BankAccountLedgerEntry);
+        CurrPage.ApplyBankLedgerEntries.Page.Update();
+    end;
+
+    local procedure UpdateBankAccountLedgerEntrySubpage(StatementDate: Date)
+    begin
+        UpdateBankAccountLedgerEntrySubpage(StatementDate, false);
+    end;
+
+    local procedure UpdateBankAccountLedgerEntrySubpage(StatementDate: Date; Force: Boolean)
+    var
+        BankAccountLedgerEntry: Record "Bank Account Ledger Entry";
+        FilterDate: Date;
+        UserPostingDateFilter: Text;
+        PostingDateFilter: Text;
+    begin
+        CurrPage.ApplyBankLedgerEntries.Page.CopyCurrentFilters(BankAccountLedgerEntry);
+        UserPostingDateFilter := BankAccountLedgerEntry.GetFilter("Posting Date");
+        BankAccountLedgerEntry.SetRange("Statement Status");
+        BankAccountLedgerEntry.SetRange("Statement No.");       
+        BankAccountLedgerEntry.SetRange("Statement Line No.");
+        BankAccountLedgerEntry.SetRange("Posting Date");
         BankAccountLedgerEntry.SetRange("Bank Account No.", "Bank Account No.");
         BankAccountLedgerEntry.SetRange(Open, true);
-        BankAccountLedgerEntry.SetFilter("Statement Status", Format(BankAccountLedgerEntry."Statement Status"::Open) + '|' + Format(BankAccountLedgerEntry."Statement Status"::"Bank Acc. Entry Applied") + '|' + Format(BankAccountLedgerEntry."Statement Status"::"Check Entry Applied"));
+        if not ShowingNonMatched then
+            BankAccountLedgerEntry.SetFilter("Statement Status", Format(BankAccountLedgerEntry."Statement Status"::Open) + '|' + Format(BankAccountLedgerEntry."Statement Status"::"Bank Acc. Entry Applied") + '|' + Format(BankAccountLedgerEntry."Statement Status"::"Check Entry Applied"))
+        else begin
+            BankAccountLedgerEntry.SetRange("Statement Status", BankAccountLedgerEntry."Statement Status"::Open);
+            BankAccountLedgerEntry.SetRange("Statement No.", '');
+            BankAccountLedgerEntry.SetRange("Statement Line No.", 0);
+        end;
         FilterDate := MatchCandidateFilterDate();
         if StatementDate > FilterDate then
             FilterDate := StatementDate;
-        if FilterDate <> 0D then
-            BankAccountLedgerEntry.SetFilter("Posting Date", '<=' + Format(FilterDate));
+        if ((LastPostingDateFilter <> UserPostingDateFilter) or (LastPostingDateFilter = '')) or Force then begin
+            if FilterDate <> 0D then begin
+                if (UserPostingDateFilter <> '') and (not Force) then
+                    PostingDateFilter := '(' + UserPostingDateFilter + ')&';
+                PostingDateFilter += '<=' + Format(FilterDate);
+                BankAccountLedgerEntry.SetFilter("Posting Date", PostingDateFilter);
+                LastPostingDateFilter := BankAccountLedgerEntry.GetFilter("Posting Date");
+            end;
+            if Force and (Rec."Statement Date" = 0D) then begin
+                BankAccountLedgerEntry.SetRange("Posting Date");
+                LastPostingDateFilter := BankAccountLedgerEntry.GetFilter("Posting Date");
+            end;
+        end
+        else
+            BankAccountLedgerEntry.SetFilter("Posting Date", UserPostingDateFilter);
         OnUpdateBankAccountLedgerEntrySubpageOnAfterSetFilters(BankAccountLedgerEntry);
         if BankAccountLedgerEntry.FindSet() then
-            if ExcludeReversedEntries then begin
+            if not ShowingReversed then begin
                 repeat
                     if (BankAccountLedgerEntry."Statement Status" = BankAccountLedgerEntry."Statement Status"::Open) and (BankAccountLedgerEntry.Reversed = true) then
                         BankAccountLedgerEntry.Mark(false)
@@ -631,30 +677,6 @@ page 379 "Bank Acc. Reconciliation"
             Message(ExistingBankAccReconciliationAndContinueMsg);
     end;
 
-    local procedure UnmatchBLEAfterStatementDate()
-    var
-        BankAccountLedgerEntry: Record "Bank Account Ledger Entry";
-        TempMatchedAfterStatementBankAccountLedgerEntry: Record "Bank Account Ledger Entry" temporary;
-        TempBankAccReconciliationLine: Record "Bank Acc. Reconciliation Line" temporary;
-        MatchBankRecLines: Codeunit "Match Bank Rec. Lines";
-    begin
-        CurrPage.ApplyBankLedgerEntries.Page.CopyCurrentFilters(BankAccountLedgerEntry);
-        BankAccountLedgerEntry.SetFilter("Posting Date", '>%1', Rec."Statement Date");
-        BankAccountLedgerEntry.SetRange("Statement No.", Rec."Statement No.");
-        BankAccountLedgerEntry.SetFilter("Statement Status", '%1|%2', BankAccountLedgerEntry."Statement Status"::"Bank Acc. Entry Applied", BankAccountLedgerEntry."Statement Status"::"Check Entry Applied");
-        if BankAccountLedgerEntry.IsEmpty() then
-            exit;
-        if not Confirm(UnmatchAfterStatementDateMsg) then
-            Error('');
-        BankAccountLedgerEntry.FindSet();
-        repeat
-            TempMatchedAfterStatementBankAccountLedgerEntry.Init();
-            TempMatchedAfterStatementBankAccountLedgerEntry.Copy(BankAccountLedgerEntry);
-            TempMatchedAfterStatementBankAccountLedgerEntry.Insert();
-        until BankAccountLedgerEntry.Next() = 0;
-        MatchBankRecLines.RemoveMatch(TempBankAccReconciliationLine, TempMatchedAfterStatementBankAccountLedgerEntry);
-    end;
-
     var
         SuggestBankAccStatement: Report "Suggest Bank Acc. Recon. Lines";
         TransferToGLJnl: Report "Trans. Bank Rec. to Gen. Jnl.";
@@ -662,6 +684,9 @@ page 379 "Bank Acc. Reconciliation"
         ReportPrint: Codeunit "Test Report-Print";
         BankAccountNoIsEditable: Boolean;
         RemoveCurrentReconciliationOnClosed: Boolean;
+        ShowingNonMatched: Boolean;
+        ShowingReversed: Boolean;
+        LastPostingDateFilter: Text;
         ListEmptyMsg: Label 'No bank statement lines exist. Choose the Import Bank Statement action to fill in the lines from a file, or enter lines manually.';
         ImportedLinesAfterStatementDateMsg: Label 'Imported bank statement has lines dated after the statement date.';
         StatementDateEmptyMsg: Label 'Statement date is empty. The latest bank statement line is %1. Do you want to set the statement date to this date?', Comment = '%1 - statement date';
@@ -671,7 +696,6 @@ page 379 "Bank Acc. Reconciliation"
         IgnoreExistingBankAccReconciliationAndContinueQst: Label 'There are ongoing reconciliations for this bank account. Number of ongoing reconciliations: %1.\\Do you want to continue?', Comment = '%1 = number of ongoing reconciliations';
         ExistingBankAccReconciliationAndContinueMsg: Label 'There are ongoing reconciliations for this bank account in which entries are matched.';
         ModifyBankAccLedgerEntriesForModificationQst: Label 'One or more of the selected entries have been matched on another bank account reconciliation.\\Do you want to continue?';
-        UnmatchAfterStatementDateMsg: Label 'You have matched entries in this reconciliation after this statement date. These entries will be unmatched. \\Do you want to continue?';
 
     [IntegrationEvent(false, false)]
     local procedure OnUpdateBankAccountLedgerEntrySubpageOnAfterSetFilters(var BankAccountLedgerEntry: Record "Bank Account Ledger Entry")

@@ -209,9 +209,12 @@ table 152 "Resource Group"
     end;
 
     trigger OnRename()
+    var
+        PriceListLine: Record "Price List Line";
     begin
         DimMgt.RenameDefaultDim(DATABASE::"Resource Group", xRec."No.", "No.");
         CommentLine.RenameCommentLine(CommentLine."Table Name"::"Resource Group", xRec."No.", "No.");
+        PriceListLine.RenameNo(PriceListLine."Asset Type"::"Resource Group", xRec."No.", "No.")
     end;
 
     var

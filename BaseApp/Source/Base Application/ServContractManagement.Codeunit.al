@@ -267,7 +267,10 @@ codeunit 5940 ServContractManagement
         end else begin
             YearContractCorrection := false;
             ServLedgEntry."Moved from Prepaid Acc." := true;
-            ServLedgEntry."Posting Date" := ServHeader2."Posting Date";
+            if InvFromDate = InvToDate then
+                ServLedgEntry."Posting Date" := InvFromDate
+            else
+                ServLedgEntry."Posting Date" := ServHeader2."Posting Date";
             FilterServiceContractLine(
               ServContractLine, ServContractHeader."Contract No.", ServContractHeader."Contract Type", LineNo);
             if AddingNewLines then

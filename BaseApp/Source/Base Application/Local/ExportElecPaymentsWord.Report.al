@@ -776,16 +776,16 @@ report 11383 "ExportElecPayments - Word"
             VendLedgEntry.SetRange("Vendor No.", Vendor."No.");
             VendLedgEntry.SetRange(Open, true);
             VendLedgEntry.FindFirst();
-            VendLedgEntry.CalcFields("Remaining Amt. (LCY)");
+            VendLedgEntry.CalcFields("Remaining Amt. (LCY)", Amount);
             if (VendLedgEntry."Pmt. Discount Date" >= GenJnlLine."Document Date") and
                (VendLedgEntry."Remaining Pmt. Disc. Possible" <> 0) and
-               (-(ExportAmount + VendLedgEntry."Remaining Pmt. Disc. Possible") >= -VendLedgEntry."Amount to Apply")
+               (-(ExportAmount + VendLedgEntry."Remaining Pmt. Disc. Possible") >= -VendLedgEntry.Amount)
             then begin
                 DiscountTaken := -VendLedgEntry."Remaining Pmt. Disc. Possible";
-                AmountPaid := -(VendLedgEntry."Amount to Apply" - VendLedgEntry."Remaining Pmt. Disc. Possible");
+                AmountPaid := -(VendLedgEntry.Amount - VendLedgEntry."Remaining Pmt. Disc. Possible");
             end else
-                if -ExportAmount > -VendLedgEntry."Amount to Apply" then
-                    AmountPaid := -VendLedgEntry."Amount to Apply"
+                if -ExportAmount > -VendLedgEntry.Amount then
+                    AmountPaid := -VendLedgEntry.Amount
                 else
                     AmountPaid := -ExportAmount;
         end;
@@ -809,16 +809,16 @@ report 11383 "ExportElecPayments - Word"
             CustLedgEntry.SetRange("Customer No.", Customer."No.");
             CustLedgEntry.SetRange(Open, true);
             CustLedgEntry.FindFirst();
-            CustLedgEntry.CalcFields("Remaining Amt. (LCY)");
+            CustLedgEntry.CalcFields("Remaining Amt. (LCY)", Amount);
             if (CustLedgEntry."Pmt. Discount Date" >= GenJnlLine."Document Date") and
                (CustLedgEntry."Remaining Pmt. Disc. Possible" <> 0) and
-               (-(ExportAmount - CustLedgEntry."Remaining Pmt. Disc. Possible") >= -CustLedgEntry."Amount to Apply")
+               (-(ExportAmount - CustLedgEntry."Remaining Pmt. Disc. Possible") >= -CustLedgEntry.Amount)
             then begin
                 DiscountTaken := -CustLedgEntry."Remaining Pmt. Disc. Possible";
-                AmountPaid := -(CustLedgEntry."Amount to Apply" - CustLedgEntry."Remaining Pmt. Disc. Possible");
+                AmountPaid := -(CustLedgEntry.Amount - CustLedgEntry."Remaining Pmt. Disc. Possible");
             end else
-                if -ExportAmount > -CustLedgEntry."Amount to Apply" then
-                    AmountPaid := -CustLedgEntry."Amount to Apply"
+                if -ExportAmount > -CustLedgEntry.Amount then
+                    AmountPaid := -CustLedgEntry.Amount
                 else
                     AmountPaid := -ExportAmount;
         end;

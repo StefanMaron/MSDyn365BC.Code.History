@@ -2442,7 +2442,7 @@ codeunit 7312 "Create Pick"
                     WhseAvailMgt.CalcLineReservedQtyOnInvt(
                       SourceType, SourceSubType, SourceNo, SourceLineNo, SourceSubLineNo, true, TempWhseActivLine);
 
-            AdjustQtyReservedOnPickShip(SubTotal, ReservedQtyOnInventory, QtyReservedOnPickShip, LineReservedQty);
+            AdjustQtyReservedOnPickShip(SubTotal, QtyReservedOnPickShip, LineReservedQty, ReservedQtyOnInventory);
 
             case true of
                 CalledFromPickWksh:
@@ -3313,30 +3313,20 @@ codeunit 7312 "Create Pick"
 
     procedure CalcReservedQtyOnInventory(ItemNo: Code[20]; LocationCode: Code[10]; VariantCode: Code[10]; WhseItemTrackingSetup: record "Item Tracking Setup") ReservedQty: Decimal
     var
-        ReservationEntry: Record "Reservation Entry";
-        TempBinContentBuffer: Record "Bin Content Buffer" temporary;
-        ReservItemTrackingSetup: Record "Item Tracking Setup";
+        CalcQtyInReservEntry: Query CalcQtyInReservEntry;
     begin
         ReservedQty := 0;
 
-        with ReservationEntry do begin
-            SetRange("Item No.", ItemNo);
-            SetRange("Source Type", DATABASE::"Item Ledger Entry");
-            SetRange("Source Subtype", 0);
-            SetRange("Reservation Status", "Reservation Status"::Reservation);
-            SetRange("Location Code", LocationCode);
-            SetRange("Variant Code", VariantCode);
-            SetTrackingFilterFromWhseItemTrackingSetupIfRequired(WhseItemTrackingSetup);
-            if FindSet() then
-                repeat
-                    ReservItemTrackingSetup.CopyTrackingFromReservEntry(ReservationEntry);
-                    TempBinContentBuffer.UpdateBuffer("Location Code", '', "Item No.", "Variant Code", '', ReservItemTrackingSetup, "Quantity (Base)");
-                until Next() = 0;
-
-            DistrubuteReservedQtyByBins(TempBinContentBuffer);
-            TempBinContentBuffer.CalcSums("Qty. to Handle (Base)");
-            ReservedQty := TempBinContentBuffer."Qty. to Handle (Base)";
-        end;
+        CalcQtyInReservEntry.SetRange(Source_Type, Database::"Item Ledger Entry");
+        CalcQtyInReservEntry.SetRange(Source_Subtype, 0);
+        CalcQtyInReservEntry.SetRange(Reservation_Status, "Reservation Status"::Reservation);
+        CalcQtyInReservEntry.SetRange(Location_Code, LocationCode);
+        CalcQtyInReservEntry.SetRange(Item_No_, ItemNo);
+        CalcQtyInReservEntry.SetRange(Variant_Code, VariantCode);
+        CalcQtyInReservEntry.SetTrackingFilterFromWhseItemTrackingSetupIfRequired(WhseItemTrackingSetup);
+        CalcQtyInReservEntry.Open();
+        while CalcQtyInReservEntry.Read() do
+            ReservedQty += DistributeReservedQtyByBins(CalcQtyInReservEntry);
 
         OnAfterCalcReservedQtyOnInventory(
             ItemNo, LocationCode, VariantCode,
@@ -3345,79 +3335,53 @@ codeunit 7312 "Create Pick"
             ReservedQty, WhseItemTrackingSetup);
     end;
 
-    local procedure DistrubuteReservedQtyByBins(var TempBinContentBuffer: Record "Bin Content Buffer" temporary)
+    local procedure DistributeReservedQtyByBins(var CalcQtyInReservEntry: Query CalcQtyInReservEntry): Decimal
     var
         TempBinContentBufferByBins: Record "Bin Content Buffer" temporary;
-        TempBinContentBufferByBlockedBins: Record "Bin Content Buffer" temporary;
-        WarehouseEntry: Record "Warehouse Entry";
         WhseItemTrackingSetup: Record "Item Tracking Setup";
+        CalcQtyInWhseEntries: Query CalcQtyInWhseEntries;
         QtyLeftToDistribute: Decimal;
         QtyInBin: Decimal;
+        Qty: Decimal;
     begin
-        with TempBinContentBuffer do begin
-            if FindSet() then
-                repeat
-                    QtyLeftToDistribute := "Qty. to Handle (Base)";
-                    WarehouseEntry.SetCurrentKey(
-                      "Item No.", "Bin Code", "Location Code", "Variant Code", "Unit of Measure Code", "Lot No.", "Serial No.",
-                      "Entry Type", Dedicated);
-                    WarehouseEntry.SetRange("Location Code", "Location Code");
-                    WarehouseEntry.SetRange("Item No.", "Item No.");
-                    WarehouseEntry.SetRange("Variant Code", "Variant Code");
-                    WarehouseEntry.SetTrackingFilterFromBinContentBuffer(TempBinContentBuffer);
-                    GetLocation("Location Code");
-                    if Location."Directed Put-away and Pick" then begin
-                        if Location."Adjustment Bin Code" <> '' then begin
-                            WarehouseEntry.FilterGroup(2);
-                            WarehouseEntry.SetFilter("Bin Code", '<>%1', Location."Adjustment Bin Code");
-                            WarehouseEntry.FilterGroup(0);
-                        end;
-                        WarehouseEntry.SetFilter("Bin Type Code", '<>%1', GetBinTypeFilter(0));
-                    end;
-                    WhseItemTrackingSetup.CopyTrackingFromBinContentBuffer(TempBinContentBuffer);
-                    if WarehouseEntry.FindSet() then
-                        repeat
-                            WarehouseEntry.SetRange("Bin Code", WarehouseEntry."Bin Code");
-                            WarehouseEntry.SetRange("Unit of Measure Code", WarehouseEntry."Unit of Measure Code");
-                            WarehouseEntry.CalcSums("Qty. (Base)");
-                            if WarehouseEntry."Qty. (Base)" > 0 then
-                                if not BinContentBlocked(
-                                     "Location Code", WarehouseEntry."Bin Code", "Item No.", "Variant Code", WarehouseEntry."Unit of Measure Code")
-                                then begin
-                                    QtyInBin := Minimum(QtyLeftToDistribute, WarehouseEntry."Qty. (Base)");
-                                    QtyLeftToDistribute -= QtyInBin;
-                                    TempBinContentBufferByBins.UpdateBuffer(
-                                        "Location Code", WarehouseEntry."Bin Code", "Item No.", "Variant Code",
-                                        WarehouseEntry."Unit of Measure Code", WhseItemTrackingSetup, QtyInBin);
-                                end else
-                                    TempBinContentBufferByBlockedBins.UpdateBuffer(
-                                        "Location Code", WarehouseEntry."Bin Code", "Item No.", "Variant Code",
-                                        WarehouseEntry."Unit of Measure Code", WhseItemTrackingSetup, WarehouseEntry."Qty. (Base)");
-                            WarehouseEntry.FindLast();
-                            WarehouseEntry.SetRange("Unit of Measure Code");
-                            WarehouseEntry.SetRange("Bin Code");
-                        until (WarehouseEntry.Next() = 0) or (QtyLeftToDistribute = 0);
+        QtyLeftToDistribute := CalcQtyInReservEntry.Quantity__Base_;
+        GetLocation(CalcQtyInReservEntry.Location_Code);
 
-                    if (QtyLeftToDistribute > 0) then
-                        if TempBinContentBufferByBlockedBins.FindSet() then
-                            repeat
-                                QtyInBin := Minimum(QtyLeftToDistribute, TempBinContentBufferByBlockedBins."Qty. to Handle (Base)");
-                                QtyLeftToDistribute -= QtyInBin;
-                                TempBinContentBufferByBins.UpdateBuffer(
-                                    "Location Code", TempBinContentBufferByBlockedBins."Bin Code", "Item No.", "Variant Code",
-                                    TempBinContentBufferByBlockedBins."Unit of Measure Code", WhseItemTrackingSetup, QtyInBin);
-                            until (TempBinContentBufferByBlockedBins.Next() = 0) or (QtyLeftToDistribute = 0);
-                until Next() = 0;
-
-            DeleteAll();
-            if TempBinContentBufferByBins.FindSet() then
-                repeat
-                    if not BlockedBinOrTracking(TempBinContentBufferByBins) then begin
-                        TempBinContentBuffer := TempBinContentBufferByBins;
-                        Insert();
-                    end;
-                until TempBinContentBufferByBins.Next() = 0;
+        CalcQtyInWhseEntries.SetRange(Location_Code, CalcQtyInReservEntry.Location_Code);
+        CalcQtyInWhseEntries.SetRange(Item_No_, CalcQtyInReservEntry.Item_No_);
+        CalcQtyInWhseEntries.SetRange(Variant_Code, CalcQtyInReservEntry.Variant_Code);
+        CalcQtyInWhseEntries.SetRange(Serial_No_, CalcQtyInReservEntry.Serial_No_);
+        CalcQtyInWhseEntries.SetRange(Lot_No_, CalcQtyInReservEntry.Lot_No_);
+        CalcQtyInWhseEntries.SetRange(Package_No_, CalcQtyInReservEntry.Package_No_);
+        if Location."Directed Put-away and Pick" then begin
+            if Location."Adjustment Bin Code" <> '' then
+                CalcQtyInWhseEntries.SetFilter(Bin_Code, '<>%1', Location."Adjustment Bin Code");
+            CalcQtyInWhseEntries.SetFilter(Bin_Type_Code, '<>%1', GetBinTypeFilter(0));
         end;
+        CalcQtyInWhseEntries.Open();
+
+        // step 1: distribute quantity by bins
+        while CalcQtyInWhseEntries.Read() and (QtyLeftToDistribute <> 0) do begin
+            QtyInBin := Minimum(QtyLeftToDistribute, CalcQtyInWhseEntries.Qty___Base_);
+            QtyLeftToDistribute -= QtyInBin;
+
+            WhseItemTrackingSetup."Serial No." := CalcQtyInWhseEntries.Serial_No_;
+            WhseItemTrackingSetup."Lot No." := CalcQtyInWhseEntries.Lot_No_;
+            WhseItemTrackingSetup."Package No." := CalcQtyInWhseEntries.Package_No_;
+            TempBinContentBufferByBins.UpdateBuffer(
+              CalcQtyInWhseEntries.Location_Code, CalcQtyInWhseEntries.Bin_Code,
+              CalcQtyInWhseEntries.Item_No_, CalcQtyInWhseEntries.Variant_Code,
+              CalcQtyInWhseEntries.Unit_of_Measure_Code, WhseItemTrackingSetup, QtyInBin);
+        end;
+
+        // step 2: remove blocked item tracking
+        if TempBinContentBufferByBins.FindSet() then
+            repeat
+                if not BlockedBinOrTracking(TempBinContentBufferByBins) then
+                    Qty += TempBinContentBufferByBins."Qty. to Handle (Base)";
+            until TempBinContentBufferByBins.Next() = 0;
+
+        exit(Qty);
     end;
 
     local procedure BlockedBinOrTracking(BinContentBuffer: Record "Bin Content Buffer"): Boolean

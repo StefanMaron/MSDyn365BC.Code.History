@@ -638,7 +638,7 @@
         CalcDates();
         CreateHeadings();
 
-        TodayFormatted := TypeHelper.GetFormattedCurrentDateTimeInUserTimeZone('f');
+        TodayFormatted := Format(CurrentDateTime());
         CompanyDisplayName := COMPANYPROPERTY.DisplayName();
 
         if UseExternalDocNo then
@@ -656,7 +656,6 @@
         TempCurrency2: Record Currency temporary;
         TempCurrencyAmount: Record "Currency Amount" temporary;
         DetailedVendorLedgerEntry: Record "Detailed Vendor Ledg. Entry";
-        TypeHelper: Codeunit "Type Helper";
         PeriodLength: DateFormula;
         GrandTotalVLERemaingAmtLCY: array[5] of Decimal;
         GrandTotalVLEAmtLCY: Decimal;

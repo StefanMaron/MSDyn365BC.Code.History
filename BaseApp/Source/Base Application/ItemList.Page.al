@@ -336,7 +336,13 @@
                               "Serial No. Filter" = FIELD("Serial No. Filter");
                 Visible = false;
             }
-            part(ItemAttributesFactBox; "Item Attributes Factbox")
+            part("Attached Documents"; "Document Attachment Factbox")
+            {
+                ApplicationArea = All;
+                Caption = 'Attachments';
+                SubPageLink = "Table ID" = CONST(Database::Item), "No." = FIELD("No.");
+            }
+	    part(ItemAttributesFactBox; "Item Attributes Factbox")
             {
                 ApplicationArea = Basic, Suite;
             }

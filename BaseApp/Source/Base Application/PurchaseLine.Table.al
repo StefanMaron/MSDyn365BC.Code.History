@@ -1469,15 +1469,16 @@
             trigger OnValidate()
             var
                 IsHandled: Boolean;
+                ShouldUpdateUnitCost: Boolean;
             begin
                 TestStatusOpen();
 
                 IsHandled := false;
-                OnValidateVATProdPostingGroupOnAfterTestStatusOpen(Rec, IsHandled);
+                OnValidateVATProdPostingGroupOnAfterTestStatusOpen(Rec, IsHandled, xRec);
                 if not IsHandled then begin
                     CheckPrepmtAmtInvEmpty();
                     IsHandled := false;
-                    OnValidateVATProdPostingGroupOnBeforeGetVATPostingSetup(Rec, VATPostingSetup, IsHandled);
+                    OnValidateVATProdPostingGroupOnBeforeGetVATPostingSetup(Rec, VATPostingSetup, IsHandled, xRec);
                     if not IsHandled then
                         VATPostingSetup.Get("VAT Bus. Posting Group", "VAT Prod. Posting Group");
                     OnValidateVATProdPostingGroupOnAfterVATPostingSetupGet(VATPostingSetup);
@@ -1502,8 +1503,9 @@
                                     TestField("No.", VATPostingSetup.GetPurchAccount(false));
                                 end;
                         end;
-
-                    if PurchHeader."Prices Including VAT" and (Type in [Type::Item, Type::Resource]) then
+                    ShouldUpdateUnitCost := PurchHeader."Prices Including VAT" and (Rec.Type in [Rec.Type::Item, Rec.Type::Resource]);
+                    OnValidateVATProdPostingGroupOnAfterCalcShouldUpdateUnitCost(Rec, VATPostingSetup, ShouldUpdateUnitCost);
+                    if ShouldUpdateUnitCost then
                         Validate("Direct Unit Cost",
                         Round(
                             "Direct Unit Cost" * (100 + "VAT %") / (100 + xRec."VAT %"),
@@ -4227,6 +4229,7 @@
         "Expected Receipt Date" := PurchHeader."Expected Receipt Date";
         "Shortcut Dimension 1 Code" := PurchHeader."Shortcut Dimension 1 Code";
         "Shortcut Dimension 2 Code" := PurchHeader."Shortcut Dimension 2 Code";
+        "Dimension Set ID" := PurchHeader."Dimension Set ID";
 #if not CLEAN20        
         IsHandled := false;
         OnBeforeUpdateLocationCode(Rec, IsHandled);
@@ -4809,6 +4812,7 @@
 
     local procedure UpdateDirectUnitCostByField(CalledByFieldNo: Integer)
     var
+        BlanketOrderPurchaseLine: Record "Purchase Line";
         IsHandled: Boolean;
         PriceCalculation: Interface "Price Calculation";
     begin
@@ -4836,14 +4840,18 @@
                     GetPurchHeader();
                     IsHandled := false;
                     OnUpdateDirectUnitCostOnBeforeFindPrice(PurchHeader, Rec, CalledByFieldNo, CurrFieldNo, IsHandled, xRec);
-                    if not IsHandled then begin
-                        GetPriceCalculationHandler(PurchHeader, PriceCalculation);
-                        if not ("Copied From Posted Doc." and IsCreditDocType()) then begin
-                            PriceCalculation.ApplyPrice(CalledByFieldNo);
-                            PriceCalculation.ApplyDiscount();
+                    if not IsHandled then
+                        if not BlanketOrderIsRelated(BlanketOrderPurchaseLine) then begin
+                            GetPriceCalculationHandler(PurchHeader, PriceCalculation);
+                            if not ("Copied From Posted Doc." and IsCreditDocType()) then begin
+                                PriceCalculation.ApplyPrice(CalledByFieldNo);
+                                PriceCalculation.ApplyDiscount();
+                            end;
+                            GetLineWithCalculatedPrice(PriceCalculation);
+                        end else begin
+                            Validate("Direct Unit Cost", BlanketOrderPurchaseLine."Direct Unit Cost");
+                            Validate("Line Discount %", BlanketOrderPurchaseLine."Line Discount %");
                         end;
-                        GetLineWithCalculatedPrice(PriceCalculation);
-                    end;
                     if (xRec."Direct Unit Cost" <> Rec."Direct Unit Cost") or not (CalledByFieldNo in [FieldNo("Job Task No."), FieldNo("Job No.")]) then
                         Validate("Direct Unit Cost");
                 end;
@@ -4856,6 +4864,14 @@
 
         ClearFieldCausedPriceCalculation();
         OnAfterUpdateDirectUnitCost(Rec, xRec, CalledByFieldNo, CurrFieldNo);
+    end;
+
+    local procedure BlanketOrderIsRelated(var BlanketOrderPurchaseLine: Record "Purchase Line"): Boolean
+    begin
+        if "Blanket Order Line No." = 0 then exit;
+        BlanketOrderPurchaseLine.SetLoadFields("Direct Unit Cost", "Line Discount %");
+        if BlanketOrderPurchaseLine.Get("Document Type"::"Blanket Order", "Blanket Order No.", "Blanket Order Line No.") then
+            exit(true);
     end;
 
     local procedure GetLineWithCalculatedPrice(var PriceCalculation: Interface "Price Calculation")
@@ -5728,10 +5744,11 @@
         SourceCodeSetup: Record "Source Code Setup";
         TableID: array[10] of Integer;
         No: array[10] of Code[20];
+        DummyDefaultDimSource: List of [Dictionary of [Integer, Code[20]]];
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeCreateDim(Rec, IsHandled, CurrFieldNo);
+        OnBeforeCreateDim(Rec, IsHandled, CurrFieldNo, DummyDefaultDimSource);
         if IsHandled then
             exit;
 
@@ -5765,7 +5782,7 @@
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeCreateDim(Rec, IsHandled, CurrFieldNo);
+        OnBeforeCreateDim(Rec, IsHandled, CurrFieldNo, DefaultDimSource);
         if IsHandled then
             exit;
 
@@ -8614,8 +8631,23 @@
     var
         DefaultDimSource: List of [Dictionary of [Integer, Code[20]]];
     begin
+        if not DimMgt.IsDefaultDimDefinedForTable(GetTableValuePair(FieldNo)) then exit;
         InitDefaultDimensionSources(DefaultDimSource, FieldNo);
         CreateDim(DefaultDimSource);
+    end;
+
+    local procedure GetTableValuePair(FieldNo: Integer) TableValuePair: Dictionary of [Integer, Code[20]]
+    begin
+        case true of
+            FieldNo = Rec.FieldNo("No."):
+                TableValuePair.Add(DimMgt.PurchLineTypeToTableID(Type), Rec."No.");
+            FieldNo = Rec.FieldNo("Responsibility Center"):
+                TableValuePair.Add(Database::"Responsibility Center", Rec."Responsibility Center");
+            FieldNo = Rec.FieldNo("Job No."):
+                TableValuePair.Add(Database::Job, Rec."Job No.");
+            FieldNo = Rec.FieldNo("Location Code"):
+                TableValuePair.Add(Database::Location, Rec."Location Code");
+        end;
     end;
 
     local procedure InitDefaultDimensionSources(var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]]; FieldNo: Integer)
@@ -9262,7 +9294,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCreateDim(var PurchaseLine: Record "Purchase Line"; var IsHandled: Boolean; CurrentFieldNo: Integer)
+    local procedure OnBeforeCreateDim(var PurchaseLine: Record "Purchase Line"; var IsHandled: Boolean; CurrentFieldNo: Integer; DefaultDimSource: List of [Dictionary of [Integer, Code[20]]])
     begin
     end;
 
@@ -10002,6 +10034,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnValidateVATProdPostingGroupOnAfterCalcShouldUpdateUnitCost(var PurchaseLine: Record "Purchase Line"; VATPostingSetup: Record "VAT Posting Setup"; var ShouldUpdateUnitCost: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnValidateVATProdPostingGroupOnBeforeCheckVATCalcType(var PurchaseLine: Record "Purchase Line"; VATPostingSetup: Record "VAT Posting Setup"; var IsHandled: Boolean)
     begin
     end;
@@ -10279,7 +10316,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnValidateVATProdPostingGroupOnAfterTestStatusOpen(var PurchaseLine: Record "Purchase Line"; var IsHandled: Boolean)
+    local procedure OnValidateVATProdPostingGroupOnAfterTestStatusOpen(var PurchaseLine: Record "Purchase Line"; var IsHandled: Boolean; var xPurchaseLine: Record "Purchase Line")
     begin
     end;
 
@@ -10394,7 +10431,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnValidateVATProdPostingGroupOnBeforeGetVATPostingSetup(var PurchaseLine: Record "Purchase Line"; var VATPostingSetup: Record "VAT Posting Setup"; var IsHandled: Boolean)
+    local procedure OnValidateVATProdPostingGroupOnBeforeGetVATPostingSetup(var PurchaseLine: Record "Purchase Line"; var VATPostingSetup: Record "VAT Posting Setup"; var IsHandled: Boolean; var xPurchaseLine: Record "Purchase Line")
     begin
     end;
 

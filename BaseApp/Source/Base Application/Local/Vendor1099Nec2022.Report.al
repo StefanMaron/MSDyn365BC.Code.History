@@ -1,7 +1,7 @@
 report 10182 "Vendor 1099 Nec 2022"
 {
     DefaultLayout = RDLC;
-    RDLCLayout = './Vendor1099Nec2022.rdlc';
+    RDLCLayout = './Local/Vendor1099Nec2022.rdlc';
     ApplicationArea = Basic, Suite;
     UsageCategory = ReportsAndAnalysis;
 

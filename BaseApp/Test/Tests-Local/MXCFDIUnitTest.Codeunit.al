@@ -2521,6 +2521,7 @@
         SalesInvoiceLine."Line No." := LibraryUtility.GetNewRecNo(SalesInvoiceLine, SalesInvoiceLine.FieldNo("Line No."));
         SalesInvoiceLine.Type := SalesInvoiceLine.Type::Item;
         SalesInvoiceLine."No." := LibraryInventory.CreateItemNo();
+        SalesInvoiceLine.Quantity := 1;
         SalesInvoiceLine."VAT Bus. Posting Group" := VATPostingSetup."VAT Bus. Posting Group";
         SalesInvoiceLine."VAT Prod. Posting Group" := VATPostingSetup."VAT Prod. Posting Group";
         SalesInvoiceLine.Insert();
@@ -2533,6 +2534,7 @@
         SalesCrMemoLine."Line No." := LibraryUtility.GetNewRecNo(SalesCrMemoLine, SalesCrMemoLine.FieldNo("Line No."));
         SalesCrMemoLine.Type := SalesCrMemoLine.Type::Item;
         SalesCrMemoLine."No." := LibraryInventory.CreateItemNo();
+        SalesCrMemoLine.Quantity := 1;
         SalesCrMemoLine."VAT Bus. Posting Group" := VATPostingSetup."VAT Bus. Posting Group";
         SalesCrMemoLine."VAT Prod. Posting Group" := VATPostingSetup."VAT Prod. Posting Group";
         SalesCrMemoLine.Insert();
@@ -2545,6 +2547,7 @@
         ServiceInvoiceLine."Line No." := LibraryUtility.GetNewRecNo(ServiceInvoiceLine, ServiceInvoiceLine.FieldNo("Line No."));
         ServiceInvoiceLine.Type := ServiceInvoiceLine.Type::Item;
         ServiceInvoiceLine."No." := LibraryInventory.CreateItemNo();
+        ServiceInvoiceLine.Quantity := 1;
         ServiceInvoiceLine.Amount := LibraryRandom.RandDecInRange(100, 200, 2);
         ServiceInvoiceLine."Amount Including VAT" := LibraryRandom.RandDecInRange(100, 200, 2);
         ServiceInvoiceLine."VAT Bus. Posting Group" := VATPostingSetup."VAT Bus. Posting Group";
@@ -2559,6 +2562,7 @@
         ServiceCrMemoLine."Line No." := LibraryUtility.GetNewRecNo(ServiceCrMemoLine, ServiceCrMemoLine.FieldNo("Line No."));
         ServiceCrMemoLine.Type := ServiceCrMemoLine.Type::Item;
         ServiceCrMemoLine."No." := LibraryInventory.CreateItemNo();
+        ServiceCrMemoLine.Quantity := 1;
         ServiceCrMemoLine.Amount := LibraryRandom.RandDecInRange(100, 200, 2);
         ServiceCrMemoLine."Amount Including VAT" := LibraryRandom.RandDecInRange(100, 200, 2);
         ServiceCrMemoLine."VAT Bus. Posting Group" := VATPostingSetup."VAT Bus. Posting Group";

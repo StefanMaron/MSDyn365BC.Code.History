@@ -74,6 +74,11 @@ table 89 "Financial Report User Filters"
             Caption = 'Cost Budget Filter';
             DataClassification = SystemMetadata;
         }
+        field(15; DateFilter; Text[2048])
+        {
+            Caption = 'Date Filter';
+            DataClassification = SystemMetadata;
+        }
     }
 
     keys

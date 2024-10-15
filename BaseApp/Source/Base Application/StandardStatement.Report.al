@@ -100,7 +100,7 @@ report 1316 "Standard Statement"
                 column(EndDate; Format(EndDate))
                 {
                 }
-                column(LastStatmntNo_Cust; Format(Customer."Last Statement No."))
+                column(LastStatmntNo_Cust; Format(Customer."Last Statement No." + 1))
                 {
                 }
                 column(CustAddr7; CustAddr[7])

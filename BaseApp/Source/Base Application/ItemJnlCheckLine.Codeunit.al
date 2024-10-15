@@ -92,7 +92,7 @@
                     end;
                 end;
 
-            if Item.IsVariantMandatory(InvtSetup."Variant Mandatory if Exists") then
+            if Item.IsVariantMandatory(InvtSetup."Variant Mandatory if Exists") and ("Item Charge No." = '') then
                 TestField("Variant Code");
 
             CheckInTransitLocations(ItemJnlLine);
