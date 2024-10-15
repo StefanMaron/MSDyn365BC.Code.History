@@ -274,6 +274,20 @@ page 5052 "Contact List"
                         ToolTip = 'Specify date ranges that apply to the contact''s alternate address.';
                     }
                 }
+                action(SentEmails)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Sent Emails';
+                    Image = ShowList;
+                    ToolTip = 'View a list of emails that you have sent to this contact.';
+
+                    trigger OnAction()
+                    var
+                        Email: Codeunit Email;
+                    begin
+                        Email.OpenSentEmails(Database::Contact, Rec.SystemId);
+                    end;
+                }
             }
             group(ActionGroupCRM)
             {
@@ -939,6 +953,25 @@ page 5052 "Contact List"
                     WordTemplateSelectionWizard.RunModal();
                 end;
             }
+            action(Email)
+            {
+                ApplicationArea = All;
+                Caption = 'Contact by Email';
+                Image = Email;
+                Promoted = true;
+                PromotedCategory = Category4;
+                ToolTip = 'Send an email to this contact.';
+
+                trigger OnAction()
+                var
+                    Email: Codeunit Email;
+                    EmailMessage: Codeunit "Email Message";
+                begin
+                    EmailMessage.Create(Rec."E-Mail", '', '', true);
+                    Email.AddRelation(EmailMessage, Database::Contact, Rec.SystemId, Enum::"Email Relation Type"::"Primary Source");
+                    Email.OpenInEditorModally(EmailMessage);
+                end;
+            }
             action(SyncWithExchange)
             {
                 ApplicationArea = Basic, Suite;
@@ -1032,6 +1065,26 @@ page 5052 "Contact List"
         CRMIntegrationEnabled := CRMIntegrationManagement.IsCRMIntegrationEnabled;
         CDSIntegrationEnabled := CRMIntegrationManagement.IsCDSIntegrationEnabled;
         ExtendedPriceEnabled := PriceCalculationMgt.IsExtendedPriceCalculationEnabled();
+
+        UpdateContactBusinessRelationOnContacts();
+    end;
+
+    local procedure UpdateContactBusinessRelationOnContacts()
+    var
+        ContactToUpdate: Record Contact;
+        ContactRec: Record Contact;
+        ContactBusinessRelation: Enum "Contact Business Relation";
+    begin
+        ContactRec.SetRange("Contact Business Relation", ContactBusinessRelation::" ");
+        if ContactRec.IsEmpty() then
+            exit;
+
+        ContactRec.FindSet();
+        repeat
+            ContactToUpdate.Get(ContactRec."No.");
+            if (ContactToUpdate.UpdateBusinessRelation()) then
+                ContactToUpdate.Modify();
+        until ContactRec.Next() = 0;
     end;
 
     var

@@ -439,22 +439,41 @@ page 9007 "Purchasing Agent Role Center"
                                     Recurring = CONST(false));
                 ToolTip = 'Calculate a supply plan to fulfill item demand with purchases or transfers.';
             }
+#if not CLEAN19
             action("Pur&chase Prices")
             {
                 ApplicationArea = Basic, Suite;
                 Caption = 'Pur&chase Prices';
                 Image = Price;
-                RunObject = Page "Purchase Prices";
+                RunPageView = WHERE("Object Type" = CONST(Page), "Object ID" = CONST(7012)); // "Purchase Prices";
+                RunObject = Page "Role Center Page Dispatcher";
                 ToolTip = 'View or set up different prices for items that you buy from the vendor. An item price is automatically granted on invoice lines when the specified criteria are met, such as vendor, quantity, or ending date.';
+                ObsoleteState = Pending;
+                ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation.';
+                ObsoleteTag = '19.0';
             }
             action("Purchase &Line Discounts")
             {
                 ApplicationArea = Basic, Suite;
                 Caption = 'Purchase &Line Discounts';
                 Image = LineDiscount;
-                RunObject = Page "Purchase Line Discounts";
+                RunPageView = WHERE("Object Type" = CONST(Page), "Object ID" = CONST(7014)); // "Purchase Line Discounts";
+                RunObject = Page "Role Center Page Dispatcher";
                 ToolTip = 'View or set up different discounts for items that you buy from the vendor. An item discount is automatically granted on invoice lines when the specified criteria are met, such as vendor, quantity, or ending date.';
+                ObsoleteState = Pending;
+                ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation.';
+                ObsoleteTag = '19.0';
             }
+#else
+            action("Purchase Price Lists")
+            {
+                ApplicationArea = Basic, Suite;
+                Caption = '&Prices';
+                Image = Price;
+                RunObject = Page "Purchase Price Lists";
+                ToolTip = 'View or set up price lists for products that you buy from the vendor. A product price is automatically granted on invoice lines when the specified criteria are met, such as vendor, quantity, or ending date.';
+            }
+#endif
             separator(History)
             {
                 Caption = 'History';

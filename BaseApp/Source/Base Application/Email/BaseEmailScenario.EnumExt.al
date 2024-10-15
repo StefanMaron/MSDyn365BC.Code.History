@@ -12,6 +12,10 @@ enumextension 8891 "Base Email Scenario" extends "Email Scenario"
     {
         Caption = 'Job Planning Line Calendar';
     }
+    value(4; "Interaction Template")
+    {
+        Caption = 'Interaction Template';
+    }
 
 
     // Document usage

@@ -1123,6 +1123,22 @@ page 21 "Customer Card"
                         PAGE.RunModal(PAGE::"Customer Report Selections", CustomReportSelection);
                     end;
                 }
+                action(SentEmails)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Sent Emails';
+                    Image = ShowList;
+                    Promoted = true;
+                    PromotedCategory = Category8;
+                    ToolTip = 'View a list of emails that you have sent to this customer.';
+
+                    trigger OnAction()
+                    var
+                        Email: Codeunit Email;
+                    begin
+                        Email.OpenSentEmails(Database::Customer, Rec.SystemId);
+                    end;
+                }
             }
             group(ActionGroupCRM)
             {
@@ -2211,6 +2227,25 @@ page 21 "Customer Card"
                     CurrPage.SetSelectionFilter(Customer);
                     WordTemplateSelectionWizard.SetData(Customer);
                     WordTemplateSelectionWizard.RunModal();
+                end;
+            }
+            action(Email)
+            {
+                ApplicationArea = All;
+                Caption = 'Contact by Email';
+                Image = Email;
+                Promoted = true;
+                PromotedCategory = Category9;
+                ToolTip = 'Send an email to this customer.';
+
+                trigger OnAction()
+                var
+                    Email: Codeunit Email;
+                    EmailMessage: Codeunit "Email Message";
+                begin
+                    EmailMessage.Create(Rec."E-Mail", '', '', true);
+                    Email.AddRelation(EmailMessage, Database::Customer, Rec.SystemId, Enum::"Email Relation Type"::"Primary Source");
+                    Email.OpenInEditorModally(EmailMessage);
                 end;
             }
         }

@@ -98,7 +98,7 @@ page 5330 "CRM Connection Setup"
                     AssistEdit = true;
                     Caption = 'Dynamics 365 SDK Version';
                     Editable = false;
-                    Enabled = IsEditable;
+                    Enabled = IsProxyVersionEnabled;
                     ToolTip = 'Specifies the Microsoft Dynamics 365 (CRM) software development kit version that is used to connect to Dynamics 365 Sales.';
 
                     trigger OnAssistEdit()
@@ -379,6 +379,51 @@ page 5330 "CRM Connection Setup"
                 trigger OnAction()
                 begin
                     PerformTestConnection;
+                end;
+            }
+            action("Use Certificate Authentication")
+            {
+                ApplicationArea = Suite;
+                Caption = 'Use Cerificate Authentication';
+                Image = Certificate;
+                Visible = SoftwareAsAService;
+                Promoted = true;
+                Enabled = Rec."Is Enabled";
+                PromotedCategory = Process;
+                ToolTip = 'Upgrades the connection to Dynamics 365 Sales to use certificate-based OAuth2 service-to-service authentication.';
+
+                trigger OnAction()
+                var
+                    TempCDSConnectionSetup: Record "CDS Connection Setup" temporary;
+                    CDSConnectionSetup: Record "CDS Connection Setup";
+                    CDSIntegrationImpl: Codeunit "CDS Integration Impl.";
+                begin
+                    TempCDSConnectionSetup."Server Address" := "Server Address";
+                    TempCDSConnectionSetup."User Name" := "User Name";
+                    TempCDSConnectionSetup."Proxy Version" := CDSIntegrationImpl.GetLastProxyVersionItem();
+                    TempCDSConnectionSetup."Authentication Type" := TempCDSConnectionSetup."Authentication Type"::Office365;
+                    TempCDSConnectionSetup.Insert();
+                    Commit();
+
+                    CDSIntegrationImpl.SetupCertificateAuthentication(TempCDSConnectionSetup);
+
+                    if (TempCDSConnectionSetup."Connection String".IndexOf('{CERTIFICATE}') > 0) and (TempCDSConnectionSetup."User Name" <> "User Name") then begin
+                        if CDSConnectionSetup.Get() then
+                            if CDSConnectionSetup."Is Enabled" then begin
+                                CDSConnectionSetup."User Name" := TempCDSConnectionSetup."User Name";
+                                CDSConnectionSetup.SetPassword('');
+                                CDSConnectionSetup."Proxy Version" := TempCDSConnectionSetup."Proxy Version";
+                                CDSConnectionSetup."Connection String" := TempCDSConnectionSetup."Connection String";
+                                CDSConnectionSetup.Modify();
+                            end;
+                        "User Name" := TempCDSConnectionSetup."User Name";
+                        SetPassword('');
+                        "Proxy Version" := TempCDSConnectionSetup."Proxy Version";
+                        SetConnectionString(TempCDSConnectionSetup."Connection String");
+                        CurrPage.Update(false);
+                        Session.LogMessage('0000FB5', CertificateConnectionSetupTelemetryMsg, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
+                        Message(StrSubstNo(CertificateConnectionSetupMsg, "User Name"));
+                    end;
                 end;
             }
             action(IntegrationTableMappings)
@@ -662,6 +707,8 @@ page 5330 "CRM Connection Setup"
         JobQueueIsNotRunningMsg: Label 'There is no job queue started. Scheduled synchronization jobs require an active job queue to process jobs.\\Contact your administrator to get a job queue configured and started.';
         AllScheduledJobsAreRunningMsg: Label 'An job queue is started and all scheduled synchronization jobs are ready or already processing.';
         SetupSuccessfulMsg: Label 'The default setup for %1 synchronization has completed successfully.', Comment = '%1 = CRM product name';
+        CertificateConnectionSetupTelemetryMsg: Label 'User has successfully set up the certificate connection to Dataverse.', Locked = true;
+        CertificateConnectionSetupMsg: Label 'You have successfully upgraded the connection to Dynamics 365 Sales to use certificate-based OAuth2 service-to-service authentication. Business Central has auto-generated a new integration user with user name %1 in your Dynamics 365 sales environment. This user does not require a license.', Comment = '%1 - user name';
         Office365AuthTxt: Label 'AuthType=Office365', Locked = true;
         CategoryTok: Label 'AL Dataverse Integration', Locked = true;
         CRMConnEnabledOnPageTxt: Label 'CRM Connection has been enabled from CRMConnectionSetupPage', Locked = true;
@@ -674,6 +721,7 @@ page 5330 "CRM Connection Setup"
         ActiveJobs: Integer;
         TotalJobs: Integer;
         IsEditable: Boolean;
+        IsProxyVersionEnabled: Boolean;
         IsCdsIntegrationEnabled: Boolean;
         IsUserNamePasswordVisible: Boolean;
         IsWebCliResetEnabled: Boolean;
@@ -728,9 +776,15 @@ page 5330 "CRM Connection Setup"
 
     local procedure UpdateEnableFlags()
     var
+        CDSConnectionSetup: Record "CDS Connection Setup";
         CDSIntegrationImpl: Codeunit "CDS Integration Impl.";
     begin
         IsEditable := not "Is Enabled" and not CDSIntegrationImpl.IsIntegrationEnabled();
+        IsProxyVersionEnabled := true;
+        if CDSConnectionSetup.Get() then
+            if CDSConnectionSetup."Is Enabled" then
+                IsProxyVersionEnabled := false;
+
         IsWebCliResetEnabled := "Is CRM Solution Installed" and "Is Enabled For User";
     end;
 

@@ -52,7 +52,6 @@ codeunit 141051 "Sales Price With Cost Plus"
     begin
         // Create Sales Price with Cost Plus.
         CreateSalesPriceWithCostPlus(SalesPrice, SalesType, SalesCode, StartingDate, LibraryRandom.RandDec(10, 2));  // Random Minimum Quantity.
-        CopySalesPrices();
 
         // Exercise: Create Sales Order.
         CreateSalesDocument(
@@ -111,7 +110,6 @@ codeunit 141051 "Sales Price With Cost Plus"
     begin
         // Create Sales Price with Cost Plus.
         CreateSalesPriceWithCostPlus(SalesPrice, SalesType, SalesCode, StartingDate, LibraryRandom.RandDecInDecimalRange(10, 20, 2));  // Random Minimum Quantity.
-        CopySalesPrices();
 
         // Exercise: Create Sales Order.
         CreateSalesDocument(
@@ -141,7 +139,6 @@ codeunit 141051 "Sales Price With Cost Plus"
         CampaignNo := CreateAndActivateCampaign(ContactNo);
         CreateSalesPriceWithCostPlus(
           SalesPrice, SalesPrice."Sales Type"::Campaign, CampaignNo, WorkDate, LibraryRandom.RandDec(10, 2));  // Random Minimum Quantity.
-        CopySalesPrices();
 
         // Exercise: Create Sales Order.
         CreateSalesDocument(
@@ -170,7 +167,6 @@ codeunit 141051 "Sales Price With Cost Plus"
           SalesPrice, SalesPrice."Sales Type"::Customer, CreateCustomer, 0D, LibraryRandom.RandDecInDecimalRange(10, 50, 2));  // Starting Date - 0D and Random Minimum Quantity.
         CreateSalesPriceWithCostPlus(
           SalesPrice2, SalesPrice2."Sales Type"::Customer, SalesPrice."Sales Code", 0D, LibraryRandom.RandDecInDecimalRange(100, 200, 2));  // Starting Date - 0D and Random Minimum Quantity.
-        CopySalesPrices();
 
         // Exercise: Create Sales Invoice with multiple line with different Quantitiy.
         CreateSalesDocument(
@@ -198,7 +194,6 @@ codeunit 141051 "Sales Price With Cost Plus"
 
         // Setup: Create Sales Price with Discount Amount.
         CreateSalesPriceWithDiscountAmount(SalesPrice, SalesPrice."Sales Type"::Customer, CreateCustomer, 0D);  // Starting Date - 0D.
-        CopySalesPrices();
 
         // Exercise.
         UpdateCostPlusPctOnSalesPrice(SalesPrice);
@@ -244,7 +239,6 @@ codeunit 141051 "Sales Price With Cost Plus"
     begin
         // Create Sales Price with Discount Amount.
         CreateSalesPriceWithDiscountAmount(SalesPrice, SalesType, SalesCode, StartingDate);
-        CopySalesPrices();
 
         // Exercise: Create Sales Invoice.
         CreateSalesDocument(
@@ -268,7 +262,6 @@ codeunit 141051 "Sales Price With Cost Plus"
         CreateSalesPriceWithDiscountAmount(
           SalesPrice, SalesPrice."Sales Type"::"All Customers", '',
           CalcDate('<-' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate));  // Customer Number - blank and Starting Date - less than Workdate.
-        CopySalesPrices();
 
         // Exercise: Create Sales Invoice.
         CreateSalesDocument(
@@ -297,7 +290,6 @@ codeunit 141051 "Sales Price With Cost Plus"
         CampaignNo := CreateAndActivateCampaign(ContactNo);
         CustomerNo := FindCustomerFromContactBusinessRelation(ContactNo);
         CreateSalesPriceWithDiscountAmount(SalesPrice, SalesPrice."Sales Type"::Campaign, CampaignNo, WorkDate);  // Starting Date - Workdate.
-        CopySalesPrices();
 
         // Exercise: Create Sales Order.
         CreateSalesDocument(
@@ -325,7 +317,6 @@ codeunit 141051 "Sales Price With Cost Plus"
         UpdateAutomaticCostAdjustmentOnInventorySetup(OldAutomaticCostAdjustment, InventorySetup."Automatic Cost Adjustment"::Day);
         CreateSalesPriceWithCostPlus(
           SalesPrice, SalesPrice."Sales Type"::"All Customers", '', WorkDate, LibraryRandom.RandDec(10, 2));  // Customer Number - blank and Random Minimum Quantity.
-        CopySalesPrices();
 
         CreateSalesDocument(
           SalesLine, SalesHeader."Document Type"::Order, CreateCustomer, '', SalesPrice."Item No.", SalesPrice."Minimum Quantity");  // Campaign Number - blank.
@@ -345,14 +336,37 @@ codeunit 141051 "Sales Price With Cost Plus"
         UpdateAutomaticCostAdjustmentOnInventorySetup(OldAutomaticCostAdjustment, OldAutomaticCostAdjustment);
     end;
 
-    local procedure CopySalesPrices()
+    [Test]
+    procedure CopySalesPriceToPriceListLineAndBack()
     var
-        SalesPrice: Record "Sales Price";
+        Item: Record Item;
+        TempSalesPrice: Record "Sales Price" temporary;
         PriceListLine: Record "Price List Line";
         CopyFromToPriceListLine: codeunit CopyFromToPriceListLine;
+        CostPlusPct: Decimal;
     begin
+        LibraryInventory.CreateItem(Item);
+        TempSalesPrice."Sales Type" := TempSalesPrice."Sales Type"::"All Customers";
+        TempSalesPrice."Item No." := Item."No.";
+        CostPlusPct := LibraryRandom.RandDec(10, 2);
+        TempSalesPrice."Cost-plus %" := CostPlusPct;
+        TempSalesPrice.Insert();
+        TempSalesPrice := TempSalesPrice;
+        TempSalesPrice."Starting Date" := WorkDate();
+        TempSalesPrice."Cost-plus %" := 0;
+        TempSalesPrice."Discount Amount" := CostPlusPct * 10;
+        TempSalesPrice.Insert();
+
         PriceListLine.DeleteAll();
-        CopyFromToPriceListLine.CopyFrom(SalesPrice, PriceListLine);
+        CopyFromToPriceListLine.CopyFrom(TempSalesPrice, PriceListLine);
+        TempSalesPrice.DeleteAll();
+        CopyFromToPriceListLine.CopyTo(TempSalesPrice, PriceListLine);
+
+        Assert.RecordCount(TempSalesPrice, 2);
+        TempSalesPrice.FindSet();
+        TempSalesPrice.TestField("Cost-plus %", CostPlusPct);
+        TempSalesPrice.Next();
+        TempSalesPrice.TestField("Discount Amount", CostPlusPct * 10);
     end;
 
     local procedure CreateAndActivateCampaign(ContactNo: Code[20]): Code[20]

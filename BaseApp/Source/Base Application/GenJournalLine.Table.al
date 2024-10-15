@@ -3461,7 +3461,7 @@
             First := true;
             if FindSet then begin
                 repeat
-                    if FirstDocNo <> GetTempRenumberDocumentNo() then begin
+                    if ((FirstDocNo <> GetTempRenumberDocumentNo()) and (GenJnlLine2.GetFilter("Document No.") = '')) then begin
                         Commit();
                         Clear(NoSeriesMgt);
                         TempFirstDocNo := NoSeriesMgt.TryGetNextNo(GenJnlBatch."No. Series", "Posting Date");
@@ -3945,6 +3945,8 @@
     end;
 
     local procedure ValidateAmount(ShouldCheckPaymentTolerance: Boolean)
+    var
+        IsHandled: Boolean;
     begin
         GetCurrency;
         if "Currency Code" = '' then
@@ -3955,16 +3957,20 @@
         OnValidateAmountOnAfterAssignAmountLCY("Amount (LCY)");
 
         Amount := Round(Amount, Currency."Amount Rounding Precision");
-        if (CurrFieldNo <> 0) and
-           (CurrFieldNo <> FieldNo("Applies-to Doc. No.")) and
-           ((("Account Type" = "Account Type"::Customer) and
-             ("Account No." <> '') and (Amount > 0) and
-             (CurrFieldNo <> FieldNo("Bal. Account No."))) or
-            (("Bal. Account Type" = "Bal. Account Type"::Customer) and
-             ("Bal. Account No." <> '') and (Amount < 0) and
-             (CurrFieldNo <> FieldNo("Account No."))))
-        then
-            CustCheckCreditLimit.GenJnlLineCheck(Rec);
+
+        IsHandled := false;
+        OnValidateAmountOnBeforeCheckCreditLimit(Rec, CurrFieldNo, CustCheckCreditLimit, IsHandled);
+        if not IsHandled then
+            if (CurrFieldNo <> 0) and
+            (CurrFieldNo <> FieldNo("Applies-to Doc. No.")) and
+            ((("Account Type" = "Account Type"::Customer) and
+                ("Account No." <> '') and (Amount > 0) and
+                (CurrFieldNo <> FieldNo("Bal. Account No."))) or
+                (("Bal. Account Type" = "Bal. Account Type"::Customer) and
+                ("Bal. Account No." <> '') and (Amount < 0) and
+                (CurrFieldNo <> FieldNo("Account No."))))
+            then
+                CustCheckCreditLimit.GenJnlLineCheck(Rec);
 
         Validate("VAT %");
         Validate("Bal. VAT %");
@@ -4272,7 +4278,7 @@
             OnLookUpAppliesToDocVendOnAfterUpdateDocumentTypeAndAppliesTo(Rec, VendLedgEntry);
         end;
 
-        OnAfterLookUpAppliesToDocVend(Rec, VendLedgEntry);
+        OnAfterLookUpAppliesToDocVend(Rec, VendLedgEntry, CustLedgEntry, ApplyVendEntries);
     end;
 
     procedure LookUpAppliesToDocEmpl(AccNo: Code[20])
@@ -6903,6 +6909,7 @@
         FAGenJournalLine.Validate("Account Type", "Account Type");
         FAGenJournalLine.Validate("Account No.", "Account No.");
         FAGenJournalLine.Validate(Amount, Amount);
+        FAGenJournalLine.Validate("Currency Code", "Currency Code");
         FAGenJournalLine.Validate("Posting Date", "Posting Date");
         FAGenJournalLine.Validate("FA Posting Type", "FA Posting Type"::"Acquisition Cost");
         FAGenJournalLine.Validate("External Document No.", "External Document No.");
@@ -7099,7 +7106,7 @@
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeCheckIfPostingDateIsEarlier(GenJournalLine, ApplyPostingDate, ApplyDocType.AsInteger(), ApplyDocNo, IsHandled, RecordVariant);
+        OnBeforeCheckIfPostingDateIsEarlier(GenJournalLine, ApplyPostingDate, ApplyDocType.AsInteger(), ApplyDocNo, IsHandled, RecordVariant, CustLedgEntry);
         if IsHandled then
             exit;
 
@@ -7481,7 +7488,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCheckIfPostingDateIsEarlier(GenJournalLine: Record "Gen. Journal Line"; ApplyPostingDate: Date; ApplyDocType: Option " ",Payment,Invoice,"Credit Memo","Finance Charge Memo",Reminder,Refund; ApplyDocNo: Code[20]; var IsHandled: Boolean; RecordVariant: Variant)
+    local procedure OnBeforeCheckIfPostingDateIsEarlier(GenJournalLine: Record "Gen. Journal Line"; ApplyPostingDate: Date; ApplyDocType: Option " ",Payment,Invoice,"Credit Memo","Finance Charge Memo",Reminder,Refund; ApplyDocNo: Code[20]; var IsHandled: Boolean; RecordVariant: Variant; CustLedgerEntry: Record "Cust. Ledger Entry")
     begin
     end;
 
@@ -7732,6 +7739,11 @@
 
     [IntegrationEvent(TRUE, false)]
     local procedure OnValidateAmountOnAfterAssignAmountLCY(var AmountLCY: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateAmountOnBeforeCheckCreditLimit(var GenJournalLine: Record "Gen. Journal Line"; FieldNumber: Integer; CustCheckCrLimit: Codeunit "Cust-Check Cr. Limit"; var IsHandled: Boolean)
     begin
     end;
 
@@ -8215,6 +8227,18 @@
         NotificationLifecycleMgt.SendNotification(SetDimFiltersNotification, RecordId);
     end;
 
+    procedure SendToPosting(PostingCodeunitID: Integer)
+    var
+        ErrorMessageMgt: Codeunit "Error Message Management";
+        ErrorMessageHandler: Codeunit "Error Message Handler";
+    begin
+        Commit();
+        ErrorMessageMgt.Activate(ErrorMessageHandler);
+
+        if not Codeunit.Run(PostingCodeunitID, Rec) then
+            ErrorMessageHandler.ShowErrors();
+    end;
+
     local procedure RecallSetDimFiltersNotification()
     var
         NotificationLifecycleMgt: Codeunit "Notification Lifecycle Mgt.";
@@ -8380,7 +8404,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterLookUpAppliesToDocVend(var GenJournalLine: Record "Gen. Journal Line"; VendLedgEntry: Record "Vendor Ledger Entry")
+    local procedure OnAfterLookUpAppliesToDocVend(var GenJournalLine: Record "Gen. Journal Line"; VendLedgEntry: Record "Vendor Ledger Entry"; CustLedgerEntry: Record "Cust. Ledger Entry"; ApplyVendorEntries: Page "Apply Vendor Entries")
     begin
     end;
 

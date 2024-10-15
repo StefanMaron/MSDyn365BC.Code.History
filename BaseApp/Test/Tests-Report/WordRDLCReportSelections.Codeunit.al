@@ -1127,10 +1127,10 @@ codeunit 134775 "Word & RDLC Report Selections"
 
     local procedure GetStandardStatementReportName(): Text
     var
-        AllObj: Record AllObj;
+        AllObjWithCaption: Record AllObjWithCaption;
     begin
-        AllObj.Get(AllObj."Object Type"::Report, REPORT::"Standard Statement");
-        exit(AllObj."Object Name");
+        AllObjWithCaption.Get(AllObjWithCaption."Object Type"::Report, REPORT::"Standard Statement");
+        exit(AllObjWithCaption."Object Caption");
     end;
 
     local procedure GetStatementReportName(): Text

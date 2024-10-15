@@ -225,6 +225,7 @@ table 7001 "Price List Line"
                 CopyRecTo(PriceAsset);
                 PriceAsset.Validate("Unit of Measure Code", "Unit of Measure Code");
                 CopyFrom(PriceAsset);
+                UpdateUnitPriceByCostPlusPct();
             end;
 
             trigger OnLookup()
@@ -281,8 +282,12 @@ table 7001 "Price List Line"
             begin
                 TestStatusDraft();
                 CheckAmountType(FieldCaption("Unit Price"), "Amount Type"::Discount);
+                Verify();
                 if "Unit Price" <> 0 then
                     "Cost Factor" := 0;
+
+                "Cost-plus %" := 0;
+                "Discount Amount" := 0;
             end;
         }
         field(18; "Cost Factor"; Decimal)
@@ -295,6 +300,7 @@ table 7001 "Price List Line"
             begin
                 TestStatusDraft();
                 CheckAmountType(FieldCaption("Cost Factor"), "Amount Type"::Discount);
+                Verify();
                 if "Cost Factor" <> 0 then
                     "Unit Price" := 0;
             end;
@@ -310,7 +316,9 @@ table 7001 "Price List Line"
 
             trigger OnValidate()
             begin
+                TestStatusDraft();
                 CheckAmountType(FieldCaption("Unit Cost"), "Amount Type"::Discount);
+                Verify();
             end;
         }
         field(20; "Line Discount %"; Decimal)
@@ -325,6 +333,7 @@ table 7001 "Price List Line"
             begin
                 TestStatusDraft();
                 CheckAmountType(FieldCaption("Line Discount %"), "Amount Type"::Price);
+                Verify();
             end;
         }
         field(21; "Allow Line Disc."; Boolean)
@@ -434,12 +443,53 @@ table 7001 "Price List Line"
 
             trigger OnValidate()
             begin
+                TestStatusDraft();
                 CheckAmountType(FieldCaption("Direct Unit Cost"), "Amount Type"::Discount);
+                Verify();
             end;
         }
         field(32; "Source Group"; Enum "Price Source Group")
         {
             DataClassification = CustomerContent;
+        }
+        field(28060; "Published Price"; Decimal)
+        {
+            CalcFormula = Lookup(Item."Unit Price" WHERE("No." = FIELD("Asset No.")));
+            Caption = 'Published Price';
+            Editable = false;
+            FieldClass = FlowField;
+        }
+        field(28061; Cost; Decimal)
+        {
+            CalcFormula = Lookup(Item."Unit Cost" WHERE("No." = FIELD("Asset No.")));
+            Caption = 'Cost';
+            Editable = false;
+            FieldClass = FlowField;
+        }
+        field(28062; "Cost-plus %"; Decimal)
+        {
+            Caption = 'Cost-plus %';
+            DecimalPlaces = 0 : 1;
+            MinValue = 0;
+
+            trigger OnValidate()
+            begin
+                "Discount Amount" := 0;
+                UpdateUnitPriceByCostPlusPct();
+            end;
+        }
+        field(28063; "Discount Amount"; Decimal)
+        {
+            AutoFormatExpression = "Currency Code";
+            AutoFormatType = 2;
+            Caption = 'Discount Amount';
+            MinValue = 0;
+
+            trigger OnValidate()
+            begin
+                "Cost-plus %" := 0;
+                UpdateUnitPriceByCostPlusPct();
+            end;
         }
     }
 
@@ -781,11 +831,36 @@ table 7001 "Price List Line"
             TestField(Status, Status::Draft);
     end;
 
+    local procedure UpdateUnitPriceByCostPlusPct()
+    var
+        Item: Record Item;
+        ItemUnitOfMeasure: Record "Item Unit of Measure";
+    begin
+        if "Asset Type" <> "Asset Type"::Item then
+            exit;
+
+        Item.Get("Asset No.");
+        if "Cost-plus %" <> 0 then begin
+            CalcFields(Cost);
+            if "Unit of Measure Code" = Item."Base Unit of Measure" then
+                "Unit Price" := Cost * (1 + "Cost-plus %" / 100)
+            else
+                if ItemUnitOfMeasure.Get("Asset No.", "Unit of Measure Code") then
+                    "Unit Price" := ItemUnitOfMeasure."Qty. per Unit of Measure" * (Cost * (1 + "Cost-plus %" / 100))
+        end else begin
+            CalcFields("Published Price");
+            if "Unit of Measure Code" = Item."Base Unit of Measure" then
+                "Unit Price" := "Published Price" - "Discount Amount"
+            else
+                if ItemUnitOfMeasure.Get("Asset No.", "Unit of Measure Code") then
+                    "Unit Price" := (ItemUnitOfMeasure."Qty. per Unit of Measure" * "Published Price") - "Discount Amount";
+        end;
+    end;
+
     procedure Verify()
     begin
         VerifySource();
-        if "Asset Type" <> "Asset Type"::" " then
-            TestField("Asset No.");
+        TestField("Asset Type");
     end;
 
     local procedure VerifyParentSource() Result: Boolean;

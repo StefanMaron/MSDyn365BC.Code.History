@@ -280,13 +280,13 @@ codeunit 132903 UserCardTest
     var
         UserCardPage: TestPage "User Card";
     begin
-        Initialize;
+        Initialize();
 
-        UserCardPage.OpenEdit;
+        UserCardPage.OpenEdit();
         UserCardPage.FindFirstField("User Name", User001Msg);
         UserCardPage."User Name".AssertEquals(User001Msg);
         UserCardPage."Authentication Email".AssertEquals('');
-        UserCardPage.Close;
+        UserCardPage.Close();
     end;
 
     [Test]
@@ -294,7 +294,7 @@ codeunit 132903 UserCardTest
     [Scope('OnPrem')]
     procedure AuthenticationEmailCanBeCleared()
     begin
-        Initialize;
+        Initialize();
 
         ValidAuthenticationEmailHelper(ValidTestAuthenticationEmailTok, ValidTestAuthenticationEmailTok);
         ValidAuthenticationEmailHelper('', '');
@@ -306,7 +306,7 @@ codeunit 132903 UserCardTest
     [Scope('OnPrem')]
     procedure AuthenticationEmailIgnoresWhitespaces()
     begin
-        Initialize;
+        Initialize();
 
         // Test leading spaces
         ValidAuthenticationEmailHelper('    ' + ValidTestAuthenticationEmailTok, ValidTestAuthenticationEmailTok);
@@ -327,7 +327,7 @@ codeunit 132903 UserCardTest
         Iterator: Integer;
         ValidationErrorMessage: Text;
     begin
-        Initialize;
+        Initialize();
 
         // The total character limit of an email address, according to the RFC3696 (+ errata), is 256.
         // Unfortunately NAV supports fields no bigger than 250 chars.
@@ -352,7 +352,7 @@ codeunit 132903 UserCardTest
     [Scope('OnPrem')]
     procedure AuthenticationEmailAcceptsUnicode()
     begin
-        Initialize;
+        Initialize();
 
         ValidAuthenticationEmailHelper('ÔÇáuthÔÇÿntÆcãÆtÆŽ«n@ÔÇÿmail.com', 'ÔÇáuthÔÇÿntÆcãÆtÆŽ«n@ÔÇÿmail.com');
     end;
@@ -362,7 +362,7 @@ codeunit 132903 UserCardTest
     [Scope('OnPrem')]
     procedure AuthenticationEmailValid()
     begin
-        Initialize;
+        Initialize();
 
         ValidAuthenticationEmailHelper('niceandsimple@example.com', 'niceandsimple@example.com');
         ValidAuthenticationEmailHelper('common.common@example.com', 'common.common@example.com');
@@ -388,7 +388,7 @@ codeunit 132903 UserCardTest
     [Scope('OnPrem')]
     procedure AuthenticationEmailValidDisplayName()
     begin
-        Initialize;
+        Initialize();
 
         ValidAuthenticationEmailHelper('Test <' + ValidTestAuthenticationEmailTok + '>', ValidTestAuthenticationEmailTok);
         ValidAuthenticationEmailHelper('"Test" <' + ValidTestAuthenticationEmailTok + '>', ValidTestAuthenticationEmailTok);
@@ -399,7 +399,7 @@ codeunit 132903 UserCardTest
     [Scope('OnPrem')]
     procedure AuthenticationEmailInvalid()
     begin
-        Initialize;
+        Initialize();
 
         InvalidAuthenticationEmailHelper('Abc.example.com', AuthenticationEmail001Err);
         InvalidAuthenticationEmailHelper('a"b(c)d,e:f;g<h>i[j\k]l@example.com', AuthenticationEmail001Err);
@@ -413,7 +413,7 @@ codeunit 132903 UserCardTest
     [Scope('OnPrem')]
     procedure AuthenticationEmailMultipleValidatesLast()
     begin
-        Initialize;
+        Initialize();
 
         // The .NET MailAddress constructor validates the last email address in the string
         ValidAuthenticationEmailHelper('ab@mail.com, ac@mail.com', 'ac@mail.com');
@@ -430,10 +430,10 @@ codeunit 132903 UserCardTest
         UserCardPage: TestPage "User Card";
         ValidationError: Text;
     begin
-        Initialize;
+        Initialize();
 
         ValidAuthenticationEmailHelper(ValidTestAuthenticationEmailTok, ValidTestAuthenticationEmailTok);
-        UserCardPage.OpenNew;
+        UserCardPage.OpenNew();
         UserCardPage."User Name".Value := User002Msg;
 
         asserterror UserCardPage."Authentication Email".Value := ValidTestAuthenticationEmailTok;
@@ -589,6 +589,7 @@ codeunit 132903 UserCardTest
         // [GIVEN] An on prem version where no users exist
         if EnvironmentInfo.IsSaaS then
             exit;
+
         EnsureNoUsers;
 
         // [WHEN] A new user card is opened, create new super user dialog
@@ -613,6 +614,7 @@ codeunit 132903 UserCardTest
         // [GIVEN] An on prem version where no users exist
         if EnvironmentInfo.IsSaaS then
             exit;
+
         EnsureNoUsers;
 
         // [WHEN] A new user card is opened, create new super user dialog
@@ -636,15 +638,15 @@ codeunit 132903 UserCardTest
         // [GIVEN] On prem version and create a new user programmaticaly
         // to avoid opening a new user card when no users exist, therefore
         // raising an error
-        if EnvironmentInfo.IsSaaS then
+        if EnvironmentInfo.IsSaaS() then
             exit;
-        EnsureNoUsers;
-        CODEUNIT.Run(CODEUNIT::"Users - Create Super User");
+        EnsureNoUsers();
+        Codeunit.Run(Codeunit::"Users - Create Super User");
         Assert.RecordIsNotEmpty(User);
 
         // [WHEN]  No dialog opens because users already exist
-        UserCardPage.OpenNew;
-        UserCardPage.Close;
+        UserCardPage.OpenNew();
+        UserCardPage.Close();
 
         // [THEN] No dialog opens. If it does there is no confirm handler
         // so the will be a raised error
@@ -663,7 +665,7 @@ codeunit 132903 UserCardTest
 
         // [WHEN] The user tries to create a new user
         // [THEN] A confirmation dialog is shown (handler) and an error occurs
-        asserterror UserCard.OpenNew;
+        asserterror UserCard.OpenNew();
 
         EnvironmentInfoTestLibrary.SetTestabilitySoftwareAsAService(false);
     end;
@@ -673,7 +675,6 @@ codeunit 132903 UserCardTest
         User: Record User;
     begin
         User.DeleteAll();
-        Assert.RecordIsEmpty(User);
     end;
 
     [Test]
@@ -776,7 +777,6 @@ codeunit 132903 UserCardTest
 
         EnvironmentInfoTestLibrary.SetTestabilitySoftwareAsAService(false);
     end;
-
 
     [Test]
     [HandlerFunctions('ConfirmHandlerAnsYes')]

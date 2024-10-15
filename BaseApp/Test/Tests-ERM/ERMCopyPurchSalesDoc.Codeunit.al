@@ -2870,6 +2870,7 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
         // [THEN] Destination Purchase Header has the same Purchase Line as Original Purchase Header.
         DestinationPurchHeader.Get(DestinationPurchHeader."Document Type", DestinationPurchHeader."No.");
         VerifyPurchaseLinesAreEqual(OriginalPurchHeader, DestinationPurchHeader);
+        LibraryWorkflow.DisableAllWorkflows();
     end;
 
     [Test]
@@ -2909,6 +2910,59 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
         // [THEN] Destination Sales Header has the same Sales Line as Original Sales Header.
         DestinationSalesHeader.Get(DestinationSalesHeader."Document Type", DestinationSalesHeader."No.");
         VerifySalesLinesAreEqual(OriginalSalesHeader, DestinationSalesHeader);
+        LibraryWorkflow.DisableAllWorkflows();
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandlerYes,MessageHandler')]
+    [Scope('OnPrem')]
+    procedure CopyWorkDescriptionSalesArchiveShipment()
+    var
+        SalesReceivablesSetup: Record "Sales & Receivables Setup";
+        SalesHeader: Record "Sales Header";
+        DestinationSalesHeader: Array[2] of Record "Sales Header";
+        SalesHeaderArchive: Record "Sales Header Archive";
+        SalesShipmentHeader: Record "Sales Shipment Header";
+        ArchiveManagement: Codeunit ArchiveManagement;
+        WorkDescriptionText: Text;
+    begin
+        // [SCENARIO 401012] Copy Document should also copy "Work Description" from Sales Archive and Sales Shipment documents
+        Initialize();
+
+        // [GIVEN] Archived Sales Order with "Work Description" = 'WD'
+        LibrarySales.CreateSalesOrder(SalesHeader);
+        WorkDescriptionText := LibraryRandom.RandText(10);
+        SalesHeader.SetWorkDescription(WorkDescriptionText);
+        ArchiveManagement.ArchiveSalesDocument(SalesHeader);
+
+        // [WHEN] 'Copy Document' is invoked to copy from Archived Sales Order
+        LibrarySales.CreateSalesHeader(DestinationSalesHeader[1], DestinationSalesHeader[1]."Document Type"::Order, SalesHeader."Sell-to Customer No.");
+        SalesHeaderArchive.SetRange("Sell-to Customer No.", SalesHeader."Sell-to Customer No.");
+        SalesHeaderArchive.FindFirst();
+        CopySalesDocFromArchive(
+            DestinationSalesHeader[1], "Sales Document Type From"::"Arch. Order",
+            SalesHeader."No.", true, false, SalesHeader."Document Type");
+
+        // [THEN] Created Sales Document has "Work Description" = 'WD'
+        DestinationSalesHeader[1].CalcFields("Work Description");
+        Assert.AreEqual(
+            WorkDescriptionText, DestinationSalesHeader[1].GetWorkDescription(),
+            DestinationSalesHeader[1].FieldCaption("Work Description"));
+
+        // [WHEN] 'Copy Document' is invoked to copy from Sales Shipment with "Work Description" = 'WD'
+        LibrarySales.PostSalesDocument(SalesHeader, true, true);
+        LibrarySales.CreateSalesHeader(DestinationSalesHeader[2], DestinationSalesHeader[2]."Document Type"::Order, SalesHeader."Sell-to Customer No.");
+        SalesShipmentHeader.SetRange("Sell-to Customer No.", SalesHeader."Sell-to Customer No.");
+        SalesShipmentHeader.FindFirst();
+        RunCopySalesDoc(
+            SalesShipmentHeader."No.", DestinationSalesHeader[2],
+            "Sales Document Type From"::"Posted Shipment", true, false);
+
+        // [THEN] Created Sales Document has "Work Description" = 'WD'
+        DestinationSalesHeader[2].CalcFields("Work Description");
+        Assert.AreEqual(
+            WorkDescriptionText, DestinationSalesHeader[2].GetWorkDescription(),
+            DestinationSalesHeader[2].FieldCaption("Work Description"));
     end;
 
     local procedure Initialize()
@@ -4243,4 +4297,3 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
         IsHandled := true;
     end;
 }
-

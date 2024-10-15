@@ -995,6 +995,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Post Dated Check Line - NamedType WrongBatchNameInDatedCheckLineErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 1142401484 - NamedType 3716198220" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Unit Price must be same.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Price List Line Cost Plus - NamedType UnitPriceMustBeSameMsg)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 2230025574 - NamedType 3956748531" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[%1..%2]]></Val>
