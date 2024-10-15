@@ -19,10 +19,13 @@ codeunit 799 "VAT Reporting Date Mgt"
     end;
 
     var
+        GLSetup: Record "General Ledger Setup";
         FeatureTelemetry: Codeunit "Feature Telemetry";
         VATDateFeatureTok: Label 'VAT Date', Locked = true;
         VATReturnStatusWarningMsg: Label 'VAT Return for the chosen period is already %1. Are you sure you want to make this change?', Comment = '%1 - The status of the VAT return.';
+        VATReturnFromWarningMsg: Label 'VAT Entry is in a %1 VAT Return period. Are you sure you want to make this change?', Comment = '%1 - The status of the VAT return.';
         VATReturnPeriodClosedErr: Label 'VAT Return Period is closed for the selected date. Please select another date.';
+        VATReturnFromClosedErr: Label 'VAT Entry is in a closed VAT Return Period and can not be changed.';
         VATDateNotAllowedErr: Label 'The VAT Date is not within your range of allowed posting dates.';
 
     procedure UpdateLinkedEntries(VATEntry: Record "VAT Entry")
@@ -36,7 +39,6 @@ codeunit 799 "VAT Reporting Date Mgt"
 
     procedure IsVATDateModifiable() IsModifiable: Boolean
     var
-        GLSetup: Record "General Ledger Setup";
         IsHandled: Boolean;
     begin
         OnBeforeIsVATDateModifiable(IsModifiable, IsHandled);
@@ -47,9 +49,20 @@ codeunit 799 "VAT Reporting Date Mgt"
             IsModifiable := GLSetup."VAT Reporting Date Usage" = GLSetup."VAT Reporting Date Usage"::Complete;
     end;
 
+    internal procedure IsVATDateUsageSetToPostingDate() IsPostingDate: Boolean
+    begin
+        if GLSetup.Get() then
+            IsPostingDate := GLSetup."VAT Reporting Date" = GLSetup."VAT Reporting Date"::"Posting Date";
+    end;
+
+    internal procedure IsVATDateUsageSetToDocumentDate() IsDocumentDate: Boolean
+    begin
+        if GLSetup.Get() then
+            IsDocumentDate := GLSetup."VAT Reporting Date" = GLSetup."VAT Reporting Date"::"Document Date";
+    end;
+
     procedure IsVATDateEnabled() IsEnabled: Boolean
     var
-        GLSetup: Record "General Ledger Setup";
         IsHandled: Boolean;
     begin
         OnBeforeIsVATDateEnabled(IsEnabled, IsHandled);
@@ -76,12 +89,24 @@ codeunit 799 "VAT Reporting Date Mgt"
         exit(true);
     end;
 
-    procedure IsValidDate(VATDate: Date): Boolean;
+    procedure IsValidDate(VATDate: Date): Boolean
+    begin
+        exit(IsValidDate(VATDate, false));
+    end;
+
+    internal procedure IsValidDate(VATDate: Date; ExistingEntry: Boolean): Boolean
     var
         VATReturnPeriod: Record "VAT Return Period";
-        GLSetup: Record "General Ledger Setup";
         ConfirmManagement: Codeunit "Confirm Management";
+        WarningMsg, ErrorMsg: Text;
     begin
+        if ExistingEntry then begin
+            WarningMsg := VATReturnFromWarningMsg;
+            ErrorMsg := VATReturnFromClosedErr;
+        end else begin
+            WarningMsg := VATReturnStatusWarningMsg;
+            ErrorMsg := VATReturnPeriodClosedErr;
+        end;
         if not GLSetup.Get() then
             exit(false);
         if VATReturnPeriod.FindVATPeriodByDate(VATDate) then
@@ -90,18 +115,18 @@ codeunit 799 "VAT Reporting Date Mgt"
                 "VAT Period Control"::"Block posting within closed and warn for released period":
                     begin
                         if VATReturnPeriod.Status = VATReturnPeriod.Status::Closed then
-                            Error(VATReturnPeriodClosedErr);
+                            Error(ErrorMsg);
 
                         VATReturnPeriod.CalcFields("VAT Return Status");
                         if VATReturnPeriod."VAT Return Status" in [VATReturnPeriod."VAT Return Status"::Released, VATReturnPeriod."VAT Return Status"::Submitted] then
-                            exit(ConfirmManagement.GetResponseOrDefault(StrSubstNo(VATReturnStatusWarningMsg, Format(VATReturnPeriod."VAT Return Status")), true));
+                            exit(ConfirmManagement.GetResponseOrDefault(StrSubstNo(WarningMsg, Format(VATReturnPeriod."VAT Return Status")), true));
                     end;
                 "VAT Period Control"::"Block posting within closed period":
                     if VATReturnPeriod.Status = VATReturnPeriod.Status::Closed then
-                        Error(VATReturnPeriodClosedErr);
+                        Error(ErrorMsg);
                 "VAT Period Control"::"Warn when posting in closed period":
                     if VATReturnPeriod.Status = VATReturnPeriod.Status::Closed then
-                        exit(ConfirmManagement.GetResponseOrDefault(StrSubstNo(VATReturnStatusWarningMsg, Format(VATReturnPeriod.Status::Closed)), true));
+                        exit(ConfirmManagement.GetResponseOrDefault(StrSubstNo(WarningMsg, Format(VATReturnPeriod.Status::Closed)), true));
             end;
         exit(true);
     end;

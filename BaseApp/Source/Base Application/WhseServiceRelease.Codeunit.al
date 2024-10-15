@@ -31,19 +31,20 @@ codeunit 5770 "Whse.-Service Release"
         if ServiceLine.FindSet() then begin
             First := true;
             repeat
-                if (ServiceHeader."Document Type" = "Service Document Type"::Order) and (ServiceLine.Quantity >= 0) then
-                    WhseType := WhseType::Outbound
-                else
-                    WhseType := WhseType::Inbound;
+                if ServiceLine.IsInventoriableItem() then begin
+                    if (ServiceHeader."Document Type" = "Service Document Type"::Order) and (ServiceLine.Quantity >= 0) then
+                        WhseType := WhseType::Outbound
+                    else
+                        WhseType := WhseType::Inbound;
+                    if First or (ServiceLine."Location Code" <> OldLocationCode) or (WhseType <> OldWhseType) then
+                        CreateWarehouseRequest(ServiceHeader, ServiceLine, WhseType);
 
-                if First or (ServiceLine."Location Code" <> OldLocationCode) or (WhseType <> OldWhseType) then
-                    CreateWarehouseRequest(ServiceHeader, ServiceLine, WhseType);
+                    OnAfterCreateWhseRqst(ServiceHeader, ServiceLine, WhseType.AsInteger());
 
-                OnAfterCreateWhseRqst(ServiceHeader, ServiceLine, WhseType.AsInteger());
-
-                First := false;
-                OldLocationCode := ServiceLine."Location Code";
-                OldWhseType := WhseType;
+                    First := false;
+                    OldLocationCode := ServiceLine."Location Code";
+                    OldWhseType := WhseType;
+                end;
             until ServiceLine.Next() = 0;
         end;
         SetWhseRqstFiltersByStatus(ServiceHeader, WarehouseRequest, ServiceHeader."Release Status"::Open);
