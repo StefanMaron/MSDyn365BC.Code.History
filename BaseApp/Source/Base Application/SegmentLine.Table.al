@@ -198,7 +198,7 @@ table 5077 "Segment Line"
                     "Campaign Target" := InteractTmpl."Campaign Target";
                     "Campaign Response" := InteractTmpl."Campaign Response";
 
-                    SetCorrespondenceType();
+                    SetCorrespondenceType(InteractTmpl);
                     if SegHeader."Campaign No." <> '' then
                         "Campaign No." := SegHeader."Campaign No."
                     else
@@ -1429,7 +1429,7 @@ table 5077 "Segment Line"
             until InterLogEntryCommentLine.Next = 0;
     end;
 
-    local procedure SetCorrespondenceType()
+    local procedure SetCorrespondenceType(InteractTmpl: Record "Interaction Template")
     var
         IsHandled: Boolean;
     begin

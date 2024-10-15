@@ -98,7 +98,7 @@ page 5330 "CRM Connection Setup"
                     AssistEdit = true;
                     Caption = 'Dynamics 365 SDK Version';
                     Editable = false;
-                    Enabled = IsEditable;
+                    Enabled = IsProxyVersionEnabled;
                     ToolTip = 'Specifies the Microsoft Dynamics 365 (CRM) software development kit version that is used to connect to Dynamics 365 Sales.';
 
                     trigger OnAssistEdit()
@@ -647,6 +647,7 @@ page 5330 "CRM Connection Setup"
         ActiveJobs: Integer;
         TotalJobs: Integer;
         IsEditable: Boolean;
+        IsProxyVersionEnabled: Boolean;
         IsCdsIntegrationEnabled: Boolean;
         IsUserNamePasswordVisible: Boolean;
         IsWebCliResetEnabled: Boolean;
@@ -704,10 +705,16 @@ page 5330 "CRM Connection Setup"
 
     local procedure UpdateEnableFlags()
     var
+        CDSConnectionSetup: Record "CDS Connection Setup";
         CRMIntegrationManagement: Codeunit "CRM Integration Management";
         CDSIntegrationImpl: Codeunit "CDS Integration Impl.";
     begin
         IsEditable := not "Is Enabled" and not CDSIntegrationImpl.IsIntegrationEnabled();
+        IsProxyVersionEnabled := true;
+        if CDSConnectionSetup.Get() then
+            if CDSConnectionSetup."Is Enabled" then
+                IsProxyVersionEnabled := false;
+
         IsWebCliResetEnabled := "Is CRM Solution Installed" and "Is Enabled For User";
         WebServiceEnabled := CRMIntegrationManagement.IsItemAvailabilityWebServiceEnabled;
     end;
