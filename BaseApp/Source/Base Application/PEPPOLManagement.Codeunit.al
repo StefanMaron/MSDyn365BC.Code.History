@@ -330,7 +330,10 @@ codeunit 1605 "PEPPOL Management"
         Customer: Record Customer;
     begin
         CustContactID := SalesHeader."Your Reference";
-        CustContactName := SalesHeader."Bill-to Name";
+        if SalesHeader."Bill-to Contact" <> '' then
+            CustContactName := SalesHeader."Bill-to Contact"
+        else
+            CustContactName := SalesHeader."Bill-to Name";
 
         if Customer.Get(SalesHeader."Bill-to Customer No.") then begin
             CustContactTelephone := Customer."Phone No.";

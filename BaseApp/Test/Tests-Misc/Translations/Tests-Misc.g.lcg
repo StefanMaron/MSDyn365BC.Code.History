@@ -1661,6 +1661,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Check Dimensions On Posting - NamedType OnAfterCheckDocErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 205634720 - NamedType 2756916879" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[A dimension used in %1 %2, %3, %4 has caused an error. %5]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Check Dimensions On Posting - NamedType PostingDimensionErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 381907130 - NamedType 2212121482" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Important!! DO NOT CHANGE THE NAME OF THE O365 Sales profile name!]]></Val>

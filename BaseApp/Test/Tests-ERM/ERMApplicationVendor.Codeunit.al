@@ -22,6 +22,7 @@ codeunit 134011 "ERM Application Vendor"
     var
         LibraryERM: Codeunit "Library - ERM";
         LibraryUtility: Codeunit "Library - Utility";
+        LibraryJournals: Codeunit "Library - Journals";
         LibraryPurchase: Codeunit "Library - Purchase";
         LibraryPmtDiscSetup: Codeunit "Library - Pmt Disc Setup";
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
@@ -705,6 +706,70 @@ codeunit 134011 "ERM Application Vendor"
         // [THEN] Remaining amount: invoice = 0, credit-memo = 0, payment = 1.
         asserterror VerifyInvoiceCrMemoAndPaymentRemAmounts(GenJournalLine."Document No.", 0, 0, 1);
         Assert.KnownFailure('Remaining Amount must be equal to ''0''  in Vendor Ledger Entry', 252156);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure PaymentTwoInvoiceSetAppliesToIdFromGeneralJournal()
+    var
+        Vendor: Record Vendor;
+        GenJournalLine: Record "Gen. Journal Line";
+        VendorLedgerEntry: Record "Vendor Ledger Entry";
+        InvoiceAmount: Decimal;
+        PaymentAmount: Decimal;
+    begin
+        // [FEATURE] [General Journal]
+        // [SCENARIO 342909] System clean "Applies-to ID" field in vendor ledger entry when it is generated from general journal line applied to vendor ledger entry
+        Initialize();
+
+        LibraryPurchase.CreateVendor(Vendor);
+
+        InvoiceAmount := -LibraryRandom.RandIntInRange(10, 20);
+        PaymentAmount := -InvoiceAmount * 3;
+
+        // Invoice 1
+        LibraryJournals.CreateGenJournalLineWithBatch(
+          GenJournalLine, GenJournalLine."Document Type"::Invoice, GenJournalLine."Account Type"::Vendor, Vendor."No.", InvoiceAmount);
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+
+        // Invoice 2
+        LibraryJournals.CreateGenJournalLineWithBatch(
+          GenJournalLine, GenJournalLine."Document Type"::Invoice, GenJournalLine."Account Type"::Vendor, Vendor."No.", InvoiceAmount);
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+
+        // Payment 1 with false "Applies-to ID"
+        LibraryJournals.CreateGenJournalLineWithBatch(
+          GenJournalLine, GenJournalLine."Document Type"::Payment, GenJournalLine."Account Type"::Vendor, Vendor."No.", PaymentAmount);
+        GenJournalLine."Applies-to ID" := GenJournalLine."Document No.";
+        GenJournalLine.Modify(true);
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+
+        LibraryERM.FindVendorLedgerEntry(VendorLedgerEntry, VendorLedgerEntry."Document Type"::Payment, GenJournalLine."Document No.");
+        VendorLedgerEntry.TestField("Applies-to ID", '');
+
+        // Payment 2 with true "Applies-to ID"
+        LibraryJournals.CreateGenJournalLineWithBatch(
+          GenJournalLine, GenJournalLine."Document Type"::Payment, GenJournalLine."Account Type"::Vendor, Vendor."No.", PaymentAmount);
+
+        Clear(VendorLedgerEntry);
+        VendorLedgerEntry.SetRange("Vendor No.", Vendor."No.");
+        VendorLedgerEntry.SetRange("Document Type", VendorLedgerEntry."Document Type"::Invoice);
+        LibraryERM.SetAppliestoIdVendor(VendorLedgerEntry);
+        VendorLedgerEntry.ModifyAll("Applies-to ID", GenJournalLine."Document No.");
+
+        GenJournalLine."Applies-to ID" := GenJournalLine."Document No.";
+        GenJournalLine.Modify(true);
+
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+
+        VendorLedgerEntry.FindSet();
+        repeat
+            VendorLedgerEntry.TestField(Open, false);
+        until VendorLedgerEntry.Next() = 0;
+        Assert.RecordCount(VendorLedgerEntry, 2);
+
+        LibraryERM.FindVendorLedgerEntry(VendorLedgerEntry, VendorLedgerEntry."Document Type"::Payment, GenJournalLine."Document No.");
+        VendorLedgerEntry.TestField("Applies-to ID", '');
     end;
 
     local procedure Initialize()

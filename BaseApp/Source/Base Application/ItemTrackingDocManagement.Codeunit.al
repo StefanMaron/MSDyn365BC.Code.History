@@ -174,7 +174,7 @@ codeunit 6503 "Item Tracking Doc. Management"
         InvoiceRowID: Text[250];
     begin
         InvoiceRowID := ItemTrackingMgt.ComposeRowID(Type, Subtype, ID, BatchName, ProdOrderLine, RefNo);
-        RetrieveEntriesFromPostedInv(TempItemLedgEntry, InvoiceRowID);
+        RetrieveEntriesFromPostedInvoice(TempItemLedgEntry, InvoiceRowID);
         FillTrackingSpecBufferFromILE(
           TempItemLedgEntry, TempTrackingSpecBuffer, Type, Subtype, ID, BatchName, ProdOrderLine, RefNo, Description);
 
@@ -276,7 +276,7 @@ codeunit 6503 "Item Tracking Doc. Management"
         end;
     end;
 
-    local procedure RetrieveEntriesFromPostedInv(var TempItemLedgEntry: Record "Item Ledger Entry" temporary; InvoiceRowID: Text[250])
+    procedure RetrieveEntriesFromPostedInvoice(var TempItemLedgEntry: Record "Item Ledger Entry" temporary; InvoiceRowID: Text[250])
     var
         ValueEntryRelation: Record "Value Entry Relation";
         ValueEntry: Record "Value Entry";
@@ -517,7 +517,7 @@ codeunit 6503 "Item Tracking Doc. Management"
     var
         TempItemLedgEntry: Record "Item Ledger Entry" temporary;
     begin
-        RetrieveEntriesFromPostedInv(TempItemLedgEntry, InvoiceRowID);
+        RetrieveEntriesFromPostedInvoice(TempItemLedgEntry, InvoiceRowID);
         if not TempItemLedgEntry.IsEmpty then begin
             PAGE.RunModal(PAGE::"Posted Item Tracking Lines", TempItemLedgEntry);
             exit(true);

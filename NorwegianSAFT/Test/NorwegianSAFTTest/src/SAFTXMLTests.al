@@ -834,7 +834,7 @@ codeunit 148103 "SAF-T XML Tests"
         repeat
             SAFTTestHelper.AssertElementName(TempXMLBuffer, 'n1:Transaction');
             GLEntry.SetRange("Transaction No.", GLEntry."Transaction No.");
-            SAFTTestHelper.AssertElementValue(TempXMLBuffer, 'n1:TransactionID', format(GLEntry."Transaction No."));
+            SAFTTestHelper.AssertElementValue(TempXMLBuffer, 'n1:TransactionID', format(GLEntry."Document No."));
             SAFTTestHelper.AssertElementValue(TempXMLBuffer, 'n1:Period', format(Date2DMY(GLEntry."Posting Date", 2)));
             SAFTTestHelper.AssertElementValue(TempXMLBuffer, 'n1:PeriodYear', format(Date2DMY(GLEntry."Posting Date", 3)));
             SAFTTestHelper.AssertElementValue(

@@ -300,9 +300,11 @@ table 36 "Sales Header"
             var
                 Contact: Record Contact;
             begin
+                Contact.FilterGroup(2);
                 LookupContact("Bill-to Customer No.", "Bill-to Contact No.", Contact);
                 if PAGE.RunModal(0, Contact) = ACTION::LookupOK then
                     Validate("Bill-to Contact No.", Contact."No.");
+                Contact.FilterGroup(0);
             end;
 
             trigger OnValidate()
@@ -730,6 +732,8 @@ table 36 "Sales Header"
                                     VatFactor := 1;
                                 if not "Prices Including VAT" then
                                     VatFactor := 1 / VatFactor;
+                                if SalesLine."VAT Calculation Type" = SalesLine."VAT Calculation Type"::"Full VAT" then
+                                    VatFactor := 1;
                                 SalesLine."Unit Price" :=
                                   Round(SalesLine."Unit Price" * VatFactor, Currency."Unit-Amount Rounding Precision");
                                 SalesLine."Line Discount Amount" :=
@@ -739,10 +743,13 @@ table 36 "Sales Header"
                                 LineInvDiscAmt := InvDiscRounding + SalesLine."Inv. Discount Amount" * VatFactor;
                                 SalesLine."Inv. Discount Amount" := Round(LineInvDiscAmt, Currency."Amount Rounding Precision");
                                 InvDiscRounding := LineInvDiscAmt - SalesLine."Inv. Discount Amount";
-                                if "Prices Including VAT" then
-                                    SalesLine."Line Amount" := SalesLine."Amount Including VAT" + SalesLine."Inv. Discount Amount"
+                                if SalesLine."VAT Calculation Type" = SalesLine."VAT Calculation Type"::"Full VAT" then
+                                    SalesLine."Line Amount" := SalesLine."Amount Including VAT"
                                 else
-                                    SalesLine."Line Amount" := SalesLine.Amount + SalesLine."Inv. Discount Amount";
+                                    if "Prices Including VAT" then
+                                        SalesLine."Line Amount" := SalesLine."Amount Including VAT" + SalesLine."Inv. Discount Amount"
+                                    else
+                                        SalesLine."Line Amount" := SalesLine.Amount + SalesLine."Inv. Discount Amount";
                             end;
                             OnValidatePricesIncludingVATOnBeforeSalesLineModify(Rec, SalesLine, Currency, RecalculatePrice);
                             SalesLine.Modify;
@@ -1198,9 +1205,11 @@ table 36 "Sales Header"
                     if "Sell-to Customer No." = '' then
                         exit;
 
+                Contact.FilterGroup(2);
                 LookupContact("Sell-to Customer No.", "Sell-to Contact No.", Contact);
                 if PAGE.RunModal(0, Contact) = ACTION::LookupOK then
                     Validate("Sell-to Contact No.", Contact."No.");
+                Contact.FilterGroup(0);
             end;
 
             trigger OnValidate()
@@ -2665,6 +2674,7 @@ table 36 "Sales Header"
     trigger OnDelete()
     var
         CustInvoiceDisc: Record "Cust. Invoice Disc.";
+        SalesCommentLine: Record "Sales Comment Line";
         PostSalesDelete: Codeunit "PostSales-Delete";
         ArchiveManagement: Codeunit ArchiveManagement;
         EnvInfoProxy: Codeunit "Env. Info Proxy";
@@ -2779,7 +2789,6 @@ table 36 "Sales Header"
         PaymentTerms: Record "Payment Terms";
         PaymentMethod: Record "Payment Method";
         CurrExchRate: Record "Currency Exchange Rate";
-        SalesCommentLine: Record "Sales Comment Line";
         PostCode: Record "Post Code";
         BankAcc: Record "Bank Account";
         SalesShptHeader: Record "Sales Shipment Header";
@@ -2948,6 +2957,8 @@ table 36 "Sales Header"
         if "Document Type" = "Document Type"::Quote then
             CalcQuoteValidUntilDate;
 
+        IF "Sell-to Customer No." <> '' THEN
+            GetCust("Sell-to Customer No.");
         UpdateLocationCode(Cust."Location Code");
 
         if IsCreditDocType then begin
@@ -3196,13 +3207,14 @@ table 36 "Sales Header"
         TempItemChargeAssgntSales: Record "Item Charge Assignment (Sales)" temporary;
         TempInteger: Record "Integer" temporary;
         TempATOLink: Record "Assemble-to-Order Link" temporary;
+        TempSalesCommentLine: Record "Sales Comment Line" temporary;
         ATOLink: Record "Assemble-to-Order Link";
         TransferExtendedText: Codeunit "Transfer Extended Text";
         ExtendedTextAdded: Boolean;
         ConfirmText: Text;
         IsHandled: Boolean;
     begin
-        if not SalesLinesExist then
+        if not SalesLinesExist() then
             exit;
 
         IsHandled := false;
@@ -3213,10 +3225,10 @@ table 36 "Sales Header"
         IsHandled := false;
         OnRecreateSalesLinesOnBeforeConfirm(Rec, xRec, ChangedFieldName, HideValidationDialog, Confirmed, IsHandled);
         if not IsHandled then
-            if GetHideValidationDialog or not GuiAllowed then
+            if GetHideValidationDialog() or not GuiAllowed() then
                 Confirmed := true
             else begin
-                if HasItemChargeAssignment then
+                if HasItemChargeAssignment() then
                     ConfirmText := ResetItemChargeAssignMsg
                 else
                     ConfirmText := RecreateSalesLinesMsg;
@@ -3224,18 +3236,19 @@ table 36 "Sales Header"
             end;
 
         if Confirmed then begin
-            SalesLine.LockTable;
-            ItemChargeAssgntSales.LockTable;
-            ReservEntry.LockTable;
-            Modify;
+            SalesLine.LockTable();
+            ItemChargeAssgntSales.LockTable();
+            ReservEntry.LockTable();
+            Modify();
             OnBeforeRecreateSalesLines(Rec);
             SalesLine.Reset;
             SalesLine.SetRange("Document Type", "Document Type");
             SalesLine.SetRange("Document No.", "No.");
             OnRecreateSalesLinesOnAfterSetSalesLineFilters(SalesLine);
-            if SalesLine.FindSet then begin
-                TempReservEntry.DeleteAll;
+            if SalesLine.FindSet() then begin
+                TempReservEntry.DeleteAll();
                 RecreateReservEntryReqLine(TempSalesLine, TempATOLink, ATOLink);
+                StoreSalesCommentLineToTemp(TempSalesCommentLine);
                 TransferItemChargeAssgntSalesToTemp(ItemChargeAssgntSales, TempItemChargeAssgntSales);
                 IsHandled := false;
                 OnRecreateSalesLinesOnBeforeSalesLineDeleteAll(Rec, SalesLine, CurrFieldNo, IsHandled);
@@ -3244,7 +3257,7 @@ table 36 "Sales Header"
 
                 SalesLine.Init();
                 SalesLine."Line No." := 0;
-                TempSalesLine.FindSet;
+                TempSalesLine.FindSet();
                 ExtendedTextAdded := false;
                 SalesLine.BlockDynamicTracking(true);
                 repeat
@@ -3267,7 +3280,7 @@ table 36 "Sales Header"
                             TransferExtendedText.InsertSalesExtText(SalesLine);
                             OnAfterTransferExtendedTextForSalesLineRecreation(SalesLine, TempSalesLine);
 
-                            SalesLine.FindLast;
+                            SalesLine.FindLast();
                             ExtendedTextAdded := true;
                         end;
                     SalesLineReserve.CopyReservEntryFromTemp(TempReservEntry, TempSalesLine, SalesLine."Line No.");
@@ -3281,7 +3294,9 @@ table 36 "Sales Header"
                         ATOLink.UpdateAsmFromSalesLineATOExist(SalesLine);
                         TempATOLink.Delete;
                     end;
-                until TempSalesLine.Next = 0;
+                until TempSalesLine.Next() = 0;
+
+                RestoreSalesCommentLineFromTemp(TempSalesCommentLine);
 
                 CreateItemChargeAssgntSales(TempItemChargeAssgntSales, TempSalesLine, TempInteger);
 
@@ -3295,6 +3310,32 @@ table 36 "Sales Header"
             Rec := xRec;
 
         SalesLine.BlockDynamicTracking(false);
+    end;
+
+    local procedure StoreSalesCommentLineToTemp(var TempSalesCommentLine: Record "Sales Comment Line" temporary)
+    var
+        SalesCommentLine: Record "Sales Comment Line";
+    begin
+        SalesCommentLine.SetRange("Document Type", "Document Type");
+        SalesCommentLine.SetRange("No.", "No.");
+        if SalesCommentLine.FindSet() then
+            repeat
+                TempSalesCommentLine := SalesCommentLine;
+                TempSalesCommentLine.Insert();
+            until SalesCommentLine.Next() = 0;
+    end;
+
+    local procedure RestoreSalesCommentLineFromTemp(var TempSalesCommentLine: Record "Sales Comment Line" temporary)
+    var
+        SalesCommentLine: Record "Sales Comment Line";
+    begin
+        TempSalesCommentLine.SetRange("Document Type", "Document Type");
+        TempSalesCommentLine.SetRange("No.", "No.");
+        if TempSalesCommentLine.FindSet() then
+            repeat
+                SalesCommentLine := TempSalesCommentLine;
+                SalesCommentLine.Insert();
+            until TempSalesCommentLine.Next() = 0;
     end;
 
     local procedure RecreateSalesLinesFillItemChargeAssignment(SalesLine: Record "Sales Line"; TempSalesLine: Record "Sales Line" temporary; var TempItemChargeAssgntSales: Record "Item Charge Assignment (Sales)" temporary)
@@ -5743,15 +5784,23 @@ table 36 "Sales Header"
 
     local procedure SetDefaultSalesperson()
     var
+        UserSetupSalespersonCode: Code[20];
+    begin
+        UserSetupSalespersonCode := GetUserSetupSalespersonCode;
+        if UserSetupSalespersonCode <> '' then
+            if Salesperson.Get(UserSetupSalespersonCode) then
+                if not Salesperson.VerifySalesPersonPurchaserPrivacyBlocked(Salesperson) then
+                    Validate("Salesperson Code", UserSetupSalespersonCode);
+    end;
+
+    local procedure GetUserSetupSalespersonCode(): Code[20]
+    var
         UserSetup: Record "User Setup";
     begin
         if not UserSetup.Get(UserId) then
             exit;
 
-        if UserSetup."Salespers./Purch. Code" <> '' then
-            if Salesperson.Get(UserSetup."Salespers./Purch. Code") then
-                if not Salesperson.VerifySalesPersonPurchaserPrivacyBlocked(Salesperson) then
-                    Validate("Salesperson Code", UserSetup."Salespers./Purch. Code");
+        exit(UserSetup."Salespers./Purch. Code");
     end;
 
     procedure SelltoCustomerNoOnAfterValidate(var SalesHeader: Record "Sales Header"; var xSalesHeader: Record "Sales Header")
@@ -5968,15 +6017,20 @@ table 36 "Sales Header"
     end;
 
     local procedure SetSalespersonCode(SalesPersonCodeToCheck: Code[20]; var SalesPersonCodeToAssign: Code[20])
+    var
+        UserSetupSalespersonCode: Code[20];
     begin
+        UserSetupSalespersonCode := GetUserSetupSalespersonCode;
         if SalesPersonCodeToCheck <> '' then begin
             if Salesperson.Get(SalesPersonCodeToCheck) then
-                if Salesperson.VerifySalesPersonPurchaserPrivacyBlocked(Salesperson) then
-                    SalesPersonCodeToAssign := ''
-                else
+                if Salesperson.VerifySalesPersonPurchaserPrivacyBlocked(Salesperson) then begin
+                    if UserSetupSalespersonCode = '' then
+                        SalesPersonCodeToAssign := ''
+                end else
                     SalesPersonCodeToAssign := SalesPersonCodeToCheck;
         end else
-            SalesPersonCodeToAssign := '';
+            if UserSetupSalespersonCode = '' then
+                SalesPersonCodeToAssign := '';
     end;
 
     procedure ValidateSalesPersonOnSalesHeader(SalesHeader2: Record "Sales Header"; IsTransaction: Boolean; IsPostAction: Boolean)

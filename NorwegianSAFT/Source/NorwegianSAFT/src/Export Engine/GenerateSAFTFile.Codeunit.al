@@ -604,7 +604,7 @@ codeunit 10673 "Generate SAF-T File"
 
     local procedure ExportGLEntriesByTransaction(var GLEntry: Record "G/L Entry"; var NumberOfEntries: Integer)
     var
-        TempDimCodeAmountBuffer: Record "Dimension Code Amount Buffer" temporary;
+        TempDimIDBuffer: Record "Dimension ID Buffer" temporary;
         VATEntry: Record "VAT Entry";
         SAFTExportMgt: Codeunit "SAF-T Export Mgt.";
         AmountXMLNode: Text;
@@ -622,8 +622,8 @@ codeunit 10673 "Generate SAF-T File"
             SAFTXMLHelper.AddNewXMLNode('Line', '');
             SAFTXMLHelper.AppendXMLNode('RecordID', format(GLEntry."Entry No."));
             SAFTXMLHelper.AppendXMLNode('AccountID', GLEntry."G/L Account No.");
-            CopyDimeSetIDToDimCodeAmountBuffer(TempDimCodeAmountBuffer, GLEntry."Dimension Set ID");
-            ExportAnalysisInfo(TempDimCodeAmountBuffer);
+            CopyDimeSetIDToDimIDBuffer(TempDimIDBuffer, GLEntry."Dimension Set ID");
+            ExportAnalysisInfo(TempDimIDBuffer);
             SAFTXMLHelper.AppendXMLNode('SourceDocumentID', GLEntry."Document No.");
             if GLEntry."Gen. Posting Type" <> 0 then
                 case GLEntry."Source Type" of
@@ -652,7 +652,7 @@ codeunit 10673 "Generate SAF-T File"
     local procedure ExportGLEntryTransactionInfo(GLEntry: Record "G/L Entry")
     begin
         SAFTXMLHelper.AddNewXMLNode('Transaction', '');
-        SAFTXMLHelper.AppendXMLNode('TransactionID', format(GLEntry."Transaction No."));
+        SAFTXMLHelper.AppendXMLNode('TransactionID', format(GLEntry."Document No."));
         SAFTXMLHelper.AppendXMLNode('Period', format(Date2DMY(GLEntry."Posting Date", 2)));
         SAFTXMLHelper.AppendXMLNode('PeriodYear', format(Date2DMY(GLEntry."Posting Date", 3)));
         SAFTXMLHelper.AppendXMLNode('TransactionDate', FormatDate(GLEntry."Document Date"));
@@ -776,7 +776,7 @@ codeunit 10673 "Generate SAF-T File"
     local procedure ExportPartyInfo(SourceID: Integer; SourceNo: Code[20]; CurrencyCode: Code[10]; PaymentTermsCode: Code[10])
     var
         DefaultDimension: Record "Default Dimension";
-        TempDimCodeAmountBuffer: Record "Dimension Code Amount Buffer" temporary;
+        TempDimIDBuffer: Record "Dimension ID Buffer" temporary;
         SAFTExportMgt: Codeunit "SAF-T Export Mgt.";
     begin
         SAFTXMLHelper.AddNewXMLNode('PartyInfo', '');
@@ -784,45 +784,46 @@ codeunit 10673 "Generate SAF-T File"
         SAFTXMLHelper.AppendXMLNode('CurrencyCode', SAFTExportMgt.GetISOCurrencyCode(CurrencyCode));
         DefaultDimension.SetRange("Table ID", SourceID);
         DefaultDimension.SetRange("No.", SourceNo);
-        CopyDefaultDimToDimCodeAmountBuffer(TempDimCodeAmountBuffer, DefaultDimension);
-        ExportAnalysisInfo(TempDimCodeAmountBuffer);
+        CopyDefaultDimToDimBuffer(TempDimIDBuffer, DefaultDimension);
+        ExportAnalysisInfo(TempDimIDBuffer);
         SAFTXMLHelper.FinalizeXMLNode();
     end;
 
-    local procedure ExportAnalysisInfo(var TempDimCodeAmountBuffer: Record "Dimension Code Amount Buffer" temporary)
+    local procedure ExportAnalysisInfo(var TempDimIDBuffer: Record "Dimension ID Buffer" temporary)
     begin
-        if TempDimCodeAmountBuffer.FindSet() then
+        if TempDimIDBuffer.FindSet() then
             repeat
                 SAFTXMLHelper.AddNewXMLNode('Analysis', '');
-                SAFTXMLHelper.AppendXMLNode('AnalysisType', TempDimCodeAmountBuffer."Line Code");
-                SAFTXMLHelper.AppendXMLNode('AnalysisID', TempDimCodeAmountBuffer."Column Code");
+                SAFTXMLHelper.AppendXMLNode('AnalysisType', TempDimIDBuffer."Dimension Code");
+                SAFTXMLHelper.AppendXMLNode('AnalysisID', TempDimIDBuffer."Dimension Value");
                 SAFTXMLHelper.FinalizeXMLNode();
-            until TempDimCodeAmountBuffer.Next() = 0;
+            until TempDimIDBuffer.Next() = 0;
     end;
 
-    local procedure CopyDefaultDimToDimCodeAmountBuffer(var TempDimCodeAmountBuffer: Record "Dimension Code Amount Buffer" temporary; var DefaultDimension: Record "Default Dimension")
+    local procedure CopyDefaultDimToDimBuffer(var TempDimIDBuffer: Record "Dimension ID Buffer" temporary; var DefaultDimension: Record "Default Dimension")
     var
         Dimension: Record Dimension;
     begin
-        TempDimCodeAmountBuffer.reset();
-        TempDimCodeAmountBuffer.DeleteAll();
+        TempDimIDBuffer.Reset();
+        TempDimIDBuffer.DeleteAll();
         if DefaultDimension.FindSet() then
             repeat
                 Dimension.get(DefaultDimension."Dimension Code");
-                TempDimCodeAmountBuffer."Line Code" := Dimension."SAF-T Analysis Type";
-                TempDimCodeAmountBuffer."Column Code" := DefaultDimension."Dimension Value Code";
-                TempDimCodeAmountBuffer.Insert();
+                TempDimIDBuffer."Parent ID" += 1;
+                TempDimIDBuffer."Dimension Code" := Dimension."SAF-T Analysis Type";
+                TempDimIDBuffer."Dimension Value" := DefaultDimension."Dimension Value Code";
+                TempDimIDBuffer.Insert();
             until DefaultDimension.next() = 0;
     end;
 
-    local procedure CopyDimeSetIDToDimCodeAmountBuffer(var TempDimCodeAmountBuffer: Record "Dimension Code Amount Buffer" temporary; DimSetID: Integer)
+    local procedure CopyDimeSetIDToDimIDBuffer(var TempDimIDBuffer: Record "Dimension ID Buffer" temporary; DimSetID: Integer)
     var
         TempDimSetEntry: Record "Dimension Set Entry" temporary;
         Dimension: Record Dimension;
         DimensionManagement: Codeunit DimensionManagement;
     begin
-        TempDimCodeAmountBuffer.Reset();
-        TempDimCodeAmountBuffer.DeleteAll();
+        TempDimIDBuffer.Reset();
+        TempDimIDBuffer.DeleteAll();
         if DimSetID = 0 then
             exit;
 
@@ -832,9 +833,10 @@ codeunit 10673 "Generate SAF-T File"
 
         repeat
             Dimension.Get(TempDimSetEntry."Dimension Code");
-            TempDimCodeAmountBuffer."Line Code" := Dimension."SAF-T Analysis Type";
-            TempDimCodeAmountBuffer."Column Code" := TempDimSetEntry."Dimension Value Code";
-            TempDimCodeAmountBuffer.Insert();
+            TempDimIDBuffer."Parent ID" += 1;
+            TempDimIDBuffer."Dimension Code" := Dimension."SAF-T Analysis Type";
+            TempDimIDBuffer."Dimension Value" := TempDimSetEntry."Dimension Value Code";
+            TempDimIDBuffer.Insert();
         until TempDimSetEntry.Next() = 0;
 
     end;
