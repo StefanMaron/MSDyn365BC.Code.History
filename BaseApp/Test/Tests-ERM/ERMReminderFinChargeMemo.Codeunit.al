@@ -1133,7 +1133,7 @@ codeunit 134909 "ERM Reminder/Fin.Charge Memo"
         LibraryERM.CreateFinanceChargeMemoLine(
           FinanceChargeMemoLine, FinanceChargeMemoHeader."No.", FinanceChargeMemoLine.Type::"G/L Account");
         FinanceChargeMemoLine.Validate("No.", GLAccount."No.");
-        FinanceChargeMemoLine.Validate(Amount, LibraryRandom.RandInt(100));
+        FinanceChargeMemoLine.Validate(Amount, LibraryRandom.RandIntInRange(100, 1000) * 100); // to avoid invoice rounding
         FinanceChargeMemoLine.Modify(true);
 
         // [WHEN] Finance Charge Memo is issued.

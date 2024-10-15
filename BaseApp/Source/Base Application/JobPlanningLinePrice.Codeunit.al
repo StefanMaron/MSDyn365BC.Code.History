@@ -152,6 +152,8 @@ codeunit 7024 "Job Planning Line - Price" implements "Line With Price"
                 end;
         end;
         PriceCalculationBuffer."Document Date" := JobPlanningLine."Planning Date";
+        if PriceCalculationBuffer."Document Date" = 0D then
+            PriceCalculationBuffer."Document Date" := WorkDate();
         PriceCalculationBuffer.Validate("Currency Code", JobPlanningLine."Currency Code");
         PriceCalculationBuffer."Currency Factor" := JobPlanningLine."Currency Factor";
 
