@@ -1,4 +1,4 @@
-table 263 "Intrastat Jnl. Line"
+﻿table 263 "Intrastat Jnl. Line"
 {
     Caption = 'Intrastat Jnl. Line';
 
@@ -66,10 +66,8 @@ table 263 "Intrastat Jnl. Line"
             OptionMembers = ,"Item Entry","Job Entry";
             trigger OnValidate()
             begin
-                if Type = Type::Shipment then begin
-                    "Country/Region of Origin Code" := GetCountryOfOriginCode();
-                    "Partner VAT ID" := GetPartnerID();
-                end;
+                "Country/Region of Origin Code" := GetCountryOfOriginCode();
+                "Partner VAT ID" := GetPartnerID();
             end;
         }
         field(12; "Source Entry No."; Integer)

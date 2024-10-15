@@ -72,7 +72,7 @@
                     Write(Format(ItemDirection));
                     Write(PADSTR2(CompanyInfo."VAT Registration No.", 12, '0', 'L'));
                     Write(PADSTR2(Format(LineNo, 0, '<Integer>'), 5, '0', '<'));
-                    if CounterpartyInfo and (Type = Type::Shipment) then
+                    if CounterpartyInfo then
                         Write(PADSTR2("Country/Region of Origin Code", 3, ' ', '>'))
                     else
                         Write(PADSTR2('', 3, ' ', '>'));
@@ -110,14 +110,10 @@
                     Write('000');
                     Write(PADSTR2("Intrastat Jnl. Batch"."Currency Identifier", 1, ' ', '>'));
                     Write(PADSTR2('', 6, ' ', '>'));
-                    if CounterpartyInfo then
-                        if Type = Type::Receipt then begin
-                            Write('  ');
-                            Write(PadStr('', 17, ' '));
-                        end else begin
-                            Write(PADSTR2("Transaction Specification", 2, ' ', '<'));
-                            Write(PADSTR2(CopyStr("Partner VAT ID", 1, 17), 17, ' ', '<'));
-                        end;
+                    if CounterpartyInfo then begin
+                        Write(PADSTR2("Transaction Specification", 2, ' ', '<'));
+                        Write(PADSTR2(CopyStr("Partner VAT ID", 1, 17), 17, ' ', '<'));
+                    end;
 
                     Write(CrLf);
                 end;
