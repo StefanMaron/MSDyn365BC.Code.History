@@ -1146,9 +1146,11 @@ codeunit 136208 "Marketing Interaction"
         // Validate and preview html content in CreateInteraction_ValidateHTMLContent_MPH
     end;
 
+#if not CLEAN17
     [Test]
     [HandlerFunctions('InteractionSaveMergedDocumentPageHandler')]
     [Scope('OnPrem')]
+    [Obsolete('WordDocumentTakeValue will always throw an error.', '17.3')]
     procedure InteractionSaveMergedDocumentToDisk()
     var
         Contact: Record Contact;
@@ -1196,6 +1198,7 @@ codeunit 136208 "Marketing Interaction"
     [Test]
     [HandlerFunctions('InteractionSaveMergedDocumentPageHandler')]
     [Scope('OnPrem')]
+    [Obsolete('WordDocumentTakeValue will always throw an error.', '17.3')]
     procedure InteractionSaveMergedDocumentToBLOB()
     var
         Contact: Record Contact;
@@ -1231,6 +1234,7 @@ codeunit 136208 "Marketing Interaction"
         MergedFieldValue := WordDocumentTakeValue(Attachment, 4); // Contact_Name
         Assert.AreEqual(Contact."No.", MergedFieldValue, StrSubstNo(MergedFieldErr, MergedFieldValue, Contact."No."));
     end;
+#endif
 
     [Test]
     [HandlerFunctions('ModalReportHandler,MessageHandler,EmailDialogModalPageHandler')]
@@ -2576,6 +2580,7 @@ codeunit 136208 "Marketing Interaction"
         MarketingSetup.Modify();
     end;
 
+#if not CLEAN17
     local procedure WordDocumentTakeValue(var Attachment: Record Attachment; MergeFieldNo: Integer) MergedFieldValue: Text[250]
     var
         [RunOnClient]
@@ -2605,6 +2610,7 @@ codeunit 136208 "Marketing Interaction"
         WordHelper.CallQuit(WordApplication, false);
         Clear(WordApplication);
     end;
+#endif
 
     local procedure VerifyInteractionLogEntry(ContactNo: Code[20]; InteractionTemplateCode: Code[10])
     var

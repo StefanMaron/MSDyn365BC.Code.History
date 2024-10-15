@@ -99,6 +99,7 @@
         WHTEntry: Record "WHT Entry";
         GLReg: Record "G/L Register";
         GenJnlPostPreview: Codeunit "Gen. Jnl.-Post Preview";
+        PrepaymentMgt: Codeunit "Prepayment Mgt.";
         WHTManagement: Codeunit WHTManagement;
         Window: Dialog;
         GenJnlLineDocNo: Code[20];
@@ -296,10 +297,17 @@
 
             UpdatePostedPurchaseDocument(DocumentType, GenJnlLineDocNo);
 
+            VendLedgEntry.FindLast();
+            VendLedgEntry.CalcFields(Amount);
+            If PurchHeader."Document Type" = PurchHeader."Document Type"::Order then begin
+                PurchLine.CalcSums("Amount Including VAT");
+                PrepaymentMgt.AssertPrepmtAmountNotMoreThanDocAmount(
+                    PurchLine."Amount Including VAT", VendLedgEntry.Amount, PurchHeader."Currency Code", PurchSetup."Invoice Rounding");
+            end;
+
             // Balancing account
             if "Bal. Account No." <> '' then begin
                 Window.Update(5, 1);
-                VendLedgEntry.FindLast;
                 PostBalancingEntry(
                   PurchHeader, TotalPrepmtInvLineBuffer, TotalPrepmtInvLineBufferLCY, VendLedgEntry, DocumentType,
                   GenJnlLineDocType, GenJnlLineDocNo, GenJnlLineExtDocNo, SrcCode, PostingNoSeriesCode);
@@ -410,9 +418,9 @@
                 repeat
                     if not Found then
                         Found := PrepmtAmount(PurchLine, DocumentType) <> 0;
-                    if ("Prepayment VAT Identifier" = '') and ("Prepmt. Amt. Inv." = 0) then begin
+                    if "Prepmt. Amt. Inv." = 0 then begin
                         UpdatePrepmtSetupFields;
-                        Modify;
+                        Modify();
                     end;
                 until Next = 0;
         end;
@@ -1493,7 +1501,6 @@
 
             Amount := TotalPrepmtInvLineBuffer."Amount Incl. VAT" + VendLedgEntry."Remaining Pmt. Disc. Possible" - TotalWHTAmount;
             "Source Currency Amount" := Amount;
-            VendLedgEntry.CalcFields(Amount);
             if VendLedgEntry.Amount = 0 then
                 "Amount (LCY)" := TotalPrepmtInvLineBufferLCY."Amount Incl. VAT"
             else

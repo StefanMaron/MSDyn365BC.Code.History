@@ -23,20 +23,17 @@ codeunit 435 "IC Inbox Import"
         ICInboxOutboxMgt: Codeunit ICInboxOutboxMgt;
         FileMgt: Codeunit "File Management";
         FileName: Text;
-        InitialDirectory: Text;
         FromICPartnerCode: Code[20];
         NewTableID: Integer;
+        ChooseFileTitleMsg: Label 'Choose the file to upload.';
     begin
         CompanyInfo.Get();
         CompanyInfo.TestField("IC Partner Code");
-        if (ClientFileName = '') and FileMgt.IsLocalFileSystemAccessible() then begin
-            if CompanyInfo."IC Inbox Type" = CompanyInfo."IC Inbox Type"::"File Location" then
-                InitialDirectory := DelChr(CompanyInfo."IC Inbox Details", '>', '\') + '\';
-            ClientFileName :=
-                FileMgt.OpenFileDialog(StrSubstNo(SelectFileMsg, TableCaption), InitialDirectory, FileMgt.GetToFilterText('', '.xml'));
-        end;
 
-        FileName := FileMgt.UploadFileToServer(ClientFileName);
+        if ClientFileName <> '' then
+            FileName := ClientFileName
+        else
+            FileName := FileMgt.UploadFile(ChooseFileTitleMsg, '');
 
         if FileName = '' then
             Error(EnterFileNameErr);
@@ -119,26 +116,21 @@ codeunit 435 "IC Inbox Import"
                     until TempICDocDim.Next = 0;
             until TempICOutboxTrans.Next = 0;
 
-        if not IsWebClient() then
-            FileMgt.MoveAndRenameClientFile(ClientFileName, FileMgt.GetFileName(ClientFileName), ArchiveTok);
     end;
 
     var
-        ClientTypeManagement: Codeunit "Client Type Management";
-        SelectFileMsg: Label 'Select file to import into %1', Comment = '%1 = IC Inbox Import';
-        ArchiveTok: Label 'Archive';
         WrongCompanyErr: Label 'The selected xml file contains data sent to %1 %2. Current company''s %3 is %4.', Comment = 'The selected xml file contains data sent to IC Partner 001. Current company''s IC Partner Code is 002.';
         EnterFileNameErr: Label 'Enter the file name.';
         ClientFileName: Text;
 
+#if not CLEAN17
+    [Obsolete('Making procedure OnPrem.', '17.3')]
+#else
+    [Scope('OnPrem')]
+#endif
     procedure SetFileName(NewFileName: Text)
     begin
         ClientFileName := NewFileName;
-    end;
-
-    local procedure IsWebClient(): Boolean
-    begin
-        exit(ClientTypeManagement.GetCurrentClientType in [CLIENTTYPE::Web, CLIENTTYPE::Phone, CLIENTTYPE::Tablet, CLIENTTYPE::Desktop]);
     end;
 
     local procedure ImportInboxTransaction(CompanyInfo: Record "Company Information"; var TempICOutboxTransaction: Record "IC Outbox Transaction" temporary; var TempICOutboxJnlLine: Record "IC Outbox Jnl. Line" temporary; var TempICInboxOutboxJnlLineDim: Record "IC Inbox/Outbox Jnl. Line Dim." temporary; var TempICOutboxSalesHeader: Record "IC Outbox Sales Header" temporary; var TempICOutboxSalesLine: Record "IC Outbox Sales Line" temporary; var TempICOutboxPurchaseHeader: Record "IC Outbox Purchase Header" temporary; var TempICOutboxPurchaseLine: Record "IC Outbox Purchase Line" temporary; var TempICDocDim: Record "IC Document Dimension" temporary; var FromICPartnerCode: Code[20]; FileName: Text)

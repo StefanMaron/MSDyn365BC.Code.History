@@ -61,18 +61,10 @@
         DocLineNo: Integer;
         PostedWhseRcptLineFound: Boolean;
     begin
-        with PurchRcptLine do begin
-            SetFilter(Quantity, '<>0');
-            SetRange(Correction, false);
-            if IsEmpty then
-                Error(AllLinesCorrectedErr);
+        OnBeforeCode(PurchRcptLine);
 
-            FindFirst();
-            repeat
-                if not HideDialog then
-                    Window.Open(Text003);
-                CheckPurchRcptLine(PurchRcptLine);
-            until Next = 0;
+        with PurchRcptLine do begin
+            CheckPurchRcptLines(PurchRcptLine, Window);
 
             Find('-');
             repeat
@@ -140,6 +132,30 @@
         end;
 
         OnAfterCode(PurchRcptLine);
+    end;
+
+    local procedure CheckPurchRcptLines(var PurchRcptLine: Record "Purch. Rcpt. Line"; var Window: Dialog)
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCheckPurchRcptLines(PurchRcptLine, Window, IsHandled);
+        if IsHandled then
+            exit;
+
+        with PurchRcptLine do begin
+            SetFilter(Quantity, '<>0');
+            SetRange(Correction, false);
+            if IsEmpty() then
+                Error(AllLinesCorrectedErr);
+
+            FindFirst();
+            repeat
+                if not HideDialog then
+                    Window.Open(Text003);
+                CheckPurchRcptLine(PurchRcptLine);
+            until Next() = 0;
+        end;
     end;
 
     local procedure CheckPurchRcptLine(PurchRcptLine: Record "Purch. Rcpt. Line")
@@ -508,6 +524,16 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckPurchRcptLine(var PurchRcptLine: Record "Purch. Rcpt. Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCode(var PurchRcptLine: Record "Purch. Rcpt. Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckPurchRcptLines(var PurchRcptLine: Record "Purch. Rcpt. Line"; var Window: Dialog; var IsHandled: Boolean)
     begin
     end;
 

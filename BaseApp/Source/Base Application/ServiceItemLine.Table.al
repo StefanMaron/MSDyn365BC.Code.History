@@ -1527,15 +1527,8 @@ table 5901 "Service Item Line"
                 until ServOrderAlloc.Next = 0;
         end;
 
-        if (("Fault Area Code" <> xRec."Fault Area Code") or
-            ("Symptom Code" <> xRec."Symptom Code") or
-            ("Fault Code" <> xRec."Fault Code") or
-            ("Resolution Code" <> xRec."Resolution Code")) and
-           CheckServLineExist
-        then
-            Message(
-              Text003,
-              TableCaption);
+        ShowUpdateExistingServiceLinesMessage();
+
         if "Service Item No." <> xRec."Service Item No." then begin
             Clear(ServLogMgt);
             ServLogMgt.ServItemOffServOrder(xRec);
@@ -1646,6 +1639,26 @@ table 5901 "Service Item Line"
         end;
 
         OnAfterSetUpNewLine(Rec);
+    end;
+
+    local procedure ShowUpdateExistingServiceLinesMessage()
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeShowUpdateExistingServiceLinesMessage(Rec, xRec, IsHandled);
+        if IsHandled then
+            exit;
+
+        if (("Fault Area Code" <> xRec."Fault Area Code") or
+            ("Symptom Code" <> xRec."Symptom Code") or
+            ("Fault Code" <> xRec."Fault Code") or
+            ("Resolution Code" <> xRec."Resolution Code")) and
+           CheckServLineExist()
+        then
+            Message(
+              Text003,
+              TableCaption());
     end;
 
     procedure SetServHeader(var NewServHeader: Record "Service Header")
@@ -2477,6 +2490,11 @@ table 5901 "Service Item Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCreateDim(var ServiceItemLine: Record "Service Item Line"; CallingFieldNo: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeShowUpdateExistingServiceLinesMessage(var ServiceItemLine: Record "Service Item Line"; xServiceItemLine: Record "Service Item Line"; var IsHandled: Boolean)
     begin
     end;
 

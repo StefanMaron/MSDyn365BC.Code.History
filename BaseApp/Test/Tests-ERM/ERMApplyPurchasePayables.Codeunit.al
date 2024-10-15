@@ -34,6 +34,8 @@ codeunit 134001 "ERM Apply Purchase/Payables"
         WrongValErr: Label '%1 must be %2 in %3.';
         DialogTxt: Label 'Dialog';
         DimensionUsedErr: Label 'A dimension used in %1 %2, %3, %4 has caused an error.';
+        EarlierPostingDateErr: Label 'You cannot apply and post an entry to an entry with an earlier posting date.';
+        DifferentCurrenciesErr: Label 'All entries in one application must be in the same currency.';
 
     [Test]
     [Scope('OnPrem')]
@@ -990,6 +992,105 @@ codeunit 134001 "ERM Apply Purchase/Payables"
           VendorNo, CurrencyCode1, VendorLedgerEntry1."Entry No.", VendorLedgerEntry2."Entry No.", 1, 0);
     end;
 
+    [HandlerFunctions('MultipleSelectionApplyVendorEntriesModalPageHandler')]
+    [Scope('OnPrem')]
+    procedure CheckPostingDateForMultipleVendLedgEntriesWhenSetAppliesToIDOnApplyVendorEntries()
+    var
+        GenJournalBatch: Record "Gen. Journal Batch";
+        GenJournalLine: Record "Gen. Journal Line";
+        Vendor: Record Vendor;
+    begin
+        // [FEATURE] [Application]
+        // [SCENARIO 383611] When "Set Applies-to ID" on "Apply Vendor Entries" page is used for multiple lines, Posting Date of each line is checked.
+        Initialize();
+
+        // [GIVEN] Two Posted Purchase Invoices with Posting Date = "01.01.21" / "21.01.21".
+        LibraryPurchase.CreateVendor(Vendor);
+        LibraryERM.SelectGenJnlBatch(GenJournalBatch);
+        CreateGenJnlLineWithPostingDateAndCurrency(
+            GenJournalLine, GenJournalBatch, GenJournalLine."Account Type"::Vendor, Vendor."No.", -LibraryRandom.RandInt(100),
+            LibraryRandom.RandDate(-10), '');
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+        CreateGenJnlLineWithPostingDateAndCurrency(
+            GenJournalLine, GenJournalBatch, GenJournalLine."Account Type"::Vendor, Vendor."No.", -LibraryRandom.RandInt(100),
+            LibraryRandom.RandDate(10), '');
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+
+        // [GIVEN] Payment Journal Line with Posting Date = "11.01.21".
+        CreatePaymentJnlLine(GenJournalLine, GenJournalLine."Account No.");
+        GenJournalLine.Validate("Applies-to Doc. Type", GenJournalLine."Applies-to Doc. Type"::Invoice);
+        GenJournalLine.Modify(true);
+
+        // [GIVEN] "Apply Vendor Entries" page is opened by Codeunit "Gen. Jnl.-Apply" run for Payment Journal Line.
+        LibraryVariableStorage.Enqueue(Vendor."No.");
+        asserterror CODEUNIT.Run(CODEUNIT::"Gen. Jnl.-Apply", GenJournalLine);
+
+        // [WHEN] Multiple lines are selected on "Apply Vendor Entries" page and action "Set Applies-to ID" is used.
+        // Done in MultipleSelectionApplyVendorEntriesModalPageHandler
+
+        // [THEN] Error "You cannot apply and post an entry to an entry with an earlier posting date." is thrown.
+        Assert.ExpectedErrorCode('Dialog');
+        Assert.ExpectedError(EarlierPostingDateErr);
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [HandlerFunctions('ApplyVendorEntriesModalPageHandler')]
+    [Scope('OnPrem')]
+    procedure CheckCurrencyForMultipleVendLedgEntriesWhenSetAppliesToIDOnApplyVendorEntries()
+    var
+        Currency: Record Currency;
+        GenJournalBatch: Record "Gen. Journal Batch";
+        GenJournalLine: Record "Gen. Journal Line";
+        PurchasesPayablesSetup: Record "Purchases & Payables Setup";
+        Vendor: Record Vendor;
+        VendorLedgerEntry: Record "Vendor Ledger Entry";
+        ApplyVendorEntriesPage: Page "Apply Vendor Entries";
+    begin
+        // [FEATURE] [Application]
+        // [SCENARIO 383611] When "Set Applies-to ID" on "Apply Vendor Entries" page is used for multiple lines, Currency Code of each line is checked.
+        Initialize();
+
+        // [GIVEN] "Appln. between Currencies" in "Sales & Receivables Setup" is set to None.
+        LibraryPurchase.SetApplnBetweenCurrencies(PurchasesPayablesSetup."Appln. between Currencies"::None);
+
+        // [GIVEN] Two Posted Purchase Invoices with Currency Code = blank / "JPY".
+        LibraryPurchase.CreateVendor(Vendor);
+        LibraryERM.SelectGenJnlBatch(GenJournalBatch);
+        CreateGenJnlLineWithPostingDateAndCurrency(
+            GenJournalLine, GenJournalBatch, GenJournalLine."Account Type"::Vendor, Vendor."No.", -LibraryRandom.RandInt(100),
+            WorkDate(), '');
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+        Currency.Get(LibraryERM.CreateCurrencyWithExchangeRate(WorkDate(), 1, 1));
+        CreateGenJnlLineWithPostingDateAndCurrency(
+          GenJournalLine, GenJournalBatch, GenJournalLine."Account Type"::Vendor, Vendor."No.", -LibraryRandom.RandInt(100),
+          WorkDate(), Currency.Code);
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+
+        // [GIVEN] Posted Payment Journal Line with Currency = blank.
+        CreatePaymentJnlLine(GenJournalLine, GenJournalLine."Account No.");
+        GenJournalLine.Validate("Applies-to Doc. Type", GenJournalLine."Applies-to Doc. Type"::Invoice);
+        GenJournalLine.Validate(Amount, LibraryRandom.RandInt(100));
+        GenJournalLine.Modify(true);
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+
+        // [GIVEN] "Apply Vendor Entries" page  is opened.
+        VendorLedgerEntry.FindLast();
+        VendorLedgerEntry."Applies-to ID" := UserId();
+        VendorLedgerEntry."Applying Entry" := true;
+        VendorLedgerEntry.Modify();
+        ApplyVendorEntriesPage.SetVendLedgEntry(VendorLedgerEntry);
+        ApplyVendorEntriesPage.RunModal();
+
+        // [WHEN] Multiple lines are selected on "Apply Vendor Entries" page and action "Set Applies-to ID" is used.
+        VendorLedgerEntry.SetRange("Vendor No.", Vendor."No.");
+        asserterror ApplyVendorEntriesPage.CheckVendLedgEntry(VendorLedgerEntry);
+
+        // [THEN] Error "All entries in one application must be in the same currency." is thrown.
+        Assert.ExpectedErrorCode('Dialog');
+        Assert.ExpectedError(DifferentCurrenciesErr);
+    end;
+
     local procedure Initialize()
     var
         LibraryApplicationArea: Codeunit "Library - Application Area";
@@ -1344,6 +1445,16 @@ codeunit 134001 "ERM Apply Purchase/Payables"
         LibraryERM.CreateGeneralJnlLine(
           GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, GenJournalLine."Document Type"::Invoice,
           AccountType, AccountNo, Amount);
+    end;
+
+    local procedure CreateGenJnlLineWithPostingDateAndCurrency(var GenJournalLine: Record "Gen. Journal Line"; GenJournalBatch: Record "Gen. Journal Batch"; AccountType: Option; AccountNo: Code[20]; Amount: Decimal; PostingDate: Date; CurrencyCode: Code[10])
+    begin
+        LibraryERM.CreateGeneralJnlLine(
+            GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, GenJournalLine."Document Type"::Invoice,
+            AccountType, AccountNo, Amount);
+        GenJournalLine.Validate("Posting Date", PostingDate);
+        GenJournalLine.Validate("Currency Code", CurrencyCode);
+        GenJournalLine.Modify(true);
     end;
 
     local procedure CreateGenJnlTemplateAndBatch(var GenJournalBatch: Record "Gen. Journal Batch")
@@ -1854,6 +1965,16 @@ codeunit 134001 "ERM Apply Purchase/Payables"
         ApplyVendorEntries.ActionSetAppliesToID.Invoke;
         ApplyVendorEntries."Amount to Apply".SetValue(LibraryVariableStorage.DequeueDecimal);
         ApplyVendorEntries.OK.Invoke;
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure MultipleSelectionApplyVendorEntriesModalPageHandler(var ApplyVendorEntries: Page "Apply Vendor Entries"; var Response: Action)
+    var
+        VendorLedgerEntry: Record "Vendor Ledger Entry";
+    begin
+        VendorLedgerEntry.SetRange("Vendor No.", LibraryVariableStorage.DequeueText());
+        ApplyVendorEntries.CheckVendLedgEntry(VendorLedgerEntry);
     end;
 
     [ModalPageHandler]

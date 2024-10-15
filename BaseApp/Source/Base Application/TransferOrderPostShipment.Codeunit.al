@@ -80,6 +80,7 @@ codeunit 5704 "TransferOrder-Post Shipment"
               DATABASE::"Transfer Shipment Header", TransShptHeader.GetPosition);
 
             // Insert shipment lines
+            OnRunOnBeforeInsertShipmentLines(WhseShptHeader, WhseShptLine);
             LineCount := 0;
             if WhseShip then
                 PostedWhseShptLine.LockTable();
@@ -88,6 +89,7 @@ codeunit 5704 "TransferOrder-Post Shipment"
             TransShptLine.LockTable();
             TransLine.SetRange(Quantity);
             TransLine.SetRange("Qty. to Ship");
+            OnRunOnAfterTransLineSetFiltersForShptLines(TransLine, TransHeader, Location, WhseShip);
             if TransLine.Find('-') then
                 repeat
                     LineCount := LineCount + 1;
@@ -700,7 +702,7 @@ codeunit 5704 "TransferOrder-Post Shipment"
     begin
     end;
 
-    [IntegrationEvent(false, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnBeforeTransferOrderPostShipment(var TransferHeader: Record "Transfer Header"; CommitIsSuppressed: Boolean)
     begin
     end;
@@ -847,6 +849,16 @@ codeunit 5704 "TransferOrder-Post Shipment"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeInsertTransShipmentLine(TransLine: Record "Transfer Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnRunOnAfterTransLineSetFiltersForShptLines(var TransferLine: Record "Transfer Line"; TransferHeader: Record "Transfer Header"; Location: Record Location; WhseShip: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnRunOnBeforeInsertShipmentLines(var WhseShptHeader: Record "Warehouse Shipment Header"; var WarehouseShipmentLine: Record "Warehouse Shipment Line")
     begin
     end;
 }

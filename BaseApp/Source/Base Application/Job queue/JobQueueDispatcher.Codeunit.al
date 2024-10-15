@@ -11,13 +11,13 @@ codeunit 448 "Job Queue Dispatcher"
         if Skip then
             exit;
 
-        SelectLatestVersion;
+        SelectLatestVersion();
         Get(ID);
-        if not IsReadyToStart then
+        if not IsReadyToStart() then
             exit;
 
         if IsExpired(CurrentDateTime) then
-            DeleteTask
+            DeleteTask()
         else
             if WaitForOthersWithSameCategory(Rec) then
                 Reschedule(Rec)
@@ -27,22 +27,23 @@ codeunit 448 "Job Queue Dispatcher"
     end;
 
     var
+        TestMode: Boolean;
         JobQueueContextTxt: Label 'Job Queue', Locked = true;
 
     local procedure HandleRequest(var JobQueueEntry: Record "Job Queue Entry")
     var
         JobQueueLogEntry: Record "Job Queue Log Entry";
-        WasSuccess: Boolean;
-        PrevStatus: Option;
         ErrorMessageManagement: Codeunit "Error Message Management";
         ErrorMessageHandler: Codeunit "Error Message Handler";
         ErrorContextElement: Codeunit "Error Context Element";
+        WasSuccess: Boolean;
+        PrevStatus: Option;
         ErrorMessageRegisterId: Guid;
         JobQueueStartTime: DateTime;
         JobQueueExecutionTimeInMs: Integer;
     begin
-        JobQueueEntry.RefreshLocked;
-        if not JobQueueEntry.IsReadyToStart then
+        JobQueueEntry.RefreshLocked();
+        if not JobQueueEntry.IsReadyToStart() then
             exit;
 
         OnBeforeHandleRequest(JobQueueEntry);
@@ -50,8 +51,8 @@ codeunit 448 "Job Queue Dispatcher"
         with JobQueueEntry do begin
             if Status in [Status::Ready, Status::"On Hold with Inactivity Timeout"] then begin
                 Status := Status::"In Process";
-                "User Session Started" := CurrentDateTime;
-                Modify;
+                "User Session Started" := CurrentDateTime();
+                Modify();
             end;
             InsertLogEntry(JobQueueLogEntry);
 
@@ -60,9 +61,9 @@ codeunit 448 "Job Queue Dispatcher"
             Commit();
             OnBeforeExecuteJob(JobQueueEntry);
             ErrorMessageManagement.Activate(ErrorMessageHandler);
-            ErrorMessageManagement.PushContext(ErrorContextElement, RecordId, 0, JobQueueContextTxt);
+            ErrorMessageManagement.PushContext(ErrorContextElement, RecordId(), 0, JobQueueContextTxt);
             JobQueueStartTime := CurrentDateTime();
-            WasSuccess := CODEUNIT.Run(CODEUNIT::"Job Queue Start Codeunit", JobQueueEntry);
+            WasSuccess := Codeunit.Run(Codeunit::"Job Queue Start Codeunit", JobQueueEntry);
             JobQueueExecutionTimeInMs := CurrentDateTime() - JobQueueStartTime;
             if not WasSuccess then
                 ErrorMessageRegisterId := ErrorMessageHandler.RegisterErrorMessages();
@@ -70,15 +71,15 @@ codeunit 448 "Job Queue Dispatcher"
             PrevStatus := Status;
 
             // user may have deleted it in the meantime
-            if DoesExistLocked then
+            if DoesExistLocked() then
                 SetResult(WasSuccess, PrevStatus, ErrorMessageRegisterId)
             else
-                SetResultDeletedEntry;
+                SetResultDeletedEntry();
             Commit();
             FinalizeLogEntry(JobQueueLogEntry, ErrorMessageHandler.GetErrorCallStack());
 
-            if DoesExistLocked then
-                FinalizeRun;
+            if DoesExistLocked() then
+                FinalizeRun();
         end;
 
         OnAfterHandleRequest(JobQueueEntry, WasSuccess, JobQueueExecutionTimeInMs);
@@ -99,19 +100,36 @@ codeunit 448 "Job Queue Dispatcher"
         if not JobQueueCategory.Get(CurrJobQueueEntry."Job Queue Category Code") then
             exit(false);
 
-        with JobQueueEntry do begin
-            SetFilter(ID, '<>%1', CurrJobQueueEntry.ID);
-            SetRange("Job Queue Category Code", CurrJobQueueEntry."Job Queue Category Code");
-            SetRange(Status, Status::"In Process");
-            exit(not IsEmpty);
-        end;
+        JobQueueEntry.SetFilter(ID, '<>%1', CurrJobQueueEntry.ID);
+        JobQueueEntry.SetRange("Job Queue Category Code", CurrJobQueueEntry."Job Queue Category Code");
+        JobQueueEntry.SetRange(Status, JobQueueEntry.Status::"In Process");
+        if JobQueueEntry.FindSet() then
+            repeat
+                if DoesSystemTaskExist(JobQueueEntry."System Task ID") then
+                    exit(true)
+                else // stale job queue entry with status in process but no system task behind it.
+                    JobQueueEntry.Delete();
+            until JobQueueEntry.Next() = 0;
+    end;
+
+    local procedure DoesSystemTaskExist(TaskID: Guid): Boolean
+    begin
+        if TestMode then
+            exit(true);
+        exit(TaskScheduler.TaskExists(TaskID))
+    end;
+    
+    [Scope('OnPrem')]
+    procedure MockTaskScheduler()
+    begin
+        TestMode := true;
     end;
 
     local procedure Reschedule(var JobQueueEntry: Record "Job Queue Entry")
     begin
         with JobQueueEntry do begin
-            RefreshLocked;
-            Randomize;
+            RefreshLocked();
+            Randomize();
             Clear("System Task ID"); // to avoid canceling this task, which has already been executed
             "Earliest Start Date/Time" := CurrentDateTime + 2000 + Random(5000);
             CODEUNIT.Run(CODEUNIT::"Job Queue - Enqueue", JobQueueEntry);
@@ -127,7 +145,7 @@ codeunit 448 "Job Queue Dispatcher"
         if IsNextRecurringRunTimeCalculated(JobQueueEntry, StartingDateTime, NewRunDateTime) then
             exit(NewRunDateTime);
 
-        if JobQueueEntry.IsNextRunDateFormulaSet then begin
+        if JobQueueEntry.IsNextRunDateFormulaSet() then begin
             NewRunDate := CalcDate(JobQueueEntry."Next Run Date Formula", DT2Date(StartingDateTime));
             exit(CreateDateTime(NewRunDate, JobQueueEntry."Starting Time"));
         end;
@@ -176,7 +194,7 @@ codeunit 448 "Job Queue Dispatcher"
         if IsHandled then
             exit(EarliestPossibleRunTime);
 
-        if JobQueueEntry."Recurring Job" and not JobQueueEntry.IsNextRunDateFormulaSet then
+        if JobQueueEntry."Recurring Job" and not JobQueueEntry.IsNextRunDateFormulaSet() then
             exit(CalcRunTimeForRecurringJob(JobQueueEntry, EarliestPossibleRunTime));
 
         exit(EarliestPossibleRunTime);

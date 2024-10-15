@@ -4193,13 +4193,15 @@ codeunit 137051 "SCM Warehouse - III"
         AssemblyHeader: Record "Assembly Header";
         AssemblyLine: Record "Assembly Line";
         WarehouseActivityHeader: Record "Warehouse Activity Header";
+        WarehouseActivityLine: Record "Warehouse Activity Line";
         WhseItemTrackingLine: Record "Whse. Item Tracking Line";
+        ReservationEntry: Record "Reservation Entry";
         Location: Record Location;
         LotNo: Code[20];
         PartQty: Decimal;
     begin
         // [FEATURE] [FEFO] [Lot Tracked Item] [Inventory Movement] [Assembly Order] [Consumption]
-        // [SCENARIO 372941] Inventory Movement created for Assembly Consumption of Lot-Tracked Item with FEFO in use creates Whse. Item Tracking Lines with source fields pointing to the Assembly Order
+        // [SCENARIO 372941] Inventory Movement created for Assembly Consumption of Lot-Tracked Item with FEFO in use does not create Whse. Item Tracking Lines. They are created at the moment you register the inventory movement.
         Initialize();
         PartQty := LibraryRandom.RandDec(10, 2);
 
@@ -4227,16 +4229,29 @@ codeunit 137051 "SCM Warehouse - III"
         LibraryWarehouse.CreateInvtPutPickMovement(
           WarehouseActivityHeader."Source Document"::"Assembly Consumption", AssemblyHeader."No.", false, false, true);
 
-        // [THEN] No Whse. Item Tracking Lines with Empty Source fields created for the Location
+        // [THEN] No Whse. Item Tracking Lines are created by this moment.
         WhseItemTrackingLine.SetRange("Location Code", Location.Code);
-        WhseItemTrackingLine.SetSourceFilter(0, 0, '', 0, false);
         Assert.RecordIsEmpty(WhseItemTrackingLine);
 
-        // [THEN] Whse. Item Tracking Line for the Assembly Order created with Lot "L1"
+        // [THEN] Register the inventory movement.
+        LibraryWarehouse.FindWhseActivityLineBySourceDoc(
+          WarehouseActivityLine, DATABASE::"Assembly Line", AssemblyLine."Document Type".AsInteger(),
+          AssemblyLine."Document No.", AssemblyLine."Line No.");
+        WarehouseActivityHeader.Get(WarehouseActivityLine."Activity Type", WarehouseActivityLine."No.");
+        LibraryWarehouse.AutoFillQtyHandleWhseActivity(WarehouseActivityHeader);
+        LibraryWarehouse.RegisterWhseActivity(WarehouseActivityHeader);
+
+        // [THEN] Whse. item tracking lines for the assembly line with lot "L1" are now created.
         WhseItemTrackingLine.SetSourceFilter(
-          DATABASE::"Assembly Line", AssemblyHeader."Document Type", AssemblyHeader."No.", AssemblyLine."Line No.", false);
+          DATABASE::"Assembly Line", AssemblyHeader."Document Type".AsInteger(), AssemblyHeader."No.", AssemblyLine."Line No.", false);
         WhseItemTrackingLine.FindFirst();
         WhseItemTrackingLine.TestField("Lot No.", LotNo);
+
+        // [THEN] An item tracking line with lot "L1" is assigned to the assembly line.
+        ReservationEntry.SetSourceFilter(
+          DATABASE::"Assembly Line", AssemblyLine."Document Type".AsInteger(), AssemblyLine."Document No.", AssemblyLine."Line No.", false);
+        ReservationEntry.FindFirst();
+        ReservationEntry.TestField("Lot No.", LotNo);
     end;
 
     [Test]
@@ -4250,13 +4265,15 @@ codeunit 137051 "SCM Warehouse - III"
         ProdOrderLine: Record "Prod. Order Line";
         ProdOrderComponent: Record "Prod. Order Component";
         WarehouseActivityHeader: Record "Warehouse Activity Header";
+        WarehouseActivityLine: Record "Warehouse Activity Line";
         WhseItemTrackingLine: Record "Whse. Item Tracking Line";
+        ReservationEntry: Record "Reservation Entry";
         Location: Record Location;
         LotNo: Code[20];
         PartQty: Decimal;
     begin
         // [FEATURE] [FEFO] [Lot Tracked Item] [Inventory Movement] [Prod. Order Component]
-        // [SCENARIO 372941] Inventory Movement created for Prod. Order Component of Lot-Tracked Item with FEFO in use creates Whse. Item Tracking Lines with source fields pointing to the Prod. Order Component
+        // [SCENARIO 372941] Inventory Movement created for Prod. Order Component of Lot-Tracked Item with FEFO in use does not create Whse. Item Tracking Lines. They are created at the moment you register the inventory movement.
         Initialize();
         PartQty := LibraryRandom.RandDec(10, 2);
 
@@ -4291,18 +4308,32 @@ codeunit 137051 "SCM Warehouse - III"
         LibraryWarehouse.CreateInvtPutPickMovement(
           WarehouseActivityHeader."Source Document"::"Prod. Consumption", ProductionOrder."No.", false, false, true);
 
-        // [THEN] No Whse. Item Tracking Lines with Empty Source fields created for the Location
+        // [THEN] No Whse. Item Tracking Lines are created by this moment.
         WhseItemTrackingLine.SetRange("Location Code", Location.Code);
-        WhseItemTrackingLine.SetSourceFilter(0, 0, '', 0, false);
         Assert.RecordIsEmpty(WhseItemTrackingLine);
 
-        // [THEN] Whse. Item Tracking Line for the Prod. Order Component created with Lot "L1"
+        // [THEN] Register the inventory movement.
+        LibraryWarehouse.FindWhseActivityLineBySourceDoc(
+          WarehouseActivityLine, DATABASE::"Prod. Order Component", ProdOrderComponent.Status.AsInteger(),
+          ProdOrderComponent."Prod. Order No.", ProdOrderComponent."Line No.");
+        WarehouseActivityHeader.Get(WarehouseActivityLine."Activity Type", WarehouseActivityLine."No.");
+        LibraryWarehouse.AutoFillQtyHandleWhseActivity(WarehouseActivityHeader);
+        LibraryWarehouse.RegisterWhseActivity(WarehouseActivityHeader);
+
+        // [THEN] Whse. item tracking lines for the prod. order component with lot "L1" are now created.
         WhseItemTrackingLine.SetSourceFilter(
-          DATABASE::"Prod. Order Component", ProdOrderComponent.Status, ProdOrderComponent."Prod. Order No.",
+          DATABASE::"Prod. Order Component", ProdOrderComponent.Status.AsInteger(), ProdOrderComponent."Prod. Order No.",
           ProdOrderComponent."Line No.", false);
         WhseItemTrackingLine.SetSourceFilter('', ProdOrderComponent."Line No.");
         WhseItemTrackingLine.FindFirst();
         WhseItemTrackingLine.TestField("Lot No.", LotNo);
+
+        // [THEN] An item tracking line with lot "L1" is assigned to the prod. order component.
+        ReservationEntry.SetSourceFilter(
+          DATABASE::"Prod. Order Component", ProdOrderComponent.Status.AsInteger(), ProdOrderComponent."Prod. Order No.",
+          ProdOrderComponent."Line No.", false);
+        ReservationEntry.FindFirst();
+        ReservationEntry.TestField("Lot No.", LotNo);
     end;
 
     local procedure Initialize()

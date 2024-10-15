@@ -1304,6 +1304,7 @@
                     Cont.SetCurrentKey("Company No.");
                     Cont.SetRange("Company No.", "No.");
                     Cont.SetRange(Type, Type::Person);
+                    OnTypeChangeOnAfterContSetFilters(Cont, Rec);
                     if Cont.FindFirst then
                         Error(Text007, FieldCaption(Type));
                     if Type <> xRec.Type then begin
@@ -1369,6 +1370,7 @@
 
     procedure CreateCustomer(CustomerTemplate: Code[10]) CustNo: Code[20]
     var
+        Contact: Record Contact;
         Cust: Record Customer;
         CustTemplate: Record "Customer Template";
         ContBusRel: Record "Contact Business Relation";
@@ -1384,6 +1386,12 @@
             exit;
 
         CheckForExistingRelationships(ContBusRel."Link to Table"::Customer);
+        if (Type = Type::Person) and ("Company No." <> '') and ("No." <> "Company No.") then
+            if Contact.Get("Company No.") then begin
+                Contact.SetHideValidationDialog(HideValidationDialog);
+                Contact.CreateCustomer(CustomerTemplate);
+                exit;
+            end;
         CheckIfPrivacyBlockedGeneric;
         RMSetup.Get();
         RMSetup.TestField("Bus. Rel. Code for Customers");
@@ -1441,6 +1449,7 @@
 
     procedure CreateVendor() VendorNo: Code[20]
     var
+        Contact: Record Contact;
         ContBusRel: Record "Contact Business Relation";
         Vend: Record Vendor;
         ContComp: Record Contact;
@@ -1456,6 +1465,12 @@
             exit;
 
         CheckForExistingRelationships(ContBusRel."Link to Table"::Vendor);
+        if (Type = Type::Person) and ("Company No." <> '') and ("No." <> "Company No.") then
+            if Contact.Get("Company No.") then begin
+                Contact.SetHideValidationDialog(HideValidationDialog);
+                Contact.CreateVendor();
+                exit;
+            end;
         CheckIfPrivacyBlockedGeneric;
         CheckCompanyNo;
         RMSetup.Get();
@@ -2463,6 +2478,12 @@
         ContBusRel."Link to Table" := LinkToTable;
 
         if "No." <> '' then begin
+            if (Contact.Type = Contact.Type::Person) and (Contact."Company No." <> '') then
+                if ContBusRel.FindByContact(LinkToTable, Contact."Company No.") then
+                    Error(
+                      AlreadyExistErr,
+                      Contact.TableCaption, "Company No.", ContBusRel.TableCaption, ContBusRel."Link to Table", ContBusRel."No.");
+
             if ContBusRel.FindByContact(LinkToTable, Contact."No.") then
                 Error(
                   AlreadyExistErr,
@@ -3213,6 +3234,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnTypeChangeOnAfterCheckInteractionLog(var Contact: Record Contact; xContact: Record Contact)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnTypeChangeOnAfterContSetFilters(var Contact: Record Contact; CurrentContact: Record Contact)
     begin
     end;
 

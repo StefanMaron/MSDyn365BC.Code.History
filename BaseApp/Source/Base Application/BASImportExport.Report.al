@@ -47,12 +47,9 @@ report 28166 "BAS - Import/Export"
                         var
                             FileMgt: Codeunit "File Management";
                         begin
-                            if BASDirection = BASDirection::Export then begin
-                                if BASFileName = '' then
-                                    BASFileName := '.xml';
-                                BASFileName := FileMgt.SaveFileDialog(Text011, BASFileName, '');
-                                DisplayFileName := FileMgt.GetFileName(BASFileName);
-                            end else
+                            if BASDirection = BASDirection::Export then
+                                DisplayFileName := FileMgt.GetFileName('')
+                            else
                                 if (BASDirection = BASDirection::Import) or (BASDirection = BASDirection::"Update BAS XML Field ID") then
                                     ReadFromFile(BASFileName);
                         end;
@@ -124,7 +121,6 @@ report 28166 "BAS - Import/Export"
         DisplayFileName: Text;
         Print: Boolean;
         Text034: Label 'Import from XML File';
-        Text011: Label 'Export to XML File';
         [InDataSet]
         PrintlabelVisible: Boolean;
         [InDataSet]

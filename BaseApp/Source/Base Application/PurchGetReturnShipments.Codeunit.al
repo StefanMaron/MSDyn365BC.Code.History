@@ -45,7 +45,7 @@ codeunit 6648 "Purch.-Get Return Shipments"
                 repeat
                     if ReturnShptHeader."No." <> "Document No." then begin
                         ReturnShptHeader.Get("Document No.");
-                        ReturnShptHeader.TestField("Pay-to Vendor No.", PurchHeader."Pay-to Vendor No.");
+                        CheckReturnShptPayToVendorNo(ReturnShptHeader, PurchHeader, ReturnShptLine2);
                         DifferentCurrencies := false;
                         if ReturnShptHeader."Currency Code" <> PurchHeader."Currency Code" then begin
                             Message(Text000,
@@ -67,6 +67,18 @@ codeunit 6648 "Purch.-Get Return Shipments"
         end;
 
         OnAfterCreateInvLines(PurchHeader);
+    end;
+
+    local procedure CheckReturnShptPayToVendorNo(ReturnShptHeader: Record "Return Shipment Header"; PurchHeader: Record "Purchase Header"; ReturnShptLine: Record "Return Shipment Line")
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCheckReturnShptPayToVendorNo(ReturnShptHeader, PurchHeader, ReturnShptLine, IsHandled);
+        if IsHandled then
+            exit;
+
+        ReturnShptHeader.TestField("Pay-to Vendor No.", PurchHeader."Pay-to Vendor No.");
     end;
 
     procedure SetPurchHeader(var PurchHeader2: Record "Purchase Header")
@@ -172,6 +184,11 @@ codeunit 6648 "Purch.-Get Return Shipments"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterCreateInvLines(PurchaseHeader: Record "Purchase Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckReturnShptPayToVendorNo(ReturnShipmentHeader: Record "Return Shipment Header"; PurchaseHeader: Record "Purchase Header"; ReturnShipmentLine: Record "Return Shipment Line"; var IsHandled: Boolean)
     begin
     end;
 
