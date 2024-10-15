@@ -389,7 +389,7 @@ report 5855 "Implement Standard Cost Change"
 
     local procedure UpdateResourceCost(StandardCostWorksheet: Record "Standard Cost Worksheet"; Resource: Record Resource)
     var
-        ResourceCost: Record "Resource Cost";
+        PriceListLine: Record "Price List Line";
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -397,12 +397,49 @@ report 5855 "Implement Standard Cost Change"
         if IsHandled then
             exit;
 
+#if not CLEAN19
+        if UpdateOldResourceCost(StandardCostWorksheet, Resource) then
+            exit;
+#endif
+        PriceListLine.Reset();
+        PriceListLine.SetRange("Price Type", "Price Type"::Purchase);
+        PriceListLine.SetRange("Source Type", "Price Source Type"::"All Jobs");
+        PriceListLine.SetRange("Asset Type", "Price Asset Type"::Resource);
+        PriceListLine.SetRange("Asset No.", Resource."No.");
+        PriceListLine.SetRange("Work Type Code", '');
+        PriceListLine.SetRange("Starting Date", 0D);
+        PriceListLine.SetRange("Ending Date", 0D);
+        PriceListLine.SetRange("Minimum Quantity", 0);
+        PriceListLine.SetRange(Status, "Price Status"::Draft, "Price Status"::Active);
+        if PriceListLine.FindFirst() then begin
+            if PriceListLine.Status = "Price Status"::Active then begin
+                PriceListLine.Status := "Price Status"::Draft;
+                PriceListLine.Modify();
+            end;
+            PriceListLine.Validate("Direct Unit Cost", Resource."Direct Unit Cost");
+            PriceListLine.Validate("Unit Cost", StandardCostWorksheet."New Standard Cost");
+            PriceListLine.Status := "Price Status"::Active;
+            PriceListLine.Modify(true);
+        end;
+    end;
+
+#if not CLEAN19
+    local procedure UpdateOldResourceCost(StandardCostWorksheet: Record "Standard Cost Worksheet"; Resource: Record Resource): Boolean;
+    var
+        ResourceCost: Record "Resource Cost";
+        PriceCalculationMgt: Codeunit "Price Calculation Mgt.";
+    begin
+        if PriceCalculationMgt.IsExtendedPriceCalculationEnabled() then
+            exit(false);
+
         ResourceCost.Type := ResourceCost.Type::Resource;
         ResourceCost.Code := StandardCostWorksheet."No.";
         ResourceCost.Validate("Direct Unit Cost", Resource."Direct Unit Cost");
         ResourceCost.Validate("Unit Cost", StandardCostWorksheet."New Standard Cost");
         if not ResourceCost.Modify(true) then;
+        exit(true);
     end;
+#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCalculateInventoryValue(var ItemJournalTemplate: Record "Item Journal Template"; var StandardCostWorksheet: Record "Standard Cost Worksheet"; PostingDate: Date; DocNo: Code[20]; HideDuplWarning: Boolean; var IsHandled: Boolean; var ItemJournalBatch: Record "Item Journal Batch");

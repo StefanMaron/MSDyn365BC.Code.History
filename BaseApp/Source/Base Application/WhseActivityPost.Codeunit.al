@@ -226,8 +226,6 @@ codeunit 7324 "Whse.-Activity-Post"
     local procedure InitSourceDocument()
     var
         SalesLine: Record "Sales Line";
-        SalesRelease: Codeunit "Release Sales Document";
-        PurchRelease: Codeunit "Release Purchase Document";
         ModifyHeader: Boolean;
         IsHandled: Boolean;
     begin
@@ -251,14 +249,8 @@ codeunit 7324 "Whse.-Activity-Post"
                                 OnAfterPurchLineModify(PurchLine);
                             until PurchLine.Next() = 0;
 
-                        if (PurchHeader."Posting Date" <> "Posting Date") and ("Posting Date" <> 0D) then begin
-                            PurchRelease.Reopen(PurchHeader);
-                            PurchRelease.SetSkipCheckReleaseRestrictions;
-                            PurchHeader.SetHideValidationDialog(true);
-                            PurchHeader.Validate("Posting Date", "Posting Date");
-                            PurchRelease.Run(PurchHeader);
-                            ModifyHeader := true;
-                        end;
+                        ReleasePurchDocument(ModifyHeader);
+
                         if "External Document No." <> '' then begin
                             PurchHeader."Vendor Shipment No." := "External Document No.";
                             ModifyHeader := true;
@@ -294,14 +286,8 @@ codeunit 7324 "Whse.-Activity-Post"
                                 end;
                             until SalesLine.Next() = 0;
 
-                        if (SalesHeader."Posting Date" <> "Posting Date") and ("Posting Date" <> 0D) then begin
-                            SalesRelease.Reopen(SalesHeader);
-                            SalesRelease.SetSkipCheckReleaseRestrictions;
-                            SalesHeader.SetHideValidationDialog(true);
-                            SalesHeader.Validate("Posting Date", "Posting Date");
-                            SalesRelease.Run(SalesHeader);
-                            ModifyHeader := true;
-                        end;
+                        ReleaseSalesDocument(ModifyHeader);
+
                         if "External Document No." <> '' then begin
                             SalesHeader."External Document No." := "External Document No.";
                             ModifyHeader := true;
@@ -336,6 +322,46 @@ codeunit 7324 "Whse.-Activity-Post"
             end;
 
         OnAfterInitSourceDocument(WhseActivHeader);
+    end;
+
+    local procedure ReleasePurchDocument(var ModifyHeader: Boolean)
+    var
+        PurchRelease: Codeunit "Release Purchase Document";
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeReleasePurchDocument(PurchHeader, WhseActivHeader, ModifyHeader, IsHandled);
+        if IsHandled then
+            exit;
+
+        if (PurchHeader."Posting Date" <> WhseActivHeader."Posting Date") and (WhseActivHeader."Posting Date" <> 0D) then begin
+            PurchRelease.Reopen(PurchHeader);
+            PurchRelease.SetSkipCheckReleaseRestrictions;
+            PurchHeader.SetHideValidationDialog(true);
+            PurchHeader.Validate("Posting Date", WhseActivHeader."Posting Date");
+            PurchRelease.Run(PurchHeader);
+            ModifyHeader := true;
+        end;
+    end;
+
+    local procedure ReleaseSalesDocument(var ModifyHeader: Boolean)
+    var
+        SalesRelease: Codeunit "Release Sales Document";
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeReleaseSalesDocument(SalesHeader, WhseActivHeader, ModifyHeader, IsHandled);
+        if IsHandled then
+            exit;
+
+        if (SalesHeader."Posting Date" <> WhseActivHeader."Posting Date") and (WhseActivHeader."Posting Date" <> 0D) then begin
+            SalesRelease.Reopen(SalesHeader);
+            SalesRelease.SetSkipCheckReleaseRestrictions;
+            SalesHeader.SetHideValidationDialog(true);
+            SalesHeader.Validate("Posting Date", WhseActivHeader."Posting Date");
+            SalesRelease.Run(SalesHeader);
+            ModifyHeader := true;
+        end;
     end;
 
     local procedure ModifyPurchaseHeader(var PurchaseHeader: Record "Purchase Header"; WarehouseActivityHeader: Record "Warehouse Activity Header"; ModifyHeader: Boolean)
@@ -1191,6 +1217,16 @@ codeunit 7324 "Whse.-Activity-Post"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforePostWhseJnlLine(var WarehouseActivityLine: Record "Warehouse Activity Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeReleasePurchDocument(var PurchaseHeader: Record "Purchase Header"; WhseActivHeader: Record "Warehouse Activity Header"; var ModifyHeader: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeReleaseSalesDocument(var SalesHeader: Record "Sales Header"; WhseActivHeader: Record "Warehouse Activity Header"; var ModifyHeader: Boolean; var IsHandled: Boolean)
     begin
     end;
 

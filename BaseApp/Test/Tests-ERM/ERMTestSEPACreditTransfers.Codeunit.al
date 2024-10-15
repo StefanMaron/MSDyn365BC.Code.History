@@ -1567,6 +1567,54 @@ codeunit 134403 "ERM Test SEPA Credit Transfers"
         LibraryVariableStorage.AssertEmpty();
     end;
 
+    [Test]
+    procedure FillExportBufferForAppliedAndNonAppliedEntries()
+    var
+        GenJournalBatch: Record "Gen. Journal Batch";
+        GenJournalLine: Record "Gen. Journal Line";
+        VendorLedgerEntry: Record "Vendor Ledger Entry";
+        CreditTransferRegister: Record "Credit Transfer Register";
+        CreditTransferEntry: Record "Credit Transfer Entry";
+        TempPaymentExportData: Record "Payment Export Data" temporary;
+        SEPACTFillExportBuffer: Codeunit "SEPA CT-Fill Export Buffer";
+    begin
+        // [FEATURE] [UT]
+        // [SCENARIO 399022] SEPACTFillExportBuffer.FillExportBuffer() in case of first journal line with two applies and second line without applies
+        Init();
+        LibraryERM.SetAllowNonEuroExport(true);
+
+        // [GIVEN] Payment journal with two lines: first has two applied entries, second without applies
+        LibraryJournals.CreateGenJournalBatch(GenJournalBatch);
+        GenJournalBatch.Validate("Bal. Account Type", GenJournalBatch."Bal. Account Type"::"Bank Account");
+        GenJournalBatch.Validate("Bal. Account No.", BankAccount."No.");
+        GenJournalBatch.Modify(true);
+
+        LibraryERM.CreateGeneralJnlLine(
+          GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name,
+          GenJournalLine."Document Type"::Payment, GenJournalLine."Account Type"::Vendor, Vendor."No.", 1);
+        GenJournalLine.Validate("Recipient Bank Account", VendorBankAccount.Code);
+        GenJournalLine.Validate("Applies-to ID", LibraryUtility.GenerateGUID());
+        GenJournalLine.Modify(true);
+        MockVendorLedgerEntry(VendorLedgerEntry, GenJournalLine."Account No.", GenJournalLine."Document Type"::" ", '', GenJournalLine."Applies-to ID");
+        MockVendorLedgerEntry(VendorLedgerEntry, GenJournalLine."Account No.", GenJournalLine."Document Type"::" ", '', GenJournalLine."Applies-to ID");
+
+        LibraryERM.CreateGeneralJnlLine(
+          GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name,
+          GenJournalLine."Document Type"::Payment, GenJournalLine."Account Type"::Vendor, Vendor."No.", 1);
+        GenJournalLine.Validate("Recipient Bank Account", VendorBankAccount.Code);
+        GenJournalLine.Modify(true);
+
+        // [WHEN] Invoke Export
+        if CreditTransferRegister.FindLast() then;
+        GenJournalLine.SetRange("Journal Template Name", GenJournalLine."Journal Template Name");
+        GenJournalLine.SetRange("Journal Batch Name", GenJournalLine."Journal Batch Name");
+        SEPACTFillExportBuffer.FillExportBuffer(GenJournalLine, TempPaymentExportData);
+
+        // [THEN] Credit Transfer Register is created with 3 entries
+        CreditTransferEntry.SetRange("Credit Transfer Register No.", CreditTransferRegister."No." + 1);
+        Assert.RecordCount(CreditTransferEntry, 3);
+    end;
+
     local procedure Init()
     var
         NoSeries: Record "No. Series";
@@ -1792,18 +1840,23 @@ codeunit 134403 "ERM Test SEPA Credit Transfers"
 
     local procedure MockAppliedVendorLedgerEntry(var GenJournalLine: Record "Gen. Journal Line"; var VendorLedgerEntry: Record "Vendor Ledger Entry")
     begin
+        MockVendorLedgerEntry(
+            VendorLedgerEntry, GenJournalLine."Account No.", GenJournalLine."Document Type", GenJournalLine."Document No.", '');
+        UpdateGenJournalLine(GenJournalLine, VendorLedgerEntry."Document Type", VendorLedgerEntry."Document No.");
+    end;
+
+    local procedure MockVendorLedgerEntry(var VendorLedgerEntry: Record "Vendor Ledger Entry"; VendorNo: Code[20]; AppliesToDocType: Enum "Gen. Journal Document Type"; AppliesToDocNo: Code[20]; AppliesToID: Code[50])
+    begin
         VendorLedgerEntry.Init();
         VendorLedgerEntry."Entry No." := LibraryUtility.GetNewRecNo(VendorLedgerEntry, VendorLedgerEntry.FieldNo("Entry No."));
-        VendorLedgerEntry."Vendor No." := GenJournalLine."Account No.";
+        VendorLedgerEntry."Vendor No." := VendorNo;
         VendorLedgerEntry."Document Type" := VendorLedgerEntry."Document Type"::Invoice;
         VendorLedgerEntry."Document No." := LibraryUtility.GenerateGUID();
-        VendorLedgerEntry."Applies-to Doc. Type" := GenJournalLine."Document Type";
-        VendorLedgerEntry."Applies-to Doc. No." := GenJournalLine."Document No.";
-        VendorLedgerEntry."Applies-to ID" := GenJournalLine."Document No.";
+        VendorLedgerEntry."Applies-to Doc. Type" := AppliesToDocType;
+        VendorLedgerEntry."Applies-to Doc. No." := AppliesToDocNo;
+        VendorLedgerEntry."Applies-to ID" := AppliesToID;
         VendorLedgerEntry.Open := true;
         VendorLedgerEntry.Insert();
-
-        UpdateGenJournalLine(GenJournalLine, VendorLedgerEntry."Document Type", VendorLedgerEntry."Document No.");
     end;
 
     local procedure MockAppliedCustLedgerEntry(var GenJournalLine: Record "Gen. Journal Line"; var CustLedgerEntry: Record "Cust. Ledger Entry")

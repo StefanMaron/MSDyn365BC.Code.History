@@ -2896,8 +2896,7 @@
                         until TempServDocReg.Next() = 0;
                 end;
 
-                CreateServiceLines(TempServLine, ExtendedTextAdded);
-                RestoreServiceCommentLineFromTemp(TempServiceCommentLine);
+                CreateServiceLines(TempServLine, ExtendedTextAdded, TempServiceCommentLine);
                 TempServLine.SetRange(Type);
                 TempServLine.DeleteAll();
                 OnRecreateServLinesOnAfterTempServLineDeleteAll(Rec);
@@ -2920,16 +2919,18 @@
             until ServiceCommentLine.Next() = 0;
     end;
 
-    local procedure RestoreServiceCommentLineFromTemp(var TempServiceCommentLine: Record "Service Comment Line" temporary)
+    local procedure RestoreServiceCommentLine(var TempServiceCommentLine: Record "Service Comment Line" temporary; OldDocumentLineNo: Integer; NewDocumentLineNo: Integer)
     var
         ServiceCommentLine: Record "Service Comment Line";
     begin
         TempServiceCommentLine.SetRange("Table Name", TempServiceCommentLine."Table Name"::"Service Header");
         TempServiceCommentLine.SetRange("Table Subtype", "Document Type");
         TempServiceCommentLine.SetRange("No.", "No.");
+        TempServiceCommentLine.SetRange("Table Line No.", OldDocumentLineNo);
         if TempServiceCommentLine.FindSet() then
             repeat
                 ServiceCommentLine := TempServiceCommentLine;
+                ServiceCommentLine."Table Line No." := NewDocumentLineNo;
                 ServiceCommentLine.Insert();
             until TempServiceCommentLine.Next() = 0;
     end;
@@ -3974,7 +3975,7 @@
             Error(Text066);
     end;
 
-    local procedure CreateServiceLines(var TempServLine: Record "Service Line" temporary; var ExtendedTextAdded: Boolean)
+    local procedure CreateServiceLines(var TempServLine: Record "Service Line" temporary; var ExtendedTextAdded: Boolean; var TempServiceCommentLine: Record "Service Comment Line" temporary)
     var
         TransferExtendedText: Codeunit "Transfer Extended Text";
     begin
@@ -4052,8 +4053,10 @@
                     ServLine.Find('+');
                     ExtendedTextAdded := true;
                 end;
+            RestoreServiceCommentLine(TempServiceCommentLine, TempServLine."Line No.", ServLine."Line No.");
             CopyReservEntryFromTemp(TempServLine, ServLine."Line No.");
         until TempServLine.Next() = 0;
+        RestoreServiceCommentLine(TempServiceCommentLine, 0, 0);
     end;
 
     procedure SetCustomerFromFilter()

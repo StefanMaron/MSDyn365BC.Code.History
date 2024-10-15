@@ -45,6 +45,7 @@ codeunit 142083 "ERM Electronic Funds Transfer"
         CustomerBankAccountErr: Label 'You must have exactly one Customer Bank Account with Use for Electronic Payments checked for Customer %1.';
         EFTExportGenJnlLineErr: Label 'A dimension used in %1 %2, %3, %4 has caused an error. %5';
         MandatoryDimErr: Label 'Select a %1 for the %2 %3 for %4 %5.';
+        RemitAdvFileNotFoundTxt: Label 'Remittance Advice file has not been found';
 
     [Test]
     [HandlerFunctions('ExportElectronicPaymentsXMLRequestPageHandler')]
@@ -518,7 +519,7 @@ codeunit 142083 "ERM Electronic Funds Transfer"
           GenJournalLine."Posting Date", BankAccount."Last Remittance Advice No.", CheckLedgerEntry."Entry Status"::Posted, 1);
         // 377993: Resulting file name = Remittance Advice <Vendor's Name>.pdf
         FilePath := FileManagement.CombinePath(TemporaryPath, StrSubstNo('Remittance Advice for %1.pdf', Vendor.Name));
-        Assert.IsTrue(File.Exists(FilePath), 'Remittance Advice file has not been found');
+        Assert.IsTrue(File.Exists(FilePath), RemitAdvFileNotFoundTxt);
     end;
 
     [Test]
@@ -826,6 +827,76 @@ codeunit 142083 "ERM Electronic Funds Transfer"
 
     [Test]
     [HandlerFunctions('ExportElectronicPaymentsRequestPageHandler')]
+    procedure ExportSeveralVendorsWithSameNamePDF()
+    var
+        GenJournalBatch: Record "Gen. Journal Batch";
+        GenJournalLine: Record "Gen. Journal Line";
+        BankAccount: Record "Bank Account";
+        Vendor: Record Vendor;
+        VendorBankAccount: array[3] of Record "Vendor Bank Account";
+        FileManagement: Codeunit "File Management";
+        ERMElectronicFundsTransfer: Codeunit "ERM Electronic Funds Transfer";
+        TestClientTypeSubscriber: Codeunit "Test Client Type Subscriber";
+        PaymentJournal: TestPage "Payment Journal";
+        FilesList: List of [Text];
+        VendorName: Text;
+        i: Integer;
+    begin
+        // [FEATURE] [Report] [Export]
+        // [SCENARIO 401532] Export payment journal Remittance Advice for several vendors with the same name
+        // [SCENARIO 401532] produces several pdf files with different names
+        Initialize();
+        CheckClearAllReportsZip();
+        CreateExportReportSelection(Layout::RDLC);
+        TestClientTypeSubscriber.SetClientType(ClientType::Web);
+        BindSubscription(TestClientTypeSubscriber);
+        BindSubscription(ERMElectronicFundsTransfer);
+
+        // [GIVEN] Three vendors with the same name "X"
+        VendorName := LibraryUtility.GenerateGUID();
+        for i := 1 to ArrayLen(VendorBankAccount) do begin
+            FindAndUpdateVendorBankAccount(VendorBankAccount[i]);
+            Vendor.Get(VendorBankAccount[i]."Vendor No.");
+            Vendor.Validate(Name, CopyStr(VendorName, 1, MaxStrLen(Vendor.Name)));
+            Vendor.Modify(true);
+        END;
+
+        // [GIVEN] Bank account setup for US EFT DEFAULT export
+        CreateBankAccount(BankAccount, VendorBankAccount[1]."Transit No.", BankAccount."Export Format"::US);
+        CreateBankAccWithBankStatementSetup(BankAccount, 'US EFT DEFAULT');
+        CreateGeneralJournalBatch(GenJournalBatch, BankAccount."No.");
+
+        // [GIVEN] Payment journal with 3 lines for different vendors
+        for i := 1 to ArrayLen(VendorBankAccount) do begin
+            CreatePaymentGLLine(
+              GenJournalLine, GenJournalBatch, GenJournalLine."Document Type"::Payment, GenJournalLine."Account Type"::Vendor,
+              VendorBankAccount[i]."Vendor No.", GenJournalLine."Document Type"::" ", '',
+              GenJournalLine."Bal. Account Type"::"Bank Account", BankAccount."No.", 1);
+            GenJournalLine.Validate("Recipient Bank Account", VendorBankAccount[i].Code);
+            GenJournalLine.Modify(true);
+        end;
+        LibraryVariableStorage.Enqueue(BankAccount."No.");  // Enqueue for ExportElectronicPaymentsRequestPageHandler.
+        LibraryVariableStorage.Enqueue(GenJournalLine."Journal Template Name");
+        LibraryVariableStorage.Enqueue(GenJournalLine."Journal Batch Name");
+
+        // [WHEN] Export payment journal
+        PaymentJournal.OpenEdit();
+        ExportPaymentJournal(PaymentJournal, GenJournalLine);
+
+        // [WHEN] Three files have been exported:
+        // [THEN] "Remittance Advice for X_Export Electronic Payments.pdf"
+        // [THEN] "Remittance Advice for X_Export Electronic Payments (1).pdf"
+        // [THEN] "Remittance Advice for X_Export Electronic Payments (2).pdf"
+        GetFilesListFromZip(FilesList);
+        Assert.AreEqual(3, FilesList.Count(), '');
+        Assert.IsTrue(FilesList.Contains(StrSubstNo('Remittance Advice for %1.pdf', VendorName)), RemitAdvFileNotFoundTxt);
+        Assert.IsTrue(FilesList.Contains(StrSubstNo('Remittance Advice for %1 (1).pdf', VendorName)), RemitAdvFileNotFoundTxt);
+        Assert.IsTrue(FilesList.Contains(StrSubstNo('Remittance Advice for %1 (2).pdf', VendorName)), RemitAdvFileNotFoundTxt);
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('ExportElectronicPaymentsRequestPageHandler')]
     [Scope('OnPrem')]
     procedure GeneratingEFTFileInCAFormatRollbackAllExportedLinesOnError()
     var
@@ -1061,6 +1132,7 @@ codeunit 142083 "ERM Electronic Funds Transfer"
         // [FEATURE] [CA]
         // [SCENARIO 303720] Export EFT CA (RB) with two headers and all business data in payment journal
         // [SCENARIO 362896] Settlement Date is exported via data exchange ACH RB Header "Settlement Date" field
+        // [SCENARIO 401126] Settlement Julian Date is exported with the Julian date format of the "Settlement Date" field value
         Initialize();
         BindSubscription(ERMElectronicFundsTransfer);
         TestClientTypeSubscriber.SetClientType(ClientType::Web);
@@ -1838,6 +1910,25 @@ codeunit 142083 "ERM Electronic Funds Transfer"
         VendorBankAccount.SetRange("Use for Electronic Payments", true);
         Assert.AreEqual(2, VendorBankAccount.Count,
             'The vendor should have 2 bank accounts that have electronic payments enabled');
+    end;
+
+    [Test]
+    procedure ACHRBHeaderSettlementJulianDateUT()
+    var
+        ACHRBHeader: Record "ACH RB Header";
+        ExportEFTRB: Codeunit "Export EFT (RB)";
+        Date: Date;
+    begin
+        // [FEATURE] [UT]
+        // [SCENARIO 401126] TAB 10303 "ACH RB Header"."Settlement Julian Date" contains a date in the Julian date format
+        Date := LibraryRandom.RandDate(1000);
+        ACHRBHeader.Validate("Settlement Date", Date);
+        ACHRBHeader.TestField("Settlement Date", Date);
+        ACHRBHeader.TestField("Settlement Julian Date", ExportEFTRB.JulianDate(Date));
+
+        ACHRBHeader.Validate("Settlement Date", 0D);
+        ACHRBHeader.TestField("Settlement Date", 0D);
+        ACHRBHeader.TestField("Settlement Julian Date", 0);
     end;
 
     local procedure Initialize()
@@ -2852,6 +2943,35 @@ codeunit 142083 "ERM Electronic Funds Transfer"
         TempACHCecobanDetailResult.Copy(TempACHCecobanDetail, true);
     end;
 
+    local procedure GetFilesListFromZip(var FilesList: List of [Text])
+    var
+        FileManagement: Codeunit "File Management";
+        DataCompression: Codeunit "Data Compression";
+        ZipFile: File;
+        ZipInStream: InStream;
+        ZipPath: Text;
+    begin
+        ZipPath := FileManagement.CombinePath(TemporaryPath(), 'AllReports.zip');
+        Assert.IsTrue(Exists(ZipPath), 'AllReports.zip is not found');
+        ZipFile.Open(ZipPath);
+        ZipFile.CreateInStream(ZipInStream);
+        DataCompression.OpenZipArchive(ZipInStream, false);
+        DataCompression.GetEntryList(FilesList);
+        DataCompression.CloseZipArchive();
+        ZipFile.Close();
+        CheckClearAllReportsZip();
+    end;
+
+    local procedure CheckClearAllReportsZip()
+    var
+        FileManagement: Codeunit "File Management";
+        ZipPath: Text;
+    begin
+        ZipPath := FileManagement.CombinePath(TemporaryPath(), 'AllReports.zip');
+        if Exists(ZipPath) then
+            Erase(ZipPath);
+    end;
+
     local procedure ModifyUseForElectronicPaymentsVendorBankAccount(var VendorBankAccount: Record "Vendor Bank Account"; CheckBoxValue: Boolean)
     begin
         VendorBankAccount.SetFilter("Vendor No.", '<>''''');
@@ -3070,6 +3190,7 @@ codeunit 142083 "ERM Electronic Funds Transfer"
         TempACHRBHeader.TestField("File Creation Number", FileCreationNo);
         TempACHRBHeader.TestField("File Creation Date", ExportEFTRB.JulianDate(Today()));
         TempACHRBHeader.TestField("Settlement Date", SettleDate);
+        TempACHRBHeader.TestField("Settlement Julian Date", ExportEFTRB.JulianDate(SettleDate)); // TFS 401126
 
         ERMElectronicFundsTransfer.GetTempACHRBDetail(TempACHRBDetail);
         TempACHRBDetail.TestField("File Creation Number", FileCreationNo);

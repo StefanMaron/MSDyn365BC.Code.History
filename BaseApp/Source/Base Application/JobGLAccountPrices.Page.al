@@ -79,5 +79,12 @@ page 1013 "Job G/L Account Prices"
     actions
     {
     }
+
+    trigger OnInit()
+    var
+        FeaturePriceCalculation: Codeunit "Feature - Price Calculation";
+    begin
+        FeaturePriceCalculation.FailIfFeatureEnabled();
+    end;
 }
 

@@ -1,9 +1,13 @@
+#if not CLEAN19
 report 10159 "Sales Promotion"
 {
     DefaultLayout = RDLC;
     RDLCLayout = './SalesPromotion.rdlc';
     Caption = 'Sales Promotion';
     UsageCategory = ReportsAndAnalysis;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Replaced by the Sales Promotion V16.';
+    ObsoleteTag = '19.0';
 
     dataset
     {
@@ -169,4 +173,4 @@ report 10159 "Sales Promotion"
         Item__Unit_Price_CaptionLbl: Label 'List Price';
         Sales_Price__Unit_Price_CaptionLbl: Label 'Sale Price';
 }
-
+#endif

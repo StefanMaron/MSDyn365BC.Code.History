@@ -582,12 +582,24 @@ page 8907 "Sales & Marketing Manager RC"
                     Caption = 'Item Attributes';
                     RunObject = page "Item Attributes";
                 }
+#if not CLEAN19
                 action("Sales Price Worksheet")
                 {
                     ApplicationArea = Suite;
                     Caption = 'Sales Price Worksheet';
-                    RunObject = page "Sales Price Worksheet";
+                    RunPageView = WHERE("Object Type" = CONST(Page), "Object ID" = CONST(7023)); // "Sales Price Worksheet";
+                    RunObject = Page "Role Center Page Dispatcher";
                 }
+#else
+                action("Sales Price Worksheet")
+                {
+                    ApplicationArea = Suite;
+                    Caption = 'Sales Price Worksheet';
+                    Image = PriceWorksheet;
+                    RunObject = Page "Price Worksheet";
+                    ToolTip = 'Manage sales prices for individual customers, for a group of customers, for all customers, or for a campaign.';
+                }
+#endif
                 action("Adjust Item Costs/Prices")
                 {
                     ApplicationArea = Basic, Suite;
@@ -683,7 +695,12 @@ page 8907 "Sales & Marketing Manager RC"
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'List Price Sheet';
-                        RunObject = report "List Price Sheet";
+#if not CLEAN19
+                        RunPageView = WHERE("Object Type" = CONST(Report), "Object ID" = CONST(10148)); // "List Price Sheet"
+                        RunObject = Page "Role Center Page Dispatcher";
+#else
+                        RunObject = Report "List Price Sheet V16";
+#endif
                     }
                     action("Picking List by Item")
                     {
@@ -709,7 +726,12 @@ page 8907 "Sales & Marketing Manager RC"
                     action("Sales Promotion")
                     {
                         Caption = 'Sales Promotion';
-                        RunObject = report "Sales Promotion";
+#if not CLEAN19
+                        RunPageView = WHERE("Object Type" = CONST(Report), "Object ID" = CONST(10159)); // "Sales Promotion"
+                        RunObject = Page "Role Center Page Dispatcher";
+#else
+                        RunObject = report "Sales Promotion V16";
+#endif
                     }
                     action("Serial Number Sold History")
                     {

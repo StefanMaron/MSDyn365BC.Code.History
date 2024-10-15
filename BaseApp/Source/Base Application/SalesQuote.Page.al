@@ -1611,7 +1611,12 @@
                 ApplicationArea = Basic, Suite;
                 Caption = 'Sales Promotion';
                 Image = "Report";
-                RunObject = Report "Sales Promotion";
+#if not CLEAN19
+                RunPageView = WHERE("Object Type" = CONST(Report), "Object ID" = CONST(10159)); // "Sales Promotion"
+                RunObject = Page "Role Center Page Dispatcher";
+#else
+                RunObject = Report "Sales Promotion V16";
+#endif
                 ToolTip = 'View the sales promotions that you have set up using the prices option on the sales pull-down menu on the item card. This report can show future sales promotions that have been set up but have not yet occurred, as well as sales promotions that have occurred but have not been deleted.';
             }
             action("Customer/Item Statistics")

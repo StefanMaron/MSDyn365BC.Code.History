@@ -152,8 +152,8 @@ table 7005 "Price Source"
         AmountTypeInt: Integer;
     begin
         foreach AmountTypeInt in AmountType.Ordinals() do begin
-            AmountType := AmountTypeInt;
-            if IsForAmountType(AmountTypeInt) then
+            AmountType := "Price Amount Type".FromInteger(AmountTypeInt);
+            if IsForAmountType(AmountType) then
                 exit;
         end;
     end;
@@ -261,7 +261,12 @@ table 7005 "Price Source"
     procedure VerifyAmountTypeForSourceType(AmountType: Enum "Price Amount Type")
     var
         ErrorMsg: Text;
+        IsHandled: Boolean;
     begin
+        OnBeforeVerifyAmountTypeForSourceType(Rec, AmountType, IsHandled);
+        if IsHandled then
+            exit;
+
         if not IsForAmountType(AmountType) then begin
             ErrorMsg := StrSubstNo(AmountTypeNotAllowedForSourceTypeErr, AmountType, "Source Type");
             Error(ErrorMsg);
@@ -288,6 +293,11 @@ table 7005 "Price Source"
             "Filter Source No." := "Parent Source No."
         else
             "Filter Source No." := "Source No."
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeVerifyAmountTypeForSourceType(PriceSource: Record "Price Source"; AmountType: Enum "Price Amount Type"; var IsHandled: Boolean)
+    begin
     end;
 
     [IntegrationEvent(false, false)]

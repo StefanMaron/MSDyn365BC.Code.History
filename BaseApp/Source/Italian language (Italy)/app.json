@@ -2,7 +2,7 @@
     "id":  "51ba3799-d76c-4cf0-afd3-e2c2f6c0576b",
     "name":  "Italian language (Italy)",
     "publisher":  "Microsoft",
-    "version":  "18.2.26217.26490",
+    "version":  "18.3.27240.27480",
     "dependencies":  [
 
                      ],
@@ -15,5 +15,5 @@
     "EULA":  "https://www.microsoft.com/en-us/download/details.aspx?id=56765",
     "help":  "https://go.microsoft.com/fwlink/?linkid=2115116",
     "url":  "https://www.microsoft.com/en-us/dynamics365/contact-us",
-    "application":  "18.2.0.0"
+    "application":  "18.3.0.0"
 }

@@ -559,6 +559,20 @@ page 5050 "Contact Card"
                         ToolTip = 'Specify date ranges that apply to the contact''s alternate address.';
                     }
                 }
+                action(SentEmails)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Sent Emails';
+                    Image = ShowList;
+                    ToolTip = 'View a list of emails that you have sent to this contact.';
+
+                    trigger OnAction()
+                    var
+                        Email: Codeunit Email;
+                    begin
+                        Email.OpenSentEmails(Database::Contact, Rec.SystemId);
+                    end;
+                }
             }
             group(ActionGroupCRM)
             {
@@ -1240,6 +1254,25 @@ page 5050 "Contact Card"
                     CurrPage.SetSelectionFilter(Contact);
                     WordTemplateSelectionWizard.SetData(Contact);
                     WordTemplateSelectionWizard.RunModal();
+                end;
+            }
+            action(Email)
+            {
+                ApplicationArea = All;
+                Caption = 'Contact by Email';
+                Image = Email;
+                Promoted = true;
+                PromotedCategory = Category5;
+                ToolTip = 'Send an email to this contact.';
+
+                trigger OnAction()
+                var
+                    Email: Codeunit Email;
+                    EmailMessage: Codeunit "Email Message";
+                begin
+                    EmailMessage.Create(Rec."E-Mail", '', '', true);
+                    Email.AddRelation(EmailMessage, Database::Contact, Rec.SystemId, Enum::"Email Relation Type"::"Primary Source");
+                    Email.OpenInEditorModally(EmailMessage);
                 end;
             }
             action("Create Opportunity")
