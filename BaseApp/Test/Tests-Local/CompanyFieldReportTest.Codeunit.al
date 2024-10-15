@@ -359,7 +359,7 @@ codeunit 144010 "Company Field Report Test"
     end;
 
     [Test]
-    [HandlerFunctions('FinanceChargeMemoReportHandler,ConfirmHandler')]
+    [HandlerFunctions('FinanceChargeMemoReportHandler')]
     [Scope('OnPrem')]
     procedure FinanceChargeMemoReport()
     var
@@ -938,11 +938,6 @@ codeunit 144010 "Company Field Report Test"
         TestBusinessIdentityandHomeCity(0);
     end;
 
-    [ConfirmHandler]
-    [Scope('OnPrem')]
-    procedure ConfirmHandler(Question: Text[1024]; var Reply: Boolean)
-    begin
-        Reply := false
-    end;
+    
 }
 

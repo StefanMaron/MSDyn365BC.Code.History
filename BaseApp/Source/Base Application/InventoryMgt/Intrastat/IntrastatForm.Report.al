@@ -2,7 +2,7 @@
 report 501 "Intrastat - Form"
 {
     DefaultLayout = RDLC;
-    RDLCLayout = '.Mgt/Intrastat/IntrastatForm.rdlc';
+    RDLCLayout = './InventoryMgt/Intrastat/IntrastatForm.rdlc';
     ApplicationArea = BasicEU;
     Caption = 'Intrastat - Form';
     UsageCategory = ReportsAndAnalysis;

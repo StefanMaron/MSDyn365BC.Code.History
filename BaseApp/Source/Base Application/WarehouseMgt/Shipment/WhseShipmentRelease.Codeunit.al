@@ -166,6 +166,8 @@ codeunit 7310 "Whse.-Shipment Release"
         IsHandled: Boolean;
     begin
         OnBeforeCheckWhseShptLinesNotEmpty(WhseShptHeader, WhseShptLine, IsHandled);
+        if IsHandled then
+            exit;
 
         if not WhseShptLine.Find('-') then
             Error(Text000, WhseShptHeader.TableCaption(), WhseShptHeader."No.");

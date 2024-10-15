@@ -371,6 +371,7 @@ report 5970 "Service Contract"
             trigger OnAfterGetRecord()
             begin
                 CurrReport.Language := Language.GetLanguageIdOrDefault("Language Code");
+                FormatAddr.SetLanguageCode("Language Code");
 
                 FormatAddressFields("Service Contract Header");
                 FormatDocumentFields("Service Contract Header");

@@ -2012,7 +2012,7 @@ codeunit 134076 "ERM Suggest Vendor Payment"
         LibraryVariableStorage.Enqueue(StrSubstNo('%1|%2', Vendor[1]."No.", Vendor[2]."No."));
         LibraryVariableStorage.Enqueue(NoSeriesLine."Starting No.");
         LibraryVariableStorage.Enqueue(true); // Summarize - TRUE
-        LibraryVariableStorage.Enqueue(false); // New Doc. No. per Line - FALSE
+        LibraryVariableStorage.Enqueue(true); // New Doc. No. per Line - TRUE
         LibraryVariableStorage.Enqueue(BankAccount."No.");
 
         SuggestVendorPaymentForGenJournal(GenJournalLine);
@@ -2521,6 +2521,82 @@ codeunit 134076 "ERM Suggest Vendor Payment"
 
         // [THEN] Second Payment journal line created with amount from "RA 2"
         VerifySuggestedLineWithAmount(GenJournalBatch."Journal Template Name", GenJournalBatch.Name, Amount[2]);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure SuggestVendorPaymentsNewDocNoPerLine()
+    var
+        Vendor: Record Vendor;
+        GenJournalLine: Record "Gen. Journal Line";
+        GenJournalTemplate: Record "Gen. Journal Template";
+        GenJournalBatch: Record "Gen. Journal Batch";
+        VendorNo: Code[20];
+        VendorNo2: Code[20];
+        NoOfLines: Integer;
+        DocumentNo: Code[20];
+        SuggestVendorPayment: Report "Suggest Vendor Payments";
+    begin
+        // [SCENARIO 471718] Document No. on payment Journals from 'Suggest Vendor Payments' is different even if New Doc. No. per Line is No
+        Initialize();
+
+        // [GIVEN] Create General Journal Batch 
+        CreateGeneralJournalBatch(GenJournalBatch, GenJournalTemplate.Type::General);
+
+        // [GIVEN] Create First Vendor
+        VendorNo := CreateVendor(GenJournalLine."Currency Code", Vendor."Application Method"::"Apply to Oldest");
+
+        // [GIVEN] Create No. of General Journal Lines and save in a variable.
+        NoOfLines := 2 * LibraryRandom.RandInt(5);
+
+        // [GIVEN] Create Multiple Invoices for First Vendor
+        CreateMultipleGenJournalLine(
+            GenJournalLine,
+            GenJournalBatch,
+            NoOfLines,
+            WorkDate(),
+            VendorNo,
+            GenJournalLine."Document Type"::Invoice,
+            -1);
+
+        // [GIVEN] Create Second Vendor
+        VendorNo2 := CreateVendor(GenJournalLine."Currency Code", Vendor."Application Method"::"Apply to Oldest");
+
+        // [GIVEN] Create Multiple Invoices for Second Vendor
+        CreateMultipleGenJournalLine(
+            GenJournalLine,
+            GenJournalBatch,
+            NoOfLines,
+            WorkDate(),
+            VendorNo2,
+            GenJournalLine."Document Type"::Invoice,
+            -1);
+
+        // [THEN] Create Document No. and save in a variable.
+        DocumentNo := Format(LibraryRandom.RandInt(100));
+
+        // [THEN] Post the invoices.
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+
+        // [GIVEN] Create General Journal Batch for posting payment.
+        CreateGeneralJournalBatch(GenJournalBatch, GenJournalTemplate.Type::Payments);
+
+        // [THEN] Suggest Vendor Payment with saved Document No and both vendors.
+        SuggestVendorPaymentWithDocNo(
+            GenJournalBatch,
+            VendorNo,
+            VendorNo2,
+            CalcDate('2Y', WorkDate()),
+            false,
+            GenJournalLine."Bal. Account Type"::"Bank Account",
+            '',
+            GenJournalLine."Bank Payment Type"::" ",
+            true,
+            DocumentNo);
+
+        // [VERIFY] Verfiy Document No. on General Journal Line for both vendors.
+        VerifySameDocumentNoOnGenJournal(VendorNo, DocumentNo);
+        VerifySameDocumentNoOnGenJournal(VendorNo2, DocumentNo);
     end;
 
     local procedure Initialize()

@@ -1911,40 +1911,6 @@ codeunit 139031 "Change Log"
     end;
 
     [Test]
-    procedure ChangeLogEntryIncludedInLoggingNoError()
-    var
-        Item: Record Item;
-        ChangeLogEntry: Record "Change Log Entry";
-        RecRef: RecordRef;
-    begin
-        // [SCENARIO] Table "Change Log Entry" should not be monitored in the change log
-
-        Initialize();
-
-        // [GIVEN] Enable change log monitoring for tables Item and Change Log Entry
-        SetTableForChangeLog(Database::Item, LogOption::"All Fields", LogOption::" ", LogOption::" ");
-        SetTableForChangeLog(Database::"Change Log Entry", LogOption::"All Fields", LogOption::" ", LogOption::" ");
-
-        // [GIVEN] Restart the session
-        // InitChangeLog simulates the session restart clearing global buffers in the Change Log Management
-        // By this time Change Log Entry is already saved in the TempChangeLogSetupTable as non-logged
-        ChangeLogManagement.InitChangeLog();
-
-        // [GIVEN] Insert a record in the Item table
-        Item.Insert(true);
-
-        // [THEN] Insertion of the Item record is logged
-        RecRef.GetTable(Item);
-        AssertEntry(RecRef, RecRef, Item.FieldNo("No."), TypeOfChangeOption::Insertion);
-
-        // [THEN] Insertion of a record in the Change Log Entry is not logged
-        ChangeLogEntry.SetRange("Table No.", Database::"Change Log Entry");
-        Assert.RecordIsEmpty(ChangeLogEntry);
-
-        TearDown();
-    end;
-
-    [Test]
     [HandlerFunctions('ChangeLogSetupTableListHandler')]
     procedure UsersCannotEnableLoggingOnChangeLogEntry()
     var
@@ -2127,6 +2093,49 @@ codeunit 139031 "Change Log"
 
         // Tear down
         TearDown();
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure PreventInsertChangeLogEntryTableIntoChangeLogSetupTable()
+    var
+        ChangeLogSetupTable: Record "Change Log Setup (Table)";
+    begin
+        // Setup
+        Initialize();
+
+        // [GIVEN] Change Log Setup Table with table "Change Log"
+        ChangeLogSetupTable.Init();
+        ChangeLogSetupTable."Table No." := DATABASE::"Change Log Entry";
+        ChangeLogSetupTable."Log Insertion" := ChangeLogSetupTable."Log Insertion"::"All Fields";
+        ChangeLogSetupTable."Log Modification" := ChangeLogSetupTable."Log Modification"::"All Fields";
+        ChangeLogSetupTable."Log Deletion" := ChangeLogSetupTable."Log Deletion"::"All Fields";
+
+        // [WHEN] Change Log Setup Table is inserted, an error occurs
+        asserterror ChangeLogSetupTable.Insert();
+
+        // [THEN] Error is raised when trying to insert the record
+        Assert.ExpectedError('Change log cannot be enabled for the table');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure PreventRenameChangeLogEntryTableInChangeLogSetupTable()
+    var
+        ChangeLogSetupTable: Record "Change Log Setup (Table)";
+    begin
+        // Setup
+        Initialize();
+
+        // [GIVEN] Change Log Setup Table with table "Item" inserted
+        SetTableForChangeLog(Database::Item, LogOption::"All Fields", LogOption::" ", LogOption::" ");
+
+        // [WHEN] Change Log Setup Table with Item is modified to "Change Log Entry", an error occurs
+        ChangeLogSetupTable.FindFirst();
+        asserterror ChangeLogSetupTable.Rename(Database::"Change Log Entry");
+
+        // [THEN] Error is raised when trying to insert the record
+        Assert.ExpectedError('Change log cannot be enabled for the table');
     end;
 
     [ModalPageHandler]

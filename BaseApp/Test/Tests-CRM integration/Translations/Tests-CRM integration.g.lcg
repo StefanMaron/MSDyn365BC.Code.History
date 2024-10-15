@@ -1105,16 +1105,16 @@
   </Item>
   <Item ItemId=";Codeunit 775477311 - NamedType 1758383991" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[LCY Code %1 does not match ISO Currency Code %2 of the CRM base currency.]]></Val>
+      <Val><![CDATA[%1 does not match any ISO Currency Code in the Dataverse currency table.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[%1,%2 - ISO currency codes]D;]A;(LookupHint=Codeunit CRM Setup Test - NamedType LCYMustMatchBaseCurrencyErr)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[%1 - ISO currency code]D;]A;(LookupHint=Codeunit CRM Setup Test - NamedType LCYMustMatchBaseCurrencyErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 775477311 - NamedType 3137394683" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[does not match ISO Currency Code]]></Val>
+      <Val><![CDATA[To continue, make sure that the local currency code in General Ledger Setup complies with the ISO standard and create a currency in Dataverse currency table that uses it as ISO Currency Code.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>

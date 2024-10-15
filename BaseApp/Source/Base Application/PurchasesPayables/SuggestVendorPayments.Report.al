@@ -816,7 +816,8 @@
                                     TempVendorPaymentBuffer.Modify();
                                 end else begin
                                     TempVendorPaymentBuffer."Document No." := NextDocNo;
-                                    RunIncrementDocumentNo(true);
+                                    if DocNoPerLine then
+                                        RunIncrementDocumentNo(true);
                                     TempVendorPaymentBuffer.Amount := TempPayableVendorLedgerEntry.Amount;
                                     Window2.Update(1, VendLedgEntry."Vendor No.");
                                     OnMakeGenJnlLinesOnBeforeVendorPaymentBufferInsert(TempVendorPaymentBuffer, VendLedgEntry, TempPayableVendorLedgerEntry);
@@ -1120,7 +1121,13 @@
     local procedure GetMessageToRecipient(SummarizePerVend: Boolean): Text[140]
     var
         VendorLedgerEntry: Record "Vendor Ledger Entry";
+        IsHandled: Boolean;
+        Message: Text[140];
     begin
+        OnBeforeGetMessageToRecipient(SummarizePerVend, TempVendorPaymentBuffer, IsHandled, Message);
+        if IsHandled then
+            exit(Message);
+
         if SummarizePerVend then
             exit(CompanyInformation.Name);
 
@@ -1426,4 +1433,9 @@
     local procedure OnMakeGenJnlLinesOnBeforeVendorPaymentBufferModify(var TempVendorPaymentBuffer: Record "Vendor Payment Buffer" temporary; VendorLederEntry: Record "Vendor Ledger Entry")
     begin
     end;
+    
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetMessageToRecipient(SummarizePerVend: Boolean; TempVendorPaymentBuffer: Record "Vendor Payment Buffer" temporary; var IsHandled: Boolean; var Message: Text[140])
+    begin
+    end;    
 }

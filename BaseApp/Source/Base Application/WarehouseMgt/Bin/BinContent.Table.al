@@ -595,7 +595,7 @@ table 7302 "Bin Content"
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeCalcQtyAvailToPick(Rec, Result, IsHandled);
+        OnBeforeCalcQtyAvailToPick(Rec, Result, IsHandled, ExcludeQtyBase);
         if IsHandled then
             exit;
 
@@ -904,7 +904,7 @@ table 7302 "Bin Content"
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeCheckWhseClass(Rec, Result, IsHandled);
+        OnBeforeCheckWhseClass(Rec, Result, IsHandled, IgnoreError);
         if IsHandled then
             exit(Result);
 
@@ -1518,7 +1518,7 @@ table 7302 "Bin Content"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCheckWhseClass(var BinContent: Record "Bin Content"; var Result: Boolean; var IsHandled: Boolean)
+    local procedure OnBeforeCheckWhseClass(var BinContent: Record "Bin Content"; var Result: Boolean; var IsHandled: Boolean; IgnoreError: Boolean)
     begin
     end;
 
@@ -1598,7 +1598,7 @@ table 7302 "Bin Content"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCalcQtyAvailToPick(BinContent: Record "Bin Content"; var Result: Decimal; var IsHandled: Boolean)
+    local procedure OnBeforeCalcQtyAvailToPick(BinContent: Record "Bin Content"; var Result: Decimal; var IsHandled: Boolean; ExcludeQtyBase: Decimal)
     begin
     end;
 

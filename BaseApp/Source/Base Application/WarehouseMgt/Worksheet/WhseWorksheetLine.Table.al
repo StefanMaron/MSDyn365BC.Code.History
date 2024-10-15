@@ -1564,6 +1564,8 @@ table 7326 "Whse. Worksheet Line"
         SetRange("Source No.", SourceNo);
         if SourceLineNo >= 0 then
             SetRange("Source Line No.", SourceLineNo);
+
+        OnAfterSetSourceFilter(Rec, SourceType, SourceSubtype, SourceNo, SourceLineNo, SetKey);
     end;
 
     local procedure LookupFromBinCode()
@@ -1717,6 +1719,11 @@ table 7326 "Whse. Worksheet Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnValidateQtyToHandleOnAfterCalcQtyAvailToMove(var WhseWorksheetLine: Record "Whse. Worksheet Line"; xWhseWorksheetLine: Record "Whse. Worksheet Line"; var QtyAvailToMoveBase: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetSourceFilter(var WhseWorksheetLine: Record "Whse. Worksheet Line"; SourceType: Integer; SourceSubtype: Option; SourceNo: Code[20]; SourceLineNo: Integer; SetKey: Boolean)
     begin
     end;
 }

@@ -1,7 +1,7 @@
 report 122 "Reminder - Test"
 {
     DefaultLayout = RDLC;
-    RDLCLayout = './ReminderTest.rdlc';
+    RDLCLayout = './SalesReceivables/ReminderTest.rdlc';
     Caption = 'Reminder - Test';
 
     dataset
