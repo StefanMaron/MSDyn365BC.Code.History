@@ -2096,7 +2096,7 @@
             IsHandled := false;
             OnItemTrackedQuantityOnAfterCheckIfEmpty(TempWhseItemTrackingLine, WhseItemTrackingSetup, IsHandled);
             if IsHandled then
-                exit(2);
+                exit(0);
 
             SetCurrentKey(
               "Source ID", "Source Type", "Source Subtype", "Source Batch Name",

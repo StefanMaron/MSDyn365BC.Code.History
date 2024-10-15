@@ -3102,6 +3102,134 @@ codeunit 137405 "SCM Item Tracking"
         SerialNoInformationCard.Close();
     end;
 
+    [Test]
+    [HandlerFunctions('ItemTrackingLinesGetAvailabilityModalPageHandler,ConfirmHandlerTrue')]
+    procedure NoAvailWarningForNonSpecificLotTracking()
+    var
+        ItemTrackingCode: Record "Item Tracking Code";
+        Item: Record Item;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        SerialNo: Code[20];
+        LotNo: Code[20];
+    begin
+        // [SCENARIO 409128] No availability warning in item tracking lines for non-specific lot tracking.
+        Initialize();
+        SerialNo := LibraryUtility.GenerateGUID();
+        LotNo := LibraryUtility.GenerateGUID();
+
+        LibraryItemTracking.CreateItemTrackingCode(ItemTrackingCode, true, false);
+        ItemTrackingCode.Validate("Lot Sales Outbound Tracking", true);
+        ItemTrackingCode.Modify(true);
+
+        CreateItem(Item, ItemTrackingCode.Code, '', '');
+
+        CreateSalesOrder(SalesHeader, SalesLine, Item."No.", 1);
+        LibraryVariableStorage.Enqueue(SerialNo);
+        LibraryVariableStorage.Enqueue(LotNo);
+        LibraryVariableStorage.Enqueue(SalesLine."Quantity (Base)");
+        SalesLine.OpenItemTrackingLines();
+
+        Assert.IsFalse(LibraryVariableStorage.DequeueBoolean(), 'Serial No. must not be available.');
+        Assert.IsTrue(LibraryVariableStorage.DequeueBoolean(), 'Lot No. must be available.');
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('ItemTrackingLinesGetAvailabilityModalPageHandler,ConfirmHandlerTrue')]
+    procedure NoAvailWarningForNonSpecificSerialNoTracking()
+    var
+        ItemTrackingCode: Record "Item Tracking Code";
+        Item: Record Item;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        SerialNo: Code[20];
+        LotNo: Code[20];
+    begin
+        // [SCENARIO 409128] No availability warning in item tracking lines for non-specific serial no. tracking.
+        Initialize();
+        SerialNo := LibraryUtility.GenerateGUID();
+        LotNo := LibraryUtility.GenerateGUID();
+
+        LibraryItemTracking.CreateItemTrackingCode(ItemTrackingCode, false, true);
+        ItemTrackingCode.Validate("SN Sales Outbound Tracking", true);
+        ItemTrackingCode.Modify(true);
+
+        CreateItem(Item, ItemTrackingCode.Code, '', '');
+
+        CreateSalesOrder(SalesHeader, SalesLine, Item."No.", 1);
+        LibraryVariableStorage.Enqueue(SerialNo);
+        LibraryVariableStorage.Enqueue(LotNo);
+        LibraryVariableStorage.Enqueue(SalesLine."Quantity (Base)");
+        SalesLine.OpenItemTrackingLines();
+
+        Assert.IsTrue(LibraryVariableStorage.DequeueBoolean(), 'Serial No. must be available.');
+        Assert.IsFalse(LibraryVariableStorage.DequeueBoolean(), 'Lot No. must not be available.');
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('ItemTrkgManualLotNoHandler')]
+    procedure CanPostInventoryIncreaseWithoutMandatoryExpirationDateIfAppliedFromEntry()
+    var
+        ItemTrackingCode: Record "Item Tracking Code";
+        Item: Record Item;
+        SalesHeaderOrder: Record "Sales Header";
+        SalesLineOrder: Record "Sales Line";
+        SalesHeaderReturn: Record "Sales Header";
+        SalesLineReturn: Record "Sales Line";
+        ReservationEntry: Record "Reservation Entry";
+        ItemLedgerEntry: Record "Item Ledger Entry";
+        LotNo: Code[20];
+        Qty: Decimal;
+    begin
+        // [FEATURE] [Expiration Date] [Applies-from Entry]
+        // [SCENARIO 414300] Stan can post inventory increase without mandatory expiration date if "Applies-from Entry" is filled in.
+        Initialize();
+        LotNo := LibraryUtility.GenerateGUID();
+        Qty := LibraryRandom.RandInt(10);
+
+        // [GIVEN] Lot-tracked item, Require Expiration Date = FALSE.
+        // [GIVEN] Post 10 pcs to inventory, assign lot "L".
+        LibraryItemTracking.CreateItemTrackingCode(ItemTrackingCode, false, true);
+        CreateItem(Item, ItemTrackingCode.Code, '', LibraryUtility.GetGlobalNoSeriesCode());
+        PostPositiveAdjmtWithLotExpTracking(Item, Qty, LotNo, 0D);
+
+        // [GIVEN] Sales order for 10 pcs, select lot "L", ship.
+        LibrarySales.CreateSalesDocumentWithItem(
+          SalesHeaderOrder, SalesLineOrder, SalesHeaderOrder."Document Type"::Order, '', Item."No.", Qty, '', WorkDate());
+        LibraryItemTracking.CreateSalesOrderItemTracking(ReservationEntry, SalesLineOrder, '', LotNo, Qty);
+        LibrarySales.PostSalesDocument(SalesHeaderOrder, true, false);
+
+        // [GIVEN] Note item ledger entry no. "X" for the sales shipment.
+        ItemLedgerEntry.SetRange("Item No.", Item."No.");
+        ItemLedgerEntry.SetRange(Positive, false);
+        ItemLedgerEntry.SetRange("Entry Type", ItemLedgerEntry."Entry Type"::Sale);
+        ItemLedgerEntry.FindFirst();
+
+        // [GIVEN] Enable Require Expiration Date for the item tracking code.
+        ItemTrackingCode.Find();
+        ItemTrackingCode.Validate("Man. Expir. Date Entry Reqd.", true);
+        ItemTrackingCode.Modify(true);
+
+        // [GIVEN] Create sales return order, select lot "L" and "Applies-from Entry" = "X".
+        LibrarySales.CreateSalesDocumentWithItem(
+          SalesHeaderReturn, SalesLineReturn, SalesHeaderReturn."Document Type"::"Return Order",
+          SalesHeaderOrder."Sell-to Customer No.", Item."No.", Qty, '', WorkDate());
+        LibraryItemTracking.CreateSalesOrderItemTracking(ReservationEntry, SalesLineReturn, '', LotNo, Qty);
+        ReservationEntry.Validate("Appl.-from Item Entry", ItemLedgerEntry."Entry No.");
+        ReservationEntry.Modify(true);
+
+        // [WHEN] Receive the sales return.
+        LibrarySales.PostSalesDocument(SalesHeaderReturn, true, false);
+
+        // [THEN] The sales return is successfully posted.
+        SalesLineReturn.Find();
+        SalesLineReturn.TestField("Return Qty. Received", Qty);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -5004,6 +5132,18 @@ codeunit 137405 "SCM Item Tracking"
         end;
 
         ItemTrkgLines.OK.Invoke;
+    end;
+
+    [ModalPageHandler]
+    procedure ItemTrackingLinesGetAvailabilityModalPageHandler(var ItemTrackingLines: TestPage "Item Tracking Lines")
+    begin
+        ItemTrackingLines."Serial No.".SetValue(LibraryVariableStorage.DequeueText());
+        ItemTrackingLines."Lot No.".SetValue(LibraryVariableStorage.DequeueText());
+        ItemTrackingLines."Quantity (Base)".SetValue(LibraryVariableStorage.DequeueDecimal());
+        LibraryVariableStorage.Enqueue(ItemTrackingLines.AvailabilitySerialNo.AsBoolean);
+        LibraryVariableStorage.Enqueue(ItemTrackingLines.AvailabilityLotNo.AsBoolean);
+
+        ItemTrackingLines.OK.Invoke();
     end;
 
     [ModalPageHandler]

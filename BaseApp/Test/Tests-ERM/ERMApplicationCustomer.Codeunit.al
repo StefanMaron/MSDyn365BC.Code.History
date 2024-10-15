@@ -18,7 +18,7 @@ codeunit 134010 "ERM Application Customer"
         LibraryPmtDiscSetup: Codeunit "Library - Pmt Disc Setup";
         LibrarySales: Codeunit "Library - Sales";
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
-        LibararyVariableStorage: Codeunit "Library - Variable Storage";
+        LibraryVariableStorage: Codeunit "Library - Variable Storage";
         DeltaAssert: Codeunit "Delta Assert";
         LibraryRandom: Codeunit "Library - Random";
         isInitialized: Boolean;
@@ -995,7 +995,7 @@ codeunit 134010 "ERM Application Customer"
     [Test]
     [Scope('OnPrem')]
     [HandlerFunctions('ApplyCustomerEntriesModalPageHandler,PostApplicationModalPageHandler,SimpleMessageHandler')]
-    procedure TwpPaymentTwoInvoiceSetAppliesToIdFromGeneralJournal()
+    procedure TwoPaymentTwoInvoiceSetAppliesToIdFromGeneralJournal()
     var
         Customer: Record Customer;
         GenJournalLineInvoice: array[2] of Record "Gen. Journal Line";
@@ -1032,8 +1032,8 @@ codeunit 134010 "ERM Application Customer"
         LibraryERM.PostGeneralJnlLine(GenJournalLinePayment[1]);
 
         // [GIVEN] Posted Payment "A" applied to Invoice "B" with "Applies-to ID", but not posted
-        LibararyVariableStorage.Enqueue(GenJournalLineInvoice[2]."Document No.");
-        LibararyVariableStorage.Enqueue(false);
+        LibraryVariableStorage.Enqueue(GenJournalLineInvoice[2]."Document No.");
+        LibraryVariableStorage.Enqueue(false);
 
         CustomerLedgerEntries.OpenEdit();
         CustomerLedgerEntries.Filter.SetFilter("Customer No.", Customer."No.");
@@ -1073,10 +1073,10 @@ codeunit 134010 "ERM Application Customer"
         CustLedgerEntry.SetRange("Applies-to ID", AppliesToId);
         CustLedgerEntry.ModifyAll("Applies-to ID", UserId());
 
-        LibararyVariableStorage.Enqueue(GenJournalLineInvoice[1]."Document No.");
-        LibararyVariableStorage.Enqueue(true);
-        LibararyVariableStorage.Enqueue(LibraryUtility.GenerateGUID());
-        LibararyVariableStorage.Enqueue(WorkDate() - 1);
+        LibraryVariableStorage.Enqueue(GenJournalLineInvoice[1]."Document No.");
+        LibraryVariableStorage.Enqueue(true);
+        LibraryVariableStorage.Enqueue(LibraryUtility.GenerateGUID());
+        LibraryVariableStorage.Enqueue(WorkDate() - 1);
 
         CustomerLedgerEntries.OpenEdit();
         CustomerLedgerEntries.Filter.SetFilter("Customer No.", Customer."No.");
@@ -1088,7 +1088,56 @@ codeunit 134010 "ERM Application Customer"
         // [GIVEN] Applied documents posted and posting engine cleared "Applies-to ID" and "Applies-to Doc. No." on applied customer ledger entry of Invoice "A"
         VerifyBlankAppliestoID(Customer."No.", GenJournalLineInvoice[1]."Document No.", CustLedgerEntry."Document Type"::Invoice);
 
-        LibararyVariableStorage.AssertEmpty();
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    [HandlerFunctions('ApplyCustomerEntriesTwiceModalPageHandler')]
+    procedure ThreeInvoicesAndApplyEntries()
+    var
+        Customer: Record Customer;
+        GenJournalLine: Record "Gen. Journal Line";
+        CustLedgerEntry: array[3] of Record "Cust. Ledger Entry";
+        CustomerLedgerEntries: TestPage "Customer Ledger Entries";
+        AppliesToId: Code[20];
+        Index: Integer;
+    begin
+        // [FEATURE] [General Journal]
+        // [SCENARIO 411946] "Applies-to ID" must be cleared on applying entry when the mark is removed from applied entries.
+        Initialize();
+
+        LibrarySales.CreateCustomer(Customer);
+
+        for Index := 1 to ArrayLen(CustLedgerEntry) do begin
+            Clear(GenJournalLine);
+            LibraryJournals.CreateGenJournalLineWithBatch(
+                GenJournalLine, GenJournalLine."Document Type"::Invoice, GenJournalLine."Account Type"::Customer, Customer."No.", LibraryRandom.RandIntInRange(100, 200));
+            GenJournalLine.Validate("Posting Date", WorkDate() + 1);
+            GenJournalLine.Modify(true);
+            LibraryERM.PostGeneralJnlLine(GenJournalLine);
+            CustLedgerEntry[Index].SetRange("Customer No.", Customer."No.");
+            LibraryERM.FindCustomerLedgerEntry(CustLedgerEntry[Index], CustLedgerEntry[Index]."Document Type"::Invoice, GenJournalLine."Document No.");
+        end;
+
+        LibraryVariableStorage.Enqueue(CustLedgerEntry[2]."Document No.");
+
+        CustomerLedgerEntries.OpenEdit();
+        CustomerLedgerEntries.Filter.SetFilter("Customer No.", Customer."No.");
+        CustomerLedgerEntries.Filter.SetFilter("Document No.", CustLedgerEntry[1]."Document No.");
+        CustomerLedgerEntries."Apply Entries".Invoke(); // set and remove Applies-to ID mark on 2nd invoice (on page handler)
+        CustomerLedgerEntries.Close();
+
+        CustLedgerEntry[1].Find();
+        CustLedgerEntry[1].TestField("Applies-to ID", '');
+
+        CustLedgerEntry[2].Find();
+        CustLedgerEntry[2].TestField("Applies-to ID", '');
+
+        CustLedgerEntry[3].Find();
+        CustLedgerEntry[3].TestField("Applies-to ID", '');
+
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     local procedure Initialize()
@@ -1752,7 +1801,6 @@ codeunit 134010 "ERM Application Customer"
     var
         CustLedgerEntry: Record "Cust. Ledger Entry";
     begin
-        Clear(CustLedgerEntry);
         CustLedgerEntry.SetRange("Customer No.", CustomerNo);
         CustLedgerEntry.SetRange("Document No.", DocumentNo);
         CustLedgerEntry.SetRange("Document Type", DocumentType);
@@ -1812,9 +1860,9 @@ codeunit 134010 "ERM Application Customer"
     [Scope('OnPrem')]
     procedure ApplyCustomerEntriesModalPageHandler(var ApplyCustomerEntries: TestPage "Apply Customer Entries")
     begin
-        ApplyCustomerEntries.Filter.SetFilter("Document No.", LibararyVariableStorage.DequeueText());
+        ApplyCustomerEntries.Filter.SetFilter("Document No.", LibraryVariableStorage.DequeueText());
         ApplyCustomerEntries."Set Applies-to ID".Invoke();
-        if (LibararyVariableStorage.DequeueBoolean()) then
+        if (LibraryVariableStorage.DequeueBoolean()) then
             ApplyCustomerEntries."Post Application".Invoke()
         else
             ApplyCustomerEntries.OK().Invoke();
@@ -1822,10 +1870,19 @@ codeunit 134010 "ERM Application Customer"
 
     [ModalPageHandler]
     [Scope('OnPrem')]
+    procedure ApplyCustomerEntriesTwiceModalPageHandler(var ApplyCustomerEntries: TestPage "Apply Customer Entries")
+    begin
+        ApplyCustomerEntries.Filter.SetFilter("Document No.", LibraryVariableStorage.DequeueText());
+        ApplyCustomerEntries."Set Applies-to ID".Invoke();
+        ApplyCustomerEntries."Set Applies-to ID".Invoke();
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
     procedure PostApplicationModalPageHandler(var PostApplication: TestPage "Post Application")
     begin
-        PostApplication.DocNo.SetValue(LibararyVariableStorage.DequeueText());
-        PostApplication.PostingDate.SetValue(LibararyVariableStorage.DequeueDate());
+        PostApplication.DocNo.SetValue(LibraryVariableStorage.DequeueText());
+        PostApplication.PostingDate.SetValue(LibraryVariableStorage.DequeueDate());
         PostApplication.OK().Invoke();
     end;
 

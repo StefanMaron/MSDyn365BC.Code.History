@@ -2518,6 +2518,52 @@ codeunit 134984 "ERM Sales Report III"
         LibraryReportDataset.AssertCurrentRowValueEquals('Quantity', 0);
     end;
 
+    [Test]
+    [HandlerFunctions('LotItemTrackingPageHandler,ItemTrackingSummaryPageHandler,RHStandardSalesShipmentSetShowItemTracking')]
+    procedure SalesStandardShipmentReportForMultipleShipmentsWithItemTracking()
+    var
+        Item: Record Item;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        SalesShipmentHeader: Record "Sales Shipment Header";
+        PostedShipmentNo: array[2] of Code[20];
+        RequestPageXML: Text;
+        ItemTrackingMode: Option " ","Assign Lot No.","Select Entries","Verify Entries";
+        i: Integer;
+    begin
+        // [FEATURE] [Standard Sales - Shipment] [Item Tracking]
+        // [SCENARIO 414343] Printing "Standard Sales - Shipment" for multiple shipments with item tracking.
+        Initialize();
+
+        // [GIVEN] Lot-tracked item.
+        LibraryItemTracking.CreateLotItem(Item);
+
+        // [GIVEN] Post positive adjustment with assigned "Lot No." = "L" and Quantity = 10.
+        CreateAndPostItemJournalLineWithTracking(Item."No.", LibraryRandom.RandIntInRange(20, 40));
+
+        // [GIVEN] Create and ship two sales orders, select "Lot No." = "L" and Quantity = 5 for each.
+        for i := 1 to 2 do begin
+            CreateSalesOrder(SalesHeader, SalesLine, Item."No.", LibraryRandom.RandInt(10));
+            LibraryVariableStorage.Enqueue(ItemTrackingMode::"Select Entries");
+            SalesLine.OpenItemTrackingLines();
+            PostedShipmentNo[i] := LibrarySales.PostSalesDocument(SalesHeader, true, false);
+        end;
+
+        // [WHEN] Run "Standard Sales - Shipment" report for both sales shipments with "Show Serial/Lot Number Appendix" = Yes.
+        SalesShipmentHeader.SetFilter("No.", '%1|%2', PostedShipmentNo[1], PostedShipmentNo[2]);
+        RequestPageXML := Report.RunRequestPage(Report::"Standard Sales - Shipment");
+        LibraryReportDataset.RunReportAndLoad(Report::"Standard Sales - Shipment", SalesShipmentHeader, RequestPageXML);
+
+        // [THEN] The report shows both shipments and lot no. "L" for each.
+        LibraryReportDataset.GetNextRow();
+        LibraryReportDataset.AssertCurrentRowValueEquals('DocumentNo', PostedShipmentNo[1]);
+        LibraryReportDataset.AssertCurrentRowValueEquals('TrackingSpecBufferLotNo', FindAssignedLotNo(Item."No."));
+
+        LibraryReportDataset.GetNextRow();
+        LibraryReportDataset.AssertCurrentRowValueEquals('DocumentNo', PostedShipmentNo[2]);
+        LibraryReportDataset.AssertCurrentRowValueEquals('TrackingSpecBufferLotNo', FindAssignedLotNo(Item."No."));
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -4339,6 +4385,13 @@ codeunit 134984 "ERM Sales Report III"
     procedure RHStandardSalesShipment(var StandardSalesShipment: TestRequestPage "Standard Sales - Shipment")
     begin
         StandardSalesShipment.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+    end;
+
+    [RequestPageHandler]
+    procedure RHStandardSalesShipmentSetShowItemTracking(var StandardSalesShipment: TestRequestPage "Standard Sales - Shipment")
+    begin
+        StandardSalesShipment.ShowLotSNControl.SetValue(true);
+        StandardSalesShipment.OK().Invoke();
     end;
 
     [RequestPageHandler]

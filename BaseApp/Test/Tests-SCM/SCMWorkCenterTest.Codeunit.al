@@ -18,6 +18,7 @@ codeunit 137800 "SCM Work Center Test"
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         ProdOrderNeedQtyErr: Label 'Wrong "Prod. Order Need (Qty.)" value';
         LibraryRandom: Codeunit "Library - Random";
+        ShopCalendarMgt: Codeunit "Shop Calendar Management";
         ProdOrderRtngLineDateErr: Label 'Wrong "Prod. Order Routing Line" Dates';
         IsInitialized: Boolean;
         ReqLineDatesErr: Label 'Wrong "Requisition Line" dates';
@@ -319,6 +320,7 @@ codeunit 137800 "SCM Work Center Test"
 
         LibraryERMCountryData.CreateVATData;
         LibraryERMCountryData.UpdateGeneralPostingSetup;
+        ShopCalendarMgt.ClearInternals(); // clear single instance codeunit vars to avoid influence of other test codeunits
         Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM Work Center Test");
     end;
@@ -563,8 +565,12 @@ codeunit 137800 "SCM Work Center Test"
     var
         ProductionOrder: Record "Production Order";
     begin
-        LibraryPatterns.MAKEProductionOrder(ProductionOrder, ProductionOrder.Status::"Firm Planned", Item, '', '', Quantity, DueDate);
-        LibraryManufacturing.RefreshProdOrder(ProductionOrder, false, true, true, false, false);
+        LibraryManufacturing.CreateProductionOrder(
+          ProductionOrder, ProductionOrder.Status::"Firm Planned", ProductionOrder."Source Type"::Item, Item."No.", Quantity);
+        ProductionOrder.SetUpdateEndDate();
+        ProductionOrder.Validate("Due Date", DueDate);
+        ProductionOrder.Modify(true);
+        LibraryManufacturing.RefreshProdOrder(ProductionOrder, false, true, true, true, true);
     end;
 
     local procedure CreateProdBOMWithTwoItems(ParentItem: Record Item; ChildItemNo1: Code[20]; ChildItemNo2: Code[20])

@@ -140,6 +140,7 @@ page 1173 "Document Attachment Details"
         RecNo: Code[20];
         DocType: Option Quote,"Order",Invoice,"Credit Memo","Blanket Order","Return Order";
         LineNo: Integer;
+        VATRepConfigType: Integer;
     begin
         Reset;
 
@@ -178,7 +179,8 @@ page 1173 "Document Attachment Details"
             DATABASE::Employee,
             DATABASE::"Fixed Asset",
             DATABASE::Job,
-            DATABASE::Resource:
+            DATABASE::Resource,
+            DATABASE::"VAT Report Header":
                 begin
                     FieldRef := RecRef.Field(1);
                     RecNo := FieldRef.Value;
@@ -244,6 +246,12 @@ page 1173 "Document Attachment Details"
 
                     FlowFieldsEditable := false;
                 end;
+        end;
+
+        if RecRef.Number = Database::"VAT Report Header" then begin
+            FieldRef := RecRef.Field(2);
+            Evaluate(VATRepConfigType, FieldRef.Value);
+            SetRange("VAT Report Config. Code", VATRepConfigType);
         end;
 
         OnAfterOpenForRecRef(Rec, RecRef, FlowFieldsEditable);
