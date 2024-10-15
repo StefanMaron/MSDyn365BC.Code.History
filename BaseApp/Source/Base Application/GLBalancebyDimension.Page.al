@@ -383,9 +383,10 @@ page 408 "G/L Balance by Dimension"
 
     trigger OnOpenPage()
     var
+        AnalysisByDimUserParam: Record "Analysis by Dim. User Param.";
         MATRIX_Step: Option Initial,Previous,Same,Next;
     begin
-        Insert();
+        AnalysisByDimUserParam.Load(Rec, Page::"G/L Balance by Dimension");
         OnBeforeGLAccFilter(GLAcc, "Account Filter", LineDimOption, ColumnDimOption);
         "Dimension 1 Filter" := GLAcc.GetFilter("Global Dimension 1 Filter");
         "Dimension 2 Filter" := GLAcc.GetFilter("Global Dimension 2 Filter");
@@ -412,6 +413,13 @@ page 408 "G/L Balance by Dimension"
 
         MATRIX_NoOfColumns := 32;
         MATRIX_GenerateColumnCaptions(MATRIX_Step::Initial);
+    end;
+
+    trigger OnQueryClosePage(CloseAction: Action): Boolean
+    var
+        AnalysisByDimUserParam: Record "Analysis by Dim. User Param.";
+    begin
+        AnalysisByDimUserParam.Save(Rec, Page::"G/L Balance by Dimension");
     end;
 
     var
