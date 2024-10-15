@@ -68,10 +68,10 @@ table 11000003 "Detail Line"
                             OnValidateSerialNoEntryOnBeforeValidateAmountFromCustLedgEntry(Rec, TrMode, CustLedgEntry, IsHandled);
                             if not IsHandled then
                                 if TrMode."Pmt. Disc. Possible" and
-                                (CustLedgEntry."Original Pmt. Disc. Possible" <> 0) and
+                                (CustLedgEntry."Remaining Pmt. Disc. Possible" <> 0) and
                                 (CustLedgEntry."Pmt. Discount Date" >= Date)
                                 then
-                                    Validate("Amount (Entry)", -(CustLedgEntry."Remaining Amount" - CustLedgEntry."Original Pmt. Disc. Possible") -
+                                    Validate("Amount (Entry)", -(CustLedgEntry."Remaining Amount" - CustLedgEntry."Remaining Pmt. Disc. Possible") -
                                     CalculateTotalAmount("Currency Code (Entry)"))
                                 else
                                     Validate("Amount (Entry)", -CustLedgEntry."Remaining Amount" - CalculateTotalAmount("Currency Code (Entry)"));
@@ -106,10 +106,10 @@ table 11000003 "Detail Line"
                             OnValidateSerialNoEntryOnBeforeValidateAmountFromVendLedgEntry(Rec, TrMode, VendLedgEntry, IsHandled);
                             if not IsHandled then
                                 if TrMode."Pmt. Disc. Possible" and
-                                (VendLedgEntry."Original Pmt. Disc. Possible" <> 0) and
+                                (VendLedgEntry."Remaining Pmt. Disc. Possible" <> 0) and
                                 (VendLedgEntry."Pmt. Discount Date" >= Date)
                                 then
-                                    Validate("Amount (Entry)", -(VendLedgEntry."Remaining Amount" - VendLedgEntry."Original Pmt. Disc. Possible") -
+                                    Validate("Amount (Entry)", -(VendLedgEntry."Remaining Amount" - VendLedgEntry."Remaining Pmt. Disc. Possible") -
                                     CalculateTotalAmount("Currency Code (Entry)"))
                                 else
                                     Validate("Amount (Entry)", -VendLedgEntry."Remaining Amount" - CalculateTotalAmount("Currency Code (Entry)"));

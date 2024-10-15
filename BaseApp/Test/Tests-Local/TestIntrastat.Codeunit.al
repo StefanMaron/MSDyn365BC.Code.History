@@ -96,23 +96,18 @@
     begin
         Initialize;
 
-        // Setup
-        CreateIntrastatJournalTemplateAndBatch(IntrastatJnlBatch, WorkDate);
+        // [GIVEN] Intrastat Journal Line with blank Transaction Type.
+        CreateIntrastatJournalTemplateAndBatch(IntrastatJnlBatch, WorkDate());
         Commit();
         RunGetItemLedgerEntriesToCreateJnlLines(IntrastatJnlBatch);
         SetMandatoryFieldsOnJnlLines(IntrastatJnlLine, IntrastatJnlBatch,
           FindOrCreateIntrastatTransportMethod, '', FindOrCreateIntrastatEntryExitPoint);
         Commit();
 
-        // Exercise
-        asserterror RunIntrastatMakeDiskTaxAuth(FileTempBlob);
+        // [WHEN] Run Intrastat Make Disk Tax Auth report.
+        RunIntrastatMakeDiskTaxAuth(FileTempBlob);
 
-        // Verify
-#if CLEAN19
-        VerifyAdvanvedChecklistError(IntrastatJnlLine,IntrastatJnlLine.FieldName("Transaction Type"));
-#else
-        VerifyTestfieldChecklistError(IntrastatJnlLine.FieldName("Transaction Type"));
-#endif
+        // [THEN] No error is thrown.
     end;
 
     [Test]

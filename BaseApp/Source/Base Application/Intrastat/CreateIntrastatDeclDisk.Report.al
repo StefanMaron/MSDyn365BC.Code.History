@@ -24,7 +24,6 @@
                     SpecialUnit: Decimal;
                     RoundedWeight: Integer;
                     ItemDirection: Integer;
-                    IsCorrection: Boolean;
                     CountryRegionOfOriginCode: Code[10];
                 begin
                     Counterparty := CounterpartyInfo;
@@ -65,7 +64,6 @@
                                 ZeroShipment := false;
                             end;
                     end;
-                    IsCorrection := CheckCorrection(IntrastatJnlLine);
 
                     Write(Format(Date, 0, '<Year4><Month,2>'));
                     Write(Format(ItemDirection));
@@ -92,29 +90,20 @@
                     Write('0');
                     Write(PADSTR2("Entry/Exit Point", 2, '0', '<'));
                     Write('00'); // Statistical system
-                    if CounterpartyInfo and (ItemDirection = 7) or (ExportFormat = ExportFormat::"2022") then
-                        Write(' ')
-                    else
-                        Write(PADSTR2("Transaction Type", 1, '', '>')); // Transaction code
+                    Write(' ');
                     Write(PADSTR2(DelChr("Tariff No."), 8, '0', '<'));
                     Write('00');
-                    Write(Sign(RoundedWeight, IsCorrection));
+                    Write('+');
                     Write(PADSTR2(Format(RoundedWeight, 0, '<Integer>'), 10, ' ', '<'));
-                    Write(Sign(SpecialUnit, IsCorrection));
+                    Write('+');
                     Write(PADSTR2(Format(SpecialUnit, 0, '<Integer>'), 10, ' ', '<'));
-                    Write(Sign(Amount, IsCorrection));
+                    Write('+');
                     Write(PADSTR2(Format(Amount, 0, '<Integer>'), 10, ' ', '<'));
-                    if IsCorrection then
-                        Write('-')
-                    else
-                        Write('+');
+                    Write('+');
                     Write(PADSTR2('0', 10, ' ', '<'));
                     Write(PADSTR2("Document No.", 10, ' ', '<'));
                     Write(PADSTR2('', 3, ' ', '>'));
-                    if IsCorrection then
-                        Write('C')
-                    else
-                        Write(' ');
+                    Write(' ');
                     Write('000');
                     Write(PADSTR2("Intrastat Jnl. Batch"."Currency Identifier", 1, ' ', '>'));
                     Write(PADSTR2('', 6, ' ', '>'));
@@ -123,10 +112,7 @@
                             Write(PADSTR2("Transaction Specification", 2, ' ', '<'));
                             Write(PADSTR2(CopyStr("Partner VAT ID", 1, 17), 17, ' ', '<'));
                         end else begin
-                            if ExportFormat = ExportFormat::"2022" then
-                                Write(PADSTR2("Transaction Specification", 2, ' ', '<'))
-                            else
-                                Write('  ');
+                            Write(PADSTR2("Transaction Specification", 2, ' ', '<'));
                             Write(PadStr('', 17, ' '));
                         end;
 
@@ -269,12 +255,18 @@
                 group(Options)
                 {
                     Caption = 'Options';
-                    field(ExportFormatField; ExportFormat)
+#if not CLEAN22
+                    field(ExportFormatField; '')
                     {
                         Caption = 'Export Format';
                         ToolTip = 'Specifies the year for which to report Intrastat. This ensures that the report has the correct format for that year.';
                         ApplicationArea = BasicEU;
+                        Visible = false;
+                        ObsoleteReason = 'Export Format 2021 is not needed anymore; format 2022 is used by default.';
+                        ObsoleteState = Pending;
+                        ObsoleteTag = '22.0';
                     }
+#endif
                     field(Counterparty; CounterpartyInfo)
                     {
                         ApplicationArea = BasicEU;
@@ -296,17 +288,13 @@
 
     trigger OnPreReport()
     begin
-        ExportFormat := ExportFormat::"2022";
         IntrastatFileWriter.Initialize(false, false, 0);
 
 #if not CLEAN19
         if IntrastatSetup.Get() then;
 #endif
-        if ExportFormatIsSpecified then
-            ExportFormat := SpecifiedExportFormat;
 
-        if ExportFormat = ExportFormat::"2022" then
-            CounterpartyInfo := true;
+        CounterpartyInfo := true;
     end;
 
     trigger OnPostReport()
@@ -339,9 +327,6 @@
         ZeroReceipt: Boolean;
         ZeroShipment: Boolean;
         CounterpartyInfo: Boolean;
-        ExportFormat: Enum "Intrastat Export Format";
-        SpecifiedExportFormat: Enum "Intrastat Export Format";
-        ExportFormatIsSpecified: Boolean;
 
     local procedure CheckLine(var IntrastatJnlLine: Record "Intrastat Jnl. Line")
     begin
@@ -357,11 +342,8 @@
             IntrastatJnlLine.TestField("Transport Method");
             IntrastatJnlLine.TestField("Net Weight");
             IntrastatJnlLine.TestField("Total Weight");
-            if (ExportFormat = ExportFormat::"2022") or IntrastatJnlLine.Counterparty and (IntrastatJnlLine.Type = IntrastatJnlLine.Type::Shipment) then
+            if IntrastatJnlLine.Type = IntrastatJnlLine.Type::Shipment then
                 IntrastatJnlLine.TestField("Transaction Specification")
-            else
-                if ExportFormat = ExportFormat::"2021" then
-                    IntrastatJnlLine.TestField("Transaction Type");
         end;
 #endif
     end;
@@ -438,27 +420,6 @@
         IntrastatFileWriter.Write(Line);
     end;
 
-    local procedure Sign(Number: Decimal; IsCorrection: Boolean): Text[1]
-    begin
-        if ExportFormat = ExportFormat::"2022" then
-            exit('+');
-
-        if (Number < 0) or (Number = 0) and IsCorrection then
-            exit('-');
-        exit('+');
-    end;
-
-    local procedure CheckCorrection(IntrastatJnlLine: Record 263): Boolean
-    var
-        IntrastatLocalMgt: Codeunit "Intrastat Local Mgt.";
-        ItemDirectionType: Option;
-    begin
-        if ExportFormat = ExportFormat::"2022" then
-            exit(false);
-
-        exit(IntrastatLocalMgt.CheckIntrastatJournalLineForCorrection(IntrastatJnlLine, ItemDirectionType));
-    end;
-
 #if not CLEAN20
     [Scope('OnPrem')]
     procedure InitializeRequest(newServerFileName: Text)
@@ -469,16 +430,14 @@
     procedure InitializeRequestWithExportFormat(newServerFileName: Text; NewExportFormat: Enum "Intrastat Export Format")
     begin
         IntrastatFileWriter.SetServerFileName(newServerFileName);
-        SpecifiedExportFormat := NewExportFormat;
-        ExportFormatIsSpecified := true;
+        Clear(NewExportFormat);   // to avoid precal error
     end;
 #endif
 
     procedure InitializeRequest(var newResultFileOutStream: OutStream; NewExportFormat: Enum "Intrastat Export Format")
     begin
         IntrastatFileWriter.SetResultFileOutStream(newResultFileOutStream);
-        SpecifiedExportFormat := NewExportFormat;
-        ExportFormatIsSpecified := true;
+        Clear(NewExportFormat);   // to avoid precal error
     end;
 
 #if not CLEAN20

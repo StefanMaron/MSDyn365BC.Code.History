@@ -1089,7 +1089,7 @@
         SalesLine: Record "Sales Line";
         IntrastatJnlLine: Record "Intrastat Jnl. Line";
         ShipmentMethod: Record "Shipment Method";
-        TransactionType: Record "Transaction Type";
+        CountryRegion: Record "Country/Region";
         IntrastatJournalPage: TestPage "Intrastat Journal";
         InvoiceDate: Date;
     begin
@@ -1103,19 +1103,19 @@
         LibraryERM.CreateIntrastatJnlTemplateAndBatch(IntrastatJnlBatch, InvoiceDate);
         Commit();
 
-        // [GIVEN] A Intrastat Journal
+        // [GIVEN] A Intrastat Journal with line with blank Country/Region Code.
         OpenIntrastatJournalAndGetEntries(IntrastatJournalPage, IntrastatJnlBatch."Journal Template Name");
+        IntrastatJournalPage."Country/Region Code".SetValue('');
 
         // [WHEN] Running Checklist
         IntrastatJournalPage.ChecklistReport.Invoke;
 
         // [THEN] You got a error
-        IntrastatJournalPage.ErrorMessagesPart."Field Name".AssertEquals(IntrastatJnlLine.FieldName("Transaction Type"));
+        IntrastatJournalPage.ErrorMessagesPart."Field Name".AssertEquals(IntrastatJnlLine.FieldName("Country/Region Code"));
 
         // [WHEN] Fixing the error
-        TransactionType.Code := LibraryUtility.GenerateGUID();
-        TransactionType.Insert();
-        IntrastatJournalPage."Transaction Type".Value(TransactionType.Code);
+        LibraryERM.CreateCountryRegion(CountryRegion);
+        IntrastatJournalPage."Country/Region Code".SetValue(CountryRegion.Code);
         // [WHEN] Running Checklist
         IntrastatJournalPage.ChecklistReport.Invoke;
 

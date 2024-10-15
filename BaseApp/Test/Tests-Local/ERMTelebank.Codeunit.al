@@ -1213,6 +1213,108 @@ codeunit 144037 "ERM Telebank"
         ProposalLine.TestField("SWIFT Code", CustomerBankAccount."SWIFT Code");
     end;
 
+    [Test]
+    [HandlerFunctions('GetProposalEntriesRequestPageHandlerSetValueDate,MessageHandler')]
+    procedure ProposalLineAmountWhenCustLedgerEntryWithPartialRemainingPtmDiscount()
+    var
+        CompanyInformation: Record "Company Information";
+        PaymentTerms: Record "Payment Terms";
+        SalesHeader: Record "Sales Header";
+        CustLedgerEntry: Record "Cust. Ledger Entry";
+        ProposalLine: Record "Proposal Line";
+        CustomerNo: Code[20];
+        PostedDocNo: Code[20];
+        RemainingPmtDiscount: Decimal;
+        ExpProposalLineAmount: Decimal;
+    begin
+        // [FEATURE] [Report] [Get Proposal Entries] [Discount] [Sales]
+        // [SCENARIO 442611] Proposal Line Amount when run Get Proposal Entries on Customer Ledger Entry with Remaining Pmt. Discount <> Original Pmt. Discount.
+        Initialize();
+        CompanyInformation.Get();
+        LibraryNLLocalization.CheckAndCreateFreelyTransferableMaximum(CompanyInformation."Country/Region Code", '');
+
+        // [GIVEN] Customer with Payment Terms.
+        // [GIVEN] Payment Terms has Discount % 5 and Discount Date Calculation 5D.
+        CustomerNo := CreateCustomerWithBankAccount('');
+        LibraryERM.CreatePaymentTermsDiscount(PaymentTerms, false);
+        UpdatePaymentTermsOnCustomer(CustomerNo, PaymentTerms.Code);
+
+        // [GIVEN] Posted Sales Invoice with Amount 1000.
+        // [GIVEN] Customer Ledger Entry with Original Pmt. Disc. Possible = Remaining Pmt. Disc. Possible = 50 is created.
+        // [GIVEN] Customer Ledger Entry has Pmt. Discount Date 01.02.24.
+        LibrarySales.CreateSalesInvoiceForCustomerNo(SalesHeader, CustomerNo);
+        PostedDocNo := LibrarySales.PostSalesDocument(SalesHeader, false, true);
+
+        // [GIVEN] Remaining Pmt. Disc. Possible is updated from 50 to 25.
+        LibraryERM.FindCustomerLedgerEntry(CustLedgerEntry, "Gen. Journal Document Type"::Invoice, PostedDocNo);
+        RemainingPmtDiscount := CustLedgerEntry."Remaining Pmt. Disc. Possible";
+        CustLedgerEntry.Validate("Remaining Pmt. Disc. Possible", RemainingPmtDiscount - Round(RemainingPmtDiscount / 2, 2));
+        CustLedgerEntry.Modify(true);
+        Commit();
+
+        // [WHEN] Run report "Get Proposal Entries" with Currency Date = Pmt. Discount Date = 01.02.24.
+        RunReportGetProposalEntriesWithCurrencyDateOnCustomer(CustomerNo, CustLedgerEntry."Pmt. Discount Date");
+
+        // [THEN] Proposal Line with Amount = 1000 - 25 = 975 is created.
+        CustLedgerEntry.CalcFields("Remaining Amount");
+        ExpProposalLineAmount := -(CustLedgerEntry."Remaining Amount" - CustLedgerEntry."Remaining Pmt. Disc. Possible");
+        VerifyProposalLineAmount(ProposalLine."Account Type"::Customer, CustomerNo, ExpProposalLineAmount);
+
+        // tear down
+        RemoveFreelyTransferableMaximum(CompanyInformation."Country/Region Code", '');
+    end;
+
+    [Test]
+    [HandlerFunctions('GetProposalEntriesRequestPageHandlerSetValueDate,MessageHandler')]
+    procedure ProposalLineAmountWhenVendorLedgerEntryWithPartialRemainingPtmDiscount()
+    var
+        CompanyInformation: Record "Company Information";
+        PaymentTerms: Record "Payment Terms";
+        PurchaseHeader: Record "Purchase Header";
+        VendorLedgerEntry: Record "Vendor Ledger Entry";
+        ProposalLine: Record "Proposal Line";
+        VendorNo: Code[20];
+        PostedDocNo: Code[20];
+        RemainingPmtDiscount: Decimal;
+        ExpProposalLineAmount: Decimal;
+    begin
+        // [FEATURE] [Report] [Get Proposal Entries] [Discount] [Purchase]
+        // [SCENARIO 442611] Proposal Line Amount when run Get Proposal Entries on Vendor Ledger Entry with Remaining Pmt. Discount <> Original Pmt. Discount.
+        Initialize();
+        CompanyInformation.Get();
+        LibraryNLLocalization.CheckAndCreateFreelyTransferableMaximum(CompanyInformation."Country/Region Code", '');
+
+        // [GIVEN] Vendor with Payment Terms.
+        // [GIVEN] Payment Terms has Discount % 5 and Discount Date Calculation 5D.
+        VendorNo := CreateVendorWithBankAccount('');
+        LibraryERM.CreatePaymentTermsDiscount(PaymentTerms, false);
+        UpdatePaymentTermsOnVendor(VendorNo, PaymentTerms.Code);
+
+        // [GIVEN] Posted Purchase Invoice with Amount 1000.
+        // [GIVEN] Vendor Ledger Entry with Original Pmt. Disc. Possible = Remaining Pmt. Disc. Possible = 50 is created.
+        // [GIVEN] Vendor Ledger Entry has Pmt. Discount Date 01.02.24.
+        LibraryPurchase.CreatePurchaseInvoiceForVendorNo(PurchaseHeader, VendorNo);
+        PostedDocNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, false, true);
+
+        // [GIVEN] Remaining Pmt. Disc. Possible is updated from 50 to 25.
+        LibraryERM.FindVendorLedgerEntry(VendorLedgerEntry, "Gen. Journal Document Type"::Invoice, PostedDocNo);
+        RemainingPmtDiscount := VendorLedgerEntry."Remaining Pmt. Disc. Possible";
+        VendorLedgerEntry.Validate("Remaining Pmt. Disc. Possible", RemainingPmtDiscount - Round(RemainingPmtDiscount / 2, 2));
+        VendorLedgerEntry.Modify(true);
+        Commit();
+
+        // [WHEN] Run report "Get Proposal Entries" with Currency Date = Pmt. Discount Date = 01.02.24.
+        RunReportGetProposalEntriesWithCurrencyDateOnVendor(VendorNo, VendorLedgerEntry."Pmt. Discount Date");
+
+        // [THEN] Proposal Line with Amount = 1000 - 25 = 975 is created.
+        VendorLedgerEntry.CalcFields("Remaining Amount");
+        ExpProposalLineAmount := -(VendorLedgerEntry."Remaining Amount" - VendorLedgerEntry."Remaining Pmt. Disc. Possible");
+        VerifyProposalLineAmount(ProposalLine."Account Type"::Vendor, VendorNo, ExpProposalLineAmount);
+
+        // tear down
+        RemoveFreelyTransferableMaximum(CompanyInformation."Country/Region Code", '');
+    end;
+
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"ERM Telebank");
@@ -1322,6 +1424,38 @@ codeunit 144037 "ERM Telebank"
         LibraryVariableStorage.AssertEmpty;
     end;
 
+    local procedure RunReportGetProposalEntriesWithCurrencyDateOnVendor(VendorNo: Code[20]; CurrencyDate: Date)
+    var
+        CustLedgerEntry: Record "Cust. Ledger Entry";
+        VendorLedgerEntry: Record "Vendor Ledger Entry";
+        GetProposalEntries: Report "Get Proposal Entries";
+    begin
+        LibraryVariableStorage.Enqueue(CurrencyDate);
+        VendorLedgerEntry.SetRange("Vendor No.", VendorNo);
+        CustLedgerEntry.SetRange("Customer No.", '');    // to get rid of Customer Ledger Entries
+        GetProposalEntries.SetTableView(CustLedgerEntry);
+        GetProposalEntries.SetTableView(VendorLedgerEntry);
+        GetProposalEntries.UseRequestPage(true);
+        GetProposalEntries.Run();
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    local procedure RunReportGetProposalEntriesWithCurrencyDateOnCustomer(CustomerNo: Code[20]; CurrencyDate: Date)
+    var
+        CustLedgerEntry: Record "Cust. Ledger Entry";
+        VendorLedgerEntry: Record "Vendor Ledger Entry";
+        GetProposalEntries: Report "Get Proposal Entries";
+    begin
+        LibraryVariableStorage.Enqueue(CurrencyDate);
+        CustLedgerEntry.SetRange("Customer No.", CustomerNo);
+        VendorLedgerEntry.SetRange("Vendor No.", '');    // to get rid of Vendor Ledger Entries
+        GetProposalEntries.SetTableView(CustLedgerEntry);
+        GetProposalEntries.SetTableView(VendorLedgerEntry);
+        GetProposalEntries.UseRequestPage(true);
+        GetProposalEntries.Run();
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
     local procedure UpdateTransactionModeForPaymInProcess(AccountType: Option; TransactionModeCode: Code[20])
     var
         TransactionMode: Record "Transaction Mode";
@@ -1366,6 +1500,30 @@ codeunit 144037 "ERM Telebank"
         exit(Currency.Code);
     end;
 
+    local procedure CreateCustomerWithBankAccount(BankAccountCurrencyCode: Code[10]): Code[20]
+    var
+        Customer: Record Customer;
+        CustomerBankAccount: Record "Customer Bank Account";
+        TransactionMode: Record "Transaction Mode";
+        BankAccount: Record "Bank Account";
+    begin
+        CreateAndUpdateTransactionMode(TransactionMode, TransactionMode."Account Type"::Customer, GetCheckID, TransactionMode.Order::Credit);
+
+        LibrarySales.CreateCustomer(Customer);
+        Customer.Validate("Transaction Mode Code", TransactionMode.Code);
+        Customer.Modify(true);
+
+        BankAccount.Get(TransactionMode."Our Bank");
+        BankAccount.Validate("Currency Code", BankAccountCurrencyCode);
+        BankAccount.Modify(true);
+
+        LibrarySales.CreateCustomerBankAccount(CustomerBankAccount, Customer."No.");
+        CustomerBankAccount.Validate("Bank Account No.", BankAccount."Bank Account No.");
+        CustomerBankAccount.Modify(true);
+
+        exit(CustomerBankAccount."Customer No.");
+    end;
+
     local procedure CreateVendorWithBankAccount(BankAccountCurrencyCode: Code[10]): Code[20]
     var
         Vendor: Record Vendor;
@@ -1379,13 +1537,13 @@ codeunit 144037 "ERM Telebank"
         Vendor.Validate("Transaction Mode Code", TransactionMode.Code);
         Vendor.Modify(true);
 
-        LibraryPurchase.CreateVendorBankAccount(VendorBankAccount, Vendor."No.");
-        VendorBankAccount.Validate("Bank Account No.", TransactionMode."Our Bank");
-        VendorBankAccount.Modify(true);
-
         BankAccount.Get(TransactionMode."Our Bank");
         BankAccount.Validate("Currency Code", BankAccountCurrencyCode);
         BankAccount.Modify(true);
+
+        LibraryPurchase.CreateVendorBankAccount(VendorBankAccount, Vendor."No.");
+        VendorBankAccount.Validate("Bank Account No.", BankAccount."Bank Account No.");
+        VendorBankAccount.Modify(true);
 
         exit(VendorBankAccount."Vendor No.");
     end;
@@ -1774,6 +1932,24 @@ codeunit 144037 "ERM Telebank"
         CountryRegion.Modify(true);
     end;
 
+    local procedure UpdatePaymentTermsOnCustomer(CustomerNo: Code[20]; PaymentTermsCode: Code[10])
+    var
+        Customer: Record Customer;
+    begin
+        Customer.Get(CustomerNo);
+        Customer.Validate("Payment Terms Code", PaymentTermsCode);
+        Customer.Modify(true);
+    end;
+
+    local procedure UpdatePaymentTermsOnVendor(VendorNo: Code[20]; PaymentTermsCode: Code[10])
+    var
+        Vendor: Record Vendor;
+    begin
+        Vendor.Get(VendorNo);
+        Vendor.Validate("Payment Terms Code", PaymentTermsCode);
+        Vendor.Modify(true);
+    end;
+
     local procedure AssignNewIBANnumber(ConfirmReply: Boolean)
     var
         ProposalLine: Record "Proposal Line";
@@ -2008,6 +2184,16 @@ codeunit 144037 "ERM Telebank"
         ProposalLine.SetRange("Account No.", AccountNo);
         ProposalLine.FindFirst;
         ProposalLine.TestField("Error Message", ErrorMessage);
+    end;
+
+    local procedure VerifyProposalLineAmount(AccType: Option; AccountNo: Code[20]; ExpectedLineAmount: Decimal)
+    var
+        ProposalLine: Record "Proposal Line";
+    begin
+        ProposalLine.SetRange("Account Type", AccType);
+        ProposalLine.SetRange("Account No.", AccountNo);
+        ProposalLine.FindFirst();
+        ProposalLine.TestField(Amount, ExpectedLineAmount);
     end;
 
     [RequestPageHandler]
