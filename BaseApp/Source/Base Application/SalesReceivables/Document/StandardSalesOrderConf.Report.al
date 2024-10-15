@@ -921,6 +921,8 @@ report 1305 "Standard Sales - Order Conf."
                 if not IsReportInPreviewMode() then
                     CODEUNIT.Run(CODEUNIT::"Sales-Printed", Header);
 
+                OnHeaderOnAfterGetRecordOnAfterUpdateNoPrinted(IsReportInPreviewMode(), Header);
+
                 CurrReport.Language := Language.GetLanguageIdOrDefault("Language Code");
                 FormatAddr.SetLanguageCode("Language Code");
 
@@ -1286,6 +1288,11 @@ report 1305 "Standard Sales - Order Conf."
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterFormatDocumentFields(var SalesHeader: Record "Sales Header")
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnHeaderOnAfterGetRecordOnAfterUpdateNoPrinted(ReportInPreviewMode: Boolean; var SalesHeader: Record "Sales Header")
     begin
     end;
 }

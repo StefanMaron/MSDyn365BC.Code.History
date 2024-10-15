@@ -2231,6 +2231,8 @@ table 210 "Job Journal Line"
             FieldNo = Rec.FieldNo("Location Code"):
                 TableValuePair.Add(Database::Location, Rec."Location Code");
         end;
+
+        OnAfterInitTableValuePair(Rec, TableValuePair, FieldNo);
     end;
 
     local procedure InitDefaultDimensionSources(var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]]; FieldNo: Integer)
@@ -2656,6 +2658,11 @@ table 210 "Job Journal Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnCopyFromItemOnBeforeValidateUoMCode(var JobJournalLine: Record "Job Journal Line"; Item: Record Item; var IsHandled: Boolean);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterInitTableValuePair(var JobJournalLine: Record "Job Journal Line"; var TableValuePair: Dictionary of [Integer, Code[20]]; FieldNo: Integer)
     begin
     end;
 }

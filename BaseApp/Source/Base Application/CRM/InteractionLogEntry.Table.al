@@ -793,6 +793,7 @@ table 5065 "Interaction Log Entry"
     procedure ResumeInteraction()
     var
         TempSegLine: Record "Segment Line" temporary;
+        IsHandled: Boolean;
     begin
         TempSegLine.CopyFromInteractLogEntry(Rec);
         TempSegLine.Validate(Date, WorkDate());
@@ -815,8 +816,10 @@ table 5065 "Interaction Log Entry"
         if TempSegLine."Opportunity No." <> '' then
             TempSegLine.SetRange("Opportunity No.", TempSegLine."Opportunity No.");
 
-        OnResumeInteractionOnBeforeStartWizard(Rec, TempSegLine);
-        TempSegLine.StartWizard();
+        IsHandled := false;
+        OnResumeInteractionOnBeforeStartWizard(Rec, TempSegLine, IsHandled);
+        if not IsHandled then
+            TempSegLine.StartWizard();
     end;
 
     procedure GetEntryTitle() EntryTitle: Text
@@ -881,7 +884,7 @@ table 5065 "Interaction Log Entry"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnResumeInteractionOnBeforeStartWizard(InteractionLogEntry: Record "Interaction Log Entry"; var SegmentLine: Record "Segment Line")
+    local procedure OnResumeInteractionOnBeforeStartWizard(InteractionLogEntry: Record "Interaction Log Entry"; var SegmentLine: Record "Segment Line"; var IsHandled: Boolean)
     begin
     end;
 }

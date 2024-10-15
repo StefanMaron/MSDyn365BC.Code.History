@@ -21,7 +21,7 @@ report 7391 "Whse. Get Bin Content"
 
                 QtyToEmptyBase := GetQtyToEmptyBase(DummyItemTrackingSetup);
                 ShouldSkipReportForQty := QtyToEmptyBase <= 0;
-                OnBinContenOnAfterGetRecordOnAfterCalcShouldSkipReportForQty("Bin Content", ShouldSkipReportForQty);
+                OnBinContenOnAfterGetRecordOnAfterCalcShouldSkipReportForQty("Bin Content", ShouldSkipReportForQty, DestinationType2);
                 if ShouldSkipReportForQty then
                     CurrReport.Skip();
 
@@ -507,7 +507,7 @@ report 7391 "Whse. Get Bin Content"
     end;
 
     [IntegrationEvent(true, false)]
-    local procedure OnBinContenOnAfterGetRecordOnAfterCalcShouldSkipReportForQty(var BinContent: Record "Bin Content"; var ShouldSkipReportForQty: Boolean)
+    local procedure OnBinContenOnAfterGetRecordOnAfterCalcShouldSkipReportForQty(var BinContent: Record "Bin Content"; var ShouldSkipReportForQty: Boolean; DestinationType2: Enum "Warehouse Destination Type 2")
     begin
     end;
 

@@ -1130,6 +1130,8 @@ report 1306 "Standard Sales - Invoice"
                 if not IsReportInPreviewMode() then
                     CODEUNIT.Run(CODEUNIT::"Sales Inv.-Printed", Header);
 
+                OnHeaderOnAfterGetRecordOnAfterUpdateNoPrinted(IsReportInPreviewMode(), Header);
+
                 CalcFields("Work Description");
                 ShowWorkDescription := "Work Description".HasValue;
 
@@ -1756,6 +1758,11 @@ report 1306 "Standard Sales - Invoice"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterGetUOMText(UOMCode: Code[10]; var UOMDescription: Text[50])
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnHeaderOnAfterGetRecordOnAfterUpdateNoPrinted(ReportInPreviewMode: Boolean; var SalesInvoiceHeader: Record "Sales Invoice Header")
     begin
     end;
 }

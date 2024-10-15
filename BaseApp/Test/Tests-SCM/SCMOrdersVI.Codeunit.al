@@ -2,6 +2,7 @@
 {
     Subtype = Test;
     TestPermissions = Disabled;
+    EventSubscriberInstance = Manual;
 
     trigger OnRun()
     begin
@@ -2982,6 +2983,47 @@
         // [THEN] No error is thrown
     end;
 
+    [Test]
+    procedure WarehouseRequestDeletedBeforeOrderOnPosting()
+    var
+        Location: Record Location;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        WarehouseRequest: Record "Warehouse Request";
+        SCMOrdersVI: Codeunit "SCM Orders VI";
+    begin
+        // [FEATURE] [Warehouse Request] [Inventory Pick]
+        // [SCENARIO 474505] Warehouse Request is deleted before order during posting.
+        Initialize(false);
+
+        // [GIVEN] Location "L" with required pick.
+        LibraryWarehouse.CreateLocationWMS(Location, false, false, true, false, false);
+
+        // [GIVEN] Sales order at location "L".
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, '');
+        SalesHeader.Validate("Location Code", Location.Code);
+        SalesHeader.Modify(true);
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo(), LibraryRandom.RandInt(10));
+
+        // [GIVEN] Release the sales order.
+        LibrarySales.ReleaseSalesDocument(SalesHeader);
+
+        // [GIVEN] Check that warehouse request is created.
+        WarehouseRequest.SetSourceFilter(DATABASE::"Sales Line", SalesHeader."Document Type".AsInteger(), SalesHeader."No.");
+        WarehouseRequest.FindFirst();
+
+        // [WHEN] Ship and invoice the sales order.
+        BindSubscription(SCMOrdersVI);
+        LibrarySales.PostSalesDocument(SalesHeader, true, true);
+
+        // [THEN] Warehouse request is deleted by the moment the posting engine comes to deletion of the sales order.
+        // [THEN] The verification is done in the event subscriber CheckWarehouseRequestDeletedBeforeSalesOrder.
+        UnbindSubscription(SCMOrdersVI);
+
+        // [THEN] Finally, the order is also deleted.
+        Assert.IsFalse(SalesHeader.Find(), '');
+    end;
+
     local procedure Initialize(Enable: Boolean)
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"SCM Orders VI");
@@ -4836,6 +4878,17 @@
     begin
         CreateInvtPutAwayPickMvmt.CInvtPick.SetValue(true);
         CreateInvtPutAwayPickMvmt.OK.Invoke;
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Sales-Post", 'OnDeleteAfterPostingOnBeforeDeleteSalesHeader', '', false, false)]
+    local procedure CheckWarehouseRequestDeletedBeforeSalesOrder(var SalesHeader: Record "Sales Header")
+    var
+        WarehouseRequest: Record "Warehouse Request";
+    begin
+        WarehouseRequest.SetSourceFilter(DATABASE::"Sales Line", SalesHeader."Document Type".AsInteger(), SalesHeader."No.");
+        Assert.RecordIsEmpty(WarehouseRequest);
+
+        Assert.IsTrue(SalesHeader.Find(), '');
     end;
 }
 

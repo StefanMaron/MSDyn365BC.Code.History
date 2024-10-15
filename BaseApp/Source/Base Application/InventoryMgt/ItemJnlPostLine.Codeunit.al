@@ -3159,8 +3159,6 @@
                   ItemLedgEntry.Quantity = ItemLedgEntry."Invoiced Quantity");
             end;
 
-            UpdateItemLedgerEntryTypeForChargeItemInValueEntry(ValueEntry, ItemLedgEntry);
-
             OnBeforeInsertValueEntry(ValueEntry, ItemJnlLine, ItemLedgEntry, ValueEntryNo, InventoryPostingToGL, CalledFromAdjustment,
                 OldItemLedgEntry, Item, TransferItem, GlobalValueEntry);
 
@@ -3734,6 +3732,7 @@
             SetCurrentKey("Item Ledger Entry No.", "Entry Type");
             SetRange("Item Ledger Entry No.", ItemJnlLine."Applies-from Entry");
             SetRange("Entry Type", "Entry Type"::Revaluation);
+            OnBeforeFindNegValueEntry(NegValueEntry);
             if not FindLast() then begin
                 SetRange("Entry Type");
                 FindLast();
@@ -3932,6 +3931,7 @@
         DirCostValueEntry.SetRange("Item Ledger Entry No.", ItemLedgEntryNo);
         DirCostValueEntry.SetRange("Entry Type", DirCostValueEntry."Entry Type"::"Direct Cost");
         DirCostValueEntry.SetFilter("Item Charge No.", '%1', '');
+        OnGetLastDirectCostValEntryOnBeforeFindDirCostValueEntry(DirCostValueEntry);
         Found := DirCostValueEntry.FindLast();
         DirCostValueEntry.SetRange("Item Charge No.");
         if not Found then
@@ -5246,7 +5246,7 @@
         Enough: Boolean;
         FixedApplication: Boolean;
     begin
-        OnBeforeMoveApplication(ItemLedgerEntry, OldItemLedgEntry);
+        OnBeforeMoveApplication(ItemLedgerEntry, OldItemLedgerEntry);
 
         with ItemLedgerEntry do begin
             FixedApplication := false;
@@ -7197,12 +7197,6 @@
         Error(Text027);
     end;
 
-    local procedure UpdateItemLedgerEntryTypeForChargeItemInValueEntry(var ValueEntry: Record "Value Entry"; ItemLedgerEntry: Record "Item Ledger Entry")
-    begin
-        if (ItemJnlLine."Entry Type" = ItemJnlLine."Entry Type"::Purchase) and (ItemJnlLine."Item Charge No." <> '') then
-            ValueEntry."Item Ledger Entry Type" := ItemLedgerEntry."Entry Type";
-    end;
-
     [IntegrationEvent(false, false)]
     local procedure OnVerifyInvoicedQtyOnAfterGetSalesShipmentHeader(ItemLedgEntry2: Record "Item Ledger Entry"; var IsHandled: Boolean)
     begin
@@ -7715,6 +7709,16 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnInitTransValueEntryOnBeforeCalcAdjustedCost(OldItemLedgEntry: Record "Item Ledger Entry"; var ValueEntry: Record "Value Entry"; var AdjCostInvoicedLCY: Decimal; var AdjCostInvoicedACY: Decimal; var DiscountAmount: Decimal; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnGetLastDirectCostValEntryOnBeforeFindDirCostValueEntry(var DirCostValueEntry: Record "Value Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeFindNegValueEntry(var NegValueEntry: Record "Value Entry")
     begin
     end;
 }

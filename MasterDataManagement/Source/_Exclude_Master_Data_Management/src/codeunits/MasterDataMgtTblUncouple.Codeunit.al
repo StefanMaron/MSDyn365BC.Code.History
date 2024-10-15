@@ -119,9 +119,13 @@ codeunit 7236 "Master Data Mgt. Tbl. Uncouple"
                         IntegrationTableSynch.Uncouple(LocalRecordRef, IntegrationRecordRef);
                         if MasterDataMgtCoupling.Get(TempMasterDataMgtCoupling."Integration System ID", TempMasterDataMgtCoupling."Local System ID") then
                             MasterDataMgtCoupling.Delete();
-                    end else
+                    end else begin
+                        if MasterDataMgtCoupling.Get(TempMasterDataMgtCoupling."Integration System ID", TempMasterDataMgtCoupling."Local System ID") then
+                            MasterDataMgtCoupling.Delete();
+
                         if MasterDataMgtCoupling.Get(TempMasterDataMgtCoupling."Local System ID", TempMasterDataMgtCoupling."Integration System ID") then
                             MasterDataMgtCoupling.Delete();
+                    end;
                 end;
             until TempMasterDataMgtCoupling.Next() = 0;
     end;

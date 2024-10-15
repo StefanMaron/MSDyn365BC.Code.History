@@ -10,4 +10,5 @@ enum 454 "Approval Document Type"
     value(4; "Blanket Order") { Caption = 'Blanket Order'; }
     value(5; "Return Order") { Caption = 'Return Order'; }
     value(6; " ") { Caption = ' '; }
+    value(7; "Payment") { Caption = 'Payment'; }
 }

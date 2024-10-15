@@ -33,7 +33,7 @@
         CheckBillSituationGroupErr: Label '%1 cannot be applied because it is included in a bill group. To apply the document, remove it from the bill group and try again.', Comment = '%1 - document type and number';
         CheckBillSituationPostedErr: Label '%1 cannot be applied because it is included in a posted bill group.', Comment = '%1 - document type and number';
         PostDocumentAppliedToBillInGroupErr: Label 'A grouped document cannot be settled from a journal.\Remove Document %1/1 from Group/Pmt. Order %2 and try again.';
-        DoYouWantToKeepExistingDimensionsQst: Label 'This will change the dimension specified on the document. Do you want to keep the existing dimensions?';
+        DoYouWantToKeepExistingDimensionsQst: Label 'This will change the dimension specified on the document. Do you want to recalculate/update dimensions?';
         LibraryDimension: Codeunit "Library - Dimension";
         LibraryInventory: Codeunit "Library - Inventory";
 
@@ -1562,7 +1562,7 @@
     end;
 
     [Test]
-    [HandlerFunctions('InsertDocModelHandler,ConfirmHandlerYes,SettleDocsInPostedBillGroupsRequestPageHandler,MessageHandler')]
+    [HandlerFunctions('InsertDocModelHandler,ConfirmHandlerYesNo,SettleDocsInPostedBillGroupsRequestPageHandler,MessageHandler')]
     [Scope('OnPrem')]
     procedure SettleDocInPostBillGroupWithOtherSalespersonThanOneInCustCardWithDim()
     var
@@ -1599,6 +1599,7 @@
           DefaultDimension, DATABASE::"Salesperson/Purchaser",
           SalespersonPurchaser.Code, DefaultDimension."Dimension Code", DimensionValue.Code);
         LibraryVariableStorage.Enqueue(DoYouWantToKeepExistingDimensionsQst);
+        LibraryVariableStorage.Enqueue(false);
         SalesHeader.Validate("Salesperson Code", SalespersonPurchaser.Code);
         SalesHeader.Modify(true);
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader,
@@ -1612,6 +1613,7 @@
         LibraryVariableStorage.Enqueue(DocumentNo);
         AddCarteraDocumentToBillGroup(BillGroup."No.");
         LibraryVariableStorage.Enqueue(StrSubstNo(BillGroupNotPrintedMsg, BillGroup.TableCaption));
+        LibraryVariableStorage.Enqueue(true);
         LibraryCarteraReceivables.PostCarteraBillGroup(BillGroup);
 
         // [WHEN] Settle sales invoice in posted bill group
@@ -2130,6 +2132,18 @@
         LibraryVariableStorage.Dequeue(ExpectedMessage);
         Assert.ExpectedMessage(Format(ExpectedMessage), Question);
         Reply := true;
+    end;
+
+    [ConfirmHandler]
+    procedure ConfirmHandlerYesNo(Question: Text[1024]; var Reply: Boolean)
+    var
+        ExpectedMessage: Variant;
+        ExpectedBool: Boolean;
+    begin
+        LibraryVariableStorage.Dequeue(ExpectedMessage);
+        ExpectedBool := LibraryVariableStorage.DequeueBoolean();
+        Assert.ExpectedMessage(Format(ExpectedMessage), Question);
+        Reply := ExpectedBool;
     end;
 
     [MessageHandler]

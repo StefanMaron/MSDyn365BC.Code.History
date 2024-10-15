@@ -84,7 +84,9 @@ codeunit 7021 "Purchase Line - Price" implements "Line With Price"
         if IsHandled then
             exit;
 
-        PurchaseLine.TestField("Qty. per Unit of Measure");
+        if PurchaseLine."Prod. Order No." = '' then
+            PurchaseLine.TestField("Qty. per Unit of Measure");
+
         if PurchaseHeader."Currency Code" <> '' then
             PurchaseHeader.TestField("Currency Factor");
     end;
