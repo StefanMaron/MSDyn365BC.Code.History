@@ -967,6 +967,131 @@ codeunit 137015 "SCM Pick Worksheet"
         WhseWorksheetLine.TestField(Description, Description);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure AvailableQtyToPickExcludesBlockedPutAway()
+    var
+        Location: Record Location;
+        WarehouseJournalLine: Record "Warehouse Journal Line";
+        SalesHeader: Record "Sales Header";
+        WarehouseShipmentHeader: Record "Warehouse Shipment Header";
+        WhsePickRequest: Record "Whse. Pick Request";
+        WhseWorksheetLine: Record "Whse. Worksheet Line";
+        WarehouseEmployee: Record "Warehouse Employee";
+        BinContent: Record "Bin Content";
+        Item: Record Item;
+        BinCode: array[2] of Code[20];
+        ZoneCode: array[2] of Code[10];
+        Qty: array[2] of Decimal;
+        AvailableQtyToPick: Decimal;
+    begin
+        // [FEATURE] [Available Qty. To Pick]
+        // [SCENARIO 433489] Whse. Worksheet Line AvailableQtyToPickExcludingQCBins when PutAway Bin with Blocked movement
+        Initialize();
+        Qty[1] := LibraryRandom.RandInt(10);
+        Qty[2] := LibraryRandom.RandIntInRange(11, 100);
+
+        // [GIVEN] Location with Directed Put-away and Pick enabled with two bins:
+        // [GIVEN] Bin "BP" with Pick enabled
+        // [GIVEN] Bin "BPWMD" (PutAway enabled, other disabled)
+        LibraryWarehouse.CreateFullWMSLocation(Location, 1);
+        LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, Location.Code, true);
+        FindZoneAndBinWithPickEnabled(BinCode[1], ZoneCode[1], Location.Code);
+        FindZoneAndBinWithPickDisabled(
+          BinCode[2], ZoneCode[2], Location.Code, StrSubstNo('<>%1', Location."Adjustment Bin Code"),
+          GetBinTypeFilterPickDisabled(true));
+
+        // [GIVEN] Two Warehouse Journal Lines were registered: first with Bin "BP" and Quantity 2 and second with Bin "BPWMD" and Quantity 3
+        // [GIVEN] Ran Calc. Whse Adj. in Item Journal and posted Item Journal Line
+        CreateTwoWarehouseJnlLinesWithBinsAndZones(
+          WarehouseJournalLine, Location.Code, LibraryInventory.CreateItemNo, BinCode, ZoneCode, Qty);
+        LibraryWarehouse.RegisterWhseJournalLine(
+          WarehouseJournalLine."Journal Template Name", WarehouseJournalLine."Journal Batch Name", Location.Code, true);
+        PostWhseAdjustment(WarehouseJournalLine."Item No.");
+
+        // [GIVEN] Created and released Sales Order and Warehouse Shipment (Whse. Pick Request was created)
+        CreateSalesOrderWithItemAndLocation(
+          SalesHeader, Location.Code, WarehouseJournalLine."Item No.", LibraryRandom.RandDec(100, 2));
+        CreateWarehouseShipmentFromSalesOrder(WarehouseShipmentHeader, SalesHeader);
+
+        // [GIVEN] Created Whse. Worksheet Line from Whse. Pick Request
+        FindWhsePickRequestByWhseShipmentHeader(WhsePickRequest, WarehouseShipmentHeader."No.");
+        CreateWhseWorksheetLineFromWhsePickRequest(WhseWorksheetLine, WhsePickRequest);
+        Item.Get(WarehouseJournalLine."Item No.");
+
+        // [GIVEN] Bin "BPWMD" has Block Movement = All
+        BinContent.Get(Location.Code, BinCode[2], WarehouseJournalLine."Item No.", '', WarehouseJournalLine."Unit of Measure Code");
+        BinContent.Validate("Block Movement", BinContent."Block Movement"::All);
+        BinContent.Modify();
+
+        // [WHEN] Run AvailableQtyToPickExcludingQCBins from Whse. Worksheet Line
+        AvailableQtyToPick := WhseWorksheetLine.AvailableQtyToPickExcludingQCBins;
+
+        // [THEN] AvailableQtyToPick returns 2 (quantity on blocked bin is not included) - before the fix the value was 0
+        WhseWorksheetLine.TestField("Item No.", WarehouseJournalLine."Item No.");
+        Assert.AreEqual(Qty[1], AvailableQtyToPick, AvailableQtyToPickMsg);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure AvailableQtyToPickExcludesPutAway()
+    var
+        Location: Record Location;
+        WarehouseJournalLine: Record "Warehouse Journal Line";
+        SalesHeader: Record "Sales Header";
+        WarehouseShipmentHeader: Record "Warehouse Shipment Header";
+        WhsePickRequest: Record "Whse. Pick Request";
+        WhseWorksheetLine: Record "Whse. Worksheet Line";
+        WarehouseEmployee: Record "Warehouse Employee";
+        BinContent: Record "Bin Content";
+        Item: Record Item;
+        BinCode: array[2] of Code[20];
+        ZoneCode: array[2] of Code[10];
+        Qty: array[2] of Decimal;
+        AvailableQtyToPick: Decimal;
+    begin
+        // [FEATURE] [Available Qty. To Pick]
+        // [SCENARIO 433489] Whse. Worksheet Line AvailableQtyToPickExcludingQCBins when PutAway Bin 
+        Initialize();
+        Qty[1] := LibraryRandom.RandInt(10);
+        Qty[2] := LibraryRandom.RandIntInRange(11, 100);
+
+        // [GIVEN] Location with Directed Put-away and Pick enabled with two bins:
+        // [GIVEN] Bin "BP" with Pick enabled
+        // [GIVEN] Bin "BPWMD" (PutAway enabled, other disabled)
+        LibraryWarehouse.CreateFullWMSLocation(Location, 1);
+        LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, Location.Code, true);
+        FindZoneAndBinWithPickEnabled(BinCode[1], ZoneCode[1], Location.Code);
+        FindZoneAndBinWithPickDisabled(
+          BinCode[2], ZoneCode[2], Location.Code, StrSubstNo('<>%1', Location."Adjustment Bin Code"),
+          GetBinTypeFilterPickDisabled(true));
+
+        // [GIVEN] Two Warehouse Journal Lines were registered: first with Bin "BP" and Quantity 2 and second with Bin "BPWMD" and Quantity 3
+        // [GIVEN] Ran Calc. Whse Adj. in Item Journal and posted Item Journal Line
+        CreateTwoWarehouseJnlLinesWithBinsAndZones(
+          WarehouseJournalLine, Location.Code, LibraryInventory.CreateItemNo, BinCode, ZoneCode, Qty);
+        LibraryWarehouse.RegisterWhseJournalLine(
+          WarehouseJournalLine."Journal Template Name", WarehouseJournalLine."Journal Batch Name", Location.Code, true);
+        PostWhseAdjustment(WarehouseJournalLine."Item No.");
+
+        // [GIVEN] Created and released Sales Order and Warehouse Shipment (Whse. Pick Request was created)
+        CreateSalesOrderWithItemAndLocation(
+          SalesHeader, Location.Code, WarehouseJournalLine."Item No.", LibraryRandom.RandDec(100, 2));
+        CreateWarehouseShipmentFromSalesOrder(WarehouseShipmentHeader, SalesHeader);
+
+        // [GIVEN] Created Whse. Worksheet Line from Whse. Pick Request
+        FindWhsePickRequestByWhseShipmentHeader(WhsePickRequest, WarehouseShipmentHeader."No.");
+        CreateWhseWorksheetLineFromWhsePickRequest(WhseWorksheetLine, WhsePickRequest);
+        Item.Get(WarehouseJournalLine."Item No.");
+
+        // [WHEN] Run AvailableQtyToPickExcludingQCBins from Whse. Worksheet Line
+        AvailableQtyToPick := WhseWorksheetLine.AvailableQtyToPickExcludingQCBins;
+
+        // [THEN] AvailableQtyToPick returns 2 (quantity on blocked bin is not included) - it should not be 2 + 3 = 5
+        WhseWorksheetLine.TestField("Item No.", WarehouseJournalLine."Item No.");
+        Assert.AreEqual(Qty[1], AvailableQtyToPick, AvailableQtyToPickMsg);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
