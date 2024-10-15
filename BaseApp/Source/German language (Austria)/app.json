@@ -1,19 +1,17 @@
 {
-    "id":  "3a66faf9-4111-4ec3-be7e-7ca33e9421a0",
-    "name":  "German language (Austria)",
-    "publisher":  "Microsoft",
-    "version":  "24.2.20227.20424",
-    "dependencies":  [
-
-                     ],
-    "target":  "Cloud",
-    "showMyCode":  true,
-    "brief":  "This application adds the German language (Austria) to Dynamics 365 Business Central",
-    "description":  "Dynamics 365 Business Central is available in many languages. By installing this application you add the capability of showing the base application in the German language (Austria)",
-    "logo":  "ExtensionLogo.png",
-    "privacyStatement":  "https://go.microsoft.com/fwlink/?LinkId=724009",
-    "EULA":  "https://go.microsoft.com/fwlink/?linkid=2009120",
-    "help":  "https://go.microsoft.com/fwlink/?linkid=2115116",
-    "url":  "https://www.microsoft.com/en-us/dynamics365/contact-us",
-    "application":  "24.2.0.0"
+  "id": "3a66faf9-4111-4ec3-be7e-7ca33e9421a0",
+  "name": "German language (Austria)",
+  "publisher": "Microsoft",
+  "version": "24.3.21374.21517",
+  "dependencies": [],
+  "target": "Cloud",
+  "showMyCode": true,
+  "brief": "This application adds the German language (Austria) to Dynamics 365 Business Central",
+  "description": "Dynamics 365 Business Central is available in many languages. By installing this application you add the capability of showing the base application in the German language (Austria)",
+  "logo": "ExtensionLogo.png",
+  "privacyStatement": "https://go.microsoft.com/fwlink/?LinkId=724009",
+  "EULA": "https://go.microsoft.com/fwlink/?linkid=2009120",
+  "help": "https://go.microsoft.com/fwlink/?linkid=2115116",
+  "url": "https://www.microsoft.com/en-us/dynamics365/contact-us",
+  "application": "24.3.0.0"
 }

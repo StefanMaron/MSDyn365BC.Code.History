@@ -8,6 +8,9 @@ enum 6402 "FS Work Order Line Synch. Rule"
 {
     AssignmentCompatibility = true;
     Extensible = true;
+    ObsoleteReason = 'Field Service is moved to Field Service Integration app.';
+    ObsoleteState = Pending;
+    ObsoleteTag = '25.0';
 
     value(0; LineUsed)
     {

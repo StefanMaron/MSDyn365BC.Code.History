@@ -345,10 +345,11 @@ report 1407 "Bank Account Statement"
         if not BankAccountLedgerEntry.FindSet() then
             exit;
         repeat
-            if BankAccountLedgerEntry."Check Ledger Entries" <> 0 then
-                OutstandingCheck.CopyFromBankAccLedgerEntry(BankAccountLedgerEntry, "Bank Account Statement"."Statement No.")
-            else
-                OutstandingBankTransaction.CopyFromBankAccLedgerEntry(BankAccountLedgerEntry, "Bank Account Statement"."Statement No.")
+            if (BankAccountLedgerEntry."Closed at Date" <> 0D) or BankAccountLedgerEntry.Open then
+                if BankAccountLedgerEntry."Check Ledger Entries" <> 0 then
+                    OutstandingCheck.CopyFromBankAccLedgerEntry(BankAccountLedgerEntry, "Bank Account Statement"."Statement No.")
+                else
+                    OutstandingBankTransaction.CopyFromBankAccLedgerEntry(BankAccountLedgerEntry, "Bank Account Statement"."Statement No.")
         until BankAccountLedgerEntry.Next() = 0;
     end;
 }

@@ -211,7 +211,9 @@ report 10864 "Suggest Customer Payments"
         end else
             CustLedgEntry.SetRange("Due Date", 0D, LastDueDateToPayReq);
         CustLedgEntry.SetRange("On Hold", '');
-        if CustLedgEntry.Find('-') then
+        OnGetCustLedgEntriesOnAfterSetFilters(CustLedgEntry);
+
+        if CustLedgEntry.FindSet() then
             repeat
                 SaveAmount();
             until CustLedgEntry.Next() = 0;
@@ -449,6 +451,11 @@ report 10864 "Suggest Customer Payments"
     begin
         if (Text <> '') and GenPayLineInserted then
             Message(Text);
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnGetCustLedgEntriesOnAfterSetFilters(var CustLedgEntry: Record "Cust. Ledger Entry")
+    begin
     end;
 }
 

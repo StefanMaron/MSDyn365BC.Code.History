@@ -61,7 +61,7 @@
   </Item>
   <Item ItemId=";Codeunit 1488710183 - NamedType 141780555" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[You cannot assign new numbers from the number series %1.]]></Val>
+      <Val><![CDATA[You cannot assign new numbers from the number series %1]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -79,7 +79,7 @@
   </Item>
   <Item ItemId=";Codeunit 1742721939 - NamedType 141780555" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[You cannot assign new numbers from the number series %1.]]></Val>
+      <Val><![CDATA[You cannot assign new numbers from the number series %1]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>

@@ -1,7 +1,6 @@
 namespace Microsoft.Utilities;
 
 using Microsoft.Integration.Dataverse;
-using Microsoft.Integration.FieldService;
 using System.Environment.Configuration;
 
 page 1279 "Service Connections"
@@ -99,11 +98,9 @@ page 1279 "Service Connections"
     var
         CRMIntegrationManagement: Codeunit "CRM Integration Management";
         CDSIntegrationMgt: Codeunit "CDS Integration Mgt.";
-        FSSetupDefaults: Codeunit "FS Setup Defaults";
     begin
         CRMIntegrationManagement.RegisterAssistedSetup();
         CDSIntegrationMgt.RegisterAssistedSetup();
-        FSSetupDefaults.RegisterAssistedSetup();
     end;
 
     trigger OnOpenPage()
