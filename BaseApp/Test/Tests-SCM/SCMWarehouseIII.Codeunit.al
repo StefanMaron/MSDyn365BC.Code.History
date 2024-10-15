@@ -78,6 +78,7 @@ codeunit 137051 "SCM Warehouse - III"
         WhseActivityHeaderMustNotBeEmpty: Label 'Warehouse Activity Header must not be empty.';
         ExpirationDateCalcFormula: Label '<CY-1Y>';
         ExpirationDateMustNotBeEmptyErr: Label 'Expiration Date must not be empty.';
+        QtyToHandleErr: Label '%1 must be %2 in %3', Comment = '%1 = Qty. to Handle, %2 = QtyToHandle, %3 = Warehouse Activity Line';
 
     [Test]
     [HandlerFunctions('ItemTrackingPageHandler,QuantityToCreatePageHandler,ConfirmHandler,PickActivitiesMessageHandler')]
@@ -5603,6 +5604,188 @@ codeunit 137051 "SCM Warehouse - III"
         Assert.AreNotEqual(0D, WarehouseActivityLine."Expiration Date", ExpirationDateMustNotBeEmptyErr);
     end;
 
+    [Test]
+    [HandlerFunctions('WhseItemTrackingLinesModalPageHandler,ItemTrackingPageHandler')]
+    [Scope('OnPrem')]
+    procedure CreatePickFromPickWorkSheetPopulatesQtyToHandleInWarehousePick()
+    var
+        Item: Record Item;
+        Location: Record Location;
+        Bin: Record Bin;
+        Bin2: Record Bin;
+        Zone: Record Zone;
+        Zone2: Record Zone;
+        BinType, BinType2 : Record "Bin Type";
+        ItemTrackingCode: Record "Item Tracking Code";
+        WarehouseEmployee: Record "Warehouse Employee";
+        WhseJournalTemplate: Record "Warehouse Journal Template";
+        WhseJournalBatch: Record "Warehouse Journal Batch";
+        WhseJournalLine: Record "Warehouse Journal Line";
+        Customer: Record Customer;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        WarehouseShipmentHeader: Record "Warehouse Shipment Header";
+        WarehouseShipmentLine: Record "Warehouse Shipment Line";
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+        WhseWorksheetName: Record "Whse. Worksheet Name";
+        WhseWorksheetLine: Record "Whse. Worksheet Line";
+        QtyToHandle: Decimal;
+    begin
+        // [SCENARIO 521215] When Stan runs Get Warehouse Documents action from Pick Worksheet then Whse. Worksheet Line is created with Qty. to Handle filled 
+        // And when Stan creates Pick from Pick Worksheet then Qty. to Handle is populated in Warehouse Pick.
+        Initialize();
+
+        // [GIVEN] Create Item.
+        LibraryInventory.CreateItem(Item);
+
+        // [GIVEN] Create Location and Validate Always Create Put-away Line, Always Create Pick Line and Allow Breakbulk.
+        LibraryWarehouse.CreateFullWMSLocation(Location, 3);
+        Location.Validate("Always Create Put-away Line", true);
+        Location.Validate("Always Create Pick Line", true);
+        Location.Validate("Allow Breakbulk", true);
+        Location.Modify(true);
+
+        // [GIVEN] Create Item Tracking Code and Validate Man. Expir. Date Entry Reqd. and Use Expiration Dates.
+        LibraryItemTracking.CreateItemTrackingCode(ItemTrackingCode, false, true);
+        ItemTrackingCode.Validate("Man. Expir. Date Entry Reqd.", false);
+        ItemTrackingCode.Validate("Use Expiration Dates", true);
+        ItemTrackingCode.Modify(true);
+
+        // [GIVEN] Validate Item Tracking Code.
+        Item.Validate("Item Tracking Code", ItemTrackingCode.Code);
+        Item.Modify(true);
+
+        // [GIVEN] Create Warehouse Employee.
+        LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, Location.Code, true);
+
+        // [GIVEN] Find Bin Type.
+        FindBinType(BinType, false, false, true, false);
+
+        // [GIVEN] Find Bin Type 2.
+        FindBinType(BinType2, false, false, false, false);
+
+        // [GIVEN] Create Zone.
+        LibraryWarehouse.CreateZone(
+            Zone,
+            Zone.Code,
+            Location.Code,
+            BinType.Code,
+            '',
+            '',
+            LibraryRandom.RandInt(0),
+            false);
+
+        // [GIVEN] Create Zone 2.
+        LibraryWarehouse.CreateZone(
+            Zone2,
+            Zone2.Code,
+            Location.Code,
+            BinType2.Code,
+            '',
+            '',
+            0,
+            false);
+
+        // [GIVEN] Create Bin.
+        LibraryWarehouse.CreateBin(Bin, Location.Code, Bin.Code, Zone.Code, BinType.Code);
+
+        // [GIVEN] Create Bin 2.
+        LibraryWarehouse.CreateBin(Bin2, Location.Code, Bin2.Code, Zone.Code, BinType.Code);
+
+        // [GIVEN] Create Warehouse Journal Setup.
+        LibraryWarehouse.WarehouseJournalSetup(Location.Code, WhseJournalTemplate, WhseJournalBatch);
+
+        // [GIVEN] Create Warehouse Item Journal Line for Item.
+        LibraryWarehouse.CreateWhseJournalLine(
+            WhseJournalLine,
+            WhseJournalBatch."Journal Template Name",
+            WhseJournalBatch.Name,
+            Bin."Location Code",
+            Bin."Zone Code",
+            Bin.Code,
+            WhseJournalLine."Entry Type"::"Positive Adjmt.",
+            Item."No.",
+            LibraryRandom.RandIntInRange(1500, 1500));
+
+        // [GIVEN] Open Item Tracking Lines.
+        WhseJournalLine.OpenItemTrackingLines();
+
+        // [GIVEN] Register Warehouse Journal Line.
+        LibraryWarehouse.RegisterWhseJournalLine(WhseJournalBatch."Journal Template Name", WhseJournalBatch.Name, Location.Code, true);
+
+        // [GIVEN] Calculate Warehouse Adjustment and Post Item Journal.
+        CalcWhseAdjustmentAndPostItemJournal(Item);
+
+        // [GIVEN] Create Customer.
+        LibrarySales.CreateCustomer(Customer);
+
+        // [GIVEN] Create Sales Header.
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, Customer."No.");
+
+        // [GIVEN] Create and Reserve Sales Line.
+        CreateAndReserveSalesLine(SalesHeader, SalesLine, Item, Location, LibraryRandom.RandIntInRange(400, 400));
+
+        // [GIVEN] Release Sales Order.
+        LibrarySales.ReleaseSalesDocument(SalesHeader);
+
+        // [GIVEN] Create Warehouse Shipment from Sales Order.
+        LibraryWarehouse.CreateWhseShipmentFromSO(SalesHeader);
+
+        // [GIVEN] Find Warehouse Shipment Line.
+        WarehouseShipmentLine.SetRange("Source No.", SalesHeader."No.");
+        WarehouseShipmentLine.SetRange("Source Type", DATABASE::"Sales Line");
+        WarehouseShipmentLine.SetRange("Source Subtype", SalesHeader."Document Type");
+        WarehouseShipmentLine.FindLast();
+
+        // [GIVEN] Find Warehouse Shipment Header.
+        WarehouseShipmentHeader.Get(WarehouseShipmentLine."No.");
+
+        // [GIVEN] Release Warehouse Shipment.
+        LibraryWarehouse.ReleaseWarehouseShipment(WarehouseShipmentHeader);
+
+        // [GIVEN] Get Warehouse Document on Whse. Worksheet Line.
+        GetWarehouseDocumentOnWarehouseWorksheetLine(WhseWorksheetName, Location, WarehouseShipmentHeader."No.", '');
+
+        // [GIVEN] Find Whse. Worksheet Line.
+        FindLastWhseWorksheetLine(WhseWorksheetLine, WhseWorksheetName, Location.Code);
+
+        // [GIVEN] Save and generate Qty. to Handle in a Variable.
+        QtyToHandle := WhseWorksheetLine."Qty. to Handle";
+
+        // [GIVEN] Create Pick from Pick Worksheet.
+        LibraryWarehouse.CreatePickFromPickWorksheet(
+            WhseWorksheetLine,
+            WhseWorksheetLine."Line No.",
+            WhseWorksheetName."Worksheet Template Name",
+            WhseWorksheetName.Name,
+            Location.Code,
+            '',
+            0,
+            0,
+            "Whse. Activity Sorting Method"::None,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false);
+
+        // [WHEN] Find Warehouse Activity Line.
+        WarehouseActivityLine.SetRange("Location Code", Location.Code);
+        WarehouseActivityLine.FindLast();
+
+        // [THEN] Qty. to Handle in Warehouse Activity Line must be equal to QtyToHandle.
+        Assert.AreEqual(
+            QtyToHandle,
+            WarehouseActivityLine."Qty. to Handle",
+            StrSubstNo(
+                QtyToHandleErr,
+                WarehouseActivityLine.FieldCaption("Qty. to Handle"),
+                QtyToHandle,
+                WarehouseActivityLine.TableCaption()));
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -7560,6 +7743,73 @@ codeunit 137051 "SCM Warehouse - III"
         SalesLine.Modify(true);
     end;
 
+    local procedure FindBinType(
+        var BinType: Record "Bin Type";
+        Receive: Boolean;
+        Ship: Boolean;
+        Pick: Boolean;
+        PutAway: Boolean)
+    begin
+        BinType.SetRange("Put Away", PutAway);
+        BinType.SetRange(Pick, Pick);
+        BinType.SetRange(Receive, Receive);
+        BinType.SetRange(Ship, Ship);
+        BinType.FindFirst();
+    end;
+
+    local procedure CreateAndReserveSalesLine(
+        var Salesheader: Record "Sales Header";
+        var SalesLine: Record "Sales Line";
+        Item: Record Item;
+        Location: Record Location;
+        Qty: Decimal)
+    var
+        Index: Integer;
+    begin
+        for Index := 1 to 5 do begin
+            LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", Qty);
+            SalesLine.Validate("Location Code", Location.Code);
+            SalesLine.Modify(true);
+
+            LibrarySales.AutoReserveSalesLine(SalesLine);
+
+            LibraryVariableStorage.Enqueue(TrackingAction::AssignLotNo);
+            LibraryVariableStorage.Enqueue(Format(Qty));
+            LibraryVariableStorage.Enqueue(Qty);
+            SalesLine.OpenItemTrackingLines();
+
+            Qty -= LibraryRandom.RandIntInRange(50, 50);
+        end;
+    end;
+
+    local procedure GetWarehouseDocumentOnWarehouseWorksheetLine(
+        var WhseWorksheetName: Record "Whse. Worksheet Name";
+        Location: Record Location;
+        DocumentNo: Code[20];
+        DocumentNo2: Code[20])
+    var
+        WhseWorksheetTemplate: Record "Whse. Worksheet Template";
+        WhsePickRequest: Record "Whse. Pick Request";
+    begin
+        LibraryWarehouse.SelectWhseWorksheetTemplate(WhseWorksheetTemplate, WhseWorksheetTemplate.Type::Pick);
+        LibraryWarehouse.SelectWhseWorksheetName(WhseWorksheetName, WhseWorksheetTemplate.Name, Location.Code);
+        WhsePickRequest.SetRange(Status, WhsePickRequest.Status::Released);
+        WhsePickRequest.SetRange("Completely Picked", false);
+        WhsePickRequest.SetRange("Location Code", Location.Code);
+        WhsePickRequest.SetRange("Document Type", WhsePickRequest."Document Type"::Shipment);
+        if DocumentNo <> '' then
+            WhsePickRequest.SetFilter("Document No.", '%1|%2', DocumentNo, DocumentNo2);
+        LibraryWarehouse.GetOutboundSourceDocuments(WhsePickRequest, WhseWorksheetName, Location.Code);
+    end;
+
+    local procedure FindLastWhseWorksheetLine(var WhseWorksheetLine: Record "Whse. Worksheet Line"; WhseWorksheetName: Record "Whse. Worksheet Name"; LocationCode: Code[10])
+    begin
+        WhseWorksheetLine.SetRange("Worksheet Template Name", WhseWorksheetName."Worksheet Template Name");
+        WhseWorksheetLine.SetRange(Name, WhseWorksheetName.Name);
+        WhseWorksheetLine.SetRange("Location Code", LocationCode);
+        WhseWorksheetLine.FindLast();
+    end;
+
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure ProductionJournalPostOneHandler(var ProductionJournal: TestPage "Production Journal")
@@ -7903,6 +8153,23 @@ codeunit 137051 "SCM Warehouse - III"
                 ItemTrackingLines."Lot No.".SetValue(LibraryVariableStorage.DequeueText());
         end;
         ItemTrackingLines.OK().Invoke();
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure WhseItemTrackingLinesModalPageHandler(var WhseItemTrackingLines: TestPage "Whse. Item Tracking Lines")
+    var
+        Index: Integer;
+        Qty: Integer;
+    begin
+        Qty := LibraryRandom.RandIntInRange(400, 400);
+        for Index := 1 to 5 do begin
+            WhseItemTrackingLines."Lot No.".SetValue(Format(Qty));
+            WhseItemTrackingLines.Quantity.SetValue(Format(Qty));
+            Qty -= LibraryRandom.RandIntInRange(50, 50);
+            WhseItemTrackingLines.Next();
+        end;
+        WhseItemTrackingLines.OK().Invoke();
     end;
 }
 
