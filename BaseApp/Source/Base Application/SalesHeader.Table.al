@@ -1812,6 +1812,8 @@
 
             trigger OnValidate()
             begin
+                if "Prepayment %" > 100 then
+                    error(MaxAllowedValueIs100Err);
                 if xRec."Prepayment %" <> "Prepayment %" then
                     UpdateSalesLinesByFieldNo(FieldNo("Prepayment %"), CurrFieldNo <> 0);
             end;
@@ -3011,6 +3013,8 @@
         Text028: Label 'You cannot change the %1 when the %2 has been filled in.';
         Text030: Label 'Deleting this document will cause a gap in the number series for return receipts. An empty return receipt %1 will be created to fill this gap in the number series.\\Do you want to continue?';
         Text031: Label 'You have modified %1.\\Do you want to update the lines?', Comment = 'You have modified Shipment Date.\\Do you want to update the lines?';
+        MaxAllowedValueIs100Err: Label 'The values must be less than or equal 100.';
+        DoYouWantToKeepExistingDimensionsQst: Label 'This will change the dimension specified on the document. Do you want to keep the existing dimensions?';
         ReadingDataSkippedMsg: Label 'Loading field %1 will be skipped because there was an error when reading the data.\To fix the current data, contact your administrator.\Alternatively, you can overwrite the current data by entering data in the field.', Comment = '%1=field caption';
         SalesSetup: Record "Sales & Receivables Setup";
         GLSetup: Record "General Ledger Setup";
@@ -3118,6 +3122,7 @@
         UpdateDocumentDate: Boolean;
         SkipSellToContact: Boolean;
         SkipBillToContact: Boolean;
+        SkipTaxCalculation: Boolean;
 
     procedure InitInsert()
     var
@@ -4091,10 +4096,30 @@
 
         OnCreateDimOnBeforeUpdateLines(Rec, xRec, CurrFieldNo, OldDimSetID);
 
+        if (OldDimSetID <> "Dimension Set ID") and (OldDimSetID <> 0) and guiallowed then
+            if CouldDimensionsBeKept() then
+                if Confirm(DoYouWantToKeepExistingDimensionsQst) then
+                    "Dimension Set ID" := OldDimSetID;
+
         if (OldDimSetID <> "Dimension Set ID") and SalesLinesExist then begin
             Modify;
             UpdateAllLineDim("Dimension Set ID", OldDimSetID);
         end;
+    end;
+
+    local procedure CouldDimensionsBeKept(): Boolean;
+    begin
+        if (xRec."Sell-to Customer No." <> '') and (xRec."Sell-to Customer No." <> Rec."Sell-to Customer No.") then
+            exit(false);
+        if (xRec."Bill-to Customer No." <> '') and (xRec."Bill-to Customer No." <> Rec."Bill-to Customer No.") then
+            exit(false);
+
+        if (xRec."Location Code" <> '') and (xRec."location Code" <> Rec."Location Code") then
+            exit(true);
+        if (xRec."Salesperson Code" <> '') and (xRec."Salesperson Code" <> Rec."Salesperson Code") then
+            exit(true);
+        if (xRec."Responsibility Center" <> '') and (xRec."Responsibility Center" <> Rec."Responsibility Center") then
+            exit(true);
     end;
 
     procedure ValidateShortcutDimCode(FieldNumber: Integer; var ShortcutDimCode: Code[20])
@@ -6387,7 +6412,7 @@
         SetSalespersonCode(BillToCustomer."Salesperson Code", "Salesperson Code");
         "Combine Shipments" := BillToCustomer."Combine Shipments";
         Reserve := BillToCustomer.Reserve;
-        if "Document Type" = "Document Type"::Order then
+        if "Document Type" In ["Document Type"::Order, "Document Type"::Quote] then
             "Prepayment %" := BillToCustomer."Prepayment %";
         "Tax Area Code" := BillToCustomer."Tax Area Code";
         if ("Ship-to Code" = '') or ("Sell-to Customer No." <> BillToCustomer."No.") then
@@ -7146,6 +7171,16 @@
         GetSalesSetup();
         if SalesSetup."Quote Validity Calculation" <> BlankDateFormula then
             "Quote Valid Until Date" := CalcDate(SalesSetup."Quote Validity Calculation", "Document Date");
+    end;
+
+    procedure CanCalculateTax(): Boolean
+    begin
+        exit(SkipTaxCalculation);
+    end;
+
+    procedure SetSkipTaxCalulation(Skip: Boolean)
+    begin
+        SkipTaxCalculation := Skip;
     end;
 
     procedure TestQuantityShippedField(SalesLine: Record "Sales Line")
