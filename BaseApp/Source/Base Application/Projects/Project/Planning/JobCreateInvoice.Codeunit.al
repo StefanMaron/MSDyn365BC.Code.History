@@ -377,6 +377,7 @@ codeunit 1002 "Job Create-Invoice"
         JobPlanningLine.SetRange("Job No.", JobTask2."Job No.");
         JobPlanningLine.SetRange("Job Task No.", JobTask2."Job Task No.");
         JobPlanningLine.SetFilter("Planning Date", JobTask2.GetFilter("Planning Date Filter"));
+        OnCreateSalesInvoiceJobTaskOnAfterJobPlanningLineSetFilters(JobPlanningLine, JobTask2);
         if JobPlanningLine.Find('-') then
             repeat
                 if TransferLine(JobPlanningLine) then begin
@@ -1483,6 +1484,11 @@ codeunit 1002 "Job Create-Invoice"
 
     [IntegrationEvent(false, false)]
     procedure OnBeforeGetJobPlanningLineInvoices(JobPlanningLine: Record "Job Planning Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateSalesInvoiceJobTaskOnAfterJobPlanningLineSetFilters(var JobPlanningLine: Record "Job Planning Line"; var JobTask2: Record "Job Task")
     begin
     end;
 }

@@ -12,6 +12,7 @@ using System.IO;
 using System.Reflection;
 using System.Telemetry;
 using System.Threading;
+using Microsoft.Projects.Project.Journal;
 
 table 5335 "Integration Table Mapping"
 {
@@ -360,9 +361,10 @@ table 5335 "Integration Table Mapping"
         CompanyFilterRemovedExtendedMsg: Label '%1 entities will be synchronized regardless of their Company field value. To control which entities get synchronized to this company, set the Integration Table Filter on other fields. We strongly recommend to set the direction of this mapping to ''From Integration''. \\If you set it up to synchronize bidirectionally or to synchronize ''To Integration'', to avoid duplicates being created, use match-based coupling or consolidated filtering across companies instead of just unchecking the Synch. Only Coupled Records checkbox. \\If your number series do not guarantee uniqueness of primary key values across multiple companies, then use a transformation rule in the direction ''To Integration'' to add a prefix to primary key values, to ensure their uniqueness in Dataverse.', Comment = '%1 - a table caption';
         CompanyFilterRemovedShortMsg: Label '%1 entities will be synchronized regardless of their Company field value. To control which entities get synchronized to this company, set the Integration Table Filter on other fields.', Comment = '%1 - a table caption';
         CompanyFilterResetMsg: Label 'The company field filter on the Integration Table Filter is reset to default.';
-        CompanyFilterStrengthenedQst: Label 'This will remove the company field filter from Integration Table Filter and make the synchronization engine process only %1 entities that correspond to this company. Do you want to continue?', Comment = '%1 - a table caption';
+        CompanyFilterStrengthenedQst: Label 'This will make the synchronization engine process only %1 entities that correspond to the current company. Do you want to continue?', Comment = '%1 - a table caption';
         CompanyFilterResetToDefaultQst: Label 'This will reset the company field filter from Integration Table Filter to the default. Do you want to continue?';
-        CompanyFilterStrengthenedMsg: Label 'The synchronization will consider only %1 entities that correspond to this company. \\To make Business Central process %1 entities that are originally created in Dynamics 365 Sales, the Dynamics 365 Sales users must set their Company value to match the company %2.', Comment = '%1 - a table caption; %2 - current company name';
+        CompanyFilterStrengthenedMsg: Label 'The synchronization will consider only %1 entities that correspond to this company. \\To make Business Central process %1 entities that are originally created in %3, the %3 users must set their Company value to match the company %2.', Comment = '%1 - a table caption; %2 - current company name; %3 - Dynamics 36s service name';
+        CompanyFilterStrengthenedFSMsg: Label 'The synchronization will consider only %1 entities whose work order in %3 has an External Project that belongs to company %2.', Comment = '%1 - a table caption; %2 - current company name; %3 - Dynamics 36s service name';
         InstallLatestSolutionConfirmLbl: Label 'This functionality requires the latest integration solution to be imported on your Dataverse environment. You will be prompted to sign in with your Dataverse administrator account credentials. Do you want to continue?';
         OrTok: Label '%1|%2', Locked = true;
         ChangeDirectionMultiCompanyMsg: Label 'This mapping is set up for multi-company synchronization. We strongly recommend to set the direction of this mapping to ''From Integration''. \\If you set it up to synchronize bidirectionally or to synchronize ''To Integration'', to avoid duplicates being created, use match-based coupling or consolidated filtering across companies instead of just unchecking the Synch. Only Coupled Records checkbox. \\If your number series do not guarantee uniqueness of primary key values across multiple companies, then use a Transformation Rule in the direction ''To Integration'' to add a prefix to primary key values, to ensure their uniqueness in Dataverse.';
@@ -951,9 +953,11 @@ table 5335 "Integration Table Mapping"
         CDSIntegrationImpl: Codeunit "CDS Integration Impl.";
         CRMSetupDefaults: Codeunit "CRM Setup Defaults";
         CRMIntegrationManagement: Codeunit "CRM Integration Management";
+        CRMProductName: Codeunit "CRM Product Name";
         IntegrationRecordRef: RecordRef;
         CompanyIdFieldRef: FieldRef;
         IsHandled: Boolean;
+        MessageTxt: Text;
     begin
         OnEnableMultiCompanySynchronization(Rec, IsHandled);
         if (IsHandled) then
@@ -975,6 +979,7 @@ table 5335 "Integration Table Mapping"
 
         case Rec."Table ID" of
             Database::"Sales Header",
+            Database::"Job Journal Line",
             Database::Opportunity:
                 begin
                     IntegrationRecordRef.Open(Rec."Integration Table ID");
@@ -992,9 +997,14 @@ table 5335 "Integration Table Mapping"
                     IntegrationRecordRef.SetView(Rec.GetIntegrationTableFilter());
                     CompanyIdFieldRef.SetRange(CDSCompany.CompanyId);
                     Rec.SetIntegrationTableFilter(CRMSetupDefaults.GetTableFilterFromView(Rec."Integration Table ID", IntegrationRecordRef.Caption(), IntegrationRecordRef.GetView()));
+                    if Rec."Table ID" in [Database::"Sales Header", Database::Opportunity] then
+                        MessageTxt := StrSubstNo(CompanyFilterStrengthenedMsg, IntegrationRecordRef.Caption(), CompanyName(), CRMProductName.SHORT());
+                    if Rec."Table ID" in [Database::"Job Journal Line"] then
+                        MessageTxt := StrSubstNo(CompanyFilterStrengthenedFSMsg, IntegrationRecordRef.Caption(), CompanyName(), CRMProductName.FSServiceName());
                     if Rec.Modify() then
                         if GuiAllowed() then
-                            Message(StrSubstNo(CompanyFilterStrengthenedMsg, IntegrationRecordRef.Caption(), CompanyName()));
+                            if MessageTxt <> '' then
+                                Message(MessageTxt);
                 end;
             else begin
                 IntegrationRecordRef.Open(Rec."Integration Table ID");

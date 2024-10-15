@@ -1635,6 +1635,60 @@ codeunit 137831 "SCM - Warehouse UT"
         Assert.IsTrue(WarehousePick.WhseActivityLines."Bin Code".Editable(), '');
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure BinContentsPage_CanSwitchLocationFilterWithoutRenamingRecord()
+    var
+        Location: array[2] of Record Location;
+        Bin: Record Bin;
+        BinContent: Record "Bin Content";
+        WarehouseEmployee: Record "Warehouse Employee";
+        BinContents: TestPage "Bin Contents";
+    begin
+        // [FEATURE] [Bin Contents] [Warehouse Employee] [UI]
+        // [SCENARIO 500943] Location Filter can be switched in Bin Contents page without accidental rename.
+        WarehouseEmployee.DeleteAll();
+
+        // [GIVEN] Location "L1" with bin "B1" and Bin Content for item "I1".
+        LibraryWarehouse.CreateLocationWMS(Location[1], true, false, false, false, false);
+        CreateBin(Bin, Location[1].Code);
+        CreateBinContent(BinContent, Location[1].Code, Bin.Code, LibraryInventory.CreateItemNo());
+
+        // [GIVEN] A user has been set as a warehouse employee only on location "L1".
+        LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, Location[1].Code, true);
+
+        // [GIVEN] Location "L2".
+        LibraryWarehouse.CreateLocationWMS(Location[2], true, false, false, false, false);
+
+        // [GIVEN] A user has been set as a warehouse employee only on location "L2".        
+        LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, Location[2].Code, false);
+
+        // [GIVEN] Open Bin Contents page.
+        BinContents.OpenView();
+
+        // [WHEN] Filter by Location "L2" that does not have any Bin Content.
+        BinContents.LocationCode.SetValue(Location[2].Code);
+
+        // [THEN] There are no Bin Contents on the page.
+        Assert.IsFalse(BinContents.First(), '');
+
+        // [GIVEN] Filter by Bin "B1" that does have Bin Content on "L2".
+        BinContents.Filter.SetFilter("Bin Code", Bin.Code);
+
+        // [WHEN] Filter by Location "L1" that does have Bin Content.
+        BinContents.LocationCode.SetValue(Location[1].Code);
+
+        // [THEN] Bin "B1" is shown on the page.
+        Assert.IsTrue(BinContents.First(), '');
+
+        // [THEN] Item No. has value (not lost due to rename).
+        Assert.IsTrue(BinContents."Item No.".Value() = BinContent."Item No.", 'Item No. is empty.');
+
+        BinContents.Close();
+
+        WarehouseEmployee.DeleteAll();
+    end;
+
     local procedure CreateItemWithSNWhseTracking(): Code[20]
     var
         Item: Record Item;

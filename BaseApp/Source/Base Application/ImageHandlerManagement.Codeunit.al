@@ -5,11 +5,6 @@ using System.Utilities;
 
 codeunit 5080 "Image Handler Management"
 {
-
-    trigger OnRun()
-    begin
-    end;
-
     var
         ImageQuality: Integer;
 
@@ -31,7 +26,6 @@ codeunit 5080 "Image Handler Management"
         CopyStream(ResizedImageOutStream, ImageHandler.ResizeImage(NewWidth, NewHeight, ImageQuality));
     end;
 
-    [Scope('OnPrem')]
     procedure ScaleDownFromBlob(var TempBlob: Codeunit "Temp Blob"; NewWidth: Integer; NewHeight: Integer): Boolean
     var
         ImageInStream: InStream;
@@ -69,7 +63,6 @@ codeunit 5080 "Image Handler Management"
     end;
 
     [TryFunction]
-    [Scope('OnPrem')]
     procedure GetImageSizeBlob(var TempBlob: Codeunit "Temp Blob"; var Width: Integer; var Height: Integer)
     var
         ImageInStream: InStream;

@@ -27,6 +27,7 @@ using Microsoft.Utilities;
 using Microsoft.Warehouse.Structure;
 using System.Globalization;
 using System.Utilities;
+using Microsoft.Integration.Dataverse;
 
 table 1001 "Job Task"
 {
@@ -902,6 +903,13 @@ table 1001 "Job Task"
             TableRelation = Currency;
             DataClassification = CustomerContent;
         }
+        field(721; "Coupled to Dataverse"; Boolean)
+        {
+            FieldClass = FlowField;
+            Caption = 'Coupled to Field Service';
+            Editable = false;
+            CalcFormula = exist("CRM Integration Record" where("Integration ID" = field(SystemId), "Table ID" = const(Database::"Job Task")));
+        }
     }
 
     keys
@@ -940,6 +948,8 @@ table 1001 "Job Task"
         JobPlanningLine.SetCurrentKey("Job No.", "Job Task No.");
         JobPlanningLine.SetRange("Job No.", "Job No.");
         JobPlanningLine.SetRange("Job Task No.", "Job Task No.");
+        if CalledFromHeader then
+            JobPlanningLine.SuspendDeletionCheck(true);
         JobPlanningLine.DeleteAll(true);
 
         JobWIPTotal.DeleteEntriesForJobTask(Rec);
@@ -1007,6 +1017,7 @@ table 1001 "Job Task"
         ContBusinessRelation: Record "Contact Business Relation";
         DimMgt: Codeunit DimensionManagement;
         HideValidationDialog: Boolean;
+        CalledFromHeader: Boolean;
 
         CannotDeleteAssociatedEntriesErr: Label 'You cannot delete %1 because one or more entries are associated.', Comment = '%1=The project task table name.';
         CannotChangeAssociatedEntriesErr: Label 'You cannot change %1 because one or more entries are associated with this %2.', Comment = '%1 = The field name you are trying to change; %2 = The project task table name.';
@@ -1202,6 +1213,18 @@ table 1001 "Job Task"
         Result := not JobLedgEntry.IsEmpty();
     end;
 
+    procedure SalesLineExist() Result: Boolean
+    var
+        SalesLine: Record "Sales Line";
+    begin
+        if "Job No." = '' then
+            exit(false);
+
+        SalesLine.SetCurrentKey("Job No.");
+        SalesLine.SetRange("Job No.", "Job No.");
+        Result := not SalesLine.IsEmpty();
+    end;
+
     local procedure InitLocation(Job: Record Job)
     begin
         "Location Code" := Job."Location Code";
@@ -1212,7 +1235,11 @@ table 1001 "Job Task"
     begin
         if not Job.Get("Job No.") then
             exit;
+
         if Job."Task Billing Method" = Job."Task Billing Method"::"One customer" then
+            exit;
+
+        if "Job Task Type" <> "Job Task Type"::Posting then
             exit;
 
         SetHideValidationDialog(true);
@@ -1439,9 +1466,12 @@ table 1001 "Job Task"
 
     local procedure CheckBillToCustomerAssosEntriesExist(var JobTask: Record "Job Task"; var xJobTask: Record "Job Task")
     begin
-        if (JobTask."Bill-to Customer No." = '') or (JobTask."Bill-to Customer No." <> xJobTask."Bill-to Customer No.") then
+        if (JobTask."Bill-to Customer No." = '') or (JobTask."Bill-to Customer No." <> xJobTask."Bill-to Customer No.") then begin
             if JobTask.SalesJobLedgEntryExist() then
                 Error(AssociatedEntriesExistErr, JobTask.FieldCaption("Bill-to Customer No."), JobTask.TableCaption);
+            if JobTask.SalesLineExist() then
+                Error(AssociatedEntriesExistErr, JobTask.FieldCaption("Bill-to Customer No."), JobTask.TableCaption);
+        end;
     end;
 
     local procedure CheckSellToCustomerAssosEntriesExist(var JobTask: Record "Job Task"; var xJobTask: Record "Job Task")
@@ -1646,18 +1676,18 @@ table 1001 "Job Task"
         exit(false);
     end;
 
-    procedure ShipToAddressEqualsSellToAddress(): Boolean
+    procedure ShipToAddressEqualsSellToAddress() Result: Boolean
     begin
-        if ("Sell-to Address" = "Ship-to Address") and
+        Result :=
+          ("Sell-to Address" = "Ship-to Address") and
           ("Sell-to Address 2" = "Ship-to Address 2") and
           ("Sell-to City" = "Ship-to City") and
           ("Sell-to County" = "Ship-to County") and
           ("Sell-to Post Code" = "Ship-to Post Code") and
           ("Sell-to Country/Region Code" = "Ship-to Country/Region Code") and
-          ("Sell-to Contact" = "Ship-to Contact")
-        then
-            exit(true);
-        exit(false);
+          ("Sell-to Contact" = "Ship-to Contact");
+
+        OnAfterShipToAddressEqualsSellToAddress(Rec, Result);
     end;
 
     procedure SyncShipToWithSellTo()
@@ -1672,6 +1702,8 @@ table 1001 "Job Task"
         Rec."Ship-to Country/Region Code" := Rec."Sell-to Country/Region Code";
         Rec."Ship-to Contact" := Rec."Sell-to Contact";
         Rec."Ship-to Code" := '';
+
+        OnAfterSyncShipToWithSellTo(Rec);
     end;
 
     procedure JobLedgEntryExist() Result: Boolean
@@ -1712,6 +1744,11 @@ table 1001 "Job Task"
     procedure GetHideValidationDialog(): Boolean
     begin
         exit(HideValidationDialog);
+    end;
+
+    procedure SuspendDeletionCheck(Suspend: Boolean)
+    begin
+        CalledFromHeader := Suspend;
     end;
 
     [IntegrationEvent(false, false)]
@@ -1767,6 +1804,16 @@ table 1001 "Job Task"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCaption(JobTask: Record "Job Task"; var IsHandled: Boolean; var Result: Text)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterShipToAddressEqualsSellToAddress(var JobTask: Record "Job Task"; var Result: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSyncShipToWithSellTo(var JobTask: Record "Job Task")
     begin
     end;
 }

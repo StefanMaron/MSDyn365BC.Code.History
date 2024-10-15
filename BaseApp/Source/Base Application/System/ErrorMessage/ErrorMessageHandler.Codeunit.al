@@ -120,6 +120,7 @@ codeunit 29 "Error Message Handler"
             ErrorMessage := TempErrorMessage;
             ErrorMessage."Register ID" := RegisterID;
             ErrorMessage.ID := 0; // autoincrement
+            ErrorMessage.SetErrorCallStack(TempErrorMessage.GetErrorCallStack());
             ErrorMessage.Insert();
             TempErrorMessage."Reg. Err. Msg. System ID" := ErrorMessage.SystemId;// This is used to link the temporary error messages with the registered (committed) error messages.
             TempErrorMessage.Modify(false);

@@ -563,6 +563,7 @@ codeunit 699 "Exch. Rate Adjmt. Process"
                 Type, Closed, "Tax Jurisdiction Code", "Use Tax", "Posting Date");
         VATEntry.SetRange(Closed, false);
         VATEntry.SetRange("Posting Date", StartDate, EndDate);
+        OnAfterSetVATEntryFilters(VATEntry);
     end;
 
     local procedure ProcessCustomerAdjustment(var Customer: Record Customer)
@@ -1322,12 +1323,14 @@ codeunit 699 "Exch. Rate Adjmt. Process"
         Currency.CopyFilter(Code, EmployeeLedgerEntry2."Currency Code");
         EmployeeLedgerEntry2.FilterGroup(2);
         EmployeeLedgerEntry2.SetFilter("Currency Code", '<>%1', '');
+        OnPrepareTempEmplLedgEntryOnAfterSetEmplLedgerEntryFilters(EmployeeLedgerEntry2);
         EmployeeLedgerEntry2.FilterGroup(0);
 
         DtldEmplLedgEntry2.Reset();
         DtldEmplLedgEntry2.SetCurrentKey("Employee No.", "Posting Date", "Entry Type");
         DtldEmplLedgEntry2.SetRange("Employee No.", Employee."No.");
         DtldEmplLedgEntry2.SetRange("Posting Date", CalcDate('<+1D>', ExchRateAdjmtParameters."End Date"), DMY2Date(31, 12, 9999));
+        OnPrepareTempEmplLedgEntryOnAfterSetDtldEmplLedgerEntryFilters(DtldEmplLedgEntry2);
         if DtldEmplLedgEntry2.Find('-') then
             repeat
                 EmployeeLedgerEntry2."Entry No." := DtldEmplLedgEntry2."Employee Ledger Entry No.";
@@ -1344,6 +1347,7 @@ codeunit 699 "Exch. Rate Adjmt. Process"
         EmployeeLedgerEntry2.SetRange("Employee No.", Employee."No.");
         EmployeeLedgerEntry2.SetRange(Open, true);
         EmployeeLedgerEntry2.SetRange("Posting Date", 0D, ExchRateAdjmtParameters."End Date");
+        OnPrepareTempEmplLedgEntryOnAfterSetEmplLedgerEntryFilters(EmployeeLedgerEntry2);
         if EmployeeLedgerEntry2.Find('-') then
             repeat
                 TempEmployeeLedgerEntry."Entry No." := EmployeeLedgerEntry2."Entry No.";
@@ -2825,6 +2829,11 @@ codeunit 699 "Exch. Rate Adjmt. Process"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterSetVATEntryFilters(var VATEntry: Record "VAT Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAdjustCustomerLedgerEntryOnBeforeInitDtldCustLedgEntry(var Customer: Record Customer; CusLedgerEntry: Record "Cust. Ledger Entry")
     begin
     end;
@@ -2994,4 +3003,13 @@ codeunit 699 "Exch. Rate Adjmt. Process"
     begin
     end;
 
+    [IntegrationEvent(false, false)]
+    local procedure OnPrepareTempEmplLedgEntryOnAfterSetEmplLedgerEntryFilters(var EmployeeLedgerEntry: Record "Employee Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPrepareTempEmplLedgEntryOnAfterSetDtldEmplLedgerEntryFilters(var DetailedEmployeeLedgerEntry: Record "Detailed Employee Ledger Entry")
+    begin
+    end;
 }

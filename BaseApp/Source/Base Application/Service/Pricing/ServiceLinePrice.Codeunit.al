@@ -233,7 +233,7 @@ codeunit 7026 "Service Line - Price" implements "Line With Price"
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeSetPrice(ServiceLine, PriceListLine, AmountType, IsHandled, ServiceHeader);
+        OnBeforeSetPrice(ServiceLine, PriceListLine, AmountType, IsHandled, ServiceHeader, CurrPriceType);
         if IsHandled then
             exit;
 
@@ -329,7 +329,7 @@ codeunit 7026 "Service Line - Price" implements "Line With Price"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeSetPrice(var ServiceLine: Record "Service Line"; PriceListLine: Record "Price List Line"; AmountType: Enum "Price Amount Type"; var IsHandled: Boolean; var ServiceHeader: Record "Service Header")
+    local procedure OnBeforeSetPrice(var ServiceLine: Record "Service Line"; PriceListLine: Record "Price List Line"; AmountType: Enum "Price Amount Type"; var IsHandled: Boolean; var ServiceHeader: Record "Service Header"; CurrPriceType: Enum "Price Type")
     begin
     end;
 

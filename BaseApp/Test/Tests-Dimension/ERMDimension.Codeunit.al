@@ -1135,6 +1135,42 @@ codeunit 134380 "ERM Dimension"
         Assert.AreEqual(0, NewDimSetID, 'Dimension Set did not get changed');
     end;
 
+    [Test]
+    procedure GetDimSetFiltersChunksWhenLimitOfDimensionSetIdsReached()
+    var
+        TempDimensionSetEntry: Record "Dimension Set Entry" temporary;
+        Filters: List of [Text];
+        SecondFilter: Text;
+        i: Integer;
+    begin
+        for i := 1 to 1002 do begin
+            TempDimensionSetEntry."Dimension Set ID" := i;
+            TempDimensionSetEntry."Dimension Code" := 'TEST';
+            TempDimensionSetEntry.Insert();
+        end;
+        Filters := LibraryDim.ChunkDimSetFilters(TempDimensionSetEntry);
+        SecondFilter := Filters.Get(2);
+        Assert.AreEqual(2, Filters.Count, 'Dimension Set Ids should be chunked when threshold of parameters (1001) is reached.');
+        Assert.AreEqual('1002', SecondFilter, 'The second filter should be the last Dimension Set Id.');
+    end;
+
+    [Test]
+    procedure GetDimSetFiltersDoesNotChunksWhenLimitOfDimensionSetIdsNotReached()
+    var
+        TempDimensionSetEntry: Record "Dimension Set Entry" temporary;
+        Filters: List of [Text];
+    begin
+        TempDimensionSetEntry."Dimension Set ID" := 1;
+        TempDimensionSetEntry."Dimension Code" := 'DIM1';
+        TempDimensionSetEntry.Insert();
+        TempDimensionSetEntry."Dimension Set ID" := 2;
+        TempDimensionSetEntry."Dimension Code" := 'DIM2';
+        TempDimensionSetEntry.Insert();
+        Filters := LibraryDim.ChunkDimSetFilters(TempDimensionSetEntry);
+        Assert.AreEqual(1, Filters.Count, 'Dimension Set Ids should not be chunked for only two dimension set entries.');
+        Assert.AreEqual('1|2', Filters.Get(1), 'The filter should contain all Dimension Set Ids.');
+    end;
+
     local procedure Initialize()
     var
         Dimension: Record Dimension;

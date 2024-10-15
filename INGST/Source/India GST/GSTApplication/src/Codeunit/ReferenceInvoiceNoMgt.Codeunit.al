@@ -3381,7 +3381,7 @@ codeunit 18435 "Reference Invoice No. Mgt."
                     PostedRefInvCreated := true;
                 end;
 
-                if PurchCrMemoHdrNo <> '' then begin
+                if (PurchCrMemoHdrNo <> '') and (PurchCrMemoHdrNo <> PurchaseHeader."No.") then begin
                     PostedReferenceInvoiceNo.Init();
                     PostedReferenceInvoiceNo := ReferenceInvoiceNo;
                     PostedReferenceInvoiceNo."Document Type" := PostedReferenceInvoiceNo."Document Type"::"Credit Memo";

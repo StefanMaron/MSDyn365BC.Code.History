@@ -30,6 +30,7 @@ codeunit 5916 ServMailManagement
     var
         ServerFile: File;
         InStream: Instream;
+        IsHandled: Boolean;
     begin
         TempEmailItem.Initialize();
         if File.Exists(ServiceEmailQueue."Attachment Filename") then begin
@@ -38,11 +39,20 @@ codeunit 5916 ServMailManagement
             TempEmailItem.AddAttachment(InStream, '');
             ServerFile.Close();
         end;
-        TempEmailItem.SetBodyText(ServiceEmailQueue."Body Line");
+
+        IsHandled := false;
+        OnInitTempEmailItemOnBeforeSetBodyText(ServiceEmailQueue, TempEmailItem, IsHandled);
+        if not IsHandled then
+            TempEmailItem.SetBodyText(ServiceEmailQueue."Body Line");
         TempEmailItem."Send to" := ServiceEmailQueue."To Address";
         TempEmailItem."Send CC" := ServiceEmailQueue."Copy-to Address";
         TempEmailItem.Subject := ServiceEmailQueue."Subject Line";
         TempEmailItem.Insert();
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInitTempEmailItemOnBeforeSetBodyText(ServiceEmailQueue: Record "Service Email Queue"; var TempEmailItem: Record "Email Item" temporary; var IsHandled: Boolean)
+    begin
     end;
 }
 

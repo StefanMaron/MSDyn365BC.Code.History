@@ -80,6 +80,32 @@ table 4401 "EXR Aging Report Buffer"
         {
             Caption = 'Source Name';
         }
+        field(26; "Aged By"; Option)
+        {
+            Caption = 'Aged By';
+            OptionMembers = "Due Date","Posting Date","Document Date";
+            OptionCaption = 'Due Date, Posting Date, Document Date';
+        }
+        field(27; "Reporting Date"; Date)
+        {
+            Caption = 'Reporting Date';
+            CaptionClass = '3,' + GetReportingDateCaption();
+        }
+        field(28; "Reporting Date Month"; Integer)
+        {
+            Caption = 'Reporting Date (Month)';
+            CaptionClass = '3,' + GetReportingDateMonthCaption();
+        }
+        field(29; "Reporting Date Quarter"; Integer)
+        {
+            Caption = 'Reporting Date (Quarter)';
+            CaptionClass = '3,' + GetReportingDateQuarterCaption();
+        }
+        field(30; "Reporting Date Year"; Integer)
+        {
+            Caption = 'Reporting Date (Year)';
+            CaptionClass = '3,' + GetReportingDateYearCaption();
+        }
     }
     keys
     {
@@ -91,4 +117,106 @@ table 4401 "EXR Aging Report Buffer"
         {
         }
     }
+
+    local procedure GetReportingDateCaption(): Text
+    begin
+        OnOverrideAgedBy(Rec);
+        case Rec."Aged By" of
+            Rec."Aged By"::"Document Date":
+                exit(FieldCaption("Document Date"));
+            Rec."Aged By"::"Due Date":
+                exit(FieldCaption("Due Date"));
+            Rec."Aged By"::"Posting Date":
+                exit(FieldCaption("Posting Date"));
+        end;
+    end;
+
+    local procedure GetReportingDateMonthCaption(): Text
+    begin
+        exit(StrSubstNo(MonthLbl, GetReportingDateCaption()));
+    end;
+
+    local procedure GetReportingDateQuarterCaption(): Text
+    begin
+        exit(StrSubstNo(QuarterLbl, GetReportingDateCaption()));
+    end;
+
+    local procedure GetReportingDateYearCaption(): Text
+    begin
+        exit(StrSubstNo(YearLbl, GetReportingDateCaption()));
+    end;
+
+    internal procedure SetReportingDate()
+    begin
+        case Rec."Aged By" of
+            Rec."Aged By"::"Due Date":
+                Rec."Reporting Date" := Rec."Due Date";
+            Rec."Aged By"::"Posting Date":
+                Rec."Reporting Date" := Rec."Posting Date";
+            Rec."Aged By"::"Document Date":
+                Rec."Reporting Date" := Rec."Document Date";
+        end;
+
+        Rec."Reporting Date Month" := Date2DMY(Rec."Reporting Date", 2);
+        Rec."Reporting Date Year" := Date2DMY(Rec."Reporting Date", 3);
+        Rec."Reporting Date Quarter" := GetQuarterIndex(Rec."Reporting Date");
+    end;
+
+    local procedure GetQuarterIndex(Date: Date): Integer
+    begin
+        exit((Date2DMY(Date, 2) - 1) div 3 + 1);
+    end;
+
+    internal procedure SetPeriodStartAndEndDate(PeriodStarts: List of [Date]; PeriodEnds: List of [Date])
+    begin
+        case Rec."Aged By" of
+            Rec."Aged By"::"Due Date":
+                begin
+                    Rec."Period Start Date" := FindPeriodStart(Rec."Due Date", PeriodStarts);
+                    Rec."Period End Date" := FindPeriodEnd(Rec."Due Date", PeriodEnds);
+                end;
+            Rec."Aged By"::"Posting Date":
+                begin
+                    Rec."Period Start Date" := FindPeriodStart(Rec."Posting Date", PeriodStarts);
+                    Rec."Period End Date" := FindPeriodEnd(Rec."Posting Date", PeriodEnds);
+                end;
+            Rec."Aged By"::"Document Date":
+                begin
+                    Rec."Period Start Date" := FindPeriodStart(Rec."Document Date", PeriodStarts);
+                    Rec."Period End Date" := FindPeriodEnd(Rec."Document Date", PeriodEnds);
+                end;
+        end;
+    end;
+
+    local procedure FindPeriodStart(WhatDate: Date; PeriodStarts: List of [Date]): Date
+    var
+        PossibleDate: Date;
+    begin
+        foreach PossibleDate in PeriodStarts do
+            if WhatDate >= PossibleDate then
+                exit(PossibleDate);
+
+        exit(PossibleDate);
+    end;
+
+    local procedure FindPeriodEnd(WhatDate: Date; PeriodEnds: List of [Date]): Date
+    var
+        PossibleDate: Date;
+    begin
+        foreach PossibleDate in PeriodEnds do
+            if WhatDate < PossibleDate then
+                exit(PossibleDate);
+
+        exit(PossibleDate);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnOverrideAgedBy(var EXRAgingReportBuffer: Record "EXR Aging Report Buffer")
+    begin
+    end;
+
+    var
+        MonthLbl: Label '%1 (Month)', Comment = '%1 is Document Date, Due Date or Posting Date';
+        QuarterLbl: Label '%1 (Quarter)', Comment = '%1 is Document Date, Due Date or Posting Date';
+        YearLbl: Label '%1 (Year)', Comment = '%1 is Document Date, Due Date or Posting Date';
 }

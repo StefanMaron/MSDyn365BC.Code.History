@@ -819,7 +819,7 @@ page 9233 "G/L Balance by Dim. Matrix"
         DimVal: Record "Dimension Value";
         PeriodPageMgt: Codeunit PeriodPageManagement;
     begin
-        OnBeforeFindRec(DimOption, DimVal);
+        OnBeforeFindRec(DimOption, DimVal, GLAcc);
         case DimOption of
             DimOption::"G/L Account":
                 begin
@@ -889,7 +889,7 @@ page 9233 "G/L Balance by Dim. Matrix"
         DimVal: Record "Dimension Value";
         PeriodPageMgt: Codeunit PeriodPageManagement;
     begin
-        OnBeforeNextRec(DimOption, DimVal);
+        OnBeforeNextRec(DimOption, DimVal, GLAcc);
         case DimOption of
             DimOption::"G/L Account":
                 begin
@@ -1549,12 +1549,12 @@ page 9233 "G/L Balance by Dim. Matrix"
     end;
 
     [IntegrationEvent(true, false)]
-    local procedure OnBeforeFindRec(DimOption: Enum "Analysis Dimension Option"; var DimensionValue: Record "Dimension Value")
+    local procedure OnBeforeFindRec(DimOption: Enum "Analysis Dimension Option"; var DimensionValue: Record "Dimension Value"; var GLAccount: Record "G/L Account")
     begin
     end;
 
     [IntegrationEvent(true, false)]
-    local procedure OnBeforeNextRec(DimOption: Enum "Analysis Dimension Option"; var DimensionValue: Record "Dimension Value")
+    local procedure OnBeforeNextRec(DimOption: Enum "Analysis Dimension Option"; var DimensionValue: Record "Dimension Value"; var GLAccount: Record "G/L Account")
     begin
     end;
 

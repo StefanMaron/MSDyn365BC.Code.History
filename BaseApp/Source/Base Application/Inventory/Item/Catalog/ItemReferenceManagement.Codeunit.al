@@ -91,12 +91,15 @@ codeunit 5720 "Item Reference Management"
         GlobalItemReference.SetRange("Reference Type", SalesLine."Item Reference Type"::Customer);
         GlobalItemReference.SetRange("Reference Type No.", SalesLine."Sell-to Customer No.");
         GlobalItemReference.SetRange("Reference No.", SalesLine."Item Reference No.");
+        OnFindItemReferenceForSalesLineOnBeforeFindFirst(SalesLine, GlobalItemReference);
         if GlobalItemReference.FindFirst() then
             Found := true
         else begin
             GlobalItemReference.SetRange("Reference No.");
             Found := GlobalItemReference.FindFirst();
         end;
+
+        OnAfterFindItemReferenceForSalesLine(SalesLine, GlobalItemReference, Found);
     end;
 
     procedure ReferenceLookupSalesItem(var SalesLine2: Record "Sales Line"; var ReturnedItemReference: Record "Item Reference"; ShowDialog: Boolean)
@@ -117,7 +120,6 @@ codeunit 5720 "Item Reference Management"
 
     procedure EnterPurchaseItemReference(var PurchLine2: Record "Purchase Line")
     var
-        ToDate: Date;
         ShouldAssignDescription: Boolean;
         IsHandled: Boolean;
     begin
@@ -127,24 +129,7 @@ codeunit 5720 "Item Reference Management"
             exit;
 
         if PurchLine2.Type = PurchLine2.Type::Item then begin
-            GlobalItemReference.Reset();
-            GlobalItemReference.SetRange("Item No.", PurchLine2."No.");
-            GlobalItemReference.SetRange("Variant Code", PurchLine2."Variant Code");
-            GlobalItemReference.SetRange("Unit of Measure", PurchLine2."Unit of Measure Code");
-            ToDate := PurchLine2.GetDateForCalculations();
-            if ToDate <> 0D then begin
-                GlobalItemReference.SetFilter("Starting Date", '<=%1', ToDate);
-                GlobalItemReference.SetFilter("Ending Date", '>=%1|%2', ToDate, 0D);
-            end;
-            GlobalItemReference.SetRange("Reference Type", PurchLine2."Item Reference Type"::Vendor);
-            GlobalItemReference.SetRange("Reference Type No.", PurchLine2."Buy-from Vendor No.");
-            GlobalItemReference.SetRange("Reference No.", PurchLine2."Item Reference No.");
-            if GlobalItemReference.FindFirst() then
-                Found := true
-            else begin
-                GlobalItemReference.SetRange("Reference No.");
-                Found := GlobalItemReference.FindFirst();
-            end;
+            FindItemReferenceForPurchaseLine(PurchLine2);
 
             if Found then begin
                 PurchLine2."Item Reference No." := GlobalItemReference."Reference No.";
@@ -167,6 +152,37 @@ codeunit 5720 "Item Reference Management"
                 OnAfterPurchItemItemRefNotFound(PurchLine2, GlobalItemVariant);
             end;
         end;
+    end;
+
+    local procedure FindItemReferenceForPurchaseLine(var PurchaseLine: Record "Purchase Line")
+    var
+        ToDate: Date;
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeFindItemReferenceForPurchaseLine(PurchaseLine, GlobalItemReference, Found, IsHandled);
+        if not IsHandled then begin
+            GlobalItemReference.Reset();
+            GlobalItemReference.SetRange("Item No.", PurchaseLine."No.");
+            GlobalItemReference.SetRange("Variant Code", PurchaseLine."Variant Code");
+            GlobalItemReference.SetRange("Unit of Measure", PurchaseLine."Unit of Measure Code");
+            ToDate := PurchaseLine.GetDateForCalculations();
+            if ToDate <> 0D then begin
+                GlobalItemReference.SetFilter("Starting Date", '<=%1', ToDate);
+                GlobalItemReference.SetFilter("Ending Date", '>=%1|%2', ToDate, 0D);
+            end;
+            GlobalItemReference.SetRange("Reference Type", PurchaseLine."Item Reference Type"::Vendor);
+            GlobalItemReference.SetRange("Reference Type No.", PurchaseLine."Buy-from Vendor No.");
+            GlobalItemReference.SetRange("Reference No.", PurchaseLine."Item Reference No.");
+            OnFindItemReferenceForPurchaseLineBeforeFindFirst(PurchaseLine, GlobalItemReference);
+            if GlobalItemReference.FindFirst() then
+                Found := true
+            else begin
+                GlobalItemReference.SetRange("Reference No.");
+                Found := GlobalItemReference.FindFirst();
+            end;
+        end;
+        OnAfterFindItemReferenceForPurchaseLine(PurchaseLine, GlobalItemReference, Found);
     end;
 
     local procedure FillDescription(var PurchaseLine: Record "Purchase Line")
@@ -328,7 +344,10 @@ codeunit 5720 "Item Reference Management"
         end;
     end;
 
-    local procedure SelectOrFindReference(ItemRefNo: Code[50]; ItemRefType: Enum "Item Reference Type"; ItemRefTypeNo: Code[30]; TempRecRequired: Boolean; MultipleItemsToChoose: Boolean; ShowDialog: Boolean)
+    local procedure SelectOrFindReference(ItemRefNo: Code[50]; ItemRefType: Enum "Item Reference Type"; ItemRefTypeNo: Code[30];
+                                                                                TempRecRequired: Boolean;
+                                                                                MultipleItemsToChoose: Boolean;
+                                                                                ShowDialog: Boolean)
     var
         IsHandled: Boolean;
     begin
@@ -487,7 +506,14 @@ codeunit 5720 "Item Reference Management"
     end;
 
     local procedure SetFiltersBlankTypeItemRef(var ItemReference: Record "Item Reference")
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeSetFiltersBlankTypeItemRef(ItemReference, IsHandled);
+        if IsHandled then
+            exit;
+
         ItemReference.SetFilter("Reference Type", '%1|%2', ItemReference."Reference Type"::" ", ItemReference."Reference Type"::"Bar Code");
         ItemReference.SetRange("Reference Type No.");
     end;
@@ -1033,7 +1059,10 @@ codeunit 5720 "Item Reference Management"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeSelectOrFindReference(var ItemReference: Record "Item Reference"; ItemRefNo: Code[50]; ItemRefType: Enum "Item Reference Type"; ItemRefTypeNo: Code[30]; TempRecRequired: Boolean; MultipleItemsToChoose: Boolean; ShowDialog: Boolean; var IsHandled: Boolean)
+    local procedure OnBeforeSelectOrFindReference(var ItemReference: Record "Item Reference"; ItemRefNo: Code[50]; ItemRefType: Enum "Item Reference Type"; ItemRefTypeNo: Code[30];
+                                                                                                                                    TempRecRequired: Boolean;
+                                                                                                                                    MultipleItemsToChoose: Boolean;
+                                                                                                                                    ShowDialog: Boolean; var IsHandled: Boolean)
     begin
     end;
 
@@ -1194,6 +1223,36 @@ codeunit 5720 "Item Reference Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeValidateSalesReferenceNo(var SalesLine: Record "Sales Line"; ItemReference: Record "Item Reference"; SearchItem: Boolean; CurrentFieldNo: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSetFiltersBlankTypeItemRef(var ItemReference: Record "Item Reference"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnFindItemReferenceForSalesLineOnBeforeFindFirst(var SalesLine: Record "Sales Line"; var ItemReference: Record "Item Reference");
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterFindItemReferenceForSalesLine(var SalesLine: Record "Sales Line"; var ItemReference: Record "Item Reference"; var Found: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeFindItemReferenceForPurchaseLine(var PurchaseLine: Record "Purchase Line"; var ItemReference: Record "Item Reference"; var Found: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnFindItemReferenceForPurchaseLineBeforeFindFirst(var PurchaseLine: Record "Purchase Line"; var ItemReference: Record "Item Reference");
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterFindItemReferenceForPurchaseLine(var PurchaseLine: Record "Purchase Line"; var ItemReference: Record "Item Reference"; var Found: Boolean)
     begin
     end;
 }

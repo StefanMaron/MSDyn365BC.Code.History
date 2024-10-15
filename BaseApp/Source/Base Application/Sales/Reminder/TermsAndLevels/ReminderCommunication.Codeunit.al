@@ -877,7 +877,7 @@ codeunit 1890 "Reminder Communication"
         RecordReference.GetTable(RecordVariant);
         if RecordReference.Number <> IssuedReminderHeader.RecordId.TableNo then
             exit;
-        IssuedReminderHeader := RecordVariant;
+        IssuedReminderHeader.Copy(RecordVariant);
 
         FileManagement.BLOBImportFromServerFile(TempBlob, FilePath);
         TempBlob.CreateInStream(ReadStream, TextEncoding::UTF8);
