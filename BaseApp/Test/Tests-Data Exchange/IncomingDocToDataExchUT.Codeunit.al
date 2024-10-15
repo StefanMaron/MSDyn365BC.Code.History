@@ -2781,6 +2781,7 @@ codeunit 139154 "Incoming Doc. To Data Exch.UT"
         LibraryERMCountryData.CreateVATData();
         LibraryERMCountryData.UpdateGeneralPostingSetup();
         LibraryERMCountryData.UpdateSalesReceivablesSetup();
+        LibraryERMCountryData.UpdateGeneralLedgerSetup();
 
         if IncomingDocumentsSetup.Get() then
             IncomingDocumentsSetup.Delete();

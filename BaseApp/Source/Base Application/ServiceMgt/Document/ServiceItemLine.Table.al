@@ -93,7 +93,10 @@ table 5901 "Service Item Line"
                         OnValidateServiceItemNoOnBeforeValidateServicePeriod(Rec, xRec, CurrFieldNo, IsHandled);
                         if not IsHandled then
                             ServContractLine.ValidateServicePeriod(ServHeader."Order Date");
-                        ServContractExist := true;
+                        IsHandled := false;
+                        OnBeforeSetServContractExistTrue(ServContractLine, ServHeader, IsHandled);
+                        if not IsHandled then
+                            ServContractExist := true;
                     end;
 
                     ShouldFindServContractLine := ServHeader."Contract No." = '';
@@ -288,6 +291,7 @@ table 5901 "Service Item Line"
             trigger OnValidate()
             var
                 RepairStatusInProgress: Boolean;
+                IsHandled: Boolean;
             begin
                 UpdateResponseTimeHours();
                 if "Repair Status Code" <> '' then begin
@@ -316,26 +320,39 @@ table 5901 "Service Item Line"
                         "Finishing Time" := 0T;
                         UpdateStartFinishDateTime("Document Type", "Document No.", "Line No.", "Starting Date", "Starting Time",
                           "Finishing Date", "Finishing Time", false);
-                        ServOrderAlloc.SetFilters(Rec);
-                        ServOrderAlloc.ModifyAll("Service Started", false, false);
+
+                        IsHandled := false;
+                        OnValidateRepairStatusCodeInitialOnBeforeServOrderAllocModify(Rec, IsHandled);
+                        if not IsHandled then begin
+                            ServOrderAlloc.SetFilters(Rec);
+                            ServOrderAlloc.ModifyAll("Service Started", false, false);
+                        end;
                     end;
 
                     RepairStatusInProgress := RepairStatus."In Process";
                     OnRepairStatusCodeValidateOnAfterSetRepairStatusInProgress(Rec, RepairStatusInProgress);
                     if RepairStatusInProgress then begin
                         GetServHeader();
-                        if ServHeader."Order Date" > WorkDate() then begin
-                            "Starting Date" := ServHeader."Order Date";
-                            Validate("Starting Time", ServHeader."Order Time");
-                        end else begin
-                            "Starting Date" := WorkDate();
-                            if (ServHeader."Order Date" = "Starting Date") and (ServHeader."Order Time" > Time) then
-                                Validate("Starting Time", ServHeader."Order Time")
-                            else
-                                Validate("Starting Time", Time);
+                        IsHandled := false;
+                        OnValidateRepairStatusCodeOnBeforeCheckOrderDateRepairStatusInProgress(ServOrderAlloc, Rec, IsHandled);
+                        if not IsHandled then
+                            if ServHeader."Order Date" > WorkDate() then begin
+                                "Starting Date" := ServHeader."Order Date";
+                                Validate("Starting Time", ServHeader."Order Time");
+                            end else begin
+                                "Starting Date" := WorkDate();
+                                if (ServHeader."Order Date" = "Starting Date") and (ServHeader."Order Time" > Time) then
+                                    Validate("Starting Time", ServHeader."Order Time")
+                                else
+                                    Validate("Starting Time", Time);
+                            end;
+
+                        IsHandled := false;
+                        OnValidateRepairStatusCodeInProgressOnBeforeServOrderAllocModify(Rec, IsHandled);
+                        if not IsHandled then begin
+                            ServOrderAlloc.SetFilters(Rec);
+                            ServOrderAlloc.ModifyAll("Service Started", true, false);
                         end;
-                        ServOrderAlloc.SetFilters(Rec);
-                        ServOrderAlloc.ModifyAll("Service Started", true, false);
                     end;
 
                     if RepairStatus.Finished then begin
@@ -343,9 +360,13 @@ table 5901 "Service Item Line"
                         if ServMgtSetup."Fault Reason Code Mandatory" then
                             TestField("Fault Reason Code");
                         GetServHeader();
-                        CalculateDates();
-                        ServOrderAlloc.SetFilters(Rec);
-                        ServOrderAlloc.ModifyAll(Status, ServOrderAlloc.Status::Finished, false);
+                        IsHandled := false;
+                        OnValidateRepairStatusCodeFinishedOnBeforeServOrderAllocModify(Rec, IsHandled);
+                        if not IsHandled then begin
+                            CalculateDates();
+                            ServOrderAlloc.SetFilters(Rec);
+                            ServOrderAlloc.ModifyAll(Status, ServOrderAlloc.Status::Finished, false);
+                        end;
                     end;
 
                     if RepairStatus."Quote Finished" then begin
@@ -435,23 +456,28 @@ table 5901 "Service Item Line"
             Caption = 'Response Date';
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
                 SkipResponseTimeHrsUpdate := true;
                 if "Response Date" <> xRec."Response Date" then begin
                     GetServHeader();
-                    if "Response Date" <> 0D then begin
-                        if "Response Date" < ServHeader."Order Date" then
-                            Error(
-                              Text022,
-                              FieldCaption("Response Date"), ServHeader.TableCaption(),
-                              ServHeader.FieldCaption("Order Date"));
-                        if "Response Date" = ServHeader."Order Date" then
-                            if Time < ServHeader."Order Time" then
-                                "Response Time" := ServHeader."Order Time"
-                            else
-                                "Response Time" := Time;
-                    end else
-                        "Response Time" := 0T;
+                    IsHandled := false;
+                    OnValidateResponseDateOnBeforeCheckResponseDate(Rec, IsHandled);
+                    if not IsHandled then
+                        if "Response Date" <> 0D then begin
+                            if "Response Date" < ServHeader."Order Date" then
+                                Error(
+                                  Text022,
+                                  FieldCaption("Response Date"), ServHeader.TableCaption(),
+                                  ServHeader.FieldCaption("Order Date"));
+                            if "Response Date" = ServHeader."Order Date" then
+                                if Time < ServHeader."Order Time" then
+                                    "Response Time" := ServHeader."Order Time"
+                                else
+                                    "Response Time" := Time;
+                        end else
+                            "Response Time" := 0T;
 
                     "Response Time (Hours)" := 0;
                 end;
@@ -462,17 +488,20 @@ table 5901 "Service Item Line"
             Caption = 'Response Time';
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
                 SkipResponseTimeHrsUpdate := true;
                 if "Response Time" <> xRec."Response Time" then begin
                     GetServHeader();
-                    if ("Response Date" = ServHeader."Order Date") and
-                       ("Response Time" < ServHeader."Order Time")
-                    then
-                        Error(
-                          Text022,
-                          FieldCaption("Response Time"), ServHeader.TableCaption(),
-                          ServHeader.FieldCaption("Order Time"));
+                    IsHandled := false;
+                    OnValidateResponseTimeOnBeforeCheckResponseTime(Rec, IsHandled);
+                    if not IsHandled then
+                        if ("Response Date" = ServHeader."Order Date") and ("Response Time" < ServHeader."Order Time") then
+                            Error(
+                              Text022,
+                              FieldCaption("Response Time"), ServHeader.TableCaption(),
+                              ServHeader.FieldCaption("Order Time"));
 
                     "Response Time (Hours)" := 0;
                 end;
@@ -483,15 +512,20 @@ table 5901 "Service Item Line"
             Caption = 'Starting Date';
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
                 SkipResponseTimeHrsUpdate := true;
                 GetServHeader();
                 if "Starting Date" <> 0D then begin
-                    if "Starting Date" < ServHeader."Order Date" then
-                        Error(
-                          Text022,
-                          FieldCaption("Starting Date"), ServHeader.TableCaption(),
-                          ServHeader.FieldCaption("Order Date"));
+                    IsHandled := false;
+                    OnValidateStartingDateOnBeforeCheckIfLessThanOrderDate(Rec, IsHandled);
+                    if not IsHandled then
+                        if "Starting Date" < ServHeader."Order Date" then
+                            Error(
+                              Text022,
+                              FieldCaption("Starting Date"), ServHeader.TableCaption(),
+                              ServHeader.FieldCaption("Order Date"));
 
                     if ("Starting Date" > ServHeader."Finishing Date") and
                        (ServHeader."Finishing Date" <> 0D)
@@ -507,12 +541,13 @@ table 5901 "Service Item Line"
                         "Finishing Time" := 0T;
                     end;
 
-                    if ("Starting Date" = ServHeader."Order Date") and
-                       (Time < ServHeader."Order Time")
-                    then
-                        Validate("Starting Time", ServHeader."Order Time")
-                    else
-                        Validate("Starting Time", Time);
+                    IsHandled := false;
+                    OnValidateStartingDateOnBeforeValidateStartingTime(Rec, IsHandled);
+                    if not IsHandled then
+                        if ("Starting Date" = ServHeader."Order Date") and (Time < ServHeader."Order Time") then
+                            Validate("Starting Time", ServHeader."Order Time")
+                        else
+                            Validate("Starting Time", Time);
                 end else begin
                     "Starting Time" := 0T;
                     Validate("Finishing Date", 0D);
@@ -546,24 +581,34 @@ table 5901 "Service Item Line"
             Caption = 'Finishing Date';
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
                 SkipResponseTimeHrsUpdate := true;
                 GetServHeader();
                 if "Finishing Date" <> 0D then begin
-                    if "Finishing Date" < ServHeader."Order Date" then
-                        Error(
-                          Text022,
-                          FieldCaption("Finishing Date"), ServHeader.TableCaption(),
-                          ServHeader.FieldCaption("Order Date"));
+                    if "Finishing Date" < ServHeader."Order Date" then begin
+                        IsHandled := false;
+                        OnValidateFinishingDateOnBeforeCheckIfLessThanOrderDate(Rec, IsHandled);
+                        if not IsHandled then
+                            Error(
+                              Text022,
+                              FieldCaption("Finishing Date"), ServHeader.TableCaption(),
+                              ServHeader.FieldCaption("Order Date"));
+                    end;
 
                     if "Finishing Date" < "Starting Date" then
                         Error(
                           Text019,
                           FieldCaption("Finishing Date"), FieldCaption("Starting Date"));
-                    if ("Starting Date" = "Finishing Date") and ("Starting Time" > Time) then
-                        Validate("Finishing Time", "Starting Time")
-                    else
-                        Validate("Finishing Time", Time);
+
+                    IsHandled := false;
+                    OnValidateFinishingDateOnBeforeValidateFinishingTime(Rec, IsHandled);
+                    if not IsHandled then
+                        if ("Starting Date" = "Finishing Date") and ("Starting Time" > Time) then
+                            Validate("Finishing Time", "Starting Time")
+                        else
+                            Validate("Finishing Time", Time);
                     UpdateStartFinishDateTime("Document Type", "Document No.", "Line No.", "Starting Date", "Starting Time",
                       "Finishing Date", "Finishing Time", false);
                 end else begin
@@ -879,8 +924,12 @@ table 5901 "Service Item Line"
                         Error(Text049, "Contract No.", "Service Item No.");
                     if ServContractLine."Customer No." <> ServHeader."Customer No." then
                         Error(Text051, "Contract No.");
-                    if ServContractLine."Contract Status" <> ServContractLine."Contract Status"::Signed then
-                        Error(Text052, "Contract No.");
+
+                    IsHandled := false;
+                    OnValidateContractNoOnBeforeCheckCOntractStatusSigned(ServContractLine, IsHandled);
+                    if not IsHandled then
+                        if ServContractLine."Contract Status" <> ServContractLine."Contract Status"::Signed then
+                            Error(Text052, "Contract No.");
                     ServHeader.TestField("Order Date");
                     IsHandled := false;
                     OnValidateContractNoOnBeforeValidateServicePeriod(Rec, xRec, CurrFieldNo, IsHandled, ServHeader);
@@ -1813,7 +1862,13 @@ table 5901 "Service Item Line"
         ErrorDate: Date;
         WholeResponseDays: Integer;
         StartingTime: Time;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCalculateResponseDateTime(Rec, OrderDate, OrderTime, IsHandled);
+        if IsHandled then
+            exit;
+
         ServMgtSetup.Get();
         ServMgtSetup.TestField("Base Calendar Code");
         CalendarMgmt.SetSource(ServMgtSetup, CalChange);
@@ -2007,13 +2062,21 @@ table 5901 "Service Item Line"
     end;
 
     procedure CheckIfServHourExist(ContractNo: Code[20]): Boolean
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCheckIfServHourExist(Rec, ContractNo, IsHandled);
+        if IsHandled then
+            exit;
+
         if ContractNo = '' then
             exit(false);
 
         ServHour2.Reset();
         ServHour2.SetRange("Service Contract Type", ServHour."Service Contract Type"::Contract);
         ServHour2.SetRange("Service Contract No.", ContractNo);
+        OnCheckIfServHourexistOnBeforeFindServHour(ServHour);
         exit(ServHour2.FindFirst())
     end;
 
@@ -2292,7 +2355,14 @@ table 5901 "Service Item Line"
     end;
 
     local procedure CalculateDates()
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCalculateDates(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         if ServHeader."Order Date" > WorkDate() then begin
             if "Starting Date" = 0D then begin
                 "Starting Date" := ServHeader."Order Date";
@@ -2378,6 +2448,8 @@ table 5901 "Service Item Line"
                     "Response Time (Hours)" := CalculateResponseTimeHours();
             SkipResponseTimeHrsUpdate := false
         end;
+
+        OnAfterUpdateResponseTimeHours(Rec);
     end;
 
     procedure UpdateServiceOrderChangeLog(var OldServItemLine: Record "Service Item Line")
@@ -3056,6 +3128,91 @@ table 5901 "Service Item Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCalculateResponseTimeHours(var ServiceItemLine: Record "Service Item Line"; var ResponseTimeHours: Decimal; var IsHandled: Boolean);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateFinishingDateOnBeforeCheckIfLessThanOrderDate(var ServiceItemLine: Record "Service Item Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateStartingDateOnBeforeCheckIfLessThanOrderDate(var ServiceItemLine: Record "Service Item Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateResponseTimeOnBeforeCheckResponseTime(var ServiceItemLine: Record "Service Item Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateResponseDateOnBeforeCheckResponseDate(var ServiceItemLine: Record "Service Item Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateContractNoOnBeforeCheckCOntractStatusSigned(var ServiceContractLine: Record "Service Contract Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateStartingDateOnBeforeValidateStartingTime(var ServiceItemLine: Record "Service Item Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateFinishingDateOnBeforeValidateFinishingTime(var ServiceItemLine: Record "Service Item Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateRepairStatusCodeOnBeforeCheckOrderDateRepairStatusInProgress(var ServiceOrderAllocation: Record "Service Order Allocation"; var ServiceItemLine: Record "Service Item Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateRepairStatusCodeInitialOnBeforeServOrderAllocModify(var ServiceItemLine: Record "Service Item Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateRepairStatusCodeInProgressOnBeforeServOrderAllocModify(var ServiceItemLine: Record "Service Item Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateRepairStatusCodeFinishedOnBeforeServOrderAllocModify(var ServiceItemLine: Record "Service Item Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterUpdateResponseTimeHours(var ServiceItemLine: Record "Service Item Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCalculateDates(var ServiceItemLine: Record "Service Item Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckIfServHourExist(var ServiceItemLine: Record "Service Item Line"; var ContractNo: Code[20]; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCalculateResponseDateTime(var ServiceItemLine: Record "Service Item Line"; OrderDate: Date; OrderTime: Time; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCheckIfServHourexistOnBeforeFindServHour(var ServiceHour: Record "Service Hour")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSetServContractExistTrue(var ServiceContractLine: Record "Service Contract Line"; var ServiceHeader: Record "Service Header"; var IsHandled: Boolean)
     begin
     end;
 }

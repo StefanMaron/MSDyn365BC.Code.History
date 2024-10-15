@@ -120,7 +120,7 @@ codeunit 1620 "PEPPOL Validation"
             IsHandled := false;
             OnCheckSalesDocumentLineOnBeforeCheckEmptyDescription(SalesLine, IsHandled);
             if not IsHandled then
-                if Description = '' then
+                if CheckSalesLineTypeAndDescription(SalesLine) then
                     Error(MissingDescriptionErr);
 
             if (Type <> Type::" ") and ("No." <> '') then begin // Not a description line
@@ -312,6 +312,12 @@ codeunit 1620 "PEPPOL Validation"
         SalesHeader.TestField("Ship-to Post Code");
         SalesHeader.TestField("Ship-to Country/Region Code");
         CheckCountryRegionCode(SalesHeader."Ship-to Country/Region Code");
+    end;
+
+    procedure CheckSalesLineTypeAndDescription(SalesLine: Record "Sales Line"): Boolean
+    begin
+        if (SalesLine.Type <> SalesLine.Type::" ") and (SalesLine.Description = '') then
+            exit(true);
     end;
 
     [IntegrationEvent(false, false)]

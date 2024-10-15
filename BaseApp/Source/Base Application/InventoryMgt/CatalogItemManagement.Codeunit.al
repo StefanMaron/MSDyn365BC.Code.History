@@ -341,7 +341,9 @@ codeunit 5703 "Catalog Item Management"
         if CheckLicensePermission(DATABASE::"Item Reference") then
             NonstockItemReference(NonStock);
 
-        if GuiAllowed() then
+        IsHandled := false;
+        OnNonStockFSMOnBeforeProgWindowClose(IsHandled, ServInvLine2);
+        if not IsHandled and GuiAllowed() then
             ProgWindow.Close();
     end;
 
@@ -939,6 +941,11 @@ codeunit 5703 "Catalog Item Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnNonStockFSMOnBeforeProgWindowOpen(var ServiceLine: Record "Service Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnNonStockFSMOnBeforeProgWindowClose(var IsHandled: Boolean; ServiceLine2: Record "Service Line")
     begin
     end;
 }

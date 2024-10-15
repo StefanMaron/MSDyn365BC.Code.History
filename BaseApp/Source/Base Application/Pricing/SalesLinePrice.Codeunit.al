@@ -165,6 +165,10 @@
         // Currency
         PriceCalculationBuffer.Validate("Currency Code", SalesHeader."Currency Code");
         PriceCalculationBuffer."Currency Factor" := SalesHeader."Currency Factor";
+        if (PriceCalculationBuffer."Price Type" = PriceCalculationBuffer."Price Type"::Purchase) and
+           (PriceCalculationBuffer."Asset Type" = PriceCalculationBuffer."Asset Type"::Resource)
+        then
+            PriceCalculationBuffer."Calculation in LCY" := true;
 
         // UoM
         PriceCalculationBuffer.Quantity := Abs(SalesLine.Quantity);
