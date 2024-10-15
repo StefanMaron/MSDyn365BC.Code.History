@@ -2072,6 +2072,11 @@
             ObsoleteTag = '21.0';
 #endif            
         }
+        field(178; "Journal Templ. Name"; Code[10])
+        {
+            Caption = 'Journal Template Name';
+            TableRelation = "Gen. Journal Template" WHERE(Type = FILTER(Sales));
+        }
         field(200; "Work Description"; BLOB)
         {
             Caption = 'Work Description';
@@ -4827,7 +4832,7 @@
 
                     OnUpdateAllLineDimOnBeforeSalesLineModify(SalesLine);
                     SalesLine.Modify();
-                    ATOLink.UpdateAsmDimFromSalesLine(SalesLine);
+                    ATOLink.UpdateAsmDimFromSalesLine(SalesLine, true);
                 end;
             until SalesLine.Next() = 0;
     end;

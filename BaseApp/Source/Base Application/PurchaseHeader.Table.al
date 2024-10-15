@@ -1911,6 +1911,11 @@
             Caption = 'Payment Reference';
             Numeric = true;
         }
+        field(178; "Journal Templ. Name"; Code[10])
+        {
+            Caption = 'Journal Template Name';
+            TableRelation = "Gen. Journal Template" WHERE(Type = FILTER(Purchases));
+        }
         field(300; "A. Rcd. Not Inv. Ex. VAT (LCY)"; Decimal)
         {
             CalcFormula = Sum("Purchase Line"."A. Rcd. Not Inv. Ex. VAT (LCY)" WHERE("Document Type" = FIELD("Document Type"),

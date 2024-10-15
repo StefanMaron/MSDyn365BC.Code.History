@@ -1497,6 +1497,11 @@
             OptionCaption = 'Open,Released to Ship';
             OptionMembers = Open,"Released to Ship";
         }
+        field(178; "Journal Templ. Name"; Code[10])
+        {
+            Caption = 'Journal Template Name';
+            TableRelation = "Gen. Journal Template" WHERE(Type = FILTER(Sales));
+        }
         field(480; "Dimension Set ID"; Integer)
         {
             Caption = 'Dimension Set ID';

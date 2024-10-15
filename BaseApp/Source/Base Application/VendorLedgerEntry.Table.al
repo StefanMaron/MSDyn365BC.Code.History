@@ -221,6 +221,10 @@ table 25 "Vendor Ledger Entry"
                 TestField(Open, true);
             end;
         }
+        field(48; "Journal Templ. Name"; Code[10])
+        {
+            Caption = 'Journal Template Name';
+        }
         field(49; "Journal Batch Name"; Code[10])
         {
             Caption = 'Journal Batch Name';

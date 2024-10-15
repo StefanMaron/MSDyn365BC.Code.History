@@ -668,6 +668,11 @@
         {
             Caption = 'SEPA Export w/o Bank Acc. Data';
         }
+        field(175; "Journal Templ. Name Mandatory"; Boolean)
+        {
+            Caption = 'Journal Templ. Name Mandatory';
+            InitValue = true;
+        }
         field(11314; "Payment Recon. Template Name"; Code[10])
         {
             Caption = 'Payment Recon. Template Name';

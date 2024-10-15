@@ -159,6 +159,11 @@ table 5222 "Employee Ledger Entry"
                 TestField(Open, true);
             end;
         }
+        field(48; "Journal Templ. Name"; Code[10])
+        {
+            Caption = 'Journal Template Name';
+            DataClassification = SystemMetadata;
+        }
         field(49; "Journal Batch Name"; Code[10])
         {
             Caption = 'Journal Batch Name';

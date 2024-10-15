@@ -67,6 +67,10 @@ table 45 "G/L Register"
         {
             Caption = 'Creation Time';
         }
+        field(12; "Journal Templ. Name"; Code[10])
+        {
+            Caption = 'Journal Template Name';
+        }
         field(11300; "Journal Template Name"; Code[10])
         {
             Caption = 'Journal Template Name';

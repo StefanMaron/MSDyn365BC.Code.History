@@ -273,6 +273,10 @@ table 17 "G/L Entry"
             Editable = false;
             FieldClass = FlowField;
         }
+        field(78; "Journal Templ. Name"; Code[10])
+        {
+            Caption = 'Journal Template Name';
+        }
         field(480; "Dimension Set ID"; Integer)
         {
             Caption = 'Dimension Set ID';

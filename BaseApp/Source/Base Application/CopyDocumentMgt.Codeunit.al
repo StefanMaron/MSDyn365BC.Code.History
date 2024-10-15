@@ -7487,7 +7487,7 @@
 
         ToPurchLine.Validate("Job No.", FromPurchLine."Job No.");
         ToPurchLine.Validate("Job Task No.", FromPurchLine."Job Task No.");
-        ToPurchLine.Validate("Job Line Type", FromPurchLine."Job Line Type");
+        ToPurchLine.Validate("Job Planning Line No.", FromPurchLine."Job Planning Line No.");
     end;
 
     local procedure CopyPurchLineExtText(ToPurchHeader: Record "Purchase Header"; var ToPurchLine: Record "Purchase Line"; FromPurchHeader: Record "Purchase Header"; FromPurchLine: Record "Purchase Line"; DocLineNo: Integer; var NextLineNo: Integer)

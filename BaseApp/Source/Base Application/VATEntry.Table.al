@@ -380,6 +380,10 @@ table 254 "VAT Entry"
             Caption = 'Base Before Pmt. Disc.';
             Editable = false;
         }
+        field(78; "Journal Templ. Name"; Code[10])
+        {
+            Caption = 'Journal Template Name';
+        }
         field(81; "Realized Amount"; Decimal)
         {
             AutoFormatType = 1;

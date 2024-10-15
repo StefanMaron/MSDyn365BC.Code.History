@@ -85,8 +85,8 @@ codeunit 1393 "Cancel Issued Reminder"
                     case IssuedReminderLine.Type of
                         IssuedReminderLine.Type::"Customer Ledger Entry":
                             begin
-                                DecreaseCustomerLedgerEntryLastIssuedReminderLevel(IssuedReminderLine."Entry No.");
                                 SetReminderEntryCancelled(IssuedReminderLine);
+                                DecreaseCustomerLedgerEntryLastIssuedReminderLevel(IssuedReminderLine."Entry No.");
                                 ReminderInterestAmount := ReminderInterestAmount + IssuedReminderLine.Amount;
                                 ReminderInterestVATAmount := ReminderInterestVATAmount + IssuedReminderLine."VAT Amount";
                             end;
@@ -196,8 +196,7 @@ codeunit 1393 "Cancel Issued Reminder"
         CustLedgerEntry: Record "Cust. Ledger Entry";
     begin
         CustLedgerEntry.Get(EntryNo);
-        if (CustLedgerEntry."Last Issued Reminder Level" > 0) then
-            CustLedgerEntry."Last Issued Reminder Level" := CustLedgerEntry."Last Issued Reminder Level" - 1;
+        CustLedgerEntry."Last Issued Reminder Level" := GetLastReminderLevel(EntryNo);
         CustLedgerEntry.Modify();
     end;
 
@@ -392,6 +391,20 @@ codeunit 1393 "Cancel Issued Reminder"
         CustLedgerEntry.SetRange("Customer No.", IssuedReminderHeader."Customer No.");
         CustLedgerEntry.SetRange("Document No.", IssuedReminderHeader."No.");
         exit(not CustLedgerEntry.IsEmpty);
+    end;
+
+    local procedure GetLastReminderLevel(CustomerEntryNo: Integer): Integer
+    var
+        ReminderFinChargeEntry: Record "Reminder/Fin. Charge Entry";
+        LastLevel: Integer;
+    begin
+        ReminderFinChargeEntry.SetCurrentKey("Customer Entry No.", "Reminder Level");
+        ReminderFinChargeEntry.SetRange("Customer Entry No.", CustomerEntryNo);
+        ReminderFinChargeEntry.SetRange(Canceled, false);
+        if ReminderFinChargeEntry.Findlast() then
+            LastLevel := ReminderFinChargeEntry."Reminder Level";
+
+        exit(LastLevel);
     end;
 
     [IntegrationEvent(false, false)]
