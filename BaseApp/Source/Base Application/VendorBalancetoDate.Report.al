@@ -161,9 +161,11 @@ report 321 "Vendor - Balance to Date"
                         CurrencyCode := "Currency Code";
                     end;
 
-                    if UseExternalDocNo then
-                        VendLedgDocumentNo := "External Document No."
-                    else
+                    if UseExternalDocNo then begin
+                        VendLedgDocumentNo := "External Document No.";
+                        if VendLedgDocumentNo = '' then
+                            VendLedgDocumentNo := "Document No.";
+                    end else
                         VendLedgDocumentNo := "Document No.";
 
                     OnAfterVendLedgEntry3OnAfterGetRecord(VendLedgEntry3, PrintAmountInLCY, OriginalAmt, RemainingAmt, CurrencyCode);

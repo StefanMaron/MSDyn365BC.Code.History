@@ -61,6 +61,9 @@
       "path": "./UKMakingTaxDigital/Test/Making Tax Digital Localization for United Kingdom Tests"
     },
     {
+      "path": "./Intrastat/Test/Intrastat Core Tests"
+    },
+    {
       "path": "./ReportLayouts/test/Report Layouts Tests"
     },
     {
@@ -188,6 +191,9 @@
     },
     {
       "path": "./paypalpaymentsstandard/test/PayPal Payments Standard Tests"
+    },
+    {
+      "path": "./IntrastatGB/Test/Intrastat GB Tests"
     },
     {
       "path": "./WorldPayPaymentsStandard/Test/WorldPay Payments Standard Tests"

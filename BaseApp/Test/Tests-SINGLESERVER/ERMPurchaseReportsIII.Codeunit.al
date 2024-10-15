@@ -1179,12 +1179,11 @@ codeunit 134988 "ERM Purchase Reports III"
         Vendor: Record Vendor;
         GenJournalBatch: Record "Gen. Journal Batch";
         GenJournalLine: Record "Gen. Journal Line";
-        TypeHelper: Codeunit "Type Helper";
         ExpectedTimeStamp: Text;
         PeriodLength: DateFormula;
     begin
         // [FEATURE] [UT] [Aged Accounts Payable] [Date-Time] [Time Zone]
-        // [SCENARIO 232056] Timestamp in report "Aged Accounts Payable" is calculated via function GetFormattedCurrentDateTimeInUserTimeZone in codeunit "Type Helper".
+        // [SCENARIO 232056] Timestamp in report "Aged Accounts Payable" is calculated via CurrentDateTime().
         Initialize();
 
         // [GIVEN] Posted Purchase Invoice
@@ -1197,7 +1196,7 @@ codeunit 134988 "ERM Purchase Reports III"
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
 
         // [GIVEN] ExpectedTimestamp string acquired via function GetFormattedCurrentDateTimeInUserTimeZone in codeunit "Type Helper"
-        ExpectedTimeStamp := TypeHelper.GetFormattedCurrentDateTimeInUserTimeZone('f');
+        ExpectedTimeStamp := Format(CurrentDateTime());
 
         // [WHEN] Run report "Aged Accounts Payable"
         Vendor.SetRecFilter();
@@ -1427,7 +1426,7 @@ codeunit 134988 "ERM Purchase Reports III"
         I: Integer;
     begin
         // [FEATURE] [Performance] [Aged Accounts Payable] [Date-Time] [Time Zone]
-        // [SCENARIO 235531] TypeHelper.GetFormattedCurrentDateTimeInUserTimeZone and COMPANYPROPERTY.DisplayName() are called once for Aged Accounts Payable report when multiple entries are processed
+        // [SCENARIO 235531] COMPANYPROPERTY.DisplayName() are called once for Aged Accounts Payable report when multiple entries are processed
         Initialize();
 
         // [GIVEN] Post 2 Purchase Invoices
@@ -1446,9 +1445,6 @@ codeunit 134988 "ERM Purchase Reports III"
         CodeCoverageMgt.StartApplicationCoverage;
         SaveAgedAccountsPayable(Vendor, AgingBy::"Posting Date", HeadingType::"Date Interval", PeriodLength, false, false);
         CodeCoverageMgt.StopApplicationCoverage;
-
-        // [THEN] TypeHelper.GetFormattedCurrentDateTimeInUserTimeZone is called once
-        VerifyAgedAccountsPayableNoOfHitsCodeCoverage('TypeHelper.GetFormattedCurrentDateTimeInUserTimeZone', 1);
 
         // [THEN] COMPANYPROPERTY.DisplayName() is called once
         VerifyAgedAccountsPayableNoOfHitsCodeCoverage('COMPANYPROPERTY.DISPLAYNAME', 1);

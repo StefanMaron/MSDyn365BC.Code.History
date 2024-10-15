@@ -622,6 +622,15 @@ table 1382 "Item Templ."
                 ValidateItemField(FieldNo("Scrap %"));
             end;
         }
+        field(5409; "Inventory Value Zero"; Boolean)
+        {
+            Caption = 'Inventory Value Zero';
+
+            trigger OnValidate()
+            begin
+                ValidateItemField(FieldNo("Inventory Value Zero"));
+            end;
+        }
         field(5410; "Discrete Order Quantity"; Integer)
         {
             Caption = 'Discrete Order Quantity';

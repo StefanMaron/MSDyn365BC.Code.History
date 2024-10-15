@@ -640,7 +640,7 @@ report 322 "Aged Accounts Payable"
         CalcDates();
         CreateHeadings();
 
-        TodayFormatted := TypeHelper.GetFormattedCurrentDateTimeInUserTimeZone('f');
+        TodayFormatted := Format(CurrentDateTime());
         CompanyDisplayName := COMPANYPROPERTY.DisplayName();
 
         if UseExternalDocNo then
@@ -658,7 +658,6 @@ report 322 "Aged Accounts Payable"
         TempCurrency2: Record Currency temporary;
         TempCurrencyAmount: Record "Currency Amount" temporary;
         DetailedVendorLedgerEntry: Record "Detailed Vendor Ledg. Entry";
-        TypeHelper: Codeunit "Type Helper";
         PeriodLength: DateFormula;
         GrandTotalVLERemaingAmtLCY: array[5] of Decimal;
         GrandTotalVLEAmtLCY: Decimal;

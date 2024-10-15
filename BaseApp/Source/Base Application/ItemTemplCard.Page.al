@@ -166,6 +166,13 @@ page 1384 "Item Templ. Card"
                         ApplicationArea = Basic, Suite;
                         ToolTip = 'Specifies the percentage of the item''s last purchase cost that includes indirect costs, such as freight that is associated with the purchase of the item.';
                     }
+                    field("Inventory Value Zero"; Rec."Inventory Value Zero")
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Importance = Additional;
+                        ToolTip = 'Specifies whether the item on inventory must be excluded from inventory valuation. This is relevant if the item is kept on inventory on someone else''s behalf.';
+                        Visible = false;
+                    }
                 }
                 group(PostingDetails)
                 {
