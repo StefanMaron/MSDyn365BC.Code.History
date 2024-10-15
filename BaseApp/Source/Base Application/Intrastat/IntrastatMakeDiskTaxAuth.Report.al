@@ -15,7 +15,7 @@ report 593 "Intrastat - Make Disk Tax Auth"
                 LineCount := LineCount + 1;
                 Window.Update(2, LineCount);
                 if IntrastatSetup."Use Advanced Checklist" then
-                    IntraJnlManagement.ValidateReportWithAdvancedChecklist("Intrastat Jnl. Line", Report::"Intrastat - Make Disk Tax Auth", true)
+                    IntraJnlManagement.ValidateReportWithAdvancedChecklist("Intrastat Jnl. Line", Report::"Intrastat - Make Disk Tax Auth", false)
                 else begin
                     TestField("Tariff No.");
                     TestField("Country/Region Code");
@@ -34,6 +34,8 @@ report 593 "Intrastat - Make Disk Tax Auth"
                 ToFile: Text[1024];
                 JournalType: Text[1];
             begin
+                if IntrastatSetup."Use Advanced Checklist" then
+                    IntraJnlManagement.CheckForJournalBatchError("Intrastat Jnl. Line", true);
                 NoOfRecords := LineCount + 1;
                 LineCount := 1;
 
