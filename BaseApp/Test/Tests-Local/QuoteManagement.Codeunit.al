@@ -402,6 +402,99 @@ codeunit 144018 QuoteManagement
         Assert.AreNotEqual(SalesQuote.SalesLines."Total Amount Excl. VAT".Value, Format(TotalAmount), '"Total Amount Excl. VAT" should be chanhed');
     end;
 
+    [Test]
+    procedure SalesQuotesAmountWhenQuoteVariantEmptyAndVariant()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        SalesQuotes: TestPage "Sales Quotes";
+        Amount: array[2] of Decimal;
+    begin
+        // [SCENARIO 392063] Amount field value on page Sales Quotes when Sales Quote has lines with Quote Variant = " " and "Variant".
+        Initialize();
+
+        // [GIVEN] Sales Quote with 4 lines "L1", "L2", "L3", "L4". "L1" and "L2" have Quote Variant = " ", "L3" and "L4" have "Quote Variant" = "Variant".
+        // [GIVEN] "L1" and "L2" have Amount values "A1" and "A2" respectively.
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Quote, LibrarySales.CreateCustomerNo());
+        CreateSalesLineWithQuoteVariant(SalesLine, SalesHeader, SalesLine."Quote Variant"::" ");
+        Amount[1] := SalesLine.Amount;
+        CreateSalesLineWithQuoteVariant(SalesLine, SalesHeader, SalesLine."Quote Variant"::" ");
+        Amount[2] := SalesLine.Amount;
+        CreateSalesLineWithQuoteVariant(SalesLine, SalesHeader, SalesLine."Quote Variant"::Variant);
+        CreateSalesLineWithQuoteVariant(SalesLine, SalesHeader, SalesLine."Quote Variant"::Variant);
+
+        // [WHEN] Sales Quotes page is opened.
+        SalesQuotes.OpenView();
+        SalesQuotes.Filter.SetFilter("No.", SalesHeader."No.");
+
+        // [THEN] Amount field on page Sales Quotes has value "A1" + "A2", i.e. Amount values for lines "L3" and "L4" are not taken into account.
+        Assert.AreEqual(Format(Amount[1] + Amount[2]), SalesQuotes.Amount.Value, '');
+    end;
+
+    [Test]
+    procedure SalesQuotesAmountWhenQuoteVariantCalcOnlyAndVariant()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        SalesQuotes: TestPage "Sales Quotes";
+        Amount: array[2] of Decimal;
+    begin
+        // [SCENARIO 392063] Amount field value on page Sales Quotes when Sales Quote has lines with Quote Variant = "Calculate Only" and "Variant".
+        Initialize();
+
+        // [GIVEN] Sales Quote with 4 lines "L1", "L2", "L3", "L4". "L1" and "L2" have Quote Variant = "Calculate Only", "L3" and "L4" have "Quote Variant" = "Variant".
+        // [GIVEN] "L1" and "L2" have Amount values "A1" and "A2" respectively.
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Quote, LibrarySales.CreateCustomerNo());
+        CreateSalesLineWithQuoteVariant(SalesLine, SalesHeader, SalesLine."Quote Variant"::"Calculate only");
+        Amount[1] := SalesLine.Amount;
+        CreateSalesLineWithQuoteVariant(SalesLine, SalesHeader, SalesLine."Quote Variant"::"Calculate only");
+        Amount[2] := SalesLine.Amount;
+        CreateSalesLineWithQuoteVariant(SalesLine, SalesHeader, SalesLine."Quote Variant"::Variant);
+        CreateSalesLineWithQuoteVariant(SalesLine, SalesHeader, SalesLine."Quote Variant"::Variant);
+
+        // [WHEN] Sales Quotes page is opened.
+        SalesQuotes.OpenView();
+        SalesQuotes.Filter.SetFilter("No.", SalesHeader."No.");
+
+        // [THEN] Amount field on page Sales Quotes has value "A1" + "A2", i.e. Amount values for lines "L3" and "L4" are not taken into account.
+        Assert.AreEqual(Format(Amount[1] + Amount[2]), SalesQuotes.Amount.Value, '');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure SalesInvoicesAmount()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        ItemCheckAvail: Codeunit "Item-Check Avail.";
+        SalesInvoice: TestPage "Sales Invoice";
+        SalesInvoiceList: TestPage "Sales Invoice List";
+        Amount: array[2] of Decimal;
+    begin
+        // [SCENARIO 392063] Amount field value on page Sales Invoices.
+        Initialize();
+        LibraryNotificationMgt.DisableMyNotification(ItemCheckAvail.GetItemAvailabilityNotificationId());
+
+        // [GIVEN] Sales Invoice.
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo());
+
+        // [GIVEN] Two Sales Lines with Amount "A1" and "A2" which are created from Sales Invoice page.
+        SalesInvoice.OpenEdit();
+        SalesInvoice.Filter.SetFilter("No.", SalesHeader."No.");
+        CreateSalesLineFromSalesInvoicePage(SalesLine, SalesInvoice);
+        Amount[1] := SalesLine.Amount;
+        CreateSalesLineFromSalesInvoicePage(SalesLine, SalesInvoice);
+        Amount[2] := SalesLine.Amount;
+        SalesInvoice.Close();
+
+        // [WHEN] Sales Invoices page is opened.
+        SalesInvoiceList.OpenView();
+        SalesInvoiceList.Filter.SetFilter("No.", SalesHeader."No.");
+
+        // [THEN] Amount field on page Sales Invoices has value "A1" + "A2".
+        Assert.AreEqual(Format(Amount[1] + Amount[2]), SalesInvoiceList.Amount.Value, '');
+    end;
+
     local procedure Initialize()
     begin
         if not Initialized then begin
@@ -425,6 +518,29 @@ codeunit 144018 QuoteManagement
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, Type, ItemNumber, LibraryRandom.RandInt(1000));
         SalesLine.Validate("Unit Price", LibraryRandom.RandInt(1000));
         SalesLine.Modify(true);
+    end;
+
+    local procedure CreateSalesLineWithQuoteVariant(var SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header"; QuoteVariant: Option)
+    begin
+        LibrarySales.CreateSalesLine(
+            SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo(), LibraryRandom.RandDecInRange(10, 20, 2));
+        SalesLine.Validate("Unit Price", LibraryRandom.RandDecInRange(100, 200, 2));
+        SalesLine.Validate("Quote Variant", QuoteVariant);
+        SalesLine.Modify(true);
+    end;
+
+    local procedure CreateSalesLineFromSalesInvoicePage(var SalesLine: Record "Sales Line"; var SalesInvoice: TestPage "Sales Invoice")
+    begin
+        SalesInvoice.SalesLines.New();
+        SalesInvoice.SalesLines.Type.SetValue(SalesLine.Type::Item);
+        SalesInvoice.SalesLines."No.".SetValue(LibraryInventory.CreateItemNo());
+        SalesInvoice.SalesLines.Quantity.SetValue(LibraryRandom.RandDecInRange(10, 20, 2));
+        SalesInvoice.SalesLines."Unit Price".SetValue(LibraryRandom.RandDecInRange(100, 200, 2));
+        SalesInvoice.SalesLines.Next;
+
+        SalesLine.SetRange("Document Type", SalesLine."Document Type"::Invoice);
+        SalesLine.SetRange("Document No.", SalesInvoice."No.".Value);
+        SalesLine.FindLast();
     end;
 
     local procedure CreateSalesPersonPurchaser(): Code[10]
