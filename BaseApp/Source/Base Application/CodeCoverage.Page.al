@@ -158,6 +158,8 @@ page 9990 "Code Coverage"
 
                 trigger OnAction()
                 begin
+                    if not IsCodeCoverageEnabled() then
+                        Error(RunCodeCoverageInSandboxErr);
                     CodeCoverageMgt.Start(true);
                     CodeCoverageRunning := true;
                 end;
@@ -315,7 +317,18 @@ page 9990 "Code Coverage"
 
     trigger OnOpenPage()
     begin
-        CodeCoverageRunning := false;
+        if not IsCodeCoverageEnabled() then
+            Error(RunCodeCoverageInSandboxErr);
+    end;
+
+    local procedure IsCodeCoverageEnabled(): Boolean
+    var
+        EnvironmentInformation: Codeunit "Environment Information";
+    begin
+        if not EnvironmentInformation.IsSaas() then
+            exit(true);
+
+        exit(EnvironmentInformation.IsSandbox());
     end;
 
     var
@@ -336,6 +349,7 @@ page 9990 "Code Coverage"
         ObjectTypeFilter: Text;
         RequiredCoveragePercent: Integer;
         CoveragePercentStyle: Text;
+        RunCodeCoverageInSandboxErr: Label 'Test Automation is not enabled on this system. For more information, see https://go.microsoft.com/fwlink/?linkid=2131960.';
 
     local procedure SetStyles()
     begin
