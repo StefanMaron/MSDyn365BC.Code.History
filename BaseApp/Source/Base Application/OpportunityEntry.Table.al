@@ -462,7 +462,14 @@
     end;
 
     procedure CloseOppFromOpp(var Opp: Record Opportunity)
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCloseOppFromOpp(Opp, Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         Opp.TestField(Closed, false);
         DeleteAll();
         Init;
@@ -528,7 +535,14 @@
     end;
 
     procedure UpdateOppFromOpp(var Opp: Record Opportunity)
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeUpdateOppFromOpp(Opp, Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         Opp.TestField(Closed, false);
         DeleteAll();
         Init;
@@ -680,7 +694,13 @@
     procedure CreateStageList()
     var
         Stop: Boolean;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCreateStageList(OppEntry, Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         TempSalesCycleStageFirst.DeleteAll();
         TempSalesCycleStageNext.DeleteAll();
         TempSalesCycleStagePrevious.DeleteAll();
@@ -937,6 +957,16 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeCloseOppFromOpp(var Opportunity: Record Opportunity; var OpportunityEntry: Record "Opportunity Entry"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCreateStageList(var OpportunityEntry: Record "Opportunity Entry"; var OpportunityEntryRec: Record "Opportunity Entry"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeStartWizard(var OpportunityEntry: Record "Opportunity Entry"; var CloseOpportunityPageId: Integer; var IsHandled: Boolean)
     begin
     end;
@@ -948,6 +978,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeUpdateEstimates(var OpportunityEntry: Record "Opportunity Entry"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdateOppFromOpp(var Opportunity: Record Opportunity; var OpportunityEntry: Record "Opportunity Entry"; var IsHandled: Boolean)
     begin
     end;
 

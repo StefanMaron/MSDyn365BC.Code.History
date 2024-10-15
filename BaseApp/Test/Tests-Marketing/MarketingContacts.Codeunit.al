@@ -5405,40 +5405,48 @@ codeunit 136201 "Marketing Contacts"
     end;
 
     [Test]
+    [HandlerFunctions('ModalSelectCustomerTemplListHandler,ConfirmHandlerTrue')]
     procedure ContactBusinessRelationAfterContactMerge()
     var
-        Contact: Record Contact;
-        Customer: Record Customer;
-        BusinessRelation: Record "Business Relation";
+        ContactCompany: array[2] of Record Contact;
+        TempMergeDuplicatesBuffer: Record "Merge Duplicates Buffer" temporary;
         ContactBusinessRelation: Record "Contact Business Relation";
+        MarketingContacts: Codeunit "Marketing Contacts";
         ContactList: TestPage "Contact List";
     begin
         // [SCENARIO 431320] "Business Relation" on Contact List should be updated if initial value = None, but Business Relation exists
         Initialize();
+        BindSubscription(MarketingContacts); // to subscribe OnAfterIsEnabledCustTemplate
 
-        // [GIVEN] Customer with Contact "C" and contact business relation.
-        LibraryMarketing.CreateBusinessRelation(BusinessRelation);
-        ChangeBusinessRelationCodeForCustomers(BusinessRelation.Code);
-        LibrarySales.CreateCustomer(Customer);
+        // [GIVEN] Created Contact 'A' with type Company
+        LibraryMarketing.CreateCompanyContact(ContactCompany[1]);
+        ContactCompany[1].SetHideValidationDialog(true);
+        ContactCompany[1].CreateCustomer();
 
-        Customer.SetRange("No.", Customer."No.");
-        RunCreateContsFromCustomersReport(Customer);
+        // [GIVEN] Created Contact 'B' with type Company
+        LibraryMarketing.CreateCompanyContact(ContactCompany[2]);
+        ContactCompany[2].SetHideValidationDialog(true);
+        ContactCompany[2].CreateCustomer();
 
-        FindContactBusinessRelation(
-            ContactBusinessRelation, BusinessRelation.Code, ContactBusinessRelation."Link to Table"::Customer, Customer."No.");
-        Contact.Get(ContactBusinessRelation."Contact No.");
+        // [GIVEN] Remove Contact Business Relation for Contact 'B' (simulation of removing duplicate on Contact Merge page), 
+        ContactBusinessRelation.SetRange("Contact No.", ContactCompany[2]."No.");
+        ContactBusinessRelation.FindFirst();
+        ContactBusinessRelation.Delete(true);
+        ContactCompany[2].UpdateBusinessRelation();
 
-        // [GIVEN] Contact "C" has "Contact Business Relation" = None (according to hotfix scenario this happens after contacts merge)
-        Contact."Contact Business Relation" := Contact."Contact Business Relation"::None;
-        Contact.Modify();
-        Commit();
+        // [WHEN] Merge Contact 'B' to 'A'     
+        TempMergeDuplicatesBuffer."Table ID" := DATABASE::Contact;
+        TempMergeDuplicatesBuffer.Duplicate := ContactCompany[2]."No.";
+        TempMergeDuplicatesBuffer.Current := ContactCompany[1]."No.";
+        TempMergeDuplicatesBuffer.Insert();
+        TempMergeDuplicatesBuffer.Merge;
 
         // [WHEN] Open Contact List
         ContactList.OpenView();
-        ContactList.Filter.SetFilter("No.", Contact."No.");
+        ContactList.Filter.SetFilter("No.", ContactCompany[1]."No.");
 
-        // [THEN] "Business Relation" for Contact "C" = Customer
-        ContactList."Business Relation".AssertEquals(Contact."Contact Business Relation"::Customer);
+        // [THEN] "Business Relation" for Contact "A" = Customer
+        ContactList."Business Relation".AssertEquals(ContactCompany[1]."Contact Business Relation"::Customer);
     end;
 
     [Test]
@@ -5584,6 +5592,101 @@ codeunit 136201 "Marketing Contacts"
 
         // [THEN] "Business Relation" for Contact "C" = Bank Account
         ContactList."Business Relation".AssertEquals(Contact."Contact Business Relation"::"Bank Account");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure JobCardChangeSellToContact()
+    var
+        Customer: Record Customer;
+        CompanyContact: Record Contact;
+        PersonContact: array[2] of Record Contact;
+        Job: Record Job;
+        JobCard: TestPage "Job Card";
+    begin
+        // [SCENARIO 439583] When Contact is changed on Job card, Contact related fields should also be populated
+        Initialize();
+
+        // [GIVEN] Company Contact "Cont"
+        LibraryMarketing.CreateCompanyContact(CompanyContact);
+
+        // [GIVEN] Customer "C" created from "Cont" Company Contact
+        CompanyContact.SetHideValidationDialog(true);
+        CompanyContact.CreateCustomerFromTemplate('');
+        Customer.SetRange(Name, CompanyContact.Name);
+        Customer.FindFirst();
+
+        // [GIVEN] Person Contact #1 and Person Contact #2
+        CreateContactWithPhoneEmail(PersonContact[1], CompanyContact."Company No.");
+        CreateContactWithPhoneEmail(PersonContact[2], CompanyContact."Company No.");
+
+        // [GIVEN] Person Contact #1 is set as 'Primary Contact No.' for Customer "C"
+        Customer.Validate("Primary Contact No.", PersonContact[1]."No.");
+        Customer.Modify();
+
+        // [GIVEN] Job created for Customer "C"
+        LibraryJob.CreateJob(Job, Customer."No.");
+
+        // [GIVEN] Job Card opened
+        JobCard.OpenEdit();
+        JobCard.Filter.SetFilter("No.", Job."No.");
+
+        // [WHEN] "Sell-to Contact No." is changed from Contact #1 to Contact #2
+        JobCard."Sell-to Contact No.".SetValue(PersonContact[2]."No.");
+
+        // [THEN] 'Phone No.', 'Mobile Phone No.' and Email fields values are equal to same fields in Contact #2
+        JobCard.SellToPhoneNo.AssertEquals(PersonContact[2]."Phone No.");
+        JobCard.SellToMobilePhoneNo.AssertEquals(PersonContact[2]."Mobile Phone No.");
+        JobCard.SellToEmail.AssertEquals(PersonContact[2]."E-Mail");
+    end;
+
+    [Test]
+    [HandlerFunctions('ContactListLookupModalPageHandler')]
+    [Scope('OnPrem')]
+    procedure JobCardChangeLookUpSellToContact()
+    var
+        Customer: Record Customer;
+        CompanyContact: Record Contact;
+        PersonContact: array[2] of Record Contact;
+        Job: Record Job;
+        JobCard: TestPage "Job Card";
+    begin
+        // [SCENARIO 439583] When Contact is changed using lookup on Job card, Contact related fields should also be populated
+        Initialize();
+
+        // [GIVEN] Company Contact "Cont"
+        LibraryMarketing.CreateCompanyContact(CompanyContact);
+
+        // [GIVEN] Customer "C" created from "Cont" Company Contact
+        CompanyContact.SetHideValidationDialog(true);
+        CompanyContact.CreateCustomerFromTemplate('');
+        Customer.SetRange(Name, CompanyContact.Name);
+        Customer.FindFirst();
+
+        // [GIVEN] Person Contact #1 and Person Contact #2
+        CreateContactWithPhoneEmail(PersonContact[1], CompanyContact."Company No.");
+        CreateContactWithPhoneEmail(PersonContact[2], CompanyContact."Company No.");
+
+        // [GIVEN] Person Contact #1 is set as 'Primary Contact No.' for Customer "C"
+        Customer.Validate("Primary Contact No.", PersonContact[1]."No.");
+        Customer.Modify();
+
+        // [GIVEN] Job created for Customer "C"
+        LibraryJob.CreateJob(Job, Customer."No.");
+        Job.TestField("Sell-to Contact No.", PersonContact[1]."No.");
+
+        // [GIVEN] Job Card opened
+        JobCard.OpenEdit();
+        JobCard.Filter.SetFilter("No.", Job."No.");
+
+        // [WHEN] "Sell-to Contact No." is changed from Contact #1 to Contact #2 using lookup
+        LibraryVariableStorage.Enqueue(PersonContact[2]."No.");
+        JobCard."Sell-to Contact No.".Lookup();
+
+        // [THEN] 'Phone No.', 'Mobile Phone No.' and Email fields values are equal to same fields in Contact #2
+        JobCard.SellToPhoneNo.AssertEquals(PersonContact[2]."Phone No.");
+        JobCard.SellToMobilePhoneNo.AssertEquals(PersonContact[2]."Mobile Phone No.");
+        JobCard.SellToEmail.AssertEquals(PersonContact[2]."E-Mail");
     end;
 
     local procedure Initialize()
@@ -6375,6 +6478,17 @@ codeunit 136201 "Marketing Contacts"
         ContactBusinessRelation."Link to Table" := ContactBusinessRelation."Link to Table"::Employee;
         ContactBusinessRelation."No." := EmployeeNo;
         ContactBusinessRelation.Modify(true);
+    end;
+
+    local procedure CreateContactWithPhoneEmail(var Contact: Record Contact; CompanyContactCompanyNo: Code[20])
+    var
+    begin
+        LibraryMarketing.CreatePersonContact(Contact);
+        Contact.Validate("Company No.", CompanyContactCompanyNo);
+        Contact.Validate("Phone No.", LibraryUtility.GenerateRandomPhoneNo());
+        Contact.Validate("Mobile Phone No.", LibraryUtility.GenerateRandomPhoneNo());
+        Contact.Validate("E-mail", LibraryUtility.GenerateRandomEmail());
+        Contact.Modify(true);
     end;
 
     [ModalPageHandler]

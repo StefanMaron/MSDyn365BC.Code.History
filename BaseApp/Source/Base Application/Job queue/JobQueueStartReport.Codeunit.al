@@ -15,7 +15,13 @@ codeunit 487 "Job Queue Start Report"
         OutStr: OutStream;
         RunOnRec: Boolean;
         ShouldModifyNotifyOnSuccess: Boolean;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeRunReport(ReportID, JobQueueEntry, IsHandled);
+        if IsHandled then
+            exit;
+
         SetReportTimeOut(JobQueueEntry);
 
         ReportInbox.Init();
@@ -24,6 +30,7 @@ codeunit 487 "Job Queue Start Report"
         ReportInbox."Report ID" := ReportID;
         ReportInbox.Description := JobQueueEntry.Description;
         ReportInbox."Report Output".CreateOutStream(OutStr);
+        OnRunReportOnAfterAssignFields(ReportInbox, JobQueueEntry);
         RunOnRec := RecRef.Get(JobQueueEntry."Record ID to Process");
         if RunOnRec then
             RecRef.SetRecFilter();
@@ -83,6 +90,7 @@ codeunit 487 "Job Queue Start Report"
                     ReportInbox.Insert(true);
                 end;
         end;
+        OnRunReportOnBeforeCommit(ReportInbox, JobQueueEntry);
         Commit();
     end;
 
@@ -117,7 +125,22 @@ codeunit 487 "Job Queue Start Report"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeRunReport(ReportID: Integer; var JobQueueEntry: Record "Job Queue Entry"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnRunReportOnAfterCalcShouldModifyNotifyOnSuccess(ReportID: Integer; var JobQueueEntry: Record "Job Queue Entry"; var ShouldModifyNotifyOnSuccess: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnRunReportOnAfterAssignFields(var ReportInbox: Record "Report Inbox"; var JobQueueEntry: Record "Job Queue Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnRunReportOnBeforeCommit(ReportInbox: Record "Report Inbox"; var JobQueueEntry: Record "Job Queue Entry")
     begin
     end;
 }

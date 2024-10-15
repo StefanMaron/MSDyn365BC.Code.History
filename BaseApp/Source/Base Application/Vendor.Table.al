@@ -1950,6 +1950,7 @@
         BalanceAsCustomer := 0;
         LinkedCustomerNo := GetLinkedCustomer();
         if Customer.Get(LinkedCustomerNo) then begin
+            OnGetBalanceAsCustomerOnBeforeCalcBalance(Customer);
             Customer.CalcFields("Balance (LCY)");
             BalanceAsCustomer := Customer."Balance (LCY)";
         end;
@@ -2586,6 +2587,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnShowContactOnBeforeOpenContactList(var Contact: Record Contact; var ContactPageID: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnGetBalanceAsCustomerOnBeforeCalcBalance(var Customer: Record Customer)
     begin
     end;
 

@@ -78,7 +78,7 @@ table 11014 Certificate
     var
         TempBlob: Codeunit "Temp Blob";
     begin
-        EncriptPassword(TempBlob, PasswordText);
+        EncriptPassword(TempBlob, CopyStr(PasswordText, 1, 215));
         WriteBlobToField(TempBlob, FieldNo);
     end;
 
@@ -109,15 +109,16 @@ table 11014 Certificate
         RecordRef.Modify();
     end;
 
-    local procedure EncriptPassword(var TempBlob: Codeunit "Temp Blob"; PasswordText: Text)
+    local procedure EncriptPassword(var TempBlob: Codeunit "Temp Blob"; PasswordText: Text[215])
     var
         OutStream: OutStream;
+        EncryptedPassword: Text;
     begin
         if not CryptographyManagement.IsEncryptionPossible then
             Error(EncryptionMustBeEnabledErr);
-        PasswordText := CryptographyManagement.Encrypt(PasswordText);
+        EncryptedPassword := CryptographyManagement.EncryptText(PasswordText);
         TempBlob.CreateOutStream(OutStream);
-        OutStream.Write(PasswordText);
+        OutStream.Write(EncryptedPassword);
     end;
 }
 
