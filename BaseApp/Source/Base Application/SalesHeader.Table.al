@@ -4650,12 +4650,13 @@ table 36 "Sales Header"
     procedure GetDocTypeTxt() TypeText: Text[50]
     var
         EnvInfoProxy: Codeunit "Env. Info Proxy";
+        ReportDistributionMgt: Codeunit "Report Distribution Management";
     begin
+        TypeText := ReportDistributionMgt.GetFullDocumentTypeText(Rec);
+
         if "Document Type" = "Document Type"::Quote then
             if EnvInfoProxy.IsInvoicing then
                 TypeText := EstimateTxt;
-
-        TypeText := Format("Document Type");
 
         OnAfterGetDocTypeText(Rec, TypeText);
     end;
