@@ -103,6 +103,15 @@ codeunit 11300 VATLogicalTests
     end;
 
     [Scope('OnPrem')]
+    procedure CheckEnterpriseNoFormat(EnterpriseNo: Text[50]): Boolean
+    begin
+        EnterpriseNo := UpperCase(DelChr(EnterpriseNo, '=', '0123456789,?;.:/-_ '));
+        if (StrPos(EnterpriseNo, 'BTW') = 0) and (StrPos(EnterpriseNo, 'TVA') = 0) then
+            exit(false);
+        exit(true);
+    end;
+
+    [Scope('OnPrem')]
     procedure Test(TestNo: Integer; LogicalTest: Boolean; Period: Integer; var MyCheckList: array[14, 12] of Text[30])
     begin
         if LogicalTest then

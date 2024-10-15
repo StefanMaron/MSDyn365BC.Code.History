@@ -23,6 +23,7 @@ codeunit 134008 "ERM VAT Settlement with Apply"
         Assert: Codeunit Assert;
         LibraryUtility: Codeunit "Library - Utility";
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
+        LibraryInventory: Codeunit "Library - Inventory";
         isInitialized: Boolean;
         AdditionalCurrencyError: Label 'Additional Currency Amount must be %1.';
         UnappliedError: Label '%1 %2 field must be true after Unapply entries.';
@@ -53,7 +54,8 @@ codeunit 134008 "ERM VAT Settlement with Apply"
         VatPostingSetup.FindLast;
         CalcandPostVATSettlement.SetTableView(VatPostingSetup);
         CalcandPostVATSettlement.InitializeRequest(
-          WorkDate, WorkDate, WorkDate, GenJournalLine."Document No.", GenJournalLine."Bal. Account No.", false, false);
+          WorkDate, WorkDate, WorkDate, GenJournalLine."Journal Template Name", GenJournalLine."Journal Batch Name",
+          GenJournalLine."Bal. Account No.", false, false);
         CalcandPostVATSettlement.UseRequestPage(false);
 
         FilePath := TemporaryPath + Format(VatPostingSetup.TableName) + '.xlsx';
@@ -253,6 +255,7 @@ codeunit 134008 "ERM VAT Settlement with Apply"
     procedure CalcAndPostVATSettlement()
     var
         GenJournalLine: Record "Gen. Journal Line";
+        DocNo: Code[20];
     begin
         // Test functionality of Calc. and Post VAT Settlement report.
 
@@ -261,10 +264,10 @@ codeunit 134008 "ERM VAT Settlement with Apply"
         CreateAndPostGenJournalLine(GenJournalLine);
 
         // Exercise: Run Calc. and Post VAT Settlement.
-        RunCalcAndPostVATSettlement(GenJournalLine);
+        RunCalcAndPostVATSettlement(GenJournalLine, DocNo);
 
         // Verify: Verify VAT Settlement Amount.
-        VerifyVATSettlementAmount(GenJournalLine."Document No.", -GenJournalLine."VAT Amount");
+        VerifyVATSettlementAmount(DocNo, -GenJournalLine."VAT Amount");
     end;
 
     [Test]
@@ -352,6 +355,7 @@ codeunit 134008 "ERM VAT Settlement with Apply"
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
         VATEntry: Record "VAT Entry";
+        GenJournalBatch: Record "Gen. Journal Batch";
         CalcAndPostVATSettlement: Report "Calc. and Post VAT Settlement";
         TaxAreaCode: Code[20];
         TaxGroupCode: Code[20];
@@ -373,8 +377,12 @@ codeunit 134008 "ERM VAT Settlement with Apply"
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
 
         // [WHEN] Run Calc. and Post VAT Settlement report
+        LibraryJournals.CreateGenJournalBatch(GenJournalBatch);
+        GenJournalBatch.Validate("No. Series", LibraryERM.CreateNoSeriesCode);
+        GenJournalBatch.Modify(true);
         CalcAndPostVATSettlement.InitializeRequest(
-          WorkDate, WorkDate, WorkDate, LibraryUtility.GenerateGUID, LibraryERM.CreateGLAccountNo, false, true);
+          WorkDate, WorkDate, WorkDate, GenJournalBatch."Journal Template Name", GenJournalBatch.Name,
+          LibraryERM.CreateGLAccountNo, false, true);
         CalcAndPostVATSettlement.UseRequestPage(false);
         CalcAndPostVATSettlement.SaveAsXml('');
 
@@ -396,6 +404,7 @@ codeunit 134008 "ERM VAT Settlement with Apply"
         VATPostingSetup: Record "VAT Posting Setup";
         TaxDetail: Record "Tax Detail";
         VATEntry: Record "VAT Entry";
+        GenJournalBatch: Record "Gen. Journal Batch";
         CalcAndPostVATSettlement: Report "Calc. and Post VAT Settlement";
         TaxJurisdictionCode: array[2] of Code[10];
     begin
@@ -422,10 +431,11 @@ codeunit 134008 "ERM VAT Settlement with Apply"
         MockVATEntryForVATPostingSetup(VATEntry, TaxDetail, VATPostingSetup, 0, true, CalcDate('<+1D>', WorkDate));
 
         // [WHEN] Run Calculate And Post VAT Settlement report for VAT Posting Setup "X","Y" for dates starting with "20-01-2019" until "27-01-2019"
+        LibraryJournals.CreateGenJournalBatch(GenJournalBatch);
         CalcAndPostVATSettlement.SetTableView(VATPostingSetup);
         CalcAndPostVATSettlement.InitializeRequest(
           WorkDate, CalcDate('<+7D>', WorkDate), WorkDate,
-          LibraryUtility.GenerateGUID, LibraryERM.CreateGLAccountNo, false, false);
+          GenJournalBatch."Journal Template Name", GenJournalBatch.Name, LibraryERM.CreateGLAccountNo, false, false);
         CalcAndPostVATSettlement.SetInitialized(false);
         Commit();
         CalcAndPostVATSettlement.Run;
@@ -434,6 +444,60 @@ codeunit 134008 "ERM VAT Settlement with Apply"
         LibraryReportDataset.LoadDataSetFile;
         LibraryReportDataset.AssertElementTagWithValueExists('VATEntryGetFiltTaxJurisCd', TaxJurisdictionCode[1]);
         LibraryReportDataset.AssertElementTagWithValueExists('VATEntryGetFiltTaxJurisCd', TaxJurisdictionCode[2]);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CheckGenLedgerEntryAfterRunningReportForPurchaseInvoice()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        VATPostingSetup: Record "VAT Posting Setup";
+        GLEntry: Record "G/L Entry";
+        GenJournalBatch: Record "Gen. Journal Batch";
+        CalcAndPostVATSettlement: Report "Calc. and Post VAT Settlement";
+        DocNo: Code[20];
+    begin
+        // [FEATURE] [Report] [VAT Settlement]
+        // [SCENARIO 343791] Calc. and Post VAT Settlement for Purchase Invoice with Reverse Charge VAT
+        Initialize;
+
+        // [GIVEN] Created VAT Posting Group with Reverse Charge VAT
+        LibraryERM.CreateVATPostingSetupWithAccounts(
+            VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Reverse Charge VAT", LibraryRandom.RandDecInRange(10, 25, 2));
+        VATPostingSetup.Validate("Reverse Chrg. VAT Acc.", LibraryERM.CreateGLAccountNo());
+        VATPostingSetup.Modify(true);
+
+        // [GIVEN] Created and posted Purchase Invoice
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice,
+            LibraryPurchase.CreateVendorWithVATBusPostingGroup(VatPostingSetup."VAT Bus. Posting Group"));
+        LibraryPurchase.CreatePurchaseLine(
+            PurchaseLine,
+            PurchaseHeader,
+            PurchaseLine.Type::Item,
+            LibraryInventory.CreateItemNoWithVATProdPostingGroup(VATPostingSetup."VAT Prod. Posting Group"),
+            LibraryRandom.RandInt(100));
+        PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandDecInRange(1, 100, 2));
+        PurchaseLine.Modify(true);
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeader, false, false);
+
+        DocNo := LibraryUtility.GenerateGUID();
+
+        // [WHEN] Run Calc. and Post VAT Settlement report
+        LibraryJournals.CreateGenJournalBatch(GenJournalBatch);
+        GenJournalBatch.Validate("No. Series", LibraryERM.CreateNoSeriesCode);
+        GenJournalBatch.Modify(true);
+	    VATPostingSetup.SetRecFilter();
+        CalcAndPostVATSettlement.SetTableView(VATPostingSetup);
+        CalcAndPostVATSettlement.InitializeRequest(
+          WorkDate, WorkDate, WorkDate, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, LibraryERM.CreateGLAccountNo, false, true);
+        CalcAndPostVATSettlement.UseRequestPage(false);
+        CalcAndPostVATSettlement.SaveAsXml('');
+
+        // [THEN] 2 General Ledger Entries with "Gen. Posting Type" = 'Settlement' were created
+	    GLEntry.SetRange("Journal Batch Name", GenJournalBatch.Name);
+        GLEntry.SetRange("Gen. Posting Type", GLEntry."Gen. Posting Type"::Settlement);
+        Assert.RecordCount(GLEntry, 2);
     end;
 
     local procedure Initialize()
@@ -449,8 +513,10 @@ codeunit 134008 "ERM VAT Settlement with Apply"
 
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"ERM VAT Settlement with Apply");
         LibraryERMCountryData.CreateVATData;
+        LibraryERMCountryData.UpdateGeneralLedgerSetup;
         LibraryERMCountryData.UpdateGeneralPostingSetup;
         LibraryERMCountryData.UpdateVATPostingSetup;
+        LibraryERMCountryData.UpdatePurchasesPayablesSetup();
         LibrarySetupStorage.Save(DATABASE::"General Ledger Setup");
         isInitialized := true;
         Commit();
@@ -728,7 +794,7 @@ codeunit 134008 "ERM VAT Settlement with Apply"
         VATPostingSetup.Modify(true);
     end;
 
-    local procedure RunCalcAndPostVATSettlement(GenJournalLine: Record "Gen. Journal Line")
+    local procedure RunCalcAndPostVATSettlement(GenJournalLine: Record "Gen. Journal Line"; var DocNo: Code[20])
     var
         VATPostingSetup: Record "VAT Posting Setup";
         CalcAndPostVATSettlement: Report "Calc. and Post VAT Settlement";
@@ -736,10 +802,12 @@ codeunit 134008 "ERM VAT Settlement with Apply"
     begin
         VATPostingSetup.SetRange("VAT Bus. Posting Group", GenJournalLine."VAT Bus. Posting Group");
         VATPostingSetup.SetRange("VAT Prod. Posting Group", GenJournalLine."VAT Prod. Posting Group");
+        DocNo := GetNextJnlDocNo(GenJournalLine."Journal Template Name", GenJournalLine."Journal Batch Name", false);
         Clear(CalcAndPostVATSettlement);
         CalcAndPostVATSettlement.SetTableView(VATPostingSetup);
         CalcAndPostVATSettlement.InitializeRequest(
-          WorkDate, WorkDate, WorkDate, GenJournalLine."Document No.", GenJournalLine."Bal. Account No.", false, true);
+          WorkDate, WorkDate, WorkDate, GenJournalLine."Journal Template Name", GenJournalLine."Journal Batch Name",
+          GenJournalLine."Bal. Account No.", false, true);
         CalcAndPostVATSettlement.UseRequestPage(false);
         FilePath := TemporaryPath + Format(VATPostingSetup.TableName) + '.xlsx';
         CalcAndPostVATSettlement.SaveAsExcel(FilePath)
@@ -896,6 +964,19 @@ codeunit 134008 "ERM VAT Settlement with Apply"
         GLRegister.SetRange("From Entry No.", GLEntry."Entry No.");
         GLRegister.FindFirst;
         GLEntryVATEntryLink.Get(GLEntry."Entry No.", GLRegister."To VAT Entry No.");
+    end;
+
+    local procedure GetNextJnlDocNo(TemplateName: Code[10]; BatchName: Code[10]; ModifySeries: Boolean): Code[20]
+    var
+        GenJnlBatch: Record "Gen. Journal Batch";
+        NoSeriesManagement: Codeunit NoSeriesManagement;
+    begin
+        GenJnlBatch.Get(TemplateName, BatchName);
+        if GenJnlBatch."Posting No. Series" <> '' then
+            exit(NoSeriesManagement.GetNextNo(GenJnlBatch."Posting No. Series", WorkDate, ModifySeries));
+
+        GenJnlBatch.TestField("No. Series");
+        exit(NoSeriesManagement.GetNextNo(GenJnlBatch."No. Series", WorkDate, ModifySeries));
     end;
 
     local procedure VerifyGLEntryDiscountAccPostingGroups(DocumentNo: Code[20]; GLAccount: Record "G/L Account")

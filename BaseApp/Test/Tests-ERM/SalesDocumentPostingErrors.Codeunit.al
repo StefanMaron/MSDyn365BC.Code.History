@@ -127,6 +127,58 @@ codeunit 132501 "Sales Document Posting Errors"
 
     [Test]
     [Scope('OnPrem')]
+    procedure T1002_PostingDateIsInNotAllowedPeriodInGenJnlTemplate()
+    var
+        GenJournalTemplate: Record "Gen. Journal Template";
+        SalesHeader: Record "Sales Header";
+        TempErrorMessage: Record "Error Message" temporary;
+        SalesInvoicePage: TestPage "Sales Invoice";
+        GeneralJournalTemplates: TestPage "General Journal Templates";
+    begin
+        // [FEATURE] [Country:BE]
+        // [SCENARIO] Posting of document, where "Posting Date" is out of the allowed period, set in Gen. Journal Template.
+        Initialize;
+        // [GIVEN] "Allow Posting To" is 31.12.2018 in "Journal Template", where Type is 'Sales'
+        GenJournalTemplate.SetRange(Type, GenJournalTemplate.Type::Sales);
+        GenJournalTemplate.FindFirst;
+        GenJournalTemplate."Allow Posting To" := WorkDate - 1;
+        GenJournalTemplate.Modify();
+        // [GIVEN] Invoice '1001', where "Posting Date" is 01.01.2019
+        LibrarySales.CreateSalesInvoice(SalesHeader);
+        SalesHeader.TestField("Posting Date", WorkDate);
+
+        // [WHEN] Post Invoice '1001'
+        LibraryErrorMessage.TrapErrorMessages;
+        SalesHeader.SendToPosting(CODEUNIT::"Sales-Post");
+
+        // [THEN] "Error Message" page is open, where is one error:
+        // [THEN] "Posting Date is not within your range of allowed posting dates."
+        LibraryErrorMessage.GetErrorMessages(TempErrorMessage);
+        Assert.RecordCount(TempErrorMessage, 1);
+        TempErrorMessage.FindFirst;
+        TempErrorMessage.TestField(Description, PostingDateNotAllowedErr);
+        // [THEN] "Context" is 'Sales Header: Invoice, 1001', "Field Name" is 'Posting Date',
+        TempErrorMessage.TestField("Context Record ID", SalesHeader.RecordId);
+        TempErrorMessage.TestField("Context Field Number", SalesHeader.FieldNo("Posting Date"));
+        // [THEN]  "Source" is 'Gen. Journal Template', "Field Name" is 'Allow Posting From'
+        TempErrorMessage.TestField("Record ID", GenJournalTemplate.RecordId);
+        TempErrorMessage.TestField("Field Number", GenJournalTemplate.FieldNo("Allow Posting From"));
+        // [WHEN] DrillDown on "Source"
+        GeneralJournalTemplates.Trap;
+        LibraryErrorMessage.DrillDownOnSource;
+        // [THEN] opens "General Journal Templates" page.
+        GeneralJournalTemplates."Allow Posting To".AssertEquals(WorkDate - 1);
+        GeneralJournalTemplates.Close;
+
+        // [WHEN] DrillDown on "Description"
+        SalesInvoicePage.Trap;
+        LibraryErrorMessage.DrillDownOnDescription;
+        // [THEN] opens "Sales Invoice" page.
+        SalesInvoicePage."Posting Date".AssertEquals(WorkDate);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
     procedure T900_PreviewWithOneLoggedAndOneDirectError()
     var
         TempErrorMessage: Record "Error Message" temporary;
@@ -269,61 +321,6 @@ codeunit 132501 "Sales Document Posting Errors"
         Assert.RecordCount(ErrorMessage, 1);
         ErrorMessage.FindFirst();
         Assert.ExpectedMessage(PostingDateNotAllowedErr, ErrorMessage.Description);
-    end;
-
-    [Test]
-    [HandlerFunctions('ConfirmYesHandler')]
-    [Scope('OnPrem')]
-    procedure BatchPostingWithErrorsShowJobQueueErrorsBackground()
-    var
-        SalesHeader: array[2] of Record "Sales Header";
-        ErrorMessage: Record "Error Message";
-        JobQueueEntry: Record "Job Queue Entry";
-        DimensionValue: Record "Dimension Value";
-        DefaultDimension: Record "Default Dimension";
-        SalesBatchPostMgt: Codeunit "Sales Batch Post Mgt.";
-        LibraryJobQueue: Codeunit "Library - Job Queue";
-        LibraryDimension: Codeunit "Library - Dimension";
-        JobQueueEntries: TestPage "Job Queue Entries";
-        ErrorMessages: TestPage "Error Messages";
-        CustomerNo: Code[20];
-        RegisterID: Guid;
-    begin
-        // [FEATURE] [Batch Posting] [Job Queue]
-        // [SCENARIO] Batch posting of document (in background) verifies "Error Messages" page that contains two lines for Job Queue Entry
-        Initialize;
-        LibrarySales.SetPostWithJobQueue(true);
-        BindSubscription(LibraryJobQueue);
-        LibraryJobQueue.SetDoNotHandleCodeunitJobQueueEnqueueEvent(true);
-
-        // [GIVEN] "Allow Posting To" is 31.12.2018 in "General Ledger Setup"
-        LibraryERM.SetAllowPostingFromTo(0D, WorkDate - 1);
-        // [GIVEN] Invoice '1002', where "Posting Date" is 01.01.2019, and no mandatory dimension
-        CustomerNo := LibrarySales.CreateCustomerNo;
-        LibrarySales.CreateSalesInvoiceForCustomerNo(SalesHeader[1], CustomerNo);
-        LibraryDimension.CreateDimWithDimValue(DimensionValue);
-        LibraryDimension.CreateDefaultDimensionCustomer(DefaultDimension, CustomerNo, DimensionValue."Dimension Code", DimensionValue.Code);
-        DefaultDimension."Value Posting" := DefaultDimension."Value Posting"::"Code Mandatory";
-        DefaultDimension.Modify();
-
-        // [WHEN] Post both documents as a batch via Job Queue
-        JobQueueEntry.DeleteAll();
-        SalesHeader[2].SetRange("Sell-to Customer No.", CustomerNo);
-        SalesBatchPostMgt.RunWithUI(SalesHeader[2], 2, '');
-        JobQueueEntry.SetRange("Record ID to Process", SalesHeader[1].RecordId);
-        JobQueueEntry.FindFirst();
-        LibraryJobQueue.FindAndRunJobQueueEntryByRecordId(SalesHeader[1].RecordId);
-
-        // [THEN] "Error Message" page contains 2 lines:
-        JobQueueEntries.OpenView();
-        JobQueueEntries.GoToRecord(JobQueueEntry);
-        ErrorMessages.Trap();
-        JobQueueEntries.ShowError.Invoke();
-        ErrorMessages.First();
-        Assert.IsSubstring(ErrorMessages.Description.Value, PostingDateNotAllowedErr);
-        ErrorMessages.Next();
-        Assert.IsSubstring(ErrorMessages.Description.Value, StrSubstNo(DefaultDimErr, DefaultDimension."Dimension Code", CustomerNo));
-        Assert.IsFalse(ErrorMessages.Next(), 'Wrong number of error messages.');
     end;
 
     local procedure Initialize()

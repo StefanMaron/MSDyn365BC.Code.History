@@ -81,6 +81,7 @@ codeunit 134080 "ERM Adjust Exch Rate Cust/Bank"
         CustLedgerEntry: Record "Cust. Ledger Entry";
         GenJournalLine: Record "Gen. Journal Line";
         GenJournalLine2: Record "Gen. Journal Line";
+        DocNo: Code[20];
         Amount: Decimal;
     begin
         // Check Customer Entry for Unrealized Gain with Apply Credit Memo and Refund.
@@ -90,7 +91,7 @@ codeunit 134080 "ERM Adjust Exch Rate Cust/Bank"
         CreateGenAndModifyExchRate(
           GenJournalLine, GenJournalLine."Account Type"::Customer, CreateCustomer(CreateCurrency),
           GenJournalLine."Document Type"::"Credit Memo", -LibraryRandom.RandDec(100, 2), -LibraryRandom.RandInt(50));
-        RunAdjustExchRate(GenJournalLine."Currency Code", WorkDate);
+        RunAdjustExchRate(DocNo, GenJournalLine."Currency Code", WorkDate);
         Amount :=
           Round(
             GenJournalLine."Amount (LCY)" - LibraryERM.ConvertCurrency(GenJournalLine.Amount, GenJournalLine."Currency Code", '', WorkDate));
@@ -105,7 +106,7 @@ codeunit 134080 "ERM Adjust Exch Rate Cust/Bank"
           CustLedgerEntry."Document Type"::"Credit Memo");
 
         // Verify: Verify Detailed Ledger Entry for correct entry after made from running Adjust Exchange Rate Batch Job.
-        VerifyDetailedLedgerEntry(GenJournalLine2."Currency Code", DetailedCustLedgEntry."Entry Type"::"Unrealized Gain", -Amount);
+        VerifyDetailedLedgerEntry(DocNo, DetailedCustLedgEntry."Entry Type"::"Unrealized Gain", -Amount);
     end;
 
     [Test]
@@ -154,6 +155,7 @@ codeunit 134080 "ERM Adjust Exch Rate Cust/Bank"
         FirstStartingDate: Date;
         SecondStartingDate: Date;
         CurrencyCode: Code[10];
+        DocNo: Code[20];
         Amount: Decimal;
     begin
         // Check GL Entry after Run Adjust Exchange Rate Batch Job with multiple Currency Exchange Rate with Negative Amount on General Line.
@@ -169,10 +171,10 @@ codeunit 134080 "ERM Adjust Exch Rate Cust/Bank"
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
 
         // Exercise.
-        RunAdjustExchRate(GenJournalLine."Currency Code", SecondStartingDate);
+        RunAdjustExchRate(DocNo, GenJournalLine."Currency Code", SecondStartingDate);
 
         // Verify: Verify GL Entry for Adjusted Negative Amount with Currency.
-        VerifyGLEntryAmountAdjmtExchangeRate(GenJournalLine."Account No.", Amount, GenJournalLine."Currency Code");
+        VerifyGLEntryAmountAdjmtExchangeRate(GenJournalLine."Account No.", Amount, GenJournalLine."Currency Code", DocNo);
     end;
 
     [Test]
@@ -184,6 +186,7 @@ codeunit 134080 "ERM Adjust Exch Rate Cust/Bank"
         FirstStartingDate: Date;
         SecondStartingDate: Date;
         CurrencyCode: Code[10];
+        DocNo: Code[20];
         Amount: Decimal;
     begin
         // Check GL Entry after Run Adjust Exchange Rate Batch Job with multiple Currency Exchange Rate with Positive Amount on General Line.
@@ -199,10 +202,10 @@ codeunit 134080 "ERM Adjust Exch Rate Cust/Bank"
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
 
         // Exercise.
-        RunAdjustExchRate(GenJournalLine."Currency Code", SecondStartingDate);
+        RunAdjustExchRate(DocNo, GenJournalLine."Currency Code", SecondStartingDate);
 
         // Verify: Verify GL Entry for Adjusted Postitive Amount with Currency.
-        VerifyGLEntryAmountAdjmtExchangeRate(GenJournalLine."Account No.", Amount, CurrencyCode);
+        VerifyGLEntryAmountAdjmtExchangeRate(GenJournalLine."Account No.", Amount, CurrencyCode, DocNo);
     end;
 
     [Test]
@@ -215,6 +218,7 @@ codeunit 134080 "ERM Adjust Exch Rate Cust/Bank"
         GenJournalLine: Record "Gen. Journal Line";
         FirstStartingDate: Date;
         CurrencyCode: Code[10];
+        DocNo: Code[20];
         Amount: Decimal;
         Amount2: Decimal;
         ExchRateAmount: Decimal;
@@ -244,14 +248,14 @@ codeunit 134080 "ERM Adjust Exch Rate Cust/Bank"
         GLEntryAmount2 := CalculateGLEntryBaseAmount(Currency."Realized Losses Acc.", Amount2);
 
         // Exercise.
-        RunAdjustExchRate(GenJournalLine."Currency Code", FirstStartingDate);
+        RunAdjustExchRate(DocNo, GenJournalLine."Currency Code", FirstStartingDate);
 
         // Verify: Verify GL Entry for Currency Gain/Loss.
-        FindGLEntry(GLEntry, Currency.Code, Currency."Realized Gains Acc.", GLEntry."Document Type"::" ");
+        FindGLEntry(GLEntry, DocNo, Currency."Realized Gains Acc.", GLEntry."Document Type"::" ");
         Assert.AreNearlyEqual(
           -GLEntryAmount, GLEntry.Amount, Currency."Amount Rounding Precision",
           StrSubstNo(GLEntryAmountErr, GLEntry.FieldCaption(Amount), -Amount, GLEntry.TableCaption));
-        FindGLEntry(GLEntry, Currency.Code, Currency."Realized Losses Acc.", GLEntry."Document Type"::" ");
+        FindGLEntry(GLEntry, DocNo, Currency."Realized Losses Acc.", GLEntry."Document Type"::" ");
         Assert.AreNearlyEqual(
           -GLEntryAmount2, GLEntry.Amount, Currency."Amount Rounding Precision",
           StrSubstNo(GLEntryAmountErr, GLEntry.FieldCaption(Amount), -Amount2, GLEntry.TableCaption));
@@ -265,6 +269,7 @@ codeunit 134080 "ERM Adjust Exch Rate Cust/Bank"
         Currency: Record Currency;
         GLEntry: Record "G/L Entry";
         SalesLine: Record "Sales Line";
+        DocNo: Code[20];
         FirstStartingDate: Date;
         Amount: Decimal;
         RelExchRateAmount: Decimal;
@@ -280,12 +285,12 @@ codeunit 134080 "ERM Adjust Exch Rate Cust/Bank"
         Amount -= Round(LibraryERM.ConvertCurrency(SalesLine."Amount Including VAT", SalesLine."Currency Code", '', WorkDate));
 
         // Exercise.
-        RunAdjustExchRate(SalesLine."Currency Code", FirstStartingDate);
+        RunAdjustExchRate(DocNo, SalesLine."Currency Code", FirstStartingDate);
 
         // Verify: Verify GL Entry for Currency Unrealized Gain.
         Currency.Get(SalesLine."Currency Code");
         VerifyGLEntry(
-          SalesLine."Currency Code", SalesLine."Currency Code", -Amount, Currency."Unrealized Gains Acc.", GLEntry."Document Type"::" ");
+          SalesLine."Currency Code", DocNo, -Amount, Currency."Unrealized Gains Acc.", GLEntry."Document Type"::" ");
     end;
 
     [Test]
@@ -346,6 +351,7 @@ codeunit 134080 "ERM Adjust Exch Rate Cust/Bank"
         SalesLine: Record "Sales Line";
         FirstStartingDate: Date;
         DocumentNo: Code[20];
+        ExchRateDocNo: Code[20];
         Amount: Decimal;
         RelExchRateAmount: Decimal;
     begin
@@ -365,10 +371,11 @@ codeunit 134080 "ERM Adjust Exch Rate Cust/Bank"
         OpenCustomerLedgerEntries(SalesLine."Sell-to Customer No.", DocumentNo);
 
         if AdjustExchRate then begin
-            RunAdjustExchRate(SalesLine."Currency Code", PostingDate);
+            RunAdjustExchRate(ExchRateDocNo, SalesLine."Currency Code", PostingDate);
             SetHandler := true; // Taken Global variable to use in handler.
             OpenCustomerLedgerEntries(SalesLine."Sell-to Customer No.", DocumentNo);
         end;
+
         Amount :=
           Round(
             LibraryERM.ConvertCurrency(
@@ -381,11 +388,11 @@ codeunit 134080 "ERM Adjust Exch Rate Cust/Bank"
               SalesLine."Currency Code", '', WorkDate));
 
         // Exercise.
-        RunAdjustExchRate(SalesLine."Currency Code", PostingDate);
+        RunAdjustExchRate(ExchRateDocNo, SalesLine."Currency Code", PostingDate);
 
         // Verify: Verify GL Entry for Currency Unrealized Gain.
         VerifyGLEntry(
-          SalesLine."Currency Code", SalesLine."Currency Code", -Amount, Currency."Unrealized Gains Acc.", GLEntry."Document Type"::" ");
+          SalesLine."Currency Code", ExchRateDocNo, -Amount, Currency."Unrealized Gains Acc.", GLEntry."Document Type"::" ");
     end;
 
     [Test]
@@ -396,6 +403,7 @@ codeunit 134080 "ERM Adjust Exch Rate Cust/Bank"
         Currency: Record Currency;
         GLEntry: Record "G/L Entry";
         PurchaseLine: Record "Purchase Line";
+        DocNo: Code[20];
         FirstStartingDate: Date;
         Amount: Decimal;
         RelExchRateAmount: Decimal;
@@ -412,12 +420,12 @@ codeunit 134080 "ERM Adjust Exch Rate Cust/Bank"
         Amount -= Round(LibraryERM.ConvertCurrency(PurchaseLine."Amount Including VAT", PurchaseLine."Currency Code", '', WorkDate));
 
         // Exercise.
-        RunAdjustExchRate(PurchaseLine."Currency Code", FirstStartingDate);
+        RunAdjustExchRate(DocNo, PurchaseLine."Currency Code", FirstStartingDate);
 
         // Verify: Verify GL Entry for Currency Unrealized Loss.
         Currency.Get(PurchaseLine."Currency Code");
         VerifyGLEntry(
-          PurchaseLine."Currency Code", PurchaseLine."Currency Code", Amount, Currency."Unrealized Losses Acc.",
+          PurchaseLine."Currency Code", DocNo, Amount, Currency."Unrealized Losses Acc.",
           GLEntry."Document Type"::" ");
     end;
 
@@ -479,6 +487,7 @@ codeunit 134080 "ERM Adjust Exch Rate Cust/Bank"
         PurchaseLine: Record "Purchase Line";
         FirstStartingDate: Date;
         DocumentNo: Code[20];
+        ExchRateDocNo: Code[20];
         Amount: Decimal;
         RelExchRateAmount: Decimal;
     begin
@@ -498,7 +507,7 @@ codeunit 134080 "ERM Adjust Exch Rate Cust/Bank"
         OpenVendorLedgerEntries(PurchaseLine."Buy-from Vendor No.", DocumentNo);
 
         if AdjustExchRate then begin
-            RunAdjustExchRate(PurchaseLine."Currency Code", PostingDate);
+            RunAdjustExchRate(ExchRateDocNo, PurchaseLine."Currency Code", PostingDate);
             SetHandler := true; // Taken Global variable to use in handler.
             OpenVendorLedgerEntries(PurchaseLine."Buy-from Vendor No.", DocumentNo);
         end;
@@ -515,11 +524,11 @@ codeunit 134080 "ERM Adjust Exch Rate Cust/Bank"
               PurchaseLine."Currency Code", '', WorkDate));
 
         // Exercise.
-        RunAdjustExchRate(PurchaseLine."Currency Code", PostingDate);
+        RunAdjustExchRate(ExchRateDocNo, PurchaseLine."Currency Code", PostingDate);
 
         // Verify: Verify GL Entry for Currency Unrealized Loss.
         VerifyGLEntry(
-          PurchaseLine."Currency Code", PurchaseLine."Currency Code", Amount, Currency."Unrealized Losses Acc.",
+          PurchaseLine."Currency Code", ExchRateDocNo, Amount, Currency."Unrealized Losses Acc.",
           GLEntry."Document Type"::" ");
     end;
 
@@ -796,22 +805,22 @@ codeunit 134080 "ERM Adjust Exch Rate Cust/Bank"
           GenJournalLine."Document Type"::Invoice, LibraryRandom.RandDec(100, 2), 2 * ExchRateAmt);
 
         // [GIVEN] Exch. rates is changed to 1,0541 and adjustment completed.
-        RunAdjustExchRate(GenJournalLine."Currency Code", WorkDate);
+        RunAdjustExchRate(GenJournalLine."Document No.", GenJournalLine."Currency Code", WorkDate);
 
         // [GIVEN] Dtld. Cust. Ledger Entry is created with amount = 1176,09 for Unrealized Gain type
         VerifyDtldCLEGain(
-          GenJournalLine."Currency Code",
+          GenJournalLine."Document No.",
           -CalcGainLossAmount(GenJournalLine.Amount, GenJournalLine."Amount (LCY)", GenJournalLine."Currency Code"));
 
         // [GIVEN] Exch. rates is changed to 1,0666
         ModifyExchangeRate(GenJournalLine."Currency Code", -ExchRateAmt);
 
         // [WHEN] Run report Adjust Exchange Rates second time
-        RunAdjustExchRate(GenJournalLine."Currency Code", WorkDate);
+        RunAdjustExchRate(GenJournalLine."Document No.", GenJournalLine."Currency Code", WorkDate);
 
         // [THEN] Dtld. Cust. Ledger Entry is created with amount = -433,69 for Unrealized Loss type
         VerifyDtldCLELoss(
-          GenJournalLine."Currency Code",
+          GenJournalLine."Document No.",
           CalcGainLossAmount(GenJournalLine.Amount, GenJournalLine."Amount (LCY)", GenJournalLine."Currency Code"));
     end;
 
@@ -834,22 +843,22 @@ codeunit 134080 "ERM Adjust Exch Rate Cust/Bank"
           GenJournalLine."Document Type"::Invoice, LibraryRandom.RandDec(100, 2), -2 * ExchRateAmt);
 
         // [GIVEN] Exch. rates is changed to 1,0541 and adjustment completed.
-        RunAdjustExchRate(GenJournalLine."Currency Code", WorkDate);
+        RunAdjustExchRate(GenJournalLine."Document No.", GenJournalLine."Currency Code", WorkDate);
 
         // [GIVEN] Dtld. Cust. Ledger Entry is created with amount = -1176,09 for Unrealized Loss type
         VerifyDtldCLELoss(
-          GenJournalLine."Currency Code",
+          GenJournalLine."Document No.",
           -CalcGainLossAmount(GenJournalLine.Amount, GenJournalLine."Amount (LCY)", GenJournalLine."Currency Code"));
 
         // [GIVEN] Exch. rates is changed to 1,0666
         ModifyExchangeRate(GenJournalLine."Currency Code", ExchRateAmt);
 
         // [WHEN] Run report Adjust Exchange Rates second time
-        RunAdjustExchRate(GenJournalLine."Currency Code", WorkDate);
+        RunAdjustExchRate(GenJournalLine."Document No.", GenJournalLine."Currency Code", WorkDate);
 
         // [THEN] Dtld. Cust. Ledger Entry is created with amount = 742,4 for Unrealized Gain type
         VerifyDtldCLEGain(
-          GenJournalLine."Currency Code",
+          GenJournalLine."Document No.",
           CalcGainLossAmount(GenJournalLine.Amount, GenJournalLine."Amount (LCY)", GenJournalLine."Currency Code"));
     end;
 
@@ -866,7 +875,7 @@ codeunit 134080 "ERM Adjust Exch Rate Cust/Bank"
         LibraryERMCountryData.CreateVATData;
         LibraryERMCountryData.UpdateGeneralLedgerSetup;
         LibraryERMCountryData.UpdateGeneralPostingSetup;
-        LibraryERMCountryData.UpdateLocalPostingSetup;
+        LibraryERMCountryData.UpdateGeneralLedgerSetup;
         IsInitialized := true;
         Commit();
     end;
@@ -877,6 +886,7 @@ codeunit 134080 "ERM Adjust Exch Rate Cust/Bank"
         BankAccountPostingGroup: Record "Bank Account Posting Group";
         CurrencyExchangeRate: Record "Currency Exchange Rate";
         GenJournalLine: Record "Gen. Journal Line";
+        DocNo: Code[20];
         Amount: Decimal;
     begin
         // Setup: Modify Exchange Rate after Create and Post General Journal Line for Bank.
@@ -889,11 +899,11 @@ codeunit 134080 "ERM Adjust Exch Rate Cust/Bank"
         BankAccountPostingGroup.Get(BankAccount."Bank Acc. Posting Group");
 
         // Exercise:  Run Adjust Exchange Rate batch job on Posted Entries.
-        RunAdjustExchRate(GenJournalLine."Currency Code", WorkDate);
+        RunAdjustExchRate(DocNo, GenJournalLine."Currency Code", WorkDate);
 
         // Verify: Verify G/L Entry for correct entry after made from running Adjust Exchange Rate Batch Job.
         VerifyGLEntry(
-          GenJournalLine."Currency Code", GenJournalLine."Currency Code", Amount, BankAccountPostingGroup."G/L Account No.",
+          GenJournalLine."Currency Code", DocNo, Amount, BankAccountPostingGroup."G/L Account No.",
           GenJournalLine."Document Type"::" ");
     end;
 
@@ -901,6 +911,7 @@ codeunit 134080 "ERM Adjust Exch Rate Cust/Bank"
     var
         CurrencyExchangeRate: Record "Currency Exchange Rate";
         GenJournalLine: Record "Gen. Journal Line";
+        DocNo: Code[20];
         Amount: Decimal;
     begin
         // Setup: Modify Exchange Rate after Create and Post General Journal Line for Customer.
@@ -913,10 +924,10 @@ codeunit 134080 "ERM Adjust Exch Rate Cust/Bank"
           GenJournalLine.Amount * CurrencyExchangeRate."Relational Exch. Rate Amount" / CurrencyExchangeRate."Exchange Rate Amount";
 
         // Exercise: Run Adjust Exchange Rate batch job on Posted Entries.
-        RunAdjustExchRate(GenJournalLine."Currency Code", WorkDate);
+        RunAdjustExchRate(DocNo, GenJournalLine."Currency Code", WorkDate);
 
         // Verify: Verify Detailed Ledger Entry for correct entry after made from running Adjust Exchange Rate Batch Job.
-        VerifyDetailedLedgerEntry(GenJournalLine."Currency Code", EntryType, -Amount);
+        VerifyDetailedLedgerEntry(DocNo, EntryType, -Amount);
     end;
 
     local procedure ApplyAndPostCustomerEntry(DocumentNo: Code[20]; AmountToApply: Decimal; DocumentNo2: Code[20]; DocumentType: Option; DocumentType2: Option)
@@ -1219,6 +1230,18 @@ codeunit 134080 "ERM Adjust Exch Rate Cust/Bank"
         exit(CustomerPostingGroup."Receivables Account");
     end;
 
+    local procedure GetNextNoFromGenJnlBatch(): Code[20]
+    var
+        GenJournalBatch: Record "Gen. Journal Batch";
+        NoSeriesManagement: Codeunit NoSeriesManagement;
+        TemplateName: Code[10];
+        BatchName: Code[10];
+    begin
+        LibraryERM.FindGenJnlTemplateAndBatch(TemplateName, BatchName);
+        GenJournalBatch.Get(TemplateName, BatchName);
+        exit(NoSeriesManagement.GetNextNo(GenJournalBatch."No. Series", WorkDate, false));
+    end;
+
     local procedure ModifyGeneralLine(var GenJournalLine: Record "Gen. Journal Line"; DocumentNo: Code[20]; PostingDate: Date)
     begin
         GenJournalLine.Validate("Posting Date", PostingDate);
@@ -1339,14 +1362,18 @@ codeunit 134080 "ERM Adjust Exch Rate Cust/Bank"
             VendorLedgerEntries.ActionApplyEntries.Invoke;
     end;
 
-    local procedure RunAdjustExchRate("Code": Code[10]; EndDate: Date)
+    local procedure RunAdjustExchRate(var DocNo: Code[20]; "Code": Code[10]; EndDate: Date)
     var
         Currency: Record Currency;
+        GenJnlBatch: Record "Gen. Journal Batch";
         AdjustExchangeRates: Report "Adjust Exchange Rates";
     begin
         Currency.SetRange(Code, Code);
         AdjustExchangeRates.SetTableView(Currency);
-        AdjustExchangeRates.InitializeRequest2(0D, EndDate, 'Test', EndDate, Code, true, false); // Using Currency Code for Document No. parameter.
+        DocNo := LibraryERM.GetNextDocNoByBatch(GenJnlBatch);
+        AdjustExchangeRates.InitializeRequest2(
+          0D, EndDate, 'Test', EndDate, '', true, false,
+          GenJnlBatch."Journal Template Name", GenJnlBatch.Name);
         AdjustExchangeRates.UseRequestPage(false);
         AdjustExchangeRates.Run;
     end;
@@ -1371,7 +1398,7 @@ codeunit 134080 "ERM Adjust Exch Rate Cust/Bank"
         LibraryERM.UnapplyCustomerLedgerEntry(CustLedgerEntry);
     end;
 
-    local procedure VerifyGLEntryAmountAdjmtExchangeRate(BankAccountNo: Code[20]; Amount: Decimal; DocumentNo: Code[20])
+    local procedure VerifyGLEntryAmountAdjmtExchangeRate(BankAccountNo: Code[20]; Amount: Decimal; CurrencyNo: Code[20]; DocNo: Code[20])
     var
         BankAccount: Record "Bank Account";
         BankAccountPostingGroup: Record "Bank Account Posting Group";
@@ -1381,13 +1408,13 @@ codeunit 134080 "ERM Adjust Exch Rate Cust/Bank"
     begin
         BankAccount.Get(BankAccountNo);
         BankAccountPostingGroup.Get(BankAccount."Bank Acc. Posting Group");
-        GLEntry.SetRange("Document No.", DocumentNo);
+        GLEntry.SetRange("Document No.", DocNo);
         GLEntry.SetRange("G/L Account No.", BankAccountPostingGroup."G/L Account No.");
         GLEntry.FindSet;
         repeat
             GLEntryAmount += GLEntry.Amount;
         until GLEntry.Next = 0;
-        Currency.Get(DocumentNo);
+        Currency.Get(CurrencyNo);
         Assert.AreNearlyEqual(
           Amount, GLEntryAmount, Currency."Invoice Rounding Precision",
           StrSubstNo(GLEntryAmountErr, GLEntry.FieldCaption(Amount), Amount, GLEntry.TableCaption));

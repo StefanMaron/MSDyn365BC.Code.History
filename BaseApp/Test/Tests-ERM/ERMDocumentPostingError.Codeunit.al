@@ -19,7 +19,7 @@ codeunit 134384 "ERM Document Posting Error"
         LibrarySales: Codeunit "Library - Sales";
         IsInitialized: Boolean;
         SalesOrderPostingErr: Label 'The total amount for the invoice must be 0 or greater.';
-        PurchaseInvoicePostingErr: Label 'Amount must be negative in Gen. Journal Line Journal Template Name='''',Journal Batch Name='''',Line No.=''0''.';
+        PurchaseInvoicePostingErr: Label 'Amount must be negative in Gen. Journal Line Journal Template Name=''%1'',Journal Batch Name='''',Line No.=''0''.', Comment = '.';
         StatusErr: Label 'Status must be equal to ''Open''  in %1: Document Type=%2, No.=%3. Current value is ''Released''.', Comment = '.';
 
     [Test]
@@ -58,7 +58,7 @@ codeunit 134384 "ERM Document Posting Error"
         asserterror LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
 
         // Verify: Verify Posting Error and Status field.
-        Assert.ExpectedError(PurchaseInvoicePostingErr);
+        Assert.ExpectedError(GetPurchInvPostingErr(PurchaseHeader));
         PurchaseHeader.TestField(Status, PurchaseHeader.Status::Open);
     end;
 
@@ -571,6 +571,11 @@ codeunit 134384 "ERM Document Posting Error"
         OldBillToSellToVATCalc := GeneralLedgerSetup."Bill-to/Sell-to VAT Calc.";
         GeneralLedgerSetup.Validate("Bill-to/Sell-to VAT Calc.", BillToSellToVATCalc);
         GeneralLedgerSetup.Modify(true);
+    end;
+
+    local procedure GetPurchInvPostingErr(PurchHeader: Record "Purchase Header"): Text[250]
+    begin
+        exit(StrSubstNo(PurchaseInvoicePostingErr, PurchHeader."Journal Template Name"));
     end;
 
     local procedure VerifyReleaseSalesDocument(SalesHeader: Record "Sales Header")

@@ -17,6 +17,7 @@ codeunit 137611 "SCM Costing Rollup Sev 1"
         LibraryWarehouse: Codeunit "Library - Warehouse";
         LibraryPatterns: Codeunit "Library - Patterns";
         LibraryDimension: Codeunit "Library - Dimension";
+        LibraryERM: Codeunit "Library - ERM";
         LibraryRandom: Codeunit "Library - Random";
         Assert: Codeunit Assert;
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
@@ -440,6 +441,8 @@ codeunit 137611 "SCM Costing Rollup Sev 1"
         GLItemLedgerRelation: Record "G/L - Item Ledger Relation";
         PostInventoryCostToGL: Report "Post Inventory Cost to G/L";
         FileMgt: Codeunit "File Management";
+        TemplateName: Code[10];
+        BatchName: Code[10];
     begin
         Initialize;
 
@@ -470,7 +473,8 @@ codeunit 137611 "SCM Costing Rollup Sev 1"
             PostValueEntryToGL.SetRange("Item No.", Item."No.");
             SetTableView(PostValueEntryToGL);
             UseRequestPage := false;
-            InitializeRequest(1, '', true);
+            LibraryERM.FindGenJnlTemplateAndBatch(TemplateName, BatchName);
+            InitializeRequest(1, true, TemplateName, BatchName);
             SaveAsPdf(FileMgt.ServerTempFileName(''));
         end;
 

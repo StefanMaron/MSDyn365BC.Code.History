@@ -873,8 +873,11 @@ codeunit 134982 "ERM Financial Reports"
     procedure ImportConsolidationFromFileRequestPage()
     var
         ImportConsolidationFromFile: Report "Import Consolidation from File";
+        JnlTemplName: Code[10];
+        JnlBatchName: Code[10];
     begin
-        ImportConsolidationFromFile.InitializeRequest(1, FilePathTxt, '10000');
+        LibraryERM.FindGenJnlTemplateAndBatch(JnlTemplName, JnlBatchName);
+        ImportConsolidationFromFile.InitializeRequest(1, FilePathTxt, JnlTemplName, JnlBatchName);
         ImportConsolidationFromFile.Run;
     end;
 
@@ -1143,14 +1146,14 @@ codeunit 134982 "ERM Financial Reports"
         FileName: Text[1024];
     begin
         // [FEATURE] [VAT- VIES Declaration Disk]
-        // [SCENARIO 300180] Export "VAT- VIES Declaration Disk" when Sell-To Customer does not have VAT Registration No. and Country/Region Code
+        // [SCENARIO 300180] Export "VAT- VIES Declaration Disk" when Sell-To Customer does not have VAT Registration No.
         Initialize;
 
         // [GIVEN] "Bill-to/Sell-to VAT Calc." = "Sell-to/Buy-from No." in General Ledger Setup
         LibraryERM.SetBillToSellToVATCalc(GeneralLedgerSetup."Bill-to/Sell-to VAT Calc."::"Sell-to/Buy-from No.");
 
         // [GIVEN] Customer "SellCust" has Country/Region Code = 'BE' and VAT Registration No. = 'BE123456789'
-        // [GIVEN] Customer "BillCust" without VAT Registration No. and Country/Region Code
+        // [GIVEN] Customer "BillCust" without VAT Registration No. and Country/Region Code = 'BE'
         CreateCustomerWithSimpleBillToCust(SellToCustomer, BillToCustomer);
 
         // [GIVEN] Sales Invoice is posted with "SellCust" and "BillCust" as Sell-to Customer and Bill-to Customer respectively
@@ -1164,7 +1167,7 @@ codeunit 134982 "ERM Financial Reports"
 
         // [THEN] Country/Region Code is exported as 'BE' and VAT Registration No. as 'BE123456789'
         Assert.AreNotEqual(
-          '', LibraryTextFileValidation.FindLineContainingValue(FileName, 27, 2, CopyStr(SellToCustomer."Country/Region Code", 1, 2)), '');
+          '', LibraryTextFileValidation.FindLineContainingValue(FileName, 27, 2, CopyStr(BillToCustomer."Country/Region Code", 1, 2)), '');
         Assert.AreNotEqual(
           '', LibraryTextFileValidation.FindLineContainingValue(FileName, 29, 10, CopyStr(SellToCustomer."VAT Registration No.", 1, 10)), '');
 
@@ -1336,7 +1339,10 @@ codeunit 134982 "ERM Financial Reports"
     begin
         LibrarySales.CreateCustomerWithVATRegNo(SellToCustomer);
         UpdateEUCountryRegion(SellToCustomer."Country/Region Code");
-        LibrarySales.CreateCustomer(BillToCustomer);
+        LibrarySales.CreateCustomerWithVATRegNo(BillToCustomer);
+        UpdateEUCountryRegion(BillToCustomer."Country/Region Code");
+        BillToCustomer."VAT Registration No." := '';
+        BillToCustomer.Modify();
         SellToCustomer.Validate("Bill-to Customer No.", BillToCustomer."No.");
         SellToCustomer.Modify(true);
     end;

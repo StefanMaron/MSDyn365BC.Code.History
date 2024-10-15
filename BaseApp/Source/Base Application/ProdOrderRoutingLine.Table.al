@@ -717,7 +717,7 @@ table 5409 "Prod. Order Routing Line"
 
     trigger OnInsert()
     begin
-        TestField("Routing No.");
+        CheckRoutingNoNotBlank();
         if Status = Status::Finished then
             Error(Text006, Status, TableCaption);
 
@@ -1295,6 +1295,16 @@ table 5409 "Prod. Order Routing Line"
         end;
     end;
 
+    local procedure CheckRoutingNoNotBlank()
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCheckRoutingNoNotBlank(Rec, IsHandled);
+        if not IsHandled then
+            TestField("Routing No.");
+    end;
+
     local procedure SetPreviousAndNext()
     var
         ProdOrderRoutingLine: Record "Prod. Order Routing Line";
@@ -1312,7 +1322,13 @@ table 5409 "Prod. Order Routing Line"
     procedure SetNextOperations(var RtngLine: Record "Prod. Order Routing Line")
     var
         RtngLine2: Record "Prod. Order Routing Line";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeSetNextOperations(RtngLine, IsHandled);
+        if IsHandled then
+            exit;
+
         RtngLine2.SetRange(Status, RtngLine.Status);
         RtngLine2.SetRange("Prod. Order No.", RtngLine."Prod. Order No.");
         RtngLine2.SetRange("Routing Reference No.", RtngLine."Routing Reference No.");
@@ -1560,12 +1576,22 @@ table 5409 "Prod. Order Routing Line"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckRoutingNoNotBlank(var ProdOrderRoutingLine: Record "Prod. Order Routing Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeDeleteRelations(var ProdOrderRoutingLine: Record "Prod. Order Routing Line")
     begin
     end;
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeFillDefaultLocationAndBins(var ProdOrderRoutingLine: Record "Prod. Order Routing Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSetNextOperations(var ProdOrderRoutingLine: Record "Prod. Order Routing Line"; var IsHandled: Boolean)
     begin
     end;
 
@@ -1583,6 +1609,7 @@ table 5409 "Prod. Order Routing Line"
     local procedure OnCheckPreviousAndNextOnAfterProdOrderRoutingPageRunModal(var TempRemainingProdOrderRoutingLine: Record "Prod. Order Routing Line" temporary)
     begin
     end;
+
 
     [IntegrationEvent(false, false)]
     local procedure OnValidateRoutingStatusOnBeforeConfirm(var ProdOrderRoutingLine: Record "Prod. Order Routing Line"; var IsHandled: Boolean)

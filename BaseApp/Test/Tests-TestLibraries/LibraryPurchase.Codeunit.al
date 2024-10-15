@@ -349,6 +349,7 @@ codeunit 130512 "Library - Purchase"
         Vendor.Validate("Vendor Posting Group", FindVendorPostingGroup);
         Vendor.Validate("Payment Terms Code", LibraryERM.FindPaymentTermsCode);
         Vendor.Validate("Payment Method Code", PaymentMethod.Code);
+        Vendor.Validate("Shipment Method Code", FindShipmentMethod);
         Vendor.Modify(true);
         VendContUpdate.OnModify(Vendor);
 
@@ -533,6 +534,23 @@ codeunit 130512 "Library - Purchase"
         PurchaseLineArchive.SetRange("Document No.", DocumentNo);
         PurchaseLineArchive.SetRange("Doc. No. Occurrence", DocNoOccurance);
         PurchaseLineArchive.SetRange("Version No.", Version);
+    end;
+
+    local procedure FindShipmentMethod(): Code[10]
+    var
+        ShipmentMethod: Record "Shipment Method";
+    begin
+        if not ShipmentMethod.FindFirst then begin
+            ShipmentMethod.Init();
+            ShipmentMethod.Validate(
+              Code,
+              CopyStr(
+                LibraryUtility.GenerateRandomCode(ShipmentMethod.FieldNo(Code), DATABASE::"Shipment Method"),
+                1,
+                LibraryUtility.GetFieldLength(DATABASE::"Shipment Method", ShipmentMethod.FieldNo(Code))));
+            ShipmentMethod.Insert(true);
+        end;
+        exit(ShipmentMethod.Code);
     end;
 
     procedure FindVendorPostingGroup(): Code[20]

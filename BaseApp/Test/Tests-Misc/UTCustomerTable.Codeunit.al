@@ -772,7 +772,13 @@ codeunit 134825 "UT Customer Table"
     local procedure UpdateSalesReceivablesSetupNoS()
     var
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
+        GenJournalTemplate: Record "Gen. Journal Template";
     begin
+        LibraryERM.CreateGenJournalTemplate(GenJournalTemplate);
+        GenJournalTemplate.Validate(Type, GenJournalTemplate.Type::Sales);
+        GenJournalTemplate.Validate("Posting No. Series", LibraryUtility.GetGlobalNoSeriesCode);
+        GenJournalTemplate.Modify(true);
+
         with SalesReceivablesSetup do begin
             Validate("Quote Nos.", LibraryUtility.GetGlobalNoSeriesCode);
             Validate("Order Nos.", LibraryUtility.GetGlobalNoSeriesCode);
@@ -783,6 +789,8 @@ codeunit 134825 "UT Customer Table"
             Validate("Posted Credit Memo Nos.", LibraryUtility.GetGlobalNoSeriesCode);
             Validate("Blanket Order Nos.", LibraryUtility.GetGlobalNoSeriesCode);
             Validate("Customer Nos.", LibraryUtility.GetGlobalNoSeriesCode);
+            Validate("Journal Templ. Sales Invoice", GenJournalTemplate.Name);
+            Validate("Journal Templ. Sales Cr. Memo", GenJournalTemplate.Name);
             Modify(true);
         end;
     end;

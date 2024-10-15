@@ -370,7 +370,7 @@ codeunit 5940 ServContractManagement
         NoSeriesMgt.InitSeries(
           ServMgtSetup."Contract Invoice Nos.", '',
           PostDate, ServHeader2."No.", ServHeader2."No. Series");
-        ServHeader2.Insert(true);
+        InsertServiceHeader(ServHeader2, ServContract2);
         ServInvNo := ServHeader2."No.";
 
         ServHeader2."Order Date" := WorkDate;
@@ -448,6 +448,13 @@ codeunit 5940 ServContractManagement
           ServHeader2."No.");
 
         OnAfterCreateServHeader(ServHeader2, ServContract2);
+    end;
+
+    local procedure InsertServiceHeader(var ServiceHeader: Record "Service Header"; var ServiceContractHeader: Record "Service Contract Header")
+    begin
+        OnBeforeInsertServiceHeader(ServiceHeader, ServiceContractHeader);
+        ServiceHeader.Insert(true);
+        OnAfterInsertServiceHeader(ServiceHeader, ServiceContractHeader);
     end;
 
     procedure CreateServLine(ServHeader: Record "Service Header"; ContractType: Integer; ContractNo: Code[20]; InvFrom: Date; InvTo: Date; ServiceApplyEntry: Integer; SignningContract: Boolean)
@@ -689,7 +696,7 @@ codeunit 5940 ServContractManagement
         NoSeriesMgt.InitSeries(
           ServMgtSetup."Contract Credit Memo Nos.", ServHeader2."No. Series", 0D,
           ServHeader2."No.", ServHeader2."No. Series");
-        ServHeader2.Insert(true);
+        InsertServiceHeader(ServHeader2, ServContract);
         ServInvoiceNo := ServHeader2."No.";
 
         ServMgtSetup.TestField("Jnl. Templ. Serv. Contr. CM");
@@ -2186,6 +2193,11 @@ codeunit 5940 ServContractManagement
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterInsertServiceHeader(var ServiceHeader: Record "Service Header"; var ServiceContractHeader: Record "Service Contract Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeCreateServLineForNewContract(var ServiceHeader: Record "Service Header"; ServiceContractHeader: Record "Service Contract Header"; var ServLineNo: Integer)
     begin
     end;
@@ -2242,6 +2254,11 @@ codeunit 5940 ServContractManagement
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCalcContractAmount(var ServiceContractHeader: Record "Service Contract Header"; PeriodStarts: Date; PeriodEnds: Date)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeInsertServiceHeader(var ServiceHeader: Record "Service Header"; var ServiceContractHeader: Record "Service Contract Header")
     begin
     end;
 

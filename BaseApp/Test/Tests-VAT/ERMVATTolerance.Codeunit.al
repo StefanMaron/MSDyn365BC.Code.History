@@ -12,6 +12,7 @@ codeunit 134042 "ERM VAT Tolerance"
     var
         Assert: Codeunit Assert;
         LibraryERM: Codeunit "Library - ERM";
+        LibraryTestInitialize: Codeunit "Library - Test Initialize";
         LibraryInventory: Codeunit "Library - Inventory";
         LibraryPmtDiscSetup: Codeunit "Library - Pmt Disc Setup";
         LibraryPurchase: Codeunit "Library - Purchase";
@@ -777,7 +778,7 @@ codeunit 134042 "ERM VAT Tolerance"
     begin
         // Setup: Create a Purchase Order with Zero VAT Posting Setup Item.
         SetupAndCreateZeroVATPurchDoc(PurchaseHeader, TempPurchaseLine, VATTolerancePct, PaymentDiscountPct, PricesIncludingVAT);
-        VATBaseAmount := TempPurchaseLine."Line Amount" - Round(TempPurchaseLine."Line Amount" * TolerancePctForCalculation / 100);
+        VATBaseAmount := TempPurchaseLine."Line Amount";
 
         // Exercise: Post the Purchase Order.
         PostedDocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
@@ -847,10 +848,12 @@ codeunit 134042 "ERM VAT Tolerance"
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
+        LibraryTestInitialize.OnTestInitialize(CODEUNIT::"ERM VAT Tolerance");
         LibrarySetupStorage.Restore;
         if isInitialized then
             exit;
 
+        LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"ERM VAT Tolerance");
         // Need to use the following setups to prevent localization test failures.
         LibraryERMCountryData.CreateVATData;
         LibraryERMCountryData.UpdateGeneralPostingSetup;
@@ -862,6 +865,7 @@ codeunit 134042 "ERM VAT Tolerance"
 
         isInitialized := true;
         Commit();
+        LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM VAT Tolerance");
     end;
 
     local procedure CreatePurchaseInvWithReverseChargeVATAndPmtDisc(var PurchHeader: Record "Purchase Header"; VATPostingSetup: Record "VAT Posting Setup"; DiscountPct: Decimal): Decimal
@@ -911,6 +915,26 @@ codeunit 134042 "ERM VAT Tolerance"
         LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Reverse Charge VAT");
         VATPostingSetup.Validate("Reverse Chrg. VAT Acc.", LibraryERM.CreateGLAccountNo); // different from Purch. VAT Acc. Required for BE
         VATPostingSetup.Modify(true);
+    end;
+
+    local procedure CalcPurchVATBaseAmount(var TempPurchLine: Record "Purchase Line" temporary; TolerancePctForCalculation: Decimal; PricesInclVAT: Boolean): Decimal
+    begin
+        if TempPurchLine."VAT %" <> 0 then begin
+            if PricesInclVAT then
+                exit(Round(TempPurchLine."Line Amount" * (1 - TolerancePctForCalculation / 100) / (1 + TempPurchLine."VAT %" / 100)));
+            exit(Round(TempPurchLine."Line Amount" * (1 - TolerancePctForCalculation / 100)));
+        end;
+        exit(TempPurchLine."Line Amount");
+    end;
+
+    local procedure CalcSalesVATBaseAmount(var TempSalesLine: Record "Sales Line" temporary; TolerancePctForCalculation: Decimal; PricesInclVAT: Boolean): Decimal
+    begin
+        if TempSalesLine."VAT %" <> 0 then begin
+            if PricesInclVAT then
+                exit(Round(TempSalesLine."Line Amount" * (1 - TolerancePctForCalculation / 100) / (1 + TempSalesLine."VAT %" / 100)));
+            exit(Round(TempSalesLine."Line Amount" * (1 - TolerancePctForCalculation / 100)));
+        end;
+        exit(TempSalesLine."Line Amount");
     end;
 
     local procedure ComputeHighVATTolerancePct(var VATTolerancePct: Decimal; var PaymentDiscountPct: Decimal)
@@ -1225,15 +1249,11 @@ codeunit 134042 "ERM VAT Tolerance"
     local procedure VerifyPurchLine(var TempPurchaseLine: Record "Purchase Line" temporary; TolerancePctForCalculation: Decimal)
     var
         VATBaseAmount: Decimal;
-        VATAmount: Decimal;
     begin
         // Verify: Verify VAT Base Amount on Purchase Line.
         TempPurchaseLine.FindSet;
         repeat
-            VATAmount :=
-              TempPurchaseLine."Line Amount" - Round(
-                TempPurchaseLine."Line Amount" * TempPurchaseLine."VAT %" / (100 + TempPurchaseLine."VAT %"));
-            VATBaseAmount := VATAmount - Round(VATAmount * TolerancePctForCalculation / 100);
+            VATBaseAmount := CalcPurchVATBaseAmount(TempPurchaseLine, TolerancePctForCalculation, true);
             VerifyVATBaseAmountOnPurchLine(TempPurchaseLine, VATBaseAmount);
         until TempPurchaseLine.Next = 0;
     end;
@@ -1246,7 +1266,7 @@ codeunit 134042 "ERM VAT Tolerance"
         // Verify: Verify VAT Base Amount on Purchase Line.
         TempPurchaseLine.FindSet;
         repeat
-            VATBaseAmount := TempPurchaseLine."Line Amount" - Round(TempPurchaseLine."Line Amount" * TolerancePctForCalculation / 100);
+            VATBaseAmount := CalcPurchVATBaseAmount(TempPurchaseLine, TolerancePctForCalculation, false);
             OutstandingAmount := TempPurchaseLine."Line Amount" + Round(VATBaseAmount * TempPurchaseLine."VAT %" / 100);
             VerifyVATEntryOnPurchLine(TempPurchaseLine, VATBaseAmount, OutstandingAmount);
         until TempPurchaseLine.Next = 0;
@@ -1269,8 +1289,8 @@ codeunit 134042 "ERM VAT Tolerance"
     begin
         TempPurchaseLine.FindSet;
         repeat
-            VATAmount := Round(TempPurchaseLine."Line Amount" * TempPurchaseLine."VAT %" / 100);
-            VerifyVATOnStatistics(TempPurchaseLine."VAT %", VATAmount - Round(VATAmount * TolerancePctForCalculation / 100));
+            VATAmount := Round(TempPurchaseLine."Line Amount" * (1 - TolerancePctForCalculation / 100) * (TempPurchaseLine."VAT %" / 100));
+            VerifyVATOnStatistics(TempPurchaseLine."VAT %", VATAmount);
         until TempPurchaseLine.Next = 0;
     end;
 
@@ -1281,21 +1301,18 @@ codeunit 134042 "ERM VAT Tolerance"
         TempSalesLine.FindSet;
         repeat
             VATAmount := Round(TempSalesLine."Line Amount" * TempSalesLine."VAT %" / 100);
-            VerifyVATOnStatistics(TempSalesLine."VAT %", VATAmount - Round(VATAmount * TolerancePctForCalculation / 100));
+            VerifyVATOnStatistics(TempSalesLine."VAT %", Round(VATAmount * (1 - TolerancePctForCalculation / 100)));
         until TempSalesLine.Next = 0;
     end;
 
     local procedure VerifySalesLine(var TempSalesLine: Record "Sales Line" temporary; TolerancePctForCalculation: Decimal)
     var
         VATBaseAmount: Decimal;
-        VATAmount: Decimal;
     begin
         // Verify: Verify VAT Base Amount on Sales Line.
         TempSalesLine.FindSet;
         repeat
-            VATAmount :=
-              TempSalesLine."Line Amount" - Round(TempSalesLine."Line Amount" * TempSalesLine."VAT %" / (100 + TempSalesLine."VAT %"));
-            VATBaseAmount := Round(VATAmount - (VATAmount * TolerancePctForCalculation / 100));
+            VATBaseAmount := CalcSalesVATBaseAmount(TempSalesLine, TolerancePctForCalculation, true);
             VerifyVATBaseAmountOnSalesLine(TempSalesLine, VATBaseAmount);
         until TempSalesLine.Next = 0;
     end;
@@ -1308,7 +1325,7 @@ codeunit 134042 "ERM VAT Tolerance"
         // Verify: Verify VAT Base Amount and Outstanding Amount on Sales Line.
         TempSalesLine.FindSet;
         repeat
-            VATBaseAmount := TempSalesLine."Line Amount" - Round(TempSalesLine."Line Amount" * TolerancePctForCalculation / 100);
+            VATBaseAmount := CalcSalesVATBaseAmount(TempSalesLine, TolerancePctForCalculation, false);
             OutstandingAmount := TempSalesLine."Line Amount" + Round(VATBaseAmount * TempSalesLine."VAT %" / 100);
             VerifyVATEntriesOnSalesLine(TempSalesLine, VATBaseAmount, OutstandingAmount);
         until TempSalesLine.Next = 0;
@@ -1321,7 +1338,7 @@ codeunit 134042 "ERM VAT Tolerance"
         TempSalesLine.FindSet;
         repeat
             VATAmount := Round(TempSalesLine."Line Amount" * TempSalesLine."VAT %" / (100 + TempSalesLine."VAT %"));
-            VerifyVATOnStatistics(TempSalesLine."VAT %", VATAmount - Round(VATAmount * TolerancePctForCalculation / 100));
+            VerifyVATOnStatistics(TempSalesLine."VAT %", Round(VATAmount * (1 - TolerancePctForCalculation / 100)));
         until TempSalesLine.Next = 0;
     end;
 

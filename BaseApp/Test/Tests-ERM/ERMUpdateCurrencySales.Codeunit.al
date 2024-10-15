@@ -533,15 +533,16 @@ codeunit 134087 "ERM Update Currency - Sales"
     var
         SalesHeader: Record "Sales Header";
         CurrencyExchangeRate: Record "Currency Exchange Rate";
+        DocNo: Code[20];
         OldRelationalExchangeRate: Decimal;
     begin
         // Check that after Modify Relational Exch. Rate Amount and run Adjust Exchange rate batch job, GL entry created
         // with Correct Amount in Sales Order.
         Initialize;
-        OldRelationalExchangeRate := AdjustExchangeRateDocument(SalesHeader, CurrencyExchangeRate, SalesHeader."Document Type"::Order);
+        OldRelationalExchangeRate := AdjustExchangeRateDocument(SalesHeader, CurrencyExchangeRate, DocNo, SalesHeader."Document Type"::Order);
 
         // 3. Verify: Verify G/L Entry made for correct Amount after running Adjust Exchange Rate Batch Job.
-        VerifyGLEntryForOrder(CurrencyExchangeRate, SalesHeader."No.", OldRelationalExchangeRate);
+        VerifyGLEntryForOrder(CurrencyExchangeRate, SalesHeader."No.", DocNo, OldRelationalExchangeRate);
     end;
 
     [Test]
@@ -551,18 +552,19 @@ codeunit 134087 "ERM Update Currency - Sales"
     var
         SalesHeader: Record "Sales Header";
         CurrencyExchangeRate: Record "Currency Exchange Rate";
+        DocNo: Code[20];
         OldRelationalExchangeRate: Decimal;
     begin
         // Check that after Modify Relational Exch. Rate Amount and run Adjust Exchange rate batch job, GL entry created
         // with Correct Amount in Sales Invoice.
         Initialize;
-        OldRelationalExchangeRate := AdjustExchangeRateDocument(SalesHeader, CurrencyExchangeRate, SalesHeader."Document Type"::Invoice);
+        OldRelationalExchangeRate := AdjustExchangeRateDocument(SalesHeader, CurrencyExchangeRate, DocNo, SalesHeader."Document Type"::Invoice);
 
         // 3. Verify: Verify G/L Entry made for correct Amount after running Adjust Exchange Rate Batch Job.
-        VerifyGLEntryForInvoice(CurrencyExchangeRate, SalesHeader."No.", OldRelationalExchangeRate);
+        VerifyGLEntryForInvoice(CurrencyExchangeRate, SalesHeader."No.", DocNo, OldRelationalExchangeRate);
     end;
 
-    local procedure AdjustExchangeRateDocument(var SalesHeader: Record "Sales Header"; var CurrencyExchangeRate: Record "Currency Exchange Rate"; DocumentType: Option) OldRelationalExchangeRate: Decimal
+    local procedure AdjustExchangeRateDocument(var SalesHeader: Record "Sales Header"; var CurrencyExchangeRate: Record "Currency Exchange Rate"; var DocNo: Code[20]; DocumentType: Option) OldRelationalExchangeRate: Decimal
     begin
         // 1. Setup: Create and Post Sales Document with new Currency and Exchange rate.
         CreateSalesDocument(SalesHeader, CurrencyExchangeRate, DocumentType);
@@ -571,7 +573,7 @@ codeunit 134087 "ERM Update Currency - Sales"
         UpdateExchangeRate(CurrencyExchangeRate);
 
         // 2. Exercise: Run Adjust Exchange Rate batch job.
-        RunAdjustExchangeRates(CurrencyExchangeRate, SalesHeader."No.");
+        RunAdjustExchangeRates(CurrencyExchangeRate, DocNo);
     end;
 
     [Test]
@@ -645,6 +647,7 @@ codeunit 134087 "ERM Update Currency - Sales"
         GenJournalLine2: Record "Gen. Journal Line";
         CurrencyExchangeRate: Record "Currency Exchange Rate";
         CustomerNo: Code[20];
+        DocNo: Code[20];
     begin
         // Check that after Modify lower Relational Exch. Rate Amount and run Adjust Exchange rate batch job,
         // GL Entry updated with Correct Amount for Customer with payment.
@@ -660,7 +663,7 @@ codeunit 134087 "ERM Update Currency - Sales"
           LibraryRandom.RandDec(100, 2), GenJournalLine."Document Type"::Invoice, GenJournalLine."Account Type"::Customer);
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
         UpdateLowerExchangeRate(CurrencyExchangeRate);
-        RunAdjustExchangeRates(CurrencyExchangeRate, GenJournalLine."Document No.");
+        RunAdjustExchangeRates(CurrencyExchangeRate, DocNo);
 
         // 2. Exercise: Make payment and apply invoice.
         // Passing Amount as 0 because it will update after apply.
@@ -1147,18 +1150,20 @@ codeunit 134087 "ERM Update Currency - Sales"
           CalcDate('<' + Format(LibraryRandom.RandInt(10)) + 'D>', CurrencyExchangeRate2."Starting Date"));
     end;
 
-    local procedure RunAdjustExchangeRates(CurrencyExchangeRate: Record "Currency Exchange Rate"; DocumentNo: Code[20])
+    local procedure RunAdjustExchangeRates(CurrencyExchangeRate: Record "Currency Exchange Rate"; var DocumentNo: Code[20])
     var
         Currency: Record Currency;
+        GenJnlBatch: Record "Gen. Journal Batch";
         AdjustExchangeRates: Report "Adjust Exchange Rates";
     begin
         // Using Random Number Generator for Document No.
         Currency.SetRange(Code, CurrencyExchangeRate."Currency Code");
         Clear(AdjustExchangeRates);
         AdjustExchangeRates.SetTableView(Currency);
+        DocumentNo := LibraryERM.GetNextDocNoByBatch(GenJnlBatch);
         AdjustExchangeRates.InitializeRequest2(
           CurrencyExchangeRate."Starting Date", CurrencyExchangeRate."Starting Date", 'Test', CurrencyExchangeRate."Starting Date",
-          DocumentNo, true, false);
+          '', true, false, GenJnlBatch."Journal Template Name", GenJnlBatch.Name);
         AdjustExchangeRates.UseRequestPage(false);
         AdjustExchangeRates.Run;
     end;
@@ -1336,23 +1341,23 @@ codeunit 134087 "ERM Update Currency - Sales"
     end;
 
     [Normal]
-    local procedure VerifyGLEntryForOrder(CurrencyExchangeRate: Record "Currency Exchange Rate"; DocumentNo: Code[20]; OldRelationalExchangeRate: Decimal)
+    local procedure VerifyGLEntryForOrder(CurrencyExchangeRate: Record "Currency Exchange Rate"; DocumentNo: Code[20]; ExchRateDocNo: Code[20]; OldRelationalExchangeRate: Decimal)
     var
         SalesInvoiceHeader: Record "Sales Invoice Header";
     begin
         SalesInvoiceHeader.SetRange("Order No.", DocumentNo);
         SalesInvoiceHeader.FindFirst;
-        VerifyGLEntryAmount(CurrencyExchangeRate, SalesInvoiceHeader."No.", DocumentNo, OldRelationalExchangeRate);
+        VerifyGLEntryAmount(CurrencyExchangeRate, SalesInvoiceHeader."No.", ExchRateDocNo, OldRelationalExchangeRate);
     end;
 
     [Normal]
-    local procedure VerifyGLEntryForInvoice(CurrencyExchangeRate: Record "Currency Exchange Rate"; DocumentNo: Code[20]; OldRelationalExchangeRate: Decimal)
+    local procedure VerifyGLEntryForInvoice(CurrencyExchangeRate: Record "Currency Exchange Rate"; DocumentNo: Code[20]; ExchRateDocNo: Code[20]; OldRelationalExchangeRate: Decimal)
     var
         SalesInvoiceHeader: Record "Sales Invoice Header";
     begin
         SalesInvoiceHeader.SetRange("Pre-Assigned No.", DocumentNo);
         SalesInvoiceHeader.FindFirst;
-        VerifyGLEntryAmount(CurrencyExchangeRate, SalesInvoiceHeader."No.", DocumentNo, OldRelationalExchangeRate);
+        VerifyGLEntryAmount(CurrencyExchangeRate, SalesInvoiceHeader."No.", ExchRateDocNo, OldRelationalExchangeRate);
     end;
 
     [Normal]

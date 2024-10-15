@@ -55,6 +55,7 @@ codeunit 134328 "ERM Purchase Invoice"
         PAndPqoircPermissionSetTxt: Label 'P&P-Q/O/I/R/C';
         PurchaseAccountIsMissingTxt: Label 'Purch. Account is missing in General Posting Setup.';
         PurchaseVatAccountIsMissingTxt: Label 'Purchase VAT Account is missing in VAT Posting Setup.';
+        CannotAllowInvDiscountErr: Label 'The value of the Allow Invoice Disc. field is not valid when the VAT Calculation Type field is set to "Full VAT".';
 
     [Test]
     [Scope('OnPrem')]
@@ -2372,6 +2373,307 @@ codeunit 134328 "ERM Purchase Invoice"
         LibraryVariableStorage.AssertEmpty;
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure ChangePriceIncludingVATTrueValueRecalculateAmountCorrectlyForFullVAT()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        VATPostingSetup: Record "VAT Posting Setup";
+        DirectUnitCost: Decimal;
+        LineAmount: Decimal;
+    begin
+        // [FEATURE] [Full VAT]
+        // [SCENARIO 348949] Create Purchase line with "Prices Including VAT" = False and Full VAT and change "Prices Including VAT" to True
+        Initialize();
+
+        // [GIVEN] Created VAT Posting Setup for Full VAT
+        LibraryERM.CreateVATPostingSetupWithAccounts(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Full VAT", 100);
+
+        // [GIVEN] Create Purchase Header with Line
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, LibraryPurchase.CreateVendorNo());
+        PurchaseHeader.SetHideValidationDialog(true);
+        PurchaseHeader.Modify(true);
+        LibraryPurchase.CreatePurchaseLine(
+            PurchaseLine, PurchaseHeader, PurchaseLine.Type::"G/L Account",
+            VATPostingSetup.GetPurchAccount(false), LibraryRandom.RandInt(10));
+
+        // [GIVEN] Validate "VAT Prod. Posting Group" 
+        // [GIVEN] Memorize "Direct Unit Cost" as "D"
+        // [GIVEN] Memorize "Line Amount" as "L"
+        PurchaseLine.Validate("VAT Prod. Posting Group");
+        PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandDec(1000, 2));
+        PurchaseLine.Modify(true);
+        DirectUnitCost := PurchaseLine."Direct Unit Cost";
+        LineAmount := PurchaseLine."Line Amount";
+
+        // [WHEN] Change "Prices Including VAT" to True
+        PurchaseHeader.Validate("Prices Including VAT", true);
+
+        // [THEN] "Direct Unit Cost" are equal to "D"
+        // [THEN] "Line Amount" are equal to "L"
+        PurchaseLine.TestField("Direct Unit Cost", DirectUnitCost);
+        PurchaseLine.TestField("Line Amount", LineAmount);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ChangePriceIncludingVATFalseValueRecalculateAmountCorrectlyForFullVAT()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        VATPostingSetup: Record "VAT Posting Setup";
+        DirectUnitCost: Decimal;
+        LineAmount: Decimal;
+    begin
+        // [FEATURE] [Full VAT]
+        // [SCENARIO 348949] Create Purchase line with "Prices Including VAT" = True and Full VAT and change "Prices Including VAT" to False
+        Initialize();
+
+        // [GIVEN] Created VAT Posting Setup for Full VAT
+        LibraryERM.CreateVATPostingSetupWithAccounts(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Full VAT", 100);
+
+        // [GIVEN] Create Purchase Header with Line with "Prices Including VAT" = true
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, LibraryPurchase.CreateVendorNo());
+        PurchaseHeader.SetHideValidationDialog(true);
+        PurchaseHeader.Validate("Prices Including VAT", true);
+        PurchaseHeader.Modify(true);
+        LibraryPurchase.CreatePurchaseLine(
+            PurchaseLine, PurchaseHeader, PurchaseLine.Type::"G/L Account",
+            VATPostingSetup.GetPurchAccount(false), LibraryRandom.RandInt(10));
+
+        // [GIVEN] Validate "VAT Prod. Posting Group" 
+        // [GIVEN] Memorize "Direct Unit Cost" as "D"
+        // [GIVEN] Memorize "Line Amount" as "L"
+        PurchaseLine.Validate("VAT Prod. Posting Group");
+        PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandDec(1000, 2));
+        PurchaseLine.Modify(true);
+        DirectUnitCost := PurchaseLine."Direct Unit Cost";
+        LineAmount := PurchaseLine."Line Amount";
+
+        // [WHEN] Change "Prices Including VAT" to False
+        PurchaseHeader.Validate("Prices Including VAT", false);
+
+        // [THEN] "Direct Unit Cost" are equal to "D"
+        // [THEN] "Line Amount" are equal to "L"
+        PurchaseLine.TestField("Direct Unit Cost", DirectUnitCost);
+        PurchaseLine.TestField("Line Amount", LineAmount);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ChangePriceIncludingVATTrueValueRecalculateAmountCorrectlyForFullVATWithDiscount()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        VATPostingSetup: Record "VAT Posting Setup";
+        DirectUnitCost: Decimal;
+        LineAmount: Decimal;
+    begin
+        // [FEATURE] [Full VAT]
+        // [SCENARIO 348949] Create Purchase line with "Prices Including VAT" = False, "Inv. Discount Amount" and Full VAT and change "Prices Including VAT" to True
+        Initialize();
+
+        // [GIVEN] Created VAT Posting Setup for Full VAT
+        LibraryERM.CreateVATPostingSetupWithAccounts(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Full VAT", 100);
+
+        // [GIVEN] Create Purchase Header with Line
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, LibraryPurchase.CreateVendorNo());
+        PurchaseHeader.SetHideValidationDialog(true);
+        PurchaseHeader.Modify(true);
+        LibraryPurchase.CreatePurchaseLine(
+            PurchaseLine, PurchaseHeader, PurchaseLine.Type::"G/L Account",
+            VATPostingSetup.GetPurchAccount(false), LibraryRandom.RandInt(10));
+
+        // [GIVEN] Validate "VAT Prod. Posting Group" 
+        // [GIVEN] Memorize "Direct Unit Cost" as "D"
+        // [GIVEN] Memorize "Line Amount" as "L"
+        PurchaseLine.Validate("VAT Prod. Posting Group");
+        PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandDec(1000, 2));
+        PurchaseLine.Modify(true);
+        DirectUnitCost := PurchaseLine."Direct Unit Cost";
+        LineAmount := PurchaseLine."Line Amount";
+
+        // [GIVEN] Mock "Inv. Discount Amount" for line
+        PurchaseLine."Inv. Discount Amount" := PurchaseLine."Line Amount" / 10;
+        PurchaseLine.Modify();
+
+        // [WHEN] Change "Prices Including VAT" to True
+        PurchaseHeader.Validate("Prices Including VAT", true);
+
+        // [THEN] "Direct Unit Cost" are equal to "D"
+        // [THEN] "Line Amount" are equal to "L"
+        PurchaseLine.TestField("Direct Unit Cost", DirectUnitCost);
+        PurchaseLine.TestField("Line Amount", LineAmount);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ChangePriceIncludingVATFalseValueRecalculateAmountCorrectlyForFullVATWithDiscount()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        VATPostingSetup: Record "VAT Posting Setup";
+        DirectUnitCost: Decimal;
+        LineAmount: Decimal;
+    begin
+        // [FEATURE] [Full VAT]
+        // [SCENARIO 348949] Create Purchase line with "Prices Including VAT" = True, "Inv. Discount Amount" and Full VAT and change "Prices Including VAT" to False
+        Initialize();
+
+        // [GIVEN] Created VAT Posting Setup for Full VAT
+        LibraryERM.CreateVATPostingSetupWithAccounts(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Full VAT", 100);
+
+        // [GIVEN] Create Purchase Header with Line with "Prices Including VAT" = true
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, LibraryPurchase.CreateVendorNo());
+        PurchaseHeader.SetHideValidationDialog(true);
+        PurchaseHeader.Validate("Prices Including VAT", true);
+        PurchaseHeader.Modify(true);
+        LibraryPurchase.CreatePurchaseLine(
+            PurchaseLine, PurchaseHeader, PurchaseLine.Type::"G/L Account",
+            VATPostingSetup.GetPurchAccount(false), LibraryRandom.RandInt(10));
+
+        // [GIVEN] Validate "VAT Prod. Posting Group" 
+        // [GIVEN] Memorize "Direct Unit Cost" as "D"
+        // [GIVEN] Memorize "Line Amount" as "L"
+        PurchaseLine.Validate("VAT Prod. Posting Group");
+        PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandDec(1000, 2));
+        PurchaseLine.Modify(true);
+        DirectUnitCost := PurchaseLine."Direct Unit Cost";
+        LineAmount := PurchaseLine."Line Amount";
+
+        // [GIVEN] Mock "Inv. Discount Amount" for line
+        PurchaseLine."Inv. Discount Amount" := PurchaseLine."Line Amount" / 10;
+        PurchaseLine.Modify();
+
+        // [WHEN] Change "Prices Including VAT" to False
+        PurchaseHeader.Validate("Prices Including VAT", false);
+
+        // [THEN] "Direct Unit Cost" are equal to "D"
+        // [THEN] "Line Amount" are equal to "L"
+        PurchaseLine.TestField("Direct Unit Cost", DirectUnitCost);
+        PurchaseLine.TestField("Line Amount", LineAmount);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure DocumentTotalsCalculateCorrectlyWithFullVATAndPriceIncludingVATTrue()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        VATPostingSetup: Record "VAT Posting Setup";
+        VATPostingSetup2: Record "VAT Posting Setup";
+        TotalPurchaseLine: Record "Purchase Line";
+        DocumentTotals: Codeunit "Document Totals";
+        VATAmount: Decimal;
+    begin
+        // [FEATURE] [Full VAT]
+        // [SCENARIO 348949] Create Purchase line with "Prices Including VAT" = True and Full VAT and check Totals
+        Initialize();
+
+        // [GIVEN] Created VAT Posting Setup for Full VAT
+        LibraryERM.CreateVATPostingSetupWithAccounts(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Full VAT", 100);
+        LibraryERM.CreateVATPostingSetup(VATPostingSetup2, VATPostingSetup."VAT Bus. Posting Group", '');
+
+        // [GIVEN] Create Purchase Header with "Prices Including VAT" and Purchase Line
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, LibraryPurchase.CreateVendorNo());
+        PurchaseHeader.Validate("VAT Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
+        PurchaseHeader.Validate("Prices Including VAT", true);
+        PurchaseHeader.Modify(true);
+        CreatePurchaseLineWithGLAccount(PurchaseLine, PurchaseHeader, VATPostingSetup);
+
+        // [GIVEN] Validate "VAT Prod. Posting Group" and "Direct Unit Cost"
+        PurchaseLine.Validate("VAT Prod. Posting Group");
+        PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandDec(1000, 2));
+        PurchaseLine.Modify(true);
+
+        // [WHEN] Totals are calculated
+        DocumentTotals.CalculatePurchaseTotals(TotalPurchaseLine, VATAmount, PurchaseLine);
+
+        // [THEN] "Total Amount Excl. VAT" equal to 0
+        // [THEN] "Total Amount Incl. VAT" equal to "Amount Including VAT"
+        // [THEN] "Total VAT Amount" equal to "Amount Including VAT"
+        TotalPurchaseLine.TestField(Amount, 0);
+        TotalPurchaseLine.TestField("Amount Including VAT", PurchaseLine."Amount Including VAT");
+        PurchaseLine.TestField("Amount Including VAT", VATAmount);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CannotSetupAllowInvoiceDiscountForFullVATLine()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        VATPostingSetup: Record "VAT Posting Setup";
+        VATPostingSetup2: Record "VAT Posting Setup";
+    begin
+        // [FEATURE] [Full VAT]
+        // [SCENARIO 348949] Create Purchase line with Full VAT and try to set "Allow Invoice Disc." to True
+        Initialize();
+
+        // [GIVEN] Created VAT Posting Setup for Full VAT
+        LibraryERM.CreateVATPostingSetupWithAccounts(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Full VAT", 100);
+        LibraryERM.CreateVATPostingSetup(VATPostingSetup2, VATPostingSetup."VAT Bus. Posting Group", '');
+
+        // [GIVEN] Create Purchase Header with "Prices Including VAT" and Purchase Line
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, LibraryPurchase.CreateVendorNo());
+        PurchaseHeader.Validate("VAT Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
+        PurchaseHeader.Validate("Prices Including VAT", true);
+        PurchaseHeader.Modify(true);
+        CreatePurchaseLineWithGLAccount(PurchaseLine, PurchaseHeader, VATPostingSetup);
+
+        // [GIVEN] Validate "VAT Prod. Posting Group" and "Direct Unit Cost"
+        PurchaseLine.Validate("VAT Prod. Posting Group");
+        PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandDec(1000, 2));
+        PurchaseLine.Modify(true);
+
+        // [WHEN] Set "Allow Invoice Disc." to True
+        asserterror PurchaseLine.VALIDATE("Allow Invoice Disc.", true);
+
+        // [THEN] The error was shown
+        Assert.ExpectedError(CannotAllowInvDiscountErr);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure AllowInvoiceDiscountResetToFalseAfterSetUpVATCalcullationTypeToFullVAT()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        VATPostingSetup: Record "VAT Posting Setup";
+        VATPostingSetup2: Record "VAT Posting Setup";
+    begin
+        // [FEATURE] [Full VAT]
+        // [SCENARIO 348949] Create Purchase line with Normal VAT and change "VAT Prod. Posting Group" to Full VAT
+        Initialize();
+
+        // [GIVEN] VAT Posting Setup for Full VAT as "Full VAT Setup"
+        // [GIVEN] VAT Posting Setup for Normal VAT as "Normal VAT Setup"
+        LibraryERM.CreateVATPostingSetupWithAccounts(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Full VAT", 100);
+        LibraryERM.CreateVATPostingSetup(VATPostingSetup2, VATPostingSetup."VAT Bus. Posting Group", '');
+
+        // [GIVEN] Create Purchase Header with "Prices Including VAT" and Purchase Line for "Full VAT Setup"
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, LibraryPurchase.CreateVendorNo());
+        PurchaseHeader.Validate("VAT Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
+        PurchaseHeader.Validate("Prices Including VAT", true);
+        PurchaseHeader.Modify(true);
+        CreatePurchaseLineWithGLAccount(PurchaseLine, PurchaseHeader, VATPostingSetup);
+
+        // [GIVEN] Validate "VAT Prod. Posting Group" and "Direct Unit Cost"
+        PurchaseLine.Validate("VAT Prod. Posting Group");
+        PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandDec(1000, 2));
+
+        // [GIVEN] Changed "VAT Prod. Posting Group" to "VAT Prod. Posting Group" from "Normal VAT Setup"
+        PurchaseLine.Validate("VAT Prod. Posting Group", VATPostingSetup2."VAT Prod. Posting Group");
+        PurchaseLine.Validate("Allow Invoice Disc.", true);
+
+        // [WHEN] Change "VAT Prod. Posting Group" to "VAT Prod. Posting Group" from "Full VAT Setup"
+        PurchaseLine.Validate("VAT Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
+
+        // [THEN] "Allow Invoice Disc." set to False
+        PurchaseLine.TestField("Allow Invoice Disc.", false);
+    end;
+
     local procedure Initialize()
     var
         PurchaseHeader: Record "Purchase Header";
@@ -3475,6 +3777,17 @@ codeunit 134328 "ERM Purchase Invoice"
         FindRcptLine(PurchRcptLine, PurchHeader."No.");
         PurchGetReceipt.SetPurchHeader(InvoicePurchaseHeader);
         PurchGetReceipt.CreateInvLines(PurchRcptLine);
+    end;
+
+    local procedure CreatePurchaseLineWithGLAccount(var PurchaseLine: Record "Purchase Line"; PurchaseHeader: Record "Purchase Header"; VATPostingSetup: Record "VAT Posting Setup")
+    begin
+        LibraryPurchase.CreatePurchaseLineSimple(PurchaseLine, PurchaseHeader);
+        PurchaseLine.Validate(Type, PurchaseLine.Type::"G/L Account");
+        PurchaseLine.Validate("No.", VATPostingSetup.GetPurchAccount(false));
+        PurchaseLine.Validate(Quantity, LibraryRandom.RandInt(10));
+        PurchaseLine.Validate("VAT Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
+        PurchaseLine.Validate("VAT Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
+        PurchaseLine.Modify(true);
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Purch.-Post", 'OnBeforePostUpdateOrderLineModifyTempLine', '', false, false)]

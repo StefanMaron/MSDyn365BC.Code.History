@@ -729,6 +729,45 @@ codeunit 134109 "ERM Purch Full Prepmt Rounding"
         VerifyGLEntryAccountBalance(InvoiceNo, VATPostingSetup."Purchase VAT Account", 0, 0);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure DeleteLinesFromSeparateInvoiceAfterFullPrepaymentAndReceipt()
+    var
+        PurchaseHeaderOrder: Record "Purchase Header";
+        PurchaseHeaderInvoice: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+    begin
+        // [FEATURE] [Get Receipt Lines]
+        // [SCENARIO 348166] Stan can delete line from Invoice created from prepaid shipment lines.
+
+        // [GIVEN] Purchase order with 2 lines
+        PreparePurchOrder(PurchaseHeaderOrder);
+        AddPurchOrderLine(
+          PurchaseLine, PurchaseHeaderOrder, LibraryRandom.RandDecInRange(10, 100, 2), LibraryRandom.RandDecInRange(1000, 2000, 2), 100, 0);
+        AddPurchOrderLine(
+          PurchaseLine, PurchaseHeaderOrder, LibraryRandom.RandDecInRange(10, 100, 2), LibraryRandom.RandDecInRange(1000, 2000, 2), 100, 0);
+        // [GIVEN] Posted 100% prepayment invoice
+        PostPurchPrepmtInvoice(PurchaseHeaderOrder);
+        // [GIVEN] Posted receipt
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeaderOrder, true, false);
+
+        // [GIVEN] Purchase Invoice create from receipt lines
+        LibraryPurchase.CreatePurchHeader(
+          PurchaseHeaderInvoice, PurchaseHeaderInvoice."Document Type"::Invoice, PurchaseHeaderOrder."Buy-from Vendor No.");
+        GetReceiptLine(PurchaseHeaderInvoice, PurchaseHeaderOrder."Last Receiving No.");
+
+        LibraryPurchase.FindFirstPurchLine(PurchaseLine, PurchaseHeaderInvoice);
+        PurchaseLine.SetFilter(Quantity, '<>0');
+        PurchaseLine.FindFirst();
+        Assert.RecordCount(PurchaseLine, 2);
+
+        // [WHEN] Delete line with amount from Invoice
+        PurchaseLine.Delete(true);
+
+        // [THEN] The single line with amount remains in invoice
+        Assert.RecordCount(PurchaseLine, 1);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -738,9 +777,9 @@ codeunit 134109 "ERM Purch Full Prepmt Rounding"
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"ERM Purch Full Prepmt Rounding");
 
-        LibraryERMCountryData.UpdatePurchasesPayablesSetup;
-        LibraryERMCountryData.UpdateGeneralLedgerSetup;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.UpdatePurchasesPayablesSetup();
+        LibraryERMCountryData.UpdateGeneralLedgerSetup();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
         LibraryERMCountryData.UpdateVATPostingSetup;
         IsInitialized := true;
         Commit();
@@ -751,6 +790,8 @@ codeunit 134109 "ERM Purch Full Prepmt Rounding"
     var
         VATPostingSetup: array[2] of Record "VAT Posting Setup";
         PurchaseHeader: Record "Purchase Header";
+        ExpectedGLEntryCount: Integer;
+        ExpectedVATEntryCount: Integer;
     begin
         Initialize;
         CreateTwoVATPostingSetups(VATPostingSetup, 21);
@@ -764,8 +805,14 @@ codeunit 134109 "ERM Purch Full Prepmt Rounding"
         InvoiceNo := InvoicePurchaseDoc(PurchaseHeader);
 
         VerifyGLEntryAmount(InvoiceNo, GetVendorPostingGroupPayAccNo(PurchaseHeader."Buy-from Vendor No."), 0, 0);
-        VerifyGLEntryCount(InvoiceNo, 7);
-        VerifyVATEntryCount(InvoiceNo, 3);
+        ExpectedGLEntryCount := 7;
+        ExpectedVATEntryCount := 3;
+        if not CompressPrepmt then begin
+            ExpectedGLEntryCount += 2;
+            ExpectedVATEntryCount += 1;
+        end;
+        VerifyGLEntryCount(InvoiceNo, ExpectedGLEntryCount);
+        VerifyVATEntryCount(InvoiceNo, ExpectedVATEntryCount);
     end;
 
     local procedure PreparePOPostPrepmtAndReceipt(var PurchaseOrderHeader: Record "Purchase Header")

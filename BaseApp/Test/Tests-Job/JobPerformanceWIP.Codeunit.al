@@ -53,7 +53,7 @@ codeunit 136304 "Job Performance WIP"
     end;
 
     [Test]
-    [HandlerFunctions('WIPSucceededMessageHandler,ConfirmHandlerFalse')]
+    [HandlerFunctions('WIPSucceededMessageHandler,JobPostWIPToGLHandler,ConfirmHandlerFalse')]
     [Scope('OnPrem')]
     procedure RecogCostOfSales()
     var
@@ -70,7 +70,7 @@ codeunit 136304 "Job Performance WIP"
     end;
 
     [Test]
-    [HandlerFunctions('WIPSucceededMessageHandler,ConfirmHandlerFalse')]
+    [HandlerFunctions('WIPSucceededMessageHandler,JobPostWIPToGLHandler,ConfirmHandlerFalse')]
     [Scope('OnPrem')]
     procedure RecogCostOfSalesAccrued()
     var
@@ -88,7 +88,7 @@ codeunit 136304 "Job Performance WIP"
     end;
 
     [Test]
-    [HandlerFunctions('WIPSucceededMessageHandler,ConfirmHandlerFalse')]
+    [HandlerFunctions('WIPSucceededMessageHandler,JobPostWIPToGLHandler,ConfirmHandlerFalse')]
     [Scope('OnPrem')]
     procedure RecogCostValue()
     var
@@ -102,7 +102,7 @@ codeunit 136304 "Job Performance WIP"
     end;
 
     [Test]
-    [HandlerFunctions('WIPSucceededMessageHandler,ConfirmHandlerFalse')]
+    [HandlerFunctions('WIPSucceededMessageHandler,JobPostWIPToGLHandler,ConfirmHandlerFalse')]
     [Scope('OnPrem')]
     procedure RecogCostValueAccrued()
     var
@@ -122,7 +122,7 @@ codeunit 136304 "Job Performance WIP"
     end;
 
     [Test]
-    [HandlerFunctions('WIPSucceededMessageHandler,ConfirmHandlerFalse')]
+    [HandlerFunctions('WIPSucceededMessageHandler,JobPostWIPToGLHandler,ConfirmHandlerFalse')]
     [Scope('OnPrem')]
     procedure RecogContractInvoicedCost()
     var
@@ -135,7 +135,7 @@ codeunit 136304 "Job Performance WIP"
     end;
 
     [Test]
-    [HandlerFunctions('WIPSucceededMessageHandler,ConfirmHandlerFalse')]
+    [HandlerFunctions('WIPSucceededMessageHandler,JobPostWIPToGLHandler,ConfirmHandlerFalse')]
     [Scope('OnPrem')]
     procedure RecogContractInvoicedCostAccru()
     var
@@ -152,7 +152,7 @@ codeunit 136304 "Job Performance WIP"
     end;
 
     [Test]
-    [HandlerFunctions('WIPSucceededMessageHandler,ConfirmHandlerFalse')]
+    [HandlerFunctions('WIPSucceededMessageHandler,JobPostWIPToGLHandler,ConfirmHandlerFalse')]
     [Scope('OnPrem')]
     procedure RecogUsageTotalCostCosts()
     var
@@ -166,7 +166,7 @@ codeunit 136304 "Job Performance WIP"
     end;
 
     [Test]
-    [HandlerFunctions('WIPSucceededMessageHandler,ConfirmHandlerFalse')]
+    [HandlerFunctions('WIPSucceededMessageHandler,JobPostWIPToGLHandler,ConfirmHandlerFalse')]
     [Scope('OnPrem')]
     procedure RecogContractInvoicedPrice()
     var
@@ -179,7 +179,7 @@ codeunit 136304 "Job Performance WIP"
     end;
 
     [Test]
-    [HandlerFunctions('WIPSucceededMessageHandler,ConfirmHandlerFalse')]
+    [HandlerFunctions('WIPSucceededMessageHandler,JobPostWIPToGLHandler,ConfirmHandlerFalse')]
     [Scope('OnPrem')]
     procedure RecogUsageTotalCostSales()
     var
@@ -192,7 +192,7 @@ codeunit 136304 "Job Performance WIP"
     end;
 
     [Test]
-    [HandlerFunctions('WIPSucceededMessageHandler,ConfirmHandlerFalse')]
+    [HandlerFunctions('WIPSucceededMessageHandler,JobPostWIPToGLHandler,ConfirmHandlerFalse')]
     [Scope('OnPrem')]
     procedure RecogUsageTotalCostSalesAccrue()
     var
@@ -208,7 +208,7 @@ codeunit 136304 "Job Performance WIP"
     end;
 
     [Test]
-    [HandlerFunctions('WIPSucceededMessageHandler,ConfirmHandlerFalse')]
+    [HandlerFunctions('WIPSucceededMessageHandler,JobPostWIPToGLHandler,ConfirmHandlerFalse')]
     [Scope('OnPrem')]
     procedure RecogUsageTotalPrice()
     var
@@ -221,7 +221,7 @@ codeunit 136304 "Job Performance WIP"
     end;
 
     [Test]
-    [HandlerFunctions('WIPSucceededMessageHandler,ConfirmHandlerFalse')]
+    [HandlerFunctions('WIPSucceededMessageHandler,JobPostWIPToGLHandler,ConfirmHandlerFalse')]
     [Scope('OnPrem')]
     procedure RecogUsageTotalPriceAccrued()
     var
@@ -237,7 +237,7 @@ codeunit 136304 "Job Performance WIP"
     end;
 
     [Test]
-    [HandlerFunctions('WIPSucceededMessageHandler,ConfirmHandlerFalse')]
+    [HandlerFunctions('WIPSucceededMessageHandler,JobPostWIPToGLHandler,ConfirmHandlerFalse')]
     [Scope('OnPrem')]
     procedure RecogPoC()
     var
@@ -252,7 +252,7 @@ codeunit 136304 "Job Performance WIP"
     end;
 
     [Test]
-    [HandlerFunctions('WIPSucceededMessageHandler,ConfirmHandlerFalse')]
+    [HandlerFunctions('WIPSucceededMessageHandler,JobPostWIPToGLHandler,ConfirmHandlerFalse')]
     [Scope('OnPrem')]
     procedure RecogPoCAccrued()
     var
@@ -270,7 +270,7 @@ codeunit 136304 "Job Performance WIP"
     end;
 
     [Test]
-    [HandlerFunctions('WIPSucceededMessageHandler,ConfirmHandlerFalse')]
+    [HandlerFunctions('WIPSucceededMessageHandler,JobPostWIPToGLHandler,ConfirmHandlerFalse')]
     [Scope('OnPrem')]
     procedure RecogPoCAccruedOverBudget()
     var
@@ -288,7 +288,7 @@ codeunit 136304 "Job Performance WIP"
     end;
 
     [Test]
-    [HandlerFunctions('WIPSucceededMessageHandler,ConfirmHandlerFalse')]
+    [HandlerFunctions('WIPSucceededMessageHandler,JobPostWIPToGLHandler,ConfirmHandlerFalse')]
     [Scope('OnPrem')]
     procedure RecogSalesValue()
     var
@@ -302,7 +302,7 @@ codeunit 136304 "Job Performance WIP"
     end;
 
     [Test]
-    [HandlerFunctions('WIPSucceededMessageHandler,ConfirmHandlerFalse')]
+    [HandlerFunctions('WIPSucceededMessageHandler,JobPostWIPToGLHandler,ConfirmHandlerFalse')]
     [Scope('OnPrem')]
     procedure RecogSalesValueAccrued()
     var
@@ -319,7 +319,7 @@ codeunit 136304 "Job Performance WIP"
     end;
 
     [Test]
-    [HandlerFunctions('WIPSucceededMessageHandler,ConfirmHandlerFalse')]
+    [HandlerFunctions('WIPSucceededMessageHandler,JobPostWIPToGLHandler,ConfirmHandlerFalse')]
     [Scope('OnPrem')]
     procedure SystemDefinedWIPMethods()
     var
@@ -461,7 +461,7 @@ codeunit 136304 "Job Performance WIP"
     end;
 
     [Test]
-    [HandlerFunctions('WIPSucceededMessageHandler,ConfirmHandlerFalse')]
+    [HandlerFunctions('WIPSucceededMessageHandler,JobPostWIPToGLHandler,ConfirmHandlerFalse')]
     [Scope('OnPrem')]
     procedure MultipleWIPMethods()
     begin
@@ -915,8 +915,7 @@ codeunit 136304 "Job Performance WIP"
         VerifyJobWIPEntry(JobTask);
     end;
 
-    [Test]
-    [HandlerFunctions('MessageHandler,ConfirmHandler,JobWipEntriesHandler')]
+    [HandlerFunctions('WIPSucceededMessageHandler,JobPostWIPToGLHandler,ConfirmHandlerMultipleResponses')]
     [Scope('OnPrem')]
     procedure WIPGLEntryAfterJobPostWIPToGL()
     var
@@ -927,7 +926,9 @@ codeunit 136304 "Job Performance WIP"
 
         // 1. Setup: Create Job WIP Method, Job, Job Task and Job Journal Line. Post the Job Journal Line. Run "Job Calculate WIP" batch job.
         Initialize;
+        LibraryVariableStorage.Enqueue(false);
         CreateJobAndPostJobJournal(Job, JobTask, Job."WIP Posting Method"::"Per Job");
+        LibraryVariableStorage.Enqueue(false);
         CalculateWIP(Job);
 
         // 2. Exercise: Run "Job Post WIP to G/L" batch job.
@@ -940,7 +941,7 @@ codeunit 136304 "Job Performance WIP"
     end;
 
     [Test]
-    [HandlerFunctions('WIPSucceededMessageHandler,ConfirmHandlerFalse')]
+    [HandlerFunctions('WIPSucceededMessageHandler,JobPostWIPToGLHandler,ConfirmHandlerFalse')]
     [Scope('OnPrem')]
     procedure GLEntryAfterJobPostWIPToGLForPurchaseInvoicePost()
     var
@@ -971,7 +972,7 @@ codeunit 136304 "Job Performance WIP"
     end;
 
     [Test]
-    [HandlerFunctions('WIPSucceededMessageHandler,ConfirmHandlerFalse')]
+    [HandlerFunctions('WIPSucceededMessageHandler,JobPostWIPToGLHandler,ConfirmHandlerFalse')]
     [Scope('OnPrem')]
     procedure PostWIPToGLWithoutCalculateWIP()
     var
@@ -1009,7 +1010,7 @@ codeunit 136304 "Job Performance WIP"
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmHandler,MessageHandler,JobWipEntriesHandler')]
+    [HandlerFunctions('ConfirmHandlerMultipleResponses,MessageHandler')]
     [Scope('OnPrem')]
     procedure ReverseEntryPostedPerJLE()
     var
@@ -1021,6 +1022,7 @@ codeunit 136304 "Job Performance WIP"
         // Verify that WIP entry posted per JLE can be reverted
 
         Initialize;
+        LibraryVariableStorage.Enqueue(true);
         CreateJobWithUsageLink(Job);
 
         LibraryJob.CreateJobTask(Job, JobTask);
@@ -1029,6 +1031,7 @@ codeunit 136304 "Job Performance WIP"
         LibraryJob.CreateJobJournalLineForPlan(JobPlanningLine, JobJournalLine."Line Type"::Budget, 0.01, JobJournalLine);
         LibraryJob.PostJobJournal(JobJournalLine);
 
+        LibraryVariableStorage.Enqueue(false);
         CalculateWIP(Job);
         PostWIPToGLNoReverse(Job."No.");
 
@@ -1038,7 +1041,7 @@ codeunit 136304 "Job Performance WIP"
     end;
 
     [Test]
-    [HandlerFunctions('MessageHandler,ConfirmHandler,JobWipEntriesHandler')]
+    [HandlerFunctions('MessageHandler,ConfirmHandlerMultipleResponses,JobPostWIPToGLHandler,JobWipEntriesHandler')]
     [Scope('OnPrem')]
     procedure CalculateAndPostWIPTwiceWithPerJobLedgerEntry()
     var
@@ -1052,17 +1055,24 @@ codeunit 136304 "Job Performance WIP"
         // Setup: Create Job with "WIP Posting Method" = "Per Job Ledger Entry".
         // Create Job, Job task and Job Planning, create Job Journal and post it.
         Initialize;
+        LibraryVariableStorage.Enqueue(true);
+        LibraryVariableStorage.Enqueue(true);
         CreateJobAndPostJobJournalWithJobTaskAndPlanning(
           Job, JobTask, JobPlanningLine, JobWIPMethod."Recognized Costs"::"Cost Value",
           JobWIPMethod."Recognized Sales"::"Contract (Invoiced Price)", Job."WIP Posting Method"::"Per Job Ledger Entry");
 
         // Exercise: Calculate and Post WIP, change Job Status to Completed, Calculate and Post WIP for Job again.
         // Verify: Total WIP Cost Account is 0.
+        LibraryVariableStorage.Enqueue(true);
+        LibraryVariableStorage.Enqueue(false);
+        LibraryVariableStorage.Enqueue(true);
+        LibraryVariableStorage.Enqueue(false);
+        LibraryVariableStorage.Enqueue(false);
         CalculateWIPAndVerifyGLEntriesForCompletedJob(Job, JobTask, AccountType::"WIP Costs Account");
     end;
 
     [Test]
-    [HandlerFunctions('MessageHandler,ConfirmHandler,JobTransferToSalesInvoiceRequestPageHandler,JobWipEntriesHandler')]
+    [HandlerFunctions('MessageHandler,ConfirmHandlerMultipleResponses,JobTransferToSalesInvoiceRequestPageHandler,JobPostWIPToGLHandler,JobWipEntriesHandler')]
     [Scope('OnPrem')]
     procedure CalculateAndPostWIPTwiceWithPerJobLedgerEntryForSalesInvoice()
     var
@@ -1078,6 +1088,8 @@ codeunit 136304 "Job Performance WIP"
         // Setup: Create Job with "WIP Posting Method" = "Per Job Ledger Entry".
         // Create Job, Job task and Job Planning, create Job Journal and post it.
         Initialize;
+        LibraryVariableStorage.Enqueue(true);
+        LibraryVariableStorage.Enqueue(true);
         CreateJobAndPostJobJournalWithJobTaskAndPlanning(
           Job, JobTask, JobPlanningLine, JobWIPMethod."Recognized Costs"::"Cost of Sales",
           JobWIPMethod."Recognized Sales"::"Contract (Invoiced Price)", Job."WIP Posting Method"::"Per Job Ledger Entry");
@@ -1089,11 +1101,16 @@ codeunit 136304 "Job Performance WIP"
 
         // Exercise: Calculate and Post WIP, change Job Status to Completed, Calculate and Post WIP for Job again.
         // Verify: Total WIP Invoiced Sales Account is 0.
+        LibraryVariableStorage.Enqueue(true);
+        LibraryVariableStorage.Enqueue(false);
+        LibraryVariableStorage.Enqueue(true);
+        LibraryVariableStorage.Enqueue(false);
+        LibraryVariableStorage.Enqueue(false);
         CalculateWIPAndVerifyGLEntriesForCompletedJob(Job, JobTask, AccountType::"WIP Invoiced Sales Account");
     end;
 
     [Test]
-    [HandlerFunctions('MessageHandler,ConfirmHandler,JobWipEntriesHandler')]
+    [HandlerFunctions('MessageHandler,ConfirmHandlerMultipleResponses,JobCalcWIPReportRequestPageHandler')]
     [Scope('OnPrem')]
     procedure CalcWIPWithPerJobLedgerEntryPostingMethod()
     var
@@ -1106,6 +1123,9 @@ codeunit 136304 "Job Performance WIP"
         // Setup: Create Job with "WIP Posting Method" = "Per Job Ledger Entry".
         // Create Job Journal and post it. Change Job Status to Completed.
         Initialize;
+        LibraryVariableStorage.Enqueue(true);
+        LibraryVariableStorage.Enqueue(true);
+        LibraryVariableStorage.Enqueue(false);
         CreateJobAndPostJobJournal(Job, JobTask, Job."WIP Posting Method"::"Per Job Ledger Entry");
         Job.Get(Job."No.");
         JobCard.OpenEdit;
@@ -1114,6 +1134,7 @@ codeunit 136304 "Job Performance WIP"
         JobCard.Close;
 
         // Exercise: Calculate WIP for Job.
+        LibraryVariableStorage.Enqueue(false);
         CalculateWIP(Job);
 
         // Verify: Total WIP Cost Amount is 0 because Job is in Completed status.
@@ -1159,7 +1180,7 @@ codeunit 136304 "Job Performance WIP"
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmHandler,MessageHandler,JobWipEntriesHandler')]
+    [HandlerFunctions('ConfirmHandlerMultipleResponses,MessageHandler')]
     [Scope('OnPrem')]
     procedure CalculateWIPForJobWithEmptyEndingDate()
     var
@@ -1170,9 +1191,12 @@ codeunit 136304 "Job Performance WIP"
 
         // 1. Setup: Create Job WIP Method, Job, Job Task, Job Journal Line and Post the Job Journal Line.
         Initialize;
+        LibraryVariableStorage.Enqueue(true);
+        LibraryVariableStorage.Enqueue(true);
         CreateJobAndPostJobJournal(Job, JobTask, Job."WIP Posting Method"::"Per Job");
 
         // 2. Exercise: Run "Job Calculate WIP" batch job.
+        LibraryVariableStorage.Enqueue(false);
         CalculateWIP(Job);
 
         // 3. Verify: Verify Job Ending Date is empty.
@@ -1550,7 +1574,7 @@ codeunit 136304 "Job Performance WIP"
     end;
 
     [Test]
-    [HandlerFunctions('MessageHandler,ConfirmHandler,JobWipEntriesHandler')]
+    [HandlerFunctions('MessageHandler,JobWipEntriesHandler,JobPostWIPToGLHandler,ConfirmHandlerMultipleResponses')]
     [Scope('OnPrem')]
     procedure JobCalcWIPExecutedWhenJobWithWIPMethodIsCompleted()
     var
@@ -1564,10 +1588,16 @@ codeunit 136304 "Job Performance WIP"
         // [SCENARIO 218286] When Job has WIP Method, Job WIP lines are calculated and posted.
         Initialize;
 
+        LibraryVariableStorage.Enqueue(true);
+        LibraryVariableStorage.Enqueue(true);
+
         CreateJobAndPostJobJournalWithJobTaskAndPlanning(
           Job, JobTask, JobPlanningLine, JobWIPMethod."Recognized Costs"::"Cost Value",
           JobWIPMethod."Recognized Sales"::"Percentage of Completion", Job."WIP Posting Method"::"Per Job");
 
+        LibraryVariableStorage.Enqueue(true);
+        LibraryVariableStorage.Enqueue(true);
+        LibraryVariableStorage.Enqueue(false);
         Job.RecalculateJobWIP;
 
         JobWIPGLEntry.SetRange("Job No.", Job."No.");
@@ -2079,11 +2109,10 @@ codeunit 136304 "Job Performance WIP"
     begin
         // Use the Job Post WIP to G/L report to post WIP to GL.
 
+        Commit();
         Job.SetRange("No.", Job."No.");
         JobPostWIPToGL.SetTableView(Job);
-        JobPostWIPToGL.InitializeRequest(Format(Time - 000000T));
-        JobPostWIPToGL.UseRequestPage(false);
-        JobPostWIPToGL.RunModal;
+        JobPostWIPToGL.Run;
     end;
 
     local procedure PostWIPToGLNoReverse(JobNo: Code[20])
@@ -2098,9 +2127,14 @@ codeunit 136304 "Job Performance WIP"
 
     local procedure CalcGLWIP(JobNo: Code[20]; JustReverse: Boolean)
     var
+        GenJournalTemplate: Record "Gen. Journal Template";
+        GenJournalBatch: Record "Gen. Journal Batch";
         JobCalculateWIP: Codeunit "Job Calculate WIP";
     begin
-        JobCalculateWIP.CalcGLWIP(JobNo, JustReverse, Format(Time - 000000T), WorkDate, false);
+        LibraryERM.CreateGenJournalTemplate(GenJournalTemplate);
+        LibraryERM.CreateGenJournalBatch(GenJournalBatch, GenJournalTemplate.Name);
+
+        JobCalculateWIP.CalcGLWIP(JobNo, JustReverse, Format(Time - 000000T), WorkDate, false, GenJournalTemplate.Name, GenJournalBatch.Name);
     end;
 
     local procedure UpdateJobAdjustmentAccounts(JobPostingGroupCode: Code[20])
@@ -2762,6 +2796,21 @@ codeunit 136304 "Job Performance WIP"
         Reply := false;
     end;
 
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure JobPostWIPToGLHandler(var JobPostWIPToGL: TestRequestPage "Job Post WIP to G/L")
+    var
+        TemplateName: Code[10];
+        BatchName: Code[10];
+    begin
+        JobPostWIPToGL.ReversalPostingDate.SetValue(WorkDate);
+        JobPostWIPToGL.ReversalDocumentNo.SetValue(LibraryRandom.RandInt(10)); // Use Random because value is not important.
+        LibraryERM.FindGenJnlTemplateAndBatch(TemplateName, BatchName);
+        JobPostWIPToGL.JnlTemplateName.SetValue(TemplateName);
+        JobPostWIPToGL.JnlBatchName.SetValue(BatchName);
+        JobPostWIPToGL.OK.Invoke;
+    end;
+
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure JobWipEntriesHandler(var JobWIPEntries: TestPage "Job WIP Entries")
@@ -2774,6 +2823,13 @@ codeunit 136304 "Job Performance WIP"
     procedure ConfirmHandlerMultipleResponses(Question: Text[1024]; var Reply: Boolean)
     begin
         Reply := LibraryVariableStorage.DequeueBoolean;
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure JobCalcWIPReportRequestPageHandler(var JobCalculateWIP: TestRequestPage "Job Calculate WIP")
+    begin
+        JobCalculateWIP.Cancel.Invoke;
     end;
 }
 

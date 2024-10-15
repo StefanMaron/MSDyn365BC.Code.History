@@ -53,7 +53,7 @@ codeunit 424 "Export Analysis View"
         ServerFileName: Text;
         SkipDownload: Boolean;
 
-    [Obsolete('Replaced by ExportData with AnalysisByDimParameters.','16.0')]
+    [Obsolete('Replaced by ExportData with AnalysisByDimParameters.', '16.0')]
     procedure ExportData(var Rec: Record "Analysis View Entry"; Sign: Boolean; ShowInAddCurr: Boolean; AmountField: Option; ShowName: Boolean; DateFilter: Text; AccFilter: Text; BudgetFilter: Text; Dim1Filter: Text; Dim2Filter: Text; Dim3Filter: Text; Dim4Filter: Text; AmountType: Option; ClosingEntryFilter: Option; Show: Option; OtherFilter: Text)
     begin
     end;
@@ -87,6 +87,7 @@ codeunit 424 "Export Analysis View"
         TempExcelBuffer.WriteAllToCurrentSheet(TempExcelBuffer);
 
         TempExcelBuffer.CloseBook;
+        OnExportDataOnAfterCloseBook(TempExcelBuffer, AnalysisViewEntry, AnalysisByDimParameters);
 
         if not SkipDownload then
             TempExcelBuffer.OpenExcel;
@@ -942,6 +943,11 @@ codeunit 424 "Export Analysis View"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterExportData(varTempExcelBuffer: Record "Excel Buffer" temporary; var AnalysisViewEntry: Record "Analysis View Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnExportDataOnAfterCloseBook(TempExcelBuffer: Record "Excel Buffer" temporary; var AnalysisViewEntry: Record "Analysis View Entry"; AnalysisByDimParameters: Record "Analysis by Dim. Parameters")
     begin
     end;
 }

@@ -1593,7 +1593,7 @@ codeunit 132207 "Library - Assembly"
         Commit();
     end;
 
-    procedure PostInvtCostToGL(PerPostingGroup: Boolean; ItemNo: Code[20]; DocNo: Code[20]; PreviewDumpFilePath: Text[1024])
+    procedure PostInvtCostToGL(PerPostingGroup: Boolean; ItemNo: Code[20]; PreviewDumpFilePath: Text[1024]; TemplateName: Code[10]; BatchName: Code[10])
     var
         PostValueEntryToGL: Record "Post Value Entry to G/L";
         PostInventoryCostToGL: Report "Post Inventory Cost to G/L";
@@ -1606,7 +1606,7 @@ codeunit 132207 "Library - Assembly"
             PostMethod := PostMethod::"per Posting Group"
         else
             PostMethod := PostMethod::"per Entry";
-        PostInventoryCostToGL.InitializeRequest(PostMethod, DocNo, true);
+        PostInventoryCostToGL.InitializeRequest(PostMethod, true, TemplateName, BatchName);
         PostInventoryCostToGL.SetTableView(PostValueEntryToGL);
         PostInventoryCostToGL.UseRequestPage(false);
         PostInventoryCostToGL.SaveAsPdf(PreviewDumpFilePath);

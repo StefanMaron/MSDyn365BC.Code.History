@@ -155,11 +155,14 @@ codeunit 134711 "Autom. Payment Registration.UX"
     local procedure InsertDummyBankReconHeaderAndLine(StatementType: Option; StatementNo: Code[20]; var BankAccReconciliation: Record "Bank Acc. Reconciliation"; StatementAmount: Decimal)
     var
         BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line";
+        GenJournalTemplate: Record "Gen. Journal Template";
     begin
         BankAccReconciliation.Init();
         BankAccReconciliation."Statement Type" := StatementType;
         BankAccReconciliation."Bank Account No." := CreateBankAcc;
         BankAccReconciliation."Statement No." := StatementNo;
+        if GenJournalTemplate.FindFirst then
+            BankAccReconciliation."Journal Template Name" := GenJournalTemplate.Name;
         BankAccReconciliation.Insert();
 
         BankAccReconciliationLine.Init();

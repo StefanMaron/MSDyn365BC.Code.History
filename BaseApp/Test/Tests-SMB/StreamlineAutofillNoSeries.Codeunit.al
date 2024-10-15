@@ -1357,7 +1357,9 @@ codeunit 138100 "Streamline. Autofill No Series"
     local procedure Initialize()
     var
         NoSeries: Record "No. Series";
+        LibraryTestInitialize: Codeunit "Library - Test Initialize";
     begin
+        LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Streamline. Autofill No Series");
         CurrentSalesSetupDocType := -1;
         CurrentPurchSetupDocType := -1;
         LibraryVariableStorage.Clear;
@@ -1460,9 +1462,8 @@ codeunit 138100 "Streamline. Autofill No Series"
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
     begin
         SalesReceivablesSetup.Get();
-        NoSeriesCode[1] := LibraryERM.CreateNoSeriesCode;
+        SalesReceivablesSetup."Journal Templ. Sales Invoice" := CreateGenJnlTemplWithPostingNoSeries(NoSeriesCode[1]);
         NoSeriesCode[2] := LibraryERM.CreateNoSeriesCode;
-        SalesReceivablesSetup."Posted Invoice Nos." := NoSeriesCode[1];
         SalesReceivablesSetup."Posted Shipment Nos." := NoSeriesCode[2];
         SalesReceivablesSetup.Modify();
     end;
@@ -1472,11 +1473,21 @@ codeunit 138100 "Streamline. Autofill No Series"
         PurchasesPayablesSetup: Record "Purchases & Payables Setup";
     begin
         PurchasesPayablesSetup.Get();
-        NoSeriesCode[1] := LibraryERM.CreateNoSeriesCode;
+        PurchasesPayablesSetup."Journal Templ. Purch. Invoice" := CreateGenJnlTemplWithPostingNoSeries(NoSeriesCode[1]);
         NoSeriesCode[2] := LibraryERM.CreateNoSeriesCode;
-        PurchasesPayablesSetup."Posted Invoice Nos." := NoSeriesCode[1];
         PurchasesPayablesSetup."Posted Receipt Nos." := NoSeriesCode[2];
         PurchasesPayablesSetup.Modify();
+    end;
+
+    local procedure CreateGenJnlTemplWithPostingNoSeries(var NoSeriesCode: Code[20]): Code[10]
+    var
+        GenJournalTemplate: Record "Gen. Journal Template";
+    begin
+        LibraryERM.CreateGenJournalTemplate(GenJournalTemplate);
+        NoSeriesCode := LibraryERM.CreateNoSeriesCode;
+        GenJournalTemplate."Posting No. Series" := NoSeriesCode;
+        GenJournalTemplate.Modify();
+        exit(GenJournalTemplate.Name);
     end;
 
     local procedure CheckFieldsVisibilityOnSalesSetupPage(var SalesNoSeriesSetup: TestPage "Sales No. Series Setup"; DocType: Option Quote,"Order",Invoice,"Credit Memo","Blanket Order","Return Order",Reminder,FinChMemo)

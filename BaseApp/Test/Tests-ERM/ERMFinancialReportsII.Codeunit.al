@@ -47,7 +47,6 @@ codeunit 134986 "ERM Financial Reports II"
         LibraryJournals: Codeunit "Library - Journals";
         LibraryReportValidation: Codeunit "Library - Report Validation";
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
-        OriginalWorkdate: Date;
         ExchRateWasAdjustedTxt: Label 'One or more currency exchange rates have been adjusted.';
         GenJnlTemplateNameTok: Label 'JnlTemplateName_GenJnlBatch';
         GenJnlTmplNameTok: Label 'JnlTmplName_GenJnlBatch';
@@ -762,7 +761,6 @@ codeunit 134986 "ERM Financial Reports II"
 
         // Setup.
         Initialize;
-        WorkDate := CalcDate('<+1Y>', WorkDate);
         PostGenLinesCustomPostingDate(GenJournalLine);
 
         // Exercise: Save Trial Balance Previous Year Report.
@@ -1025,7 +1023,7 @@ codeunit 134986 "ERM Financial Reports II"
     begin
         // Check "VAT Base" and "VAT Amount" for Fee in the "VAT Amount Specification in GBP" section of Report Finance Charge Memo.
 
-        // Setup: Set Print VAT specification in LYC = TRUE in General Ledger Setup. Create and post General Journal Line.
+        // Setup: Set Print VAT specification in LCY = TRUE in General Ledger Setup. Create and post General Journal Line.
         // Create Finance Charge Memo, add a line for the Finance Charge Memo with fee include VAT. Issued the Finance Charge Memo.
         Initialize;
         UpdateVATSpecInLCYGeneralLedgerSetup(true);
@@ -1765,10 +1763,6 @@ codeunit 134986 "ERM Financial Reports II"
         LibrarySetupStorage.Restore;
         Clear(LibraryReportValidation);
         LibraryERMCountryData.UpdateGeneralPostingSetup;
-        if OriginalWorkdate = 0D then
-            OriginalWorkdate := WorkDate;
-        WorkDate := OriginalWorkdate;
-
         if IsInitialized then
             exit;
 
@@ -2658,7 +2652,6 @@ codeunit 134986 "ERM Financial Reports II"
         ActualRowQty: Integer;
     begin
         Initialize;
-        WorkDate := CalcDate('<+1Y>', WorkDate);
         PostGenLinesCustomPostingDate(GenJournalLine);
 
         GLAccount.Get(GenJournalLine."Account No.");
@@ -3216,15 +3209,22 @@ codeunit 134986 "ERM Financial Reports II"
     [Scope('OnPrem')]
     procedure AdjustExchangeRateReportReqPageHandler(var AdjustExchangeRate: TestRequestPage "Adjust Exchange Rates")
     var
+        GenJournalTemplate: Record "Gen. Journal Template";
+        GenJournalBatch: Record "Gen. Journal Batch";
+        NoSeriesManagement: Codeunit NoSeriesManagement;
         "Code": Variant;
     begin
         CurrentSaveValuesId := REPORT::"Adjust Exchange Rates";
         LibraryVariableStorage.Dequeue(Code);
         AdjustExchangeRate.StartingDate.SetValue(WorkDate);
         AdjustExchangeRate.EndingDate.SetValue(CalcDate(StrSubstNo('<%1M>', LibraryRandom.RandInt(3)), WorkDate));
-        AdjustExchangeRate.DocumentNo.SetValue(LibraryUTUtility.GetNewCode);
+        LibraryERM.FindGenJournalTemplate(GenJournalTemplate);
+        LibraryERM.FindGenJournalBatch(GenJournalBatch, GenJournalTemplate.Name);
+        AdjustExchangeRate.JournalTemplateName.SetValue(GenJournalTemplate.Name);
+        AdjustExchangeRate.JournalBatchName.SetValue(GenJournalBatch.Name);
         AdjustExchangeRate.Currency.SetFilter(Code, Code);
-        LibraryVariableStorage.Enqueue(AdjustExchangeRate.DocumentNo.Value);
+        LibraryVariableStorage.Enqueue(
+          NoSeriesManagement.GetNextNo(GenJournalBatch."No. Series", WorkDate, false));
         AdjustExchangeRate.OK.Invoke;
     end;
 

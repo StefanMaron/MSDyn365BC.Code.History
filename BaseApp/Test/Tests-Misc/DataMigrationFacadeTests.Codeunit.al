@@ -1508,6 +1508,11 @@ codeunit 135022 "Data Migration Facade Tests"
         Currency.Validate(Code, 'DKK');
         Currency.Insert(true);
 
+        GenJournalTemplate.Init();
+        GenJournalTemplate.Name := 'GENERAL';
+        GenJournalTemplate.Recurring := true;
+        GenJournalTemplate.Insert();
+
         Currency.Init();
         Currency.Validate(Code, 'MYC');
         Currency.Insert(true);

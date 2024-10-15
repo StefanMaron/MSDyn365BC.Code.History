@@ -114,12 +114,14 @@ page 6007 "Res. Availability Lines (SM)"
     end;
 
     var
-        Res: Record Resource;
         ServOrderAlloc: Record "Service Order Allocation";
         DateRec: Record Date;
         PeriodFormLinesMgt: Codeunit "Period Form Lines Mgt.";
         PeriodType: Option Day,Week,Month,Quarter,Year,"Accounting Period";
         AmountType: Option "Net Change","Balance at Date";
+
+    protected var
+        Res: Record Resource;
 
     procedure Set(var NewRes: Record Resource; NewPeriodType: Integer; NewAmountType: Option "Net Change","Balance at Date")
     begin

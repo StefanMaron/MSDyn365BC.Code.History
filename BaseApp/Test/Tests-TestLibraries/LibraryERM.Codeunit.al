@@ -1964,6 +1964,7 @@ codeunit 131300 "Library - ERM"
 
     procedure FindVATBusinessPostingGroup(var VATBusinessPostingGroup: Record "VAT Business Posting Group")
     begin
+        VATBusinessPostingGroup.SetRange(Code, 'Domestics');
         if not VATBusinessPostingGroup.FindFirst then
             CreateVATBusinessPostingGroup(VATBusinessPostingGroup);
     end;
@@ -2210,7 +2211,6 @@ codeunit 131300 "Library - ERM"
         FinanceChargeMemoHeader.SetRange("No.", FinanceChargeMemoHeader."No.");
         Clear(IssueFinanceChargeMemos);
         IssueFinanceChargeMemos.SetTableView(FinanceChargeMemoHeader);
-        IssueFinanceChargeMemos.UseRequestPage(false);
         IssueFinanceChargeMemos.Run;
     end;
 
@@ -2258,10 +2258,13 @@ codeunit 131300 "Library - ERM"
     procedure RunAddnlReportingCurrency(CurrencyCode: Code[10]; DocumentNo: Code[20]; NewRetainedEarningsGLAccNo: Code[20])
     var
         AdjustAddReportingCurrency: Report "Adjust Add. Reporting Currency";
+        TemplateName: Code[10];
+        BatchName: Code[10];
     begin
         // Run Additional Currency Reporting Report for ACY.
         AdjustAddReportingCurrency.SetAddCurr(CurrencyCode);
-        AdjustAddReportingCurrency.InitializeRequest(DocumentNo, NewRetainedEarningsGLAccNo);
+        FindGenJnlTemplateAndBatch(TemplateName, BatchName);
+        AdjustAddReportingCurrency.InitializeRequest(NewRetainedEarningsGLAccNo, TemplateName, BatchName);
         AdjustAddReportingCurrency.UseRequestPage(false);
         AdjustAddReportingCurrency.Run;
     end;
@@ -2276,10 +2279,14 @@ codeunit 131300 "Library - ERM"
     var
         Currency: Record Currency;
         AdjustExchangeRates: Report "Adjust Exchange Rates";
+        TemplateName: Code[10];
+        BatchName: Code[10];
     begin
         Currency.SetRange(Code, CurrencyCode);
         AdjustExchangeRates.SetTableView(Currency);
-        AdjustExchangeRates.InitializeRequest2(StartDate, EndDate, PostingDescription, PostingDate, PostingDocNo, true, AdjGLAcc);
+        FindGenJnlTemplateAndBatch(TemplateName, BatchName);
+        AdjustExchangeRates.InitializeRequest2(
+          StartDate, EndDate, PostingDescription, PostingDate, PostingDocNo, true, AdjGLAcc, TemplateName, BatchName);
         AdjustExchangeRates.UseRequestPage(false);
         AdjustExchangeRates.Run;
     end;
@@ -2291,13 +2298,23 @@ codeunit 131300 "Library - ERM"
 
     [Scope('OnPrem')]
     procedure RunReminderIssue(var ReminderIssue: Codeunit "Reminder-Issue")
+    var
+        TemplateName: Code[10];
+        BatchName: Code[10];
     begin
+        FindGenJnlTemplateAndBatch(TemplateName, BatchName);
+        ReminderIssue.SetJournal(TemplateName, BatchName);
         ReminderIssue.Run;
     end;
 
     [Scope('OnPrem')]
     procedure RunFinChrgMemoIssue(var FinChrgMemoIssue: Codeunit "FinChrgMemo-Issue")
+    var
+        TemplateName: Code[10];
+        BatchName: Code[10];
     begin
+        FindGenJnlTemplateAndBatch(TemplateName, BatchName);
+        FinChrgMemoIssue.SetJournal(TemplateName, BatchName);
         FinChrgMemoIssue.Run;
     end;
 
@@ -3004,6 +3021,29 @@ codeunit 131300 "Library - ERM"
         DtldCustLedgEntry.TestField("Transaction No.", 0);
         DtldCustLedgEntry.TestField("Application No.");
         DtldCustLedgEntry.TestField("Amount (LCY)", AmountLCY);
+    end;
+
+    procedure FindGenJnlTemplateAndBatch(var TemplateName: Code[10]; var BatchName: Code[10])
+    var
+        GenJnlTemplate: Record "Gen. Journal Template";
+        GenJnlBatch: Record "Gen. Journal Batch";
+    begin
+        FindGenJournalTemplate(GenJnlTemplate);
+        GenJnlBatch.SetFilter("No. Series", '<>%1', '');
+        FindGenJournalBatch(GenJnlBatch, GenJnlTemplate.Name);
+        TemplateName := GenJnlTemplate.Name;
+        BatchName := GenJnlBatch.Name;
+    end;
+
+    procedure GetNextDocNoByBatch(var GenJnlBatch: Record "Gen. Journal Batch"): Code[20]
+    var
+        NoSeriesMgt: Codeunit NoSeriesManagement;
+        TemplateName: Code[10];
+        BatchName: Code[10];
+    begin
+        FindGenJnlTemplateAndBatch(TemplateName, BatchName);
+        GenJnlBatch.Get(TemplateName, BatchName);
+        exit(NoSeriesMgt.GetNextNo(GenJnlBatch."No. Series", WorkDate, false));
     end;
 
     procedure UpdateAmountOnGenJournalLine(GenJournalBatch: Record "Gen. Journal Batch"; var GeneralJournal: TestPage "General Journal")

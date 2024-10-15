@@ -773,6 +773,7 @@ codeunit 137301 "SCM Inventory Reports - I"
         PurchInvHeader: Record "Purch. Inv. Header";
         PostValueEntryToGL: Record "Post Value Entry to G/L";
         PostMethod: Option "per Posting Group","per Entry";
+        DocNo: Code[20];
     begin
         // Setup: Create Item with costing method as standard.Create Purchase Order with two Item Lines and Post It.
         Initialize;
@@ -783,8 +784,8 @@ codeunit 137301 "SCM Inventory Reports - I"
 
         // Exercise: Generate the Post Inventory Cost to G/L report.
         Commit();
+        DocNo := GetNextCostPostingDocNo;
         LibraryVariableStorage.Enqueue(PostMethod::"per Posting Group");
-        LibraryVariableStorage.Enqueue(PurchInvHeader."No.");
         LibraryVariableStorage.Enqueue(Post);
         REPORT.Run(REPORT::"Post Inventory Cost to G/L", true, false, PostValueEntryToGL);
 
@@ -795,7 +796,7 @@ codeunit 137301 "SCM Inventory Reports - I"
         LibraryReportDataset.AssertCurrentRowValueEquals('ItemValueEntryDocumentNo', PurchInvHeader."No.");
 
         // Verify Inventory Account in Gl Entry.
-        VerifyInvtAccountInGLEntry(Item."No.", PurchInvHeader."No.", Post);
+        VerifyInvtAccountInGLEntry(Item."No.", DocNo, Post);
     end;
 
     [Test]
@@ -976,7 +977,6 @@ codeunit 137301 "SCM Inventory Reports - I"
         Commit();
         PostValueEntryToGL.SetRange("Item No.", Item."No.");
         LibraryVariableStorage.Enqueue(PostMethod::"per Entry"); // Equeue for PostInvtCostToGLRequestPageHandler
-        LibraryVariableStorage.Enqueue('');
         LibraryVariableStorage.Enqueue(true);
         REPORT.Run(REPORT::"Post Inventory Cost to G/L", true, false, PostValueEntryToGL);
 
@@ -1084,6 +1084,46 @@ codeunit 137301 "SCM Inventory Reports - I"
         ItemLedgerEntry.SetRange("Entry Type", ItemLedgerEntry."Entry Type"::"Negative Adjmt.");
         ItemLedgerEntry.FindFirst;
         VerifyInventoryTransactionDetailQuantities(ItemLedgerEntry, 0, Abs(ItemLedgerEntry.Quantity));
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure InventoryValuationFillZeroesInQtyAndExpectedCostIncluded()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        ReturnPurchaseHeader: Record "Purchase Header";
+        Item: Record Item;
+        RowNo: Integer;
+        Quantity: Decimal;
+        DirectUnitCost: Decimal;
+    begin
+        // [FEATURE] [Inventory Valuation]
+        // [SCENARIO 351691] Expected Cost Included line should show Quantity = 0 and Value = 0 for Inventory Posting Group Name = Increase (LCY)
+        // [GIVEN] Created item
+        LibraryInventory.CreateItem(Item);
+
+        // [GIVEN] Posting the receipt and invoice for Purchase Order
+        Quantity := LibraryRandom.RandDec(100, 2);
+        DirectUnitCost := LibraryRandom.RandDec(100, 2);
+        CreatePurchaseOrder(PurchaseHeader, Item."No.", Quantity, DirectUnitCost, 1);
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+
+        // [GIVEN] Posting the shipment for Return Purchase Order
+        CreateReturnPurchaseOrder(ReturnPurchaseHeader, Item."No.", Quantity, DirectUnitCost);
+        LibraryPurchase.PostPurchaseDocument(ReturnPurchaseHeader, true, false);
+
+        // [WHEN] Run report "Inventory Valuation" with parameter "Include expected cost" = TRUE
+        SaveAsExcelInventoryValuationReport(Item."No.");
+
+        // [THEN] The Quantity should be equal to 0 for Inventory Posting Group Name = Increase (LCY) in Expected Cost Included line
+        // [THEN] The Value should be equal to 0 for Inventory Posting Group Name = Increase (LCY) in Expected Cost Included line
+        RowNo := LibraryReportValidation.FindRowNoFromColumnNoAndValue(
+            LibraryReportValidation.FindColumnNoFromColumnCaption('Item No.'), Item."No.");
+
+        LibraryReportValidation.VerifyCellValueOnWorksheet(
+          RowNo + 1, LibraryReportValidation.FindColumnNoFromColumnCaption('Increases (LCY)'), '0', '1');
+        LibraryReportValidation.VerifyCellValueOnWorksheet(
+          RowNo + 1, LibraryReportValidation.FindColumnNoFromColumnCaption('Increases (LCY)') + 2, '0', '1');
     end;
 
     local procedure Initialize()
@@ -1381,6 +1421,16 @@ codeunit 137301 "SCM Inventory Reports - I"
         InventorySetup.Modify(true);
     end;
 
+    local procedure CreateReturnPurchaseOrder(var PurchaseHeader: Record "Purchase Header"; ItemNo: Code[20]; Quantity: Decimal; DirectUnitCost: Decimal)
+    var
+        PurchaseLine: Record "Purchase Line";
+    begin
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::"Return Order", '');
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, ItemNo, Quantity);
+        PurchaseLine.Validate("Direct Unit Cost", DirectUnitCost);
+        PurchaseLine.Modify(true);
+    end;
+
     [MessageHandler]
     [Scope('OnPrem')]
     procedure MessageHandler(Message: Text[1024])
@@ -1526,14 +1576,15 @@ codeunit 137301 "SCM Inventory Reports - I"
     [Scope('OnPrem')]
     procedure PostInvtCostToGLRequestPageHandler(var PostInventoryCostToGL: TestRequestPage "Post Inventory Cost to G/L")
     var
+        InventorySetup: Record "Inventory Setup";
         PostMethod: Variant;
-        DocNo: Variant;
         Post: Variant;
     begin
         LibraryVariableStorage.Dequeue(PostMethod);
         PostInventoryCostToGL.PostMethod.SetValue(PostMethod); // Post Method: per entry or per Posting Group.
-        LibraryVariableStorage.Dequeue(DocNo);
-        PostInventoryCostToGL.DocumentNo.SetValue(DocNo); // Doc No. required when posting per Posting Group.
+        InventorySetup.Get();
+        PostInventoryCostToGL.JnlTemplateName.SetValue(InventorySetup."Jnl. Templ. Name Cost Posting");
+        PostInventoryCostToGL.JnlBatchName.SetValue(InventorySetup."Jnl. Batch Name Cost Posting");
         LibraryVariableStorage.Dequeue(Post); // Post to G/L.
         PostInventoryCostToGL.Post.SetValue(Post);
         PostInventoryCostToGL.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
@@ -1543,13 +1594,14 @@ codeunit 137301 "SCM Inventory Reports - I"
     [Scope('OnPrem')]
     procedure PostInvtCostToGLTestRequestPageHandler(var PostInventoryCostToGLTest: TestRequestPage "Post Invt. Cost to G/L - Test")
     var
+        InventorySetup: Record "Inventory Setup";
         PostMethod: Variant;
-        DocNo: Variant;
     begin
         LibraryVariableStorage.Dequeue(PostMethod);
         PostInventoryCostToGLTest.PostingMethod.SetValue(PostMethod); // Post Method: per entry or per Posting Group.
-        LibraryVariableStorage.Dequeue(DocNo);
-        PostInventoryCostToGLTest.DocumentNo.SetValue(DocNo); // Doc No. required when posting per Posting Group.
+        InventorySetup.Get();
+        PostInventoryCostToGLTest.JnlTemplateName.SetValue(InventorySetup."Jnl. Templ. Name Cost Posting");
+        PostInventoryCostToGLTest.JnlBatchName.SetValue(InventorySetup."Jnl. Batch Name Cost Posting");
         PostInventoryCostToGLTest.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
     end;
 
@@ -1589,6 +1641,17 @@ codeunit 137301 "SCM Inventory Reports - I"
     procedure StatisticsMessageHandler(Message: Text[1024])
     begin
         Assert.ExpectedMessage(ValueEntriesWerePostedTxt, Message);
+    end;
+
+    local procedure GetNextCostPostingDocNo(): Code[20]
+    var
+        InventorySetup: Record "Inventory Setup";
+        GenJournalBatch: Record "Gen. Journal Batch";
+        NoSeriesManagement: Codeunit NoSeriesManagement;
+    begin
+        InventorySetup.Get();
+        GenJournalBatch.Get(InventorySetup."Jnl. Templ. Name Cost Posting", InventorySetup."Jnl. Batch Name Cost Posting");
+        exit(NoSeriesManagement.GetNextNo(GenJournalBatch."No. Series", WorkDate, false));
     end;
 }
 

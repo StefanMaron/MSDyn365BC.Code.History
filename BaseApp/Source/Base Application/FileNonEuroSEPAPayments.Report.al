@@ -212,6 +212,8 @@ report 2000006 "File Non Euro SEPA Payments"
         EBSetup.Get();
         CompanyInfo.Get();
 
+        OnBeforePreReport("Payment Journal Line", GenJnlLine, AutomaticPosting, IncludeDimText, ExecutionDate, FileName);
+
         if ClientTypeManagement.GetCurrentClientType in [CLIENTTYPE::Desktop, CLIENTTYPE::Windows] then begin
             if DelChr(FileName, '<>') = '' then
                 Error(Text003);
@@ -278,7 +280,6 @@ report 2000006 "File Non Euro SEPA Payments"
 
     local procedure PostPmtLines(var PmtJnlLine: Record "Payment Journal Line")
     var
-        PaymentJournalPost: Report "Payment Journal Post";
         BalancingPostingDate: Date;
     begin
         if PmtJnlLine.IsEmpty then
@@ -287,9 +288,22 @@ report 2000006 "File Non Euro SEPA Payments"
             BalancingPostingDate := ExecutionDate
         else
             BalancingPostingDate := Today;
-        PaymentJournalPost.SetParameters(GenJnlLine, AutomaticPosting,
-          REPORT::"File Non Euro SEPA Payments", BalancingPostingDate);
-        PaymentJournalPost.SetTableView(PmtJnlLine);
+
+        PostPaymentJournal(GenJnlLine, PmtJnlLine, BalancingPostingDate);
+    end;
+
+    local procedure PostPaymentJournal(var GenJnlLine: Record "Gen. Journal Line"; var PaymentJournalLine: Record "Payment Journal Line"; BalancingPostingDate: Date)
+    var
+        PaymentJournalPost: Report "Payment Journal Post";
+        IsHandled: Boolean;
+    begin
+        IsHandled := FALSE;
+        OnBeforePostPaymentJournal(GenJnlLine, PaymentJournalLine, AutomaticPosting, BalancingPostingDate, IsHandled);
+        if IsHandled then
+            exit;
+
+        PaymentJournalPost.SetParameters(GenJnlLine, AutomaticPosting, Report::"File Non Euro SEPA Payments", BalancingPostingDate);
+        PaymentJournalPost.SetTableView(PaymentJournalLine);
         PaymentJournalPost.RunModal;
     end;
 
@@ -426,6 +440,8 @@ report 2000006 "File Non Euro SEPA Payments"
         ISOCurrCode: Text[3];
         IBANTransfer: Boolean;
     begin
+        OnBeforeExportTransactionInformation(PmtJnlLine, PaymentMessage);
+
         with PmtJnlLine do begin
             GLSetup.Get();
             RootNode := XMLNodeCurr;
@@ -665,18 +681,22 @@ report 2000006 "File Non Euro SEPA Payments"
         exit('NORM');
     end;
 
-    procedure CheckNewGroup(PmtJnlLine: Record "Payment Journal Line"): Boolean
+    procedure CheckNewGroup(PmtJnlLine: Record "Payment Journal Line") ReturnValue: Boolean
     begin
         if EmptyConsolidatedPayment then
             exit(true);
 
         with PmtJnlLine do
-            exit(
+            ReturnValue :=
               (ConsolidatedPmtJnlLine."Bank Account" <> "Bank Account") or
               (ConsolidatedPmtJnlLine."Currency Code" <> "Currency Code") or
               (ConsolidatedPmtJnlLine."Posting Date" <> "Posting Date") or
               (ConsolidatedPmtJnlLine."Instruction Priority" <> "Instruction Priority") or
-              (ConsolidatedPmtJnlLine."Code Expenses" <> "Code Expenses"));
+              (ConsolidatedPmtJnlLine."Code Expenses" <> "Code Expenses");
+
+        OnAfterCheckNewGroup(PmtJnlLine, ConsolidatedPmtJnlLine, ReturnValue);
+
+        exit(ReturnValue);
     end;
 
     local procedure EmptyConsolidatedPayment(): Boolean
@@ -684,18 +704,22 @@ report 2000006 "File Non Euro SEPA Payments"
         exit(ConsolidatedPmtJnlLine."Bank Account" = '');
     end;
 
-    local procedure NewConsolidatedPayment(PmtJnlLine: Record "Payment Journal Line"): Boolean
+    local procedure NewConsolidatedPayment(PmtJnlLine: Record "Payment Journal Line") ReturnValue: Boolean
     begin
         if EmptyConsolidatedPayment then
             exit(false);
 
         with PmtJnlLine do
-            exit(
+            ReturnValue :=
               CheckNewGroup(PmtJnlLine) or
               IsPaymentMessageTooLong("Payment Message") or
               (ConsolidatedPmtJnlLine."Account Type" <> "Account Type") or
               (ConsolidatedPmtJnlLine."Account No." <> "Account No.") or
-              (ConsolidatedPmtJnlLine."Beneficiary Bank Account No." <> "Beneficiary Bank Account No."));
+              (ConsolidatedPmtJnlLine."Beneficiary Bank Account No." <> "Beneficiary Bank Account No.");
+
+        OnAfterNewConsolidatedPayment(PmtJnlLine, ConsolidatedPmtJnlLine, ReturnValue);
+
+        exit(ReturnValue);
     end;
 
     local procedure InitConsolidatedPayment(PmtJnlLine: Record "Payment Journal Line")
@@ -815,12 +839,37 @@ report 2000006 "File Non Euro SEPA Payments"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterCheckNewGroup(PaymentJournalLine: Record "Payment Journal Line"; ConsolidatedPaymentJournalLine: Record "Payment Journal Line"; var ReturnValue: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterGetCustomerBankAccount(var CustomerBankAccount: Record "Customer Bank Account"; PaymentJournalLine: Record "Payment Journal Line")
     begin
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterNewConsolidatedPayment(PaymentJournalLine: Record "Payment Journal Line"; ConsolidatedPaymentJournalLine: Record "Payment Journal Line"; var ReturnValue: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeExportTransactionInformation(var PaymentJournalLine: Record "Payment Journal Line"; var PaymentMessage: Text[140]);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforePostPaymentJournal(var GenJnlLine: Record "Gen. Journal Line"; var PaymentJournalLine: Record "Payment Journal Line"; AutomaticPosting: Boolean; BalancingPostingDate: Date; var IsHandled: Boolean);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforePreDataItemPaymentJournalLine(var PaymentJournalLine: Record "Payment Journal Line");
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforePreReport(var PaymentJournalLine: Record "Payment Journal Line"; var GenJnlLine: Record "Gen. Journal Line"; var AutomaticPosting: Boolean; var IncludeDimText: Text[250]; var ExecutionDate: Date; var FileName: Text);
     begin
     end;
 

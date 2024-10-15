@@ -391,7 +391,14 @@ report 5198 "Add Contacts"
     end;
 
     local procedure UpdateSegLines()
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeUpdateSegLines("Segment Header", IsHandled);
+        if IsHandled then
+            exit;
+
         SegLine.SetRange("Segment No.", "Segment Header"."No.");
         if SegLine.FindLast then
             NextLineNo := SegLine."Line No." + 10000
@@ -501,6 +508,11 @@ report 5198 "Add Contacts"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeInsertSegmentLine(var TempContact: Record Contact temporary; AllowExistingContact: Boolean; ExpandCompanies: Boolean; AllowCoRepdByContPerson: Boolean; IgnoreExclusion: Boolean; var ContactOK: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdateSegLines(var SegmentHeader: Record "Segment Header"; var IsHandled: Boolean)
     begin
     end;
 }

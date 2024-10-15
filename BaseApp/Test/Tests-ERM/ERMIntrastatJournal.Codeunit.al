@@ -22,7 +22,6 @@ codeunit 134150 "ERM Intrastat Journal"
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryRandom: Codeunit "Library - Random";
         LibraryMarketing: Codeunit "Library - Marketing";
-        LibraryJob: Codeunit "Library - Job";
         LibraryWarehouse: Codeunit "Library - Warehouse";
         IsInitialized: Boolean;
         ValidationErr: Label '%1 must be %2 in %3.';
@@ -34,7 +33,6 @@ codeunit 134150 "ERM Intrastat Journal"
         HttpTxt: Label 'http://';
         OnDelIntrastatContactErr: Label 'You cannot delete contact number %1 because it is set up as an Intrastat contact in the Intrastat Setup window.', Comment = '1 - Contact No';
         OnDelVendorIntrastatContactErr: Label 'You cannot delete vendor number %1 because it is set up as an Intrastat contact in the Intrastat Setup window.', Comment = '1 - Vendor No';
-        ShptMethodCodeErr: Label 'Wrong Shipment Method Code';
 
     [Test]
     [Scope('OnPrem')]
@@ -1091,6 +1089,7 @@ codeunit 134150 "ERM Intrastat Journal"
         IntrastatJnlLine: Record "Intrastat Jnl. Line";
         ShipmentMethod: Record "Shipment Method";
         TransactionType: Record "Transaction Type";
+        "Area": Record "Area";
         IntrastatJournalPage: TestPage "Intrastat Journal";
         InvoiceDate: Date;
     begin
@@ -1120,6 +1119,15 @@ codeunit 134150 "ERM Intrastat Journal"
         IntrastatJournalPage.ChecklistReport.Invoke;
 
         // [THEN] You got one more error
+        IntrastatJournalPage.ErrorMessagesPart."Field Name".AssertEquals(IntrastatJnlLine.FieldName(Area));
+
+        // [WHEN] Fixing the error
+        Area.FindFirst;
+        IntrastatJournalPage.Area.Value(Area.Code);
+        // [WHEN] Running Checklist
+        IntrastatJournalPage.ChecklistReport.Invoke;
+
+        // [THEN] You got one more error
         IntrastatJournalPage.ErrorMessagesPart."Field Name".AssertEquals(IntrastatJnlLine.FieldName("Total Weight"));
 
         // [WHEN] Fixing the error
@@ -1140,138 +1148,11 @@ codeunit 134150 "ERM Intrastat Journal"
         IntrastatJournalPage.Close;
     end;
 
-    [Test]
-    [HandlerFunctions('IntrastatJnlTemplateListPageHandler,GetItemLedgerEntriesReportHandler,GreateFileReportHandler')]
-    [Scope('OnPrem')]
-    procedure E2EErrorHandlingOfIntrastatJournalOnlyReceipt()
-    var
-        IntrastatJnlBatch: Record "Intrastat Jnl. Batch";
-        SalesLine: Record "Sales Line";
-        PurchaseLine: Record "Purchase Line";
-        ShipmentMethod: Record "Shipment Method";
-        TransactionType: Record "Transaction Type";
-        TransportMethod: Record "Transport Method";
-        IntrastatJournalPage: TestPage "Intrastat Journal";
-        InvoiceDate: Date;
-    begin
-        // [FEATURE] [Intrastat Journal] [Error handling]
-        // [SCENARIO 222489] Deliverable 222489:ChecklistReport and CreateFile should filter lines by Intrastat Setup
-        // [GIVEN] 1 Posted Purchase Order for intrastat
-        // [GIVEN] 1 Posted Sales Order for intrastat
-        // [GIVEN] Journal Template and Batch
-        Initialize;
-        InvoiceDate := CalcDate('<-5Y>');
-        InitIntrastatSetup;
-        CreateAndPostPurchaseOrder(PurchaseLine, InvoiceDate);
-        CreateAndPostSalesOrder(SalesLine, InvoiceDate);
-        LibraryERM.CreateIntrastatJnlTemplateAndBatch(IntrastatJnlBatch, InvoiceDate);
-        Commit();
-
-        // [GIVEN] A Intrastat Journal
-        OpenIntrastatJournalAndGetEntries(IntrastatJournalPage, IntrastatJnlBatch."Journal Template Name");
-
-        // [GIVEN] A Receipt with all values
-        TransactionType.FindFirst;
-        IntrastatJournalPage."Transaction Type".Value(TransactionType.Code);
-        ShipmentMethod.FindFirst;
-        IntrastatJournalPage."Shpt. Method Code".Value(ShipmentMethod.Code);
-        TransportMethod.FindFirst;
-        IntrastatJournalPage."Transport Method".Value(TransportMethod.Code);
-        IntrastatJournalPage."Total Weight".Value('1');
-
-        // [WHEN] Running Create File
-        // [THEN] You do not get any errors
-        IntrastatJournalPage.CreateFile.Invoke;
-
-        IntrastatJournalPage.Close;
-    end;
-
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure GreateFileReportHandler(var IntrastatMakeDiskTaxAuth: TestRequestPage "Intrastat - Make Disk Tax Auth")
     begin
         IntrastatMakeDiskTaxAuth.Cancel.Invoke;
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure ChecklistReportErrorLog()
-    var
-        IntrastatJnlLine: Record "Intrastat Jnl. Line";
-        TestReportPrint: Codeunit "Test Report-Print";
-    begin
-        // [SCENARIO] User runs Intrastat Checklist report to verify Intrastat Journal Line
-        Initialize;
-        // [GIVEN] Intrastat Checklist Setup, verify "Document No."
-        CreateIntrastatChecklistSetup;
-        InitIntrastatSetup;
-        // [GIVEN] Intrastat Journal Line with empty "Document No."
-        CreateIntrastatJnlLine(IntrastatJnlLine);
-        IntrastatJnlLine."Total Weight" := 100;
-        IntrastatJnlLine.Modify(true);
-        // [WHEN] Run Intrastat Checklist report
-        TestReportPrint.PrintIntrastatJnlLine(IntrastatJnlLine);
-        // [THEN] Error message is logged for Intrastat Journal Line
-        VerifyErrorMessageExists(IntrastatJnlLine);
-    end;
-
-    [Test]
-    [HandlerFunctions('FieldListModalPageHandler')]
-    [Scope('OnPrem')]
-    procedure ChecklistSetupUI()
-    var
-        IntrastatJnlLine: Record "Intrastat Jnl. Line";
-        IntrastatChecklistSetupPage: TestPage "Intrastat Checklist Setup";
-        IntrastatSetupPage: TestPage "Intrastat Setup";
-    begin
-        // [SCENARIO] User select fields from Intrastat Journal Line table to verify
-        Initialize;
-        // [GIVEN] Intrastat Checklist Setup, verify "Document No."
-        CreateIntrastatChecklistSetup;
-        // [GIVEN] Intrastat Setup page
-        IntrastatSetupPage.OpenEdit;
-        IntrastatChecklistSetupPage.Trap;
-        // [WHEN] Run Intrastat Checklist Setup page
-        IntrastatSetupPage.IntrastatChecklistSetup.Invoke;
-        IntrastatChecklistSetupPage.First;
-        // [THEN] Field "Document No." exists on the page
-        Assert.AreEqual(
-          IntrastatJnlLine.FieldName("Document No."),
-          IntrastatChecklistSetupPage."Field Name".Value,
-          'field Document No. should exist on the page');
-
-        // [WHEN] Lookup for other fields and select the first one FieldListModalPageHandler
-        IntrastatChecklistSetupPage."Field Name".Lookup;
-        // [THEN] Field "Type" should exist on the page
-        IntrastatChecklistSetupPage.First;
-        Assert.AreEqual(
-          IntrastatJnlLine.FieldName(Type),
-          IntrastatChecklistSetupPage."Field Name".Value,
-          'field Type should exist on the page');
-    end;
-
-    [Test]
-    [HandlerFunctions('ConfirmHandler,MessageHandler')]
-    [Scope('OnPrem')]
-    procedure ShptMethodCodeJobJournal()
-    var
-        IntrastatJnlLine: Record "Intrastat Jnl. Line";
-        ShipmentMethod: Record "Shipment Method";
-        ItemNo: Code[20];
-    begin
-        // [FEATURE] [Job]
-        // [SCENARIO] User creates and posts job journal and fills intrastat journal
-        Initialize;
-        // [GIVEN] Shipment Method "SMC"
-        ShipmentMethod.FindFirst;
-        // [GIVEN] Job Journal Line (posted) with item and "SMC"
-        ItemNo := CreateAndPostJobJournalLine(ShipmentMethod.Code);
-        // [WHEN] Run Get Item Ledger Entries report
-        CreateIntrastatJnlLineAndGetEntries(IntrastatJnlLine, WorkDate, WorkDate);
-        // [THEN] "Shpt. Method Code" in the Intrastat Journal Line = "SMC"
-        IntrastatJnlLine.SetRange("Item No.", ItemNo);
-        IntrastatJnlLine.FindFirst;
-        Assert.AreEqual(ShipmentMethod.Code, IntrastatJnlLine."Shpt. Method Code", ShptMethodCodeErr);
     end;
 
     [Test]
@@ -1468,7 +1349,6 @@ codeunit 134150 "ERM Intrastat Journal"
 
     local procedure Initialize()
     var
-        IntrastatJnlBatch: Record "Intrastat Jnl. Batch";
         IntrastatSetup: Record "Intrastat Setup";
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
@@ -1484,7 +1364,6 @@ codeunit 134150 "ERM Intrastat Journal"
         LibraryERMCountryData.UpdateSalesReceivablesSetup;
         LibraryERMCountryData.UpdatePurchasesPayablesSetup;
         LibraryERMCountryData.UpdateGeneralPostingSetup;
-        LibraryERM.CreateIntrastatJnlTemplateAndBatch(IntrastatJnlBatch, WorkDate);
         IsInitialized := true;
         Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Intrastat Journal");
@@ -2211,78 +2090,6 @@ codeunit 134150 "ERM Intrastat Journal"
     begin
         VendorLookup.FILTER.SetFilter("No.", LibraryVariableStorage.DequeueText);
         VendorLookup.OK.Invoke;
-    end;
-
-    [ModalPageHandler]
-    [Scope('OnPrem')]
-    procedure FieldListModalPageHandler(var FieldsLookup: TestPage "Fields Lookup")
-    begin
-        FieldsLookup.First;
-        FieldsLookup.OK.Invoke;
-    end;
-
-    local procedure CreateIntrastatChecklistSetup()
-    var
-        IntrastatChecklistSetup: Record "Intrastat Checklist Setup";
-        IntrastatJnlLine: Record "Intrastat Jnl. Line";
-    begin
-        IntrastatChecklistSetup.DeleteAll();
-
-        IntrastatChecklistSetup.Init();
-        IntrastatChecklistSetup.Validate("Field No.", IntrastatJnlLine.FieldNo("Document No."));
-        IntrastatChecklistSetup.Insert();
-    end;
-
-    local procedure CreateAndPostJobJournalLine(ShipmentMethodCode: Code[10]): Code[20]
-    var
-        CompanyInfo: Record "Company Information";
-        CountryRegion: Record "Country/Region";
-        Job: Record Job;
-        JobJournalLine: Record "Job Journal Line";
-        JobTask: Record "Job Task";
-        SourceCodeSetup: Record "Source Code Setup";
-    begin
-        LibraryJob.CreateJob(Job);
-        LibraryJob.CreateJobTask(Job, JobTask);
-        LibraryJob.CreateJobJournalLineForType(LibraryJob.UsageLineTypeBlank, LibraryJob.ItemType, JobTask, JobJournalLine);
-        CompanyInfo.Get();
-        CountryRegion.SetFilter(Code, '<>%1', CompanyInfo."Country/Region Code");
-        CountryRegion.SetFilter("Intrastat Code", '<>%1', '');
-        CountryRegion.FindFirst;
-        JobJournalLine.Validate("Country/Region Code", CountryRegion.Code);
-        JobJournalLine.Validate("Shpt. Method Code", ShipmentMethodCode);
-        SourceCodeSetup.Get();
-        JobJournalLine.Validate("Source Code", SourceCodeSetup."Job Journal");
-        JobJournalLine.Modify(true);
-
-        LibraryJob.PostJobJournal(JobJournalLine);
-
-        exit(JobJournalLine."No.");
-    end;
-
-    local procedure VerifyErrorMessageExists(IntrastatJnlLine: Record "Intrastat Jnl. Line")
-    var
-        ErrorMessage: Record "Error Message";
-    begin
-        ErrorMessage.SetRange("Record ID", IntrastatJnlLine.RecordId);
-        ErrorMessage.SetRange("Field Number", IntrastatJnlLine.FieldNo("Document No."));
-        ErrorMessage.FindFirst;
-    end;
-
-    [ConfirmHandler]
-    [Scope('OnPrem')]
-    procedure ConfirmHandler(Message: Text[1024]; var Reply: Boolean)
-    begin
-        Reply := true;
-    end;
-
-    [MessageHandler]
-    [Scope('OnPrem')]
-    procedure MessageHandler(Msg: Text[1024])
-    begin
-        Assert.IsTrue(
-          StrPos(Msg, 'The journal lines were successfully posted.') = 1,
-          StrSubstNo('Unexpected Message: %1', Msg))
     end;
 
     [MessageHandler]

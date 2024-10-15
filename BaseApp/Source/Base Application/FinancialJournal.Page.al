@@ -818,7 +818,7 @@ page 11300 "Financial Journal"
             Error(Text11300, -(Total - StatementEndingBalance + BalanceLastStatement));
     end;
 
-    [Obsolete('Function scope will be changed to OnPrem','15.1')]
+    [Obsolete('Function scope will be changed to OnPrem', '15.1')]
     procedure UpdateStatementAmounts()
     begin
         FilterGroup(2);
@@ -846,6 +846,7 @@ page 11300 "Financial Journal"
                     end;
                 end;
         end;
+        OnAfterUpdateStatementAmounts(Rec, StatementEndingBalance);
     end;
 
     local procedure CurrentJnlBatchNameOnAfterVali()
@@ -870,6 +871,11 @@ page 11300 "Financial Journal"
         if Currency then
             exit(-GenJnlLine.Amount);
         exit(-GenJnlLine."Amount (LCY)");
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterUpdateStatementAmounts(GenJournalLine: Record "Gen. Journal Line"; var StatementEndingBalance: Decimal);
+    begin
     end;
 }
 

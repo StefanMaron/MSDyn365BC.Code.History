@@ -2538,17 +2538,17 @@ codeunit 137390 "SCM Kitting -  Reports"
         GeneralPostingSetup: Record "General Posting Setup";
         InventoryPostingSetup: Record "Inventory Posting Setup";
         Item: Record Item;
-        DocNo: Code[20];
+        TemplateName: Code[10];
+        Batchname: Code[10];
     begin
         PostValueEntryToGL.Reset();
         PostValueEntryToGL.SetRange("Item No.", ItemNo);
         Item.Get(ItemNo);
-        if PostingMethod = PostMethod::"per Posting Group" then
-            DocNo := Item."No.";
-
+        LibraryERM.FindGenJnlTemplateAndBatch(TemplateName, Batchname);
         Commit();
         LibraryVariableStorage.Enqueue(PostingMethod);
-        LibraryVariableStorage.Enqueue(DocNo);
+        LibraryVariableStorage.Enqueue(TemplateName);
+        LibraryVariableStorage.Enqueue(Batchname);
         LibraryVariableStorage.Enqueue(true);
         LibraryVariableStorage.Enqueue(false);
         REPORT.Run(REPORT::"Post Invt. Cost to G/L - Test", true, false, PostValueEntryToGL);
@@ -2956,17 +2956,20 @@ codeunit 137390 "SCM Kitting -  Reports"
     procedure PostInvtCostToGLTestRequestPageHandler(var PostInvtCostToGLTest: TestRequestPage "Post Invt. Cost to G/L - Test")
     var
         PostMethod: Variant;
-        DocNo: Variant;
         ShowDim: Variant;
         ShowOnlyWarnings: Variant;
+        TemplateName: Variant;
+        BatchName: Variant;
     begin
         LibraryVariableStorage.Dequeue(PostMethod);
-        LibraryVariableStorage.Dequeue(DocNo);
+        LibraryVariableStorage.Dequeue(TemplateName);
+        LibraryVariableStorage.Dequeue(BatchName);
         LibraryVariableStorage.Dequeue(ShowDim);
         LibraryVariableStorage.Dequeue(ShowOnlyWarnings);
 
         PostInvtCostToGLTest.PostingMethod.SetValue(PostMethod); // Post Method: per entry or per Posting Group.
-        PostInvtCostToGLTest.DocumentNo.SetValue(DocNo); // Doc No. required when posting per Posting Group.
+        PostInvtCostToGLTest.JnlTemplateName.SetValue(TemplateName);
+        PostInvtCostToGLTest.JnlBatchName.SetValue(BatchName);
         PostInvtCostToGLTest.ShowDimensions.SetValue(ShowDim);
         PostInvtCostToGLTest.ShowOnlyWarnings.SetValue(ShowOnlyWarnings);
         PostInvtCostToGLTest.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);

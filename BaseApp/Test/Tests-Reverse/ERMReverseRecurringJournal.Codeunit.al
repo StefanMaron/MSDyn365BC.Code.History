@@ -12,8 +12,10 @@ codeunit 134146 "ERM Reverse Recurring Journal"
     var
         LibraryERM: Codeunit "Library - ERM";
         LibraryRandom: Codeunit "Library - Random";
+        LibraryUtility: Codeunit "Library - Utility";
         Assert: Codeunit Assert;
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
+        NoSeriesManagement: Codeunit NoSeriesManagement;
         IsInitialized: Boolean;
         AmountError: Label '%1 must be %2.';
 
@@ -114,11 +116,13 @@ codeunit 134146 "ERM Reverse Recurring Journal"
         GenJnlAllocation: Record "Gen. Jnl. Allocation";
         GenJournalLine: Record "Gen. Journal Line";
         TempGenJournalLine: Record "Gen. Journal Line" temporary;
+        GenJournalBatch: Record "Gen. Journal Batch";
     begin
         // 1. Setup: Create Recurring Journal, Allocation Line and Post it with Random Amount.
         Initialize;
+        CreateRecurringGenJournalBatch(GenJournalBatch);
         CreateRecurringJournalLine(
-          GenJournalLine, RecurringMethod, DocumentType,
+          GenJournalLine, GenJournalBatch, RecurringMethod, DocumentType,
           CreateGLAccount(GLAccount."Income/Balance"::"Balance Sheet"), LibraryRandom.RandInt(100));
         CreateAllocationLine(GenJnlAllocation, GenJournalLine, GenJournalLine."Account No.", 100); // Required for 100 % allocation.
         SaveGenJournalLineInTemp(TempGenJournalLine, GenJournalLine);
@@ -164,12 +168,15 @@ codeunit 134146 "ERM Reverse Recurring Journal"
         GenJnlAllocation: Record "Gen. Jnl. Allocation";
         GenJournalLine: Record "Gen. Journal Line";
         GenJournalLine2: Record "Gen. Journal Line";
+        GenJournalBatch: Record "Gen. Journal Batch";
     begin
         // Setup: Create General Journal, Recurring Journal with Amount 0, Define Allocation and Post it.
         Initialize;
+        CreateRecurringGenJournalBatch(GenJournalBatch);
+
         CreateAndPostGenJournalLine(GenJournalLine);
         CreateRecurringJournalLine(
-          GenJournalLine2, RecurringMethod, GenJournalLine2."Document Type"::Payment, GenJournalLine."Account No.", 0);
+          GenJournalLine2, GenJournalBatch, RecurringMethod, GenJournalLine2."Document Type"::Payment, GenJournalLine."Account No.", 0);
 
         // Required for 20 and 80 % allocation.
         CreateAllocationLine(GenJnlAllocation, GenJournalLine2, CreateGLAccount(GLAccount."Income/Balance"::"Balance Sheet"), 20);
@@ -213,12 +220,15 @@ codeunit 134146 "ERM Reverse Recurring Journal"
         GenJnlAllocation: Record "Gen. Jnl. Allocation";
         GenJournalLine: Record "Gen. Journal Line";
         GenJournalLine2: Record "Gen. Journal Line";
+        GenJournalBatch: Record "Gen. Journal Batch";
     begin
         // 1. Setup: Create General Journal, Recurring Journal with Amount 0, Define Allocation and Post it.
         Initialize;
+        CreateRecurringGenJournalBatch(GenJournalBatch);
+
         CreateAndPostGenJournalLine(GenJournalLine);
         CreateRecurringJournalLine(
-          GenJournalLine2, RecurringMethod, GenJournalLine2."Document Type"::Payment, GenJournalLine."Account No.", 0);
+          GenJournalLine2, GenJournalBatch, RecurringMethod, GenJournalLine2."Document Type"::Payment, GenJournalLine."Account No.", 0);
 
         // Required for 80 and 20 % allocation.
         CreateAllocationLine(GenJnlAllocation, GenJournalLine2, CreateGLAccount(GLAccount."Income/Balance"::"Balance Sheet"), 80);
@@ -304,6 +314,52 @@ codeunit 134146 "ERM Reverse Recurring Journal"
         VerifyGLEntryAllocation(GLEntry, GLAccountNo[2], -(GenJournalLine.Amount / 2));  // Verify 50 % allocation of amount.
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure PostRecurringReversedGenJnlLinesNotSortedByDocNoWithForceDocBalance()
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+        GenJournalBatch: Record "Gen. Journal Batch";
+        DocumentNo: array[2] of Code[20];
+        PostedDocumentNo: array[4] of Code[20];
+        Amount: array[2] of Decimal;
+    begin
+        // [FEATURE] [Force Doc. Balance]
+        // [SCENARIO 345070] Post recurring Reversing Variable Gen. Journal Lines, that are not sorted in Document No order in case "Force Doc. Balance" and "Posting No. Series" are set.
+
+        // [GIVEN] Gen. Journal Template with "Force Doc. Balance" = true; Gen. Journal Batch with non-empty "Posting No. Series".
+        CreateRecurringGenJournalBatch(GenJournalBatch);
+        UpdatePostingNoSeriesOnGenJnlBatch(GenJournalBatch, LibraryUtility.GetGlobalNoSeriesCode);
+        UpdateForceDocBalanceOnGenJnlTemplate(GenJournalBatch."Journal Template Name", true);
+
+        // [GIVEN] Four recurring Gen. Journal lines with Reversing Variable method and created with Document No. in order TEST1, TEST2, TEST1, TEST2.
+        DocumentNo[1] := LibraryUtility.GenerateGUID;
+        DocumentNo[2] := LibraryUtility.GenerateGUID;
+        Amount[1] := LibraryRandom.RandDecInRange(100, 200, 2);
+        Amount[2] := LibraryRandom.RandDecInRange(100, 200, 2);
+        GetPostedDocumentNos(PostedDocumentNo, GenJournalBatch."Posting No. Series");
+
+        CreateGenJournalLineWithDocumentNo(
+          GenJournalLine, GenJournalBatch, GenJournalLine."Recurring Method"::"RV Reversing Variable",
+          LibraryERM.CreateGLAccountNo, Amount[1], DocumentNo[1]);
+        CreateGenJournalLineWithDocumentNo(
+          GenJournalLine, GenJournalBatch, GenJournalLine."Recurring Method"::"RV Reversing Variable",
+          LibraryERM.CreateGLAccountNo, Amount[2], DocumentNo[2]);
+        CreateGenJournalLineWithDocumentNo(
+          GenJournalLine, GenJournalBatch, GenJournalLine."Recurring Method"::"RV Reversing Variable",
+          LibraryERM.CreateGLAccountNo, -Amount[1], DocumentNo[1]);
+        CreateGenJournalLineWithDocumentNo(
+          GenJournalLine, GenJournalBatch, GenJournalLine."Recurring Method"::"RV Reversing Variable",
+          LibraryERM.CreateGLAccountNo, -Amount[2], DocumentNo[2]);
+
+        // [WHEN] Post recurring Gen. Journal Lines.
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+
+        // [THEN] Posted Gen. Journal Lines are balanced by Document No.
+        // [THEN] Reversed Posted Gen. Journal Lines are balanced by Document No.
+        VerifyReversedGLEntries(GenJournalBatch.Name, PostedDocumentNo, Amount);
+    end;
+
     local procedure CreateApplyRecurringJournal(var GenJournalLine: Record "Gen. Journal Line"; AccountType: Option; AccountNo: Code[20]; Amount: Decimal; AppliestoDocNo: Code[20])
     var
         GenJournalTemplate: Record "Gen. Journal Template";
@@ -324,13 +380,8 @@ codeunit 134146 "ERM Reverse Recurring Journal"
         GenJournalLine.Modify(true);
     end;
 
-    local procedure CreateRecurringJournalLine(var GenJournalLine: Record "Gen. Journal Line"; RecurringMethod: Option; DocumentType: Option; AccountNo: Code[20]; Amount: Decimal)
-    var
-        GenJournalTemplate: Record "Gen. Journal Template";
-        GenJournalBatch: Record "Gen. Journal Batch";
+    local procedure CreateRecurringJournalLine(var GenJournalLine: Record "Gen. Journal Line"; GenJournalBatch: Record "Gen. Journal Batch"; RecurringMethod: Option; DocumentType: Option; AccountNo: Code[20]; Amount: Decimal)
     begin
-        LibraryERM.FindRecurringTemplateName(GenJournalTemplate);
-        LibraryERM.CreateRecurringBatchName(GenJournalBatch, GenJournalTemplate.Name);
         LibraryERM.CreateGeneralJnlLine(
           GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, DocumentType,
           GenJournalLine."Account Type"::"G/L Account", AccountNo, Amount);
@@ -397,6 +448,13 @@ codeunit 134146 "ERM Reverse Recurring Journal"
         GenJournalLine.Modify(true);
     end;
 
+    local procedure CreateGenJournalLineWithDocumentNo(var GenJournalLine: Record "Gen. Journal Line"; GenJournalBatch: Record "Gen. Journal Batch"; RecurringMethod: Option; AccountNo: Code[20]; Amount: Decimal; DocumentNo: Code[20])
+    begin
+        CreateRecurringJournalLine(GenJournalLine, GenJournalBatch, RecurringMethod, GenJournalLine."Document Type"::" ", AccountNo, Amount);
+        GenJournalLine.Validate("Document No.", DocumentNo);
+        GenJournalLine.Modify(true);
+    end;
+
     local procedure CreateGenJournalBatch(var GenJournalBatch: Record "Gen. Journal Batch")
     var
         GenJournalTemplate: Record "Gen. Journal Template";
@@ -404,6 +462,26 @@ codeunit 134146 "ERM Reverse Recurring Journal"
         GenJournalTemplate.SetRange(Recurring, false);
         LibraryERM.FindGenJournalTemplate(GenJournalTemplate);
         LibraryERM.CreateGenJournalBatch(GenJournalBatch, GenJournalTemplate.Name);
+    end;
+
+    local procedure CreateRecurringGenJournalBatch(var GenJournalBatch: Record "Gen. Journal Batch")
+    var
+        GenJournalTemplate: Record "Gen. Journal Template";
+    begin
+        LibraryERM.CreateRecurringTemplateName(GenJournalTemplate);
+        LibraryERM.CreateRecurringBatchName(GenJournalBatch, GenJournalTemplate.Name);
+    end;
+
+    local procedure GetPostedDocumentNos(var PostedDocumentNo: array[4] of Code[20]; NoSeriesCode: Code[20])
+    var
+        NextDocumentNo: Code[20];
+        i: Integer;
+    begin
+        NextDocumentNo := NoSeriesManagement.GetNextNo(NoSeriesCode, WorkDate, false);
+        for i := 1 to ArrayLen(PostedDocumentNo) do begin
+            PostedDocumentNo[i] := NextDocumentNo;
+            NoSeriesManagement.IncrementNoText(NextDocumentNo, 1);
+        end;
     end;
 
     local procedure ReverseGLRegister()
@@ -428,6 +506,21 @@ codeunit 134146 "ERM Reverse Recurring Journal"
         until GenJournalLine.Next = 0;
     end;
 
+    local procedure UpdateForceDocBalanceOnGenJnlTemplate(GenJnlTemplateName: Code[20]; ForceDocBalance: Boolean)
+    var
+        GenJournalTemplate: Record "Gen. Journal Template";
+    begin
+        GenJournalTemplate.Get(GenJnlTemplateName);
+        GenJournalTemplate.Validate("Force Doc. Balance", ForceDocBalance);
+        GenJournalTemplate.Modify(true);
+    end;
+
+    local procedure UpdatePostingNoSeriesOnGenJnlBatch(var GenJournalBatch: Record "Gen. Journal Batch"; PostingNoSeries: Code[20])
+    begin
+        GenJournalBatch.Validate("Posting No. Series", PostingNoSeries);
+        GenJournalBatch.Modify(true);
+    end;
+
     local procedure VerifyReversal(GLAccountNo: Code[20])
     var
         GLEntry: Record "G/L Entry";
@@ -435,6 +528,40 @@ codeunit 134146 "ERM Reverse Recurring Journal"
         GLEntry.SetRange("G/L Account No.", GLAccountNo);
         GLEntry.FindFirst;
         GLEntry.TestField(Reversed, true);
+    end;
+
+    local procedure VerifyReversedGLEntries(GenJournalBatchName: Code[10]; PostedDocumentNo: array[4] of Code[20]; Amount: array[2] of Decimal)
+    var
+        GLEntry: Record "G/L Entry";
+        GLAmount: Decimal;
+        i: Integer;
+    begin
+        GLEntry.SetCurrentKey("Document No.", "Posting Date");
+        GLEntry.SetRange("Journal Batch Name", GenJournalBatchName);
+        Assert.RecordCount(GLEntry, 8);
+
+        GLEntry.SetRange("Posting Date", WorkDate);
+        for i := 1 to ArrayLen(Amount) do begin
+            GLEntry.SetRange("Document No.", PostedDocumentNo[i]);
+            Assert.RecordCount(GLEntry, 2);
+            GLEntry.FindFirst;
+            GLAmount := GLEntry.Amount;
+            Assert.AreEqual(Amount[i], Abs(GLAmount), '');
+            GLEntry.Next;
+            GLEntry.TestField(Amount, -GLAmount);
+        end;
+
+        // reversed G/L Entries
+        GLEntry.SetRange("Posting Date", WorkDate + 1);
+        for i := 1 to ArrayLen(Amount) do begin
+            GLEntry.SetRange("Document No.", PostedDocumentNo[i + 2]);
+            Assert.RecordCount(GLEntry, 2);
+            GLEntry.FindFirst;
+            GLAmount := GLEntry.Amount;
+            Assert.AreEqual(Amount[i], Abs(GLAmount), '');
+            GLEntry.Next;
+            GLEntry.TestField(Amount, -GLAmount);
+        end;
     end;
 
     local procedure VerifyGLEntry(GLAccountNo: Code[20]; Amount: Decimal)

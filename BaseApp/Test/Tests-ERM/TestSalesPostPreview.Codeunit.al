@@ -770,6 +770,8 @@ codeunit 134763 "Test Sales Post Preview"
         CustEntryApplyPostedEntries: Codeunit "CustEntry-Apply Posted Entries";
         InvNo: Code[20];
         PmtNo: Code[20];
+        TemplateName: Code[10];
+        BatchName: Code[10];
     begin
         // [FEATURE] [Payment Discount] [Payment Discount Tolerance]
         // [SCENARIO 277573] Payment Discount Tolerance considers when preview application of payment to invoice
@@ -780,13 +782,15 @@ codeunit 134763 "Test Sales Post Preview"
         LibraryPmtDiscSetup.SetPmtDiscGracePeriodByText(Format(LibraryRandom.RandIntInRange(3, 10)) + 'D');
         PostPaidInvWithPmtDiscTol(InvNo, PmtNo);
         FindEntriesAndSetAppliesToID(ApplyingCustLedgerEntry, CustLedgerEntry, InvNo, PmtNo);
+        LibraryERM.FindGenJnlTemplateAndBatch(TemplateName, BatchName);
         Commit();
         LibraryVariableStorage.Enqueue(DATABASE::"Detailed Cust. Ledg. Entry");
 
         // [WHEN] Preview application of payment to invoice
         asserterror CustEntryApplyPostedEntries.PreviewApply(
             ApplyingCustLedgerEntry, ApplyingCustLedgerEntry."Document No.",
-            CustEntryApplyPostedEntries.GetApplicationDate(ApplyingCustLedgerEntry));
+            CustEntryApplyPostedEntries.GetApplicationDate(ApplyingCustLedgerEntry),
+            TemplateName, BatchName);
 
         // [THEN] Three entries expected in "G/L Posting Preview" page for table "Detailed Customer Ledger Entry"
         // [THEN] Payment Discount Tolerance and two applications (invoice -> payment and payment -> invoice)

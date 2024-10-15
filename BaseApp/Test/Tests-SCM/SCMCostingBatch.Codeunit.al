@@ -869,7 +869,7 @@ codeunit 137402 "SCM Costing Batch"
         // Test to check the functionality of Adjust Item Cost Prices report for Stock keeping Unit Last Direct Cost with Rounding method.
 
         // Setup: Create Item with Standard Cost. Create Stock keeping Unit and update Last Direct Cost. Set values to global variables. Find first Rounding method.
-        DeleteObjectOptionsIfNeeded;
+        DeleteObejctOptionsIfNeeded;
         CreateAndModifyItem(Item, Item."Costing Method"::Standard, LibraryRandom.RandDec(100, 2), 0);  // Taking Random value for Standard Cost. Taking 0 for Unit Price as it is not required in the test.
         CreateStockkeepingUnit(Item);
         LastDirectCost := UpdateLastDirectCostOnStockkeepingUnit(Item."No.");
@@ -1002,7 +1002,7 @@ codeunit 137402 "SCM Costing Batch"
         // Clear global variables.
         ClearGlobalVariables;
 
-        DeleteObjectOptionsIfNeeded;
+        DeleteObejctOptionsIfNeeded;
 
         // Lazy Setup.
         if isInitialized then
@@ -1332,11 +1332,14 @@ codeunit 137402 "SCM Costing Batch"
         PostValueEntryToGL: Record "Post Value Entry to G/L";
         PostInventoryCosttoGL: Report "Post Inventory Cost to G/L";
         PostMethod: Option "Per Posting Group","Per Entry";
+        TemplateName: Code[10];
+        BatchName: Code[10];
     begin
         Commit();
         PostValueEntryToGL.Reset();
         PostMethod := PostMethod::"Per Entry";
-        PostInventoryCosttoGL.InitializeRequest(PostMethod, '', true);
+        LibraryERM.FindGenJnlTemplateAndBatch(TemplateName, BatchName);
+        PostInventoryCosttoGL.InitializeRequest(PostMethod, true, TemplateName, BatchName);
         PostInventoryCosttoGL.SetTableView(PostValueEntryToGL);
         PostInventoryCosttoGL.UseRequestPage(false);
         PostInventoryCosttoGL.SaveAsPdf(StrSubstNo(FileName, TemporaryPath, LibraryUtility.GetGlobalNoSeriesCode));
@@ -1769,8 +1772,7 @@ codeunit 137402 "SCM Costing Batch"
         Assert.ExpectedMessage(ValueEntriesWerePostedTxt, Message);
     end;
 
-    [Scope('OnPrem')]
-    procedure DeleteObjectOptionsIfNeeded()
+    local procedure DeleteObejctOptionsIfNeeded()
     var
         LibraryReportValidation: Codeunit "Library - Report Validation";
     begin

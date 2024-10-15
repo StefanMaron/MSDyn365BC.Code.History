@@ -733,6 +733,7 @@ codeunit 134806 "RED Test Unit for SalesPurDoc2"
         PurchaseLine: Record "Purchase Line";
         DeferralTemplate: Record "Deferral Template";
         GLAccount: Record "G/L Account";
+        GLEntry: Record "G/L Entry";
         DeferralTemplateCode: Code[10];
         DocNo: Code[20];
         CurrencyCode: Code[10];
@@ -779,10 +780,13 @@ codeunit 134806 "RED Test Unit for SalesPurDoc2"
         DeferralTemplate.Get(DeferralTemplateCode);
         VerifyRoundedDeferralGLEntries(
           DocNo, PurchaseHeader."Posting Date", GLAccount."No.", DeferralTemplate."Deferral Account",
-          PurchaseHeader."Posting Description",
+          PurchaseHeader."Posting Description", PurchaseLine.Description,
           '2100000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000',
-          Round(666.66 * ExchRate / 100), Round(2000 * ExchRate / 100),
+          Round(666.66 * ExchRate / 100),
           Round(3000 * ExchRate / 100) - LibraryERM.GetAmountRoundingPrecision, 1);
+        GLEntry.SetRange("Document No.", DocNo);
+        GLEntry.SetRange("Posting Date", PurchaseHeader."Posting Date");
+        VerifyGLEntryByDescription(GLEntry, GLAccount."No.", PurchaseHeader."Posting Description", -Round(2000 * ExchRate / 100));
     end;
 
     [Test]
@@ -793,6 +797,7 @@ codeunit 134806 "RED Test Unit for SalesPurDoc2"
         SalesLine: Record "Sales Line";
         DeferralTemplate: Record "Deferral Template";
         GLAccount: Record "G/L Account";
+        GLEntry: Record "G/L Entry";
         DeferralTemplateCode: Code[10];
         DocNo: Code[20];
         CurrencyCode: Code[10];
@@ -839,10 +844,15 @@ codeunit 134806 "RED Test Unit for SalesPurDoc2"
         DeferralTemplate.Get(DeferralTemplateCode);
         VerifyRoundedDeferralGLEntries(
           DocNo, SalesHeader."Posting Date", GLAccount."No.", DeferralTemplate."Deferral Account",
-          SalesHeader."Posting Description",
+          SalesHeader."Posting Description", SalesHeader."Posting Description",
           '2100000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000',
           Round(666.66 * ExchRate / 100),
-          Round(2000 * ExchRate / 100), Round(3000 * ExchRate / 100) - LibraryERM.GetAmountRoundingPrecision, -1);
+          Round(3000 * ExchRate / 100) - LibraryERM.GetAmountRoundingPrecision, -1);
+        GLEntry.SetRange("Document No.", DocNo);
+        GLEntry.SetRange("Posting Date", SalesHeader."Posting Date");
+        VerifyGLEntryByDescription(GLEntry, GLAccount."No.", SalesHeader."Posting Description", -0.01);
+        GLEntry.Next;
+        GLEntry.TestField(Amount, Round(2000 * ExchRate / 100));
     end;
 
     [Test]
@@ -1547,6 +1557,7 @@ codeunit 134806 "RED Test Unit for SalesPurDoc2"
     begin
         DeferralSchedule."Start Date".SetValue(LibraryVariableStorage.DequeueDate);
         DeferralSchedule.CalculateSchedule.Invoke;
+        DeferralSchedule.OK.Invoke;
     end;
 
     [ModalPageHandler]
@@ -1621,17 +1632,13 @@ codeunit 134806 "RED Test Unit for SalesPurDoc2"
         VATEntry.TestField(Amount, ExpectedBase);
     end;
 
-    local procedure VerifyRoundedDeferralGLEntries(DocumentNo: Code[20]; PostingDate: Date; LineGLAccountNo: Code[20]; DeferralGLAccountNo: Code[20]; DocDescription: Text[100]; PeriodDescription: Text[100]; PeriodAmount: Decimal; LineAmount: Decimal; TotalDefAmount: Decimal; Sign: Integer)
+    local procedure VerifyRoundedDeferralGLEntries(DocumentNo: Code[20]; PostingDate: Date; LineGLAccountNo: Code[20]; DeferralGLAccountNo: Code[20]; DocDescription: Text[100]; LineDescription: Text[100]; PeriodDescription: Text[100]; PeriodAmount: Decimal; TotalDefAmount: Decimal; Sign: Integer)
     var
         GLEntry: Record "G/L Entry";
     begin
         GLEntry.SetRange("Document No.", DocumentNo);
         GLEntry.SetRange("Posting Date", PostingDate);
-        VerifyGLEntryByDescription(GLEntry, LineGLAccountNo, DocDescription, Sign * 0.01);
-        GLEntry.SetRange("Gen. Posting Type", 0);
-        GLEntry.Next;
-        GLEntry.TestField(Amount, -Sign * LineAmount);
-        GLEntry.SetRange("Gen. Posting Type");
+        VerifyGLEntryByDescription(GLEntry, LineGLAccountNo, LineDescription, Sign * 0.01);
         VerifyGLEntryByDescription(GLEntry, LineGLAccountNo, PeriodDescription, Sign * PeriodAmount);
         VerifyGLEntryByDescription(GLEntry, DeferralGLAccountNo, PeriodDescription, -Sign * PeriodAmount);
 

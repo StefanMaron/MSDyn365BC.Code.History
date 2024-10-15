@@ -14,6 +14,7 @@ codeunit 134418 "Inc Doc Attachment Overview UT"
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
         LibraryPurchase: Codeunit "Library - Purchase";
         LibraryInventory: Codeunit "Library - Inventory";
+        LibraryVariableStorage: Codeunit "Library - Variable Storage";
         Assert: Codeunit Assert;
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         SupportingAttachmentsTxt: Label 'Supporting Attachments';
@@ -299,6 +300,7 @@ codeunit 134418 "Inc Doc Attachment Overview UT"
     end;
 
     [Test]
+    [HandlerFunctions('JournalTemplateModalHandler')]
     [Scope('OnPrem')]
     procedure TestFactBoxLoadFromJournalLine()
     var
@@ -316,6 +318,7 @@ codeunit 134418 "Inc Doc Attachment Overview UT"
         CreateGenJournalLine(GenJournalLine, IncomingDocument);
 
         // Execute
+        LibraryVariableStorage.Enqueue(GenJournalLine."Journal Template Name");
         GeneralJournal.OpenEdit;
         GeneralJournal.GotoRecord(GenJournalLine);
 
@@ -605,6 +608,19 @@ codeunit 134418 "Inc Doc Attachment Overview UT"
         IncomingDocumentCard.GetRecord(IncomingDocument);
         IncomingDocument.Delete(true);
         Response := ACTION::OK;
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure JournalTemplateModalHandler(var GeneralJournalTemplateList: TestPage "General Journal Template List")
+    var
+        TemplateNameVariant: Variant;
+        TemplateName: Text;
+    begin
+        LibraryVariableStorage.Dequeue(TemplateNameVariant);
+        TemplateName := TemplateNameVariant;
+        GeneralJournalTemplateList.FILTER.SetFilter(Name, TemplateName);
+        GeneralJournalTemplateList.OK.Invoke;
     end;
 }
 

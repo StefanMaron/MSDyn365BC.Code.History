@@ -7,6 +7,9 @@ codeunit 131305 "Library - ERM Country Data"
     begin
     end;
 
+    var
+        LibraryERM: Codeunit "Library - ERM";
+
     procedure InitializeCountry()
     begin
         exit;
@@ -59,12 +62,12 @@ codeunit 131305 "Library - ERM Country Data"
 
     procedure UpdateAccountInCustomerPostingGroup()
     begin
-        exit;
+        SetZeroVATSetupForSalesInvRoundingAccounts;
     end;
 
     procedure UpdateAccountInVendorPostingGroups()
     begin
-        exit;
+        SetZeroVATSetupForPurchInvRoundingAccounts;
     end;
 
     procedure UpdateAccountsInServiceContractAccountGroups()
@@ -84,7 +87,7 @@ codeunit 131305 "Library - ERM Country Data"
 
     procedure UpdateGeneralPostingSetup()
     begin
-        exit;
+        UpdateAccountsInGeneralPostingSetup;
     end;
 
     procedure UpdateInventoryPostingSetup()
@@ -94,12 +97,18 @@ codeunit 131305 "Library - ERM Country Data"
 
     procedure UpdateGenJournalTemplate()
     begin
-        exit;
+        CreateGenJnlTemplate;
     end;
 
     procedure UpdateGeneralLedgerSetup()
+    var
+        GLSetup: Record "General Ledger Setup";
     begin
-        exit;
+        GLSetup.Get();
+        GLSetup.Validate("Use Workdate for Appl./Unappl.", false);
+        GLSetup.Validate("VAT Tolerance %", 0);
+        GLSetup.Validate("Pmt. Disc. Excl. VAT", false);
+        GLSetup.Modify(true);
     end;
 
     procedure UpdatePrepaymentAccounts()
@@ -108,13 +117,28 @@ codeunit 131305 "Library - ERM Country Data"
     end;
 
     procedure UpdatePurchasesPayablesSetup()
+    var
+        PurchSetup: Record "Purchases & Payables Setup";
     begin
-        exit;
+        PurchSetup.Get();
+        PurchSetup."Discount Posting" := PurchSetup."Discount Posting"::"All Discounts";
+        PurchSetup.Modify(true);
     end;
 
     procedure UpdateSalesReceivablesSetup()
+    var
+        SalesSetup: Record "Sales & Receivables Setup";
+        GenJournalTemplate: Record "Gen. Journal Template";
     begin
-        exit;
+        SalesSetup.Get();
+        SalesSetup.Validate("Customer Nos.", LibraryERM.CreateNoSeriesCode);
+        SalesSetup.Validate("Invoice Nos.", LibraryERM.CreateNoSeriesCode);
+        GenJournalTemplate.SetRange(Type, GenJournalTemplate.Type::Sales);
+        GenJournalTemplate.FindFirst;
+        SalesSetup.Validate("Journal Templ. Sales Invoice", GenJournalTemplate.Name);
+        SalesSetup.Validate("Journal Templ. Sales Cr. Memo", GenJournalTemplate.Name);
+        SalesSetup."Discount Posting" := SalesSetup."Discount Posting"::"All Discounts";
+        SalesSetup.Modify(true);
     end;
 
     procedure UpdateGenProdPostingGroup()
@@ -168,8 +192,12 @@ codeunit 131305 "Library - ERM Country Data"
     end;
 
     procedure RemoveBlankGenJournalTemplate()
+    var
+        GenJournalTemplate: Record "Gen. Journal Template";
     begin
-        exit;
+        DeleteExtraGeneralJournalTemplate(PAGE::"General Journal", GenJournalTemplate.Type::General);
+        DeleteExtraGeneralJournalTemplate(PAGE::"Sales Journal", GenJournalTemplate.Type::Sales);
+        DeleteExtraGeneralJournalTemplate(PAGE::"Purchase Journal", GenJournalTemplate.Type::Purchases);
     end;
 
     procedure UpdateLocalPostingSetup()
@@ -185,10 +213,10 @@ codeunit 131305 "Library - ERM Country Data"
     procedure CompanyInfoSetVATRegistrationNo()
     var
         CompanyInformation: Record "Company Information";
-        LibraryERM: Codeunit "Library - ERM";
+        LibraryBEHelper: Codeunit "Library - BE Helper";
     begin
         CompanyInformation.Get();
-        CompanyInformation."VAT Registration No." := LibraryERM.GenerateVATRegistrationNo(CompanyInformation."Country/Region Code");
+        CompanyInformation.Validate("Enterprise No.", LibraryBEHelper.CreateMOD97CompliantCode);
         CompanyInformation.Modify();
     end;
 
@@ -202,6 +230,143 @@ codeunit 131305 "Library - ERM Country Data"
 
     procedure InsertRecordsToProtectedTables()
     begin
+    end;
+
+    local procedure CreateGenJnlTemplate()
+    var
+        GenJnlTemplate: Record "Gen. Journal Template";
+        LibraryERM: Codeunit "Library - ERM";
+    begin
+        LibraryERM.CreateGenJournalTemplate(GenJnlTemplate);
+        GenJnlTemplate.Validate(Type, GenJnlTemplate.Type::Payments);
+        GenJnlTemplate.Modify(true);
+    end;
+
+    local procedure DeleteExtraGeneralJournalTemplate(PageID: Integer; TemplType: Option)
+    var
+        GenJournalTemplate: Record "Gen. Journal Template";
+        SalesSetup: Record "Sales & Receivables Setup";
+        ServiceMgtSetup: Record "Service Mgt. Setup";
+        PurchaseSetup: Record "Purchases & Payables Setup";
+    begin
+        with GenJournalTemplate do begin
+            SetRange("Page ID", PageID);
+            SetRange(Type, TemplType);
+            SetRange(Recurring, false);
+            FindFirst;
+            SetFilter(Name, '<>%1', Name);
+            DeleteAll(true);
+            case TemplType of
+                Type::Sales:
+                    begin
+                        SalesSetup.Get();
+                        SalesSetup."Journal Templ. Sales Invoice" := Name;
+                        SalesSetup."Journal Templ. Sales Cr. Memo" := Name;
+                        SalesSetup."Jnl. Templ. Prep. S. Cr. Memo" := Name;
+                        SalesSetup.Modify();
+                        ServiceMgtSetup.Get();
+                        ServiceMgtSetup."Jnl. Templ. Serv. Inv." := Name;
+                        ServiceMgtSetup."Jnl. Templ. Serv. CM" := Name;
+                        ServiceMgtSetup.Modify();
+                    end;
+                Type::Purchases:
+                    begin
+                        PurchaseSetup.Get();
+                        PurchaseSetup."Journal Templ. Purch. Invoice" := Name;
+                        PurchaseSetup."Journal Templ. Purch. Cr. Memo" := Name;
+                        PurchaseSetup."Jnl. Templ. Prep. P. Cr. Memo" := Name;
+                        PurchaseSetup.Modify();
+                    end;
+            end;
+        end;
+    end;
+
+    local procedure SetZeroVATSetupForSalesInvRoundingAccounts()
+    var
+        CustomerPostingGroup: Record "Customer Posting Group";
+        GLAccount: Record "G/L Account";
+        VATPostingSetup: Record "VAT Posting Setup";
+        NewVATPostingSetup: Record "VAT Posting Setup";
+    begin
+        with CustomerPostingGroup do
+            if FindSet then
+                repeat
+                    GLAccount.Get("Invoice Rounding Account");
+                    if VATPostingSetup.Get(GLAccount."VAT Bus. Posting Group", GLAccount."VAT Prod. Posting Group") then
+                        if VATPostingSetup."VAT %" <> 0 then begin
+                            FindZeroVATPostingSetup(NewVATPostingSetup);
+                            GLAccount.Validate("VAT Bus. Posting Group", NewVATPostingSetup."VAT Bus. Posting Group");
+                            GLAccount.Validate("VAT Prod. Posting Group", NewVATPostingSetup."VAT Prod. Posting Group");
+                            GLAccount.Modify(true);
+                        end;
+                until Next = 0;
+    end;
+
+    procedure SetZeroVATSetupForPurchInvRoundingAccounts()
+    var
+        VendorPostingGroup: Record "Vendor Posting Group";
+        GLAccount: Record "G/L Account";
+        VATPostingSetup: Record "VAT Posting Setup";
+        NewVATPostingSetup: Record "VAT Posting Setup";
+    begin
+        with VendorPostingGroup do
+            if FindSet then
+                repeat
+                    GLAccount.Get("Invoice Rounding Account");
+                    if VATPostingSetup.Get(GLAccount."VAT Bus. Posting Group", GLAccount."VAT Prod. Posting Group") then
+                        if VATPostingSetup."VAT %" <> 0 then begin
+                            FindZeroVATPostingSetup(NewVATPostingSetup);
+                            GLAccount.Validate("VAT Bus. Posting Group", NewVATPostingSetup."VAT Bus. Posting Group");
+                            GLAccount.Validate("VAT Prod. Posting Group", NewVATPostingSetup."VAT Prod. Posting Group");
+                            GLAccount.Modify(true);
+                        end;
+                until Next = 0;
+    end;
+
+    local procedure FindZeroVATPostingSetup(var VATPostingSetup: Record "VAT Posting Setup")
+    begin
+        VATPostingSetup.SetFilter("VAT Bus. Posting Group", '<>''''');
+        VATPostingSetup.SetFilter("VAT Prod. Posting Group", '<>''''');
+        VATPostingSetup.SetRange("VAT %", 0);
+        VATPostingSetup.FindFirst;
+    end;
+
+    local procedure UpdateAccountsInGeneralPostingSetup()
+    var
+        GeneralLedgerSetup: Record "General Ledger Setup";
+        GeneralPostingSetup: Record "General Posting Setup";
+    begin
+        GeneralLedgerSetup.Get();
+        if GeneralPostingSetup.FindSet(true) then
+            repeat
+                if GeneralLedgerSetup."Adjust for Payment Disc." then begin
+                    if GeneralPostingSetup."Purch. Pmt. Disc. Credit Acc." = '' then
+                        GeneralPostingSetup.Validate("Purch. Pmt. Disc. Credit Acc.", CreateGLAccount);
+                    if GeneralPostingSetup."Sales Pmt. Disc. Debit Acc." = '' then
+                        GeneralPostingSetup.Validate("Sales Pmt. Disc. Debit Acc.", CreateGLAccount);
+                    if GeneralPostingSetup."Purch. Credit Memo Account" = '' then
+                        GeneralPostingSetup.Validate("Purch. Pmt. Disc. Debit Acc.", CreateGLAccount);
+                end;
+                if GeneralPostingSetup."Invt. Accrual Acc. (Interim)" = '' then
+                    GeneralPostingSetup.Validate("Invt. Accrual Acc. (Interim)", CreateGLAccount);
+                if GeneralPostingSetup."COGS Account" = '' then
+                    GeneralPostingSetup.Validate("COGS Account", CreateGLAccount);
+                if GeneralPostingSetup."Inventory Adjmt. Account" = '' then
+                    GeneralPostingSetup.Validate("Inventory Adjmt. Account", CreateGLAccount);
+                if GeneralPostingSetup."Purch. Account" = '' then
+                    GeneralPostingSetup.Validate("Purch. Account", CreateGLAccount);
+                if GeneralPostingSetup."Purch. Credit Memo Account" = '' then
+                    GeneralPostingSetup.Validate("Purch. Credit Memo Account", CreateGLAccount);
+                GeneralPostingSetup.Modify(true);
+            until GeneralPostingSetup.Next = 0;
+    end;
+
+    local procedure CreateGLAccount(): Code[20]
+    var
+        GLAccount: Record "G/L Account";
+    begin
+        LibraryERM.CreateGLAccount(GLAccount);
+        exit(GLAccount."No.");
     end;
 }
 

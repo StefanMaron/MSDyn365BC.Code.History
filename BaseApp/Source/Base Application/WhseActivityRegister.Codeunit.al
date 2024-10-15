@@ -1056,6 +1056,7 @@ codeunit 7307 "Whse.-Activity-Register"
                             TempTrackingSpecification.SetTrackingFilterFromWhseActivityLine(WhseActivLine2);
                             if TempTrackingSpecification.FindFirst then begin
                                 TempTrackingSpecification."Qty. to Handle (Base)" += QtyToHandleBase;
+                                OnInitTempTrackingSpecificationOnBeforeTempTrackingSpecificationModify(WhseItemTrkgLine, WhseActivLine2, TempTrackingSpecification);
                                 TempTrackingSpecification.Modify();
                             end;
                         end;
@@ -1702,6 +1703,7 @@ codeunit 7307 "Whse.-Activity-Register"
             if FindFirst then begin
                 "Qty. to Handle" += WarehouseActivityLine."Qty. to Handle";
                 "Qty. to Handle (Base)" += WarehouseActivityLine."Qty. to Handle (Base)";
+                OnGroupWhseActivLinesByWhseDocAndSourceOnBeforeTempWarehouseActivityLineModify(TempWarehouseActivityLine, WarehouseActivityLine);
                 Modify;
             end else begin
                 TempWarehouseActivityLine := WarehouseActivityLine;
@@ -2018,6 +2020,16 @@ codeunit 7307 "Whse.-Activity-Register"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeWhseShptLineModify(var WarehouseShipmentLine: Record "Warehouse Shipment Line"; WarehouseActivityLine: Record "Warehouse Activity Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInitTempTrackingSpecificationOnBeforeTempTrackingSpecificationModify(var WhseItemTrackingLine: Record "Whse. Item Tracking Line"; WarehouseActivityLine: Record "Warehouse Activity Line"; var TrackingSpecificationtemporary: Record "Tracking Specification" temporary);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnGroupWhseActivLinesByWhseDocAndSourceOnBeforeTempWarehouseActivityLineModify(var TempWarehouseActivityLine: Record "Warehouse Activity Line" temporary; WarehouseActivityLine: Record "Warehouse Activity Line");
     begin
     end;
 }

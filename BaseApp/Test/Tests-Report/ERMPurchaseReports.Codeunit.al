@@ -63,7 +63,7 @@ codeunit 134983 "ERM Purchase Reports"
                 Error(StrSubstNo(RowNotFoundErr, 'VATAmountLine__VAT_Identifier_', VATAmountLine."VAT Identifier"));
             LibraryReportDataset.AssertCurrentRowValueEquals('VATAmountLine__VAT___', VATAmountLine."VAT %");
             LibraryReportDataset.AssertCurrentRowValueEquals(
-              'VATAmountLine__VAT_Base_', VATAmountLine."VAT Base");
+              'VATAmountLineVATBaseLowered', VATAmountLine."VAT Base (Lowered)");
             LibraryReportDataset.AssertCurrentRowValueEquals(
               'VATAmountLine__Line_Amount_', VATAmountLine."Line Amount");
             LibraryReportDataset.AssertCurrentRowValueEquals(

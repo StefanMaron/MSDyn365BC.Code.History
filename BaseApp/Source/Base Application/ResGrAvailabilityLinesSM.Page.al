@@ -114,11 +114,13 @@ page 6012 "Res.Gr Availability Lines (SM)"
     end;
 
     var
-        ResGr: Record "Resource Group";
         DateRec: Record Date;
         PeriodFormLinesMgt: Codeunit "Period Form Lines Mgt.";
         PeriodType: Option Day,Week,Month,Quarter,Year,"Accounting Period";
         AmountType: Option "Net Change","Balance at Date";
+
+    protected var
+        ResGr: Record "Resource Group";
 
     procedure Set(var NewResGr: Record "Resource Group"; NewPeriodType: Integer; NewAmountType: Option "Net Change","Balance at Date")
     begin

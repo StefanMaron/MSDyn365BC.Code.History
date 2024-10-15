@@ -188,7 +188,15 @@ table 1670 "Option Lookup Buffer"
         SalesLine: Record "Sales Line";
         PurchaseLine: Record "Purchase Line";
         ApplicationAreaMgmtFacade: Codeunit "Application Area Mgmt. Facade";
+        IsHandled: Boolean;
+        Result: Boolean;
     begin
+        Result := false;
+        IsHandled := false;
+        OnBeforeIncludeOption(Rec, LookupType, Option, IsHandled, Result);
+        if IsHandled then 
+            Exit(Result);
+
         case LookupType of
             "Lookup Type"::Sales:
                 case Option of
@@ -229,6 +237,11 @@ table 1670 "Option Lookup Buffer"
         if LineType = LineType::" " then
             exit;
         CurrentType := Format(LineType);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeIncludeOption(OptionLookupBuffer: Record "Option Lookup Buffer"; LookupType: Option; Option: Integer; var Handled: Boolean; var Result: Boolean)
+    begin
     end;
 }
 

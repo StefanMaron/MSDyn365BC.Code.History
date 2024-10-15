@@ -2372,7 +2372,6 @@ codeunit 137302 "SCM Inventory Reports - II"
         Commit(); // Required to run the report.
 
         LibraryVariableStorage.Enqueue(PostMethod);
-        LibraryVariableStorage.Enqueue(''); // Blank for Document No..
         LibraryVariableStorage.Enqueue(Post);
         REPORT.Run(REPORT::"Post Inventory Cost to G/L", true, false, PostValueEntryToGL);
     end;
@@ -2722,14 +2721,16 @@ codeunit 137302 "SCM Inventory Reports - II"
     [Scope('OnPrem')]
     procedure PostInvtCostToGLRequestPageHandler(var PostInventoryCostToGL: TestRequestPage "Post Inventory Cost to G/L")
     var
+        InventorySetup: Record "Inventory Setup";
         PostMethod: Variant;
         DocNo: Variant;
         Post: Variant;
     begin
         LibraryVariableStorage.Dequeue(PostMethod);
         PostInventoryCostToGL.PostMethod.SetValue(PostMethod); // Post Method: per entry or per Posting Group.
-        LibraryVariableStorage.Dequeue(DocNo);
-        PostInventoryCostToGL.DocumentNo.SetValue(DocNo); // Doc No. required when posting per Posting Group.
+        InventorySetup.Get();
+        PostInventoryCostToGL.JnlTemplateName.SetValue(InventorySetup."Jnl. Templ. Name Cost Posting");
+        PostInventoryCostToGL.JnlBatchName.SetValue(InventorySetup."Jnl. Batch Name Cost Posting");
         LibraryVariableStorage.Dequeue(Post); // Post to G/L.
         PostInventoryCostToGL.Post.SetValue(Post);
         PostInventoryCostToGL.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);

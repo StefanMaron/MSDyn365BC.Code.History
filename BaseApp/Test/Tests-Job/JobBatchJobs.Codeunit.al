@@ -40,7 +40,7 @@ codeunit 136310 "Job Batch Jobs"
         IsInitialized: Boolean;
         AppendSalesInvoice: Boolean;
         ReverseOnly: Boolean;
-        IncludeLineType: Option " ",Schedule,Contract,"Schedule+Contract";
+        IncludeLineType: Option " ",Budget,Billable,"Budget+Billable";
         PostingDate: Date;
         NewRelationalExchangeRateAmount: Decimal;
         SalesLineTransferError: Label 'The lines were not transferred to an invoice.';
@@ -92,7 +92,7 @@ codeunit 136310 "Job Batch Jobs"
         Initialize;
         CreateJobAndJobTask(JobTask);
         LibraryJob.CreateJobPlanningLine(JobPlanningLine."Line Type"::Budget, JobPlanningLine.Type::Resource, JobTask, JobPlanningLine);
-        AssignGlobalVariable(false, false, IncludeLineType::Schedule);  // Assign global variables.
+        AssignGlobalVariable(false, false, IncludeLineType::Budget);  // Assign global variables.
 
         // 2. Exercise: Run Change Job Dates report.
         asserterror RunChangeJobDates(JobTask."Job Task No.", JobTask."Job No.");  // Handler will be used for this report.
@@ -115,7 +115,7 @@ codeunit 136310 "Job Batch Jobs"
         Initialize;
         CreateJobAndJobTask(JobTask);
         LibraryJob.CreateJobPlanningLine(JobPlanningLine."Line Type"::Budget, JobPlanningLine.Type::Resource, JobTask, JobPlanningLine);
-        AssignGlobalVariable(true, true, IncludeLineType::Schedule);  // Assign global variables.
+        AssignGlobalVariable(true, true, IncludeLineType::Budget);  // Assign global variables.
 
         // 2. Exercise: Run Change Job Dates report.
         RunChangeJobDates(JobTask."Job Task No.", JobTask."Job No.");  // Handler will be used for this report.
@@ -133,13 +133,13 @@ codeunit 136310 "Job Batch Jobs"
         JobTask: Record "Job Task";
         JobPlanningLine: Record "Job Planning Line";
     begin
-        // Run Job Date report for true setting of change Currency and Planning date for include Line Type Contract and validate Job Planning Line.
+        // Run Job Date report for true setting of change Currency and Planning date for include Line Type Billable and validate Job Planning Line.
 
         // 1. Setup: Create Job, Job Task and Job Planning Line.
         Initialize;
         CreateJobAndJobTask(JobTask);
         LibraryJob.CreateJobPlanningLine(JobPlanningLine."Line Type"::Billable, JobPlanningLine.Type::Resource, JobTask, JobPlanningLine);
-        AssignGlobalVariable(true, true, IncludeLineType::Contract);  // Assign global variables.
+        AssignGlobalVariable(true, true, IncludeLineType::Billable);  // Assign global variables.
 
         // 2. Exercise: Run Change Job Dates report.
         RunChangeJobDates(JobTask."Job Task No.", JobTask."Job No.");  // Handler will be used for this report.
@@ -157,13 +157,13 @@ codeunit 136310 "Job Batch Jobs"
         JobTask: Record "Job Task";
         JobPlanningLine: Record "Job Planning Line";
     begin
-        // Run Job Date report for false setting of change Currency and Planning date for include Line Type Contract and handle error message.
+        // Run Job Date report for false setting of change Currency and Planning date for include Line Type Billable and handle error message.
 
         // 1. Setup: Create Job, Job Task and Job Planning Line.
         Initialize;
         CreateJobAndJobTask(JobTask);
         LibraryJob.CreateJobPlanningLine(JobPlanningLine."Line Type"::Billable, JobPlanningLine.Type::Resource, JobTask, JobPlanningLine);
-        AssignGlobalVariable(false, false, IncludeLineType::Contract);  // Assign global variables.
+        AssignGlobalVariable(false, false, IncludeLineType::Billable);  // Assign global variables.
 
         // 2. Exercise: Run Change Job Dates report.
         asserterror RunChangeJobDates(JobTask."Job Task No.", JobTask."Job No.");  // Handler will be used for this report.
@@ -180,14 +180,14 @@ codeunit 136310 "Job Batch Jobs"
         JobTask: Record "Job Task";
         JobPlanningLine: Record "Job Planning Line";
     begin
-        // Run Job Date report for true setting of change Currency and Planning date for include Line Type Both Schedule and Contract and validate Job Planning Line.
+        // Run Job Date report for true setting of change Currency and Planning date for include Line Type Both Budget and Billable and validate Job Planning Line.
 
         // 1. Setup: Create Job, Job Task and Job Planning Line.
         Initialize;
         CreateJobAndJobTask(JobTask);
         LibraryJob.CreateJobPlanningLine(
           JobPlanningLine."Line Type"::"Both Budget and Billable", JobPlanningLine.Type::Resource, JobTask, JobPlanningLine);
-        AssignGlobalVariable(true, true, IncludeLineType::"Schedule+Contract");  // Assign global variables.
+        AssignGlobalVariable(true, true, IncludeLineType::"Budget+Billable");  // Assign global variables.
 
         // 2. Exercise: Run Change Job Dates report.
         RunChangeJobDates(JobTask."Job Task No.", JobTask."Job No.");  // Handler will be used for this report.
@@ -206,14 +206,14 @@ codeunit 136310 "Job Batch Jobs"
         JobTask: Record "Job Task";
         JobPlanningLine: Record "Job Planning Line";
     begin
-        // Run Job Date report for false setting of change Currency and Planning date for include Line Type Both Schedule and Contract and handle error message.
+        // Run Job Date report for false setting of change Currency and Planning date for include Line Type Both Budget and Billable and handle error message.
 
         // 1. Setup: Create Job, Job Task and Job Planning Line.
         Initialize;
         CreateJobAndJobTask(JobTask);
         LibraryJob.CreateJobPlanningLine(
           JobPlanningLine."Line Type"::"Both Budget and Billable", JobPlanningLine.Type::Resource, JobTask, JobPlanningLine);
-        AssignGlobalVariable(false, false, IncludeLineType::"Schedule+Contract");  // Assign global variables.
+        AssignGlobalVariable(false, false, IncludeLineType::"Budget+Billable");  // Assign global variables.
 
         // 2. Exercise: Run Change Job Dates report.
         asserterror RunChangeJobDates(JobTask."Job Task No.", JobTask."Job No.");  // Handler will be used for this report.
@@ -1213,7 +1213,7 @@ codeunit 136310 "Job Batch Jobs"
         exit(JobPlanningLine."No.");
     end;
 
-    local procedure AssignGlobalVariable(ChangeCurrencyDate2: Boolean; ChangePlanningDate2: Boolean; IncludeLineType2: Option " ",Schedule,Contract,"Schedule+Contract")
+    local procedure AssignGlobalVariable(ChangeCurrencyDate2: Boolean; ChangePlanningDate2: Boolean; IncludeLineType2: Option " ",Budget,Billable,"Budget+Billable")
     begin
         ChangeCurrencyDate := ChangeCurrencyDate2;
         ChangePlanningDate := ChangePlanningDate2;
@@ -1382,7 +1382,7 @@ codeunit 136310 "Job Batch Jobs"
 
     local procedure CreateJobJournalLine(var JobJournalLine: Record "Job Journal Line"; JobTask: Record "Job Task"; No: Code[20])
     begin
-        LibraryJob.CreateJobJournalLineForType(2, JobJournalLine.Type::Item, JobTask, JobJournalLine);  // Use 2 for Contract.
+        LibraryJob.CreateJobJournalLineForType(2, JobJournalLine.Type::Item, JobTask, JobJournalLine);  // Use 2 for Billable.
         JobJournalLine.Validate("No.", No);
         JobJournalLine.Validate(Quantity, LibraryRandom.RandInt(10));  // Use Random because value is not important.
         JobJournalLine.Modify(true);
@@ -2122,10 +2122,16 @@ codeunit 136310 "Job Batch Jobs"
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure JobPostWIPToGLHandler(var JobPostWIPToGL: TestRequestPage "Job Post WIP to G/L")
+    var
+        TemplateName: Code[10];
+        BatchName: Code[10];
     begin
         JobPostWIPToGL.ReversalPostingDate.SetValue(WorkDate);
         JobPostWIPToGL.ReversalDocumentNo.SetValue(Format(LibraryRandom.RandInt(10)));  // Use random Reversal Document No.
         JobPostWIPToGL.ReverseOnly.SetValue(ReverseOnly);
+        LibraryERM.FindGenJnlTemplateAndBatch(TemplateName, BatchName);
+        JobPostWIPToGL.JnlTemplateName.SetValue(TemplateName);
+        JobPostWIPToGL.JnlBatchName.SetValue(BatchName);
         JobPostWIPToGL.OK.Invoke;
     end;
 
@@ -2133,7 +2139,7 @@ codeunit 136310 "Job Batch Jobs"
     [Scope('OnPrem')]
     procedure JobTransferToPlanningLinesHandler(var JobTransferToPlanningLines: TestRequestPage "Job Transfer To Planning Lines")
     begin
-        JobTransferToPlanningLines.TransferTo.SetValue(2);  // Use 2 for Both Schedule and Contract.
+        JobTransferToPlanningLines.TransferTo.SetValue(2);  // Use 2 for Both Budget and Billable.
         JobTransferToPlanningLines.OK.Invoke;
     end;
 

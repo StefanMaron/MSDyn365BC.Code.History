@@ -66,6 +66,8 @@ codeunit 230 GenJnlManagement
 
     procedure OpenJnl(var CurrentJnlBatchName: Code[10]; var GenJnlLine: Record "Gen. Journal Line")
     begin
+        OnBeforeOpenJnl(CurrentJnlBatchName, GenJnlLine);
+
         if (GenJnlLine."Journal Template Name" <> '') and (GenJnlLine.GetFilter("Journal Template Name") = '') then
             CheckTemplateName(GenJnlLine."Journal Template Name", CurrentJnlBatchName)
         else
@@ -372,6 +374,8 @@ codeunit 230 GenJnlManagement
                     Balance := Balance + LastGenJnlLine."Balance (LCY)";
             end;
         end;
+        if CurrentClientType in [CLIENTTYPE::SOAP, CLIENTTYPE::OData, CLIENTTYPE::ODataV4, CLIENTTYPE::Api] then
+            ShowBalance := false;
     end;
 
     procedure GetAvailableGeneralJournalTemplateName(TemplateName: Code[10]): Code[10]
@@ -461,6 +465,11 @@ codeunit 230 GenJnlManagement
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeSetJournalSimplePageModePreference(var SetToSimpleMode: Boolean; PageIdToSet: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeOpenJnl(var CurrentJnlBatchName: Code[10]; var GenJnlLine: Record "Gen. Journal Line")
     begin
     end;
 

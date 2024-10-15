@@ -363,6 +363,7 @@ codeunit 134987 "ERM Financial Reports III"
     end;
 
     // [Test]
+    [HandlerFunctions('GeneralJournalTemplateListModalPageHandler')]
     [Scope('OnPrem')]
     procedure AmountTextOnCheckPreview()
     var
@@ -472,7 +473,7 @@ codeunit 134987 "ERM Financial Reports III"
     end;
 
     // [Test]
-    [HandlerFunctions('MessageHandler,SuggestVendorPaymentsRequestPageHandler')]
+    [HandlerFunctions('MessageHandler,SuggestVendorPaymentsRequestPageHandler,GeneralJournalTemplateListModalPageHandler')]
     [Scope('OnPrem')]
     procedure AmountTextOnCheckPreviewWithCurrency()
     var
@@ -579,7 +580,7 @@ codeunit 134987 "ERM Financial Reports III"
     end;
 
     [Test]
-    [HandlerFunctions('MessageHandler,SuggestVendorPaymentsRequestPageHandler,PrintCheckReqPageHandler')]
+    [HandlerFunctions('MessageHandler,SuggestVendorPaymentsRequestPageHandler,PrintCheckReqPageHandler,GeneralJournalTemplateListModalPageHandler')]
     [Scope('OnPrem')]
     procedure PrintVendCheckForUpdatedAppToCrMemoAmount()
     begin
@@ -589,7 +590,7 @@ codeunit 134987 "ERM Financial Reports III"
     end;
 
     [Test]
-    [HandlerFunctions('MessageHandler,SuggestVendorPaymentsRequestPageHandler,PrintCheckReqPageHandler')]
+    [HandlerFunctions('MessageHandler,SuggestVendorPaymentsRequestPageHandler,PrintCheckReqPageHandler,GeneralJournalTemplateListModalPageHandler')]
     [Scope('OnPrem')]
     procedure PrintVendCheckForUpdatedAppToInvoiceAmount()
     begin
@@ -599,7 +600,7 @@ codeunit 134987 "ERM Financial Reports III"
     end;
 
     [Test]
-    [HandlerFunctions('MessageHandler,SuggestVendorPaymentsRequestPageHandler,PrintCheckReqPageHandler')]
+    [HandlerFunctions('MessageHandler,SuggestVendorPaymentsRequestPageHandler,PrintCheckReqPageHandler,GeneralJournalTemplateListModalPageHandler')]
     [Scope('OnPrem')]
     procedure PrintVendCheckForUpdatedAppToCrMemoAmountRounded()
     begin
@@ -613,7 +614,7 @@ codeunit 134987 "ERM Financial Reports III"
     end;
 
     [Test]
-    [HandlerFunctions('MessageHandler,SuggestVendorPaymentsRequestPageHandler,PrintCheckReqPageHandler')]
+    [HandlerFunctions('MessageHandler,SuggestVendorPaymentsRequestPageHandler,PrintCheckReqPageHandler,GeneralJournalTemplateListModalPageHandler')]
     [Scope('OnPrem')]
     procedure PrintVendCheckForUpdatedAppToInvoiceAmountRounded()
     begin
@@ -910,7 +911,7 @@ codeunit 134987 "ERM Financial Reports III"
     end;
 
     [Test]
-    [HandlerFunctions('PrintCheckReqPageHandler')]
+    [HandlerFunctions('PrintCheckReqPageHandler,GeneralJournalTemplateListModalPageHandler')]
     [Scope('OnPrem')]
     procedure VendorCheckForPaymentExceedingSumOfMaxIterationsInvoices()
     var
@@ -968,7 +969,7 @@ codeunit 134987 "ERM Financial Reports III"
     end;
 
     [Test]
-    [HandlerFunctions('PrintCheckReqPageHandler')]
+    [HandlerFunctions('PrintCheckReqPageHandler,GeneralJournalTemplateListModalPageHandler')]
     [Scope('OnPrem')]
     procedure CustomerCheckForPaymentExceedingSumOfMaxIterationsInvoices()
     var
@@ -1001,6 +1002,7 @@ codeunit 134987 "ERM Financial Reports III"
               Customer."No.", PaymentAmount, "Bank Payment Type"::"Computer Check");
             Validate("Applies-to ID", UserId);
             Modify(true);
+
             // [GIVEN] MaxEntries number of Purchases Gen. Jnl Lines posted
             CreateAndPostGenJournalLines(
               GenJournalTemplate.Type::Purchases, PAGE::"Purchase Journal",
@@ -1859,6 +1861,13 @@ codeunit 134987 "ERM Financial Reports III"
         SuggestVendorPayments.LastPaymentDate.SetValue(WorkDate);
         SuggestVendorPayments.StartingDocumentNo.SetValue(LibraryRandom.RandInt(10));
         SuggestVendorPayments.OK.Invoke;
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure GeneralJournalTemplateListModalPageHandler(var GeneralJournalTemplateList: TestPage "General Journal Template List")
+    begin
+        GeneralJournalTemplateList.OK.Invoke;
     end;
 
     [MessageHandler]

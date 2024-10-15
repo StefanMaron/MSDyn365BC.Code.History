@@ -26,6 +26,7 @@ codeunit 134083 "ERM Adjust Exchange Rates"
         CurrencyExchangeRate: Record "Currency Exchange Rate";
         GLAccount: Record "G/L Account";
         GLAccount2: Record "G/L Account";
+        GenJnlBatch: Record "Gen. Journal Batch";
         DocumentNo: Code[20];
     begin
         // Test run the Adjust Exchange Rate and check the corresponding ledger entries.
@@ -45,7 +46,7 @@ codeunit 134083 "ERM Adjust Exchange Rates"
         CreateNewExchangeRate(CurrencyExchangeRate);
 
         // 2. Exercise: Run the report Adjust Exchange Rate.
-        DocumentNo := Format(LibraryRandom.RandInt(100));
+        DocumentNo := LibraryERM.GetNextDocNoByBatch(GenJnlBatch);
         LibraryERM.RunAdjustExchangeRates(
           CurrencyExchangeRate."Currency Code", WorkDate, WorkDate, ExchangeRateAdjmtTxt, WorkDate, DocumentNo, true);
 
@@ -62,6 +63,7 @@ codeunit 134083 "ERM Adjust Exchange Rates"
         CurrencyExchangeRate: Record "Currency Exchange Rate";
         GLAccount: Record "G/L Account";
         GLAccount2: Record "G/L Account";
+        GenJnlBatch: Record "Gen. Journal Batch";
         DocumentNo: Code[20];
     begin
         // Test Start Date Field is Used for  Additional Reporting Currency Adjustment.
@@ -86,7 +88,7 @@ codeunit 134083 "ERM Adjust Exchange Rates"
         UpdateExchangeRate(CurrencyExchangeRate, 100 * LibraryRandom.RandInt(4), 200 * LibraryRandom.RandInt(4));
 
         // 2. Exercise: Run the report Adjust Exchange Rate.
-        DocumentNo := Format(LibraryRandom.RandInt(100));
+        DocumentNo := LibraryERM.GetNextDocNoByBatch(GenJnlBatch);
         LibraryERM.RunAdjustExchangeRates(
           CurrencyExchangeRate."Currency Code", WorkDate, WorkDate, ExchangeRateAdjmtTxt, WorkDate, DocumentNo, true);
 
@@ -182,6 +184,24 @@ codeunit 134083 "ERM Adjust Exchange Rates"
         LibraryERM.CreateExchRate(CurrencyExchangeRate2, CurrencyExchangeRate."Currency Code", WorkDate);
         UpdateExchangeRate(
           CurrencyExchangeRate2, CurrencyExchangeRate."Exchange Rate Amount", 2 * CurrencyExchangeRate."Relational Exch. Rate Amount");
+    end;
+
+    local procedure RunAdjustExchangeRates(CurrencyCode: Code[10]) DocumentNo: Code[20]
+    var
+        Currency: Record Currency;
+        GenJnlBatch: Record "Gen. Journal Batch";
+        AdjustExchangeRates: Report "Adjust Exchange Rates";
+    begin
+        // Using Random Number Generator for Document No.
+        Currency.SetRange(Code, CurrencyCode);
+        Clear(AdjustExchangeRates);
+        AdjustExchangeRates.SetTableView(Currency);
+        DocumentNo := LibraryERM.GetNextDocNoByBatch(GenJnlBatch);
+        AdjustExchangeRates.InitializeRequest2(
+          WorkDate, WorkDate, ExchangeRateAdjmtTxt, WorkDate, '', true, true,
+          GenJnlBatch."Journal Template Name", GenJnlBatch.Name);
+        AdjustExchangeRates.UseRequestPage(false);
+        AdjustExchangeRates.Run;
     end;
 
     local procedure SetupAccountOnCurrency(var Currency: Record Currency)

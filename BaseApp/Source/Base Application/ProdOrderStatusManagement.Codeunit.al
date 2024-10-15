@@ -12,6 +12,7 @@ codeunit 5407 "Prod. Order Status Management"
     begin
         ChangeStatusForm.Set(Rec);
         if ChangeStatusForm.RunModal = ACTION::Yes then begin
+            OnRunOnAfterChangeStatusFormRun(Rec);
             ChangeStatusForm.ReturnPostingInfo(NewStatus, NewPostingDate, NewUpdateUnitCost);
             ChangeStatusOnProdOrder(Rec, NewStatus, NewPostingDate, NewUpdateUnitCost);
             Commit();
@@ -111,6 +112,7 @@ codeunit 5407 "Prod. Order Status Management"
                 ToProdOrder."Due Date" := 0D;
             end;
 
+            OnTransProdOrderOnBeforeToProdOrderInsert(ToProdOrder, FromProdOrder);
             ToProdOrder.Insert(true);
             ToProdOrder."Starting Time" := "Starting Time";
             ToProdOrder."Starting Date" := "Starting Date";
@@ -154,7 +156,7 @@ codeunit 5407 "Prod. Order Status Management"
                     ToProdOrderLine := FromProdOrderLine;
                     ToProdOrderLine.Status := ToProdOrder.Status;
                     ToProdOrderLine."Prod. Order No." := ToProdOrder."No.";
-                    ToProdOrderLine.Insert();
+                    InsertProdOrderLine(ToProdOrderLine, FromProdOrderLine);
                     if NewStatus = NewStatus::Finished then begin
                         if InvtAdjmtEntryOrder.Get(InvtAdjmtEntryOrder."Order Type"::Production, "Prod. Order No.", "Line No.") then begin
                             InvtAdjmtEntryOrder."Routing No." := ToProdOrderLine."Routing No.";
@@ -191,6 +193,13 @@ codeunit 5407 "Prod. Order Status Management"
                 DeleteAll();
             end;
         end;
+    end;
+
+    local procedure InsertProdOrderLine(var ToProdOrderLine: Record "Prod. Order Line"; FromProdOrderLine: Record "Prod. Order Line")
+    begin
+        OnBeforeInsertProdOrderLine(ToProdOrderLine, FromProdOrderLine);
+        ToProdOrderLine.Insert();
+        OnAfterInsertProdOrderLine(ToProdOrderLine, FromProdOrderLine);
     end;
 
     local procedure TransProdOrderRtngLine(FromProdOrder: Record "Production Order")
@@ -695,9 +704,7 @@ codeunit 5407 "Prod. Order Status Management"
         with ProdOrderComp do begin
             ShowWarning := false;
             SetAutoCalcFields("Pick Qty. (Base)");
-            SetRange(Status, ProdOrder.Status);
-            SetRange("Prod. Order No.", ProdOrder."No.");
-            SetFilter("Remaining Quantity", '<>0');
+            SetProdOrderCompFilters(ProdOrderComp, ProdOrder);
             if FindSet then
                 repeat
                     TestField("Pick Qty. (Base)", 0);
@@ -756,14 +763,18 @@ codeunit 5407 "Prod. Order Status Management"
     local procedure ErrorIfUnableToClearWIP(ProdOrder: Record "Production Order")
     var
         ProdOrderLine: Record "Prod. Order Line";
+        IsHandled: Boolean;
     begin
         ProdOrderLine.SetRange(Status, ProdOrder.Status);
         ProdOrderLine.SetRange("Prod. Order No.", ProdOrder."No.");
         if ProdOrderLine.FindSet then
             repeat
-                if not OutputExists(ProdOrderLine) then
-                    if MatrOrCapConsumpExists(ProdOrderLine) then
-                        Error(Text009, ProdOrderLine."Line No.", ToProdOrder.TableCaption, ProdOrderLine."Prod. Order No.");
+                IsHandled := false;
+                OnErrorIfUnableToClearWIPOnBeforeError(ProdOrderLine, IsHandled);
+                if not IsHandled then
+                    if not OutputExists(ProdOrderLine) then
+                        if MatrOrCapConsumpExists(ProdOrderLine) then
+                            Error(Text009, ProdOrderLine."Line No.", ToProdOrder.TableCaption, ProdOrderLine."Prod. Order No.");
             until ProdOrderLine.Next = 0;
     end;
 
@@ -784,11 +795,17 @@ codeunit 5407 "Prod. Order Status Management"
         exit(false);
     end;
 
-    local procedure MatrOrCapConsumpExists(ProdOrderLine: Record "Prod. Order Line"): Boolean
+    local procedure MatrOrCapConsumpExists(ProdOrderLine: Record "Prod. Order Line") EntriesExist: Boolean
     var
         ItemLedgEntry: Record "Item Ledger Entry";
         CapLedgEntry: Record "Capacity Ledger Entry";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeMatrOrCapConsumpExists(ProdOrderLine, EntriesExist, IsHandled);
+        if IsHandled then
+            exit(EntriesExist);
+
         ItemLedgEntry.SetCurrentKey("Order Type", "Order No.", "Order Line No.");
         ItemLedgEntry.SetRange("Order Type", ItemLedgEntry."Order Type"::Production);
         ItemLedgEntry.SetRange("Order No.", ProdOrderLine."Prod. Order No.");
@@ -863,6 +880,15 @@ codeunit 5407 "Prod. Order Status Management"
             until RecordLink.Next = 0;
     end;
 
+    local procedure SetProdOrderCompFilters(var ProdOrderComponent: Record "Prod. Order Component"; ProductionOrder: Record "Production Order")
+    begin
+        ProdOrderComponent.SetRange(Status, ProductionOrder.Status);
+        ProdOrderComponent.SetRange("Prod. Order No.", ProductionOrder."No.");
+        ProdOrderComponent.SetFilter("Remaining Quantity", '<>0');
+
+        OnAfterSetProdOrderCompFilters(ProdOrderComponent, ProductionOrder);
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnAfterInitItemJnlLineFromProdOrderComp(var ItemJournalLine: Record "Item Journal Line"; ProductionOrder: Record "Production Order"; ProdOrderLine: Record "Prod. Order Line"; ProdOrderComponent: Record "Prod. Order Component")
     begin
@@ -870,6 +896,11 @@ codeunit 5407 "Prod. Order Status Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterInitItemJnlLineFromProdOrderLine(var ItemJournalLine: Record "Item Journal Line"; ProductionOrder: Record "Production Order"; ProdOrderLine: Record "Prod. Order Line"; ProdOrderRoutingLine: Record "Prod. Order Routing Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterInsertProdOrderLine(var ToProdOrderLine: Record "Prod. Order Line"; FromProdOrderLine: Record "Prod. Order Line")
     begin
     end;
 
@@ -929,7 +960,17 @@ codeunit 5407 "Prod. Order Status Management"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeInsertProdOrderLine(var ToProdOrderLine: Record "Prod. Order Line"; FromProdOrderLine: Record "Prod. Order Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforePostFlushItemJnlLine(var ItemJournalLine: Record "Item Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeMatrOrCapConsumpExists(ProdOrderLine: Record "Prod. Order Line"; Var EntriesExist: Boolean; var IsHandled: Boolean)
     begin
     end;
 
@@ -990,6 +1031,26 @@ codeunit 5407 "Prod. Order Status Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnTransProdOrderCapNeedOnBeforeDeleteAll(var ProdOrder: Record "Production Order"; var ProdOrderCapacityNeed: Record "Prod. Order Capacity Need"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetProdOrderCompFilters(var ProdOrderComponent: Record "Prod. Order Component"; ProductionOrder: Record "Production Order");
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnErrorIfUnableToClearWIPOnBeforeError(ProdOrderLine: Record "Prod. Order Line"; var IsHandled: Boolean);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnRunOnAfterChangeStatusFormRun(var ProductionOrder: Record "Production Order")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnTransProdOrderOnBeforeToProdOrderInsert(var ToProdOrder: Record "Production Order"; FromProdOrder: Record "Production Order")
     begin
     end;
 }

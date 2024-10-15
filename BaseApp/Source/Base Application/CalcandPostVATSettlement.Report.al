@@ -310,10 +310,7 @@ report 20 "Calc. and Post VAT Settlement"
                                       "VAT Posting Setup"."VAT Prod. Posting Group"),
                                     '>');
                         end;
-                        GenJnlLine."VAT Bus. Posting Group" := "VAT Posting Setup"."VAT Bus. Posting Group";
-                        GenJnlLine."VAT Prod. Posting Group" := "VAT Posting Setup"."VAT Prod. Posting Group";
-                        GenJnlLine."VAT Calculation Type" := "VAT Posting Setup"."VAT Calculation Type";
-                        GenJnlLine."Gen. Posting Type" := GenJnlLine."Gen. Posting Type"::Settlement;
+                        SetVatPostingSetupToGenJnlLine(GenJnlLine, "VAT Posting Setup");
                         GenJnlLine."Posting Date" := PostingDate;
                         GenJnlLine."Document Type" := 0;
                         GenJnlLine."Document No." := DocNo;
@@ -785,6 +782,7 @@ report 20 "Calc. and Post VAT Settlement"
                         PostGenJnlLine(GenJnlLine);
 
                     CreateGenJnlLine(GenJnlLine2, "VAT Posting Setup".GetRevChargeAccount(false));
+		    SetVatPostingSetupToGenJnlLine(GenJnlLine2, "VAT Posting Setup");
                     GenJnlLine2.Amount += VATEntry."Non Ded. VAT Amount";
                     GenJnlLine2."Source Currency Amount" += VATEntry."Non Ded. Source Curr. VAT Amt.";
                     GenJnlLine2."Journal Template Name" := GenJnlLine."Journal Template Name";
@@ -849,6 +847,14 @@ report 20 "Calc. and Post VAT Settlement"
                     VATAmountAddCurr := VATAmountAddCurr + VATEntry."Additional-Currency Amount";
                 end;
         end;
+    end;
+    
+    local procedure SetVatPostingSetupToGenJnlLine(var GenJnlLine: Record "Gen. Journal Line"; VATPostingSetup: Record "VAT Posting Setup")
+    begin
+        GenJnlLine."Gen. Posting Type" := GenJnlLine."Gen. Posting Type"::Settlement;
+        GenJnlLine."VAT Bus. Posting Group" := VATPostingSetup."VAT Bus. Posting Group";
+        GenJnlLine."VAT Prod. Posting Group" := VATPostingSetup."VAT Prod. Posting Group";
+        GenJnlLine."VAT Calculation Type" := VATPostingSetup."VAT Calculation Type";
     end;
 
     [IntegrationEvent(false, false)]

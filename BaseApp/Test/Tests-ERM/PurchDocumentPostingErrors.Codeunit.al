@@ -127,6 +127,58 @@ codeunit 132502 "Purch. Document Posting Errors"
 
     [Test]
     [Scope('OnPrem')]
+    procedure T1002_PostingDateIsInNotAllowedPeriodInGenJnlTemplate()
+    var
+        GenJournalTemplate: Record "Gen. Journal Template";
+        PurchHeader: Record "Purchase Header";
+        TempErrorMessage: Record "Error Message" temporary;
+        PurchInvoicePage: TestPage "Purchase Invoice";
+        GeneralJournalTemplates: TestPage "General Journal Templates";
+    begin
+        // [FEATURE] [Country:BE]
+        // [SCENARIO] Posting of document, where "Posting Date" is out of the allowed period, set in Gen. Journal Template.
+        Initialize;
+        // [GIVEN] "Allow Posting To" is 31.12.2018 in "Journal Template", where Type is 'Purchases'
+        GenJournalTemplate.SetRange(Type, GenJournalTemplate.Type::Purchases);
+        GenJournalTemplate.FindFirst;
+        GenJournalTemplate."Allow Posting To" := WorkDate - 1;
+        GenJournalTemplate.Modify();
+        // [GIVEN] Invoice '1001', where "Posting Date" is 01.01.2019
+        LibraryPurchase.CreatePurchaseInvoice(PurchHeader);
+        PurchHeader.TestField("Posting Date", WorkDate);
+
+        // [WHEN] Post Invoice '1001'
+        LibraryErrorMessage.TrapErrorMessages;
+        PurchHeader.SendToPosting(CODEUNIT::"Purch.-Post");
+
+        // [THEN] "Error Message" page is open, where is one error:
+        // [THEN] "Posting Date is not within your range of allowed posting dates."
+        LibraryErrorMessage.GetErrorMessages(TempErrorMessage);
+        Assert.RecordCount(TempErrorMessage, 1);
+        TempErrorMessage.FindFirst;
+        TempErrorMessage.TestField(Description, PostingDateNotAllowedErr);
+        // [THEN] "Context" is 'Purchase Header: Invoice, 1001', "Field Name" is 'Posting Date',
+        TempErrorMessage.TestField("Context Record ID", PurchHeader.RecordId);
+        TempErrorMessage.TestField("Context Field Number", PurchHeader.FieldNo("Posting Date"));
+        // [THEN]  "Source" is 'Gen. Journal Template', "Field Name" is 'Allow Posting From'
+        TempErrorMessage.TestField("Record ID", GenJournalTemplate.RecordId);
+        TempErrorMessage.TestField("Field Number", GenJournalTemplate.FieldNo("Allow Posting From"));
+        // [WHEN] DrillDown on "Source"
+        GeneralJournalTemplates.Trap;
+        LibraryErrorMessage.DrillDownOnSource;
+        // [THEN] opens "General Journal Templates" page.
+        GeneralJournalTemplates."Allow Posting To".AssertEquals(WorkDate - 1);
+        GeneralJournalTemplates.Close;
+
+        // [WHEN] DrillDown on "Description"
+        PurchInvoicePage.Trap;
+        LibraryErrorMessage.DrillDownOnDescription;
+        // [THEN] opens "Purchase Invoice" page.
+        PurchInvoicePage."Posting Date".AssertEquals(WorkDate);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
     procedure T900_PreviewWithOneLoggedAndOneDirectError()
     var
         PurchHeader: Record "Purchase Header";

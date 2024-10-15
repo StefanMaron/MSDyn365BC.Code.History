@@ -432,6 +432,8 @@ codeunit 137350 "SCM Inventory Reports - III"
         ProductionOrder: Record "Production Order";
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
+        GenJournalTemplate: Record "Gen. Journal Template";
+        GenJournalBatch: Record "Gen. Journal Batch";
         ProductionQuantity: Decimal;
         TotalInventoryValue: Decimal;
         ItemNo: Code[20];
@@ -483,9 +485,14 @@ codeunit 137350 "SCM Inventory Reports - III"
         LibraryCosting.AdjustCostItemEntries(StrSubstNo(ItemNoFilter, ProductionItem."No.", Component, Component2), '');
 
         // Exercise: Run Post Inventory Cost To GL Report.
+        LibraryERM.CreateGenJournalTemplate(GenJournalTemplate);
+        LibraryERM.CreateGenJournalBatch(GenJournalBatch, GenJournalTemplate.Name);
+        GenJournalBatch."No. Series" := LibraryERM.CreateNoSeriesCode;
+        GenJournalBatch.Modify(true);
         PostValueEntryToGL.SetRange("Item No.", ProductionItem."No.");
         PostValueEntryToGL.SetRange("Posting Date", WorkDate);
-        RunPostInventoryCostToGL(PostValueEntryToGL, PostMethod::"per Entry", '', EntriesPostedToGLMsg);
+        RunPostInventoryCostToGL(
+          PostValueEntryToGL, PostMethod::"per Entry", '', GenJournalTemplate.Name, GenJournalBatch.Name, EntriesPostedToGLMsg);
 
         // Verify: Verify record count in Post Value Entry record,Total Inventory Cost on Inventory Cost To GL Report and  Quantity Expected/Actual Cost ACY for Component Item in Item Ledger Entry.
         VerifyInventoryCostToGLReport(TotalInventoryValue);
@@ -837,42 +844,6 @@ codeunit 137350 "SCM Inventory Reports - III"
     [Test]
     [HandlerFunctions('PostInvtCostToGLTestPageHandler')]
     [Scope('OnPrem')]
-    procedure DocumentNoPerPostingGroupError()
-    begin
-        // Verify Document No. Error on Post Invt. Cost to G/L - Test Report with Posting Method Per Posting Group.
-        RunPostInvtCostToGLTestReport(PostMethod::"per Posting Group", '', PerPostingGroupError);
-    end;
-
-    [Test]
-    [HandlerFunctions('PostInvtCostToGLTestPageHandler')]
-    [Scope('OnPrem')]
-    procedure DocumentNoPerEntryError()
-    begin
-        // Verify Document No. Error on Post Invt. Cost to G/L - Test Report with Posting Method Per Entry.
-        RunPostInvtCostToGLTestReport(PostMethod::"per Entry", LibraryUtility.GenerateGUID, PerEntryError);
-    end;
-
-    local procedure RunPostInvtCostToGLTestReport(PostToGLMethod: Option; DocumentNo: Code[20]; Error: Text[1024])
-    var
-        PostInvtCostToGLTest: Report "Post Invt. Cost to G/L - Test";
-    begin
-        // Setup.
-        Initialize;
-        Clear(PostInvtCostToGLTest);
-        LibraryVariableStorage.Enqueue(PostToGLMethod);
-        LibraryVariableStorage.Enqueue(DocumentNo);
-        Commit();  // Commit is required to run the Report.
-
-        // Exercise.
-        asserterror PostInvtCostToGLTest.Run;
-
-        // Verify:
-        Assert.ExpectedError(StrSubstNo(Error, PostToGLMethod));
-    end;
-
-    [Test]
-    [HandlerFunctions('PostInvtCostToGLTestPageHandler')]
-    [Scope('OnPrem')]
     procedure DimensionOnPostInvtCostToGLTestReport()
     var
         DefaultDimension: Record "Default Dimension";
@@ -880,6 +851,8 @@ codeunit 137350 "SCM Inventory Reports - III"
         PostValueEntryToGL: Record "Post Value Entry to G/L";
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
+        GenJournalTemplate: Record "Gen. Journal Template";
+        GenJournalBatch: Record "Gen. Journal Batch";
         PostInvtCostToGLTest: Report "Post Invt. Cost to G/L - Test";
         ItemNo: Code[20];
     begin
@@ -894,8 +867,13 @@ codeunit 137350 "SCM Inventory Reports - III"
         PurchaseHeader.Get(PurchaseLine."Document Type", PurchaseLine."Document No.");
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
         Clear(PostInvtCostToGLTest);
+        LibraryERM.CreateGenJournalTemplate(GenJournalTemplate);
+        LibraryERM.CreateGenJournalBatch(GenJournalBatch, GenJournalTemplate.Name);
+        GenJournalBatch."No. Series" := LibraryERM.CreateNoSeriesCode;
+        GenJournalBatch.Modify(true);
         LibraryVariableStorage.Enqueue(PostMethod::"per Entry");
-        LibraryVariableStorage.Enqueue('');  // Blank for Document No.
+        LibraryVariableStorage.Enqueue(GenJournalTemplate.Name);
+        LibraryVariableStorage.Enqueue(GenJournalBatch.Name);
         PostValueEntryToGL.SetRange("Item No.", ItemNo);
         PostInvtCostToGLTest.SetTableView(PostValueEntryToGL);
         Commit();  // Commit is required to run the Report.
@@ -918,6 +896,8 @@ codeunit 137350 "SCM Inventory Reports - III"
     var
         DefaultDimension: Record "Default Dimension";
         PostValueEntryToGL: Record "Post Value Entry to G/L";
+        GenJournalTemplate: Record "Gen. Journal Template";
+        GenJournalBatch: Record "Gen. Journal Batch";
         ItemNo: Code[20];
         Qty: array[2] of Decimal;
         UnitCost: array[2] of Decimal;
@@ -943,8 +923,13 @@ codeunit 137350 "SCM Inventory Reports - III"
         // [WHEN] Run "Post inventory cost to G/L" report per posting group.
         PostValueEntryToGL.SetRange("Item No.", ItemNo);
         PostValueEntryToGL.SetRange("Posting Date", WorkDate);
+        LibraryERM.CreateGenJournalTemplate(GenJournalTemplate);
+        LibraryERM.CreateGenJournalBatch(GenJournalBatch, GenJournalTemplate.Name);
+        GenJournalBatch."No. Series" := LibraryERM.CreateNoSeriesCode;
+        GenJournalBatch.Modify(true);
         RunPostInventoryCostToGL(
-          PostValueEntryToGL, PostMethod::"per Posting Group", LibraryUtility.GenerateGUID, EntriesPostedToGLMsg);
+          PostValueEntryToGL, PostMethod::"per Posting Group", LibraryUtility.GenerateGUID,
+          GenJournalTemplate.Name, GenJournalBatch.Name, EntriesPostedToGLMsg);
 
         // [THEN] The report shows that the posted amount with dimension code "D" and dimension value "V" is equal to "X".
         LibraryReportDataset.LoadDataSetFile;
@@ -1038,6 +1023,8 @@ codeunit 137350 "SCM Inventory Reports - III"
     procedure GenBusPostingGroupForSkippedValuesInPostInvtCostToGLReport()
     var
         ValueEntry: Record "Value Entry";
+        GenJournalTemplate: Record "Gen. Journal Template";
+        GenJournalBatch: Record "Gen. Journal Batch";
         PostValueEntryToGL: Record "Post Value Entry to G/L";
         ItemNo: Code[20];
         GenBusPostingGroupCode: Code[20];
@@ -1062,9 +1049,14 @@ codeunit 137350 "SCM Inventory Reports - III"
         end;
 
         // [WHEN] Run "Post Inventory Cost to G/L" batch job on Item.
+        LibraryERM.CreateGenJournalTemplate(GenJournalTemplate);
+        LibraryERM.CreateGenJournalBatch(GenJournalBatch, GenJournalTemplate.Name);
+        GenJournalBatch."No. Series" := LibraryERM.CreateNoSeriesCode;
+        GenJournalBatch.Modify(true);
         PostValueEntryToGL.SetRange("Item No.", ItemNo);
         PostValueEntryToGL.SetRange("Posting Date", WorkDate);
-        RunPostInventoryCostToGL(PostValueEntryToGL, PostMethod::"per Entry", '', NothingToPostToGLMsg);
+        RunPostInventoryCostToGL(
+          PostValueEntryToGL, PostMethod::"per Entry", '', GenJournalTemplate.Name, GenJournalBatch.Name, NothingToPostToGLMsg);
 
         // [THEN] "Gen. Bus. Posting Group" in the Skipped Entries section of the resulting report is equal to "X".
         LibraryReportDataset.LoadDataSetFile;
@@ -1405,6 +1397,8 @@ codeunit 137350 "SCM Inventory Reports - III"
     var
         ValueEntry: array[2] of Record "Value Entry";
         PostValueEntryToGL: Record "Post Value Entry to G/L";
+        GenJournalTemplate: Record "Gen. Journal Template";
+        GenJournalBatch: Record "Gen. Journal Batch";
         i: Integer;
     begin
         // [FEATURE] [Post Inventory Cost to GL]
@@ -1416,8 +1410,13 @@ codeunit 137350 "SCM Inventory Reports - III"
             MockValueEntryForCapacity(ValueEntry[i]);
 
         // [WHEN] Run "Post Inventory Cost to G/L" batch job on these value entries.
+        LibraryERM.CreateGenJournalTemplate(GenJournalTemplate);
+        LibraryERM.CreateGenJournalBatch(GenJournalBatch, GenJournalTemplate.Name);
+        GenJournalBatch."No. Series" := LibraryERM.CreateNoSeriesCode;
+        GenJournalBatch.Modify(true);
         PostValueEntryToGL.SetFilter("Value Entry No.", '%1|%2', ValueEntry[1]."Entry No.", ValueEntry[2]."Entry No.");
-        RunPostInventoryCostToGL(PostValueEntryToGL, PostMethod::"per Entry", '', NothingToPostToGLMsg);
+        RunPostInventoryCostToGL(
+          PostValueEntryToGL, PostMethod::"per Entry", '', GenJournalTemplate.Name, GenJournalBatch.Name, NothingToPostToGLMsg);
 
         // [THEN] The skipped entries section of the resulting report contains the value entries.
         LibraryReportDataset.LoadDataSetFile;
@@ -2189,10 +2188,12 @@ codeunit 137350 "SCM Inventory Reports - III"
         REPORT.Run(REPORT::"Sales Reservation Avail.", true, false, SalesLine);
     end;
 
-    local procedure RunPostInventoryCostToGL(var PostValueEntryToGL: Record "Post Value Entry to G/L"; PostToGLMethod: Option; DocumentNo: Code[20]; ExpectedResult: Text)
+    local procedure RunPostInventoryCostToGL(var PostValueEntryToGL: Record "Post Value Entry to G/L"; PostToGLMethod: Option; DocumentNo: Code[20]; GenJnlTemplateName: Code[10]; GenJnlBatchName: Code[10]; ExpectedResult: Text)
     begin
         LibraryVariableStorage.Enqueue(PostToGLMethod);
         LibraryVariableStorage.Enqueue(DocumentNo);
+        LibraryVariableStorage.Enqueue(GenJnlTemplateName);
+        LibraryVariableStorage.Enqueue(GenJnlBatchName);
         LibraryVariableStorage.Enqueue(true);
         LibraryVariableStorage.Enqueue(ExpectedResult);
         Commit();
@@ -2671,7 +2672,8 @@ codeunit 137350 "SCM Inventory Reports - III"
     procedure PostInvtCostToGLTestPageHandler(var PostInvtCostToGLTest: TestRequestPage "Post Invt. Cost to G/L - Test")
     begin
         PostInvtCostToGLTest.PostingMethod.SetValue(LibraryVariableStorage.DequeueInteger);
-        PostInvtCostToGLTest.DocumentNo.SetValue(LibraryVariableStorage.DequeueText);
+        PostInvtCostToGLTest.JnlTemplateName.SetValue(LibraryVariableStorage.DequeueText);
+        PostInvtCostToGLTest.JnlBatchName.SetValue(LibraryVariableStorage.DequeueText);
         PostInvtCostToGLTest.ShowDimensions.SetValue(true);
         PostInvtCostToGLTest.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
     end;
@@ -2857,6 +2859,8 @@ codeunit 137350 "SCM Inventory Reports - III"
     begin
         PostInventoryCostToGL.PostMethod.SetValue(LibraryVariableStorage.DequeueInteger);
         PostInventoryCostToGL.DocumentNo.SetValue(LibraryVariableStorage.DequeueText);
+        PostInventoryCostToGL.JnlTemplateName.SetValue(LibraryVariableStorage.DequeueText);
+        PostInventoryCostToGL.JnlBatchName.SetValue(LibraryVariableStorage.DequeueText);
         PostInventoryCostToGL.Post.SetValue(LibraryVariableStorage.DequeueBoolean);
 
         PostInventoryCostToGL.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);

@@ -927,48 +927,6 @@ codeunit 134988 "ERM Purchase Reports III"
     end;
 
     [Test]
-    [HandlerFunctions('PurchaseInvoiceRequestPageHandler')]
-    [Scope('OnPrem')]
-    procedure PurchInvoiceReportWithEnabledPrintVATSpecInLCY()
-    var
-        PurchaseHeader: Record "Purchase Header";
-        DocumentNo: Code[20];
-    begin
-        // Setup
-        Initialize;
-        InitGeneralLedgerSetup(true);
-
-        // Excercise
-        CreateAndSetupPurchaseDocument(PurchaseHeader, PurchaseHeader."Document Type"::Invoice);
-        DocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
-        SavePurchaseInvoiceReport(DocumentNo);
-
-        // Verify
-        VerifyPurchaseInvoiceReportVATAmountInLCY(DocumentNo);
-    end;
-
-    [Test]
-    [HandlerFunctions('PurchaseCreditMemoRequestPageHandler')]
-    [Scope('OnPrem')]
-    procedure PurchCreditMemoReportWithEnabledPrintVATSpecInLCY()
-    var
-        PurchaseHeader: Record "Purchase Header";
-        DocumentNo: Code[20];
-    begin
-        // Setup
-        Initialize;
-        InitGeneralLedgerSetup(true);
-
-        // Excercise
-        CreateAndSetupPurchaseDocument(PurchaseHeader, PurchaseHeader."Document Type"::"Credit Memo");
-        DocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
-        SavePurchaseCreditMemoReport(DocumentNo);
-
-        // Verify
-        VerifyPurchaseCreditMemoReportVATAmountInLCY(DocumentNo);
-    end;
-
-    [Test]
     [HandlerFunctions('RequestHandlerPurchaseDocumentTest,ConfirmHandler')]
     [Scope('OnPrem')]
     procedure PurchaseDocumentTestReportExchangeRate()
@@ -1001,31 +959,6 @@ codeunit 134988 "ERM Purchase Reports III"
         LibraryReportDataset.GetNextRow;
         LibraryReportDataset.GetElementValueInCurrentRow(VALExchRateTok, ActualResult);
         Assert.AreNotEqual(0, StrPos(ActualResult, Format(ExpectedResult)), WrongExchRateErr);
-    end;
-
-    [Test]
-    [HandlerFunctions('PurchaseInvoiceExcelRequestPageHandler')]
-    [Scope('OnPrem')]
-    procedure PurchInvoiceReportLayoutWithEnabledPrintVATSpecInLCY()
-    var
-        PurchaseHeader: Record "Purchase Header";
-        DocumentNo: Code[20];
-    begin
-        // [SCENARIO 379970] Report Purchase - Invoice includes VAT specification in LCY section
-        Initialize;
-
-        // [GIVEN] "General Ledger Setup"."Print VAT specification in LCY" is true
-        InitGeneralLedgerSetup(true);
-
-        // [GIVEN] Purchase Invoice posted
-        CreateAndSetupPurchaseDocument(PurchaseHeader, PurchaseHeader."Document Type"::Invoice);
-        DocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
-
-        // [WHEN] Run Purchase - Invoice report
-        SavePurchaseInvoiceReport(DocumentNo);
-
-        // [THEN] VAT specification in LCY section printed
-        VerifyPurchaseInvoiceReportVATAmountInLCYSection(DocumentNo);
     end;
 
     [Test]
@@ -1566,45 +1499,6 @@ codeunit 134988 "ERM Purchase Reports III"
 
         // [THEN] Total amount in exported XML file of report is 200
         VerifyXMLReport('No_Vendor', Vendor."No.", 'GrandTotalVLE1RemAmtLCY', GenJournalLine."Amount (LCY)");
-    end;
-
-    [Test]
-    [HandlerFunctions('PostAndApplyVendPageHandler,PostApplicationPageHandler,MessageHandler,RHAgedAccountsPayable')]
-    [Scope('OnPrem')]
-    procedure AgedAccPayableReportConsidersGlobalDimensionFiltersWhenReportClosedLedgEntries()
-    var
-        Vendor: Record Vendor;
-        GenJournalLine: Record "Gen. Journal Line";
-        AgingBy: Option "Due Date","Posting Date","Document Date";
-        PeriodLength: DateFormula;
-        i: Integer;
-    begin
-        // [FEATURE] [Aged Accounts Receivable] [Dimension]
-        // [SCENARIO 284398] Aged Account Payable Report considers global dimension filters
-
-        Initialize;
-
-        LibraryPurchase.CreateVendor(Vendor);
-
-        // [GIVEN] Two posted invoices fully applied by payments
-        // [GIVEN] Invoice "A" with Amount = 100, "Global Dimension 1 Code" = "X1", "Global Dimension 2 Code" = "X2"
-        // [GIVEN] Invoice "B" with Amount = 200, "Global Dimension 1 Code" = "X2", "Global Dimension 2 Code" = "Y2"
-        for i := 1 to 2 do begin
-            PostInvoiceWithDimensions(GenJournalLine, Vendor."No.");
-            PostApplyPaymentWithDimensions(
-              GenJournalLine, Vendor."No.", GenJournalLine."Posting Date" + 1, -GenJournalLine.Amount,
-              GenJournalLine."Shortcut Dimension 1 Code", GenJournalLine."Shortcut Dimension 2 Code");
-        end;
-        PrepareAgedAccPayableReportForDimRun(
-          Vendor, PeriodLength, GenJournalLine."Shortcut Dimension 1 Code", GenJournalLine."Shortcut Dimension 2 Code");
-        Commit();
-
-        // [WHEN] Run Aged Account Payable Report with "Global Dimension 1 Filter" = "X2" and "Global Dimension 2 Filter" = "Y2"
-        SaveAgedAccountsPayable(
-          Vendor, AgingBy::"Posting Date", HeadingType::"Date Interval", PeriodLength, false, false);
-
-        // [THEN] Total amount in exported XML file of report is 200
-        VerifyXMLReport('No_Vendor', Vendor."No.", 'GrandTotalVLE1RemAmtLCY', -GenJournalLine."Amount (LCY)");
     end;
 
     [Test]
@@ -2840,7 +2734,7 @@ codeunit 134988 "ERM Purchase Reports III"
     begin
         with LibraryReportDataset do begin
             LoadDataSetFile;
-            MoveToRow(RowCount - 1);
+            MoveToRow(RowCount - 2);
         end;
 
         VerifyPurchaseReportVATAmount(
@@ -2853,7 +2747,7 @@ codeunit 134988 "ERM Purchase Reports III"
     begin
         with LibraryReportDataset do begin
             LoadDataSetFile;
-            MoveToRow(RowCount - 1);
+            MoveToRow(RowCount - 2);
         end;
 
         VerifyPurchaseReportVATAmount(
@@ -2919,8 +2813,8 @@ codeunit 134988 "ERM Purchase Reports III"
             FindLast;
 
             LibraryReportValidation.OpenExcelFile;
-            LibraryReportValidation.VerifyCellValue(106, 15, LibraryReportValidation.FormatDecimalValue(Base));
-            LibraryReportValidation.VerifyCellValue(106, 27, LibraryReportValidation.FormatDecimalValue(Amount));
+            LibraryReportValidation.VerifyCellValue(105, 15, LibraryReportValidation.FormatDecimalValue(Base));
+            LibraryReportValidation.VerifyCellValue(105, 27, LibraryReportValidation.FormatDecimalValue(Amount));
         end;
     end;
 

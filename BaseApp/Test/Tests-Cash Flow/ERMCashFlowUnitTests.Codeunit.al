@@ -11,11 +11,11 @@ codeunit 134557 "ERM Cash Flow UnitTests"
 
     var
         CashFlowChartSetup: Record "Cash Flow Chart Setup";
+        LibraryRandom: Codeunit "Library - Random";
         LibraryERM: Codeunit "Library - ERM";
         LibrarySales: Codeunit "Library - Sales";
         LibraryCF: Codeunit "Library - Cash Flow";
         LibraryCFHelper: Codeunit "Library - Cash Flow Helper";
-        LibraryRandom: Codeunit "Library - Random";
         LibraryUtility: Codeunit "Library - Utility";
         Assert: Codeunit Assert;
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
@@ -75,7 +75,7 @@ codeunit 134557 "ERM Cash Flow UnitTests"
             "Document Date" := DocumentDate;
             Insert;
             ExpectedDate := CalcDate(PaymentTerms."Discount Date Calculation", "Document Date");
-            ExpectedAmount := Round("Amount (LCY)" * (100 - PaymentTerms."Discount %") / 100);
+            ExpectedAmount := Round("Amount (LCY)" - "VAT Base Amount" * PaymentTerms."Discount %" / 100);
             CalculateCFAmountAndCFDate;
             // MODIFY;
 
@@ -129,7 +129,7 @@ codeunit 134557 "ERM Cash Flow UnitTests"
         with CFWorksheetLine do begin
             "Document Date" := DocumentDate;
             Insert;
-            ExpectedAmount := Round("Amount (LCY)" * (100 - PaymentTerms."Discount %") / 100);
+            ExpectedAmount := Round("Amount (LCY)" - "VAT Base Amount" * PaymentTerms."Discount %" / 100);
             CalculateCFAmountAndCFDate;
             // MODIFY;
 
@@ -1202,7 +1202,7 @@ codeunit 134557 "ERM Cash Flow UnitTests"
         with CFWorksheetLine do begin
             "Document Date" := WorkDate;
             Insert;
-            Amount := Round("Amount (LCY)" * (100 - PaymentTerms."Discount %") / 100);
+            Amount := Round("Amount (LCY)" - "VAT Base Amount" * PaymentTerms."Discount %" / 100);
             CalculateCFAmountAndCFDate;
             // MODIFY;
 
@@ -1229,7 +1229,8 @@ codeunit 134557 "ERM Cash Flow UnitTests"
 
             "Document Type" := "Document Type"::Invoice;
             "Cash Flow Forecast No." := CashFlowNo;
-            "Amount (LCY)" := LibraryRandom.RandInt(1001);
+            "VAT Base Amount" := LibraryRandom.RandInt(1001);
+            "Amount (LCY)" := "VAT Base Amount" + LibraryRandom.RandInt(500);
             Description := TestDescription;
             "Payment Terms Code" := PaymentTermsCode;
         end;

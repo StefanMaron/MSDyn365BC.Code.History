@@ -38,7 +38,7 @@ codeunit 99000845 "Reservation Management"
         InvSearch: Text[1];
         FieldFilter: Text;
         InvNextStep: Integer;
-        ValueArray: array[18] of Integer;
+        ValueArray: array[30] of Integer;
         CurrentBinding: Option ,"Order-to-Order";
         ItemTrackingHandling: Option "None","Allow deletion",Match;
         Text008: Label 'Item tracking defined for item %1 in the %2 accounts for more than the quantity you have entered.\You must adjust the existing item tracking and then reenter the new quantity.';
@@ -97,6 +97,7 @@ codeunit 99000845 "Reservation Management"
 
         SourceRecRef := NewSourceRecRef;
 
+        OnSetReservSource(SourceRecRef, CalcReservEntry, Direction);
         case SourceRecRef.Number of
             DATABASE::"Sales Line":
                 SetSourceForSalesLine;
@@ -625,6 +626,7 @@ codeunit 99000845 "Reservation Management"
         i: Integer;
         StopReservation: Boolean;
     begin
+        OnBeforeAutoReserve(CalcReservEntry, FullAutoReservation, Description, AvailabilityDate, MaxQtyToReserve, MaxQtyToReserveBase);
         CalcReservEntry.TestField("Source Type");
 
         if CalcReservEntry."Source Type" in [DATABASE::"Sales Line", DATABASE::"Purchase Line", DATABASE::"Service Line"] then
@@ -645,6 +647,7 @@ codeunit 99000845 "Reservation Management"
                 StopReservation := true;
         end;
 
+        OnAutoReserveOnBeforeStopReservation(CalcReservEntry, FullAutoReservation, AvailabilityDate, MaxQtyToReserve, MaxQtyToReserveBase, StopReservation);
         if StopReservation then begin
             FullAutoReservation := true;
             exit;
@@ -754,7 +757,7 @@ codeunit 99000845 "Reservation Management"
                   ReservSummEntryNo, RemainingQtyToReserve, RemainingQtyToReserveBase, Description, AvailabilityDate, Search, NextStep);
             else
                 OnAfterAutoReserveOneLine(
-                  ReservSummEntryNo, RemainingQtyToReserve, RemainingQtyToReserveBase, Description, AvailabilityDate, Search, NextStep);
+                  ReservSummEntryNo, RemainingQtyToReserve, RemainingQtyToReserveBase, Description, AvailabilityDate, Search, NextStep, CalcReservEntry);
         end;
     end;
 
@@ -843,7 +846,7 @@ codeunit 99000845 "Reservation Management"
                       CalcItemLedgEntry."Variant Code", CalcItemLedgEntry."Location Code", CalcItemLedgEntry."Qty. per Unit of Measure");
                     CallTrackingSpecification.CopyTrackingFromItemLedgEntry(CalcItemLedgEntry);
 
-                    if CallCreateReservation(
+                    if InsertReservationEntries(
                         RemainingQtyToReserve, RemainingQtyToReserveBase, 0,
                         Description, 0D, QtyThisLine, QtyThisLineBase, CallTrackingSpecification)
                     then
@@ -894,15 +897,14 @@ codeunit 99000845 "Reservation Management"
                     QtyThisLineBase := 0;
                 end;
 
-                NarrowQtyToReserveDownToTrackedQuantity(
-                  CalcReservEntry, PurchLine.RowID1, QtyThisLine, QtyThisLineBase);
+                SetQtyToReserveDownToTrackedQuantity(CalcReservEntry, PurchLine.RowID1, QtyThisLine, QtyThisLineBase);
 
                 CallTrackingSpecification.InitTrackingSpecification(
                     DATABASE::"Purchase Line", PurchLine."Document Type", PurchLine."Document No.", '', 0, PurchLine."Line No.",
                     PurchLine."Variant Code", PurchLine."Location Code", PurchLine."Qty. per Unit of Measure");
                 CallTrackingSpecification.CopyTrackingFromReservEntry(CalcReservEntry);
 
-                CallCreateReservation(
+                InsertReservationEntries(
                     RemainingQtyToReserve, RemainingQtyToReserveBase, ReservQty,
                     Description, PurchLine."Expected Receipt Date", QtyThisLine, QtyThisLineBase, CallTrackingSpecification);
             until (PurchLine.Next(NextStep) = 0) or (RemainingQtyToReserveBase = 0);
@@ -940,15 +942,14 @@ codeunit 99000845 "Reservation Management"
                     QtyThisLineBase := 0;
                 end;
 
-                NarrowQtyToReserveDownToTrackedQuantity(
-                  CalcReservEntry, SalesLine.RowID1, QtyThisLine, QtyThisLineBase);
+                SetQtyToReserveDownToTrackedQuantity(CalcReservEntry, SalesLine.RowID1, QtyThisLine, QtyThisLineBase);
 
                 CallTrackingSpecification.InitTrackingSpecification(
-                  DATABASE::"Sales Line", SalesLine."Document Type", SalesLine."Document No.", '', 0, SalesLine."Line No.",
+                  DATABASE::"Sales Line", SalesLine."Document Type".AsInteger(), SalesLine."Document No.", '', 0, SalesLine."Line No.",
                   SalesLine."Variant Code", SalesLine."Location Code", SalesLine."Qty. per Unit of Measure");
                 CallTrackingSpecification.CopyTrackingFromReservEntry(CalcReservEntry);
 
-                CallCreateReservation(
+                InsertReservationEntries(
                     RemainingQtyToReserve, RemainingQtyToReserveBase, ReservQty,
                     Description, SalesLine."Shipment Date", QtyThisLine, QtyThisLineBase, CallTrackingSpecification);
             until (SalesLine.Next(NextStep) = 0) or (RemainingQtyToReserveBase = 0);
@@ -981,15 +982,14 @@ codeunit 99000845 "Reservation Management"
                     QtyThisLineBase := 0;
                 end;
 
-                NarrowQtyToReserveDownToTrackedQuantity(
-                  CalcReservEntry, ProdOrderLine.RowID1, QtyThisLine, QtyThisLineBase);
+                SetQtyToReserveDownToTrackedQuantity(CalcReservEntry, ProdOrderLine.RowID1, QtyThisLine, QtyThisLineBase);
 
                 CallTrackingSpecification.InitTrackingSpecification(
                   DATABASE::"Prod. Order Line", ProdOrderLine.Status, ProdOrderLine."Prod. Order No.", '', ProdOrderLine."Line No.", 0,
                   ProdOrderLine."Variant Code", ProdOrderLine."Location Code", ProdOrderLine."Qty. per Unit of Measure");
                 CallTrackingSpecification.CopyTrackingFromReservEntry(CalcReservEntry);
 
-                CallCreateReservation(
+                InsertReservationEntries(
                     RemainingQtyToReserve, RemainingQtyToReserveBase, ReservQty,
                     Description, ProdOrderLine."Due Date", QtyThisLine, QtyThisLineBase, CallTrackingSpecification);
             until (ProdOrderLine.Next(NextStep) = 0) or (RemainingQtyToReserveBase = 0);
@@ -1022,8 +1022,7 @@ codeunit 99000845 "Reservation Management"
                     QtyThisLineBase := 0;
                 end;
 
-                NarrowQtyToReserveDownToTrackedQuantity(
-                  CalcReservEntry, ProdOrderComp.RowID1, QtyThisLine, QtyThisLineBase);
+                SetQtyToReserveDownToTrackedQuantity(CalcReservEntry, ProdOrderComp.RowID1, QtyThisLine, QtyThisLineBase);
 
                 CallTrackingSpecification.InitTrackingSpecification(
                   DATABASE::"Prod. Order Component", ProdOrderComp.Status, ProdOrderComp."Prod. Order No.", '',
@@ -1031,7 +1030,7 @@ codeunit 99000845 "Reservation Management"
                   ProdOrderComp."Variant Code", ProdOrderComp."Location Code", ProdOrderComp."Qty. per Unit of Measure");
                 CallTrackingSpecification.CopyTrackingFromReservEntry(CalcReservEntry);
 
-                CallCreateReservation(
+                InsertReservationEntries(
                     RemainingQtyToReserve, RemainingQtyToReserveBase, ReservQty,
                     Description, ProdOrderComp."Due Date", QtyThisLine, QtyThisLineBase, CallTrackingSpecification);
             until (ProdOrderComp.Next(NextStep) = 0) or (RemainingQtyToReserveBase = 0);
@@ -1064,15 +1063,14 @@ codeunit 99000845 "Reservation Management"
                     QtyThisLineBase := 0;
                 end;
 
-                NarrowQtyToReserveDownToTrackedQuantity(
-                  CalcReservEntry, AssemblyHeader.RowID1, QtyThisLine, QtyThisLineBase);
+                SetQtyToReserveDownToTrackedQuantity(CalcReservEntry, AssemblyHeader.RowID1, QtyThisLine, QtyThisLineBase);
 
                 CallTrackingSpecification.InitTrackingSpecification(
                   DATABASE::"Assembly Header", AssemblyHeader."Document Type", AssemblyHeader."No.", '', 0, 0,
                   AssemblyHeader."Variant Code", AssemblyHeader."Location Code", AssemblyHeader."Qty. per Unit of Measure");
                 CallTrackingSpecification.CopyTrackingFromReservEntry(CalcReservEntry);
 
-                CallCreateReservation(
+                InsertReservationEntries(
                     RemainingQtyToReserve, RemainingQtyToReserveBase, ReservQty,
                     Description, AssemblyHeader."Due Date", QtyThisLine, QtyThisLineBase, CallTrackingSpecification);
             until (AssemblyHeader.Next(NextStep) = 0) or (RemainingQtyToReserveBase = 0);
@@ -1105,15 +1103,14 @@ codeunit 99000845 "Reservation Management"
                     QtyThisLineBase := 0;
                 end;
 
-                NarrowQtyToReserveDownToTrackedQuantity(
-                  CalcReservEntry, AssemblyLine.RowID1, QtyThisLine, QtyThisLineBase);
+                SetQtyToReserveDownToTrackedQuantity(CalcReservEntry, AssemblyLine.RowID1, QtyThisLine, QtyThisLineBase);
 
                 CallTrackingSpecification.InitTrackingSpecification(
                   DATABASE::"Assembly Line", AssemblyLine."Document Type", AssemblyLine."Document No.", '', 0, AssemblyLine."Line No.",
                   AssemblyLine."Variant Code", AssemblyLine."Location Code", AssemblyLine."Qty. per Unit of Measure");
                 CallTrackingSpecification.CopyTrackingFromReservEntry(CalcReservEntry);
 
-                CallCreateReservation(
+                InsertReservationEntries(
                     RemainingQtyToReserve, RemainingQtyToReserveBase, ReservQty,
                     Description, AssemblyLine."Due Date", QtyThisLine, QtyThisLineBase, CallTrackingSpecification);
             until (AssemblyLine.Next(NextStep) = 0) or (RemainingQtyToReserveBase = 0);
@@ -1122,6 +1119,7 @@ codeunit 99000845 "Reservation Management"
     local procedure AutoReserveTransLine(ReservSummEntryNo: Integer; var RemainingQtyToReserve: Decimal; var RemainingQtyToReserveBase: Decimal; Description: Text[100]; AvailabilityDate: Date; Search: Text[1]; NextStep: Integer)
     var
         TransLine: Record "Transfer Line";
+        TransferDirection: Enum "Transfer Direction";
         QtyThisLine: Decimal;
         QtyThisLineBase: Decimal;
         ReservQty: Decimal;
@@ -1156,8 +1154,8 @@ codeunit 99000845 "Reservation Management"
                                 QtyThisLine := 0;
                                 QtyThisLineBase := 0;
                             end;
-                            NarrowQtyToReserveDownToTrackedQuantity(
-                              CalcReservEntry, TransLine.RowID1(0), QtyThisLine, QtyThisLineBase);
+                            SetQtyToReserveDownToTrackedQuantity(
+                                CalcReservEntry, TransLine.RowID1(TransferDirection::Outbound), QtyThisLine, QtyThisLineBase);
                         end;
                     102: // Inbound
                         begin
@@ -1171,8 +1169,8 @@ codeunit 99000845 "Reservation Management"
                                 QtyThisLine := 0;
                                 QtyThisLineBase := 0;
                             end;
-                            NarrowQtyToReserveDownToTrackedQuantity(
-                              CalcReservEntry, TransLine.RowID1(1), QtyThisLine, QtyThisLineBase);
+                            SetQtyToReserveDownToTrackedQuantity(
+                                CalcReservEntry, TransLine.RowID1(TransferDirection::Inbound), QtyThisLine, QtyThisLineBase);
                         end;
                 end;
 
@@ -1182,7 +1180,7 @@ codeunit 99000845 "Reservation Management"
                   TransLine."Variant Code", LocationCode, TransLine."Qty. per Unit of Measure");
                 CallTrackingSpecification.CopyTrackingFromReservEntry(CalcReservEntry);
 
-                CallCreateReservation(
+                InsertReservationEntries(
                     RemainingQtyToReserve, RemainingQtyToReserveBase, ReservQty,
                     Description, EntryDate, QtyThisLine, QtyThisLineBase, CallTrackingSpecification);
             until (TransLine.Next(NextStep) = 0) or (RemainingQtyToReserveBase = 0);
@@ -1214,15 +1212,14 @@ codeunit 99000845 "Reservation Management"
                     QtyThisLineBase := 0;
                 end;
 
-                NarrowQtyToReserveDownToTrackedQuantity(
-                  CalcReservEntry, ServiceLine.RowID1, QtyThisLine, QtyThisLineBase);
+                SetQtyToReserveDownToTrackedQuantity(CalcReservEntry, ServiceLine.RowID1, QtyThisLine, QtyThisLineBase);
 
                 CallTrackingSpecification.InitTrackingSpecification(
-                  DATABASE::"Service Line", ServiceLine."Document Type", ServiceLine."Document No.", '', 0, ServiceLine."Line No.",
+                  DATABASE::"Service Line", ServiceLine."Document Type".AsInteger(), ServiceLine."Document No.", '', 0, ServiceLine."Line No.",
                   ServiceLine."Variant Code", ServiceLine."Location Code", ServiceLine."Qty. per Unit of Measure");
                 CallTrackingSpecification.CopyTrackingFromReservEntry(CalcReservEntry);
 
-                CallCreateReservation(
+                InsertReservationEntries(
                     RemainingQtyToReserve, RemainingQtyToReserveBase, ReservQty,
                     Description, ServiceLine."Needed by Date", QtyThisLine, QtyThisLineBase, CallTrackingSpecification);
             until (ServiceLine.Next(NextStep) = 0) or (RemainingQtyToReserveBase = 0);
@@ -1261,13 +1258,13 @@ codeunit 99000845 "Reservation Management"
                   JobPlanningLine."Variant Code", JobPlanningLine."Location Code", JobPlanningLine."Qty. per Unit of Measure");
                 CallTrackingSpecification.CopyTrackingFromReservEntry(CalcReservEntry);
 
-                CallCreateReservation(
+                InsertReservationEntries(
                     RemainingQtyToReserve, RemainingQtyToReserveBase, ReservQty,
                     Description, JobPlanningLine."Planning Date", QtyThisLine, QtyThisLineBase, CallTrackingSpecification);
             until (JobPlanningLine.Next(NextStep) = 0) or (RemainingQtyToReserveBase = 0);
     end;
 
-    local procedure CallCreateReservation(var RemainingQtyToReserve: Decimal; var RemainingQtyToReserveBase: Decimal; ReservQty: Decimal; Description: Text[100]; ExpectedDate: Date; QtyThisLine: Decimal; QtyThisLineBase: Decimal; TrackingSpecification: Record "Tracking Specification") ReservationCreated: Boolean
+    procedure InsertReservationEntries(var RemainingQtyToReserve: Decimal; var RemainingQtyToReserveBase: Decimal; ReservQty: Decimal; Description: Text[100]; ExpectedDate: Date; QtyThisLine: Decimal; QtyThisLineBase: Decimal; TrackingSpecification: Record "Tracking Specification") ReservationCreated: Boolean
     begin
         if QtyThisLineBase = 0 then
             exit;
@@ -1295,7 +1292,6 @@ codeunit 99000845 "Reservation Management"
         OnBeforeCreateReservation(TrackingSpecification, CalcReservEntry, CalcItemLedgEntry);
 
         OnCreateReservation(SourceRecRef, TrackingSpecification, CalcReservEntry, Description, ExpectedDate, Quantity, QuantityBase);
-
     end;
 
     procedure DeleteReservEntries(DeleteAll: Boolean; DownToQuantity: Decimal)
@@ -1560,7 +1556,7 @@ codeunit 99000845 "Reservation Management"
             ToValue := -ToValue;
     end;
 
-    local procedure SetValueArray(EntryStatus: Option Reservation,Tracking,Simulation): Integer
+    local procedure SetValueArray(EntryStatus: Option Reservation,Tracking,Simulation) ArrayCounter: Integer
     begin
         Clear(ValueArray);
         case EntryStatus of
@@ -1581,7 +1577,7 @@ codeunit 99000845 "Reservation Management"
                     ValueArray[13] := 133;
                     ValueArray[14] := 142;
                     ValueArray[15] := 152;
-                    exit(15);
+                    ArrayCounter := 15;
                 end;
             1:
                 begin // Order Tracking
@@ -1603,24 +1599,24 @@ codeunit 99000845 "Reservation Management"
                     ValueArray[16] := 133;
                     ValueArray[17] := 142;
                     ValueArray[18] := 152;
-                    exit(18);
+                    ArrayCounter := 18;
                 end;
             2:
                 begin // Simulation order tracking
                     ValueArray[1] := 31;
                     ValueArray[2] := 61;
                     ValueArray[3] := 71;
-                    exit(3);
+                    ArrayCounter := 3;
                 end;
             3:
                 begin // Item Tracking
                     ValueArray[1] := 1;
                     ValueArray[2] := 6500;
-                    exit(2);
+                    ArrayCounter := 2;
                 end;
         end;
 
-        OnAfterSetValueArray(EntryStatus, ValueArray);
+        OnAfterSetValueArray(EntryStatus, ValueArray, ArrayCounter);
     end;
 
     procedure ClearSurplus()
@@ -2671,7 +2667,7 @@ codeunit 99000845 "Reservation Management"
         SkipUntrackedSurplus := NewSkipUntrackedSurplus;
     end;
 
-    local procedure NarrowQtyToReserveDownToTrackedQuantity(ReservEntry: Record "Reservation Entry"; RowID: Text[250]; var QtyThisLine: Decimal; var QtyThisLineBase: Decimal)
+    procedure SetQtyToReserveDownToTrackedQuantity(ReservEntry: Record "Reservation Entry"; RowID: Text[250]; var QtyThisLine: Decimal; var QtyThisLineBase: Decimal)
     var
         FilterReservEntry: Record "Reservation Entry";
         TempTrackingSpec: Record "Tracking Specification" temporary;
@@ -2680,11 +2676,11 @@ codeunit 99000845 "Reservation Management"
         MaxReservQtyPerLotOrSerial: Decimal;
         MaxReservQtyBasePerLotOrSerial: Decimal;
     begin
-        if not ReservEntry.TrackingExists then
+        if not ReservEntry.TrackingExists() then
             exit;
 
         FilterReservEntry.SetPointer(RowID);
-        FilterReservEntry.SetPointerFilter;
+        FilterReservEntry.SetPointerFilter();
         FilterReservEntry.SetTrackingFilterFromReservEntry(ReservEntry);
         ItemTrackingMgt.SumUpItemTracking(FilterReservEntry, TempTrackingSpec, true, true);
 
@@ -2693,8 +2689,8 @@ codeunit 99000845 "Reservation Management"
             UOMMgt.CalcQtyFromBase(
                 FilterReservEntry."Item No.", FilterReservEntry."Variant Code", '',
                 MaxReservQtyBasePerLotOrSerial, TempTrackingSpec."Qty. per Unit of Measure");
-        QtyThisLine := MinAbs(QtyThisLine, MaxReservQtyPerLotOrSerial) * Sign(QtyThisLine);
-        QtyThisLineBase := MinAbs(QtyThisLineBase, MaxReservQtyPerLotOrSerial) * Sign(QtyThisLineBase);
+        QtyThisLine := GetMinAbs(QtyThisLine, MaxReservQtyPerLotOrSerial) * GetSign(QtyThisLine);
+        QtyThisLineBase := GetMinAbs(QtyThisLineBase, MaxReservQtyPerLotOrSerial) * GetSign(QtyThisLineBase);
     end;
 
     local procedure IsSpecialOrderOrDropShipment(ReservationEntry: Record "Reservation Entry"): Boolean
@@ -2713,7 +2709,7 @@ codeunit 99000845 "Reservation Management"
         exit(false);
     end;
 
-    local procedure MinAbs(Value1: Decimal; Value2: Decimal): Decimal
+    procedure GetMinAbs(Value1: Decimal; Value2: Decimal): Decimal
     begin
         Value1 := Abs(Value1);
         Value2 := Abs(Value2);
@@ -2722,7 +2718,7 @@ codeunit 99000845 "Reservation Management"
         exit(Value2);
     end;
 
-    local procedure Sign(Value: Decimal): Integer
+    procedure GetSign(Value: Decimal): Integer
     begin
         if Value >= 0 then
             exit(1);
@@ -2772,7 +2768,7 @@ codeunit 99000845 "Reservation Management"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterAutoReserveOneLine(ReservSummEntryNo: Integer; var RemainingQtyToReserve: Decimal; var RemainingQtyToReserveBase: Decimal; Description: Text[100]; AvailabilityDate: Date; Search: Text[1]; NextStep: Integer)
+    local procedure OnAfterAutoReserveOneLine(ReservSummEntryNo: Integer; var RemainingQtyToReserve: Decimal; var RemainingQtyToReserveBase: Decimal; Description: Text[100]; AvailabilityDate: Date; Search: Text[1]; NextStep: Integer; CalcReservEntry: Record "Reservation Entry")
     begin
     end;
 
@@ -2792,7 +2788,7 @@ codeunit 99000845 "Reservation Management"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterSetValueArray(EntryStatus: Option Reservation,Tracking,Simulation; var ValueArray: array[18] of Integer)
+    local procedure OnAfterSetValueArray(EntryStatus: Option Reservation,Tracking,Simulation; var ValueArray: array[30] of Integer; var ArrayCounter: Integer)
     begin
     end;
 
@@ -2807,6 +2803,11 @@ codeunit 99000845 "Reservation Management"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAutoReserveOnBeforeStopReservation(var CalcReservEntry: Record "Reservation Entry"; var FullAutoReservation: Boolean; var AvailabilityDate: Date; var MaxQtyToReserve: Decimal; var MaxQtyToReserveBase: Decimal; var StopReservation: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAutoReserveOneLineOnAfterUpdateSearchNextStep(var Item: Record Item; var Positive: Boolean; var Search: Text[1]; var NextStep: Integer; var InvSearch: Text[1]; InvNextStep: Integer)
     begin
     end;
@@ -2817,12 +2818,17 @@ codeunit 99000845 "Reservation Management"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeAutoReserve(var CalcReservEntry: Record "Reservation Entry"; var FullAutoReservation: Boolean; var Description: Text[100]; var AvailabilityDate: Date; var MaxQtyToReserve: Decimal; var MaxQtyToReserveBase: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeAutoReserveItemLedgEntry(ReservSummEntryNo: Integer; var RemainingQtyToReserve: Decimal; var RemainingQtyToReserveBase: Decimal; Description: Text[100]; AvailabilityDate: Date; var IsReserved: Boolean; CalcReservEntry: Record "Reservation Entry")
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeAutoReservePurchLine(ReservSummEntryNo: Integer; var RemainingQtyToReserve: Decimal; var RemainingQtyToReserveBase: Decimal; Description: Text[100]; AvailabilityDate: Date; var IsReserved: Boolean; Search: Text[1]; NextStep: Integer)
+    local procedure OnBeforeAutoReservePurchLine(ReservSummEntryNo: Integer; var RemainingQtyToReserve: Decimal; var RemainingQtyToReserveBase: Decimal; Description: Text[100]; AvailabilityDate: Date; var IsReserved: Boolean; var Search: Text[1]; var NextStep: Integer)
     begin
     end;
 
@@ -2978,6 +2984,11 @@ codeunit 99000845 "Reservation Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnSetPurchLineOnBeforeUpdateReservation(var ReservEntry: Record "Reservation Entry"; PurchLine: Record "Purchase Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSetReservSource(SourceRecRef: RecordRef; var ReservEntry: Record "Reservation Entry"; Direction: Enum "Transfer Direction")
     begin
     end;
 

@@ -450,31 +450,33 @@ codeunit 132200 "Library - Costing"
     var
         PostValueEntryToGL: Record "Post Value Entry to G/L";
         PostInventoryCosttoGL: Report "Post Inventory Cost to G/L";
+        LibraryERM: Codeunit "Library - ERM";
         PostMethod: Option "per Posting Group","per Entry";
+        TemplateName: Code[10];
+        BatchName: Code[10];
     begin
         Commit();
 
         PostValueEntryToGL.SetFilter("Posting Date", '=%1', PostingDate);
-        if PerPostingGroup then begin
-            PostMethod := PostMethod::"per Posting Group";
-            PostInventoryCosttoGL.InitializeRequest(PostMethod, DocNo, true);
-        end else begin
+        if PerPostingGroup then
+            PostMethod := PostMethod::"per Posting Group"
+        else
             PostMethod := PostMethod::"per Entry";
-            PostInventoryCosttoGL.InitializeRequest(PostMethod, '', true);
-        end;
+        LibraryERM.FindGenJnlTemplateAndBatch(TemplateName, BatchName);
+        PostInventoryCosttoGL.InitializeRequest(PostMethod, true, TemplateName, BatchName);
         PostInventoryCosttoGL.SetTableView(PostValueEntryToGL);
         PostInventoryCosttoGL.UseRequestPage(false);
         PostInventoryCosttoGL.SaveAsPdf(StrSubstNo(TempPathTxt, TemporaryPath, DocNo));
     end;
 
-    procedure PostInvtCostToGLTest(PostMethod: Option; ItemNo: Code[20]; DocumentNo: Code[20]; ShowDim: Boolean; ShowOnlyWarnings: Boolean)
+    procedure PostInvtCostToGLTest(PostMethod: Option; ItemNo: Code[20]; TemplateName: Code[10]; BatchName: Code[10]; ShowDim: Boolean; ShowOnlyWarnings: Boolean)
     var
         PostValueEntryToGL: Record "Post Value Entry to G/L";
         PostInvtCostToGLTest: Report "Post Invt. Cost to G/L - Test";
     begin
         Commit();
         PostValueEntryToGL.SetRange("Item No.", ItemNo);
-        PostInvtCostToGLTest.InitializeRequest(PostMethod, DocumentNo, ShowDim, ShowOnlyWarnings);
+        PostInvtCostToGLTest.InitializeRequest(PostMethod, ShowDim, ShowOnlyWarnings, TemplateName, BatchName);
         PostInvtCostToGLTest.SetTableView(PostValueEntryToGL);
         PostInvtCostToGLTest.UseRequestPage(false);
     end;

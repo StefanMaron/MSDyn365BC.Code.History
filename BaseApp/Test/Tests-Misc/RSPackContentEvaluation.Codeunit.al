@@ -619,8 +619,8 @@ codeunit 138400 "RS Pack Content - Evaluation"
     var
         VATProductPostingGroup: Record "VAT Product Posting Group";
     begin
-        // [SCENARIO] There are 7 VAT Prod. Posting groups
-        Assert.RecordCount(VATProductPostingGroup, 7);
+        // [SCENARIO] There are 11 VAT Prod. Posting groups
+        Assert.RecordCount(VATProductPostingGroup, 11);
     end;
 
     [Test]
@@ -639,18 +639,6 @@ codeunit 138400 "RS Pack Content - Evaluation"
                 Assert.RecordIsNotEmpty(Permission);
             until ConfigPackageTable.Next = 0;
         end;
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure ItemsHaveImages()
-    var
-        Item: Record Item;
-    begin
-        Item.FindSet;
-        repeat
-            Assert.AreNotEqual(0, Item.Picture.Count, StrSubstNo('Expected at least one image for item %1', Item."No."));
-        until Item.Next = 0;
     end;
 
     [Test]

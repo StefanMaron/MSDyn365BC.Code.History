@@ -118,6 +118,9 @@ page 9633 "Page Inspection Extensions"
         ApplicationObjectMetadata: Record "Application Object Metadata";
         TempGuid: Guid;
     begin
+        if (PageId = CurrentPageId) and (TableId = CurrentTableId) then
+            exit;
+
         CurrentPageId := PageId;
         CurrentTableId := TableId;
         FilterConditions := '';

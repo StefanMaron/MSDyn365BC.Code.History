@@ -15,13 +15,14 @@ codeunit 134600 "Report Layout Test"
     var
         Assert: Codeunit Assert;
         WrongRegNoErr: Label 'Wrong Company Registration Number';
-        WrongRegNoLblErr: Label 'Wrong "Registration No." field caption';
+        WrongRegNoLblErr: Label 'Wrong "Enterprise No." field caption';
         LibraryJob: Codeunit "Library - Job";
         LibraryInventory: Codeunit "Library - Inventory";
         LibraryReportDataset: Codeunit "Library - Report Dataset";
         LibraryUtility: Codeunit "Library - Utility";
         LibraryRandom: Codeunit "Library - Random";
         LibrarySales: Codeunit "Library - Sales";
+        LibraryBEHelper: Codeunit "Library - BE Helper";
         LibraryTablesUT: Codeunit "Library - Tables UT";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         FileManagement: Codeunit "File Management";
@@ -309,16 +310,20 @@ codeunit 134600 "Report Layout Test"
         LayoutCode := CustomReportLayout.InitBuiltInLayout(StandardSalesInvoiceReportID, CustomReportLayout.Type::Word);
         CustomReportLayout.Get(LayoutCode);
         DefaultFileName := CustomReportLayout.ExportLayout(FileManagement.ServerTempFileName('docx'), false);
+        LayoutDescription := LibraryUtility.GenerateGUID;
 
         CustomReportLayout.SetRange("Report ID", StandardSalesInvoiceReportID);
         CustomReportLayout.DeleteAll();
         CustomReportLayout.Init();
         CustomReportLayout."Report ID" := StandardSalesInvoiceReportID;
-        LayoutDescription := LibraryUtility.GenerateGUID;
+        CustomReportLayout.Type := CustomReportLayout.Type::Word;
+        CustomReportLayout."File Extension" := 'docx';
         CustomReportLayout.Description := LayoutDescription;
         CustomReportLayout."Built-In" := true;
         CustomReportLayout.Insert();
+
         LayoutCode := CustomReportLayout.Code;
+
         if not ReportLayout.Get(LayoutCode) then begin
             ReportLayout.Init();
             ReportLayout.Code := LayoutCode;
@@ -881,17 +886,19 @@ codeunit 134600 "Report Layout Test"
     procedure GetCompanyRegistationNo()
     var
         CompanyInformation: Record "Company Information";
+        PrevCountry: Code[10];
     begin
         // [FEATURE] [Company Information] [UT]
-        // [SCENARIO 375887] GetRegistrationNumber and GetRegistrationNumberLbl should return "Registration No." and its caption
+        // [SCENARIO 375887] GetRegistrationNumber and GetRegistrationNumberLbl should return "Enterprise No." and its caption
         CompanyInformation.Get();
-        CompanyInformation.Validate(
-          "Registration No.",
-          LibraryUtility.GenerateRandomCode(CompanyInformation.FieldNo("Registration No."), DATABASE::"Company Information"));
+        PrevCountry := CompanyInformation."Country/Region Code";
+        CompanyInformation.Validate("Country/Region Code", '');
+        CompanyInformation.Validate("Enterprise No.", LibraryBEHelper.CreateMOD97CompliantCode);
         CompanyInformation.Modify();
-        Assert.AreEqual(CompanyInformation."Registration No.", CompanyInformation.GetRegistrationNumber, WrongRegNoErr);
-        Assert.AreEqual(
-          CompanyInformation.FieldCaption("Registration No."), CompanyInformation.GetRegistrationNumberLbl, WrongRegNoLblErr);
+        Assert.AreEqual(CompanyInformation."Enterprise No.", CompanyInformation.GetRegistrationNumber, WrongRegNoErr);
+        Assert.AreEqual(CompanyInformation.FieldCaption("Enterprise No."), CompanyInformation.GetRegistrationNumberLbl, WrongRegNoLblErr);
+        CompanyInformation.Validate("Country/Region Code", PrevCountry);
+        CompanyInformation.Modify();
     end;
 
     [Test]

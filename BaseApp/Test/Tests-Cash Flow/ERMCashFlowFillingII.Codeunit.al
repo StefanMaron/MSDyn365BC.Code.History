@@ -815,6 +815,7 @@ codeunit 134553 "ERM Cash Flow - Filling II"
         SalesHeader: Record "Sales Header";
         CFWorksheetLine: Record "Cash Flow Worksheet Line";
         SalesInvoiceHeader: Record "Sales Invoice Header";
+        SalesInvLine: Record "Sales Invoice Line";
         ExpectedSOAmount: Decimal;
         ExpectedPrePmtAmount: Decimal;
         PrePmtInvNo: Code[20];
@@ -840,11 +841,15 @@ codeunit 134553 "ERM Cash Flow - Filling II"
         FillJournalWithoutGroupBy(ConsiderSource, CashFlowForecast."No.");
 
         // Verify
+        SalesInvLine.SetRange("Document No.", PrePmtInvNo);
+        SalesInvLine.FindFirst;
+
         LibraryCashFlowHelper.VerifyCFDataOnSnglJnlLine(
           CFWorksheetLine, SalesHeader."No.", SourceType::"Sales Orders", CashFlowForecast."No.",
           ExpectedSOAmount, CalcDate(PaymentTerms2."Discount Date Calculation", SalesHeader."Document Date"));
         LibraryCashFlowHelper.VerifyCFDataOnSnglJnlLine(CFWorksheetLine, PrePmtInvNo, SourceType::Receivables, CashFlowForecast."No.",
-          ExpectedPrePmtAmount, CalcDate(PaymentTerms2."Discount Date Calculation", SalesInvoiceHeader."Posting Date"));
+          ExpectedPrePmtAmount + ((SalesInvLine.Amount - SalesInvLine."VAT Base Amount") * PaymentTerms2."Discount %" / 100),
+          CalcDate(PaymentTerms2."Discount Date Calculation", SalesInvoiceHeader."Posting Date"));
     end;
 
     [Test]

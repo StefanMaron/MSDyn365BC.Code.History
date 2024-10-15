@@ -1295,6 +1295,8 @@ codeunit 137101 "SCM Kitting"
         AssemblyHeader: Record "Assembly Header";
         AssemblyItem: Record Item;
         TempAssemblyLine: Record "Assembly Line" temporary;
+        TemplateName: Code[10];
+        BatchName: Code[10];
     begin
         // Setup: Update Automatic Cost Posting and Automatic Cost Adjustment on Inventory Setup. Create Initial Setup for Posting Assembly Order with Multiple Component Items. Run Adjust Cost Item Entries Report. Post Assembly Order.
         Initialize;
@@ -1309,7 +1311,8 @@ codeunit 137101 "SCM Kitting"
         PrepareAndPostAssemblyOrder(AssemblyHeader, TempAssemblyLine, 100, 70, false);  // Use 100 for full Quantity to Assemble and 70 for Quantity to Consume.
 
         // Exercise.
-        LibraryAssembly.PostInvtCostToGL(false, AssemblyItem."No.", '', StrSubstNo(FileName, TemporaryPath + AssemblyItem."No."));
+        LibraryERM.FindGenJnlTemplateAndBatch(TemplateName, BatchName);
+        LibraryAssembly.PostInvtCostToGL(false, AssemblyItem."No.", StrSubstNo(FileName, TemporaryPath + AssemblyItem."No."), TemplateName, BatchName);
 
         // Verify.
         VerifyGLEntry(AssemblyItem, AssemblyHeader."No.");
@@ -1324,6 +1327,8 @@ codeunit 137101 "SCM Kitting"
         AssemblyHeader: Record "Assembly Header";
         AssemblyItem: Record Item;
         TempAssemblyLine: Record "Assembly Line" temporary;
+        TemplateName: Code[10];
+        BatchName: Code[10];
     begin
         // Setup: Update Automatic Cost Posting and Automatic Cost Adjustment on Inventory Setup. Create Initial Setup for Posting Assembly Order with Multiple Component Items. Post Assembly Order.
         Initialize;
@@ -1338,8 +1343,9 @@ codeunit 137101 "SCM Kitting"
         PrepareAndPostAssemblyOrder(AssemblyHeader, TempAssemblyLine, 100, 70, false);  // Use 100 for full Quantity to Assemble and 70 for Quantity to Consume.
 
         // Exercise.
+        LibraryERM.FindGenJnlTemplateAndBatch(TemplateName, BatchName);
         LibraryVariableStorage.Enqueue(ValueEntriesWerePostedTxt);
-        LibraryAssembly.PostInvtCostToGL(false, AssemblyItem."No.", '', StrSubstNo(FileName, TemporaryPath + AssemblyItem."No."));
+        LibraryAssembly.PostInvtCostToGL(false, AssemblyItem."No.", StrSubstNo(FileName, TemporaryPath + AssemblyItem."No."), TemplateName, BatchName);
 
         // Verify.
         VerifyGLEntry(AssemblyItem, AssemblyHeader."No.");
@@ -1354,6 +1360,8 @@ codeunit 137101 "SCM Kitting"
         AssemblyHeader: Record "Assembly Header";
         AssemblyItem: Record Item;
         TempAssemblyLine: Record "Assembly Line" temporary;
+        TemplateName: Code[10];
+        BatchName: Code[10];
     begin
         // Setup: Update Automatic Cost Posting and Automatic Cost Adjustment on Inventory Setup. Create Initial Setup for Posting Assembly Order with Multiple Component Items. Post Assembly Order. Run Adjust Cost Item Entries Report.
         Initialize;
@@ -1366,8 +1374,9 @@ codeunit 137101 "SCM Kitting"
         LibraryCosting.AdjustCostItemEntries(AssemblyItem."No.", '');
 
         // Exercise.
+        LibraryERM.FindGenJnlTemplateAndBatch(TemplateName, BatchName);
         LibraryVariableStorage.Enqueue(ValueEntriesWerePostedTxt);
-        LibraryAssembly.PostInvtCostToGL(false, AssemblyItem."No.", '', StrSubstNo(FileName, TemporaryPath + AssemblyItem."No."));
+        LibraryAssembly.PostInvtCostToGL(false, AssemblyItem."No.", StrSubstNo(FileName, TemporaryPath + AssemblyItem."No."), TemplateName, BatchName);
 
         // Verify.
         VerifyGLEntry(AssemblyItem, AssemblyHeader."No.");

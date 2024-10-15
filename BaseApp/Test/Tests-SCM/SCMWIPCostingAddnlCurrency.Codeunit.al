@@ -283,10 +283,14 @@ codeunit 137002 "SCM WIP Costing Addnl Currency"
     [ReportHandler]
     [Scope('OnPrem')]
     procedure AdjustAddnlCurrReportHandler(var AdjustAddReportingCurrency: Report "Adjust Add. Reporting Currency")
+    var
+        TemplateName: Code[10];
+        BatchName: Code[10];
     begin
-        // Report Handler: Update request form with random Document No, Retained Earnings Account and run the
+        // Report Handler: Update request form with random template and batch, Retained Earnings Account and run the
         // Adjust Additional Reporting Currency report.
-        AdjustAddReportingCurrency.InitializeRequest(Format(LibraryRandom.RandInt(100)), SelectGLAccountNo);
+        LibraryERM.FindGenJnlTemplateAndBatch(TemplateName, BatchName);
+        AdjustAddReportingCurrency.InitializeRequest(SelectGLAccountNo, TemplateName, BatchName);
         AdjustAddReportingCurrency.UseRequestPage(false);
         AdjustAddReportingCurrency.Run;
     end;

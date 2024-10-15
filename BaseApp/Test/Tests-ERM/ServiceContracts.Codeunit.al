@@ -179,7 +179,7 @@ codeunit 136102 "Service Contracts"
         // Contract's Customer No. field.
         // [SCENARIO 224033] Fields "Bill-to Contact No." and "Bill-to Contact" must be copied from Service Contract to Service Credit Memo by function ServContractManagement.CreateServHeader
 
-        // 1. Setup: Create and Sign Service Contract and Set Workdate.
+        // 1. Setup: Create and Sign Service Contract.
         Initialize;
         CreateServiceContract(ServiceContractHeader, ServiceContractLine, ServiceContractHeader."Contract Type"::Contract);
         ModifyServiceContractHeader(ServiceContractHeader, ServiceContractHeader."Service Period");
@@ -297,8 +297,6 @@ codeunit 136102 "Service Contracts"
         Initialize;
         CreateServiceContract(ServiceContractHeader, ServiceContractLine, ServiceContractHeader."Contract Type"::Contract);
         ModifyServiceContractHeader(ServiceContractHeader, ServiceContractHeader."Service Period");
-        ServiceContractHeader.Validate("Starting Date", LibraryRandom.RandDateFrom(CalcDate('<-CM>', WorkDate), 5));
-        ServiceContractHeader.Modify(true);
         SignServContractDoc.SignContract(ServiceContractHeader);
 
         // 2. Exercise: Update Contract Price in Service Contract.
@@ -1214,8 +1212,6 @@ codeunit 136102 "Service Contracts"
         UpdateContractLineCostAndValue(ServiceContractLine);
         Evaluate(ServiceContractHeader."Service Period", StrSubstNo('<%1Y>', LibraryRandom.RandInt(5)));
         ModifyServiceContractHeader(ServiceContractHeader, ServiceContractHeader."Service Period");
-        ServiceContractHeader.Validate("Starting Date", LibraryRandom.RandDateFrom(CalcDate('<-CM>', WorkDate), 5));
-        ServiceContractHeader.Modify(true);
         SignServContractDoc.SignContract(ServiceContractHeader);
 
         // 2. Exercise: Create Service Invoice.
@@ -4333,12 +4329,17 @@ codeunit 136102 "Service Contracts"
     var
         ServiceLedgerEntry: Record "Service Ledger Entry";
         PostPrepaidContractEntries: Report "Post Prepaid Contract Entries";
+        GenJournalTemplateName: Code[10];
+        GenJournalBatchName: Code[10];
         PostPrepaidContractAction: Option "Post Prepaid Transactions","Print Only";
     begin
         Clear(PostPrepaidContractEntries);
         ServiceLedgerEntry.SetRange("Service Contract No.", ContractNo);
+        LibraryERM.FindGenJnlTemplateAndBatch(GenJournalTemplateName, GenJournalBatchName);
         PostPrepaidContractEntries.SetTableView(ServiceLedgerEntry);
-        PostPrepaidContractEntries.InitializeRequest(PostTillDate, PostingDate, PostPrepaidContractAction::"Post Prepaid Transactions");
+        PostPrepaidContractEntries.InitializeRequest(
+          PostTillDate, PostingDate, PostPrepaidContractAction::"Post Prepaid Transactions",
+          GenJournalTemplateName, GenJournalBatchName);
         PostPrepaidContractEntries.UseRequestPage(false);
         PostPrepaidContractEntries.Run;
     end;

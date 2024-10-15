@@ -1276,7 +1276,6 @@ codeunit 137351 "SCM Inventory Reports - IV"
         LibraryVariableStorage.Enqueue(ValueEntriesWerePostedTxt);
 
         LibraryLowerPermissions.SetO365Full;
-
         RunPostInventoryCostToGL(ItemNo);
 
         // Verify: Verified Inventory Cost Posted to GL Caption with Inventory Amount.
@@ -3591,9 +3590,13 @@ codeunit 137351 "SCM Inventory Reports - IV"
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure PostInventoryCostToGLRequestPageHandler(var PostInventoryCostToGL: TestRequestPage "Post Inventory Cost to G/L")
+    var
+        InventorySetup: Record "Inventory Setup";
     begin
         PostInventoryCostToGL.PostMethod.SetValue(Format(PostInventoryCostToGL.PostMethod.GetOption(2)));
-        PostInventoryCostToGL.DocumentNo.SetValue('');
+        InventorySetup.Get();
+        PostInventoryCostToGL.JnlTemplateName.SetValue(InventorySetup."Jnl. Templ. Name Cost Posting");
+        PostInventoryCostToGL.JnlBatchName.SetValue(InventorySetup."Jnl. Batch Name Cost Posting");
         PostInventoryCostToGL.Post.SetValue(true);
         PostInventoryCostToGL.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
     end;

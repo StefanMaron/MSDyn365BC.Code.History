@@ -112,6 +112,7 @@ codeunit 134906 "ERM Finance Charge Memo Text"
     end;
 
     [Test]
+    [HandlerFunctions('IssuedFinChargeMemosRPH')]
     [Scope('OnPrem')]
     procedure IssuedFinanceChargeMemo()
     var
@@ -314,6 +315,19 @@ codeunit 134906 "ERM Finance Charge Memo Text"
         SuggestFinChargeMemoLines.SetTableView(FinanceChargeMemoHeader);
         SuggestFinChargeMemoLines.UseRequestPage(false);
         SuggestFinChargeMemoLines.Run;
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure IssuedFinChargeMemosRPH(var IssuedFinChargeMemos: TestRequestPage "Issue Finance Charge Memos")
+    var
+        JnlTemplateName: Code[10];
+        JnlBatchName: Code[10];
+    begin
+        LibraryERM.FindGenJnlTemplateAndBatch(JnlTemplateName, JnlBatchName);
+        IssuedFinChargeMemos.JnlTemplateName.SetValue(JnlTemplateName);
+        IssuedFinChargeMemos.JnlBatchName.SetValue(JnlBatchName);
+        IssuedFinChargeMemos.OK.Invoke;
     end;
 
     local procedure VerifyLineDescription(FinanceChargeMemoNo: Code[20]; Description: Text[100])

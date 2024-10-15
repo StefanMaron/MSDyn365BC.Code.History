@@ -37,6 +37,8 @@ codeunit 134114 "ERM Apply Unapply Employee"
         NoOfLines: Integer;
         Amount: Decimal;
     begin
+        // Verify Additional Currency, Remaining Amount and Entries unapplied after Applying and then Unapplying Payment Entries for Employee.
+
         // Setup: Update General Ledger Setup and take Random Amount greater than 100 (Standard Value)
         Initialize;
         LibraryLowerPermissions.SetOutsideO365Scope;
@@ -379,7 +381,7 @@ codeunit 134114 "ERM Apply Unapply Employee"
 
         // [WHEN] Apply Payment to Invoice
         LibraryERM.FindEmployeeLedgerEntry(EmplLedgerEntry, EmplLedgerEntry."Document Type"::Payment, DocNo);
-        asserterror EmplEntryApplyPostedEntries.Apply(EmplLedgerEntry, DocNo, WorkDate);
+        asserterror EmplEntryApplyPostedEntries.Apply(EmplLedgerEntry, DocNo, WorkDate, GenJournalTemplate.Name, GenJournalBatch.Name);
 
         // [THEN] The following message appears: Cannot post because you did not specify which entry to apply. You must specify an entry in the Applies-to ID field for one or more open entries.
         Assert.ExpectedError(NoEntriesAppliedErr);

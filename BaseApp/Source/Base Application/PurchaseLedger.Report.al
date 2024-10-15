@@ -25,7 +25,7 @@ report 11301 "Purchase Ledger"
                 dataitem("G/L Entry"; "G/L Entry")
                 {
                     DataItemLinkReference = PeriodLoop;
-                    DataItemTableView = SORTING("Journal Template Name", "Posting Date", "Document No.");
+                    DataItemTableView = SORTING("Journal Template Name", "Document No.", "Posting Date");
                     column(ReportFilter; ReportFilter)
                     {
                     }

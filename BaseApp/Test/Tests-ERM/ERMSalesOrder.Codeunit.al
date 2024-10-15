@@ -3014,19 +3014,15 @@ codeunit 134378 "ERM Sales Order"
     var
         SalesHeader: Record "Sales Header";
         SalesLineTest: Record "Sales Line";
-        NrOfNotInvoiced: Decimal;
-        AmountExclVAT: Decimal;
     begin
         // [GIVEN] Prepared Sales Header with one Sales Header with Value,Quantity,VAT
         InitNotInvoicedData(SalesHeader, SalesLineTest, 800, 10, 10);
 
         // [WHEN] Set some partial amount as shipped
-        NrOfNotInvoiced := LibraryRandom.RandIntInRange(1, 9);
-        SalesLineTest."Quantity Shipped" := NrOfNotInvoiced;
+        SalesLineTest."Quantity Shipped" := 2;
 
         // [THEN] Recalculate amount on Header and compare it with exact amount
-        AmountExclVAT := 800 * NrOfNotInvoiced;
-        VerifyNotInvoicedData(SalesHeader, SalesLineTest, AmountExclVAT, AmountExclVAT * 1.1);
+        VerifyNotInvoicedData(SalesHeader, SalesLineTest, 1600, 1760);
     end;
 
     [Test]
@@ -3174,7 +3170,7 @@ codeunit 134378 "ERM Sales Order"
           -(Round((InvDiscAmount + AmountToPost) * SalesLine."VAT %" / 100, LibraryERM.GetAmountRoundingPrecision) + VATDiffAmount));
         Assert.RecordCount(VATEntry, 2);
 
-        // [THEN] Customer Ledger Entry with Amount = 14 = 100 - 90 + 4, "Purchase (LCY)" = 10 and "Inv. Discount (LCY)" = 90 posted
+        // [THEN] CLE with Amount = 14 = 100 - 90 + 4, "Purchase (LCY)" = 10 and "Inv. Discount (LCY)" = 90 posted
         FindCustLedgerEntry(CustLedgerEntry, SalesHeader."Sell-to Customer No.", DocumentNo);
 
         CustLedgerEntry.CalcFields(Amount);

@@ -70,8 +70,8 @@ codeunit 138500 "Common Demodata"
     var
         VATBusPostingGroup: Record "VAT Business Posting Group";
     begin
-        // [SCENARIO] There are 3 VAT Bus. Posting groups
-        Assert.RecordCount(VATBusPostingGroup, 3);
+        // [SCENARIO] There are 5 VAT Bus. Posting groups
+        Assert.RecordCount(VATBusPostingGroup, 5);
     end;
 
     [Test]
@@ -80,17 +80,16 @@ codeunit 138500 "Common Demodata"
     var
         VATPostingSetup: Record "VAT Posting Setup";
     begin
-        // [SCENARIO] There are 12 VAT posting setup entries: 2 - "Reverse Charge VAT", none - "Full VAT" and 'Sales Tax'
+        // [SCENARIO] There are 12 VAT posting setup entries: 20 - "Reverse Charge VAT", none - "Full VAT" and 'Sales Tax'
         with VATPostingSetup do begin
             SetRange("VAT Calculation Type", "VAT Calculation Type"::"Reverse Charge VAT");
-            Assert.RecordCount(VATPostingSetup, 2);
+            Assert.RecordCount(VATPostingSetup, 20);
 
             SetRange("VAT Calculation Type", "VAT Calculation Type"::"Full VAT", "VAT Calculation Type"::"Sales Tax");
-            Assert.RecordCount(VATPostingSetup, 0);
-
+            Assert.RecordCount(VATPostingSetup, 1);
             Reset;
             SetRange("EU Service", true);
-            Assert.RecordCount(VATPostingSetup, 1);
+            Assert.RecordCount(VATPostingSetup, 0);
         end;
     end;
 
@@ -130,7 +129,7 @@ codeunit 138500 "Common Demodata"
         PaymentMethod: Record "Payment Method";
     begin
         // [FEATURE] [Invoicing]
-        // [SCENARIO 184609] There should be 3 payment methods with Use for Invoicing = Yes
+        // [SCENARIO 184609] There should be 5 payment methods with Use for Invoicing = Yes
         PaymentMethod.SetRange("Use for Invoicing", true);
         Assert.RecordCount(PaymentMethod, 5);
     end;

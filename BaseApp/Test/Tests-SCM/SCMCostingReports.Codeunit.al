@@ -21,6 +21,7 @@ codeunit 137306 "SCM Costing Reports"
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
         LibraryReportDataset: Codeunit "Library - Report Dataset";
+        LibraryERM: Codeunit "Library - ERM";
         isInitialized: Boolean;
 
     [Test]
@@ -221,6 +222,7 @@ codeunit 137306 "SCM Costing Reports"
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
         InventorySetup: Record "Inventory Setup";
         Item: Record Item;
+        BatchName: Record "Gen. Journal Batch";
         NewPostingDate: Date;
         UnitCost: Decimal;
         Quantity: Decimal;
@@ -233,6 +235,8 @@ codeunit 137306 "SCM Costing Reports"
         PostedPurchInvoiceNo2: Code[20];
         PostedPurchInvoiceNo3: Code[20];
         ServiceInvoiceNo: Code[20];
+        DocNo1: Code[20];
+        DocNo2: Code[20];
     begin
         // Setup : Update Sales Setup and Inventory Setup, Create Item, Post Two Purchase Orders.
         SalesReceivablesSetup.Get();
@@ -280,12 +284,14 @@ codeunit 137306 "SCM Costing Reports"
         VerifyUnitCost(Item."No.", UnitCost);
 
         // Exercise : Run Post Inventory Cost to G/L for the different dates.
+        DocNo1 := LibraryERM.GetNextDocNoByBatch(BatchName);
         PostInventoryCostGL(Item."No.", WorkDate);
+        DocNo2 := LibraryERM.GetNextDocNoByBatch(BatchName);
         PostInventoryCostGL(Item."No.", NewPostingDate);
 
         // Verify : Check G/L Entry Created After Run Post Inventory To G/L Report.
         VerifyInventoryCostOnGL(
-          TotalInventoryCost, Item, PostedPurchInvoiceNo, PostedPurchInvoiceNo2, PostedPurchInvoiceNo3, ServiceInvoiceNo);
+          TotalInventoryCost, Item, PostedPurchInvoiceNo, PostedPurchInvoiceNo2, PostedPurchInvoiceNo3, ServiceInvoiceNo, DocNo1, DocNo2);
     end;
 
     local procedure NoSeriesSetup()
@@ -457,7 +463,7 @@ codeunit 137306 "SCM Costing Reports"
         REPORT.Run(REPORT::"Item Age Composition - Value", true, false, Item);
     end;
 
-    local procedure VerifyInventoryCostOnGL(ExpectedAmount: Decimal; Item: Record Item; DocumentNo: Code[20]; DocumentNo2: Code[20]; DocumentNo3: Code[20]; DocumentNo4: Code[20])
+    local procedure VerifyInventoryCostOnGL(ExpectedAmount: Decimal; Item: Record Item; DocumentNo: Code[20]; DocumentNo2: Code[20]; DocumentNo3: Code[20]; DocumentNo4: Code[20]; DocNo1: Code[20]; DocNo2: Code[20])
     var
         GeneralLedgerSetup: Record "General Ledger Setup";
         InventoryPostingSetup: Record "Inventory Posting Setup";
@@ -466,7 +472,7 @@ codeunit 137306 "SCM Costing Reports"
     begin
         FindInventoryPostingSetup(InventoryPostingSetup, Item."Inventory Posting Group");
         GLEntry.SetFilter(
-          "Document No.", '%1|%2|%3|%4|%5', Item."No.", DocumentNo, DocumentNo2, DocumentNo3, DocumentNo4);
+          "Document No.", '%1|%2|%3|%4|%5|%6', DocumentNo, DocumentNo2, DocumentNo3, DocumentNo4, DocNo1, DocNo2);
         GLEntry.SetRange("G/L Account No.", InventoryPostingSetup."Inventory Account");
         GLEntry.FindSet;
         repeat

@@ -774,7 +774,13 @@ codeunit 134824 "UT Vendor Table"
     local procedure UpdatePurchasesPayablesSetupNoS()
     var
         PurchasesPayablesSetup: Record "Purchases & Payables Setup";
+        GenJournalTemplate: Record "Gen. Journal Template";
     begin
+        LibraryERM.CreateGenJournalTemplate(GenJournalTemplate);
+        GenJournalTemplate.Validate(Type, GenJournalTemplate.Type::Purchases);
+        GenJournalTemplate.Validate("Posting No. Series", LibraryUtility.GetGlobalNoSeriesCode);
+        GenJournalTemplate.Modify(true);
+
         with PurchasesPayablesSetup do begin
             Validate("Quote Nos.", LibraryUtility.GetGlobalNoSeriesCode);
             Validate("Order Nos.", LibraryUtility.GetGlobalNoSeriesCode);
@@ -785,6 +791,8 @@ codeunit 134824 "UT Vendor Table"
             Validate("Posted Credit Memo Nos.", LibraryUtility.GetGlobalNoSeriesCode);
             Validate("Blanket Order Nos.", LibraryUtility.GetGlobalNoSeriesCode);
             Validate("Vendor Nos.", LibraryUtility.GetGlobalNoSeriesCode);
+            Validate("Journal Templ. Purch. Invoice", GenJournalTemplate.Name);
+            Validate("Journal Templ. Purch. Cr. Memo", GenJournalTemplate.Name);
             Modify(true);
         end;
     end;

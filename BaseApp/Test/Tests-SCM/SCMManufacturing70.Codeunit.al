@@ -1397,6 +1397,7 @@ codeunit 137063 "SCM Manufacturing 7.0"
         TempOrderPromisingLine: Record "Order Promising Line" temporary;
         SalesHeader: Record "Sales Header";
         ItemJournalLine: Record "Item Journal Line";
+        VATPostingSetup: Record "VAT Posting Setup";
         AvailabilityManagement: Codeunit AvailabilityManagement;
         Quantity: Integer;
         LeadDatesFormula: DateFormula;
@@ -1413,6 +1414,12 @@ codeunit 137063 "SCM Manufacturing 7.0"
         // Create sales order with different shpipment dates in lines and excee
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, '');
         Evaluate(LeadDatesFormula, '<25D>');
+        if VATPostingSetup.Get(SalesHeader."VAT Bus. Posting Group", Item."VAT Prod. Posting Group") then
+            if VATPostingSetup."VAT Calculation Type" = VATPostingSetup."VAT Calculation Type"::"Full VAT" then begin
+                VATPostingSetup."VAT Calculation Type" := VATPostingSetup."VAT Calculation Type"::"Normal VAT";
+                VATPostingSetup.Modify();
+            end;
+
         CreateSalesLineWithShipmentDate(SalesHeader, Item."No.", '', Quantity, CalcDate(LeadDatesFormula, WorkDate), true);
         CreateSalesLineWithShipmentDate(SalesHeader, Item."No.", '', Quantity, WorkDate, false);
 

@@ -29,6 +29,7 @@ codeunit 134911 "ERM Create Finance Charge Memo"
         EmailTxt: Label 'abc@microsoft.com', Locked = true;
 
     [Test]
+    [HandlerFunctions('IssuedFinChargeMemosRPH')]
     [Scope('OnPrem')]
     procedure FinChargeMemoWithCurrency()
     begin
@@ -39,6 +40,7 @@ codeunit 134911 "ERM Create Finance Charge Memo"
     end;
 
     [Test]
+    [HandlerFunctions('IssuedFinChargeMemosRPH')]
     [Scope('OnPrem')]
     procedure FinChargeMemoWithOutCurrency()
     begin
@@ -525,6 +527,19 @@ codeunit 134911 "ERM Create Finance Charge Memo"
         IssueFinanceChargeMemos.HideEmailDialog.SetValue(LibraryVariableStorage.DequeueBoolean);
         IssueFinanceChargeMemos."Finance Charge Memo Header".SetFilter("No.", LibraryVariableStorage.DequeueText);
         IssueFinanceChargeMemos.OK.Invoke;
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure IssuedFinChargeMemosRPH(var IssuedFinChargeMemos: TestRequestPage "Issue Finance Charge Memos")
+    var
+        JnlTemplateName: Code[10];
+        JnlBatchName: Code[10];
+    begin
+        LibraryERM.FindGenJnlTemplateAndBatch(JnlTemplateName, JnlBatchName);
+        IssuedFinChargeMemos.JnlTemplateName.SetValue(JnlTemplateName);
+        IssuedFinChargeMemos.JnlBatchName.SetValue(JnlBatchName);
+        IssuedFinChargeMemos.OK.Invoke;
     end;
 
     [ConfirmHandler]

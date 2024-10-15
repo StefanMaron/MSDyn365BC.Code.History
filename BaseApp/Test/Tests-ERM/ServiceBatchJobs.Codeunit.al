@@ -831,11 +831,16 @@ codeunit 136122 "Service Batch Jobs"
     local procedure PostPrepaidContractServContractReport(var ServiceLedgerEntry: Record "Service Ledger Entry")
     var
         PostPrepaidContractEntries: Report "Post Prepaid Contract Entries";
+        DummyGenJournalTemplateName: Code[10];
+        DummyGenJournalBatchName: Code[10];
         PostPrepaidContractAction: Option "Post Prepaid Transactions","Print Only";
     begin
         Clear(PostPrepaidContractEntries);
+        LibraryERM.FindGenJnlTemplateAndBatch(DummyGenJournalTemplateName, DummyGenJournalBatchName);
         PostPrepaidContractEntries.SetTableView(ServiceLedgerEntry);
-        PostPrepaidContractEntries.InitializeRequest(WorkDate, WorkDate, PostPrepaidContractAction::"Post Prepaid Transactions");
+        PostPrepaidContractEntries.InitializeRequest(
+          WorkDate, WorkDate, PostPrepaidContractAction::"Post Prepaid Transactions",
+          DummyGenJournalTemplateName, DummyGenJournalBatchName);
         PostPrepaidContractEntries.UseRequestPage(false);
         PostPrepaidContractEntries.Run;
     end;

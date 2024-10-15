@@ -95,14 +95,8 @@ report 11309 "VAT Annual Listing - Disk"
             }
 
             trigger OnAfterGetRecord()
-            var
-                EnterpriseNoPrefix: Text[50];
             begin
                 if not CheckVatNo.MOD97Check("Enterprise No.") then
-                    CurrReport.Skip();
-
-                EnterpriseNoPrefix := UpperCase(DelChr("Enterprise No.", '=', '0123456789,?;.:/-_ '));
-                if (StrPos(EnterpriseNoPrefix, 'BTW') = 0) and (StrPos(EnterpriseNoPrefix, 'TVA') = 0) then
                     CurrReport.Skip();
 
                 Clear(WBase);
@@ -183,7 +177,7 @@ report 11309 "VAT Annual Listing - Disk"
                             ApplicationArea = Basic, Suite;
                             AutoFormatType = 1;
                             Caption = 'Minimum Amount';
-                            ToolTip = 'Specifies the minimum customer''s year balance to be included in the report. If the yearly balance of the customer is smaller than the minimum amount, the customer will not be included in the declaration.';
+                            ToolTip = 'Specifies the minimum customer''s year balance to be included in the report. If the yearly balance of the customer is smaller than the minimum amount (and there are no negative entries), the customer will not be included in the declaration.';
                         }
                         field(TestDeclaration; TestDeclaration)
                         {
