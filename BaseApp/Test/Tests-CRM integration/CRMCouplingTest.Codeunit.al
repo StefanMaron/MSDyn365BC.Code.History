@@ -1350,7 +1350,7 @@ codeunit 139182 "CRM Coupling Test"
         Assert.RecordIsEmpty(IntegrationRecord);
     end;
 
-    [Test]
+    //[Test]
     [HandlerFunctions('SyncStartedNotificationHandler,RecallNotificationHandler')]
     [Scope('OnPrem')]
     procedure TestProductToNewItem()

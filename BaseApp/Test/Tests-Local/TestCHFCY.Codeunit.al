@@ -357,10 +357,12 @@ codeunit 144054 "Test CH FCY"
         CurrencyARC: Record Currency;
         Currency: Record Currency;
         GenJournalLine: Record "Gen. Journal Line";
+        GLRegister: Record "G/L Register";
     begin
         // [FEATURE] [VAT]
         // [SCENARIO 263230] VAT Exch. Rate Adjustment for FCY entry when ARC has different currency
         Initialize;
+        GLRegister.FindLast();
 
         // [GIVEN] Additional Reporting Currency is 'EUR' with exch.rate = 0.9212
         CurrencyARC.Code := CreateCurrencyWithRelExchangeRates(0.9212);
@@ -377,8 +379,9 @@ codeunit 144054 "Test CH FCY"
         // [THEN] Two VAT Entries with G/L Register for each one
         // [THEN] First VAT Entry has Base = 34500, "Base FCY" = 23000, "Additional-Currency Base" = 37451.15
         // [THEN] Second correction VAT Entry has Base = -13312.40, "Base FCY" = 0, "Additional-Currency Base" = -14451.15
+        // [THEN] Adjust exch. rate G/L Register has filled "Creation Time", zeros From-To G\L Entry Nos and filled From-To VAT Entry Nos (TFS 371023)
         VerifyAdjmtBase(
-          GenJournalLine."Document No.", 34500, 23000, 37451.15, -13312.4, 0, -14451.15);
+          GenJournalLine."Document No.", 34500, 23000, 37451.15, -13312.4, 0, -14451.15, GLRegister."No." + 1);
     end;
 
     [Test]
@@ -388,11 +391,13 @@ codeunit 144054 "Test CH FCY"
     var
         Currency: Record Currency;
         GenJournalLine: Record "Gen. Journal Line";
+        GLRegister: Record "G/L Register";
     begin
         // [FEATURE] [VAT]
         // [SCENARIO 263230] VAT Exch. Rate Adjustment for FCY entry when ARC has same currency
         Initialize;
         UpdateReportingOnGLSetup;
+        GLRegister.FindLast();
 
         // [GIVEN] Additional Reporting Currency is 'EUR' with exch.rate = 0.9212
         Currency.Code := CreateCurrencyWithRelExchangeRates(0.9212);
@@ -407,8 +412,82 @@ codeunit 144054 "Test CH FCY"
         // [THEN] Two VAT Entries with G/L Register for each one
         // [THEN] First VAT Entry has Base = 34500, "Base FCY" = 23000, "Additional-Currency Base" = 23000
         // [THEN] Second correction VAT Entry has Base = -13312.40, "Base FCY" = 0, "Additional-Currency Base" = 0
+        // [THEN] Adjust exch. rate G/L Register has filled "Creation Time", zeros From-To G\L Entry Nos and filled From-To VAT Entry Nos (TFS 371023)
         VerifyAdjmtBase(
-          GenJournalLine."Document No.", 34500, 23000, 23000, -13312.4, 0, 0);
+          GenJournalLine."Document No.", 34500, 23000, 23000, -13312.4, 0, 0, GLRegister."No." + 1);
+    end;
+
+    [Test]
+    [HandlerFunctions('AdjVATExchRatesRPH,ConfirmHandler,MessageHandler')]
+    procedure AdjustVATExchRateFor2InvoicesWithForwardDateOrder()
+    begin
+        // [FEATURE] [VAT]
+        // [SCENARIO 371023] Adjust VAT exch. rates for two sales invoices with forward posting date order
+
+        // [GIVEN] Create post USD sales invoice on "19-09-2020" (G/L Register No. = 10, From VAT Entry No. = To VAT Entry No. = 100)
+        // [GIVEN] Create post USD sales invoice on "20-09-2020" (G/L Register No. = 11, From VAT Entry No. = To VAT Entry No. = 101)
+        // [GIVEN] Change USD VAT exchange rates on "19-09-2020"
+
+        // [WHEN] Run Adjust Exch. Rates for USD currency (adjust VAT = true)
+        AdjustVATExchRateFor2InvoicesWithDateOrder(WorkDate(), WorkDate() + 1);
+
+        // [THEN] There are two new G/L registers:
+        // [THEN] G/L Register No. = 12, From VAT Entry No. = To VAT Entry No. = 102
+        // [THEN] G/L Register No. = 13, From VAT Entry No. = To VAT Entry No. = 103
+    end;
+
+    [Test]
+    [HandlerFunctions('AdjVATExchRatesRPH,ConfirmHandler,MessageHandler')]
+    procedure AdjustVATExchRateFor2InvoicesWithReversedDateOrder()
+    begin
+        // [FEATURE] [VAT]
+        // [SCENARIO 371023] Adjust VAT exch. rates for two sales invoices with reversed posting date order
+
+        // [GIVEN] Create post USD sales invoice on "20-09-2020" (G/L Register No. = 10, From VAT Entry No. = To VAT Entry No. = 100)
+        // [GIVEN] Create post USD sales invoice on "19-09-2020" (G/L Register No. = 11, From VAT Entry No. = To VAT Entry No. = 101)
+        // [GIVEN] Change USD VAT exchange rates on "19-09-2020"
+
+        // [WHEN] Run Adjust Exch. Rates for USD currency (adjust VAT = true)
+        AdjustVATExchRateFor2InvoicesWithDateOrder(WorkDate() + 1, WorkDate());
+
+        // [THEN] There are two new G/L registers:
+        // [THEN] G/L Register No. = 12, From VAT Entry No. = To VAT Entry No. = 102
+        // [THEN] G/L Register No. = 13, From VAT Entry No. = To VAT Entry No. = 103
+    end;
+
+    local procedure AdjustVATExchRateFor2InvoicesWithDateOrder(Date1: Date; Date2: Date)
+    var
+        VATEntry: Record "VAT Entry";
+        GLRegister: Record "G/L Register";
+        CurrencyCode: Code[10];
+        MinDate: Date;
+        MaxDate: Date;
+    begin
+        Initialize();
+        LibraryERM.SetInvRoundingPrecisionLCY(0.01);
+        CurrencyCode := CreateCurrencyAndExchangeRate();
+        GLRegister.FindLast();
+        VATEntry.FindLast();
+
+        IF Date1 < Date2 then begin
+            MinDate := Date1;
+            MaxDate := Date2;
+        end else begin
+            MinDate := Date2;
+            MaxDate := Date1;
+        end;
+
+        CreatePostSalesInvoice(Date1, CurrencyCode);
+        VerifyGLRegisterWithGLAndVAT(GLRegister."No." + 1, VATEntry."Entry No." + 1, VATEntry."Entry No." + 1);
+
+        CreatePostSalesInvoice(Date2, CurrencyCode);
+        VerifyGLRegisterWithGLAndVAT(GLRegister."No." + 2, VATEntry."Entry No." + 2, VATEntry."Entry No." + 2);
+
+        ModifyExchangeRateAmount(CurrencyCode, TRUE);
+        RunAdjustVATExchRates(CurrencyCode, MinDate, MaxDate, MaxDate);
+
+        VerifyGLRegisterWithGLAndVAT(GLRegister."No." + 3, VATEntry."Entry No." + 3, VATEntry."Entry No." + 3);
+        VerifyGLRegisterWithGLAndVAT(GLRegister."No." + 4, VATEntry."Entry No." + 4, VATEntry."Entry No." + 4);
     end;
 
     local procedure Initialize()
@@ -627,6 +706,25 @@ codeunit 144054 "Test CH FCY"
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
     end;
 
+    local procedure CreatePostSalesInvoice(PostingDate: Date; CurrencyCode: Code[10])
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+    begin
+        LibrarySales.CreateSalesHeader(
+          SalesHeader, SalesHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo());
+        SalesHeader.Validate("Posting Date", PostingDate);
+        SalesHeader.Validate("Currency Code", CurrencyCode);
+        SalesHeader.Modify();
+
+        LibrarySales.CreateSalesLine(
+          SalesLine, SalesHeader, SalesLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithSalesSetup(), 1);
+        SalesLine.Validate("Unit Price", LibraryRandom.RandDecInRange(1000, 2000, 2));
+        SalesLine.Modify;
+
+        LibrarySales.PostSalesDocument(SalesHeader, true, true);
+    end;
+
     local procedure FindGenJournalTemplateAndBatch(var GenJournalTemplate: Record "Gen. Journal Template"; var GenJournalBatch: Record "Gen. Journal Batch"; TemplateType: Option)
     begin
         GenJournalTemplate.SetRange(Type, TemplateType);
@@ -671,6 +769,19 @@ codeunit 144054 "Test CH FCY"
         LibraryVariableStorage.Enqueue(AdjustGLAcc);
         Commit();
         REPORT.Run(REPORT::"Adjust Exchange Rates", true, false, Currency);
+    end;
+
+    local procedure RunAdjustVATExchRates(CurrencyCode: Code[10]; StartingDate: Date; EndingDate: Date; PostingDate: Date)
+    var
+        Currency: Record Currency;
+    begin
+        Currency.SetRange(Code, CurrencyCode);
+        LibraryVariableStorage.Enqueue(StartingDate);
+        LibraryVariableStorage.Enqueue(EndingDate);
+        LibraryVariableStorage.Enqueue(PostingDate);
+        LibraryVariableStorage.Enqueue(LibraryUtility.GenerateGUID());
+        Commit();
+        Report.Run(Report::"Adjust Exchange Rates", true, false, Currency);
     end;
 
     local procedure SetupFCYGLEntries(var GenJournalLine: Record "Gen. Journal Line"; CurrencyCode: Code[10])
@@ -753,19 +864,19 @@ codeunit 144054 "Test CH FCY"
         end;
     end;
 
-    local procedure VerifyAdjmtBase(DocumentNo: Code[20]; InitialBase: Decimal; InitialBaseFCY: Decimal; InitialBaseARC: Decimal; CorrBase: Decimal; CorrBaseFCY: Decimal; CorrBaseARC: Decimal)
+    local procedure VerifyAdjmtBase(DocumentNo: Code[20]; InitialBase: Decimal; InitialBaseFCY: Decimal; InitialBaseARC: Decimal; CorrBase: Decimal; CorrBaseFCY: Decimal; CorrBaseARC: Decimal; StartingGLRegNo: Integer)
     var
         VATEntry: Record "VAT Entry";
     begin
         VATEntry.SetRange("Document No.", DocumentNo);
         Assert.RecordCount(VATEntry, 2);
 
-        VATEntry.Find('-');
-        VerifyGLRegister(VATEntry."Entry No.");
+        VATEntry.FindSet();
+        VerifyGLRegisterWithGLAndVAT(StartingGLRegNo, VATEntry."Entry No.", VATEntry."Entry No.");
         VerifyAdjmtVATEntry(VATEntry, InitialBase, InitialBaseFCY, InitialBaseARC, false);
 
-        VATEntry.Next;
-        VerifyGLRegister(VATEntry."Entry No.");
+        VATEntry.Next();
+        VerifyGLRegisterWithOnlyVAT(StartingGLRegNo + 1, VATEntry."Entry No.", VATEntry."Entry No.");
         VerifyAdjmtVATEntry(VATEntry, CorrBase, CorrBaseFCY, CorrBaseARC, true);
     end;
 
@@ -815,12 +926,28 @@ codeunit 144054 "Test CH FCY"
         GLEntry.TestField("Dimension Set ID", DimSetID);
     end;
 
-    local procedure VerifyGLRegister(VATEntryNo: Integer)
+    local procedure VerifyGLRegisterWithGLAndVAT(GLRegisterNo: Integer; FromVATEntryNo: Integer; ToVATEntryNo: Integer)
     var
         GLRegister: Record "G/L Register";
     begin
-        GLRegister.SetRange("From VAT Entry No.", VATEntryNo);
-        Assert.RecordIsNotEmpty(GLRegister);
+        GLRegister.Get(GLRegisterNo);
+        GLRegister.TestField("Creation Time");
+        GLRegister.TestField("From Entry No.");
+        GLRegister.TestField("To Entry No.");
+        GLRegister.TestField("From VAT Entry No.", FromVATEntryNo);
+        GLRegister.TestField("To VAT Entry No.", ToVATEntryNo);
+    end;
+
+    local procedure VerifyGLRegisterWithOnlyVAT(GLRegisterNo: Integer; FromVATEntryNo: Integer; ToVATEntryNo: Integer)
+    var
+        GLRegister: Record "G/L Register";
+    begin
+        GLRegister.Get(GLRegisterNo);
+        GLRegister.TestField("Creation Time");
+        GLRegister.TestField("From Entry No.", 0);
+        GLRegister.TestField("To Entry No.", 0);
+        GLRegister.TestField("From VAT Entry No.", FromVATEntryNo);
+        GLRegister.TestField("To VAT Entry No.", ToVATEntryNo);
     end;
 
     [ConfirmHandler]
@@ -867,6 +994,21 @@ codeunit 144054 "Test CH FCY"
         AdjustExchangeRates.AdjGLAcc.SetValue(LibraryVariableStorage.DequeueBoolean);
         AdjustExchangeRates.AdjVAT.SetValue(true);
         AdjustExchangeRates.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+    end;
+
+    [RequestPageHandler]
+    procedure AdjVATExchRatesRPH(var AdjustExchangeRates: TestRequestPage "Adjust Exchange Rates");
+    begin
+        AdjustExchangeRates.StartingDate.SetValue(LibraryVariableStorage.DequeueDate);
+        AdjustExchangeRates.EndingDate.SetValue(LibraryVariableStorage.DequeueDate);
+        AdjustExchangeRates.PostingDate.SetValue(LibraryVariableStorage.DequeueDate);
+        AdjustExchangeRates.DocumentNo.SetValue(LibraryVariableStorage.DequeueText);
+        AdjustExchangeRates.AdjCustomers.SetValue(false);
+        AdjustExchangeRates.AdjVendors.SetValue(false);
+        AdjustExchangeRates.AdjGLAcc.SetValue(false);
+        AdjustExchangeRates.AdjVAT.SetValue(true);
+        AdjustExchangeRates.Post.SetValue(true);
+        AdjustExchangeRates.SAVEASXML(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 }
 

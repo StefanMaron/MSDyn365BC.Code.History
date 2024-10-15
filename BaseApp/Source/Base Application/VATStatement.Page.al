@@ -52,7 +52,7 @@ page 317 "VAT Statement"
                 field("Box No."; "Box No.")
                 {
                     ApplicationArea = VAT;
-                    ToolTip = 'Specifies the number on the packaging box that the VAT statement applies to.';
+                    ToolTip = 'Specifies the number on the box that the VAT statement applies to.';
                 }
                 field(Type; Type)
                 {
