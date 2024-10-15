@@ -676,7 +676,7 @@ report 10098 "Projected Cash Payments"
                 exit('101,1,' + Text002);
 
             GetCurrencyRecord(Currency, CurrencyCode);
-            exit('101,4,' + StrSubstNo(Text002, Currency.Description));
+            exit(StrSubstNo(Text002, Currency.Description));
         end;
         exit('');
     end;

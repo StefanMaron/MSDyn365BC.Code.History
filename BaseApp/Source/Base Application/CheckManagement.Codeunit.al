@@ -790,10 +790,9 @@
         GenJnlShowCTEntries.SetFiltersOnCreditTransferEntry(GenJournalLine, CreditTransferEntry);
         if CreditTransferEntry.FindLast then begin
             if CreditTransferRegister.Get(CreditTransferEntry."Credit Transfer Register No.") then
-                CreditTransferRegister.Delete();
+                CreditTransferRegister.Delete(true);
             // For journal entries with multiple lines, the register would have already been deleted,
             // but subsequent lines still need to be deleted.
-            CreditTransferEntry.Delete();
             Commit();
         end;
     end;

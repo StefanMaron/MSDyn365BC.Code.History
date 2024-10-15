@@ -225,6 +225,8 @@
     end;
 
     local procedure CreateSalesHeader(SalesHeader: Record "Sales Header"; PrepmtPercent: Decimal) CreditLimitExceeded: Boolean
+    var
+        StandardCodesMgt: Codeunit "Standard Codes Mgt.";
     begin
         OnBeforeCreateSalesHeader(SalesHeader);
 
@@ -240,6 +242,8 @@
 
             SalesOrderLine.LockTable();
             OnBeforeInsertSalesOrderHeader(SalesOrderHeader, SalesHeader);
+            StandardCodesMgt.SetSkipRecurringLines(true);
+            SalesOrderHeader.SetStandardCodesMgt(StandardCodesMgt);
             SalesOrderHeader.Insert(true);
 
             if "Order Date" = 0D then

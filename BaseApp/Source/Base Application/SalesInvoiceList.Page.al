@@ -264,6 +264,14 @@ page 9301 "Sales Invoice List"
         }
         area(factboxes)
         {
+            part(AttachedDocuments; "Document Attachment Factbox")
+            {
+                ApplicationArea = All;
+                Caption = 'Attachments';
+                SubPageLink = "Table ID" = const(36),
+                              "No." = field("No."),
+                              "Document Type" = field("Document Type");
+            }
             part(Control1902018507; "Customer Statistics FactBox")
             {
                 ApplicationArea = Basic, Suite;
