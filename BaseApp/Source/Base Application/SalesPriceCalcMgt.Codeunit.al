@@ -539,7 +539,14 @@ codeunit 7000 "Sales Price Calc. Mgt."
     end;
 
     local procedure CopySalesPriceToSalesPrice(var FromSalesPrice: Record "Sales Price"; var ToSalesPrice: Record "Sales Price")
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCopySalesPriceToSalesPrice(FromSalesPrice, ToSalesPrice, IsHandled);
+        if IsHandled then
+            exit;
+
         with ToSalesPrice do
             if FromSalesPrice.FindSet then
                 repeat
@@ -1777,6 +1784,12 @@ codeunit 7000 "Sales Price Calc. Mgt."
     local procedure OnBeforeCopyJobItemPriceToJobPlanLine(var JobPlanningLine: Record "Job Planning Line"; JobItemPrice: Record "Job Item Price"; var IsHandled: Boolean)
     begin
     end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCopySalesPriceToSalesPrice(var FromSalesPrice: Record "Sales Price"; var ToSalesPrice: Record "Sales Price"; var IsHandled: Boolean)
+    begin
+    end;
+
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeFindAnalysisReportPrice(ItemNo: Code[20]; Date: Date; var UnitPrice: Decimal; var IsHandled: Boolean)

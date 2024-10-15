@@ -58,12 +58,7 @@ codeunit 5751 "Get Source Doc. Inbound"
         Clear(GetSourceDocuments);
         WhseReceiptHeader.Find;
 
-        WhseRqst.FilterGroup(2);
-        WhseRqst.SetRange(Type, WhseRqst.Type::Inbound);
-        WhseRqst.SetRange("Location Code", WhseReceiptHeader."Location Code");
-        WhseRqst.FilterGroup(0);
-        WhseRqst.SetRange("Document Status", WhseRqst."Document Status"::Released);
-        WhseRqst.SetRange("Completely Handled", false);
+        SetWarehouseRequestFilters(WhseRqst, WhseReceiptHeader);
 
         SourceDocSelection.LookupMode(true);
         SourceDocSelection.SetTableView(WhseRqst);
@@ -79,6 +74,18 @@ codeunit 5751 "Get Source Doc. Inbound"
         UpdateReceiptHeaderStatus(WhseReceiptHeader);
 
         OnAfterGetSingleInboundDoc(WhseReceiptHeader);
+    end;
+
+    local procedure SetWarehouseRequestFilters(var WhseRqst: Record "Warehouse Request"; WhseReceiptHeader: Record "Warehouse Receipt Header")
+    begin
+        WhseRqst.FilterGroup(2);
+        WhseRqst.SetRange(Type, WhseRqst.Type::Inbound);
+        WhseRqst.SetRange("Location Code", WhseReceiptHeader."Location Code");
+        WhseRqst.FilterGroup(0);
+        WhseRqst.SetRange("Document Status", WhseRqst."Document Status"::Released);
+        WhseRqst.SetRange("Completely Handled", false);
+
+        OnAfterSetWarehouseRequestFilters(WhseRqst, WhseReceiptHeader);
     end;
 
     procedure CreateFromPurchOrder(PurchHeader: Record "Purchase Header")
@@ -264,6 +271,11 @@ codeunit 5751 "Get Source Doc. Inbound"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterGetSingleInboundDoc(var WarehouseReceiptHeader: Record "Warehouse Receipt Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetWarehouseRequestFilters(var WarehouseRequest: Record "Warehouse Request"; WarehouseReceiptHeader: Record "Warehouse Receipt Header")
     begin
     end;
 

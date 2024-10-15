@@ -394,7 +394,7 @@ codeunit 9179 "Application Area Mgmt. Facade"
     begin
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 9178, 'OnGetEssentialExperienceAppAreas', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, 9178, 'OnGetPremiumExperienceAppAreas', '', false, false)]
     local procedure RaiseOnGetPremiumExperienceAppAreas(var TempApplicationAreaSetup: Record "Application Area Setup" temporary)
     begin
         OnGetPremiumExperienceAppAreas(TempApplicationAreaSetup);

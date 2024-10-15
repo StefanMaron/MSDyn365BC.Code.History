@@ -37,7 +37,8 @@ codeunit 134421 "Report Selections Tests"
         ReportIDMustHaveValueErr: Label 'Report ID must have a value';
         NoOutputErr: Label 'No data exists for the specified report filters.';
         EmailAddressErr: Label 'Destination email address does not match expected address.';
-        StatementTitlePdfTxt: Label 'Statement for %1 as of %2.pdf';
+        StatementTitlePdfTxt: Label 'Statement';
+        ReportTitleTemplatePdfTxt: Label '%1 for %2 as of %3.pdf';
 
     [Test]
     [HandlerFunctions('StandardSalesInvoiceRequestPageHandler')]
@@ -1359,8 +1360,6 @@ codeunit 134421 "Report Selections Tests"
     procedure PreviewCustomerStatement_WebClient()
     var
         ReportSelections: Record "Report Selections";
-        CustomReportSelection: Record "Custom Report Selection";
-        CustomReportLayout: Record "Custom Report Layout";
         Customer: Record Customer;
         SalesInvoiceHeader: Record "Sales Invoice Header";
         InteractionLogEntry: Record "Interaction Log Entry";
@@ -1406,7 +1405,89 @@ codeunit 134421 "Report Selections Tests"
         Assert.RecordCount(InteractionLogEntry, 1);
 
         // [THEN] Pdf file generated as preview file
-        LibraryTempNVBufferHandler.AssertEntry(GetStatementTitlePdf(Customer));
+        LibraryTempNVBufferHandler.AssertEntry(GetStatementTitlePdf(StatementTitlePdfTxt, Customer.Name));
+        LibraryTempNVBufferHandler.AssertQueueEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('StatementOKRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure CustomBaseFileName_Single()
+    var
+        Customer: Record Customer;
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        TestClientTypeSubscriber: Codeunit "Test Client Type Subscriber";
+        LibraryTempNVBufferHandler: Codeunit "Library - TempNVBufferHandler";
+        LibraryFileMgtHandler: Codeunit "Library - File Mgt Handler";
+        CustomReportTitle: Text;
+    begin
+        // [SCENARIO 364825] Codeunit "Custom Layout Reporting".SetOutputFileBaseName() in case of single PDF print
+        Initialize();
+        TestClientTypeSubscriber.SetClientType(ClientType::Web);
+        BindSubscription(TestClientTypeSubscriber);
+
+        // [GIVEN] Report Selection where Usage = "Customer Statement", Report ID = 116 (Statement)
+        // [GIVEN] Customer (Name = "A") with posted invoice
+        CreateAndPostSalesInvoice(SalesInvoiceHeader);
+        Customer.SetFilter("No.", SalesInvoiceHeader."Sell-to Customer No.");
+
+        LibraryTempNVBufferHandler.ActivateBackgroundCaseSubscriber();
+        BindSubscription(LibraryTempNVBufferHandler);
+        LibraryFileMgtHandler.SetDownloadSubscriberActivated(true);
+        BindSubscription(LibraryFileMgtHandler);
+
+        // [WHEN] Run Statement report for the customer "A" using EndDate = "22-07-2020" and SetOutputFileBaseName("X")
+        CustomReportTitle := LibraryUtility.GenerateGUID();
+        RunCStatementViaCustomLayoutReporting(Customer, CustomReportTitle);
+
+        // [THEN] One pdf file is generated with name "X for A as of 2020-07-22.pdf"
+        LibraryTempNVBufferHandler.AssertEntry(
+            GetStatementTitlePdf(CustomReportTitle, SalesInvoiceHeader."Sell-to Customer Name"));
+        LibraryTempNVBufferHandler.AssertQueueEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('StatementOKRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure CustomBaseFileName_Multi()
+    var
+        Customer: Record Customer;
+        SalesInvoiceHeader: array[2] of Record "Sales Invoice Header";
+        TestClientTypeSubscriber: Codeunit "Test Client Type Subscriber";
+        LibraryTempNVBufferHandler: Codeunit "Library - TempNVBufferHandler";
+        LibraryFileMgtHandler: Codeunit "Library - File Mgt Handler";
+        CustomReportTitle: Text;
+    begin
+        // [SCENARIO 364825] Codeunit "Custom Layout Reporting".SetOutputFileBaseName() in case of multi PDF print
+        Initialize();
+        TestClientTypeSubscriber.SetClientType(ClientType::Web);
+        BindSubscription(TestClientTypeSubscriber);
+
+        // [GIVEN] Report Selection where Usage = "Customer Statement", Report ID = 116 (Statement)
+        // [GIVEN] Two customers (Name = "A", "B") with posted invoices
+        CreateAndPostSalesInvoice(SalesInvoiceHeader[1]);
+        CreateAndPostSalesInvoice(SalesInvoiceHeader[2]);
+        Customer.SetFilter(
+            "No.", '%1|%2',
+            SalesInvoiceHeader[1]."Sell-to Customer No.",
+            SalesInvoiceHeader[2]."Sell-to Customer No.");
+
+        LibraryTempNVBufferHandler.ActivateBackgroundCaseSubscriber();
+        BindSubscription(LibraryTempNVBufferHandler);
+        LibraryFileMgtHandler.SetDownloadSubscriberActivated(true);
+        BindSubscription(LibraryFileMgtHandler);
+
+        // [WHEN] Run Statement report for both customers "A, "B"" using EndDate = "22-07-2020" and SetOutputFileBaseName("X")
+        CustomReportTitle := LibraryUtility.GenerateGUID();
+        RunCStatementViaCustomLayoutReporting(Customer, CustomReportTitle);
+
+        // [THEN] Two pdf file is generated with names:
+        // [THEN] "X for A as of 2020-07-22.pdf"
+        // [THEN] "X for B as of 2020-07-22.pdf"
+        LibraryTempNVBufferHandler.AssertEntry(
+            GetStatementTitlePdf(CustomReportTitle, SalesInvoiceHeader[1]."Sell-to Customer Name"));
+        LibraryTempNVBufferHandler.AssertEntry(
+            GetStatementTitlePdf(CustomReportTitle, SalesInvoiceHeader[2]."Sell-to Customer Name"));
         LibraryTempNVBufferHandler.AssertQueueEmpty();
     end;
 
@@ -1545,7 +1626,7 @@ codeunit 134421 "Report Selections Tests"
     begin
         LibrarySales.CreateCustomer(Customer);
         Customer.Validate("VAT Bus. Posting Group", VATBusPostingGroup);
-        Customer.Validate(Name, 'A');
+        Customer.Validate(Name, LibraryUtility.GenerateGUID());
         Customer.Validate(Address, 'A');
         CountryRegion.FindFirst;
         Customer.Validate("Country/Region Code", CountryRegion.Code);
@@ -1862,6 +1943,34 @@ codeunit 134421 "Report Selections Tests"
             1, MaxStrLen(DummySalesHeader."Package Tracking No.")));
     end;
 
+    local procedure RunCStatementViaCustomLayoutReporting(var Customer: Record Customer; OutputFileBaseName: Text)
+    var
+        ReportSelections: Record "Report Selections";
+        RecRef: RecordRef;
+        ReportOutput: Option Print,Preview,PDF,Email,Excel,XML;
+    begin
+        InsertReportSelections(
+          ReportSelections, GetCustomerStatementReportID, false, false, '', ReportSelections.Usage::"C.Statement");
+        LibraryVariableStorage.Enqueue(ReportOutput::PDF);
+        LibraryVariableStorage.Enqueue(Customer.GetFilter("No."));
+        RecRef.GetTable(Customer);
+        RecRef.SetView(Customer.GetView());
+        RunReportViaCustomLayoutReporting(
+            ReportSelections.Usage::"C.Statement", OutputFileBaseName, RecRef, Customer.FieldName("No."),
+            Database::Customer, Customer.FieldName("No."), true);
+    end;
+
+    local procedure RunReportViaCustomLayoutReporting(ReportUsage: Enum "Report Selection Usage"; OutputFileBaseName: Text; var DataRecordRef: RecordRef; SourceJoinFieldName: Text; DataRecordJoinTable: Integer; IteratorTableFieldName: Text; DataItemTableSameAsIterator: Boolean)
+    var
+        CustomLayoutReporting: Codeunit "Custom Layout Reporting";
+    begin
+        CustomLayoutReporting.InitializeData(
+            ReportUsage, DataRecordRef, SourceJoinFieldName,
+            DataRecordJoinTable, IteratorTableFieldName, DataItemTableSameAsIterator);
+        CustomLayoutReporting.SetOutputFileBaseName(OutputFileBaseName);
+        CustomLayoutReporting.ProcessReport();
+    end;
+
     local procedure BindActiveDirectoryMockEvents()
     begin
         if ActiveDirectoryMockEvents.Enabled then
@@ -1870,9 +1979,9 @@ codeunit 134421 "Report Selections Tests"
         ActiveDirectoryMockEvents.Enable;
     end;
 
-    local procedure GetStatementTitlePdf(Customer: Record Customer): Text
+    local procedure GetStatementTitlePdf(ReportTitle: Text; CustomerName: Text): Text
     begin
-        exit(StrSubstNo(StatementTitlePdfTxt, Customer.Name, Format(WorkDate, 0, 9)));
+        exit(StrSubstNo(ReportTitleTemplatePdfTxt, ReportTitle, CustomerName, Format(WorkDate, 0, 9)));
     end;
 
     local procedure VerifySendEmailPage(ExpectedType: Text; ExpectedBodyText: Text; ExpectedAttachmentName: Text)

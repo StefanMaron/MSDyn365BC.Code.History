@@ -1562,6 +1562,15 @@
       <Cmt Name="Dev"><![CDATA[%1=G/L Budget Name]D;]A;(LookupHint=Codeunit ERM Batch Job II - NamedType BudgetError)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 2382063891 - NamedType 1302901676" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[The job no. %1 was successfully copied to the new job no. %2 with the status Planning.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Batch Job II - NamedType JobsCopyMsg)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 1111060729 - NamedType 2317558431" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Column Caption must match.]]></Val>
@@ -7268,6 +7277,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Sales Documents III - NamedType CannotAllowInvDiscountErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 2641639841 - NamedType 3468132677" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[***]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[{Locked}]D;]A;(LookupHint=Codeunit ERM Sales Documents III - NamedType PostingPreviewNoTok)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 1819602085 - NamedType 1646674215" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Do you want]]></Val>
@@ -10112,6 +10130,15 @@
       <Cmt Name="Dev"><![CDATA[%1 - record ID]D;]A;(LookupHint=Codeunit PEPPOL Management Tests - NamedType NegativeUnitPriceErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 1507343860 - NamedType 2582613147" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[%1 must have a value]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit PEPPOL Management Tests - NamedType FieldMustHaveValueErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 2122422003 - NamedType 2751571763" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Starting Date cannot be after Ending Date.]]></Val>
@@ -10335,6 +10362,15 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Purchase Over Receipt - NamedType WarehouseRcvRequiredErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 516462235 - NamedType 916370259" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Source Document must be equal to '%1'  in Warehouse Receipt Line: No.=%2, Line No.=%3. Current value is '%4'.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Purchase Over Receipt - NamedType CheckOverReceiptAllowedForWhseReceiptLineErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 2145458787 - NamedType 1821447398" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">

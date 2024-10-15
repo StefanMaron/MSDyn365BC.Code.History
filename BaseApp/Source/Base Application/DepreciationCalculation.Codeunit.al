@@ -1,4 +1,4 @@
-codeunit 5616 "Depreciation Calculation"
+﻿codeunit 5616 "Depreciation Calculation"
 {
     Permissions = TableData "FA Ledger Entry" = r,
                   TableData "FA Posting Type Setup" = r,
@@ -329,9 +329,16 @@ codeunit 5616 "Depreciation Calculation"
     procedure CalcRounding(DeprBookCode: Code[10]; DeprAmount: Decimal): Decimal
     var
         DeprBook: Record "Depreciation Book";
+        IsHandled: Boolean;
     begin
         with DeprBook do begin
             Get(DeprBookCode);
+
+            IsHandled := false;
+            OnBeforeCalcRounding(DeprBook, DeprAmount, IsHandled);
+            if IsHandled then
+                exit(DeprAmount);
+
             if "Use Rounding in Periodic Depr." then
                 exit(Round(DeprAmount, 1));
 
@@ -583,6 +590,11 @@ codeunit 5616 "Depreciation Calculation"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterCalcDepreciation(DeprBookCode: Code[10]; var Depreciation: Decimal; BookValue: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCalcRounding(DeprBook: Record "Depreciation Book"; var DeprAmount: Decimal; var IsHandled: Boolean)
     begin
     end;
 }

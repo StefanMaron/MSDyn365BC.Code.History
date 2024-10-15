@@ -213,7 +213,7 @@ page 501 "Available - Purchase Lines"
                     SetFilter("Quantity (Base)", '>0');
         end;
 
-        OnAfterOpenPage(Rec, ReservEntry);
+        OnAfterOpenPage(Rec, ReservEntry, ReservMgt, ReservEngineMgt, CaptionText);
     end;
 
     var
@@ -313,16 +313,21 @@ page 501 "Available - Purchase Lines"
     local procedure CreateReservation(ReservedQuantity: Decimal; ReserveQuantityBase: Decimal)
     var
         TrackingSpecification: Record "Tracking Specification";
+        IsHandled: Boolean;
     begin
         CalcFields("Reserved Qty. (Base)");
         if (Abs("Outstanding Qty. (Base)") - Abs("Reserved Qty. (Base)")) < ReserveQuantityBase then
             Error(Text003, Abs("Outstanding Qty. (Base)") - "Reserved Qty. (Base)");
 
-        TestField("Job No.", '');
-        TestField("Drop Shipment", false);
-        TestField("No.", ReservEntry."Item No.");
-        TestField("Variant Code", ReservEntry."Variant Code");
-        TestField("Location Code", ReservEntry."Location Code");
+        IsHandled := false;
+        OnCreateReservationOnBeforeTestFields(Rec, ReservEntry, IsHandled);
+        if not IsHandled then begin
+            TestField("Job No.", '');
+            TestField("Drop Shipment", false);
+            TestField("No.", ReservEntry."Item No.");
+            TestField("Variant Code", ReservEntry."Variant Code");
+            TestField("Location Code", ReservEntry."Location Code");
+        end;
 
         UpdateReservMgt;
         TrackingSpecification.InitTrackingSpecification(
@@ -379,7 +384,7 @@ page 501 "Available - Purchase Lines"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterOpenPage(var PurchaseLine: Record "Purchase Line"; ReservationEntry: Record "Reservation Entry")
+    local procedure OnAfterOpenPage(var PurchaseLine: Record "Purchase Line"; ReservationEntry: Record "Reservation Entry"; var ReservMgt: Codeunit "Reservation Management"; var ReservEngineMgt: Codeunit "Reservation Engine Mgt."; var CaptionText: Text)
     begin
     end;
 
@@ -395,6 +400,11 @@ page 501 "Available - Purchase Lines"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeFilterReservEntry(var ReservationEntry: Record "Reservation Entry"; Direction: Enum "Transfer Direction")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateReservationOnBeforeTestFields(PurchaseLine: Record "Purchase Line"; ReservationEntry: Record "Reservation Entry"; var IsHandled: Boolean)
     begin
     end;
 }

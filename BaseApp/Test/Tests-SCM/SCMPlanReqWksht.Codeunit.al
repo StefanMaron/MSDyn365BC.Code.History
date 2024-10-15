@@ -3074,6 +3074,52 @@ codeunit 137067 "SCM Plan-Req. Wksht"
         Assert.AreEqual(20, RequisitionLine.Quantity, '');
     end;
 
+    [Test]
+    [HandlerFunctions('MessageHandler')]
+    [Scope('OnPrem')]
+    procedure CombineTransfersOnCarryOutRequisitionWorksheet()
+    var
+        Location: array[3] of Record Location;
+        LocationInTransit: Record Location;
+        RequisitionWkshName: Record "Requisition Wksh. Name";
+        RequisitionLine: Record "Requisition Line";
+        TransferRoute: Record "Transfer Route";
+        i: Integer;
+    begin
+        // [FEATURE] [Transfer]
+        // [SCENARIO 362808] Transfer orders are combined on carrying out planning lines in requisition worksheet.
+        Initialize();
+
+        // [GIVEN] Locations "From", "To-1", "To-2".
+        for i := 1 to ArrayLen(Location) do
+            LibraryWarehouse.CreateLocation(Location[i]);
+        LibraryWarehouse.CreateInTransitLocation(LocationInTransit);
+        LibraryWarehouse.CreateAndUpdateTransferRoute(TransferRoute, Location[1].Code, Location[2].Code, LocationInTransit.Code, '', '');
+        LibraryWarehouse.CreateAndUpdateTransferRoute(TransferRoute, Location[1].Code, Location[3].Code, LocationInTransit.Code, '', '');
+
+        // [GIVEN] Create transfer lines in requisition worksheet as follows:
+        // [GIVEN] Line 1. Transfer from location "From" to location "To-1".
+        // [GIVEN] Line 2. Transfer from location "From" to location "To-2".
+        // [GIVEN] Line 3. Transfer from location "From" to location "To-1".
+        // [GIVEN] Line 4. Transfer from location "From" to location "To-1".
+        LibraryPlanning.SelectRequisitionWkshName(RequisitionWkshName, RequisitionWkshName."Template Type"::"Req.");
+        CreateRequisitionLineForTransfer(RequisitionLine, RequisitionWkshName, Location[1].Code, Location[2].Code);
+        CreateRequisitionLineForTransfer(RequisitionLine, RequisitionWkshName, Location[1].Code, Location[3].Code);
+        CreateRequisitionLineForTransfer(RequisitionLine, RequisitionWkshName, Location[1].Code, Location[2].Code);
+        CreateRequisitionLineForTransfer(RequisitionLine, RequisitionWkshName, Location[1].Code, Location[2].Code);
+
+        // [WHEN] Carry out action message.
+        LibraryVariableStorage.Enqueue(NewWorksheetMessageTxt);
+        LibraryPlanning.CarryOutReqWksh(RequisitionLine, WorkDate, WorkDate, WorkDate, WorkDate, '');
+
+        // [THEN] One transfer order "From" -> "To-1" is created and contains three lines.
+        // [THEN] One transfer order "From" -> "To-2" is created and contains one line.
+        VerifyTransferHeadersAndLinesCount(Location[1].Code, Location[2].Code, 1, 3);
+        VerifyTransferHeadersAndLinesCount(Location[1].Code, Location[3].Code, 1, 1);
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
     local procedure Initialize()
     var
         AllProfile: Record "All Profile";
@@ -3490,6 +3536,20 @@ codeunit 137067 "SCM Plan-Req. Wksht"
         ReqWkshTemplate.FindFirst;
         LibraryPlanning.CreateRequisitionWkshName(RequisitionWkshName, ReqWkshTemplate.Name);
         LibraryPlanning.CreateRequisitionLine(RequisitionLine, RequisitionWkshName."Worksheet Template Name", RequisitionWkshName.Name);
+    end;
+
+    local procedure CreateRequisitionLineForTransfer(var RequisitionLine: Record "Requisition Line"; RequisitionWkshName: Record "Requisition Wksh. Name"; FromLocationCode: Code[10]; ToLocationCode: Code[10])
+    begin
+        LibraryPlanning.CreateRequisitionLine(RequisitionLine, RequisitionWkshName."Worksheet Template Name", RequisitionWkshName.Name);
+        RequisitionLine.Validate(Type, RequisitionLine.Type::Item);
+        RequisitionLine.Validate("No.", LibraryInventory.CreateItemNo());
+        RequisitionLine.Validate(Quantity, LibraryRandom.RandInt(10));
+        RequisitionLine.Validate("Location Code", ToLocationCode);
+        RequisitionLine.Validate("Replenishment System", RequisitionLine."Replenishment System"::Transfer);
+        RequisitionLine.Validate("Transfer-from Code", FromLocationCode);
+        RequisitionLine.Validate("Starting Date", WorkDate);
+        RequisitionLine.Validate("Accept Action Message", true);
+        RequisitionLine.Modify(true);
     end;
 
     local procedure UpdateInventory(var ItemJournalLine: Record "Item Journal Line"; ItemNo: Code[20]; PostingDate: Date; Quantity: Decimal)
@@ -4277,6 +4337,20 @@ codeunit 137067 "SCM Plan-Req. Wksht"
             FindFirst;
             TestField(Quantity, ExpectedQuantity);
         end;
+    end;
+
+    local procedure VerifyTransferHeadersAndLinesCount(FromLocationCode: Code[10]; ToLocationCode: Code[10]; NoOfHeaders: Integer; NoOfLines: Integer)
+    var
+        TransferHeader: Record "Transfer Header";
+        TransferLine: Record "Transfer Line";
+    begin
+        TransferHeader.SetRange("Transfer-from Code", FromLocationCode);
+        TransferHeader.SetRange("Transfer-to Code", ToLocationCode);
+        Assert.RecordCount(TransferHeader, NoOfHeaders);
+
+        TransferLine.SetRange("Transfer-from Code", FromLocationCode);
+        TransferLine.SetRange("Transfer-to Code", ToLocationCode);
+        Assert.RecordCount(TransferLine, NoOfLines);
     end;
 
     [RequestPageHandler]
