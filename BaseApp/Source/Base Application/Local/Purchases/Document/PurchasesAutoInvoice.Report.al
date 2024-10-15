@@ -1,4 +1,4 @@
-﻿// ------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -685,7 +685,6 @@ report 10712 "Purchases - AutoInvoice"
         Text1100003: Label 'Total %1 Incl. VAT+EC';
         Text1100004: Label 'COPY';
         Text1100005: Label 'AutoInvoice %1';
-        Text1100006: Label 'Page %1';
         GLSetup: Record "General Ledger Setup";
         CompanyInfo: Record "Company Information";
         ShipmentMethod: Record "Shipment Method";

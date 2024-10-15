@@ -8,6 +8,7 @@ table 10755 "SII Sales Document Scheme Code"
 {
     DrillDownPageID = "SII Sales Doc. Scheme Codes";
     LookupPageID = "SII Sales Doc. Scheme Codes";
+    DataClassification = CustomerContent;
 
     fields
     {

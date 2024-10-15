@@ -11,6 +11,7 @@ table 10731 "Selected Gen. Prod. Post. Gr."
     Caption = 'Selected Gen. Prod. Post. Gr.';
     DataCaptionFields = "Code", Description;
     LookupPageID = "Gen. Product Posting Groups";
+    DataClassification = CustomerContent;
 
     fields
     {

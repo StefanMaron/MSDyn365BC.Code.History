@@ -99,26 +99,23 @@ codeunit 1294 "OCR Service Mgt."
     var
         OCRServiceSetup: Record "OCR Service Setup";
     begin
-        with OCRServiceSetup do begin
-            if not HasCredentials(OCRServiceSetup) then
-                if Confirm(StrSubstNo(GetCredentialsQstText()), true) then begin
-                    Commit();
-                    PAGE.RunModal(PAGE::"OCR Service Setup", OCRServiceSetup);
-                end;
+        if not HasCredentials(OCRServiceSetup) then
+            if Confirm(StrSubstNo(GetCredentialsQstText()), true) then begin
+                Commit();
+                PAGE.RunModal(PAGE::"OCR Service Setup", OCRServiceSetup);
+            end;
 
-            if not HasCredentials(OCRServiceSetup) then
-                Error(GetCredentialsErrText());
-        end;
+        if not HasCredentials(OCRServiceSetup) then
+            Error(GetCredentialsErrText());
     end;
 
     local procedure HasCredentials(OCRServiceSetup: Record "OCR Service Setup"): Boolean
     begin
-        with OCRServiceSetup do
-            exit(
-              Get() and
-              HasPassword("Password Key") and
-              HasPassword("Authorization Key") and
-              ("User Name" <> ''));
+        exit(
+              OCRServiceSetup.Get() and
+              OCRServiceSetup.HasPassword(OCRServiceSetup."Password Key") and
+              OCRServiceSetup.HasPassword(OCRServiceSetup."Authorization Key") and
+              (OCRServiceSetup."User Name" <> ''));
     end;
 
     procedure GetCredentialsErrText(): Text
@@ -568,22 +565,20 @@ codeunit 1294 "OCR Service Mgt."
 
         GetOriginalOCRXMLRootNode(IncomingDocument, OCRFileXMLRootNode);
 
-        with IncomingDocument do begin
-            CorrectOCRFileNode(OCRFileXMLRootNode, IncomingDocument, FieldNo("Vendor Name"));
-            CorrectOCRFileNode(OCRFileXMLRootNode, IncomingDocument, FieldNo("Vendor Invoice No."));
-            CorrectOCRFileNode(OCRFileXMLRootNode, IncomingDocument, FieldNo("Order No."));
-            CorrectOCRFileNode(OCRFileXMLRootNode, IncomingDocument, FieldNo("Document Date"));
-            CorrectOCRFileNode(OCRFileXMLRootNode, IncomingDocument, FieldNo("Due Date"));
-            CorrectOCRFileNode(OCRFileXMLRootNode, IncomingDocument, FieldNo("Amount Excl. VAT"));
-            CorrectOCRFileNode(OCRFileXMLRootNode, IncomingDocument, FieldNo("Amount Incl. VAT"));
-            CorrectOCRFileNode(OCRFileXMLRootNode, IncomingDocument, FieldNo("VAT Amount"));
-            CorrectOCRFileNode(OCRFileXMLRootNode, IncomingDocument, FieldNo("Currency Code"));
-            CorrectOCRFileNode(OCRFileXMLRootNode, IncomingDocument, FieldNo("Vendor VAT Registration No."));
-            CorrectOCRFileNode(OCRFileXMLRootNode, IncomingDocument, FieldNo("Vendor IBAN"));
-            CorrectOCRFileNode(OCRFileXMLRootNode, IncomingDocument, FieldNo("Vendor Bank Branch No."));
-            CorrectOCRFileNode(OCRFileXMLRootNode, IncomingDocument, FieldNo("Vendor Bank Account No."));
-            CorrectOCRFileNode(OCRFileXMLRootNode, IncomingDocument, FieldNo("Vendor Phone No."));
-        end;
+        CorrectOCRFileNode(OCRFileXMLRootNode, IncomingDocument, IncomingDocument.FieldNo("Vendor Name"));
+        CorrectOCRFileNode(OCRFileXMLRootNode, IncomingDocument, IncomingDocument.FieldNo("Vendor Invoice No."));
+        CorrectOCRFileNode(OCRFileXMLRootNode, IncomingDocument, IncomingDocument.FieldNo("Order No."));
+        CorrectOCRFileNode(OCRFileXMLRootNode, IncomingDocument, IncomingDocument.FieldNo("Document Date"));
+        CorrectOCRFileNode(OCRFileXMLRootNode, IncomingDocument, IncomingDocument.FieldNo("Due Date"));
+        CorrectOCRFileNode(OCRFileXMLRootNode, IncomingDocument, IncomingDocument.FieldNo("Amount Excl. VAT"));
+        CorrectOCRFileNode(OCRFileXMLRootNode, IncomingDocument, IncomingDocument.FieldNo("Amount Incl. VAT"));
+        CorrectOCRFileNode(OCRFileXMLRootNode, IncomingDocument, IncomingDocument.FieldNo("VAT Amount"));
+        CorrectOCRFileNode(OCRFileXMLRootNode, IncomingDocument, IncomingDocument.FieldNo("Currency Code"));
+        CorrectOCRFileNode(OCRFileXMLRootNode, IncomingDocument, IncomingDocument.FieldNo("Vendor VAT Registration No."));
+        CorrectOCRFileNode(OCRFileXMLRootNode, IncomingDocument, IncomingDocument.FieldNo("Vendor IBAN"));
+        CorrectOCRFileNode(OCRFileXMLRootNode, IncomingDocument, IncomingDocument.FieldNo("Vendor Bank Branch No."));
+        CorrectOCRFileNode(OCRFileXMLRootNode, IncomingDocument, IncomingDocument.FieldNo("Vendor Bank Account No."));
+        CorrectOCRFileNode(OCRFileXMLRootNode, IncomingDocument, IncomingDocument.FieldNo("Vendor Phone No."));
         Clear(TempBlob);
         TempBlob.CreateOutStream(OutStream);
         OCRFileXMLRootNode.OwnerDocument.Save(OutStream);
@@ -620,7 +615,7 @@ codeunit 1294 "OCR Service Mgt."
                     end;
                 FieldType::Decimal:
                     begin
-                        CorrectionValueAsDecimal := IncomingDocumentFieldRef.Value;
+                        CorrectionValueAsDecimal := IncomingDocumentFieldRef.Value();
                         CorrectionValue := Format(IncomingDocumentFieldRef.Value, 0, 9);
                         if Evaluate(OriginalValueAsDecimal, CorrectionXMLNode.InnerText, 9) then;
                         CorrectionNeeded := OriginalValueAsDecimal <> CorrectionValueAsDecimal;
@@ -1040,46 +1035,44 @@ codeunit 1294 "OCR Service Mgt."
         XMLDOMManagement: Codeunit "XML DOM Management";
         VendorFound: Boolean;
     begin
-        with IncomingDocument do begin
-            if "Data Exchange Type" = '' then
-                exit;
+        if IncomingDocument."Data Exchange Type" = '' then
+            exit;
 
-            IncomingDocumentAttachment.SetRange("Incoming Document Entry No.", "Entry No.");
-            IncomingDocumentAttachment.SetRange("Generated from OCR", true);
-            IncomingDocumentAttachment.SetRange(Default, true);
-            if not IncomingDocumentAttachment.FindFirst() then begin
-                Session.LogMessage('00008KT', CannotFindAttachmentTxt, Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', TelemetryCategoryTok);
-                exit;
-            end;
-
-            IncomingDocumentAttachment.ExtractHeaderFields(XMLRootNode, IncomingDocument);
-            Get("Entry No.");
-
-            if XMLDOMManagement.FindNodeText(XMLRootNode, 'HeaderFields/HeaderField/Text[../Type/text() = "creditinvoice"]') =
-               'true'
-            then
-                "Document Type" := "Document Type"::"Purchase Credit Memo";
-
-            "OCR Track ID" := CopyStr(XMLDOMManagement.FindNodeText(XMLRootNode, 'TrackId'), 1, MaxStrLen("OCR Track ID"));
-
-            if not IsNullGuid("Vendor Id") then
-                VendorFound := Vendor.GetBySystemId("Vendor Id");
-            if (not VendorFound) and ("Vendor No." <> '') then
-                VendorFound := Vendor.Get("Vendor No.");
-            if (not VendorFound) and ("Vendor VAT Registration No." <> '') then begin
-                Vendor.SetCurrentKey(Blocked);
-                Vendor.SetRange("VAT Registration No.", "Vendor VAT Registration No.");
-                VendorFound := Vendor.FindFirst();
-            end;
-            if VendorFound then begin
-                if "Vendor Id" <> Vendor.SystemId then
-                    Validate("Vendor Id", Vendor.SystemId);
-                if "Vendor No." <> Vendor."No." then
-                    Validate("Vendor No.", Vendor."No.");
-            end;
-
-            Modify();
+        IncomingDocumentAttachment.SetRange("Incoming Document Entry No.", IncomingDocument."Entry No.");
+        IncomingDocumentAttachment.SetRange("Generated from OCR", true);
+        IncomingDocumentAttachment.SetRange(Default, true);
+        if not IncomingDocumentAttachment.FindFirst() then begin
+            Session.LogMessage('00008KT', CannotFindAttachmentTxt, Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', TelemetryCategoryTok);
+            exit;
         end;
+
+        IncomingDocumentAttachment.ExtractHeaderFields(XMLRootNode, IncomingDocument);
+        IncomingDocument.Get(IncomingDocument."Entry No.");
+
+        if XMLDOMManagement.FindNodeText(XMLRootNode, 'HeaderFields/HeaderField/Text[../Type/text() = "creditinvoice"]') =
+           'true'
+        then
+            IncomingDocument."Document Type" := IncomingDocument."Document Type"::"Purchase Credit Memo";
+
+        IncomingDocument."OCR Track ID" := CopyStr(XMLDOMManagement.FindNodeText(XMLRootNode, 'TrackId'), 1, MaxStrLen(IncomingDocument."OCR Track ID"));
+
+        if not IsNullGuid(IncomingDocument."Vendor Id") then
+            VendorFound := Vendor.GetBySystemId(IncomingDocument."Vendor Id");
+        if (not VendorFound) and (IncomingDocument."Vendor No." <> '') then
+            VendorFound := Vendor.Get(IncomingDocument."Vendor No.");
+        if (not VendorFound) and (IncomingDocument."Vendor VAT Registration No." <> '') then begin
+            Vendor.SetCurrentKey(Blocked);
+            Vendor.SetRange("VAT Registration No.", IncomingDocument."Vendor VAT Registration No.");
+            VendorFound := Vendor.FindFirst();
+        end;
+        if VendorFound then begin
+            if IncomingDocument."Vendor Id" <> Vendor.SystemId then
+                IncomingDocument.Validate(IncomingDocument."Vendor Id", Vendor.SystemId);
+            if IncomingDocument."Vendor No." <> Vendor."No." then
+                IncomingDocument.Validate(IncomingDocument."Vendor No.", Vendor."No.");
+        end;
+
+        IncomingDocument.Modify();
     end;
 
     procedure LogActivitySucceeded(RelatedRecordID: RecordID; ActivityDescription: Text; ActivityMessage: Text)
@@ -1135,9 +1128,8 @@ codeunit 1294 "OCR Service Mgt."
             ServiceConnection.Status := ServiceConnection.Status::Enabled
         else
             ServiceConnection.Status := ServiceConnection.Status::Disabled;
-        with OCRServiceSetup do
-            ServiceConnection.InsertServiceConnection(
-              ServiceConnection, RecRef.RecordId, TableCaption(), "Service URL", PAGE::"OCR Service Setup");
+        ServiceConnection.InsertServiceConnection(
+            ServiceConnection, RecRef.RecordId, OCRServiceSetup.TableCaption(), OCRServiceSetup."Service URL", PAGE::"OCR Service Setup");
     end;
 
     local procedure GetMaxDocDownloadCount(): Integer

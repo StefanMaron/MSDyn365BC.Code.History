@@ -7,6 +7,7 @@ namespace Microsoft;
 table 10700 "Inc. Stmt. Clos. Buffer"
 {
     Caption = 'Inc. Stmt. Clos. Buffer';
+    DataClassification = CustomerContent;
 
     fields
     {

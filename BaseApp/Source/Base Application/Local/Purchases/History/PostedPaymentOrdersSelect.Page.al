@@ -340,14 +340,12 @@ page 7000065 "Posted Payment Orders Select."
 
     procedure UpdateStatistics2(var PostedPmtOrd2: Record "Posted Payment Order"; var CurrTotalAmount: Decimal; var ShowCurrent: Boolean)
     begin
-        with PostedPmtOrd2 do begin
-            SetCurrentKey("Bank Account No.", "Posting Date", "Currency Code");
-            if Find('-') then;
-            repeat
-                CalcFields("Remaining Amount (LCY)");
-                CurrTotalAmount := CurrTotalAmount + "Remaining Amount (LCY)";
-            until Next() = 0;
-        end;
+        PostedPmtOrd2.SetCurrentKey("Bank Account No.", "Posting Date", "Currency Code");
+        if PostedPmtOrd2.Find('-') then;
+        repeat
+            PostedPmtOrd2.CalcFields("Remaining Amount (LCY)");
+            CurrTotalAmount := CurrTotalAmount + PostedPmtOrd2."Remaining Amount (LCY)";
+        until PostedPmtOrd2.Next() = 0;
         ShowCurrent := (CurrTotalAmount <> 0);
     end;
 

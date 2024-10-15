@@ -1,4 +1,4 @@
-﻿// ------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -304,12 +304,10 @@ report 7000010 "Payment Order Listing"
 
             trigger OnAfterGetRecord()
             begin
-                with BankAcc do begin
-                    Get(PmtOrd."Bank Account No.");
-                    FormatAddress.FormatAddr(
-                      BankAccAddr, Name, "Name 2", '', Address, "Address 2",
-                      City, "Post Code", County, "Country/Region Code");
-                end;
+                BankAcc.Get(PmtOrd."Bank Account No.");
+                FormatAddress.FormatAddr(
+                  BankAccAddr, BankAcc.Name, BankAcc."Name 2", '', BankAcc.Address, BankAcc."Address 2",
+                  BankAcc.City, BankAcc."Post Code", BankAcc.County, BankAcc."Country/Region Code");
 
                 if not CurrReport.Preview then
                     PrintCounter.PrintCounter(DATABASE::"Payment Order", "No.");
@@ -362,7 +360,6 @@ report 7000010 "Payment Order Listing"
     var
         Text1100000: Label 'COPY';
         Text1100001: Label 'Payment Order %1';
-        Text1100002: Label 'Page %1';
         CompanyInfo: Record "Company Information";
         BankAcc: Record "Bank Account";
         Vend: Record Vendor;
@@ -373,9 +370,6 @@ report 7000010 "Payment Order Listing"
         NoOfLoops: Integer;
         NoOfCopies: Integer;
         CopyText: Text[30];
-        City: Text[30];
-        County: Text[30];
-        Name: Text[50];
         PrintAmountsInLCY: Boolean;
         PmtOrdAmount: Decimal;
         OutputNo: Integer;

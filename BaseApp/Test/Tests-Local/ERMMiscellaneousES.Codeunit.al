@@ -126,7 +126,7 @@ codeunit 144072 "ERM Miscellaneous ES"
         CompanyInformation.Get();
         LibraryERM.CreateVATRegistrationNoFormat(VATRegistrationNoFormat, CompanyInformation."Country/Region Code");
         CreateAndPostServiceDocument(
-          ServiceLine, ServiceHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo,
+          ServiceLine, ServiceHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo(),
           LibraryInventory.CreateItem(Item), VATRegistrationNoFormat.Format, '');  // Using blank for Corrected Invoice No.
         LastPostedDocNo := CreateAndPostServiceDocument(
             ServiceLine, ServiceHeader."Document Type"::"Credit Memo", ServiceLine."Customer No.",
@@ -136,7 +136,7 @@ codeunit 144072 "ERM Miscellaneous ES"
         RunReportWithVATEntry(REPORT::"Sales Invoice Book", LastPostedDocNo, DummyVATEntry."Document Type"::"Credit Memo");
 
         // Verify.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(CustomerNameCap, ServiceLine."Customer No.");
         LibraryReportDataset.AssertElementWithValueExists(VATRegistrationNoCap, VATRegistrationNoFormat.Format);
     end;
@@ -166,7 +166,7 @@ codeunit 144072 "ERM Miscellaneous ES"
         RunReportWithVATEntry(REPORT::"Sales Invoice Book", PostedDocNo, DummyVATEntry."Document Type"::Invoice);
 
         // [THEN] Value "XX" is displayed under Tag <VATEntry2_External_Document_No__> in export XML file
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementTagWithValueExists('VATEntry2_External_Document_No__', ExternalDocNo);
     end;
 
@@ -198,7 +198,7 @@ codeunit 144072 "ERM Miscellaneous ES"
         RunReportWithVATEntry(REPORT::"Purchases Invoice Book", PostedDocNo, DummyVATEntry."Document Type"::Invoice);
 
         // [THEN] Value "XX" is displayed under Tag <VATEntry2_External_Document_No__> in export XML file
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementTagWithValueExists('VATEntry2__External_Document_No__', ExternalDocNo);
 
         // [THEN] Value "Y" is displayed under tag <VATEntry2__Document_Date_> in export XML file
@@ -223,7 +223,7 @@ codeunit 144072 "ERM Miscellaneous ES"
         REPORT.Run(REPORT::"Assembly BOM - Raw Materials");
 
         // Verify.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(ItemNoCap, Item."No.");
         LibraryReportDataset.AssertElementWithValueExists(ItemInventoryCap, Item.Inventory);
     end;
@@ -245,7 +245,7 @@ codeunit 144072 "ERM Miscellaneous ES"
 
         // Setup: Post Purchase Order with Payment Discount.
         Initialize();
-        VendorNo := CreateVendor;
+        VendorNo := CreateVendor();
         GeneralLedgerSetup.Get();
         PurchasesPayablesSetup.Get();
         UpdateGeneralLedgerSetup(
@@ -278,14 +278,14 @@ codeunit 144072 "ERM Miscellaneous ES"
         // Purpose of this test to verify values on Aged Accounts Receivable report after Sales Order posting.
         // Setup.
         Initialize();
-        CreateAndPostSalesDocument(SalesLine, LibrarySales.CreateCustomerNo);
+        CreateAndPostSalesDocument(SalesLine, LibrarySales.CreateCustomerNo());
         CreateAndPostSalesDocument(SalesLine2, SalesLine."Sell-to Customer No.");
 
         // Exercise.
         REPORT.Run(REPORT::"Aged Accounts Receivable");  // Opens AgedAccountsReceivableRequestPageHandler.
 
         // Verify: Verify values on Aged Accounts Receivable report.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(CustNoCap, SalesLine."Sell-to Customer No.");
         LibraryReportDataset.AssertElementWithValueExists(OriginalAmtCap, SalesLine."Amount Including VAT");
         LibraryReportDataset.AssertElementWithValueExists(OriginalAmt2Cap, SalesLine2."Amount Including VAT");
@@ -307,10 +307,10 @@ codeunit 144072 "ERM Miscellaneous ES"
         Amount := LibraryRandom.RandDec(100, 2);
         DocumentNo :=
           CreateAndPostGeneralJournalLine(
-            GenJournalLine."Account Type"::Customer, LibrarySales.CreateCustomerNo, -Amount, '', WorkDate());  // Using blank value for ShortcutDimensionOneCode.
+            GenJournalLine."Account Type"::Customer, LibrarySales.CreateCustomerNo(), -Amount, '', WorkDate());  // Using blank value for ShortcutDimensionOneCode.
 
         // Exercise.
-        ReverseEntry;
+        ReverseEntry();
 
         // Verify.
         VerifyReversedCustomerLedgEntry(DocumentNo, -Amount);
@@ -329,10 +329,10 @@ codeunit 144072 "ERM Miscellaneous ES"
         // Setup.
         Initialize();
         Amount := LibraryRandom.RandDec(100, 2);
-        DocumentNo := CreateAndPostGeneralJournalLine(GenJournalLine."Account Type"::Vendor, CreateVendor, Amount, '', WorkDate());  // Using blank value for ShortcutDimensionOneCode.
+        DocumentNo := CreateAndPostGeneralJournalLine(GenJournalLine."Account Type"::Vendor, CreateVendor(), Amount, '', WorkDate());  // Using blank value for ShortcutDimensionOneCode.
 
         // Exercise.
-        ReverseEntry;
+        ReverseEntry();
 
         // Verify.
         VerifyReversedVendorLedgEntry(DocumentNo, Amount);
@@ -355,7 +355,7 @@ codeunit 144072 "ERM Miscellaneous ES"
 
         // Setup: Post Purchase Order with Charge Item.
         Initialize();
-        VendorNo := CreateVendor;
+        VendorNo := CreateVendor();
         GeneralLedgerSetup.Get();
         UpdateGeneralLedgerSetup(
           GeneralLedgerSetup."Payment Discount Type"::"Calc. Pmt. Disc. on Lines", GeneralLedgerSetup."Discount Calculation"::" ",
@@ -472,7 +472,7 @@ codeunit 144072 "ERM Miscellaneous ES"
         Initialize();
 
         // Exercise.
-        CreatePurchaseDocument(PurchaseLine, DocumentType, CreateVendor, 0);  // Using 0 for Payment Discount Percent.
+        CreatePurchaseDocument(PurchaseLine, DocumentType, CreateVendor(), 0);  // Using 0 for Payment Discount Percent.
 
         // Verify.
         VerifyPurchaseLine(DocumentType, PurchaseLine."Document No.", PurchaseLine."Line Amount", PurchaseLine."Outstanding Amount (LCY)");
@@ -529,7 +529,7 @@ codeunit 144072 "ERM Miscellaneous ES"
     begin
         // Setup.
         Initialize();
-        CreatePurchaseDocument(PurchaseLine, DocumentType, CreateVendor, 0);  // Using 0 for Payment Discount Percent.
+        CreatePurchaseDocument(PurchaseLine, DocumentType, CreateVendor(), 0);  // Using 0 for Payment Discount Percent.
         PurchaseHeader.Get(DocumentType, PurchaseLine."Document No.");
 
         // Exercise.
@@ -561,8 +561,8 @@ codeunit 144072 "ERM Miscellaneous ES"
           GeneralLedgerSetup."Payment Discount Type", GeneralLedgerSetup."Discount Calculation",
           GeneralLedgerSetup."Unit-Amount Rounding Precision", VATDifference);
         UpdateSalesReceivablesSetup(true);  // Using True for Allow VAT Difference.
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesLine."Document Type"::Invoice, LibrarySales.CreateCustomerNo);
-        CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::"G/L Account", CreateGLAccount);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesLine."Document Type"::Invoice, LibrarySales.CreateCustomerNo());
+        CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::"G/L Account", CreateGLAccount());
         VATAmount := SalesLine."Amount Including VAT" - SalesLine.Amount - VATDifference;
         LibraryVariableStorage.Enqueue(VATAmount);  // Enqueue for SalesStatisticsPageHandler.
         OpenVATAmountOnSalesStatistics(SalesHeader."No.");
@@ -572,9 +572,9 @@ codeunit 144072 "ERM Miscellaneous ES"
         LibrarySales.PostSalesDocument(SalesHeader, true, true);  // True for Ship and Invoice.
 
         // Verify: Verification done in SalesInvoiceStatisticsPageHandler.
-        PostedSalesInvoice.OpenView;
+        PostedSalesInvoice.OpenView();
         PostedSalesInvoice.FILTER.SetFilter("No.", SalesHeader."Last Posting No.");
-        PostedSalesInvoice.Statistics.Invoke;
+        PostedSalesInvoice.Statistics.Invoke();
 
         PostedSalesInvoice.Close();
     end;
@@ -716,7 +716,7 @@ codeunit 144072 "ERM Miscellaneous ES"
         REPORT.Run(REPORT::"Official Acc.Summarized Book");  // Opens OfficialAccSummarizedBookRequestPageHandler.
 
         // Verify.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(GLAccountNoCap, ExpectedGLAccount);
         LibraryReportDataset.AssertElementWithValueExists(TotalDebitAmtEndCap, Amount);
     end;
@@ -753,7 +753,7 @@ codeunit 144072 "ERM Miscellaneous ES"
         TrialBalanceReportWithAccountTypeFilter(GLAccountNo, GLAccountNo2, GLAccountNo2, GLAccount."Account Type"::Heading, 1); // 1 indicates Heading option of Account Type
     end;
 
-    local procedure TrialBalanceReportWithAccountTypeFilter(GLAccountNo: Code[20]; GLAccountNo2: Code[20]; ExpectedGLAccount: Code[20]; AccountType: Option; AccountTypeOption: Integer)
+    local procedure TrialBalanceReportWithAccountTypeFilter(GLAccountNo: Code[20]; GLAccountNo2: Code[20]; ExpectedGLAccount: Code[20]; AccountType: Enum "G/L Account Type"; AccountTypeOption: Integer)
     var
         GenJournalLine: Record "Gen. Journal Line";
         Amount: Decimal;
@@ -768,7 +768,7 @@ codeunit 144072 "ERM Miscellaneous ES"
         REPORT.Run(REPORT::"Trial Balance");  // Open TrialBalanceRequestPageHandler.
 
         // Verify.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(GLAccountNoCap, ExpectedGLAccount);
         LibraryReportDataset.AssertElementWithValueExists(TotalDebitAmtCap, Amount);
         LibraryReportDataset.AssertElementWithValueExists(GLAccountTypeTxt, Format(AccountTypeOption));
@@ -785,7 +785,7 @@ codeunit 144072 "ERM Miscellaneous ES"
         // Purpose of this test to verify values on Trial Balance report with Include Closing Entries and Dimension Code.
         Initialize();
         Amount := LibraryRandom.RandDec(100, 2);
-        TrialBalanceReportWithIncludeClosingEntries(GetDimensionValueCode, Amount, 2 * Amount);  // Taking sum of amounts for two entries with Dimension Code.
+        TrialBalanceReportWithIncludeClosingEntries(GetDimensionValueCode(), Amount, 2 * Amount);  // Taking sum of amounts for two entries with Dimension Code.
     end;
 
     [Test]
@@ -829,7 +829,7 @@ codeunit 144072 "ERM Miscellaneous ES"
         REPORT.Run(REPORT::"Trial Balance");  // Oepns TrialBalanceRequestPageHandler.
 
         // Verify.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(TotalPeriodCreditAmtCap, ExpectedAmount);
         LibraryReportDataset.AssertElementWithValueExists(GLAccountNoCap, GLAccountNo);
     end;
@@ -852,7 +852,7 @@ codeunit 144072 "ERM Miscellaneous ES"
 
         // [GIVEN] Create and post Purchase Invoice, Create and post Gen Journal Line. Apply Vendor Ledger Entry.
         Initialize();
-        CreatePurchaseDocument(PurchaseLine, PurchaseHeader."Document Type"::Invoice, CreateVendor, 0);  // Using 0 for PaymentDiscountPct.
+        CreatePurchaseDocument(PurchaseLine, PurchaseHeader."Document Type"::Invoice, CreateVendor(), 0);  // Using 0 for PaymentDiscountPct.
         PurchaseHeader.Get(PurchaseLine."Document Type", PurchaseLine."Document No.");
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);  // Post as Ship and Invoice.
         DocumentNo :=
@@ -863,7 +863,7 @@ codeunit 144072 "ERM Miscellaneous ES"
         OldOpenStatus := VendorLedgerEntry.Open;
 
         // [WHEN] Unapply Payment
-        VendorLedgerEntries.UnapplyEntries.Invoke;  // Invokes UnapplyVendorEntriesModalPageHandler.
+        VendorLedgerEntries.UnapplyEntries.Invoke();  // Invokes UnapplyVendorEntriesModalPageHandler.
 
         // [THEN] Vendor Ledger Entry is successfully unapplied.
         LibraryERM.FindVendorLedgerEntry(VendorLedgerEntry, VendorLedgerEntry."Document Type"::Payment, DocumentNo);
@@ -893,7 +893,7 @@ codeunit 144072 "ERM Miscellaneous ES"
 
         // [GIVEN] Create and post Sales Invoice, Create and post Gen Journal Line. Apply Customer Ledger Entry.
         Initialize();
-        CreateAndPostSalesDocument(SalesLine, LibrarySales.CreateCustomerNo);
+        CreateAndPostSalesDocument(SalesLine, LibrarySales.CreateCustomerNo());
         DocumentNo :=
           CreateAndPostGeneralJournalLine(
             GenJournalLine."Account Type"::Customer, SalesLine."Sell-to Customer No.", -SalesLine."Amount Including VAT", '', WorkDate());  // Blank for Shortcut Dimension 1 Code.
@@ -902,7 +902,7 @@ codeunit 144072 "ERM Miscellaneous ES"
         OldOpenStatus := CustLedgerEntry.Open;
 
         // [WHEN] Unapply Payment
-        CustomerLedgerEntries.UnapplyEntries.Invoke;  // Invokes UnapplyCustomerEntriesModalPageHandler.
+        CustomerLedgerEntries.UnapplyEntries.Invoke();  // Invokes UnapplyCustomerEntriesModalPageHandler.
 
         // [THEN] Customer Ledger Entry is successfully unapplied.
         LibraryERM.FindCustomerLedgerEntry(CustLedgerEntry, CustLedgerEntry."Document Type"::Payment, DocumentNo);
@@ -930,7 +930,7 @@ codeunit 144072 "ERM Miscellaneous ES"
     begin
         // [SCENARIO] Check Pmt. Discount amount on Purchase Credit Memo after CopyDocument function
         Initialize();
-        VendorNo := CreateVendor;
+        VendorNo := CreateVendor();
         GeneralLedgerSetup.Get();
         UpdateGeneralLedgerSetup(
           GeneralLedgerSetup."Payment Discount Type"::"Calc. Pmt. Disc. on Lines",
@@ -1409,7 +1409,7 @@ codeunit 144072 "ERM Miscellaneous ES"
         UpdatePurchasesPayablesSetup(true, PurchasesPayablesSetup."Allow VAT Difference");  // Set "Post Payment Discount"
 
         // [GIVEN] Purchase Order with Amount = 100 and "Payment Discount %" = 5
-        CreatePurchaseDocument(PurchaseLine, PurchaseHeader."Document Type"::Order, CreateVendor, LibraryRandom.RandDec(10, 2));
+        CreatePurchaseDocument(PurchaseLine, PurchaseHeader."Document Type"::Order, CreateVendor(), LibraryRandom.RandDec(10, 2));
 
         // [GIVEN] "Payment Discount Type" is "Calc. Pmt. Disc. on Lines" in "General Ledger Setup" and calculate payment discount
         GeneralLedgerSetup.Get();
@@ -1496,7 +1496,7 @@ codeunit 144072 "ERM Miscellaneous ES"
 
         // [GIVEN] Posted purchase invoice for vendor with payment method having "Create Bills" = TRUE
         PurchInvHeader.Get(
-          CreatePostPurchOrderWithBankAccount(PurchaseHeader, CreateVendorWithPaymentMethod(CreatePaymentMethodWithCreateBills), ''));
+          CreatePostPurchOrderWithBankAccount(PurchaseHeader, CreateVendorWithPaymentMethod(CreatePaymentMethodWithCreateBills()), ''));
 
         // [WHEN] Perform "Correct" action for the posted invoice
         asserterror CorrectPostedPurchInvoice.TestCorrectInvoiceIsAllowed(PurchInvHeader, false);
@@ -1521,7 +1521,7 @@ codeunit 144072 "ERM Miscellaneous ES"
 
         // [GIVEN] Posted purchase invoice for vendor with payment method having "Create Bills" = TRUE
         PurchInvHeader.Get(
-          CreatePostPurchOrderWithBankAccount(PurchaseHeader, CreateVendorWithPaymentMethod(CreatePaymentMethodWithCreateBills), ''));
+          CreatePostPurchOrderWithBankAccount(PurchaseHeader, CreateVendorWithPaymentMethod(CreatePaymentMethodWithCreateBills()), ''));
 
         // [WHEN] Perform "Cancel" action for the posted invoice
         asserterror CorrectPostedPurchInvoice.TestCorrectInvoiceIsAllowed(PurchInvHeader, true);
@@ -1546,7 +1546,7 @@ codeunit 144072 "ERM Miscellaneous ES"
 
         // [GIVEN] Posted sales invoice for customer with payment method having "Create Bills" = TRUE
         SalesInvoiceHeader.Get(
-          CreatePostSalesOrderWithBankAccount(SalesHeader, CreateCustomerWithPaymentMethod(CreatePaymentMethodWithCreateBills), ''));
+          CreatePostSalesOrderWithBankAccount(SalesHeader, CreateCustomerWithPaymentMethod(CreatePaymentMethodWithCreateBills()), ''));
 
         // [WHEN] Perform "Correct" action for the posted invoice
         asserterror CorrectPostedSalesInvoice.TestCorrectInvoiceIsAllowed(SalesInvoiceHeader, false);
@@ -1571,7 +1571,7 @@ codeunit 144072 "ERM Miscellaneous ES"
 
         // [GIVEN] Posted sales invoice for customer with payment method having "Create Bills" = TRUE
         SalesInvoiceHeader.Get(
-          CreatePostSalesOrderWithBankAccount(SalesHeader, CreateCustomerWithPaymentMethod(CreatePaymentMethodWithCreateBills), ''));
+          CreatePostSalesOrderWithBankAccount(SalesHeader, CreateCustomerWithPaymentMethod(CreatePaymentMethodWithCreateBills()), ''));
 
         // [WHEN] Perform "Cancel" action for the posted invoice
         asserterror CorrectPostedSalesInvoice.TestCorrectInvoiceIsAllowed(SalesInvoiceHeader, true);
@@ -1599,7 +1599,7 @@ codeunit 144072 "ERM Miscellaneous ES"
         // [GIVEN] Purchase order with Reverse Charge VAT posting setup
         CreateReverseChargeVATPostingSetup(VATPostingSetup);
         CreatePurchaseOrderWithGivenVATSetup(PurchaseHeader, VATPostingSetup);
-        AutoinvoiceNo := GetNextAutoDocNo;
+        AutoinvoiceNo := GetNextAutoDocNo();
 
         // [WHEN] Post the order
         PurchInvHeader.Get(LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true));
@@ -1626,7 +1626,7 @@ codeunit 144072 "ERM Miscellaneous ES"
         // [GIVEN] Purchase order with Reverse Charge VAT posting setup
         CreateReverseChargeVATPostingSetup(VATPostingSetup);
         CreatePurchaseOrderWithGivenVATSetup(PurchaseHeader, VATPostingSetup);
-        AutoinvoiceNo := GetNextAutoDocNo;
+        AutoinvoiceNo := GetNextAutoDocNo();
 
         // [WHEN] Post the order
         PurchInvHeader.Get(LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true));
@@ -1670,7 +1670,7 @@ codeunit 144072 "ERM Miscellaneous ES"
         // Handled by TrialBalanceRequestPageHandler.
 
         // [THEN] Opening entry was counted only once by the report
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists('TotalCreditAmtAtEnd', Amount);
         LibraryReportDataset.AssertElementWithValueExists(GLAccountNoCap, GLAccountNo);
     end;
@@ -1849,7 +1849,7 @@ codeunit 144072 "ERM Miscellaneous ES"
         for i := 1 to ArrayLen(PostedDocNo) do
             LibraryReportDataset.AssertElementTagWithValueExists('VATEntry_Document_No_', PostedDocNo[i]);
     end;
-    
+
     local procedure Initialize()
     begin
         LibraryVariableStorage.Clear();
@@ -1871,9 +1871,9 @@ codeunit 144072 "ERM Miscellaneous ES"
         CustLedgerEntry: Record "Cust. Ledger Entry";
     begin
         LibraryERM.FindCustomerLedgerEntry(CustLedgerEntry, CustLedgerEntry."Document Type"::Payment, DocumentNo);
-        CustomerLedgerEntries.OpenEdit;
+        CustomerLedgerEntries.OpenEdit();
         CustomerLedgerEntries.FILTER.SetFilter("Entry No.", Format(CustLedgerEntry."Entry No."));
-        CustomerLedgerEntries."Apply Entries".Invoke;  // Invokes ApplyCustomerEntriesModalPageHandler.
+        CustomerLedgerEntries."Apply Entries".Invoke();  // Invokes ApplyCustomerEntriesModalPageHandler.
     end;
 
     local procedure ApplyVendorLedgerEntry(var VendorLedgerEntries: TestPage "Vendor Ledger Entries"; DocumentNo: Code[20])
@@ -1881,9 +1881,9 @@ codeunit 144072 "ERM Miscellaneous ES"
         VendorLedgerEntry: Record "Vendor Ledger Entry";
     begin
         LibraryERM.FindVendorLedgerEntry(VendorLedgerEntry, VendorLedgerEntry."Document Type"::Payment, DocumentNo);
-        VendorLedgerEntries.OpenEdit;
+        VendorLedgerEntries.OpenEdit();
         VendorLedgerEntries.FILTER.SetFilter("Entry No.", Format(VendorLedgerEntry."Entry No."));
-        VendorLedgerEntries.ActionApplyEntries.Invoke;  // Invokes ApplyVendorEntriesModalPageHandler.
+        VendorLedgerEntries.ActionApplyEntries.Invoke();  // Invokes ApplyVendorEntriesModalPageHandler.
     end;
 
     local procedure CalculateInvAndPmtDiscountsOnPurchaseOrder(PurchaseLine: Record "Purchase Line")
@@ -1910,7 +1910,7 @@ codeunit 144072 "ERM Miscellaneous ES"
             FindSet();
             repeat
                 Result += "Pmt. Discount Amount";
-            until Next = 0;
+            until Next() = 0;
         end;
     end;
 
@@ -1923,7 +1923,7 @@ codeunit 144072 "ERM Miscellaneous ES"
             FindSet();
             repeat
                 Result += "Pmt. Discount Amount";
-            until Next = 0;
+            until Next() = 0;
         end;
     end;
 
@@ -1936,7 +1936,7 @@ codeunit 144072 "ERM Miscellaneous ES"
             FindSet();
             repeat
                 Result += "Pmt. Discount Amount";
-            until Next = 0;
+            until Next() = 0;
         end;
     end;
 
@@ -1949,14 +1949,12 @@ codeunit 144072 "ERM Miscellaneous ES"
             FindSet();
             repeat
                 Result += "Pmt. Discount Amount";
-            until Next = 0;
+            until Next() = 0;
         end;
     end;
 
     local procedure CreateAndPostGeneralJournalLine(AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; Amount: Decimal; ShortcutDimensionOneCode: Code[20]; PostingDate: Date): Code[20]
     var
-        BankAccount: Record "Bank Account";
-        GenJournalBatch: Record "Gen. Journal Batch";
         GenJournalLine: Record "Gen. Journal Line";
     begin
         CreateGeneralJournalLine(GenJournalLine, AccountType, AccountNo, Amount, ShortcutDimensionOneCode, PostingDate);
@@ -1988,7 +1986,7 @@ codeunit 144072 "ERM Miscellaneous ES"
         SalesHeader: Record "Sales Header";
     begin
         LibrarySales.CreateSalesHeader(SalesHeader, SalesLine."Document Type"::Order, CustomerNo);
-        CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, CreateItem);
+        CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, CreateItem());
         LibrarySales.PostSalesDocument(SalesHeader, true, true);  // True for Ship and Invoice.
     end;
 
@@ -2121,7 +2119,7 @@ codeunit 144072 "ERM Miscellaneous ES"
 
         LibraryPurchase.CreatePurchaseLine(
           PurchaseLine, PurchaseHeader, PurchaseLine.Type::"G/L Account",
-          LibraryERM.CreateGLAccountWithPurchSetup, LibraryRandom.RandInt(10));
+          LibraryERM.CreateGLAccountWithPurchSetup(), LibraryRandom.RandInt(10));
         PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandDecInRange(1000, 2000, 2));
         PurchaseLine.Modify(true);
     end;
@@ -2136,7 +2134,7 @@ codeunit 144072 "ERM Miscellaneous ES"
 
         LibrarySales.CreateSalesLine(
           SalesLine, SalesHeader, SalesLine.Type::"G/L Account",
-          LibraryERM.CreateGLAccountWithSalesSetup, LibraryRandom.RandInt(10));
+          LibraryERM.CreateGLAccountWithSalesSetup(), LibraryRandom.RandInt(10));
         SalesLine.Validate("Unit Price", LibraryRandom.RandDecInRange(1000, 2000, 2));
         SalesLine.Modify(true);
     end;
@@ -2146,7 +2144,7 @@ codeunit 144072 "ERM Miscellaneous ES"
         ItemChargeAssignmentPurch: Record "Item Charge Assignment (Purch)";
     begin
         LibraryPurchase.CreatePurchaseLine(
-          PurchaseLine, PurchaseHeader, PurchaseLine.Type::"Charge (Item)", LibraryInventory.CreateItemChargeNo, LibraryRandom.RandInt(10));
+          PurchaseLine, PurchaseHeader, PurchaseLine.Type::"Charge (Item)", LibraryInventory.CreateItemChargeNo(), LibraryRandom.RandInt(10));
         PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandDec(100, 2));
         PurchaseLine.Validate("Line Discount %", LibraryRandom.RandDec(10, 2));
         PurchaseLine.Modify(true);
@@ -2156,10 +2154,10 @@ codeunit 144072 "ERM Miscellaneous ES"
 
     local procedure CreateSalesOrderWithPmtDisc(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line")
     begin
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesLine."Document Type"::Order, LibrarySales.CreateCustomerNo);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesLine."Document Type"::Order, LibrarySales.CreateCustomerNo());
         SalesHeader.Validate("Payment Discount %", LibraryRandom.RandDec(10, 2));
         SalesHeader.Modify(true);
-        CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, CreateItem);
+        CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, CreateItem());
     end;
 
     local procedure CreatePostSalesDocWithPmtDisc(CustomerNo: Code[20]): Code[20]
@@ -2170,7 +2168,7 @@ codeunit 144072 "ERM Miscellaneous ES"
         LibrarySales.CreateSalesHeader(SalesHeader, SalesLine."Document Type"::Order, CustomerNo);
         SalesHeader.Validate("Payment Discount %", LibraryRandom.RandDec(10, 2));
         SalesHeader.Modify(true);
-        CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, CreateItem);
+        CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, CreateItem());
         CalculateInvAndPmtDiscountsOnSalesOrder(SalesHeader."No.");
         exit(LibrarySales.PostSalesDocument(SalesHeader, true, true));
     end;
@@ -2192,9 +2190,9 @@ codeunit 144072 "ERM Miscellaneous ES"
         LibraryERM.CreateVATRegistrationNoFormat(VATRegistrationNoFormat, CompanyInformation."Country/Region Code");
         LibraryPurchase.CreateVendor(Vendor);
         Vendor.Validate("Country/Region Code", CompanyInformation."Country/Region Code");
-        Vendor.Validate("Payment Method Code", FindPaymentMethod);
+        Vendor.Validate("Payment Method Code", FindPaymentMethod());
         Vendor.Validate("VAT Registration No.", CompanyInformation."VAT Registration No.");
-        Vendor.Validate("Payment Terms Code", CreatePaymentTerms);
+        Vendor.Validate("Payment Terms Code", CreatePaymentTerms());
         Vendor.Modify(true);
         exit(Vendor."No.");
     end;
@@ -2257,7 +2255,7 @@ codeunit 144072 "ERM Miscellaneous ES"
         LibrarySales.CreateSalesHeader(SalesHeader, SalesLine."Document Type"::Order, CustomerNo);
         SalesHeader.Validate("Cust. Bank Acc. Code", CustomerBankAccNo);
         SalesHeader.Modify(true);
-        CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, CreateItem);
+        CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, CreateItem());
         exit(LibrarySales.PostSalesDocument(SalesHeader, true, true));
     end;
 
@@ -2270,7 +2268,7 @@ codeunit 144072 "ERM Miscellaneous ES"
         PurchaseHeader.Modify(true);
         LibraryPurchase.CreatePurchaseLine(
           PurchaseLine, PurchaseHeader, PurchaseLine.Type::"G/L Account",
-          LibraryERM.CreateGLAccountWithPurchSetup, LibraryRandom.RandInt(10));
+          LibraryERM.CreateGLAccountWithPurchSetup(), LibraryRandom.RandInt(10));
         PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandDec(10, 2));
         PurchaseLine.Modify(true);
         exit(LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true));
@@ -2317,7 +2315,7 @@ codeunit 144072 "ERM Miscellaneous ES"
         with VATPostingSetup do begin
             LibraryERM.CreateVATPostingSetupWithAccounts(
               VATPostingSetup, "VAT Calculation Type"::"Reverse Charge VAT", LibraryRandom.RandIntInRange(10, 30));
-            Validate("Reverse Chrg. VAT Acc.", LibraryERM.CreateGLAccountNo);
+            Validate("Reverse Chrg. VAT Acc.", LibraryERM.CreateGLAccountNo());
             Modify(true);
         end;
     end;
@@ -2351,7 +2349,7 @@ codeunit 144072 "ERM Miscellaneous ES"
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
     end;
 
-    local procedure EnqueueValuesForTrialBalanceRequestPageHandler(DepartmentFilter: Code[20]; GLAccountFilter: Text[50]; IncludeClosingEntries: Boolean; IncludeOpeningEntries: Boolean; AccumulateBalance: Boolean; AccountType: Option; StartingDate: Date)
+    local procedure EnqueueValuesForTrialBalanceRequestPageHandler(DepartmentFilter: Code[20]; GLAccountFilter: Text[50]; IncludeClosingEntries: Boolean; IncludeOpeningEntries: Boolean; AccumulateBalance: Boolean; AccountType: Enum "G/L Account Type"; StartingDate: Date)
     begin
         // Enqueue for TrialBalanceRequestPageHandler.
         LibraryVariableStorage.Enqueue(StartingDate);
@@ -2419,20 +2417,20 @@ codeunit 144072 "ERM Miscellaneous ES"
     local procedure GetNextAutoDocNo(): Code[20]
     var
         GLSetup: Record "General Ledger Setup";
-        NoSeriesMgt: Codeunit NoSeriesManagement;
+        NoSeries: Codeunit "No. Series";
     begin
         GLSetup.Get();
         GLSetup.TestField("Autoinvoice Nos.");
-        exit(NoSeriesMgt.GetNextNo(GLSetup."Autoinvoice Nos.", WorkDate(), false));
+        exit(NoSeries.PeekNextNo(GLSetup."Autoinvoice Nos."));
     end;
 
     local procedure OpenVATAmountOnSalesStatistics(No: Code[20])
     var
         SalesInvoice: TestPage "Sales Invoice";
     begin
-        SalesInvoice.OpenEdit;
+        SalesInvoice.OpenEdit();
         SalesInvoice.FILTER.SetFilter("No.", No);
-        SalesInvoice.Statistics.Invoke;
+        SalesInvoice.Statistics.Invoke();
         SalesInvoice.Close();
     end;
 
@@ -2513,7 +2511,7 @@ codeunit 144072 "ERM Miscellaneous ES"
         Clear(SuggestVendorPayments);
         SuggestVendorPayments.SetGenJnlLine(GenJournalLine);
         SuggestVendorPayments.InitializeRequest(
-            WorkDate, false, 0, false, WorkDate(), 'TEST_000', false, "Gen. Journal Account Type"::"G/L Account", '',
+            WorkDate(), false, 0, false, WorkDate(), 'TEST_000', false, "Gen. Journal Account Type"::"G/L Account", '',
             "Bank Payment Type"::" ");
         SuggestVendorPayments.SetTableView(Vendor);
         SuggestVendorPayments.UseRequestPage(false);
@@ -2556,16 +2554,16 @@ codeunit 144072 "ERM Miscellaneous ES"
 
     local procedure VerifyCustLedgEntryStats(CustLedgerEntry: Record "Cust. Ledger Entry"; Amount: Decimal)
     begin
-        Assert.AreNearlyEqual(Amount, CustLedgerEntry."Amount (LCY) stats.", LibraryERM.GetAmountRoundingPrecision, ExpectedValueMsg);
+        Assert.AreNearlyEqual(Amount, CustLedgerEntry."Amount (LCY) stats.", LibraryERM.GetAmountRoundingPrecision(), ExpectedValueMsg);
         Assert.AreNearlyEqual(
-          Amount, CustLedgerEntry."Remaining Amount (LCY) stats.", LibraryERM.GetAmountRoundingPrecision, ExpectedValueMsg);
+          Amount, CustLedgerEntry."Remaining Amount (LCY) stats.", LibraryERM.GetAmountRoundingPrecision(), ExpectedValueMsg);
     end;
 
     local procedure VerifyVendLedgEntryStats(VendorLedgerEntry: Record "Vendor Ledger Entry"; Amount: Decimal)
     begin
-        Assert.AreNearlyEqual(Amount, VendorLedgerEntry."Amount (LCY) stats.", LibraryERM.GetAmountRoundingPrecision, ExpectedValueMsg);
+        Assert.AreNearlyEqual(Amount, VendorLedgerEntry."Amount (LCY) stats.", LibraryERM.GetAmountRoundingPrecision(), ExpectedValueMsg);
         Assert.AreNearlyEqual(
-          Amount, VendorLedgerEntry."Remaining Amount (LCY) stats.", LibraryERM.GetAmountRoundingPrecision, ExpectedValueMsg);
+          Amount, VendorLedgerEntry."Remaining Amount (LCY) stats.", LibraryERM.GetAmountRoundingPrecision(), ExpectedValueMsg);
     end;
 
     local procedure VerifyVendorLedgerEntry(VendorNo: Code[20]; PaymentDiscountAmount: Decimal)
@@ -2576,9 +2574,9 @@ codeunit 144072 "ERM Miscellaneous ES"
         VendorLedgerEntry.SetRange(Open, true);
         VendorLedgerEntry.FindFirst();
         VendorLedgerEntry.CalcFields(Amount, "Remaining Amount");
-        Assert.AreNearlyEqual(PaymentDiscountAmount, VendorLedgerEntry.Amount, LibraryERM.GetAmountRoundingPrecision, ExpectedValueMsg);
+        Assert.AreNearlyEqual(PaymentDiscountAmount, VendorLedgerEntry.Amount, LibraryERM.GetAmountRoundingPrecision(), ExpectedValueMsg);
         Assert.AreNearlyEqual(
-          PaymentDiscountAmount, VendorLedgerEntry."Remaining Amount", LibraryERM.GetAmountRoundingPrecision, ExpectedValueMsg);
+          PaymentDiscountAmount, VendorLedgerEntry."Remaining Amount", LibraryERM.GetAmountRoundingPrecision(), ExpectedValueMsg);
     end;
 
     local procedure VerifyPurchaseLine(DocumentType: Enum "Purchase Document Type"; DocumentNo: Code[20]; LineAmount: Decimal; OutstandingAmountLCY: Decimal)
@@ -2589,9 +2587,9 @@ codeunit 144072 "ERM Miscellaneous ES"
         PurchaseLine.SetRange("Document No.", DocumentNo);
         PurchaseLine.FindFirst();
         Assert.AreNearlyEqual(
-          LineAmount, PurchaseLine."VAT Base Amount", LibraryERM.GetAmountRoundingPrecision, ExpectedValueMsg);
+          LineAmount, PurchaseLine."VAT Base Amount", LibraryERM.GetAmountRoundingPrecision(), ExpectedValueMsg);
         Assert.AreNearlyEqual(
-          OutstandingAmountLCY, PurchaseLine."Amount Including VAT", LibraryERM.GetAmountRoundingPrecision, ExpectedValueMsg);
+          OutstandingAmountLCY, PurchaseLine."Amount Including VAT", LibraryERM.GetAmountRoundingPrecision(), ExpectedValueMsg);
     end;
 
     local procedure VerifyCountryRegionCode(SalesHeader: Record "Sales Header"; Customer: Record Customer; CustomerBillTo: Record Customer; ExpectedShipToCountryRegionCode: Code[10]; ExpectedVATCountryRegionCode: Code[10])
@@ -2716,9 +2714,9 @@ codeunit 144072 "ERM Miscellaneous ES"
             FindFirst();
             CalcFields("Cost Amount (Actual)", "Cost Amount (Non-Invtbl.)");
             Assert.AreNearlyEqual(
-              CostAmtActual, "Cost Amount (Actual)", LibraryERM.GetAmountRoundingPrecision, ExpectedValueMsg);
+              CostAmtActual, "Cost Amount (Actual)", LibraryERM.GetAmountRoundingPrecision(), ExpectedValueMsg);
             Assert.AreNearlyEqual(
-              CostAmtNonInvtbl, "Cost Amount (Non-Invtbl.)", LibraryERM.GetAmountRoundingPrecision, ExpectedValueMsg);
+              CostAmtNonInvtbl, "Cost Amount (Non-Invtbl.)", LibraryERM.GetAmountRoundingPrecision(), ExpectedValueMsg);
         end;
     end;
 
@@ -2734,7 +2732,7 @@ codeunit 144072 "ERM Miscellaneous ES"
         AgedAccountsReceivable.PeriodLength.SetValue(PeriodLengthTxt);
         AgedAccountsReceivable.HeadingType.SetValue(HeadingType::"Date Interval");
         AgedAccountsReceivable.PrintDetails.SetValue(true);
-        AgedAccountsReceivable.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        AgedAccountsReceivable.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -2745,7 +2743,7 @@ codeunit 144072 "ERM Miscellaneous ES"
     begin
         LibraryVariableStorage.Dequeue(BaseUnitOfMeasure);
         AssemblyBOMRawMaterials.Item.SetFilter("Base Unit of Measure", BaseUnitOfMeasure);
-        AssemblyBOMRawMaterials.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        AssemblyBOMRawMaterials.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -2760,14 +2758,14 @@ codeunit 144072 "ERM Miscellaneous ES"
         OfficialAccSummarizedBook.FromDate.SetValue(FromDate);
         OfficialAccSummarizedBook.ToDate.SetValue(FromDate);
         OfficialAccSummarizedBook.AccountType.SetValue(AccountType);
-        OfficialAccSummarizedBook.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        OfficialAccSummarizedBook.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure SalesInvoiceBookRequestPageHandler(var SalesInvoiceBook: TestRequestPage "Sales Invoice Book")
     begin
-        SalesInvoiceBook.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        SalesInvoiceBook.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -2775,7 +2773,7 @@ codeunit 144072 "ERM Miscellaneous ES"
     procedure SalesInvoiceBookOnlySIIRequestPageHandler(var SalesInvoiceBook: TestRequestPage "Sales Invoice Book")
     begin
         SalesInvoiceBook.OnlyIncludeSIIDocumentsOption.SetValue(true);
-        SalesInvoiceBook.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        SalesInvoiceBook.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -2784,7 +2782,7 @@ codeunit 144072 "ERM Miscellaneous ES"
     begin
         PurchasesInvoiceBook.SortPostDate.SetValue(true);
         PurchasesInvoiceBook.ShowAutoInvCred.SetValue(true);
-        PurchasesInvoiceBook.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        PurchasesInvoiceBook.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -2794,23 +2792,23 @@ codeunit 144072 "ERM Miscellaneous ES"
         PurchasesInvoiceBook.SortPostDate.SetValue(true);
         PurchasesInvoiceBook.ShowAutoInvCred.SetValue(true);
         PurchasesInvoiceBook.OnlyIncludeSIIDocumentsOption.SetValue(true);
-        PurchasesInvoiceBook.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        PurchasesInvoiceBook.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure ApplyCustomerEntriesModalPageHandler(var ApplyCustomerEntries: TestPage "Apply Customer Entries")
     begin
-        ApplyCustomerEntries."Set Applies-to ID".Invoke;
-        ApplyCustomerEntries."Post Application".Invoke;  // Invokes PostApplicationModalPageHandler.
+        ApplyCustomerEntries."Set Applies-to ID".Invoke();
+        ApplyCustomerEntries."Post Application".Invoke();  // Invokes PostApplicationModalPageHandler.
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure ApplyVendorEntriesModalPageHandler(var ApplyVendorEntries: TestPage "Apply Vendor Entries")
     begin
-        ApplyVendorEntries.ActionSetAppliesToID.Invoke;
-        ApplyVendorEntries.ActionPostApplication.Invoke;  // Invokes PostApplicationModalPageHandler.
+        ApplyVendorEntries.ActionSetAppliesToID.Invoke();
+        ApplyVendorEntries.ActionPostApplication.Invoke();  // Invokes PostApplicationModalPageHandler.
     end;
 
     [RequestPageHandler]
@@ -2828,9 +2826,9 @@ codeunit 144072 "ERM Miscellaneous ES"
         LibraryVariableStorage.Dequeue(DateFilter);
         LibraryVariableStorage.Dequeue(AccountType);
         LibraryVariableStorage.Dequeue(No);
-        IncludeClosingEntries := LibraryVariableStorage.DequeueBoolean;
-        IncludeOpeningEntries := LibraryVariableStorage.DequeueBoolean;
-        AccumulateBalance := LibraryVariableStorage.DequeueBoolean;
+        IncludeClosingEntries := LibraryVariableStorage.DequeueBoolean();
+        IncludeOpeningEntries := LibraryVariableStorage.DequeueBoolean();
+        AccumulateBalance := LibraryVariableStorage.DequeueBoolean();
         LibraryVariableStorage.Dequeue(GlobalDimensionOneFilter);
         TrialBalance.OnlyGLAccountsWithBalanceAtDate.SetValue(true);
         TrialBalance.IncludeClosingEntries.SetValue(IncludeClosingEntries);
@@ -2840,7 +2838,7 @@ codeunit 144072 "ERM Miscellaneous ES"
         TrialBalance."G/L Account".SetFilter("No.", No);
         TrialBalance."G/L Account".SetFilter("Date Filter", Format(ClosingDate(DateFilter)));
         TrialBalance."G/L Account".SetFilter("Global Dimension 1 Filter", GlobalDimensionOneFilter);
-        TrialBalance.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        TrialBalance.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -2857,7 +2855,7 @@ codeunit 144072 "ERM Miscellaneous ES"
     [Scope('OnPrem')]
     procedure PostApplicationModalPageHandler(var PostApplication: TestPage "Post Application")
     begin
-        PostApplication.OK.Invoke;
+        PostApplication.OK().Invoke();
     end;
 
     [PageHandler]
@@ -2868,7 +2866,7 @@ codeunit 144072 "ERM Miscellaneous ES"
     begin
         LibraryVariableStorage.Dequeue(VATAmount);
         SalesInvoiceStatistics.Subform."VAT Amount".AssertEquals(VATAmount);
-        SalesInvoiceStatistics.OK.Invoke;
+        SalesInvoiceStatistics.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -2879,21 +2877,21 @@ codeunit 144072 "ERM Miscellaneous ES"
     begin
         LibraryVariableStorage.Dequeue(VATAmount);
         SalesStatistics.SubForm."VAT Amount".SetValue(VATAmount);
-        SalesStatistics.OK.Invoke;
+        SalesStatistics.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure UnapplyCustomerEntriesModalPageHandler(var UnapplyCustomerEntries: TestPage "Unapply Customer Entries")
     begin
-        UnapplyCustomerEntries.Unapply.Invoke;  // Invokes ConfirmHandler.
+        UnapplyCustomerEntries.Unapply.Invoke();  // Invokes ConfirmHandler.
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure UnapplyVendorEntriesModalPageHandler(var UnapplyVendorEntries: TestPage "Unapply Vendor Entries")
     begin
-        UnapplyVendorEntries.Unapply.Invoke;  // Invokes ConfirmHandler.
+        UnapplyVendorEntries.Unapply.Invoke();  // Invokes ConfirmHandler.
     end;
 
     [ConfirmHandler]

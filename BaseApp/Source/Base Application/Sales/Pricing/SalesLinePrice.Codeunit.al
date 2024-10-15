@@ -244,7 +244,7 @@ codeunit 7020 "Sales Line - Price" implements "Line With Price"
                             PriceCalculated := true;
                         end;
                     CurrPriceType::Purchase:
-                        SalesLine."Unit Cost (LCY)" := PriceListLine."Unit Cost";
+                            SalesLine."Unit Cost (LCY)" := PriceListLine."Unit Cost";
                 end;
             AmountType::Discount:
                 SalesLine."Line Discount %" := PriceListLine."Line Discount %";

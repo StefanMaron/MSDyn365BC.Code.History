@@ -1,4 +1,4 @@
-﻿// ------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -12,6 +12,7 @@ table 10751 "SII Setup"
 {
     Caption = 'SII VAT Setup';
     LookupPageID = "SII Setup";
+    DataClassification = CustomerContent;
 
     fields
     {

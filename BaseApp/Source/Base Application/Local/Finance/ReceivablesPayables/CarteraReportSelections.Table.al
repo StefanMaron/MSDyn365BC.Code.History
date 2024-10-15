@@ -9,6 +9,7 @@ using System.Reflection;
 table 7000013 "Cartera Report Selections"
 {
     Caption = 'Cartera Report Selections';
+    DataClassification = CustomerContent;
 
     fields
     {

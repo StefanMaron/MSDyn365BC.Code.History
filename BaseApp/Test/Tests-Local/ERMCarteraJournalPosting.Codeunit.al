@@ -108,7 +108,7 @@ codeunit 144013 "ERM Cartera Journal Posting"
         // Verify VAT Entry - Amount, Base and G/L Entry, Post multiple Cartera Journal with Currency and apply Customer Ledger Entry.
 
         // Setup: Create and Post Sales Invoice with Currency, multiple Cartera Journal, Cash Receipt.
-        CurrencyCode := CreateCurrencyWithExchangeRate;
+        CurrencyCode := CreateCurrencyWithExchangeRate();
         Commit();  // Commit Required.
         OldCurrencyCode := UpdateGeneralLedgerSetup(CurrencyCode);
         CustomerNo := CreateCustomer(CurrencyCode);
@@ -142,7 +142,7 @@ codeunit 144013 "ERM Cartera Journal Posting"
         // Verify VAT Entry - Amount, Base and G/L Entry, Post multiple Cartera Journal with Currency and apply Vendor Ledger Entry.
 
         // Setup: Create and Post Purchase Invoice with Currency, multiple Cartera Journal, Payment Journal.
-        CurrencyCode := CreateCurrencyWithExchangeRate;
+        CurrencyCode := CreateCurrencyWithExchangeRate();
         Commit();  // Commit Required.
         OldCurrencyCode := UpdateGeneralLedgerSetup(CurrencyCode);
         VendorNo := CreateVendor(CurrencyCode);
@@ -174,7 +174,7 @@ codeunit 144013 "ERM Cartera Journal Posting"
         // Verify that Cartera Journal can be posted with Add. Reporting Currency and Bill Transformation containing some magic numbers.
 
         // Setup.
-        CurrencyCode := CreateCurrencyWithExchangeRate;
+        CurrencyCode := CreateCurrencyWithExchangeRate();
         ModifyExchangeRate(CurrencyCode, 1.37856);
         OldCurrencyCode := UpdateGeneralLedgerSetup(CurrencyCode);
         CustomerNo := CreateCustomer(CurrencyCode);
@@ -204,7 +204,7 @@ codeunit 144013 "ERM Cartera Journal Posting"
         ReceivablesCarteraDocs.OpenEdit();
 
         // [THEN] The variable "Cust./Vendor Bank Acc. Code" is visible
-        Assert.IsTrue(ReceivablesCarteraDocs."Cust./Vendor Bank Acc. Code".Visible, '');
+        Assert.IsTrue(ReceivablesCarteraDocs."Cust./Vendor Bank Acc. Code".Visible(), '');
         ReceivablesCarteraDocs.Close();
         LibraryApplicationArea.DisableApplicationAreaSetup();
     end;
@@ -225,7 +225,7 @@ codeunit 144013 "ERM Cartera Journal Posting"
         PayablesCarteraDocs.OpenEdit();
 
         // [THEN] The variable "Cust./Vendor Bank Acc. Code" is visible
-        Assert.IsTrue(PayablesCarteraDocs."Cust./Vendor Bank Acc. Code".Visible, '');
+        Assert.IsTrue(PayablesCarteraDocs."Cust./Vendor Bank Acc. Code".Visible(), '');
         PayablesCarteraDocs.Close();
         LibraryApplicationArea.DisableApplicationAreaSetup();
     end;
@@ -341,7 +341,7 @@ codeunit 144013 "ERM Cartera Journal Posting"
     begin
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, VendorNo);
         LibraryPurchase.CreatePurchaseLine(
-          PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, CreateItem, LibraryRandom.RandDec(10, 2));  // Random - Quantity.
+          PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, CreateItem(), LibraryRandom.RandDec(10, 2));  // Random - Quantity.
         PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandDec(100, 2));
         PurchaseLine.Modify(true);
         exit(LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true));
@@ -352,7 +352,7 @@ codeunit 144013 "ERM Cartera Journal Posting"
         SalesHeader: Record "Sales Header";
     begin
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, CustomerNo);
-        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, CreateItem, LibraryRandom.RandDec(10, 2));  // Random - Quantity.
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, CreateItem(), LibraryRandom.RandDec(10, 2));  // Random - Quantity.
         SalesLine.Validate("Unit Price", LibraryRandom.RandDec(100, 2));
         SalesLine.Modify(true);
         exit(LibrarySales.PostSalesDocument(SalesHeader, true, true));
@@ -364,7 +364,7 @@ codeunit 144013 "ERM Cartera Journal Posting"
     begin
         LibraryERM.CreateCurrency(Currency);
         LibraryERM.SetCurrencyGainLossAccounts(Currency);
-        Currency.Validate("Invoice Rounding Precision", LibraryERM.GetInvoiceRoundingPrecisionLCY);
+        Currency.Validate("Invoice Rounding Precision", LibraryERM.GetInvoiceRoundingPrecisionLCY());
         Currency.Validate("Residual Gains Account", Currency."Realized Gains Acc.");
         Currency.Validate("Residual Losses Account", Currency."Realized Losses Acc.");
         Currency.Modify(true);
@@ -466,12 +466,12 @@ codeunit 144013 "ERM Cartera Journal Posting"
     begin
         VATEntry.SetRange("Document No.", DocumentNo);
         VATEntry.FindFirst();
-        Assert.AreNearlyEqual(-Base, VATEntry.Base, LibraryERM.GetAmountRoundingPrecision, ValueMustBeEqualMsg);
-        Assert.AreNearlyEqual(-Base * VATPct / 100, VATEntry.Amount, LibraryERM.GetAmountRoundingPrecision, ValueMustBeEqualMsg);
+        Assert.AreNearlyEqual(-Base, VATEntry.Base, LibraryERM.GetAmountRoundingPrecision(), ValueMustBeEqualMsg);
+        Assert.AreNearlyEqual(-Base * VATPct / 100, VATEntry.Amount, LibraryERM.GetAmountRoundingPrecision(), ValueMustBeEqualMsg);
         Assert.AreNearlyEqual(
-          -AdditionalCurrencyBase, VATEntry."Additional-Currency Base", LibraryERM.GetAmountRoundingPrecision, ValueMustBeEqualMsg);
+          -AdditionalCurrencyBase, VATEntry."Additional-Currency Base", LibraryERM.GetAmountRoundingPrecision(), ValueMustBeEqualMsg);
         Assert.AreNearlyEqual(
-          -AdditionalCurrencyBase * VATPct / 100, VATEntry."Additional-Currency Amount", LibraryERM.GetAmountRoundingPrecision,
+          -AdditionalCurrencyBase * VATPct / 100, VATEntry."Additional-Currency Amount", LibraryERM.GetAmountRoundingPrecision(),
           ValueMustBeEqualMsg);
     end;
 
@@ -481,9 +481,9 @@ codeunit 144013 "ERM Cartera Journal Posting"
     begin
         GLEntry.SetRange("Document No.", DocumentNo);
         GLEntry.FindFirst();
-        Assert.AreNearlyEqual(Amount, GLEntry.Amount, LibraryERM.GetAmountRoundingPrecision, ValueMustBeEqualMsg);
+        Assert.AreNearlyEqual(Amount, GLEntry.Amount, LibraryERM.GetAmountRoundingPrecision(), ValueMustBeEqualMsg);
         Assert.AreNearlyEqual(
-          AdditionalCurrencyAmount, GLEntry."Additional-Currency Amount", LibraryERM.GetAmountRoundingPrecision, ValueMustBeEqualMsg);
+          AdditionalCurrencyAmount, GLEntry."Additional-Currency Amount", LibraryERM.GetAmountRoundingPrecision(), ValueMustBeEqualMsg);
     end;
 
     local procedure VerifyVATAndGLEntry(DocumentNo: Code[20]; DocumentNo2: Code[20]; Amount: Decimal; VATPct: Decimal; AdditionalCurrencyAmount: Decimal)

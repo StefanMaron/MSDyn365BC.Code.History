@@ -938,7 +938,7 @@ codeunit 147559 "SII Complex Rules"
             exit;
 
         LibrarySII.InitSetup(true, false);
-        LibrarySII.BindSubscriptionJobQueue;
+        LibrarySII.BindSubscriptionJobQueue();
         LibrarySetupStorage.Save(DATABASE::"SII Setup");
         IsInitialized := true;
     end;
@@ -975,14 +975,14 @@ codeunit 147559 "SII Complex Rules"
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
     begin
-        LibraryPurchase.CreatePurchHeader(PurchaseHeader, DocType, LibraryPurchase.CreateVendorNo);
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, DocType, LibraryPurchase.CreateVendorNo());
         PurchaseHeader.Validate("Correction Type", CorrType);
         PurchaseHeader.Validate("Invoice Type", InvoiceType);
         PurchaseHeader.Validate("Special Scheme Code", SpecialSchemeCode);
         PurchaseHeader.Modify(true);
         LibraryPurchase.CreatePurchaseLine(
           PurchaseLine, PurchaseHeader, PurchaseLine.Type::"G/L Account",
-          LibraryERM.CreateGLAccountWithSalesSetup, LibraryRandom.RandInt(100));
+          LibraryERM.CreateGLAccountWithSalesSetup(), LibraryRandom.RandInt(100));
         PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandDec(100, 2));
         PurchaseLine.Modify(true);
         LibraryERM.FindVendorLedgerEntry(VendorLedgerEntry, DocType, LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true));
@@ -1010,13 +1010,13 @@ codeunit 147559 "SII Complex Rules"
     var
         SalesLine: Record "Sales Line";
     begin
-        LibrarySales.CreateSalesHeader(SalesHeader, DocType, LibrarySales.CreateCustomerNo);
+        LibrarySales.CreateSalesHeader(SalesHeader, DocType, LibrarySales.CreateCustomerNo());
         SalesHeader.Validate("Correction Type", CorrType);
         SalesHeader.Validate("Invoice Type", InvoiceType);
         SalesHeader.Validate("Special Scheme Code", SpecialSchemeCode);
         SalesHeader.Modify(true);
         LibrarySales.CreateSalesLine(
-          SalesLine, SalesHeader, SalesLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithSalesSetup, LibraryRandom.RandInt(100));
+          SalesLine, SalesHeader, SalesLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithSalesSetup(), LibraryRandom.RandInt(100));
         SalesLine.Validate("Unit Price", LibraryRandom.RandDec(100, 2));
         SalesLine.Modify(true);
     end;
@@ -1029,7 +1029,7 @@ codeunit 147559 "SII Complex Rules"
         VATProductPostingGroup: Record "VAT Product Posting Group";
         SalesLine: Record "Sales Line";
     begin
-        LibrarySales.CreateSalesHeader(SalesHeader, DocType, LibrarySales.CreateCustomerNo);
+        LibrarySales.CreateSalesHeader(SalesHeader, DocType, LibrarySales.CreateCustomerNo());
         SalesHeader.Validate("Special Scheme Code", SalesHeader."Special Scheme Code"::"06 Groups of Entities");
         SalesHeader.Validate("Correction Type", CorrType);
         SalesHeader.Modify(true);
@@ -1038,7 +1038,7 @@ codeunit 147559 "SII Complex Rules"
           VATPostingSetup, VATProductPostingGroup, VATBusinessPostingGroup,
           VATPostingSetup."VAT Calculation Type"::"Normal VAT", 0, false); // zero VAT %
         LibrarySales.CreateSalesLine(
-          SalesLine, SalesHeader, SalesLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithSalesSetup, LibraryRandom.RandInt(100));
+          SalesLine, SalesHeader, SalesLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithSalesSetup(), LibraryRandom.RandInt(100));
         SalesLine.Validate("VAT Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
         SalesLine.Validate("Unit Price", LibraryRandom.RandDec(100, 2));
         SalesLine.Modify(true);
@@ -1053,7 +1053,7 @@ codeunit 147559 "SII Complex Rules"
         VATProductPostingGroup: Record "VAT Product Posting Group";
         PurchaseLine: Record "Purchase Line";
     begin
-        LibraryPurchase.CreatePurchHeader(PurchaseHeader, DocType, LibraryPurchase.CreateVendorNo);
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, DocType, LibraryPurchase.CreateVendorNo());
         PurchaseHeader.Validate("Special Scheme Code", PurchaseHeader."Special Scheme Code"::"06 Groups of Entities");
         PurchaseHeader.Validate("Correction Type", CorrType);
         PurchaseHeader.Modify(true);
@@ -1063,7 +1063,7 @@ codeunit 147559 "SII Complex Rules"
           VATPostingSetup."VAT Calculation Type"::"Normal VAT", 0, false); // zero VAT %
         LibraryPurchase.CreatePurchaseLine(
           PurchaseLine, PurchaseHeader, PurchaseLine.Type::"G/L Account",
-          LibraryERM.CreateGLAccountWithSalesSetup, LibraryRandom.RandInt(100));
+          LibraryERM.CreateGLAccountWithSalesSetup(), LibraryRandom.RandInt(100));
         PurchaseLine.Validate("VAT Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
         PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandDec(100, 2));
         PurchaseLine.Modify(true);

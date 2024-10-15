@@ -9,6 +9,7 @@ page 108 "Financial Reports"
     PageType = List;
     PromotedActionCategories = 'New,Process,Report,Print/Send';
     SourceTable = "Financial Report";
+    AnalysisModeEnabled = false;
     AdditionalSearchTerms = 'account schedule,finance reports,financial reporting';
     UsageCategory = Lists;
 

@@ -283,7 +283,7 @@ codeunit 147533 "Cartera Recv. Factoring"
             CustLedgerEntry."Document Type"::Invoice);
 
         ExpectedVATAmount :=
-          Round(TotalAmount - TotalAmount * 100 / (VATPostingSetup."VAT %" + 100), LibraryERM.GetAmountRoundingPrecision);
+          Round(TotalAmount - TotalAmount * 100 / (VATPostingSetup."VAT %" + 100), LibraryERM.GetAmountRoundingPrecision());
 
         LibraryCarteraReceivables.CreateBankAccount(BankAccount, LocalCurrencyCode);
         LibraryCarteraReceivables.CreateFactoringOperationFeesForBankAccount(BankAccount);
@@ -523,7 +523,7 @@ codeunit 147533 "Cartera Recv. Factoring"
             CustLedgerEntry."Document Type"::Invoice);
 
         ExpectedVATAmount :=
-          Round(TotalAmount - TotalAmount * 100 / (VATPostingSetup."VAT %" + 100), LibraryERM.GetAmountRoundingPrecision);
+          Round(TotalAmount - TotalAmount * 100 / (VATPostingSetup."VAT %" + 100), LibraryERM.GetAmountRoundingPrecision());
 
         LibraryCarteraReceivables.CreateBankAccount(BankAccount, LocalCurrencyCode);
         LibraryCarteraReceivables.CreateCustomerRatingForBank(CustomerRating, BankAccount."No.", LocalCurrencyCode, Customer."No.");
@@ -654,7 +654,7 @@ codeunit 147533 "Cartera Recv. Factoring"
         OpenPostedBillGroupsAndSelectDocument(PostedBillGroups, PostedBillGroup, PostedCarteraDoc, BillGroup);
 
         // Verify
-        asserterror PostedBillGroups.Docs.Reject.Invoke;
+        asserterror PostedBillGroups.Docs.Reject.Invoke();
         Assert.ExpectedError(OnlyInvoicesWithRiskedFactoringCanBeRejectedErr);
     end;
 
@@ -682,7 +682,7 @@ codeunit 147533 "Cartera Recv. Factoring"
         // Verify
         VerifyClosedBillGroup2(PostedBillGroup, PostedCarteraDoc, TotalAmount, PostedCarteraDoc.Status::Rejected);
         VerifyRejectedInvoiceVATGLEntries(TotalAmount, RejectionFeeAmount, false, ExpectedVATAmount, false, 0);
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -718,7 +718,7 @@ codeunit 147533 "Cartera Recv. Factoring"
 
         VerifyClosedBillGroup2(PostedBillGroup, PostedCarteraDoc, TotalAmount, PostedCarteraDoc.Status::Rejected);
         VerifyRejectedInvoiceVATGLEntries(TotalAmount, RejectionFeeAmount, false, ExpectedVATAmount, false, 0);
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -748,7 +748,7 @@ codeunit 147533 "Cartera Recv. Factoring"
         // Verify
         VerifyClosedBillGroup2(PostedBillGroup, PostedCarteraDoc, TotalAmount, PostedCarteraDoc.Status::Rejected);
         VerifyRejectedInvoiceVATGLEntries(TotalAmount, RejectionFeeAmount, true, ExpectedVATAmount, false, 0);
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -790,7 +790,7 @@ codeunit 147533 "Cartera Recv. Factoring"
         // Verify
         VerifyClosedBillGroup2(PostedBillGroup, PostedCarteraDoc, TotalAmount, PostedCarteraDoc.Status::Rejected);
         VerifyRejectedInvoiceVATGLEntries(TotalAmount, RejectionFeeAmount, true, ExpectedVATAmount, false, 0);
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -821,7 +821,7 @@ codeunit 147533 "Cartera Recv. Factoring"
         // Verify
         VerifyClosedBillGroup2(PostedBillGroup, PostedCarteraDoc, TotalAmount, PostedCarteraDoc.Status::Rejected);
         VerifyRejectedInvoiceVATGLEntries(TotalAmount, RejectionFeeAmount, false, ExpectedVATAmount, true, ExpectedDiscountAmount);
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -859,7 +859,7 @@ codeunit 147533 "Cartera Recv. Factoring"
 
         VerifyClosedBillGroup2(PostedBillGroup, PostedCarteraDoc, TotalAmount, PostedCarteraDoc.Status::Rejected);
         VerifyRejectedInvoiceVATGLEntries(TotalAmount, RejectionFeeAmount, false, ExpectedVATAmount, true, ExpectedDiscountAmount);
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -892,7 +892,7 @@ codeunit 147533 "Cartera Recv. Factoring"
         // Verify
         VerifyClosedBillGroup2(PostedBillGroup, PostedCarteraDoc, TotalAmount, PostedCarteraDoc.Status::Rejected);
         VerifyRejectedInvoiceVATGLEntries(TotalAmount, RejectionFeeAmount, true, ExpectedVATAmount, true, ExpectedDiscountAmount);
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -936,7 +936,7 @@ codeunit 147533 "Cartera Recv. Factoring"
         // Verify
         VerifyClosedBillGroup2(PostedBillGroup, PostedCarteraDoc, TotalAmount, PostedCarteraDoc.Status::Rejected);
         VerifyRejectedInvoiceVATGLEntries(TotalAmount, RejectionFeeAmount, true, ExpectedVATAmount, true, ExpectedDiscountAmount);
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     local procedure Initialize()
@@ -944,7 +944,7 @@ codeunit 147533 "Cartera Recv. Factoring"
         CarteraSetup: Record "Cartera Setup";
     begin
         LibraryVariableStorage.Clear();
-        LibraryCarteraCommon.RevertUnrealizedVATPostingSetup;
+        LibraryCarteraCommon.RevertUnrealizedVATPostingSetup();
         LocalCurrencyCode := '';
 
         if IsInitialized then
@@ -957,14 +957,14 @@ codeunit 147533 "Cartera Recv. Factoring"
         CarteraGenJournalTemplate.SetRange(Type, CarteraGenJournalTemplate.Type::Cartera);
         LibraryERM.FindGenJournalTemplate(CarteraGenJournalTemplate);
         LibraryERM.FindGenJournalBatch(CarteraGenJournalBatch, CarteraGenJournalTemplate.Name);
-#if not CLEAN21
+#if not CLEAN23
         CopySalesPrices();
 #endif
 
         IsInitialized := true;
     end;
 
-#if not CLEAN21
+#if not CLEAN23
     local procedure CopySalesPrices()
     var
         SalesPrice: record "Sales Price";
@@ -978,14 +978,14 @@ codeunit 147533 "Cartera Recv. Factoring"
     end;
 #endif
 
-    local procedure CreateBillGroup(var BillGroup: Record "Bill Group"; BankAccountNo: Code[20]; DealingType: Option; Factoring: Option)
+    local procedure CreateBillGroup(var BillGroup: Record "Bill Group"; BankAccountNo: Code[20]; DealingType: Enum "Cartera Dealing Type"; Factoring: Option)
     begin
         LibraryCarteraReceivables.CreateBillGroup(BillGroup, BankAccountNo, DealingType);
         BillGroup.Validate(Factoring, Factoring);
         BillGroup.Modify(true);
     end;
 
-    local procedure CreateBillGroupNonLCY(CurrencyCode: Code[10]; BankAccountNo: Code[20]; DealingType: Option; Factoring: Option) BillGroupNo: Code[20]
+    local procedure CreateBillGroupNonLCY(CurrencyCode: Code[10]; BankAccountNo: Code[20]; DealingType: Enum "Cartera Dealing Type"; Factoring: Option) BillGroupNo: Code[20]
     var
         BillGroups: TestPage "Bill Groups";
     begin
@@ -995,16 +995,16 @@ codeunit 147533 "Cartera Recv. Factoring"
         BillGroups.Factoring.SetValue(Factoring);
 
         LibraryVariableStorage.Enqueue(CurrencyCode);
-        BillGroups."Currency Code".Activate;
-        BillGroups."Currency Code".Lookup;
+        BillGroups."Currency Code".Activate();
+        BillGroups."Currency Code".Lookup();
 
         LibraryVariableStorage.Enqueue(BankAccountNo);
-        BillGroups."Bank Account No.".Activate;
-        BillGroups."Bank Account No.".Lookup;
+        BillGroups."Bank Account No.".Activate();
+        BillGroups."Bank Account No.".Lookup();
 
-        BillGroupNo := BillGroups."No.".Value;
+        BillGroupNo := BillGroups."No.".Value();
 
-        BillGroups.OK.Invoke;
+        BillGroups.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -1015,7 +1015,7 @@ codeunit 147533 "Cartera Recv. Factoring"
     begin
         LibraryVariableStorage.Dequeue(CurrencyCode);
         Currencies.GotoKey(CurrencyCode);
-        Currencies.OK.Invoke;
+        Currencies.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -1026,22 +1026,22 @@ codeunit 147533 "Cartera Recv. Factoring"
     begin
         LibraryVariableStorage.Dequeue(BankAccountNo);
         BankAccountSelection.GotoKey(BankAccountNo);
-        BankAccountSelection.OK.Invoke;
+        BankAccountSelection.OK().Invoke();
     end;
 
     local procedure PostBillGroup(BillGroupNo: Code[20])
     var
         BillGroups: TestPage "Bill Groups";
     begin
-        BillGroups.OpenEdit;
+        BillGroups.OpenEdit();
         BillGroups.GotoKey(BillGroupNo);
-        BillGroups.Post.Invoke;
+        BillGroups.Post.Invoke();
     end;
 
     local procedure OpenPostedBillGroupsAndSelectDocument(var PostedBillGroups: TestPage "Posted Bill Groups"; var PostedBillGroup: Record "Posted Bill Group"; var PostedCarteraDoc: Record "Posted Cartera Doc."; BillGroup: Record "Bill Group")
     begin
         PostedBillGroup.Get(BillGroup."No.");
-        PostedBillGroups.OpenEdit;
+        PostedBillGroups.OpenEdit();
         PostedBillGroups.GotoRecord(PostedBillGroup);
 
         PostedCarteraDoc.SetRange(Type, PostedCarteraDoc.Type::Receivable);
@@ -1097,7 +1097,7 @@ codeunit 147533 "Cartera Recv. Factoring"
         LibraryVariableStorage.Enqueue(true);
         LibraryVariableStorage.Enqueue(JnlLinesPostedMsg);
         LibraryVariableStorage.Enqueue(OneDocumentRejectedMsg);
-        PostedBillGroups.Docs.Reject.Invoke;
+        PostedBillGroups.Docs.Reject.Invoke();
     end;
 
     local procedure RunFactoringExport(var BillGroup: Record "Bill Group"; FileName: Text)
@@ -1113,14 +1113,14 @@ codeunit 147533 "Cartera Recv. Factoring"
 
     local procedure PostCarteraJnl(var CarteraJournal: TestPage "Cartera Journal")
     begin
-        CarteraJournal.Last;
+        CarteraJournal.Last();
         repeat
             CarteraJournal."Gen. Bus. Posting Group".SetValue('');
             CarteraJournal."Gen. Prod. Posting Group".SetValue('');
             CarteraJournal."Gen. Posting Type".SetValue(' ');
-        until not CarteraJournal.Previous;
+        until not CarteraJournal.Previous();
 
-        CarteraJournal.Post.Invoke;
+        CarteraJournal.Post.Invoke();
     end;
 
     local procedure VerifyFactoringCarteraDocuments(AccountNo: Code[20]; DocumentNo: Code[20]; PaymentMethod: Code[20]; TotalAmount: Decimal)
@@ -1194,7 +1194,7 @@ codeunit 147533 "Cartera Recv. Factoring"
         VerifyClosedBillGroup2(PostedBillGroup, PostedCarteraDoc, 0, ClosedCarteraDoc.Status::Honored);
     end;
 
-    local procedure VerifyClosedBillGroup2(PostedBillGroup: Record "Posted Bill Group"; PostedCarteraDoc: Record "Posted Cartera Doc."; RemainingAmount: Decimal; ClosedDocumentStatus: Option)
+    local procedure VerifyClosedBillGroup2(PostedBillGroup: Record "Posted Bill Group"; PostedCarteraDoc: Record "Posted Cartera Doc."; RemainingAmount: Decimal; ClosedDocumentStatus: Enum "Cartera Document Status")
     var
         ClosedBillGroup: Record "Closed Bill Group";
         ClosedCarteraDoc: Record "Closed Cartera Doc.";
@@ -1229,9 +1229,9 @@ codeunit 147533 "Cartera Recv. Factoring"
         Assert.AreEqual(ClosedDocumentStatus, ClosedCarteraDoc.Status,
           'Status is wrong on the Closed Cartera Doc.');
 
-        ClosedBillGroups.OpenEdit;
+        ClosedBillGroups.OpenEdit();
         ClosedBillGroups.GotoRecord(ClosedBillGroup);
-        asserterror ClosedBillGroups.Docs.Redraw.Invoke;
+        asserterror ClosedBillGroups.Docs.Redraw.Invoke();
         Assert.ExpectedError(OnlyBillsCanBeRedrawnErr);
         ClosedBillGroups.Close();
     end;
@@ -1246,46 +1246,46 @@ codeunit 147533 "Cartera Recv. Factoring"
 
         GLEntry.Find('-');
         Assert.AreNearlyEqual(
-          TotalAmount, GLEntry."Debit Amount", LibraryERM.GetAmountRoundingPrecision,
+          TotalAmount, GLEntry."Debit Amount", LibraryERM.GetAmountRoundingPrecision(),
           'Total Credit Amount for Total Amount has a wrong value');
 
         GLEntry.Next();
         Assert.AreNearlyEqual(
-          TotalAmount, GLEntry."Credit Amount", LibraryERM.GetAmountRoundingPrecision,
+          TotalAmount, GLEntry."Credit Amount", LibraryERM.GetAmountRoundingPrecision(),
           'Total Debit Amount for Total Amount has a wrong value');
 
         if IsDealingTypeDiscount then begin
             GLEntry.Next();
             Assert.AreNearlyEqual(
-              ExpectedDiscountAmount, GLEntry."Debit Amount", LibraryERM.GetAmountRoundingPrecision,
+              ExpectedDiscountAmount, GLEntry."Debit Amount", LibraryERM.GetAmountRoundingPrecision(),
               'Total Credit Amount for Discount Amount has a wrong value');
 
             GLEntry.Next();
             Assert.AreNearlyEqual(
-              ExpectedDiscountAmount, GLEntry."Credit Amount", LibraryERM.GetAmountRoundingPrecision,
+              ExpectedDiscountAmount, GLEntry."Credit Amount", LibraryERM.GetAmountRoundingPrecision(),
               'Total Debit Amount for Discount Amount has a wrong value');
         end;
 
         if HasUnsettledVAT then begin
             GLEntry.Next();
             Assert.AreNearlyEqual(
-              ExpectedVATAmount, GLEntry."Debit Amount", LibraryERM.GetAmountRoundingPrecision,
+              ExpectedVATAmount, GLEntry."Debit Amount", LibraryERM.GetAmountRoundingPrecision(),
               'Total Credit Amount for Unsettled VAT Amount has a wrong value');
 
             GLEntry.Next();
             Assert.AreNearlyEqual(
-              ExpectedVATAmount, GLEntry."Credit Amount", LibraryERM.GetAmountRoundingPrecision,
+              ExpectedVATAmount, GLEntry."Credit Amount", LibraryERM.GetAmountRoundingPrecision(),
               'Total Debit Amount for Unsettled VAT Amount has a wrong value');
         end;
 
         GLEntry.Next();
         Assert.AreNearlyEqual(
-          RejectionFeeAmount, GLEntry."Debit Amount", LibraryERM.GetAmountRoundingPrecision,
+          RejectionFeeAmount, GLEntry."Debit Amount", LibraryERM.GetAmountRoundingPrecision(),
           'Total Debit Amount for Rejection Fee has a wrong value');
 
         GLEntry.Next();
         Assert.AreNearlyEqual(
-          RejectionFeeAmount, GLEntry."Credit Amount", LibraryERM.GetAmountRoundingPrecision,
+          RejectionFeeAmount, GLEntry."Credit Amount", LibraryERM.GetAmountRoundingPrecision(),
           'Total Debit Amount for Rejection Fee has a wrong value');
     end;
 
@@ -1322,10 +1322,10 @@ codeunit 147533 "Cartera Recv. Factoring"
         PostedCarteraDoc.FindFirst();
 
         PostedBillGroup.Get(BillGroup."No.");
-        PostedBillGroups.OpenEdit;
+        PostedBillGroups.OpenEdit();
         PostedBillGroups.GotoRecord(PostedBillGroup);
         LibraryVariableStorage.Enqueue(RcvDocSettledMsg); // for the message handler
-        PostedBillGroups.Docs."Total Settlement".Invoke;
+        PostedBillGroups.Docs."Total Settlement".Invoke();
     end;
 
     local procedure PartialSettlePostedBillGroup(var PostedBillGroup: Record "Posted Bill Group"; var PostedCarteraDoc: Record "Posted Cartera Doc."; BillGroup: Record "Bill Group"; PercentageToSettle: Decimal)
@@ -1337,11 +1337,11 @@ codeunit 147533 "Cartera Recv. Factoring"
         PostedCarteraDoc.FindFirst();
 
         PostedBillGroup.Get(BillGroup."No.");
-        PostedBillGroups.OpenEdit;
+        PostedBillGroups.OpenEdit();
         PostedBillGroups.GotoRecord(PostedBillGroup);
         LibraryVariableStorage.Enqueue(PostedCarteraDoc."Amount for Collection" * PercentageToSettle / 100); // for the request page handler
         LibraryVariableStorage.Enqueue(RcvDocPartialSettledMsg); // for the message handler
-        PostedBillGroups.Docs."Partial Settlement".Invoke;
+        PostedBillGroups.Docs."Partial Settlement".Invoke();
     end;
 
     [ConfirmHandler]
@@ -1376,7 +1376,7 @@ codeunit 147533 "Cartera Recv. Factoring"
     begin
         PostBillGroup.TemplName.SetValue(CarteraGenJournalTemplate.Name);
         PostBillGroup.BatchName.SetValue(CarteraGenJournalBatch.Name);
-        PostBillGroup.OK.Invoke;
+        PostBillGroup.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -1390,7 +1390,7 @@ codeunit 147533 "Cartera Recv. Factoring"
     [Scope('OnPrem')]
     procedure TotalSettleDocsInPostBillGroupRequestPage(var SettleDocsinPostBillGr: TestRequestPage "Settle Docs. in Post. Bill Gr.")
     begin
-        SettleDocsinPostBillGr.OK.Invoke;
+        SettleDocsinPostBillGr.OK().Invoke();
     end;
 
     [RequestPageHandler]
@@ -1401,7 +1401,7 @@ codeunit 147533 "Cartera Recv. Factoring"
     begin
         LibraryVariableStorage.Dequeue(Amount);
         PartialSettlReceivable.SettledAmount.SetValue(Amount);
-        PartialSettlReceivable.OK.Invoke;
+        PartialSettlReceivable.OK().Invoke();
     end;
 
     [RequestPageHandler]
@@ -1416,7 +1416,7 @@ codeunit 147533 "Cartera Recv. Factoring"
         BillGroupExportfactoring.DeliveryDate.SetValue(DeliveryDate);
         BillGroupExportfactoring.BankSuffix.SetValue(BankSuffix);
 
-        BillGroupExportfactoring.OK.Invoke;
+        BillGroupExportfactoring.OK().Invoke();
     end;
 
     [RequestPageHandler]
@@ -1428,7 +1428,7 @@ codeunit 147533 "Cartera Recv. Factoring"
 
         RejectDocs.TemplateName.SetValue(CarteraGenJournalTemplate.Name);
         RejectDocs.BatchName.SetValue(CarteraGenJournalBatch.Name);
-        RejectDocs.OK.Invoke;
+        RejectDocs.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -1470,55 +1470,55 @@ codeunit 147533 "Cartera Recv. Factoring"
         IsDealingTypeDiscount := IsDealingTypeDiscountVariant;
 
         // Go from the last to check that there are only 4 rows present
-        CarteraJournal.Last;
+        CarteraJournal.Last();
         Assert.AreNearlyEqual(
-          RejectionFeeAmount, CarteraJournal."Credit Amount".AsDEcimal, LibraryERM.GetAmountRoundingPrecision,
+          RejectionFeeAmount, CarteraJournal."Credit Amount".AsDecimal(), LibraryERM.GetAmountRoundingPrecision(),
           'Wrong amount on the Rejection Fee line');
-        CreditAmount := CarteraJournal."Credit Amount".AsDEcimal;
+        CreditAmount := CarteraJournal."Credit Amount".AsDecimal();
 
-        CarteraJournal.Previous;
+        CarteraJournal.Previous();
         Assert.AreNearlyEqual(
-          RejectionFeeAmount, CarteraJournal."Debit Amount".AsDEcimal, LibraryERM.GetAmountRoundingPrecision,
+          RejectionFeeAmount, CarteraJournal."Debit Amount".AsDecimal(), LibraryERM.GetAmountRoundingPrecision(),
           'Wrong amount on the Rejection Fee line');
-        Assert.AreEqual(CreditAmount, CarteraJournal."Debit Amount".AsDEcimal, 'Credit and Debit amounts must match');
+        Assert.AreEqual(CreditAmount, CarteraJournal."Debit Amount".AsDecimal(), 'Credit and Debit amounts must match');
 
         if HasUnrealizedVAT then begin
             LibraryVariableStorage.Dequeue(ExpectedVATAmountVariant);
             ExpectedVATAmount := ExpectedVATAmountVariant;
 
-            CarteraJournal.Previous;
+            CarteraJournal.Previous();
             Assert.AreNearlyEqual(
-              ExpectedVATAmount, CarteraJournal."Credit Amount".AsDEcimal, LibraryERM.GetAmountRoundingPrecision, 'Wrong amount on the line');
+              ExpectedVATAmount, CarteraJournal."Credit Amount".AsDecimal(), LibraryERM.GetAmountRoundingPrecision(), 'Wrong amount on the line');
 
-            CarteraJournal.Previous;
+            CarteraJournal.Previous();
             Assert.AreNearlyEqual(
-              ExpectedVATAmount, CarteraJournal."Debit Amount".AsDEcimal, LibraryERM.GetAmountRoundingPrecision, 'Wrong amount on the line');
+              ExpectedVATAmount, CarteraJournal."Debit Amount".AsDecimal(), LibraryERM.GetAmountRoundingPrecision(), 'Wrong amount on the line');
         end;
 
         if IsDealingTypeDiscount then begin
             LibraryVariableStorage.Dequeue(ExpectedDiscountAmountVariant);
             ExpectedDiscountAmount := ExpectedDiscountAmountVariant;
 
-            CarteraJournal.Previous;
+            CarteraJournal.Previous();
             Assert.AreNearlyEqual(
-              ExpectedDiscountAmount, CarteraJournal."Credit Amount".AsDEcimal, LibraryERM.GetAmountRoundingPrecision,
+              ExpectedDiscountAmount, CarteraJournal."Credit Amount".AsDecimal(), LibraryERM.GetAmountRoundingPrecision(),
               'Wrong amount on the line');
 
-            CarteraJournal.Previous;
+            CarteraJournal.Previous();
             Assert.AreNearlyEqual(
-              ExpectedDiscountAmount, CarteraJournal."Debit Amount".AsDEcimal, LibraryERM.GetAmountRoundingPrecision,
+              ExpectedDiscountAmount, CarteraJournal."Debit Amount".AsDecimal(), LibraryERM.GetAmountRoundingPrecision(),
               'Wrong amount on the line');
         end;
 
-        CarteraJournal.Previous;
+        CarteraJournal.Previous();
         Assert.AreNearlyEqual(
-          Amount, CarteraJournal."Credit Amount".AsDEcimal, LibraryERM.GetAmountRoundingPrecision, 'Wrong amount on the line');
+          Amount, CarteraJournal."Credit Amount".AsDecimal(), LibraryERM.GetAmountRoundingPrecision(), 'Wrong amount on the line');
 
-        CarteraJournal.Previous;
+        CarteraJournal.Previous();
         Assert.AreNearlyEqual(
-          Amount, CarteraJournal."Debit Amount".AsDEcimal, LibraryERM.GetAmountRoundingPrecision, 'Wrong amount on the line');
+          Amount, CarteraJournal."Debit Amount".AsDecimal(), LibraryERM.GetAmountRoundingPrecision(), 'Wrong amount on the line');
 
-        CarteraJournal.Post.Invoke;
+        CarteraJournal.Post.Invoke();
     end;
 }
 

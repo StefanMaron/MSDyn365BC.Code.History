@@ -9,7 +9,7 @@ using System.Environment;
 page 1050 "Additional Fee Setup"
 {
     Caption = 'Additional Fee Setup';
-    DataCaptionExpression = PageCaption;
+    DataCaptionExpression = PageCaptionText;
     PageType = List;
     SourceTable = "Additional Fee Setup";
 
@@ -101,9 +101,9 @@ page 1050 "Additional Fee Setup"
         end;
 
         if Rec."Charge Per Line" then
-            PageCaption := AddFeePerLineTxt;
+            PageCaptionText := AddFeePerLineTxt;
 
-        PageCaption += ' ' + ReminderTermsTxt + ' ' + Rec."Reminder Terms Code" + ' ' +
+        PageCaptionText += ' ' + ReminderTermsTxt + ' ' + Rec."Reminder Terms Code" + ' ' +
           ReminderLevelTxt + ' ' + Format(Rec."Reminder Level No.");
 
         if Rec."Charge Per Line" then begin
@@ -117,7 +117,7 @@ page 1050 "Additional Fee Setup"
 
     var
         ClientTypeManagement: Codeunit "Client Type Management";
-        PageCaption: Text;
+        PageCaptionText: Text;
         AddFeePerLineTxt: Label 'Additional Fee per Line Setup -';
         ReminderTermsTxt: Label 'Reminder Terms:';
         ReminderLevelTxt: Label 'Level:';

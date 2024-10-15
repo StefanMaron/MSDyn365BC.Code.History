@@ -103,14 +103,12 @@ report 10722 "Void Electronic Payments"
 
     trigger OnPreReport()
     begin
-        with BankAccount do begin
-            Get("No.");
-            TestField(Blocked, false);
-            TestField("Currency Code", '');  // local currency only
-
-            if not Confirm(Text1100000, false, Text1100001, TableCaption(), "No.") then
-                CurrReport.Quit();
-        end;
+        BankAccount.Get(BankAccount."No.");
+        BankAccount.TestField(Blocked, false);
+        BankAccount.TestField("Currency Code", '');
+        // local currency only
+        if not Confirm(Text1100000, false, Text1100001, BankAccount.TableCaption(), BankAccount."No.") then
+            CurrReport.Quit();
     end;
 
     var

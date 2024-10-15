@@ -9,7 +9,7 @@ using Microsoft.Finance.ReceivablesPayables;
 page 35291 "BG Analysis Fact Box"
 {
     Caption = 'BG Analysis Fact Box';
-    DataCaptionExpression = Caption();
+    DataCaptionExpression = Rec.Caption();
     DeleteAllowed = false;
     InsertAllowed = false;
     ModifyAllowed = false;

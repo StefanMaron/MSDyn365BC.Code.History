@@ -9,7 +9,7 @@ using Microsoft.Finance.ReceivablesPayables;
 page 7000020 "Bill Groups Analysis"
 {
     Caption = 'Bill Groups Analysis';
-    DataCaptionExpression = Caption();
+    DataCaptionExpression = Rec.Caption();
     DeleteAllowed = false;
     InsertAllowed = false;
     ModifyAllowed = false;

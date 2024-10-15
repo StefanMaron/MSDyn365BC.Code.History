@@ -1058,17 +1058,15 @@ report 10707 "Make 347 Declaration"
         CustLedgerEntry: Record "Cust. Ledger Entry";
         DocumentPostingDate: Date;
     begin
-        with CustLedgerEntry do begin
-            SetCurrentKey("Document Type", "Customer No.", "Posting Date", "Currency Code");
-            SetRange("Document Type", "Document Type"::Payment);
-            SetRange("Customer No.", CustomerNo);
-            if FindSet() then
-                repeat
-                    DocumentPostingDate := GetPaymentDocumentPostingDate(CustLedgerEntry);
-                    if CheckCashTotalsPossibility(CustLedgerEntry, DocumentPostingDate) then
-                        CreateCashTotals("Entry No.", VATRegistrationNo, DocumentPostingDate);
-                until Next() = 0;
-        end
+        CustLedgerEntry.SetCurrentKey("Document Type", "Customer No.", "Posting Date", "Currency Code");
+        CustLedgerEntry.SetRange("Document Type", CustLedgerEntry."Document Type"::Payment);
+        CustLedgerEntry.SetRange("Customer No.", CustomerNo);
+        if CustLedgerEntry.FindSet() then
+            repeat
+                DocumentPostingDate := GetPaymentDocumentPostingDate(CustLedgerEntry);
+                if CheckCashTotalsPossibility(CustLedgerEntry, DocumentPostingDate) then
+                    CreateCashTotals(CustLedgerEntry."Entry No.", VATRegistrationNo, DocumentPostingDate);
+            until CustLedgerEntry.Next() = 0;
     end;
 
     local procedure CreateCashTotals(CustLedgerEntryNo: Integer; VATRegistrationNo: Text[20]; DocumentPostingDate: Date)
@@ -1216,15 +1214,13 @@ report 10707 "Make 347 Declaration"
     var
         GLAccount: Record "G/L Account";
     begin
-        with GLEntry do begin
-            GLAccount.Get("G/L Account No.");
-            if GLAccount."Ignore in 347 Report" then begin
-                if idx = 1 then
-                    NotIn347Amt := NotIn347Amt + Amount + "VAT Amount"
-                else
-                    ISPNotIn347Amt := Amount + "VAT Amount";
-                UpdateQuarterAmount(AmountType::NotIn347Report, Amount + "VAT Amount", "VAT Reporting Date", idx);
-            end;
+        GLAccount.Get(GLEntry."G/L Account No.");
+        if GLAccount."Ignore in 347 Report" then begin
+            if idx = 1 then
+                NotIn347Amt := NotIn347Amt + GLEntry.Amount + GLEntry."VAT Amount"
+            else
+                ISPNotIn347Amt := GLEntry.Amount + GLEntry."VAT Amount";
+            UpdateQuarterAmount(AmountType::NotIn347Report, GLEntry.Amount + GLEntry."VAT Amount", GLEntry."VAT Reporting Date", idx);
         end;
     end;
 
@@ -1321,23 +1317,18 @@ report 10707 "Make 347 Declaration"
     var
         CustLedgerEntryRelated: Record "Cust. Ledger Entry";
     begin
-        with CustLedgerEntry do begin
-            ;
-            TestField("Document Type", "Document Type"::Payment);
-            PostingDate := "Posting Date";
-        end;
-
+        ;
+        CustLedgerEntry.TestField("Document Type", CustLedgerEntry."Document Type"::Payment);
+        PostingDate := CustLedgerEntry."Posting Date";
         // If payment for Bill then we need get Posting Date of the Document related to the Bill
-        with CustLedgerEntryRelated do begin
-            SetRange("Closed by Entry No.", CustLedgerEntry."Entry No.");
-            SetRange("Document Type", "Document Type"::Bill);
-            if FindFirst() then begin
-                Reset();
-                SetRange("Document No.", "Document No.");
-                SetFilter("Document Type", '%1|%2', "Document Type"::Invoice, "Document Type"::"Credit Memo");
-                if FindFirst() then
-                    PostingDate := "Posting Date";
-            end
+        CustLedgerEntryRelated.SetRange("Closed by Entry No.", CustLedgerEntry."Entry No.");
+        CustLedgerEntryRelated.SetRange("Document Type", CustLedgerEntryRelated."Document Type"::Bill);
+        if CustLedgerEntryRelated.FindFirst() then begin
+            CustLedgerEntryRelated.Reset();
+            CustLedgerEntryRelated.SetRange("Document No.", CustLedgerEntryRelated."Document No.");
+            CustLedgerEntryRelated.SetFilter("Document Type", '%1|%2', CustLedgerEntryRelated."Document Type"::Invoice, CustLedgerEntryRelated."Document Type"::"Credit Memo");
+            if CustLedgerEntryRelated.FindFirst() then
+                PostingDate := CustLedgerEntryRelated."Posting Date";
         end;
 
         exit(PostingDate);
@@ -1348,14 +1339,13 @@ report 10707 "Make 347 Declaration"
         if (DocumentPostingDate < FromDate) or (DocumentPostingDate > ToDate) then
             exit(false);
 
-        with CustLedgerEntry do
-            if ("Bal. Account Type" = "Bal. Account Type"::"G/L Account") and ("Bal. Account No." <> '') then begin
-                if IsCashAccount("Bal. Account No.") then
+        if (CustLedgerEntry."Bal. Account Type" = CustLedgerEntry."Bal. Account Type"::"G/L Account") and (CustLedgerEntry."Bal. Account No." <> '') then begin
+            if IsCashAccount(CustLedgerEntry."Bal. Account No.") then
+                exit(true);
+        end else
+            if (CustLedgerEntry."Bal. Account No." = '') or (CustLedgerEntry."Bal. Account Type" <> CustLedgerEntry."Bal. Account Type"::"G/L Account") then
+                if IdentifyCashPaymentsFromGL(CustLedgerEntry) then
                     exit(true);
-            end else
-                if ("Bal. Account No." = '') or ("Bal. Account Type" <> "Bal. Account Type"::"G/L Account") then
-                    if IdentifyCashPaymentsFromGL(CustLedgerEntry) then
-                        exit(true);
 
         exit(false);
     end;

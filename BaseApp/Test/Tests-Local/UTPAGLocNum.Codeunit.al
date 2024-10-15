@@ -36,7 +36,7 @@ codeunit 144071 "UT PAG LocNum"
 
         // Setup.
         Amount := LibraryRandom.RandDec(100, 2);
-        CheckPreviewPaymentJournal(GenJournalLine."Account Type"::Vendor, CreateVendor, 0, Amount, Amount);  // Using 0 for Credit Amount, Random - Debit Amount, Amount.
+        CheckPreviewPaymentJournal(GenJournalLine."Account Type"::Vendor, CreateVendor(), 0, Amount, Amount);  // Using 0 for Credit Amount, Random - Debit Amount, Amount.
     end;
 
     //[Test]
@@ -50,7 +50,7 @@ codeunit 144071 "UT PAG LocNum"
 
         // Setup.
         Amount := LibraryRandom.RandDec(100, 2);
-        CheckPreviewPaymentJournal(GenJournalLine."Account Type"::Vendor, CreateVendor, Amount, 0, Amount);  // Using 0 for Debit Amount, Random - Credit Amount, Amount.
+        CheckPreviewPaymentJournal(GenJournalLine."Account Type"::Vendor, CreateVendor(), Amount, 0, Amount);  // Using 0 for Debit Amount, Random - Credit Amount, Amount.
     end;
 
     //[Test]
@@ -64,7 +64,7 @@ codeunit 144071 "UT PAG LocNum"
 
         // Setup.
         Amount := LibraryRandom.RandDec(100, 2);
-        CheckPreviewPaymentJournal(GenJournalLine."Account Type"::Customer, CreateCustomer, 0, Amount, Amount);  // Using 0 for Credit Amount, Random - Debit Amount, Amount.
+        CheckPreviewPaymentJournal(GenJournalLine."Account Type"::Customer, CreateCustomer(), 0, Amount, Amount);  // Using 0 for Credit Amount, Random - Debit Amount, Amount.
     end;
 
     //[Test]
@@ -78,7 +78,7 @@ codeunit 144071 "UT PAG LocNum"
 
         // Setup.
         Amount := LibraryRandom.RandDec(100, 2);
-        CheckPreviewPaymentJournal(GenJournalLine."Account Type"::Customer, CreateCustomer, Amount, 0, Amount);  // Using 0 for Debit Amount, Random - Credit Amount, Amount.
+        CheckPreviewPaymentJournal(GenJournalLine."Account Type"::Customer, CreateCustomer(), Amount, 0, Amount);  // Using 0 for Debit Amount, Random - Credit Amount, Amount.
     end;
 
     local procedure CheckPreviewPaymentJournal(AccountType: Enum "Gen. Journal Document Type"; AccountNo: Code[20]; CreditAmount: Decimal; DebitAmount: Decimal; Amount: Decimal)
@@ -105,7 +105,7 @@ codeunit 144071 "UT PAG LocNum"
     var
         BankAccount: Record "Bank Account";
     begin
-        BankAccount."No." := LibraryUTUtility.GetNewCode;
+        BankAccount."No." := LibraryUTUtility.GetNewCode();
         BankAccount.Insert();
         exit(BankAccount."No.");
     end;
@@ -114,7 +114,7 @@ codeunit 144071 "UT PAG LocNum"
     var
         Customer: Record Customer;
     begin
-        Customer."No." := LibraryUTUtility.GetNewCode;
+        Customer."No." := LibraryUTUtility.GetNewCode();
         Customer.Insert();
         exit(Customer."No.");
     end;
@@ -126,7 +126,7 @@ codeunit 144071 "UT PAG LocNum"
     begin
         GenJournalLine2.FindLast();
         GenJournalLine."Line No." := GenJournalLine2."Line No." + LibraryRandom.RandInt(10);
-        GenJournalLine."Document No." := LibraryUTUtility.GetNewCode;
+        GenJournalLine."Document No." := LibraryUTUtility.GetNewCode();
         GenJournalLine."Account Type" := AccountType;
         GenJournalLine."Account No." := AccountNo;
         GenJournalLine."Document Type" := GenJournalLine."Document Type"::Payment;
@@ -134,7 +134,7 @@ codeunit 144071 "UT PAG LocNum"
         GenJournalLine."Debit Amount" := DebitAmount;
         GenJournalLine.Amount := Amount;
         GenJournalLine."Bal. Account Type" := GenJournalLine."Bal. Account Type"::"Bank Account";
-        GenJournalLine."Bal. Account No." := CreateBankAccount;
+        GenJournalLine."Bal. Account No." := CreateBankAccount();
         GenJournalLine."Bank Payment Type" := GenJournalLine."Bank Payment Type"::"Computer Check";
         GenJournalLine.Insert();
         exit(GenJournalLine."Document No.");
@@ -144,7 +144,7 @@ codeunit 144071 "UT PAG LocNum"
     var
         Vendor: Record Vendor;
     begin
-        Vendor."No." := LibraryUTUtility.GetNewCode;
+        Vendor."No." := LibraryUTUtility.GetNewCode();
         Vendor.Insert();
         exit(Vendor."No.");
     end;
@@ -153,9 +153,9 @@ codeunit 144071 "UT PAG LocNum"
     var
         PaymentJournal: TestPage "Payment Journal";
     begin
-        PaymentJournal.OpenEdit;
+        PaymentJournal.OpenEdit();
         PaymentJournal.FILTER.SetFilter("Document No.", DocumentNo);
-        PaymentJournal.PreviewCheck.Invoke;
+        PaymentJournal.PreviewCheck.Invoke();
         PaymentJournal.Close();
     end;
 
@@ -167,13 +167,13 @@ codeunit 144071 "UT PAG LocNum"
         AmountText: array[2] of Text[80];
     begin
         CompanyInformation.Get();
-        CheckPreview.OpenEdit;
+        CheckPreview.OpenEdit();
         CheckPreview.FILTER.SetFilter("Document No.", DocumentNo);
         CheckPreview."CompanyAddr[1]".AssertEquals(CompanyInformation.Name);
         CheckPreview.CheckAmount.AssertEquals(CheckAmount);
 
         // Verify Check Amount in text.
-        Check.InitTextVariable;
+        Check.InitTextVariable();
         Check.FormatNoText(AmountText, CheckAmount, '');  // Use blank for Currency.
         CheckPreview.AmountText.AssertEquals(AmountText[1]);
         CheckPreview.Close();

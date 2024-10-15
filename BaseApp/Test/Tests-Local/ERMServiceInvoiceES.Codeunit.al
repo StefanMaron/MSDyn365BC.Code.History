@@ -104,7 +104,7 @@ codeunit 144108 "ERM Service Invoice ES"
 
         // Verify: Verify Service Credit Memo created successfully.
         ServiceCrMemoHeader.SetRange("Customer No.", Customer."No.");
-        Assert.IsTrue(ServiceCrMemoHeader.FindFirst, RecordMustExistMsg);
+        Assert.IsTrue(ServiceCrMemoHeader.FindFirst(), RecordMustExistMsg);
     end;
 
     [Test]
@@ -123,7 +123,7 @@ codeunit 144108 "ERM Service Invoice ES"
         Initialize();
         LibrarySales.CreateCustomer(Customer);
         CreateServiceDocument(
-          ServiceLine, ServiceHeader."Document Type"::Invoice, ServiceLine.Type::"G/L Account", Customer."No.", CreateGLAccount);
+          ServiceLine, ServiceHeader."Document Type"::Invoice, ServiceLine.Type::"G/L Account", Customer."No.", CreateGLAccount());
         UpdateServiceLineAllowInvoiceDisc(ServiceLine);
         InvoiceDiscountAmount := LibraryRandom.RandDec(10, 2);
         LibraryVariableStorage.Enqueue(InvoiceDiscountAmount);  // Required inside ServiceStatisticsPageHandler.
@@ -188,7 +188,7 @@ codeunit 144108 "ERM Service Invoice ES"
           ServiceLine, ServiceLine."Document Type"::"Credit Memo", ServiceLine.Type::Item, Customer."No.", ServiceLine."No.");
         UpdateServiceHeaderAppliesToDoc(ServiceLine."Document No.", '');  // Blank Applies To Document No.
         OpenServiceCreditMemo(ServiceCreditMemo, Customer."No.");
-        ServiceCreditMemo.ApplyEntries.Invoke;  // Opens ApplyCustomerEntriesWithAppliesToIDPageHandler.
+        ServiceCreditMemo.ApplyEntries.Invoke();  // Opens ApplyCustomerEntriesWithAppliesToIDPageHandler.
 
         // Exercise: Post Service Credit Memo.
         PostServiceDocument(ServiceLine."Document Type", ServiceLine."Document No.");
@@ -251,8 +251,8 @@ codeunit 144108 "ERM Service Invoice ES"
           ServiceLine, ServiceLine."Document Type"::"Credit Memo", ServiceLine.Type::Item, Customer."No.", ServiceLine."No.");
         UpdateServiceHeaderAppliesToDoc(ServiceLine."Document No.", '');  // Blank Applies To Document No.
         OpenServiceCreditMemo(ServiceCreditMemo, Customer."No.");
-        ServiceCreditMemo."Applies-to Doc. No.".Lookup;  // Opens ApplyCustomerEntriesPageHandler.
-        ServiceCreditMemo.OK.Invoke;
+        ServiceCreditMemo."Applies-to Doc. No.".Lookup();  // Opens ApplyCustomerEntriesPageHandler.
+        ServiceCreditMemo.OK().Invoke();
 
         // Exercise: Post Service Credit Memo.
         PostServiceDocument(ServiceLine."Document Type", ServiceLine."Document No.");
@@ -285,7 +285,7 @@ codeunit 144108 "ERM Service Invoice ES"
           ServiceLine, ServiceHeader."Document Type"::"Credit Memo", ServiceLine.Type::Item, Customer."No.", ServiceLine."No.");
         UpdateServiceHeaderCorrectedInvoiceNo(ServiceLine."Document No.", FindServiceInvoiceHeader(Customer."No."));
         PostServiceDocument(ServiceLine."Document Type", ServiceLine."Document No.");
-        PostedServiceCreditMemos.Trap;
+        PostedServiceCreditMemos.Trap();
 
         // Exercise: Invoke Find Corrective Invoices on Posted Service Invoice.
         FindCorrectiveInvoicesOnPostedServiceInvoice(Customer."No.");
@@ -301,7 +301,7 @@ codeunit 144108 "ERM Service Invoice ES"
     begin
         // Test to verify statistics on Posted Service Invoice when posting Service Invoice with FCY.
         Initialize();
-        StatisticsForPostedServiceInvoice(CreateCurrencyExchangeRate);  // Customer with Currency.
+        StatisticsForPostedServiceInvoice(CreateCurrencyExchangeRate());  // Customer with Currency.
     end;
 
     [Test]
@@ -465,9 +465,9 @@ codeunit 144108 "ERM Service Invoice ES"
         LibraryERM.CreateVATRegistrationNoFormat(VATRegistrationNoFormat, CountryRegionCode);
         LibrarySales.CreateCustomer(Customer);
         Customer.Validate("Country/Region Code", CountryRegionCode);
-        Customer.Validate("Payment Method Code", FindPaymentMethod);
+        Customer.Validate("Payment Method Code", FindPaymentMethod());
         Customer.Validate("VAT Registration No.", VATRegistrationNoFormat.Format);
-        Customer.Validate("Payment Terms Code", CreatePaymentTerms);
+        Customer.Validate("Payment Terms Code", CreatePaymentTerms());
         Customer.Modify(true);
     end;
 
@@ -498,7 +498,7 @@ codeunit 144108 "ERM Service Invoice ES"
         LibraryERM.FindGeneralPostingSetup(GeneralPostingSetup);
         LibraryERM.CreateGLAccount(GLAccount);
         GLAccount.Validate("Gen. Prod. Posting Group", GeneralPostingSetup."Gen. Prod. Posting Group");
-        GLAccount.Validate("VAT Prod. Posting Group", SelectVATPostingSetup);
+        GLAccount.Validate("VAT Prod. Posting Group", SelectVATPostingSetup());
         GLAccount.Modify(true);
         exit(GLAccount."No.");
     end;
@@ -519,7 +519,7 @@ codeunit 144108 "ERM Service Invoice ES"
     begin
         LibraryERM.CreateCurrency(Currency);
         LibraryERM.SetCurrencyGainLossAccounts(Currency);
-        Currency.Validate("Invoice Rounding Precision", LibraryERM.GetInvoiceRoundingPrecisionLCY);
+        Currency.Validate("Invoice Rounding Precision", LibraryERM.GetInvoiceRoundingPrecisionLCY());
         Currency.Validate("Residual Gains Account", Currency."Realized Gains Acc.");
         Currency.Validate("Residual Losses Account", Currency."Realized Losses Acc.");
         Currency.Modify(true);
@@ -535,7 +535,7 @@ codeunit 144108 "ERM Service Invoice ES"
     begin
         LibraryPurchase.CreateVendor(Vendor);
         Vendor.Validate("Payment Terms Code", PaymentTermsCode);
-        Vendor.Validate("Payment Method Code", FindPaymentMethod);
+        Vendor.Validate("Payment Method Code", FindPaymentMethod());
         Vendor.Validate("Payment Days Code", Vendor."No.");
         Vendor.Modify(true);
         exit(Vendor."No.");
@@ -553,7 +553,7 @@ codeunit 144108 "ERM Service Invoice ES"
 
     local procedure CreateMultipleInstallmentForPaymentTerms(var PaymentTerms: Record "Payment Terms")
     begin
-        PaymentTerms.Get(CreatePaymentTerms);
+        PaymentTerms.Get(CreatePaymentTerms());
         PaymentTerms.Validate("VAT distribution", PaymentTerms."VAT distribution"::Proportional);
         PaymentTerms.Modify(true);
 
@@ -617,9 +617,9 @@ codeunit 144108 "ERM Service Invoice ES"
     var
         PostedServiceInvoice: TestPage "Posted Service Invoice";
     begin
-        PostedServiceInvoice.OpenEdit;
+        PostedServiceInvoice.OpenEdit();
         PostedServiceInvoice.FILTER.SetFilter("Customer No.", CustomerNo);
-        PostedServiceInvoice.FindCorrectiveInvoices.Invoke;
+        PostedServiceInvoice.FindCorrectiveInvoices.Invoke();
     end;
 
     local procedure FindServiceInvoiceHeader(CustomerNo: Code[20]): Code[20]
@@ -644,15 +644,15 @@ codeunit 144108 "ERM Service Invoice ES"
     var
         ServiceInvoice: TestPage "Service Invoice";
     begin
-        ServiceInvoice.OpenEdit;
+        ServiceInvoice.OpenEdit();
         ServiceInvoice.FILTER.SetFilter("Customer No.", CustomerNo);
-        ServiceInvoice.Statistics.Invoke;
+        ServiceInvoice.Statistics.Invoke();
     end;
 
     local procedure OpenServiceCreditMemo(var ServiceCreditMemo: TestPage "Service Credit Memo"; CustomerNo: Code[20])
     begin
         Commit();  // Commit Required.
-        ServiceCreditMemo.OpenEdit;
+        ServiceCreditMemo.OpenEdit();
         ServiceCreditMemo.FILTER.SetFilter("Customer No.", CustomerNo);
     end;
 
@@ -831,22 +831,22 @@ codeunit 144108 "ERM Service Invoice ES"
     begin
         LibraryVariableStorage.Dequeue(InvDiscountAmount);
         ServiceStatistics."Inv. Discount Amount_General".SetValue(InvDiscountAmount);
-        ServiceStatistics.OK.Invoke;
+        ServiceStatistics.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure ApplyCustomerEntriesPageHandler(var ApplyCustomerEntries: TestPage "Apply Customer Entries")
     begin
-        ApplyCustomerEntries.OK.Invoke;
+        ApplyCustomerEntries.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure ApplyCustomerEntriesWithAppliesToIDPageHandler(var ApplyCustomerEntries: TestPage "Apply Customer Entries")
     begin
-        ApplyCustomerEntries."Set Applies-to ID".Invoke;
-        ApplyCustomerEntries.OK.Invoke;
+        ApplyCustomerEntries."Set Applies-to ID".Invoke();
+        ApplyCustomerEntries.OK().Invoke();
     end;
 }
 

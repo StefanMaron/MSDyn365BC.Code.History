@@ -69,57 +69,55 @@ codeunit 8614 "Config. XML Exchange"
     var
         FieldNode: DotNet XmlNode;
     begin
-        with ConfigPackageTable do begin
-            if "Page ID" > 0 then begin
-                FieldNode := PackageXML.CreateElement(GetElementName(FieldName("Page ID")));
-                FieldNode.InnerText := Format("Page ID");
-                TableNode.AppendChild(FieldNode);
-            end;
-            if "Package Processing Order" > 0 then begin
-                FieldNode := PackageXML.CreateElement(GetElementName(FieldName("Package Processing Order")));
-                FieldNode.InnerText := Format("Package Processing Order");
-                TableNode.AppendChild(FieldNode);
-            end;
-            if "Processing Order" > 0 then begin
-                FieldNode := PackageXML.CreateElement(GetElementName(FieldName("Processing Order")));
-                FieldNode.InnerText := Format("Processing Order");
-                TableNode.AppendChild(FieldNode);
-            end;
-            if "Data Template" <> '' then begin
-                FieldNode := PackageXML.CreateElement(GetElementName(FieldName("Data Template")));
-                FieldNode.InnerText := Format("Data Template");
-                TableNode.AppendChild(FieldNode);
-            end;
-            if Comments <> '' then begin
-                FieldNode := PackageXML.CreateElement(GetElementName(FieldName(Comments)));
-                FieldNode.InnerText := Format(Comments);
-                TableNode.AppendChild(FieldNode);
-            end;
-            if "Created by User ID" <> '' then begin
-                FieldNode := PackageXML.CreateElement(GetElementName(FieldName("Created by User ID")));
-                FieldNode.InnerText := Format("Created by User ID");
-                TableNode.AppendChild(FieldNode);
-            end;
-            if "Skip Table Triggers" then begin
-                FieldNode := PackageXML.CreateElement(GetElementName(FieldName("Skip Table Triggers")));
-                FieldNode.InnerText := '1';
-                TableNode.AppendChild(FieldNode);
-            end;
-            if "Parent Table ID" > 0 then begin
-                FieldNode := PackageXML.CreateElement(GetElementName(FieldName("Parent Table ID")));
-                FieldNode.InnerText := Format("Parent Table ID");
-                TableNode.AppendChild(FieldNode);
-            end;
-            if "Delete Recs Before Processing" then begin
-                FieldNode := PackageXML.CreateElement(GetElementName(FieldName("Delete Recs Before Processing")));
-                FieldNode.InnerText := '1';
-                TableNode.AppendChild(FieldNode);
-            end;
-            if "Dimensions as Columns" then begin
-                FieldNode := PackageXML.CreateElement(GetElementName(FieldName("Dimensions as Columns")));
-                FieldNode.InnerText := '1';
-                TableNode.AppendChild(FieldNode);
-            end;
+        if ConfigPackageTable."Page ID" > 0 then begin
+            FieldNode := PackageXML.CreateElement(GetElementName(ConfigPackageTable.FieldName("Page ID")));
+            FieldNode.InnerText := Format(ConfigPackageTable."Page ID");
+            TableNode.AppendChild(FieldNode);
+        end;
+        if ConfigPackageTable."Package Processing Order" > 0 then begin
+            FieldNode := PackageXML.CreateElement(GetElementName(ConfigPackageTable.FieldName("Package Processing Order")));
+            FieldNode.InnerText := Format(ConfigPackageTable."Package Processing Order");
+            TableNode.AppendChild(FieldNode);
+        end;
+        if ConfigPackageTable."Processing Order" > 0 then begin
+            FieldNode := PackageXML.CreateElement(GetElementName(ConfigPackageTable.FieldName("Processing Order")));
+            FieldNode.InnerText := Format(ConfigPackageTable."Processing Order");
+            TableNode.AppendChild(FieldNode);
+        end;
+        if ConfigPackageTable."Data Template" <> '' then begin
+            FieldNode := PackageXML.CreateElement(GetElementName(ConfigPackageTable.FieldName("Data Template")));
+            FieldNode.InnerText := Format(ConfigPackageTable."Data Template");
+            TableNode.AppendChild(FieldNode);
+        end;
+        if ConfigPackageTable.Comments <> '' then begin
+            FieldNode := PackageXML.CreateElement(GetElementName(ConfigPackageTable.FieldName(Comments)));
+            FieldNode.InnerText := Format(ConfigPackageTable.Comments);
+            TableNode.AppendChild(FieldNode);
+        end;
+        if ConfigPackageTable."Created by User ID" <> '' then begin
+            FieldNode := PackageXML.CreateElement(GetElementName(ConfigPackageTable.FieldName("Created by User ID")));
+            FieldNode.InnerText := Format(ConfigPackageTable."Created by User ID");
+            TableNode.AppendChild(FieldNode);
+        end;
+        if ConfigPackageTable."Skip Table Triggers" then begin
+            FieldNode := PackageXML.CreateElement(GetElementName(ConfigPackageTable.FieldName("Skip Table Triggers")));
+            FieldNode.InnerText := '1';
+            TableNode.AppendChild(FieldNode);
+        end;
+        if ConfigPackageTable."Parent Table ID" > 0 then begin
+            FieldNode := PackageXML.CreateElement(GetElementName(ConfigPackageTable.FieldName("Parent Table ID")));
+            FieldNode.InnerText := Format(ConfigPackageTable."Parent Table ID");
+            TableNode.AppendChild(FieldNode);
+        end;
+        if ConfigPackageTable."Delete Recs Before Processing" then begin
+            FieldNode := PackageXML.CreateElement(GetElementName(ConfigPackageTable.FieldName("Delete Recs Before Processing")));
+            FieldNode.InnerText := '1';
+            TableNode.AppendChild(FieldNode);
+        end;
+        if ConfigPackageTable."Dimensions as Columns" then begin
+            FieldNode := PackageXML.CreateElement(GetElementName(ConfigPackageTable.FieldName("Dimensions as Columns")));
+            FieldNode.InnerText := '1';
+            TableNode.AppendChild(FieldNode);
         end;
 
         OnAfterAddTableAttributes(ConfigPackageTable, PackageXML, TableNode);
@@ -397,12 +395,10 @@ codeunit 8614 "Config. XML Exchange"
     var
         ConfigPackageTable: Record "Config. Package Table";
     begin
-        with ConfigPackage do begin
-            TestField(Code);
-            TestField("Package Name");
-            ConfigPackageTable.SetRange("Package Code", Code);
-            ExportPackageXML(ConfigPackageTable, '');
-        end;
+        ConfigPackage.TestField(Code);
+        ConfigPackage.TestField("Package Name");
+        ConfigPackageTable.SetRange("Package Code", ConfigPackage.Code);
+        ExportPackageXML(ConfigPackageTable, '');
     end;
 
     [Scope('OnPrem')]
@@ -1133,8 +1129,8 @@ codeunit 8614 "Config. XML Exchange"
                 FieldType::DateFormula:
                     if Format(FieldRef.Value) <> '' then
                         InnerText := '<' + Format(FieldRef.Value, 0, ConfigValidateMgt.XMLFormat()) + '>';
-                FieldType::BLOB:
-                    InnerText := ConvertBLOBToBase64String(FieldRef);
+                FieldType::Blob:
+                    InnerText := ConvertBlobToBase64String(FieldRef);
                 FieldType::MediaSet:
                     InnerText := ExportMediaSet(FieldRef);
                 FieldType::Media:
@@ -1149,6 +1145,8 @@ codeunit 8614 "Config. XML Exchange"
                         Evaluate(Date, Format(FieldRef.Value));
                         InnerText := TypeHelper.FormatDate(Date, ConfigPackage."Language ID");
                     end;
+                FieldType::Blob:
+                    InnerText := ExportBlob(FieldRef);
             end;
 
         OnFormatFieldValueOnBeforeExitInnerText(FieldRef, ConfigPackage, InnerText);
@@ -1180,7 +1178,7 @@ codeunit 8614 "Config. XML Exchange"
     begin
         if RecRef.FieldExist(480) then begin // Dimension Set ID
             FieldRef := RecRef.Field(480);
-            DimSetID := FieldRef.Value;
+            DimSetID := FieldRef.Value();
             if DimSetID > 0 then begin
                 DimSetEntry.SetRange("Dimension Set ID", DimSetID);
                 DimSetEntry.SetRange("Dimension Code", DimCode);
@@ -1415,15 +1413,26 @@ codeunit 8614 "Config. XML Exchange"
         exit(FileDialogFilterTxt);
     end;
 
-    local procedure ConvertBLOBToBase64String(var FieldRef: FieldRef): Text
+    local procedure ConvertBlobToBase64String(var FieldRef: FieldRef): Text
     var
         Base64Convert: Codeunit "Base64 Convert";
         TempBlob: Codeunit "Temp Blob";
         InStream: InStream;
     begin
-        TempBlob.FromRecordRef(FieldRef.Record(), FieldRef.Number);
+        TempBlob.FromFieldRef(FieldRef);
         TempBlob.CreateInStream(InStream);
         exit(Base64Convert.ToBase64(InStream));
+    end;
+
+    local procedure ExportBlob(var FieldRef: FieldRef): Text
+    var
+        TempBlob: Codeunit "Temp Blob";
+        TypeHelper: Codeunit "Type Helper";
+        InStream: InStream;
+    begin
+        TempBlob.FromFieldRef(FieldRef);
+        TempBlob.CreateInStream(InStream);
+        exit(TypeHelper.ReadAsTextWithSeparator(InStream, TypeHelper.LFSeparator()));
     end;
 
     local procedure ExportMediaSet(var FieldRef: FieldRef): Text
@@ -1440,7 +1449,7 @@ codeunit 8614 "Config. XML Exchange"
             exit('');
 
         TempConfigMediaBuffer.Init();
-        TempConfigMediaBuffer."Media Set" := FieldRef.Value;
+        TempConfigMediaBuffer."Media Set" := FieldRef.Value();
         TempConfigMediaBuffer.Insert();
         if TempConfigMediaBuffer."Media Set".Count = 0 then
             exit;
@@ -1477,7 +1486,7 @@ codeunit 8614 "Config. XML Exchange"
         ConfigMediaBuffer."Media Blob".CreateOutStream(MediaOutStream);
 
         TempConfigMediaBuffer.Init();
-        TempConfigMediaBuffer.Media := FieldRef.Value;
+        TempConfigMediaBuffer.Media := FieldRef.Value();
         TempConfigMediaBuffer.Insert();
         TempConfigMediaBuffer.Media.ExportStream(MediaOutStream);
 
@@ -1491,9 +1500,12 @@ codeunit 8614 "Config. XML Exchange"
         Base64Convert: Codeunit "Base64 Convert";
         OutStream: OutStream;
     begin
-        if ConfigPackageMgt.IsBLOBField(ConfigPackageData."Table ID", ConfigPackageData."Field ID") and not ExcelMode then begin
+        if ConfigPackageMgt.IsBLOBField(ConfigPackageData."Table ID", ConfigPackageData."Field ID") then begin
             ConfigPackageData."BLOB Value".CreateOutStream(OutStream);
-            Base64Convert.FromBase64(GetNodeValue(RecordNode, FieldNodeName), OutStream);
+            if ExcelMode then
+                OutStream.WriteText(GetNodeValue(RecordNode, FieldNodeName))
+            else
+                Base64Convert.FromBase64(GetNodeValue(RecordNode, FieldNodeName), OutStream);
         end else
             ConfigPackageData.Value := CopyStr(GetNodeValue(RecordNode, FieldNodeName), 1, MaxStrLen(ConfigPackageData.Value));
     end;

@@ -1,4 +1,4 @@
-﻿// ------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -1379,7 +1379,7 @@ report 10710 "Make 349 Declaration"
                                     end;
                                 end else
                                     GetSalesEntryPostedByJournal(
-                                      VATEntry."Gen. Prod. Posting Group", VATPPG, DocNo, AmountToIncludeIn349,
+                                      DocNo, AmountToIncludeIn349,
                                       EUCountryLinesLocationCode, CompInforShipToCountryCode);
                             end;
                             AmountToIncludeIn349 := -AmountToIncludeIn349;
@@ -1498,7 +1498,7 @@ report 10710 "Make 349 Declaration"
                                 end;
                             end else
                                 GetPurchEntryPostedByJournal(
-                                  VATEntry."Gen. Prod. Posting Group", VATPPG, DocNo, AmountToIncludeIn349,
+                                  DocNo, AmountToIncludeIn349,
                                   EUCountryLinesLocationCode, CompInforShipToCountryCode);
                         end;
                     VATEntry."Document Type"::"Credit Memo":
@@ -1640,35 +1640,31 @@ report 10710 "Make 349 Declaration"
         exit(LineAmount);
     end;
 
-    local procedure GetSalesEntryPostedByJournal(GenProdPostingGroup: Code[20]; VATPPG: Code[20]; DocNo: Code[20]; var AmountToIncludeIn349: Decimal; var EUCountryLinesLocationCode: Boolean; CompInforShipToCountryCode: Boolean)
+    local procedure GetSalesEntryPostedByJournal(DocNo: Code[20]; var AmountToIncludeIn349: Decimal; var EUCountryLinesLocationCode: Boolean; CompInforShipToCountryCode: Boolean)
     var
         CustLedgeEntry: Record "Cust. Ledger Entry";
     begin
-        with CustLedgeEntry do begin
-            SetFilter("Journal Batch Name", '<>%1', '');
-            SetRange("Document No.", DocNo);
-            SetRange("Document Type", "Document Type"::Invoice);
-            if FindFirst() and CompInforShipToCountryCode then begin
-                CalcFields("Amount (LCY)");
-                AmountToIncludeIn349 := "Amount (LCY)";
-                EUCountryLinesLocationCode := true;
-            end;
+        CustLedgeEntry.SetFilter(CustLedgeEntry."Journal Batch Name", '<>%1', '');
+        CustLedgeEntry.SetRange(CustLedgeEntry."Document No.", DocNo);
+        CustLedgeEntry.SetRange(CustLedgeEntry."Document Type", CustLedgeEntry."Document Type"::Invoice);
+        if CustLedgeEntry.FindFirst() and CompInforShipToCountryCode then begin
+            CustLedgeEntry.CalcFields(CustLedgeEntry."Amount (LCY)");
+            AmountToIncludeIn349 := CustLedgeEntry."Amount (LCY)";
+            EUCountryLinesLocationCode := true;
         end;
     end;
 
-    local procedure GetPurchEntryPostedByJournal(GenProdPostingGroup: Code[20]; VATPPG: Code[20]; DocNo: Code[20]; var AmountToIncludeIn349: Decimal; var EUCountryLinesLocationCode: Boolean; CompInforShipToCountryCode: Boolean)
+    local procedure GetPurchEntryPostedByJournal(DocNo: Code[20]; var AmountToIncludeIn349: Decimal; var EUCountryLinesLocationCode: Boolean; CompInforShipToCountryCode: Boolean)
     var
         VendLedgerEntry: Record "Vendor Ledger Entry";
     begin
-        with VendLedgerEntry do begin
-            SetFilter("Journal Batch Name", '<>%1', '');
-            SetRange("Document No.", DocNo);
-            SetRange("Document Type", VendLedgerEntry."Document Type"::Invoice);
-            if FindFirst() and CompInforShipToCountryCode then begin
-                CalcFields("Amount (LCY)");
-                AmountToIncludeIn349 := Abs("Amount (LCY)");
-                EUCountryLinesLocationCode := true;
-            end;
+        VendLedgerEntry.SetFilter(VendLedgerEntry."Journal Batch Name", '<>%1', '');
+        VendLedgerEntry.SetRange(VendLedgerEntry."Document No.", DocNo);
+        VendLedgerEntry.SetRange(VendLedgerEntry."Document Type", VendLedgerEntry."Document Type"::Invoice);
+        if VendLedgerEntry.FindFirst() and CompInforShipToCountryCode then begin
+            VendLedgerEntry.CalcFields(VendLedgerEntry."Amount (LCY)");
+            AmountToIncludeIn349 := Abs(VendLedgerEntry."Amount (LCY)");
+            EUCountryLinesLocationCode := true;
         end;
     end;
 
@@ -1737,39 +1733,33 @@ report 10710 "Make 349 Declaration"
 
     local procedure FilterVATInvPurchEntries(var VATEntry: Record "VAT Entry"; BillToPayNo: Code[20]; FromDate: Date; ToDate: Date; EUService: Boolean; GenProdPostingGroupFilter: Text)
     begin
-        with VATEntry do begin
-            Reset();
-            SetRange(Type, Type::Purchase);
-            SetRange("Document Type", "Document Type"::Invoice);
-            SetRange("Bill-to/Pay-to No.", BillToPayNo);
-            SetRange("VAT Reporting Date", FromDate, ToDate);
-            SetRange("EU Service", EUService);
-            SetFilter("Gen. Prod. Posting Group", GenProdPostingGroupFilter);
-        end;
+        VATEntry.Reset();
+        VATEntry.SetRange(Type, VATEntry.Type::Purchase);
+        VATEntry.SetRange("Document Type", VATEntry."Document Type"::Invoice);
+        VATEntry.SetRange("Bill-to/Pay-to No.", BillToPayNo);
+        VATEntry.SetRange("VAT Reporting Date", FromDate, ToDate);
+        VATEntry.SetRange("EU Service", EUService);
+        VATEntry.SetFilter("Gen. Prod. Posting Group", GenProdPostingGroupFilter);
     end;
 
     local procedure FilterVATInvSalesEntries(var VATEntry: Record "VAT Entry"; BillToPayNo: Code[20]; FromDate: Date; ToDate: Date; EUService: Boolean; GenProdPostingGroupFilter: Text)
     begin
-        with VATEntry do begin
-            Reset();
-            SetRange(Type, Type::Sale);
-            SetRange("Document Type", "Document Type"::Invoice);
-            SetRange("Bill-to/Pay-to No.", BillToPayNo);
-            SetRange("VAT Reporting Date", FromDate, ToDate);
-            SetRange("EU Service", EUService);
-            SetFilter("Gen. Prod. Posting Group", GenProdPostingGroupFilter);
-        end;
+        VATEntry.Reset();
+        VATEntry.SetRange(Type, VATEntry.Type::Sale);
+        VATEntry.SetRange("Document Type", VATEntry."Document Type"::Invoice);
+        VATEntry.SetRange("Bill-to/Pay-to No.", BillToPayNo);
+        VATEntry.SetRange("VAT Reporting Date", FromDate, ToDate);
+        VATEntry.SetRange("EU Service", EUService);
+        VATEntry.SetFilter("Gen. Prod. Posting Group", GenProdPostingGroupFilter);
     end;
 
     local procedure FilterCustVendWarnings(var CustVendWarning349To: Record "Customer/Vendor Warning 349"; var CustVendWarning349From: Record "Customer/Vendor Warning 349"; IsExported: Boolean; EUService: Boolean)
     begin
-        with CustVendWarning349To do begin
-            Copy(CustVendWarning349);
-            SetRange("Original Declaration FY", CustVendWarning349From."Original Declaration FY");
-            SetRange("Original Declaration Period", CustVendWarning349From."Original Declaration Period");
-            SetRange(Exported, IsExported);
-            SetRange("EU Service", EUService);
-        end;
+        CustVendWarning349To.Copy(CustVendWarning349);
+        CustVendWarning349To.SetRange("Original Declaration FY", CustVendWarning349From."Original Declaration FY");
+        CustVendWarning349To.SetRange("Original Declaration Period", CustVendWarning349From."Original Declaration Period");
+        CustVendWarning349To.SetRange(Exported, IsExported);
+        CustVendWarning349To.SetRange("EU Service", EUService);
     end;
 
     local procedure IsSalesLocationDifferentCountryCode(EUCountryHeaderLocationCode: Boolean; CustomerNo: Code[20]; LocationCode: Code[10]): Boolean

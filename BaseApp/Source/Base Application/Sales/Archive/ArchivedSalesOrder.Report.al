@@ -735,8 +735,8 @@ report 216 "Archived Sales Order"
 
             trigger OnAfterGetRecord()
             begin
-                CurrReport.Language := Language.GetLanguageIdOrDefault("Language Code");
-                CurrReport.FormatRegion := Language.GetFormatRegionOrDefault("Format Region");
+                CurrReport.Language := LanguageMgt.GetLanguageIdOrDefault("Language Code");
+                CurrReport.FormatRegion := LanguageMgt.GetFormatRegionOrDefault("Format Region");
                 FormatAddr.SetLanguageCode("Language Code");
 
                 FormatAddressFields("Sales Header Archive");
@@ -830,7 +830,7 @@ report 216 "Archived Sales Order"
         DimSetEntry2: Record "Dimension Set Entry";
         RespCenter: Record "Responsibility Center";
         CurrExchRate: Record "Currency Exchange Rate";
-        Language: Codeunit Language;
+        LanguageMgt: Codeunit Language;
         FormatAddr: Codeunit "Format Address";
         FormatDocument: Codeunit "Format Document";
         CustAddr: array[8] of Text[100];
@@ -925,25 +925,23 @@ report 216 "Archived Sales Order"
 
     local procedure FormatDocumentFields(SalesHeaderArchive: Record "Sales Header Archive")
     begin
-        with SalesHeaderArchive do begin
-            if "Currency Code" = '' then begin
-                GLSetup.TestField("LCY Code");
-                TotalText := StrSubstNo(Text001, GLSetup."LCY Code");
-                TotalInclVATText := StrSubstNo(TotalInclVAT_EC_Lbl, GLSetup."LCY Code");
-                TotalExclVATText := StrSubstNo(TotalExclVAT_EC_Lbl, GLSetup."LCY Code");
-            end else begin
-                TotalText := StrSubstNo(Text001, "Currency Code");
-                TotalInclVATText := StrSubstNo(TotalInclVAT_EC_Lbl, "Currency Code");
-                TotalExclVATText := StrSubstNo(TotalExclVAT_EC_Lbl, "Currency Code");
-            end;
-            FormatDocument.SetSalesPerson(SalesPurchPerson, "Salesperson Code", SalesPersonText);
-            FormatDocument.SetPaymentTerms(PaymentTerms, "Payment Terms Code", "Language Code");
-            FormatDocument.SetPaymentTerms(PrepmtPaymentTerms, "Prepmt. Payment Terms Code", "Language Code");
-            FormatDocument.SetShipmentMethod(ShipmentMethod, "Shipment Method Code", "Language Code");
-
-            ReferenceText := FormatDocument.SetText("Your Reference" <> '', FieldCaption("Your Reference"));
-            VATNoText := FormatDocument.SetText("VAT Registration No." <> '', FieldCaption("VAT Registration No."));
+        if SalesHeaderArchive."Currency Code" = '' then begin
+            GLSetup.TestField("LCY Code");
+            TotalText := StrSubstNo(Text001, GLSetup."LCY Code");
+            TotalInclVATText := StrSubstNo(TotalInclVAT_EC_Lbl, GLSetup."LCY Code");
+            TotalExclVATText := StrSubstNo(TotalExclVAT_EC_Lbl, GLSetup."LCY Code");
+        end else begin
+            TotalText := StrSubstNo(Text001, SalesHeaderArchive."Currency Code");
+            TotalInclVATText := StrSubstNo(TotalInclVAT_EC_Lbl, SalesHeaderArchive."Currency Code");
+            TotalExclVATText := StrSubstNo(TotalExclVAT_EC_Lbl, SalesHeaderArchive."Currency Code");
         end;
+        FormatDocument.SetSalesPerson(SalesPurchPerson, SalesHeaderArchive."Salesperson Code", SalesPersonText);
+        FormatDocument.SetPaymentTerms(PaymentTerms, SalesHeaderArchive."Payment Terms Code", SalesHeaderArchive."Language Code");
+        FormatDocument.SetPaymentTerms(PrepmtPaymentTerms, SalesHeaderArchive."Prepmt. Payment Terms Code", SalesHeaderArchive."Language Code");
+        FormatDocument.SetShipmentMethod(ShipmentMethod, SalesHeaderArchive."Shipment Method Code", SalesHeaderArchive."Language Code");
+
+        ReferenceText := FormatDocument.SetText(SalesHeaderArchive."Your Reference" <> '', SalesHeaderArchive.FieldCaption("Your Reference"));
+        VATNoText := FormatDocument.SetText(SalesHeaderArchive."VAT Registration No." <> '', SalesHeaderArchive.FieldCaption("VAT Registration No."));
     end;
 
     local procedure InitTempLines(var TempSalesHeader: Record "Sales Header" temporary; var TempSalesLine: Record "Sales Line" temporary)

@@ -1,12 +1,12 @@
 namespace Microsoft.Projects.Project.Analysis;
 
 using Microsoft.Projects.Project.Job;
-using System;
+using System.Integration;
 using System.Visualization;
 
 page 759 "Job Profitability Chart"
 {
-    Caption = 'Job Profitability Chart';
+    Caption = 'Project Profitability Chart';
     PageType = CardPart;
     SourceTable = Job;
 
@@ -14,17 +14,17 @@ page 759 "Job Profitability Chart"
     {
         area(content)
         {
-            usercontrol(Chart; "Microsoft.Dynamics.Nav.Client.BusinessChart")
+            usercontrol(Chart; BusinessChart)
             {
                 ApplicationArea = Jobs;
 
-                trigger DataPointClicked(point: DotNet BusinessChartDataPoint)
+                trigger DataPointClicked(Point: JsonObject)
                 begin
                     BusChartBuf.SetDrillDownIndexes(point);
                     JobChartMgt.DataPointClicked(BusChartBuf, TempJob);
                 end;
 
-                trigger DataPointDoubleClicked(point: DotNet BusinessChartDataPoint)
+                trigger DataPointDoubleClicked(Point: JsonObject)
                 begin
                 end;
 
@@ -126,7 +126,7 @@ page 759 "Job Profitability Chart"
             exit;
 
         JobChartMgt.CreateChart(BusChartBuf, TempJob, NewChartType, Enum::"Job Chart Type"::Profitability);
-        BusChartBuf.Update(CurrPage.Chart);
+        BusChartBuf.UpdateChart(CurrPage.Chart);
         CurrentChartType := NewChartType;
     end;
 

@@ -7,6 +7,7 @@ namespace Microsoft.Finance.VAT.Reporting;
 table 10743 "Customer Cash Buffer"
 {
     Caption = 'Customer Cash Buffer';
+    DataClassification = CustomerContent;
 
     fields
     {

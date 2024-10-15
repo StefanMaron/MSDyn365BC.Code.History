@@ -1,4 +1,4 @@
-﻿// ------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -270,12 +270,10 @@ report 7000002 "Closed Bill Group Listing"
                     Operation := Text1100001;
                 FactoringType := GetFactoringType();
 
-                with BankAcc do begin
-                    Get(ClosedBillGr."Bank Account No.");
-                    FormatAddress.FormatAddr(
-                      BankAccAddr, Name, "Name 2", '', Address, "Address 2",
-                      City, "Post Code", County, "Country/Region Code");
-                end;
+                BankAcc.Get(ClosedBillGr."Bank Account No.");
+                FormatAddress.FormatAddr(
+                  BankAccAddr, BankAcc.Name, BankAcc."Name 2", '', BankAcc.Address, BankAcc."Address 2",
+                  BankAcc.City, BankAcc."Post Code", BankAcc.County, BankAcc."Country/Region Code");
 
                 if not CurrReport.Preview then
                     PrintCounter.PrintCounter(DATABASE::"Closed Bill Group", "No.");
@@ -343,9 +341,6 @@ report 7000002 "Closed Bill Group Listing"
         NoOfLoops: Integer;
         NoOfCopies: Integer;
         CopyText: Text[30];
-        City: Text[30];
-        County: Text[30];
-        Name: Text[50];
         PrintAmountsInLCY: Boolean;
         AmtForCollection: Decimal;
         FactoringType: Text[30];

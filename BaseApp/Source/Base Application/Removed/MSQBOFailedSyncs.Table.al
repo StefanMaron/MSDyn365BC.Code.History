@@ -5,6 +5,7 @@ table 7827 "MS-QBO Failed Syncs"
     ObsoleteState = Removed;
     ObsoleteTag = '18.0';
     ReplicateData = false;
+    DataClassification = CustomerContent;
 
     fields
     {

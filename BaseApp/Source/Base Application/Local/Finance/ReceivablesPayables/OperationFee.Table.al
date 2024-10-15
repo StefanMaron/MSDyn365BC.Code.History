@@ -10,6 +10,7 @@ using Microsoft.Finance.Currency;
 table 7000010 "Operation Fee"
 {
     Caption = 'Operation Fee';
+    DataClassification = CustomerContent;
 
     fields
     {

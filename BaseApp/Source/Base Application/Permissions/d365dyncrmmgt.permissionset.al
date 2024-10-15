@@ -2,6 +2,7 @@ namespace System.Security.AccessControl;
 
 using Microsoft.Integration.D365Sales;
 using Microsoft.Integration.Dataverse;
+using Microsoft.Integration.FieldService;
 using Microsoft.Sales.Customer;
 using Microsoft.Integration.SyncEngine;
 using Microsoft.CRM.Interaction;
@@ -14,6 +15,7 @@ permissionset 617 "D365 DYN CRM MGT"
 
     Caption = 'Dynamics 365 Sales Integration - Mgt.';
     Permissions = tabledata "CDS Available Virtual Table" = IMD,
+                  tabledata "CDS BC Table Relation" = IMD,
                   tabledata "CDS Company" = IMD,
                   tabledata "CDS Connection Setup" = IMD,
                   tabledata "CDS Coupled Business Unit" = IMD,
@@ -70,10 +72,26 @@ permissionset 617 "D365 DYN CRM MGT"
                   tabledata "CRM Synch. Job Status Cue" = IMD,
                   tabledata "CRM Systemuser" = IMD,
                   tabledata "CRM Systemuserroles" = IMD,
+                  tabledata "CDS Field Security Profile" = IMD,
+                  tabledata "CDS System User Profiles" = IMD,
                   tabledata "CRM Team" = IMD,
                   tabledata "CRM Transactioncurrency" = IMD,
                   tabledata "CRM Uom" = IMD,
                   tabledata "CRM Uomschedule" = IMD,
+                  tabledata "FS Connection Setup" = IMD,
+                  tabledata "FS Bookable Resource" = IMD,
+                  tabledata "FS Bookable Resource Booking" = IMD,
+                  tabledata "FS BookableResourceBookingHdr" = IMD,
+                  tabledata "FS Customer Asset" = IMD,
+                  tabledata "FS Customer Asset Category" = IMD,
+                  tabledata "FS Project Task" = IMD,
+                  tabledata "FS Resource Pay Type" = IMD,
+                  tabledata "FS Work Order" = IMD,
+                  tabledata "FS Work Order Incident" = IMD,
+                  tabledata "FS Work Order Product" = IMD,
+                  tabledata "FS Work Order Service" = IMD,
+                  tabledata "FS Work Order Substatus" = IMD,
+                  tabledata "FS Work Order Type" = IMD,
                   tabledata "Customer Templ." = IMD,
                   tabledata "Vendor Templ." = IMD,
                   tabledata "Integration Field Mapping" = IMD,
@@ -81,5 +99,8 @@ permissionset 617 "D365 DYN CRM MGT"
                   tabledata "Integration Synch. Job Errors" = IMD,
                   tabledata "Integration Table Mapping" = IMD,
                   tabledata "Interaction Template" = imd,
-                  tabledata "Temp Integration Field Mapping" = IMD;
+                  tabledata "Man. Integration Field Mapping" = IMD,
+                  tabledata "Man. Integration Table Mapping" = IMD,
+                  tabledata "Temp Integration Field Mapping" = IMD,
+                  tabledata "Man. Int. Field Mapping" = IMD;
 }

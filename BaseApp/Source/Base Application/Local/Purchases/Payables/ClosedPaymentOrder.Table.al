@@ -15,6 +15,7 @@ table 7000022 "Closed Payment Order"
     Caption = 'Closed Payment Order';
     DrillDownPageID = "Closed Payment Orders List";
     LookupPageID = "Closed Payment Orders List";
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -158,15 +159,13 @@ table 7000022 "Closed Payment Order"
     var
         CarteraReportSelection: Record "Cartera Report Selections";
     begin
-        with ClosedPmtOrd do begin
-            Copy(Rec);
-            CarteraReportSelection.SetRange(Usage, CarteraReportSelection.Usage::"Closed Payment Order");
-            CarteraReportSelection.SetFilter("Report ID", '<>0');
-            CarteraReportSelection.Find('-');
-            repeat
-                REPORT.RunModal(CarteraReportSelection."Report ID", ShowRequestForm, false, ClosedPmtOrd);
-            until CarteraReportSelection.Next() = 0;
-        end;
+        ClosedPmtOrd.Copy(Rec);
+        CarteraReportSelection.SetRange(Usage, CarteraReportSelection.Usage::"Closed Payment Order");
+        CarteraReportSelection.SetFilter("Report ID", '<>0');
+        CarteraReportSelection.Find('-');
+        repeat
+            REPORT.RunModal(CarteraReportSelection."Report ID", ShowRequestForm, false, ClosedPmtOrd);
+        until CarteraReportSelection.Next() = 0;
     end;
 
     procedure Caption(): Text

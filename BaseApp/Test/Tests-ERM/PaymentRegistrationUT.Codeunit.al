@@ -60,7 +60,7 @@ codeunit 134700 "Payment Registration UT"
     begin
         Initialize();
 
-        SetAutoFillDate;
+        SetAutoFillDate();
 
         TempPaymentRegistrationBuffer.Init();
         TempPaymentRegistrationBuffer."Remaining Amount" := LibraryRandom.RandDec(100, 2);
@@ -126,7 +126,7 @@ codeunit 134700 "Payment Registration UT"
         CreateCustomerLedgerEntry(CustLedgerEntry, CustLedgerEntry."Document Type"::Refund, false);
 
         // Exercise:
-        TempPaymentRegistrationBuffer.PopulateTable;
+        TempPaymentRegistrationBuffer.PopulateTable();
 
         // Verify:
         // Valid Entries
@@ -174,7 +174,7 @@ codeunit 134700 "Payment Registration UT"
         Initialize();
         PaymentRegistrationSetup.Get(UserId);
 
-        PaymentRegistrationPage.OpenView;
+        PaymentRegistrationPage.OpenView();
         Assert.IsTrue(StrPos(PaymentRegistrationPage.Caption, Format(PaymentRegistrationSetup."Bal. Account Type")) > 0,
           StrSubstNo(WrongCaptionErr, PaymentRegistrationSetup.FieldName("Bal. Account Type")));
         Assert.IsTrue(StrPos(PaymentRegistrationPage.Caption, Format(PaymentRegistrationSetup."Bal. Account No.")) > 0,
@@ -193,8 +193,8 @@ codeunit 134700 "Payment Registration UT"
     begin
         Initialize();
 
-        PaymentRegistrationPage.OpenView;
-        PaymentRegistrationPage.Setup.Invoke;
+        PaymentRegistrationPage.OpenView();
+        PaymentRegistrationPage.Setup.Invoke();
 
         PaymentRegistrationSetup.Get(UserId);
         Assert.IsTrue(StrPos(PaymentRegistrationPage.Caption, Format(PaymentRegistrationSetup."Bal. Account Type")) > 0,
@@ -223,7 +223,7 @@ codeunit 134700 "Payment Registration UT"
         CustLedgerEntry.Modify();
         CreateDetailedCustomerLedgerEntry(CustLedgerEntry."Entry No.");
 
-        TempPaymentRegistrationBuffer.PopulateTable;
+        TempPaymentRegistrationBuffer.PopulateTable();
         TempPaymentRegistrationBuffer.Get(CustLedgerEntry."Entry No.");
         TempPaymentRegistrationBuffer.TestField("Source No.", CustLedgerEntry."Customer No.");
         Customer.Get(CustLedgerEntry."Customer No.");
@@ -255,7 +255,7 @@ codeunit 134700 "Payment Registration UT"
 
         asserterror CustLedgEntry.FindFirst();
         asserterror TempPaymentRegistrationBuffer.FindFirst();
-        TempPaymentRegistrationBuffer.PopulateTable
+        TempPaymentRegistrationBuffer.PopulateTable();
     end;
 
     [Test]
@@ -483,7 +483,7 @@ codeunit 134700 "Payment Registration UT"
         PaymentRegistrationSetup.Get(UserId);
         GenJournalBatch.Get(PaymentRegistrationSetup."Journal Template Name", PaymentRegistrationSetup."Journal Batch Name");
         GenJournalBatch."Bal. Account Type" := GenJournalBatch."Bal. Account Type"::"Bank Account";
-        GenJournalBatch."Bal. Account No." := CreateBankAccount;
+        GenJournalBatch."Bal. Account No." := CreateBankAccount();
         GenJournalBatch.Modify();
 
         PaymentRegistrationSetup.Validate("Journal Batch Name", GenJournalBatch.Name);
@@ -586,7 +586,7 @@ codeunit 134700 "Payment Registration UT"
             "Amount Received" := "Remaining Amount";
             Modify();
 
-            Reload;
+            Reload();
 
             Get(EntryNo);
 
@@ -618,7 +618,7 @@ codeunit 134700 "Payment Registration UT"
             Assert.AreNotEqual(1, Count, ReloadCountErr);
             SetFilter("Ledger Entry No.", '%1', EntryNo);
             Assert.AreEqual(1, Count, ReloadCountErr);
-            Reload;
+            Reload();
             Assert.AreEqual(1, Count, ReloadCountErr);
             FindFirst();
             Assert.AreEqual(EntryNo, "Ledger Entry No.", ReloadCountErr);
@@ -636,7 +636,7 @@ codeunit 134700 "Payment Registration UT"
         with TempPaymentRegistrationBuffer do begin
             PopulateTable();
             SetCurrentKey("Amount Received");
-            Reload;
+            Reload();
             Assert.AreEqual('Amount Received', CurrentKey, ReloadSortingErr);
         end;
     end;
@@ -657,9 +657,9 @@ codeunit 134700 "Payment Registration UT"
         with TempPaymentRegistrationBuffer do begin
             PopulateTable();
             FindLast();
-            PositionBeforeReload := GetPosition;
-            Reload;
-            Assert.AreEqual(PositionBeforeReload, GetPosition, ReloadCurrRecErr);
+            PositionBeforeReload := GetPosition();
+            Reload();
+            Assert.AreEqual(PositionBeforeReload, GetPosition(), ReloadCurrRecErr);
         end;
     end;
 
@@ -677,7 +677,7 @@ codeunit 134700 "Payment Registration UT"
             CreateCustomerLedgerEntry(CustLedgerEntry, CustLedgerEntry."Document Type"::Invoice, true);
             PopulateTable();
             EntryNo := CreateCustomerLedgerEntry(CustLedgerEntry, CustLedgerEntry."Document Type"::Invoice, true);
-            Reload;
+            Reload();
             Get(EntryNo);
         end;
     end;
@@ -720,7 +720,7 @@ codeunit 134700 "Payment Registration UT"
     begin
         Initialize();
 
-        SetAutoFillDate;
+        SetAutoFillDate();
         InsertTempPaymentRegistrationBuffer(TempPaymentRegistrationBuffer);
 
         with TempPaymentRegistrationBuffer do begin
@@ -737,11 +737,11 @@ codeunit 134700 "Payment Registration UT"
     begin
         Initialize();
 
-        SetAutoFillDate;
+        SetAutoFillDate();
         InsertTempPaymentRegistrationBuffer(TempPaymentRegistrationBuffer);
 
         with TempPaymentRegistrationBuffer do begin
-            "Pmt. Discount Date" := WorkDate - LibraryRandom.RandInt(5);
+            "Pmt. Discount Date" := WorkDate() - LibraryRandom.RandInt(5);
             Validate("Amount Received",
               "Original Remaining Amount" - LibraryRandom.RandDecInDecimalRange(0, "Original Remaining Amount", 2));
             TestField("Remaining Amount", "Original Remaining Amount" - "Amount Received");
@@ -756,11 +756,11 @@ codeunit 134700 "Payment Registration UT"
     begin
         Initialize();
 
-        SetAutoFillDate;
+        SetAutoFillDate();
         InsertTempPaymentRegistrationBuffer(TempPaymentRegistrationBuffer);
 
         with TempPaymentRegistrationBuffer do begin
-            "Pmt. Discount Date" := WorkDate + LibraryRandom.RandInt(5);
+            "Pmt. Discount Date" := WorkDate() + LibraryRandom.RandInt(5);
             Validate("Amount Received", "Rem. Amt. after Discount" + LibraryRandom.RandDec(10, 2));
             TestField("Remaining Amount", 0);
         end;
@@ -774,11 +774,11 @@ codeunit 134700 "Payment Registration UT"
     begin
         Initialize();
 
-        SetAutoFillDate;
+        SetAutoFillDate();
         InsertTempPaymentRegistrationBuffer(TempPaymentRegistrationBuffer);
 
         with TempPaymentRegistrationBuffer do begin
-            "Pmt. Discount Date" := WorkDate + LibraryRandom.RandInt(5);
+            "Pmt. Discount Date" := WorkDate() + LibraryRandom.RandInt(5);
             Validate("Amount Received",
               "Rem. Amt. after Discount" - LibraryRandom.RandDecInDecimalRange(0, "Rem. Amt. after Discount", 2));
             TestField("Remaining Amount", "Original Remaining Amount" - "Amount Received");
@@ -793,7 +793,7 @@ codeunit 134700 "Payment Registration UT"
     begin
         Initialize();
 
-        SetAutoFillDate;
+        SetAutoFillDate();
         InsertTempPaymentRegistrationBuffer(TempPaymentRegistrationBuffer);
         TempPaymentRegistrationBuffer."Remaining Amount" := -TempPaymentRegistrationBuffer."Remaining Amount";
         TempPaymentRegistrationBuffer."Original Remaining Amount" := -TempPaymentRegistrationBuffer."Original Remaining Amount";
@@ -858,7 +858,7 @@ codeunit 134700 "Payment Registration UT"
     begin
         Initialize();
 
-        SetAutoFillDate;
+        SetAutoFillDate();
         InsertTempPaymentRegistrationBuffer(TempPaymentRegistrationBuffer);
 
         with TempPaymentRegistrationBuffer do begin
@@ -876,7 +876,7 @@ codeunit 134700 "Payment Registration UT"
     begin
         Initialize();
 
-        SetAutoFillDate;
+        SetAutoFillDate();
         InsertTempPaymentRegistrationBuffer(TempPaymentRegistrationBuffer);
 
         with TempPaymentRegistrationBuffer do begin
@@ -894,7 +894,7 @@ codeunit 134700 "Payment Registration UT"
     begin
         Initialize();
 
-        SetAutoFillDate;
+        SetAutoFillDate();
         InsertTempPaymentRegistrationBuffer(TempPaymentRegistrationBuffer);
         with TempPaymentRegistrationBuffer do begin
             "Amount Received" :=
@@ -912,7 +912,7 @@ codeunit 134700 "Payment Registration UT"
     begin
         Initialize();
 
-        SetAutoFillDate;
+        SetAutoFillDate();
         InsertTempPaymentRegistrationBuffer(TempPaymentRegistrationBuffer);
         with TempPaymentRegistrationBuffer do begin
             "Amount Received" :=
@@ -933,7 +933,7 @@ codeunit 134700 "Payment Registration UT"
         with TempPaymentRegistrationBuffer do begin
             "Pmt. Discount Date" := "Date Received" - LibraryRandom.RandInt(5);
             "Due Date" := "Date Received" + LibraryRandom.RandInt(5);
-            Assert.AreEqual(GetPmtDiscStyle, 'Unfavorable', StyleErr);
+            Assert.AreEqual(GetPmtDiscStyle(), 'Unfavorable', StyleErr);
         end;
     end;
 
@@ -947,7 +947,7 @@ codeunit 134700 "Payment Registration UT"
         InsertTempPaymentRegistrationBuffer(TempPaymentRegistrationBuffer);
         with TempPaymentRegistrationBuffer do begin
             "Due Date" := "Date Received" - LibraryRandom.RandInt(5);
-            Assert.AreEqual(GetDueDateStyle, 'Unfavorable', StyleErr);
+            Assert.AreEqual(GetDueDateStyle(), 'Unfavorable', StyleErr);
         end;
     end;
 
@@ -961,7 +961,7 @@ codeunit 134700 "Payment Registration UT"
         InsertTempPaymentRegistrationBuffer(TempPaymentRegistrationBuffer);
         with TempPaymentRegistrationBuffer do begin
             "Pmt. Discount Date" := "Date Received" + LibraryRandom.RandInt(5);
-            Assert.AreEqual(GetWarning, '', WarningErr);
+            Assert.AreEqual(GetWarning(), '', WarningErr);
         end;
     end;
 
@@ -975,7 +975,7 @@ codeunit 134700 "Payment Registration UT"
         InsertTempPaymentRegistrationBuffer(TempPaymentRegistrationBuffer);
         with TempPaymentRegistrationBuffer do begin
             "Date Received" := "Pmt. Discount Date" + LibraryRandom.RandInt(5);
-            Assert.AreEqual(GetWarning, Format(DueDateMsg), WarningErr);
+            Assert.AreEqual(GetWarning(), Format(DueDateMsg), WarningErr);
         end;
     end;
 
@@ -990,7 +990,7 @@ codeunit 134700 "Payment Registration UT"
         with TempPaymentRegistrationBuffer do begin
             "Date Received" := "Pmt. Discount Date" + LibraryRandom.RandInt(5);
             "Due Date" := "Date Received" + LibraryRandom.RandInt(5);
-            Assert.AreEqual(GetWarning, Format(PmtDiscMsg), WarningErr);
+            Assert.AreEqual(GetWarning(), Format(PmtDiscMsg), WarningErr);
         end;
     end;
 
@@ -1006,7 +1006,7 @@ codeunit 134700 "Payment Registration UT"
             "Date Received" := "Pmt. Discount Date" + LibraryRandom.RandInt(5);
             "Due Date" := "Date Received" + LibraryRandom.RandInt(5);
             "Remaining Amount" := 0;
-            Assert.AreEqual(GetWarning, '', WarningErr);
+            Assert.AreEqual(GetWarning(), '', WarningErr);
         end;
     end;
 
@@ -1021,8 +1021,8 @@ codeunit 134700 "Payment Registration UT"
         PaymentRegistrationSetup.DeleteAll();
 
         // Expect transaction to stop because cancel is pressed
-        asserterror PmtReg.OpenEdit;
-        asserterror PmtReg.OK.Invoke;
+        asserterror PmtReg.OpenEdit();
+        asserterror PmtReg.OK().Invoke();
         Assert.ExpectedError('The TestPage is not open.');
     end;
 
@@ -1043,11 +1043,11 @@ codeunit 134700 "Payment Registration UT"
         end;
         LibraryVariableStorage.Enqueue(UserId);
 
-        PrepareDefaultSetup;
+        PrepareDefaultSetup();
 
         // HandlerFunctions has a verification.
-        PmtReg.OpenEdit;
-        PmtReg.OK.Invoke;
+        PmtReg.OpenEdit();
+        PmtReg.OK().Invoke();
     end;
 
     [Test]
@@ -1065,10 +1065,10 @@ codeunit 134700 "Payment Registration UT"
             Modify();
         end;
 
-        PrepareDefaultSetup;
+        PrepareDefaultSetup();
 
-        PmtReg.OpenEdit;
-        PmtReg.OK.Invoke;
+        PmtReg.OpenEdit();
+        PmtReg.OK().Invoke();
     end;
 
     [Test]
@@ -1812,7 +1812,7 @@ codeunit 134700 "Payment Registration UT"
 
         // Setup.
         Tolerance := LibraryRandom.RandDec(100, 2);
-        DocumentSearch.OpenEdit;
+        DocumentSearch.OpenEdit();
 
         // Exercise.
         DocumentSearch.Amount.SetValue(LibraryRandom.RandDec(100, 2));
@@ -1820,8 +1820,8 @@ codeunit 134700 "Payment Registration UT"
 
         // Verify.
         DocumentSearch.Warning.AssertEquals(
-          StrSubstNo(ToleranceTxt, Format((1 - Tolerance / 100) * DocumentSearch.Amount.AsDEcimal, 0, '<Precision,2><Standard Format,0>'),
-            Format((1 + Tolerance / 100) * DocumentSearch.Amount.AsDEcimal, 0, '<Precision,2><Standard Format,0>')));
+          StrSubstNo(ToleranceTxt, Format((1 - Tolerance / 100) * DocumentSearch.Amount.AsDecimal(), 0, '<Precision,2><Standard Format,0>'),
+            Format((1 + Tolerance / 100) * DocumentSearch.Amount.AsDecimal(), 0, '<Precision,2><Standard Format,0>')));
     end;
 
     [Test]
@@ -1833,7 +1833,7 @@ codeunit 134700 "Payment Registration UT"
         Initialize();
 
         // Setup.
-        DocumentSearch.OpenEdit;
+        DocumentSearch.OpenEdit();
         DocumentSearch.Amount.SetValue(LibraryRandom.RandDec(100, 2));
 
         // Exercise.
@@ -1852,7 +1852,7 @@ codeunit 134700 "Payment Registration UT"
         Initialize();
 
         // Setup.
-        DocumentSearch.OpenEdit;
+        DocumentSearch.OpenEdit();
 
         // Exercise / Verify.
         if (Tolerance < 0) or (Tolerance > 100) then
@@ -2008,14 +2008,12 @@ codeunit 134700 "Payment Registration UT"
     end;
 
     local procedure CreateCustomerLedgerEntry(var CustLedgerEntry: Record "Cust. Ledger Entry"; DocumentType: Enum "Gen. Journal Document Type"; IsOpen: Boolean): Integer
-    var
-        PaymentMethod: Record "Payment Method";
     begin
         with CustLedgerEntry do begin
             if FindLast() then;
             Init();
             "Entry No." += 1;
-            "Customer No." := CreateCustomer;
+            "Customer No." := CreateCustomer();
             "Document Type" := DocumentType;
             Open := IsOpen;
             if IsOpen then
@@ -2024,10 +2022,10 @@ codeunit 134700 "Payment Registration UT"
                 LibraryUtility.GenerateRandomCode(FieldNo("Document No."), DATABASE::"Cust. Ledger Entry");
             Description :=
                 LibraryUtility.GenerateRandomCode(FieldNo(Description), DATABASE::"Cust. Ledger Entry");
-            "Due Date" := LibraryUtility.GenerateRandomDate(WorkDate(), WorkDate + LibraryRandom.RandInt(10));
+            "Due Date" := LibraryUtility.GenerateRandomDate(WorkDate(), WorkDate() + LibraryRandom.RandInt(10));
             "Remaining Pmt. Disc. Possible" := LibraryRandom.RandDec(MaxPaymentDiscountAmount, 2);
             "Pmt. Discount Date" :=
-                LibraryUtility.GenerateRandomDate(WorkDate - LibraryRandom.RandInt(10), WorkDate());
+                LibraryUtility.GenerateRandomDate(WorkDate() - LibraryRandom.RandInt(10), WorkDate());
             Insert();
 
             exit("Entry No.");
@@ -2080,7 +2078,7 @@ codeunit 134700 "Payment Registration UT"
 
     local procedure CreateGnlJnlLine(var GenJnlLine: Record "Gen. Journal Line"; PaymentRegistrationSetup: Record "Payment Registration Setup"; Amount: Decimal)
     begin
-        GenJnlLine."Journal Template Name" := CreateGenJournalTemplate;
+        GenJnlLine."Journal Template Name" := CreateGenJournalTemplate();
         GenJnlLine."Journal Batch Name" := CreateGenJournalBatch(GenJnlLine."Journal Template Name");
 
         case PaymentRegistrationSetup."Bal. Account Type" of
@@ -2140,12 +2138,12 @@ codeunit 134700 "Payment Registration UT"
             "User ID" := UserId;
             case AccountType of
                 "Bal. Account Type"::"Bank Account":
-                    "Bal. Account No." := CreateBankAccount;
+                    "Bal. Account No." := CreateBankAccount();
                 "Bal. Account Type"::"G/L Account":
                     "Bal. Account No." := LibraryERM.CreateGLAccountNo();
             end;
             "Bal. Account Type" := AccountType;
-            "Journal Template Name" := CreateGenJournalTemplate;
+            "Journal Template Name" := CreateGenJournalTemplate();
             "Journal Batch Name" := CreateGenJournalBatch("Journal Template Name");
             "Auto Fill Date Received" := false;
             "Use this Account as Def." := true;
@@ -2168,7 +2166,7 @@ codeunit 134700 "Payment Registration UT"
     [Scope('OnPrem')]
     procedure PaymentRegistrationSetupCancelPageHandler(var PaymentRegistrationSetupPage: TestPage "Payment Registration Setup")
     begin
-        PaymentRegistrationSetupPage.Cancel.Invoke;
+        PaymentRegistrationSetupPage.Cancel().Invoke();
     end;
 
     [ModalPageHandler]
@@ -2178,17 +2176,17 @@ codeunit 134700 "Payment Registration UT"
         PaymentRegistrationSetup: Record "Payment Registration Setup";
     begin
         PaymentRegistrationSetupPage."Bal. Account Type".SetValue(PaymentRegistrationSetup."Bal. Account Type"::"G/L Account");
-        PaymentRegistrationSetupPage."Bal. Account No.".SetValue(LibraryERM.CreateGLAccountNo);
-        PaymentRegistrationSetupPage.OK.Invoke;
+        PaymentRegistrationSetupPage."Bal. Account No.".SetValue(LibraryERM.CreateGLAccountNo());
+        PaymentRegistrationSetupPage.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure PaymentRegistrationPromptOKPageHandler(var PaymentRegistrationPromptPage: TestPage "Balancing Account Setup")
     begin
-        Assert.AreEqual(UpperCase(UserId), LibraryVariableStorage.DequeueText, WrongUserErr);
+        Assert.AreEqual(UpperCase(UserId), LibraryVariableStorage.DequeueText(), WrongUserErr);
 
-        PaymentRegistrationPromptPage.OK.Invoke;
+        PaymentRegistrationPromptPage.OK().Invoke();
     end;
 
     local procedure PrepareDefaultSetup()

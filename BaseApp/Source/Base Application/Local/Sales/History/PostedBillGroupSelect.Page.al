@@ -349,14 +349,12 @@ page 7000064 "Posted Bill Group Select."
 
     procedure UpdateStatistics2(var PostedBillGr2: Record "Posted Bill Group"; var CurrTotalAmount: Decimal; var ShowCurrent: Boolean)
     begin
-        with PostedBillGr2 do begin
-            SetCurrentKey("Bank Account No.", "Posting Date", "Currency Code");
-            if Find('-') then;
-            repeat
-                CalcFields("Remaining Amount (LCY)");
-                CurrTotalAmount := CurrTotalAmount + "Remaining Amount (LCY)";
-            until Next() = 0;
-        end;
+        PostedBillGr2.SetCurrentKey("Bank Account No.", "Posting Date", "Currency Code");
+        if PostedBillGr2.Find('-') then;
+        repeat
+            PostedBillGr2.CalcFields("Remaining Amount (LCY)");
+            CurrTotalAmount := CurrTotalAmount + PostedBillGr2."Remaining Amount (LCY)";
+        until PostedBillGr2.Next() = 0;
         ShowCurrent := (CurrTotalAmount <> 0);
     end;
 

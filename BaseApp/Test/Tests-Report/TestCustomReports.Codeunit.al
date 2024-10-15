@@ -82,7 +82,7 @@ codeunit 134761 "Test Custom Reports"
 
         CustomReportSelection.SetRange("Source Type", DATABASE::Vendor);
         CustomReportSelection.SetRange("Source No.", Vendor."No.");
-        Assert.IsTrue(CustomReportSelection.FindFirst, 'CustomReportSelection was not found.');
+        Assert.IsTrue(CustomReportSelection.FindFirst(), 'CustomReportSelection was not found.');
 
         Vendor.SetRange("No.", Vendor."No.");
         Vendor.DeleteAll(true);  // Vendor.OnDelete should remove CustomReportSelection
@@ -90,7 +90,7 @@ codeunit 134761 "Test Custom Reports"
         Clear(CustomReportSelection);
         CustomReportSelection.SetRange("Source Type", DATABASE::Customer);
         CustomReportSelection.SetRange("Source No.", CustomerFullMod."No.");
-        Assert.IsFalse(CustomReportSelection.FindFirst, 'Vendor.OnDelete failed to remove CustomReportSelection');
+        Assert.IsFalse(CustomReportSelection.FindFirst(), 'Vendor.OnDelete failed to remove CustomReportSelection');
 
         Clear(CustomReportSelection);
         CustomReportLayout.DeleteAll();
@@ -109,7 +109,7 @@ codeunit 134761 "Test Custom Reports"
 
         CustomReportSelection.SetRange("Source Type", DATABASE::Customer);
         CustomReportSelection.SetRange("Source No.", CustomerFullMod."No.");
-        Assert.IsTrue(CustomReportSelection.FindFirst, 'CustomReportSelection was not found.');
+        Assert.IsTrue(CustomReportSelection.FindFirst(), 'CustomReportSelection was not found.');
 
         CustomerFullMod.SetRange("No.", CustomerFullMod."No.");
         CustomerFullMod.DeleteAll(true);  // Customer.OnDelete should remove CustomReportSelection
@@ -117,7 +117,7 @@ codeunit 134761 "Test Custom Reports"
         Clear(CustomReportSelection);
         CustomReportSelection.SetRange("Source Type", DATABASE::Customer);
         CustomReportSelection.SetRange("Source No.", CustomerFullMod."No.");
-        Assert.IsFalse(CustomReportSelection.FindFirst, 'Customer.OnDelete failed to remove CustomReportSelection');
+        Assert.IsFalse(CustomReportSelection.FindFirst(), 'Customer.OnDelete failed to remove CustomReportSelection');
 
         Clear(CustomReportSelection);
         CustomReportLayout.DeleteAll();
@@ -139,11 +139,11 @@ codeunit 134761 "Test Custom Reports"
         LibraryVariableStorage.Enqueue(CustomReportLayout.Code);
         Commit();
 
-        CustomerCard.Trap;
+        CustomerCard.Trap();
         PAGE.Run(PAGE::"Customer Card", CustomerFullMod);
 
-        CustomReportSelections.Trap;
-        CustomerCard.CustomerReportSelections.Invoke;
+        CustomReportSelections.Trap();
+        CustomerCard.CustomerReportSelections.Invoke();
 
         CustomerFullMod.SetRange("No.", CustomerFullMod."No.");
         CustomerFullMod.DeleteAll(true);
@@ -173,7 +173,6 @@ codeunit 134761 "Test Custom Reports"
     procedure TestEmailQuotes()
     var
         CustomReportID: Integer;
-        Usage: Option;
     begin
         Initialize();
 
@@ -255,7 +254,6 @@ codeunit 134761 "Test Custom Reports"
     var
         SalesInvoiceHeader: Record "Sales Invoice Header";
         CustomReportID: Integer;
-        Usage: Option;
     begin
         Initialize();
 
@@ -468,7 +466,7 @@ codeunit 134761 "Test Custom Reports"
     begin
         // Validate that running multiple statement reports generates a .zip file that contains reports.
         Initialize();
-        OutputPath := GetOutputFolder;
+        OutputPath := GetOutputFolder();
         BindSubscription(TestCustomReports);
         CustomLayoutReporting.SetTestModeWebClient(true);
         CustomLayoutReporting.SetOutputFileBaseName('Test Report');
@@ -509,7 +507,7 @@ codeunit 134761 "Test Custom Reports"
         OutputPath: Text;
     begin
         Initialize();
-        OutputPath := GetOutputFolder;
+        OutputPath := GetOutputFolder();
 
         AllReportsPath := FileManagement.CombinePath(OutputPath, 'AllReports.zip');
         if Exists(AllReportsPath) then
@@ -572,12 +570,12 @@ codeunit 134761 "Test Custom Reports"
         Initialize();
 
         CustomerLocal.Copy(CustomerFullMod);
-        ErrorMessages.Trap;
+        ErrorMessages.Trap();
         CustomerLocal.SetRecFilter();
         asserterror RunStatementReportWithStandardSelection(CustomerLocal, CustomLayoutReporting, TemporaryPath, true, true);
 
         AssertErrorMessageOnPage(
-            ErrorMessages, ErrorMessages.First, StrSubstNo(TargetEmailErr, CustomerLocal.RecordId, ReportSelectionUsage::"C.Statement"));
+            ErrorMessages, ErrorMessages.First(), StrSubstNo(TargetEmailErr, CustomerLocal.RecordId, ReportSelectionUsage::"C.Statement"));
         AssertNoMoreErrorMessageOnPage(ErrorMessages);
     end;
 
@@ -604,7 +602,7 @@ codeunit 134761 "Test Custom Reports"
         OutputPath: Text;
     begin
         Initialize();
-        OutputPath := GetOutputFolder;
+        OutputPath := GetOutputFolder();
 
         RunStatementReportWithStandardSelection(CustomerFullMod, CustomLayoutReporting, OutputPath, false, true);
 
@@ -640,7 +638,7 @@ codeunit 134761 "Test Custom Reports"
         OutputPath: Text;
     begin
         Initialize();
-        OutputPath := GetOutputFolder;
+        OutputPath := GetOutputFolder();
 
         RunStatementReportWithStandardSelection(CustomerFullMod, CustomLayoutReporting, OutputPath, false, false);
 
@@ -671,9 +669,9 @@ codeunit 134761 "Test Custom Reports"
         OutputPath: Text;
     begin
         Initialize();
-        OutputPath := GetOutputFolder;
+        OutputPath := GetOutputFolder();
 
-        SetStandardStatementSelection;
+        SetStandardStatementSelection();
 
         InitializeCustomLayoutReporting(CustomLayoutReporting, OutputPath, false);
 
@@ -685,7 +683,7 @@ codeunit 134761 "Test Custom Reports"
 
         // Assert that request page options are present filled out
         Assert.AreEqual(
-          CustomLayoutReporting.GetOutputOption(REPORT::"Standard Statement"), CustomLayoutReporting.GetPDFOption,
+          CustomLayoutReporting.GetOutputOption(REPORT::"Standard Statement"), CustomLayoutReporting.GetPDFOption(),
           'Output option mismatch, expcted PDF output selection');
 
         // Test other request page items:
@@ -697,7 +695,7 @@ codeunit 134761 "Test Custom Reports"
         OptionText := CustomLayoutReporting.GetOptionValueFromRequestPageForReport(REPORT::"Standard Statement", 'EndDate');
         Assert.AreEqual(Format(CalculatedDate, 0, 9), OptionText, 'Request page: End Date does not match expected value');
 
-        CustomLayoutReporting.ProcessReport;
+        CustomLayoutReporting.ProcessReport();
 
         // Validate that an output file exists
         Assert.IsFalse(FileManagement.IsServerDirectoryEmpty(OutputPath), ExpectedFilesErr);
@@ -723,7 +721,7 @@ codeunit 134761 "Test Custom Reports"
         OutputPath: Text;
     begin
         Initialize();
-        OutputPath := GetOutputFolder;
+        OutputPath := GetOutputFolder();
 
         RunStatementReportWithStandardSelection(CustomerFullMod, CustomLayoutReporting, OutputPath, false, true);
 
@@ -750,7 +748,7 @@ codeunit 134761 "Test Custom Reports"
         OutputPath: Text;
     begin
         Initialize();
-        OutputPath := GetOutputFolder;
+        OutputPath := GetOutputFolder();
 
         RunStatementReport(CustomerFullMod, CustomLayoutReporting, OutputPath, false, true);
 
@@ -768,7 +766,7 @@ codeunit 134761 "Test Custom Reports"
         OutputPath: Text;
     begin
         Initialize();
-        OutputPath := GetOutputFolder;
+        OutputPath := GetOutputFolder();
 
         RunStatementReport(CustomerFullMod, CustomLayoutReporting, OutputPath, false, true);
 
@@ -786,7 +784,7 @@ codeunit 134761 "Test Custom Reports"
         OutputPath: Text;
     begin
         Initialize();
-        OutputPath := GetOutputFolder;
+        OutputPath := GetOutputFolder();
 
         // Ensure that both reports run
         LibraryVariableStorage.Enqueue(GetStartDate());
@@ -809,7 +807,7 @@ codeunit 134761 "Test Custom Reports"
         OutputPath: Text;
     begin
         Initialize();
-        OutputPath := GetOutputFolder;
+        OutputPath := GetOutputFolder();
 
         // Ensure that both reports run
         RunStatementReportWithAllSelection(CustomerFullMod, CustomLayoutReporting, OutputPath, false, true);
@@ -831,7 +829,7 @@ codeunit 134761 "Test Custom Reports"
         OutputPath: Text;
     begin
         Initialize();
-        OutputPath := GetOutputFolder;
+        OutputPath := GetOutputFolder();
 
         // Ensure that both reports run
         RunStatementReportWithAllSelection(CustomerFullMod, CustomLayoutReporting, OutputPath, false, true);
@@ -843,7 +841,7 @@ codeunit 134761 "Test Custom Reports"
         Assert.IsFalse(
           CustomLayoutReporting.HasRequestParameterData(REPORT::Statement), 'Statement report has request parameter data, expected it to not have data.');
         Assert.AreEqual(
-          CustomLayoutReporting.GetOutputOption(REPORT::"Standard Statement"), CustomLayoutReporting.GetPDFOption,
+          CustomLayoutReporting.GetOutputOption(REPORT::"Standard Statement"), CustomLayoutReporting.GetPDFOption(),
           'Expected PDF output option for Standard Statement report.');
         Assert.AreEqual(
           CustomLayoutReporting.GetOutputOption(REPORT::Statement), -1, 'Expected invalid output option for Statement report.');
@@ -862,7 +860,7 @@ codeunit 134761 "Test Custom Reports"
 
         // Validate that the output option is '2' - PDF - set by handler
         Assert.AreEqual(
-          CustomLayoutReporting.GetPDFOption, CustomLayoutReporting.GetOutputOption(REPORT::"Standard Statement"),
+          CustomLayoutReporting.GetPDFOption(), CustomLayoutReporting.GetOutputOption(REPORT::"Standard Statement"),
           'Output option not set to PDF');
     end;
 
@@ -878,9 +876,9 @@ codeunit 134761 "Test Custom Reports"
         // [SCENARIO 376417] Customer Report Selection entries not corrupt when user not validates Usage value on page
         // [GIVEN] Customer Report Selection page opened from Customer Card
         LibrarySales.CreateCustomer(Customer);
-        CustomerCard.Trap;
+        CustomerCard.Trap();
         PAGE.Run(PAGE::"Customer Card", Customer);
-        CustomerCard.CustomerReportSelections.Invoke;
+        CustomerCard.CustomerReportSelections.Invoke();
 
         // [WHEN] Lines with different Usage options are added to Customer Report Selection Page:
         // [WHEN] 1 Quote, 1 Invoice, 1 Order, 2 Credit Memo, 1 Customer Statement
@@ -907,9 +905,9 @@ codeunit 134761 "Test Custom Reports"
         // [SCENARIO 376417] Customer Report Selection entries not corrupt when user fills Report No. and then Usage
         // [GIVEN] Customer Report Selection page opened from Customer Card
         LibrarySales.CreateCustomer(Customer);
-        CustomerCard.Trap;
+        CustomerCard.Trap();
         PAGE.Run(PAGE::"Customer Card", Customer);
-        CustomerCard.CustomerReportSelections.Invoke;
+        CustomerCard.CustomerReportSelections.Invoke();
 
         // [WHEN] Lines with different Usage options are added to Customer Report Selection Page: Quote, Invoice and Credit Memo
         // [THEN] Customer Report Selection table contains all records entered with correct Usage values
@@ -958,7 +956,7 @@ codeunit 134761 "Test Custom Reports"
     begin
         // Setup
         Initialize();
-        OutputPath := GetOutputFolder;
+        OutputPath := GetOutputFolder();
 
         // Execute
         FilterGroup := CustomerFullMod.FilterGroup;
@@ -979,7 +977,7 @@ codeunit 134761 "Test Custom Reports"
         FilterGroup: Integer;
     begin
         Initialize();
-        OutputPath := GetOutputFolder;
+        OutputPath := GetOutputFolder();
         FilterGroup := CustomerFullMod.FilterGroup;
 
         RunStatementReportWithStandardSelection(CustomerFullMod, CustomLayoutReporting, OutputPath, false, false);
@@ -1001,9 +999,9 @@ codeunit 134761 "Test Custom Reports"
         RecRefFilterGroup: Integer;
     begin
         Initialize();
-        OutputPath := GetOutputFolder;
+        OutputPath := GetOutputFolder();
 
-        SetStandardStatementSelection;
+        SetStandardStatementSelection();
 
         InitializeCustomLayoutReporting(CustomLayoutReporting, OutputPath, false);
 
@@ -1017,7 +1015,7 @@ codeunit 134761 "Test Custom Reports"
           "Report Selection Usage"::"C.Statement", CustRecRef, CustomerFullMod.FieldName("No."), DATABASE::Customer,
           CustomerFullMod.FieldName("No."), true);
 
-        CustomLayoutReporting.ProcessReport;
+        CustomLayoutReporting.ProcessReport();
 
         // Validate that the filter group is set back to the original
         Assert.AreEqual(
@@ -1051,7 +1049,7 @@ codeunit 134761 "Test Custom Reports"
 
         // [THEN] There is a total line with caption and amount: "Total GBP Incl. VAT  5000"
         FormatDocument.SetTotalLabels(SalesHeader.GetCurrencySymbol(), TotalText, TotalInclVATText, TotalExclVATText);
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueNotExist('TotalAmountExclInclVATText', TotalExclVATText);
         LibraryReportDataset.MoveToRow(LibraryReportDataset.FindRow('TotalAmountExclInclVATText', TotalInclVATText) + 1);
         LibraryReportDataset.AssertCurrentRowValueEquals('TotalAmountExclInclVAT', SalesLine."Amount Including VAT");
@@ -1081,7 +1079,7 @@ codeunit 134761 "Test Custom Reports"
 
         // [THEN] There is a total line with caption and amount: "Total GBP Excl. VAT  4000"
         FormatDocument.SetTotalLabels(SalesHeader.GetCurrencySymbol(), TotalText, TotalInclVATText, TotalExclVATText);
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.MoveToRow(LibraryReportDataset.FindRow('TotalAmountExclInclVATText', TotalExclVATText) + 1);
         LibraryReportDataset.AssertCurrentRowValueEquals('TotalAmountExclInclVAT', SalesLine.Amount);
         LibraryReportDataset.AssertElementWithValueNotExist('TotalAmountExclInclVATText', TotalExclVATText);
@@ -1163,24 +1161,24 @@ codeunit 134761 "Test Custom Reports"
         OutputPath: Text;
         Lines: Integer;
     begin
-         Initialize();       
-         // [GIVEN] A customer
-         LibrarySales.CreateCustomer(Customer);        
-         // [GIVEN] Two customer ledger entries
-         LineAmount := LibraryRandom.RandDec(99, 2);
-         CreateTwoCustomerLedgerEntries(Customer."No.", LineAmount, LibraryRandom.RandDec(99, 2));        
-         // [GIVEN] One of the corresponding Detailed Cust. Ledg. Entry is marked as "Excluded from calculation"
-         DetailedCustLedgEntry.SetRange("Customer No.", Customer."No.");
-         DetailedCustLedgEntry.FindFirst();
-         DetailedCustLedgEntry."Excluded from calculation" := true;
-         DetailedCustLedgEntry.Modify();
-         // [WHEN] Executing Standard Statement Report
-        SaveStandardStatementAsXML(Customer, OutputPath, 0, CalcDate('<-CM-1M>', GetDate), GetDate, false);
-         // [THEN] Only one line should show on the report
-         LibraryXPathXMLReader.SetDefaultNamespaceUsage(false);
-         LibraryXPathXMLReader.Initialize(OutputPath, '');
-         Lines := LibraryXPathXMLReader.GetNodeListByElementName('//Column[@name=''DocNo_DtldCustLedgEntries'']', XMLNodeList);
-         Assert.AreEqual(1, Lines, 'The report should only show the entry that was not excluded from calculation');
+        Initialize();
+        // [GIVEN] A customer
+        LibrarySales.CreateCustomer(Customer);
+        // [GIVEN] Two customer ledger entries
+        LineAmount := LibraryRandom.RandDec(99, 2);
+        CreateTwoCustomerLedgerEntries(Customer."No.", LineAmount, LibraryRandom.RandDec(99, 2));
+        // [GIVEN] One of the corresponding Detailed Cust. Ledg. Entry is marked as "Excluded from calculation"
+        DetailedCustLedgEntry.SetRange("Customer No.", Customer."No.");
+        DetailedCustLedgEntry.FindFirst();
+        DetailedCustLedgEntry."Excluded from calculation" := true;
+        DetailedCustLedgEntry.Modify();
+        // [WHEN] Executing Standard Statement Report
+        SaveStandardStatementAsXML(Customer, OutputPath, 0, CalcDate('<-CM-1M>', GetDate()), GetDate(), false);
+        // [THEN] Only one line should show on the report
+        LibraryXPathXMLReader.SetDefaultNamespaceUsage(false);
+        LibraryXPathXMLReader.Initialize(OutputPath, '');
+        Lines := LibraryXPathXMLReader.GetNodeListByElementName('//Column[@name=''DocNo_DtldCustLedgEntries'']', XMLNodeList);
+        Assert.AreEqual(1, Lines, 'The report should only show the entry that was not excluded from calculation');
     end;
 
     [Test]
@@ -1206,7 +1204,7 @@ codeunit 134761 "Test Custom Reports"
         CreateTwoCustomerLedgerEntries(Customer."No.", LineAmount, LibraryRandom.RandDec(99, 2));
 
         // [WHEN] Standard Statement Report executed for "CUS" with BeginDate = 01/02/2017, EndDate = 22/02/2017, Aging Band by Due Date.
-        SaveStandardStatementAsXML(Customer, OutputPath, 0, CalcDate('<-CM>', GetDate), GetDate, true);
+        SaveStandardStatementAsXML(Customer, OutputPath, 0, CalcDate('<-CM>', GetDate()), GetDate(), true);
 
         // [THEN] Report Aging amount for the previous month = Entry1.Amount
         VerifyStandardStatementAging(OutputPath, LineAmount, 12);
@@ -1239,7 +1237,7 @@ codeunit 134761 "Test Custom Reports"
         CreateTwoCustomerLedgerEntries(Customer."No.", LineAmount[1], LineAmount[2]);
 
         // [WHEN] Mini Statement Report executed for "CUS" with BeginDate = 01/03/2017, EndDate = 31/03/2017, Aging Band by Due Date.
-        SaveStandardStatementAsXML(Customer, OutputPath, 0, CalcDate('<-CM+1M>', GetDate), CalcDate('<CM+1M>', GetDate), true);
+        SaveStandardStatementAsXML(Customer, OutputPath, 0, CalcDate('<-CM+1M>', GetDate()), CalcDate('<CM+1M>', GetDate()), true);
 
         // [THEN] Report Aging amount for the previous month = Entry1.Amount
         VerifyStandardStatementAging(OutputPath, LineAmount[1], 11);
@@ -1275,7 +1273,7 @@ codeunit 134761 "Test Custom Reports"
         CreateTwoCustomerLedgerEntries(Customer."No.", LineAmount[1], LineAmount[2]);
 
         // [WHEN] Mini Statement Report executed for "CUS" with BeginDate = 01/02/2017, EndDate = 28/02/2017, Aging Band by Posting Date.
-        SaveStandardStatementAsXML(Customer, OutputPath, 1, CalcDate('<-CM>', GetDate), GetDate, true);
+        SaveStandardStatementAsXML(Customer, OutputPath, 1, CalcDate('<-CM>', GetDate()), GetDate(), true);
 
         // [THEN] Report Aging amount for previous month = Entry1."Amount" + Entry2."Amount"
         VerifyStandardStatementAging(OutputPath, LineAmount[1] + LineAmount[2], 12);
@@ -1308,8 +1306,8 @@ codeunit 134761 "Test Custom Reports"
 
         // [WHEN] Statement Report executed for "CUS" with BeginDate = 01/02/2017, EndDate = 22/02/2017, Aging Band by Due Date.
         Commit();
-        SaveStatementAsXML(Customer, 0, CalcDate('<CD-1M>', GetDate), GetDate);
-        LibraryReportDataset.LoadDataSetFile;
+        SaveStatementAsXML(Customer, 0, CalcDate('<CD-1M>', GetDate()), GetDate());
+        LibraryReportDataset.LoadDataSetFile();
 
         // [THEN] Report Aging amount for the previous month = Entry1.Amount
         VerifyStatementAging(LineAmount, 4);
@@ -1343,8 +1341,8 @@ codeunit 134761 "Test Custom Reports"
 
         // [WHEN] Statement Report executed for "CUS" with BeginDate = 01/03/2017, EndDate = 22/03/2017, Aging Band by Due Date.
         Commit();
-        SaveStatementAsXML(Customer, 0, CalcDate('<-CM+1M>', GetDate), CalcDate('<CM+1M>', GetDate));
-        LibraryReportDataset.LoadDataSetFile;
+        SaveStatementAsXML(Customer, 0, CalcDate('<-CM+1M>', GetDate()), CalcDate('<CM+1M>', GetDate()));
+        LibraryReportDataset.LoadDataSetFile();
 
         // [THEN] Report Aging amount for the previous month = Entry1.Amount
         VerifyStatementAging(LineAmount[1], 3);
@@ -1385,8 +1383,8 @@ codeunit 134761 "Test Custom Reports"
 
         // [WHEN] Statement Report executed for "CUS" with BeginDate = 01/02/2017, EndDate = 28/02/2017, Aging Band by Posting Date.
         Commit();
-        SaveStatementAsXML(Customer, 1, CalcDate('<-CM>', GetDate), GetDate);
-        LibraryReportDataset.LoadDataSetFile;
+        SaveStatementAsXML(Customer, 1, CalcDate('<-CM>', GetDate()), GetDate());
+        LibraryReportDataset.LoadDataSetFile();
 
         // [THEN] Report Aging amount for the previous month = Entry1.Amount + Entry2.Amount
         VerifyStatementAging(LineAmount[1] + LineAmount[2], 4);
@@ -1414,15 +1412,15 @@ codeunit 134761 "Test Custom Reports"
 
         // [WHEN] Run "Statement" (SaveAs PDF) report filtered by customer "No." = "X" (not existing one customer)
         Customer.SetRange("No.", LibraryUtility.GenerateGUID());
-        ErrorMessages.Trap;
+        ErrorMessages.Trap();
         asserterror RunCustomerStatement(Customer, CustomLayoutReporting, TemporaryPath, false, true, WorkDate());
 
         // [THEN] An error has been thrown: "No data was returned for the report using the selected data filters."
-        AssertErrorMessageOnPage(ErrorMessages, ErrorMessages.First, NoOutputErr);
+        AssertErrorMessageOnPage(ErrorMessages, ErrorMessages.First(), NoOutputErr);
         AssertNoMoreErrorMessageOnPage(ErrorMessages);
 
         // Tear Down
-        InitReportSelections;
+        InitReportSelections();
     end;
 
     [Test]
@@ -1444,15 +1442,15 @@ codeunit 134761 "Test Custom Reports"
 
         // [WHEN] Run "Statement" (SaveAs PDF) report filtered by customer "No." = "X" (not existing one customer)
         Customer.SetRange("No.", LibraryUtility.GenerateGUID());
-        ErrorMessages.Trap;
+        ErrorMessages.Trap();
         asserterror RunCustomerStatement(Customer, CustomLayoutReporting, TemporaryPath, false, true, WorkDate());
 
         // [THEN] An error has been thrown: "No data was returned for the report using the selected data filters."
-        AssertErrorMessageOnPage(ErrorMessages, ErrorMessages.First, NoOutputErr);
+        AssertErrorMessageOnPage(ErrorMessages, ErrorMessages.First(), NoOutputErr);
         AssertNoMoreErrorMessageOnPage(ErrorMessages);
 
         // Tear Down
-        InitReportSelections;
+        InitReportSelections();
     end;
 
     [Test]
@@ -1479,7 +1477,7 @@ codeunit 134761 "Test Custom Reports"
         // StatementPDFHandler
 
         // Tear Down
-        InitReportSelections;
+        InitReportSelections();
     end;
 
     [Test]
@@ -1506,7 +1504,7 @@ codeunit 134761 "Test Custom Reports"
         // StandardStatementPDFHandler
 
         // Tear Down
-        InitReportSelections;
+        InitReportSelections();
     end;
 
     [Test]
@@ -1527,17 +1525,17 @@ codeunit 134761 "Test Custom Reports"
         LibraryERM.SetupReportSelection("Report Selection Usage"::"C.Statement", REPORT::Statement);
 
         // [WHEN] Run "Statement" (SaveAs PDF) report with blanked "Start Date"
-        Customer.SetRange("No.", LibrarySales.CreateCustomerNo);
-        ErrorMessages.Trap;
+        Customer.SetRange("No.", LibrarySales.CreateCustomerNo());
+        ErrorMessages.Trap();
         asserterror RunCustomerStatement(Customer, CustomLayoutReporting, TemporaryPath, false, true, 0D);
 
         // [THEN] An error has been thrown: "Start Date must have a value."
-        AssertErrorMessageOnPage(ErrorMessages, ErrorMessages.First, BlankStartDateErr);
-        AssertErrorMessageOnPage(ErrorMessages, ErrorMessages.Next, NoOutputErr);
+        AssertErrorMessageOnPage(ErrorMessages, ErrorMessages.First(), BlankStartDateErr);
+        AssertErrorMessageOnPage(ErrorMessages, ErrorMessages.Next(), NoOutputErr);
         AssertNoMoreErrorMessageOnPage(ErrorMessages);
 
         // Tear Down
-        InitReportSelections;
+        InitReportSelections();
     end;
 
     [Test]
@@ -1558,17 +1556,17 @@ codeunit 134761 "Test Custom Reports"
         LibraryERM.SetupReportSelection("Report Selection Usage"::"C.Statement", REPORT::"Standard Statement");
 
         // [WHEN] Run "Statement" (SaveAs PDF) report with blanked "Start Date"
-        Customer.SetRange("No.", LibrarySales.CreateCustomerNo);
-        ErrorMessages.Trap;
+        Customer.SetRange("No.", LibrarySales.CreateCustomerNo());
+        ErrorMessages.Trap();
         asserterror RunCustomerStatement(Customer, CustomLayoutReporting, TemporaryPath, false, true, 0D);
 
         // [THEN] An error has been thrown: "Start Date must have a value."
-        AssertErrorMessageOnPage(ErrorMessages, ErrorMessages.First, BlankStartDateErr);
-        AssertErrorMessageOnPage(ErrorMessages, ErrorMessages.Next, NoOutputErr);
+        AssertErrorMessageOnPage(ErrorMessages, ErrorMessages.First(), BlankStartDateErr);
+        AssertErrorMessageOnPage(ErrorMessages, ErrorMessages.Next(), NoOutputErr);
         AssertNoMoreErrorMessageOnPage(ErrorMessages);
 
         // Tear Down
-        InitReportSelections;
+        InitReportSelections();
     end;
 
     [Test]
@@ -1595,10 +1593,10 @@ codeunit 134761 "Test Custom Reports"
         InsertCustLedgerEntry(Customer."No.", LibraryRandom.RandDec(1000, 2), WorkDate(), WorkDate());
         Customer.SetRecFilter();
         LibraryVariableStorage.Enqueue(WorkDate());
-        ErrorMessages.Trap;
+        ErrorMessages.Trap();
         asserterror RunCustomerStatement(Customer, CustomLayoutReporting, TemporaryPath, false, true, 0D);
 
-        AssertErrorMessageOnPage(ErrorMessages, ErrorMessages.First, BlankStartDateErr);
+        AssertErrorMessageOnPage(ErrorMessages, ErrorMessages.First(), BlankStartDateErr);
         AssertNoMoreErrorMessageOnPage(ErrorMessages);
 
         // [THEN] There is no error (blanked "Start Date" doesn't stop packet reporting) and PDF file has been created
@@ -1650,7 +1648,6 @@ codeunit 134761 "Test Custom Reports"
     var
         CustomReportSelection: Record "Custom Report Selection";
         CustomReportLayout: Record "Custom Report Layout";
-        DocumentReportMgt: Codeunit "Document Report Mgt.";
         ReportId: array[2] of Integer;
         LayoutCode: Code[20];
     begin
@@ -2068,7 +2065,7 @@ codeunit 134761 "Test Custom Reports"
         Assert.AreEqual(VendorNoFilter, TempVendor.GetFilter("No."), '');
 
         // Tear down
-        InitReportSelections;
+        InitReportSelections();
     end;
 
     [Test]
@@ -2313,7 +2310,7 @@ codeunit 134761 "Test Custom Reports"
         RunStandardSalesInvoice(LibrarySales.PostSalesDocument(SalesHeader, true, true));
 
         // [THEN] There is "If we receive the payment before %1, you are eligible for a %2% payment discount." in PmtDiscText
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(
           'PmtDiscText', StrSubstNo(PmtDiscTxt, WorkDate(), SalesHeader."Payment Discount %"));
     end;
@@ -2341,7 +2338,7 @@ codeunit 134761 "Test Custom Reports"
         REPORT.Run(REPORT::"Standard Sales - Order Conf.", true, false, SalesHeader);
 
         // [THEN] There is "If we receive the payment before %1, you are eligible for a %2% payment discount." in PmtDiscText
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(
           'PmtDiscText', StrSubstNo(PmtDiscTxt, WorkDate(), SalesHeader."Payment Discount %"));
     end;
@@ -2358,7 +2355,7 @@ codeunit 134761 "Test Custom Reports"
         Initialize();
 
         // [GIVEN] Posted Salse Quote with "Pmt. Discount Date" and "Payment Discount %"
-        LibrarySales.CreateSalesQuoteForCustomerNo(SalesHeader, LibrarySales.CreateCustomerNo);
+        LibrarySales.CreateSalesQuoteForCustomerNo(SalesHeader, LibrarySales.CreateCustomerNo());
         SalesHeader."Pmt. Discount Date" := WorkDate();
         SalesHeader."Payment Discount %" := LibraryRandom.RandIntInRange(3, 5);
         SalesHeader.Modify();
@@ -2369,7 +2366,7 @@ codeunit 134761 "Test Custom Reports"
         REPORT.Run(REPORT::"Standard Sales - Quote", true, false, SalesHeader);
 
         // [THEN] There is "If we receive the payment before %1, you are eligible for a %2% payment discount." in PmtDiscText
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(
           'PmtDiscText', StrSubstNo(PmtDiscTxt, WorkDate(), SalesHeader."Payment Discount %"));
     end;
@@ -2612,7 +2609,7 @@ codeunit 134761 "Test Custom Reports"
 
     local procedure AddNewCustomerReportSelection(var CustomerReportSelections: TestPage "Customer Report Selections"; Usage: Option; ReportId: Integer)
     begin
-        CustomerReportSelections.New;
+        CustomerReportSelections.New();
         CustomerReportSelections.ReportID.SetValue(ReportId);
         CustomerReportSelections.Usage2.SetValue(Usage);
     end;
@@ -2646,10 +2643,10 @@ codeunit 134761 "Test Custom Reports"
 
     local procedure CreateSalesInvoice(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; PricesIncludingVAT: Boolean)
     begin
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo());
         SalesHeader.Validate("Prices Including VAT", PricesIncludingVAT);
         SalesHeader.Modify(true);
-        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo, 1);
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo(), 1);
         SalesLine.Validate("Unit Price", LibraryRandom.RandDecInRange(1000, 2000, 2));
         SalesLine.Modify(true);
     end;
@@ -2657,9 +2654,9 @@ codeunit 134761 "Test Custom Reports"
     local procedure CreateTwoCustomerLedgerEntries(CustomerNo: Code[20]; Amount1: Decimal; Amount2: Decimal)
     begin
         InsertCustLedgerEntry(
-          CustomerNo, Amount1, CalcDate('<-CM-1M+1W>', GetDate), CalcDate('<-CM-1M+3W>', GetDate));
+          CustomerNo, Amount1, CalcDate('<-CM-1M+1W>', GetDate()), CalcDate('<-CM-1M+3W>', GetDate()));
         InsertCustLedgerEntry(
-          CustomerNo, Amount2, CalcDate('<-CM-1M+3W>', GetDate), GetDate);
+          CustomerNo, Amount2, CalcDate('<-CM-1M+3W>', GetDate()), GetDate());
     end;
 
     local procedure PrintCustomReportSelectionFullMod(SalesHeader: Record "Sales Header"; ExpectedReportID: Integer; ReportUsage: Enum "Report Selection Usage")
@@ -2803,7 +2800,7 @@ codeunit 134761 "Test Custom Reports"
     [Scope('OnPrem')]
     procedure StandardStatementSetRequestOptions(var RequestPage: TestRequestPage "Standard Statement")
     begin
-        RequestPage."Start Date".SetValue(LibraryVariableStorage.DequeueDate);
+        RequestPage."Start Date".SetValue(LibraryVariableStorage.DequeueDate());
         RequestPage."End Date".SetValue(CalcDate('<CD+5Y>'));
         RequestPage.IncludeAgingBand.SetValue(true);
         RequestPage.ShowOverdueEntries.SetValue(true);
@@ -2846,13 +2843,13 @@ codeunit 134761 "Test Custom Reports"
 
     local procedure RunStatementReport(var Customer: Record Customer; var CustomLayoutReporting: Codeunit "Custom Layout Reporting"; SavePath: Text; SuppressOutput: Boolean; UseSameIterator: Boolean)
     begin
-        SetStatementSelection;
+        SetStatementSelection();
         RunCustomerStatement(Customer, CustomLayoutReporting, SavePath, SuppressOutput, UseSameIterator, GetStartDate());
     end;
 
     local procedure RunStatementReportWithStandardSelection(var Customer: Record Customer; var CustomLayoutReporting: Codeunit "Custom Layout Reporting"; SavePath: Text; SuppressOutput: Boolean; UseSameIterator: Boolean)
     begin
-        SetStandardStatementSelection;
+        SetStandardStatementSelection();
         RunCustomerStatement(Customer, CustomLayoutReporting, SavePath, SuppressOutput, UseSameIterator, GetStartDate());
     end;
 
@@ -2893,7 +2890,7 @@ codeunit 134761 "Test Custom Reports"
     var
         Path: Text;
     begin
-        Path := StrSubstNo('%1\%2', TemporaryPath, GetNextTempFolder);
+        Path := StrSubstNo('%1\%2', TemporaryPath, GetNextTempFolder());
         if Exists(Path) then
             Erase(Path);
         exit(Path);
@@ -2978,7 +2975,7 @@ codeunit 134761 "Test Custom Reports"
     var
         Row: Integer;
     begin
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         Row := LibraryReportDataset.FindRow(DescriptionReportTotalsLineTxt, SubtotalTxt) + 1;
         VerifyStdSalesInvoiceReportTotalsLine(Row, SubtotalTxt, SalesLine."Line Amount");
         VerifyStdSalesInvoiceReportTotalsLine(Row + 1, InvoiceDiscountTxt, -SalesLine."Inv. Discount Amount");
@@ -3000,7 +2997,7 @@ codeunit 134761 "Test Custom Reports"
         StandardStatement: Report "Standard Statement";
         FileManagement: Codeunit "File Management";
     begin
-        OutputPath := FileManagement.CombinePath(TemporaryPath, LibraryUtility.GenerateGUID + '.xml');
+        OutputPath := FileManagement.CombinePath(TemporaryPath, LibraryUtility.GenerateGUID() + '.xml');
         Clear(StandardStatement);
         StandardStatement.SetTableView(Customer);
         StandardStatement.InitializeRequest(
@@ -3108,56 +3105,56 @@ codeunit 134761 "Test Custom Reports"
         ExpectedCustomLayoutReportID: Text;
         RowFound: Boolean;
     begin
-        ExpectedCustomLayoutReportID := LibraryVariableStorage.DequeueText;
-        ExpectedCustomLayoutDescription := LibraryVariableStorage.DequeueText;
+        ExpectedCustomLayoutReportID := LibraryVariableStorage.DequeueText();
+        ExpectedCustomLayoutDescription := LibraryVariableStorage.DequeueText();
 
-        CustomReportLayouts.Last;
+        CustomReportLayouts.Last();
 
         repeat
             if (CustomReportLayouts.Description.Value = ExpectedCustomLayoutDescription) and
                (CustomReportLayouts."Report ID".Value = ExpectedCustomLayoutReportID)
             then
                 RowFound := true;
-        until (not CustomReportLayouts.Previous) or RowFound;
+        until (not CustomReportLayouts.Previous()) or RowFound;
 
         CustomReportLayouts.Next();
         Assert.IsTrue(RowFound, StrSubstNo('Could not find %1 on Custom Report Layouts page', ExpectedCustomLayoutDescription));
-        CustomReportLayouts.OK.Invoke;
+        CustomReportLayouts.OK().Invoke();
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure StandardQuoteReportRequestPageHandler(var StandardSalesQuote: TestRequestPage "Standard Sales - Quote")
     begin
-        StandardSalesQuote.Cancel.Invoke;
+        StandardSalesQuote.Cancel().Invoke();
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure OrderReportRequestPageHandler(var StandardSalesOrderConf: TestRequestPage "Standard Sales - Order Conf.")
     begin
-        StandardSalesOrderConf.Cancel.Invoke;
+        StandardSalesOrderConf.Cancel().Invoke();
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure InvoiceReportRequestPageHandler(var StandardSalesInvoice: TestRequestPage "Standard Sales - Invoice")
     begin
-        StandardSalesInvoice.Cancel.Invoke;
+        StandardSalesInvoice.Cancel().Invoke();
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure StandardSalesInvoice_SaveAsXML_RPH(var StandardSalesInvoice: TestRequestPage "Standard Sales - Invoice")
     begin
-        StandardSalesInvoice.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        StandardSalesInvoice.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure CreditMemoReportRequestPageHandler(var StandardSalesCreditMemo: TestRequestPage "Standard Sales - Credit Memo")
     begin
-        StandardSalesCreditMemo.Cancel.Invoke;
+        StandardSalesCreditMemo.Cancel().Invoke();
     end;
 
     [RequestPageHandler]
@@ -3168,7 +3165,7 @@ codeunit 134761 "Test Custom Reports"
 
         RequestPage.IncludeAllCustomerswithBalance.SetValue(false);
         RequestPage.ReportOutput.SetValue('Print');
-        RequestPage.OK.Invoke;
+        RequestPage.OK().Invoke();
     end;
 
     [RequestPageHandler]
@@ -3179,7 +3176,7 @@ codeunit 134761 "Test Custom Reports"
 
         RequestPage.IncludeAllCustomerswithBalance.SetValue(false);
         RequestPage.ReportOutput.SetValue('Preview');
-        RequestPage.OK.Invoke;
+        RequestPage.OK().Invoke();
     end;
 
     [RequestPageHandler]
@@ -3191,7 +3188,7 @@ codeunit 134761 "Test Custom Reports"
         RequestPage.ReportOutput.SetValue('Email');
         RequestPage.PrintMissingAddresses.SetValue(false);
         RequestPage.ShowOverdueEntries.SetValue(false);
-        RequestPage.OK.Invoke;
+        RequestPage.OK().Invoke();
     end;
 
     [RequestPageHandler]
@@ -3203,7 +3200,7 @@ codeunit 134761 "Test Custom Reports"
         RequestPage.ReportOutput.SetValue('Email');
         RequestPage.PrintMissingAddresses.SetValue(true);
         RequestPage.IncludeAllCustomerswithLE.SetValue(false);
-        RequestPage.OK.Invoke;
+        RequestPage.OK().Invoke();
     end;
 
     [RequestPageHandler]
@@ -3214,7 +3211,7 @@ codeunit 134761 "Test Custom Reports"
 
         RequestPage.IncludeUnappliedEntries.SetValue(false);
         RequestPage.ReportOutput.SetValue('PDF');
-        RequestPage.OK.Invoke;
+        RequestPage.OK().Invoke();
     end;
 
     [RequestPageHandler]
@@ -3225,7 +3222,7 @@ codeunit 134761 "Test Custom Reports"
 
         RequestPage.IncludeUnappliedEntries.SetValue(false);
         RequestPage.ReportOutput.SetValue('Word');
-        RequestPage.OK.Invoke;
+        RequestPage.OK().Invoke();
     end;
 
     [RequestPageHandler]
@@ -3244,14 +3241,14 @@ codeunit 134761 "Test Custom Reports"
 
         RequestPage.IncludeUnappliedEntries.SetValue(false);
         RequestPage.ReportOutput.SetValue('XML');
-        RequestPage.OK.Invoke;
+        RequestPage.OK().Invoke();
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure StatementXMLToFileHandler(var Statement: TestRequestPage Statement)
     begin
-        Statement.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        Statement.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -3270,7 +3267,7 @@ codeunit 134761 "Test Custom Reports"
 
         RequestPage.IncludeUnappliedEntries.SetValue(false);
         RequestPage.ReportOutput.SetValue('Excel');
-        RequestPage.OK.Invoke;
+        RequestPage.OK().Invoke();
     end;
 
     [RequestPageHandler]
@@ -3289,7 +3286,7 @@ codeunit 134761 "Test Custom Reports"
 
         RequestPage.IncludeUnappliedEntries.SetValue(false);
         RequestPage.ReportOutput.SetValue('Print');
-        RequestPage.OK.Invoke;
+        RequestPage.OK().Invoke();
     end;
 
     [RequestPageHandler]
@@ -3297,7 +3294,7 @@ codeunit 134761 "Test Custom Reports"
     procedure StatementPDFHandler(var RequestPage: TestRequestPage Statement)
     begin
         // This page should look almost identical to the mini statement page
-        RequestPage."Start Date".SetValue(LibraryVariableStorage.DequeueDate);
+        RequestPage."Start Date".SetValue(LibraryVariableStorage.DequeueDate());
         RequestPage."End Date".SetValue(CalcDate('<CD+5Y>'));
         RequestPage.IncludeAgingBand.SetValue(true);
         RequestPage.ShowOverdueEntries.SetValue(true);
@@ -3309,7 +3306,7 @@ codeunit 134761 "Test Custom Reports"
         RequestPage.IncludeUnappliedEntries.SetValue(false);
         RequestPage.ReportOutput.SetValue('PDF');
         RequestPage.Customer.SetFilter("No.", ''); // reset saved page filter values
-        RequestPage.OK.Invoke;
+        RequestPage.OK().Invoke();
     end;
 
     [RequestPageHandler]
@@ -3328,14 +3325,14 @@ codeunit 134761 "Test Custom Reports"
 
         RequestPage.IncludeUnappliedEntries.SetValue(false);
         RequestPage.ReportOutput.SetValue('PDF');
-        RequestPage.Cancel.Invoke;
+        RequestPage.Cancel().Invoke();
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure PurchaseInvoiceCancelRequestPageHandler(var PurchaseInvoice: TestRequestPage "Purchase - Invoice")
     begin
-        PurchaseInvoice.Cancel.Invoke;
+        PurchaseInvoice.Cancel().Invoke();
     end;
 
     [ReportHandler]
@@ -3369,7 +3366,7 @@ codeunit 134761 "Test Custom Reports"
     [Scope('OnPrem')]
     procedure CustomerReportSelectionInsertFromRepordIdHandler(var CustomerReportSelections: TestPage "Customer Report Selections")
     begin
-        CustomerReportSelections.New;
+        CustomerReportSelections.New();
         CustomerReportSelections.Usage2.SetValue(Usage::Quote);
         CustomerReportSelections.ReportID.SetValue(REPORT::"G/L Register");
         AddNewCustomerReportSelection(CustomerReportSelections, Usage::Invoice, REPORT::"G/L Register");
@@ -3382,17 +3379,17 @@ codeunit 134761 "Test Custom Reports"
     var
         ExpectedCustomReportLayout: Record "Custom Report Layout";
     begin
-        ExpectedCustomReportLayout.Get(LibraryVariableStorage.DequeueText);
+        ExpectedCustomReportLayout.Get(LibraryVariableStorage.DequeueText());
 
-        CustomerReportSelections.New;
+        CustomerReportSelections.New();
         CustomerReportSelections.Usage2.SetValue(2);
         CustomerReportSelections.ReportID.SetValue(REPORT::"Standard Sales - Invoice");
 
         LibraryVariableStorage.Enqueue(ExpectedCustomReportLayout."Report ID");
         LibraryVariableStorage.Enqueue(ExpectedCustomReportLayout.Description);
-        CustomerReportSelections."Custom Report Description".Lookup;
+        CustomerReportSelections."Custom Report Description".Lookup();
 
-        CustomerReportSelections.OK.Invoke;
+        CustomerReportSelections.OK().Invoke();
 
         CustomReportSelection.SetCurrentKey("Source Type", "Source No.", Usage, Sequence);
         CustomReportSelection.SetRange("Source Type", DATABASE::Customer);
@@ -3408,14 +3405,14 @@ codeunit 134761 "Test Custom Reports"
     [Scope('OnPrem')]
     procedure StandardQuoteReporXMLtRequestPageHandler(var StandardSalesQuote: TestRequestPage "Standard Sales - Quote")
     begin
-        StandardSalesQuote.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        StandardSalesQuote.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure OrderReporXMLtRequestPageHandler(var StandardSalesOrderConf: TestRequestPage "Standard Sales - Order Conf.")
     begin
-        StandardSalesOrderConf.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        StandardSalesOrderConf.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Custom Layout Reporting", 'OnIsTestMode', '', false, false)]

@@ -50,14 +50,12 @@ codeunit 144037 "ERM CORRINV-AUTOINV"
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryRandom: Codeunit "Library - Random";
         CorrectInvcNoPurchCrMemoHeaderCap: Label 'CorrectInvcNo_PurchCrMemoHeader';
-        CorrInvNoSalesCrMemoHeaderCap: Label 'CorrInvNo_SalesCrMemoHeader';
         CorrectInvNoServCrMemoHdrCap: Label 'CorrectInvNo_ServCrMemoHdr';
         FieldsAreNotEqualMsg: Label 'Actual value %2 is not equal to the expected value, which is %1.';
         PurchCrMemoHeaderCopyCap: Label 'PurchCrMemoHeaderCopyText';
         PurchaseCorrectiveInvoiceTxt: Label 'Purchase - Corrective invoice ';
         PurchCrMemoHdrNoCap: Label 'Purch__Cr__Memo_Hdr__No_';
         PurchCrMemoLineQuantityCap: Label 'Purch__Cr__Memo_Line_Quantity';
-        SalesCorrectiveInvCopyCap: Label 'SalesCorrectiveInvCopy';
         SalesCorrectiveInvoiceTxt: Label 'Sales - Corrective invoice ';
         SalesCorrectInvCopyCap: Label 'SalesCorrectInvCopyText';
         VATAmountLineVATECBaseCap: Label 'VATAmountLine__VAT_EC_Base_';
@@ -80,7 +78,7 @@ codeunit 144037 "ERM CORRINV-AUTOINV"
         Initialize();
 
         // Exercise: Create Vendor, create and post Purchase Invoice and Purchase Return Order.
-        DocumentNo := CreateAndPostMultiplePurchaseDocument;
+        DocumentNo := CreateAndPostMultiplePurchaseDocument();
         LibraryVariableStorage.Dequeue(DocumentNo2);
 
         // Verify: Verify Corrected Invoice No. on Posted Purchase Credit Memo.
@@ -99,7 +97,7 @@ codeunit 144037 "ERM CORRINV-AUTOINV"
 
         // Setup: Create Vendor, create and post Purchase Invoice and Purchase Return Order.
         Initialize();
-        DocumentNo := CreateAndPostMultiplePurchaseDocument;
+        DocumentNo := CreateAndPostMultiplePurchaseDocument();
 
         // Exercise.
         REPORT.Run(REPORT::"Purchase - Credit Memo");  // Open PurchaseCreditMemoRequestPageHandler.
@@ -128,7 +126,7 @@ codeunit 144037 "ERM CORRINV-AUTOINV"
         LibraryVariableStorage.Enqueue(SalesCrMemoHeader."No.");
 
         // Exercise: Run Report Make 340 Declaration.
-        ExportedFileName := RunMake340DeclarationReportSaveTxt;
+        ExportedFileName := RunMake340DeclarationReportSaveTxt();
 
         // Verify: Verify Corrected Invoice Identification in the exported text file.
         VerifyFieldRecordType(326, ExportedFileName, SalesCrMemoHeader."Corrected Invoice No.");  // 326 - Starting Position.
@@ -152,14 +150,14 @@ codeunit 144037 "ERM CORRINV-AUTOINV"
         Initialize();
         CreateServiceDocument(
           ServiceLine, ServiceHeader."Document Type"::"Credit Memo",
-          ServiceLine.Type::Item, CreateCustomer, LibraryInventory.CreateItem(Item));
+          ServiceLine.Type::Item, CreateCustomer(), LibraryInventory.CreateItem(Item));
         PostServiceDocument(ServiceLine."Document Type"::"Credit Memo", ServiceLine."Document No.");
         ServiceCrMemoHeader.Get(FindServiceCrMemoHeader(ServiceLine."Customer No."));
         LibraryVariableStorage.Enqueue(ServiceCrMemoHeader."No.");
         OperationDate := GetDateAsNumber(ServiceCrMemoHeader."Posting Date");
 
         // Exercise: Run Report Make 340 Declaration.
-        ExportedFileName := RunMake340DeclarationReportSaveTxt;
+        ExportedFileName := RunMake340DeclarationReportSaveTxt();
 
         // Verify: Verify Operation Date in the exported text file.
         VerifyFieldRecordType(109, ExportedFileName, OperationDate);  // 109 - Starting Position.
@@ -176,8 +174,8 @@ codeunit 144037 "ERM CORRINV-AUTOINV"
 
         // Setup: Create and Post Service Invoice, create Service Credit Memo, update Posted Service Invoice as Corrective Invoice and Post Service Credit Memo.
         Initialize();
-        CustomerNo := CreateAndPostMultipleServiceDocument;
-        PostedServiceCreditMemos.Trap;
+        CustomerNo := CreateAndPostMultipleServiceDocument();
+        PostedServiceCreditMemos.Trap();
 
         // Exercise: Find Corrective Invoices on Posted Service Invoice.
         InvokePagePostedServiceCreditMemos(CustomerNo);
@@ -199,7 +197,7 @@ codeunit 144037 "ERM CORRINV-AUTOINV"
 
         // Setup: Create and Post Service Invoice, create Service Credit Memo, update Posted Service Invoice as Corrective Invoice and Post Service Credit Memo.
         Initialize();
-        CustomerNo := CreateAndPostMultipleServiceDocument;
+        CustomerNo := CreateAndPostMultipleServiceDocument();
         ServiceInvoiceHeader.Get(FindServiceInvoiceHeader(CustomerNo));
 
         // Exercise.
@@ -223,12 +221,12 @@ codeunit 144037 "ERM CORRINV-AUTOINV"
 
         // Setup: Create and Post Service Invoice, create Service Credit Memo, update Posted Service Invoice as Corrective Invoice and Post Service Credit Memo.
         Initialize();
-        CustomerNo := CreateAndPostMultipleServiceDocument;
+        CustomerNo := CreateAndPostMultipleServiceDocument();
         ServiceCrMemoHeader.Get(FindServiceCrMemoHeader(CustomerNo));
         LibraryVariableStorage.Enqueue(ServiceCrMemoHeader."No.");
 
         // Exercise: Run Report Make 340 Declaration.
-        ExportedFileName := RunMake340DeclarationReportSaveTxt;
+        ExportedFileName := RunMake340DeclarationReportSaveTxt();
 
         // Verify: Verify Corrected Invoice Identification in the exported text file.
         VerifyFieldRecordType(326, ExportedFileName, ServiceCrMemoHeader."Corrected Invoice No.");  // 326 - Starting Position.
@@ -251,8 +249,8 @@ codeunit 144037 "ERM CORRINV-AUTOINV"
         Initialize();
         LibrarySales.CreateCustomer(Customer);
         LibrarySales.CreateSalesHeader(SalesHeader, SalesLine."Document Type"::Invoice, Customer."No.");
-        CreateAndUpdateSalesLine(SalesLine, SalesHeader, SalesLine.Type::"G/L Account", CreateGLAccount);
-        CreateAndUpdateSalesLine(SalesLine2, SalesHeader, SalesLine.Type::"G/L Account", CreateGLAccount);
+        CreateAndUpdateSalesLine(SalesLine, SalesHeader, SalesLine.Type::"G/L Account", CreateGLAccount());
+        CreateAndUpdateSalesLine(SalesLine2, SalesHeader, SalesLine.Type::"G/L Account", CreateGLAccount());
         DocumentNo := PostSalesDocument(SalesHeader."Document Type", SalesHeader."No.");
         LibraryVariableStorage.Enqueue(DocumentNo);
 
@@ -260,7 +258,7 @@ codeunit 144037 "ERM CORRINV-AUTOINV"
         REPORT.Run(REPORT::"Sales Invoice Book");  // Open SalesInvoiceBookRequestPageHandler.
 
         // Verify: Verify Sales Invoice Book report values.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(VATEntryDocumentNoCap, DocumentNo);
         LibraryReportDataset.AssertElementWithValueExists(VATBufferBaseCap, (SalesLine.Amount + SalesLine2.Amount));
         LibraryReportDataset.AssertElementWithValueExists(VATBufferVATCap, SalesLine."VAT %");
@@ -295,7 +293,7 @@ codeunit 144037 "ERM CORRINV-AUTOINV"
         REPORT.Run(REPORT::"Purchases - AutoCredit Memo");  // Open PurchaseAutoCreditMemoRequestPageHandler.
 
         // Verify: Verify Purchase - AutoCredit Memo report values.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(PurchCrMemoHdrNoCap, DocumentNo);
         LibraryReportDataset.AssertElementWithValueExists(PurchCrMemoLineQuantityCap, PurchaseLine.Quantity);
         LibraryReportDataset.AssertElementWithValueExists(PurchCrMemoLineQuantityCap, PurchaseLine2.Quantity);
@@ -314,7 +312,7 @@ codeunit 144037 "ERM CORRINV-AUTOINV"
         ServiceLine: Record "Service Line";
     begin
         CreateServiceDocument(
-          ServiceLine, ServiceLine."Document Type"::Invoice, ServiceLine.Type::Item, CreateCustomer, LibraryInventory.CreateItem(Item));
+          ServiceLine, ServiceLine."Document Type"::Invoice, ServiceLine.Type::Item, CreateCustomer(), LibraryInventory.CreateItem(Item));
         PostServiceDocument(ServiceLine."Document Type", ServiceLine."Document No.");
         CreateServiceDocument(
           ServiceLine, ServiceHeader."Document Type"::"Credit Memo", ServiceLine.Type::Item, ServiceLine."Customer No.", ServiceLine."No.");
@@ -491,9 +489,9 @@ codeunit 144037 "ERM CORRINV-AUTOINV"
     var
         PostedServiceInvoice: TestPage "Posted Service Invoice";
     begin
-        PostedServiceInvoice.OpenEdit;
+        PostedServiceInvoice.OpenEdit();
         PostedServiceInvoice.FILTER.SetFilter("Customer No.", CustomerNo);
-        PostedServiceInvoice.FindCorrectiveInvoices.Invoke;
+        PostedServiceInvoice.FindCorrectiveInvoices.Invoke();
     end;
 
     local procedure FindSalesCrMemoHeader(var SalesCrMemoHeader: Record "Sales Cr.Memo Header"; DocumentNo: Code[20])
@@ -586,7 +584,7 @@ codeunit 144037 "ERM CORRINV-AUTOINV"
 
     local procedure VerifyDocumentNoAndCorrectiveInvoice(DocumentNoTxt: Text; CorrectiveInvoiceTxt: Text; DocumentNo: Variant; CorrectiveInvoice: Variant)
     begin
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(DocumentNoTxt, DocumentNo);
         LibraryReportDataset.AssertElementWithValueExists(CorrectiveInvoiceTxt, StrSubstNo(CorrectiveInvoice));
     end;
@@ -609,21 +607,21 @@ codeunit 144037 "ERM CORRINV-AUTOINV"
     begin
         LibraryVariableStorage.Dequeue(DocumentNo);
         Make340Declaration.VATEntry.SetFilter("Document No.", DocumentNo);
-        Make340Declaration.OK.Invoke;
+        Make340Declaration.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure Declaration340LinesPageHandler(var Declaration340Lines: TestPage "340 Declaration Lines")
     begin
-        Declaration340Lines.OK.Invoke;
+        Declaration340Lines.OK().Invoke();
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure PurchaseCreditMemoRequestPageHandler(var PurchaseCreditMemo: TestRequestPage "Purchase - Credit Memo")
     begin
-        PurchaseCreditMemo.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        PurchaseCreditMemo.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -633,7 +631,7 @@ codeunit 144037 "ERM CORRINV-AUTOINV"
         DocumentNo: Variant;
     begin
         LibraryVariableStorage.Dequeue(DocumentNo);
-        PurchasesAutoCreditMemo.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        PurchasesAutoCreditMemo.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -645,14 +643,14 @@ codeunit 144037 "ERM CORRINV-AUTOINV"
         LibraryVariableStorage.Dequeue(DocumentNo);
         SalesInvoiceBook.VATEntry.SetFilter("Document No.", DocumentNo);
         SalesInvoiceBook.ShowAutoInvoicesAutoCrMemo.SetValue(true);
-        SalesInvoiceBook.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        SalesInvoiceBook.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure ServiceCreditMemoRequestPageHandler(var ServiceCreditMemo: TestRequestPage "Service - Credit Memo")
     begin
-        ServiceCreditMemo.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        ServiceCreditMemo.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [MessageHandler]

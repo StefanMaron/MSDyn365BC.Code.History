@@ -5,6 +5,7 @@
 namespace Microsoft.Finance.ReceivablesPayables;
 
 using Microsoft.Foundation.Period;
+using Microsoft.Foundation.Enums;
 using Microsoft.Purchases.Payables;
 using Microsoft.Sales.Receivables;
 using System.Utilities;
@@ -102,8 +103,8 @@ page 7000032 "BG/PO Maturity Lines"
         PmtOrd: Record "Payment Order";
         Doc: Record "Cartera Doc.";
         PeriodPageManagement: Codeunit PeriodPageManagement;
-        PeriodLength: Option Day,Week,Month,Quarter,Year,Period;
-        AmountType: Option "Net Change","Balance at Date";
+        PeriodLength: Enum "Analysis Period Type";
+        AmountType: Enum "Analysis Amount Type";
         DocAmount: Decimal;
         DocAmountLCY: Decimal;
         Type: Option Receivable,Payable;
@@ -113,8 +114,8 @@ page 7000032 "BG/PO Maturity Lines"
     procedure SetReceivable(var NewBillGr: Record "Bill Group"; NewPeriodLength: Integer; NewAmountType: Option "Net Change","Balance at Date")
     begin
         BillGr.Copy(NewBillGr);
-        PeriodLength := NewPeriodLength;
-        AmountType := NewAmountType;
+        PeriodLength := "Analysis Period Type".FromInteger(NewPeriodLength);
+        AmountType := "Analysis Amount Type".FromInteger(NewAmountType);
         Type := Type::Receivable;
         CurrCode := BillGr."Currency Code";
         CurrPage.Update(false);
@@ -124,8 +125,8 @@ page 7000032 "BG/PO Maturity Lines"
     procedure SetPayable(var NewPmtOrd: Record "Payment Order"; NewPeriodLength: Integer; NewAmountType: Option "Net Change","Balance at Date")
     begin
         PmtOrd.Copy(NewPmtOrd);
-        PeriodLength := NewPeriodLength;
-        AmountType := NewAmountType;
+        PeriodLength := "Analysis Period Type".FromInteger(NewPeriodLength);
+        AmountType := "Analysis Amount Type".FromInteger(NewAmountType);
         Type := Type::Payable;
         CurrCode := PmtOrd."Currency Code";
         CurrPage.Update(false);

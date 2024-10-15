@@ -7,6 +7,7 @@ namespace Microsoft.EServices.EDocument;
 table 10706 "Statistical Code"
 {
     Caption = 'Statistical Code';
+    DataClassification = CustomerContent;
 
     fields
     {

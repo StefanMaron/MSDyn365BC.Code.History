@@ -330,26 +330,24 @@ page 10736 "Customer/Vendor Warnings 349"
         VATEntry: Record "VAT Entry";
     begin
         OnBeforeCalcAmountsFromVATEntries(VATEntry, Rec);
-        with VATEntry do begin
-            SetRange(Type, EntryType);
-            SetFilter("Document Type", '%1|%2', "Document Type"::Invoice, "Document Type"::"Credit Memo");
-            SetRange("Bill-to/Pay-to No.", CustVendNo);
-            SetRange("VAT Reporting Date", FromDate, ToDate);
-            if ExcludeGenProductPostingGroupFilter <> '' then
-                SetFilter("Gen. Prod. Posting Group", ExcludeGenProductPostingGroupFilter);
-            if FindSet() then
-                repeat
-                    if not IsCorrectiveCrMemoDiffPeriod(StartDateFormula, EndDateFormula) then
-                        case true of
-                            ((not "EU Service") and (not "EU 3-Party Trade")):
-                                NormalAmount += Base;
-                            ("EU 3-Party Trade" and (not "EU Service")):
-                                AmountOpTri += Base;
-                            "EU Service":
-                                AmountEUService += Base;
-                        end;
-                until Next() = 0;
-        end;
+        VATEntry.SetRange(Type, EntryType);
+        VATEntry.SetFilter("Document Type", '%1|%2', VATEntry."Document Type"::Invoice, VATEntry."Document Type"::"Credit Memo");
+        VATEntry.SetRange("Bill-to/Pay-to No.", CustVendNo);
+        VATEntry.SetRange("VAT Reporting Date", FromDate, ToDate);
+        if ExcludeGenProductPostingGroupFilter <> '' then
+            VATEntry.SetFilter("Gen. Prod. Posting Group", ExcludeGenProductPostingGroupFilter);
+        if VATEntry.FindSet() then
+            repeat
+                if not VATEntry.IsCorrectiveCrMemoDiffPeriod(StartDateFormula, EndDateFormula) then
+                    case true of
+                        ((not VATEntry."EU Service") and (not VATEntry."EU 3-Party Trade")):
+                            NormalAmount += VATEntry.Base;
+                        (VATEntry."EU 3-Party Trade" and (not VATEntry."EU Service")):
+                            AmountOpTri += VATEntry.Base;
+                        VATEntry."EU Service":
+                            AmountEUService += VATEntry.Base;
+                    end;
+            until VATEntry.Next() = 0;
     end;
 
     [Scope('OnPrem')]

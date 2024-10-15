@@ -1,4 +1,4 @@
-#if not CLEAN21
+#if not CLEAN23
 namespace Microsoft.Projects.Resources.Pricing;
 
 using Microsoft.Pricing.Calculation;

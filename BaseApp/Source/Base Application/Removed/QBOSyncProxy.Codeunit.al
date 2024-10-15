@@ -15,7 +15,7 @@ codeunit 1061 "QBO Sync Proxy"
     begin
     end;
 
-    [IntegrationEvent(TRUE, false)]
+    [IntegrationEvent(true, false)]
     [Scope('OnPrem')]
     [Obsolete('Quickbooks integration to Invoicing is discontinued.', '17.0')]
     procedure OnGetQBOAuthURL()

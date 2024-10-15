@@ -9,7 +9,7 @@ using Microsoft.Finance.ReceivablesPayables;
 page 7000053 "Payment Orders Analysis"
 {
     Caption = 'Payment Orders Analysis';
-    DataCaptionExpression = Caption();
+    DataCaptionExpression = Rec.Caption();
     DeleteAllowed = false;
     InsertAllowed = false;
     ModifyAllowed = false;

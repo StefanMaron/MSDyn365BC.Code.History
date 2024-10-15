@@ -295,7 +295,7 @@ codeunit 134015 "ERM Unreal VAT Option Last"
         Initialize();
 
         LibraryERM.FindUnrealVATPostingSetup(VATPostingSetup, VATPostingSetup."Unrealized VAT Type"::Last);
-        LibraryERM.SetAddReportingCurrency(CreateCurrency);
+        LibraryERM.SetAddReportingCurrency(CreateCurrency());
         LibraryPmtDiscSetup.SetAdjustForPaymentDisc(true);
         UpdateVATPostingSetup(VATPostingSetup, true);
         CustomerNo := CreateCustomerPaymentTermCode(PaymentTerms, VATPostingSetup."VAT Bus. Posting Group");
@@ -344,7 +344,7 @@ codeunit 134015 "ERM Unreal VAT Option Last"
         // Check that correct Amount applied in Customer Ledger Entry and G/L Entry and no VAT Amount applied in VAT Entry after Posting
         // General Journal Line with Document Type Invoice and making Payment(Below VAT) for Customer with Unrealized VAT Type - Last.
         Initialize();
-        LibraryPmtDiscSetup.ClearAdjustPmtDiscInVATSetup;
+        LibraryPmtDiscSetup.ClearAdjustPmtDiscInVATSetup();
 
         LibraryERM.FindUnrealVATPostingSetup(VATPostingSetup, VATPostingSetup."Unrealized VAT Type"::Last);
 
@@ -376,7 +376,7 @@ codeunit 134015 "ERM Unreal VAT Option Last"
         // Check that correct Amount applied in Customer Ledger Entry and G/L Entry and VAT Amount applied in VAT Entry after Posting
         // General Journal Line with Document Type Invoice and making Payment(Above VAT) for Customer with Unrealized VAT Type - Last.
         Initialize();
-        LibraryPmtDiscSetup.ClearAdjustPmtDiscInVATSetup;
+        LibraryPmtDiscSetup.ClearAdjustPmtDiscInVATSetup();
         LibraryERM.FindUnrealVATPostingSetup(VATPostingSetup, VATPostingSetup."Unrealized VAT Type"::Last);
         InvoiceAmount := LibraryRandom.RandDec(1000, 2);  // Use Random Number Generator for Amount.
         VATAmount := InvoiceAmount * VATPostingSetup."VAT %" / (100 + VATPostingSetup."VAT %");
@@ -457,7 +457,7 @@ codeunit 134015 "ERM Unreal VAT Option Last"
     begin
         // Test G/L Entry after Apply Refund on Credit Memo for Vendor with Unrealized VAT Type as Last and Currency.
 
-        PartialApplyCreditMemo(CreateCurrency, CreateCurrency, VATPostingSetup."Unrealized VAT Type"::Last);
+        PartialApplyCreditMemo(CreateCurrency(), CreateCurrency(), VATPostingSetup."Unrealized VAT Type"::Last);
     end;
 
     local procedure PartialApplyCreditMemo(CurrencyCode: Code[10]; CurrencyCode2: Code[10]; UnrealizedVATType: Option)
@@ -517,7 +517,7 @@ codeunit 134015 "ERM Unreal VAT Option Last"
     begin
         // Test VAT Entry after Apply Refund on Credit Memo for Vendor Twice with Unrealized VAT Type as Last and Currency.
 
-        ApplyCreditMemoTwice(CreateCurrency, CreateCurrency);
+        ApplyCreditMemoTwice(CreateCurrency(), CreateCurrency());
     end;
 
     local procedure ApplyCreditMemoTwice(CurrencyCode: Code[10]; CurrencyCode2: Code[10])
@@ -668,7 +668,7 @@ codeunit 134015 "ERM Unreal VAT Option Last"
         // and apply it on Credit Memo.
         CreateAndPostGeneralJournal(
           GenJournalLine, GenJournalLine."Account Type"::Customer, SalesHeader."Sell-to Customer No.", '',
-          Amount - GenJournalLine.Amount - LibraryUtility.GenerateRandomFraction);
+          Amount - GenJournalLine.Amount - LibraryUtility.GenerateRandomFraction());
         ApplyAndPostCustomerEntry(CustLedgerEntry."Document Type"::Refund, DocumentNo, GenJournalLine."Document No.");
 
         // 3. Verify: Verify Dtld Customer Ledger Entry after apply Refund on Credit Memo.
@@ -718,7 +718,7 @@ codeunit 134015 "ERM Unreal VAT Option Last"
 
         CreateAndPostGeneralJournal(
           GenJournalLine, GenJournalLine."Account Type"::Customer, SalesHeader."Sell-to Customer No.", '',
-          Amount - RefundAmount - LibraryUtility.GenerateRandomFraction);
+          Amount - RefundAmount - LibraryUtility.GenerateRandomFraction());
         ApplyAndPostCustomerEntry(CustLedgerEntry."Document Type"::Refund, DocumentNo, GenJournalLine."Document No.");
 
         // 2. Exercise: Create and post General Journal Line with Document Type as Refund with Full VAT amount covering and
@@ -784,7 +784,7 @@ codeunit 134015 "ERM Unreal VAT Option Last"
         // and apply it on Credit Memo.
         CreateAndPostGeneralJournal(
           GenJournalLine, GenJournalLine."Account Type"::Vendor, PurchaseHeader."Buy-from Vendor No.", '',
-          LibraryUtility.GenerateRandomFraction - Amount - GenJournalLine.Amount);
+          LibraryUtility.GenerateRandomFraction() - Amount - GenJournalLine.Amount);
         ApplyAndPostVendorEntry(VendorLedgerEntry."Document Type"::Refund, DocumentNo, GenJournalLine."Document No.");
 
         // 3. Verify: Verify Dtld Vendor Ledger Entry after apply Refund on Credit Memo.
@@ -835,7 +835,7 @@ codeunit 134015 "ERM Unreal VAT Option Last"
 
         CreateAndPostGeneralJournal(
           GenJournalLine, GenJournalLine."Account Type"::Vendor, PurchaseHeader."Buy-from Vendor No.", '',
-          LibraryUtility.GenerateRandomFraction - Amount - RefundAmount);
+          LibraryUtility.GenerateRandomFraction() - Amount - RefundAmount);
         ApplyAndPostVendorEntry(VendorLedgerEntry."Document Type"::Refund, DocumentNo, GenJournalLine."Document No.");
 
         // 2. Exercise: Again create and post General Journal Line with Document Type as Refund with Full VAT amount covering
@@ -881,7 +881,7 @@ codeunit 134015 "ERM Unreal VAT Option Last"
         GenJournalLine.Validate("Document No.", GenJournalLine."Journal Batch Name" + Format(GenJournalLine."Line No."));
         GenJournalLine.Validate("Currency Code", CurrencyCode);
         GenJournalLine.Validate("Bal. Account Type", GenJournalLine."Bal. Account Type"::"G/L Account");
-        GenJournalLine.Validate("Bal. Account No.", LibraryERM.CreateGLAccountNo);
+        GenJournalLine.Validate("Bal. Account No.", LibraryERM.CreateGLAccountNo());
         GenJournalLine.Modify(true);
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
     end;
@@ -923,7 +923,7 @@ codeunit 134015 "ERM Unreal VAT Option Last"
         Customer.Get(CreateCustomerApplyToOldest(VATBusPostingGroup));
         LibraryERM.GetDiscountPaymentTerm(PaymentTerms);
         Customer.Validate("Payment Terms Code", PaymentTerms.Code);
-        Customer.Validate("Gen. Bus. Posting Group", FindGeneralPostingSetup);
+        Customer.Validate("Gen. Bus. Posting Group", FindGeneralPostingSetup());
         Customer.Validate("VAT Bus. Posting Group", VATBusPostingGroup);
         Customer.Modify(true);
         exit(Customer."No.");
@@ -956,7 +956,7 @@ codeunit 134015 "ERM Unreal VAT Option Last"
     var
         Currency: Record Currency;
     begin
-        Currency.Get(LibraryERM.CreateCurrencyWithGLAccountSetup);
+        Currency.Get(LibraryERM.CreateCurrencyWithGLAccountSetup());
         LibraryERM.CreateRandomExchangeRate(Currency.Code);
         exit(Currency.Code);
     end;
@@ -1029,7 +1029,7 @@ codeunit 134015 "ERM Unreal VAT Option Last"
 
     local procedure FindAdditionalCurrencyAmount(Amount: Decimal): Decimal
     begin
-        exit(Round(LibraryERM.ConvertCurrency(Round(Amount), '', LibraryERM.GetAddReportingCurrency, WorkDate())));
+        exit(Round(LibraryERM.ConvertCurrency(Round(Amount), '', LibraryERM.GetAddReportingCurrency(), WorkDate())));
     end;
 
     local procedure FindAmountSalesCrMemo(var SalesCrMemoLine: Record "Sales Cr.Memo Line"; DocumentNo: Code[20]): Decimal
@@ -1083,8 +1083,8 @@ codeunit 134015 "ERM Unreal VAT Option Last"
 
     local procedure UpdateVATPostingSetup(var VATPostingSetup: Record "VAT Posting Setup"; AdjustForPaymentDisc: Boolean)
     begin
-        VATPostingSetup.Validate("Sales VAT Unreal. Account", LibraryERM.CreateGLAccountNo);
-        VATPostingSetup.Validate("Purch. VAT Unreal. Account", LibraryERM.CreateGLAccountNo);
+        VATPostingSetup.Validate("Sales VAT Unreal. Account", LibraryERM.CreateGLAccountNo());
+        VATPostingSetup.Validate("Purch. VAT Unreal. Account", LibraryERM.CreateGLAccountNo());
         VATPostingSetup."Adjust for Payment Discount" := AdjustForPaymentDisc;  // Using assignment to avoid error in ES.
         VATPostingSetup.Modify(true);
     end;
@@ -1101,7 +1101,7 @@ codeunit 134015 "ERM Unreal VAT Option Last"
         CustomerNo: Code[20];
     begin
         // Setup: Update General Ledger Setup and VAT Setup, Create and Post General Journal Line.
-        LibraryERM.SetAddReportingCurrency(CreateCurrency);
+        LibraryERM.SetAddReportingCurrency(CreateCurrency());
         CustomerNo := CreateCustomerApplyToOldest(VATPostingSetup."VAT Bus. Posting Group");
         SelectGenJournalBatch(GenJournalBatch);
         CreateGenJournalLine(
@@ -1215,7 +1215,7 @@ codeunit 134015 "ERM Unreal VAT Option Last"
         VATEntry.SetRange("Document Type", GenJournalLine."Document Type");
         VATEntry.FindFirst();
         Assert.AreNearlyEqual(
-          Amount, VATEntry.Amount, LibraryERM.GetAmountRoundingPrecision, StrSubstNo(AmountError, VATEntry.FieldCaption(Amount),
+          Amount, VATEntry.Amount, LibraryERM.GetAmountRoundingPrecision(), StrSubstNo(AmountError, VATEntry.FieldCaption(Amount),
             VATEntry.TableCaption(), VATEntry.FieldCaption("Entry No."), VATEntry."Entry No."));
         VATEntry.TestField("G/L Acc. No.", '');
     end;
@@ -1227,7 +1227,7 @@ codeunit 134015 "ERM Unreal VAT Option Last"
         VATEntry.SetRange("Bill-to/Pay-to No.", GenJournalLine."Account No.");
         VATEntry.SetRange("Document No.", GenJournalLine."Document No.");
         VATEntry.SetRange("Document Type", GenJournalLine."Document Type");
-        Assert.IsFalse(VATEntry.FindFirst, 'VAT Entries must not exist.');
+        Assert.IsFalse(VATEntry.FindFirst(), 'VAT Entries must not exist.');
     end;
 
     local procedure VerifyCustomerLedgerEntry(DocumentNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type"; Amount: Decimal; RemainingAmount: Decimal)
@@ -1263,7 +1263,7 @@ codeunit 134015 "ERM Unreal VAT Option Last"
             VATAmount += VATEntry.Amount;
         until VATEntry.Next() = 0;
         Assert.AreNearlyEqual(
-          Amount, VATAmount, LibraryERM.GetAmountRoundingPrecision, StrSubstNo(CumulativeVATAmount, VATAmount));
+          Amount, VATAmount, LibraryERM.GetAmountRoundingPrecision(), StrSubstNo(CumulativeVATAmount, VATAmount));
     end;
 
     [ConfirmHandler]

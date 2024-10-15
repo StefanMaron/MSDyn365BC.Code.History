@@ -1,7 +1,7 @@
 namespace Microsoft.CRM.Analysis;
 
 using Microsoft.CRM.Opportunity;
-using System;
+using System.Integration;
 using System.Utilities;
 using System.Visualization;
 
@@ -24,17 +24,17 @@ page 782 "Opportunity Chart"
                 StyleExpr = true;
                 ToolTip = 'Specifies the status of the chart.';
             }
-            usercontrol(BusinessChart; "Microsoft.Dynamics.Nav.Client.BusinessChart")
+            usercontrol(BusinessChart; BusinessChart)
             {
                 ApplicationArea = RelationshipMgmt;
 
-                trigger DataPointClicked(point: DotNet BusinessChartDataPoint)
+                trigger DataPointClicked(Point: JsonObject)
                 begin
-                    BusinessChartBuffer.SetDrillDownIndexes(point);
+                    BusinessChartBuffer.SetDrillDownIndexes(Point);
                     OppChartMgt.DrillDown(BusinessChartBuffer, Period, Opportunity.Status.AsInteger());
                 end;
 
-                trigger DataPointDoubleClicked(point: DotNet BusinessChartDataPoint)
+                trigger DataPointDoubleClicked(Point: JsonObject)
                 begin
                 end;
 
@@ -230,7 +230,7 @@ page 782 "Opportunity Chart"
             exit;
 
         OppChartMgt.UpdateData(BusinessChartBuffer, Period, Opportunity.Status.AsInteger());
-        BusinessChartBuffer.Update(CurrPage.BusinessChart);
+        BusinessChartBuffer.UpdateChart(CurrPage.BusinessChart);
         UpdateStatusText(Period, Opportunity);
     end;
 

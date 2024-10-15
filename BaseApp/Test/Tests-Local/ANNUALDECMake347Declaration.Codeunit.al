@@ -160,13 +160,13 @@ codeunit 147307 "ANNUALDEC-Make347 Declaration"
 
         // [GIVEN] An invoice has been posted for a vendor in the US
         VendorNo := Library347Declaration.CreateVendorWithCountryCode(USTxt);
-        AccountNo := Library347Declaration.CreateGLAccount;
+        AccountNo := Library347Declaration.CreateGLAccount();
 
         Amount := 3000 + LibraryRandom.RandDec(1000, 2);
         Library347Declaration.CreateAndPostPurchaseOrderForGLAccount(VendorNo, AccountNo, Amount);
 
         // [WHEN] Report 347 is run
-        FileName := RunMake347DeclarationReport;
+        FileName := RunMake347DeclarationReport();
 
         // [THEN] The invoice is included in the 347 file
         Line := Library347Declaration.ReadLineWithCustomerOrVendorOutsideES(FileName, VendorNo);
@@ -196,13 +196,13 @@ codeunit 147307 "ANNUALDEC-Make347 Declaration"
 
         // [GIVEN] An invoice has been posted for a vendor in DE
         VendorNo := Library347Declaration.CreateVendorWithCountryCode(DETxt);
-        AccountNo := Library347Declaration.CreateGLAccount;
+        AccountNo := Library347Declaration.CreateGLAccount();
 
         Amount := 3000 + LibraryRandom.RandDec(1000, 2);
         Library347Declaration.CreateAndPostPurchaseOrderForGLAccount(VendorNo, AccountNo, Amount);
 
         // [WHEN] Report 347 is run
-        FileName := RunMake347DeclarationReport;
+        FileName := RunMake347DeclarationReport();
 
         // [THEN] No entries for the vendor is included in the 347 file
         Library347Declaration.ValidateFileHasNoLineForCustomerOutsideES(FileName, VendorNo);
@@ -218,14 +218,14 @@ codeunit 147307 "ANNUALDEC-Make347 Declaration"
         // Verify system throws message when purchase credit memo is posted without any payment applied.
         // Setup: Post Purchase Credit Memo without Payment.
         Initialize();
-        Test347DeclarationParameter.PostingDate := Library347Declaration.GetNewWorkDate;
+        Test347DeclarationParameter.PostingDate := Library347Declaration.GetNewWorkDate();
         Library347Declaration.CreatePurchaseDocument(PurchaseHeader, PurchaseHeader."Document Type"::"Credit Memo", ESTxt);
         PurchaseHeader.Validate("Vendor Cr. Memo No.", PurchaseHeader."Buy-from Vendor No.");
         PurchaseHeader.Modify(true);
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
 
         // Exercise: Run 347 Make Declaration Report.
-        RunMake347DeclarationReport;
+        RunMake347DeclarationReport();
 
         // Verify: Verify program throws message.
         // verification has been done in message handler NoRecordsFoundMessageHandler.
@@ -244,12 +244,12 @@ codeunit 147307 "ANNUALDEC-Make347 Declaration"
         // Verify system throws message when sales credit memo is posted without any payment applied.
         // Setup: Post Sales Credit Memo without Payment.
         Initialize();
-        Test347DeclarationParameter.PostingDate := Library347Declaration.GetNewWorkDate;
+        Test347DeclarationParameter.PostingDate := Library347Declaration.GetNewWorkDate();
         Library347Declaration.CreateSalesDocument(SalesHeader, SalesHeader."Document Type"::"Credit Memo", ESTxt);
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
 
         // Exercise: Run 347 Make Declaration Report.
-        RunMake347DeclarationReport;
+        RunMake347DeclarationReport();
 
         // Verify: Verify program throws message.
         // verification has been done in message handler NoRecordsFoundMessageHandler.
@@ -268,12 +268,12 @@ codeunit 147307 "ANNUALDEC-Make347 Declaration"
         // Verify system throws message when service credit memo is posted without any payment applied.
         // Setup: Post Service Credit Memo without Payment.
         Initialize();
-        Test347DeclarationParameter.PostingDate := Library347Declaration.GetNewWorkDate;
+        Test347DeclarationParameter.PostingDate := Library347Declaration.GetNewWorkDate();
         Library347Declaration.CreateServiceDocument(ServiceHeader, ServiceHeader."Document Type"::"Credit Memo", ESTxt);
         LibraryService.PostServiceOrder(ServiceHeader, true, false, true);
 
         // Exercise: Run 347 Make Declaration Report.
-        RunMake347DeclarationReport;
+        RunMake347DeclarationReport();
 
         // Verify: Verify program throws message.
         // verification has been done in message handler NoRecordsFoundMessageHandler.
@@ -303,7 +303,7 @@ codeunit 147307 "ANNUALDEC-Make347 Declaration"
         Library347Declaration.CreateAndPostSalesInvoiceWithoutVAT(custNo, 3000 + LibraryRandom.RandDec(1000, 2));
 
         // Exercise: Run 347 Make Declaration Report.
-        FileName := RunMake347DeclarationReport;
+        FileName := RunMake347DeclarationReport();
 
         // Verify: that the produced file gives the expected format.
         ValidateFormat347File(Test347DeclarationParameter, FileName, 'B', Customer."No.", Customer.Name);
@@ -329,7 +329,7 @@ codeunit 147307 "ANNUALDEC-Make347 Declaration"
         Library347Declaration.CreateAndPostSalesInvoiceWithoutVAT(custNo, 3000 + LibraryRandom.RandDec(1000, 2));
 
         // Exercise: Run 347 Make Declaration Report.
-        FileName := RunMake347DeclarationReport;
+        FileName := RunMake347DeclarationReport();
 
         // Verify: that the produced file gives the expected format.
         ValidateFormat347File(Test347DeclarationParameter, FileName, 'B', Customer."No.", Customer.Name);
@@ -361,7 +361,7 @@ codeunit 147307 "ANNUALDEC-Make347 Declaration"
         // Excercise1: Run Make 347 declaration report.
         Amount1 := 3000 + LibraryRandom.RandDec(1000, 2);
         Library347Declaration.CreateAndPostSalesInvoiceWithoutVAT(custNo1, Amount1);
-        FileName1 := RunMake347DeclarationReport;
+        FileName1 := RunMake347DeclarationReport();
 
         // Verify1: that the produced file has the amount for the customer1
         Line := ReadLineWithCustomerOrVendor(FileName1, custNo1);
@@ -370,7 +370,7 @@ codeunit 147307 "ANNUALDEC-Make347 Declaration"
         // Excercise2: Run Make 347 declaration report with two customers having the same VatRegNo.
         Amount2 := 3000 + LibraryRandom.RandDec(1000, 2);
         Library347Declaration.CreateAndPostSalesInvoiceWithoutVAT(custNo2, Amount2);
-        FileName2 := RunMake347DeclarationReport;
+        FileName2 := RunMake347DeclarationReport();
 
         // Verify: that the produced file has the combined amount for the customers with the same Vat Reg No
         Line := ReadLineWithCustomerOrVendor(FileName2, custNo1);
@@ -405,11 +405,11 @@ codeunit 147307 "ANNUALDEC-Make347 Declaration"
           Library347Declaration.CreateCustomerWithPostCode(Library347Declaration.GetUniqueVATRegNo(ESTxt));
 
         // Create a G/L account
-        account1 := Library347Declaration.CreateGLAccount;
+        account1 := Library347Declaration.CreateGLAccount();
         GLAccount1.Get(account1);
 
         // Create a G/L account with Ignore in 347 Report
-        account2 := Library347Declaration.CreateGLAccount;
+        account2 := Library347Declaration.CreateGLAccount();
         GLAccount2.Get(account2);
         GLAccount2.Validate("Ignore in 347 Report", true);
         GLAccount2.Modify(true);
@@ -426,7 +426,7 @@ codeunit 147307 "ANNUALDEC-Make347 Declaration"
         Library347Declaration.CreateAndPostSalesInvoiceForGLAccount(custNo, GLAccount2."No.", Amount3);
 
         // Exercise
-        FileName := RunMake347DeclarationReport;
+        FileName := RunMake347DeclarationReport();
 
         // Verify
         ValidateFileHasLineForCustomer(FileName, custNo);
@@ -468,11 +468,11 @@ codeunit 147307 "ANNUALDEC-Make347 Declaration"
         custNo2 := Library347Declaration.CreateCustomerWithPostCode(VatRegNo);
 
         // Create a G/L account
-        account1 := Library347Declaration.CreateGLAccount;
+        account1 := Library347Declaration.CreateGLAccount();
         GLAccount1.Get(account1);
 
         // Create a G/L account with Ignore in 347 Report
-        account2 := Library347Declaration.CreateGLAccount;
+        account2 := Library347Declaration.CreateGLAccount();
         GLAccount2.Get(account2);
         GLAccount2.Validate("Ignore in 347 Report", true);
         GLAccount2.Modify(true);
@@ -489,7 +489,7 @@ codeunit 147307 "ANNUALDEC-Make347 Declaration"
         Library347Declaration.CreateAndPostSalesInvoiceForGLAccount(custNo1, GLAccount2."No.", Amount3);
 
         // Exercise
-        FileName := RunMake347DeclarationReport;
+        FileName := RunMake347DeclarationReport();
 
         // Verify
         ValidateFileHasLineForCustomer(FileName, custNo2);
@@ -521,7 +521,7 @@ codeunit 147307 "ANNUALDEC-Make347 Declaration"
         Library347Declaration.CreateAndPostPurchaseOrderWithNoVAT(vendorNo, 3000 + LibraryRandom.RandDec(1000, 2));
 
         // Excercise: Run Make 347 declaration report.
-        FileName := RunMake347DeclarationReport;
+        FileName := RunMake347DeclarationReport();
 
         // Verify: that the produced file gives the expected format.
         ValidateFormat347File(Test347DeclarationParameter, FileName, 'A', Vendor."No.", Vendor.Name);
@@ -547,7 +547,7 @@ codeunit 147307 "ANNUALDEC-Make347 Declaration"
         Library347Declaration.CreateAndPostPurchaseOrderWithNoVAT(vendorNo, 3000 + LibraryRandom.RandDec(1000, 2));
 
         // Excercise: Run Make 347 declaration report.
-        FileName := RunMake347DeclarationReport;
+        FileName := RunMake347DeclarationReport();
 
         // Verify: that the produced file gives the expected format.
         ValidateFormat347File(Test347DeclarationParameter, FileName, 'A', Vendor."No.", Vendor.Name);
@@ -579,7 +579,7 @@ codeunit 147307 "ANNUALDEC-Make347 Declaration"
         // Excercise1: Run Make 347 declaration report.
         Amount1 := 3000 + LibraryRandom.RandDec(1000, 2);
         Library347Declaration.CreateAndPostPurchaseOrderWithNoVAT(vendorNo1, Amount1);
-        FileName1 := RunMake347DeclarationReport;
+        FileName1 := RunMake347DeclarationReport();
 
         // Verify1: that the produced file has the amount for the customer1
         Line := ReadLineWithCustomerOrVendor(FileName1, vendorNo1);
@@ -588,7 +588,7 @@ codeunit 147307 "ANNUALDEC-Make347 Declaration"
         // Excercise2: Run Make 347 declaration report with two vendors having the same VatRegNo.
         Amount2 := 3000 + LibraryRandom.RandDec(1000, 2);
         Library347Declaration.CreateAndPostPurchaseOrderWithNoVAT(vendorNo2, Amount2);
-        FileName2 := RunMake347DeclarationReport;
+        FileName2 := RunMake347DeclarationReport();
 
         // Verify: that the produced file has the combined amount for the vendors with the same Vat Reg No
         Line := ReadLineWithCustomerOrVendor(FileName2, vendorNo1);
@@ -623,11 +623,11 @@ codeunit 147307 "ANNUALDEC-Make347 Declaration"
           Library347Declaration.CreateVendorWithPostCode(Library347Declaration.GetUniqueVATRegNo(ESTxt));
 
         // Create a G/L account
-        account1 := Library347Declaration.CreateGLAccount;
+        account1 := Library347Declaration.CreateGLAccount();
         GLAccount1.Get(account1);
 
         // Create a G/L account with Ignore in 347 Report
-        account2 := Library347Declaration.CreateGLAccount;
+        account2 := Library347Declaration.CreateGLAccount();
         GLAccount2.Get(account2);
         GLAccount2.Validate("Ignore in 347 Report", true);
         GLAccount2.Modify(true);
@@ -644,7 +644,7 @@ codeunit 147307 "ANNUALDEC-Make347 Declaration"
         Library347Declaration.CreateAndPostPurchaseOrderForGLAccount(vendorNo, GLAccount2."No.", Amount3);
 
         // Exercise
-        FileName := RunMake347DeclarationReport;
+        FileName := RunMake347DeclarationReport();
 
         // Verify
         ValidateFileHasLineForCustomer(FileName, vendorNo);
@@ -686,11 +686,11 @@ codeunit 147307 "ANNUALDEC-Make347 Declaration"
         vendorNo2 := Library347Declaration.CreateVendorWithPostCode(VatRegNo);
 
         // Create a G/L account
-        account1 := Library347Declaration.CreateGLAccount;
+        account1 := Library347Declaration.CreateGLAccount();
         GLAccount1.Get(account1);
 
         // Create a G/L account with Ignore in 347 Report
-        account2 := Library347Declaration.CreateGLAccount;
+        account2 := Library347Declaration.CreateGLAccount();
         GLAccount2.Get(account2);
         GLAccount2.Validate("Ignore in 347 Report", true);
         GLAccount2.Modify(true);
@@ -707,7 +707,7 @@ codeunit 147307 "ANNUALDEC-Make347 Declaration"
         Library347Declaration.CreateAndPostPurchaseOrderForGLAccount(vendorNo1, GLAccount1."No.", Amount2);
 
         // Exercise
-        FileName := RunMake347DeclarationReport;
+        FileName := RunMake347DeclarationReport();
 
         // Verify
         ValidateFileHasLineForCustomer(FileName, vendorNo2);
@@ -760,7 +760,7 @@ codeunit 147307 "ANNUALDEC-Make347 Declaration"
 
         // Exercise: Generate report when customer has too low amount
         Library347Declaration.CreateAndPostSalesInvoiceWithoutVAT(CustNo, ThresholdAmount - 1);
-        FileName := RunMake347DeclarationReport;
+        FileName := RunMake347DeclarationReport();
 
         // Validate
         ValidateFileHasNoLineForCustomer(FileName, CustNo);
@@ -786,7 +786,7 @@ codeunit 147307 "ANNUALDEC-Make347 Declaration"
 
         // Exercise: Generate report when customer has just high enough amount
         Library347Declaration.CreateAndPostSalesInvoiceWithoutVAT(CustNo, ThresholdAmount);
-        FileName := RunMake347DeclarationReport;
+        FileName := RunMake347DeclarationReport();
 
         // Validate
         ValidateFileHasLineForCustomer(FileName, CustNo);
@@ -841,7 +841,7 @@ codeunit 147307 "ANNUALDEC-Make347 Declaration"
         Library347Declaration.CreateAndPostSalesInvoiceForItem(CustNo, Item, AmountQuarter4, DateQuarter4);
 
         // Exercise: Generate report
-        FileName := RunMake347DeclarationReport;
+        FileName := RunMake347DeclarationReport();
 
         // Validate
         ValidateFileHasLineForCustomer(FileName, CustNo);
@@ -903,7 +903,7 @@ codeunit 147307 "ANNUALDEC-Make347 Declaration"
         Library347Declaration.CreateAndPostPurchaseOrderForItem(VendNo, Item, AmountQuarter4, DateQuarter4);
 
         // Exercise: Generate report
-        FileName := RunMake347DeclarationReport;
+        FileName := RunMake347DeclarationReport();
 
         // Validate
         ValidateFileHasLineForCustomer(FileName, VendNo);
@@ -963,7 +963,7 @@ codeunit 147307 "ANNUALDEC-Make347 Declaration"
         LibraryERM.PostCustLedgerApplication(CustLedgerEntryInvoice);
 
         // Exercise
-        FileName := RunMake347DeclarationReport;
+        FileName := RunMake347DeclarationReport();
 
         // Verify
         ValidateFileHasLineForCustomer(FileName, CustNo);
@@ -1001,7 +1001,7 @@ codeunit 147307 "ANNUALDEC-Make347 Declaration"
         Library347Declaration.CreateAndPostSalesInvoiceWithoutVAT(CustNo, LibraryRandom.RandDec(5000, 2) + 1);
 
         // Exercise
-        FileName := RunMake347DeclarationReport;
+        FileName := RunMake347DeclarationReport();
 
         // Verify
         ValidateFileHasNoLineForCustomer(FileName, CustNo);
@@ -1039,7 +1039,7 @@ codeunit 147307 "ANNUALDEC-Make347 Declaration"
         Library347Declaration.CreateAndPostPurchaseOrderWithNoVAT(VendNo, LibraryRandom.RandDec(5000, 2) + 1);
 
         // Exercise
-        FileName := RunMake347DeclarationReport;
+        FileName := RunMake347DeclarationReport();
 
         // Verify
         ValidateFileHasNoLineForCustomer(FileName, VendNo);
@@ -1076,7 +1076,7 @@ codeunit 147307 "ANNUALDEC-Make347 Declaration"
         Library347Declaration.CreateAndPostSalesInvoiceWithNoTaxableVAT(CustNo, InvoiceAmount);
 
         // Exercise
-        FileName := RunMake347DeclarationReport;
+        FileName := RunMake347DeclarationReport();
 
         // Verify
         ValidateFileHasLineForCustomer(FileName, CustNo);
@@ -1113,7 +1113,7 @@ codeunit 147307 "ANNUALDEC-Make347 Declaration"
         Library347Declaration.CreateAndPostSalesInvoiceWithNoTaxableVAT(CustNo2, InvoiceAmount);
 
         // Exercise
-        FileName := RunMake347DeclarationReport;
+        FileName := RunMake347DeclarationReport();
 
         // Verify
         ValidateFileHasLineForCustomer(FileName, CustNo2);
@@ -1140,7 +1140,7 @@ codeunit 147307 "ANNUALDEC-Make347 Declaration"
         Library347Declaration.CreateAndPostSalesInvoiceWithNoTaxableVAT(CustNo, LibraryRandom.RandDec(5000, 2) + 1);
 
         // Exercise
-        FileName := RunMake347DeclarationReport;
+        FileName := RunMake347DeclarationReport();
 
         // Verify
         ValidateFileHasNoLineForCustomer(FileName, CustNo);
@@ -1170,7 +1170,7 @@ codeunit 147307 "ANNUALDEC-Make347 Declaration"
         Library347Declaration.CreateAndPostPurchaseOrderWithNoTaxableVAT(VendNo, InvoiceAmount);
 
         // Exercise
-        FileName := RunMake347DeclarationReport;
+        FileName := RunMake347DeclarationReport();
 
         // Verify
         ValidateFileHasLineForCustomer(FileName, VendNo);
@@ -1207,7 +1207,7 @@ codeunit 147307 "ANNUALDEC-Make347 Declaration"
         Library347Declaration.CreateAndPostPurchaseOrderWithNoTaxableVAT(VendNo2, InvoiceAmount);
 
         // Exercise
-        FileName := RunMake347DeclarationReport;
+        FileName := RunMake347DeclarationReport();
 
         // Verify
         ValidateFileHasLineForCustomer(FileName, VendNo2);
@@ -1236,7 +1236,7 @@ codeunit 147307 "ANNUALDEC-Make347 Declaration"
         Library347Declaration.CreateAndPostPurchaseOrderWithNoTaxableVAT(VendNo, InvoiceAmount);
 
         // Exercise
-        FileName := RunMake347DeclarationReport;
+        FileName := RunMake347DeclarationReport();
 
         // Verify
         ValidateFileHasNoLineForCustomer(FileName, VendNo);
@@ -1256,7 +1256,7 @@ codeunit 147307 "ANNUALDEC-Make347 Declaration"
         Library347Declaration.CreateAndPostSalesInvoiceWithShipToAddress(CustNo, InvoiceAmount, ShipToAddressCode);
 
         // Exercise
-        FileName := RunMake347DeclarationReport;
+        FileName := RunMake347DeclarationReport();
 
         // Verify
         if ExpectedToGenerateLine then begin
@@ -1361,7 +1361,7 @@ codeunit 147307 "ANNUALDEC-Make347 Declaration"
         Library347Declaration.CreateAndPostPurchaseInvoiceWithOrderAddress(VendNo, InvoiceAmount, OrderAddressCode);
 
         // Exercise
-        FileName := RunMake347DeclarationReport;
+        FileName := RunMake347DeclarationReport();
 
         // Verify
         if ExpectedToGenerateLine then begin
@@ -1467,7 +1467,7 @@ codeunit 147307 "ANNUALDEC-Make347 Declaration"
           GenJournalLine."Account Type"::Customer, CustNo, DebitAmount, 0);
 
         // Exercise
-        FileName := RunMake347DeclarationReport;
+        FileName := RunMake347DeclarationReport();
 
         // Verify
         ValidateFileHasLineForCustomer(FileName, CustNo);
@@ -1499,7 +1499,7 @@ codeunit 147307 "ANNUALDEC-Make347 Declaration"
           GenJournalLine."Account Type"::Vendor, VendNo, 0, CreditAmount);
 
         // Exercise
-        FileName := RunMake347DeclarationReport;
+        FileName := RunMake347DeclarationReport();
 
         // Verify
         ValidateFileHasLineForCustomer(FileName, VendNo);
@@ -1541,7 +1541,7 @@ codeunit 147307 "ANNUALDEC-Make347 Declaration"
         Library347Declaration.CreateAndPostSalesInvoiceWithoutVAT(custNo2, Amount2);
 
         // Exercise
-        FileName := RunMake347DeclarationReport;
+        FileName := RunMake347DeclarationReport();
 
         // Verify: the produced file should have only 1 line for the two customers, and it should contain the combined amount
         // (note that the file reading utility searches case-insensitive so it's not trivial to test that there is no line for the other case)
@@ -1585,7 +1585,7 @@ codeunit 147307 "ANNUALDEC-Make347 Declaration"
         Library347Declaration.CreateAndPostPurchaseOrderWithNoVAT(vendNo2, Amount2);
 
         // Exercise
-        FileName := RunMake347DeclarationReport;
+        FileName := RunMake347DeclarationReport();
 
         // Verify: the produced file should have only 1 line for the two vendors, and it should contain the combined amount
         // (note that the file reading utility searches case-insensitive so it's not trivial to test that there is no line for the other case)
@@ -1604,9 +1604,7 @@ codeunit 147307 "ANNUALDEC-Make347 Declaration"
         CustLedgerEntryInvoice: Record "Cust. Ledger Entry";
         GLAccount: Record "G/L Account";
         GenJournalLinePayment: Record "Gen. Journal Line";
-        GenJournalLinePayment2: Record "Gen. Journal Line";
         GLAccount1: Record "G/L Account";
-        account1: Code[20];
         InvoiceAmount: Decimal;
         CashAmount: Decimal;
         CustNo: Code[20];
@@ -1647,7 +1645,7 @@ codeunit 147307 "ANNUALDEC-Make347 Declaration"
         LibraryERM.PostCustLedgerApplication(CustLedgerEntryInvoice);
 
         // [WHEN] Exercise
-        FileName := RunMake347DeclarationReport;
+        FileName := RunMake347DeclarationReport();
 
         // [VERIFY] Verify: 
         ValidateFileHasLineForCustomer(FileName, CustNo);
@@ -1667,7 +1665,7 @@ codeunit 147307 "ANNUALDEC-Make347 Declaration"
         LibrarySetupStorage.Restore();
         if IsInitialized then
             exit;
-        Library347Declaration.CreateAndPostSalesInvoiceToEnsureAReportGetsGenerated;
+        Library347Declaration.CreateAndPostSalesInvoiceToEnsureAReportGetsGenerated();
         InventorySetup.Get();
         LibrarySetupStorage.SaveCompanyInformation();
         IsInitialized := true;
@@ -1683,7 +1681,7 @@ codeunit 147307 "ANNUALDEC-Make347 Declaration"
     begin
         Commit();
         // Excercise: Run Make 347 declaration report.
-        asserterror RunMake347DeclarationReport;
+        asserterror RunMake347DeclarationReport();
 
         // Verify: Program throws error.
         Assert.ExpectedError(ExpectedError);
@@ -1940,7 +1938,6 @@ codeunit 147307 "ANNUALDEC-Make347 Declaration"
 
     procedure CreateAndPostGeneralJournalLine(DocumentType: Enum "Gen. Journal Document Type"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; DebitAmount: Decimal; CreditAmount: Decimal)
     var
-        GLAccount: Record "G/L Account";
         BankAccount: Record "Bank Account";
         GenJournalTemplate: Record "Gen. Journal Template";
         GenJournalBatch: Record "Gen. Journal Batch";
@@ -2017,7 +2014,7 @@ codeunit 147307 "ANNUALDEC-Make347 Declaration"
         Make347Declaration.TelephoneNumber.SetValue(TelephoneNumber);
         Make347Declaration.DeclarationNumber.SetValue(DeclarationNumber);
         Make347Declaration.DeclarationMediaType.SetValue(DeclarationMediaType::Telematic);
-        Make347Declaration.OK.Invoke;
+        Make347Declaration.OK().Invoke();
     end;
 
     [MessageHandler]

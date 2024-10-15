@@ -373,7 +373,7 @@ codeunit 137165 "SCM Lot Nos By Bin"
         ItemTrackingCode: Record "Item Tracking Code";
     begin
         CreateItemTrackingCode(ItemTrackingCode, true, false, false);
-        LibraryInventory.CreateTrackedItem(Item, LibraryUtility.GetGlobalNoSeriesCode, '', ItemTrackingCode.Code);
+        LibraryInventory.CreateTrackedItem(Item, LibraryUtility.GetGlobalNoSeriesCode(), '', ItemTrackingCode.Code);
         Item.Modify(true);
     end;
 
@@ -421,11 +421,11 @@ codeunit 137165 "SCM Lot Nos By Bin"
         LibraryUtility: Codeunit "Library - Utility";
     begin
         PurchasesPayablesSetup.Get();
-        PurchasesPayablesSetup.Validate("Order Nos.", LibraryUtility.GetGlobalNoSeriesCode);
+        PurchasesPayablesSetup.Validate("Order Nos.", LibraryUtility.GetGlobalNoSeriesCode());
         PurchasesPayablesSetup.Modify(true);
 
         SalesReceivablesSetup.Get();
-        SalesReceivablesSetup.Validate("Order Nos.", LibraryUtility.GetGlobalNoSeriesCode);
+        SalesReceivablesSetup.Validate("Order Nos.", LibraryUtility.GetGlobalNoSeriesCode());
         SalesReceivablesSetup.Modify(true);
     end;
 
@@ -475,7 +475,7 @@ codeunit 137165 "SCM Lot Nos By Bin"
                 LotNosByBin.SetRange(Location_Code, WhseActivityLine."Location Code");
                 LotNosByBin.SetRange(Bin_Code, WhseActivityLine."Bin Code");
                 LotNosByBin.SetRange(Lot_No, WhseActivityLine."Lot No.");
-                LotNosByBin.Open;
+                LotNosByBin.Open();
 
                 while LotNosByBin.Read() do begin
                     Assert.AreEqual(
@@ -492,7 +492,7 @@ codeunit 137165 "SCM Lot Nos By Bin"
         LotNosByBin.SetRange(Item_No, WhseActivityLine."Item No.");
         LotNosByBin.SetRange(Variant_Code, WhseActivityLine."Variant Code");
         LotNosByBin.SetRange(Location_Code, WhseActivityLine."Location Code");
-        LotNosByBin.Open;
+        LotNosByBin.Open();
 
         while LotNosByBin.Read() do begin
             GetLotQtyFromWhseEntries(WhseEntry, LotNosByBin.Item_No, LotNosByBin.Location_Code, LotNosByBin.Bin_Code, LotNosByBin.Lot_No);
@@ -505,9 +505,9 @@ codeunit 137165 "SCM Lot Nos By Bin"
     procedure ItemTrackingLinesHandler(var ItemTrackingLines: TestPage "Item Tracking Lines")
     begin
         if AssignLotNo then
-            ItemTrackingLines."Assign Lot No.".Invoke;
+            ItemTrackingLines."Assign Lot No.".Invoke();
 
-        ItemTrackingLines.OK.Invoke;
+        ItemTrackingLines.OK().Invoke();
     end;
 
     [MessageHandler]
@@ -521,7 +521,7 @@ codeunit 137165 "SCM Lot Nos By Bin"
     procedure ItemTrackingSummaryPageHandler(var ItemTrackingSummary: TestPage "Item Tracking Summary")
     begin
         ItemTrackingSummary.FILTER.SetFilter("Total Available Quantity", '>0');
-        ItemTrackingSummary.OK.Invoke;
+        ItemTrackingSummary.OK().Invoke();
     end;
 }
 

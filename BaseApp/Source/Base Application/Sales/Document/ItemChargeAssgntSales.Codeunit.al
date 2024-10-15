@@ -78,30 +78,28 @@ codeunit 5807 "Item Charge Assgnt. (Sales)"
 
     procedure Summarize(var TempToItemChargeAssignmentSales: Record "Item Charge Assignment (Sales)" temporary; var ToItemChargeAssignmentSales: Record "Item Charge Assignment (Sales)")
     begin
-        with TempToItemChargeAssignmentSales do begin
-            SetCurrentKey("Applies-to Doc. Type", "Applies-to Doc. No.", "Applies-to Doc. Line No.");
-            if FindSet() then
-                repeat
-                    if ("Item Charge No." <> ToItemChargeAssignmentSales."Item Charge No.") or
-                       ("Applies-to Doc. No." <> ToItemChargeAssignmentSales."Applies-to Doc. No.") or
-                       ("Applies-to Doc. Line No." <> ToItemChargeAssignmentSales."Applies-to Doc. Line No.")
-                    then begin
-                        if ToItemChargeAssignmentSales."Line No." <> 0 then
-                            ToItemChargeAssignmentSales.Insert();
-                        ToItemChargeAssignmentSales := TempToItemChargeAssignmentSales;
-                        ToItemChargeAssignmentSales."Qty. to Assign" := 0;
-                        ToItemChargeAssignmentSales."Amount to Assign" := 0;
-                        ToItemChargeAssignmentSales."Qty. to Handle" := 0;
-                        ToItemChargeAssignmentSales."Amount to Handle" := 0;
-                    end;
-                    ToItemChargeAssignmentSales."Qty. to Assign" += "Qty. to Assign";
-                    ToItemChargeAssignmentSales."Amount to Assign" += "Amount to Assign";
-                    ToItemChargeAssignmentSales."Qty. to Handle" += "Qty. to Handle";
-                    ToItemChargeAssignmentSales."Amount to Handle" += "Amount to Handle";
-                until Next() = 0;
-            if ToItemChargeAssignmentSales."Line No." <> 0 then
-                ToItemChargeAssignmentSales.Insert();
-        end;
+        TempToItemChargeAssignmentSales.SetCurrentKey("Applies-to Doc. Type", "Applies-to Doc. No.", "Applies-to Doc. Line No.");
+        if TempToItemChargeAssignmentSales.FindSet() then
+            repeat
+                if (TempToItemChargeAssignmentSales."Item Charge No." <> ToItemChargeAssignmentSales."Item Charge No.") or
+                   (TempToItemChargeAssignmentSales."Applies-to Doc. No." <> ToItemChargeAssignmentSales."Applies-to Doc. No.") or
+                   (TempToItemChargeAssignmentSales."Applies-to Doc. Line No." <> ToItemChargeAssignmentSales."Applies-to Doc. Line No.")
+                then begin
+                    if ToItemChargeAssignmentSales."Line No." <> 0 then
+                        ToItemChargeAssignmentSales.Insert();
+                    ToItemChargeAssignmentSales := TempToItemChargeAssignmentSales;
+                    ToItemChargeAssignmentSales."Qty. to Assign" := 0;
+                    ToItemChargeAssignmentSales."Amount to Assign" := 0;
+                    ToItemChargeAssignmentSales."Qty. to Handle" := 0;
+                    ToItemChargeAssignmentSales."Amount to Handle" := 0;
+                end;
+                ToItemChargeAssignmentSales."Qty. to Assign" += TempToItemChargeAssignmentSales."Qty. to Assign";
+                ToItemChargeAssignmentSales."Amount to Assign" += TempToItemChargeAssignmentSales."Amount to Assign";
+                ToItemChargeAssignmentSales."Qty. to Handle" += TempToItemChargeAssignmentSales."Qty. to Handle";
+                ToItemChargeAssignmentSales."Amount to Handle" += TempToItemChargeAssignmentSales."Amount to Handle";
+            until TempToItemChargeAssignmentSales.Next() = 0;
+        if ToItemChargeAssignmentSales."Line No." <> 0 then
+            ToItemChargeAssignmentSales.Insert();
     end;
 
     procedure CreateDocChargeAssgn(LastItemChargeAssgntSales: Record "Item Charge Assignment (Sales)"; ShipmentNo: Code[20])
@@ -112,33 +110,31 @@ codeunit 5807 "Item Charge Assgnt. (Sales)"
     begin
         OnBeforeCreateDocChargeAssgn(LastItemChargeAssgntSales, FromSalesLine);
 
-        with LastItemChargeAssgntSales do begin
-            FromSalesLine.SetRange("Document Type", "Document Type");
-            FromSalesLine.SetRange("Document No.", "Document No.");
-            FromSalesLine.SetRange(Type, FromSalesLine.Type::Item);
-            OnCreateDocChargeAssgnOnAfterFromSalesLineSetFilters(LastItemChargeAssgntSales, FromSalesLine);
-            if FromSalesLine.Find('-') then begin
-                NextLineNo := "Line No.";
-                ItemChargeAssgntSales.SetRange("Document Type", "Document Type");
-                ItemChargeAssgntSales.SetRange("Document No.", "Document No.");
-                ItemChargeAssgntSales.SetRange("Document Line No.", "Document Line No.");
-                ItemChargeAssgntSales.SetRange("Applies-to Doc. No.", "Document No.");
-                repeat
-                    if (FromSalesLine.Quantity <> 0) and
-                       (FromSalesLine.Quantity <> FromSalesLine."Quantity Invoiced") and
-                       (FromSalesLine."Job No." = '') and
-                       ((ShipmentNo = '') or (FromSalesLine."Shipment No." = ShipmentNo)) and
-                       FromSalesLine."Allow Item Charge Assignment"
-                    then begin
-                        ItemChargeAssgntSales.SetRange("Applies-to Doc. Line No.", FromSalesLine."Line No.");
-                        if not ItemChargeAssgntSales.FindFirst() then
-                            InsertItemChargeAssignment(
-                              LastItemChargeAssgntSales, FromSalesLine."Document Type",
-                              FromSalesLine."Document No.", FromSalesLine."Line No.",
-                              FromSalesLine."No.", FromSalesLine.Description, NextLineNo);
-                    end;
-                until FromSalesLine.Next() = 0;
-            end;
+        FromSalesLine.SetRange("Document Type", LastItemChargeAssgntSales."Document Type");
+        FromSalesLine.SetRange("Document No.", LastItemChargeAssgntSales."Document No.");
+        FromSalesLine.SetRange(Type, FromSalesLine.Type::Item);
+        OnCreateDocChargeAssgnOnAfterFromSalesLineSetFilters(LastItemChargeAssgntSales, FromSalesLine);
+        if FromSalesLine.Find('-') then begin
+            NextLineNo := LastItemChargeAssgntSales."Line No.";
+            ItemChargeAssgntSales.SetRange("Document Type", LastItemChargeAssgntSales."Document Type");
+            ItemChargeAssgntSales.SetRange("Document No.", LastItemChargeAssgntSales."Document No.");
+            ItemChargeAssgntSales.SetRange("Document Line No.", LastItemChargeAssgntSales."Document Line No.");
+            ItemChargeAssgntSales.SetRange("Applies-to Doc. No.", LastItemChargeAssgntSales."Document No.");
+            repeat
+                if (FromSalesLine.Quantity <> 0) and
+                   (FromSalesLine.Quantity <> FromSalesLine."Quantity Invoiced") and
+                   (FromSalesLine."Job No." = '') and
+                   ((ShipmentNo = '') or (FromSalesLine."Shipment No." = ShipmentNo)) and
+                   FromSalesLine."Allow Item Charge Assignment"
+                then begin
+                    ItemChargeAssgntSales.SetRange("Applies-to Doc. Line No.", FromSalesLine."Line No.");
+                    if not ItemChargeAssgntSales.FindFirst() then
+                        InsertItemChargeAssignment(
+                          LastItemChargeAssgntSales, FromSalesLine."Document Type",
+                          FromSalesLine."Document No.", FromSalesLine."Line No.",
+                          FromSalesLine."No.", FromSalesLine.Description, NextLineNo);
+                end;
+            until FromSalesLine.Next() = 0;
         end;
 
         OnAfterCreateDocChargeAssgnt(LastItemChargeAssgntSales, ShipmentNo);
@@ -210,12 +206,10 @@ codeunit 5807 "Item Charge Assgnt. (Sales)"
         SuggestItemChargeMessageTxt: Text;
         IsHandled: Boolean;
     begin
-        with SalesLine do begin
-            TestField("Qty. to Invoice");
-            ItemChargeAssgntSales.SetRange("Document Type", "Document Type");
-            ItemChargeAssgntSales.SetRange("Document No.", "Document No.");
-            ItemChargeAssgntSales.SetRange("Document Line No.", "Line No.");
-        end;
+        SalesLine.TestField("Qty. to Invoice");
+        ItemChargeAssgntSales.SetRange("Document Type", SalesLine."Document Type");
+        ItemChargeAssgntSales.SetRange("Document No.", SalesLine."Document No.");
+        ItemChargeAssgntSales.SetRange("Document Line No.", SalesLine."Line No.");
         if ItemChargeAssgntSales.IsEmpty() then
             exit;
 
@@ -578,33 +572,32 @@ codeunit 5807 "Item Charge Assgnt. (Sales)"
         ReturnRcptLine: Record "Return Receipt Line";
     begin
         Clear(DecimalArray);
-        with TempItemChargeAssgntSales do
-            case "Applies-to Doc. Type" of
-                "Applies-to Doc. Type"::Order,
-                "Applies-to Doc. Type"::Invoice,
-                "Applies-to Doc. Type"::"Return Order",
-                "Applies-to Doc. Type"::"Credit Memo":
-                    begin
-                        SalesLine.Get("Applies-to Doc. Type", "Applies-to Doc. No.", "Applies-to Doc. Line No.");
-                        DecimalArray[1] := SalesLine.Quantity;
-                        DecimalArray[2] := SalesLine."Gross Weight";
-                        DecimalArray[3] := SalesLine."Unit Volume";
-                    end;
-                "Applies-to Doc. Type"::"Return Receipt":
-                    begin
-                        ReturnRcptLine.Get("Applies-to Doc. No.", "Applies-to Doc. Line No.");
-                        DecimalArray[1] := ReturnRcptLine.Quantity;
-                        DecimalArray[2] := ReturnRcptLine."Gross Weight";
-                        DecimalArray[3] := ReturnRcptLine."Unit Volume";
-                    end;
-                "Applies-to Doc. Type"::Shipment:
-                    begin
-                        SalesShptLine.Get("Applies-to Doc. No.", "Applies-to Doc. Line No.");
-                        DecimalArray[1] := SalesShptLine.Quantity;
-                        DecimalArray[2] := SalesShptLine."Gross Weight";
-                        DecimalArray[3] := SalesShptLine."Unit Volume";
-                    end;
-            end;
+        case TempItemChargeAssgntSales."Applies-to Doc. Type" of
+            TempItemChargeAssgntSales."Applies-to Doc. Type"::Order,
+            TempItemChargeAssgntSales."Applies-to Doc. Type"::Invoice,
+            TempItemChargeAssgntSales."Applies-to Doc. Type"::"Return Order",
+            TempItemChargeAssgntSales."Applies-to Doc. Type"::"Credit Memo":
+                begin
+                    SalesLine.Get(TempItemChargeAssgntSales."Applies-to Doc. Type", TempItemChargeAssgntSales."Applies-to Doc. No.", TempItemChargeAssgntSales."Applies-to Doc. Line No.");
+                    DecimalArray[1] := SalesLine.Quantity;
+                    DecimalArray[2] := SalesLine."Gross Weight";
+                    DecimalArray[3] := SalesLine."Unit Volume";
+                end;
+            TempItemChargeAssgntSales."Applies-to Doc. Type"::"Return Receipt":
+                begin
+                    ReturnRcptLine.Get(TempItemChargeAssgntSales."Applies-to Doc. No.", TempItemChargeAssgntSales."Applies-to Doc. Line No.");
+                    DecimalArray[1] := ReturnRcptLine.Quantity;
+                    DecimalArray[2] := ReturnRcptLine."Gross Weight";
+                    DecimalArray[3] := ReturnRcptLine."Unit Volume";
+                end;
+            TempItemChargeAssgntSales."Applies-to Doc. Type"::Shipment:
+                begin
+                    SalesShptLine.Get(TempItemChargeAssgntSales."Applies-to Doc. No.", TempItemChargeAssgntSales."Applies-to Doc. Line No.");
+                    DecimalArray[1] := SalesShptLine.Quantity;
+                    DecimalArray[2] := SalesShptLine."Gross Weight";
+                    DecimalArray[3] := SalesShptLine."Unit Volume";
+                end;
+        end;
 
         OnAfterGetItemValues(TempItemChargeAssgntSales, DecimalArray);
     end;
@@ -622,74 +615,72 @@ codeunit 5807 "Item Charge Assgnt. (Sales)"
         ItemChargeAssgntLineAmt: Decimal;
         ItemChargeAssgntLineQty: Decimal;
     begin
-        with FromItemChargeAssignmentSales do begin
-            SalesHeader.Get("Document Type", "Document No.");
-            if not Currency.Get(SalesHeader."Currency Code") then
-                Currency.InitRoundingPrecision();
+        SalesHeader.Get(FromItemChargeAssignmentSales."Document Type", FromItemChargeAssignmentSales."Document No.");
+        if not Currency.Get(SalesHeader."Currency Code") then
+            Currency.InitRoundingPrecision();
 
-            GetItemChargeAssgntLineAmounts(
-              "Document Type", "Document No.", "Document Line No.",
-              ItemChargeAssgntLineQty, ItemChargeAssgntLineAmt);
+        GetItemChargeAssgntLineAmounts(
+          FromItemChargeAssignmentSales."Document Type", FromItemChargeAssignmentSales."Document No.", FromItemChargeAssignmentSales."Document Line No.",
+          ItemChargeAssgntLineQty, ItemChargeAssgntLineAmt);
 
-            if not ItemChargeAssignmentSales.Get("Document Type", "Document No.", "Document Line No.", "Line No.") then
-                exit;
+        if not ItemChargeAssignmentSales.Get(FromItemChargeAssignmentSales."Document Type", FromItemChargeAssignmentSales."Document No.", FromItemChargeAssignmentSales."Document Line No.", FromItemChargeAssignmentSales."Line No.") then
+            exit;
 
-            ItemChargeAssignmentSales."Qty. to Assign" := "Qty. to Assign";
-            ItemChargeAssignmentSales."Amount to Assign" := "Amount to Assign";
-            ItemChargeAssignmentSales."Qty. to Handle" := "Qty. to Handle";
-            ItemChargeAssignmentSales."Amount to Handle" := "Amount to Handle";
-            ItemChargeAssignmentSales.Modify();
+        ItemChargeAssignmentSales."Qty. to Assign" := FromItemChargeAssignmentSales."Qty. to Assign";
+        ItemChargeAssignmentSales."Amount to Assign" := FromItemChargeAssignmentSales."Amount to Assign";
+        ItemChargeAssignmentSales."Qty. to Handle" := FromItemChargeAssignmentSales."Qty. to Handle";
+        ItemChargeAssignmentSales."Amount to Handle" := FromItemChargeAssignmentSales."Amount to Handle";
+        ItemChargeAssignmentSales.Modify();
 
-            ItemChargeAssignmentSales.SetRange("Document Type", "Document Type");
-            ItemChargeAssignmentSales.SetRange("Document No.", "Document No.");
-            ItemChargeAssignmentSales.SetRange("Document Line No.", "Document Line No.");
-            ItemChargeAssignmentSales.CalcSums("Qty. to Assign", "Amount to Assign", "Qty. to Handle", "Amount to Handle");
-            TotalQtyToAssign := ItemChargeAssignmentSales."Qty. to Assign";
-            TotalAmountToAssign := ItemChargeAssignmentSales."Amount to Assign";
-            TotalQtyToHandle := ItemChargeAssignmentSales."Qty. to Handle";
-            TotalAmountToHandle := ItemChargeAssignmentSales."Amount to Handle";
+        ItemChargeAssignmentSales.SetRange("Document Type", FromItemChargeAssignmentSales."Document Type");
+        ItemChargeAssignmentSales.SetRange("Document No.", FromItemChargeAssignmentSales."Document No.");
+        ItemChargeAssignmentSales.SetRange("Document Line No.", FromItemChargeAssignmentSales."Document Line No.");
+        ItemChargeAssignmentSales.CalcSums("Qty. to Assign", "Amount to Assign", "Qty. to Handle", "Amount to Handle");
+        TotalQtyToAssign := ItemChargeAssignmentSales."Qty. to Assign";
+        TotalAmountToAssign := ItemChargeAssignmentSales."Amount to Assign";
+        TotalQtyToHandle := ItemChargeAssignmentSales."Qty. to Handle";
+        TotalAmountToHandle := ItemChargeAssignmentSales."Amount to Handle";
 
-            if TotalAmountToAssign = ItemChargeAssgntLineAmt then begin
-                FromItemChargeAssignmentSales.Find();
-                exit;
-            end;
+        if TotalAmountToAssign = ItemChargeAssgntLineAmt then begin
+            FromItemChargeAssignmentSales.Find();
+            exit;
+        end;
 
-            if TotalQtyToAssign = ItemChargeAssgntLineQty then begin
-                TotalAmountToAssign := ItemChargeAssgntLineAmt;
-                TotalAmountToHandle := ItemChargeAssgntLineAmt;
-                ItemChargeAssignmentSales.FindSet();
+        if TotalQtyToAssign = ItemChargeAssgntLineQty then begin
+            TotalAmountToAssign := ItemChargeAssgntLineAmt;
+            TotalAmountToHandle := ItemChargeAssgntLineAmt;
+            ItemChargeAssignmentSales.FindSet();
+            repeat
+                if not ItemChargeAssignmentSales.SalesLineInvoiced() then begin
+                    TempItemChargeAssgntSales := ItemChargeAssignmentSales;
+                    TempItemChargeAssgntSales.Insert();
+                end;
+            until ItemChargeAssignmentSales.Next() = 0;
+
+            if TempItemChargeAssgntSales.FindSet() then
                 repeat
-                    if not ItemChargeAssignmentSales.SalesLineInvoiced() then begin
-                        TempItemChargeAssgntSales := ItemChargeAssignmentSales;
-                        TempItemChargeAssgntSales.Insert();
-                    end;
-                until ItemChargeAssignmentSales.Next() = 0;
-
-                if TempItemChargeAssgntSales.FindSet() then
-                    repeat
-                        ItemChargeAssignmentSales.Get(
-                          TempItemChargeAssgntSales."Document Type",
-                          TempItemChargeAssgntSales."Document No.",
-                          TempItemChargeAssgntSales."Document Line No.",
-                          TempItemChargeAssgntSales."Line No.");
-                        if TotalQtyToAssign <> 0 then begin
-                            ItemChargeAssignmentSales."Amount to Assign" :=
+                    ItemChargeAssignmentSales.Get(
+                      TempItemChargeAssgntSales."Document Type",
+                      TempItemChargeAssgntSales."Document No.",
+                      TempItemChargeAssgntSales."Document Line No.",
+                      TempItemChargeAssgntSales."Line No.");
+                    if TotalQtyToAssign <> 0 then begin
+                        ItemChargeAssignmentSales."Amount to Assign" :=
+                          Round(
+                            ItemChargeAssignmentSales."Qty. to Assign" / TotalQtyToAssign * TotalAmountToAssign,
+                            Currency."Amount Rounding Precision");
+                        if TotalQtyToHandle <> 0 then
+                            ItemChargeAssignmentSales."Amount to Handle" :=
                               Round(
-                                ItemChargeAssignmentSales."Qty. to Assign" / TotalQtyToAssign * TotalAmountToAssign,
+                                ItemChargeAssignmentSales."Qty. to Handle" / TotalQtyToHandle * TotalAmountToHandle,
                                 Currency."Amount Rounding Precision");
-                            if TotalQtyToHandle <> 0 then
-                                ItemChargeAssignmentSales."Amount to Handle" :=
-                                  Round(
-                                    ItemChargeAssignmentSales."Qty. to Handle" / TotalQtyToHandle * TotalAmountToHandle,
-                                    Currency."Amount Rounding Precision");
-                            TotalQtyToAssign -= ItemChargeAssignmentSales."Qty. to Assign";
-                            TotalAmountToAssign -= ItemChargeAssignmentSales."Amount to Assign";
-                            TotalQtyToHandle -= ItemChargeAssignmentSales."Qty. to Handle";
-                            TotalAmountToHandle -= ItemChargeAssignmentSales."Amount to Handle";
-                            ItemChargeAssignmentSales.Modify();
-                        end;
-                    until TempItemChargeAssgntSales.Next() = 0;
-            end;
+                        TotalQtyToAssign -= ItemChargeAssignmentSales."Qty. to Assign";
+                        TotalAmountToAssign -= ItemChargeAssignmentSales."Amount to Assign";
+                        TotalQtyToHandle -= ItemChargeAssignmentSales."Qty. to Handle";
+                        TotalAmountToHandle -= ItemChargeAssignmentSales."Amount to Handle";
+                        ItemChargeAssignmentSales.Modify();
+                    end;
+                until TempItemChargeAssgntSales.Next() = 0;
         end;
 
         FromItemChargeAssignmentSales.Find();
@@ -707,31 +698,29 @@ codeunit 5807 "Item Charge Assgnt. (Sales)"
         else
             Currency.Get(SalesHeader."Currency Code");
 
-        with SalesLine do begin
-            Get(DocumentType, DocumentNo, DocumentLineNo);
-            TestField(Type, Type::"Charge (Item)");
-            TestField("No.");
-            TestField(Quantity);
+        SalesLine.Get(DocumentType, DocumentNo, DocumentLineNo);
+        SalesLine.TestField(Type, SalesLine.Type::"Charge (Item)");
+        SalesLine.TestField("No.");
+        SalesLine.TestField(Quantity);
 
-            if ("Inv. Discount Amount" = 0) and
-               ("Line Discount Amount" = 0) and
-               (not SalesHeader."Prices Including VAT")
-            then
-                ItemChargeAssgntLineAmt := "Line Amount"
+        if (SalesLine."Inv. Discount Amount" = 0) and
+           (SalesLine."Line Discount Amount" = 0) and
+           (not SalesHeader."Prices Including VAT")
+        then
+            ItemChargeAssgntLineAmt := SalesLine."Line Amount"
+        else
+            if SalesHeader."Prices Including VAT" then
+                ItemChargeAssgntLineAmt :=
+                  Round((SalesLine."Line Amount" - SalesLine."Inv. Discount Amount") / (1 + SalesLine."VAT %" / 100),
+                    Currency."Amount Rounding Precision")
             else
-                if SalesHeader."Prices Including VAT" then
-                    ItemChargeAssgntLineAmt :=
-                      Round(("Line Amount" - "Inv. Discount Amount") / (1 + "VAT %" / 100),
-                        Currency."Amount Rounding Precision")
-                else
-                    ItemChargeAssgntLineAmt := "Line Amount" - "Inv. Discount Amount";
+                ItemChargeAssgntLineAmt := SalesLine."Line Amount" - SalesLine."Inv. Discount Amount";
 
-            ItemChargeAssgntLineAmt :=
-              Round(
-                ItemChargeAssgntLineAmt * ("Qty. to Invoice" / Quantity),
-                Currency."Amount Rounding Precision");
-            ItemChargeAssgntLineQty := "Qty. to Invoice";
-        end;
+        ItemChargeAssgntLineAmt :=
+          Round(
+            ItemChargeAssgntLineAmt * (SalesLine."Qty. to Invoice" / SalesLine.Quantity),
+            Currency."Amount Rounding Precision");
+        ItemChargeAssgntLineQty := SalesLine."Qty. to Invoice";
     end;
 
     [IntegrationEvent(false, false)]

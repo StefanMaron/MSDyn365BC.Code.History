@@ -53,12 +53,12 @@ codeunit 144050 "ERM Make 340 Declar. for CAC"
         // [GIVEN] CAC Sales Invoice is posted
         ReferenceDate := WorkDate();
 
-        GLAccount.Get(CreateGLAccount);
+        GLAccount.Get(CreateGLAccount());
         GLAccount."Direct Posting" := true;
         GLAccount.Modify();
 
         Customer.Get(CreateCustomer(VATPostingSetup."VAT Bus. Posting Group"));
-        Customer."VAT Registration No." := CopyStr(CreateGuid, 1, 9);
+        Customer."VAT Registration No." := CopyStr(CreateGuid(), 1, 9);
         Customer.Modify();
 
         InvoiceDocNo := Library340347Declaration.CreateAndPostSalesInvoice(VATPostingSetup, Customer."No.", ReferenceDate, Amount);
@@ -330,7 +330,7 @@ codeunit 144050 "ERM Make 340 Declar. for CAC"
         BankAccount."Bank Account No." := '';
         SavedBankCCCNo := BankAccount."CCC No.";
         BankAccount.Validate("CCC No.", '');
-        BankAccount.IBAN := CopyStr(CreateGuid, 1, 35);
+        BankAccount.IBAN := CopyStr(CreateGuid(), 1, 35);
         BankAccount.Modify();
         Commit();
 
@@ -381,7 +381,7 @@ codeunit 144050 "ERM Make 340 Declar. for CAC"
         SavedBankCCCNo := BankAccount."CCC No.";
         BankAccount.Validate("CCC No.", '');
         BankAccount.IBAN := '';
-        BankAccount."Bank Account No." := CopyStr(CreateGuid, 1, 30);
+        BankAccount."Bank Account No." := CopyStr(CreateGuid(), 1, 30);
         BankAccount.Modify();
         Commit();
 
@@ -1280,8 +1280,8 @@ codeunit 144050 "ERM Make 340 Declar. for CAC"
         OperationCode.DeleteAll();
 
         // [WHEN] User enters Code 'Z' for a new Operation Code record
-        OperationCodes.OpenEdit;
-        OperationCodes.New;
+        OperationCodes.OpenEdit();
+        OperationCodes.New();
         OperationCodes.Code.SetValue(NewOperationCode);
         OperationCodes.Close();
 
@@ -1307,11 +1307,11 @@ codeunit 144050 "ERM Make 340 Declar. for CAC"
         Rec340DeclarationLine.Insert();
 
         // [WHEN] User tries to edit 'Operation Code'
-        TestPage340DeclarationLines.OpenEdit;
-        TestPage340DeclarationLines.First;
+        TestPage340DeclarationLines.OpenEdit();
+        TestPage340DeclarationLines.First();
         // [THEN]  Operation Code field is editable
         Assert.IsTrue(
-          TestPage340DeclarationLines."Operation Code".Editable, 'Operation Code "Z" must be editable');
+          TestPage340DeclarationLines."Operation Code".Editable(), 'Operation Code "Z" must be editable');
         TestPage340DeclarationLines.Close();
     end;
 
@@ -2101,7 +2101,7 @@ codeunit 144050 "ERM Make 340 Declar. for CAC"
         // [GIVEN] Posted Gen. Journal line with "empty" Document Type
         LibraryERM.CreateGeneralJnlLineWithBalAcc(
           GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, GenJournalLine."Document Type"::" ",
-          GenJournalLine."Account Type"::"G/L Account", LibraryERM.CreateGLAccountWithPurchSetup,
+          GenJournalLine."Account Type"::"G/L Account", LibraryERM.CreateGLAccountWithPurchSetup(),
           GenJournalLine."Bal. Account Type"::Vendor, VendorNo, -LibraryRandom.RandInt(100));
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
 
@@ -2164,7 +2164,7 @@ codeunit 144050 "ERM Make 340 Declar. for CAC"
         GLSetup.Modify();
 
         VATPostingSetup.Reset();
-        VATPostingSetup.SetRange("VAT Bus. Posting Group", FindVATBusPostingGroup);
+        VATPostingSetup.SetRange("VAT Bus. Posting Group", FindVATBusPostingGroup());
         VATPostingSetup.FindLast();
 
         LibraryERM.CreateVATProductPostingGroup(VATProductPostingGroup);
@@ -2257,7 +2257,7 @@ codeunit 144050 "ERM Make 340 Declar. for CAC"
     local procedure CreateBillGroup(var BillGroup: Record "Bill Group")
     begin
         BillGroup."No." := LibraryUtility.GenerateGUID();
-        BillGroup."Bank Account No." := FindBankAccount;
+        BillGroup."Bank Account No." := FindBankAccount();
         BillGroup.Insert(true);
     end;
 
@@ -2283,7 +2283,7 @@ codeunit 144050 "ERM Make 340 Declar. for CAC"
         exit(CreateCustomerWithPmtMethod(PmtMethod."Bill Type"::"Bill of Exchange", VATBusPostingGroup));
     end;
 
-    local procedure CreateCustomerWithPmtMethod(BillType: Option; VATBusPostingGroup: Code[20]): Code[20]
+    local procedure CreateCustomerWithPmtMethod(BillType: Enum "ES Bill Type"; VATBusPostingGroup: Code[20]): Code[20]
     var
         Customer: Record Customer;
         PmtTerms: Record "Payment Terms";
@@ -2339,7 +2339,7 @@ codeunit 144050 "ERM Make 340 Declar. for CAC"
     local procedure CreatePaymentOrder(var PaymentOrder: Record "Payment Order")
     begin
         PaymentOrder."No." := LibraryUtility.GenerateGUID();
-        PaymentOrder."Bank Account No." := FindBankAccount;
+        PaymentOrder."Bank Account No." := FindBankAccount();
         PaymentOrder.Insert(true);
     end;
 
@@ -2720,7 +2720,7 @@ codeunit 144050 "ERM Make 340 Declar. for CAC"
         VATPostingSetup.Validate(
           "VAT Identifier", LibraryUtility.GenerateRandomCode20(VATPostingSetup.FieldNo("VAT Identifier"), DATABASE::"VAT Posting Setup"));
         VATPostingSetup.Validate("VAT %", LibraryRandom.RandInt(20));
-        VATPostingSetup.Validate("Purchase VAT Account", LibraryERM.CreateGLAccountNo);
+        VATPostingSetup.Validate("Purchase VAT Account", LibraryERM.CreateGLAccountNo());
         VATPostingSetup.Modify(true);
     end;
 
@@ -2735,7 +2735,7 @@ codeunit 144050 "ERM Make 340 Declar. for CAC"
                 repeat
                     Validate("Line Discount %", 100);
                     Modify(true);
-                until Next = 0;
+                until Next() = 0;
         end;
     end;
 
@@ -2860,7 +2860,7 @@ codeunit 144050 "ERM Make 340 Declar. for CAC"
     [Scope('OnPrem')]
     procedure Declaration340LinesPageHandler(var Declaration340Lines: TestPage "340 Declaration Lines")
     begin
-        Declaration340Lines.OK.Invoke;
+        Declaration340Lines.OK().Invoke();
     end;
 
     [RequestPageHandler]
@@ -2871,7 +2871,7 @@ codeunit 144050 "ERM Make 340 Declar. for CAC"
     begin
         LibraryVariableStorage.Dequeue(BilToPayToNo);
         Make340Declaration.VATEntry.SetFilter("Bill-to/Pay-to No.", BilToPayToNo);
-        Make340Declaration.OK.Invoke;
+        Make340Declaration.OK().Invoke();
     end;
 
     [MessageHandler]

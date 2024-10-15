@@ -152,7 +152,7 @@ codeunit 147535 "Cart. Cust. Overdue Scenarios"
         SaveReportAsXML(
           Customer, StartingDate, EndingDate, ShowPayments::Overdue);
 
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
 
         // Verification: verify report data
         ReportVerification(Customer, PostingDate, PostingDelta);
@@ -197,7 +197,7 @@ codeunit 147535 "Cart. Cust. Overdue Scenarios"
         SaveReportAsXML(
           Customer, StartingDate, EndingDate, ShowPayments::"Legally Overdue");
 
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
 
         // Verification: verify report data
         ReportVerification(Customer, PostingDate, PostingDelta);
@@ -241,7 +241,7 @@ codeunit 147535 "Cart. Cust. Overdue Scenarios"
         SaveReportAsXML(
           Customer, StartingDate, EndingDate, ShowPayments::Overdue);
 
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
 
         // Exercise: unapply payment then try to open the report
         SelectCustomerLedgerEntry(
@@ -252,7 +252,7 @@ codeunit 147535 "Cart. Cust. Overdue Scenarios"
         SaveReportAsXML(
           Customer, StartingDate, EndingDate, ShowPayments::Overdue);
 
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
 
         // Verification: verify report data
         VerifyReportInvoiceDescriptionColumn(Customer, PostingDate);
@@ -527,7 +527,7 @@ codeunit 147535 "Cart. Cust. Overdue Scenarios"
     [Scope('OnPrem')]
     procedure CustomerOverduePaymentsRequestPageHandler(var CustomerOverduePayments: TestRequestPage "Customer - Overdue Payments")
     begin
-        CustomerOverduePayments.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        CustomerOverduePayments.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 }
 

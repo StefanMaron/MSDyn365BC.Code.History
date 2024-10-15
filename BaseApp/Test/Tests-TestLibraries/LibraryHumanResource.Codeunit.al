@@ -29,6 +29,7 @@ codeunit 131901 "Library - Human Resource"
     procedure CreateEmployee(var Employee: Record Employee)
     begin
         Employee.Init();
+        Employee.Validate("Employee Posting Group", FindEmployeePostingGroup());
         Employee.Insert(true);
         UpdateEmployeeName(Employee);
         Employee.Modify(true);
@@ -61,7 +62,7 @@ codeunit 131901 "Library - Human Resource"
         Employee."Bank Branch No." := LibraryUtility.GenerateGUID();
         EmployeePostingGroup.Init();
         EmployeePostingGroup.Validate(Code, LibraryUtility.GenerateGUID());
-        EmployeePostingGroup.Validate("Payables Account", LibraryERM.CreateGLAccountNoWithDirectPosting);
+        EmployeePostingGroup.Validate("Payables Account", LibraryERM.CreateGLAccountNoWithDirectPosting());
         EmployeePostingGroup.Insert(true);
         Employee.Validate("Employee Posting Group", EmployeePostingGroup.Code);
         Employee.Modify(true);
@@ -230,9 +231,31 @@ codeunit 131901 "Library - Human Resource"
     begin
         HumanResourcesSetup.Get();
         if HumanResourcesSetup."Employee Nos." = '' then
-            HumanResourcesSetup.Validate("Employee Nos.", LibraryUtility.GetGlobalNoSeriesCode);
+            HumanResourcesSetup.Validate("Employee Nos.", LibraryUtility.GetGlobalNoSeriesCode());
         HumanResourcesSetup.Modify(true);
         exit(HumanResourcesSetup."Employee Nos.");
+    end;
+
+    procedure CreateEmployeePostingGroup(var EmployeePostingGroup: Record "Employee Posting Group")
+    begin
+        EmployeePostingGroup.Init();
+        EmployeePostingGroup.Validate(Code,
+          LibraryUtility.GenerateRandomCode(EmployeePostingGroup.FieldNo(Code), Database::"Employee Posting Group"));
+        EmployeePostingGroup.Validate("Payables Account", LibraryERM.CreateGLAccountNo());
+        EmployeePostingGroup.Validate("Debit Rounding Account", LibraryERM.CreateGLAccountNo());
+        EmployeePostingGroup.Validate("Credit Rounding Account", LibraryERM.CreateGLAccountNo());
+        EmployeePostingGroup.Validate("Debit Curr. Appln. Rndg. Acc.", LibraryERM.CreateGLAccountNo());
+        EmployeePostingGroup.Validate("Credit Curr. Appln. Rndg. Acc.", LibraryERM.CreateGLAccountNo());
+        EmployeePostingGroup.Insert(true);
+    end;
+
+    procedure FindEmployeePostingGroup(): Code[20]
+    var
+        EmployeePostingGroup: Record "Employee Posting Group";
+    begin
+        if not EmployeePostingGroup.FindFirst() then
+            CreateEmployeePostingGroup(EmployeePostingGroup);
+        exit(EmployeePostingGroup.Code);
     end;
 }
 

@@ -6,6 +6,7 @@ using Microsoft.Finance.Currency;
 using Microsoft.Finance.Dimension;
 using Microsoft.Finance.VAT.Calculation;
 using Microsoft.Foundation.Address;
+using Microsoft.Foundation.Attachment;
 using Microsoft.Service.Comment;
 using Microsoft.Service.Document;
 
@@ -169,6 +170,13 @@ page 5972 "Posted Service Credit Memo"
                     ApplicationArea = Service;
                     Editable = false;
                     ToolTip = 'Specifies the number of the credit memo from which the posted credit memo was created.';
+                }
+                field("External Document No."; Rec."External Document No.")
+                {
+                    ApplicationArea = Service;
+                    Editable = false;
+                    Importance = Additional;
+                    ToolTip = 'Specifies the external document number that is entered on the service header that this line was posted from.';
                 }
                 field("Salesperson Code"; Rec."Salesperson Code")
                 {
@@ -546,6 +554,13 @@ page 5972 "Posted Service Credit Memo"
         }
         area(factboxes)
         {
+            part("Attached Documents"; "Document Attachment Factbox")
+            {
+                ApplicationArea = Service;
+                Caption = 'Attachments';
+                SubPageLink = "Table ID" = const(Database::"Service Cr.Memo Header"),
+                              "No." = field("No.");
+            }
             systempart(Control1900383207; Links)
             {
                 ApplicationArea = RecordLinks;
@@ -601,6 +616,23 @@ page 5972 "Posted Service Credit Memo"
                     begin
                         Rec.ShowDimensions();
                         CurrPage.SaveRecord();
+                    end;
+                }
+                action(DocAttach)
+                {
+                    ApplicationArea = Service;
+                    Caption = 'Attachments';
+                    Image = Attach;
+                    ToolTip = 'Add a file as an attachment. You can attach images as well as documents.';
+
+                    trigger OnAction()
+                    var
+                        DocumentAttachmentDetails: Page "Document Attachment Details";
+                        RecRef: RecordRef;
+                    begin
+                        RecRef.GetTable(Rec);
+                        DocumentAttachmentDetails.OpenForRecRef(RecRef);
+                        DocumentAttachmentDetails.RunModal();
                     end;
                 }
                 action("Service Document Lo&g")
@@ -674,6 +706,22 @@ page 5972 "Posted Service Credit Memo"
                     ServCrMemoHeader.PrintRecords(true);
                 end;
             }
+            action(AttachAsPDF)
+            {
+                ApplicationArea = Service;
+                Caption = 'Attach as PDF';
+                Image = PrintAttachment;
+                ToolTip = 'Create a PDF file and attach it to the document.';
+
+                trigger OnAction()
+                var
+                    ServCrMemoHeader: Record "Service Cr.Memo Header";
+                begin
+                    ServCrMemoHeader := Rec;
+                    ServCrMemoHeader.SetRecFilter();
+                    Rec.PrintToDocumentAttachment(ServCrMemoHeader);
+                end;
+            }
             action("&Navigate")
             {
                 ApplicationArea = Service;
@@ -725,8 +773,16 @@ page 5972 "Posted Service Credit Memo"
                 actionref("Update Document_Promoted"; "Update Document")
                 {
                 }
-                actionref("&Print_Promoted"; "&Print")
+                group(Category_CategoryPrint)
                 {
+                    ShowAs = SplitButton;
+
+                    actionref("&Print_Promoted"; "&Print")
+                    {
+                    }
+                    actionref(AttachAsPDF_Promoted; AttachAsPDF)
+                    {
+                    }
                 }
                 actionref(SendCustom_Promoted; SendCustom)
                 {
@@ -746,6 +802,9 @@ page 5972 "Posted Service Credit Memo"
                 {
                 }
                 actionref("Co&mments_Promoted"; "Co&mments")
+                {
+                }
+                actionref(DocAttach_Promoted; DocAttach)
                 {
                 }
                 actionref(ActivityLog_Promoted; ActivityLog)

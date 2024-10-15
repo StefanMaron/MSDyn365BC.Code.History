@@ -64,42 +64,40 @@ codeunit 7000006 "Document-Post"
         SystemCreated: Boolean;
         CarteraDocType: Enum "Cartera Document Type";
     begin
-        with GenJnlLine do begin
-            if ("Document Type" = "Document Type"::Invoice) and
-               ("Account Type" in ["Account Type"::Customer, "Account Type"::Vendor]) and
-               (Amount <> 0)
-            then begin
-                TestField("Payment Method Code");
-                TestField("Payment Terms Code");
-            end;
-            if ("Document Type" = "Document Type"::Bill) and
-               (Amount <> 0)
-            then begin
-                TestField("Bill No.");
-                TestField("Due Date");
-                TestField("Payment Method Code");
-                PaymentMethod.Get("Payment Method Code");
-                if not PaymentMethod."Create Bills" then
-                    FieldError("Payment Method Code", Text1100000);
-                if not ("Account Type" in ["Account Type"::Customer, "Account Type"::Vendor]) then
-                    Error(Text1100001)
-            end;
-            if "Document Type" = "Document Type"::"Credit Memo" then
-                SystemCreated := false
-            else
-                SystemCreated := "System-Created Entry";
+        if (GenJnlLine."Document Type" = GenJnlLine."Document Type"::Invoice) and
+           (GenJnlLine."Account Type" in [GenJnlLine."Account Type"::Customer, GenJnlLine."Account Type"::Vendor]) and
+           (GenJnlLine.Amount <> 0)
+        then begin
+            GenJnlLine.TestField("Payment Method Code");
+            GenJnlLine.TestField("Payment Terms Code");
+        end;
+        if (GenJnlLine."Document Type" = GenJnlLine."Document Type"::Bill) and
+           (GenJnlLine.Amount <> 0)
+        then begin
+            GenJnlLine.TestField("Bill No.");
+            GenJnlLine.TestField("Due Date");
+            GenJnlLine.TestField("Payment Method Code");
+            PaymentMethod.Get(GenJnlLine."Payment Method Code");
+            if not PaymentMethod."Create Bills" then
+                GenJnlLine.FieldError("Payment Method Code", Text1100000);
+            if not (GenJnlLine."Account Type" in [GenJnlLine."Account Type"::Customer, GenJnlLine."Account Type"::Vendor]) then
+                Error(Text1100001)
+        end;
+        if GenJnlLine."Document Type" = GenJnlLine."Document Type"::"Credit Memo" then
+            SystemCreated := false
+        else
+            SystemCreated := GenJnlLine."System-Created Entry";
 
-            if ("Account Type" in ["Account Type"::Customer, "Account Type"::Vendor]) and
-               ("Applies-to Doc. Type" in ["Applies-to Doc. Type"::Bill, "Applies-to Doc. Type"::Invoice]) and
-               not SystemCreated
-            then begin
-                if "Account Type" = "Account Type"::Customer then
-                    CarteraDocType := CarteraDoc.Type::Receivable
-                else
-                    CarteraDocType := CarteraDoc.Type::Payable;
-                CheckCarteraDocsForBillGroups(CarteraDocType, "Applies-to Doc. No.", "Applies-to Bill No.");
-                CheckPostedCarteraDocsForBillGroups(CarteraDocType, "Applies-to Doc. No.", "Applies-to Bill No.");
-            end;
+        if (GenJnlLine."Account Type" in [GenJnlLine."Account Type"::Customer, GenJnlLine."Account Type"::Vendor]) and
+           (GenJnlLine."Applies-to Doc. Type" in [GenJnlLine."Applies-to Doc. Type"::Bill, GenJnlLine."Applies-to Doc. Type"::Invoice]) and
+           not SystemCreated
+        then begin
+            if GenJnlLine."Account Type" = GenJnlLine."Account Type"::Customer then
+                CarteraDocType := CarteraDoc.Type::Receivable
+            else
+                CarteraDocType := CarteraDoc.Type::Payable;
+            CheckCarteraDocsForBillGroups(CarteraDocType, GenJnlLine."Applies-to Doc. No.", GenJnlLine."Applies-to Bill No.");
+            CheckPostedCarteraDocsForBillGroups(CarteraDocType, GenJnlLine."Applies-to Doc. No.", GenJnlLine."Applies-to Bill No.");
         end;
         OnAfterCheckGenJnlLine(GenJnlLine);
     end;
@@ -113,30 +111,28 @@ codeunit 7000006 "Document-Post"
     begin
         CarteraDoc.Init();
         GJLInfoToDoc(GenJnlLine, CarteraDoc);
-        with CVLedgEntryBuf do begin
-            CarteraDoc.Type := CarteraDoc.Type::Receivable;
-            CarteraDoc."Entry No." := "Entry No.";
-            CarteraDoc."Remaining Amount" := "Remaining Amount";
-            CarteraDoc."Remaining Amt. (LCY)" := "Remaining Amt. (LCY)";
-            CarteraDoc."Original Amount" := "Remaining Amount";
-            CarteraDoc."Original Amount (LCY)" := "Remaining Amt. (LCY)";
-            if CompanyInfo.Get() and CustBankAccCode.Get("CV No.", GenJnlLine."Recipient Bank Account") then
-                CarteraDoc.Place := CopyStr(CompanyInfo."Post Code", 1, 2) = CopyStr(CustBankAccCode."Post Code", 1, 2);
-            // Check the Doc no.
-            OldCustLedgEntry.Reset();
-            OldCustLedgEntry.SetCurrentKey("Document No.", "Document Type", "Customer No.");
-            OldCustLedgEntry.SetRange("Document No.", "Document No.");
-            if GenJnlLine."Document Type" = GenJnlLine."Document Type"::Bill then
-                OldCustLedgEntry.SetRange("Document Type", OldCustLedgEntry."Document Type"::Bill)
-            else
-                if GenJnlLine."Document Type" = GenJnlLine."Document Type"::Invoice then
-                    OldCustLedgEntry.SetRange("Document Type", OldCustLedgEntry."Document Type"::Invoice);
-            OldCustLedgEntry.SetRange("Bill No.", "Bill No.");
-            if OldCustLedgEntry.FindFirst() then
-                Error(
-                  Text1100004,
-                  "Document No.", "Bill No.");
-        end;
+        CarteraDoc.Type := CarteraDoc.Type::Receivable;
+        CarteraDoc."Entry No." := CVLedgEntryBuf."Entry No.";
+        CarteraDoc."Remaining Amount" := CVLedgEntryBuf."Remaining Amount";
+        CarteraDoc."Remaining Amt. (LCY)" := CVLedgEntryBuf."Remaining Amt. (LCY)";
+        CarteraDoc."Original Amount" := CVLedgEntryBuf."Remaining Amount";
+        CarteraDoc."Original Amount (LCY)" := CVLedgEntryBuf."Remaining Amt. (LCY)";
+        if CompanyInfo.Get() and CustBankAccCode.Get(CVLedgEntryBuf."CV No.", GenJnlLine."Recipient Bank Account") then
+            CarteraDoc.Place := CopyStr(CompanyInfo."Post Code", 1, 2) = CopyStr(CustBankAccCode."Post Code", 1, 2);
+        // Check the Doc no.
+        OldCustLedgEntry.Reset();
+        OldCustLedgEntry.SetCurrentKey("Document No.", "Document Type", "Customer No.");
+        OldCustLedgEntry.SetRange("Document No.", CVLedgEntryBuf."Document No.");
+        if GenJnlLine."Document Type" = GenJnlLine."Document Type"::Bill then
+            OldCustLedgEntry.SetRange("Document Type", OldCustLedgEntry."Document Type"::Bill)
+        else
+            if GenJnlLine."Document Type" = GenJnlLine."Document Type"::Invoice then
+                OldCustLedgEntry.SetRange("Document Type", OldCustLedgEntry."Document Type"::Invoice);
+        OldCustLedgEntry.SetRange("Bill No.", CVLedgEntryBuf."Bill No.");
+        if OldCustLedgEntry.FindFirst() then
+            Error(
+              Text1100004,
+              CVLedgEntryBuf."Document No.", CVLedgEntryBuf."Bill No.");
 
         if IsFromJournal then
             CarteraDoc."From Journal" := true;
@@ -156,28 +152,26 @@ codeunit 7000006 "Document-Post"
     begin
         CarteraDoc.Init();
         GJLInfoToDoc(GenJnlLine, CarteraDoc);
-        with CVLedgEntryBuf do begin
-            CarteraDoc.Type := CarteraDoc.Type::Payable;
-            CarteraDoc."Entry No." := "Entry No.";
-            CarteraDoc."Remaining Amount" := -"Remaining Amount";
-            CarteraDoc."Remaining Amt. (LCY)" := -"Remaining Amt. (LCY)";
-            CarteraDoc."Original Amount" := -"Remaining Amount";
-            CarteraDoc."Original Amount (LCY)" := -"Remaining Amt. (LCY)";
-            // Check the Doc no.
-            OldVendLedgEntry.Reset();
-            OldVendLedgEntry.SetCurrentKey("Document No.", "Document Type", "Vendor No.");
-            OldVendLedgEntry.SetRange("Document No.", "Document No.");
-            if GenJnlLine."Document Type" = GenJnlLine."Document Type"::Bill then
-                OldVendLedgEntry.SetRange("Document Type", OldVendLedgEntry."Document Type"::Bill)
-            else
-                if GenJnlLine."Document Type" = GenJnlLine."Document Type"::Invoice then
-                    OldVendLedgEntry.SetRange("Document Type", OldVendLedgEntry."Document Type"::Invoice);
-            OldVendLedgEntry.SetRange("Bill No.", "Bill No.");
-            if OldVendLedgEntry.FindFirst() then
-                Error(
-                  Text1100005,
-                  "Document No.", "Bill No.");
-        end;
+        CarteraDoc.Type := CarteraDoc.Type::Payable;
+        CarteraDoc."Entry No." := CVLedgEntryBuf."Entry No.";
+        CarteraDoc."Remaining Amount" := -CVLedgEntryBuf."Remaining Amount";
+        CarteraDoc."Remaining Amt. (LCY)" := -CVLedgEntryBuf."Remaining Amt. (LCY)";
+        CarteraDoc."Original Amount" := -CVLedgEntryBuf."Remaining Amount";
+        CarteraDoc."Original Amount (LCY)" := -CVLedgEntryBuf."Remaining Amt. (LCY)";
+        // Check the Doc no.
+        OldVendLedgEntry.Reset();
+        OldVendLedgEntry.SetCurrentKey("Document No.", "Document Type", "Vendor No.");
+        OldVendLedgEntry.SetRange("Document No.", CVLedgEntryBuf."Document No.");
+        if GenJnlLine."Document Type" = GenJnlLine."Document Type"::Bill then
+            OldVendLedgEntry.SetRange("Document Type", OldVendLedgEntry."Document Type"::Bill)
+        else
+            if GenJnlLine."Document Type" = GenJnlLine."Document Type"::Invoice then
+                OldVendLedgEntry.SetRange("Document Type", OldVendLedgEntry."Document Type"::Invoice);
+        OldVendLedgEntry.SetRange("Bill No.", CVLedgEntryBuf."Bill No.");
+        if OldVendLedgEntry.FindFirst() then
+            Error(
+              Text1100005,
+              CVLedgEntryBuf."Document No.", CVLedgEntryBuf."Bill No.");
 
         if IsFromJournal then
             CarteraDoc."From Journal" := true;
@@ -201,56 +195,54 @@ codeunit 7000006 "Document-Post"
 #endif
         Cust: Record Customer;
     begin
-        with GenJnlLine do begin
-            CarteraDoc."No." := "Bill No.";
-            CarteraDoc."Posting Date" := "Posting Date";
-            CarteraDoc."Document No." := "Document No.";
-            CarteraDoc."Original Document No." := "Document No.";
-            CarteraDoc.Description := Description;
-            CarteraDoc."Due Date" := "Due Date";
-            CarteraDoc."Payment Method Code" := "Payment Method Code";
-            PaymentMethod.Get("Payment Method Code");
-            if PaymentMethod."Submit for Acceptance" then
-                CarteraDoc.Accepted := CarteraDoc.Accepted::No
-            else
-                CarteraDoc.Accepted := CarteraDoc.Accepted::"Not Required";
-            CarteraDoc."Collection Agent" := PaymentMethod."Collection Agent";
-            CarteraDoc."Account No." := "Account No.";
-            CarteraDoc."Currency Code" := "Currency Code";
-            CarteraDoc."Cust./Vendor Bank Acc. Code" :=
-              CopyStr("Recipient Bank Account", 1, MaxStrLen(CarteraDoc."Cust./Vendor Bank Acc. Code"));
+        CarteraDoc."No." := GenJnlLine."Bill No.";
+        CarteraDoc."Posting Date" := GenJnlLine."Posting Date";
+        CarteraDoc."Document No." := GenJnlLine."Document No.";
+        CarteraDoc."Original Document No." := GenJnlLine."Document No.";
+        CarteraDoc.Description := GenJnlLine.Description;
+        CarteraDoc."Due Date" := GenJnlLine."Due Date";
+        CarteraDoc."Payment Method Code" := GenJnlLine."Payment Method Code";
+        PaymentMethod.Get(GenJnlLine."Payment Method Code");
+        if PaymentMethod."Submit for Acceptance" then
+            CarteraDoc.Accepted := CarteraDoc.Accepted::No
+        else
+            CarteraDoc.Accepted := CarteraDoc.Accepted::"Not Required";
+        CarteraDoc."Collection Agent" := PaymentMethod."Collection Agent";
+        CarteraDoc."Account No." := GenJnlLine."Account No.";
+        CarteraDoc."Currency Code" := GenJnlLine."Currency Code";
+        CarteraDoc."Cust./Vendor Bank Acc. Code" :=
+          CopyStr(GenJnlLine."Recipient Bank Account", 1, MaxStrLen(CarteraDoc."Cust./Vendor Bank Acc. Code"));
 #if not CLEAN22
-            CarteraDoc."Pmt. Address Code" := "Pmt. Address Code";
+        CarteraDoc."Pmt. Address Code" := GenJnlLine."Pmt. Address Code";
 #endif
-            CarteraDoc."Global Dimension 1 Code" := "Shortcut Dimension 1 Code";
-            CarteraDoc."Global Dimension 2 Code" := "Shortcut Dimension 2 Code";
-            CarteraDoc."Dimension Set ID" := "Dimension Set ID";
-            CarteraDoc."Direct Debit Mandate ID" := "Direct Debit Mandate ID";
-            case "Document Type" of
-                "Document Type"::Bill:
-                    CarteraDoc."Document Type" := CarteraDoc."Document Type"::Bill;
-                "Document Type"::Invoice:
-                    CarteraDoc."Document Type" := CarteraDoc."Document Type"::Invoice;
-                "Document Type"::"Credit Memo":
-                    CarteraDoc."Document Type" := 1;
+        CarteraDoc."Global Dimension 1 Code" := GenJnlLine."Shortcut Dimension 1 Code";
+        CarteraDoc."Global Dimension 2 Code" := GenJnlLine."Shortcut Dimension 2 Code";
+        CarteraDoc."Dimension Set ID" := GenJnlLine."Dimension Set ID";
+        CarteraDoc."Direct Debit Mandate ID" := GenJnlLine."Direct Debit Mandate ID";
+        case GenJnlLine."Document Type" of
+            GenJnlLine."Document Type"::Bill:
+                CarteraDoc."Document Type" := CarteraDoc."Document Type"::Bill;
+            GenJnlLine."Document Type"::Invoice:
+                CarteraDoc."Document Type" := CarteraDoc."Document Type"::Invoice;
+            GenJnlLine."Document Type"::"Credit Memo":
+                CarteraDoc."Document Type" := CarteraDoc."Document Type"::"Credit Memo";
+        end;
+        if GenJnlLine."Account Type" = GenJnlLine."Account Type"::Customer then begin
+            CompanyInfo.Get();
+            if GenJnlLine."Recipient Bank Account" <> '' then begin
+                CustBankAcc.Get(GenJnlLine."Account No.", GenJnlLine."Recipient Bank Account");
+                CarteraDoc.Place := CompanyInfo."Post Code" = CustBankAcc."Post Code";
+                exit;
             end;
-            if "Account Type" = "Account Type"::Customer then begin
-                CompanyInfo.Get();
-                if "Recipient Bank Account" <> '' then begin
-                    CustBankAcc.Get("Account No.", "Recipient Bank Account");
-                    CarteraDoc.Place := CompanyInfo."Post Code" = CustBankAcc."Post Code";
-                    exit;
-                end;
 #if not CLEAN22
-                if "Pmt. Address Code" <> '' then begin
-                    CustPmtAddress.Get("Account No.", "Pmt. Address Code");
-                    CarteraDoc.Place := CompanyInfo."Post Code" = CustPmtAddress."Post Code";
-                    exit;
-                end;
-#endif
-                Cust.Get("Account No.");
-                CarteraDoc.Place := CompanyInfo."Post Code" = Cust."Post Code";
+            if GenJnlLine."Pmt. Address Code" <> '' then begin
+                CustPmtAddress.Get(GenJnlLine."Account No.", GenJnlLine."Pmt. Address Code");
+                CarteraDoc.Place := CompanyInfo."Post Code" = CustPmtAddress."Post Code";
+                exit;
             end;
+#endif
+            Cust.Get(GenJnlLine."Account No.");
+            CarteraDoc.Place := CompanyInfo."Post Code" = Cust."Post Code";
         end;
     end;
 
@@ -267,135 +259,133 @@ codeunit 7000006 "Document-Post"
         DocLock: Boolean;
     begin
         OnBeforeUpdateReceivableDoc(CustLedgEntry);
-        with CustLedgEntry do begin
-            if not DocLock then begin
-                DocLock := true;
-                CarteraDoc.LockTable();
-                PostedCarteraDoc.LockTable();
-                ClosedCarteraDoc.LockTable();
-                if CarteraDoc2.FindLast() then;
-                if PostedCarteraDoc2.FindLast() then;
-                if ClosedCarteraDoc2.FindLast() then;
-            end;
-            if "Remaining Amount" = 0 then
-                "Remaining Amt. (LCY)" := 0;
-            if "Document Situation" <> "Document Situation"::Cartera then
-                AppliedAmountLCY := Round(AppliedAmountLCY);
-            case "Document Situation" of
-                "Document Situation"::" ", "Document Situation"::Cartera:
-                    begin
-                        CarteraDoc.Get(CarteraDoc.Type::Receivable, "Entry No.");
-                        if CarteraDoc."Currency Code" = '' then
-                            CarteraDoc."Remaining Amount" := CarteraDoc."Remaining Amount" + AppliedAmountLCY
-                        else begin
-                            Currency.Get(CarteraDoc."Currency Code");
-                            Currency.InitRoundingPrecision();
-                            CarteraDoc."Remaining Amount" :=
-                              CarteraDoc."Remaining Amount" +
-                              Round(AppliedAmountLCY * "Original Currency Factor", Currency."Amount Rounding Precision");
-                        end;
-                        CarteraDoc."Remaining Amt. (LCY)" :=
-                          Round(CarteraDoc."Remaining Amount" / "Original Currency Factor", Currency."Amount Rounding Precision");
-
-                        AppliedAmountLCY := Round(AppliedAmountLCY);
-                        if CarteraDoc."Document Type" = CarteraDoc."Document Type"::Bill then
-                            DocAmountLCY := DocAmountLCY + AppliedAmountLCY;
-                        CarteraDoc.ResetNoPrinted();
-                        if Open then
-                            CarteraDoc.Modify()
-                        else begin
-                            ClosedCarteraDoc.TransferFields(CarteraDoc);
-                            ClosedCarteraDoc.Status := ClosedCarteraDoc.Status::Honored;
-                            ClosedCarteraDoc."Honored/Rejtd. at Date" := GenJnlLine."Posting Date";
-                            ClosedCarteraDoc."Bill Gr./Pmt. Order No." := '';
-                            ClosedCarteraDoc."Remaining Amount" := 0;
-                            ClosedCarteraDoc."Remaining Amt. (LCY)" := 0;
-                            ClosedCarteraDoc."Amount for Collection" := 0;
-                            ClosedCarteraDoc."Amt. for Collection (LCY)" := 0;
-                            ClosedCarteraDoc.Insert();
-                            CarteraDoc.Delete();
-                            "Document Situation" := "Document Situation"::"Closed Documents";
-                            "Document Status" := "Document Status"::Honored;
-                            if "Document Type" <> "Document Type"::Invoice then
-                                Modify();
-                        end;
+        if not DocLock then begin
+            DocLock := true;
+            CarteraDoc.LockTable();
+            PostedCarteraDoc.LockTable();
+            ClosedCarteraDoc.LockTable();
+            if CarteraDoc2.FindLast() then;
+            if PostedCarteraDoc2.FindLast() then;
+            if ClosedCarteraDoc2.FindLast() then;
+        end;
+        if CustLedgEntry."Remaining Amount" = 0 then
+            CustLedgEntry."Remaining Amt. (LCY)" := 0;
+        if CustLedgEntry."Document Situation" <> CustLedgEntry."Document Situation"::Cartera then
+            AppliedAmountLCY := Round(AppliedAmountLCY);
+        case CustLedgEntry."Document Situation" of
+            CustLedgEntry."Document Situation"::" ", CustLedgEntry."Document Situation"::Cartera:
+                begin
+                    CarteraDoc.Get(CarteraDoc.Type::Receivable, CustLedgEntry."Entry No.");
+                    if CarteraDoc."Currency Code" = '' then
+                        CarteraDoc."Remaining Amount" := CarteraDoc."Remaining Amount" + AppliedAmountLCY
+                    else begin
+                        Currency.Get(CarteraDoc."Currency Code");
+                        Currency.InitRoundingPrecision();
+                        CarteraDoc."Remaining Amount" :=
+                          CarteraDoc."Remaining Amount" +
+                          Round(AppliedAmountLCY * CustLedgEntry."Original Currency Factor", Currency."Amount Rounding Precision");
                     end;
-                "Document Situation"::"Posted BG/PO":
-                    begin
-                        PostedCarteraDoc.Get(PostedCarteraDoc.Type::Receivable, "Entry No.");
-                        PostedCarteraDoc."Remaining Amount" := "Remaining Amount";
-                        PostedCarteraDoc."Remaining Amt. (LCY)" := "Remaining Amt. (LCY)";
-                        if PostedCarteraDoc.Factoring = PostedCarteraDoc.Factoring::" " then begin
-                            if PostedCarteraDoc.Status = PostedCarteraDoc.Status::Rejected then
-                                RejDocAmountLCY := RejDocAmountLCY + AppliedAmountLCY
+                    CarteraDoc."Remaining Amt. (LCY)" :=
+                      Round(CarteraDoc."Remaining Amount" / CustLedgEntry."Original Currency Factor", Currency."Amount Rounding Precision");
+
+                    AppliedAmountLCY := Round(AppliedAmountLCY);
+                    if CarteraDoc."Document Type" = CarteraDoc."Document Type"::Bill then
+                        DocAmountLCY := DocAmountLCY + AppliedAmountLCY;
+                    CarteraDoc.ResetNoPrinted();
+                    if CustLedgEntry.Open then
+                        CarteraDoc.Modify()
+                    else begin
+                        ClosedCarteraDoc.TransferFields(CarteraDoc);
+                        ClosedCarteraDoc.Status := ClosedCarteraDoc.Status::Honored;
+                        ClosedCarteraDoc."Honored/Rejtd. at Date" := GenJnlLine."Posting Date";
+                        ClosedCarteraDoc."Bill Gr./Pmt. Order No." := '';
+                        ClosedCarteraDoc."Remaining Amount" := 0;
+                        ClosedCarteraDoc."Remaining Amt. (LCY)" := 0;
+                        ClosedCarteraDoc."Amount for Collection" := 0;
+                        ClosedCarteraDoc."Amt. for Collection (LCY)" := 0;
+                        ClosedCarteraDoc.Insert();
+                        CarteraDoc.Delete();
+                        CustLedgEntry."Document Situation" := CustLedgEntry."Document Situation"::"Closed Documents";
+                        CustLedgEntry."Document Status" := CustLedgEntry."Document Status"::Honored;
+                        if CustLedgEntry."Document Type" <> CustLedgEntry."Document Type"::Invoice then
+                            CustLedgEntry.Modify();
+                    end;
+                end;
+            CustLedgEntry."Document Situation"::"Posted BG/PO":
+                begin
+                    PostedCarteraDoc.Get(PostedCarteraDoc.Type::Receivable, CustLedgEntry."Entry No.");
+                    PostedCarteraDoc."Remaining Amount" := CustLedgEntry."Remaining Amount";
+                    PostedCarteraDoc."Remaining Amt. (LCY)" := CustLedgEntry."Remaining Amt. (LCY)";
+                    if PostedCarteraDoc.Factoring = PostedCarteraDoc.Factoring::" " then begin
+                        if PostedCarteraDoc.Status = PostedCarteraDoc.Status::Rejected then
+                            RejDocAmountLCY := RejDocAmountLCY + AppliedAmountLCY
+                        else
+                            if PostedCarteraDoc."Dealing Type" = PostedCarteraDoc."Dealing Type"::Discount then
+                                DiscDocAmountLCY := DiscDocAmountLCY + AppliedAmountLCY
                             else
-                                if PostedCarteraDoc."Dealing Type" = PostedCarteraDoc."Dealing Type"::Discount then
-                                    DiscDocAmountLCY := DiscDocAmountLCY + AppliedAmountLCY
-                                else
-                                    CollDocAmountLCY := CollDocAmountLCY + AppliedAmountLCY;
-                        end else
-                            case true of
-                                PostedCarteraDoc."Dealing Type" = PostedCarteraDoc."Dealing Type"::Discount:
-                                    begin
-                                        PostedBillGroup.Get(PostedCarteraDoc."Bill Gr./Pmt. Order No.");
-                                        if PostedBillGroup.Factoring = PostedBillGroup.Factoring::Risked then
-                                            DiscRiskFactAmountLCY := DiscRiskFactAmountLCY + AppliedAmountLCY
-                                        else
-                                            DiscUnriskFactAmountLCY := DiscUnriskFactAmountLCY + AppliedAmountLCY
-                                    end;
-                                else
-                                    CollFactAmountLCY := CollFactAmountLCY + AppliedAmountLCY;
-                            end;
-
-                        UpdateReceivableCurrFact(
-                          PostedCarteraDoc, AppliedAmountLCY, DocAmountLCY, RejDocAmountLCY, DiscDocAmountLCY, CollDocAmountLCY,
-                          DiscRiskFactAmountLCY, DiscUnriskFactAmountLCY, CollFactAmountLCY);
-                        if not Open then begin
-                            if GenJnlLine."Document Type" <> GenJnlLine."Document Type"::Payment then
-                                if PostedCarteraDoc.Status = ClosedCarteraDoc.Status::Rejected then
-                                    PostedCarteraDoc.Redrawn := true;
-                            PostedCarteraDoc.Status := PostedCarteraDoc.Status::Honored;
-                            PostedCarteraDoc."Honored/Rejtd. at Date" := GenJnlLine."Posting Date";
-                            PostedCarteraDoc."Remaining Amount" := 0;
-                            PostedCarteraDoc."Remaining Amt. (LCY)" := 0;
-                            "Document Status" := "Document Status"::Honored;
-                            if PostedCarteraDoc.Redrawn then
-                                "Document Status" := "Document Status"::Redrawn;
-                            Modify();
-                        end;
-                        PostedCarteraDoc.Modify();
-                    end;
-                "Document Situation"::"Closed BG/PO", "Document Situation"::"Closed Documents":
-                    begin
-                        ClosedCarteraDoc.Get(ClosedCarteraDoc.Type::Receivable, "Entry No.");
-                        ClosedCarteraDoc.TestField(Status, ClosedCarteraDoc.Status::Rejected);
-                        ClosedCarteraDoc."Remaining Amount" := "Remaining Amount";
-                        ClosedCarteraDoc."Remaining Amt. (LCY)" := "Remaining Amt. (LCY)";
-                        if not Open then begin
-                            if GenJnlLine."Document Type" <> GenJnlLine."Document Type"::Payment then begin
-                                ClosedCarteraDoc.Redrawn := true;
-                                ClosedCarteraDoc.Status := ClosedCarteraDoc.Status::Rejected;
-                                "Document Status" := "Document Status"::Rejected;
-                            end else
-                                if "Remaining Amount" = 0 then begin
-                                    ClosedCarteraDoc.Status := ClosedCarteraDoc.Status::Honored;
-                                    "Document Status" := "Document Status"::Honored;
+                                CollDocAmountLCY := CollDocAmountLCY + AppliedAmountLCY;
+                    end else
+                        case true of
+                            PostedCarteraDoc."Dealing Type" = PostedCarteraDoc."Dealing Type"::Discount:
+                                begin
+                                    PostedBillGroup.Get(PostedCarteraDoc."Bill Gr./Pmt. Order No.");
+                                    if PostedBillGroup.Factoring = PostedBillGroup.Factoring::Risked then
+                                        DiscRiskFactAmountLCY := DiscRiskFactAmountLCY + AppliedAmountLCY
+                                    else
+                                        DiscUnriskFactAmountLCY := DiscUnriskFactAmountLCY + AppliedAmountLCY
                                 end;
-                            ClosedCarteraDoc."Remaining Amount" := 0;
-                            ClosedCarteraDoc."Remaining Amt. (LCY)" := 0;
-                            ClosedCarteraDoc."Honored/Rejtd. at Date" := GenJnlLine."Posting Date";
-                            if ClosedCarteraDoc.Redrawn then
-                                "Document Status" := "Document Status"::Redrawn;
-                            Modify();
+                            else
+                                CollFactAmountLCY := CollFactAmountLCY + AppliedAmountLCY;
                         end;
-                        ClosedCarteraDoc.Modify();
-                        Modify();
-                        if (ClosedCarteraDoc."Document Type" = ClosedCarteraDoc."Document Type"::Bill) or
-                           (ClosedCarteraDoc."Document Type" = ClosedCarteraDoc."Document Type"::Invoice)
-                        then
-                            RejDocAmountLCY := RejDocAmountLCY + AppliedAmountLCY;
+
+                    UpdateReceivableCurrFact(
+                      PostedCarteraDoc, AppliedAmountLCY, DocAmountLCY, RejDocAmountLCY, DiscDocAmountLCY, CollDocAmountLCY,
+                      DiscRiskFactAmountLCY, DiscUnriskFactAmountLCY, CollFactAmountLCY);
+                    if not CustLedgEntry.Open then begin
+                        if GenJnlLine."Document Type" <> GenJnlLine."Document Type"::Payment then
+                            if PostedCarteraDoc.Status = ClosedCarteraDoc.Status::Rejected then
+                                PostedCarteraDoc.Redrawn := true;
+                        PostedCarteraDoc.Status := PostedCarteraDoc.Status::Honored;
+                        PostedCarteraDoc."Honored/Rejtd. at Date" := GenJnlLine."Posting Date";
+                        PostedCarteraDoc."Remaining Amount" := 0;
+                        PostedCarteraDoc."Remaining Amt. (LCY)" := 0;
+                        CustLedgEntry."Document Status" := CustLedgEntry."Document Status"::Honored;
+                        if PostedCarteraDoc.Redrawn then
+                            CustLedgEntry."Document Status" := CustLedgEntry."Document Status"::Redrawn;
+                        CustLedgEntry.Modify();
                     end;
-            end;
+                    PostedCarteraDoc.Modify();
+                end;
+            CustLedgEntry."Document Situation"::"Closed BG/PO", CustLedgEntry."Document Situation"::"Closed Documents":
+                begin
+                    ClosedCarteraDoc.Get(ClosedCarteraDoc.Type::Receivable, CustLedgEntry."Entry No.");
+                    ClosedCarteraDoc.TestField(Status, ClosedCarteraDoc.Status::Rejected);
+                    ClosedCarteraDoc."Remaining Amount" := CustLedgEntry."Remaining Amount";
+                    ClosedCarteraDoc."Remaining Amt. (LCY)" := CustLedgEntry."Remaining Amt. (LCY)";
+                    if not CustLedgEntry.Open then begin
+                        if GenJnlLine."Document Type" <> GenJnlLine."Document Type"::Payment then begin
+                            ClosedCarteraDoc.Redrawn := true;
+                            ClosedCarteraDoc.Status := ClosedCarteraDoc.Status::Rejected;
+                            CustLedgEntry."Document Status" := CustLedgEntry."Document Status"::Rejected;
+                        end else
+                            if CustLedgEntry."Remaining Amount" = 0 then begin
+                                ClosedCarteraDoc.Status := ClosedCarteraDoc.Status::Honored;
+                                CustLedgEntry."Document Status" := CustLedgEntry."Document Status"::Honored;
+                            end;
+                        ClosedCarteraDoc."Remaining Amount" := 0;
+                        ClosedCarteraDoc."Remaining Amt. (LCY)" := 0;
+                        ClosedCarteraDoc."Honored/Rejtd. at Date" := GenJnlLine."Posting Date";
+                        if ClosedCarteraDoc.Redrawn then
+                            CustLedgEntry."Document Status" := CustLedgEntry."Document Status"::Redrawn;
+                        CustLedgEntry.Modify();
+                    end;
+                    ClosedCarteraDoc.Modify();
+                    CustLedgEntry.Modify();
+                    if (ClosedCarteraDoc."Document Type" = ClosedCarteraDoc."Document Type"::Bill) or
+                       (ClosedCarteraDoc."Document Type" = ClosedCarteraDoc."Document Type"::Invoice)
+                    then
+                        RejDocAmountLCY := RejDocAmountLCY + AppliedAmountLCY;
+                end;
         end;
     end;
 
@@ -409,96 +399,94 @@ codeunit 7000006 "Document-Post"
         ClosedCarteraDoc2: Record "Closed Cartera Doc.";
         Currency: Record Currency;
     begin
-        with VendLedgEntry do begin
-            if not DocLock then begin
-                DocLock := true;
-                CarteraDoc.LockTable();
-                PostedCarteraDoc.LockTable();
-                if CarteraDoc2.FindLast() then;
-                if PostedCarteraDoc2.FindLast() then;
-                if ClosedCarteraDoc2.FindLast() then;
-                ClosedCarteraDoc.LockTable();
-            end;
-            if "Remaining Amount" = 0 then
-                "Remaining Amt. (LCY)" := 0;
-            if "Document Situation" <> "Document Situation"::Cartera then
-                AppliedAmountLCY := Round(AppliedAmountLCY);
-            case "Document Situation" of
-                "Document Situation"::" ", "Document Situation"::Cartera:
-                    begin
-                        CarteraDoc.Get(CarteraDoc.Type::Payable, "Entry No.");
-                        if CarteraDoc."Currency Code" = '' then
-                            CarteraDoc."Remaining Amount" := CarteraDoc."Remaining Amount" - AppliedAmountLCY
-                        else begin
-                            Currency.Get(CarteraDoc."Currency Code");
-                            Currency.InitRoundingPrecision();
-                            CarteraDoc."Remaining Amount" :=
-                              CarteraDoc."Remaining Amount" -
-                              Round(AppliedAmountLCY * "Original Currency Factor", Currency."Amount Rounding Precision");
-                        end;
-                        CarteraDoc."Remaining Amt. (LCY)" :=
-                          Round(CarteraDoc."Remaining Amount" / "Original Currency Factor", Currency."Amount Rounding Precision");
+        if not DocLock then begin
+            DocLock := true;
+            CarteraDoc.LockTable();
+            PostedCarteraDoc.LockTable();
+            if CarteraDoc2.FindLast() then;
+            if PostedCarteraDoc2.FindLast() then;
+            if ClosedCarteraDoc2.FindLast() then;
+            ClosedCarteraDoc.LockTable();
+        end;
+        if VendLedgEntry."Remaining Amount" = 0 then
+            VendLedgEntry."Remaining Amt. (LCY)" := 0;
+        if VendLedgEntry."Document Situation" <> VendLedgEntry."Document Situation"::Cartera then
+            AppliedAmountLCY := Round(AppliedAmountLCY);
+        case VendLedgEntry."Document Situation" of
+            VendLedgEntry."Document Situation"::" ", VendLedgEntry."Document Situation"::Cartera:
+                begin
+                    CarteraDoc.Get(CarteraDoc.Type::Payable, VendLedgEntry."Entry No.");
+                    if CarteraDoc."Currency Code" = '' then
+                        CarteraDoc."Remaining Amount" := CarteraDoc."Remaining Amount" - AppliedAmountLCY
+                    else begin
+                        Currency.Get(CarteraDoc."Currency Code");
+                        Currency.InitRoundingPrecision();
+                        CarteraDoc."Remaining Amount" :=
+                          CarteraDoc."Remaining Amount" -
+                          Round(AppliedAmountLCY * VendLedgEntry."Original Currency Factor", Currency."Amount Rounding Precision");
+                    end;
+                    CarteraDoc."Remaining Amt. (LCY)" :=
+                      Round(CarteraDoc."Remaining Amount" / VendLedgEntry."Original Currency Factor", Currency."Amount Rounding Precision");
 
-                        AppliedAmountLCY := Round(AppliedAmountLCY);
-                        if CarteraDoc."Document Type" = CarteraDoc."Document Type"::Bill then
-                            DocAmountLCY := DocAmountLCY + AppliedAmountLCY;
-                        CarteraDoc.ResetNoPrinted();
-                        if Open then begin
-                            OnUpdatePayableDocBeforeCarteraDocModify(CarteraDoc, VendLedgEntry);
-                            CarteraDoc.Modify();
-                        end else begin
-                            ClosedCarteraDoc.TransferFields(CarteraDoc);
-                            ClosedCarteraDoc.Status := ClosedCarteraDoc.Status::Honored;
-                            ClosedCarteraDoc."Honored/Rejtd. at Date" := GenJnlLine."Posting Date";
-                            ClosedCarteraDoc."Bill Gr./Pmt. Order No." := '';
-                            ClosedCarteraDoc."Remaining Amount" := 0;
-                            ClosedCarteraDoc."Remaining Amt. (LCY)" := 0;
-                            ClosedCarteraDoc."Amount for Collection" := 0;
-                            ClosedCarteraDoc."Amt. for Collection (LCY)" := 0;
-                            ClosedCarteraDoc.Insert();
-                            CarteraDoc.Delete();
-                            "Document Situation" := "Document Situation"::"Closed Documents";
-                            "Document Status" := "Document Status"::Honored;
-                            if "Document Type" <> "Document Type"::Invoice then
-                                Modify();
-                        end;
+                    AppliedAmountLCY := Round(AppliedAmountLCY);
+                    if CarteraDoc."Document Type" = CarteraDoc."Document Type"::Bill then
+                        DocAmountLCY := DocAmountLCY + AppliedAmountLCY;
+                    CarteraDoc.ResetNoPrinted();
+                    if VendLedgEntry.Open then begin
+                        OnUpdatePayableDocBeforeCarteraDocModify(CarteraDoc, VendLedgEntry);
+                        CarteraDoc.Modify();
+                    end else begin
+                        ClosedCarteraDoc.TransferFields(CarteraDoc);
+                        ClosedCarteraDoc.Status := ClosedCarteraDoc.Status::Honored;
+                        ClosedCarteraDoc."Honored/Rejtd. at Date" := GenJnlLine."Posting Date";
+                        ClosedCarteraDoc."Bill Gr./Pmt. Order No." := '';
+                        ClosedCarteraDoc."Remaining Amount" := 0;
+                        ClosedCarteraDoc."Remaining Amt. (LCY)" := 0;
+                        ClosedCarteraDoc."Amount for Collection" := 0;
+                        ClosedCarteraDoc."Amt. for Collection (LCY)" := 0;
+                        ClosedCarteraDoc.Insert();
+                        CarteraDoc.Delete();
+                        VendLedgEntry."Document Situation" := VendLedgEntry."Document Situation"::"Closed Documents";
+                        VendLedgEntry."Document Status" := VendLedgEntry."Document Status"::Honored;
+                        if VendLedgEntry."Document Type" <> VendLedgEntry."Document Type"::Invoice then
+                            VendLedgEntry.Modify();
                     end;
-                "Document Situation"::"Posted BG/PO":
-                    begin
-                        PostedCarteraDoc.Get(PostedCarteraDoc.Type::Payable, "Entry No.");
-                        PostedCarteraDoc."Remaining Amount" := -"Remaining Amount";
-                        PostedCarteraDoc."Remaining Amt. (LCY)" := -"Remaining Amt. (LCY)";
-                        CollDocAmountLCY := CollDocAmountLCY + AppliedAmountLCY;
-                        UpdatePayableCurrFact(PostedCarteraDoc, AppliedAmountLCY, DocAmountLCY, CollDocAmountLCY);
-                        if not Open then begin
-                            if PostedCarteraDoc.Status = ClosedCarteraDoc.Status::Rejected then
-                                PostedCarteraDoc.Redrawn := true;
-                            PostedCarteraDoc.Status := PostedCarteraDoc.Status::Honored;
-                            PostedCarteraDoc."Honored/Rejtd. at Date" := GenJnlLine."Posting Date";
-                            PostedCarteraDoc."Remaining Amount" := 0;
-                            PostedCarteraDoc."Remaining Amt. (LCY)" := 0;
-                            "Document Status" := "Document Status"::Honored;
-                            Modify();
-                        end;
-                        PostedCarteraDoc.Modify();
+                end;
+            VendLedgEntry."Document Situation"::"Posted BG/PO":
+                begin
+                    PostedCarteraDoc.Get(PostedCarteraDoc.Type::Payable, VendLedgEntry."Entry No.");
+                    PostedCarteraDoc."Remaining Amount" := -VendLedgEntry."Remaining Amount";
+                    PostedCarteraDoc."Remaining Amt. (LCY)" := -VendLedgEntry."Remaining Amt. (LCY)";
+                    CollDocAmountLCY := CollDocAmountLCY + AppliedAmountLCY;
+                    UpdatePayableCurrFact(PostedCarteraDoc, AppliedAmountLCY, DocAmountLCY, CollDocAmountLCY);
+                    if not VendLedgEntry.Open then begin
+                        if PostedCarteraDoc.Status = ClosedCarteraDoc.Status::Rejected then
+                            PostedCarteraDoc.Redrawn := true;
+                        PostedCarteraDoc.Status := PostedCarteraDoc.Status::Honored;
+                        PostedCarteraDoc."Honored/Rejtd. at Date" := GenJnlLine."Posting Date";
+                        PostedCarteraDoc."Remaining Amount" := 0;
+                        PostedCarteraDoc."Remaining Amt. (LCY)" := 0;
+                        VendLedgEntry."Document Status" := VendLedgEntry."Document Status"::Honored;
+                        VendLedgEntry.Modify();
                     end;
-                "Document Situation"::"Closed BG/PO":
-                    begin
-                        ClosedCarteraDoc.Get(ClosedCarteraDoc.Type::Payable, "Entry No.");
-                        ClosedCarteraDoc.TestField(Status, ClosedCarteraDoc.Status::Rejected);
-                        ClosedCarteraDoc."Remaining Amount" := "Remaining Amount";
-                        ClosedCarteraDoc."Remaining Amt. (LCY)" := "Remaining Amt. (LCY)";
-                        if not Open then begin
-                            if ClosedCarteraDoc.Status = PostedCarteraDoc.Status::Rejected then
-                                ClosedCarteraDoc.Redrawn := true;
-                            ClosedCarteraDoc.Status := ClosedCarteraDoc.Status::Honored;
-                            ClosedCarteraDoc."Remaining Amount" := 0;
-                            ClosedCarteraDoc."Remaining Amt. (LCY)" := 0;
-                            ClosedCarteraDoc."Honored/Rejtd. at Date" := GenJnlLine."Posting Date";
-                        end;
-                        ClosedCarteraDoc.Modify();
+                    PostedCarteraDoc.Modify();
+                end;
+            VendLedgEntry."Document Situation"::"Closed BG/PO":
+                begin
+                    ClosedCarteraDoc.Get(ClosedCarteraDoc.Type::Payable, VendLedgEntry."Entry No.");
+                    ClosedCarteraDoc.TestField(Status, ClosedCarteraDoc.Status::Rejected);
+                    ClosedCarteraDoc."Remaining Amount" := VendLedgEntry."Remaining Amount";
+                    ClosedCarteraDoc."Remaining Amt. (LCY)" := VendLedgEntry."Remaining Amt. (LCY)";
+                    if not VendLedgEntry.Open then begin
+                        if ClosedCarteraDoc.Status = PostedCarteraDoc.Status::Rejected then
+                            ClosedCarteraDoc.Redrawn := true;
+                        ClosedCarteraDoc.Status := ClosedCarteraDoc.Status::Honored;
+                        ClosedCarteraDoc."Remaining Amount" := 0;
+                        ClosedCarteraDoc."Remaining Amt. (LCY)" := 0;
+                        ClosedCarteraDoc."Honored/Rejtd. at Date" := GenJnlLine."Posting Date";
                     end;
-            end;
+                    ClosedCarteraDoc.Modify();
+                end;
         end;
     end;
 
@@ -593,29 +581,27 @@ codeunit 7000006 "Document-Post"
         CustLedgEntry: Record "Cust. Ledger Entry";
         ClosedBillGroup: Record "Closed Bill Group";
     begin
-        with PostedCarteraDoc do begin
-            Reset();
-            SetCurrentKey("Bill Gr./Pmt. Order No.", Status);
-            SetRange("Bill Gr./Pmt. Order No.", PostedBillGroup."No.");
-            SetRange(Type, Type::Receivable);
-            SetRange(Status, Status::Open);
-            OnCloseBillGroupIfEmptyOnAfterPostedCarteraDocSetFilter(PostedCarteraDoc);
-            if not Find('-') then begin
-                SetRange(Status);
-                Find('-');
-                repeat
-                    ClosedCarteraDoc.TransferFields(PostedCarteraDoc);
-                    ClosedCarteraDoc.Insert();
-                    CustLedgEntry.Get(ClosedCarteraDoc."Entry No.");
-                    CustLedgEntry."Document Situation" := CustLedgEntry."Document Situation"::"Closed BG/PO";
-                    CustLedgEntry.Modify();
-                until Next() = 0;
-                DeleteAll();
-                ClosedBillGroup.TransferFields(PostedBillGroup);
-                ClosedBillGroup."Closing Date" := PostingDate;
-                ClosedBillGroup.Insert();
-                PostedBillGroup.Delete();
-            end;
+        PostedCarteraDoc.Reset();
+        PostedCarteraDoc.SetCurrentKey("Bill Gr./Pmt. Order No.", Status);
+        PostedCarteraDoc.SetRange("Bill Gr./Pmt. Order No.", PostedBillGroup."No.");
+        PostedCarteraDoc.SetRange(Type, PostedCarteraDoc.Type::Receivable);
+        PostedCarteraDoc.SetRange(Status, PostedCarteraDoc.Status::Open);
+        OnCloseBillGroupIfEmptyOnAfterPostedCarteraDocSetFilter(PostedCarteraDoc);
+        if not PostedCarteraDoc.Find('-') then begin
+            PostedCarteraDoc.SetRange(Status);
+            PostedCarteraDoc.Find('-');
+            repeat
+                ClosedCarteraDoc.TransferFields(PostedCarteraDoc);
+                ClosedCarteraDoc.Insert();
+                CustLedgEntry.Get(ClosedCarteraDoc."Entry No.");
+                CustLedgEntry."Document Situation" := CustLedgEntry."Document Situation"::"Closed BG/PO";
+                CustLedgEntry.Modify();
+            until PostedCarteraDoc.Next() = 0;
+            PostedCarteraDoc.DeleteAll();
+            ClosedBillGroup.TransferFields(PostedBillGroup);
+            ClosedBillGroup."Closing Date" := PostingDate;
+            ClosedBillGroup.Insert();
+            PostedBillGroup.Delete();
         end;
     end;
 
@@ -626,28 +612,26 @@ codeunit 7000006 "Document-Post"
         VendLedgEntry: Record "Vendor Ledger Entry";
         ClosedPmtOrd: Record "Closed Payment Order";
     begin
-        with PostedCarteraDoc do begin
-            Reset();
-            SetCurrentKey("Bill Gr./Pmt. Order No.", Status);
-            SetRange("Bill Gr./Pmt. Order No.", PostedPmtOrd."No.");
-            SetRange(Type, Type::Payable);
-            SetRange(Status, Status::Open);
-            if not Find('-') then begin
-                SetRange(Status);
-                Find('-');
-                repeat
-                    ClosedCarteraDoc.TransferFields(PostedCarteraDoc);
-                    ClosedCarteraDoc.Insert();
-                    VendLedgEntry.Get(ClosedCarteraDoc."Entry No.");
-                    VendLedgEntry."Document Situation" := VendLedgEntry."Document Situation"::"Closed BG/PO";
-                    VendLedgEntry.Modify();
-                until Next() = 0;
-                DeleteAll();
-                ClosedPmtOrd.TransferFields(PostedPmtOrd);
-                ClosedPmtOrd."Closing Date" := PostingDate;
-                ClosedPmtOrd.Insert();
-                PostedPmtOrd.Delete();
-            end;
+        PostedCarteraDoc.Reset();
+        PostedCarteraDoc.SetCurrentKey("Bill Gr./Pmt. Order No.", Status);
+        PostedCarteraDoc.SetRange("Bill Gr./Pmt. Order No.", PostedPmtOrd."No.");
+        PostedCarteraDoc.SetRange(Type, PostedCarteraDoc.Type::Payable);
+        PostedCarteraDoc.SetRange(Status, PostedCarteraDoc.Status::Open);
+        if not PostedCarteraDoc.Find('-') then begin
+            PostedCarteraDoc.SetRange(Status);
+            PostedCarteraDoc.Find('-');
+            repeat
+                ClosedCarteraDoc.TransferFields(PostedCarteraDoc);
+                ClosedCarteraDoc.Insert();
+                VendLedgEntry.Get(ClosedCarteraDoc."Entry No.");
+                VendLedgEntry."Document Situation" := VendLedgEntry."Document Situation"::"Closed BG/PO";
+                VendLedgEntry.Modify();
+            until PostedCarteraDoc.Next() = 0;
+            PostedCarteraDoc.DeleteAll();
+            ClosedPmtOrd.TransferFields(PostedPmtOrd);
+            ClosedPmtOrd."Closing Date" := PostingDate;
+            ClosedPmtOrd.Insert();
+            PostedPmtOrd.Delete();
         end;
     end;
 
@@ -656,42 +640,40 @@ codeunit 7000006 "Document-Post"
         CarteraDoc: Record "Cartera Doc.";
         PaymentMethod: Record "Payment Method";
     begin
-        with GenJnlLine do begin
-            if ("Document Type" = "Document Type"::Bill) and
-               (Amount <> 0)
-            then begin
-                if "Bill No." = '' then
-                    AddError(
-                      StrSubstNo(Text1100009, FieldCaption("Bill No.")),
-                      ErrorCounter,
-                      ErrorText);
-                if "Due Date" = 0D then
-                    AddError(
-                      StrSubstNo(Text1100009, FieldCaption("Due Date")),
-                      ErrorCounter,
-                      ErrorText);
-                if "Payment Method Code" = '' then
-                    AddError(
-                      StrSubstNo(Text1100009, FieldCaption("Payment Method Code")), ErrorCounter, ErrorText);
-                PaymentMethod.Get("Payment Method Code");
-                if not PaymentMethod."Create Bills" then
-                    AddError(
-                      StrSubstNo(Text1100010, FieldCaption("Payment Method Code")), ErrorCounter, ErrorText);
-                if not ("Account Type" in ["Account Type"::Customer, "Account Type"::Vendor]) then
-                    AddError(Text1100001, ErrorCounter, ErrorText);
-            end;
-            if ("Account Type" = "Account Type"::Customer) and
-               ("Applies-to Doc. Type" = "Applies-to Doc. Type"::Bill) and
-               not "System-Created Entry"
-            then begin
-                CarteraDoc.Reset();
-                CarteraDoc.SetCurrentKey(Type, "Document No.");
-                CarteraDoc.SetRange(Type, CarteraDoc.Type::Receivable);
-                CarteraDoc.SetRange("Document No.", "Applies-to Doc. No.");
-                CarteraDoc.SetRange("No.", "Applies-to Bill No.");
-                if CarteraDoc.FindFirst() and (CarteraDoc."Bill Gr./Pmt. Order No." <> '') then
-                    AddError(Text1100011, ErrorCounter, ErrorText);
-            end;
+        if (GenJnlLine."Document Type" = GenJnlLine."Document Type"::Bill) and
+           (GenJnlLine.Amount <> 0)
+        then begin
+            if GenJnlLine."Bill No." = '' then
+                AddError(
+                  StrSubstNo(Text1100009, GenJnlLine.FieldCaption("Bill No.")),
+                  ErrorCounter,
+                  ErrorText);
+            if GenJnlLine."Due Date" = 0D then
+                AddError(
+                  StrSubstNo(Text1100009, GenJnlLine.FieldCaption("Due Date")),
+                  ErrorCounter,
+                  ErrorText);
+            if GenJnlLine."Payment Method Code" = '' then
+                AddError(
+                  StrSubstNo(Text1100009, GenJnlLine.FieldCaption("Payment Method Code")), ErrorCounter, ErrorText);
+            PaymentMethod.Get(GenJnlLine."Payment Method Code");
+            if not PaymentMethod."Create Bills" then
+                AddError(
+                  StrSubstNo(Text1100010, GenJnlLine.FieldCaption("Payment Method Code")), ErrorCounter, ErrorText);
+            if not (GenJnlLine."Account Type" in [GenJnlLine."Account Type"::Customer, GenJnlLine."Account Type"::Vendor]) then
+                AddError(Text1100001, ErrorCounter, ErrorText);
+        end;
+        if (GenJnlLine."Account Type" = GenJnlLine."Account Type"::Customer) and
+           (GenJnlLine."Applies-to Doc. Type" = GenJnlLine."Applies-to Doc. Type"::Bill) and
+           not GenJnlLine."System-Created Entry"
+        then begin
+            CarteraDoc.Reset();
+            CarteraDoc.SetCurrentKey(Type, "Document No.");
+            CarteraDoc.SetRange(Type, CarteraDoc.Type::Receivable);
+            CarteraDoc.SetRange("Document No.", GenJnlLine."Applies-to Doc. No.");
+            CarteraDoc.SetRange("No.", GenJnlLine."Applies-to Bill No.");
+            if CarteraDoc.FindFirst() and (CarteraDoc."Bill Gr./Pmt. Order No." <> '') then
+                AddError(Text1100011, ErrorCounter, ErrorText);
         end;
     end;
 
@@ -721,49 +703,47 @@ codeunit 7000006 "Document-Post"
         GLReg: Record "G/L Register";
         IsHandled: Boolean;
     begin
-        with GenJnlLine do begin
-            GenJnlTemplate.Get("Journal Template Name");
-            GenJnlTemplate.TestField("Force Posting Report", false);
-            if GenJnlTemplate.Recurring and (GetFilter("Posting Date") <> '') then
-                FieldError("Posting Date", Text1100012);
+        GenJnlTemplate.Get(GenJnlLine."Journal Template Name");
+        GenJnlTemplate.TestField("Force Posting Report", false);
+        if GenJnlTemplate.Recurring and (GenJnlLine.GetFilter("Posting Date") <> '') then
+            GenJnlLine.FieldError("Posting Date", Text1100012);
+
+        if Print then begin
+            if not Confirm(Text1100013, false) then
+                exit;
+        end else begin
+            if not Confirm(Text1100014, false) then
+                exit;
+        end;
+
+        TempJnlBatchName := GenJnlLine."Journal Batch Name";
+
+        if Print then begin
+            GLReg.LockTable();
+            if GLReg.FindLast() then;
+        end;
+
+        IsHandled := false;
+        OnCodeOnBeforeGenJnlPostBatchRun(GenJnlLine, IsHandled);
+        if not IsHandled then begin
+            GenJnlPostBatch.Run(GenJnlLine);
+            Clear(GenJnlPostBatch);
 
             if Print then begin
-                if not Confirm(Text1100013, false) then
-                    exit;
-            end else begin
-                if not Confirm(Text1100014, false) then
-                    exit;
+                GLReg.SetRange("No.", GLReg."No." + 1, GenJnlLine."Line No.");
+                if GLReg.Get(GenJnlLine."Line No.") then
+                    REPORT.Run(GenJnlTemplate."Posting Report ID", false, false, GLReg);
             end;
 
-            TempJnlBatchName := "Journal Batch Name";
+            ShowPostResultMessage(GenJnlLine, PostOk, TempJnlBatchName);
 
-            if Print then begin
-                GLReg.LockTable();
-                if GLReg.FindLast() then;
-            end;
-
-            IsHandled := false;
-            OnCodeOnBeforeGenJnlPostBatchRun(GenJnlLine, IsHandled);
-            if not IsHandled then begin
-                GenJnlPostBatch.Run(GenJnlLine);
-                Clear(GenJnlPostBatch);
-
-                if Print then begin
-                    GLReg.SetRange("No.", GLReg."No." + 1, "Line No.");
-                    if GLReg.Get("Line No.") then
-                        REPORT.Run(GenJnlTemplate."Posting Report ID", false, false, GLReg);
-                end;
-
-                ShowPostResultMessage(GenJnlLine, PostOk, TempJnlBatchName);
-
-                if not Find('=><') or (TempJnlBatchName <> "Journal Batch Name") then begin
-                    Reset();
-                    FilterGroup(2);
-                    SetRange("Journal Template Name", "Journal Template Name");
-                    SetRange("Journal Batch Name", "Journal Batch Name");
-                    FilterGroup(0);
-                    "Line No." := 1;
-                end;
+            if not GenJnlLine.Find('=><') or (TempJnlBatchName <> GenJnlLine."Journal Batch Name") then begin
+                GenJnlLine.Reset();
+                GenJnlLine.FilterGroup(2);
+                GenJnlLine.SetRange("Journal Template Name", GenJnlLine."Journal Template Name");
+                GenJnlLine.SetRange("Journal Batch Name", GenJnlLine."Journal Batch Name");
+                GenJnlLine.FilterGroup(0);
+                GenJnlLine."Line No." := 1;
             end;
         end;
     end;
@@ -1035,87 +1015,85 @@ codeunit 7000006 "Document-Post"
         DtldCustLedgEntry: Record "Detailed Cust. Ledg. Entry";
         IsRejection: Boolean;
     begin
-        with CustLedgEntry do begin
-            InBillGroup := false;
-            if CarteraDoc.Get(CarteraDoc.Type::Receivable, "Entry No.") then
-                if CarteraDoc."Bill Gr./Pmt. Order No." <> '' then
-                    InBillGroup := true;
-            if PostedCarteraDoc.Get(PostedCarteraDoc.Type::Receivable, "Entry No.") then
-                if PostedCarteraDoc."Bill Gr./Pmt. Order No." <> '' then
-                    InBillGroup := true;
-            if ClosedCarteraDoc.Get(ClosedCarteraDoc.Type::Receivable, "Entry No.") then
-                if ClosedCarteraDoc."Bill Gr./Pmt. Order No." <> '' then
-                    InBillGroup := true;
-            if InBillGroup then
-                Error(
-                  Text1100102 +
-                  Text1100101,
-                  Description);
-            CalcFields("Remaining Amount", "Remaining Amt. (LCY)");
-            if not DocLock then begin
-                DocLock := true;
-                CarteraDoc.LockTable();
-                ClosedCarteraDoc.LockTable();
-                if CarteraDoc2.FindLast() then;
-                if ClosedCarteraDoc2.FindLast() then;
-            end;
-            if "Remaining Amount" = 0 then
-                "Remaining Amt. (LCY)" := 0;
-            case "Document Situation" of
-                "Document Situation"::Cartera:
-                    begin
-                        CarteraDoc.Get(CarteraDoc.Type::Receivable, "Entry No.");
-                        CarteraDoc."Remaining Amount" :=
-                          CarteraDoc."Remaining Amount" + GetFCYAppliedAmt("Remaining Amt. (LCY)" - CarteraDoc."Remaining Amt. (LCY)",
-                            CarteraDoc."Currency Code", GenJnlLine."Posting Date");
-                        CarteraDoc."Remaining Amt. (LCY)" :=
-                          CarteraDoc."Remaining Amt. (LCY)" + ("Remaining Amt. (LCY)" - CarteraDoc."Remaining Amt. (LCY)");
-                        CarteraDoc.ResetNoPrinted();
-                        if Open then begin
-                            OnUpdateUnAppliedReceivableDocOnBeforeCarteraDocModify(CarteraDoc);
-                            CarteraDoc.Modify();
-                            OnUpdateUnAppliedReceivableDocOnAfterCarteraDocModify(CarteraDoc);
-                        end;
+        InBillGroup := false;
+        if CarteraDoc.Get(CarteraDoc.Type::Receivable, CustLedgEntry."Entry No.") then
+            if CarteraDoc."Bill Gr./Pmt. Order No." <> '' then
+                InBillGroup := true;
+        if PostedCarteraDoc.Get(PostedCarteraDoc.Type::Receivable, CustLedgEntry."Entry No.") then
+            if PostedCarteraDoc."Bill Gr./Pmt. Order No." <> '' then
+                InBillGroup := true;
+        if ClosedCarteraDoc.Get(ClosedCarteraDoc.Type::Receivable, CustLedgEntry."Entry No.") then
+            if ClosedCarteraDoc."Bill Gr./Pmt. Order No." <> '' then
+                InBillGroup := true;
+        if InBillGroup then
+            Error(
+              Text1100102 +
+              Text1100101,
+              CustLedgEntry.Description);
+        CustLedgEntry.CalcFields("Remaining Amount", "Remaining Amt. (LCY)");
+        if not DocLock then begin
+            DocLock := true;
+            CarteraDoc.LockTable();
+            ClosedCarteraDoc.LockTable();
+            if CarteraDoc2.FindLast() then;
+            if ClosedCarteraDoc2.FindLast() then;
+        end;
+        if CustLedgEntry."Remaining Amount" = 0 then
+            CustLedgEntry."Remaining Amt. (LCY)" := 0;
+        case CustLedgEntry."Document Situation" of
+            CustLedgEntry."Document Situation"::Cartera:
+                begin
+                    CarteraDoc.Get(CarteraDoc.Type::Receivable, CustLedgEntry."Entry No.");
+                    CarteraDoc."Remaining Amount" :=
+                      CarteraDoc."Remaining Amount" + GetFCYAppliedAmt(CustLedgEntry."Remaining Amt. (LCY)" - CarteraDoc."Remaining Amt. (LCY)",
+                        CarteraDoc."Currency Code", GenJnlLine."Posting Date");
+                    CarteraDoc."Remaining Amt. (LCY)" :=
+                      CarteraDoc."Remaining Amt. (LCY)" + (CustLedgEntry."Remaining Amt. (LCY)" - CarteraDoc."Remaining Amt. (LCY)");
+                    CarteraDoc.ResetNoPrinted();
+                    if CustLedgEntry.Open then begin
+                        OnUpdateUnAppliedReceivableDocOnBeforeCarteraDocModify(CarteraDoc);
+                        CarteraDoc.Modify();
+                        OnUpdateUnAppliedReceivableDocOnAfterCarteraDocModify(CarteraDoc);
                     end;
-                "Document Situation"::"Closed Documents":
-                    begin
-                        ClosedCarteraDoc.Get(ClosedCarteraDoc.Type::Receivable, "Entry No.");
-                        IsRejection := false;
-                        DtldCustLedgEntry.SetCurrentKey("Cust. Ledger Entry No.", "Posting Date");
-                        DtldCustLedgEntry.SetRange("Cust. Ledger Entry No.", "Entry No.");
-                        if DtldCustLedgEntry.Find('-') then
-                            repeat
-                                if DtldCustLedgEntry."Entry Type" = DtldCustLedgEntry."Entry Type"::Rejection then
-                                    IsRejection := true;
-                            until DtldCustLedgEntry.Next() = 0;
+                end;
+            CustLedgEntry."Document Situation"::"Closed Documents":
+                begin
+                    ClosedCarteraDoc.Get(ClosedCarteraDoc.Type::Receivable, CustLedgEntry."Entry No.");
+                    IsRejection := false;
+                    DtldCustLedgEntry.SetCurrentKey("Cust. Ledger Entry No.", "Posting Date");
+                    DtldCustLedgEntry.SetRange("Cust. Ledger Entry No.", CustLedgEntry."Entry No.");
+                    if DtldCustLedgEntry.Find('-') then
+                        repeat
+                            if DtldCustLedgEntry."Entry Type" = DtldCustLedgEntry."Entry Type"::Rejection then
+                                IsRejection := true;
+                        until DtldCustLedgEntry.Next() = 0;
 
-                        if Open then
-                            if (IsRejection = true) and ("Remaining Amount" <> 0) then begin
-                                ClosedCarteraDoc."Remaining Amount" :=
-                                  ClosedCarteraDoc."Remaining Amount" + ("Remaining Amount" - ClosedCarteraDoc."Remaining Amount");
-                                ClosedCarteraDoc."Remaining Amt. (LCY)" := ClosedCarteraDoc."Remaining Amt. (LCY)" +
-                                  ("Remaining Amt. (LCY)" - ClosedCarteraDoc."Remaining Amt. (LCY)");
-                                ClosedCarteraDoc.Status := ClosedCarteraDoc.Status::Rejected;
-                                ClosedCarteraDoc.Modify();
-                                "Document Situation" := "Document Situation"::"Closed Documents";
-                                "Document Status" := "Document Status"::Rejected;
-                                Modify();
-                            end else begin
-                                CarteraDoc.TransferFields(ClosedCarteraDoc);
-                                CarteraDoc.Type := CarteraDoc.Type::Receivable;
-                                CarteraDoc."Remaining Amount" := CarteraDoc."Remaining Amount" + "Remaining Amount";
-                                CarteraDoc."Remaining Amt. (LCY)" := CarteraDoc."Remaining Amt. (LCY)" + "Remaining Amt. (LCY)";
-                                OnUpdateUnAppliedReceivableDocOnBeforeCarteraDocInsert(CarteraDoc);
-                                CarteraDoc.Insert();
-                                OnUpdateUnAppliedReceivableDocOnAfterCarteraDocInsert(CarteraDoc);
-                                ClosedCarteraDoc.Delete();
-                                "Document Situation" := "Document Situation"::Cartera;
-                                "Document Status" := "Document Status"::Open;
-                                Modify();
-                            end;
-                        Modify();
-                    end;
-            end;
+                    if CustLedgEntry.Open then
+                        if (IsRejection = true) and (CustLedgEntry."Remaining Amount" <> 0) then begin
+                            ClosedCarteraDoc."Remaining Amount" :=
+                              ClosedCarteraDoc."Remaining Amount" + (CustLedgEntry."Remaining Amount" - ClosedCarteraDoc."Remaining Amount");
+                            ClosedCarteraDoc."Remaining Amt. (LCY)" := ClosedCarteraDoc."Remaining Amt. (LCY)" +
+                              (CustLedgEntry."Remaining Amt. (LCY)" - ClosedCarteraDoc."Remaining Amt. (LCY)");
+                            ClosedCarteraDoc.Status := ClosedCarteraDoc.Status::Rejected;
+                            ClosedCarteraDoc.Modify();
+                            CustLedgEntry."Document Situation" := CustLedgEntry."Document Situation"::"Closed Documents";
+                            CustLedgEntry."Document Status" := CustLedgEntry."Document Status"::Rejected;
+                            CustLedgEntry.Modify();
+                        end else begin
+                            CarteraDoc.TransferFields(ClosedCarteraDoc);
+                            CarteraDoc.Type := CarteraDoc.Type::Receivable;
+                            CarteraDoc."Remaining Amount" := CarteraDoc."Remaining Amount" + CustLedgEntry."Remaining Amount";
+                            CarteraDoc."Remaining Amt. (LCY)" := CarteraDoc."Remaining Amt. (LCY)" + CustLedgEntry."Remaining Amt. (LCY)";
+                            OnUpdateUnAppliedReceivableDocOnBeforeCarteraDocInsert(CarteraDoc);
+                            CarteraDoc.Insert();
+                            OnUpdateUnAppliedReceivableDocOnAfterCarteraDocInsert(CarteraDoc);
+                            ClosedCarteraDoc.Delete();
+                            CustLedgEntry."Document Situation" := CustLedgEntry."Document Situation"::Cartera;
+                            CustLedgEntry."Document Status" := CustLedgEntry."Document Status"::Open;
+                            CustLedgEntry.Modify();
+                        end;
+                    CustLedgEntry.Modify();
+                end;
         end;
     end;
 
@@ -1130,67 +1108,65 @@ codeunit 7000006 "Document-Post"
         InBillGroup: Boolean;
         Text1100102: Label '%1 cannot be unapplied, since it is included in a payment order.';
     begin
-        with VendLedgEntry do begin
-            InBillGroup := false;
-            if CarteraDoc.Get(CarteraDoc.Type::Payable, "Entry No.") then
-                if CarteraDoc."Bill Gr./Pmt. Order No." <> '' then
-                    InBillGroup := true;
-            if PostedCarteraDoc.Get(PostedCarteraDoc.Type::Payable, "Entry No.") then
-                if PostedCarteraDoc."Bill Gr./Pmt. Order No." <> '' then
-                    InBillGroup := true;
-            if ClosedCarteraDoc.Get(ClosedCarteraDoc.Type::Payable, "Entry No.") then
-                if ClosedCarteraDoc."Bill Gr./Pmt. Order No." <> '' then
-                    InBillGroup := true;
-            if InBillGroup then
-                Error(
-                  Text1100102 +
-                  Text1100101,
-                  Description);
-            CalcFields("Remaining Amount", "Remaining Amt. (LCY)");
-            if not DocLock then begin
-                DocLock := true;
-                CarteraDoc.LockTable();
-                if CarteraDoc2.FindLast() then;
-                if ClosedCarteraDoc2.FindLast() then;
-                ClosedCarteraDoc.LockTable();
-            end;
-            if "Remaining Amount" = 0 then
-                "Remaining Amt. (LCY)" := 0;
-            case "Document Situation" of
-                "Document Situation"::Cartera:
-                    begin
-                        CarteraDoc.Get(CarteraDoc.Type::Payable, "Entry No.");
-                        CarteraDoc."Remaining Amount" :=
-                          CarteraDoc."Remaining Amount" - GetFCYAppliedAmt("Remaining Amt. (LCY)" + CarteraDoc."Remaining Amt. (LCY)",
-                            CarteraDoc."Currency Code", GenJnlLine."Posting Date");
-                        CarteraDoc."Remaining Amt. (LCY)" :=
-                          CarteraDoc."Remaining Amt. (LCY)" - ("Remaining Amt. (LCY)" + CarteraDoc."Remaining Amt. (LCY)");
-                        CarteraDoc.ResetNoPrinted();
-                        if Open then begin
-                            OnUpdateUnAppliedPayableDocOnBeforeCarteraDocModify(CarteraDoc);
-                            CarteraDoc.Modify();
-                            OnUpdateUnAppliedPayableDocOnAfterCarteraDocModify(CarteraDoc);
-                        end;
+        InBillGroup := false;
+        if CarteraDoc.Get(CarteraDoc.Type::Payable, VendLedgEntry."Entry No.") then
+            if CarteraDoc."Bill Gr./Pmt. Order No." <> '' then
+                InBillGroup := true;
+        if PostedCarteraDoc.Get(PostedCarteraDoc.Type::Payable, VendLedgEntry."Entry No.") then
+            if PostedCarteraDoc."Bill Gr./Pmt. Order No." <> '' then
+                InBillGroup := true;
+        if ClosedCarteraDoc.Get(ClosedCarteraDoc.Type::Payable, VendLedgEntry."Entry No.") then
+            if ClosedCarteraDoc."Bill Gr./Pmt. Order No." <> '' then
+                InBillGroup := true;
+        if InBillGroup then
+            Error(
+              Text1100102 +
+              Text1100101,
+              VendLedgEntry.Description);
+        VendLedgEntry.CalcFields("Remaining Amount", "Remaining Amt. (LCY)");
+        if not DocLock then begin
+            DocLock := true;
+            CarteraDoc.LockTable();
+            if CarteraDoc2.FindLast() then;
+            if ClosedCarteraDoc2.FindLast() then;
+            ClosedCarteraDoc.LockTable();
+        end;
+        if VendLedgEntry."Remaining Amount" = 0 then
+            VendLedgEntry."Remaining Amt. (LCY)" := 0;
+        case VendLedgEntry."Document Situation" of
+            VendLedgEntry."Document Situation"::Cartera:
+                begin
+                    CarteraDoc.Get(CarteraDoc.Type::Payable, VendLedgEntry."Entry No.");
+                    CarteraDoc."Remaining Amount" :=
+                      CarteraDoc."Remaining Amount" - GetFCYAppliedAmt(VendLedgEntry."Remaining Amt. (LCY)" + CarteraDoc."Remaining Amt. (LCY)",
+                        CarteraDoc."Currency Code", GenJnlLine."Posting Date");
+                    CarteraDoc."Remaining Amt. (LCY)" :=
+                      CarteraDoc."Remaining Amt. (LCY)" - (VendLedgEntry."Remaining Amt. (LCY)" + CarteraDoc."Remaining Amt. (LCY)");
+                    CarteraDoc.ResetNoPrinted();
+                    if VendLedgEntry.Open then begin
+                        OnUpdateUnAppliedPayableDocOnBeforeCarteraDocModify(CarteraDoc);
+                        CarteraDoc.Modify();
+                        OnUpdateUnAppliedPayableDocOnAfterCarteraDocModify(CarteraDoc);
                     end;
-                "Document Situation"::"Closed Documents":
-                    begin
-                        ClosedCarteraDoc.Get(ClosedCarteraDoc.Type::Payable, "Entry No.");
-                        if Open then begin
-                            CarteraDoc.TransferFields(ClosedCarteraDoc);
-                            CarteraDoc.Type := CarteraDoc.Type::Payable;
-                            CarteraDoc."Remaining Amount" := CarteraDoc."Remaining Amount" - "Remaining Amount";
-                            CarteraDoc."Remaining Amt. (LCY)" := CarteraDoc."Remaining Amt. (LCY)" - "Remaining Amt. (LCY)";
-                            OnUpdateUnAppliedPayableDocOnBeforeCarteraDocInsert(CarteraDoc);
-                            CarteraDoc.Insert();
-                            OnUpdateUnAppliedPayableDocOnAfterCarteraDocInsert(CarteraDoc);
-                            ClosedCarteraDoc.Delete();
-                            "Document Situation" := "Document Situation"::Cartera;
-                            "Document Status" := "Document Status"::Open;
-                            Modify();
-                        end;
-                        Modify();
+                end;
+            VendLedgEntry."Document Situation"::"Closed Documents":
+                begin
+                    ClosedCarteraDoc.Get(ClosedCarteraDoc.Type::Payable, VendLedgEntry."Entry No.");
+                    if VendLedgEntry.Open then begin
+                        CarteraDoc.TransferFields(ClosedCarteraDoc);
+                        CarteraDoc.Type := CarteraDoc.Type::Payable;
+                        CarteraDoc."Remaining Amount" := CarteraDoc."Remaining Amount" - VendLedgEntry."Remaining Amount";
+                        CarteraDoc."Remaining Amt. (LCY)" := CarteraDoc."Remaining Amt. (LCY)" - VendLedgEntry."Remaining Amt. (LCY)";
+                        OnUpdateUnAppliedPayableDocOnBeforeCarteraDocInsert(CarteraDoc);
+                        CarteraDoc.Insert();
+                        OnUpdateUnAppliedPayableDocOnAfterCarteraDocInsert(CarteraDoc);
+                        ClosedCarteraDoc.Delete();
+                        VendLedgEntry."Document Situation" := VendLedgEntry."Document Situation"::Cartera;
+                        VendLedgEntry."Document Status" := VendLedgEntry."Document Status"::Open;
+                        VendLedgEntry.Modify();
                     end;
-            end;
+                    VendLedgEntry.Modify();
+                end;
         end;
     end;
 

@@ -11,6 +11,7 @@ table 7000024 Suffix
     Caption = 'Suffix';
     DrillDownPageID = Suffixes;
     LookupPageID = Suffixes;
+    DataClassification = CustomerContent;
 
     fields
     {

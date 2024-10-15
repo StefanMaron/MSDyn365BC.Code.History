@@ -69,7 +69,7 @@ codeunit 138088 "O365 Ship-to Addr. P.C.M"
         LibraryPurchase.CreateOrderAddress(OrderAddress, PurchaseHeader."Buy-from Vendor No.");
 
         // Exercise - Open the Purchase Credit Memo, select ShipToOption to 'Alternate Vendor Address' and select a Order Address
-        PurchaseCreditMemo.OpenEdit;
+        PurchaseCreditMemo.OpenEdit();
         PurchaseCreditMemo.GotoRecord(PurchaseHeader);
         PurchaseCreditMemo.ShipToOptions.SetValue(ShipToOptions::"Alternate Vendor Address");
         PurchaseCreditMemo."Order Address Code".SetValue(OrderAddress.Code);
@@ -105,7 +105,7 @@ codeunit 138088 "O365 Ship-to Addr. P.C.M"
         LibraryPurchase.CreateOrderAddress(OrderAddress, PurchaseHeader."Buy-from Vendor No.");
 
         // Exercise - Select the ShipToOption to 'Alternate Vendor Address' on the Purchase Credit Memo
-        PurchaseCreditMemo.OpenEdit;
+        PurchaseCreditMemo.OpenEdit();
         PurchaseCreditMemo.GotoRecord(PurchaseHeader);
         PurchaseCreditMemo.ShipToOptions.SetValue(ShipToOptions::"Alternate Vendor Address");
         PurchaseCreditMemo."Order Address Code".SetValue(OrderAddress.Code);
@@ -130,7 +130,7 @@ codeunit 138088 "O365 Ship-to Addr. P.C.M"
         LibraryPurchase.CreatePurchaseCreditMemo(PurchaseHeader);
 
         // Exercise - Select the ShipToOption to Custom Address on the Purchase Credit Memo
-        PurchaseCreditMemo.OpenEdit;
+        PurchaseCreditMemo.OpenEdit();
         PurchaseCreditMemo.GotoRecord(PurchaseHeader);
         PurchaseCreditMemo.ShipToOptions.SetValue(ShipToOptions::"Custom Address");
 
@@ -154,7 +154,7 @@ codeunit 138088 "O365 Ship-to Addr. P.C.M"
         LibraryPurchase.CreatePurchaseCreditMemo(PurchaseHeader);
 
         // Exercise - Select the ShipToOption to Default on the Purchase Credit Memo
-        PurchaseCreditMemo.OpenEdit;
+        PurchaseCreditMemo.OpenEdit();
         PurchaseCreditMemo.GotoRecord(PurchaseHeader);
         PurchaseCreditMemo.ShipToOptions.SetValue(ShipToOptions::"Default (Vendor Address)");
 
@@ -178,7 +178,7 @@ codeunit 138088 "O365 Ship-to Addr. P.C.M"
         LibraryPurchase.CreatePurchaseCreditMemo(PurchaseHeader);
 
         // Exercise - Reopen the created Purchase Credit Memo
-        PurchaseCreditMemo.OpenEdit;
+        PurchaseCreditMemo.OpenEdit();
         PurchaseCreditMemo.GotoRecord(PurchaseHeader);
 
         // Verify - Verify that the ShipToOption is set to "Default (Vendor Address)"
@@ -206,7 +206,7 @@ codeunit 138088 "O365 Ship-to Addr. P.C.M"
         PurchaseHeader.Modify(true);
 
         // Exercise - Reopen the created Purchase Credit Memo
-        PurchaseCreditMemo.OpenEdit;
+        PurchaseCreditMemo.OpenEdit();
         PurchaseCreditMemo.GotoRecord(PurchaseHeader);
 
         // Verify - Verify that the ShipToOption is set to Location
@@ -231,7 +231,7 @@ codeunit 138088 "O365 Ship-to Addr. P.C.M"
         PurchaseHeader.Modify(true);
 
         // Exercise - Reopen the created Purchase Credit Memo
-        PurchaseCreditMemo.OpenEdit;
+        PurchaseCreditMemo.OpenEdit();
         PurchaseCreditMemo.GotoRecord(PurchaseHeader);
 
         // Verify - Verify that the ShipToOption is set to "Custom Address"
@@ -256,12 +256,12 @@ codeunit 138088 "O365 Ship-to Addr. P.C.M"
 
     local procedure VerifyShipToEditableState(PurchaseCreditMemo: TestPage "Purchase Credit Memo"; ExpectedState: Boolean)
     begin
-        Assert.AreEqual(ExpectedState, PurchaseCreditMemo."Ship-to Name".Editable, StrSubstNo(WrongEditableStateTxt, ExpectedState));
-        Assert.AreEqual(ExpectedState, PurchaseCreditMemo."Ship-to Address".Editable, StrSubstNo(WrongEditableStateTxt, ExpectedState));
-        Assert.AreEqual(ExpectedState, PurchaseCreditMemo."Ship-to Address 2".Editable, StrSubstNo(WrongEditableStateTxt, ExpectedState));
-        Assert.AreEqual(ExpectedState, PurchaseCreditMemo."Ship-to City".Editable, StrSubstNo(WrongEditableStateTxt, ExpectedState));
-        Assert.AreEqual(ExpectedState, PurchaseCreditMemo."Ship-to Contact".Editable, StrSubstNo(WrongEditableStateTxt, ExpectedState));
-        Assert.AreEqual(ExpectedState, PurchaseCreditMemo."Ship-to Post Code".Editable, StrSubstNo(WrongEditableStateTxt, ExpectedState));
+        Assert.AreEqual(ExpectedState, PurchaseCreditMemo."Ship-to Name".Editable(), StrSubstNo(WrongEditableStateTxt, ExpectedState));
+        Assert.AreEqual(ExpectedState, PurchaseCreditMemo."Ship-to Address".Editable(), StrSubstNo(WrongEditableStateTxt, ExpectedState));
+        Assert.AreEqual(ExpectedState, PurchaseCreditMemo."Ship-to Address 2".Editable(), StrSubstNo(WrongEditableStateTxt, ExpectedState));
+        Assert.AreEqual(ExpectedState, PurchaseCreditMemo."Ship-to City".Editable(), StrSubstNo(WrongEditableStateTxt, ExpectedState));
+        Assert.AreEqual(ExpectedState, PurchaseCreditMemo."Ship-to Contact".Editable(), StrSubstNo(WrongEditableStateTxt, ExpectedState));
+        Assert.AreEqual(ExpectedState, PurchaseCreditMemo."Ship-to Post Code".Editable(), StrSubstNo(WrongEditableStateTxt, ExpectedState));
     end;
 
     local procedure VerifyShipToAddressValues(PurchaseCreditMemo: TestPage "Purchase Credit Memo"; Name: Text[100]; Address: Text[100]; Address2: Text[50]; City: Text[30]; Contact: Text[100]; PostCode: Code[20])

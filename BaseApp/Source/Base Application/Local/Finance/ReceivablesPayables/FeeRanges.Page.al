@@ -7,7 +7,7 @@ namespace Microsoft.Finance.ReceivablesPayables;
 page 7000049 "Fee Ranges"
 {
     Caption = 'Fee Ranges';
-    DataCaptionExpression = Caption();
+    DataCaptionExpression = Rec.Caption();
     PageType = List;
     SourceTable = "Fee Range";
 

@@ -48,9 +48,9 @@ codeunit 147502 "Cartera Paym. Exported Formats"
         Commit();
 
         // Pre-Exercise
-        PaymentOrdersTestPage.OpenView;
+        PaymentOrdersTestPage.OpenView();
         PaymentOrdersTestPage.GotoRecord(PaymentOrder);
-        PaymentOrdersTestPage."Test Report".Invoke;
+        PaymentOrdersTestPage."Test Report".Invoke();
 
         // Verify
         ValidatePaymentOrderTestReport(
@@ -81,9 +81,9 @@ codeunit 147502 "Cartera Paym. Exported Formats"
         Commit();
 
         // Pre-Exercise
-        PaymentOrdersListTestPage.OpenView;
+        PaymentOrdersListTestPage.OpenView();
         PaymentOrdersListTestPage.GotoRecord(PaymentOrder);
-        PaymentOrdersListTestPage.TestReport.Invoke;
+        PaymentOrdersListTestPage.TestReport.Invoke();
 
         // Verify
         ValidatePaymentOrderTestReport(
@@ -211,21 +211,21 @@ codeunit 147502 "Cartera Paym. Exported Formats"
     [Scope('OnPrem')]
     procedure PaymentOrderTestRequestPageHandler(var TestReportRequestPage: TestRequestPage "Payment Order - Test")
     begin
-        TestReportRequestPage.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        TestReportRequestPage.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure POExportN341RequestPageHandler(var POExportN341: TestRequestPage "PO - Export N34.1")
     begin
-        POExportN341.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        POExportN341.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure POExportN34RequestPageHandler(var POExportN34: TestRequestPage "Payment order - Export N34")
     begin
-        POExportN34.OK.Invoke;
+        POExportN34.OK().Invoke();
     end;
 
     local procedure PrepareVendorRelatedRecords(var Vendor: Record Vendor; CurrencyCode: Code[10])
@@ -278,11 +278,11 @@ codeunit 147502 "Cartera Paym. Exported Formats"
         ReportLedgerEntryNo: Variant;
         ReportExportAmount: Variant;
     begin
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
 
-        Assert.AreEqual(NumberOfPaymentOrders, LibraryReportDataset.RowCount, DatasetContentErr);
+        Assert.AreEqual(NumberOfPaymentOrders, LibraryReportDataset.RowCount(), DatasetContentErr);
 
-        LibraryReportDataset.GetNextRow;
+        LibraryReportDataset.GetNextRow();
 
         LibraryReportDataset.GetElementValueInCurrentRow('Payment_Order_No_', ReportPaymentOrderNo);
         Assert.AreEqual(PaymentOrderNo, ReportPaymentOrderNo, '');
@@ -357,12 +357,12 @@ codeunit 147502 "Cartera Paym. Exported Formats"
         ReportAmount: Variant;
         ReportBillGroupBankAccountNo: Variant;
     begin
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
 
         ExpectedNumberOfRecords := 4;
-        Assert.AreEqual(ExpectedNumberOfRecords, LibraryReportDataset.RowCount, DatasetContentErr);
+        Assert.AreEqual(ExpectedNumberOfRecords, LibraryReportDataset.RowCount(), DatasetContentErr);
 
-        LibraryReportDataset.GetNextRow;
+        LibraryReportDataset.GetNextRow();
 
         LibraryReportDataset.GetElementValueInCurrentRow('PmtOrd_No_', ReportPaymentOrderNo);
         Assert.AreEqual(ReportPaymentOrderNo, PaymentOrder."No.", '');
@@ -371,7 +371,7 @@ codeunit 147502 "Cartera Paym. Exported Formats"
         Assert.AreEqual(ReportBankAccountNo, BankAccount."No.", '');
 
         LibraryReportDataset.GetElementValueInCurrentRow('COMPANYNAME', ReportCompanyName);
-        Assert.AreEqual(ReportCompanyName, COMPANYPROPERTY.DisplayName, '');
+        Assert.AreEqual(ReportCompanyName, COMPANYPROPERTY.DisplayName(), '');
 
         LibraryReportDataset.GetElementValueInCurrentRow('ErrorText_Number_', ReportErrorText);
         Assert.AreEqual(ReportErrorText, ExpectedErrorText, '');
@@ -379,7 +379,7 @@ codeunit 147502 "Cartera Paym. Exported Formats"
         LibraryReportDataset.GetElementValueInCurrentRow('ErrorText_Number_Caption', ReportErrorType);
         Assert.AreEqual(ReportErrorType, ExpectedErrorType, '');
 
-        LibraryReportDataset.GetNextRow;
+        LibraryReportDataset.GetNextRow();
 
         LibraryReportDataset.GetElementValueInCurrentRow('Doc__Account_No__', ReportVendorNo);
         Assert.AreEqual(ReportVendorNo, Vendor."No.", '');
@@ -390,12 +390,12 @@ codeunit 147502 "Cartera Paym. Exported Formats"
         LibraryReportDataset.GetElementValueInCurrentRow('Doc__Document_No__', ReportDocumentNo);
         Assert.AreEqual(ReportDocumentNo, CarteraDoc."Document No.", '');
 
-        LibraryReportDataset.GetNextRow;
+        LibraryReportDataset.GetNextRow();
 
         LibraryReportDataset.GetElementValueInCurrentRow('PmtOrd_Amount', ReportAmount);
         Assert.AreEqual(ReportAmount, CarteraDoc."Original Amount", '');
 
-        LibraryReportDataset.GetNextRow;
+        LibraryReportDataset.GetNextRow();
 
         LibraryReportDataset.GetElementValueInCurrentRow('BillGrBankAcc__No__', ReportBillGroupBankAccountNo);
         Assert.AreEqual(ReportBillGroupBankAccountNo, BankAccount."No.", '');

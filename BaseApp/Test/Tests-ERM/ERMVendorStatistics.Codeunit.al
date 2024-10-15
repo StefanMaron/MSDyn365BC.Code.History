@@ -235,7 +235,7 @@ codeunit 134334 "ERM Vendor Statistics"
         WorkDate := CalcDate(StrSubstNo('<%1D>', LibraryRandom.RandInt(10)), WorkDate());
 
         // [THEN] Verifing Over Due Balance on Vendor Statistics.
-        Assert.AreEqual(Vendor.CalcOverDueBalance, Round(InvoiceAmountLCY - PaymentAmountLCY), OverDueBalanceErr);
+        Assert.AreEqual(Vendor.CalcOverDueBalance(), Round(InvoiceAmountLCY - PaymentAmountLCY), OverDueBalanceErr);
 
         // Tear Down: Restore Old WorkDate.
         WorkDate := OldWorkDate;
@@ -261,7 +261,7 @@ codeunit 134334 "ERM Vendor Statistics"
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, Vendor."No.");
 
         // [WHEN] Open Purchase Order Card
-        PurchaseOrderCard.OpenView;
+        PurchaseOrderCard.OpenView();
         PurchaseOrderCard.GotoRecord(PurchaseHeader);
 
         // [THEN] Vendor Statistics Fact Box is opened for "Vendor.No." = 'X'
@@ -281,14 +281,14 @@ codeunit 134334 "ERM Vendor Statistics"
 
         // [GIVEN] Vendor "X" with "Pay-to Vendor No." = Y
         LibraryPurchase.CreateVendor(Vendor);
-        Vendor.Validate("Pay-to Vendor No.", LibraryPurchase.CreateVendorNo);
+        Vendor.Validate("Pay-to Vendor No.", LibraryPurchase.CreateVendorNo());
         Vendor.Modify(true);
 
         // [GIVEN] Purchase Order for Vendor "X"
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, Vendor."No.");
 
         // [WHEN] Open Purchase Order Card
-        PurchaseOrderCard.OpenView;
+        PurchaseOrderCard.OpenView();
         PurchaseOrderCard.GotoRecord(PurchaseHeader);
 
         // [THEN] Vendor Statistics Fact Box is opened for "Pay-to Vendor No." = 'Y'
@@ -311,15 +311,15 @@ codeunit 134334 "ERM Vendor Statistics"
         CreateBasicVendorLedgerEntry(VendorLedgerEntry, Vendor."No.");
 
         // [WHEN] The user drills down on Balance (LCY) field from Vendor List
-        VendorList.OpenView;
+        VendorList.OpenView();
         VendorList.GotoRecord(Vendor);
-        VendorLedgerEntries.Trap;
-        VendorList."Balance (LCY)".DrillDown;
+        VendorLedgerEntries.Trap();
+        VendorList."Balance (LCY)".DrillDown();
 
         // [THEN] Vendor Ledger Entries window opens, showing the ledger entries for the selected vendor
-        VendorLedgerEntries.First;
-        Assert.AreEqual(VendorLedgerEntry."Entry No.", VendorLedgerEntries."Entry No.".AsInteger, '');
-        Assert.IsFalse(VendorLedgerEntries.Next, '');
+        VendorLedgerEntries.First();
+        Assert.AreEqual(VendorLedgerEntry."Entry No.", VendorLedgerEntries."Entry No.".AsInteger(), '');
+        Assert.IsFalse(VendorLedgerEntries.Next(), '');
         VendorLedgerEntries.Close();
         VendorList.Close();
     end;
@@ -340,15 +340,15 @@ codeunit 134334 "ERM Vendor Statistics"
         CreateBasicVendorLedgerEntry(VendorLedgerEntry, Vendor."No.");
 
         // [WHEN] The user drills down on Balance (LCY) field from Vendor Card
-        VendorCard.OpenView;
+        VendorCard.OpenView();
         VendorCard.GotoRecord(Vendor);
-        VendorLedgerEntries.Trap;
-        VendorCard."Balance (LCY)".DrillDown;
+        VendorLedgerEntries.Trap();
+        VendorCard."Balance (LCY)".DrillDown();
 
         // [THEN] Vendor Ledger Entries window opens, showing the ledger entries for the selected vendor
-        VendorLedgerEntries.First;
-        Assert.AreEqual(VendorLedgerEntry."Entry No.", VendorLedgerEntries."Entry No.".AsInteger, '');
-        Assert.IsFalse(VendorLedgerEntries.Next, '');
+        VendorLedgerEntries.First();
+        Assert.AreEqual(VendorLedgerEntry."Entry No.", VendorLedgerEntries."Entry No.".AsInteger(), '');
+        Assert.IsFalse(VendorLedgerEntries.Next(), '');
         VendorLedgerEntries.Close();
         VendorCard.Close();
     end;
@@ -372,19 +372,19 @@ codeunit 134334 "ERM Vendor Statistics"
         VendorLedgerEntry.Modify(true);
 
         // [WHEN] The user drills down on Balance Due (LCY) field from Vendor List
-        VendorList.OpenView;
-        VendorLedgerEntries.Trap;
+        VendorList.OpenView();
+        VendorLedgerEntries.Trap();
         VendorList.FILTER.SetFilter("Date Filter", Format(VendorLedgerEntry."Due Date"));
         VendorList.GotoRecord(Vendor);
-        VendorList."Balance Due (LCY)".DrillDown;
+        VendorList."Balance Due (LCY)".DrillDown();
 
         // [THEN] Vendor Ledger Entries window opens, Due Date filter = Date Filter from Customer List.
         Assert.AreEqual(VendorList.FILTER.GetFilter("Date Filter"), VendorLedgerEntries.FILTER.GetFilter("Due Date"), '');
 
         // [THEN] Vendor Ledger Entries window opens, showing the ledger entries for the selected vendor
-        VendorLedgerEntries.First;
-        Assert.AreEqual(VendorLedgerEntry."Entry No.", VendorLedgerEntries."Entry No.".AsInteger, '');
-        Assert.IsFalse(VendorLedgerEntries.Next, '');
+        VendorLedgerEntries.First();
+        Assert.AreEqual(VendorLedgerEntry."Entry No.", VendorLedgerEntries."Entry No.".AsInteger(), '');
+        Assert.IsFalse(VendorLedgerEntries.Next(), '');
 
         // Tear down.
         VendorLedgerEntries.Close();
@@ -410,19 +410,19 @@ codeunit 134334 "ERM Vendor Statistics"
         VendorLedgerEntry.Modify(true);
 
         // [WHEN] The user drills down on Balance Due (LCY) field from Vendor Card
-        VendorCard.OpenView;
-        VendorLedgerEntries.Trap;
+        VendorCard.OpenView();
+        VendorLedgerEntries.Trap();
         VendorCard.FILTER.SetFilter("Date Filter", Format(VendorLedgerEntry."Due Date"));
         VendorCard.GotoRecord(Vendor);
-        VendorCard."Balance Due (LCY)".DrillDown;
+        VendorCard."Balance Due (LCY)".DrillDown();
 
         // [THEN] Vendor Ledger Entries window opens, Due Date filter = Date Filter from Customer List.
         Assert.AreEqual(VendorCard.FILTER.GetFilter("Date Filter"), VendorLedgerEntries.FILTER.GetFilter("Due Date"), '');
 
         // [THEN] Vendor Ledger Entries window opens, showing the ledger entries for the selected vendor
-        VendorLedgerEntries.First;
-        Assert.AreEqual(VendorLedgerEntry."Entry No.", VendorLedgerEntries."Entry No.".AsInteger, '');
-        Assert.IsFalse(VendorLedgerEntries.Next, '');
+        VendorLedgerEntries.First();
+        Assert.AreEqual(VendorLedgerEntry."Entry No.", VendorLedgerEntries."Entry No.".AsInteger(), '');
+        Assert.IsFalse(VendorLedgerEntries.Next(), '');
 
         // Tear down.
         VendorLedgerEntries.Close();
@@ -445,7 +445,7 @@ codeunit 134334 "ERM Vendor Statistics"
         LibraryPurchase.CreateVendor(Vendor);
         MockDtldVendLedgEntry(DetailedVendorLedgEntry, Vendor."No.", WorkDate(), WorkDate());
         TotalAmount += DetailedVendorLedgEntry.Amount;
-        NewDate := WorkDate + 1;
+        NewDate := WorkDate() + 1;
         MockDtldVendLedgEntry(DetailedVendorLedgEntry, Vendor."No.", NewDate, NewDate);
         TotalAmount += DetailedVendorLedgEntry.Amount;
 
@@ -471,7 +471,7 @@ codeunit 134334 "ERM Vendor Statistics"
         LibraryPurchase.CreateVendor(Vendor);
         MockDtldVendLedgEntry(DetailedVendorLedgEntry, Vendor."No.", WorkDate(), WorkDate());
         TotalAmount += DetailedVendorLedgEntry."Amount (LCY)";
-        NewDate := WorkDate + 1;
+        NewDate := WorkDate() + 1;
         MockDtldVendLedgEntry(DetailedVendorLedgEntry, Vendor."No.", NewDate, NewDate);
         TotalAmount += DetailedVendorLedgEntry."Amount (LCY)";
 
@@ -548,13 +548,13 @@ codeunit 134334 "ERM Vendor Statistics"
         VendorNo := LibraryPurchase.CreateVendorNo();
 
         // [WHEN] Open "Vendor Statistics"
-        VendorList.OpenView;
+        VendorList.OpenView();
         VendorList.FILTER.SetFilter("No.", VendorNo);
-        VendorStatistics.Trap;
-        VendorList.Statistics.Invoke;
+        VendorStatistics.Trap();
+        VendorList.Statistics.Invoke();
 
         // [THEN] Page "Customer Statistics" is not editable
-        Assert.IsFalse(VendorStatistics.Editable, 'Page "Vendor Statistics" must be not editable');
+        Assert.IsFalse(VendorStatistics.Editable(), 'Page "Vendor Statistics" must be not editable');
     end;
 
     [Test]
@@ -583,19 +583,19 @@ codeunit 134334 "ERM Vendor Statistics"
         MockPurchLine(Vendor."No.", PurchaseLine."Document Type"::Invoice, InvOutstandingAmtLCY, 0);
 
         // [WHEN] Open "Vendor Statistics Factbox"
-        VendorList.OpenView;
+        VendorList.OpenView();
         VendorList.GotoRecord(Vendor);
 
         // [THEN] Page "Vendor Statistics Factbox" has "Outstanding Orders (LCY)" = 100, "Amt. Rcd. Not Invoiced" = 40, "Outstanding Invoices (LCY)" = 60,
         VendorList.VendorStatisticsFactBox."Outstanding Orders (LCY)".AssertEquals(OrderOutstandingAmtLCY);
-        Assert.IsFalse(VendorList.VendorStatisticsFactBox."Outstanding Orders (LCY)".HideValue, FieldIsNotHiddenErr);
+        Assert.IsFalse(VendorList.VendorStatisticsFactBox."Outstanding Orders (LCY)".HideValue(), FieldIsNotHiddenErr);
         VendorList.VendorStatisticsFactBox."Amt. Rcd. Not Invoiced (LCY)".AssertEquals(AmtRcdNotInvoiced);
-        Assert.IsFalse(VendorList.VendorStatisticsFactBox."Amt. Rcd. Not Invoiced (LCY)".HideValue, FieldIsNotHiddenErr);
+        Assert.IsFalse(VendorList.VendorStatisticsFactBox."Amt. Rcd. Not Invoiced (LCY)".HideValue(), FieldIsNotHiddenErr);
         VendorList.VendorStatisticsFactBox."Outstanding Invoices (LCY)".AssertEquals(InvOutstandingAmtLCY);
-        Assert.IsFalse(VendorList.VendorStatisticsFactBox."Outstanding Invoices (LCY)".HideValue, FieldIsNotHiddenErr);
+        Assert.IsFalse(VendorList.VendorStatisticsFactBox."Outstanding Invoices (LCY)".HideValue(), FieldIsNotHiddenErr);
         VendorList.VendorStatisticsFactBox.TotalAmountLCY.AssertEquals(
           OrderOutstandingAmtLCY + AmtRcdNotInvoiced + InvOutstandingAmtLCY);
-        Assert.IsFalse(VendorList.VendorStatisticsFactBox.TotalAmountLCY.HideValue, FieldIsNotHiddenErr);
+        Assert.IsFalse(VendorList.VendorStatisticsFactBox.TotalAmountLCY.HideValue(), FieldIsNotHiddenErr);
     end;
 
     [Test]
@@ -685,7 +685,7 @@ codeunit 134334 "ERM Vendor Statistics"
         ReversePayment(Vendor."No.", PaymentDate[3]);
 
         // [WHEN] Vendor card page is being opened for "VEND"
-        VendorCard.OpenEdit;
+        VendorCard.OpenEdit();
         VendorCard.FILTER.SetFilter("No.", Vendor."No.");
 
         // [THEN] Vendor statistics factbox shows Last Payment Date = 15.01
@@ -721,12 +721,12 @@ codeunit 134334 "ERM Vendor Statistics"
         ReversePayment(Vendor."No.", PaymentDate[3]);
 
         // [GIVEN] Open vendor card page for "VEND"
-        VendorCard.OpenEdit;
+        VendorCard.OpenEdit();
         VendorCard.FILTER.SetFilter("No.", Vendor."No.");
 
         // [WHEN] Last Payment Date drill down is being invoked
-        VendorLedgerEntries.Trap;
-        VendorCard.VendorStatisticsFactBox.LastPaymentDate.DrillDown;
+        VendorLedgerEntries.Trap();
+        VendorCard.VendorStatisticsFactBox.LastPaymentDate.DrillDown();
 
         // [THEN] Opened list of payments has cursor on payment "PAYM2"
         VendorLedgerEntries."Posting Date".AssertEquals(PaymentDate[2]);
@@ -833,7 +833,7 @@ codeunit 134334 "ERM Vendor Statistics"
     var
         VendorStatistics: TestPage "Vendor Statistics";
     begin
-        VendorStatistics.OpenView;
+        VendorStatistics.OpenView();
         VendorStatistics.FILTER.SetFilter("No.", VendorNo);
         VendorStatistics."Balance (LCY)".AssertEquals(BalanceLCY);
         VendorStatistics."Outstanding Orders (LCY)".AssertEquals(OutstandingOrdersLCY);
@@ -847,7 +847,7 @@ codeunit 134334 "ERM Vendor Statistics"
         VendorNo: Code[20];
     begin
         if PurchaseHeader."Buy-from Vendor No." = '' then
-            VendorNo := CreateVendorWithCurrency
+            VendorNo := CreateVendorWithCurrency()
         else
             VendorNo := PurchaseHeader."Buy-from Vendor No.";
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, VendorNo);
@@ -943,7 +943,7 @@ codeunit 134334 "ERM Vendor Statistics"
 
     local procedure FindCurrency(var Currency: Record Currency)
     begin
-        Currency.SetRange("Invoice Rounding Precision", LibraryERM.GetAmountRoundingPrecision);
+        Currency.SetRange("Invoice Rounding Precision", LibraryERM.GetAmountRoundingPrecision());
         LibraryERM.FindCurrency(Currency);
     end;
 
@@ -960,20 +960,20 @@ codeunit 134334 "ERM Vendor Statistics"
     var
         VendorList: TestPage "Vendor List";
     begin
-        VendorList.OpenView;
+        VendorList.OpenView();
         VendorList.FILTER.SetFilter("No.", VendorNo);
-        VendStatsByCurrLines.Trap;
-        VendorList."Statistics by C&urrencies".Invoke;
+        VendStatsByCurrLines.Trap();
+        VendorList."Statistics by C&urrencies".Invoke();
     end;
 
     local procedure InvokeVendStatsByCurrLinesFromVendorCard(var VendStatsByCurrLines: TestPage "Vend. Stats. by Curr. Lines"; VendorNo: Code[20])
     var
         VendorCard: TestPage "Vendor Card";
     begin
-        VendorCard.OpenView;
+        VendorCard.OpenView();
         VendorCard.FILTER.SetFilter("No.", VendorNo);
-        VendStatsByCurrLines.Trap;
-        VendorCard."Statistics by C&urrencies".Invoke;
+        VendStatsByCurrLines.Trap();
+        VendorCard."Statistics by C&urrencies".Invoke();
     end;
 
     local procedure PostPartialPaymentForVendor(VendorNo: Code[20]; InvoiceAmountLCY: Decimal): Decimal

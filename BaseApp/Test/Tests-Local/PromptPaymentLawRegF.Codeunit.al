@@ -63,7 +63,7 @@ codeunit 147300 "Prompt Payment Law RegF"
         LibraryERM.CreatePaymentTerms(PaymentTerms);
 
         // Setup
-        PaymentTermsPage.OpenEdit;
+        PaymentTermsPage.OpenEdit();
         PaymentTermsPage.GotoRecord(PaymentTerms);
 
         // Exercise and Verify
@@ -107,7 +107,7 @@ codeunit 147300 "Prompt Payment Law RegF"
         LibraryERM.CreatePaymentTerms(PaymentTerms);
 
         // Exercise and Verify
-        PaymentTermsPage.OpenEdit;
+        PaymentTermsPage.OpenEdit();
         PaymentTermsPage.GotoRecord(PaymentTerms);
 
         PaymentTermsPage."Max. No. of Days till Due Date".SetValue(0);
@@ -635,7 +635,7 @@ codeunit 147300 "Prompt Payment Law RegF"
     begin
         Initialize();
 
-        SetupPurchOrderWithOneLine(PurchaseHeader, FindPaymentMethodWithCreateBills);
+        SetupPurchOrderWithOneLine(PurchaseHeader, FindPaymentMethodWithCreateBills());
         NewPaymentTermsCode := UpdatePurchHeaderWithNewPaymentTerms(PurchaseHeader);
 
         PostedDocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
@@ -1153,7 +1153,7 @@ codeunit 147300 "Prompt Payment Law RegF"
     begin
         Initialize();
 
-        SetupSalesOrderWithOneLine(SalesHeader, FindPaymentMethodWithCreateBills);
+        SetupSalesOrderWithOneLine(SalesHeader, FindPaymentMethodWithCreateBills());
         NewPaymentTermsCode := UpdateSalesHeaderWithNewPaymentTerms(SalesHeader);
 
         PostedDocumentNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
@@ -2523,7 +2523,7 @@ codeunit 147300 "Prompt Payment Law RegF"
         // Setup
         CreatePaymentTermMaxAfterDueDate(PaymentTerms);
         ServiceContractNo := CreateSignedServiceContract(PaymentTerms.Code, '', '', WorkDate());
-        OldCount := NumberOfServiceOrders;
+        OldCount := NumberOfServiceOrders();
 
         // Exercise
         Commit();
@@ -2532,7 +2532,7 @@ codeunit 147300 "Prompt Payment Law RegF"
         REPORT.Run(REPORT::"Create Contract Service Orders");
 
         // Verify
-        Assert.AreEqual(OldCount + 1, NumberOfServiceOrders, StrSubstNo(ServiceOrderNotCreated, ServiceContractNo));
+        Assert.AreEqual(OldCount + 1, NumberOfServiceOrders(), StrSubstNo(ServiceOrderNotCreated, ServiceContractNo));
         ValidateServiceOrderCreatedFromContract(ServiceContractNo, CalcDate(PaymentTerms."Due Date Calculation", WorkDate()));
     end;
 
@@ -2553,7 +2553,7 @@ codeunit 147300 "Prompt Payment Law RegF"
 
         // [GIVEN] Vendor "V" without Payment Day records but "Payment Days Code" is <non-blank>
         // [GIVEN] Purchase Header with "Buy-from Vendor No." = "V"
-        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, LibraryPurchase.CreateVendorNo);
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, LibraryPurchase.CreateVendorNo());
 
         // [WHEN] Validate Posting Date = "01/01/2018" in Purchase Header
         PurchaseHeader.Validate("Posting Date", LibraryRandom.RandDate(LibraryRandom.RandIntInRange(30, 35)));
@@ -2579,7 +2579,7 @@ codeunit 147300 "Prompt Payment Law RegF"
 
         // [GIVEN] Customer "C" without Payment Day records but "Payment Days Code" is <non-blank>
         // [GIVEN] Sales Header with "Sell-To Customer No." = "C"
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo());
 
         // [WHEN] Validate Posting Date = "01/01/2018" in Sales Header
         SalesHeader.Validate("Posting Date", LibraryRandom.RandDate(LibraryRandom.RandIntInRange(30, 35)));
@@ -2605,7 +2605,7 @@ codeunit 147300 "Prompt Payment Law RegF"
 
         // [GIVEN] Vendor "V" with <blank> "Payment Days Code"
         // [GIVEN] Purchase Header with "Buy-from Vendor No." = "V"
-        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, CreateVendorWithBlankPaymentDaysCode);
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, CreateVendorWithBlankPaymentDaysCode());
 
         // [WHEN] Validate Posting Date = "01/01/2018" in Purchase Header
         PurchaseHeader.Validate("Posting Date", LibraryRandom.RandDate(LibraryRandom.RandIntInRange(30, 35)));
@@ -2632,7 +2632,7 @@ codeunit 147300 "Prompt Payment Law RegF"
 
         // [GIVEN] Customer "C" with <blank> "Payment Days Code"
         // [GIVEN] Sales Header with "Sell-To Customer No." = "C"
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, CreateCustomerWithBlankPaymentDaysCode);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, CreateCustomerWithBlankPaymentDaysCode());
 
         // [WHEN] Validate Posting Date = "01/01/2018" in Sales Header
         SalesHeader.Validate("Posting Date", LibraryRandom.RandDate(LibraryRandom.RandIntInRange(30, 35)));
@@ -2650,10 +2650,10 @@ codeunit 147300 "Prompt Payment Law RegF"
     begin
         ConstDaysInMonth := 28; // The least common denominator for days per month.
         InitializeContractServiceOrders(0D, 0D, 0, '');
-        SalesHeader.DontNotifyCurrentUserAgain(SalesHeader.GetModifyBillToCustomerAddressNotificationId);
-        SalesHeader.DontNotifyCurrentUserAgain(SalesHeader.GetModifyCustomerAddressNotificationId);
-        PurchaseHeader.DontNotifyCurrentUserAgain(PurchaseHeader.GetModifyVendorAddressNotificationId);
-        PurchaseHeader.DontNotifyCurrentUserAgain(PurchaseHeader.GetModifyPayToVendorAddressNotificationId);
+        SalesHeader.DontNotifyCurrentUserAgain(SalesHeader.GetModifyBillToCustomerAddressNotificationId());
+        SalesHeader.DontNotifyCurrentUserAgain(SalesHeader.GetModifyCustomerAddressNotificationId());
+        PurchaseHeader.DontNotifyCurrentUserAgain(PurchaseHeader.GetModifyVendorAddressNotificationId());
+        PurchaseHeader.DontNotifyCurrentUserAgain(PurchaseHeader.GetModifyPayToVendorAddressNotificationId());
 
         PurchasesPayablesSetup.Get();
         PurchasesPayablesSetup.Validate("Link Doc. Date To Posting Date", true);
@@ -2698,7 +2698,7 @@ codeunit 147300 "Prompt Payment Law RegF"
         CreateContractServiceOrders.EndingDate.SetValue(ReqPageEndingDate);
         CreateContractServiceOrders.CreateServiceOrders.SetValue(ReqPageAction);
         CreateContractServiceOrders."Service Contract Header".SetFilter("Contract No.", ReqPageContractNo);
-        CreateContractServiceOrders.OK.Invoke;
+        CreateContractServiceOrders.OK().Invoke();
     end;
 
     local procedure CreateCustomer(PaymentTermCode: Code[10]; NonPaymentPeriodCode: Code[20]; PaymentDayCode: Code[20]): Code[10]

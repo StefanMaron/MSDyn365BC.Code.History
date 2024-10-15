@@ -37,7 +37,7 @@ codeunit 147558 "SII Recreate Entries Test"
         SIISetup.Validate("Auto Missing Entries Check", SIISetup."Auto Missing Entries Check"::Daily);
 
         // [THEN] Job Queue Entry is created
-        VerifySIIJobQueueEntryCreatedAndStarted;
+        VerifySIIJobQueueEntryCreatedAndStarted();
     end;
 
     [Test]
@@ -61,7 +61,7 @@ codeunit 147558 "SII Recreate Entries Test"
         SIISetup.Validate("Auto Missing Entries Check", SIISetup."Auto Missing Entries Check"::Weekly);
 
         // [THEN] Job Queue Entry is created
-        VerifySIIJobQueueEntryCreatedAndStarted;
+        VerifySIIJobQueueEntryCreatedAndStarted();
     end;
 
     [Test]
@@ -112,10 +112,10 @@ codeunit 147558 "SII Recreate Entries Test"
         SIISetup.Modify(true);
 
         // [WHEN] Open "SII History" page
-        SIIHistory.OpenView;
+        SIIHistory.OpenView();
 
         // [THEN] Job Queue Entry is created
-        VerifySIIJobQueueEntryCreatedAndStarted;
+        VerifySIIJobQueueEntryCreatedAndStarted();
 
         SIIHistory.Close();
     end;
@@ -134,15 +134,15 @@ codeunit 147558 "SII Recreate Entries Test"
         Initialize();
 
         // [GIVEN] Opened "SII History" page
-        SIIHistory.OpenView;
+        SIIHistory.OpenView();
 
-        RecreateMissingSIIEntries.Trap;
+        RecreateMissingSIIEntries.Trap();
 
         // [WHEN] Stan press action "Recreate Missing Entries" on "SII History" page
-        SIIHistory."Recreate Missing SII Entries".Invoke;
+        SIIHistory."Recreate Missing SII Entries".Invoke();
 
         // [THEN] "Recreate Missing Entries" page is shown
-        Assert.IsTrue(RecreateMissingSIIEntries.FromDate.Enabled, '');
+        Assert.IsTrue(RecreateMissingSIIEntries.FromDate.Enabled(), '');
 
         RecreateMissingSIIEntries.Close();
     end;
@@ -300,7 +300,7 @@ codeunit 147558 "SII Recreate Entries Test"
         // [GIVEN] Enable SII Setup back
         EnableSIISetup(SIISetup, true);
 
-        RecreateMissingSIIEntries.Trap;
+        RecreateMissingSIIEntries.Trap();
 
         // [WHEN] Stan open page "Recreate Missing SII Entries"
         PAGE.Run(PAGE::"Recreate Missing SII Entries");
@@ -360,8 +360,8 @@ codeunit 147558 "SII Recreate Entries Test"
         EnableSIISetup(SIISetup, true);
 
         // [WHEN] Stan open page "Recreate Missing SII Entries" and select "Scan All Entries"
-        RecreateMissingSIIEntries.OpenEdit;
-        RecreateMissingSIIEntries.ScanAllEntries.DrillDown;
+        RecreateMissingSIIEntries.OpenEdit();
+        RecreateMissingSIIEntries.ScanAllEntries.DrillDown();
 
         // [THEN] "Entries Missing" is 6
         // TFS ID 398897: VAT cash refunds
@@ -391,7 +391,7 @@ codeunit 147558 "SII Recreate Entries Test"
         // [GIVEN] Sales Invoice with "Posting Date" = 15.01.2017 and "Do Not Send To SII" option enabled
         CustLedgerEntry.Get(MockCustLedgEntry(SIISetup."Starting Date"));
         CustLedgerEntry."Do Not Send To SII" := true;
-        CustLedgerEntry.Modify;
+        CustLedgerEntry.Modify();
 
         // [GIVEN] Purchase Invoice with "Posting Date" = 15.01.2017 and "Do Not Send To SII" option enabled
         VendorLedgerEntry.Get(MockVendLedgEntry(SIISetup."Starting Date"));
@@ -413,7 +413,7 @@ codeunit 147558 "SII Recreate Entries Test"
         JobQueueEntry: Record "Job Queue Entry";
     begin
         LibrarySII.InitSetup(true, false);
-        UpdateSIISetupToRecreateMissingEntries;
+        UpdateSIISetupToRecreateMissingEntries();
         FilterSIIJobQueueEntry(JobQueueEntry);
         JobQueueEntry.DeleteAll(true);
         if IsInitialized then
@@ -433,7 +433,7 @@ codeunit 147558 "SII Recreate Entries Test"
         SIISetup.Validate("Show Advanced Actions", true);
         GLRegister.SetCurrentKey("Posting Date");
         GLRegister.FindLast();
-        SIISetup.Validate("Starting Date", LogInManagement.GetDefaultWorkDate + 1);
+        SIISetup.Validate("Starting Date", LogInManagement.GetDefaultWorkDate() + 1);
         SIISetup.Modify(true);
     end;
 
@@ -461,7 +461,7 @@ codeunit 147558 "SII Recreate Entries Test"
         exit(VendorLedgerEntry."Entry No.");
     end;
 
-    local procedure MockDtldCustLedgEntry(DocType: Option; PostingDate: Date): Integer
+    local procedure MockDtldCustLedgEntry(DocType: Enum "Gen. Journal Document Type"; PostingDate: Date): Integer
     var
         DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry";
     begin
@@ -481,7 +481,7 @@ codeunit 147558 "SII Recreate Entries Test"
         exit(DetailedCustLedgEntry."Entry No.");
     end;
 
-    local procedure MockDtldVendLedgEntry(DocType: Option; PostingDate: Date): Integer
+    local procedure MockDtldVendLedgEntry(DocType: Enum "Gen. Journal Document Type"; PostingDate: Date): Integer
     var
         DetailedVendorLedgEntry: Record "Detailed Vendor Ledg. Entry";
     begin

@@ -138,24 +138,20 @@ codeunit 10700 "Due Date-Adjust"
 
     local procedure SetPaymentDayFilterAndFields(var PaymentDay: Record "Payment Day"; TableNameOption: Option; PaymentDayCode: Code[20])
     begin
-        with PaymentDay do begin
-            Reset();
-            SetRange("Table Name", TableNameOption);
-            SetRange(Code, PaymentDayCode);
-            "Table Name" := TableNameOption;
-            Code := PaymentDayCode
-        end
+        PaymentDay.Reset();
+        PaymentDay.SetRange("Table Name", TableNameOption);
+        PaymentDay.SetRange(Code, PaymentDayCode);
+        PaymentDay."Table Name" := TableNameOption;
+        PaymentDay.Code := PaymentDayCode
     end;
 
     local procedure SetNonPaymentPeriodFilterAndFields(var NonPaymentPeriod: Record "Non-Payment Period"; TableNameOption: Option; NonPaymentPeriodCode: Code[20])
     begin
-        with NonPaymentPeriod do begin
-            Reset();
-            SetRange("Table Name", TableNameOption);
-            SetRange(Code, NonPaymentPeriodCode);
-            "Table Name" := TableNameOption;
-            Code := NonPaymentPeriodCode
-        end
+        NonPaymentPeriod.Reset();
+        NonPaymentPeriod.SetRange("Table Name", TableNameOption);
+        NonPaymentPeriod.SetRange(Code, NonPaymentPeriodCode);
+        NonPaymentPeriod."Table Name" := TableNameOption;
+        NonPaymentPeriod.Code := NonPaymentPeriodCode
     end;
 
     local procedure PaymentDayInNonPaymentPeriod(var NonPaymentPeriod: Record "Non-Payment Period"; PaymentDay: Record "Payment Day"; PaymentDate: Date): Boolean

@@ -235,21 +235,19 @@ codeunit 10701 "Elect. Pmts Management"
         CheckLedgerEntry: Record "Check Ledger Entry";
         CheckManagement: Codeunit CheckManagement;
     begin
-        with CheckLedgerEntry do begin
-            Init();
-            "Bank Account No." := BankAccNo;
-            "Posting Date" := DeliveryDate;
-            "Document Type" := DocType;
-            "Document No." := DocNo;
-            Description := DescriptionText;
-            "Bank Payment Type" := "Bank Payment Type"::"Electronic Payment";
-            "Entry Status" := "Entry Status"::Exported;
-            "Check Date" := DeliveryDate;
-            "Check No." := DocNo;
-            "Bal. Account Type" := "Bal. Account Type"::"Bank Account";
-            "Bal. Account No." := BalAccNo;
-            Amount := Amt;
-        end;
+        CheckLedgerEntry.Init();
+        CheckLedgerEntry."Bank Account No." := BankAccNo;
+        CheckLedgerEntry."Posting Date" := DeliveryDate;
+        CheckLedgerEntry."Document Type" := DocType;
+        CheckLedgerEntry."Document No." := DocNo;
+        CheckLedgerEntry.Description := DescriptionText;
+        CheckLedgerEntry."Bank Payment Type" := CheckLedgerEntry."Bank Payment Type"::"Electronic Payment";
+        CheckLedgerEntry."Entry Status" := CheckLedgerEntry."Entry Status"::Exported;
+        CheckLedgerEntry."Check Date" := DeliveryDate;
+        CheckLedgerEntry."Check No." := DocNo;
+        CheckLedgerEntry."Bal. Account Type" := CheckLedgerEntry."Bal. Account Type"::"Bank Account";
+        CheckLedgerEntry."Bal. Account No." := BalAccNo;
+        CheckLedgerEntry.Amount := Amt;
         CheckManagement.InsertCheck(CheckLedgerEntry, RecordIdToPrint);
     end;
 

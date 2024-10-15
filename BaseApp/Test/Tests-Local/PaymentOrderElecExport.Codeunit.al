@@ -43,7 +43,7 @@ codeunit 147508 "Payment Order Elec. Export"
         CreatePaymentOrderWithOneLine(PaymentOrder, false);
 
         // [WHEN] Export To File
-        asserterror PaymentOrder.ExportToFile;
+        asserterror PaymentOrder.ExportToFile();
 
         // [THEN] Error message: 'Export Electronic Payment must be Yes'
         Assert.ExpectedError(StrSubstNo(ExportElecPaymentMustBeYesErr, PaymentOrder."No."));
@@ -132,13 +132,13 @@ codeunit 147508 "Payment Order Elec. Export"
         PostedDocNo[2] := CreateAndPostPurchaseInvoice(VendorNo[2]); // good Doc must be posted last
 
         // [GIVEN] Payment Order with two lines: first one for Vendor 10000, second one for Vendor 20000
-        BankAccNo := CreateBankAccount(FindSEPACTExportFormat);
+        BankAccNo := CreateBankAccount(FindSEPACTExportFormat());
         CreatePaymentOrderWithSpecificBankAccount(PaymentOrder, BankAccNo, true);
         CarteraDocEntryNo[1] := AddDocToBillGroup(PaymentOrder."No.", PostedDocNo[1], VendorNo[1]);
         CarteraDocEntryNo[2] := AddDocToBillGroup(PaymentOrder."No.", PostedDocNo[2], VendorNo[2]);
 
         // [WHEN] Export To File
-        asserterror PaymentOrder.ExportToFile;
+        asserterror PaymentOrder.ExportToFile();
 
         // [THEN] Error message: "The file export has one or more errors"
         Assert.ExpectedError(FileExportHasErrorsErr);
@@ -343,7 +343,7 @@ codeunit 147508 "Payment Order Elec. Export"
         BankAccount.IBAN := LibraryUtility.GenerateRandomCode(BankAccount.FieldNo(IBAN), DATABASE::"Bank Account");
         BankAccount."SWIFT Code" := LibraryUtility.GenerateRandomCode(BankAccount.FieldNo("SWIFT Code"), DATABASE::"Bank Account");
         BankAccount.Validate("Payment Export Format", PaymentExportFormat);
-        BankAccount.Validate("Credit Transfer Msg. Nos.", CreateNoSeries);
+        BankAccount.Validate("Credit Transfer Msg. Nos.", CreateNoSeries());
         BankAccount.Validate("E-Pay Export File Path", '');
         BankAccount.Validate("Last E-Pay Export File Name", 'ABC001.txt');
         BankAccount.Validate("Last Remittance Advice No.", '1');
@@ -403,7 +403,7 @@ codeunit 147508 "Payment Order Elec. Export"
         VendorNo: Code[20];
         PostedDocNo: Code[20];
     begin
-        BankAccNo := CreateBankAccount(FindSEPACTExportFormat);
+        BankAccNo := CreateBankAccount(FindSEPACTExportFormat());
         VendorNo := CreateVendorWithBankAccount(ExportElectronicPayment);
         PostedDocNo := CreateAndPostPurchaseInvoice(VendorNo);
         CreatePaymentOrderWithSpecificBankAccount(PaymentOrder, BankAccNo, ExportElectronicPayment);
@@ -414,13 +414,12 @@ codeunit 147508 "Payment Order Elec. Export"
     local procedure CreateVendorPayment(var GenJournalLine: Record "Gen. Journal Line")
     var
         GenJournalBatch: Record "Gen. Journal Batch";
-        BankAccount: Record "Bank Account";
         PurchInvHeader: Record "Purch. Inv. Header";
         BankAccNo: Code[20];
         VendorNo: Code[20];
         PostedDocNo: Code[20];
     begin
-        BankAccNo := CreateBankAccount(FindEPayExportFormat);
+        BankAccNo := CreateBankAccount(FindEPayExportFormat());
 
         VendorNo := CreateVendorWithBankAccount(true);
         PostedDocNo := CreateAndPostPurchaseInvoice(VendorNo);
@@ -473,7 +472,7 @@ codeunit 147508 "Payment Order Elec. Export"
         BankExportImportSetup: Record "Bank Export/Import Setup";
     begin
         BankExportImportSetup.SetRange("Processing Codeunit ID", CODEUNIT::"SEPA CT-Export File");
-        BankExportImportSetup.FindFirst;
+        BankExportImportSetup.FindFirst();
         exit(BankExportImportSetup.Code);
     end;
 
@@ -512,18 +511,18 @@ codeunit 147508 "Payment Order Elec. Export"
     var
         PaymentOrders: TestPage "Payment Orders";
     begin
-        PaymentOrders.OpenView;
+        PaymentOrders.OpenView();
         PaymentOrders.GotoRecord(PaymentOrder);
         // First line has an expected error in the FactBox
-        PaymentOrders.Docs.First;
+        PaymentOrders.Docs.First();
         PaymentOrders.Docs."Entry No.".AssertEquals(LineNo);
-        PaymentOrders.Control1901420307.First;
+        PaymentOrders.Control1901420307.First();
         asserterror Error(PaymentOrders."Payment File Errors"."Error Text".Value);
         Assert.ExpectedError(ExpectedErrorText);
 
         // Second line has no errors
         PaymentOrders.Docs.Next();
-        PaymentOrders.Control1901420307.First; // somehow FIRST returns true on the empty factbox
+        PaymentOrders.Control1901420307.First(); // somehow FIRST returns true on the empty factbox
         PaymentOrders."Payment File Errors"."Error Text".AssertEquals('');
         PaymentOrders.Close();
     end;
@@ -535,7 +534,7 @@ codeunit 147508 "Payment Order Elec. Export"
     begin
         LibraryVariableStorage.Dequeue(PaymentOrderNo);
         VoidPOExport.PaymentOrderNo.SetValue(PaymentOrderNo);
-        VoidPOExport.OK.Invoke;
+        VoidPOExport.OK().Invoke();
     end;
 
     [RequestPageHandler]

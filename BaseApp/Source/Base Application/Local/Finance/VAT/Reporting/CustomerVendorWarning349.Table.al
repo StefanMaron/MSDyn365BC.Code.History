@@ -11,6 +11,7 @@ using Microsoft.Sales.Customer;
 table 10732 "Customer/Vendor Warning 349"
 {
     Caption = 'Customer/Vendor Warning 349';
+    DataClassification = CustomerContent;
 
     fields
     {

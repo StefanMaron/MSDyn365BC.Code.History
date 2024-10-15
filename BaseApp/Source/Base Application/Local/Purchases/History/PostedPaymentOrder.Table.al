@@ -15,6 +15,7 @@ table 7000021 "Posted Payment Order"
     Caption = 'Posted Payment Order';
     DrillDownPageID = "Posted Payment Orders List";
     LookupPageID = "Posted Payment Orders List";
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -220,15 +221,13 @@ table 7000021 "Posted Payment Order"
     var
         CarteraReportSelection: Record "Cartera Report Selections";
     begin
-        with PostedPmtOrd do begin
-            Copy(Rec);
-            CarteraReportSelection.SetRange(Usage, CarteraReportSelection.Usage::"Posted Payment Order");
-            CarteraReportSelection.SetFilter("Report ID", '<>0');
-            CarteraReportSelection.Find('-');
-            repeat
-                REPORT.RunModal(CarteraReportSelection."Report ID", ShowRequestForm, false, PostedPmtOrd);
-            until CarteraReportSelection.Next() = 0;
-        end;
+        PostedPmtOrd.Copy(Rec);
+        CarteraReportSelection.SetRange(Usage, CarteraReportSelection.Usage::"Posted Payment Order");
+        CarteraReportSelection.SetFilter("Report ID", '<>0');
+        CarteraReportSelection.Find('-');
+        repeat
+            REPORT.RunModal(CarteraReportSelection."Report ID", ShowRequestForm, false, PostedPmtOrd);
+        until CarteraReportSelection.Next() = 0;
     end;
 
     procedure Caption(): Text

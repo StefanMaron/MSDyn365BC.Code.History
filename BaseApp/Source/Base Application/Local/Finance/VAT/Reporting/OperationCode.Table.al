@@ -11,6 +11,7 @@ table 10745 "Operation Code"
     Caption = 'Operation Code';
     DrillDownPageID = "Operation Codes";
     LookupPageID = "Operation Codes";
+    DataClassification = CustomerContent;
 
     fields
     {

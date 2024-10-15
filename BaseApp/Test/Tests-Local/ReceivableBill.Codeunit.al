@@ -56,12 +56,12 @@ codeunit 147538 "Receivable Bill"
         Commit();
         REPORT.Run(REPORT::"Receivable Bill");
 
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
 
-        Assert.IsTrue(LibraryReportDataset.RowCount > 0, 'No rows in dataset.');
+        Assert.IsTrue(LibraryReportDataset.RowCount() > 0, 'No rows in dataset.');
 
         Found := false;
-        while LibraryReportDataset.GetNextRow do begin
+        while LibraryReportDataset.GetNextRow() do begin
             LibraryReportDataset.FindCurrentRowValue('DocumentNo_CustLedgEntry', ReportDocumentNo);
             if DocumentNo = Format(ReportDocumentNo) then begin
                 Assert.IsFalse(Found, 'Only one row expected.');
@@ -84,8 +84,8 @@ codeunit 147538 "Receivable Bill"
         DataSetFileName: Text;
         DataSetParameterFileName: Text;
     begin
-        DataSetFileName := LibraryReportDataset.GetFileName;
-        DataSetParameterFileName := LibraryReportDataset.GetParametersFileName;
+        DataSetFileName := LibraryReportDataset.GetFileName();
+        DataSetParameterFileName := LibraryReportDataset.GetParametersFileName();
 
         ReceivableBillPage.SaveAsXml(DataSetParameterFileName, DataSetFileName)
     end;

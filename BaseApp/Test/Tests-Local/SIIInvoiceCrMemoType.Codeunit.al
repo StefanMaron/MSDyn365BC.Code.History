@@ -693,7 +693,7 @@ codeunit 147551 "SII Invoice/Cr. Memo Type"
         // [GIVEN] Posted sales credit memo with "Cr. Memo Type" = "F3 Invoice issued to replace simplified invoices"
         PostSalesDocWithInvOrCrMemoType(
           CustLedgerEntry, SalesHeader."Document Type"::Invoice, 0,
-          0, SalesHeader."Cr. Memo Type"::"F3 Invoice issued to replace simplified invoices");
+          "SII Sales Invoice Type"::"F1 Invoice", SalesHeader."Cr. Memo Type"::"F3 Invoice issued to replace simplified invoices");
 
         // [WHEN] Create xml for the document
         Assert.IsTrue(SIIXMLCreator.GenerateXml(CustLedgerEntry, XMLDoc, UploadType::Regular, false), IncorrectXMLDocErr);
@@ -716,7 +716,7 @@ codeunit 147551 "SII Invoice/Cr. Memo Type"
         // [FEATURE] [Service] [Credit Memo]
         // [SCENARIO 433347] Sales credit memo with "F3" type has correct xml to send to SII
 
-        Initialize;
+        Initialize();
         // [GIVEN] Posted sales credit memo with "Cr. Memo Type" = "F3 Invoice issued to replace simplified invoices"
         PostServiceCrMemoWithInvOrCrMemoType(
           CustLedgerEntry, 0, ServiceHeader."Cr. Memo Type"::"F3 Invoice issued to replace simplified invoices");
@@ -747,7 +747,7 @@ codeunit 147551 "SII Invoice/Cr. Memo Type"
         // [GIVEN] Posted sales replacement credit memo with "Cr. Memo Type" = "F3 Invoice issued to replace simplified invoices"
         PostSalesDocWithInvOrCrMemoType(
           CustLedgerEntry, SalesHeader."Document Type"::Invoice, SalesHeader."Correction Type"::Replacement,
-          0, SalesHeader."Cr. Memo Type"::"F3 Invoice issued to replace simplified invoices");
+          "SII Sales Invoice Type"::"F1 Invoice", SalesHeader."Cr. Memo Type"::"F3 Invoice issued to replace simplified invoices");
 
         // [WHEN] Create xml for the document
         Assert.IsTrue(SIIXMLCreator.GenerateXml(CustLedgerEntry, XMLDoc, UploadType::Regular, false), IncorrectXMLDocErr);
@@ -793,7 +793,7 @@ codeunit 147551 "SII Invoice/Cr. Memo Type"
             exit;
 
         LibrarySII.InitSetup(true, false);
-        LibrarySII.BindSubscriptionJobQueue;
+        LibrarySII.BindSubscriptionJobQueue();
 
         IsInitialized := true;
     end;
@@ -803,13 +803,13 @@ codeunit 147551 "SII Invoice/Cr. Memo Type"
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
     begin
-        LibrarySales.CreateSalesHeader(SalesHeader, DocType, LibrarySales.CreateCustomerNo);
+        LibrarySales.CreateSalesHeader(SalesHeader, DocType, LibrarySales.CreateCustomerNo());
         SalesHeader.Validate("Correction Type", CorrType);
         SalesHeader.Validate("Invoice Type", InvoiceType);
         SalesHeader.Validate("Cr. Memo Type", CrMemoType);
         SalesHeader.Modify(true);
         LibrarySales.CreateSalesLine(
-          SalesLine, SalesHeader, SalesLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithSalesSetup, LibraryRandom.RandInt(100));
+          SalesLine, SalesHeader, SalesLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithSalesSetup(), LibraryRandom.RandInt(100));
         SalesLine.Validate("Unit Price", LibraryRandom.RandDec(100, 2));
         SalesLine.Modify(true);
         LibraryERM.FindCustomerLedgerEntry(CustLedgerEntry, DocType, LibrarySales.PostSalesDocument(SalesHeader, true, true));
@@ -820,20 +820,20 @@ codeunit 147551 "SII Invoice/Cr. Memo Type"
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
     begin
-        LibraryPurchase.CreatePurchHeader(PurchaseHeader, DocType, LibraryPurchase.CreateVendorNo);
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, DocType, LibraryPurchase.CreateVendorNo());
         PurchaseHeader.Validate("Correction Type", CorrType);
         PurchaseHeader.Validate("Invoice Type", InvoiceType);
         PurchaseHeader.Validate("Cr. Memo Type", CrMemoType);
         PurchaseHeader.Modify(true);
         LibraryPurchase.CreatePurchaseLine(
           PurchaseLine, PurchaseHeader, PurchaseLine.Type::"G/L Account",
-          LibraryERM.CreateGLAccountWithSalesSetup, LibraryRandom.RandInt(100));
+          LibraryERM.CreateGLAccountWithSalesSetup(), LibraryRandom.RandInt(100));
         PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandDec(100, 2));
         PurchaseLine.Modify(true);
         LibraryERM.FindVendorLedgerEntry(VendorLedgerEntry, DocType, LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true));
     end;
 
-    local procedure PostServiceCrMemoWithInvOrCrMemoType(var CustLedgerEntry: Record "Cust. Ledger Entry"; InvoiceType: Option; CrMemoType: Integer)
+    local procedure PostServiceCrMemoWithInvOrCrMemoType(var CustLedgerEntry: Record "Cust. Ledger Entry"; InvoiceType: Option; CrMemoType: Enum "SII Sales Credit Memo Type")
     var
         ServiceHeader: Record "Service Header";
         ServiceItem: Record "Service Item";

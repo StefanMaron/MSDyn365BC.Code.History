@@ -76,7 +76,7 @@ codeunit 136308 "Job Order Tracking"
         // 3. Verify: Verify Order Tracking Entry on Order Tracking page handler.
 
         // 4. Teardown.
-        Teardown;
+        TearDown();
     end;
 
     [Test]
@@ -110,7 +110,7 @@ codeunit 136308 "Job Order Tracking"
         // 3. Verify: Verify Order Tracking Entry on Order Tracking page handler.
 
         // 4. Teardown.
-        Teardown;
+        TearDown();
     end;
 
     [Test]
@@ -141,7 +141,7 @@ codeunit 136308 "Job Order Tracking"
         // 3. Verify: Verify there are no Order Tracking Entry on Order Tracking page handler.
 
         // 4. Teardown.
-        Teardown;
+        TearDown();
     end;
 
     [Test]
@@ -176,7 +176,7 @@ codeunit 136308 "Job Order Tracking"
         // 3. Verify: Verify there are no Order Tracking Entry on Order Tracking page handler.
 
         // 4. Teardown.
-        Teardown;
+        TearDown();
     end;
 
     [Test]
@@ -193,7 +193,7 @@ codeunit 136308 "Job Order Tracking"
         OrderPromisingOnJobPlanningLine(JobPlanningLine);
 
         // 2. Exercise.
-        JobPlanningLine.ShowOrderPromisingLine;
+        JobPlanningLine.ShowOrderPromisingLine();
 
         // 3. Verify: Verify that date on the Order Promising page. Verification done in 'AvailableToPromisePageHandler'.
     end;
@@ -212,7 +212,7 @@ codeunit 136308 "Job Order Tracking"
         OrderPromisingOnJobPlanningLine(JobPlanningLine);
 
         // 2. Exercise.
-        JobPlanningLine.ShowOrderPromisingLine;
+        JobPlanningLine.ShowOrderPromisingLine();
 
         // 3. Verify: Verify that date on the Order Promising page. Verification done in 'CapableToPromisePageHandler'.
     end;
@@ -231,7 +231,7 @@ codeunit 136308 "Job Order Tracking"
         OrderPromisingOnJobPlanningLine(JobPlanningLine);
 
         // 2. Exercise.
-        JobPlanningLine.ShowOrderPromisingLine;
+        JobPlanningLine.ShowOrderPromisingLine();
 
         // 3. Verify: Verify that date on the Order Promising page. Verification done in 'AcceptPageHandler'.
     end;
@@ -303,7 +303,7 @@ codeunit 136308 "Job Order Tracking"
         Initialize();
         CreateJobPlanningLine(JobPlanningLine);
         ModifyJobPlanningLine(
-          JobPlanningLine, CreateItemWithVendorNo, LibraryRandom.RandInt(10), WorkDate(),
+          JobPlanningLine, CreateItemWithVendorNo(), LibraryRandom.RandInt(10), WorkDate(),
           LibraryJob.FindLocation(Location));  // Taking random value for Quantity.
 
         // Exercise: Run Calculate Plan from Order Planning Worksheet.
@@ -329,7 +329,7 @@ codeunit 136308 "Job Order Tracking"
         Initialize();
         CreateJobPlanningLine(JobPlanningLine);
         ModifyJobPlanningLine(
-          JobPlanningLine, CreateItemWithVendorNo, LibraryRandom.RandInt(10), WorkDate(), LibraryJob.FindLocation(Location));
+          JobPlanningLine, CreateItemWithVendorNo(), LibraryRandom.RandInt(10), WorkDate(), LibraryJob.FindLocation(Location));
         LibraryPlanning.CalculateOrderPlanJob(RequisitionLine);
 
         // Exercise: Make Order from Order Planning Worksheet.
@@ -339,7 +339,7 @@ codeunit 136308 "Job Order Tracking"
         VerifyPurchaseOrder(JobPlanningLine."Job No.");
 
         // Tear Down: Delete the earlier created Manufacturing User Template.
-        DeleteManufacturingUserTemplate;
+        DeleteManufacturingUserTemplate();
     end;
 
     [Test]
@@ -363,9 +363,9 @@ codeunit 136308 "Job Order Tracking"
         LibraryJob.CreateJob(Job);
         CreateDefaultDimForJob(Job."No.", DefaultDimension);
         LibraryJob.CreateJobTask(Job, JobTask);
-        LibraryJob.CreateJobPlanningLine(LibraryJob.PlanningLineTypeSchedule, LibraryJob.ItemType, JobTask, JobPlanningLine);
+        LibraryJob.CreateJobPlanningLine(LibraryJob.PlanningLineTypeSchedule(), LibraryJob.ItemType(), JobTask, JobPlanningLine);
         ModifyJobPlanningLine(
-          JobPlanningLine, CreateItemWithVendorNo, LibraryRandom.RandInt(10), WorkDate(),
+          JobPlanningLine, CreateItemWithVendorNo(), LibraryRandom.RandInt(10), WorkDate(),
           LibraryJob.FindLocation(Location));  // Taking random value for Quantity.
 
         // [WHEN] Exercise: Run Calculate Plan from Order Planning Worksheet.
@@ -406,11 +406,11 @@ codeunit 136308 "Job Order Tracking"
         CreateJobTaskDim(JobTaskDim, JobTask);
 
         // [GIVEN] Creaet Job Planning Line
-        LibraryJob.CreateJobPlanningLine(LibraryJob.PlanningLineTypeSchedule, LibraryJob.ItemType, JobTask, JobPlanningLine);
+        LibraryJob.CreateJobPlanningLine(LibraryJob.PlanningLineTypeSchedule(), LibraryJob.ItemType(), JobTask, JobPlanningLine);
 
         // [GIVEN] Update Quantity, Item, Planning Date and Location on Job Planning Line
         ModifyJobPlanningLine(
-          JobPlanningLine, CreateItemWithVendorNo, LibraryRandom.RandInt(10), WorkDate(),
+          JobPlanningLine, CreateItemWithVendorNo(), LibraryRandom.RandInt(10), WorkDate(),
           LibraryJob.FindLocation(Location));  // Taking random value for Quantity.
 
         // [WHEN] Exercise: Run Calculate Plan from Order Planning Worksheet.
@@ -427,7 +427,7 @@ codeunit 136308 "Job Order Tracking"
         LibraryInventory: Codeunit "Library - Inventory";
     begin
         LibraryInventory.CreateItem(Item);
-        Item.Validate("Vendor No.", LibraryPurchase.CreateVendorNo);
+        Item.Validate("Vendor No.", LibraryPurchase.CreateVendorNo());
         Item.Modify(true);
         exit(Item."No.");
     end;
@@ -451,7 +451,7 @@ codeunit 136308 "Job Order Tracking"
         // Create Job, Job Task, Job Planning Line.
         LibraryJob.CreateJob(Job);
         LibraryJob.CreateJobTask(Job, JobTask);
-        LibraryJob.CreateJobPlanningLine(LibraryJob.PlanningLineTypeSchedule, LibraryJob.ItemType, JobTask, JobPlanningLine);
+        LibraryJob.CreateJobPlanningLine(LibraryJob.PlanningLineTypeSchedule(), LibraryJob.ItemType(), JobTask, JobPlanningLine);
     end;
 
     local procedure CreatePurchaseOrder(var PurchaseLine: Record "Purchase Line"; ItemNo: Code[20]; LocationCode: Code[10])
@@ -490,7 +490,7 @@ codeunit 136308 "Job Order Tracking"
         ExpectedDate := JobPlanningLine."Planning Date";  // Assign in global variable.
 
         // 2. Exercise.
-        JobPlanningLine.ShowOrderPromisingLine;
+        JobPlanningLine.ShowOrderPromisingLine();
     end;
 
     local procedure DeleteManufacturingUserTemplate()
@@ -538,7 +538,7 @@ codeunit 136308 "Job Order Tracking"
         JobPlanningLine.Validate("Planning Date", CalcDate('<' + Format(LibraryRandom.RandInt(10)) + 'D>', PlanningDate));  // Used Random to calculate the Planning Date.
         JobPlanningLine.Validate("Location Code", LocationCode);
         JobPlanningLine.Validate("No.", ItemNo);
-        JobPlanningLine.Validate(Quantity, Quantity * LibraryUtility.GenerateRandomFraction);
+        JobPlanningLine.Validate(Quantity, Quantity * LibraryUtility.GenerateRandomFraction());
         JobPlanningLine.Modify(true);
     end;
 
@@ -546,7 +546,7 @@ codeunit 136308 "Job Order Tracking"
     var
         PurchaseHeader: Record "Purchase Header";
     begin
-        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo);
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo());
         LibraryPurchase.CreatePurchaseLine(
           PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, CreateItemWithTrackingPolicy(OrderTrackingPolicy),
           LibraryRandom.RandDec(10, 2));  // Use random for Quantity.
@@ -707,18 +707,18 @@ codeunit 136308 "Job Order Tracking"
     [Scope('OnPrem')]
     procedure AvailableToPromisePageHandler(var OrderPromisingLines: TestPage "Order Promising Lines")
     begin
-        OrderPromisingLines.AvailableToPromise.Invoke;
+        OrderPromisingLines.AvailableToPromise.Invoke();
         OrderPromisingLines."Requested Shipment Date".AssertEquals(ExpectedDate);
-        OrderPromisingLines.OK.Invoke;
+        OrderPromisingLines.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure CapableToPromisePageHandler(var OrderPromisingLines: TestPage "Order Promising Lines")
     begin
-        OrderPromisingLines.CapableToPromise.Invoke;
+        OrderPromisingLines.CapableToPromise.Invoke();
         OrderPromisingLines."Original Shipment Date".AssertEquals(ExpectedDate);
-        OrderPromisingLines.OK.Invoke;
+        OrderPromisingLines.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -726,7 +726,7 @@ codeunit 136308 "Job Order Tracking"
     procedure AcceptPageHandler(var OrderPromisingLines: TestPage "Order Promising Lines")
     begin
         OrderPromisingLines."Requested Shipment Date".AssertEquals(ExpectedDate);
-        OrderPromisingLines.AcceptButton.Invoke;
+        OrderPromisingLines.AcceptButton.Invoke();
     end;
 
     [ModalPageHandler]

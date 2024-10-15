@@ -76,7 +76,7 @@ codeunit 147303 "Make 340 Dec. 2012 RegF"
 
         // Pre-Setup
         Amount := LibraryRandom.RandDec(5999, 2);
-        ReferenceDate := GetBasisOfCalcForPostingDate;
+        ReferenceDate := GetBasisOfCalcForPostingDate();
 
         // Setup
         CreateCustomer(Cust);
@@ -120,7 +120,7 @@ codeunit 147303 "Make 340 Dec. 2012 RegF"
 
         // Pre-Setup
         Amount := LibraryRandom.RandDecInRange(6000, 10000, 2);
-        ReferenceDate := GetBasisOfCalcForPostingDate;
+        ReferenceDate := GetBasisOfCalcForPostingDate();
 
         // Setup
         CreateCustomer(Cust);
@@ -196,7 +196,7 @@ codeunit 147303 "Make 340 Dec. 2012 RegF"
         Initialize();
 
         // Exercise
-        Library340.CreateOperationCode(OperationCode, GetValidCharacter);
+        Library340.CreateOperationCode(OperationCode, GetValidCharacter());
         MapOperationCode(GenProductPostingGroup, OperationCode.Code);
 
         // Verify
@@ -217,7 +217,7 @@ codeunit 147303 "Make 340 Dec. 2012 RegF"
         Initialize();
 
         // Exercise
-        Library340.CreateOperationCode(OperationCode, GetValidCharacter);
+        Library340.CreateOperationCode(OperationCode, GetValidCharacter());
         MapOperationCode(GenProductPostingGroup, OperationCode.Code);
 
         // Verify
@@ -395,7 +395,7 @@ codeunit 147303 "Make 340 Dec. 2012 RegF"
         Initialize();
 
         // Exercise
-        Library340.CreateOperationCode(OperationCode, GetValidCharacter);
+        Library340.CreateOperationCode(OperationCode, GetValidCharacter());
         MapOperationCode(GenProductPostingGroup1, OperationCode.Code);
         MapOperationCode(GenProductPostingGroup2, OperationCode.Code);
 
@@ -426,7 +426,7 @@ codeunit 147303 "Make 340 Dec. 2012 RegF"
         Initialize();
 
         // Pre-Setup
-        ReferenceDate := GetBasisOfCalcForPostingDate;
+        ReferenceDate := GetBasisOfCalcForPostingDate();
         MinPaymentAmount := 1000 * LibraryRandom.RandInt(10);
         AmountMoreThanMin := LibraryRandom.RandDecInRange(MinPaymentAmount + 1000, MinPaymentAmount + 2000, 2);
         FirstPaymentAmount := LibraryRandom.RandDecInRange(MinPaymentAmount, AmountMoreThanMin div 1, 2);
@@ -856,11 +856,11 @@ codeunit 147303 "Make 340 Dec. 2012 RegF"
         // Pre-Setup
         ReferenceAmount := 1000 * LibraryRandom.RandInt(10);
         Amount := LibraryRandom.RandIntInRange(ReferenceAmount + 1000, ReferenceAmount + 2000);
-        ReferenceDate := GetBasisOfCalcForPostingDate;
+        ReferenceDate := GetBasisOfCalcForPostingDate();
         FiscalYear := Date2DMY(ReferenceDate, 3);
 
         // Setup
-        VendorNo := CreateVendor;
+        VendorNo := CreateVendor();
         LibraryERM.FindGLAccount(GLAccount);
         InvoiceDocNo := CreateAndPostInvoiceUsingJournal(VendorNo, GLAccount."No.", -1 * Amount,
             GenJournalLine."Account Type"::Vendor, "General Posting Type"::" ", ReferenceDate);
@@ -882,7 +882,7 @@ codeunit 147303 "Make 340 Dec. 2012 RegF"
     procedure PaymentFromCustomerFullyAppliedOnGLAccNotEqualToCashAccount()
     begin
         // TFS298675 - http://vstfnav:8080/tfs/web/wi.aspx?id=298675.
-        GLAccountsOnRequestPage(CreateGLAccount);
+        GLAccountsOnRequestPage(CreateGLAccount());
     end;
 
     [Test]
@@ -1640,11 +1640,11 @@ codeunit 147303 "Make 340 Dec. 2012 RegF"
         Initialize();
 
         // Pre-Setup
-        ReferenceDate := GetBasisOfCalcForPostingDate;
+        ReferenceDate := GetBasisOfCalcForPostingDate();
         FiscalYear := Date2DMY(ReferenceDate, 3);
 
         // Setup
-        Library340.CreateOperationCode(OperationCode, GetValidCharacter);
+        Library340.CreateOperationCode(OperationCode, GetValidCharacter());
         FindItemWithOperationCode(Item, OperationCode.Code);
 
         Library340.CreateVendorVATRegistration(Vend);
@@ -1690,11 +1690,11 @@ codeunit 147303 "Make 340 Dec. 2012 RegF"
         Initialize();
 
         // Pre-Setup
-        ReferenceDate := GetBasisOfCalcForPostingDate;
+        ReferenceDate := GetBasisOfCalcForPostingDate();
         FiscalYear := Date2DMY(ReferenceDate, 3);
 
         // Setup
-        Library340.CreateOperationCode(OperationCode, GetValidCharacter);
+        Library340.CreateOperationCode(OperationCode, GetValidCharacter());
         FindItemWithOperationCode(Item, OperationCode.Code);
 
         Library340.CreateVendorVATRegistration(Vendor);
@@ -1738,11 +1738,11 @@ codeunit 147303 "Make 340 Dec. 2012 RegF"
         Initialize();
 
         // Pre-Setup
-        ReferenceDate := GetBasisOfCalcForPostingDate;
+        ReferenceDate := GetBasisOfCalcForPostingDate();
         FiscalYear := Date2DMY(ReferenceDate, 3);
 
         // Setup
-        Library340.CreateOperationCode(OperationCode, GetValidCharacter);
+        Library340.CreateOperationCode(OperationCode, GetValidCharacter());
         FindItemWithOperationCode(Item, OperationCode.Code);
 
         Library340.CreateVendorVATRegistration(Vendor);
@@ -1834,7 +1834,7 @@ codeunit 147303 "Make 340 Dec. 2012 RegF"
 
         // Pre-Setup
         ReferenceAmount := 1000 * LibraryRandom.RandInt(10);
-        ReferenceDate := GetBasisOfCalcForPostingDate;
+        ReferenceDate := GetBasisOfCalcForPostingDate();
         FiscalYear := Date2DMY(ReferenceDate, 3);
 
         // Setup
@@ -1878,7 +1878,7 @@ codeunit 147303 "Make 340 Dec. 2012 RegF"
         Initialize();
 
         // Setup
-        ReferenceDate := GetBasisOfCalcForPostingDate;
+        ReferenceDate := GetBasisOfCalcForPostingDate();
         VATPercentage := LibraryRandom.RandInt(100);
 
         // Create and Post Credit Memo with 2 lines with different VAT Product Posting Group, but same VAT %
@@ -1928,11 +1928,11 @@ codeunit 147303 "Make 340 Dec. 2012 RegF"
         Initialize();
 
         // Pre-Setup
-        ReferenceDate := GetBasisOfCalcForPostingDate;
+        ReferenceDate := GetBasisOfCalcForPostingDate();
         FiscalYear := Date2DMY(ReferenceDate, 3);
 
         // Setup
-        Library340.CreateOperationCode(OperationCode, GetValidCharacter);
+        Library340.CreateOperationCode(OperationCode, GetValidCharacter());
         FindItemWithOperationCode(Item, OperationCode.Code);
 
         Library340.CreateCustomerVATRegistration(Cust);
@@ -2002,7 +2002,7 @@ codeunit 147303 "Make 340 Dec. 2012 RegF"
         Initialize();
 
         // Pre-Setup
-        ReferenceDate := GetBasisOfCalcForPostingDate;
+        ReferenceDate := GetBasisOfCalcForPostingDate();
         FiscalYear := Date2DMY(ReferenceDate, 3);
 
         // Setup: First VAT Entry
@@ -2056,7 +2056,7 @@ codeunit 147303 "Make 340 Dec. 2012 RegF"
         Initialize();
 
         // Pre-Setup
-        ReferenceDate := GetBasisOfCalcForPostingDate;
+        ReferenceDate := GetBasisOfCalcForPostingDate();
         FiscalYear := Date2DMY(ReferenceDate, 3);
 
         // Setup: First VAT Entry
@@ -2110,7 +2110,7 @@ codeunit 147303 "Make 340 Dec. 2012 RegF"
         Initialize();
 
         // Pre-Setup
-        ReferenceDate := GetBasisOfCalcForPostingDate;
+        ReferenceDate := GetBasisOfCalcForPostingDate();
         FiscalYear := Date2DMY(ReferenceDate, 3);
 
         // Setup: First VAT Entry
@@ -2162,7 +2162,7 @@ codeunit 147303 "Make 340 Dec. 2012 RegF"
         Initialize();
 
         // Pre-Setup
-        ReferenceDate := GetBasisOfCalcForPostingDate;
+        ReferenceDate := GetBasisOfCalcForPostingDate();
         MinPaymentAmount := 1000 * LibraryRandom.RandInt(10);
         Amount := LibraryRandom.RandDecInRange(MinPaymentAmount + 1000, MinPaymentAmount + 2000, 2);
         FirstPaymentAmount := LibraryRandom.RandDecInRange(MinPaymentAmount, Amount div 1, 2);
@@ -2213,7 +2213,7 @@ codeunit 147303 "Make 340 Dec. 2012 RegF"
         Initialize();
 
         // Pre-Setup
-        ReferenceDate := GetBasisOfCalcForPostingDate;
+        ReferenceDate := GetBasisOfCalcForPostingDate();
         MinPaymentAmount := 1000 * LibraryRandom.RandInt(10);
         Amount := LibraryRandom.RandDecInRange(MinPaymentAmount + 1000, MinPaymentAmount + 2000, 2);
         FirstPaymentAmount := LibraryRandom.RandDecInRange(MinPaymentAmount, Amount div 1, 2);
@@ -2265,7 +2265,7 @@ codeunit 147303 "Make 340 Dec. 2012 RegF"
         Initialize();
 
         // Pre-Setup
-        ReferenceDate := GetBasisOfCalcForPostingDate;
+        ReferenceDate := GetBasisOfCalcForPostingDate();
         FiscalYear := Date2DMY(ReferenceDate, 3);
 
         // Setup: First VAT Entry
@@ -2320,7 +2320,7 @@ codeunit 147303 "Make 340 Dec. 2012 RegF"
         ReferenceAmount := 1000 * LibraryRandom.RandInt(10);
         Amount := LibraryRandom.RandDecInRange(ReferenceAmount + 1000, ReferenceAmount + 2000, 2);
         FirstPaymentAmount := LibraryRandom.RandDecInRange(ReferenceAmount, Amount div 1, 2);
-        ReferenceDate := GetBasisOfCalcForPostingDate;
+        ReferenceDate := GetBasisOfCalcForPostingDate();
         FiscalYear := Date2DMY(CalcDate('<1Y>', ReferenceDate), 3);
 
         // Setup
@@ -2375,11 +2375,11 @@ codeunit 147303 "Make 340 Dec. 2012 RegF"
         Initialize();
 
         // Pre-Setup
-        ReferenceDate := GetBasisOfCalcForPostingDate;
+        ReferenceDate := GetBasisOfCalcForPostingDate();
         FiscalYear := Date2DMY(ReferenceDate, 3);
 
         // Setup
-        Library340.CreateOperationCode(OperationCode, GetValidCharacter);
+        Library340.CreateOperationCode(OperationCode, GetValidCharacter());
         FindItemWithOperationCode(Item, OperationCode.Code);
 
         Library340.CreateCustomerVATRegistration(Cust);
@@ -2482,7 +2482,7 @@ codeunit 147303 "Make 340 Dec. 2012 RegF"
         Initialize();
 
         // Setup
-        ReferenceDate := GetBasisOfCalcForPostingDate;
+        ReferenceDate := GetBasisOfCalcForPostingDate();
 
         LibraryERM.SetUnrealizedVAT(true);
         LibraryERM.CreateGenBusPostingGroup(GenBusPostingGroup);
@@ -2540,11 +2540,11 @@ codeunit 147303 "Make 340 Dec. 2012 RegF"
         Initialize();
 
         // Pre-Setup
-        ReferenceDate := GetBasisOfCalcForPostingDate;
+        ReferenceDate := GetBasisOfCalcForPostingDate();
         FiscalYear := Date2DMY(ReferenceDate, 3);
 
         // Setup
-        Library340.CreateOperationCode(OperationCode, GetValidCharacter);
+        Library340.CreateOperationCode(OperationCode, GetValidCharacter());
         FindItemWithOperationCode(Item, OperationCode.Code);
 
         Library340.CreateCustomerVATRegistration(Cust);
@@ -2587,11 +2587,11 @@ codeunit 147303 "Make 340 Dec. 2012 RegF"
         Initialize();
 
         // Pre-Setup
-        ReferenceDate := GetBasisOfCalcForPostingDate;
+        ReferenceDate := GetBasisOfCalcForPostingDate();
         FiscalYear := Date2DMY(ReferenceDate, 3);
 
         // Setup
-        Library340.CreateOperationCode(OperationCode, GetValidCharacter);
+        Library340.CreateOperationCode(OperationCode, GetValidCharacter());
         FindItemWithOperationCode(Item, OperationCode.Code);
 
         LibrarySales.FindItem(Item);
@@ -2736,7 +2736,7 @@ codeunit 147303 "Make 340 Dec. 2012 RegF"
         // Pre-Setup
         ReferenceAmount := 1000 * LibraryRandom.RandInt(10);
         Amount := LibraryRandom.RandIntInRange(ReferenceAmount + 1000, ReferenceAmount + 2000);
-        ReferenceDate := GetBasisOfCalcForPostingDate;
+        ReferenceDate := GetBasisOfCalcForPostingDate();
         FiscalYear := Date2DMY(ReferenceDate, 3);
 
         // Setup
@@ -2819,7 +2819,7 @@ codeunit 147303 "Make 340 Dec. 2012 RegF"
         Initialize();
 
         // Pre-Setup
-        ReferenceDate := GetBasisOfCalcForPostingDate;
+        ReferenceDate := GetBasisOfCalcForPostingDate();
         FiscalYear := Date2DMY(ReferenceDate, 3);
 
         // Setup
@@ -2867,11 +2867,11 @@ codeunit 147303 "Make 340 Dec. 2012 RegF"
         Initialize();
 
         // Pre-Setup
-        ReferenceDate := GetBasisOfCalcForPostingDate;
+        ReferenceDate := GetBasisOfCalcForPostingDate();
         FiscalYear := Date2DMY(ReferenceDate, 3);
 
         // Setup
-        Library340.CreateOperationCode(OperationCode, GetValidCharacter);
+        Library340.CreateOperationCode(OperationCode, GetValidCharacter());
         FindItemWithOperationCode(Item, OperationCode.Code);
 
         Library340.CreateCustomerVATRegistration(Cust);
@@ -2918,7 +2918,7 @@ codeunit 147303 "Make 340 Dec. 2012 RegF"
         Initialize();
 
         // Pre-Setup
-        ReferenceDate := GetBasisOfCalcForPostingDate;
+        ReferenceDate := GetBasisOfCalcForPostingDate();
         FiscalYear := Date2DMY(ReferenceDate, 3);
 
         // Setup
@@ -2998,7 +2998,7 @@ codeunit 147303 "Make 340 Dec. 2012 RegF"
         Initialize();
 
         // Pre-Setup
-        ReferenceDate := GetBasisOfCalcForPostingDate;
+        ReferenceDate := GetBasisOfCalcForPostingDate();
         FiscalYear := Date2DMY(ReferenceDate, 3);
 
         // Setup
@@ -3295,7 +3295,7 @@ codeunit 147303 "Make 340 Dec. 2012 RegF"
     [Scope('OnPrem')]
     procedure DeclarationLinesSalesInvoicePageHandler(var DeclarationLines: TestPage "340 Declaration Lines")
     begin
-        DeclarationLines.OK.Invoke;
+        DeclarationLines.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -3309,7 +3309,7 @@ codeunit 147303 "Make 340 Dec. 2012 RegF"
     begin
         DequeuePropertyTaxDetails(DocumentNo, OperationCode, PropertyLocation, PropertyTaxAccNo);
         UpdateDeclarationLine(DeclarationLines, DocumentNo, OperationCode, PropertyLocation);
-        DeclarationLines.OK.Invoke;
+        DeclarationLines.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -3324,7 +3324,7 @@ codeunit 147303 "Make 340 Dec. 2012 RegF"
         DequeuePropertyTaxDetails(DocumentNo, OperationCode, PropertyLocation, PropertyTaxAccNo);
         UpdateDeclarationLine(DeclarationLines, DocumentNo, OperationCode, PropertyLocation);
         DeclarationLines."Property Tax Account No.".SetValue(PropertyTaxAccNo);
-        DeclarationLines.OK.Invoke;
+        DeclarationLines.OK().Invoke();
     end;
 
     local procedure DequeuePropertyTaxDetails(var DocumentNo: Variant; var OperationCode: Variant; var PropertyLocation: Variant; var PropertyTaxAccNo: Variant)
@@ -3608,7 +3608,7 @@ codeunit 147303 "Make 340 Dec. 2012 RegF"
         Initialize();
 
         // Pre-Setup
-        ReferenceDate := GetBasisOfCalcForPostingDate;
+        ReferenceDate := GetBasisOfCalcForPostingDate();
         MinPaymentAmount := 1000 * LibraryRandom.RandInt(10);
         AmountMoreThanMin := LibraryRandom.RandDecInRange(MinPaymentAmount + 1000, MinPaymentAmount + 2000, 2);
         FirstPaymentAmount := LibraryRandom.RandDecInRange(MinPaymentAmount, AmountMoreThanMin div 1, 2);
@@ -3685,7 +3685,7 @@ codeunit 147303 "Make 340 Dec. 2012 RegF"
         ReferenceAmount := 1000 * LibraryRandom.RandInt(10);
         LowerAmount := ReferenceAmount div 0.8;
         HigherAmount := (ReferenceAmount + LowerAmount) div 1.3;
-        ReferenceDate := GetBasisOfCalcForPostingDate;
+        ReferenceDate := GetBasisOfCalcForPostingDate();
         CreateCustomer(Customer);
         LibraryERM.FindGLAccount(GLAccount);
     end;
@@ -3704,7 +3704,7 @@ codeunit 147303 "Make 340 Dec. 2012 RegF"
         Initialize();
 
         // Pre-Setup
-        ReferenceDate := GetBasisOfCalcForPostingDate;
+        ReferenceDate := GetBasisOfCalcForPostingDate();
         FiscalYear := Date2DMY(ReferenceDate, 3);
 
         // Setup
@@ -3768,7 +3768,7 @@ codeunit 147303 "Make 340 Dec. 2012 RegF"
         Initialize();
 
         // Pre-Setup
-        ReferenceDate := GetBasisOfCalcForPostingDate;
+        ReferenceDate := GetBasisOfCalcForPostingDate();
         ReferenceAmount := 1000 * LibraryRandom.RandDec(10, 2);
 
         // Setup
@@ -3776,7 +3776,7 @@ codeunit 147303 "Make 340 Dec. 2012 RegF"
         LibraryERM.FindGLAccount(GLAcc);
 
         CreateSalesDocument(SalesHeader, SalesHeader."Document Type"::Invoice, Cust."No.",
-          ReferenceDate, GetValidCharacter, LibraryRandom.RandDec(1000, 2));
+          ReferenceDate, GetValidCharacter(), LibraryRandom.RandDec(1000, 2));
         InvoiceDocNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
         ApplyAndPostPayment(InvoiceDocNo, Cust."No.", GLAcc."No.", ReferenceAmount,
           GenJournalLine."Account Type"::Customer, "General Posting Type"::" ", ReferenceDate);
@@ -3822,9 +3822,9 @@ codeunit 147303 "Make 340 Dec. 2012 RegF"
         Initialize();
 
         // Pre-Setup
-        ReferenceDate := GetBasisOfCalcForPostingDate;
+        ReferenceDate := GetBasisOfCalcForPostingDate();
         FiscalYear := Date2DMY(ReferenceDate, 3);
-        PropertyTaxAccNo := GetPropertyTaxAccNo;
+        PropertyTaxAccNo := GetPropertyTaxAccNo();
 
         // Setup
         CreateCustomer(Cust);
@@ -3867,9 +3867,9 @@ codeunit 147303 "Make 340 Dec. 2012 RegF"
         Initialize();
 
         // Pre-Setup
-        ReferenceDate := GetBasisOfCalcForPostingDate;
+        ReferenceDate := GetBasisOfCalcForPostingDate();
         FiscalYear := Date2DMY(ReferenceDate, 3);
-        PropertyTaxAccNo := GetPropertyTaxAccNo;
+        PropertyTaxAccNo := GetPropertyTaxAccNo();
 
         // Setup
         CreateCustomer(Cust);
@@ -4014,7 +4014,7 @@ codeunit 147303 "Make 340 Dec. 2012 RegF"
         ActualNoOfRegisters: Text[9];
     begin
         // Pre-Setup
-        ReferenceDate := GetBasisOfCalcForPostingDate;
+        ReferenceDate := GetBasisOfCalcForPostingDate();
 
         // Setup
         CreateCustomer(Cust);

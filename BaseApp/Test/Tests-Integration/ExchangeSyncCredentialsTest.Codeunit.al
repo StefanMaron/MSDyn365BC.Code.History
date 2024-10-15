@@ -25,11 +25,11 @@ codeunit 139085 "Exchange Sync Credentials Test"
         Initialize(false, false);
 
         // [WHEN] The user runs the Exchange Sync. Setup page.
-        ExchangeSyncSetup.Trap;
+        ExchangeSyncSetup.Trap();
         PAGE.Run(PAGE::"Exchange Sync. Setup");
 
         // [THEN] The password field is visible.
-        Assert.IsTrue(ExchangeSyncSetup.ExchangeAccountPasswordTemp.Visible, 'Password should be visible when token is not available.');
+        Assert.IsTrue(ExchangeSyncSetup.ExchangeAccountPasswordTemp.Visible(), 'Password should be visible when token is not available.');
     end;
 
     [Test]
@@ -44,11 +44,11 @@ codeunit 139085 "Exchange Sync Credentials Test"
         Initialize(false, true);
 
         // [WHEN] The user runs the Exchange Sync. Setup page.
-        ExchangeSyncSetup.Trap;
+        ExchangeSyncSetup.Trap();
         PAGE.Run(PAGE::"Exchange Sync. Setup");
 
         // [THEN] The user does not see the password field.
-        Assert.IsFalse(ExchangeSyncSetup.ExchangeAccountPasswordTemp.Visible, 'Password should not be visible when token available.');
+        Assert.IsFalse(ExchangeSyncSetup.ExchangeAccountPasswordTemp.Visible(), 'Password should not be visible when token available.');
     end;
 
     [Test]
@@ -63,12 +63,12 @@ codeunit 139085 "Exchange Sync Credentials Test"
         Initialize(false, false);
 
         // [WHEN] The user runs the Exchange Sync. Setup page.
-        ExchangeSyncSetup.Trap;
+        ExchangeSyncSetup.Trap();
         PAGE.Run(PAGE::"Exchange Sync. Setup");
 
         // [THEN] User receives an error message when they try to open the contact sync or Bookings sync page.
-        asserterror ExchangeSyncSetup.SetupContactSync.Invoke;
-        asserterror ExchangeSyncSetup.SetupBookingSync.Invoke;
+        asserterror ExchangeSyncSetup.SetupContactSync.Invoke();
+        asserterror ExchangeSyncSetup.SetupBookingSync.Invoke();
     end;
 
     [Test]
@@ -84,14 +84,14 @@ codeunit 139085 "Exchange Sync Credentials Test"
         Initialize(false, true);
 
         // [WHEN] The user runs the Exchange Sync. Setup page.
-        ExchangeSyncSetup.Trap;
+        ExchangeSyncSetup.Trap();
         PAGE.Run(PAGE::"Exchange Sync. Setup");
 
         // [WHEN] The user clicks the "Contact Sync Setup" button
-        ExchangeSyncSetup.SetupContactSync.Invoke;
+        ExchangeSyncSetup.SetupContactSync.Invoke();
 
         // [WHEN] The user clicks the "Bookings sync setup" button
-        ExchangeSyncSetup.SetupBookingSync.Invoke;
+        ExchangeSyncSetup.SetupBookingSync.Invoke();
 
         // [THEN] User gets in without issue.
         // Verified through handlers.
@@ -125,7 +125,7 @@ codeunit 139085 "Exchange Sync Credentials Test"
         if Initialized then
             exit;
 
-        LibraryO365Sync.SetupNavUser;
+        LibraryO365Sync.SetupNavUser();
         LibraryO365Sync.SetupBookingsSync(BookingSync);
 
         Initialized := true;

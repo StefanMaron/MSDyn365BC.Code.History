@@ -7,7 +7,7 @@ namespace Microsoft.Purchases.History;
 page 7000057 "Posted Payment Orders Maturity"
 {
     Caption = 'Posted Payment Orders Maturity';
-    DataCaptionExpression = Caption();
+    DataCaptionExpression = Rec.Caption();
     DeleteAllowed = false;
     InsertAllowed = false;
     PageType = List;

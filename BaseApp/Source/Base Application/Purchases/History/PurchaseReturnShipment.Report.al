@@ -545,7 +545,6 @@ report 6636 "Purchase - Return Shipment"
     var
         Text002: Label 'Purchase - Return Shipment %1', Comment = '%1 = Document No.';
         Text003: Label 'Page %1';
-        CompanyInfo: Record "Company Information";
         SalesPurchPerson: Record "Salesperson/Purchaser";
         DimSetEntry1: Record "Dimension Set Entry";
         DimSetEntry2: Record "Dimension Set Entry";
@@ -595,6 +594,9 @@ report 6636 "Purchase - Return Shipment"
         PayToContactMobilePhoneNoLbl: Label 'Pay-to Contact Mobile Phone No.';
         PayToContactEmailLbl: Label 'Pay-to Contact E-Mail';
 
+    protected var
+        CompanyInfo: Record "Company Information";
+
     procedure InitializeRequest(NewNoOfCopies: Decimal; NewShowInternalInfo: Boolean; NewShowCorrectionLines: Boolean; NewLogInteraction: Boolean)
     begin
         NoOfCopies := NewNoOfCopies;
@@ -624,19 +626,17 @@ report 6636 "Purchase - Return Shipment"
 
     local procedure FormatDocumentFields(ReturnShipmentHeader: Record "Return Shipment Header")
     begin
-        with ReturnShipmentHeader do begin
-            FormatDocument.SetPurchaser(SalesPurchPerson, "Purchaser Code", PurchaserText);
+        FormatDocument.SetPurchaser(SalesPurchPerson, ReturnShipmentHeader."Purchaser Code", PurchaserText);
 
-            ReferenceText := FormatDocument.SetText("Your Reference" <> '', FieldCaption("Your Reference"));
-        end;
+        ReferenceText := FormatDocument.SetText(ReturnShipmentHeader."Your Reference" <> '', ReturnShipmentHeader.FieldCaption("Your Reference"));
     end;
 
-    [IntegrationEvent(TRUE, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnAfterInitReport()
     begin
     end;
 
-    [IntegrationEvent(TRUE, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnAfterPostDataItem(var ReturnShipmentHeader: Record "Return Shipment Header")
     begin
     end;

@@ -163,7 +163,7 @@ codeunit 1643 "Hyperlink Manifest"
         if RegExMatches.Count = 0 then
             exit('');
 
-        MatchText := RegExMatches.Item(RegExMatches.Count - 1).Groups.Item(1).Value; // Get the number group from the match.
+        MatchText := RegExMatches.Item(RegExMatches.Count - 1).Groups.Item(1).Value(); // Get the number group from the match.
         LowerMatchBound := RegExMatches.Item(RegExMatches.Count - 1).Groups.Item(1).Index + 1; // Get the index of the group, adjust indexing for NAV.
 
         // Remove the number match - leaving only the prefix
@@ -318,9 +318,9 @@ codeunit 1643 "Hyperlink Manifest"
         if OfficeAddin.Get(AppIdTxt) then
             OfficeAddin.Delete();
 
-        with AddInManifestManagement do
-            CreateAddin(OfficeAddin, DefaultManifestText(), AddinNameTxt, StrSubstNo(AddinDescriptionTxt, PRODUCTNAME.Full()),
-              AppIdTxt, CODEUNIT::"Hyperlink Manifest");
+        AddInManifestManagement.CreateAddin(
+            OfficeAddin, DefaultManifestText(), AddinNameTxt, StrSubstNo(AddinDescriptionTxt, PRODUCTNAME.Full()),
+            AppIdTxt, CODEUNIT::"Hyperlink Manifest");
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Add-in Manifest Management", 'OnGenerateManifest', '', false, false)]
@@ -367,9 +367,8 @@ codeunit 1643 "Hyperlink Manifest"
     var
         OfficeHostType: DotNet OfficeHostType;
     begin
-        with OfficeHostType do
-            if HostType in [OutlookHyperlink] then
-                CodeunitID := CODEUNIT::"Hyperlink Manifest";
+        if HostType in [OfficeHostType.OutlookHyperlink] then
+            CodeunitID := CODEUNIT::"Hyperlink Manifest";
     end;
 
     local procedure CanHandle(CodeunitID: Integer): Boolean

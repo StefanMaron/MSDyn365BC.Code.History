@@ -11,6 +11,7 @@ using System.Reflection;
 table 5468 "Picture Entity"
 {
     Caption = 'Picture Entity';
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -79,7 +80,7 @@ table 5468 "Picture Entity"
         MediaID: Guid;
     begin
         FindRecordFromFilter(ParentRecordRef, IdFilter);
-        Id := ParentRecordRef.Field(ParentRecordRef.SystemIdNo).Value;
+        Id := ParentRecordRef.Field(ParentRecordRef.SystemIdNo).Value();
 
         MediaID := GetMediaID(ParentRecordRef);
         SetValuesFromMediaID(MediaID);
@@ -259,7 +260,7 @@ table 5468 "Picture Entity"
         end;
 
         Clear(Rec);
-        Id := ParentRecordRef.Field(ParentRecordRef.SystemIdNo).Value;
+        Id := ParentRecordRef.Field(ParentRecordRef.SystemIdNo).Value();
     end;
 
     procedure DeletePictureWithParentType()

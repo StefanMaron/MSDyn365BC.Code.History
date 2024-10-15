@@ -83,7 +83,7 @@ codeunit 144075 "ERM No Taxable VAT"
         Initialize();
         Quantity := LibraryRandom.RandInt(10);
         SalesInvoiceBookReportWithNoTaxableVAT(
-          SalesHeader."Document Type"::Invoice, Quantity, CreateGLAccountWithNoTaxableVAT, 1);
+          SalesHeader."Document Type"::Invoice, Quantity, CreateGLAccountWithNoTaxableVAT(), 1);
     end;
 
     [Test]
@@ -99,7 +99,7 @@ codeunit 144075 "ERM No Taxable VAT"
         Initialize();
         Quantity := LibraryRandom.RandInt(10);
         SalesInvoiceBookReportWithNoTaxableVAT(
-          SalesHeader."Document Type"::"Credit Memo", Quantity, CreateGLAccountWithNoTaxableVAT, -1);
+          SalesHeader."Document Type"::"Credit Memo", Quantity, CreateGLAccountWithNoTaxableVAT(), -1);
     end;
 
     [Test]
@@ -115,7 +115,7 @@ codeunit 144075 "ERM No Taxable VAT"
         Initialize();
         Quantity := LibraryRandom.RandInt(10);
         PurchaseInvoiceBookReportWithNoTaxableVAT(
-          PurchaseHeader."Document Type"::Invoice, Quantity, CreateGLAccountWithNoTaxableVAT, 1);
+          PurchaseHeader."Document Type"::Invoice, Quantity, CreateGLAccountWithNoTaxableVAT(), 1);
     end;
 
     [Test]
@@ -131,7 +131,7 @@ codeunit 144075 "ERM No Taxable VAT"
         Initialize();
         Quantity := LibraryRandom.RandInt(10);
         PurchaseInvoiceBookReportWithNoTaxableVAT(
-          PurchaseHeader."Document Type"::"Credit Memo", Quantity, CreateGLAccountWithNoTaxableVAT, -1);
+          PurchaseHeader."Document Type"::"Credit Memo", Quantity, CreateGLAccountWithNoTaxableVAT(), -1);
     end;
 
     [Test]
@@ -152,7 +152,7 @@ codeunit 144075 "ERM No Taxable VAT"
         // [GIVEN] Posted sales invoice "A" with G/L Account setup of No Taxable VAT and option "Ignore in 347 report" on
         PostSalesDocForNoTaxableScenario(
           DocumentNo, SalesLineChargeItem, SalesLineGLAccount,
-          SalesHeader."Document Type"::Invoice, LibraryRandom.RandDec(100, 2), CreateNoTaxGLAccNotIn347Report);
+          SalesHeader."Document Type"::Invoice, LibraryRandom.RandDec(100, 2), CreateNoTaxGLAccNotIn347Report());
         LibraryVariableStorage.Enqueue(DocumentNo);  // Enqueue for SalesInvoiceBookRequestPageHandler.
 
         // [WHEN] Run Sales Invoice Book
@@ -180,7 +180,7 @@ codeunit 144075 "ERM No Taxable VAT"
         // [GIVEN] Posted purchase invoice "A" with G/L Account setup of No Taxable VAT and option "Ignore in 347 report" on
         PostPurchDocForNoTaxableScenario(
           DocumentNo, PurchaseLineChargeItem, PurchaseLineGLAccount,
-          PurchaseHeader."Document Type"::Invoice, LibraryRandom.RandDec(100, 2), CreateNoTaxGLAccNotIn347Report);
+          PurchaseHeader."Document Type"::Invoice, LibraryRandom.RandDec(100, 2), CreateNoTaxGLAccNotIn347Report());
         LibraryVariableStorage.Enqueue(DocumentNo);  // Enqueue for PurchasesInvoiceBookRequestPageHandler.
 
         // [WHEN] Run Purchases Invoice Book
@@ -405,7 +405,7 @@ codeunit 144075 "ERM No Taxable VAT"
     var
         GLAccount: Record "G/L Account";
     begin
-        GLAccount.Get(CreateGLAccountWithNoTaxableVAT);
+        GLAccount.Get(CreateGLAccountWithNoTaxableVAT());
         GLAccount.Validate("Ignore in 347 Report", true);
         GLAccount.Modify(true);
         exit(GLAccount."No.");
@@ -615,12 +615,12 @@ codeunit 144075 "ERM No Taxable VAT"
         VATEntry: Record "VAT Entry";
     begin
         VATEntry.SetRange("Document No.", DocumentNo);
-        Assert.IsFalse(VATEntry.FindFirst, VATEntryMustNotExistMsg);
+        Assert.IsFalse(VATEntry.FindFirst(), VATEntryMustNotExistMsg);
     end;
 
     local procedure VerifyXmlValuesOnReport(Amount: Decimal; Base: Decimal; DocumentNo: Code[20]; SourceNo: Code[20]; NoTaxAmount: Decimal)
     begin
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(VATBufferAmountCap, Amount);
         LibraryReportDataset.AssertElementWithValueExists(VATBufferBaseCap, Base);
         LibraryReportDataset.AssertElementWithValueExists(VATBufferBaseAmountCap, Base + Amount);
@@ -631,7 +631,7 @@ codeunit 144075 "ERM No Taxable VAT"
 
     local procedure VerifyNoXmlValuesOnReport(DocumentNo: Code[20]; SourceNo: Code[20]; NoTaxAmount: Decimal)
     begin
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.SetRange('SourceNo_NoTaxableEntry', SourceNo);
         LibraryReportDataset.AssertElementWithValueNotExist('DocumentNo_NoTaxableEntry', DocumentNo);
         LibraryReportDataset.AssertElementWithValueNotExist('Base_NoTaxableEntry', NoTaxAmount);
@@ -641,14 +641,14 @@ codeunit 144075 "ERM No Taxable VAT"
     [Scope('OnPrem')]
     procedure ItemChargeAssignmentPurchModalPageHandler(var ItemChargeAssignmentPurch: TestPage "Item Charge Assignment (Purch)")
     begin
-        ItemChargeAssignmentPurch.SuggestItemChargeAssignment.Invoke;
+        ItemChargeAssignmentPurch.SuggestItemChargeAssignment.Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure ItemChargeAssignmentSalesModalPageHandler(var ItemChargeAssignmentSales: TestPage "Item Charge Assignment (Sales)")
     begin
-        ItemChargeAssignmentSales.SuggestItemChargeAssignment.Invoke;
+        ItemChargeAssignmentSales.SuggestItemChargeAssignment.Invoke();
     end;
 
     [RequestPageHandler]
@@ -661,7 +661,7 @@ codeunit 144075 "ERM No Taxable VAT"
         PurchasesInvoiceBook.VATEntry.SetFilter("Posting Date", Format(WorkDate()));
         PurchasesInvoiceBook.VATEntry.SetFilter("Document No.", DocumentNo);
         PurchasesInvoiceBook."No Taxable Entry".SetFilter("Document No.", DocumentNo);
-        PurchasesInvoiceBook.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        PurchasesInvoiceBook.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -674,7 +674,7 @@ codeunit 144075 "ERM No Taxable VAT"
         SalesInvoiceBook.VATEntry.SetFilter("Posting Date", Format(WorkDate()));
         SalesInvoiceBook.VATEntry.SetFilter("Document No.", DocumentNo);
         SalesInvoiceBook."No Taxable Entry".SetFilter("Document No.", DocumentNo);
-        SalesInvoiceBook.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        SalesInvoiceBook.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 }
 

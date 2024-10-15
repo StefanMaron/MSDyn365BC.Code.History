@@ -31,46 +31,44 @@ codeunit 1024 "Job Jnl.-B.Post+Print"
     var
         HideDialog: Boolean;
     begin
-        with JobJnlBatch do begin
-            JobJnlTemplate.Get("Journal Template Name");
-            JobJnlTemplate.TestField("Posting Report ID");
+        JobJnlTemplate.Get(JobJnlBatch."Journal Template Name");
+        JobJnlTemplate.TestField("Posting Report ID");
 
-            HideDialog := false;
-            OnBeforePostJournalBatch(JobJnlBatch, HideDialog);
-            if not HideDialog then
-                if not Confirm(Text000) then
-                    exit;
+        HideDialog := false;
+        OnBeforePostJournalBatch(JobJnlBatch, HideDialog);
+        if not HideDialog then
+            if not Confirm(Text000) then
+                exit;
 
-            Find('-');
-            repeat
-                JobJnlLine."Journal Template Name" := "Journal Template Name";
-                JobJnlLine."Journal Batch Name" := Name;
-                JobJnlLine."Line No." := 1;
-                OnCodeOnBeforeJobJnlPostBatchRun(JobJnlLine, JobJnlBatch);
-                Clear(JobJnlPostbatch);
-                if JobJnlPostbatch.Run(JobJnlLine) then begin
-                    Mark(false);
-                    if JobReg.Get(JobJnlLine."Line No.") then begin
-                        JobReg.SetRecFilter();
-                        REPORT.Run(JobJnlTemplate."Posting Report ID", false, false, JobReg);
-                    end;
-                end else begin
-                    Mark(true);
-                    JnlWithErrors := true;
+        JobJnlBatch.Find('-');
+        repeat
+            JobJnlLine."Journal Template Name" := JobJnlBatch."Journal Template Name";
+            JobJnlLine."Journal Batch Name" := JobJnlBatch.Name;
+            JobJnlLine."Line No." := 1;
+            OnCodeOnBeforeJobJnlPostBatchRun(JobJnlLine, JobJnlBatch);
+            Clear(JobJnlPostbatch);
+            if JobJnlPostbatch.Run(JobJnlLine) then begin
+                JobJnlBatch.Mark(false);
+                if JobReg.Get(JobJnlLine."Line No.") then begin
+                    JobReg.SetRecFilter();
+                    REPORT.Run(JobJnlTemplate."Posting Report ID", false, false, JobReg);
                 end;
-            until Next() = 0;
-
-            if not JnlWithErrors then
-                Message(Text001)
-            else
-                Message(
-                  Text002 +
-                  Text003);
-
-            if not Find('=><') then begin
-                Reset();
-                Name := '';
+            end else begin
+                JobJnlBatch.Mark(true);
+                JnlWithErrors := true;
             end;
+        until JobJnlBatch.Next() = 0;
+
+        if not JnlWithErrors then
+            Message(Text001)
+        else
+            Message(
+                Text002 +
+                Text003);
+
+        if not JobJnlBatch.Find('=><') then begin
+            JobJnlBatch.Reset();
+            JobJnlBatch.Name := '';
         end;
     end;
 

@@ -1,5 +1,6 @@
 table 144050 "Test 340 Declaration Line Buf."
 {
+    DataClassification = CustomerContent;
 
     fields
     {

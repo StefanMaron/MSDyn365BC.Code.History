@@ -13,6 +13,7 @@ using Microsoft.Service.History;
 table 780 "Certificate of Supply"
 {
     Caption = 'Certificate of Supply';
+    DataClassification = CustomerContent;
 
     fields
     {

@@ -548,32 +548,30 @@ report 10748 "Vendor - Overdue Payments"
         DtldVendLedgEntry: Record "Detailed Vendor Ledg. Entry";
         PayVendLedgEntry: Record "Vendor Ledger Entry";
     begin
-        with DtldVendLedgEntry do begin
-            SetCurrentKey("Applied Vend. Ledger Entry No.", "Entry Type");
-            SetRange(
-              "Applied Vend. Ledger Entry No.", AppliedVendLedgEntryNo);
-            SetRange("Entry Type", "Entry Type"::Application);
-            SetRange(Unapplied, false);
-            SetRange("Posting Date", StartDate, EndDate);
-            if FindSet() then
-                repeat
-                    if "Vendor Ledger Entry No." <> "Applied Vend. Ledger Entry No." then
-                        if IsPaymentEntry("Vendor Ledger Entry No.", PayVendLedgEntry) and
-                           PrintEntry(InvVendLedgEntry, "Posting Date")
-                        then begin
-                            AppldVendLedgEntryTmp := DtldVendLedgEntry;
-                            AppldVendLedgEntryTmp."Document No." := PayVendLedgEntry."Document No.";
-                            AppldVendLedgEntryTmp."Currency Code" := PayVendLedgEntry."Currency Code";
-                            AppldVendLedgEntryTmp."Initial Entry Due Date" := InvVendLedgEntry."Due Date";
-                            AppldVendLedgEntryTmp.Amount := -AppldVendLedgEntryTmp.Amount;
-                            AppldVendLedgEntryTmp."Amount (LCY)" := -AppldVendLedgEntryTmp."Amount (LCY)";
-                            if AppldVendLedgEntryTmp.Insert() then;
-                            InsertDtldVLEDocumentDateBuffer(AppldVendLedgEntryTmp."Entry No.", InvVendLedgEntry."Document Date");
-                            if not DtldEntryNoToLegalDueDateMap.ContainsKey(AppldVendLedgEntryTmp."Entry No.") then
-                                DtldEntryNoToLegalDueDateMap.Add(AppldVendLedgEntryTmp."Entry No.", CalcMaxDueDate(InvVendLedgEntry));
-                        end;
-                until Next() = 0;
-        end;
+        DtldVendLedgEntry.SetCurrentKey("Applied Vend. Ledger Entry No.", "Entry Type");
+        DtldVendLedgEntry.SetRange(
+          "Applied Vend. Ledger Entry No.", AppliedVendLedgEntryNo);
+        DtldVendLedgEntry.SetRange("Entry Type", DtldVendLedgEntry."Entry Type"::Application);
+        DtldVendLedgEntry.SetRange(Unapplied, false);
+        DtldVendLedgEntry.SetRange("Posting Date", StartDate, EndDate);
+        if DtldVendLedgEntry.FindSet() then
+            repeat
+                if DtldVendLedgEntry."Vendor Ledger Entry No." <> DtldVendLedgEntry."Applied Vend. Ledger Entry No." then
+                    if IsPaymentEntry(DtldVendLedgEntry."Vendor Ledger Entry No.", PayVendLedgEntry) and
+                       PrintEntry(InvVendLedgEntry, DtldVendLedgEntry."Posting Date")
+                    then begin
+                        AppldVendLedgEntryTmp := DtldVendLedgEntry;
+                        AppldVendLedgEntryTmp."Document No." := PayVendLedgEntry."Document No.";
+                        AppldVendLedgEntryTmp."Currency Code" := PayVendLedgEntry."Currency Code";
+                        AppldVendLedgEntryTmp."Initial Entry Due Date" := InvVendLedgEntry."Due Date";
+                        AppldVendLedgEntryTmp.Amount := -AppldVendLedgEntryTmp.Amount;
+                        AppldVendLedgEntryTmp."Amount (LCY)" := -AppldVendLedgEntryTmp."Amount (LCY)";
+                        if AppldVendLedgEntryTmp.Insert() then;
+                        InsertDtldVLEDocumentDateBuffer(AppldVendLedgEntryTmp."Entry No.", InvVendLedgEntry."Document Date");
+                        if not DtldEntryNoToLegalDueDateMap.ContainsKey(AppldVendLedgEntryTmp."Entry No.") then
+                            DtldEntryNoToLegalDueDateMap.Add(AppldVendLedgEntryTmp."Entry No.", CalcMaxDueDate(InvVendLedgEntry));
+                    end;
+            until DtldVendLedgEntry.Next() = 0;
     end;
 
     local procedure FindAppInvToPaym(DtldVendLedgEntry: Record "Detailed Vendor Ledg. Entry"; InvVendLedgEntry: Record "Vendor Ledger Entry")

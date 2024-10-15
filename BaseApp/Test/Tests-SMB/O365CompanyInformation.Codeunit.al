@@ -43,7 +43,7 @@ codeunit 138041 "O365 Company Information"
         BankAccPostingGroup.FindLast();
 
         with CompanyInformationPage do begin
-            OpenEdit;
+            OpenEdit();
             "Bank Name".SetValue('Stans Bank');
             "CCC Bank No.".SetValue('1111');
             "CCC Bank Branch No.".SetValue('2222');
@@ -51,7 +51,7 @@ codeunit 138041 "O365 Company Information"
             "CCC Bank Account No.".SetValue('1234567890');
             "CCC No.".SetValue('11112222331234567890');
             BankAccountPostingGroup.SetValue(BankAccPostingGroup.Code);
-            OK.Invoke;
+            OK().Invoke();
         end;
 
         // verify that a bank account has been created
@@ -83,9 +83,9 @@ codeunit 138041 "O365 Company Information"
 
         // Modify bank name
         with CompanyInformationPage do begin
-            OpenEdit;
+            OpenEdit();
             "Bank Name".SetValue("Bank Name".Value + "Bank Name".Value);
-            OK.Invoke;
+            OK().Invoke();
         end;
 
         // Verify that company bank account has been updated
@@ -102,7 +102,7 @@ codeunit 138041 "O365 Company Information"
     begin
         // Validate that changing company name in the company information table changes the company display name
 
-        CompanyInformation.OpenEdit;
+        CompanyInformation.OpenEdit();
 
         NewCompanyName := LibraryUtility.GenerateGUID();
         CompanyInformation.Name.SetValue(NewCompanyName);

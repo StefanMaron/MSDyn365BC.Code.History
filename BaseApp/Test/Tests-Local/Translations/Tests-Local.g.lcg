@@ -1526,15 +1526,6 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM CORRINV-AUTOINV - NamedType CorrectInvNoServCrMemoHdrCap)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 767305352 - NamedType 1983128086" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[CorrInvNo_SalesCrMemoHeader]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM CORRINV-AUTOINV - NamedType CorrInvNoSalesCrMemoHeaderCap)]]></Cmt>
-    </Cmts>
-  </Item>
   <Item ItemId=";Codeunit 767305352 - NamedType 562017409" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Actual value %2 is not equal to the expected value, which is %1.]]></Val>
@@ -1587,15 +1578,6 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM CORRINV-AUTOINV - NamedType SalesCorrectInvCopyCap)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 767305352 - NamedType 2608480086" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[SalesCorrectiveInvCopy]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM CORRINV-AUTOINV - NamedType SalesCorrectiveInvCopyCap)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 767305352 - NamedType 1055417463" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -1967,24 +1949,6 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM ES Income Statement - NamedType WrongDimensionsErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 872811026 - NamedType 3734177633" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Amount must have a value in Intrastat Jnl. Line]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM ES Intrastat - NamedType AmountMustHaveValueErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 872811026 - NamedType 3228010162" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Intrastat file was not created]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM ES Intrastat - NamedType FileNotCreatedErr)]]></Cmt>
-    </Cmts>
-  </Item>
   <Item ItemId=";Codeunit 872811026 - NamedType 648823128" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Wrong formaing of Total Weight in Intrastat Jnl. Line.]]></Val>
@@ -2001,33 +1965,6 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[%1 - number of file]D;]A;(LookupHint=Codeunit ERM ES Intrastat - NamedType LineSymbolIsLineFeedErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 872811026 - NamedType 3744254637" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Reported must be equal to 'No'  in Intrastat Jnl. Batch]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM ES Intrastat - NamedType ReportedMustBeNoErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 872811026 - NamedType 273406480" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[TestField]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM ES Intrastat - NamedType TestFieldErrCodeTxt)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 872811026 - NamedType 2514914921" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Transaction Type must have a value in Intrastat Jnl. Line]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM ES Intrastat - NamedType TransactionTypeMustHaveValueErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 872811026 - NamedType 190223989" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -3018,15 +2955,6 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Reports - NamedType LineTotalCustBalTxt)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 1883471473 - NamedType 1705838390" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[NNCPmtDiscGivenAmount]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Reports - NamedType NNCPmtDiscGivenAmountCap)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 1883471473 - NamedType 4059327142" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -4037,15 +3965,6 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SII Document Processing - NamedType XPathSalesFacturaExpedidaTok)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 2332426466 - NamedType 822775682" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[The certificate could not get loaded. The password for the certificate may be incorrect.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SII Documents - UI - NamedType CertificatePasswordIncorrectErr)]]></Cmt>
-    </Cmts>
-  </Item>
   <Item ItemId=";Codeunit 2332426466 - NamedType 297380844" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Operation Desciption is editable on the page]]></Val>
@@ -4100,15 +4019,6 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SII Documents Exemption - NamedType XPathSalesNoExentaTok)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 3734030123 - NamedType 3555830849" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[%1 must not be %2]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SII Documents No Taxable - NamedType FieldErr)]]></Cmt>
-    </Cmts>
-  </Item>
   <Item ItemId=";Codeunit 3734030123 - NamedType 3088887303" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[The XML document was not generated properly.]]></Val>
@@ -4125,15 +4035,6 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[%1 = VAT or EC percent.]D;]A;(LookupHint=Codeunit SII Documents No Taxable - NamedType NoTaxableSetupErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 3734030123 - NamedType 3524789898" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[TableErrorStr]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SII Documents No Taxable - NamedType TableErrorStrErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 3734030123 - NamedType 1084747160" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">

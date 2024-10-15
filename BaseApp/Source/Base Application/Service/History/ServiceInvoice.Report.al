@@ -722,7 +722,7 @@ report 5911 "Service - Invoice"
                     }
                     dataitem(LineFee; "Integer")
                     {
-                        DataItemTableView = sorting(Number) ORDER(Ascending) where(Number = filter(1 ..));
+                        DataItemTableView = sorting(Number) order(ascending) where(Number = filter(1 ..));
                         column(LineFeeCaptionLbl; TempLineFeeNoteOnReportHist.ReportText)
                         {
                         }
@@ -768,8 +768,8 @@ report 5911 "Service - Invoice"
 
             trigger OnAfterGetRecord()
             begin
-                CurrReport.Language := Language.GetLanguageIdOrDefault("Language Code");
-                CurrReport.FormatRegion := Language.GetFormatRegionOrDefault("Format Region");
+                CurrReport.Language := LanguageMgt.GetLanguageIdOrDefault("Language Code");
+                CurrReport.FormatRegion := LanguageMgt.GetFormatRegionOrDefault("Format Region");
                 FormatAddr.SetLanguageCode("Language Code");
 
                 FormatAddressFields("Service Invoice Header");
@@ -869,7 +869,7 @@ report 5911 "Service - Invoice"
         TempLineFeeNoteOnReportHist: Record "Line Fee Note on Report Hist." temporary;
         VATPostingSetup: Record "VAT Posting Setup";
         PaymentMethod: Record "Payment Method";
-        Language: Codeunit Language;
+        LanguageMgt: Codeunit Language;
         FormatAddr: Codeunit "Format Address";
         FormatDocument: Codeunit "Format Document";
         PostedShipmentDate: Date;
@@ -1091,17 +1091,15 @@ report 5911 "Service - Invoice"
             exit;
         end;
 
-        with TempServiceShipmentBuffer do begin
-            "Document No." := ServiceInvoiceLine."Document No.";
-            "Line No." := ServiceInvoiceLine."Line No.";
-            "Entry No." := NextEntryNo;
-            Type := ServiceInvoiceLine.Type;
-            "No." := ServiceInvoiceLine."No.";
-            Quantity := QtyOnShipment;
-            "Posting Date" := PostingDate;
-            Insert();
-            NextEntryNo := NextEntryNo + 1
-        end;
+        TempServiceShipmentBuffer."Document No." := ServiceInvoiceLine."Document No.";
+        TempServiceShipmentBuffer."Line No." := ServiceInvoiceLine."Line No.";
+        TempServiceShipmentBuffer."Entry No." := NextEntryNo;
+        TempServiceShipmentBuffer.Type := ServiceInvoiceLine.Type;
+        TempServiceShipmentBuffer."No." := ServiceInvoiceLine."No.";
+        TempServiceShipmentBuffer.Quantity := QtyOnShipment;
+        TempServiceShipmentBuffer."Posting Date" := PostingDate;
+        TempServiceShipmentBuffer.Insert();
+        NextEntryNo := NextEntryNo + 1
     end;
 
     local procedure DocumentCaption(): Text[250]
@@ -1147,20 +1145,18 @@ report 5911 "Service - Invoice"
     var
         CustLedgEntry: Record "Cust. Ledger Entry";
     begin
-        with CustLedgEntry do begin
-            SetCurrentKey("Document No.", "Document Type", "Customer No.");
-            SetRange("Document Type", "Document Type"::Invoice);
-            SetRange("Document No.", "Service Invoice Header"."No.");
-            SetRange("Customer No.", "Service Invoice Header"."Bill-to Customer No.");
-            SetRange("Posting Date", "Service Invoice Header"."Posting Date");
-            if FindFirst() then
-                if "Document Situation" = "Document Situation"::" " then
-                    exit(false)
-                else
-                    exit(true)
+        CustLedgEntry.SetCurrentKey("Document No.", "Document Type", "Customer No.");
+        CustLedgEntry.SetRange("Document Type", CustLedgEntry."Document Type"::Invoice);
+        CustLedgEntry.SetRange("Document No.", "Service Invoice Header"."No.");
+        CustLedgEntry.SetRange("Customer No.", "Service Invoice Header"."Bill-to Customer No.");
+        CustLedgEntry.SetRange("Posting Date", "Service Invoice Header"."Posting Date");
+        if CustLedgEntry.FindFirst() then
+            if CustLedgEntry."Document Situation" = CustLedgEntry."Document Situation"::" " then
+                exit(false)
             else
-                exit(false);
-        end;
+                exit(true)
+        else
+            exit(false);
     end;
 
     [Scope('OnPrem')]
@@ -1206,7 +1202,7 @@ report 5911 "Service - Invoice"
                 TempLineFeeNoteOnReportHist.Insert();
             until LineFeeNoteOnReportHist.Next() = 0
         else begin
-            LineFeeNoteOnReportHist.SetRange("Language Code", Language.GetUserLanguageCode());
+            LineFeeNoteOnReportHist.SetRange("Language Code", LanguageMgt.GetUserLanguageCode());
             if LineFeeNoteOnReportHist.FindSet() then
                 repeat
                     TempLineFeeNoteOnReportHist.Init();
@@ -1240,16 +1236,14 @@ report 5911 "Service - Invoice"
 
     local procedure FormatDocumentFields(ServiceInvoiceHeader: Record "Service Invoice Header")
     begin
-        with ServiceInvoiceHeader do begin
-            FormatDocument.SetTotalLabels("Currency Code", TotalText, TotalInclVATText, TotalExclVATText);
-            FormatDocument.SetSalesPerson(SalesPurchPerson, "Salesperson Code", SalesPersonText);
-            FormatDocument.SetPaymentTerms(PaymentTerms, "Payment Terms Code", "Language Code");
-            FormatDocument.SetPaymentMethod(PaymentMethod, "Payment Method Code", "Language Code");
+        FormatDocument.SetTotalLabels(ServiceInvoiceHeader."Currency Code", TotalText, TotalInclVATText, TotalExclVATText);
+        FormatDocument.SetSalesPerson(SalesPurchPerson, ServiceInvoiceHeader."Salesperson Code", SalesPersonText);
+        FormatDocument.SetPaymentTerms(PaymentTerms, ServiceInvoiceHeader."Payment Terms Code", ServiceInvoiceHeader."Language Code");
+        FormatDocument.SetPaymentMethod(PaymentMethod, ServiceInvoiceHeader."Payment Method Code", ServiceInvoiceHeader."Language Code");
 
-            OrderNoText := FormatDocument.SetText("Order No." <> '', FieldCaption("Order No."));
-            ReferenceText := FormatDocument.SetText("Your Reference" <> '', FieldCaption("Your Reference"));
-            VATNoText := FormatDocument.SetText("VAT Registration No." <> '', FieldCaption("VAT Registration No."));
-        end;
+        OrderNoText := FormatDocument.SetText(ServiceInvoiceHeader."Order No." <> '', ServiceInvoiceHeader.FieldCaption("Order No."));
+        ReferenceText := FormatDocument.SetText(ServiceInvoiceHeader."Your Reference" <> '', ServiceInvoiceHeader.FieldCaption("Your Reference"));
+        VATNoText := FormatDocument.SetText(ServiceInvoiceHeader."VAT Registration No." <> '', ServiceInvoiceHeader.FieldCaption("VAT Registration No."));
     end;
 
     local procedure FindLastMeaningfulLine(var ServiceInvoiceLine: Record "Service Invoice Line") MoreLines: Boolean

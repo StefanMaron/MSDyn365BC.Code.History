@@ -19,9 +19,11 @@ codeunit 144036 "ERM REP CNAE"
     end;
 
     var
+#if not CLEAN22
         LibraryERM: Codeunit "Library - ERM";
         AccountScheduleNameCap: Label 'Acc__Schedule_Name_Name';
         CompanyNameCap: Label 'CompName_1_';
+#endif
         LibraryReportDataset: Codeunit "Library - Report Dataset";
         LibraryRandom: Codeunit "Library - Random";
 
@@ -40,13 +42,13 @@ codeunit 144036 "ERM REP CNAE"
         // Setup: Update Company Information - Name, Address and Address to length - 50, Create Account Schedule.
         CompanyInformationName := GenerateRandomCode(50);  // Number of Digit - 50.
         UpdateCompanyInformationNameAndAddress(CompanyInformation, CompanyInformationName, CompanyInformationName, CompanyInformationName);
-        AccountScheduleName := CreateAccountSchedule;
+        AccountScheduleName := CreateAccountSchedule();
 
         // Exercise.
         RunNormalizedAccountScheduleReport(AccountScheduleName);  // Opens handler - NormalizedAccountScheduleRequestPageHandler.
 
         // Verify: Verify Account Schedule Name and Company Information - Name on generated XML of Report - Normalized Account Schedule.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(AccountScheduleNameCap, AccountScheduleName);
         LibraryReportDataset.AssertElementWithValueExists(CompanyNameCap, CompanyInformationName);
 
@@ -73,7 +75,7 @@ codeunit 144036 "ERM REP CNAE"
         OldCNAEDescription := UpdateCompanyInformationCNAEDescription(CNAEDescription);
 
         // Verify: Verify CNAE Description with CNAE Description field on Company Information Card.
-        CompanyInformation.OpenEdit;
+        CompanyInformation.OpenEdit();
         CompanyInformation."CNAE Description".AssertEquals(CNAEDescription);
         CompanyInformation.Close();
 
@@ -148,7 +150,7 @@ codeunit 144036 "ERM REP CNAE"
     procedure NormalizedAccountScheduleRequestPageHandler(var NormalizedAccountSchedule: TestRequestPage "Normalized Account Schedule")
     begin
         NormalizedAccountSchedule."Acc. Schedule Line".SetFilter("Date Filter", Format(WorkDate()));
-        NormalizedAccountSchedule.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        NormalizedAccountSchedule.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 }
 

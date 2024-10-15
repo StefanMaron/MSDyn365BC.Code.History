@@ -20,30 +20,33 @@ codeunit 1306 "Company Information Mgt."
         CompanyBankAccountTxt: Label 'CompanyBankAccount';
         XPAYMENTTxt: Label 'PAYMENT', Comment = 'Payment';
         XPmtRegTxt: Label 'PMT REG', Comment = 'Payment Registration';
+        CompanyNameWarningLbl: Label 'Do not add personal data to the company name as this is not treated as restricted data.';
+
+    internal procedure GetCompanyNameClassificationWarning(): Text
+    begin
+        exit(CompanyNameWarningLbl);
+    end;
 
     local procedure UpdateGeneralJournalBatch(BankAccount: Record "Bank Account"; JournalTemplateName: Code[10]; JournalBatchName: Code[10])
     var
         GenJournalBatch: Record "Gen. Journal Batch";
     begin
-        with GenJournalBatch do
-            if Get(JournalTemplateName, JournalBatchName) then
-                if ("Bal. Account Type" = "Bal. Account Type"::"Bank Account") and ("Bal. Account No." = '') then begin
-                    Validate("Bal. Account No.", BankAccount."No.");
-                    Modify();
-                end;
+        if GenJournalBatch.Get(JournalTemplateName, JournalBatchName) then
+            if (GenJournalBatch."Bal. Account Type" = GenJournalBatch."Bal. Account Type"::"Bank Account") and (GenJournalBatch."Bal. Account No." = '') then begin
+                GenJournalBatch.Validate("Bal. Account No.", BankAccount."No.");
+                GenJournalBatch.Modify();
+            end;
     end;
 
     procedure UpdateCompanyBankAccount(var CompanyInformation: Record "Company Information"; BankAccountPostingGroup: Code[20]; var BankAccount: Record "Bank Account")
     begin
         // create or update existing company bank account with the information entered by the user
         // update general journal payment batches to point to the company bank account (unless a bank account is already specified in them)
-        with CompanyInformation do begin
-            if ("CCC Bank Branch No." = '') or ("CCC Bank Account No." = '') then
-                exit;
-            UpdateBankAccount(BankAccount, CompanyInformation, BankAccountPostingGroup);
-            UpdateGeneralJournalBatch(BankAccount, XPAYMENTTxt, XPmtRegTxt);
-            UpdatePaymentRegistrationSetup(BankAccount, XPAYMENTTxt, XPmtRegTxt);
-        end;
+        if (CompanyInformation."CCC Bank Branch No." = '') or (CompanyInformation."CCC Bank Account No." = '') then
+            exit;
+        UpdateBankAccount(BankAccount, CompanyInformation, BankAccountPostingGroup);
+        UpdateGeneralJournalBatch(BankAccount, XPAYMENTTxt, XPmtRegTxt);
+        UpdatePaymentRegistrationSetup(BankAccount, XPAYMENTTxt, XPmtRegTxt);
     end;
 
     local procedure UpdatePaymentRegistrationSetup(BankAccount: Record "Bank Account"; JournalTemplateName: Code[10]; JournalBatchName: Code[10])
@@ -68,23 +71,21 @@ codeunit 1306 "Company Information Mgt."
         if BankAccount."No." = '' then
             BankAccount."No." := CompanyBankAccountTxt;
 
-        with CompanyInformation do begin
-            if not BankAccount.Get(BankAccount."No.") then begin
-                BankAccount.Init();
-                BankAccount."No." := CompanyBankAccountTxt;
-                BankAccount.Insert();
-            end;
-            BankAccount.Validate(Name, "Bank Name");
-            BankAccount.Validate("CCC Bank No.", "CCC Bank No.");
-            BankAccount.Validate("CCC Bank Branch No.", "CCC Bank Branch No.");
-            BankAccount.Validate("CCC Control Digits", "CCC Control Digits");
-            BankAccount.Validate("CCC Bank Account No.", "CCC Bank Account No.");
-            BankAccount.Validate("CCC No.", "CCC No.");
-
-            if BankAccountPostingGroup <> '' then
-                BankAccount.Validate("Bank Acc. Posting Group", BankAccountPostingGroup);
-            BankAccount.Modify();
+        if not BankAccount.Get(BankAccount."No.") then begin
+            BankAccount.Init();
+            BankAccount."No." := CompanyBankAccountTxt;
+            BankAccount.Insert();
         end;
+        BankAccount.Validate(Name, CompanyInformation."Bank Name");
+        BankAccount.Validate("CCC Bank No.", CompanyInformation."CCC Bank No.");
+        BankAccount.Validate("CCC Bank Branch No.", CompanyInformation."CCC Bank Branch No.");
+        BankAccount.Validate("CCC Control Digits", CompanyInformation."CCC Control Digits");
+        BankAccount.Validate("CCC Bank Account No.", CompanyInformation."CCC Bank Account No.");
+        BankAccount.Validate("CCC No.", CompanyInformation."CCC No.");
+
+        if BankAccountPostingGroup <> '' then
+            BankAccount.Validate("Bank Acc. Posting Group", BankAccountPostingGroup);
+        BankAccount.Modify();
     end;
 
     procedure GetCompanyBankAccount(): Code[20]

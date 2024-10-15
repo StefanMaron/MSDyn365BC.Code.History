@@ -39,10 +39,10 @@ codeunit 147539 "Bill - Group Test Report Tests"
         CreateBillGroupTestSetupData(BillGroup, TotalAmount);
         InvokeBillGroupTestReport(BillGroup);
 
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
 
         VerifyReportData(BillGroup, TotalAmount);
-        Assert.AreEqual(0, CountErrorsInReportDataset, 'There should be no erros reported by Bill Group test report');
+        Assert.AreEqual(0, CountErrorsInReportDataset(), 'There should be no erros reported by Bill Group test report');
     end;
 
     [Test]
@@ -58,10 +58,10 @@ codeunit 147539 "Bill - Group Test Report Tests"
         CreateBillGroupTestSetupData(BillGroup, TotalAmount);
         InvokeBillGroupTestReportFromList(BillGroup);
 
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
 
         VerifyReportData(BillGroup, TotalAmount);
-        Assert.AreEqual(0, CountErrorsInReportDataset, 'There should be no erros reported by Bill Group test report');
+        Assert.AreEqual(0, CountErrorsInReportDataset(), 'There should be no erros reported by Bill Group test report');
     end;
 
     [Test]
@@ -77,10 +77,10 @@ codeunit 147539 "Bill - Group Test Report Tests"
         CreateBillGroupFactoringTestSetupData(BillGroup, TotalAmount, BillGroup.Factoring::Unrisked);
         InvokeBillGroupTestReport(BillGroup);
 
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
 
         VerifyReportData(BillGroup, TotalAmount);
-        Assert.AreEqual(0, CountErrorsInReportDataset, 'There should be no erros reported by Bill Group test report');
+        Assert.AreEqual(0, CountErrorsInReportDataset(), 'There should be no erros reported by Bill Group test report');
     end;
 
     [Test]
@@ -96,10 +96,10 @@ codeunit 147539 "Bill - Group Test Report Tests"
         CreateBillGroupFactoringTestSetupData(BillGroup, TotalAmount, BillGroup.Factoring::Risked);
         InvokeBillGroupTestReport(BillGroup);
 
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
 
         VerifyReportData(BillGroup, TotalAmount);
-        Assert.AreEqual(0, CountErrorsInReportDataset, 'There should be no erros reported by Bill Group test report');
+        Assert.AreEqual(0, CountErrorsInReportDataset(), 'There should be no erros reported by Bill Group test report');
     end;
 
     [Test]
@@ -125,12 +125,12 @@ codeunit 147539 "Bill - Group Test Report Tests"
         InvokeBillGroupTestReport(BillGroup);
 
         // Verify
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         VerifyReportData(BillGroup, TotalAmount);
         LibraryReportDataset.Reset();
         LibraryReportDataset.AssertElementWithValueExists(ErrorElementNameTxt, 'The credit limit will be exceeded.');
 
-        Assert.AreEqual(1, CountErrorsInReportDataset, 'There should be one error reported by Bill Group test report');
+        Assert.AreEqual(1, CountErrorsInReportDataset(), 'There should be one error reported by Bill Group test report');
     end;
 
     [Test]
@@ -158,7 +158,7 @@ codeunit 147539 "Bill - Group Test Report Tests"
         InvokeBillGroupTestReport(BillGroup);
 
         // Verify
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         VerifyReportData(BillGroup, TotalAmount);
 
         LibraryReportDataset.Reset();
@@ -168,7 +168,7 @@ codeunit 147539 "Bill - Group Test Report Tests"
         LibraryReportDataset.AssertElementWithValueExists(
           ErrorElementNameTxt, StrSubstNo('%1 must be specified.', BillGroup.FieldCaption("Bank Account No.")));
 
-        Assert.AreEqual(2, CountErrorsInReportDataset, 'There should be two errors reported by Bill Group test report');
+        Assert.AreEqual(2, CountErrorsInReportDataset(), 'There should be two errors reported by Bill Group test report');
     end;
 
     [Test]
@@ -191,13 +191,13 @@ codeunit 147539 "Bill - Group Test Report Tests"
         InvokeBillGroupTestReport(BillGroup);
 
         // Verify
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         VerifyReportData(BillGroup, 0);
 
         LibraryReportDataset.Reset();
         LibraryReportDataset.AssertElementWithValueExists(ErrorElementNameTxt, 'The bill group is empty.');
 
-        Assert.AreEqual(1, CountErrorsInReportDataset, 'The bill group is empty.');
+        Assert.AreEqual(1, CountErrorsInReportDataset(), 'The bill group is empty.');
     end;
 
     [Test]
@@ -238,7 +238,7 @@ codeunit 147539 "Bill - Group Test Report Tests"
 
         // Excercise
         InvokeBillGroupTestReport(BillGroup);
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
 
         // Verify
         VerifyReportData(BillGroup, TotalAmount);
@@ -267,7 +267,7 @@ codeunit 147539 "Bill - Group Test Report Tests"
             BillGroup."Bank Account No.",
             BankAccount.FieldCaption("Bank Acc. Posting Group")));
 
-        Assert.AreEqual(5, CountErrorsInReportDataset, 'There should be 5 errors reported by Bill Group test report');
+        Assert.AreEqual(5, CountErrorsInReportDataset(), 'There should be 5 errors reported by Bill Group test report');
     end;
 
     [Test]
@@ -305,7 +305,7 @@ codeunit 147539 "Bill - Group Test Report Tests"
 
         // Excercise
         InvokeBillGroupTestReport(BillGroup);
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
 
         // Verify
         VerifyReportData(BillGroup, 0);
@@ -340,7 +340,7 @@ codeunit 147539 "Bill - Group Test Report Tests"
           StrSubstNo(ValueMustBeTxt, CarteraDoc.FieldCaption("Document Type"), CarteraDoc."Document Type"::Bill)
           );
 
-        Assert.AreEqual(6, CountErrorsInReportDataset, 'There should be 6 errors reported by Bill Group test report');
+        Assert.AreEqual(6, CountErrorsInReportDataset(), 'There should be 6 errors reported by Bill Group test report');
     end;
 
     [Test]
@@ -440,24 +440,24 @@ codeunit 147539 "Bill - Group Test Report Tests"
     var
         BillGroups: TestPage "Bill Groups";
     begin
-        BillGroups.OpenEdit;
+        BillGroups.OpenEdit();
         BillGroups.GotoRecord(BillGroup);
 
         // Test report action
         Commit();
-        BillGroups.TestReport.Invoke;
+        BillGroups.TestReport.Invoke();
     end;
 
     local procedure InvokeBillGroupTestReportFromList(var BillGroup: Record "Bill Group")
     var
         BillGroupsList: TestPage "Bill Groups List";
     begin
-        BillGroupsList.OpenEdit;
+        BillGroupsList.OpenEdit();
         BillGroupsList.GotoRecord(BillGroup);
 
         // Test report action
         Commit();
-        BillGroupsList.TestReport.Invoke;
+        BillGroupsList.TestReport.Invoke();
     end;
 
     local procedure CountErrorsInReportDataset(): Integer
@@ -467,7 +467,7 @@ codeunit 147539 "Bill - Group Test Report Tests"
         Count := 0;
         LibraryReportDataset.Reset();
 
-        while LibraryReportDataset.GetNextRow do
+        while LibraryReportDataset.GetNextRow() do
             if LibraryReportDataset.CurrentRowHasElement(ErrorElementNameTxt) or
                LibraryReportDataset.CurrentRowHasElement(CarteraDocumentErrorElementNameTxt)
             then
@@ -493,7 +493,7 @@ codeunit 147539 "Bill - Group Test Report Tests"
     [Scope('OnPrem')]
     procedure BillGroupTestReportRequestPageHandler(var BillGroupTest: TestRequestPage "Bill Group - Test")
     begin
-        BillGroupTest.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        BillGroupTest.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -507,7 +507,7 @@ codeunit 147539 "Bill - Group Test Report Tests"
     [Scope('OnPrem')]
     procedure CheckDiscountCreditLimitModalPageHandler(var CheckDiscountCreditLimit: TestPage "Check Discount Credit Limit")
     begin
-        CheckDiscountCreditLimit.Yes.Invoke;
+        CheckDiscountCreditLimit.Yes().Invoke();
     end;
 }
 

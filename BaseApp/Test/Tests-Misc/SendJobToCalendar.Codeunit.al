@@ -17,7 +17,6 @@ codeunit 136315 "Send Job To Calendar"
         LibraryDocumentApprovals: Codeunit "Library - Document Approvals";
         ActiveDirectoryMockEvents: Codeunit "Active Directory Mock Events";
         CouldNotFindValueErr: Label 'Could not find value in description. Expected %1.', Comment = '%1 = Expected value';
-        SMTPSenderTxt: Label 'person@mycompany.org';
         IsInitialized: Boolean;
 
     [Test]
@@ -243,7 +242,7 @@ codeunit 136315 "Send Job To Calendar"
         // [SCENARIO 167920] Send to calendar generates email sent to the authentication email of the resource.
 
         // [GIVEN] We have a job planning line assigned to a specific resource.
-        AuthEmail := RandomEmail;
+        AuthEmail := RandomEmail();
         CreateResource(Resource, AuthEmail);
         CreateJobPlanningLine(JobPlanningLine, Resource, 10);
 
@@ -791,7 +790,7 @@ codeunit 136315 "Send Job To Calendar"
         CreateJobPlanningLineCalendar(JobPlanningLine);
 
         // [GIVEN] Another resource exists in the system.
-        CreateResource(AltResource, RandomEmail);
+        CreateResource(AltResource, RandomEmail());
 
         // [WHEN] The resource changes on the Job planning line.
         JobPlanningLine.Validate("No.", AltResource."No.");
@@ -935,7 +934,7 @@ codeunit 136315 "Send Job To Calendar"
         LibraryMarketing: Codeunit "Library - Marketing";
     begin
         if Resource."No." = '' then
-            CreateResource(Resource, RandomEmail);
+            CreateResource(Resource, RandomEmail());
 
         LibraryJob.CreateJob(Job);
         Job.Validate(Description, CreateGuid());
@@ -1030,7 +1029,7 @@ codeunit 136315 "Send Job To Calendar"
         Value := Match.Groups.Item(1).Value();
     end;
 
-    local procedure VerifyICSJobPlanningLineDescription(JobPlanningLine: Record "Job Planning Line";var TempEmailItem: Record "Email Item" temporary)
+    local procedure VerifyICSJobPlanningLineDescription(JobPlanningLine: Record "Job Planning Line"; var TempEmailItem: Record "Email Item" temporary)
     var
         Description: Text;
     begin

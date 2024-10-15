@@ -56,7 +56,7 @@ codeunit 143010 "Library - Cartera Payables"
     procedure CreateBankAccount(var BankAccount: Record "Bank Account"; CurrencyCode: Code[10])
     begin
         LibraryERM.CreateBankAccount(BankAccount);
-        BankAccount.Validate("Country/Region Code", GetCountryCode);
+        BankAccount.Validate("Country/Region Code", GetCountryCode());
         BankAccount.Validate("CCC Bank No.", Format(LibraryRandom.RandIntInRange(1111, 9999)));
         BankAccount.Validate("CCC Bank Branch No.", Format(LibraryRandom.RandIntInRange(1111, 9999)));
         BankAccount.Validate("CCC Control Digits", Format(LibraryRandom.RandIntInRange(11, 99)));
@@ -111,7 +111,7 @@ codeunit 143010 "Library - Cartera Payables"
         LibraryPurchase.CreateVendor(Vendor);
         Vendor.Validate("Payment Method Code", PaymentMethodCode);
         Vendor.Validate("Payment Terms Code", PaymentTerms.Code);
-        Vendor.Validate("Country/Region Code", GetCountryCode);
+        Vendor.Validate("Country/Region Code", GetCountryCode());
         Vendor.Validate("Currency Code", CurrencyCode);
         Vendor.Modify(true);
     end;
@@ -243,7 +243,7 @@ codeunit 143010 "Library - Cartera Payables"
         VendorBankAccount.Validate("CCC Bank Account No.", Format(LibraryRandom.RandIntInRange(11111111, 99999999)));
         VendorBankAccount.Validate("Use For Electronic Payments", true);
         VendorBankAccount.Validate("Currency Code", CurrencyCode);
-        VendorBankAccount.Validate("Country/Region Code", GetCountryCode);
+        VendorBankAccount.Validate("Country/Region Code", GetCountryCode());
         VendorBankAccount.Modify(true);
 
         VendorBankAccount.IBAN := LibraryUtility.GenerateGUID();
@@ -254,7 +254,7 @@ codeunit 143010 "Library - Cartera Payables"
         Vendor.Modify(true);
     end;
 
-    procedure FindInvoiceVendorLedgerEntry(var VendorLedgerEntry: Record "Vendor Ledger Entry"; VendorNo: Code[20]; DocumentNo: Code[20]; DocumentSituation: Option)
+    procedure FindInvoiceVendorLedgerEntry(var VendorLedgerEntry: Record "Vendor Ledger Entry"; VendorNo: Code[20]; DocumentNo: Code[20]; DocumentSituation: Enum "ES Document Situation")
     begin
         VendorLedgerEntry.SetRange("Vendor No.", VendorNo);
         VendorLedgerEntry.SetRange("Document Type", VendorLedgerEntry."Document Type"::Invoice);
@@ -277,7 +277,7 @@ codeunit 143010 "Library - Cartera Payables"
         GLEntry.FindLast();
     end;
 
-    procedure FindOpenCarteraDocVendorLedgerEntries(var VendorLedgerEntry: Record "Vendor Ledger Entry"; VendorNo: Code[20]; DocumentNo: Code[20]; DocumentSituation: Option; DocumentType: Enum "Gen. Journal Document Type")
+    procedure FindOpenCarteraDocVendorLedgerEntries(var VendorLedgerEntry: Record "Vendor Ledger Entry"; VendorNo: Code[20]; DocumentNo: Code[20]; DocumentSituation: Enum "ES Document Situation"; DocumentType: Enum "Gen. Journal Document Type")
     begin
         VendorLedgerEntry.SetRange("Vendor No.", VendorNo);
         VendorLedgerEntry.SetRange("Document Type", DocumentType);
@@ -311,9 +311,9 @@ codeunit 143010 "Library - Cartera Payables"
     var
         CarteraJournal: TestPage "Cartera Journal";
     begin
-        CarteraJournal.OpenEdit;
+        CarteraJournal.OpenEdit();
         CarteraJournal.CurrentJnlBatchName.SetValue(GenJournalBatchName);
-        CarteraJournal.Post.Invoke;
+        CarteraJournal.Post.Invoke();
     end;
 
     procedure PostCarteraPaymentOrder(var PaymentOrder: Record "Payment Order")
@@ -403,7 +403,7 @@ codeunit 143010 "Library - Cartera Payables"
 
         GLEntry.Next();
         ExpectedVATAmount :=
-          Round(TotalAmount - TotalAmount * 100 / (VATPostingSetup."VAT %" + 100), LibraryERM.GetAmountRoundingPrecision);
+          Round(TotalAmount - TotalAmount * 100 / (VATPostingSetup."VAT %" + 100), LibraryERM.GetAmountRoundingPrecision());
 
         Assert.IsTrue(ExpectedVATAmount > 0, 'Expected VAT Amount must be greater than zero for this test');
         Assert.AreEqual(ExpectedVATAmount, GLEntry."Debit Amount", 'Wrong VAT Amount was set on the line');
@@ -430,30 +430,30 @@ codeunit 143010 "Library - Cartera Payables"
 
         // Check total amount
         Assert.AreNearlyEqual(
-          InitialAmount, GLEntry."Credit Amount", LibraryERM.GetAmountRoundingPrecision, 'Wrong value for the inital amount line');
+          InitialAmount, GLEntry."Credit Amount", LibraryERM.GetAmountRoundingPrecision(), 'Wrong value for the inital amount line');
         GLEntry.Next();
 
         Assert.AreNearlyEqual(
-          InitialAmount, GLEntry."Debit Amount", LibraryERM.GetAmountRoundingPrecision, 'Wrong value for the inital amount line');
+          InitialAmount, GLEntry."Debit Amount", LibraryERM.GetAmountRoundingPrecision(), 'Wrong value for the inital amount line');
         GLEntry.Next();
 
         // Check Unrealized VAT amount
         Assert.AreNearlyEqual(
-          ExpectedVATAmount, GLEntry."Credit Amount", LibraryERM.GetAmountRoundingPrecision, 'Wrong total value was set on line');
+          ExpectedVATAmount, GLEntry."Credit Amount", LibraryERM.GetAmountRoundingPrecision(), 'Wrong total value was set on line');
         Assert.AreEqual(VATAccountNo, GLEntry."G/L Account No.", 'Wrong account is set on the line');
         GLEntry.Next();
 
         Assert.AreNearlyEqual(
-          ExpectedVATAmount, GLEntry."Debit Amount", LibraryERM.GetAmountRoundingPrecision, 'Wrong VAT Amount was set on the line');
+          ExpectedVATAmount, GLEntry."Debit Amount", LibraryERM.GetAmountRoundingPrecision(), 'Wrong VAT Amount was set on the line');
         GLEntry.Next();
 
         // Check settled amount
         Assert.AreNearlyEqual(
-          SettledAmount, GLEntry."Debit Amount", LibraryERM.GetAmountRoundingPrecision, 'Wrong value for the settled amount line');
+          SettledAmount, GLEntry."Debit Amount", LibraryERM.GetAmountRoundingPrecision(), 'Wrong value for the settled amount line');
         GLEntry.Next();
 
         Assert.AreNearlyEqual(
-          SettledAmount, GLEntry."Credit Amount", LibraryERM.GetAmountRoundingPrecision, 'Wrong value for the settled amount line');
+          SettledAmount, GLEntry."Credit Amount", LibraryERM.GetAmountRoundingPrecision(), 'Wrong value for the settled amount line');
         GLEntry.Next();
     end;
 }

@@ -35,42 +35,40 @@ codeunit 5636 "FA. Jnl.-Post"
     begin
         OnBeforeCode(FAJnlLine);
 
-        with FAJnlLine do begin
-            FAJnlTemplate.Get("Journal Template Name");
-            FAJnlTemplate.TestField("Force Posting Report", false);
-            if FAJnlTemplate.Recurring and (GetFilter("FA Posting Date") <> '') then
-                FieldError("FA Posting Date", Text000);
+        FAJnlTemplate.Get(FAJnlLine."Journal Template Name");
+        FAJnlTemplate.TestField("Force Posting Report", false);
+        if FAJnlTemplate.Recurring and (FAJnlLine.GetFilter("FA Posting Date") <> '') then
+            FAJnlLine.FieldError("FA Posting Date", Text000);
 
-            if not ConfirmPost() then
-                exit;
+        if not ConfirmPost() then
+            exit;
 
-            TempJnlBatchName := "Journal Batch Name";
+        TempJnlBatchName := FAJnlLine."Journal Batch Name";
 
-            FAJnlPostBatch.SetPreviewMode(PreviewMode);
-            FAJnlPostBatch.Run(FAJnlLine);
+        FAJnlPostBatch.SetPreviewMode(PreviewMode);
+        FAJnlPostBatch.Run(FAJnlLine);
 
-            if not PreviewMode then begin
-                IsHandled := false;
-                OnCodeOnBeforeShowMessage(FAJnlLine, IsHandled);
-                if not IsHandled then
-                    if "Line No." = 0 then
-                        Message(JournalErrorsMgt.GetNothingToPostErrorMsg())
+        if not PreviewMode then begin
+            IsHandled := false;
+            OnCodeOnBeforeShowMessage(FAJnlLine, IsHandled);
+            if not IsHandled then
+                if FAJnlLine."Line No." = 0 then
+                    Message(JournalErrorsMgt.GetNothingToPostErrorMsg())
+                else
+                    if TempJnlBatchName = FAJnlLine."Journal Batch Name" then
+                        Message(Text003)
                     else
-                        if TempJnlBatchName = "Journal Batch Name" then
-                            Message(Text003)
-                        else
-                            Message(
-                              Text004,
-                              "Journal Batch Name");
+                        Message(
+                          Text004,
+                          FAJnlLine."Journal Batch Name");
 
-                if not Find('=><') or (TempJnlBatchName <> "Journal Batch Name") then begin
-                    Reset();
-                    FilterGroup := 2;
-                    SetRange("Journal Template Name", "Journal Template Name");
-                    SetRange("Journal Batch Name", "Journal Batch Name");
-                    FilterGroup := 0;
-                    "Line No." := 1;
-                end;
+            if not FAJnlLine.Find('=><') or (TempJnlBatchName <> FAJnlLine."Journal Batch Name") then begin
+                FAJnlLine.Reset();
+                FAJnlLine.FilterGroup := 2;
+                FAJnlLine.SetRange("Journal Template Name", FAJnlLine."Journal Template Name");
+                FAJnlLine.SetRange("Journal Batch Name", FAJnlLine."Journal Batch Name");
+                FAJnlLine.FilterGroup := 0;
+                FAJnlLine."Line No." := 1;
             end;
         end;
     end;

@@ -10,7 +10,7 @@ using Microsoft.Foundation.AuditCodes;
 page 7000072 "Posted Payable Bills Maturity"
 {
     Caption = 'Posted Payable Bills Maturity';
-    DataCaptionExpression = Caption();
+    DataCaptionExpression = Rec.Caption();
     DeleteAllowed = false;
     InsertAllowed = false;
     PageType = Worksheet;

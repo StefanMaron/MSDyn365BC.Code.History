@@ -10,6 +10,7 @@ table 10723 "G/L Acc. Equiv. Tool Setup"
     ObsoleteReason = 'Obsolete feature';
     ObsoleteState = Pending;
     ObsoleteTag = '15.0';
+    DataClassification = CustomerContent;
 
     fields
     {

@@ -15,21 +15,23 @@ using Microsoft.Finance.GeneralLedger.Setup;
 using Microsoft.Finance.VAT.Ledger;
 using Microsoft.Finance.VAT.Setup;
 using Microsoft.Foundation.Enums;
-using Microsoft.Purchases.Document;
 using Microsoft.Purchases.History;
 using Microsoft.Purchases.Payables;
-using Microsoft.Purchases.Posting;
 using Microsoft.Purchases.Vendor;
-using Microsoft.RoleCenters;
 using Microsoft.Sales.Customer;
-using Microsoft.Sales.Document;
 using Microsoft.Sales.History;
-using Microsoft.Sales.Posting;
 using Microsoft.Sales.Receivables;
 using Microsoft.Service.Document;
 using Microsoft.Service.History;
 using Microsoft.Service.Posting;
+#if not CLEAN23
+using Microsoft.Purchases.Document;
+using Microsoft.Purchases.Posting;
+using Microsoft.RoleCenters;
+using Microsoft.Sales.Document;
+using Microsoft.Sales.Posting;
 using System.Environment.Configuration;
+#endif
 
 codeunit 10740 "No Taxable Mgt."
 {
@@ -365,79 +367,67 @@ codeunit 10740 "No Taxable Mgt."
     [Scope('OnPrem')]
     procedure FindNoTaxableLinesPurchaseInvoice(var PurchInvLine: Record "Purch. Inv. Line"; VendorNo: Code[20]; DocumentNo: Code[20]; PostingDate: Date): Boolean
     begin
-        with PurchInvLine do begin
-            SetRange("Pay-to Vendor No.", VendorNo);
-            SetRange("Document No.", DocumentNo);
-            SetRange("Posting Date", PostingDate);
-            SetRange("VAT Calculation Type", "VAT Calculation Type"::"No Taxable VAT");
-            SetRange("VAT %", 0);
-            exit(FindSet());
-        end;
+        PurchInvLine.SetRange("Pay-to Vendor No.", VendorNo);
+        PurchInvLine.SetRange("Document No.", DocumentNo);
+        PurchInvLine.SetRange("Posting Date", PostingDate);
+        PurchInvLine.SetRange("VAT Calculation Type", PurchInvLine."VAT Calculation Type"::"No Taxable VAT");
+        PurchInvLine.SetRange("VAT %", 0);
+        exit(PurchInvLine.FindSet());
     end;
 
     [Scope('OnPrem')]
     procedure FindNoTaxableLinesPurchaseCrMemo(var PurchCrMemoLine: Record "Purch. Cr. Memo Line"; VendorNo: Code[20]; DocumentNo: Code[20]; PostingDate: Date): Boolean
     begin
-        with PurchCrMemoLine do begin
-            SetRange("Pay-to Vendor No.", VendorNo);
-            SetRange("Document No.", DocumentNo);
-            SetRange("Posting Date", PostingDate);
-            SetRange("VAT Calculation Type", "VAT Calculation Type"::"No Taxable VAT");
-            SetRange("VAT %", 0);
-            exit(FindSet());
-        end;
+        PurchCrMemoLine.SetRange("Pay-to Vendor No.", VendorNo);
+        PurchCrMemoLine.SetRange("Document No.", DocumentNo);
+        PurchCrMemoLine.SetRange("Posting Date", PostingDate);
+        PurchCrMemoLine.SetRange("VAT Calculation Type", PurchCrMemoLine."VAT Calculation Type"::"No Taxable VAT");
+        PurchCrMemoLine.SetRange("VAT %", 0);
+        exit(PurchCrMemoLine.FindSet());
     end;
 
     [Scope('OnPrem')]
     procedure FindNoTaxableLinesSalesInvoice(var SalesInvoiceLine: Record "Sales Invoice Line"; CustomerNo: Code[20]; DocumentNo: Code[20]; PostingDate: Date): Boolean
     begin
-        with SalesInvoiceLine do begin
-            SetRange("Bill-to Customer No.", CustomerNo);
-            SetRange("Document No.", DocumentNo);
-            SetRange("Posting Date", PostingDate);
-            SetRange("VAT Calculation Type", "VAT Calculation Type"::"No Taxable VAT");
-            SetRange("VAT %", 0);
-            exit(FindSet());
-        end;
+        SalesInvoiceLine.SetRange("Bill-to Customer No.", CustomerNo);
+        SalesInvoiceLine.SetRange("Document No.", DocumentNo);
+        SalesInvoiceLine.SetRange("Posting Date", PostingDate);
+        SalesInvoiceLine.SetRange("VAT Calculation Type", SalesInvoiceLine."VAT Calculation Type"::"No Taxable VAT");
+        SalesInvoiceLine.SetRange("VAT %", 0);
+        exit(SalesInvoiceLine.FindSet());
     end;
 
     [Scope('OnPrem')]
     procedure FindNoTaxableLinesSalesCrMemo(var SalesCrMemoLine: Record "Sales Cr.Memo Line"; CustomerNo: Code[20]; DocumentNo: Code[20]; PostingDate: Date): Boolean
     begin
-        with SalesCrMemoLine do begin
-            SetRange("Bill-to Customer No.", CustomerNo);
-            SetRange("Document No.", DocumentNo);
-            SetRange("Posting Date", PostingDate);
-            SetRange("VAT Calculation Type", "VAT Calculation Type"::"No Taxable VAT");
-            SetRange("VAT %", 0);
-            exit(FindSet());
-        end;
+        SalesCrMemoLine.SetRange("Bill-to Customer No.", CustomerNo);
+        SalesCrMemoLine.SetRange("Document No.", DocumentNo);
+        SalesCrMemoLine.SetRange("Posting Date", PostingDate);
+        SalesCrMemoLine.SetRange("VAT Calculation Type", SalesCrMemoLine."VAT Calculation Type"::"No Taxable VAT");
+        SalesCrMemoLine.SetRange("VAT %", 0);
+        exit(SalesCrMemoLine.FindSet());
     end;
 
     [Scope('OnPrem')]
     procedure FindNoTaxableLinesServiceInvoice(var ServiceInvoiceLine: Record "Service Invoice Line"; CustomerNo: Code[20]; DocumentNo: Code[20]; PostingDate: Date): Boolean
     begin
-        with ServiceInvoiceLine do begin
-            SetRange("Bill-to Customer No.", CustomerNo);
-            SetRange("Document No.", DocumentNo);
-            SetRange("Posting Date", PostingDate);
-            SetRange("VAT Calculation Type", "VAT Calculation Type"::"No Taxable VAT");
-            SetRange("VAT %", 0);
-            exit(FindSet());
-        end;
+        ServiceInvoiceLine.SetRange("Bill-to Customer No.", CustomerNo);
+        ServiceInvoiceLine.SetRange("Document No.", DocumentNo);
+        ServiceInvoiceLine.SetRange("Posting Date", PostingDate);
+        ServiceInvoiceLine.SetRange("VAT Calculation Type", ServiceInvoiceLine."VAT Calculation Type"::"No Taxable VAT");
+        ServiceInvoiceLine.SetRange("VAT %", 0);
+        exit(ServiceInvoiceLine.FindSet());
     end;
 
     [Scope('OnPrem')]
     procedure FindNoTaxableLinesServiceCrMemo(var ServiceCrMemoLine: Record "Service Cr.Memo Line"; CustomerNo: Code[20]; DocumentNo: Code[20]; PostingDate: Date): Boolean
     begin
-        with ServiceCrMemoLine do begin
-            SetRange("Bill-to Customer No.", CustomerNo);
-            SetRange("Document No.", DocumentNo);
-            SetRange("Posting Date", PostingDate);
-            SetRange("VAT Calculation Type", "VAT Calculation Type"::"No Taxable VAT");
-            SetRange("VAT %", 0);
-            exit(FindSet());
-        end;
+        ServiceCrMemoLine.SetRange("Bill-to Customer No.", CustomerNo);
+        ServiceCrMemoLine.SetRange("Document No.", DocumentNo);
+        ServiceCrMemoLine.SetRange("Posting Date", PostingDate);
+        ServiceCrMemoLine.SetRange("VAT Calculation Type", ServiceCrMemoLine."VAT Calculation Type"::"No Taxable VAT");
+        ServiceCrMemoLine.SetRange("VAT %", 0);
+        exit(ServiceCrMemoLine.FindSet());
     end;
 
     local procedure FindCustNoFromLedgEntryInSameTransNo(GenJournalLine: Record "Gen. Journal Line"; TransNo: Integer): Code[20]
@@ -486,33 +476,32 @@ codeunit 10740 "No Taxable Mgt."
         if not PostedLineRecRef.FindSet() then
             exit;
 
-        with PostedLineRecRef do
-            repeat
-                TypeFieldRef := Field(DummyPurchInvLine.FieldNo(Type));
-                NoFieldRef := Field(DummyPurchInvLine.FieldNo("No."));
-                AmountFieldRef := Field(DummyPurchInvLine.FieldNo(Amount));
-                VATBusPostGrFieldRef := Field(DummyPurchInvLine.FieldNo("VAT Bus. Posting Group"));
-                VATProdPostGrFieldRef := Field(DummyPurchInvLine.FieldNo("VAT Prod. Posting Group"));
-                GenBusPostGrFieldRef := Field(DummyPurchInvLine.FieldNo("Gen. Bus. Posting Group"));
-                GenProdPostGrFieldRef := Field(DummyPurchInvLine.FieldNo("Gen. Prod. Posting Group"));
-                LineType := TypeFieldRef.Value;
-                LineNo := NoFieldRef.Value;
-                LineAmount := AmountFieldRef.Value;
-                VATBusPostGroup := VATBusPostGrFieldRef.Value;
-                VATProdPostGroup := VATProdPostGrFieldRef.Value;
-                GenBusPostGroup := GenBusPostGrFieldRef.Value;
-                GenProdPostGroup := GenProdPostGrFieldRef.Value;
+        repeat
+            TypeFieldRef := PostedLineRecRef.Field(DummyPurchInvLine.FieldNo(Type));
+            NoFieldRef := PostedLineRecRef.Field(DummyPurchInvLine.FieldNo("No."));
+            AmountFieldRef := PostedLineRecRef.Field(DummyPurchInvLine.FieldNo(Amount));
+            VATBusPostGrFieldRef := PostedLineRecRef.Field(DummyPurchInvLine.FieldNo("VAT Bus. Posting Group"));
+            VATProdPostGrFieldRef := PostedLineRecRef.Field(DummyPurchInvLine.FieldNo("VAT Prod. Posting Group"));
+            GenBusPostGrFieldRef := PostedLineRecRef.Field(DummyPurchInvLine.FieldNo("Gen. Bus. Posting Group"));
+            GenProdPostGrFieldRef := PostedLineRecRef.Field(DummyPurchInvLine.FieldNo("Gen. Prod. Posting Group"));
+            LineType := TypeFieldRef.Value();
+            LineNo := NoFieldRef.Value();
+            LineAmount := AmountFieldRef.Value();
+            VATBusPostGroup := VATBusPostGrFieldRef.Value();
+            VATProdPostGroup := VATProdPostGrFieldRef.Value();
+            GenBusPostGroup := GenBusPostGrFieldRef.Value();
+            GenProdPostGroup := GenProdPostGrFieldRef.Value();
 
-                if VATPostingSetup.Get(VATBusPostGroup, VATProdPostGroup) and VATPostingSetup.IsNoTaxable() then begin
-                    if Format(LineType) = Format(DummyPurchInvLine.Type::"G/L Account") then
-                        NotIn347 := GLAccount.Get(LineNo) and GLAccount."Ignore in 347 Report";
-                    InsertNoTaxableEntry(
-                      NoTaxableEntry, NoTaxableEntry.Type::Purchase, Sign * LineAmount, VATPostingSetup."EU Service", NotIn347, 0, 0,
-                      VATPostingSetup."VAT Calculation Type", VATBusPostGroup, VATProdPostGroup,
-                      GenBusPostGroup, GenProdPostGroup);
-                    UpdateAmountsInCurrency(NoTaxableEntry);
-                end;
-            until Next() = 0;
+            if VATPostingSetup.Get(VATBusPostGroup, VATProdPostGroup) and VATPostingSetup.IsNoTaxable() then begin
+                if Format(LineType) = Format(DummyPurchInvLine.Type::"G/L Account") then
+                    NotIn347 := GLAccount.Get(LineNo) and GLAccount."Ignore in 347 Report";
+                InsertNoTaxableEntry(
+                  NoTaxableEntry, NoTaxableEntry.Type::Purchase, Sign * LineAmount, VATPostingSetup."EU Service", NotIn347, 0, 0,
+                  VATPostingSetup."VAT Calculation Type", VATBusPostGroup, VATProdPostGroup,
+                  GenBusPostGroup, GenProdPostGroup);
+                UpdateAmountsInCurrency(NoTaxableEntry);
+            end;
+        until PostedLineRecRef.Next() = 0;
     end;
 
     local procedure InsertNoTaxableEntriesFromSalesLines(var PostedLineRecRef: RecordRef; NoTaxableEntry: Record "No Taxable Entry"; Sign: Integer)
@@ -540,35 +529,34 @@ codeunit 10740 "No Taxable Mgt."
         if not PostedLineRecRef.FindSet() then
             exit;
 
-        with PostedLineRecRef do
-            repeat
-                TypeFieldRef := Field(DummySalesInvoiceLine.FieldNo(Type));
-                NoFieldRef := Field(DummySalesInvoiceLine.FieldNo("No."));
-                AmountFieldRef := Field(DummySalesInvoiceLine.FieldNo(Amount));
-                VATBusPostGrFieldRef := Field(DummySalesInvoiceLine.FieldNo("VAT Bus. Posting Group"));
-                VATProdPostGrFieldRef := Field(DummySalesInvoiceLine.FieldNo("VAT Prod. Posting Group"));
-                GenBusPostGrFieldRef := Field(DummySalesInvoiceLine.FieldNo("Gen. Bus. Posting Group"));
-                GenProdPostGrFieldRef := Field(DummySalesInvoiceLine.FieldNo("Gen. Prod. Posting Group"));
-                LineType := TypeFieldRef.Value;
-                LineNo := NoFieldRef.Value;
-                LineAmount := AmountFieldRef.Value;
-                VATBusPostGroup := VATBusPostGrFieldRef.Value;
-                VATProdPostGroup := VATProdPostGrFieldRef.Value;
-                GenBusPostGroup := GenBusPostGrFieldRef.Value;
-                GenProdPostGroup := GenProdPostGrFieldRef.Value;
+        repeat
+            TypeFieldRef := PostedLineRecRef.Field(DummySalesInvoiceLine.FieldNo(Type));
+            NoFieldRef := PostedLineRecRef.Field(DummySalesInvoiceLine.FieldNo("No."));
+            AmountFieldRef := PostedLineRecRef.Field(DummySalesInvoiceLine.FieldNo(Amount));
+            VATBusPostGrFieldRef := PostedLineRecRef.Field(DummySalesInvoiceLine.FieldNo("VAT Bus. Posting Group"));
+            VATProdPostGrFieldRef := PostedLineRecRef.Field(DummySalesInvoiceLine.FieldNo("VAT Prod. Posting Group"));
+            GenBusPostGrFieldRef := PostedLineRecRef.Field(DummySalesInvoiceLine.FieldNo("Gen. Bus. Posting Group"));
+            GenProdPostGrFieldRef := PostedLineRecRef.Field(DummySalesInvoiceLine.FieldNo("Gen. Prod. Posting Group"));
+            LineType := TypeFieldRef.Value();
+            LineNo := NoFieldRef.Value();
+            LineAmount := AmountFieldRef.Value();
+            VATBusPostGroup := VATBusPostGrFieldRef.Value();
+            VATProdPostGroup := VATProdPostGrFieldRef.Value();
+            GenBusPostGroup := GenBusPostGrFieldRef.Value();
+            GenProdPostGroup := GenProdPostGrFieldRef.Value();
 
-                if VATPostingSetup.Get(VATBusPostGroup, VATProdPostGroup) and VATPostingSetup.IsNoTaxable() then begin
-                    if Format(LineType) = Format(DummySalesInvoiceLine.Type::"G/L Account") then
-                        NotIn347 := GLAccount.Get(LineNo) and GLAccount."Ignore in 347 Report";
-                    if VATProductPostingGroup.Get(VATPostingSetup."VAT Prod. Posting Group") then;
-                    InsertNoTaxableEntry(
-                      NoTaxableEntry, NoTaxableEntry.Type::Sale, Sign * LineAmount, VATPostingSetup."EU Service", NotIn347,
-                      VATPostingSetup."No Taxable Type", VATProductPostingGroup."Delivery Operation Code",
-                      VATPostingSetup."VAT Calculation Type", VATBusPostGroup, VATProdPostGroup,
-                      GenBusPostGroup, GenProdPostGroup);
-                    UpdateAmountsInCurrency(NoTaxableEntry);
-                end;
-            until Next() = 0;
+            if VATPostingSetup.Get(VATBusPostGroup, VATProdPostGroup) and VATPostingSetup.IsNoTaxable() then begin
+                if Format(LineType) = Format(DummySalesInvoiceLine.Type::"G/L Account") then
+                    NotIn347 := GLAccount.Get(LineNo) and GLAccount."Ignore in 347 Report";
+                if VATProductPostingGroup.Get(VATPostingSetup."VAT Prod. Posting Group") then;
+                InsertNoTaxableEntry(
+                  NoTaxableEntry, NoTaxableEntry.Type::Sale, Sign * LineAmount, VATPostingSetup."EU Service", NotIn347,
+                  VATPostingSetup."No Taxable Type", VATProductPostingGroup."Delivery Operation Code",
+                  VATPostingSetup."VAT Calculation Type", VATBusPostGroup, VATProdPostGroup,
+                  GenBusPostGroup, GenProdPostGroup);
+                UpdateAmountsInCurrency(NoTaxableEntry);
+            end;
+        until PostedLineRecRef.Next() = 0;
     end;
 
     local procedure InsertNoTaxableEntriesFromGenLedgEntry(NoTaxableEntry: Record "No Taxable Entry"; EntryAmount: Decimal; Sign: Integer)
@@ -614,22 +602,20 @@ codeunit 10740 "No Taxable Mgt."
 
     local procedure InsertNoTaxableEntry(var NoTaxableEntry: Record "No Taxable Entry"; EntryType: Enum "General Posting Type"; EntryAmount: Decimal; EUService: Boolean; NotIn347: Boolean; NoTaxableType: Option; DeliveryOperationCode: Option; VATCalculationType: Enum "Tax Calculation Type"; VATBusPostingGroupCode: Code[20]; VATProdPostingGroupCode: Code[20]; GenBusPostingGroupCode: Code[20]; GenProdPostingGroupCode: Code[20])
     begin
-        with NoTaxableEntry do begin
-            Type := EntryType;
-            Base := EntryAmount;
-            Amount := EntryAmount;
-            "EU Service" := EUService;
-            "Not In 347" := NotIn347;
-            "No Taxable Type" := NoTaxableType;
-            "Delivery Operation Code" := DeliveryOperationCode;
-            "VAT Calculation Type" := VATCalculationType;
-            "VAT Bus. Posting Group" := VATBusPostingGroupCode;
-            "VAT Prod. Posting Group" := VATProdPostingGroupCode;
-            "Gen. Bus. Posting Group" := GenBusPostingGroupCode;
-            "Gen. Prod. Posting Group" := GenProdPostingGroupCode;
-            Intracommunity := SIIManagement.IsIntracommunity("Country/Region Code");
-            Update(NoTaxableEntry);
-        end;
+        NoTaxableEntry.Type := EntryType;
+        NoTaxableEntry.Base := EntryAmount;
+        NoTaxableEntry.Amount := EntryAmount;
+        NoTaxableEntry."EU Service" := EUService;
+        NoTaxableEntry."Not In 347" := NotIn347;
+        NoTaxableEntry."No Taxable Type" := NoTaxableType;
+        NoTaxableEntry."Delivery Operation Code" := DeliveryOperationCode;
+        NoTaxableEntry."VAT Calculation Type" := VATCalculationType;
+        NoTaxableEntry."VAT Bus. Posting Group" := VATBusPostingGroupCode;
+        NoTaxableEntry."VAT Prod. Posting Group" := VATProdPostingGroupCode;
+        NoTaxableEntry."Gen. Bus. Posting Group" := GenBusPostingGroupCode;
+        NoTaxableEntry."Gen. Prod. Posting Group" := GenProdPostingGroupCode;
+        NoTaxableEntry.Intracommunity := SIIManagement.IsIntracommunity(NoTaxableEntry."Country/Region Code");
+        NoTaxableEntry.Update(NoTaxableEntry);
     end;
 
     local procedure MapDeliveryOperationCode(DeliveryOperationCode: Option " ","E - General","M - Imported Tax Exempt","H - Imported Tax Exempt (Representative)"): Integer
@@ -702,15 +688,13 @@ codeunit 10740 "No Taxable Mgt."
         if NoTaxableEntry.IsEmpty() then
             exit;
 
-        with NoTaxableEntry do begin
-            SetRange("EU Service", false);
-            CalcSums(Amount);
-            NormalAmount += Amount;
+        NoTaxableEntry.SetRange("EU Service", false);
+        NoTaxableEntry.CalcSums(Amount);
+        NormalAmount += NoTaxableEntry.Amount;
 
-            SetRange("EU Service", true);
-            CalcSums(Amount);
-            EUServiceAmount += Amount;
-        end;
+        NoTaxableEntry.SetRange("EU Service", true);
+        NoTaxableEntry.CalcSums(Amount);
+        EUServiceAmount += NoTaxableEntry.Amount;
     end;
 
     local procedure ConvertAmountFCYtoLCY(Amount: Decimal; PostingDate: Date; CurrencyCode: Code[10]; CurrencyFactor: Decimal): Decimal
@@ -908,18 +892,16 @@ codeunit 10740 "No Taxable Mgt."
 
     local procedure UpdateAmountsInCurrency(var NoTaxableEntry: Record "No Taxable Entry")
     begin
-        with NoTaxableEntry do begin
-            "Base (LCY)" := ConvertAmountFCYtoLCY(Base, "Posting Date", "Currency Code", "Currency Factor");
-            "Amount (LCY)" := ConvertAmountFCYtoLCY(Amount, "Posting Date", "Currency Code", "Currency Factor");
-            GetGLSetup();
-            if GeneralLedgerSetup."Additional Reporting Currency" <> '' then begin
-                "Base (ACY)" :=
-                  ConvertAmountLCYtoACY("Base (LCY)", "Posting Date", GeneralLedgerSetup."Additional Reporting Currency");
-                "Amount (ACY)" :=
-                  ConvertAmountLCYtoACY("Amount (LCY)", "Posting Date", GeneralLedgerSetup."Additional Reporting Currency");
-            end;
-            Modify();
+        NoTaxableEntry."Base (LCY)" := ConvertAmountFCYtoLCY(NoTaxableEntry.Base, NoTaxableEntry."Posting Date", NoTaxableEntry."Currency Code", NoTaxableEntry."Currency Factor");
+        NoTaxableEntry."Amount (LCY)" := ConvertAmountFCYtoLCY(NoTaxableEntry.Amount, NoTaxableEntry."Posting Date", NoTaxableEntry."Currency Code", NoTaxableEntry."Currency Factor");
+        GetGLSetup();
+        if GeneralLedgerSetup."Additional Reporting Currency" <> '' then begin
+            NoTaxableEntry."Base (ACY)" :=
+              ConvertAmountLCYtoACY(NoTaxableEntry."Base (LCY)", NoTaxableEntry."Posting Date", GeneralLedgerSetup."Additional Reporting Currency");
+            NoTaxableEntry."Amount (ACY)" :=
+              ConvertAmountLCYtoACY(NoTaxableEntry."Amount (LCY)", NoTaxableEntry."Posting Date", GeneralLedgerSetup."Additional Reporting Currency");
         end;
+        NoTaxableEntry.Modify();
     end;
 
     local procedure GetGLSetup()
@@ -935,19 +917,17 @@ codeunit 10740 "No Taxable Mgt."
         Vendor: Record Vendor;
         NoTaxableEntry: Record "No Taxable Entry";
     begin
-        with VendorLedgerEntry do begin
-            if not Vendor.Get("Vendor No.") then
-                exit;
-            if CreateNoTaxableEntriesPurchInvoiceFromVendEntry(VendorLedgerEntry) then
-                exit;
-            if CreateNoTaxableEntriesPurchCreditMemoFromVendEntry(VendorLedgerEntry) then
-                exit;
+        if not Vendor.Get(VendorLedgerEntry."Vendor No.") then
+            exit;
+        if CreateNoTaxableEntriesPurchInvoiceFromVendEntry(VendorLedgerEntry) then
+            exit;
+        if CreateNoTaxableEntriesPurchCreditMemoFromVendEntry(VendorLedgerEntry) then
+            exit;
 
-            CalcFields(Amount);
-            NoTaxableEntry.InitFromVendorEntry(VendorLedgerEntry, Vendor."Country/Region Code", false, Vendor."VAT Registration No.");
-            NoTaxableEntry.Type := NoTaxableEntry.Type::Purchase;
-            InsertNoTaxableEntriesFromGenLedgEntry(NoTaxableEntry, Amount, 1);
-        end;
+        VendorLedgerEntry.CalcFields(Amount);
+        NoTaxableEntry.InitFromVendorEntry(VendorLedgerEntry, Vendor."Country/Region Code", false, Vendor."VAT Registration No.");
+        NoTaxableEntry.Type := NoTaxableEntry.Type::Purchase;
+        InsertNoTaxableEntriesFromGenLedgEntry(NoTaxableEntry, VendorLedgerEntry.Amount, 1);
     end;
 
     [Scope('OnPrem')]
@@ -956,23 +936,21 @@ codeunit 10740 "No Taxable Mgt."
         NoTaxableEntry: Record "No Taxable Entry";
         Customer: Record Customer;
     begin
-        with CustLedgerEntry do begin
-            if not Customer.Get("Customer No.") then
-                exit;
-            if CreateNoTaxableEntriesSalesInvoiceFromCustEntry(CustLedgerEntry) then
-                exit;
-            if CreateNoTaxableEntriesSalesCreditMemoFromCustEntry(CustLedgerEntry) then
-                exit;
-            if CreateNoTaxableEntriesServiceInvoiceFromCustEntry(CustLedgerEntry) then
-                exit;
-            if CreateNoTaxableEntriesServiceCreditMemoFromCustEntry(CustLedgerEntry) then
-                exit;
+        if not Customer.Get(CustLedgerEntry."Customer No.") then
+            exit;
+        if CreateNoTaxableEntriesSalesInvoiceFromCustEntry(CustLedgerEntry) then
+            exit;
+        if CreateNoTaxableEntriesSalesCreditMemoFromCustEntry(CustLedgerEntry) then
+            exit;
+        if CreateNoTaxableEntriesServiceInvoiceFromCustEntry(CustLedgerEntry) then
+            exit;
+        if CreateNoTaxableEntriesServiceCreditMemoFromCustEntry(CustLedgerEntry) then
+            exit;
 
-            CalcFields(Amount);
-            NoTaxableEntry.InitFromCustomerEntry(CustLedgerEntry, Customer."Country/Region Code", false, Customer."VAT Registration No.");
-            NoTaxableEntry.Type := NoTaxableEntry.Type::Sale;
-            InsertNoTaxableEntriesFromGenLedgEntry(NoTaxableEntry, Amount, -1);
-        end;
+        CustLedgerEntry.CalcFields(Amount);
+        NoTaxableEntry.InitFromCustomerEntry(CustLedgerEntry, Customer."Country/Region Code", false, Customer."VAT Registration No.");
+        NoTaxableEntry.Type := NoTaxableEntry.Type::Sale;
+        InsertNoTaxableEntriesFromGenLedgEntry(NoTaxableEntry, CustLedgerEntry.Amount, -1);
     end;
 
     [EventSubscriber(ObjectType::Codeunit, 12, 'OnAfterPostGLAcc', '', false, false)]

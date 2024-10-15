@@ -166,7 +166,6 @@ codeunit 136202 "Marketing Document Logging"
         SalesLine: Record "Sales Line";
         InteractionLogEntry: Record "Interaction Log Entry";
         SalesQuote: Report "Standard Sales - Quote";
-        FilePath: Text[1024];
     begin
         Initialize();
 
@@ -443,7 +442,7 @@ codeunit 136202 "Marketing Document Logging"
         SalesHeaderArchive.SetRange("Document Type", SalesHeader."Document Type");
         SalesHeaderArchive.SetRange("No.", SalesHeader."No.");
         Assert.IsFalse(
-          SalesHeaderArchive.FindFirst,
+          SalesHeaderArchive.FindFirst(),
           StrSubstNo(
             ArchivedSalesHeaderError, SalesHeaderArchive.TableCaption(), SalesHeaderArchive.FieldCaption("Document Type"),
             SalesHeaderArchive."Document Type", SalesHeaderArchive.FieldCaption("No."), SalesHeaderArchive."No."));
@@ -464,7 +463,7 @@ codeunit 136202 "Marketing Document Logging"
         // 1. Create Sales Header and Sales Line with Type Item, Modify Sales & Receivable Setup for Archive Quotes And Order field True,
         // stockout warning to false and Make Order from Sales Quote.
         LibrarySales.SetArchiveOrders(true);
-        LibrarySales.SetArchiveQuoteAlways;
+        LibrarySales.SetArchiveQuoteAlways();
         CreateOrderFromQuote(SalesHeader, true);
 
         // 2. Verify: Verify Sales Header Archive Created.
@@ -498,7 +497,7 @@ codeunit 136202 "Marketing Document Logging"
         SalesHeaderArchive.SetRange("Document Type", SalesHeader."Document Type");
         SalesHeaderArchive.SetRange("No.", SalesHeader."No.");
         Assert.IsFalse(
-          SalesHeaderArchive.FindFirst,
+          SalesHeaderArchive.FindFirst(),
           StrSubstNo(
             ArchivedSalesHeaderError, SalesHeaderArchive.TableCaption(), SalesHeaderArchive.FieldCaption("Document Type"),
             SalesHeaderArchive."Document Type", SalesHeaderArchive.FieldCaption("No."), SalesHeaderArchive."No."));
@@ -726,7 +725,7 @@ codeunit 136202 "Marketing Document Logging"
         // 3. Verify: Verify Status on Sales Header.
         SalesHeader.Get(SalesHeader."Document Type", SalesHeader."No.");
         SalesHeader.TestField(Status, SalesHeader.Status::Released);
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -800,10 +799,10 @@ codeunit 136202 "Marketing Document Logging"
           LibrarySales.PostSalesDocument(SalesHeader, false, true));
 
         // [GIVEN] Current User has Account Receivables Permission
-        LibraryLowerPermissions.SetAccountReceivables;
+        LibraryLowerPermissions.SetAccountReceivables();
 
         // [WHEN] Posted Sales Invoice Report printed
-        PostedSalesInvoice.Print.Invoke;
+        PostedSalesInvoice.Print.Invoke();
 
         // [THEN] Interaction Log Entry for Contact "C" and Document No. "PSI" created
         InteractionLogEntry.SetRange("Contact No.", SalesHeader."Bill-to Contact No.");
@@ -831,10 +830,10 @@ codeunit 136202 "Marketing Document Logging"
           LibrarySales.PostSalesDocument(SalesHeader, false, true));
 
         // [GIVEN] Current User has SALES DOC, POST Permission
-        LibraryLowerPermissions.SetSalesDocsPost;
+        LibraryLowerPermissions.SetSalesDocsPost();
 
         // [WHEN] Posted Sales Invoice Report printed
-        PostedSalesInvoice.Print.Invoke;
+        PostedSalesInvoice.Print.Invoke();
 
         // [THEN] Interaction Log Entry for Contact "C" and Document No. "PSI" created
         InteractionLogEntry.SetRange("Contact No.", SalesHeader."Bill-to Contact No.");
@@ -918,12 +917,12 @@ codeunit 136202 "Marketing Document Logging"
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"Marketing Document Logging");
 
-        LibrarySales.SetCreditWarningsToNoWarnings;
+        LibrarySales.SetCreditWarningsToNoWarnings();
         LibraryERMCountryData.CreateVATData();
         LibraryERMCountryData.CreateGeneralPostingSetupData();
         LibraryERMCountryData.UpdateGeneralPostingSetup();
         ReportSelections.DeleteAll();
-        CreateDefaultReportSelection;
+        CreateDefaultReportSelection();
         LibrarySetupStorage.Save(DATABASE::"Sales & Receivables Setup");
         LibraryTemplates.EnableTemplatesFeature();
 
@@ -1041,7 +1040,7 @@ codeunit 136202 "Marketing Document Logging"
         Initialize();
         LibrarySales.CreateSalesHeader(SalesHeader, DocumentType, '');
         // Use Random because value is not important.
-        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo, LibraryRandom.RandInt(10));
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo(), LibraryRandom.RandInt(10));
     end;
 
     local procedure CreateSalesOrderWithDifferentLocation(var SalesHeader: Record "Sales Header"; CustomerNo: Code[20])
@@ -1050,7 +1049,7 @@ codeunit 136202 "Marketing Document Logging"
         SalesLine: Record "Sales Line";
     begin
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, CustomerNo);
-        SalesHeader.Validate("Location Code", CreateLocation);
+        SalesHeader.Validate("Location Code", CreateLocation());
         SalesHeader.Modify(true);
         LibrarySales.CreateSalesLine(
           SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItem(Item), LibraryRandom.RandDec(100, 2));
@@ -1063,7 +1062,7 @@ codeunit 136202 "Marketing Document Logging"
     begin
         LibrarySales.CreateSalesLine(
           SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItem(Item), LibraryRandom.RandDec(100, 2));
-        SalesLine.Validate("Location Code", CreateLocation);
+        SalesLine.Validate("Location Code", CreateLocation());
         SalesLine.Modify(true);
     end;
 
@@ -1099,7 +1098,7 @@ codeunit 136202 "Marketing Document Logging"
         SalesInvoiceHeader: Record "Sales Invoice Header";
     begin
         SalesInvoiceHeader.Get(PostedDocNo);
-        PostedSalesInvoice.OpenEdit;
+        PostedSalesInvoice.OpenEdit();
         PostedSalesInvoice.GotoRecord(SalesInvoiceHeader);
     end;
 
@@ -1227,7 +1226,7 @@ codeunit 136202 "Marketing Document Logging"
 
     local procedure VerifyArchivedSalesReportWithVAT(VATProdPostingGroup: Code[20]; VATAmount: Decimal)
     begin
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists('VATAmountLine__VAT_Identifier_', VATProdPostingGroup);
         LibraryReportDataset.AssertElementWithValueExists('VATAmountLine__VAT_Amount_', VATAmount);
     end;
@@ -1282,7 +1281,7 @@ codeunit 136202 "Marketing Document Logging"
     [Scope('OnPrem')]
     procedure ConfirmMessageHandlerSpecific(Question: Text[1024]; var Reply: Boolean)
     begin
-        Reply := LibraryVariableStorage.DequeueBoolean;
+        Reply := LibraryVariableStorage.DequeueBoolean();
     end;
 
     [MessageHandler]
@@ -1295,21 +1294,21 @@ codeunit 136202 "Marketing Document Logging"
     [Scope('OnPrem')]
     procedure ArchivedSalesQuoteReportHandler(var ArchivedSalesQuote: TestRequestPage "Archived Sales Quote")
     begin
-        ArchivedSalesQuote.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        ArchivedSalesQuote.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure ArchivedSalesReturnOrderReportHandler(var ArchivedSalesReturnOrder: TestRequestPage "Arch. Sales Return Order")
     begin
-        ArchivedSalesReturnOrder.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        ArchivedSalesReturnOrder.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure SalesInvoiceRequestHandler(var StandardSalesInvoice: TestRequestPage "Standard Sales - Invoice")
     begin
-        StandardSalesInvoice.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        StandardSalesInvoice.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]

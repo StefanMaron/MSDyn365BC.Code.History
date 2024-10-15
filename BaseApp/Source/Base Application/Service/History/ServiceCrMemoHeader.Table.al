@@ -45,6 +45,7 @@ table 5994 "Service Cr.Memo Header"
     DrillDownPageID = "Posted Service Credit Memos";
     LookupPageID = "Posted Service Credit Memos";
     Permissions = TableData "Service Order Allocation" = rimd;
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -785,6 +786,10 @@ table 5994 "Service Cr.Memo Header"
         {
             Caption = 'Allow Line Disc.';
         }
+        field(9001; "Quote No."; Code[20])
+        {
+            Caption = 'Quote No.';
+        }	
         field(10705; "Corrected Invoice No."; Code[20])
         {
             Caption = 'Corrected Invoice No.';
@@ -1135,6 +1140,27 @@ table 5994 "Service Cr.Memo Header"
         ActivityLog: Record "Activity Log";
     begin
         ActivityLog.ShowEntries(Rec.RecordId);
+    end;
+
+    procedure PrintToDocumentAttachment(var ServiceCrMemoHeader: Record "Service Cr.Memo Header")
+    var
+        ShowNotificationAction: Boolean;
+    begin
+        ShowNotificationAction := ServiceCrMemoHeader.Count() = 1;
+        if ServiceCrMemoHeader.FindSet() then
+            repeat
+                DoPrintToDocumentAttachment(ServiceCrMemoHeader, ShowNotificationAction);
+            until ServiceCrMemoHeader.Next() = 0;
+    end;
+
+    local procedure DoPrintToDocumentAttachment(ServiceCrMemoHeader: Record "Service Cr.Memo Header"; ShowNotificationAction: Boolean)
+    var
+        ReportSelections: Record "Report Selections";
+    begin
+        ServiceCrMemoHeader.SetRecFilter();
+
+        ReportSelections.SaveAsDocumentAttachment(
+            ReportSelections.Usage::"SM.Credit Memo".AsInteger(), ServiceCrMemoHeader, ServiceCrMemoHeader."No.", ServiceCrMemoHeader."Bill-to Customer No.", ShowNotificationAction);
     end;
 
     [IntegrationEvent(false, false)]

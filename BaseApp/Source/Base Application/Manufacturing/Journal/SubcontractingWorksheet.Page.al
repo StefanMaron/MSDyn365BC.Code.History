@@ -369,15 +369,6 @@ page 99000886 "Subcontracting Worksheet"
                 actionref(Dimensions_Promoted; Dimensions)
                 {
                 }
-#if not CLEAN21
-                actionref(Card_Promoted; Card)
-                {
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Action is being demoted based on overall low usage.';
-                    ObsoleteTag = '21.0';
-                }
-#endif
             }
             group(Category_Report)
             {

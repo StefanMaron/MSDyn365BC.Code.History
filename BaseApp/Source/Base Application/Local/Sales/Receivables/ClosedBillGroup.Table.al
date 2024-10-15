@@ -15,6 +15,7 @@ table 7000007 "Closed Bill Group"
     Caption = 'Closed Bill Group';
     DrillDownPageID = "Closed Bill Groups List";
     LookupPageID = "Closed Bill Groups List";
+    DataClassification = CustomerContent;
 
     fields
     {

@@ -179,7 +179,7 @@ codeunit 144014 "ERM Make 349 Declaration Disc"
     [Scope('OnPrem')]
     procedure CustomerVendorWarnings349ModalPageHandler(var CustomerVendorWarnings349: TestPage "Customer/Vendor Warnings 349")
     begin
-        CustomerVendorWarnings349.Process.Invoke;
+        CustomerVendorWarnings349.Process.Invoke();
     end;
 
     [RequestPageHandler]
@@ -197,7 +197,7 @@ codeunit 144014 "ERM Make 349 Declaration Disc"
         Make349Declaration.DeclarationNumber.SetValue(GenerateRandomCode(13));  // Declaration Number required of length 13.
         Make349Declaration.CompanyCountryRegion.SetValue(CountryRegion.Code);
         Make349Declaration.DeclarationMediaType.SetValue(DeclarationMediaType::"Physical support");
-        Make349Declaration.OK.Invoke;
+        Make349Declaration.OK().Invoke();
     end;
 
     [MessageHandler]

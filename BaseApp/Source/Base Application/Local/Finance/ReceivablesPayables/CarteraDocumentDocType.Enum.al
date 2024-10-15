@@ -10,5 +10,6 @@ enum 7000025 "Cartera Document Doc. Type"
     AssignmentCompatibility = true;
 
     value(0; "Invoice") { Caption = 'Invoice'; }
+    value(1; "Credit Memo") { Caption = 'Credit Memo'; }
     value(2; "Bill") { Caption = 'Bill'; }
 }

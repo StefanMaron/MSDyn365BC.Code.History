@@ -12,6 +12,7 @@ table 7000019 "Fee Range"
     Caption = 'Fee Range';
     DrillDownPageID = "Fee Ranges";
     LookupPageID = "Fee Ranges";
+    DataClassification = CustomerContent;
 
     fields
     {

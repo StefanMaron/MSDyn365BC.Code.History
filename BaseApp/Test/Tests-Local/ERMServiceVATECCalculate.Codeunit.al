@@ -74,7 +74,7 @@ codeunit 144124 "ERM Service VAT EC Calculate"
         Quantity := LibraryRandom.RandInt(10);
         UnitPrice := LibraryRandom.RandInt(100);
         PostServiceDocumentAndVerifyGLVATEntry(
-          ServiceHeader."Document Type"::Invoice, CreateCurrency, Quantity, UnitPrice, -Quantity * UnitPrice);
+          ServiceHeader."Document Type"::Invoice, CreateCurrency(), Quantity, UnitPrice, -Quantity * UnitPrice);
     end;
 
     [Test]
@@ -89,7 +89,7 @@ codeunit 144124 "ERM Service VAT EC Calculate"
         Quantity := LibraryRandom.RandInt(10);
         UnitPrice := LibraryRandom.RandInt(10);
         PostServiceDocumentAndVerifyGLVATEntry(
-          ServiceHeader."Document Type"::"Credit Memo", CreateCurrency, Quantity, UnitPrice, Quantity * UnitPrice);
+          ServiceHeader."Document Type"::"Credit Memo", CreateCurrency(), Quantity, UnitPrice, Quantity * UnitPrice);
     end;
 
     [Test]
@@ -240,22 +240,22 @@ codeunit 144124 "ERM Service VAT EC Calculate"
         CreateAndPostServiceDocument(ServiceLine, ServiceLine."Document Type"::Invoice);
         DocumentNo := FindServiceInvoiceHeader(ServiceLine."Customer No.");
         VATAmount := ServiceLine.Amount * (ServiceLine."VAT %" + ServiceLine."EC %") / 100;
-        PostedServiceInvoice.OpenView;
+        PostedServiceInvoice.OpenView();
         PostedServiceInvoice.FILTER.SetFilter("No.", DocumentNo);
-        ServiceInvoiceStatistics.Trap;
+        ServiceInvoiceStatistics.Trap();
 
         // Exercise.
-        PostedServiceInvoice.Statistics.Invoke;
+        PostedServiceInvoice.Statistics.Invoke();
 
         // Verify: Verify Amount, VAT Amount and Amount Including VAT on Service Invoice Statistics.
         Assert.AreNearlyEqual(
-          ServiceLine.Amount, ServiceInvoiceStatistics.Amount.AsDEcimal, LibraryERM.GetAmountRoundingPrecision, ValueMustBeEqualMsg);
+          ServiceLine.Amount, ServiceInvoiceStatistics.Amount.AsDecimal(), LibraryERM.GetAmountRoundingPrecision(), ValueMustBeEqualMsg);
         Assert.AreNearlyEqual(
-          VATAmount, ServiceInvoiceStatistics.VATAmount.AsDEcimal, LibraryERM.GetAmountRoundingPrecision, ValueMustBeEqualMsg);
-        ServiceInvoiceStatistics.Subform.First;
+          VATAmount, ServiceInvoiceStatistics.VATAmount.AsDecimal(), LibraryERM.GetAmountRoundingPrecision(), ValueMustBeEqualMsg);
+        ServiceInvoiceStatistics.Subform.First();
         Assert.AreNearlyEqual(
-          ServiceLine.Amount + VATAmount, ServiceInvoiceStatistics.Subform."Amount Including VAT".AsDEcimal,
-          LibraryERM.GetAmountRoundingPrecision, ValueMustBeEqualMsg);
+          ServiceLine.Amount + VATAmount, ServiceInvoiceStatistics.Subform."Amount Including VAT".AsDecimal(),
+          LibraryERM.GetAmountRoundingPrecision(), ValueMustBeEqualMsg);
     end;
 
     [Test]
@@ -274,22 +274,22 @@ codeunit 144124 "ERM Service VAT EC Calculate"
         CreateAndPostServiceDocument(ServiceLine, ServiceLine."Document Type"::"Credit Memo");
         DocumentNo := FindServiceCreditMemo(ServiceLine."Customer No.");
         VATAmount := ServiceLine.Amount * (ServiceLine."VAT %" + ServiceLine."EC %") / 100;
-        PostedServiceCreditMemos.OpenView;
+        PostedServiceCreditMemos.OpenView();
         PostedServiceCreditMemos.FILTER.SetFilter("No.", DocumentNo);
-        ServiceCreditMemoStatistics.Trap;
+        ServiceCreditMemoStatistics.Trap();
 
         // Exercise.
-        PostedServiceCreditMemos.Statistics.Invoke;
+        PostedServiceCreditMemos.Statistics.Invoke();
 
         // Verify: Verify Amount, VAT Amount and Amount Including VAT on Service Credit Memo Statistics.
         Assert.AreNearlyEqual(
-          ServiceLine.Amount, ServiceCreditMemoStatistics.Amount.AsDEcimal, LibraryERM.GetAmountRoundingPrecision, ValueMustBeEqualMsg);
+          ServiceLine.Amount, ServiceCreditMemoStatistics.Amount.AsDecimal(), LibraryERM.GetAmountRoundingPrecision(), ValueMustBeEqualMsg);
         Assert.AreNearlyEqual(
-          VATAmount, ServiceCreditMemoStatistics.VATAmount.AsDEcimal, LibraryERM.GetAmountRoundingPrecision, ValueMustBeEqualMsg);
-        ServiceCreditMemoStatistics.Subform.First;
+          VATAmount, ServiceCreditMemoStatistics.VATAmount.AsDecimal(), LibraryERM.GetAmountRoundingPrecision(), ValueMustBeEqualMsg);
+        ServiceCreditMemoStatistics.Subform.First();
         Assert.AreNearlyEqual(
-          ServiceLine.Amount + VATAmount, ServiceCreditMemoStatistics.Subform."Amount Including VAT".AsDEcimal,
-          LibraryERM.GetAmountRoundingPrecision, ValueMustBeEqualMsg);
+          ServiceLine.Amount + VATAmount, ServiceCreditMemoStatistics.Subform."Amount Including VAT".AsDecimal(),
+          LibraryERM.GetAmountRoundingPrecision(), ValueMustBeEqualMsg);
     end;
 
     [Test]
@@ -352,7 +352,7 @@ codeunit 144124 "ERM Service VAT EC Calculate"
         // Test to verify G/L entry after posting Service Invoice with Currency and Normal VAT.
 
         // Setup: Create Service Credit Memo. Update Additional Reporting Currency on General Ledger Setup.
-        CurrencyCode := CreateCurrency;
+        CurrencyCode := CreateCurrency();
         OldAdditionalReportingCurrency := UpdateAdditionalReportingCurrOnGeneralLedgerSetup(CurrencyCode);
         CreateServiceDocumentAndUpdateGLAccount(
           ServiceLine, CurrencyCode, DocumentType, ServiceLine."VAT Calculation Type"::"Normal VAT",
@@ -596,9 +596,9 @@ codeunit 144124 "ERM Service VAT EC Calculate"
         GLEntry.SetRange("Document No.", DocumentNo);
         GLEntry.SetRange("G/L Account No.", GLAccountNo);
         GLEntry.FindFirst();
-        Assert.AreNearlyEqual(Amount, GLEntry.Amount, LibraryERM.GetAmountRoundingPrecision, ValueMustBeEqualMsg);
+        Assert.AreNearlyEqual(Amount, GLEntry.Amount, LibraryERM.GetAmountRoundingPrecision(), ValueMustBeEqualMsg);
         Assert.AreNearlyEqual(
-          AdditionalCurrencyAmount, GLEntry."Additional-Currency Amount", LibraryERM.GetAmountRoundingPrecision, ValueMustBeEqualMsg);
+          AdditionalCurrencyAmount, GLEntry."Additional-Currency Amount", LibraryERM.GetAmountRoundingPrecision(), ValueMustBeEqualMsg);
     end;
 
     local procedure VerifyVATEntry(DocumentNo: Code[20]; Base: Decimal; Amount: Decimal; AdditionalCurrencyAmount: Decimal; AdditionalCurrencyBase: Decimal)
@@ -607,12 +607,12 @@ codeunit 144124 "ERM Service VAT EC Calculate"
     begin
         VATEntry.SetRange("Document No.", DocumentNo);
         VATEntry.FindFirst();
-        Assert.AreNearlyEqual(Base, VATEntry.Base, LibraryERM.GetAmountRoundingPrecision, ValueMustBeEqualMsg);
-        Assert.AreNearlyEqual(Amount, VATEntry.Amount, LibraryERM.GetAmountRoundingPrecision, ValueMustBeEqualMsg);
+        Assert.AreNearlyEqual(Base, VATEntry.Base, LibraryERM.GetAmountRoundingPrecision(), ValueMustBeEqualMsg);
+        Assert.AreNearlyEqual(Amount, VATEntry.Amount, LibraryERM.GetAmountRoundingPrecision(), ValueMustBeEqualMsg);
         Assert.AreNearlyEqual(
-          AdditionalCurrencyAmount, VATEntry."Additional-Currency Amount", LibraryERM.GetAmountRoundingPrecision, ValueMustBeEqualMsg);
+          AdditionalCurrencyAmount, VATEntry."Additional-Currency Amount", LibraryERM.GetAmountRoundingPrecision(), ValueMustBeEqualMsg);
         Assert.AreNearlyEqual(
-          AdditionalCurrencyBase, VATEntry."Additional-Currency Base", LibraryERM.GetAmountRoundingPrecision, ValueMustBeEqualMsg);
+          AdditionalCurrencyBase, VATEntry."Additional-Currency Base", LibraryERM.GetAmountRoundingPrecision(), ValueMustBeEqualMsg);
     end;
 
     local procedure VerifyVATEntryTotal(DocumentNo: Code[20]; Base: Decimal; Amount: Decimal; AdditionalCurrencyAmount: Decimal; AdditionalCurrencyBase: Decimal)
@@ -621,12 +621,12 @@ codeunit 144124 "ERM Service VAT EC Calculate"
     begin
         VATEntry.SetRange("Document No.", DocumentNo);
         VATEntry.CalcSums(Base, Amount, "Additional-Currency Base", "Additional-Currency Amount");
-        Assert.AreNearlyEqual(Base, VATEntry.Base, LibraryERM.GetAmountRoundingPrecision, ValueMustBeEqualMsg);
-        Assert.AreNearlyEqual(Amount, VATEntry.Amount, LibraryERM.GetAmountRoundingPrecision, ValueMustBeEqualMsg);
+        Assert.AreNearlyEqual(Base, VATEntry.Base, LibraryERM.GetAmountRoundingPrecision(), ValueMustBeEqualMsg);
+        Assert.AreNearlyEqual(Amount, VATEntry.Amount, LibraryERM.GetAmountRoundingPrecision(), ValueMustBeEqualMsg);
         Assert.AreNearlyEqual(
-          AdditionalCurrencyAmount, VATEntry."Additional-Currency Amount", LibraryERM.GetAmountRoundingPrecision, ValueMustBeEqualMsg);
+          AdditionalCurrencyAmount, VATEntry."Additional-Currency Amount", LibraryERM.GetAmountRoundingPrecision(), ValueMustBeEqualMsg);
         Assert.AreNearlyEqual(
-          AdditionalCurrencyBase, VATEntry."Additional-Currency Base", LibraryERM.GetAmountRoundingPrecision, ValueMustBeEqualMsg);
+          AdditionalCurrencyBase, VATEntry."Additional-Currency Base", LibraryERM.GetAmountRoundingPrecision(), ValueMustBeEqualMsg);
     end;
 }
 

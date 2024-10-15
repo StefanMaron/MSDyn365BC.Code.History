@@ -54,7 +54,7 @@ codeunit 144039 "UT PAG Debit Credit"
 
         // Setup.
         // Exercise.
-        PaymentJournal.OpenEdit;
+        PaymentJournal.OpenEdit();
 
         // Verify: Verify Debit Amount and Credit Amount Captions on Payment Journal Page.
         VerifyAmountCaptionOnPage(PaymentJournal."Credit Amount".Caption, PaymentJournal."Debit Amount".Caption);
@@ -71,10 +71,10 @@ codeunit 144039 "UT PAG Debit Credit"
         Initialize();
 
         // Setup.
-        PaymentJournal.OpenEdit;
+        PaymentJournal.OpenEdit();
 
         // Exercise and verify
-        Assert.AreEqual(PaymentJournal.Amount.Visible, false, 'Field Amount should not be Visible in Payment Journal');
+        Assert.AreEqual(PaymentJournal.Amount.Visible(), false, 'Field Amount should not be Visible in Payment Journal');
         PaymentJournal.Close();
     end;
 
@@ -89,7 +89,7 @@ codeunit 144039 "UT PAG Debit Credit"
 
         // Setup.
         // Exercise.
-        CashReceiptJournal.OpenEdit;
+        CashReceiptJournal.OpenEdit();
 
         // Verify: Verify Debit Amount and Credit Amount Captions on Cash Receipt Journal Page.
         VerifyAmountCaptionOnPage(CashReceiptJournal."Credit Amount".Caption, CashReceiptJournal."Debit Amount".Caption);
@@ -106,10 +106,10 @@ codeunit 144039 "UT PAG Debit Credit"
         Initialize();
 
         // Setup.
-        CashReceiptJournal.OpenEdit;
+        CashReceiptJournal.OpenEdit();
 
         // Exercise and verify
-        Assert.AreEqual(CashReceiptJournal.Amount.Visible, false, 'Field Amount should not be Visible in Cash Receipt Journal');
+        Assert.AreEqual(CashReceiptJournal.Amount.Visible(), false, 'Field Amount should not be Visible in Cash Receipt Journal');
         CashReceiptJournal.Close();
     end;
 
@@ -124,7 +124,7 @@ codeunit 144039 "UT PAG Debit Credit"
 
         // Setup.
         // Exercise.
-        PurchaseJournal.OpenEdit;
+        PurchaseJournal.OpenEdit();
 
         // Verify: Verify Debit Amount and Credit Amount Captions on Purchase Journal Page.
         VerifyAmountCaptionOnPage(PurchaseJournal."Credit Amount".Caption, PurchaseJournal."Debit Amount".Caption);
@@ -141,10 +141,10 @@ codeunit 144039 "UT PAG Debit Credit"
         Initialize();
 
         // Setup.
-        PurchaseJournal.OpenEdit;
+        PurchaseJournal.OpenEdit();
 
         // Exercise and verify
-        Assert.AreEqual(PurchaseJournal.Amount.Visible, false, 'Field Amount should not be Visible in Cash Receipt Journal');
+        Assert.AreEqual(PurchaseJournal.Amount.Visible(), false, 'Field Amount should not be Visible in Cash Receipt Journal');
         PurchaseJournal.Close();
     end;
 
@@ -159,7 +159,7 @@ codeunit 144039 "UT PAG Debit Credit"
 
         // Setup.
         // Exercise.
-        SalesJournal.OpenEdit;
+        SalesJournal.OpenEdit();
 
         // Verify: Verify Debit Amount and Credit Amount Captions on Sales Journal Page.
         VerifyAmountCaptionOnPage(SalesJournal."Credit Amount".Caption, SalesJournal."Debit Amount".Caption);
@@ -176,10 +176,10 @@ codeunit 144039 "UT PAG Debit Credit"
         Initialize();
 
         // Setup.
-        SalesJournal.OpenEdit;
+        SalesJournal.OpenEdit();
 
         // Exercise and verify
-        Assert.AreEqual(SalesJournal.Amount.Visible, false, 'Field Amount should not be Visible in Sales Journal');
+        Assert.AreEqual(SalesJournal.Amount.Visible(), false, 'Field Amount should not be Visible in Sales Journal');
         SalesJournal.Close();
     end;
 
@@ -194,7 +194,7 @@ codeunit 144039 "UT PAG Debit Credit"
 
         // Setup.
         // Exercise.
-        GeneralJournal.OpenEdit;
+        GeneralJournal.OpenEdit();
 
         // Verify: Verify Debit Amount and Credit Amount Captions on General Journal Page.
         VerifyAmountCaptionOnPage(GeneralJournal."Credit Amount".Caption, GeneralJournal."Debit Amount".Caption);
@@ -211,10 +211,10 @@ codeunit 144039 "UT PAG Debit Credit"
         Initialize();
 
         // Setup.
-        GeneralJournal.OpenEdit;
+        GeneralJournal.OpenEdit();
 
         // Exercise and verify
-        Assert.AreEqual(GeneralJournal.Amount.Visible, false, 'Field Amount should not be Visible in General Journal');
+        Assert.AreEqual(GeneralJournal.Amount.Visible(), false, 'Field Amount should not be Visible in General Journal');
         GeneralJournal.Close();
     end;
 
@@ -230,7 +230,7 @@ codeunit 144039 "UT PAG Debit Credit"
 
         // Setup.
         // Exercise.
-        RecurringGeneralJournal.OpenEdit;
+        RecurringGeneralJournal.OpenEdit();
 
         // Verify: Verify Debit Amount and Credit Amount Captions on Recurring General Journal Page.
         VerifyAmountCaptionOnPage(RecurringGeneralJournal."Credit Amount".Caption, RecurringGeneralJournal."Debit Amount".Caption);
@@ -248,10 +248,10 @@ codeunit 144039 "UT PAG Debit Credit"
         Initialize();
 
         // Setup.
-        RecurringGeneralJournal.OpenEdit;
+        RecurringGeneralJournal.OpenEdit();
 
         // Exercise verify
-        Assert.AreEqual(RecurringGeneralJournal.Amount.Visible, false, 'Field Amount should not be Visible in Recurring General Journal');
+        Assert.AreEqual(RecurringGeneralJournal.Amount.Visible(), false, 'Field Amount should not be Visible in Recurring General Journal');
         RecurringGeneralJournal.Close();
     end;
 
@@ -266,7 +266,7 @@ codeunit 144039 "UT PAG Debit Credit"
 
         // Setup.
         // Exercise.
-        ChartOfAccounts.OpenEdit;
+        ChartOfAccounts.OpenEdit();
 
         // Verify: Verify Debit Amount and Credit Amount Captions on Chart Of Accounts Page.
         VerifyAmountCaptionOnPage(ChartOfAccounts."Credit Amount".Caption, ChartOfAccounts."Debit Amount".Caption);
@@ -284,7 +284,7 @@ codeunit 144039 "UT PAG Debit Credit"
 
         // Setup.
         // Exercise.
-        GeneralLedgerEntries.OpenEdit;
+        GeneralLedgerEntries.OpenEdit();
 
         // Verify: Verify Debit Amount and Credit Amount Captions on General Ledger Entries Page.
         VerifyAmountCaptionOnPage(GeneralLedgerEntries."Credit Amount".Caption, GeneralLedgerEntries."Debit Amount".Caption);
@@ -301,10 +301,10 @@ codeunit 144039 "UT PAG Debit Credit"
         Initialize();
 
         // Setup.
-        GeneralLedgerEntries.OpenEdit;
+        GeneralLedgerEntries.OpenEdit();
 
         // Exercise and verify
-        Assert.AreEqual(GeneralLedgerEntries.Amount.Visible, false, 'Field Amount should not be Visible in General Ledger Entries');
+        Assert.AreEqual(GeneralLedgerEntries.Amount.Visible(), false, 'Field Amount should not be Visible in General Ledger Entries');
         GeneralLedgerEntries.Close();
     end;
 

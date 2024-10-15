@@ -264,14 +264,12 @@ report 10746 "Not Fully Applied Cash Pmts."
     var
         GLEntry: Record "G/L Entry";
     begin
-        with GLEntry do begin
-            Reset();
-            SetRange("Transaction No.", CustLedgerEntry."Transaction No.");
-            SetFilter("G/L Account No.", FilterString);
-            if FindFirst() then
-                exit(true);
-            exit(false);
-        end;
+        GLEntry.Reset();
+        GLEntry.SetRange("Transaction No.", CustLedgerEntry."Transaction No.");
+        GLEntry.SetFilter("G/L Account No.", FilterString);
+        if GLEntry.FindFirst() then
+            exit(true);
+        exit(false);
     end;
 }
 

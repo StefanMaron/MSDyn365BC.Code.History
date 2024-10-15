@@ -1,4 +1,4 @@
-﻿namespace Microsoft.Sales.FinanceCharge;
+namespace Microsoft.Sales.FinanceCharge;
 
 using Microsoft.CRM.Contact;
 using Microsoft.Finance.Currency;
@@ -804,7 +804,6 @@ report 123 "Finance Charge Memo - Test"
         Text002: Label '%1 must be %2.';
         Text003: Label '%1 %2 does not exist.';
         Text005: Label 'Total %1';
-        Text006: Label 'Total %1 Incl. VAT';
         Text007: Label 'Page %1';
         Text008: Label 'Finance Charge Memo: %1';
         Text009: Label '%1 must be positive or 0.';
@@ -832,7 +831,6 @@ report 123 "Finance Charge Memo - Test"
         VATAmountLine__Amount_Including_VAT_EC__Control73CaptionLbl: Label 'Amount Including VAT';
         EC__CaptionLbl: Label 'EC %';
         EC_AmountCaptionLbl: Label 'EC Amount';
-        VATAmountLine__VAT_EC_Base_CaptionLbl: Label 'Continued';
         VATAmountLine__VAT_EC_Base__Control52CaptionLbl: Label 'Continued';
         VATAmountLine__VAT_EC_Base__Control49CaptionLbl: Label 'Total';
         VALVATAmountLCY_Control92CaptionLbl: Label 'VAT Amount';

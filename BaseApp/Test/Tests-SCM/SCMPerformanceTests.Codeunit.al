@@ -122,11 +122,11 @@ codeunit 137380 "SCM Performance Tests"
         CreateOutputAndSubassemblyItems(OutputItem, SubasmItem);
 
         // [WHEN] Subassembly item is produced and consumed in the same production order
-        CodeCoverageMgt.StartApplicationCoverage;
+        CodeCoverageMgt.StartApplicationCoverage();
         SmallNoResult := PostTrackedOutputAndConsumption(OutputItem, SubasmItem, SmallNoOfItems);
         MediumNoResult := PostTrackedOutputAndConsumption(OutputItem, SubasmItem, MediumNoOfItems);
         LargeNoResult := PostTrackedOutputAndConsumption(OutputItem, SubasmItem, LargeNoOfItems);
-        CodeCoverageMgt.StopApplicationCoverage;
+        CodeCoverageMgt.StopApplicationCoverage();
 
         // [THEN] Function computational complexity is linear
         Assert.IsTrue(
@@ -146,7 +146,7 @@ codeunit 137380 "SCM Performance Tests"
         // [SCENARIO 362340] Item tracking performance is better than linear when large negative surplus is posted
         Initialize();
 
-        CodeCoverageMgt.StartApplicationCoverage;
+        CodeCoverageMgt.StartApplicationCoverage();
 
         Argument[1] := 100;
         Argument[2] := 500;
@@ -158,7 +158,7 @@ codeunit 137380 "SCM Performance Tests"
         FunctionValue[2] := CreatePostSalesOrder(Argument[2]);
         FunctionValue[3] := CreatePostSalesOrder(Argument[3]);
 
-        CodeCoverageMgt.StopApplicationCoverage;
+        CodeCoverageMgt.StopApplicationCoverage();
 
         // [THEN] Function computational complexity is O(LogX)
         Assert.IsTrue(
@@ -200,9 +200,9 @@ codeunit 137380 "SCM Performance Tests"
         FindProdOrderLine(ProdOrderLine[2], ProdOrder, Item."No.");
 
         // [WHEN] Post consumption in production order "P2"
-        CodeCoverageMgt.StartApplicationCoverage;
+        CodeCoverageMgt.StartApplicationCoverage();
         LibraryPatterns.POSTConsumption(ProdOrderLine[2], Item, '', '', Qty, WorkDate(), Item."Unit Cost");
-        CodeCoverageMgt.StopApplicationCoverage;
+        CodeCoverageMgt.StopApplicationCoverage();
         NoOfHits :=
           GetCodeCoverageForObject(
             CodeCoverage."Object Type"::Codeunit, CODEUNIT::"Item Jnl.-Post Line", 'ItemApplnEntry.CheckIsCyclicalLoop');
@@ -223,12 +223,12 @@ codeunit 137380 "SCM Performance Tests"
         // [SCENARIO 378207] Invoice disount should be recalculated only once per document when copying lines from purchase receipt
 
         Initialize();
-        EnablePurchInvDiscountCalculation;
+        EnablePurchInvDiscountCalculation();
 
         // [GIVEN] Create purchase order, quantity = "X"
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, '');
         LibraryPurchase.CreatePurchaseLine(
-          PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, LibraryInventory.CreateItemNo, LibraryRandom.RandInt(10));
+          PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, LibraryInventory.CreateItemNo(), LibraryRandom.RandInt(10));
         PurchaseLine.Validate("Qty. to Receive", PurchaseLine.Quantity / 2);
         PurchaseLine.Modify(true);
 
@@ -237,12 +237,12 @@ codeunit 137380 "SCM Performance Tests"
         // [GIVEN] Receive remaining quantity
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false);
 
-        CodeCoverageMgt.StartApplicationCoverage;
+        CodeCoverageMgt.StartApplicationCoverage();
         // [GIVEN] Create purchase invoice
         // [WHEN] Run "Get Receipt Lines"
         GetPurchaseReceiptLines(PurchaseHeader."No.", PurchaseHeader."Buy-from Vendor No.");
 
-        CodeCoverageMgt.StopApplicationCoverage;
+        CodeCoverageMgt.StopApplicationCoverage();
         NoOfHits :=
           GetCodeCoverageForObject(
             CodeCoverage."Object Type"::Codeunit, CODEUNIT::"Purch.-Calc.Discount", 'CalculateInvoiceDiscount');
@@ -276,12 +276,12 @@ codeunit 137380 "SCM Performance Tests"
 
         ShipmentDate := CreateSalesOrderWithOneLine(SalesHeader, SalesLine, Item."No.", SalesQty);
 
-        CodeCoverageMgt.StartApplicationCoverage;
+        CodeCoverageMgt.StartApplicationCoverage();
 
         // [WHEN] Calculate Regenerative Plan for Planning Worksheet for demand
         CalcRegenPlanForPlanWkshWithItemFilterAndPeriod(Item."No.", WorkDate(), ShipmentDate);
 
-        CodeCoverageMgt.StopApplicationCoverage;
+        CodeCoverageMgt.StopApplicationCoverage();
         NoOfHits :=
           GetCodeCoverageForObject(CodeCoverage."Object Type"::Codeunit, CODEUNIT::"Inventory Profile Offsetting", 'PlngLnMgt.Calculate');
 
@@ -310,14 +310,14 @@ codeunit 137380 "SCM Performance Tests"
         ItemTrackingCode.Validate("Lot Warehouse Tracking", true);
         ItemTrackingCode.Modify(true);
 
-        LibraryInventory.CreateTrackedItem(Item, LibraryUtility.GetGlobalNoSeriesCode, '', ItemTrackingCode.Code);
+        LibraryInventory.CreateTrackedItem(Item, LibraryUtility.GetGlobalNoSeriesCode(), '', ItemTrackingCode.Code);
         LibraryWarehouse.CreateLocationWMS(Location, true, true, false, true, false);
 
         NoOfLines[1] := 1;
         NoOfLines[2] := 5;
         NoOfLines[3] := 10;
 
-        CodeCoverageMgt.StartApplicationCoverage;
+        CodeCoverageMgt.StartApplicationCoverage();
         PostWhseReceiptFromPurchaseOrder(Location.Code, Item."No.", NoOfLines[1]);
         NoOfHits[1] :=
           GetCodeCoverageForObject(CodeCoverage."Object Type"::Codeunit, CODEUNIT::"Item Tracking Management", 'InsertWhseItemTrkgLines');
@@ -332,7 +332,7 @@ codeunit 137380 "SCM Performance Tests"
           GetCodeCoverageForObject(CodeCoverage."Object Type"::Codeunit, CODEUNIT::"Item Tracking Management", 'InsertWhseItemTrkgLines') -
           NoOfHits[1] - NoOfHits[2];
 
-        CodeCoverageMgt.StopApplicationCoverage;
+        CodeCoverageMgt.StopApplicationCoverage();
 
         Assert.IsTrue(
           LibraryCalcComplexity.IsLinear(NoOfLines[1], NoOfLines[2], NoOfLines[3], NoOfHits[1], NoOfHits[2], NoOfHits[3]), NotLinearCCErr);
@@ -363,7 +363,7 @@ codeunit 137380 "SCM Performance Tests"
 
         // [GIVEN] Purchase order for the item "I" on a WMS location
         LibraryPurchase.CreatePurchaseDocumentWithItem(
-          PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo,
+          PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo(),
           Item."No.", 1, Location.Code, WorkDate());
 
         // [GIVEN] Create a warehouse receipt
@@ -374,9 +374,9 @@ codeunit 137380 "SCM Performance Tests"
             DATABASE::"Purchase Line", PurchaseHeader."Document Type".AsInteger(), PurchaseHeader."No."));
 
         // [WHEN] Post the warehouse receipt
-        CodeCoverageMgt.StartApplicationCoverage;
+        CodeCoverageMgt.StartApplicationCoverage();
         LibraryWarehouse.PostWhseReceipt(WarehouseReceiptHeader);
-        CodeCoverageMgt.StopApplicationCoverage;
+        CodeCoverageMgt.StopApplicationCoverage();
         NoOfHits := GetCodeCoverageForObject(CodeCoverage."Object Type"::Codeunit, CODEUNIT::"Create Put-away", 'CalcCubageAndWeight');
 
         // [THEN] Calculation of available cuabage and weight is not called
@@ -408,15 +408,15 @@ codeunit 137380 "SCM Performance Tests"
         LibraryInventory.CreateItem(Item);
 
         // [GIVEN] Demand (sales order) for item "ItemB"
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo());
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", 1);
 
         CalcAvailabilityOverview.SetParam(DemandType::Sales, SalesHeader."No.");
 
         // [WHEN] Run "Demand Overview"
-        CodeCoverageMgt.StartApplicationCoverage;
+        CodeCoverageMgt.StartApplicationCoverage();
         CalcAvailabilityOverview.Run(TempAvailCalcOverview);
-        CodeCoverageMgt.StopApplicationCoverage;
+        CodeCoverageMgt.StopApplicationCoverage();
         NoOfHits :=
           GetCodeCoverageForObject(CodeCoverage."Object Type"::Codeunit, CODEUNIT::"Calc. Availability Overview", 'EntriesExist');
 
@@ -450,12 +450,12 @@ codeunit 137380 "SCM Performance Tests"
         LibraryInventory.CreateItem(Item);
         LibraryInventory.CreateItemAttributeValueMapping(DATABASE::Item, Item."No.", ItemAttribute.ID, ItemAttributeValue.ID);
 
-        ItemCard.OpenView;
+        ItemCard.OpenView();
         ItemCard.GotoKey(Item."No.");
 
-        CodeCoverageMgt.StartApplicationCoverage;
-        ItemCard.Attributes.Invoke;
-        CodeCoverageMgt.StopApplicationCoverage;
+        CodeCoverageMgt.StartApplicationCoverage();
+        ItemCard.Attributes.Invoke();
+        CodeCoverageMgt.StopApplicationCoverage();
 
         NoOfHitsOneItem :=
           GetCodeCoverageForObject(CodeCoverage."Object Type"::Table, DATABASE::"Item Attribute Value", '');
@@ -471,9 +471,9 @@ codeunit 137380 "SCM Performance Tests"
         // [WHEN] Open the attribue editor for one of the items and change its value
         ItemCard.GotoKey(Item."No.");
 
-        CodeCoverageMgt.StartApplicationCoverage;
-        ItemCard.Attributes.Invoke;
-        CodeCoverageMgt.StopApplicationCoverage;
+        CodeCoverageMgt.StartApplicationCoverage();
+        ItemCard.Attributes.Invoke();
+        CodeCoverageMgt.StopApplicationCoverage();
 
         NoOfHitsManyItems :=
           GetCodeCoverageForObject(CodeCoverage."Object Type"::Table, DATABASE::"Item Attribute Value", '');
@@ -518,9 +518,9 @@ codeunit 137380 "SCM Performance Tests"
         TempItemAttributeValue.Insert();
 
         // [WHEN] Delete attribute value mapping for the category "C"
-        CodeCoverageMgt.StartApplicationCoverage;
+        CodeCoverageMgt.StartApplicationCoverage();
         ItemAttributeManagement.DeleteCategoryItemsAttributeValueMapping(TempItemAttributeValue, ItemCategory.Code);
-        CodeCoverageMgt.StopApplicationCoverage;
+        CodeCoverageMgt.StopApplicationCoverage();
 
         NoOfHitsOneItem :=
           GetCodeCoverageForObject(CodeCoverage."Object Type"::Table, DATABASE::"Item Attribute Value Mapping", '');
@@ -533,9 +533,9 @@ codeunit 137380 "SCM Performance Tests"
         end;
 
         // [WHEN] Delete attribute value mapping for the category "C"
-        CodeCoverageMgt.StartApplicationCoverage;
+        CodeCoverageMgt.StartApplicationCoverage();
         ItemAttributeManagement.DeleteCategoryItemsAttributeValueMapping(TempItemAttributeValue, ItemCategory.Code);
-        CodeCoverageMgt.StopApplicationCoverage;
+        CodeCoverageMgt.StopApplicationCoverage();
 
         NoOfHitsManyItems :=
           GetCodeCoverageForObject(CodeCoverage."Object Type"::Table, DATABASE::"Item Attribute Value Mapping", '');
@@ -560,16 +560,16 @@ codeunit 137380 "SCM Performance Tests"
         LibraryInventory.CreateItem(Item);
         Item.Validate("Reordering Policy", Item."Reordering Policy"::"Fixed Reorder Qty.");
         Item.Validate("Reorder Quantity", LibraryRandom.RandDec(100, 2));
-        Item.Validate("Vendor No.", LibraryPurchase.CreateVendorNo);
+        Item.Validate("Vendor No.", LibraryPurchase.CreateVendorNo());
         Item.Modify(true);
 
-        CodeCoverageMgt.StartApplicationCoverage;
+        CodeCoverageMgt.StartApplicationCoverage();
 
         // [WHEN] Calculate requsition plan for the item
         LibraryPlanning.CalcRequisitionPlanForReqWksh(Item, WorkDate(), WorkDate());
 
         // [THEN] New requisition line is created, UpdateDescription was called once
-        CodeCoverageMgt.StopApplicationCoverage;
+        CodeCoverageMgt.StopApplicationCoverage();
         NoOfHits :=
           GetCodeCoverageForObject(CodeCoverage."Object Type"::Table, DATABASE::"Requisition Line", 'UpdateDescription;');
 
@@ -597,7 +597,7 @@ codeunit 137380 "SCM Performance Tests"
         // [GIVEN] Serial no.-tracked item "I" with "Order" reordering policy.
         LibraryItemTracking.CreateSerialItem(Item);
         Item.Validate("Reordering Policy", Item."Reordering Policy"::Order);
-        Item.Validate("Vendor No.", LibraryPurchase.CreateVendorNo);
+        Item.Validate("Vendor No.", LibraryPurchase.CreateVendorNo());
         Item.Modify(true);
 
         // [GIVEN] Transfer order for 1000 pcs of "I".
@@ -612,20 +612,20 @@ codeunit 137380 "SCM Performance Tests"
         // [GIVEN] The planning engine creates a purchase and establishes an order-to-order link to the transfer.
         FindPurchaseLine(PurchaseLine, Item."No.");
 
-        CodeCoverageMgt.StartApplicationCoverage;
+        CodeCoverageMgt.StartApplicationCoverage();
 
         // [WHEN] Open item tracking lines on the purchase line and assign 1000 serial nos.
         LibraryVariableStorage.Enqueue(DummyReservEntry."Item Tracking"::"Serial No.");
         PurchaseLine.OpenItemTrackingLines();
 
         // [THEN] SynchronizeItemTracking2 function in codeunit 6500 is called only once.
-        CodeCoverageMgt.StopApplicationCoverage;
+        CodeCoverageMgt.StopApplicationCoverage();
         NoOfHits :=
           GetCodeCoverageForObject(CodeCoverage."Object Type"::Codeunit, CODEUNIT::"Item Tracking Management", 'SynchronizeItemTracking2');
 
         Assert.AreEqual(1, NoOfHits, StrSubstNo(FunctionMustBeHitOnlyOnceErr, 'SynchronizeItemTracking2'));
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -658,7 +658,7 @@ codeunit 137380 "SCM Performance Tests"
             // [GIVEN] Serial no.-tracked items "I", "J" with "Order" reordering policy.
             LibraryItemTracking.CreateSerialItem(Item);
             Item.Validate("Reordering Policy", Item."Reordering Policy"::Order);
-            Item.Validate("Vendor No.", LibraryPurchase.CreateVendorNo);
+            Item.Validate("Vendor No.", LibraryPurchase.CreateVendorNo());
             Item.Modify(true);
 
             // [GIVEN] Two transfer orders: 10 pcs of "I", 100 pcs of "J".
@@ -678,10 +678,10 @@ codeunit 137380 "SCM Performance Tests"
             PurchaseLine.OpenItemTrackingLines();
 
             // [WHEN] Successively post the purchase orders with "Receive" option and enabled Code Coverage in order to count calls of SynchronizeItemTracking function in Codeunit 6500.
-            CodeCoverageMgt.StartApplicationCoverage;
+            CodeCoverageMgt.StartApplicationCoverage();
             PurchaseHeader.Get(PurchaseLine."Document Type", PurchaseLine."Document No.");
             LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false);
-            CodeCoverageMgt.StopApplicationCoverage;
+            CodeCoverageMgt.StopApplicationCoverage();
 
             NoOfHits[i] :=
               GetCodeCoverageForObject(
@@ -691,7 +691,7 @@ codeunit 137380 "SCM Performance Tests"
         // [THEN] The number of function calls is constant and does not depend on number of item tracking lines on a purchase line.
         Assert.IsTrue(LibraryCalcComplexity.IsConstant(NoOfHits[1], NoOfHits[2]), NotConstantCalcErr);
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -722,9 +722,9 @@ codeunit 137380 "SCM Performance Tests"
               ProductionOrder, ProductionOrder.Status::Released, ProductionOrder."Source Type"::Family, FamilyNo[i], Qty);
 
             // [WHEN] Refresh the production order with activated Code Coverage in order to calculate how many times UpdateDateTime function is called for the production order.
-            CodeCoverageMgt.StartApplicationCoverage;
+            CodeCoverageMgt.StartApplicationCoverage();
             LibraryManufacturing.RefreshProdOrder(ProductionOrder, false, true, true, true, false);
-            CodeCoverageMgt.StopApplicationCoverage;
+            CodeCoverageMgt.StopApplicationCoverage();
 
             NoOfHits[i] :=
               GetCodeCoverageForObject(
@@ -801,9 +801,9 @@ codeunit 137380 "SCM Performance Tests"
         end;
 
         // [WHEN] Open item journal and run "Calculate Whse. Adjustment" with activated code coverage in order to count how many times the buffer is updated.
-        CodeCoverageMgt.StartApplicationCoverage;
+        CodeCoverageMgt.StartApplicationCoverage();
         LibraryWarehouse.CalculateWhseAdjustmentItemJournal(Item, WorkDate(), LibraryUtility.GenerateGUID());
-        CodeCoverageMgt.StopApplicationCoverage;
+        CodeCoverageMgt.StopApplicationCoverage();
 
         // [THEN] "Qty. to Handle" is updated in the buffer 10 times that is equal to the number of serial nos.
         Assert.AreEqual(
@@ -811,7 +811,7 @@ codeunit 137380 "SCM Performance Tests"
           GetCodeCoverageForObject(
             CodeCoverage."Object Type"::Report, REPORT::"Calculate Whse. Adjustment", 'Qty. to Handle *:'), '');
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -890,9 +890,9 @@ codeunit 137380 "SCM Performance Tests"
         LibraryWarehouse.RegisterWhseJournalLine(WarehouseJournalTemplate.Name, WarehouseJournalBatch.Name, Location.Code, false);
 
         // [WHEN] Open item journal and run "Calculate Whse. Adjustment" with activated code coverage in order to count how many serial nos. are looked through to collect item tracking.
-        CodeCoverageMgt.StartApplicationCoverage;
+        CodeCoverageMgt.StartApplicationCoverage();
         LibraryWarehouse.CalculateWhseAdjustmentItemJournal(Item, WorkDate(), LibraryUtility.GenerateGUID());
-        CodeCoverageMgt.StopApplicationCoverage;
+        CodeCoverageMgt.StopApplicationCoverage();
 
         // [THEN] Only warehouse entries with Serial no. = "S1" are looked through.
         Assert.AreEqual(
@@ -901,7 +901,7 @@ codeunit 137380 "SCM Performance Tests"
             CodeCoverage."Object Type"::Report, REPORT::"Calculate Whse. Adjustment",
             'WarehouseEntry.SETRANGE*"Serial No."*"Serial No."'), '');
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -964,9 +964,9 @@ codeunit 137380 "SCM Performance Tests"
             LibraryWarehouse.AutoFillQtyHandleWhseActivity(WarehouseActivityHeader);
 
             // [WHEN] Turn on Code Coverage and register the put-away. Count the number of times the posted warehouse receipt header and line are updated.
-            CodeCoverageMgt.StartApplicationCoverage;
+            CodeCoverageMgt.StartApplicationCoverage();
             LibraryWarehouse.RegisterWhseActivity(WarehouseActivityHeader);
-            CodeCoverageMgt.StopApplicationCoverage;
+            CodeCoverageMgt.StopApplicationCoverage();
 
             NoOfHits[i] :=
               GetCodeCoverageForObject(
@@ -1103,7 +1103,7 @@ codeunit 137380 "SCM Performance Tests"
         LibraryNotificationMgt: Codeunit "Library - Notification Mgt.";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"SCM Performance Tests");
-        CodeCoverageMgt.StopApplicationCoverage;
+        CodeCoverageMgt.StopApplicationCoverage();
         LibraryVariableStorage.Clear();
         LibrarySetupStorage.Restore();
         if isInitialized then
@@ -1121,7 +1121,7 @@ codeunit 137380 "SCM Performance Tests"
         LibrarySetupStorage.Save(DATABASE::"Purchases & Payables Setup");
         LibrarySetupStorage.Save(DATABASE::"Inventory Setup");
 
-        LibraryNotificationMgt.DisableAllNotifications;
+        LibraryNotificationMgt.DisableAllNotifications();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM Performance Tests");
     end;
 
@@ -1137,7 +1137,7 @@ codeunit 137380 "SCM Performance Tests"
         // Setup.
         Initialize();
         Item.Get(
-          CreateTrackedItem(LibraryUtility.GetGlobalNoSeriesCode, LibraryUtility.GetGlobalNoSeriesCode, CreateItemTrackingCode(true, true)));
+          CreateTrackedItem(LibraryUtility.GetGlobalNoSeriesCode(), LibraryUtility.GetGlobalNoSeriesCode(), CreateItemTrackingCode(true, true)));
         ReservationEntry.DeleteAll(); // Switch on or off if we want to execute on a clean db.
 
         // Purchase component with IT.
@@ -1204,7 +1204,7 @@ codeunit 137380 "SCM Performance Tests"
     begin
         LibraryManufacturing.CreateFamily(Family);
         for i := 1 to NoOfComponents do
-            LibraryManufacturing.CreateFamilyLine(FamilyLine, Family."No.", LibraryInventory.CreateItemNo, LibraryRandom.RandInt(10));
+            LibraryManufacturing.CreateFamilyLine(FamilyLine, Family."No.", LibraryInventory.CreateItemNo(), LibraryRandom.RandInt(10));
         exit(Family."No.");
     end;
 
@@ -1231,7 +1231,7 @@ codeunit 137380 "SCM Performance Tests"
         ProductionBOMHeader: Record "Production BOM Header";
     begin
         with Item do begin
-            Get(CreateTrackedItem('', LibraryUtility.GetGlobalNoSeriesCode, CreateItemTrackingCode(true, false)));
+            Get(CreateTrackedItem('', LibraryUtility.GetGlobalNoSeriesCode(), CreateItemTrackingCode(true, false)));
             Validate("Replenishment System", "Replenishment System"::"Prod. Order");
             Validate("Manufacturing Policy", "Manufacturing Policy"::"Make-to-Order");
             Modify(true);
@@ -1316,7 +1316,7 @@ codeunit 137380 "SCM Performance Tests"
     var
         CodeCoverage: Record "Code Coverage";
     begin
-        CodeCoverageMgt.Refresh;
+        CodeCoverageMgt.Refresh();
         with CodeCoverage do begin
             SetRange("Line Type", "Line Type"::Code);
             SetRange("Object Type", ObjectType);
@@ -1326,7 +1326,7 @@ codeunit 137380 "SCM Performance Tests"
             if FindSet() then
                 repeat
                     NoOfHits += "No. of Hits";
-                until Next = 0;
+                until Next() = 0;
         end;
     end;
 
@@ -1393,7 +1393,7 @@ codeunit 137380 "SCM Performance Tests"
         LibraryInventory.CreateItem(Item);
         Item.Validate("Replenishment System", ReplenishmentSystem);
         Item.Validate("Reordering Policy", ReorderingPolicy);
-        Item.Validate("Vendor No.", LibraryPurchase.CreateVendorNo);
+        Item.Validate("Vendor No.", LibraryPurchase.CreateVendorNo());
         Item.Modify(true);
     end;
 
@@ -1406,8 +1406,8 @@ codeunit 137380 "SCM Performance Tests"
         LibraryManufacturing.CreateWorkCenterWithCalendar(WorkCenter);
         LibraryManufacturing.CreateRoutingHeader(RoutingHeader, RoutingHeader.Type::Serial);
         SendAheadQty := LibraryRandom.RandIntInRange(2, 5);
-        CreateSendAheadRoutingLine(RoutingLine, RoutingHeader, LibraryUtility.GenerateGUID, WorkCenter."No.", SendAheadQty);
-        CreateSendAheadRoutingLine(RoutingLine, RoutingHeader, LibraryUtility.GenerateGUID, WorkCenter."No.", 0);
+        CreateSendAheadRoutingLine(RoutingLine, RoutingHeader, LibraryUtility.GenerateGUID(), WorkCenter."No.", SendAheadQty);
+        CreateSendAheadRoutingLine(RoutingLine, RoutingHeader, LibraryUtility.GenerateGUID(), WorkCenter."No.", 0);
         RoutingHeader.Validate(Status, RoutingHeader.Status::Certified);
         RoutingHeader.Modify(true);
         // Update Routing No on Item.
@@ -1434,7 +1434,7 @@ codeunit 137380 "SCM Performance Tests"
     begin
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, '');
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, ItemNo, Quantity);
-        ShipmentDate := WorkDate + LibraryRandom.RandIntInRange(30, 60); // up to 1 - 2 month after WORKDATE
+        ShipmentDate := WorkDate() + LibraryRandom.RandIntInRange(30, 60); // up to 1 - 2 month after WORKDATE
         SalesLine.Validate("Shipment Date", ShipmentDate);
         SalesLine.Modify(true);
     end;
@@ -1465,7 +1465,7 @@ codeunit 137380 "SCM Performance Tests"
         WarehouseReceiptHeader: Record "Warehouse Receipt Header";
         I: Integer;
     begin
-        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo);
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo());
         PurchaseHeader.Validate("Location Code", LocationCode);
         PurchaseHeader.Modify(true);
 
@@ -1497,15 +1497,15 @@ codeunit 137380 "SCM Performance Tests"
             ReservationEntry."Item Tracking"::"Serial No.":
                 begin
                     LibraryVariableStorage.Enqueue(false); // Create new lot no = false.
-                    ItemTrackingLines."Assign Serial No.".Invoke;
+                    ItemTrackingLines."Assign Serial No.".Invoke();
                 end;
             ReservationEntry."Item Tracking"::"Lot and Serial No.":
                 begin
                     LibraryVariableStorage.Enqueue(true); // Create new lot no = true.
-                    ItemTrackingLines."Assign Serial No.".Invoke;
+                    ItemTrackingLines."Assign Serial No.".Invoke();
                 end;
         end;
-        ItemTrackingLines.OK.Invoke;
+        ItemTrackingLines.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -1514,7 +1514,7 @@ codeunit 137380 "SCM Performance Tests"
     begin
         ItemTrackingLines."Lot No.".SetValue(LibraryUtility.GenerateGUID());
         ItemTrackingLines."Quantity (Base)".SetValue(1);
-        ItemTrackingLines.OK.Invoke;
+        ItemTrackingLines.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -1527,7 +1527,7 @@ codeunit 137380 "SCM Performance Tests"
         LibraryVariableStorage.Dequeue(BooleanValue);  // Dequeue variable.
         NewLotNo := BooleanValue;
         EnterQuantityToCreate.CreateNewLotNo.SetValue(NewLotNo);
-        EnterQuantityToCreate.OK.Invoke;
+        EnterQuantityToCreate.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -1541,16 +1541,16 @@ codeunit 137380 "SCM Performance Tests"
         LibraryVariableStorage.Dequeue(EntryType);
 
         ProductionJournalPage.FILTER.SetFilter("Entry Type", EntryType);
-        ProductionJournalPage.First;
+        ProductionJournalPage.First();
 
-        if ProductionJournalPage."Entry Type".AsInteger = ItemJnlLine."Entry Type"::Output.AsInteger() then
+        if ProductionJournalPage."Entry Type".AsInteger() = ItemJnlLine."Entry Type"::Output.AsInteger() then
             LibraryVariableStorage.Enqueue(ReservEntry."Item Tracking"::"Serial No.")
         else
             LibraryVariableStorage.Enqueue(ReservEntry."Item Tracking"::None);
-        ProductionJournalPage.ItemTrackingLines.Invoke;
+        ProductionJournalPage.ItemTrackingLines.Invoke();
 
-        ProductionJournalPage.Post.Invoke;
-        ProductionJournalPage.OK.Invoke;
+        ProductionJournalPage.Post.Invoke();
+        ProductionJournalPage.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -1560,7 +1560,7 @@ codeunit 137380 "SCM Performance Tests"
         NoOfSN: Integer;
         i: Integer;
     begin
-        NoOfSN := LibraryVariableStorage.DequeueInteger;
+        NoOfSN := LibraryVariableStorage.DequeueInteger();
         for i := 1 to NoOfSN do begin
             WhseItemTrackingLines."Serial No.".SetValue(Format(i));
             WhseItemTrackingLines.Quantity.SetValue(1);
@@ -1609,7 +1609,7 @@ codeunit 137380 "SCM Performance Tests"
     procedure ItemAttributeValueChangeValueEditor(var ItemAttributeValueEditor: TestPage "Item Attribute Value Editor")
     begin
         ItemAttributeValueEditor.ItemAttributeValueList.Value.SetValue(LibraryUtility.GenerateGUID());
-        ItemAttributeValueEditor.OK.Invoke;
+        ItemAttributeValueEditor.OK().Invoke();
     end;
 }
 

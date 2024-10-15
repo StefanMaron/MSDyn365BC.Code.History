@@ -831,83 +831,83 @@ page 375 "Bank Account Statistics"
 
     trigger OnAfterGetRecord()
     begin
-        with BankAcc do begin
-            Copy(Rec);
+        BankAcc.Copy(Rec);
 
-            if CurrentDate <> WorkDate() then begin
-                CurrentDate := WorkDate();
-                DateFilterCalc.CreateAccountingPeriodFilter(BankAccDateFilter[1], BankAccDateName[1], CurrentDate, 0);
-                DateFilterCalc.CreateFiscalYearFilter(BankAccDateFilter[2], BankAccDateName[2], CurrentDate, 0);
-                DateFilterCalc.CreateFiscalYearFilter(BankAccDateFilter[3], BankAccDateName[3], CurrentDate, -1);
-            end;
+        if CurrentDate <> WorkDate() then begin
+            CurrentDate := WorkDate();
+            DateFilterCalc.CreateAccountingPeriodFilter(BankAccDateFilter[1], BankAccDateName[1], CurrentDate, 0);
+            DateFilterCalc.CreateFiscalYearFilter(BankAccDateFilter[2], BankAccDateName[2], CurrentDate, 0);
+            DateFilterCalc.CreateFiscalYearFilter(BankAccDateFilter[3], BankAccDateName[3], CurrentDate, -1);
+        end;
 
-            SetRange("Date Filter", 0D, CurrentDate);
-            CalcFields(Balance, "Balance (LCY)");
+        BankAcc.SetRange("Date Filter", 0D, CurrentDate);
+        BankAcc.CalcFields(Balance, "Balance (LCY)");
 
-            SetRange("Date Filter");
-            SetRange("Dealing Type Filter", 1); // Discount
-            CalcFields("Posted Receiv. Bills Rmg. Amt.");
-            DocsForDiscRmgAmt := "Posted Receiv. Bills Rmg. Amt.";
-            if "Credit Limit for Discount" = 0 then
-                if DocsForDiscRmgAmt = 0 then
-                    RiskPerc := 0
-                else
-                    RiskPerc := 100
+        BankAcc.SetRange("Date Filter");
+        BankAcc.SetRange("Dealing Type Filter", 1);
+        // Discount
+        BankAcc.CalcFields("Posted Receiv. Bills Rmg. Amt.");
+        DocsForDiscRmgAmt := BankAcc."Posted Receiv. Bills Rmg. Amt.";
+        if BankAcc."Credit Limit for Discount" = 0 then
+            if DocsForDiscRmgAmt = 0 then
+                RiskPerc := 0
             else
-                RiskPerc := DocsForDiscRmgAmt / "Credit Limit for Discount" * 100;
+                RiskPerc := 100
+        else
+            RiskPerc := DocsForDiscRmgAmt / BankAcc."Credit Limit for Discount" * 100;
 
-            SetRange("Dealing Type Filter", 0); // Collection
-            CalcFields("Posted Receiv. Bills Rmg. Amt.", "Posted Pay. Bills Rmg. Amt.", "Posted Pay. Inv. Rmg. Amt.");
-            DocsForCollRmgAmt := "Posted Receiv. Bills Rmg. Amt.";
-            PayableDocsRmgAmt := "Posted Pay. Bills Rmg. Amt." + "Posted Pay. Inv. Rmg. Amt.";
-            for i := 1 to 4 do begin
-                SetFilter("Date Filter", BankAccDateFilter[i]);
-                CalcFields("Net Change", "Net Change (LCY)");
-                BankAccNetChange[i] := "Net Change";
-                BankAccNetChangeLCY[i] := "Net Change (LCY)";
-            end;
-            SetRange("Date Filter", 0D, CurrentDate);
+        BankAcc.SetRange("Dealing Type Filter", 0);
+        // Collection
+        BankAcc.CalcFields("Posted Receiv. Bills Rmg. Amt.", "Posted Pay. Bills Rmg. Amt.", "Posted Pay. Inv. Rmg. Amt.");
+        DocsForCollRmgAmt := BankAcc."Posted Receiv. Bills Rmg. Amt.";
+        PayableDocsRmgAmt := BankAcc."Posted Pay. Bills Rmg. Amt." + BankAcc."Posted Pay. Inv. Rmg. Amt.";
+        for i := 1 to 4 do begin
+            BankAcc.SetFilter("Date Filter", BankAccDateFilter[i]);
+            BankAcc.CalcFields("Net Change", "Net Change (LCY)");
+            BankAccNetChange[i] := BankAcc."Net Change";
+            BankAccNetChangeLCY[i] := BankAcc."Net Change (LCY)";
+        end;
+        BankAcc.SetRange("Date Filter", 0D, CurrentDate);
 
-            for i := 1 to 4 do begin
-                SetFilter("Honored/Rejtd. at Date Filter", BankAccDateFilter[i]);
-                SetRange("Status Filter", "Status Filter"::Honored);
-                CalcFields("Closed Receiv. Bills Amt.");
-                CalcFields("Posted Receiv. Bills Amt.");
-                CalcFields("Clos. Receivable Inv. Amt.");
-                CalcFields("Post. Receivable Inv. Amt.");
-                CalcFields("Closed Pay. Bills Amt.");
-                CalcFields("Posted Pay. Bills Amt.");
-                CalcFields("Closed Pay. Invoices Amt.");
-                CalcFields("Posted Pay. Invoices Amt.");
-                TotalHonoredDocs[i] := "Closed Receiv. Bills Amt." + "Posted Receiv. Bills Amt.";
-                TotalHonoredInvoices[i] := "Clos. Receivable Inv. Amt." + "Post. Receivable Inv. Amt.";
-                TotalHonoredPayableDoc[i] := "Closed Pay. Bills Amt." + "Closed Pay. Invoices Amt." +
-                  "Posted Pay. Bills Amt." + "Posted Pay. Invoices Amt.";
-                SetRange("Status Filter", "Status Filter"::Rejected);
-                CalcFields("Closed Receiv. Bills Amt.");
-                CalcFields("Posted Receiv. Bills Amt.");
-                CalcFields("Clos. Receivable Inv. Amt.");
-                CalcFields("Post. Receivable Inv. Amt.");
-                CalcFields("Closed Pay. Bills Amt.");
-                CalcFields("Posted Pay. Bills Amt.");
-                CalcFields("Closed Pay. Invoices Amt.");
-                CalcFields("Posted Pay. Invoices Amt.");
-                TotalRejectedInvoices[i] := "Clos. Receivable Inv. Amt." + "Post. Receivable Inv. Amt.";
-                TotalRejectedDocs[i] := "Closed Receiv. Bills Amt." + "Posted Receiv. Bills Amt.";
-                TotalRejectedPayableDoc[i] := "Closed Pay. Bills Amt." + "Closed Pay. Invoices Amt." +
-                  "Posted Pay. Bills Amt." + "Posted Pay. Invoices Amt.";
-            end;
+        for i := 1 to 4 do begin
+            BankAcc.SetFilter("Honored/Rejtd. at Date Filter", BankAccDateFilter[i]);
+            BankAcc.SetRange("Status Filter", BankAcc."Status Filter"::Honored);
+            BankAcc.CalcFields("Closed Receiv. Bills Amt.");
+            BankAcc.CalcFields("Posted Receiv. Bills Amt.");
+            BankAcc.CalcFields("Clos. Receivable Inv. Amt.");
+            BankAcc.CalcFields("Post. Receivable Inv. Amt.");
+            BankAcc.CalcFields("Closed Pay. Bills Amt.");
+            BankAcc.CalcFields("Posted Pay. Bills Amt.");
+            BankAcc.CalcFields("Closed Pay. Invoices Amt.");
+            BankAcc.CalcFields("Posted Pay. Invoices Amt.");
+            TotalHonoredDocs[i] := BankAcc."Closed Receiv. Bills Amt." + BankAcc."Posted Receiv. Bills Amt.";
+            TotalHonoredInvoices[i] := BankAcc."Clos. Receivable Inv. Amt." + BankAcc."Post. Receivable Inv. Amt.";
+            TotalHonoredPayableDoc[i] := BankAcc."Closed Pay. Bills Amt." + BankAcc."Closed Pay. Invoices Amt." +
+              BankAcc."Posted Pay. Bills Amt." + BankAcc."Posted Pay. Invoices Amt.";
+            BankAcc.SetRange("Status Filter", BankAcc."Status Filter"::Rejected);
+            BankAcc.CalcFields("Closed Receiv. Bills Amt.");
+            BankAcc.CalcFields("Posted Receiv. Bills Amt.");
+            BankAcc.CalcFields("Clos. Receivable Inv. Amt.");
+            BankAcc.CalcFields("Post. Receivable Inv. Amt.");
+            BankAcc.CalcFields("Closed Pay. Bills Amt.");
+            BankAcc.CalcFields("Posted Pay. Bills Amt.");
+            BankAcc.CalcFields("Closed Pay. Invoices Amt.");
+            BankAcc.CalcFields("Posted Pay. Invoices Amt.");
+            TotalRejectedInvoices[i] := BankAcc."Clos. Receivable Inv. Amt." + BankAcc."Post. Receivable Inv. Amt.";
+            TotalRejectedDocs[i] := BankAcc."Closed Receiv. Bills Amt." + BankAcc."Posted Receiv. Bills Amt.";
+            TotalRejectedPayableDoc[i] := BankAcc."Closed Pay. Bills Amt." + BankAcc."Closed Pay. Invoices Amt." +
+              BankAcc."Posted Pay. Bills Amt." + BankAcc."Posted Pay. Invoices Amt.";
+        end;
 
-            for i := 1 to 4 do begin
-                DocCollExpAmt[i] := CollectionFeesTotalAmt(BankAccDateFilter[i]);
-                DocDiscExpAmt[i] := ServicesFeesTotalAmt(BankAccDateFilter[i]);
-                DocDiscIntAmt[i] := DiscInterestsTotalAmt(BankAccDateFilter[i]);
-                DocRejExpAmt[i] := RejExpensesAmt(BankAccDateFilter[i]);
-                FactDiscIntAmt[i] := DiscInterestFactTotalAmt(BankAccDateFilter[i]);
-                RiskFactExpAmt[i] := RiskFactFeesTotalAmt(BankAccDateFilter[i]);
-                UnriskFactExpAmt[i] := UnriskFactFeesTotalAmt(BankAccDateFilter[i]);
-                PmtOrdExpAmt[i] := PaymentOrderFeesTotalAmt(BankAccDateFilter[i]);
-            end;
+        for i := 1 to 4 do begin
+            DocCollExpAmt[i] := BankAcc.CollectionFeesTotalAmt(BankAccDateFilter[i]);
+            DocDiscExpAmt[i] := BankAcc.ServicesFeesTotalAmt(BankAccDateFilter[i]);
+            DocDiscIntAmt[i] := BankAcc.DiscInterestsTotalAmt(BankAccDateFilter[i]);
+            DocRejExpAmt[i] := BankAcc.RejExpensesAmt(BankAccDateFilter[i]);
+            FactDiscIntAmt[i] := BankAcc.DiscInterestFactTotalAmt(BankAccDateFilter[i]);
+            RiskFactExpAmt[i] := BankAcc.RiskFactFeesTotalAmt(BankAccDateFilter[i]);
+            UnriskFactExpAmt[i] := BankAcc.UnriskFactFeesTotalAmt(BankAccDateFilter[i]);
+            PmtOrdExpAmt[i] := BankAcc.PaymentOrderFeesTotalAmt(BankAccDateFilter[i]);
         end;
     end;
 

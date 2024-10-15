@@ -818,13 +818,13 @@ codeunit 147330 "Edit Posted Documents ES"
         // [SCENARIO 405655] Stan can lookup posted sales invoices from the "Corrected Invoice No." field of the "Posted Sales Credit Memo - Edit"chec page
 
         Initialize();
-        SalesInvoiceHeader.Get(CreateAndPostSalesInvoice);
+        SalesInvoiceHeader.Get(CreateAndPostSalesInvoice());
         SalesCrMemoHeader.Get(CreateAndPostSalesCreditMemoForCustomer(SalesInvoiceHeader."Bill-to Customer No."));
 
         LibraryVariableStorage.Enqueue(SalesInvoiceHeader."No.");
-        PostedSalesCreditMemo.OpenView;
+        PostedSalesCreditMemo.OpenView();
         PostedSalesCreditMemo.FILTER.SetFilter("No.", SalesCrMemoHeader."No.");
-        PostedSalesCreditMemo."Update Document".Invoke;
+        PostedSalesCreditMemo."Update Document".Invoke();
 
         // Verification performs withing handlers: PostedSalesCrMemoUpdateLookupCorrInvNolModalPageHandler,PostedSalesInvoicesCheckLookupValueModalPageHandler
     end;
@@ -842,13 +842,13 @@ codeunit 147330 "Edit Posted Documents ES"
         // [SCENARIO 405655] Stan can lookup posted purchase invoices from the "Corrected Invoice No." field of the "Posted Purchase Credit Memo - Edit" page
 
         Initialize();
-        PurchInvHeader.Get(CreateAndPostPurchaseInvoice);
+        PurchInvHeader.Get(CreateAndPostPurchaseInvoice());
         PurchCrMemoHdr.Get(CreateAndPostPurchaseCreditMemoForVendor(PurchInvHeader."Pay-to Vendor No."));
 
         LibraryVariableStorage.Enqueue(PurchInvHeader."No.");
-        PostedPurchaseCreditMemo.OpenView;
+        PostedPurchaseCreditMemo.OpenView();
         PostedPurchaseCreditMemo.FILTER.SetFilter("No.", PurchCrMemoHdr."No.");
-        PostedPurchaseCreditMemo."Update Document".Invoke;
+        PostedPurchaseCreditMemo."Update Document".Invoke();
 
         // Verification performs withing handlers: PostedPurchCrMemoUpdateLookupCorrInvNolModalPageHandler,PostedPurchInvoicesCheckLookupValueModalPageHandler
     end;
@@ -1435,9 +1435,9 @@ codeunit 147330 "Edit Posted Documents ES"
         SalesCrMemoHeader."Special Scheme Code" := "SII Sales Special Scheme Code".FromInteger(LibraryRandom.RandIntInRange(1, 10));
         SalesCrMemoHeader."Cr. Memo Type" := "SII Sales Credit Memo Type".FromInteger(LibraryRandom.RandIntInRange(1, 5));
         SalesCrMemoHeader."Correction Type" := SalesCrMemoHeader."Correction Type"::Removal;
-        SalesCrMemoHeader."ID Type" := LibraryRandom.RandIntInRange(1, 3);
-        SalesCrMemoHeader."Succeeded Company Name" := LibraryUtility.GenerateGUID;
-        SalesCrMemoHeader."Succeeded VAT Registration No." := LibraryUtility.GenerateGUID;
+        SalesCrMemoHeader."ID Type" := "SII ID Type".FromInteger(LibraryRandom.RandIntInRange(1, 3));
+        SalesCrMemoHeader."Succeeded Company Name" := LibraryUtility.GenerateGUID();
+        SalesCrMemoHeader."Succeeded VAT Registration No." := LibraryUtility.GenerateGUID();
         SalesInvoiceHeader.Init();
         SalesInvoiceHeader."No." :=
           LibraryUtility.GenerateRandomCode(SalesInvoiceHeader.FieldNo("No."), DATABASE::"Sales Invoice Header");
@@ -1453,9 +1453,9 @@ codeunit 147330 "Edit Posted Documents ES"
         PurchCrMemoHdr."Special Scheme Code" := "SII Purch. Special Scheme Code".FromInteger(LibraryRandom.RandIntInRange(1, 10));
         PurchCrMemoHdr."Cr. Memo Type" := "SII Purch. Credit Memo Type".FromInteger(LibraryRandom.RandIntInRange(1, 5));
         PurchCrMemoHdr."Correction Type" := PurchCrMemoHdr."Correction Type"::Removal;
-        PurchCrMemoHdr."ID Type" := LibraryRandom.RandIntInRange(1, 3);
-        PurchCrMemoHdr."Succeeded Company Name" := LibraryUtility.GenerateGUID;
-        PurchCrMemoHdr."Succeeded VAT Registration No." := LibraryUtility.GenerateGUID;
+        PurchCrMemoHdr."ID Type" := "SII ID Type".FromInteger(LibraryRandom.RandIntInRange(1, 3));
+        PurchCrMemoHdr."Succeeded Company Name" := LibraryUtility.GenerateGUID();
+        PurchCrMemoHdr."Succeeded VAT Registration No." := LibraryUtility.GenerateGUID();
         PurchInvHeader.Init();
         PurchInvHeader."No." :=
           LibraryUtility.GenerateRandomCode(PurchInvHeader.FieldNo("No."), DATABASE::"Purch. Inv. Header");
@@ -1494,7 +1494,7 @@ codeunit 147330 "Edit Posted Documents ES"
 
     local procedure MockSIIDocUploadState(var SIIDocUploadState: Record "SII Doc. Upload State"; DocSource: Enum "SII Doc. Upload State Document Source"; DocType: Enum "SII Doc. Upload State Document Type"; PostingDate: Date; DocNo: Code[20])
     begin
-        SIIDocUploadState.init;
+        SIIDocUploadState.Init();
         SIIDocUploadState."Document Source" := DocSource;
         SIIDocUploadState."Document Type" := DocType;
         SIIDocUploadState."Posting Date" := PostingDate;
@@ -1540,9 +1540,9 @@ codeunit 147330 "Edit Posted Documents ES"
         PstdSalesCrMemoUpdate."Special Scheme Code".SetValue(LibraryVariableStorage.DequeueText());
         PstdSalesCrMemoUpdate."Cr. Memo Type".SetValue(LibraryVariableStorage.DequeueText());
         PstdSalesCrMemoUpdate."Correction Type".SetValue(LibraryVariableStorage.DequeueText());
-        PstdSalesCrMemoUpdate."ID Type".SetValue(LibraryVariableStorage.DequeueText);
-        PstdSalesCrMemoUpdate."Succeeded Company Name".SetValue(LibraryVariableStorage.DequeueText);
-        PstdSalesCrMemoUpdate."Succeeded VAT Registration No.".SetValue(LibraryVariableStorage.DequeueText);
+        PstdSalesCrMemoUpdate."ID Type".SetValue(LibraryVariableStorage.DequeueText());
+        PstdSalesCrMemoUpdate."Succeeded Company Name".SetValue(LibraryVariableStorage.DequeueText());
+        PstdSalesCrMemoUpdate."Succeeded VAT Registration No.".SetValue(LibraryVariableStorage.DequeueText());
         PstdSalesCrMemoUpdate.OK().Invoke();
     end;
 
@@ -1561,9 +1561,9 @@ codeunit 147330 "Edit Posted Documents ES"
         PstdSalesCrMemoUpdate."Special Scheme Code".SetValue(LibraryVariableStorage.DequeueText());
         PstdSalesCrMemoUpdate."Cr. Memo Type".SetValue(LibraryVariableStorage.DequeueText());
         PstdSalesCrMemoUpdate."Correction Type".SetValue(LibraryVariableStorage.DequeueText());
-        PstdSalesCrMemoUpdate."ID Type".SetValue(LibraryVariableStorage.DequeueText);
-        PstdSalesCrMemoUpdate."Succeeded Company Name".SetValue(LibraryVariableStorage.DequeueText);
-        PstdSalesCrMemoUpdate."Succeeded VAT Registration No.".SetValue(LibraryVariableStorage.DequeueText);
+        PstdSalesCrMemoUpdate."ID Type".SetValue(LibraryVariableStorage.DequeueText());
+        PstdSalesCrMemoUpdate."Succeeded Company Name".SetValue(LibraryVariableStorage.DequeueText());
+        PstdSalesCrMemoUpdate."Succeeded VAT Registration No.".SetValue(LibraryVariableStorage.DequeueText());
         PstdSalesCrMemoUpdate.Cancel().Invoke();
     end;
 
@@ -1582,9 +1582,9 @@ codeunit 147330 "Edit Posted Documents ES"
         PostedPurchCrMemoUpdate."Special Scheme Code".SetValue(LibraryVariableStorage.DequeueText());
         PostedPurchCrMemoUpdate."Cr. Memo Type".SetValue(LibraryVariableStorage.DequeueText());
         PostedPurchCrMemoUpdate."Correction Type".SetValue(LibraryVariableStorage.DequeueText());
-        PostedPurchCrMemoUpdate."ID Type".SetValue(LibraryVariableStorage.DequeueText);
-        PostedPurchCrMemoUpdate."Succeeded Company Name".SetValue(LibraryVariableStorage.DequeueText);
-        PostedPurchCrMemoUpdate."Succeeded VAT Registration No.".SetValue(LibraryVariableStorage.DequeueText);
+        PostedPurchCrMemoUpdate."ID Type".SetValue(LibraryVariableStorage.DequeueText());
+        PostedPurchCrMemoUpdate."Succeeded Company Name".SetValue(LibraryVariableStorage.DequeueText());
+        PostedPurchCrMemoUpdate."Succeeded VAT Registration No.".SetValue(LibraryVariableStorage.DequeueText());
         PostedPurchCrMemoUpdate.OK().Invoke();
     end;
 
@@ -1603,9 +1603,9 @@ codeunit 147330 "Edit Posted Documents ES"
         PostedPurchCrMemoUpdate."Special Scheme Code".SetValue(LibraryVariableStorage.DequeueText());
         PostedPurchCrMemoUpdate."Cr. Memo Type".SetValue(LibraryVariableStorage.DequeueText());
         PostedPurchCrMemoUpdate."Correction Type".SetValue(LibraryVariableStorage.DequeueText());
-        PostedPurchCrMemoUpdate."ID Type".SetValue(LibraryVariableStorage.DequeueText);
-        PostedPurchCrMemoUpdate."Succeeded Company Name".SetValue(LibraryVariableStorage.DequeueText);
-        PostedPurchCrMemoUpdate."Succeeded VAT Registration No.".SetValue(LibraryVariableStorage.DequeueText);
+        PostedPurchCrMemoUpdate."ID Type".SetValue(LibraryVariableStorage.DequeueText());
+        PostedPurchCrMemoUpdate."Succeeded Company Name".SetValue(LibraryVariableStorage.DequeueText());
+        PostedPurchCrMemoUpdate."Succeeded VAT Registration No.".SetValue(LibraryVariableStorage.DequeueText());
         PostedPurchCrMemoUpdate.Cancel().Invoke();
     end;
 
@@ -1704,8 +1704,8 @@ codeunit 147330 "Edit Posted Documents ES"
     procedure PostedSalesCrMemoUpdateLookupCorrInvNolModalPageHandler(var PstdSalesCrMemoUpdate: TestPage "Pstd. Sales Cr. Memo - Update")
     begin
         PstdSalesCrMemoUpdate."Corrected Invoice No.".Lookup();
-        PstdSalesCrMemoUpdate."Corrected Invoice No.".AssertEquals(LibraryVariableStorage.DequeueText);
-        PstdSalesCrMemoUpdate.Cancel.Invoke();
+        PstdSalesCrMemoUpdate."Corrected Invoice No.".AssertEquals(LibraryVariableStorage.DequeueText());
+        PstdSalesCrMemoUpdate.Cancel().Invoke();
     end;
 
     [ModalPageHandler]
@@ -1737,7 +1737,7 @@ codeunit 147330 "Edit Posted Documents ES"
     procedure PostedPurchCrMemoUpdateOperationDescrCancelModalPageHandler(var PostedPurchCrMemoUpdate: TestPage "Posted Purch. Cr.Memo - Update")
     begin
         PostedPurchCrMemoUpdate.OperationDescription.SetValue(LibraryVariableStorage.DequeueText());
-        PostedPurchCrMemoUpdate.Cancel.Invoke;
+        PostedPurchCrMemoUpdate.Cancel().Invoke();
     end;
 
     [ModalPageHandler]
@@ -1789,7 +1789,7 @@ codeunit 147330 "Edit Posted Documents ES"
     begin
         InvNo := LibraryVariableStorage.PeekText(1);
         PostedSalesInvoices."No.".AssertEquals(InvNo);
-        PostedSalesInvoices.OK.Invoke();
+        PostedSalesInvoices.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -1800,54 +1800,54 @@ codeunit 147330 "Edit Posted Documents ES"
     begin
         InvNo := LibraryVariableStorage.PeekText(1);
         PostedPurchaseInvoices."No.".AssertEquals(InvNo);
-        PostedPurchaseInvoices.OK.Invoke();
+        PostedPurchaseInvoices.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure PostedSalesInvoiceUpdateSpecSchemeCodeOKModalPageHandler(var PostedSalesInvoiceUpdate: TestPage "Posted Sales Invoice - Update")
     begin
-        PostedSalesInvoiceUpdate."Special Scheme Code".SetValue(LibraryVariableStorage.DequeueText);
-        PostedSalesInvoiceUpdate.OK.Invoke();
+        PostedSalesInvoiceUpdate."Special Scheme Code".SetValue(LibraryVariableStorage.DequeueText());
+        PostedSalesInvoiceUpdate.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure PostedSalesCrMemoUpdateSpecSchemeCodeOKModalPageHandler(var PostedSalesCrMemoUpdate: TestPage "Pstd. Sales Cr. Memo - Update")
     begin
-        PostedSalesCrMemoUpdate."Special Scheme Code".SetValue(LibraryVariableStorage.DequeueText);
-        PostedSalesCrMemoUpdate.OK.Invoke();
+        PostedSalesCrMemoUpdate."Special Scheme Code".SetValue(LibraryVariableStorage.DequeueText());
+        PostedSalesCrMemoUpdate.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure PostedPurchInvoiceUpdateSpecSchemeCodeOKModalPageHandler(var PostedPurchInvoiceUpdate: TestPage "Posted Purch. Invoice - Update")
     begin
-        PostedPurchInvoiceUpdate."Special Scheme Code".SetValue(LibraryVariableStorage.DequeueText);
-        PostedPurchInvoiceUpdate.OK.Invoke();
+        PostedPurchInvoiceUpdate."Special Scheme Code".SetValue(LibraryVariableStorage.DequeueText());
+        PostedPurchInvoiceUpdate.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure PostedPurchCrMemoUpdateSpecSchemeCodeOKModalPageHandler(var PostedPurchCrMemoUpdate: TestPage "Posted Purch. Cr.Memo - Update")
     begin
-        PostedPurchCrMemoUpdate."Special Scheme Code".SetValue(LibraryVariableStorage.DequeueText);
-        PostedPurchCrMemoUpdate.OK.Invoke();
+        PostedPurchCrMemoUpdate."Special Scheme Code".SetValue(LibraryVariableStorage.DequeueText());
+        PostedPurchCrMemoUpdate.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure PostedServInvoiceUpdateSpecSchemeCodeOKModalPageHandler(var PostedServInvoiceUpdate: TestPage "Posted Serv. Invoice - Update")
     begin
-        PostedServInvoiceUpdate."Special Scheme Code".SetValue(LibraryVariableStorage.DequeueText);
-        PostedServInvoiceUpdate.OK.Invoke();
+        PostedServInvoiceUpdate."Special Scheme Code".SetValue(LibraryVariableStorage.DequeueText());
+        PostedServInvoiceUpdate.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure PostedServCrMemoUpdateSpecSchemeCodeOKModalPageHandler(var PostedServCrMemoUpdate: TestPage "Posted Serv. Cr. Memo - Update")
     begin
-        PostedServCrMemoUpdate."Special Scheme Code".SetValue(LibraryVariableStorage.DequeueText);
-        PostedServCrMemoUpdate.OK.Invoke();
+        PostedServCrMemoUpdate."Special Scheme Code".SetValue(LibraryVariableStorage.DequeueText());
+        PostedServCrMemoUpdate.OK().Invoke();
     end;
 }

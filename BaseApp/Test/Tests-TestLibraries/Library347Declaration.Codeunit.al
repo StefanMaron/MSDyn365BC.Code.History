@@ -6,11 +6,6 @@ codeunit 143304 "Library - 347 Declaration"
     end;
 
     var
-        ContactNameTxt: Label 'Contact Name';
-        DeclarationNumberTxt: Label '1234';
-        CountyRegionCodeESTxt: Label 'ES';
-        CountyRegionCodePTTxt: Label 'PT';
-        TelephoneNumberTxt: Label '123456789';
         Assert: Codeunit Assert;
         FileManagement: Codeunit "File Management";
         LibraryERM: Codeunit "Library - ERM";
@@ -20,6 +15,11 @@ codeunit 143304 "Library - 347 Declaration"
         LibraryService: Codeunit "Library - Service";
         LibraryTextFileValidation: Codeunit "Library - Text File Validation";
         LibraryRandom: Codeunit "Library - Random";
+        ContactNameTxt: Label 'Contact Name';
+        DeclarationNumberTxt: Label '1234';
+        CountyRegionCodeESTxt: Label 'ES';
+        CountyRegionCodePTTxt: Label 'PT';
+        TelephoneNumberTxt: Label '123456789';
 
     [Scope('OnPrem')]
     procedure CreateAndPostCashReceiptJournal(var GenJournalLine: Record "Gen. Journal Line"; GLAccount: Record "G/L Account"; CustNo: Code[20]; Amount: Decimal)
@@ -119,7 +119,7 @@ codeunit 143304 "Library - 347 Declaration"
     begin
         // Create an Item with No Taxable VAT (which is different from 0 VAT in that no VAT entries will be created)
         LibraryInventory.CreateItem(Item);
-        Item.Validate("VAT Prod. Posting Group", FindVATPostingSetupNoTaxableVAT);
+        Item.Validate("VAT Prod. Posting Group", FindVATPostingSetupNoTaxableVAT());
         Item.Modify(true);
 
         exit(CreateAndPostSalesInvoiceForItem(CustNo, Item, Amount, WorkDate()));
@@ -188,7 +188,7 @@ codeunit 143304 "Library - 347 Declaration"
     begin
         // Create an Item with No Taxable VAT (which is different from 0 VAT in that no VAT entries will be created)
         LibraryInventory.CreateItem(Item);
-        Item.Validate("VAT Prod. Posting Group", FindVATPostingSetupNoTaxableVAT);
+        Item.Validate("VAT Prod. Posting Group", FindVATPostingSetupNoTaxableVAT());
         Item.Modify(true);
 
         CreateAndPostPurchaseOrderForItem(VendorNo, Item, Amount, WorkDate());
@@ -358,7 +358,7 @@ codeunit 143304 "Library - 347 Declaration"
         VATRegistrationNo := GetUniqueVATRegNo(CountryCode);
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, DocumentType, CreateVendor(VATRegistrationNo, CountyRegionCodeESTxt));
         LibraryPurchase.CreatePurchaseLine(
-          PurchaseLine, PurchaseHeader, PurchaseLine.Type::"G/L Account", CreateGLAccount, LibraryRandom.RandDec(100, 2));
+          PurchaseLine, PurchaseHeader, PurchaseLine.Type::"G/L Account", CreateGLAccount(), LibraryRandom.RandDec(100, 2));
         PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandDec(1000, 2));
         PurchaseLine.Modify(true);
         exit(PurchaseLine."No.");
@@ -373,7 +373,7 @@ codeunit 143304 "Library - 347 Declaration"
         VATRegistrationNo := GetUniqueVATRegNo(CountryCode);
         LibrarySales.CreateSalesHeader(SalesHeader, DocumentType, CreateCustomer(VATRegistrationNo));
         LibrarySales.CreateSalesLine(
-          SalesLine, SalesHeader, SalesLine.Type::"G/L Account", CreateGLAccount, LibraryRandom.RandInt(10));
+          SalesLine, SalesHeader, SalesLine.Type::"G/L Account", CreateGLAccount(), LibraryRandom.RandInt(10));
         SalesLine.Validate("Unit Price", LibraryRandom.RandDec(1000, 2));
         SalesLine.Modify(true);
     end;
@@ -386,7 +386,7 @@ codeunit 143304 "Library - 347 Declaration"
     begin
         VATRegistrationNo := GetUniqueVATRegNo(CountryCode);
         LibraryService.CreateServiceHeader(ServiceHeader, DocumentType, CreateCustomer(VATRegistrationNo));
-        LibraryService.CreateServiceLine(ServiceLine, ServiceHeader, ServiceLine.Type::"G/L Account", CreateGLAccount);
+        LibraryService.CreateServiceLine(ServiceLine, ServiceHeader, ServiceLine.Type::"G/L Account", CreateGLAccount());
         ServiceLine.Validate(Quantity, LibraryRandom.RandInt(10));
         ServiceLine.Validate("Unit Price", LibraryRandom.RandDec(1000, 2));
         ServiceLine.Modify(true);
@@ -630,15 +630,13 @@ codeunit 143304 "Library - 347 Declaration"
     begin
         FileName := CopyStr(FileManagement.ServerTempFileName('txt'), 1, 1024);
 
-        with Test347DeclarationParameter do begin
-            LibraryVariableStorage.Enqueue(Date2DMY(PostingDate, 3));
-            LibraryVariableStorage.Enqueue(MinAmount);
-            LibraryVariableStorage.Enqueue(MinAmountCash);
-            LibraryVariableStorage.Enqueue(GLAccForPaymentsInCash);
-            LibraryVariableStorage.Enqueue(ContactName);
-            LibraryVariableStorage.Enqueue(TelephoneNumber);
-            LibraryVariableStorage.Enqueue(DeclarationNumber);
-        end;
+        LibraryVariableStorage.Enqueue(Date2DMY(Test347DeclarationParameter.PostingDate, 3));
+        LibraryVariableStorage.Enqueue(Test347DeclarationParameter.MinAmount);
+        LibraryVariableStorage.Enqueue(Test347DeclarationParameter.MinAmountCash);
+        LibraryVariableStorage.Enqueue(Test347DeclarationParameter.GLAccForPaymentsInCash);
+        LibraryVariableStorage.Enqueue(Test347DeclarationParameter.ContactName);
+        LibraryVariableStorage.Enqueue(Test347DeclarationParameter.TelephoneNumber);
+        LibraryVariableStorage.Enqueue(Test347DeclarationParameter.DeclarationNumber);
         Make347Declaration.SetSilentMode(FileName);
         Make347Declaration.RunModal();
 

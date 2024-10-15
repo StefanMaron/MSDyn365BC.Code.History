@@ -13,13 +13,12 @@ codeunit 5951 "Service-Disc. (Yes/No)"
     begin
         ServiceLine.Copy(Rec);
         GLSetup.Get();
-        with ServiceLine do
-            if GLSetup."Payment Discount Type" <> GLSetup."Payment Discount Type"::"Calc. Pmt. Disc. on Lines" then begin
-                if ConfirmManagement.GetResponseOrDefault(Text000, true) then
-                    CODEUNIT.Run(CODEUNIT::"Service-Calc. Discount", ServiceLine);
-            end else
-                if Confirm(Text1100000, false) then
-                    CODEUNIT.Run(CODEUNIT::"Service-Calc. Discount", ServiceLine);
+        if GLSetup."Payment Discount Type" <> GLSetup."Payment Discount Type"::"Calc. Pmt. Disc. on Lines" then begin
+            if ConfirmManagement.GetResponseOrDefault(Text000, true) then
+                CODEUNIT.Run(CODEUNIT::"Service-Calc. Discount", ServiceLine);
+        end else
+            if Confirm(Text1100000, false) then
+                CODEUNIT.Run(CODEUNIT::"Service-Calc. Discount", ServiceLine);
 
         Rec := ServiceLine;
     end;

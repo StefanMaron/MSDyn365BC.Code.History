@@ -175,47 +175,44 @@ page 7000044 "Closed Documents Analysis"
 
     local procedure UpdateStatistics()
     begin
-        with ClosedDoc do begin
-            Copy(Rec);
-            SetCurrentKey(Type, "Collection Agent", "Bill Gr./Pmt. Order No.", "Currency Code", Status, Redrawn);
-            SetFilter("Currency Code", CurrencyFilter);
-            SetRange(Status, Status::Honored);
-            SetRange(Redrawn, true);
-            RedrawnAmt := 0;
-            RedrawnAmtLCY := 0;
-            if FindSet() then
-                repeat
-                    RedrawnAmt += "Original Amount";
-                    RedrawnAmtLCY += "Original Amount (LCY)";
-                until Next() = 0;
-            NoRedrawn := Count;
+        ClosedDoc.Copy(Rec);
+        ClosedDoc.SetCurrentKey(Type, "Collection Agent", "Bill Gr./Pmt. Order No.", "Currency Code", Status, Redrawn);
+        ClosedDoc.SetFilter("Currency Code", CurrencyFilter);
+        ClosedDoc.SetRange(Status, ClosedDoc.Status::Honored);
+        ClosedDoc.SetRange(Redrawn, true);
+        RedrawnAmt := 0;
+        RedrawnAmtLCY := 0;
+        if ClosedDoc.FindSet() then
+            repeat
+                RedrawnAmt += ClosedDoc."Original Amount";
+                RedrawnAmtLCY += ClosedDoc."Original Amount (LCY)";
+            until ClosedDoc.Next() = 0;
+        NoRedrawn := ClosedDoc.Count;
 
-            SetRange(Redrawn, false);
-            HonoredAmt := 0;
-            HonoredAmtLCY := 0;
-            if FindSet() then
-                repeat
-                    HonoredAmt += "Original Amount";
-                    HonoredAmtLCY += "Original Amount (LCY)";
-                until Next() = 0;
-            NoHonored := Count;
-            SetRange(Redrawn);
+        ClosedDoc.SetRange(Redrawn, false);
+        HonoredAmt := 0;
+        HonoredAmtLCY := 0;
+        if ClosedDoc.FindSet() then
+            repeat
+                HonoredAmt += ClosedDoc."Original Amount";
+                HonoredAmtLCY += ClosedDoc."Original Amount (LCY)";
+            until ClosedDoc.Next() = 0;
+        NoHonored := ClosedDoc.Count;
+        ClosedDoc.SetRange(Redrawn);
 
-            SetRange(Status, Status::Rejected);
-            RejectedAmt := 0;
-            RejectedAmtLCY := 0;
-            if FindSet() then
-                repeat
-                    RejectedAmt += "Original Amount";
-                    RejectedAmtLCY += "Original Amount (LCY)";
-                until Next() = 0;
+        ClosedDoc.SetRange(Status, ClosedDoc.Status::Rejected);
+        RejectedAmt := 0;
+        RejectedAmtLCY := 0;
+        if ClosedDoc.FindSet() then
+            repeat
+                RejectedAmt += ClosedDoc."Original Amount";
+                RejectedAmtLCY += ClosedDoc."Original Amount (LCY)";
+            until ClosedDoc.Next() = 0;
 
-            NoRejected := Count;
-            SetRange(Status);
+        NoRejected := ClosedDoc.Count;
+        ClosedDoc.SetRange(Status);
 
-            if Find('=><') then;  // necessary to calculate decimal places
-
-        end;
+        if ClosedDoc.Find('=><') then;  // necessary to calculate decimal places
     end;
 
     local procedure CurrencyFilterOnAfterValidate()

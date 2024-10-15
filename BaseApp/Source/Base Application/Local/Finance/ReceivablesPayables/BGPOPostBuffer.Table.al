@@ -9,6 +9,7 @@ using Microsoft.Finance.Dimension;
 table 7000012 "BG/PO Post. Buffer"
 {
     Caption = 'BG/PO Post. Buffer';
+    DataClassification = CustomerContent;
 
     fields
     {

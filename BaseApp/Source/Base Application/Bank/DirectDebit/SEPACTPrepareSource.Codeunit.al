@@ -57,28 +57,26 @@ codeunit 1222 "SEPA CT-Prepare Source"
         CarteraDoc.SetRange("Bill Gr./Pmt. Order No.", PaymentOrder."No.");
         if CarteraDoc.FindSet() then
             repeat
-                with TempGenJnlLine do begin
-                    Init();
-                    "Journal Template Name" := '';
-                    "Journal Batch Name" := '';
-                    "Line No." := CarteraDoc."Entry No.";
-                    "Posting Date" := CarteraDoc."Due Date";
-                    "Due Date" := CarteraDoc."Due Date";
-                    "Document Type" := "Document Type"::Payment;
-                    "Account Type" := "Account Type"::Vendor;
-                    "Account No." := CarteraDoc."Account No.";
-                    "Recipient Bank Account" := CarteraDoc."Cust./Vendor Bank Acc. Code";
-                    "Bal. Account Type" := "Bal. Account Type"::"Bank Account";
-                    "Bal. Account No." := PaymentOrder."Bank Account No.";
-                    "Bill No." := CarteraDoc."Document No.";
-                    "Document No." := PaymentOrder."No.";
-                    if PurchInvHeader.Get(CarteraDoc."Document No.") then
-                        Description := StrSubstNo(DescriptionTxt, PurchInvHeader."Vendor Invoice No.", CarteraDoc.Description);
-                    "External Document No." := CarteraDoc."Original Document No.";
-                    "Currency Code" := CarteraDoc."Currency Code";
-                    Amount := CarteraDoc."Remaining Amount";
-                    Insert();
-                end;
+                TempGenJnlLine.Init();
+                TempGenJnlLine."Journal Template Name" := '';
+                TempGenJnlLine."Journal Batch Name" := '';
+                TempGenJnlLine."Line No." := CarteraDoc."Entry No.";
+                TempGenJnlLine."Posting Date" := CarteraDoc."Due Date";
+                TempGenJnlLine."Due Date" := CarteraDoc."Due Date";
+                TempGenJnlLine."Document Type" := TempGenJnlLine."Document Type"::Payment;
+                TempGenJnlLine."Account Type" := TempGenJnlLine."Account Type"::Vendor;
+                TempGenJnlLine."Account No." := CarteraDoc."Account No.";
+                TempGenJnlLine."Recipient Bank Account" := CarteraDoc."Cust./Vendor Bank Acc. Code";
+                TempGenJnlLine."Bal. Account Type" := TempGenJnlLine."Bal. Account Type"::"Bank Account";
+                TempGenJnlLine."Bal. Account No." := PaymentOrder."Bank Account No.";
+                TempGenJnlLine."Bill No." := CarteraDoc."Document No.";
+                TempGenJnlLine."Document No." := PaymentOrder."No.";
+                if PurchInvHeader.Get(CarteraDoc."Document No.") then
+                    TempGenJnlLine.Description := StrSubstNo(DescriptionTxt, PurchInvHeader."Vendor Invoice No.", CarteraDoc.Description);
+                TempGenJnlLine."External Document No." := CarteraDoc."Original Document No.";
+                TempGenJnlLine."Currency Code" := CarteraDoc."Currency Code";
+                TempGenJnlLine.Amount := CarteraDoc."Remaining Amount";
+                TempGenJnlLine.Insert();
             until CarteraDoc.Next() = 0;
 
         OnAfterCreateTempJnlLines(FromGenJnlLine, TempGenJnlLine);

@@ -29,6 +29,7 @@ table 25 "Vendor Ledger Entry"
     Caption = 'Vendor Ledger Entry';
     DrillDownPageID = "Vendor Ledger Entries";
     LookupPageID = "Vendor Ledger Entries";
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -844,8 +845,6 @@ table 25 "Vendor Ledger Entry"
     var
         MustHaveSameSignErr: Label 'must have the same sign as %1';
         MustNotBeLargerErr: Label 'must not be larger than %1';
-        Text1100000: Label 'Payment Discount (VAT Excl.)';
-        Text1100001: Label 'Payment Discount (VAT Adjustment)';
         DocMisc: Codeunit "Document-Misc";
         CannotChangePmtMethodErr: Label 'For Cartera-based bills and invoices, you cannot change the Payment Method Code to this value.';
         CheckBillSituationOrderErr: Label '%1 cannot be applied because it is included in a payment order. To apply the document, remove it from the payment order and try again.', Comment = '%1 - document type and number';

@@ -31,7 +31,6 @@ codeunit 134316 "Workflow UI Tests"
         ShowMessageTestMsg: Label 'Test Message';
         CannotAddStepToNoCodeWorkflowErr: Label 'Workflow Code must have a value in Workflow Step: Workflow Code=, ID=0. It cannot be zero or empty.';
         FieldShouldBeVisibleErr: Label 'The field should be visible';
-        FieldShouldBeEditableErr: Label 'The field should be editable';
         ValuesAreNotTheSameErr: Label 'The values are not the same';
 
     [Test]
@@ -49,7 +48,7 @@ codeunit 134316 "Workflow UI Tests"
         // [THEN] The actions are not visible and the fields are not editable for the workflow template.
 
         // Setup
-        SetApplicationArea;
+        SetApplicationArea();
         SelectedEventDesc := '';
         LibraryWorkflow.CreateWorkflow(Workflow);
         LibraryWorkflow.InsertEntryPointEventStep(Workflow, '');
@@ -83,11 +82,11 @@ codeunit 134316 "Workflow UI Tests"
         WorkflowPage.OpenNew();
         WorkflowPage.Code.SetValue('Test');
         WorkflowPage.Description.SetValue('Description');
-        WorkflowPage.WorkflowSubpage."Event Description".Lookup;
+        WorkflowPage.WorkflowSubpage."Event Description".Lookup();
 
         // Validate
         WorkflowPage.WorkflowSubpage."Event Description".AssertEquals(SelectedEventDesc);
-        Assert.IsTrue(WorkflowPage.WorkflowSubpage."Event Description".Enabled, 'The When event column is not editable.');
+        Assert.IsTrue(WorkflowPage.WorkflowSubpage."Event Description".Enabled(), 'The When event column is not editable.');
     end;
 
     [Test]
@@ -133,14 +132,14 @@ codeunit 134316 "Workflow UI Tests"
         // Setup
         LibraryWorkflow.CreateWorkflow(Workflow);
         EventFunctionName := LibraryUtility.GenerateRandomCode(WorkflowEvent.FieldNo("Function Name"), DATABASE::"Workflow Event");
-        WorkflowEventHandling.AddEventToLibrary(EventFunctionName, DATABASE::Customer, LibraryUtility.GenerateGUID, 0, true);
+        WorkflowEventHandling.AddEventToLibrary(EventFunctionName, DATABASE::Customer, LibraryUtility.GenerateGUID(), 0, true);
 
         LibraryWorkflow.InsertEntryPointEventStep(Workflow, EventFunctionName);
-        WorkflowPage.OpenEdit;
+        WorkflowPage.OpenEdit();
         WorkflowPage.GotoRecord(Workflow);
 
         // Execute
-        WorkflowPage.WorkflowSubpage.Condition.AssistEdit;
+        WorkflowPage.WorkflowSubpage.Condition.AssistEdit();
 
         // Verify - Page handler setting ensure Event Conditions page is opened
     end;
@@ -169,7 +168,7 @@ codeunit 134316 "Workflow UI Tests"
         // Setup
         LibraryWorkflow.CreateWorkflow(Workflow);
         EventFunctionName := LibraryUtility.GenerateRandomCode(WorkflowEvent.FieldNo("Function Name"), DATABASE::"Workflow Event");
-        WorkflowEventHandling.AddEventToLibrary(EventFunctionName, DATABASE::Customer, LibraryUtility.GenerateGUID, 0, true);
+        WorkflowEventHandling.AddEventToLibrary(EventFunctionName, DATABASE::Customer, LibraryUtility.GenerateGUID(), 0, true);
 
         StepId := LibraryWorkflow.InsertEntryPointEventStep(Workflow, EventFunctionName);
 
@@ -181,10 +180,10 @@ codeunit 134316 "Workflow UI Tests"
         InputWorkflowRule.Operator := InputWorkflowRule.Operator::Increased;
 
         // Execute - Page handler will create the rules
-        WorkflowPage.OpenEdit;
+        WorkflowPage.OpenEdit();
         WorkflowPage.GotoRecord(Workflow);
-        WorkflowPage.WorkflowSubpage.First;
-        WorkflowPage.WorkflowSubpage.Condition.AssistEdit;
+        WorkflowPage.WorkflowSubpage.First();
+        WorkflowPage.WorkflowSubpage.Condition.AssistEdit();
 
         // Verify
         WorkflowRule.SetRange("Workflow Code", Workflow.Code);
@@ -222,7 +221,7 @@ codeunit 134316 "Workflow UI Tests"
         // Setup
         LibraryWorkflow.CreateWorkflow(Workflow);
         EventFunctionName := LibraryUtility.GenerateRandomCode(WorkflowEvent.FieldNo("Function Name"), DATABASE::"Workflow Event");
-        WorkflowEventHandling.AddEventToLibrary(EventFunctionName, DATABASE::Customer, LibraryUtility.GenerateGUID, 0, true);
+        WorkflowEventHandling.AddEventToLibrary(EventFunctionName, DATABASE::Customer, LibraryUtility.GenerateGUID(), 0, true);
 
         StepId := LibraryWorkflow.InsertEntryPointEventStep(Workflow, EventFunctionName);
 
@@ -234,10 +233,10 @@ codeunit 134316 "Workflow UI Tests"
         InputWorkflowRule.Operator := InputWorkflowRule.Operator::Changed;
 
         // Execute - Page handler will create the rules
-        WorkflowPage.OpenEdit;
+        WorkflowPage.OpenEdit();
         WorkflowPage.GotoRecord(Workflow);
-        WorkflowPage.WorkflowSubpage.First;
-        WorkflowPage.WorkflowSubpage.Condition.AssistEdit;
+        WorkflowPage.WorkflowSubpage.First();
+        WorkflowPage.WorkflowSubpage.Condition.AssistEdit();
 
         // Verify
         WorkflowRule.SetRange("Workflow Code", Workflow.Code);
@@ -267,7 +266,7 @@ codeunit 134316 "Workflow UI Tests"
         // Setup
         LibraryWorkflow.CreateWorkflow(Workflow);
         EventFunctionName := LibraryUtility.GenerateRandomCode(WorkflowEvent.FieldNo("Function Name"), DATABASE::"Workflow Event");
-        WorkflowEventHandling.AddEventToLibrary(EventFunctionName, DATABASE::Customer, LibraryUtility.GenerateGUID, 0, true);
+        WorkflowEventHandling.AddEventToLibrary(EventFunctionName, DATABASE::Customer, LibraryUtility.GenerateGUID(), 0, true);
 
         StepId := LibraryWorkflow.InsertEntryPointEventStep(Workflow, EventFunctionName);
 
@@ -279,10 +278,10 @@ codeunit 134316 "Workflow UI Tests"
         InputWorkflowRule.Operator := InputWorkflowRule.Operator::Increased;
 
         // Execute - Page handler will create the rules
-        WorkflowPage.OpenEdit;
+        WorkflowPage.OpenEdit();
         WorkflowPage.GotoRecord(Workflow);
-        WorkflowPage.WorkflowSubpage.First;
-        WorkflowPage.WorkflowSubpage.Condition.AssistEdit;
+        WorkflowPage.WorkflowSubpage.First();
+        WorkflowPage.WorkflowSubpage.Condition.AssistEdit();
 
         // Verify
         WorkflowRule.SetRange("Workflow Code", Workflow.Code);
@@ -314,7 +313,7 @@ codeunit 134316 "Workflow UI Tests"
         // Setup
         LibraryWorkflow.CreateWorkflow(Workflow);
         EventFunctionName := LibraryUtility.GenerateRandomCode(WorkflowEvent.FieldNo("Function Name"), DATABASE::"Workflow Event");
-        WorkflowEventHandling.AddEventToLibrary(EventFunctionName, DATABASE::Customer, LibraryUtility.GenerateGUID, 0, true);
+        WorkflowEventHandling.AddEventToLibrary(EventFunctionName, DATABASE::Customer, LibraryUtility.GenerateGUID(), 0, true);
 
         StepId := LibraryWorkflow.InsertEntryPointEventStep(Workflow, EventFunctionName);
 
@@ -331,10 +330,10 @@ codeunit 134316 "Workflow UI Tests"
         InputWorkflowRule.Operator := InputWorkflowRule.Operator::Increased;
 
         // Execute - Page handler will create the rules
-        WorkflowPage.OpenEdit;
+        WorkflowPage.OpenEdit();
         WorkflowPage.GotoRecord(Workflow);
-        WorkflowPage.WorkflowSubpage.First;
-        WorkflowPage.WorkflowSubpage.Condition.AssistEdit;
+        WorkflowPage.WorkflowSubpage.First();
+        WorkflowPage.WorkflowSubpage.Condition.AssistEdit();
 
         // Verify
         Assert.IsFalse(WorkflowStep.FindWorkflowRules(WorkflowRule), 'Rule is not deleted');
@@ -364,7 +363,7 @@ codeunit 134316 "Workflow UI Tests"
         // Setup
         LibraryWorkflow.CreateWorkflow(Workflow);
         EventFunctionName := LibraryUtility.GenerateRandomCode(WorkflowEvent.FieldNo("Function Name"), DATABASE::"Workflow Event");
-        WorkflowEventHandling.AddEventToLibrary(EventFunctionName, DATABASE::Customer, LibraryUtility.GenerateGUID, 0, true);
+        WorkflowEventHandling.AddEventToLibrary(EventFunctionName, DATABASE::Customer, LibraryUtility.GenerateGUID(), 0, true);
 
         StepId := LibraryWorkflow.InsertEntryPointEventStep(Workflow, EventFunctionName);
         WorkflowStep.Get(Workflow.Code, StepId);
@@ -379,10 +378,10 @@ codeunit 134316 "Workflow UI Tests"
         InputField.FindFirst();
 
         // Execute - Page handler will lookup the field caption
-        WorkflowPage.OpenEdit;
+        WorkflowPage.OpenEdit();
         WorkflowPage.GotoRecord(Workflow);
-        WorkflowPage.WorkflowSubpage.First;
-        WorkflowPage.WorkflowSubpage.Condition.AssistEdit;
+        WorkflowPage.WorkflowSubpage.First();
+        WorkflowPage.WorkflowSubpage.Condition.AssistEdit();
 
         // Verify - FieldListWithSelectionCheckPageHandler does the verification
     end;
@@ -410,7 +409,7 @@ codeunit 134316 "Workflow UI Tests"
         // Setup
         LibraryWorkflow.CreateWorkflow(Workflow);
         EventFunctionName := LibraryUtility.GenerateRandomCode(WorkflowEvent.FieldNo("Function Name"), DATABASE::"Workflow Event");
-        WorkflowEventHandling.AddEventToLibrary(EventFunctionName, DATABASE::Customer, LibraryUtility.GenerateGUID, 0, true);
+        WorkflowEventHandling.AddEventToLibrary(EventFunctionName, DATABASE::Customer, LibraryUtility.GenerateGUID(), 0, true);
 
         StepId := LibraryWorkflow.InsertEntryPointEventStep(Workflow, EventFunctionName);
 
@@ -426,10 +425,10 @@ codeunit 134316 "Workflow UI Tests"
         InputField."Field Caption" := CopyStr(InputField."Field Caption", 1, 2);
 
         // Execute - Page handler will enter partial field caption
-        WorkflowPage.OpenEdit;
+        WorkflowPage.OpenEdit();
         WorkflowPage.GotoRecord(Workflow);
-        WorkflowPage.WorkflowSubpage.First;
-        WorkflowPage.WorkflowSubpage.Condition.AssistEdit;
+        WorkflowPage.WorkflowSubpage.First();
+        WorkflowPage.WorkflowSubpage.Condition.AssistEdit();
 
         // Verify - FieldListWithFieldNameCheckPageHandler does the verification
     end;
@@ -459,7 +458,7 @@ codeunit 134316 "Workflow UI Tests"
         EntryPointEventStepId := LibraryWorkflow.InsertEntryPointEventStep(Workflow,
             WorkflowEventHandling.RunWorkflowOnCustomerChangedCode());
         LibraryWorkflow.InsertEventRule(EntryPointEventStepId, Customer.FieldNo("Credit Limit (LCY)"), WorkflowRule.Operator::Changed);
-        ResponseStepId := LibraryWorkflow.InsertResponseStep(Workflow, WorkflowResponseHandling.RevertValueForFieldCode,
+        ResponseStepId := LibraryWorkflow.InsertResponseStep(Workflow, WorkflowResponseHandling.RevertValueForFieldCode(),
             EntryPointEventStepId);
         LibraryWorkflow.InsertRecChangeValueArgument(ResponseStepId, 0, 0);
 
@@ -467,15 +466,15 @@ codeunit 134316 "Workflow UI Tests"
         WorkflowStepArgument.Get(WorkflowStepResponse.Argument);
 
         // Exercise
-        WorkflowResponseOptions.OpenView;
+        WorkflowResponseOptions.OpenView();
         WorkflowResponseOptions.GotoRecord(WorkflowStepArgument);
 
         LibraryVariableStorage.Enqueue(Customer.FieldCaption("Credit Limit (LCY)"));
 
-        Assert.IsTrue(WorkflowResponseOptions.TableFieldRevert.Visible, 'The field should be visible');
+        Assert.IsTrue(WorkflowResponseOptions.TableFieldRevert.Visible(), 'The field should be visible');
 
-        WorkflowResponseOptions.TableFieldRevert.Lookup;
-        WorkflowResponseOptions.OK.Invoke;
+        WorkflowResponseOptions.TableFieldRevert.Lookup();
+        WorkflowResponseOptions.OK().Invoke();
 
         // Verify
         WorkflowStepArgument.Find();
@@ -509,29 +508,29 @@ codeunit 134316 "Workflow UI Tests"
         EntryPointEventStepId := LibraryWorkflow.InsertEntryPointEventStep(Workflow,
             WorkflowEventHandling.RunWorkflowOnCustomerChangedCode());
         LibraryWorkflow.InsertEventRule(EntryPointEventStepId, Customer.FieldNo("Credit Limit (LCY)"), WorkflowRule.Operator::Changed);
-        ResponseStepId := LibraryWorkflow.InsertResponseStep(Workflow, WorkflowResponseHandling.RevertValueForFieldCode,
+        ResponseStepId := LibraryWorkflow.InsertResponseStep(Workflow, WorkflowResponseHandling.RevertValueForFieldCode(),
             EntryPointEventStepId);
         LibraryWorkflow.InsertRecChangeValueArgument(ResponseStepId, DATABASE::Customer, Customer.FieldNo("Credit Limit (LCY)"));
-        ApplyNewValuesResponseId := LibraryWorkflow.InsertResponseStep(Workflow, WorkflowResponseHandling.ApplyNewValuesCode,
+        ApplyNewValuesResponseId := LibraryWorkflow.InsertResponseStep(Workflow, WorkflowResponseHandling.ApplyNewValuesCode(),
             ResponseStepId);
 
         WorkflowStepResponse.Get(Workflow.Code, ApplyNewValuesResponseId);
         WorkflowStepArgument.Get(WorkflowStepResponse.Argument);
 
         // Exercise
-        WorkflowResponseOptions.OpenView;
+        WorkflowResponseOptions.OpenView();
         WorkflowResponseOptions.GotoRecord(WorkflowStepArgument);
 
         LibraryVariableStorage.Enqueue(Customer.FieldCaption("Credit Limit (LCY)"));
 
-        Assert.IsFalse(WorkflowResponseOptions.TableFieldApply.Visible, 'The field should not be visible');
+        Assert.IsFalse(WorkflowResponseOptions.TableFieldApply.Visible(), 'The field should not be visible');
 
         WorkflowResponseOptions.ApplyAllValues.SetValue(false);
 
-        Assert.IsTrue(WorkflowResponseOptions.TableFieldApply.Visible, 'The field should be visible');
+        Assert.IsTrue(WorkflowResponseOptions.TableFieldApply.Visible(), 'The field should be visible');
 
-        WorkflowResponseOptions.TableFieldApply.Lookup;
-        WorkflowResponseOptions.OK.Invoke;
+        WorkflowResponseOptions.TableFieldApply.Lookup();
+        WorkflowResponseOptions.OK().Invoke();
 
         // Verify
         WorkflowStepArgument.Find();
@@ -539,16 +538,16 @@ codeunit 134316 "Workflow UI Tests"
         WorkflowStepArgument.TestField("Field No.", Customer.FieldNo("Credit Limit (LCY)"));
 
         // Exercise
-        WorkflowResponseOptions.OpenView;
+        WorkflowResponseOptions.OpenView();
         WorkflowResponseOptions.GotoRecord(WorkflowStepArgument);
 
-        Assert.IsTrue(WorkflowResponseOptions.TableFieldApply.Visible, 'The field should be visible');
+        Assert.IsTrue(WorkflowResponseOptions.TableFieldApply.Visible(), 'The field should be visible');
 
         WorkflowResponseOptions.ApplyAllValues.SetValue(true);
 
-        Assert.IsFalse(WorkflowResponseOptions.TableFieldApply.Visible, 'The field should not be visible');
+        Assert.IsFalse(WorkflowResponseOptions.TableFieldApply.Visible(), 'The field should not be visible');
 
-        WorkflowResponseOptions.OK.Invoke;
+        WorkflowResponseOptions.OK().Invoke();
 
         // Verify
         WorkflowStepArgument.Find();
@@ -583,33 +582,33 @@ codeunit 134316 "Workflow UI Tests"
         EntryPointEventStepId := LibraryWorkflow.InsertEntryPointEventStep(Workflow,
             WorkflowEventHandling.RunWorkflowOnCustomerChangedCode());
         LibraryWorkflow.InsertEventRule(EntryPointEventStepId, Customer.FieldNo("Credit Limit (LCY)"), WorkflowRule.Operator::Changed);
-        ResponseStepId1 := LibraryWorkflow.InsertResponseStep(Workflow, WorkflowResponseHandling.RevertValueForFieldCode,
+        ResponseStepId1 := LibraryWorkflow.InsertResponseStep(Workflow, WorkflowResponseHandling.RevertValueForFieldCode(),
             EntryPointEventStepId);
         LibraryWorkflow.InsertRecChangeValueArgument(ResponseStepId1, DATABASE::Customer, Customer.FieldNo("Credit Limit (LCY)"));
-        ResponseStepId2 := LibraryWorkflow.InsertResponseStep(Workflow, WorkflowResponseHandling.RevertValueForFieldCode,
+        ResponseStepId2 := LibraryWorkflow.InsertResponseStep(Workflow, WorkflowResponseHandling.RevertValueForFieldCode(),
             ResponseStepId1);
         LibraryWorkflow.InsertRecChangeValueArgument(ResponseStepId2, DATABASE::Customer, Customer.FieldNo("Customer Posting Group"));
-        ApplyNewValuesResponseId := LibraryWorkflow.InsertResponseStep(Workflow, WorkflowResponseHandling.ApplyNewValuesCode,
+        ApplyNewValuesResponseId := LibraryWorkflow.InsertResponseStep(Workflow, WorkflowResponseHandling.ApplyNewValuesCode(),
             ResponseStepId2);
 
         WorkflowStepResponse.Get(Workflow.Code, ApplyNewValuesResponseId);
         WorkflowStepArgument.Get(WorkflowStepResponse.Argument);
 
         // Exercise
-        WorkflowResponseOptions.OpenView;
+        WorkflowResponseOptions.OpenView();
         WorkflowResponseOptions.GotoRecord(WorkflowStepArgument);
 
         LibraryVariableStorage.Enqueue(Customer.FieldCaption("Credit Limit (LCY)"));
         LibraryVariableStorage.Enqueue(Customer.FieldCaption("Customer Posting Group"));
 
-        Assert.IsFalse(WorkflowResponseOptions.TableFieldApply.Visible, 'The field should not be visible');
+        Assert.IsFalse(WorkflowResponseOptions.TableFieldApply.Visible(), 'The field should not be visible');
 
         WorkflowResponseOptions.ApplyAllValues.SetValue(false);
 
-        Assert.IsTrue(WorkflowResponseOptions.TableFieldApply.Visible, 'The field should be visible');
+        Assert.IsTrue(WorkflowResponseOptions.TableFieldApply.Visible(), 'The field should be visible');
 
-        WorkflowResponseOptions.TableFieldApply.Lookup;
-        WorkflowResponseOptions.OK.Invoke;
+        WorkflowResponseOptions.TableFieldApply.Lookup();
+        WorkflowResponseOptions.OK().Invoke();
 
         // Verify
         WorkflowStepArgument.Find();
@@ -617,16 +616,16 @@ codeunit 134316 "Workflow UI Tests"
         Assert.AreEqual(Customer.FieldNo("Customer Posting Group"), WorkflowStepArgument."Field No.", 'The wrong field was selected');
 
         // Exercise
-        WorkflowResponseOptions.OpenView;
+        WorkflowResponseOptions.OpenView();
         WorkflowResponseOptions.GotoRecord(WorkflowStepArgument);
 
-        Assert.IsTrue(WorkflowResponseOptions.TableFieldApply.Visible, 'The field should be visible');
+        Assert.IsTrue(WorkflowResponseOptions.TableFieldApply.Visible(), 'The field should be visible');
 
         WorkflowResponseOptions.ApplyAllValues.SetValue(true);
 
-        Assert.IsFalse(WorkflowResponseOptions.TableFieldApply.Visible, 'The field should not be visible');
+        Assert.IsFalse(WorkflowResponseOptions.TableFieldApply.Visible(), 'The field should not be visible');
 
-        WorkflowResponseOptions.OK.Invoke;
+        WorkflowResponseOptions.OK().Invoke();
 
         // Verify
         WorkflowStepArgument.Find();
@@ -662,7 +661,7 @@ codeunit 134316 "Workflow UI Tests"
         CreateRecordChange(WorkflowRecordChange, Customer.RecordId,
           Customer.FieldNo("Credit Limit (LCY)"), Format(OldValue, 0, 9), WorkflowInstanceId);
 
-        RequeststoApprove.OpenView;
+        RequeststoApprove.OpenView();
         RequeststoApprove.GotoRecord(ApprovalEntry);
 
         ApprovalDetails := StrSubstNo('%1; %2 changed from %3 to %4', Customer.RecordId,
@@ -708,7 +707,7 @@ codeunit 134316 "Workflow UI Tests"
         CreateRecordChange(WorkflowRecordChange, Customer.RecordId,
           Customer.FieldNo("Credit Amount (LCY)"), Format(OldValue2, 0, 9), WorkflowInstanceId);
 
-        RequeststoApprove.OpenView;
+        RequeststoApprove.OpenView();
         RequeststoApprove.GotoRecord(ApprovalEntry);
 
         ApprovalDetails := StrSubstNo('%1; %2 changed from %3 to %4; %5 changed from %6 to %7',
@@ -755,7 +754,7 @@ codeunit 134316 "Workflow UI Tests"
         Customer.FindFirst();
         CreateApprovalEntry(ApprovalEntry, Customer.RecordId, UserId, WorkflowInstanceId);
 
-        RequeststoApprove.OpenView;
+        RequeststoApprove.OpenView();
         RequeststoApprove.GotoRecord(ApprovalEntry);
         RequeststoApprove.Comment.AssertEquals(true);
         Assert.AreEqual(Format(Customer.RecordId, 0, 1), RequeststoApprove.Details.Value, 'Record details seem to be wrong');
@@ -798,10 +797,10 @@ codeunit 134316 "Workflow UI Tests"
         CreateRecordChange(WorkflowRecordChange, Customer.RecordId,
           Customer.FieldNo("Credit Limit (LCY)"), Format(OldValue, 0, 9), WorkflowInstanceId);
 
-        RequeststoApprove.OpenView;
+        RequeststoApprove.OpenView();
         RequeststoApprove.GotoRecord(ApprovalEntry);
         RequeststoApprove.Comment.AssertEquals(true);
-        RequeststoApprove.CommentsFactBox.First;
+        RequeststoApprove.CommentsFactBox.First();
 
         RequeststoApprove.CommentsFactBox.Comment.AssertEquals(Comment);
     end;
@@ -846,20 +845,20 @@ codeunit 134316 "Workflow UI Tests"
         CreateRecordChange(WorkflowRecordChange, Customer.RecordId,
           Customer.FieldNo("Credit Limit (LCY)"), Format(OldValue, 0, 9), WorkflowInstanceId);
 
-        RequeststoApprove.OpenView;
+        RequeststoApprove.OpenView();
         RequeststoApprove.GotoRecord(ApprovalEntry1);
         RequeststoApprove.Comment.AssertEquals(true);
-        RequeststoApprove.CommentsFactBox.First;
+        RequeststoApprove.CommentsFactBox.First();
 
         RequeststoApprove.CommentsFactBox.Comment.AssertEquals(Comment1);
-        Assert.IsFalse(RequeststoApprove.CommentsFactBox.Next, 'Too many elements');
+        Assert.IsFalse(RequeststoApprove.CommentsFactBox.Next(), 'Too many elements');
 
         RequeststoApprove.GotoRecord(ApprovalEntry2);
         RequeststoApprove.Comment.AssertEquals(true);
-        RequeststoApprove.CommentsFactBox.First;
+        RequeststoApprove.CommentsFactBox.First();
 
         RequeststoApprove.CommentsFactBox.Comment.AssertEquals(Comment2);
-        Assert.IsFalse(RequeststoApprove.CommentsFactBox.Next, 'Too many elements');
+        Assert.IsFalse(RequeststoApprove.CommentsFactBox.Next(), 'Too many elements');
     end;
 
     [Test]
@@ -901,20 +900,20 @@ codeunit 134316 "Workflow UI Tests"
         CreateRecordChange(WorkflowRecordChange, Customer.RecordId,
           Customer.FieldNo("Credit Limit (LCY)"), Format(OldValue, 0, 9), WorkflowInstanceId);
 
-        RequeststoApprove.OpenView;
+        RequeststoApprove.OpenView();
         RequeststoApprove.GotoRecord(ApprovalEntry1);
         RequeststoApprove.Comment.AssertEquals(true);
-        RequeststoApprove.CommentsFactBox.First;
+        RequeststoApprove.CommentsFactBox.First();
 
         RequeststoApprove.CommentsFactBox.Comment.AssertEquals(Comment1);
-        Assert.IsFalse(RequeststoApprove.CommentsFactBox.Next, 'Too many elements');
+        Assert.IsFalse(RequeststoApprove.CommentsFactBox.Next(), 'Too many elements');
 
         RequeststoApprove.GotoRecord(ApprovalEntry2);
         RequeststoApprove.Comment.AssertEquals(true);
-        RequeststoApprove.CommentsFactBox.First;
+        RequeststoApprove.CommentsFactBox.First();
 
         RequeststoApprove.CommentsFactBox.Comment.AssertEquals(Comment2);
-        Assert.IsFalse(RequeststoApprove.CommentsFactBox.Next, 'Too many elements');
+        Assert.IsFalse(RequeststoApprove.CommentsFactBox.Next(), 'Too many elements');
     end;
 
     [Test]
@@ -944,7 +943,7 @@ codeunit 134316 "Workflow UI Tests"
         LibrarySales.CreateCustomer(Customer);
         CreateApprovalEntry(ApprovalEntry, Customer.RecordId, UserId, WorkflowInstanceId);
 
-        RequeststoApprove.OpenView;
+        RequeststoApprove.OpenView();
         RequeststoApprove.GotoRecord(ApprovalEntry);
         RequeststoApprove.Comment.AssertEquals(false);
         RequeststoApprove.Close();
@@ -953,13 +952,13 @@ codeunit 134316 "Workflow UI Tests"
         CreateRecordChange(WorkflowRecordChange, Customer.RecordId,
           Customer.FieldNo("Credit Limit (LCY)"), Format(OldValue, 0, 9), WorkflowInstanceId);
 
-        RequeststoApprove.OpenView;
+        RequeststoApprove.OpenView();
         RequeststoApprove.GotoRecord(ApprovalEntry);
         RequeststoApprove.Comment.AssertEquals(true);
-        RequeststoApprove.CommentsFactBox.First;
+        RequeststoApprove.CommentsFactBox.First();
 
         RequeststoApprove.CommentsFactBox.Comment.AssertEquals(Comment);
-        Assert.IsFalse(RequeststoApprove.CommentsFactBox.Next, 'Too many elements');
+        Assert.IsFalse(RequeststoApprove.CommentsFactBox.Next(), 'Too many elements');
     end;
 
     [Test]
@@ -987,30 +986,30 @@ codeunit 134316 "Workflow UI Tests"
         EntryPointEventStepId :=
             LibraryWorkflow.InsertEntryPointEventStep(Workflow, WorkflowEventHandling.RunWorkflowOnCustomerChangedCode());
         ResponseStepId :=
-            LibraryWorkflow.InsertResponseStep(Workflow, WorkflowResponseHandling.CreateNotificationEntryCode, EntryPointEventStepId);
+            LibraryWorkflow.InsertResponseStep(Workflow, WorkflowResponseHandling.CreateNotificationEntryCode(), EntryPointEventStepId);
         LibraryWorkflow.InsertNotificationArgument(ResponseStepId, '', 0, '');
 
         WorkflowStepResponse.Get(Workflow.Code, ResponseStepId);
         WorkflowStepArgument.Get(WorkflowStepResponse.Argument);
 
         // [WHEN] The user navigates to the response options.
-        WorkflowResponseOptions.OpenEdit;
+        WorkflowResponseOptions.OpenEdit();
         WorkflowResponseOptions.GotoRecord(WorkflowStepArgument);
 
         // [THEN] "Link Target Page", "Custom Link", "Notification User ID", and "Notify Sender" are visible and editable
-        Assert.IsTrue(WorkflowResponseOptions."Link Target Page".Visible, 'Link Target Page.Visible');
-        Assert.IsTrue(WorkflowResponseOptions."Custom Link".Visible, 'Custom Link.Visible');
-        Assert.IsTrue(WorkflowResponseOptions."Link Target Page".Editable, 'Link Target Page.Editable');
-        Assert.IsTrue(WorkflowResponseOptions."Custom Link".Editable, 'Custom Link.Editable');
-        Assert.IsTrue(WorkflowResponseOptions."Notification User ID".Visible, 'Notification User ID.Visible');
-        Assert.IsTrue(WorkflowResponseOptions."Notification User ID".Editable, 'Notification User ID.Editable');
-        Assert.IsTrue(WorkflowResponseOptions.NotifySender3.Visible, 'Notify Sender.Visible');
-        Assert.IsTrue(WorkflowResponseOptions.NotifySender3.Editable, 'Notify Sender.Editable');
+        Assert.IsTrue(WorkflowResponseOptions."Link Target Page".Visible(), 'Link Target Page.Visible');
+        Assert.IsTrue(WorkflowResponseOptions."Custom Link".Visible(), 'Custom Link.Visible');
+        Assert.IsTrue(WorkflowResponseOptions."Link Target Page".Editable(), 'Link Target Page.Editable');
+        Assert.IsTrue(WorkflowResponseOptions."Custom Link".Editable(), 'Custom Link.Editable');
+        Assert.IsTrue(WorkflowResponseOptions."Notification User ID".Visible(), 'Notification User ID.Visible');
+        Assert.IsTrue(WorkflowResponseOptions."Notification User ID".Editable(), 'Notification User ID.Editable');
+        Assert.IsTrue(WorkflowResponseOptions.NotifySender3.Visible(), 'Notify Sender.Visible');
+        Assert.IsTrue(WorkflowResponseOptions.NotifySender3.Editable(), 'Notify Sender.Editable');
 
         // [THEN] The user can enter a "Notification User ID", as it is visible and editable.
         WorkflowResponseOptions."Notification User ID".Value := UserName;
 
-        WorkflowResponseOptions.OK.Invoke;
+        WorkflowResponseOptions.OK().Invoke();
 
         // Verify
         WorkflowStepArgument.Find();
@@ -1042,30 +1041,30 @@ codeunit 134316 "Workflow UI Tests"
         EntryPointEventStepId :=
             LibraryWorkflow.InsertEntryPointEventStep(Workflow, WorkflowEventHandling.RunWorkflowOnCustomerChangedCode());
         ResponseStepId :=
-            LibraryWorkflow.InsertResponseStep(Workflow, WorkflowResponseHandling.CreateNotificationEntryCode, EntryPointEventStepId);
+            LibraryWorkflow.InsertResponseStep(Workflow, WorkflowResponseHandling.CreateNotificationEntryCode(), EntryPointEventStepId);
         LibraryWorkflow.InsertNotificationArgument(ResponseStepId, UserName, 0, '');
 
         WorkflowStepResponse.Get(Workflow.Code, ResponseStepId);
         WorkflowStepArgument.Get(WorkflowStepResponse.Argument);
 
         // [GIVEN] The user navigates to the response options.
-        WorkflowResponseOptions.OpenEdit;
+        WorkflowResponseOptions.OpenEdit();
         WorkflowResponseOptions.GotoRecord(WorkflowStepArgument);
 
         // [GIVEN] "Notification User ID", and "Notify Sender" are visible and editable
-        Assert.IsTrue(WorkflowResponseOptions."Notification User ID".Visible, 'Notification User ID.Visible');
-        Assert.IsTrue(WorkflowResponseOptions."Notification User ID".Editable, 'Notification User ID.Editable');
-        Assert.IsTrue(WorkflowResponseOptions.NotifySender3.Visible, 'Notify Sender.Visible');
-        Assert.IsTrue(WorkflowResponseOptions.NotifySender3.Editable, 'Notify Sender.Editable');
+        Assert.IsTrue(WorkflowResponseOptions."Notification User ID".Visible(), 'Notification User ID.Visible');
+        Assert.IsTrue(WorkflowResponseOptions."Notification User ID".Editable(), 'Notification User ID.Editable');
+        Assert.IsTrue(WorkflowResponseOptions.NotifySender3.Visible(), 'Notify Sender.Visible');
+        Assert.IsTrue(WorkflowResponseOptions.NotifySender3.Editable(), 'Notify Sender.Editable');
 
         // [WHEN] The user set "Notify Sender" as 'Yes'.
         WorkflowResponseOptions.NotifySender3.Value := format(true);
 
         // [THEN] "Notification User ID" is visible, but not editable
-        Assert.IsTrue(WorkflowResponseOptions."Notification User ID".Visible, 'Notification User ID.Visible');
-        Assert.IsFalse(WorkflowResponseOptions."Notification User ID".Editable, 'Notification User ID.Editable');
+        Assert.IsTrue(WorkflowResponseOptions."Notification User ID".Visible(), 'Notification User ID.Visible');
+        Assert.IsFalse(WorkflowResponseOptions."Notification User ID".Editable(), 'Notification User ID.Editable');
 
-        WorkflowResponseOptions.OK.Invoke;
+        WorkflowResponseOptions.OK().Invoke();
 
         // [THEN] WorkflowStepArgument, where "Notify Sender" is 'Yes', "Notification User ID" is blank 
         WorkflowStepArgument.Find();
@@ -1094,7 +1093,7 @@ codeunit 134316 "Workflow UI Tests"
         LibraryWorkflow.CreateWorkflow(Workflow);
         EntryPointEventStepId := LibraryWorkflow.InsertEntryPointEventStep(Workflow,
             WorkflowEventHandling.RunWorkflowOnCustomerChangedCode());
-        ResponseStepId := LibraryWorkflow.InsertResponseStep(Workflow, WorkflowResponseHandling.ShowMessageCode,
+        ResponseStepId := LibraryWorkflow.InsertResponseStep(Workflow, WorkflowResponseHandling.ShowMessageCode(),
             EntryPointEventStepId);
         LibraryWorkflow.InsertMessageArgument(ResponseStepId, '');
 
@@ -1102,14 +1101,14 @@ codeunit 134316 "Workflow UI Tests"
         WorkflowStepArgument.Get(WorkflowStepResponse.Argument);
 
         // Exercise
-        WorkflowResponseOptions.OpenView;
+        WorkflowResponseOptions.OpenView();
         WorkflowResponseOptions.GotoRecord(WorkflowStepArgument);
 
-        Assert.IsTrue(WorkflowResponseOptions.MessageField.Visible, FieldShouldBeVisibleErr);
+        Assert.IsTrue(WorkflowResponseOptions.MessageField.Visible(), FieldShouldBeVisibleErr);
 
         WorkflowResponseOptions.MessageField.Value := ShowMessageTestMsg;
 
-        WorkflowResponseOptions.OK.Invoke;
+        WorkflowResponseOptions.OK().Invoke();
 
         // Verify
         WorkflowStepArgument.Find();
@@ -1133,7 +1132,7 @@ codeunit 134316 "Workflow UI Tests"
         // [THEN] The trees generated are same.
 
         // Setup
-        LibraryWorkflow.CopyWorkflow(Workflow, 'MS-' + WorkflowSetup.CustomerCreditLimitChangeApprovalWorkflowCode);
+        LibraryWorkflow.CopyWorkflow(Workflow, 'MS-' + WorkflowSetup.CustomerCreditLimitChangeApprovalWorkflowCode());
         Workflow.CreateInstance(WorkflowStepInstance);
         WorkflowStepInstance.FindFirst();
 
@@ -1167,14 +1166,14 @@ codeunit 134316 "Workflow UI Tests"
         // [THEN] The user will get an error saying they need to a add a workflow code.
 
         // Setup
-        LibraryWorkflow.DeleteAllExistingWorkflows;
+        LibraryWorkflow.DeleteAllExistingWorkflows();
 
         // Exercise
-        Workflows.OpenView;
-        Workflow.Trap;
-        Workflows.NewAction.Invoke;
+        Workflows.OpenView();
+        Workflow.Trap();
+        Workflows.NewAction.Invoke();
 
-        asserterror Workflow.WorkflowSubpage."Event Description".Lookup;
+        asserterror Workflow.WorkflowSubpage."Event Description".Lookup();
 
         // Verify
         Assert.ExpectedError(CannotAddStepToNoCodeWorkflowErr);
@@ -1202,7 +1201,7 @@ codeunit 134316 "Workflow UI Tests"
         LibraryWorkflow.CreateWorkflow(Workflow);
         EntryPointEventStepId := LibraryWorkflow.InsertEntryPointEventStep(Workflow,
             WorkflowEventHandling.RunWorkflowOnCustomerChangedCode());
-        ResponseStepId := LibraryWorkflow.InsertResponseStep(Workflow, WorkflowResponseHandling.CreatePmtLineForPostedPurchaseDocCode,
+        ResponseStepId := LibraryWorkflow.InsertResponseStep(Workflow, WorkflowResponseHandling.CreatePmtLineForPostedPurchaseDocCode(),
             EntryPointEventStepId);
         LibraryWorkflow.InsertPmtLineCreationArgument(ResponseStepId, '', '');
 
@@ -1212,16 +1211,16 @@ codeunit 134316 "Workflow UI Tests"
         WorkflowStepArgument.Get(WorkflowStepResponse.Argument);
 
         // Exercise
-        WorkflowResponseOptions.OpenView;
+        WorkflowResponseOptions.OpenView();
         WorkflowResponseOptions.GotoRecord(WorkflowStepArgument);
 
-        Assert.IsTrue(WorkflowResponseOptions."General Journal Batch Name".Visible, FieldShouldBeVisibleErr);
-        Assert.IsTrue(WorkflowResponseOptions."General Journal Template Name".Visible, FieldShouldBeVisibleErr);
+        Assert.IsTrue(WorkflowResponseOptions."General Journal Batch Name".Visible(), FieldShouldBeVisibleErr);
+        Assert.IsTrue(WorkflowResponseOptions."General Journal Template Name".Visible(), FieldShouldBeVisibleErr);
 
         WorkflowResponseOptions."General Journal Template Name".SetValue(GenJournalBatch."Journal Template Name");
         WorkflowResponseOptions."General Journal Batch Name".SetValue(GenJournalBatch.Name);
 
-        WorkflowResponseOptions.OK.Invoke;
+        WorkflowResponseOptions.OK().Invoke();
 
         // Verify
         WorkflowStepArgument.Find();
@@ -1250,7 +1249,7 @@ codeunit 134316 "Workflow UI Tests"
         LibraryWorkflow.CreateWorkflow(Workflow);
         EntryPointEventStepId := LibraryWorkflow.InsertEntryPointEventStep(Workflow,
             WorkflowEventHandling.RunWorkflowOnCustomerChangedCode());
-        ResponseStepId := LibraryWorkflow.InsertResponseStep(Workflow, WorkflowResponseHandling.CreateApprovalRequestsCode,
+        ResponseStepId := LibraryWorkflow.InsertResponseStep(Workflow, WorkflowResponseHandling.CreateApprovalRequestsCode(),
             EntryPointEventStepId);
         LibraryWorkflow.InsertApprovalArgument(ResponseStepId, WorkflowStepArgument."Approver Type"::Approver,
           WorkflowStepArgument."Approver Limit Type"::"Approver Chain", '', true);
@@ -1259,21 +1258,21 @@ codeunit 134316 "Workflow UI Tests"
         WorkflowStepArgument.Get(WorkflowStepResponse.Argument);
 
         // Exercise
-        WorkflowResponseOptions.OpenView;
+        WorkflowResponseOptions.OpenView();
         WorkflowResponseOptions.GotoRecord(WorkflowStepArgument);
 
-        Assert.IsTrue(WorkflowResponseOptions."Show Confirmation Message".Visible, FieldShouldBeVisibleErr);
-        Assert.IsTrue(WorkflowResponseOptions."Due Date Formula".Visible, FieldShouldBeVisibleErr);
-        Assert.IsTrue(WorkflowResponseOptions."Delegate After".Visible, FieldShouldBeVisibleErr);
-        Assert.IsTrue(WorkflowResponseOptions."Approver Type".Visible, FieldShouldBeVisibleErr);
-        Assert.IsTrue(WorkflowResponseOptions."Approver Limit Type".Visible, FieldShouldBeVisibleErr);
+        Assert.IsTrue(WorkflowResponseOptions."Show Confirmation Message".Visible(), FieldShouldBeVisibleErr);
+        Assert.IsTrue(WorkflowResponseOptions."Due Date Formula".Visible(), FieldShouldBeVisibleErr);
+        Assert.IsTrue(WorkflowResponseOptions."Delegate After".Visible(), FieldShouldBeVisibleErr);
+        Assert.IsTrue(WorkflowResponseOptions."Approver Type".Visible(), FieldShouldBeVisibleErr);
+        Assert.IsTrue(WorkflowResponseOptions."Approver Limit Type".Visible(), FieldShouldBeVisibleErr);
 
         WorkflowResponseOptions."Show Confirmation Message".SetValue(false);
         WorkflowResponseOptions."Due Date Formula".SetValue('<2D>');
         WorkflowResponseOptions."Delegate After".SetValue(WorkflowStepArgument."Delegate After"::"1 day");
         WorkflowResponseOptions."Approver Type".SetValue(WorkflowStepArgument."Approver Type"::"Salesperson/Purchaser");
         WorkflowResponseOptions."Approver Limit Type".SetValue(WorkflowStepArgument."Approver Limit Type"::"Direct Approver");
-        WorkflowResponseOptions.OK.Invoke;
+        WorkflowResponseOptions.OK().Invoke();
 
         // Verify
         WorkflowStepArgument.Find();
@@ -1303,15 +1302,15 @@ codeunit 134316 "Workflow UI Tests"
 
         // Setup
         LibraryWorkflow.CreateWorkflow(Workflow);
-        LibraryWorkflow.InsertEntryPointEventStep(Workflow, WorkflowEventHandling.RunWorkflowOnAfterInsertIncomingDocumentCode);
+        LibraryWorkflow.InsertEntryPointEventStep(Workflow, WorkflowEventHandling.RunWorkflowOnAfterInsertIncomingDocumentCode());
         LibraryWorkflow.EnableWorkflow(Workflow);
-        LibraryIncomingDocuments.InitIncomingDocuments;
+        LibraryIncomingDocuments.InitIncomingDocuments();
         LibraryIncomingDocuments.CreateNewIncomingDocument(IncomingDocument);
 
         // Exercise
-        WorkflowPage.OpenView;
+        WorkflowPage.OpenView();
         WorkflowPage.GotoRecord(Workflow);
-        WorkflowPage.ArchivedWorkflowStepInstances.Invoke;
+        WorkflowPage.ArchivedWorkflowStepInstances.Invoke();
 
         // Verify
         // Verification is done in the modal page handler
@@ -1331,7 +1330,7 @@ codeunit 134316 "Workflow UI Tests"
         // [THEN] The workflows page is opened without a record.
 
         // Setup
-        LibraryWorkflow.DeleteAllExistingWorkflows;
+        LibraryWorkflow.DeleteAllExistingWorkflows();
         LibraryVariableStorage.Enqueue(0);
 
         // Exercise
@@ -1358,15 +1357,15 @@ codeunit 134316 "Workflow UI Tests"
         // [THEN] The workflow page is opened, showing the correct workflow.
 
         // Setup
-        LibraryWorkflow.DisableAllWorkflows;
-        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.CustomerWorkflowCode);
+        LibraryWorkflow.DisableAllWorkflows();
+        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.CustomerWorkflowCode());
         LibraryVariableStorage.Enqueue(Workflow.Code);
 
         // Exercise
         Assert.IsTrue(WorkflowManagement.EnabledWorkflowExist(DATABASE::Customer,
-            WorkflowEventHandling.RunWorkflowOnSendCustomerForApprovalCode),
+            WorkflowEventHandling.RunWorkflowOnSendCustomerForApprovalCode()),
           'Workflows should exist');
-        WorkflowManagement.NavigateToWorkflows(DATABASE::Customer, WorkflowEventHandling.RunWorkflowOnSendCustomerForApprovalCode);
+        WorkflowManagement.NavigateToWorkflows(DATABASE::Customer, WorkflowEventHandling.RunWorkflowOnSendCustomerForApprovalCode());
 
         // Verify - Verification is done in the modal page handler
     end;
@@ -1387,17 +1386,17 @@ codeunit 134316 "Workflow UI Tests"
         // [THEN] The workflows page is opened, showing the correct workflows.
 
         // Setup
-        LibraryWorkflow.DisableAllWorkflows;
+        LibraryWorkflow.DisableAllWorkflows();
         LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.PurchaseInvoiceApprovalWorkflowCode());
-        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.PurchaseCreditMemoApprovalWorkflowCode);
+        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.PurchaseCreditMemoApprovalWorkflowCode());
         LibraryVariableStorage.Enqueue(2);
 
         // Exercise
         Assert.IsFalse(WorkflowManagement.EnabledWorkflowExist(DATABASE::Customer,
-            WorkflowEventHandling.RunWorkflowOnSendPurchaseDocForApprovalCode),
+            WorkflowEventHandling.RunWorkflowOnSendPurchaseDocForApprovalCode()),
           'Workflows should exist');
         WorkflowManagement.NavigateToWorkflows(DATABASE::"Purchase Header",
-          WorkflowEventHandling.RunWorkflowOnSendPurchaseDocForApprovalCode);
+          WorkflowEventHandling.RunWorkflowOnSendPurchaseDocForApprovalCode());
 
         // Verify - Verification is done in the page handler
     end;
@@ -1417,17 +1416,17 @@ codeunit 134316 "Workflow UI Tests"
         // [THEN] The user returns to the list of Workflows which now contains the new workflow.
 
         // Setup:
-        LibraryWorkflow.DeleteAllExistingWorkflows;
-        WorkflowCategory := LibraryWorkflow.CreateWorkflowCategory;
+        LibraryWorkflow.DeleteAllExistingWorkflows();
+        WorkflowCategory := LibraryWorkflow.CreateWorkflowCategory();
 
         // Exercise:
-        Workflows.OpenView;
-        Workflow.Trap;
-        Workflows.NewAction.Invoke;
+        Workflows.OpenView();
+        Workflow.Trap();
+        Workflows.NewAction.Invoke();
         Workflow.Code.SetValue('WFID');
         Workflow.Description.SetValue('WF Desc');
         Workflow.Category.SetValue(WorkflowCategory);
-        Workflow.OK.Invoke;
+        Workflow.OK().Invoke();
         // Trigger refresh buffer logic by changing filter
         Workflows.FILTER.Ascending(false);
 
@@ -1451,31 +1450,31 @@ codeunit 134316 "Workflow UI Tests"
         EventFunctionName2: Code[128];
     begin
         // [SCENARIO 217100] Workflow event should be accessible to select as event step when it is added after identical event with indentation.
-        SetApplicationArea;
+        SetApplicationArea();
 
         // [GIVEN] Events "E1" and "E2" with predecessor event "P"
-        PredecessorFunctionName := CreateWorkflowEvent;
-        EventFunctionName1 := CreateWorkflowEvent;
-        EventFunctionName2 := CreateWorkflowEvent;
+        PredecessorFunctionName := CreateWorkflowEvent();
+        EventFunctionName1 := CreateWorkflowEvent();
+        EventFunctionName2 := CreateWorkflowEvent();
         CreateWFEventCombination(EventFunctionName1, PredecessorFunctionName);
         CreateWFEventCombination(EventFunctionName2, PredecessorFunctionName);
 
         // [GIVEN] Workflow page with first line of event "P" and second line event "E1" with Indent = 1
         LibraryWorkflow.CreateWorkflow(Workflow);
-        WorkflowPage.OpenEdit;
+        WorkflowPage.OpenEdit();
         WorkflowPage.GotoRecord(Workflow);
         LibraryVariableStorage.Enqueue(PredecessorFunctionName);
-        WorkflowPage.WorkflowSubpage."Event Description".Lookup;
+        WorkflowPage.WorkflowSubpage."Event Description".Lookup();
 
         LibraryVariableStorage.Enqueue(EventFunctionName1);
         WorkflowPage.WorkflowSubpage.Next();
-        WorkflowPage.WorkflowSubpage."Event Description".Lookup;
-        WorkflowPage.WorkflowSubpage.IncreaseIndent.Invoke;
+        WorkflowPage.WorkflowSubpage."Event Description".Lookup();
+        WorkflowPage.WorkflowSubpage.IncreaseIndent.Invoke();
 
         // [WHEN] Select event "E2" on lookup 'When Event' field below event "E1"
         LibraryVariableStorage.Enqueue(EventFunctionName2);
         WorkflowPage.WorkflowSubpage.Next();
-        WorkflowPage.WorkflowSubpage."Event Description".Lookup;
+        WorkflowPage.WorkflowSubpage."Event Description".Lookup();
 
         // [THEN] Workflow step is added with 'When Event' = "E2"
         WorkflowEvent.Get(EventFunctionName2);
@@ -1504,13 +1503,13 @@ codeunit 134316 "Workflow UI Tests"
           ApprovalEntry,
           Currency.RecordId,
           UserId,
-          CreateGuid,
+          CreateGuid(),
           Amount,
           AmountLCY,
           Currency.Code);
 
         // [WHEN] Open Page "Requests to Approve"
-        RequeststoApprove.OpenView;
+        RequeststoApprove.OpenView();
 
         // [THEN] On line "AE01" fields "Amount" = 100, "Amount (LCY)" = 150, "Currency Code" = "CUR" are shown
         RequeststoApprove.FILTER.SetFilter("Entry No.", Format(ApprovalEntry."Entry No."));
@@ -1533,15 +1532,15 @@ codeunit 134316 "Workflow UI Tests"
         LibraryApplicationArea.EnableFoundationSetup();
 
         // [WHEN] Open Page "Requests to Approve"
-        RequeststoApprove.OpenView;
+        RequeststoApprove.OpenView();
 
         // [THEN] Fields "Amount", "Amount (LCY)" and "Currency Code" are visible
-        Assert.IsTrue(RequeststoApprove.Amount.Visible, FieldShouldBeVisibleErr);
-        Assert.IsTrue(RequeststoApprove."Amount (LCY)".Visible, FieldShouldBeVisibleErr);
-        Assert.IsTrue(RequeststoApprove."Currency Code".Visible, FieldShouldBeVisibleErr);
+        Assert.IsTrue(RequeststoApprove.Amount.Visible(), FieldShouldBeVisibleErr);
+        Assert.IsTrue(RequeststoApprove."Amount (LCY)".Visible(), FieldShouldBeVisibleErr);
+        Assert.IsTrue(RequeststoApprove."Currency Code".Visible(), FieldShouldBeVisibleErr);
         RequeststoApprove.Close();
 
-        LibraryApplicationArea.DisableApplicationAreaSetup;
+        LibraryApplicationArea.DisableApplicationAreaSetup();
     end;
 
     [Test]
@@ -1566,13 +1565,13 @@ codeunit 134316 "Workflow UI Tests"
           ApprovalEntry,
           Currency.RecordId,
           UserId,
-          CreateGuid,
+          CreateGuid(),
           Amount,
           AmountLCY,
           Currency.Code);
 
         // [WHEN] Open Page "Approval Request Entries"
-        ApprovalRequestEntries.OpenView;
+        ApprovalRequestEntries.OpenView();
 
         // [THEN] On line "AE01" fields "Amount" = 100, "Amount (LCY)" = 150, "Currency Code" = "CUR" are shown
         ApprovalRequestEntries.FILTER.SetFilter("Entry No.", Format(ApprovalEntry."Entry No."));
@@ -1595,15 +1594,15 @@ codeunit 134316 "Workflow UI Tests"
         LibraryApplicationArea.EnableFoundationSetup();
 
         // [WHEN] Open Page "Approval Request Entries"
-        ApprovalRequestEntries.OpenView;
+        ApprovalRequestEntries.OpenView();
 
         // [THEN] Fields "Amount", "Amount (LCY)" and "Currency Code" are visible
-        Assert.IsTrue(ApprovalRequestEntries.Amount.Visible, FieldShouldBeVisibleErr);
-        Assert.IsTrue(ApprovalRequestEntries."Amount (LCY)".Visible, FieldShouldBeVisibleErr);
-        Assert.IsTrue(ApprovalRequestEntries."Currency Code".Visible, FieldShouldBeVisibleErr);
+        Assert.IsTrue(ApprovalRequestEntries.Amount.Visible(), FieldShouldBeVisibleErr);
+        Assert.IsTrue(ApprovalRequestEntries."Amount (LCY)".Visible(), FieldShouldBeVisibleErr);
+        Assert.IsTrue(ApprovalRequestEntries."Currency Code".Visible(), FieldShouldBeVisibleErr);
         ApprovalRequestEntries.Close();
 
-        LibraryApplicationArea.DisableApplicationAreaSetup;
+        LibraryApplicationArea.DisableApplicationAreaSetup();
     end;
 
     [Test]
@@ -1675,7 +1674,7 @@ codeunit 134316 "Workflow UI Tests"
         WorkflowEvent: Record "Workflow Event";
     begin
         EventFunctionName := LibraryUtility.GenerateRandomCode(WorkflowEvent.FieldNo("Function Name"), DATABASE::"Workflow Event");
-        WorkflowEventHandling.AddEventToLibrary(EventFunctionName, DATABASE::Customer, LibraryUtility.GenerateGUID, 0, false);
+        WorkflowEventHandling.AddEventToLibrary(EventFunctionName, DATABASE::Customer, LibraryUtility.GenerateGUID(), 0, false);
     end;
 
     local procedure CreateWFEventCombination(WorkflowEventName: Code[128]; PredesessorFunctionName: Code[128])
@@ -1702,18 +1701,18 @@ codeunit 134316 "Workflow UI Tests"
         WorkflowPage.Trap();
         Page.Run(Page::Workflow, Workflow);
 
-        Assert.AreEqual(IsActionable, WorkflowPage.WorkflowStepInstances.Visible, UIElementDoesNotHaveCorrectStateErr);
-        Assert.AreEqual(IsActionable, WorkflowPage.ArchivedWorkflowStepInstances.Visible, UIElementDoesNotHaveCorrectStateErr);
+        Assert.AreEqual(IsActionable, WorkflowPage.WorkflowStepInstances.Visible(), UIElementDoesNotHaveCorrectStateErr);
+        Assert.AreEqual(IsActionable, WorkflowPage.ArchivedWorkflowStepInstances.Visible(), UIElementDoesNotHaveCorrectStateErr);
 
-        Assert.AreEqual(IsActionable, WorkflowPage.Code.Editable, UIElementDoesNotHaveCorrectStateErr);
-        Assert.AreEqual(IsActionable, WorkflowPage.Description.Editable, UIElementDoesNotHaveCorrectStateErr);
-        Assert.AreEqual(IsActionable, WorkflowPage.Description.Editable, UIElementDoesNotHaveCorrectStateErr);
+        Assert.AreEqual(IsActionable, WorkflowPage.Code.Editable(), UIElementDoesNotHaveCorrectStateErr);
+        Assert.AreEqual(IsActionable, WorkflowPage.Description.Editable(), UIElementDoesNotHaveCorrectStateErr);
+        Assert.AreEqual(IsActionable, WorkflowPage.Description.Editable(), UIElementDoesNotHaveCorrectStateErr);
 
-        Assert.AreEqual(IsActionable, WorkflowPage.WorkflowSubpage.DecreaseIndent.Visible, UIElementDoesNotHaveCorrectStateErr);
-        Assert.AreEqual(IsActionable, WorkflowPage.WorkflowSubpage.IncreaseIndent.Visible, UIElementDoesNotHaveCorrectStateErr);
-        Assert.AreEqual(IsActionable, WorkflowPage.WorkflowSubpage.DeleteEventConditions.Visible, UIElementDoesNotHaveCorrectStateErr);
+        Assert.AreEqual(IsActionable, WorkflowPage.WorkflowSubpage.DecreaseIndent.Visible(), UIElementDoesNotHaveCorrectStateErr);
+        Assert.AreEqual(IsActionable, WorkflowPage.WorkflowSubpage.IncreaseIndent.Visible(), UIElementDoesNotHaveCorrectStateErr);
+        Assert.AreEqual(IsActionable, WorkflowPage.WorkflowSubpage.DeleteEventConditions.Visible(), UIElementDoesNotHaveCorrectStateErr);
 
-        Assert.AreEqual(IsActionable, WorkflowPage.WorkflowSubpage."Event Description".Editable, UIElementDoesNotHaveCorrectStateErr);
+        Assert.AreEqual(IsActionable, WorkflowPage.WorkflowSubpage."Event Description".Editable(), UIElementDoesNotHaveCorrectStateErr);
     end;
 
     local procedure VerifyPreviousAndNextWorkflowRecords(var TestPageWorkflow: TestPage "Workflow"; WorkflowCode1: Code[20]; WorkflowCode2: Code[20])
@@ -1730,9 +1729,9 @@ codeunit 134316 "Workflow UI Tests"
     [Scope('OnPrem')]
     procedure ModalLookupHandler(var WorkflowEvents: TestPage "Workflow Events")
     begin
-        WorkflowEvents.First;
-        SelectedEventDesc := WorkflowEvents.Description.Value;
-        WorkflowEvents.OK.Invoke;
+        WorkflowEvents.First();
+        SelectedEventDesc := WorkflowEvents.Description.Value();
+        WorkflowEvents.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -1745,24 +1744,24 @@ codeunit 134316 "Workflow UI Tests"
     [Scope('OnPrem')]
     procedure EventConditionsOKWithSetRulesPageHandler(var WorkflowEventConditions: TestPage "Workflow Event Conditions")
     begin
-        if not WorkflowEventConditions.FieldCaption2.Visible then
-            WorkflowEventConditions.AddChangeValueConditionLbl.DrillDown;
-        WorkflowEventConditions.AddChangeValueConditionLbl.DrillDown;
+        if not WorkflowEventConditions.FieldCaption2.Visible() then
+            WorkflowEventConditions.AddChangeValueConditionLbl.DrillDown();
+        WorkflowEventConditions.AddChangeValueConditionLbl.DrillDown();
         WorkflowEventConditions.FieldCaption2.SetValue(InputWorkflowRule."Field Caption");
         WorkflowEventConditions.Operator.SetValue(InputWorkflowRule.Operator);
-        WorkflowEventConditions.OK.Invoke;
+        WorkflowEventConditions.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure EventConditionsCancelWithSetRulesPageHandler(var WorkflowEventConditions: TestPage "Workflow Event Conditions")
     begin
-        if not WorkflowEventConditions.FieldCaption2.Visible then
-            WorkflowEventConditions.AddChangeValueConditionLbl.DrillDown;
-        WorkflowEventConditions.AddChangeValueConditionLbl.DrillDown;
+        if not WorkflowEventConditions.FieldCaption2.Visible() then
+            WorkflowEventConditions.AddChangeValueConditionLbl.DrillDown();
+        WorkflowEventConditions.AddChangeValueConditionLbl.DrillDown();
         WorkflowEventConditions.FieldCaption2.SetValue(InputWorkflowRule."Field Caption");
         WorkflowEventConditions.Operator.SetValue(InputWorkflowRule.Operator);
-        WorkflowEventConditions.Cancel.Invoke;
+        WorkflowEventConditions.Cancel().Invoke();
     end;
 
     [ModalPageHandler]
@@ -1770,11 +1769,11 @@ codeunit 134316 "Workflow UI Tests"
     [Scope('OnPrem')]
     procedure EventConditionsTriggeringFieldLookupPageHandler(var WorkflowEventConditions: TestPage "Workflow Event Conditions")
     begin
-        if not WorkflowEventConditions.FieldCaption2.Visible then
-            WorkflowEventConditions.AddChangeValueConditionLbl.DrillDown;
+        if not WorkflowEventConditions.FieldCaption2.Visible() then
+            WorkflowEventConditions.AddChangeValueConditionLbl.DrillDown();
 
-        WorkflowEventConditions.FieldCaption2.Lookup;
-        WorkflowEventConditions.Cancel.Invoke;
+        WorkflowEventConditions.FieldCaption2.Lookup();
+        WorkflowEventConditions.Cancel().Invoke();
     end;
 
     [ModalPageHandler]
@@ -1788,11 +1787,11 @@ codeunit 134316 "Workflow UI Tests"
     [Scope('OnPrem')]
     procedure EventConditionsTriggeringFieldAssistEditPageHandler(var WorkflowEventConditions: TestPage "Workflow Event Conditions")
     begin
-        if not WorkflowEventConditions.FieldCaption2.Visible then
-            WorkflowEventConditions.AddChangeValueConditionLbl.DrillDown;
+        if not WorkflowEventConditions.FieldCaption2.Visible() then
+            WorkflowEventConditions.AddChangeValueConditionLbl.DrillDown();
 
         WorkflowEventConditions.FieldCaption2.Value := InputField."Field Caption";
-        WorkflowEventConditions.Cancel.Invoke;
+        WorkflowEventConditions.Cancel().Invoke();
     end;
 
     [ModalPageHandler]
@@ -1801,12 +1800,12 @@ codeunit 134316 "Workflow UI Tests"
     var
         FieldCaption: Text;
     begin
-        if FieldsLookup.First then
+        if FieldsLookup.First() then
             repeat
                 FieldCaption := UpperCase(FieldsLookup.FieldName.Value);
                 Assert.AreEqual(UpperCase(InputField."Field Caption"), CopyStr(FieldCaption, 1, 2), 'failed');
             until FieldsLookup.Next() = false;
-        FieldsLookup.OK.Invoke;
+        FieldsLookup.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -1815,15 +1814,15 @@ codeunit 134316 "Workflow UI Tests"
     var
         FieldCaption: Text;
     begin
-        FieldCaption := LibraryVariableStorage.DequeueText;
-        FieldsLookup.First;
+        FieldCaption := LibraryVariableStorage.DequeueText();
+        FieldsLookup.First();
 
         repeat
             if FieldsLookup.FieldName.Value = FieldCaption then
                 break;
         until not FieldsLookup.Next();
 
-        FieldsLookup.OK.Invoke;
+        FieldsLookup.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -1835,11 +1834,11 @@ codeunit 134316 "Workflow UI Tests"
         "Count": Integer;
         OriginalQueueLength: Integer;
     begin
-        OriginalQueueLength := LibraryVariableStorage.Length;
+        OriginalQueueLength := LibraryVariableStorage.Length();
 
-        while LibraryVariableStorage.Length > 0 do begin
-            FieldsLookup.First;
-            FieldCaption := LibraryVariableStorage.DequeueText;
+        while LibraryVariableStorage.Length() > 0 do begin
+            FieldsLookup.First();
+            FieldCaption := LibraryVariableStorage.DequeueText();
             Found := false;
             Count := 0;
             repeat
@@ -1851,7 +1850,7 @@ codeunit 134316 "Workflow UI Tests"
             Assert.AreEqual(OriginalQueueLength, Count, 'The number of fields shown is not correct');
         end;
 
-        FieldsLookup.OK.Invoke;
+        FieldsLookup.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -1861,9 +1860,9 @@ codeunit 134316 "Workflow UI Tests"
         NoOfExpectedWorkflwos: Integer;
         NoOfActualWorkflows: Integer;
     begin
-        NoOfExpectedWorkflwos := LibraryVariableStorage.DequeueInteger;
+        NoOfExpectedWorkflwos := LibraryVariableStorage.DequeueInteger();
 
-        Workflows.First;
+        Workflows.First();
         while Workflows.Next() do
             NoOfActualWorkflows += 1;
 
@@ -1876,7 +1875,7 @@ codeunit 134316 "Workflow UI Tests"
     var
         ExpectedWorkflowCode: Text;
     begin
-        ExpectedWorkflowCode := LibraryVariableStorage.DequeueText;
+        ExpectedWorkflowCode := LibraryVariableStorage.DequeueText();
 
         Assert.AreEqual(ExpectedWorkflowCode, Format(Workflow.Code), 'Wrong workflow shown');
     end;
@@ -1928,7 +1927,7 @@ codeunit 134316 "Workflow UI Tests"
     [Scope('OnPrem')]
     procedure ArchivedWorkflowStepInstancedModalPageHandler(var ArchivedWFStepInstances: TestPage "Archived WF Step Instances")
     begin
-        ArchivedWFStepInstances.First;
+        ArchivedWFStepInstances.First();
     end;
 
     local procedure CreateApprovalComment(var ApprovalCommentLine: Record "Approval Comment Line"; ApprovalEntry: Record "Approval Entry"; Comment: Text[80])
@@ -1947,8 +1946,8 @@ codeunit 134316 "Workflow UI Tests"
     [Scope('OnPrem')]
     procedure WorkflowEventsPageHandler(var WorkflowEvents: TestPage "Workflow Events")
     begin
-        WorkflowEvents.GotoKey(LibraryVariableStorage.DequeueText);
-        WorkflowEvents.OK.Invoke;
+        WorkflowEvents.GotoKey(LibraryVariableStorage.DequeueText());
+        WorkflowEvents.OK().Invoke();
     end;
 
     local procedure SetApplicationArea()

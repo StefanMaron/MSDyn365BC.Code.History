@@ -131,7 +131,7 @@ codeunit 147531 "Cartera Recv. Installments"
         VATPostingSetup.Get(SalesInvoiceLine."VAT Bus. Posting Group", SalesInvoiceLine."VAT Prod. Posting Group");
 
         InitialVATAmount :=
-          Round(TotalAmount - TotalAmount * 100 / (VATPostingSetup."VAT %" + 100), LibraryERM.GetAmountRoundingPrecision);
+          Round(TotalAmount - TotalAmount * 100 / (VATPostingSetup."VAT %" + 100), LibraryERM.GetAmountRoundingPrecision());
 
         LibraryCarteraReceivables.FindOpenCarteraDocCustomerLedgerEntries(FirstInstallmentCustLedgerEntry,
           Customer."No.", DocumentNo, FirstInstallmentCustLedgerEntry."Document Situation"::Cartera,
@@ -139,7 +139,7 @@ codeunit 147531 "Cartera Recv. Installments"
         FirstInstallmentCustLedgerEntry.CalcFields("Original Amount");
 
         // Pre-Exercise
-        CreditMemoAmount := Round(FirstInstallmentCustLedgerEntry."Original Amount" / 2, LibraryERM.GetAmountRoundingPrecision);
+        CreditMemoAmount := Round(FirstInstallmentCustLedgerEntry."Original Amount" / 2, LibraryERM.GetAmountRoundingPrecision());
         CreateCreditMemoToCorrectInvoice(CreditMemoSalesHeader,
           Customer."No.", DocumentNo, SalesInvoiceLine."No.", 1, CreditMemoAmount);
         CreditMemoDocumentNo := LibrarySales.PostSalesDocument(CreditMemoSalesHeader, true, true);
@@ -150,7 +150,7 @@ codeunit 147531 "Cartera Recv. Installments"
         ApplyCreditMemoToFirstInstallment(CreditMemoCustLedgerEntry."Entry No.");
 
         // Verify
-        CreditMemoVATAmount := Round(CreditMemoAmount * VATPostingSetup."VAT %" / 100, LibraryERM.GetAmountRoundingPrecision);
+        CreditMemoVATAmount := Round(CreditMemoAmount * VATPostingSetup."VAT %" / 100, LibraryERM.GetAmountRoundingPrecision());
         ValidateUnrVATGLEntriesAfterApplyingCreditMemo(SalesUnrealizedVATAccount, InitialVATAmount, CreditMemoVATAmount);
         ValidateUnrVATVendorEntriesAfterApplyingCreditMemo(Customer."No.", CreditMemoVATAmount, CreditMemoAmount);
 
@@ -414,7 +414,7 @@ codeunit 147531 "Cartera Recv. Installments"
         ValidateCarteraDiscountGLEntries(BankAccount, BillGroupNo);
 
         // Teardown
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -561,7 +561,7 @@ codeunit 147531 "Cartera Recv. Installments"
     local procedure Initialize()
     begin
         LibraryVariableStorage.Clear();
-        LibraryCarteraCommon.RevertUnrealizedVATPostingSetup;
+        LibraryCarteraCommon.RevertUnrealizedVATPostingSetup();
         LocalCurrencyCode := '';
     end;
 
@@ -582,9 +582,9 @@ codeunit 147531 "Cartera Recv. Installments"
     var
         CustomerLedgerEntries: TestPage "Customer Ledger Entries";
     begin
-        CustomerLedgerEntries.OpenEdit;
+        CustomerLedgerEntries.OpenEdit();
         CustomerLedgerEntries.GotoKey(EntryNo);
-        CustomerLedgerEntries."Apply Entries".Invoke;
+        CustomerLedgerEntries."Apply Entries".Invoke();
     end;
 
     local procedure ApplyPostFirstOpenBill(CustomerNo: Code[20]; DocumentNo: Code[20])
@@ -613,15 +613,15 @@ codeunit 147531 "Cartera Recv. Installments"
     [Scope('OnPrem')]
     procedure ApplyCustomerEntriesPageHandler(var ApplyCustomerEntries: TestPage "Apply Customer Entries")
     begin
-        ApplyCustomerEntries."Set Applies-to ID".Invoke;
-        ApplyCustomerEntries."Post Application".Invoke;
+        ApplyCustomerEntries."Set Applies-to ID".Invoke();
+        ApplyCustomerEntries."Post Application".Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure PostApplicationPageHandler(var PostApplication: TestPage "Post Application")
     begin
-        PostApplication.OK.Invoke;
+        PostApplication.OK().Invoke();
     end;
 
     [MessageHandler]
@@ -661,7 +661,7 @@ codeunit 147531 "Cartera Recv. Installments"
         CarteraDoc.SetRange("No.", '1');
         CarteraDoc.FindFirst();
 
-        ReceivablesCarteraDocs.OpenView;
+        ReceivablesCarteraDocs.OpenView();
         ReceivablesCarteraDocs.GotoRecord(CarteraDoc);
         ReceivablesCarteraDocs."Remaining Amount".AssertEquals(AppliedToCustLedgerEntry."Remaining Amount");
     end;
@@ -730,7 +730,7 @@ codeunit 147531 "Cartera Recv. Installments"
         Assert.AreEqual(TotalAmount, CarteraDocsTotalAmount, 'There is a rounding error.');
     end;
 
-    local procedure ValidateInstallmentCustomerLedgerEntries(CustomerNo: Code[20]; DocumentNo: Code[20]; DocumentSituation: Option; TotalAmount: Decimal; NoOfInstallments: Integer)
+    local procedure ValidateInstallmentCustomerLedgerEntries(CustomerNo: Code[20]; DocumentNo: Code[20]; DocumentSituation: Enum "ES Document Situation"; TotalAmount: Decimal; NoOfInstallments: Integer)
     var
         CustLedgerEntry: Record "Cust. Ledger Entry";
         PaymentTerms: Record "Payment Terms";
@@ -776,7 +776,7 @@ codeunit 147531 "Cartera Recv. Installments"
 
         GLEntry.Next();
         ExpectedVATAmount :=
-          Round(TotalAmount - TotalAmount * 100 / (VATPostingSetup."VAT %" + 100), LibraryERM.GetAmountRoundingPrecision);
+          Round(TotalAmount - TotalAmount * 100 / (VATPostingSetup."VAT %" + 100), LibraryERM.GetAmountRoundingPrecision());
 
         Assert.IsTrue(ExpectedVATAmount > 0, 'Expected VAT Amount must be greater than zero for this test');
         Assert.AreEqual(ExpectedVATAmount, GLEntry."Credit Amount", 'Wrong VAT Amount was set on the line');
@@ -851,7 +851,7 @@ codeunit 147531 "Cartera Recv. Installments"
     [Scope('OnPrem')]
     procedure CheckDiscountCreditLimitModalPageHandler(var CheckDiscountCreditLimit: TestPage "Check Discount Credit Limit")
     begin
-        CheckDiscountCreditLimit.Yes.Invoke;
+        CheckDiscountCreditLimit.Yes().Invoke();
     end;
 
     [RequestPageHandler]
@@ -865,7 +865,7 @@ codeunit 147531 "Cartera Recv. Installments"
         LibraryVariableStorage.Dequeue(BatchName);
         PostBillGroup.TemplName.SetValue(TemplateName);
         PostBillGroup.BatchName.SetValue(BatchName);
-        PostBillGroup.OK.Invoke;
+        PostBillGroup.OK().Invoke();
     end;
 
     [ConfirmHandler]
@@ -881,10 +881,10 @@ codeunit 147531 "Cartera Recv. Installments"
         BillGroupsTestPage: TestPage "Bill Groups";
     begin
         BillGroup.Get(BillGroupNo);
-        BillGroupsTestPage.OpenEdit;
+        BillGroupsTestPage.OpenEdit();
         BillGroupsTestPage.GotoRecord(BillGroup);
-        BillGroupsTestPage.Docs.Insert.Invoke;
-        BillGroupsTestPage.OK.Invoke;
+        BillGroupsTestPage.Docs.Insert.Invoke();
+        BillGroupsTestPage.OK().Invoke();
     end;
 
     [ModalPageHandler]

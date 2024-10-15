@@ -11,6 +11,7 @@ using Microsoft.Foundation.Enums;
 table 10744 "340 Declaration Line"
 {
     Caption = '340 Declaration Line';
+    DataClassification = CustomerContent;
 
     fields
     {

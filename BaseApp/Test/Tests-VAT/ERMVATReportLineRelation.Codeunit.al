@@ -79,10 +79,10 @@ codeunit 134057 "ERM VAT Report Line Relation"
             VATStatementLine.SetRange("Statement Template Name", VATStatementName."Statement Template Name");
         end;
 
-        VATStatement.Trap;
+        VATStatement.Trap();
         PAGE.Run(PAGE::"VAT Statement", VATStatementLine);
-        Assert.IsTrue(VATStatement.Box.Visible, 'VATStatement."Box" should be visible');
-        Assert.IsTrue(VATStatement.Box.Editable, 'VATStatement."Box" should be editable');
+        Assert.IsTrue(VATStatement.Box.Visible(), 'VATStatement."Box" should be visible');
+        Assert.IsTrue(VATStatement.Box.Editable(), 'VATStatement."Box" should be editable');
         VATStatement.Close();
     end;
 

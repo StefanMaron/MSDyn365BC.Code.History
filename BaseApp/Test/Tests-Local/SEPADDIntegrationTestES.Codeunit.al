@@ -42,7 +42,7 @@ codeunit 147312 "SEPA DD Integration Test - ES"
         CreateBillGroup(BillGroup, BankAccount."No.", BillGroup."Partner Type"::" ");
 
         // Exercise
-        BillGroup.ExportToFile;
+        BillGroup.ExportToFile();
 
         // Verify
         // Verification is the requestpage handler
@@ -65,7 +65,7 @@ codeunit 147312 "SEPA DD Integration Test - ES"
         CreateBillGroup(BillGroup, BankAccount."No.", BillGroup."Partner Type"::" ");
 
         // Exercise
-        BillGroup.ExportToFile;
+        BillGroup.ExportToFile();
 
         // Verify
         // Verification is the requestpage handler
@@ -87,7 +87,7 @@ codeunit 147312 "SEPA DD Integration Test - ES"
         CreateBillGroup(BillGroup, BankAccount."No.", BillGroup."Partner Type"::" ");
 
         // Exercise
-        BillGroup.ExportToFile;
+        BillGroup.ExportToFile();
 
         // Verify
         // Verification is the requestpage handler
@@ -109,7 +109,7 @@ codeunit 147312 "SEPA DD Integration Test - ES"
         CreateBillGroup(BillGroup, BankAccount."No.", BillGroup."Partner Type"::" ");
 
         // Exercise
-        BillGroup.ExportToFile;
+        BillGroup.ExportToFile();
 
         // Verify
         // Verification is the requestpage handler
@@ -237,7 +237,7 @@ codeunit 147312 "SEPA DD Integration Test - ES"
         BillGroup.SelectDirectDebitFormatSilently(DirectDebitCollection."Direct Debit Format"::Standard);
 
         // Exercise
-        asserterror BillGroup.ExportToFile;
+        asserterror BillGroup.ExportToFile();
 
         // Verify
         Assert.ExpectedError(HasErrorsErr);
@@ -310,7 +310,7 @@ codeunit 147312 "SEPA DD Integration Test - ES"
           BillGroup, CarteraDoc, BankAccount, DocumentNo, "Partner Type"::Person, 1, false);
 
         BillGroup.SelectDirectDebitFormatSilently(DirectDebitCollection."Direct Debit Format"::Standard);
-        asserterror BillGroup.ExportToFile;
+        asserterror BillGroup.ExportToFile();
 
         // Exercise
         CarteraDoc.SetRange("Bill Gr./Pmt. Order No.", BillGroup."No.");
@@ -469,7 +469,7 @@ codeunit 147312 "SEPA DD Integration Test - ES"
         BankAccount.Modify();
     end;
 
-    local procedure CreateBillGroup(var BillGroup: Record "Bill Group"; BankAccNo: Code[20]; PartnerType: Option)
+    local procedure CreateBillGroup(var BillGroup: Record "Bill Group"; BankAccNo: Code[20]; PartnerType: Enum "Partner Type")
     begin
         BillGroup."No." := LibraryUtility.GenerateRandomCode(BillGroup.FieldNo("No."), DATABASE::"Bill Group");
         BillGroup."Posting Date" := WorkDate();
@@ -521,7 +521,7 @@ codeunit 147312 "SEPA DD Integration Test - ES"
             repeat
                 "Bill Gr./Pmt. Order No." := NewBillGroupNo;
                 Modify();
-            until Next = 0;
+            until Next() = 0;
         end;
     end;
 
@@ -825,11 +825,11 @@ codeunit 147312 "SEPA DD Integration Test - ES"
         LibraryVariableStorage.Dequeue(CarteraGenJnlTemplateName);
         LibraryVariableStorage.Dequeue(CarteraGenJnlBatchName);
         with RedrawBillsPageHandler do begin
-            NewDueDate.SetValue(WorkDate + 1);
+            NewDueDate.SetValue(WorkDate() + 1);
             AuxJnlTemplateName.SetValue(CarteraGenJnlTemplateName);
             AuxJnlBatchName.SetValue(CarteraGenJnlBatchName);
-            DiscCollExpenses.SetValue(LibraryVariableStorage.DequeueBoolean);
-            OK.Invoke;
+            DiscCollExpenses.SetValue(LibraryVariableStorage.DequeueBoolean());
+            OK().Invoke();
         end;
     end;
 
@@ -837,7 +837,7 @@ codeunit 147312 "SEPA DD Integration Test - ES"
     [Scope('OnPrem')]
     procedure CarteraJnlModalPageHandler(var CarteraJournalTestPage: TestPage "Cartera Journal")
     begin
-        CarteraJournalTestPage.Post.Invoke;
+        CarteraJournalTestPage.Post.Invoke();
     end;
 }
 

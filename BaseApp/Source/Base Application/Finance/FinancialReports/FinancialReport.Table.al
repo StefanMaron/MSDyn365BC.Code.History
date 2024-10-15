@@ -7,6 +7,7 @@ table 88 "Financial Report"
     Caption = 'Financial Report';
     DataCaptionFields = Name, Description;
     LookupPageID = "Financial Reports";
+    DataClassification = CustomerContent;
 
     fields
     {

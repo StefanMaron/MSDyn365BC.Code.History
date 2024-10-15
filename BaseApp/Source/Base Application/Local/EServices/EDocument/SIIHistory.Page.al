@@ -608,19 +608,17 @@ page 10752 "SII History"
             SIIHistory.SetRecFilter();
         end;
 
-        with SIIHistory do begin
-            Ascending(false);
-            if RetryAccepted then
-                SetRange(Status, Status::Accepted)
-            else
-                SetFilter(Status, '<>%1', Status::Accepted);
+        SIIHistory.Ascending(false);
+        if RetryAccepted then
+            SIIHistory.SetRange(Status, SIIHistory.Status::Accepted)
+        else
+            SIIHistory.SetFilter(Status, '<>%1', SIIHistory.Status::Accepted);
 
-            if FindSet(true) then
-                repeat
-                    CreateNewRequestPerDocument(
-                      TempSIIDocUploadState, SIIHistory, "Upload Type", RetryAccepted or (Status = Status::"Accepted With Errors"));
-                until Next() = 0;
-        end;
+        if SIIHistory.FindSet(true) then
+            repeat
+                CreateNewRequestPerDocument(
+                  TempSIIDocUploadState, SIIHistory, SIIHistory."Upload Type", RetryAccepted or (SIIHistory.Status = SIIHistory.Status::"Accepted With Errors"));
+            until SIIHistory.Next() = 0;
         SIIDocUploadManagement.UploadManualDocument();
     end;
 
@@ -654,23 +652,22 @@ page 10752 "SII History"
 
     local procedure CreateNewRequestPerDocument(var TempSIIDocUploadState: Record "SII Doc. Upload State" temporary; var SIIHistory: Record "SII History"; UploadType: Option; IsAcceptedWithErrorRetry: Boolean)
     begin
-        with SIIHistory do
-            if not TempSIIDocUploadState.Get("Document State Id") then begin
-                TempSIIDocUploadState.Id := "Document State Id";
-                TempSIIDocUploadState.Insert();
+        if not TempSIIDocUploadState.Get(SIIHistory."Document State Id") then begin
+            TempSIIDocUploadState.Id := SIIHistory."Document State Id";
+            TempSIIDocUploadState.Insert();
 
-                if Status <> Status::Pending then
-                    // We set 1 retry for manual call.
-                    CreateNewRequest("Document State Id", UploadType, 1, true, IsAcceptedWithErrorRetry)
-                else
-                    if not "Is Manual" and (Status <> Status::Accepted) then begin
-                        "Is Manual" := true;
-                        Modify();
-                        SIIDocUploadState.Get("Document State Id");
-                        SIIDocUploadState."Is Manual" := true;
-                        SIIDocUploadState.Modify();
-                    end;
-            end;
+            if SIIHistory.Status <> SIIHistory.Status::Pending then
+                // We set 1 retry for manual call.
+                SIIHistory.CreateNewRequest(SIIHistory."Document State Id", UploadType, 1, true, IsAcceptedWithErrorRetry)
+            else
+                if not SIIHistory."Is Manual" and (SIIHistory.Status <> SIIHistory.Status::Accepted) then begin
+                    SIIHistory."Is Manual" := true;
+                    SIIHistory.Modify();
+                    SIIDocUploadState.Get(SIIHistory."Document State Id");
+                    SIIDocUploadState."Is Manual" := true;
+                    SIIDocUploadState.Modify();
+                end;
+        end;
     end;
 }
 

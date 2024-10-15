@@ -110,44 +110,42 @@ page 35297 "Closed Docs Analysis NonLCY FB"
 
     local procedure UpdateStatistics()
     begin
-        with ClosedDoc do begin
-            Copy(Rec);
-            SetCurrentKey(Type, "Collection Agent", "Bill Gr./Pmt. Order No.", "Currency Code", Status, Redrawn);
-            SetFilter("Currency Code", CurrencyFilter);
-            SetRange(Status, Status::Honored);
-            SetRange(Redrawn, true);
-            Show := CalcSums("Original Amount", "Original Amount (LCY)");
-            if Show then begin
-                RedrawnAmt := "Original Amount";
-                RedrawnAmtLCY := "Original Amount (LCY)";
-            end;
-            NoRedrawn := Count;
-
-            SetRange(Redrawn, false);
-            if Show then begin
-                CalcSums("Original Amount", "Original Amount (LCY)");
-                HonoredAmt := "Original Amount";
-                HonoredAmtLCY := "Original Amount (LCY)";
-            end;
-            NoHonored := Count;
-            SetRange(Redrawn);
-
-            SetRange(Status, Status::Rejected);
-            if Show then begin
-                CalcSums("Original Amount", "Original Amount (LCY)");
-                RejectedAmt := "Original Amount";
-                RejectedAmtLCY := "Original Amount (LCY)";
-            end;
-            NoRejected := Count;
-            SetRange(Status);
-
-            if Find('=><') then;  // necessary to calculate decimal places
-
-            HonoredVisible := Show;
-            RejectedVisible := Show;
-            // CurrForm.HonoredLCY.VISIBLE(Show);
-            // CurrForm.RejectedLCY.VISIBLE(Show);
+        ClosedDoc.Copy(Rec);
+        ClosedDoc.SetCurrentKey(Type, "Collection Agent", "Bill Gr./Pmt. Order No.", "Currency Code", Status, Redrawn);
+        ClosedDoc.SetFilter("Currency Code", CurrencyFilter);
+        ClosedDoc.SetRange(Status, ClosedDoc.Status::Honored);
+        ClosedDoc.SetRange(Redrawn, true);
+        Show := ClosedDoc.CalcSums("Original Amount", "Original Amount (LCY)");
+        if Show then begin
+            RedrawnAmt := ClosedDoc."Original Amount";
+            RedrawnAmtLCY := ClosedDoc."Original Amount (LCY)";
         end;
+        NoRedrawn := ClosedDoc.Count;
+
+        ClosedDoc.SetRange(Redrawn, false);
+        if Show then begin
+            ClosedDoc.CalcSums("Original Amount", "Original Amount (LCY)");
+            HonoredAmt := ClosedDoc."Original Amount";
+            HonoredAmtLCY := ClosedDoc."Original Amount (LCY)";
+        end;
+        NoHonored := ClosedDoc.Count;
+        ClosedDoc.SetRange(Redrawn);
+
+        ClosedDoc.SetRange(Status, ClosedDoc.Status::Rejected);
+        if Show then begin
+            ClosedDoc.CalcSums("Original Amount", "Original Amount (LCY)");
+            RejectedAmt := ClosedDoc."Original Amount";
+            RejectedAmtLCY := ClosedDoc."Original Amount (LCY)";
+        end;
+        NoRejected := ClosedDoc.Count;
+        ClosedDoc.SetRange(Status);
+
+        if ClosedDoc.Find('=><') then;
+        // necessary to calculate decimal places
+        HonoredVisible := Show;
+        RejectedVisible := Show;
+        // CurrForm.HonoredLCY.VISIBLE(Show);
+        // CurrForm.RejectedLCY.VISIBLE(Show);
     end;
 }
 

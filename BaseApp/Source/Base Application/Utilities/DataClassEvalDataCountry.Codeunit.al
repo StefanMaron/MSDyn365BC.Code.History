@@ -14,7 +14,9 @@ using Microsoft.Finance.ReceivablesPayables;
 using Microsoft.EServices.EDocument;
 using Microsoft.Sales.Receivables;
 using Microsoft.Sales.History;
+#if not CLEAN22
 using Microsoft.Purchases.Reports;
+#endif
 using Microsoft.Purchases.Payables;
 using Microsoft.Foundation.AuditCodes;
 using Microsoft.Purchases.History;

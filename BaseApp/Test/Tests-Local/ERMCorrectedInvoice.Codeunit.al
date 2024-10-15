@@ -260,15 +260,15 @@ codeunit 144073 "ERM Corrected Invoice"
 
         // [GIVEN] Stan opened Sales Credit Memo page and looked up "Corrected Invoice No."
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::"Credit Memo", CustNo);
-        SalesCreditMemo.OpenEdit;
+        SalesCreditMemo.OpenEdit();
         SalesCreditMemo.GotoRecord(SalesHeader);
-        SalesCreditMemo."Corrected Invoice No.".Lookup;
+        SalesCreditMemo."Corrected Invoice No.".Lookup();
 
         // [WHEN] Stan selects Invoice "I" on page Posted Sales Invoices and pushes OK
 
         // [THEN] Sales Credit Memo has "Corrected Invoice No." = "I"
         SalesCreditMemo."Corrected Invoice No.".AssertEquals(ExpectedInvoiceNo);
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -292,15 +292,15 @@ codeunit 144073 "ERM Corrected Invoice"
 
         // [GIVEN] Stan opened Purchase Credit Memo page and looked up "Corrected Invoice No."
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::"Credit Memo", VendorNo);
-        PurchaseCreditMemo.OpenEdit;
+        PurchaseCreditMemo.OpenEdit();
         PurchaseCreditMemo.GotoRecord(PurchaseHeader);
-        PurchaseCreditMemo."Corrected Invoice No.".Lookup;
+        PurchaseCreditMemo."Corrected Invoice No.".Lookup();
 
         // [WHEN] Stan selects Invoice "I" on page Posted Purchase Invoices and pushes OK
 
         // [THEN] Purchase Credit Memo has "Corrected Invoice No." = "I"
         PurchaseCreditMemo."Corrected Invoice No.".AssertEquals(ExpectedInvoiceNo);
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -324,15 +324,15 @@ codeunit 144073 "ERM Corrected Invoice"
 
         // [GIVEN] Stan opened Service Credit Memo page and looked up "Corrected Invoice No."
         LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::"Credit Memo", CustNo);
-        ServiceCreditMemo.OpenEdit;
+        ServiceCreditMemo.OpenEdit();
         ServiceCreditMemo.GotoRecord(ServiceHeader);
-        ServiceCreditMemo."Corrected Invoice No.".Lookup;
+        ServiceCreditMemo."Corrected Invoice No.".Lookup();
 
         // [WHEN] Stan selects Invoice "I" on page Posted Service Invoices and pushes OK
 
         // [THEN] Service Credit Memo has "Corrected Invoice No." = "I"
         ServiceCreditMemo."Corrected Invoice No.".AssertEquals(ExpectedInvoiceNo);
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -626,24 +626,24 @@ codeunit 144073 "ERM Corrected Invoice"
     [Scope('OnPrem')]
     procedure PostedSalesInvoicesModalPageHandler(var PostedSalesInvoices: TestPage "Posted Sales Invoices")
     begin
-        PostedSalesInvoices.GotoKey(LibraryVariableStorage.DequeueText);
-        PostedSalesInvoices.OK.Invoke;
+        PostedSalesInvoices.GotoKey(LibraryVariableStorage.DequeueText());
+        PostedSalesInvoices.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure PostedPurchaseInvoicesModalPageHandler(var PostedPurchaseInvoices: TestPage "Posted Purchase Invoices")
     begin
-        PostedPurchaseInvoices.GotoKey(LibraryVariableStorage.DequeueText);
-        PostedPurchaseInvoices.OK.Invoke;
+        PostedPurchaseInvoices.GotoKey(LibraryVariableStorage.DequeueText());
+        PostedPurchaseInvoices.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure PostedServiceInvoicesModalPageHandler(var PostedServiceInvoices: TestPage "Posted Service Invoices")
     begin
-        PostedServiceInvoices.GotoKey(LibraryVariableStorage.DequeueText);
-        PostedServiceInvoices.OK.Invoke;
+        PostedServiceInvoices.GotoKey(LibraryVariableStorage.DequeueText());
+        PostedServiceInvoices.OK().Invoke();
     end;
 
     [ConfirmHandler]

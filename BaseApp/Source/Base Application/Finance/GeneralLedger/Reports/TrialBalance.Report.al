@@ -353,10 +353,11 @@ report 6 "Trial Balance"
                 end;
                 DebitAmtAtEnd := 0;
                 CreditAmtAtEnd := 0;
-                GLFilter := "G/L Account".GetFilter("G/L Account"."Account Type");
+                GLFilter := "G/L Account".GetFilter("Account Type");
                 if GLFilter <> '' then begin
                     // Only accept single account type filter, to display both 2 types user should leave this filter blank.
-                    GLFilterOption := GetRangeMin("Account Type");
+                    GLFilterValue := GetRangeMin("Account Type");
+                    GLFilterOption := GLFilterValue.AsInteger();
                     SetRange("Account Type", GLFilterOption);
                 end else
                     GLFilterOption := UndefinedValue;
@@ -459,6 +460,7 @@ report 6 "Trial Balance"
         ToFec: Date;
         IncludeEntries: Text[40];
         GLFilterOption: Option Posting,Heading;
+        GLFilterValue: Enum "G/L Account Type";
         PreviousBalance: Decimal;
         PreviousDebit: Decimal;
         PreviousCredit: Decimal;
@@ -613,7 +615,6 @@ report 6 "Trial Balance"
     procedure CalcCloseEntriesHeading()
     var
         GLAcc: Record "G/L Account";
-        long: Integer;
     begin
         GLAcc.SetRange("Date Filter", 0D, ToFec);
         GLAcc.SetFilter("No.", "G/L Account".Totaling);
@@ -645,7 +646,6 @@ report 6 "Trial Balance"
     procedure CalcOpenEntriesHeading()
     var
         GLAcc: Record "G/L Account";
-        long: Integer;
         AccPeriod3: Record "Accounting Period";
     begin
         AccPeriod3.SetRange(AccPeriod3."New Fiscal Year", true);

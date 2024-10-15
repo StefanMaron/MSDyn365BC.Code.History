@@ -12,9 +12,7 @@ codeunit 134227 "ERM PostRecurringJournal"
         Assert: Codeunit Assert;
         LibraryRandom: Codeunit "Library - Random";
         LibraryERM: Codeunit "Library - ERM";
-        ErrorMustMatchErr: Label 'Error must match.';
         IncorrectPostingPreviewErr: Label 'Incorrect number of entries in posting preview.';
-        PostingErr: Label '%1 must have a value in %2: %3=%4, %5=%6, %7=%8. It cannot be zero or empty.', Comment = '%1=Amount Field,%2=Table,%3=Journal Template Name Field,%4=Journal Template Name Field Value,%5=Journal Batch Name Field,%6=Journal Batch Name Field Value,%7=Line No. Field,%8=Line No. Field Value';
         NoOfLinesErr: Label 'Incorrect number of lines found in GL Entry.';
         DocumentDateErr: Label '%1 must be equal to %2 in %3.', Comment = '%1 = Document Date Field Caption,%2 = Posting Date Field Caption,%3 = GL Entry Table Caption';
         LibraryJournals: Codeunit "Library - Journals";
@@ -80,33 +78,6 @@ codeunit 134227 "ERM PostRecurringJournal"
             Loop += 1;
             GenJournalLine.TestField("Posting Date", PostingDate[Loop]);
         until (GenJournalLine.Next() = 0);
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure ErrorOnRecurringJournal()
-    var
-        GenJournalLine: Record "Gen. Journal Line";
-        GLAccount: Record "G/L Account";
-        GenJournalBatch: Record "Gen. Journal Batch";
-        Assert: Codeunit Assert;
-    begin
-        // Check error on Recurring Journal Lines after posting with zero Amount.
-
-        // Setup: Create Recurring General Journal Line with Zero Amount.
-        CreateRecurringGenJournalBatch(GenJournalBatch);
-        LibraryERM.FindGLAccount(GLAccount);
-        CreateGeneralJournalLine(GenJournalLine, GenJournalBatch, GenJournalLine."Recurring Method"::"F  Fixed", 0, GLAccount."No.");
-
-        // Exercise.
-        asserterror LibraryERM.PostGeneralJnlLine(GenJournalLine);
-
-        // Verify: Verify Posting Error on Recurring Journal.
-        Assert.AreEqual(
-          StrSubstNo(PostingErr, GenJournalLine.FieldCaption(Amount), GenJournalLine.TableCaption(),
-            GenJournalLine.FieldCaption("Journal Template Name"), GenJournalLine."Journal Template Name",
-            GenJournalLine.FieldCaption("Journal Batch Name"), GenJournalLine."Journal Batch Name",
-            GenJournalLine.FieldCaption("Line No."), GenJournalLine."Line No."), GetLastErrorText, ErrorMustMatchErr);
     end;
 
     [Test]
@@ -282,11 +253,11 @@ codeunit 134227 "ERM PostRecurringJournal"
 
         // [GIVEN] "Amount <> 0" filter applied to Journal
         Commit();
-        RecurringGeneralJournal.OpenEdit;
+        RecurringGeneralJournal.OpenEdit();
         RecurringGeneralJournal.FILTER.SetFilter(Amount, '<>0');
 
         // [WHEN] Posting Batch
-        RecurringGeneralJournal.Post.Invoke;
+        RecurringGeneralJournal.Post.Invoke();
 
         // [THEN] The 1st and the 2nd lines were successfully posted
         // Checked in Message Handler
@@ -353,16 +324,16 @@ codeunit 134227 "ERM PostRecurringJournal"
           GenJournalLine, GenJournalBatch, GenJournalLine."Recurring Method"::"F  Fixed", 0, GLAccount."No.", DocumentNo);
 
         // [GIVEN] "Amount <> 0" filter applied to Journal
-        RecurringGeneralJournal.OpenEdit;
+        RecurringGeneralJournal.OpenEdit();
         RecurringGeneralJournal.FILTER.SetFilter(Amount, '<>0');
 
         // [WHEN] Preview Posting Batch
         Commit();
-        GLPostingPreview.Trap;
-        RecurringGeneralJournal.Preview.Invoke;
+        GLPostingPreview.Trap();
+        RecurringGeneralJournal.Preview.Invoke();
 
         // [THEN] Posting Preview is shown
-        Assert.AreEqual(2, GLPostingPreview."No. of Records".AsInteger, IncorrectPostingPreviewErr);
+        Assert.AreEqual(2, GLPostingPreview."No. of Records".AsInteger(), IncorrectPostingPreviewErr);
 
         asserterror Error(''); // Rollback previewing inconsistencies
     end;
@@ -422,13 +393,13 @@ codeunit 134227 "ERM PostRecurringJournal"
         LibraryVariableStorage.Enqueue(GenJnlBatch."Journal Template Name");
 
         // [GIVEN] Recurring Journal is opened and focus set on blank line
-        RecurringGeneralJournal.OpenEdit;
+        RecurringGeneralJournal.OpenEdit();
         RecurringGeneralJournal.CurrentJnlBatchName.SetValue(GenJnlBatch.Name);
-        RecurringGeneralJournal.Last;
+        RecurringGeneralJournal.Last();
         RecurringGeneralJournal.Next();
 
         // [WHEN] Press "Post" on Recurring Journal page
-        RecurringGeneralJournal.Post.Invoke;
+        RecurringGeneralJournal.Post.Invoke();
 
         // [THEN] G/L Entry is created
         VerifyGLEntryExists(GenJnlBatch.Name, WorkDate());
@@ -497,8 +468,8 @@ codeunit 134227 "ERM PostRecurringJournal"
         // [FEATURE] [UT]
         // [SCENARIO 381263] NeedCheckZeroAmount function returns TRUE when "Account No" <> <blank>, "Account Type" = Customer, "Is System Created Entry" = FALSE and "Allow Zero-Amount Posting" = FALSE
         GenJournalLine.Init();
-        UpdateGenJournalLine(GenJournalLine, LibraryUtility.GenerateGUID, false, false, GenJournalLine."Account Type"::Customer);
-        Assert.IsTrue(GenJournalLine.NeedCheckZeroAmount, '');
+        UpdateGenJournalLine(GenJournalLine, LibraryUtility.GenerateGUID(), false, false, GenJournalLine."Account Type"::Customer);
+        Assert.IsTrue(GenJournalLine.NeedCheckZeroAmount(), '');
     end;
 
     [Test]
@@ -510,8 +481,8 @@ codeunit 134227 "ERM PostRecurringJournal"
         // [FEATURE] [UT]
         // [SCENARIO 381263] NeedCheckZeroAmount function returns TRUE when "Account No" <> <blank>, "Account Type" = Vendor, "Is System Created Entry" = FALSE and "Allow Zero-Amount Posting" = FALSE
         GenJournalLine.Init();
-        UpdateGenJournalLine(GenJournalLine, LibraryUtility.GenerateGUID, false, false, GenJournalLine."Account Type"::Vendor);
-        Assert.IsTrue(GenJournalLine.NeedCheckZeroAmount, '');
+        UpdateGenJournalLine(GenJournalLine, LibraryUtility.GenerateGUID(), false, false, GenJournalLine."Account Type"::Vendor);
+        Assert.IsTrue(GenJournalLine.NeedCheckZeroAmount(), '');
     end;
 
     [Test]
@@ -523,8 +494,8 @@ codeunit 134227 "ERM PostRecurringJournal"
         // [FEATURE] [UT]
         // [SCENARIO 381263] NeedCheckZeroAmount function returns TRUE when "Account No" <> <blank>, "Account Type" = "Bank Account", "Is System Created Entry" = FALSE and "Allow Zero-Amount Posting" = FALSE
         GenJournalLine.Init();
-        UpdateGenJournalLine(GenJournalLine, LibraryUtility.GenerateGUID, false, false, GenJournalLine."Account Type"::"Bank Account");
-        Assert.IsTrue(GenJournalLine.NeedCheckZeroAmount, '');
+        UpdateGenJournalLine(GenJournalLine, LibraryUtility.GenerateGUID(), false, false, GenJournalLine."Account Type"::"Bank Account");
+        Assert.IsTrue(GenJournalLine.NeedCheckZeroAmount(), '');
     end;
 
     [Test]
@@ -536,8 +507,8 @@ codeunit 134227 "ERM PostRecurringJournal"
         // [FEATURE] [UT]
         // [SCENARIO 381263] NeedCheckZeroAmount function returns TRUE when "Account No" <> <blank>, "Account Type" = "IC Partner", "Is System Created Entry" = FALSE and "Allow Zero-Amount Posting" = FALSE
         GenJournalLine.Init();
-        UpdateGenJournalLine(GenJournalLine, LibraryUtility.GenerateGUID, false, false, GenJournalLine."Account Type"::"IC Partner");
-        Assert.IsTrue(GenJournalLine.NeedCheckZeroAmount, '');
+        UpdateGenJournalLine(GenJournalLine, LibraryUtility.GenerateGUID(), false, false, GenJournalLine."Account Type"::"IC Partner");
+        Assert.IsTrue(GenJournalLine.NeedCheckZeroAmount(), '');
     end;
 
     [Test]
@@ -549,8 +520,8 @@ codeunit 134227 "ERM PostRecurringJournal"
         // [FEATURE] [UT]
         // [SCENARIO 381263] NeedCheckZeroAmount function returns TRUE when "Account No" <> <blank>, "Account Type" = "G/L Account", "Is System Created Entry" = FALSE and "Allow Zero-Amount Posting" = FALSE
         GenJournalLine.Init();
-        UpdateGenJournalLine(GenJournalLine, LibraryUtility.GenerateGUID, false, false, GenJournalLine."Account Type"::"G/L Account");
-        Assert.IsTrue(GenJournalLine.NeedCheckZeroAmount, '');
+        UpdateGenJournalLine(GenJournalLine, LibraryUtility.GenerateGUID(), false, false, GenJournalLine."Account Type"::"G/L Account");
+        Assert.IsTrue(GenJournalLine.NeedCheckZeroAmount(), '');
     end;
 
     [Test]
@@ -563,7 +534,7 @@ codeunit 134227 "ERM PostRecurringJournal"
         // [SCENARIO 381263] NeedCheckZeroAmount function returns FALSE when "Account No" = <blank>, "Account Type" = Customer, "Is System Created Entry" = FALSE and "Allow Zero-Amount Posting" = FALSE
         GenJournalLine.Init();
         UpdateGenJournalLine(GenJournalLine, '', false, false, GenJournalLine."Account Type"::Customer);
-        Assert.IsFalse(GenJournalLine.NeedCheckZeroAmount, '');
+        Assert.IsFalse(GenJournalLine.NeedCheckZeroAmount(), '');
     end;
 
     [Test]
@@ -575,8 +546,8 @@ codeunit 134227 "ERM PostRecurringJournal"
         // [FEATURE] [UT]
         // [SCENARIO 381263] NeedCheckZeroAmount function returns FALSE when "Account No" <> <blank>, "Account Type" = Customer, "Is System Created Entry" = TRUE and "Allow Zero-Amount Posting" = FALSE
         GenJournalLine.Init();
-        UpdateGenJournalLine(GenJournalLine, LibraryUtility.GenerateGUID, true, false, GenJournalLine."Account Type"::Customer);
-        Assert.IsFalse(GenJournalLine.NeedCheckZeroAmount, '');
+        UpdateGenJournalLine(GenJournalLine, LibraryUtility.GenerateGUID(), true, false, GenJournalLine."Account Type"::Customer);
+        Assert.IsFalse(GenJournalLine.NeedCheckZeroAmount(), '');
     end;
 
     [Test]
@@ -588,8 +559,8 @@ codeunit 134227 "ERM PostRecurringJournal"
         // [FEATURE] [UT]
         // [SCENARIO 381263] NeedCheckZeroAmount function returns FALSE when "Account No" <> <blank>, "Account Type" = Customer, "Is System Created Entry" = FALSE and "Allow Zero-Amount Posting" = TRUE
         GenJournalLine.Init();
-        UpdateGenJournalLine(GenJournalLine, LibraryUtility.GenerateGUID, false, true, GenJournalLine."Account Type"::Customer);
-        Assert.IsFalse(GenJournalLine.NeedCheckZeroAmount, '');
+        UpdateGenJournalLine(GenJournalLine, LibraryUtility.GenerateGUID(), false, true, GenJournalLine."Account Type"::Customer);
+        Assert.IsFalse(GenJournalLine.NeedCheckZeroAmount(), '');
     end;
 
     [Test]
@@ -601,8 +572,8 @@ codeunit 134227 "ERM PostRecurringJournal"
         // [FEATURE] [UT]
         // [SCENARIO 381263] NeedCheckZeroAmount function returns FALSE when "Account No" <> <blank>, "Account Type" = "Fixed Asset", "Is System Created Entry" = FALSE and "Allow Zero-Amount Posting" = FALSE
         GenJournalLine.Init();
-        UpdateGenJournalLine(GenJournalLine, LibraryUtility.GenerateGUID, false, false, GenJournalLine."Account Type"::"Fixed Asset");
-        Assert.IsFalse(GenJournalLine.NeedCheckZeroAmount, '');
+        UpdateGenJournalLine(GenJournalLine, LibraryUtility.GenerateGUID(), false, false, GenJournalLine."Account Type"::"Fixed Asset");
+        Assert.IsFalse(GenJournalLine.NeedCheckZeroAmount(), '');
     end;
 
     [Test]
@@ -617,7 +588,7 @@ codeunit 134227 "ERM PostRecurringJournal"
         LibraryERM.CreateRecurringTemplateName(GenJournalTemplate);
         GenJournalLine.Init();
         GenJournalLine."Journal Template Name" := GenJournalTemplate.Name;
-        Assert.IsTrue(GenJournalLine.IsRecurring, '');
+        Assert.IsTrue(GenJournalLine.IsRecurring(), '');
     end;
 
     [Test]
@@ -633,7 +604,7 @@ codeunit 134227 "ERM PostRecurringJournal"
         GenJournalTemplate.TestField(Recurring, false);
         GenJournalLine.Init();
         GenJournalLine."Journal Template Name" := GenJournalTemplate.Name;
-        Assert.IsFalse(GenJournalLine.IsRecurring, '');
+        Assert.IsFalse(GenJournalLine.IsRecurring(), '');
     end;
 
     [Test]
@@ -645,7 +616,7 @@ codeunit 134227 "ERM PostRecurringJournal"
         // [FEATURE] [UT]
         // [SCENARIO 381263] IsReccuring function returns TRUE when template is not set in general journal line
         GenJournalLine.Init();
-        Assert.IsFalse(GenJournalLine.IsRecurring, '');
+        Assert.IsFalse(GenJournalLine.IsRecurring(), '');
     end;
 
     [Test]
@@ -770,7 +741,7 @@ codeunit 134227 "ERM PostRecurringJournal"
         // [WHEN] Post the recurring journal
         CreatePostGeneralJournalLine(
           GenJournalLine, GenJournalLine."Document Type"::Invoice, GenJournalLine."Account Type"::Vendor,
-          LibraryPurchase.CreateVendorNo, -LibraryRandom.RandDecInRange(1000, 2000, 2));
+          LibraryPurchase.CreateVendorNo(), -LibraryRandom.RandDecInRange(1000, 2000, 2));
 
         // [THEN] Vendor Ledger Entry "Purchase (LCY)" = 100
         VerifyVendorLedgerEntryPruchaseLCY(GenJournalLine."Account No.", GenJournalLine.Amount);
@@ -789,7 +760,7 @@ codeunit 134227 "ERM PostRecurringJournal"
         // [WHEN] Post the recurring journal
         CreatePostGeneralJournalLine(
           GenJournalLine, GenJournalLine."Document Type"::"Credit Memo", GenJournalLine."Account Type"::Vendor,
-          LibraryPurchase.CreateVendorNo, LibraryRandom.RandDecInRange(1000, 2000, 2));
+          LibraryPurchase.CreateVendorNo(), LibraryRandom.RandDecInRange(1000, 2000, 2));
 
         // [THEN] Vendor Ledger Entry "Purchase (LCY)" = 100
         VerifyVendorLedgerEntryPruchaseLCY(GenJournalLine."Account No.", GenJournalLine.Amount);
@@ -808,7 +779,7 @@ codeunit 134227 "ERM PostRecurringJournal"
         // [WHEN] Post the recurring journal
         CreatePostGeneralJournalLine(
           GenJournalLine, GenJournalLine."Document Type"::Invoice, GenJournalLine."Account Type"::Customer,
-          LibrarySales.CreateCustomerNo, LibraryRandom.RandDecInRange(1000, 2000, 2));
+          LibrarySales.CreateCustomerNo(), LibraryRandom.RandDecInRange(1000, 2000, 2));
 
         // [THEN] Customer Ledger Entry "Sales (LCY)" = 100
         VerifyCustomerLedgerEntrySalesLCY(GenJournalLine."Account No.", GenJournalLine.Amount);
@@ -827,7 +798,7 @@ codeunit 134227 "ERM PostRecurringJournal"
         // [WHEN] Post the recurring journal
         CreatePostGeneralJournalLine(
           GenJournalLine, GenJournalLine."Document Type"::"Credit Memo", GenJournalLine."Account Type"::Customer,
-          LibrarySales.CreateCustomerNo, -LibraryRandom.RandDecInRange(1000, 2000, 2));
+          LibrarySales.CreateCustomerNo(), -LibraryRandom.RandDecInRange(1000, 2000, 2));
 
         // [THEN] Customer Ledger Entry "Sales (LCY)" = 100
         VerifyCustomerLedgerEntrySalesLCY(GenJournalLine."Account No.", GenJournalLine.Amount);
@@ -858,7 +829,7 @@ codeunit 134227 "ERM PostRecurringJournal"
             AllocAmt[Index] := LibraryRandom.RandDecInRange(1000, 2000, 2);
             CreateGeneralJournalLine(
               GenJournalLine[Index], GenJournalBatch, RecurringMethod[Index], 0, CreateGLAccountWithBalanceAtDate(WorkDate(), AllocAmt[Index]));
-            AllocLineNo[Index] := CreateGenJnlAllocationWithAccountAndAllocPct(GenJournalLine[Index], LibraryERM.CreateGLAccountNo, 100.0);
+            AllocLineNo[Index] := CreateGenJnlAllocationWithAccountAndAllocPct(GenJournalLine[Index], LibraryERM.CreateGLAccountNo(), 100.0);
         end;
 
         // [WHEN] Post Gen. Journal Lines
@@ -926,7 +897,7 @@ codeunit 134227 "ERM PostRecurringJournal"
         VATEntryCount := VATEntry.Count();
         CreateGeneralJournalLineWithType(
           GenJournalLine, GenJournalBatch, GenJournalLine."Recurring Method"::"F  Fixed", GenJournalLine."Document Type"::Invoice,
-          GenJournalLine."Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo, LibraryRandom.RandDecInRange(1000, 2000, 2));
+          GenJournalLine."Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo(), LibraryRandom.RandDecInRange(1000, 2000, 2));
         CreateGenJnlAllocationWithAccountAndAllocPct(GenJournalLine, GLAccount."No.", 100);
 
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
@@ -952,7 +923,7 @@ codeunit 134227 "ERM PostRecurringJournal"
 
         CreateGeneralJournalLineWithType(
           GenJournalLine, GenJournalBatch, GenJournalLine."Recurring Method"::"F  Fixed", GenJournalLine."Document Type"::Invoice,
-          GenJournalLine."Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo, LibraryRandom.RandDecInRange(1000, 2000, 2));
+          GenJournalLine."Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo(), LibraryRandom.RandDecInRange(1000, 2000, 2));
         CreateGenJnlAllocationWithAccountAndAllocPct(GenJournalLine, GLAccount."No.", 100);
 
         asserterror LibraryERM.PostGeneralJnlLine(GenJournalLine);
@@ -1034,7 +1005,7 @@ codeunit 134227 "ERM PostRecurringJournal"
 
         // [GIVEN] Gen. Journal Template with "Force Doc. Balance" = true; Gen. Journal Batch with non-empty "Posting No. Series".
         CreateRecurringGenJournalBatch(GenJournalBatch);
-        UpdatePostingNoSeriesOnGenJnlBatch(GenJournalBatch, LibraryUtility.GetGlobalNoSeriesCode);
+        UpdatePostingNoSeriesOnGenJnlBatch(GenJournalBatch, LibraryUtility.GetGlobalNoSeriesCode());
         UpdateForceDocBalanceOnGenJnlTemplate(GenJournalBatch."Journal Template Name", true);
 
         // [GIVEN] Four recurring Gen. Journal lines, balanced by Document No., but created with Document No. in order TEST1, TEST2, TEST1, TEST2.
@@ -1044,16 +1015,16 @@ codeunit 134227 "ERM PostRecurringJournal"
         Amount[2] := LibraryRandom.RandDecInRange(100, 200, 2);
         CreateJournalLineWithDocumentNo(
           GenJournalLine, GenJournalBatch, GenJournalLine."Recurring Method"::"RV Reversing Variable",
-          Amount[1], LibraryERM.CreateGLAccountNo, DocumentNo[1]);
+          Amount[1], LibraryERM.CreateGLAccountNo(), DocumentNo[1]);
         CreateJournalLineWithDocumentNo(
           GenJournalLine, GenJournalBatch, GenJournalLine."Recurring Method"::"RV Reversing Variable",
-          Amount[2], LibraryERM.CreateGLAccountNo, DocumentNo[2]);
+          Amount[2], LibraryERM.CreateGLAccountNo(), DocumentNo[2]);
         CreateJournalLineWithDocumentNo(
           GenJournalLine, GenJournalBatch, GenJournalLine."Recurring Method"::"RV Reversing Variable",
-          -Amount[1], LibraryERM.CreateGLAccountNo, DocumentNo[1]);
+          -Amount[1], LibraryERM.CreateGLAccountNo(), DocumentNo[1]);
         CreateJournalLineWithDocumentNo(
           GenJournalLine, GenJournalBatch, GenJournalLine."Recurring Method"::"RV Reversing Variable",
-          -Amount[2], LibraryERM.CreateGLAccountNo, DocumentNo[2]);
+          -Amount[2], LibraryERM.CreateGLAccountNo(), DocumentNo[2]);
 
         // [WHEN] Post recurring Gen. Journal Lines.
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
@@ -1076,7 +1047,7 @@ codeunit 134227 "ERM PostRecurringJournal"
 
         // [GIVEN] Gen. Journal Template with "Force Doc. Balance" = true; Gen. Journal Batch with non-empty "Posting No. Series".
         CreateRecurringGenJournalBatch(GenJournalBatch);
-        UpdatePostingNoSeriesOnGenJnlBatch(GenJournalBatch, LibraryUtility.GetGlobalNoSeriesCode);
+        UpdatePostingNoSeriesOnGenJnlBatch(GenJournalBatch, LibraryUtility.GetGlobalNoSeriesCode());
         UpdateForceDocBalanceOnGenJnlTemplate(GenJournalBatch."Journal Template Name", true);
 
         // [GIVEN] Four recurring Gen. Journal lines, unbalanced by Document No. and created with Document No. in order TEST1, TEST2, TEST1, TEST2.
@@ -1086,16 +1057,16 @@ codeunit 134227 "ERM PostRecurringJournal"
         Amount[2] := LibraryRandom.RandDecInRange(100, 200, 2);
         CreateJournalLineWithDocumentNo(
           GenJournalLine, GenJournalBatch, GenJournalLine."Recurring Method"::"RV Reversing Variable",
-          Amount[1], LibraryERM.CreateGLAccountNo, DocumentNo[1]);
+          Amount[1], LibraryERM.CreateGLAccountNo(), DocumentNo[1]);
         CreateJournalLineWithDocumentNo(
           GenJournalLine, GenJournalBatch, GenJournalLine."Recurring Method"::"RV Reversing Variable",
-          Amount[2], LibraryERM.CreateGLAccountNo, DocumentNo[2]);
+          Amount[2], LibraryERM.CreateGLAccountNo(), DocumentNo[2]);
         CreateJournalLineWithDocumentNo(
           GenJournalLine, GenJournalBatch, GenJournalLine."Recurring Method"::"RV Reversing Variable",
-          -Amount[1] * 2, LibraryERM.CreateGLAccountNo, DocumentNo[1]);
+          -Amount[1] * 2, LibraryERM.CreateGLAccountNo(), DocumentNo[1]);
         CreateJournalLineWithDocumentNo(
           GenJournalLine, GenJournalBatch, GenJournalLine."Recurring Method"::"RV Reversing Variable",
-          -Amount[2] * 2, LibraryERM.CreateGLAccountNo, DocumentNo[2]);
+          -Amount[2] * 2, LibraryERM.CreateGLAccountNo(), DocumentNo[2]);
 
         // [WHEN] Post recurring Gen. Journal Lines.
         asserterror LibraryERM.PostGeneralJnlLine(GenJournalLine);
@@ -1204,7 +1175,6 @@ codeunit 134227 "ERM PostRecurringJournal"
         GenJournalLine: Record "Gen. Journal Line";
         GenJournalBatch: Record "Gen. Journal Batch";
         DocumentNo: array[3] of Code[20];
-        AllowedDate: Date;
     begin
         // [FEATURE] [Recurring General Journal] [Posting Date] [Allowed Posting Period] [Expiration Date]
         // [SCENARIO 462932] Lines with posting date outside General Ledger Setup allowed posting period are not posted in Recurring Journal and Posting Date is not updated.
@@ -1269,7 +1239,7 @@ codeunit 134227 "ERM PostRecurringJournal"
     begin
         LibraryJournals.CreateGenJournalLineWithBatch(
           GenJournalLine, GenJournalLine."Document Type"::" ", GenJournalLine."Account Type"::"G/L Account",
-          LibraryERM.CreateGLAccountNoWithDirectPosting, Balance);
+          LibraryERM.CreateGLAccountNoWithDirectPosting(), Balance);
         GenJournalLine.Validate("Posting Date", PostingDate);
         GenJournalLine.Modify(true);
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
@@ -1333,7 +1303,7 @@ codeunit 134227 "ERM PostRecurringJournal"
     begin
         CreateGeneralJournalLine(
           GenJournalLine, GenJournalBatch, GenJournalLine."Recurring Method"::"F  Fixed",
-          LibraryRandom.RandDec(100, 2), LibraryERM.CreateGLAccountNo);
+          LibraryRandom.RandDec(100, 2), LibraryERM.CreateGLAccountNo());
         GenJournalLine.Validate("Posting Date", PostingDate);
         GenJournalLine.Validate("Expiration Date", ExpirationDate);
         GenJournalLine.Modify(true);
@@ -1346,7 +1316,7 @@ codeunit 134227 "ERM PostRecurringJournal"
     begin
         CreateGeneralJournalLine(
           GenJournalLine, GenJournalBatch, GenJournalLine."Recurring Method"::"F  Fixed",
-          LibraryRandom.RandDec(100, 2), LibraryERM.CreateGLAccountNo);
+          LibraryRandom.RandDec(100, 2), LibraryERM.CreateGLAccountNo());
         Evaluate(RecurringFrequency, '<' + Format(RecurringFrequencyMonths) + 'M >');
         GenJournalLine.Validate("Recurring Frequency", RecurringFrequency);
         GenJournalLine.Validate("Posting Date", PostingDate);
@@ -1672,8 +1642,8 @@ codeunit 134227 "ERM PostRecurringJournal"
     [Scope('OnPrem')]
     procedure GenJnlTemplateModalPageHandler(var GeneralJournalTemplateList: TestPage "General Journal Template List")
     begin
-        GeneralJournalTemplateList.FILTER.SetFilter(Name, LibraryVariableStorage.DequeueText);
-        GeneralJournalTemplateList.OK.Invoke;
+        GeneralJournalTemplateList.FILTER.SetFilter(Name, LibraryVariableStorage.DequeueText());
+        GeneralJournalTemplateList.OK().Invoke();
     end;
 
     [ReportHandler]

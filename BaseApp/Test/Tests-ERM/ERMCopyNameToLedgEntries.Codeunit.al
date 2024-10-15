@@ -15,16 +15,20 @@ codeunit 134985 "ERM Copy Name To Ledg. Entries"
         LibraryNotificationMgt: Codeunit "Library - Notification Mgt.";
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
         LibraryInventory: Codeunit "Library - Inventory";
+        LibraryWarehouse: Codeunit "Library - Warehouse";
         LibraryPurchase: Codeunit "Library - Purchase";
         LibrarySales: Codeunit "Library - Sales";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
+        LibraryRandom: Codeunit "Library - Random";
         isInitialized: Boolean;
         CustNamesUpdateMsg: Label '%1 customer ledger entries with empty Customer Name field were found. Do you want to update these entries by inserting the name from the customer cards?', Comment = '%1 = number of entries';
         VendNamesUpdateMsg: Label '%1 vendor ledger entries with empty Vendor Name field were found. Do you want to update these entries by inserting the name from the vendor cards?', Comment = '%1 = number of entries';
         ItemDescrUpdateMsg: Label '%1 ledger entries with empty Description field were found. Do you want to update these entries by inserting the description from the item cards?', Comment = '%1 = number of entries';
+        ItemDescriptionWarehouseEntriesUpdateMsg: Label '%1 warehouse entries with empty Description field were found. Do you want to update these entries by inserting the description from the item cards?', Comment = '%1 = number of entries, %2 - Table Caption';
         ParameterNotSupportedErr: Label 'The Parameter String field must contain 18 for ''Customer'', 23 for ''Vendor'', or 27 for ''Item''. The current value ''%1'' is not supported.', Comment = '%1 - any text value';
         CustomerJobQueueDescrTxt: Label 'Update customer name in customer ledger entries.';
         ItemJobQueueDescrTxt: Label 'Update item name in item ledger entries.';
+        WarehouseDescriptionJobQueueTxt: Label 'Update item name in warehouse entries.';
         VendorJobQueueDescrTxt: Label 'Update vendor name in vendor ledger entries.';
         GlobalTaskID: Guid;
 
@@ -124,7 +128,7 @@ codeunit 134985 "ERM Copy Name To Ledg. Entries"
         SetCopyCustNameToLedgerEntries(true);
 
         // [THEN] Notification: '2 customer ledger entry with empty Customer Name found.'
-        Assert.ExpectedMessage(StrSubstNo(CustNamesUpdateMsg, 2), LibraryVariableStorage.DequeueText);
+        Assert.ExpectedMessage(StrSubstNo(CustNamesUpdateMsg, 2), LibraryVariableStorage.DequeueText());
         LibraryNotificationMgt.RecallNotificationsForRecord(SalesSetup);
 
         // [WHEN] Run action 'Schedule Update'
@@ -134,7 +138,7 @@ codeunit 134985 "ERM Copy Name To Ledg. Entries"
         // by ScheduleAJobModalPageHandler
         // [THEN] Job Queue Entry is executed
         Assert.IsTrue(RunJobQueueEntry(ExpectedTaskID), 'Job Queue Entry does not exist');
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
         // [THEN] Check that name in customer ledger entries is 'X'
         VerifyCustLedgEntryDescription(Customer."No.", Customer.Name);
     end;
@@ -171,7 +175,7 @@ codeunit 134985 "ERM Copy Name To Ledg. Entries"
         SetCopyCustNameToLedgerEntries(true);
 
         // [THEN] Notification: '1 customer ledger entry with empty Customer Name found.'
-        Assert.ExpectedMessage(StrSubstNo(CustNamesUpdateMsg, 1), LibraryVariableStorage.DequeueText);
+        Assert.ExpectedMessage(StrSubstNo(CustNamesUpdateMsg, 1), LibraryVariableStorage.DequeueText());
         LibraryNotificationMgt.RecallNotificationsForRecord(SalesSetup);
         // [THEN] Check that name in customer ledger entries is still blank
         VerifyCustLedgEntryDescription(Customer."No.", '');
@@ -183,7 +187,7 @@ codeunit 134985 "ERM Copy Name To Ledg. Entries"
         // [THEN] Job Queue Entry is executed,where "Object ID to Run" is Codeunit 104,
         // [THEN] "Parameter String" is '18', "Earliest Start Date/Time" is '05.05.19 13:00'
         VerifyScheduledJobQueueEntryPage(ExpectedTaskID, '18', CustomerJobQueueDescrTxt);
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -218,7 +222,7 @@ codeunit 134985 "ERM Copy Name To Ledg. Entries"
         SetCopyCustNameToLedgerEntries(true);
 
         // [THEN] Notification: '1 customer ledger entry with empty Customer Name found.'
-        Assert.ExpectedMessage(StrSubstNo(CustNamesUpdateMsg, 1), LibraryVariableStorage.DequeueText);
+        Assert.ExpectedMessage(StrSubstNo(CustNamesUpdateMsg, 1), LibraryVariableStorage.DequeueText());
         LibraryNotificationMgt.RecallNotificationsForRecord(SalesSetup);
         // [THEN] Check that name in customer ledger entries is still blank
         VerifyCustLedgEntryDescription(Customer."No.", '');
@@ -228,7 +232,7 @@ codeunit 134985 "ERM Copy Name To Ledg. Entries"
 
         // [THEN] Job Queue Entry is not created
         Assert.IsFalse(RunJobQueueEntry(ExpectedTaskID), 'Job Queue Entry must not exist');
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
         // [THEN] Check that name in customer ledger entries is blank
         VerifyCustLedgEntryDescription(Customer."No.", '');
     end;
@@ -251,7 +255,7 @@ codeunit 134985 "ERM Copy Name To Ledg. Entries"
         SetCopyCustNameToLedgerEntries(true);
 
         // [THEN] Notification is not shown
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -336,7 +340,7 @@ codeunit 134985 "ERM Copy Name To Ledg. Entries"
         SetCopyVendNameToLedgerEntries(true);
 
         // [THEN] Notification: '2 vendor ledger entries with empty Vendor Name found.'
-        Assert.ExpectedMessage(StrSubstNo(VendNamesUpdateMsg, 2), LibraryVariableStorage.DequeueText);
+        Assert.ExpectedMessage(StrSubstNo(VendNamesUpdateMsg, 2), LibraryVariableStorage.DequeueText());
         LibraryNotificationMgt.RecallNotificationsForRecord(PurchSetup);
 
         // [WHEN] Run action 'Schedule Update'
@@ -346,7 +350,7 @@ codeunit 134985 "ERM Copy Name To Ledg. Entries"
         // by ScheduleAJobModalPageHandler
         // [THEN] Job Queue Entry is executed
         Assert.IsTrue(RunJobQueueEntry(ExpectedTaskID), 'Job Queue Entry does not exist');
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
         // [THEN] Check that name in vendor ledger entries is 'X'
         VerifyVendLedgEntryDescription(Vendor."No.", Vendor.Name);
     end;
@@ -383,7 +387,7 @@ codeunit 134985 "ERM Copy Name To Ledg. Entries"
         SetCopyVendNameToLedgerEntries(true);
 
         // [THEN] Notification: '1 vendor ledger entry with empty Vendor Name found.'
-        Assert.ExpectedMessage(StrSubstNo(VendNamesUpdateMsg, 1), LibraryVariableStorage.DequeueText);
+        Assert.ExpectedMessage(StrSubstNo(VendNamesUpdateMsg, 1), LibraryVariableStorage.DequeueText());
         LibraryNotificationMgt.RecallNotificationsForRecord(PurchSetup);
         // [THEN] Check that name in vendor ledger entries is still blank
         VerifyVendLedgEntryDescription(Vendor."No.", '');
@@ -395,7 +399,7 @@ codeunit 134985 "ERM Copy Name To Ledg. Entries"
         // [THEN] Job Queue Entry is executed, where "Object ID to Run" is Codeunit 104,
         // [THEN] "Parameter String" is '23', "Earliest Start Date/Time" is '05.05.19 13:00'
         VerifyScheduledJobQueueEntryPage(ExpectedTaskID, '23', VendorJobQueueDescrTxt);
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -430,7 +434,7 @@ codeunit 134985 "ERM Copy Name To Ledg. Entries"
         SetCopyVendNameToLedgerEntries(true);
 
         // [THEN] Notification: '1 vendor ledger entry with empty Vendor Name found.'
-        Assert.ExpectedMessage(StrSubstNo(VendNamesUpdateMsg, 1), LibraryVariableStorage.DequeueText);
+        Assert.ExpectedMessage(StrSubstNo(VendNamesUpdateMsg, 1), LibraryVariableStorage.DequeueText());
         LibraryNotificationMgt.RecallNotificationsForRecord(PurchSetup);
         // [THEN] Check that name in vendor ledger entries is still blank
         VerifyVendLedgEntryDescription(Vendor."No.", '');
@@ -440,7 +444,7 @@ codeunit 134985 "ERM Copy Name To Ledg. Entries"
 
         // [THEN] Job Queue Entry is not created
         Assert.IsFalse(RunJobQueueEntry(ExpectedTaskID), 'Job Queue Entry must not exist');
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
         // [THEN] Check that name in vendor ledger entries is still blank
         VerifyVendLedgEntryDescription(Vendor."No.", '');
     end;
@@ -462,7 +466,7 @@ codeunit 134985 "ERM Copy Name To Ledg. Entries"
         SetCopyVendNameToLedgerEntries(true);
 
         // [THEN] Notification is not shown
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -576,7 +580,7 @@ codeunit 134985 "ERM Copy Name To Ledg. Entries"
         SetCopyItemDescrToLedgerEntries(true);
 
         // [THEN] Notification: '6 ledger entries with empty description found.'
-        Assert.ExpectedMessage(StrSubstNo(ItemDescrUpdateMsg, 6), LibraryVariableStorage.DequeueText);
+        Assert.ExpectedMessage(StrSubstNo(ItemDescrUpdateMsg, 6), LibraryVariableStorage.DequeueText());
         LibraryNotificationMgt.RecallNotificationsForRecord(InventorySetup);
 
         // [WHEN] Run action 'Schedule Update'
@@ -586,7 +590,7 @@ codeunit 134985 "ERM Copy Name To Ledg. Entries"
         // by ScheduleAJobModalPageHandler
         // [THEN] Job Queue Entry is executed
         Assert.IsTrue(RunJobQueueEntry(ExpectedTaskID), 'Job Queue Entry does not exist');
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
         // [THEN] Check that description in ledger entries is 'X'
         VerifyItemDescriptionInEntries(Item."No.", '', Item.Description);
     end;
@@ -613,7 +617,7 @@ codeunit 134985 "ERM Copy Name To Ledg. Entries"
         SetCopyItemDescrToLedgerEntries(true);
 
         // [THEN] Notification: '6 ledger entries with empty description found.'
-        Assert.ExpectedMessage(StrSubstNo(ItemDescrUpdateMsg, 6), LibraryVariableStorage.DequeueText);
+        Assert.ExpectedMessage(StrSubstNo(ItemDescrUpdateMsg, 6), LibraryVariableStorage.DequeueText());
         LibraryNotificationMgt.RecallNotificationsForRecord(InventorySetup);
         // [WHEN] Run action 'Schedule Update'
 
@@ -623,7 +627,7 @@ codeunit 134985 "ERM Copy Name To Ledg. Entries"
         // by ScheduleAJobModalPageHandler
         // [THEN] Job Queue Entry is executed
         Assert.IsTrue(RunJobQueueEntry(ExpectedTaskID), 'Job Queue Entry does not exist');
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
 
         // [THEN] Check that description in ledger entries is 'Y'
         VerifyItemDescriptionInEntries(ItemVariant."Item No.", ItemVariant.Code, ItemVariant.Description);
@@ -651,7 +655,7 @@ codeunit 134985 "ERM Copy Name To Ledg. Entries"
         SetCopyItemDescrToLedgerEntries(true);
 
         // [THEN] Notification: '6 ledger entries with empty description found.'
-        Assert.ExpectedMessage(StrSubstNo(ItemDescrUpdateMsg, 6), LibraryVariableStorage.DequeueText);
+        Assert.ExpectedMessage(StrSubstNo(ItemDescrUpdateMsg, 6), LibraryVariableStorage.DequeueText());
         LibraryNotificationMgt.RecallNotificationsForRecord(InventorySetup);
         // [THEN] Check that description in ledger entries is still blank
         VerifyItemDescriptionInEntries(Item."No.", '', '');
@@ -663,7 +667,7 @@ codeunit 134985 "ERM Copy Name To Ledg. Entries"
         // [THEN] Job Queue Entry is executed, where "Object ID to Run" is Codeunit 104,
         // [THEN] "Parameter String" is '27', "Earliest Start Date/Time" is '05.05.19 13:00'
         VerifyScheduledJobQueueEntryPage(ExpectedTaskID, '27', ItemJobQueueDescrTxt);
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -688,7 +692,7 @@ codeunit 134985 "ERM Copy Name To Ledg. Entries"
         SetCopyItemDescrToLedgerEntries(true);
 
         // [THEN] Notification: '6 ledger entries with empty description found.'
-        Assert.ExpectedMessage(StrSubstNo(ItemDescrUpdateMsg, 6), LibraryVariableStorage.DequeueText);
+        Assert.ExpectedMessage(StrSubstNo(ItemDescrUpdateMsg, 6), LibraryVariableStorage.DequeueText());
         LibraryNotificationMgt.RecallNotificationsForRecord(InventorySetup);
         // [THEN] Check that description in ledger entries is still blank
         VerifyItemDescriptionInEntries(Item."No.", '', '');
@@ -698,7 +702,7 @@ codeunit 134985 "ERM Copy Name To Ledg. Entries"
 
         // [THEN] Job Queue Entry is not created
         Assert.IsFalse(RunJobQueueEntry(ExpectedTaskID), 'Job Queue Entry must not exist');
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
         // [THEN] Check that description in ledger entries is still blank
         VerifyItemDescriptionInEntries(Item."No.", '', '');
     end;
@@ -715,7 +719,217 @@ codeunit 134985 "ERM Copy Name To Ledg. Entries"
         SetCopyItemDescrToLedgerEntries(true);
 
         // [THEN] Notification is not shown
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    procedure PostIfCopyItemDescriptionToWarehouseEntriesIsNo()
+    var
+        Item: Record Item;
+        Location: Record Location;
+        WarehouseJournalBatch: Record "Warehouse Journal Batch";
+        WarehouseJournalLine: Record "Warehouse Journal Line";
+        WarehouseEmployee: Record "Warehouse Employee";
+    begin
+        // [FEATURE] [Warehouse] [Posting]
+        // [SCENARIO] "Description" is blank in warehouse entry if "Copy Item Descr. to Entries" is 'No'
+        Initialize();
+
+        // [GIVEN] Create Item and Location
+        LibraryInventory.CreateItem(Item);
+        LibraryWarehouse.CreateFullWMSLocation(Location, 1);
+        LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, Location.Code, true);
+
+        // [GIVEN] Warehouse setup field "Copy Item Descr. to Entries" set to 'No'
+        SetCopyItemDescriptionToWarehouseEntriesSilent(false);
+
+        // [GIVEN] Create journal with new item 'X'
+        LibraryWarehouse.CreateWarehouseJournalBatch(WarehouseJournalBatch, Enum::"Warehouse Journal Template Type"::Item, Location.Code);
+        LibraryWarehouse.CreateWhseJournalLine(
+                WarehouseJournalLine, WarehouseJournalBatch."Journal Template Name", WarehouseJournalBatch.Name, Location.Code, '', '', WarehouseJournalLine."Entry Type"::"Positive Adjmt.", Item."No.", LibraryRandom.RandDecInRange(1, 5, 2)
+        );
+
+        // [WHEN] Post warehouse journal
+        LibraryWarehouse.PostWhseJournalLine(WarehouseJournalBatch."Journal Template Name", WarehouseJournalBatch.Name, '');
+
+        // [THEN] Check that description in warehouse entries is blank
+        VerifyWarehouseEntryDescription(Item."No.", '', '');
+    end;
+
+    [Test]
+    procedure PostIfCopyItemDescriptionToWarehouseEntriesIsYes()
+    var
+        Item: Record Item;
+        Location: Record Location;
+        WarehouseJournalBatch: Record "Warehouse Journal Batch";
+        WarehouseJournalLine: Record "Warehouse Journal Line";
+        WarehouseEmployee: Record "Warehouse Employee";
+    begin
+        // [FEATURE] [Warehouse] [Posting]
+        // [SCENARIO] "Description" in warehouse entry gets item's description if "Copy Item Descr. to Entries" is 'Yes'
+        Initialize();
+
+        // [GIVEN] Create Item and Location
+        LibraryInventory.CreateItem(Item);
+        LibraryWarehouse.CreateFullWMSLocation(Location, 1);
+        LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, Location.Code, true);
+
+        // [GIVEN] Warehouse setup field "Copy Item Descr. to Entries" set to 'Yes'
+        SetCopyItemDescriptionToWarehouseEntriesSilent(true);
+
+        // [GIVEN] Create journal with new item 'X'
+        LibraryWarehouse.CreateWarehouseJournalBatch(WarehouseJournalBatch, Enum::"Warehouse Journal Template Type"::Item, Location.Code);
+        LibraryWarehouse.CreateWhseJournalLine(
+                WarehouseJournalLine, WarehouseJournalBatch."Journal Template Name", WarehouseJournalBatch.Name, Location.Code, '', '', WarehouseJournalLine."Entry Type"::"Positive Adjmt.", Item."No.", LibraryRandom.RandDecInRange(1, 5, 2)
+        );
+
+        // [WHEN] Post warehouse journal
+        LibraryWarehouse.PostWhseJournalLine(WarehouseJournalBatch."Journal Template Name", WarehouseJournalBatch.Name, '');
+
+        // [THEN] Check that description in warehouse entries is from Item
+        VerifyWarehouseEntryDescription(Item."No.", '', Item.Description);
+    end;
+
+    [Test]
+    procedure PostIfCopyItemVariantDescriptionToWarehouseEntriesIsYes()
+    var
+        Item: Record Item;
+        ItemVariant: Record "Item Variant";
+        Location: Record Location;
+        WarehouseJournalBatch: Record "Warehouse Journal Batch";
+        WarehouseJournalLine: Record "Warehouse Journal Line";
+        WarehouseEmployee: Record "Warehouse Employee";
+    begin
+        // [FEATURE] [Warehouse] [Posting]
+        // [SCENARIO] "Description" in warehouse entry gets item's description if "Copy Item Descr. to Entries" is 'Yes'
+        Initialize();
+
+        // [GIVEN] Create Item, Item Variant and Location
+        LibraryInventory.CreateItem(Item);
+        LibraryInventory.CreateItemVariant(ItemVariant, Item."No.");
+        LibraryWarehouse.CreateFullWMSLocation(Location, 1);
+        LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, Location.Code, true);
+
+        // [GIVEN] Warehouse setup field "Copy Item Descr. to Entries" set to 'Yes'
+        SetCopyItemDescriptionToWarehouseEntriesSilent(true);
+
+        // [GIVEN] Create journal with new item 'X' and variant 'Y'
+        LibraryWarehouse.CreateWarehouseJournalBatch(WarehouseJournalBatch, Enum::"Warehouse Journal Template Type"::Item, Location.Code);
+        LibraryWarehouse.CreateWhseJournalLine(
+                WarehouseJournalLine, WarehouseJournalBatch."Journal Template Name", WarehouseJournalBatch.Name, Location.Code, '', '', WarehouseJournalLine."Entry Type"::"Positive Adjmt.", Item."No.", LibraryRandom.RandDecInRange(1, 5, 2)
+        );
+        WarehouseJournalLine.Validate("Variant Code", ItemVariant.Code);
+        WarehouseJournalLine.Modify();
+
+        // [WHEN] Post warehouse journal
+        LibraryWarehouse.PostWhseJournalLine(WarehouseJournalBatch."Journal Template Name", WarehouseJournalBatch.Name, '');
+
+        // [THEN] Check that description in warehouse entries is from Item Variant
+        VerifyWarehouseEntryDescription(Item."No.", ItemVariant.Code, ItemVariant.Description);
+    end;
+
+    [Test]
+    [HandlerFunctions('SentNotificationScheduleHandler,ScheduleAJobModalPageHandler')]
+    procedure UpdateCopyItemDescriptionToWarehouseEntriesFromSetup()
+    var
+        Item: Record Item;
+        Location: Record Location;
+        WarehouseEmployee: Record "Warehouse Employee";
+        WarehouseSetup: Record "Warehouse Setup";
+        ERMCopyNameToLedgEntries: Codeunit "ERM Copy Name To Ledg. Entries";
+        ExpectedTaskID: Guid;
+    begin
+        // [FEATURE] [Warehouse] [Posting]
+        // [SCENARIO] Fill blank "Description" in warehouse entries if "Copy Item Descr. To Entries" changed to 'Yes'
+        Initialize();
+
+        // [GIVEN] Item 'X'
+        // [GIVEN] There are Warehouse Entries where Description is <blank>
+        LibraryWarehouse.CreateFullWMSLocation(Location, 1);
+        LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, Location.Code, true);
+        CreateItemWithWarehouseEntries(Item, Location.Code);
+
+        // [GIVEN] Warehouse setup field "Copy Item Descr. to Entries" set to 'Yes'
+        ExpectedTaskID := MockJobScheduling(ERMCopyNameToLedgEntries);
+        SetCopyItemDescriptionToWarehouseEntries(true);
+
+        // [THEN] Notification: '2 warehouse entries with empty description found.'
+        Assert.ExpectedMessage(StrSubstNo(ItemDescriptionWarehouseEntriesUpdateMsg, 2), LibraryVariableStorage.DequeueText());
+        LibraryNotificationMgt.RecallNotificationsForRecord(WarehouseSetup);
+
+        // [WHEN] Run action 'Schedule Update'
+
+        // [THEN] Open modal page "Schedule a Report", where Description is not enabled, "Earliest Start Date/Time" is <blank> and editable
+        VerifyScheduleAJobPage(WarehouseDescriptionJobQueueTxt);
+
+        // [WHEN] Push 'OK'
+        // by ScheduleAJobModalPageHandler
+
+        // [THEN] Job Queue Entry is executed
+        Assert.IsTrue(RunJobQueueEntry(ExpectedTaskID), 'Job Queue Entry does not exist');
+        LibraryVariableStorage.AssertEmpty();
+
+        // [THEN] Check that description in warehouse entries is from Item
+        VerifyWarehouseEntryDescription(Item."No.", '', Item.Description);
+    end;
+
+    [Test]
+    [HandlerFunctions('SentNotificationScheduleHandler,ScheduleAJobModalPageHandler')]
+    procedure UpdateCopyItemVariantDescriptionToWarehouseEntriesFromSetup()
+    var
+        ItemVariant: Record "Item Variant";
+        Location: Record Location;
+        WarehouseEmployee: Record "Warehouse Employee";
+        WarehouseSetup: Record "Warehouse Setup";
+        ERMCopyNameToLedgEntries: Codeunit "ERM Copy Name To Ledg. Entries";
+        ExpectedTaskID: Guid;
+    begin
+        // [FEATURE] [Warehouse] [Posting]
+        // [SCENARIO] Fill blank "Description" in warehouse entries if "Copy Item Descr. To Entries" changed to 'Yes'
+        Initialize();
+
+        // [GIVEN] Item 'X' with variant 'Y'
+        // [GIVEN] There are Warehouse Entries where Description is <blank>
+        LibraryWarehouse.CreateFullWMSLocation(Location, 1);
+        LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, Location.Code, true);
+        CreateItemVariantWithWarehouseEntries(ItemVariant, Location.Code);
+
+        // [GIVEN] Warehouse setup field "Copy Item Descr. to Entries" set to 'Yes'
+        ExpectedTaskID := MockJobScheduling(ERMCopyNameToLedgEntries);
+        SetCopyItemDescriptionToWarehouseEntries(true);
+
+        // [THEN] Notification: '2 warehouse entries with empty description found.'
+        Assert.ExpectedMessage(StrSubstNo(ItemDescriptionWarehouseEntriesUpdateMsg, 2), LibraryVariableStorage.DequeueText());
+        LibraryNotificationMgt.RecallNotificationsForRecord(WarehouseSetup);
+
+        // [WHEN] Run action 'Schedule Update'
+
+        // [THEN] Open modal page "Schedule a Report", where Description is not enabled, "Earliest Start Date/Time" is <blank> and editable
+        VerifyScheduleAJobPage(WarehouseDescriptionJobQueueTxt);
+
+        // [WHEN] Push 'OK'
+        // by ScheduleAJobModalPageHandler
+
+        // [THEN] Job Queue Entry is executed
+        Assert.IsTrue(RunJobQueueEntry(ExpectedTaskID), 'Job Queue Entry does not exist');
+        LibraryVariableStorage.AssertEmpty();
+
+        // [THEN] Check that description in warehouse entries is from Item Variant
+        VerifyWarehouseEntryDescription(ItemVariant."Item No.", ItemVariant.Code, ItemVariant.Description);
+    end;
+
+    [Test]
+    procedure UpdateCopyItemDescriptionToWarehouseEntriesFromSetupAllFilled()
+    begin
+        // [FEATURE] [Warehouse] [Setup]
+        // [SCENARIO] "Copy Item Descr. To Entries" changed to 'Yes' does nothing if all "Description" in warehouse entries are filled
+        Initialize();
+
+        // [WHEN] Warehouse setup field "Copy Item Descr. to Entries" set to 'Yes'
+        SetCopyItemDescriptionToWarehouseEntries(true);
+
+        // [THEN] Notification is not shown
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     local procedure Initialize()
@@ -737,6 +951,7 @@ codeunit 134985 "ERM Copy Name To Ledg. Entries"
         SetCopyCustNameToLedgerEntriesSilent(false);
         SetCopyItemDescrToLedgerEntriesSilent(false);
         SetCopyVendNameToLedgerEntriesSilent(false);
+        SetCopyItemDescriptionToWarehouseEntriesSilent(false);
 
         isInitialized := true;
         Commit();
@@ -752,7 +967,7 @@ codeunit 134985 "ERM Copy Name To Ledg. Entries"
         RecRef.Open(TableNo);
         if RecRef.FindLast() then begin
             FieldRef := RecRef.Field(EntryNoFieldNo);
-            EntryNo := FieldRef.Value;
+            EntryNo := FieldRef.Value();
         end;
         RecRef.Init();
         FieldRef.Value(EntryNo + 1);
@@ -786,6 +1001,19 @@ codeunit 134985 "ERM Copy Name To Ledg. Entries"
         PhysInventoryLedgerEntry.Insert();
     end;
 
+    local procedure CreateItemWithWarehouseEntries(var Item: Record Item; LocationCode: Code[10])
+    var
+        WarehouseEntry: Record "Warehouse Entry";
+    begin
+        LibraryInventory.CreateItem(Item);
+        WarehouseEntry."Entry No." := GetNextEntryNo(Database::"Warehouse Entry");
+        WarehouseEntry."Item No." := Item."No.";
+        WarehouseEntry."Location Code" := LocationCode;
+        WarehouseEntry.Insert();
+        WarehouseEntry."Entry No." += 1;
+        WarehouseEntry.Insert();
+    end;
+
     local procedure CreateItemVariantWithEntries(var ItemVariant: Record "Item Variant")
     var
         Item: Record Item;
@@ -817,6 +1045,22 @@ codeunit 134985 "ERM Copy Name To Ledg. Entries"
         PhysInventoryLedgerEntry.Insert();
     end;
 
+    local procedure CreateItemVariantWithWarehouseEntries(var ItemVariant: Record "Item Variant"; LocationCode: Code[10])
+    var
+        Item: Record Item;
+        WarehouseEntry: Record "Warehouse Entry";
+    begin
+        LibraryInventory.CreateItem(Item);
+        LibraryInventory.CreateVariant(ItemVariant, Item);
+        WarehouseEntry."Entry No." := GetNextEntryNo(Database::"Warehouse Entry");
+        WarehouseEntry."Item No." := Item."No.";
+        WarehouseEntry."Variant Code" := ItemVariant.Code;
+        WarehouseEntry."Location Code" := LocationCode;
+        WarehouseEntry.Insert();
+        WarehouseEntry."Entry No." += 1;
+        WarehouseEntry.Insert();
+    end;
+
     local procedure FillCVNames(AddBlank: Boolean)
     var
         CustLedgerEntry: Record "Cust. Ledger Entry";
@@ -842,6 +1086,7 @@ codeunit 134985 "ERM Copy Name To Ledg. Entries"
         ItemLedgerEntry: Record "Item Ledger Entry";
         ValueEntry: Record "Value Entry";
         PhysInventoryLedgerEntry: Record "Phys. Inventory Ledger Entry";
+        WarehouseEntry: Record "Warehouse Entry";
     begin
         ItemLedgerEntry.SetFilter("Item No.", '<>''''');
         ItemLedgerEntry.SetRange(Description, '');
@@ -855,11 +1100,16 @@ codeunit 134985 "ERM Copy Name To Ledg. Entries"
         PhysInventoryLedgerEntry.SetRange(Description, '');
         PhysInventoryLedgerEntry.ModifyAll(Description, 'item');
 
+        WarehouseEntry.SetFilter("Item No.", '<>''''');
+        WarehouseEntry.SetRange(Description, '');
+        WarehouseEntry.ModifyAll(Description, 'item');
+
         if not AddBlank then
             exit;
         AddBlankEntry(DATABASE::"Phys. Inventory Ledger Entry", PhysInventoryLedgerEntry.FieldNo("Entry No."));
         AddBlankEntry(DATABASE::"Item Ledger Entry", ItemLedgerEntry.FieldNo("Entry No."));
         AddBlankEntry(DATABASE::"Value Entry", ValueEntry.FieldNo("Entry No."));
+        AddBlankEntry(DATABASE::"Warehouse Entry", WarehouseEntry.FieldNo("Entry No."));
     end;
 
     local procedure GetNextEntryNo(TableNo: Integer) NextEntryNo: Integer
@@ -871,7 +1121,7 @@ codeunit 134985 "ERM Copy Name To Ledg. Entries"
         RecRef.Open(TableNo);
         if RecRef.FindLast() then begin
             FieldRef := RecRef.Field(1); // Entry No.
-            LastEntryNo := FieldRef.Value;
+            LastEntryNo := FieldRef.Value();
         end;
         NextEntryNo := LastEntryNo + 1;
         RecRef.Close();
@@ -880,7 +1130,7 @@ codeunit 134985 "ERM Copy Name To Ledg. Entries"
     local procedure MockJobScheduling(var ERMCopyNameToLedgEntries: Codeunit "ERM Copy Name To Ledg. Entries"): Guid
     begin
         BindSubscription(ERMCopyNameToLedgEntries);
-        exit(ERMCopyNameToLedgEntries.SetTaskID);
+        exit(ERMCopyNameToLedgEntries.SetTaskID());
     end;
 
     local procedure RunJobQueueEntry(TaskID: Guid): Boolean
@@ -948,6 +1198,24 @@ codeunit 134985 "ERM Copy Name To Ledg. Entries"
         InventorySetup.Modify();
     end;
 
+    local procedure SetCopyItemDescriptionToWarehouseEntries(SetCopy: Boolean)
+    var
+        WarehouseSetup: Record "Warehouse Setup";
+    begin
+        WarehouseSetup.Get();
+        WarehouseSetup.Validate("Copy Item Descr. to Entries", SetCopy);
+        WarehouseSetup.Modify();
+    end;
+
+    local procedure SetCopyItemDescriptionToWarehouseEntriesSilent(SetCopy: Boolean)
+    var
+        WarehouseSetup: Record "Warehouse Setup";
+    begin
+        WarehouseSetup.Get();
+        WarehouseSetup."Copy Item Descr. to Entries" := SetCopy;
+        WarehouseSetup.Modify();
+    end;
+
     local procedure VerifyCustLedgEntryDescription(CustNo: Code[20]; ExpectedDescription: Text[100])
     var
         CustLedgerEntry: Record "Cust. Ledger Entry";
@@ -983,6 +1251,16 @@ codeunit 134985 "ERM Copy Name To Ledg. Entries"
         Assert.RecordIsEmpty(ItemLedgerEntry);
     end;
 
+    local procedure VerifyWarehouseEntryDescription(ItemNo: Code[20]; VariantCode: Code[10]; ExpectedDescription: Text[100])
+    var
+        WarehouseEntry: Record "Warehouse Entry";
+    begin
+        WarehouseEntry.SetRange("Item No.", ItemNo);
+        WarehouseEntry.SetRange("Variant Code", VariantCode);
+        WarehouseEntry.SetFilter(Description, '<>%1', ExpectedDescription);
+        Assert.RecordIsEmpty(WarehouseEntry);
+    end;
+
     local procedure VerifyPhysInvEntryDescription(ItemNo: Code[20]; VariantCode: Code[10]; ExpectedDescription: Text[100])
     var
         PhysInventoryLedgerEntry: Record "Phys. Inventory Ledger Entry";
@@ -1005,10 +1283,10 @@ codeunit 134985 "ERM Copy Name To Ledg. Entries"
 
     local procedure VerifyScheduleAJobPage(Descr: Text)
     begin
-        Assert.AreEqual(Descr, LibraryVariableStorage.DequeueText, 'Description value');
-        Assert.IsFalse(LibraryVariableStorage.DequeueBoolean, 'Description enabled');
-        Assert.AreEqual(0DT, LibraryVariableStorage.DequeueDateTime, 'Earliest Start Date/Time value');
-        Assert.IsTrue(LibraryVariableStorage.DequeueBoolean, 'Earliest Start Date/Time enabled');
+        Assert.AreEqual(Descr, LibraryVariableStorage.DequeueText(), 'Description value');
+        Assert.IsFalse(LibraryVariableStorage.DequeueBoolean(), 'Description enabled');
+        Assert.AreEqual(0DT, LibraryVariableStorage.DequeueDateTime(), 'Earliest Start Date/Time value');
+        Assert.IsTrue(LibraryVariableStorage.DequeueBoolean(), 'Earliest Start Date/Time enabled');
     end;
 
     local procedure VerifyScheduledJobQueueEntryPage(ExpectedTaskID: Guid; Param: Text; Descr: Text[250])
@@ -1016,7 +1294,7 @@ codeunit 134985 "ERM Copy Name To Ledg. Entries"
         JobQueueEntry: Record "Job Queue Entry";
         ExpectedDateTime: DateTime;
     begin
-        ExpectedDateTime := LibraryVariableStorage.DequeueDateTime; // from OKScheduleAJobModalPageHandler
+        ExpectedDateTime := LibraryVariableStorage.DequeueDateTime(); // from OKScheduleAJobModalPageHandler
         JobQueueEntry.SetRange("System Task ID", ExpectedTaskID);
         JobQueueEntry.FindFirst();
         JobQueueEntry.TestField("Object Type to Run", JobQueueEntry."Object Type to Run"::Codeunit);
@@ -1041,10 +1319,10 @@ codeunit 134985 "ERM Copy Name To Ledg. Entries"
     procedure ScheduleAJobModalPageHandler(var ScheduleAJobPage: TestPage "Schedule a Job")
     begin
         LibraryVariableStorage.Enqueue(ScheduleAJobPage.Description.Value);
-        LibraryVariableStorage.Enqueue(ScheduleAJobPage.Description.Enabled);
-        LibraryVariableStorage.Enqueue(ScheduleAJobPage."Earliest Start Date/Time".AsDateTime);
-        LibraryVariableStorage.Enqueue(ScheduleAJobPage."Earliest Start Date/Time".Enabled);
-        ScheduleAJobPage.OK.Invoke;
+        LibraryVariableStorage.Enqueue(ScheduleAJobPage.Description.Enabled());
+        LibraryVariableStorage.Enqueue(ScheduleAJobPage."Earliest Start Date/Time".AsDateTime());
+        LibraryVariableStorage.Enqueue(ScheduleAJobPage."Earliest Start Date/Time".Enabled());
+        ScheduleAJobPage.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -1052,15 +1330,15 @@ codeunit 134985 "ERM Copy Name To Ledg. Entries"
     procedure OKScheduleAJobModalPageHandler(var ScheduleAJobPage: TestPage "Schedule a Job")
     begin
         ScheduleAJobPage."Earliest Start Date/Time".Value(Format(CreateDateTime(Today + 1, Time)));
-        LibraryVariableStorage.Enqueue(ScheduleAJobPage."Earliest Start Date/Time".AsDateTime);
-        ScheduleAJobPage.OK.Invoke;
+        LibraryVariableStorage.Enqueue(ScheduleAJobPage."Earliest Start Date/Time".AsDateTime());
+        ScheduleAJobPage.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure CancelScheduleAJobModalPageHandler(var ScheduleAJobPage: TestPage "Schedule a Job")
     begin
-        ScheduleAJobPage.Cancel.Invoke;
+        ScheduleAJobPage.Cancel().Invoke();
     end;
 
     [Scope('OnPrem')]

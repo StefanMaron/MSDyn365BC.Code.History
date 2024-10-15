@@ -7,6 +7,7 @@ namespace Microsoft;
 table 10703 "Acc. Schedule Buffer"
 {
     Caption = 'Acc. Schedule Buffer';
+    DataClassification = CustomerContent;
 
     fields
     {

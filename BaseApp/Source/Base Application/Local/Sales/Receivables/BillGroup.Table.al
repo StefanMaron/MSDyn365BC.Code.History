@@ -5,6 +5,7 @@
 namespace Microsoft.Sales.Receivables;
 
 using Microsoft.Bank.BankAccount;
+using Microsoft.Foundation.Enums;
 using Microsoft.Bank.DirectDebit;
 using Microsoft.Finance.Currency;
 using Microsoft.Finance.Dimension;
@@ -18,6 +19,7 @@ table 7000005 "Bill Group"
     Caption = 'Bill Group';
     DrillDownPageID = "Bill Groups List";
     LookupPageID = "Bill Groups List";
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -26,6 +28,8 @@ table 7000005 "Bill Group"
             Caption = 'No.';
 
             trigger OnValidate()
+            var
+                NoSeries: Codeunit "No. Series";
             begin
                 if "No." = xRec."No." then
                     exit;
@@ -34,7 +38,7 @@ table 7000005 "Bill Group"
                 ResetPrinted();
 
                 CarteraSetup.Get();
-                NoSeriesMgt.TestManual(CarteraSetup."Bill Group Nos.");
+                NoSeries.TestManual(CarteraSetup."Bill Group Nos.");
                 "No. Series" := '';
 
                 UpdateDescription();
@@ -263,11 +267,9 @@ table 7000005 "Bill Group"
                 end;
             end;
         }
-        field(1200; "Partner Type"; Option)
+        field(1200; "Partner Type"; Enum "Partner Type")
         {
             Caption = 'Partner Type';
-            OptionCaption = ' ,Company,Person';
-            OptionMembers = " ",Company,Person;
         }
     }
 
@@ -299,11 +301,28 @@ table 7000005 "Bill Group"
     end;
 
     trigger OnInsert()
+    var
+        NoSeries: Codeunit "No. Series";
+#if not CLEAN24
+        NoSeriesMgt: Codeunit NoSeriesManagement;
+        IsHandled: Boolean;
+#endif
     begin
         if "No." = '' then begin
             CarteraSetup.Get();
             CarteraSetup.TestField("Bill Group Nos.");
-            NoSeriesMgt.InitSeries(CarteraSetup."Bill Group Nos.", xRec."No. Series", 0D, "No.", "No. Series");
+#if not CLEAN24
+            NoSeriesMgt.RaiseObsoleteOnBeforeInitSeries(CarteraSetup."Bill Group Nos.", xRec."No. Series", 0D, "No.", "No. Series", IsHandled);
+            if not IsHandled then begin
+#endif
+                "No. Series" := CarteraSetup."Bill Group Nos.";
+                if NoSeries.AreRelated("No. Series", xRec."No. Series") then
+                    "No. Series" := xRec."No. Series";
+                "No." := NoSeries.GetNextNo("No. Series");
+#if not CLEAN24
+                NoSeriesMgt.RaiseObsoleteOnAfterInitSeries("No. Series", CarteraSetup."Bill Group Nos.", 0D, "No.");
+            end;
+#endif
         end;
 
         if GetFilter("Bank Account No.") <> '' then
@@ -351,7 +370,6 @@ table 7000005 "Bill Group"
         BGPOCommentLine: Record "BG/PO Comment Line";
         Currencies: Page Currencies;
         CarteraManagement: Codeunit CarteraManagement;
-        NoSeriesMgt: Codeunit NoSeriesManagement;
         Option: Integer;
         SilentDirectDebitFormat: Option " ",Standard,N58;
         DirectDebitOptionTxt: Label 'Direct Debit';
@@ -361,18 +379,16 @@ table 7000005 "Bill Group"
 
     [Scope('OnPrem')]
     procedure AssistEdit(OldBillGr: Record "Bill Group"): Boolean
+    var
+        NoSeries: Codeunit "No. Series";
     begin
-        with BillGr do begin
-            BillGr := Rec;
-            CarteraSetup.Get();
-            CarteraSetup.TestField("Bill Group Nos.");
-            if NoSeriesMgt.SelectSeries(CarteraSetup."Bill Group Nos.", OldBillGr."No. Series", "No. Series") then begin
-                CarteraSetup.Get();
-                CarteraSetup.TestField("Bill Group Nos.");
-                NoSeriesMgt.SetSeries("No.");
-                Rec := BillGr;
-                exit(true);
-            end;
+        BillGr := Rec;
+        CarteraSetup.Get();
+        CarteraSetup.TestField("Bill Group Nos.");
+        if NoSeries.LookupRelatedNoSeries(CarteraSetup."Bill Group Nos.", OldBillGr."No. Series", BillGr."No. Series") then begin
+            BillGr."No." := NoSeries.GetNextNo(BillGr."No. Series");
+            Rec := BillGr;
+            exit(true);
         end;
     end;
 
@@ -407,15 +423,13 @@ table 7000005 "Bill Group"
     var
         CarteraReportSelection: Record "Cartera Report Selections";
     begin
-        with BillGr do begin
-            Copy(Rec);
-            CarteraReportSelection.SetRange(Usage, CarteraReportSelection.Usage::"Bill Group");
-            CarteraReportSelection.SetFilter("Report ID", '<>0');
-            CarteraReportSelection.Find('-');
-            repeat
-                REPORT.RunModal(CarteraReportSelection."Report ID", ShowRequestForm, false, BillGr);
-            until CarteraReportSelection.Next() = 0;
-        end;
+        BillGr.Copy(Rec);
+        CarteraReportSelection.SetRange(Usage, CarteraReportSelection.Usage::"Bill Group");
+        CarteraReportSelection.SetFilter("Report ID", '<>0');
+        CarteraReportSelection.Find('-');
+        repeat
+            REPORT.RunModal(CarteraReportSelection."Report ID", ShowRequestForm, false, BillGr);
+        until CarteraReportSelection.Next() = 0;
     end;
 
     local procedure BillGrIsEmpty(): Boolean

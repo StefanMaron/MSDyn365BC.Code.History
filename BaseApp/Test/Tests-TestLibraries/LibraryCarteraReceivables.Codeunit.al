@@ -11,7 +11,9 @@ codeunit 143020 "Library - Cartera Receivables"
         LibraryERM: Codeunit "Library - ERM";
         LibraryESLocalization: Codeunit "Library - ES Localization";
         LibrarySales: Codeunit "Library - Sales";
+#if not CLEAN22
         LibraryUtility: Codeunit "Library - Utility";
+#endif
         LibraryRandom: Codeunit "Library - Random";
         LibraryService: Codeunit "Library - Service";
 
@@ -30,11 +32,10 @@ codeunit 143020 "Library - Cartera Receivables"
         CarteraDoc.SetRange("Account No.", AccountNo);
         CarteraDoc.FindSet();
 
-        with CarteraDoc do
-            repeat
-                Validate("Bill Gr./Pmt. Order No.", BillGroupNo);
-                Modify(true);
-            until Next = 0;
+        repeat
+            CarteraDoc.Validate("Bill Gr./Pmt. Order No.", BillGroupNo);
+            CarteraDoc.Modify(true);
+        until CarteraDoc.Next() = 0;
     end;
 
     procedure CreateBankAccount(var BankAccount: Record "Bank Account"; CurrencyCode: Code[10])
@@ -45,12 +46,12 @@ codeunit 143020 "Library - Cartera Receivables"
         BankAccount.Validate("CCC Bank Branch No.", Format(LibraryRandom.RandIntInRange(1111, 9999)));
         BankAccount.Validate("CCC Control Digits", Format(LibraryRandom.RandIntInRange(11, 99)));
         BankAccount.Validate("CCC Bank Account No.", Format(LibraryRandom.RandIntInRange(11111111, 99999999)));
-        BankAccount.Validate("Bank Acc. Posting Group", FindBankAccountPostingGroup);
+        BankAccount.Validate("Bank Acc. Posting Group", FindBankAccountPostingGroup());
         BankAccount."Customer Ratings Code" := BankAccount."No.";
         BankAccount.Modify(true);
     end;
 
-    procedure CreateBillGroup(var BillGroup: Record "Bill Group"; BankAccountNo: Code[20]; DealingType: Option): Code[20]
+    procedure CreateBillGroup(var BillGroup: Record "Bill Group"; BankAccountNo: Code[20]; DealingType: Enum "Cartera Dealing Type"): Code[20]
     begin
         BillGroup.Init();
         BillGroup.Validate("Bank Account No.", BankAccountNo);
@@ -262,7 +263,7 @@ codeunit 143020 "Library - Cartera Receivables"
         exit(BankAccountPostingGroup.Code);
     end;
 
-    procedure FindCarteraDocCustomerLedgerEntry(var CustLedgerEntry: Record "Cust. Ledger Entry"; CustomerNo: Code[20]; DocumentNo: Code[20]; DocumentSituation: Option; DocumentType: Enum "Gen. Journal Document Type")
+    procedure FindCarteraDocCustomerLedgerEntry(var CustLedgerEntry: Record "Cust. Ledger Entry"; CustomerNo: Code[20]; DocumentNo: Code[20]; DocumentSituation: Enum "ES Document Situation"; DocumentType: Enum "Gen. Journal Document Type")
     begin
         CustLedgerEntry.Reset();
         CustLedgerEntry.SetRange("Customer No.", CustomerNo);
@@ -303,7 +304,7 @@ codeunit 143020 "Library - Cartera Receivables"
         GLEntry.FindLast();
     end;
 
-    procedure FindOpenCarteraDocCustomerLedgerEntries(var CustLedgerEntry: Record "Cust. Ledger Entry"; CustomerNo: Code[20]; DocumentNo: Code[20]; DocumentSituation: Option; DocumentType: Enum "Gen. Journal Document Type")
+    procedure FindOpenCarteraDocCustomerLedgerEntries(var CustLedgerEntry: Record "Cust. Ledger Entry"; CustomerNo: Code[20]; DocumentNo: Code[20]; DocumentSituation: Enum "ES Document Situation"; DocumentType: Enum "Gen. Journal Document Type")
     begin
         CustLedgerEntry.SetRange("Customer No.", CustomerNo);
         CustLedgerEntry.SetRange("Document Type", DocumentType);
@@ -379,9 +380,9 @@ codeunit 143020 "Library - Cartera Receivables"
     var
         CarteraJournal: TestPage "Cartera Journal";
     begin
-        CarteraJournal.OpenEdit;
+        CarteraJournal.OpenEdit();
         CarteraJournal.CurrentJnlBatchName.SetValue(GenJournalBatchName);
-        CarteraJournal.Post.Invoke;
+        CarteraJournal.Post.Invoke();
     end;
 
     procedure PostCarteraBillGroup(BillGroup: Record "Bill Group")
@@ -456,11 +457,14 @@ codeunit 143020 "Library - Cartera Receivables"
     end;
 
 #if not CLEAN22
+#pragma warning disable AS0072
+    [Obsolete('Not Used.', '22.0')]
     procedure UpdateSalesInvoiceWithCustomerPmtCode(var SalesHeader: Record "Sales Header"; CustomerPmtCode: Code[10])
     begin
         SalesHeader.Validate("Pay-at Code", CustomerPmtCode);
         SalesHeader.Modify(true);
     end;
+#pragma warning restore AS0072
 #endif
 }
 

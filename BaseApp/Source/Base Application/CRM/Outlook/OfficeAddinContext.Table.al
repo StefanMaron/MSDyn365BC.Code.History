@@ -5,6 +5,7 @@ using System;
 table 1600 "Office Add-in Context"
 {
     Caption = 'Office Add-in Context';
+    DataClassification = CustomerContent;
 
     fields
     {

@@ -126,7 +126,7 @@ codeunit 147314 "Cartera Payables Installments"
         VATPostingSetup.Get(PurchInvLine."VAT Bus. Posting Group", PurchInvLine."VAT Prod. Posting Group");
 
         InitialVATAmount := -1 *
-          Round(TotalAmount - TotalAmount * 100 / (VATPostingSetup."VAT %" + 100), LibraryERM.GetAmountRoundingPrecision);
+          Round(TotalAmount - TotalAmount * 100 / (VATPostingSetup."VAT %" + 100), LibraryERM.GetAmountRoundingPrecision());
 
         LibraryCarteraPayables.FindOpenCarteraDocVendorLedgerEntries(FirstInstallmentVendorLedgerEntry,
           Vendor."No.", DocumentNo, FirstInstallmentVendorLedgerEntry."Document Situation"::Cartera,
@@ -134,7 +134,7 @@ codeunit 147314 "Cartera Payables Installments"
         FirstInstallmentVendorLedgerEntry.CalcFields("Original Amount");
 
         // Pre-Exercise
-        CreditMemoAmount := Round(FirstInstallmentVendorLedgerEntry."Original Amount" / 2, LibraryERM.GetAmountRoundingPrecision);
+        CreditMemoAmount := Round(FirstInstallmentVendorLedgerEntry."Original Amount" / 2, LibraryERM.GetAmountRoundingPrecision());
         CreateCreditMemoToCorrectInvoice(CreditMemoPurchaseHeader,
           Vendor."No.", DocumentNo, PurchInvLine."No.", 1, CreditMemoAmount);
         CreditMemoDocumentNo := LibraryPurchase.PostPurchaseDocument(CreditMemoPurchaseHeader, true, true);
@@ -145,7 +145,7 @@ codeunit 147314 "Cartera Payables Installments"
         ApplyCreditMemoToFirstInstallment(CreditMemoVendorLedgerEntry."Entry No.");
 
         // Verify
-        CreditMemoVATAmount := -1 * Round(CreditMemoAmount * VATPostingSetup."VAT %" / 100, LibraryERM.GetAmountRoundingPrecision);
+        CreditMemoVATAmount := -1 * Round(CreditMemoAmount * VATPostingSetup."VAT %" / 100, LibraryERM.GetAmountRoundingPrecision());
         ValidateUnrVATGLEntriesAfterApplyingCreditMemo(PurchUnrealizedVATAccount, InitialVATAmount, CreditMemoVATAmount);
         ValidateUnrVATVendorEntriesAfterApplyingCreditMemo(Vendor."No.", CreditMemoVATAmount, -1 * CreditMemoAmount);
         VerifyRemainingAmountOnFirstInstallment(CreditMemoVendorLedgerEntry."Entry No.", FirstInstallmentVendorLedgerEntry."Entry No.");
@@ -406,7 +406,7 @@ codeunit 147314 "Cartera Payables Installments"
 
     local procedure Initialize()
     begin
-        LibraryCarteraCommon.RevertUnrealizedVATPostingSetup;
+        LibraryCarteraCommon.RevertUnrealizedVATPostingSetup();
         LocalCurrencyCode := '';
     end;
 
@@ -428,9 +428,9 @@ codeunit 147314 "Cartera Payables Installments"
     var
         VendorLedgerEntries: TestPage "Vendor Ledger Entries";
     begin
-        VendorLedgerEntries.OpenEdit;
+        VendorLedgerEntries.OpenEdit();
         VendorLedgerEntries.GotoKey(EntryNo);
-        VendorLedgerEntries.ActionApplyEntries.Invoke;
+        VendorLedgerEntries.ActionApplyEntries.Invoke();
     end;
 
     local procedure ApplyPostFirstOpenBill(VendorNo: Code[20]; DocumentNo: Code[20])
@@ -486,7 +486,7 @@ codeunit 147314 "Cartera Payables Installments"
         CarteraDoc.SetRange("No.", '1');
         CarteraDoc.FindFirst();
 
-        PayablesCarteraDocs.OpenView;
+        PayablesCarteraDocs.OpenView();
         PayablesCarteraDocs.GotoRecord(CarteraDoc);
         PayablesCarteraDocs."Remaining Amount".AssertEquals(-1 * AppliedToVendorLedgerEntry."Remaining Amount");
     end;
@@ -515,7 +515,7 @@ codeunit 147314 "Cartera Payables Installments"
         Assert.AreEqual(TotalAmount, CarteraDocsTotalAmount, 'There was a rounding error');
     end;
 
-    local procedure ValidateInstallmentVendorLedgerEntries(VendorNo: Code[20]; DocumentNo: Code[20]; DocumentSituation: Option; TotalAmount: Decimal; NoOfInstallments: Integer)
+    local procedure ValidateInstallmentVendorLedgerEntries(VendorNo: Code[20]; DocumentNo: Code[20]; DocumentSituation: Enum "ES Document Situation"; TotalAmount: Decimal; NoOfInstallments: Integer)
     var
         VendorLedgerEntry: Record "Vendor Ledger Entry";
         PaymentTerms: Record "Payment Terms";
@@ -594,15 +594,15 @@ codeunit 147314 "Cartera Payables Installments"
     [Scope('OnPrem')]
     procedure ApplyVendorEntriesPageHandler(var ApplyVendorEntries: TestPage "Apply Vendor Entries")
     begin
-        ApplyVendorEntries.ActionSetAppliesToID.Invoke;
-        ApplyVendorEntries.ActionPostApplication.Invoke;
+        ApplyVendorEntries.ActionSetAppliesToID.Invoke();
+        ApplyVendorEntries.ActionPostApplication.Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure PostApplicationPageHandler(var PostApplication: TestPage "Post Application")
     begin
-        PostApplication.OK.Invoke;
+        PostApplication.OK().Invoke();
     end;
 
     [MessageHandler]

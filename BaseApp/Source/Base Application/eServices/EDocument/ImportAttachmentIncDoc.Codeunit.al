@@ -258,35 +258,33 @@ codeunit 134 "Import Attachment - Inc. Doc."
         if IsHandled then
             exit(IncomingDocEntryNo);
 
-        with IncomingDocumentAttachment do begin
-            if GetFilter("Document Table No. Filter") <> '' then
-                DocTableNo := GetRangeMin("Document Table No. Filter");
-            if GetFilter("Document Type Filter") <> '' then
-                DocType := GetRangeMin("Document Type Filter");
-            if GetFilter("Document No. Filter") <> '' then
-                DocNo := GetRangeMin("Document No. Filter");
+        if IncomingDocumentAttachment.GetFilter("Document Table No. Filter") <> '' then
+            DocTableNo := IncomingDocumentAttachment.GetRangeMin("Document Table No. Filter");
+        if IncomingDocumentAttachment.GetFilter("Document Type Filter") <> '' then
+            DocType := IncomingDocumentAttachment.GetRangeMin("Document Type Filter");
+        if IncomingDocumentAttachment.GetFilter("Document No. Filter") <> '' then
+            DocNo := IncomingDocumentAttachment.GetRangeMin("Document No. Filter");
 
-            case DocTableNo of
-                DATABASE::"Sales Header":
-                    begin
-                        SalesHeader.Get(DocType, DocNo);
-                        CreateIncomingDocumentExtended(IncomingDocumentAttachment, IncomingDocument, 0D, '', SalesHeader.RecordId);
-                        SalesHeader."Incoming Document Entry No." := IncomingDocument."Entry No.";
-                        SalesHeader.Modify();
-                    end;
-                DATABASE::"Purchase Header":
-                    begin
-                        PurchaseHeader.Get(DocType, DocNo);
-                        CreateIncomingDocumentExtended(IncomingDocumentAttachment, IncomingDocument, 0D, '', PurchaseHeader.RecordId);
-                        PurchaseHeader."Incoming Document Entry No." := IncomingDocument."Entry No.";
-                        PurchaseHeader.Modify();
-                    end;
-                else
-                    Error(NotSupportedDocTableErr, DocTableNo);
-            end;
-
-            exit(IncomingDocument."Entry No.");
+        case DocTableNo of
+            DATABASE::"Sales Header":
+                begin
+                    SalesHeader.Get(DocType, DocNo);
+                    CreateIncomingDocumentExtended(IncomingDocumentAttachment, IncomingDocument, 0D, '', SalesHeader.RecordId);
+                    SalesHeader."Incoming Document Entry No." := IncomingDocument."Entry No.";
+                    SalesHeader.Modify();
+                end;
+            DATABASE::"Purchase Header":
+                begin
+                    PurchaseHeader.Get(DocType, DocNo);
+                    CreateIncomingDocumentExtended(IncomingDocumentAttachment, IncomingDocument, 0D, '', PurchaseHeader.RecordId);
+                    PurchaseHeader."Incoming Document Entry No." := IncomingDocument."Entry No.";
+                    PurchaseHeader.Modify();
+                end;
+            else
+                Error(NotSupportedDocTableErr, DocTableNo);
         end;
+
+        exit(IncomingDocument."Entry No.");
     end;
 
     local procedure CreateNewJournalLineIncomingDoc(var IncomingDocumentAttachment: Record "Incoming Document Attachment"): Integer
@@ -297,21 +295,19 @@ codeunit 134 "Import Attachment - Inc. Doc."
         JnlBatchName: Code[20];
         JnlLineNo: Integer;
     begin
-        with IncomingDocumentAttachment do begin
-            if GetFilter("Journal Template Name Filter") <> '' then
-                JnlTemplateName := GetRangeMin("Journal Template Name Filter");
-            if GetFilter("Journal Batch Name Filter") <> '' then
-                JnlBatchName := GetRangeMin("Journal Batch Name Filter");
-            if GetFilter("Journal Line No. Filter") <> '' then
-                JnlLineNo := GetRangeMin("Journal Line No. Filter");
+        if IncomingDocumentAttachment.GetFilter("Journal Template Name Filter") <> '' then
+            JnlTemplateName := IncomingDocumentAttachment.GetRangeMin("Journal Template Name Filter");
+        if IncomingDocumentAttachment.GetFilter("Journal Batch Name Filter") <> '' then
+            JnlBatchName := IncomingDocumentAttachment.GetRangeMin("Journal Batch Name Filter");
+        if IncomingDocumentAttachment.GetFilter("Journal Line No. Filter") <> '' then
+            JnlLineNo := IncomingDocumentAttachment.GetRangeMin("Journal Line No. Filter");
 
-            GenJournalLine.Get(JnlTemplateName, JnlBatchName, JnlLineNo);
-            CreateIncomingDocumentExtended(IncomingDocumentAttachment, IncomingDocument, 0D, '', GenJournalLine.RecordId);
-            GenJournalLine."Incoming Document Entry No." := IncomingDocument."Entry No.";
-            GenJournalLine.Modify();
+        GenJournalLine.Get(JnlTemplateName, JnlBatchName, JnlLineNo);
+        CreateIncomingDocumentExtended(IncomingDocumentAttachment, IncomingDocument, 0D, '', GenJournalLine.RecordId);
+        GenJournalLine."Incoming Document Entry No." := IncomingDocument."Entry No.";
+        GenJournalLine.Modify();
 
-            exit(IncomingDocument."Entry No.");
-        end;
+        exit(IncomingDocument."Entry No.");
     end;
 
     local procedure CreateIncomingDocument(var IncomingDocumentAttachment: Record "Incoming Document Attachment"; var IncomingDocument: Record "Incoming Document"; PostingDate: Date; DocNo: Code[20])
@@ -414,11 +410,9 @@ codeunit 134 "Import Attachment - Inc. Doc."
     var
         IncomingDocumentAttachment: Record "Incoming Document Attachment";
     begin
-        with IncomingDocumentAttachment do begin
-            SetRange("Incoming Document Entry No.", IncomingDocument."Entry No.");
-            if FindLast() then;
-            exit("Line No." + LineIncrement());
-        end;
+        IncomingDocumentAttachment.SetRange("Incoming Document Entry No.", IncomingDocument."Entry No.");
+        if IncomingDocumentAttachment.FindLast() then;
+        exit(IncomingDocumentAttachment."Line No." + LineIncrement());
     end;
 
     local procedure LineIncrement(): Integer

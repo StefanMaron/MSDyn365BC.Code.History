@@ -22,6 +22,7 @@ table 5505 "Sales Quote Entity Buffer"
 {
     Caption = 'Sales Quote Entity Buffer';
     ReplicateData = false;
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -795,11 +796,7 @@ table 5505 "Sales Quote Entity Buffer"
 
     procedure GetParentRecordNativeInvoicing(var SalesHeader: Record "Sales Header"): Boolean
     begin
-#if not CLEAN21
-        SalesHeader.SetAutoCalcFields("Last Email Sent Time", "Last Email Sent Status", "Work Description");
-#else
         SalesHeader.SetAutoCalcFields("Work Description");
-#endif
         exit(GetParentRecord(SalesHeader));
     end;
 

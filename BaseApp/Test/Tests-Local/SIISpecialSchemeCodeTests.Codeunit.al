@@ -705,7 +705,7 @@ codeunit 147562 "SII Special Scheme Code Tests"
         Initialize();
 
         // [GIVEN] Purchase invoice
-        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, LibraryPurchase.CreateVendorNo);
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, LibraryPurchase.CreateVendorNo());
         PurchaseInvoicePage.OpenEdit();
         PurchaseInvoicePage.FILTER.SetFilter("No.", PurchaseHeader."No.");
         Assert.AreEqual(
@@ -818,7 +818,7 @@ codeunit 147562 "SII Special Scheme Code Tests"
         Initialize();
 
         // [GIVEN] Purchase order
-        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo);
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo());
         PurchaseOrderPage.OpenEdit();
         PurchaseOrderPage.FILTER.SetFilter("No.", PurchaseHeader."No.");
         Assert.AreEqual(
@@ -899,7 +899,7 @@ codeunit 147562 "SII Special Scheme Code Tests"
         Initialize();
 
         // [GIVEN] Purchase credit memo
-        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::"Credit Memo", LibraryPurchase.CreateVendorNo);
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::"Credit Memo", LibraryPurchase.CreateVendorNo());
         PurchaseCreditMemoPage.OpenEdit();
         PurchaseCreditMemoPage.FILTER.SetFilter("No.", PurchaseHeader."No.");
         Assert.AreEqual(
@@ -1294,7 +1294,7 @@ codeunit 147562 "SII Special Scheme Code Tests"
         Initialize();
         VATClauseCode :=
           LibrarySII.CreateVATClauseWithSIIExemptionCode(VATClause."SII Exemption Code"::"E2 Exempt on account of Article 21");
-        Commit;
+        Commit();
         VATPostingSetup.Init();
         VATPostingSetup.Validate("VAT Clause Code", VATClauseCode);
         asserterror VATPostingSetup.Validate("Sales Special Scheme Code", VATPostingSetup."Sales Special Scheme Code"::"01 General");
@@ -1320,7 +1320,7 @@ codeunit 147562 "SII Special Scheme Code Tests"
         Initialize();
         VATClauseCode :=
           LibrarySII.CreateVATClauseWithSIIExemptionCode(VATClause."SII Exemption Code"::"E3 Exempt on account of Article 22");
-        Commit;
+        Commit();
         VATPostingSetup.Init();
         VATPostingSetup.Validate("VAT Clause Code", VATClauseCode);
         asserterror VATPostingSetup.Validate("Sales Special Scheme Code", VATPostingSetup."Sales Special Scheme Code"::"01 General");
@@ -1345,14 +1345,14 @@ codeunit 147562 "SII Special Scheme Code Tests"
 
         Initialize();
         LibraryApplicationArea.EnableFoundationSetup();
-        VATPostingSetup.OpenView;
-        Assert.IsTrue(VATPostingSetup."Sales Special Scheme Code".Visible, 'Special scheme code field is not visible');
-        Assert.IsTrue(VATPostingSetup."Purch. Special Scheme Code".Visible, 'Special scheme code field is not visible');
-        VATPostingSetupCard.OpenView;
-        Assert.IsTrue(VATPostingSetupCard."Sales Special Scheme Code".Visible, 'Special scheme code field is not visible');
-        Assert.IsTrue(VATPostingSetupCard."Purch. Special Scheme Code".Visible, 'Special scheme code field is not visible');
+        VATPostingSetup.OpenView();
+        Assert.IsTrue(VATPostingSetup."Sales Special Scheme Code".Visible(), 'Special scheme code field is not visible');
+        Assert.IsTrue(VATPostingSetup."Purch. Special Scheme Code".Visible(), 'Special scheme code field is not visible');
+        VATPostingSetupCard.OpenView();
+        Assert.IsTrue(VATPostingSetupCard."Sales Special Scheme Code".Visible(), 'Special scheme code field is not visible');
+        Assert.IsTrue(VATPostingSetupCard."Purch. Special Scheme Code".Visible(), 'Special scheme code field is not visible');
 
-        LibraryApplicationArea.DisableApplicationAreaSetup;
+        LibraryApplicationArea.DisableApplicationAreaSetup();
     end;
 
     [Test]
@@ -1373,7 +1373,7 @@ codeunit 147562 "SII Special Scheme Code Tests"
         // [GIVEN] First line has VAT Posting Setup with "Sales Special Scheme Code" = "03"
         // [GIVEN] Second line has VAT Posting Setup with "Sales Special Scheme Code" = "04"
         // [GIVEN] Third line has VAT Posting Setup with "Sales Special Scheme Code" = "03"
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo());
         LibrarySII.CreateSalesLineWithUnitPrice(
           SalesHeader,
           LibrarySII.CreateItemNoWithSpecificVATSetup(
@@ -1423,7 +1423,7 @@ codeunit 147562 "SII Special Scheme Code Tests"
         // [GIVEN] Sales invoice with two lines
         // [GIVEN] First line has VAT Posting Setup with "Sales Special Scheme Code" = "01"
         // [GIVEN] Second line has VAT Posting Setup with the related VAT Clause that has "SII exemption Code" = "E2"
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo());
         LibrarySII.CreateSalesLineWithUnitPrice(
           SalesHeader,
           LibrarySII.CreateItemNoWithSpecificVATSetup(
@@ -1471,7 +1471,7 @@ codeunit 147562 "SII Special Scheme Code Tests"
         // [GIVEN] First line has VAT Posting Setup with "Sales Special Scheme Code" = "03"
         // [GIVEN] Second line has VAT Posting Setup with "Sales Special Scheme Code" = "04"
         // [GIVEN] Third line has VAT Posting Setup with "Sales Special Scheme Code" = "03"
-        LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo);
+        LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo());
         LibrarySII.CreateServiceLineWithUnitPrice(
           ServiceHeader,
           LibrarySII.CreateItemNoWithSpecificVATSetup(
@@ -1521,7 +1521,7 @@ codeunit 147562 "SII Special Scheme Code Tests"
         // [GIVEN] Sales invoice with two lines
         // [GIVEN] First line has VAT Posting Setup with "Sales Special Scheme Code" = "01"
         // [GIVEN] Second line has VAT Posting Setup with the related VAT Clause that has "SII exemption Code" = "E2"
-        LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo);
+        LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo());
         LibrarySII.CreateServiceLineWithUnitPrice(
           ServiceHeader,
           LibrarySII.CreateItemNoWithSpecificVATSetup(
@@ -1566,7 +1566,7 @@ codeunit 147562 "SII Special Scheme Code Tests"
         // [GIVEN] First line has VAT Posting Setup with "Purch. Special Scheme Code" = "03"
         // [GIVEN] Second line has VAT Posting Setup with "Purch. Special Scheme Code" = "04"
         // [GIVEN] Third line has VAT Posting Setup with "Purch. Special Scheme Code" = "03"
-        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, LibraryPurchase.CreateVendorNo);
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, LibraryPurchase.CreateVendorNo());
         LibrarySII.CreatePurchLineWithUnitCost(
           PurchaseHeader,
           LibrarySII.CreateItemNoWithSpecificVATSetup(
@@ -1986,7 +1986,7 @@ codeunit 147562 "SII Special Scheme Code Tests"
         Initialize();
 
         // [GIVEN] VAT Posting Setup "X" with "Sales Special Scheme Code" = "03"
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo());
 
         // [WHEN] Create sales line with "VAT Posting Setup" = "X"
         LibrarySII.CreateSalesLineWithUnitPrice(
@@ -2014,7 +2014,7 @@ codeunit 147562 "SII Special Scheme Code Tests"
         Initialize();
 
         // [GIVEN] VAT Posting Setup "X" with "Purchase Special Scheme Code" = "03"
-        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, LibraryPurchase.CreateVendorNo);
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, LibraryPurchase.CreateVendorNo());
 
         // [WHEN] Create purchase line with "VAT Posting Setup" = "X"
         LibrarySII.CreatePurchLineWithUnitCost(
@@ -2042,7 +2042,7 @@ codeunit 147562 "SII Special Scheme Code Tests"
         Initialize();
 
         // [GIVEN] VAT Posting Setup "X" with "Sales Special Scheme Code" = "03"
-        LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo);
+        LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo());
 
         // [WHEN] Create service line with "VAT Posting Setup" = "X"
         LibrarySII.CreateServiceLineWithUnitPrice(
@@ -2126,7 +2126,7 @@ codeunit 147562 "SII Special Scheme Code Tests"
         FindPostedCustLedgEntry(CustLedgerEntry, ServiceHeader."Bill-to Customer No.");
     end;
 
-    local procedure PostSalesDocWithRegimeCode(var CustLedgerEntry: Record "Cust. Ledger Entry"; DocType: Option; CorrType: Option; SpecialSchemeCode: Option)
+    local procedure PostSalesDocWithRegimeCode(var CustLedgerEntry: Record "Cust. Ledger Entry"; DocType: Enum "Sales Document Type"; CorrType: Option; SpecialSchemeCode: Enum "SII Sales Special Scheme Code")
     var
         SalesHeader: Record "Sales Header";
     begin
@@ -2141,7 +2141,7 @@ codeunit 147562 "SII Special Scheme Code Tests"
           LibrarySales.PostSalesDocument(SalesHeader, true, true));
     end;
 
-    local procedure PostServDocWithRegimeCode(var CustLedgerEntry: Record "Cust. Ledger Entry"; DocType: Option; CorrType: Option; SpecialSchemeCode: Option)
+    local procedure PostServDocWithRegimeCode(var CustLedgerEntry: Record "Cust. Ledger Entry"; DocType: Enum "Service Document Type"; CorrType: Option; SpecialSchemeCode: Enum "SII Sales Special Scheme Code")
     var
         ServiceHeader: Record "Service Header";
     begin

@@ -18,8 +18,7 @@ codeunit 2000 "Time Series Management"
         TempTimeSeriesForecast: Record "Time Series Forecast" temporary;
         AzureMLConnector: Codeunit "Azure ML Connector";
         ApiUri: Text;
-        [NonDebuggable]
-        ApiKey: Text;
+        ApiKey: SecretText;
         NotInitializedErr: Label 'The connection has not been initialized. Initialize the connection before using the time series functionality.';
         InitializationErr: Label 'Oops, something went wrong when connecting to the Azure Machine Learning endpoint. Please contact your system administrator.';
         TimeOutSec: Integer;
@@ -40,9 +39,19 @@ codeunit 2000 "Time Series Management"
         UseStandardCredentials: Boolean;
         ForecastSecretNameTxt: Label 'ml-forecast', Locked = true;
 
+#if not CLEAN24
     [NonDebuggable]
+    [Obsolete('Use Initialize(Uri: SecretText; "Key": SecretText; TimeOutSeconds: Integer; UseStdCredentials: Boolean) instead.', '24.0')]
     [TryFunction]
     procedure Initialize(Uri: Text; "Key": Text; TimeOutSeconds: Integer; UseStdCredentials: Boolean)
+    var
+        SecretKey: SecretText;
+    begin
+        Initialize(Uri, SecretKey, TimeOutSeconds, UseStdCredentials);
+    end;
+#endif
+    [TryFunction]
+    procedure Initialize(Uri: Text; "Key": SecretText; TimeOutSeconds: Integer; UseStdCredentials: Boolean)
     begin
         ApiUri := Uri;
         ApiKey := Key;
@@ -57,12 +66,11 @@ codeunit 2000 "Time Series Management"
         TimeSeriesCalculationState := TimeSeriesCalculationState::Initialized;
     end;
 
-    [NonDebuggable]
     procedure InitializeFromCashFlowSetup(TimeSeriesLibState: Option Uninitialized,Initialized,"Data Prepared",Done): Boolean
     var
         CashFlowSetup: Record "Cash Flow Setup";
         ApiUrl: Text[250];
-        MLApiKey: Text[200];
+        MLApiKey: SecretText;
         UsingStandardCredentials: Boolean;
         LimitValue: Decimal;
     begin
@@ -279,7 +287,7 @@ codeunit 2000 "Time Series Management"
             exit(0);
 
         ValueFieldRef.CalcSum();
-        Value := ValueFieldRef.Value;
+        Value := ValueFieldRef.Value();
     end;
 
     local procedure CalculateValueFlowField(var RecRef: RecordRef; var ValueFieldRef: FieldRef) Value: Decimal
@@ -292,7 +300,7 @@ codeunit 2000 "Time Series Management"
         if RecRef.FindSet() then
             repeat
                 ValueFieldRef.CalcField();
-                CurrentValue := ValueFieldRef.Value;
+                CurrentValue := ValueFieldRef.Value();
                 Value += CurrentValue;
             until RecRef.Next() = 0;
     end;
@@ -366,10 +374,10 @@ codeunit 2000 "Time Series Management"
             repeat
                 TempTimeSeriesBufferDistinct.Init();
                 if FieldRef.Type = FieldType::Option then begin
-                    OptionValue := FieldRef.Value;
+                    OptionValue := FieldRef.Value();
                     TempTimeSeriesBufferDistinct."Group ID" := Format(OptionValue);
                 end else
-                    TempTimeSeriesBufferDistinct."Group ID" := FieldRef.Value;
+                    TempTimeSeriesBufferDistinct."Group ID" := FieldRef.Value();
                 if not TempTimeSeriesBufferDistinct.Insert() then;
             until RecRef.Next() = 0;
     end;
@@ -416,7 +424,7 @@ codeunit 2000 "Time Series Management"
         PeriodFieldRef.SetFilter('%1..', CalculateMaxStartDate(HistoryEndDate, PeriodType));
         if SourceRecordRef.FindSet() then;
         PeriodFieldRef := SourceRecordRef.Field(PeriodFieldNo);
-        HistoryStartDate := PeriodFieldRef.Value;
+        HistoryStartDate := PeriodFieldRef.Value();
         if not (HistoryStartDate.IsDate or HistoryStartDate.IsDateTime) then
             Error(NotADateErr);
         NumberOfPeriodsWithHistory :=
@@ -458,15 +466,28 @@ codeunit 2000 "Time Series Management"
         exit(TimeSeriesModelOption);
     end;
 
+#if not CLEAN24
     [NonDebuggable]
     [TryFunction]
     [Scope('OnPrem')]
-    procedure GetMLForecastCredentials(var ApiUri: Text[250]; var ApiKey: Text[200]; var LimitType: Option; var Limit: Decimal)
+    [Obsolete('Use GetMLForecastCredentials(var Uri: Text[250]; var "Key": SecretText; var LimitType: Option; var Limit: Decimal) instead.', '24.0')]
+    procedure GetMLForecastCredentials(var LocalApiUri: Text[250]; var "Key": Text[200]; var LimitType: Option; var Limit: Decimal)
     var
         MachineLearningKeyVaultMgmt: Codeunit "Machine Learning KeyVaultMgmt.";
     begin
-        MachineLearningKeyVaultMgmt.GetMachineLearningCredentials(ForecastSecretNameTxt, ApiUri, ApiKey, LimitType, Limit);
-        ApiUri += '/execute?api-version=2.0&details=true';
+        MachineLearningKeyVaultMgmt.GetMachineLearningCredentials(ForecastSecretNameTxt, LocalApiUri, "Key", LimitType, Limit);
+        LocalApiUri += '/execute?api-version=2.0&details=true';
+    end;
+#endif
+    [NonDebuggable]
+    [TryFunction]
+    [Scope('OnPrem')]
+    procedure GetMLForecastCredentials(var LocalApiUri: Text[250]; var "Key": SecretText; var LimitType: Option; var Limit: Decimal)
+    var
+        MachineLearningKeyVaultMgmt: Codeunit "Machine Learning KeyVaultMgmt.";
+    begin
+        MachineLearningKeyVaultMgmt.GetMachineLearningCredentials(ForecastSecretNameTxt, LocalApiUri, "Key", LimitType, Limit);
+        LocalApiUri += '/execute?api-version=2.0&details=true';
     end;
 }
 

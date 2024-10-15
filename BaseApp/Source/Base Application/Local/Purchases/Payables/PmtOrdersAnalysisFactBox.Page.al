@@ -9,7 +9,7 @@ using Microsoft.Finance.ReceivablesPayables;
 page 35298 "Pmt Orders Analysis Fact Box"
 {
     Caption = 'Pmt Orders Analysis Fact Box';
-    DataCaptionExpression = Caption();
+    DataCaptionExpression = Rec.Caption();
     DeleteAllowed = false;
     InsertAllowed = false;
     ModifyAllowed = false;

@@ -51,7 +51,7 @@ codeunit 134041 "ERM Pmt. Tolerance VAT Appln."
           LibraryRandom.RandIntInRange(10, 30));
         CustomerPostingGroup.Get(Customer."Customer Posting Group");
 
-        LibrarySales.SetCreditWarningsToNoWarnings;
+        LibrarySales.SetCreditWarningsToNoWarnings();
         // Excercise: Post invoice, Apply and post cash receipt
         CreateAndPostSalesInvoicePaymentTolerance(Customer."No.", GeneralPostingSetup, VATPostingSetup);
         PaymentToleranceAmount := CreateAndPostSalesCashReceipt(GenJournalLine, Customer."No.");
@@ -64,7 +64,7 @@ codeunit 134041 "ERM Pmt. Tolerance VAT Appln."
         // Test unapply payment
         RunCustomerLedgerEntriesPageToUnapply(Customer."No.", GenJournalLine."Document No.");
         VerifyGLEntryOnUnapplyPartialPayment(CustomerPostingGroup."Payment Disc. Credit Acc.");
-        LibraryPmtDiscSetup.ClearAdjustPmtDiscInVATSetup;
+        LibraryPmtDiscSetup.ClearAdjustPmtDiscInVATSetup();
     end;
 
     [Test]
@@ -101,7 +101,7 @@ codeunit 134041 "ERM Pmt. Tolerance VAT Appln."
         // Test unapply payment
         RunVendorLedgerEntriesPageToUnapply(Vendor."No.", GenJournalLine."Document No.");
         VerifyGLEntryOnUnapplyPartialPayment(VendorPostingGroup."Payment Disc. Credit Acc.");
-        LibraryPmtDiscSetup.ClearAdjustPmtDiscInVATSetup;
+        LibraryPmtDiscSetup.ClearAdjustPmtDiscInVATSetup();
     end;
 
     [Test]
@@ -138,7 +138,7 @@ codeunit 134041 "ERM Pmt. Tolerance VAT Appln."
         // Test unapply payment
         RunCustomerLedgerEntriesPageToUnapply(Customer."No.", GenJournalLine."Document No.");
         VerifyGLEntryOnUnapplyPartialPayment(CustomerPostingGroup."Payment Disc. Credit Acc.");
-        LibraryPmtDiscSetup.ClearAdjustPmtDiscInVATSetup;
+        LibraryPmtDiscSetup.ClearAdjustPmtDiscInVATSetup();
     end;
 
     [Test]
@@ -159,7 +159,7 @@ codeunit 134041 "ERM Pmt. Tolerance VAT Appln."
         TotalAmount := PostPurchInvWithMultipleBalLines(GenJnlLine);
         LibraryERM.PostGeneralJnlLine(GenJnlLine);
 
-        PmtAmountExclTolerance := -Round(TotalAmount * (1 - LibraryPmtDiscSetup.GetPmtTolerancePct / 100));
+        PmtAmountExclTolerance := -Round(TotalAmount * (1 - LibraryPmtDiscSetup.GetPmtTolerancePct() / 100));
         DocNo :=
           PostApplicationJnlLine(GenJnlLine, '', GenJnlLine."Document Type"::Payment, GenJnlLine."Account Type"::Vendor,
             PmtAmountExclTolerance, GenJnlLine."Posting Date");
@@ -171,7 +171,7 @@ codeunit 134041 "ERM Pmt. Tolerance VAT Appln."
           VendLedgEntry."Document Type"::Payment, DocNo, Round(TotalAmount * GenJnlLine."Payment Discount %" / 100));
 
         // Tear Down.
-        LibraryPmtDiscSetup.ClearAdjustPmtDiscInVATSetup;
+        LibraryPmtDiscSetup.ClearAdjustPmtDiscInVATSetup();
     end;
 
     [Test]
@@ -192,7 +192,7 @@ codeunit 134041 "ERM Pmt. Tolerance VAT Appln."
         TotalAmount := PostSalesInvWithMultipleBalLines(GenJnlLine);
         LibraryERM.PostGeneralJnlLine(GenJnlLine);
 
-        PmtAmountExclTolerance := -Round(TotalAmount * (1 - LibraryPmtDiscSetup.GetPmtTolerancePct / 100));
+        PmtAmountExclTolerance := -Round(TotalAmount * (1 - LibraryPmtDiscSetup.GetPmtTolerancePct() / 100));
         DocNo :=
           PostApplicationJnlLine(GenJnlLine, '', GenJnlLine."Document Type"::Payment, GenJnlLine."Account Type"::Customer,
             PmtAmountExclTolerance, GenJnlLine."Posting Date");
@@ -204,7 +204,7 @@ codeunit 134041 "ERM Pmt. Tolerance VAT Appln."
           CustLedgEntry."Document Type"::Payment, DocNo, -Round(TotalAmount * GenJnlLine."Payment Discount %" / 100));
 
         // Tear Down.
-        LibraryPmtDiscSetup.ClearAdjustPmtDiscInVATSetup;
+        LibraryPmtDiscSetup.ClearAdjustPmtDiscInVATSetup();
     end;
 
     [Test]
@@ -253,7 +253,7 @@ codeunit 134041 "ERM Pmt. Tolerance VAT Appln."
         // [THEN] Total VAT Amount of adjusted VAT on "Payment Tolerance" and "Payment Discount" = -360
         VerifyUnappliedCustomerVATEntries(GenJnlLine."Document Type", GenJnlLine."Document No.", -360);
 
-        LibraryPmtDiscSetup.ClearAdjustPmtDiscInVATSetup;
+        LibraryPmtDiscSetup.ClearAdjustPmtDiscInVATSetup();
     end;
 
     [Test]
@@ -302,7 +302,7 @@ codeunit 134041 "ERM Pmt. Tolerance VAT Appln."
         // [THEN] Total VAT Amount of adjusted VAT on "Payment Tolerance" and "Payment Discount" = 360
         VerifyUnappliedVendorVATEntries(GenJnlLine."Document Type", GenJnlLine."Document No.", -360);
 
-        LibraryPmtDiscSetup.ClearAdjustPmtDiscInVATSetup;
+        LibraryPmtDiscSetup.ClearAdjustPmtDiscInVATSetup();
     end;
 
     [Test]
@@ -357,7 +357,7 @@ codeunit 134041 "ERM Pmt. Tolerance VAT Appln."
         VerifyUnappliedCustomerVATEntries(GenJnlLine."Document Type", GenJnlLine."Document No.", -PmtDisc * 2);
 
         // Tear down
-        LibraryPmtDiscSetup.ClearAdjustPmtDiscInVATSetup;
+        LibraryPmtDiscSetup.ClearAdjustPmtDiscInVATSetup();
     end;
 
     [Test]
@@ -412,7 +412,7 @@ codeunit 134041 "ERM Pmt. Tolerance VAT Appln."
         VerifyUnappliedVendorVATEntries(GenJnlLine."Document Type", GenJnlLine."Document No.", -PmtDisc * 2);
 
         // Tear down
-        LibraryPmtDiscSetup.ClearAdjustPmtDiscInVATSetup;
+        LibraryPmtDiscSetup.ClearAdjustPmtDiscInVATSetup();
     end;
 
     [Test]
@@ -476,7 +476,7 @@ codeunit 134041 "ERM Pmt. Tolerance VAT Appln."
         Assert.RecordCount(VATEntry, EntriesQty * 2);
         VATEntry.TestField(Base, -VATBase);
 
-        LibraryPmtDiscSetup.ClearAdjustPmtDiscInVATSetup;
+        LibraryPmtDiscSetup.ClearAdjustPmtDiscInVATSetup();
     end;
 
     [Test]
@@ -540,7 +540,7 @@ codeunit 134041 "ERM Pmt. Tolerance VAT Appln."
         Assert.RecordCount(VATEntry, EntriesQty * 2);
         VATEntry.TestField(Base, -VATBase);
 
-        LibraryPmtDiscSetup.ClearAdjustPmtDiscInVATSetup;
+        LibraryPmtDiscSetup.ClearAdjustPmtDiscInVATSetup();
     end;
 
     local procedure Initialize()
@@ -559,7 +559,7 @@ codeunit 134041 "ERM Pmt. Tolerance VAT Appln."
         LibraryERMCountryData.CreateVATData();
         LibraryERMCountryData.UpdateGeneralPostingSetup();
         LibraryERMCountryData.UpdatePurchasesPayablesSetup();
-        LibraryERMCountryData.UpdateAccountInCustomerPostingGroup;
+        LibraryERMCountryData.UpdateAccountInCustomerPostingGroup();
         LibraryERMCountryData.UpdateGeneralLedgerSetup();
         LibraryERMCountryData.RemoveBlankGenJournalTemplate();
 
@@ -573,15 +573,15 @@ codeunit 134041 "ERM Pmt. Tolerance VAT Appln."
     var
         CashReceiptJournal: TestPage "Cash Receipt Journal";
     begin
-        CashReceiptJournal.OpenEdit;
+        CashReceiptJournal.OpenEdit();
         CashReceiptJournal.CurrentJnlBatchName.SetValue(GenJournalLine."Journal Batch Name");
         CashReceiptJournal.FILTER.SetFilter("Document Type", Format(GenJournalLine."Document Type"));
         CashReceiptJournal.FILTER.SetFilter("Document No.", GenJournalLine."Document No.");
-        CashReceiptJournal."Applies-to Doc. No.".Lookup;
+        CashReceiptJournal."Applies-to Doc. No.".Lookup();
         PaymentToleranceAmount := LibraryRandom.RandDec(99, 2);
-        CashReceiptJournal."Credit Amount".SetValue(CashReceiptJournal."Credit Amount".AsDEcimal - PaymentToleranceAmount);
-        CashReceiptJournal.Post.Invoke;
-        CashReceiptJournal.OK.Invoke;
+        CashReceiptJournal."Credit Amount".SetValue(CashReceiptJournal."Credit Amount".AsDecimal() - PaymentToleranceAmount);
+        CashReceiptJournal.Post.Invoke();
+        CashReceiptJournal.OK().Invoke();
         exit(PaymentToleranceAmount);
     end;
 
@@ -589,15 +589,15 @@ codeunit 134041 "ERM Pmt. Tolerance VAT Appln."
     var
         PaymentJournal: TestPage "Payment Journal";
     begin
-        PaymentJournal.OpenEdit;
+        PaymentJournal.OpenEdit();
         PaymentJournal.CurrentJnlBatchName.SetValue := GenJournalLine."Journal Batch Name";
         PaymentJournal.FILTER.SetFilter("Document Type", Format(GenJournalLine."Document Type"));
         PaymentJournal.FILTER.SetFilter("Document No.", GenJournalLine."Document No.");
-        PaymentJournal.AppliesToDocNo.Lookup;
+        PaymentJournal.AppliesToDocNo.Lookup();
         PaymentToleranceAmount := -LibraryRandom.RandDec(99, 2);
-        PaymentJournal."Debit Amount".SetValue(PaymentJournal."Debit Amount".AsDEcimal + PaymentToleranceAmount);
-        PaymentJournal.Post.Invoke;
-        PaymentJournal.OK.Invoke;
+        PaymentJournal."Debit Amount".SetValue(PaymentJournal."Debit Amount".AsDecimal() + PaymentToleranceAmount);
+        PaymentJournal.Post.Invoke();
+        PaymentJournal.OK().Invoke();
         exit(PaymentToleranceAmount);
     end;
 
@@ -790,8 +790,8 @@ codeunit 134041 "ERM Pmt. Tolerance VAT Appln."
           GeneralPostingSetup, GeneralPostingSetup."Gen. Bus. Posting Group", GenProductPostingGroup.Code);
         UpdateGeneralPostingSetupSalesPmtAccounts(GeneralPostingSetup);
         UpdateGeneralPostingSetupPurchPmtAccounts(GeneralPostingSetup);
-        GeneralPostingSetup.Validate("COGS Account", LibraryERM.CreateGLAccountNo);
-        GeneralPostingSetup.Validate("Sales Account", LibraryERM.CreateGLAccountNo);
+        GeneralPostingSetup.Validate("COGS Account", LibraryERM.CreateGLAccountNo());
+        GeneralPostingSetup.Validate("Sales Account", LibraryERM.CreateGLAccountNo());
         GeneralPostingSetup.Modify(true);
 
         LibraryERM.CreateVATBusinessPostingGroup(VATBusinessPostingGroup);
@@ -827,7 +827,7 @@ codeunit 134041 "ERM Pmt. Tolerance VAT Appln."
               GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name,
               "Document Type"::Payment, AccountType, AccountNo, 0);
             Validate("Bal. Account Type", "Bal. Account Type"::"G/L Account");
-            Validate("Bal. Account No.", LibraryERM.CreateGLAccountNo);
+            Validate("Bal. Account No.", LibraryERM.CreateGLAccountNo());
             Validate("Applies-to Doc. Type", "Applies-to Doc. Type"::Invoice);
             Modify(true);
         end;
@@ -937,10 +937,10 @@ codeunit 134041 "ERM Pmt. Tolerance VAT Appln."
     local procedure UpdateGeneralPostingSetupSalesPmtAccounts(var GeneralPostingSetup: Record "General Posting Setup")
     begin
         with GeneralPostingSetup do begin
-            Validate("Sales Pmt. Disc. Credit Acc.", LibraryERM.CreateGLAccountNo);
-            Validate("Sales Pmt. Disc. Debit Acc.", LibraryERM.CreateGLAccountNo);
-            Validate("Sales Pmt. Tol. Credit Acc.", LibraryERM.CreateGLAccountNo);
-            Validate("Sales Pmt. Tol. Debit Acc.", LibraryERM.CreateGLAccountNo);
+            Validate("Sales Pmt. Disc. Credit Acc.", LibraryERM.CreateGLAccountNo());
+            Validate("Sales Pmt. Disc. Debit Acc.", LibraryERM.CreateGLAccountNo());
+            Validate("Sales Pmt. Tol. Credit Acc.", LibraryERM.CreateGLAccountNo());
+            Validate("Sales Pmt. Tol. Debit Acc.", LibraryERM.CreateGLAccountNo());
             Modify(true);
         end;
     end;
@@ -948,10 +948,10 @@ codeunit 134041 "ERM Pmt. Tolerance VAT Appln."
     local procedure UpdateGeneralPostingSetupPurchPmtAccounts(var GeneralPostingSetup: Record "General Posting Setup")
     begin
         with GeneralPostingSetup do begin
-            Validate("Purch. Pmt. Disc. Credit Acc.", LibraryERM.CreateGLAccountNo);
-            Validate("Purch. Pmt. Disc. Debit Acc.", LibraryERM.CreateGLAccountNo);
-            Validate("Purch. Pmt. Tol. Credit Acc.", LibraryERM.CreateGLAccountNo);
-            Validate("Purch. Pmt. Tol. Debit Acc.", LibraryERM.CreateGLAccountNo);
+            Validate("Purch. Pmt. Disc. Credit Acc.", LibraryERM.CreateGLAccountNo());
+            Validate("Purch. Pmt. Disc. Debit Acc.", LibraryERM.CreateGLAccountNo());
+            Validate("Purch. Pmt. Tol. Credit Acc.", LibraryERM.CreateGLAccountNo());
+            Validate("Purch. Pmt. Tol. Debit Acc.", LibraryERM.CreateGLAccountNo());
             Modify(true);
         end;
     end;
@@ -962,8 +962,8 @@ codeunit 134041 "ERM Pmt. Tolerance VAT Appln."
     begin
         with CustomerPostingGroup do begin
             Get(CustomerPostingGroupCode);
-            Validate("Payment Disc. Debit Acc.", LibraryERM.CreateGLAccountNo);
-            Validate("Payment Disc. Credit Acc.", LibraryERM.CreateGLAccountNo);
+            Validate("Payment Disc. Debit Acc.", LibraryERM.CreateGLAccountNo());
+            Validate("Payment Disc. Credit Acc.", LibraryERM.CreateGLAccountNo());
             Modify();
         end;
     end;
@@ -974,8 +974,8 @@ codeunit 134041 "ERM Pmt. Tolerance VAT Appln."
     begin
         with VendorPostingGroup do begin
             Get(VendorPostingGroupCode);
-            Validate("Payment Disc. Debit Acc.", LibraryERM.CreateGLAccountNo);
-            Validate("Payment Disc. Credit Acc.", LibraryERM.CreateGLAccountNo);
+            Validate("Payment Disc. Debit Acc.", LibraryERM.CreateGLAccountNo());
+            Validate("Payment Disc. Credit Acc.", LibraryERM.CreateGLAccountNo());
             Modify();
         end;
     end;
@@ -1091,7 +1091,7 @@ codeunit 134041 "ERM Pmt. Tolerance VAT Appln."
 
         Vendor.Validate("VAT Bus. Posting Group", VATBusPostingGroup);
         Vendor.Validate("Application Method", Vendor."Application Method"::Manual);
-        Vendor.Validate("Payment Terms Code", GetPaymentTerms);
+        Vendor.Validate("Payment Terms Code", GetPaymentTerms());
         Vendor.Modify(true);
 
         UpdateVendorPostingGroup(Vendor."Vendor Posting Group");
@@ -1105,7 +1105,7 @@ codeunit 134041 "ERM Pmt. Tolerance VAT Appln."
     begin
         LibrarySales.CreateCustomer(Customer);
         Customer.Validate("VAT Bus. Posting Group", VATBusPostingGroup);
-        Customer.Validate("Payment Terms Code", GetPaymentTerms);
+        Customer.Validate("Payment Terms Code", GetPaymentTerms());
         Customer.Modify(true);
         UpdatePmtTolInCustomerPostingGroup(Customer."Customer Posting Group");
         exit(Customer."No.");
@@ -1456,22 +1456,22 @@ codeunit 134041 "ERM Pmt. Tolerance VAT Appln."
     [Scope('OnPrem')]
     procedure ApplyCustomerEntriesPageHandlerSelectLastDocument(var ApplyCustomerEntries: TestPage "Apply Customer Entries")
     begin
-        ApplyCustomerEntries.Last;
-        ApplyCustomerEntries.OK.Invoke;
+        ApplyCustomerEntries.Last();
+        ApplyCustomerEntries.OK().Invoke();
     end;
 
     [PageHandler]
     [Scope('OnPrem')]
     procedure VendorLedgerEntriesPageHandlerUnapply(var VendorLedgerEntries: TestPage "Vendor Ledger Entries")
     begin
-        VendorLedgerEntries.UnapplyEntries.Invoke;
+        VendorLedgerEntries.UnapplyEntries.Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure UnapplyVendorEntriesPageHandler(var UnapplyVendorEntries: TestPage "Unapply Vendor Entries")
     begin
-        UnapplyVendorEntries.Unapply.Invoke;
+        UnapplyVendorEntries.Unapply.Invoke();
     end;
 
     [ModalPageHandler]
@@ -1479,7 +1479,7 @@ codeunit 134041 "ERM Pmt. Tolerance VAT Appln."
     procedure PaymentToleranceWarningHandler(var PaymentToleranceWarning: Page "Payment Tolerance Warning"; var Response: Action)
     begin
         // Modal Page Handler for Payment Tolerance Warning.
-        PaymentToleranceWarning.InitializeOption(LibraryVariableStorage.DequeueInteger);
+        PaymentToleranceWarning.InitializeOption(LibraryVariableStorage.DequeueInteger());
         Response := ACTION::Yes;
     end;
 
@@ -1494,22 +1494,22 @@ codeunit 134041 "ERM Pmt. Tolerance VAT Appln."
     [Scope('OnPrem')]
     procedure CustomerLedgerEntriesPageHandlerUnapply(var CustomerLedgerEntries: TestPage "Customer Ledger Entries")
     begin
-        CustomerLedgerEntries.UnapplyEntries.Invoke;
+        CustomerLedgerEntries.UnapplyEntries.Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure UnapplyCustomerEntriesPageHandler(var UnapplyCustomerEntries: TestPage "Unapply Customer Entries")
     begin
-        UnapplyCustomerEntries.Unapply.Invoke;
+        UnapplyCustomerEntries.Unapply.Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure ApplyVendorEntriesPageHandlerSelectLastDocument(var ApplyVendorEntries: TestPage "Apply Vendor Entries")
     begin
-        ApplyVendorEntries.Last;
-        ApplyVendorEntries.OK.Invoke;
+        ApplyVendorEntries.Last();
+        ApplyVendorEntries.OK().Invoke();
     end;
 }
 

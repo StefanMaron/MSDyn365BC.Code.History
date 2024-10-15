@@ -9,7 +9,7 @@ using Microsoft.Finance.ReceivablesPayables;
 page 7000052 "Payment Orders Maturity"
 {
     Caption = 'Payment Orders Maturity';
-    DataCaptionExpression = Caption();
+    DataCaptionExpression = Rec.Caption();
     DeleteAllowed = false;
     InsertAllowed = false;
     ModifyAllowed = false;

@@ -62,7 +62,7 @@ codeunit 144125 "ERM Payment VAT EC Calculate"
         CreateAndPostInvoiceFromGeneralJournalLine(
           GenJournalLine, GenJournalLine."Account Type"::Vendor, CreateVendor(VATPostingSetup."VAT Bus. Posting Group"), CreateGLAccount(
             VATPostingSetup."VAT Bus. Posting Group", VATPostingSetup."VAT Prod. Posting Group", GLAccount."Gen. Posting Type"::Purchase),
-          CreateCurrencyWithExchangeRate, -LibraryRandom.RandDec(100, 2));  // Random value used for Amount.
+          CreateCurrencyWithExchangeRate(), -LibraryRandom.RandDec(100, 2));  // Random value used for Amount.
         CreatePaymentFromGeneralJournalLine(GenJournalLine2, GenJournalLine);
         BaseAmount :=
           LibraryERM.ConvertCurrency(
@@ -95,7 +95,7 @@ codeunit 144125 "ERM Payment VAT EC Calculate"
     procedure PaymentForVendorWithReverseChargeVATAndCurrency()
     begin
         // Test to verify VAT and G/L entries after posting Payment for Vendor with Reverse Charge VAT, Currency and Unrealized VAT TRUE.
-        PmtForVendWithReverseChargeVATAndUnrealizedVAT(CreateCurrencyWithExchangeRate);
+        PmtForVendWithReverseChargeVATAndUnrealizedVAT(CreateCurrencyWithExchangeRate());
     end;
 
     local procedure PmtForVendWithReverseChargeVATAndUnrealizedVAT(CurrencyCode: Code[10])
@@ -171,7 +171,7 @@ codeunit 144125 "ERM Payment VAT EC Calculate"
         VerifyTotalVATAmountOnVATEntry(DocumentNo, TotalExclVAT * VATPostingSetup."VAT+EC %" / 100);
 
         // Tear Down.
-        UpdateDiscountCalculationAsBlankGeneralLedgerSetup;  // To update Payment Discount Type on General Ledger Setup, we need to update Discount Calculation as Blank.
+        UpdateDiscountCalculationAsBlankGeneralLedgerSetup();  // To update Payment Discount Type on General Ledger Setup, we need to update Discount Calculation as Blank.
         UpdateGeneralLedgerSetup(
           GeneralLedgerSetup."Unrealized VAT", GeneralLedgerSetup."Payment Discount Type", GeneralLedgerSetup."Discount Calculation");
     end;
@@ -212,7 +212,7 @@ codeunit 144125 "ERM Payment VAT EC Calculate"
         VerifyTotalVATAmountOnVATEntry(DocumentNo, -TotalExclVAT * VATPostingSetup."VAT+EC %" / 100);
 
         // Tear Down.
-        UpdateDiscountCalculationAsBlankGeneralLedgerSetup;  // To update Payment Discount Type on General Ledger Setup, we need to update Discount Calculation as Blank.
+        UpdateDiscountCalculationAsBlankGeneralLedgerSetup();  // To update Payment Discount Type on General Ledger Setup, we need to update Discount Calculation as Blank.
         UpdateGeneralLedgerSetup(
           GeneralLedgerSetup."Unrealized VAT", GeneralLedgerSetup."Payment Discount Type", GeneralLedgerSetup."Discount Calculation");
     end;
@@ -222,7 +222,7 @@ codeunit 144125 "ERM Payment VAT EC Calculate"
     procedure PaymentForCustomerWithCurrencyUnrealizedVAT()
     begin
         // Test to verify VAT and G/L entries after posting Payment for Customer with Currency and Unrealized VAT TRUE.
-        PaymentForCustomerUnrealizedVAT(CreateCurrencyWithExchangeRate);
+        PaymentForCustomerUnrealizedVAT(CreateCurrencyWithExchangeRate());
     end;
 
     [Test]
@@ -275,9 +275,9 @@ codeunit 144125 "ERM Payment VAT EC Calculate"
     var
         PurchaseOrder: TestPage "Purchase Order";
     begin
-        PurchaseOrder.OpenEdit;
+        PurchaseOrder.OpenEdit();
         PurchaseOrder.FILTER.SetFilter("No.", No);
-        PurchaseOrder.CalculateInvoiceDiscount.Invoke;
+        PurchaseOrder.CalculateInvoiceDiscount.Invoke();
         PurchaseOrder.Close();
     end;
 
@@ -285,9 +285,9 @@ codeunit 144125 "ERM Payment VAT EC Calculate"
     var
         SalesOrder: TestPage "Sales Order";
     begin
-        SalesOrder.OpenEdit;
+        SalesOrder.OpenEdit();
         SalesOrder.FILTER.SetFilter("No.", No);
-        SalesOrder.CalculateInvoiceDiscount.Invoke;
+        SalesOrder.CalculateInvoiceDiscount.Invoke();
         SalesOrder.Close();
     end;
 
@@ -397,7 +397,7 @@ codeunit 144125 "ERM Payment VAT EC Calculate"
     begin
         LibraryPurchase.CreatePurchHeader(
           PurchaseHeader, PurchaseHeader."Document Type"::Order, CreateVendorWithInvoiceDiscount(VATBusPostingGroup));
-        PurchaseHeader.Validate("Payment Terms Code", CreatePaymentTerms);
+        PurchaseHeader.Validate("Payment Terms Code", CreatePaymentTerms());
         PurchaseHeader.Modify(true);
         LibraryPurchase.CreatePurchaseLine(
           PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, CreateItem(VATProdPostingGroup), LibraryRandom.RandDec(10, 2));  // Random value used for Quantity.
@@ -412,7 +412,7 @@ codeunit 144125 "ERM Payment VAT EC Calculate"
     begin
         LibrarySales.CreateSalesHeader(
           SalesHeader, SalesHeader."Document Type"::Order, CreateCustomerWithInvoiceDiscount(VATBusPostingGroup));
-        SalesHeader.Validate("Payment Terms Code", CreatePaymentTerms);
+        SalesHeader.Validate("Payment Terms Code", CreatePaymentTerms());
         SalesHeader.Modify(true);
         LibrarySales.CreateSalesLine(
           SalesLine, SalesHeader, SalesLine.Type::Item, CreateItem(VATProdPostingGroup), LibraryRandom.RandDec(10, 2));  // Random value used for Quantity.
@@ -495,7 +495,7 @@ codeunit 144125 "ERM Payment VAT EC Calculate"
         GLEntry.SetRange("Document No.", DocumentNo);
         GLEntry.SetRange("G/L Account No.", GLAccountNo);
         GLEntry.FindFirst();
-        Assert.AreNearlyEqual(Amount, GLEntry.Amount, LibraryERM.GetAmountRoundingPrecision, AmountMustBeEqualMsg);
+        Assert.AreNearlyEqual(Amount, GLEntry.Amount, LibraryERM.GetAmountRoundingPrecision(), AmountMustBeEqualMsg);
     end;
 
     local procedure VerifyTotalVATAmountOnVATEntry(DocumentNo: Code[20]; Amount: Decimal)
@@ -504,7 +504,7 @@ codeunit 144125 "ERM Payment VAT EC Calculate"
     begin
         VATEntry.SetRange("Document No.", DocumentNo);
         VATEntry.CalcSums(Amount);
-        Assert.AreNearlyEqual(Amount, VATEntry.Amount, LibraryERM.GetAmountRoundingPrecision, AmountMustBeEqualMsg);
+        Assert.AreNearlyEqual(Amount, VATEntry.Amount, LibraryERM.GetAmountRoundingPrecision(), AmountMustBeEqualMsg);
     end;
 
     local procedure VerifyVATAndGLEntries(DocumentNo: Code[20]; BalAccountNo: Code[20]; VATUnrealAccount: Code[20]; VATAccount: Code[20]; BaseAmount: Decimal; VATAmount: Decimal)
@@ -521,7 +521,7 @@ codeunit 144125 "ERM Payment VAT EC Calculate"
     begin
         VATEntry.SetRange("Document No.", DocumentNo);
         VATEntry.FindFirst();
-        Assert.AreNearlyEqual(Amount, VATEntry.Amount, LibraryERM.GetAmountRoundingPrecision, AmountMustBeEqualMsg);
+        Assert.AreNearlyEqual(Amount, VATEntry.Amount, LibraryERM.GetAmountRoundingPrecision(), AmountMustBeEqualMsg);
     end;
 
     [ConfirmHandler]

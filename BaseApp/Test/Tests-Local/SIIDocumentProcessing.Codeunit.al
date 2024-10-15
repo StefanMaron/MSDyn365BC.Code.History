@@ -60,7 +60,7 @@ codeunit 147522 "SII Document Processing"
         DocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
 
         // [WHEN] Pending document is uploaded
-        SIIDocUploadManagement.UploadPendingDocuments;
+        SIIDocUploadManagement.UploadPendingDocuments();
 
         // [GIVEN] Generated "SII Doc. Upload State" entry for posted document has "Status" is not "Not supported"
         VerifySIIHistoryByStateIdIsSupported(
@@ -84,7 +84,7 @@ codeunit 147522 "SII Document Processing"
         // [GIVEN] Journal line with type "Invoice" for customer
         LibraryJournals.CreateGenJournalLineWithBatch(
           GenJournalLine, GenJournalLine."Document Type"::Invoice,
-          GenJournalLine."Account Type"::Customer, LibrarySales.CreateCustomerNo, LibraryRandom.RandIntInRange(100, 200));
+          GenJournalLine."Account Type"::Customer, LibrarySales.CreateCustomerNo(), LibraryRandom.RandIntInRange(100, 200));
         // [GIVEN] ID Type is "02"
         // BUG 408435: ID Type must be copied from General Journal Line to SII Doc. Upload State
         GenJournalLine.Validate("ID Type", GenJournalLine."ID Type"::"02-VAT Registration No.");
@@ -133,7 +133,7 @@ codeunit 147522 "SII Document Processing"
         // [GIVEN] Journal line with type "Invoice" for customer
         LibraryJournals.CreateGenJournalLineWithBatch(
           GenJournalLine, GenJournalLine."Document Type"::Invoice,
-          GenJournalLine."Account Type"::Customer, LibrarySales.CreateCustomerNo, LibraryRandom.RandIntInRange(100, 200));
+          GenJournalLine."Account Type"::Customer, LibrarySales.CreateCustomerNo(), LibraryRandom.RandIntInRange(100, 200));
 
         // [WHEN] Post journal
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
@@ -168,7 +168,7 @@ codeunit 147522 "SII Document Processing"
         // [GIVEN] Journal line with type "Invoice" for vendor
         LibraryJournals.CreateGenJournalLineWithBatch(
           GenJournalLine, GenJournalLine."Document Type"::Invoice,
-          GenJournalLine."Account Type"::Vendor, LibraryPurchase.CreateVendorNo, -LibraryRandom.RandIntInRange(100, 200));
+          GenJournalLine."Account Type"::Vendor, LibraryPurchase.CreateVendorNo(), -LibraryRandom.RandIntInRange(100, 200));
         // [GIVEN] ID Type is "02"
         // BUG 408435: ID Type must be copied from General Journal Line to SII Doc. Upload State
         GenJournalLine.Validate("ID Type", GenJournalLine."ID Type"::"02-VAT Registration No.");
@@ -210,7 +210,7 @@ codeunit 147522 "SII Document Processing"
         // [GIVEN] Journal line with type "Credit Memo" for customer
         LibraryJournals.CreateGenJournalLineWithBatch(
           GenJournalLine, GenJournalLine."Document Type"::"Credit Memo",
-          GenJournalLine."Account Type"::Customer, LibrarySales.CreateCustomerNo, -LibraryRandom.RandIntInRange(100, 200));
+          GenJournalLine."Account Type"::Customer, LibrarySales.CreateCustomerNo(), -LibraryRandom.RandIntInRange(100, 200));
 
         // [WHEN] Post journal
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
@@ -241,7 +241,7 @@ codeunit 147522 "SII Document Processing"
         // [GIVEN] Journal line with type "Credit Memo" for vendor
         LibraryJournals.CreateGenJournalLineWithBatch(
           GenJournalLine, GenJournalLine."Document Type"::"Credit Memo",
-          GenJournalLine."Account Type"::Vendor, LibraryPurchase.CreateVendorNo, LibraryRandom.RandIntInRange(100, 200));
+          GenJournalLine."Account Type"::Vendor, LibraryPurchase.CreateVendorNo(), LibraryRandom.RandIntInRange(100, 200));
 
         // [WHEN] Post journal
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
@@ -275,7 +275,7 @@ codeunit 147522 "SII Document Processing"
         // [GIVEN] Posted Credit Memo from Journal
         LibraryJournals.CreateGenJournalLineWithBatch(
           GenJournalLine, GenJournalLine."Document Type"::"Credit Memo",
-          GenJournalLine."Account Type"::Customer, LibrarySales.CreateCustomerNo, -LibraryRandom.RandIntInRange(100, 200));
+          GenJournalLine."Account Type"::Customer, LibrarySales.CreateCustomerNo(), -LibraryRandom.RandIntInRange(100, 200));
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
         LibraryERM.FindCustomerLedgerEntry(
           CustLedgerEntry, CustLedgerEntry."Document Type"::"Credit Memo", GenJournalLine."Document No.");
@@ -308,7 +308,7 @@ codeunit 147522 "SII Document Processing"
         // [GIVEN] Posted Credit Memo from Journal
         LibraryJournals.CreateGenJournalLineWithBatch(
           GenJournalLine, GenJournalLine."Document Type"::"Credit Memo",
-          GenJournalLine."Account Type"::Vendor, LibraryPurchase.CreateVendorNo, LibraryRandom.RandIntInRange(100, 200));
+          GenJournalLine."Account Type"::Vendor, LibraryPurchase.CreateVendorNo(), LibraryRandom.RandIntInRange(100, 200));
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
         LibraryERM.FindVendorLedgerEntry(
           VendorLedgerEntry, VendorLedgerEntry."Document Type"::"Credit Memo", GenJournalLine."Document No.");
@@ -415,7 +415,7 @@ codeunit 147522 "SII Document Processing"
         DocumentNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
 
         // [WHEN] Pending document is uploaded
-        SIIDocUploadManagement.UploadPendingDocuments;
+        SIIDocUploadManagement.UploadPendingDocuments();
 
         // [GIVEN] Generated "SII Doc. Upload State" entry for posted document has "Status" is not "Not supported"
         VerifySIIHistoryByStateIdIsSupported(
@@ -446,7 +446,7 @@ codeunit 147522 "SII Document Processing"
         DocumentNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
 
         // [WHEN] Pending document is uploaded
-        SIIDocUploadManagement.UploadPendingDocuments;
+        SIIDocUploadManagement.UploadPendingDocuments();
 
         // [GIVEN] Generated "SII Doc. Upload State" entry for posted document has "Status" is not "Not supported"
         VerifySIIHistoryByStateIdIsSupported(
@@ -476,7 +476,7 @@ codeunit 147522 "SII Document Processing"
         DocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
 
         // [WHEN] Pending document is uploaded
-        SIIDocUploadManagement.UploadPendingDocuments;
+        SIIDocUploadManagement.UploadPendingDocuments();
 
         // [GIVEN] Generated "SII Doc. Upload State" entry for posted document has "Status" is not "Not supported"
         VerifySIIHistoryByStateIdIsSupported(
@@ -507,7 +507,7 @@ codeunit 147522 "SII Document Processing"
         DocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
 
         // [WHEN] Pending document is uploaded
-        SIIDocUploadManagement.UploadPendingDocuments;
+        SIIDocUploadManagement.UploadPendingDocuments();
 
         // [GIVEN] Generated "SII Doc. Upload State" entry for posted document has "Status" is not "Not supported"
         VerifySIIHistoryByStateIdIsSupported(
@@ -538,7 +538,7 @@ codeunit 147522 "SII Document Processing"
         DocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
 
         // [WHEN] Pending document is uploaded
-        SIIDocUploadManagement.UploadPendingDocuments;
+        SIIDocUploadManagement.UploadPendingDocuments();
 
         // [GIVEN] Generated "SII Doc. Upload State" entry for posted document has "Status" is not "Not supported"
         VerifySIIHistoryByStateIdIsSupported(
@@ -570,7 +570,7 @@ codeunit 147522 "SII Document Processing"
         DocumentNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
 
         // [WHEN] Pending document is uploaded
-        SIIDocUploadManagement.UploadPendingDocuments;
+        SIIDocUploadManagement.UploadPendingDocuments();
 
         // [GIVEN] Generated "SII Doc. Upload State" entry for posted document has "Status" is not "Not supported"
         VerifySIIHistoryByStateIdIsSupported(
@@ -602,7 +602,7 @@ codeunit 147522 "SII Document Processing"
         DocumentNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
 
         // [WHEN] Pending document is uploaded
-        SIIDocUploadManagement.UploadPendingDocuments;
+        SIIDocUploadManagement.UploadPendingDocuments();
 
         // [GIVEN] Generated "SII Doc. Upload State" entry for posted document has "Status" is not "Not supported"
         VerifySIIHistoryByStateIdIsSupported(
@@ -634,7 +634,7 @@ codeunit 147522 "SII Document Processing"
         DocumentNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
 
         // [WHEN] Pending document is uploaded
-        SIIDocUploadManagement.UploadPendingDocuments;
+        SIIDocUploadManagement.UploadPendingDocuments();
 
         // [GIVEN] Generated "SII Doc. Upload State" entry for posted document has "Status" is not "Not supported"
         VerifySIIHistoryByStateIdIsSupported(
@@ -665,7 +665,7 @@ codeunit 147522 "SII Document Processing"
         DocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
 
         // [WHEN] Pending document is uploaded
-        SIIDocUploadManagement.UploadPendingDocuments;
+        SIIDocUploadManagement.UploadPendingDocuments();
 
         // [GIVEN] Generated "SII Doc. Upload State" entry for posted document has "Status" is not "Not supported"
         VerifySIIHistoryByStateIdIsSupported(
@@ -695,7 +695,7 @@ codeunit 147522 "SII Document Processing"
         DocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
 
         // [WHEN] Pending document is uploaded
-        SIIDocUploadManagement.UploadPendingDocuments;
+        SIIDocUploadManagement.UploadPendingDocuments();
 
         // [GIVEN] Generated "SII Doc. Upload State" entry for posted document has "Status" is not "Not supported"
         VerifySIIHistoryByStateIdIsSupported(
@@ -726,7 +726,7 @@ codeunit 147522 "SII Document Processing"
         DocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
 
         // [WHEN] Pending document is uploaded
-        SIIDocUploadManagement.UploadPendingDocuments;
+        SIIDocUploadManagement.UploadPendingDocuments();
 
         // [GIVEN] Generated "SII Doc. Upload State" entry for posted document has "Status" is not "Not supported"
         VerifySIIHistoryByStateIdIsSupported(
@@ -967,7 +967,7 @@ codeunit 147522 "SII Document Processing"
 
         // [THEN] XML node by XPath '//soapenv:Body/siiRL:SuministroLRFacturasEmitidas/siiRL:RegistroLRFacturasEmitidas/siiRL:FacturaExpedida/sii:TipoDesglose/sii:DesgloseTipoOperacion/sii:PrestacionServicios' generated
         LibraryXPathXMLReader.InitializeWithText(XMLDoc.OuterXml, '');
-        SetupXMLNamespaces;
+        SetupXMLNamespaces();
         LibraryXPathXMLReader.VerifyNodeCountByXPath(XPathPrestacionServiciosTok, 1);
     end;
 
@@ -1006,30 +1006,30 @@ codeunit 147522 "SII Document Processing"
         LibrarySII.ShowAdvancedActions(false);
 
         // There is a "Show Advanced Actions" checkbox on SII Setup page
-        SIISetup.OpenEdit;
-        Assert.IsTrue(SIISetup."Show Advanced Actions".Visible, '');
-        Assert.IsTrue(SIISetup."Show Advanced Actions".Enabled, '');
+        SIISetup.OpenEdit();
+        Assert.IsTrue(SIISetup."Show Advanced Actions".Visible(), '');
+        Assert.IsTrue(SIISetup."Show Advanced Actions".Enabled(), '');
         SIISetup."Show Advanced Actions".AssertEquals(false);
         SIISetup.Close();
 
         // SII History advanced actions are hidden in case of SIISetup."Show Advanced Actions" = FALSE
-        SIIHistory.OpenEdit;
-        Assert.IsFalse(SIIHistory."Mark As Accepted".Visible, '');
-        Assert.IsFalse(SIIHistory."Mark As Accepted".Enabled, '');
+        SIIHistory.OpenEdit();
+        Assert.IsFalse(SIIHistory."Mark As Accepted".Visible(), '');
+        Assert.IsFalse(SIIHistory."Mark As Accepted".Enabled(), '');
         SIIHistory.Close();
 
         // SII History advanced actions are visible but not enabled in case of SIISetup."Enabled" = FALSE, "Show Advanced Actions" = TRUE
         LibrarySII.ShowAdvancedActions(true);
-        SIIHistory.OpenEdit;
-        Assert.IsTrue(SIIHistory."Mark As Accepted".Visible, '');
-        Assert.IsFalse(SIIHistory."Mark As Accepted".Enabled, '');
+        SIIHistory.OpenEdit();
+        Assert.IsTrue(SIIHistory."Mark As Accepted".Visible(), '');
+        Assert.IsFalse(SIIHistory."Mark As Accepted".Enabled(), '');
         SIIHistory.Close();
 
         // SII History advanced actions are visible and enabled in case of SIISetup."Enabled" = TRUE, "Show Advanced Actions" = TRUE
         LibrarySII.InitSetup(true, false);
-        SIIHistory.OpenEdit;
-        Assert.IsTrue(SIIHistory."Mark As Accepted".Visible, '');
-        Assert.IsTrue(SIIHistory."Mark As Accepted".Enabled, '');
+        SIIHistory.OpenEdit();
+        Assert.IsTrue(SIIHistory."Mark As Accepted".Visible(), '');
+        Assert.IsTrue(SIIHistory."Mark As Accepted".Enabled(), '');
         SIIHistory.Close();
     end;
 
@@ -1161,7 +1161,7 @@ codeunit 147522 "SII Document Processing"
         // [GIVEN] Posted journal line for Sales Invoice with "Invoice Type" = "F2 Simplified Invoice" and "Sales Special Scheme Code" = "04 Gold")
         LibraryJournals.CreateGenJournalLineWithBatch(
           GenJournalLine, GenJournalLine."Document Type"::Invoice,
-          GenJournalLine."Account Type"::Customer, LibrarySales.CreateCustomerNo, LibraryRandom.RandIntInRange(100, 200));
+          GenJournalLine."Account Type"::Customer, LibrarySales.CreateCustomerNo(), LibraryRandom.RandIntInRange(100, 200));
         GenJournalLine.Validate("Sales Invoice Type", GenJournalLine."Sales Invoice Type"::"F2 Simplified Invoice");
         GenJournalLine.Validate("Sales Special Scheme Code", GenJournalLine."Sales Special Scheme Code"::"04 Gold");
         GenJournalLine.Modify(true);
@@ -1254,7 +1254,7 @@ codeunit 147522 "SII Document Processing"
         // [GIVEN] Posted journal line for Purchase Invoice with "Invoice Type" = "F2 Simplified Invoice" and "Purch. Special Scheme Code" = "04 Gold")
         LibraryJournals.CreateGenJournalLineWithBatch(
           GenJournalLine, GenJournalLine."Document Type"::Invoice,
-          GenJournalLine."Account Type"::Vendor, LibraryPurchase.CreateVendorNo, -LibraryRandom.RandIntInRange(100, 200));
+          GenJournalLine."Account Type"::Vendor, LibraryPurchase.CreateVendorNo(), -LibraryRandom.RandIntInRange(100, 200));
         GenJournalLine.Validate("Purch. Invoice Type", GenJournalLine."Purch. Invoice Type"::"F2 Simplified Invoice");
         GenJournalLine.Validate("Purch. Special Scheme Code", GenJournalLine."Purch. Special Scheme Code"::"04 Gold");
         GenJournalLine.Modify(true);
@@ -1348,7 +1348,7 @@ codeunit 147522 "SII Document Processing"
         // [GIVEN] Posted invoice
         LibraryJournals.CreateGenJournalLineWithBatch(
           GenJournalLine, GenJournalLine."Document Type"::Invoice,
-          GenJournalLine."Account Type"::Customer, LibrarySales.CreateCustomerNo, LibraryRandom.RandIntInRange(100, 200));
+          GenJournalLine."Account Type"::Customer, LibrarySales.CreateCustomerNo(), LibraryRandom.RandIntInRange(100, 200));
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
         LibraryERM.FindCustomerLedgerEntry(
           CustLedgerEntry, CustLedgerEntry."Document Type"::Invoice, GenJournalLine."Document No.");
@@ -1382,7 +1382,7 @@ codeunit 147522 "SII Document Processing"
 
         LibraryJournals.CreateGenJournalLineWithBatch(
           GenJournalLine, GenJournalLine."Document Type"::Invoice,
-          GenJournalLine."Account Type"::Customer, LibrarySales.CreateCustomerNo, LibraryRandom.RandIntInRange(100, 200));
+          GenJournalLine."Account Type"::Customer, LibrarySales.CreateCustomerNo(), LibraryRandom.RandIntInRange(100, 200));
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
         LibraryERM.FindCustomerLedgerEntry(
           CustLedgerEntry, CustLedgerEntry."Document Type"::Invoice, GenJournalLine."Document No.");
@@ -1428,7 +1428,7 @@ codeunit 147522 "SII Document Processing"
         SIISetup.Get();
         SIISetup."Certificate Code" := IsolatedCertificate.Code;
         SIISetup.Modify();
-        Commit;
+        Commit();
 
         LibraryVariableStorage.Enqueue(CertificateUsedInSIISetupQst);
         LibraryVariableStorage.Enqueue(false); // say no in confirmation window
@@ -1446,7 +1446,7 @@ codeunit 147522 "SII Document Processing"
         SIISetup.Find();
         SIISetup.TestField("Certificate Code", IsolatedCertificate.Code);
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -1469,7 +1469,7 @@ codeunit 147522 "SII Document Processing"
         SIISetup.Get();
         SIISetup."Certificate Code" := IsolatedCertificate.Code;
         SIISetup.Modify();
-        Commit;
+        Commit();
 
         LibraryVariableStorage.Enqueue(CertificateUsedInSIISetupQst);
         LibraryVariableStorage.Enqueue(true); // say yes in confirmation window
@@ -1478,13 +1478,13 @@ codeunit 147522 "SII Document Processing"
         IsolatedCertificate.Delete(true);
 
         // [THEN] Isolated certificate not removed
-        Assert.IsFalse(IsolatedCertificate.Find, 'Isolated certificate was not removed');
+        Assert.IsFalse(IsolatedCertificate.Find(), 'Isolated certificate was not removed');
 
         // [THEN] "Certificate Code" does not have in the SII Setup
         SIISetup.Find();
         SIISetup.TestField("Certificate Code", '');
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -1644,7 +1644,7 @@ codeunit 147522 "SII Document Processing"
           SIIDocUploadState."Document Type"::Invoice, SalesInvoiceHeader."No.");
         SIIDocUploadState.TestField("Sales Special Scheme Code", SIIDocUploadState."Sales Special Scheme Code"::"02 Export");
     end;
-    
+
     [Test]
     [Scope('OnPrem')]
     procedure CannotPostRemovalSalesCreditMemoWithoutCorrectedInvNo()
@@ -1656,7 +1656,7 @@ codeunit 147522 "SII Document Processing"
         // [SCENARIO 405655] Stan cannot post sales credit memo with "Removal" correction type and blank "Corrected Invoice No."
 
         Initialize();
-        CreateSalesCrMemoWithType(SalesHeader, 0);
+        CreateSalesCrMemoWithType(SalesHeader, "SII Sales Credit Memo Type"::"R1 Corrected Invoice");
         SalesHeader.Validate("Correction Type", SalesHeader."Correction Type"::Removal);
         SalesHeader.Validate("Corrected Invoice No.", '');
         SalesHeader.Modify(true);
@@ -1677,7 +1677,7 @@ codeunit 147522 "SII Document Processing"
         // [SCENARIO 405655] Stan cannot post purchase credit memo with "Removal" correction type and blank "Corrected Invoice No."
 
         Initialize();
-        CreatePurchCrMemoWithType(PurchaseHeader, 0);
+        CreatePurchCrMemoWithType(PurchaseHeader, "SII Sales Credit Memo Type"::"R1 Corrected Invoice");
         PurchaseHeader.Validate("Correction Type", PurchaseHeader."Correction Type"::Removal);
         PurchaseHeader.Validate("Corrected Invoice No.", '');
         PurchaseHeader.Modify(true);
@@ -1731,7 +1731,7 @@ codeunit 147522 "SII Document Processing"
         Initialize();
 
         // [GIVEN] Purchase invoice with "Dot Not Send To SII" option enabled
-        CreatePurchInvoiceWithType(PurchaseHeader, 0);
+        CreatePurchInvoiceWithType(PurchaseHeader, "SII Purch. Invoice Type"::"F1 Invoice");
         PurchaseHeader.Validate("Do Not Send To SII", true);
         PurchaseHeader.Modify(true);
 
@@ -1852,7 +1852,7 @@ codeunit 147522 "SII Document Processing"
         IsInitialized := true;
 
         LibrarySII.InitSetup(true, false);
-        LibrarySII.BindSubscriptionJobQueue;
+        LibrarySII.BindSubscriptionJobQueue();
         LibrarySetupStorage.Save(DATABASE::"SII Setup");
     end;
 
@@ -1934,7 +1934,7 @@ codeunit 147522 "SII Document Processing"
         PurchaseHeader.Modify(true);
     end;
 
-    local procedure CreateServiceDoc(var ServiceHeader: Record "Service Header"; DocType: Option)
+    local procedure CreateServiceDoc(var ServiceHeader: Record "Service Header"; DocType: Enum "Service Document Type")
     var
         ServiceItem: Record "Service Item";
         ServiceItemLine: Record "Service Item Line";
@@ -2155,7 +2155,7 @@ codeunit 147522 "SII Document Processing"
         end;
     end;
 
-    local procedure VerifyNoSIIDocUploadState(DocType: Option; DocNo: Code[20]; DocSource: Option)
+    local procedure VerifyNoSIIDocUploadState(DocType: Enum "SII Doc. Upload State Document Type"; DocNo: Code[20]; DocSource: Enum "SII Doc. Upload State Document Source")
     var
         SIIDocUploadState: Record "SII Doc. Upload State";
     begin
@@ -2178,8 +2178,8 @@ codeunit 147522 "SII Document Processing"
     [Scope('OnPrem')]
     procedure ConfirmHandler(Question: Text; var Reply: Boolean)
     begin
-        Assert.ExpectedMessage(LibraryVariableStorage.DequeueText, Question);
-        Reply := LibraryVariableStorage.DequeueBoolean;
+        Assert.ExpectedMessage(LibraryVariableStorage.DequeueText(), Question);
+        Reply := LibraryVariableStorage.DequeueBoolean();
     end;
 }
 

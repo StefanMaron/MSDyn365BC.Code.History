@@ -19,6 +19,7 @@ table 7000014 "Customer Pmt. Address"
     ObsoleteState = Pending;
     ObsoleteTag = '22.0';
 #endif
+    DataClassification = CustomerContent;
 
     fields
     {

@@ -129,14 +129,14 @@ codeunit 144123 "ERM Sales VAT EC Calculate"
         Initialize();
         PostLineDiscount := UpdatePostLineDiscountOnSalesReceivablesSetup(true);  // True used for Post Line Discount.
         CreateSalesDocument(SalesLine, SalesHeader."Document Type"::Invoice, '');  // Blank - Currency Code.
-        SalesInvoice.OpenEdit;
+        SalesInvoice.OpenEdit();
         SalesInvoice.FILTER.SetFilter("No.", SalesLine."Document No.");
         LibraryVariableStorage.Enqueue(SalesLine.Amount);
         LibraryVariableStorage.Enqueue(SalesLine.Amount * SalesLine."VAT %" / 100);
         LibraryVariableStorage.Enqueue(SalesLine.Amount * SalesLine."EC %" / 100);
 
         // Exercise.
-        SalesInvoice.Statistics.Invoke;  // Opens SalesStatisticsModalPageHandler.
+        SalesInvoice.Statistics.Invoke();  // Opens SalesStatisticsModalPageHandler.
 
         // Verify: Verification of Amounts is done in SalesStatisticsModalPageHandler.
 
@@ -162,7 +162,7 @@ codeunit 144123 "ERM Sales VAT EC Calculate"
         // Setup: Create Sales Credit Memo with Currency.
         Initialize();
         PostLineDiscount := UpdatePostLineDiscountOnSalesReceivablesSetup(true);
-        CurrencyCode := CreateCurrencyWithExchangeRate;
+        CurrencyCode := CreateCurrencyWithExchangeRate();
         OldCurrencyCode := UpdateAdditionalReportingCurrencyOnGeneralLedgerSetup(CurrencyCode);
         CreateSalesDocument(SalesLine, SalesHeader."Document Type"::"Credit Memo", CurrencyCode);
         SalesHeader.Get(SalesLine."Document Type", SalesLine."Document No.");
@@ -258,7 +258,7 @@ codeunit 144123 "ERM Sales VAT EC Calculate"
 
         // Setup.
         Initialize();
-        CurrencyCode := CreateCurrencyWithExchangeRate;
+        CurrencyCode := CreateCurrencyWithExchangeRate();
         OldCurrencyCode := UpdateAdditionalReportingCurrencyOnGeneralLedgerSetup(CurrencyCode);
 
         // Exercise: Create and Post Sales Invoice on General Journal with Currency.
@@ -282,7 +282,7 @@ codeunit 144123 "ERM Sales VAT EC Calculate"
         // Test to verify G/L entry and VAT entry after posting Gen Journal Line with Currency and Reverse Charge VAT.
         Initialize();
         Amount := LibraryRandom.RandDec(100, 2);
-        PostGenJournalLineAndVerifyGLVATEntry(CreateCurrencyWithExchangeRate, Amount, Amount);
+        PostGenJournalLineAndVerifyGLVATEntry(CreateCurrencyWithExchangeRate(), Amount, Amount);
     end;
 
     [Test]
@@ -344,7 +344,7 @@ codeunit 144123 "ERM Sales VAT EC Calculate"
         Initialize();
         Quantity := LibraryRandom.RandDec(100, 2);
         UnitPrice := LibraryRandom.RandDec(100, 2);
-        PostSalesCreditMemoAndVerifyGLVATEntry(CreateCurrencyWithExchangeRate, Quantity, UnitPrice, Quantity * UnitPrice);
+        PostSalesCreditMemoAndVerifyGLVATEntry(CreateCurrencyWithExchangeRate(), Quantity, UnitPrice, Quantity * UnitPrice);
     end;
 
     [Test]
@@ -560,7 +560,7 @@ codeunit 144123 "ERM Sales VAT EC Calculate"
         CustomerNo :=
           CreateCustomerWithPostingGroup(
             GeneralPostingSetup."Gen. Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
-#if not CLEAN21
+#if not CLEAN23
         CopySalesPrices();
 #endif
 
@@ -610,7 +610,7 @@ codeunit 144123 "ERM Sales VAT EC Calculate"
         CustomerNo :=
           CreateCustomerWithPostingGroup(
             GeneralPostingSetup."Gen. Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
-#if not CLEAN21
+#if not CLEAN23
         CopySalesPrices();
 #endif
 
@@ -620,7 +620,7 @@ codeunit 144123 "ERM Sales VAT EC Calculate"
           CustomerNo, SalesLine.Type::Item, ItemNo, true, 0);
 
         // [WHEN] Open Sales Statistics Page
-        SalesInvoice.OpenEdit;
+        SalesInvoice.OpenEdit();
         SalesInvoice.FILTER.SetFilter("No.", SalesHeader."No.");
 
         // [THEN] "Line Amount" = 122, "VAT Amount" = 18, "EC Amount" = 4
@@ -630,7 +630,7 @@ codeunit 144123 "ERM Sales VAT EC Calculate"
           ItemUnitPrice * SalesLine.Quantity * (SalesLine."VAT %" / 100));
         LibraryVariableStorage.Enqueue(
           ItemUnitPrice * SalesLine.Quantity * (SalesLine."EC %" / 100));
-        SalesInvoice.Statistics.Invoke;
+        SalesInvoice.Statistics.Invoke();
     end;
 
     [Test]
@@ -728,7 +728,7 @@ codeunit 144123 "ERM Sales VAT EC Calculate"
         Initialize();
 
         // [GIVEN] Created Sales Header with "Prices Including VAT" = TRUE
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesLine."Document Type"::Order, LibrarySales.CreateCustomerNo);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesLine."Document Type"::Order, LibrarySales.CreateCustomerNo());
         SalesHeader.Validate("Prices Including VAT", true);
         SalesHeader.Modify(true);
 
@@ -757,7 +757,7 @@ codeunit 144123 "ERM Sales VAT EC Calculate"
         Initialize();
 
         // [GIVEN] Created Sales Header with "Prices Including VAT" = FALSE
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesLine."Document Type"::Order, LibrarySales.CreateCustomerNo);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesLine."Document Type"::Order, LibrarySales.CreateCustomerNo());
         SalesHeader.Validate("Prices Including VAT", false);
         SalesHeader.Modify(true);
 
@@ -781,7 +781,7 @@ codeunit 144123 "ERM Sales VAT EC Calculate"
     local procedure AddSalesLine(var SalesLine: Record "Sales Line"; var SalesHeader: Record "Sales Header"; UnitPrice: Decimal; VATPct: Decimal; ECPct: Decimal; PmtDiscountAmount: Decimal; Quantity: Decimal)
     begin
         LibrarySales.CreateSalesLine(
-          SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo, Quantity);
+          SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo(), Quantity);
         SalesLine.Validate("Unit Price", UnitPrice);
         SalesLine.Validate("VAT %", VATPct);
         SalesLine.Validate("EC %", ECPct);
@@ -789,7 +789,7 @@ codeunit 144123 "ERM Sales VAT EC Calculate"
         SalesLine.Modify(true);
     end;
 
-#if not CLEAN21
+#if not CLEAN23
     local procedure CopySalesPrices()
     var
         SalesPrice: record "Sales Price";
@@ -827,7 +827,7 @@ codeunit 144123 "ERM Sales VAT EC Calculate"
     begin
         LibraryERM.CreateCurrency(Currency);
         LibraryERM.SetCurrencyGainLossAccounts(Currency);
-        Currency.Validate("Invoice Rounding Precision", LibraryERM.GetInvoiceRoundingPrecisionLCY);
+        Currency.Validate("Invoice Rounding Precision", LibraryERM.GetInvoiceRoundingPrecisionLCY());
         Currency.Validate("Residual Gains Account", Currency."Realized Gains Acc.");
         Currency.Validate("Residual Losses Account", Currency."Realized Losses Acc.");
         Currency.Modify(true);
@@ -845,8 +845,8 @@ codeunit 144123 "ERM Sales VAT EC Calculate"
         LibraryERM.CreateGenBusPostingGroup(GenBusinessPostingGroup);
         LibraryERM.CreateGenProdPostingGroup(GenProductPostingGroup);
         LibraryERM.CreateGeneralPostingSetup(GeneralPostingSetup, GenBusinessPostingGroup.Code, GenProductPostingGroup.Code);
-        GeneralPostingSetup.Validate("Sales Account", LibraryERM.CreateGLAccountNo);
-        GeneralPostingSetup.Validate("COGS Account", LibraryERM.CreateGLAccountNo);
+        GeneralPostingSetup.Validate("Sales Account", LibraryERM.CreateGLAccountNo());
+        GeneralPostingSetup.Validate("COGS Account", LibraryERM.CreateGLAccountNo());
         GeneralPostingSetup.Modify(true);
     end;
 
@@ -1054,7 +1054,7 @@ codeunit 144123 "ERM Sales VAT EC Calculate"
             FindSet();
             repeat
                 Result += GetPrepaymentInvoiceAmt("No.");
-            until Next = 0;
+            until Next() = 0;
         end;
     end;
 
@@ -1067,7 +1067,7 @@ codeunit 144123 "ERM Sales VAT EC Calculate"
             FindSet();
             repeat
                 Result += "Amount Including VAT";
-            until Next = 0;
+            until Next() = 0;
         end;
     end;
 
@@ -1075,10 +1075,10 @@ codeunit 144123 "ERM Sales VAT EC Calculate"
     var
         PostedSalesCreditMemo: TestPage "Posted Sales Credit Memo";
     begin
-        SalesCreditMemoStatistics.Trap;
-        PostedSalesCreditMemo.OpenView;
+        SalesCreditMemoStatistics.Trap();
+        PostedSalesCreditMemo.OpenView();
         PostedSalesCreditMemo.FILTER.SetFilter("No.", DocumentNo);
-        PostedSalesCreditMemo.Statistics.Invoke;
+        PostedSalesCreditMemo.Statistics.Invoke();
         PostedSalesCreditMemo.Close();
     end;
 
@@ -1086,10 +1086,10 @@ codeunit 144123 "ERM Sales VAT EC Calculate"
     var
         PostedSalesInvoice: TestPage "Posted Sales Invoice";
     begin
-        SalesInvoiceStatistics.Trap;
-        PostedSalesInvoice.OpenView;
+        SalesInvoiceStatistics.Trap();
+        PostedSalesInvoice.OpenView();
         PostedSalesInvoice.FILTER.SetFilter("No.", DocumentNo);
-        PostedSalesInvoice.Statistics.Invoke;
+        PostedSalesInvoice.Statistics.Invoke();
         PostedSalesInvoice.Close();
     end;
     
@@ -1157,9 +1157,9 @@ codeunit 144123 "ERM Sales VAT EC Calculate"
         GLEntry.SetRange("Document No.", DocumentNo);
         GLEntry.SetRange("G/L Account No.", GLAccountNo);
         GLEntry.FindFirst();
-        Assert.AreNearlyEqual(Amount, GLEntry.Amount, LibraryERM.GetAmountRoundingPrecision, AmountMustBeEqualMsg);
+        Assert.AreNearlyEqual(Amount, GLEntry.Amount, LibraryERM.GetAmountRoundingPrecision(), AmountMustBeEqualMsg);
         Assert.AreNearlyEqual(
-          AdditionalCurrencyAmount, GLEntry."Additional-Currency Amount", LibraryERM.GetAmountRoundingPrecision, AmountMustBeEqualMsg);
+          AdditionalCurrencyAmount, GLEntry."Additional-Currency Amount", LibraryERM.GetAmountRoundingPrecision(), AmountMustBeEqualMsg);
     end;
 
     local procedure VerifyGLEntryWithDiscAccount(DocumentNo: Code[20]; GLAccountNo: Code[20])
@@ -1173,7 +1173,7 @@ codeunit 144123 "ERM Sales VAT EC Calculate"
 
     local procedure VerifySalesLineDetail(SalesLine: Record "Sales Line")
     begin
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(SalesHeaderNumberCap, SalesLine."Document No.");
         LibraryReportDataset.AssertElementWithValueExists(VATBaseAmountCap, SalesLine."VAT Base Amount");
         LibraryReportDataset.AssertElementWithValueExists(VATIdentifierSalesLineCap, SalesLine."VAT Identifier");
@@ -1186,10 +1186,10 @@ codeunit 144123 "ERM Sales VAT EC Calculate"
     begin
         VATEntry.SetRange("Document No.", DocumentNo);
         VATEntry.FindFirst();
-        Assert.AreNearlyEqual(Base, VATEntry.Base, LibraryERM.GetAmountRoundingPrecision, AmountMustBeEqualMsg);
+        Assert.AreNearlyEqual(Base, VATEntry.Base, LibraryERM.GetAmountRoundingPrecision(), AmountMustBeEqualMsg);
         Assert.AreNearlyEqual(
-          AdditionalCurrencyBase, VATEntry."Additional-Currency Base", LibraryERM.GetAmountRoundingPrecision, AmountMustBeEqualMsg);
-        Assert.AreNearlyEqual(Amount, VATEntry.Amount, LibraryERM.GetAmountRoundingPrecision, AmountMustBeEqualMsg);
+          AdditionalCurrencyBase, VATEntry."Additional-Currency Base", LibraryERM.GetAmountRoundingPrecision(), AmountMustBeEqualMsg);
+        Assert.AreNearlyEqual(Amount, VATEntry.Amount, LibraryERM.GetAmountRoundingPrecision(), AmountMustBeEqualMsg);
     end;
 
     local procedure VerifyVATAndGLEntry(DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20]; GLAccount: Code[20]; Base: Decimal; AdditionalCurrencyAmount: Decimal; VATPct: Decimal)
@@ -1202,8 +1202,8 @@ codeunit 144123 "ERM Sales VAT EC Calculate"
 
     local procedure VerifySalesPrepmtDocTestReportECAmount(ExpectedECAmount: Decimal)
     begin
-        LibraryReportDataset.LoadDataSetFile;
-        LibraryReportDataset.GetLastRow;
+        LibraryReportDataset.LoadDataSetFile();
+        LibraryReportDataset.GetLastRow();
         LibraryReportDataset.AssertCurrentRowValueEquals('VATAmountLine__EC_Amount__Control1100006', ExpectedECAmount)
     end;
 
@@ -1219,11 +1219,11 @@ codeunit 144123 "ERM Sales VAT EC Calculate"
         LibraryVariableStorage.Dequeue(VATAmount);
         LibraryVariableStorage.Dequeue(ECAmount);
         Assert.AreNearlyEqual(
-          LineAmount, SalesStatistics.SubForm."Line Amount".AsDEcimal, LibraryERM.GetAmountRoundingPrecision, AmountMustBeEqualMsg);
+          LineAmount, SalesStatistics.SubForm."Line Amount".AsDecimal(), LibraryERM.GetAmountRoundingPrecision(), AmountMustBeEqualMsg);
         Assert.AreNearlyEqual(
-          VATAmount, SalesStatistics.SubForm."VAT Amount".AsDEcimal, LibraryERM.GetAmountRoundingPrecision, AmountMustBeEqualMsg);
+          VATAmount, SalesStatistics.SubForm."VAT Amount".AsDecimal(), LibraryERM.GetAmountRoundingPrecision(), AmountMustBeEqualMsg);
         Assert.AreNearlyEqual(
-          ECAmount, SalesStatistics.SubForm."EC Amount".AsDEcimal, LibraryERM.GetAmountRoundingPrecision, AmountMustBeEqualMsg);
+          ECAmount, SalesStatistics.SubForm."EC Amount".AsDecimal(), LibraryERM.GetAmountRoundingPrecision(), AmountMustBeEqualMsg);
     end;
 
     [RequestPageHandler]
@@ -1231,7 +1231,7 @@ codeunit 144123 "ERM Sales VAT EC Calculate"
     procedure SalesPrepmtDocTestRPH(var SalesPrepmtDocumentTest: TestRequestPage "Sales Prepmt. Document Test")
     begin
         SalesPrepmtDocumentTest.ShowDimensions.SetValue(true);
-        SalesPrepmtDocumentTest.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        SalesPrepmtDocumentTest.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 }
 

@@ -19,7 +19,6 @@ report 99 "Delete Empty G/L Registers"
         dataitem("G/L Register"; "G/L Register")
         {
             DataItemTableView = sorting("No.");
-            RequestFilterFields = "Creation Date";
 
             trigger OnAfterGetRecord()
             begin
@@ -38,8 +37,10 @@ report 99 "Delete Empty G/L Registers"
                 BankAccLedgEntry.SetRange("Entry No.", "From Entry No.", "To Entry No.");
                 if BankAccLedgEntry.FindFirst() then
                     CurrReport.Skip();
-                FAReg.SetCurrentKey("Creation Date");
-                FAReg.SetRange("Creation Date", "Creation Date");
+
+                FAReg.SetCurrentKey(SystemCreatedAt);
+                if RequestFilterDate <> 0D then
+                    FAReg.SetRange(SystemCreatedAt, CreateDateTime(RequestFilterDate, 000000T), CreateDateTime(RequestFilterDate, 235959T));
                 FAReg.SetRange("G/L Register No.", "No.");
                 if FAReg.FindFirst() then begin
                     FALedgEntry.SetRange("Entry No.", FAReg."From Entry No.", FAReg."To Entry No.");
@@ -51,7 +52,8 @@ report 99 "Delete Empty G/L Registers"
                 end;
 
                 Window.Update(1, "No.");
-                Window.Update(2, "Creation Date");
+                Window.Update(2, SystemCreatedAt);
+
                 Delete();
                 NoOfDeleted := NoOfDeleted + 1;
                 Window.Update(3, NoOfDeleted);
@@ -74,6 +76,9 @@ report 99 "Delete Empty G/L Registers"
                   Text002 +
                   Text003 +
                   Text004);
+
+                if RequestFilterDate <> 0D then
+                    SetRange(SystemCreatedAt, CreateDateTime(RequestFilterDate, 000000T), CreateDateTime(RequestFilterDate, 235959T));
             end;
         }
     }
@@ -83,6 +88,18 @@ report 99 "Delete Empty G/L Registers"
 
         layout
         {
+            area(Content)
+            {
+                group(Options)
+                {
+                    Caption = 'Options';
+                    field(RequestFilterDate; RequestFilterDate)
+                    {
+                        Caption = 'Creation Date';
+                        ToolTip = 'Creation Date of the G/L Register.';
+                    }
+                }
+            }
         }
 
         actions
@@ -113,6 +130,7 @@ report 99 "Delete Empty G/L Registers"
         Text003: Label 'Posted on                #2######\\';
         Text004: Label 'No. of registers deleted #3######';
         DeleteRegistersQst: Label 'Do you want to delete the registers?';
+        RequestFilterDate: Date;
 
     procedure SetSkipConfirm()
     begin

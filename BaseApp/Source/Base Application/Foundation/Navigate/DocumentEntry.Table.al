@@ -6,9 +6,8 @@ using System.Reflection;
 table 265 "Document Entry"
 {
     Caption = 'Document Entry';
-#pragma warning disable AS0034
     TableType = Temporary;
-#pragma warning restore AS0034
+    DataClassification = CustomerContent;
 
     fields
     {

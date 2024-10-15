@@ -5,6 +5,7 @@
 namespace Microsoft.Sales.History;
 
 using Microsoft.Finance.ReceivablesPayables;
+using Microsoft.Foundation.Enums;
 using Microsoft.Foundation.Period;
 using System.Utilities;
 
@@ -86,8 +87,8 @@ page 7000070 "Posted Bills Maturity Lin."
         PostedDoc: Record "Posted Cartera Doc.";
         PostedDoc2: Record "Posted Cartera Doc.";
         PeriodPageManagement: Codeunit PeriodPageManagement;
-        PeriodLength: Option Day,Week,Month,Quarter,Year,"Accounting Period";
-        AmountType: Option "Net Change","Balance at Date";
+        PeriodLength: Enum "Analysis Period Type";
+        AmountType: Enum "Analysis Amount Type";
         DocAmtLCY: Decimal;
         DocType: Option Receivable,Payable;
 
@@ -95,8 +96,8 @@ page 7000070 "Posted Bills Maturity Lin."
     procedure Set(var NewPostedDoc: Record "Posted Cartera Doc."; NewPeriodLength: Integer; NewAmountType: Option "Net Change","Balance at Date")
     begin
         PostedDoc.Copy(NewPostedDoc);
-        PeriodLength := NewPeriodLength;
-        AmountType := NewAmountType;
+        PeriodLength := "Analysis Period Type".FromInteger(NewPeriodLength);
+        AmountType := "Analysis Amount Type".FromInteger(NewAmountType);
         CurrPage.Update(false);
     end;
 

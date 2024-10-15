@@ -63,12 +63,12 @@ codeunit 131305 "Library - ERM Country Data"
 
     procedure UpdateAccountInCustomerPostingGroup()
     begin
-        UpdateCustomerPostingGroup;
+        UpdateCustomerPostingGroup();
     end;
 
     procedure UpdateAccountInVendorPostingGroups()
     begin
-        UpdateVendorPostingGroup;
+        UpdateVendorPostingGroup();
     end;
 
     procedure UpdateAccountsInServiceContractAccountGroups()
@@ -88,17 +88,17 @@ codeunit 131305 "Library - ERM Country Data"
 
     procedure UpdateGeneralPostingSetup()
     begin
-        UpdateAccountsInGeneralPostingSetup;
+        UpdateAccountsInGeneralPostingSetup();
     end;
 
     procedure UpdateInventoryPostingSetup()
     begin
-        UpdateAccountsInInventoryPostingSetup;
+        UpdateAccountsInInventoryPostingSetup();
     end;
 
     procedure UpdateGenJournalTemplate()
     begin
-        UpdateForceDocBalGenJournalTemplate;
+        UpdateForceDocBalGenJournalTemplate();
     end;
 
     procedure UpdateGeneralLedgerSetup()
@@ -152,7 +152,7 @@ codeunit 131305 "Library - ERM Country Data"
 
     procedure CreateTransportMethodTableData()
     begin
-        UpdateTransportMethod;
+        UpdateTransportMethod();
     end;
 
     procedure UpdateFAPostingGroup()
@@ -281,7 +281,7 @@ codeunit 131305 "Library - ERM Country Data"
         if BankAccountLedgerEntries.Amount.Visible() then
             EntryRemainingAmount := BankAccountLedgerEntries.Amount.AsDecimal()
         else
-            if BankAccountLedgerEntries."Credit Amount".AsDecimal <> 0 then
+            if BankAccountLedgerEntries."Credit Amount".AsDecimal() <> 0 then
                 EntryRemainingAmount := -BankAccountLedgerEntries."Credit Amount".AsDecimal()
             else
                 EntryRemainingAmount := BankAccountLedgerEntries."Debit Amount".AsDecimal();
@@ -307,27 +307,27 @@ codeunit 131305 "Library - ERM Country Data"
         if GeneralPostingSetup.FindSet() then
             repeat
                 if GeneralPostingSetup."Purch. Account" = '' then
-                    GeneralPostingSetup.Validate("Purch. Account", CreateGLAccount);
+                    GeneralPostingSetup.Validate("Purch. Account", CreateGLAccount());
                 if GeneralPostingSetup."Purch. Credit Memo Account" = '' then
-                    GeneralPostingSetup.Validate("Purch. Credit Memo Account", CreateGLAccount);
+                    GeneralPostingSetup.Validate("Purch. Credit Memo Account", CreateGLAccount());
                 if GeneralPostingSetup."Sales Account" = '' then
-                    GeneralPostingSetup.Validate("Sales Account", CreateGLAccount);
+                    GeneralPostingSetup.Validate("Sales Account", CreateGLAccount());
                 if GeneralPostingSetup."Sales Credit Memo Account" = '' then
-                    GeneralPostingSetup.Validate("Sales Credit Memo Account", CreateGLAccount);
+                    GeneralPostingSetup.Validate("Sales Credit Memo Account", CreateGLAccount());
                 if GeneralPostingSetup."COGS Account" = '' then
-                    GeneralPostingSetup.Validate("COGS Account", CreateGLAccount);
+                    GeneralPostingSetup.Validate("COGS Account", CreateGLAccount());
                 if GeneralPostingSetup."Inventory Adjmt. Account" = '' then
-                    GeneralPostingSetup.Validate("Inventory Adjmt. Account", CreateGLAccount);
+                    GeneralPostingSetup.Validate("Inventory Adjmt. Account", CreateGLAccount());
                 if GeneralPostingSetup."Direct Cost Applied Account" = '' then
-                    GeneralPostingSetup.Validate("Direct Cost Applied Account", CreateGLAccount);
+                    GeneralPostingSetup.Validate("Direct Cost Applied Account", CreateGLAccount());
                 if GeneralPostingSetup."Overhead Applied Account" = '' then
-                    GeneralPostingSetup.Validate("Overhead Applied Account", CreateGLAccount);
+                    GeneralPostingSetup.Validate("Overhead Applied Account", CreateGLAccount());
                 if GeneralPostingSetup."Purchase Variance Account" = '' then
-                    GeneralPostingSetup.Validate("Purchase Variance Account", CreateGLAccount);
+                    GeneralPostingSetup.Validate("Purchase Variance Account", CreateGLAccount());
                 if GeneralPostingSetup."COGS Account (Interim)" = '' then
-                    GeneralPostingSetup.Validate("COGS Account (Interim)", CreateGLAccount);
+                    GeneralPostingSetup.Validate("COGS Account (Interim)", CreateGLAccount());
                 if GeneralPostingSetup."Invt. Accrual Acc. (Interim)" = '' then
-                    GeneralPostingSetup.Validate("Invt. Accrual Acc. (Interim)", CreateGLAccount);
+                    GeneralPostingSetup.Validate("Invt. Accrual Acc. (Interim)", CreateGLAccount());
                 GeneralPostingSetup.Modify(true);
             until GeneralPostingSetup.Next() = 0;
     end;
@@ -348,11 +348,11 @@ codeunit 131305 "Library - ERM Country Data"
         if CustomerPostingGroup.FindSet() then
             repeat
                 if CustomerPostingGroup."Payment Disc. Debit Acc." = '' then begin
-                    CustomerPostingGroup.Validate("Payment Disc. Debit Acc.", CreateGLAccount);
+                    CustomerPostingGroup.Validate("Payment Disc. Debit Acc.", CreateGLAccount());
                     CustomerPostingGroup.Modify(true);
                 end;
                 if CustomerPostingGroup."Payment Disc. Credit Acc." = '' then begin
-                    CustomerPostingGroup.Validate("Payment Disc. Credit Acc.", CreateGLAccount);
+                    CustomerPostingGroup.Validate("Payment Disc. Credit Acc.", CreateGLAccount());
                     CustomerPostingGroup.Modify(true);
                 end;
             until CustomerPostingGroup.Next() = 0;
@@ -365,11 +365,11 @@ codeunit 131305 "Library - ERM Country Data"
         if VendorPostingGroup.FindSet() then
             repeat
                 if VendorPostingGroup."Payment Disc. Debit Acc." = '' then begin
-                    VendorPostingGroup.Validate("Payment Disc. Debit Acc.", CreateGLAccount);
+                    VendorPostingGroup.Validate("Payment Disc. Debit Acc.", CreateGLAccount());
                     VendorPostingGroup.Modify(true);
                 end;
                 if VendorPostingGroup."Payment Disc. Credit Acc." = '' then begin
-                    VendorPostingGroup.Validate("Payment Disc. Credit Acc.", CreateGLAccount);
+                    VendorPostingGroup.Validate("Payment Disc. Credit Acc.", CreateGLAccount());
                     VendorPostingGroup.Modify(true);
                 end;
             until VendorPostingGroup.Next() = 0;
@@ -392,9 +392,9 @@ codeunit 131305 "Library - ERM Country Data"
         if InventoryPostingSetup.FindSet() then
             repeat
                 if InventoryPostingSetup."Subcontracted Variance Account" = '' then
-                    InventoryPostingSetup.Validate("Subcontracted Variance Account", CreateGLAccount);
+                    InventoryPostingSetup.Validate("Subcontracted Variance Account", CreateGLAccount());
                 if InventoryPostingSetup."Inventory Account (Interim)" = '' then
-                    InventoryPostingSetup.Validate("Inventory Account (Interim)", CreateGLAccount);
+                    InventoryPostingSetup.Validate("Inventory Account (Interim)", CreateGLAccount());
                 InventoryPostingSetup.Modify(true);
             until InventoryPostingSetup.Next() = 0;
     end;

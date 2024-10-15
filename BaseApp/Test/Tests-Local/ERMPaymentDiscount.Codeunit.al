@@ -58,7 +58,6 @@ codeunit 144076 "ERM Payment Discount"
         Assert: Codeunit Assert;
         LibraryERM: Codeunit "Library - ERM";
         LibraryInventory: Codeunit "Library - Inventory";
-        LibraryPriceCalculation: Codeunit "Library - Price Calculation";
         LibraryPurchase: Codeunit "Library - Purchase";
         LibraryReportDataset: Codeunit "Library - Report Dataset";
         LibrarySales: Codeunit "Library - Sales";
@@ -67,6 +66,9 @@ codeunit 144076 "ERM Payment Discount"
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
         LibraryRandom: Codeunit "Library - Random";
+#if CLEAN23
+        LibraryPriceCalculation: Codeunit "Library - Price Calculation";
+#endif
         AmountMustMatchMsg: Label 'Amount must match.';
         SalesLinePmtDiscGivenAmountCap: Label 'SalesLine__Pmt__Disc__Given_Amount_';
         SumPmtDiscRcdAmountCap: Label 'SumPmtDiscRcdAmount';
@@ -631,9 +633,9 @@ codeunit 144076 "ERM Payment Discount"
         Initialize();
 
         // [GIVEN] Sales order with sales line
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo());
         LibrarySales.CreateSalesLine(
-          SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo, LibraryRandom.RandInt(100));
+          SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo(), LibraryRandom.RandInt(100));
 
         LibrarySales.SetCalcInvDiscount(true);
 
@@ -657,9 +659,9 @@ codeunit 144076 "ERM Payment Discount"
         Initialize();
 
         // [GIVEN] Purchase order with purchase line
-        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo);
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo());
         LibraryPurchase.CreatePurchaseLine(
-          PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, LibraryInventory.CreateItemNo, LibraryRandom.RandInt(100));
+          PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, LibraryInventory.CreateItemNo(), LibraryRandom.RandInt(100));
 
         LibraryPurchase.SetCalcInvDiscount(true);
 
@@ -686,11 +688,11 @@ codeunit 144076 "ERM Payment Discount"
         UpdateSalesReceivablesSetup(false, SalesReceivablesSetup."Credit Warnings"::"No Warning");
 
         // [GIVEN] Sales Quote "Q" for Customer with Payment Discount with Sales Line.
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Quote, CreateCustomerWithPaymentTermsWithDiscount);
-        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, CreateItem, LibraryRandom.RandInt(10));
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Quote, CreateCustomerWithPaymentTermsWithDiscount());
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, CreateItem(), LibraryRandom.RandInt(10));
 
         // [GIVEN] Sales Line has Amount "A" after the Payment Discount is taken into account.
-        ModifyGLSetupForPaymentDiscount;
+        ModifyGLSetupForPaymentDiscount();
         LibrarySales.CalcSalesDiscount(SalesHeader);
         SalesLine.Get(SalesLine."Document Type", SalesLine."Document No.", SalesLine."Line No.");
         SalesQuoteLineAmount := SalesLine.Amount;
@@ -714,14 +716,14 @@ codeunit 144076 "ERM Payment Discount"
         // [FEATURE] [Purchase] [Quote]
         // [SCENARIO 256684] The Payment Discount is taken into account when a Purchase Order is created from a Purchase Quote.
         Initialize();
-        UpdatePurchasesPayablesSetup;
+        UpdatePurchasesPayablesSetup();
 
         // [GIVEN] Purchase Quote "Q" for Vendor with Payment Discount with Purchase Line.
-        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Quote, CreateVendorWithPaymentTermsWithDiscount);
-        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, CreateItem, LibraryRandom.RandInt(10));
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Quote, CreateVendorWithPaymentTermsWithDiscount());
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, CreateItem(), LibraryRandom.RandInt(10));
 
         // [GIVEN] Purchase Line has Amount "A" after the Payment Discount is taken into account.
-        ModifyGLSetupForPaymentDiscount;
+        ModifyGLSetupForPaymentDiscount();
         LibraryPurchase.CalcPurchaseDiscount(PurchaseHeader);
         PurchaseLine.Get(PurchaseLine."Document Type", PurchaseLine."Document No.", PurchaseLine."Line No.");
         PurchaseQuoteLineAmount := PurchaseLine.Amount;
@@ -846,7 +848,7 @@ codeunit 144076 "ERM Payment Discount"
         PurchaseLine.Modify(true);
     end;
 
-#if not CLEAN21
+#if not CLEAN23
     local procedure CreatePurchaseLineDiscount(Item: Record Item; VendorNo: Code[20]; LineDiscountPct: Decimal)
     var
         PurchaseLineDiscount: Record "Purchase Line Discount";
@@ -957,7 +959,7 @@ codeunit 144076 "ERM Payment Discount"
         Customer: Record Customer;
     begin
         LibrarySales.CreateCustomer(Customer);
-        Customer.Validate("Payment Terms Code", CreatePaymentTermsWithDiscount);
+        Customer.Validate("Payment Terms Code", CreatePaymentTermsWithDiscount());
         Customer.Modify(true);
         exit(Customer."No.");
     end;
@@ -967,7 +969,7 @@ codeunit 144076 "ERM Payment Discount"
         Vendor: Record Vendor;
     begin
         LibraryPurchase.CreateVendor(Vendor);
-        Vendor.Validate("Payment Terms Code", CreatePaymentTermsWithDiscount);
+        Vendor.Validate("Payment Terms Code", CreatePaymentTermsWithDiscount());
         Vendor.Modify(true);
         exit(Vendor."No.");
     end;
@@ -995,9 +997,9 @@ codeunit 144076 "ERM Payment Discount"
 
     local procedure GetPostedDocumentNo(NoSeriesCode: Code[20]): Code[20]
     var
-        NoSeriesManagement: Codeunit NoSeriesManagement;
+        NoSeries: Codeunit "No. Series";
     begin
-        exit(NoSeriesManagement.GetNextNo(NoSeriesCode, WorkDate(), false));
+        exit(NoSeries.PeekNextNo(NoSeriesCode));
     end;
 
     local procedure FindSalesLineCreatedFromQuote(var SalesLine: Record "Sales Line"; QuoteNo: Code[20])
@@ -1026,9 +1028,9 @@ codeunit 144076 "ERM Payment Discount"
     var
         PurchaseCreditMemo: TestPage "Purchase Credit Memo";
     begin
-        PurchaseCreditMemo.OpenEdit;
+        PurchaseCreditMemo.OpenEdit();
         PurchaseCreditMemo.FILTER.SetFilter("No.", No);
-        PurchaseCreditMemo.CalculateInvoiceDiscount.Invoke;
+        PurchaseCreditMemo.CalculateInvoiceDiscount.Invoke();
         PurchaseCreditMemo.Close();
     end;
 
@@ -1036,9 +1038,9 @@ codeunit 144076 "ERM Payment Discount"
     var
         PurchaseInvoice: TestPage "Purchase Invoice";
     begin
-        PurchaseInvoice.OpenEdit;
+        PurchaseInvoice.OpenEdit();
         PurchaseInvoice.FILTER.SetFilter("No.", No);
-        PurchaseInvoice.CalculateInvoiceDiscount.Invoke;
+        PurchaseInvoice.CalculateInvoiceDiscount.Invoke();
         PurchaseInvoice.Close();
     end;
 
@@ -1046,9 +1048,9 @@ codeunit 144076 "ERM Payment Discount"
     var
         PurchaseOrder: TestPage "Purchase Order";
     begin
-        PurchaseOrder.OpenEdit;
+        PurchaseOrder.OpenEdit();
         PurchaseOrder.FILTER.SetFilter("No.", No);
-        PurchaseOrder.CalculateInvoiceDiscount.Invoke;
+        PurchaseOrder.CalculateInvoiceDiscount.Invoke();
         PurchaseOrder.Close();
     end;
 
@@ -1056,9 +1058,9 @@ codeunit 144076 "ERM Payment Discount"
     var
         PurchaseReturnOrder: TestPage "Purchase Return Order";
     begin
-        PurchaseReturnOrder.OpenEdit;
+        PurchaseReturnOrder.OpenEdit();
         PurchaseReturnOrder.FILTER.SetFilter("No.", No);
-        PurchaseReturnOrder.CalculateInvoiceDiscount.Invoke;
+        PurchaseReturnOrder.CalculateInvoiceDiscount.Invoke();
         PurchaseReturnOrder.Close();
     end;
 
@@ -1066,9 +1068,9 @@ codeunit 144076 "ERM Payment Discount"
     var
         SalesCreditMemo: TestPage "Sales Credit Memo";
     begin
-        SalesCreditMemo.OpenEdit;
+        SalesCreditMemo.OpenEdit();
         SalesCreditMemo.FILTER.SetFilter("No.", No);
-        SalesCreditMemo.CalculateInvoiceDiscount.Invoke;
+        SalesCreditMemo.CalculateInvoiceDiscount.Invoke();
         SalesCreditMemo.Close();
     end;
 
@@ -1076,10 +1078,10 @@ codeunit 144076 "ERM Payment Discount"
     var
         SalesInvoice: TestPage "Sales Invoice";
     begin
-        SalesInvoice.OpenEdit;
+        SalesInvoice.OpenEdit();
         SalesInvoice.FILTER.SetFilter("No.", No);
-        SalesInvoice.CalculateInvoiceDiscount.Invoke;
-        SalesInvoice.Statistics.Invoke;  // Opens SalesStatisticsModalPageHandler.
+        SalesInvoice.CalculateInvoiceDiscount.Invoke();
+        SalesInvoice.Statistics.Invoke();  // Opens SalesStatisticsModalPageHandler.
         SalesInvoice.Close();
     end;
 
@@ -1087,9 +1089,9 @@ codeunit 144076 "ERM Payment Discount"
     var
         SalesInvoice: TestPage "Sales Invoice";
     begin
-        SalesInvoice.OpenEdit;
+        SalesInvoice.OpenEdit();
         SalesInvoice.FILTER.SetFilter("No.", No);
-        SalesInvoice.CalculateInvoiceDiscount.Invoke;
+        SalesInvoice.CalculateInvoiceDiscount.Invoke();
         SalesInvoice.Close();
     end;
 
@@ -1097,9 +1099,9 @@ codeunit 144076 "ERM Payment Discount"
     var
         SalesOrder: TestPage "Sales Order";
     begin
-        SalesOrder.OpenEdit;
+        SalesOrder.OpenEdit();
         SalesOrder.FILTER.SetFilter("No.", No);
-        SalesOrder.CalculateInvoiceDiscount.Invoke;
+        SalesOrder.CalculateInvoiceDiscount.Invoke();
         SalesOrder.Close();
     end;
 
@@ -1107,10 +1109,10 @@ codeunit 144076 "ERM Payment Discount"
     var
         ServiceCreditMemo: TestPage "Service Credit Memo";
     begin
-        ServiceCreditMemo.OpenEdit;
+        ServiceCreditMemo.OpenEdit();
         ServiceCreditMemo.FILTER.SetFilter("No.", No);
-        ServiceCreditMemo."Calculate Inv. and Pmt. Disc.".Invoke;
-        ServiceCreditMemo.Statistics.Invoke;  // Opens ServiceStatisticsModalPageHandler.
+        ServiceCreditMemo."Calculate Inv. and Pmt. Disc.".Invoke();
+        ServiceCreditMemo.Statistics.Invoke();  // Opens ServiceStatisticsModalPageHandler.
         ServiceCreditMemo.Close();
     end;
 
@@ -1118,10 +1120,10 @@ codeunit 144076 "ERM Payment Discount"
     var
         ServiceInvoice: TestPage "Service Invoice";
     begin
-        ServiceInvoice.OpenEdit;
+        ServiceInvoice.OpenEdit();
         ServiceInvoice.FILTER.SetFilter("No.", No);
-        ServiceInvoice."Calculate Invoice Discount".Invoke;
-        ServiceInvoice.Statistics.Invoke;  // Opens ServiceStatisticsModalPageHandler.
+        ServiceInvoice."Calculate Invoice Discount".Invoke();
+        ServiceInvoice.Statistics.Invoke();  // Opens ServiceStatisticsModalPageHandler.
         ServiceInvoice.Close();
     end;
 
@@ -1148,7 +1150,7 @@ codeunit 144076 "ERM Payment Discount"
 
     local procedure RollBackGeneralLedgerSetup(PaymentDiscountType: Option; DiscountCalculation: Option)
     begin
-        RollBackDiscountCalculationOnGeneralLedgerSetup;
+        RollBackDiscountCalculationOnGeneralLedgerSetup();
         UpdateGeneralLedgerSetup(PaymentDiscountType, DiscountCalculation);
     end;
 
@@ -1179,7 +1181,7 @@ codeunit 144076 "ERM Payment Discount"
         ItemLedgerEntry.FindFirst();
         ItemLedgerEntry.CalcFields("Purchase Amount (Actual)");
         Assert.AreNearlyEqual(
-          PurchaseAmountActual, ItemLedgerEntry."Purchase Amount (Actual)", LibraryERM.GetAmountRoundingPrecision, AmountMustMatchMsg);
+          PurchaseAmountActual, ItemLedgerEntry."Purchase Amount (Actual)", LibraryERM.GetAmountRoundingPrecision(), AmountMustMatchMsg);
     end;
 
     local procedure VerifyValueEntry(DocumentNo: Code[20]; PurchaseAmountActual: Decimal)
@@ -1189,12 +1191,12 @@ codeunit 144076 "ERM Payment Discount"
         ValueEntry.SetRange("Document No.", DocumentNo);
         ValueEntry.FindFirst();
         Assert.AreNearlyEqual(
-          PurchaseAmountActual, ValueEntry."Purchase Amount (Actual)", LibraryERM.GetAmountRoundingPrecision, AmountMustMatchMsg);
+          PurchaseAmountActual, ValueEntry."Purchase Amount (Actual)", LibraryERM.GetAmountRoundingPrecision(), AmountMustMatchMsg);
     end;
 
     local procedure VerifyValuesOnReport(Caption: Text[50]; Value: Variant)
     begin
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(Caption, Value);
     end;
 
@@ -1213,7 +1215,7 @@ codeunit 144076 "ERM Payment Discount"
     begin
         LibraryVariableStorage.Dequeue(BuyFromVendorNo);
         PurchaseDocumentTest."Purchase Header".SetFilter("Buy-from Vendor No.", BuyFromVendorNo);
-        PurchaseDocumentTest.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        PurchaseDocumentTest.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -1224,7 +1226,7 @@ codeunit 144076 "ERM Payment Discount"
     begin
         LibraryVariableStorage.Dequeue(SellToCustomerNo);
         SalesDocumentTest."Sales Header".SetFilter("Sell-to Customer No.", SellToCustomerNo);
-        SalesDocumentTest.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        SalesDocumentTest.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [ModalPageHandler]
@@ -1234,9 +1236,9 @@ codeunit 144076 "ERM Payment Discount"
         PmtDiscGivenAmount: Decimal;
         ExpectedPmtDiscGivenAmount: Decimal;
     begin
-        ExpectedPmtDiscGivenAmount := Round(LibraryVariableStorage.DequeueDecimal);
-        PmtDiscGivenAmount := SalesStatistics.PmtDiscGivenAmount.AsDEcimal;
-        SalesStatistics.OK.Invoke;
+        ExpectedPmtDiscGivenAmount := Round(LibraryVariableStorage.DequeueDecimal());
+        PmtDiscGivenAmount := SalesStatistics.PmtDiscGivenAmount.AsDecimal();
+        SalesStatistics.OK().Invoke();
         Assert.AreEqual(ExpectedPmtDiscGivenAmount, PmtDiscGivenAmount, '');
     end;
 
@@ -1247,9 +1249,9 @@ codeunit 144076 "ERM Payment Discount"
         PmtDiscGivenAmount: Decimal;
         ExpectedPmtDiscGivenAmount: Decimal;
     begin
-        ExpectedPmtDiscGivenAmount := Round(LibraryVariableStorage.DequeueDecimal);
-        PmtDiscGivenAmount := ServiceStatistics.PmtDiscGivenAmount.AsDEcimal;
-        ServiceStatistics.OK.Invoke;
+        ExpectedPmtDiscGivenAmount := Round(LibraryVariableStorage.DequeueDecimal());
+        PmtDiscGivenAmount := ServiceStatistics.PmtDiscGivenAmount.AsDecimal();
+        ServiceStatistics.OK().Invoke();
         Assert.AreEqual(ExpectedPmtDiscGivenAmount, PmtDiscGivenAmount, '');
     end;
 }

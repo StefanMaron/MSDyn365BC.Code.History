@@ -16,12 +16,11 @@ codeunit 134343 "UI Ledger Entries Page"
 
     var
         LibraryUtility: Codeunit "Library - Utility";
-        LibraryRandom: Codeunit "Library - Random";
+
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         Assert: Codeunit Assert;
         ExportedToPaymentFileEditableErr: Label 'Exported to Payment File field must be editable.';
         DescriptionEditableErr: Label 'Description field must be editable.';
-        GLEntryExistsErr: Label 'You cannot delete change log entry %1 because G/L entry %2 exists.';
         LibrarySales: Codeunit "Library - Sales";
         LibraryPurchase: Codeunit "Library - Purchase";
         LibraryApplicationArea: Codeunit "Library - Application Area";
@@ -45,7 +44,7 @@ codeunit 134343 "UI Ledger Entries Page"
         // [GIVEN] Opened Customer Ledger Entries page
         CustomerLedgerEntries.OpenEdit();
         CustomerLedgerEntries.FILTER.SetFilter("Entry No.", Format(EntryNo));
-        Assert.IsTrue(CustomerLedgerEntries."Exported to Payment File".Editable, ExportedToPaymentFileEditableErr);
+        Assert.IsTrue(CustomerLedgerEntries."Exported to Payment File".Editable(), ExportedToPaymentFileEditableErr);
 
         // [WHEN] Mark "Exported to Payment File" on Customer Ledger Entries page
         LibraryVariableStorage.Enqueue(true);
@@ -77,7 +76,7 @@ codeunit 134343 "UI Ledger Entries Page"
         // [GIVEN] Opened Vendor Ledger Entries page
         VendorLedgerEntries.OpenEdit();
         VendorLedgerEntries.FILTER.SetFilter("Entry No.", Format(EntryNo));
-        Assert.IsTrue(VendorLedgerEntries."Exported to Payment File".Editable, ExportedToPaymentFileEditableErr);
+        Assert.IsTrue(VendorLedgerEntries."Exported to Payment File".Editable(), ExportedToPaymentFileEditableErr);
 
         // [WHEN] Mark "Exported to Payment File" on Vendor Ledger Entries page
         LibraryVariableStorage.Enqueue(true);
@@ -110,9 +109,9 @@ codeunit 134343 "UI Ledger Entries Page"
         EntryNo := MockGLEntryWithDescription(OldDesctiption);
 
         // [GIVEN] Opened General Ledger Entries page
-        GeneralLedgerEntries.OpenEdit;
+        GeneralLedgerEntries.OpenEdit();
         GeneralLedgerEntries.FILTER.SetFilter("Entry No.", Format(EntryNo));
-        Assert.IsTrue(GeneralLedgerEntries.Description.Editable, DescriptionEditableErr);
+        Assert.IsTrue(GeneralLedgerEntries.Description.Editable(), DescriptionEditableErr);
 
         // [WHEN] Description is being changed to "New Description"
         NewDesctiption := LibraryUtility.GenerateRandomText(MaxStrLen(GLEntry.Description));
@@ -150,25 +149,25 @@ codeunit 134343 "UI Ledger Entries Page"
         EntryNo := MockGLEntryWithDescription(OldDesctiption);
 
         // [GIVEN] Opened General Ledger Entries page
-        GeneralLedgerEntries.OpenEdit;
+        GeneralLedgerEntries.OpenEdit();
         GeneralLedgerEntries.FILTER.SetFilter("Entry No.", Format(EntryNo));
 
         // [GIVEN] Description is being changed to "New Description"
         NewDesctiption := LibraryUtility.GenerateRandomText(MaxStrLen(GLEntry.Description));
         GeneralLedgerEntries.Description.SetValue(
           CopyStr(NewDesctiption, 1, MaxStrLen(GLEntry.Description)));
-        GeneralLedgerEntries.OK.Invoke;
+        GeneralLedgerEntries.OK().Invoke();
 
         // [WHEN] Action "Show change history" is being selected
-        GeneralLedgerEntries.OpenEdit;
+        GeneralLedgerEntries.OpenEdit();
         GeneralLedgerEntries.FILTER.SetFilter("Entry No.", Format(EntryNo));
-        GeneralLedgerEntries.ShowChangeHistory.Invoke;
+        GeneralLedgerEntries.ShowChangeHistory.Invoke();
 
         // [THEN] Change log entries page opened filtered by "Table No." = "17" and "Entry No." = "123"
-        Assert.AreEqual(Format(DATABASE::"G/L Entry"), LibraryVariableStorage.DequeueText, 'Invalid filter by Table No.');
-        Assert.AreEqual(Format(EntryNo), LibraryVariableStorage.DequeueText, 'Invalid filter by Entry No.');
+        Assert.AreEqual(Format(DATABASE::"G/L Entry"), LibraryVariableStorage.DequeueText(), 'Invalid filter by Table No.');
+        Assert.AreEqual(Format(EntryNo), LibraryVariableStorage.DequeueText(), 'Invalid filter by Entry No.');
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     local procedure Initialize()
@@ -183,7 +182,7 @@ codeunit 134343 "UI Ledger Entries Page"
         GeneralLedgerEntries: TestPage "General Ledger Entries";
     begin
         GLEntryNo := MockGLEntryWithDescription(LibraryUtility.GenerateRandomText(MaxStrLen(DummyGLEntry.Description)));
-        GeneralLedgerEntries.OpenEdit;
+        GeneralLedgerEntries.OpenEdit();
         GeneralLedgerEntries.FILTER.SetFilter("Entry No.", Format(GLEntryNo));
         GeneralLedgerEntries.Description.SetValue(
           LibraryUtility.GenerateRandomText(MaxStrLen(DummyGLEntry.Description)));
@@ -439,7 +438,7 @@ codeunit 134343 "UI Ledger Entries Page"
 
     local procedure MockVendLedgEntryWithVendNo(var VendorLedgerEntry: Record "Vendor Ledger Entry"; VendNo: Code[20])
     begin
-        VendorLedgerEntry.Get(MockVendLedgEntry);
+        VendorLedgerEntry.Get(MockVendLedgEntry());
         VendorLedgerEntry.Validate("Vendor No.", VendNo);
         VendorLedgerEntry.Validate(Open, true);
         VendorLedgerEntry.Modify(true);
@@ -465,7 +464,7 @@ codeunit 134343 "UI Ledger Entries Page"
 
     local procedure MockCustomerLedgerEntryWithDocNo(var CustLedgerEntry: Record "Cust. Ledger Entry"; CustomerNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20])
     begin
-        CustLedgerEntry.Get(MockCustLedgEntry);
+        CustLedgerEntry.Get(MockCustLedgEntry());
         CustLedgerEntry."Customer No." := CustomerNo;
         CustLedgerEntry."Document Type" := DocumentType;
         CustLedgerEntry."Document No." := DocumentNo;
@@ -514,8 +513,8 @@ codeunit 134343 "UI Ledger Entries Page"
     [Scope('OnPrem')]
     procedure ErrorMessagesMPH(var ErrorMessages: TestPage "Error Messages")
     begin
-        ErrorMessages.FILTER.SetFilter(Description, LibraryVariableStorage.DequeueText);
-        Assert.IsTrue(ErrorMessages.First, 'Error not found');
+        ErrorMessages.FILTER.SetFilter(Description, LibraryVariableStorage.DequeueText());
+        Assert.IsTrue(ErrorMessages.First(), 'Error not found');
     end;
 
     [ModalPageHandler]
@@ -524,7 +523,7 @@ codeunit 134343 "UI Ledger Entries Page"
     begin
         LibraryVariableStorage.Enqueue(ChangeLogEntries.FILTER.GetFilter("Table No."));
         LibraryVariableStorage.Enqueue(ChangeLogEntries.FILTER.GetFilter("Primary Key Field 1 Value"));
-        ChangeLogEntries.OK.Invoke;
+        ChangeLogEntries.OK().Invoke();
     end;
 }
 

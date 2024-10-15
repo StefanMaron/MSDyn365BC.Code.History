@@ -19,8 +19,6 @@ codeunit 134236 "ERM Analysis View Excel Export"
         LibraryDimension: Codeunit "Library - Dimension";
         LibraryWarehouse: Codeunit "Library - Warehouse";
         Assert: Codeunit Assert;
-        AmountField: Option Amount,"Debit Amount","Credit Amount";
-        ShowActualBudg: Option "Actual Amounts","Budgeted Amounts",Variance,"Variance%","Index%",Amounts;
         ClosingEntryFilter: Option Include,Exclude;
         IncorrectValueInCellOnWorksheetErr: Label 'Incorrect value on worksheet %1 in cell R%2 C%3', Comment = '%1 - row % 2 - column';
 
@@ -48,16 +46,16 @@ codeunit 134236 "ERM Analysis View Excel Export"
 
         // [GIVEN] Mock analysis view entry
         CreateAnalysisViewEntryWithDimension(
-          AnalysisView, AnalysisViewEntry, LibraryERM.CreateGLAccountNo, DimensionValue,
-          WorkDate);
+          AnalysisView, AnalysisViewEntry, LibraryERM.CreateGLAccountNo(), DimensionValue,
+          WorkDate());
 
         // [GIVEN] Use 4 dimensions values as a filters
         // [WHEN] Analisys View is being exported
         ServerFileName :=
           AnalysisViewExportToExcelGeneral(
-            AnalysisView, AmountField::Amount, '', '', '',
+            AnalysisView, "Analysis Show Amount Field"::Amount, '', '', '',
             DimensionValue[1].Code, DimensionValue[2].Code, DimensionValue[3].Code, DimensionValue[4].Code,
-            "Analysis Amount Type"::"Balance at Date", ClosingEntryFilter::Exclude, ShowActualBudg::"Actual Amounts", '');
+            "Analysis Amount Type"::"Balance at Date", ClosingEntryFilter::Exclude, "Analysis Show Amount Type"::"Actual Amounts", '');
 
         // [THEN] Analysis View general info exported to sheet "General Info"
         VerifyAnalysisVeiwGeneralInfoSheet(ServerFileName, AnalysisViewEntry, DimensionValue);
@@ -98,13 +96,13 @@ codeunit 134236 "ERM Analysis View Excel Export"
         // [GIVEN] Mock analysis view entry
         CreateAnalysisViewEntryWithDimension(
           AnalysisView, AnalysisViewEntry, GLAccountNo[5], DimensionValue,
-          WorkDate);
+          WorkDate());
 
         // [WHEN] Analisys View is being exported
         ServerFileName :=
           AnalysisViewExportToExcelGeneral(
-            AnalysisView, AmountField::Amount, '', GLAccountFilter, '', '', '', '', '',
-            "Analysis Amount Type"::"Balance at Date", ClosingEntryFilter::Exclude, ShowActualBudg::"Actual Amounts", '');
+            AnalysisView, "Analysis Show Amount Field"::Amount, '', GLAccountFilter, '', '', '', '', '',
+            "Analysis Amount Type"::"Balance at Date", ClosingEntryFilter::Exclude, "Analysis Show Amount Type"::"Actual Amounts", '');
 
         // [THEN] Excel data sheet contains proper columns captions
         VerifyAnalysisViewColumnCaptions(ServerFileName, MaxGLAccountLevel, MaxDimLevel, Dimension.Code);
@@ -135,13 +133,13 @@ codeunit 134236 "ERM Analysis View Excel Export"
         // [GIVEN] Mock analysis view entry
         CreateAnalysisViewEntryWithDimension(
           AnalysisView, AnalysisViewEntry, GLAccountNo, DimensionValue,
-          WorkDate);
+          WorkDate());
 
         // [WHEN] Analisys View is being exported
         ServerFileName :=
           AnalysisViewExportToExcelGeneral(
-            AnalysisView, AmountField::Amount, '', GLAccountNo, '', '', '', '', '',
-            "Analysis Amount Type"::"Balance at Date", ClosingEntryFilter::Exclude, ShowActualBudg::"Actual Amounts", '');
+            AnalysisView, "Analysis Show Amount Field"::Amount, '', GLAccountNo, '', '', '', '', '',
+            "Analysis Amount Type"::"Balance at Date", ClosingEntryFilter::Exclude, "Analysis Show Amount Type"::"Actual Amounts", '');
 
         // [THEN] Analysis View Entry exported to excel
         VerifyExportedAnalysisEntryWithSimpleDimensions(ServerFileName, AnalysisViewEntry, GLAccountNo, DimensionValue);
@@ -176,13 +174,13 @@ codeunit 134236 "ERM Analysis View Excel Export"
         // [GIVEN] Mock analysis view entry
         CreateAnalysisViewCFEntryWithDimension(
           AnalysisView, AnalysisViewEntry, CFAccountNo[2], DimensionValue,
-          WorkDate);
+          WorkDate());
 
         // [WHEN] Analisys View is being exported
         ServerFileName :=
           AnalysisViewExportToExcelGeneral(
-            AnalysisView, AmountField::Amount, '', CFAccountFilter, '', '', '', '', '',
-            "Analysis Amount Type"::"Balance at Date", ClosingEntryFilter::Exclude, ShowActualBudg::"Actual Amounts", '');
+            AnalysisView, "Analysis Show Amount Field"::Amount, '', CFAccountFilter, '', '', '', '', '',
+            "Analysis Amount Type"::"Balance at Date", ClosingEntryFilter::Exclude, "Analysis Show Amount Type"::"Actual Amounts", '');
 
         // [THEN] Analysis View Entry exported to excel
         VerifyDIffIndentedAccountSimpleDimensions(
@@ -221,13 +219,13 @@ codeunit 134236 "ERM Analysis View Excel Export"
         // [GIVEN] Mock analysis view entry
         CreateAnalysisViewEntryWithDimension(
           AnalysisView, AnalysisViewEntry, GLAccountNo, DimensionValue,
-          WorkDate);
+          WorkDate());
 
         // [WHEN] Analisys View is being exported
         ServerFileName :=
           AnalysisViewExportToExcelGeneral(
-            AnalysisView, AmountField::Amount, '', GLAccountNo, '', '', '', '', '',
-            "Analysis Amount Type"::"Balance at Date", ClosingEntryFilter::Exclude, ShowActualBudg::"Actual Amounts", '');
+            AnalysisView, "Analysis Show Amount Field"::Amount, '', GLAccountNo, '', '', '', '', '',
+            "Analysis Amount Type"::"Balance at Date", ClosingEntryFilter::Exclude, "Analysis Show Amount Type"::"Actual Amounts", '');
 
         // [THEN] Analysis View Entry exported to excel
         VerifyEntryWithIntededDimensions(ServerFileName, AnalysisViewEntry, GLAccountNo, DimValueCode);
@@ -259,18 +257,18 @@ codeunit 134236 "ERM Analysis View Excel Export"
         // [GIVEN] Mock analysis view entry
         CreateAnalysisViewEntryWithDimension(
           AnalysisView, AnalysisViewEntry, GLAccountNo, DimensionValue,
-          WorkDate);
+          WorkDate());
 
         // [GIVEN] Mock analysis view budget entry
         CreateAnalysisViewBudgetEntryWithDimension(
           AnalysisView, AnalysisViewBudgetEntry, GLAccountNo, DimensionValue,
-          WorkDate);
+          WorkDate());
 
         // [WHEN] Analisys View is being exported
         ServerFileName :=
           AnalysisViewExportToExcelGeneral(
-            AnalysisView, AmountField::Amount, '', GLAccountNo, '', '', '', '', '',
-            "Analysis Amount Type"::"Balance at Date", ClosingEntryFilter::Exclude, ShowActualBudg::"Actual Amounts", '');
+            AnalysisView, "Analysis Show Amount Field"::Amount, '', GLAccountNo, '', '', '', '', '',
+            "Analysis Amount Type"::"Balance at Date", ClosingEntryFilter::Exclude, "Analysis Show Amount Type"::"Actual Amounts", '');
 
         // [THEN] Analysis View Budget Entry exported to excel
         VerifyBudgetEntryWithSimpleDimensions(ServerFileName, AnalysisViewBudgetEntry, GLAccountNo, DimensionValue);
@@ -300,8 +298,8 @@ codeunit 134236 "ERM Analysis View Excel Export"
 
         // [GIVEN] Mock item analysis view entry
         CreateItemAnalysisViewEntryWithDimension(
-          ItemAnalysisView, ItemAnalysisViewEntry, LibraryInventory.CreateItemNo, DimensionValue,
-          WorkDate, CreateLocationCode);
+          ItemAnalysisView, ItemAnalysisViewEntry, LibraryInventory.CreateItemNo(), DimensionValue,
+          WorkDate(), CreateLocationCode());
 
         // [GIVEN] Use 3 dimensions values as a filters
         // [WHEN] Ietm Analisys View is being exported
@@ -347,7 +345,7 @@ codeunit 134236 "ERM Analysis View Excel Export"
         // [GIVEN] Mock item analysis view entry
         CreateItemAnalysisViewEntryWithDimension(
           ItemAnalysisView, ItemAnalysisViewEntry, ItemNo, DimensionValue,
-          WorkDate, CreateLocationCode);
+          WorkDate(), CreateLocationCode());
 
         // [WHEN] Item Analisys View is being exported
         ServerFileName :=
@@ -392,7 +390,7 @@ codeunit 134236 "ERM Analysis View Excel Export"
         // [GIVEN] Mock item analysis view entry
         CreateItemAnalysisViewEntryWithDimension(
           ItemAnalysisView, ItemAnalysisViewEntry, ItemNo, DimensionValue,
-          WorkDate, CreateLocationCode);
+          WorkDate(), CreateLocationCode());
 
         // [WHEN] Item Analisys View is being exported
         ServerFileName :=
@@ -438,7 +436,7 @@ codeunit 134236 "ERM Analysis View Excel Export"
         // [GIVEN] Mock item analysis view entry
         CreateItemAnalysisViewEntryWithDimension(
           ItemAnalysisView, ItemAnalysisViewEntry, ItemNo, DimensionValue,
-          WorkDate, CreateLocationCode);
+          WorkDate(), CreateLocationCode());
 
         // [GIVEN] Mock analysis view budget entry
         CreateItemAnalysisViewBudgetEntryWithDimension(
@@ -455,7 +453,7 @@ codeunit 134236 "ERM Analysis View Excel Export"
         VerifyExportedItemAnalysisBudgEntryWithIntededDimensions(ServerFileName, ItemAnalysisViewBudgEntry, DimValueCode);
     end;
 
-    local procedure AnalysisViewExportToExcelGeneral(AnalysisView: Record "Analysis View"; AmountField: Option; DateFilter: Text; AccFilter: Text; BudgetFilter: Text; Dim1Filter: Text; Dim2Filter: Text; Dim3Filter: Text; Dim4Filter: Text; AmountType: Enum "Analysis Amount Type"; ClosingEntryFilter: Option; ShowActualBudg: Option; BusUnitFilter: Text): Text
+    local procedure AnalysisViewExportToExcelGeneral(AnalysisView: Record "Analysis View"; AmountField: Enum "Analysis Show Amount Field"; DateFilter: Text; AccFilter: Text; BudgetFilter: Text; Dim1Filter: Text; Dim2Filter: Text; Dim3Filter: Text; Dim4Filter: Text; AmountType: Enum "Analysis Amount Type"; ClosingEntryFilter: Option; ShowActualBudg: Enum "Analysis Show Amount Type"; BusUnitFilter: Text): Text
     var
         AnalysisViewEntry: Record "Analysis View Entry";
         AnalysisByDimParameters: Record "Analysis by Dim. Parameters";
@@ -465,15 +463,15 @@ codeunit 134236 "ERM Analysis View Excel Export"
           AnalysisView, AnalysisViewEntry, DateFilter, AccFilter,
           Dim1Filter, Dim2Filter, Dim3Filter, Dim4Filter, BusUnitFilter);
         AnalysisViewEntry.FindFirst();
-        ExportAnalysisView.SetSkipDownload;
+        ExportAnalysisView.SetSkipDownload();
         MakeAnalysisByDimParameters(AnalysisByDimParameters, AmountField, DateFilter, AccFilter, BudgetFilter, Dim1Filter, Dim2Filter, Dim3Filter,
           Dim4Filter, AmountType, ClosingEntryFilter, ShowActualBudg, BusUnitFilter, AnalysisView);
         ExportAnalysisView.ExportData(AnalysisViewEntry, AnalysisByDimParameters);
 
-        exit(ExportAnalysisView.GetServerFileName);
+        exit(ExportAnalysisView.GetServerFileName());
     end;
 
-    local procedure MakeAnalysisByDimParameters(var AnalysisByDimParameters: Record "Analysis by Dim. Parameters"; AmountField: Option; DateFilter: Text; AccFilter: Text; BudgetFilter: Text; Dim1Filter: Text; Dim2Filter: Text; Dim3Filter: Text; Dim4Filter: Text; AmountType: Enum "Analysis Amount Type"; ClosingEntryFilter: Option; ShowActualBudg: Option; BusUnitFilter: Text; AnalysisView: Record "Analysis View")
+    local procedure MakeAnalysisByDimParameters(var AnalysisByDimParameters: Record "Analysis by Dim. Parameters"; AmountField: Enum "Analysis Show Amount Field"; DateFilter: Text; AccFilter: Text; BudgetFilter: Text; Dim1Filter: Text; Dim2Filter: Text; Dim3Filter: Text; Dim4Filter: Text; AmountType: Enum "Analysis Amount Type"; ClosingEntryFilter: Option; ShowActualBudg: Enum "Analysis Show Amount Type"; BusUnitFilter: Text; AnalysisView: Record "Analysis View")
     begin
         with AnalysisByDimParameters do begin
             "Show Amount Field" := AmountField;
@@ -493,20 +491,20 @@ codeunit 134236 "ERM Analysis View Excel Export"
         end;
     end;
 
-    local procedure CreateAnalysisView(var AnalysisView: Record "Analysis View"; AccountSource: Integer)
+    local procedure CreateAnalysisView(var AnalysisView: Record "Analysis View"; AccountSource: Enum "Analysis Account Source")
     begin
         with AnalysisView do begin
             Init();
             Code := Format(LibraryRandom.RandIntInRange(1, 10000));
             Name := CopyStr(LibraryUtility.GenerateRandomText(MaxStrLen(Name)), 1, MaxStrLen(Name));
             "Account Source" := AccountSource;
-            if not Insert then
+            if not Insert() then
                 Modify();
         end;
     end;
 
     [Scope('OnPrem')]
-    procedure CreateAnalysisViewWithDimensions(var AnalysisView: Record "Analysis View"; AccountSource: Integer; DimensionValue: array[4] of Record "Dimension Value")
+    procedure CreateAnalysisViewWithDimensions(var AnalysisView: Record "Analysis View"; AccountSource: Enum "Analysis Account Source"; DimensionValue: array[4] of Record "Dimension Value")
     begin
         CreateAnalysisView(AnalysisView, AccountSource);
         AnalysisView."Update on Posting" := false;
@@ -587,12 +585,12 @@ codeunit 134236 "ERM Analysis View Excel Export"
     var
         EndAccountNo: Code[20];
     begin
-        CFAccountNo[1] := CreateBeginTotalCFAccountNo;
-        CFAccountNo[2] := CreateCFAccountNo;
-        CFAccountNo[3] := CreateBeginTotalCFAccountNo;
-        CFAccountNo[4] := CreateCFAccountNo;
-        CreateEndTotalCFAccountNo;
-        EndAccountNo := CreateEndTotalCFAccountNo;
+        CFAccountNo[1] := CreateBeginTotalCFAccountNo();
+        CFAccountNo[2] := CreateCFAccountNo();
+        CFAccountNo[3] := CreateBeginTotalCFAccountNo();
+        CFAccountNo[4] := CreateCFAccountNo();
+        CreateEndTotalCFAccountNo();
+        EndAccountNo := CreateEndTotalCFAccountNo();
         CODEUNIT.Run(CODEUNIT::"Cash Flow Account - Indent");
         exit(StrSubstNo('%1..%2', CFAccountNo[1], EndAccountNo));
     end;
@@ -610,7 +608,7 @@ codeunit 134236 "ERM Analysis View Excel Export"
         exit(StrSubstNo('%1..%2', GLAccountNo[1], GLAccountNo[5]));
     end;
 
-    local procedure FindCreateGLAccountNo(AccountNo: Code[20]; AccountType: Option): Code[20]
+    local procedure FindCreateGLAccountNo(AccountNo: Code[20]; AccountType: Enum "G/L Account Type"): Code[20]
     var
         GLAccount: Record "G/L Account";
     begin
@@ -693,7 +691,7 @@ codeunit 134236 "ERM Analysis View Excel Export"
             Init();
             Code := Format(LibraryRandom.RandIntInRange(1, 10000));
             Name := CopyStr(LibraryUtility.GenerateRandomText(MaxStrLen(Name)), 1, MaxStrLen(Name));
-            if not Insert then
+            if not Insert() then
                 Modify();
         end;
     end;
@@ -780,13 +778,13 @@ codeunit 134236 "ERM Analysis View Excel Export"
           ItemAnalysisView, ItemAnalysisViewEntry, DateFilter, ItemFilter,
           Dim1Filter, Dim2Filter, Dim3Filter, LocationFilter);
         ItemAnalysisViewEntry.FindFirst();
-        ExportItemAnalysisView.SetSkipDownload;
+        ExportItemAnalysisView.SetSkipDownload();
         ExportItemAnalysisView.ExportData(
           ItemAnalysisViewEntry, false,
           DateFilter, ItemFilter, BudgetFilter,
           Dim1Filter, Dim2Filter, Dim3Filter, 0, LocationFilter, false);
 
-        exit(ExportItemAnalysisView.GetServerFileName);
+        exit(ExportItemAnalysisView.GetServerFileName());
     end;
 
     local procedure SetCommonFiltersAnalysisViewEntry(AnalysisView: Record "Analysis View"; var AnalysisViewEntry: Record "Analysis View Entry"; DateFilter: Text; AccountFilter: Text; Dim1Filter: Text; Dim2Filter: Text; Dim3Filter: Text; Dim4Filter: Text; BusUnitFilter: Text)
@@ -843,7 +841,7 @@ codeunit 134236 "ERM Analysis View Excel Export"
         DateDec: Decimal;
     begin
         LibraryReportValidation.SetFullFileName(ServerFileName);
-        LibraryReportValidation.OpenFile;
+        LibraryReportValidation.OpenFile();
 
         AnalysisView.Get(AnalysisViewEntry."Analysis View Code");
         // Analysis View part
@@ -873,7 +871,7 @@ codeunit 134236 "ERM Analysis View Excel Export"
         DateDec: Decimal;
     begin
         LibraryReportValidation.SetFullFileName(ServerFileName);
-        LibraryReportValidation.OpenFile;
+        LibraryReportValidation.OpenFile();
 
         ItemAnalysisView.Get(ItemAnalysisViewEntry."Analysis Area", ItemAnalysisViewEntry."Analysis View Code");
         // Analysis View part
@@ -901,7 +899,7 @@ codeunit 134236 "ERM Analysis View Excel Export"
         DateDec: Decimal;
     begin
         LibraryReportValidation.SetFullFileName(ServerFileName);
-        LibraryReportValidation.OpenFile;
+        LibraryReportValidation.OpenFile();
 
         VerifyCellValueOnWorksheet(2, 2, 1, GLAccountNo);
         VerifyCellValueOnWorksheet(2, 2, 2, DimensionValue[1].Code);
@@ -921,7 +919,7 @@ codeunit 134236 "ERM Analysis View Excel Export"
         DateDec: Decimal;
     begin
         LibraryReportValidation.SetFullFileName(ServerFileName);
-        LibraryReportValidation.OpenFile;
+        LibraryReportValidation.OpenFile();
 
         // (TFS ID: 324810): verify account filter formatting
         Assert.AreEqual(AccFilter, LibraryReportValidation.GetValueFromSpecifiedCellOnWorksheet(1, 8, 3), '');
@@ -946,7 +944,7 @@ codeunit 134236 "ERM Analysis View Excel Export"
         DateDec: Decimal;
     begin
         LibraryReportValidation.SetFullFileName(ServerFileName);
-        LibraryReportValidation.OpenFile;
+        LibraryReportValidation.OpenFile();
 
         VerifyCellValueOnWorksheet(2, 2, 1, GLAccountNo);
         VerifyCellValueOnWorksheet(2, 2, 2, DimValueCode[1]);
@@ -965,7 +963,7 @@ codeunit 134236 "ERM Analysis View Excel Export"
         DateDec: Decimal;
     begin
         LibraryReportValidation.SetFullFileName(ServerFileName);
-        LibraryReportValidation.OpenFile;
+        LibraryReportValidation.OpenFile();
 
         VerifyCellValueOnWorksheet(2, 3, 1, GLAccountNo);
         VerifyCellValueOnWorksheet(2, 3, 2, DimensionValue[1].Code);
@@ -985,7 +983,7 @@ codeunit 134236 "ERM Analysis View Excel Export"
         i: Integer;
     begin
         LibraryReportValidation.SetFullFileName(ServerFileName);
-        LibraryReportValidation.OpenFile;
+        LibraryReportValidation.OpenFile();
 
         for i := 1 to MaxGLAccountLevel do
             VerifyCellValueOnWorksheet(2, 1, i, StrSubstNo('G/L Account Level %1', i - 1));
@@ -1010,7 +1008,7 @@ codeunit 134236 "ERM Analysis View Excel Export"
         i: Integer;
     begin
         LibraryReportValidation.SetFullFileName(ServerFileName);
-        LibraryReportValidation.OpenFile;
+        LibraryReportValidation.OpenFile();
 
         VerifyCellValueOnWorksheet(2, 1, 1, 'Item Level 0');
 
@@ -1037,7 +1035,7 @@ codeunit 134236 "ERM Analysis View Excel Export"
         DateDec: Decimal;
     begin
         LibraryReportValidation.SetFullFileName(ServerFileName);
-        LibraryReportValidation.OpenFile;
+        LibraryReportValidation.OpenFile();
 
         VerifyCellValueOnWorksheet(2, 2, 1, ItemAnalysisViewEntry."Item No.");
         VerifyCellValueOnWorksheet(2, 2, 2, DimValueCode[1]);
@@ -1059,7 +1057,7 @@ codeunit 134236 "ERM Analysis View Excel Export"
         DateDec: Decimal;
     begin
         LibraryReportValidation.SetFullFileName(ServerFileName);
-        LibraryReportValidation.OpenFile;
+        LibraryReportValidation.OpenFile();
 
         VerifyCellValueOnWorksheet(2, 3, 1, ItemAnalysisViewBudgEntry."Item No.");
         VerifyCellValueOnWorksheet(2, 3, 2, DimValueCode[1]);

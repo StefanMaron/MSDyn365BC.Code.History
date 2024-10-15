@@ -39,7 +39,7 @@ report 846 "Cash Flow Date List"
             }
             dataitem(EditionPeriod; "Integer")
             {
-                DataItemTableView = sorting(Number) order(Ascending);
+                DataItemTableView = sorting(Number) order(ascending);
                 column(NewCFSumTotal; NewCFSumTotal)
                 {
                 }

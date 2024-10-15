@@ -214,9 +214,9 @@ codeunit 144079 "ERM Payment Terms"
           GeneralLedgerSetup."Discount Calculation"::"Line Disc. * Inv. Disc. * Payment Disc.");
         CreateServiceDocument(ServiceLine, ServiceLine."Document Type"::Invoice, Customer."No.");
         ServiceHeader.Get(ServiceLine."Document Type", ServiceLine."Document No.");
-        ServiceInvoice.OpenEdit;
+        ServiceInvoice.OpenEdit();
         ServiceInvoice.FILTER.SetFilter("No.", ServiceHeader."No.");
-        ServiceInvoice."Calculate Invoice Discount".Invoke;
+        ServiceInvoice."Calculate Invoice Discount".Invoke();
         LibraryService.PostServiceOrder(ServiceHeader, true, false, true);  // True for ship and invoice, False for consume.
         LibraryVariableStorage.Enqueue(Customer."No.");  // Enqueue for ServiceInvoiceRequestPageHandler.
         Commit();  // commit requires to run report.
@@ -225,12 +225,12 @@ codeunit 144079 "ERM Payment Terms"
         REPORT.Run(REPORT::"Service - Invoice");  // Opens ServiceInvoiceRequestPageHandler.
 
         // Verify: Verify values on Service Invoice report.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(
           VATAmtLineInvDiscAmtPmtDiscAmtCap, Round(ServiceLine."Line Amount" * ServiceHeader."Payment Discount %" / 100));
 
         // TearDown.
-        RollBackDiscountCalculationOnGeneralLedgerSetup;
+        RollBackDiscountCalculationOnGeneralLedgerSetup();
         UpdateGeneralLedgerSetup(
           GeneralLedgerSetup."Payment Discount Type", GeneralLedgerSetup."Discount Calculation");
     end;
@@ -257,9 +257,9 @@ codeunit 144079 "ERM Payment Terms"
           GeneralLedgerSetup."Discount Calculation"::"Line Disc. * Inv. Disc. * Payment Disc.");
         CreateServiceDocument(ServiceLine, ServiceLine."Document Type"::"Credit Memo", Customer."No.");
         ServiceHeader.Get(ServiceLine."Document Type", ServiceLine."Document No.");
-        ServiceCreditMemo.OpenEdit;
+        ServiceCreditMemo.OpenEdit();
         ServiceCreditMemo.FILTER.SetFilter("No.", ServiceHeader."No.");
-        ServiceCreditMemo."Calculate Inv. and Pmt. Disc.".Invoke;
+        ServiceCreditMemo."Calculate Inv. and Pmt. Disc.".Invoke();
         LibraryService.PostServiceOrder(ServiceHeader, true, false, true);  // True for ship and invoice, False for consume.
         LibraryVariableStorage.Enqueue(Customer."No.");  // Enqueue for ServiceCreditMemoRequestPageHandler.
         Commit();  // commit requires to run report.
@@ -268,12 +268,12 @@ codeunit 144079 "ERM Payment Terms"
         REPORT.Run(REPORT::"Service - Credit Memo");  // Opens ServiceCreditMemoRequestPageHandler.
 
         // Verify: Verify values on Service Credit Memo report.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(
           VATAmtLineInvDiscAmtCap, Round(ServiceLine."Line Amount" * ServiceHeader."Payment Discount %" / 100));
 
         // TearDown.
-        RollBackDiscountCalculationOnGeneralLedgerSetup;
+        RollBackDiscountCalculationOnGeneralLedgerSetup();
         UpdateGeneralLedgerSetup(
           GeneralLedgerSetup."Payment Discount Type", GeneralLedgerSetup."Discount Calculation");
     end;
@@ -360,7 +360,7 @@ codeunit 144079 "ERM Payment Terms"
         VendorLedgerEntry.SetRange("Vendor No.", GenJournalLine."Account No.");
         VendorLedgerEntry.FindFirst();
         VendorLedgerEntry.CalcFields(Amount);
-        Assert.AreNearlyEqual(GenJournalLine.Amount, VendorLedgerEntry.Amount, LibraryERM.GetAmountRoundingPrecision, AmountMustMatchMsg);
+        Assert.AreNearlyEqual(GenJournalLine.Amount, VendorLedgerEntry.Amount, LibraryERM.GetAmountRoundingPrecision(), AmountMustMatchMsg);
     end;
 
     [ConfirmHandler]
@@ -378,7 +378,7 @@ codeunit 144079 "ERM Payment Terms"
     begin
         LibraryVariableStorage.Dequeue(Code);
         SaveAsStandardGenJournal.Code.SetValue(Code);
-        SaveAsStandardGenJournal.OK.Invoke;
+        SaveAsStandardGenJournal.OK().Invoke();
     end;
 
     [RequestPageHandler]
@@ -389,7 +389,7 @@ codeunit 144079 "ERM Payment Terms"
     begin
         LibraryVariableStorage.Dequeue(CustomerNo);
         ServiceCreditMemo."Service Cr.Memo Header".SetFilter("Customer No.", CustomerNo);
-        ServiceCreditMemo.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        ServiceCreditMemo.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -400,7 +400,7 @@ codeunit 144079 "ERM Payment Terms"
     begin
         LibraryVariableStorage.Dequeue(CustomerNo);
         ServiceInvoice."Service Invoice Header".SetFilter("Customer No.", CustomerNo);
-        ServiceInvoice.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        ServiceInvoice.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 }
 

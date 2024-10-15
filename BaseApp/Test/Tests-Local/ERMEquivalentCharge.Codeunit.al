@@ -59,7 +59,7 @@ codeunit 144047 "ERM Equivalent Charge"
         InvoiceNo :=
           CreateAndPostPurchaseDocument(
             PurchaseLine, PurchaseHeader."Document Type"::Invoice,
-            CreateVendor(''), '', LibraryRandom.RandDec(100, 2), LibraryRandom.RandDec(10, 2), CreateItem);  // Using blank for Currency Code & Corrected Invoice No., Random for Quantity & Direct Unit Cost.
+            CreateVendor(''), '', LibraryRandom.RandDec(100, 2), LibraryRandom.RandDec(10, 2), CreateItem());  // Using blank for Currency Code & Corrected Invoice No., Random for Quantity & Direct Unit Cost.
         CrMemoNo :=
           CreateAndPostPurchaseDocument(
             PurchaseLine2, PurchaseHeader."Document Type"::"Credit Memo", PurchaseLine."Buy-from Vendor No.", InvoiceNo,
@@ -144,15 +144,15 @@ codeunit 144047 "ERM Equivalent Charge"
 
         // Setup: Create and post Purchsae Invoices, post Payment Journal and application.
         Initialize();
-        Vendor.Get(CreateVendor(CreateCurrency));
+        Vendor.Get(CreateVendor(CreateCurrency()));
         PostedInvoiceNo :=
           CreateAndPostPurchaseDocument(
             PurchaseLine, PurchaseLine."Document Type"::Invoice, Vendor."No.", '', LibraryRandom.RandDec(100, 2),
-            LibraryRandom.RandDec(10, 2), CreateItem);  // Using blank for Corrected Invoice No., Random for Quantity & Direct Unit Cost.
+            LibraryRandom.RandDec(10, 2), CreateItem());  // Using blank for Corrected Invoice No., Random for Quantity & Direct Unit Cost.
         PostedInvoiceNo2 :=
           CreateAndPostPurchaseDocument(
             PurchaseLine2, PurchaseLine2."Document Type"::Invoice, PurchaseLine."Buy-from Vendor No.", '', PurchaseLine.Quantity,
-            LibraryRandom.RandDec(10, 2), CreateItem);  // Using blank for Corrected Invoice No., Random for Direct Unit Cost.
+            LibraryRandom.RandDec(10, 2), CreateItem());  // Using blank for Corrected Invoice No., Random for Direct Unit Cost.
         CreateAndPostPaymentJournal(
           GenJournalLine, GenJournalLine."Account Type"::Vendor, PurchaseLine."Buy-from Vendor No.",
           PurchaseLine."Amount Including VAT" / 2);  // Partial payment.
@@ -189,7 +189,7 @@ codeunit 144047 "ERM Equivalent Charge"
 
         // Setup: Create and post Sales Invoices, post Payment Journal and application.
         Initialize();
-        Customer.Get(CreateCustomer(CreateCurrency));
+        Customer.Get(CreateCustomer(CreateCurrency()));
         PostedInvoiceNo := CreateAndPostSalesInvoice(SalesLine, Customer."No.");
         PostedInvoiceNo2 := CreateAndPostSalesInvoice(SalesLine2, SalesLine."Sell-to Customer No.");
         CreateAndPostPaymentJournal(
@@ -286,7 +286,7 @@ codeunit 144047 "ERM Equivalent Charge"
 
     local procedure CreateSalesLine(var SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header")
     begin
-        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, CreateItem, LibraryRandom.RandDec(10, 2));  // Using Random for Quantity.
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, CreateItem(), LibraryRandom.RandDec(10, 2));  // Using Random for Quantity.
         SalesLine.Validate("Unit Price", LibraryRandom.RandDec(10, 2));
         SalesLine.Modify(true);
     end;
@@ -360,7 +360,7 @@ codeunit 144047 "ERM Equivalent Charge"
 
     local procedure VerifyReportValue(Caption: Text; Value: Variant)
     begin
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(Caption, Value);
     end;
 
@@ -372,7 +372,7 @@ codeunit 144047 "ERM Equivalent Charge"
     begin
         LibraryVariableStorage.Dequeue(No);
         PurchaseCreditMemo."Purch. Cr. Memo Hdr.".SetFilter("No.", No);
-        PurchaseCreditMemo.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        PurchaseCreditMemo.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -383,7 +383,7 @@ codeunit 144047 "ERM Equivalent Charge"
     begin
         LibraryVariableStorage.Dequeue(No);
         ReminderTest."Reminder Header".SetFilter("No.", No);
-        ReminderTest.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        ReminderTest.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -394,7 +394,7 @@ codeunit 144047 "ERM Equivalent Charge"
     begin
         LibraryVariableStorage.Dequeue(No);
         ReturnOrderConfirmation."Sales Header".SetFilter("No.", No);
-        ReturnOrderConfirmation.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        ReturnOrderConfirmation.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 }
 

@@ -19,13 +19,12 @@ codeunit 61 "Sales-Disc. (Yes/No)"
 
         SalesLine.Copy(Rec);
         GLSetup.Get();
-        with SalesLine do
-            if GLSetup."Payment Discount Type" <> GLSetup."Payment Discount Type"::"Calc. Pmt. Disc. on Lines" then begin
-                if ConfirmManagement.GetResponseOrDefault(Text000, true) then
-                    CODEUNIT.Run(CODEUNIT::"Sales-Calc. Discount", SalesLine);
-            end else
-                if ConfirmManagement.GetResponseOrDefault(Text1100000, true) then
-                    CODEUNIT.Run(CODEUNIT::"Sales-Calc. Discount", SalesLine);
+        if GLSetup."Payment Discount Type" <> GLSetup."Payment Discount Type"::"Calc. Pmt. Disc. on Lines" then begin
+            if ConfirmManagement.GetResponseOrDefault(Text000, true) then
+                CODEUNIT.Run(CODEUNIT::"Sales-Calc. Discount", SalesLine);
+        end else
+            if ConfirmManagement.GetResponseOrDefault(Text1100000, true) then
+                CODEUNIT.Run(CODEUNIT::"Sales-Calc. Discount", SalesLine);
 
         Rec := SalesLine;
     end;

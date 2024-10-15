@@ -39,6 +39,7 @@ table 270 "Bank Account"
     DrillDownPageID = "Bank Account List";
     LookupPageID = "Bank Account List";
     Permissions = TableData "Bank Account Ledger Entry" = r;
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -50,7 +51,7 @@ table 270 "Bank Account"
             begin
                 if "No." <> xRec."No." then begin
                     GLSetup.Get();
-                    NoSeriesMgt.TestManual(GLSetup."Bank Account Nos.");
+                    NoSeries.TestManual(GLSetup."Bank Account Nos.");
                     "No. Series" := '';
                     "Operation Fees Code" := "No.";
                 end;
@@ -108,6 +109,7 @@ table 270 "Bank Account"
         field(8; Contact; Text[100])
         {
             Caption = 'Contact';
+            DataClassification = EndUserIdentifiableInformation;
         }
         field(9; "Phone No."; Text[30])
         {
@@ -184,17 +186,18 @@ table 270 "Bank Account"
             trigger OnValidate()
             var
                 GeneralLedgerSetup: Record "General Ledger Setup";
+                BankAccount: Record "Bank Account";
             begin
                 if "Currency Code" = xRec."Currency Code" then
                     exit;
                 GeneralLedgerSetup.Get();
                 if (("Currency Code" in ['', GeneralLedgerSetup."LCY Code"]) and (xRec."Currency Code" in ['', GeneralLedgerSetup."LCY Code"])) then
                     exit;
-                BankAcc.Reset();
-                BankAcc := Rec;
-                BankAcc.CalcFields(Balance, "Balance (LCY)");
-                BankAcc.TestField(Balance, 0);
-                BankAcc.TestField("Balance (LCY)", 0);
+
+                BankAccount := Rec;
+                BankAccount.CalcFields(Balance, "Balance (LCY)");
+                BankAccount.TestField(Balance, 0);
+                BankAccount.TestField("Balance (LCY)", 0);
 
                 if not BankAccLedgEntry.SetCurrentKey("Bank Account No.", Open) then
                     BankAccLedgEntry.SetCurrentKey("Bank Account No.");
@@ -235,6 +238,7 @@ table 270 "Bank Account"
         {
             Caption = 'Our Contact Code';
             TableRelation = "Salesperson/Purchaser" where(Blocked = const(false));
+            DataClassification = EndUserIdentifiableInformation;
         }
         field(35; "Country/Region Code"; Code[10])
         {
@@ -447,7 +451,7 @@ table 270 "Bank Account"
             CalcFormula = sum("Bank Account Ledger Entry".Amount where("Bank Account No." = field("No."),
                                                                         "Global Dimension 1 Code" = field("Global Dimension 1 Filter"),
                                                                         "Global Dimension 2 Code" = field("Global Dimension 2 Filter"),
-                                                                        "Posting Date" = field(UPPERLIMIT("Date Filter"))));
+                                                                        "Posting Date" = field(upperlimit("Date Filter"))));
             Caption = 'Balance at Date';
             Editable = false;
             FieldClass = FlowField;
@@ -458,7 +462,7 @@ table 270 "Bank Account"
             CalcFormula = sum("Bank Account Ledger Entry"."Amount (LCY)" where("Bank Account No." = field("No."),
                                                                                 "Global Dimension 1 Code" = field("Global Dimension 1 Filter"),
                                                                                 "Global Dimension 2 Code" = field("Global Dimension 2 Filter"),
-                                                                                "Posting Date" = field(UPPERLIMIT("Date Filter"))));
+                                                                                "Posting Date" = field(upperlimit("Date Filter"))));
             Caption = 'Balance at Date (LCY)';
             Editable = false;
             FieldClass = FlowField;
@@ -534,11 +538,24 @@ table 270 "Bank Account"
                 MailManagement.ValidateEmailAddressField("E-Mail");
             end;
         }
+#if not CLEAN24
         field(103; "Home Page"; Text[80])
         {
             Caption = 'Home Page';
             ExtendedDatatype = URL;
+            ObsoleteReason = 'Field length will be increased to 255.';
+            ObsoleteState = Pending;
+            ObsoleteTag = '24.0';
         }
+#else
+#pragma warning disable AS0086
+        field(103; "Home Page"; Text[255])
+        {
+            Caption = 'Home Page';
+            ExtendedDatatype = URL;
+        }
+#pragma warning restore AS0086
+#endif
         field(107; "No. Series"; Code[20])
         {
             Caption = 'No. Series';
@@ -552,7 +569,7 @@ table 270 "Bank Account"
         }
         field(109; "Check Report Name"; Text[250])
         {
-            CalcFormula = Lookup(AllObjWithCaption."Object Name" where("Object Type" = const(Report),
+            CalcFormula = lookup(AllObjWithCaption."Object Name" where("Object Type" = const(Report),
                                                                         "Object ID" = field("Check Report ID")));
             Caption = 'Check Report Name';
             Editable = false;
@@ -1248,13 +1265,41 @@ table 270 "Bank Account"
     end;
 
     trigger OnInsert()
+    var
+        BankAccount: Record "Bank Account";
+#if not CLEAN24
+        NoSeriesManagement: Codeunit NoSeriesManagement;
+        IsHandled: Boolean;
+#endif
     begin
         if "No." = '' then begin
             GLSetup.Get();
             GLSetup.TestField("Bank Account Nos.");
-            NoSeriesMgt.InitSeries(GLSetup."Bank Account Nos.", xRec."No. Series", 0D, "No.", "No. Series");
-            "Operation Fees Code" := "No.";
-            "Customer Ratings Code" := "No.";
+#if not CLEAN24
+            NoSeriesManagement.RaiseObsoleteOnBeforeInitSeries(GLSetup."Bank Account Nos.", xRec."No. Series", 0D, "No.", "No. Series", IsHandled);
+            if not IsHandled then begin
+                if NoSeries.AreRelated(GLSetup."Bank Account Nos.", xRec."No. Series") then
+                    "No. Series" := xRec."No. Series"
+                else
+                    "No. Series" := GLSetup."Bank Account Nos.";
+                "No." := NoSeries.GetNextNo("No. Series");
+                BankAccount.ReadIsolation(IsolationLevel::ReadUncommitted);
+                BankAccount.SetLoadFields("No.");
+                while BankAccount.Get("No.") do
+                    "No." := NoSeries.GetNextNo("No. Series");
+                NoSeriesManagement.RaiseObsoleteOnAfterInitSeries("No. Series", GLSetup."Bank Account Nos.", 0D, "No.");
+            end;
+#else
+			if NoSeries.AreRelated(GLSetup."Bank Account Nos.", xRec."No. Series") then
+				"No. Series" := xRec."No. Series"
+			else
+				"No. Series" := GLSetup."Bank Account Nos.";
+            "No." := NoSeries.GetNextNo("No. Series");
+            BankAccount.ReadIsolation(IsolationLevel::ReadUncommitted);
+            BankAccount.SetLoadFields("No.");
+            while BankAccount.Get("No.") do
+                "No." := NoSeries.GetNextNo("No. Series");
+#endif
         end;
 
         if not InsertFromContact then
@@ -1288,7 +1333,6 @@ table 270 "Bank Account"
 
     var
         GLSetup: Record "General Ledger Setup";
-        BankAcc: Record "Bank Account";
         BankAccLedgEntry: Record "Bank Account Ledger Entry";
         CommentLine: Record "Comment Line";
         PostCode: Record "Post Code";
@@ -1298,7 +1342,7 @@ table 270 "Bank Account"
         PostedPmtOrd: Record "Posted Payment Order";
         ClosedPmtOrd: Record "Closed Payment Order";
         Suffix: Record Suffix;
-        NoSeriesMgt: Codeunit NoSeriesManagement;
+        NoSeries: Codeunit "No. Series";
         MoveEntries: Codeunit MoveEntries;
         UpdateContFromBank: Codeunit "BankCont-Update";
         DimMgt: Codeunit DimensionManagement;
@@ -1326,18 +1370,19 @@ table 270 "Bank Account"
         DisablingMakesBankRecAutomatchSlowerWarnMsg: Label 'Disabling the optimization will make automatic bank matching slower, but it will be more precise. It is useful to disable the optimization if you have several open bank ledger entries with the same amount and posting date that you need to automatch. Do you want to turn off the optimization?';
 
     procedure AssistEdit(OldBankAcc: Record "Bank Account"): Boolean
+    var
+        DefaultSelectedNoSeries: Code[20];
     begin
-        with BankAcc do begin
-            BankAcc := Rec;
-            GLSetup.Get();
-            GLSetup.TestField("Bank Account Nos.");
-            if NoSeriesMgt.SelectSeries(GLSetup."Bank Account Nos.", OldBankAcc."No. Series", "No. Series") then begin
-                GLSetup.Get();
-                GLSetup.TestField("Bank Account Nos.");
-                NoSeriesMgt.SetSeries("No.");
-                Rec := BankAcc;
-                exit(true);
-            end;
+        GLSetup.Get();
+        GLSetup.TestField("Bank Account Nos.");
+        if "No. Series" <> '' then
+            DefaultSelectedNoSeries := "No. Series"
+        else
+            DefaultSelectedNoSeries := OldBankAcc."No. Series";
+
+        if NoSeries.LookupRelatedNoSeries(GLSetup."Bank Account Nos.", DefaultSelectedNoSeries, "No. Series") then begin
+            "No." := NoSeries.GetNextNo("No. Series");
+            exit(true);
         end;
     end;
 
@@ -1443,7 +1488,6 @@ table 270 "Bank Account"
 
     procedure GetCreditTransferMessageNo(): Code[20]
     var
-        NoSeriesManagement: Codeunit NoSeriesManagement;
         CreditTransferMsgNo: Code[20];
         IsHandled: Boolean;
     begin
@@ -1452,12 +1496,11 @@ table 270 "Bank Account"
             exit(CreditTransferMsgNo);
 
         TestField("Credit Transfer Msg. Nos.");
-        exit(NoSeriesManagement.GetNextNo("Credit Transfer Msg. Nos.", Today, true));
+        exit(NoSeries.GetNextNo("Credit Transfer Msg. Nos.", Today()));
     end;
 
     procedure GetDirectDebitMessageNo(): Code[20]
     var
-        NoSeriesManagement: Codeunit NoSeriesManagement;
         DirectDebitMsgNo: Code[20];
         IsHandled: Boolean;
     begin
@@ -1466,7 +1509,7 @@ table 270 "Bank Account"
             exit(DirectDebitMsgNo);
 
         TestField("Direct Debit Msg. Nos.");
-        exit(NoSeriesManagement.GetNextNo("Direct Debit Msg. Nos.", Today, true));
+        exit(NoSeries.GetNextNo("Direct Debit Msg. Nos.", Today()));
     end;
 
     procedure GetDefaultBankAccountNoForCurrency(CurrencyCode: Code[20]) BankAccountNo: Code[20]
@@ -2107,7 +2150,7 @@ table 270 "Bank Account"
         // The subscriber of this event should refresh the bank account linked to a bank statement provider service
     end;
 
-    [IntegrationEvent(TRUE, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnGetDataExchangeDefinitionEvent(var DataExchDefCodeResponse: Code[20]; var Handled: Boolean)
     begin
         // This event should retrieve the data exchange definition format for processing the online feeds

@@ -27,7 +27,6 @@ codeunit 147561 "SII Third Party Info"
     procedure BillToCustExportsInSalesInvoice()
     var
         GeneralLedgerSetup: Record "General Ledger Setup";
-        SalesHeader: Record "Sales Header";
         CustLedgerEntry: Record "Cust. Ledger Entry";
         Customer: Record Customer;
         SIIXMLCreator: Codeunit "SII XML Creator";
@@ -51,7 +50,7 @@ codeunit 147561 "SII Third Party Info"
         // [THEN] XML file has value about VAT Registration No. "X" of the local customer
         Customer.Get(CustLedgerEntry."Customer No.");
         LibrarySII.VerifyOneNodeWithValueByXPath(XMLDoc, XPathSalesContraparteTok, 'sii:NIF', Customer."VAT Registration No.");
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -84,7 +83,7 @@ codeunit 147561 "SII Third Party Info"
         // [THEN] XML file has value about VAT Registration No. "Y" of the foreign customer
         Customer.Get(CustLedgerEntry."Sell-to Customer No.");
         LibrarySII.VerifyOneNodeWithValueByXPath(XMLDoc, XPathSalesContraparteTok, 'sii:IDOtro/sii:ID', Customer."VAT Registration No.");
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -117,7 +116,7 @@ codeunit 147561 "SII Third Party Info"
         // [THEN] XML file has value about VAT Registration No. "X" of the local customer
         Customer.Get(CustLedgerEntry."Customer No.");
         LibrarySII.VerifyOneNodeWithValueByXPath(XMLDoc, XPathSalesContraparteTok, 'sii:NIF', Customer."VAT Registration No.");
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -150,7 +149,7 @@ codeunit 147561 "SII Third Party Info"
         // [THEN] XML file has value about VAT Registration No. "Y" of the foreign customer
         Customer.Get(CustLedgerEntry."Sell-to Customer No.");
         LibrarySII.VerifyOneNodeWithValueByXPath(XMLDoc, XPathSalesContraparteTok, 'sii:IDOtro/sii:ID', Customer."VAT Registration No.");
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -185,7 +184,7 @@ codeunit 147561 "SII Third Party Info"
         Customer.Get(CustLedgerEntry."Customer No.");
         LibrarySII.VerifyOneNodeWithValueByXPath(XMLDoc, XPathSalesContraparteTok, 'sii:NIF', Customer."VAT Registration No.");
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -219,7 +218,7 @@ codeunit 147561 "SII Third Party Info"
         // [THEN] XML file has value about VAT Registration No. "Y" of the foreign customer
         Customer.Get(CustLedgerEntry."Sell-to Customer No.");
         LibrarySII.VerifyOneNodeWithValueByXPath(XMLDoc, XPathSalesContraparteTok, 'sii:IDOtro/sii:ID', Customer."VAT Registration No.");
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -252,7 +251,7 @@ codeunit 147561 "SII Third Party Info"
         // [THEN] XML file has value about VAT Registration No. "X" of the local customer
         Vendor.Get(VendorLedgerEntry."Vendor No.");
         LibrarySII.VerifyOneNodeWithValueByXPath(XMLDoc, XPathPurchaseContraparteTok, 'sii:NIF', Vendor."VAT Registration No.");
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -285,7 +284,7 @@ codeunit 147561 "SII Third Party Info"
         // [THEN] XML file has value about VAT Registration No. "Y" of the foreign Vendor
         Vendor.Get(VendorLedgerEntry."Buy-from Vendor No.");
         LibrarySII.VerifyOneNodeWithValueByXPath(XMLDoc, XPathPurchaseContraparteTok, 'sii:IDOtro/sii:ID', Vendor."VAT Registration No.");
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -318,7 +317,7 @@ codeunit 147561 "SII Third Party Info"
         // [THEN] XML file has value about VAT Registration No. "X" of the local Vendor
         Vendor.Get(VendorLedgerEntry."Vendor No.");
         LibrarySII.VerifyOneNodeWithValueByXPath(XMLDoc, XPathPurchaseContraparteTok, 'sii:NIF', Vendor."VAT Registration No.");
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -351,7 +350,7 @@ codeunit 147561 "SII Third Party Info"
         // [THEN] XML file has value about VAT Registration No. "Y" of the foreign Vendor
         Vendor.Get(VendorLedgerEntry."Buy-from Vendor No.");
         LibrarySII.VerifyOneNodeWithValueByXPath(XMLDoc, XPathPurchaseContraparteTok, 'sii:IDOtro/sii:ID', Vendor."VAT Registration No.");
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -386,7 +385,7 @@ codeunit 147561 "SII Third Party Info"
         Vendor.Get(VendorLedgerEntry."Vendor No.");
         LibrarySII.VerifyOneNodeWithValueByXPath(XMLDoc, XPathPurchaseContraparteTok, 'sii:NIF', Vendor."VAT Registration No.");
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -420,7 +419,7 @@ codeunit 147561 "SII Third Party Info"
         // [THEN] XML file has value about VAT Registration No. "Y" of the foreign Vendor
         Vendor.Get(VendorLedgerEntry."Buy-from Vendor No.");
         LibrarySII.VerifyOneNodeWithValueByXPath(XMLDoc, XPathPurchaseContraparteTok, 'sii:IDOtro/sii:ID', Vendor."VAT Registration No.");
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     local procedure Initialize()
@@ -429,7 +428,7 @@ codeunit 147561 "SII Third Party Info"
             exit;
 
         LibrarySII.InitSetup(true, false);
-        LibrarySII.BindSubscriptionJobQueue;
+        LibrarySII.BindSubscriptionJobQueue();
 
         IsInitialized := true;
     end;
@@ -491,7 +490,7 @@ codeunit 147561 "SII Third Party Info"
     [Scope('OnPrem')]
     procedure ConfirmHandler(Question: Text; var Reply: Boolean)
     begin
-        Assert.ExpectedMessage(LibraryVariableStorage.DequeueText, Question);
+        Assert.ExpectedMessage(LibraryVariableStorage.DequeueText(), Question);
         Reply := true;
     end;
 }

@@ -88,7 +88,7 @@ codeunit 147550 "SII AEAT"
         Initialize();
 
         // [GIVEN] Posted Sales Invoice local customer "X" registered in AEAT
-        PostSalesDocWithCustAEAT(CustLedgerEntry, CreateCountryRegionCode, SalesHeader."Document Type"::Invoice, 0, false);
+        PostSalesDocWithCustAEAT(CustLedgerEntry, CreateCountryRegionCode(), SalesHeader."Document Type"::Invoice, 0, false);
 
         // [WHEN] Create xml for Posted Sales Invoice
         Assert.IsTrue(SIIXMLCreator.GenerateXml(CustLedgerEntry, XMLDoc, UploadType::Regular, false), IncorrectXMLDocErr);
@@ -111,7 +111,7 @@ codeunit 147550 "SII AEAT"
         Initialize();
 
         // [GIVEN] Posted Sales Invoice local customer "X" not registered in AEAT
-        PostSalesDocWithCustAEAT(CustLedgerEntry, CreateCountryRegionCode, SalesHeader."Document Type"::Invoice, 0, true);
+        PostSalesDocWithCustAEAT(CustLedgerEntry, CreateCountryRegionCode(), SalesHeader."Document Type"::Invoice, 0, true);
 
         // [WHEN] Create xml for Posted Sales Invoice
         Assert.IsTrue(SIIXMLCreator.GenerateXml(CustLedgerEntry, XMLDoc, UploadType::Regular, false), IncorrectXMLDocErr);
@@ -188,7 +188,7 @@ codeunit 147550 "SII AEAT"
 
         // [GIVEN] Posted Sales Credit Memo local customer "X" registered in AEAT
         PostSalesDocWithCustAEAT(
-          CustLedgerEntry, CreateCountryRegionCode, SalesHeader."Document Type"::"Credit Memo",
+          CustLedgerEntry, CreateCountryRegionCode(), SalesHeader."Document Type"::"Credit Memo",
           SalesHeader."Correction Type"::Removal, false);
 
         // [WHEN] Create xml for Posted Sales Credit Memo
@@ -213,7 +213,7 @@ codeunit 147550 "SII AEAT"
 
         // [GIVEN] Posted Sales Credit Memo local customer "X" not registered in AEAT
         PostSalesDocWithCustAEAT(
-          CustLedgerEntry, CreateCountryRegionCode, SalesHeader."Document Type"::"Credit Memo",
+          CustLedgerEntry, CreateCountryRegionCode(), SalesHeader."Document Type"::"Credit Memo",
           SalesHeader."Correction Type"::Removal, true);
 
         // [WHEN] Create xml for Posted Sales Credit Memo
@@ -287,7 +287,7 @@ codeunit 147550 "SII AEAT"
 
         // [GIVEN] Posted Sales Credit Memo local customer "X" registered in AEAT
         PostSalesDocWithCustAEAT(
-          CustLedgerEntry, CreateCountryRegionCode, SalesHeader."Document Type"::"Credit Memo",
+          CustLedgerEntry, CreateCountryRegionCode(), SalesHeader."Document Type"::"Credit Memo",
           SalesHeader."Correction Type"::Replacement, false);
 
         // [WHEN] Create xml for Posted Sales Credit Memo
@@ -312,7 +312,7 @@ codeunit 147550 "SII AEAT"
 
         // [GIVEN] Posted Sales Credit Memo local customer "X" not registered in AEAT
         PostSalesDocWithCustAEAT(
-          CustLedgerEntry, CreateCountryRegionCode, SalesHeader."Document Type"::"Credit Memo",
+          CustLedgerEntry, CreateCountryRegionCode(), SalesHeader."Document Type"::"Credit Memo",
           SalesHeader."Correction Type"::Replacement, true);
 
         // [WHEN] Create xml for Posted Sales Credit Memo
@@ -389,7 +389,7 @@ codeunit 147550 "SII AEAT"
 
         // [GIVEN] Posted Sales Credit Memo local customer "X" registered in AEAT
         PostSalesDocWithCustAEAT(
-          CustLedgerEntry, CreateCountryRegionCode, SalesHeader."Document Type"::"Credit Memo",
+          CustLedgerEntry, CreateCountryRegionCode(), SalesHeader."Document Type"::"Credit Memo",
           SalesHeader."Correction Type"::Difference, false);
 
         // [WHEN] Create xml for Posted Sales Credit Memo
@@ -414,7 +414,7 @@ codeunit 147550 "SII AEAT"
 
         // [GIVEN] Posted Sales Credit Memo local customer "X" not registered in AEAT
         PostSalesDocWithCustAEAT(
-          CustLedgerEntry, CreateCountryRegionCode, SalesHeader."Document Type"::"Credit Memo",
+          CustLedgerEntry, CreateCountryRegionCode(), SalesHeader."Document Type"::"Credit Memo",
           SalesHeader."Correction Type"::Difference, true);
 
         // [WHEN] Create xml for Posted Sales Credit Memo
@@ -430,7 +430,7 @@ codeunit 147550 "SII AEAT"
             exit;
 
         LibrarySII.InitSetup(true, false);
-        LibrarySII.BindSubscriptionJobQueue;
+        LibrarySII.BindSubscriptionJobQueue();
 
         IsInitialized := true;
     end;
@@ -450,7 +450,7 @@ codeunit 147550 "SII AEAT"
         SalesHeader.Validate("Corrected Invoice No.", '');
         SalesHeader.Modify(true);
         LibrarySales.CreateSalesLine(
-          SalesLine, SalesHeader, SalesLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithSalesSetup, LibraryRandom.RandInt(100));
+          SalesLine, SalesHeader, SalesLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithSalesSetup(), LibraryRandom.RandInt(100));
         SalesLine.Validate("Unit Price", LibraryRandom.RandDec(100, 2));
         SalesLine.Modify(true);
         LibraryERM.FindCustomerLedgerEntry(CustLedgerEntry, DocType, LibrarySales.PostSalesDocument(SalesHeader, true, true));

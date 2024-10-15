@@ -141,40 +141,40 @@ report 7000003 "Receivable Bill"
 
                 case "Document Situation" of
                     "Document Situation"::"BG/PO", "Document Situation"::Cartera:
-                        with Doc do begin
-                            Get(Type::Receivable, CustLedgEntry."Entry No.");
-                            CollectionAgent := "Collection Agent";
-                            AccountNo := "Account No.";
-                            if CustBankAcc.Get(AccountNo, "Cust./Vendor Bank Acc. Code") then;
+                        begin
+                            Doc.Get(Doc.Type::Receivable, CustLedgEntry."Entry No.");
+                            CollectionAgent := Doc."Collection Agent";
+                            AccountNo := Doc."Account No.";
+                            if CustBankAcc.Get(AccountNo, Doc."Cust./Vendor Bank Acc. Code") then;
 #if not CLEAN22
-                            if CustPmtAddress.Get(AccountNo, "Pmt. Address Code") then;
+                            if CustPmtAddress.Get(AccountNo, Doc."Pmt. Address Code") then;
 #endif
                             if PrintAmountsInLCY then
                                 PrintAmt := CustLedgEntry."Remaining Amt. (LCY)"
                             else
                                 PrintAmt := CustLedgEntry."Remaining Amount";
-                            if "Bill Gr./Pmt. Order No." <> '' then begin
-                                BillGr.Get("Bill Gr./Pmt. Order No.");
+                            if Doc."Bill Gr./Pmt. Order No." <> '' then begin
+                                BillGr.Get(Doc."Bill Gr./Pmt. Order No.");
                                 GroupPostingDate := BillGr."Posting Date";
                             end;
-                            PaymentMethod := "Payment Method Code";
+                            PaymentMethod := Doc."Payment Method Code";
                         end;
                     "Document Situation"::"Posted BG/PO":
-                        with PostedDoc do begin
-                            Get(Type::Receivable, CustLedgEntry."Entry No.");
-                            CollectionAgent := "Collection Agent";
-                            AccountNo := "Account No.";
-                            if CustBankAcc.Get(AccountNo, "Cust./Vendor Bank Acc. Code") then;
+                        begin
+                            PostedDoc.Get(PostedDoc.Type::Receivable, CustLedgEntry."Entry No.");
+                            CollectionAgent := PostedDoc."Collection Agent";
+                            AccountNo := PostedDoc."Account No.";
+                            if CustBankAcc.Get(AccountNo, PostedDoc."Cust./Vendor Bank Acc. Code") then;
 #if not CLEAN22
-                            if CustPmtAddress.Get(AccountNo, "Pmt. Address Code") then;
+                            if CustPmtAddress.Get(AccountNo, PostedDoc."Pmt. Address Code") then;
 #endif
-                            PostedBillGr.Get("Bill Gr./Pmt. Order No.");
+                            PostedBillGr.Get(PostedDoc."Bill Gr./Pmt. Order No.");
                             if PrintAmountsInLCY then
-                                PrintAmt := "Amt. for Collection (LCY)"
+                                PrintAmt := PostedDoc."Amt. for Collection (LCY)"
                             else
-                                PrintAmt := "Amount for Collection";
+                                PrintAmt := PostedDoc."Amount for Collection";
                             GroupPostingDate := PostedBillGr."Posting Date";
-                            PaymentMethod := "Payment Method Code";
+                            PaymentMethod := PostedDoc."Payment Method Code";
                         end;
                 end;
 
@@ -188,7 +188,7 @@ report 7000003 "Receivable Bill"
                 Customer.Get(AccountNo);
                 FormatAddress.Customer(CustAddr, Customer);
 #else
-                if CustPmtAddress.Find then
+                if CustPmtAddress.Find() then
                     FormatAddress.CustPmtAddress(CustAddr, CustPmtAddress)
                 else begin
                     Customer.Get(AccountNo);

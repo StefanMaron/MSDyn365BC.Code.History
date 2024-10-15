@@ -11,6 +11,7 @@ table 7000018 Installment
     Caption = 'Installment';
     DrillDownPageID = Installments;
     LookupPageID = Installments;
+    DataClassification = CustomerContent;
 
     fields
     {

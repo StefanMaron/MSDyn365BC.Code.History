@@ -114,7 +114,7 @@ codeunit 147529 "SII Payments"
 
         // [THEN] Assert that the values in the xml are valid
         LibrarySII.VerifyXml(XMLDoc, VendorLedgerEntry, XmlType::Invoice, true, false);
-        LibrarySII.AssertLibraryVariableStorage;
+        LibrarySII.AssertLibraryVariableStorage();
 
         // [GIVEN] Creation of a Payment for the previous Sales Invoice for a local vendor, cash based
         DocumentNo := Library340347Declaration.CreateAndPostPaymentForPI(
@@ -212,7 +212,7 @@ codeunit 147529 "SII Payments"
 
         // [THEN] Assert that the values in the xml are valid
         LibrarySII.VerifyXml(XMLDoc, VendorLedgerEntry, XmlType::Invoice, true, false);
-        LibrarySII.AssertLibraryVariableStorage;
+        LibrarySII.AssertLibraryVariableStorage();
 
         // [GIVEN] Creation of a Payment for the previous Sales Invoice for a local vendor, cash based
         DocumentNo := Library340347Declaration.CreateAndPostPaymentForPI(
@@ -444,7 +444,7 @@ codeunit 147529 "SII Payments"
 
         // [THEN] Assert that the values in the xml are valid
         LibrarySII.VerifyXml(XMLDoc, VendorLedgerEntry, XmlType::Invoice, true, false);
-        LibrarySII.AssertLibraryVariableStorage;
+        LibrarySII.AssertLibraryVariableStorage();
 
         // [GIVEN] Creation of a Payment for the previous Sales Invoice for a local vendor, cash based
         DocumentNo := Library340347Declaration.CreateAndPostPaymentForPI(
@@ -593,7 +593,7 @@ codeunit 147529 "SII Payments"
     begin
         // [FEATURE] [UT] [Sales]
         // [SCENARIO 274784] SIIManagement.IsLedgerCashFlowBased() and SIIManagement.IsDetailedLedgerCashFlowBased() returns FALSE in case of one sales invoice without VAT Entry
-        VerifyLedgerCashFlowBasedSalesInvoiceFalse(LibraryUtility.GenerateGUID, 0);
+        VerifyLedgerCashFlowBasedSalesInvoiceFalse(LibraryUtility.GenerateGUID(), 0);
     end;
 
     [Test]
@@ -720,7 +720,7 @@ codeunit 147529 "SII Payments"
     begin
         // [FEATURE] [UT] [Purchase]
         // [SCENARIO 274784] SIIManagement.IsLedgerCashFlowBased() and SIIManagement.IsDetailedLedgerCashFlowBased() returns FALSE in case of one purchase invoice without VAT Entry
-        VerifyLedgerCashFlowBasedPurchaseInvoiceFalse(LibraryUtility.GenerateGUID, 0);
+        VerifyLedgerCashFlowBasedPurchaseInvoiceFalse(LibraryUtility.GenerateGUID(), 0);
     end;
 
     [Test]
@@ -1636,7 +1636,7 @@ codeunit 147529 "SII Payments"
             exit;
 
         LibrarySII.InitSetup(true, false);
-        UpdatePmtBatchNoSeries;
+        UpdatePmtBatchNoSeries();
 
         IsInitialized := true;
     end;
@@ -1969,7 +1969,7 @@ codeunit 147529 "SII Payments"
 
     local procedure MockVATEntry(var VATEntry: Record "VAT Entry")
     begin
-        MockCustomVATEntry(VATEntry, LibraryUtility.GenerateGUID, LibraryRandom.RandInt(100), LibraryRandom.RandDec(100, 2));
+        MockCustomVATEntry(VATEntry, LibraryUtility.GenerateGUID(), LibraryRandom.RandInt(100), LibraryRandom.RandDec(100, 2));
     end;
 
     local procedure MockCustomVATEntry(var VATEntry: Record "VAT Entry"; DocumentNo: Code[20]; TransactionNo: Integer; UnrealizedBase: Decimal)
@@ -2042,7 +2042,7 @@ codeunit 147529 "SII Payments"
         GenJournalTemplate.FindFirst();
 
         LibraryERM.FindGenJournalBatch(GenJournalBatch, GenJournalTemplate.Name);
-        GenJournalBatch."No. Series" := LibraryERM.CreateNoSeriesCode;
+        GenJournalBatch."No. Series" := LibraryERM.CreateNoSeriesCode();
         GenJournalBatch.Modify();
     end;
 
@@ -2191,7 +2191,7 @@ codeunit 147529 "SII Payments"
         LedgerEntryRecRef.Close();
     end;
 
-    local procedure VerifyDocUploadStateCustomerPmt(PmtDtldEntryNo: Integer; DocumentType: Option)
+    local procedure VerifyDocUploadStateCustomerPmt(PmtDtldEntryNo: Integer; DocumentType: Enum "SII Doc. Upload State Document Type")
     var
         SIIDocUploadState: Record "SII Doc. Upload State";
         CustLedgerEntry: Record "Cust. Ledger Entry";
@@ -2208,7 +2208,7 @@ codeunit 147529 "SII Payments"
         VerifySIIHistoryCount(SIIDocUploadState.Id, 1);
     end;
 
-    local procedure VerifyDocUploadStateVendorPmt(PmtDtldEntryNo: Integer; DocumentType: Option)
+    local procedure VerifyDocUploadStateVendorPmt(PmtDtldEntryNo: Integer; DocumentType: Enum "SII Doc. Upload State Document Type")
     var
         SIIDocUploadState: Record "SII Doc. Upload State";
         VendorLedgerEntry: Record "Vendor Ledger Entry";

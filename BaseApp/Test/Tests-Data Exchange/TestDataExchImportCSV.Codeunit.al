@@ -911,7 +911,7 @@ codeunit 132540 "Test Data Exch.Import - CSV"
     local procedure CreateDataExchDef(var DataExchDef: Record "Data Exch. Def"; XMLPortId: Integer; HeaderLines: Integer; HeaderTag: Text[250]; FooterTag: Text[250]; ColumnSeparator: Option)
     begin
         DataExchDef.InsertRec(LibraryUtility.GenerateRandomCode(DataExchDef.FieldNo(Code), DATABASE::"Data Exch. Def"),
-          LibraryUtility.GenerateGUID, DataExchDef.Type::"Bank Statement Import", XMLPortId, HeaderLines, HeaderTag, FooterTag);
+          LibraryUtility.GenerateGUID(), DataExchDef.Type::"Bank Statement Import", XMLPortId, HeaderLines, HeaderTag, FooterTag);
         DataExchDef."Column Separator" := ColumnSeparator;
         if DataExchDef."Column Separator" = DataExchDef."Column Separator"::Custom then
             DataExchDef."Custom Column Separator" := '+';
@@ -934,7 +934,7 @@ codeunit 132540 "Test Data Exch.Import - CSV"
     local procedure WriteLine(OutStream: OutStream; Text: Text)
     begin
         OutStream.WriteText(Text);
-        OutStream.WriteText;
+        OutStream.WriteText();
     end;
 
     local procedure AreEqualRecords(ExpectedRecord: Variant; ActualRecord: Variant; Msg: Text)

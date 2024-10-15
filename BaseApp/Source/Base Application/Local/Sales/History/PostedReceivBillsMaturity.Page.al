@@ -10,7 +10,7 @@ using Microsoft.Foundation.AuditCodes;
 page 7000069 "Posted Receiv. Bills Maturity"
 {
     Caption = 'Posted Receiv. Bills Maturity';
-    DataCaptionExpression = Caption();
+    DataCaptionExpression = Rec.Caption();
     DeleteAllowed = false;
     InsertAllowed = false;
     PageType = List;

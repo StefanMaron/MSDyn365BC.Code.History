@@ -9,20 +9,21 @@ using Microsoft.Finance.GeneralLedger.Setup;
 
 table 1002 "Job Task Dimension"
 {
-    Caption = 'Job Task Dimension';
+    Caption = 'Project Task Dimension';
+    DataClassification = CustomerContent;
 
     fields
     {
         field(1; "Job No."; Code[20])
         {
-            Caption = 'Job No.';
+            Caption = 'Project No.';
             Editable = false;
             NotBlank = true;
             TableRelation = "Job Task"."Job No.";
         }
         field(2; "Job Task No."; Code[20])
         {
-            Caption = 'Job Task No.';
+            Caption = 'Project Task No.';
             NotBlank = true;
             TableRelation = "Job Task"."Job Task No." where("Job No." = field("Job No."));
         }

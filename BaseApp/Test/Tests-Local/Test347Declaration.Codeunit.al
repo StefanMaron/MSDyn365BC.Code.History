@@ -70,7 +70,7 @@ codeunit 147316 "Test 347 Declaration"
         InvoiceAmount := CreateAndPostSalesInvoiceWithVATCashRegime(CustomerNo, false, false);
 
         // [WHEN] The user runs "Make 347 Declaration report"
-        FileName := RunMake347DeclarationReport;
+        FileName := RunMake347DeclarationReport();
 
         // [THEN] In the generated file, the amount is filled in positions 284-299 is zero.
         ValidateFileHasExpectedVATCashRegimeAmount(
@@ -93,7 +93,7 @@ codeunit 147316 "Test 347 Declaration"
         CreateAndPostSalesInvoiceWithVATCashRegime(CustomerNo, false, false);
 
         // [WHEN] The user runs "Make 347 Declaration report"
-        FileName := RunMake347DeclarationReport;
+        FileName := RunMake347DeclarationReport();
 
         // [THEN] In the generated file, the record regarding "Seller Company" includes a blank in 281 field
         ValidateFileHasExpectedVATCashRegimeFlag(
@@ -117,7 +117,7 @@ codeunit 147316 "Test 347 Declaration"
         InvoiceAmount := CreateAndPostSalesInvoiceWithVATCashRegime(CustomerNo, true, false);
 
         // [WHEN] The user runs "Make 347 Declaration report"
-        FileName := RunMake347DeclarationReport;
+        FileName := RunMake347DeclarationReport();
 
         // [THEN] In the generated file, the amount is filled in positions 284-299 is zero.
         ValidateFileHasExpectedVATCashRegimeAmount(
@@ -140,7 +140,7 @@ codeunit 147316 "Test 347 Declaration"
         CreateAndPostSalesInvoiceWithVATCashRegime(CustomerNo, true, false);
 
         // [WHEN] The user runs "Make 347 Declaration report"
-        FileName := RunMake347DeclarationReport;
+        FileName := RunMake347DeclarationReport();
 
         // [THEN] In the generated file, the record regarding "Seller Company" includes a blank in 281 field
         ValidateFileHasExpectedVATCashRegimeFlag(
@@ -164,7 +164,7 @@ codeunit 147316 "Test 347 Declaration"
         InvoiceAmount := CreateAndPostPurchaseInvoiceWithVATCashRegime(VendorNo, WorkDate(), true, false);
 
         // [WHEN] The user runs "Make 347 Declaration report"
-        FileName := RunMake347DeclarationReport;
+        FileName := RunMake347DeclarationReport();
 
         // [THEN] In the generated file, the amount is filled in positions 284-299 is zero.
         ValidateFileHasExpectedVATCashRegimeAmount(
@@ -187,7 +187,7 @@ codeunit 147316 "Test 347 Declaration"
         CreateAndPostPurchaseInvoiceWithVATCashRegime(VendorNo, WorkDate(), true, false);
 
         // [WHEN] The user runs "Make 347 Declaration report"
-        FileName := RunMake347DeclarationReport;
+        FileName := RunMake347DeclarationReport();
 
         // [THEN] In the generated file, the record regarding "Seller Company" includes a blank in 281 field
         ValidateFileHasExpectedVATCashRegimeFlag(
@@ -210,7 +210,7 @@ codeunit 147316 "Test 347 Declaration"
         CreateAndPostSalesInvoiceWithVATCashRegime(CustomerNo, true, true);
 
         // [WHEN] The user runs "Make 347 Declaration report"
-        FileName := RunMake347DeclarationReport;
+        FileName := RunMake347DeclarationReport();
 
         // [THEN] In the generated file, the record regarding "Seller Company" includes an X in 281 field
         ValidateFileHasExpectedVATCashRegimeFlag(FileName, CustomerNo, 'X', VATCashRegimeFlagErr);
@@ -235,7 +235,7 @@ codeunit 147316 "Test 347 Declaration"
         ExpectedVATCashAmount := CreateAndPostSalesInvoiceWithVATCashRegime(CustomerNo, true, true);
 
         // [WHEN] The user runs "Make 347 Declaration report"
-        FileName := RunMake347DeclarationReport;
+        FileName := RunMake347DeclarationReport();
 
         // [THEN] In the generated file, the sales amount is filled, per customer in positions 83-98
         // [THEN] In the generated file, the annual amount is filled with zero, per customer in positions 284-299
@@ -259,7 +259,7 @@ codeunit 147316 "Test 347 Declaration"
         CreateAndPostPurchaseInvoiceWithVATCashRegime(VendorNo, WorkDate(), true, true);
 
         // [WHEN] The user runs "Make 347 Declaration report"
-        FileName := RunMake347DeclarationReport;
+        FileName := RunMake347DeclarationReport();
 
         // [THEN] In the generated file, the record regarding "Seller Company" includes an X in 281 field
         ValidateFileHasExpectedVATCashRegimeFlag(FileName, VendorNo, 'X', VATCashRegimeFlagErr);
@@ -284,7 +284,7 @@ codeunit 147316 "Test 347 Declaration"
         ExpectedVATCashAmount := CreateAndPostPurchaseInvoiceWithVATCashRegime(VendorNo, WorkDate(), true, true);
 
         // [WHEN] The user runs "Make 347 Declaration report"
-        FileName := RunMake347DeclarationReport;
+        FileName := RunMake347DeclarationReport();
 
         // [THEN] In the generated file, the purchase amount is filled, per vendor in positions 83-98
         // [THEN] In the generated file, the annual amount is filled with zero, per vendor in positions 284-299
@@ -312,7 +312,7 @@ codeunit 147316 "Test 347 Declaration"
           ExpectedVATCashAmount + CreateAndPostSalesInvoiceDetailed(Customer, VATPostingSetup, WorkDate(), true, true);
 
         // [WHEN] The user runs "Make 347 Declaration report"
-        FileName := RunMake347DeclarationReport;
+        FileName := RunMake347DeclarationReport();
 
         // [THEN] In the generated file, annual amount is summed up
         ValidateFileHasLineForCustomer(FileName, Customer."No.");
@@ -341,7 +341,7 @@ codeunit 147316 "Test 347 Declaration"
         VATCashAmountCust2 := CreateAndPostSalesInvoiceDetailed(Customer2, VATPostingSetup, WorkDate(), true, true);
 
         // [WHEN] The user runs "Make 347 Declaration report"
-        FileName := RunMake347DeclarationReport;
+        FileName := RunMake347DeclarationReport();
 
         // [THEN] In the generated file, annual amount is split per customer
         ValidateFileHasLineForCustomer(FileName, Customer1."No.");
@@ -372,7 +372,7 @@ codeunit 147316 "Test 347 Declaration"
         VATCashAmountCurrentYear := CreateAndPostSalesInvoiceDetailed(Customer, VATPostingSetup, WorkDate(), true, true);
 
         // [WHEN] The user runs "Make 347 Declaration report" for one of the years
-        FileName := RunMake347DeclarationReport;
+        FileName := RunMake347DeclarationReport();
 
         // [THEN] In the generated file, annual amount is only for the current line
         ValidateFileHasExpectedVATCashRegimeAmount(
@@ -399,7 +399,7 @@ codeunit 147316 "Test 347 Declaration"
         CreateAndPostSalesInvoiceReverseCharge(Customer2);
 
         // [WHEN] The user runs "Make 347 Declaration report"
-        FileName := RunMake347DeclarationReport;
+        FileName := RunMake347DeclarationReport();
 
         // [THEN] In the generated file, the record regarding "Seller Company" includes a blank value in field "Reverse Charge Operation" (282), for both lines
         ValidateFileHasExpectedReverseChargeFlag(FileName, Customer1."No.", ' ');
@@ -426,7 +426,7 @@ codeunit 147316 "Test 347 Declaration"
         CreateAndPostSalesInvoiceReverseCharge(Customer2);
 
         // [WHEN] The user runs "Make 347 Declaration report"
-        FileName := RunMake347DeclarationReport;
+        FileName := RunMake347DeclarationReport();
 
         // [THEN] In the generated file, the record regarding "Seller Company" includes a value value in field "Reverse Charge Operation" (282), for both lines
         ValidateFileHasExpectedReverseChargeFlag(FileName, CustomerNo1, ' ');
@@ -454,7 +454,7 @@ codeunit 147316 "Test 347 Declaration"
         CreateAndPostSalesInvoiceReverseCharge(Customer);
 
         // [WHEN] The user runs "Make 347 Declaration report"
-        FileName := RunMake347DeclarationReport;
+        FileName := RunMake347DeclarationReport();
 
         // [THEN] In the generated file, the record regarding "Seller Company" includes a blank value in field "Reverse Charge Operation" (282), for both lines
         ValidateFileHasExpectedReverseChargeFlag(FileName, CustomerNo, ' ');
@@ -475,7 +475,7 @@ codeunit 147316 "Test 347 Declaration"
         CreateAndPostSalesInvoiceWithVATCashRegime(CustomerNo, true, true);
 
         // [WHEN] The user runs "Make 347 Declaration report"
-        FileName := RunMake347DeclarationReport;
+        FileName := RunMake347DeclarationReport();
 
         // [THEN] In the generated file, the record regarding "Seller Company" field "Reverse Charge Operation" (282) is ' '
         ValidateFileHasExpectedReverseChargeFlag(FileName, CustomerNo, ' ');
@@ -500,7 +500,7 @@ codeunit 147316 "Test 347 Declaration"
         SalesInvoiceHeader.FindFirst();
 
         // [WHEN] The user runs "Make 347 Declaration report"
-        FileName := RunMake347DeclarationReport;
+        FileName := RunMake347DeclarationReport();
 
         // [THEN] Quarter Amount is filled with zero
         ValidateFileQuarterAmount(FileName, CustomerNo, SalesInvoiceHeader."Posting Date", 0);
@@ -525,7 +525,7 @@ codeunit 147316 "Test 347 Declaration"
         PurchInvHeader.FindFirst();
 
         // [WHEN] The user runs "Make 347 Declaration report"
-        FileName := RunMake347DeclarationReport;
+        FileName := RunMake347DeclarationReport();
 
         // [THEN] Quarter Amount is filled with zero
         ValidateFileQuarterAmount(FileName, VendorNo, PurchInvHeader."Posting Date", 0);
@@ -561,7 +561,7 @@ codeunit 147316 "Test 347 Declaration"
           -LibraryRandom.RandDec(100, 2), GetSalesInvoiceNo(Customer."No."));
 
         // [WHEN] The user runs "Make 347 Declaration report"
-        FileName := RunMake347DeclarationReport;
+        FileName := RunMake347DeclarationReport();
 
         // [THEN] In the generated file, the sales amount = "X" in positions 83-98
         // [THEN] In the generated file, the annual amount = "Y" in positions 284-299
@@ -599,7 +599,7 @@ codeunit 147316 "Test 347 Declaration"
           -LibraryRandom.RandDec(100, 2), GetSalesInvoiceNo(Customer."No."));
 
         // [WHEN] The user runs "Make 347 Declaration report"
-        FileName := RunMake347DeclarationReport;
+        FileName := RunMake347DeclarationReport();
 
         // [THEN] In the generated file, the sales amount = "X" in positions 83-98
         // [THEN] In the generated file, the annual amount = "Y" in positions 284-299
@@ -636,7 +636,7 @@ codeunit 147316 "Test 347 Declaration"
           LibraryRandom.RandDec(100, 2), GetPurchInvoiceNo(VendorNo));
 
         // [WHEN] The user runs "Make 347 Declaration report"
-        FileName := RunMake347DeclarationReport;
+        FileName := RunMake347DeclarationReport();
 
         // [THEN] In the generated file, the purchase amount = "X" in positions 83-98
         // [THEN] In the generated file, the annual amount = "Y" in positions 284-299
@@ -673,7 +673,7 @@ codeunit 147316 "Test 347 Declaration"
           LibraryRandom.RandDec(100, 2), GetPurchInvoiceNo(VendorNo));
 
         // [WHEN] The user runs "Make 347 Declaration report"
-        FileName := RunMake347DeclarationReport;
+        FileName := RunMake347DeclarationReport();
 
         // [THEN] In the generated file, the purchase amount = "X" in positions 83-98
         // [THEN] In the generated file, the annual amount = "Y" in positions 284-299
@@ -711,7 +711,7 @@ codeunit 147316 "Test 347 Declaration"
         NormalAmount := CreateAndPostPurchaseInvoiceSameVendor(Vendor, WorkDate(), false, false);
 
         // [WHEN] The user runs "Make 347 Declaration report"
-        FileName := RunMake347DeclarationReport;
+        FileName := RunMake347DeclarationReport();
 
         // [THEN] In 1st line, the purchase amount = "N" + "C" in positions 83-98
         // [THEN] In 1st line, the annual amount = "C" in positions 284-299
@@ -763,7 +763,7 @@ codeunit 147316 "Test 347 Declaration"
           GenJournalLine."Account Type"::Vendor, VendorNo, WorkDate(), PaidAmount, GetPurchInvoiceNo(VendorNo));
 
         // [WHEN] Run report "Make 347 Declaration report"
-        FileName := RunMake347DeclarationReport;
+        FileName := RunMake347DeclarationReport();
 
         // [THEN] In the generated file "X" amount is in positions 83-98, "Y" is in positions 284-299
         ValidateFileHasExpectedVATCashRegimeAmount(FileName, VendorNo, PaidAmount, InvoiceAmount);
@@ -805,7 +805,7 @@ codeunit 147316 "Test 347 Declaration"
           GenJournalLine."Account Type"::Customer, Customer."No.", WorkDate(), -PaidAmount, GetSalesInvoiceNo(Customer."No."));
 
         // [WHEN] Run report "Make 347 Declaration report"
-        FileName := RunMake347DeclarationReport;
+        FileName := RunMake347DeclarationReport();
 
         // [THEN] In the generated file "X" amount is in positions 83-98, "Y" is in positions 284-299
         ValidateFileHasExpectedVATCashRegimeAmount(FileName, Customer."No.", PaidAmount, InvoiceAmount);
@@ -959,7 +959,7 @@ codeunit 147316 "Test 347 Declaration"
         Library347Declaration.Init347DeclarationParameters(Test347DeclarationParameter);
         if IsInitialized then
             exit;
-        Library347Declaration.CreateAndPostSalesInvoiceToEnsureAReportGetsGenerated;
+        Library347Declaration.CreateAndPostSalesInvoiceToEnsureAReportGetsGenerated();
         LibrarySetupStorage.SaveCompanyInformation();
         IsInitialized := true;
         Commit();
@@ -1231,7 +1231,7 @@ codeunit 147316 "Test 347 Declaration"
         Make347Declaration.TelephoneNumber.SetValue(TelephoneNumber);
         Make347Declaration.DeclarationNumber.SetValue(DeclarationNumber);
         Make347Declaration.DeclarationMediaType.SetValue(DeclarationMediaType::Telematic);
-        Make347Declaration.OK.Invoke;
+        Make347Declaration.OK().Invoke();
     end;
 }
 

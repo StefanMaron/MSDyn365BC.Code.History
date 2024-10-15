@@ -708,27 +708,25 @@ page 152 "Vendor Statistics"
         DocumentSituationFilter[2] := DocumentSituationFilter::"BG/PO";
         DocumentSituationFilter[3] := DocumentSituationFilter::"Posted BG/PO";
 
-        with VendLedgEntry do begin
-            SetCurrentKey("Vendor No.", "Document Type", "Document Situation", "Document Status");
-            SetRange("Vendor No.", Rec."No.");
-            for j := 1 to 3 do begin
-                SetRange("Document Situation", DocumentSituationFilter[j]);
-                SetRange("Document Status", "Document Status"::Open);
-                CalcSums("Amount (LCY) stats.", "Remaining Amount (LCY) stats.");
-                OpenAmtLCY[j] := "Amount (LCY) stats.";
-                OpenRemainingAmtLCY[j] := "Remaining Amount (LCY) stats.";
-                NoOpen[j] := Count;
-                SetRange("Document Status");
+        VendLedgEntry.SetCurrentKey("Vendor No.", "Document Type", "Document Situation", "Document Status");
+        VendLedgEntry.SetRange("Vendor No.", Rec."No.");
+        for j := 1 to 3 do begin
+            VendLedgEntry.SetRange("Document Situation", DocumentSituationFilter[j]);
+            VendLedgEntry.SetRange("Document Status", VendLedgEntry."Document Status"::Open);
+            VendLedgEntry.CalcSums("Amount (LCY) stats.", "Remaining Amount (LCY) stats.");
+            OpenAmtLCY[j] := VendLedgEntry."Amount (LCY) stats.";
+            OpenRemainingAmtLCY[j] := VendLedgEntry."Remaining Amount (LCY) stats.";
+            NoOpen[j] := VendLedgEntry.Count;
+            VendLedgEntry.SetRange("Document Status");
 
-                SetRange("Document Status", "Document Status"::Honored);
-                CalcSums("Amount (LCY) stats.", "Remaining Amount (LCY) stats.");
-                HonoredAmtLCY[j] := "Amount (LCY) stats.";
-                HonoredRemainingAmtLCY[j] := "Remaining Amount (LCY) stats.";
-                NoHonored[j] := Count;
-                SetRange("Document Status");
+            VendLedgEntry.SetRange("Document Status", VendLedgEntry."Document Status"::Honored);
+            VendLedgEntry.CalcSums("Amount (LCY) stats.", "Remaining Amount (LCY) stats.");
+            HonoredAmtLCY[j] := VendLedgEntry."Amount (LCY) stats.";
+            HonoredRemainingAmtLCY[j] := VendLedgEntry."Remaining Amount (LCY) stats.";
+            NoHonored[j] := VendLedgEntry.Count;
+            VendLedgEntry.SetRange("Document Status");
 
-                SetRange("Document Situation");
-            end;
+            VendLedgEntry.SetRange("Document Situation");
         end;
     end;
 
@@ -738,24 +736,22 @@ page 152 "Vendor Statistics"
         VendLedgEntry: Record "Vendor Ledger Entry";
         VendLedgEntriesForm: Page "Vendor Ledger Entries";
     begin
-        with VendLedgEntry do begin
-            SetCurrentKey("Vendor No.", "Document Type", "Document Situation", "Document Status");
-            SetRange("Vendor No.", Rec."No.");
-            case Situation of
-                Situation::Cartera:
-                    SetRange("Document Situation", "Document Situation"::Cartera);
-                Situation::"BG/PO":
-                    SetRange("Document Situation", "Document Situation"::"BG/PO");
-                Situation::"Posted BG/PO":
-                    SetRange("Document Situation", "Document Situation"::"Posted BG/PO");
-            end;
-            SetRange("Document Status", "Document Status"::Open);
-            VendLedgEntriesForm.SetTableView(VendLedgEntry);
-            VendLedgEntriesForm.SetRecord(VendLedgEntry);
-            VendLedgEntriesForm.RunModal();
-            SetRange("Document Status");
-            SetRange("Document Situation");
+        VendLedgEntry.SetCurrentKey("Vendor No.", "Document Type", "Document Situation", "Document Status");
+        VendLedgEntry.SetRange("Vendor No.", Rec."No.");
+        case Situation of
+            Situation::Cartera:
+                VendLedgEntry.SetRange("Document Situation", VendLedgEntry."Document Situation"::Cartera);
+            Situation::"BG/PO":
+                VendLedgEntry.SetRange("Document Situation", VendLedgEntry."Document Situation"::"BG/PO");
+            Situation::"Posted BG/PO":
+                VendLedgEntry.SetRange("Document Situation", VendLedgEntry."Document Situation"::"Posted BG/PO");
         end;
+        VendLedgEntry.SetRange("Document Status", VendLedgEntry."Document Status"::Open);
+        VendLedgEntriesForm.SetTableView(VendLedgEntry);
+        VendLedgEntriesForm.SetRecord(VendLedgEntry);
+        VendLedgEntriesForm.RunModal();
+        VendLedgEntry.SetRange("Document Status");
+        VendLedgEntry.SetRange("Document Situation");
     end;
 
     [Scope('OnPrem')]
@@ -764,25 +760,23 @@ page 152 "Vendor Statistics"
         VendLedgEntry: Record "Vendor Ledger Entry";
         VendLedgEntriesForm: Page "Vendor Ledger Entries";
     begin
-        with VendLedgEntry do begin
-            SetCurrentKey("Vendor No.", "Document Type", "Document Situation", "Document Status");
-            SetRange("Vendor No.", Rec."No.");
-            case Situation of
-                Situation::Cartera:
-                    SetRange("Document Situation", "Document Situation"::Cartera);
-                Situation::"BG/PO":
-                    SetRange("Document Situation", "Document Situation"::"BG/PO");
-                Situation::"Posted BG/PO":
-                    SetRange("Document Situation", "Document Situation"::"Posted BG/PO");
-            end;
-
-            SetRange("Document Status", "Document Status"::Honored);
-            VendLedgEntriesForm.SetTableView(VendLedgEntry);
-            VendLedgEntriesForm.SetRecord(VendLedgEntry);
-            VendLedgEntriesForm.RunModal();
-            SetRange("Document Status");
-            SetRange("Document Situation");
+        VendLedgEntry.SetCurrentKey("Vendor No.", "Document Type", "Document Situation", "Document Status");
+        VendLedgEntry.SetRange("Vendor No.", Rec."No.");
+        case Situation of
+            Situation::Cartera:
+                VendLedgEntry.SetRange("Document Situation", VendLedgEntry."Document Situation"::Cartera);
+            Situation::"BG/PO":
+                VendLedgEntry.SetRange("Document Situation", VendLedgEntry."Document Situation"::"BG/PO");
+            Situation::"Posted BG/PO":
+                VendLedgEntry.SetRange("Document Situation", VendLedgEntry."Document Situation"::"Posted BG/PO");
         end;
+
+        VendLedgEntry.SetRange("Document Status", VendLedgEntry."Document Status"::Honored);
+        VendLedgEntriesForm.SetTableView(VendLedgEntry);
+        VendLedgEntriesForm.SetRecord(VendLedgEntry);
+        VendLedgEntriesForm.RunModal();
+        VendLedgEntry.SetRange("Document Status");
+        VendLedgEntry.SetRange("Document Situation");
     end;
 
     [IntegrationEvent(false, false)]

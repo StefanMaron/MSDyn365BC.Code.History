@@ -78,7 +78,7 @@ codeunit 147310 "ERM Apply Unapply"
         // [GIVEN] Bill Applied to Payment
         ApplySalesDocuments(
           CustLedgEntry."Document Type"::Payment, DocumentNo, CustLedgEntry."Document Type"::Bill, -Amount);
-        TransactionNo := FindLastTransactionNo;
+        TransactionNo := FindLastTransactionNo();
 
         // [GIVEN] Unapply Payment from the Bill
         UnapplySalesDocument(CustomerNo, DocumentNo);
@@ -117,7 +117,7 @@ codeunit 147310 "ERM Apply Unapply"
 
         // [GIVEN] Unapply Payment from the Bill
         UnapplySalesDocument(CustomerNo, DocumentNo);
-        TransactionNo := FindLastTransactionNo;
+        TransactionNo := FindLastTransactionNo();
 
         // [WHEN] Reapply Payment to the Bill
         ApplySalesDocuments(
@@ -160,7 +160,7 @@ codeunit 147310 "ERM Apply Unapply"
 
         // [GIVEN] // [GIVEN] Unapply Payment from the Invoice
         UnapplySalesDocument(CustomerNo, DocumentNo);
-        TransactionNo := FindLastTransactionNo;
+        TransactionNo := FindLastTransactionNo();
 
         // [WHEN] Reapply Payment to the Bill
         ApplySalesDocuments(
@@ -203,7 +203,7 @@ codeunit 147310 "ERM Apply Unapply"
 
         // [GIVEN] Create and post Credit Memo with the same amount = "X"
         CreditMemoNo := CreateAndPostSalesDocument(SalesHeader, SalesHeader."Document Type"::"Credit Memo", CustomerNo, Amount2);
-        TransactionNo := FindLastTransactionNo;
+        TransactionNo := FindLastTransactionNo();
 
         // [WHEN] Reapply Credit Memo to the Bill
         ApplySalesDocuments(
@@ -240,7 +240,7 @@ codeunit 147310 "ERM Apply Unapply"
         // [GIVEN] Bill Applied to Payment
         ApplyPurchDocuments(
           VendLedgEntry."Document Type"::Payment, DocumentNo, VendLedgEntry."Document Type"::Bill, Amount);
-        TransactionNo := FindLastTransactionNo;
+        TransactionNo := FindLastTransactionNo();
 
         // [GIVEN] Unapply Payment from the Bill
         UnapplyPurchDocument(VendorNo, DocumentNo);
@@ -277,7 +277,7 @@ codeunit 147310 "ERM Apply Unapply"
 
         DocumentNo :=
           CreatePostApplyGenJnlLine(GenJournalLine, InvoiceNo, '', GenJournalLine."Account Type"::Vendor, VendorNo, -Amount);
-        TransactionNo := FindLastTransactionNo;
+        TransactionNo := FindLastTransactionNo();
 
         // [GIVEN] Unapply Payment from the Bill
         UnapplyPurchDocument(VendorNo, DocumentNo);
@@ -323,7 +323,7 @@ codeunit 147310 "ERM Apply Unapply"
 
         ApplyPurchDocuments(
           VendLedgEntry."Document Type"::Payment, DocumentNo, VendLedgEntry."Document Type"::Bill, Amount);
-        TransactionNo := FindLastTransactionNo;
+        TransactionNo := FindLastTransactionNo();
 
         // [GIVEN] Unapply Payment from the Bill
         UnapplyPurchDocument(VendorNo, DocumentNo);
@@ -368,7 +368,7 @@ codeunit 147310 "ERM Apply Unapply"
 
         // [GIVEN] Create and post Credit Memo with the same amount = "X"
         CreditMemoNo := CreateAndPostPurchaseDocument(PurchaseHeader, PurchaseHeader."Document Type"::"Credit Memo", VendorNo, Amount2);
-        TransactionNo := FindLastTransactionNo;
+        TransactionNo := FindLastTransactionNo();
 
         // [WHEN] Reapply Credit Memo to the Bill
         ApplyPurchDocuments(
@@ -405,7 +405,7 @@ codeunit 147310 "ERM Apply Unapply"
         // [WHEN] Post and Apply Credit Memo to the Bill
         CreditMemoNo := CreatePostApplyPurchaseDocument(
             PurchaseHeader, PurchaseHeader."Document Type"::"Credit Memo", VendorNo, AmountCrMemo, ApplnTypeRef::Bill, BillNo);
-        TransactionNo := FindLastTransactionNo;
+        TransactionNo := FindLastTransactionNo();
 
         // [THEN] Entry for remaining amount is created for "Vendor Posting Group"."Payables Account" with Amount = "Y" - "X"
         // [THEN] Entry of application is created for "Vendor Posting Group"."Bills Account" with Amount = "X"
@@ -439,7 +439,7 @@ codeunit 147310 "ERM Apply Unapply"
         // [WHEN] Apply Credit Memo to the Bill
         ApplyPurchDocuments(
           VendLedgEntry."Document Type"::"Credit Memo", CreditMemoNo, VendLedgEntry."Document Type"::Bill, AmountBill);
-        TransactionNo := FindLastTransactionNo;
+        TransactionNo := FindLastTransactionNo();
 
         // [THEN] Entry of application for "Vendor Posting Group"."Payables Account" is created with Amount = "X"
         // [THEN] Entry of application is created for "Vendor Posting Group"."Bills Account" with Amount = -"X"
@@ -472,7 +472,7 @@ codeunit 147310 "ERM Apply Unapply"
 
         // [WHEN] Post and Apply Payment to the Bill
         PaymentNo := CreatePostApplyGenJnlLine(GenJournalLine, BillNo, '', GenJournalLine."Account Type"::Vendor, VendorNo, -AmountPmt);
-        TransactionNo := FindLastTransactionNo;
+        TransactionNo := FindLastTransactionNo();
 
         // [THEN] Entry for remaining amount is created for "Vendor Posting Group"."Payables Account" with Amount = "Y" - "X"
         // [THEN] Entry of application is created for "Vendor Posting Group"."Bills Account" with Amount = "X"
@@ -504,7 +504,7 @@ codeunit 147310 "ERM Apply Unapply"
         // [WHEN] Post and Apply Credit Memo to the Bill
         CreditMemoNo := CreatePostApplySalesDocument(
             SalesHeader, SalesHeader."Document Type"::"Credit Memo", CustomerNo, AmountCrMemo, ApplnTypeRef::Bill, BillNo);
-        TransactionNo := FindLastTransactionNo;
+        TransactionNo := FindLastTransactionNo();
 
         // [THEN] Entry for remaining amount is created for "Customer Posting Group"."Receivables Account" with Amount = -"Y" + "X"
         // [THEN] Entry of application is created for "Customer Posting Group"."Bills Account" with Amount = -"X"
@@ -538,7 +538,7 @@ codeunit 147310 "ERM Apply Unapply"
         // [WHEN] Apply Credit Memo to the Bill
         ApplySalesDocuments(
           CustLedgerEntry."Document Type"::"Credit Memo", CreditMemoNo, CustLedgerEntry."Document Type"::Bill, -AmountBill);
-        TransactionNo := FindLastTransactionNo;
+        TransactionNo := FindLastTransactionNo();
 
         // [THEN] Entry of application for "Customer Posting Group"."Receivables Account" is created with Amount = -"X"
         // [THEN] Entry of application is created for "Customer Posting Group"."Bills Account" with Amount = "X"
@@ -571,7 +571,7 @@ codeunit 147310 "ERM Apply Unapply"
 
         // [WHEN] Post and Apply Payment to the Bill
         PaymentNo := CreatePostApplyGenJnlLine(GenJournalLine, BillNo, '', GenJournalLine."Account Type"::Customer, CustomerNo, AmountPmt);
-        TransactionNo := FindLastTransactionNo;
+        TransactionNo := FindLastTransactionNo();
 
         // [THEN] Entry for remaining amount is created for "Customer Posting Group"."Receivables Account" with Amount = -"Y" + "X"
         // [THEN] Entry of application is created for "Customer Posting Group"."Bills Account" with Amount = -"X"
@@ -680,7 +680,7 @@ codeunit 147310 "ERM Apply Unapply"
             GenJournalLine."Account Type"::Customer, CustomerNo, Amount);
 
         // [WHEN] Reapply Payment to the Bill
-        TransactionNo := FindLastTransactionNo;
+        TransactionNo := FindLastTransactionNo();
         ApplySalesDocuments(
           CustLedgerEntry."Document Type"::Payment, EqualPmtNo, CustLedgerEntry."Document Type"::Bill, -Amount);
 
@@ -724,9 +724,9 @@ codeunit 147310 "ERM Apply Unapply"
           CustLedgEntry."Document Type"::Payment, DocumentNo, CustLedgEntry."Document Type"::Invoice, -AmountY);
 
         // [WHEN] Payment unapplied from Bill, then from Invoice
-        TransactionNoX := FindLastTransactionNo;
+        TransactionNoX := FindLastTransactionNo();
         UnapplySalesDocument(CustomerNo, DocumentNo);
-        TransactionNoY := FindLastTransactionNo;
+        TransactionNoY := FindLastTransactionNo();
         UnapplySalesDocument(CustomerNo, DocumentNo);
 
         // [THEN] G/L Entries are posted to CustomerPostingGroup."Receivables Account", CustomerPostingGroup."Bills Account" with Amount = "X"
@@ -836,7 +836,7 @@ codeunit 147310 "ERM Apply Unapply"
             GenJournalLine."Account Type"::Vendor, VendorNo, -Amount);
 
         // [WHEN] Reapply Payment to the Bill
-        TransactionNo := FindLastTransactionNo;
+        TransactionNo := FindLastTransactionNo();
         ApplyPurchDocuments(
           VendorLedgerEntry."Document Type"::Payment, EqualPmtNo, VendorLedgerEntry."Document Type"::Bill, Amount);
 
@@ -880,9 +880,9 @@ codeunit 147310 "ERM Apply Unapply"
           VendorLedgerEntry."Document Type"::Payment, DocumentNo, VendorLedgerEntry."Document Type"::Invoice, AmountY);
 
         // [WHEN] Payment unapplied from Bill, then from Invoice
-        TransactionNoX := FindLastTransactionNo;
+        TransactionNoX := FindLastTransactionNo();
         UnapplyPurchDocument(VendorNo, DocumentNo);
-        TransactionNoY := FindLastTransactionNo;
+        TransactionNoY := FindLastTransactionNo();
         UnapplyPurchDocument(VendorNo, DocumentNo);
 
         // [THEN] G/L Entries are posted to VendorPostingGroup."Payables Account", VendorPostingGroup."Bills Account" with Amount = "X"
@@ -976,7 +976,7 @@ codeunit 147310 "ERM Apply Unapply"
         // [SCENARIO 377495] Reverse unapplied customer payment with Cartera and the same "Document No." as previously applied Invoice
 
         // [GIVEN] Posted Invoice "X". Payment Terms "Invoices to Cartera" is on.
-        CustomerNo := CreateCustWithPmtMethod(CreatePaymentMethodWithInvoicesToCartera);
+        CustomerNo := CreateCustWithPmtMethod(CreatePaymentMethodWithInvoicesToCartera());
         InvNo := CreateAndPostSalesDocument(SalesHeader, SalesHeader."Document Type"::Invoice, CustomerNo, Amount);
 
         // [GIVEN] Posted Payment with "Document No." = "X"
@@ -1014,7 +1014,7 @@ codeunit 147310 "ERM Apply Unapply"
         // [SCENARIO 377495] Reverse unapplied vendor payment with Cartera and the same "Document No." as previously applied Invoice
 
         // [GIVEN] Posted Invoice "X" Payment Terms "Invoices to Cartera" is on.
-        VendorNo := CreateVendWithPmtMethod(CreatePaymentMethodWithInvoicesToCartera);
+        VendorNo := CreateVendWithPmtMethod(CreatePaymentMethodWithInvoicesToCartera());
         InvNo := CreateAndPostPurchaseDocument(PurchHeader, PurchHeader."Document Type"::Invoice, VendorNo, Amount);
 
         // [GIVEN] Posted Payment with "Document No." = "X"
@@ -1270,7 +1270,7 @@ codeunit 147310 "ERM Apply Unapply"
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, CustomerNo);
         SalesHeader.Validate("Currency Code", CurrencyCode);
         SalesHeader.Modify();
-        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo, 1);
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo(), 1);
         SalesLine.Validate("Unit Price", Amount);
         ExpectedAmountACY := SalesLine."Amount Including VAT";
         SalesLine.Modify();
@@ -1278,10 +1278,10 @@ codeunit 147310 "ERM Apply Unapply"
 
         // [GIVEN] Create and post credit memo with currency "CURR" and amount 1000
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::"Credit Memo", CustomerNo);
-        SalesHeader.Validate("Posting Date", WorkDate + 2);
+        SalesHeader.Validate("Posting Date", WorkDate() + 2);
         SalesHeader.Validate("Currency Code", CurrencyCode);
         SalesHeader.Modify();
-        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo, 1);
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo(), 1);
         SalesLine.Validate("Unit Price", Amount);
         SalesLine.Modify();
         CrMemoNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
@@ -1626,7 +1626,7 @@ codeunit 147310 "ERM Apply Unapply"
                 CalcFields("Remaining Amount");
                 Validate("Amount to Apply", -AmountToApply);
                 Modify(true);
-            until Next = 0;
+            until Next() = 0;
         end;
 
         LibraryERM.SetAppliestoIdCustomer(CustLedgerEntry2);
@@ -1649,7 +1649,7 @@ codeunit 147310 "ERM Apply Unapply"
                 CalcFields("Remaining Amount");
                 Validate("Amount to Apply", -AmountToApply);
                 Modify(true);
-            until Next = 0;
+            until Next() = 0;
         end;
 
         LibraryERM.SetAppliestoIdVendor(VendLedgerEntry2);
@@ -1666,7 +1666,7 @@ codeunit 147310 "ERM Apply Unapply"
                 repeat
                     Validate("Applying Entry", false);
                     Modify(true);
-                until Next = 0;
+                until Next() = 0;
 
             Reset();
             SetFilter("Applies-to ID", '<>%1', '');
@@ -1674,7 +1674,7 @@ codeunit 147310 "ERM Apply Unapply"
                 repeat
                     Validate("Applies-to ID", '');
                     Modify(true);
-                until Next = 0;
+                until Next() = 0;
         end;
     end;
 
@@ -1688,7 +1688,7 @@ codeunit 147310 "ERM Apply Unapply"
                 repeat
                     Validate("Applying Entry", false);
                     Modify(true);
-                until Next = 0;
+                until Next() = 0;
 
             Reset();
             SetFilter("Applies-to ID", '<>%1', '');
@@ -1696,7 +1696,7 @@ codeunit 147310 "ERM Apply Unapply"
                 repeat
                     Validate("Applies-to ID", '');
                     Modify(true);
-                until Next = 0;
+                until Next() = 0;
         end;
     end;
 
@@ -1843,7 +1843,7 @@ codeunit 147310 "ERM Apply Unapply"
         LibrarySales.CreateSalesHeader(SalesHeader, DocType, CustomerNo);
         SalesHeader.Validate("Payment Method Code", CreatePaymentMethodCode(false));
         SalesHeader.Modify(true);
-        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, CreateItem, 1);
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, CreateItem(), 1);
         SalesLine.Validate("Unit Price", Amount);
         SalesLine.Modify(true);
         exit(LibrarySales.PostSalesDocument(SalesHeader, true, true));
@@ -1867,7 +1867,7 @@ codeunit 147310 "ERM Apply Unapply"
         RefCustLedgerEntry: Record "Cust. Ledger Entry";
     begin
         PaymentNo := CreatePaymentGenJnlLine(GenJournalLine, GenJournalLine."Account Type"::Customer, CustomerNo, PaymentAmount);
-        ClearCustApplyingEntries;
+        ClearCustApplyingEntries();
         ApplyCustEntryToGenJnlLine(InvNo, RefCustLedgerEntry."Document Type"::Invoice);
         ApplyCustEntryToGenJnlLine(BillNo, RefCustLedgerEntry."Document Type"::Bill);
 
@@ -1882,7 +1882,7 @@ codeunit 147310 "ERM Apply Unapply"
         SalesLine: Record "Sales Line";
     begin
         LibrarySales.CreateSalesHeader(SalesHeader, DocType, CustomerNo);
-        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, CreateItem, 1);
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, CreateItem(), 1);
         if Amount <> 0 then begin
             SalesLine.Validate("Unit Price", Amount);
             SalesLine.Modify(true);
@@ -1906,7 +1906,7 @@ codeunit 147310 "ERM Apply Unapply"
         PurchaseHeader.Validate("Payment Method Code", CreatePaymentMethodCode(false));
         PurchaseHeader.Modify(true);
         LibraryPurchase.CreatePurchaseLine(
-          PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, CreateItem, 1);
+          PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, CreateItem(), 1);
         PurchaseLine.Validate("Direct Unit Cost", Amount);
         PurchaseLine.Modify(true);
         exit(LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true));
@@ -1930,7 +1930,7 @@ codeunit 147310 "ERM Apply Unapply"
         RefVendorLedgerEntry: Record "Vendor Ledger Entry";
     begin
         PaymentNo := CreatePaymentGenJnlLine(GenJournalLine, GenJournalLine."Account Type"::Vendor, VendorNo, PaymentAmount);
-        ClearVendApplyingEntries;
+        ClearVendApplyingEntries();
         ApplyVendEntryToGenJnlLine(InvNo, RefVendorLedgerEntry."Document Type"::Invoice);
         ApplyVendEntryToGenJnlLine(BillNo, RefVendorLedgerEntry."Document Type"::Bill);
 
@@ -1946,7 +1946,7 @@ codeunit 147310 "ERM Apply Unapply"
     begin
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, DocType, VendorNo);
         LibraryPurchase.CreatePurchaseLine(
-          PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, CreateItem, 1);
+          PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, CreateItem(), 1);
         if Amount <> 0 then begin
             PurchaseLine.Validate("Direct Unit Cost", Amount);
             PurchaseLine.Modify(true);
@@ -1955,7 +1955,7 @@ codeunit 147310 "ERM Apply Unapply"
         Amount := PurchaseHeader."Amount Including VAT";
     end;
 
-    local procedure GetFirstBillNo(DocumentNo: Code[20]; CarteraDocType: Option): Code[20]
+    local procedure GetFirstBillNo(DocumentNo: Code[20]; CarteraDocType: Enum "Cartera Document Type"): Code[20]
     var
         CarteraDoc: Record "Cartera Doc.";
     begin
@@ -2299,7 +2299,7 @@ codeunit 147310 "ERM Apply Unapply"
 
         GLEntry.SetRange("Document No.", DocumentNo);
         GLEntry.SetRange("Transaction No.", DetailedVendorLedgEntry."Transaction No.");
-        GLEntry.SetRange("G/L Account No.", VendorPostingGroup.GetBillsAccount);
+        GLEntry.SetRange("G/L Account No.", VendorPostingGroup.GetBillsAccount());
         Assert.RecordCount(GLEntry, 1);
         GLEntry.FindFirst();
         GLEntry.TestField(Amount, -BillAmount);

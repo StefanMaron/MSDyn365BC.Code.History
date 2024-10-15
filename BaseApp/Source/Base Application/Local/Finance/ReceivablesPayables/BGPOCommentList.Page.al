@@ -7,7 +7,7 @@ namespace Microsoft.Finance.ReceivablesPayables;
 page 7000024 "BG/PO Comment List"
 {
     Caption = 'BG/PO Comment List';
-    DataCaptionExpression = Caption();
+    DataCaptionExpression = Rec.Caption();
     Editable = false;
     PageType = List;
     SourceTable = "BG/PO Comment Line";

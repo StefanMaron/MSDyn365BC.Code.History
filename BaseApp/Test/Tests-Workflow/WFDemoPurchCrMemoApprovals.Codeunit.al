@@ -46,14 +46,14 @@ codeunit 134181 "WF Demo Purch CrMemo Approvals"
         // Setup
         Initialize();
 
-        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.PurchaseCreditMemoApprovalWorkflowCode);
+        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.PurchaseCreditMemoApprovalWorkflowCode());
 
         CreatePurchaseCreditMemo(PurchaseHeader);
 
         // Exercise
-        PurchaseCreditMemos.OpenView;
+        PurchaseCreditMemos.OpenView();
         PurchaseCreditMemos.GotoRecord(PurchaseHeader);
-        asserterror PurchaseCreditMemos.Post.Invoke;
+        asserterror PurchaseCreditMemos.Post.Invoke();
 
         // Verify
         Assert.ExpectedError(StrSubstNo(DocCannotBePostedErr, PurchaseHeader."Document Type", PurchaseHeader."No."));
@@ -77,14 +77,14 @@ codeunit 134181 "WF Demo Purch CrMemo Approvals"
         // Setup
         Initialize();
 
-        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.PurchaseCreditMemoApprovalWorkflowCode);
+        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.PurchaseCreditMemoApprovalWorkflowCode());
 
         CreatePurchaseCreditMemo(PurchaseHeader);
 
         // Exercise
-        PurchaseCreditMemos.OpenView;
+        PurchaseCreditMemos.OpenView();
         PurchaseCreditMemos.GotoRecord(PurchaseHeader);
-        asserterror PurchaseCreditMemos.Release.Invoke;
+        asserterror PurchaseCreditMemos.Release.Invoke();
 
         // Verify
         Assert.ExpectedError(DocCannotBeReleasedErr);
@@ -109,7 +109,7 @@ codeunit 134181 "WF Demo Purch CrMemo Approvals"
 
         // Setup
         Initialize();
-        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.PurchaseCreditMemoApprovalWorkflowCode);
+        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.PurchaseCreditMemoApprovalWorkflowCode());
 
         // Setup - Create 3 approval usersetups
         LibraryDocumentApprovals.SetupUsersForApprovals(IntermediateApproverUserSetup);
@@ -128,9 +128,9 @@ codeunit 134181 "WF Demo Purch CrMemo Approvals"
 
         // Exercise
         Commit();
-        PurchaseCreditMemo.OpenView;
+        PurchaseCreditMemo.OpenView();
         PurchaseCreditMemo.GotoRecord(PurchaseHeader);
-        asserterror PurchaseCreditMemo.Release.Invoke;
+        asserterror PurchaseCreditMemo.Release.Invoke();
 
         // Verify
         Assert.ExpectedError(StrSubstNo(RecordIsRestrictedErr, Format(PurchaseHeader.RecordId, 0, 1)));
@@ -155,7 +155,7 @@ codeunit 134181 "WF Demo Purch CrMemo Approvals"
 
         // Setup
         Initialize();
-        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.PurchaseCreditMemoApprovalWorkflowCode);
+        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.PurchaseCreditMemoApprovalWorkflowCode());
 
         // Setup - Create 3 approval usersetups
         LibraryDocumentApprovals.SetupUsersForApprovals(IntermediateApproverUserSetup);
@@ -173,9 +173,9 @@ codeunit 134181 "WF Demo Purch CrMemo Approvals"
         VerifyPurchaseCrMemoIsPendingApproval(PurchaseHeader);
 
         // Exercise
-        PurchaseCreditMemo.OpenView;
+        PurchaseCreditMemo.OpenView();
         PurchaseCreditMemo.GotoRecord(PurchaseHeader);
-        asserterror PurchaseCreditMemo.Reopen.Invoke;
+        asserterror PurchaseCreditMemo.Reopen.Invoke();
 
         // Verify
         Assert.ExpectedError(ApprovalShouldBeHandledErr);
@@ -201,7 +201,7 @@ codeunit 134181 "WF Demo Purch CrMemo Approvals"
 
         Initialize();
 
-        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.PurchaseCreditMemoApprovalWorkflowCode);
+        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.PurchaseCreditMemoApprovalWorkflowCode());
 
         // Setup - Create 3 usersetups
         LibraryDocumentApprovals.SetupUsersForApprovals(IntermediateApproverUserSetup);
@@ -259,7 +259,7 @@ codeunit 134181 "WF Demo Purch CrMemo Approvals"
 
         Initialize();
 
-        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.PurchaseCreditMemoApprovalWorkflowCode);
+        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.PurchaseCreditMemoApprovalWorkflowCode());
 
         // Setup - Create 3 usersetups
         LibraryDocumentApprovals.SetupUsersForApprovals(IntermediateApproverUserSetup);
@@ -321,7 +321,7 @@ codeunit 134181 "WF Demo Purch CrMemo Approvals"
 
         Initialize();
 
-        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.PurchaseCreditMemoApprovalWorkflowCode);
+        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.PurchaseCreditMemoApprovalWorkflowCode());
 
         // Setup - Create 3 usersetups
         LibraryDocumentApprovals.CreateOrFindUserSetup(CurrentUserSetup, UserId);
@@ -399,7 +399,7 @@ codeunit 134181 "WF Demo Purch CrMemo Approvals"
 
         Initialize();
 
-        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.PurchaseCreditMemoApprovalWorkflowCode);
+        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.PurchaseCreditMemoApprovalWorkflowCode());
 
         // Setup - Create 3 usersetups
         LibraryDocumentApprovals.SetupUsersForApprovals(IntermediateApproverUserSetup);
@@ -452,15 +452,15 @@ codeunit 134181 "WF Demo Purch CrMemo Approvals"
         // [WHEN] Purchase Header card is opened.
         CreatePurchaseCreditMemo(PurchHeader);
         Commit();
-        PurchaseCreditMemo.OpenEdit;
+        PurchaseCreditMemo.OpenEdit();
         PurchaseCreditMemo.GotoRecord(PurchHeader);
 
         // [THEN] Only Send is enabled.
-        Assert.IsTrue(PurchaseCreditMemo.SendApprovalRequest.Enabled, 'SendApprovalRequest should be enabled');
-        Assert.IsFalse(PurchaseCreditMemo.CancelApprovalRequest.Enabled, 'CancelApprovalRequest should NOT be enabled');
+        Assert.IsTrue(PurchaseCreditMemo.SendApprovalRequest.Enabled(), 'SendApprovalRequest should be enabled');
+        Assert.IsFalse(PurchaseCreditMemo.CancelApprovalRequest.Enabled(), 'CancelApprovalRequest should NOT be enabled');
 
         // [WHEN] Send Approval Request is pushed.
-        asserterror PurchaseCreditMemo.SendApprovalRequest.Invoke;
+        asserterror PurchaseCreditMemo.SendApprovalRequest.Invoke();
 
         // [THEN] Error is displayed.
         Assert.ExpectedError(NoWorkflowEnabledErr);
@@ -469,33 +469,33 @@ codeunit 134181 "WF Demo Purch CrMemo Approvals"
         PurchaseCreditMemo.Close();
 
         // [GIVEN] PurchHeader approval enabled.
-        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.PurchaseCreditMemoApprovalWorkflowCode);
+        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.PurchaseCreditMemoApprovalWorkflowCode());
 
         // [WHEN] PurchHeader card is opened.
-        PurchaseCreditMemo.OpenEdit;
+        PurchaseCreditMemo.OpenEdit();
         PurchaseCreditMemo.GotoRecord(PurchHeader);
 
         // [THEN] Only Send is enabled.
-        Assert.IsTrue(PurchaseCreditMemo.SendApprovalRequest.Enabled, 'SendApprovalRequest should be enabled');
-        Assert.IsFalse(PurchaseCreditMemo.CancelApprovalRequest.Enabled, 'CancelApprovalRequest should be disabled');
-        Assert.IsFalse(PurchaseCreditMemo.Approve.Visible, 'Approve should NOT be visible');
-        Assert.IsFalse(PurchaseCreditMemo.Reject.Visible, 'Reject should NOT be visible');
-        Assert.IsFalse(PurchaseCreditMemo.Delegate.Visible, 'Delegate should NOT be visible');
+        Assert.IsTrue(PurchaseCreditMemo.SendApprovalRequest.Enabled(), 'SendApprovalRequest should be enabled');
+        Assert.IsFalse(PurchaseCreditMemo.CancelApprovalRequest.Enabled(), 'CancelApprovalRequest should be disabled');
+        Assert.IsFalse(PurchaseCreditMemo.Approve.Visible(), 'Approve should NOT be visible');
+        Assert.IsFalse(PurchaseCreditMemo.Reject.Visible(), 'Reject should NOT be visible');
+        Assert.IsFalse(PurchaseCreditMemo.Delegate.Visible(), 'Delegate should NOT be visible');
         PurchaseCreditMemo.Close();
 
         // [GIVEN] Approval exist on PurchHeader.
         LibraryDocumentApprovals.SetupUsersForApprovals(ApproverUserSetup);
         SetPurchDocPurchaserCode(PurchHeader, ApproverUserSetup."Salespers./Purch. Code");
-        PurchaseCreditMemo.OpenEdit;
+        PurchaseCreditMemo.OpenEdit();
         PurchaseCreditMemo.GotoRecord(PurchHeader);
 
         // [WHEN] PurchHeader send for approval.
         LibraryVariableStorage.Enqueue(ApprovalRequestSendMsg);
-        PurchaseCreditMemo.SendApprovalRequest.Invoke;
+        PurchaseCreditMemo.SendApprovalRequest.Invoke();
 
         // [THEN] Only Send is enabled.
-        Assert.IsFalse(PurchaseCreditMemo.SendApprovalRequest.Enabled, 'SendApprovalRequest should be disabled');
-        Assert.IsTrue(PurchaseCreditMemo.CancelApprovalRequest.Enabled, 'CancelApprovalRequest should be enabled');
+        Assert.IsFalse(PurchaseCreditMemo.SendApprovalRequest.Enabled(), 'SendApprovalRequest should be disabled');
+        Assert.IsTrue(PurchaseCreditMemo.CancelApprovalRequest.Enabled(), 'CancelApprovalRequest should be enabled');
 
         // Clenup
         PurchaseCreditMemo.Close();
@@ -504,13 +504,13 @@ codeunit 134181 "WF Demo Purch CrMemo Approvals"
         LibraryDocumentApprovals.UpdateApprovalEntryWithCurrUser(PurchHeader.RecordId);
 
         // [WHEN] PurchHeader card is opened.
-        PurchaseCreditMemo.OpenEdit;
+        PurchaseCreditMemo.OpenEdit();
         PurchaseCreditMemo.GotoRecord(PurchHeader);
 
         // [THEN] Approval action are shown.
-        Assert.IsTrue(PurchaseCreditMemo.Approve.Visible, 'Approve should be visible');
-        Assert.IsTrue(PurchaseCreditMemo.Reject.Visible, 'Reject should be visible');
-        Assert.IsTrue(PurchaseCreditMemo.Delegate.Visible, 'Delegate should be visible');
+        Assert.IsTrue(PurchaseCreditMemo.Approve.Visible(), 'Approve should be visible');
+        Assert.IsTrue(PurchaseCreditMemo.Reject.Visible(), 'Reject should be visible');
+        Assert.IsTrue(PurchaseCreditMemo.Delegate.Visible(), 'Delegate should be visible');
     end;
 
     [Test]
@@ -531,15 +531,15 @@ codeunit 134181 "WF Demo Purch CrMemo Approvals"
         // [WHEN] PurchHeader card is opened.
         CreatePurchaseCreditMemo(PurchHeader);
         Commit();
-        PurchaseCreditMemos.OpenEdit;
+        PurchaseCreditMemos.OpenEdit();
         PurchaseCreditMemos.GotoRecord(PurchHeader);
 
         // [THEN] Only Send is enabled.
-        Assert.IsTrue(PurchaseCreditMemos.SendApprovalRequest.Enabled, 'SendApprovalRequest should be enabled');
-        Assert.IsFalse(PurchaseCreditMemos.CancelApprovalRequest.Enabled, 'CancelApprovalRequest should be disabled');
+        Assert.IsTrue(PurchaseCreditMemos.SendApprovalRequest.Enabled(), 'SendApprovalRequest should be enabled');
+        Assert.IsFalse(PurchaseCreditMemos.CancelApprovalRequest.Enabled(), 'CancelApprovalRequest should be disabled');
 
         // [WHEN] Send Approval Request is pushed.
-        asserterror PurchaseCreditMemos.SendApprovalRequest.Invoke;
+        asserterror PurchaseCreditMemos.SendApprovalRequest.Invoke();
 
         // [THEN] Error is displayed.
         Assert.ExpectedError(NoWorkflowEnabledErr);
@@ -548,30 +548,30 @@ codeunit 134181 "WF Demo Purch CrMemo Approvals"
         PurchaseCreditMemos.Close();
 
         // [GIVEN] PurchHeader approval enabled.
-        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.PurchaseCreditMemoApprovalWorkflowCode);
+        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.PurchaseCreditMemoApprovalWorkflowCode());
 
         // [WHEN] PurchHeader card is opened.
-        PurchaseCreditMemos.OpenEdit;
+        PurchaseCreditMemos.OpenEdit();
         PurchaseCreditMemos.GotoRecord(PurchHeader);
 
         // [THEN] Only Send is enabled.
-        Assert.IsTrue(PurchaseCreditMemos.SendApprovalRequest.Enabled, 'SendApprovalRequest should be enabled');
-        Assert.IsFalse(PurchaseCreditMemos.CancelApprovalRequest.Enabled, 'CancelApprovalRequest should be disabled');
+        Assert.IsTrue(PurchaseCreditMemos.SendApprovalRequest.Enabled(), 'SendApprovalRequest should be enabled');
+        Assert.IsFalse(PurchaseCreditMemos.CancelApprovalRequest.Enabled(), 'CancelApprovalRequest should be disabled');
         PurchaseCreditMemos.Close();
 
         // [GIVEN] Approval exist on PurchHeader.
         LibraryDocumentApprovals.SetupUsersForApprovals(ApproverUserSetup);
         SetPurchDocPurchaserCode(PurchHeader, ApproverUserSetup."Salespers./Purch. Code");
-        PurchaseCreditMemos.OpenEdit;
+        PurchaseCreditMemos.OpenEdit();
         PurchaseCreditMemos.GotoRecord(PurchHeader);
 
         // [WHEN] PurchHeader send for approval.
         LibraryVariableStorage.Enqueue(ApprovalRequestSendMsg);
-        PurchaseCreditMemos.SendApprovalRequest.Invoke;
+        PurchaseCreditMemos.SendApprovalRequest.Invoke();
 
         // [THEN] Only Send is enabled.
-        Assert.IsFalse(PurchaseCreditMemos.SendApprovalRequest.Enabled, 'SendApprovalRequest should be disabled');
-        Assert.IsTrue(PurchaseCreditMemos.CancelApprovalRequest.Enabled, 'CancelApprovalRequest should be enabled');
+        Assert.IsFalse(PurchaseCreditMemos.SendApprovalRequest.Enabled(), 'SendApprovalRequest should be disabled');
+        Assert.IsTrue(PurchaseCreditMemos.CancelApprovalRequest.Enabled(), 'CancelApprovalRequest should be enabled');
     end;
 
     [Test]
@@ -594,7 +594,7 @@ codeunit 134181 "WF Demo Purch CrMemo Approvals"
 
         Initialize();
 
-        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.PurchaseCreditMemoApprovalWorkflowCode);
+        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.PurchaseCreditMemoApprovalWorkflowCode());
 
         // Setup - Create 3 approval usersetups
         LibraryDocumentApprovals.SetupUsersForApprovals(IntermediateApproverUserSetup);
@@ -661,7 +661,7 @@ codeunit 134181 "WF Demo Purch CrMemo Approvals"
 
         Initialize();
 
-        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.PurchaseCreditMemoApprovalWorkflowCode);
+        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.PurchaseCreditMemoApprovalWorkflowCode());
 
         // Setup - Create 3 approval usersetups
         LibraryDocumentApprovals.SetupUsersForApprovals(IntermediateApproverUserSetup);
@@ -731,7 +731,7 @@ codeunit 134181 "WF Demo Purch CrMemo Approvals"
         UserSetup.DeleteAll();
         LibraryERMCountryData.UpdateGeneralPostingSetup();
         LibraryERMCountryData.CreateVATData();
-        LibraryWorkflow.DisableAllWorkflows;
+        LibraryWorkflow.DisableAllWorkflows();
         if IsInitialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"WF Demo Purch CrMemo Approvals");
@@ -769,9 +769,9 @@ codeunit 134181 "WF Demo Purch CrMemo Approvals"
     var
         PurchaseCreditMemo: TestPage "Purchase Credit Memo";
     begin
-        PurchaseCreditMemo.OpenView;
+        PurchaseCreditMemo.OpenView();
         PurchaseCreditMemo.GotoRecord(PurchaseHeader);
-        PurchaseCreditMemo.SendApprovalRequest.Invoke;
+        PurchaseCreditMemo.SendApprovalRequest.Invoke();
         PurchaseCreditMemo.Close();
     end;
 
@@ -833,9 +833,9 @@ codeunit 134181 "WF Demo Purch CrMemo Approvals"
     var
         PurchaseCreditMemo: TestPage "Purchase Credit Memo";
     begin
-        PurchaseCreditMemo.OpenView;
+        PurchaseCreditMemo.OpenView();
         PurchaseCreditMemo.GotoRecord(PurchaseHeader);
-        PurchaseCreditMemo.Approve.Invoke;
+        PurchaseCreditMemo.Approve.Invoke();
         PurchaseCreditMemo.Close();
     end;
 
@@ -843,9 +843,9 @@ codeunit 134181 "WF Demo Purch CrMemo Approvals"
     var
         PurchaseCreditMemo: TestPage "Purchase Credit Memo";
     begin
-        PurchaseCreditMemo.OpenView;
+        PurchaseCreditMemo.OpenView();
         PurchaseCreditMemo.GotoRecord(PurchaseHeader);
-        PurchaseCreditMemo.Reject.Invoke;
+        PurchaseCreditMemo.Reject.Invoke();
         PurchaseCreditMemo.Close();
     end;
 
@@ -853,9 +853,9 @@ codeunit 134181 "WF Demo Purch CrMemo Approvals"
     var
         PurchaseCreditMemo: TestPage "Purchase Credit Memo";
     begin
-        PurchaseCreditMemo.OpenView;
+        PurchaseCreditMemo.OpenView();
         PurchaseCreditMemo.GotoRecord(PurchaseHeader);
-        PurchaseCreditMemo.Delegate.Invoke;
+        PurchaseCreditMemo.Delegate.Invoke();
         PurchaseCreditMemo.Close();
     end;
 
@@ -863,9 +863,9 @@ codeunit 134181 "WF Demo Purch CrMemo Approvals"
     var
         PurchaseCreditMemo: TestPage "Purchase Credit Memo";
     begin
-        PurchaseCreditMemo.OpenView;
+        PurchaseCreditMemo.OpenView();
         PurchaseCreditMemo.GotoRecord(PurchaseHeader);
-        PurchaseCreditMemo.CancelApprovalRequest.Invoke;
+        PurchaseCreditMemo.CancelApprovalRequest.Invoke();
         PurchaseCreditMemo.Close();
     end;
 
@@ -881,16 +881,16 @@ codeunit 134181 "WF Demo Purch CrMemo Approvals"
         PurchaseCreditMemo: TestPage "Purchase Credit Memo";
         NumberOfComments: Integer;
     begin
-        ApprovalComments.Trap;
+        ApprovalComments.Trap();
 
-        PurchaseCreditMemo.OpenView;
+        PurchaseCreditMemo.OpenView();
         PurchaseCreditMemo.GotoRecord(PurchaseHeader);
 
-        Assert.AreEqual(CommentActionIsVisible, PurchaseCreditMemo.Comment.Visible, 'The Comments action has the wrong visibility');
+        Assert.AreEqual(CommentActionIsVisible, PurchaseCreditMemo.Comment.Visible(), 'The Comments action has the wrong visibility');
 
         if CommentActionIsVisible then begin
-            PurchaseCreditMemo.Comment.Invoke;
-            if ApprovalComments.First then
+            PurchaseCreditMemo.Comment.Invoke();
+            if ApprovalComments.First() then
                 repeat
                     NumberOfComments += 1;
                 until ApprovalComments.Next();
@@ -910,13 +910,13 @@ codeunit 134181 "WF Demo Purch CrMemo Approvals"
         ApprovalEntries: TestPage "Approval Entries";
         NumberOfComments: Integer;
     begin
-        ApprovalComments.Trap;
+        ApprovalComments.Trap();
 
-        ApprovalEntries.OpenView;
+        ApprovalEntries.OpenView();
         ApprovalEntries.GotoRecord(ApprovalEntry);
 
-        ApprovalEntries.Comments.Invoke;
-        if ApprovalComments.First then
+        ApprovalEntries.Comments.Invoke();
+        if ApprovalComments.First() then
             repeat
                 NumberOfComments += 1;
             until ApprovalComments.Next();
@@ -933,13 +933,13 @@ codeunit 134181 "WF Demo Purch CrMemo Approvals"
         RequeststoApprove: TestPage "Requests to Approve";
         NumberOfComments: Integer;
     begin
-        ApprovalComments.Trap;
+        ApprovalComments.Trap();
 
-        RequeststoApprove.OpenView;
+        RequeststoApprove.OpenView();
         RequeststoApprove.GotoRecord(ApprovalEntry);
 
-        RequeststoApprove.Comments.Invoke;
-        if ApprovalComments.First then
+        RequeststoApprove.Comments.Invoke();
+        if ApprovalComments.First() then
             repeat
                 NumberOfComments += 1;
             until ApprovalComments.Next();
@@ -955,15 +955,15 @@ codeunit 134181 "WF Demo Purch CrMemo Approvals"
         PurchaseCreditMemo: TestPage "Purchase Credit Memo";
         PurchaseCreditMemos: TestPage "Purchase Credit Memos";
     begin
-        PurchaseCreditMemo.OpenView;
+        PurchaseCreditMemo.OpenView();
         PurchaseCreditMemo.GotoRecord(PurchaseHeader);
-        Assert.AreEqual(CancelActionExpectedEnabled, PurchaseCreditMemo.CancelApprovalRequest.Enabled,
+        Assert.AreEqual(CancelActionExpectedEnabled, PurchaseCreditMemo.CancelApprovalRequest.Enabled(),
           'Wrong state for the Cancel action');
         PurchaseCreditMemo.Close();
 
-        PurchaseCreditMemos.OpenView;
+        PurchaseCreditMemos.OpenView();
         PurchaseCreditMemos.GotoRecord(PurchaseHeader);
-        Assert.AreEqual(CancelActionExpectedEnabled, PurchaseCreditMemos.CancelApprovalRequest.Enabled,
+        Assert.AreEqual(CancelActionExpectedEnabled, PurchaseCreditMemos.CancelApprovalRequest.Enabled(),
           'Wrong state for the Cancel action');
         PurchaseCreditMemos.Close();
     end;

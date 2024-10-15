@@ -36,7 +36,6 @@ codeunit 144097 "ERM Reports"
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryRandom: Codeunit "Library - Random";
         LineAmtInvDiscAmtPurchLineCap: Label 'LineAmtInvDiscAmt_PurchLine';
-        NNCPmtDiscGivenAmountCap: Label 'NNCPmtDiscGivenAmount';
         NoCustCap: Label 'No_Cust';
         OriginalAmtCap: Label 'CLEEndDateRemAmtLCY';
         PeriodLengthTxt: Label '1M';
@@ -78,7 +77,7 @@ codeunit 144097 "ERM Reports"
         REPORT.Run(REPORT::"Aged Accounts Receivable");  // Opens AgedAccountsReceivableRequestPageHandler.
 
         // Verify: Verify values on Aged Accounts Receivable report.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(NoCustCap, Customer."No.");
         LibraryReportDataset.AssertElementWithValueExists(OriginalAmtCap, SalesLine."Amount Including VAT");
     end;
@@ -105,9 +104,9 @@ codeunit 144097 "ERM Reports"
           GeneralLedgerSetup."Discount Calculation"::"Line Disc. * Inv. Disc. * Payment Disc.");
         CreatePurchaseOrder(PurchaseLine, Vendor."No.");
         PurchaseHeader.Get(PurchaseLine."Document Type", PurchaseLine."Document No.");
-        PurchaseOrder.OpenEdit;
+        PurchaseOrder.OpenEdit();
         PurchaseOrder.FILTER.SetFilter("No.", PurchaseHeader."No.");
-        PurchaseOrder.CalculateInvoiceDiscount.Invoke;
+        PurchaseOrder.CalculateInvoiceDiscount.Invoke();
         LibraryVariableStorage.Enqueue(Vendor."No.");  // Enqueue for OrderRequestPageHandler.
         Commit();  // commit requires to run report.
 
@@ -115,7 +114,7 @@ codeunit 144097 "ERM Reports"
         REPORT.Run(REPORT::Order);  // Opens OrderRequestPageHandler.
 
         // Verify: Verify Test to verify Payment Discount Amount on Order report.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(
           LineAmtInvDiscAmtPurchLineCap, -Round(PurchaseLine."Line Amount" * PurchaseHeader."Payment Discount %" / 100));
     end;
@@ -131,13 +130,13 @@ codeunit 144097 "ERM Reports"
         Initialize();
 
         // [GIVEN] Posted Sales Document with Amount incl. VAT = 100
-        ExpectedValue := CreatePostSalesDocument;
+        ExpectedValue := CreatePostSalesDocument();
 
         // [WHEN] Run report "Aged Accounts Receivable"
-        RunAgedAccountsReceivableReport;
+        RunAgedAccountsReceivableReport();
 
         // [THEN] Report should contains value 100 in columt for referenced period
-        LibraryReportValidation.OpenExcelFile;
+        LibraryReportValidation.OpenExcelFile();
         LibraryReportValidation.VerifyCellValueOnWorksheet(22, 10, LibraryReportValidation.FormatDecimalValue(ExpectedValue), '1');
     end;
 
@@ -252,7 +251,7 @@ codeunit 144097 "ERM Reports"
         RunArchivedPurchaseOrderReport(PurchHeader."No.");
 
         // [THEN] "VAT Amount" cell value is 36, "Total Amount Incl. VAT" cell values is 200
-        LibraryReportValidation.OpenExcelFile;
+        LibraryReportValidation.OpenExcelFile();
         LibraryReportValidation.VerifyCellValueOnWorksheet(
           36, 22, LibraryReportValidation.FormatDecimalValue(TotalPurchLine."Amount Including VAT" - TotalPurchLine.Amount), '1');
         LibraryReportValidation.VerifyCellValueOnWorksheet(
@@ -356,7 +355,7 @@ codeunit 144097 "ERM Reports"
         REPORT.Run(REPORT::"Standard Sales - Quote", true, false, SalesHeader);
 
         // [THEN] Report Dataset has Payment Method Translation Description under tag '<PaymentMethodDescription>'
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementTagWithValueExists('PaymentMethodDescription', PaymentMethodTranslation.Description);
         LibraryReportDataset.AssertElementTagWithValueExists('SalesPersonBlank_Lbl', '');
     end;
@@ -392,7 +391,7 @@ codeunit 144097 "ERM Reports"
         REPORT.Run(REPORT::"Service - Invoice", true, false, ServiceInvoiceHeader);
 
         // [THEN] Report Dataset has Payment Method Translation Description under tag '<PaymentMethodDesc>'
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementTagWithValueExists('PaymentMethodDesc', PaymentMethodTranslation.Description);
     end;
 
@@ -437,7 +436,7 @@ codeunit 144097 "ERM Reports"
         SalesHeader.Validate("Payment Method Code", PaymentMethodCode);
         SalesHeader.Modify(true);
         LibrarySales.CreateSalesLine(
-          SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo, LibraryRandom.RandInt(10));
+          SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo(), LibraryRandom.RandInt(10));
         SalesLine.Validate("Unit Price", LibraryRandom.RandDecInRange(1000, 2000, 2));
         SalesLine.Modify(true);
     end;
@@ -450,7 +449,7 @@ codeunit 144097 "ERM Reports"
         ServiceHeader.Validate("Payment Method Code", PaymentMethodCode);
         ServiceHeader.Modify(true);
         LibraryService.CreateServiceLineWithQuantity(
-          ServiceLine, ServiceHeader, ServiceLine.Type::Item, LibraryInventory.CreateItemNo, LibraryRandom.RandInt(10));
+          ServiceLine, ServiceHeader, ServiceLine.Type::Item, LibraryInventory.CreateItemNo(), LibraryRandom.RandInt(10));
         ServiceLine.Validate("Unit Price", LibraryRandom.RandDecInRange(1000, 2000, 2));
         ServiceLine.Modify(true);
     end;
@@ -537,11 +536,11 @@ codeunit 144097 "ERM Reports"
         SalesLine: Record "Sales Line";
         i: Integer;
     begin
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo());
         for i := 1 to 2 do begin
             LibrarySales.CreateSalesLine(
               SalesLine, SalesHeader, SalesLine.Type::"G/L Account",
-              LibraryERM.CreateGLAccountWithSalesSetup, LibraryRandom.RandIntInRange(10, 20));
+              LibraryERM.CreateGLAccountWithSalesSetup(), LibraryRandom.RandIntInRange(10, 20));
             SalesLine.Validate("Unit Price", LibraryRandom.RandDecInRange(1000, 2000, 2));
             SalesLine.Modify(true);
         end;
@@ -556,11 +555,11 @@ codeunit 144097 "ERM Reports"
         PurchLine: Record "Purchase Line";
         i: Integer;
     begin
-        LibraryPurchase.CreatePurchHeader(PurchHeader, PurchHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo);
+        LibraryPurchase.CreatePurchHeader(PurchHeader, PurchHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo());
         for i := 1 to 2 do begin
             LibraryPurchase.CreatePurchaseLine(
               PurchLine, PurchHeader, PurchLine.Type::"G/L Account",
-              LibraryERM.CreateGLAccountWithSalesSetup, LibraryRandom.RandDec(10, 2));
+              LibraryERM.CreateGLAccountWithSalesSetup(), LibraryRandom.RandDec(10, 2));
             PurchLine.Validate("Direct Unit Cost", LibraryRandom.RandDec(100, 2));
             PurchLine.Modify(true);
         end;
@@ -576,9 +575,9 @@ codeunit 144097 "ERM Reports"
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
     begin
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo());
         LibrarySales.CreateSalesLine(
-          SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo, LibraryRandom.RandInt(100));
+          SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo(), LibraryRandom.RandInt(100));
         SalesLine.Validate("Unit Price", LibraryRandom.RandInt(1000));
         SalesLine.Modify(true);
         LibraryVariableStorage.Enqueue(SalesHeader."Sell-to Customer No.");
@@ -702,7 +701,7 @@ codeunit 144097 "ERM Reports"
     local procedure RunAgedAccountsReceivableReport()
     begin
         LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID());
-        LibraryVariableStorage.Enqueue(LibraryReportValidation.GetFileName);
+        LibraryVariableStorage.Enqueue(LibraryReportValidation.GetFileName());
         Commit();
         REPORT.Run(REPORT::"Aged Accounts Receivable");
     end;
@@ -729,7 +728,7 @@ codeunit 144097 "ERM Reports"
     var
         I: Integer;
     begin
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         // Verify Totals
         LibraryReportDataset.AssertElementWithValueExists(LineTotalCustBalTxt, NonExcludedSum);
         LibraryReportDataset.AssertElementWithValueExists(LineTotalCustBal1Txt, NonExcludedSum);
@@ -748,7 +747,7 @@ codeunit 144097 "ERM Reports"
         GeneralLedgerSetup: Record "General Ledger Setup";
     begin
         GeneralLedgerSetup.Get();
-        LibraryReportValidation.OpenExcelFile;
+        LibraryReportValidation.OpenExcelFile();
         // Document Totals
         LibraryReportValidation.VerifyCellValueByRef(
           'L', 76, 1, StrSubstNo(TotalExclVAT_EC_Lbl, GeneralLedgerSetup."LCY Code")); // Total Excl VAT+EC Caption
@@ -779,7 +778,7 @@ codeunit 144097 "ERM Reports"
 
     local procedure VerifyArchivedSalesOrderDataset(VATAmountLine: Record "VAT Amount Line")
     begin
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists('VATAmount', VATAmountLine."VAT Amount" + VATAmountLine."EC Amount");
         LibraryReportDataset.AssertElementWithValueExists('VATAmtLineVAT', VATAmountLine."VAT %");
         LibraryReportDataset.AssertElementWithValueExists('VATAmountLine__EC_Pct', VATAmountLine."EC %");
@@ -790,7 +789,7 @@ codeunit 144097 "ERM Reports"
 
     local procedure VerifyCustomerAnnualDeclaration(CustomerNo: Code[20]; AmountLCY: Decimal)
     begin
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.SetRange('Customer__No__', CustomerNo);
         LibraryReportDataset.MoveToRow(1);
         LibraryReportDataset.AssertCurrentRowValueEquals('SalesAmt', AmountLCY);
@@ -798,7 +797,7 @@ codeunit 144097 "ERM Reports"
 
     local procedure VerifyVendorAnnualDeclaration(VendorNo: Code[20]; AmountLCY: Decimal)
     begin
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.SetRange('Vendor__No__', VendorNo);
         LibraryReportDataset.MoveToRow(1);
         LibraryReportDataset.AssertCurrentRowValueEquals('PurchaseAmt', AmountLCY);
@@ -818,7 +817,7 @@ codeunit 144097 "ERM Reports"
         AgedAccountsReceivable.PeriodLength.SetValue(PeriodLengthTxt);
         AgedAccountsReceivable.HeadingType.SetValue(HeadingType::"Date Interval");
         AgedAccountsReceivable.Customer.SetFilter("No.", No);
-        AgedAccountsReceivable.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        AgedAccountsReceivable.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -832,7 +831,7 @@ codeunit 144097 "ERM Reports"
         CustomerSummaryAging.ShowAmountsInLCY.SetValue(false);
         LibraryVariableStorage.Dequeue(CustomerNo);
         CustomerSummaryAging.Customer.SetFilter("No.", CustomerNo);
-        CustomerSummaryAging.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        CustomerSummaryAging.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [ConfirmHandler]
@@ -857,7 +856,7 @@ codeunit 144097 "ERM Reports"
     begin
         LibraryVariableStorage.Dequeue(BuyFromVendorNo);
         Order."Purchase Header".SetFilter("Buy-from Vendor No.", BuyFromVendorNo);
-        Order.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        Order.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -872,57 +871,57 @@ codeunit 144097 "ERM Reports"
         AgedAccountsReceivable.PeriodLength.SetValue(PeriodLengthTxt);
         AgedAccountsReceivable.HeadingType.SetValue(HeadingType::"Date Interval");
         AgedAccountsReceivable.AmountsinLCY.SetValue(true);
-        AgedAccountsReceivable.Customer.SetFilter("No.", LibraryVariableStorage.DequeueText);
-        AgedAccountsReceivable.SaveAsExcel(LibraryVariableStorage.DequeueText);
+        AgedAccountsReceivable.Customer.SetFilter("No.", LibraryVariableStorage.DequeueText());
+        AgedAccountsReceivable.SaveAsExcel(LibraryVariableStorage.DequeueText());
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure ArchivedSalesOrderExcelRPH(var ArchivedSalesOrder: TestRequestPage "Archived Sales Order")
     begin
-        ArchivedSalesOrder.SaveAsExcel(LibraryReportValidation.GetFileName);
+        ArchivedSalesOrder.SaveAsExcel(LibraryReportValidation.GetFileName());
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure ArchivedSalesOrderDatasetRPH(var ArchivedSalesOrder: TestRequestPage "Archived Sales Order")
     begin
-        ArchivedSalesOrder.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        ArchivedSalesOrder.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure ArchivedPurchOrderPageHandler(var ArchivedPurchOrder: TestRequestPage "Archived Purchase Order")
     begin
-        ArchivedPurchOrder.SaveAsExcel(LibraryReportValidation.GetFileName);
+        ArchivedPurchOrder.SaveAsExcel(LibraryReportValidation.GetFileName());
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure RHCustomerAnnualDeclaration(var CustomerAnnualDeclaration: TestRequestPage "Customer - Annual Declaration")
     begin
-        CustomerAnnualDeclaration.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        CustomerAnnualDeclaration.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure RHVendorAnnualDeclaration(var VendorAnnualDeclaration: TestRequestPage "Vendor - Annual Declaration")
     begin
-        VendorAnnualDeclaration.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        VendorAnnualDeclaration.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure SalesQuoteRequestPageHandler(var SalesQuote: TestRequestPage "Standard Sales - Quote")
     begin
-        SalesQuote.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        SalesQuote.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure ServiceInvoiceRequestPageHandler(var ServiceInvoice: TestRequestPage "Service - Invoice")
     begin
-        ServiceInvoice.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        ServiceInvoice.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 }
 

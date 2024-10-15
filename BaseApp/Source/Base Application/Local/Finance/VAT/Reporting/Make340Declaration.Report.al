@@ -1305,49 +1305,42 @@ report 10743 "Make 340 Declaration"
 
     local procedure IsEmptyVATBuffer(SalesPurchBookVATBuffer: Record "Sales/Purch. Book VAT Buffer"): Boolean
     begin
-        with SalesPurchBookVATBuffer do
-            exit((Base = 0) and (Amount = 0) and ("EC Amount" = 0));
+        exit((SalesPurchBookVATBuffer.Base = 0) and (SalesPurchBookVATBuffer.Amount = 0) and (SalesPurchBookVATBuffer."EC Amount" = 0));
     end;
 
     local procedure UpdateVATBuffer(var SalesPurchBookVATBuffer: Record "Sales/Purch. Book VAT Buffer"; AddedVATEntry: Record "VAT Entry")
     begin
-        with SalesPurchBookVATBuffer do begin
-            Base += AddedVATEntry.Base;
-            Amount += AddedVATEntry.Amount;
-            if ((AddedVATEntry.Type = AddedVATEntry.Type::Sale) or (AddedVATEntry.Type = AddedVATEntry.Type::Purchase)) and
-               (AddedVATEntry."EC %" <> 0)
-            then
-                "EC Amount" += AddedVATEntry.Base * AddedVATEntry."EC %" / 100;
-        end;
+        SalesPurchBookVATBuffer.Base += AddedVATEntry.Base;
+        SalesPurchBookVATBuffer.Amount += AddedVATEntry.Amount;
+        if ((AddedVATEntry.Type = AddedVATEntry.Type::Sale) or (AddedVATEntry.Type = AddedVATEntry.Type::Purchase)) and
+           (AddedVATEntry."EC %" <> 0)
+        then
+            SalesPurchBookVATBuffer."EC Amount" += AddedVATEntry.Base * AddedVATEntry."EC %" / 100;
     end;
 
     local procedure UpdateUnrealVATBuffer(var SalesPurchBookVATBuffer: Record "Sales/Purch. Book VAT Buffer"; AddedVATEntry: Record "VAT Entry")
     begin
-        with SalesPurchBookVATBuffer do begin
-            Base += AddedVATEntry."Unrealized Base";
-            Amount += AddedVATEntry."Unrealized Amount";
-            if (AddedVATEntry.Type = AddedVATEntry.Type::Sale) and (AddedVATEntry."EC %" <> 0) then
-                "EC Amount" += Round(AddedVATEntry."Unrealized Base" * AddedVATEntry."EC %" / 100);
-        end;
+        SalesPurchBookVATBuffer.Base += AddedVATEntry."Unrealized Base";
+        SalesPurchBookVATBuffer.Amount += AddedVATEntry."Unrealized Amount";
+        if (AddedVATEntry.Type = AddedVATEntry.Type::Sale) and (AddedVATEntry."EC %" <> 0) then
+            SalesPurchBookVATBuffer."EC Amount" += Round(AddedVATEntry."Unrealized Base" * AddedVATEntry."EC %" / 100);
     end;
 
     local procedure UpdateTotals(var SalesPurchBookVATBuffer: Record "Sales/Purch. Book VAT Buffer"; var TotalBaseAmount: Decimal; var TotalVATAmount: Decimal; var TotalInvoiceAmount: Decimal)
     begin
-        with SalesPurchBookVATBuffer do
-            if FindSet() then
-                repeat
-                    TotalBaseAmount += Base;
-                    TotalVATAmount += Amount - Round("EC Amount");
-                    TotalInvoiceAmount += Base + Amount;
-                until Next() = 0;
+        if SalesPurchBookVATBuffer.FindSet() then
+            repeat
+                TotalBaseAmount += SalesPurchBookVATBuffer.Base;
+                TotalVATAmount += SalesPurchBookVATBuffer.Amount - Round(SalesPurchBookVATBuffer."EC Amount");
+                TotalInvoiceAmount += SalesPurchBookVATBuffer.Base + SalesPurchBookVATBuffer.Amount;
+            until SalesPurchBookVATBuffer.Next() = 0;
     end;
 
     local procedure IsVATEntryIncludedInTotals(var VATEntry: Record "VAT Entry"): Boolean
     begin
-        with VATEntry do
-            exit(
-              not ("VAT Cash Regime" and
-                   ("Document Type" in ["Document Type"::Payment, "Document Type"::Refund, "Document Type"::Bill])));
+        exit(
+              not (VATEntry."VAT Cash Regime" and
+                   (VATEntry."Document Type" in [VATEntry."Document Type"::Payment, VATEntry."Document Type"::Refund, VATEntry."Document Type"::Bill])));
     end;
 
     local procedure GetSalesShipmentDate(DocumentNo: Code[20]) OperationDate: Date
@@ -1447,29 +1440,27 @@ report 10743 "Make 340 Declaration"
     var
         txt: Text[500];
     begin
-        with DeclarationLine do begin
-            Reset();
-            if FindSet() then
-                repeat
-                    txt := '2340' + "Fiscal Year" + "VAT Registration No." + "VAT Number" + PadStr('', 9, ' ') +
-                      PadStr(FormatTextName("Customer/Vendor Name"), 40, ' ') + "Country Code" + "Resident ID" + "International VAT No." +
-                      "Book Type Code" + PadStr("Operation Code", 1, ' ') + FormatDate("Document Date") +
-                      "Operation Date" + FormatNumber("VAT %" * 100, 5) + FormatTextAmt(Base, false) + FormatTextAmt("VAT Amount", false) +
-                      FormatTextAmt("Amount Including VAT / EC", false) + ' 0000000000000' + PadStr("Document No.", 40, ' ') +
-                      "VAT Document No." + "Buffer Value 18" + "No. of Registers" + PadStr('', 80, ' ') + "Buffer Value 40";
-                    if Type = Type::Sale then
-                        txt += FormatNumber("EC %" * 100, 5) + FormatTextAmt("EC Amount", false) + GetPropertyLocation("Property Location") +
-                          PadStr("Property Tax Account No.", 25, ' ') + PadStr('0', 15, '0') +
-                          PadStr('', 4, '0') + PadStr('0', 15, '0');
+        DeclarationLine.Reset();
+        if DeclarationLine.FindSet() then
+            repeat
+                txt := '2340' + DeclarationLine."Fiscal Year" + DeclarationLine."VAT Registration No." + DeclarationLine."VAT Number" + PadStr('', 9, ' ') +
+                  PadStr(FormatTextName(DeclarationLine."Customer/Vendor Name"), 40, ' ') + DeclarationLine."Country Code" + DeclarationLine."Resident ID" + DeclarationLine."International VAT No." +
+                  DeclarationLine."Book Type Code" + PadStr(DeclarationLine."Operation Code", 1, ' ') + FormatDate(DeclarationLine."Document Date") +
+                  DeclarationLine."Operation Date" + FormatNumber(DeclarationLine."VAT %" * 100, 5) + FormatTextAmt(DeclarationLine.Base, false) + FormatTextAmt(DeclarationLine."VAT Amount", false) +
+                  FormatTextAmt(DeclarationLine."Amount Including VAT / EC", false) + ' 0000000000000' + PadStr(DeclarationLine."Document No.", 40, ' ') +
+                  DeclarationLine."VAT Document No." + DeclarationLine."Buffer Value 18" + DeclarationLine."No. of Registers" + PadStr('', 80, ' ') + DeclarationLine."Buffer Value 40";
+                if DeclarationLine.Type = DeclarationLine.Type::Sale then
+                    txt += FormatNumber(DeclarationLine."EC %" * 100, 5) + FormatTextAmt(DeclarationLine."EC Amount", false) + GetPropertyLocation(DeclarationLine."Property Location") +
+                      PadStr(DeclarationLine."Property Tax Account No.", 25, ' ') + PadStr('0', 15, '0') +
+                      PadStr('', 4, '0') + PadStr('0', 15, '0');
 
-                    txt := PadStr(txt, 500, ' ');
+                txt := PadStr(txt, 500, ' ');
 
-                    AddUnrealizedCollectionInfo(DeclarationLine, txt);
+                AddUnrealizedCollectionInfo(DeclarationLine, txt);
 
-                    Outstr.WriteText();
-                    Outstr.WriteText(txt);
-                until Next() = 0;
-        end;
+                Outstr.WriteText();
+                Outstr.WriteText(txt);
+            until DeclarationLine.Next() = 0;
     end;
 
     local procedure WriteAppliedPaymentsToText()
@@ -1756,34 +1747,30 @@ report 10743 "Make 340 Declaration"
     var
         CustLedgerEntry: Record "Cust. Ledger Entry";
     begin
-        with CustLedgerEntry do begin
-            SetCurrentKey("Document Type", "Customer No.", "Posting Date", "Currency Code");
-            SetFilter("Document Type", '%1|%2', "Document Type"::" ", "Document Type"::Payment);
-            SetRange("Customer No.", CustomerNo);
-            SetRange("Document Date", FromDate, ToDate);
-            if FindSet() then
-                repeat
-                    if CheckCustLedgEntryExists(CustLedgerEntry) then
-                        exit(true);
-                until Next() = 0;
-        end;
+        CustLedgerEntry.SetCurrentKey("Document Type", "Customer No.", "Posting Date", "Currency Code");
+        CustLedgerEntry.SetFilter("Document Type", '%1|%2', CustLedgerEntry."Document Type"::" ", CustLedgerEntry."Document Type"::Payment);
+        CustLedgerEntry.SetRange("Customer No.", CustomerNo);
+        CustLedgerEntry.SetRange("Document Date", FromDate, ToDate);
+        if CustLedgerEntry.FindSet() then
+            repeat
+                if CheckCustLedgEntryExists(CustLedgerEntry) then
+                    exit(true);
+            until CustLedgerEntry.Next() = 0;
     end;
 
     local procedure ExecuteCustomerPayments(CustomerNo: Code[20])
     var
         CustLedgerEntry: Record "Cust. Ledger Entry";
     begin
-        with CustLedgerEntry do begin
-            SetCurrentKey("Document Type", "Customer No.", "Posting Date", "Currency Code");
-            SetFilter("Document Type", '%1|%2', "Document Type"::" ", "Document Type"::Payment);
-            SetRange("Customer No.", CustomerNo);
-            SetRange("Document Date", DMY2Date(1, 1, NumFiscalYear), ToDate);
-            if FindSet() then
-                repeat
-                    if CheckCustLedgEntryExists(CustLedgerEntry) then
-                        FillBufferFromPaymentCustLE(CustLedgerEntry, 0);
-                until Next() = 0;
-        end;
+        CustLedgerEntry.SetCurrentKey("Document Type", "Customer No.", "Posting Date", "Currency Code");
+        CustLedgerEntry.SetFilter("Document Type", '%1|%2', CustLedgerEntry."Document Type"::" ", CustLedgerEntry."Document Type"::Payment);
+        CustLedgerEntry.SetRange("Customer No.", CustomerNo);
+        CustLedgerEntry.SetRange("Document Date", DMY2Date(1, 1, NumFiscalYear), ToDate);
+        if CustLedgerEntry.FindSet() then
+            repeat
+                if CheckCustLedgEntryExists(CustLedgerEntry) then
+                    FillBufferFromPaymentCustLE(CustLedgerEntry, 0);
+            until CustLedgerEntry.Next() = 0;
     end;
 
     local procedure FillBufferFromPaymentCustLE(CustLedgerEntry: Record "Cust. Ledger Entry"; InvoiceEntryNo: Integer)
@@ -2002,14 +1989,13 @@ report 10743 "Make 340 Declaration"
     var
         BankAccount: Record "Bank Account";
     begin
-        with BankAccount do
-            if Get(BankAccNo) then begin
-                BankAccountUsed := "CCC No.";
-                if BankAccountUsed = '' then
-                    BankAccountUsed := "Bank Account No.";
-                if BankAccountUsed = '' then
-                    BankAccountUsed := CopyStr(IBAN, 1, MaxStrLen(BankAccountUsed));
-            end;
+        if BankAccount.Get(BankAccNo) then begin
+            BankAccountUsed := BankAccount."CCC No.";
+            if BankAccountUsed = '' then
+                BankAccountUsed := BankAccount."Bank Account No.";
+            if BankAccountUsed = '' then
+                BankAccountUsed := CopyStr(BankAccount.IBAN, 1, MaxStrLen(BankAccountUsed));
+        end;
     end;
 
     local procedure AreDatesInSamePeriod(Date1: Date; Date2: Date): Boolean
@@ -2024,20 +2010,18 @@ report 10743 "Make 340 Declaration"
         SalesInvHeader: Record "Sales Invoice Header";
         SalesCrMemoHeader: Record "Sales Cr.Memo Header";
     begin
-        with CustLedgerEntry do begin
-            SetRange("Transaction No.", DocVATEntry."Transaction No.");
-            if FindFirst() then begin
-                case "Document Type" of
-                    "Document Type"::Invoice:
-                        if SalesInvHeader.Get("Document No.") then
-                            exit(SalesInvHeader."Payment Method Code");
-                    "Document Type"::"Credit Memo":
-                        if SalesCrMemoHeader.Get("Document No.") then
-                            exit(SalesCrMemoHeader."Payment Method Code");
-                end;
-                if Customer.Get("Customer No.") then
-                    exit(Customer."Payment Method Code");
+        CustLedgerEntry.SetRange("Transaction No.", DocVATEntry."Transaction No.");
+        if CustLedgerEntry.FindFirst() then begin
+            case CustLedgerEntry."Document Type" of
+                CustLedgerEntry."Document Type"::Invoice:
+                    if SalesInvHeader.Get(CustLedgerEntry."Document No.") then
+                        exit(SalesInvHeader."Payment Method Code");
+                CustLedgerEntry."Document Type"::"Credit Memo":
+                    if SalesCrMemoHeader.Get(CustLedgerEntry."Document No.") then
+                        exit(SalesCrMemoHeader."Payment Method Code");
             end;
+            if Customer.Get(CustLedgerEntry."Customer No.") then
+                exit(Customer."Payment Method Code");
         end;
     end;
 
@@ -2048,20 +2032,18 @@ report 10743 "Make 340 Declaration"
         PurchInvHeader: Record "Purch. Inv. Header";
         PurchCrMemoHdr: Record "Purch. Cr. Memo Hdr.";
     begin
-        with VendorLedgerEntry do begin
-            SetRange("Transaction No.", DocVATEntry."Transaction No.");
-            if FindFirst() then begin
-                case "Document Type" of
-                    "Document Type"::Invoice:
-                        if PurchInvHeader.Get("Document No.") then
-                            exit(PurchInvHeader."Payment Method Code");
-                    "Document Type"::"Credit Memo":
-                        if PurchCrMemoHdr.Get("Document No.") then
-                            exit(PurchCrMemoHdr."Payment Method Code");
-                end;
-                if Vendor.Get("Vendor No.") then
-                    exit(Vendor."Payment Method Code");
+        VendorLedgerEntry.SetRange("Transaction No.", DocVATEntry."Transaction No.");
+        if VendorLedgerEntry.FindFirst() then begin
+            case VendorLedgerEntry."Document Type" of
+                VendorLedgerEntry."Document Type"::Invoice:
+                    if PurchInvHeader.Get(VendorLedgerEntry."Document No.") then
+                        exit(PurchInvHeader."Payment Method Code");
+                VendorLedgerEntry."Document Type"::"Credit Memo":
+                    if PurchCrMemoHdr.Get(VendorLedgerEntry."Document No.") then
+                        exit(PurchCrMemoHdr."Payment Method Code");
             end;
+            if Vendor.Get(VendorLedgerEntry."Vendor No.") then
+                exit(Vendor."Payment Method Code");
         end;
     end;
 
@@ -2273,12 +2255,11 @@ report 10743 "Make 340 Declaration"
 
     local procedure CheckIncludeVATEntry(VATEntry: Record "VAT Entry"): Boolean
     begin
-        with VATEntry do
-            exit(
-              not (("Document Type" in ["Document Type"::Invoice, "Document Type"::"Credit Memo",
-                                        "Document Type"::"Finance Charge Memo", "Document Type"::Reminder]) and
-                   ("Unrealized Base" <> 0) and not "VAT Cash Regime") and
-              not ("Document Type" = "Document Type"::" "))
+        exit(
+              not ((VATEntry."Document Type" in [VATEntry."Document Type"::Invoice, VATEntry."Document Type"::"Credit Memo",
+                                        VATEntry."Document Type"::"Finance Charge Memo", VATEntry."Document Type"::Reminder]) and
+                   (VATEntry."Unrealized Base" <> 0) and not VATEntry."VAT Cash Regime") and
+              not (VATEntry."Document Type" = VATEntry."Document Type"::" "))
         // Invoices, Credit Memos, Finance Charge Memos and Reminders with unrealized base and are not in the VAT Cash Regime should not be shown, only their payment
     end;
 

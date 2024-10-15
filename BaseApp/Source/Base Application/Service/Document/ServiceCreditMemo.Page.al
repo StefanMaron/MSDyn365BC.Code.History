@@ -5,12 +5,14 @@ using Microsoft.Finance.Currency;
 using Microsoft.Finance.Dimension;
 using Microsoft.Finance.VAT.Calculation;
 using Microsoft.Foundation.Address;
+using Microsoft.Foundation.Attachment;
 using Microsoft.Foundation.Reporting;
 using Microsoft.Sales.Customer;
 using Microsoft.Service.Comment;
 using Microsoft.Service.Contract;
 using Microsoft.Service.History;
 using Microsoft.Service.Posting;
+using Microsoft.Service.Setup;
 using Microsoft.Utilities;
 using System.Security.User;
 using Microsoft.EServices.EDocument;
@@ -33,6 +35,7 @@ page 5935 "Service Credit Memo"
                 field("No."; Rec."No.")
                 {
                     ApplicationArea = Service;
+                    Visible = DocNoVisible;
                     ToolTip = 'Specifies the number of the involved entry or record, according to the specified number series.';
 
                     trigger OnAssistEdit()
@@ -166,6 +169,13 @@ page 5935 "Service Credit Memo"
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the date when the related document was created.';
+                }
+                field("External Document No."; Rec."External Document No.")
+                {
+                    ApplicationArea = Service;
+                    Importance = Promoted;
+                    ShowMandatory = ExternalDocNoMandatory;
+                    ToolTip = 'Specifies a document number that refers to the customer''s or vendor''s numbering system.';
                 }
                 field("Salesperson Code"; Rec."Salesperson Code")
                 {
@@ -653,6 +663,14 @@ page 5935 "Service Credit Memo"
                 SubPageLink = "No." = field("No."),
                               "Document Type" = field("Document Type");
             }
+            part("Attached Documents"; "Document Attachment Factbox")
+            {
+                ApplicationArea = Service;
+                Caption = 'Attachments';
+                SubPageLink = "Table ID" = const(Database::"Service Header"),
+                              "No." = field("No."),
+                              "Document Type" = field("Document Type");
+            }
             part(Control1902018507; "Customer Statistics FactBox")
             {
                 ApplicationArea = Service;
@@ -737,6 +755,23 @@ page 5935 "Service Credit Memo"
                     begin
                         Rec.ShowDocDim();
                         CurrPage.SaveRecord();
+                    end;
+                }
+                action(DocAttach)
+                {
+                    ApplicationArea = Service;
+                    Caption = 'Attachments';
+                    Image = Attach;
+                    ToolTip = 'Add a file as an attachment. You can attach images as well as documents.';
+
+                    trigger OnAction()
+                    var
+                        DocumentAttachmentDetails: Page "Document Attachment Details";
+                        RecRef: RecordRef;
+                    begin
+                        RecRef.GetTable(Rec);
+                        DocumentAttachmentDetails.OpenForRecRef(RecRef);
+                        DocumentAttachmentDetails.RunModal();
                     end;
                 }
                 action("Service Document Lo&g")
@@ -988,6 +1023,9 @@ page 5935 "Service Credit Memo"
                 actionref("Co&mments_Promoted"; "Co&mments")
                 {
                 }
+                actionref(DocAttach_Promoted; DocAttach)
+                {
+                }
                 actionref("Service Document Lo&g_Promoted"; "Service Document Lo&g")
                 {
                 }
@@ -1040,7 +1078,7 @@ page 5935 "Service Credit Memo"
     begin
         Rec."Responsibility Center" := UserSetupManagement.GetServiceFilter();
 
-        if Rec."No." = '' then
+        if (not DocNoVisible) and (Rec."No." = '') then
             Rec.SetCustomerFromFilter();
     end;
 
@@ -1067,6 +1105,7 @@ page 5935 "Service Credit Memo"
         SIIManagement.CombineOperationDescription(Rec."Operation Description", Rec."Operation Description 2", OperationDescription);
         UpdateDocHasRegimeCode();
         ActivateFields();
+        SetDocNoVisible();
         CheckShowBackgrValidationNotification();
         VATDateEnabled := VATReportingDateMgt.IsVATDateEnabled();
     end;
@@ -1080,6 +1119,7 @@ page 5935 "Service Credit Memo"
     var
         SellToContact: Record Contact;
         BillToContact: Record Contact;
+        ServiceMgtSetup: Record "Service Mgt. Setup";
         DocumentErrorsMgt: Codeunit "Document Errors Mgt.";
         FormatAddress: Codeunit "Format Address";
         ChangeExchangeRate: Page "Change Exchange Rate";
@@ -1094,9 +1134,11 @@ page 5935 "Service Credit Memo"
         MultipleSchemeCodesLbl: Label 'Multiple scheme codes';
         ServiceDocCheckFactboxVisible: Boolean;
         IsServiceLinesEditable: Boolean;
+        ExternalDocNoMandatory: Boolean;
         VATDateEnabled: Boolean;
         SIIFirstSummaryDocNo: Text[35];
         SIILastSummaryDocNo: Text[35];
+        DocNoVisible: Boolean;	
 
     local procedure ActivateFields()
     begin
@@ -1105,12 +1147,27 @@ page 5935 "Service Credit Memo"
         IsShipToCountyVisible := FormatAddress.UseCounty(Rec."Ship-to Country/Region Code");
         ServiceDocCheckFactboxVisible := DocumentErrorsMgt.BackgroundValidationEnabled();
         IsServiceLinesEditable := Rec.ServiceLinesEditable();
+        SetExtDocNoMandatoryCondition();
+    end;
+
+    local procedure SetDocNoVisible()
+    var
+        DocumentNoVisibility: Codeunit DocumentNoVisibility;
+        DocType: Option Quote,"Order",Invoice,"Credit Memo",Contract;
+    begin
+        DocNoVisible := DocumentNoVisibility.ServiceDocumentNoIsVisible(DocType::"Credit Memo", Rec."No.");
     end;
 
     local procedure SetControlAppearance()
     begin
         IsServiceLinesEditable := Rec.ServiceLinesEditable();
         SetPostingGroupEditable();
+    end;
+
+    local procedure SetExtDocNoMandatoryCondition()
+    begin
+        ServiceMgtSetup.GetRecordOnce();
+        ExternalDocNoMandatory := ServiceMgtSetup."Ext. Doc. No. Mandatory";
     end;
 
     procedure RunBackgroundCheck()

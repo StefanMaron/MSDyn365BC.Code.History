@@ -435,31 +435,28 @@ report 10747 "Customer - Overdue Payments"
         DtldCustLedgEntry: Record "Detailed Cust. Ledg. Entry";
         PayCustLedgEntry: Record "Cust. Ledger Entry";
     begin
-        with DtldCustLedgEntry do begin
-            SetCurrentKey("Applied Cust. Ledger Entry No.", "Entry Type");
-            SetRange(
-              "Applied Cust. Ledger Entry No.", AppliedCustLedgEntryNo);
-            SetRange("Entry Type", "Entry Type"::Application);
-            SetRange(Unapplied, false);
-            SetRange("Posting Date", StartDate, EndDate);
-            if FindSet() then
-                repeat
-                    if "Cust. Ledger Entry No." <> "Applied Cust. Ledger Entry No." then begin
-                        if IsPaymentEntry("Cust. Ledger Entry No.", PayCustLedgEntry) and
-                           PrintEntry(InvCustLedgEntry, "Posting Date")
-                        then begin
-                            AppldCustLedgEntryTmp := DtldCustLedgEntry;
-                            AppldCustLedgEntryTmp."Document No." := PayCustLedgEntry."Document No.";
-                            AppldCustLedgEntryTmp."Currency Code" := PayCustLedgEntry."Currency Code";
-                            AppldCustLedgEntryTmp."Initial Entry Due Date" := InvCustLedgEntry."Due Date";
-                            AppldCustLedgEntryTmp.Amount := -AppldCustLedgEntryTmp.Amount;
-                            AppldCustLedgEntryTmp."Amount (LCY)" := -AppldCustLedgEntryTmp."Amount (LCY)";
-                            if AppldCustLedgEntryTmp.Insert() then;
-                            DtldEntryNoToLegalDueDateMap.Add(AppldCustLedgEntryTmp."Entry No.", CalcMaxDueDate(InvCustLedgEntry));
-                        end;
+        DtldCustLedgEntry.SetCurrentKey("Applied Cust. Ledger Entry No.", "Entry Type");
+        DtldCustLedgEntry.SetRange(
+          "Applied Cust. Ledger Entry No.", AppliedCustLedgEntryNo);
+        DtldCustLedgEntry.SetRange("Entry Type", DtldCustLedgEntry."Entry Type"::Application);
+        DtldCustLedgEntry.SetRange(Unapplied, false);
+        DtldCustLedgEntry.SetRange("Posting Date", StartDate, EndDate);
+        if DtldCustLedgEntry.FindSet() then
+            repeat
+                if DtldCustLedgEntry."Cust. Ledger Entry No." <> DtldCustLedgEntry."Applied Cust. Ledger Entry No." then
+                    if IsPaymentEntry(DtldCustLedgEntry."Cust. Ledger Entry No.", PayCustLedgEntry) and
+                       PrintEntry(InvCustLedgEntry, DtldCustLedgEntry."Posting Date")
+                    then begin
+                        AppldCustLedgEntryTmp := DtldCustLedgEntry;
+                        AppldCustLedgEntryTmp."Document No." := PayCustLedgEntry."Document No.";
+                        AppldCustLedgEntryTmp."Currency Code" := PayCustLedgEntry."Currency Code";
+                        AppldCustLedgEntryTmp."Initial Entry Due Date" := InvCustLedgEntry."Due Date";
+                        AppldCustLedgEntryTmp.Amount := -AppldCustLedgEntryTmp.Amount;
+                        AppldCustLedgEntryTmp."Amount (LCY)" := -AppldCustLedgEntryTmp."Amount (LCY)";
+                        if AppldCustLedgEntryTmp.Insert() then;
+                        DtldEntryNoToLegalDueDateMap.Add(AppldCustLedgEntryTmp."Entry No.", CalcMaxDueDate(InvCustLedgEntry));
                     end;
-                until Next() = 0;
-        end;
+            until DtldCustLedgEntry.Next() = 0;
     end;
 
     local procedure FindAppInvToPaym(DtldCustLedgEntry: Record "Detailed Cust. Ledg. Entry"; InvCustLedgEntry: Record "Cust. Ledger Entry")

@@ -40,7 +40,7 @@
 
         // Setup: Update Additional Currency in General Ledger Setup and Create Currency with Customer.
         Initialize();
-        CurrencyCode := CreateCurrencyAndExchangeRate;
+        CurrencyCode := CreateCurrencyAndExchangeRate();
         UpdateAddnlReportingCurrency(CurrencyCode);
         Amount := LibraryRandom.RandDec(100, 2);
         AmountLCY := Round(LibraryERM.ConvertCurrency(Amount, '', CurrencyCode, WorkDate()));
@@ -76,7 +76,7 @@
 
         // Setup: Update Additional Currency in General Ledger Setup and Create Currency with Customer.
         Initialize();
-        CurrencyCode := CreateCurrencyAndExchangeRate;
+        CurrencyCode := CreateCurrencyAndExchangeRate();
         UpdateAddnlReportingCurrency(CurrencyCode);
         Amount := LibraryRandom.RandDec(100, 2);
         AmountLCY := Round(LibraryERM.ConvertCurrency(Amount, '', CurrencyCode, WorkDate()));
@@ -112,7 +112,7 @@
 
         // Setup: Update Additional Currency in General Ledger Setup and Create Currency with Customer.
         Initialize();
-        CurrencyCode := CreateCurrencyAndExchangeRate;
+        CurrencyCode := CreateCurrencyAndExchangeRate();
         UpdateAddnlReportingCurrency(CurrencyCode);
         AmountLCY := Round(LibraryERM.ConvertCurrency(LibraryRandom.RandDec(100, 2), '', CurrencyCode, WorkDate()));
 
@@ -154,7 +154,7 @@
         // Setup: Update Additional Currency in General Ledger Setup and Create Currency with Customer and Random Values.
         // Create and Post Sales Invoice.
         Initialize();
-        CurrencyCode := CreateCurrencyAndExchangeRate;
+        CurrencyCode := CreateCurrencyAndExchangeRate();
         UpdateAddnlReportingCurrency(CurrencyCode);
         Amount := LibraryRandom.RandDec(100, 2);
         LineAmount := CreateAndPostSalesInvoice(SalesHeader, Amount, CurrencyCode);
@@ -225,7 +225,7 @@
         Amount: Decimal;
     begin
         Initialize();
-        CurrencyCode := CreateCurrencyAndExchangeRate;
+        CurrencyCode := CreateCurrencyAndExchangeRate();
         UpdateAddnlReportingCurrency(CurrencyCode);
 
         Amount := LibraryRandom.RandDec(100, 2);
@@ -267,7 +267,7 @@
 
         // Setup: Update Additional Currency in General Ledger Setup and Create Currency with Vendor.
         Initialize();
-        CurrencyCode := CreateCurrencyAndExchangeRate;
+        CurrencyCode := CreateCurrencyAndExchangeRate();
         UpdateAddnlReportingCurrency(CurrencyCode);
         Amount := LibraryRandom.RandDec(100, 2);
         AmountLCY := Round(LibraryERM.ConvertCurrency(Amount, '', CurrencyCode, WorkDate()));
@@ -301,7 +301,7 @@
 
         // Setup: Update Additional Currency in General Ledger Setup and Create Currency with Vendor.
         Initialize();
-        CurrencyCode := CreateCurrencyAndExchangeRate;
+        CurrencyCode := CreateCurrencyAndExchangeRate();
         UpdateAddnlReportingCurrency(CurrencyCode);
         Amount := LibraryRandom.RandDec(100, 2);
         AmountLCY := Round(LibraryERM.ConvertCurrency(Amount, '', CurrencyCode, WorkDate()));
@@ -337,7 +337,7 @@
 
         // Setup: Update Additional Currency in General Ledger Setup and Create Currency with Customer and Random Values.
         Initialize();
-        CurrencyCode := CreateCurrencyAndExchangeRate;
+        CurrencyCode := CreateCurrencyAndExchangeRate();
         UpdateAddnlReportingCurrency(CurrencyCode);
         AmountLCY := Round(LibraryERM.ConvertCurrency(LibraryRandom.RandDec(100, 2), '', CurrencyCode, WorkDate()));
 
@@ -377,7 +377,7 @@
 
         // Setup: Update Additional Currency in General Ledger Setup and Create Currency with Vendor and Random Values.
         Initialize();
-        CurrencyCode := CreateCurrencyAndExchangeRate;
+        CurrencyCode := CreateCurrencyAndExchangeRate();
         UpdateAddnlReportingCurrency(CurrencyCode);
         Amount := LibraryRandom.RandDec(100, 2);
         LineAmount := CreateAndPostPurchaseInvoice(PurchaseHeader, DocumentNo, Amount, CurrencyCode);
@@ -446,7 +446,7 @@
         Amount: Decimal;
     begin
         Initialize();
-        CurrencyCode := CreateCurrencyAndExchangeRate;
+        CurrencyCode := CreateCurrencyAndExchangeRate();
         UpdateAddnlReportingCurrency(CurrencyCode);
 
         Amount := LibraryRandom.RandDec(100, 2);
@@ -532,7 +532,7 @@
 
         Initialize();
         // [GIVEN] "Additional Currency Code" = "X"
-        CurrencyCode := CreateCurrencyAndExchangeRate;
+        CurrencyCode := CreateCurrencyAndExchangeRate();
         UpdateAddnlReportingCurrency(CurrencyCode);
         // [GIVEN] Payment Method with Bal. Account No. = "Y"
         CreatePaymentMethodWithBalAccount(PaymentMethod);
@@ -552,7 +552,7 @@
         with PaymentMethod do begin
             LibraryERM.CreatePaymentMethod(PaymentMethod);
             Validate("Bal. Account Type", "Bal. Account Type"::"G/L Account");
-            Validate("Bal. Account No.", LibraryERM.CreateGLAccountNo);
+            Validate("Bal. Account No.", LibraryERM.CreateGLAccountNo());
             Modify(true);
         end;
     end;
@@ -569,7 +569,7 @@
         if IsCust then
             for i := 1 to ArrayLen(Amounts) do
                 Amounts[i] := -Amounts[i];
-        CurrencyCode := CreateCurrency;
+        CurrencyCode := CreateCurrency();
         CreateAddExchRate(CurrencyCode, Dates[1], 0.857);
         CreateAddExchRate(CurrencyCode, Dates[2], 0.85365);
         UpdateAddnlReportingCurrency(CurrencyCode);
@@ -599,7 +599,7 @@
                 BalAccountType := "Bal. Account Type"::Customer;
             exit(
               CreatePostGenJnlLineWithBalanceAcc(
-                PostingDate, DocType, "Account Type"::"G/L Account", LibraryERM.CreateGLAccountNoWithDirectPosting,
+                PostingDate, DocType, "Account Type"::"G/L Account", LibraryERM.CreateGLAccountNoWithDirectPosting(),
                 BalAccountType, CVNo, CurrencyCode, PayAmount));
         end;
     end;
@@ -667,7 +667,7 @@
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, CreateCustomer(CurrencyCode));
         LibrarySales.CreateSalesLine(
           SalesLine, SalesHeader, SalesLine.Type::"G/L Account",
-          ModifyGLAccount(LibraryERM.CreateGLAccountNoWithDirectPosting), LibraryRandom.RandInt(10));
+          ModifyGLAccount(LibraryERM.CreateGLAccountNoWithDirectPosting()), LibraryRandom.RandInt(10));
         SalesLine.Validate("Unit Price", UnitPrice);
         SalesLine.Modify(true);
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
@@ -684,7 +684,7 @@
         LibraryPurchase.CreatePurchaseLine(
           PurchaseLine, PurchaseHeader,
           PurchaseLine.Type::"G/L Account",
-          ModifyGLAccount(LibraryERM.CreateGLAccountNoWithDirectPosting), LibraryRandom.RandInt(10));
+          ModifyGLAccount(LibraryERM.CreateGLAccountNoWithDirectPosting()), LibraryRandom.RandInt(10));
         PurchaseLine.Validate("Direct Unit Cost", DirectUnitCost);
         PurchaseLine.Modify(true);
         DocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
@@ -736,7 +736,7 @@
 
         // Setup.
         Initialize();
-        CurrencyCode := CreateCurrencyAndExchangeRate;
+        CurrencyCode := CreateCurrencyAndExchangeRate();
 
         Amount := LibraryRandom.RandDec(100, 2);
         AmountLCY := Round(LibraryERM.ConvertCurrency(Amount, CurrencyCode, '', WorkDate()));
@@ -746,7 +746,7 @@
         // Exercise.
         DocumentNo :=
           CreatePostGenJnlLineWithBalanceAcc(
-            WorkDate, GenJournalLine."Document Type"::" ",
+            WorkDate(), GenJournalLine."Document Type"::" ",
             GenJournalLine."Account Type"::"Bank Account", CreateBankAccount(CurrencyCode),
             GenJournalLine."Account Type"::"Bank Account", BankAccountNo, CurrencyCode, Amount);
 
@@ -784,7 +784,7 @@
 
     local procedure CreateCurrencyAndExchangeRate() CurrencyCode: Code[10]
     begin
-        CurrencyCode := CreateCurrency;
+        CurrencyCode := CreateCurrency();
         LibraryERM.CreateRandomExchangeRate(CurrencyCode);
     end;
 
@@ -797,14 +797,14 @@
             GeneralLedgerSetup.Get();
             LibraryERM.CreateCurrency(Currency);
             Validate("Invoice Rounding Precision", GeneralLedgerSetup."Inv. Rounding Precision (LCY)");
-            Validate("Residual Gains Account", LibraryERM.CreateGLAccountNo);
-            Validate("Residual Losses Account", LibraryERM.CreateGLAccountNo);
-            Validate("Realized G/L Gains Account", LibraryERM.CreateGLAccountNo);
-            Validate("Realized G/L Losses Account", LibraryERM.CreateGLAccountNo);
-            Validate("Realized Gains Acc.", LibraryERM.CreateGLAccountNo);
-            Validate("Realized Losses Acc.", LibraryERM.CreateGLAccountNo);
-            Validate("Unrealized Gains Acc.", LibraryERM.CreateGLAccountNo);
-            Validate("Unrealized Losses Acc.", LibraryERM.CreateGLAccountNo);
+            Validate("Residual Gains Account", LibraryERM.CreateGLAccountNo());
+            Validate("Residual Losses Account", LibraryERM.CreateGLAccountNo());
+            Validate("Realized G/L Gains Account", LibraryERM.CreateGLAccountNo());
+            Validate("Realized G/L Losses Account", LibraryERM.CreateGLAccountNo());
+            Validate("Realized Gains Acc.", LibraryERM.CreateGLAccountNo());
+            Validate("Realized Losses Acc.", LibraryERM.CreateGLAccountNo());
+            Validate("Unrealized Gains Acc.", LibraryERM.CreateGLAccountNo());
+            Validate("Unrealized Losses Acc.", LibraryERM.CreateGLAccountNo());
             Modify(true);
             exit(Code);
         end;

@@ -88,7 +88,7 @@ codeunit 147506 "Cartera Payable Unit Tests"
         Assert.IsFalse(POCommentLine.IsEmpty, '');
 
         // Teardown
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -133,12 +133,12 @@ codeunit 147506 "Cartera Payable Unit Tests"
         CreatePaymentOrderWithBankAccount(PaymentOrder[2]);
 
         // [GIVEN] Select Payment Order "PO2" from "Payment Orders List" page
-        PaymentOrdersList.OpenView;
+        PaymentOrdersList.OpenView();
         PaymentOrdersList.GotoRecord(PaymentOrder[2]);
 
         // [WHEN] Run General Action "Payment Orders Maturity"
-        PaymentOrdersMaturity.Trap;
-        PaymentOrdersList.GeneralPaymentOrdersMaturity.Invoke;
+        PaymentOrdersMaturity.Trap();
+        PaymentOrdersList.GeneralPaymentOrdersMaturity.Invoke();
 
         // [THEN] "Payment Orders Maturity" page is opened for Payment Order "PO2"
         Assert.AreEqual(PaymentOrder[2]."No.", PaymentOrdersMaturity.FILTER.GetFilter("No."), PaymentOrder[2].FieldCaption("No."));
@@ -161,12 +161,12 @@ codeunit 147506 "Cartera Payable Unit Tests"
         CreatePaymentOrderWithBankAccount(PaymentOrder[2]);
 
         // [GIVEN] Select Payment Order "PO2" from "Payment Orders" page.
-        PaymentOrders.OpenView;
+        PaymentOrders.OpenView();
         PaymentOrders.GotoRecord(PaymentOrder[2]);
 
         // [WHEN] Run Action "Payment Orders Maturity".
-        PaymentOrdersMaturity.Trap;
-        PaymentOrders."Page Payment Orders Maturity Process".Invoke;
+        PaymentOrdersMaturity.Trap();
+        PaymentOrders."Page Payment Orders Maturity Process".Invoke();
 
         // [THEN] "Payment Orders Maturity" page is opened for Payment Order "PO2"
         Assert.AreEqual(
@@ -190,12 +190,12 @@ codeunit 147506 "Cartera Payable Unit Tests"
         MockPostedPaymentOrder(PostedPaymentOrder);
 
         // [GIVEN] Select Posted Payment Order "PPO2" from "Posted Payment Orders" page.
-        PostedPaymentOrders.OpenView;
+        PostedPaymentOrders.OpenView();
         PostedPaymentOrders.GotoRecord(PostedPaymentOrder);
 
         // [WHEN] Run Action "Posted Payment Orders Maturity".
-        PostedPaymentOrdersMaturity.Trap;
-        PostedPaymentOrders."Page Posted Payment Orders Maturity Process".Invoke;
+        PostedPaymentOrdersMaturity.Trap();
+        PostedPaymentOrders."Page Posted Payment Orders Maturity Process".Invoke();
 
         // [THEN] "Posted Payment Orders Maturity" page is opened for Posted Payment Order "PPO2".
         Assert.AreEqual(
@@ -219,12 +219,12 @@ codeunit 147506 "Cartera Payable Unit Tests"
         MockPostedPaymentOrder(PostedPaymentOrder);
 
         // [GIVEN] Select Posted Payment Order "PPO2" from "Posted Payment Orders List" page.
-        PostedPaymentOrdersList.OpenView;
+        PostedPaymentOrdersList.OpenView();
         PostedPaymentOrdersList.GotoRecord(PostedPaymentOrder);
 
         // [WHEN] Run Action "Posted Payment Orders Maturity".
-        PostedPaymentOrdersMaturity.Trap;
-        PostedPaymentOrdersList."Page Posted Payment Orders Maturity Process".Invoke;
+        PostedPaymentOrdersMaturity.Trap();
+        PostedPaymentOrdersList."Page Posted Payment Orders Maturity Process".Invoke();
 
         // [THEN] "Posted Payment Orders Maturity" page is opened for Posted Payment Order "PPO2".
         Assert.AreEqual(
@@ -247,11 +247,11 @@ codeunit 147506 "Cartera Payable Unit Tests"
         MockPayableCarteraDoc(CarteraDoc);
 
         // [GIVEN] Open a Page for Payables Cartera Docs
-        PayablesCarteraDocs.OpenView;
+        PayablesCarteraDocs.OpenView();
 
         // [WHEN] Run Action "Documents Maturity"
-        DocumentsMaturity.Trap;
-        PayablesCarteraDocs."Documents Maturity".Invoke;
+        DocumentsMaturity.Trap();
+        PayablesCarteraDocs."Documents Maturity".Invoke();
 
         // [THEN] A filter for the field "Type" is transfered to the Documents Maturity Page.
         Assert.AreEqual(
@@ -277,12 +277,12 @@ codeunit 147506 "Cartera Payable Unit Tests"
         MockPostedPaymentOrder(PostedPaymentOrder);
 
         // [GIVEN] Open "Posted Payment Orders Select." page on "PPO2"
-        PostedPaymentOrdersSelect.OpenView;
+        PostedPaymentOrdersSelect.OpenView();
         PostedPaymentOrdersSelect.GotoRecord(PostedPaymentOrder);
 
         // [WHEN] Run Action "Posted Payment Orders Maturity".
-        PostedPaymentOrdersMaturity.Trap;
-        PostedPaymentOrdersSelect."Posted Payment Orders Maturity".Invoke;
+        PostedPaymentOrdersMaturity.Trap();
+        PostedPaymentOrdersSelect."Posted Payment Orders Maturity".Invoke();
 
         // [THEN] "Posted Payment Orders Maturity" page is opened for Posted Payment Order "PPO2".
         Assert.AreEqual(
@@ -311,7 +311,7 @@ codeunit 147506 "Cartera Payable Unit Tests"
         Commit();
 
         // [GIVEN] Customer license with indirect permissions (RxMx) to "Cartera Doc."
-        // TODO: Uncomment LibraryLowerPermissions.SetVendorView; // includes "LOCAL" role with changed permissions to "Cartera Doc."
+        // TODO: Uncomment LibraryLowerPermissions.SetVendorView(); // includes "LOCAL" role with changed permissions to "Cartera Doc."
         // [GIVEN] "Cartera Doc." can not be read or modified directly due to indirect permissions
         asserterror CarteraDoc.Find();
         Assert.ExpectedErrorCode('DB:ClientReadDenied');
@@ -323,7 +323,7 @@ codeunit 147506 "Cartera Payable Unit Tests"
         // [GIVEN] Vendor Ledger Entry page
         // [WHEN] Modify "Payment Method Code"
         // [THEN] "Payment Method Code" has been validated and linked "Cartera Doc." record has been updated
-        VendorLedgerEntries.OpenEdit;
+        VendorLedgerEntries.OpenEdit();
         VendorLedgerEntries.GotoRecord(VendorLedgerEntry);
         VendorLedgerEntries."Payment Method Code".SetValue(PaymentMethod.Code);
         VendorLedgerEntries.Close();
@@ -400,18 +400,18 @@ codeunit 147506 "Cartera Payable Unit Tests"
     var
         PaymentOrdersList: TestPage "Payment Orders List";
     begin
-        PaymentOrdersList.OpenEdit;
+        PaymentOrdersList.OpenEdit();
         PaymentOrdersList.GotoKey(PaymentOrderNo);
-        PaymentOrdersList.Comments.Invoke;
+        PaymentOrdersList.Comments.Invoke();
     end;
 
     local procedure AddCommentLineFromCard(PaymentOrderNo: Code[20])
     var
         PaymentOrders: TestPage "Payment Orders";
     begin
-        PaymentOrders.OpenEdit;
+        PaymentOrders.OpenEdit();
         PaymentOrders.GotoKey(PaymentOrderNo);
-        PaymentOrders.Comments.Invoke;
+        PaymentOrders.Comments.Invoke();
     end;
 
     [PageHandler]
@@ -423,10 +423,10 @@ codeunit 147506 "Cartera Payable Unit Tests"
         Comment := LibraryUtility.GenerateGUID();
         LibraryVariableStorage.Enqueue(Comment);
 
-        POCommentSheet.New;
+        POCommentSheet.New();
         POCommentSheet.Date.SetValue(WorkDate());
         POCommentSheet.Comment.SetValue(Comment);
-        POCommentSheet.OK.Invoke;
+        POCommentSheet.OK().Invoke();
     end;
 }
 

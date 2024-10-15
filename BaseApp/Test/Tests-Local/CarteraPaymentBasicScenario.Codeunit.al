@@ -58,7 +58,7 @@ codeunit 147500 "Cartera Payment Basic Scenario"
         PostedPaymentOrder.SetFilter("No.", PaymentOrder."No.");
         PostedPaymentOrder.FindFirst();
 
-        PostedPaymentOrdersAnalysisTestPage.OpenEdit;
+        PostedPaymentOrdersAnalysisTestPage.OpenEdit();
         PostedPaymentOrdersAnalysisTestPage.GotoRecord(PostedPaymentOrder);
 
         // Validate
@@ -568,12 +568,12 @@ codeunit 147500 "Cartera Payment Basic Scenario"
         ClosedPaymentOrder.SetRange("No.", PaymentOrder."No.");
         ClosedPaymentOrder.FindFirst();
 
-        ClosedPaymentOrderTestPage.OpenEdit;
+        ClosedPaymentOrderTestPage.OpenEdit();
         ClosedPaymentOrderTestPage.GotoRecord(ClosedPaymentOrder);
 
-        LibraryVariableStorage.Enqueue(ClosedPaymentOrderTestPage.Docs."Due Date".AsDate);
+        LibraryVariableStorage.Enqueue(ClosedPaymentOrderTestPage.Docs."Due Date".AsDate());
         LibraryVariableStorage.Enqueue(StrSubstNo(SuccessfulBillRedrawMsg, 1));
-        ClosedPaymentOrderTestPage.Docs.Redraw.Invoke;
+        ClosedPaymentOrderTestPage.Docs.Redraw.Invoke();
 
         // Verify
         ClosedCarteraDoc.SetRange("Document No.", DocumentNo);
@@ -622,12 +622,12 @@ codeunit 147500 "Cartera Payment Basic Scenario"
         ClosedPaymentOrder.SetRange("No.", PaymentOrderNo);
         ClosedPaymentOrder.FindFirst();
 
-        ClosedPaymentOrderTestPage.OpenEdit;
+        ClosedPaymentOrderTestPage.OpenEdit();
         ClosedPaymentOrderTestPage.GotoRecord(ClosedPaymentOrder);
 
-        LibraryVariableStorage.Enqueue(ClosedPaymentOrderTestPage.Docs."Due Date".AsDate);
+        LibraryVariableStorage.Enqueue(ClosedPaymentOrderTestPage.Docs."Due Date".AsDate());
         LibraryVariableStorage.Enqueue(StrSubstNo(SuccessfulBillRedrawMsg, 1));
-        ClosedPaymentOrderTestPage.Docs.Redraw.Invoke;
+        ClosedPaymentOrderTestPage.Docs.Redraw.Invoke();
 
         // Verify
         ClosedCarteraDoc.SetRange("Document No.", DocumentNo);
@@ -680,14 +680,14 @@ codeunit 147500 "Cartera Payment Basic Scenario"
         PostedPaymentOrder.SetFilter("No.", PaymentOrder."No.");
         PostedPaymentOrder.FindFirst();
 
-        PostedPaymentOrderTestPage.OpenEdit;
+        PostedPaymentOrderTestPage.OpenEdit();
         PostedPaymentOrderTestPage.GotoRecord(PostedPaymentOrder);
 
         // [WHEN] Redraw 1st Cartera Bill
         PostedPaymentOrderTestPage.Docs.GotoRecord(PostedCarteraDoc);
-        LibraryVariableStorage.Enqueue(PostedPaymentOrderTestPage.Docs."Due Date".AsDate);
+        LibraryVariableStorage.Enqueue(PostedPaymentOrderTestPage.Docs."Due Date".AsDate());
         LibraryVariableStorage.Enqueue(StrSubstNo(SuccessfulBillRedrawMsg, 1));
-        PostedPaymentOrderTestPage.Docs.Redraw.Invoke;
+        PostedPaymentOrderTestPage.Docs.Redraw.Invoke();
 
         // [THEN] Bank Ledger Entries balance is reversed to 0
         VerifyBankLedgerEntriesAmountSumEqualsZero(PaymentOrder."Bank Account No.");
@@ -867,7 +867,7 @@ codeunit 147500 "Cartera Payment Basic Scenario"
         Initialize();
 
         // [GIVEN] Currency with Currency Factor on Date1 (1.0487), Date3 (1.223), Date4 (1.0788)
-        CurrencyCode := CreateCurrencyForPaymentOrder;
+        CurrencyCode := CreateCurrencyForPaymentOrder();
         SetScenarioRatesDates(CurrencyExchRate, PostingDate);
         LibraryERM.CreateExchangeRate(CurrencyCode, PostingDate[1], CurrencyExchRate[1], CurrencyExchRate[1]);
         LibraryERM.CreateExchangeRate(CurrencyCode, PostingDate[3], CurrencyExchRate[3], CurrencyExchRate[3]);
@@ -915,7 +915,7 @@ codeunit 147500 "Cartera Payment Basic Scenario"
         Initialize();
 
         // [GIVEN] Currency with Currency Factor on Date1 (1.0487), Date3 (1.223), Date4 (1.0788)
-        CurrencyCode := CreateCurrencyForPaymentOrder;
+        CurrencyCode := CreateCurrencyForPaymentOrder();
         SetScenarioRatesDates(CurrencyExchRate, PostingDate);
         LibraryERM.CreateExchangeRate(CurrencyCode, PostingDate[1], CurrencyExchRate[1], CurrencyExchRate[1]);
         LibraryERM.CreateExchangeRate(CurrencyCode, PostingDate[3], CurrencyExchRate[3], CurrencyExchRate[3]);
@@ -962,7 +962,7 @@ codeunit 147500 "Cartera Payment Basic Scenario"
         Initialize();
 
         // [GIVEN] Currency with Currency Factor = "X" on Date1 (1.0487), Date3 (1.223), Date4 (1.0788)
-        CurrencyCode := CreateCurrencyForPaymentOrder;
+        CurrencyCode := CreateCurrencyForPaymentOrder();
         SetScenarioRatesDates(CurrencyExchRate, PostingDate);
         LibraryERM.CreateExchangeRate(CurrencyCode, PostingDate[1], CurrencyExchRate[1], CurrencyExchRate[1]);
         LibraryERM.CreateExchangeRate(CurrencyCode, PostingDate[3], CurrencyExchRate[3], CurrencyExchRate[3]);
@@ -1009,7 +1009,7 @@ codeunit 147500 "Cartera Payment Basic Scenario"
         Initialize();
 
         // [GIVEN] Currency with Currency Factor = "X" on Date1 (1.0487), Date3 (1.223), Date4 (1.0788)
-        CurrencyCode := CreateCurrencyForPaymentOrder;
+        CurrencyCode := CreateCurrencyForPaymentOrder();
         SetScenarioRatesDates(CurrencyExchRate, PostingDate);
         LibraryERM.CreateExchangeRate(CurrencyCode, PostingDate[1], CurrencyExchRate[1], CurrencyExchRate[1]);
         LibraryERM.CreateExchangeRate(CurrencyCode, PostingDate[3], CurrencyExchRate[3], CurrencyExchRate[3]);
@@ -1230,7 +1230,7 @@ codeunit 147500 "Cartera Payment Basic Scenario"
         Initialize();
 
         // [GIVEN] Currency with Currency Factor = "X" on Date1 (1.0487), Date2 (1.112), Date3 (1.223)
-        CurrencyCode := CreateCurrencyForPaymentOrder;
+        CurrencyCode := CreateCurrencyForPaymentOrder();
         SetScenarioRatesDates(CurrencyExchRate, PostingDate);
         LibraryERM.CreateExchangeRate(CurrencyCode, PostingDate[1], CurrencyExchRate[1], CurrencyExchRate[1]);
         LibraryERM.CreateExchangeRate(CurrencyCode, PostingDate[2], CurrencyExchRate[2], CurrencyExchRate[2]);
@@ -1276,7 +1276,7 @@ codeunit 147500 "Cartera Payment Basic Scenario"
         Initialize();
 
         // [GIVEN] Currency with Currency Factor = "X" on Date1 (1.0487), Date2 (1.112), Date3 (1.223)
-        CurrencyCode := CreateCurrencyForPaymentOrder;
+        CurrencyCode := CreateCurrencyForPaymentOrder();
         SetScenarioRatesDates(CurrencyExchRate, PostingDate);
         LibraryERM.CreateExchangeRate(CurrencyCode, PostingDate[1], CurrencyExchRate[1], CurrencyExchRate[1]);
         LibraryERM.CreateExchangeRate(CurrencyCode, PostingDate[2], CurrencyExchRate[2], CurrencyExchRate[2]);
@@ -1472,10 +1472,10 @@ codeunit 147500 "Cartera Payment Basic Scenario"
         // [SCENARIO 294053] Settle posted payment order in FCY for different exchange rates
         Initialize();
 
-        // [GIVEN] Dates: D1 = WORKDATE, D2 = WORKDATE + 1, D3 = WORKDATE + 2
+        // [GIVEN] Dates: D1 = WorkDate(), D2 = WorkDate() + 1, D3 = WorkDate() + 2
         PostingDate[1] := WorkDate();
-        PostingDate[2] := WorkDate + 1;
-        PostingDate[3] := WorkDate + 2;
+        PostingDate[2] := WorkDate() + 1;
+        PostingDate[3] := WorkDate() + 2;
         // [GIVEN] Currency (CURR) with exchange rate on D1
         // [GIVEN] Posted Purchase Invoice (PPI) in CURR on D1
         // [GIVEN] Posted Payment Order (PPO) in CURR on D3
@@ -1509,10 +1509,10 @@ codeunit 147500 "Cartera Payment Basic Scenario"
         // [SCENARIO 294053] Settle posted payment order in FCY for different exchange rates
         Initialize();
 
-        // [GIVEN] Dates: D1 = WORKDATE, D2 = WORKDATE + 1, D3 = WORKDATE + 2
+        // [GIVEN] Dates: D1 = WorkDate(), D2 = WorkDate() + 1, D3 = WorkDate() + 2
         PostingDate[1] := WorkDate();
-        PostingDate[2] := WorkDate + 1;
-        PostingDate[3] := WorkDate + 2;
+        PostingDate[2] := WorkDate() + 1;
+        PostingDate[3] := WorkDate() + 2;
         // [GIVEN] Currency (CURR) with exchange rate on D1
         // [GIVEN] Posted Purchase Invoice (PPI) in CURR on D1
         // [GIVEN] Posted Payment Order (PPO) in CURR on D3
@@ -1553,7 +1553,6 @@ codeunit 147500 "Cartera Payment Basic Scenario"
     procedure CheckBillSituation_UT_OpenPaymentOrder()
     var
         VendorLedgerEntry: Record "Vendor Ledger Entry";
-        CarteraDoc: Record "Cartera Doc.";
     begin
         // [FEATURE] [UT]
         // [SCENARIO 363341] TAB 25 "Vendor Ledger Entry".CheckBillSituation() throws an error in case of
@@ -1935,7 +1934,7 @@ codeunit 147500 "Cartera Payment Basic Scenario"
     begin
         PostedPaymentOrder.Get(PostedPaymentOrderNo);
 
-        PostedPaymentOrderTestPage.OpenEdit;
+        PostedPaymentOrderTestPage.OpenEdit();
         PostedPaymentOrderTestPage.GotoRecord(PostedPaymentOrder);
 
         PostedCarteraDoc.SetFilter("Document No.", ItemNo);
@@ -1944,8 +1943,8 @@ codeunit 147500 "Cartera Payment Basic Scenario"
         PostedPaymentOrderTestPage.Docs.GotoRecord(PostedCarteraDoc);
         LibraryVariableStorage.Enqueue(PostedPaymentOrder."Posting Date");
         LibraryVariableStorage.Enqueue(
-          StrSubstNo(SettlementCompletedSuccessfullyMsg, 1, PostedPaymentOrderTestPage.Docs."Remaining Amount".AsDEcimal));
-        PostedPaymentOrderTestPage.Docs.TotalSettlement.Invoke;
+          StrSubstNo(SettlementCompletedSuccessfullyMsg, 1, PostedPaymentOrderTestPage.Docs."Remaining Amount".AsDecimal()));
+        PostedPaymentOrderTestPage.Docs.TotalSettlement.Invoke();
     end;
 
     local procedure AddCarteraDocumentToPaymentOrder(PaymentOrderNo: Code[20]; DocumentNo: Code[20])
@@ -1955,14 +1954,14 @@ codeunit 147500 "Cartera Payment Basic Scenario"
         LibraryVariableStorage.Enqueue(DocumentNo); // for CarteraDocumentsActionModalPageHandler
 
         // Open the PaymentOrder page pointing to the created Payment Order record
-        PaymentOrders.OpenEdit;
+        PaymentOrders.OpenEdit();
         PaymentOrders.GotoKey(PaymentOrderNo);
 
         // Insert a Payable Cartera Document using the Page Part 'Docs'
-        PaymentOrders.Docs.Insert.Invoke;
+        PaymentOrders.Docs.Insert.Invoke();
 
         // Save the changes, as the cartera document has been added to the Payment Order
-        PaymentOrders.OK.Invoke;
+        PaymentOrders.OK().Invoke();
     end;
 
     local procedure ApplyHeaderToBill(var PurchaseHeader: Record "Purchase Header"; DocumentNo: Code[20]; BillNo: Code[20])
@@ -1993,18 +1992,18 @@ codeunit 147500 "Cartera Payment Basic Scenario"
     var
         PaymentOrders: TestPage "Payment Orders";
     begin
-        PaymentOrders.OpenEdit;
+        PaymentOrders.OpenEdit();
         PaymentOrders.GotoKey(PaymentOrderNo);
-        PaymentOrders.Post.Invoke;
+        PaymentOrders.Post.Invoke();
     end;
 
     local procedure PostPaymentOrderFromList(PaymentOrderNo: Code[20])
     var
         PaymentOrdersList: TestPage "Payment Orders List";
     begin
-        PaymentOrdersList.OpenView;
+        PaymentOrdersList.OpenView();
         PaymentOrdersList.GotoKey(PaymentOrderNo);
-        PaymentOrdersList.Post.Invoke;
+        PaymentOrdersList.Post.Invoke();
     end;
 
     local procedure PrepareVendorRelatedRecords(var Vendor: Record Vendor; CurrencyCode: Code[10])
@@ -2021,10 +2020,10 @@ codeunit 147500 "Cartera Payment Basic Scenario"
         PaymentOrder.SetRange("No.", PaymentOrderNo);
         PaymentOrder.FindFirst();
 
-        PaymentOrdersTestPage.OpenEdit;
+        PaymentOrdersTestPage.OpenEdit();
         PaymentOrdersTestPage.GotoRecord(PaymentOrder);
-        PaymentOrdersTestPage.Docs.Remove.Invoke;
-        PaymentOrdersTestPage.OK.Invoke;
+        PaymentOrdersTestPage.Docs.Remove.Invoke();
+        PaymentOrdersTestPage.OK().Invoke();
     end;
 
     local procedure VerifyBankLedgerEntriesAmountSumEqualsZero(BankAccountNo: Code[20])
@@ -2112,11 +2111,11 @@ codeunit 147500 "Cartera Payment Basic Scenario"
         VendorDuePayments.RunModal();
         Clear(VendorDuePayments);
 
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
 
-        Assert.AreEqual(1, LibraryReportDataset.RowCount, '');
+        Assert.AreEqual(1, LibraryReportDataset.RowCount(), '');
 
-        LibraryReportDataset.GetNextRow;
+        LibraryReportDataset.GetNextRow();
 
         LibraryReportDataset.GetElementValueInCurrentRow('Vendor_Ledger_Entry__Vendor_No__', VendorNoInReport);
         Assert.AreEqual(VendorNoInReport, VendorNo, '');
@@ -2161,7 +2160,7 @@ codeunit 147500 "Cartera Payment Basic Scenario"
         ExchRate[4] := 1.0788;
 
         for i := 1 to ArrayLen(PostDate) do
-            PostDate[i] := WorkDate + (i - 1) * 2;
+            PostDate[i] := WorkDate() + (i - 1) * 2;
     end;
 
     local procedure CreateCarteraJournalLine(var GenJournalLine: Record "Gen. Journal Line"; VendorNo: Code[20]; CurrencyCode: Code[10])
@@ -2200,16 +2199,16 @@ codeunit 147500 "Cartera Payment Basic Scenario"
         PaymentOrders.OpenNew();
 
         LibraryVariableStorage.Enqueue(CurrencyCode);
-        PaymentOrders."Currency Code".Activate;
-        PaymentOrders."Currency Code".Lookup;
+        PaymentOrders."Currency Code".Activate();
+        PaymentOrders."Currency Code".Lookup();
 
         LibraryVariableStorage.Enqueue(BankAccountNo);
-        PaymentOrders."Bank Account No.".Activate;
-        PaymentOrders."Bank Account No.".Lookup;
+        PaymentOrders."Bank Account No.".Activate();
+        PaymentOrders."Bank Account No.".Lookup();
 
-        PaymentOrderNo := PaymentOrders."No.".Value;
+        PaymentOrderNo := PaymentOrders."No.".Value();
 
-        PaymentOrders.OK.Invoke;
+        PaymentOrders.OK().Invoke();
     end;
 
     local procedure CreatePaymentOrderAndAddDocument(var PaymentOrder: Record "Payment Order"; CurrencyCode: Code[10]; PostingDate: Date; DocumentNo: Code[20])
@@ -2243,9 +2242,9 @@ codeunit 147500 "Cartera Payment Basic Scenario"
         Currency: Record Currency;
     begin
         with Currency do begin
-            Get(LibraryERM.CreateCurrencyWithGLAccountSetup);
-            Validate("Unrealized Gains Acc.", LibraryERM.CreateGLAccountNo);
-            Validate("Unrealized Losses Acc.", LibraryERM.CreateGLAccountNo);
+            Get(LibraryERM.CreateCurrencyWithGLAccountSetup());
+            Validate("Unrealized Gains Acc.", LibraryERM.CreateGLAccountNo());
+            Validate("Unrealized Losses Acc.", LibraryERM.CreateGLAccountNo());
             Validate("Invoice Rounding Precision", "Amount Rounding Precision");
             Validate("Payment Orders", true);
             Modify(true);
@@ -2257,7 +2256,7 @@ codeunit 147500 "Cartera Payment Basic Scenario"
     var
         i: Integer;
     begin
-        CurrencyCode := CreateCurrencyForPaymentOrder;
+        CurrencyCode := CreateCurrencyForPaymentOrder();
         SetScenarioRatesDates(CurrencyExchRate, PostingDate);
         for i := 1 to ArrayLen(PostingDate) do
             LibraryERM.CreateExchangeRate(CurrencyCode, PostingDate[i], CurrencyExchRate[i], CurrencyExchRate[i]);
@@ -2379,7 +2378,7 @@ codeunit 147500 "Cartera Payment Basic Scenario"
         CarteraDoc.Modify(true);
     end;
 
-    local procedure UpdateVendorLedgerEntryDocumentSituation(DocumentNo: Code[20]; VendorNo: Code[20]; DocumentSituation: Option)
+    local procedure UpdateVendorLedgerEntryDocumentSituation(DocumentNo: Code[20]; VendorNo: Code[20]; DocumentSituation: Enum "ES Document Situation")
     var
         VendorLedgerEntry: Record "Vendor Ledger Entry";
     begin
@@ -2437,9 +2436,9 @@ codeunit 147500 "Cartera Payment Basic Scenario"
     begin
         PostedPaymentOrder.SetRange("No.", PaymentOrderNo);
         PostedPaymentOrder.FindFirst();
-        PostedPaymentOrders.OpenEdit;
+        PostedPaymentOrders.OpenEdit();
         PostedPaymentOrders.GotoRecord(PostedPaymentOrder);
-        PostedPaymentOrders.Docs.TotalSettlement.Invoke;
+        PostedPaymentOrders.Docs.TotalSettlement.Invoke();
     end;
 
     local procedure CreateCarteraPaymentMethod(var PaymentMethod: Record "Payment Method")
@@ -2489,7 +2488,7 @@ codeunit 147500 "Cartera Payment Basic Scenario"
     [Scope('OnPrem')]
     procedure ConfirmHandlerYes(Question: Text[1024]; var Reply: Boolean)
     begin
-        Assert.ExpectedMessage(LibraryVariableStorage.DequeueText, Question);
+        Assert.ExpectedMessage(LibraryVariableStorage.DequeueText(), Question);
         Reply := true;
     end;
 
@@ -2497,7 +2496,7 @@ codeunit 147500 "Cartera Payment Basic Scenario"
     [Scope('OnPrem')]
     procedure MessageVerifyHandler(Message: Text[1024])
     begin
-        Assert.ExpectedMessage(LibraryVariableStorage.DequeueText, Message)
+        Assert.ExpectedMessage(LibraryVariableStorage.DequeueText(), Message)
     end;
 
     [ConfirmHandler]
@@ -2519,7 +2518,7 @@ codeunit 147500 "Cartera Payment Basic Scenario"
     var
         CarteraDoc: Record "Cartera Doc.";
     begin
-        CarteraDoc.SetRange("Document No.", LibraryVariableStorage.DequeueText);
+        CarteraDoc.SetRange("Document No.", LibraryVariableStorage.DequeueText());
         CarteraDoc.FindLast();
 
         // From the Cartera Document page, select the record filtered by 'Document No.'
@@ -2532,23 +2531,23 @@ codeunit 147500 "Cartera Payment Basic Scenario"
     [Scope('OnPrem')]
     procedure RedrawPayableBillsPageHandler(var RedrawPayableBillsTestRequestPage: TestRequestPage "Redraw Payable Bills")
     begin
-        RedrawPayableBillsTestRequestPage.NewDueDate.SetValue(CalcDate('<1D>', LibraryVariableStorage.DequeueDate));
-        RedrawPayableBillsTestRequestPage.OK.Invoke;
+        RedrawPayableBillsTestRequestPage.NewDueDate.SetValue(CalcDate('<1D>', LibraryVariableStorage.DequeueDate()));
+        RedrawPayableBillsTestRequestPage.OK().Invoke();
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure SettleDocsInPostedPOModalPageHandler(var SettleDocsInPostedPOModalPageHandler: TestRequestPage "Settle Docs. in Posted PO")
     begin
-        SettleDocsInPostedPOModalPageHandler.PostingDate.SetValue(LibraryVariableStorage.DequeueDate);
-        SettleDocsInPostedPOModalPageHandler.OK.Invoke;
+        SettleDocsInPostedPOModalPageHandler.PostingDate.SetValue(LibraryVariableStorage.DequeueDate());
+        SettleDocsInPostedPOModalPageHandler.OK().Invoke();
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure VendorDuePaymentsRequestPageHandler(var VendorDuePaymentsRequestPage: TestRequestPage "Vendor - Due Payments")
     begin
-        VendorDuePaymentsRequestPage.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        VendorDuePaymentsRequestPage.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [ModalPageHandler]
@@ -2559,7 +2558,7 @@ codeunit 147500 "Cartera Payment Basic Scenario"
     begin
         LibraryVariableStorage.Dequeue(CurrencyCode);
         Currencies.GotoKey(CurrencyCode);
-        Currencies.OK.Invoke;
+        Currencies.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -2570,7 +2569,7 @@ codeunit 147500 "Cartera Payment Basic Scenario"
     begin
         LibraryVariableStorage.Dequeue(BankAccountNo);
         BankAccountList.GotoKey(BankAccountNo);
-        BankAccountList.OK.Invoke;
+        BankAccountList.OK().Invoke();
     end;
 
     [RequestPageHandler]
@@ -2597,12 +2596,12 @@ codeunit 147500 "Cartera Payment Basic Scenario"
         CarteraDoc.SetRange("Document No.", LibraryVariableStorage.DequeueText());
         CarteraDoc.FindFirst();
         if CarteraDocuments.First() then
-        repeat
-            if CarteraDocuments."Document No.".Value = CarteraDoc."Document No." then begin
-                CarteraDocuments.OK().Invoke();
-                exit;
-            end;
-        until CarteraDocuments.Next();
+            repeat
+                if CarteraDocuments."Document No.".Value = CarteraDoc."Document No." then begin
+                    CarteraDocuments.OK().Invoke();
+                    exit;
+                end;
+            until CarteraDocuments.Next();
     end;
 }
 

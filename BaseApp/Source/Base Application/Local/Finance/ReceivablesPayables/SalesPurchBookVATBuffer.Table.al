@@ -11,6 +11,7 @@ table 10704 "Sales/Purch. Book VAT Buffer"
 {
     Caption = 'Sales/Purch. Book VAT Buffer';
     LookupPageID = "VAT Entries";
+    DataClassification = CustomerContent;
 
     fields
     {

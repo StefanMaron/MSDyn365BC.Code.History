@@ -82,7 +82,7 @@ codeunit 134634 "Graph Collect Mgt Journal Line"
         JournalName := CreateJournalLinesJournal();
 
         // [GIVEN] a G/L Account with Direct Posting enabled
-        AccountNo := LibraryGraphJournalLines.CreateAccount;
+        AccountNo := LibraryGraphJournalLines.CreateAccount();
 
         // [WHEN] we create the lines with and without AccountNo and AccountId
         GLAccount.Reset();
@@ -138,7 +138,7 @@ codeunit 134634 "Graph Collect Mgt Journal Line"
         JournalName := CreateJournalLinesJournal();
 
         // [GIVEN] an AccountNo and AccountId of a deleted G/L Account
-        AccountNo := LibraryGraphJournalLines.CreateAccount;
+        AccountNo := LibraryGraphJournalLines.CreateAccount();
 
         // [WHEN] we create the lines with AccountNo and AccountId that do not match
         GLAccount.Reset();
@@ -175,7 +175,7 @@ codeunit 134634 "Graph Collect Mgt Journal Line"
         JournalName := CreateJournalLinesJournal();
 
         // [GIVEN] a G/L Account
-        AccountNo := LibraryGraphJournalLines.CreateAccount;
+        AccountNo := LibraryGraphJournalLines.CreateAccount();
 
         // [WHEN] we create the line with AccountNo and then blank it
         GLAccount.Reset();
@@ -239,21 +239,21 @@ codeunit 134634 "Graph Collect Mgt Journal Line"
         GenJournalLine.Reset();
         GraphMgtCustomerPayments.SetCustomerPaymentsFilters(GenJournalLine);
         GenJournalLine.SetRange("Line No.", LineNo[1]);
-        Assert.IsTrue(GenJournalLine.FindFirst, 'The customer payment should exist');
+        Assert.IsTrue(GenJournalLine.FindFirst(), 'The customer payment should exist');
         Assert.AreEqual(CustomerNo, GenJournalLine."Account No.", 'The CustomerNo is wrong');
         Assert.AreEqual(CustomerGUID, GenJournalLine."Customer Id", 'The CustomerId is wrong');
         GenJournalLine.Reset();
         GraphMgtCustomerPayments.SetCustomerPaymentsFilters(GenJournalLine);
         GenJournalLine.SetRange("Line No.", LineNo[2]);
         GenJournalLine.FindFirst();
-        Assert.IsTrue(GenJournalLine.FindFirst, 'The customer payment should exist');
+        Assert.IsTrue(GenJournalLine.FindFirst(), 'The customer payment should exist');
         Assert.AreEqual(CustomerNo, GenJournalLine."Account No.", 'The CustomerNo is wrong');
         Assert.AreEqual(CustomerGUID, GenJournalLine."Customer Id", 'The CustomerId is wrong');
         GenJournalLine.Reset();
         GraphMgtCustomerPayments.SetCustomerPaymentsFilters(GenJournalLine);
         GenJournalLine.SetRange("Line No.", LineNo[3]);
         GenJournalLine.FindFirst();
-        Assert.IsTrue(GenJournalLine.FindFirst, 'The customer payment should exist');
+        Assert.IsTrue(GenJournalLine.FindFirst(), 'The customer payment should exist');
         Assert.AreEqual(CustomerNo, GenJournalLine."Account No.", 'The CustomerNo is wrong');
         Assert.AreEqual(CustomerGUID, GenJournalLine."Customer Id", 'The CustomerId is wrong');
     end;
@@ -552,7 +552,7 @@ codeunit 134634 "Graph Collect Mgt Journal Line"
         JournalName := CreateJournalLinesJournal();
 
         // [GIVEN] a G/L Account with Direct Posting enabled
-        AccountNo := LibraryGraphJournalLines.CreateAccount;
+        AccountNo := LibraryGraphJournalLines.CreateAccount();
 
         // [GIVEN] a Journal Line with Account No but empty Account Id
         LineNo := LibraryGraphJournalLines.CreateJournalLine(JournalName, AccountNo, BlankGUID, 0, '');
@@ -564,7 +564,7 @@ codeunit 134634 "Graph Collect Mgt Journal Line"
         GenJournalLine.Modify(false);
 
         // [WHEN] we run the functions of HandleApiSetup
-        GraphMgtJournalLines.UpdateIds;
+        GraphMgtJournalLines.UpdateIds();
 
         // [THEN] the Id and AccountId should be set
         GenJournalLine.Reset();
@@ -593,7 +593,10 @@ codeunit 134634 "Graph Collect Mgt Journal Line"
         JournalName: Code[10];
     begin
         JournalName := LibraryUtility.GenerateRandomCode(GenJournalBatch.FieldNo(Name), DATABASE::"Gen. Journal Batch");
-        LibraryAPIGeneralJournal.EnsureGenJnlBatchExists(GraphMgtJournal.GetDefaultJournalLinesTemplateName, JournalName);
+        LibraryAPIGeneralJournal.EnsureGenJnlBatchExists(GraphMgtJournal.GetDefaultJournalLinesTemplateName(), JournalName);
+        GenJournalBatch.Get(GraphMgtJournal.GetDefaultJournalLinesTemplateName(), JournalName);
+        GenJournalBatch."No. Series" := '';
+        GenJournalBatch.Modify();
         exit(JournalName);
     end;
 
@@ -603,7 +606,7 @@ codeunit 134634 "Graph Collect Mgt Journal Line"
         JournalName: Code[10];
     begin
         JournalName := LibraryUtility.GenerateRandomCode(GenJournalBatch.FieldNo(Name), DATABASE::"Gen. Journal Batch");
-        LibraryAPIGeneralJournal.EnsureGenJnlBatchExists(GraphMgtJournal.GetDefaultCustomerPaymentsTemplateName, JournalName);
+        LibraryAPIGeneralJournal.EnsureGenJnlBatchExists(GraphMgtJournal.GetDefaultCustomerPaymentsTemplateName(), JournalName);
         exit(JournalName);
     end;
 }

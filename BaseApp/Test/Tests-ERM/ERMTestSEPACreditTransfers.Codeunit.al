@@ -289,12 +289,12 @@ codeunit 134403 "ERM Test SEPA Credit Transfers"
             TestField("Transaction ID", 'ID123');
             VendorLedgerEntry.CalcFields(Amount, "Remaining Amount");
             Assert.AreEqual(Vendor.Name, "Recipient Name", 'Wrong Creditor Name.');
-            Assert.AreEqual(VendorLedgerEntry."Document No.", AppliesToEntryDocumentNo, 'Wrong VLE Doc. No.');
-            Assert.AreEqual(VendorLedgerEntry.Description, AppliesToEntryDescription, 'Wrong VLE Description.');
-            Assert.AreEqual(VendorLedgerEntry."Posting Date", AppliesToEntryPostingDate, 'Wrong VLE Posting Date.');
-            Assert.AreEqual(VendorLedgerEntry."Currency Code", AppliesToEntryCurrencyCode, 'Wrong VLE Currency Code.');
-            Assert.AreEqual(VendorLedgerEntry.Amount, AppliesToEntryAmount, 'Wrong VLE Amount.');
-            Assert.AreEqual(VendorLedgerEntry."Remaining Amount", AppliesToEntryRemainingAmount, 'Wrong VLE Rem. Amt.');
+            Assert.AreEqual(VendorLedgerEntry."Document No.", AppliesToEntryDocumentNo(), 'Wrong VLE Doc. No.');
+            Assert.AreEqual(VendorLedgerEntry.Description, AppliesToEntryDescription(), 'Wrong VLE Description.');
+            Assert.AreEqual(VendorLedgerEntry."Posting Date", AppliesToEntryPostingDate(), 'Wrong VLE Posting Date.');
+            Assert.AreEqual(VendorLedgerEntry."Currency Code", AppliesToEntryCurrencyCode(), 'Wrong VLE Currency Code.');
+            Assert.AreEqual(VendorLedgerEntry.Amount, AppliesToEntryAmount(), 'Wrong VLE Amount.');
+            Assert.AreEqual(VendorLedgerEntry."Remaining Amount", AppliesToEntryRemainingAmount(), 'Wrong VLE Rem. Amt.');
 
             CreateNew(
               CredTrfRegNo, 0, GenJnlLine."Account Type"::Customer, CustLedgerEntry."Customer No.", CustLedgerEntry."Entry No.",
@@ -302,12 +302,12 @@ codeunit 134403 "ERM Test SEPA Credit Transfers"
               GenJnlLine."Recipient Bank Account", GenJnlLine."Message to Recipient");
             CustLedgerEntry.CalcFields(Amount, "Remaining Amount");
             Assert.AreEqual(Customer.Name, "Recipient Name", 'Wrong Creditor Name.');
-            Assert.AreEqual(CustLedgerEntry."Document No.", AppliesToEntryDocumentNo, 'Wrong CLE Doc. No.');
-            Assert.AreEqual(CustLedgerEntry.Description, AppliesToEntryDescription, 'Wrong CLE Description.');
-            Assert.AreEqual(CustLedgerEntry."Posting Date", AppliesToEntryPostingDate, 'Wrong CLE Posting Date.');
-            Assert.AreEqual(CustLedgerEntry."Currency Code", AppliesToEntryCurrencyCode, 'Wrong CLE Currency Code.');
-            Assert.AreEqual(CustLedgerEntry.Amount, AppliesToEntryAmount, 'Wrong CLE Amount.');
-            Assert.AreEqual(CustLedgerEntry."Remaining Amount", AppliesToEntryRemainingAmount, 'Wrong CLE Rem. Amt.');
+            Assert.AreEqual(CustLedgerEntry."Document No.", AppliesToEntryDocumentNo(), 'Wrong CLE Doc. No.');
+            Assert.AreEqual(CustLedgerEntry.Description, AppliesToEntryDescription(), 'Wrong CLE Description.');
+            Assert.AreEqual(CustLedgerEntry."Posting Date", AppliesToEntryPostingDate(), 'Wrong CLE Posting Date.');
+            Assert.AreEqual(CustLedgerEntry."Currency Code", AppliesToEntryCurrencyCode(), 'Wrong CLE Currency Code.');
+            Assert.AreEqual(CustLedgerEntry.Amount, AppliesToEntryAmount(), 'Wrong CLE Amount.');
+            Assert.AreEqual(CustLedgerEntry."Remaining Amount", AppliesToEntryRemainingAmount(), 'Wrong CLE Rem. Amt.');
 
             CreateNew(
               CredTrfRegNo, 0, GenJnlLine."Account Type"::Employee, EmployeeLedgerEntry."Employee No.", EmployeeLedgerEntry."Entry No.",
@@ -315,12 +315,12 @@ codeunit 134403 "ERM Test SEPA Credit Transfers"
               GenJnlLine."Recipient Bank Account", GenJnlLine."Message to Recipient");
             EmployeeLedgerEntry.CalcFields(Amount, "Remaining Amount");
             Assert.AreEqual(Employee.FullName(), "Recipient Name", 'Wrong Creditor Name.');
-            Assert.AreEqual(EmployeeLedgerEntry."Document No.", AppliesToEntryDocumentNo, 'Wrong ELE Doc. No.');
-            Assert.AreEqual(EmployeeLedgerEntry.Description, AppliesToEntryDescription, 'Wrong ELE Description.');
-            Assert.AreEqual(EmployeeLedgerEntry."Posting Date", AppliesToEntryPostingDate, 'Wrong ELE Posting Date.');
-            Assert.AreEqual(EmployeeLedgerEntry."Currency Code", AppliesToEntryCurrencyCode, 'Wrong ELE Currency Code.');
-            Assert.AreEqual(EmployeeLedgerEntry.Amount, AppliesToEntryAmount, 'Wrong ELE Amount.');
-            Assert.AreEqual(EmployeeLedgerEntry."Remaining Amount", AppliesToEntryRemainingAmount, 'Wrong ELE Rem. Amt.');
+            Assert.AreEqual(EmployeeLedgerEntry."Document No.", AppliesToEntryDocumentNo(), 'Wrong ELE Doc. No.');
+            Assert.AreEqual(EmployeeLedgerEntry.Description, AppliesToEntryDescription(), 'Wrong ELE Description.');
+            Assert.AreEqual(EmployeeLedgerEntry."Posting Date", AppliesToEntryPostingDate(), 'Wrong ELE Posting Date.');
+            Assert.AreEqual(EmployeeLedgerEntry."Currency Code", AppliesToEntryCurrencyCode(), 'Wrong ELE Currency Code.');
+            Assert.AreEqual(EmployeeLedgerEntry.Amount, AppliesToEntryAmount(), 'Wrong ELE Amount.');
+            Assert.AreEqual(EmployeeLedgerEntry."Remaining Amount", AppliesToEntryRemainingAmount(), 'Wrong ELE Rem. Amt.');
         end;
     end;
 
@@ -430,10 +430,10 @@ codeunit 134403 "ERM Test SEPA Credit Transfers"
             FindLast();
             Assert.AreEqual(i + 1, "Line No.", 'Wrong Line No.');
             TestField("Error Text", 'Error 1');
-            Assert.IsTrue(GenJnlLine.HasPaymentFileErrors, 'Journal line is missing error text.');
+            Assert.IsTrue(GenJnlLine.HasPaymentFileErrors(), 'Journal line is missing error text.');
             Assert.IsTrue(JnlLineHasErrors(GenJnlLine), 'Error text not found.');
             DeleteJnlLineErrors(GenJnlLine);
-            Assert.IsFalse(GenJnlLine.HasPaymentFileErrors, 'Journal line has an error text.');
+            Assert.IsFalse(GenJnlLine.HasPaymentFileErrors(), 'Journal line has an error text.');
             Assert.IsFalse(JnlLineHasErrors(GenJnlLine), 'Error text 1 found.');
             CreateNew(GenJnlLine, 'Error 2', '', '');
             DeleteJnlBatchErrors(GenJnlLine);
@@ -727,7 +727,7 @@ codeunit 134403 "ERM Test SEPA Credit Transfers"
         Init();
         CreateGenJnlLine(GenJnlLine);
         TempBlob.CreateOutStream(OutStr);
-        XMLPORT.Export(BankAccount.GetPaymentExportXMLPortID, OutStr, GenJnlLine);
+        XMLPORT.Export(BankAccount.GetPaymentExportXMLPortID(), OutStr, GenJnlLine);
         TempBlob.CreateInStream(InStr);
         InStr.ReadText(s);
         Assert.AreEqual('<?xml version="1.0" encoding="UTF-8" standalone="no"?>', s, 'Wrong XML header.');
@@ -765,7 +765,7 @@ codeunit 134403 "ERM Test SEPA Credit Transfers"
         TransferDate := GenJnlLine."Posting Date";
 
         TempBlob.CreateOutStream(OutStr);
-        XMLPORT.Export(BankAccount.GetPaymentExportXMLPortID, OutStr, GenJnlLine);
+        XMLPORT.Export(BankAccount.GetPaymentExportXMLPortID(), OutStr, GenJnlLine);
 
         // Validation of elements
         TempBlob.CreateInStream(InStr);
@@ -819,7 +819,7 @@ codeunit 134403 "ERM Test SEPA Credit Transfers"
         GenJnlLine.SetRange("Document No.", GenJnlLine."Document No.");
         GenJnlLine.SetRange("Document Type", GenJnlLine."Document Type");
         TempBlob.CreateOutStream(OutStr);
-        XMLPORT.Export(BankAccount.GetPaymentExportXMLPortID, OutStr, GenJnlLine);
+        XMLPORT.Export(BankAccount.GetPaymentExportXMLPortID(), OutStr, GenJnlLine);
 
         // [THEN] The exported file contains one ustrd tag with "Message to recipient" and "Applies-to Ext. Doc. No."
         LibraryXPathXMLReader.InitializeWithBlob(TempBlob, NamespaceTxt);
@@ -851,7 +851,7 @@ codeunit 134403 "ERM Test SEPA Credit Transfers"
         GenJnlLine.SetRange("Document No.", GenJnlLine."Document No.");
         GenJnlLine.SetRange("Document Type", GenJnlLine."Document Type");
         TempBlob.CreateOutStream(OutStr);
-        XMLPORT.Export(BankAccount.GetPaymentExportXMLPortID, OutStr, GenJnlLine);
+        XMLPORT.Export(BankAccount.GetPaymentExportXMLPortID(), OutStr, GenJnlLine);
 
         // [THEN] The exported file contains one ustrd tag with "Message to recipient" and Decsription
         LibraryXPathXMLReader.InitializeWithBlob(TempBlob, NamespaceTxt);
@@ -885,7 +885,7 @@ codeunit 134403 "ERM Test SEPA Credit Transfers"
         GenJnlLine.SetRange("Document Type", GenJnlLine."Document Type");
         TempBlob.CreateOutStream(OutStr);
 
-        XMLPORT.Export(BankAccount.GetPaymentExportXMLPortID, OutStr, GenJnlLine);
+        XMLPORT.Export(BankAccount.GetPaymentExportXMLPortID(), OutStr, GenJnlLine);
 
         // [THEN] The exported file contains one ustrd tag with "Message to recipient"
         LibraryXPathXMLReader.InitializeWithBlob(TempBlob, NamespaceTxt);
@@ -1185,7 +1185,7 @@ codeunit 134403 "ERM Test SEPA Credit Transfers"
     begin
         // [SCENARIO 274730] SWIFT Code is exported for employee payment to <CdtrAgt>/<FinInstnId>
         Init();
-        GeneralLedgerSetup."LCY Code" := GetEURCurrencyCode;
+        GeneralLedgerSetup."LCY Code" := GetEURCurrencyCode();
         GeneralLedgerSetup.Modify();
 
         // [GIVEN] Payment Gen. Journal Line for Employee with SWIFT Code
@@ -1196,7 +1196,7 @@ codeunit 134403 "ERM Test SEPA Credit Transfers"
         GenJnlLine.SetRange("Document No.", GenJnlLine."Document No.");
         GenJnlLine.SetRange("Document Type", GenJnlLine."Document Type");
         TempBlob.CreateOutStream(OutStr);
-        XMLPORT.Export(BankAccount.GetPaymentExportXMLPortID, OutStr, GenJnlLine);
+        XMLPORT.Export(BankAccount.GetPaymentExportXMLPortID(), OutStr, GenJnlLine);
 
         // [THEN] The exported file contains <CdtrAgt>/<FinInstnId> having Employee "SWIFT Code"
         LibraryXPathXMLReader.InitializeWithBlob(TempBlob, NamespaceTxt);
@@ -1257,8 +1257,8 @@ codeunit 134403 "ERM Test SEPA Credit Transfers"
         RunSEPACTExportFile(GenJnlLine[1]);
 
         // [THEN] Gen. Journal Line's TotalExportedAmount is equal to Amount
-        Assert.AreEqual(GenJnlLine[1].Amount, GenJnlLine[1].TotalExportedAmount, '');
-        Assert.AreEqual(GenJnlLine[2].Amount, GenJnlLine[2].TotalExportedAmount, '');
+        Assert.AreEqual(GenJnlLine[1].Amount, GenJnlLine[1].TotalExportedAmount(), '');
+        Assert.AreEqual(GenJnlLine[2].Amount, GenJnlLine[2].TotalExportedAmount(), '');
     end;
 
     [Test]
@@ -1281,7 +1281,7 @@ codeunit 134403 "ERM Test SEPA Credit Transfers"
         RunSEPACTExportFile(GenJnlLine);
 
         // [THEN] Gen. Journal Line's TotalExportedAmount is equal to Amount
-        Assert.AreEqual(GenJnlLine.Amount, GenJnlLine.TotalExportedAmount, '');
+        Assert.AreEqual(GenJnlLine.Amount, GenJnlLine.TotalExportedAmount(), '');
     end;
 
     [Test]
@@ -1314,7 +1314,7 @@ codeunit 134403 "ERM Test SEPA Credit Transfers"
         RunSEPACTExportFile(GenJnlLine);
 
         // [THEN] No error happens.
-        Assert.IsFalse(GenJnlLine.HasPaymentFileErrors, '');
+        Assert.IsFalse(GenJnlLine.HasPaymentFileErrors(), '');
     end;
 
     [Test]
@@ -1551,7 +1551,7 @@ codeunit 134403 "ERM Test SEPA Credit Transfers"
         ExpUserFeedbackGenJnl.SetGivenExportFlagOnGenJnlLine(GenJournalLine, true);
 
         // [GIVEN] Journal has "Exported to Payment File" = True
-        VerifyExportedToPaymentFileFlagEmployee(GenJournalLine, EmployeeLedgerEntry, true);
+        VerifyExportedToPaymentFileFlagEmployee(GenJournalLine, true);
 
         // [WHEN] Run codeunit 1278 "Exp. User Feedback Gen. Jnl.".SetGivenExportFlagOnGenJnlLine() using True(False) flag
         Commit();
@@ -1559,7 +1559,7 @@ codeunit 134403 "ERM Test SEPA Credit Transfers"
         GenJournalLine.VoidPaymentFile();
 
         // [THEN] Journal has "Exported to Payment File" = False
-        VerifyExportedToPaymentFileFlagEmployee(GenJournalLine, EmployeeLedgerEntry, false);
+        VerifyExportedToPaymentFileFlagEmployee(GenJournalLine, false);
 
         // [THEN] "Cust Ledger Entry"."Applies-to ID" = ''
         EmployeeLedgerEntry.FindFirst();
@@ -1705,7 +1705,7 @@ codeunit 134403 "ERM Test SEPA Credit Transfers"
 
         // [WHEN] Export General Jornal Line using XmlPort "SEPA CT pain.001.001.03".
         TempBlob.CreateOutStream(BlobOutStream);
-        Xmlport.Export(BankAccount.GetPaymentExportXMLPortID, BlobOutStream, GenJournalLine);
+        Xmlport.Export(BankAccount.GetPaymentExportXMLPortID(), BlobOutStream, GenJournalLine);
 
         // [THEN] Tag "InitgPty/Id/OrgId/Othr/Id" has value "AB12345".
         CompanyInformation.Get();
@@ -1775,7 +1775,7 @@ codeunit 134403 "ERM Test SEPA Credit Transfers"
         LibraryERM.CreateGenJournalTemplate(GenJournalTemplate);
         LibraryERM.CreateGenJournalBatch(GenJournalBatch, GenJournalTemplate.Name);
         LibraryERM.CreateBankAccount(BankAccount);
-        if EURCode = GetEURCurrencyCode then begin
+        if EURCode = GetEURCurrencyCode() then begin
             LibraryERM.CreateExchangeRate(EURCode, CalcDate('<-1Y>', GetTodayDate()), LibraryRandom.RandDec(100, 2), LibraryRandom.RandDec(100, 2));
             LibraryERM.CreateExchangeRate(EURCode, CalcDate('<-2Y>', GetTodayDate()), LibraryRandom.RandDec(100, 2), LibraryRandom.RandDec(100, 2));
             LibraryERM.CreateExchangeRate(EURCode, CalcDate('<-3Y>', GetTodayDate()), LibraryRandom.RandDec(100, 2), LibraryRandom.RandDec(100, 2));
@@ -1793,7 +1793,7 @@ codeunit 134403 "ERM Test SEPA Credit Transfers"
         Vendor.Validate("Payment Terms Code", PaymentTerms.Code);
         LibraryERM.FindPaymentMethod(PaymentMethod);
         Vendor.Validate("Payment Method Code", PaymentMethod.Code);
-        Vendor.Validate("Vendor Posting Group", LibraryPurchase.FindVendorPostingGroup);
+        Vendor.Validate("Vendor Posting Group", LibraryPurchase.FindVendorPostingGroup());
         Vendor.Insert();
 
         LibraryPurchase.CreateVendorBankAccount(VendorBankAccount, Vendor."No.");
@@ -1812,7 +1812,7 @@ codeunit 134403 "ERM Test SEPA Credit Transfers"
         Employee.Modify();
 
         NoSeries.FindFirst();
-        CreateBankExpSetup;
+        CreateBankExpSetup();
         BankAccount."Bank Account No." := '1234 12345678';
         BankAccount.IBAN := 'AL47 2121 1009 0000 0002 3569 8741';
         BankAccount."Credit Transfer Msg. Nos." := NoSeries.Code;
@@ -1920,7 +1920,7 @@ codeunit 134403 "ERM Test SEPA Credit Transfers"
         GenJnlLine: Record "Gen. Journal Line";
         GenJnlBatch: Record "Gen. Journal Batch";
     begin
-        LibraryERM.CreateGenJournalBatch(GenJnlBatch, LibraryERM.SelectGenJnlTemplate);
+        LibraryERM.CreateGenJournalBatch(GenJnlBatch, LibraryERM.SelectGenJnlTemplate());
         LibraryERM.CreateGeneralJnlLine(
           GenJnlLine, GenJnlBatch."Journal Template Name", GenJnlBatch.Name,
           GenJnlLine."Document Type"::Invoice, GenJnlLine."Account Type"::Vendor,
@@ -2014,9 +2014,6 @@ codeunit 134403 "ERM Test SEPA Credit Transfers"
     end;
 
     local procedure CreateEmployeePmtJournalLineWithAppliedEntry(var GenJournalLine: Record "Gen. Journal Line"; var EmployeeLedgerEntry: Record "Employee Ledger Entry")
-    var
-        CustomerBankAccount: Record "Customer Bank Account";
-        EmployeeNo: Code[20];
     begin
         LibraryJournals.CreateGenJournalLineWithBatch(
             GenJournalLine, GenJournalLine."Document Type"::Payment,
@@ -2292,7 +2289,7 @@ codeunit 134403 "ERM Test SEPA Credit Transfers"
         CustLedgerEntry.TestField("Exported to Payment File", ExpectedFlag);
     end;
 
-    local procedure VerifyExportedToPaymentFileFlagEmployee(var GenJournalLine: Record "Gen. Journal Line"; var EmployeeLedgerEntry: Record "Employee Ledger Entry"; ExpectedFlag: Boolean)
+    local procedure VerifyExportedToPaymentFileFlagEmployee(var GenJournalLine: Record "Gen. Journal Line"; ExpectedFlag: Boolean)
     begin
         GenJournalLine.Find();
         GenJournalLine.TestField("Check Exported", ExpectedFlag);

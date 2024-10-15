@@ -9,6 +9,7 @@ table 5205 "Employee Relative"
     DataCaptionFields = "Employee No.";
     DrillDownPageID = "Employee Relatives";
     LookupPageID = "Employee Relatives";
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -85,4 +86,3 @@ table 5205 "Employee Relative"
         HRCommentLine.DeleteAll();
     end;
 }
-

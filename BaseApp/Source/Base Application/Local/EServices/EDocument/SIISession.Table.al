@@ -12,6 +12,7 @@ using System.Xml;
 table 10753 "SII Session"
 {
     Caption = 'SII Session';
+    DataClassification = CustomerContent;
 
     fields
     {

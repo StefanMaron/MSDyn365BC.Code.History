@@ -297,7 +297,7 @@ codeunit 147592 "Test VAT Registration No."
         LibraryERMCountryData.UpdateGeneralPostingSetup();
 
         CompanyInformation.Get();
-        SetVATRegNoFormats;
+        SetVATRegNoFormats();
 
         IsInitialized := true;
 

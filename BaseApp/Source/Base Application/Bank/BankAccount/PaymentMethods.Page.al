@@ -75,16 +75,6 @@ page 427 "Payment Methods"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the data exchange definition in the Data Exchange Framework that is used to export payments.';
                 }
-#if not CLEAN21
-                field("Use for Invoicing"; Rec."Use for Invoicing")
-                {
-                    ApplicationArea = Invoicing;
-                    ToolTip = 'Specifies whether or not payment term is used for Invoicing app.';
-                    ObsoleteReason = 'Microsoft Invoicing has been discontinued.';
-                    ObsoleteState = Pending;
-                    ObsoleteTag = '21.0';
-                }
-#endif
                 field("SII Payment Method Code"; Rec."SII Payment Method Code")
                 {
                     ApplicationArea = Basic, Suite;

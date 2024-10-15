@@ -11,6 +11,7 @@ table 10726 "G/L Account Buffer"
     Caption = 'G/L Account Buffer';
     DataCaptionFields = "No.", Name;
     LookupPageID = "G/L Account List";
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -102,12 +103,10 @@ table 10726 "G/L Account Buffer"
         SelectedGLAcc: Record "Selected G/L Accounts";
         SelectedGLAccText: Text[250];
     begin
-        with SelectedGLAcc do begin
-            if Find('-') then
-                repeat
-                    AddGLAccNoToText("No.", SelectedGLAccText, SelectedGLAccText);
-                until Next() = 0;
-        end;
+        if SelectedGLAcc.Find('-') then
+            repeat
+                AddGLAccNoToText(SelectedGLAcc."No.", SelectedGLAccText, SelectedGLAccText);
+            until SelectedGLAcc.Next() = 0;
         exit(SelectedGLAccText);
     end;
 }

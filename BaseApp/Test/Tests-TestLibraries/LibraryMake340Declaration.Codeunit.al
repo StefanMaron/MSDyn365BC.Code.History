@@ -40,7 +40,7 @@ codeunit 143303 "Library - Make 340 Declaration"
         LibrarySales.CreateCustomer(Customer);
         CreateCountryVATRegistration(CountryRegionCode);
         Customer.Validate("Country/Region Code", CountryRegionCode);
-        Customer.Validate("VAT Registration No.", GetUniqueCustomerVATRegNo);
+        Customer.Validate("VAT Registration No.", GetUniqueCustomerVATRegNo());
         Customer.Modify(true);
     end;
 
@@ -88,10 +88,10 @@ codeunit 143303 "Library - Make 340 Declaration"
         LibraryERM.FindGenBusinessPostingGroup(GenBusinessPostingGroup);
         CreateCountryVATRegistration(CountryRegionCode);
         Vendor.Validate("Country/Region Code", CountryRegionCode);
-        Vendor.Validate("VAT Registration No.", GetUniqueVendorVATRegNo);
+        Vendor.Validate("VAT Registration No.", GetUniqueVendorVATRegNo());
         Vendor.Validate("Gen. Bus. Posting Group", GenBusinessPostingGroup.Code);
         Vendor.Modify(true);
-        Commit
+        Commit();
     end;
 
     local procedure GetUniqueCustomerVATRegNo(): Text[20]
@@ -99,13 +99,11 @@ codeunit 143303 "Library - Make 340 Declaration"
         Customer: Record Customer;
         VATRegistrationNo: Integer;
     begin
-        with Customer do begin
-            VATRegistrationNo := LibraryRandom.RandIntInRange(10000000, 49999000);
-            repeat
-                VATRegistrationNo += 1;
-                SetRange("VAT Registration No.", Format(VATRegistrationNo));
-            until IsEmpty;
-        end;
+        VATRegistrationNo := LibraryRandom.RandIntInRange(10000000, 49999000);
+        repeat
+            VATRegistrationNo += 1;
+            Customer.SetRange("VAT Registration No.", Format(VATRegistrationNo));
+        until Customer.IsEmpty;
         exit(Format(VATRegistrationNo));
     end;
 
@@ -114,13 +112,11 @@ codeunit 143303 "Library - Make 340 Declaration"
         Vendor: Record Vendor;
         VATRegistrationNo: Integer;
     begin
-        with Vendor do begin
-            VATRegistrationNo := LibraryRandom.RandIntInRange(10000000, 49999000);
-            repeat
-                VATRegistrationNo += 1;
-                SetRange("VAT Registration No.", Format(VATRegistrationNo));
-            until IsEmpty;
-        end;
+        VATRegistrationNo := LibraryRandom.RandIntInRange(10000000, 49999000);
+        repeat
+            VATRegistrationNo += 1;
+            Vendor.SetRange("VAT Registration No.", Format(VATRegistrationNo));
+        until Vendor.IsEmpty;
         exit(Format(VATRegistrationNo));
     end;
 
@@ -186,7 +182,6 @@ codeunit 143303 "Library - Make 340 Declaration"
     [Scope('OnPrem')]
     procedure ReadOperationalCodeFromFile(FileName: Text[1024]; InvoiceNo: Code[20]; OperationCodePosition: Integer; ReportFieldLength: Integer; StartingPosition: Integer; OccuranceNo: Integer): Code[1]
     var
-        LibraryTextFileValidation: Codeunit "Library - Text File Validation";
         LineNo: Integer;
     begin
         LineNo :=
@@ -252,10 +247,10 @@ codeunit 143303 "Library - Make 340 Declaration"
         Clear(Make340Declaration);
         Make340Declaration.InitializeRequest(
           Format(FiscalYear), Month,
-          CopyStr(LibraryUtility.GenerateGUID, 1, 30),
+          CopyStr(LibraryUtility.GenerateGUID(), 1, 30),
           Format(LibraryRandom.RandIntInRange(111111111, 999999999)),
           Format(LibraryRandom.RandIntInRange(1111, 9999)),
-          CopyStr(LibraryUtility.GenerateGUID, 1, 16),
+          CopyStr(LibraryUtility.GenerateGUID(), 1, 16),
           0, true, '1111000000000',
           FileName, GLAcc, MinPaymentAmount);
 

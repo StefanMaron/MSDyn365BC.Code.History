@@ -234,7 +234,7 @@ codeunit 144051 "ERM Full VAT"
         // Verify.
         VerifyPostedSalesInvoice(
           DocumentNo, SalesLine.Amount, Round(
-            SalesLine.Amount + SalesLine.Amount * VATPostingSetup."VAT %" / 100, LibraryERM.GetAmountRoundingPrecision, Direction));
+            SalesLine.Amount + SalesLine.Amount * VATPostingSetup."VAT %" / 100, LibraryERM.GetAmountRoundingPrecision(), Direction));
 
         // Tear Down: Set Default Value in General Ledger Setup.
         UpdateVATRoundingTypeOnGeneralLedgerSetup(GeneralLedgerSetup."VAT Rounding Type");
@@ -327,7 +327,7 @@ codeunit 144051 "ERM Full VAT"
         // Verify.
         VerifyPostedPurchaseInvoice(
           DocumentNo, PurchaseLine.Amount, Round(
-            PurchaseLine.Amount + PurchaseLine.Amount * PurchaseLine."VAT %" / 100, LibraryERM.GetAmountRoundingPrecision, Direction));
+            PurchaseLine.Amount + PurchaseLine.Amount * PurchaseLine."VAT %" / 100, LibraryERM.GetAmountRoundingPrecision(), Direction));
 
         // Tear Down: Set Default Value in General Ledger Setup.
         UpdateVATRoundingTypeOnGeneralLedgerSetup(GeneralLedgerSetup."VAT Rounding Type");
@@ -605,7 +605,7 @@ codeunit 144051 "ERM Full VAT"
         GLEntry.SetRange("G/L Account No.", GLAccountNo);
         GLEntry.SetRange("Gen. Posting Type", GenPostingType);
         GLEntry.FindFirst();
-        Assert.AreNearlyEqual(Amount, GLEntry.Amount, LibraryERM.GetAmountRoundingPrecision, ValueMustBeEqualMsg);
+        Assert.AreNearlyEqual(Amount, GLEntry.Amount, LibraryERM.GetAmountRoundingPrecision(), ValueMustBeEqualMsg);
     end;
 
     local procedure VerifyPostedPurchaseInvoice(DocumentNo: Code[20]; Amount: Decimal; AmountIncludingVAT: Decimal)

@@ -83,16 +83,14 @@ codeunit 7000000 CarteraManagement
     var
         Doc: Record "Cartera Doc.";
     begin
-        with Doc do begin
-            Copy(Doc2);
-            SetCurrentKey(Type, "Bill Gr./Pmt. Order No.", "Collection Agent", "Due Date", "Global Dimension 1 Code",
-              "Global Dimension 2 Code", "Category Code", "Posting Date", "Document No.", Accepted, "Currency Code", "Document Type");
-            ShowCurrent := CalcSums("Remaining Amt. (LCY)");
-            if ShowCurrent then
-                CurrTotalAmount := "Remaining Amt. (LCY)"
-            else
-                CurrTotalAmount := 0;
-        end;
+        Doc.Copy(Doc2);
+        Doc.SetCurrentKey(Type, "Bill Gr./Pmt. Order No.", "Collection Agent", "Due Date", "Global Dimension 1 Code",
+          "Global Dimension 2 Code", "Category Code", "Posting Date", "Document No.", Accepted, "Currency Code", "Document Type");
+        ShowCurrent := Doc.CalcSums("Remaining Amt. (LCY)");
+        if ShowCurrent then
+            CurrTotalAmount := Doc."Remaining Amt. (LCY)"
+        else
+            CurrTotalAmount := 0;
     end;
 
     procedure NavigateDoc(var CarteraDoc: Record "Cartera Doc.")
@@ -101,23 +99,21 @@ codeunit 7000000 CarteraManagement
         VendLedgEntry: Record "Vendor Ledger Entry";
         CustLedgEntry: Record "Cust. Ledger Entry";
     begin
-        with CarteraDoc do begin
-            case Type of
-                Type::Receivable:
-                    begin
-                        if not CustLedgEntry.Get("Entry No.") then
-                            exit;
-                        Navigate.SetDoc(CustLedgEntry."Posting Date", CustLedgEntry."Document No.");
-                    end;
-                Type::Payable:
-                    begin
-                        if not VendLedgEntry.Get("Entry No.") then
-                            exit;
-                        Navigate.SetDoc(VendLedgEntry."Posting Date", VendLedgEntry."Document No.");
-                    end;
-            end;
-            Navigate.Run();
+        case CarteraDoc.Type of
+            CarteraDoc.Type::Receivable:
+                begin
+                    if not CustLedgEntry.Get(CarteraDoc."Entry No.") then
+                        exit;
+                    Navigate.SetDoc(CustLedgEntry."Posting Date", CustLedgEntry."Document No.");
+                end;
+            CarteraDoc.Type::Payable:
+                begin
+                    if not VendLedgEntry.Get(CarteraDoc."Entry No.") then
+                        exit;
+                    Navigate.SetDoc(VendLedgEntry."Posting Date", VendLedgEntry."Document No.");
+                end;
         end;
+        Navigate.Run();
     end;
 
     procedure NavigatePostedDoc(var PostedCarteraDoc: Record "Posted Cartera Doc.")
@@ -126,23 +122,21 @@ codeunit 7000000 CarteraManagement
         VendLedgEntry: Record "Vendor Ledger Entry";
         CustLedgEntry: Record "Cust. Ledger Entry";
     begin
-        with PostedCarteraDoc do begin
-            case Type of
-                Type::Receivable:
-                    begin
-                        if not CustLedgEntry.Get("Entry No.") then
-                            exit;
-                        Navigate.SetDoc(CustLedgEntry."Posting Date", CustLedgEntry."Document No.");
-                    end;
-                Type::Payable:
-                    begin
-                        if not VendLedgEntry.Get("Entry No.") then
-                            exit;
-                        Navigate.SetDoc(VendLedgEntry."Posting Date", VendLedgEntry."Document No.");
-                    end;
-            end;
-            Navigate.Run();
+        case PostedCarteraDoc.Type of
+            PostedCarteraDoc.Type::Receivable:
+                begin
+                    if not CustLedgEntry.Get(PostedCarteraDoc."Entry No.") then
+                        exit;
+                    Navigate.SetDoc(CustLedgEntry."Posting Date", CustLedgEntry."Document No.");
+                end;
+            PostedCarteraDoc.Type::Payable:
+                begin
+                    if not VendLedgEntry.Get(PostedCarteraDoc."Entry No.") then
+                        exit;
+                    Navigate.SetDoc(VendLedgEntry."Posting Date", VendLedgEntry."Document No.");
+                end;
         end;
+        Navigate.Run();
     end;
 
     procedure NavigateClosedDoc(var ClosedCarteraDoc: Record "Closed Cartera Doc.")
@@ -151,23 +145,21 @@ codeunit 7000000 CarteraManagement
         VendLedgEntry: Record "Vendor Ledger Entry";
         CustLedgEntry: Record "Cust. Ledger Entry";
     begin
-        with ClosedCarteraDoc do begin
-            case Type of
-                Type::Receivable:
-                    begin
-                        if not CustLedgEntry.Get("Entry No.") then
-                            exit;
-                        Navigate.SetDoc(CustLedgEntry."Posting Date", CustLedgEntry."Document No.");
-                    end;
-                Type::Payable:
-                    begin
-                        if not VendLedgEntry.Get("Entry No.") then
-                            exit;
-                        Navigate.SetDoc(VendLedgEntry."Posting Date", VendLedgEntry."Document No.");
-                    end;
-            end;
-            Navigate.Run();
+        case ClosedCarteraDoc.Type of
+            ClosedCarteraDoc.Type::Receivable:
+                begin
+                    if not CustLedgEntry.Get(ClosedCarteraDoc."Entry No.") then
+                        exit;
+                    Navigate.SetDoc(CustLedgEntry."Posting Date", CustLedgEntry."Document No.");
+                end;
+            ClosedCarteraDoc.Type::Payable:
+                begin
+                    if not VendLedgEntry.Get(ClosedCarteraDoc."Entry No.") then
+                        exit;
+                    Navigate.SetDoc(VendLedgEntry."Posting Date", VendLedgEntry."Document No.");
+                end;
         end;
+        Navigate.Run();
     end;
 
     procedure InsertReceivableDocs(var CarteraDoc2: Record "Cartera Doc.")
@@ -194,83 +186,80 @@ codeunit 7000000 CarteraManagement
             if not Confirm(Text1100001, false) then
                 exit;
 
-        with CarteraDoc do begin
-            Reset();
-            SetCurrentKey(Type, "Collection Agent", "Bill Gr./Pmt. Order No.", "Currency Code", Accepted);
-            FilterGroup(2);
-            SetRange(Type, Type::Receivable);
-            FilterGroup(0);
-            SetRange("Bill Gr./Pmt. Order No.", '');
-            SetRange("Currency Code", BillGr."Currency Code");
-            SetFilter(Accepted, '<>%1', Accepted::No);
-            SetRange("Collection Agent", "Collection Agent"::Bank);
-            if BillGr.Factoring <> BillGr.Factoring::" " then
-                SetFilter("Document Type", '<>%1', "Document Type"::Bill)
-            else
-                SetRange("Document Type", "Document Type"::Bill);
-            OnInsertReceivableDocsOnAfterSetFilters(CarteraDoc, BillGr);
-            CarteraDocuments.SetTableView(CarteraDoc);
-            CarteraDocuments.LookupMode(true);
-            if CarteraDocuments.RunModal() <> ACTION::LookupOK then
-                exit;
-            CarteraDocuments.GetSelected(CarteraDoc);
-            Clear(CarteraDocuments);
-            if not Find('-') then
-                exit;
+        CarteraDoc.Reset();
+        CarteraDoc.SetCurrentKey(Type, "Collection Agent", "Bill Gr./Pmt. Order No.", "Currency Code", Accepted);
+        CarteraDoc.FilterGroup(2);
+        CarteraDoc.SetRange(Type, CarteraDoc.Type::Receivable);
+        CarteraDoc.FilterGroup(0);
+        CarteraDoc.SetRange("Bill Gr./Pmt. Order No.", '');
+        CarteraDoc.SetRange("Currency Code", BillGr."Currency Code");
+        CarteraDoc.SetFilter(Accepted, '<>%1', CarteraDoc.Accepted::No);
+        CarteraDoc.SetRange("Collection Agent", CarteraDoc."Collection Agent"::Bank);
+        if BillGr.Factoring <> BillGr.Factoring::" " then
+            CarteraDoc.SetFilter("Document Type", '<>%1', CarteraDoc."Document Type"::Bill)
+        else
+            CarteraDoc.SetRange("Document Type", CarteraDoc."Document Type"::Bill);
+        OnInsertReceivableDocsOnAfterSetFilters(CarteraDoc, BillGr);
+        CarteraDocuments.SetTableView(CarteraDoc);
+        CarteraDocuments.LookupMode(true);
+        if CarteraDocuments.RunModal() <> ACTION::LookupOK then
+            exit;
+        CarteraDocuments.GetSelected(CarteraDoc);
+        Clear(CarteraDocuments);
+        if not CarteraDoc.Find('-') then
+            exit;
 
-            if (BillGr."Dealing Type" = BillGr."Dealing Type"::Discount) and
-               BankAcc.Get(BillGr."Bank Account No.") and
-               (BillGr.Factoring = BillGr.Factoring::" ")
-            then begin
-                CarteraSetup.Get();
-                if CarteraSetup."Bills Discount Limit Warnings" then begin
-                    SelectedAmount := 0;
-                    repeat
-                        SelectedAmount := SelectedAmount + "Remaining Amt. (LCY)";
-                    until Next() = 0;
-                    BillGr.CalcFields(Amount);
-                    BankAcc.CalcFields("Posted Receiv. Bills Rmg. Amt.");
-                    if BillGr.Amount + SelectedAmount + BankAcc."Posted Receiv. Bills Rmg. Amt." > BankAcc."Credit Limit for Discount"
-                    then begin
-                        CheckDiscCreditLimit.SetRecord(BankAcc);
-                        CheckDiscCreditLimit.SetValues(BillGr.Amount, SelectedAmount);
-                        if CheckDiscCreditLimit.RunModal() <> ACTION::Yes then
-                            Error(Text1100002);
-                        Clear(CheckDiscCreditLimit);
-                    end;
+        if (BillGr."Dealing Type" = BillGr."Dealing Type"::Discount) and
+           BankAcc.Get(BillGr."Bank Account No.") and
+           (BillGr.Factoring = BillGr.Factoring::" ")
+        then begin
+            CarteraSetup.Get();
+            if CarteraSetup."Bills Discount Limit Warnings" then begin
+                SelectedAmount := 0;
+                repeat
+                    SelectedAmount := SelectedAmount + CarteraDoc."Remaining Amt. (LCY)";
+                until CarteraDoc.Next() = 0;
+                BillGr.CalcFields(Amount);
+                BankAcc.CalcFields("Posted Receiv. Bills Rmg. Amt.");
+                if BillGr.Amount + SelectedAmount + BankAcc."Posted Receiv. Bills Rmg. Amt." > BankAcc."Credit Limit for Discount"
+                then begin
+                    CheckDiscCreditLimit.SetRecord(BankAcc);
+                    CheckDiscCreditLimit.SetValues(BillGr.Amount, SelectedAmount);
+                    if CheckDiscCreditLimit.RunModal() <> ACTION::Yes then
+                        Error(Text1100002);
+                    Clear(CheckDiscCreditLimit);
                 end;
             end;
-
-            // check the selected bills and insert them
-            SetCurrentKey(Type, "Entry No.");
-            Find('-');
-            repeat
-                if CustLedgEntry.Get("Entry No.") then
-                    if CustLedgEntry."Applies-to ID" <> '' then
-                        Error(EntryIsAppliedErr, "Document No.", "No.");
-
-                TestField(Type, Type::Receivable);
-                TestField("Bill Gr./Pmt. Order No.", '');
-                TestField("Currency Code", BillGr."Currency Code");
-                if Cust."No." <> "Account No." then
-                    Cust.Get("Account No.");
-                Cust.CheckBlockedCustOnJnls(Cust, GetDocType("Document Type"), false);
-                if Accepted = Accepted::No then
-                    FieldError(Accepted);
-                TestField("Collection Agent", "Collection Agent"::Bank);
-                "Bill Gr./Pmt. Order No." := GroupNo;
-                Modify();
-                if CustLedgEntry.Get("Entry No.") then begin
-                    CustLedgEntry."Document Situation" := CustLedgEntry."Document Situation"::"BG/PO";
-                    CustLedgEntry.Modify();
-                    "Direct Debit Mandate ID" := CustLedgEntry."Direct Debit Mandate ID";
-                end;
-                OnAfterInsertReceivableDocs(CarteraDoc, BillGr);
-            until Next() = 0;
-
-            BillGr."No. Printed" := 0;
-            BillGr.Modify();
         end;
+        // check the selected bills and insert them
+        CarteraDoc.SetCurrentKey(Type, "Entry No.");
+        CarteraDoc.Find('-');
+        repeat
+            if CustLedgEntry.Get(CarteraDoc."Entry No.") then
+                if CustLedgEntry."Applies-to ID" <> '' then
+                    Error(EntryIsAppliedErr, CarteraDoc."Document No.", CarteraDoc."No.");
+
+            CarteraDoc.TestField(Type, CarteraDoc.Type::Receivable);
+            CarteraDoc.TestField("Bill Gr./Pmt. Order No.", '');
+            CarteraDoc.TestField("Currency Code", BillGr."Currency Code");
+            if Cust."No." <> CarteraDoc."Account No." then
+                Cust.Get(CarteraDoc."Account No.");
+            Cust.CheckBlockedCustOnJnls(Cust, GetDocType(CarteraDoc."Document Type"), false);
+            if CarteraDoc.Accepted = CarteraDoc.Accepted::No then
+                CarteraDoc.FieldError(Accepted);
+            CarteraDoc.TestField("Collection Agent", CarteraDoc."Collection Agent"::Bank);
+            CarteraDoc."Bill Gr./Pmt. Order No." := GroupNo;
+            CarteraDoc.Modify();
+            if CustLedgEntry.Get(CarteraDoc."Entry No.") then begin
+                CustLedgEntry."Document Situation" := CustLedgEntry."Document Situation"::"BG/PO";
+                CustLedgEntry.Modify();
+                CarteraDoc."Direct Debit Mandate ID" := CustLedgEntry."Direct Debit Mandate ID";
+            end;
+            OnAfterInsertReceivableDocs(CarteraDoc, BillGr);
+        until CarteraDoc.Next() = 0;
+
+        BillGr."No. Printed" := 0;
+        BillGr.Modify();
     end;
 
     procedure InsertPayableDocs(var CarteraDoc2: Record "Cartera Doc.")
@@ -297,74 +286,71 @@ codeunit 7000000 CarteraManagement
                 exit;
 
         CarteraSetup.Get();
-        with CarteraDoc do begin
-            Reset();
-            SetCurrentKey(Type, "Collection Agent", "Bill Gr./Pmt. Order No.", "Currency Code", Accepted);
-            FilterGroup(2);
-            SetRange(Type, Type::Payable);
-            FilterGroup(0);
-            SetRange("Bill Gr./Pmt. Order No.", '');
-            SetRange("Currency Code", PmtOrd."Currency Code");
-            SetFilter(Accepted, '<>%1', Accepted::No);
-            SetRange("Collection Agent", "Collection Agent"::Bank);
-            SetRange("On Hold", false);
-            if FindSet() then
+        CarteraDoc.Reset();
+        CarteraDoc.SetCurrentKey(Type, "Collection Agent", "Bill Gr./Pmt. Order No.", "Currency Code", Accepted);
+        CarteraDoc.FilterGroup(2);
+        CarteraDoc.SetRange(Type, CarteraDoc.Type::Payable);
+        CarteraDoc.FilterGroup(0);
+        CarteraDoc.SetRange("Bill Gr./Pmt. Order No.", '');
+        CarteraDoc.SetRange("Currency Code", PmtOrd."Currency Code");
+        CarteraDoc.SetFilter(Accepted, '<>%1', CarteraDoc.Accepted::No);
+        CarteraDoc.SetRange("Collection Agent", CarteraDoc."Collection Agent"::Bank);
+        CarteraDoc.SetRange("On Hold", false);
+        if CarteraDoc.FindSet() then
             repeat
-                if Vendor.Get("Account No.") then
+                if Vendor.Get(CarteraDoc."Account No.") then
                     if Vendor.Blocked = Vendor.Blocked::" " then
-                        Mark(true);
-            until Next() = 0;
-            MarkedOnly(true);
+                        CarteraDoc.Mark(true);
+            until CarteraDoc.Next() = 0;
+        CarteraDoc.MarkedOnly(true);
         OnInsertPayableDocsOnAfterSetFilters(CarteraDoc, CarteraDoc2);
-            CarteraDocuments.SetTableView(CarteraDoc);
-            MarkedOnly(false);
+        CarteraDocuments.SetTableView(CarteraDoc);
+        CarteraDoc.MarkedOnly(false);
         CarteraDocuments.LookupMode(true);
-            if CarteraDocuments.RunModal() <> ACTION::LookupOK then
-                exit;
-            CarteraDocuments.GetSelected(CarteraDoc);
-            Clear(CarteraDocuments);
-            if not Find('-') then
-                exit;
+        if CarteraDocuments.RunModal() <> ACTION::LookupOK then
+            exit;
+        CarteraDocuments.GetSelected(CarteraDoc);
+        Clear(CarteraDocuments);
+        if not CarteraDoc.Find('-') then
+            exit;
+        // check the selected bills and insert them
+        CarteraDoc.SetCurrentKey(Type, "Entry No.");
+        CarteraDoc.Find('-');
+        repeat
+            if VendLedgEntry.Get(CarteraDoc."Entry No.") then
+                if VendLedgEntry."Applies-to ID" <> '' then
+                    Error(EntryIsAppliedErr, CarteraDoc."Document No.", CarteraDoc."No.");
+            GenJournalLine.Reset();
+            GenJournalLine.SetRange("Applies-to Doc. No.", VendLedgEntry."Document No.");
+            GenJournalLine.SetRange("Account Type", GenJournalLine."Account Type"::Vendor);
+            GenJournalLine.SetRange("Account No.", VendLedgEntry."Vendor No.");
+            if not GenJournalLine.IsEmpty() then
+                Error(EntryIsAppliedErr, CarteraDoc."Document No.", CarteraDoc."No.");
 
-            // check the selected bills and insert them
-            SetCurrentKey(Type, "Entry No.");
-            Find('-');
-            repeat
-                if VendLedgEntry.Get("Entry No.") then
-                    if VendLedgEntry."Applies-to ID" <> '' then
-                        Error(EntryIsAppliedErr, "Document No.", "No.");
-                GenJournalLine.Reset();
-                GenJournalLine.SetRange("Applies-to Doc. No.", VendLedgEntry."Document No.");
-                GenJournalLine.SetRange("Account Type", GenJournalLine."Account Type"::Vendor);
-                GenJournalLine.SetRange("Account No.", VendLedgEntry."Vendor No.");
-                if not GenJournalLine.IsEmpty() then
-                    Error(EntryIsAppliedErr, "Document No.", "No.");
+            CarteraDoc.TestField(Type, CarteraDoc.Type::Payable);
+            CarteraDoc.TestField("Bill Gr./Pmt. Order No.", '');
+            CarteraDoc.TestField("Currency Code", PmtOrd."Currency Code");
+            if Vend."No." <> CarteraDoc."Account No." then
+                Vend.Get(CarteraDoc."Account No.");
 
-                TestField(Type, Type::Payable);
-                TestField("Bill Gr./Pmt. Order No.", '');
-                TestField("Currency Code", PmtOrd."Currency Code");
-                if Vend."No." <> "Account No." then
-                    Vend.Get("Account No.");
+            if PmtOrd."Export Electronic Payment" then
+                ElectPmtMgmt.GetTransferType(CarteraDoc."Account No.", CarteraDoc."Remaining Amount", CarteraDoc."Transfer Type", false);
 
-                if PmtOrd."Export Electronic Payment" then
-                    ElectPmtMgmt.GetTransferType("Account No.", "Remaining Amount", "Transfer Type", false);
+            Vend.CheckBlockedVendOnJnls(Vend, GetDocType(CarteraDoc."Document Type"), false);
+            if CarteraDoc.Accepted = CarteraDoc.Accepted::No then
+                CarteraDoc.FieldError(Accepted);
+            CarteraDoc.TestField("Collection Agent", CarteraDoc."Collection Agent"::Bank);
+            CarteraDoc."Bill Gr./Pmt. Order No." := GroupNo;
+            CarteraDoc.Modify(true);
+            if VendLedgEntry.Get(CarteraDoc."Entry No.") then begin
+                VendLedgEntry."Document Situation" := VendLedgEntry."Document Situation"::"BG/PO";
+                VendLedgEntry.Modify();
+            end;
+            OnAfterInsertPayableDocs(CarteraDoc, PmtOrd);
+        until CarteraDoc.Next() = 0;
 
-                Vend.CheckBlockedVendOnJnls(Vend, GetDocType("Document Type"), false);
-                if Accepted = Accepted::No then
-                    FieldError(Accepted);
-                TestField("Collection Agent", "Collection Agent"::Bank);
-                "Bill Gr./Pmt. Order No." := GroupNo;
-                Modify(true);
-                if VendLedgEntry.Get("Entry No.") then begin
-                    VendLedgEntry."Document Situation" := VendLedgEntry."Document Situation"::"BG/PO";
-                    VendLedgEntry.Modify();
-                end;
-                OnAfterInsertPayableDocs(CarteraDoc, PmtOrd);
-            until Next() = 0;
-
-            PmtOrd."No. Printed" := 0;
-            PmtOrd.Modify();
-        end;
+        PmtOrd."No. Printed" := 0;
+        PmtOrd.Modify();
     end;
 
     procedure RemoveReceivableDocs(var CarteraDoc2: Record "Cartera Doc.")
@@ -372,24 +358,23 @@ codeunit 7000000 CarteraManagement
         BillGr: Record "Bill Group";
         CustLedgEntry: Record "Cust. Ledger Entry";
     begin
-        with CarteraDoc2 do
-            if Find('-') then begin
-                BillGr.Get("Bill Gr./Pmt. Order No.");
-                if not CheckConfirmBillGroupAlreadyPrinted(BillGr) then
-                    exit;
-                BillGr."No. Printed" := 0;
-                repeat
-                    RemoveReceivableError(CarteraDoc2);
-                    "Bill Gr./Pmt. Order No." := '';
-                    Modify();
-                    if CustLedgEntry.Get("Entry No.") then begin
-                        CustLedgEntry."Document Situation" := CustLedgEntry."Document Situation"::Cartera;
-                        CustLedgEntry.Modify();
-                    end;
-                    OnAfterRemoveReceivableDocs(CarteraDoc2, BillGr);
-                until Next() = 0;
-                BillGr.Modify();
-            end;
+        if CarteraDoc2.Find('-') then begin
+            BillGr.Get(CarteraDoc2."Bill Gr./Pmt. Order No.");
+            if not CheckConfirmBillGroupAlreadyPrinted(BillGr) then
+                exit;
+            BillGr."No. Printed" := 0;
+            repeat
+                RemoveReceivableError(CarteraDoc2);
+                CarteraDoc2."Bill Gr./Pmt. Order No." := '';
+                CarteraDoc2.Modify();
+                if CustLedgEntry.Get(CarteraDoc2."Entry No.") then begin
+                    CustLedgEntry."Document Situation" := CustLedgEntry."Document Situation"::Cartera;
+                    CustLedgEntry.Modify();
+                end;
+                OnAfterRemoveReceivableDocs(CarteraDoc2, BillGr);
+            until CarteraDoc2.Next() = 0;
+            BillGr.Modify();
+        end;
     end;
 
     local procedure CheckConfirmBillGroupAlreadyPrinted(BillGr: Record "Bill Group") Result: Boolean
@@ -413,24 +398,23 @@ codeunit 7000000 CarteraManagement
         PaymentOrder: Record "Payment Order";
         VendLedgEntry: Record "Vendor Ledger Entry";
     begin
-        with CarteraDoc2 do
-            if Find('-') then begin
-                PaymentOrder.Get("Bill Gr./Pmt. Order No.");
-                if not CheckConfirmPaymentOrderAlreadyPrinted(PaymentOrder) then
-                    exit;
-                PaymentOrder."No. Printed" := 0;
-                repeat
-                    RemovePayableError(CarteraDoc2);
-                    "Bill Gr./Pmt. Order No." := '';
-                    Modify();
-                    if VendLedgEntry.Get("Entry No.") then begin
-                        VendLedgEntry."Document Situation" := VendLedgEntry."Document Situation"::Cartera;
-                        VendLedgEntry.Modify();
-                    end;
-                    OnAfterRemovePayableDocs(CarteraDoc2, PaymentOrder);
-                until Next() = 0;
-                PaymentOrder.Modify();
-            end;
+        if CarteraDoc2.Find('-') then begin
+            PaymentOrder.Get(CarteraDoc2."Bill Gr./Pmt. Order No.");
+            if not CheckConfirmPaymentOrderAlreadyPrinted(PaymentOrder) then
+                exit;
+            PaymentOrder."No. Printed" := 0;
+            repeat
+                RemovePayableError(CarteraDoc2);
+                CarteraDoc2."Bill Gr./Pmt. Order No." := '';
+                CarteraDoc2.Modify();
+                if VendLedgEntry.Get(CarteraDoc2."Entry No.") then begin
+                    VendLedgEntry."Document Situation" := VendLedgEntry."Document Situation"::Cartera;
+                    VendLedgEntry.Modify();
+                end;
+                OnAfterRemovePayableDocs(CarteraDoc2, PaymentOrder);
+            until CarteraDoc2.Next() = 0;
+            PaymentOrder.Modify();
+        end;
     end;
 
     local procedure CheckConfirmPaymentOrderAlreadyPrinted(PaymentOrder: Record "Payment Order") Result: Boolean
@@ -455,20 +439,18 @@ codeunit 7000000 CarteraManagement
         BankAcc: Record "Bank Account";
         CheckDiscCreditLimit: Page "Check Discount Credit Limit";
     begin
-        with BillGr do begin
-            CarteraSetup.Get();
-            if not CarteraSetup."Bills Discount Limit Warnings" then
-                exit;
-            if ("Dealing Type" = "Dealing Type"::Discount) and BankAcc.Get("Bank Account No.") then begin
-                BankAcc.CalcFields("Posted Receiv. Bills Rmg. Amt.");
-                CalcFields(Amount);
-                if Amount + BankAcc."Posted Receiv. Bills Rmg. Amt." > BankAcc."Credit Limit for Discount" then begin
-                    CheckDiscCreditLimit.SetRecord(BankAcc);
-                    CheckDiscCreditLimit.SetValues(Amount, 0);
-                    if CheckDiscCreditLimit.RunModal() <> ACTION::Yes then
-                        Error(Text1100005);
-                    Clear(CheckDiscCreditLimit);
-                end;
+        CarteraSetup.Get();
+        if not CarteraSetup."Bills Discount Limit Warnings" then
+            exit;
+        if (BillGr."Dealing Type" = BillGr."Dealing Type"::Discount) and BankAcc.Get(BillGr."Bank Account No.") then begin
+            BankAcc.CalcFields("Posted Receiv. Bills Rmg. Amt.");
+            BillGr.CalcFields(Amount);
+            if BillGr.Amount + BankAcc."Posted Receiv. Bills Rmg. Amt." > BankAcc."Credit Limit for Discount" then begin
+                CheckDiscCreditLimit.SetRecord(BankAcc);
+                CheckDiscCreditLimit.SetValues(BillGr.Amount, 0);
+                if CheckDiscCreditLimit.RunModal() <> ACTION::Yes then
+                    Error(Text1100005);
+                Clear(CheckDiscCreditLimit);
             end;
         end;
     end;
@@ -477,33 +459,31 @@ codeunit 7000000 CarteraManagement
     var
         PostedDoc: Record "Posted Cartera Doc.";
     begin
-        with GenJnlLine2 do begin
-            "Account Type" := "Account Type"::Customer;
-            Validate("Account No.", CustLedgEntry."Customer No.");
-            "Document Type" := "Document Type"::" ";
-            "Document No." := CustLedgEntry."Document No.";
-            "Bill No." := CustLedgEntry."Bill No.";
-            Description := StrSubstNo(
-                Text1100006,
-                CustLedgEntry."Document No.",
-                CustLedgEntry."Bill No.");
-            Validate("Currency Code", CustLedgEntry."Currency Code");
-            CustLedgEntry.CalcFields("Remaining Amount", "Remaining Amt. (LCY)");
-            case CustLedgEntry."Document Situation" of
-                CustLedgEntry."Document Situation"::"Posted BG/PO":
-                    begin
-                        PostedDoc.Get(PostedDoc.Type::Receivable, CustLedgEntry."Entry No.");
-                        Validate(Amount, -PostedDoc."Remaining Amount");
-                    end;
-                CustLedgEntry."Document Situation"::"Closed BG/PO", CustLedgEntry."Document Situation"::"Closed Documents":
-                    Validate(Amount, -CustLedgEntry."Remaining Amount");
-            end;
-            "Dimension Set ID" := GetCombinedDimSetID(GenJnlLine2, CustLedgEntry."Dimension Set ID");
-            "System-Created Entry" := true;
-            "Applies-to Doc. Type" := "Document Type"::Bill;
-            "Applies-to Doc. No." := CustLedgEntry."Document No.";
-            "Applies-to Bill No." := CustLedgEntry."Bill No.";
+        GenJnlLine2."Account Type" := GenJnlLine2."Account Type"::Customer;
+        GenJnlLine2.Validate("Account No.", CustLedgEntry."Customer No.");
+        GenJnlLine2."Document Type" := GenJnlLine2."Document Type"::" ";
+        GenJnlLine2."Document No." := CustLedgEntry."Document No.";
+        GenJnlLine2."Bill No." := CustLedgEntry."Bill No.";
+        GenJnlLine2.Description := StrSubstNo(
+            Text1100006,
+            CustLedgEntry."Document No.",
+            CustLedgEntry."Bill No.");
+        GenJnlLine2.Validate("Currency Code", CustLedgEntry."Currency Code");
+        CustLedgEntry.CalcFields("Remaining Amount", "Remaining Amt. (LCY)");
+        case CustLedgEntry."Document Situation" of
+            CustLedgEntry."Document Situation"::"Posted BG/PO":
+                begin
+                    PostedDoc.Get(PostedDoc.Type::Receivable, CustLedgEntry."Entry No.");
+                    GenJnlLine2.Validate(Amount, -PostedDoc."Remaining Amount");
+                end;
+            CustLedgEntry."Document Situation"::"Closed BG/PO", CustLedgEntry."Document Situation"::"Closed Documents":
+                GenJnlLine2.Validate(Amount, -CustLedgEntry."Remaining Amount");
         end;
+        GenJnlLine2."Dimension Set ID" := GetCombinedDimSetID(GenJnlLine2, CustLedgEntry."Dimension Set ID");
+        GenJnlLine2."System-Created Entry" := true;
+        GenJnlLine2."Applies-to Doc. Type" := GenJnlLine2."Document Type"::Bill;
+        GenJnlLine2."Applies-to Doc. No." := CustLedgEntry."Document No.";
+        GenJnlLine2."Applies-to Bill No." := CustLedgEntry."Bill No.";
 
         OnAfterCreateReceivableDocPayment(GenJnlLine2, CustLedgEntry);
     end;
@@ -516,36 +496,34 @@ codeunit 7000000 CarteraManagement
         PostedBillGr: Record "Posted Bill Group";
         ClosedBillGr: Record "Closed Bill Group";
     begin
-        with GenJnlLine2 do begin
-            "Account Type" := "Account Type"::"Bank Account";
-            "Document No." := CustLedgEntry."Document No.";
-            "Bill No." := CustLedgEntry."Bill No.";
-            Description := StrSubstNo(
-                Text1100007,
-                CustLedgEntry."Document No.",
-                CustLedgEntry."Bill No.");
-            Validate("Currency Code", CustLedgEntry."Currency Code");
-            "System-Created Entry" := true;
-            if PostedDoc.Get(PostedDoc.Type::Receivable, CustLedgEntry."Entry No.") then begin
-                PostedBillGr.Get(PostedDoc."Bill Gr./Pmt. Order No.");
-                Validate("Account No.", PostedBillGr."Bank Account No.");
-                Validate(Amount, -PostedDoc."Amount for Collection");
-                PostedDoc.TestField(Redrawn, false);
-                PostedDoc.Redrawn := true;
-                PostedDoc.Modify();
-            end else
-                if ClosedDoc.Get(ClosedDoc.Type::Receivable, CustLedgEntry."Entry No.") then begin
-                    if ClosedDoc."Bill Gr./Pmt. Order No." = '' then
-                        Error(Text1100008);
-                    ClosedBillGr.Get(ClosedDoc."Bill Gr./Pmt. Order No.");
-                    Validate("Account No.", ClosedBillGr."Bank Account No.");
-                    Validate(Amount, -ClosedDoc."Amount for Collection");
-                    ClosedDoc.TestField(Redrawn, false);
-                    ClosedDoc.Redrawn := true;
-                    ClosedDoc.Modify();
-                end;
-            "Dimension Set ID" := GetCombinedDimSetID(GenJnlLine2, CustLedgEntry."Dimension Set ID");
-        end;
+        GenJnlLine2."Account Type" := GenJnlLine2."Account Type"::"Bank Account";
+        GenJnlLine2."Document No." := CustLedgEntry."Document No.";
+        GenJnlLine2."Bill No." := CustLedgEntry."Bill No.";
+        GenJnlLine2.Description := StrSubstNo(
+            Text1100007,
+            CustLedgEntry."Document No.",
+            CustLedgEntry."Bill No.");
+        GenJnlLine2.Validate("Currency Code", CustLedgEntry."Currency Code");
+        GenJnlLine2."System-Created Entry" := true;
+        if PostedDoc.Get(PostedDoc.Type::Receivable, CustLedgEntry."Entry No.") then begin
+            PostedBillGr.Get(PostedDoc."Bill Gr./Pmt. Order No.");
+            GenJnlLine2.Validate("Account No.", PostedBillGr."Bank Account No.");
+            GenJnlLine2.Validate(Amount, -PostedDoc."Amount for Collection");
+            PostedDoc.TestField(Redrawn, false);
+            PostedDoc.Redrawn := true;
+            PostedDoc.Modify();
+        end else
+            if ClosedDoc.Get(ClosedDoc.Type::Receivable, CustLedgEntry."Entry No.") then begin
+                if ClosedDoc."Bill Gr./Pmt. Order No." = '' then
+                    Error(Text1100008);
+                ClosedBillGr.Get(ClosedDoc."Bill Gr./Pmt. Order No.");
+                GenJnlLine2.Validate("Account No.", ClosedBillGr."Bank Account No.");
+                GenJnlLine2.Validate(Amount, -ClosedDoc."Amount for Collection");
+                ClosedDoc.TestField(Redrawn, false);
+                ClosedDoc.Redrawn := true;
+                ClosedDoc.Modify();
+            end;
+        GenJnlLine2."Dimension Set ID" := GetCombinedDimSetID(GenJnlLine2, CustLedgEntry."Dimension Set ID");
 
         OnAfterReverseReceivableDocPayment(GenJnlLine2, CustLedgEntry);
     end;
@@ -555,32 +533,30 @@ codeunit 7000000 CarteraManagement
     var
         PostedDoc: Record "Posted Cartera Doc.";
     begin
-        with GenJnlLine2 do begin
-            "Account Type" := "Account Type"::Vendor;
-            Validate("Account No.", VendLedgEntry."Vendor No.");
-            "Document Type" := "Document Type"::" ";
-            "Document No." := VendLedgEntry."Document No.";
-            "Bill No." := VendLedgEntry."Bill No.";
-            Description := StrSubstNo(
-                Text1100006,
-                VendLedgEntry."Document No.",
-                VendLedgEntry."Bill No.");
-            Validate("Currency Code", VendLedgEntry."Currency Code");
-            case VendLedgEntry."Document Situation" of
-                VendLedgEntry."Document Situation"::"Posted BG/PO":
-                    begin
-                        PostedDoc.Get(PostedDoc.Type::Payable, VendLedgEntry."Entry No.");
-                        Validate(Amount, -PostedDoc."Remaining Amount");
-                    end;
-                VendLedgEntry."Document Situation"::"Closed BG/PO":
-                    Validate(Amount, -VendLedgEntry."Remaining Amount");
-            end;
-            "Dimension Set ID" := GetCombinedDimSetID(GenJnlLine2, VendLedgEntry."Dimension Set ID");
-            "System-Created Entry" := true;
-            "Applies-to Doc. Type" := "Document Type"::Bill;
-            "Applies-to Doc. No." := VendLedgEntry."Document No.";
-            "Applies-to Bill No." := VendLedgEntry."Bill No.";
+        GenJnlLine2."Account Type" := GenJnlLine2."Account Type"::Vendor;
+        GenJnlLine2.Validate("Account No.", VendLedgEntry."Vendor No.");
+        GenJnlLine2."Document Type" := GenJnlLine2."Document Type"::" ";
+        GenJnlLine2."Document No." := VendLedgEntry."Document No.";
+        GenJnlLine2."Bill No." := VendLedgEntry."Bill No.";
+        GenJnlLine2.Description := StrSubstNo(
+            Text1100006,
+            VendLedgEntry."Document No.",
+            VendLedgEntry."Bill No.");
+        GenJnlLine2.Validate("Currency Code", VendLedgEntry."Currency Code");
+        case VendLedgEntry."Document Situation" of
+            VendLedgEntry."Document Situation"::"Posted BG/PO":
+                begin
+                    PostedDoc.Get(PostedDoc.Type::Payable, VendLedgEntry."Entry No.");
+                    GenJnlLine2.Validate(Amount, -PostedDoc."Remaining Amount");
+                end;
+            VendLedgEntry."Document Situation"::"Closed BG/PO":
+                GenJnlLine2.Validate(Amount, -VendLedgEntry."Remaining Amount");
         end;
+        GenJnlLine2."Dimension Set ID" := GetCombinedDimSetID(GenJnlLine2, VendLedgEntry."Dimension Set ID");
+        GenJnlLine2."System-Created Entry" := true;
+        GenJnlLine2."Applies-to Doc. Type" := GenJnlLine2."Document Type"::Bill;
+        GenJnlLine2."Applies-to Doc. No." := VendLedgEntry."Document No.";
+        GenJnlLine2."Applies-to Bill No." := VendLedgEntry."Bill No.";
 
         OnAfterCreatePayableDocPayment(GenJnlLine2, VendLedgEntry);
     end;
@@ -593,36 +569,34 @@ codeunit 7000000 CarteraManagement
         PostedPmtOrd: Record "Posted Payment Order";
         ClosedPmtOrd: Record "Closed Payment Order";
     begin
-        with GenJnlLine2 do begin
-            "Account Type" := "Account Type"::"Bank Account";
-            "Document No." := VendLedgEntry."Document No.";
-            "Bill No." := VendLedgEntry."Bill No.";
-            Description := StrSubstNo(
-                Text1100007,
-                VendLedgEntry."Document No.",
-                VendLedgEntry."Bill No.");
-            Validate("Currency Code", VendLedgEntry."Currency Code");
-            "System-Created Entry" := true;
-            if PostedDoc.Get(PostedDoc.Type::Payable, VendLedgEntry."Entry No.") then begin
-                PostedPmtOrd.Get(PostedDoc."Bill Gr./Pmt. Order No.");
-                Validate("Account No.", PostedPmtOrd."Bank Account No.");
-                Validate(Amount, PostedDoc."Amount for Collection");
-                PostedDoc.TestField(Redrawn, false);
-                PostedDoc.Redrawn := true;
-                PostedDoc.Modify();
-            end else
-                if ClosedDoc.Get(ClosedDoc.Type::Payable, VendLedgEntry."Entry No.") then begin
-                    if ClosedDoc."Bill Gr./Pmt. Order No." = '' then
-                        Error(Text1100009);
-                    ClosedPmtOrd.Get(ClosedDoc."Bill Gr./Pmt. Order No.");
-                    Validate("Account No.", ClosedPmtOrd."Bank Account No.");
-                    Validate(Amount, ClosedDoc."Amount for Collection");
-                    ClosedDoc.TestField(Redrawn, false);
-                    ClosedDoc.Redrawn := true;
-                    ClosedDoc.Modify();
-                end;
-            "Dimension Set ID" := GetCombinedDimSetID(GenJnlLine2, VendLedgEntry."Dimension Set ID");
-        end;
+        GenJnlLine2."Account Type" := GenJnlLine2."Account Type"::"Bank Account";
+        GenJnlLine2."Document No." := VendLedgEntry."Document No.";
+        GenJnlLine2."Bill No." := VendLedgEntry."Bill No.";
+        GenJnlLine2.Description := StrSubstNo(
+            Text1100007,
+            VendLedgEntry."Document No.",
+            VendLedgEntry."Bill No.");
+        GenJnlLine2.Validate("Currency Code", VendLedgEntry."Currency Code");
+        GenJnlLine2."System-Created Entry" := true;
+        if PostedDoc.Get(PostedDoc.Type::Payable, VendLedgEntry."Entry No.") then begin
+            PostedPmtOrd.Get(PostedDoc."Bill Gr./Pmt. Order No.");
+            GenJnlLine2.Validate("Account No.", PostedPmtOrd."Bank Account No.");
+            GenJnlLine2.Validate(Amount, PostedDoc."Amount for Collection");
+            PostedDoc.TestField(Redrawn, false);
+            PostedDoc.Redrawn := true;
+            PostedDoc.Modify();
+        end else
+            if ClosedDoc.Get(ClosedDoc.Type::Payable, VendLedgEntry."Entry No.") then begin
+                if ClosedDoc."Bill Gr./Pmt. Order No." = '' then
+                    Error(Text1100009);
+                ClosedPmtOrd.Get(ClosedDoc."Bill Gr./Pmt. Order No.");
+                GenJnlLine2.Validate("Account No.", ClosedPmtOrd."Bank Account No.");
+                GenJnlLine2.Validate(Amount, ClosedDoc."Amount for Collection");
+                ClosedDoc.TestField(Redrawn, false);
+                ClosedDoc.Redrawn := true;
+                ClosedDoc.Modify();
+            end;
+        GenJnlLine2."Dimension Set ID" := GetCombinedDimSetID(GenJnlLine2, VendLedgEntry."Dimension Set ID");
 
         OnAfterReversePayableDocPayment(GenJnlLine2, VendLedgEntry);
     end;
@@ -1152,12 +1126,10 @@ codeunit 7000000 CarteraManagement
         DimensioMgt: Codeunit DimensionManagement;
         DimensionSetIDArr: array[10] of Integer;
     begin
-        with GenJnlLine do begin
-            DimensionSetIDArr[1] := "Dimension Set ID";
-            DimensionSetIDArr[2] := DimSetID;
-            exit(
-              DimensioMgt.GetCombinedDimensionSetID(DimensionSetIDArr, "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code"));
-        end;
+        DimensionSetIDArr[1] := GenJnlLine."Dimension Set ID";
+        DimensionSetIDArr[2] := DimSetID;
+        exit(
+          DimensioMgt.GetCombinedDimensionSetID(DimensionSetIDArr, GenJnlLine."Shortcut Dimension 1 Code", GenJnlLine."Shortcut Dimension 2 Code"));
     end;
 
     local procedure GetAmountLCYBasedOnCurrencyDate(PostingDate: Date; CurrencyCode: Code[10]; AmountFCY: Decimal): Decimal

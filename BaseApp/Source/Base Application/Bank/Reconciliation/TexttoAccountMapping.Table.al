@@ -10,6 +10,7 @@ table 1251 "Text-to-Account Mapping"
 {
     Caption = 'Text-to-Account Mapping';
     DataCaptionFields = "Mapping Text";
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -259,45 +260,42 @@ table 1251 "Text-to-Account Mapping"
     var
         TextToAccMapping: Record "Text-to-Account Mapping";
     begin
-        with TextToAccMapping do begin
-            SetFilter("Bal. Source Type", '%1|%2', "Bal. Source Type"::Vendor, "Bal. Source Type"::Customer);
-            SetRange("Bal. Source No.", '');
-            if FindFirst() then begin
-                if DIALOG.Confirm(BalAccountNoQst, true, "Bal. Source Type", "Mapping Text")
-                then begin
-                    DeleteAll(true);
-                    exit(true);
-                end;
-                exit(false);
+        TextToAccMapping.SetFilter("Bal. Source Type", '%1|%2', TextToAccMapping."Bal. Source Type"::Vendor, TextToAccMapping."Bal. Source Type"::Customer);
+        TextToAccMapping.SetRange("Bal. Source No.", '');
+        if TextToAccMapping.FindFirst() then begin
+            if DIALOG.Confirm(BalAccountNoQst, true, TextToAccMapping."Bal. Source Type", TextToAccMapping."Mapping Text")
+            then begin
+                TextToAccMapping.DeleteAll(true);
+                exit(true);
             end;
-
-            SetRange("Bal. Source Type", "Bal. Source Type"::"G/L Account");
-            SetRange("Debit Acc. No.", '');
-            SetRange("Credit Acc. No.", '');
-            if FindFirst() then begin
-                if DIALOG.Confirm(GLAccountNoQst, true, "Bal. Source Type"::"G/L Account", "Mapping Text")
-                then begin
-                    DeleteAll(true);
-                    exit(true);
-                end;
-                exit(false);
-            end;
-
-            SetRange("Bal. Source Type", "Bal. Source Type"::"Bank Account");
-            SetRange("Debit Acc. No.", '');
-            SetRange("Credit Acc. No.", '');
-            if FindFirst() then begin
-                if DIALOG.Confirm(GLAccountNoQst, true, "Bal. Source Type"::"Bank Account", "Mapping Text")
-                then begin
-                    DeleteAll(true);
-                    exit(true);
-                end;
-                exit(false);
-            end;
-
-            // Exit normally
-            exit(true)
+            exit(false);
         end;
+
+        TextToAccMapping.SetRange("Bal. Source Type", TextToAccMapping."Bal. Source Type"::"G/L Account");
+        TextToAccMapping.SetRange("Debit Acc. No.", '');
+        TextToAccMapping.SetRange("Credit Acc. No.", '');
+        if TextToAccMapping.FindFirst() then begin
+            if DIALOG.Confirm(GLAccountNoQst, true, TextToAccMapping."Bal. Source Type"::"G/L Account", TextToAccMapping."Mapping Text")
+            then begin
+                TextToAccMapping.DeleteAll(true);
+                exit(true);
+            end;
+            exit(false);
+        end;
+
+        TextToAccMapping.SetRange("Bal. Source Type", TextToAccMapping."Bal. Source Type"::"Bank Account");
+        TextToAccMapping.SetRange("Debit Acc. No.", '');
+        TextToAccMapping.SetRange("Credit Acc. No.", '');
+        if TextToAccMapping.FindFirst() then begin
+            if DIALOG.Confirm(GLAccountNoQst, true, TextToAccMapping."Bal. Source Type"::"Bank Account", TextToAccMapping."Mapping Text")
+            then begin
+                TextToAccMapping.DeleteAll(true);
+                exit(true);
+            end;
+            exit(false);
+        end;
+        // Exit normally
+        exit(true)
     end;
 
     procedure SearchEnteriesInText(var TextToAccountMapping: Record "Text-to-Account Mapping"; LineDescription: Text; VendorNo: Code[20]): Integer

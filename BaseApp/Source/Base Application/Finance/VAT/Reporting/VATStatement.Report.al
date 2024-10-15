@@ -194,7 +194,7 @@ report 12 "VAT Statement"
                     end else begin
                         CalcLineTotal("VAT Statement Line", TotalAmount, 0);
                         if PrintInIntegers then
-                            TotalAmount := Round(TotalAmount, 1, '<');
+                            TotalAmount := RoundAmount(TotalAmount);
                         if "Print with" = "Print with"::"Opposite Sign" then
                             TotalAmount := -TotalAmount;
                     end;
@@ -294,12 +294,10 @@ report 12 "VAT Statement"
         GLAcc: Record "G/L Account";
         VATEntry: Record "VAT Entry";
         GLSetup: Record "General Ledger Setup";
-        VATStmtLine: Record "VAT Statement Line";
         VATPostSetup: Record "VAT Posting Setup";
         VATStmtName: Record "VAT Statement Name";
         Currency: Record Currency;
         VATStmtLineFilter: Text;
-        Heading: Text[50];
         Base: Decimal;
         Amount: Decimal;
         RowNo: array[6] of Code[10];
@@ -308,7 +306,6 @@ report 12 "VAT Statement"
         PageGroupNo: Integer;
         NextPageGroupNo: Integer;
         Header: Text[50];
-        Heading2: Text[50];
         VATAmount: Decimal;
         VATAmountAC: Decimal;
         TotalBase: Decimal;
@@ -323,10 +320,7 @@ report 12 "VAT Statement"
         VATDateType: Enum "VAT Date Type";
 #endif
         Text000: Label 'VAT entries before and within the period';
-        Text002: Label 'All amounts are in %1';
         Text003: Label 'Amounts are in %1, rounded without decimals.';
-        Text004: Label 'VAT entries within the period';
-        Text005: Label 'Period: %1..%2';
         Text1100101: Label 'Period: %1';
         Text1100102: Label 'The Statement name does not exist';
         AllAmtAreInLbl: Label 'All amounts are in';
@@ -345,12 +339,18 @@ report 12 "VAT Statement"
         TypesCaptionLbl: Label 'Types';
         VATPercentCaptionLbl: Label 'VAT %';
         ECPercentCaptionLbl: Label 'EC %';
+        DefaultRoundingDirectionTok: Label '<', Locked = true;
 
     protected var
         EndDate: Date;
         StartDate: Date;
         EndDateReq: Date;
+#if not CLEAN24
+#pragma warning disable AA0137
+        [Obsolete('Unused variable', '24.0')]
         HeaderText: Text[50];
+#pragma warning restore AA0137
+#endif
         PrintInIntegers: Boolean;
         PeriodSelection: Enum "VAT Statement Report Period Selection";
         Selection: Enum "VAT Statement Report Selection";
@@ -584,7 +584,7 @@ report 12 "VAT Statement"
                                 Amount := Amount + Base;
                             end;
                         else
-                            OnCalcLineTotalWithBaseOnCaseElse(VATStmtLine2, Amount, TotalAmount, Level, PeriodSelection, StartDate, EndDate, EndDateReq, PrintInIntegers, UseAmtsInAddCurr);
+                            OnCalcLineTotalWithBaseOnCaseElse(VATStmtLine2, Amount, TotalAmount, Level, PeriodSelection, StartDate, EndDate, EndDateReq, PrintInIntegers, UseAmtsInAddCurr, TotalBase);
                     end;
 
                     CalcTotalAmount(VATStmtLine2, TotalAmount, TotalBase);
@@ -621,12 +621,12 @@ report 12 "VAT Statement"
         if VATStmtLine2."Calculate with" = 1 then
             Amount := -Amount;
         if PrintInIntegers and VATStmtLine2.Print then
-            Amount := Round(Amount, 1, '<');
+            Amount := RoundAmount(Amount);
         TotalAmount := TotalAmount + Amount;
         if VATStmtLine2."Calculate with" = 1 then
             Base := -Base;
         if PrintInIntegers and VATStmtLine2.Print then
-            Base := Round(Base, 1, '<');
+            Base := RoundAmount(Base);
         TotalBase := TotalBase + Base;
     end;
 
@@ -706,23 +706,21 @@ report 12 "VAT Statement"
     begin
         VATAmount1 := 0;
         VATAmountAC1 := 0;
-        with VATEntry1 do begin
-            if FindSet() then
-                repeat
-                    if "VAT %" + "EC %" <> 0 then begin
-                        if ECAmount then
-                            Percent := "EC %"
-                        else
-                            Percent := "VAT %";
-                        VATAmount1 := VATAmount1 + (Amount / ("VAT %" + "EC %")) * Percent;
-                        VATAmountAC1 := VATAmountAC1 + ("Additional-Currency Amount" / ("VAT %" + "EC %")) * Percent;
-                    end else
-                        if "VAT Calculation Type" = "VAT Calculation Type"::"Full VAT" then begin
-                            VATAmount1 := VATAmount1 + Amount;
-                            VATAmountAC1 := VATAmountAC1 + "Additional-Currency Amount";
-                        end;
-                until Next() = 0;
-        end;
+        if VATEntry1.FindSet() then
+            repeat
+                if VATEntry1."VAT %" + VATEntry1."EC %" <> 0 then begin
+                    if ECAmount then
+                        Percent := VATEntry1."EC %"
+                    else
+                        Percent := VATEntry1."VAT %";
+                    VATAmount1 := VATAmount1 + (VATEntry1.Amount / (VATEntry1."VAT %" + VATEntry1."EC %")) * Percent;
+                    VATAmountAC1 := VATAmountAC1 + (VATEntry1."Additional-Currency Amount" / (VATEntry1."VAT %" + VATEntry1."EC %")) * Percent;
+                end else
+                    if VATEntry1."VAT Calculation Type" = VATEntry1."VAT Calculation Type"::"Full VAT" then begin
+                        VATAmount1 := VATAmount1 + VATEntry1.Amount;
+                        VATAmountAC1 := VATAmountAC1 + VATEntry1."Additional-Currency Amount";
+                    end;
+            until VATEntry1.Next() = 0;
     end;
 
     local procedure CalcLineNoTaxable(VATStatementLine: Record "VAT Statement Line"; ValueAsAmount: Boolean): Boolean
@@ -860,6 +858,17 @@ report 12 "VAT Statement"
         end;
     end;
 
+    protected procedure GetAmtRoundingDirection() Direction: Text[1]
+    begin
+        Direction := DefaultRoundingDirectionTok;
+        OnAfterGetAmtRoundingDirection(Direction);
+    end;
+
+    protected procedure RoundAmount(Amt: Decimal): Decimal
+    begin
+        exit(Round(Amt, 1, GetAmtRoundingDirection()));
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnCalcLineTotalOnBeforeCalcTotalAmountVATEntryTotaling(VATStmtLine: Record "VAT Statement Line"; var VATEntry: Record "VAT Entry"; var Amount: Decimal; UseAmtsInAddCurr: Boolean)
     begin
@@ -876,7 +885,7 @@ report 12 "VAT Statement"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnCalcLineTotalWithBaseOnCaseElse(var VATStmtLine2: Record "VAT Statement Line"; var Amount: Decimal; var TotalAmount: Decimal; Level: Integer; PeriodSelection: Enum "VAT Statement Report Period Selection"; StartDate: Date; EndDate: Date; EndDateReq: Date; PrintInIntegers: Boolean; UseAmtsInAddCurr: Boolean)
+    local procedure OnCalcLineTotalWithBaseOnCaseElse(var VATStmtLine2: Record "VAT Statement Line"; var Amount: Decimal; var TotalAmount: Decimal; Level: Integer; PeriodSelection: Enum "VAT Statement Report Period Selection"; StartDate: Date; EndDate: Date; EndDateReq: Date; PrintInIntegers: Boolean; UseAmtsInAddCurr: Boolean; var TotalBase: Decimal)
     begin
     end;
 
@@ -887,6 +896,11 @@ report 12 "VAT Statement"
 
     [IntegrationEvent(false, false)]
     local procedure OnCalcLineTotalWithBaseOnAfterGLAccSetFilters(var GLAccount: Record "G/L Account"; VATStatementLine2: Record "VAT Statement Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterGetAmtRoundingDirection(var Direction: Text[1]);
     begin
     end;
 }

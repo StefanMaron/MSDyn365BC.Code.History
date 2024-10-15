@@ -153,7 +153,7 @@ codeunit 144049 "ERM ES Check PMPE"
         RunVendorOverduePaymentsReport(GenJournalLine."Account No.", PurchaseHeader."Posting Date", ShowPaymentsRef::"Legally Overdue");
         // Opens handler - VendorOverduePaymentsRequestPageHandler.
 
-        DaysOverdue := WorkDate - PurchaseHeader."Posting Date";   //TFS 380311
+        DaysOverdue := WorkDate() - PurchaseHeader."Posting Date";   //TFS 380311
         // Verify: Verify Vendor No, Document No, and Calculated Weighted Exceeded Amount on generated XML of Report - Vendor Over due Payments.
         VerifyNumberDocNoAndWeightedAmtsOnVendorReport(
           GenJournalLine."Account No.", GenJournalLine."Document No.", 0, DaysOverdue, 0, 0);
@@ -229,7 +229,7 @@ codeunit 144049 "ERM ES Check PMPE"
           PurchaseHeader."Buy-from Vendor No.", PurchaseHeader."Posting Date", ShowPaymentsRef::All);
 
         // [THEN] Vendor Overdue Payment report has CalcVendorRatioOfOutstandingPaymentTransactions = 10, OpenVendPaymentWithinDueDate = 100
-        DaysOverdue := WorkDate - PurchaseHeader."Posting Date";
+        DaysOverdue := WorkDate() - PurchaseHeader."Posting Date";
         VerifyNumberDocNoAndWeightedAmtsOnVendorReport(
           PurchaseHeader."Buy-from Vendor No.", '', 0, DaysOverdue, 0, -InvoiceAmount);
     end;
@@ -400,13 +400,13 @@ codeunit 144049 "ERM ES Check PMPE"
         RunCustomerOverduePaymentsReport(GenJournalLine."Account No.", SalesHeader."Posting Date");
 
         // [THEN] Elements for zero total ratio exported with zero values
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(
           'WeightedExceededAmount___ABS__Detailed_Cust__Ledg__Entry___Amount__LCY___', 0);
         LibraryReportDataset.AssertElementWithValueExists(
           'WeightedExceededAmount___ABS__Detailed_Cust__Ledg__Entry___Amount__LCY____Control1100057', 0);
-        LibraryReportDataset.AssertElementWithValueExists(CustRatioWithinTok, GetZeroPctTxt);
-        LibraryReportDataset.AssertElementWithValueExists(CustRatioOutsideTok, GetZeroPctTxt);
+        LibraryReportDataset.AssertElementWithValueExists(CustRatioWithinTok, GetZeroPctTxt());
+        LibraryReportDataset.AssertElementWithValueExists(CustRatioOutsideTok, GetZeroPctTxt());
     end;
 
     [HandlerFunctions('VendorOverduePaymentsRequestPageHandler')]
@@ -433,13 +433,13 @@ codeunit 144049 "ERM ES Check PMPE"
         RunVendorOverduePaymentsReport(GenJournalLine."Account No.", PurchaseHeader."Posting Date", 0);
 
         // [THEN] Elements for zero total ratio exported with zero values
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(
           'WeightedExceededAmount___ABS__Detailed_Vend__Ledg__Entry___Amount__LCY___', 0);
         LibraryReportDataset.AssertElementWithValueExists(
           'WeightedExceededAmount___ABS__Detailed_Vend__Ledg__Entry___Amount__LCY____Control1100057', 0);
-        LibraryReportDataset.AssertElementWithValueExists(VendRatioWithinTok, GetZeroPctTxt);
-        LibraryReportDataset.AssertElementWithValueExists(VendRatioOutsideTok, GetZeroPctTxt);
+        LibraryReportDataset.AssertElementWithValueExists(VendRatioWithinTok, GetZeroPctTxt());
+        LibraryReportDataset.AssertElementWithValueExists(VendRatioOutsideTok, GetZeroPctTxt());
     end;
 
     [Test]
@@ -550,7 +550,7 @@ codeunit 144049 "ERM ES Check PMPE"
     begin
         LibrarySales.CreateCustomer(Customer);
         Customer.Validate("VAT Bus. Posting Group", VATBusPostingGroup);
-        Customer.Validate("Payment Terms Code", CreatePaymentTerms);
+        Customer.Validate("Payment Terms Code", CreatePaymentTerms());
         Customer.Modify(true);
         exit(Customer."No.");
     end;
@@ -683,7 +683,7 @@ codeunit 144049 "ERM ES Check PMPE"
         LibraryERM.CreateVATProductPostingGroup(VATProductPostingGroup);
         LibraryERM.CreateVATPostingSetup(VATPostingSetup, VATBusinessPostingGroup.Code, VATProductPostingGroup.Code);
         VATPostingSetup.Validate("Unrealized VAT Type", VATPostingSetup."Unrealized VAT Type"::Percentage);
-        VATPostingSetup.Validate("Purchase VAT Account", CreateGLAccount);
+        VATPostingSetup.Validate("Purchase VAT Account", CreateGLAccount());
         VATPostingSetup.Validate(
           "Purch. VAT Unreal. Account",
           CreateGLAccountWithPostingGroup(VATPostingSetup."VAT Bus. Posting Group", VATPostingSetup."VAT Prod. Posting Group"));
@@ -699,7 +699,7 @@ codeunit 144049 "ERM ES Check PMPE"
     begin
         LibraryPurchase.CreateVendor(Vendor);
         Vendor.Validate("VAT Bus. Posting Group", VATBusPostingGroup);
-        Vendor.Validate("Payment Terms Code", CreatePaymentTerms);
+        Vendor.Validate("Payment Terms Code", CreatePaymentTerms());
         Vendor.Modify(true);
         exit(Vendor."No.");
     end;
@@ -785,13 +785,13 @@ codeunit 144049 "ERM ES Check PMPE"
         VATEntry.SetRange("Document Type", DocumentType);
         VATEntry.SetRange("Bill-to/Pay-to No.", BillToPayToNo);
         VATEntry.FindFirst();
-        Assert.AreNearlyEqual(VATAmount, VATEntry.Amount, LibraryERM.GetInvoiceRoundingPrecisionLCY, ValueMustBeEqualMsg);
-        Assert.AreNearlyEqual(Amount - VATEntry.Amount, VATEntry.Base, LibraryERM.GetInvoiceRoundingPrecisionLCY, ValueMustBeEqualMsg);
+        Assert.AreNearlyEqual(VATAmount, VATEntry.Amount, LibraryERM.GetInvoiceRoundingPrecisionLCY(), ValueMustBeEqualMsg);
+        Assert.AreNearlyEqual(Amount - VATEntry.Amount, VATEntry.Base, LibraryERM.GetInvoiceRoundingPrecisionLCY(), ValueMustBeEqualMsg);
     end;
 
     local procedure VerifyNumberDocNoAndWeightedAmtsOnVendorReport(VendorNo: Code[20]; DocumentNo: Code[20]; DaysOverdue: Integer; DaysOutstanding: Integer; WithinDueDateAmt: Decimal; OpenWithinDueDateAmt: Decimal)
     begin
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(VendorNoCap, VendorNo);
         LibraryReportDataset.AssertElementWithValueExists(DetailedVendLedgEntryDocNoCap, DocumentNo);
 
@@ -807,10 +807,10 @@ codeunit 144049 "ERM ES Check PMPE"
         PaymentTerms: Record "Payment Terms";
     begin
         PaymentTerms.Get(Code);
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(NumberCap, GenJournalLine."Account No.");
         LibraryReportDataset.AssertElementWithValueExists(
-          CalcWeightedExceededAmtCap, WorkDate - CalcDate(PaymentTerms."Due Date Calculation", PostingDate));
+          CalcWeightedExceededAmtCap, WorkDate() - CalcDate(PaymentTerms."Due Date Calculation", PostingDate));
         LibraryReportDataset.AssertElementWithValueExists(LedgEntryDocumentNoCap, GenJournalLine."Document No.");
     end;
 
@@ -840,14 +840,14 @@ codeunit 144049 "ERM ES Check PMPE"
     [Scope('OnPrem')]
     procedure CutomerOverduePaymentsRequestPageHandler(var CustomerOverduePayments: TestRequestPage "Customer - Overdue Payments")
     begin
-        CustomerOverduePayments.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        CustomerOverduePayments.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure VendorOverduePaymentsRequestPageHandler(var VendorOverduePayments: TestRequestPage "Vendor - Overdue Payments")
     begin
-        VendorOverduePayments.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        VendorOverduePayments.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 }
 

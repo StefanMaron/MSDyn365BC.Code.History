@@ -144,8 +144,8 @@ codeunit 147515 "No Taxable Documents"
         LibraryLowerPermissions.SetO365Full();
         CreatePostGenJnlLine(
           GenJournalLine, GenJournalLine."Document Type"::Invoice,
-          GenJournalLine."Account Type"::Customer, LibrarySales.CreateCustomerNo,
-          GenJournalLine."Bal. Account Type"::"G/L Account", CreateGLAccountNoTaxableSale, 1);
+          GenJournalLine."Account Type"::Customer, LibrarySales.CreateCustomerNo(),
+          GenJournalLine."Bal. Account Type"::"G/L Account", CreateGLAccountNoTaxableSale(), 1);
 
         LibraryERM.FindCustomerLedgerEntry(
           CustLedgerEntry, CustLedgerEntry."Document Type"::Invoice, GenJournalLine."Document No.");
@@ -165,8 +165,8 @@ codeunit 147515 "No Taxable Documents"
         LibraryLowerPermissions.SetO365Full();
         CreatePostGenJnlLine(
           GenJournalLine, GenJournalLine."Document Type"::Invoice,
-          GenJournalLine."Account Type"::"G/L Account", CreateGLAccountNoTaxableSale,
-          GenJournalLine."Bal. Account Type"::Customer, LibrarySales.CreateCustomerNo, -1);
+          GenJournalLine."Account Type"::"G/L Account", CreateGLAccountNoTaxableSale(),
+          GenJournalLine."Bal. Account Type"::Customer, LibrarySales.CreateCustomerNo(), -1);
 
         LibraryERM.FindCustomerLedgerEntry(
           CustLedgerEntry, CustLedgerEntry."Document Type"::Invoice, GenJournalLine."Document No.");
@@ -186,8 +186,8 @@ codeunit 147515 "No Taxable Documents"
         LibraryLowerPermissions.SetO365Full();
         CreatePostGenJnlLine(
           GenJournalLine, GenJournalLine."Document Type"::"Credit Memo",
-          GenJournalLine."Account Type"::Customer, LibrarySales.CreateCustomerNo,
-          GenJournalLine."Bal. Account Type"::"G/L Account", CreateGLAccountNoTaxableSale, -1);
+          GenJournalLine."Account Type"::Customer, LibrarySales.CreateCustomerNo(),
+          GenJournalLine."Bal. Account Type"::"G/L Account", CreateGLAccountNoTaxableSale(), -1);
 
         LibraryERM.FindCustomerLedgerEntry(
           CustLedgerEntry, CustLedgerEntry."Document Type"::"Credit Memo", GenJournalLine."Document No.");
@@ -207,8 +207,8 @@ codeunit 147515 "No Taxable Documents"
         LibraryLowerPermissions.SetO365Full();
         CreatePostGenJnlLine(
           GenJournalLine, GenJournalLine."Document Type"::"Credit Memo",
-          GenJournalLine."Account Type"::"G/L Account", CreateGLAccountNoTaxableSale,
-          GenJournalLine."Bal. Account Type"::Customer, LibrarySales.CreateCustomerNo, 1);
+          GenJournalLine."Account Type"::"G/L Account", CreateGLAccountNoTaxableSale(),
+          GenJournalLine."Bal. Account Type"::Customer, LibrarySales.CreateCustomerNo(), 1);
 
         LibraryERM.FindCustomerLedgerEntry(
           CustLedgerEntry, CustLedgerEntry."Document Type"::"Credit Memo", GenJournalLine."Document No.");
@@ -228,8 +228,8 @@ codeunit 147515 "No Taxable Documents"
         LibraryLowerPermissions.SetO365Full();
         CreatePostGenJnlLine(
           GenJournalLine, GenJournalLine."Document Type"::Invoice,
-          GenJournalLine."Account Type"::Vendor, LibraryPurchase.CreateVendorNo,
-          GenJournalLine."Bal. Account Type"::"G/L Account", CreateGLAccountNoTaxablePurch, -1);
+          GenJournalLine."Account Type"::Vendor, LibraryPurchase.CreateVendorNo(),
+          GenJournalLine."Bal. Account Type"::"G/L Account", CreateGLAccountNoTaxablePurch(), -1);
 
         LibraryERM.FindVendorLedgerEntry(
           VendorLedgerEntry, VendorLedgerEntry."Document Type"::Invoice, GenJournalLine."Document No.");
@@ -249,8 +249,8 @@ codeunit 147515 "No Taxable Documents"
         LibraryLowerPermissions.SetO365Full();
         CreatePostGenJnlLine(
           GenJournalLine, GenJournalLine."Document Type"::Invoice,
-          GenJournalLine."Account Type"::"G/L Account", CreateGLAccountNoTaxablePurch,
-          GenJournalLine."Bal. Account Type"::Vendor, LibraryPurchase.CreateVendorNo, 1);
+          GenJournalLine."Account Type"::"G/L Account", CreateGLAccountNoTaxablePurch(),
+          GenJournalLine."Bal. Account Type"::Vendor, LibraryPurchase.CreateVendorNo(), 1);
 
         LibraryERM.FindVendorLedgerEntry(
           VendorLedgerEntry, VendorLedgerEntry."Document Type"::Invoice, GenJournalLine."Document No.");
@@ -270,8 +270,8 @@ codeunit 147515 "No Taxable Documents"
         LibraryLowerPermissions.SetO365Full();
         CreatePostGenJnlLine(
           GenJournalLine, GenJournalLine."Document Type"::"Credit Memo",
-          GenJournalLine."Account Type"::Vendor, LibraryPurchase.CreateVendorNo,
-          GenJournalLine."Bal. Account Type"::"G/L Account", CreateGLAccountNoTaxablePurch, 1);
+          GenJournalLine."Account Type"::Vendor, LibraryPurchase.CreateVendorNo(),
+          GenJournalLine."Bal. Account Type"::"G/L Account", CreateGLAccountNoTaxablePurch(), 1);
 
         LibraryERM.FindVendorLedgerEntry(
           VendorLedgerEntry, VendorLedgerEntry."Document Type"::"Credit Memo", GenJournalLine."Document No.");
@@ -291,8 +291,8 @@ codeunit 147515 "No Taxable Documents"
         LibraryLowerPermissions.SetO365Full();
         CreatePostGenJnlLine(
           GenJournalLine, GenJournalLine."Document Type"::"Credit Memo",
-          GenJournalLine."Account Type"::"G/L Account", CreateGLAccountNoTaxablePurch,
-          GenJournalLine."Bal. Account Type"::Vendor, LibraryPurchase.CreateVendorNo, -1);
+          GenJournalLine."Account Type"::"G/L Account", CreateGLAccountNoTaxablePurch(),
+          GenJournalLine."Bal. Account Type"::Vendor, LibraryPurchase.CreateVendorNo(), -1);
 
         LibraryERM.FindVendorLedgerEntry(
           VendorLedgerEntry, VendorLedgerEntry."Document Type"::"Credit Memo", GenJournalLine."Document No.");
@@ -313,8 +313,8 @@ codeunit 147515 "No Taxable Documents"
         LibraryLowerPermissions.SetO365Full();
         CreatePostGenJnlLine(
           GenJournalLine, GenJournalLine."Document Type"::Invoice,
-          GenJournalLine."Account Type"::Customer, LibrarySales.CreateCustomerNo,
-          GenJournalLine."Bal. Account Type"::"G/L Account", CreateGLAccountNoTaxableSale, 1);
+          GenJournalLine."Account Type"::Customer, LibrarySales.CreateCustomerNo(),
+          GenJournalLine."Bal. Account Type"::"G/L Account", CreateGLAccountNoTaxableSale(), 1);
 
         LibraryERM.FindCustomerLedgerEntry(
           CustLedgerEntry, CustLedgerEntry."Document Type"::Invoice, GenJournalLine."Document No.");
@@ -337,8 +337,8 @@ codeunit 147515 "No Taxable Documents"
         LibraryLowerPermissions.SetO365Full();
         CreatePostGenJnlLine(
           GenJournalLine, GenJournalLine."Document Type"::Invoice,
-          GenJournalLine."Account Type"::Vendor, LibraryPurchase.CreateVendorNo,
-          GenJournalLine."Bal. Account Type"::"G/L Account", CreateGLAccountNoTaxablePurch, -1);
+          GenJournalLine."Account Type"::Vendor, LibraryPurchase.CreateVendorNo(),
+          GenJournalLine."Bal. Account Type"::"G/L Account", CreateGLAccountNoTaxablePurch(), -1);
 
         LibraryERM.FindVendorLedgerEntry(
           VendorLedgerEntry, VendorLedgerEntry."Document Type"::Invoice, GenJournalLine."Document No.");
@@ -494,8 +494,8 @@ codeunit 147515 "No Taxable Documents"
         LibraryLowerPermissions.SetO365Full();
         CreatePostGenJnlLine(
           GenJournalLine, GenJournalLine."Document Type"::Invoice,
-          GenJournalLine."Account Type"::Customer, LibrarySales.CreateCustomerNo,
-          GenJournalLine."Bal. Account Type"::"G/L Account", CreateGLAccountNoTaxableSale, 1);
+          GenJournalLine."Account Type"::Customer, LibrarySales.CreateCustomerNo(),
+          GenJournalLine."Bal. Account Type"::"G/L Account", CreateGLAccountNoTaxableSale(), 1);
 
         LibraryERM.FindCustomerLedgerEntry(
           CustLedgerEntry, CustLedgerEntry."Document Type"::Invoice, GenJournalLine."Document No.");
@@ -520,8 +520,8 @@ codeunit 147515 "No Taxable Documents"
         LibraryLowerPermissions.SetO365Full();
         CreatePostGenJnlLine(
           GenJournalLine, GenJournalLine."Document Type"::Invoice,
-          GenJournalLine."Account Type"::"G/L Account", CreateGLAccountNoTaxableSale,
-          GenJournalLine."Bal. Account Type"::Customer, LibrarySales.CreateCustomerNo, -1);
+          GenJournalLine."Account Type"::"G/L Account", CreateGLAccountNoTaxableSale(),
+          GenJournalLine."Bal. Account Type"::Customer, LibrarySales.CreateCustomerNo(), -1);
 
         LibraryERM.FindCustomerLedgerEntry(
           CustLedgerEntry, CustLedgerEntry."Document Type"::Invoice, GenJournalLine."Document No.");
@@ -546,8 +546,8 @@ codeunit 147515 "No Taxable Documents"
         LibraryLowerPermissions.SetO365Full();
         CreatePostGenJnlLine(
           GenJournalLine, GenJournalLine."Document Type"::"Credit Memo",
-          GenJournalLine."Account Type"::Customer, LibrarySales.CreateCustomerNo,
-          GenJournalLine."Bal. Account Type"::"G/L Account", CreateGLAccountNoTaxableSale, -1);
+          GenJournalLine."Account Type"::Customer, LibrarySales.CreateCustomerNo(),
+          GenJournalLine."Bal. Account Type"::"G/L Account", CreateGLAccountNoTaxableSale(), -1);
 
         LibraryERM.FindCustomerLedgerEntry(
           CustLedgerEntry, CustLedgerEntry."Document Type"::"Credit Memo", GenJournalLine."Document No.");
@@ -572,8 +572,8 @@ codeunit 147515 "No Taxable Documents"
         LibraryLowerPermissions.SetO365Full();
         CreatePostGenJnlLine(
           GenJournalLine, GenJournalLine."Document Type"::"Credit Memo",
-          GenJournalLine."Account Type"::"G/L Account", CreateGLAccountNoTaxableSale,
-          GenJournalLine."Bal. Account Type"::Customer, LibrarySales.CreateCustomerNo, 1);
+          GenJournalLine."Account Type"::"G/L Account", CreateGLAccountNoTaxableSale(),
+          GenJournalLine."Bal. Account Type"::Customer, LibrarySales.CreateCustomerNo(), 1);
 
         LibraryERM.FindCustomerLedgerEntry(
           CustLedgerEntry, CustLedgerEntry."Document Type"::"Credit Memo", GenJournalLine."Document No.");
@@ -598,8 +598,8 @@ codeunit 147515 "No Taxable Documents"
         LibraryLowerPermissions.SetO365Full();
         CreatePostGenJnlLine(
           GenJournalLine, GenJournalLine."Document Type"::Invoice,
-          GenJournalLine."Account Type"::Vendor, LibraryPurchase.CreateVendorNo,
-          GenJournalLine."Bal. Account Type"::"G/L Account", CreateGLAccountNoTaxablePurch, -1);
+          GenJournalLine."Account Type"::Vendor, LibraryPurchase.CreateVendorNo(),
+          GenJournalLine."Bal. Account Type"::"G/L Account", CreateGLAccountNoTaxablePurch(), -1);
 
         LibraryERM.FindVendorLedgerEntry(
           VendorLedgerEntry, VendorLedgerEntry."Document Type"::Invoice, GenJournalLine."Document No.");
@@ -624,8 +624,8 @@ codeunit 147515 "No Taxable Documents"
         LibraryLowerPermissions.SetO365Full();
         CreatePostGenJnlLine(
           GenJournalLine, GenJournalLine."Document Type"::Invoice,
-          GenJournalLine."Account Type"::"G/L Account", CreateGLAccountNoTaxablePurch,
-          GenJournalLine."Bal. Account Type"::Vendor, LibraryPurchase.CreateVendorNo, 1);
+          GenJournalLine."Account Type"::"G/L Account", CreateGLAccountNoTaxablePurch(),
+          GenJournalLine."Bal. Account Type"::Vendor, LibraryPurchase.CreateVendorNo(), 1);
 
         LibraryERM.FindVendorLedgerEntry(
           VendorLedgerEntry, VendorLedgerEntry."Document Type"::Invoice, GenJournalLine."Document No.");
@@ -650,8 +650,8 @@ codeunit 147515 "No Taxable Documents"
         LibraryLowerPermissions.SetO365Full();
         CreatePostGenJnlLine(
           GenJournalLine, GenJournalLine."Document Type"::"Credit Memo",
-          GenJournalLine."Account Type"::Vendor, LibraryPurchase.CreateVendorNo,
-          GenJournalLine."Bal. Account Type"::"G/L Account", CreateGLAccountNoTaxablePurch, 1);
+          GenJournalLine."Account Type"::Vendor, LibraryPurchase.CreateVendorNo(),
+          GenJournalLine."Bal. Account Type"::"G/L Account", CreateGLAccountNoTaxablePurch(), 1);
 
         LibraryERM.FindVendorLedgerEntry(
           VendorLedgerEntry, VendorLedgerEntry."Document Type"::"Credit Memo", GenJournalLine."Document No.");
@@ -676,8 +676,8 @@ codeunit 147515 "No Taxable Documents"
         LibraryLowerPermissions.SetO365Full();
         CreatePostGenJnlLine(
           GenJournalLine, GenJournalLine."Document Type"::"Credit Memo",
-          GenJournalLine."Account Type"::"G/L Account", CreateGLAccountNoTaxablePurch,
-          GenJournalLine."Bal. Account Type"::Vendor, LibraryPurchase.CreateVendorNo, -1);
+          GenJournalLine."Account Type"::"G/L Account", CreateGLAccountNoTaxablePurch(),
+          GenJournalLine."Bal. Account Type"::Vendor, LibraryPurchase.CreateVendorNo(), -1);
 
         LibraryERM.FindVendorLedgerEntry(
           VendorLedgerEntry, VendorLedgerEntry."Document Type"::"Credit Memo", GenJournalLine."Document No.");
@@ -702,8 +702,8 @@ codeunit 147515 "No Taxable Documents"
         DeleteCVLedgerEntries();
         LibraryLowerPermissions.SetO365Full();
 
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo);
-        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithSalesSetup, 1);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo());
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithSalesSetup(), 1);
         SalesLine.Validate("Unit Price", LibraryRandom.RandDecInRange(100, 200, 2));
         SalesLine.Modify(true);
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
@@ -730,9 +730,9 @@ codeunit 147515 "No Taxable Documents"
         DeleteCVLedgerEntries();
         LibraryLowerPermissions.SetO365Full();
 
-        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, LibraryPurchase.CreateVendorNo);
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, LibraryPurchase.CreateVendorNo());
         LibraryPurchase.CreatePurchaseLine(
-          PurchaseLine, PurchaseHeader, PurchaseLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithPurchSetup, 1);
+          PurchaseLine, PurchaseHeader, PurchaseLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithPurchSetup(), 1);
         PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandDecInRange(100, 200, 2));
         PurchaseLine.Modify(true);
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
@@ -760,8 +760,8 @@ codeunit 147515 "No Taxable Documents"
         LibraryLowerPermissions.SetO365Full();
         CreatePostGenJnlLine(
           GenJournalLine, GenJournalLine."Document Type"::Invoice,
-          GenJournalLine."Account Type"::Customer, LibrarySales.CreateCustomerNo,
-          GenJournalLine."Bal. Account Type"::"G/L Account", LibraryERM.CreateGLAccountWithSalesSetup, 1);
+          GenJournalLine."Account Type"::Customer, LibrarySales.CreateCustomerNo(),
+          GenJournalLine."Bal. Account Type"::"G/L Account", LibraryERM.CreateGLAccountWithSalesSetup(), 1);
 
         DeleteNoTaxableEntries();
         Codeunit.Run(Codeunit::"No Taxable - Generate Entries");
@@ -786,8 +786,8 @@ codeunit 147515 "No Taxable Documents"
         LibraryLowerPermissions.SetO365Full();
         CreatePostGenJnlLine(
           GenJournalLine, GenJournalLine."Document Type"::Invoice,
-          GenJournalLine."Account Type"::Vendor, LibraryPurchase.CreateVendorNo,
-          GenJournalLine."Bal. Account Type"::"G/L Account", LibraryERM.CreateGLAccountWithPurchSetup, -1);
+          GenJournalLine."Account Type"::Vendor, LibraryPurchase.CreateVendorNo(),
+          GenJournalLine."Bal. Account Type"::"G/L Account", LibraryERM.CreateGLAccountWithPurchSetup(), -1);
 
         DeleteNoTaxableEntries();
         Codeunit.Run(Codeunit::"No Taxable - Generate Entries");
@@ -809,7 +809,7 @@ codeunit 147515 "No Taxable Documents"
         // [SCENARIO 466990] Error when post purchase invoice with normal No Taxable VAT Posting Setup
         LibraryLowerPermissions.SetO365Full();
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, Librarypurchase.CreateVendorNo());
-        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithSalesSetup, 1);
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithSalesSetup(), 1);
         MockNormalNoTaxableVATPostingSetup(VATPostingSetup, PurchaseHeader."VAT Bus. Posting Group");
         PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandDecInRange(100, 200, 2));
         PurchaseLine.Validate("VAT Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
@@ -835,7 +835,7 @@ codeunit 147515 "No Taxable Documents"
         // [SCENARIO 466990] Error when post sales invoice with normal No Taxable VAT Posting Setup
         LibraryLowerPermissions.SetO365Full();
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo());
-        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithSalesSetup, 1);
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithSalesSetup(), 1);
         MockNormalNoTaxableVATPostingSetup(VATPostingSetup, SalesHeader."VAT Bus. Posting Group");
         SalesLine.Validate("Unit Price", LibraryRandom.RandDecInRange(100, 200, 2));
         SalesLine.Validate("VAT Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
@@ -1085,9 +1085,9 @@ codeunit 147515 "No Taxable Documents"
     var
         PurchaseLine: Record "Purchase Line";
     begin
-        LibraryPurchase.CreatePurchHeader(PurchaseHeader, DocumentType, LibraryPurchase.CreateVendorNo);
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, DocumentType, LibraryPurchase.CreateVendorNo());
         LibraryPurchase.CreatePurchaseLine(
-          PurchaseLine, PurchaseHeader, PurchaseLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithPurchSetup, 1);
+          PurchaseLine, PurchaseHeader, PurchaseLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithPurchSetup(), 1);
         PurchaseLine.Validate(
           "VAT Prod. Posting Group", LibrarySII.CreateSpecificNoTaxableVATSetup(PurchaseHeader."VAT Bus. Posting Group", false, 0));
         PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandDecInRange(100, 200, 2));

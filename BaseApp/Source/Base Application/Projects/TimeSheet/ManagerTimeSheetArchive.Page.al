@@ -46,28 +46,36 @@ page 961 "Manager Time Sheet Archive"
                         UpdateControls();
                     end;
                 }
+#pragma warning disable AA0100
                 field("TimeSheetHeaderArchive.""Resource No."""; TimeSheetHeaderArchive."Resource No.")
+#pragma warning restore AA0100
                 {
                     ApplicationArea = Jobs;
                     Caption = 'Resource No.';
                     Editable = false;
                     ToolTip = 'Specifies a number for the resource.';
                 }
+#pragma warning disable AA0100
                 field("TimeSheetHeaderArchive.""Approver User ID"""; TimeSheetHeaderArchive."Approver User ID")
+#pragma warning restore AA0100
                 {
                     ApplicationArea = Jobs;
                     Caption = 'Approver User ID';
                     Editable = false;
                     ToolTip = 'Specifies the ID of the time sheet approver.';
                 }
+#pragma warning disable AA0100
                 field("TimeSheetHeaderArchive.""Starting Date"""; TimeSheetHeaderArchive."Starting Date")
+#pragma warning restore AA0100
                 {
                     ApplicationArea = Jobs;
                     Caption = 'Starting Date';
                     Editable = false;
                     ToolTip = 'Specifies the date from which the report or batch job processes information.';
                 }
+#pragma warning disable AA0100
                 field("TimeSheetHeaderArchive.""Ending Date"""; TimeSheetHeaderArchive."Ending Date")
+#pragma warning restore AA0100
                 {
                     ApplicationArea = Jobs;
                     Caption = 'Ending Date';
@@ -93,12 +101,12 @@ page 961 "Manager Time Sheet Archive"
                 field("Job No."; Rec."Job No.")
                 {
                     ApplicationArea = Jobs;
-                    ToolTip = 'Specifies the number for the job that is associated with the time sheet line.';
+                    ToolTip = 'Specifies the number for the project that is associated with the time sheet line.';
                 }
                 field("Job Task No."; Rec."Job Task No.")
                 {
                     ApplicationArea = Jobs;
-                    ToolTip = 'Specifies the number of the related job task.';
+                    ToolTip = 'Specifies the number of the related project task.';
                 }
                 field(Description; Rec.Description)
                 {

@@ -40,10 +40,10 @@ codeunit 147304 "Make 349 Declaration"
         CreatePostPurchaseInvoice(Vendor."No.", Item."No.");
 
         // Generate random values for Report Request Page.
-        FillValuesForRequestPage;
+        FillValuesForRequestPage();
 
         // Run Report Make 349 Declaration.
-        FileName := GetTempFilePath + 'make349.txt';
+        FileName := GetTempFilePath() + 'make349.txt';
         Make349Declaration.InitializeRequest(FileName);
         Commit();
         Make349Declaration.Run();
@@ -121,7 +121,7 @@ codeunit 147304 "Make 349 Declaration"
         CountryRegion: Record "Country/Region";
         Value: Text[20];
     begin
-        Value := CopyStr(LibraryUtility.GenerateGUID, 1, 4);
+        Value := CopyStr(LibraryUtility.GenerateGUID(), 1, 4);
         LibraryVariableStorage.Enqueue(Value);
         Value := Format(LibraryRandom.RandIntInRange(100000000, 999999999));
         LibraryVariableStorage.Enqueue(Value);
@@ -163,7 +163,7 @@ codeunit 147304 "Make 349 Declaration"
         LibraryVariableStorage.Dequeue(Value);
         Make349Declaration.CompanyCountryRegion.SetValue(Value);
 
-        Make349Declaration.OK.Invoke;
+        Make349Declaration.OK().Invoke();
     end;
 
     [MessageHandler]

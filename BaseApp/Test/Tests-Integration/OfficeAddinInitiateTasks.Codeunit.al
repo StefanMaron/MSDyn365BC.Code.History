@@ -12,7 +12,6 @@ codeunit 139052 "Office Addin Initiate Tasks"
     var
         LibraryMarketing: Codeunit "Library - Marketing";
         LibrarySales: Codeunit "Library - Sales";
-        LibraryERM: Codeunit "Library - ERM";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
         LibraryInventory: Codeunit "Library - Inventory";
@@ -42,12 +41,12 @@ codeunit 139052 "Office Addin Initiate Tasks"
         RunOutlookMailEngine(OfficeAddinContext, CustomerCard);
 
         // [THEN] Customer card is opened for associated email with correct actions
-        Assert.IsTrue(CustomerCard.NewSalesQuoteAddin.Visible, 'New Sales Quote (add-in) not visible');
-        Assert.IsTrue(CustomerCard.NewSalesInvoiceAddin.Visible, 'New Sales Invoice (add-in) not visible');
-        Assert.IsTrue(CustomerCard.NewSalesCreditMemoAddin.Visible, 'New Sales Credit Memo (add-in) not visible');
-        Assert.IsFalse(CustomerCard.NewSalesQuote.Visible, 'New Sales Quote shouldn''t be visible');
-        Assert.IsFalse(CustomerCard.NewSalesInvoice.Visible, 'New Sales Invoice shoudln''t be visible');
-        Assert.IsFalse(CustomerCard.NewSalesCreditMemo.Visible, 'New Sales Credit Memo shouldn''t be visible');
+        Assert.IsTrue(CustomerCard.NewSalesQuoteAddin.Visible(), 'New Sales Quote (add-in) not visible');
+        Assert.IsTrue(CustomerCard.NewSalesInvoiceAddin.Visible(), 'New Sales Invoice (add-in) not visible');
+        Assert.IsTrue(CustomerCard.NewSalesCreditMemoAddin.Visible(), 'New Sales Credit Memo (add-in) not visible');
+        Assert.IsFalse(CustomerCard.NewSalesQuote.Visible(), 'New Sales Quote shouldn''t be visible');
+        Assert.IsFalse(CustomerCard.NewSalesInvoice.Visible(), 'New Sales Invoice shoudln''t be visible');
+        Assert.IsFalse(CustomerCard.NewSalesCreditMemo.Visible(), 'New Sales Credit Memo shouldn''t be visible');
         CustomerCard.Close();
     end;
 
@@ -67,16 +66,16 @@ codeunit 139052 "Office Addin Initiate Tasks"
         CreateOfficeAddinContext(OfficeAddinContext);
 
         // [WHEN] Outlook Main Engine finds email and contact/customer it is assigned to
-        SetReplyWithAttachment;
+        SetReplyWithAttachment();
         RunOutlookMailEngine(OfficeAddinContext, CustomerCard);
 
         // [WHEN] Customer card is opened and user selects New Sales Invoice
-        SalesInvoice.Trap;
-        CustomerCard.NewSalesInvoice.Invoke;
+        SalesInvoice.Trap();
+        CustomerCard.NewSalesInvoice.Invoke();
 
         // [WHEN] New Invoice Created and user selects Post and Send with no default sendong profile exists
         CreateSalesInvoiceLine(SalesInvoice);
-        SalesInvoice.PostAndSend.Invoke;
+        SalesInvoice.PostAndSend.Invoke();
 
         // [THEN] Email with reply is opened with PDF attached
         // Verified in ActionHandler that email was reply with PDF attached
@@ -98,16 +97,16 @@ codeunit 139052 "Office Addin Initiate Tasks"
         UpdateCustomerDocSendingProfile(CreateOfficeAddinContext(OfficeAddinContext), DefaultDocSendingProfileTxt);
 
         // [WHEN] Outlook Main Engine finds email and contact/customer it is assigned to
-        SetReplyWithAttachment;
+        SetReplyWithAttachment();
         RunOutlookMailEngine(OfficeAddinContext, CustomerCard);
 
         // [WHEN] Customer card is opened and user selects New Sales Invoice
-        SalesInvoice.Trap;
-        CustomerCard.NewSalesInvoice.Invoke;
+        SalesInvoice.Trap();
+        CustomerCard.NewSalesInvoice.Invoke();
 
         // [WHEN] New Invoice Created and user selects Post and Send when sending profile is not email with PDF
         CreateSalesInvoiceLine(SalesInvoice);
-        SalesInvoice.PostAndSend.Invoke;
+        SalesInvoice.PostAndSend.Invoke();
 
         // [THEN] Email with reply is opened with PDF attached
         // Verified in ActionHandler that assigned sending document profile not used
@@ -129,16 +128,16 @@ codeunit 139052 "Office Addin Initiate Tasks"
         CreateOfficeAddinContext(OfficeAddinContext);
 
         // [WHEN]  Outlook Main Engine finds email and contact/customer it is assigned to
-        SetReplyWithAttachment;
+        SetReplyWithAttachment();
         RunOutlookMailEngine(OfficeAddinContext, CustomerCard);
 
         // [WHEN] Customer card is opened and user selects New Credit Memo
-        SalesCreditMemo.Trap;
-        CustomerCard.NewSalesCreditMemo.Invoke;
+        SalesCreditMemo.Trap();
+        CustomerCard.NewSalesCreditMemo.Invoke();
 
         // [WHEN] New Credit Memo Created and user selects Post and Send with no default sendong profile exists
         CreateSalesCreditMemoLine(SalesCreditMemo);
-        SalesCreditMemo.PostAndSend.Invoke;
+        SalesCreditMemo.PostAndSend.Invoke();
 
         // [THEN] Email with reply is opened with PDF attached
         // Verified in ActionHandler that email was reply with PDF attached
@@ -160,16 +159,16 @@ codeunit 139052 "Office Addin Initiate Tasks"
         UpdateCustomerDocSendingProfile(CreateOfficeAddinContext(OfficeAddinContext), DefaultDocSendingProfileTxt);
 
         // [WHEN] Outlook Main Engine finds email and contact/customer it is assigned to
-        SetReplyWithAttachment;
+        SetReplyWithAttachment();
         RunOutlookMailEngine(OfficeAddinContext, CustomerCard);
 
         // [WHEN] Customer card is opened and user selects New Credit Memo
-        SalesCreditMemo.Trap;
-        CustomerCard.NewSalesCreditMemo.Invoke;
+        SalesCreditMemo.Trap();
+        CustomerCard.NewSalesCreditMemo.Invoke();
 
         // [WHEN] New Invoice Created and user selects Post and Send when sending profile is not email with PDF
         CreateSalesCreditMemoLine(SalesCreditMemo);
-        SalesCreditMemo.PostAndSend.Invoke;
+        SalesCreditMemo.PostAndSend.Invoke();
 
         // [THEN] Email with reply is opened with PDF attached
         // Verified in ActionHandler that assigned sending document profile not used
@@ -191,12 +190,12 @@ codeunit 139052 "Office Addin Initiate Tasks"
         // [THEN] Customer card is opened for associated email
         RunOutlookMailEngine(OfficeAddinContext, CustomerCard);
 
-        SalesQuote.Trap;
-        CustomerCard.NewSalesQuote.Invoke;
+        SalesQuote.Trap();
+        CustomerCard.NewSalesQuote.Invoke();
 
-        Assert.AreEqual(true, SalesQuote.Email.Visible, 'Email not visible');
-        Assert.AreEqual(true, SalesQuote.MakeInvoice.Visible, 'MakeInvoice not visible');
-        Assert.AreEqual(false, SalesQuote.Print.Visible, 'Print should not be visible');
+        Assert.AreEqual(true, SalesQuote.Email.Visible(), 'Email not visible');
+        Assert.AreEqual(true, SalesQuote.MakeInvoice.Visible(), 'MakeInvoice not visible');
+        Assert.AreEqual(false, SalesQuote.Print.Visible(), 'Print should not be visible');
     end;
 
     [Test]
@@ -222,12 +221,12 @@ codeunit 139052 "Office Addin Initiate Tasks"
 
         // Gather expected parameters
         LibraryVariableStorage.Enqueue('sendAttachment');
-        QuoteNextNo := GetQuoteNextNo;
+        QuoteNextNo := GetQuoteNextNo();
         LibraryVariableStorage.Enqueue(StrSubstNo(ReportAsPdfFileNameMsg, QuoteTxt, QuoteNextNo));
 
         // [WHEN] New sales quote is created from the customer card
-        SalesQuote.Trap;
-        CustomerCard.NewSalesQuote.Invoke;
+        SalesQuote.Trap();
+        CustomerCard.NewSalesQuote.Invoke();
         SalesQuote."Sell-to Customer Name".Value(CustomerCard.Name.Value);
 
         // Get Email body text
@@ -235,10 +234,10 @@ codeunit 139052 "Office Addin Initiate Tasks"
         SalesHeader.SetRange("No.", QuoteNextNo);
         ReportSelections.GetEmailBodyForCust(TempEmailItem."Body File Path",
           ReportSelections.Usage::"S.Quote", SalesHeader, CustomerCard."No.".Value, DummyEmailAddress);
-        LibraryVariableStorage.Enqueue(TempEmailItem.GetBodyText);
+        LibraryVariableStorage.Enqueue(TempEmailItem.GetBodyText());
 
         // [WHEN] Email action is invoked from the sales quote page
-        SalesQuote.Email.Invoke;
+        SalesQuote.Email.Invoke();
 
         // [THEN] EmailActionHandler verifies that the expected JS function is called with the correct parameters
     end;
@@ -261,8 +260,8 @@ codeunit 139052 "Office Addin Initiate Tasks"
         RunOutlookMailEngine(OfficeAddinContext, CustomerCard);
 
         // [WHEN] New sales order is created from the customer card
-        SalesOrder.Trap;
-        CustomerCard.NewSalesOrder.Invoke;
+        SalesOrder.Trap();
+        CustomerCard.NewSalesOrder.Invoke();
         SalesOrder."Sell-to Customer Name".Value(CustomerCard."No.".Value);
 
         // [WHEN] An item is entered on the order
@@ -273,7 +272,7 @@ codeunit 139052 "Office Addin Initiate Tasks"
         LibraryVariableStorage.Enqueue(CustomerCard."No.".Value);
 
         // [WHEN] Post and send action is invoked from the sales order page
-        SalesOrder.PostAndSend.Invoke;
+        SalesOrder.PostAndSend.Invoke();
 
         // [THEN] EmailActionHandler verifies that both the shipment and invoice documents are attached to the email
     end;
@@ -289,11 +288,11 @@ codeunit 139052 "Office Addin Initiate Tasks"
         Initialize();
 
         // [WHEN] Posted sales quotes page is opened
-        SalesQuotes.Trap;
+        SalesQuotes.Trap();
         PAGE.Run(PAGE::"Sales Quotes");
 
         // [THEN] Print action is not visible
-        Assert.IsFalse(SalesQuotes.Print.Visible, 'Print button should not be visible.');
+        Assert.IsFalse(SalesQuotes.Print.Visible(), 'Print button should not be visible.');
     end;
 
     [Test]
@@ -307,11 +306,11 @@ codeunit 139052 "Office Addin Initiate Tasks"
         Initialize();
 
         // [WHEN] Sales order page is opened
-        SalesOrder.Trap;
+        SalesOrder.Trap();
         PAGE.Run(PAGE::"Sales Order");
 
         // [THEN] Print action are not visible
-        Assert.IsFalse(SalesOrder."Print Confirmation".Visible, 'Print confirmation button should not be visible.');
+        Assert.IsFalse(SalesOrder."Print Confirmation".Visible(), 'Print confirmation button should not be visible.');
     end;
 
     [Test]
@@ -325,11 +324,11 @@ codeunit 139052 "Office Addin Initiate Tasks"
         Initialize();
 
         // [WHEN] Sales order list page is opened
-        SalesOrderList.Trap;
+        SalesOrderList.Trap();
         PAGE.Run(PAGE::"Sales Order List");
 
         // [THEN] Print action are not visible
-        Assert.IsFalse(SalesOrderList."Print Confirmation".Visible, 'Print confirmation button should not be visible.');
+        Assert.IsFalse(SalesOrderList."Print Confirmation".Visible(), 'Print confirmation button should not be visible.');
     end;
 
     [Test]
@@ -343,12 +342,12 @@ codeunit 139052 "Office Addin Initiate Tasks"
         Initialize();
 
         // [WHEN] Posted sales invoice page is opened
-        PostedSalesInvoice.Trap;
+        PostedSalesInvoice.Trap();
         PAGE.Run(PAGE::"Posted Sales Invoice");
 
         // [THEN] Print and navigate actions are not visible
-        Assert.IsFalse(PostedSalesInvoice.Print.Visible, 'Print button should not be visible.');
-        Assert.IsFalse(PostedSalesInvoice."&Navigate".Visible, 'Navigate button should not be visible.');
+        Assert.IsFalse(PostedSalesInvoice.Print.Visible(), 'Print button should not be visible.');
+        Assert.IsFalse(PostedSalesInvoice."&Navigate".Visible(), 'Navigate button should not be visible.');
     end;
 
     [Test]
@@ -362,12 +361,12 @@ codeunit 139052 "Office Addin Initiate Tasks"
         Initialize();
 
         // [WHEN] Posted sales credit memo page is opened
-        PostedSalesCreditMemo.Trap;
+        PostedSalesCreditMemo.Trap();
         PAGE.Run(PAGE::"Posted Sales Credit Memo");
 
         // [THEN] Print and navigate actions are not visible
-        Assert.IsFalse(PostedSalesCreditMemo.Print.Visible, 'Print button should not be visible.');
-        Assert.IsFalse(PostedSalesCreditMemo."&Navigate".Visible, 'Navigate button should not be visible.');
+        Assert.IsFalse(PostedSalesCreditMemo.Print.Visible(), 'Print button should not be visible.');
+        Assert.IsFalse(PostedSalesCreditMemo."&Navigate".Visible(), 'Navigate button should not be visible.');
     end;
 
     [Test]
@@ -381,12 +380,12 @@ codeunit 139052 "Office Addin Initiate Tasks"
         Initialize();
 
         // [WHEN] Posted sales invoices page is opened
-        PostedSalesInvoices.Trap;
+        PostedSalesInvoices.Trap();
         PAGE.Run(PAGE::"Posted Sales Invoices");
 
         // [THEN] Print and navigate actions are not visible
-        Assert.IsFalse(PostedSalesInvoices.Print.Visible, 'Print button should not be visible.');
-        Assert.IsFalse(PostedSalesInvoices.Navigate.Visible, 'Navigate button should not be visible.');
+        Assert.IsFalse(PostedSalesInvoices.Print.Visible(), 'Print button should not be visible.');
+        Assert.IsFalse(PostedSalesInvoices.Navigate.Visible(), 'Navigate button should not be visible.');
     end;
 
     [Test]
@@ -400,12 +399,12 @@ codeunit 139052 "Office Addin Initiate Tasks"
         Initialize();
 
         // [WHEN] Posted sales credit memos page is opened
-        PostedSalesCreditMemos.Trap;
+        PostedSalesCreditMemos.Trap();
         PAGE.Run(PAGE::"Posted Sales Credit Memos");
 
         // [THEN] Print and navigate actions are not visible
-        Assert.IsFalse(PostedSalesCreditMemos."&Print".Visible, 'Print button should not be visible.');
-        Assert.IsFalse(PostedSalesCreditMemos."&Navigate".Visible, 'Navigate button should not be visible.');
+        Assert.IsFalse(PostedSalesCreditMemos."&Print".Visible(), 'Print button should not be visible.');
+        Assert.IsFalse(PostedSalesCreditMemos."&Navigate".Visible(), 'Navigate button should not be visible.');
     end;
 
     [Test]
@@ -419,12 +418,12 @@ codeunit 139052 "Office Addin Initiate Tasks"
         Initialize();
 
         // [WHEN] Posted sales shipments page is opened
-        PostedSalesShipments.Trap;
+        PostedSalesShipments.Trap();
         PAGE.Run(PAGE::"Posted Sales Shipments");
 
         // [THEN] Print and navigate actions are not visible
-        Assert.IsFalse(PostedSalesShipments."&Print".Visible, 'Print button should not be visible.');
-        Assert.IsFalse(PostedSalesShipments."&Navigate".Visible, 'Navigate button should not be visible.');
+        Assert.IsFalse(PostedSalesShipments."&Print".Visible(), 'Print button should not be visible.');
+        Assert.IsFalse(PostedSalesShipments."&Navigate".Visible(), 'Navigate button should not be visible.');
     end;
 
     [Test]
@@ -438,11 +437,11 @@ codeunit 139052 "Office Addin Initiate Tasks"
         Initialize();
 
         // [WHEN] Purchase credit memos page is opened
-        PurchaseCreditMemos.Trap;
+        PurchaseCreditMemos.Trap();
         PAGE.Run(PAGE::"Purchase Credit Memos");
 
         // [THEN] Print action is not visible
-        Assert.IsFalse(PurchaseCreditMemos.PostAndPrint.Visible, 'Post and print button should not be visible.');
+        Assert.IsFalse(PurchaseCreditMemos.PostAndPrint.Visible(), 'Post and print button should not be visible.');
     end;
 
     [Test]
@@ -456,12 +455,12 @@ codeunit 139052 "Office Addin Initiate Tasks"
         Initialize();
 
         // [WHEN] Posted purchase invoices page is opened
-        PostedPurchaseInvoices.Trap;
+        PostedPurchaseInvoices.Trap();
         PAGE.Run(PAGE::"Posted Purchase Invoices");
 
         // [THEN] Print and navigate actions are not visible
-        Assert.IsFalse(PostedPurchaseInvoices."&Print".Visible, 'Print button should not be visible.');
-        Assert.IsFalse(PostedPurchaseInvoices.Navigate.Visible, 'Navigate button should not be visible.');
+        Assert.IsFalse(PostedPurchaseInvoices."&Print".Visible(), 'Print button should not be visible.');
+        Assert.IsFalse(PostedPurchaseInvoices.Navigate.Visible(), 'Navigate button should not be visible.');
     end;
 
     [Test]
@@ -475,12 +474,12 @@ codeunit 139052 "Office Addin Initiate Tasks"
         Initialize();
 
         // [WHEN] Posted purchase credit memos page is opened
-        PostedPurchaseCreditMemos.Trap;
+        PostedPurchaseCreditMemos.Trap();
         PAGE.Run(PAGE::"Posted Purchase Credit Memos");
 
         // [THEN] Print and navigate actions are not visible
-        Assert.IsFalse(PostedPurchaseCreditMemos."&Print".Visible, 'Print button should not be visible.');
-        Assert.IsFalse(PostedPurchaseCreditMemos."&Navigate".Visible, 'Navigate button should not be visible.');
+        Assert.IsFalse(PostedPurchaseCreditMemos."&Print".Visible(), 'Print button should not be visible.');
+        Assert.IsFalse(PostedPurchaseCreditMemos."&Navigate".Visible(), 'Navigate button should not be visible.');
     end;
 
     [Test]
@@ -494,12 +493,12 @@ codeunit 139052 "Office Addin Initiate Tasks"
         Initialize();
 
         // [WHEN] Posted purchase receipts page is opened
-        PostedPurchaseReceipts.Trap;
+        PostedPurchaseReceipts.Trap();
         PAGE.Run(PAGE::"Posted Purchase Receipts");
 
         // [THEN] Print and navigate actions are not visible
-        Assert.IsFalse(PostedPurchaseReceipts."&Print".Visible, 'Print button should not be visible.');
-        Assert.IsFalse(PostedPurchaseReceipts."&Navigate".Visible, 'Navigate button should not be visible.');
+        Assert.IsFalse(PostedPurchaseReceipts."&Print".Visible(), 'Print button should not be visible.');
+        Assert.IsFalse(PostedPurchaseReceipts."&Navigate".Visible(), 'Navigate button should not be visible.');
     end;
 
     [Test]
@@ -593,13 +592,13 @@ codeunit 139052 "Office Addin Initiate Tasks"
         // [THEN] Customer card is opened for associated email
         RunOutlookMailEngine(OfficeAddinContext, CustomerCard);
 
-        SalesQuote.Trap;
-        CustomerCard.NewSalesQuote.Invoke;
+        SalesQuote.Trap();
+        CustomerCard.NewSalesQuote.Invoke();
         CreateSalesQuoteLine(SalesQuote);
 
-        SalesInvoice.Trap;
-        QuoteNo := SalesQuote."No.".Value;
-        SalesQuote.MakeInvoice.Invoke;
+        SalesInvoice.Trap();
+        QuoteNo := SalesQuote."No.".Value();
+        SalesQuote.MakeInvoice.Invoke();
 
         SalesInvoice."Quote No.".AssertEquals(QuoteNo);
     end;
@@ -622,11 +621,11 @@ codeunit 139052 "Office Addin Initiate Tasks"
         RunOutlookMailEngine(OfficeAddinContext, CustomerCard);
 
         // [WHEN] Open Reminder page
-        Reminder.Trap;
-        CustomerCard.NewReminder.Invoke;
+        Reminder.Trap();
+        CustomerCard.NewReminder.Invoke();
 
         // [THEN] Test Report action is not visible
-        Assert.IsFalse(Reminder.TestReport.Visible, 'Test Report should not be visible.');
+        Assert.IsFalse(Reminder.TestReport.Visible(), 'Test Report should not be visible.');
     end;
 
     [Test]
@@ -648,12 +647,12 @@ codeunit 139052 "Office Addin Initiate Tasks"
         RunOutlookMailEngine(OfficeAddinContext, CustomerCard);
 
         // [WHEN] Open Reminder page
-        Reminder.Trap;
-        CustomerCard.NewReminder.Invoke;
+        Reminder.Trap();
+        CustomerCard.NewReminder.Invoke();
         // Need to run commit because run request page modal issue
         Commit();
         // [THEN] PrintDoc option is disabled
-        Reminder.Issue.Invoke;
+        Reminder.Issue.Invoke();
     end;
 
     local procedure Initialize()
@@ -713,7 +712,7 @@ codeunit 139052 "Office Addin Initiate Tasks"
         OfficeHost: DotNet OfficeHost;
     begin
         OfficeAddinContext.DeleteAll();
-        SetOfficeHostUnAvailable;
+        SetOfficeHostUnAvailable();
 
         SetOfficeHostProvider(CODEUNIT::"Library - Office Host Provider");
 
@@ -725,7 +724,7 @@ codeunit 139052 "Office Addin Initiate Tasks"
         NameValueBuffer: Record "Name/Value Buffer";
     begin
         // Test Providers checks whether we have registered Host in NameValueBuffer or not
-        if NameValueBuffer.Get(SessionId) then begin
+        if NameValueBuffer.Get(SessionId()) then begin
             NameValueBuffer.Delete();
             Commit();
         end;
@@ -742,7 +741,7 @@ codeunit 139052 "Office Addin Initiate Tasks"
 
     local procedure RandomEmail(): Text[80]
     begin
-        exit(StrSubstNo('%1@%2', CreateGuid, 'example.com'));
+        exit(StrSubstNo('%1@%2', CreateGuid(), 'example.com'));
     end;
 
     local procedure SetupMarketing()
@@ -752,7 +751,7 @@ codeunit 139052 "Office Addin Initiate Tasks"
     begin
         MarketingSetup.Get();
         if MarketingSetup."Contact Nos." = '' then
-            MarketingSetup.Validate("Contact Nos.", LibraryUtility.GetGlobalNoSeriesCode);
+            MarketingSetup.Validate("Contact Nos.", LibraryUtility.GetGlobalNoSeriesCode());
         MarketingSetup.Modify();
     end;
 
@@ -822,7 +821,7 @@ codeunit 139052 "Office Addin Initiate Tasks"
         TestEmail: Text[80];
     begin
         Initialize();
-        TestEmail := RandomEmail;
+        TestEmail := RandomEmail();
         CustomerNo := CreateContactFromCustomer(TestEmail, ContactNo, NewBusRelCode);
 
         AddinManifestManagement.GetAddinByHostType(OfficeAddin, OfficeHostType.OutlookItemRead);
@@ -835,7 +834,7 @@ codeunit 139052 "Office Addin Initiate Tasks"
         SalesLine: Record "Sales Line";
     begin
         SalesInvoice.SalesLines.Type.SetValue(Format(SalesLine.Type::Item));
-        SalesInvoice.SalesLines."No.".SetValue(CreateItem);
+        SalesInvoice.SalesLines."No.".SetValue(CreateItem());
         SalesInvoice.SalesLines.Quantity.SetValue(LibraryRandom.RandInt(5));
         SalesInvoice.SalesLines."Unit Price".SetValue(LibraryRandom.RandDec(100, 2));
     end;
@@ -845,7 +844,7 @@ codeunit 139052 "Office Addin Initiate Tasks"
         SalesLine: Record "Sales Line";
     begin
         SalesCreditMemo.SalesLines.Type.SetValue(Format(SalesLine.Type::Item));
-        SalesCreditMemo.SalesLines."No.".SetValue(CreateItem);
+        SalesCreditMemo.SalesLines."No.".SetValue(CreateItem());
         SalesCreditMemo.SalesLines.Quantity.SetValue(LibraryRandom.RandInt(5));
         SalesCreditMemo.SalesLines."Unit Price".SetValue(LibraryRandom.RandDec(100, 2));
     end;
@@ -856,7 +855,7 @@ codeunit 139052 "Office Addin Initiate Tasks"
         SalesLine: Record "Sales Line";
     begin
         SalesQuote.SalesLines.Type.SetValue(Format(SalesLine.Type::Item));
-        SalesQuote.SalesLines."No.".SetValue(CreateItem);
+        SalesQuote.SalesLines."No.".SetValue(CreateItem());
         SalesQuote.SalesLines.Quantity.SetValue(LibraryRandom.RandInt(5));
         SalesQuote.SalesLines."Unit Price".SetValue(LibraryRandom.RandDec(100, 2));
     end;
@@ -916,9 +915,9 @@ codeunit 139052 "Office Addin Initiate Tasks"
         ExtractComponent(Message, ActualFileName);
         ExtractComponent(Message, ActualEmailBody);
 
-        Assert.AreEqual(LibraryVariableStorage.DequeueText, ActualAction, 'Incorrect JavaScript action called from C/AL.');
-        Assert.AreEqual(LibraryVariableStorage.DequeueText, ActualFileName, 'Incorrect file name passed to function.');
-        ExpectedEmailBody := CopyStr(LibraryVariableStorage.DequeueText, 1,
+        Assert.AreEqual(LibraryVariableStorage.DequeueText(), ActualAction, 'Incorrect JavaScript action called from C/AL.');
+        Assert.AreEqual(LibraryVariableStorage.DequeueText(), ActualFileName, 'Incorrect file name passed to function.');
+        ExpectedEmailBody := CopyStr(LibraryVariableStorage.DequeueText(), 1,
             1000 - StrLen(StrSubstNo('%1|%2|%3|', ActualAction, ActualUrl, ActualFileName)));
         Assert.AreEqual(ExpectedEmailBody, ActualEmailBody, 'Incorrect body text passed to function.');
         Assert.AreNotEqual('', ActualUrl, 'The file URL is empty.');
@@ -959,11 +958,11 @@ codeunit 139052 "Office Addin Initiate Tasks"
         NoPos := StrPos(LowerCase(InvoiceFileName), 'invoice') + 8;
         InvoiceNo := CopyStr(InvoiceFileName, NoPos, StrPos(InvoiceFileName, '.') - NoPos);
         SalesInvoiceHeader.SetRange("No.", InvoiceNo);
-        CustNo := CopyStr(LibraryVariableStorage.DequeueText, 1, 20);
+        CustNo := CopyStr(LibraryVariableStorage.DequeueText(), 1, 20);
         ReportSelections.GetEmailBodyForCust(TempEmailItem."Body File Path",
           ReportSelections.Usage::"S.Invoice", SalesInvoiceHeader, CustNo, DummyEmailAddress);
 
-        ExpectedEmailBody := CopyStr(TempEmailItem.GetBodyText, 1,
+        ExpectedEmailBody := CopyStr(TempEmailItem.GetBodyText(), 1,
             1000 - StrLen(StrSubstNo('%1|%2|%3|%4|%5|', ActualAction, ActualUrl1, ActualUrl2, ActualFileName1, ActualFileName2)));
 
         Assert.AreNotEqual('', ActualUrl1, 'Two document urls not provided.');
@@ -1019,8 +1018,8 @@ codeunit 139052 "Office Addin Initiate Tasks"
     var
         OutlookMailEngine: TestPage "Outlook Mail Engine";
     begin
-        OutlookMailEngine.Trap;
-        CustomerCard.Trap;
+        OutlookMailEngine.Trap();
+        CustomerCard.Trap();
         PAGE.Run(PAGE::"Outlook Mail Engine", OfficeAddinContext);
     end;
 
@@ -1037,12 +1036,12 @@ codeunit 139052 "Office Addin Initiate Tasks"
     local procedure GetQuoteNextNo() QuoteNextNo: Code[20]
     var
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
-        NoSeriesManagement: Codeunit NoSeriesManagement;
+        NoSeries: Codeunit "No. Series";
         DocNoSeries: Code[20];
     begin
         SalesReceivablesSetup.Get();
         DocNoSeries := SalesReceivablesSetup."Quote Nos.";
-        QuoteNextNo := NoSeriesManagement.GetNextNo(DocNoSeries, WorkDate(), false);
+        QuoteNextNo := NoSeries.PeekNextNo(DocNoSeries);
     end;
 
     [ConfirmHandler]
@@ -1056,7 +1055,7 @@ codeunit 139052 "Office Addin Initiate Tasks"
     [Scope('OnPrem')]
     procedure IssueReminderRequestPageHandler(var IssueReminders: TestRequestPage "Issue Reminders")
     begin
-        Assert.IsFalse(IssueReminders.PrintDoc.Enabled = true, 'PrintDoc should be disabled.');
+        Assert.IsFalse(IssueReminders.PrintDoc.Enabled() = true, 'PrintDoc should be disabled.');
         IssueReminders.PrintDoc.AssertEquals('Email');
     end;
 

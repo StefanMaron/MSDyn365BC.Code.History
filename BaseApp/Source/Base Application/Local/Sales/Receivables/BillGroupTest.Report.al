@@ -1,4 +1,4 @@
-﻿// ------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -816,30 +816,28 @@ report 7000008 "Bill Group - Test"
                         if BillGr."Dealing Type" = BillGr."Dealing Type"::Discount then begin
                             FeeRange.InitDiscExpenses("Operation Fees Code", "Currency Code");
                             FeeRange.InitDiscInterests("Operation Fees Code", "Currency Code");
-                            with DocPostBuffer do
-                                repeat
-                                    FeeRange.CalcDiscExpensesAmt(
-                                      "Operation Fees Code",
-                                      "Currency Code",
-                                      Amount,
-                                      "Entry No.");
-                                    FeeRange.CalcDiscInterestsAmt(
-                                      "Operation Fees Code",
-                                      "Currency Code",
-                                      NoOfDays,
-                                      Amount,
-                                      "Entry No.");
-                                until Next() = 0;
+                            repeat
+                                FeeRange.CalcDiscExpensesAmt(
+                                  "Operation Fees Code",
+                                  "Currency Code",
+                                  DocPostBuffer.Amount,
+                                  DocPostBuffer."Entry No.");
+                                FeeRange.CalcDiscInterestsAmt(
+                                  "Operation Fees Code",
+                                  "Currency Code",
+                                  NoOfDays,
+                                  DocPostBuffer.Amount,
+                                  DocPostBuffer."Entry No.");
+                            until DocPostBuffer.Next() = 0;
                         end else begin
                             FeeRange.InitCollExpenses("Operation Fees Code", "Currency Code");
-                            with DocPostBuffer do
-                                repeat
-                                    FeeRange.CalcCollExpensesAmt(
-                                      "Operation Fees Code",
-                                      "Currency Code",
-                                      Amount,
-                                      "Entry No.");
-                                until Next() = 0;
+                            repeat
+                                FeeRange.CalcCollExpensesAmt(
+                                  "Operation Fees Code",
+                                  "Currency Code",
+                                  DocPostBuffer.Amount,
+                                  DocPostBuffer."Entry No.");
+                            until DocPostBuffer.Next() = 0;
                         end;
                     end;
                 }
@@ -857,45 +855,44 @@ report 7000008 "Bill Group - Test"
                 Clear(PostingGroup);
                 Clear(CalcExpenses);
 
-                with BankAcc2 do begin
-                    if Get(BillGr."Bank Account No.") then begin
-                        if "Currency Code" <> BillGr."Currency Code" then
-                            AddError(
-                              StrSubstNo(
-                                Text1100002,
-                                FieldCaption("Currency Code"),
-                                BillGr."Currency Code",
-                                TableCaption,
-                                "No."));
-                        if "Operation Fees Code" = '' then
-                            AddError(
-                              StrSubstNo(
-                                Text1100003,
-                                FieldCaption("Operation Fees Code"),
-                                TableCaption,
-                                "No."));
-                        if "Customer Ratings Code" = '' then
-                            AddError(
-                              StrSubstNo(
-                                Text1100003,
-                                FieldCaption("Customer Ratings Code"),
-                                TableCaption,
-                                "No."));
-                        if BillGr."Posting Date" <> 0D then
-                            CalcExpenses := true;
-                        FormatAddress.FormatAddr(
-                          BankAccAddr, Name, "Name 2", '', Address, "Address 2",
-                          City, "Post Code", County, "Country/Region Code");
-                        PostingGroup := "Bank Acc. Posting Group";
-                        CompanyIsBlocked := Blocked;
-                        BillGr."Bank Account Name" := Name;
-                        if (BillGr."Dealing Type" = BillGr."Dealing Type"::Discount) and (BillGr.Factoring = BillGr.Factoring::" ") then begin
-                            SetRange("Dealing Type Filter", 1); // Discount
-                            CalcFields("Posted Receiv. Bills Rmg. Amt.");
-                            BillGr.CalcFields(Amount);
-                            if "Posted Receiv. Bills Rmg. Amt." + BillGr.Amount > "Credit Limit for Discount" then
-                                AddError(Text1100004);
-                        end;
+                if BankAcc2.Get(BillGr."Bank Account No.") then begin
+                    if BankAcc2."Currency Code" <> BillGr."Currency Code" then
+                        AddError(
+                          StrSubstNo(
+                            Text1100002,
+                            BankAcc2.FieldCaption("Currency Code"),
+                            BillGr."Currency Code",
+                            BankAcc2.TableCaption,
+                            BankAcc2."No."));
+                    if BankAcc2."Operation Fees Code" = '' then
+                        AddError(
+                          StrSubstNo(
+                            Text1100003,
+                            BankAcc2.FieldCaption("Operation Fees Code"),
+                            BankAcc2.TableCaption,
+                            BankAcc2."No."));
+                    if BankAcc2."Customer Ratings Code" = '' then
+                        AddError(
+                          StrSubstNo(
+                            Text1100003,
+                            BankAcc2.FieldCaption("Customer Ratings Code"),
+                            BankAcc2.TableCaption,
+                            BankAcc2."No."));
+                    if BillGr."Posting Date" <> 0D then
+                        CalcExpenses := true;
+                    FormatAddress.FormatAddr(
+                      BankAccAddr, BankAcc2.Name, BankAcc2."Name 2", '', BankAcc2.Address, BankAcc2."Address 2",
+                      BankAcc2.City, BankAcc2."Post Code", BankAcc2.County, BankAcc2."Country/Region Code");
+                    PostingGroup := BankAcc2."Bank Acc. Posting Group";
+                    CompanyIsBlocked := BankAcc2.Blocked;
+                    BillGr."Bank Account Name" := BankAcc2.Name;
+                    if (BillGr."Dealing Type" = BillGr."Dealing Type"::Discount) and (BillGr.Factoring = BillGr.Factoring::" ") then begin
+                        BankAcc2.SetRange("Dealing Type Filter", 1);
+                        // Discount
+                        BankAcc2.CalcFields("Posted Receiv. Bills Rmg. Amt.");
+                        BillGr.CalcFields(Amount);
+                        if BankAcc2."Posted Receiv. Bills Rmg. Amt." + BillGr.Amount > BankAcc2."Credit Limit for Discount" then
+                            AddError(Text1100004);
                     end;
                 end;
 
@@ -1001,9 +998,6 @@ report 7000008 "Bill Group - Test"
         FormatAddress: Codeunit "Format Address";
         BillGrFilter: Text[250];
         BankAccAddr: array[8] of Text[100];
-        City: Text[30];
-        County: Text[30];
-        Name: Text[50];
         OperationText: Text[80];
         ErrorText: array[99] of Text[250];
         ErrorCounter: Integer;

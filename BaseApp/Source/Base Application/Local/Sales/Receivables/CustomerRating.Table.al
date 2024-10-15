@@ -11,6 +11,7 @@ using Microsoft.Sales.Customer;
 table 7000023 "Customer Rating"
 {
     Caption = 'Customer Rating';
+    DataClassification = CustomerContent;
 
     fields
     {

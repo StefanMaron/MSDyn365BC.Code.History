@@ -126,129 +126,121 @@ report 7000096 "Redraw Receivable Bills"
                     end;
                 end;
 
-                with GenJnlLine do begin
-                    if StrPos("Bill No.", '-') = 0 then
-                        DocNo := CustLedgEntry."Bill No." + '-1'
+                if StrPos(GenJnlLine."Bill No.", '-') = 0 then
+                    DocNo := CustLedgEntry."Bill No." + '-1'
+                else
+                    DocNo := IncStr(GenJnlLine."Bill No.");
+                TempCustLedgEntryInit(CustLedgEntry, DocNo, NewDocAmount, NewDocAmountLCY);
+                GenJnlLineInit();
+                if ArePostedDocs then begin
+                    PostedDoc.Get(
+                      PostedDoc.Type::Receivable, CustLedgEntry."Entry No.");
+                    if NewPmtMethod = '' then
+                        GenJnlLine."Payment Method Code" := PostedDoc."Payment Method Code"
                     else
-                        DocNo := IncStr("Bill No.");
-                    TempCustLedgEntryInit(CustLedgEntry, DocNo, NewDocAmount, NewDocAmountLCY);
-                    GenJnlLineInit();
-                    if ArePostedDocs then begin
-                        PostedDoc.Get(
-                          PostedDoc.Type::Receivable, CustLedgEntry."Entry No.");
-                        if NewPmtMethod = '' then
-                            "Payment Method Code" := PostedDoc."Payment Method Code"
-                        else
-                            "Payment Method Code" := NewPmtMethod;
+                        GenJnlLine."Payment Method Code" := NewPmtMethod;
 #if not CLEAN22
-                        "Pmt. Address Code" := PostedDoc."Pmt. Address Code";
+                    GenJnlLine."Pmt. Address Code" := PostedDoc."Pmt. Address Code";
 #endif
-                        "Recipient Bank Account" := PostedDoc."Cust./Vendor Bank Acc. Code";
-                    end else begin
-                        ClosedDoc.Get(
-                          ClosedDoc.Type::Receivable, CustLedgEntry."Entry No.");
-                        if NewPmtMethod = '' then
-                            "Payment Method Code" := ClosedDoc."Payment Method Code"
-                        else
-                            "Payment Method Code" := NewPmtMethod;
+                    GenJnlLine."Recipient Bank Account" := PostedDoc."Cust./Vendor Bank Acc. Code";
+                end else begin
+                    ClosedDoc.Get(
+                      ClosedDoc.Type::Receivable, CustLedgEntry."Entry No.");
+                    if NewPmtMethod = '' then
+                        GenJnlLine."Payment Method Code" := ClosedDoc."Payment Method Code"
+                    else
+                        GenJnlLine."Payment Method Code" := NewPmtMethod;
 #if not CLEAN22
-                        "Pmt. Address Code" := ClosedDoc."Pmt. Address Code";
+                    GenJnlLine."Pmt. Address Code" := ClosedDoc."Pmt. Address Code";
 #endif
-                        "Recipient Bank Account" := ClosedDoc."Cust./Vendor Bank Acc. Code";
-                    end;
-                    "Due Date" := NewDueDate;
-                    InsertGenJnlLine(
-                      "Account Type"::Customer,
-                      CustLedgEntry."Customer No.",
-                      "Document Type"::Bill,
-                      NewDocAmount +
-                      FeeRange.GetTotalCollExpensesAmt() +
-                      FeeRange.GetTotalDiscExpensesAmt() +
-                      FeeRange.GetTotalDiscInterestsAmt() +
-                      FeeRange.GetTotalRejExpensesAmt() +
-                      FinanceChargeTerms.GetTotalFinChargesAmt(),
-                      StrSubstNo(
-                        Text1100004,
-                        CustLedgEntry."Document No.",
-                        DocNo),
-                      DocNo);
-
-                    SumLCYAmt := SumLCYAmt + "Amount (LCY)";
+                    GenJnlLine."Recipient Bank Account" := ClosedDoc."Cust./Vendor Bank Acc. Code";
                 end;
+                GenJnlLine."Due Date" := NewDueDate;
+                InsertGenJnlLine(
+                  GenJnlLine."Account Type"::Customer,
+                  CustLedgEntry."Customer No.",
+                  GenJnlLine."Document Type"::Bill,
+                  NewDocAmount +
+                  FeeRange.GetTotalCollExpensesAmt() +
+                  FeeRange.GetTotalDiscExpensesAmt() +
+                  FeeRange.GetTotalDiscInterestsAmt() +
+                  FeeRange.GetTotalRejExpensesAmt() +
+                  FinanceChargeTerms.GetTotalFinChargesAmt(),
+                  StrSubstNo(
+                    Text1100004,
+                    CustLedgEntry."Document No.",
+                    DocNo),
+                  DocNo);
+
+                SumLCYAmt := SumLCYAmt + GenJnlLine."Amount (LCY)";
 
                 if IncludeDiscCollExpenses then begin
                     CustPostingGr.TestField("Finance Income Acc.");
-                    with GenJnlLine do begin
+                    GenJnlLineInit();
+                    InsertGenJnlLine(
+                      GenJnlLine."Account Type"::"G/L Account",
+                      CustPostingGr."Finance Income Acc.",
+                      "Gen. Journal Document Type"::" ",
+                      -(FeeRange.GetTotalDiscExpensesAmt() + FeeRange.GetTotalCollExpensesAmt()),
+                      StrSubstNo(
+                        Text1100005,
+                        CustLedgEntry."Document No.",
+                        CustLedgEntry."Bill No."),
+                      '');
+
+                    SumLCYAmt := SumLCYAmt + GenJnlLine."Amount (LCY)";
+                    if Discount then begin
+                        BankAcc.TestField("Bank Acc. Posting Group");
+                        BankAccPostingGr.Get(BankAcc."Bank Acc. Posting Group");
+                        BankAccPostingGr.TestField("Discount Interest Acc.");
                         GenJnlLineInit();
                         InsertGenJnlLine(
-                          "Account Type"::"G/L Account",
-                          CustPostingGr."Finance Income Acc.",
+                          GenJnlLine."Account Type"::"G/L Account",
+                          BankAccPostingGr."Discount Interest Acc.",
                           "Gen. Journal Document Type"::" ",
-                          -(FeeRange.GetTotalDiscExpensesAmt() + FeeRange.GetTotalCollExpensesAmt()),
+                          -FeeRange.GetTotalDiscInterestsAmt(),
                           StrSubstNo(
-                            Text1100005,
+                            Text1100006,
                             CustLedgEntry."Document No.",
                             CustLedgEntry."Bill No."),
                           '');
 
-                        SumLCYAmt := SumLCYAmt + "Amount (LCY)";
-                        if Discount then begin
-                            BankAcc.TestField("Bank Acc. Posting Group");
-                            BankAccPostingGr.Get(BankAcc."Bank Acc. Posting Group");
-                            BankAccPostingGr.TestField("Discount Interest Acc.");
-                            GenJnlLineInit();
-                            InsertGenJnlLine(
-                              "Account Type"::"G/L Account",
-                              BankAccPostingGr."Discount Interest Acc.",
-                              "Gen. Journal Document Type"::" ",
-                              -FeeRange.GetTotalDiscInterestsAmt(),
-                              StrSubstNo(
-                                Text1100006,
-                                CustLedgEntry."Document No.",
-                                CustLedgEntry."Bill No."),
-                              '');
-
-                            SumLCYAmt := SumLCYAmt + "Amount (LCY)";
-                        end;
+                        SumLCYAmt := SumLCYAmt + GenJnlLine."Amount (LCY)";
                     end;
                 end;
 
                 if IncludeRejExpenses then begin
                     CustPostingGr.TestField("Finance Income Acc.");
-                    with GenJnlLine do begin
-                        GenJnlLineInit();
-                        InsertGenJnlLine(
-                          "Account Type"::"G/L Account",
-                          CustPostingGr."Finance Income Acc.",
-                          "Gen. Journal Document Type"::" ",
-                          -FeeRange.GetTotalRejExpensesAmt(),
-                          StrSubstNo(
-                            Text1100007,
-                            CustLedgEntry."Document No.",
-                            CustLedgEntry."Bill No."),
-                          '');
+                    GenJnlLineInit();
+                    InsertGenJnlLine(
+                      GenJnlLine."Account Type"::"G/L Account",
+                      CustPostingGr."Finance Income Acc.",
+                      "Gen. Journal Document Type"::" ",
+                      -FeeRange.GetTotalRejExpensesAmt(),
+                      StrSubstNo(
+                        Text1100007,
+                        CustLedgEntry."Document No.",
+                        CustLedgEntry."Bill No."),
+                      '');
 
-                        SumLCYAmt := SumLCYAmt + "Amount (LCY)";
-                    end;
+                    SumLCYAmt := SumLCYAmt + GenJnlLine."Amount (LCY)";
                 end;
 
                 if IncludeFinanceCharges then begin
                     CustPostingGr.TestField("Finance Income Acc.");
-                    with GenJnlLine do begin
-                        GenJnlLineInit();
-                        InsertGenJnlLine(
-                          "Account Type"::"G/L Account",
-                          CustPostingGr."Finance Income Acc.",
-                          "Gen. Journal Document Type"::" ",
-                          -FinanceChargeTerms.GetTotalFinChargesAmt(),
-                          StrSubstNo(
-                            Text1100008,
-                            CustLedgEntry."Document No.",
-                            CustLedgEntry."Bill No."),
-                          '');
+                    GenJnlLineInit();
+                    InsertGenJnlLine(
+                      GenJnlLine."Account Type"::"G/L Account",
+                      CustPostingGr."Finance Income Acc.",
+                      "Gen. Journal Document Type"::" ",
+                      -FinanceChargeTerms.GetTotalFinChargesAmt(),
+                      StrSubstNo(
+                        Text1100008,
+                        CustLedgEntry."Document No.",
+                        CustLedgEntry."Bill No."),
+                      '');
 
-                        SumLCYAmt := SumLCYAmt + "Amount (LCY)";
-                    end;
+                    SumLCYAmt := SumLCYAmt + GenJnlLine."Amount (LCY)";
                 end;
                 if "Currency Code" <> '' then begin
                     Currency.SetFilter(Code, "Currency Code");
@@ -261,17 +253,15 @@ report 7000096 "Redraw Receivable Bills"
                             Currency.TestField("Residual Losses Account");
                             Account := Currency."Residual Losses Account";
                         end;
-                        with GenJnlLine do begin
-                            CustLedgEntry."Currency Code" := '';
-                            GenJnlLineInit();
-                            InsertGenJnlLine(
-                              "Account Type"::"G/L Account",
-                              Account,
-                              "Gen. Journal Document Type"::" ",
-                              -SumLCYAmt,
-                              Text1100009,
-                              '');
-                        end;
+                        CustLedgEntry."Currency Code" := '';
+                        GenJnlLineInit();
+                        InsertGenJnlLine(
+                          GenJnlLine."Account Type"::"G/L Account",
+                          Account,
+                          "Gen. Journal Document Type"::" ",
+                          -SumLCYAmt,
+                          Text1100009,
+                          '');
                     end;
                 end;
 
@@ -577,18 +567,16 @@ report 7000096 "Redraw Receivable Bills"
 
     local procedure GenJnlLineInit()
     begin
-        with GenJnlLine do begin
-            Clear(GenJnlLine);
-            Init();
-            "Line No." := GenJnlLineNextNo;
-            GenJnlLineNextNo := GenJnlLineNextNo + 10000;
-            "Transaction No." := TransactionNo;
-            "Journal Template Name" := TemplName;
-            "Journal Batch Name" := BatchName;
-            "Posting Date" := PostingDate;
-            "Source Code" := SourceCode;
-            "Reason Code" := ReasonCode;
-        end;
+        Clear(GenJnlLine);
+        GenJnlLine.Init();
+        GenJnlLine."Line No." := GenJnlLineNextNo;
+        GenJnlLineNextNo := GenJnlLineNextNo + 10000;
+        GenJnlLine."Transaction No." := TransactionNo;
+        GenJnlLine."Journal Template Name" := TemplName;
+        GenJnlLine."Journal Batch Name" := BatchName;
+        GenJnlLine."Posting Date" := PostingDate;
+        GenJnlLine."Source Code" := SourceCode;
+        GenJnlLine."Reason Code" := ReasonCode;
     end;
 
     local procedure InsertGenJnlLine(AccountType2: Enum "Gen. Journal Account Type"; AccountNo2: Code[20]; DocumentType2: Enum "Gen. Journal Document Type"; Amount2: Decimal; Description2: Text[250]; DocNo2: Code[20])
@@ -596,26 +584,24 @@ report 7000096 "Redraw Receivable Bills"
         PreservedDueDate: Date;
         PreservedPaymentMethodCode: Code[10];
     begin
-        with GenJnlLine do begin
-            "Account Type" := AccountType2;
-            PreservedDueDate := "Due Date";
-            PreservedPaymentMethodCode := "Payment Method Code";
-            Validate("Account No.", AccountNo2);
-            "Due Date" := PreservedDueDate;
-            "Payment Method Code" := PreservedPaymentMethodCode;
-            "Document Type" := DocumentType2;
-            "Document No." := CustLedgEntry."Document No.";
-            "Bill No." := DocNo2;
-            Description := CopyStr(Description2, 1, MaxStrLen(Description));
-            Validate("Currency Code", CustLedgEntry."Currency Code");
-            Validate(Amount, Amount2);
-            "Dimension Set ID" :=
-              CarteraManagement.GetCombinedDimSetID(GenJnlLine, CustLedgEntry."Dimension Set ID");
-            if "Account Type" = "Account Type"::Customer then
-                Validate("Direct Debit Mandate ID", CustLedgEntry."Direct Debit Mandate ID");
-            OnBeforeGenJnlLineInsert(GenJnlLine, CustLedgEntry, NewPmtMethod);
-            Insert();
-        end;
+        GenJnlLine."Account Type" := AccountType2;
+        PreservedDueDate := GenJnlLine."Due Date";
+        PreservedPaymentMethodCode := GenJnlLine."Payment Method Code";
+        GenJnlLine.Validate("Account No.", AccountNo2);
+        GenJnlLine."Due Date" := PreservedDueDate;
+        GenJnlLine."Payment Method Code" := PreservedPaymentMethodCode;
+        GenJnlLine."Document Type" := DocumentType2;
+        GenJnlLine."Document No." := CustLedgEntry."Document No.";
+        GenJnlLine."Bill No." := DocNo2;
+        GenJnlLine.Description := CopyStr(Description2, 1, MaxStrLen(GenJnlLine.Description));
+        GenJnlLine.Validate("Currency Code", CustLedgEntry."Currency Code");
+        GenJnlLine.Validate(Amount, Amount2);
+        GenJnlLine."Dimension Set ID" :=
+          CarteraManagement.GetCombinedDimSetID(GenJnlLine, CustLedgEntry."Dimension Set ID");
+        if GenJnlLine."Account Type" = GenJnlLine."Account Type"::Customer then
+            GenJnlLine.Validate("Direct Debit Mandate ID", CustLedgEntry."Direct Debit Mandate ID");
+        OnBeforeGenJnlLineInsert(GenJnlLine, CustLedgEntry, NewPmtMethod);
+        GenJnlLine.Insert();
     end;
 
     [Scope('OnPrem')]

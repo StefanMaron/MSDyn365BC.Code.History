@@ -26,7 +26,11 @@ using System.Utilities;
 
 codeunit 5705 "TransferOrder-Post Receipt"
 {
-    Permissions = TableData "Item Entry Relation" = i;
+    Permissions =
+                tabledata "G/L Entry" = r,
+                tabledata "Item Entry Relation" = i,
+                tabledata "Transfer Receipt Header" = ri,
+                tabledata "Transfer Receipt Line" = rim;
     TableNo = "Transfer Header";
 
     trigger OnRun()
@@ -66,155 +70,152 @@ codeunit 5705 "TransferOrder-Post Receipt"
 
         OnBeforeTransferOrderPostReceipt(TransHeader, SuppressCommit, ItemJnlPostLine);
 
-        with TransHeader do begin
-            CheckBeforePost();
+        TransHeader.CheckBeforePost();
 
-            SaveAndClearPostingFromWhseRef();
+        SaveAndClearPostingFromWhseRef();
 
-            CheckDim();
-            CheckLines(TransHeader, TransLine);
+        CheckDim();
+        CheckLines(TransHeader, TransLine);
 
-            WhseReceive := TempWhseRcptHeader.FindFirst();
-            InvtPickPutaway := WhseReference <> 0;
-            if not (WhseReceive or InvtPickPutaway) then
-                CheckWarehouse(TransLine);
+        WhseReceive := TempWhseRcptHeader.FindFirst();
+        InvtPickPutaway := WhseReference <> 0;
+        if not (WhseReceive or InvtPickPutaway) then
+            CheckWarehouse(TransLine);
 
-            WhsePosting := IsWarehousePosting("Transfer-to Code");
+        WhsePosting := IsWarehousePosting(TransHeader."Transfer-to Code");
 
-            CheckTransferLines(false);
+        TransHeader.CheckTransferLines(false);
 
-            if GuiAllowed then begin
-                Window.Open(
-                  '#1#################################\\' +
-                  Text003);
+        if GuiAllowed then begin
+            Window.Open(
+              '#1#################################\\' +
+              Text003);
 
-                Window.Update(1, StrSubstNo(Text004, "No."));
-            end;
-
-            SourceCodeSetup.Get();
-            SourceCode := SourceCodeSetup.Transfer;
-            InvtSetup.Get();
-            InvtSetup.TestField("Posted Transfer Rcpt. Nos.");
-
-            CheckInvtPostingSetup();
-            OnAfterCheckInvtPostingSetup(TransHeader, TempWhseRcptHeader, SourceCode);
-
-            LockTables(InvtSetup."Automatic Cost Posting");
-
-            // Insert receipt header
-            if WhseReceive then
-                PostedWhseRcptHeader.LockTable();
-            TransRcptHeader.LockTable();
-            InsertTransRcptHeader(TransRcptHeader, TransHeader, InvtSetup."Posted Transfer Rcpt. Nos.");
-
-            if InvtSetup."Copy Comments Order to Rcpt." then begin
-                InvtCommentLine.CopyCommentLines(
-                    "Inventory Comment Document Type"::"Transfer Order", "No.",
-                    "Inventory Comment Document Type"::"Posted Transfer Receipt", TransRcptHeader."No.");
-                RecordLinkManagement.CopyLinks(TransferHeader2, TransRcptHeader);
-            end;
-
-            if WhseReceive then begin
-                WhseRcptHeader.Get(TempWhseRcptHeader."No.");
-                WhsePostRcpt.CreatePostedRcptHeader(PostedWhseRcptHeader, WhseRcptHeader, TransRcptHeader."No.", "Posting Date");
-            end;
-
-            // Insert receipt lines
-            LineCount := 0;
-            if WhseReceive then
-                PostedWhseRcptLine.LockTable();
-            if InvtPickPutaway then
-                WhseRqst.LockTable();
-            TransRcptLine.LockTable();
-            TransLine.SetRange(Quantity);
-            TransLine.SetRange("Qty. to Receive");
-            OnRunOnAfterTransLineSetFiltersForRcptLines(TransLine, TransHeader, Location, WhseReceive);
-            if TransLine.Find('-') then
-                repeat
-                    LineCount := LineCount + 1;
-                    if GuiAllowed then
-                        Window.Update(2, LineCount);
-
-                    if (TransLine."Item No." <> '') and (TransLine."Qty. to Receive" <> 0) then begin
-                        Item.Get(TransLine."Item No.");
-                        IsHandled := false;
-                        OnRunOnBeforeCheckItemBlocked(TransLine, Item, TransHeader, Location, WhseReceive, IsHandled);
-                        if not IsHandled then
-                            Item.TestField(Blocked, false);
-
-                        if TransLine."Variant Code" <> '' then begin
-                            ItemVariant.Get(TransLine."Item No.", TransLine."Variant Code");
-                            CheckItemVariantNotBlocked(ItemVariant);
-                        end;
-                    end;
-
-                    OnCheckTransLine(TransLine, TransHeader, Location, WhseReceive);
-
-                    InsertTransRcptLine(TransRcptHeader, TransRcptLine, TransLine);
-                until TransLine.Next() = 0;
-
-            OnRunOnAfterInsertTransRcptLines(TransRcptHeader, TransLine, TransHeader, Location, WhseReceive);
-
-            MakeInventoryAdjustment();
-
-            ValueEntry.LockTable();
-            ItemLedgEntry.LockTable();
-            ItemApplnEntry.LockTable();
-            ItemReg.LockTable();
-            TransLine.LockTable();
-            if WhsePosting then
-                WhseEntry.LockTable();
-
-            TransLine.SetFilter(Quantity, '<>0');
-            TransLine.SetFilter("Qty. to Receive", '<>0');
-            if TransLine.Find('-') then
-                repeat
-                    TransLine.Validate("Quantity Received", TransLine."Quantity Received" + TransLine."Qty. to Receive");
-                    OnRunOnBeforeUpdateWithWarehouseShipReceive(TransLine);
-                    TransLine.UpdateWithWarehouseShipReceive();
-                    ReservMgt.SetReservSource(ItemJnlLine);
-                    ReservMgt.SetItemTrackingHandling(1); // Allow deletion
-                    ReservMgt.DeleteReservEntries(true, 0);
-                    TransLine.Modify();
-                    OnAfterTransLineUpdateQtyReceived(TransLine, SuppressCommit);
-                until TransLine.Next() = 0;
-
-            OnRunOnBeforePostUpdateDocumens(ItemJnlPostLine);
-
-            if WhseReceive then
-                WhseRcptLine.LockTable();
-            LockTable();
-            if WhseReceive then begin
-                WhsePostRcpt.PostUpdateWhseDocuments(WhseRcptHeader);
-                TempWhseRcptHeader.Delete();
-            end;
-
-            "Last Receipt No." := TransRcptHeader."No.";
-            OnRunWithCheckOnBeforeModifyTransferHeader(TransHeader);
-            Modify();
-
-            TransLine.SetRange(Quantity);
-            TransLine.SetRange("Qty. to Receive");
-            if not PreviewMode then
-                DeleteOne := ShouldDeleteOneTransferOrder(TransLine);
-            OnBeforeDeleteOneTransferHeader(TransHeader, DeleteOne, TransRcptHeader);
-            if DeleteOne then
-                DeleteOneTransferOrder(TransHeader, TransLine)
-            else begin
-                WhseTransferRelease.Release(TransHeader);
-                ReserveTransLine.UpdateItemTrackingAfterPosting(TransHeader, Enum::"Transfer Direction"::Inbound);
-            end;
-
-            OnRunOnBeforeCommit(TransHeader, TransRcptHeader, PostedWhseRcptHeader, SuppressCommit);
-            if not (InvtPickPutaway or SuppressCommit or PreviewMode) then begin
-                Commit();
-                UpdateAnalysisView.UpdateAll(0, true);
-                UpdateItemAnalysisView.UpdateAll(0, true);
-            end;
-            Clear(WhsePostRcpt);
-            if GuiAllowed() then
-                Window.Close();
+            Window.Update(1, StrSubstNo(Text004, TransHeader."No."));
         end;
+
+        SourceCodeSetup.Get();
+        SourceCode := SourceCodeSetup.Transfer;
+        InvtSetup.Get();
+        InvtSetup.TestField("Posted Transfer Rcpt. Nos.");
+
+        TransHeader.CheckInvtPostingSetup();
+        OnAfterCheckInvtPostingSetup(TransHeader, TempWhseRcptHeader, SourceCode);
+
+        LockTables(InvtSetup."Automatic Cost Posting");
+        // Insert receipt header
+        if WhseReceive then
+            PostedWhseRcptHeader.LockTable();
+        TransRcptHeader.LockTable();
+        InsertTransRcptHeader(TransRcptHeader, TransHeader, InvtSetup."Posted Transfer Rcpt. Nos.");
+
+        if InvtSetup."Copy Comments Order to Rcpt." then begin
+            InvtCommentLine.CopyCommentLines(
+                "Inventory Comment Document Type"::"Transfer Order", TransHeader."No.",
+                "Inventory Comment Document Type"::"Posted Transfer Receipt", TransRcptHeader."No.");
+            RecordLinkManagement.CopyLinks(TransferHeader2, TransRcptHeader);
+        end;
+
+        if WhseReceive then begin
+            WhseRcptHeader.Get(TempWhseRcptHeader."No.");
+            WhsePostRcpt.CreatePostedRcptHeader(PostedWhseRcptHeader, WhseRcptHeader, TransRcptHeader."No.", TransHeader."Posting Date");
+        end;
+        // Insert receipt lines
+        LineCount := 0;
+        if WhseReceive then
+            PostedWhseRcptLine.LockTable();
+        if InvtPickPutaway then
+            WhseRqst.LockTable();
+        TransRcptLine.LockTable();
+        TransLine.SetRange(Quantity);
+        TransLine.SetRange("Qty. to Receive");
+        OnRunOnAfterTransLineSetFiltersForRcptLines(TransLine, TransHeader, Location, WhseReceive);
+        if TransLine.Find('-') then
+            repeat
+                LineCount := LineCount + 1;
+                if GuiAllowed then
+                    Window.Update(2, LineCount);
+
+                if (TransLine."Item No." <> '') and (TransLine."Qty. to Receive" <> 0) then begin
+                    Item.Get(TransLine."Item No.");
+                    IsHandled := false;
+                    OnRunOnBeforeCheckItemBlocked(TransLine, Item, TransHeader, Location, WhseReceive, IsHandled);
+                    if not IsHandled then
+                        Item.TestField(Blocked, false);
+
+                    if TransLine."Variant Code" <> '' then begin
+                        ItemVariant.Get(TransLine."Item No.", TransLine."Variant Code");
+                        CheckItemVariantNotBlocked(ItemVariant);
+                    end;
+                end;
+
+                OnCheckTransLine(TransLine, TransHeader, Location, WhseReceive);
+
+                InsertTransRcptLine(TransRcptHeader, TransRcptLine, TransLine);
+            until TransLine.Next() = 0;
+
+        OnRunOnAfterInsertTransRcptLines(TransRcptHeader, TransLine, TransHeader, Location, WhseReceive);
+
+        MakeInventoryAdjustment();
+
+        ValueEntry.LockTable();
+        ItemLedgEntry.LockTable();
+        ItemApplnEntry.LockTable();
+        ItemReg.LockTable();
+        TransLine.LockTable();
+        if WhsePosting then
+            WhseEntry.LockTable();
+
+        TransLine.SetFilter(Quantity, '<>0');
+        TransLine.SetFilter("Qty. to Receive", '<>0');
+        if TransLine.Find('-') then
+            repeat
+                TransLine.Validate("Quantity Received", TransLine."Quantity Received" + TransLine."Qty. to Receive");
+                OnRunOnBeforeUpdateWithWarehouseShipReceive(TransLine);
+                TransLine.UpdateWithWarehouseShipReceive();
+                ReservMgt.SetReservSource(ItemJnlLine);
+                ReservMgt.SetItemTrackingHandling(1);
+                // Allow deletion
+                ReservMgt.DeleteReservEntries(true, 0);
+                TransLine.Modify();
+                OnAfterTransLineUpdateQtyReceived(TransLine, SuppressCommit);
+            until TransLine.Next() = 0;
+
+        OnRunOnBeforePostUpdateDocumens(ItemJnlPostLine);
+
+        if WhseReceive then
+            WhseRcptLine.LockTable();
+        TransHeader.LockTable();
+        if WhseReceive then begin
+            WhsePostRcpt.PostUpdateWhseDocuments(WhseRcptHeader);
+            TempWhseRcptHeader.Delete();
+        end;
+
+        TransHeader."Last Receipt No." := TransRcptHeader."No.";
+        OnRunWithCheckOnBeforeModifyTransferHeader(TransHeader);
+        TransHeader.Modify();
+
+        TransLine.SetRange(Quantity);
+        TransLine.SetRange("Qty. to Receive");
+        if not PreviewMode then
+            DeleteOne := TransHeader.ShouldDeleteOneTransferOrder(TransLine);
+        OnBeforeDeleteOneTransferHeader(TransHeader, DeleteOne, TransRcptHeader);
+        if DeleteOne then
+            TransHeader.DeleteOneTransferOrder(TransHeader, TransLine)
+        else begin
+            WhseTransferRelease.Release(TransHeader);
+            ReserveTransLine.UpdateItemTrackingAfterPosting(TransHeader, Enum::"Transfer Direction"::Inbound);
+        end;
+
+        OnRunOnBeforeCommit(TransHeader, TransRcptHeader, PostedWhseRcptHeader, SuppressCommit);
+        if not (InvtPickPutaway or SuppressCommit or PreviewMode) then begin
+            Commit();
+            UpdateAnalysisView.UpdateAll(0, true);
+            UpdateItemAnalysisView.UpdateAll(0, true);
+        end;
+        Clear(WhsePostRcpt);
+        if GuiAllowed() then
+            Window.Close();
 
         TransferHeader2 := TransHeader;
 
@@ -531,7 +532,7 @@ codeunit 5705 "TransferOrder-Post Receipt"
 
     local procedure InsertTransRcptHeader(var TransRcptHeader: Record "Transfer Receipt Header"; TransHeader: Record "Transfer Header"; NoSeries: Code[20])
     var
-        NoSeriesMgt: Codeunit NoSeriesManagement;
+        NoSeriesCodeunit: Codeunit "No. Series";
         Handled: Boolean;
     begin
         OnBeforeInsertTransRcptHeader(TransRcptHeader, TransHeader, SuppressCommit, Handled);
@@ -543,7 +544,7 @@ codeunit 5705 "TransferOrder-Post Receipt"
         TransRcptHeader."No. Series" := NoSeries;
         OnInsertTransRcptHeaderOnBeforeGetNextNo(TransRcptHeader, TransHeader);
         if TransRcptHeader."No." = '' then
-            TransRcptHeader."No." := NoSeriesMgt.GetNextNo(TransRcptHeader."No. Series", TransHeader."Posting Date", true);
+            TransRcptHeader."No." := NoSeriesCodeunit.GetNextNo(TransRcptHeader."No. Series", TransHeader."Posting Date");
         OnBeforeTransRcptHeaderInsert(TransRcptHeader, TransHeader);
         TransRcptHeader.Insert();
 
@@ -616,15 +617,13 @@ codeunit 5705 "TransferOrder-Post Receipt"
         if IsHandled then
             exit;
 
-        with TransHeader do begin
-            TransLine.Reset();
-            TransLine.SetRange("Document No.", "No.");
-            TransLine.SetRange("Derived From Line No.", 0);
-            TransLine.SetFilter(Quantity, '<>0');
-            TransLine.SetFilter("Qty. to Receive", '<>0');
-            if not TransLine.Find('-') then
-                Error(DocumentErrorsMgt.GetNothingToPostErrorMsg());
-        end;
+        TransLine.Reset();
+        TransLine.SetRange("Document No.", TransHeader."No.");
+        TransLine.SetRange("Derived From Line No.", 0);
+        TransLine.SetFilter(Quantity, '<>0');
+        TransLine.SetFilter("Qty. to Receive", '<>0');
+        if not TransLine.Find('-') then
+            Error(DocumentErrorsMgt.GetNothingToPostErrorMsg());
     end;
 
     local procedure CheckWarehouse(var TransLine: Record "Transfer Line")
@@ -636,7 +635,7 @@ codeunit 5705 "TransferOrder-Post Receipt"
     begin
         IsHandled := false;
         OnBeforeCheckWarehouse(TransLine, IsHandled);
-        If IsHandled then
+        if IsHandled then
             exit;
 
         TransLine2.Copy(TransLine);
@@ -722,22 +721,20 @@ codeunit 5705 "TransferOrder-Post Receipt"
         if IsHandled then
             exit;
 
-        with ItemJnlLine do begin
-            Quantity := OriginalQuantity;
-            "Quantity (Base)" := OriginalQuantityBase;
-            GetLocation("New Location Code");
-            if Location."Bin Mandatory" then
-                if WMSMgmt.CreateWhseJnlLine(ItemJnlLine, 1, WhseJnlLine, true) then begin
-                    WMSMgmt.SetTransferLine(TransLine, WhseJnlLine, 1, TransRcptHeader."No.");
-                    OnPostWhseJnlLineOnBeforeSplitWhseJnlLine();
-                    ItemTrackingMgt.SplitWhseJnlLine(WhseJnlLine, TempWhseJnlLine2, TempHandlingSpecification, true);
-                    if TempWhseJnlLine2.Find('-') then
-                        repeat
-                            WMSMgmt.CheckWhseJnlLine(TempWhseJnlLine2, 1, 0, true);
-                            WhseJnlRegisterLine.RegisterWhseJnlLine(TempWhseJnlLine2);
-                        until TempWhseJnlLine2.Next() = 0;
-                end;
-        end;
+        ItemJnlLine.Quantity := OriginalQuantity;
+        ItemJnlLine."Quantity (Base)" := OriginalQuantityBase;
+        GetLocation(ItemJnlLine."New Location Code");
+        if Location."Bin Mandatory" then
+            if WMSMgmt.CreateWhseJnlLine(ItemJnlLine, 1, WhseJnlLine, true) then begin
+                WMSMgmt.SetTransferLine(TransLine, WhseJnlLine, 1, TransRcptHeader."No.");
+                OnPostWhseJnlLineOnBeforeSplitWhseJnlLine();
+                ItemTrackingMgt.SplitWhseJnlLine(WhseJnlLine, TempWhseJnlLine2, TempHandlingSpecification, true);
+                if TempWhseJnlLine2.Find('-') then
+                    repeat
+                        WMSMgmt.CheckWhseJnlLine(TempWhseJnlLine2, 1, 0, true);
+                        WhseJnlRegisterLine.RegisterWhseJnlLine(TempWhseJnlLine2);
+                    until TempWhseJnlLine2.Next() = 0;
+            end;
     end;
 
     procedure SetWhseRcptHeader(var WhseRcptHeader2: Record "Warehouse Receipt Header")

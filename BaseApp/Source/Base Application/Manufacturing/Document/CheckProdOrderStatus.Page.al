@@ -97,7 +97,7 @@ page 99000833 "Check Prod. Order Status"
             exit;
 
         ReservEntry."Source Type" := DATABASE::"Sales Line";
-        ReservEntry."Source Subtype" := SalesLine2."Document Type";
+        ReservEntry."Source Subtype" := SalesLine2."Document Type".AsInteger();
         ReservEntry."Item No." := SalesLine2."No.";
         ReservEntry."Variant Code" := SalesLine2."Variant Code";
         ReservEntry."Location Code" := SalesLine2."Location Code";

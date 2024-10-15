@@ -828,7 +828,7 @@ codeunit 147523 "SII Documents With EU Service"
         // [GIVEN] Sales Invoice with two lines:
         // [GIVEN] First Line: Amount = 1000, "VAT %" = 10,"EU Service" = FALSE
         // [GIVEN] First Line: Amount = 1000, "VAT %" = 21, "EU Service" = TRUE
-        CreateSalesDocWithNormalAndEUService(SalesHeader, SalesHeader."Document Type"::Invoice, '', LibrarySII.GetLocalVATRegNo, 1);
+        CreateSalesDocWithNormalAndEUService(SalesHeader, SalesHeader."Document Type"::Invoice, '', LibrarySII.GetLocalVATRegNo(), 1);
 
         // [GIVEN] Two VAT Entries with Amount = 100 and 210
         CustLedgerEntry.SetRange("Sell-to Customer No.", SalesHeader."Bill-to Customer No.");
@@ -860,7 +860,7 @@ codeunit 147523 "SII Documents With EU Service"
         // [GIVEN] Sales Credit Memo with two lines:
         // [GIVEN] First Line: Amount = 1000, "VAT %" = 10,"EU Service" = FALSE
         // [GIVEN] First Line: Amount = 1000, "VAT %" = 21, "EU Service" = TRUE
-        CreateSalesDocWithNormalAndEUService(SalesHeader, SalesHeader."Document Type"::"Credit Memo", '', LibrarySII.GetLocalVATRegNo, 1);
+        CreateSalesDocWithNormalAndEUService(SalesHeader, SalesHeader."Document Type"::"Credit Memo", '', LibrarySII.GetLocalVATRegNo(), 1);
 
         // [GIVEN] Two VAT Entries with Amount = 100 and 210
         CustLedgerEntry.SetRange("Sell-to Customer No.", SalesHeader."Bill-to Customer No.");
@@ -892,7 +892,7 @@ codeunit 147523 "SII Documents With EU Service"
         // [GIVEN] First Line: Amount = 1000, "VAT %" = 10,"EU Service" = FALSE
         // [GIVEN] First Line: Amount = 1000, "VAT %" = 21, "EU Service" = TRUE
         CreateSalesDocWithNormalAndEUService(
-          SalesHeader, SalesHeader."Document Type"::Invoice, LibrarySII.GetForeignCountry, LibrarySII.GetForeignVATRegNo, 1);
+          SalesHeader, SalesHeader."Document Type"::Invoice, LibrarySII.GetForeignCountry(), LibrarySII.GetForeignVATRegNo(), 1);
 
         // [GIVEN] Two VAT Entries with Amount = 100 and 210
         CustLedgerEntry.SetRange("Sell-to Customer No.", SalesHeader."Bill-to Customer No.");
@@ -924,7 +924,7 @@ codeunit 147523 "SII Documents With EU Service"
         // [GIVEN] First Line: Amount = 1000, "VAT %" = 10,"EU Service" = FALSE
         // [GIVEN] First Line: Amount = 1000, "VAT %" = 21, "EU Service" = TRUE
         CreateSalesDocWithNormalAndEUService(
-          SalesHeader, SalesHeader."Document Type"::"Credit Memo", LibrarySII.GetForeignCountry, LibrarySII.GetForeignVATRegNo, 1);
+          SalesHeader, SalesHeader."Document Type"::"Credit Memo", LibrarySII.GetForeignCountry(), LibrarySII.GetForeignVATRegNo(), 1);
 
         // [GIVEN] Two VAT Entries with Amount = 100 and 210
         CustLedgerEntry.SetRange("Sell-to Customer No.", SalesHeader."Bill-to Customer No.");
@@ -956,7 +956,7 @@ codeunit 147523 "SII Documents With EU Service"
         // [GIVEN] First Line: Amount = 1000, "VAT %" = 10,"EU Service" = FALSE
         // [GIVEN] First Line: Amount = 1000, "VAT %" = 21, "EU Service" = TRUE
         CreateSalesDocWithNormalAndEUService(
-          SalesHeader, SalesHeader."Document Type"::Invoice, '', LibrarySII.GetLocalVATRegNo, LibraryRandom.RandIntInRange(3, 5));
+          SalesHeader, SalesHeader."Document Type"::Invoice, '', LibrarySII.GetLocalVATRegNo(), LibraryRandom.RandIntInRange(3, 5));
 
         // [GIVEN] Two VAT Entries with Amount = 100 and 210
         CustLedgerEntry.SetRange("Sell-to Customer No.", SalesHeader."Bill-to Customer No.");
@@ -987,7 +987,7 @@ codeunit 147523 "SII Documents With EU Service"
         // [GIVEN] First Line: Amount = 1000, "VAT %" = 10,"EU Service" = FALSE
         // [GIVEN] First Line: Amount = 1000, "VAT %" = 21, "EU Service" = TRUE
         CreateSalesDocWithNormalAndEUService(
-          SalesHeader, SalesHeader."Document Type"::"Credit Memo", '', LibrarySII.GetLocalVATRegNo, LibraryRandom.RandIntInRange(3, 5));
+          SalesHeader, SalesHeader."Document Type"::"Credit Memo", '', LibrarySII.GetLocalVATRegNo(), LibraryRandom.RandIntInRange(3, 5));
 
         // [GIVEN] Two VAT Entries with Amount = 100 and 210
         CustLedgerEntry.SetRange("Sell-to Customer No.", SalesHeader."Bill-to Customer No.");
@@ -1018,8 +1018,8 @@ codeunit 147523 "SII Documents With EU Service"
         // [GIVEN] First Line: Amount = 1000, "VAT %" = 10,"EU Service" = FALSE
         // [GIVEN] First Line: Amount = 1000, "VAT %" = 21, "EU Service" = TRUE
         CreateSalesDocWithNormalAndEUService(
-          SalesHeader, SalesHeader."Document Type"::Invoice, LibrarySII.GetForeignCountry,
-          LibrarySII.GetForeignVATRegNo, LibraryRandom.RandIntInRange(3, 5));
+          SalesHeader, SalesHeader."Document Type"::Invoice, LibrarySII.GetForeignCountry(),
+          LibrarySII.GetForeignVATRegNo(), LibraryRandom.RandIntInRange(3, 5));
 
         // [GIVEN] Two VAT Entries with Amount = 100 and 210
         CustLedgerEntry.SetRange("Sell-to Customer No.", SalesHeader."Bill-to Customer No.");
@@ -1051,8 +1051,8 @@ codeunit 147523 "SII Documents With EU Service"
         // [GIVEN] First Line: Amount = 1000, "VAT %" = 10,"EU Service" = FALSE
         // [GIVEN] First Line: Amount = 1000, "VAT %" = 21, "EU Service" = TRUE
         CreateSalesDocWithNormalAndEUService(
-          SalesHeader, SalesHeader."Document Type"::"Credit Memo", LibrarySII.GetForeignCountry,
-          LibrarySII.GetForeignVATRegNo, LibraryRandom.RandIntInRange(3, 5));
+          SalesHeader, SalesHeader."Document Type"::"Credit Memo", LibrarySII.GetForeignCountry(),
+          LibrarySII.GetForeignVATRegNo(), LibraryRandom.RandIntInRange(3, 5));
 
         // [GIVEN] Two VAT Entries with Amount = 100 and 210
         CustLedgerEntry.SetRange("Sell-to Customer No.", SalesHeader."Bill-to Customer No.");
@@ -1224,7 +1224,7 @@ codeunit 147523 "SII Documents With EU Service"
             exit;
 
         LibrarySII.InitSetup(true, false);
-        LibrarySII.BindSubscriptionJobQueue;
+        LibrarySII.BindSubscriptionJobQueue();
         LibrarySetupStorage.Save(DATABASE::"Purchases & Payables Setup");
 
         IsInitialized := true;
@@ -1234,7 +1234,7 @@ codeunit 147523 "SII Documents With EU Service"
     var
         Customer: Record Customer;
     begin
-        LibrarySII.CreateCustWithCountryAndVATReg(Customer, '', LibrarySII.GetLocalVATRegNo);
+        LibrarySII.CreateCustWithCountryAndVATReg(Customer, '', LibrarySII.GetLocalVATRegNo());
         Customer.Validate("VAT Bus. Posting Group", VATBustPostGroupCode);
         Customer.Modify(true);
         exit(Customer."No.");
@@ -1297,7 +1297,7 @@ codeunit 147523 "SII Documents With EU Service"
         CreateVATPostingSetupEC(VATPostingSetupEC);
         NormalVATProdPostGroupCode :=
           LibrarySII.CreateSpecificVATSetup(VATPostingSetupEC."VAT Bus. Posting Group", VATPostingSetupEC."VAT %");
-        CustNo := CreateCustWithVATSetup(VATPostingSetupEC."VAT Bus. Posting Group", '', LibrarySII.GetLocalVATRegNo);
+        CustNo := CreateCustWithVATSetup(VATPostingSetupEC."VAT Bus. Posting Group", '', LibrarySII.GetLocalVATRegNo());
 
         NormalVATItemNo := LibraryInventory.CreateItemNoWithVATProdPostingGroup(NormalVATProdPostGroupCode);
         ECItemNo := LibraryInventory.CreateItemNoWithVATProdPostingGroup(VATPostingSetupEC."VAT Prod. Posting Group");

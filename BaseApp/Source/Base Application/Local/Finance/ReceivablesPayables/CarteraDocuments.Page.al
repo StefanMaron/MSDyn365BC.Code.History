@@ -258,7 +258,13 @@ page 7000003 "Cartera Documents"
                 separator(Action37)
                 {
                 }
+#if not CLEAN24
+#pragma warning disable AL0486
+#endif
                 action(Reject)
+#if not CLEAN24
+#pragma warning restore AL0486
+#endif
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Reject';
@@ -272,8 +278,8 @@ page 7000003 "Cartera Documents"
                     begin
                         if Doc.Type = Doc.Type::Receivable then
                             if Cust.Get(Rec."Account No.") then
-                                Cust.CheckBlockedCustOnJnls(Cust, "Gen. Journal Document Type".FromInteger(Rec."Document Type"), false);
-                        Reject();
+                                Cust.CheckBlockedCustOnJnls(Cust, "Gen. Journal Document Type".FromInteger(Rec."Document Type".AsInteger()), false);
+                        RejectDocs();
                     end;
                 }
                 separator(Action39)
@@ -416,7 +422,17 @@ page 7000003 "Cartera Documents"
         end;
     end;
 
+#if not CLEAN24
+#pragma warning disable AL0486
+    [Obsolete('Please use the method RejectDocs instead.', '24.0')]
     procedure Reject()
+    begin
+        RejectDocs()
+    end;
+#pragma warning restore AL0486
+#endif
+
+    procedure RejectDocs()
     begin
         if Doc.Type <> Doc.Type::Receivable then
             Error(Text1100001);

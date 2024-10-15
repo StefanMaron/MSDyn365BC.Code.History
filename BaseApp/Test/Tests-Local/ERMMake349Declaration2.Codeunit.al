@@ -239,7 +239,7 @@ codeunit 144118 "ERM Make 349 Declaration 2"
 
         for Index := 1 to ArrayLen(LineAmount) do begin
             LibrarySales.CreateSalesLine(
-              SalesLine, SalesHeader, SalesLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithSalesSetup, 1);
+              SalesLine, SalesHeader, SalesLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithSalesSetup(), 1);
             SalesLine.Validate("Unit Price", LineAmount[Index]);
             SalesLine.Modify(true);
             ModifyVATPostingSetupEUService(SalesHeader."VAT Bus. Posting Group", SalesLine."VAT Prod. Posting Group", EUService);
@@ -257,7 +257,7 @@ codeunit 144118 "ERM Make 349 Declaration 2"
 
         for Index := 1 to ArrayLen(LineAmount) do begin
             LibraryPurchase.CreatePurchaseLine(
-              PurchaseLine, PurchaseHeader, PurchaseLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithSalesSetup, 1);
+              PurchaseLine, PurchaseHeader, PurchaseLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithSalesSetup(), 1);
             PurchaseLine.Validate("Direct Unit Cost", LineAmount[Index]);
             PurchaseLine.Modify(true);
             ModifyVATPostingSetupEUService(PurchaseHeader."VAT Bus. Posting Group", PurchaseLine."VAT Prod. Posting Group", EUService);
@@ -390,7 +390,7 @@ codeunit 144118 "ERM Make 349 Declaration 2"
         LibraryVariableStorage.Enqueue(PostingDate);
         LibraryVariableStorage.Enqueue(GetPostingPeriodForMake349Declaration(PostingDate, 0));
         LibraryVariableStorage.Enqueue(LibraryUtility.GenerateGUID());
-        LibraryVariableStorage.Enqueue(LibraryERM.CreateCountryRegionWithIntrastatCode);
+        LibraryVariableStorage.Enqueue(LibraryERM.CreateCountryRegionWithIntrastatCode());
     end;
 
     local procedure RunMake349DeclarationReportWithCorrection(var FileName: Text)
@@ -416,15 +416,15 @@ codeunit 144118 "ERM Make 349 Declaration 2"
         DocumentNo: Text;
         NoOfDocuments: Integer;
     begin
-        NoOfDocuments := LibraryVariableStorage.DequeueInteger;
+        NoOfDocuments := LibraryVariableStorage.DequeueInteger();
 
         while NoOfDocuments > 0 do begin
-            DocumentNo := LibraryVariableStorage.DequeueText;
+            DocumentNo := LibraryVariableStorage.DequeueText();
             CustomerVendorWarning349.SetRange("Document No.", DocumentNo);
             CustomerVendorWarning349.FindSet();
-            AssignIncludeCorrectionToDocument(CustomerVendorWarning349, LibraryVariableStorage.DequeueBoolean);
+            AssignIncludeCorrectionToDocument(CustomerVendorWarning349, LibraryVariableStorage.DequeueBoolean());
             CustomerVendorWarning349.Next();
-            AssignIncludeCorrectionToDocument(CustomerVendorWarning349, LibraryVariableStorage.DequeueBoolean);
+            AssignIncludeCorrectionToDocument(CustomerVendorWarning349, LibraryVariableStorage.DequeueBoolean());
             NoOfDocuments -= 1;
         end;
     end;
@@ -442,12 +442,12 @@ codeunit 144118 "ERM Make 349 Declaration 2"
     [Scope('OnPrem')]
     procedure Make349DeclarationRequestPageHandler(var Make349Declaration: TestRequestPage "Make 349 Declaration")
     begin
-        Make349Declaration.FiscalYear.SetValue(Date2DMY(LibraryVariableStorage.DequeueDate, 3));
-        Make349Declaration.Period.SetValue(LibraryVariableStorage.DequeueInteger);
-        Make349Declaration.ContactName.SetValue(LibraryVariableStorage.DequeueText);
+        Make349Declaration.FiscalYear.SetValue(Date2DMY(LibraryVariableStorage.DequeueDate(), 3));
+        Make349Declaration.Period.SetValue(LibraryVariableStorage.DequeueInteger());
+        Make349Declaration.ContactName.SetValue(LibraryVariableStorage.DequeueText());
         Make349Declaration.TelephoneNumber.SetValue(123456789);
-        Make349Declaration.CompanyCountryRegion.SetValue(LibraryVariableStorage.DequeueText);
-        Make349Declaration.OK.Invoke;
+        Make349Declaration.CompanyCountryRegion.SetValue(LibraryVariableStorage.DequeueText());
+        Make349Declaration.OK().Invoke();
     end;
 
     [MessageHandler]
@@ -460,19 +460,19 @@ codeunit 144118 "ERM Make 349 Declaration 2"
     [Scope('OnPrem')]
     procedure VerifyingComfirmHandler(Question: Text[1024]; var Reply: Boolean)
     begin
-        Assert.ExpectedMessage(LibraryVariableStorage.DequeueText, Question);
-        Reply := LibraryVariableStorage.DequeueBoolean;
+        Assert.ExpectedMessage(LibraryVariableStorage.DequeueText(), Question);
+        Reply := LibraryVariableStorage.DequeueBoolean();
 
         // it is headache to setup values through the page having growing number of documents per year
         if StrPos(Question, CVWarning349Qst) = 1 then
-            SetupQueuedIncludeCorrection;
+            SetupQueuedIncludeCorrection();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure CustomerVendorWarnings349ModalPageHandler(var CustomerVendorWarnings349: TestPage "Customer/Vendor Warnings 349")
     begin
-        CustomerVendorWarnings349.Process.Invoke;
+        CustomerVendorWarnings349.Process.Invoke();
     end;
 }
 

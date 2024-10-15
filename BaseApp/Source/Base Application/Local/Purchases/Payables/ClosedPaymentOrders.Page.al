@@ -1,4 +1,4 @@
-﻿// ------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -10,7 +10,7 @@ using Microsoft.Foundation.Navigate;
 page 7000060 "Closed Payment Orders"
 {
     Caption = 'Closed Payment Orders';
-    DataCaptionExpression = Caption();
+    DataCaptionExpression = Rec.Caption();
     InsertAllowed = false;
     PageType = Document;
     RefreshOnActivate = true;
@@ -195,7 +195,6 @@ page 7000060 "Closed Payment Orders"
 
                 trigger OnAction()
                 var
-                    Option: Integer;
                 begin
                     Navigate.SetDoc(Rec."Posting Date", Rec."No.");
                     Navigate.Run();

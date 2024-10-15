@@ -1,4 +1,4 @@
-﻿// ------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -450,7 +450,7 @@ page 190 "Incoming Documents"
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Set To Unprocessed';
-                    Enabled = NOT SetToProcessedIsEnable;
+                    Enabled = not SetToProcessedIsEnable;
                     Image = ReOpen;
                     Scope = Repeater;
                     ToolTip = 'Set the incoming document to unprocessed. It will then be shown in the Incoming Documents window when the Show Unprocessed view is selected.';
@@ -472,7 +472,7 @@ page 190 "Incoming Documents"
                 {
                     ApplicationArea = Suite;
                     Caption = 'Send A&pproval Request';
-                    Enabled = NOT OpenApprovalEntriesExist;
+                    Enabled = not OpenApprovalEntriesExist;
                     Image = SendApprovalRequest;
                     Scope = Repeater;
                     ToolTip = 'Request approval of the incoming document. You can send an approval request as part of a workflow if this has been set up in your organization.';
@@ -693,7 +693,7 @@ page 190 "Incoming Documents"
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Show All';
-                    Enabled = NOT ShowAllDocsIsEnable;
+                    Enabled = not ShowAllDocsIsEnable;
                     Image = AllLines;
                     ToolTip = 'Show both processed and non-processed incoming documents.';
 
@@ -802,7 +802,7 @@ page 190 "Incoming Documents"
 
     trigger OnAfterGetRecord()
     begin
-        Rec.URL := Rec.GetURL();
+        Rec.URL := CopyStr(Rec.GetURL(), 1, MaxStrLen(Rec.URL));
         StatusStyleText := Rec.GetStatusStyleText();
     end;
 
@@ -830,7 +830,6 @@ page 190 "Incoming Documents"
         Camera: Codeunit Camera;
         HasCamera: Boolean;
         StatusStyleText: Text;
-        MultiSelectAction: Enum "Incoming Doc. Selection Action";
         IsDataExchTypeEditable: Boolean;
         OpenApprovalEntriesExist: Boolean;
         EnableReceiveFromOCR: Boolean;
@@ -888,9 +887,6 @@ page 190 "Incoming Documents"
                 end;
             until IncomingDocument.Next() = 0;
 
-#if not CLEAN21
-        OnAfterIncomingDocumentMultiSelectAction(IncomingDocument, ActionName.AsInteger());
-#endif
         OnAfterRunIncomingDocumentMultiSelectAction(IncomingDocument, ActionName);
     end;
 
@@ -927,7 +923,7 @@ page 190 "Incoming Documents"
         AutomaticCreationActionsAreEnabled := Rec."Data Exchange Type" <> '';
     end;
 
-    [IntegrationEvent(TRUE, TRUE)]
+    [IntegrationEvent(true, true)]
     local procedure OnCloseIncomingDocumentsFromActions(var IncomingDocument: Record "Incoming Document")
     begin
     end;
@@ -950,14 +946,6 @@ page 190 "Incoming Documents"
         OCRServiceIsEnabled := Rec.OCRIsEnabled();
         ShowOCRSetup := not OCRServiceIsEnabled;
     end;
-
-#if not CLEAN21
-    [Obsolete('Replaced by event OnAfterRunIncomingDocumentMultiSelectAction() with enum action parameter', '21.0')]
-    [IntegrationEvent(false, false)]
-    local procedure OnAfterIncomingDocumentMultiSelectAction(var IncomingDocument: Record "Incoming Document"; ActionName: Option)
-    begin
-    end;
-#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterRunIncomingDocumentMultiSelectAction(var IncomingDocument: Record "Incoming Document"; ActionName: Enum "Incoming Doc. Selection Action")

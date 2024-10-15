@@ -19,6 +19,7 @@ table 7000020 "Payment Order"
     DrillDownPageID = "Payment Orders List";
     LookupPageID = "Payment Orders List";
     Permissions = TableData "Cartera Doc." = m;
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -27,6 +28,8 @@ table 7000020 "Payment Order"
             Caption = 'No.';
 
             trigger OnValidate()
+            var
+                NoSeries: Codeunit "No. Series";
             begin
                 if "No." = xRec."No." then
                     exit;
@@ -35,7 +38,7 @@ table 7000020 "Payment Order"
                 ResetPrinted();
 
                 CarteraSetup.Get();
-                NoSeriesMgt.TestManual(CarteraSetup."Payment Order Nos.");
+                NoSeries.TestManual(CarteraSetup."Payment Order Nos.");
                 "No. Series" := '';
 
                 UpdateDescription();
@@ -269,11 +272,28 @@ table 7000020 "Payment Order"
     end;
 
     trigger OnInsert()
+    var
+        NoSeries: Codeunit "No. Series";
+#if not CLEAN24
+        NoSeriesMgt: Codeunit NoSeriesManagement;
+        IsHandled: Boolean;
+#endif
     begin
         if "No." = '' then begin
             CarteraSetup.Get();
             CarteraSetup.TestField("Payment Order Nos.");
-            NoSeriesMgt.InitSeries(CarteraSetup."Payment Order Nos.", xRec."No. Series", 0D, "No.", "No. Series");
+#if not CLEAN24
+            NoSeriesMgt.RaiseObsoleteOnBeforeInitSeries(CarteraSetup."Payment Order Nos.", xRec."No. Series", 0D, "No.", "No. Series", IsHandled);
+            if not IsHandled then begin
+#endif
+                "No. Series" := CarteraSetup."Payment Order Nos.";
+                if NoSeries.AreRelated("No. Series", xRec."No. Series") then
+                    "No. Series" := xRec."No. Series";
+                "No." := NoSeries.GetNextNo("No. Series");
+#if not CLEAN24
+                NoSeriesMgt.RaiseObsoleteOnAfterInitSeries("No. Series", CarteraSetup."Payment Order Nos.", 0D, "No.");
+            end;
+#endif
         end;
 
         if GetFilter("Bank Account No.") <> '' then
@@ -307,23 +327,20 @@ table 7000020 "Payment Order"
         BankAcc: Record "Bank Account";
         BGPOCommentLine: Record "BG/PO Comment Line";
         Currencies: Page Currencies;
-        NoSeriesMgt: Codeunit NoSeriesManagement;
         ExportAgainQst: Label 'The selected payment order has already been exported. Do you want to export again?';
 
     [Scope('OnPrem')]
     procedure AssistEdit(OldPmtOrd: Record "Payment Order"): Boolean
+    var
+        NoSeries: Codeunit "No. Series";
     begin
-        with PmtOrd do begin
-            PmtOrd := Rec;
-            CarteraSetup.Get();
-            CarteraSetup.TestField("Payment Order Nos.");
-            if NoSeriesMgt.SelectSeries(CarteraSetup."Payment Order Nos.", OldPmtOrd."No. Series", "No. Series") then begin
-                CarteraSetup.Get();
-                CarteraSetup.TestField("Payment Order Nos.");
-                NoSeriesMgt.SetSeries("No.");
-                Rec := PmtOrd;
-                exit(true);
-            end;
+        PmtOrd := Rec;
+        CarteraSetup.Get();
+        CarteraSetup.TestField("Payment Order Nos.");
+        if NoSeries.LookupRelatedNoSeries(CarteraSetup."Payment Order Nos.", OldPmtOrd."No. Series", PmtOrd."No. Series") then begin
+            PmtOrd."No." := NoSeries.GetNextNo(PmtOrd."No. Series");
+            Rec := PmtOrd;
+            exit(true);
         end;
     end;
 
@@ -358,15 +375,13 @@ table 7000020 "Payment Order"
     var
         CarteraReportSelection: Record "Cartera Report Selections";
     begin
-        with PmtOrd do begin
-            Copy(Rec);
-            CarteraReportSelection.SetRange(Usage, CarteraReportSelection.Usage::"Payment Order");
-            CarteraReportSelection.SetFilter("Report ID", '<>0');
-            CarteraReportSelection.Find('-');
-            repeat
-                REPORT.RunModal(CarteraReportSelection."Report ID", ShowRequestForm, false, PmtOrd);
-            until CarteraReportSelection.Next() = 0;
-        end;
+        PmtOrd.Copy(Rec);
+        CarteraReportSelection.SetRange(Usage, CarteraReportSelection.Usage::"Payment Order");
+        CarteraReportSelection.SetFilter("Report ID", '<>0');
+        CarteraReportSelection.Find('-');
+        repeat
+            REPORT.RunModal(CarteraReportSelection."Report ID", ShowRequestForm, false, PmtOrd);
+        until CarteraReportSelection.Next() = 0;
     end;
 
     local procedure PmtOrdIsEmpty(): Boolean

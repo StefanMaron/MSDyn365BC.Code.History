@@ -32,7 +32,7 @@ codeunit 134229 "ERM Analysis View"
 
         // [GIVEN] Open and close Analysis View List Sales page.
         Initialize();
-        AnalysisViewListSales.OpenView;
+        AnalysisViewListSales.OpenView();
         AnalysisViewListSales.Close();
 
         // [WHEN] Close Analysis View List Sales page again.
@@ -52,7 +52,7 @@ codeunit 134229 "ERM Analysis View"
 
         // [GIVEN] Open and close Analysis View List Purchase page.
         Initialize();
-        AnalysisViewListPurchase.OpenView;
+        AnalysisViewListPurchase.OpenView();
         AnalysisViewListPurchase.Close();
 
         // [WHEN] Close Analysis View List Purchase page again.
@@ -151,7 +151,7 @@ codeunit 134229 "ERM Analysis View"
         AnalysisView.Find();
         AnalysisView.TestField("Last Entry No.");
         LastEntryNo := AnalysisView."Last Entry No.";
-        PostSalesOrder;
+        PostSalesOrder();
         CODEUNIT.Run(CODEUNIT::"Update Analysis View", AnalysisView);
         AnalysisView.Find();
         AnalysisView.TestField("Last Entry No.");
@@ -538,19 +538,17 @@ codeunit 134229 "ERM Analysis View"
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Analysis View");
     end;
 
-    local procedure CreateAnalysisView(var AnalysisView: Record "Analysis View"; AccountSource: Integer)
+    local procedure CreateAnalysisView(var AnalysisView: Record "Analysis View"; AccountSource: Enum "Analysis Account Source")
     begin
-        with AnalysisView do begin
-            Init();
-            Code := Format(LibraryRandom.RandIntInRange(1, 10000));
-            "Account Source" := AccountSource;
-            if not Insert then
-                Modify();
-        end;
+        AnalysisView.Init();
+        AnalysisView.Code := Format(LibraryRandom.RandIntInRange(1, 10000));
+        AnalysisView."Account Source" := AccountSource;
+        if not AnalysisView.Insert() then
+            AnalysisView.Modify();
     end;
 
     [Scope('OnPrem')]
-    procedure CreateAnalysisViewWithDimensions(var AnalysisView: Record "Analysis View"; AccountSource: Integer)
+    procedure CreateAnalysisViewWithDimensions(var AnalysisView: Record "Analysis View"; AccountSource: Enum "Analysis Account Source")
     var
         Dimension: Record Dimension;
         i: Integer;
@@ -596,33 +594,29 @@ codeunit 134229 "ERM Analysis View"
     local procedure CheckAccSourceChange(TestFromNonCachFlowToCF: Boolean; FldNo: Integer)
     var
         AnalysisView: Record "Analysis View";
-        ToAccountSource: Integer;
-        FromAccountSource: Integer;
+        ToAccountSource: Enum "Analysis Account Source";
+        FromAccountSource: Enum "Analysis Account Source";
     begin
-        with AnalysisView do begin
-            if TestFromNonCachFlowToCF then begin
-                FromAccountSource := "Account Source"::"G/L Account";
-                ToAccountSource := "Account Source"::"Cash Flow Account";
-            end else begin
-                FromAccountSource := "Account Source"::"Cash Flow Account";
-                ToAccountSource := "Account Source"::"G/L Account";
-            end;
-
-            // Setup
-            CreateAnalysisView(AnalysisView, FromAccountSource);
-
-            if FldNo = FieldNo("Update on Posting") then
-                Validate("Update on Posting", TestFromNonCachFlowToCF)
-            else
-                Validate("Include Budgets", TestFromNonCachFlowToCF);
-
-            // Verify
-            if TestFromNonCachFlowToCF then begin
-                asserterror Validate("Account Source", ToAccountSource);
-                Assert.ExpectedError(NotApplicableForCF);
-            end else
-                Validate("Account Source", ToAccountSource);
+        if TestFromNonCachFlowToCF then begin
+            FromAccountSource := AnalysisView."Account Source"::"G/L Account";
+            ToAccountSource := AnalysisView."Account Source"::"Cash Flow Account";
+        end else begin
+            FromAccountSource := AnalysisView."Account Source"::"Cash Flow Account";
+            ToAccountSource := AnalysisView."Account Source"::"G/L Account";
         end;
+        // Setup
+        CreateAnalysisView(AnalysisView, FromAccountSource);
+
+        if FldNo = AnalysisView.FieldNo("Update on Posting") then
+            AnalysisView.Validate("Update on Posting", TestFromNonCachFlowToCF)
+        else
+            AnalysisView.Validate("Include Budgets", TestFromNonCachFlowToCF);
+        // Verify
+        if TestFromNonCachFlowToCF then begin
+            asserterror AnalysisView.Validate("Account Source", ToAccountSource);
+            Assert.ExpectedError(NotApplicableForCF);
+        end else
+            AnalysisView.Validate("Account Source", ToAccountSource);
     end;
 
     local procedure PostSalesOrder()
@@ -641,14 +635,14 @@ codeunit 134229 "ERM Analysis View"
     [Scope('OnPrem')]
     procedure AnalysisByDimensionPageHandler(var AnalysisByDimensions: TestPage "Analysis by Dimensions")
     begin
-        AnalysisByDimensions.ShowMatrix.Invoke;
+        AnalysisByDimensions.ShowMatrix.Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure AnalysisByDimensionMatrixPageHandler(var AnalysisByDimensionsMatrix: TestPage "Analysis by Dimensions Matrix")
     begin
-        AnalysisByDimensionsMatrix.OK.Invoke;
+        AnalysisByDimensionsMatrix.OK().Invoke();
     end;
 
     [ConfirmHandler]

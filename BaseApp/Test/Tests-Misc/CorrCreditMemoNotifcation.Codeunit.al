@@ -16,9 +16,9 @@ codeunit 135302 "Corr. Credit Memo Notifcation"
         LibraryRandom: Codeunit "Library - Random";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
+        NotificationLifecycleMgt: Codeunit "Notification Lifecycle Mgt.";
         InvoicePartiallyPaidMsg: Label 'Invoice %1 is partially paid or credited. The corrective credit memo may not be fully closed by the invoice.', Comment = '%1 - invoice no.';
         InvoiceClosedMsg: Label 'Invoice %1 is closed. The corrective credit memo will not be applied to the invoice.', Comment = '%1 - invoice no.';
-        NotificationLifecycleMgt: Codeunit "Notification Lifecycle Mgt.";
 
     [Test]
     [HandlerFunctions('SkipSalesNotificationHandler,RecallNotificationHandler')]
@@ -39,24 +39,24 @@ codeunit 135302 "Corr. Credit Memo Notifcation"
         ApplyPaymentToSalesInvoice(SalesInvoiceHeader, -GetSalesInvoiceRemainingAmount(SalesInvoiceHeader) div 3);
         ExpectedRemAmount := GetSalesInvoiceRemainingAmount(SalesInvoiceHeader);
         // [GIVEN] Open "Posted Sales Invoice" page
-        PostedSalesInvoice.OpenView;
+        PostedSalesInvoice.OpenView();
         PostedSalesInvoice.FILTER.SetFilter("No.", SalesInvoiceHeader."No.");
         // [GIVEN] Run "Create Corrective Credit Memo" action
-        PostedSalesInvoice.CreateCreditMemo.Invoke;
+        PostedSalesInvoice.CreateCreditMemo.Invoke();
 
         // [WHEN] Pick 'Skip' action in notification: "Invoice is partially paid. |Show Entries|Skip|Create|"
         ExpectedNotificationMsg := StrSubstNo(InvoicePartiallyPaidMsg, SalesInvoiceHeader."No.");
-        Assert.ExpectedMessage(ExpectedNotificationMsg, LibraryVariableStorage.DequeueText); // from SkipNotificationHandler
-        Assert.AreEqual(SalesInvoiceHeader."No.", LibraryVariableStorage.DequeueText, 'notification No.');
+        Assert.ExpectedMessage(ExpectedNotificationMsg, LibraryVariableStorage.DequeueText()); // from SkipNotificationHandler
+        Assert.AreEqual(SalesInvoiceHeader."No.", LibraryVariableStorage.DequeueText(), 'notification No.');
 
         // [THEN] Notification is recalled
-        Assert.AreEqual(SalesInvoiceHeader."No.", LibraryVariableStorage.DequeueText, 'recall No.'); // from RecallNotificationHandler
+        Assert.AreEqual(SalesInvoiceHeader."No.", LibraryVariableStorage.DequeueText(), 'recall No.'); // from RecallNotificationHandler
         // [THEN] Invoice page is still open
         PostedSalesInvoice.Close();
         // [THEN] Invoice's "Remaining Amount" is 200
         Assert.AreEqual(ExpectedRemAmount, GetSalesInvoiceRemainingAmount(SalesInvoiceHeader), 'Remaining Amount is changed');
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
         NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
@@ -73,32 +73,35 @@ codeunit 135302 "Corr. Credit Memo Notifcation"
         // [FEATURE] [Sales]
         // [SCENARIO] 'Create Anyway' notification action does create corrective credit memo for partially paid invoice from invoice card page.
         Initialize();
+        LibraryERM.SetEnableDataCheck(false);
+
         // [GIVEN] posted Invoice '101033', of amount 300
         PostSalesInvoice(SalesInvoiceHeader);
         // [GIVEN] Invoice is partially applied to Payment of 100
         ApplyPaymentToSalesInvoice(SalesInvoiceHeader, -GetSalesInvoiceRemainingAmount(SalesInvoiceHeader) div 3);
         // [GIVEN] Open "Posted Sales Invoice" page
-        PostedSalesInvoice.OpenView;
+        PostedSalesInvoice.OpenView();
         PostedSalesInvoice.FILTER.SetFilter("No.", SalesInvoiceHeader."No.");
         // [GIVEN] Run "Create Corrective Credit Memo" action
-        SalesCreditMemo.Trap;
-        PostedSalesInvoice.CreateCreditMemo.Invoke;
+        SalesCreditMemo.Trap();
+        PostedSalesInvoice.CreateCreditMemo.Invoke();
 
         // [WHEN] Pick 'Create' action in Notification: "Invoice is partially paid. |Show Entries|Skip|Create|"
         ExpectedNotificationMsg := StrSubstNo(InvoicePartiallyPaidMsg, SalesInvoiceHeader."No.");
-        Assert.ExpectedMessage(ExpectedNotificationMsg, LibraryVariableStorage.DequeueText); // from CreateNotificationHandler
-        Assert.AreEqual(Format(SalesInvoiceHeader."No."), LibraryVariableStorage.DequeueText, 'notification No.');
+        Assert.ExpectedMessage(ExpectedNotificationMsg, LibraryVariableStorage.DequeueText()); // from CreateNotificationHandler
+        Assert.AreEqual(Format(SalesInvoiceHeader."No."), LibraryVariableStorage.DequeueText(), 'notification No.');
 
         // [THEN] Credit memo page is open, where "Applies-to Doc. No." is '101033', the first line contains 'Invoice 101033'
         SalesCreditMemo."Applies-to Doc. No.".AssertEquals(SalesInvoiceHeader."No.");
         Assert.ExpectedMessage(SalesInvoiceHeader."No.", SalesCreditMemo.SalesLines.Description.Value);
         SalesCreditMemo.Close();
         // [THEN] Notification is recalled
-        Assert.AreEqual(SalesInvoiceHeader."No.", LibraryVariableStorage.DequeueText, 'recall No.'); // from RecallNotificationHandler
+        Assert.AreEqual(SalesInvoiceHeader."No.", LibraryVariableStorage.DequeueText(), 'recall No.'); // from RecallNotificationHandler
         // [THEN] Invoice page is open
         PostedSalesInvoice.Close();
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
+        LibraryERM.SetEnableDataCheck(true);
         NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
@@ -122,22 +125,22 @@ codeunit 135302 "Corr. Credit Memo Notifcation"
         PaymentDocNo[2] := ApplyPaymentToSalesInvoice(SalesInvoiceHeader, -GetSalesInvoiceRemainingAmount(SalesInvoiceHeader) div 2);
         Assert.AreNotEqual(PaymentDocNo[1], PaymentDocNo[2], 'Payment document numbers must be different');
         // [GIVEN] Open "Posted Sales Invoices" page
-        PostedSalesInvoices.OpenView;
+        PostedSalesInvoices.OpenView();
         PostedSalesInvoices.FILTER.SetFilter("No.", SalesInvoiceHeader."No.");
         // [GIVEN] Run "Create Corrective Credit Memo" action
-        PostedSalesInvoices.CreateCreditMemo.Invoke;
+        PostedSalesInvoices.CreateCreditMemo.Invoke();
 
         // [WHEN] Pick 'Show Entries' action in notification: "Invoice is closed. |Show Entries|Skip|Create|"
         ExpectedNotificationMsg := StrSubstNo(InvoicePartiallyPaidMsg, SalesInvoiceHeader."No.");
-        Assert.ExpectedMessage(ExpectedNotificationMsg, LibraryVariableStorage.DequeueText);
-        Assert.AreEqual(Format(SalesInvoiceHeader."No."), LibraryVariableStorage.DequeueText, 'notification No.'); // from ShowEntriesNotificationHandler
+        Assert.ExpectedMessage(ExpectedNotificationMsg, LibraryVariableStorage.DequeueText());
+        Assert.AreEqual(Format(SalesInvoiceHeader."No."), LibraryVariableStorage.DequeueText(), 'notification No.'); // from ShowEntriesNotificationHandler
 
         // [THEN] Applied Customer Entries page is open, where are 2 payment entries applied to Invoice '101033'.
-        Assert.ExpectedMessage(SalesInvoiceHeader."No.", LibraryVariableStorage.DequeueText); // from AppliedSalesEntriesModalHandler
-        Assert.AreEqual(PaymentDocNo[1], LibraryVariableStorage.DequeueText, 'payment docNo #1');
-        Assert.AreEqual(PaymentDocNo[2], LibraryVariableStorage.DequeueText, 'payment docNo #2');
+        Assert.ExpectedMessage(SalesInvoiceHeader."No.", LibraryVariableStorage.DequeueText()); // from AppliedSalesEntriesModalHandler
+        Assert.AreEqual(PaymentDocNo[1], LibraryVariableStorage.DequeueText(), 'payment docNo #1');
+        Assert.AreEqual(PaymentDocNo[2], LibraryVariableStorage.DequeueText(), 'payment docNo #2');
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
         NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
@@ -154,21 +157,23 @@ codeunit 135302 "Corr. Credit Memo Notifcation"
         // [FEATURE] [Sales]
         // [SCENARIO] 'Create Anyway' notification action does create corrective credit memo for closed invoice from invoices list page.
         Initialize();
+        LibraryERM.SetEnableDataCheck(false);
+
         // [GIVEN] posted Invoice '101033'
         PostSalesInvoice(SalesInvoiceHeader);
         // [GIVEN] Invoice is closed by Payment
         ApplyPaymentToSalesInvoice(SalesInvoiceHeader, -GetSalesInvoiceRemainingAmount(SalesInvoiceHeader));
         // [GIVEN] Open "Posted Sales Invoices" page
-        PostedSalesInvoices.OpenView;
+        PostedSalesInvoices.OpenView();
         PostedSalesInvoices.FILTER.SetFilter("No.", SalesInvoiceHeader."No.");
         // [GIVEN] Run "Create Corrective Credit Memo" action
-        SalesCreditMemo.Trap;
-        PostedSalesInvoices.CreateCreditMemo.Invoke;
+        SalesCreditMemo.Trap();
+        PostedSalesInvoices.CreateCreditMemo.Invoke();
 
         // [WHEN] Pick 'Create' action in notification: "Invoice is closed. |Show Entries|Skip|Create|"
         ExpectedNotificationMsg := StrSubstNo(InvoiceClosedMsg, SalesInvoiceHeader."No.");
-        Assert.ExpectedMessage(ExpectedNotificationMsg, LibraryVariableStorage.DequeueText); // from CreateNotificationHandler
-        Assert.AreEqual(Format(SalesInvoiceHeader."No."), LibraryVariableStorage.DequeueText, 'notification No.');
+        Assert.ExpectedMessage(ExpectedNotificationMsg, LibraryVariableStorage.DequeueText()); // from CreateNotificationHandler
+        Assert.AreEqual(Format(SalesInvoiceHeader."No."), LibraryVariableStorage.DequeueText(), 'notification No.');
 
         // [THEN] Credit memo page is open, where "Applies-to Doc. No." is <blank>, the first line contains 'Invoice 101033'
         SalesCreditMemo."Applies-to Doc. No.".AssertEquals('');
@@ -177,11 +182,12 @@ codeunit 135302 "Corr. Credit Memo Notifcation"
         // [THEN] Invoice's "Remaining Amount" is 0
         Assert.AreEqual(0, GetSalesInvoiceRemainingAmount(SalesInvoiceHeader), 'Remaining Amount is changed');
         // [THEN] Notification is recalled
-        Assert.AreEqual(SalesInvoiceHeader."No.", LibraryVariableStorage.DequeueText, 'recall No.'); // from RecallNotificationHandler
+        Assert.AreEqual(SalesInvoiceHeader."No.", LibraryVariableStorage.DequeueText(), 'recall No.'); // from RecallNotificationHandler
         // [THEN] Invoices list page is open
         PostedSalesInvoices.Close();
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
+        LibraryERM.SetEnableDataCheck(true);
         NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
@@ -204,24 +210,24 @@ codeunit 135302 "Corr. Credit Memo Notifcation"
         ApplyPaymentToPurchInvoice(PurchInvHeader, GetPurchInvoiceRemainingAmount(PurchInvHeader) div 3);
         ExpectedRemAmount := GetPurchInvoiceRemainingAmount(PurchInvHeader);
         // [GIVEN] Open "Posted Purchase Invoice" page
-        PostedPurchaseInvoice.OpenView;
+        PostedPurchaseInvoice.OpenView();
         PostedPurchaseInvoice.FILTER.SetFilter("No.", PurchInvHeader."No.");
         // [GIVEN] Run "Create Corrective Credit Memo" action
-        PostedPurchaseInvoice.CreateCreditMemo.Invoke;
+        PostedPurchaseInvoice.CreateCreditMemo.Invoke();
 
         // [WHEN] Pick 'Skip' action in notification: "Invoice is partially paid. |Show Entries|Skip|Create|"
         ExpectedNotificationMsg := StrSubstNo(InvoicePartiallyPaidMsg, PurchInvHeader."No.");
-        Assert.ExpectedMessage(ExpectedNotificationMsg, LibraryVariableStorage.DequeueText); // from SkipNotificationHandler
-        Assert.AreEqual(PurchInvHeader."No.", LibraryVariableStorage.DequeueText, 'notification No.');
+        Assert.ExpectedMessage(ExpectedNotificationMsg, LibraryVariableStorage.DequeueText()); // from SkipNotificationHandler
+        Assert.AreEqual(PurchInvHeader."No.", LibraryVariableStorage.DequeueText(), 'notification No.');
 
         // [THEN] Notification is recalled
-        Assert.AreEqual(PurchInvHeader."No.", LibraryVariableStorage.DequeueText, 'recall No.'); // from RecallNotificationHandler
+        Assert.AreEqual(PurchInvHeader."No.", LibraryVariableStorage.DequeueText(), 'recall No.'); // from RecallNotificationHandler
         // [THEN] Invoice page is still open
         PostedPurchaseInvoice.Close();
         // [THEN] Invoice's "Remaining Amount" is 200
         Assert.AreEqual(ExpectedRemAmount, GetPurchInvoiceRemainingAmount(PurchInvHeader), 'Remaining Amount is changed');
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
         NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
@@ -243,27 +249,27 @@ codeunit 135302 "Corr. Credit Memo Notifcation"
         // [GIVEN] Invoice is partially applied to Payment of 100
         ApplyPaymentToPurchInvoice(PurchInvHeader, GetPurchInvoiceRemainingAmount(PurchInvHeader) div 3);
         // [GIVEN] Open "Posted Purchase Invoice" page
-        PostedPurchaseInvoice.OpenView;
+        PostedPurchaseInvoice.OpenView();
         PostedPurchaseInvoice.FILTER.SetFilter("No.", PurchInvHeader."No.");
         // [GIVEN] Run "Create Corrective Credit Memo" action
-        PurchaseCreditMemo.Trap;
-        PostedPurchaseInvoice.CreateCreditMemo.Invoke;
+        PurchaseCreditMemo.Trap();
+        PostedPurchaseInvoice.CreateCreditMemo.Invoke();
 
         // [WHEN] Pick 'Create' action in Notification: "Invoice is partially paid. |Show Entries|Skip|Create|"
         ExpectedNotificationMsg := StrSubstNo(InvoicePartiallyPaidMsg, PurchInvHeader."No.");
-        Assert.ExpectedMessage(ExpectedNotificationMsg, LibraryVariableStorage.DequeueText); // from CreateNotificationHandler
-        Assert.AreEqual(Format(PurchInvHeader."No."), LibraryVariableStorage.DequeueText, 'notification No.');
+        Assert.ExpectedMessage(ExpectedNotificationMsg, LibraryVariableStorage.DequeueText()); // from CreateNotificationHandler
+        Assert.AreEqual(Format(PurchInvHeader."No."), LibraryVariableStorage.DequeueText(), 'notification No.');
 
         // [THEN] Credit memo page is open, where "Applies-to Doc. No." is '101033', the first line contains 'Invoice 101033'
         PurchaseCreditMemo."Applies-to Doc. No.".AssertEquals(PurchInvHeader."No.");
         Assert.ExpectedMessage(PurchInvHeader."No.", PurchaseCreditMemo.PurchLines.Description.Value);
         PurchaseCreditMemo.Close();
         // [THEN] Notification is recalled
-        Assert.AreEqual(PurchInvHeader."No.", LibraryVariableStorage.DequeueText, 'recall No.'); // from RecallNotificationHandler
+        Assert.AreEqual(PurchInvHeader."No.", LibraryVariableStorage.DequeueText(), 'recall No.'); // from RecallNotificationHandler
         // [THEN] Invoice page is open
         PostedPurchaseInvoice.Close();
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
         NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
@@ -287,22 +293,22 @@ codeunit 135302 "Corr. Credit Memo Notifcation"
         PaymentDocNo[2] := ApplyPaymentToPurchInvoice(PurchInvHeader, GetPurchInvoiceRemainingAmount(PurchInvHeader) div 2);
         Assert.AreNotEqual(PaymentDocNo[1], PaymentDocNo[2], 'Payment document numbers must be different');
         // [GIVEN] Open "Posted Purchase Invoices" page
-        PostedPurchaseInvoices.OpenView;
+        PostedPurchaseInvoices.OpenView();
         PostedPurchaseInvoices.FILTER.SetFilter("No.", PurchInvHeader."No.");
         // [GIVEN] Run "Create Corrective Credit Memo" action
-        PostedPurchaseInvoices.CreateCreditMemo.Invoke;
+        PostedPurchaseInvoices.CreateCreditMemo.Invoke();
 
         // [WHEN] Pick 'Show Entries' action in notification: "Invoice is closed. |Show Entries|Skip|Create|"
         ExpectedNotificationMsg := StrSubstNo(InvoicePartiallyPaidMsg, PurchInvHeader."No.");
-        Assert.ExpectedMessage(ExpectedNotificationMsg, LibraryVariableStorage.DequeueText);
-        Assert.AreEqual(Format(PurchInvHeader."No."), LibraryVariableStorage.DequeueText, 'notification No.'); // from ShowEntriesNotificationHandler
+        Assert.ExpectedMessage(ExpectedNotificationMsg, LibraryVariableStorage.DequeueText());
+        Assert.AreEqual(Format(PurchInvHeader."No."), LibraryVariableStorage.DequeueText(), 'notification No.'); // from ShowEntriesNotificationHandler
 
         // [THEN] Applied Customer Entries page is open, where are 2 payment entries applied to Invoice '101033'.
-        Assert.ExpectedMessage(PurchInvHeader."No.", LibraryVariableStorage.DequeueText); // from AppliedPurchEntriesModalHandler
-        Assert.AreEqual(PaymentDocNo[1], LibraryVariableStorage.DequeueText, 'payment docNo #1');
-        Assert.AreEqual(PaymentDocNo[2], LibraryVariableStorage.DequeueText, 'payment docNo #2');
+        Assert.ExpectedMessage(PurchInvHeader."No.", LibraryVariableStorage.DequeueText()); // from AppliedPurchEntriesModalHandler
+        Assert.AreEqual(PaymentDocNo[1], LibraryVariableStorage.DequeueText(), 'payment docNo #1');
+        Assert.AreEqual(PaymentDocNo[2], LibraryVariableStorage.DequeueText(), 'payment docNo #2');
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
         NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
@@ -324,16 +330,16 @@ codeunit 135302 "Corr. Credit Memo Notifcation"
         // [GIVEN] Invoice is closed by Payment
         ApplyPaymentToPurchInvoice(PurchInvHeader, GetPurchInvoiceRemainingAmount(PurchInvHeader));
         // [GIVEN] Open "Posted Purchase Invoices" page
-        PostedPurchaseInvoices.OpenView;
+        PostedPurchaseInvoices.OpenView();
         PostedPurchaseInvoices.FILTER.SetFilter("No.", PurchInvHeader."No.");
         // [GIVEN] Run "Create Corrective Credit Memo" action
-        PurchaseCreditMemo.Trap;
-        PostedPurchaseInvoices.CreateCreditMemo.Invoke;
+        PurchaseCreditMemo.Trap();
+        PostedPurchaseInvoices.CreateCreditMemo.Invoke();
 
         // [WHEN] Pick 'Create' action in notification: "Invoice is closed. |Show Entries|Skip|Create|"
         ExpectedNotificationMsg := StrSubstNo(InvoiceClosedMsg, PurchInvHeader."No.");
-        Assert.ExpectedMessage(ExpectedNotificationMsg, LibraryVariableStorage.DequeueText); // from CreateNotificationHandler
-        Assert.AreEqual(Format(PurchInvHeader."No."), LibraryVariableStorage.DequeueText, 'notification No.');
+        Assert.ExpectedMessage(ExpectedNotificationMsg, LibraryVariableStorage.DequeueText()); // from CreateNotificationHandler
+        Assert.AreEqual(Format(PurchInvHeader."No."), LibraryVariableStorage.DequeueText(), 'notification No.');
 
         // [THEN] Credit memo page is open, where "Applies-to Doc. No." is <blank>, the first line contains 'Invoice 101033'
         PurchaseCreditMemo."Applies-to Doc. No.".AssertEquals('');
@@ -342,11 +348,11 @@ codeunit 135302 "Corr. Credit Memo Notifcation"
         // [THEN] Invoice's "Remaining Amount" is 0
         Assert.AreEqual(0, GetPurchInvoiceRemainingAmount(PurchInvHeader), 'Remaining Amount is changed');
         // [THEN] Notification is recalled
-        Assert.AreEqual(PurchInvHeader."No.", LibraryVariableStorage.DequeueText, 'recall No.'); // from RecallNotificationHandler
+        Assert.AreEqual(PurchInvHeader."No.", LibraryVariableStorage.DequeueText(), 'recall No.'); // from RecallNotificationHandler
         // [THEN] Invoices list page is open
         PostedPurchaseInvoices.Close();
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
         NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
@@ -357,16 +363,16 @@ codeunit 135302 "Corr. Credit Memo Notifcation"
     var
         SalesInvoiceHeader: Record "Sales Invoice Header";
         SalesHeader: Record "Sales Header";
-        SalesLine: Record "Sales Line";
         ReasonCode: Record "Reason Code";
+        CorrectPostedSalesInvoice: Codeunit "Correct Posted Sales Invoice";
         PostedSalesInvoice: TestPage "Posted Sales Invoice";
         SalesCreditMemo: TestPage "Sales Credit Memo";
-        CorrectPostedSalesInvoice: Codeunit "Correct Posted Sales Invoice";
         ExpectedNotificationMsg: Text;
     begin
         // [FEATURE] [Sales]
         // [SCENARIO 364099] When invoice already has a corrective credit memo for partial quantity creating a second corrective credit memo for remaining quantity is possible
         Initialize();
+        LibraryERM.SetEnableDataCheck(false);
 
         // [GIVEN] posted Invoice '101033', with quantity = 10
         LibrarySales.CreateSalesInvoice(SalesHeader);
@@ -399,8 +405,8 @@ codeunit 135302 "Corr. Credit Memo Notifcation"
 
         // [WHEN] Pick 'Create' action in Notification: "Invoice is partially paid or credited. |Show Entries|Skip|Create|"
         ExpectedNotificationMsg := StrSubstNo(InvoicePartiallyPaidMsg, SalesInvoiceHeader."No.");
-        Assert.ExpectedMessage(ExpectedNotificationMsg, LibraryVariableStorage.DequeueText); // from CreateNotificationHandler
-        Assert.AreEqual(Format(SalesInvoiceHeader."No."), LibraryVariableStorage.DequeueText, 'notification No.');
+        Assert.ExpectedMessage(ExpectedNotificationMsg, LibraryVariableStorage.DequeueText()); // from CreateNotificationHandler
+        Assert.AreEqual(Format(SalesInvoiceHeader."No."), LibraryVariableStorage.DequeueText(), 'notification No.');
 
         // [THEN] Credit Memo is created. Credit memo page is open, where "Applies-to Doc. No." is '101033'
         SalesCreditMemo."Applies-to Doc. No.".AssertEquals(SalesInvoiceHeader."No.");
@@ -410,11 +416,12 @@ codeunit 135302 "Corr. Credit Memo Notifcation"
         SalesCreditMemo.Close();
 
         // [THEN] Notification is recalled
-        Assert.AreEqual(SalesInvoiceHeader."No.", LibraryVariableStorage.DequeueText, 'recall No.'); // from RecallNotificationHandler
+        Assert.AreEqual(SalesInvoiceHeader."No.", LibraryVariableStorage.DequeueText(), 'recall No.'); // from RecallNotificationHandler
 
         // Clean-up open pages and notifications
         PostedSalesInvoice.Close();
         LibraryVariableStorage.AssertEmpty();
+        LibraryERM.SetEnableDataCheck(true);
         NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
@@ -435,7 +442,7 @@ codeunit 135302 "Corr. Credit Memo Notifcation"
         LibraryERM.CreateGenJournalBatch(GenJournalBatch, GenJournalTemplate.Name);
         LibraryERM.CreateGeneralJnlLineWithBalAcc(
           GenJournalLine, GenJournalTemplate.Name, GenJournalBatch.Name, GenJournalLine."Document Type"::Payment,
-          AccountType, AccountNo, GenJournalLine."Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo, PaymentAmount);
+          AccountType, AccountNo, GenJournalLine."Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo(), PaymentAmount);
         GenJournalLine."Applies-to Doc. Type" := GenJournalLine."Applies-to Doc. Type"::Invoice;
         GenJournalLine.Validate("Applies-to Doc. No.", InvoiceNo);
         GenJournalLine.Modify();
@@ -447,16 +454,14 @@ codeunit 135302 "Corr. Credit Memo Notifcation"
     var
         GenJournalLine: Record "Gen. Journal Line";
     begin
-        with PurchInvHeader do
-            exit(ApplyPaymentToInvoice("No.", GenJournalLine."Account Type"::Vendor, "Buy-from Vendor No.", PaymentAmount));
+        exit(ApplyPaymentToInvoice(PurchInvHeader."No.", GenJournalLine."Account Type"::Vendor, PurchInvHeader."Buy-from Vendor No.", PaymentAmount));
     end;
 
     local procedure ApplyPaymentToSalesInvoice(SalesInvoiceHeader: Record "Sales Invoice Header"; PaymentAmount: Decimal): Code[20]
     var
         GenJournalLine: Record "Gen. Journal Line";
     begin
-        with SalesInvoiceHeader do
-            exit(ApplyPaymentToInvoice("No.", GenJournalLine."Account Type"::Customer, "Sell-to Customer No.", PaymentAmount));
+        exit(ApplyPaymentToInvoice(SalesInvoiceHeader."No.", GenJournalLine."Account Type"::Customer, SalesInvoiceHeader."Sell-to Customer No.", PaymentAmount));
     end;
 
     local procedure GetPurchInvoiceRemainingAmount(var PurchInvHeader: Record "Purch. Inv. Header"): Decimal
@@ -505,11 +510,11 @@ codeunit 135302 "Corr. Credit Memo Notifcation"
     begin
         // Expecting 2 applied entries
         LibraryVariableStorage.Enqueue(AppliedVendorEntries.Caption);
-        Assert.IsTrue(AppliedVendorEntries.First, 'no applied entries found');
+        Assert.IsTrue(AppliedVendorEntries.First(), 'no applied entries found');
         LibraryVariableStorage.Enqueue(AppliedVendorEntries."Document No.".Value);
-        Assert.IsTrue(AppliedVendorEntries.Next, 'less that 2 applied entries found');
+        Assert.IsTrue(AppliedVendorEntries.Next(), 'less that 2 applied entries found');
         LibraryVariableStorage.Enqueue(AppliedVendorEntries."Document No.".Value);
-        Assert.IsFalse(AppliedVendorEntries.Next, 'more that 2 applied entries found');
+        Assert.IsFalse(AppliedVendorEntries.Next(), 'more that 2 applied entries found');
     end;
 
     [ModalPageHandler]
@@ -518,11 +523,11 @@ codeunit 135302 "Corr. Credit Memo Notifcation"
     begin
         // Expecting 2 applied entries
         LibraryVariableStorage.Enqueue(AppliedCustomerEntries.Caption);
-        Assert.IsTrue(AppliedCustomerEntries.First, 'no applied entries found');
+        Assert.IsTrue(AppliedCustomerEntries.First(), 'no applied entries found');
         LibraryVariableStorage.Enqueue(AppliedCustomerEntries."Document No.".Value);
-        Assert.IsTrue(AppliedCustomerEntries.Next, 'less that 2 applied entries found');
+        Assert.IsTrue(AppliedCustomerEntries.Next(), 'less that 2 applied entries found');
         LibraryVariableStorage.Enqueue(AppliedCustomerEntries."Document No.".Value);
-        Assert.IsFalse(AppliedCustomerEntries.Next, 'more that 2 applied entries found');
+        Assert.IsFalse(AppliedCustomerEntries.Next(), 'more that 2 applied entries found');
     end;
 
     [SendNotificationHandler]

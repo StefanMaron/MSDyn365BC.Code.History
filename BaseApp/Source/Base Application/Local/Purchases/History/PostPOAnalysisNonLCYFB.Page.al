@@ -9,7 +9,7 @@ using Microsoft.Finance.ReceivablesPayables;
 page 35300 "Post. PO Analysis Non LCY FB"
 {
     Caption = 'Post. PO Analysis Non LCY FB';
-    DataCaptionExpression = Caption();
+    DataCaptionExpression = Rec.Caption();
     DeleteAllowed = false;
     InsertAllowed = false;
     ModifyAllowed = false;
@@ -136,41 +136,39 @@ page 35300 "Post. PO Analysis Non LCY FB"
 
     local procedure UpdateStatistics()
     begin
-        with PostedDoc do begin
-            SetCurrentKey("Bill Gr./Pmt. Order No.", Status, "Category Code", Redrawn, "Due Date");
-            SetRange(Type, Type::Payable);
-            SetRange("Bill Gr./Pmt. Order No.", Rec."No.");
-            Rec.CopyFilter("Due Date Filter", "Due Date");
-            Rec.CopyFilter("Global Dimension 1 Filter", "Global Dimension 1 Code");
-            Rec.CopyFilter("Global Dimension 2 Filter", "Global Dimension 2 Code");
-            Rec.CopyFilter("Category Filter", "Category Code");
+        PostedDoc.SetCurrentKey("Bill Gr./Pmt. Order No.", Status, "Category Code", Redrawn, "Due Date");
+        PostedDoc.SetRange(Type, PostedDoc.Type::Payable);
+        PostedDoc.SetRange("Bill Gr./Pmt. Order No.", Rec."No.");
+        Rec.CopyFilter("Due Date Filter", PostedDoc."Due Date");
+        Rec.CopyFilter("Global Dimension 1 Filter", PostedDoc."Global Dimension 1 Code");
+        Rec.CopyFilter("Global Dimension 2 Filter", PostedDoc."Global Dimension 2 Code");
+        Rec.CopyFilter("Category Filter", PostedDoc."Category Code");
 
-            SetRange(Status, Status::Open);
-            CalcSums("Amount for Collection", "Amt. for Collection (LCY)");
-            OpenAmt := "Amount for Collection";
-            OpenAmtLCY := "Amt. for Collection (LCY)";
-            NoOpen := Count;
+        PostedDoc.SetRange(Status, PostedDoc.Status::Open);
+        PostedDoc.CalcSums("Amount for Collection", "Amt. for Collection (LCY)");
+        OpenAmt := PostedDoc."Amount for Collection";
+        OpenAmtLCY := PostedDoc."Amt. for Collection (LCY)";
+        NoOpen := PostedDoc.Count;
 
-            SetRange(Status);
-            SetRange(Redrawn, true);
-            CalcSums("Amount for Collection", "Amt. for Collection (LCY)");
-            RedrawnAmt := "Amount for Collection";
-            RedrawnAmtLCY := "Amt. for Collection (LCY)";
-            NoRedrawn := Count;
-            SetRange(Redrawn);
+        PostedDoc.SetRange(Status);
+        PostedDoc.SetRange(Redrawn, true);
+        PostedDoc.CalcSums("Amount for Collection", "Amt. for Collection (LCY)");
+        RedrawnAmt := PostedDoc."Amount for Collection";
+        RedrawnAmtLCY := PostedDoc."Amt. for Collection (LCY)";
+        NoRedrawn := PostedDoc.Count;
+        PostedDoc.SetRange(Redrawn);
 
-            SetRange(Status, Status::Honored);
-            CalcSums("Amount for Collection", "Amt. for Collection (LCY)");
-            HonoredAmt := "Amount for Collection" - RedrawnAmt;
-            HonoredAmtLCY := "Amt. for Collection (LCY)" - RedrawnAmtLCY;
-            NoHonored := Count - NoRedrawn;
+        PostedDoc.SetRange(Status, PostedDoc.Status::Honored);
+        PostedDoc.CalcSums("Amount for Collection", "Amt. for Collection (LCY)");
+        HonoredAmt := PostedDoc."Amount for Collection" - RedrawnAmt;
+        HonoredAmtLCY := PostedDoc."Amt. for Collection (LCY)" - RedrawnAmtLCY;
+        NoHonored := PostedDoc.Count - NoRedrawn;
 
-            SetRange(Status, Status::Rejected);
-            CalcSums("Amount for Collection", "Amt. for Collection (LCY)");
-            RejectedAmt := "Amount for Collection";
-            RejectedAmtLCY := "Amt. for Collection (LCY)";
-            NoRejected := Count;
-        end;
+        PostedDoc.SetRange(Status, PostedDoc.Status::Rejected);
+        PostedDoc.CalcSums("Amount for Collection", "Amt. for Collection (LCY)");
+        RejectedAmt := PostedDoc."Amount for Collection";
+        RejectedAmtLCY := PostedDoc."Amt. for Collection (LCY)";
+        NoRejected := PostedDoc.Count;
     end;
 }
 

@@ -15,6 +15,7 @@ table 7000006 "Posted Bill Group"
     Caption = 'Posted Bill Group';
     DrillDownPageID = "Posted Bill Groups List";
     LookupPageID = "Posted Bill Groups List";
+    DataClassification = CustomerContent;
 
     fields
     {

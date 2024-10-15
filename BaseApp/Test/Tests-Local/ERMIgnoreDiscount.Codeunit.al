@@ -60,13 +60,13 @@ codeunit 144053 "ERM Ignore Discount"
         // Setup: Create Sales Invoice with Customer Invoice Discount. Open Sales Invoice page.
         OldCalcInvDiscount := UpdateCalcInvDiscountOnSalesReceivablesSetup(true);  // True used for Calculate Invoice Discount.
         CreateSalesInvoice(SalesLine, IgnoreDiscounts, CustInvDiscountPct);
-        SalesInvoice.OpenEdit;
+        SalesInvoice.OpenEdit();
         SalesInvoice.FILTER.SetFilter("No.", SalesLine."Document No.");
         EnqueueValuesForModalPageHandler(
           SalesLine.Amount, SalesLine.Amount * DiscountPct / 100, SalesLine.Amount - SalesLine.Amount * DiscountPct / 100);  // Enqueue values for SalesStatisticsModalPageHandler.
 
         // Exercise.
-        SalesInvoice.Statistics.Invoke;  // Opens SalesStatisticsModalPageHandler.
+        SalesInvoice.Statistics.Invoke();  // Opens SalesStatisticsModalPageHandler.
 
         // Verify: Verification is done in SalesStatisticsModalPageHandler.
 
@@ -107,14 +107,14 @@ codeunit 144053 "ERM Ignore Discount"
         // Setup: Create Purchase Invoice with Vendor Invoice Discount. Open Purchase Invoice page.
         OldCalcInvDiscount := UpdateCalcInvDiscountOnPurchasesPayablesSetup(true);  // True used for Calculate Invoice Discount.
         CreatePurchaseInvoice(PurchaseLine, IgnoreDiscounts, VendInvDiscountPct);
-        PurchaseInvoice.OpenEdit;
+        PurchaseInvoice.OpenEdit();
         PurchaseInvoice.FILTER.SetFilter("No.", PurchaseLine."Document No.");
         EnqueueValuesForModalPageHandler(
           PurchaseLine.Amount, PurchaseLine.Amount * DiscountPct / 100,
           PurchaseLine.Amount - PurchaseLine.Amount * DiscountPct / 100);  // Enqueue values for PurchaseStatisticsModalPageHandler.
 
         // Exercise.
-        PurchaseInvoice.Statistics.Invoke;  // Opens PurchaseStatisticsModalPageHandler.
+        PurchaseInvoice.Statistics.Invoke();  // Opens PurchaseStatisticsModalPageHandler.
 
         // Verify: Verification is done in PurchaseStatisticsModalPageHandler.
 

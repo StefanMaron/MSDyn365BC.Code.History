@@ -572,11 +572,11 @@ codeunit 137013 "SCM Costing Sales Returns-II"
         // [GIVEN] Ship item on the WORKDATE
         CreateSalesOrderPostShipment(SalesHeader, Customer."No.", WorkDate(), Item."No.", Quantity * 2);
 
-        // [GIVEN] Ship and return item on the WORKDATE + 1D, so that the inbount entry is applied to the first outbound posted on the previous day
+        // [GIVEN] Ship and return item on the WorkDate() + 1D, so that the inbount entry is applied to the first outbound posted on the previous day
         CreateSalesOrderPostShipment(SalesHeader, Customer."No.", CalcDate('<1D>', WorkDate()), Item."No.", Quantity);
         UndoSalesShipmentLine(SalesHeader."No.");
 
-        // [GIVEN] Ship item on the WORKDATE + 2 days
+        // [GIVEN] Ship item on the WorkDate() + 2 days
         CreateSalesOrderPostShipment(SalesHeader, Customer."No.", CalcDate('<2D>', WorkDate()), Item."No.", Quantity * 2);
 
         // [WHEN] Run Adjust Cost - Item Entries batch job
@@ -656,7 +656,7 @@ codeunit 137013 "SCM Costing Sales Returns-II"
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"SCM Costing Sales Returns-II");
-        ExecuteConfirmHandler;
+        ExecuteConfirmHandler();
 
         // Lazy Setup.
         if isInitialized then
@@ -678,7 +678,7 @@ codeunit 137013 "SCM Costing Sales Returns-II"
     var
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
     begin
-        LibrarySales.SetCreditWarningsToNoWarnings;
+        LibrarySales.SetCreditWarningsToNoWarnings();
         LibrarySales.SetStockoutWarning(false);
         SalesReceivablesSetup.Get();
         SalesReceivablesSetup.Validate("Exact Cost Reversing Mandatory", ExactCostReversingMandatory);
@@ -1105,7 +1105,7 @@ codeunit 137013 "SCM Costing Sales Returns-II"
             repeat
                 CalcFields("Cost Amount (Actual)");
                 Assert.AreEqual(Item."Unit Cost" * Quantity, "Cost Amount (Actual)", ItemLedgCostAmountErr);
-            until Next = 0;
+            until Next() = 0;
         end;
     end;
 

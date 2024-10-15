@@ -164,6 +164,20 @@ page 9314 "Warehouse Movements"
                     WhseActPrint.PrintMovementHeader(Rec);
                 end;
             }
+            action("Assign to me")
+            {
+                ApplicationArea = Warehouse;
+                Caption = 'Assign to me';
+                Image = User;
+                Gesture = LeftSwipe;
+                ToolTip = 'Assigns this movement document to the current user.';
+
+                trigger OnAction()
+                begin
+                    Rec.AssignToCurrentUser();
+                    CurrPage.Update();
+                end;
+            }
         }
         area(Promoted)
         {
@@ -175,6 +189,9 @@ page 9314 "Warehouse Movements"
                 {
                 }
                 actionref("Print_Promoted"; "Print")
+                {
+                }
+                actionref("Assign to me_Promoted"; "Assign to me")
                 {
                 }
             }

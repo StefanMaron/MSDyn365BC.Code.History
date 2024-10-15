@@ -10,6 +10,7 @@ using Microsoft.Foundation.NoSeries;
 table 7000016 "Cartera Setup"
 {
     Caption = 'Cartera Setup';
+    DataClassification = CustomerContent;
 
     fields
     {

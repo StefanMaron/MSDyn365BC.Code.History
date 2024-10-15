@@ -102,28 +102,28 @@ codeunit 147553 "SII Batch Submission"
         with SIIDocUploadState do begin
             Init();
             Insert();
-            Assert.IsFalse(IsCreditMemoRemoval, '');
+            Assert.IsFalse(IsCreditMemoRemoval(), '');
 
             "Document Source" := "Document Source"::"Customer Ledger";
             "Document Type" := "Document Type"::"Credit Memo";
             "Entry No" := LibrarySII.MockCLE(LibrarySII.MockSalesCrMemo(SalesCrMemoHeader."Correction Type"::Removal));
-            Assert.IsTrue(IsCreditMemoRemoval, '');
+            Assert.IsTrue(IsCreditMemoRemoval(), '');
 
             "Entry No" := LibrarySII.MockCLE(LibrarySII.MockSalesCrMemo(SalesCrMemoHeader."Correction Type"::" "));
-            Assert.IsFalse(IsCreditMemoRemoval, '');
+            Assert.IsFalse(IsCreditMemoRemoval(), '');
 
             "Entry No" := LibrarySII.MockCLE(LibrarySII.MockServiceCrMemo(ServiceCrMemoHeader."Correction Type"::Removal));
-            Assert.IsTrue(IsCreditMemoRemoval, '');
+            Assert.IsTrue(IsCreditMemoRemoval(), '');
 
             "Entry No" := LibrarySII.MockCLE(LibrarySII.MockServiceCrMemo(ServiceCrMemoHeader."Correction Type"::" "));
-            Assert.IsFalse(IsCreditMemoRemoval, '');
+            Assert.IsFalse(IsCreditMemoRemoval(), '');
 
             "Document Source" := "Document Source"::"Vendor Ledger";
             "Entry No" := LibrarySII.MockVLE(LibrarySII.MockPurchaseCrMemo(PurchCrMemoHdr."Correction Type"::Removal));
-            Assert.IsTrue(IsCreditMemoRemoval, '');
+            Assert.IsTrue(IsCreditMemoRemoval(), '');
 
             "Entry No" := LibrarySII.MockVLE(LibrarySII.MockPurchaseCrMemo(PurchCrMemoHdr."Correction Type"::" "));
-            Assert.IsFalse(IsCreditMemoRemoval, '');
+            Assert.IsFalse(IsCreditMemoRemoval(), '');
         end;
     end;
 
@@ -178,26 +178,26 @@ codeunit 147553 "SII Batch Submission"
 
         // All "Retry" actions are disabled in case of SIISetup.Enabled = FALSE
         LibrarySII.InitSetup(false, false);
-        SIIHistory.OpenEdit;
-        Assert.IsFalse(SIIHistory.Retry.Enabled, '');
-        Assert.IsFalse(SIIHistory."Retry All".Enabled, '');
-        Assert.IsFalse(SIIHistory."Retry Accepted".Enabled, '');
+        SIIHistory.OpenEdit();
+        Assert.IsFalse(SIIHistory.Retry.Enabled(), '');
+        Assert.IsFalse(SIIHistory."Retry All".Enabled(), '');
+        Assert.IsFalse(SIIHistory."Retry Accepted".Enabled(), '');
         SIIHistory.Close();
 
         // "Retry", "Retry Accepted" actions are enabled, "Retry All" is disabled in case of SIISetup.Enabled = TRUE, SIISetup."Enable Batch Submissions" = FALSE
         LibrarySII.InitSetup(true, false);
-        SIIHistory.OpenEdit;
-        Assert.IsTrue(SIIHistory.Retry.Enabled, '');
-        Assert.IsFalse(SIIHistory."Retry All".Enabled, '');
-        Assert.IsTrue(SIIHistory."Retry Accepted".Enabled, '');
+        SIIHistory.OpenEdit();
+        Assert.IsTrue(SIIHistory.Retry.Enabled(), '');
+        Assert.IsFalse(SIIHistory."Retry All".Enabled(), '');
+        Assert.IsTrue(SIIHistory."Retry Accepted".Enabled(), '');
         SIIHistory.Close();
 
         // All "Retry" actions are enabled in case of SIISetup.Enabled = TRUE, SIISetup."Enable Batch Submissions" = TRUE
         LibrarySII.InitSetup(true, true);
-        SIIHistory.OpenEdit;
-        Assert.IsTrue(SIIHistory.Retry.Enabled, '');
-        Assert.IsTrue(SIIHistory."Retry All".Enabled, '');
-        Assert.IsTrue(SIIHistory."Retry Accepted".Enabled, '');
+        SIIHistory.OpenEdit();
+        Assert.IsTrue(SIIHistory.Retry.Enabled(), '');
+        Assert.IsTrue(SIIHistory."Retry All".Enabled(), '');
+        Assert.IsTrue(SIIHistory."Retry Accepted".Enabled(), '');
         SIIHistory.Close();
     end;
 
@@ -213,12 +213,12 @@ codeunit 147553 "SII Batch Submission"
         Initialize();
         LibrarySII.InitSetup(true, false);
 
-        SIIHistory.OpenEdit;
+        SIIHistory.OpenEdit();
         LibraryVariableStorage.Enqueue(false);
-        SIIHistory."Retry Accepted".Invoke;
+        SIIHistory."Retry Accepted".Invoke();
         SIIHistory.Close();
 
-        Assert.AreEqual(RetryAcceptedQst, LibraryVariableStorage.DequeueText, '');
+        Assert.AreEqual(RetryAcceptedQst, LibraryVariableStorage.DequeueText(), '');
     end;
 
     [Test]
@@ -500,7 +500,7 @@ codeunit 147553 "SII Batch Submission"
         end;
 
         // [WHEN] Upload pending documents (SIISetup."Enable Batch Submissions" := TRUE)
-        SIIDocUploadManagement.UploadPendingDocuments;
+        SIIDocUploadManagement.UploadPendingDocuments();
 
         // [THEN] Documents with the same Source\Type are combined into one session. Different - are splitted into different session.
         SessionId[1] :=
@@ -537,7 +537,7 @@ codeunit 147553 "SII Batch Submission"
         SalesInvoiceDocNo[2] := CreatePostSalesDoc(CustLedgerEntry, "Sales Document Type"::Invoice, false);
 
         // [WHEN] Upload pending documents (SIISetup."Enable Batch Submissions" := FALSE)
-        SIIDocUploadManagement.UploadPendingDocuments;
+        SIIDocUploadManagement.UploadPendingDocuments();
 
         // [THEN] Documents with the same Source\Type are are splitted per different session
         SessionId[1] := GetHistorySessionId(DocumentSourceGlb::"Customer Ledger", SIIDocumentTypeGlb::Invoice, SalesInvoiceDocNo[1]);
@@ -554,7 +554,7 @@ codeunit 147553 "SII Batch Submission"
         IsInitialized := true;
 
         LibrarySII.InitSetup(true, false);
-        LibrarySII.BindSubscriptionJobQueue;
+        LibrarySII.BindSubscriptionJobQueue();
     end;
 
     local procedure CreatePostSalesDoc(var CustLedgerEntry: Record "Cust. Ledger Entry"; DocumentType: Enum "Sales Document Type"; IsCrMemoRemoval: Boolean): Code[20]
@@ -567,7 +567,7 @@ codeunit 147553 "SII Batch Submission"
             SalesHeader."Correction Type" := SalesHeader."Correction Type"::Removal;
             SalesHeader.Modify();
         end;
-        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithSalesSetup, 1);
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithSalesSetup(), 1);
         CustLedgerEntry.SetRange("Document No.", LibrarySales.PostSalesDocument(SalesHeader, true, true));
         CustLedgerEntry.FindFirst();
         exit(CustLedgerEntry."Document No.");
@@ -584,7 +584,7 @@ codeunit 147553 "SII Batch Submission"
             PurchaseHeader.Modify();
         end;
         LibraryPurchase.CreatePurchaseLine(
-          PurchaseLine, PurchaseHeader, PurchaseLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithPurchSetup, 1);
+          PurchaseLine, PurchaseHeader, PurchaseLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithPurchSetup(), 1);
         VendorLedgerEntry.SetRange("Document No.", LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true));
         VendorLedgerEntry.FindFirst();
         exit(VendorLedgerEntry."Document No.");
@@ -659,7 +659,7 @@ codeunit 147553 "SII Batch Submission"
     [Scope('OnPrem')]
     procedure RetryAcceptedConfirmHandler(Question: Text[1024]; var Reply: Boolean)
     begin
-        Reply := LibraryVariableStorage.DequeueBoolean;
+        Reply := LibraryVariableStorage.DequeueBoolean();
         LibraryVariableStorage.Enqueue(Question);
     end;
 }

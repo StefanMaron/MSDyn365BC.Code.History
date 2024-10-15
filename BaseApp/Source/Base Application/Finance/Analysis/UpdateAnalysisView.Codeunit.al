@@ -277,31 +277,29 @@ codeunit 410 "Update Analysis View"
         GLEntry: Record "G/L Entry";
         EntryNo: Integer;
     begin
-        with GLEntry do begin
-            SetRange("Entry No.", AnalysisView."Last Entry No." + 1, LastGLEntryNo);
-            if AnalysisView."Account Filter" <> '' then
-                SetFilter("G/L Account No.", AnalysisView."Account Filter");
-            if AnalysisView."Business Unit Filter" <> '' then
-                SetFilter("Business Unit Code", AnalysisView."Business Unit Filter");
+        GLEntry.SetRange("Entry No.", AnalysisView."Last Entry No." + 1, LastGLEntryNo);
+        if AnalysisView."Account Filter" <> '' then
+            GLEntry.SetFilter("G/L Account No.", AnalysisView."Account Filter");
+        if AnalysisView."Business Unit Filter" <> '' then
+            GLEntry.SetFilter("Business Unit Code", AnalysisView."Business Unit Filter");
 
-            OnUpdateEntriesForGLAccountDetailedOnAfterGLEntrySetFilters(GLEntry, AnalysisView);
+        OnUpdateEntriesForGLAccountDetailedOnAfterGLEntrySetFilters(GLEntry, AnalysisView);
 
-            if FindSet() then
-                repeat
-                    if DimSetIDInFilter("Dimension Set ID", AnalysisView) then
-                        UpdateAnalysisViewEntry(
-                          "G/L Account No.", "Business Unit Code", '',
-                          GetDimVal(AnalysisView."Dimension 1 Code", "Dimension Set ID"),
-                          GetDimVal(AnalysisView."Dimension 2 Code", "Dimension Set ID"),
-                          GetDimVal(AnalysisView."Dimension 3 Code", "Dimension Set ID"),
-                          GetDimVal(AnalysisView."Dimension 4 Code", "Dimension Set ID"),
-                          "Posting Date", Amount, "Debit Amount", "Credit Amount",
-                          "Additional-Currency Amount", "Add.-Currency Debit Amount", "Add.-Currency Credit Amount", "Entry No.");
-                    EntryNo := EntryNo + 1;
-                    if ShowProgressWindow then
-                        UpdateWindowCounter(EntryNo);
-                until Next() = 0;
-        end;
+        if GLEntry.FindSet() then
+            repeat
+                if DimSetIDInFilter(GLEntry."Dimension Set ID", AnalysisView) then
+                    UpdateAnalysisViewEntry(
+                      GLEntry."G/L Account No.", GLEntry."Business Unit Code", '',
+                      GetDimVal(AnalysisView."Dimension 1 Code", GLEntry."Dimension Set ID"),
+                      GetDimVal(AnalysisView."Dimension 2 Code", GLEntry."Dimension Set ID"),
+                      GetDimVal(AnalysisView."Dimension 3 Code", GLEntry."Dimension Set ID"),
+                      GetDimVal(AnalysisView."Dimension 4 Code", GLEntry."Dimension Set ID"),
+                      GLEntry."Posting Date", GLEntry.Amount, GLEntry."Debit Amount", GLEntry."Credit Amount",
+                      GLEntry."Additional-Currency Amount", GLEntry."Add.-Currency Debit Amount", GLEntry."Add.-Currency Credit Amount", GLEntry."Entry No.");
+                EntryNo := EntryNo + 1;
+                if ShowProgressWindow then
+                    UpdateWindowCounter(EntryNo);
+            until GLEntry.Next() = 0;
     end;
 
     local procedure UpdateEntriesForCFAccount()
@@ -636,7 +634,7 @@ codeunit 410 "Update Analysis View"
     begin
         AnalysisView.SetRange("Last Budget Entry No.", NewLastBudgetEntryNo + 1, 2147483647);
         AnalysisView.SetRange("Include Budgets", true);
-        if AnalysisView.FindSet(true, true) then
+        if AnalysisView.FindSet(true) then
             repeat
                 AnalysisView2 := AnalysisView;
                 AnalysisView2."Last Budget Entry No." := NewLastBudgetEntryNo;
@@ -646,15 +644,13 @@ codeunit 410 "Update Analysis View"
 
     local procedure IsValueIncludedInFilter(DimValue: Code[20]; DimFilter: Code[250]): Boolean
     begin
-        with TempDimBuf do begin
-            Reset();
-            DeleteAll();
-            Init();
-            "Dimension Value Code" := DimValue;
-            Insert();
-            SetFilter("Dimension Value Code", DimFilter);
-            exit(FindFirst());
-        end;
+        TempDimBuf.Reset();
+        TempDimBuf.DeleteAll();
+        TempDimBuf.Init();
+        TempDimBuf."Dimension Value Code" := DimValue;
+        TempDimBuf.Insert();
+        TempDimBuf.SetFilter(TempDimBuf."Dimension Value Code", DimFilter);
+        exit(TempDimBuf.FindFirst());
     end;
 
     procedure DimSetIDInFilter(DimSetID: Integer; var AnalysisView: Record "Analysis View"): Boolean

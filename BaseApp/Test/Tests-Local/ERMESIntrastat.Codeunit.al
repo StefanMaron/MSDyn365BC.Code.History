@@ -1,4 +1,5 @@
 ﻿#if not CLEAN22
+#pragma warning disable AS0072
 codeunit 144055 "ERM ES Intrastat"
 {
     // // [FEATURE] [Intrastat]
@@ -43,6 +44,9 @@ codeunit 144055 "ERM ES Intrastat"
 
     Subtype = Test;
     TestPermissions = Disabled;
+    ObsoleteReason = 'Not used.';
+    ObsoleteState = Pending;
+    ObsoleteTag = '22.0';
 
     trigger OnRun()
     begin
@@ -55,21 +59,15 @@ codeunit 144055 "ERM ES Intrastat"
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
         LibraryFiscalYear: Codeunit "Library - Fiscal Year";
         LibraryInventory: Codeunit "Library - Inventory";
-        LibraryPriceCalculation: Codeunit "Library - Price Calculation";
         LibraryPurchase: Codeunit "Library - Purchase";
         LibrarySales: Codeunit "Library - Sales";
         LibraryRandom: Codeunit "Library - Random";
-        AmountMustHaveValueErr: Label 'Amount must have a value in Intrastat Jnl. Line';
         ValueMustEqualMsg: Label 'Value must be equal';
         ValueMustEditableMsg: Label 'Value must be editable';
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryReportDataset: Codeunit "Library - Report Dataset";
         LibraryUtility: Codeunit "Library - Utility";
         IsInitialized: Boolean;
-        ReportedMustBeNoErr: Label 'Reported must be equal to ''No''  in Intrastat Jnl. Batch';
-        TestFieldErrCodeTxt: Label 'TestField';
-        TransactionTypeMustHaveValueErr: Label 'Transaction Type must have a value in Intrastat Jnl. Line';
-        FileNotCreatedErr: Label 'Intrastat file was not created';
         LineSymbolIsLineFeedErr: Label 'The last symbol of %1 file is line feed', Comment = '%1 - number of file';
         FormatTotalWeightErr: Label 'Wrong formaing of Total Weight in Intrastat Jnl. Line.';
 
@@ -111,10 +109,10 @@ codeunit 144055 "ERM ES Intrastat"
         // Test to verify caption of Make Diskette Action is Make Declaration on Intrastat journal.
 
         // Setup: Open Intrastat Journal.
-        IntrastatJournal.OpenEdit;
+        IntrastatJournal.OpenEdit();
 
         // Exercise: Invoke Make Declaration from Intrastat Journal.
-        IntrastatJournal.CreateFile.Invoke;  // Opens  IntrastatMakeDeclarationCaptionRequestPageHandler.
+        IntrastatJournal.CreateFile.Invoke();  // Opens  IntrastatMakeDeclarationCaptionRequestPageHandler.
 
         // Verify: Verification is done in IntrastatMakeDeclarationCaptionRequestPageHandler that Caption of Request Page is Edit - Intrastat - Make Declaration.
     end;
@@ -395,7 +393,7 @@ codeunit 144055 "ERM ES Intrastat"
         Initialize();
         CreateItem(Item);
         CreateItem(Item2);
-        CustomerNo := CreateCustomer;
+        CustomerNo := CreateCustomer();
         CreateCustomerInvoiceAndSalesLineDiscount(Item."No.", Item2."No.", CustomerNo);
         DocumentNo := CreateSalesHeaderWithPaymentDiscount(DocumentType, CustomerNo);
         CreateSalesLine(SalesLine, DocumentType, DocumentNo, SalesLine.Type::Item, Item."No.", LibraryRandom.RandDec(10, 2));  // Random Unit Price.
@@ -434,7 +432,7 @@ codeunit 144055 "ERM ES Intrastat"
         CreateItemWithTariffNo(Item);
 
         // [GIVEN] Create Post Sales Order with Quantity = 1
-        CreateAndPostSalesDoc(SalesHeader."Document Type"::Order, CreateForeignCustomerNo, Item."No.", 1);
+        CreateAndPostSalesDoc(SalesHeader."Document Type"::Order, CreateForeignCustomerNo(), Item."No.", 1);
 
         // [WHEN] Run Intrastat "Get Item Ledger Entries" report
         RunGetItemLedgerEntriesToCreateJnlLines(IntrastatJnlBatch);
@@ -461,7 +459,7 @@ codeunit 144055 "ERM ES Intrastat"
         CreateItemWithTariffNo(Item);
 
         // [GIVEN] Create Post Sales Return Order with Quantity = 1
-        CreateAndPostSalesDoc(SalesHeader."Document Type"::"Return Order", CreateForeignCustomerNo, Item."No.", 1);
+        CreateAndPostSalesDoc(SalesHeader."Document Type"::"Return Order", CreateForeignCustomerNo(), Item."No.", 1);
 
         // [WHEN] Run Intrastat "Get Item Ledger Entries" report
         RunGetItemLedgerEntriesToCreateJnlLines(IntrastatJnlBatch);
@@ -488,7 +486,7 @@ codeunit 144055 "ERM ES Intrastat"
         CreateItemWithTariffNo(Item);
 
         // [GIVEN] Create Post Purchase Order with Quantity = 1
-        CreateAndPostPurchDoc(PurchaseHeader."Document Type"::Order, CreateForeignVendorNo, Item."No.", 1);
+        CreateAndPostPurchDoc(PurchaseHeader."Document Type"::Order, CreateForeignVendorNo(), Item."No.", 1);
 
         // [WHEN] Run Intrastat "Get Item Ledger Entries" report
         RunGetItemLedgerEntriesToCreateJnlLines(IntrastatJnlBatch);
@@ -515,7 +513,7 @@ codeunit 144055 "ERM ES Intrastat"
         CreateItemWithTariffNo(Item);
 
         // [GIVEN] Create Post Purchase Return Order with Quantity = 1
-        CreateAndPostPurchDoc(PurchaseHeader."Document Type"::Order, CreateForeignVendorNo, Item."No.", 1);
+        CreateAndPostPurchDoc(PurchaseHeader."Document Type"::Order, CreateForeignVendorNo(), Item."No.", 1);
 
         // [WHEN] Run Intrastat "Get Item Ledger Entries" report
         RunGetItemLedgerEntriesToCreateJnlLines(IntrastatJnlBatch);
@@ -540,7 +538,7 @@ codeunit 144055 "ERM ES Intrastat"
         Commit();
 
         // [WHEN] Open page "Intrastat Journal"
-        IntrastatJournal.OpenView;
+        IntrastatJournal.OpenView();
         IntrastatJournal.CurrentJnlBatchName.SetValue(IntrastatJnlLine."Journal Batch Name");
 
         // [THEN] Value of "Total Weight" on the page formated as decimal - "1,23"
@@ -569,7 +567,7 @@ codeunit 144055 "ERM ES Intrastat"
         Commit();
 
         // [WHEN] Open page "Intrastat Journal"
-        IntrastatJournal.OpenView;
+        IntrastatJournal.OpenView();
         IntrastatJournal.CurrentJnlBatchName.SetValue(IntrastatJnlLine."Journal Batch Name");
 
         // [THEN] Value of "Total Weight" on the page formated as decimal - "1,24"
@@ -597,7 +595,7 @@ codeunit 144055 "ERM ES Intrastat"
         Initialize();
 
         // [GIVEN] Sales order is shipped but not invoiced
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, CreateCustomer);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, CreateCustomer());
         CreateItem(Item);
         CreateSalesLine(
           SalesLine, SalesLine."Document Type"::Order, SalesHeader."No.",
@@ -626,7 +624,7 @@ codeunit 144055 "ERM ES Intrastat"
         Initialize();
 
         // [GIVEN] Sales order is shipped and invoiced
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, CreateCustomer);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, CreateCustomer());
         CreateItem(Item);
         CreateSalesLine(
           SalesLine, SalesLine."Document Type"::Order, SalesHeader."No.",
@@ -666,7 +664,7 @@ codeunit 144055 "ERM ES Intrastat"
         VATRegistrationNoFormat: Record "VAT Registration No. Format";
         TariffNumber: Record "Tariff Number";
     begin
-        LibraryERM.CreateVATRegistrationNoFormat(VATRegistrationNoFormat, CreateCountryRegion);
+        LibraryERM.CreateVATRegistrationNoFormat(VATRegistrationNoFormat, CreateCountryRegion());
         TariffNumber.FindFirst();
         LibraryInventory.CreateItem(Item);
         Item.Validate("Tariff No.", TariffNumber."No.");
@@ -680,7 +678,7 @@ codeunit 144055 "ERM ES Intrastat"
         Customer: Record Customer;
         VATRegistrationNoFormat: Record "VAT Registration No. Format";
     begin
-        LibraryERM.CreateVATRegistrationNoFormat(VATRegistrationNoFormat, CreateCountryRegion);
+        LibraryERM.CreateVATRegistrationNoFormat(VATRegistrationNoFormat, CreateCountryRegion());
         LibrarySales.CreateCustomer(Customer);
         Customer.Validate("Country/Region Code", VATRegistrationNoFormat."Country/Region Code");
         Customer.Validate("VAT Registration No.", VATRegistrationNoFormat.Format);
@@ -693,7 +691,7 @@ codeunit 144055 "ERM ES Intrastat"
         Vendor: Record Vendor;
         VATRegistrationNoFormat: Record "VAT Registration No. Format";
     begin
-        LibraryERM.CreateVATRegistrationNoFormat(VATRegistrationNoFormat, CreateCountryRegion);
+        LibraryERM.CreateVATRegistrationNoFormat(VATRegistrationNoFormat, CreateCountryRegion());
         LibraryPurchase.CreateVendor(Vendor);
         Vendor.Validate("Country/Region Code", VATRegistrationNoFormat."Country/Region Code");
         Vendor.Validate("VAT Registration No.", VATRegistrationNoFormat.Format);
@@ -705,7 +703,7 @@ codeunit 144055 "ERM ES Intrastat"
     var
         SalesHeader: Record "Sales Header";
     begin
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, CreateCustomer);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, CreateCustomer());
         CreateSalesLine(SalesLine, SalesLine."Document Type"::Invoice, SalesHeader."No.", SalesLine.Type::Item, No, UnitPrice);
     end;
 
@@ -717,7 +715,7 @@ codeunit 144055 "ERM ES Intrastat"
     begin
         CreateItem(Item);
         CreateItem(Item2);
-        VendorNo := CreateVendor;
+        VendorNo := CreateVendor();
         CreateVendorInvoiceAndPurchaseLineDiscount(Item."No.", Item2."No.", VendorNo);
         DocumentNo := CreatePurchaseHeaderWithPaymentDiscount(DocumentType, VendorNo);
         CreatePurchaseLine(PurchaseLine, DocumentType, DocumentNo, PurchaseLine.Type::Item, Item."No.");
@@ -757,7 +755,7 @@ codeunit 144055 "ERM ES Intrastat"
     var
         PurchaseHeader: Record "Purchase Header";
     begin
-        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, CreateVendor);
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, CreateVendor());
         CreatePurchaseLine(PurchaseLine, PurchaseLine."Document Type"::Invoice, PurchaseHeader."No.", PurchaseLine.Type::Item, No);
     end;
 
@@ -809,7 +807,7 @@ codeunit 144055 "ERM ES Intrastat"
     begin
         LibrarySales.CreateCustomer(Customer);
 
-        Customer.Validate("Country/Region Code", CreateCountryRegionCode);
+        Customer.Validate("Country/Region Code", CreateCountryRegionCode());
         Customer.Modify(true);
         exit(Customer."No.");
     end;
@@ -819,7 +817,7 @@ codeunit 144055 "ERM ES Intrastat"
         Vendor: Record Vendor;
     begin
         LibraryPurchase.CreateVendor(Vendor);
-        Vendor.Validate("Country/Region Code", CreateCountryRegionCode);
+        Vendor.Validate("Country/Region Code", CreateCountryRegionCode());
         Vendor.Modify(true);
         exit(Vendor."No.");
     end;
@@ -831,7 +829,7 @@ codeunit 144055 "ERM ES Intrastat"
     begin
         SalesHeader.Get(DocumentType, No);
         CreateSalesLine(
-          SalesLine, DocumentType, SalesHeader."No.", SalesLine.Type::"Charge (Item)", LibraryInventory.CreateItemChargeNo,
+          SalesLine, DocumentType, SalesHeader."No.", SalesLine.Type::"Charge (Item)", LibraryInventory.CreateItemChargeNo(),
           LibraryRandom.RandInt(100));  // Random Unit Price.
         SalesLine.ShowItemChargeAssgnt();  // Opens ItemChargeAssignmentSalesPageHandler.
         exit(SalesLine.Amount);
@@ -843,7 +841,7 @@ codeunit 144055 "ERM ES Intrastat"
         PurchaseLine: Record "Purchase Line";
     begin
         PurchaseHeader.Get(DocumentType, No);
-        CreatePurchaseLine(PurchaseLine, DocumentType, No, PurchaseLine.Type::"Charge (Item)", LibraryInventory.CreateItemChargeNo);
+        CreatePurchaseLine(PurchaseLine, DocumentType, No, PurchaseLine.Type::"Charge (Item)", LibraryInventory.CreateItemChargeNo());
         PurchaseLine.ShowItemChargeAssgnt();  // Opens ItemChargeAssignmentPurchPageHandler.
         exit(PurchaseLine.Amount);
     end;
@@ -866,7 +864,7 @@ codeunit 144055 "ERM ES Intrastat"
     begin
         LibraryERM.CreateIntrastatJnlTemplate(IntrastatJnlTemplate);
         LibraryERM.CreateIntrastatJnlBatch(IntrastatJnlBatch, IntrastatJnlTemplate.Name);
-        IntrastatJnlBatch.Validate("Statistics Period", Format(WorkDate(), 0, LibraryFiscalYear.GetStatisticsPeriod));  // Statistics Period in Last Two digits of year and Month.
+        IntrastatJnlBatch.Validate("Statistics Period", Format(WorkDate(), 0, LibraryFiscalYear.GetStatisticsPeriod()));  // Statistics Period in Last Two digits of year and Month.
         IntrastatJnlBatch.Modify(true);
         exit(IntrastatJnlBatch.Name);
     end;
@@ -899,7 +897,7 @@ codeunit 144055 "ERM ES Intrastat"
         VendorInvoiceDisc.Modify(true);
     end;
 
-#if not CLEAN21
+#if not CLEAN23
     local procedure CreatePurchaseLineDiscount(ItemNo: Code[20]; VendorNo: Code[20]; CurrencyCode: Code[10])
     var
         PurchaseLineDiscount: Record "Purchase Line Discount";
@@ -916,7 +914,7 @@ codeunit 144055 "ERM ES Intrastat"
     begin
         LibraryERM.CreateLineDiscForCustomer(
           SalesLineDiscount, SalesLineDiscount.Type::Item, Code, SalesLineDiscount."Sales Type"::Customer, SalesCode,
-          WorkDate, CurrencyCode, '', '', LibraryRandom.RandDec(10, 2));  // Blank Variant Code and unit Of Measure Code, Random Minimum Quantity.
+          WorkDate(), CurrencyCode, '', '', LibraryRandom.RandDec(10, 2));  // Blank Variant Code and unit Of Measure Code, Random Minimum Quantity.
         SalesLineDiscount.Validate("Line Discount %", LibraryRandom.RandDec(10, 2));
         SalesLineDiscount.Modify(true);
     end;
@@ -1021,16 +1019,16 @@ codeunit 144055 "ERM ES Intrastat"
         IntrastatJournal: TestPage "Intrastat Journal";
     begin
         LibraryVariableStorage.Enqueue(SkipNotInvoices);
-        IntrastatJnlBatchName := CreateIntrastatJournalBatch;
+        IntrastatJnlBatchName := CreateIntrastatJournalBatch();
         Commit();  // Commit required.
-        IntrastatJournal.OpenEdit;
-        IntrastatJournal.GetEntries.Invoke;  // Opens GetItemLedgerEntriesRequestPageHandler.
+        IntrastatJournal.OpenEdit();
+        IntrastatJournal.GetEntries.Invoke();  // Opens GetItemLedgerEntriesRequestPageHandler.
         IntrastatJournal.Close();
     end;
 
     local procedure OpenIntrastatJournal(var IntrastatJournal: TestPage "Intrastat Journal"; CurrentJnlBatchName: Code[10]; ItemNo: Code[20])
     begin
-        IntrastatJournal.OpenEdit;
+        IntrastatJournal.OpenEdit();
         IntrastatJournal.CurrentJnlBatchName.SetValue(CurrentJnlBatchName);
         IntrastatJournal.FILTER.SetFilter("Item No.", ItemNo);
     end;
@@ -1081,7 +1079,7 @@ codeunit 144055 "ERM ES Intrastat"
     begin
         Commit();  // Commit required.
         OpenIntrastatJournal(IntrastatJournal, CurrentJnlBatchName, ItemNo);
-        IntrastatJournal.CreateFile.Invoke;  // Opens IntrastatMakeDeclarationRequestPageHandler.
+        IntrastatJournal.CreateFile.Invoke();  // Opens IntrastatMakeDeclarationRequestPageHandler.
     end;
 
     local procedure RunGetItemLedgerEntriesToCreateJnlLines(IntrastatJnlBatch: Record "Intrastat Jnl. Batch")
@@ -1089,10 +1087,10 @@ codeunit 144055 "ERM ES Intrastat"
         IntrastatJournal: TestPage "Intrastat Journal";
     begin
         RunIntrastatJournal(IntrastatJournal);
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
         LibraryVariableStorage.Enqueue(CalcDate('<-CM>', WorkDate()));
         LibraryVariableStorage.Enqueue(CalcDate('<CM>', WorkDate()));
-        IntrastatJournal.GetEntries.Invoke;
+        IntrastatJournal.GetEntries.Invoke();
         VerifyIntrastatJnlLinesExist(IntrastatJnlBatch);
         IntrastatJournal.Close();
     end;
@@ -1109,7 +1107,7 @@ codeunit 144055 "ERM ES Intrastat"
 
     local procedure RunIntrastatJournal(var IntrastatJournal: TestPage "Intrastat Journal")
     begin
-        IntrastatJournal.OpenEdit;
+        IntrastatJournal.OpenEdit();
     end;
 
     local procedure CreateItemWithTariffNo(var Item: Record Item)
@@ -1174,9 +1172,9 @@ codeunit 144055 "ERM ES Intrastat"
     begin
         IntrastatJnlLine.TestField("Tariff No.", TariffNo);
         Assert.AreNearlyEqual(
-          IntrastatJnlLine."Statistical Value", StatisticalValue, LibraryERM.GetAmountRoundingPrecision, ValueMustEqualMsg);
+          IntrastatJnlLine."Statistical Value", StatisticalValue, LibraryERM.GetAmountRoundingPrecision(), ValueMustEqualMsg);
         Assert.AreNearlyEqual(
-          IntrastatJnlLine.Amount, Amount, LibraryERM.GetAmountRoundingPrecision, ValueMustEqualMsg);
+          IntrastatJnlLine.Amount, Amount, LibraryERM.GetAmountRoundingPrecision(), ValueMustEqualMsg);
     end;
 
     local procedure VerifyIntrastatJournalStatisticalSystemEditable(CurrentJnlBatchName: Code[10]; ItemNo: Code[20])
@@ -1184,7 +1182,7 @@ codeunit 144055 "ERM ES Intrastat"
         IntrastatJournal: TestPage "Intrastat Journal";
     begin
         OpenIntrastatJournal(IntrastatJournal, CurrentJnlBatchName, ItemNo);
-        Assert.IsTrue(IntrastatJournal."Statistical System".Editable, ValueMustEditableMsg);
+        Assert.IsTrue(IntrastatJournal."Statistical System".Editable(), ValueMustEditableMsg);
     end;
 
     local procedure VerifyValueEntryForPurchase(ItemNo: Code[20]; ItemChargeNo: Code[20]; CostAmountNonInvtbl: Decimal; CostAmountActual: Decimal)
@@ -1195,9 +1193,9 @@ codeunit 144055 "ERM ES Intrastat"
         ValueEntry.SetFilter("Item Charge No.", ItemChargeNo);
         ValueEntry.FindFirst();
         Assert.AreNearlyEqual(
-          CostAmountNonInvtbl, ValueEntry."Cost Amount (Non-Invtbl.)", LibraryERM.GetAmountRoundingPrecision, ValueMustEqualMsg);
+          CostAmountNonInvtbl, ValueEntry."Cost Amount (Non-Invtbl.)", LibraryERM.GetAmountRoundingPrecision(), ValueMustEqualMsg);
         Assert.AreNearlyEqual(
-          CostAmountActual, ValueEntry."Cost Amount (Actual)", LibraryERM.GetAmountRoundingPrecision, ValueMustEqualMsg);
+          CostAmountActual, ValueEntry."Cost Amount (Actual)", LibraryERM.GetAmountRoundingPrecision(), ValueMustEqualMsg);
     end;
 
     local procedure VerifyValueEntryForSales(DocumentType: Enum "Sales Document Type"; ItemNo: Code[20]; ItemChargeNo: Code[20]; SalesAmountActual: Decimal)
@@ -1210,7 +1208,7 @@ codeunit 144055 "ERM ES Intrastat"
         ValueEntry.SetRange("Item Charge No.", ItemChargeNo);
         ValueEntry.FindFirst();
         Assert.AreNearlyEqual(
-          SalesAmountActual, ValueEntry."Sales Amount (Actual)", LibraryERM.GetAmountRoundingPrecision, ValueMustEqualMsg);
+          SalesAmountActual, ValueEntry."Sales Amount (Actual)", LibraryERM.GetAmountRoundingPrecision(), ValueMustEqualMsg);
     end;
 
     local procedure VerifyMultipleValueEntryForPurchase(ItemNo: Code[20]; ItemChargeNo: Code[20]; Amount: Decimal; Amount2: Decimal; Amount3: Decimal)
@@ -1278,29 +1276,29 @@ codeunit 144055 "ERM ES Intrastat"
     [Scope('OnPrem')]
     procedure GetItemLedgerEntriesRequestPageHandler(var GetItemLedgerEntries: TestRequestPage "Get Item Ledger Entries")
     begin
-        GetItemLedgerEntries.SkipNotInvoiced.SetValue(LibraryVariableStorage.DequeueBoolean);
-        GetItemLedgerEntries.OK.Invoke;
+        GetItemLedgerEntries.SkipNotInvoiced.SetValue(LibraryVariableStorage.DequeueBoolean());
+        GetItemLedgerEntries.OK().Invoke();
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure IntrastatMakeDeclarationRequestPageHandler(var IntrastatMakeDeclaration: TestRequestPage "Intrastat - Make Declaration")
     begin
-        IntrastatMakeDeclaration.OK.Invoke;
+        IntrastatMakeDeclaration.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure ItemChargeAssignmentPurchPageHandler(var ItemChargeAssignmentPurch: TestPage "Item Charge Assignment (Purch)")
     begin
-        ItemChargeAssignmentPurch.SuggestItemChargeAssignment.Invoke;  // Opens AmountStrMenuHandler.
+        ItemChargeAssignmentPurch.SuggestItemChargeAssignment.Invoke();  // Opens AmountStrMenuHandler.
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure ItemChargeAssignmentSalesPageHandler(var ItemChargeAssignmentSales: TestPage "Item Charge Assignment (Sales)")
     begin
-        ItemChargeAssignmentSales.SuggestItemChargeAssignment.Invoke;  // Opens AmountStrMenuHandler.
+        ItemChargeAssignmentSales.SuggestItemChargeAssignment.Invoke();  // Opens AmountStrMenuHandler.
     end;
 
     [StrMenuHandler]

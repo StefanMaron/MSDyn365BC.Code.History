@@ -6,6 +6,7 @@ table 9185 "Generic Chart Captions Buffer"
 {
     Caption = 'Generic Chart Captions Buffer';
     ReplicateData = false;
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -29,7 +30,7 @@ table 9185 "Generic Chart Captions Buffer"
         }
         field(4; "Language Name"; Text[50])
         {
-            CalcFormula = Lookup(Language.Name where(Code = field("Language Code")));
+            CalcFormula = lookup(Language.Name where(Code = field("Language Code")));
             Caption = 'Language Name';
             FieldClass = FlowField;
         }

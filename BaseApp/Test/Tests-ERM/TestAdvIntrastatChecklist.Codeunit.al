@@ -500,9 +500,9 @@ codeunit 134194 "Test Adv. Intrastat Checklist"
     begin
         IntrastatJnlBatch."Journal Template Name" := IntrastatJnlLine."Journal Template Name";
         IntrastatJnlBatch.Name := IntrastatJnlLine."Journal Batch Name";
-        IntrastatJnlBatch.SetRecFilter;
+        IntrastatJnlBatch.SetRecFilter();
         IntrastatJnlLine.SetRange(Type);
-        Commit;
+        Commit();
         RunIntrastatMakeDiscReport(IntrastatJnlBatch, IntrastatJnlLine);
     end;
 
@@ -511,10 +511,9 @@ codeunit 134194 "Test Adv. Intrastat Checklist"
         FileTempBlob: Codeunit "Temp Blob";
         IntrastatMakeDeclaration: Report "Intrastat - Make Declaration";
         FileOutStream: OutStream;
-        ExportFormat: Option "2021","2022";
     begin
         FileTempBlob.CreateOutStream(FileOutStream);
-        IntrastatMakeDeclaration.InitializeRequest(FileOutStream, ExportFormat::"2022");
+        IntrastatMakeDeclaration.InitializeRequest(FileOutStream, "Intrastat Export Format"::"2022");
         IntrastatMakeDeclaration.SetTableView(IntrastatJnlBatch);
         IntrastatMakeDeclaration.SetTableView(IntrastatJnlLine);
         IntrastatMakeDeclaration.UseRequestPage(true);

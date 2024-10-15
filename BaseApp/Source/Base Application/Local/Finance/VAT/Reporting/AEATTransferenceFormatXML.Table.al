@@ -9,6 +9,7 @@ using System.Telemetry;
 table 10710 "AEAT Transference Format XML"
 {
     Caption = 'AEAT Transference Format XML';
+    DataClassification = CustomerContent;
 
     fields
     {

@@ -94,7 +94,7 @@ codeunit 5302 "Outlook Synch. Type Conv"
                         exit(false);
 
                     if ToValidate then begin
-                        IntVar1 := FieldRef.Value;
+                        IntVar1 := FieldRef.Value();
                         if IntVar1 <> IntVar then
                             FieldRef.Validate(IntVar);
                     end else
@@ -103,7 +103,7 @@ codeunit 5302 "Outlook Synch. Type Conv"
             FieldType::Integer:
                 if TextToInteger(InputText, IntVar) then begin
                     if ToValidate then begin
-                        IntVar1 := FieldRef.Value;
+                        IntVar1 := FieldRef.Value();
                         if IntVar1 <> IntVar then
                             FieldRef.Validate(IntVar);
                     end else
@@ -113,7 +113,7 @@ codeunit 5302 "Outlook Synch. Type Conv"
             FieldType::Decimal:
                 if TextToDecimal(InputText, DecimalVar) then begin
                     if ToValidate then begin
-                        DecimalVar1 := FieldRef.Value;
+                        DecimalVar1 := FieldRef.Value();
                         if DecimalVar1 <> DecimalVar then
                             FieldRef.Validate(DecimalVar);
                     end else
@@ -123,7 +123,7 @@ codeunit 5302 "Outlook Synch. Type Conv"
             FieldType::Date:
                 if TextToDate(InputText, DateVar, true) then begin
                     if ToValidate then begin
-                        DateVar1 := FieldRef.Value;
+                        DateVar1 := FieldRef.Value();
                         if DateVar1 <> DateVar then
                             FieldRef.Validate(DateVar);
                     end else
@@ -133,7 +133,7 @@ codeunit 5302 "Outlook Synch. Type Conv"
             FieldType::Time:
                 if TextToTime(InputText, TimeVar, true) then begin
                     if ToValidate then begin
-                        TimeVar1 := FieldRef.Value;
+                        TimeVar1 := FieldRef.Value();
                         if TimeVar1 <> TimeVar then
                             FieldRef.Validate(TimeVar);
                     end else
@@ -143,7 +143,7 @@ codeunit 5302 "Outlook Synch. Type Conv"
             FieldType::DateTime:
                 if TextToDateTime(InputText, DateTimeVar) then begin
                     if ToValidate then begin
-                        DateTimeVar1 := FieldRef.Value;
+                        DateTimeVar1 := FieldRef.Value();
                         if DateTimeVar1 <> DateTimeVar then
                             FieldRef.Validate(DateTimeVar);
                     end else
@@ -153,7 +153,7 @@ codeunit 5302 "Outlook Synch. Type Conv"
             FieldType::Boolean:
                 if TextToBoolean(InputText, BoolVar) then begin
                     if ToValidate then begin
-                        BoolVar1 := FieldRef.Value;
+                        BoolVar1 := FieldRef.Value();
                         if BoolVar1 <> BoolVar then
                             FieldRef.Validate(BoolVar);
                     end else
@@ -163,7 +163,7 @@ codeunit 5302 "Outlook Synch. Type Conv"
             FieldType::Duration:
                 if TextToDuration(InputText, DurationVar) then begin
                     if ToValidate then begin
-                        DurationVar1 := FieldRef.Value;
+                        DurationVar1 := FieldRef.Value();
                         if DurationVar1 <> DurationVar then
                             FieldRef.Validate(DurationVar);
                     end else
@@ -173,7 +173,7 @@ codeunit 5302 "Outlook Synch. Type Conv"
             FieldType::BigInteger:
                 if TextToBigInteger(InputText, BigIntVar) then begin
                     if ToValidate then begin
-                        BigIntVar1 := FieldRef.Value;
+                        BigIntVar1 := FieldRef.Value();
                         if BigIntVar1 <> BigIntVar then
                             FieldRef.Validate(BigIntVar);
                     end else
@@ -183,7 +183,7 @@ codeunit 5302 "Outlook Synch. Type Conv"
             FieldType::GUID:
                 if TextToGUID(InputText, GUIDVar) then begin
                     if ToValidate then begin
-                        GUIDVar1 := FieldRef.Value;
+                        GUIDVar1 := FieldRef.Value();
                         if GUIDVar1 <> GUIDVar then
                             FieldRef.Validate(GUIDVar);
                     end else
@@ -193,7 +193,7 @@ codeunit 5302 "Outlook Synch. Type Conv"
             FieldType::Code, FieldType::Text:
                 if StrLen(InputText) > FieldRef.Length then begin
                     if ToValidate then begin
-                        TextVar := FieldRef.Value;
+                        TextVar := FieldRef.Value();
                         TextVar1 := PadStr(InputText, FieldRef.Length);
                         if TextVar <> TextVar1 then
                             FieldRef.Validate(TextVar1);
@@ -201,7 +201,7 @@ codeunit 5302 "Outlook Synch. Type Conv"
                         FieldRef.Value := PadStr(InputText, FieldRef.Length);
                 end else
                     if ToValidate then begin
-                        TextVar := FieldRef.Value;
+                        TextVar := FieldRef.Value();
                         if TextVar <> InputText then
                             FieldRef.Validate(InputText);
                     end else
@@ -209,7 +209,7 @@ codeunit 5302 "Outlook Synch. Type Conv"
             FieldType::DateFormula:
                 if TextToDateFormula(InputText, DateFormulaVar) then begin
                     if ToValidate then begin
-                        DateFormulaVar1 := FieldRef.Value;
+                        DateFormulaVar1 := FieldRef.Value();
                         if DateFormulaVar1 <> DateFormulaVar then
                             FieldRef.Validate(DateFormulaVar);
                     end else
@@ -659,7 +659,7 @@ codeunit 5302 "Outlook Synch. Type Conv"
                 OutText := Format(FldRef.Value);
             FieldType::Duration:
                 begin
-                    BigInt := FldRef.Value;
+                    BigInt := FldRef.Value();
                     // Use round to avoid conversion errors due to the conversion from decimal to long.
                     BigInt := Round(BigInt / 60000, 1);
                     OutText := Format(BigInt);

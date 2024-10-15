@@ -30,7 +30,7 @@ codeunit 132544 "Data Exch. Column Def UT"
 
         DataExchColumnDef."Data Exch. Def Code" := DataExchDef.Code;
         DataExchColumnDef."Column No." := LibraryRandom.RandIntInRange(1, 10);
-        asserterror DataExchColumnDef.ValidateRec;
+        asserterror DataExchColumnDef.ValidateRec();
         Assert.ExpectedError(LengthErr);
     end;
 
@@ -47,7 +47,7 @@ codeunit 132544 "Data Exch. Column Def UT"
         DataExchColumnDef."Data Exch. Def Code" := DataExchDef.Code;
         DataExchColumnDef."Column No." := LibraryRandom.RandIntInRange(1, 10);
         DataExchColumnDef."Data Type" := DataExchColumnDef."Data Type"::Decimal;
-        asserterror DataExchColumnDef.ValidateRec;
+        asserterror DataExchColumnDef.ValidateRec();
         Assert.ExpectedError(DataFormatErr);
     end;
 
@@ -64,7 +64,7 @@ codeunit 132544 "Data Exch. Column Def UT"
         DataExchColumnDef."Data Exch. Def Code" := DataExchDef.Code;
         DataExchColumnDef."Column No." := LibraryRandom.RandIntInRange(1, 10);
         DataExchColumnDef."Data Type" := DataExchColumnDef."Data Type"::Decimal;
-        asserterror DataExchColumnDef.ValidateRec;
+        asserterror DataExchColumnDef.ValidateRec();
         Assert.ExpectedError(DataFormattingCultureErr);
     end;
 
@@ -82,7 +82,7 @@ codeunit 132544 "Data Exch. Column Def UT"
         DataExchColumnDef."Column No." := LibraryRandom.RandIntInRange(1, 10);
         DataExchColumnDef."Data Formatting Culture" := 'da-DK';
         DataExchColumnDef."Data Type" := DataExchColumnDef."Data Type"::Date;
-        asserterror DataExchColumnDef.ValidateRec;
+        asserterror DataExchColumnDef.ValidateRec();
         Assert.ExpectedError(DataFormatErr);
     end;
 
@@ -154,7 +154,7 @@ codeunit 132544 "Data Exch. Column Def UT"
         DataExchLineDef."Data Exch. Def Code" := DataExchDef.Code;
         DataExchLineDef.Code :=
           LibraryUtility.GenerateRandomCode(DataExchLineDef.FieldNo(Code), DATABASE::"Data Exch. Line Def");
-        DataExchLineDef.Insert
+        DataExchLineDef.Insert();
     end;
 
     local procedure CreateDataExchColumnDef(var DataExchColumnDef: Record "Data Exch. Column Def"; DataExchLineDef: Record "Data Exch. Line Def")

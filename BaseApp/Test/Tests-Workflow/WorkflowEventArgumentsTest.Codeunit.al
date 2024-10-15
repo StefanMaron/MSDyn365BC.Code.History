@@ -237,13 +237,13 @@ codeunit 134304 "Workflow Event Arguments Test"
         Initialize();
 
         // Setup
-        WorkflowCode := CreateWorkflow;
+        WorkflowCode := CreateWorkflow();
         CreateWorkflowStep(WorkflowStep, WorkflowCode, ZeroGUID);
         WorkflowStep."Function Name" := '';
         WorkflowStep.Modify();
 
         // Exercise
-        asserterror WorkflowStep.OpenEventConditions;
+        asserterror WorkflowStep.OpenEventConditions();
 
         // Verify
         Assert.ExpectedErrorCode('TestField');
@@ -261,7 +261,7 @@ codeunit 134304 "Workflow Event Arguments Test"
         CreateWorkflowWithStepAndDummyEvent(WorkflowStep);
 
         // Exercise
-        WorkflowStep.OpenEventConditions;
+        WorkflowStep.OpenEventConditions();
 
         // Verify
         Assert.IsTrue(IsNullGuid(WorkflowStep.Argument),
@@ -283,7 +283,7 @@ codeunit 134304 "Workflow Event Arguments Test"
         Commit();
 
         // Exercise
-        WorkflowStep.OpenEventConditions;
+        WorkflowStep.OpenEventConditions();
 
         // Verify
         Assert.IsFalse(WorkflowStepArgument.Get(WorkflowStep.Argument), UserClickedOkayMsg);
@@ -304,7 +304,7 @@ codeunit 134304 "Workflow Event Arguments Test"
         Commit();
 
         // Exercise
-        WorkflowStep.OpenEventConditions;
+        WorkflowStep.OpenEventConditions();
 
         // Verify
         WorkflowStepArgument.Get(WorkflowStep.Argument);
@@ -329,7 +329,7 @@ codeunit 134304 "Workflow Event Arguments Test"
         CreateWorkflowWithStepAndAnyEvent(WorkflowStep);
 
         // Exercise
-        SetupEventConditions(WorkflowStep, Amount, UnitOfMeasure.Code, LibraryPurchase.CreateVendorNo);
+        SetupEventConditions(WorkflowStep, Amount, UnitOfMeasure.Code, LibraryPurchase.CreateVendorNo());
 
         // Verify
         WorkflowStepArgument.Get(WorkflowStep.Argument);
@@ -337,7 +337,7 @@ codeunit 134304 "Workflow Event Arguments Test"
 
         VerifyPurchaseHeaderFilters(WorkflowStep);
         VerifyPurchaseLineFilters(WorkflowStep, Amount, UnitOfMeasure.Code);
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -363,7 +363,7 @@ codeunit 134304 "Workflow Event Arguments Test"
         Initialize();
 
         // Setup
-        DueDate := LibraryUtility.GenerateRandomDate(WorkDate - 30, WorkDate + 30);
+        DueDate := LibraryUtility.GenerateRandomDate(WorkDate() - 30, WorkDate() + 30);
         CurrencyCodeLength := LibraryUtility.GetFieldLength(DATABASE::"Purchase Header", PurchaseHeader.FieldNo("Currency Code"));
         CurrencyCode := CopyStr(LibraryUtility.GenerateRandomText(CurrencyCodeLength), 1, CurrencyCodeLength);
         DescriptionLength := LibraryUtility.GetFieldLength(DATABASE::"Purchase Line", PurchaseLine.FieldNo(Description));
@@ -372,7 +372,7 @@ codeunit 134304 "Workflow Event Arguments Test"
         Amount := LibraryRandom.RandDec(100, 2);
         LibraryInventory.CreateUnitOfMeasureCode(UnitOfMeasure);
 
-        WorkflowCode := CreateWorkflow;
+        WorkflowCode := CreateWorkflow();
         CreateWorkflowStep(WorkflowStep, WorkflowCode, ZeroGUID);
         CreateDummyWorkflowEventWithTableAndPageID(WorkflowStep."Function Name", DATABASE::"Purchase Header",
           REPORT::"Workflow Event Advanced Args");
@@ -384,11 +384,11 @@ codeunit 134304 "Workflow Event Arguments Test"
         LibraryVariableStorage.Enqueue(Quantity);
         LibraryVariableStorage.Enqueue(Amount);
         LibraryVariableStorage.Enqueue(UnitOfMeasure.Code);
-        LibraryVariableStorage.Enqueue(LibraryPurchase.CreateVendorNo);
+        LibraryVariableStorage.Enqueue(LibraryPurchase.CreateVendorNo());
         Commit();
 
         // Exercise
-        WorkflowStep.OpenEventConditions;
+        WorkflowStep.OpenEventConditions();
 
         // Verify
         WorkflowStepArgument.Get(WorkflowStep.Argument);
@@ -396,7 +396,7 @@ codeunit 134304 "Workflow Event Arguments Test"
 
         VerifyPurchaseHeaderFilters(WorkflowStep);
         VerifyPurchaseLineFilters(WorkflowStep, Amount, UnitOfMeasure.Code);
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -415,7 +415,7 @@ codeunit 134304 "Workflow Event Arguments Test"
         Assert.IsFalse(IsNullGuid(WorkflowStep.Argument), StrSubstNo(RecordNotCreatedErr, WorkflowStepArgument.TableCaption()));
 
         // Exercise
-        WorkflowStep.DeleteEventConditions;
+        WorkflowStep.DeleteEventConditions();
 
         // Verify
         Assert.IsTrue(IsNullGuid(WorkflowStep.Argument), StrSubstNo(RecordNotDeletedErr, WorkflowStepArgument.TableCaption()));
@@ -439,7 +439,7 @@ codeunit 134304 "Workflow Event Arguments Test"
         WorkflowStepBuffer.FindFirst();
 
         // Exercise
-        WorkflowStepBuffer.DeleteEventConditions;
+        WorkflowStepBuffer.DeleteEventConditions();
 
         // Verify
         WorkflowStep.Find();
@@ -538,7 +538,7 @@ codeunit 134304 "Workflow Event Arguments Test"
         Commit();
 
         // Exercise
-        WorkflowStep.OpenEventConditions;
+        WorkflowStep.OpenEventConditions();
 
         // Verify
         WorkflowStep.Find();
@@ -572,10 +572,10 @@ codeunit 134304 "Workflow Event Arguments Test"
         // Exercise
         LibraryVariableStorage.Enqueue(Amount);
         LibraryVariableStorage.Enqueue(UnitOfMeasure.Code);
-        LibraryVariableStorage.Enqueue(LibraryPurchase.CreateVendorNo);
+        LibraryVariableStorage.Enqueue(LibraryPurchase.CreateVendorNo());
         Commit();
 
-        asserterror WorkflowStep.OpenEventConditions;
+        asserterror WorkflowStep.OpenEventConditions();
 
         // Verify
         Assert.ExpectedError(CannotEditEnabledWorkflowErr);
@@ -594,9 +594,9 @@ codeunit 134304 "Workflow Event Arguments Test"
         Initialize();
 
         // Setup
-        EntityName := CreatePurchaseInvoiceEntity;
-        CreatePurchaseInvoiceTableRelations;
-        SpecifyPurchaseInvoiceFilteringFields;
+        EntityName := CreatePurchaseInvoiceEntity();
+        CreatePurchaseInvoiceTableRelations();
+        SpecifyPurchaseInvoiceFilteringFields();
 
         // Exercise
         Result := RequestPageParametersHelper.BuildDynamicRequestPage(FilterPageBuilder, EntityName, DATABASE::"Purchase Header");
@@ -618,7 +618,7 @@ codeunit 134304 "Workflow Event Arguments Test"
 
         // Setup
         DeleteTableRelations(DATABASE::"Purchase Header");
-        SpecifyPurchaseInvoiceFilteringFields;
+        SpecifyPurchaseInvoiceFilteringFields();
 
         // Exercise
         Result := RequestPageParametersHelper.BuildDynamicRequestPage(FilterPageBuilder, '', DATABASE::"Purchase Header");
@@ -658,9 +658,9 @@ codeunit 134304 "Workflow Event Arguments Test"
         Initialize();
 
         // Setup
-        EntityName := CreatePurchaseInvoiceEntity;
-        CreatePurchaseInvoiceTableRelations;
-        SpecifyPurchaseInvoiceFilteringFields;
+        EntityName := CreatePurchaseInvoiceEntity();
+        CreatePurchaseInvoiceTableRelations();
+        SpecifyPurchaseInvoiceFilteringFields();
         RequestPageParametersHelper.BuildDynamicRequestPage(FilterPageBuilder, EntityName, DATABASE::"Purchase Header");
 
         // Exercise
@@ -685,9 +685,9 @@ codeunit 134304 "Workflow Event Arguments Test"
         Initialize();
 
         // Setup
-        EntityName := CreatePurchaseInvoiceEntity;
-        CreatePurchaseInvoiceTableRelations;
-        SpecifyPurchaseInvoiceFilteringFields;
+        EntityName := CreatePurchaseInvoiceEntity();
+        CreatePurchaseInvoiceTableRelations();
+        SpecifyPurchaseInvoiceFilteringFields();
         RequestPageParametersHelper.BuildDynamicRequestPage(FilterPageBuilder, EntityName, DATABASE::"Purchase Header");
 
         // Exercise
@@ -721,9 +721,9 @@ codeunit 134304 "Workflow Event Arguments Test"
         ItemNo := LibraryInventory.CreateItemNo();
         DirectUnitCost := LibraryRandom.RandIntInRange(250, 500);
 
-        EntityName := CreatePurchaseInvoiceEntity;
-        CreatePurchaseInvoiceTableRelations;
-        SpecifyPurchaseInvoiceFilteringFields;
+        EntityName := CreatePurchaseInvoiceEntity();
+        CreatePurchaseInvoiceTableRelations();
+        SpecifyPurchaseInvoiceFilteringFields();
         CreatePurchaseHeaderDataItem(FilterPageBuilder, VendorNo, Amount);
         CreatePurchaseLineDataItem(FilterPageBuilder, ItemNo, DirectUnitCost);
 
@@ -757,14 +757,14 @@ codeunit 134304 "Workflow Event Arguments Test"
         ItemNo := LibraryInventory.CreateItemNo();
         DirectUnitCost := LibraryRandom.RandIntInRange(250, 500);
 
-        EntityName := CreatePurchaseInvoiceEntity;
-        CreatePurchaseInvoiceTableRelations;
-        SpecifyPurchaseInvoiceFilteringFields;
+        EntityName := CreatePurchaseInvoiceEntity();
+        CreatePurchaseInvoiceTableRelations();
+        SpecifyPurchaseInvoiceFilteringFields();
         CreatePurchaseHeaderDataItem(FilterPageBuilder, VendorNo, Amount);
         CreatePurchaseLineDataItem(FilterPageBuilder, ItemNo, DirectUnitCost);
 
         // Exercise
-        CreateExtraTableRelation;
+        CreateExtraTableRelation();
         Filters := RequestPageParametersHelper.GetViewFromDynamicRequestPage(FilterPageBuilder, EntityName, DATABASE::"Purchase Header");
 
         // Verify
@@ -795,19 +795,19 @@ codeunit 134304 "Workflow Event Arguments Test"
         Amount := LibraryRandom.RandIntInRange(1000, 2000);
         ItemNo := LibraryInventory.CreateItemNo();
         DirectUnitCost := LibraryRandom.RandIntInRange(250, 500);
-        VendorPostingGroup := LibraryPurchase.FindVendorPostingGroup;
+        VendorPostingGroup := LibraryPurchase.FindVendorPostingGroup();
         LibraryERM.FindVATBusinessPostingGroup(VATBusinessPostingGroup);
 
-        EntityName := CreatePurchaseInvoiceEntity;
-        CreatePurchaseInvoiceTableRelations;
-        CreateVendorTableRelation;
-        SpecifyPurchaseInvoiceFilteringFields;
+        EntityName := CreatePurchaseInvoiceEntity();
+        CreatePurchaseInvoiceTableRelations();
+        CreateVendorTableRelation();
+        SpecifyPurchaseInvoiceFilteringFields();
         CreatePurchaseHeaderDataItem(FilterPageBuilder, VendorNo, Amount);
         CreatePurchaseLineDataItem(FilterPageBuilder, ItemNo, DirectUnitCost);
         CreateVendorDataItem(FilterPageBuilder, VendorPostingGroup, VATBusinessPostingGroup.Code);
 
         // Exercise
-        DeleteVendorTableRelation;
+        DeleteVendorTableRelation();
         Filters := RequestPageParametersHelper.GetViewFromDynamicRequestPage(FilterPageBuilder, EntityName, DATABASE::"Purchase Header");
 
         // Verify
@@ -834,7 +834,7 @@ codeunit 134304 "Workflow Event Arguments Test"
         CreateWorkflowWithStepAndAnyEvent(WorkflowStep);
 
         // [GIVEN] Workflow with event condition = filter by 21 vendors
-        SetupEventConditions(WorkflowStep, Amount, UnitOfMeasure.Code, GenerateVendorLongFilter);
+        SetupEventConditions(WorkflowStep, Amount, UnitOfMeasure.Code, GenerateVendorLongFilter());
 
         WorkflowStepArgument.Get(WorkflowStep.Argument);
         Assert.IsTrue(WorkflowStepArgument."Event Conditions".HasValue, UserClickedCancelMsg);
@@ -851,7 +851,7 @@ codeunit 134304 "Workflow Event Arguments Test"
 
         VerifyPurchaseHeaderFilters(WorkflowStep);
         VerifyPurchaseLineFilters(WorkflowStep, Amount, UnitOfMeasure.Code);
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     local procedure Initialize()
@@ -862,14 +862,14 @@ codeunit 134304 "Workflow Event Arguments Test"
     local procedure CreateWorkflowWithStepAndArgument(var WorkflowStep: Record "Workflow Step"; var WorkflowStepArgument: Record "Workflow Step Argument")
     begin
         CreateWorkflowStepEventArgument(WorkflowStepArgument);
-        CreateWorkflowStep(WorkflowStep, CreateWorkflow, WorkflowStepArgument.ID);
+        CreateWorkflowStep(WorkflowStep, CreateWorkflow(), WorkflowStepArgument.ID);
     end;
 
     local procedure CreateWorkflowWithStepAndDummyEvent(var WorkflowStep: Record "Workflow Step")
     var
         ZeroGUID: Guid;
     begin
-        CreateWorkflowStep(WorkflowStep, CreateWorkflow, ZeroGUID);
+        CreateWorkflowStep(WorkflowStep, CreateWorkflow(), ZeroGUID);
         CreateDummyWorkflowEventWithTableAndPageID(WorkflowStep."Function Name", DATABASE::"Purchase Header", 0);
     end;
 
@@ -877,7 +877,7 @@ codeunit 134304 "Workflow Event Arguments Test"
     var
         ZeroGUID: Guid;
     begin
-        CreateWorkflowStep(WorkflowStep, CreateWorkflow, ZeroGUID);
+        CreateWorkflowStep(WorkflowStep, CreateWorkflow(), ZeroGUID);
         CreateDummyWorkflowEventWithTableAndPageID(
           WorkflowStep."Function Name", DATABASE::"Purchase Header", REPORT::"Workflow Event Simple Args");
     end;
@@ -972,7 +972,7 @@ codeunit 134304 "Workflow Event Arguments Test"
 
     local procedure CreatePurchaseInvoiceEntity() EntityName: Code[20]
     begin
-        DeletePurhcaseHeaderRelatedEntities;
+        DeletePurhcaseHeaderRelatedEntities();
 
         EntityName := LibraryUtility.GenerateGUID();
 
@@ -1140,7 +1140,7 @@ codeunit 134304 "Workflow Event Arguments Test"
         LibraryVariableStorage.Enqueue(UnitOfMeasureCode);
         LibraryVariableStorage.Enqueue(VendorFilter);
         Commit();
-        WorkflowStep.OpenEventConditions;
+        WorkflowStep.OpenEventConditions();
     end;
 
     local procedure VerifyDynamicRequestPageBlankParametersForPurchaseHeader(FilterPageBuilder: FilterPageBuilder)
@@ -1194,14 +1194,14 @@ codeunit 134304 "Workflow Event Arguments Test"
     [Scope('OnPrem')]
     procedure CancelWorkflowEventSimpleArgumentsRequestPage(var WorkflowEventSimpleArgs: TestRequestPage "Workflow Event Simple Args")
     begin
-        WorkflowEventSimpleArgs.Cancel.Invoke;
+        WorkflowEventSimpleArgs.Cancel().Invoke();
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure OkayWorkflowEventSimpleArgumentsRequestPage(var WorkflowEventSimpleArgs: TestRequestPage "Workflow Event Simple Args")
     begin
-        WorkflowEventSimpleArgs.OK.Invoke;
+        WorkflowEventSimpleArgs.OK().Invoke();
     end;
 
     [RequestPageHandler]
@@ -1222,7 +1222,7 @@ codeunit 134304 "Workflow Event Arguments Test"
         WorkflowEventSimpleArgs."Purchase Line".SetFilter(Amount, StrSubstNo('>%1', Amount));
         WorkflowEventSimpleArgs."Purchase Line".SetFilter("Unit of Measure", UnitOfMeasure);
 
-        WorkflowEventSimpleArgs.OK.Invoke;
+        WorkflowEventSimpleArgs.OK().Invoke();
     end;
 
     [RequestPageHandler]
@@ -1257,7 +1257,7 @@ codeunit 134304 "Workflow Event Arguments Test"
         WorkflowEventAdvancedArgs."Purchase Line".SetFilter(Amount, StrSubstNo('>%1', Amount));
         WorkflowEventAdvancedArgs."Purchase Line".SetFilter("Unit of Measure", UnitOfMeasure);
 
-        WorkflowEventAdvancedArgs.OK.Invoke;
+        WorkflowEventAdvancedArgs.OK().Invoke();
     end;
 
     [RequestPageHandler]
@@ -1278,7 +1278,7 @@ codeunit 134304 "Workflow Event Arguments Test"
         WorkflowEventSimpleArgs."Purchase Line".SetFilter(Amount, StrSubstNo('>%1', Amount));
         WorkflowEventSimpleArgs."Purchase Line".SetFilter("Unit of Measure", UnitOfMeasure);
 
-        WorkflowEventSimpleArgs.OK.Invoke;
+        WorkflowEventSimpleArgs.OK().Invoke();
     end;
 }
 

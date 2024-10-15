@@ -248,7 +248,7 @@ codeunit 137029 "SCM Warehouse Orange Location"
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, '');
         for Linecount := 1 to NoOfLines do begin
             LibraryPurchase.CreatePurchaseLine(
-              PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, LibraryInventory.CreateItemNo, LibraryRandom.RandInt(10));
+              PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, LibraryInventory.CreateItemNo(), LibraryRandom.RandInt(10));
             PurchaseLine.Validate("Location Code", OrangeLocation);
             PurchaseLine.Modify(true);
         end;
@@ -336,7 +336,7 @@ codeunit 137029 "SCM Warehouse Orange Location"
         LibraryERMCountryData.CreateVATData();
         LibraryERMCountryData.UpdateGeneralPostingSetup();
         LibraryService.SetupServiceMgtNoSeries();
-        OrangeLocation := CreateOrangeLocation;
+        OrangeLocation := CreateOrangeLocation();
         WarehouseEmployee.SetRange("User ID", UserId);
         WarehouseEmployee.SetRange(Default, true);
         LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, OrangeLocation, (not WarehouseEmployee.FindFirst()));

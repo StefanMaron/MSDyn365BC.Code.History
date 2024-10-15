@@ -185,21 +185,19 @@ report 7000080 "Post Payment Order"
                                 Currency.TestField("Residual Losses Account");
                                 Account := Currency."Residual Losses Account";
                             end;
-                            with GenJnlLine do begin
-                                TempCode := PmtOrd."Currency Code";
-                                TempText := PmtOrd."Posting Description";
-                                PmtOrd."Currency Code" := '';
-                                PmtOrd."Posting Description" := Text1100004;
-                                InsertGenJournalLine(
-                                  "Account Type"::"G/L Account",
-                                  Account,
-                                  -SumLCYAmt,
-                                  "Global Dimension 1 Code", "Global Dimension 2 Code",
-                                  BGPOPostBuffer."Dimension Set ID",
-                                  BGPOPostBuffer."Entry No.", 0);
-                                PmtOrd."Currency Code" := TempCode;
-                                PmtOrd."Posting Description" := TempText;
-                            end;
+                            TempCode := PmtOrd."Currency Code";
+                            TempText := PmtOrd."Posting Description";
+                            PmtOrd."Currency Code" := '';
+                            PmtOrd."Posting Description" := Text1100004;
+                            InsertGenJournalLine(
+                              GenJnlLine."Account Type"::"G/L Account",
+                              Account,
+                              -SumLCYAmt,
+                              "Global Dimension 1 Code", "Global Dimension 2 Code",
+                              BGPOPostBuffer."Dimension Set ID",
+                              BGPOPostBuffer."Entry No.", 0);
+                            PmtOrd."Currency Code" := TempCode;
+                            PmtOrd."Posting Description" := TempText;
                         end;
                     end;
 
@@ -419,42 +417,40 @@ report 7000080 "Post Payment Order"
     begin
         GenJnlLineNextNo := GenJnlLineNextNo + 10000;
 
-        with GenJnlLine do begin
-            Clear(GenJnlLine);
-            Init();
-            "Line No." := GenJnlLineNextNo;
-            "Transaction No." := TransactionNo;
-            "Journal Template Name" := TemplName;
-            "Journal Batch Name" := BatchName;
-            "Posting Date" := PmtOrd."Posting Date";
-            "Document No." := PmtOrd."No.";
-            Validate("Account Type", AccType);
-            Validate("Account No.", AccNo);
-            Description := PmtOrd."Posting Description";
-            if PmtOrd."Currency Code" <> '' then begin
-                Validate("Currency Code", PmtOrd."Currency Code");
-                if CurrFactor <> 0 then
-                    Validate("Currency Factor", CurrFactor);
-            end;
-            Validate(Amount, Amount2);
-            "Source Code" := SourceCode;
-            "Reason Code" := ReasonCode;
-            "System-Created Entry" := true;
-            "Shortcut Dimension 1 Code" := Dep;
-            "Shortcut Dimension 2 Code" := Proj;
-            "Dimension Set ID" := DimSetID;
-            if EntryNo <> 0 then
-                VendLedgEntry2.Get(EntryNo);
-
-            "Source No." := VendLedgEntry2."Vendor No.";
-            "Source Type" := "Source Type"::Vendor;
-
-            OnBeforeGenJnlLineInsert(GenJnlLine, VendLedgEntry, VendLedgEntry2, EntryNo);
-            if CurrReport.UseRequestPage then
-                Insert()
-            else
-                GenJnlPostLine.Run(GenJnlLine);
+        Clear(GenJnlLine);
+        GenJnlLine.Init();
+        GenJnlLine."Line No." := GenJnlLineNextNo;
+        GenJnlLine."Transaction No." := TransactionNo;
+        GenJnlLine."Journal Template Name" := TemplName;
+        GenJnlLine."Journal Batch Name" := BatchName;
+        GenJnlLine."Posting Date" := PmtOrd."Posting Date";
+        GenJnlLine."Document No." := PmtOrd."No.";
+        GenJnlLine.Validate("Account Type", AccType);
+        GenJnlLine.Validate("Account No.", AccNo);
+        GenJnlLine.Description := PmtOrd."Posting Description";
+        if PmtOrd."Currency Code" <> '' then begin
+            GenJnlLine.Validate("Currency Code", PmtOrd."Currency Code");
+            if CurrFactor <> 0 then
+                GenJnlLine.Validate("Currency Factor", CurrFactor);
         end;
+        GenJnlLine.Validate(Amount, Amount2);
+        GenJnlLine."Source Code" := SourceCode;
+        GenJnlLine."Reason Code" := ReasonCode;
+        GenJnlLine."System-Created Entry" := true;
+        GenJnlLine."Shortcut Dimension 1 Code" := Dep;
+        GenJnlLine."Shortcut Dimension 2 Code" := Proj;
+        GenJnlLine."Dimension Set ID" := DimSetID;
+        if EntryNo <> 0 then
+            VendLedgEntry2.Get(EntryNo);
+
+        GenJnlLine."Source No." := VendLedgEntry2."Vendor No.";
+        GenJnlLine."Source Type" := GenJnlLine."Source Type"::Vendor;
+
+        OnBeforeGenJnlLineInsert(GenJnlLine, VendLedgEntry, VendLedgEntry2, EntryNo);
+        if CurrReport.UseRequestPage then
+            GenJnlLine.Insert()
+        else
+            GenJnlPostLine.Run(GenJnlLine);
     end;
 
     [Scope('OnPrem')]

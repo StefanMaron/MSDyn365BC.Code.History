@@ -1,4 +1,4 @@
-﻿// ------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -441,7 +441,6 @@ report 10716 "Official Acc.Summarized Book"
         i: Integer;
         PrintClose: Boolean;
         PrintAmountsInAddCurrency: Boolean;
-        Name: Text[30];
         Number: Code[20];
         Period: Integer;
         CreditAmt: Decimal;

@@ -72,10 +72,6 @@ page 2590 "Dimension Correction Changes"
             action(RevertAll)
             {
                 ApplicationArea = All;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
-                PromotedOnly = true;
                 Image = Undo;
                 Caption = 'Revert All Changes';
                 ToolTip = 'Revert all changes made to the dimensions.';
@@ -94,10 +90,6 @@ page 2590 "Dimension Correction Changes"
             action(DeleteRow)
             {
                 ApplicationArea = All;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
-                PromotedOnly = true;
                 Scope = Repeater;
                 Image = Delete;
                 Caption = 'Remove Dimension';
@@ -115,10 +107,6 @@ page 2590 "Dimension Correction Changes"
             action(RevertRow)
             {
                 ApplicationArea = All;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
-                PromotedOnly = true;
                 Scope = Repeater;
                 Image = Undo;
                 Caption = 'Revert Change';

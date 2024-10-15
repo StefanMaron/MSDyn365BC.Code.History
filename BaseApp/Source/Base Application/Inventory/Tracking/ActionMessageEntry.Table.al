@@ -9,6 +9,7 @@ using Microsoft.Warehouse.Structure;
 table 99000849 "Action Message Entry"
 {
     Caption = 'Action Message Entry';
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -134,71 +135,69 @@ table 99000849 "Action Message Entry"
     begin
         ActionMessageEntry2 := ActionMessageEntry;
 
-        with ActionMessageEntry2 do begin
-            SetSourceFilterFromActionEntry(Rec);
-            SetRange("Location Code", "Location Code");
-            SetRange("Bin Code", "Bin Code");
-            SetRange("Variant Code", "Variant Code");
-            SetRange("Item No.", "Item No.");
-            ActionMessageEntry."New Date" := 0D;
-            ActionMessageEntry.Quantity := 0;
-            ActionMessageEntry.Type := ActionMessageEntry.Type::" ";
-            if FindSet() then
+        ActionMessageEntry2.SetSourceFilterFromActionEntry(Rec);
+        ActionMessageEntry2.SetRange("Location Code", ActionMessageEntry2."Location Code");
+        ActionMessageEntry2.SetRange("Bin Code", ActionMessageEntry2."Bin Code");
+        ActionMessageEntry2.SetRange("Variant Code", ActionMessageEntry2."Variant Code");
+        ActionMessageEntry2.SetRange("Item No.", ActionMessageEntry2."Item No.");
+        ActionMessageEntry."New Date" := 0D;
+        ActionMessageEntry.Quantity := 0;
+        ActionMessageEntry.Type := ActionMessageEntry.Type::" ";
+        if ActionMessageEntry2.FindSet() then
+            repeat
+                if ActionMessageEntry2.Quantity <> 0 then begin
+                    ActionMessageEntry.Quantity += ActionMessageEntry2.Quantity;
+                    TypeArray[2] := true;
+                end;
+                if ActionMessageEntry2."New Date" <> 0D then begin
+                    ActionMessageEntry."New Date" := ActionMessageEntry2."New Date";
+                    TypeArray[3] := true;
+                end;
+            until ActionMessageEntry2.Next() = 0;
+
+        if TypeArray[2] then
+            ActionMessageEntry.Type := ActionMessageEntry.Type::"Change Qty.";
+
+        if TypeArray[3] then
+            ActionMessageEntry.Type := ActionMessageEntry.Type::Reschedule;
+
+        if TypeArray[2] and TypeArray[3] then
+            ActionMessageEntry.Type := ActionMessageEntry.Type::"Resched. & Chg. Qty.";
+
+        if TypeArray[1] then
+            ActionMessageEntry.Type := ActionMessageEntry.Type::New;
+
+        if TypeArray[5] then
+            ActionMessageEntry.Type := ActionMessageEntry.Type::Cancel;
+
+        ActionMessageEntry2."New Date" := ActionMessageEntry."New Date";
+        ActionMessageEntry2.Quantity := ActionMessageEntry.Quantity;
+        ActionMessageEntry2.Type := ActionMessageEntry.Type;
+        ActionMessageEntry := ActionMessageEntry2;
+
+        ComponentBinding := false;
+        if ActionMessageEntry."Source Type" = Database::"Prod. Order Line" then begin
+            FirstDate := DMY2Date(31, 12, 9999);
+            ActionMessageEntry.FilterToReservEntry(ReservEntry);
+            ReservEntry.SetRange(Binding, ReservEntry.Binding::"Order-to-Order");
+            if ReservEntry.FindSet() then
                 repeat
-                    if Quantity <> 0 then begin
-                        ActionMessageEntry.Quantity += Quantity;
-                        TypeArray[2] := true;
-                    end;
-                    if "New Date" <> 0D then begin
-                        ActionMessageEntry."New Date" := "New Date";
-                        TypeArray[3] := true;
-                    end;
-                until Next() = 0;
-
-            if TypeArray[2] then
-                ActionMessageEntry.Type := ActionMessageEntry.Type::"Change Qty.";
-
-            if TypeArray[3] then
-                ActionMessageEntry.Type := ActionMessageEntry.Type::Reschedule;
-
-            if TypeArray[2] and TypeArray[3] then
-                ActionMessageEntry.Type := ActionMessageEntry.Type::"Resched. & Chg. Qty.";
-
-            if TypeArray[1] then
-                ActionMessageEntry.Type := ActionMessageEntry.Type::New;
-
-            if TypeArray[5] then
-                ActionMessageEntry.Type := ActionMessageEntry.Type::Cancel;
-
-            "New Date" := ActionMessageEntry."New Date";
-            Quantity := ActionMessageEntry.Quantity;
-            Type := ActionMessageEntry.Type;
-            ActionMessageEntry := ActionMessageEntry2;
-
-            ComponentBinding := false;
-            if ActionMessageEntry."Source Type" = Database::"Prod. Order Line" then begin
-                FirstDate := DMY2Date(31, 12, 9999);
-                ActionMessageEntry.FilterToReservEntry(ReservEntry);
-                ReservEntry.SetRange(Binding, ReservEntry.Binding::"Order-to-Order");
-                if ReservEntry.FindSet() then
-                    repeat
-                        if ReservEntry2.Get(ReservEntry."Entry No.", false) then
-                            if (ReservEntry2."Source Type" = Database::"Prod. Order Component") and
-                               (ReservEntry2."Source Subtype" = ReservEntry."Source Subtype") and
-                               (ReservEntry2."Source ID" = ReservEntry."Source ID")
-                            then
-                                if ProdOrderComp.Get(
-                                     ReservEntry2."Source Subtype", ReservEntry2."Source ID",
-                                     ReservEntry2."Source Prod. Order Line", ReservEntry2."Source Ref. No.")
-                                then begin
-                                    ComponentBinding := true;
-                                    if ProdOrderComp."Due Date" < FirstDate then begin
-                                        FirstDate := ProdOrderComp."Due Date";
-                                        FirstTime := ProdOrderComp."Due Time";
-                                    end;
+                    if ReservEntry2.Get(ReservEntry."Entry No.", false) then
+                        if (ReservEntry2."Source Type" = Database::"Prod. Order Component") and
+                           (ReservEntry2."Source Subtype" = ReservEntry."Source Subtype") and
+                           (ReservEntry2."Source ID" = ReservEntry."Source ID")
+                        then
+                            if ProdOrderComp.Get(
+                                 ReservEntry2."Source Subtype", ReservEntry2."Source ID",
+                                 ReservEntry2."Source Prod. Order Line", ReservEntry2."Source Ref. No.")
+                            then begin
+                                ComponentBinding := true;
+                                if ProdOrderComp."Due Date" < FirstDate then begin
+                                    FirstDate := ProdOrderComp."Due Date";
+                                    FirstTime := ProdOrderComp."Due Time";
                                 end;
-                    until ReservEntry.Next() = 0;
-            end;
+                            end;
+                until ReservEntry.Next() = 0;
         end;
     end;
 

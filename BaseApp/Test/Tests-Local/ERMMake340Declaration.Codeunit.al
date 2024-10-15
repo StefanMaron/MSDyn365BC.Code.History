@@ -80,7 +80,7 @@ codeunit 144048 "ERM Make 340 Declaration"
         OperationCodeStartingPosition: Integer;
     begin
         // [SCENARIO] to verify Operation Code and Customer Number on Report 10743 - Make 340 Declaration, when fields - Property Location, Property Tax Account Number and Operation code filled on 340 Declaration Lines.
-        OperationCode := CopyStr(LibraryUtility.GenerateGUID, 1, 1);  // Operation Code of Length 1 Required.
+        OperationCode := CopyStr(LibraryUtility.GenerateGUID(), 1, 1);  // Operation Code of Length 1 Required.
         OperationCodeStartingPosition := 100;  // Hardcoded values for Known Operation Code - Starting Position in text file.
         RunMake340DeclarationForSalesInvoice(OperationCode, OperationCodeStartingPosition, OperationCode);  // Hardcoded values for Known Starting Position.
     end;
@@ -106,15 +106,15 @@ codeunit 144048 "ERM Make 340 Declaration"
     begin
         // Setup: Create and Post Sales Invoice.
         Initialize();
-        CustomerNo := CreateCustomer;
+        CustomerNo := CreateCustomer();
         LibraryMake340Declaration.CreateOperationCode(OperationCode, OperationCodeCode);
-        CreateAndPostSalesInvoice(CustomerNo, WorkDate());  // WORKDATE - Posting Date.
+        CreateAndPostSalesInvoice(CustomerNo, WorkDate());  // WorkDate() - Posting Date.
         CustomerNoStartingPosition := 36;  // Hardcoded values for Known Posted Customer No - Starting Position in text file.
         LibraryVariableStorage.Enqueue(Date2DMY(WorkDate(), 2));
         LibraryVariableStorage.Enqueue(OperationCodeCode);  // Enqueue for - Declaration340LinesWithOperationCodePageHandler.
 
         // Exercise: Open handler - Make340DeclarationHandler and Declaration340LinesWithOperationCodePageHandler.
-        ExportFileName := RunMake340DeclarationReport(WorkDate());  // WORKDATE - Posting Date.
+        ExportFileName := RunMake340DeclarationReport(WorkDate());  // WorkDate() - Posting Date.
 
         // Verify: Verify Posted Customer Number and Operation Code in Text File, Using Hardcoded values for Known Starting Position.
         VerifyValuesOnGeneratedTextFile(ExportFileName, StartingPostion, CustomerNoStartingPosition, ExpectedValue, CustomerNo);
@@ -134,12 +134,12 @@ codeunit 144048 "ERM Make 340 Declaration"
 
         // [GIVEN] Create and Post Sales Credit Memo with multiple Line.
         Initialize();
-        DocumentNo := CreateAndPostSalesCreditMemoWithMultipleLine;
+        DocumentNo := CreateAndPostSalesCreditMemoWithMultipleLine();
         PostedDocNumberStartingPosition := 218;  // Hardcoded values for Known Post Doc Number - Starting Position in text file.
         OperationCodeStartingPosition := 100;  // Hardcoded values for Known Operation Code - Starting Position in text file.
 
         // [WHEN] Open handler - Make340DeclarationHandler and Declaration340LinesPageHandler.
-        ExportFileName := RunMake340DeclarationReport(WorkDate());  // WORKDATE - Posting Date.
+        ExportFileName := RunMake340DeclarationReport(WorkDate());  // WorkDate() - Posting Date.
 
         // [THEN] Verify Posted Document Number and Operation Code in Text File, Using Hardcoded values for Known Starting Position.
         VerifyValuesOnGeneratedTextFile(
@@ -155,7 +155,7 @@ codeunit 144048 "ERM Make 340 Declaration"
 
         // Setup.
         Initialize();
-        RunMake340DeclarationForMultiSalesInvoice(WorkDate());  // WORKDATE - Posting Date.
+        RunMake340DeclarationForMultiSalesInvoice(WorkDate());  // WorkDate() - Posting Date.
     end;
 
     [Test]
@@ -180,7 +180,7 @@ codeunit 144048 "ERM Make 340 Declaration"
         Shift: Integer;
     begin
         // Create and Post multiple Sales Invoice.
-        CustomerNo := CreateCustomer;
+        CustomerNo := CreateCustomer();
         Amount := CreateAndPostSalesInvoice(CustomerNo, PostingDate);
         Amount2 := CreateAndPostSalesInvoice(CustomerNo, PostingDate);
         Amount := Round(Amount, 0.01);
@@ -219,7 +219,7 @@ codeunit 144048 "ERM Make 340 Declaration"
         LibraryVariableStorage.Enqueue(PurchaseHeader."Buy-from Vendor No.");  // Enqueue value for handler - Make340DeclarationHandler.
 
         // [WHEN] Open handler - Make340DeclarationHandler and Declaration340LinesPageHandler.
-        ExportFileName := RunMake340DeclarationReport(WorkDate());  // WORKDATE - Posting Date.
+        ExportFileName := RunMake340DeclarationReport(WorkDate());  // WorkDate() - Posting Date.
 
         // [THEN] Verify Company Name and Vendor Number in Text File.
         VerifyValuesOnGeneratedTextFile(
@@ -243,8 +243,8 @@ codeunit 144048 "ERM Make 340 Declaration"
 
         // [GIVEN]
         Initialize();
-        PrevNoSeries := SetupPurchaseJournalNoSeries(CreateNoSeries);
-        VendorNo := CreateVendor;
+        PrevNoSeries := SetupPurchaseJournalNoSeries(CreateNoSeries());
+        VendorNo := CreateVendor();
         CreateAndPostPurchaseJournal(VendorNo, CalcDate('<-1Y>', WorkDate()));
         Amount := CreateAndPostPurchaseJournal(VendorNo, WorkDate());
         AmountStartingPosition := 159;  // Hardcoded values for Known Amount - Starting Position in text file.
@@ -381,7 +381,7 @@ codeunit 144048 "ERM Make 340 Declaration"
         // [GIVEN] Sales Order
         CreateSalesDocument(
           SalesHeader, SalesLine, SalesHeader."Document Type"::Order,
-          CreateCustomer, CalcDate('<1M>', WorkDate()));
+          CreateCustomer(), CalcDate('<1M>', WorkDate()));
         // [GIVEN] Partial Shipment in Work date + 1 month
         SalesLine.Validate(
           "Qty. to Ship", LibraryRandom.RandIntInRange(1, SalesLine.Quantity - 1));
@@ -416,7 +416,7 @@ codeunit 144048 "ERM Make 340 Declaration"
         // [GIVEN] Purchase Order
         CreatePurchDocument(
           PurchHeader, PurchLine, PurchHeader."Document Type"::Order,
-          CreateVendor, CalcDate('<1M>', WorkDate()));
+          CreateVendor(), CalcDate('<1M>', WorkDate()));
         // [GIVEN] Partial Receipt in Work date + 1 month
         PurchLine.Validate(
           "Qty. to Receive", LibraryRandom.RandIntInRange(1, PurchLine.Quantity - 1));
@@ -454,7 +454,7 @@ codeunit 144048 "ERM Make 340 Declaration"
 
         // [GIVEN] Sales Order has "Item1" and "Item2"
         CreateSalesDocument(
-          SalesHeader, SalesLine1, SalesHeader."Document Type"::Order, CreateCustomer, LibraryRandom.RandDate(-5));
+          SalesHeader, SalesLine1, SalesHeader."Document Type"::Order, CreateCustomer(), LibraryRandom.RandDate(-5));
         CreateSalesLine(SalesHeader, SalesLine2);
 
         // [GIVEN] Shipment is posted for "Item1" on 15-01-2016
@@ -504,7 +504,7 @@ codeunit 144048 "ERM Make 340 Declaration"
 
         // [GIVEN] Sales Order has "Item1" and "Item2"
         CreateSalesDocument(
-          SalesHeader, SalesLine1, SalesHeader."Document Type"::"Return Order", CreateCustomer, LibraryRandom.RandDate(-5));
+          SalesHeader, SalesLine1, SalesHeader."Document Type"::"Return Order", CreateCustomer(), LibraryRandom.RandDate(-5));
         CreateSalesLine(SalesHeader, SalesLine2);
 
         // [GIVEN] Return Receipt is posted for "Item1" on 15-01-2016
@@ -556,9 +556,9 @@ codeunit 144048 "ERM Make 340 Declaration"
 
         // [GIVEN] Purchase Order has "Item1" and "Item2"
         CreatePurchDocument(
-          PurchaseHeader, PurchaseLine1, PurchaseHeader."Document Type"::Order, CreateVendor, LibraryRandom.RandDate(-5));
+          PurchaseHeader, PurchaseLine1, PurchaseHeader."Document Type"::Order, CreateVendor(), LibraryRandom.RandDate(-5));
         CreatePurchLine(
-          PurchaseLine2, PurchaseHeader, PurchaseLine2.Type::Item, LibraryInventory.CreateItemNo,
+          PurchaseLine2, PurchaseHeader, PurchaseLine2.Type::Item, LibraryInventory.CreateItemNo(),
           LibraryRandom.RandIntInRange(3, 10), LibraryRandom.RandIntInRange(3, 10));
 
         // [GIVEN] Receipt is posted for "Item1" on 15-01-2016
@@ -609,9 +609,9 @@ codeunit 144048 "ERM Make 340 Declaration"
 
         // [GIVEN] Purchase Order has "Item1" and "Item2"
         CreatePurchDocument(
-          PurchaseHeader, PurchaseLine1, PurchaseHeader."Document Type"::"Return Order", CreateVendor, LibraryRandom.RandDate(-5));
+          PurchaseHeader, PurchaseLine1, PurchaseHeader."Document Type"::"Return Order", CreateVendor(), LibraryRandom.RandDate(-5));
         CreatePurchLine(
-          PurchaseLine2, PurchaseHeader, PurchaseLine2.Type::Item, LibraryInventory.CreateItemNo,
+          PurchaseLine2, PurchaseHeader, PurchaseLine2.Type::Item, LibraryInventory.CreateItemNo(),
           LibraryRandom.RandIntInRange(3, 10), LibraryRandom.RandIntInRange(3, 10));
 
         // [GIVEN] Shipment is posted for "Item1" on 15-01-2016
@@ -807,9 +807,9 @@ codeunit 144048 "ERM Make 340 Declaration"
         Create340DeclarationLine(Rec340DeclarationLineBill, VATEntry."Document Type"::Bill);
 
         // [WHEN] Run table 340 Declaration Line function RemoveDuplicateAmounts for each line
-        Rec340DeclarationLinePayment.RemoveDuplicateAmounts;
-        Rec340DeclarationLineRefund.RemoveDuplicateAmounts;
-        Rec340DeclarationLineBill.RemoveDuplicateAmounts;
+        Rec340DeclarationLinePayment.RemoveDuplicateAmounts();
+        Rec340DeclarationLineRefund.RemoveDuplicateAmounts();
+        Rec340DeclarationLineBill.RemoveDuplicateAmounts();
 
         // [THEN] Fields "VAT Amount","VAT Amount / EC Amount","Amount Including VAT / EC","VAT %","Base","EC %","EC Amount" in Lines "P", "R" and "B" are equal to 0.
         Verify340DeclarationEmptyAmounts(Rec340DeclarationLinePayment);
@@ -1425,7 +1425,7 @@ codeunit 144048 "ERM Make 340 Declaration"
           LibraryTextFileValidation.CountNoOfLinesWithValue(
             ExportFileName, PurchaseHeader."Vendor Invoice No.", 178, StrLen(PurchaseHeader."Vendor Invoice No.")),
           StrSubstNo(IncorrectLineCountErr, PurchaseHeader.FieldCaption("Vendor Invoice No.")));
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     local procedure Initialize()
@@ -1560,11 +1560,11 @@ codeunit 144048 "ERM Make 340 Declaration"
     var
         PurchaseLine: Record "Purchase Line";
     begin
-        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, CreateVendor);
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, CreateVendor());
         CreatePurchLineWithUnitCost(
           PurchaseHeader,
           PurchaseLine.Type::Item,
-          LibraryInventory.CreateItemNo,
+          LibraryInventory.CreateItemNo(),
           LibraryRandom.RandDec(10, 2), LibraryRandom.RandDec(100, 2));
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
     end;
@@ -1592,7 +1592,7 @@ codeunit 144048 "ERM Make 340 Declaration"
         PurchaseLine: Record "Purchase Line";
         ItemNo: Code[20];
     begin
-        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, CreateVendor);
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, CreateVendor());
 
         ItemNo := LibraryInventory.CreateItemNo();
         TotalAmount := CreatePurchLineWithDim(PurchaseLine, PurchaseHeader, ItemNo);
@@ -1606,7 +1606,7 @@ codeunit 144048 "ERM Make 340 Declaration"
         PurchaseLine: Record "Purchase Line";
         ItemNo: Code[20];
     begin
-        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, CreateVendor);
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, CreateVendor());
         PurchaseHeader.Validate("Vendor Invoice No.", PurchaseHeader."Buy-from Vendor No.");
         PurchaseHeader.Modify(true);
         ItemNo := CreateItemWithOperationCode(PurchaseHeader."Gen. Bus. Posting Group", OperationCode);
@@ -1761,7 +1761,7 @@ codeunit 144048 "ERM Make 340 Declaration"
         CreateGenJnlLine(
           GenJournalLine, GenJournalLine."Document Type"::Payment, WorkDate(),
           AccountType, AccountNo,
-          GenJournalLine."Bal. Account Type", LibraryERM.CreateGLAccountNo, Amount);
+          GenJournalLine."Bal. Account Type", LibraryERM.CreateGLAccountNo(), Amount);
         GenJournalLine.Validate("Applies-to Doc. Type", GenJournalLine."Applies-to Doc. Type"::Bill);
         GenJournalLine.Validate("Applies-to Doc. No.", DocNo);
         GenJournalLine.Validate("Applies-to Bill No.", BillNo);
@@ -1844,7 +1844,7 @@ codeunit 144048 "ERM Make 340 Declaration"
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
     begin
-        CreateSalesDocument(SalesHeader, SalesLine, SalesHeader."Document Type"::"Credit Memo", CreateCustomer, WorkDate());  // WORKDATE - Posting Date.
+        CreateSalesDocument(SalesHeader, SalesLine, SalesHeader."Document Type"::"Credit Memo", CreateCustomer(), WorkDate());  // WorkDate() - Posting Date.
         CreateSalesLine(SalesHeader, SalesLine);
         CreateSalesLine(SalesHeader, SalesLine);
         exit(LibrarySales.PostSalesDocument(SalesHeader, true, true));
@@ -1899,7 +1899,7 @@ codeunit 144048 "ERM Make 340 Declaration"
         SalesLine: Record "Sales Line";
         ItemNo: Code[20];
     begin
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, CreateCustomer);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, CreateCustomer());
 
         ItemNo := LibraryInventory.CreateItemNo();
         TotalAmount := CreateSalesLineWithDim(SalesLine, SalesHeader, ItemNo);
@@ -2045,7 +2045,7 @@ codeunit 144048 "ERM Make 340 Declaration"
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchDocType, VendorNo);
         SetPurchHeaderPostingDate(PurchaseHeader, PostingDate);
         CreatePurchLine(
-          PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, LibraryInventory.CreateItemNo,
+          PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, LibraryInventory.CreateItemNo(),
           LibraryRandom.RandIntInRange(3, 10), LibraryRandom.RandIntInRange(50, 100));
     end;
 
@@ -2135,8 +2135,8 @@ codeunit 144048 "ERM Make 340 Declaration"
             Validate("Purch. VAT Unreal. Account", GLAccount."No.");
             Validate("Sales VAT Account", GLAccount."No.");
             Validate("Sales VAT Unreal. Account", GLAccount."No.");
-            Validate("Reverse Chrg. VAT Acc.", LibraryERM.CreateGLAccountNo);
-            Validate("Reverse Chrg. VAT Unreal. Acc.", LibraryERM.CreateGLAccountNo);
+            Validate("Reverse Chrg. VAT Acc.", LibraryERM.CreateGLAccountNo());
+            Validate("Reverse Chrg. VAT Unreal. Acc.", LibraryERM.CreateGLAccountNo());
             Validate("VAT Cash Regime", UseVATCashRegime);
             Modify(true);
         end;
@@ -2184,8 +2184,8 @@ codeunit 144048 "ERM Make 340 Declaration"
         LibraryInventory.CreateItem(Item);
         LibraryERM.CreateGenProdPostingGroup(GenProductPostingGroup);
         LibraryERM.CreateGeneralPostingSetup(GeneralPostingSetup, GenBusPostGroup, GenProductPostingGroup.Code);
-        GeneralPostingSetup.Validate("Purch. Account", LibraryERM.CreateGLAccountNo);
-        GeneralPostingSetup.Validate("Direct Cost Applied Account", LibraryERM.CreateGLAccountNo);
+        GeneralPostingSetup.Validate("Purch. Account", LibraryERM.CreateGLAccountNo());
+        GeneralPostingSetup.Validate("Direct Cost Applied Account", LibraryERM.CreateGLAccountNo());
         GeneralPostingSetup.Modify(true);
         LibraryMake340Declaration.CreateOperationCode(OperationCodeRec, OperationCode);
         GenProductPostingGroup.Validate("Def. VAT Prod. Posting Group", Item."VAT Prod. Posting Group");
@@ -2454,7 +2454,7 @@ codeunit 144048 "ERM Make 340 Declaration"
     [Scope('OnPrem')]
     procedure Declaration340LinesPageHandler(var Declaration340Lines: TestPage "340 Declaration Lines")
     begin
-        Declaration340Lines.OK.Invoke;
+        Declaration340Lines.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -2468,49 +2468,49 @@ codeunit 144048 "ERM Make 340 Declaration"
         Declaration340Lines."Operation Code".SetValue(OperationCode);
         Declaration340Lines."Property Location".SetValue(Declaration340Line."Property Location"::"Property in Spain");
         Declaration340Lines."Property Tax Account No.".SetValue(LibraryUtility.GenerateGUID());
-        Declaration340Lines.OK.Invoke;
+        Declaration340Lines.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure Declaration340LinesVerifyVATECAmountPctHandler(var Declaration340Lines: TestPage "340 Declaration Lines")
     begin
-        Declaration340Lines."VAT %".AssertEquals(LibraryVariableStorage.DequeueDecimal);
-        Declaration340Lines."VAT Amount".AssertEquals(LibraryVariableStorage.DequeueDecimal);
-        Declaration340Lines."EC %".AssertEquals(LibraryVariableStorage.DequeueDecimal);
-        Declaration340Lines."EC Amount".AssertEquals(LibraryVariableStorage.DequeueDecimal);
-        Declaration340Lines.Cancel.Invoke;
+        Declaration340Lines."VAT %".AssertEquals(LibraryVariableStorage.DequeueDecimal());
+        Declaration340Lines."VAT Amount".AssertEquals(LibraryVariableStorage.DequeueDecimal());
+        Declaration340Lines."EC %".AssertEquals(LibraryVariableStorage.DequeueDecimal());
+        Declaration340Lines."EC Amount".AssertEquals(LibraryVariableStorage.DequeueDecimal());
+        Declaration340Lines.Cancel().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure VerifyDeclaration340LinesMPH(var Declaration340Lines: TestPage "340 Declaration Lines")
     begin
-        Declaration340Lines.First;
-        Declaration340Lines.Base.AssertEquals(LibraryVariableStorageVerifyValues.DequeueDecimal);
-        Assert.IsFalse(Declaration340Lines.Next, Decl340LinesCountErr);
-        Declaration340Lines.Cancel.Invoke;
+        Declaration340Lines.First();
+        Declaration340Lines.Base.AssertEquals(LibraryVariableStorageVerifyValues.DequeueDecimal());
+        Assert.IsFalse(Declaration340Lines.Next(), Decl340LinesCountErr);
+        Declaration340Lines.Cancel().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure VerifyDeclaration340LinesOperationCodeMPH(var Declaration340Lines: TestPage "340 Declaration Lines")
     begin
-        Declaration340Lines.FILTER.SetFilter("Document No.", LibraryVariableStorageVerifyValues.DequeueText);
-        Declaration340Lines.First;
-        Declaration340Lines.Base.AssertEquals(LibraryVariableStorageVerifyValues.DequeueDecimal);
-        Declaration340Lines."Operation Code".AssertEquals(LibraryVariableStorageVerifyValues.DequeueText);
-        Declaration340Lines.Cancel.Invoke;
+        Declaration340Lines.FILTER.SetFilter("Document No.", LibraryVariableStorageVerifyValues.DequeueText());
+        Declaration340Lines.First();
+        Declaration340Lines.Base.AssertEquals(LibraryVariableStorageVerifyValues.DequeueDecimal());
+        Declaration340Lines."Operation Code".AssertEquals(LibraryVariableStorageVerifyValues.DequeueText());
+        Declaration340Lines.Cancel().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure VerifyPartialSettlementDeclaration340LinesMPH(var Declaration340Lines: TestPage "340 Declaration Lines")
     begin
-        Declaration340Lines.First;
-        Declaration340Lines.Base.AssertEquals(LibraryVariableStorageVerifyValues.DequeueDecimal);
-        Declaration340Lines."VAT Amount".AssertEquals(LibraryVariableStorageVerifyValues.DequeueDecimal);
-        Declaration340Lines.OK.Invoke;
+        Declaration340Lines.First();
+        Declaration340Lines.Base.AssertEquals(LibraryVariableStorageVerifyValues.DequeueDecimal());
+        Declaration340Lines."VAT Amount".AssertEquals(LibraryVariableStorageVerifyValues.DequeueDecimal());
+        Declaration340Lines.OK().Invoke();
     end;
 
     [RequestPageHandler]
@@ -2524,7 +2524,7 @@ codeunit 144048 "ERM Make 340 Declaration"
         LibraryVariableStorage.Dequeue(Month);
         Make340Declaration.Month.SetValue(Format(DMY2Date(1, Month, 2000), 0, '<Month Text>'));
         Make340Declaration.VATEntry.SetFilter("Bill-to/Pay-to No.", BilToPayToNo);
-        Make340Declaration.OK.Invoke;
+        Make340Declaration.OK().Invoke();
     end;
 
     [MessageHandler]
@@ -2537,8 +2537,8 @@ codeunit 144048 "ERM Make 340 Declaration"
     [Scope('OnPrem')]
     procedure CarteraDocumentsMPH(var CarteraDocuments: TestPage "Cartera Documents")
     begin
-        CarteraDocuments.FILTER.SetFilter("Account No.", LibraryVariableStorage.DequeueText);
-        CarteraDocuments.OK.Invoke;
+        CarteraDocuments.FILTER.SetFilter("Account No.", LibraryVariableStorage.DequeueText());
+        CarteraDocuments.OK().Invoke();
     end;
 
     [ConfirmHandler]

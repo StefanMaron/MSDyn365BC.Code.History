@@ -1,4 +1,4 @@
-﻿// ------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -466,14 +466,13 @@ report 7000009 "Payment Order - Test"
                         if not FeeRange.Find('=<>') then
                             CurrReport.Skip();
                         FeeRange.InitCollExpenses("Operation Fees Code", "Currency Code");
-                        with DocPostBuffer do
-                            repeat
-                                FeeRange.CalcCollExpensesAmt(
-                                  "Operation Fees Code",
-                                  "Currency Code",
-                                  Amount,
-                                  "Entry No.");
-                            until Next() = 0;
+                        repeat
+                            FeeRange.CalcCollExpensesAmt(
+                              "Operation Fees Code",
+                              "Currency Code",
+                              DocPostBuffer.Amount,
+                              DocPostBuffer."Entry No.");
+                        until DocPostBuffer.Next() = 0;
                     end;
                 }
             }
@@ -484,32 +483,30 @@ report 7000009 "Payment Order - Test"
                 Clear(PostingGroup);
                 Clear(CalcExpenses);
 
-                with BankAcc2 do begin
-                    if Get(PmtOrd."Bank Account No.") then begin
-                        if "Currency Code" <> PmtOrd."Currency Code" then
-                            AddError(
-                              StrSubstNo(
-                                Text1100000,
-                                FieldCaption("Currency Code"),
-                                PmtOrd."Currency Code",
-                                TableCaption,
-                                "No."));
-                        if "Operation Fees Code" = '' then
-                            AddError(
-                              StrSubstNo(
-                                Text1100001,
-                                FieldCaption("Operation Fees Code"),
-                                TableCaption,
-                                "No."));
-                        if PmtOrd."Posting Date" <> 0D then
-                            CalcExpenses := true;
-                        FormatAddress.FormatAddr(
-                          BankAccAddr, Name, "Name 2", '', Address, "Address 2",
-                          City, "Post Code", County, "Country/Region Code");
-                        PostingGroup := "Bank Acc. Posting Group";
-                        CompanyIsBlocked := Blocked;
-                        PmtOrd."Bank Account Name" := Name;
-                    end;
+                if BankAcc2.Get(PmtOrd."Bank Account No.") then begin
+                    if BankAcc2."Currency Code" <> PmtOrd."Currency Code" then
+                        AddError(
+                          StrSubstNo(
+                            Text1100000,
+                            BankAcc2.FieldCaption("Currency Code"),
+                            PmtOrd."Currency Code",
+                            BankAcc2.TableCaption,
+                            BankAcc2."No."));
+                    if BankAcc2."Operation Fees Code" = '' then
+                        AddError(
+                          StrSubstNo(
+                            Text1100001,
+                            BankAcc2.FieldCaption("Operation Fees Code"),
+                            BankAcc2.TableCaption,
+                            BankAcc2."No."));
+                    if PmtOrd."Posting Date" <> 0D then
+                        CalcExpenses := true;
+                    FormatAddress.FormatAddr(
+                      BankAccAddr, BankAcc2.Name, BankAcc2."Name 2", '', BankAcc2.Address, BankAcc2."Address 2",
+                      BankAcc2.City, BankAcc2."Post Code", BankAcc2.County, BankAcc2."Country/Region Code");
+                    PostingGroup := BankAcc2."Bank Acc. Posting Group";
+                    CompanyIsBlocked := BankAcc2.Blocked;
+                    PmtOrd."Bank Account Name" := BankAcc2.Name;
                 end;
 
                 if "Bank Account No." = '' then
@@ -597,9 +594,6 @@ report 7000009 "Payment Order - Test"
         FormatAddress: Codeunit "Format Address";
         PmtOrdFilter: Text[250];
         BankAccAddr: array[8] of Text[100];
-        City: Text[30];
-        County: Text[30];
-        Name: Text[50];
         ErrorText: array[99] of Text[250];
         ErrorCounter: Integer;
         PostingGroup: Code[20];

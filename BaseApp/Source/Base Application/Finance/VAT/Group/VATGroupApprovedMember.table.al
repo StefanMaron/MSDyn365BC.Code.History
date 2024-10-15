@@ -9,6 +9,7 @@ table 4800 "VATGroup Approved Member"
     ObsoleteState = Removed;
     ObsoleteReason = 'Moved to VAT Group Management extension table 4700 VAT Group Approved Member';
     ObsoleteTag = '18.0';
+    DataClassification = CustomerContent;
 
     fields
     {

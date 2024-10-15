@@ -912,7 +912,7 @@ codeunit 147315 "Test 340 Declaration"
             // [THEN] Invoice line has VAT % = "Z", VAT Base = "X", VAT Amount = "Y", Invoice Amount = "X" + "Y", Collection Amount = 0
             Verify340FileLineAmounts(Filename, 2, VATEntry, VATEntry."VAT %", Amounts, 0);
 
-            DeleteObjectOptionsIfNeeded;
+            DeleteObjectOptionsIfNeeded();
         end
     end;
 
@@ -1593,7 +1593,7 @@ codeunit 147315 "Test 340 Declaration"
     begin
         LibraryVariableStorage.Clear();
         Library340347Declaration.SetupVATType(false, false);
-        DeleteObjectOptionsIfNeeded;
+        DeleteObjectOptionsIfNeeded();
     end;
 
     local procedure CreateGLAccountWithVATPostingSetup(VATPostingSetup: Record "VAT Posting Setup"): Code[20]
@@ -2057,7 +2057,7 @@ codeunit 147315 "Test 340 Declaration"
     [Scope('OnPrem')]
     procedure Declaration340LinesPageHandler(var Declaration340Lines: TestPage "340 Declaration Lines")
     begin
-        Declaration340Lines.OK.Invoke;
+        Declaration340Lines.OK().Invoke();
     end;
 
     [RequestPageHandler]
@@ -2067,10 +2067,10 @@ codeunit 147315 "Test 340 Declaration"
         VATEntry: Record "VAT Entry";
     begin
         CurrentSaveValuesId := REPORT::"Make 340 Declaration";
-        VATEntry.Get(LibraryVariableStorage.DequeueInteger);
+        VATEntry.Get(LibraryVariableStorage.DequeueInteger());
         Make340Declaration.VATEntry.SetFilter("Entry No.", Format(VATEntry."Entry No."));
         Make340Declaration.VATEntry.SetFilter("Document Type", Format(VATEntry."Document Type"));
-        Make340Declaration.OK.Invoke;
+        Make340Declaration.OK().Invoke();
     end;
 
     [RequestPageHandler]
@@ -2078,8 +2078,8 @@ codeunit 147315 "Test 340 Declaration"
     procedure Make340Declaration_SeveralVATEntries_RPH(var Make340Declaration: TestRequestPage "Make 340 Declaration")
     begin
         CurrentSaveValuesId := REPORT::"Make 340 Declaration";
-        Make340Declaration.VATEntry.SetFilter("Entry No.", LibraryVariableStorage.DequeueText);
-        Make340Declaration.OK.Invoke;
+        Make340Declaration.VATEntry.SetFilter("Entry No.", LibraryVariableStorage.DequeueText());
+        Make340Declaration.OK().Invoke();
     end;
 
     [MessageHandler]

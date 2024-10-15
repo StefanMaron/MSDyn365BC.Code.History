@@ -10,14 +10,15 @@ using Microsoft.Purchases.History;
 using Microsoft.Sales.Document;
 using System;
 using System.IO;
-using Microsoft.Utilities;
 using System.Reflection;
 using System.Utilities;
 using System.Xml;
+using Microsoft.Utilities;
 
 table 133 "Incoming Document Attachment"
 {
     Caption = 'Incoming Document Attachment';
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -444,13 +445,13 @@ table 133 "Incoming Document Attachment"
         exit(StrSubstNo('%1.%2', Name, "File Extension"));
     end;
 
-    [IntegrationEvent(TRUE, false)]
+    [IntegrationEvent(true, false)]
     [Scope('OnPrem')]
     procedure OnAttachBinaryFile()
     begin
     end;
 
-    [IntegrationEvent(TRUE, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnGetBinaryContent(var TempBlob: Codeunit "Temp Blob"; IncomingDocumentEntryNo: Integer)
     begin
     end;

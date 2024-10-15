@@ -42,6 +42,7 @@ table 122 "Purch. Inv. Header"
     DataCaptionFields = "No.", "Buy-from Vendor Name";
     DrillDownPageID = "Posted Purchase Invoices";
     LookupPageID = "Posted Purchase Invoices";
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -544,7 +545,7 @@ table 122 "Purch. Inv. Header"
         }
         field(1302; Closed; Boolean)
         {
-            CalcFormula = - Exist("Vendor Ledger Entry" where("Entry No." = field("Vendor Ledger Entry No."),
+            CalcFormula = - exist("Vendor Ledger Entry" where("Entry No." = field("Vendor Ledger Entry No."),
                                                               Open = filter(true)));
             Caption = 'Closed';
             Editable = false;
@@ -794,15 +795,13 @@ table 122 "Purch. Inv. Header"
     var
         ReportSelection: Record "Report Selections";
     begin
-        with PurchInvHeader do begin
-            Copy(Rec);
-            ReportSelection.SetRange(Usage, ReportSelection.Usage::"P.AutoInvoice");
-            ReportSelection.SetFilter("Report ID", '<>0');
-            ReportSelection.Find('-');
-            repeat
-                REPORT.RunModal(ReportSelection."Report ID", ShowRequestForm, false, PurchInvHeader);
-            until ReportSelection.Next() = 0;
-        end;
+        PurchInvHeader.Copy(Rec);
+        ReportSelection.SetRange(Usage, ReportSelection.Usage::"P.AutoInvoice");
+        ReportSelection.SetFilter("Report ID", '<>0');
+        ReportSelection.Find('-');
+        repeat
+            REPORT.RunModal(ReportSelection."Report ID", ShowRequestForm, false, PurchInvHeader);
+        until ReportSelection.Next() = 0;
     end;
 
     procedure IsFullyOpen(): Boolean
@@ -825,12 +824,11 @@ table 122 "Purch. Inv. Header"
     begin
         IsHandled := false;
         OnBeforePrintRecords(Rec, ShowRequestPage, IsHandled);
-        if not IsHandled then
-            with PurchInvHeader do begin
-                Copy(Rec);
-                ReportSelection.PrintWithDialogForVend(
-                  ReportSelection.Usage::"P.Invoice", PurchInvHeader, ShowRequestPage, FieldNo("Buy-from Vendor No."));
-            end;
+        if not IsHandled then begin
+            PurchInvHeader.Copy(Rec);
+            ReportSelection.PrintWithDialogForVend(
+              ReportSelection.Usage::"P.Invoice", PurchInvHeader, ShowRequestPage, PurchInvHeader.FieldNo("Buy-from Vendor No."));
+        end;
     end;
 
     procedure PrintToDocumentAttachment(var PurchInvHeaderLocal: Record "Purch. Inv. Header")

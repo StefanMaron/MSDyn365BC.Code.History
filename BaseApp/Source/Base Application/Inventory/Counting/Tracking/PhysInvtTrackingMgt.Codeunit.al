@@ -3,6 +3,9 @@ namespace Microsoft.Inventory.Counting.Tracking;
 using Microsoft.Inventory.Counting.Document;
 using Microsoft.Inventory.Item;
 using Microsoft.Inventory.Journal;
+#if not CLEAN24
+using Microsoft.Inventory.Setup;
+#endif
 using Microsoft.Inventory.Location;
 using Microsoft.Inventory.Tracking;
 
@@ -25,19 +28,23 @@ codeunit 5889 "Phys. Invt. Tracking Mgt."
         if Item."Item Tracking Code" = '' then
             Result := false
         else begin
-
             ItemTrackingCode.Get(Item."Item Tracking Code");
-
-            Result := ItemTrackingCode."SN Specific Tracking" or
-                      ItemTrackingCode."SN Pos. Adjmt. Inb. Tracking" or
-                      ItemTrackingCode."SN Pos. Adjmt. Outb. Tracking" or
-                      ItemTrackingCode."SN Neg. Adjmt. Inb. Tracking" or
-                      ItemTrackingCode."SN Neg. Adjmt. Outb. Tracking" or
-                      ItemTrackingCode."Lot Specific Tracking" or
-                      ItemTrackingCode."Lot Pos. Adjmt. Inb. Tracking" or
-                      ItemTrackingCode."Lot Pos. Adjmt. Outb. Tracking" or
-                      ItemTrackingCode."Lot Neg. Adjmt. Inb. Tracking" or
-                      ItemTrackingCode."Lot Neg. Adjmt. Outb. Tracking";
+            Result :=
+                ItemTrackingCode."SN Specific Tracking" or
+                ItemTrackingCode."SN Pos. Adjmt. Inb. Tracking" or
+                ItemTrackingCode."SN Pos. Adjmt. Outb. Tracking" or
+                ItemTrackingCode."SN Neg. Adjmt. Inb. Tracking" or
+                ItemTrackingCode."SN Neg. Adjmt. Outb. Tracking" or
+                ItemTrackingCode."Lot Specific Tracking" or
+                ItemTrackingCode."Lot Pos. Adjmt. Inb. Tracking" or
+                ItemTrackingCode."Lot Pos. Adjmt. Outb. Tracking" or
+                ItemTrackingCode."Lot Neg. Adjmt. Inb. Tracking" or
+                ItemTrackingCode."Lot Neg. Adjmt. Outb. Tracking" or
+                ItemTrackingCode."Package Specific Tracking" or
+                ItemTrackingCode."Package Pos. Inb. Tracking" or
+                ItemTrackingCode."Package Pos. Outb. Tracking" or
+                ItemTrackingCode."Package Neg. Inb. Tracking" or
+                ItemTrackingCode."Package Neg. Outb. Tracking";
         end;
         OnAfterSuggestUseTrackingLines(Item, ItemTrackingCode, Result);
     end;
@@ -50,9 +57,9 @@ codeunit 5889 "Phys. Invt. Tracking Mgt."
             Result := false
         else begin
             ItemTrackingCode.Get(Item."Item Tracking Code");
-
             Result := (ItemTrackingCode."SN Specific Tracking" and ItemTrackingCode."SN Warehouse Tracking") or
-                      (ItemTrackingCode."Lot Specific Tracking" and ItemTrackingCode."Lot Warehouse Tracking");
+                      (ItemTrackingCode."Lot Specific Tracking" and ItemTrackingCode."Lot Warehouse Tracking") or
+                      (ItemTrackingCode."Package Specific Tracking" and ItemTrackingCode."Package Warehouse Tracking");
         end;
         OnAfterGetTrackingNosFromWhse(Item, ItemTrackingCode, Result);
     end;
@@ -83,41 +90,38 @@ codeunit 5889 "Phys. Invt. Tracking Mgt."
         ItemJnlLine.TestField("Bin Code", PhysInvtOrderLine."Bin Code");
 
         ReservEntry.Reset();
-        ReservEntry.SetCurrentKey(
-          "Source Type", "Source Subtype", "Source ID",
-          "Source Batch Name", "Source Prod. Order Line",
-          "Source Ref. No.");
-        ReservEntry.SetRange("Source Type", Database::"Phys. Invt. Order Line");
-        ReservEntry.SetRange("Source Subtype", 0);
-        ReservEntry.SetRange("Source ID", PhysInvtOrderLine."Document No.");
-        ReservEntry.SetRange("Source Batch Name", '');
-        ReservEntry.SetRange("Source Prod. Order Line", 0);
-        ReservEntry.SetRange("Source Ref. No.", PhysInvtOrderLine."Line No.");
+        ReservEntry.SetSourceFilter(Database::"Phys. Invt. Order Line", 0, PhysInvtOrderLine."Document No.", PhysInvtOrderLine."Line No.", true);
+        ReservEntry.SetSourceFilter('', 0);
         ReservEntry.SetRange(Positive, Positive);
-        if ReservEntry.Find('-') then
+        if ReservEntry.FindSet() then
             repeat
                 ReservEntry.TestField("Reservation Status", ReservEntry."Reservation Status"::Prospect);
-
                 ReservEntry.TestField("Item No.", PhysInvtOrderLine."Item No.");
                 ReservEntry.TestField("Variant Code", PhysInvtOrderLine."Variant Code");
                 ReservEntry.TestField("Location Code", PhysInvtOrderLine."Location Code");
                 ReservEntry."New Serial No." := ReservEntry."Serial No.";
                 ReservEntry."New Lot No." := ReservEntry."Lot No.";
+                ReservEntry."New Package No." := ReservEntry."Package No.";
+                ReservEntry."New Expiration Date" := ReservEntry."Expiration Date";
                 OnTransferResEntryToItemJnlLineOnBeforeTransfer(ReservEntry, PhysInvtOrderLine);
-
                 Qty :=
-                  CreateReservEntry.TransferReservEntry(
-                    Database::"Item Journal Line",
-                    ItemJnlLine."Entry Type".AsInteger(),
-                    ItemJnlLine."Journal Template Name",
-                    ItemJnlLine."Journal Batch Name",
-                    0,
-                    ItemJnlLine."Line No.",
-                    ItemJnlLine."Qty. per Unit of Measure",
-                    ReservEntry,
-                    Qty);
+                    CreateReservEntry.TransferReservEntry(
+                        Database::"Item Journal Line",
+                        ItemJnlLine."Entry Type".AsInteger(), ItemJnlLine."Journal Template Name", ItemJnlLine."Journal Batch Name", 0,
+                        ItemJnlLine."Line No.", ItemJnlLine."Qty. per Unit of Measure", ReservEntry, Qty);
             until (ReservEntry.Next() = 0) or (Qty = 0);
     end;
+
+#if not CLEAN24
+    [Obsolete('Temporary wrapper procedure to enable test automation', '24.0')]
+    procedure IsPackageTrackingEnabled(): Boolean;
+    var
+        InventorySetup: Record "Inventory Setup";
+    begin
+        if InventorySetup.Get() then
+            exit(InventorySetup."Invt. Orders Package Tracking");
+    end;
+#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterGetTrackingNosFromWhse(Item: Record Item; ItemTrackingCode: Record "Item Tracking Code"; var Result: Boolean)

@@ -8,7 +8,7 @@ namespace Microsoft.Purchases.Reports;
 page 7000042 "Vendor Pmt. Address Card"
 {
     Caption = 'Vendor Pmt. Address Card';
-    DataCaptionExpression = Caption();
+    DataCaptionExpression = Rec.Caption();
     PageType = Card;
     SourceTable = "Vendor Pmt. Address";
     ObsoleteReason = 'Address is taken from the fields Pay-to Address, Pay-to City, etc.';

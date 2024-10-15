@@ -9,6 +9,7 @@ table 5912 "Service Document Log"
     DrillDownPageID = "Service Document Log";
     LookupPageID = "Service Document Log";
     ReplicateData = true;
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -122,21 +123,19 @@ table 5912 "Service Document Log"
     var
         ServDocLog: Record "Service Document Log";
     begin
-        with ServHeader do begin
-            TempServDocLog.Reset();
-            TempServDocLog.DeleteAll();
+        TempServDocLog.Reset();
+        TempServDocLog.DeleteAll();
 
-            if "No." <> '' then begin
-                TempServDocLog.CopyServLog("Document Type".AsInteger(), "No.");
-                TempServDocLog.CopyServLog(ServDocLog."Document Type"::Shipment.AsInteger(), "No.");
-                TempServDocLog.CopyServLog(ServDocLog."Document Type"::"Posted Invoice".AsInteger(), "No.");
-                TempServDocLog.CopyServLog(ServDocLog."Document Type"::"Posted Credit Memo".AsInteger(), "No.");
-            end;
-
-            TempServDocLog.Reset();
-            TempServDocLog.SetCurrentKey("Change Date", "Change Time");
-            TempServDocLog.Ascending(false);
+        if ServHeader."No." <> '' then begin
+            TempServDocLog.CopyServLog(ServHeader."Document Type".AsInteger(), ServHeader."No.");
+            TempServDocLog.CopyServLog(ServDocLog."Document Type"::Shipment.AsInteger(), ServHeader."No.");
+            TempServDocLog.CopyServLog(ServDocLog."Document Type"::"Posted Invoice".AsInteger(), ServHeader."No.");
+            TempServDocLog.CopyServLog(ServDocLog."Document Type"::"Posted Credit Memo".AsInteger(), ServHeader."No.");
         end;
+
+        TempServDocLog.Reset();
+        TempServDocLog.SetCurrentKey("Change Date", "Change Time");
+        TempServDocLog.Ascending(false);
     end;
 
     procedure ShowServDocLog(var ServHeader: Record "Service Header")

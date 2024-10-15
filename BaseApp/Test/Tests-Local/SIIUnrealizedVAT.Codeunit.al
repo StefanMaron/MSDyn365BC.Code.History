@@ -110,7 +110,7 @@ codeunit 147555 "SII Unrealized VAT"
             exit;
 
         LibrarySII.InitSetup(true, false);
-        LibrarySII.BindSubscriptionJobQueue;
+        LibrarySII.BindSubscriptionJobQueue();
         LibrarySetupStorage.SaveGeneralLedgerSetup();
         LibrarySetupStorage.Save(DATABASE::"SII Setup");
         IsInitialized := true;
@@ -136,7 +136,7 @@ codeunit 147555 "SII Unrealized VAT"
         PurchaseHeader.Modify(true);
         LibraryPurchase.CreatePurchaseLine(
           PurchaseLine, PurchaseHeader, PurchaseLine.Type::"G/L Account",
-          SetVATProdPostGroupForGLAcc(LibraryERM.CreateGLAccountWithPurchSetup, VATPostingSetup."VAT Prod. Posting Group"),
+          SetVATProdPostGroupForGLAcc(LibraryERM.CreateGLAccountWithPurchSetup(), VATPostingSetup."VAT Prod. Posting Group"),
           LibraryRandom.RandInt(100));
         PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandDec(100, 2));
         PurchaseLine.Modify(true);
@@ -155,7 +155,7 @@ codeunit 147555 "SII Unrealized VAT"
         SalesHeader.Modify(true);
         LibrarySales.CreateSalesLine(
           SalesLine, SalesHeader, SalesLine.Type::"G/L Account",
-          SetVATProdPostGroupForGLAcc(LibraryERM.CreateGLAccountWithSalesSetup, VATPostingSetup."VAT Prod. Posting Group"),
+          SetVATProdPostGroupForGLAcc(LibraryERM.CreateGLAccountWithSalesSetup(), VATPostingSetup."VAT Prod. Posting Group"),
           LibraryRandom.RandInt(100));
         SalesLine.Validate("Unit Price", LibraryRandom.RandDec(100, 2));
         SalesLine.Modify(true);

@@ -652,4 +652,3 @@ page 303 "Vendor Entry Statistics"
     begin
     end;
 }
-

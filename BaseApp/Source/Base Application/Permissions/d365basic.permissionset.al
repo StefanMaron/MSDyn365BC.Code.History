@@ -33,7 +33,9 @@ using Microsoft.Purchases.Vendor;
 using System.Tooling;
 using System.Privacy;
 using System.Utilities;
+#if not CLEAN24
 using Microsoft.Bank.Deposit;
+#endif
 using Microsoft.Inventory.Transfer;
 using System.Integration;
 using System.IO;
@@ -112,7 +114,7 @@ using System.Threading;
 using Microsoft.Manufacturing.Setup;
 using Microsoft.CRM.Setup;
 using Microsoft.Inventory.BOM.Tree;
-using Microsoft.Foundation.NoSeries;
+using Microsoft.Foundation;
 using Microsoft.Purchases.Document;
 using Microsoft.Foundation.PaymentTerms;
 using Microsoft.Inventory.Planning;
@@ -172,6 +174,7 @@ permissionset 207 "D365 BASIC"
 
     IncludedPermissionSets = "BaseApp Objects - Exec",
                              "System App - Basic",
+                             "Bus. Found. - Edit",
                              "Session - Edit";
 
     Permissions = tabledata "Add-in" = imd,
@@ -196,7 +199,9 @@ permissionset 207 "D365 BASIC"
                   tabledata "CodeUnit Metadata" = imd,
                   tabledata "Data Sensitivity" = R,
                   tabledata Date = imd,
+#if not CLEAN24
                   tabledata "Deposits Page Setup" = R,
+#endif
                   tabledata "Designed Query" = R,
                   tabledata "Designed Query Caption" = R,
                   tabledata "Designed Query Category" = R,
@@ -210,6 +215,7 @@ permissionset 207 "D365 BASIC"
                   tabledata "Designed Query Obj" = Rimd,
                   tabledata "Designed Query Order By" = R,
                   tabledata "Designed Query Permission" = R,
+                  tabledata "Dispute Status" = R,
                   tabledata Device = Rimd,
                   tabledata "Direct Trans. Header" = RIMD,
                   tabledata "Direct Trans. Line" = RIMD,
@@ -324,8 +330,10 @@ permissionset 207 "D365 BASIC"
                   tabledata "Business Unit" = R,
                   tabledata "Business Unit Information" = R,
                   tabledata "Business Unit Setup" = R,
+#if not CLEAN24
                   tabledata "Calendar Event" = Rimd,
                   tabledata "Calendar Event User Config." = Rimd,
+#endif
                   tabledata Campaign = R,
                   tabledata "Cancelled Document" = R,
                   tabledata "Cash Flow Availability Buffer" = RIMD,
@@ -509,6 +517,7 @@ permissionset 207 "D365 BASIC"
                   tabledata "G/L Account Category" = r,
                   tabledata "G/L Account Net Change" = RIMD,
                   tabledata "G/L Account Where-Used" = RIMD,
+                  tabledata "G/L Account Source Currency" = r,
                   tabledata "G/L Entry" = r,
                   tabledata "Gen. Business Posting Group" = RIMD,
                   tabledata "Gen. Jnl. Allocation" = RIMD,
@@ -525,15 +534,11 @@ permissionset 207 "D365 BASIC"
                   tabledata "Generic Chart Setup" = RIMD,
                   tabledata "Generic Chart Y-Axis" = RIMD,
                   tabledata Geolocation = RIMD,
-#if not CLEAN21
-                  tabledata "Graph Mail Setup" = RIMD,
-#endif
                   tabledata "Human Resources Setup" = R,
                   tabledata "IC Setup" = R,
                   tabledata "Image Analysis Setup" = RIMD,
                   tabledata "Image Analysis Scenario" = R,
                   tabledata "Import G/L Transaction" = RIMD,
-                  tabledata "Inc. Doc. Attachment Overview" = RIM,
                   tabledata "Incoming Document" = RIM,
                   tabledata "Incoming Document Approver" = R,
                   tabledata "Incoming Document Attachment" = RIMD,
@@ -620,52 +625,16 @@ permissionset 207 "D365 BASIC"
                   tabledata "My Vendor" = RIMD,
                   tabledata "Name/Value Buffer" = RIMD,
                   tabledata "Named Forward Link" = RIMD,
-                  tabledata "No. Series" = Rim,
-                  tabledata "No. Series Line" = Rim,
-                  tabledata "No. Series Relationship" = Rim,
-                  tabledata "No. Series Tenant" = RIMD,
                   tabledata "Notification Context" = RIMD,
                   tabledata "Notification Entry" = Rimd,
                   tabledata "Notification Schedule" = RIMD,
                   tabledata "Notification Setup" = RIMD,
                   tabledata "O365 Brand Color" = RIMD,
-#if not CLEAN21
-                  tabledata "O365 C2Graph Event Settings" = RIMD,
-                  tabledata "O365 Country/Region" = RIMD,
-                  tabledata "O365 Coupon Claim" = RIMD,
-                  tabledata "O365 Coupon Claim Doc. Link" = RIMD,
-                  tabledata "O365 Cust. Invoice Discount" = RIMD,
-                  tabledata "O365 Customer" = RIMD,
-                  tabledata "O365 Default Email Message" = RIMD,
-#endif
                   tabledata "O365 Device Setup Instructions" = RIMD,
-#if not CLEAN21
-                  tabledata "O365 Email Setup" = RIMD,
-                  tabledata "O365 Field Excel Mapping" = RIMD,
-#endif
                   tabledata "O365 Getting Started" = RIMD,
                   tabledata "O365 Getting Started Page Data" = RIMD,
                   tabledata "O365 HTML Template" = RIMD,
-#if not CLEAN21
-                  tabledata "O365 Item Basket Entry" = RIMD,
-                  tabledata "O365 Payment History Buffer" = RIMD,
-                  tabledata "O365 Payment Instr. Transl." = RIMD,
-                  tabledata "O365 Payment Instructions" = RIMD,
-                  tabledata "O365 Payment Method" = RIMD,
-#endif
                   tabledata "O365 Payment Service Logo" = RIMD,
-#if not CLEAN21
-                  tabledata "O365 Payment Terms" = RIMD,
-                  tabledata "O365 Posted Coupon Claim" = Rimd,
-                  tabledata "O365 Sales Cue" = RIMD,
-                  tabledata "O365 Sales Document" = RIMD,
-                  tabledata "O365 Sales Event" = RIMD,
-                  tabledata "O365 Sales Graph" = Rimd,
-                  tabledata "O365 Sales Initial Setup" = RIMD,
-                  tabledata "O365 Sales Invoice Document" = RIMD,
-                  tabledata "O365 Settings Menu" = RIMD,
-                  tabledata "O365 Social Network" = RIMD,
-#endif
                   tabledata "OAuth 2.0 Setup" = RIMD,
                   tabledata "Object Translation" = RIMD,
                   tabledata "OCR Service Document Template" = RIMD,
@@ -722,10 +691,6 @@ permissionset 207 "D365 BASIC"
                   tabledata "Posted Docs. With No Inc. Buf." = RIMD,
                   tabledata "Posted Gen. Journal Batch" = RIMD,
                   tabledata "Posted Gen. Journal Line" = RIMD,
-#if not CLEAN21
-                  tabledata "Power BI Report Buffer" = RIMD,
-                  tabledata "Power BI User License" = RIMD,
-#endif
 #if not CLEAN22
                   tabledata "Power BI Service Status Setup" = RIMD,
 #endif
@@ -755,19 +720,19 @@ permissionset 207 "D365 BASIC"
                   tabledata "Purch. Cr. Memo Entity Buffer" = RIMD,
                   tabledata "Purch. Inv. Entity Aggregate" = RIMD,
                   tabledata "Purch. Inv. Line Aggregate" = RIMD,
-#if not CLEAN21
+#if not CLEAN23
                   tabledata "Purch. Price Line Disc. Buff." = RIMD,
 #endif
                   tabledata "Purchase Cue" = RIMD,
                   tabledata "Purchase Discount Access" = Rim,
                   tabledata "Purchase Header" = Rim,
                   tabledata "Purchase Line" = Rim,
-#if not CLEAN21
+#if not CLEAN23
                   tabledata "Purchase Line Discount" = Rim,
 #endif
                   tabledata "Purchase Order Entity Buffer" = RIMD,
                   tabledata "Purchase Prepayment %" = Rim,
-#if not CLEAN21
+#if not CLEAN23
                   tabledata "Purchase Price" = Rim,
 #endif
                   tabledata "Purchase Price Access" = Rim,
@@ -786,8 +751,18 @@ permissionset 207 "D365 BASIC"
                   tabledata "Recorded Event Buffer" = RIMD,
                   tabledata "Referenced XML Schema" = RIMD,
                   tabledata "Relationship Mgmt. Cue" = RIMD,
+                  tabledata "Reminder Attachment Text" = R,
+                  tabledata "Reminder Email Text" = R,
                   tabledata "Reminder Terms" = R,
                   tabledata "Reminder Terms Translation" = RIMD,
+                  tabledata "Reminder Action Group" = R,
+                  tabledata "Reminder Action" = R,
+                  tabledata "Create Reminders Setup" = R,
+                  tabledata "Issue Reminders Setup" = R,
+                  tabledata "Send Reminders Setup" = R,
+                  tabledata "Reminder Automation Error" = R,
+                  tabledata "Reminder Action Group Log" = R,
+                  tabledata "Reminder Action Log" = R,
                   tabledata "Remit Address" = Rim,
                   tabledata "Report Inbox" = RIMD,
                   tabledata "Report Layout Selection" = RIMD,
@@ -830,16 +805,16 @@ permissionset 207 "D365 BASIC"
                   tabledata "Sales Invoice Header" = rm,
                   tabledata "Sales Invoice Line Aggregate" = RIMD,
                   tabledata "Sales Line" = Rim,
-#if not CLEAN21
+#if not CLEAN23
                   tabledata "Sales Line Discount" = Rim,
 #endif
                   tabledata "Sales Order Entity Buffer" = RIMD,
                   tabledata "Sales Prepayment %" = Rim,
-#if not CLEAN21
+#if not CLEAN23
                   tabledata "Sales Price" = Rim,
 #endif
                   tabledata "Sales Price Access" = Rim,
-#if not CLEAN21
+#if not CLEAN23
                   tabledata "Sales Price and Line Disc Buff" = RIMD,
 #endif
                   tabledata "Sales Quote Entity Buffer" = RIMD,
@@ -875,9 +850,6 @@ permissionset 207 "D365 BASIC"
                   tabledata "Standard Vendor Purchase Code" = R,
                   tabledata "Support Contact Information" = R,
                   tabledata "Table Filter" = RIMD,
-#if not CLEAN21
-                  tabledata "Table Permission Buffer" = RIMD,
-#endif
                   tabledata "Tax Area" = R,
                   tabledata "Tax Area Buffer" = RIMD,
                   tabledata "Tax Area Line" = R,

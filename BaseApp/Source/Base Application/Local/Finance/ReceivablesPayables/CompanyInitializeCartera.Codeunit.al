@@ -15,26 +15,24 @@ codeunit 7000010 "Company-Initialize Cartera"
 
     trigger OnRun()
     begin
-        with CarteraSetup do
-            if not FindFirst() then begin
-                Init();
-                Insert();
-            end;
+        if not CarteraSetup.FindFirst() then begin
+            CarteraSetup.Init();
+            CarteraSetup.Insert();
+        end;
 
         InsertSourceCode(SourceCodeSetup."Cartera Journal", Text1100000, Text1100001);
 
-        with CarteraReportSelection do
-            if not FindFirst() then begin
-                InsertBGPORepSelection(Usage::"Bill Group", '1', REPORT::"Bill Group Listing");
-                InsertBGPORepSelection(Usage::"Posted Bill Group", '1', REPORT::"Posted Bill Group Listing");
-                InsertBGPORepSelection(Usage::"Closed Bill Group", '1', REPORT::"Closed Bill Group Listing");
-                InsertBGPORepSelection(Usage::Bill, '1', REPORT::"Receivable Bill");
-                InsertBGPORepSelection(Usage::"Bill Group - Test", '1', REPORT::"Bill Group - Test");
-                InsertBGPORepSelection(Usage::"Posted Payment Order", '1', REPORT::"Posted Payment Order Listing");
-                InsertBGPORepSelection(Usage::"Closed Payment Order", '1', REPORT::"Closed Payment Order Listing");
-                InsertBGPORepSelection(Usage::"Payment Order", '1', REPORT::"Payment Order Listing");
-                InsertBGPORepSelection(Usage::"Payment Order - Test", '1', REPORT::"Payment Order - Test");
-            end;
+        if not CarteraReportSelection.FindFirst() then begin
+            InsertBGPORepSelection(CarteraReportSelection.Usage::"Bill Group", '1', REPORT::"Bill Group Listing");
+            InsertBGPORepSelection(CarteraReportSelection.Usage::"Posted Bill Group", '1', REPORT::"Posted Bill Group Listing");
+            InsertBGPORepSelection(CarteraReportSelection.Usage::"Closed Bill Group", '1', REPORT::"Closed Bill Group Listing");
+            InsertBGPORepSelection(CarteraReportSelection.Usage::Bill, '1', REPORT::"Receivable Bill");
+            InsertBGPORepSelection(CarteraReportSelection.Usage::"Bill Group - Test", '1', REPORT::"Bill Group - Test");
+            InsertBGPORepSelection(CarteraReportSelection.Usage::"Posted Payment Order", '1', REPORT::"Posted Payment Order Listing");
+            InsertBGPORepSelection(CarteraReportSelection.Usage::"Closed Payment Order", '1', REPORT::"Closed Payment Order Listing");
+            InsertBGPORepSelection(CarteraReportSelection.Usage::"Payment Order", '1', REPORT::"Payment Order Listing");
+            InsertBGPORepSelection(CarteraReportSelection.Usage::"Payment Order - Test", '1', REPORT::"Payment Order - Test");
+        end;
     end;
 
     var
@@ -54,7 +52,7 @@ codeunit 7000010 "Company-Initialize Cartera"
         if SourceCode.Insert() then;
     end;
 
-    local procedure InsertBGPORepSelection(ReportUsage: Integer; Sequence: Code[10]; ReportID: Integer)
+    local procedure InsertBGPORepSelection(ReportUsage: Enum "Report Selection Usage Cartera"; Sequence: Code[10]; ReportID: Integer)
     begin
         CarteraReportSelection.Init();
         CarteraReportSelection.Usage := ReportUsage;

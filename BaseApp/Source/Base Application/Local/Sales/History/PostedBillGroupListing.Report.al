@@ -1,4 +1,4 @@
-﻿// ------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -331,12 +331,10 @@ report 7000001 "Posted Bill Group Listing"
                     Operation := Text1100001;
                 FactoringType := GetFactoringType();
 
-                with BankAcc do begin
-                    Get(PostedBillGr."Bank Account No.");
-                    FormatAddress.FormatAddr(
-                      BankAccAddr, Name, "Name 2", '', Address, "Address 2",
-                      City, "Post Code", County, "Country/Region Code");
-                end;
+                BankAcc.Get(PostedBillGr."Bank Account No.");
+                FormatAddress.FormatAddr(
+                  BankAccAddr, BankAcc.Name, BankAcc."Name 2", '', BankAcc.Address, BankAcc."Address 2",
+                  BankAcc.City, BankAcc."Post Code", BankAcc.County, BankAcc."Country/Region Code");
 
                 if not CurrReport.Preview then
                     PrintCounter.PrintCounter(DATABASE::"Posted Bill Group", "No.");
@@ -391,7 +389,6 @@ report 7000001 "Posted Bill Group Listing"
         Text1100001: Label 'For Collection';
         Text1100002: Label 'COPY';
         Text1100003: Label 'Bill Group %1';
-        Text1100004: Label 'Page %1';
         Text1100005: Label 'Risked Factoring';
         Text1100006: Label 'Unrisked Factoring';
         CompanyInfo: Record "Company Information";
@@ -405,9 +402,6 @@ report 7000001 "Posted Bill Group Listing"
         NoOfLoops: Integer;
         NoOfCopies: Integer;
         CopyText: Text[30];
-        City: Text[30];
-        County: Text[30];
-        Name: Text[50];
         PrintAmountsInLCY: Boolean;
         AmtForCollection: Decimal;
         FactoringType: Text[30];

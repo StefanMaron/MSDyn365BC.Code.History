@@ -272,7 +272,7 @@ codeunit 5488 "Graph Mgt - Reports"
                         CustLedgerEntry.SetRange(Open, true);
 
                         AgedReportEntity.Init();
-                        if CustLedgerEntry.Count > 0 then
+                        if not CustLedgerEntry.IsEmpty() then
                             GetAgedAmounts(AgedReportEntity, Customer)
                         else
                             SetPeriodLengthAndStartDateOnAgedRep(AgedReportEntity);
@@ -299,7 +299,7 @@ codeunit 5488 "Graph Mgt - Reports"
                         VendorLedgerEntry.SetRange("Vendor No.", Vendor."No.");
                         VendorLedgerEntry.SetRange(Open, true);
                         AgedReportEntity.Init();
-                        if VendorLedgerEntry.Count > 0 then
+                        if not VendorLedgerEntry.IsEmpty() then
                             GetAgedAmounts(AgedReportEntity, Vendor)
                         else
                             SetPeriodLengthAndStartDateOnAgedRep(AgedReportEntity);

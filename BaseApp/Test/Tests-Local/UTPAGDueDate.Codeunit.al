@@ -127,7 +127,7 @@ codeunit 144041 "UT PAG Due Date"
 
         // Setup: Create Customer, Payment Days And Non - Payment Period.
         DueDate :=
-          CreatePaymentDaysAndNonPaymentPeriodForCustomer(CustomerNo, CreateCountryRegion, LibraryUTUtility.GetNewCode,
+          CreatePaymentDaysAndNonPaymentPeriodForCustomer(CustomerNo, CreateCountryRegion(), LibraryUTUtility.GetNewCode(),
             0, CalcDate('<CY>', WorkDate()));  // Generate Code for VAT Registration Number, Maximum Number of Days till Due Date required 0 and Last Day of the Current Year.
         SalesCreditMemo.OpenNew();
 
@@ -152,7 +152,7 @@ codeunit 144041 "UT PAG Due Date"
 
         // Setup: Create Customer, Payment Days And Non - Payment Period.
         DueDate :=
-          CreatePaymentDaysAndNonPaymentPeriodForCustomer(CustomerNo, CreateCountryRegion, LibraryUTUtility.GetNewCode, 0,
+          CreatePaymentDaysAndNonPaymentPeriodForCustomer(CustomerNo, CreateCountryRegion(), LibraryUTUtility.GetNewCode(), 0,
             CalcDate('<CY>', WorkDate()));  // Generate Code for VAT Registration Number, Maximum Number of Days till Due Date required 0 and Last Day of the Current Year.
         BlanketSalesOrder.OpenNew();
 
@@ -177,7 +177,7 @@ codeunit 144041 "UT PAG Due Date"
 
         // Setup: Create Vendor, Payment Days And Non - Payment Period.
         DueDate :=
-          CreatePaymentDaysAndNonPaymentPeriodForVendor(VendorNo, CreateCountryRegion, LibraryUTUtility.GetNewCode, 0,
+          CreatePaymentDaysAndNonPaymentPeriodForVendor(VendorNo, CreateCountryRegion(), LibraryUTUtility.GetNewCode(), 0,
             CalcDate('<CY>', WorkDate()));  // Generate Code for VAT Registration Number, Maximum Number of Days till Due Date required 0 and Last Day of the Current Year.
         BlanketPurchaseOrder.OpenNew();
 
@@ -203,7 +203,7 @@ codeunit 144041 "UT PAG Due Date"
 
         // Setup: Create Vendor, Payment Days And Non - Payment Period.
         DueDate :=
-          CreatePaymentDaysAndNonPaymentPeriodForVendor(VendorNo, CreateCountryRegion, LibraryUTUtility.GetNewCode, 0,
+          CreatePaymentDaysAndNonPaymentPeriodForVendor(VendorNo, CreateCountryRegion(), LibraryUTUtility.GetNewCode(), 0,
             CalcDate('<CY>', WorkDate()));  // Generate Code for VAT Registration Number, Maximum Number of Days till Due Date required 0 and Last Day of the Current Year.
         PurchaseCreditMemo.OpenNew();
 
@@ -388,7 +388,7 @@ codeunit 144041 "UT PAG Due Date"
     var
         CountryRegion: Record "Country/Region";
     begin
-        CountryRegion.Code := LibraryUTUtility.GetNewCode10;
+        CountryRegion.Code := LibraryUTUtility.GetNewCode10();
         CountryRegion.Insert();
         exit(CountryRegion.Code);
     end;
@@ -397,10 +397,10 @@ codeunit 144041 "UT PAG Due Date"
     var
         Customer: Record Customer;
     begin
-        Customer."No." := LibraryUTUtility.GetNewCode;
-        Customer.Name := LibraryUTUtility.GetNewCode;
-        Customer."Customer Posting Group" := LibraryUTUtility.GetNewCode10;
-        Customer."Gen. Bus. Posting Group" := LibraryUTUtility.GetNewCode10;
+        Customer."No." := LibraryUTUtility.GetNewCode();
+        Customer.Name := LibraryUTUtility.GetNewCode();
+        Customer."Customer Posting Group" := LibraryUTUtility.GetNewCode10();
+        Customer."Gen. Bus. Posting Group" := LibraryUTUtility.GetNewCode10();
         Customer."Country/Region Code" := CountryRegionCode;
         Customer."Payment Terms Code" := CreatePaymentTerm(MaxNoOfDaysTillDueDate);
         Customer."Payment Days Code" := Customer."No.";
@@ -414,10 +414,10 @@ codeunit 144041 "UT PAG Due Date"
     var
         Vendor: Record Vendor;
     begin
-        Vendor."No." := LibraryUTUtility.GetNewCode;
-        Vendor.Name := LibraryUTUtility.GetNewCode;
-        Vendor."Vendor Posting Group" := LibraryUTUtility.GetNewCode10;
-        Vendor."Gen. Bus. Posting Group" := LibraryUTUtility.GetNewCode10;
+        Vendor."No." := LibraryUTUtility.GetNewCode();
+        Vendor.Name := LibraryUTUtility.GetNewCode();
+        Vendor."Vendor Posting Group" := LibraryUTUtility.GetNewCode10();
+        Vendor."Gen. Bus. Posting Group" := LibraryUTUtility.GetNewCode10();
         Vendor."Country/Region Code" := CountryRegionCode;
         Vendor."Payment Terms Code" := CreatePaymentTerm(MaxNoOfDaysTillDueDate);
         Vendor."Payment Days Code" := Vendor."No.";
@@ -479,7 +479,7 @@ codeunit 144041 "UT PAG Due Date"
     var
         PaymentTerms: Record "Payment Terms";
     begin
-        PaymentTerms.Code := LibraryUTUtility.GetNewCode10;
+        PaymentTerms.Code := LibraryUTUtility.GetNewCode10();
         Evaluate(PaymentTerms."Due Date Calculation", Format(LibraryRandom.RandIntInRange(10, 50)) + 'D>');  // Random - Due Date Calculation Period.
         PaymentTerms."VAT distribution" := PaymentTerms."VAT distribution"::Proportional;
         PaymentTerms."Calc. Pmt. Disc. on Cr. Memos" := true;

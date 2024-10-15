@@ -9,6 +9,7 @@ table 3 "Payment Terms"
     Caption = 'Payment Terms';
     DataCaptionFields = "Code", Description;
     LookupPageID = "Payment Terms";
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -115,10 +116,8 @@ table 3 "Payment Terms"
         PaymentTermsTranslation: Record "Payment Term Translation";
         Installment: Record Installment;
     begin
-        with PaymentTermsTranslation do begin
-            SetRange("Payment Term", Code);
-            DeleteAll();
-        end;
+        PaymentTermsTranslation.SetRange("Payment Term", Code);
+        PaymentTermsTranslation.DeleteAll();
 
         if Installment.WritePermission then begin
             Installment.SetRange("Payment Terms Code", Code);
@@ -175,20 +174,6 @@ table 3 "Payment Terms"
             if DueDate - DocumentDate > "Max. No. of Days till Due Date" then
                 Error(Text10700, MessageFieldCaption, FieldCaption("Max. No. of Days till Due Date"), TableCaption);
     end;
-
-#if not CLEAN21
-    [Obsolete('Replaced with GetDescriptionInCurrentLanguageFullLength.', '21.0')]
-    procedure GetDescriptionInCurrentLanguage(): Text[50]
-    var
-        PaymentTermTranslation: Record "Payment Term Translation";
-        Language: Codeunit Language;
-    begin
-        if PaymentTermTranslation.Get(Code, Language.GetUserLanguageCode()) then
-            exit(CopyStr(PaymentTermTranslation.Description, 1, 50));
-
-        exit(CopyStr(Description, 1, 50));
-    end;
-#endif
 
     procedure GetDescriptionInCurrentLanguageFullLength(): Text[100]
     var

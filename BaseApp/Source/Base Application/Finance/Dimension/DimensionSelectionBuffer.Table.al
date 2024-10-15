@@ -10,6 +10,7 @@ table 368 "Dimension Selection Buffer"
 {
     Caption = 'Dimension Selection Buffer';
     ReplicateData = false;
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -340,11 +341,10 @@ table 368 "Dimension Selection Buffer"
     begin
         SetDefaultRangeOnSelectedDimTable(SelectedDim, ObjectType, ObjectID, AnalysisViewCode);
         SelectedDim.SetCurrentKey("User ID", "Object Type", "Object ID", "Analysis View Code", Level, "Dimension Code");
-        with SelectedDim do
-            if Find('-') then
-                repeat
-                    AddDimCodeToText("Dimension Code", SelectedDimText);
-                until Next() = 0;
+        if SelectedDim.Find('-') then
+            repeat
+                AddDimCodeToText(SelectedDim."Dimension Code", SelectedDimText);
+            until SelectedDim.Next() = 0;
         exit(SelectedDimText);
     end;
 

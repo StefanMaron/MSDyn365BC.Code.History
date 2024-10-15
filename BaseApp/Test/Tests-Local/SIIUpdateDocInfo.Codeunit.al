@@ -804,7 +804,7 @@ codeunit 147552 "SII Update Doc. Info"
         Initialize();
 
         // [GIVEN] Posted sales invoice with default values for Invoice Type, Special Scheme Code, IDType
-        PostSalesDocument(CustLedgerEntry, "Sales Document Type"::Invoice, LibrarySales.CreateCustomerNo, 0);
+        PostSalesDocument(CustLedgerEntry, "Sales Document Type"::Invoice, LibrarySales.CreateCustomerNo(), 0);
         SalesInvoiceHeader.Get(CustLedgerEntry."Document No.");
 
         // [GIVEN] Default values gets changed in posted document
@@ -845,7 +845,7 @@ codeunit 147552 "SII Update Doc. Info"
         Initialize();
 
         // [GIVEN] Posted sales credit memo with default values for Invoice Type and Special Scheme Code
-        PostSalesDocument(CustLedgerEntry, CustLedgerEntry."Document Type"::"Credit Memo", LibrarySales.CreateCustomerNo, 0);
+        PostSalesDocument(CustLedgerEntry, CustLedgerEntry."Document Type"::"Credit Memo", LibrarySales.CreateCustomerNo(), 0);
         SalesCrMemoHeader.Get(CustLedgerEntry."Document No.");
 
         // [GIVEN] Default values gets changed in posted document
@@ -853,8 +853,8 @@ codeunit 147552 "SII Update Doc. Info"
         ChangedSalesCrMemoHeader."Cr. Memo Type" := ChangedSalesCrMemoHeader."Cr. Memo Type"::"R2 Corrected Invoice (Art. 80.3)";
         ChangedSalesCrMemoHeader."Special Scheme Code" := ChangedSalesCrMemoHeader."Special Scheme Code"::"02 Export";
         ChangedSalesCrMemoHeader."ID Type" := ChangedSalesCrMemoHeader."ID Type"::"02-VAT Registration No.";
-        ChangedSalesCrMemoHeader."Succeeded Company Name" := LibraryUtility.GenerateGUID;
-        ChangedSalesCrMemoHeader."Succeeded VAT Registration No." := LibraryUtility.GenerateGUID;
+        ChangedSalesCrMemoHeader."Succeeded Company Name" := LibraryUtility.GenerateGUID();
+        ChangedSalesCrMemoHeader."Succeeded VAT Registration No." := LibraryUtility.GenerateGUID();
 
         // [WHEN] Run codeunit "Sales Cr.Memo Header - Edit" against posted document
         CODEUNIT.Run(CODEUNIT::"Sales Cr.Memo Header - Edit", ChangedSalesCrMemoHeader);
@@ -869,7 +869,7 @@ codeunit 147552 "SII Update Doc. Info"
         SIIDocUploadState.TestField("Succeeded VAT Registration No.", ChangedSalesCrMemoHeader."Succeeded VAT Registration No.");
 
         // [THEN] The changes in Sales Credit Memo Header have been saved (Bug id 452979: Fields added to the posted sales/purchase credit memo page)
-        SalesCrMemoHeader.Find;
+        SalesCrMemoHeader.Find();
         SalesCrMemoHeader.TestField("Cr. Memo Type", ChangedSalesCrMemoHeader."Cr. Memo Type");
         SalesCrMemoHeader.TestField("Special Scheme Code", ChangedSalesCrMemoHeader."Special Scheme Code");
         SalesCrMemoHeader.TestField("Succeeded Company Name", ChangedSalesCrMemoHeader."Succeeded Company Name");
@@ -892,7 +892,7 @@ codeunit 147552 "SII Update Doc. Info"
         Initialize();
 
         // [GIVEN] Posted purchase invoice with default values for Invoice Type, Special Scheme Code, IDType
-        PostPurchaseDocument(VendorLedgerEntry, VendorLedgerEntry."Document Type"::Invoice, LibraryPurchase.CreateVendorNo, 0);
+        PostPurchaseDocument(VendorLedgerEntry, VendorLedgerEntry."Document Type"::Invoice, LibraryPurchase.CreateVendorNo(), 0);
         PurchInvHeader.Get(VendorLedgerEntry."Document No.");
 
         // [GIVEN] Default values gets changed in posted document
@@ -932,7 +932,7 @@ codeunit 147552 "SII Update Doc. Info"
         Initialize();
 
         // [GIVEN] Posted purchase purchase memo with default values for Invoice Type and Special Scheme Code
-        PostPurchaseDocument(VendorLedgerEntry, VendorLedgerEntry."Document Type"::"Credit Memo", LibraryPurchase.CreateVendorNo, 0);
+        PostPurchaseDocument(VendorLedgerEntry, VendorLedgerEntry."Document Type"::"Credit Memo", LibraryPurchase.CreateVendorNo(), 0);
         PurchCrMemoHdr.Get(VendorLedgerEntry."Document No.");
 
         // [GIVEN] Default values gets changed in posted document
@@ -940,8 +940,8 @@ codeunit 147552 "SII Update Doc. Info"
         ChangedPurchCrMemoHdr."Cr. Memo Type" := ChangedPurchCrMemoHdr."Cr. Memo Type"::"R2 Corrected Invoice (Art. 80.3)";
         ChangedPurchCrMemoHdr."Special Scheme Code" := ChangedPurchCrMemoHdr."Special Scheme Code"::"02 Special System Activities";
         ChangedPurchCrMemoHdr."ID Type" := ChangedPurchCrMemoHdr."ID Type"::"02-VAT Registration No.";
-        ChangedPurchCrMemoHdr."Succeeded Company Name" := LibraryUtility.GenerateGUID;
-        ChangedPurchCrMemoHdr."Succeeded VAT Registration No." := LibraryUtility.GenerateGUID;
+        ChangedPurchCrMemoHdr."Succeeded Company Name" := LibraryUtility.GenerateGUID();
+        ChangedPurchCrMemoHdr."Succeeded VAT Registration No." := LibraryUtility.GenerateGUID();
 
         // [WHEN] Run codeunit "Purch. Cr.Memo Header - Edit" against posted document
         CODEUNIT.Run(CODEUNIT::"Purch. Cr. Memo Hdr. - Edit", ChangedPurchCrMemoHdr);
@@ -957,7 +957,7 @@ codeunit 147552 "SII Update Doc. Info"
         SIIDocUploadState.TestField("Succeeded VAT Registration No.", ChangedPurchCrMemoHdr."Succeeded VAT Registration No.");
 
         // [THEN] The changes in Purchase Credit Memo Header have been saved (Bug id 452979: Fields added to the posted sales/purchase credit memo page)
-        PurchCrMemoHdr.Find;
+        PurchCrMemoHdr.Find();
         PurchCrMemoHdr.TestField("Cr. Memo Type", PurchCrMemoHdr."Cr. Memo Type");
         PurchCrMemoHdr.TestField("Special Scheme Code", PurchCrMemoHdr."Special Scheme Code");
         PurchCrMemoHdr.TestField("Succeeded Company Name", PurchCrMemoHdr."Succeeded Company Name");
@@ -1099,7 +1099,7 @@ codeunit 147552 "SII Update Doc. Info"
             exit;
 
         LibrarySII.InitSetup(true, false);
-        LibrarySII.BindSubscriptionJobQueue;
+        LibrarySII.BindSubscriptionJobQueue();
 
         IsInitialized := true;
     end;
@@ -1132,12 +1132,12 @@ codeunit 147552 "SII Update Doc. Info"
 
     local procedure PostSalesDocWithInvOrCrMemoType(var CustLedgerEntry: Record "Cust. Ledger Entry"; DocType: Enum "Sales Document Type"; CorrType: Option)
     begin
-        PostSalesDocument(CustLedgerEntry, DocType, LibrarySales.CreateCustomerNo, CorrType);
+        PostSalesDocument(CustLedgerEntry, DocType, LibrarySales.CreateCustomerNo(), CorrType);
     end;
 
     local procedure PostSalesInvIntracommunitary(var CustLedgerEntry: Record "Cust. Ledger Entry"; DocType: Enum "Sales Document Type"; CorrectionType: Option)
     begin
-        PostSalesDocument(CustLedgerEntry, DocType, CreateIntracommunityCustomer, CorrectionType);
+        PostSalesDocument(CustLedgerEntry, DocType, CreateIntracommunityCustomer(), CorrectionType);
     end;
 
     local procedure PostSalesDocument(var CustLedgerEntry: Record "Cust. Ledger Entry"; DocType: Enum "Sales Document Type"; CustNo: Code[20]; CorrType: Option)
@@ -1149,7 +1149,7 @@ codeunit 147552 "SII Update Doc. Info"
         SalesHeader.Validate("Correction Type", CorrType);
         SalesHeader.Modify(true);
         LibrarySales.CreateSalesLine(
-          SalesLine, SalesHeader, SalesLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithSalesSetup, LibraryRandom.RandInt(100));
+          SalesLine, SalesHeader, SalesLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithSalesSetup(), LibraryRandom.RandInt(100));
         SalesLine.Validate("Unit Price", LibraryRandom.RandDec(100, 2));
         SalesLine.Modify(true);
         LibraryERM.FindCustomerLedgerEntry(CustLedgerEntry, DocType, LibrarySales.PostSalesDocument(SalesHeader, true, true));
@@ -1157,7 +1157,7 @@ codeunit 147552 "SII Update Doc. Info"
 
     local procedure PostPurchDocWithInvOrCrMemoType(var VendorLedgerEntry: Record "Vendor Ledger Entry"; DocType: Enum "Purchase Document Type"; CorrType: Option)
     begin
-        PostPurchaseDocument(VendorLedgerEntry, DocType, LibraryPurchase.CreateVendorNo, CorrType);
+        PostPurchaseDocument(VendorLedgerEntry, DocType, LibraryPurchase.CreateVendorNo(), CorrType);
     end;
 
     local procedure PostPurchInvIntracommunitary(var VendorLedgerEntry: Record "Vendor Ledger Entry"; DocType: Enum "Purchase Document Type"; CorrectionType: Option)
@@ -1165,7 +1165,7 @@ codeunit 147552 "SII Update Doc. Info"
         Vendor: Record Vendor;
     begin
         LibraryPurchase.CreateVendor(Vendor);
-        Vendor.Validate("Country/Region Code", CreateEUCountryRegion);
+        Vendor.Validate("Country/Region Code", CreateEUCountryRegion());
         Vendor.Modify(true);
         PostPurchaseDocument(VendorLedgerEntry, DocType, Vendor."No.", CorrectionType);
     end;
@@ -1180,7 +1180,7 @@ codeunit 147552 "SII Update Doc. Info"
         PurchaseHeader.Modify(true);
         LibraryPurchase.CreatePurchaseLine(
           PurchaseLine, PurchaseHeader, PurchaseLine.Type::"G/L Account",
-          LibraryERM.CreateGLAccountWithSalesSetup, LibraryRandom.RandInt(100));
+          LibraryERM.CreateGLAccountWithSalesSetup(), LibraryRandom.RandInt(100));
         PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandDec(100, 2));
         PurchaseLine.Modify(true);
         LibraryERM.FindVendorLedgerEntry(VendorLedgerEntry, DocType, LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true));
@@ -1188,12 +1188,12 @@ codeunit 147552 "SII Update Doc. Info"
 
     local procedure PostServiceDocWithDocInfo(DocType: Enum "Service Document Type"): Code[20]
     begin
-        exit(PostServiceDocument(DocType, LibrarySales.CreateCustomerNo, 0));
+        exit(PostServiceDocument(DocType, LibrarySales.CreateCustomerNo(), 0));
     end;
 
     local procedure PostServiceDocIntracommunitary(DocType: Enum "Service Document Type"; CorrectionType: Option): Code[20]
     begin
-        exit(PostServiceDocument(DocType, CreateIntracommunityCustomer, CorrectionType));
+        exit(PostServiceDocument(DocType, CreateIntracommunityCustomer(), CorrectionType));
     end;
 
     local procedure PostServiceDocument(DocType: Enum "Service Document Type"; CustNo: Code[20]; CorrectionType: Option): Code[20]
@@ -1233,7 +1233,7 @@ codeunit 147552 "SII Update Doc. Info"
         Customer: Record Customer;
     begin
         LibrarySales.CreateCustomer(Customer);
-        Customer.Validate("Country/Region Code", CreateEUCountryRegion);
+        Customer.Validate("Country/Region Code", CreateEUCountryRegion());
         Customer.Modify(true);
         exit(Customer."No.");
     end;

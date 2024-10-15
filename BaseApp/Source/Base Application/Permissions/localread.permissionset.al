@@ -10,7 +10,9 @@ using Microsoft.Finance.VAT.Ledger;
 using Microsoft.Sales.History;
 using Microsoft.Purchases.History;
 using Microsoft.EServices.EDocument;
+#if not CLEAN22
 using Microsoft.Purchases.Reports;
+#endif
 
 permissionset 1002 "LOCAL READ"
 {

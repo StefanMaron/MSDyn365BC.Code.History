@@ -3,6 +3,7 @@ namespace Microsoft.CRM.Outlook;
 table 5310 "Outlook Synch. Setup Detail"
 {
     Caption = 'Outlook Synch. Setup Detail';
+    DataClassification = CustomerContent;
     ReplicateData = false;
     ObsoleteState = Removed;
     ObsoleteReason = 'Legacy outlook sync functionality has been removed.';

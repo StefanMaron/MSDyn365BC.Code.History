@@ -1543,8 +1543,8 @@ codeunit 147301 "Prompt Payment Law RegF UT"
             Code := NonPaymentPeriodCode;
             "From Date" := FromDate;
             "To Date" := ToDate;
-            Insert
-        end
+            Insert();
+        end;
     end;
 
     local procedure CreatePaymentDay(var PaymentDayCode: Code[20]; TableNameOption: Option; PayDay: Integer)
@@ -1557,8 +1557,8 @@ codeunit 147301 "Prompt Payment Law RegF UT"
                 PaymentDayCode := LibraryUtility.GenerateRandomCode(FieldNo(Code), DATABASE::"Payment Day");
             Code := PaymentDayCode;
             "Day of the month" := PayDay;
-            Insert
-        end
+            Insert();
+        end;
     end;
 
     local procedure CreateCustomerWithNonPaymentPeriod(var CustomerNo: Code[20]; FromDate: Date; ToDate: Date)
@@ -1571,9 +1571,9 @@ codeunit 147301 "Prompt Payment Law RegF UT"
         Customer."Non-Paymt. Periods Code" := CustomerNo;
         if not ExistingCustomer then begin
             Customer."No." := CustomerNo;
-            Customer.Insert
+            Customer.Insert();
         end else
-            Customer.Modify
+            Customer.Modify();
     end;
 
     local procedure CreateCustomerWithPaymentDay(var CustomerNo: Code[20]; PayDay: Integer)
@@ -1586,9 +1586,9 @@ codeunit 147301 "Prompt Payment Law RegF UT"
         Customer."Payment Days Code" := CustomerNo;
         if not ExistingCustomer then begin
             Customer."No." := CustomerNo;
-            Customer.Insert
+            Customer.Insert();
         end else
-            Customer.Modify
+            Customer.Modify();
     end;
 
     local procedure CreateVendorWithPaymentDay(var VendorNo: Code[20]; PayDay: Integer)
@@ -1601,9 +1601,9 @@ codeunit 147301 "Prompt Payment Law RegF UT"
         Vendor."Payment Days Code" := VendorNo;
         if not ExistingVendor then begin
             Vendor."No." := VendorNo;
-            Vendor.Insert
+            Vendor.Insert();
         end else
-            Vendor.Modify
+            Vendor.Modify();
     end;
 
     local procedure UpdateCompanyInfoWithPaymentDay(PayDay: Integer)

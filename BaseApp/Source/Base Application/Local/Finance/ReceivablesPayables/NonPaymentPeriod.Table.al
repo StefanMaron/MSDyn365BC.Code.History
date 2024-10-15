@@ -9,6 +9,7 @@ table 10702 "Non-Payment Period"
     Caption = 'Non-Payment Period';
     DrillDownPageID = "Non-Payment Periods";
     LookupPageID = "Non-Payment Periods";
+    DataClassification = CustomerContent;
 
     fields
     {

@@ -7,6 +7,9 @@
       "path": "./AuditFileExport/Test/Audit File Export Tests"
     },
     {
+      "path": "./sustainability/test/Sustainability Tests"
+    },
+    {
       "path": "./recommendedapps/test/Recommended Apps Tests"
     },
     {
@@ -14,6 +17,12 @@
     },
     {
       "path": "./AMCBanking365Fundamentals/Test/AMC Banking 365 Fundamentals Test Automations"
+    },
+    {
+      "path": "./BusinessFoundation/Test/Business Foundation Test Libraries"
+    },
+    {
+      "path": "./BusinessFoundation/Test/Business Foundation Tests"
     },
     {
       "path": "./BankDeposits/Test/_Exclude_Bank Deposits Tests"
@@ -28,10 +37,10 @@
       "path": "./servicedeclaration/test/Service Declaration Tests"
     },
     {
-      "path": "./system application/test/System Application Test"
+      "path": "./system application/test/System Application Test Library"
     },
     {
-      "path": "./system application/test/System Application Test Library"
+      "path": "./system application/test/System Application Test/DisabledTests"
     },
     {
       "path": "./system application/test/System Application Test/Extension Management/testArtifacts"
@@ -70,7 +79,16 @@
       "path": "./Intrastat/Test/Intrastat Core Tests"
     },
     {
+      "path": "./saleslinessuggestions/test/Sales Lines Suggestions Tests"
+    },
+    {
       "path": "./ReportLayouts/test/Report Layouts Tests"
+    },
+    {
+      "path": "./ContosoCoffeeDemoDataset/Test/Contoso Coffee Demo Dataset Tests"
+    },
+    {
+      "path": "./ContosoCoffeeDemoDataset/Test/Contoso Coffee Demo Dataset Tests/src/TestImplementations"
     },
     {
       "path": "./Email - Outlook REST API/Test"

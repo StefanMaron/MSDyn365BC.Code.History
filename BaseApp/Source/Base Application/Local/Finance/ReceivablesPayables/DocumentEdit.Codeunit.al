@@ -48,27 +48,26 @@ codeunit 7000008 "Document-Edit"
         DtldCustLedgEntry: Record "Detailed Cust. Ledg. Entry";
         DtldVendLedgEntry: Record "Detailed Vendor Ledg. Entry";
     begin
-        with CarteraDoc do
-            case Type of
-                Type::Receivable:
-                    begin
-                        CustLedgEntry.Get("Entry No.");
-                        CustLedgEntry."Due Date" := "Due Date";
-                        CustLedgEntry.Modify();
-                        DtldCustLedgEntry.SetCurrentKey("Cust. Ledger Entry No.", "Posting Date");
-                        DtldCustLedgEntry.SetRange("Cust. Ledger Entry No.", CustLedgEntry."Entry No.");
-                        DtldCustLedgEntry.ModifyAll("Initial Entry Due Date", "Due Date");
-                    end;
-                Type::Payable:
-                    begin
-                        VendLedgEntry.Get("Entry No.");
-                        VendLedgEntry."Due Date" := "Due Date";
-                        VendLedgEntry.Modify();
-                        DtldVendLedgEntry.SetCurrentKey("Vendor Ledger Entry No.", "Posting Date");
-                        DtldVendLedgEntry.SetRange("Vendor Ledger Entry No.", VendLedgEntry."Entry No.");
-                        DtldVendLedgEntry.ModifyAll("Initial Entry Due Date", "Due Date");
-                    end;
-            end;
+        case CarteraDoc.Type of
+            CarteraDoc.Type::Receivable:
+                begin
+                    CustLedgEntry.Get(CarteraDoc."Entry No.");
+                    CustLedgEntry."Due Date" := CarteraDoc."Due Date";
+                    CustLedgEntry.Modify();
+                    DtldCustLedgEntry.SetCurrentKey("Cust. Ledger Entry No.", "Posting Date");
+                    DtldCustLedgEntry.SetRange("Cust. Ledger Entry No.", CustLedgEntry."Entry No.");
+                    DtldCustLedgEntry.ModifyAll("Initial Entry Due Date", CarteraDoc."Due Date");
+                end;
+            CarteraDoc.Type::Payable:
+                begin
+                    VendLedgEntry.Get(CarteraDoc."Entry No.");
+                    VendLedgEntry."Due Date" := CarteraDoc."Due Date";
+                    VendLedgEntry.Modify();
+                    DtldVendLedgEntry.SetCurrentKey("Vendor Ledger Entry No.", "Posting Date");
+                    DtldVendLedgEntry.SetRange("Vendor Ledger Entry No.", VendLedgEntry."Entry No.");
+                    DtldVendLedgEntry.ModifyAll("Initial Entry Due Date", CarteraDoc."Due Date");
+                end;
+        end;
     end;
 
     [IntegrationEvent(false, false)]

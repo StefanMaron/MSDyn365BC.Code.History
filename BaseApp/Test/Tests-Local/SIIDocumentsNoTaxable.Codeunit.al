@@ -33,9 +33,7 @@ codeunit 147524 "SII Documents No Taxable"
         UploadType: Option Regular,Intracommunity,RetryAccepted;
         XPathEUSalesNoTaxTok: Label '//soapenv:Body/siiRL:SuministroLRFacturasEmitidas/siiRL:RegistroLRFacturasEmitidas/siiRL:FacturaExpedida/sii:TipoDesglose/sii:DesgloseTipoOperacion/%1/sii:NoSujeta/sii:ImportePorArticulos7_14_Otros', Locked = true;
         TestFieldErr: Label '%1 must be equal to ''%2''  in %3';
-        FieldErr: Label '%1 must not be %2';
         TestFieldCodeErr: Label 'TestField';
-        TableErrorStrErr: Label 'TableErrorStr';
         NoTaxableSetupErr: Label 'The %1 for VAT Calculation Type = No Taxable VAT must be 0.', Comment = '%1 = VAT or EC percent.';
 
     [Test]
@@ -755,8 +753,8 @@ codeunit 147524 "SII Documents No Taxable"
         // [SCENARIO 231012] Field "Non Taxable Type" exists on "VAT Posting Setup" page
 
         Initialize();
-        VATPostingSetup.OpenEdit;
-        Assert.IsTrue(VATPostingSetup."No Taxable Type".Visible, 'Field is not visible');
+        VATPostingSetup.OpenEdit();
+        Assert.IsTrue(VATPostingSetup."No Taxable Type".Visible(), 'Field is not visible');
     end;
 
     [Test]
@@ -769,8 +767,8 @@ codeunit 147524 "SII Documents No Taxable"
         // [SCENARIO 231012] Field "Non Taxable Type" exists on "VAT Posting Setup Card" page
 
         Initialize();
-        VATPostingSetupCard.OpenEdit;
-        Assert.IsTrue(VATPostingSetupCard."No Taxable Type".Visible, 'Field is not visible');
+        VATPostingSetupCard.OpenEdit();
+        Assert.IsTrue(VATPostingSetupCard."No Taxable Type".Visible(), 'Field is not visible');
     end;
 
     [Test]
@@ -2477,7 +2475,7 @@ codeunit 147524 "SII Documents No Taxable"
               SalesHeader,
               LibrarySII.CreateItemNoWithSpecificVATSetup(
                 LibrarySII.CreateSpecificNoTaxableVATSetup(SalesHeader."VAT Bus. Posting Group", true, 0)));
-            SalesLine.FindLast;
+            SalesLine.FindLast();
             VATPostingSetup.Get(SalesLine."VAT Bus. Posting Group", SalesLine."VAT Prod. Posting Group");
             VATPostingSetup.Validate("No Taxable Type", NoTaxType);
             VATPostingSetup.Validate("EU Service", true);
@@ -2523,7 +2521,7 @@ codeunit 147524 "SII Documents No Taxable"
             exit;
 
         LibrarySII.InitSetup(true, false);
-        LibrarySII.BindSubscriptionJobQueue;
+        LibrarySII.BindSubscriptionJobQueue();
         LibrarySetupStorage.Save(DATABASE::"Purchases & Payables Setup");
 
         IsInitialized := true;
@@ -2780,7 +2778,7 @@ codeunit 147524 "SII Documents No Taxable"
     begin
         LibrarySII.CreateCustWithVATSetup(Customer);
         LibrarySales.CreateSalesHeader(SalesHeader, DocType, Customer."No.");
-        GLAccount.Get(LibraryERM.CreateGLAccountWithSalesSetup);
+        GLAccount.Get(LibraryERM.CreateGLAccountWithSalesSetup());
         GLAccount.Validate("VAT Prod. Posting Group",
           LibrarySII.CreateSpecificNoTaxableVATSetup(Customer."VAT Bus. Posting Group", false, 0));
         GLAccount.Validate("Ignore in 347 Report", true);
@@ -2793,7 +2791,7 @@ codeunit 147524 "SII Documents No Taxable"
           CustLedgerEntry, DocType, LibrarySales.PostSalesDocument(SalesHeader, false, false));
     end;
 
-    local procedure PostSalesInvWithNoTaxableVATAndSpecialSchemeCode(var CustLedgerEntry: Record "Cust. Ledger Entry"; SpecialSchemeCode: Option)
+    local procedure PostSalesInvWithNoTaxableVATAndSpecialSchemeCode(var CustLedgerEntry: Record "Cust. Ledger Entry"; SpecialSchemeCode: Enum "SII Sales Special Scheme Code")
     var
         Customer: Record Customer;
         SalesHeader: Record "Sales Header";
@@ -2824,7 +2822,7 @@ codeunit 147524 "SII Documents No Taxable"
         LibraryERM.CreateVATBusinessPostingGroup(VATBusinessPostingGroup);
         VendNo := LibrarySII.CreateVendWithVATSetup(VATBusinessPostingGroup.Code);
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, DocType, VendNo);
-        GLAccount.Get(LibraryERM.CreateGLAccountWithPurchSetup);
+        GLAccount.Get(LibraryERM.CreateGLAccountWithPurchSetup());
         GLAccount.Validate("VAT Prod. Posting Group",
           LibrarySII.CreateSpecificNoTaxableVATSetup(VATBusinessPostingGroup.Code, false, 0));
         GLAccount.Validate("Ignore in 347 Report", true);
@@ -2851,7 +2849,7 @@ codeunit 147524 "SII Documents No Taxable"
         LibrarySII.CreateServiceHeader(ServiceHeader, DocType, Customer."No.", '');
         LibraryService.CreateServiceItem(ServiceItem, ServiceHeader."Customer No.");
         LibraryService.CreateServiceItemLine(ServiceItemLine, ServiceHeader, ServiceItem."No.");
-        GLAccount.Get(LibraryERM.CreateGLAccountWithSalesSetup);
+        GLAccount.Get(LibraryERM.CreateGLAccountWithSalesSetup());
         GLAccount.Validate("VAT Prod. Posting Group",
           LibrarySII.CreateSpecificNoTaxableVATSetup(Customer."VAT Bus. Posting Group", false, 0));
         GLAccount.Validate("Ignore in 347 Report", true);

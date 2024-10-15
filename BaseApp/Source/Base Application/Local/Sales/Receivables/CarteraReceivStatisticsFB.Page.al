@@ -222,58 +222,58 @@ page 35304 "Cartera Receiv. Statistics FB"
         DocumentSituationFilter[2] := DocumentSituationFilter::"BG/PO";
         DocumentSituationFilter[3] := DocumentSituationFilter::"Posted BG/PO";
 
-        with CustLedgEntry do begin
-            SetCurrentKey("Customer No.", "Document Type", "Document Situation", "Document Status");
-            SetRange("Customer No.", Rec."No.");
-            for j := 1 to 5 do begin
-                case j of
-                    4: // Closed Bill Group and Closed Documents
-                        begin
-                            SetRange("Document Type", "Document Type"::Bill);
-                            SetFilter("Document Situation", '%1|%2',
-                              "Document Situation"::"Closed BG/PO",
-                              "Document Situation"::"Closed Documents");
-                        end;
-                    5: // Invoices
-                        begin
-                            SetRange("Document Type", "Document Type"::Invoice);
-                            SetFilter("Document Situation", '<>0');
-                        end;
-                    else begin
-                        SetRange("Document Type", "Document Type"::Bill);
-                        SetRange("Document Situation", DocumentSituationFilter[j]);
+        CustLedgEntry.SetCurrentKey("Customer No.", "Document Type", "Document Situation", "Document Status");
+        CustLedgEntry.SetRange("Customer No.", Rec."No.");
+        for j := 1 to 5 do begin
+            case j of
+                4:
+                    // Closed Bill Group and Closed Documents
+                    begin
+                        CustLedgEntry.SetRange("Document Type", CustLedgEntry."Document Type"::Bill);
+                        CustLedgEntry.SetFilter("Document Situation", '%1|%2',
+                          CustLedgEntry."Document Situation"::"Closed BG/PO",
+                          CustLedgEntry."Document Situation"::"Closed Documents");
                     end;
+                5:
+                    // Invoices
+                    begin
+                        CustLedgEntry.SetRange("Document Type", CustLedgEntry."Document Type"::Invoice);
+                        CustLedgEntry.SetFilter("Document Situation", '<>0');
+                    end;
+                else begin
+                    CustLedgEntry.SetRange("Document Type", CustLedgEntry."Document Type"::Bill);
+                    CustLedgEntry.SetRange("Document Situation", DocumentSituationFilter[j]);
                 end;
-                SetRange("Document Status", "Document Status"::Open);
-                CalcSums("Amount (LCY) stats.", "Remaining Amount (LCY) stats.");
-                OpenAmtLCY[j] := "Amount (LCY) stats.";
-                OpenRemainingAmtLCY[j] := "Remaining Amount (LCY) stats.";
-                NoOpen[j] := Count;
-                SetRange("Document Status");
-
-                SetRange("Document Status", "Document Status"::Honored);
-                CalcSums("Amount (LCY) stats.", "Remaining Amount (LCY) stats.");
-                HonoredAmtLCY[j] := "Amount (LCY) stats.";
-                HonoredRemainingAmtLCY[j] := "Remaining Amount (LCY) stats.";
-                NoHonored[j] := Count;
-                SetRange("Document Status");
-
-                SetRange("Document Status", "Document Status"::Rejected);
-                CalcSums("Amount (LCY) stats.", "Remaining Amount (LCY) stats.");
-                RejectedAmtLCY[j] := "Amount (LCY) stats.";
-                RejectedRemainingAmtLCY[j] := "Remaining Amount (LCY) stats.";
-                NoRejected[j] := Count;
-                SetRange("Document Status");
-
-                SetRange("Document Status", "Document Status"::Redrawn);
-                CalcSums("Amount (LCY) stats.", "Remaining Amount (LCY) stats.");
-                RedrawnAmtLCY[j] := "Amount (LCY) stats.";
-                RedrawnRemainingAmtLCY[j] := "Remaining Amount (LCY) stats.";
-                NoRedrawn[j] := Count;
-                SetRange("Document Status");
-
-                SetRange("Document Situation");
             end;
+            CustLedgEntry.SetRange("Document Status", CustLedgEntry."Document Status"::Open);
+            CustLedgEntry.CalcSums("Amount (LCY) stats.", "Remaining Amount (LCY) stats.");
+            OpenAmtLCY[j] := CustLedgEntry."Amount (LCY) stats.";
+            OpenRemainingAmtLCY[j] := CustLedgEntry."Remaining Amount (LCY) stats.";
+            NoOpen[j] := CustLedgEntry.Count;
+            CustLedgEntry.SetRange("Document Status");
+
+            CustLedgEntry.SetRange("Document Status", CustLedgEntry."Document Status"::Honored);
+            CustLedgEntry.CalcSums("Amount (LCY) stats.", "Remaining Amount (LCY) stats.");
+            HonoredAmtLCY[j] := CustLedgEntry."Amount (LCY) stats.";
+            HonoredRemainingAmtLCY[j] := CustLedgEntry."Remaining Amount (LCY) stats.";
+            NoHonored[j] := CustLedgEntry.Count;
+            CustLedgEntry.SetRange("Document Status");
+
+            CustLedgEntry.SetRange("Document Status", CustLedgEntry."Document Status"::Rejected);
+            CustLedgEntry.CalcSums("Amount (LCY) stats.", "Remaining Amount (LCY) stats.");
+            RejectedAmtLCY[j] := CustLedgEntry."Amount (LCY) stats.";
+            RejectedRemainingAmtLCY[j] := CustLedgEntry."Remaining Amount (LCY) stats.";
+            NoRejected[j] := CustLedgEntry.Count;
+            CustLedgEntry.SetRange("Document Status");
+
+            CustLedgEntry.SetRange("Document Status", CustLedgEntry."Document Status"::Redrawn);
+            CustLedgEntry.CalcSums("Amount (LCY) stats.", "Remaining Amount (LCY) stats.");
+            RedrawnAmtLCY[j] := CustLedgEntry."Amount (LCY) stats.";
+            RedrawnRemainingAmtLCY[j] := CustLedgEntry."Remaining Amount (LCY) stats.";
+            NoRedrawn[j] := CustLedgEntry.Count;
+            CustLedgEntry.SetRange("Document Status");
+
+            CustLedgEntry.SetRange("Document Situation");
         end;
     end;
 
@@ -283,37 +283,35 @@ page 35304 "Cartera Receiv. Statistics FB"
         CustLedgEntry: Record "Cust. Ledger Entry";
         CustLedgEntriesForm: Page "Customer Ledger Entries";
     begin
-        with CustLedgEntry do begin
-            SetCurrentKey("Customer No.", "Document Type", "Document Situation", "Document Status");
-            SetRange("Customer No.", Rec."No.");
-            case Situation of
-                Situation::Cartera:
-                    SetRange("Document Situation", "Document Situation"::Cartera);
-                Situation::"BG/PO":
-                    SetRange("Document Situation", "Document Situation"::"BG/PO");
-                Situation::"Posted BG/PO":
-                    SetRange("Document Situation", "Document Situation"::"Posted BG/PO");
-                Situation::"Closed BG/PO":
-                    SetFilter("Document Situation", '%1|%2',
-                      "Document Situation"::"Closed BG/PO",
-                      "Document Situation"::"Closed Documents");
-                else
-                    SetFilter("Document Situation", '<>0');
-            end;
-            case DocType of
-                DocType::Invoice:
-                    SetRange("Document Type", "Document Type"::Invoice);
-                DocType::Bill:
-                    SetRange("Document Type", "Document Type"::Bill);
-            end;
-
-            SetRange("Document Status", "Document Status"::Open);
-            CustLedgEntriesForm.SetTableView(CustLedgEntry);
-            CustLedgEntriesForm.SetRecord(CustLedgEntry);
-            CustLedgEntriesForm.RunModal();
-            SetRange("Document Status");
-            SetRange("Document Situation");
+        CustLedgEntry.SetCurrentKey("Customer No.", "Document Type", "Document Situation", "Document Status");
+        CustLedgEntry.SetRange("Customer No.", Rec."No.");
+        case Situation of
+            Situation::Cartera:
+                CustLedgEntry.SetRange("Document Situation", CustLedgEntry."Document Situation"::Cartera);
+            Situation::"BG/PO":
+                CustLedgEntry.SetRange("Document Situation", CustLedgEntry."Document Situation"::"BG/PO");
+            Situation::"Posted BG/PO":
+                CustLedgEntry.SetRange("Document Situation", CustLedgEntry."Document Situation"::"Posted BG/PO");
+            Situation::"Closed BG/PO":
+                CustLedgEntry.SetFilter("Document Situation", '%1|%2',
+                  CustLedgEntry."Document Situation"::"Closed BG/PO",
+                  CustLedgEntry."Document Situation"::"Closed Documents");
+            else
+                CustLedgEntry.SetFilter("Document Situation", '<>0');
         end;
+        case DocType of
+            DocType::Invoice:
+                CustLedgEntry.SetRange("Document Type", CustLedgEntry."Document Type"::Invoice);
+            DocType::Bill:
+                CustLedgEntry.SetRange("Document Type", CustLedgEntry."Document Type"::Bill);
+        end;
+
+        CustLedgEntry.SetRange("Document Status", CustLedgEntry."Document Status"::Open);
+        CustLedgEntriesForm.SetTableView(CustLedgEntry);
+        CustLedgEntriesForm.SetRecord(CustLedgEntry);
+        CustLedgEntriesForm.RunModal();
+        CustLedgEntry.SetRange("Document Status");
+        CustLedgEntry.SetRange("Document Situation");
     end;
 
     [Scope('OnPrem')]
@@ -322,37 +320,35 @@ page 35304 "Cartera Receiv. Statistics FB"
         CustLedgEntry: Record "Cust. Ledger Entry";
         CustLedgEntriesForm: Page "Customer Ledger Entries";
     begin
-        with CustLedgEntry do begin
-            SetCurrentKey("Customer No.", "Document Type", "Document Situation", "Document Status");
-            SetRange("Customer No.", Rec."No.");
-            case Situation of
-                Situation::Cartera:
-                    SetRange("Document Situation", "Document Situation"::Cartera);
-                Situation::"BG/PO":
-                    SetRange("Document Situation", "Document Situation"::"BG/PO");
-                Situation::"Posted BG/PO":
-                    SetRange("Document Situation", "Document Situation"::"Posted BG/PO");
-                Situation::"Closed BG/PO":
-                    SetFilter("Document Situation", '%1|%2',
-                      "Document Situation"::"Closed BG/PO",
-                      "Document Situation"::"Closed Documents");
-                else
-                    SetFilter("Document Situation", '<>0');
-            end;
-            case DocType of
-                DocType::Invoice:
-                    SetRange("Document Type", "Document Type"::Invoice);
-                DocType::Bill:
-                    SetRange("Document Type", "Document Type"::Bill);
-            end;
-
-            SetRange("Document Status", "Document Status"::Honored);
-            CustLedgEntriesForm.SetTableView(CustLedgEntry);
-            CustLedgEntriesForm.SetRecord(CustLedgEntry);
-            CustLedgEntriesForm.RunModal();
-            SetRange("Document Status");
-            SetRange("Document Situation");
+        CustLedgEntry.SetCurrentKey("Customer No.", "Document Type", "Document Situation", "Document Status");
+        CustLedgEntry.SetRange("Customer No.", Rec."No.");
+        case Situation of
+            Situation::Cartera:
+                CustLedgEntry.SetRange("Document Situation", CustLedgEntry."Document Situation"::Cartera);
+            Situation::"BG/PO":
+                CustLedgEntry.SetRange("Document Situation", CustLedgEntry."Document Situation"::"BG/PO");
+            Situation::"Posted BG/PO":
+                CustLedgEntry.SetRange("Document Situation", CustLedgEntry."Document Situation"::"Posted BG/PO");
+            Situation::"Closed BG/PO":
+                CustLedgEntry.SetFilter("Document Situation", '%1|%2',
+                  CustLedgEntry."Document Situation"::"Closed BG/PO",
+                  CustLedgEntry."Document Situation"::"Closed Documents");
+            else
+                CustLedgEntry.SetFilter("Document Situation", '<>0');
         end;
+        case DocType of
+            DocType::Invoice:
+                CustLedgEntry.SetRange("Document Type", CustLedgEntry."Document Type"::Invoice);
+            DocType::Bill:
+                CustLedgEntry.SetRange("Document Type", CustLedgEntry."Document Type"::Bill);
+        end;
+
+        CustLedgEntry.SetRange("Document Status", CustLedgEntry."Document Status"::Honored);
+        CustLedgEntriesForm.SetTableView(CustLedgEntry);
+        CustLedgEntriesForm.SetRecord(CustLedgEntry);
+        CustLedgEntriesForm.RunModal();
+        CustLedgEntry.SetRange("Document Status");
+        CustLedgEntry.SetRange("Document Situation");
     end;
 
     [Scope('OnPrem')]
@@ -361,37 +357,35 @@ page 35304 "Cartera Receiv. Statistics FB"
         CustLedgEntry: Record "Cust. Ledger Entry";
         CustLedgEntriesForm: Page "Customer Ledger Entries";
     begin
-        with CustLedgEntry do begin
-            SetCurrentKey("Customer No.", "Document Type", "Document Situation", "Document Status");
-            SetRange("Customer No.", Rec."No.");
-            case Situation of
-                Situation::Cartera:
-                    SetRange("Document Situation", "Document Situation"::Cartera);
-                Situation::"BG/PO":
-                    SetRange("Document Situation", "Document Situation"::"BG/PO");
-                Situation::"Posted BG/PO":
-                    SetRange("Document Situation", "Document Situation"::"Posted BG/PO");
-                Situation::"Closed BG/PO":
-                    SetFilter("Document Situation", '%1|%2',
-                      "Document Situation"::"Closed BG/PO",
-                      "Document Situation"::"Closed Documents");
-                else
-                    SetFilter("Document Situation", '<>0');
-            end;
-            case DocType of
-                DocType::Invoice:
-                    SetRange("Document Type", "Document Type"::Invoice);
-                DocType::Bill:
-                    SetRange("Document Type", "Document Type"::Bill);
-            end;
-
-            SetRange("Document Status", "Document Status"::Rejected);
-            CustLedgEntriesForm.SetTableView(CustLedgEntry);
-            CustLedgEntriesForm.SetRecord(CustLedgEntry);
-            CustLedgEntriesForm.RunModal();
-            SetRange("Document Status");
-            SetRange("Document Situation");
+        CustLedgEntry.SetCurrentKey("Customer No.", "Document Type", "Document Situation", "Document Status");
+        CustLedgEntry.SetRange("Customer No.", Rec."No.");
+        case Situation of
+            Situation::Cartera:
+                CustLedgEntry.SetRange("Document Situation", CustLedgEntry."Document Situation"::Cartera);
+            Situation::"BG/PO":
+                CustLedgEntry.SetRange("Document Situation", CustLedgEntry."Document Situation"::"BG/PO");
+            Situation::"Posted BG/PO":
+                CustLedgEntry.SetRange("Document Situation", CustLedgEntry."Document Situation"::"Posted BG/PO");
+            Situation::"Closed BG/PO":
+                CustLedgEntry.SetFilter("Document Situation", '%1|%2',
+                  CustLedgEntry."Document Situation"::"Closed BG/PO",
+                  CustLedgEntry."Document Situation"::"Closed Documents");
+            else
+                CustLedgEntry.SetFilter("Document Situation", '<>0');
         end;
+        case DocType of
+            DocType::Invoice:
+                CustLedgEntry.SetRange("Document Type", CustLedgEntry."Document Type"::Invoice);
+            DocType::Bill:
+                CustLedgEntry.SetRange("Document Type", CustLedgEntry."Document Type"::Bill);
+        end;
+
+        CustLedgEntry.SetRange("Document Status", CustLedgEntry."Document Status"::Rejected);
+        CustLedgEntriesForm.SetTableView(CustLedgEntry);
+        CustLedgEntriesForm.SetRecord(CustLedgEntry);
+        CustLedgEntriesForm.RunModal();
+        CustLedgEntry.SetRange("Document Status");
+        CustLedgEntry.SetRange("Document Situation");
     end;
 
     [Scope('OnPrem')]
@@ -400,36 +394,34 @@ page 35304 "Cartera Receiv. Statistics FB"
         CustLedgEntry: Record "Cust. Ledger Entry";
         CustLedgEntriesForm: Page "Customer Ledger Entries";
     begin
-        with CustLedgEntry do begin
-            SetCurrentKey("Customer No.", "Document Type", "Document Situation", "Document Status");
-            SetRange("Customer No.", Rec."No.");
-            case Situation of
-                Situation::Cartera:
-                    SetRange("Document Situation", "Document Situation"::Cartera);
-                Situation::"BG/PO":
-                    SetRange("Document Situation", "Document Situation"::"BG/PO");
-                Situation::"Posted BG/PO":
-                    SetRange("Document Situation", "Document Situation"::"Posted BG/PO");
-                Situation::"Closed BG/PO", Situation::"Closed Documents":
-                    SetFilter("Document Situation", '%1|%2',
-                      "Document Situation"::"Closed BG/PO",
-                      "Document Situation"::"Closed Documents");
-                else
-                    SetFilter("Document Situation", '<>0');
-            end;
-            case DocType of
-                DocType::Invoice:
-                    SetRange("Document Type", "Document Type"::Invoice);
-                DocType::Bill:
-                    SetRange("Document Type", "Document Type"::Bill);
-            end;
-            SetRange("Document Status", "Document Status"::Redrawn);
-            CustLedgEntriesForm.SetTableView(CustLedgEntry);
-            CustLedgEntriesForm.SetRecord(CustLedgEntry);
-            CustLedgEntriesForm.RunModal();
-            SetRange("Document Status");
-            SetRange("Document Situation");
+        CustLedgEntry.SetCurrentKey("Customer No.", "Document Type", "Document Situation", "Document Status");
+        CustLedgEntry.SetRange("Customer No.", Rec."No.");
+        case Situation of
+            Situation::Cartera:
+                CustLedgEntry.SetRange("Document Situation", CustLedgEntry."Document Situation"::Cartera);
+            Situation::"BG/PO":
+                CustLedgEntry.SetRange("Document Situation", CustLedgEntry."Document Situation"::"BG/PO");
+            Situation::"Posted BG/PO":
+                CustLedgEntry.SetRange("Document Situation", CustLedgEntry."Document Situation"::"Posted BG/PO");
+            Situation::"Closed BG/PO", Situation::"Closed Documents":
+                CustLedgEntry.SetFilter("Document Situation", '%1|%2',
+                  CustLedgEntry."Document Situation"::"Closed BG/PO",
+                  CustLedgEntry."Document Situation"::"Closed Documents");
+            else
+                CustLedgEntry.SetFilter("Document Situation", '<>0');
         end;
+        case DocType of
+            DocType::Invoice:
+                CustLedgEntry.SetRange("Document Type", CustLedgEntry."Document Type"::Invoice);
+            DocType::Bill:
+                CustLedgEntry.SetRange("Document Type", CustLedgEntry."Document Type"::Bill);
+        end;
+        CustLedgEntry.SetRange("Document Status", CustLedgEntry."Document Status"::Redrawn);
+        CustLedgEntriesForm.SetTableView(CustLedgEntry);
+        CustLedgEntriesForm.SetRecord(CustLedgEntry);
+        CustLedgEntriesForm.RunModal();
+        CustLedgEntry.SetRange("Document Status");
+        CustLedgEntry.SetRange("Document Situation");
     end;
 }
 

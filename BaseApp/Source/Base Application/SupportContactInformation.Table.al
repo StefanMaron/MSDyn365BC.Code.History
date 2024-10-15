@@ -12,6 +12,7 @@ table 9165 "Support Contact Information"
     Caption = 'Support Contact Information';
     DataPerCompany = false;
     ReplicateData = false;
+    DataClassification = CustomerContent;
 
     fields
     {

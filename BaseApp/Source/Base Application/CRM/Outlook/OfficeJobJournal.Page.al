@@ -6,7 +6,7 @@ using Microsoft.Projects.Project.Planning;
 
 page 1615 "Office Job Journal"
 {
-    Caption = 'Job Journal';
+    Caption = 'Project Journal';
     DataCaptionExpression = CaptionTxt;
     SourceTable = "Office Job Journal";
     SourceTableTemporary = true;
@@ -31,20 +31,20 @@ page 1615 "Office Job Journal"
             {
                 ApplicationArea = Jobs;
                 Editable = false;
-                ToolTip = 'Specifies the number of the related job.';
+                ToolTip = 'Specifies the number of the related project.';
             }
             field("Job Task No."; Rec."Job Task No.")
             {
                 ApplicationArea = Jobs;
                 Editable = false;
-                ToolTip = 'Specifies the number of the related job task.';
+                ToolTip = 'Specifies the number of the related project task.';
             }
             field(JobJournalTemplate; Rec."Job Journal Template Name")
             {
                 ApplicationArea = Jobs;
-                Caption = 'Job Journal Template';
-                Editable = TemplateEditable AND IsEditable;
-                ToolTip = 'Specifies the journal template that is used for the job journal.';
+                Caption = 'Project Journal Template';
+                Editable = TemplateEditable and IsEditable;
+                ToolTip = 'Specifies the journal template that is used for the project journal.';
 
                 trigger OnValidate()
                 var
@@ -71,9 +71,9 @@ page 1615 "Office Job Journal"
             field(JobJournalBatch; Rec."Job Journal Batch Name")
             {
                 ApplicationArea = Jobs;
-                Caption = 'Job Journal Batch';
-                Editable = BatchEditable AND IsEditable;
-                ToolTip = 'Specifies the journal batch that is used for the job journal.';
+                Caption = 'Project Journal Batch';
+                Editable = BatchEditable and IsEditable;
+                ToolTip = 'Specifies the journal batch that is used for the project journal.';
             }
             field(Date; JobPlanningLine."Planning Date")
             {
@@ -87,7 +87,7 @@ page 1615 "Office Job Journal"
                 ApplicationArea = Jobs;
                 Caption = 'Quantity';
                 Editable = IsEditable;
-                ToolTip = 'Specifies the quantity you want to transfer to the job journal.';
+                ToolTip = 'Specifies the quantity you want to transfer to the project journal.';
             }
         }
     }
@@ -186,8 +186,8 @@ page 1615 "Office Job Journal"
         TemplateEditable: Boolean;
         BatchEditable: Boolean;
         CaptionTxt: Text;
-        EnterJobInfoTxt: Label 'Enter Job Information';
-        JobCompletedTxt: Label 'Job Completed';
+        EnterJobInfoTxt: Label 'Enter Project Information';
+        JobCompletedTxt: Label 'Project Completed';
         NoBatchesErr: Label 'There are no batches available for the selected template.';
 
     local procedure FindJobJournalBatch(var JobJournalBatch: Record "Job Journal Batch")

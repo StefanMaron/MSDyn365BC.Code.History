@@ -12,7 +12,7 @@ using System.Telemetry;
 page 7000050 "Payment Orders"
 {
     Caption = 'Payment Orders';
-    DataCaptionExpression = Caption();
+    DataCaptionExpression = Rec.Caption();
     PageType = Document;
     RefreshOnActivate = true;
     SourceTable = "Payment Order";

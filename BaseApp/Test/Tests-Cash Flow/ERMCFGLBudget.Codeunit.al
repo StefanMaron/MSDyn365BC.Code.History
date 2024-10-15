@@ -89,7 +89,7 @@ codeunit 134556 "ERM CF GL Budget"
 
         LibraryERM.CreateGLBudgetName(GLBudgetName);
         LibraryERM.CreateGLBudgetEntry(GLBudgetEntry, WorkDate(), GLAccount."No.", GLBudgetName.Name);
-        GLBudgetEntry.Validate("Dimension Set ID", CreateDimensionSetID);
+        GLBudgetEntry.Validate("Dimension Set ID", CreateDimensionSetID());
         GLBudgetEntry.Validate(Amount, LibraryRandom.RandDec(1000, 2));
         GLBudgetEntry.Modify(true);
         StoreCashFlowBudgetEntry(TempCashFlowForecastEntry, GLBudgetEntry);
@@ -97,11 +97,11 @@ codeunit 134556 "ERM CF GL Budget"
         CashFlowForecast.Validate("G/L Budget From", FromDate);
         CashFlowForecast.Validate("G/L Budget To", ToDate);
         CashFlowForecast.Modify(true);
-        LibraryCashFlow.ClearJournal;
+        LibraryCashFlow.ClearJournal();
 
         // Exercise
         LibraryCashFlow.FillBudgetJournal(false, CashFlowForecast."No.", GLBudgetName.Name);
-        LibraryCashFlow.PostJournal;
+        LibraryCashFlow.PostJournal();
 
         // Verify
         VerifyCashFlowLedgerEntries(TempCashFlowForecastEntry, CashFlowForecast);
@@ -168,19 +168,19 @@ codeunit 134556 "ERM CF GL Budget"
         ConsiderSource: array[16] of Boolean;
     begin
         // Setup
-        ClearCFAccountLinks;
+        ClearCFAccountLinks();
         LibraryCashFlow.FindCashFlowAccount(CashFlowAccount);
         CreateGLAccountWithBalance(GLAccount, GLAccountType);
         LinkCFAccount(CashFlowAccount, GLAccount, Integration);
 
         StoreCashFlowBalanceEntry(TempCashFlowForecastEntry, GLAccount);
         LibraryCashFlow.CreateCashFlowCard(CashFlowForecast);
-        LibraryCashFlow.ClearJournal;
+        LibraryCashFlow.ClearJournal();
 
         // Exercise
         ConsiderSource[CashFlowForecast."Source Type Filter"::"Liquid Funds".AsInteger()] := true;
         LibraryCashFlow.FillJournal(ConsiderSource, CashFlowForecast."No.", false);
-        LibraryCashFlow.PostJournal;
+        LibraryCashFlow.PostJournal();
 
         // Verify
         VerifyCashFlowLedgerEntries(TempCashFlowForecastEntry, CashFlowForecast);
@@ -238,11 +238,11 @@ codeunit 134556 "ERM CF GL Budget"
                 begin
                     GLAccount.Get(CreateGLAccWithType(GLAccount."Account Type"::Heading));
                     GLAccount.Validate(
-                      Totaling, StrSubstNo('%1..%2', GLAccount."No.", CreatePostGLAccount));
+                      Totaling, StrSubstNo('%1..%2', GLAccount."No.", CreatePostGLAccount()));
                     GLAccount.Modify(true);
                 end;
             GLAccount."Account Type"::Posting:
-                GLAccount.Get(CreatePostGLAccount);
+                GLAccount.Get(CreatePostGLAccount());
         end;
     end;
 
@@ -328,8 +328,8 @@ codeunit 134556 "ERM CF GL Budget"
                 CashFlowForecastEntry.SetRange("Amount (LCY)", "Amount (LCY)");
                 CashFlowForecastEntry.SetRange("Dimension Set ID", "Dimension Set ID");
                 CashFlowForecastEntry.SetRange("Cash Flow Date", "Cash Flow Date");
-                Assert.IsTrue(CashFlowForecastEntry.FindFirst, 'Did not find expected cash flow ledger entry');
-            until Next = 0;
+                Assert.IsTrue(CashFlowForecastEntry.FindFirst(), 'Did not find expected cash flow ledger entry');
+            until Next() = 0;
     end;
 }
 

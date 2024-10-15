@@ -34,7 +34,7 @@ report 7000083 "Redraw Payable Bills"
 
             trigger OnAfterGetRecord()
             var
-                IsHandled: Boolean;            
+                IsHandled: Boolean;
             begin
                 CheckUnrealizedVAT(VendLedgEntry);
 
@@ -95,47 +95,45 @@ report 7000083 "Redraw Payable Bills"
                 "Document Status" := "Document Status"::Redrawn;
                 Modify();
 
-                with GenJnlLine do begin
-                    if StrPos("Bill No.", '-') = 0 then
-                        DocNo := VendLedgEntry."Bill No." + '-1'
+                if StrPos(GenJnlLine."Bill No.", '-') = 0 then
+                    DocNo := VendLedgEntry."Bill No." + '-1'
+                else
+                    DocNo := IncStr(GenJnlLine."Bill No.");
+                GenJnlLineInit();
+
+                if ArePostedDocs then begin
+                    PostedDoc.Get(
+                      PostedDoc.Type::Payable, VendLedgEntry."Entry No.");
+                    if NewPmtMethod = '' then
+                        GenJnlLine."Payment Method Code" := PostedDoc."Payment Method Code"
                     else
-                        DocNo := IncStr("Bill No.");
-                    GenJnlLineInit();
-
-                    if ArePostedDocs then begin
-                        PostedDoc.Get(
-                          PostedDoc.Type::Payable, VendLedgEntry."Entry No.");
-                        if NewPmtMethod = '' then
-                            "Payment Method Code" := PostedDoc."Payment Method Code"
-                        else
-                            "Payment Method Code" := NewPmtMethod;
+                        GenJnlLine."Payment Method Code" := NewPmtMethod;
 #if not CLEAN22
-                        "Pmt. Address Code" := PostedDoc."Pmt. Address Code";
+                    GenJnlLine."Pmt. Address Code" := PostedDoc."Pmt. Address Code";
 #endif
-                        "Recipient Bank Account" := PostedDoc."Cust./Vendor Bank Acc. Code";
-                    end else begin
-                        ClosedDoc.Get(
-                          ClosedDoc.Type::Payable, VendLedgEntry."Entry No.");
-                        if NewPmtMethod = '' then
-                            "Payment Method Code" := ClosedDoc."Payment Method Code"
-                        else
-                            "Payment Method Code" := NewPmtMethod;
+                    GenJnlLine."Recipient Bank Account" := PostedDoc."Cust./Vendor Bank Acc. Code";
+                end else begin
+                    ClosedDoc.Get(
+                      ClosedDoc.Type::Payable, VendLedgEntry."Entry No.");
+                    if NewPmtMethod = '' then
+                        GenJnlLine."Payment Method Code" := ClosedDoc."Payment Method Code"
+                    else
+                        GenJnlLine."Payment Method Code" := NewPmtMethod;
 #if not CLEAN22
-                        "Pmt. Address Code" := ClosedDoc."Pmt. Address Code";
+                    GenJnlLine."Pmt. Address Code" := ClosedDoc."Pmt. Address Code";
 #endif
-                        "Recipient Bank Account" := ClosedDoc."Cust./Vendor Bank Acc. Code";
-                    end;
-                    "Due Date" := NewDueDate;
-                    "External Document No." := VendLedgEntry."External Document No.";
-                    InsertGenJnlLine(
-                      "Account Type"::Vendor,
-                      VendLedgEntry."Vendor No.",
-                      "Document Type"::Bill,
-                      NewDocAmount,
-                      StrSubstNo(Text1100003, VendLedgEntry."Document No.", DocNo), DocNo);
-
-                    SumLCYAmt := SumLCYAmt + "Amount (LCY)";
+                    GenJnlLine."Recipient Bank Account" := ClosedDoc."Cust./Vendor Bank Acc. Code";
                 end;
+                GenJnlLine."Due Date" := NewDueDate;
+                GenJnlLine."External Document No." := VendLedgEntry."External Document No.";
+                InsertGenJnlLine(
+                  GenJnlLine."Account Type"::Vendor,
+                  VendLedgEntry."Vendor No.",
+                  GenJnlLine."Document Type"::Bill,
+                  NewDocAmount,
+                  StrSubstNo(Text1100003, VendLedgEntry."Document No.", DocNo), DocNo);
+
+                SumLCYAmt := SumLCYAmt + GenJnlLine."Amount (LCY)";
 
                 if "Currency Code" <> '' then begin
                     Currency.SetFilter(Code, "Currency Code");
@@ -148,17 +146,15 @@ report 7000083 "Redraw Payable Bills"
                             Currency.TestField("Residual Losses Account");
                             Account := Currency."Residual Losses Account";
                         end;
-                        with GenJnlLine do begin
-                            VendLedgEntry."Currency Code" := '';
-                            GenJnlLineInit();
-                            InsertGenJnlLine(
-                              "Account Type"::"G/L Account",
-                              Account,
-                              "Gen. Journal Document Type"::" ",
-                              -SumLCYAmt,
-                              Text1100004,
-                              '');
-                        end;
+                        VendLedgEntry."Currency Code" := '';
+                        GenJnlLineInit();
+                        InsertGenJnlLine(
+                          GenJnlLine."Account Type"::"G/L Account",
+                          Account,
+                          "Gen. Journal Document Type"::" ",
+                          -SumLCYAmt,
+                          Text1100004,
+                          '');
                     end;
                 end;
 
@@ -334,17 +330,15 @@ report 7000083 "Redraw Payable Bills"
 
     local procedure GenJnlLineInit()
     begin
-        with GenJnlLine do begin
-            Clear(GenJnlLine);
-            Init();
-            "Line No." := GenJnlLineNextNo;
-            GenJnlLineNextNo := GenJnlLineNextNo + 10000;
-            "Transaction No." := TransactionNo;
-            "Posting Date" := PostingDate;
-            "Source Code" := SourceCode;
-            "Reason Code" := ReasonCode;
-            "System-Created Entry" := true;
-        end;
+        Clear(GenJnlLine);
+        GenJnlLine.Init();
+        GenJnlLine."Line No." := GenJnlLineNextNo;
+        GenJnlLineNextNo := GenJnlLineNextNo + 10000;
+        GenJnlLine."Transaction No." := TransactionNo;
+        GenJnlLine."Posting Date" := PostingDate;
+        GenJnlLine."Source Code" := SourceCode;
+        GenJnlLine."Reason Code" := ReasonCode;
+        GenJnlLine."System-Created Entry" := true;
     end;
 
     local procedure InsertGenJnlLine(AccountType2: Enum "Gen. Journal Account Type"; AccountNo2: Code[20]; DocumentType2: Enum "Gen. Journal Document Type"; Amount2: Decimal; Description2: Text[250]; DocNo2: Code[20])
@@ -352,25 +346,23 @@ report 7000083 "Redraw Payable Bills"
         PreservedDueDate: Date;
         PreservedPaymentMethodCode: Code[10];
     begin
-        with GenJnlLine do begin
-            "Account Type" := AccountType2;
-            PreservedDueDate := "Due Date";
-            PreservedPaymentMethodCode := "Payment Method Code";
-            Validate("Account No.", AccountNo2);
-            "Due Date" := PreservedDueDate;
-            "Payment Method Code" := PreservedPaymentMethodCode;
-            "Document Type" := DocumentType2;
-            "Document No." := VendLedgEntry."Document No.";
-            "Bill No." := DocNo2;
-            Description := CopyStr(Description2, 1, MaxStrLen(Description));
-            Validate("Currency Code", VendLedgEntry."Currency Code");
-            Validate(Amount, Amount2);
-            "Dimension Set ID" :=
-              CarteraManagement.GetCombinedDimSetID(GenJnlLine, VendLedgEntry."Dimension Set ID");
+        GenJnlLine."Account Type" := AccountType2;
+        PreservedDueDate := GenJnlLine."Due Date";
+        PreservedPaymentMethodCode := GenJnlLine."Payment Method Code";
+        GenJnlLine.Validate("Account No.", AccountNo2);
+        GenJnlLine."Due Date" := PreservedDueDate;
+        GenJnlLine."Payment Method Code" := PreservedPaymentMethodCode;
+        GenJnlLine."Document Type" := DocumentType2;
+        GenJnlLine."Document No." := VendLedgEntry."Document No.";
+        GenJnlLine."Bill No." := DocNo2;
+        GenJnlLine.Description := CopyStr(Description2, 1, MaxStrLen(GenJnlLine.Description));
+        GenJnlLine.Validate("Currency Code", VendLedgEntry."Currency Code");
+        GenJnlLine.Validate(Amount, Amount2);
+        GenJnlLine."Dimension Set ID" :=
+          CarteraManagement.GetCombinedDimSetID(GenJnlLine, VendLedgEntry."Dimension Set ID");
 
-            OnBeforeInsertGenJnlLine(GenJnlLine, VendLedgEntry, NewPmtMethod);
-            Insert();
-        end;
+        OnBeforeInsertGenJnlLine(GenJnlLine, VendLedgEntry, NewPmtMethod);
+        GenJnlLine.Insert();
     end;
 
     [Scope('OnPrem')]

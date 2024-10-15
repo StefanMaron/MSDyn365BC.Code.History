@@ -17,7 +17,6 @@ report 1316 "Standard Statement"
 {
     Caption = 'Customer Statement';
     DefaultRenderingLayout = "StandardStatement.docx";
-    WordMergeDataItem = Customer;
 
     dataset
     {
@@ -713,8 +712,8 @@ report 1316 "Standard Statement"
             trigger OnAfterGetRecord()
             begin
                 TempAgingBandBuf.DeleteAll();
-                CurrReport.Language := Language.GetLanguageIdOrDefault("Language Code");
-                CurrReport.FormatRegion := Language.GetFormatRegionOrDefault("Format Region");
+                CurrReport.Language := LanguageMgt.GetLanguageIdOrDefault("Language Code");
+                CurrReport.FormatRegion := LanguageMgt.GetFormatRegionOrDefault("Format Region");
                 FormatAddr.SetLanguageCode("Language Code");
                 PrintLine := false;
                 if PrintAllHavingBal and (not PrintAllHavingEntry) then
@@ -1054,7 +1053,7 @@ report 1316 "Standard Statement"
         CustLedgerEntry: Record "Cust. Ledger Entry";
         DetailedCustLedgEntry2: Record "Detailed Cust. Ledg. Entry";
         TempAgingBandBuf: Record "Aging Band Buffer" temporary;
-        Language: Codeunit Language;
+        LanguageMgt: Codeunit Language;
         FormatAddr: Codeunit "Format Address";
         SegManagement: Codeunit SegManagement;
         PeriodLength: DateFormula;

@@ -10,6 +10,7 @@ using System.Telemetry;
 table 10750 "SII History"
 {
     Caption = 'SII History';
+    DataClassification = CustomerContent;
 
     fields
     {

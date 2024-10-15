@@ -7,7 +7,7 @@ namespace Microsoft.Finance.ReceivablesPayables;
 page 7000026 "Operation Fees"
 {
     Caption = 'Operation Fees';
-    DataCaptionExpression = Caption();
+    DataCaptionExpression = Rec.Caption();
     DataCaptionFields = "Currency Code";
     PageType = List;
     SourceTable = "Operation Fee";

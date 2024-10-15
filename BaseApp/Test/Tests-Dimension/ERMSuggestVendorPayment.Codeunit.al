@@ -37,7 +37,7 @@ codeunit 134076 "ERM Suggest Vendor Payment"
         PaymentsLineErr: Label 'There are payments in %1 %2, %3 %4, %5 %6', Comment = 'There are payments in Journal Template Name PAYMENT, Journal Batch Name GENERAL, Applies-to Doc. No. 101321';
         EarlierPostingDateErr: Label 'You cannot create a payment with an earlier posting date for %1 %2.';
         AppliesToIdErr: Label 'Applies-to ID is not blank.';
-        DocumentNoErr: Label 'Document No. is not equal.';
+        OrFilterStringTxt: Label '%1|%2', Locked = true;
         JournalBatchNameErr: Label 'Journal Batch Name must be %1 in %2';
 
     [Test]
@@ -172,7 +172,7 @@ codeunit 134076 "ERM Suggest Vendor Payment"
         CreateGeneralJournalBatch(GenJournalBatch, GenJournalTemplate.Type::Payments);
         SuggestVendorPayment(
           GenJournalBatch, Vendor."No.", CalcDate(PaymentTerms."Discount Date Calculation", WorkDate()), FindDiscounts,
-          GenJournalLine."Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo, GenJournalLine."Bank Payment Type", true);
+          GenJournalLine."Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo(), GenJournalLine."Bank Payment Type", true);
 
         // Verify Description is set to the vendor name
         GenJournalLine.TestField(Description, Vendor.Name);
@@ -226,7 +226,7 @@ codeunit 134076 "ERM Suggest Vendor Payment"
         PreCount := GenJournalLine.Count();
         SuggestVendorPayment(
           GenJournalBatch, '', WorkDate(), false,
-          GenJournalLine."Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo, GenJournalLine."Bank Payment Type", false);
+          GenJournalLine."Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo(), GenJournalLine."Bank Payment Type", false);
         GenJournalLine.SetRange("Document Type", GenJournalLine."Document Type"::Payment);
         GenJournalLine.SetRange("Journal Batch Name", GenJournalBatch.Name);
         PostCount := GenJournalLine.Count();
@@ -246,7 +246,7 @@ codeunit 134076 "ERM Suggest Vendor Payment"
 
         SuggestVendorPayment(
           GenJournalBatch, '', WorkDate(), false,
-          GenJournalLine."Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo, GenJournalLine."Bank Payment Type", false);
+          GenJournalLine."Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo(), GenJournalLine."Bank Payment Type", false);
         GenJournalLine.SetRange("Document Type", GenJournalLine."Document Type"::Payment);
         GenJournalLine.SetRange("Journal Batch Name", GenJournalBatch.Name);
         RecordCountAfterResuggest := GenJournalLine.Count();
@@ -316,7 +316,7 @@ codeunit 134076 "ERM Suggest Vendor Payment"
         Initialize();
         CreateGeneralJournalBatch(GenJournalBatch, GenJournalTemplate.Type::General);
         CreateGeneralJournalLine(
-          GenJournalLine, GenJournalBatch, WorkDate(), LibraryPurchase.CreateVendorNo, GenJournalLine."Document Type"::Invoice,
+          GenJournalLine, GenJournalBatch, WorkDate(), LibraryPurchase.CreateVendorNo(), GenJournalLine."Document Type"::Invoice,
           -LibraryRandom.RandDec(100, 2));
         GenJournalLine.Validate("External Document No.", '');
         GenJournalLine.Modify(true);
@@ -358,7 +358,7 @@ codeunit 134076 "ERM Suggest Vendor Payment"
         InvoiceNo := GenJournalLine."Document No.";
         CreateGeneralJournalLine(
           GenJournalLine, GenJournalBatch, WorkDate(), Vendor."No.", GenJournalLine."Document Type"::Payment,
-          InvoiceAmount * LibraryUtility.GenerateRandomFraction);
+          InvoiceAmount * LibraryUtility.GenerateRandomFraction());
         ApplyGenJnlLineEntryToInvoice(GenJournalLine, InvoiceNo);
         CreateGeneralJournalLine(
           GenJournalLine, GenJournalBatch, WorkDate(), Vendor."No.", GenJournalLine."Document Type"::"Credit Memo",
@@ -397,7 +397,7 @@ codeunit 134076 "ERM Suggest Vendor Payment"
         // Post the Payment Journal.
         CreateGeneralJournalBatch(GenJournalBatch, GenJournalTemplate.Type::Payments);
         SuggestVendorPayment(
-          GenJournalBatch, GenJournalLine."Account No.", AddRandomDaysToWorkDate, true, GenJournalLine."Account Type"::"G/L Account",
+          GenJournalBatch, GenJournalLine."Account No.", AddRandomDaysToWorkDate(), true, GenJournalLine."Account Type"::"G/L Account",
           GenJournalLine."Bal. Account No.", GenJournalLine."Bank Payment Type"::" ", true);
         DocumentNo2 := FindAndPostPaymentJournalLine(GenJournalBatch);
 
@@ -431,7 +431,7 @@ codeunit 134076 "ERM Suggest Vendor Payment"
         // Post the Payment Journal.
         CreateGeneralJournalBatch(GenJournalBatch, GenJournalTemplate.Type::Payments);
         SuggestVendorPayment(
-          GenJournalBatch, GenJournalLine."Account No.", AddRandomDaysToWorkDate, true, GenJournalLine."Account Type"::"G/L Account",
+          GenJournalBatch, GenJournalLine."Account No.", AddRandomDaysToWorkDate(), true, GenJournalLine."Account Type"::"G/L Account",
           GenJournalLine."Bal. Account No.", GenJournalLine."Bank Payment Type"::" ", true);
         DocumentNo2 := FindAndPostPaymentJournalLine(GenJournalBatch);
 
@@ -458,9 +458,9 @@ codeunit 134076 "ERM Suggest Vendor Payment"
 
         // Setup: Create and Post Purchase Invoice for a Vendor who has Blocked Payment. Take Random Quantity.
         Initialize();
-        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, CreateVendorWithPaymentBlocked);
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, CreateVendorWithPaymentBlocked());
         LibraryPurchase.CreatePurchaseLine(
-          PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, CreateItem, LibraryRandom.RandDec(10, 2));
+          PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, CreateItem(), LibraryRandom.RandDec(10, 2));
         PurchaseHeader.Validate("Vendor Invoice No.", PurchaseHeader."No.");
         PurchaseHeader.Modify(true);
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
@@ -469,7 +469,7 @@ codeunit 134076 "ERM Suggest Vendor Payment"
         // Exercise: Try to Suggest Vendor Payment for the Vendor for which Payment is Blocked.
         SuggestVendorPayment(
           GenJournalBatch, PurchaseHeader."Buy-from Vendor No.", WorkDate(), false, GenJournalLine."Bal. Account Type"::"G/L Account",
-          LibraryERM.CreateGLAccountNo, GenJournalLine."Bank Payment Type"::" ", true);
+          LibraryERM.CreateGLAccountNo(), GenJournalLine."Bank Payment Type"::" ", true);
 
         // Verify: Verify that no General Journal Line created for the Vendor having Payment Blocked.
         VerifyJournalLinesNotSuggested(GenJournalBatch."Journal Template Name", GenJournalBatch.Name);
@@ -721,7 +721,7 @@ codeunit 134076 "ERM Suggest Vendor Payment"
         // [WHEN] Run Suggest Vendor Payments with "Summarize Per Vendor" option
         SuggestVendorPayment(
           GenJnlBatch, GenJnlLine."Account No.", WorkDate(), false,
-          GenJnlLine."Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo, GenJnlLine."Bank Payment Type"::"Computer Check", true);
+          GenJnlLine."Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo(), GenJnlLine."Bank Payment Type"::"Computer Check", true);
 
         // [THEN] General Journal Line is created with "Dimension Set ID" = "X", "Global Dimension 1 Code" = "A", "Global Dimension 2 Code" = "B"
         VerifyGenJnlLineDimSetID(GenJnlBatch, VendNo, DimSetID);
@@ -767,7 +767,7 @@ codeunit 134076 "ERM Suggest Vendor Payment"
 
         for i := 1 to 3 do begin
             CurrencyCode[i] := LibraryERM.CreateCurrencyWithExchangeRate(WorkDate(), 1, 1);
-            VendorNo[i] := CreateVendorWithPriority;
+            VendorNo[i] := CreateVendorWithPriority();
         end;
 
         // [GIVEN] Create and post several General Journal Lines:
@@ -1084,14 +1084,14 @@ codeunit 134076 "ERM Suggest Vendor Payment"
         SetupGenJnlLine(GenJournalLine);
         GenJournalBatch.Get(GenJournalLine."Journal Template Name", GenJournalLine."Journal Batch Name");
         GenJournalBatch.Validate("Bal. Account Type", GenJournalBatch."Bal. Account Type"::"Bank Account");
-        GenJournalBatch.Validate("Bal. Account No.", LibraryERM.CreateBankAccountNo);
+        GenJournalBatch.Validate("Bal. Account No.", LibraryERM.CreateBankAccountNo());
         GenJournalBatch.Modify(true);
 
         // [GIVEN] Run Suggest Vendor Payment with Posting Date = 10.01.18, Last Payment Date = 20.01.18
         // [GIVEN] Bal. Account Type = G/L Account, Bal. Account No. = "A"
         SuggestVendorPaymentsEnqueueValues(
           ActionType::Update, PostingDate, LastPaymentDate,
-          GenJournalLine."Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo);
+          GenJournalLine."Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo());
         SuggestVendorPaymentForGenJournal(GenJournalLine);
 
         // [WHEN] Run Suggest Vendor Payments second time
@@ -1124,7 +1124,7 @@ codeunit 134076 "ERM Suggest Vendor Payment"
         LibraryJournals.CreateGenJournalBatch(GenJournalBatch);
         SuggestVendorPayment(
           GenJournalBatch, VendorLedgerEntry."Vendor No.", WorkDate(), false,
-          GenJournalLine."Bal. Account Type"::"Bank Account", LibraryERM.CreateBankAccountNo, "Bank Payment Type"::" ", false);
+          GenJournalLine."Bal. Account Type"::"Bank Account", LibraryERM.CreateBankAccountNo(), "Bank Payment Type"::" ", false);
 
         // [THEN] Gen. Journal Line is created with Message To Recipient = 'Payment of Invoice "INV"'
         VerifyMessageToRecipientStandard(
@@ -1158,7 +1158,7 @@ codeunit 134076 "ERM Suggest Vendor Payment"
         LibraryJournals.CreateGenJournalBatch(GenJournalBatch);
         SuggestVendorPayment(
           GenJournalBatch, VendorLedgerEntry."Vendor No.", WorkDate(), false,
-          GenJournalLine."Bal. Account Type"::"Bank Account", LibraryERM.CreateBankAccountNo, "Bank Payment Type"::" ", false);
+          GenJournalLine."Bal. Account Type"::"Bank Account", LibraryERM.CreateBankAccountNo(), "Bank Payment Type"::" ", false);
 
         // [THEN] Gen. Journal Line is created with Message To Recipient = 'custom invoice 123'
         VerifyMessageToRecipientStandard(
@@ -1180,9 +1180,9 @@ codeunit 134076 "ERM Suggest Vendor Payment"
         Initialize();
 
         // [GIVEN] Posted Invoice for Vendor A for Amount = -100
-        BankAccountNo := LibraryERM.CreateBankAccountNo;
+        BankAccountNo := LibraryERM.CreateBankAccountNo();
         CreateAndPostGeneralJournalLine(
-          GenJournalLine, GenJournalLine."Account Type"::Vendor, LibraryPurchase.CreateVendorNo,
+          GenJournalLine, GenJournalLine."Account Type"::Vendor, LibraryPurchase.CreateVendorNo(),
           GenJournalLine."Document Type"::Invoice, -1);
         VendorNo := GenJournalLine."Account No.";
 
@@ -1277,14 +1277,14 @@ codeunit 134076 "ERM Suggest Vendor Payment"
         LibraryVariableStorage.Enqueue(VendorNo);
         LibraryVariableStorage.Enqueue(true);
         Commit();
-        ErrorMessages.Trap;
+        ErrorMessages.Trap();
         SuggestVendorPaymentFromJournalBatch(GenJournalBatch[3]."Journal Template Name", GenJournalBatch[3].Name);
 
         // [THEN] Confirmation is invoked with text and TRUE is returned in ConfirmHandlerTrue
         // [THEN] ErrorMessages page is opened containing information from B1 and B2 lines that were not suggested
-        ErrorMessages.First;
+        ErrorMessages.First();
         VerifyExpectedErrorMessageLine(ErrorMessages, GenJournalBatch[1]."Journal Template Name", GenJournalBatch[1].Name);
-        ErrorMessages.Last;
+        ErrorMessages.Last();
         VerifyExpectedErrorMessageLine(ErrorMessages, GenJournalBatch[2]."Journal Template Name", GenJournalBatch[2].Name);
         ErrorMessages.Close();
 
@@ -1329,7 +1329,7 @@ codeunit 134076 "ERM Suggest Vendor Payment"
         LibraryVariableStorage.Enqueue(VendorNo);
         LibraryVariableStorage.Enqueue(true);
         Commit();
-        ErrorMessages.Trap;
+        ErrorMessages.Trap();
         SuggestVendorPaymentFromJournalBatch(GenJournalBatch[3]."Journal Template Name", GenJournalBatch[3].Name);
 
         // [THEN] Confirmation is invoked with text and FALSE is returned in ConfirmHandlerFalse
@@ -1375,7 +1375,7 @@ codeunit 134076 "ERM Suggest Vendor Payment"
         LibraryVariableStorage.Enqueue(VendorNo);
         LibraryVariableStorage.Enqueue(false);
         Commit();
-        ErrorMessages.Trap;
+        ErrorMessages.Trap();
         SuggestVendorPaymentFromJournalBatch(GenJournalBatch[3]."Journal Template Name", GenJournalBatch[3].Name);
 
         // [THEN] Confirmation is not invoked
@@ -1408,16 +1408,16 @@ codeunit 134076 "ERM Suggest Vendor Payment"
         LibraryJournals.CreateGenJournalBatchWithType(GenJournalBatch, GenJournalBatch."Template Type"::Payments);
 
         // [GIVEN] Ran page Create Payment, set Batch Name and pushed OK
-        CreatePayment.OpenEdit;
+        CreatePayment.OpenEdit();
         CreatePayment."Batch Name".SetValue(GenJournalBatch.Name);
         CreatePayment."Starting Document No.".SetValue(LibraryRandom.RandInt(100));
-        CreatePayment.OK.Invoke;
+        CreatePayment.OK().Invoke();
 
         // [GIVEN] Deleted Gen Journal Batch
         GenJournalBatch.Delete();
 
         // [WHEN] Run page Create Payment
-        CreatePayment.OpenEdit;
+        CreatePayment.OpenEdit();
 
         // [THEN] Page Create Payment shows Batch Name = Blank
         GenJournalBatch.FindFirst();
@@ -1446,7 +1446,7 @@ codeunit 134076 "ERM Suggest Vendor Payment"
         GenJournalTemplate.DeleteAll();
 
         // [WHEN] Run page Create Payment
-        CreatePayment.OpenEdit;
+        CreatePayment.OpenEdit();
 
         // [THEN] Page Create Payment shows Batch Name = Blank
         GenJournalBatch.FindFirst();
@@ -1479,11 +1479,11 @@ codeunit 134076 "ERM Suggest Vendor Payment"
         GenJournalBatch.Modify(true);
 
         // [GIVEN] Gen. Journal line in Batch "B" with "Document No." equal to 100
-        CreateGeneralJournalLine(GenJournalLine, GenJournalBatch, WorkDate(), LibraryPurchase.CreateVendorNo,
+        CreateGeneralJournalLine(GenJournalLine, GenJournalBatch, WorkDate(), LibraryPurchase.CreateVendorNo(),
           GenJournalLine."Document Type"::Payment, -LibraryRandom.RandInt(10));
 
         // [WHEN] On Create Payment page "Batch name" is set to "B"
-        CreatePayment.OpenEdit;
+        CreatePayment.OpenEdit();
         CreatePayment."Template Name".SetValue(GenJournalBatch."Journal Template Name");
         CreatePayment."Batch Name".SetValue(GenJournalBatch.Name);
 
@@ -1611,7 +1611,7 @@ codeunit 134076 "ERM Suggest Vendor Payment"
         LibraryJournals.CreateGenJournalBatchWithType(GenJournalBatch, GenJournalBatch."Template Type"::Payments);
 
         // [WHEN] Run page Create Payment
-        CreatePayment.OpenEdit;
+        CreatePayment.OpenEdit();
 
         // [THEN] Page Create Payment shows "B" in field Batch Name
         Assert.AreEqual(GenJournalBatch.Name, Format(CreatePayment."Batch Name"), '');
@@ -1644,7 +1644,7 @@ codeunit 134076 "ERM Suggest Vendor Payment"
         GenJournalTemplate[2].Get(GenJournalBatch[2]."Journal Template Name");
 
         // [WHEN] Ran page Create Payment with "T1" Template selection
-        CreatePayment.OpenEdit;
+        CreatePayment.OpenEdit();
 
         // [THEN] Page Create Payment shows "T1" in field Template Name
         Assert.AreEqual(GenJournalBatch[1]."Journal Template Name", Format(CreatePayment."Template Name"), '');
@@ -1680,7 +1680,7 @@ codeunit 134076 "ERM Suggest Vendor Payment"
         GenJournalTemplate[2].Get(GenJournalBatch[2]."Journal Template Name");
 
         // [GIVEN] Ran page Create Payment with "T2" Template selection
-        CreatePayment.OpenEdit;
+        CreatePayment.OpenEdit();
 
         // [THEN] Page Create Payment shows "T2" in field Template Name
         Assert.AreEqual(GenJournalBatch[2]."Journal Template Name", Format(CreatePayment."Template Name"), '');
@@ -1724,9 +1724,9 @@ codeunit 134076 "ERM Suggest Vendor Payment"
           GenJournalBatch[2].Name,
           GenJournalLine."Document Type"::Invoice,
           GenJournalLine."Account Type"::Vendor,
-          LibraryPurchase.CreateVendorNo,
+          LibraryPurchase.CreateVendorNo(),
           GenJournalLine."Bal. Account Type"::"G/L Account",
-          LibraryERM.CreateGLAccountNo,
+          LibraryERM.CreateGLAccountNo(),
           -LibraryRandom.RandDecInRange(10, 100, 2));
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
 
@@ -1734,14 +1734,14 @@ codeunit 134076 "ERM Suggest Vendor Payment"
         LibraryVariableStorage.Enqueue(GenJournalLine."Journal Batch Name");
         LibraryVariableStorage.Enqueue(GenJournalLine."Document No.");
 
-        VendorLedgerEntries.OpenEdit;
+        VendorLedgerEntries.OpenEdit();
         VendorLedgerEntries.FILTER.SetFilter("Vendor No.", Format(GenJournalLine."Account No."));
-        VendorLedgerEntries.First;
-        PaymentJournal.Trap;
+        VendorLedgerEntries.First();
+        PaymentJournal.Trap();
 
         // [WHEN] Run page Create Payment for the posted invoice
-        VendorLedgerEntries."Create Payment".Invoke;
-        PaymentJournal.OK.Invoke;
+        VendorLedgerEntries."Create Payment".Invoke();
+        PaymentJournal.OK().Invoke();
 
         // [THEN] Payment Gen Journal Line was created
         GenJournalLine.SetRange("Journal Template Name", GenJournalBatch[2]."Journal Template Name");
@@ -1778,14 +1778,14 @@ codeunit 134076 "ERM Suggest Vendor Payment"
         GenJournalTemplate[2].Get(GenJournalBatch[2]."Journal Template Name");
 
         // [GIVEN] Ran page Create Payment, set Batch Name and pushed OK
-        CreatePayment.OpenEdit;
+        CreatePayment.OpenEdit();
         CreatePayment."Template Name".SetValue(GenJournalBatch[2]."Journal Template Name");
         CreatePayment."Batch Name".SetValue(GenJournalBatch[2].Name);
         CreatePayment."Starting Document No.".SetValue(LibraryRandom.RandInt(100));
-        CreatePayment.OK.Invoke;
+        CreatePayment.OK().Invoke();
 
         // [WHEN] Run page Create Payment
-        CreatePayment.OpenEdit;
+        CreatePayment.OpenEdit();
 
         // [THEN] Page Create Payment shows the previous value
         CreatePayment."Batch Name".AssertEquals(GenJournalBatch[2].Name);
@@ -1799,18 +1799,14 @@ codeunit 134076 "ERM Suggest Vendor Payment"
     [Scope('OnPrem')]
     procedure CheckCorrectCopyDimensionToVendorLedgerEntry()
     var
-        Vendor: Record Vendor;
         Dimension: Record Dimension;
         DefaultDimension: Record "Default Dimension";
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
         DimensionValue: Record "Dimension Value";
-        DimensionSetEntry: Record "Dimension Set Entry";
-        VendorLedgerEntry: Record "Vendor Ledger Entry";
         GenJournalLine: Record "Gen. Journal Line";
         BankAccount: Record "Bank Account";
         VendorLedgerEntries: TestPage "Vendor Ledger Entries";
-        CreatePayment: TestPage "Create Payment";
         PaymentJournal: TestPage "Payment Journal";
         DimSetID: Integer;
         PostedDocNo: Code[20];
@@ -2030,8 +2026,7 @@ codeunit 134076 "ERM Suggest Vendor Payment"
         LibraryERM.FindBankAccount(BankAccount);
         SetupGenJournalLineForSuggestVendorPayments(GenJournalLine, NoSeriesLine);
 
-        LibraryVariableStorage.Enqueue(
-          StrSubstNo('%1|%2', PurchaseHeader[1]."Buy-from Vendor No.", PurchaseHeader[2]."Buy-from Vendor No."));
+        LibraryVariableStorage.Enqueue(StrSubstNo(OrFilterStringTxt, PurchaseHeader[1]."Buy-from Vendor No.", PurchaseHeader[2]."Buy-from Vendor No."));
         LibraryVariableStorage.Enqueue(NoSeriesLine."Starting No.");
         LibraryVariableStorage.Enqueue(false); // Summarize - FALSE
         LibraryVariableStorage.Enqueue(false); // New Doc. No. per Line - FALSE
@@ -2078,7 +2073,7 @@ codeunit 134076 "ERM Suggest Vendor Payment"
         LibraryERM.FindBankAccount(BankAccount);
         SetupGenJournalLineForSuggestVendorPayments(GenJournalLine, NoSeriesLine);
 
-        LibraryVariableStorage.Enqueue(StrSubstNo('%1|%2', Vendor[1]."No.", Vendor[2]."No."));
+        LibraryVariableStorage.Enqueue(StrSubstNo(OrFilterStringTxt, Vendor[1]."No.", Vendor[2]."No."));
         LibraryVariableStorage.Enqueue(NoSeriesLine."Starting No.");
         LibraryVariableStorage.Enqueue(true); // Summarize - TRUE
         LibraryVariableStorage.Enqueue(true); // New Doc. No. per Line - TRUE
@@ -2127,7 +2122,7 @@ codeunit 134076 "ERM Suggest Vendor Payment"
         LibraryERM.FindBankAccount(BankAccount);
         SetupGenJournalLineForSuggestVendorPayments(GenJournalLine, NoSeriesLine);
 
-        LibraryVariableStorage.Enqueue(StrSubstNo('%1|%2', Vendor[1]."No.", Vendor[2]."No."));
+        LibraryVariableStorage.Enqueue(StrSubstNo(OrFilterStringTxt, Vendor[1]."No.", Vendor[2]."No."));
         LibraryVariableStorage.Enqueue(NoSeriesLine."Starting No.");
         LibraryVariableStorage.Enqueue(false); // Summarize - FALSE
         LibraryVariableStorage.Enqueue(true); // New Doc. No. per Line - TRUE
@@ -2246,17 +2241,17 @@ codeunit 134076 "ERM Suggest Vendor Payment"
 
         // [GIVEN] Report option is saved for the report 'Suggest Vendor Payment' for selected General Journal
         LibraryJournals.CreateGenJournalBatch(GenJournalBatch);
-        LibraryVariableStorage.Enqueue(LibraryPurchase.CreateVendorNo);
-        LibraryVariableStorage.Enqueue(LibraryERM.CreateGLAccountNo);
+        LibraryVariableStorage.Enqueue(LibraryPurchase.CreateVendorNo());
+        LibraryVariableStorage.Enqueue(LibraryERM.CreateGLAccountNo());
         LibraryVariableStorage.Enqueue(false);
         ParameterName := LibraryUtility.GenerateGUID();
 
         // request page is opened again when new object option is created
         LibraryVariableStorage.Enqueue(ParameterName);
-        LibraryVariableStorage.Enqueue(LibraryPurchase.CreateVendorNo);
-        LibraryVariableStorage.Enqueue(LibraryERM.CreateGLAccountNo);
+        LibraryVariableStorage.Enqueue(LibraryPurchase.CreateVendorNo());
+        LibraryVariableStorage.Enqueue(LibraryERM.CreateGLAccountNo());
         LibraryVariableStorage.Enqueue(false);
-        Commit;
+        Commit();
 
         SuggestVendorPaymentFromJournalBatch(GenJournalBatch."Journal Template Name", GenJournalBatch.Name);
         ObjectOptions.SetRange("Object Type", ObjectOptions."Object Type"::Report);
@@ -2264,16 +2259,16 @@ codeunit 134076 "ERM Suggest Vendor Payment"
         Assert.RecordIsNotEmpty(ObjectOptions);
 
         // [GIVEN] 'Report Settings' page is opened
-        ReportSettings.OpenEdit;
+        ReportSettings.OpenEdit();
 
         // [WHEN] Invoke 'New' on the 'Report settings' page for the 'Suggest Vendor Payment' report
-        ReportSettings.NewSettings.Invoke;
+        ReportSettings.NewSettings.Invoke();
 
         // [THEN] New saved report option is created
         ObjectOptions.SetRange("Parameter Name", ParameterName);
         Assert.RecordIsNotEmpty(ObjectOptions);
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -2301,7 +2296,7 @@ codeunit 134076 "ERM Suggest Vendor Payment"
         CreatePayment."Posting Date".SetValue(WorkDate() - 1);
         CreatePayment."Starting Document No.".AssertEquals('');
         CreatePayment."Starting Document No.".SetValue(LibraryUtility.GenerateGUID());
-        CreatePayment.OK.Invoke();
+        CreatePayment.OK().Invoke();
 
         CreatePayment.OpenEdit();
 
@@ -2344,6 +2339,57 @@ codeunit 134076 "ERM Suggest Vendor Payment"
     end;
 
     [Test]
+    [HandlerFunctions('SuggestVendorPaymentsUseDueDateAsPostingDateAndFindPaymentDiscountsRequestPageHandler')]
+    procedure SuggestVendorPaymentUseDueDateAsPostingDateAndFindPaymentDiscount()
+    var
+        Vendor: Record Vendor;
+        PaymentTerms: Record "Payment Terms";
+        GenJournalLineWithPaymentDiscount: Record "Gen. Journal Line";
+        GenJournalLineWithoutPaymentDiscount: Record "Gen. Journal Line";
+        SuggestVendorPayments: Report "Suggest Vendor Payments";
+        DueDate, PaymentDiscountDate : Date;
+    begin
+        // [FEATURE] [UI] [REPORT]
+        // [SCENARIO] Suggesting vendor payments with both UseDueDateAsPostingDate and FindPaymentDiscount set to TRUE
+        Initialize();
+
+        // [GIVEN] Created and posted vendor invoice with due date for vendor without payment discount
+        LibraryJournals.CreateGenJournalLineWithBatch(GenJournalLineWithoutPaymentDiscount, GenJournalLineWithoutPaymentDiscount."Document Type"::Invoice, GenJournalLineWithoutPaymentDiscount."Account Type"::Vendor, LibraryPurchase.CreateVendorNo(), -LibraryRandom.RandDec(100, 2));
+        DueDate := CalcDate('<+1M>', GenJournalLineWithoutPaymentDiscount."Posting Date");
+        GenJournalLineWithoutPaymentDiscount.Validate("Due Date", DueDate);
+        GenJournalLineWithoutPaymentDiscount.Modify();
+        LibraryERM.PostGeneralJnlLine(GenJournalLineWithoutPaymentDiscount);
+
+        // [GIVEN] Created and posted vendor invoice with due date for vendor with payment discount
+        CreatePaymentTermsWithDiscount(PaymentTerms);
+        CreateVendorWithPaymentTerms(Vendor, PaymentTerms.Code);
+        LibraryJournals.CreateGenJournalLineWithBatch(GenJournalLineWithPaymentDiscount, GenJournalLineWithPaymentDiscount."Document Type"::Invoice, GenJournalLineWithPaymentDiscount."Account Type"::Vendor, Vendor."No.", -LibraryRandom.RandDec(100, 2));
+        PaymentDiscountDate := GenJournalLineWithPaymentDiscount."Pmt. Discount Date";
+        LibraryERM.PostGeneralJnlLine(GenJournalLineWithPaymentDiscount);
+
+        // [WHEN] Run Report "Suggest Vendor Payment" for the invoice without payment discount
+        SuggestVendorPayments.SetGenJnlLine(GenJournalLineWithoutPaymentDiscount);
+        LibraryVariableStorage.Enqueue(GenJournalLineWithoutPaymentDiscount."Account No.");
+        LibraryVariableStorage.Enqueue(GenJournalLineWithoutPaymentDiscount."Document No.");
+        LibraryVariableStorage.Enqueue(DueDate);
+        SuggestVendorPayments.Run();
+
+        // [THEN] The payment line is created with due date as posting date
+        VerifyDocumentNoAndPostingDateOnGeneralJournal(GenJournalLineWithoutPaymentDiscount."Account No.", GenJournalLineWithoutPaymentDiscount."Document No.", DueDate);
+
+        // [WHEN] Run Report "Suggest Vendor Payment" for the invoice with payment discount
+        SuggestVendorPayments.SetGenJnlLine(GenJournalLineWithPaymentDiscount);
+        LibraryVariableStorage.Enqueue(GenJournalLineWithPaymentDiscount."Account No.");
+        LibraryVariableStorage.Enqueue(GenJournalLineWithPaymentDiscount."Document No.");
+        LibraryVariableStorage.Enqueue(PaymentDiscountDate);
+        SuggestVendorPayments.Run();
+
+        // [THEN] The payment line is created with payment discount date as posting date
+        VerifyDocumentNoAndPostingDateOnGeneralJournal(GenJournalLineWithPaymentDiscount."Account No.", GenJournalLineWithPaymentDiscount."Document No.", PaymentDiscountDate);
+    end;
+
+
+    [Test]
     [HandlerFunctions('CreatePaymentModalPageHandler')]
     [Scope('OnPrem')]
     procedure VerifyAppliesToidforBlockedVendorPayment()
@@ -2351,11 +2397,9 @@ codeunit 134076 "ERM Suggest Vendor Payment"
         GenJournalLine: Record "Gen. Journal Line";
         GenJournalBatch: Record "Gen. Journal Batch";
         GenJournalTemplate: Record "Gen. Journal Template";
-        TempGenJournalTemplate: Record "Gen. Journal Template" temporary;
         Vendor: Record Vendor;
         VendorLedgerEntry: Record "Vendor Ledger Entry";
         VendorLedgerEntries: TestPage "Vendor Ledger Entries";
-        PaymentJournal: TestPage "Payment Journal";
         VendorNoFilter: Text[40];
     begin
         // [SCENARIO 440630] The Applies-to ID does not get removed in certain circumstances if you get an error during the Create Payment routine.
@@ -2372,9 +2416,9 @@ codeunit 134076 "ERM Suggest Vendor Payment"
           GenJournalBatch.Name,
           GenJournalLine."Document Type"::Invoice,
           GenJournalLine."Account Type"::Vendor,
-          LibraryPurchase.CreateVendorNo,
+          LibraryPurchase.CreateVendorNo(),
           GenJournalLine."Bal. Account Type"::"G/L Account",
-          LibraryERM.CreateGLAccountNo,
+          LibraryERM.CreateGLAccountNo(),
           -LibraryRandom.RandDecInRange(10, 100, 2));
 
         // [THEN] Modify the Posting Date of First Vendor.
@@ -2397,9 +2441,9 @@ codeunit 134076 "ERM Suggest Vendor Payment"
           GenJournalBatch.Name,
           GenJournalLine."Document Type"::Invoice,
           GenJournalLine."Account Type"::Vendor,
-          LibraryPurchase.CreateVendorNo,
+          LibraryPurchase.CreateVendorNo(),
           GenJournalLine."Bal. Account Type"::"G/L Account",
-          LibraryERM.CreateGLAccountNo,
+          LibraryERM.CreateGLAccountNo(),
           -LibraryRandom.RandDecInRange(10, 100, 2));
 
         // [THEN] Saveboth Vendor in a variable.
@@ -2409,11 +2453,11 @@ codeunit 134076 "ERM Suggest Vendor Payment"
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
 
         // [THEN] Open VEndor LEdger Entries page and Create Payment.
-        VendorLedgerEntries.OpenEdit;
+        VendorLedgerEntries.OpenEdit();
         VendorLedgerEntries.FILTER.SetFilter("Vendor No.", VendorNoFilter);
 
         // [VERIFY] Vendor Payment blocked for Vendor 1 error will come.
-        asserterror VendorLedgerEntries."Create Payment".Invoke;
+        asserterror VendorLedgerEntries."Create Payment".Invoke();
 
         // [VERIFY] Vendor Ledger entry of blocked vendor have blank Applies-To ID.
         VendorLedgerEntry.SetFilter("Vendor No.", Vendor."No.");
@@ -2707,7 +2751,6 @@ codeunit 134076 "ERM Suggest Vendor Payment"
         VendorNo2: Code[20];
         NoOfLines: Integer;
         DocumentNo: Code[20];
-        SuggestVendorPayment: Report "Suggest Vendor Payments";
     begin
         // [SCENARIO 471718] Document No. on payment Journals from 'Suggest Vendor Payments' is different even if New Doc. No. per Line is No
         Initialize();
@@ -2881,7 +2924,7 @@ codeunit 134076 "ERM Suggest Vendor Payment"
         CreateGenJournalBatch(GenJournalBatch, GenJournalTemplate.Type::Payments);
         CreatePaymentLineWithAppliedTo(
           GenJournalLine, GenJournalBatch, GenJournalLine."Account Type"::Customer, CustomerNo,
-          GenJournalLine."Applies-to Doc. Type"::"Credit Memo", CrMemoNo, PaymentAmount, LibraryERM.CreateGLAccountNo);
+          GenJournalLine."Applies-to Doc. Type"::"Credit Memo", CrMemoNo, PaymentAmount, LibraryERM.CreateGLAccountNo());
     end;
 
     local procedure CreatePaymentLineAppliedToCrMemoVendor(var GenJournalLine: Record "Gen. Journal Line"; VendorNo: Code[20]; PaymentAmount: Decimal; CrMemoNo: Code[20])
@@ -2892,7 +2935,7 @@ codeunit 134076 "ERM Suggest Vendor Payment"
         CreateGenJournalBatch(GenJournalBatch, GenJournalTemplate.Type::Payments);
         CreatePaymentLineWithAppliedTo(
           GenJournalLine, GenJournalBatch, GenJournalLine."Account Type"::Vendor, VendorNo,
-          GenJournalLine."Applies-to Doc. Type"::"Credit Memo", CrMemoNo, PaymentAmount, LibraryERM.CreateGLAccountNo);
+          GenJournalLine."Applies-to Doc. Type"::"Credit Memo", CrMemoNo, PaymentAmount, LibraryERM.CreateGLAccountNo());
     end;
 
     local procedure CreatePaymentLineWithAppliedTo(var GenJournalLine: Record "Gen. Journal Line"; GenJournalBatch: Record "Gen. Journal Batch"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; ApplnDocType: Enum "Gen. Journal Document Type"; ApplnDocNo: Code[20]; PaymentAmount: Decimal; BalAccountNo: Code[20])
@@ -3093,7 +3136,7 @@ codeunit 134076 "ERM Suggest Vendor Payment"
         DocumentNo := GenJournalLine."Document No.";
 
         CreateGeneralJournalLine(GenJournalLine, GenJournalBatch, WorkDate(), Vendor."No.", DocumentType, GenJournalLine.Amount * 2);
-        UpdateOnHoldOnGenJournalLine(GenJournalLine, GetOnHold);
+        UpdateOnHoldOnGenJournalLine(GenJournalLine, GetOnHold());
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
     end;
 
@@ -3115,7 +3158,7 @@ codeunit 134076 "ERM Suggest Vendor Payment"
         GenJournalLine.Validate("External Document No.", GenJournalLine."Document No.");
         GenJournalLine.Validate("Posting Date", PostingDate);
         GenJournalLine.Validate("Bal. Account Type", GenJournalLine."Bal. Account Type"::"G/L Account");
-        GenJournalLine.Validate("Bal. Account No.", LibraryERM.CreateGLAccountNo);
+        GenJournalLine.Validate("Bal. Account No.", LibraryERM.CreateGLAccountNo());
         GenJournalLine.Modify(true);
     end;
 
@@ -3165,7 +3208,7 @@ codeunit 134076 "ERM Suggest Vendor Payment"
     begin
         LibraryJournals.CreateGenJournalLineWithBatch(
           GenJournalLine, GenJournalLine."Document Type"::Invoice,
-          GenJournalLine."Account Type"::Vendor, LibraryPurchase.CreateVendorNo, -LibraryRandom.RandDec(100, 2));
+          GenJournalLine."Account Type"::Vendor, LibraryPurchase.CreateVendorNo(), -LibraryRandom.RandDec(100, 2));
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
         LibraryERM.FindVendorLedgerEntry(VendorLedgerEntry, VendorLedgerEntry."Document Type"::Invoice, GenJournalLine."Document No.");
         VendorLedgerEntry.Validate("Message to Recipient", MsgToRecipient);
@@ -3192,7 +3235,7 @@ codeunit 134076 "ERM Suggest Vendor Payment"
     var
         NoSeries: Record "No. Series";
     begin
-        NoSeries.Get(LibraryERM.CreateNoSeriesCode);
+        NoSeries.Get(LibraryERM.CreateNoSeriesCode());
         NoSeriesLine.SetRange("Series Code", NoSeries.Code);
         NoSeriesLine.FindFirst();
         NoSeriesLine."Starting Date" := WorkDate();
@@ -3269,7 +3312,7 @@ codeunit 134076 "ERM Suggest Vendor Payment"
         LibraryJournals.CreateGenJournalLine(
           GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name,
           GenJournalLine."Document Type"::"Credit Memo", GenJournalLine."Account Type"::Vendor, VendorNo,
-          GenJournalLine."Bal. Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo, CrMemoAmount);
+          GenJournalLine."Bal. Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo(), CrMemoAmount);
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
     end;
 
@@ -3282,7 +3325,7 @@ codeunit 134076 "ERM Suggest Vendor Payment"
         LibraryJournals.CreateGenJournalLine(
           GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name,
           GenJournalLine."Document Type"::"Credit Memo", GenJournalLine."Account Type"::Customer, CustomerNo,
-          GenJournalLine."Bal. Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo, CrMemoAmount);
+          GenJournalLine."Bal. Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo(), CrMemoAmount);
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
     end;
 
@@ -3294,7 +3337,7 @@ codeunit 134076 "ERM Suggest Vendor Payment"
         NoOfLines: Integer;
     begin
         // Setup: Create Currency, Bank Account, Vendor and General Journal Lines.
-        CurrencyCode := CreateCurrency;
+        CurrencyCode := CreateCurrency();
         BankAccountNo := CreateBankAccount(CurrencyCode);
 
         // Create 2 to 10 Gen. Journal Lines Boundary 2 is important to test Suggest Vendor Payment for multiple lines.
@@ -3466,7 +3509,7 @@ codeunit 134076 "ERM Suggest Vendor Payment"
         LibraryERM.CreateGenJournalBatch(GenJournalBatch, GenJournalTemplate.Name);
         LibraryERM.CreateGeneralJnlLine(
           GenJournalLine, GenJournalTemplate.Name, GenJournalBatch.Name, GenJournalLine."Document Type"::Invoice,
-          GenJournalLine."Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo, LibraryRandom.RandDecInRange(10, 1000, 2));
+          GenJournalLine."Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo(), LibraryRandom.RandDecInRange(10, 1000, 2));
         LibraryPurchase.CreateVendor(Vendor);
         GenJournalLine.Validate("Bal. Account Type", GenJournalLine."Bal. Account Type"::Vendor);
         GenJournalLine.Validate("Bal. Account No.", Vendor."No.");
@@ -3495,8 +3538,7 @@ codeunit 134076 "ERM Suggest Vendor Payment"
         DimensionSelectionBuffer: Record "Dimension Selection Buffer";
     begin
         GeneralLedgerSetup.Get();
-        DimensionSelectionBuffer.SetFilter(
-          Code, '%1|%2', GeneralLedgerSetup."Shortcut Dimension 1 Code", GeneralLedgerSetup."Shortcut Dimension 2 Code");
+        DimensionSelectionBuffer.SetFilter(Code, '%1|%2', GeneralLedgerSetup."Shortcut Dimension 1 Code", GeneralLedgerSetup."Shortcut Dimension 2 Code");
         exit(DimensionSelectionBuffer.GetFilter(Code));
     end;
 
@@ -3517,7 +3559,7 @@ codeunit 134076 "ERM Suggest Vendor Payment"
         // Simulate invocation of "Create Payment" action button on "Vendor Ledger Entries" page
         if CreatePayment.RunModal() = ACTION::OK then begin
             CreatePayment.MakeGenJnlLines(VendorLedgerEntry);
-            GenJournalBatch.Get(CreatePayment.GetTemplateName, CreatePayment.GetBatchNumber());
+            GenJournalBatch.Get(CreatePayment.GetTemplateName(), CreatePayment.GetBatchNumber());
             GenJnlManagement.TemplateSelectionFromBatch(GenJournalBatch);
         end;
         Clear(CreatePayment);
@@ -3539,7 +3581,7 @@ codeunit 134076 "ERM Suggest Vendor Payment"
         i: Integer;
     begin
         VendorNo := LibraryPurchase.CreateVendorNo();
-        BankAccountNo := LibraryERM.CreateBankAccountNo;
+        BankAccountNo := LibraryERM.CreateBankAccountNo();
         LibraryJournals.CreateGenJournalBatchWithType(GenJournalBatch, GenJournalBatch."Template Type"::General);
         for i := 1 to ArrayLen(Amount) do begin
             Amount[i] := LibraryRandom.RandDec(1000, 2);
@@ -3647,7 +3689,7 @@ codeunit 134076 "ERM Suggest Vendor Payment"
             SetRange("Vendor No.", VendorNo);
             FindFirst();
             CalcFields(Amount, "Remaining Amount");
-            Assert.AreNearlyEqual(Amount2, Amount, LibraryERM.GetAmountRoundingPrecision,
+            Assert.AreNearlyEqual(Amount2, Amount, LibraryERM.GetAmountRoundingPrecision(),
               StrSubstNo(ValidateErrorErr, FieldCaption(Amount), Amount2, TableCaption(), FieldCaption("Entry No."), "Entry No."));
             TestField("Remaining Amount", RemainingAmount);
             TestField(Open, Open2);
@@ -3833,7 +3875,7 @@ codeunit 134076 "ERM Suggest Vendor Payment"
         repeat
             ToGenJournalTemplate.Init();
             ToGenJournalTemplate := GenJournalTemplate;
-            ToGenJournalTemplate.Insert
+            ToGenJournalTemplate.Insert();
         until GenJournalTemplate.Next() = 0;
     end;
 
@@ -3848,17 +3890,23 @@ codeunit 134076 "ERM Suggest Vendor Payment"
     end;
 
     local procedure VerifySameDocumentNoOnGenJournal(VendorNo: Text[100]; DocumentNo: Code[20])
+    begin
+        VerifyDocumentNoAndPostingDateOnGeneralJournal(VendorNo, DocumentNo, 0D)
+    end;
+
+    local procedure VerifyDocumentNoAndPostingDateOnGeneralJournal(VendorNo: Text[100]; DocumentNo: Code[20]; PostingDate: Date)
     var
-        Currency: Record Currency;
         GenJournalLine: Record "Gen. Journal Line";
     begin
         GenJournalLine.SetRange("Document Type", GenJournalLine."Document Type"::Payment);
         GenJournalLine.SetRange("Account Type", GenJournalLine."Account Type"::Vendor);
         GenJournalLine.SetRange("Account No.", VendorNo);
-        if GenJournalLine.FindFirst() then
-            repeat
-                Assert.AreEqual(DocumentNo, GenJournalLine."Document No.", DocumentNoErr);
-            until GenJournalLine.Next() = 0;
+        GenJournalLine.FindSet();
+        repeat
+            Assert.AreEqual(DocumentNo, GenJournalLine."Document No.", GenJournalLine.FieldCaption("Document No."));
+            if PostingDate <> 0D then
+                Assert.AreEqual(PostingDate, GenJournalLine."Posting Date", GenJournalLine.FieldCaption("Posting Date"));
+        until GenJournalLine.Next() = 0;
     end;
 
     local procedure SuggestVendorPaymentWithDocNo(
@@ -3898,7 +3946,7 @@ codeunit 134076 "ERM Suggest Vendor Payment"
         GenJournalBatch: Record "Gen. Journal Batch";
         GenJournalLine: Record "Gen. Journal Line";
     begin
-        BankAccountNo := LibraryERM.CreateBankAccountNo;
+        BankAccountNo := LibraryERM.CreateBankAccountNo();
         LibraryJournals.CreateGenJournalBatchWithType(GenJournalBatch, GenJournalBatch."Template Type"::General);
         Amount := LibraryRandom.RandDec(1000, 2);
         LibraryJournals.CreateGenJournalLine(
@@ -4088,7 +4136,7 @@ codeunit 134076 "ERM Suggest Vendor Payment"
     begin
         GeneralJournalTemplateList.Filter.SetFilter(Name, LibraryVariableStorage.DequeueText());
         GeneralJournalTemplateList.Last();
-        GeneralJournalTemplateList.OK.Invoke();
+        GeneralJournalTemplateList.OK().Invoke();
     end;
 
     [MessageHandler]
@@ -4116,37 +4164,37 @@ codeunit 134076 "ERM Suggest Vendor Payment"
     [Scope('OnPrem')]
     procedure SuggestVendorPaymentsRequestPageHandler(var SuggestVendorPayments: TestRequestPage "Suggest Vendor Payments")
     begin
-        SuggestVendorPayments.Vendor.SetFilter("No.", LibraryVariableStorage.DequeueText);
-        SuggestVendorPayments.BalAccountNo.SetValue(LibraryVariableStorage.DequeueText);
+        SuggestVendorPayments.Vendor.SetFilter("No.", LibraryVariableStorage.DequeueText());
+        SuggestVendorPayments.BalAccountNo.SetValue(LibraryVariableStorage.DequeueText());
         SuggestVendorPayments.LastPaymentDate.SetValue(WorkDate());
-        SuggestVendorPayments.UseVendorPriority.SetValue(LibraryVariableStorage.DequeueBoolean);
+        SuggestVendorPayments.UseVendorPriority.SetValue(LibraryVariableStorage.DequeueBoolean());
         SuggestVendorPayments.StartingDocumentNo.SetValue(LibraryRandom.RandInt(10));  // Setting a Random Document No., value is not important.
-        SuggestVendorPayments.OK.Invoke;
+        SuggestVendorPayments.OK().Invoke();
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure SuggestVendorPaymentsWithDimensionRequestPageHandler(var SuggestVendorPayments: TestRequestPage "Suggest Vendor Payments")
     begin
-        SuggestVendorPayments.Vendor.SetFilter("No.", LibraryVariableStorage.DequeueText);
+        SuggestVendorPayments.Vendor.SetFilter("No.", LibraryVariableStorage.DequeueText());
         SuggestVendorPayments.LastPaymentDate.SetValue(WorkDate());
         SuggestVendorPayments.SummarizePerVendor.SetValue(true);
-        SuggestVendorPayments.SummarizePerDimText.AssistEdit;
+        SuggestVendorPayments.SummarizePerDimText.AssistEdit();
         SuggestVendorPayments.StartingDocumentNo.SetValue(LibraryRandom.RandInt(10));  // Setting a Random Document No., value is not important.
-        SuggestVendorPayments.OK.Invoke;
+        SuggestVendorPayments.OK().Invoke();
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure SuggestVendorPaymentsWithDimensionAndBalAccRequestPageHandler(var SuggestVendorPayments: TestRequestPage "Suggest Vendor Payments")
     begin
-        SuggestVendorPayments.Vendor.SetFilter("No.", LibraryVariableStorage.DequeueText);
+        SuggestVendorPayments.Vendor.SetFilter("No.", LibraryVariableStorage.DequeueText());
         SuggestVendorPayments.LastPaymentDate.SetValue(WorkDate());
         SuggestVendorPayments.SummarizePerVendor.SetValue(true);
-        SuggestVendorPayments.SummarizePerDimText.AssistEdit;
+        SuggestVendorPayments.SummarizePerDimText.AssistEdit();
         SuggestVendorPayments.StartingDocumentNo.SetValue(LibraryRandom.RandInt(10));  // Setting a Random Document No., value is not important.
-        SuggestVendorPayments.BalAccountNo.SetValue(LibraryVariableStorage.DequeueText);
-        SuggestVendorPayments.OK.Invoke;
+        SuggestVendorPayments.BalAccountNo.SetValue(LibraryVariableStorage.DequeueText());
+        SuggestVendorPayments.OK().Invoke();
     end;
 
     local procedure SuggestVendorPaymentFromJournalBatch(GenJournalTemplateName: Code[10]; GenJournalBatchName: Code[10])
@@ -4165,24 +4213,24 @@ codeunit 134076 "ERM Suggest Vendor Payment"
     [Scope('OnPrem')]
     procedure SelectDimensionHandlerOnSuggesvendorPayment(var DimensionSelectionMultiple: TestPage "Dimension Selection-Multiple")
     begin
-        DimensionSelectionMultiple.FILTER.SetFilter(Code, GetDimensionFilterText);
-        DimensionSelectionMultiple.First;
+        DimensionSelectionMultiple.FILTER.SetFilter(Code, GetDimensionFilterText());
+        DimensionSelectionMultiple.First();
         repeat
             DimensionSelectionMultiple.Selected.SetValue(true);
         until not DimensionSelectionMultiple.Next();
-        DimensionSelectionMultiple.OK.Invoke;
+        DimensionSelectionMultiple.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure SelectNoDimensionHandlerOnSuggesvendorPayment(var DimensionSelectionMultiple: TestPage "Dimension Selection-Multiple")
     begin
-        DimensionSelectionMultiple.FILTER.SetFilter(Code, GetDimensionFilterText);
-        DimensionSelectionMultiple.First;
+        DimensionSelectionMultiple.FILTER.SetFilter(Code, GetDimensionFilterText());
+        DimensionSelectionMultiple.First();
         repeat
             DimensionSelectionMultiple.Selected.SetValue(false);
         until not DimensionSelectionMultiple.Next();
-        DimensionSelectionMultiple.OK.Invoke;
+        DimensionSelectionMultiple.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -4195,9 +4243,9 @@ codeunit 134076 "ERM Suggest Vendor Payment"
         GeneralLedgerSetup.Get();
         DimensionSelectionBuffer.SetRange(Code, GeneralLedgerSetup."Shortcut Dimension 1 Code");
         DimensionSelectionMultiple.FILTER.SetFilter(Code, DimensionSelectionBuffer.GetFilter(Code));
-        DimensionSelectionMultiple.First;
+        DimensionSelectionMultiple.First();
         DimensionSelectionMultiple.Selected.SetValue(true);
-        DimensionSelectionMultiple.OK.Invoke;
+        DimensionSelectionMultiple.OK().Invoke();
     end;
 
     local procedure SetupGenJnlLine(var GenJournalLine: Record "Gen. Journal Line")
@@ -4217,13 +4265,13 @@ codeunit 134076 "ERM Suggest Vendor Payment"
     [Scope('OnPrem')]
     procedure SuggestVendorPaymentsWithoutBalAccountRequestPageHandler(var SuggestVendorPayments: TestRequestPage "Suggest Vendor Payments")
     begin
-        SuggestVendorPayments.Vendor.SetFilter("No.", LibraryVariableStorage.DequeueText);
+        SuggestVendorPayments.Vendor.SetFilter("No.", LibraryVariableStorage.DequeueText());
         SuggestVendorPayments.LastPaymentDate.SetValue(WorkDate());
         SuggestVendorPayments.SummarizePerVendor.SetValue(false);
-        SuggestVendorPayments.SummarizePerDimText.AssistEdit;
+        SuggestVendorPayments.SummarizePerDimText.AssistEdit();
         SuggestVendorPayments.StartingDocumentNo.SetValue(LibraryRandom.RandInt(10));  // Setting a Random Document No., value is not important.
         SuggestVendorPayments.BalAccountNo.SetValue('');
-        SuggestVendorPayments.OK.Invoke;
+        SuggestVendorPayments.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -4234,26 +4282,25 @@ codeunit 134076 "ERM Suggest Vendor Payment"
         DimensionSelectionBuffer: Record "Dimension Selection Buffer";
     begin
         GeneralLedgerSetup.Get();
-        DimensionSelectionBuffer.SetFilter(
-          Code, '%1|%2', GeneralLedgerSetup."Shortcut Dimension 1 Code", GeneralLedgerSetup."Shortcut Dimension 2 Code");
+        DimensionSelectionBuffer.SetFilter(Code, '%1|%2', GeneralLedgerSetup."Shortcut Dimension 1 Code", GeneralLedgerSetup."Shortcut Dimension 2 Code");
         DimensionSelectionMultiple.FILTER.SetFilter(Code, DimensionSelectionBuffer.GetFilter(Code));
         DimensionSelectionMultiple.FILTER.SetFilter(Selected, 'yes');
-        DimensionSelectionMultiple.First;
+        DimensionSelectionMultiple.First();
         repeat
             DimensionSelectionMultiple.Selected.SetValue(false);
         until not DimensionSelectionMultiple.Next();
-        DimensionSelectionMultiple.OK.Invoke;
+        DimensionSelectionMultiple.OK().Invoke();
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure SuggestVendorPaymentsWithAvailableAmtRequestPageHandler(var SuggestVendorPayments: TestRequestPage "Suggest Vendor Payments")
     begin
-        SuggestVendorPayments.Vendor.SetFilter("No.", LibraryVariableStorage.DequeueText);
+        SuggestVendorPayments.Vendor.SetFilter("No.", LibraryVariableStorage.DequeueText());
         SuggestVendorPayments.LastPaymentDate.SetValue(WorkDate());
-        SuggestVendorPayments."Available Amount (LCY)".SetValue(LibraryVariableStorage.DequeueDecimal);
+        SuggestVendorPayments."Available Amount (LCY)".SetValue(LibraryVariableStorage.DequeueDecimal());
         SuggestVendorPayments.StartingDocumentNo.SetValue(LibraryRandom.RandInt(10));
-        SuggestVendorPayments.OK.Invoke;
+        SuggestVendorPayments.OK().Invoke();
     end;
 
     [RequestPageHandler]
@@ -4262,24 +4309,24 @@ codeunit 134076 "ERM Suggest Vendor Payment"
     var
         ActionType: Option Update,Verify;
     begin
-        case LibraryVariableStorage.DequeueInteger of
+        case LibraryVariableStorage.DequeueInteger() of
             ActionType::Update:
                 begin
-                    SuggestVendorPayments.PostingDate.SetValue(LibraryVariableStorage.DequeueDate);
-                    SuggestVendorPayments.LastPaymentDate.SetValue(LibraryVariableStorage.DequeueDate);
-                    SuggestVendorPayments.BalAccountType.SetValue(LibraryVariableStorage.DequeueInteger);
-                    SuggestVendorPayments.BalAccountNo.SetValue(LibraryVariableStorage.DequeueText);
+                    SuggestVendorPayments.PostingDate.SetValue(LibraryVariableStorage.DequeueDate());
+                    SuggestVendorPayments.LastPaymentDate.SetValue(LibraryVariableStorage.DequeueDate());
+                    SuggestVendorPayments.BalAccountType.SetValue(LibraryVariableStorage.DequeueInteger());
+                    SuggestVendorPayments.BalAccountNo.SetValue(LibraryVariableStorage.DequeueText());
                     SuggestVendorPayments.StartingDocumentNo.SetValue('1');
                     SuggestVendorPayments.Vendor.SetFilter("No.", '''''');
-                    SuggestVendorPayments.OK.Invoke;
+                    SuggestVendorPayments.OK().Invoke();
                 end;
             ActionType::Verify:
                 begin
-                    SuggestVendorPayments.PostingDate.AssertEquals(LibraryVariableStorage.DequeueDate);
-                    SuggestVendorPayments.LastPaymentDate.AssertEquals(LibraryVariableStorage.DequeueDate);
-                    SuggestVendorPayments.BalAccountType.AssertEquals(LibraryVariableStorage.DequeueInteger);
-                    SuggestVendorPayments.BalAccountNo.AssertEquals(LibraryVariableStorage.DequeueText);
-                    SuggestVendorPayments.Cancel.Invoke;
+                    SuggestVendorPayments.PostingDate.AssertEquals(LibraryVariableStorage.DequeueDate());
+                    SuggestVendorPayments.LastPaymentDate.AssertEquals(LibraryVariableStorage.DequeueDate());
+                    SuggestVendorPayments.BalAccountType.AssertEquals(LibraryVariableStorage.DequeueInteger());
+                    SuggestVendorPayments.BalAccountNo.AssertEquals(LibraryVariableStorage.DequeueText());
+                    SuggestVendorPayments.Cancel().Invoke();
                 end;
         end;
     end;
@@ -4288,23 +4335,23 @@ codeunit 134076 "ERM Suggest Vendor Payment"
     [Scope('OnPrem')]
     procedure SuggestVendorPaymentsRequestWithBnkPmtTypePageHandler(var SuggestVendorPayments: TestRequestPage "Suggest Vendor Payments")
     begin
-        SuggestVendorPayments.Vendor.SetFilter("No.", LibraryVariableStorage.DequeueText);
-        SuggestVendorPayments.BalAccountType.SetValue(LibraryVariableStorage.DequeueInteger);
-        SuggestVendorPayments.BalAccountNo.SetValue(LibraryVariableStorage.DequeueText);
-        SuggestVendorPayments.BankPaymentType.SetValue(LibraryVariableStorage.DequeueInteger);
+        SuggestVendorPayments.Vendor.SetFilter("No.", LibraryVariableStorage.DequeueText());
+        SuggestVendorPayments.BalAccountType.SetValue(LibraryVariableStorage.DequeueInteger());
+        SuggestVendorPayments.BalAccountNo.SetValue(LibraryVariableStorage.DequeueText());
+        SuggestVendorPayments.BankPaymentType.SetValue(LibraryVariableStorage.DequeueInteger());
         SuggestVendorPayments.StartingDocumentNo.SetValue(LibraryRandom.RandInt(10));  // Setting a Random Document No., value is not important.
-        SuggestVendorPayments.OK.Invoke;
+        SuggestVendorPayments.OK().Invoke();
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure SuggestVendorPaymentsCheckOtherBatchesRequestPageHandler(var SuggestVendorPayments: TestRequestPage "Suggest Vendor Payments")
     begin
-        SuggestVendorPayments.Vendor.SetFilter("No.", LibraryVariableStorage.DequeueText);
+        SuggestVendorPayments.Vendor.SetFilter("No.", LibraryVariableStorage.DequeueText());
         SuggestVendorPayments.LastPaymentDate.SetValue(WorkDate());
         SuggestVendorPayments.StartingDocumentNo.SetValue(LibraryRandom.RandInt(10));
-        SuggestVendorPayments.CheckOtherJournalBatches.SetValue(LibraryVariableStorage.DequeueBoolean);
-        SuggestVendorPayments.OK.Invoke;
+        SuggestVendorPayments.CheckOtherJournalBatches.SetValue(LibraryVariableStorage.DequeueBoolean());
+        SuggestVendorPayments.OK().Invoke();
     end;
 
     local procedure CreateVendorWithVendorBankAccountForElectronicPayments(): Code[20]
@@ -4323,8 +4370,8 @@ codeunit 134076 "ERM Suggest Vendor Payment"
     var
         VendorNo: Code[20];
     begin
-        BankAccountNo := LibraryERM.CreateBankAccountNo;
-        VendorNo := CreateVendorWithVendorBankAccountForElectronicPayments;
+        BankAccountNo := LibraryERM.CreateBankAccountNo();
+        VendorNo := CreateVendorWithVendorBankAccountForElectronicPayments();
         CreateGeneralJournalLine(
           GenJournalLine, GenJournalBatch, WorkDate(), VendorNo, GenJournalLine."Document Type"::Invoice, -LibraryRandom.RandInt(100));
     end;
@@ -4374,7 +4421,7 @@ codeunit 134076 "ERM Suggest Vendor Payment"
         SuggestVendorPayments.NewDocNoPerLine.SetValue(LibraryVariableStorage.DequeueBoolean());
         SuggestVendorPayments.BalAccountType.SetValue(3);
         SuggestVendorPayments.BalAccountNo.SetValue(LibraryVariableStorage.DequeueText());
-        SuggestVendorPayments.OK.Invoke();
+        SuggestVendorPayments.OK().Invoke();
     end;
 
     [RequestPageHandler]
@@ -4383,9 +4430,20 @@ codeunit 134076 "ERM Suggest Vendor Payment"
     begin
         SuggestVendorPayments.Vendor.SetFilter("No.", LibraryVariableStorage.DequeueText());
         SuggestVendorPayments.UseDueDateAsPostingDate.SetValue(true);
-        Assert.IsFalse(SuggestVendorPayments.PostingDate.Editable, '');
-        Assert.IsTrue(SuggestVendorPayments.DueDateOffset.Enabled, '');
-        Assert.IsTrue(SuggestVendorPayments.DueDateOffset.Editable, '');
+        Assert.IsFalse(SuggestVendorPayments.PostingDate.Editable(), '');
+        Assert.IsTrue(SuggestVendorPayments.DueDateOffset.Enabled(), '');
+        Assert.IsTrue(SuggestVendorPayments.DueDateOffset.Editable(), '');
+    end;
+
+    [RequestPageHandler]
+    procedure SuggestVendorPaymentsUseDueDateAsPostingDateAndFindPaymentDiscountsRequestPageHandler(var SuggestVendorPayments: TestRequestPage "Suggest Vendor Payments")
+    begin
+        SuggestVendorPayments.Vendor.SetFilter("No.", LibraryVariableStorage.DequeueText());
+        SuggestVendorPayments.StartingDocumentNo.SetValue(LibraryVariableStorage.DequeueText());
+        SuggestVendorPayments.LastPaymentDate.SetValue(LibraryVariableStorage.DequeueDate());
+        SuggestVendorPayments.UseDueDateAsPostingDate.SetValue(true);
+        SuggestVendorPayments.FindPaymentDiscounts.SetValue(true);
+        SuggestVendorPayments.OK().Invoke();
     end;
 
     [RequestPageHandler]
@@ -4406,7 +4464,7 @@ codeunit 134076 "ERM Suggest Vendor Payment"
     procedure GetLastLineFromTemlateListHandler(var GeneralJournalTemplateList: TestPage "General Journal Template List")
     begin
         GeneralJournalTemplateList.Last();
-        GeneralJournalTemplateList.OK.Invoke();
+        GeneralJournalTemplateList.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -4414,7 +4472,7 @@ codeunit 134076 "ERM Suggest Vendor Payment"
     procedure GetFirstLineFromTemlateListHandler(var GeneralJournalTemplateList: TestPage "General Journal Template List")
     begin
         GeneralJournalTemplateList.First();
-        GeneralJournalTemplateList.OK.Invoke();
+        GeneralJournalTemplateList.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -4424,7 +4482,7 @@ codeunit 134076 "ERM Suggest Vendor Payment"
         CreatePayment."Template Name".SetValue(LibraryVariableStorage.DequeueText());
         CreatePayment."Batch Name".SetValue(LibraryVariableStorage.DequeueText());
         CreatePayment."Starting Document No.".SetValue(LibraryVariableStorage.DequeueText());
-        CreatePayment.OK.Invoke();
+        CreatePayment.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -4437,7 +4495,7 @@ codeunit 134076 "ERM Suggest Vendor Payment"
         CreatePayment."Bank Account".SetValue(LibraryVariableStorage.DequeueText());
         CreatePayment."Posting Date".SetValue(LibraryVariableStorage.DequeueDate());
         CreatePayment."Starting Document No.".SetValue(StartingDocumentNo);
-        CreatePayment.OK.Invoke();
+        CreatePayment.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -4446,7 +4504,7 @@ codeunit 134076 "ERM Suggest Vendor Payment"
     begin
         PickReport.Name.SetValue(LibraryVariableStorage.DequeueText());
         PickReport."Report ID".SetValue(REPORT::"Suggest Vendor Payments");
-        PickReport.OK.Invoke();
+        PickReport.OK().Invoke();
     end;
 }
 

@@ -70,11 +70,11 @@ codeunit 144054 "ERM ES Income Statement"
 
         // Setup: Create and Post Sales Invoice to make close entry.
         Initialize();
-        RunCloseIncomeStatementReport;  // To verify new created entry so post all previous closed entries.
-        Amount := CreateAndPostSalesInvoice;
+        RunCloseIncomeStatementReport();  // To verify new created entry so post all previous closed entries.
+        Amount := CreateAndPostSalesInvoice();
 
         // Exercise.
-        GenJournalBatchName := RunCloseIncomeStatementReport;  // Opens handler - CloseIncomeStatementRequestPageHandler.
+        GenJournalBatchName := RunCloseIncomeStatementReport();  // Opens handler - CloseIncomeStatementRequestPageHandler.
 
         // Verify: Verify generated G/L register - Journal Batch Name, G/L Entry - Document No and Amount.
         VerifyGLEntryAndRegister(GenJournalBatchName, Amount)
@@ -96,10 +96,10 @@ codeunit 144054 "ERM ES Income Statement"
         FilterGLAccount(GLAccount);
         GLAccount.FindLast();
         GLAccountNo := CreateCommercialGLAccount(GLAccount."No.");
-        ChartOfAccounts.OpenEdit;
+        ChartOfAccounts.OpenEdit();
 
         // Exercise: Invoke Action Chart Of Accounts - Indent Chart Of Accounts.
-        asserterror ChartOfAccounts.IndentChartOfAccounts.Invoke;  // Opens handler - ConfirmHandler.
+        asserterror ChartOfAccounts.IndentChartOfAccounts.Invoke();  // Opens handler - ConfirmHandler.
 
         // Verify: Verify Expected Error - Income Stmt. Bal. Acc. must have a value for G/L Account Number. It cannot be zero or empty.
         ChartOfAccounts.Close();
@@ -222,7 +222,7 @@ codeunit 144054 "ERM ES Income Statement"
         CloseIncomeStatement.GenJournalTemplate.SetValue(GenJournalTemplate);
         CloseIncomeStatement.GenJournalBatch.SetValue(GenJournalBatch);
         CloseIncomeStatement.DocumentNo.SetValue(GenJournalBatch);
-        CloseIncomeStatement.OK.Invoke;
+        CloseIncomeStatement.OK().Invoke();
     end;
 
     [ConfirmHandler]
@@ -247,7 +247,7 @@ codeunit 144054 "ERM ES Income Statement"
         // Post Gen. Journal Line, close FY and run Close Income Statement
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
         LibraryFiscalYear.CloseFiscalYear();
-        ExecuteUIHandler;
+        ExecuteUIHandler();
         CloseIncomeStatement(GenJournalLine);
     end;
 

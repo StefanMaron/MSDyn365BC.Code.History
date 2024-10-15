@@ -248,15 +248,6 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit User Groups Data Setup - NamedType TestUserSecId3Lbl)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 715191806 - NamedType 1975074539" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[46d9d1a0-75f2-444a-a386-9657da1fe204]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit User Groups Data Setup - NamedType TestUserSecId4Lbl)]]></Cmt>
-    </Cmts>
-  </Item>
   <Item ItemId=";Codeunit 715191806 - Method 185749570 - NamedType 1572570285" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Test UG]]></Val>
@@ -264,51 +255,6 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit User Groups Data Setup - Method SetupUserGroupPermissionSetRecords - NamedType UserGroupCode)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 4252117476 - NamedType 747380596" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[UG3]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit User Groups Upgrade Tests - NamedType NoPermissionsButWithMembersUserGroupCodeTxt)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 4252117476 - NamedType 208298580" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[UG1]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit User Groups Upgrade Tests - NamedType NoPermissionsNoMembersUserGroupCodeTxt)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 4252117476 - NamedType 3793201979" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[UG4]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit User Groups Upgrade Tests - NamedType PermissionsAnd1MemberUserGroupCodeTxt)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 4252117476 - NamedType 3525270027" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[UG5]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit User Groups Upgrade Tests - NamedType PermissionsAnd2MembersUserGroupCodeTxt)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 4252117476 - NamedType 2942640606" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[UG2]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit User Groups Upgrade Tests - NamedType PermissionsButNoMembersUserGroupCodeTxt)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 4252117476 - NamedType 2730656974" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -345,15 +291,6 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit User Groups Upgrade Tests - NamedType TestUserSecId3Lbl)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 4252117476 - NamedType 1975074539" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[46d9d1a0-75f2-444a-a386-9657da1fe204]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit User Groups Upgrade Tests - NamedType TestUserSecId4Lbl)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 4252117476 - NamedType 1836601731" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">

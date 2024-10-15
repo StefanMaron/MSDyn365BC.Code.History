@@ -58,7 +58,7 @@ codeunit 144131 "UT REP VAT Statement"
         // Verify: Verify Customer Number, VAT Register number text - VAT Registration No. is blank on generated XML of Report - Test VAT Registration Number.
         VerifyTestVATRegistrationNumber(CustomerNoCap, Customer."No.", CustomerErrorCap, Format(VATRegistrationBlankTxt));
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -86,7 +86,7 @@ codeunit 144131 "UT REP VAT Statement"
         // Verify: Verify Vendor Number, VAT Register number text - VAT Registration No. is blank on generated XML of Report - Test VAT Registration Number.
         VerifyTestVATRegistrationNumber(VendorNoCap, Vendor."No.", VendorErrorCap, Format(VATRegistrationBlankTxt));
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -112,7 +112,7 @@ codeunit 144131 "UT REP VAT Statement"
         // Verify
         VerifyTestVATRegistrationNumber(ContactNoLbl, Contact."No.", ContactErrorLbl, Format(VATRegistrationBlankTxt));
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -140,7 +140,7 @@ codeunit 144131 "UT REP VAT Statement"
         // Verify
         VerifyTestVATRegistrationNumber(CustomerNoCap, Customer."No.", CustomerErrorCap, TElemInvalidErr);
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -166,10 +166,10 @@ codeunit 144131 "UT REP VAT Statement"
         REPORT.Run(REPORT::"Test VAT Registration Number", true, false, Customer);
 
         // Verify
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueNotExist(CustomerNoCap, Customer."No.");
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     local procedure Initialize()
@@ -182,7 +182,7 @@ codeunit 144131 "UT REP VAT Statement"
 
         IsInitialized := true;
 
-        SetVATRegNoFormats;
+        SetVATRegNoFormats();
 
         Commit();
     end;
@@ -223,7 +223,7 @@ codeunit 144131 "UT REP VAT Statement"
 
     local procedure VerifyTestVATRegistrationNumber(NumberCaption: Text; Number: Code[20]; NumberErrorCaption: Text; Message: Text)
     begin
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(NumberCaption, Number);
         LibraryReportDataset.AssertElementWithValueExists(NumberErrorCaption, Message);
     end;
@@ -242,7 +242,7 @@ codeunit 144131 "UT REP VAT Statement"
         TestVATRegistrationNumber.ShowCustomers.SetValue(ShowCustomers);
         TestVATRegistrationNumber.ShowVendors.SetValue(ShowVendors);
         TestVATRegistrationNumber.ShowContacts.SetValue(ShowContacts);
-        TestVATRegistrationNumber.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        TestVATRegistrationNumber.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 }
 

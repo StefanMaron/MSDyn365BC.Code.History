@@ -299,75 +299,68 @@ codeunit 10752 "SII Doc. Upload Management"
         SIIDocUploadState: Record "SII Doc. Upload State";
         TempSIIHistoryBuffer: Record "SII History" temporary;
     begin
-        with SIIDocUploadState do begin
+        SetDocStateFilters(SIIDocUploadState, IsManual);
+        if not SIIDocUploadState.IsEmpty() then begin
+            CreateHistoryPendingBuffer(TempSIIHistoryBuffer, IsManual);
+            // Customer Invoice
+            UploadDocumentsPerTransactionFilter(
+              SIIDocUploadState, TempSIIHistoryBuffer, SIIDocUploadState."Document Source"::"Customer Ledger", SIIDocUploadState."Document Type"::Invoice, '');
+            // Customer Credit Memo
+            UploadDocumentsPerTransactionFilter(
+              SIIDocUploadState, TempSIIHistoryBuffer, SIIDocUploadState."Document Source"::"Customer Ledger", SIIDocUploadState."Document Type"::"Credit Memo", '0');
+            // Customer Credit Memo Removal
+            UploadDocumentsPerTransactionFilter(
+              SIIDocUploadState, TempSIIHistoryBuffer, SIIDocUploadState."Document Source"::"Customer Ledger", SIIDocUploadState."Document Type"::"Credit Memo", '1');
+            // Customer Payment
+            UploadDocumentsPerTransactionFilter(
+              SIIDocUploadState, TempSIIHistoryBuffer, SIIDocUploadState."Document Source"::"Detailed Customer Ledger", SIIDocUploadState."Document Type"::Payment, '');
+            // Customer Refund
+            UploadDocumentsPerTransactionFilter(
+              SIIDocUploadState, TempSIIHistoryBuffer, SIIDocUploadState."Document Source"::"Detailed Customer Ledger", SIIDocUploadState."Document Type"::Refund, '');
+            // Vendor Invoice
+            UploadDocumentsPerTransactionFilter(
+              SIIDocUploadState, TempSIIHistoryBuffer, SIIDocUploadState."Document Source"::"Vendor Ledger", SIIDocUploadState."Document Type"::Invoice, '');
+            // Vendor Credit Memo
+            UploadDocumentsPerTransactionFilter(
+              SIIDocUploadState, TempSIIHistoryBuffer, SIIDocUploadState."Document Source"::"Vendor Ledger", SIIDocUploadState."Document Type"::"Credit Memo", '0');
+            // Vendor Credit Memo Removal
+            UploadDocumentsPerTransactionFilter(
+              SIIDocUploadState, TempSIIHistoryBuffer, SIIDocUploadState."Document Source"::"Vendor Ledger", SIIDocUploadState."Document Type"::"Credit Memo", '1');
+            // Vendor Payment
+            UploadDocumentsPerTransactionFilter(
+              SIIDocUploadState, TempSIIHistoryBuffer, SIIDocUploadState."Document Source"::"Detailed Vendor Ledger", SIIDocUploadState."Document Type"::Payment, '');
+            // Vendor Refund
+            UploadDocumentsPerTransactionFilter(
+              SIIDocUploadState, TempSIIHistoryBuffer, SIIDocUploadState."Document Source"::"Detailed Vendor Ledger", SIIDocUploadState."Document Type"::Refund, '');
+
+            SIIDocUploadState.Reset();
             SetDocStateFilters(SIIDocUploadState, IsManual);
-            if not IsEmpty() then begin
-                CreateHistoryPendingBuffer(TempSIIHistoryBuffer, IsManual);
+            // Collection in cash
+            UploadDocumentsPerFilter(SIIDocUploadState, TempSIIHistoryBuffer, SIIDocUploadState."Transaction Type"::"Collection In Cash", false);
+            UploadDocumentsPerFilter(SIIDocUploadState, TempSIIHistoryBuffer, SIIDocUploadState."Transaction Type"::"Collection In Cash", true);
 
-                // Customer Invoice
-                UploadDocumentsPerTransactionFilter(
-                  SIIDocUploadState, TempSIIHistoryBuffer, "Document Source"::"Customer Ledger", "Document Type"::Invoice, '');
-                // Customer Credit Memo
-                UploadDocumentsPerTransactionFilter(
-                  SIIDocUploadState, TempSIIHistoryBuffer, "Document Source"::"Customer Ledger", "Document Type"::"Credit Memo", '0');
-                // Customer Credit Memo Removal
-                UploadDocumentsPerTransactionFilter(
-                  SIIDocUploadState, TempSIIHistoryBuffer, "Document Source"::"Customer Ledger", "Document Type"::"Credit Memo", '1');
-                // Customer Payment
-                UploadDocumentsPerTransactionFilter(
-                  SIIDocUploadState, TempSIIHistoryBuffer, "Document Source"::"Detailed Customer Ledger", "Document Type"::Payment, '');
-                // Customer Refund
-                UploadDocumentsPerTransactionFilter(
-                  SIIDocUploadState, TempSIIHistoryBuffer, "Document Source"::"Detailed Customer Ledger", "Document Type"::Refund, '');
-                // Vendor Invoice
-                UploadDocumentsPerTransactionFilter(
-                  SIIDocUploadState, TempSIIHistoryBuffer, "Document Source"::"Vendor Ledger", "Document Type"::Invoice, '');
-                // Vendor Credit Memo
-                UploadDocumentsPerTransactionFilter(
-                  SIIDocUploadState, TempSIIHistoryBuffer, "Document Source"::"Vendor Ledger", "Document Type"::"Credit Memo", '0');
-                // Vendor Credit Memo Removal
-                UploadDocumentsPerTransactionFilter(
-                  SIIDocUploadState, TempSIIHistoryBuffer, "Document Source"::"Vendor Ledger", "Document Type"::"Credit Memo", '1');
-                // Vendor Payment
-                UploadDocumentsPerTransactionFilter(
-                  SIIDocUploadState, TempSIIHistoryBuffer, "Document Source"::"Detailed Vendor Ledger", "Document Type"::Payment, '');
-                // Vendor Refund
-                UploadDocumentsPerTransactionFilter(
-                  SIIDocUploadState, TempSIIHistoryBuffer, "Document Source"::"Detailed Vendor Ledger", "Document Type"::Refund, '');
-
-                Reset();
-                SetDocStateFilters(SIIDocUploadState, IsManual);
-                // Collection in cash
-                UploadDocumentsPerFilter(SIIDocUploadState, TempSIIHistoryBuffer, "Transaction Type"::"Collection In Cash", false);
-                UploadDocumentsPerFilter(SIIDocUploadState, TempSIIHistoryBuffer, "Transaction Type"::"Collection In Cash", true);
-
-                SaveHistoryPendingBuffer(TempSIIHistoryBuffer, IsManual);
-            end;
+            SaveHistoryPendingBuffer(TempSIIHistoryBuffer, IsManual);
         end;
     end;
 
     local procedure UploadDocumentsPerTransactionFilter(var SIIDocUploadState: Record "SII Doc. Upload State"; var TempSIIHistoryBuffer: Record "SII History" temporary; DocumentSource: Enum "SII Doc. Upload State Document Source"; DocumentType: Enum "SII Doc. Upload State Document Type"; IsCreditMemoRemovalFilter: Text)
     begin
-        with SIIDocUploadState do begin
-            SetRange("Document Source", DocumentSource);
-            SetRange("Document Type", DocumentType);
-            SetFilter("Is Credit Memo Removal", IsCreditMemoRemovalFilter);
-            UploadDocumentsPerFilter(SIIDocUploadState, TempSIIHistoryBuffer, "Transaction Type"::Regular, false);
-            UploadDocumentsPerFilter(SIIDocUploadState, TempSIIHistoryBuffer, "Transaction Type"::Regular, true);
-            UploadDocumentsPerFilter(SIIDocUploadState, TempSIIHistoryBuffer, "Transaction Type"::RetryAccepted, false);
-            UploadDocumentsPerFilter(SIIDocUploadState, TempSIIHistoryBuffer, "Transaction Type"::RetryAccepted, true);
-        end;
+        SIIDocUploadState.SetRange("Document Source", DocumentSource);
+        SIIDocUploadState.SetRange("Document Type", DocumentType);
+        SIIDocUploadState.SetFilter("Is Credit Memo Removal", IsCreditMemoRemovalFilter);
+        UploadDocumentsPerFilter(SIIDocUploadState, TempSIIHistoryBuffer, SIIDocUploadState."Transaction Type"::Regular, false);
+        UploadDocumentsPerFilter(SIIDocUploadState, TempSIIHistoryBuffer, SIIDocUploadState."Transaction Type"::Regular, true);
+        UploadDocumentsPerFilter(SIIDocUploadState, TempSIIHistoryBuffer, SIIDocUploadState."Transaction Type"::RetryAccepted, false);
+        UploadDocumentsPerFilter(SIIDocUploadState, TempSIIHistoryBuffer, SIIDocUploadState."Transaction Type"::RetryAccepted, true);
     end;
 
     local procedure UploadDocumentsPerFilter(var SIIDocUploadState: Record "SII Doc. Upload State"; var TempSIIHistoryBuffer: Record "SII History" temporary; TransactionType: Option; RetryAccepted: Boolean)
     begin
-        with SIIDocUploadState do begin
-            SetRange("Transaction Type", TransactionType);
-            SetRange("Retry Accepted", RetryAccepted);
-            if not IsEmpty() then
-                ExecutePendingRequests(
-                  SIIDocUploadState, TempSIIHistoryBuffer, SIISetup."Enable Batch Submissions");
-        end;
+        SIIDocUploadState.SetRange("Transaction Type", TransactionType);
+        SIIDocUploadState.SetRange("Retry Accepted", RetryAccepted);
+        if not SIIDocUploadState.IsEmpty() then
+            ExecutePendingRequests(
+              SIIDocUploadState, TempSIIHistoryBuffer, SIISetup."Enable Batch Submissions");
     end;
 
     [TryFunction]
@@ -458,15 +451,13 @@ codeunit 10752 "SII Doc. Upload Management"
     var
         SIIHistory: Record "SII History";
     begin
-        with SIIHistory do begin
-            SetCurrentKey(Status, "Is Manual");
-            SetHistoryFilters(SIIHistory, IsManual);
-            if FindSet() then
-                repeat
-                    TempSIIHistoryBuffer := SIIHistory;
-                    TempSIIHistoryBuffer.Insert();
-                until Next() = 0;
-        end;
+        SIIHistory.SetCurrentKey(Status, "Is Manual");
+        SetHistoryFilters(SIIHistory, IsManual);
+        if SIIHistory.FindSet() then
+            repeat
+                TempSIIHistoryBuffer := SIIHistory;
+                TempSIIHistoryBuffer.Insert();
+            until SIIHistory.Next() = 0;
     end;
 
     local procedure SaveHistoryPendingBuffer(var TempSIIHistoryBuffer: Record "SII History" temporary; IsManual: Boolean)
@@ -613,29 +604,25 @@ codeunit 10752 "SII Doc. Upload Management"
 
     local procedure XMLParseDocumentNo(var XMLBuffer: Record "XML Buffer"; ParentEntryNo: Integer): Text[35]
     begin
-        with XMLBuffer do begin
-            SetRange("Parent Entry No.", ParentEntryNo);
-            SetRange(Name, 'IDFactura');
-            if FindFirst() then begin
-                SetRange("Parent Entry No.", "Entry No.");
-                SetRange(Name, 'NumSerieFacturaEmisor');
-                if FindFirst() then
-                    exit(CopyStr(Value, 1, 35));
-            end;
+        XMLBuffer.SetRange("Parent Entry No.", ParentEntryNo);
+        XMLBuffer.SetRange(Name, 'IDFactura');
+        if XMLBuffer.FindFirst() then begin
+            XMLBuffer.SetRange("Parent Entry No.", XMLBuffer."Entry No.");
+            XMLBuffer.SetRange(Name, 'NumSerieFacturaEmisor');
+            if XMLBuffer.FindFirst() then
+                exit(CopyStr(XMLBuffer.Value, 1, 35));
         end;
     end;
 
     local procedure XMLParseLastDocumentNo(var XMLBuffer: Record "XML Buffer"; ParentEntryNo: Integer): Text[35]
     begin
-        WITH XMLBuffer DO BEGIN
-            SetRange("Parent Entry No.", ParentEntryNo);
-            SetRange(Name, 'IDFactura');
-            IF FindFirst() THEN BEGIN
-                SetRange("Parent Entry No.", "Entry No.");
-                SetRange(Name, 'NumSerieFacturaEmisorResumenFin');
-                IF FindFirst() THEN
-                    EXIT(COPYSTR(Value, 1, 35));
-            END;
+        XMLBuffer.SetRange("Parent Entry No.", ParentEntryNo);
+        XMLBuffer.SetRange(Name, 'IDFactura');
+        IF XMLBuffer.FindFirst() THEN BEGIN
+            XMLBuffer.SetRange("Parent Entry No.", XMLBuffer."Entry No.");
+            XMLBuffer.SetRange(Name, 'NumSerieFacturaEmisorResumenFin');
+            IF XMLBuffer.FindFirst() THEN
+                EXIT(COPYSTR(XMLBuffer.Value, 1, 35));
         END;
     end;
 
@@ -682,35 +669,33 @@ codeunit 10752 "SII Doc. Upload Management"
         VATRegistrationNo: Text;
         CountryRegionCode: Text;
     begin
-        with XMLBuffer do begin
-            if FindXMLBufferByParentEntryAndName(XMLBuffer, ParentEntryNo, 'PeriodoLiquidacion') then begin
-                if not FindXMLBufferByParentEntryAndName(XMLBuffer, "Entry No.", 'Ejercicio') then
+        if FindXMLBufferByParentEntryAndName(XMLBuffer, ParentEntryNo, 'PeriodoLiquidacion') then begin
+            if not FindXMLBufferByParentEntryAndName(XMLBuffer, XMLBuffer."Entry No.", 'Ejercicio') then
+                exit(false);
+            Evaluate(Year, CopyStr(XMLBuffer.Value, 1, 20));
+            SIIDocUploadState.SetRange("Posting Date", DMY2Date(1, 1, Year));
+        end;
+        if FindXMLBufferByParentEntryAndName(XMLBuffer, ParentEntryNo, 'Contraparte') then begin
+            ParentEntryNo := XMLBuffer."Entry No.";
+            if FindXMLBufferByParentEntryAndName(XMLBuffer, ParentEntryNo, 'NIF') then begin
+                VATRegistrationNo := XMLBuffer.Value;
+                if not FindXMLBufferByParentEntryAndName(XMLBuffer, ParentEntryNo, 'NombreRazon') then
                     exit(false);
-                Evaluate(Year, CopyStr(Value, 1, 20));
-                SIIDocUploadState.SetRange("Posting Date", DMY2Date(1, 1, Year));
-            end;
-            if FindXMLBufferByParentEntryAndName(XMLBuffer, ParentEntryNo, 'Contraparte') then begin
-                ParentEntryNo := "Entry No.";
-                if FindXMLBufferByParentEntryAndName(XMLBuffer, ParentEntryNo, 'NIF') then begin
-                    VATRegistrationNo := Value;
-                    if not FindXMLBufferByParentEntryAndName(XMLBuffer, ParentEntryNo, 'NombreRazon') then
-                        exit(false);
-                    SIIDocUploadState.SetRange("VAT Registration No.", VATRegistrationNo);
-                    SIIDocUploadState.SetRange("CV Name", Value);
-                    exit(SIIDocUploadState.FindFirst())
-                end;
-                if not FindXMLBufferByParentEntryAndName(XMLBuffer, "Entry No.", 'IDOtro') then
-                    exit(false);
-                ParentEntryNo := "Entry No.";
-                if not FindXMLBufferByParentEntryAndName(XMLBuffer, ParentEntryNo, 'CodigoPais') then
-                    exit(false);
-                CountryRegionCode := Value;
-                if not FindXMLBufferByParentEntryAndName(XMLBuffer, ParentEntryNo, 'ID') then
-                    exit(false);
-                SIIDocUploadState.SetRange("VAT Registration No.", Value);
-                SIIDocUploadState.SetRange("Country/Region Code", CountryRegionCode);
+                SIIDocUploadState.SetRange("VAT Registration No.", VATRegistrationNo);
+                SIIDocUploadState.SetRange("CV Name", XMLBuffer.Value);
                 exit(SIIDocUploadState.FindFirst())
             end;
+            if not FindXMLBufferByParentEntryAndName(XMLBuffer, XMLBuffer."Entry No.", 'IDOtro') then
+                exit(false);
+            ParentEntryNo := XMLBuffer."Entry No.";
+            if not FindXMLBufferByParentEntryAndName(XMLBuffer, ParentEntryNo, 'CodigoPais') then
+                exit(false);
+            CountryRegionCode := XMLBuffer.Value;
+            if not FindXMLBufferByParentEntryAndName(XMLBuffer, ParentEntryNo, 'ID') then
+                exit(false);
+            SIIDocUploadState.SetRange("VAT Registration No.", XMLBuffer.Value);
+            SIIDocUploadState.SetRange("Country/Region Code", CountryRegionCode);
+            exit(SIIDocUploadState.FindFirst())
         end;
     end;
 
@@ -735,11 +720,9 @@ codeunit 10752 "SII Doc. Upload Management"
 
     local procedure FindXMLBufferByParentEntryAndName(var XMLBuffer: Record "XML Buffer"; ParentEntryNo: Integer; NodeName: Text): Boolean
     begin
-        with XMLBuffer do begin
-            SetRange("Parent Entry No.", ParentEntryNo);
-            SetRange(Name, NodeName);
-            exit(FindFirst());
-        end;
+        XMLBuffer.SetRange("Parent Entry No.", ParentEntryNo);
+        XMLBuffer.SetRange(Name, NodeName);
+        exit(XMLBuffer.FindFirst());
     end;
 
     local procedure GetAndCheckSetup(): Boolean
@@ -778,7 +761,7 @@ codeunit 10752 "SII Doc. Upload Management"
             exit;
         HttpClient.AddCertificate(
             CertificateManagement.GetCertAsBase64String(IsolatedCertificate),
-            CertificateManagement.GetPassword(IsolatedCertificate));
+            CertificateManagement.GetPasswordAsSecret(IsolatedCertificate));
     end;
 
     [IntegrationEvent(false, false)]

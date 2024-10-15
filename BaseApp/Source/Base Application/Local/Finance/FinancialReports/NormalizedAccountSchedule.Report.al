@@ -578,27 +578,25 @@ report 10717 "Normalized Account Schedule"
         NonZero: Boolean;
     begin
         NonZero := false;
-        with ColLayoutTmp do begin
-            SetRange("Column Layout Name", ColumnLayoutName);
-            i := 0;
-            if Find('-') then
-                repeat
-                    if Show <> Show::Never then begin
-                        i := i + 1;
-                        ColumnValuesDisplayed[i] := AccSchedManagement.CalcCell("Acc. Schedule Line", ColLayoutTmp, PrintAmountsInAddCurrency);
-                        if AccSchedManagement.GetDivisionError() then begin
-                            if ShowDivideError then
-                                ColumnValuesAsText[i] := Text1100001
-                            else
-                                ColumnValuesAsText[i] := '';
-                        end else begin
-                            NonZero := NonZero or (ColumnValuesDisplayed[i] <> 0);
-                            ColumnValuesAsText[i] :=
-                              AccSchedManagement.FormatCellAsText(ColLayoutTmp, ColumnValuesDisplayed[i], PrintAmountsInAddCurrency);
-                        end;
+        ColLayoutTmp.SetRange("Column Layout Name", ColumnLayoutName);
+        i := 0;
+        if ColLayoutTmp.Find('-') then
+            repeat
+                if ColLayoutTmp.Show <> ColLayoutTmp.Show::Never then begin
+                    i := i + 1;
+                    ColumnValuesDisplayed[i] := AccSchedManagement.CalcCell("Acc. Schedule Line", ColLayoutTmp, PrintAmountsInAddCurrency);
+                    if AccSchedManagement.GetDivisionError() then begin
+                        if ShowDivideError then
+                            ColumnValuesAsText[i] := Text1100001
+                        else
+                            ColumnValuesAsText[i] := '';
+                    end else begin
+                        NonZero := NonZero or (ColumnValuesDisplayed[i] <> 0);
+                        ColumnValuesAsText[i] :=
+                          AccSchedManagement.FormatCellAsText(ColLayoutTmp, ColumnValuesDisplayed[i], PrintAmountsInAddCurrency);
                     end;
-                until (i >= MaxColumnsDisplayed) or (Next() = 0);
-        end;
+                end;
+            until (i >= MaxColumnsDisplayed) or (ColLayoutTmp.Next() = 0);
         exit(NonZero);
     end;
 

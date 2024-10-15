@@ -410,7 +410,7 @@ codeunit 227 "VendEntry-Apply Posted Entries"
         if not HideProgressWindow then
             Window.Close();
     end;
-    
+
     local procedure RunVendExchRateAdjustment(var GenJnlLine: Record "Gen. Journal Line"; var TempVendorLedgerEntry: Record "Vendor Ledger Entry" temporary)
     var
         ExchRateAdjmtRunHandler: Codeunit "Exch. Rate Adjmt. Run Handler";
@@ -580,14 +580,12 @@ codeunit 227 "VendEntry-Apply Posted Entries"
     begin
         if VendLedgEntry2."Applies-to ID" = '' then
             exit(false);
-        with VendLedgEntry3 do begin
-            SetCurrentKey("Applies-to ID", "Document Type");
-            SetRange("Applies-to ID", VendLedgEntry2."Applies-to ID");
-            SetRange("Document Type", VendLedgEntry2."Document Type"::Bill);
-            if not IsEmpty() then
-                exit(true);
-            exit(false);
-        end;
+        VendLedgEntry3.SetCurrentKey("Applies-to ID", "Document Type");
+        VendLedgEntry3.SetRange("Applies-to ID", VendLedgEntry2."Applies-to ID");
+        VendLedgEntry3.SetRange("Document Type", VendLedgEntry2."Document Type"::Bill);
+        if not VendLedgEntry3.IsEmpty() then
+            exit(true);
+        exit(false);
     end;
 
     procedure PreviewApply(VendorLedgerEntry: Record "Vendor Ledger Entry"; ApplyUnapplyParameters: Record "Apply Unapply Parameters")

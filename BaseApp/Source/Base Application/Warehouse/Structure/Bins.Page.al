@@ -136,9 +136,9 @@ page 7302 Bins
                     Image = BinContent;
                     Scope = Repeater;
                     RunObject = Page "Bin Content";
-                    RunPageLink = "Location Code" = FIELD("Location Code"),
-                                  "Zone Code" = FIELD("Zone Code"),
-                                  "Bin Code" = FIELD(Code);
+                    RunPageLink = "Location Code" = field("Location Code"),
+                                  "Zone Code" = field("Zone Code"),
+                                  "Bin Code" = field(Code);
                     ToolTip = 'View the bin content. A bin can hold several different items. Each item that has been fixed to the bin, placed in the bin, or for which the bin is the default bin appears in this window as a separate line. Some of the fields on the lines contain information about the bin for which you are creating bin content, for example, the bin ranking, and you cannot change these values.';
                 }
             }

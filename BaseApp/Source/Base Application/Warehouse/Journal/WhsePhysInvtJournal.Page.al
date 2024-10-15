@@ -5,7 +5,6 @@ using Microsoft.Inventory.Counting.Journal;
 using Microsoft.Inventory.Item;
 using Microsoft.Inventory.Ledger;
 using Microsoft.Inventory.Location;
-using Microsoft.Inventory.Tracking;
 using Microsoft.Warehouse.Ledger;
 using Microsoft.Warehouse.Reports;
 using Microsoft.Warehouse.Structure;
@@ -117,20 +116,20 @@ page 7326 "Whse. Phys. Invt. Journal"
                     Editable = PackageNoEditable;
                     ExtendedDatatype = Barcode;
                     ToolTip = 'Specifies the same as for the field in the Item Journal window.';
-                    Visible = PackageNoVisible;
+                    Visible = false;
                 }
                 field("Warranty Date"; Rec."Warranty Date")
                 {
                     ApplicationArea = ItemTracking;
                     ToolTip = 'Specifies the last day of warranty for the item on the line.';
-                    visible = False;
+                    visible = false;
                 }
                 field("Expiration Date"; Rec."Expiration Date")
                 {
                     ApplicationArea = ItemTracking;
                     Editable = ExpirationDateEditable;
                     ToolTip = 'Specifies the last date that the item on the line can be used.';
-                    visible = False;
+                    visible = false;
                 }
                 field("Zone Code"; Rec."Zone Code")
                 {
@@ -468,39 +467,10 @@ page 7326 "Whse. Phys. Invt. Journal"
             group(Category_Category5)
             {
                 Caption = 'Item', Comment = 'Generated from the PromotedActionCategories property index 4.';
-
-#if not CLEAN21
-                actionref(Card_Promoted; Card)
-                {
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Action is being demoted based on overall low usage.';
-                    ObsoleteTag = '21.0';
-                }
-#endif
-#if not CLEAN21
-                actionref("Ledger E&ntries_Promoted"; "Ledger E&ntries")
-                {
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Action is being demoted based on overall low usage.';
-                    ObsoleteTag = '21.0';
-                }
-#endif
             }
             group(Category_Category6)
             {
                 Caption = 'Line', Comment = 'Generated from the PromotedActionCategories property index 5.';
-
-#if not CLEAN21
-                actionref("Bin Contents_Promoted"; "Bin Contents")
-                {
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Action is being demoted based on overall low usage.';
-                    ObsoleteTag = '21.0';
-                }
-#endif
             }
         }
     }
@@ -515,6 +485,7 @@ page 7326 "Whse. Phys. Invt. Journal"
     begin
         LotNoEditable := true;
         SerialNoEditable := true;
+        PackageNoEditable := true;
         ExpirationDateEditable := true;
     end;
 
@@ -548,8 +519,9 @@ page 7326 "Whse. Phys. Invt. Journal"
         if not JnlSelected then
             Error('');
         Rec.OpenJnl(CurrentJnlBatchName, CurrentLocationCode, Rec);
-
+#if not CLEAN24
         SetPackageTrackingVisibility();
+#endif
     end;
 
     var
@@ -565,7 +537,10 @@ page 7326 "Whse. Phys. Invt. Journal"
         SerialNoEditable: Boolean;
         LotNoEditable: Boolean;
         PackageNoEditable: Boolean;
+#if not CLEAN24
+        [Obsolete('Package Tracking enabled by default.', '24.0')]
         PackageNoVisible: Boolean;
+#endif
         QtyPhysInventoryBaseIsEditable: Boolean;
         ExpirationDateEditable: Boolean;
 
@@ -590,11 +565,11 @@ page 7326 "Whse. Phys. Invt. Journal"
         Rec.GetItem(Rec."Item No.", ItemDescription);
     end;
 
+#if not CLEAN24
     local procedure SetPackageTrackingVisibility()
-    var
-        PackageMgt: Codeunit "Package Management";
     begin
-        PackageNoVisible := PackageMgt.IsEnabled();
+        PackageNoVisible := true;
     end;
+#endif
 }
 

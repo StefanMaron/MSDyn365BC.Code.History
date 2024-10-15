@@ -67,7 +67,7 @@ codeunit 147541 "Cartera Recv. Redraw Tests"
         VerifyRedraw(InvoiceNo, BillGroup, RedrawAmtToReduce);
 
         // Teardown
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -105,7 +105,7 @@ codeunit 147541 "Cartera Recv. Redraw Tests"
         VerifyRedraw(InvoiceNo, BillGroup, RedrawAmtToReduce);
 
         // Teardown
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -143,7 +143,7 @@ codeunit 147541 "Cartera Recv. Redraw Tests"
         VerifyRedraw(InvoiceNo, BillGroup, RedrawAmtToReduce);
 
         // Teardown
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -181,7 +181,7 @@ codeunit 147541 "Cartera Recv. Redraw Tests"
         VerifyRedraw(InvoiceNo, BillGroup, RedrawAmtToReduce);
 
         // Teardown
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -216,7 +216,7 @@ codeunit 147541 "Cartera Recv. Redraw Tests"
 
         // Exercise
         LibraryVariableStorage.Enqueue(ReverseEntriesQst);
-        asserterror ReverseEntry;
+        asserterror ReverseEntry();
         Assert.ExpectedError(CannotBeReversedErr)
     end;
 
@@ -278,7 +278,7 @@ codeunit 147541 "Cartera Recv. Redraw Tests"
         VerifyRedraw(InvoiceNo, BillGroup, RedrawAmtToReduce);
 
         // Teardown
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -447,13 +447,13 @@ codeunit 147541 "Cartera Recv. Redraw Tests"
     var
         PostedBillGroupsTestPage: TestPage "Posted Bill Groups";
     begin
-        PostedBillGroupsTestPage.OpenEdit;
+        PostedBillGroupsTestPage.OpenEdit();
         PostedBillGroupsTestPage.GotoRecord(PostedBillGroup);
 
         LibraryVariableStorage.Enqueue(
           StrSubstNo(
-            SettlementCompletedSuccessfullyMsg, 1, PostedBillGroupsTestPage.Docs."Remaining Amount".AsDEcimal));
-        PostedBillGroupsTestPage.Docs."Total Settlement".Invoke;
+            SettlementCompletedSuccessfullyMsg, 1, PostedBillGroupsTestPage.Docs."Remaining Amount".AsDecimal()));
+        PostedBillGroupsTestPage.Docs."Total Settlement".Invoke();
 
         ClosedBillGroup.SetRange("No.", PostedBillGroup."No.");
         ClosedBillGroup.FindFirst();
@@ -463,11 +463,11 @@ codeunit 147541 "Cartera Recv. Redraw Tests"
     var
         PostedBillGroupsTestPage: TestPage "Posted Bill Groups";
     begin
-        PostedBillGroupsTestPage.OpenEdit;
+        PostedBillGroupsTestPage.OpenEdit();
         PostedBillGroupsTestPage.GotoRecord(PostedBillGroup);
 
         LibraryVariableStorage.Enqueue(StrSubstNo(DocsRejectedMsg, 1));
-        PostedBillGroupsTestPage.Docs.Reject.Invoke;
+        PostedBillGroupsTestPage.Docs.Reject.Invoke();
 
         ClosedBillGroup.SetRange("No.", PostedBillGroup."No.");
         ClosedBillGroup.FindFirst();
@@ -481,24 +481,24 @@ codeunit 147541 "Cartera Recv. Redraw Tests"
         CarteraDoc.SetRange("Document No.", InvoiceNo);
         CarteraDoc.FindFirst();
         LibraryVariableStorage.Enqueue(StrSubstNo(DocsRejectedMsg, 1));
-        ReceivablesCarteraDocs.OpenEdit;
+        ReceivablesCarteraDocs.OpenEdit();
         ReceivablesCarteraDocs.GotoRecord(CarteraDoc);
-        ReceivablesCarteraDocs.Reject.Invoke;
+        ReceivablesCarteraDocs.Reject.Invoke();
     end;
 
     local procedure RedrawFromClosedBillGroup(ClosedBillGroup: Record "Closed Bill Group"; RedrawAmtToReduce: Decimal)
     var
         ClosedBillGroupsTestPage: TestPage "Closed Bill Groups";
     begin
-        ClosedBillGroupsTestPage.OpenEdit;
+        ClosedBillGroupsTestPage.OpenEdit();
         ClosedBillGroupsTestPage.GotoRecord(ClosedBillGroup);
 
-        LibraryVariableStorage.Enqueue(ClosedBillGroupsTestPage.Docs."Due Date".AsDate);
+        LibraryVariableStorage.Enqueue(ClosedBillGroupsTestPage.Docs."Due Date".AsDate());
         LibraryVariableStorage.Enqueue(RedrawAmtToReduce);
         LibraryVariableStorage.Enqueue(PostJournalLinesQst);
         LibraryVariableStorage.Enqueue(StrSubstNo(JournalSuccessfullyPostedMsg));
         LibraryVariableStorage.Enqueue(StrSubstNo(SuccessfulBillRedrawalMsg, 1));
-        ClosedBillGroupsTestPage.Docs.Redraw.Invoke; // Redraw
+        ClosedBillGroupsTestPage.Docs.Redraw.Invoke(); // Redraw
     end;
 
     local procedure RedrawFromClosedReceivablesDocs(ClosedBillGroup: Record "Closed Bill Group"; RedrawAmtToReduce: Decimal)
@@ -522,7 +522,7 @@ codeunit 147541 "Cartera Recv. Redraw Tests"
     var
         ReceivableClosedCarteraDocs: TestPage "Receivable Closed Cartera Docs";
     begin
-        ReceivableClosedCarteraDocs.OpenEdit;
+        ReceivableClosedCarteraDocs.OpenEdit();
         ReceivableClosedCarteraDocs.GotoRecord(ClosedCarteraDoc);
 
         LibraryVariableStorage.Enqueue(ClosedCarteraDoc."Due Date");
@@ -530,7 +530,7 @@ codeunit 147541 "Cartera Recv. Redraw Tests"
         LibraryVariableStorage.Enqueue(PostJournalLinesQst);
         LibraryVariableStorage.Enqueue(StrSubstNo(JournalSuccessfullyPostedMsg));
         LibraryVariableStorage.Enqueue(StrSubstNo(SuccessfulBillRedrawalMsg, 1));
-        ReceivableClosedCarteraDocs.Redraw.Invoke;
+        ReceivableClosedCarteraDocs.Redraw.Invoke();
     end;
 
     local procedure ReverseEntry()
@@ -601,14 +601,14 @@ codeunit 147541 "Cartera Recv. Redraw Tests"
         RedrawReceivableBillsRequestPage.AuxJnlTemplateName.SetValue(TemplateName);
         RedrawReceivableBillsRequestPage.AuxJnlBatchName.SetValue(BatchName);
 
-        RedrawReceivableBillsRequestPage.OK.Invoke;
+        RedrawReceivableBillsRequestPage.OK().Invoke();
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure SettleDocsInPostBillGrModalPageHandler(var SettleDocsInPostBillGr: TestRequestPage "Settle Docs. in Post. Bill Gr.")
     begin
-        SettleDocsInPostBillGr.OK.Invoke;
+        SettleDocsInPostBillGr.OK().Invoke();
     end;
 
     [RequestPageHandler]
@@ -622,7 +622,7 @@ codeunit 147541 "Cartera Recv. Redraw Tests"
 
         PostBillGroup.TemplName.SetValue(TemplateName);
         PostBillGroup.BatchName.SetValue(BatchName);
-        PostBillGroup.OK.Invoke;
+        PostBillGroup.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -636,39 +636,39 @@ codeunit 147541 "Cartera Recv. Redraw Tests"
         RedrawAmtToReduce := RedrawAmtToReduceVariant;
 
         if RedrawAmtToReduce <> 0 then begin
-            CarteraJournal.First;
-            CarteraJournal."Credit Amount".SetValue(CarteraJournal."Credit Amount".AsDEcimal - RedrawAmtToReduce);
+            CarteraJournal.First();
+            CarteraJournal."Credit Amount".SetValue(CarteraJournal."Credit Amount".AsDecimal() - RedrawAmtToReduce);
             CarteraJournal.Next();
-            CarteraJournal."Debit Amount".SetValue(CarteraJournal."Debit Amount".AsDEcimal - RedrawAmtToReduce);
+            CarteraJournal."Debit Amount".SetValue(CarteraJournal."Debit Amount".AsDecimal() - RedrawAmtToReduce);
         end;
-        CarteraJournal.Post.Invoke;
-        CarteraJournal.OK.Invoke;
+        CarteraJournal.Post.Invoke();
+        CarteraJournal.OK().Invoke();
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure RequestDocsModalPageHandler(var RejectDocs: TestRequestPage "Reject Docs.")
     begin
-        RejectDocs.OK.Invoke;
+        RejectDocs.OK().Invoke();
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure BankRiskHandler(var BankRisk: TestRequestPage "Bank - Risk")
     begin
-        BankRisk.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        BankRisk.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     local procedure AddCarteraDocumentToBillGroup(BillGroup: Record "Bill Group")
     var
         BillGroups: TestPage "Bill Groups";
     begin
-        BillGroups.OpenEdit;
+        BillGroups.OpenEdit();
         BillGroups.GotoRecord(BillGroup);
 
-        BillGroups.Docs.Insert.Invoke;
+        BillGroups.Docs.Insert.Invoke();
 
-        BillGroups.OK.Invoke;
+        BillGroups.OK().Invoke();
     end;
 
     local procedure CreatePaymentTermsInstallment(var PaymentTerms: Record "Payment Terms"; NoOfInstallments: Integer)
@@ -693,7 +693,7 @@ codeunit 147541 "Cartera Recv. Redraw Tests"
             RemPct -= Installment."% of Total";
         end;
 
-        Commit
+        Commit();
     end;
 
     local procedure GetCarteraTemplBatch(var TemplateName: Code[10]; var BatchName: Code[10])
@@ -772,11 +772,11 @@ codeunit 147541 "Cartera Recv. Redraw Tests"
         PostedValue: Decimal;
     begin
         with LibraryReportDataset do begin
-            LoadDataSetFile;
+            LoadDataSetFile();
             SalesInvoiceHeader.Get(InvoiceNo);
             SalesInvoiceHeader.CalcFields(Amount, "Amount Including VAT");
 
-            while GetNextRow do begin
+            while GetNextRow() do begin
                 if Unposted then
                     UnpostedValue := SalesInvoiceHeader."Amount Including VAT";
                 if Posted then
@@ -810,15 +810,15 @@ codeunit 147541 "Cartera Recv. Redraw Tests"
                 begin
                     RedrawReceivableBillsPage.AuxJnlTemplateName.AssertEquals('');
                     RedrawReceivableBillsPage.AuxJnlBatchName.AssertEquals('');
-                    RedrawReceivableBillsPage.AuxJnlTemplateName.SetValue(LibraryVariableStorage.DequeueText);
-                    RedrawReceivableBillsPage.AuxJnlBatchName.SetValue(LibraryVariableStorage.DequeueText);
-                    RedrawReceivableBillsPage.OK.Invoke; // requires to save values
+                    RedrawReceivableBillsPage.AuxJnlTemplateName.SetValue(LibraryVariableStorage.DequeueText());
+                    RedrawReceivableBillsPage.AuxJnlBatchName.SetValue(LibraryVariableStorage.DequeueText());
+                    RedrawReceivableBillsPage.OK().Invoke(); // requires to save values
                 end;
             RedrawReqPageOption::verify:
                 begin
                     RedrawReceivableBillsPage.AuxJnlTemplateName.AssertEquals('');
                     RedrawReceivableBillsPage.AuxJnlBatchName.AssertEquals('');
-                    RedrawReceivableBillsPage.Cancel.Invoke;
+                    RedrawReceivableBillsPage.Cancel().Invoke();
                 end;
         end;
     end;

@@ -18,6 +18,7 @@ table 7000004 "Closed Cartera Doc."
     Caption = 'Closed Cartera Doc.';
     DrillDownPageID = "Closed Cartera Documents";
     LookupPageID = "Closed Cartera Documents";
+    DataClassification = CustomerContent;
 
     fields
     {

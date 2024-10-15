@@ -99,7 +99,9 @@ page 382 "Apply Check Ledger Entries"
             group(Control25)
             {
                 ShowCaption = false;
+#pragma warning disable AA0100
                 field("BankAccReconLine.""Statement Amount"""; BankAccReconLine."Statement Amount")
+#pragma warning restore AA0100
                 {
                     ApplicationArea = Basic, Suite;
                     AutoFormatType = 1;

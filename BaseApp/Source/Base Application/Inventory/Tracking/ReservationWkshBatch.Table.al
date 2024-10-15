@@ -9,6 +9,7 @@ table 345 "Reservation Wksh. Batch"
     Caption = 'Reservation Wksh. Batch';
     DataCaptionFields = Name, Description;
     LookupPageID = "Reservation Wksh. Batches";
+    DataClassification = CustomerContent;
 
     fields
     {

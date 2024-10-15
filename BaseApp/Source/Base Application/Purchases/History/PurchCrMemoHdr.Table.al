@@ -41,6 +41,7 @@ table 124 "Purch. Cr. Memo Hdr."
     DataCaptionFields = "No.", "Buy-from Vendor Name";
     DrillDownPageID = "Posted Purchase Credit Memos";
     LookupPageID = "Posted Purchase Credit Memos";
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -504,7 +505,7 @@ table 124 "Purch. Cr. Memo Hdr."
         }
         field(1302; Paid; Boolean)
         {
-            CalcFormula = - Exist("Vendor Ledger Entry" where("Entry No." = field("Vendor Ledger Entry No."),
+            CalcFormula = - exist("Vendor Ledger Entry" where("Entry No." = field("Vendor Ledger Entry No."),
                                                               Open = filter(true)));
             Caption = 'Paid';
             Editable = false;
@@ -769,15 +770,13 @@ table 124 "Purch. Cr. Memo Hdr."
     var
         ReportSelection: Record "Report Selections";
     begin
-        with PurchCrMemoHeader do begin
-            Copy(Rec);
-            ReportSelection.SetRange(Usage, ReportSelection.Usage::"P.AutoCr.Memo");
-            ReportSelection.SetFilter("Report ID", '<>0');
-            ReportSelection.Find('-');
-            repeat
-                REPORT.RunModal(ReportSelection."Report ID", ShowRequestForm, false, PurchCrMemoHeader);
-            until ReportSelection.Next() = 0;
-        end;
+        PurchCrMemoHeader.Copy(Rec);
+        ReportSelection.SetRange(Usage, ReportSelection.Usage::"P.AutoCr.Memo");
+        ReportSelection.SetFilter("Report ID", '<>0');
+        ReportSelection.Find('-');
+        repeat
+            REPORT.RunModal(ReportSelection."Report ID", ShowRequestForm, false, PurchCrMemoHeader);
+        until ReportSelection.Next() = 0;
     end;
 
     procedure PrintRecords(ShowRequestPage: Boolean)
@@ -787,12 +786,11 @@ table 124 "Purch. Cr. Memo Hdr."
     begin
         IsHandled := false;
         OnBeforePrintRecords(Rec, ShowRequestPage, IsHandled);
-        if not IsHandled then
-            with PurchCrMemoHeader do begin
-                Copy(Rec);
-                ReportSelection.PrintWithDialogForVend(
-                  ReportSelection.Usage::"P.Cr.Memo", PurchCrMemoHeader, ShowRequestPage, FieldNo("Buy-from Vendor No."));
-            end;
+        if not IsHandled then begin
+            PurchCrMemoHeader.Copy(Rec);
+            ReportSelection.PrintWithDialogForVend(
+              ReportSelection.Usage::"P.Cr.Memo", PurchCrMemoHeader, ShowRequestPage, PurchCrMemoHeader.FieldNo("Buy-from Vendor No."));
+        end;
     end;
 
     procedure PrintToDocumentAttachment(var PurchCrMemoHdr: Record "Purch. Cr. Memo Hdr.")

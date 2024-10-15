@@ -29,14 +29,23 @@ codeunit 136350 "UT T Job"
         LibraryRandom: Codeunit "Library - Random";
         LibraryMarketing: Codeunit "Library - Marketing";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
+        LibraryWarehouse: Codeunit "Library - Warehouse";
+        LibraryInventory: Codeunit "Library - Inventory";
         IsInitialized: Boolean;
         IncorrectSourceIDErr: Label 'Incorrect Source ID.';
-        JobTaskDimDoesNotExistErr: Label 'Job Task Dimension does not exist.';
-        JobTaskDimExistsErr: Label 'Job Task Dimension exists.';
-        TimeSheetLinesErr: Label 'You cannot delete job %1 because it has open or submitted time sheet lines.', Comment = 'You cannot delete job JOB001 because it has open or submitted time sheet lines.';
+        JobTaskDimDoesNotExistErr: Label 'Project Task Dimension does not exist.';
+        JobTaskDimExistsErr: Label 'Project Task Dimension exists.';
+        TimeSheetLinesErr: Label 'You cannot delete project %1 because it has open or submitted time sheet lines.', Comment = 'You cannot delete project PROJ001 because it has open or submitted time sheet lines.';
         CustomerBlockedErr: Label 'You cannot create this type of document when Customer %1 is blocked with type %2', Comment = '%1 - Customer No, %2 - Blocked Type';
         BlockedCustomerExpectedErr: Label 'Blocked Customer error was expected';
-        ShipToCityNotMatchedErr: Label '%1 must be equal to %2 in Job table.', Comment = '%1 = Ship-to City field caption, %2 = Expected city value';
+        ShipToCityNotMatchedErr: Label '%1 must be equal to %2 in Project table.', Comment = '%1 = Ship-to City field caption, %2 = Expected city value';
+        BinCodeNotMatchedErr: Label '%1 must be equal to %2 in Project table.', Comment = '%1 = Bin Code in Job table, %2 = Expected Bin Code value';
+        LocationCodeNotMatchedErr: Label '%1 must be equal to %2 in Project table.', Comment = '%1 = Location Code in Job Task table, %2 = Expected Location Code value';
+        TasksNotUpdatedMsg: Label 'You have changed %1 on the project, but it has not been changed on the existing project tasks.', Comment = '%1 = a Field Caption like Location Code';
+        UpdateTasksManuallyMsg: Label 'You must update the existing project tasks manually.';
+        PlanningLinesNotUpdatedMsg: Label 'You have changed %1 on the project task, but it has not been changed on the existing project planning lines.', Comment = '%1 = a Field Caption like Location Code';
+        UpdatePlanningLinesManuallyMsg: Label 'You must update the existing project planning lines manually.';
+        SplitMessageTxt: Label '%1\%2', Comment = 'Some message text 1.\Some message text 2.', Locked = true;
 
     [Test]
     [Scope('OnPrem')]
@@ -59,7 +68,7 @@ codeunit 136350 "UT T Job"
         Assert.IsFalse(Job."Apply Usage Link", 'Apply Usage link is not FALSE by default.');
         Assert.IsFalse(Job."Allow Schedule/Contract Lines", 'Allow Schedule/Contract Lines is not FALSE by default.');
 
-        TearDown;
+        TearDown();
 
         // Verify that Apply Usage Link and Allow Schedule/Contract Lines are set by default, if set in Jobs Setup.
         Initialize();
@@ -84,7 +93,7 @@ codeunit 136350 "UT T Job"
         Assert.AreEqual(Job."WIP Posting Method"::"Per Job Ledger Entry", Job."WIP Posting Method",
           'The WIP Posting Method is not set to the correct default value.');
 
-        TearDown;
+        TearDown();
     end;
 
     [Test]
@@ -108,7 +117,7 @@ codeunit 136350 "UT T Job"
         JobPlanningLine.SetRange("Job No.", Job."No.");
         JobPlanningLine.SetRange("Schedule Line", true);
         JobPlanningLine.SetRange("Usage Link", false);
-        Assert.IsFalse(JobPlanningLine.FindFirst, 'Some Job Planning Lines were not updated with Usage Link.');
+        Assert.IsFalse(JobPlanningLine.FindFirst(), 'Some Job Planning Lines were not updated with Usage Link.');
 
         // Verify that Apply Usage Link cannot be checked, once Usage has been posted.
         Job.Validate("Apply Usage Link", false);
@@ -119,7 +128,7 @@ codeunit 136350 "UT T Job"
 
         asserterror Job.Validate("Apply Usage Link", true);
 
-        TearDown;
+        TearDown();
     end;
 
     [Test]
@@ -141,7 +150,7 @@ codeunit 136350 "UT T Job"
         Job.CalcFields("WIP Warnings");
         Assert.IsTrue(Job."WIP Warnings", 'WIP Warning is false, even if warnings exist.');
 
-        TearDown;
+        TearDown();
     end;
 
     [Test]
@@ -176,7 +185,7 @@ codeunit 136350 "UT T Job"
             asserterror Validate("WIP Method", JobWIPMethod.Code);
         end;
 
-        TearDown;
+        TearDown();
     end;
 
     [Test]
@@ -227,7 +236,7 @@ codeunit 136350 "UT T Job"
             Assert.AreEqual("WIP Posting Method"::"Per Job Ledger Entry", "WIP Posting Method", 'WIP Posting Method could not be set.');
         end;
 
-        TearDown;
+        TearDown();
     end;
 
     [Test]
@@ -240,7 +249,7 @@ codeunit 136350 "UT T Job"
         Initialize();
         SetUp(true);
 
-        // Verify that CalcAccWIPCostsAmount, CalcAccWIPSalesAmount, CalcRecognizedProfitAmount, CalcRecognizedProfitPercentage,
+        // Verify that CalcAccWIPCostsAmount(), CalcAccWIPSalesAmount, CalcRecognizedProfitAmount, CalcRecognizedProfitPercentage,
         // CalcRecognizedProfitGLAmount and CalcRecognProfitGLPercentage calculate the correct amount.
         with Job do begin
             Clear(JobWIPEntry);
@@ -302,26 +311,26 @@ codeunit 136350 "UT T Job"
               "Total WIP Cost Amount", "Total WIP Sales Amount",
               "Applied Costs G/L Amount", "Applied Sales G/L Amount");
 
-            Assert.AreEqual("Total WIP Cost Amount" + "Applied Costs G/L Amount", CalcAccWIPCostsAmount,
+            Assert.AreEqual("Total WIP Cost Amount" + "Applied Costs G/L Amount", CalcAccWIPCostsAmount(),
               'CalcAccWIPCostsAmount calculates the wrong amount.');
 
-            Assert.AreEqual("Total WIP Sales Amount" - "Applied Sales G/L Amount", CalcAccWIPSalesAmount,
+            Assert.AreEqual("Total WIP Sales Amount" - "Applied Sales G/L Amount", CalcAccWIPSalesAmount(),
               'CalcAccWIPSalesAmount calculates the wrong amount.');
 
-            Assert.AreEqual("Calc. Recog. Sales Amount" - "Calc. Recog. Costs Amount", CalcRecognizedProfitAmount,
+            Assert.AreEqual("Calc. Recog. Sales Amount" - "Calc. Recog. Costs Amount", CalcRecognizedProfitAmount(),
               'CalcRecognizedProfitAmount calculates the wrong amount.');
 
             Assert.AreEqual((("Calc. Recog. Sales Amount" - "Calc. Recog. Costs Amount") / "Calc. Recog. Sales Amount") * 100,
-              CalcRecognizedProfitPercentage, 'CalcRecognizedProfitPercentage calculates the wrong amount.');
+              CalcRecognizedProfitPercentage(), 'CalcRecognizedProfitPercentage calculates the wrong amount.');
 
-            Assert.AreEqual("Calc. Recog. Sales G/L Amount" - "Calc. Recog. Costs G/L Amount", CalcRecognizedProfitGLAmount,
+            Assert.AreEqual("Calc. Recog. Sales G/L Amount" - "Calc. Recog. Costs G/L Amount", CalcRecognizedProfitGLAmount(),
               'CalcRecognizedProfitGLAmount calculates the wrong amount.');
 
             Assert.AreEqual((("Calc. Recog. Sales G/L Amount" - "Calc. Recog. Costs G/L Amount") / "Calc. Recog. Sales G/L Amount") * 100,
-              CalcRecognProfitGLPercentage, 'CalcRecognProfitGLPercentage calculates the wrong amount.');
+              CalcRecognProfitGLPercentage(), 'CalcRecognProfitGLPercentage calculates the wrong amount.');
         end;
 
-        TearDown;
+        TearDown();
     end;
 
     [Test]
@@ -348,7 +357,7 @@ codeunit 136350 "UT T Job"
         CurrencyExchangeRate.Insert();
 
         Job."Currency Code" := Currency.Code;
-        Job.CurrencyUpdatePlanningLines;
+        Job.CurrencyUpdatePlanningLines();
 
         JobPlanningLine.SetRange("Job No.", Job."No.");
         JobPlanningLine.FindFirst();
@@ -359,9 +368,9 @@ codeunit 136350 "UT T Job"
         // Make sure you can't change the currency when the line is transferred to a Sales Invoice.
         CreateJobPlanningLineInvoice(JobPlanningLineInvoice, 1);
         JobPlanningLine.CalcFields("Qty. Transferred to Invoice");
-        asserterror Job.CurrencyUpdatePlanningLines;
+        asserterror Job.CurrencyUpdatePlanningLines();
 
-        TearDown;
+        TearDown();
     end;
 
     [Test]
@@ -656,8 +665,8 @@ codeunit 136350 "UT T Job"
         Initialize();
 
         // [GIVEN] Users "A", "B", Job "X"
-        UserA := MockUser;
-        UserB := MockUser;
+        UserA := MockUser();
+        UserB := MockUser();
         LibraryJob.CreateJob(Job);
 
         // [GIVEN] Validate Job."Project Manager" = "A"
@@ -750,7 +759,7 @@ codeunit 136350 "UT T Job"
         Initialize();
 
         // [GIVEN] Customer "CUST" with set of default dimensions "DIMSET"
-        CustomerNo := CreateCustomerWithDefDim;
+        CustomerNo := CreateCustomerWithDefDim();
 
         // [GIVEN] New job "J"
         CreateJob(Job);
@@ -778,13 +787,13 @@ codeunit 136350 "UT T Job"
 
         // [GIVEN] Customer "CUST1" with set of dimensions "DIMSET1"
         // [GIVEN] Customer "CUST2" with set of dimensions "DIMSET2"
-        CustomerNo[1] := CreateCustomerWithDefDim;
-        CustomerNo[2] := CreateCustomerWithDefDim;
+        CustomerNo[1] := CreateCustomerWithDefDim();
+        CustomerNo[2] := CreateCustomerWithDefDim();
 
         // [GIVEN] New job "J" with Bill-to Customer No. = "CUST1"
         CreateJob(Job);
         Job.Validate("Bill-to Customer No.", CustomerNo[1]);
-        Job.Validate("Job Posting Group", LibraryJob.FindJobPostingGroup);
+        Job.Validate("Job Posting Group", LibraryJob.FindJobPostingGroup());
         Job.Modify(true);
 
         // [GIVEN] Job tasks "JT1" - "JT3"
@@ -827,7 +836,7 @@ codeunit 136350 "UT T Job"
         // [GIVEN] New job "J" with Bill-to Customer No. = "CUST1"
         CreateJob(Job);
         Job.Validate("Bill-to Customer No.", Customer[1]."No.");
-        Job.Validate("Job Posting Group", LibraryJob.FindJobPostingGroup);
+        Job.Validate("Job Posting Group", LibraryJob.FindJobPostingGroup());
         Job.Modify(true);
 
         // [GIVEN] Job tasks "JT1" - "JT3"
@@ -864,7 +873,7 @@ codeunit 136350 "UT T Job"
         Initialize();
 
         // [GIVEN] Customer "CUST" with set of default dimensions "DIMSET"
-        CustomerNo := CreateCustomerWithDefDim;
+        CustomerNo := CreateCustomerWithDefDim();
 
         // [GIVEN] Mock creating job from customer card
         Job.Init();
@@ -884,7 +893,6 @@ codeunit 136350 "UT T Job"
         Job: Record Job;
         Customer: Record Customer;
         Contact: Record Contact;
-        ContactBusinessRelation: Record "Contact Business Relation";
     begin
         // [SCENARIO] The bill-to fields should be synced with sell-to fields by default.
         Initialize();
@@ -1114,8 +1122,8 @@ codeunit 136350 "UT T Job"
         PostCode: Record "Post Code";
     begin
         LibrarySales.CreateShipToAddress(ShipToAddress, Customer."No.");
-        ShipToAddress.Validate(Address, CopyStr(LibraryUtility.GenerateGUID, 1, MaxStrLen(ShipToAddress.Address)));
-        ShipToAddress.Validate("Address 2", CopyStr(LibraryUtility.GenerateGUID, 1, MaxStrLen(ShipToAddress."Address 2")));
+        ShipToAddress.Validate(Address, CopyStr(LibraryUtility.GenerateGUID(), 1, MaxStrLen(ShipToAddress.Address)));
+        ShipToAddress.Validate("Address 2", CopyStr(LibraryUtility.GenerateGUID(), 1, MaxStrLen(ShipToAddress."Address 2")));
         LibraryERM.CreatePostCode(PostCode);
         ShipToAddress.Validate("Country/Region Code", PostCode."Country/Region Code");
         ShipToAddress.Validate(City, PostCode.City);
@@ -1130,7 +1138,6 @@ codeunit 136350 "UT T Job"
         Job: Record Job;
         Customer: Record Customer;
         Contact: Record Contact;
-        ContactBusinessRelation: Record "Contact Business Relation";
     begin
         // [SCENARIO] When setting bill-to, the sell-to fields should be synced with bill-to if 
         //  no sell-to customer has been set.
@@ -1170,7 +1177,6 @@ codeunit 136350 "UT T Job"
         BillToCustomer: Record Customer;
         SellToContact: Record Contact;
         BillToContact: Record Contact;
-        ContactBusinessRelation: Record "Contact Business Relation";
         PaymentTerms: Record "Payment Terms";
         PaymentMethod: Record "Payment Method";
     begin
@@ -1267,7 +1273,6 @@ codeunit 136350 "UT T Job"
         Job: Record Job;
         Customer: Record Customer;
         Contact: Record Contact;
-        ContactBusinessRelation: Record "Contact Business Relation";
         ExpectedErr: Text;
     begin
         // [SCENARIO 445521] The bill-to fields should be synced with sell-to fields by default.
@@ -1371,6 +1376,235 @@ codeunit 136350 "UT T Job"
 
         // [VERIFY] Verify: Job Ship-to City and Post Code city are equal.
         Assert.IsTrue((PostCode.City = Job."Ship-to City"), StrSubstNo(ShipToCityNotMatchedErr, Job.FieldCaption("Ship-to City"), PostCode.City));
+    end;
+
+    [Test]
+    procedure JobSellToContactNoValidation()
+    var
+        Job: Record Job;
+        Customer: Record Customer;
+        CompanyContact: Record Contact;
+        PersonContact: Record Contact;
+    begin
+        // [FEATURE] [Job] [Customer] [Contact]
+        // [SCENARIO] When setting Sell-to Contact No., Customer and Contact data should be validated
+        Initialize();
+
+        // [GIVEN] Create Customer with Company Contact
+        LibraryMarketing.CreateContactWithCustomer(CompanyContact, Customer);
+        CompanyContact.Validate("E-Mail", LibraryUtility.GenerateRandomEmail());
+        CompanyContact.Validate("Phone No.", LibraryUtility.GenerateRandomPhoneNo());
+        CompanyContact.Modify(true);
+
+        // Refresh Customer record
+        Customer.GetBySystemId(Customer.SystemId);
+
+        // [GIVEN] Create Contact person for Customer
+        LibraryMarketing.CreatePersonContact(PersonContact);
+        PersonContact.Validate("Company No.", CompanyContact."No.");
+        PersonContact.Validate("E-Mail", LibraryUtility.GenerateRandomEmail());
+        PersonContact.Validate("Phone No.", LibraryUtility.GenerateRandomPhoneNo());
+        PersonContact.Modify(true);
+
+        // [GIVEN] Create empty Job
+        Job.Init();
+
+        // [WHEN] Set Company Contact as Sell-to Contact No.
+        Job.Validate("Sell-to Contact No.", CompanyContact."No.");
+
+        // [THEN] Sell-to fields and Bill-to Customer fields are set
+        Job.TestField("Sell-to Customer No.", Customer."No.");
+        Job.TestField("Sell-to Customer Name", Customer."Name");
+        Job.TestField("Sell-to Customer Name 2", Customer."Name 2");
+        Job.TestField("Sell-to Address", Customer."Address");
+        Job.TestField("Sell-to Address 2", Customer."Address 2");
+        Job.TestField("Sell-to City", Customer."City");
+        Job.TestField("Sell-to Country/Region Code", Customer."Country/Region Code");
+        Job.TestField("Sell-to County", Customer."County");
+        Job.TestField("Sell-to Phone No.", CompanyContact."Phone No.");
+        Job.TestField("Sell-to E-Mail", CompanyContact."E-Mail");
+        Job.TestField("Payment Method Code", Customer."Payment Method Code");
+        Job.TestField("Payment Terms Code", Customer."Payment Terms Code");
+        Job.TestField("Bill-to Customer No.", Job."Sell-to Customer No.");
+        Job.TestField("Bill-to Name", Job."Sell-to Customer Name");
+        Job.TestField("Bill-to Name 2", Job."Sell-to Customer Name 2");
+        Job.TestField("Bill-to Address", Job."Sell-to Address");
+        Job.TestField("Bill-to Address 2", Job."Sell-to Address 2");
+        Job.TestField("Bill-to City", Job."Sell-to City");
+        Job.TestField("Bill-to Contact", Job."Sell-to Contact");
+        Job.TestField("Bill-to Contact No.", Job."Sell-to Contact No.");
+        Job.TestField("Bill-to Country/Region Code", Job."Sell-to Country/Region Code");
+        Job.TestField("Bill-to County", Job."Sell-to County");
+
+        // [WHEN] Set Person Contact as Sell-to Contact No.
+        Job.Validate("Sell-to Contact No.", PersonContact."No.");
+
+        // [THEN] Sell-to fields and Bill-to Customer fields are updated
+        Job.TestField("Sell-to Customer No.", Customer."No.");
+        Job.TestField("Sell-to Customer Name", Customer."Name");
+        Job.TestField("Sell-to Customer Name 2", Customer."Name 2");
+        Job.TestField("Sell-to Address", Customer."Address");
+        Job.TestField("Sell-to Address 2", Customer."Address 2");
+        Job.TestField("Sell-to City", Customer."City");
+        Job.TestField("Sell-to Country/Region Code", Customer."Country/Region Code");
+        Job.TestField("Sell-to County", Customer."County");
+        Job.TestField("Sell-to Phone No.", PersonContact."Phone No.");
+        Job.TestField("Sell-to E-Mail", PersonContact."E-Mail");
+        Job.TestField("Payment Method Code", Customer."Payment Method Code");
+        Job.TestField("Payment Terms Code", Customer."Payment Terms Code");
+        Job.TestField("Bill-to Customer No.", Job."Sell-to Customer No.");
+        Job.TestField("Bill-to Name", Job."Sell-to Customer Name");
+        Job.TestField("Bill-to Name 2", Job."Sell-to Customer Name 2");
+        Job.TestField("Bill-to Address", Job."Sell-to Address");
+        Job.TestField("Bill-to Address 2", Job."Sell-to Address 2");
+        Job.TestField("Bill-to City", Job."Sell-to City");
+        Job.TestField("Bill-to Contact", Job."Sell-to Contact");
+        Job.TestField("Bill-to Contact No.", Job."Sell-to Contact No.");
+        Job.TestField("Bill-to Country/Region Code", Job."Sell-to Country/Region Code");
+        Job.TestField("Bill-to County", Job."Sell-to County");
+    end;
+
+    [Test]
+    procedure BinCodeFromLocationIsPulledOnValidateLocation()
+    var
+        Job: Record Job;
+        Location: Record Location;
+        Bin: Record Bin;
+    begin
+        // [SCENARIO 457693] Verify Bin Code from Location is pulled on validate Location on Job
+        Initialize();
+
+        // [GIVEN] Create Job
+        LibraryJob.CreateJob(Job);
+
+        // [GIVEN] Create Location with mandatory Bin
+        LibraryWarehouse.CreateLocationWMS(Location, true, false, false, false, false);
+
+        // [GIVEN] Create Bin for Location
+        LibraryWarehouse.CreateBin(Bin, Location.Code, LibraryUtility.GenerateRandomCode(Bin.FieldNo(Code), Database::Bin), '', '');
+
+        // [GIVEN] Set Bin to To-Project Bin Code on Location
+        Location.Validate("To-Job Bin Code", Bin.Code);
+        Location.Modify(true);
+
+        // [WHEN] Set Location on Job
+        Job.Validate("Location Code", Location.Code);
+
+        // [THEN] Verify results
+        Assert.AreEqual(Job."Bin Code", Bin.Code, StrSubstNo(BinCodeNotMatchedErr, Job."Bin Code", Bin.Code));
+    end;
+
+    [Test]
+    [HandlerFunctions('MessageHandler')]
+    procedure MessageOccursOnUpdateLocationOnJobIfJobTaskExist()
+    var
+        Job: Record Job;
+        JobTask: Record "Job Task";
+        Location: Record Location;
+        Bin: Record Bin;
+    begin
+        // [SCENARIO 457693] Verify message occurs on update Location on Job if Job Task exist
+        Initialize();
+
+        // [GIVEN] Create Job
+        LibraryJob.CreateJob(Job);
+        LibraryVariableStorage.Enqueue(Database::Job);
+        LibraryVariableStorage.Enqueue(Job.FieldCaption("Location Code"));
+
+        // [GIVEN] Create Job Task
+        LibraryJob.CreateJobTask(Job, JobTask);
+
+        // [GIVEN] Create Location with mandatory Bin
+        LibraryWarehouse.CreateLocationWMS(Location, true, false, false, false, false);
+
+        // [GIVEN] Create Bin for Location
+        LibraryWarehouse.CreateBin(Bin, Location.Code, LibraryUtility.GenerateRandomCode(Bin.FieldNo(Code), Database::Bin), '', '');
+
+        // [GIVEN] Set Bin to To-Project Bin Code on Location
+        Location.Validate("To-Job Bin Code", Bin.Code);
+        Location.Modify(true);
+
+        // [WHEN] Set Location on Job
+        Job.Validate("Location Code", Location.Code);
+
+        // [THEN] Verify results
+    end;
+
+    [Test]
+    procedure LocationAndBinCodeOnJobTaskIfLocationAndBinExistOnJob()
+    var
+        Job: Record Job;
+        JobTask: Record "Job Task";
+        Location: Record Location;
+        Bin: Record Bin;
+    begin
+        // [SCENARIO 457693] Verify Location and Bin Code on Job Task if Location and Bin exist on Job
+        Initialize();
+
+        // [GIVEN] Create Job
+        LibraryJob.CreateJob(Job);
+
+        // [GIVEN] Create Location with mandatory Bin
+        LibraryWarehouse.CreateLocationWMS(Location, true, false, false, false, false);
+
+        // [GIVEN] Create Bin for Location
+        LibraryWarehouse.CreateBin(Bin, Location.Code, LibraryUtility.GenerateRandomCode(Bin.FieldNo(Code), Database::Bin), '', '');
+
+        // [GIVEN] Set Bin to To-Project Bin Code on Location
+        Location.Validate("To-Job Bin Code", Bin.Code);
+        Location.Modify(true);
+
+        // [WHEN] Set Location on Job
+        Job.Validate("Location Code", Location.Code);
+        Job.Modify(true);
+
+        // [GIVEN] Create Job Task
+        LibraryJob.CreateJobTask(Job, JobTask);
+
+        // [THEN] Verify results
+        Assert.AreEqual(JobTask."Location Code", Location.Code, StrSubstNo(LocationCodeNotMatchedErr, JobTask."Location Code", Location.Code));
+        Assert.AreEqual(JobTask."Bin Code", Bin.Code, StrSubstNo(BinCodeNotMatchedErr, JobTask."Bin Code", Bin.Code));
+    end;
+
+    [Test]
+    procedure LocationAndBinCodeOnJobPlanningLineIfLocationAndBinExistOnJobTask()
+    var
+        Job: Record Job;
+        JobTask: Record "Job Task";
+        Location: Record Location;
+        Bin: Record Bin;
+    begin
+        // [SCENARIO 457693] Verify Location and Bin Code on Job Planning Line if Location and Bin exist on Job Task
+        Initialize();
+
+        // [GIVEN] Create Job
+        LibraryJob.CreateJob(Job);
+
+        // [GIVEN] Create Job Task
+        LibraryJob.CreateJobTask(Job, JobTask);
+
+        // [GIVEN] Create Location with mandatory Bin
+        LibraryWarehouse.CreateLocationWMS(Location, true, false, false, false, false);
+
+        // [GIVEN] Create Bin for Location
+        LibraryWarehouse.CreateBin(Bin, Location.Code, LibraryUtility.GenerateRandomCode(Bin.FieldNo(Code), Database::Bin), '', '');
+
+        // [GIVEN] Set Bin to To-Project Bin Code on Location
+        Location.Validate("To-Job Bin Code", Bin.Code);
+        Location.Modify(true);
+
+        // [GIVEN] Set Location on Job
+        JobTask.Validate("Location Code", Location.Code);
+        JobTask.Modify(true);
+
+        // [WHEN] Create Job Planning Line
+        LibraryJob.CreateJobPlanningLine(JobPlanningLine."Line Type"::Budget, JobPlanningLine.Type::Item, JobTask, JobPlanningLine);
+        JobPlanningLine.Validate("No.", LibraryInventory.CreateItemNo());
+        JobPlanningLine.Modify(true);
+
+        // [THEN] Verify results
+        Assert.AreEqual(JobPlanningLine."Location Code", Location.Code, StrSubstNo(LocationCodeNotMatchedErr, JobPlanningLine."Location Code", Location.Code));
+        Assert.AreEqual(JobPlanningLine."Bin Code", Bin.Code, StrSubstNo(BinCodeNotMatchedErr, JobPlanningLine."Bin Code", Bin.Code));
     end;
 
     local procedure Initialize()
@@ -1510,7 +1744,7 @@ codeunit 136350 "UT T Job"
             "No." := LibraryUtility.GenerateGUID();
             "Owner User ID" := UserId;
             "Starting Date" := WorkDate();
-            "Ending Date" := WorkDate + 7;
+            "Ending Date" := WorkDate() + 7;
             Insert();
         end;
 
@@ -1541,7 +1775,7 @@ codeunit 136350 "UT T Job"
     var
         JobCard: TestPage "Job Card";
     begin
-        JobCard.OpenEdit;
+        JobCard.OpenEdit();
         JobCard.GotoRecord(Job);
         JobCard."Project Manager".SetValue(ProjectManager);
         JobCard.Close();
@@ -1685,7 +1919,7 @@ codeunit 136350 "UT T Job"
     begin
         ShipToAddress.Get(LibraryVariableStorage.DequeueText(), LibraryVariableStorage.DequeueText());
         ShipToAddressList.GoToRecord(ShipToAddress);
-        ShipToAddressList.OK.Invoke();
+        ShipToAddressList.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -1693,7 +1927,27 @@ codeunit 136350 "UT T Job"
     procedure CustomerLookupModalHandler(var CustomerLookup: TestPage "Customer Lookup")
     begin
         CustomerLookup.Filter.SetFilter("No.", LibraryVariableStorage.DequeueText());
-        CustomerLookup.OK.Invoke();
+        CustomerLookup.OK().Invoke();
+    end;
+
+    [MessageHandler]
+    procedure MessageHandler(Message: Text[1024])
+    var
+        ExpectedMessage: Text;
+    begin
+        case LibraryVariableStorage.DequeueInteger() of
+            Database::Job:
+                begin
+                    ExpectedMessage := StrSubstNo(TasksNotUpdatedMsg, LibraryVariableStorage.DequeueText());
+                    ExpectedMessage := StrSubstNo(SplitMessageTxt, ExpectedMessage, UpdateTasksManuallyMsg);
+                end;
+            Database::"Job Task":
+                begin
+                    ExpectedMessage := StrSubstNo(PlanningLinesNotUpdatedMsg, LibraryVariableStorage.DequeueText());
+                    ExpectedMessage := StrSubstNo(SplitMessageTxt, ExpectedMessage, UpdatePlanningLinesManuallyMsg);
+                end;
+        end;
+        Assert.ExpectedMessage(ExpectedMessage, Message);
     end;
 }
 

@@ -331,15 +331,6 @@ page 672 "Job Queue Entries"
                 actionref(ShowError_Promoted; ShowError)
                 {
                 }
-#if not CLEAN21
-                actionref(LogEntries_Promoted; LogEntries)
-                {
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Action is being demoted based on overall low usage.';
-                    ObsoleteTag = '21.0';
-                }
-#endif
             }
         }
     }

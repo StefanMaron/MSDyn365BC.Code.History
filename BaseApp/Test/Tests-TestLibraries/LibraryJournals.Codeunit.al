@@ -12,7 +12,7 @@ codeunit 131306 "Library - Journals"
     var
         GenJournalBatch: Record "Gen. Journal Batch";
         NoSeries: Record "No. Series";
-        NoSeriesMgt: Codeunit NoSeriesManagement;
+        NoSeriesCodeunit: Codeunit "No. Series";
         RecRef: RecordRef;
     begin
         // Find a balanced template/batch pair.
@@ -32,12 +32,12 @@ codeunit 131306 "Library - Journals"
         GenJournalLine.Validate("Account No.", AccountNo);
         GenJournalLine.Validate(Amount, Amount);
         if NoSeries.Get(GenJournalBatch."No. Series") then
-            GenJournalLine.Validate("Document No.", NoSeriesMgt.GetNextNo(GenJournalBatch."No. Series", WorkDate(), false)) // Unused but required field for posting.
+            GenJournalLine.Validate("Document No.", NoSeriesCodeunit.PeekNextNo(GenJournalBatch."No. Series")) // Unused but required field for posting.
         else
             GenJournalLine.Validate(
               "Document No.", LibraryUtility.GenerateRandomCode(GenJournalLine.FieldNo("Document No."), DATABASE::"Gen. Journal Line"));
         GenJournalLine.Validate("External Document No.", GenJournalLine."Document No.");  // Unused but required for vendor posting.
-        GenJournalLine.Validate("Source Code", LibraryERM.FindGeneralJournalSourceCode);  // Unused but required for AU, NZ builds
+        GenJournalLine.Validate("Source Code", LibraryERM.FindGeneralJournalSourceCode());  // Unused but required for AU, NZ builds
         GenJournalLine.Validate("Bal. Account Type", BalAccountType);
         GenJournalLine.Validate("Bal. Account No.", BalAccountNo);
         SetBillToPayToNo(GenJournalLine);  // To prevent Bill-to/ Pay-to No. issue in ES.
@@ -79,7 +79,7 @@ codeunit 131306 "Library - Journals"
         GenJournalLine.Validate("Account No.", AccountNo);
         GenJournalLine.Validate(Amount, Amount);
         GenJournalLine.Validate("External Document No.", GenJournalLine."Document No.");  // Unused but required for vendor posting.
-        GenJournalLine.Validate("Source Code", LibraryERM.FindGeneralJournalSourceCode);  // Unused but required for AU, NZ builds
+        GenJournalLine.Validate("Source Code", LibraryERM.FindGeneralJournalSourceCode());  // Unused but required for AU, NZ builds
         GenJournalLine.Validate("Bal. Account Type", BalAccountType);
         GenJournalLine.Validate("Bal. Account No.", BalAccountNo);
         SetBillToPayToNo(GenJournalLine);  // To prevent Bill-to/ Pay-to No. issue in ES.
@@ -135,7 +135,7 @@ codeunit 131306 "Library - Journals"
         if not GenJournalBatch.FindFirst() then begin
             // Create New General Journal Batch.
             LibraryERM.CreateGenJournalBatch(GenJournalBatch, GenJournalTemplateCode);
-            GenJournalBatch.Validate("No. Series", LibraryERM.CreateNoSeriesCode);
+            GenJournalBatch.Validate("No. Series", LibraryERM.CreateNoSeriesCode());
             GenJournalBatch.Validate("Bal. Account Type", GenJournalBatch."Bal. Account Type"::"G/L Account");
         end;
 
@@ -180,10 +180,10 @@ codeunit 131306 "Library - Journals"
 
     local procedure SetLastGenJnlLineFields(var LastGenJnlLine: Record "Gen. Journal Line"; GenJournalBatch: Record "Gen. Journal Batch")
     var
-        NoSeriesMgt: Codeunit NoSeriesManagement;
+        NoSeries: Codeunit "No. Series";
     begin
         if GenJournalBatch."No. Series" <> '' then
-            LastGenJnlLine."Document No." := NoSeriesMgt.GetNextNo(GenJournalBatch."No. Series", WorkDate(), false)
+            LastGenJnlLine."Document No." := NoSeries.PeekNextNo(GenJournalBatch."No. Series")
         else
             LastGenJnlLine."Document No." :=
               LibraryUtility.GenerateRandomCode(LastGenJnlLine.FieldNo("Document No."), DATABASE::"Gen. Journal Line");
@@ -209,7 +209,7 @@ codeunit 131306 "Library - Journals"
             if (GenJournalLine."Gen. Posting Type" = GenJournalLine."Gen. Posting Type"::Purchase) or (GenJournalLine."Bal. Gen. Posting Type" = GenJournalLine."Bal. Gen. Posting Type"::Purchase)
               or (GenJournalLine."Account Type" = GenJournalLine."Account Type"::Vendor) or (GenJournalLine."Bal. Account Type" = GenJournalLine."Bal. Account Type"::Vendor)
             then
-                GenJournalLine.Validate("Bill-to/Pay-to No.", LibraryPurchase.CreateVendorNo)
+                GenJournalLine.Validate("Bill-to/Pay-to No.", LibraryPurchase.CreateVendorNo())
             else
                 GenJournalLine.Validate("Bill-to/Pay-to No.", Customer."No.");
         end;

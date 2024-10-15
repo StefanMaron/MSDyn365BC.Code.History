@@ -50,7 +50,7 @@ codeunit 147526 "SII Initial Documents"
         LibrarySII.VerifyOneNodeWithValueByXPath(
           XMLDoc, XPathSalesFacturaExpedidaTok, '/sii:DescripcionOperacion', RegistroDelPrimerSemestreTxt);
 
-        LibrarySII.AssertLibraryVariableStorage;
+        LibrarySII.AssertLibraryVariableStorage();
     end;
 
     [Test]
@@ -75,7 +75,7 @@ codeunit 147526 "SII Initial Documents"
         LibrarySII.VerifyOneNodeWithValueByXPath(
           XMLDoc, XPathSalesFacturaExpedidaTok, '/sii:DescripcionOperacion', RegistroDelPrimerSemestreTxt);
 
-        LibrarySII.AssertLibraryVariableStorage;
+        LibrarySII.AssertLibraryVariableStorage();
     end;
 
     [Test]
@@ -102,7 +102,7 @@ codeunit 147526 "SII Initial Documents"
         LibrarySII.VerifyOneNodeWithValueByXPath(
           XMLDoc, XPathSalesFacturaExpedidaTok, '/sii:DescripcionOperacion', RegistroDelPrimerSemestreTxt);
 
-        LibrarySII.AssertLibraryVariableStorage;
+        LibrarySII.AssertLibraryVariableStorage();
     end;
 
     [Test]
@@ -140,7 +140,7 @@ codeunit 147526 "SII Initial Documents"
         LibrarySII.VerifyOneNodeWithValueByXPath(
           XMLDoc, XPathPurchFacturaRecibidaTok, '/sii:FechaRegContable', SIIXMLCreator.FormatDate(WorkDate()));
 
-        LibrarySII.AssertLibraryVariableStorage;
+        LibrarySII.AssertLibraryVariableStorage();
     end;
 
     [Test]
@@ -179,7 +179,7 @@ codeunit 147526 "SII Initial Documents"
         LibrarySII.VerifyOneNodeWithValueByXPath(
           XMLDoc, XPathPurchFacturaRecibidaTok, '/sii:FechaRegContable', SIIXMLCreator.FormatDate(WorkDate()));
 
-        LibrarySII.AssertLibraryVariableStorage;
+        LibrarySII.AssertLibraryVariableStorage();
     end;
 
     [Test]
@@ -218,7 +218,7 @@ codeunit 147526 "SII Initial Documents"
         LibrarySII.VerifyOneNodeWithValueByXPath(
           XMLDoc, XPathPurchFacturaRecibidaTok, '/sii:FechaRegContable', SIIXMLCreator.FormatDate(WorkDate()));
 
-        LibrarySII.AssertLibraryVariableStorage;
+        LibrarySII.AssertLibraryVariableStorage();
     end;
 
     [Test]
@@ -237,7 +237,7 @@ codeunit 147526 "SII Initial Documents"
 
         // [GIVEN] Sales Invoice with Non Taxable VAT, "Posting Date" = 01.01.2017 and Total Amount = 120
         LibrarySII.PostSalesDocWithNoTaxableVATOnDate(
-          CustLedgerEntry, SalesHeader."Document Type"::Invoice, SIIInitialDocUpload.GetInitialStartDate, false, 0);
+          CustLedgerEntry, SalesHeader."Document Type"::Invoice, SIIInitialDocUpload.GetInitialStartDate(), false, 0);
 
         // [WHEN] Create xml for Sales Invoice
         Assert.IsTrue(SIIXMLCreator.GenerateXml(CustLedgerEntry, XMLDoc, UploadType::Regular, false), IncorrectXMLDocErr);
@@ -264,7 +264,7 @@ codeunit 147526 "SII Initial Documents"
 
         // [GIVEN] Sales Credit Memo with Non Taxable VAT, "Posting Date" = 01.01.2017 and Total Amount = -120
         LibrarySII.PostSalesDocWithNoTaxableVATOnDate(
-          CustLedgerEntry, SalesHeader."Document Type"::"Credit Memo", SIIInitialDocUpload.GetInitialStartDate, false, 0);
+          CustLedgerEntry, SalesHeader."Document Type"::"Credit Memo", SIIInitialDocUpload.GetInitialStartDate(), false, 0);
 
         // [WHEN] Create xml for Sales Credit Memo
         Assert.IsTrue(SIIXMLCreator.GenerateXml(CustLedgerEntry, XMLDoc, UploadType::Regular, false), IncorrectXMLDocErr);
@@ -292,7 +292,7 @@ codeunit 147526 "SII Initial Documents"
 
         // [GIVEN] Sales Invoice with VAT Exemption, "Posting Date" = 01.01.2017 and Total Amount = 120
         LibrarySII.PostSalesDocWithVATClauseOnDate(
-          CustLedgerEntry, CustLedgerEntry."Document Type"::Invoice, SIIInitialDocUpload.GetInitialStartDate, 0);
+          CustLedgerEntry, CustLedgerEntry."Document Type"::Invoice, SIIInitialDocUpload.GetInitialStartDate(), 0);
 
         // [WHEN] Create xml for Sales Invoice
         Assert.IsTrue(SIIXMLCreator.GenerateXml(CustLedgerEntry, XMLDoc, UploadType::Regular, false), IncorrectXMLDocErr);
@@ -318,7 +318,7 @@ codeunit 147526 "SII Initial Documents"
 
         // [GIVEN] Sales Credit Memo with VAT Exemption, "Posting Date" = 01.01.2017 and Total Amount = -120
         LibrarySII.PostSalesDocWithVATClauseOnDate(
-          CustLedgerEntry, CustLedgerEntry."Document Type"::Invoice, SIIInitialDocUpload.GetInitialStartDate, 0);
+          CustLedgerEntry, CustLedgerEntry."Document Type"::Invoice, SIIInitialDocUpload.GetInitialStartDate(), 0);
 
         // [WHEN] Create xml for Sales Credit Memo
         Assert.IsTrue(SIIXMLCreator.GenerateXml(CustLedgerEntry, XMLDoc, UploadType::Regular, false), IncorrectXMLDocErr);
@@ -389,7 +389,7 @@ codeunit 147526 "SII Initial Documents"
             exit;
 
         LibrarySII.InitSetup(true, false);
-        LibrarySII.BindSubscriptionJobQueue;
+        LibrarySII.BindSubscriptionJobQueue();
         LibrarySetupStorage.Save(DATABASE::"Purchases & Payables Setup");
 
         IsInitialized := true;
@@ -400,13 +400,13 @@ codeunit 147526 "SII Initial Documents"
         SalesHeader: Record "Sales Header";
         SIIInitialDocUpload: Codeunit "SII Initial Doc. Upload";
     begin
-        LibrarySales.CreateSalesHeader(SalesHeader, DocType, LibrarySales.CreateCustomerNo);
-        SalesHeader.Validate("Posting Date", SIIInitialDocUpload.GetInitialStartDate);
+        LibrarySales.CreateSalesHeader(SalesHeader, DocType, LibrarySales.CreateCustomerNo());
+        SalesHeader.Validate("Posting Date", SIIInitialDocUpload.GetInitialStartDate());
         SalesHeader.Validate("Correction Type", CorrectionType);
         SalesHeader.Validate("Operation Description", '');
         SalesHeader.Validate("Operation Description 2", '');
         SalesHeader.Modify(true);
-        LibrarySII.CreateSalesLineWithUnitPrice(SalesHeader, LibraryInventory.CreateItemNo);
+        LibrarySII.CreateSalesLineWithUnitPrice(SalesHeader, LibraryInventory.CreateItemNo());
         CustLedgerEntry.SetRange("Sell-to Customer No.", SalesHeader."Sell-to Customer No.");
         LibraryERM.FindCustomerLedgerEntry(
           CustLedgerEntry, DocType, LibrarySales.PostSalesDocument(SalesHeader, false, false));
@@ -417,13 +417,13 @@ codeunit 147526 "SII Initial Documents"
         PurchHeader: Record "Purchase Header";
         SIIInitialDocUpload: Codeunit "SII Initial Doc. Upload";
     begin
-        LibraryPurchase.CreatePurchHeader(PurchHeader, DocType, LibraryPurchase.CreateVendorNo);
-        PurchHeader.Validate("Posting Date", SIIInitialDocUpload.GetInitialStartDate);
+        LibraryPurchase.CreatePurchHeader(PurchHeader, DocType, LibraryPurchase.CreateVendorNo());
+        PurchHeader.Validate("Posting Date", SIIInitialDocUpload.GetInitialStartDate());
         PurchHeader.Validate("Correction Type", CorrectionType);
         PurchHeader.Validate("Operation Description", '');
         PurchHeader.Validate("Operation Description 2", '');
         PurchHeader.Modify(true);
-        LibrarySII.CreatePurchLineWithUnitCost(PurchHeader, LibraryInventory.CreateItemNo);
+        LibrarySII.CreatePurchLineWithUnitCost(PurchHeader, LibraryInventory.CreateItemNo());
         VendLedgEntry.SetRange("Buy-from Vendor No.", PurchHeader."Buy-from Vendor No.");
         LibraryERM.FindVendorLedgerEntry(
           VendLedgEntry, DocType, LibraryPurchase.PostPurchaseDocument(PurchHeader, false, false));
@@ -441,7 +441,7 @@ codeunit 147526 "SII Initial Documents"
     begin
         LibraryERM.CreateCountryRegion(CountryRegion);
         LibrarySII.CreatePurchHeaderWithSetup(PurchaseHeader, VATBusinessPostingGroup, DocType, CountryRegion.Code);
-        PurchaseHeader.Validate("Posting Date", SIIInitialDocUpload.GetInitialStartDate);
+        PurchaseHeader.Validate("Posting Date", SIIInitialDocUpload.GetInitialStartDate());
         PurchaseHeader.Modify(true);
         LibrarySII.CreatePurchLineWithSetup(
           VATRateReverseCharge, AmountReverse, PurchaseHeader, VATBusinessPostingGroup,

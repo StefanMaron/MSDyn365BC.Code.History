@@ -225,21 +225,19 @@ codeunit 5854 "Invt. Doc. Line-Reserve"
         if Blocked then
             exit;
 
-        with NewInvtDocumentLine do begin
-            if "Line No." = OldInvtDocumentLine."Line No." then
-                if "Quantity (Base)" = OldInvtDocumentLine."Quantity (Base)" then
-                    exit;
-            if "Line No." = 0 then
-                if not InvtDocumentLine.Get("Document Type", "Document No.", "Line No.") then
-                    exit;
-            ReservationManagement.SetReservSource(NewInvtDocumentLine);
-            if "Qty. per Unit of Measure" <> OldInvtDocumentLine."Qty. per Unit of Measure" then
-                ReservationManagement.ModifyUnitOfMeasure();
-            ReservationManagement.DeleteReservEntries(false, "Quantity (Base)");
-            ReservationManagement.ClearSurplus();
-            ReservationManagement.AutoTrack("Quantity (Base)");
-            AssignForPlanning(NewInvtDocumentLine);
-        end;
+        if NewInvtDocumentLine."Line No." = OldInvtDocumentLine."Line No." then
+            if NewInvtDocumentLine."Quantity (Base)" = OldInvtDocumentLine."Quantity (Base)" then
+                exit;
+        if NewInvtDocumentLine."Line No." = 0 then
+            if not InvtDocumentLine.Get(NewInvtDocumentLine."Document Type", NewInvtDocumentLine."Document No.", NewInvtDocumentLine."Line No.") then
+                exit;
+        ReservationManagement.SetReservSource(NewInvtDocumentLine);
+        if NewInvtDocumentLine."Qty. per Unit of Measure" <> OldInvtDocumentLine."Qty. per Unit of Measure" then
+            ReservationManagement.ModifyUnitOfMeasure();
+        ReservationManagement.DeleteReservEntries(false, NewInvtDocumentLine."Quantity (Base)");
+        ReservationManagement.ClearSurplus();
+        ReservationManagement.AutoTrack(NewInvtDocumentLine."Quantity (Base)");
+        AssignForPlanning(NewInvtDocumentLine);
     end;
 
     procedure TransferInvtDocToItemJnlLine(var InvtDocumentLine: Record "Invt. Document Line"; var ItemJournalLine: Record "Item Journal Line"; ReceiptQty: Decimal)
@@ -290,27 +288,27 @@ codeunit 5854 "Invt. Doc. Line-Reserve"
         if Blocked then
             exit;
 
-        with InvtDocumentLine do begin
-            InvtDocumentHeader.Get("Document Type", "Document No.");
-            RedStorno := InvtDocumentHeader.Correction;
-            case "Document Type" of
-                "Document Type"::Receipt:
-                    begin
-                        ReservationManagement.SetReservSource(InvtDocumentLine);
-                        if RedStorno or DeleteItemTracking then
-                            ReservationManagement.SetItemTrackingHandling(1); // Allow Deletion
-                        ReservationManagement.DeleteReservEntries(true, 0);
-                        CalcFields("Reserved Qty. Outbnd. (Base)");
-                    end;
-                "Document Type"::Shipment:
-                    begin
-                        ReservationManagement.SetReservSource(InvtDocumentLine);
-                        if RedStorno or DeleteItemTracking then
-                            ReservationManagement.SetItemTrackingHandling(1); // Allow Deletion
-                        ReservationManagement.DeleteReservEntries(true, 0);
-                        CalcFields("Reserved Qty. Inbnd. (Base)");
-                    end;
-            end;
+        InvtDocumentHeader.Get(InvtDocumentLine."Document Type", InvtDocumentLine."Document No.");
+        RedStorno := InvtDocumentHeader.Correction;
+        case InvtDocumentLine."Document Type" of
+            InvtDocumentLine."Document Type"::Receipt:
+                begin
+                    ReservationManagement.SetReservSource(InvtDocumentLine);
+                    if RedStorno or DeleteItemTracking then
+                        ReservationManagement.SetItemTrackingHandling(1);
+                    // Allow Deletion
+                    ReservationManagement.DeleteReservEntries(true, 0);
+                    InvtDocumentLine.CalcFields("Reserved Qty. Outbnd. (Base)");
+                end;
+            InvtDocumentLine."Document Type"::Shipment:
+                begin
+                    ReservationManagement.SetReservSource(InvtDocumentLine);
+                    if RedStorno or DeleteItemTracking then
+                        ReservationManagement.SetItemTrackingHandling(1);
+                    // Allow Deletion
+                    ReservationManagement.DeleteReservEntries(true, 0);
+                    InvtDocumentLine.CalcFields("Reserved Qty. Inbnd. (Base)");
+                end;
         end;
     end;
 

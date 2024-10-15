@@ -90,22 +90,20 @@ page 35290 "Rec. Docs Analysis Fact Box"
 
     local procedure UpdateStatistics()
     begin
-        with Doc do begin
-            Copy(Rec);
-            SetCurrentKey(Type, "Bill Gr./Pmt. Order No.", "Category Code", "Currency Code");
-            SetFilter("Category Code", CategoryFilter);
-            SetFilter("Currency Code", CurrencyFilter);
-            Show := CalcSums("Remaining Amount", "Remaining Amt. (LCY)");
-            if Show then begin
-                TotalAmt := "Remaining Amount";
-                TotalAmtLCY := "Remaining Amt. (LCY)";
-            end;
-            DocCount := Count;
-            TotalVisible := Show;
-            TotalLCYVisible := Show;
-
-            if Find('=><') then;  // necessary to calculate decimal places
+        Doc.Copy(Rec);
+        Doc.SetCurrentKey(Type, "Bill Gr./Pmt. Order No.", "Category Code", "Currency Code");
+        Doc.SetFilter("Category Code", CategoryFilter);
+        Doc.SetFilter("Currency Code", CurrencyFilter);
+        Show := Doc.CalcSums("Remaining Amount", "Remaining Amt. (LCY)");
+        if Show then begin
+            TotalAmt := Doc."Remaining Amount";
+            TotalAmtLCY := Doc."Remaining Amt. (LCY)";
         end;
+        DocCount := Doc.Count;
+        TotalVisible := Show;
+        TotalLCYVisible := Show;
+
+        if Doc.Find('=><') then;  // necessary to calculate decimal places
     end;
 }
 

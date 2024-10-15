@@ -687,7 +687,7 @@ codeunit 147557 "SII Invoice Amount Treshold"
             exit;
 
         LibrarySII.InitSetup(true, false);
-        LibrarySII.BindSubscriptionJobQueue;
+        LibrarySII.BindSubscriptionJobQueue();
         IsInitialized := true;
     end;
 
@@ -696,12 +696,12 @@ codeunit 147557 "SII Invoice Amount Treshold"
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
     begin
-        LibrarySales.CreateSalesHeader(SalesHeader, DocType, LibrarySales.CreateCustomerNo);
+        LibrarySales.CreateSalesHeader(SalesHeader, DocType, LibrarySales.CreateCustomerNo());
         SalesHeader.Validate("Invoice Type", InvoiceType);
         SalesHeader.Validate("Correction Type", CorrectonType);
         SalesHeader.Modify(true);
         LibrarySales.CreateSalesLine(
-          SalesLine, SalesHeader, SalesLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithSalesSetup, 1);
+          SalesLine, SalesHeader, SalesLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithSalesSetup(), 1);
         SalesLine.Validate("Unit Price", Amount);
         SalesLine.Modify(true);
         LibraryERM.FindCustomerLedgerEntry(
@@ -714,12 +714,12 @@ codeunit 147557 "SII Invoice Amount Treshold"
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
     begin
-        LibraryPurchase.CreatePurchHeader(PurchaseHeader, DocType, LibraryPurchase.CreateVendorNo);
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, DocType, LibraryPurchase.CreateVendorNo());
         PurchaseHeader.Validate("Invoice Type", InvoiceType);
         PurchaseHeader.Validate("Correction Type", CorrectonType);
         PurchaseHeader.Modify(true);
         LibraryPurchase.CreatePurchaseLine(
-          PurchaseLine, PurchaseHeader, PurchaseLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithPurchSetup, 1);
+          PurchaseLine, PurchaseHeader, PurchaseLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithPurchSetup(), 1);
         PurchaseLine.Validate("Direct Unit Cost", Amount);
         PurchaseLine.Modify(true);
         LibraryERM.FindVendorLedgerEntry(
@@ -734,7 +734,7 @@ codeunit 147557 "SII Invoice Amount Treshold"
         ServiceItemLine: Record "Service Item Line";
         ServiceLine: Record "Service Line";
     begin
-        LibrarySII.CreateServiceHeader(ServiceHeader, DocType, LibrarySales.CreateCustomerNo, '');
+        LibrarySII.CreateServiceHeader(ServiceHeader, DocType, LibrarySales.CreateCustomerNo(), '');
         ServiceHeader.Validate("Invoice Type", InvoiceType);
         ServiceHeader.Validate("Correction Type", CorrectonType);
         ServiceHeader.Modify(true);

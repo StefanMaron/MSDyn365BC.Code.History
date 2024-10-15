@@ -4,6 +4,7 @@ table 8402 "Record Set Buffer"
 {
     Caption = 'Record Set Buffer';
     ReplicateData = false;
+    DataClassification = CustomerContent;
 
     fields
     {

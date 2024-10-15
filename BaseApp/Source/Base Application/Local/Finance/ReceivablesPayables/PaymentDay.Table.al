@@ -9,6 +9,7 @@ table 10701 "Payment Day"
     Caption = 'Payment Day';
     DrillDownPageID = "Payment Days";
     LookupPageID = "Payment Days";
+    DataClassification = CustomerContent;
 
     fields
     {

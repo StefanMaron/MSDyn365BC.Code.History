@@ -137,7 +137,9 @@ page 6030 "Service Statistics"
                     Editable = false;
                     ToolTip = 'Specifies the quantity of all G/L account entries, costs, items and/or resource hours in the service order.';
                 }
+#pragma warning disable AA0100
                 field("TotalServLine[1].""Units per Parcel"""; TotalServLine[1]."Units per Parcel")
+#pragma warning restore AA0100
                 {
                     ApplicationArea = Service;
                     Caption = 'Parcels';
@@ -145,7 +147,9 @@ page 6030 "Service Statistics"
                     Editable = false;
                     ToolTip = 'Specifies the total number of parcels in the posted service credit memo.';
                 }
+#pragma warning disable AA0100
                 field("TotalServLine[1].""Net Weight"""; TotalServLine[1]."Net Weight")
+#pragma warning restore AA0100
                 {
                     ApplicationArea = Service;
                     Caption = 'Net Weight';
@@ -153,7 +157,9 @@ page 6030 "Service Statistics"
                     Editable = false;
                     ToolTip = 'Specifies the net weight of the items specified on the service lines in the document.';
                 }
+#pragma warning disable AA0100
                 field("TotalServLine[1].""Gross Weight"""; TotalServLine[1]."Gross Weight")
+#pragma warning restore AA0100
                 {
                     ApplicationArea = Service;
                     Caption = 'Gross Weight';
@@ -161,7 +167,9 @@ page 6030 "Service Statistics"
                     Editable = false;
                     ToolTip = 'Specifies the gross weight of the items on the service lines in the document.';
                 }
+#pragma warning disable AA0100
                 field("TotalServLine[1].""Unit Volume"""; TotalServLine[1]."Unit Volume")
+#pragma warning restore AA0100
                 {
                     ApplicationArea = Service;
                     Caption = 'Volume';
@@ -169,7 +177,9 @@ page 6030 "Service Statistics"
                     Editable = false;
                     ToolTip = 'Specifies the volume of the items on the service lines in the document.';
                 }
+#pragma warning disable AA0100
                 field("TotalServLineLCY[1].""Unit Cost (LCY)"""; TotalServLineLCY[1]."Unit Cost (LCY)")
+#pragma warning restore AA0100
                 {
                     ApplicationArea = Service;
                     AutoFormatType = 1;
@@ -185,7 +195,9 @@ page 6030 "Service Statistics"
                     Editable = false;
                     ToolTip = 'Specifies the total cost, in LCY, of the items in the service document, adjusted for any changes in the original costs of these items.';
                 }
+#pragma warning disable AA0100
                 field("TotalAdjCostLCY[1] - TotalServLineLCY[1].""Unit Cost (LCY)"""; TotalAdjCostLCY[1] - TotalServLineLCY[1]."Unit Cost (LCY)")
+#pragma warning restore AA0100
                 {
                     ApplicationArea = Service;
                     AutoFormatType = 1;
@@ -310,7 +322,9 @@ page 6030 "Service Statistics"
                             Editable = false;
                             ToolTip = 'Specifies the amount of the adjusted profit on the service document, expressed as percentage of the amount in the Amount field.';
                         }
+#pragma warning disable AA0100
                         field("TotalServLineLCY[5].""Unit Cost (LCY)"""; TotalServLineLCY[5]."Unit Cost (LCY)")
+#pragma warning restore AA0100
                         {
                             ApplicationArea = Service;
                             AutoFormatType = 1;
@@ -326,7 +340,9 @@ page 6030 "Service Statistics"
                             Editable = false;
                             ToolTip = 'Specifies the total cost, in LCY, of the items in the service document, adjusted for any changes in the original costs of these items.';
                         }
+#pragma warning disable AA0100
                         field("TotalAdjCostLCY[5] - TotalServLineLCY[5].""Unit Cost (LCY)"""; TotalAdjCostLCY[5] - TotalServLineLCY[5]."Unit Cost (LCY)")
+#pragma warning restore AA0100
                         {
                             ApplicationArea = Service;
                             AutoFormatType = 1;
@@ -436,7 +452,9 @@ page 6030 "Service Statistics"
                             ShowCaption = false;
                             Visible = false;
                         }
+#pragma warning disable AA0100
                         field("TotalServLineLCY[6].""Unit Cost (LCY)"""; TotalServLineLCY[6]."Unit Cost (LCY)")
+#pragma warning restore AA0100
                         {
                             ApplicationArea = Service;
                             AutoFormatType = 1;
@@ -553,7 +571,9 @@ page 6030 "Service Statistics"
                             ShowCaption = false;
                             Visible = false;
                         }
+#pragma warning disable AA0100
                         field("TotalServLineLCY[7].""Unit Cost (LCY)"""; TotalServLineLCY[7]."Unit Cost (LCY)")
+#pragma warning restore AA0100
                         {
                             ApplicationArea = Service;
                             AutoFormatType = 1;
@@ -579,7 +599,9 @@ page 6030 "Service Statistics"
             group(Customer)
             {
                 Caption = 'Customer';
+#pragma warning disable AA0100
                 field("Cust.""Balance (LCY)"""; Cust."Balance (LCY)")
+#pragma warning restore AA0100
                 {
                     ApplicationArea = Service;
                     AutoFormatType = 1;
@@ -653,7 +675,7 @@ page 6030 "Service Statistics"
 
                 IsHandled := false;
                 OnAfterGetRecordAfterCalcProfit(Rec, IsHandled);
-                If not IsHandled then
+                if not IsHandled then
                     if Rec."Prices Including VAT" then begin
                         TotalAmount2[i] := TotalServLine[i].Amount;
                         TotalAmount1[i] := TotalAmount2[i] + VATAmount[i];
@@ -818,8 +840,7 @@ page 6030 "Service Statistics"
             TotalAmount1[IndexNo] := SaveTotalAmount;
         end;
 
-        with TotalServLine[IndexNo] do
-            "Inv. Discount Amount" := "Line Amount" - TotalAmount1[IndexNo];
+        TotalServLine[IndexNo]."Inv. Discount Amount" := TotalServLine[IndexNo]."Line Amount" - TotalAmount1[IndexNo];
         UpdateInvDiscAmount();
     end;
 

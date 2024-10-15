@@ -89,27 +89,26 @@ codeunit 82 "Sales-Post + Print"
         IsHandled := false;
         OnBeforeGetReport(SalesHeader, IsHandled, SendReportAsEmail);
         if not IsHandled then
-            with SalesHeader do
-                case "Document Type" of
-                    "Document Type"::Order:
-                        begin
-                            if Ship then
-                                PrintShip(SalesHeader);
-                            if Invoice then
-                                PrintInvoice(SalesHeader);
-                        end;
-                    "Document Type"::Invoice:
-                        PrintInvoice(SalesHeader);
-                    "Document Type"::"Return Order":
-                        begin
-                            if Receive then
-                                PrintReceive(SalesHeader);
-                            if Invoice then
-                                PrintCrMemo(SalesHeader);
-                        end;
-                    "Document Type"::"Credit Memo":
-                        PrintCrMemo(SalesHeader);
-                end;
+            case SalesHeader."Document Type" of
+                SalesHeader."Document Type"::Order:
+                    begin
+                        if SalesHeader.Ship then
+                            PrintShip(SalesHeader);
+                        if SalesHeader.Invoice then
+                            PrintInvoice(SalesHeader);
+                    end;
+                SalesHeader."Document Type"::Invoice:
+                    PrintInvoice(SalesHeader);
+                SalesHeader."Document Type"::"Return Order":
+                    begin
+                        if SalesHeader.Receive then
+                            PrintReceive(SalesHeader);
+                        if SalesHeader.Invoice then
+                            PrintCrMemo(SalesHeader);
+                    end;
+                SalesHeader."Document Type"::"Credit Memo":
+                    PrintCrMemo(SalesHeader);
+            end;
 
         OnAfterGetReport(SalesHeader, SendReportAsEmail);
     end;

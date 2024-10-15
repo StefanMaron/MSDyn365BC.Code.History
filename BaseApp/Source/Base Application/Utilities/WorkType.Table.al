@@ -11,6 +11,7 @@ table 200 "Work Type"
     Caption = 'Work Type';
     DrillDownPageID = "Work Types";
     LookupPageID = "Work Types";
+    DataClassification = CustomerContent;
 
     fields
     {

@@ -48,97 +48,81 @@ codeunit 7000004 "Document-Move"
     [Scope('OnPrem')]
     procedure MoveBankAccDocs(BankAcc: Record "Bank Account")
     begin
-        with BillGr do begin
-            LockTable();
-            if BillGr2.FindLast() then;
-            Reset();
-            SetCurrentKey("Bank Account No.");
-            SetRange("Bank Account No.", BankAcc."No.");
-            if FindFirst() then
-                Error(Text1100000);
-        end;
+        BillGr.LockTable();
+        if BillGr2.FindLast() then;
+        BillGr.Reset();
+        BillGr.SetCurrentKey("Bank Account No.");
+        BillGr.SetRange("Bank Account No.", BankAcc."No.");
+        if BillGr.FindFirst() then
+            Error(Text1100000);
 
-        with PostedBillGr do begin
-            LockTable();
-            if PostedBillGr2.FindLast() then;
-            Reset();
-            SetCurrentKey("Bank Account No.");
-            SetRange("Bank Account No.", BankAcc."No.");
-            if FindFirst() then
-                Error(Text1100001);
-        end;
+        PostedBillGr.LockTable();
+        if PostedBillGr2.FindLast() then;
+        PostedBillGr.Reset();
+        PostedBillGr.SetCurrentKey("Bank Account No.");
+        PostedBillGr.SetRange("Bank Account No.", BankAcc."No.");
+        if PostedBillGr.FindFirst() then
+            Error(Text1100001);
 
-        with ClosedBillGr do begin
-            LockTable();
-            if ClosedBillGr2.FindLast() then;
-            Reset();
-            SetCurrentKey("Bank Account No.");
-            SetRange("Bank Account No.", BankAcc."No.");
-            AccountingPeriod.SetRange(Closed, false);
-            if AccountingPeriod.FindFirst() then
-                SetFilter("Closing Date", '>=%1', AccountingPeriod."Starting Date");
-            if FindFirst() then
-                Error(Text1100002);
-            SetRange("Closing Date");
-            ModifyAll("Bank Account No.", '');
-        end;
+        ClosedBillGr.LockTable();
+        if ClosedBillGr2.FindLast() then;
+        ClosedBillGr.Reset();
+        ClosedBillGr.SetCurrentKey("Bank Account No.");
+        ClosedBillGr.SetRange("Bank Account No.", BankAcc."No.");
+        AccountingPeriod.SetRange(Closed, false);
+        if AccountingPeriod.FindFirst() then
+            ClosedBillGr.SetFilter("Closing Date", '>=%1', AccountingPeriod."Starting Date");
+        if ClosedBillGr.FindFirst() then
+            Error(Text1100002);
+        ClosedBillGr.SetRange("Closing Date");
+        ClosedBillGr.ModifyAll("Bank Account No.", '');
 
-        with PmtOrd do begin
-            LockTable();
-            if PmtOrd2.FindLast() then;
-            Reset();
-            SetCurrentKey("Bank Account No.");
-            SetRange("Bank Account No.", BankAcc."No.");
-            if FindFirst() then
-                Error(Text1100003);
-        end;
+        PmtOrd.LockTable();
+        if PmtOrd2.FindLast() then;
+        PmtOrd.Reset();
+        PmtOrd.SetCurrentKey("Bank Account No.");
+        PmtOrd.SetRange("Bank Account No.", BankAcc."No.");
+        if PmtOrd.FindFirst() then
+            Error(Text1100003);
 
-        with PostedPmtOrd do begin
-            LockTable();
-            if PostedPmtOrd2.FindLast() then;
-            Reset();
-            SetCurrentKey("Bank Account No.");
-            SetRange("Bank Account No.", BankAcc."No.");
-            if FindFirst() then
-                Error(Text1100004);
-        end;
+        PostedPmtOrd.LockTable();
+        if PostedPmtOrd2.FindLast() then;
+        PostedPmtOrd.Reset();
+        PostedPmtOrd.SetCurrentKey("Bank Account No.");
+        PostedPmtOrd.SetRange("Bank Account No.", BankAcc."No.");
+        if PostedPmtOrd.FindFirst() then
+            Error(Text1100004);
 
-        with ClosedPmtOrd do begin
-            LockTable();
-            if ClosedPmtOrd2.FindLast() then;
-            Reset();
-            SetCurrentKey("Bank Account No.");
-            SetRange("Bank Account No.", BankAcc."No.");
-            AccountingPeriod.SetRange(Closed, false);
-            if AccountingPeriod.FindFirst() then
-                SetFilter("Closing Date", '>=%1', AccountingPeriod."Starting Date");
-            if FindFirst() then
-                Error(Text1100005);
-            SetRange("Closing Date");
-            ModifyAll("Bank Account No.", '');
-        end;
+        ClosedPmtOrd.LockTable();
+        if ClosedPmtOrd2.FindLast() then;
+        ClosedPmtOrd.Reset();
+        ClosedPmtOrd.SetCurrentKey("Bank Account No.");
+        ClosedPmtOrd.SetRange("Bank Account No.", BankAcc."No.");
+        AccountingPeriod.SetRange(Closed, false);
+        if AccountingPeriod.FindFirst() then
+            ClosedPmtOrd.SetFilter("Closing Date", '>=%1', AccountingPeriod."Starting Date");
+        if ClosedPmtOrd.FindFirst() then
+            Error(Text1100005);
+        ClosedPmtOrd.SetRange("Closing Date");
+        ClosedPmtOrd.ModifyAll("Bank Account No.", '');
     end;
 
     [Scope('OnPrem')]
     procedure MoveReceivableDocs(Cust: Record Customer)
     begin
-        with ClosedDoc do begin
-            Reset();
-            SetCurrentKey("Account No.", "Honored/Rejtd. at Date");
-            SetRange("Account No.", Cust."No.");
-            ModifyAll("Account No.", '');
-        end;
+        ClosedDoc.Reset();
+        ClosedDoc.SetCurrentKey("Account No.", "Honored/Rejtd. at Date");
+        ClosedDoc.SetRange("Account No.", Cust."No.");
+        ClosedDoc.ModifyAll("Account No.", '');
     end;
 
     [Scope('OnPrem')]
     procedure MovePayableDocs(Vend: Record Vendor)
     begin
-        with ClosedDoc do begin
-            Reset();
-            SetCurrentKey("Account No.", "Honored/Rejtd. at Date");
-            SetRange("Account No.", Vend."No.");
-            ModifyAll("Account No.", '');
-        end;
+        ClosedDoc.Reset();
+        ClosedDoc.SetCurrentKey("Account No.", "Honored/Rejtd. at Date");
+        ClosedDoc.SetRange("Account No.", Vend."No.");
+        ClosedDoc.ModifyAll("Account No.", '');
     end;
 }
 

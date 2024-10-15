@@ -13,6 +13,7 @@ using Microsoft.Sales.Customer;
 table 381 "VAT Registration No. Format"
 {
     Caption = 'VAT Registration No. Format';
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -64,13 +65,18 @@ table 381 "VAT Registration No. Format"
         Text1100004: Label 'The first character (T Element) of the number is invalid.';
         Text1100005: Label 'There should not be any alphabetic characters in the mid part of the number.';
         Text1100006: Label 'The control element is not correct.';
+        VATRegistrationNumberErr: Label 'The entered VAT Registration number for %1 %2 is not in agreement with the format specified for Country/Region Code %3.\', Comment = '%1 - Record Type, %2 - Record No., %3 - Country Region Code';
 
     procedure Test(VATRegNo: Text[20]; CountryCode: Code[10]; Number: Code[20]; TableID: Option): Boolean
     var
         CompanyInfo: Record "Company Information";
+        Customer: Record Customer;
+        Vendor: Record Vendor;
+        Contact: Record Contact;
         Check: Boolean;
         Finish: Boolean;
         TextString: Text;
+        ErrorMsg: Text;
         IsHandled: Boolean;
         ValidationCheck: Boolean;
     begin
@@ -99,8 +105,26 @@ table 381 "VAT Registration No. Format"
                     ValidationCheck := true;
             until Check or (Next() = 0);
 
-        if not Check then
-            Error('%1%2', StrSubstNo(Text000, "Country/Region Code"), StrSubstNo(Text001, TextString));
+        if not Check then begin
+            case TableID of
+                DATABASE::Customer:
+                    if Customer.Get(Number) then
+                        ErrorMsg := StrSubstNo(VATRegistrationNumberErr, Customer.TableCaption, Customer."No.", "Country/Region Code");
+                DATABASE::Vendor:
+                    if Vendor.Get(Number) then
+                        ErrorMsg := StrSubstNo(VATRegistrationNumberErr, Vendor.TableCaption, Vendor."No.", "Country/Region Code");
+                DATABASE::Contact:
+                    if Contact.Get(Number) then
+                        ErrorMsg := StrSubstNo(VATRegistrationNumberErr, Contact.TableCaption, Contact."No.", "Country/Region Code");
+                else begin
+                    IsHandled := false;
+                    OnConstructErrorMessageIfNotCheck(VATRegistrationNumberErr, Number, TableID, ErrorMsg, IsHandled);
+                    if not IsHandled then
+                        ErrorMsg := StrSubstNo(Text000, "Country/Region Code");
+                end;
+            end;
+            Error('%1%2', ErrorMsg, StrSubstNo(Text001, TextString));
+        end;
 
         if ValidationCheck then
             CheckConfirmVATRegNo(VATRegNo);
@@ -518,6 +542,11 @@ table 381 "VAT Registration No. Format"
 
     [IntegrationEvent(false, false)]
     local procedure OnTestTable(VATRegNo: Text[20]; CountryCode: Code[10]; Number: Code[20]; TableID: Option)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnConstructErrorMessageIfNotCheck(ErrorMessageLbl: Text; Number: Code[20]; TableID: Option; var ErrorMsg: Text; var IsHandled: Boolean)
     begin
     end;
 }

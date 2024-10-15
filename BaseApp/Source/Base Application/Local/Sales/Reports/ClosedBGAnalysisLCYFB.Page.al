@@ -10,7 +10,7 @@ using Microsoft.Sales.Receivables;
 page 35294 "Closed BG Analysis LCY FB"
 {
     Caption = 'Closed BG Analysis LCY FB';
-    DataCaptionExpression = Caption();
+    DataCaptionExpression = Rec.Caption();
     Editable = false;
     PageType = CardPart;
     SourceTable = "Closed Bill Group";
@@ -108,35 +108,33 @@ page 35294 "Closed BG Analysis LCY FB"
 
     local procedure UpdateStatistics()
     begin
-        with ClosedDoc do begin
-            SetCurrentKey(Type, "Collection Agent", "Bill Gr./Pmt. Order No.", "Currency Code", Status, Redrawn);
-            SetRange(Type, Type::Receivable);
-            SetRange("Collection Agent", "Collection Agent"::Bank);
-            SetRange("Bill Gr./Pmt. Order No.", Rec."No.");
-            Rec.CopyFilter("Global Dimension 1 Filter", "Global Dimension 1 Code");
-            Rec.CopyFilter("Global Dimension 2 Filter", "Global Dimension 2 Code");
+        ClosedDoc.SetCurrentKey(Type, "Collection Agent", "Bill Gr./Pmt. Order No.", "Currency Code", Status, Redrawn);
+        ClosedDoc.SetRange(Type, ClosedDoc.Type::Receivable);
+        ClosedDoc.SetRange("Collection Agent", ClosedDoc."Collection Agent"::Bank);
+        ClosedDoc.SetRange("Bill Gr./Pmt. Order No.", Rec."No.");
+        Rec.CopyFilter("Global Dimension 1 Filter", ClosedDoc."Global Dimension 1 Code");
+        Rec.CopyFilter("Global Dimension 2 Filter", ClosedDoc."Global Dimension 2 Code");
 
-            SetRange(Status, Status::Honored);
-            SetRange(Redrawn, true);
-            CalcSums("Amount for Collection", "Amt. for Collection (LCY)");
-            RedrawnAmt := "Amount for Collection";
-            RedrawnAmtLCY := "Amt. for Collection (LCY)";
-            NoRedrawn := Count;
+        ClosedDoc.SetRange(Status, ClosedDoc.Status::Honored);
+        ClosedDoc.SetRange(Redrawn, true);
+        ClosedDoc.CalcSums("Amount for Collection", "Amt. for Collection (LCY)");
+        RedrawnAmt := ClosedDoc."Amount for Collection";
+        RedrawnAmtLCY := ClosedDoc."Amt. for Collection (LCY)";
+        NoRedrawn := ClosedDoc.Count;
 
-            SetRange(Redrawn, false);
-            CalcSums("Amount for Collection", "Amt. for Collection (LCY)");
-            HonoredAmt := "Amount for Collection";
-            HonoredAmtLCY := "Amt. for Collection (LCY)";
-            NoHonored := Count;
-            SetRange(Redrawn);
+        ClosedDoc.SetRange(Redrawn, false);
+        ClosedDoc.CalcSums("Amount for Collection", "Amt. for Collection (LCY)");
+        HonoredAmt := ClosedDoc."Amount for Collection";
+        HonoredAmtLCY := ClosedDoc."Amt. for Collection (LCY)";
+        NoHonored := ClosedDoc.Count;
+        ClosedDoc.SetRange(Redrawn);
 
-            SetRange(Status, Status::Rejected);
-            CalcSums("Amount for Collection", "Amt. for Collection (LCY)");
-            RejectedAmt := "Amount for Collection";
-            RejectedAmtLCY := "Amt. for Collection (LCY)";
-            NoRejected := Count;
-            SetRange(Status);
-        end;
+        ClosedDoc.SetRange(Status, ClosedDoc.Status::Rejected);
+        ClosedDoc.CalcSums("Amount for Collection", "Amt. for Collection (LCY)");
+        RejectedAmt := ClosedDoc."Amount for Collection";
+        RejectedAmtLCY := ClosedDoc."Amt. for Collection (LCY)";
+        NoRejected := ClosedDoc.Count;
+        ClosedDoc.SetRange(Status);
     end;
 }
 

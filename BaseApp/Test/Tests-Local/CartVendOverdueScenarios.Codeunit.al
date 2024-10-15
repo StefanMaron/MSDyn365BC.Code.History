@@ -209,7 +209,7 @@ codeunit 147505 "Cart. Vend. Overdue Scenarios"
         SaveReportAsXML(
           Vendor, StartingDate, EndingDate, ShowPayments::Overdue);
 
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
 
         // Verification: verify report data
         ReportVerification(Vendor, PostingDate, PostingDelta);
@@ -254,7 +254,7 @@ codeunit 147505 "Cart. Vend. Overdue Scenarios"
         SaveReportAsXML(
           Vendor, StartingDate, EndingDate, ShowPayments::"Legally Overdue");
 
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
 
         // Verification: verify report data
         ReportVerification(Vendor, PostingDate, PostingDelta);
@@ -300,7 +300,7 @@ codeunit 147505 "Cart. Vend. Overdue Scenarios"
         SaveReportAsXML(
           Vendor, StartingDate, EndingDate, ShowPayments::Overdue);
 
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
 
         // Exercise: unapply payment then try to open the report
         SelectVendorLedgerEntry(
@@ -311,7 +311,7 @@ codeunit 147505 "Cart. Vend. Overdue Scenarios"
         SaveReportAsXML(
           Vendor, StartingDate, EndingDate, ShowPayments::Overdue);
 
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
 
         // Verification: verify report data
         VerifyReportInvoiceDescriptionColumn(Vendor, PostingDate);
@@ -599,8 +599,8 @@ codeunit 147505 "Cart. Vend. Overdue Scenarios"
     var
         PaymentTermsCode: Code[10];
     begin
-        CreateInstallmentGroup;
-        PaymentTermsCode := CreateInstallmentGroup;
+        CreateInstallmentGroup();
+        PaymentTermsCode := CreateInstallmentGroup();
 
         Installment.SetRange("Payment Terms Code", PaymentTermsCode);
         Installment.FindFirst();
@@ -626,7 +626,7 @@ codeunit 147505 "Cart. Vend. Overdue Scenarios"
     [Scope('OnPrem')]
     procedure VendorOverduePaymentsRequestPageHandler(var VendorOverduePayments: TestRequestPage "Vendor - Overdue Payments")
     begin
-        VendorOverduePayments.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        VendorOverduePayments.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 }
 

@@ -175,21 +175,21 @@ page 673 "Job Queue Entry Card"
                 field("Starting Time"; Rec."Starting Time")
                 {
                     ApplicationArea = Basic, Suite;
-                    Editable = Rec."Recurring Job" = TRUE;
+                    Editable = Rec."Recurring Job" = true;
                     Importance = Promoted;
                     ToolTip = 'Specifies the earliest time of the day that the recurring job queue entry is to be run.';
                 }
                 field("Ending Time"; Rec."Ending Time")
                 {
                     ApplicationArea = Basic, Suite;
-                    Editable = Rec."Recurring Job" = TRUE;
+                    Editable = Rec."Recurring Job" = true;
                     Importance = Promoted;
                     ToolTip = 'Specifies the latest time of the day that the recurring job queue entry is to be run.';
                 }
                 field("No. of Minutes between Runs"; Rec."No. of Minutes between Runs")
                 {
                     ApplicationArea = Basic, Suite;
-                    Editable = Rec."Recurring Job" = TRUE;
+                    Editable = Rec."Recurring Job" = true;
                     Importance = Promoted;
                     ToolTip = 'Specifies the minimum number of minutes that are to elapse between runs of a job queue entry. The value cannot be less than one minute. This field only has meaning if the job queue entry is set to be a recurring job. If you use a no. of minutes between runs, the date formula setting is cleared.';
                 }
@@ -321,7 +321,7 @@ page 673 "Job Queue Entry Card"
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Send A&pproval Request';
-                    Enabled = Not IsPendingApproval and IsUserDelegated;
+                    Enabled = not IsPendingApproval and IsUserDelegated;
                     Visible = IsUserDelegated;
                     Image = SendApprovalRequest;
                     ToolTip = 'Request approval of the job queue entry.';

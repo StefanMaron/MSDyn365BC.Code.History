@@ -1,4 +1,4 @@
-﻿// ------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -11,7 +11,7 @@ using Microsoft.Purchases.Payables;
 page 7000054 "Posted Payment Orders"
 {
     Caption = 'Posted Payment Orders';
-    DataCaptionExpression = Caption();
+    DataCaptionExpression = Rec.Caption();
     DeleteAllowed = false;
     InsertAllowed = false;
     PageType = Document;
@@ -203,7 +203,6 @@ page 7000054 "Posted Payment Orders"
 
                 trigger OnAction()
                 var
-                    Option: Integer;
                 begin
                     Navigate.SetDoc(Rec."Posting Date", Rec."No.");
                     Navigate.Run();

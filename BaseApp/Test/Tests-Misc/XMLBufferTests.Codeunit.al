@@ -179,11 +179,11 @@ codeunit 139200 "XML Buffer Tests"
         TempXMLBuffer.AddElement(ElementName, ElementValue);
 
         // [THEN] The XML Buffer root node has one child with the same name and value
-        Assert.IsTrue(TempXMLBuffer.HasChildNodes, 'root element should have children.');
-        Assert.AreEqual(1, TempXMLBuffer.CountChildElements, 'Incorrect number of child nodes');
+        Assert.IsTrue(TempXMLBuffer.HasChildNodes(), 'root element should have children.');
+        Assert.AreEqual(1, TempXMLBuffer.CountChildElements(), 'Incorrect number of child nodes');
         Assert.IsTrue(TempXMLBuffer.FindChildElements(TempChildXMLBuffer), 'root element should have children.');
         Assert.AreEqual(ElementName, TempChildXMLBuffer.Name, 'Child name mismatch.');
-        Assert.AreEqual(ElementValue, TempChildXMLBuffer.GetValue, 'Child value mismatch.');
+        Assert.AreEqual(ElementValue, TempChildXMLBuffer.GetValue(), 'Child value mismatch.');
     end;
 
     [Test]
@@ -214,10 +214,10 @@ codeunit 139200 "XML Buffer Tests"
         TempXMLBuffer.AddProcessingInstruction(PIInstructionName, PIInstructionValue);
 
         // [THEN] The XML Buffer root node has one processing instruction with the same name and value
-        Assert.AreEqual(1, TempXMLBuffer.CountProcessingInstructions, 'Incorrect number of child processing instructions');
+        Assert.AreEqual(1, TempXMLBuffer.CountProcessingInstructions(), 'Incorrect number of child processing instructions');
         Assert.IsTrue(TempXMLBuffer.FindProcessingInstructions(TempChildXMLBuffer), 'element should have processing instructions.');
         Assert.AreEqual(PIInstructionName, TempChildXMLBuffer.Name, 'Processing Instruction name mismatch.');
-        Assert.AreEqual(PIInstructionValue, TempChildXMLBuffer.GetValue, 'Processing Instruction value mismatch.');
+        Assert.AreEqual(PIInstructionValue, TempChildXMLBuffer.GetValue(), 'Processing Instruction value mismatch.');
     end;
 
     [Test]
@@ -241,11 +241,11 @@ codeunit 139200 "XML Buffer Tests"
         TempXMLBuffer.AddElement(ElementName, ElementValue);
 
         // [THEN] The XML Buffer root node has one child with the same name and value
-        Assert.IsTrue(TempXMLBuffer.HasChildNodes, 'root element should have children.');
-        Assert.AreEqual(1, TempXMLBuffer.CountChildElements, 'Incorrect number of child nodes');
+        Assert.IsTrue(TempXMLBuffer.HasChildNodes(), 'root element should have children.');
+        Assert.AreEqual(1, TempXMLBuffer.CountChildElements(), 'Incorrect number of child nodes');
         Assert.IsTrue(TempXMLBuffer.FindChildElements(TempChildXMLBuffer), 'root element should have children.');
         Assert.AreEqual(ElementName, TempChildXMLBuffer.Name, 'Child name mismatch.');
-        Assert.AreEqual(ElementValue, TempChildXMLBuffer.GetValue, 'Child value mismatch.');
+        Assert.AreEqual(ElementValue, TempChildXMLBuffer.GetValue(), 'Child value mismatch.');
     end;
 
     [Test]
@@ -277,10 +277,10 @@ codeunit 139200 "XML Buffer Tests"
         TempXMLBuffer.AddProcessingInstruction(PIInstructionName, PIInstructionValue);
 
         // [THEN] The XML Buffer root node has one processing instruction with the same name and value
-        Assert.AreEqual(1, TempXMLBuffer.CountProcessingInstructions, 'Incorrect number of child processing instructions');
+        Assert.AreEqual(1, TempXMLBuffer.CountProcessingInstructions(), 'Incorrect number of child processing instructions');
         Assert.IsTrue(TempXMLBuffer.FindProcessingInstructions(TempChildXMLBuffer), 'element should have processing instructions.');
         Assert.AreEqual(PIInstructionName, TempChildXMLBuffer.Name, 'Processing Instruction name mismatch.');
-        Assert.AreEqual(PIInstructionValue, TempChildXMLBuffer.GetValue, 'Processing Instruction value mismatch.');
+        Assert.AreEqual(PIInstructionValue, TempChildXMLBuffer.GetValue(), 'Processing Instruction value mismatch.');
     end;
 
     [Test]
@@ -345,7 +345,7 @@ codeunit 139200 "XML Buffer Tests"
         TempXMLBuffer.AddAttribute(
           CopyStr(LibraryUtility.GenerateRandomAlphabeticText(10, 0), 1, 250),
           CopyStr(LibraryUtility.GenerateRandomAlphabeticText(10, 0), 1, 250));
-        TempXMLBuffer.GetParent;
+        TempXMLBuffer.GetParent();
         TempXMLBuffer.AddElement(ElementName, ElementValue);
         TempXMLBuffer.AddElement(ElementName, ElementValue);
         // [WHEN] XMLBuffer.FindNodesByXPath is called with the name of these elements
@@ -358,10 +358,10 @@ codeunit 139200 "XML Buffer Tests"
         Assert.AreEqual(ElementName, TempChildXMLBuffer.Name, 'First child name is incorrect.');
         TempChildXMLBuffer.Next();
         Assert.AreEqual(ElementName, TempChildXMLBuffer.Name, 'Second child name is incorrect.');
-        Assert.AreEqual(ElementValue, TempChildXMLBuffer.GetValue, 'Second child value is incorrect.');
+        Assert.AreEqual(ElementValue, TempChildXMLBuffer.GetValue(), 'Second child value is incorrect.');
         TempChildXMLBuffer.Next();
         Assert.AreEqual(ElementName, TempChildXMLBuffer.Name, 'Third child name is incorrect.');
-        Assert.AreEqual(ElementValue, TempChildXMLBuffer.GetValue, 'Third child value is incorrect.');
+        Assert.AreEqual(ElementValue, TempChildXMLBuffer.GetValue(), 'Third child value is incorrect.');
         TempChildXMLBuffer.Next();
     end;
 
@@ -384,7 +384,7 @@ codeunit 139200 "XML Buffer Tests"
         XMLBuffer.AddAttribute(
           CopyStr(LibraryUtility.GenerateRandomAlphabeticText(10, 0), 1, 250),
           CopyStr(LibraryUtility.GenerateRandomAlphabeticText(10, 0), 1, 250));
-        XMLBuffer.GetParent;
+        XMLBuffer.GetParent();
         XMLBuffer.AddElement(ElementName, ElementValue);
         XMLBuffer.AddElement(ElementName, ElementValue);
         Assert.IsTrue(
@@ -394,10 +394,10 @@ codeunit 139200 "XML Buffer Tests"
         Assert.AreEqual(ElementName, TempChildXMLBuffer.Name, 'First child name is incorrect.');
         TempChildXMLBuffer.Next();
         Assert.AreEqual(ElementName, TempChildXMLBuffer.Name, 'Second child name is incorrect.');
-        Assert.AreEqual(ElementValue, TempChildXMLBuffer.GetValue, 'Second child value is incorrect.');
+        Assert.AreEqual(ElementValue, TempChildXMLBuffer.GetValue(), 'Second child value is incorrect.');
         TempChildXMLBuffer.Next();
         Assert.AreEqual(ElementName, TempChildXMLBuffer.Name, 'Third child name is incorrect.');
-        Assert.AreEqual(ElementValue, TempChildXMLBuffer.GetValue, 'Third child value is incorrect.');
+        Assert.AreEqual(ElementValue, TempChildXMLBuffer.GetValue(), 'Third child value is incorrect.');
         TempChildXMLBuffer.Next();
     end;
 
@@ -553,7 +553,7 @@ codeunit 139200 "XML Buffer Tests"
         ResultServerFileName: Text;
     begin
         // [GIVEN] An XML file
-        ServerFileName := CreateXmlFile;
+        ServerFileName := CreateXmlFile();
         // [WHEN] The XML file is loaded into NAV using permanent XML Buffer and saved again to disk
         XMLBuffer.Load(ServerFileName);
         ResultServerFileName := FileManagement.ServerTempFileName('.xml');
@@ -571,7 +571,7 @@ codeunit 139200 "XML Buffer Tests"
         ResultServerFileName: Text;
     begin
         // [GIVEN] An XML file
-        ServerFileName := CreateXmlFile;
+        ServerFileName := CreateXmlFile();
         // [WHEN] The XML file is loaded into NAV using permanent XML Buffer and saved again to disk
         TempXMLBuffer.Load(ServerFileName);
         ResultServerFileName := FileManagement.ServerTempFileName('.xml');
@@ -589,7 +589,7 @@ codeunit 139200 "XML Buffer Tests"
         InStream: InStream;
     begin
         // [GIVEN] An input stream
-        File.Open(CreateXmlFile, TEXTENCODING::UTF8);
+        File.Open(CreateXmlFile(), TEXTENCODING::UTF8);
         File.CreateInStream(InStream);
 
         // [WHEN] Loading the input stream
@@ -618,7 +618,7 @@ codeunit 139200 "XML Buffer Tests"
         // [THEN] The xml text elements and attributes have been inserted into proper XML Buffer records
         Assert.AreEqual('RootElement', XMLBuffer.Name, '');
         Assert.AreEqual('namespaceURI', XMLBuffer.GetAttributeValue('xmlns'), '');
-        Assert.AreEqual(1, XMLBuffer.CountChildElements, 'There should be exactly one child element.');
+        Assert.AreEqual(1, XMLBuffer.CountChildElements(), 'There should be exactly one child element.');
     end;
 
     [Test]
@@ -644,12 +644,12 @@ codeunit 139200 "XML Buffer Tests"
         XMLBuffer.AddNonEmptyLastElement('nonEmptyElement', 'value2');
 
         // [THEN] The root node contains four children
-        Assert.AreEqual(4, XMLBuffer.CountChildElements, 'Incorrect number of child elements of the root element.');
+        Assert.AreEqual(4, XMLBuffer.CountChildElements(), 'Incorrect number of child elements of the root element.');
         // [THEN] The first group node does not contain any child nodes
-        Assert.IsFalse(GroupNodeXMLBuffer.HasChildNodes, 'The group node should not have any child elements.');
+        Assert.IsFalse(GroupNodeXMLBuffer.HasChildNodes(), 'The group node should not have any child elements.');
         // [THEN] The second group node has exactly one child element
-        Assert.IsTrue(GroupNode2XMLBuffer.HasChildNodes, 'The second group node should have children.');
-        Assert.AreEqual(1, GroupNode2XMLBuffer.CountChildElements, 'Incorrect number of child elements of the root element.');
+        Assert.IsTrue(GroupNode2XMLBuffer.HasChildNodes(), 'The second group node should have children.');
+        Assert.AreEqual(1, GroupNode2XMLBuffer.CountChildElements(), 'Incorrect number of child elements of the root element.');
     end;
 
     [Test]
@@ -672,7 +672,7 @@ codeunit 139200 "XML Buffer Tests"
 
         // [WHEN] A group node C is added between child element 1 and 2
         TempXMLBuffer.AddGroupElementAt('newGroupBetweenElement1and2', Element2Position);
-        TempXMLBuffer.GetParent;
+        TempXMLBuffer.GetParent();
 
         // [THEN] In order, the child elements of the root node are A, C, B
         Assert.IsTrue(TempXMLBuffer.FindChildElements(TempChildElementsXMLBuffer), 'No child elements were found.');
@@ -700,7 +700,7 @@ codeunit 139200 "XML Buffer Tests"
 
         // [GIVEN] A group node C is added between child element 1 and 2
         TempXMLBuffer.AddGroupElementAt('newGroupBetweenElement1and2', 2);
-        TempXMLBuffer.GetParent;
+        TempXMLBuffer.GetParent();
 
         // [WHEN] Saving and then loading the XML Buffer
         // [THEN] The two XML Buffer lists are identical
@@ -718,7 +718,7 @@ codeunit 139200 "XML Buffer Tests"
 
         XMLBuffer.DeleteAll();
         XMLBuffer."Parent Entry No." := 1;
-        XMLBuffer.GetParent;
+        XMLBuffer.GetParent();
         XMLBuffer.TestField("Entry No.", 0);
     end;
 
@@ -741,7 +741,7 @@ codeunit 139200 "XML Buffer Tests"
         TempXMLBuffer.AddElement('s2:Street', LibraryUtility.GenerateRandomAlphabeticText(5, 1));
         TempXMLBuffer.AddElement('s2:HouseNumber', LibraryUtility.GenerateRandomNumericText(3));
         TempXMLBuffer.AddElement('s2:PostalCode', LibraryUtility.GenerateRandomAlphabeticText(6, 0));
-        TempXMLBuffer.GetParent;
+        TempXMLBuffer.GetParent();
 
         // [WHEN] Saving and then loading the XML Buffer
         // [THEN] The two XML Buffer lists are identical
@@ -776,7 +776,6 @@ codeunit 139200 "XML Buffer Tests"
     procedure InsertAttributeWithNameSpace()
     var
         TempXMLBuffer: Record "XML Buffer" temporary;
-        TempXMLBufferAttributes: Record "XML Buffer" temporary;
         XmlNodeDotNet: DotNet XmlNode;
         FileName: Text;
     begin
@@ -821,7 +820,6 @@ codeunit 139200 "XML Buffer Tests"
         TempBlob: Codeunit "Temp Blob";
         TempXMLBuffer: Record "XML Buffer" temporary;
         XmlBufferReader: Codeunit "XML Buffer Reader";
-        FileName: Text;
     begin
         // [FEAUTE] [UT]
         // [SCENARIO 405913] Stan can save Xml Buffer with an attribute entry having blank namespace. 
@@ -857,13 +855,13 @@ codeunit 139200 "XML Buffer Tests"
 
         Assert.IsFalse(TempXMLBuffer.FindChildElements(TempIgnoredXMLBuffer), 'root element should not have child elements.');
         if NumNamespaces = 0 then
-            Assert.IsFalse(TempXMLBuffer.HasChildNodes, 'root element should not have children.')
+            Assert.IsFalse(TempXMLBuffer.HasChildNodes(), 'root element should not have children.')
         else
-            Assert.IsTrue(TempXMLBuffer.HasChildNodes, 'root element should have children.');
+            Assert.IsTrue(TempXMLBuffer.HasChildNodes(), 'root element should have children.');
 
         Assert.AreEqual(RootNodeName, TempXMLBuffer.Name, 'root element name is wrong');
-        Assert.AreEqual(0, TempXMLBuffer.CountChildElements, 'root element has an incorrect number of child nodes');
-        Assert.AreEqual(NumNamespaces, TempXMLBuffer.CountAttributes, 'root element has incorrect number of attributes');
+        Assert.AreEqual(0, TempXMLBuffer.CountChildElements(), 'root element has an incorrect number of child nodes');
+        Assert.AreEqual(NumNamespaces, TempXMLBuffer.CountAttributes(), 'root element has incorrect number of attributes');
 
         if NumNamespaces > 0 then begin
             Assert.IsTrue(TempXMLBuffer.FindAttributes(TempChildrenXMLBuffer), '');
@@ -906,7 +904,7 @@ codeunit 139200 "XML Buffer Tests"
         TempXMLBuffer.AddElement(NamespacePrefix + 'Element3', 'Value3');
         TempXMLBuffer.AddLastElement(NamespacePrefix + 'Element4', 'Value4');
         TempXMLBuffer.AddGroupElement('emptyGroupnodeWithoutNamespace');
-        TempXMLBuffer.GetParent;
+        TempXMLBuffer.GetParent();
         TempXMLBuffer.AddElement(NamespacePrefix + 'Element5', '');
         TempXMLBuffer.AddElement('DuplicateElementName', 'Value6');
         TempXMLBuffer.AddElement('DuplicateElementName', 'Value7');
@@ -1074,7 +1072,7 @@ codeunit 139200 "XML Buffer Tests"
     local procedure WriteLineToOutstream(var OutStream: OutStream; Line: Text)
     begin
         OutStream.WriteText(Line);
-        OutStream.WriteText;
+        OutStream.WriteText();
     end;
 }
 

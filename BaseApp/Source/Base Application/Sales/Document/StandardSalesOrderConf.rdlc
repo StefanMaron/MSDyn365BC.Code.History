@@ -7890,14 +7890,14 @@ End Function
         <Field Name="ShipmentMethodDescription_Lbl">
           <DataField>ShipmentMethodDescription_Lbl</DataField>
         </Field>
+        <Field Name="Shipment_Lbl">
+          <DataField>Shipment_Lbl</DataField>
+        </Field>
         <Field Name="ShipmentDate">
           <DataField>ShipmentDate</DataField>
         </Field>
         <Field Name="ShipmentDate_Lbl">
           <DataField>ShipmentDate_Lbl</DataField>
-        </Field>
-        <Field Name="Shipment_Lbl">
-          <DataField>Shipment_Lbl</DataField>
         </Field>
         <Field Name="ShowShippingAddress">
           <DataField>ShowShippingAddress</DataField>

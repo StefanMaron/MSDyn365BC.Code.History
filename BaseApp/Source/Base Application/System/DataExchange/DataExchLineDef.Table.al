@@ -5,6 +5,7 @@ using System;
 table 1227 "Data Exch. Line Def"
 {
     Caption = 'Data Exch. Line Def';
+    DataClassification = CustomerContent;
 
     fields
     {

@@ -3,6 +3,7 @@ namespace Microsoft.Inventory.Item;
 table 268 "Item Amount"
 {
     Caption = 'Item Amount';
+    DataClassification = CustomerContent;
 
     fields
     {

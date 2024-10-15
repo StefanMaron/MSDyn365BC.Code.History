@@ -43,12 +43,12 @@ codeunit 134658 "Edit Posted Documents"
 
         // [THEN] Fields "No.", "Sell-to Customer Name", "Posting Date" are not editable.
         // [THEN] Fields "Shipping Agent Code", "Shipping Agent Service Code", "Package Tracking No." are editable.
-        Assert.IsFalse(LibraryVariableStorage.DequeueBoolean, 'No. must be not editable');
-        Assert.IsFalse(LibraryVariableStorage.DequeueBoolean, 'Sell-to Customer Name must be not editable');
-        Assert.IsFalse(LibraryVariableStorage.DequeueBoolean, 'Posting Date must be not editable');
-        Assert.IsTrue(LibraryVariableStorage.DequeueBoolean, 'Shipping Agent Code must be editable');
-        Assert.IsTrue(LibraryVariableStorage.DequeueBoolean, 'Shipping Agent Service Code must be editable');
-        Assert.IsTrue(LibraryVariableStorage.DequeueBoolean, 'Package Tracking No. must be editable');
+        Assert.IsFalse(LibraryVariableStorage.DequeueBoolean(), 'No. must be not editable');
+        Assert.IsFalse(LibraryVariableStorage.DequeueBoolean(), 'Sell-to Customer Name must be not editable');
+        Assert.IsFalse(LibraryVariableStorage.DequeueBoolean(), 'Posting Date must be not editable');
+        Assert.IsTrue(LibraryVariableStorage.DequeueBoolean(), 'Shipping Agent Code must be editable');
+        Assert.IsTrue(LibraryVariableStorage.DequeueBoolean(), 'Shipping Agent Service Code must be editable');
+        Assert.IsTrue(LibraryVariableStorage.DequeueBoolean(), 'Package Tracking No. must be editable');
 
         LibraryVariableStorage.AssertEmpty();
     end;
@@ -132,14 +132,14 @@ codeunit 134658 "Edit Posted Documents"
         // [THEN] Fields "No.", "Buy-from Vendor Name", "Posting Date" are not editable.
         // [THEN] Fields "Payment Reference", "Payment Method Code", "Creditor No.", "Ship-to Code" are editable.
         // [THEN] Field "Posting Description" is editable.
-        Assert.IsFalse(LibraryVariableStorage.DequeueBoolean, 'No. must be not editable');
-        Assert.IsFalse(LibraryVariableStorage.DequeueBoolean, 'Buy-from Vendor Name must be not editable');
-        Assert.IsFalse(LibraryVariableStorage.DequeueBoolean, 'Posting Date must be not editable');
-        Assert.IsTrue(LibraryVariableStorage.DequeueBoolean, 'Payment Reference must be editable');
-        Assert.IsTrue(LibraryVariableStorage.DequeueBoolean, 'Payment Method Code must be editable');
-        Assert.IsTrue(LibraryVariableStorage.DequeueBoolean, 'Creditor No. must be editable');
-        Assert.IsTrue(LibraryVariableStorage.DequeueBoolean, 'Ship-to Code must be editable');
-        Assert.IsTrue(LibraryVariableStorage.DequeueBoolean, 'Posting Description must be editable');
+        Assert.IsFalse(LibraryVariableStorage.DequeueBoolean(), 'No. must be not editable');
+        Assert.IsFalse(LibraryVariableStorage.DequeueBoolean(), 'Buy-from Vendor Name must be not editable');
+        Assert.IsFalse(LibraryVariableStorage.DequeueBoolean(), 'Posting Date must be not editable');
+        Assert.IsTrue(LibraryVariableStorage.DequeueBoolean(), 'Payment Reference must be editable');
+        Assert.IsTrue(LibraryVariableStorage.DequeueBoolean(), 'Payment Method Code must be editable');
+        Assert.IsTrue(LibraryVariableStorage.DequeueBoolean(), 'Creditor No. must be editable');
+        Assert.IsTrue(LibraryVariableStorage.DequeueBoolean(), 'Ship-to Code must be editable');
+        Assert.IsTrue(LibraryVariableStorage.DequeueBoolean(), 'Posting Description must be editable');
 
         LibraryVariableStorage.AssertEmpty();
         LibraryLowerPermissions.SetOutsideO365Scope();
@@ -161,7 +161,7 @@ codeunit 134658 "Edit Posted Documents"
         LibraryLowerPermissions.SetO365Setup();
         LibraryLowerPermissions.AddPurchDocsPost();
 
-        PurchInvHeader.Get(CreateAndPostPurchaseInvoiceWithSellToCustomer(LibrarySales.CreateCustomerNo));
+        PurchInvHeader.Get(CreateAndPostPurchaseInvoiceWithSellToCustomer(LibrarySales.CreateCustomerNo()));
         PurchInvHeaderNew := PurchInvHeader;
         PrepareEnqueueValuesForEditableFieldsPostedPurchaseInvoice(PurchInvHeaderNew);
 
@@ -208,7 +208,7 @@ codeunit 134658 "Edit Posted Documents"
         LibraryLowerPermissions.SetO365Setup();
         LibraryLowerPermissions.AddPurchDocsPost();
 
-        PurchInvHeader.Get(CreateAndPostPurchaseInvoiceWithSellToCustomer(LibrarySales.CreateCustomerNo));
+        PurchInvHeader.Get(CreateAndPostPurchaseInvoiceWithSellToCustomer(LibrarySales.CreateCustomerNo()));
         PurchInvHeaderNew := PurchInvHeader;
         PrepareEnqueueValuesForEditableFieldsPostedPurchaseInvoice(PurchInvHeaderNew);
 
@@ -267,10 +267,10 @@ codeunit 134658 "Edit Posted Documents"
 
         // [THEN] Fields "No.", "Buy-from Vendor Name", "Posting Date" are not editable.
         // [THEN] Field "Posting Description" is editable.
-        Assert.IsFalse(LibraryVariableStorage.DequeueBoolean, 'No. must be not editable');
-        Assert.IsFalse(LibraryVariableStorage.DequeueBoolean, 'Buy-from Vendor Name must be not editable');
-        Assert.IsFalse(LibraryVariableStorage.DequeueBoolean, 'Posting Date must be not editable');
-        Assert.IsTrue(LibraryVariableStorage.DequeueBoolean, 'Posting Description must be editable');
+        Assert.IsFalse(LibraryVariableStorage.DequeueBoolean(), 'No. must be not editable');
+        Assert.IsFalse(LibraryVariableStorage.DequeueBoolean(), 'Buy-from Vendor Name must be not editable');
+        Assert.IsFalse(LibraryVariableStorage.DequeueBoolean(), 'Posting Date must be not editable');
+        Assert.IsTrue(LibraryVariableStorage.DequeueBoolean(), 'Posting Description must be editable');
 
         LibraryVariableStorage.AssertEmpty();
         LibraryLowerPermissions.SetOutsideO365Scope();
@@ -331,7 +331,7 @@ codeunit 134658 "Edit Posted Documents"
         LibraryLowerPermissions.SetO365Setup();
         LibraryLowerPermissions.AddPurchDocsPost();
 
-        PurchCrMemoHdr.Get(CreateAndPostPurchaseCreditMemo);
+        PurchCrMemoHdr.Get(CreateAndPostPurchaseCreditMemo());
         PurchCrMemoHdrNew := PurchCrMemoHdr;
         PrepareEnqueueValuesForEditableFieldsPostedPurchaseCreditMemo(PurchCrMemoHdrNew);
 
@@ -373,11 +373,11 @@ codeunit 134658 "Edit Posted Documents"
 
         // [THEN] Fields "No.", "Buy-from Vendor Name", "Posting Date" are not editable.
         // [THEN] Fields "Ship-to County", "Ship-to Country/Region Code" are editable.
-        Assert.IsFalse(LibraryVariableStorage.DequeueBoolean, 'No. must be not editable');
-        Assert.IsFalse(LibraryVariableStorage.DequeueBoolean, 'Buy-from Vendor Name must be not editable');
-        Assert.IsFalse(LibraryVariableStorage.DequeueBoolean, 'Posting Date must be not editable');
-        Assert.IsTrue(LibraryVariableStorage.DequeueBoolean, 'Ship-to County must be editable');
-        Assert.IsTrue(LibraryVariableStorage.DequeueBoolean, 'Ship-to Country/Region Code must be editable');
+        Assert.IsFalse(LibraryVariableStorage.DequeueBoolean(), 'No. must be not editable');
+        Assert.IsFalse(LibraryVariableStorage.DequeueBoolean(), 'Buy-from Vendor Name must be not editable');
+        Assert.IsFalse(LibraryVariableStorage.DequeueBoolean(), 'Posting Date must be not editable');
+        Assert.IsTrue(LibraryVariableStorage.DequeueBoolean(), 'Ship-to County must be editable');
+        Assert.IsTrue(LibraryVariableStorage.DequeueBoolean(), 'Ship-to Country/Region Code must be editable');
 
         LibraryVariableStorage.AssertEmpty();
     end;
@@ -457,12 +457,12 @@ codeunit 134658 "Edit Posted Documents"
 
         // [THEN] Fields "No.", "Sell-to Customer Name", "Posting Date" are not editable.
         // [THEN] Fields "Bill-to Country/Region Code", "Shipping Agent Code", "Package Tracking No." are editable.
-        Assert.IsFalse(LibraryVariableStorage.DequeueBoolean, 'No. must be not editable');
-        Assert.IsFalse(LibraryVariableStorage.DequeueBoolean, 'Sell-to Customer Name must be not editable');
-        Assert.IsFalse(LibraryVariableStorage.DequeueBoolean, 'Posting Date must be not editable');
-        Assert.IsTrue(LibraryVariableStorage.DequeueBoolean, 'Bill-to Country/Region Code must be editable');
-        Assert.IsTrue(LibraryVariableStorage.DequeueBoolean, 'Shipping Agent Code must be editable');
-        Assert.IsTrue(LibraryVariableStorage.DequeueBoolean, 'Package Tracking No. must be editable');
+        Assert.IsFalse(LibraryVariableStorage.DequeueBoolean(), 'No. must be not editable');
+        Assert.IsFalse(LibraryVariableStorage.DequeueBoolean(), 'Sell-to Customer Name must be not editable');
+        Assert.IsFalse(LibraryVariableStorage.DequeueBoolean(), 'Posting Date must be not editable');
+        Assert.IsTrue(LibraryVariableStorage.DequeueBoolean(), 'Bill-to Country/Region Code must be editable');
+        Assert.IsTrue(LibraryVariableStorage.DequeueBoolean(), 'Shipping Agent Code must be editable');
+        Assert.IsTrue(LibraryVariableStorage.DequeueBoolean(), 'Package Tracking No. must be editable');
 
         LibraryVariableStorage.AssertEmpty();
     end;
@@ -545,13 +545,13 @@ codeunit 134658 "Edit Posted Documents"
         // [THEN] Fields "No.", "Sell-to Customer Name", "Posting Date" are not editable.
         // [THEN] Fields "Shipping Agent Code", "Shipping Agent Service Code", "Package Tracking No." are editable.
         // [THEN] Field "Posting Description" is editable.
-        Assert.IsFalse(LibraryVariableStorage.DequeueBoolean, 'No. must be not editable');
-        Assert.IsFalse(LibraryVariableStorage.DequeueBoolean, 'Sell-to Customer Name must be not editable');
-        Assert.IsFalse(LibraryVariableStorage.DequeueBoolean, 'Posting Date must be not editable');
-        Assert.IsTrue(LibraryVariableStorage.DequeueBoolean, 'Shipping Agent Code must be editable');
-        Assert.IsTrue(LibraryVariableStorage.DequeueBoolean, 'Shipping Agent Service Code must be editable');
-        Assert.IsTrue(LibraryVariableStorage.DequeueBoolean, 'Package Tracking No. must be editable');
-        Assert.IsTrue(LibraryVariableStorage.DequeueBoolean, 'Posting Description must be editable');
+        Assert.IsFalse(LibraryVariableStorage.DequeueBoolean(), 'No. must be not editable');
+        Assert.IsFalse(LibraryVariableStorage.DequeueBoolean(), 'Sell-to Customer Name must be not editable');
+        Assert.IsFalse(LibraryVariableStorage.DequeueBoolean(), 'Posting Date must be not editable');
+        Assert.IsTrue(LibraryVariableStorage.DequeueBoolean(), 'Shipping Agent Code must be editable');
+        Assert.IsTrue(LibraryVariableStorage.DequeueBoolean(), 'Shipping Agent Service Code must be editable');
+        Assert.IsTrue(LibraryVariableStorage.DequeueBoolean(), 'Package Tracking No. must be editable');
+        Assert.IsTrue(LibraryVariableStorage.DequeueBoolean(), 'Posting Description must be editable');
 
         LibraryVariableStorage.AssertEmpty();
     end;
@@ -658,7 +658,7 @@ codeunit 134658 "Edit Posted Documents"
         // [WHEN] Click on statistics from opened "Posted Return Receipt" page.
         PostedReturnReceipt.OpenView();
         PostedReturnReceipt.Filter.SetFilter("No.", DocumentNo);
-        ReturnReceiptStatistics.Trap;
+        ReturnReceiptStatistics.Trap();
         PostedReturnReceipt.Statistics.Invoke();
 
         // [THEN] Verify data available on "Return Receipt Statistics" page
@@ -799,9 +799,9 @@ codeunit 134658 "Edit Posted Documents"
         PurchInvHeader."Creditor No." := LibraryUtility.GenerateGUID();
         PurchInvHeader."Ship-to Code" := ShipToAddress.Code;
         PurchInvHeader."Posting Description" := LibraryRandom.RandText(25);
-        PurchInvHeader."Special Scheme Code" := LibraryRandom.RandIntInRange(1, 10);
-        PurchInvHeader."Invoice Type" := LibraryRandom.RandIntInRange(1, 5);
-        PurchInvHeader."ID Type" := LibraryRandom.RandIntInRange(1, 5);
+        PurchInvHeader."Special Scheme Code" := "SII Purch. Special Scheme Code".FromInteger(LibraryRandom.RandIntInRange(1, 10));
+        PurchInvHeader."Invoice Type" := "SII Purch. Invoice Type".FromInteger(LibraryRandom.RandIntInRange(1, 5));
+        PurchInvHeader."ID Type" := "SII ID Type".FromInteger(LibraryRandom.RandIntInRange(1, 5));
         PurchInvHeader."Succeeded Company Name" := LibraryUtility.GenerateGUID();
         PurchInvHeader."Succeeded VAT Registration No." := LibraryUtility.GenerateGUID();
 
@@ -859,7 +859,7 @@ codeunit 134658 "Edit Posted Documents"
         PostedSalesShipmentUpdate."Shipping Agent Code".SetValue(LibraryVariableStorage.DequeueText());
         PostedSalesShipmentUpdate."Shipping Agent Service Code".SetValue(LibraryVariableStorage.DequeueText());
         PostedSalesShipmentUpdate."Package Tracking No.".SetValue(LibraryVariableStorage.DequeueText());
-        PostedSalesShipmentUpdate.OK.Invoke();
+        PostedSalesShipmentUpdate.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -867,7 +867,7 @@ codeunit 134658 "Edit Posted Documents"
     procedure PostedSalesShipmentUpdatePackageTrackingNo_MPH(var PostedSalesShipmentUpdate: TestPage "Posted Sales Shipment - Update")
     begin
         PostedSalesShipmentUpdate."Package Tracking No.".SetValue(LibraryVariableStorage.DequeueText());
-        PostedSalesShipmentUpdate.OK.Invoke();
+        PostedSalesShipmentUpdate.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -877,20 +877,20 @@ codeunit 134658 "Edit Posted Documents"
         PostedSalesShipmentUpdate."Shipping Agent Code".SetValue(LibraryVariableStorage.DequeueText());
         PostedSalesShipmentUpdate."Shipping Agent Service Code".SetValue(LibraryVariableStorage.DequeueText());
         PostedSalesShipmentUpdate."Package Tracking No.".SetValue(LibraryVariableStorage.DequeueText());
-        PostedSalesShipmentUpdate.Cancel.Invoke();
+        PostedSalesShipmentUpdate.Cancel().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure PostedSalesShipmentUpdateGetEditablelModalPageHandler(var PostedSalesShipmentUpdate: TestPage "Posted Sales Shipment - Update")
     begin
-        LibraryVariableStorage.Enqueue(PostedSalesShipmentUpdate."No.".Editable);
-        LibraryVariableStorage.Enqueue(PostedSalesShipmentUpdate."Sell-to Customer Name".Editable);
-        LibraryVariableStorage.Enqueue(PostedSalesShipmentUpdate."Posting Date".Editable);
-        LibraryVariableStorage.Enqueue(PostedSalesShipmentUpdate."Shipping Agent Code".Editable);
-        LibraryVariableStorage.Enqueue(PostedSalesShipmentUpdate."Shipping Agent Service Code".Editable);
-        LibraryVariableStorage.Enqueue(PostedSalesShipmentUpdate."Package Tracking No.".Editable);
-        PostedSalesShipmentUpdate.Cancel.Invoke();
+        LibraryVariableStorage.Enqueue(PostedSalesShipmentUpdate."No.".Editable());
+        LibraryVariableStorage.Enqueue(PostedSalesShipmentUpdate."Sell-to Customer Name".Editable());
+        LibraryVariableStorage.Enqueue(PostedSalesShipmentUpdate."Posting Date".Editable());
+        LibraryVariableStorage.Enqueue(PostedSalesShipmentUpdate."Shipping Agent Code".Editable());
+        LibraryVariableStorage.Enqueue(PostedSalesShipmentUpdate."Shipping Agent Service Code".Editable());
+        LibraryVariableStorage.Enqueue(PostedSalesShipmentUpdate."Package Tracking No.".Editable());
+        PostedSalesShipmentUpdate.Cancel().Invoke();
     end;
 
     [ModalPageHandler]
@@ -901,7 +901,7 @@ codeunit 134658 "Edit Posted Documents"
         PstdSalesCrMemoUpdate."Shipping Agent Service Code".SetValue(LibraryVariableStorage.DequeueText());
         PstdSalesCrMemoUpdate."Package Tracking No.".SetValue(LibraryVariableStorage.DequeueText());
         PstdSalesCrMemoUpdate."Posting Description".SetValue(LibraryVariableStorage.DequeueText());
-        PstdSalesCrMemoUpdate.OK.Invoke();
+        PstdSalesCrMemoUpdate.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -912,7 +912,7 @@ codeunit 134658 "Edit Posted Documents"
         PstdSalesCrMemoUpdate."Shipping Agent Service Code".SetValue(LibraryVariableStorage.DequeueText());
         PstdSalesCrMemoUpdate."Package Tracking No.".SetValue(LibraryVariableStorage.DequeueText());
         PstdSalesCrMemoUpdate."Posting Description".SetValue(LibraryVariableStorage.DequeueText());
-        PstdSalesCrMemoUpdate.Cancel.Invoke();
+        PstdSalesCrMemoUpdate.Cancel().Invoke();
     end;
 
     [ModalPageHandler]
@@ -926,7 +926,7 @@ codeunit 134658 "Edit Posted Documents"
         LibraryVariableStorage.Enqueue(PstdSalesCrMemoUpdate."Shipping Agent Service Code".Editable());
         LibraryVariableStorage.Enqueue(PstdSalesCrMemoUpdate."Package Tracking No.".Editable());
         LibraryVariableStorage.Enqueue(PstdSalesCrMemoUpdate."Posting Description".Editable());
-        PstdSalesCrMemoUpdate.Cancel.Invoke();
+        PstdSalesCrMemoUpdate.Cancel().Invoke();
     end;
 
     [ModalPageHandler]
@@ -938,12 +938,12 @@ codeunit 134658 "Edit Posted Documents"
         PostedPurchInvoiceUpdate."Creditor No.".SetValue(LibraryVariableStorage.DequeueText());
         PostedPurchInvoiceUpdate."Ship-to Code".SetValue(LibraryVariableStorage.DequeueText());
         PostedPurchInvoiceUpdate."Posting Description".SetValue(LibraryVariableStorage.DequeueText());
-        PostedPurchInvoiceUpdate."Special Scheme Code".SetValue(LibraryVariableStorage.DequeueText);
-        PostedPurchInvoiceUpdate."Invoice Type".SetValue(LibraryVariableStorage.DequeueText);
-        PostedPurchInvoiceUpdate."ID Type".SetValue(LibraryVariableStorage.DequeueText);
-        PostedPurchInvoiceUpdate."Succeeded Company Name".SetValue(LibraryVariableStorage.DequeueText);
-        PostedPurchInvoiceUpdate."Succeeded VAT Registration No.".SetValue(LibraryVariableStorage.DequeueText);
-        PostedPurchInvoiceUpdate.OK.Invoke();
+        PostedPurchInvoiceUpdate."Special Scheme Code".SetValue(LibraryVariableStorage.DequeueText());
+        PostedPurchInvoiceUpdate."Invoice Type".SetValue(LibraryVariableStorage.DequeueText());
+        PostedPurchInvoiceUpdate."ID Type".SetValue(LibraryVariableStorage.DequeueText());
+        PostedPurchInvoiceUpdate."Succeeded Company Name".SetValue(LibraryVariableStorage.DequeueText());
+        PostedPurchInvoiceUpdate."Succeeded VAT Registration No.".SetValue(LibraryVariableStorage.DequeueText());
+        PostedPurchInvoiceUpdate.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -955,27 +955,27 @@ codeunit 134658 "Edit Posted Documents"
         PostedPurchInvoiceUpdate."Creditor No.".SetValue(LibraryVariableStorage.DequeueText());
         PostedPurchInvoiceUpdate."Ship-to Code".SetValue(LibraryVariableStorage.DequeueText());
         PostedPurchInvoiceUpdate."Posting Description".SetValue(LibraryVariableStorage.DequeueText());
-        PostedPurchInvoiceUpdate."Special Scheme Code".SetValue(LibraryVariableStorage.DequeueText);
-        PostedPurchInvoiceUpdate."Invoice Type".SetValue(LibraryVariableStorage.DequeueText);
-        PostedPurchInvoiceUpdate."ID Type".SetValue(LibraryVariableStorage.DequeueText);
-        PostedPurchInvoiceUpdate."Succeeded Company Name".SetValue(LibraryVariableStorage.DequeueText);
-        PostedPurchInvoiceUpdate."Succeeded VAT Registration No.".SetValue(LibraryVariableStorage.DequeueText);
-        PostedPurchInvoiceUpdate.Cancel.Invoke();
+        PostedPurchInvoiceUpdate."Special Scheme Code".SetValue(LibraryVariableStorage.DequeueText());
+        PostedPurchInvoiceUpdate."Invoice Type".SetValue(LibraryVariableStorage.DequeueText());
+        PostedPurchInvoiceUpdate."ID Type".SetValue(LibraryVariableStorage.DequeueText());
+        PostedPurchInvoiceUpdate."Succeeded Company Name".SetValue(LibraryVariableStorage.DequeueText());
+        PostedPurchInvoiceUpdate."Succeeded VAT Registration No.".SetValue(LibraryVariableStorage.DequeueText());
+        PostedPurchInvoiceUpdate.Cancel().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure PostedPurchInvoiceUpdateGetEditablelModalPageHandler(var PostedPurchInvoiceUpdate: TestPage "Posted Purch. Invoice - Update")
     begin
-        LibraryVariableStorage.Enqueue(PostedPurchInvoiceUpdate."No.".Editable);
-        LibraryVariableStorage.Enqueue(PostedPurchInvoiceUpdate."Buy-from Vendor Name".Editable);
-        LibraryVariableStorage.Enqueue(PostedPurchInvoiceUpdate."Posting Date".Editable);
-        LibraryVariableStorage.Enqueue(PostedPurchInvoiceUpdate."Payment Reference".Editable);
-        LibraryVariableStorage.Enqueue(PostedPurchInvoiceUpdate."Payment Method Code".Editable);
-        LibraryVariableStorage.Enqueue(PostedPurchInvoiceUpdate."Creditor No.".Editable);
-        LibraryVariableStorage.Enqueue(PostedPurchInvoiceUpdate."Ship-to Code".Editable);
-        LibraryVariableStorage.Enqueue(PostedPurchInvoiceUpdate."Posting Description".Editable);
-        PostedPurchInvoiceUpdate.Cancel.Invoke();
+        LibraryVariableStorage.Enqueue(PostedPurchInvoiceUpdate."No.".Editable());
+        LibraryVariableStorage.Enqueue(PostedPurchInvoiceUpdate."Buy-from Vendor Name".Editable());
+        LibraryVariableStorage.Enqueue(PostedPurchInvoiceUpdate."Posting Date".Editable());
+        LibraryVariableStorage.Enqueue(PostedPurchInvoiceUpdate."Payment Reference".Editable());
+        LibraryVariableStorage.Enqueue(PostedPurchInvoiceUpdate."Payment Method Code".Editable());
+        LibraryVariableStorage.Enqueue(PostedPurchInvoiceUpdate."Creditor No.".Editable());
+        LibraryVariableStorage.Enqueue(PostedPurchInvoiceUpdate."Ship-to Code".Editable());
+        LibraryVariableStorage.Enqueue(PostedPurchInvoiceUpdate."Posting Description".Editable());
+        PostedPurchInvoiceUpdate.Cancel().Invoke();
     end;
 
     [ModalPageHandler]
@@ -983,7 +983,7 @@ codeunit 134658 "Edit Posted Documents"
     procedure PostedPurchCrMemoUpdateOKModalPageHandler(var PostedPurchCrMemoUpdate: TestPage "Posted Purch. Cr.Memo - Update")
     begin
         PostedPurchCrMemoUpdate."Posting Description".SetValue(LibraryVariableStorage.DequeueText());
-        PostedPurchCrMemoUpdate.OK.Invoke();
+        PostedPurchCrMemoUpdate.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -991,18 +991,18 @@ codeunit 134658 "Edit Posted Documents"
     procedure PostedPurchCrMemoUpdateCancelModalPageHandler(var PostedPurchCrMemoUpdate: TestPage "Posted Purch. Cr.Memo - Update")
     begin
         PostedPurchCrMemoUpdate."Posting Description".SetValue(LibraryVariableStorage.DequeueText());
-        PostedPurchCrMemoUpdate.Cancel.Invoke();
+        PostedPurchCrMemoUpdate.Cancel().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure PostedPurchCrMemoUpdateGetEditablelModalPageHandler(var PostedPurchCrMemoUpdate: TestPage "Posted Purch. Cr.Memo - Update")
     begin
-        LibraryVariableStorage.Enqueue(PostedPurchCrMemoUpdate."No.".Editable);
-        LibraryVariableStorage.Enqueue(PostedPurchCrMemoUpdate."Buy-from Vendor Name".Editable);
-        LibraryVariableStorage.Enqueue(PostedPurchCrMemoUpdate."Posting Date".Editable);
-        LibraryVariableStorage.Enqueue(PostedPurchCrMemoUpdate."Posting Description".Editable);
-        PostedPurchCrMemoUpdate.Cancel.Invoke();
+        LibraryVariableStorage.Enqueue(PostedPurchCrMemoUpdate."No.".Editable());
+        LibraryVariableStorage.Enqueue(PostedPurchCrMemoUpdate."Buy-from Vendor Name".Editable());
+        LibraryVariableStorage.Enqueue(PostedPurchCrMemoUpdate."Posting Date".Editable());
+        LibraryVariableStorage.Enqueue(PostedPurchCrMemoUpdate."Posting Description".Editable());
+        PostedPurchCrMemoUpdate.Cancel().Invoke();
     end;
 
     [ModalPageHandler]
@@ -1011,7 +1011,7 @@ codeunit 134658 "Edit Posted Documents"
     begin
         PostedReturnShptUpdate."Ship-to County".SetValue(LibraryVariableStorage.DequeueText());
         PostedReturnShptUpdate."Ship-to Country/Region Code".SetValue(LibraryVariableStorage.DequeueText());
-        PostedReturnShptUpdate.OK.Invoke();
+        PostedReturnShptUpdate.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -1020,19 +1020,19 @@ codeunit 134658 "Edit Posted Documents"
     begin
         PostedReturnShptUpdate."Ship-to County".SetValue(LibraryVariableStorage.DequeueText());
         PostedReturnShptUpdate."Ship-to Country/Region Code".SetValue(LibraryVariableStorage.DequeueText());
-        PostedReturnShptUpdate.Cancel.Invoke();
+        PostedReturnShptUpdate.Cancel().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure PostedReturnShptUpdateGetEditablelModalPageHandler(var PostedReturnShptUpdate: TestPage "Posted Return Shpt. - Update")
     begin
-        LibraryVariableStorage.Enqueue(PostedReturnShptUpdate."No.".Editable);
-        LibraryVariableStorage.Enqueue(PostedReturnShptUpdate."Buy-from Vendor Name".Editable);
-        LibraryVariableStorage.Enqueue(PostedReturnShptUpdate."Posting Date".Editable);
-        LibraryVariableStorage.Enqueue(PostedReturnShptUpdate."Ship-to County".Editable);
-        LibraryVariableStorage.Enqueue(PostedReturnShptUpdate."Ship-to Country/Region Code".Editable);
-        PostedReturnShptUpdate.Cancel.Invoke();
+        LibraryVariableStorage.Enqueue(PostedReturnShptUpdate."No.".Editable());
+        LibraryVariableStorage.Enqueue(PostedReturnShptUpdate."Buy-from Vendor Name".Editable());
+        LibraryVariableStorage.Enqueue(PostedReturnShptUpdate."Posting Date".Editable());
+        LibraryVariableStorage.Enqueue(PostedReturnShptUpdate."Ship-to County".Editable());
+        LibraryVariableStorage.Enqueue(PostedReturnShptUpdate."Ship-to Country/Region Code".Editable());
+        PostedReturnShptUpdate.Cancel().Invoke();
     end;
 
     [ModalPageHandler]
@@ -1042,7 +1042,7 @@ codeunit 134658 "Edit Posted Documents"
         PostedReturnReceiptUpdate."Bill-to Country/Region Code".SetValue(LibraryVariableStorage.DequeueText());
         PostedReturnReceiptUpdate."Shipping Agent Code".SetValue(LibraryVariableStorage.DequeueText());
         PostedReturnReceiptUpdate."Package Tracking No.".SetValue(LibraryVariableStorage.DequeueText());
-        PostedReturnReceiptUpdate.OK.Invoke();
+        PostedReturnReceiptUpdate.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -1052,19 +1052,19 @@ codeunit 134658 "Edit Posted Documents"
         PostedReturnReceiptUpdate."Bill-to Country/Region Code".SetValue(LibraryVariableStorage.DequeueText());
         PostedReturnReceiptUpdate."Shipping Agent Code".SetValue(LibraryVariableStorage.DequeueText());
         PostedReturnReceiptUpdate."Package Tracking No.".SetValue(LibraryVariableStorage.DequeueText());
-        PostedReturnReceiptUpdate.Cancel.Invoke();
+        PostedReturnReceiptUpdate.Cancel().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure PostedReturnReceiptUpdateGetEditablelModalPageHandler(var PostedReturnReceiptUpdate: TestPage "Posted Return Receipt - Update")
     begin
-        LibraryVariableStorage.Enqueue(PostedReturnReceiptUpdate."No.".Editable);
-        LibraryVariableStorage.Enqueue(PostedReturnReceiptUpdate."Sell-to Customer Name".Editable);
-        LibraryVariableStorage.Enqueue(PostedReturnReceiptUpdate."Posting Date".Editable);
-        LibraryVariableStorage.Enqueue(PostedReturnReceiptUpdate."Bill-to Country/Region Code".Editable);
-        LibraryVariableStorage.Enqueue(PostedReturnReceiptUpdate."Shipping Agent Code".Editable);
-        LibraryVariableStorage.Enqueue(PostedReturnReceiptUpdate."Package Tracking No.".Editable);
-        PostedReturnReceiptUpdate.Cancel.Invoke();
+        LibraryVariableStorage.Enqueue(PostedReturnReceiptUpdate."No.".Editable());
+        LibraryVariableStorage.Enqueue(PostedReturnReceiptUpdate."Sell-to Customer Name".Editable());
+        LibraryVariableStorage.Enqueue(PostedReturnReceiptUpdate."Posting Date".Editable());
+        LibraryVariableStorage.Enqueue(PostedReturnReceiptUpdate."Bill-to Country/Region Code".Editable());
+        LibraryVariableStorage.Enqueue(PostedReturnReceiptUpdate."Shipping Agent Code".Editable());
+        LibraryVariableStorage.Enqueue(PostedReturnReceiptUpdate."Package Tracking No.".Editable());
+        PostedReturnReceiptUpdate.Cancel().Invoke();
     end;
 }

@@ -391,28 +391,26 @@ report 1102 "Resource Journal - Test"
 
     local procedure CheckRecurringLine(ResJnlLine2: Record "Res. Journal Line")
     begin
-        with ResJnlLine2 do
-            if ResJnlTemplate.Recurring then begin
-                if "Recurring Method" = 0 then
-                    AddError(StrSubstNo(Text001, FieldCaption("Recurring Method")));
-                if Format("Recurring Frequency") = '' then
-                    AddError(StrSubstNo(Text001, FieldCaption("Recurring Frequency")));
-                if "Recurring Method" = "Recurring Method"::Variable then
-                    if Quantity = 0 then
-                        AddError(StrSubstNo(Text001, FieldCaption(Quantity)));
-            end else begin
-                if "Recurring Method" <> 0 then
-                    AddError(StrSubstNo(Text009, FieldCaption("Recurring Method")));
-                if Format("Recurring Frequency") <> '' then
-                    AddError(StrSubstNo(Text009, FieldCaption("Recurring Frequency")));
-            end;
+        if ResJnlTemplate.Recurring then begin
+            if ResJnlLine2."Recurring Method" = 0 then
+                AddError(StrSubstNo(Text001, ResJnlLine2.FieldCaption("Recurring Method")));
+            if Format(ResJnlLine2."Recurring Frequency") = '' then
+                AddError(StrSubstNo(Text001, ResJnlLine2.FieldCaption("Recurring Frequency")));
+            if ResJnlLine2."Recurring Method" = ResJnlLine2."Recurring Method"::Variable then
+                if ResJnlLine2.Quantity = 0 then
+                    AddError(StrSubstNo(Text001, ResJnlLine2.FieldCaption(Quantity)));
+        end else begin
+            if ResJnlLine2."Recurring Method" <> 0 then
+                AddError(StrSubstNo(Text009, ResJnlLine2.FieldCaption("Recurring Method")));
+            if Format(ResJnlLine2."Recurring Frequency") <> '' then
+                AddError(StrSubstNo(Text009, ResJnlLine2.FieldCaption("Recurring Frequency")));
+        end;
     end;
 
     local procedure MakeRecurringTexts(var ResJnlLine2: Record "Res. Journal Line")
     begin
-        with ResJnlLine2 do
-            if ("Posting Date" <> 0D) and ("Resource No." <> '') and ("Recurring Method" <> 0) then
-                AccountingPeriod.MakeRecurringTexts("Posting Date", "Document No.", Description);
+        if (ResJnlLine2."Posting Date" <> 0D) and (ResJnlLine2."Resource No." <> '') and (ResJnlLine2."Recurring Method" <> 0) then
+            AccountingPeriod.MakeRecurringTexts(ResJnlLine2."Posting Date", ResJnlLine2."Document No.", ResJnlLine2.Description);
     end;
 
     local procedure AddError(Text: Text[250])

@@ -8,7 +8,6 @@ using Microsoft.Foundation.Address;
 using Microsoft.Foundation.Company;
 using System.Email;
 using System.Globalization;
-using System.Integration;
 using System.Integration.Word;
 using System.IO;
 using System.Reflection;
@@ -199,14 +198,6 @@ codeunit 5069 "Word Template Interactions"
                 InteractionMergeData.MarkedOnly(true);
                 SaveFormat := SaveFormat::PDF;
                 OnExecuteMergeOnBeforeMergeWordTemplates(TempDeliverySorter, InteractionLogEntry, SaveFormat);
-                EditDoc := (TempDeliverySorter."Wizard Action" = Enum::"Interaction Template Wizard Action"::Open) and (not InteractionLogEntry.Merged);
-
-                if EditDoc then begin
-                    WordTemplates.Merge(InteractionMergeData, false, SaveFormat::Docx, EditDoc, Enum::"Doc. Sharing Conflict Behavior"::Replace);
-                    WordTemplates.GetDocument(DocumentInStream);
-                    WordTemplates.Load(DocumentInStream);
-                    InteractionMergeData.DeleteAll();
-                end;
 
                 if InteractionMergeData.FindSet() then
                     repeat
@@ -305,7 +296,6 @@ codeunit 5069 "Word Template Interactions"
         TempServerFileName: Text;
         FileName: Text;
         SaveToFile: Text;
-        HideDialog: Boolean;
         SourceTableIDs, SourceRelationTypes : List of [Integer];
         SourceIDs: List of [Guid];
         IsHandled: Boolean;
@@ -315,13 +305,12 @@ codeunit 5069 "Word Template Interactions"
         if IsHandled then
             exit;
 
-        HideDialog := TempDeliverySorter."Force Hide Email Dialog" or (not (TempDeliverySorter."Wizard Action" = TempDeliverySorter."Wizard Action"::Open));
         Attachment."Read Only" := true;
 
         case TempDeliverySorter."Correspondence Type" of
 #if not CLEAN23
             TempDeliverySorter."Correspondence Type"::Fax:
-                DocumentMailing.EmailFile(MergedDocumentInStream, TempDeliverySorter.Subject + '.pdf', '', TempDeliverySorter.Subject, ToAddress, HideDialog, Enum::"Email Scenario"::"Interaction Template");
+                DocumentMailing.EmailFile(MergedDocumentInStream, TempDeliverySorter.Subject + '.pdf', '', TempDeliverySorter.Subject, ToAddress, true, Enum::"Email Scenario"::"Interaction Template");
 #endif
             TempDeliverySorter."Correspondence Type"::Email:
                 begin
@@ -346,14 +335,14 @@ codeunit 5069 "Word Template Interactions"
 
                         Attachment."File Extension" := 'docx';
 
-                        DocumentMailing.EmailFile(MergedDocumentInStream, FileName, '', TempDeliverySorter.Subject, ToAddress, HideDialog, Enum::"Email Scenario"::"Interaction Template", SourceTableIDs, SourceIDs, SourceRelationTypes);
+                        DocumentMailing.EmailFile(MergedDocumentInStream, FileName, '', TempDeliverySorter.Subject, ToAddress, true, Enum::"Email Scenario"::"Interaction Template", SourceTableIDs, SourceIDs, SourceRelationTypes);
                     end else begin
                         TempServerFileName := FileManagement.InstreamExportToServerFile(MergedDocumentInStream, 'html');
 
                         Attachment."File Extension" := 'html';
 
                         DummyTempBlob.CreateInStream(DummyInStream);
-                        DocumentMailing.EmailFile(DummyInStream, TempDeliverySorter.Subject, TempServerFileName, TempDeliverySorter.Subject, ToAddress, HideDialog, Enum::"Email Scenario"::"Interaction Template", SourceTableIDs, SourceIDs, SourceRelationTypes);
+                        DocumentMailing.EmailFile(DummyInStream, TempDeliverySorter.Subject, TempServerFileName, TempDeliverySorter.Subject, ToAddress, true, Enum::"Email Scenario"::"Interaction Template", SourceTableIDs, SourceIDs, SourceRelationTypes);
                         FileManagement.DeleteServerFile(TempServerFileName);
                     end;
                     Attachment.Insert(true);

@@ -124,7 +124,7 @@ codeunit 134391 "ERM Sales Batch Posting"
         LibraryJobQueue.SetDoNotHandleCodeunitJobQueueEnqueueEvent(true);
 
         // [GIVEN] Sales Setup has "Posted Invoice Nos." = "Invoice Nos." and "Shipment on Invoice" = No
-        UpdateShipmentOnInvoiceOnSalesReceivablesSetup;
+        UpdateShipmentOnInvoiceOnSalesReceivablesSetup();
 
         // [GIVEN] Released Sales Invoice with posting nos are already assigned
         CreateSalesDocument(SalesHeader, SalesHeader."Document Type"::Invoice, true);
@@ -308,12 +308,12 @@ codeunit 134391 "ERM Sales Batch Posting"
         LibraryJobQueue.FindAndRunJobQueueEntryByRecordId(SalesHeader.RecordId);
 
         // [THEN] Notification: 'An error occured during operation: batch processing of Sales Header records.'
-        VerifySalesHeaderNotification;
+        VerifySalesHeaderNotification();
 
         // Verify that Posted Sales Invoice Exists.
         VerifyPostedSalesInvoice(SalesHeader."No.", SalesHeader."Posting Date", false);
         asserterror VerifyPostedSalesInvoice(SalesHeader2."No.", SalesHeader."Posting Date", false);
-        Assert.AssertNothingInsideFilter;
+        Assert.AssertNothingInsideFilter();
 
         Assert.TableIsEmpty(DATABASE::"Batch Processing Parameter");
     end;
@@ -338,7 +338,7 @@ codeunit 134391 "ERM Sales Batch Posting"
         CreateSalesDocument(SalesHeader, SalesHeader."Document Type"::"Credit Memo", false);
         LibrarySales.ReleaseSalesDocument(SalesHeader);
 
-        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.SalesCreditMemoApprovalWorkflowCode);
+        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.SalesCreditMemoApprovalWorkflowCode());
 
         // Create a sales cr. memo.
         CreateSalesDocument(SalesHeader2, SalesHeader."Document Type"::"Credit Memo", false);
@@ -348,12 +348,12 @@ codeunit 134391 "ERM Sales Batch Posting"
         LibraryJobQueue.FindAndRunJobQueueEntryByRecordId(SalesHeader.RecordId);
 
         // [THEN] Notification: 'An error occured during operation: batch processing of Sales Header records.'
-        VerifySalesHeaderNotification;
+        VerifySalesHeaderNotification();
 
         // Verify that Posted Sales cr. memo Exists.
         VerifyPostedSalesCrMemo(SalesHeader."No.", SalesHeader."Posting Date", false);
         asserterror VerifyPostedSalesCrMemo(SalesHeader2."No.", SalesHeader."Posting Date", false);
-        Assert.AssertNothingInsideFilter;
+        Assert.AssertNothingInsideFilter();
 
         Assert.TableIsEmpty(DATABASE::"Batch Processing Parameter");
     end;
@@ -378,7 +378,7 @@ codeunit 134391 "ERM Sales Batch Posting"
         CreateSalesDocument(SalesHeader, SalesHeader."Document Type"::Order, false);
         LibrarySales.ReleaseSalesDocument(SalesHeader);
 
-        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.SalesOrderApprovalWorkflowCode);
+        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.SalesOrderApprovalWorkflowCode());
 
         // Create a sales order.
         CreateSalesDocument(SalesHeader2, SalesHeader."Document Type"::Order, false);
@@ -388,12 +388,12 @@ codeunit 134391 "ERM Sales Batch Posting"
         LibraryJobQueue.FindAndRunJobQueueEntryByRecordId(SalesHeader.RecordId);
 
         // [THEN] Notification: 'An error occured during operation: batch processing of Sales Header records.'
-        VerifySalesHeaderNotification;
+        VerifySalesHeaderNotification();
 
         // Verify that Posted Sales Order Exists.
         VerifyPostedSalesOrder(SalesHeader."No.", SalesHeader."Posting Date", false);
         asserterror VerifyPostedSalesOrder(SalesHeader2."No.", SalesHeader."Posting Date", false);
-        Assert.AssertNothingInsideFilter;
+        Assert.AssertNothingInsideFilter();
 
         Assert.TableIsEmpty(DATABASE::"Batch Processing Parameter");
     end;
@@ -416,14 +416,14 @@ codeunit 134391 "ERM Sales Batch Posting"
         LibraryJobQueue.SetDoNotHandleCodeunitJobQueueEnqueueEvent(true);
 
         SalesReceivablesSetup.Get();
-        SalesReceivablesSetup.Validate("Posted Return Receipt Nos.", LibraryUtility.GetGlobalNoSeriesCode);
+        SalesReceivablesSetup.Validate("Posted Return Receipt Nos.", LibraryUtility.GetGlobalNoSeriesCode());
         SalesReceivablesSetup.Modify(true);
 
         // Create and release Sales return order.
         CreateSalesDocument(SalesHeader, SalesHeader."Document Type"::"Return Order", false);
         LibrarySales.ReleaseSalesDocument(SalesHeader);
 
-        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.SalesReturnOrderApprovalWorkflowCode);
+        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.SalesReturnOrderApprovalWorkflowCode());
 
         // Create a sales return order.
         CreateSalesDocument(SalesHeader2, SalesHeader."Document Type"::"Return Order", false);
@@ -433,12 +433,12 @@ codeunit 134391 "ERM Sales Batch Posting"
         LibraryJobQueue.FindAndRunJobQueueEntryByRecordId(SalesHeader.RecordId);
 
         // [THEN] Notification: 'An error occured during operation: batch processing of Sales Header records.'
-        VerifySalesHeaderNotification;
+        VerifySalesHeaderNotification();
 
         // Verify that Posted Sales return order Exists.
         VerifyPostedSalesReturnOrder(SalesHeader."No.", SalesHeader."Posting Date", false);
         asserterror VerifyPostedSalesReturnOrder(SalesHeader2."No.", SalesHeader."Posting Date", false);
-        Assert.AssertNothingInsideFilter;
+        Assert.AssertNothingInsideFilter();
 
         Assert.TableIsEmpty(DATABASE::"Batch Processing Parameter");
     end;
@@ -459,7 +459,7 @@ codeunit 134391 "ERM Sales Batch Posting"
 
         // [GIVEN] Sales setup with enabled "Calc. Invoice Discount" and "Post with Job Queue"
         LibraryVariableStorageCounter.Clear();
-        LibraryWorkflow.DisableAllWorkflows;
+        LibraryWorkflow.DisableAllWorkflows();
         LibraryJobQueue.SetDoNotHandleCodeunitJobQueueEnqueueEvent(true);
         BindSubscription(LibraryJobQueue);
 
@@ -479,8 +479,8 @@ codeunit 134391 "ERM Sales Batch Posting"
         end;
 
         // [THEN] Messages of Job Queue Entry creation have been omitted
-        Assert.ExpectedMessage(Format(BatchCompletedMsg), LibraryVariableStorageCounter.DequeueText);
-        LibraryVariableStorageCounter.AssertEmpty;
+        Assert.ExpectedMessage(Format(BatchCompletedMsg), LibraryVariableStorageCounter.DequeueText());
+        LibraryVariableStorageCounter.AssertEmpty();
 
         // [THEN] Invoices has been posted after queues execution
         for Index := 1 to ArrayLen(SalesHeader) do begin
@@ -509,7 +509,7 @@ codeunit 134391 "ERM Sales Batch Posting"
 
         // [GIVEN] Sales setup with enabled "Calc. Invoice Discount" and "Post with Job Queue"
         LibraryVariableStorageCounter.Clear();
-        LibraryWorkflow.DisableAllWorkflows;
+        LibraryWorkflow.DisableAllWorkflows();
         LibraryJobQueue.SetDoNotHandleCodeunitJobQueueEnqueueEvent(true);
         BindSubscription(LibraryJobQueue);
 
@@ -524,9 +524,9 @@ codeunit 134391 "ERM Sales Batch Posting"
         // [THEN] Notification: 'An error occured during operation: batch processing of Purchase Header records.'
         // [THEN] Click on 'Details' action: opened "Error Messages" page with list of bad documents each time
         for Index := 1 to ArrayLen(SalesHeader) do begin
-            ErrorMessages.Trap;
+            ErrorMessages.Trap();
             RunBatchPostSales(SalesHeader[1]."Document Type", SalesHeader[1]."No." + '|' + SalesHeader[2]."No.", 0D, true);
-            VerifySalesHeaderNotification;
+            VerifySalesHeaderNotification();
             LibraryNotificationMgt.RecallNotificationsForRecordID(SalesHeader[1].RecordId);
 
             // Bug: 306600
@@ -564,8 +564,8 @@ codeunit 134391 "ERM Sales Batch Posting"
         BindSubscription(LibraryJobQueue);
         LibraryJobQueue.SetDoNotHandleCodeunitJobQueueEnqueueEvent(true);
 
-        BatchSessionID[1] := SessionId;
-        BatchSessionID[2] := SessionId - 1;
+        BatchSessionID[1] := SessionId();
+        BatchSessionID[2] := SessionId() - 1;
 
         PostingDate[1] := WorkDate() - 1;
         PostingDate[2] := WorkDate();
@@ -688,7 +688,7 @@ codeunit 134391 "ERM Sales Batch Posting"
           SalesHeader[1]."Document Type", SalesHeader[1]."No." + '|' + SalesHeader[2]."No.", 0D, false);
 
         // [THEN] 'Print' checkbox is not visible, so number "Sales - Invoice" report runs = 0 (calculated in StandardSalesInvoiceReportHandler)
-        Assert.AreEqual(0, LibraryVariableStorage.DequeueInteger, 'Number of printed invoice is not correct');
+        Assert.AreEqual(0, LibraryVariableStorage.DequeueInteger(), 'Number of printed invoice is not correct');
         Assert.IsFalse(LibraryVariableStorage.DequeueBoolean(), 'Print checkbox should not be invisible');
     end;
 
@@ -734,7 +734,6 @@ codeunit 134391 "ERM Sales Batch Posting"
         JobQueueEntry: Record "Job Queue Entry";
         BatchProcessingSessionMap: Record "Batch Processing Session Map";
         LibraryJobQueue: Codeunit "Library - Job Queue";
-        SalesBatchPostMgt: Codeunit "Sales Batch Post Mgt.";
         PostingDate: array[2] of Date;
     begin
         // [FEATURE] [Job Queue]
@@ -777,7 +776,7 @@ codeunit 134391 "ERM Sales Batch Posting"
         CODEUNIT.Run(JobQueueEntry."Object ID to Run", JobQueueEntry);
 
         // [THEN] Invoice 'B' is posted directly. 
-        Assert.IsFalse(SalesHeader[2].Find, 'Second Invoice should be posted');
+        Assert.IsFalse(SalesHeader[2].Find(), 'Second Invoice should be posted');
 
         // [THEN] InvoiceDiscount is calculated and Posting Date is updated in Invoices "A"
         VerifyPostedSalesInvoice(SalesHeader[1]."No.", PostingDate[1] + 1, true);
@@ -1327,7 +1326,6 @@ codeunit 134391 "ERM Sales Batch Posting"
         DataCompression: Codeunit "Data Compression";
         ZipEntryList: List of [Text];
         InStreamVar: InStream;
-        OutStreamVar: OutStream;
         ICPartnerCode: Code[20];
         ICPartnerInboxType: enum "IC Partner Inbox Type";
         ZipEntryName: Text;
@@ -1394,12 +1392,10 @@ codeunit 134391 "ERM Sales Batch Posting"
         DataCompression: Codeunit "Data Compression";
         ZipEntryList: List of [Text];
         InStreamVar: InStream;
-        OutStreamVar: OutStream;
         ICPartnerCode: Code[20];
         ICPartnerInboxType: enum "IC Partner Inbox Type";
         ZipEntryName: Text;
         Index: Integer;
-        SalesDocFilter: Text;
     begin
         // [FEATURE] [InterCompany] [File]
         // [SCENARIO 415486] Stan can post a few sales orders in a batch with auto sending IC documents when IC Partner's Inbox is a File Location. Stan gets all IC documents in a single zip file.
@@ -1534,7 +1530,7 @@ codeunit 134391 "ERM Sales Batch Posting"
 
         BatchProcessingSessionMap."Record ID" := SalesHeader.RecordId;
         BatchProcessingSessionMap."Batch ID" := BatchProcessingParameter."Batch ID";
-        BatchProcessingSessionMap."User ID" := UserSecurityId;
+        BatchProcessingSessionMap."User ID" := UserSecurityId();
         BatchProcessingSessionMap."Session ID" := BachSessionID;
         BatchProcessingSessionMap.Insert();
     end;
@@ -1762,8 +1758,8 @@ codeunit 134391 "ERM Sales Batch Posting"
     var
         SalesHeader: Record "Sales Header";
     begin
-        Assert.ExpectedMessage(NotificationMsg, LibraryVariableStorage.DequeueText); // from SentNotificationHandler
-        LibraryVariableStorage.AssertEmpty;
+        Assert.ExpectedMessage(NotificationMsg, LibraryVariableStorage.DequeueText()); // from SentNotificationHandler
+        LibraryVariableStorage.AssertEmpty();
         Clear(SalesHeader);
         LibraryNotificationMgt.RecallNotificationsForRecord(SalesHeader);
     end;
@@ -1808,7 +1804,7 @@ codeunit 134391 "ERM Sales Batch Posting"
         BatchPostSalesInvoices.ReplaceDocumentDate.SetValue(RunReplacePostingDate);
         BatchPostSalesInvoices.ReplacePostingDate.SetValue(RunReplacePostingDate);
         // CalcInvDiscount is set from Sales Setup
-        BatchPostSalesInvoices.OK.Invoke;
+        BatchPostSalesInvoices.OK().Invoke();
     end;
 
     [RequestPageHandler]
@@ -1831,7 +1827,7 @@ codeunit 134391 "ERM Sales Batch Posting"
         else
             BatchPostSalesCrMemos.ReplacePostingDate.SetValue(false);
         // CalcInvDiscount is set from Sales Setup
-        BatchPostSalesCrMemos.OK.Invoke;
+        BatchPostSalesCrMemos.OK().Invoke();
     end;
 
     [RequestPageHandler]
@@ -1855,7 +1851,7 @@ codeunit 134391 "ERM Sales Batch Posting"
             BatchPostSalesOrders.ReplacePostingDate.SetValue(false);
         BatchPostSalesOrders.Ship.SetValue(true);
         BatchPostSalesOrders.Invoice.SetValue(true);
-        BatchPostSalesOrders.OK.Invoke;
+        BatchPostSalesOrders.OK().Invoke();
     end;
 
     [RequestPageHandler]
@@ -1879,7 +1875,7 @@ codeunit 134391 "ERM Sales Batch Posting"
             BatchPostSalesReturnOrders.ReplacePostingDate.SetValue(false);
         BatchPostSalesReturnOrders.ReceiveReq.SetValue(true);
         BatchPostSalesReturnOrders.InvReq.SetValue(true);
-        BatchPostSalesReturnOrders.OK.Invoke;
+        BatchPostSalesReturnOrders.OK().Invoke();
     end;
 
     [RequestPageHandler]
@@ -1900,7 +1896,7 @@ codeunit 134391 "ERM Sales Batch Posting"
         PrintVisible := BatchPostSalesInvoices.PrintDoc.Visible();
         if PrintVisible then
             BatchPostSalesInvoices.PrintDoc.SetValue(true);
-        BatchPostSalesInvoices.OK.Invoke;
+        BatchPostSalesInvoices.OK().Invoke();
 
         LibraryVariableStorage.Enqueue(PrintVisible);
         LibraryVariableStorage.Enqueue(0); // initialize report run counter
@@ -1909,7 +1905,7 @@ codeunit 134391 "ERM Sales Batch Posting"
     [ReportHandler]
     procedure StandardSalesInvoiceReportHandler(var StandardSalesInvoice: Report "Standard Sales - Invoice")
     begin
-        LibraryVariableStorage.Enqueue(LibraryVariableStorage.DequeueInteger + 1);
+        LibraryVariableStorage.Enqueue(LibraryVariableStorage.DequeueInteger() + 1);
     end;
 
     [ModalPageHandler]
@@ -1918,7 +1914,7 @@ codeunit 134391 "ERM Sales Batch Posting"
         SalesHeader: Record "Sales Header";
     begin
         SalesStatistics.SubForm."VAT Amount".SetValue(
-          SalesStatistics.SubForm."VAT Amount".AsDecimal + LibraryVariableStorage.DequeueDecimal());
+          SalesStatistics.SubForm."VAT Amount".AsDecimal() + LibraryVariableStorage.DequeueDecimal());
         SalesHeader.Get(SalesHeader."Document Type"::Invoice, LibraryVariableStorage.DequeueText());
         SalesStatistics.GotoRecord(SalesHeader);
     end;
@@ -1974,7 +1970,7 @@ codeunit 134391 "ERM Sales Batch Posting"
             PostBatchForm.ReplaceDocumentDate.SetValue(true);
             PostBatchForm.CalcInvDisc.SetValue(not SalesReceivablesSetup."Calc. Inv. Discount");
             PostBatchForm.PrintDoc.SetValue(true);
-            PostBatchForm.OK.Invoke();
+            PostBatchForm.OK().Invoke();
         end else begin
             Assert.AreEqual(PostBatchForm.PostingDate.AsDate(), 20200101D, 'Expected value to be restored.');
             Assert.AreEqual(PostBatchForm.ReplacePostingDate.AsBoolean(), true, 'Expected value to be restored.');
@@ -2002,7 +1998,7 @@ codeunit 134391 "ERM Sales Batch Posting"
             PostBatchForm.ReplaceDocumentDate.SetValue(true);
             PostBatchForm.CalcInvDisc.SetValue(not SalesReceivablesSetup."Calc. Inv. Discount");
             PostBatchForm.PrintDoc.SetValue(true);
-            PostBatchForm.OK.Invoke();
+            PostBatchForm.OK().Invoke();
         end else begin
             Assert.AreEqual(PostBatchForm.PostingDate.AsDate(), 20200101D, 'Expected value to be restored.');
             Assert.AreEqual(PostBatchForm.ReplacePostingDate.AsBoolean(), true, 'Expected value to be restored.');
@@ -2032,7 +2028,7 @@ codeunit 134391 "ERM Sales Batch Posting"
             PostBatchForm.ReplaceDocumentDate.SetValue(true);
             PostBatchForm.CalcInvDisc.SetValue(not SalesReceivablesSetup."Calc. Inv. Discount");
             PostBatchForm.PrintDoc.SetValue(true);
-            PostBatchForm.OK.Invoke();
+            PostBatchForm.OK().Invoke();
         end else begin
             Assert.AreEqual(PostBatchForm.Ship.AsBoolean(), true, 'Expected value to be restored.');
             Assert.AreEqual(PostBatchForm.Invoice.AsBoolean(), true, 'Expected value to be restored.');
@@ -2064,7 +2060,7 @@ codeunit 134391 "ERM Sales Batch Posting"
             PostBatchForm.ReplaceDocumentDate.SetValue(true);
             PostBatchForm.CalcInvDisc.SetValue(not SalesReceivablesSetup."Calc. Inv. Discount");
             PostBatchForm.PrintDoc.SetValue(true);
-            PostBatchForm.OK.Invoke();
+            PostBatchForm.OK().Invoke();
         end else begin
             Assert.AreEqual(PostBatchForm.ReceiveReq.AsBoolean(), true, 'Expected value to be restored.');
             Assert.AreEqual(PostBatchForm.InvReq.AsBoolean(), true, 'Expected value to be restored.');

@@ -158,59 +158,57 @@ codeunit 5930 ServAllocationManagement
         NoOfRecords: Integer;
         SplitAllocHours: Decimal;
     begin
-        with SplitServOrderAlloc do begin
-            TestField(Status, Status::Active);
-            if not ConfirmManagement.GetResponseOrDefault(
-                 StrSubstNo(
-                   Text002, Res.TableCaption(), "Resource No.", RepairStatus.TableCaption(),
-                   RepairStatus.FieldCaption(Finished)), true)
-            then
-                exit;
+        SplitServOrderAlloc.TestField(Status, SplitServOrderAlloc.Status::Active);
+        if not ConfirmManagement.GetResponseOrDefault(
+             StrSubstNo(
+               Text002, Res.TableCaption(), SplitServOrderAlloc."Resource No.", RepairStatus.TableCaption(),
+               RepairStatus.FieldCaption(Finished)), true)
+        then
+            exit;
 
-            ServOrderAlloc.Reset();
-            ServOrderAlloc.SetCurrentKey("Document Type", "Document No.", Status);
-            ServOrderAlloc.SetRange("Document Type", "Document Type");
-            ServOrderAlloc.SetRange("Document No.", "Document No.");
-            ServOrderAlloc.SetFilter(Status, '%1|%2',
-              ServOrderAlloc.Status::Nonactive, ServOrderAlloc.Status::"Reallocation Needed");
-            ServOrderAlloc.SetHideDialog(true);
-            if not ServOrderAlloc.Find('-') then
-                Error(Text003,
-                  ServOrderAlloc.TableCaption(), FieldCaption("Allocated Hours"));
-            TempServiceOrderAllocation.DeleteAll();
+        ServOrderAlloc.Reset();
+        ServOrderAlloc.SetCurrentKey("Document Type", "Document No.", Status);
+        ServOrderAlloc.SetRange("Document Type", SplitServOrderAlloc."Document Type");
+        ServOrderAlloc.SetRange("Document No.", SplitServOrderAlloc."Document No.");
+        ServOrderAlloc.SetFilter(Status, '%1|%2',
+          ServOrderAlloc.Status::Nonactive, ServOrderAlloc.Status::"Reallocation Needed");
+        ServOrderAlloc.SetHideDialog(true);
+        if not ServOrderAlloc.Find('-') then
+            Error(Text003,
+              ServOrderAlloc.TableCaption(), SplitServOrderAlloc.FieldCaption(SplitServOrderAlloc."Allocated Hours"));
+        TempServiceOrderAllocation.DeleteAll();
+        repeat
+            ServItemLine.Get(
+              ServOrderAlloc."Document Type",
+              ServOrderAlloc."Document No.",
+              ServOrderAlloc."Service Item Line No.");
+            if RepairStatus.Get(ServItemLine."Repair Status Code") then
+                if not RepairStatus.Finished then begin
+                    TempServiceOrderAllocation := ServOrderAlloc;
+                    TempServiceOrderAllocation.Insert();
+                end;
+        until ServOrderAlloc.Next() = 0;
+
+        NoOfRecords := TempServiceOrderAllocation.Count + 1;
+        if NoOfRecords <> 1 then begin
+            SplitAllocHours := Round(SplitServOrderAlloc."Allocated Hours" / NoOfRecords, 0.1);
+            TempServiceOrderAllocation.Find('-');
             repeat
-                ServItemLine.Get(
-                  ServOrderAlloc."Document Type",
-                  ServOrderAlloc."Document No.",
-                  ServOrderAlloc."Service Item Line No.");
-                if RepairStatus.Get(ServItemLine."Repair Status Code") then
-                    if not RepairStatus.Finished then begin
-                        TempServiceOrderAllocation := ServOrderAlloc;
-                        TempServiceOrderAllocation.Insert();
-                    end;
-            until ServOrderAlloc.Next() = 0;
-
-            NoOfRecords := TempServiceOrderAllocation.Count + 1;
-            if NoOfRecords <> 1 then begin
-                SplitAllocHours := Round("Allocated Hours" / NoOfRecords, 0.1);
-                TempServiceOrderAllocation.Find('-');
-                repeat
-                    ServOrderAlloc.Get(TempServiceOrderAllocation."Entry No.");
-                    if ServOrderAlloc."Entry No." <> "Entry No." then begin
-                        ServOrderAlloc.Validate("Allocation Date", "Allocation Date");
-                        ServOrderAlloc.Validate("Resource No.", "Resource No.");
-                        ServOrderAlloc.Validate("Resource Group No.", "Resource Group No.");
-                        ServOrderAlloc.Validate("Allocated Hours", SplitAllocHours);
-                        OnSplitAllocationOnBeforeServOrderAllocModify(ServOrderAlloc, SplitServOrderAlloc);
-                        ServOrderAlloc.Modify(true);
-                    end;
-                    Validate("Allocated Hours", SplitAllocHours);
-                    Modify(true);
-                until TempServiceOrderAllocation.Next() = 0;
-            end else
-                Error(Text003,
-                  ServOrderAlloc.TableCaption(), FieldCaption("Allocated Hours"));
-        end;
+                ServOrderAlloc.Get(TempServiceOrderAllocation."Entry No.");
+                if ServOrderAlloc."Entry No." <> SplitServOrderAlloc."Entry No." then begin
+                    ServOrderAlloc.Validate("Allocation Date", SplitServOrderAlloc."Allocation Date");
+                    ServOrderAlloc.Validate("Resource No.", SplitServOrderAlloc."Resource No.");
+                    ServOrderAlloc.Validate("Resource Group No.", SplitServOrderAlloc."Resource Group No.");
+                    ServOrderAlloc.Validate("Allocated Hours", SplitAllocHours);
+                    OnSplitAllocationOnBeforeServOrderAllocModify(ServOrderAlloc, SplitServOrderAlloc);
+                    ServOrderAlloc.Modify(true);
+                end;
+                SplitServOrderAlloc.Validate(SplitServOrderAlloc."Allocated Hours", SplitAllocHours);
+                SplitServOrderAlloc.Modify(true);
+            until TempServiceOrderAllocation.Next() = 0;
+        end else
+            Error(Text003,
+              ServOrderAlloc.TableCaption(), SplitServOrderAlloc.FieldCaption(SplitServOrderAlloc."Allocated Hours"));
     end;
 
     procedure ResourceQualified(ResourceNo: Code[20]; Type: Enum "Resource Skill Type"; No: Code[20]): Boolean
@@ -280,13 +278,12 @@ codeunit 5930 ServAllocationManagement
         ServiceItemLine: Record "Service Item Line";
         RepairStatus: Record "Repair Status";
     begin
-        with ServiceItemLine do
-            if Get(ServHeader."Document Type", ServHeader."No.", ServiceItemLineNo) then
-                if "Repair Status Code" <> '' then begin
-                    RepairStatus.Get("Repair Status Code");
-                    if RepairStatus.Finished then
-                        Error(Text004, "Line No.", FieldCaption("Repair Status Code"), "Repair Status Code");
-                end;
+        if ServiceItemLine.Get(ServHeader."Document Type", ServHeader."No.", ServiceItemLineNo) then
+            if ServiceItemLine."Repair Status Code" <> '' then begin
+                RepairStatus.Get(ServiceItemLine."Repair Status Code");
+                if RepairStatus.Finished then
+                    Error(Text004, ServiceItemLine."Line No.", ServiceItemLine.FieldCaption("Repair Status Code"), ServiceItemLine."Repair Status Code");
+            end;
     end;
 
     procedure SetServOrderAllocStatus(var ServHeader: Record "Service Header")

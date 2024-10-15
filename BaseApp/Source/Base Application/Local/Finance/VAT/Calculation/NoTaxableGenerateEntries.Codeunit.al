@@ -38,28 +38,24 @@ codeunit 10840 "No Taxable - Generate Entries"
     var
         VendorLedgerEntry: Record "Vendor Ledger Entry";
     begin
-        with VendorLedgerEntry do begin
-            SetFilter("Document Type", '%1|%2', "Document Type"::Invoice, "Document Type"::"Credit Memo");
-            SetRange(Reversed, false);
-            if FindSet() then
-                repeat
-                    NoTaxableMgt.UpdateNoTaxableEntryFromVendorLedgerEntry(VendorLedgerEntry);
-                until Next() = 0;
-        end;
+        VendorLedgerEntry.SetFilter("Document Type", '%1|%2', VendorLedgerEntry."Document Type"::Invoice, VendorLedgerEntry."Document Type"::"Credit Memo");
+        VendorLedgerEntry.SetRange(Reversed, false);
+        if VendorLedgerEntry.FindSet() then
+            repeat
+                NoTaxableMgt.UpdateNoTaxableEntryFromVendorLedgerEntry(VendorLedgerEntry);
+            until VendorLedgerEntry.Next() = 0;
     end;
 
     local procedure InsertNoTaxableEntryCustomer()
     var
         CustLedgerEntry: Record "Cust. Ledger Entry";
     begin
-        with CustLedgerEntry do begin
-            SetFilter("Document Type", '%1|%2', "Document Type"::Invoice, "Document Type"::"Credit Memo");
-            SetRange(Reversed, false);
-            if FindSet() then
-                repeat
-                    NoTaxableMgt.UpdateNoTaxableEntryFromCustomerLedgerEntry(CustLedgerEntry);
-                until Next() = 0;
-        end;
+        CustLedgerEntry.SetFilter("Document Type", '%1|%2', CustLedgerEntry."Document Type"::Invoice, CustLedgerEntry."Document Type"::"Credit Memo");
+        CustLedgerEntry.SetRange(Reversed, false);
+        if CustLedgerEntry.FindSet() then
+            repeat
+                NoTaxableMgt.UpdateNoTaxableEntryFromCustomerLedgerEntry(CustLedgerEntry);
+            until CustLedgerEntry.Next() = 0;
     end;
 
     local procedure UpdateNoTaxableVATEntries()

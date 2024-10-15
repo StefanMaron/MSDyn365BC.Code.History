@@ -71,7 +71,7 @@ codeunit 144114 "ERM Transport Method"
     begin
         // Setup.
         TransportMethodCode := CreateTransportMethod(PortAirport);
-        TransportMethods.OpenEdit;
+        TransportMethods.OpenEdit();
 
         // Exercise.
         TransportMethods.FILTER.SetFilter(Code, TransportMethodCode);
@@ -112,7 +112,7 @@ codeunit 144114 "ERM Transport Method"
     procedure PostSalesInvoiceWithPortAirportAndExitPoint()
     begin
         // Test to verify Sales Invoice can be posted with Exit Point when Port/Airport on Transport Method is True.
-        PortAirportAndExitPointOnPostedSalesInvoice(CreateEntryExitPoint, true);  // True used for Port/Airport.
+        PortAirportAndExitPointOnPostedSalesInvoice(CreateEntryExitPoint(), true);  // True used for Port/Airport.
     end;
 
     local procedure PortAirportAndExitPointOnPostedSalesInvoice(ExitPoint: Code[10]; PortAirport: Boolean)
@@ -161,7 +161,7 @@ codeunit 144114 "ERM Transport Method"
     procedure PostPurchInvoiceWithPortAirportAndEntryPoint()
     begin
         // Test to verify Purchase Invoice can be posted with Entry Point when Port/Airport on Transport Method is True.
-        PortAirportAndExitPointOnPostedPurchaseInvoice(CreateEntryExitPoint, true);  // True used for Port/Airport.
+        PortAirportAndExitPointOnPostedPurchaseInvoice(CreateEntryExitPoint(), true);  // True used for Port/Airport.
     end;
 
     local procedure PortAirportAndExitPointOnPostedPurchaseInvoice(EntryPoint: Code[10]; PortAirport: Boolean)
@@ -246,7 +246,7 @@ codeunit 144114 "ERM Transport Method"
     procedure PostServiceInvoiceWithPortAirportAndExitPoint()
     begin
         // Test to verify Service Invoice can be posted with Exit Point when Port/Airport on Transport Method is True.
-        PortAirportAndExitPointOnPostedServiceInvoice(CreateEntryExitPoint, true);  // True used for Port/Airport.
+        PortAirportAndExitPointOnPostedServiceInvoice(CreateEntryExitPoint(), true);  // True used for Port/Airport.
     end;
 
     local procedure PortAirportAndExitPointOnPostedServiceInvoice(ExitPoint: Code[10]; PortAirport: Boolean)

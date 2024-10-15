@@ -231,7 +231,7 @@ codeunit 5506 "Graph Mgt - Sales Quote Buffer"
                 APIDataUpgrade.CountRecordsAndCommit(RecordCount);
             until SalesHeader.Next() = 0;
 
-        if SalesQuoteEntityBuffer.FindSet(true, false) then
+        if SalesQuoteEntityBuffer.FindSet(true) then
             repeat
                 if not SalesHeader.Get(SalesHeader."Document Type"::Quote, SalesQuoteEntityBuffer."No.") then begin
                     SalesQuoteEntityBuffer.Delete(true);
@@ -458,7 +458,7 @@ codeunit 5506 "Graph Mgt - Sales Quote Buffer"
         SalesLine.SetRange("Document Type", SalesLine."Document Type"::Quote);
         SalesLine.SetRange("Document No.", SalesQuoteEntityBuffer."No.");
 
-        if SalesLine.FindSet(false, false) then
+        if SalesLine.FindSet(false) then
             repeat
                 TransferFromSalesLine(SalesInvoiceLineAggregate, SalesQuoteEntityBuffer, SalesLine);
                 SalesInvoiceLineAggregate.Insert(true);
@@ -579,7 +579,7 @@ codeunit 5506 "Graph Mgt - Sales Quote Buffer"
         SkipUpdateDiscounts := true;
 
         // Remove deleted lines
-        if TempCurrentSalesInvoiceLineAggregate.FindSet(true, false) then
+        if TempCurrentSalesInvoiceLineAggregate.FindSet(true) then
             repeat
                 if not TempNewSalesInvoiceLineAggregate.Get(SalesQuoteEntityBuffer.Id, TempCurrentSalesInvoiceLineAggregate."Line No.") then
                     PropagateDeleteLine(TempCurrentSalesInvoiceLineAggregate);

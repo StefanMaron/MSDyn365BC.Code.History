@@ -26,6 +26,7 @@ table 7000002 "Cartera Doc."
     DrillDownPageID = "Cartera Documents";
     LookupPageID = "Cartera Documents";
     Permissions = TableData "Cartera Doc." = rm;
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -420,18 +421,16 @@ table 7000002 "Cartera Doc."
     var
         CarteraDoc: Record "Cartera Doc.";
     begin
-        with CarteraDoc do begin
-            SetRange("Document No.", DocumentNo);
-            SetRange("Account No.", AccountNo);
-            if BillNo <> '' then begin
-                SetRange("Document Type", "Document Type"::Bill);
-                SetRange("No.", BillNo);
-            end else
-                SetRange("Document Type", "Document Type"::Invoice);
-            if FindFirst() and ("Bill Gr./Pmt. Order No." = '') then begin
-                Validate("Payment Method Code", PaymentMethodCode);
-                Modify(true);
-            end;
+        CarteraDoc.SetRange("Document No.", DocumentNo);
+        CarteraDoc.SetRange("Account No.", AccountNo);
+        if BillNo <> '' then begin
+            CarteraDoc.SetRange("Document Type", CarteraDoc."Document Type"::Bill);
+            CarteraDoc.SetRange("No.", BillNo);
+        end else
+            CarteraDoc.SetRange("Document Type", CarteraDoc."Document Type"::Invoice);
+        if CarteraDoc.FindFirst() and (CarteraDoc."Bill Gr./Pmt. Order No." = '') then begin
+            CarteraDoc.Validate("Payment Method Code", PaymentMethodCode);
+            CarteraDoc.Modify(true);
         end;
     end;
 

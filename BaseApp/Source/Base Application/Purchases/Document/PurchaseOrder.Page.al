@@ -1864,20 +1864,6 @@ page 50 "Purchase Order"
                         end;
                     }
 #endif
-#if not CLEAN21
-                    action(SeeFlows)
-                    {
-                        ApplicationArea = Basic, Suite;
-                        Caption = 'See my flows';
-                        Image = Flow;
-                        RunObject = Page "Flow Selector";
-                        ToolTip = 'View and configure Power Automate flows that you created.';
-                        Visible = false;
-                        ObsoleteState = Pending;
-                        ObsoleteReason = 'This action has been moved to the tab dedicated to Power Automate';
-                        ObsoleteTag = '21.0';
-                    }
-#endif
                 }
             }
             group(Action17)
@@ -2316,24 +2302,6 @@ page 50 "Purchase Order"
                 actionref(CancelApprovalRequest_Promoted; CancelApprovalRequest)
                 {
                 }
-#if not CLEAN21
-                actionref(CreateFlow_Promoted; CreateFlow)
-                {
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Action is being demoted based on overall low usage.';
-                    ObsoleteTag = '21.0';
-                }
-#endif
-#if not CLEAN21
-                actionref(SeeFlows_Promoted; SeeFlows)
-                {
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'This action has been moved to the tab dedicated to Power Automate';
-                    ObsoleteTag = '21.0';
-                }
-#endif
             }
             group(Category_Category8)
             {
@@ -2646,7 +2614,7 @@ page 50 "Purchase Order"
         CurrPage.PurchLines.PAGE.ApproveCalcInvDisc();
     end;
 
-    local procedure SaveInvoiceDiscountAmount()
+    protected procedure SaveInvoiceDiscountAmount()
     var
         DocumentTotals: Codeunit "Document Totals";
     begin
@@ -2945,4 +2913,3 @@ page 50 "Purchase Order"
     begin
     end;
 }
-

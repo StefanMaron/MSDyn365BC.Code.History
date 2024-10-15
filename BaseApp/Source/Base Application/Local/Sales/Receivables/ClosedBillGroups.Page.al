@@ -1,4 +1,4 @@
-﻿// ------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -11,7 +11,7 @@ using Microsoft.Sales.Reports;
 page 7000015 "Closed Bill Groups"
 {
     Caption = 'Closed Bill Groups';
-    DataCaptionExpression = Caption();
+    DataCaptionExpression = Rec.Caption();
     InsertAllowed = false;
     PageType = Document;
     RefreshOnActivate = true;
@@ -242,7 +242,6 @@ page 7000015 "Closed Bill Groups"
 
                 trigger OnAction()
                 var
-                    Option: Integer;
                 begin
                     Navigate.SetDoc(Rec."Posting Date", Rec."No.");
                     Navigate.Run();

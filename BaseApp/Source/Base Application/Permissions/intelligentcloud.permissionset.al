@@ -16,7 +16,7 @@ using Microsoft.eServices.OnlineMap;
 using Microsoft.Finance.Payroll;
 using Microsoft.Inventory.Reconciliation;
 using Microsoft.Projects.Project.Journal;
-#if not CLEAN21
+#if not CLEAN23
 using Microsoft.Projects.Project.Pricing;
 #endif
 using Microsoft.Projects.Project.Ledger;
@@ -111,6 +111,7 @@ using Microsoft.HumanResources.Payables;
 using Microsoft.HumanResources.Setup;
 using Microsoft.Integration.D365Sales;
 using Microsoft.Integration.Dataverse;
+using Microsoft.Integration.FieldService;
 using Microsoft.Integration.Entity;
 using Microsoft.Integration.Graph;
 using Microsoft.Integration.SyncEngine;
@@ -169,7 +170,7 @@ using Microsoft.Pricing.Worksheet;
 using Microsoft.Projects.Resources.Analysis;
 using Microsoft.Projects.Resources.Journal;
 using Microsoft.Projects.Resources.Ledger;
-#if not CLEAN21
+#if not CLEAN23
 using Microsoft.Projects.Resources.Pricing;
 #endif
 using Microsoft.Projects.Resources.Resource;
@@ -296,6 +297,7 @@ permissionset 6121 "INTELLIGENT CLOUD"
                   tabledata "Designed Query Obj" = R,
                   tabledata "Designed Query Order By" = R,
                   tabledata "Designed Query Permission" = R,
+                  tabledata "Dispute Status" = R,
                   tabledata Device = Rm,
                   tabledata "Document Service" = m,
                   tabledata Drive = R,
@@ -346,17 +348,10 @@ permissionset 6121 "INTELLIGENT CLOUD"
                   table "My Item" = X,
                   table "My Job" = X,
                   table "My Time Sheets" = X,
-#if not CLEAN21
-                  table "Power BI Report Buffer" = X,
-#endif
                   table "Power BI Chart Buffer" = X,
                   table "Power BI Context Settings" = X,
                   table "Power BI Displayed Element" = X,
                   table "Power BI Report Labels" = X,
-#if not CLEAN23
-                  table "Power BI Report Configuration" = X,
-                  table "Power BI User Configuration" = X,
-#endif
 
                   tabledata "AAD Application" = R,
                   tabledata "Acc. Sched. Cell Value" = R,
@@ -484,8 +479,10 @@ permissionset 6121 "INTELLIGENT CLOUD"
                   tabledata "Business Unit Setup" = R,
                   tabledata "Calendar Absence Entry" = R,
                   tabledata "Calendar Entry" = R,
+#if not CLEAN24
                   tabledata "Calendar Event" = R,
                   tabledata "Calendar Event User Config." = R,
+#endif
                   tabledata Campaign = R,
                   tabledata "Campaign Entry" = R,
                   tabledata "Campaign Status" = R,
@@ -509,6 +506,7 @@ permissionset 6121 "INTELLIGENT CLOUD"
                   tabledata "Cause of Absence" = R,
                   tabledata "Cause of Inactivity" = R,
                   tabledata "CDS Available Virtual Table" = R,
+                  tabledata "CDS BC Table Relation" = R,
                   tabledata "CDS Company" = R,
                   tabledata "CDS Connection Setup" = R,
                   tabledata "CDS Coupled Business Unit" = R,
@@ -656,10 +654,26 @@ permissionset 6121 "INTELLIGENT CLOUD"
                   tabledata "CRM Synch. Job Status Cue" = R,
                   tabledata "CRM Systemuser" = R,
                   tabledata "CRM Systemuserroles" = R,
+                  tabledata "CDS Field Security Profile" = R,
+                  tabledata "CDS System User Profiles" = R,
                   tabledata "CRM Team" = R,
                   tabledata "CRM Transactioncurrency" = R,
                   tabledata "CRM Uom" = R,
                   tabledata "CRM Uomschedule" = R,
+                  tabledata "FS Connection Setup" = R,
+                  tabledata "FS Bookable Resource" = R,
+                  tabledata "FS Bookable Resource Booking" = R,
+                  tabledata "FS BookableResourceBookingHdr" = R,
+                  tabledata "FS Customer Asset" = R,
+                  tabledata "FS Customer Asset Category" = R,
+                  tabledata "FS Project Task" = R,
+                  tabledata "FS Resource Pay Type" = R,
+                  tabledata "FS Work Order" = R,
+                  tabledata "FS Work Order Incident" = R,
+                  tabledata "FS Work Order Product" = R,
+                  tabledata "FS Work Order Service" = R,
+                  tabledata "FS Work Order Substatus" = R,
+                  tabledata "FS Work Order Type" = R,
                   tabledata "CSV Buffer" = R,
                   tabledata "Curr. Exch. Rate Update Setup" = R,
                   tabledata Currency = R,
@@ -798,7 +812,10 @@ permissionset 6121 "INTELLIGENT CLOUD"
                   tabledata "Exchange Object" = R,
                   tabledata "Exchange Service Setup" = R,
                   tabledata "Exchange Sync" = R,
+#if not CLEAN24
                   tabledata "Exp. Phys. Invt. Tracking" = R,
+#endif
+                  tabledata "Exp. Invt. Order Tracking" = R,
                   tabledata "Experience Tier Buffer" = R,
                   tabledata "Experience Tier Setup" = R,
                   tabledata "Extended Text Header" = R,
@@ -879,9 +896,6 @@ permissionset 6121 "INTELLIGENT CLOUD"
                   tabledata "Generic Chart Setup" = R,
                   tabledata "Generic Chart Y-Axis" = R,
                   tabledata Geolocation = R,
-#if not CLEAN21
-                  tabledata "Graph Mail Setup" = R,
-#endif
                   tabledata "Grounds for Termination" = R,
                   tabledata "Handled IC Inbox Jnl. Line" = R,
                   tabledata "Handled IC Inbox Purch. Header" = R,
@@ -924,7 +938,6 @@ permissionset 6121 "INTELLIGENT CLOUD"
                   tabledata "Image Analysis Setup" = R,
                   tabledata "Image Analysis Scenario" = R,
                   tabledata "Import G/L Transaction" = R,
-                  tabledata "Inc. Doc. Attachment Overview" = R,
                   tabledata "Incoming Document" = R,
                   tabledata "Incoming Document Approver" = R,
                   tabledata "Incoming Document Attachment" = R,
@@ -1045,7 +1058,7 @@ permissionset 6121 "INTELLIGENT CLOUD"
                   tabledata "Job Cue" = RIMD,
                   tabledata "Job Difference Buffer" = R,
                   tabledata "Job Entry No." = R,
-#if not CLEAN21
+#if not CLEAN23
                   tabledata "Job G/L Account Price" = R,
                   tabledata "Job Item Price" = R,
 #endif
@@ -1064,7 +1077,7 @@ permissionset 6121 "INTELLIGENT CLOUD"
                   tabledata "Job Queue Entry Buffer" = R,
                   tabledata "Job Queue Log Entry" = R,
                   tabledata "Job Register" = R,
-#if not CLEAN21
+#if not CLEAN23
                   tabledata "Job Resource Price" = R,
 #endif
                   tabledata "Job Responsibility" = R,
@@ -1097,6 +1110,9 @@ permissionset 6121 "INTELLIGENT CLOUD"
                   tabledata Maintenance = R,
                   tabledata "Maintenance Ledger Entry" = R,
                   tabledata "Maintenance Registration" = R,
+                  tabledata "Man. Integration Field Mapping" = R,
+                  tabledata "Man. Integration Table Mapping" = R,
+                  tabledata "Man. Int. Field Mapping" = R,
                   tabledata Manufacturer = R,
                   tabledata "Manufacturing Comment Line" = R,
                   tabledata "Manufacturing Cue" = RIMD,
@@ -1132,44 +1148,11 @@ permissionset 6121 "INTELLIGENT CLOUD"
                   tabledata "Notification Schedule" = R,
                   tabledata "Notification Setup" = R,
                   tabledata "O365 Brand Color" = R,
-#if not CLEAN21
-                  tabledata "O365 C2Graph Event Settings" = R,
-                  tabledata "O365 Country/Region" = R,
-                  tabledata "O365 Coupon Claim" = R,
-                  tabledata "O365 Coupon Claim Doc. Link" = R,
-                  tabledata "O365 Cust. Invoice Discount" = R,
-                  tabledata "O365 Customer" = R,
-                  tabledata "O365 Default Email Message" = R,
-#endif
                   tabledata "O365 Device Setup Instructions" = R,
-#if not CLEAN21
-                  tabledata "O365 Document Sent History" = R,
-                  tabledata "O365 Email Setup" = R,
-                  tabledata "O365 Field Excel Mapping" = R,
-#endif
                   tabledata "O365 Getting Started" = R,
                   tabledata "O365 Getting Started Page Data" = R,
                   tabledata "O365 HTML Template" = R,
-#if not CLEAN21
-                  tabledata "O365 Item Basket Entry" = R,
-                  tabledata "O365 Payment History Buffer" = R,
-                  tabledata "O365 Payment Instr. Transl." = R,
-                  tabledata "O365 Payment Instructions" = R,
-                  tabledata "O365 Payment Method" = R,
-#endif
                   tabledata "O365 Payment Service Logo" = R,
-#if not CLEAN21
-                  tabledata "O365 Payment Terms" = R,
-                  tabledata "O365 Posted Coupon Claim" = R,
-                  tabledata "O365 Sales Cue" = RIMD,
-                  tabledata "O365 Sales Document" = R,
-                  tabledata "O365 Sales Event" = R,
-                  tabledata "O365 Sales Graph" = R,
-                  tabledata "O365 Sales Initial Setup" = R,
-                  tabledata "O365 Sales Invoice Document" = R,
-                  tabledata "O365 Settings Menu" = R,
-                  tabledata "O365 Social Network" = R,
-#endif
                   tabledata "OAuth 2.0 Setup" = R,
                   tabledata "Object Translation" = R,
                   tabledata "OCR Service Document Template" = R,
@@ -1236,7 +1219,10 @@ permissionset 6121 "INTELLIGENT CLOUD"
                   tabledata "Phys. Invt. Order Line" = R,
                   tabledata "Phys. Invt. Record Header" = R,
                   tabledata "Phys. Invt. Record Line" = R,
+#if not CLEAN24
                   tabledata "Phys. Invt. Tracking" = R,
+#endif
+                  tabledata "Invt. Order Tracking" = R,
                   tabledata "Picture Entity" = R,
                   tabledata "Planning Assignment" = R,
                   tabledata "Planning Buffer" = R,
@@ -1271,10 +1257,6 @@ permissionset 6121 "INTELLIGENT CLOUD"
                   tabledata "Posted Whse. Receipt Line" = R,
                   tabledata "Posted Whse. Shipment Header" = R,
                   tabledata "Posted Whse. Shipment Line" = R,
-#if not CLEAN21
-                  tabledata "Power BI Report Buffer" = R,
-                  tabledata "Power BI User License" = R,
-#endif
 #if not CLEAN22
                   tabledata "Power BI Service Status Setup" = R,
 #endif
@@ -1322,7 +1304,10 @@ permissionset 6121 "INTELLIGENT CLOUD"
                   tabledata "Profile Import" = RIMD,
                   tabledata "Profile Questionnaire Header" = R,
                   tabledata "Profile Questionnaire Line" = R,
+#if not CLEAN24
                   tabledata "Pstd. Exp. Phys. Invt. Track" = R,
+#endif
+                  tabledata "Pstd.Exp.Invt.Order.Tracking" = R,
                   tabledata "Pstd. Phys. Invt. Order Hdr" = R,
                   tabledata "Pstd. Phys. Invt. Order Line" = R,
                   tabledata "Pstd. Phys. Invt. Record Hdr" = R,
@@ -1337,7 +1322,7 @@ permissionset 6121 "INTELLIGENT CLOUD"
                   tabledata "Purch. Inv. Header" = R,
                   tabledata "Purch. Inv. Line" = R,
                   tabledata "Purch. Inv. Line Aggregate" = R,
-#if not CLEAN21
+#if not CLEAN23
                   tabledata "Purch. Price Line Disc. Buff." = R,
 #endif
                   tabledata "Purch. Rcpt. Header" = R,
@@ -1348,12 +1333,12 @@ permissionset 6121 "INTELLIGENT CLOUD"
                   tabledata "Purchase Header Archive" = R,
                   tabledata "Purchase Line" = R,
                   tabledata "Purchase Line Archive" = R,
-#if not CLEAN21
+#if not CLEAN23
                   tabledata "Purchase Line Discount" = R,
 #endif
                   tabledata "Purchase Order Entity Buffer" = R,
                   tabledata "Purchase Prepayment %" = R,
-#if not CLEAN21
+#if not CLEAN23
                   tabledata "Purchase Price" = R,
 #endif
                   tabledata "Purchase Price Access" = R,
@@ -1384,13 +1369,23 @@ permissionset 6121 "INTELLIGENT CLOUD"
                   tabledata "Registered Whse. Activity Line" = R,
                   tabledata "Relationship Mgmt. Cue" = RIMD,
                   tabledata Relative = R,
+                  tabledata "Reminder Attachment Text" = R,
                   tabledata "Reminder Comment Line" = R,
+                  tabledata "Reminder Email Text" = R,
                   tabledata "Reminder Header" = R,
                   tabledata "Reminder Level" = R,
                   tabledata "Reminder Line" = R,
                   tabledata "Reminder Terms" = R,
                   tabledata "Reminder Terms Translation" = R,
                   tabledata "Reminder Text" = R,
+                  tabledata "Reminder Action Group" = R,
+                  tabledata "Reminder Action" = R,
+                  tabledata "Create Reminders Setup" = R,
+                  tabledata "Issue Reminders Setup" = R,
+                  tabledata "Send Reminders Setup" = R,
+                  tabledata "Reminder Automation Error" = R,
+                  tabledata "Reminder Action Group Log" = R,
+                  tabledata "Reminder Action Log" = R,
                   tabledata "Reminder/Fin. Charge Entry" = R,
                   tabledata "Remit Address" = R,
                   tabledata "Repair Status" = R,
@@ -1415,12 +1410,12 @@ permissionset 6121 "INTELLIGENT CLOUD"
                   tabledata "Reservation Entry Buffer" = R,
                   tabledata "Resolution Code" = R,
                   tabledata Resource = R,
-#if not CLEAN21
+#if not CLEAN23
                   tabledata "Resource Cost" = R,
 #endif
                   tabledata "Resource Group" = R,
                   tabledata "Resource Location" = R,
-#if not CLEAN21
+#if not CLEAN23
                   tabledata "Resource Price" = R,
                   tabledata "Resource Price Change" = R,
 #endif
@@ -1471,17 +1466,17 @@ permissionset 6121 "INTELLIGENT CLOUD"
                   tabledata "Sales Invoice Line Aggregate" = R,
                   tabledata "Sales Line" = R,
                   tabledata "Sales Line Archive" = R,
-#if not CLEAN21
+#if not CLEAN23
                   tabledata "Sales Line Discount" = R,
 #endif
                   tabledata "Sales Order Entity Buffer" = R,
                   tabledata "Sales Planning Line" = R,
                   tabledata "Sales Prepayment %" = R,
-#if not CLEAN21
+#if not CLEAN23
                   tabledata "Sales Price" = R,
 #endif
                   tabledata "Sales Price Access" = R,
-#if not CLEAN21
+#if not CLEAN23
                   tabledata "Sales Price and Line Disc Buff" = R,
                   tabledata "Sales Price Worksheet" = R,
 #endif
@@ -1593,9 +1588,6 @@ permissionset 6121 "INTELLIGENT CLOUD"
                   tabledata "SWIFT Code" = R,
                   tabledata "Symptom Code" = R,
                   tabledata "Table Filter" = R,
-#if not CLEAN21
-                  tabledata "Table Permission Buffer" = R,
-#endif
                   tabledata "Tariff Number" = R,
                   tabledata "Tax Area" = R,
                   tabledata "Tax Area Buffer" = R,
@@ -1731,6 +1723,7 @@ permissionset 6121 "INTELLIGENT CLOUD"
                   tabledata "Warehouse Journal Batch" = R,
                   tabledata "Warehouse Journal Line" = R,
                   tabledata "Warehouse Journal Template" = R,
+                  tabledata "Warehouse Reason Code" = R,
                   tabledata "Warehouse Receipt Header" = R,
                   tabledata "Warehouse Receipt Line" = R,
                   tabledata "Warehouse Register" = R,

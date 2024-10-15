@@ -13,13 +13,11 @@ codeunit 147521 "SII Documents - UI"
         Assert: Codeunit Assert;
         OperationDescriptionNotEditableErr: Label 'Operation Desciption is not editable on the page';
         OperationDescriptionEditableErr: Label 'Operation Desciption is editable on the page';
-        CertificatePasswordIncorrectErr: Label 'The certificate could not get loaded. The password for the certificate may be incorrect.';
         LibrarySales: Codeunit "Library - Sales";
         LibraryPurchase: Codeunit "Library - Purchase";
         LibraryService: Codeunit "Library - Service";
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
         LibrarySII: Codeunit "Library - SII";
-        LibraryUtility: Codeunit "Library - Utility";
         IsInitialized: Boolean;
 
     [Test]
@@ -36,9 +34,9 @@ codeunit 147521 "SII Documents - UI"
         CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order);
         SalesHeaderVerify := SalesHeader;
 
-        SalesOrder.OpenEdit;
+        SalesOrder.OpenEdit();
         SalesOrder.GotoRecord(SalesHeader);
-        Assert.IsTrue(SalesOrder.OperationDescription.Editable, OperationDescriptionNotEditableErr);
+        Assert.IsTrue(SalesOrder.OperationDescription.Editable(), OperationDescriptionNotEditableErr);
         SalesOrder.OperationDescription.AssertEquals(
           SalesHeader."Operation Description" + SalesHeader."Operation Description 2");
 
@@ -63,9 +61,9 @@ codeunit 147521 "SII Documents - UI"
         CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice);
         SalesHeaderVerify := SalesHeader;
 
-        SalesInvoice.OpenEdit;
+        SalesInvoice.OpenEdit();
         SalesInvoice.GotoRecord(SalesHeader);
-        Assert.IsTrue(SalesInvoice.OperationDescription.Editable, OperationDescriptionNotEditableErr);
+        Assert.IsTrue(SalesInvoice.OperationDescription.Editable(), OperationDescriptionNotEditableErr);
         SalesInvoice.OperationDescription.AssertEquals(
           SalesHeader."Operation Description" + SalesHeader."Operation Description 2");
 
@@ -90,9 +88,9 @@ codeunit 147521 "SII Documents - UI"
         CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::"Credit Memo");
         SalesHeaderVerify := SalesHeader;
 
-        SalesCreditMemo.OpenEdit;
+        SalesCreditMemo.OpenEdit();
         SalesCreditMemo.GotoRecord(SalesHeader);
-        Assert.IsTrue(SalesCreditMemo.OperationDescription.Editable, OperationDescriptionNotEditableErr);
+        Assert.IsTrue(SalesCreditMemo.OperationDescription.Editable(), OperationDescriptionNotEditableErr);
         SalesCreditMemo.OperationDescription.AssertEquals(
           SalesHeader."Operation Description" + SalesHeader."Operation Description 2");
 
@@ -117,9 +115,9 @@ codeunit 147521 "SII Documents - UI"
         CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::"Return Order");
         SalesHeaderVerify := SalesHeader;
 
-        SalesReturnOrder.OpenEdit;
+        SalesReturnOrder.OpenEdit();
         SalesReturnOrder.GotoRecord(SalesHeader);
-        Assert.IsTrue(SalesReturnOrder.OperationDescription.Editable, OperationDescriptionNotEditableErr);
+        Assert.IsTrue(SalesReturnOrder.OperationDescription.Editable(), OperationDescriptionNotEditableErr);
         SalesReturnOrder.OperationDescription.AssertEquals(
           SalesHeader."Operation Description" + SalesHeader."Operation Description 2");
 
@@ -145,9 +143,9 @@ codeunit 147521 "SII Documents - UI"
         SalesInvoiceHeader.TransferFields(SalesHeader);
         SalesInvoiceHeader.Insert();
 
-        PostedSalesInvoice.OpenEdit;
+        PostedSalesInvoice.OpenEdit();
         PostedSalesInvoice.GotoRecord(SalesInvoiceHeader);
-        Assert.IsFalse(PostedSalesInvoice.OperationDescription.Editable, OperationDescriptionEditableErr);
+        Assert.IsFalse(PostedSalesInvoice.OperationDescription.Editable(), OperationDescriptionEditableErr);
         PostedSalesInvoice.OperationDescription.AssertEquals(
           SalesInvoiceHeader."Operation Description" + SalesInvoiceHeader."Operation Description 2");
     end;
@@ -167,9 +165,9 @@ codeunit 147521 "SII Documents - UI"
         SalesCrMemoHeader.TransferFields(SalesHeader);
         SalesCrMemoHeader.Insert();
 
-        PostedSalesCreditMemo.OpenEdit;
+        PostedSalesCreditMemo.OpenEdit();
         PostedSalesCreditMemo.GotoRecord(SalesCrMemoHeader);
-        Assert.IsFalse(PostedSalesCreditMemo.OperationDescription.Editable, OperationDescriptionEditableErr);
+        Assert.IsFalse(PostedSalesCreditMemo.OperationDescription.Editable(), OperationDescriptionEditableErr);
         PostedSalesCreditMemo.OperationDescription.AssertEquals(
           SalesCrMemoHeader."Operation Description" + SalesCrMemoHeader."Operation Description 2");
     end;
@@ -188,9 +186,9 @@ codeunit 147521 "SII Documents - UI"
         CreatePurchaseHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order);
         PurchaseHeaderVerify := PurchaseHeader;
 
-        PurchaseOrder.OpenEdit;
+        PurchaseOrder.OpenEdit();
         PurchaseOrder.GotoRecord(PurchaseHeader);
-        Assert.IsTrue(PurchaseOrder.OperationDescription.Editable, OperationDescriptionNotEditableErr);
+        Assert.IsTrue(PurchaseOrder.OperationDescription.Editable(), OperationDescriptionNotEditableErr);
         PurchaseOrder.OperationDescription.AssertEquals(
           PurchaseHeader."Operation Description" + PurchaseHeader."Operation Description 2");
 
@@ -215,9 +213,9 @@ codeunit 147521 "SII Documents - UI"
         CreatePurchaseHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice);
         PurchaseHeaderVerify := PurchaseHeader;
 
-        PurchaseInvoice.OpenEdit;
+        PurchaseInvoice.OpenEdit();
         PurchaseInvoice.GotoRecord(PurchaseHeader);
-        Assert.IsTrue(PurchaseInvoice.OperationDescription.Editable, OperationDescriptionNotEditableErr);
+        Assert.IsTrue(PurchaseInvoice.OperationDescription.Editable(), OperationDescriptionNotEditableErr);
         PurchaseInvoice.OperationDescription.AssertEquals(
           PurchaseHeader."Operation Description" + PurchaseHeader."Operation Description 2");
 
@@ -242,9 +240,9 @@ codeunit 147521 "SII Documents - UI"
         CreatePurchaseHeader(PurchaseHeader, PurchaseHeader."Document Type"::"Credit Memo");
         PurchaseHeaderVerify := PurchaseHeader;
 
-        PurchaseCreditMemo.OpenEdit;
+        PurchaseCreditMemo.OpenEdit();
         PurchaseCreditMemo.GotoRecord(PurchaseHeader);
-        Assert.IsTrue(PurchaseCreditMemo.OperationDescription.Editable, OperationDescriptionNotEditableErr);
+        Assert.IsTrue(PurchaseCreditMemo.OperationDescription.Editable(), OperationDescriptionNotEditableErr);
         PurchaseCreditMemo.OperationDescription.AssertEquals(
           PurchaseHeader."Operation Description" + PurchaseHeader."Operation Description 2");
 
@@ -269,9 +267,9 @@ codeunit 147521 "SII Documents - UI"
         CreatePurchaseHeader(PurchaseHeader, PurchaseHeader."Document Type"::"Return Order");
         PurchaseHeaderVerify := PurchaseHeader;
 
-        PurchaseReturnOrder.OpenEdit;
+        PurchaseReturnOrder.OpenEdit();
         PurchaseReturnOrder.GotoRecord(PurchaseHeader);
-        Assert.IsTrue(PurchaseReturnOrder.OperationDescription.Editable, OperationDescriptionNotEditableErr);
+        Assert.IsTrue(PurchaseReturnOrder.OperationDescription.Editable(), OperationDescriptionNotEditableErr);
         PurchaseReturnOrder.OperationDescription.AssertEquals(
           PurchaseHeader."Operation Description" + PurchaseHeader."Operation Description 2");
 
@@ -297,9 +295,9 @@ codeunit 147521 "SII Documents - UI"
         PurchInvHeader.TransferFields(PurchaseHeader);
         PurchInvHeader.Insert();
 
-        PostedPurchaseInvoice.OpenEdit;
+        PostedPurchaseInvoice.OpenEdit();
         PostedPurchaseInvoice.GotoRecord(PurchInvHeader);
-        Assert.IsFalse(PostedPurchaseInvoice.OperationDescription.Editable, OperationDescriptionEditableErr);
+        Assert.IsFalse(PostedPurchaseInvoice.OperationDescription.Editable(), OperationDescriptionEditableErr);
         PostedPurchaseInvoice.OperationDescription.AssertEquals(
           PurchInvHeader."Operation Description" + PurchInvHeader."Operation Description 2");
     end;
@@ -319,9 +317,9 @@ codeunit 147521 "SII Documents - UI"
         PurchCrMemoHdr.TransferFields(PurchaseHeader);
         PurchCrMemoHdr.Insert();
 
-        PostedPurchaseCreditMemo.OpenEdit;
+        PostedPurchaseCreditMemo.OpenEdit();
         PostedPurchaseCreditMemo.GotoRecord(PurchCrMemoHdr);
-        Assert.IsFalse(PostedPurchaseCreditMemo.OperationDescription.Editable, OperationDescriptionEditableErr);
+        Assert.IsFalse(PostedPurchaseCreditMemo.OperationDescription.Editable(), OperationDescriptionEditableErr);
         PostedPurchaseCreditMemo.OperationDescription.AssertEquals(
           PurchCrMemoHdr."Operation Description" + PurchCrMemoHdr."Operation Description 2");
     end;
@@ -340,9 +338,9 @@ codeunit 147521 "SII Documents - UI"
         CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Order);
         ServiceHeaderVerify := ServiceHeader;
 
-        ServiceOrder.OpenEdit;
+        ServiceOrder.OpenEdit();
         ServiceOrder.GotoRecord(ServiceHeader);
-        Assert.IsTrue(ServiceOrder.OperationDescription.Editable, OperationDescriptionNotEditableErr);
+        Assert.IsTrue(ServiceOrder.OperationDescription.Editable(), OperationDescriptionNotEditableErr);
         ServiceOrder.OperationDescription.AssertEquals(
           ServiceHeader."Operation Description" + ServiceHeader."Operation Description 2");
 
@@ -367,9 +365,9 @@ codeunit 147521 "SII Documents - UI"
         CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Invoice);
         ServiceHeaderVerify := ServiceHeader;
 
-        ServiceInvoice.OpenEdit;
+        ServiceInvoice.OpenEdit();
         ServiceInvoice.GotoRecord(ServiceHeader);
-        Assert.IsTrue(ServiceInvoice.OperationDescription.Editable, OperationDescriptionNotEditableErr);
+        Assert.IsTrue(ServiceInvoice.OperationDescription.Editable(), OperationDescriptionNotEditableErr);
         ServiceInvoice.OperationDescription.AssertEquals(
           ServiceHeader."Operation Description" + ServiceHeader."Operation Description 2");
 
@@ -394,9 +392,9 @@ codeunit 147521 "SII Documents - UI"
         CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::"Credit Memo");
         ServiceHeaderVerify := ServiceHeader;
 
-        ServiceCreditMemo.OpenEdit;
+        ServiceCreditMemo.OpenEdit();
         ServiceCreditMemo.GotoRecord(ServiceHeader);
-        Assert.IsTrue(ServiceCreditMemo.OperationDescription.Editable, OperationDescriptionNotEditableErr);
+        Assert.IsTrue(ServiceCreditMemo.OperationDescription.Editable(), OperationDescriptionNotEditableErr);
         ServiceCreditMemo.OperationDescription.AssertEquals(
           ServiceHeader."Operation Description" + ServiceHeader."Operation Description 2");
 
@@ -422,9 +420,9 @@ codeunit 147521 "SII Documents - UI"
         ServiceInvoiceHeader.TransferFields(ServiceHeader);
         ServiceInvoiceHeader.Insert();
 
-        PostedServiceInvoice.OpenEdit;
+        PostedServiceInvoice.OpenEdit();
         PostedServiceInvoice.GotoRecord(ServiceInvoiceHeader);
-        Assert.IsFalse(PostedServiceInvoice.OperationDescription.Editable, OperationDescriptionEditableErr);
+        Assert.IsFalse(PostedServiceInvoice.OperationDescription.Editable(), OperationDescriptionEditableErr);
         PostedServiceInvoice.OperationDescription.AssertEquals(
           ServiceInvoiceHeader."Operation Description" + ServiceInvoiceHeader."Operation Description 2");
     end;
@@ -444,9 +442,9 @@ codeunit 147521 "SII Documents - UI"
         ServiceCrMemoHeader.TransferFields(ServiceHeader);
         ServiceCrMemoHeader.Insert();
 
-        PostedServiceCreditMemo.OpenEdit;
+        PostedServiceCreditMemo.OpenEdit();
         PostedServiceCreditMemo.GotoRecord(ServiceCrMemoHeader);
-        Assert.IsFalse(PostedServiceCreditMemo.OperationDescription.Editable, OperationDescriptionEditableErr);
+        Assert.IsFalse(PostedServiceCreditMemo.OperationDescription.Editable(), OperationDescriptionEditableErr);
         PostedServiceCreditMemo.OperationDescription.AssertEquals(
           ServiceCrMemoHeader."Operation Description" + ServiceCrMemoHeader."Operation Description 2");
     end;
@@ -466,11 +464,11 @@ codeunit 147521 "SII Documents - UI"
         PurchaseHeader.TestField("Invoice Type", PurchaseHeader."Invoice Type"::"F1 Invoice");
         PurchaseHeaderVerify := PurchaseHeader;
 
-        PurchaseInvoice.OpenEdit;
+        PurchaseInvoice.OpenEdit();
         PurchaseInvoice.GotoRecord(PurchaseHeader);
 
         PurchaseInvoice."Invoice Type".SetValue(PurchaseHeader."Invoice Type"::"F5 Imports (DUA)");
-        PurchaseInvoice.OK.Invoke;
+        PurchaseInvoice.OK().Invoke();
         PurchaseHeaderVerify.Find();
         PurchaseHeaderVerify.TestField("Invoice Type", PurchaseHeaderVerify."Invoice Type"::"F5 Imports (DUA)");
     end;
@@ -482,7 +480,7 @@ codeunit 147521 "SII Documents - UI"
             exit;
 
         LibrarySII.InitSetup(true, false);
-        LibrarySII.BindSubscriptionJobQueue;
+        LibrarySII.BindSubscriptionJobQueue();
         LibrarySetupStorage.Save(DATABASE::"SII Setup");
 
         IsInitialized := true;

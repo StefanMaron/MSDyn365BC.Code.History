@@ -89,7 +89,7 @@ codeunit 147542 "Cartera Recv. Unit Tests"
         Assert.IsFalse(BGCommentLine.IsEmpty, '');
 
         // Teardown
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -138,12 +138,12 @@ codeunit 147542 "Cartera Recv. Unit Tests"
         CreateBillGroupWithBankAccount(BillGroup[2]);
 
         // [GIVEN] Select Bill Group "BG2" from "Bill Groups List" page
-        BillGroupsList.OpenView;
+        BillGroupsList.OpenView();
         BillGroupsList.GotoRecord(BillGroup[2]);
 
         // [WHEN] Run General Action "Bill Groups Maturity"
-        BillGroupsMaturity.Trap;
-        BillGroupsList.GeneralBillGroupsMaturity.Invoke;
+        BillGroupsMaturity.Trap();
+        BillGroupsList.GeneralBillGroupsMaturity.Invoke();
 
         // [THEN] "Bill Groups Maturity" page is opened for Bill Group "BG2"
         Assert.AreEqual(BillGroup[2]."No.", BillGroupsMaturity.FILTER.GetFilter("No."), BillGroup[2].FieldCaption("No."));
@@ -165,11 +165,11 @@ codeunit 147542 "Cartera Recv. Unit Tests"
         MockReceivableCarteraDoc(CarteraDoc);
 
         // [GIVEN] Open Page for Receivables Cartera Docs
-        ReceivablesCarteraDocs.OpenView;
+        ReceivablesCarteraDocs.OpenView();
 
         // [WHEN] Run Action "Documents Maturity"
-        DocumentsMaturity.Trap;
-        ReceivablesCarteraDocs."Documents Maturity".Invoke;
+        DocumentsMaturity.Trap();
+        ReceivablesCarteraDocs."Documents Maturity".Invoke();
 
         // [THEN] A filter for the field "Type" is transfered to the Documents Maturity Page.
         Assert.AreEqual(
@@ -195,12 +195,12 @@ codeunit 147542 "Cartera Recv. Unit Tests"
         CreateBillGroupWithBankAccount(BillGroup[2]);
 
         // [GIVEN] Open a Bill Groups Page for the "BG2"
-        BillGroups.OpenView;
+        BillGroups.OpenView();
         BillGroups.GotoRecord(BillGroup[2]);
 
         // [WHEN] Run Action "Bill Groups Maturity"
-        BillGroupsMaturity.Trap;
-        BillGroups.BillGroupsMaturity.Invoke;
+        BillGroupsMaturity.Trap();
+        BillGroups.BillGroupsMaturity.Invoke();
 
         // [THEN] "Bill Groups Maturity" page is opened for "BG2"
         Assert.AreEqual(
@@ -226,12 +226,12 @@ codeunit 147542 "Cartera Recv. Unit Tests"
         MockPostedBillGroup(PostedBillGroup[2]);
 
         // [GIVEN] Open a Posted Bill Groups Page for the "BG2"
-        PostedBillGroups.OpenView;
+        PostedBillGroups.OpenView();
         PostedBillGroups.GotoRecord(PostedBillGroup[2]);
 
         // [WHEN] Run Action "Posted Bill Groups Maturity"
-        PostedBillGroupsMaturity.Trap;
-        PostedBillGroups."Posted Bill Groups Maturity".Invoke;
+        PostedBillGroupsMaturity.Trap();
+        PostedBillGroups."Posted Bill Groups Maturity".Invoke();
 
         // [THEN] "Posted Bill Groups Maturity" page is opened for "BG2"
         Assert.AreEqual(
@@ -257,12 +257,12 @@ codeunit 147542 "Cartera Recv. Unit Tests"
         MockPostedBillGroup(PostedBillGroup[2]);
 
         // [GIVEN] Open a Posted Bill Groups Page for the "BG2"
-        PostedBillGroupsList.OpenView;
+        PostedBillGroupsList.OpenView();
         PostedBillGroupsList.GotoRecord(PostedBillGroup[2]);
 
         // [WHEN] Run Action "Posted Bill Groups Maturity"
-        PostedBillGroupsMaturity.Trap;
-        PostedBillGroupsList."Posted Bill Groups Maturity".Invoke;
+        PostedBillGroupsMaturity.Trap();
+        PostedBillGroupsList."Posted Bill Groups Maturity".Invoke();
 
         // [THEN] "Posted Bill Groups Maturity" page is opened for "BG2"
         Assert.AreEqual(
@@ -288,12 +288,12 @@ codeunit 147542 "Cartera Recv. Unit Tests"
         MockPostedBillGroup(PostedBillGroup[2]);
 
         // [GIVEN] Open a Posted Bill Groups Select Page for the "BG2"
-        PostedBillGroupSelect.OpenView;
+        PostedBillGroupSelect.OpenView();
         PostedBillGroupSelect.GotoRecord(PostedBillGroup[2]);
 
         // [WHEN] Run Action "Posted Bill Groups Maturity"
-        PostedBillGroupsMaturity.Trap;
-        PostedBillGroupSelect."Posted Bill Groups Maturity".Invoke;
+        PostedBillGroupsMaturity.Trap();
+        PostedBillGroupSelect."Posted Bill Groups Maturity".Invoke();
 
         // [THEN] "Posted Bill Groups Maturity" page is opened for "BG2"
         Assert.AreEqual(
@@ -322,7 +322,7 @@ codeunit 147542 "Cartera Recv. Unit Tests"
         Commit();
 
         // [GIVEN] Customer license with indirect permissions (RxMx) to "Cartera Doc."
-        // TODO: Uncomment LibraryLowerPermissions.SetCustomerView; // includes "LOCAL" role with changed permissions to "Cartera Doc."
+        // TODO: Uncomment LibraryLowerPermissions.SetCustomerView(); // includes "LOCAL" role with changed permissions to "Cartera Doc."
         // [GIVEN] "Cartera Doc." can not be read or modified directly due to indirect permissions
         asserterror CarteraDoc.Find();
         Assert.ExpectedErrorCode('DB:ClientReadDenied');
@@ -334,7 +334,7 @@ codeunit 147542 "Cartera Recv. Unit Tests"
         // [GIVEN] Customer Ledger Entry page
         // [WHEN] Modify "Payment Method Code"
         // [THEN] "Payment Method Code" has been validated and linked "Cartera Doc." record has been updated
-        CustomerLedgerEntries.OpenEdit;
+        CustomerLedgerEntries.OpenEdit();
         CustomerLedgerEntries.GotoRecord(CustLedgerEntry);
         CustomerLedgerEntries."Payment Method Code".SetValue(PaymentMethod.Code);
         CustomerLedgerEntries.Close();
@@ -419,18 +419,18 @@ codeunit 147542 "Cartera Recv. Unit Tests"
     var
         BillGroupsList: TestPage "Bill Groups List";
     begin
-        BillGroupsList.OpenEdit;
+        BillGroupsList.OpenEdit();
         BillGroupsList.GotoKey(BillGroupNo);
-        BillGroupsList.Comments.Invoke;
+        BillGroupsList.Comments.Invoke();
     end;
 
     local procedure AddCommentLineFromCard(BillGroupNo: Code[20])
     var
         BillGroups: TestPage "Bill Groups";
     begin
-        BillGroups.OpenEdit;
+        BillGroups.OpenEdit();
         BillGroups.GotoKey(BillGroupNo);
-        BillGroups.Comments.Invoke;
+        BillGroups.Comments.Invoke();
     end;
 
     local procedure MockReceivableCarteraDoc(var CarteraDoc: Record "Cartera Doc.")
@@ -466,10 +466,10 @@ codeunit 147542 "Cartera Recv. Unit Tests"
         Comment := LibraryUtility.GenerateGUID();
         LibraryVariableStorage.Enqueue(Comment);
 
-        BGCommentSheet.New;
+        BGCommentSheet.New();
         BGCommentSheet.Date.SetValue(WorkDate());
         BGCommentSheet.Comment.SetValue(Comment);
-        BGCommentSheet.OK.Invoke;
+        BGCommentSheet.OK().Invoke();
     end;
 }
 

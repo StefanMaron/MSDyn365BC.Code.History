@@ -29,20 +29,18 @@ codeunit 131320 "Library - ERM Vendor Watch"
 
     local procedure WatchVendorEntry(VendorNo: Code[20]; WatchLETotal: Boolean; WatchDtldLETotal: Boolean; LECompareMethod: Option; DtldLECompareMethod: Option)
     begin
-        with WatchVendor do begin
-            Init();
-            "Line No." := NextLineNo;
-            "Vendor No." := VendorNo;
+        WatchVendor.Init();
+        WatchVendor."Line No." := NextLineNo();
+        WatchVendor."Vendor No." := VendorNo;
 
-            "Original LE Count" := LedgerEntryTotal(VendorNo);
-            "Original Dtld. LE Count" := DtldLedgerEntryTotal(VendorNo);
-            "Watch LE" := WatchLETotal;
-            "Watch Dtld. LE" := WatchDtldLETotal;
-            "LE Comparison Method" := LECompareMethod;
-            "Dtld. LE Comparison Method" := DtldLECompareMethod;
+        WatchVendor."Original LE Count" := LedgerEntryTotal(VendorNo);
+        WatchVendor."Original Dtld. LE Count" := DtldLedgerEntryTotal(VendorNo);
+        WatchVendor."Watch LE" := WatchLETotal;
+        WatchVendor."Watch Dtld. LE" := WatchDtldLETotal;
+        WatchVendor."LE Comparison Method" := LECompareMethod;
+        WatchVendor."Dtld. LE Comparison Method" := DtldLECompareMethod;
 
-            Insert(true);
-        end;
+        WatchVendor.Insert(true);
     end;
 
     [Scope('OnPrem')]
@@ -72,22 +70,20 @@ codeunit 131320 "Library - ERM Vendor Watch"
     [Scope('OnPrem')]
     procedure WatchLedgerEntries(VendorNo: Code[20]; EntryType: Option; DeltaCount: Integer; DeltaSum: Decimal; CountCompareMethod: Option; SumCompareMethod: Option)
     begin
-        with WatchVendorLedgerEntry do begin
-            Init();
-            "Line No." := NextLELineNo;
-            "Vendor No." := VendorNo;
-            "Line Level" := "Line Level"::"Ledger Entry";
-            "Line Type" := EntryType;
+        WatchVendorLedgerEntry.Init();
+        WatchVendorLedgerEntry."Line No." := NextLELineNo();
+        WatchVendorLedgerEntry."Vendor No." := VendorNo;
+        WatchVendorLedgerEntry."Line Level" := WatchVendorLedgerEntry."Line Level"::"Ledger Entry";
+        WatchVendorLedgerEntry."Line Type" := EntryType;
 
-            "Original Count" := LedgerEntryCount(VendorNo, EntryType);
-            "Delta Count" := DeltaCount;
-            "Original Sum" := LedgerEntrySum(VendorNo, EntryType);
-            "Delta Sum" := DeltaSum;
-            "Count Comparison Method" := CountCompareMethod;
-            "Sum Comparison Method" := SumCompareMethod;
+        WatchVendorLedgerEntry."Original Count" := LedgerEntryCount(VendorNo, EntryType);
+        WatchVendorLedgerEntry."Delta Count" := DeltaCount;
+        WatchVendorLedgerEntry."Original Sum" := LedgerEntrySum(VendorNo, EntryType);
+        WatchVendorLedgerEntry."Delta Sum" := DeltaSum;
+        WatchVendorLedgerEntry."Count Comparison Method" := CountCompareMethod;
+        WatchVendorLedgerEntry."Sum Comparison Method" := SumCompareMethod;
 
-            Insert(true);
-        end;
+        WatchVendorLedgerEntry.Insert(true);
     end;
 
     [Scope('OnPrem')]
@@ -117,22 +113,20 @@ codeunit 131320 "Library - ERM Vendor Watch"
     [Scope('OnPrem')]
     procedure WatchDtldLedgerEntries(VendorNo: Code[20]; EntryType: Enum "Detailed CV Ledger Entry Type"; DeltaCount: Integer; DeltaSum: Decimal; CountCompareMethod: Option; SumCompareMethod: Option)
     begin
-        with WatchVendorLedgerEntry do begin
-            Init();
-            "Line No." := NextLELineNo;
-            "Vendor No." := VendorNo;
-            "Line Level" := "Line Level"::"Detailed Ledger Entry";
-            "Line Type" := EntryType.AsInteger();
+        WatchVendorLedgerEntry.Init();
+        WatchVendorLedgerEntry."Line No." := NextLELineNo();
+        WatchVendorLedgerEntry."Vendor No." := VendorNo;
+        WatchVendorLedgerEntry."Line Level" := WatchVendorLedgerEntry."Line Level"::"Detailed Ledger Entry";
+        WatchVendorLedgerEntry."Line Type" := EntryType.AsInteger();
 
-            "Original Count" := DtldLedgerEntryCount(VendorNo, EntryType);
-            "Delta Count" := DeltaCount;
-            "Original Sum" := DtldLedgerEntrySum(VendorNo, EntryType);
-            "Delta Sum" := DeltaSum;
-            "Count Comparison Method" := CountCompareMethod;
-            "Sum Comparison Method" := SumCompareMethod;
+        WatchVendorLedgerEntry."Original Count" := DtldLedgerEntryCount(VendorNo, EntryType);
+        WatchVendorLedgerEntry."Delta Count" := DeltaCount;
+        WatchVendorLedgerEntry."Original Sum" := DtldLedgerEntrySum(VendorNo, EntryType);
+        WatchVendorLedgerEntry."Delta Sum" := DeltaSum;
+        WatchVendorLedgerEntry."Count Comparison Method" := CountCompareMethod;
+        WatchVendorLedgerEntry."Sum Comparison Method" := SumCompareMethod;
 
-            Insert(true);
-        end;
+        WatchVendorLedgerEntry.Insert(true);
     end;
 
     [Scope('OnPrem')]
@@ -173,40 +167,36 @@ codeunit 131320 "Library - ERM Vendor Watch"
 
     local procedure AssertLedgerEntry(WatchVendorLedgerEntry2: Record "Watch Vendor Ledger Entry")
     begin
-        with WatchVendorLedgerEntry2 do begin
-            DeltaCompareCount(
-              "Original Count",
-              "Delta Count",
-              LedgerEntryCount("Vendor No.", "Line Type"),
-              "Count Comparison Method",
-              'Incorrect ledger entry count, vendor: ' + "Vendor No." + ', line type: ' + Format("Line Type"));
+        DeltaCompareCount(
+            WatchVendorLedgerEntry2."Original Count",
+            WatchVendorLedgerEntry2."Delta Count",
+            LedgerEntryCount(WatchVendorLedgerEntry2."Vendor No.", WatchVendorLedgerEntry2."Line Type"),
+            WatchVendorLedgerEntry2."Count Comparison Method",
+            'Incorrect ledger entry count, vendor: ' + WatchVendorLedgerEntry2."Vendor No." + ', line type: ' + Format(WatchVendorLedgerEntry2."Line Type"));
 
-            DeltaCompareSum(
-              "Original Sum",
-              "Delta Sum",
-              LedgerEntrySum("Vendor No.", "Line Type"),
-              "Sum Comparison Method",
-              'Incorrect ledger entry sum, vendor: ' + "Vendor No." + ', line type: ' + Format("Line Type"));
-        end;
+        DeltaCompareSum(
+          WatchVendorLedgerEntry2."Original Sum",
+          WatchVendorLedgerEntry2."Delta Sum",
+          LedgerEntrySum(WatchVendorLedgerEntry2."Vendor No.", WatchVendorLedgerEntry2."Line Type"),
+          WatchVendorLedgerEntry2."Sum Comparison Method",
+          'Incorrect ledger entry sum, vendor: ' + WatchVendorLedgerEntry2."Vendor No." + ', line type: ' + Format(WatchVendorLedgerEntry2."Line Type"));
     end;
 
     local procedure AssertDtldLedgerEntry(WatchVendorLedgerEntry2: Record "Watch Vendor Ledger Entry")
     begin
-        with WatchVendorLedgerEntry2 do begin
-            DeltaCompareCount(
-              "Original Count",
-              "Delta Count",
-              DtldLedgerEntryCount("Vendor No.", "Detailed CV Ledger Entry Type".FromInteger("Line Type")),
-              "Count Comparison Method",
-              'Incorrect detailed ledger entry count, vendor: ' + "Vendor No." + ', line type: ' + Format("Line Type"));
+        DeltaCompareCount(
+            WatchVendorLedgerEntry2."Original Count",
+            WatchVendorLedgerEntry2."Delta Count",
+            DtldLedgerEntryCount(WatchVendorLedgerEntry2."Vendor No.", "Detailed CV Ledger Entry Type".FromInteger(WatchVendorLedgerEntry2."Line Type")),
+            WatchVendorLedgerEntry2."Count Comparison Method",
+            'Incorrect detailed ledger entry count, vendor: ' + WatchVendorLedgerEntry2."Vendor No." + ', line type: ' + Format(WatchVendorLedgerEntry2."Line Type"));
 
-            DeltaCompareSum(
-              "Original Sum",
-              "Delta Sum",
-              DtldLedgerEntrySum("Vendor No.", "Detailed CV Ledger Entry Type".FromInteger("Line Type")),
-              "Sum Comparison Method",
-              'Incorrect detailed ledger entry sum, vendor: ' + "Vendor No." + ', line type: ' + Format("Line Type"));
-        end;
+        DeltaCompareSum(
+          WatchVendorLedgerEntry2."Original Sum",
+          WatchVendorLedgerEntry2."Delta Sum",
+          DtldLedgerEntrySum(WatchVendorLedgerEntry2."Vendor No.", "Detailed CV Ledger Entry Type".FromInteger(WatchVendorLedgerEntry2."Line Type")),
+          WatchVendorLedgerEntry2."Sum Comparison Method",
+          'Incorrect detailed ledger entry sum, vendor: ' + WatchVendorLedgerEntry2."Vendor No." + ', line type: ' + Format(WatchVendorLedgerEntry2."Line Type"));
     end;
 
     [Scope('OnPrem')]
@@ -218,41 +208,38 @@ codeunit 131320 "Library - ERM Vendor Watch"
         TotalLEDelta := 0;
         TotalDtldLEDelta := 0;
 
-        with WatchVendorLedgerEntry do begin
-            Reset();
+        WatchVendorLedgerEntry.Reset();
 
-            if FindSet() then
-                repeat
-                    if "Line Level" = "Line Level"::"Ledger Entry" then begin
-                        TotalLEDelta += "Delta Count";
-                        AssertLedgerEntry(WatchVendorLedgerEntry)
-                    end else begin
-                        TotalDtldLEDelta += "Delta Count";
-                        AssertDtldLedgerEntry(WatchVendorLedgerEntry);
-                    end;
-                until Next = 0;
-        end;
+        if WatchVendorLedgerEntry.FindSet() then
+            repeat
+                if WatchVendorLedgerEntry."Line Level" = WatchVendorLedgerEntry."Line Level"::"Ledger Entry" then begin
+                    TotalLEDelta += WatchVendorLedgerEntry."Delta Count";
+                    AssertLedgerEntry(WatchVendorLedgerEntry)
+                end else begin
+                    TotalDtldLEDelta += WatchVendorLedgerEntry."Delta Count";
+                    AssertDtldLedgerEntry(WatchVendorLedgerEntry);
+                end;
+            until WatchVendorLedgerEntry.Next() = 0;
 
-        with WatchVendor do begin
-            Reset();
-            if FindFirst() then begin
-                // Check that all ledger entries are accounted for
-                if "Watch LE" then
-                    DeltaCompareCount("Original LE Count", TotalLEDelta, LedgerEntryTotal("Vendor No."), "LE Comparison Method",
-                      'There are unaccounted for ledger entries');
-
-                // Check that all detailed ledger entries are accounted for
-                if "Watch Dtld. LE" then
-                    DeltaCompareCount(
-                      "Original Dtld. LE Count", TotalDtldLEDelta, DtldLedgerEntryTotal("Vendor No."), "Dtld. LE Comparison Method"
-                      , 'There are unaccounted for detailed ledger entries');
-            end;
+        WatchVendor.Reset();
+        if WatchVendor.FindFirst() then begin
+            // Check that all ledger entries are accounted for
+            if WatchVendor."Watch LE" then
+                DeltaCompareCount(WatchVendor."Original LE Count", TotalLEDelta, LedgerEntryTotal(WatchVendor."Vendor No."), WatchVendor."LE Comparison Method",
+                  'There are unaccounted for ledger entries');
+            // Check that all detailed ledger entries are accounted for
+            if WatchVendor."Watch Dtld. LE" then
+                DeltaCompareCount(
+                  WatchVendor."Original Dtld. LE Count", TotalDtldLEDelta, DtldLedgerEntryTotal(WatchVendor."Vendor No."), WatchVendor."Dtld. LE Comparison Method"
+                  , 'There are unaccounted for detailed ledger entries');
         end;
     end;
 
     local procedure DeltaCompareCount(Original: Integer; Delta: Integer; Total: Integer; ComparisonMethod: Option; ErrorMsg: Text[250])
     begin
+#pragma warning disable AA0139
         ErrorMsg := ErrorMsg + ' [Original: ' + Format(Original) + ', Delta: ' + Format(Delta) + ', Total: ' + Format(Total) + ']';
+#pragma warning restore AA0139
         case ComparisonMethod of
             WatchVendorLedgerEntry."Count Comparison Method"::Equal:
                 Assert.AreEqual(Original + Delta, Total, ErrorMsg);
@@ -265,7 +252,9 @@ codeunit 131320 "Library - ERM Vendor Watch"
 
     local procedure DeltaCompareSum(Original: Decimal; Delta: Decimal; Total: Decimal; ComparisonMethod: Option; ErrorMsg: Text[250])
     begin
+#pragma warning disable AA0139
         ErrorMsg := ErrorMsg + ' [Original: ' + Format(Original) + ', Delta: ' + Format(Delta) + ', Total: ' + Format(Total) + ']';
+#pragma warning restore AA0139
         case ComparisonMethod of
             WatchVendorLedgerEntry."Sum Comparison Method"::Equal:
                 Assert.AreNearlyEqual(Original + Delta, Total, Tolerance, ErrorMsg);

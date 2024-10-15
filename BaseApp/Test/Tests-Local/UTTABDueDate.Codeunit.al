@@ -67,7 +67,7 @@ codeunit 144042 "UT TAB Due Date"
 
         // Setup: Create EU Customer.
         Initialize();
-        OnInsertPaymentDay(PaymentDay."Table Name"::Customer, CreateCustomer(CreateCountryRegion, LibraryUTUtility.GetNewCode));  // Generate VAT Registration Number.
+        OnInsertPaymentDay(PaymentDay."Table Name"::Customer, CreateCustomer(CreateCountryRegion(), LibraryUTUtility.GetNewCode()));  // Generate VAT Registration Number.
     end;
 
     [Test]
@@ -97,7 +97,7 @@ codeunit 144042 "UT TAB Due Date"
 
         // Setup: Create EU Vendor.
         Initialize();
-        OnInsertPaymentDay(PaymentDay."Table Name"::Vendor, CreateVendor(CreateCountryRegion, LibraryUTUtility.GetNewCode));  // Generate VAT Registration Number.
+        OnInsertPaymentDay(PaymentDay."Table Name"::Vendor, CreateVendor(CreateCountryRegion(), LibraryUTUtility.GetNewCode()));  // Generate VAT Registration Number.
     end;
 
     [Test]
@@ -112,7 +112,7 @@ codeunit 144042 "UT TAB Due Date"
 
         // Setup: Update Company Information - Payment Days Code.
         Initialize();
-        OnInsertPaymentDay(PaymentDay."Table Name"::"Company Information", UpdateCompanyInformation);
+        OnInsertPaymentDay(PaymentDay."Table Name"::"Company Information", UpdateCompanyInformation());
     end;
 
     local procedure OnInsertPaymentDay(TableName: Option; Number: Code[20])
@@ -152,7 +152,7 @@ codeunit 144042 "UT TAB Due Date"
         // Setup: Create EU Customer.
         Initialize();
         OnInsertNonPaymentPeriod(
-          NonPaymentPeriod."Table Name"::Customer, CreateCustomer(CreateCountryRegion, LibraryUTUtility.GetNewCode));  // Generate VAT Registration Number.
+          NonPaymentPeriod."Table Name"::Customer, CreateCustomer(CreateCountryRegion(), LibraryUTUtility.GetNewCode()));  // Generate VAT Registration Number.
     end;
 
     [Test]
@@ -182,7 +182,7 @@ codeunit 144042 "UT TAB Due Date"
 
         // Setup: Create EU Vendor.
         Initialize();
-        OnInsertNonPaymentPeriod(NonPaymentPeriod."Table Name"::Vendor, CreateVendor(CreateCountryRegion, LibraryUTUtility.GetNewCode));  // Generate VAT Registration Number.
+        OnInsertNonPaymentPeriod(NonPaymentPeriod."Table Name"::Vendor, CreateVendor(CreateCountryRegion(), LibraryUTUtility.GetNewCode()));  // Generate VAT Registration Number.
     end;
 
     [Test]
@@ -197,7 +197,7 @@ codeunit 144042 "UT TAB Due Date"
 
         // Setup: Update Company Information - Non-Paymt. Periods Code.
         Initialize();
-        OnInsertNonPaymentPeriod(NonPaymentPeriod."Table Name"::"Company Information", UpdateCompanyInformation);
+        OnInsertNonPaymentPeriod(NonPaymentPeriod."Table Name"::"Company Information", UpdateCompanyInformation());
     end;
 
     local procedure OnInsertNonPaymentPeriod(TableName: Option; Number: Code[20])
@@ -218,7 +218,7 @@ codeunit 144042 "UT TAB Due Date"
     var
         CountryRegion: Record "Country/Region";
     begin
-        CountryRegion.Code := LibraryUTUtility.GetNewCode10;
+        CountryRegion.Code := LibraryUTUtility.GetNewCode10();
         CountryRegion.Insert();
         exit(CountryRegion.Code);
     end;
@@ -227,11 +227,11 @@ codeunit 144042 "UT TAB Due Date"
     var
         Customer: Record Customer;
     begin
-        Customer."No." := LibraryUTUtility.GetNewCode;
-        Customer."Customer Posting Group" := LibraryUTUtility.GetNewCode10;
-        Customer."Gen. Bus. Posting Group" := LibraryUTUtility.GetNewCode10;
+        Customer."No." := LibraryUTUtility.GetNewCode();
+        Customer."Customer Posting Group" := LibraryUTUtility.GetNewCode10();
+        Customer."Gen. Bus. Posting Group" := LibraryUTUtility.GetNewCode10();
         Customer."Country/Region Code" := CountryRegionCode;
-        Customer."Payment Terms Code" := CreatePaymentTerm;
+        Customer."Payment Terms Code" := CreatePaymentTerms();
         Customer."Payment Days Code" := Customer."No.";
         Customer."Non-Paymt. Periods Code" := Customer."Payment Days Code";
         Customer."VAT Registration No." := VATRegistrationNo;
@@ -239,11 +239,11 @@ codeunit 144042 "UT TAB Due Date"
         exit(Customer."No.");
     end;
 
-    local procedure CreatePaymentTerm(): Code[10]
+    local procedure CreatePaymentTerms(): Code[10]
     var
         PaymentTerms: Record "Payment Terms";
     begin
-        PaymentTerms.Code := LibraryUTUtility.GetNewCode10;
+        PaymentTerms.Code := LibraryUTUtility.GetNewCode10();
         Evaluate(PaymentTerms."Due Date Calculation", Format(LibraryRandom.RandIntInRange(10, 50)) + 'D>');  // Random - Due Date Calculation Period.
         PaymentTerms."VAT distribution" := PaymentTerms."VAT distribution"::Proportional;
         PaymentTerms.Insert();
@@ -254,11 +254,11 @@ codeunit 144042 "UT TAB Due Date"
     var
         Vendor: Record Vendor;
     begin
-        Vendor."No." := LibraryUTUtility.GetNewCode;
-        Vendor."Vendor Posting Group" := LibraryUTUtility.GetNewCode10;
-        Vendor."Gen. Bus. Posting Group" := LibraryUTUtility.GetNewCode10;
+        Vendor."No." := LibraryUTUtility.GetNewCode();
+        Vendor."Vendor Posting Group" := LibraryUTUtility.GetNewCode10();
+        Vendor."Gen. Bus. Posting Group" := LibraryUTUtility.GetNewCode10();
         Vendor."Country/Region Code" := CountryRegionCode;
-        Vendor."Payment Terms Code" := CreatePaymentTerm;
+        Vendor."Payment Terms Code" := CreatePaymentTerms();
         Vendor."Payment Days Code" := Vendor."No.";
         Vendor."Non-Paymt. Periods Code" := Vendor."Payment Days Code";
         Vendor."VAT Registration No." := VATRegistrationNo;
@@ -289,7 +289,7 @@ codeunit 144042 "UT TAB Due Date"
         CompanyInformation: Record "Company Information";
     begin
         CompanyInformation.Get();
-        CompanyInformation."Non-Paymt. Periods Code" := LibraryUTUtility.GetNewCode10;
+        CompanyInformation."Non-Paymt. Periods Code" := LibraryUTUtility.GetNewCode10();
         CompanyInformation."Payment Days Code" := CompanyInformation."Non-Paymt. Periods Code";
         CompanyInformation.Modify();
         exit(CompanyInformation."Non-Paymt. Periods Code");
@@ -318,7 +318,7 @@ codeunit 144042 "UT TAB Due Date"
     begin
         NonPaymentPeriods."From Date".SetValue(WorkDate());
         NonPaymentPeriods."To Date".SetValue(WorkDate());
-        NonPaymentPeriods.OK.Invoke;
+        NonPaymentPeriods.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -326,8 +326,8 @@ codeunit 144042 "UT TAB Due Date"
     procedure PaymentDaysModalPageHandler(var PaymentDays: TestPage "Payment Days")
     begin
         PaymentDays."Day of the month".SetValue(LibraryRandom.RandIntInRange(10, 20));
-        LibraryVariableStorage.Enqueue(PaymentDays."Day of the month".AsInteger);
-        PaymentDays.OK.Invoke;
+        LibraryVariableStorage.Enqueue(PaymentDays."Day of the month".AsInteger());
+        PaymentDays.OK().Invoke();
     end;
 }
 

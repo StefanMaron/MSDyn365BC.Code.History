@@ -33,7 +33,7 @@ codeunit 144010 "ELECPMTS Transfer Type"
         UnitCost: Decimal;
     begin
         Initialize();
-        CreateLocalCompany;
+        CreateLocalCompany();
 
         // Setup
         CreateLocalCompanyBankAccount(BankAccount);
@@ -72,7 +72,7 @@ codeunit 144010 "ELECPMTS Transfer Type"
         UnitCost: Decimal;
     begin
         Initialize();
-        CreateLocalCompany;
+        CreateLocalCompany();
 
         // Setup
         CreateLocalCompanyBankAccount(BankAccount);
@@ -110,7 +110,7 @@ codeunit 144010 "ELECPMTS Transfer Type"
         UnitCost: Decimal;
     begin
         Initialize();
-        CreateLocalCompany;
+        CreateLocalCompany();
 
         // Setup
         CreateLocalCompanyBankAccount(BankAccount);
@@ -150,7 +150,7 @@ codeunit 144010 "ELECPMTS Transfer Type"
         UnitCost: Decimal;
     begin
         Initialize();
-        CreateLocalCompany;
+        CreateLocalCompany();
 
         // Setup
         CreateLocalCompanyBankAccount(BankAccount);
@@ -190,7 +190,7 @@ codeunit 144010 "ELECPMTS Transfer Type"
         UnitCost: Decimal;
     begin
         Initialize();
-        CreateForeignCompany;
+        CreateForeignCompany();
 
         // Setup
         CreateLocalCompanyBankAccount(BankAccount);
@@ -230,7 +230,7 @@ codeunit 144010 "ELECPMTS Transfer Type"
         UnitCost: Decimal;
     begin
         Initialize();
-        CreateForeignCompany;
+        CreateForeignCompany();
 
         // Setup
         CreateLocalCompanyBankAccount(BankAccount);
@@ -270,7 +270,7 @@ codeunit 144010 "ELECPMTS Transfer Type"
         DocNo: Code[20];
     begin
         Initialize();
-        CreateForeignCompany;
+        CreateForeignCompany();
 
         // Setup
         CreateLocalCompanyBankAccount(BankAccount);
@@ -309,7 +309,7 @@ codeunit 144010 "ELECPMTS Transfer Type"
         DocNo: Code[20];
     begin
         Initialize();
-        CreateForeignCompany;
+        CreateForeignCompany();
 
         // Setup
         CreateLocalCompanyBankAccount(BankAccount);
@@ -348,7 +348,7 @@ codeunit 144010 "ELECPMTS Transfer Type"
         DocNo: Code[20];
     begin
         Initialize();
-        CreateLocalCompany;
+        CreateLocalCompany();
 
         // Setup
         CreateLocalCompanyBankAccount(BankAccount);
@@ -387,7 +387,7 @@ codeunit 144010 "ELECPMTS Transfer Type"
         UnitCost: Decimal;
     begin
         Initialize();
-        CreateLocalCompany;
+        CreateLocalCompany();
 
         // Setup
         CreateLocalCompanyBankAccount(BankAccount);

@@ -453,7 +453,7 @@ codeunit 5477 "Sales Invoice Aggregator"
             until SalesInvoiceHeader.Next() = 0;
 
         SalesInvoiceEntityAggregate.SetRange(Posted, false);
-        if SalesInvoiceEntityAggregate.FindSet(true, false) then
+        if SalesInvoiceEntityAggregate.FindSet(true) then
             repeat
                 if not SalesHeader.Get(SalesHeader."Document Type"::Invoice, SalesInvoiceEntityAggregate."No.") then begin
                     SalesInvoiceEntityAggregate.Delete(true);
@@ -462,7 +462,7 @@ codeunit 5477 "Sales Invoice Aggregator"
             until SalesInvoiceEntityAggregate.Next() = 0;
 
         SalesInvoiceEntityAggregate.SetRange(Posted, true);
-        if SalesInvoiceEntityAggregate.FindSet(true, false) then
+        if SalesInvoiceEntityAggregate.FindSet(true) then
             repeat
                 if not SalesInvoiceHeader.Get(SalesInvoiceEntityAggregate."No.") then begin
                     SalesInvoiceEntityAggregate.Delete(true);
@@ -482,7 +482,7 @@ codeunit 5477 "Sales Invoice Aggregator"
     procedure GetSalesInvoiceHeaderFromId(Id: text; var SalesInvoiceHeader: Record "Sales Invoice Header"): Boolean
     begin
         SalesInvoiceHeader.SetFilter("Draft Invoice SystemId", Id);
-        IF SalesInvoiceHeader.FINDFIRST() THEN
+        if SalesInvoiceHeader.FINDFIRST() then
             exit(true);
 
         SalesInvoiceHeader.SetRange("Draft Invoice SystemId");
@@ -898,7 +898,7 @@ codeunit 5477 "Sales Invoice Aggregator"
     begin
         SalesInvoiceLine.SetRange("Document No.", SalesInvoiceEntityAggregate."No.");
 
-        if SalesInvoiceLine.FindSet(false, false) then
+        if SalesInvoiceLine.FindSet(false) then
             repeat
                 Clear(SalesInvoiceLineAggregate);
                 SalesInvoiceLineAggregate.TransferFields(SalesInvoiceLine, true);
@@ -929,7 +929,7 @@ codeunit 5477 "Sales Invoice Aggregator"
         SalesLine.SetRange("Document Type", SalesLine."Document Type"::Invoice);
         SalesLine.SetRange("Document No.", SalesInvoiceEntityAggregate."No.");
 
-        if SalesLine.FindSet(false, false) then
+        if SalesLine.FindSet(false) then
             repeat
                 TransferFromSalesLine(SalesInvoiceLineAggregate, SalesInvoiceEntityAggregate, SalesLine);
                 SalesInvoiceLineAggregate.Insert(true);
@@ -1057,7 +1057,7 @@ codeunit 5477 "Sales Invoice Aggregator"
         SkipUpdateDiscounts := true;
 
         // Remove deleted lines
-        if TempCurrentSalesInvoiceLineAggregate.FindSet(true, false) then
+        if TempCurrentSalesInvoiceLineAggregate.FindSet(true) then
             repeat
                 if not TempNewSalesInvoiceLineAggregate.Get(SalesInvoiceEntityAggregate.Id, TempCurrentSalesInvoiceLineAggregate."Line No.") then
                     PropagateDeleteLine(TempCurrentSalesInvoiceLineAggregate);

@@ -68,7 +68,7 @@
         PostedBillGroup.FindLast();
         Assert.AreEqual(CustLedgerEntry.Amount, PostedBillGroup.Amount, UnexpectedAmountErr);
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -143,7 +143,7 @@
             InvoiceToCustomer."No.", DocumentTypeInvoice, CustLedgerEntry."Document Type"::Invoice);
 
         // Open View - Posted Bill Groups page
-        PostedBillGroupTestPage.OpenView;
+        PostedBillGroupTestPage.OpenView();
 
         PostedBillGroup.SetFilter("No.", BillGroup."No.");
         PostedBillGroup.FindFirst();
@@ -155,11 +155,11 @@
         Commit();
         LibraryVariableStorage.Enqueue(WorkDate());
         LibraryVariableStorage.Enqueue(StrSubstNo(TotalSettlementBillGroupMsg, 1, TotalAmountBill));
-        PostedBillGroupTestPage.Docs."Total Settlement".Invoke;
+        PostedBillGroupTestPage.Docs."Total Settlement".Invoke();
 
         LibraryVariableStorage.Enqueue(WorkDate());
         LibraryVariableStorage.Enqueue(StrSubstNo(TotalSettlementBillGroupMsg, 1, TotalAmountInvoice));
-        PostedBillGroupTestPage.Docs."Total Settlement".Invoke;
+        PostedBillGroupTestPage.Docs."Total Settlement".Invoke();
 
         // Validate General Ledger
         LibraryCarteraReceivables.FindCarteraGLEntries(GLEntry, BillGroup."No.", GLEntry."Document Type"::Payment);
@@ -176,7 +176,7 @@
         // Verify
         ValidateTotalSettlement(BillGroup."No.", 2);
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -203,7 +203,7 @@
         // Validate
         ValidateTotalSettlement(BillGroup."No.", 1);
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -233,7 +233,7 @@
         // Validate
         ValidateTotalSettlement(BillGroup."No.", NoOfInstallments);
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -263,7 +263,7 @@
         // Validate
         ValidateTotalSettlement(BillGroup."No.", 1);
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -292,7 +292,7 @@
         // Validate
         ValidateTotalSettlement(BillGroup."No.", 1);
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -322,7 +322,7 @@
         // Validate
         ValidateTotalSettlement(BillGroup."No.", 1);
         ValidateUnrealizedVATRedraw(BillGroup."No.");
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -352,7 +352,7 @@
         ValidateSettlementLedgerEntries(Customer."No.", DocumentNo, BillGroup."No.", TotalAmount, TotalAmount);
         ValidateTotalSettlementClosedDocuments(DocumentNo, TotalAmount);
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -385,7 +385,7 @@
         ValidateSettlementUnrealizedVATLedgerEntries(Customer."No.", DocumentNo, BillGroup."No.", TotalAmount, TotalAmount);
         ValidateTotalSettlementClosedDocuments(DocumentNo, TotalAmount);
         ValidateUnrealizedVATRedraw(BillGroup."No.");
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -419,7 +419,7 @@
         ValidateSettlementUnrealizedVATLedgerEntries(Customer."No.", DocumentNo, BillGroup."No.", TotalAmount, TotalAmount);
         ValidateTotalSettlementClosedDocuments(DocumentNo, TotalAmount);
         ValidateUnrealizedVATRedraw(BillGroup."No.");
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -452,7 +452,7 @@
         ValidateSettlementUnrealizedVATWithRiskLedgerEntries(Customer."No.", DocumentNo, BillGroup."No.", TotalAmount, TotalAmount, 100);
         ValidateTotalSettlementClosedDocuments(DocumentNo, TotalAmount);
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -491,7 +491,7 @@
           TotalAmount, TotalAmount, CustomerRating."Risk Percentage");
         ValidateTotalSettlementClosedDocuments(DocumentNo, TotalAmount);
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -545,7 +545,7 @@
 
         InvokeSettlementFromPostedBillGroupsPage(Customer."No.", DocumentNo, TotalAmount);
 
-        PaymentDiscountGiven := Round(TotalAmount * DiscountPercent / 100, LibraryERM.GetAmountRoundingPrecision);
+        PaymentDiscountGiven := Round(TotalAmount * DiscountPercent / 100, LibraryERM.GetAmountRoundingPrecision());
 
         // Validate General Ledger with expected discount percent
         LibraryCarteraReceivables.FindCarteraGLEntries(GLEntry, BillGroup."No.", GLEntry."Document Type"::Payment);
@@ -555,7 +555,7 @@
         GLEntry.Next();
         Assert.AreEqual(TotalAmount, GLEntry."Credit Amount", UnexpectedAmountErr);
         GLEntry.Next();
-        Assert.AreEqual(Round(TotalAmount - PaymentDiscountGiven, LibraryERM.GetAmountRoundingPrecision),
+        Assert.AreEqual(Round(TotalAmount - PaymentDiscountGiven, LibraryERM.GetAmountRoundingPrecision()),
           GLEntry."Debit Amount", UnexpectedAmountErr);
 
         // Find Cartera Customer Ledger Entries for paid bill
@@ -580,7 +580,7 @@
 
         ValidateTotalSettlement(BillGroup."No.", 1);
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -611,7 +611,7 @@
         ValidateSettlementLedgerEntries(Customer."No.", DocumentNo, BillGroup."No.", TotalAmount, TotalAmount);
         ValidateTotalSettlementClosedDocuments(DocumentNo, TotalAmount);
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -641,7 +641,7 @@
         ValidateSettlementLedgerEntries(Customer."No.", DocumentNo, BillGroup."No.", TotalAmount, TotalAmount);
         ValidateTotalSettlementClosedDocuments(DocumentNo, TotalAmount);
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -671,7 +671,7 @@
         ValidateSettlementLedgerEntries(Customer."No.", DocumentNo, BillGroup."No.", InitialAmount, SettledAmount);
         ValidatePartialSettlementPostedDocuments(DocumentNo, InitialAmount, SettledAmount);
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -702,7 +702,7 @@
         ValidateSettlementLedgerEntries(Customer."No.", DocumentNo, BillGroup."No.", InitialAmount, SettledAmount);
         ValidatePartialSettlementPostedDocuments(DocumentNo, InitialAmount, SettledAmount);
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -734,7 +734,7 @@
         // Verify
         ValidateSettlementLedgerEntries(Customer."No.", DocumentNo, BillGroup."No.", InitialAmount, SettledAmount);
         ValidatePartialSettlementPostedDocuments(DocumentNo, InitialAmount, SettledAmount);
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -768,7 +768,7 @@
         // Verify
         ValidateSettlementLedgerEntries(Customer."No.", DocumentNo, BillGroup."No.", InitialAmount, SettledAmount);
         ValidatePartialSettlementPostedDocuments(DocumentNo, InitialAmount, SettledAmount);
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -811,7 +811,7 @@
           InitialAmount, SettledAmount, DetailedCustLedgEntry."Document Type"::Invoice);
         ValidatePartialSettlementPostedDocuments(DocumentNo, InitialAmount, SettledAmount);
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -854,7 +854,7 @@
           InitialAmount, SettledAmount, DetailedCustLedgEntry."Document Type"::Invoice);
         ValidatePartialSettlementPostedDocuments(DocumentNo, InitialAmount, SettledAmount);
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -886,7 +886,7 @@
         ValidateSettlementLedgerEntries(Customer."No.", DocumentNo, BillGroup."No.", InitialAmount, SettledAmount);
         ValidatePartialSettlementPostedDocuments(DocumentNo, InitialAmount, SettledAmount);
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -918,7 +918,7 @@
         ValidateSettlementLedgerEntries(Customer."No.", DocumentNo, BillGroup."No.", InitialAmount, SettledAmount);
         ValidatePartialSettlementPostedDocuments(DocumentNo, InitialAmount, SettledAmount);
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
 #if not CLEAN23
@@ -958,7 +958,7 @@
 
         // [THEN] The document has been settled
         ValidateTotalSettlementClosedDocuments(DocumentNo, InvoiceAmount);
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 #endif
 
@@ -997,7 +997,7 @@
 
         // [THEN] The document has been settled
         ValidateTotalSettlementClosedDocuments(DocumentNo, InvoiceAmount);
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -1038,7 +1038,7 @@
 
         CreateVATPostingSetupVATCashRegime(VATPostingSetup, Customer."VAT Bus. Posting Group", 0);
 
-        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo, 1);
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo(), 1);
         SalesLine.Validate("Unit Price", 100);
         SalesLine.Validate("VAT Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
         SalesLine.Modify(true);
@@ -1050,7 +1050,7 @@
 
         CreateVATPostingSetupVATCashRegime(VATPostingSetup, Customer."VAT Bus. Posting Group", 21);
 
-        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo, 1);
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo(), 1);
         SalesLine.Validate("Unit Price", 1000);
         SalesLine.Validate("VAT Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
         SalesLine.Modify(true);
@@ -1070,20 +1070,20 @@
         ValidateSettlementUnrealizedVATLedgerEntries(Customer."No.", DocumentNo, BillGroup."No.", TotalAmount, TotalAmount);
         ValidateTotalSettlementClosedDocuments(DocumentNo, TotalAmount);
         ValidateUnrealizedVATRedraw(BillGroup."No.");
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     local procedure Initialize()
     begin
         LibraryVariableStorage.Clear();
         LocalCurrencyCode := '';
-        LibraryCarteraCommon.RevertUnrealizedVATPostingSetup;
+        LibraryCarteraCommon.RevertUnrealizedVATPostingSetup();
 
         if IsInitialized then
             exit;
 
         LibraryERMCountryData.CreateVATData();
-        LibraryERMCountryData.UpdateAccountInCustomerPostingGroup;
+        LibraryERMCountryData.UpdateAccountInCustomerPostingGroup();
         IsInitialized := true;
     end;
 
@@ -1137,11 +1137,11 @@
         PostedBillGroup.SetFilter("No.", BillGroupNo);
         PostedBillGroup.FindFirst();
 
-        PostedBillGroupSelect.OpenView;
+        PostedBillGroupSelect.OpenView();
         PostedBillGroupSelect.GotoRecord(PostedBillGroup);
 
         Commit();
-        PostedBillGroupSelect.BatchSettlement.Invoke;
+        PostedBillGroupSelect.BatchSettlement.Invoke();
     end;
 
     local procedure InvokePartialSettlementOnBillGroup(CustomerNo: Code[20]; DocumentNo: Code[20]; BillGroupNo: Code[20]; var InitialAmount: Decimal; var SettledAmount: Decimal)
@@ -1154,7 +1154,7 @@
         GLSetup.Get();
 
         // Open for Edit - Posted Bill Groups page
-        PostedBillGroupTestPage.OpenView;
+        PostedBillGroupTestPage.OpenView();
 
         PostedBillGroup.SetFilter("No.", BillGroupNo);
         PostedBillGroup.FindFirst();
@@ -1171,7 +1171,7 @@
 
         // Exercise
         Commit();
-        PostedBillGroupTestPage.Docs."Partial Settlement".Invoke;
+        PostedBillGroupTestPage.Docs."Partial Settlement".Invoke();
     end;
 
     local procedure InvokeTotalSettlementOnBillGroup(CustomerNo: Code[20]; DocumentNo: Code[20]; BillGroupNo: Code[20]; var TotalAmount: Decimal; SettlePostingDate: Date)
@@ -1184,7 +1184,7 @@
             CustomerNo, DocumentNo, CustLedgerEntry."Document Type"::Invoice);
 
         // Open View - Posted Bill Groups page
-        PostedBillGroupTestPage.OpenView;
+        PostedBillGroupTestPage.OpenView();
 
         PostedBillGroup.SetFilter("No.", BillGroupNo);
         PostedBillGroup.FindFirst();
@@ -1195,7 +1195,7 @@
         Commit();
         LibraryVariableStorage.Enqueue(SettlePostingDate);
         LibraryVariableStorage.Enqueue(StrSubstNo(TotalSettlementBillGroupMsg, 1, TotalAmount));
-        PostedBillGroupTestPage.Docs."Total Settlement".Invoke;
+        PostedBillGroupTestPage.Docs."Total Settlement".Invoke();
     end;
 
     local procedure InvokeSettlementFromPostedBillGroupsPage(CustomerNo: Code[20]; DocumentNo: Code[20]; var TotalAmount: Decimal)
@@ -1211,14 +1211,14 @@
         PostedCarteraDoc.FindFirst();
 
         // Open View - Posted Bills page
-        PostedBillsTestPage.OpenView;
+        PostedBillsTestPage.OpenView();
         PostedBillsTestPage.GotoRecord(PostedCarteraDoc);
 
         // Settle
         Commit();
         LibraryVariableStorage.Enqueue(WorkDate());
         LibraryVariableStorage.Enqueue(StrSubstNo(TotalSettlementBillGroupMsg, 1, TotalAmount));
-        PostedBillsTestPage.Settle.Invoke;
+        PostedBillsTestPage.Settle.Invoke();
     end;
 
     local procedure ValidateTotalSettlement(BillGroupNo: Code[20]; NoOfClosedCarteraDoc: Integer)
@@ -1260,7 +1260,7 @@
         LibraryCarteraReceivables.FindCarteraGLEntries(GLEntry, DocumentNo, GLEntry."Document Type"::Invoice);
         VATPostingSetup.Get(GLEntry."VAT Bus. Posting Group", GLEntry."VAT Prod. Posting Group");
         ExpectedVATAmount := Round(InitialAmount - InitialAmount * 100 / (VATPostingSetup."VAT %" + 100),
-            LibraryERM.GetAmountRoundingPrecision);
+            LibraryERM.GetAmountRoundingPrecision());
 
         // Find Cartera Payment GL Entries
         GLEntry.Reset();
@@ -1286,7 +1286,7 @@
         LibraryCarteraReceivables.FindCarteraGLEntries(GLEntry, DocumentNo, GLEntry."Document Type"::Invoice);
         VATPostingSetup.Get(GLEntry."VAT Bus. Posting Group", GLEntry."VAT Prod. Posting Group");
         ExpectedVATAmount := Round(InitialAmount - InitialAmount * 100 / (VATPostingSetup."VAT %" + 100),
-            LibraryERM.GetAmountRoundingPrecision);
+            LibraryERM.GetAmountRoundingPrecision());
 
         // Find Cartera Payment GL Entries
         GLEntry.Reset();
@@ -1297,7 +1297,7 @@
         GLEntry.Next();
         Assert.AreNearlyEqual(InitialAmount, GLEntry."Credit Amount", GLSetup."Amount Rounding Precision", UnexpectedAmountErr);
         GLEntry.Next();
-        Assert.AreNearlyEqual(Round(SettledAmount * CustomerRatingRiskPercentage / 100, LibraryERM.GetAmountRoundingPrecision),
+        Assert.AreNearlyEqual(Round(SettledAmount * CustomerRatingRiskPercentage / 100, LibraryERM.GetAmountRoundingPrecision()),
           GLEntry."Debit Amount", GLSetup."Amount Rounding Precision", UnexpectedAmountErr);
 
         ValidateLedgerEntries(CustomerNo, DocumentNo, BillGroupNo,
@@ -1377,11 +1377,11 @@
         Commit();
         ClosedBillGroup.SetRange("No.", BillGroupNo);
         ClosedBillGroup.FindFirst();
-        ClosedBillGroups.OpenEdit;
+        ClosedBillGroups.OpenEdit();
         ClosedBillGroups.GotoRecord(ClosedBillGroup);
 
-        LibraryVariableStorage.Enqueue(ClosedBillGroups.Docs."Due Date".AsDate);
-        asserterror ClosedBillGroups.Docs.Redraw.Invoke;
+        LibraryVariableStorage.Enqueue(ClosedBillGroups.Docs."Due Date".AsDate());
+        asserterror ClosedBillGroups.Docs.Redraw.Invoke();
         Assert.ExpectedError(BillContainsUnrealizedVATErr);
 
         ClosedBillGroups.Close();
@@ -1652,13 +1652,13 @@
         SalesHeader.Validate("Payment Method Code", PaymentMethod.Code);
         SalesHeader.Modify(true);
         LibrarySales.CreateSalesLine(
-          SalesLine, SalesHeader, SalesLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithSalesSetup, 1);
+          SalesLine, SalesHeader, SalesLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithSalesSetup(), 1);
         SalesLine.Validate("Unit Price", LibraryRandom.RandDecInRange(1000, 2000, 2));
         SalesLine.Modify(true);
         exit(LibrarySales.PostSalesDocument(SalesHeader, true, true));
     end;
 
-    local procedure CreateBillGroupWithPageTestability(var BillGroup: Record "Bill Group"; BankAccountNo: Code[20]; DocumentNo: Code[20]; BillGroupDealingType: Option; Factoring: Option)
+    local procedure CreateBillGroupWithPageTestability(var BillGroup: Record "Bill Group"; BankAccountNo: Code[20]; DocumentNo: Code[20]; BillGroupDealingType: Enum "Cartera Dealing Type"; Factoring: Option)
     var
         CarteraDoc: Record "Cartera Doc.";
         BillGroupsTestPage: TestPage "Bill Groups";
@@ -1666,16 +1666,16 @@
         // Open Bill Groups page
         BillGroupsTestPage.OpenNew();
 
-        BillGroupsTestPage."No.".AssistEdit;
+        BillGroupsTestPage."No.".AssistEdit();
 
         LibraryVariableStorage.Enqueue(BankAccountNo);
-        BillGroupsTestPage."Bank Account No.".Lookup;
+        BillGroupsTestPage."Bank Account No.".Lookup();
 
         BillGroupsTestPage."Dealing Type".SetValue(BillGroupDealingType);
         BillGroupsTestPage.Factoring.SetValue(Factoring);
 
         LibraryVariableStorage.Enqueue(DocumentNo);
-        BillGroupsTestPage.Docs.Insert.Invoke;
+        BillGroupsTestPage.Docs.Insert.Invoke();
 
         // Bill Group including the Cartera Document
         CarteraDoc.SetRange("Document No.", DocumentNo);
@@ -1686,7 +1686,7 @@
         LibraryVariableStorage.Enqueue(StrSubstNo(BankFactoringBillGroupPostedForCollectionMsg, BillGroup."No."));
 
         // Post the bill group
-        BillGroupsTestPage.Post.Invoke;
+        BillGroupsTestPage.Post.Invoke();
     end;
 
     local procedure CreateCurrencyWithSevExchRates(var StartingDate: array[4] of Date; ExchRate: array[4] of Decimal; BillGroupsDiscount: Boolean): Code[10]
@@ -1694,7 +1694,7 @@
         Currency: Record Currency;
         i: Integer;
     begin
-        Currency.Get(LibraryERM.CreateCurrencyWithGLAccountSetup);
+        Currency.Get(LibraryERM.CreateCurrencyWithGLAccountSetup());
         Currency.Validate("Bill Groups - Discount", BillGroupsDiscount);
         Currency.Modify(true);
         StartingDate[1] := WorkDate();
@@ -1706,14 +1706,14 @@
         exit(Currency.Code);
     end;
 
-    local procedure CreateBillGroup(var BillGroup: Record "Bill Group"; BankAccountNo: Code[20]; DealingType: Option; Factoring: Option)
+    local procedure CreateBillGroup(var BillGroup: Record "Bill Group"; BankAccountNo: Code[20]; DealingType: Enum "Cartera Dealing Type"; Factoring: Option)
     begin
         LibraryCarteraReceivables.CreateBillGroup(BillGroup, BankAccountNo, DealingType);
         BillGroup.Validate(Factoring, Factoring);
         BillGroup.Modify(true);
     end;
 
-    local procedure CreateBillGroupFCY(var BillGroup: Record "Bill Group"; BankAccountNo: Code[20]; PostingDate: Date; DealingType: Option; Factoring: Option)
+    local procedure CreateBillGroupFCY(var BillGroup: Record "Bill Group"; BankAccountNo: Code[20]; PostingDate: Date; DealingType: Enum "Cartera Dealing Type"; Factoring: Option)
     begin
         BillGroup.Init();
         BillGroup.Insert(true);
@@ -1735,8 +1735,8 @@
         VATPostingSetup.Validate("VAT Identifier", LibraryUtility.GenerateGUID());
         VATPostingSetup.Validate("Unrealized VAT Type", VATPostingSetup."Unrealized VAT Type"::Percentage);
         VATPostingSetup.Validate("VAT Cash Regime", true);
-        VATPostingSetup.Validate("Sales VAT Unreal. Account", LibraryERM.CreateGLAccountNo);
-        VATPostingSetup.Validate("Sales VAT Account", LibraryERM.CreateGLAccountNo);
+        VATPostingSetup.Validate("Sales VAT Unreal. Account", LibraryERM.CreateGLAccountNo());
+        VATPostingSetup.Validate("Sales VAT Account", LibraryERM.CreateGLAccountNo());
         VATPostingSetup.Modify(true);
     end;
 
@@ -1800,7 +1800,7 @@
     [Scope('OnPrem')]
     procedure CheckDiscountCreditLimitModalPageHandler(var CheckDiscountCreditLimit: TestPage "Check Discount Credit Limit")
     begin
-        CheckDiscountCreditLimit.Yes.Invoke;
+        CheckDiscountCreditLimit.Yes().Invoke();
     end;
 
     [RequestPageHandler]
@@ -1814,7 +1814,7 @@
         LibraryVariableStorage.Dequeue(BatchName);
         PostBillGroup.TemplName.SetValue(TemplateName);
         PostBillGroup.BatchName.SetValue(BatchName);
-        PostBillGroup.OK.Invoke;
+        PostBillGroup.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -1876,7 +1876,7 @@
     [Scope('OnPrem')]
     procedure BatchSettlPostedBillGrsRequestPageHandler(var BatchSettlPostedBillGrs: TestRequestPage "Batch Settl. Posted Bill Grs.")
     begin
-        BatchSettlPostedBillGrs.OK.Invoke;
+        BatchSettlPostedBillGrs.OK().Invoke();
     end;
 
     [RequestPageHandler]
@@ -1888,15 +1888,15 @@
         LibraryVariableStorage.Dequeue(SettledAmount);
 
         PartialSettlReceivableReqPage.SettledAmount.SetValue(SettledAmount);
-        PartialSettlReceivableReqPage.OK.Invoke;
+        PartialSettlReceivableReqPage.OK().Invoke();
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure SettlDocsPostedBillGroupsRequestPageHandler(var SettleDocsinPostBillGr: TestRequestPage "Settle Docs. in Post. Bill Gr.")
     begin
-        SettleDocsinPostBillGr.PostingDate.SetValue(LibraryVariableStorage.DequeueDate);
-        SettleDocsinPostBillGr.OK.Invoke;
+        SettleDocsinPostBillGr.PostingDate.SetValue(LibraryVariableStorage.DequeueDate());
+        SettleDocsinPostBillGr.OK().Invoke();
     end;
 
     [RequestPageHandler]
@@ -1918,7 +1918,7 @@
         GetCarteraTemplBatch(TemplateName, BatchName);
         RedrawReceivableBillsRequestPage.AuxJnlTemplateName.SetValue(TemplateName);
         RedrawReceivableBillsRequestPage.AuxJnlBatchName.SetValue(BatchName);
-        RedrawReceivableBillsRequestPage.OK.Invoke;
+        RedrawReceivableBillsRequestPage.OK().Invoke();
     end;
 }
 

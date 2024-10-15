@@ -222,7 +222,7 @@ codeunit 134383 "ERM Sales/Purch Status Error"
         CreateSalesOrder(SalesHeader, SalesLine, SalesHeader."Document Type"::Order);
 
         // Excercise and Verify: validation should be done without error.
-        SalesHeader.Validate("Prepayment No. Series", SetupSalesPrepaymentInvNoSeries);
+        SalesHeader.Validate("Prepayment No. Series", SetupSalesPrepaymentInvNoSeries());
         SalesHeader.Modify(true);
     end;
 
@@ -240,7 +240,7 @@ codeunit 134383 "ERM Sales/Purch Status Error"
         CreateSalesOrder(SalesHeader, SalesLine, SalesHeader."Document Type"::"Credit Memo");
 
         // Excercise and Verify: validation should be done without error.
-        SalesHeader.Validate("Prepmt. Cr. Memo No. Series", SetupSalesPrepaymentCrMemoNoSeries);
+        SalesHeader.Validate("Prepmt. Cr. Memo No. Series", SetupSalesPrepaymentCrMemoNoSeries());
         SalesHeader.Modify(true);
     end;
 
@@ -258,7 +258,7 @@ codeunit 134383 "ERM Sales/Purch Status Error"
         CreateSalesOrder(SalesHeader, SalesLine, SalesHeader."Document Type"::"Return Order");
 
         // Excercise and Verify: validation should be done without error.
-        SalesHeader.Validate("Prepmt. Cr. Memo No. Series", SetupSalesPrepaymentCrMemoNoSeries);
+        SalesHeader.Validate("Prepmt. Cr. Memo No. Series", SetupSalesPrepaymentCrMemoNoSeries());
         SalesHeader.Modify(true);
     end;
 
@@ -341,8 +341,8 @@ codeunit 134383 "ERM Sales/Purch Status Error"
 
         // [GIVEN] Item "A" with "Costing Method" = Standard
         // [GIVEN] Sales Return Order with Item "A", Quantity = 0 and "Unit Cost" = "X"
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::"Return Order", CreateCustomer);
-        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, CreateItemWithCostingMethodStandard, 0);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::"Return Order", CreateCustomer());
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, CreateItemWithCostingMethodStandard(), 0);
 
         // [GIVEN] "Return Reason Code" with "Inventory Value Zero" is set in Sales Line
         UpdateReturnReasonCodeOnSalesLine(SalesLine, true);
@@ -541,7 +541,7 @@ codeunit 134383 "ERM Sales/Purch Status Error"
         CreatePurchaseOrder(PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Order);
 
         // Exercise and Verify: field validation must not throw error
-        PurchaseHeader.Validate("Prepayment No. Series", SetupPurchasePrepaymentInvNoSeries);
+        PurchaseHeader.Validate("Prepayment No. Series", SetupPurchasePrepaymentInvNoSeries());
         PurchaseHeader.Modify(true);
     end;
 
@@ -559,7 +559,7 @@ codeunit 134383 "ERM Sales/Purch Status Error"
         CreatePurchaseOrder(PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::"Credit Memo");
 
         // Exercise and Verify: field validation must not throw error
-        PurchaseHeader.Validate("Prepmt. Cr. Memo No. Series", SetupPurchasePrepaymentCrMemoNoSeries);
+        PurchaseHeader.Validate("Prepmt. Cr. Memo No. Series", SetupPurchasePrepaymentCrMemoNoSeries());
         PurchaseHeader.Modify(true);
     end;
 
@@ -577,7 +577,7 @@ codeunit 134383 "ERM Sales/Purch Status Error"
         CreatePurchaseOrder(PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::"Return Order");
 
         // Exercise and Verify: field validation must not throw error
-        PurchaseHeader.Validate("Prepmt. Cr. Memo No. Series", SetupPurchasePrepaymentCrMemoNoSeries);
+        PurchaseHeader.Validate("Prepmt. Cr. Memo No. Series", SetupPurchasePrepaymentCrMemoNoSeries());
         PurchaseHeader.Modify(true);
     end;
 
@@ -663,8 +663,8 @@ codeunit 134383 "ERM Sales/Purch Status Error"
 
         // [GIVEN] Item "A" with "Costing Method" = Standard
         // [GIVEN] Purchase Return Order with Item "A", Quantity = 0 and "Direct Unit Cost" = "X"
-        LibraryPurchase.CreatePurchHeader(PurchHeader, PurchHeader."Document Type"::"Return Order", CreateVendor);
-        LibraryPurchase.CreatePurchaseLine(PurchLine, PurchHeader, PurchLine.Type::Item, CreateItemWithCostingMethodStandard, 0);
+        LibraryPurchase.CreatePurchHeader(PurchHeader, PurchHeader."Document Type"::"Return Order", CreateVendor());
+        LibraryPurchase.CreatePurchaseLine(PurchLine, PurchHeader, PurchLine.Type::Item, CreateItemWithCostingMethodStandard(), 0);
 
         // [GIVEN] "Return Reason Code" with "Inventory Value Zero" is set in Purchase Line
         PurchLine.Validate("Return Reason Code", SetupReturnReasonCode(true));
@@ -998,7 +998,7 @@ codeunit 134383 "ERM Sales/Purch Status Error"
 
         // Exercise.
         asserterror TariffNumber.Validate(
-            "No.", (LibraryUtility.GenerateGUID + LibraryUtility.GenerateGUID + LibraryUtility.GenerateGUID()));  // Assign More than 20 characters.
+            "No.", (LibraryUtility.GenerateGUID() + LibraryUtility.GenerateGUID() + LibraryUtility.GenerateGUID()));  // Assign More than 20 characters.
 
         // Verify: Verify error while insert Tariff No. more than 20 characters.
         Assert.ExpectedErrorCode(StringLengthExceededErr);
@@ -1017,12 +1017,12 @@ codeunit 134383 "ERM Sales/Purch Status Error"
         // Setup. Find Item, open Item Statistics page and set Item and Date Filter.
         Initialize();
         LibraryInventory.CreateItem(Item);
-        ItemStatistics.OpenEdit;
+        ItemStatistics.OpenEdit();
         ItemStatistics.ItemFilter.SetValue(Item."No.");
         ItemStatistics.DateFilter.SetValue(StrSubstNo(DateFilterTok, WorkDate(), CalcDate('<2M>', WorkDate())));
 
         // Exercise.
-        ItemStatistics.ShowMatrix.Invoke;
+        ItemStatistics.ShowMatrix.Invoke();
 
         // Verify: Verify Values on Item Matrix by ShowMatrixPageHandler.
     end;
@@ -1129,13 +1129,13 @@ codeunit 134383 "ERM Sales/Purch Status Error"
         LibraryVariableStorage.Enqueue(SalesAmount);
 
         // Setup. Open Item Statistics page and set Item and Date Filter.
-        ItemStatistics.OpenEdit;
+        ItemStatistics.OpenEdit();
         ItemStatistics.ItemFilter.SetValue(Item."No.");
         ItemStatistics.ViewBy.SetValue(PeriodType::Month);
         ItemStatistics.DateFilter.SetValue(StrSubstNo(DateFilterTok, CalcDate('<-CM>', WorkDate()), CalcDate('<CM+1M>', WorkDate())));
 
         // Exercise.
-        ItemStatistics.ShowMatrix.Invoke;
+        ItemStatistics.ShowMatrix.Invoke();
 
         // Verify: Verify Values on Item Matrix by ShowMatrixPageHandler.
     end;
@@ -1213,7 +1213,7 @@ codeunit 134383 "ERM Sales/Purch Status Error"
 
         RunSalesDocumentTestReport(SalesHeader."Document Type"::Order, SalesHeader."No.");
 
-        VerifySalesDocumentTestReportHasNoErrors;
+        VerifySalesDocumentTestReportHasNoErrors();
     end;
 
     [Test]
@@ -1228,8 +1228,8 @@ codeunit 134383 "ERM Sales/Purch Status Error"
 
         // [GIVEN] Sales Order with blank line
         Initialize();
-        SalesHeader.DontNotifyCurrentUserAgain(SalesHeader.GetModifyBillToCustomerAddressNotificationId);
-        SalesHeader.DontNotifyCurrentUserAgain(SalesHeader.GetModifyCustomerAddressNotificationId);
+        SalesHeader.DontNotifyCurrentUserAgain(SalesHeader.GetModifyBillToCustomerAddressNotificationId());
+        SalesHeader.DontNotifyCurrentUserAgain(SalesHeader.GetModifyCustomerAddressNotificationId());
         LibraryPmtDiscSetup.SetAdjustForPaymentDisc(true);
 
         CreateSalesOrderWithBlankLine(SalesHeader);
@@ -1344,7 +1344,7 @@ codeunit 134383 "ERM Sales/Purch Status Error"
         // [GIVEN] GLSetup."Allow Posting To" = 31/01/2016
         Initialize();
         LibraryPmtDiscSetup.SetAdjustForPaymentDisc(true);
-        UpdateAllowedPostingDateInGLSetup(WorkDate() - 10, WorkDate + 10);
+        UpdateAllowedPostingDateInGLSetup(WorkDate() - 10, WorkDate() + 10);
 
         // [GIVEN] Purchase order "PO" posted as receipt with "Posting Date" = 21/01/2016, "Receive" = TRUE, "Invoice" = FALSE
         CreatePurchaseOrder(PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Order);
@@ -1356,7 +1356,7 @@ codeunit 134383 "ERM Sales/Purch Status Error"
         PurchaseHeader.TestField(Invoice, false);
 
         // [GIVEN] "PO"."Posting Date" changed to 01/02/2016
-        PurchaseHeader.Validate("Posting Date", WorkDate + 11);
+        PurchaseHeader.Validate("Posting Date", WorkDate() + 11);
         PurchaseHeader.Modify(true);
         Commit();
 
@@ -1420,7 +1420,7 @@ codeunit 134383 "ERM Sales/Purch Status Error"
         // [GIVEN] GLSetup."Allow Posting To" = 31/01/2016
         Initialize();
         LibraryPmtDiscSetup.SetAdjustForPaymentDisc(true);
-        UpdateAllowedPostingDateInGLSetup(WorkDate() - 10, WorkDate + 10);
+        UpdateAllowedPostingDateInGLSetup(WorkDate() - 10, WorkDate() + 10);
 
         // [GIVEN] Sals order "SO" posted as shipment with "Posting Date" = 21/01/2016, "Ship" = TRUE, "Invoice" = FALSE
         CreateSalesOrder(SalesHeader, SalesLine, SalesHeader."Document Type"::Order);
@@ -1432,7 +1432,7 @@ codeunit 134383 "ERM Sales/Purch Status Error"
         SalesHeader.TestField(Invoice, false);
 
         // [GIVEN] "SO"."Posting Date" changed to 01/02/2016
-        SalesHeader.Validate("Posting Date", WorkDate + 11);
+        SalesHeader.Validate("Posting Date", WorkDate() + 11);
         SalesHeader.Modify(true);
         Commit();
 
@@ -1490,14 +1490,14 @@ codeunit 134383 "ERM Sales/Purch Status Error"
     begin
         // [FEATURE] [Shipping Advise] [UT]
         // [SCENARIO 255530] TAB36.CheckShippingAdvise ignores non-item lines
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo());
         CreateSalesLinesAllTypes(SalesLine, SalesHeader);
 
         Commit();
 
-        CodeCoverageMgt.StartApplicationCoverage;
-        SalesHeader.CheckShippingAdvice;
-        CodeCoverageMgt.StopApplicationCoverage;
+        CodeCoverageMgt.StartApplicationCoverage();
+        SalesHeader.CheckShippingAdvice();
+        CodeCoverageMgt.StopApplicationCoverage();
         Assert.AreEqual(
           1,
           CodeCoverageMgt.GetNoOfHitsCoverageForObject(CodeCoverage."Object Type"::Table, DATABASE::"Sales Header", ItemGETTok),
@@ -1507,14 +1507,14 @@ codeunit 134383 "ERM Sales/Purch Status Error"
         SalesLine.Modify();
 
         Commit();
-        asserterror SalesHeader.CheckShippingAdvice;
+        asserterror SalesHeader.CheckShippingAdvice();
         Assert.ExpectedError(NonCopleteOrderErr);
 
         SalesLine.Delete(true);
 
-        CodeCoverageMgt.StartApplicationCoverage;
-        SalesHeader.CheckShippingAdvice;
-        CodeCoverageMgt.StopApplicationCoverage;
+        CodeCoverageMgt.StartApplicationCoverage();
+        SalesHeader.CheckShippingAdvice();
+        CodeCoverageMgt.StopApplicationCoverage();
         Assert.AreEqual(
           0,
           CodeCoverageMgt.GetNoOfHitsCoverageForObject(CodeCoverage."Object Type"::Table, DATABASE::"Sales Line", ItemGETTok),
@@ -1639,6 +1639,9 @@ codeunit 134383 "ERM Sales/Purch Status Error"
         PurchasesPayablesSetup.Modify();
         Commit();
 
+        // Previously set Posting No. is not rolled back but, No. Series Last Used No. is so the test will fail unless we re-get the no.
+        PurchaseHeader."Posting No." := '';
+
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
 
         PurchInvHeader.SetRange("No.", GetLastNoUsedFromNoSeries(PurchasesPayablesSetup."Posted Invoice Nos."));
@@ -1677,6 +1680,9 @@ codeunit 134383 "ERM Sales/Purch Status Error"
         PurchasesPayablesSetup.Validate("Posted Return Shpt. Nos.", CreateNoSeriesCode());
         PurchasesPayablesSetup.Modify();
         Commit();
+
+        // need to reset Posting No. as it is not rolled back
+        PurchaseHeader."Posting No." := '';
 
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
 
@@ -2204,7 +2210,7 @@ codeunit 134383 "ERM Sales/Purch Status Error"
 
         // [THEN] Create Corrective Credit memo 
         ErrorMessages.Trap();
-        PostedSalesInvoice.OpenView;
+        PostedSalesInvoice.OpenView();
         PostedSalesInvoice.GotoRecord(SalesInvHeader);
         PostedSalesInvoice.CreateCreditMemo.Invoke();
 
@@ -2279,8 +2285,8 @@ codeunit 134383 "ERM Sales/Purch Status Error"
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"ERM Sales/Purch Status Error");
         LibraryVariableStorage.Clear();
         LibrarySetupStorage.Restore();
-        PurchaseHeader.DontNotifyCurrentUserAgain(PurchaseHeader.GetModifyVendorAddressNotificationId);
-        PurchaseHeader.DontNotifyCurrentUserAgain(PurchaseHeader.GetModifyPayToVendorAddressNotificationId);
+        PurchaseHeader.DontNotifyCurrentUserAgain(PurchaseHeader.GetModifyVendorAddressNotificationId());
+        PurchaseHeader.DontNotifyCurrentUserAgain(PurchaseHeader.GetModifyPayToVendorAddressNotificationId());
         // Lazy Setup.
         if IsInitialized then
             exit;
@@ -2289,7 +2295,7 @@ codeunit 134383 "ERM Sales/Purch Status Error"
         LibraryERMCountryData.CreateVATData();
         LibraryERMCountryData.UpdateGeneralLedgerSetup();
         LibraryERMCountryData.UpdateGeneralPostingSetup();
-        LibraryERMCountryData.UpdateVATPostingSetup;
+        LibraryERMCountryData.UpdateVATPostingSetup();
         LibraryERMCountryData.UpdatePurchasesPayablesSetup();
         LibraryERMCountryData.UpdateSalesReceivablesSetup();
         LibrarySetupStorage.SaveGeneralLedgerSetup();
@@ -2316,8 +2322,8 @@ codeunit 134383 "ERM Sales/Purch Status Error"
     local procedure CreateSalesOrder(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; DocumentType: Enum "Sales Document Type")
     begin
         // Using Random Value for Quantity and Unit Price in Sales Line.
-        LibrarySales.CreateSalesHeader(SalesHeader, DocumentType, CreateCustomer);
-        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, CreateItem, LibraryRandom.RandInt(10));
+        LibrarySales.CreateSalesHeader(SalesHeader, DocumentType, CreateCustomer());
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, CreateItem(), LibraryRandom.RandInt(10));
         SalesLine.Validate("Unit Price", LibraryRandom.RandInt(100));
         SalesLine.Validate("Line Discount %", 0);  // Keep Line Discount % Zero.
         SalesLine.Modify(true);
@@ -2344,9 +2350,9 @@ codeunit 134383 "ERM Sales/Purch Status Error"
     local procedure CreatePurchaseOrder(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; DocumentType: Enum "Purchase Document Type")
     begin
         // Using Random Value for Quantity and Direct Unit Cost in Purchase Line.
-        LibraryPurchase.CreatePurchHeader(PurchaseHeader, DocumentType, CreateVendor);
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, DocumentType, CreateVendor());
         LibraryPurchase.CreatePurchaseLine(
-          PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, CreateItem, LibraryRandom.RandInt(10));
+          PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, CreateItem(), LibraryRandom.RandInt(10));
         PurchaseLine.Modify(true);
     end;
 
@@ -2375,10 +2381,10 @@ codeunit 134383 "ERM Sales/Purch Status Error"
     begin
         // Using Random Value for Quantity in Sales Line.
         LibraryERM.FindCurrency(Currency);
-        LibrarySales.CreateSalesHeader(SalesHeader, DocumentType, CreateCustomer);
+        LibrarySales.CreateSalesHeader(SalesHeader, DocumentType, CreateCustomer());
         SalesHeader.Validate("Currency Code", Currency.Code);
         SalesHeader.Modify(true);
-        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, CreateItem, LibraryRandom.RandDec(10, 2));
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, CreateItem(), LibraryRandom.RandDec(10, 2));
     end;
 
     local procedure CreatePurchaseDocumentFCY(var PurchaseHeader: Record "Purchase Header"; DocumentType: Enum "Sales Document Type")
@@ -2388,11 +2394,11 @@ codeunit 134383 "ERM Sales/Purch Status Error"
     begin
         // Using Random Value for Quantity in Purchase Line.
         LibraryERM.FindCurrency(Currency);
-        LibraryPurchase.CreatePurchHeader(PurchaseHeader, DocumentType, CreateVendor);
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, DocumentType, CreateVendor());
         PurchaseHeader.Validate("Currency Code", Currency.Code);
         PurchaseHeader.Modify(true);
         LibraryPurchase.CreatePurchaseLine(
-          PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, CreateItem, LibraryRandom.RandDec(10, 2));
+          PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, CreateItem(), LibraryRandom.RandDec(10, 2));
     end;
 
     local procedure CreateVendor(): Code[20]
@@ -2435,7 +2441,7 @@ codeunit 134383 "ERM Sales/Purch Status Error"
     var
         Item: Record Item;
     begin
-        Item.Get(CreateItem);
+        Item.Get(CreateItem());
         Item.Validate("Costing Method", Item."Costing Method"::Standard);
         Item.Validate("Unit Cost", LibraryRandom.RandDec(100, 2));
         Item.Modify(true);
@@ -2446,7 +2452,7 @@ codeunit 134383 "ERM Sales/Purch Status Error"
     var
         PaymentTerms: Record "Payment Terms";
     begin
-        Customer.Get(CreateCustomer);
+        Customer.Get(CreateCustomer());
         LibraryERM.GetDiscountPaymentTerm(PaymentTerms);
         PaymentTerms.Validate("Calc. Pmt. Disc. on Cr. Memos", true);
         PaymentTerms.Modify(true);
@@ -2458,7 +2464,7 @@ codeunit 134383 "ERM Sales/Purch Status Error"
     var
         PaymentTerms: Record "Payment Terms";
     begin
-        Vendor.Get(CreateVendor);
+        Vendor.Get(CreateVendor());
         LibraryERM.GetDiscountPaymentTerm(PaymentTerms);
         PaymentTerms.Validate("Calc. Pmt. Disc. on Cr. Memos", true);
         PaymentTerms.Modify(true);
@@ -2567,20 +2573,20 @@ codeunit 134383 "ERM Sales/Purch Status Error"
           SalesLine, SalesHeader, SalesLine.Type::" ", '', 0);
         LibrarySales.CreateSalesLine(
           SalesLine, SalesHeader, SalesLine.Type::"G/L Account",
-          LibraryERM.CreateGLAccountWithSalesSetup, LibraryRandom.RandIntInRange(2, 5));
+          LibraryERM.CreateGLAccountWithSalesSetup(), LibraryRandom.RandIntInRange(2, 5));
         LibrarySales.CreateSalesLine(
           SalesLine, SalesHeader, SalesLine.Type::"Charge (Item)",
-          LibraryInventory.CreateItemChargeNo, LibraryRandom.RandIntInRange(2, 5));
+          LibraryInventory.CreateItemChargeNo(), LibraryRandom.RandIntInRange(2, 5));
         LibraryFixedAsset.CreateFixedAsset(FixedAsset);
         LibrarySales.CreateSalesLine(
           SalesLine, SalesHeader, SalesLine.Type::"Fixed Asset",
           FixedAsset."No.", LibraryRandom.RandIntInRange(2, 5));
         LibrarySales.CreateSalesLine(
           SalesLine, SalesHeader, SalesLine.Type::Resource,
-          LibraryResource.CreateResourceNo, LibraryRandom.RandIntInRange(2, 5));
+          LibraryResource.CreateResourceNo(), LibraryRandom.RandIntInRange(2, 5));
         LibrarySales.CreateSalesLine(
           SalesLine, SalesHeader, SalesLine.Type::Item,
-          LibraryInventory.CreateItemNo, LibraryRandom.RandIntInRange(2, 5));
+          LibraryInventory.CreateItemNo(), LibraryRandom.RandIntInRange(2, 5));
     end;
 
     local procedure GetItemCost(ItemNo: Code[20]): Decimal
@@ -2709,7 +2715,7 @@ codeunit 134383 "ERM Sales/Purch Status Error"
     begin
         with SalesReceivablesSetup do begin
             Get();
-            Validate("Posted Prepmt. Inv. Nos.", LibraryERM.CreateNoSeriesCode);
+            Validate("Posted Prepmt. Inv. Nos.", LibraryERM.CreateNoSeriesCode());
             Modify(true);
             exit("Posted Prepmt. Inv. Nos.");
         end;
@@ -2721,7 +2727,7 @@ codeunit 134383 "ERM Sales/Purch Status Error"
     begin
         with PurchasesPayablesSetup do begin
             Get();
-            Validate("Posted Prepmt. Inv. Nos.", LibraryERM.CreateNoSeriesCode);
+            Validate("Posted Prepmt. Inv. Nos.", LibraryERM.CreateNoSeriesCode());
             Modify(true);
             exit("Posted Prepmt. Inv. Nos.");
         end;
@@ -2733,7 +2739,7 @@ codeunit 134383 "ERM Sales/Purch Status Error"
     begin
         with SalesReceivablesSetup do begin
             Get();
-            Validate("Posted Prepmt. Cr. Memo Nos.", LibraryERM.CreateNoSeriesCode);
+            Validate("Posted Prepmt. Cr. Memo Nos.", LibraryERM.CreateNoSeriesCode());
             Modify(true);
             exit("Posted Prepmt. Cr. Memo Nos.");
         end;
@@ -2745,7 +2751,7 @@ codeunit 134383 "ERM Sales/Purch Status Error"
     begin
         with PurchasesPayablesSetup do begin
             Get();
-            Validate("Posted Prepmt. Cr. Memo Nos.", LibraryERM.CreateNoSeriesCode);
+            Validate("Posted Prepmt. Cr. Memo Nos.", LibraryERM.CreateNoSeriesCode());
             Modify(true);
             exit("Posted Prepmt. Cr. Memo Nos.");
         end;
@@ -2881,7 +2887,7 @@ codeunit 134383 "ERM Sales/Purch Status Error"
     procedure ShowMatrixPageHandler(var ItemStatisticsMatrix: TestPage "Item Statistics Matrix")
     begin
         ItemStatisticsMatrix.Amount.AssertEquals(0);
-        ItemStatisticsMatrix.OK.Invoke;
+        ItemStatisticsMatrix.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -2893,7 +2899,7 @@ codeunit 134383 "ERM Sales/Purch Status Error"
         // Verify the value displayed on Field is correctly.
         LibraryVariableStorage.Dequeue(SalesAmount);
         ItemStatisticsMatrix.Field2.AssertEquals(SalesAmount);
-        ItemStatisticsMatrix.OK.Invoke;
+        ItemStatisticsMatrix.OK().Invoke();
     end;
 
     local procedure VerifySalesLineUnitCost(SalesLine: Record "Sales Line"; ExpectedValue: Decimal)
@@ -2916,8 +2922,8 @@ codeunit 134383 "ERM Sales/Purch Status Error"
     var
         i: Integer;
     begin
-        LibraryReportDataset.LoadDataSetFile;
-        for i := 1 to LibraryReportDataset.RowCount do begin
+        LibraryReportDataset.LoadDataSetFile();
+        for i := 1 to LibraryReportDataset.RowCount() do begin
             LibraryReportDataset.MoveToRow(i);
             Assert.IsFalse(LibraryReportDataset.CurrentRowHasElement('LineErrorCounter_Number'), SalesDocumentTestReportDimErr);
         end;
@@ -2934,7 +2940,7 @@ codeunit 134383 "ERM Sales/Purch Status Error"
     [Scope('OnPrem')]
     procedure SalesDocumentTestRequestPage(var SalesDocumentTest: TestRequestPage "Sales Document - Test")
     begin
-        SalesDocumentTest.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        SalesDocumentTest.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [MessageHandler]

@@ -7,7 +7,7 @@ namespace Microsoft.Sales.History;
 page 7000033 "Posted Bill Groups Maturity"
 {
     Caption = 'Posted Bill Groups Maturity';
-    DataCaptionExpression = Caption();
+    DataCaptionExpression = Rec.Caption();
     DeleteAllowed = false;
     InsertAllowed = false;
     PageType = List;

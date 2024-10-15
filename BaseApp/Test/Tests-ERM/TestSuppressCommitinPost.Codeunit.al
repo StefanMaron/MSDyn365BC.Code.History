@@ -33,14 +33,14 @@
         Initialize();
         CreateGenJnlBatch(GenJournalBatch);
         CreateGenJnlLine(GenJournalBatch, GenJournalLine);
-        LastGLEntryNo := FindLastGLEntryNo;
+        LastGLEntryNo := FindLastGLEntryNo();
 
         // Exercise
         PostGenJnlBatchWithCommit(GenJournalLine);
 
         // Verify - After Error
         asserterror Error('');
-        Assert.AreNotEqual(LastGLEntryNo, FindLastGLEntryNo, 'G/L Entry was not committed');
+        Assert.AreNotEqual(LastGLEntryNo, FindLastGLEntryNo(), 'G/L Entry was not committed');
     end;
 
     [Test]
@@ -55,14 +55,14 @@
         Initialize();
         CreateGenJnlBatch(GenJournalBatch);
         CreateGenJnlLine(GenJournalBatch, GenJournalLine);
-        LastGLEntryNo := FindLastGLEntryNo;
+        LastGLEntryNo := FindLastGLEntryNo();
 
         // Exercise
         PostGenJnlBatchWithoutCommit(GenJournalLine);
 
         // Verify - After Error
         asserterror Error('');
-        Assert.AreEqual(LastGLEntryNo, FindLastGLEntryNo, 'G/L Entry was committed');
+        Assert.AreEqual(LastGLEntryNo, FindLastGLEntryNo(), 'G/L Entry was committed');
     end;
 
     [Test]
@@ -78,14 +78,14 @@
         CreateGenJnlBatch(GenJournalBatch);
         CreateGenJnlLine(GenJournalBatch, GenJournalLine);
         CreateGenJnlLine(GenJournalBatch, GenJournalLine);
-        LastGLEntryNo := FindLastGLEntryNo;
+        LastGLEntryNo := FindLastGLEntryNo();
 
         // Exercise
         PostGenJnlBatchWithCommit(GenJournalLine);
 
         // Verify - After Error
         asserterror Error('');
-        Assert.AreNotEqual(LastGLEntryNo, FindLastGLEntryNo, 'G/L Entry was not committed');
+        Assert.AreNotEqual(LastGLEntryNo, FindLastGLEntryNo(), 'G/L Entry was not committed');
     end;
 
     [Test]
@@ -101,14 +101,14 @@
         CreateGenJnlBatch(GenJournalBatch);
         CreateGenJnlLine(GenJournalBatch, GenJournalLine);
         CreateGenJnlLine(GenJournalBatch, GenJournalLine);
-        LastGLEntryNo := FindLastGLEntryNo;
+        LastGLEntryNo := FindLastGLEntryNo();
 
         // Exercise
         PostGenJnlBatchWithoutCommit(GenJournalLine);
 
         // Verify - After Error
         asserterror Error('');
-        Assert.AreEqual(LastGLEntryNo, FindLastGLEntryNo, 'G/L Entry was committed');
+        Assert.AreEqual(LastGLEntryNo, FindLastGLEntryNo(), 'G/L Entry was committed');
     end;
 
     [Test]
@@ -123,14 +123,14 @@
         Initialize();
         CreateItemJnlBatch(ItemJournalBatch);
         CreateItemJnlLine(ItemJournalBatch, ItemJournalLine);
-        LastItemLedgerEntryNo := FindLastItemLedgerEntryNo;
+        LastItemLedgerEntryNo := FindLastItemLedgerEntryNo();
 
         // Exercise
         PostItemJnlBatchWithCommit(ItemJournalLine);
 
         // Verify - After Error
         asserterror Error('');
-        Assert.AreNotEqual(LastItemLedgerEntryNo, FindLastItemLedgerEntryNo, 'G/L Entry was committed');
+        Assert.AreNotEqual(LastItemLedgerEntryNo, FindLastItemLedgerEntryNo(), 'G/L Entry was committed');
     end;
 
     [Test]
@@ -145,14 +145,14 @@
         Initialize();
         CreateItemJnlBatch(ItemJournalBatch);
         CreateItemJnlLine(ItemJournalBatch, ItemJournalLine);
-        LastItemLedgerEntryNo := FindLastItemLedgerEntryNo;
+        LastItemLedgerEntryNo := FindLastItemLedgerEntryNo();
 
         // Exercise
         PostItemJnlBatchWithoutCommit(ItemJournalLine);
 
         // Verify - After Error
         asserterror Error('');
-        Assert.AreEqual(LastItemLedgerEntryNo, FindLastItemLedgerEntryNo, 'G/L Entry was committed');
+        Assert.AreEqual(LastItemLedgerEntryNo, FindLastItemLedgerEntryNo(), 'G/L Entry was committed');
     end;
 
     [Test]
@@ -168,14 +168,14 @@
         CreateItemJnlBatch(ItemJournalBatch);
         CreateItemJnlLine(ItemJournalBatch, ItemJournalLine);
         CreateItemJnlLine(ItemJournalBatch, ItemJournalLine);
-        LastItemLedgerEntryNo := FindLastItemLedgerEntryNo;
+        LastItemLedgerEntryNo := FindLastItemLedgerEntryNo();
 
         // Exercise
         PostItemJnlBatchWithCommit(ItemJournalLine);
 
         // Verify - After Error
         asserterror Error('');
-        Assert.AreNotEqual(LastItemLedgerEntryNo, FindLastItemLedgerEntryNo, 'G/L Entry was committed');
+        Assert.AreNotEqual(LastItemLedgerEntryNo, FindLastItemLedgerEntryNo(), 'G/L Entry was committed');
     end;
 
     [Test]
@@ -191,14 +191,14 @@
         CreateItemJnlBatch(ItemJournalBatch);
         CreateItemJnlLine(ItemJournalBatch, ItemJournalLine);
         CreateItemJnlLine(ItemJournalBatch, ItemJournalLine);
-        LastItemLedgerEntryNo := FindLastItemLedgerEntryNo;
+        LastItemLedgerEntryNo := FindLastItemLedgerEntryNo();
 
         // Exercise
         PostItemJnlBatchWithoutCommit(ItemJournalLine);
 
         // Verify - After Error
         asserterror Error('');
-        Assert.AreEqual(LastItemLedgerEntryNo, FindLastItemLedgerEntryNo, 'G/L Entry was committed');
+        Assert.AreEqual(LastItemLedgerEntryNo, FindLastItemLedgerEntryNo(), 'G/L Entry was committed');
     end;
 
     [Test]
@@ -218,7 +218,7 @@
         // Verify - After Error
         asserterror Error('');
         asserterror SalesHeader.Get(SalesHeader."Document Type", SalesHeader."No.");
-        Assert.AssertRecordNotFound;
+        Assert.AssertRecordNotFound();
     end;
 
     [Test]
@@ -519,7 +519,7 @@
         Initialize();
         CreateOneOfEachSetup(GenJournalLine, ItemJournalLine, SalesHeader, SalesHeader2, SalesHeader3,
           RequisitionLine, TransferHeader, Item, OriginalQuantity, TransferQuantity, FromLocationCode, ToLocationCode);
-        LastGLEntryNo := FindLastGLEntryNo;
+        LastGLEntryNo := FindLastGLEntryNo();
         LastItemLedgerEntryNo := FindLastItemLedgerEntryNo();
         Commit();
 
@@ -536,10 +536,10 @@
 
         // Verify - After Error
         asserterror Error('');
-        Assert.AreNotEqual(LastGLEntryNo, FindLastGLEntryNo, 'G/L Entry was not committed');
-        Assert.AreNotEqual(LastItemLedgerEntryNo, FindLastItemLedgerEntryNo, 'G/L Entry was committed');
+        Assert.AreNotEqual(LastGLEntryNo, FindLastGLEntryNo(), 'G/L Entry was not committed');
+        Assert.AreNotEqual(LastItemLedgerEntryNo, FindLastItemLedgerEntryNo(), 'G/L Entry was committed');
         asserterror SalesHeader.Get(SalesHeader."Document Type", SalesHeader."No.");
-        Assert.AssertRecordNotFound;
+        Assert.AssertRecordNotFound();
         VerifySpecialOrderPurchaseOrder(SalesHeader2);
         VerifyDropShipmentPurchaseOrder(SalesHeader2);
         asserterror TransferHeader.Get(TransferHeader."No.");
@@ -579,7 +579,7 @@
         Initialize();
         CreateOneOfEachSetup(GenJournalLine, ItemJournalLine, SalesHeader, SalesHeader2, SalesHeader3,
           RequisitionLine, TransferHeader, Item, OriginalQuantity, TransferQuantity, FromLocationCode, ToLocationCode);
-        LastGLEntryNo := FindLastGLEntryNo;
+        LastGLEntryNo := FindLastGLEntryNo();
         LastItemLedgerEntryNo := FindLastItemLedgerEntryNo();
         Commit();
 
@@ -596,8 +596,8 @@
 
         // Verify - After Error
         asserterror Error('');
-        Assert.AreEqual(LastGLEntryNo, FindLastGLEntryNo, 'G/L Entry was not committed');
-        Assert.AreEqual(LastItemLedgerEntryNo, FindLastItemLedgerEntryNo, 'G/L Entry was committed');
+        Assert.AreEqual(LastGLEntryNo, FindLastGLEntryNo(), 'G/L Entry was not committed');
+        Assert.AreEqual(LastItemLedgerEntryNo, FindLastItemLedgerEntryNo(), 'G/L Entry was committed');
         SalesHeader.Get(SalesHeader."Document Type", SalesHeader."No.");
         asserterror VerifySpecialOrderPurchaseOrder(SalesHeader2);
         Assert.ExpectedError('There is no Purchase Line within the filter.');
@@ -680,8 +680,8 @@
     begin
         LibraryERM.CreateGeneralJnlLine2WithBalAcc(
           GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, GenJournalLine."Document Type"::" ",
-          GenJournalLine."Account Type"::"G/L Account", LibraryERM.CreateGLAccountNoWithDirectPosting,
-          GenJournalLine."Account Type"::"G/L Account", LibraryERM.CreateGLAccountNoWithDirectPosting,
+          GenJournalLine."Account Type"::"G/L Account", LibraryERM.CreateGLAccountNoWithDirectPosting(),
+          GenJournalLine."Account Type"::"G/L Account", LibraryERM.CreateGLAccountNoWithDirectPosting(),
           LibraryRandom.RandDecInRange(1000, 10000, 2));
     end;
 
@@ -725,7 +725,7 @@
     begin
         LibraryInventory.CreateItemJournalLine(
           ItemJournalLine, ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name, ItemJournalLine.Type::" ",
-          LibraryInventory.CreateItemNo, LibraryRandom.RandDecInRange(1, 10, 2));
+          LibraryInventory.CreateItemNo(), LibraryRandom.RandDecInRange(1, 10, 2));
     end;
 
     local procedure PostItemJnlBatchWithCommit(ItemJournalLine: Record "Item Journal Line")
@@ -789,7 +789,7 @@
     local procedure CreateItemWithVendor(var Item: Record Item)
     begin
         LibraryInventory.CreateItem(Item);
-        Item.Validate("Vendor No.", LibraryPurchase.CreateVendorNo);
+        Item.Validate("Vendor No.", LibraryPurchase.CreateVendorNo());
         Item.Modify(true);
     end;
 
@@ -799,7 +799,7 @@
     begin
         CreateItemWithVendor(Item);
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", LibraryRandom.RandDec(10, 2));
-        SalesLine.Validate("Purchasing Code", CreateSpecialOrderPurchasingCode);
+        SalesLine.Validate("Purchasing Code", CreateSpecialOrderPurchasingCode());
         SalesLine.Modify(true);
     end;
 
@@ -809,7 +809,7 @@
     begin
         CreateItemWithVendor(Item);
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", LibraryRandom.RandDec(10, 2));
-        SalesLine.Validate("Purchasing Code", CreateDropShipmentPurchasingCode);
+        SalesLine.Validate("Purchasing Code", CreateDropShipmentPurchasingCode());
         SalesLine.Modify(true);
     end;
 
@@ -868,7 +868,7 @@
     var
         RequisitionWkshName: Record "Requisition Wksh. Name";
     begin
-        LibraryPlanning.CreateRequisitionWkshName(RequisitionWkshName, LibraryPlanning.SelectRequisitionTemplateName);
+        LibraryPlanning.CreateRequisitionWkshName(RequisitionWkshName, LibraryPlanning.SelectRequisitionTemplateName());
         CreateReqLineForSpecialOrder(RequisitionWkshName, RequisitionLine, SalesHeader);
         CreateReqLineForDropShipment(RequisitionWkshName, RequisitionLine, SalesHeader);
     end;
@@ -994,7 +994,7 @@
         ToLocationCode := LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
 
         CreateItemWithInventory(Item, OriginalQuantity, FromLocationCode);
-        LibraryInventory.CreateTransferHeader(TransferHeader, FromLocationCode, ToLocationCode, CreateInTransitLocation);
+        LibraryInventory.CreateTransferHeader(TransferHeader, FromLocationCode, ToLocationCode, CreateInTransitLocation());
         LibraryInventory.CreateTransferLine(TransferHeader, TransferLine, Item."No.", TransferQuantity);
     end;
 
@@ -1109,7 +1109,7 @@
     begin
         CreateGLAccountAndSetupForPrePayment(GLAccount);
         CreateCustomerForPrePayment(Customer, GLAccount);
-        NoSeries.Get(LibraryERM.CreateNoSeriesCode);
+        NoSeries.Get(LibraryERM.CreateNoSeriesCode());
         NoSeries."Date Order" := true;
         NoSeries.Modify();
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, Customer."No.");

@@ -14,6 +14,7 @@ table 252 "General Posting Setup"
     Caption = 'General Posting Setup';
     DrillDownPageID = "General Posting Setup";
     LookupPageID = "General Posting Setup";
+    DataClassification = CustomerContent;
 
     fields
     {

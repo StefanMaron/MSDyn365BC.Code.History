@@ -1,5 +1,6 @@
 table 143000 "Test 347 Declaration Parameter"
 {
+    DataClassification = CustomerContent;
 
     fields
     {

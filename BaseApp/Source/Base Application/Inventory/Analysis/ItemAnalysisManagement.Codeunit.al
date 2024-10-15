@@ -82,162 +82,147 @@ codeunit 7153 "Item Analysis Management"
 
     local procedure CopyItemToBuf(var Item: Record Item; var DimCodeBuf: Record "Dimension Code Buffer")
     begin
-        with DimCodeBuf do begin
-            Init();
-            Code := Item."No.";
-            Name := Item.Description;
-        end;
+        DimCodeBuf.Init();
+        DimCodeBuf.Code := Item."No.";
+        DimCodeBuf.Name := Item.Description;
     end;
 
     local procedure CopyPeriodToBuf(var Period: Record Date; var DimCodeBuf: Record "Dimension Code Buffer"; DateFilter: Text[30])
     var
         Period2: Record Date;
     begin
-        with DimCodeBuf do begin
-            Init();
-            Code := Format(Period."Period Start");
-            "Period Start" := Period."Period Start";
-            "Period End" := Period."Period End";
-            if DateFilter <> '' then begin
-                Period2.SetFilter("Period End", DateFilter);
-                if Period2.GetRangeMax("Period End") < "Period End" then
-                    "Period End" := Period2.GetRangeMax("Period End");
-            end;
-            Name := Period."Period Name";
+        DimCodeBuf.Init();
+        DimCodeBuf.Code := Format(Period."Period Start");
+        DimCodeBuf."Period Start" := Period."Period Start";
+        DimCodeBuf."Period End" := Period."Period End";
+        if DateFilter <> '' then begin
+            Period2.SetFilter("Period End", DateFilter);
+            if Period2.GetRangeMax("Period End") < DimCodeBuf."Period End" then
+                DimCodeBuf."Period End" := Period2.GetRangeMax("Period End");
         end;
+        DimCodeBuf.Name := Period."Period Name";
     end;
 
     local procedure CopyLocationToBuf(var Location: Record Location; var DimCodeBuf: Record "Dimension Code Buffer")
     begin
-        with DimCodeBuf do begin
-            Init();
-            Code := Location.Code;
-            Name := Location.Name;
-        end;
+        DimCodeBuf.Init();
+        DimCodeBuf.Code := Location.Code;
+        DimCodeBuf.Name := Location.Name;
     end;
 
     local procedure CopyDimValueToBuf(var DimVal: Record "Dimension Value"; var DimCodeBuf: Record "Dimension Code Buffer")
     begin
-        with DimCodeBuf do begin
-            Init();
-            Code := DimVal.Code;
-            Name := DimVal.Name;
-            Totaling := DimVal.Totaling;
-            Indentation := DimVal.Indentation;
-            "Show in Bold" :=
-              DimVal."Dimension Value Type" <> DimVal."Dimension Value Type"::Standard;
-        end;
+        DimCodeBuf.Init();
+        DimCodeBuf.Code := DimVal.Code;
+        DimCodeBuf.Name := DimVal.Name;
+        DimCodeBuf.Totaling := DimVal.Totaling;
+        DimCodeBuf.Indentation := DimVal.Indentation;
+        DimCodeBuf."Show in Bold" :=
+          DimVal."Dimension Value Type" <> DimVal."Dimension Value Type"::Standard;
     end;
 
     local procedure FilterItemAnalyViewEntry(var ItemStatisticsBuffer: Record "Item Statistics Buffer"; var ItemAnalysisViewEntry: Record "Item Analysis View Entry")
     begin
-        with ItemStatisticsBuffer do begin
-            CopyFilter("Analysis Area Filter", ItemAnalysisViewEntry."Analysis Area");
-            CopyFilter("Analysis View Filter", ItemAnalysisViewEntry."Analysis View Code");
+        ItemStatisticsBuffer.CopyFilter("Analysis Area Filter", ItemAnalysisViewEntry."Analysis Area");
+        ItemStatisticsBuffer.CopyFilter("Analysis View Filter", ItemAnalysisViewEntry."Analysis View Code");
 
-            if GetFilter("Item Filter") <> '' then
-                CopyFilter("Item Filter", ItemAnalysisViewEntry."Item No.");
+        if ItemStatisticsBuffer.GetFilter("Item Filter") <> '' then
+            ItemStatisticsBuffer.CopyFilter("Item Filter", ItemAnalysisViewEntry."Item No.");
 
-            if GetFilter("Date Filter") <> '' then
-                CopyFilter("Date Filter", ItemAnalysisViewEntry."Posting Date");
+        if ItemStatisticsBuffer.GetFilter("Date Filter") <> '' then
+            ItemStatisticsBuffer.CopyFilter("Date Filter", ItemAnalysisViewEntry."Posting Date");
 
-            if GetFilter("Location Filter") <> '' then
-                CopyFilter("Location Filter", ItemAnalysisViewEntry."Location Code");
+        if ItemStatisticsBuffer.GetFilter("Location Filter") <> '' then
+            ItemStatisticsBuffer.CopyFilter("Location Filter", ItemAnalysisViewEntry."Location Code");
 
-            if GetFilter("Dimension 1 Filter") <> '' then
-                CopyFilter("Dimension 1 Filter", ItemAnalysisViewEntry."Dimension 1 Value Code");
+        if ItemStatisticsBuffer.GetFilter("Dimension 1 Filter") <> '' then
+            ItemStatisticsBuffer.CopyFilter("Dimension 1 Filter", ItemAnalysisViewEntry."Dimension 1 Value Code");
 
-            if GetFilter("Dimension 2 Filter") <> '' then
-                CopyFilter("Dimension 2 Filter", ItemAnalysisViewEntry."Dimension 2 Value Code");
+        if ItemStatisticsBuffer.GetFilter("Dimension 2 Filter") <> '' then
+            ItemStatisticsBuffer.CopyFilter("Dimension 2 Filter", ItemAnalysisViewEntry."Dimension 2 Value Code");
 
-            if GetFilter("Dimension 3 Filter") <> '' then
-                CopyFilter("Dimension 3 Filter", ItemAnalysisViewEntry."Dimension 3 Value Code");
-        end;
+        if ItemStatisticsBuffer.GetFilter("Dimension 3 Filter") <> '' then
+            ItemStatisticsBuffer.CopyFilter("Dimension 3 Filter", ItemAnalysisViewEntry."Dimension 3 Value Code");
 
         OnAfterFilterItemAnalyViewEntry(ItemStatisticsBuffer, ItemAnalysisViewEntry);
     end;
 
     local procedure FilterItemAnalyViewBudgEntry(var ItemStatisticsBuf: Record "Item Statistics Buffer"; var ItemAnalysisViewBudgEntry: Record "Item Analysis View Budg. Entry")
     begin
-        with ItemStatisticsBuf do begin
-            CopyFilter("Analysis Area Filter", ItemAnalysisViewBudgEntry."Analysis Area");
-            CopyFilter("Analysis View Filter", ItemAnalysisViewBudgEntry."Analysis View Code");
-            CopyFilter("Budget Filter", ItemAnalysisViewBudgEntry."Budget Name");
+        ItemStatisticsBuf.CopyFilter("Analysis Area Filter", ItemAnalysisViewBudgEntry."Analysis Area");
+        ItemStatisticsBuf.CopyFilter("Analysis View Filter", ItemAnalysisViewBudgEntry."Analysis View Code");
+        ItemStatisticsBuf.CopyFilter("Budget Filter", ItemAnalysisViewBudgEntry."Budget Name");
 
-            if GetFilter("Item Filter") <> '' then
-                CopyFilter("Item Filter", ItemAnalysisViewBudgEntry."Item No.");
+        if ItemStatisticsBuf.GetFilter("Item Filter") <> '' then
+            ItemStatisticsBuf.CopyFilter("Item Filter", ItemAnalysisViewBudgEntry."Item No.");
 
-            if GetFilter("Location Filter") <> '' then
-                CopyFilter("Location Filter", ItemAnalysisViewBudgEntry."Location Code");
+        if ItemStatisticsBuf.GetFilter("Location Filter") <> '' then
+            ItemStatisticsBuf.CopyFilter("Location Filter", ItemAnalysisViewBudgEntry."Location Code");
 
-            if GetFilter("Date Filter") <> '' then
-                CopyFilter("Date Filter", ItemAnalysisViewBudgEntry."Posting Date");
+        if ItemStatisticsBuf.GetFilter("Date Filter") <> '' then
+            ItemStatisticsBuf.CopyFilter("Date Filter", ItemAnalysisViewBudgEntry."Posting Date");
 
-            if GetFilter("Dimension 1 Filter") <> '' then
-                CopyFilter("Dimension 1 Filter", ItemAnalysisViewBudgEntry."Dimension 1 Value Code");
+        if ItemStatisticsBuf.GetFilter("Dimension 1 Filter") <> '' then
+            ItemStatisticsBuf.CopyFilter("Dimension 1 Filter", ItemAnalysisViewBudgEntry."Dimension 1 Value Code");
 
-            if GetFilter("Dimension 2 Filter") <> '' then
-                CopyFilter("Dimension 2 Filter", ItemAnalysisViewBudgEntry."Dimension 2 Value Code");
+        if ItemStatisticsBuf.GetFilter("Dimension 2 Filter") <> '' then
+            ItemStatisticsBuf.CopyFilter("Dimension 2 Filter", ItemAnalysisViewBudgEntry."Dimension 2 Value Code");
 
-            if GetFilter("Dimension 3 Filter") <> '' then
-                CopyFilter("Dimension 3 Filter", ItemAnalysisViewBudgEntry."Dimension 3 Value Code");
-        end;
+        if ItemStatisticsBuf.GetFilter("Dimension 3 Filter") <> '' then
+            ItemStatisticsBuf.CopyFilter("Dimension 3 Filter", ItemAnalysisViewBudgEntry."Dimension 3 Value Code");
 
         OnAfterFilterItemAnalyViewBudgEntry(ItemStatisticsBuf, ItemAnalysisViewBudgEntry);
     end;
 
     local procedure SetDimFilters(var ItemStatisticsBuffer: Record "Item Statistics Buffer"; DimType: Enum "Item Analysis Dimension Type"; DimCodeBuf: Record "Dimension Code Buffer")
     begin
-        with ItemStatisticsBuffer do
-            case DimType of
-                DimType::Item:
-                    SetRange("Item Filter", DimCodeBuf.Code);
-                DimType::Period:
-                    SetRange("Date Filter", DimCodeBuf."Period Start", DimCodeBuf."Period End");
-                DimType::Location:
-                    SetRange("Location Filter", DimCodeBuf.Code);
-                DimType::"Dimension 1":
-                    if DimCodeBuf.Totaling <> '' then
-                        SetFilter("Dimension 1 Filter", DimCodeBuf.Totaling)
-                    else
-                        SetRange("Dimension 1 Filter", DimCodeBuf.Code);
-                DimType::"Dimension 2":
-                    if DimCodeBuf.Totaling <> '' then
-                        SetFilter("Dimension 2 Filter", DimCodeBuf.Totaling)
-                    else
-                        SetRange("Dimension 2 Filter", DimCodeBuf.Code);
-                DimType::"Dimension 3":
-                    if DimCodeBuf.Totaling <> '' then
-                        SetFilter("Dimension 3 Filter", DimCodeBuf.Totaling)
-                    else
-                        SetRange("Dimension 3 Filter", DimCodeBuf.Code);
-            end;
+        case DimType of
+            DimType::Item:
+                ItemStatisticsBuffer.SetRange("Item Filter", DimCodeBuf.Code);
+            DimType::Period:
+                ItemStatisticsBuffer.SetRange("Date Filter", DimCodeBuf."Period Start", DimCodeBuf."Period End");
+            DimType::Location:
+                ItemStatisticsBuffer.SetRange("Location Filter", DimCodeBuf.Code);
+            DimType::"Dimension 1":
+                if DimCodeBuf.Totaling <> '' then
+                    ItemStatisticsBuffer.SetFilter("Dimension 1 Filter", DimCodeBuf.Totaling)
+                else
+                    ItemStatisticsBuffer.SetRange("Dimension 1 Filter", DimCodeBuf.Code);
+            DimType::"Dimension 2":
+                if DimCodeBuf.Totaling <> '' then
+                    ItemStatisticsBuffer.SetFilter("Dimension 2 Filter", DimCodeBuf.Totaling)
+                else
+                    ItemStatisticsBuffer.SetRange("Dimension 2 Filter", DimCodeBuf.Code);
+            DimType::"Dimension 3":
+                if DimCodeBuf.Totaling <> '' then
+                    ItemStatisticsBuffer.SetFilter("Dimension 3 Filter", DimCodeBuf.Totaling)
+                else
+                    ItemStatisticsBuffer.SetRange("Dimension 3 Filter", DimCodeBuf.Code);
+        end;
 
         OnAfterSetDimFilters(ItemStatisticsBuffer, DimType, DimCodeBuf);
     end;
 
     procedure SetBufferFilters(CurrentAnalysisArea: Enum "Analysis Area Type"; var ItemStatisticsBuffer: Record "Item Statistics Buffer"; CurrentAnalysisViewCode: Code[10]; ItemFilter: Text; LocationFilter: Text; DateFilter: Text; Dim1Filter: Text; Dim2Filter: Text; Dim3Filter: Text; BudgetFilter: Text)
     begin
-        with ItemStatisticsBuffer do begin
-            Reset();
-            SetRange("Analysis Area Filter", CurrentAnalysisArea);
-            SetRange("Analysis View Filter", CurrentAnalysisViewCode);
+        ItemStatisticsBuffer.Reset();
+        ItemStatisticsBuffer.SetRange("Analysis Area Filter", CurrentAnalysisArea);
+        ItemStatisticsBuffer.SetRange("Analysis View Filter", CurrentAnalysisViewCode);
 
-            if ItemFilter <> '' then
-                SetFilter("Item Filter", ItemFilter);
-            if LocationFilter <> '' then
-                SetFilter("Location Filter", LocationFilter);
-            if DateFilter <> '' then
-                SetFilter("Date Filter", DateFilter);
-            if Dim1Filter <> '' then
-                SetFilter("Dimension 1 Filter", Dim1Filter);
-            if Dim2Filter <> '' then
-                SetFilter("Dimension 2 Filter", Dim2Filter);
-            if Dim3Filter <> '' then
-                SetFilter("Dimension 3 Filter", Dim3Filter);
-            if BudgetFilter <> '' then
-                SetFilter("Budget Filter", BudgetFilter);
-        end;
+        if ItemFilter <> '' then
+            ItemStatisticsBuffer.SetFilter("Item Filter", ItemFilter);
+        if LocationFilter <> '' then
+            ItemStatisticsBuffer.SetFilter("Location Filter", LocationFilter);
+        if DateFilter <> '' then
+            ItemStatisticsBuffer.SetFilter("Date Filter", DateFilter);
+        if Dim1Filter <> '' then
+            ItemStatisticsBuffer.SetFilter("Dimension 1 Filter", Dim1Filter);
+        if Dim2Filter <> '' then
+            ItemStatisticsBuffer.SetFilter("Dimension 2 Filter", Dim2Filter);
+        if Dim3Filter <> '' then
+            ItemStatisticsBuffer.SetFilter("Dimension 3 Filter", Dim3Filter);
+        if BudgetFilter <> '' then
+            ItemStatisticsBuffer.SetFilter("Budget Filter", BudgetFilter);
 
         OnAfterSetCommonFilters(CurrentAnalysisArea, ItemStatisticsBuffer, CurrentAnalysisViewCode);
     end;

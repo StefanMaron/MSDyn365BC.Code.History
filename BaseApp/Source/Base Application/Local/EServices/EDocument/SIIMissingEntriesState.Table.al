@@ -7,6 +7,7 @@ namespace Microsoft.EServices.EDocument;
 table 10754 "SII Missing Entries State"
 {
     Caption = 'SII Missing Entries State';
+    DataClassification = CustomerContent;
 
     fields
     {

@@ -24,12 +24,8 @@ codeunit 3 "G/L Account-Indent"
         GLAcc: Record "G/L Account";
         FindAcc: Record "G/L Account";
         Window: Dialog;
-        AccNo: array[10] of Code[20];
-        i: Integer;
         HidePrintDialog: Boolean;
 
-        Text004: Label 'Indenting the Chart of Accounts #1##########';
-        Text005: Label 'End-Total %1 is missing a matching Begin-Total.';
         Text1100000: Label 'This function checks the consistency of and completes the Chart of Accounts:\\';
         Text1100001: Label '- Checks that a corresponding heading account exists for every posting account.\';
         Text1100002: Label '- Checks that all accounts comply with the Chart of Account account length requisites.\';
@@ -57,63 +53,61 @@ codeunit 3 "G/L Account-Indent"
 
         Window.Open(Text1100006);
 
-        with GLAcc do begin
-            Reset();
-            LineCounter := 0;
-            NoOfRecords := Count;
-            if NoOfRecords <> 0 then begin
-                if Find('-') then
-                    repeat
-                        Window.Update(1, "No.");
+        GLAcc.Reset();
+        LineCounter := 0;
+        NoOfRecords := GLAcc.Count;
+        if NoOfRecords <> 0 then begin
+            if GLAcc.Find('-') then
+                repeat
+                    Window.Update(1, GLAcc."No.");
 
-                        TestField(Name);
+                    GLAcc.TestField(Name);
 
-                        if StrLen("No.") > 5 then
-                            "Account Type" := "Account Type"::Posting
+                    if StrLen(GLAcc."No.") > 5 then
+                        GLAcc."Account Type" := GLAcc."Account Type"::Posting
+                    else
+                        GLAcc."Account Type" := GLAcc."Account Type"::Heading;
+
+                    if GLAcc."Account Type" = GLAcc."Account Type"::Heading then begin
+                        //The length of a heading account cannot be greater than 9
+                        if StrLen(GLAcc."No.") > 8 then
+                            Error(Text1100007, GLAcc."No.");
+                        //a heading account must exist at the previous higher level
+                        if StrLen(GLAcc."No.") > 1 then
+                            if not FindAcc.Get(CopyStr(GLAcc."No.", 1, StrLen(GLAcc."No.") - 1)) then
+                                Error(Text1100008, CopyStr(GLAcc."No.", 1, StrLen(GLAcc."No.") - 1), GLAcc."No.");
+                        GLAcc.Totaling := GLAcc."No." + Text1100009 + PadStr(GLAcc."No.", 20 - (StrLen(GLAcc."No.") + 2), '9');
+                        GLAcc.Validate(Indentation, StrLen(GLAcc."No.") - 1);
+                    end else begin
+                        //the corresponding heading account must exist
+                        if not FindAcc.Get(CopyStr(GLAcc."No.", 1, 3)) then
+                            Error(Text1100010, CopyStr(GLAcc."No.", 1, 3), GLAcc."No.");
+                        //a posting account must be the same length as the next
+                        FindAcc := GLAcc;
+                        if FindAcc.Next() <> 0 then
+                            if (FindAcc."Account Type" = FindAcc."Account Type"::Posting) and
+                               (StrLen(GLAcc."No.") <> StrLen(FindAcc."No.")) then
+                                Error(Text1100011, GLAcc."No.");
+
+                        if CopyStr(GLAcc."No.", 1, 1) in ['6', '7'] then
+                            GLAcc."Income/Balance" := GLAcc."Income/Balance"::"Income Statement"
                         else
-                            "Account Type" := "Account Type"::Heading;
-
-                        if "Account Type" = "Account Type"::Heading then begin
-                            //The length of a heading account cannot be greater than 9
-                            if StrLen("No.") > 8 then
-                                Error(Text1100007, "No.");
-                            //a heading account must exist at the previous higher level
-                            if StrLen("No.") > 1 then
-                                if not FindAcc.Get(CopyStr("No.", 1, StrLen("No.") - 1)) then
-                                    Error(Text1100008, CopyStr("No.", 1, StrLen("No.") - 1), "No.");
-                            Totaling := "No." + Text1100009 + PadStr("No.", 20 - (StrLen("No.") + 2), '9');
-                            Validate(Indentation, StrLen("No.") - 1);
-                        end else begin
-                            //the corresponding heading account must exist
-                            if not FindAcc.Get(CopyStr("No.", 1, 3)) then
-                                Error(Text1100010, CopyStr("No.", 1, 3), "No.");
-                            //a posting account must be the same length as the next
-                            FindAcc := GLAcc;
-                            if FindAcc.Next() <> 0 then
-                                if (FindAcc."Account Type" = FindAcc."Account Type"::Posting) and
-                                   (StrLen("No.") <> StrLen(FindAcc."No.")) then
-                                    Error(Text1100011, "No.");
-
-                            if CopyStr("No.", 1, 1) in ['6', '7'] then
-                                "Income/Balance" := "Income/Balance"::"Income Statement"
+                            if CopyStr(GLAcc."No.", 1, 1) in ['8', '9'] then
+                                GLAcc."Income/Balance" := GLAcc."Income/Balance"::Capital
                             else
-                                if CopyStr("No.", 1, 1) in ['8', '9'] then
-                                    "Income/Balance" := "Income/Balance"::Capital
-                                else
-                                    "Income/Balance" := "Income/Balance"::"Balance Sheet";
+                                GLAcc."Income/Balance" := GLAcc."Income/Balance"::"Balance Sheet";
 
-                            if "Income/Balance" in ["Income/Balance"::"Income Statement", "Income/Balance"::Capital] then
-                                TestField("Income Stmt. Bal. Acc.")
-                            else
-                                "Income Stmt. Bal. Acc." := '';
-                            Indentation := 5;
-                        end;
+                        if GLAcc."Income/Balance" in [GLAcc."Income/Balance"::"Income Statement", GLAcc."Income/Balance"::Capital] then
+                            GLAcc.TestField("Income Stmt. Bal. Acc.")
+                        else
+                            GLAcc."Income Stmt. Bal. Acc." := '';
+                        GLAcc.Indentation := 5;
+                    end;
 
-                        Modify();
-                        LineCounter := LineCounter + 1;
-                        Window.Update(2, Round(LineCounter / NoOfRecords * 10000, 1));
-                    until Next() = 0;
-            end;
+                    GLAcc.Modify();
+                    LineCounter := LineCounter + 1;
+                    Window.Update(2, Round(LineCounter / NoOfRecords * 10000, 1));
+                until GLAcc.Next() = 0;
         end;
 
         Window.Close();
@@ -153,55 +147,53 @@ codeunit 3 "G/L Account-Indent"
 
         Window.Open(Text1100006);
 
-        with ICGLAcc do begin
-            Reset();
-            LineCounter := 0;
-            NoOfRecords := Count;
-            if NoOfRecords <> 0 then begin
-                if Find('-') then
-                    repeat
-                        Window.Update(1, "No.");
+        ICGLAcc.Reset();
+        LineCounter := 0;
+        NoOfRecords := ICGLAcc.Count;
+        if NoOfRecords <> 0 then
+            if ICGLAcc.Find('-') then
+                repeat
+                    Window.Update(1, ICGLAcc."No.");
 
-                        TestField(Name);
+                    ICGLAcc.TestField(Name);
 
-                        if StrLen("No.") > 5 then
-                            "Account Type" := "Account Type"::Posting
+                    if StrLen(ICGLAcc."No.") > 5 then
+                        ICGLAcc."Account Type" := ICGLAcc."Account Type"::Posting
+                    else
+                        ICGLAcc."Account Type" := ICGLAcc."Account Type"::Heading;
+
+                    if ICGLAcc."Account Type" = ICGLAcc."Account Type"::Heading then begin
+                        //The length of a heading account cannot be greater than 9
+                        if StrLen(ICGLAcc."No.") > 8 then
+                            Error(Text1100007, ICGLAcc."No.");
+                        //a heading account must exist at the previous higher level
+                        if StrLen(ICGLAcc."No.") > 1 then
+                            if not FindAcc.Get(CopyStr(ICGLAcc."No.", 1, StrLen(ICGLAcc."No.") - 1)) then
+                                Error(Text1100008, CopyStr(ICGLAcc."No.", 1, StrLen(ICGLAcc."No.") - 1), ICGLAcc."No.");
+                        ICGLAcc.Validate(Indentation, StrLen(ICGLAcc."No.") - 1);
+                    end else begin
+                        //the corresponding heading account must exist
+                        if not FindAcc.Get(CopyStr(ICGLAcc."No.", 1, 3)) then
+                            Error(Text1100010, CopyStr(ICGLAcc."No.", 1, 3), ICGLAcc."No.");
+                        //a posting account must be the same length as the next
+                        FindAcc := GLAcc;
+                        if FindAcc.Next() <> 0 then
+                            if (FindAcc."Account Type" = FindAcc."Account Type"::Posting) and
+                               (StrLen(ICGLAcc."No.") <> StrLen(FindAcc."No.")) then
+                                Error(Text1100011, ICGLAcc."No.");
+
+                        if CopyStr(ICGLAcc."No.", 1, 1) in ['6', '7'] then
+                            ICGLAcc."Income/Balance" := ICGLAcc."Income/Balance"::"Income Statement"
                         else
-                            "Account Type" := "Account Type"::Heading;
+                            ICGLAcc."Income/Balance" := ICGLAcc."Income/Balance"::"Balance Sheet";
+                        ICGLAcc.Indentation := 4;
+                    end;
 
-                        if "Account Type" = "Account Type"::Heading then begin
-                            //The length of a heading account cannot be greater than 9
-                            if StrLen("No.") > 8 then
-                                Error(Text1100007, "No.");
-                            //a heading account must exist at the previous higher level
-                            if StrLen("No.") > 1 then
-                                if not FindAcc.Get(CopyStr("No.", 1, StrLen("No.") - 1)) then
-                                    Error(Text1100008, CopyStr("No.", 1, StrLen("No.") - 1), "No.");
-                            Validate(Indentation, StrLen("No.") - 1);
-                        end else begin
-                            //the corresponding heading account must exist
-                            if not FindAcc.Get(CopyStr("No.", 1, 3)) then
-                                Error(Text1100010, CopyStr("No.", 1, 3), "No.");
-                            //a posting account must be the same length as the next
-                            FindAcc := GLAcc;
-                            if FindAcc.Next() <> 0 then
-                                if (FindAcc."Account Type" = FindAcc."Account Type"::Posting) and
-                                   (StrLen("No.") <> StrLen(FindAcc."No.")) then
-                                    Error(Text1100011, "No.");
+                    ICGLAcc.Modify();
+                    LineCounter := LineCounter + 1;
+                    Window.Update(2, Round(LineCounter / NoOfRecords * 10000, 1));
+                until ICGLAcc.Next() = 0;
 
-                            if CopyStr("No.", 1, 1) in ['6', '7'] then
-                                "Income/Balance" := "Income/Balance"::"Income Statement"
-                            else
-                                "Income/Balance" := "Income/Balance"::"Balance Sheet";
-                            Indentation := 4;
-                        end;
-
-                        Modify();
-                        LineCounter := LineCounter + 1;
-                        Window.Update(2, Round(LineCounter / NoOfRecords * 10000, 1));
-                    until Next() = 0;
-            end;
-        end;
         Window.Close();
         if not HidePrintDialog then
             Message(Text1100012);

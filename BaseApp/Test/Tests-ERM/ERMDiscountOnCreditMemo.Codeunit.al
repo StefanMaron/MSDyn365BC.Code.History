@@ -33,7 +33,7 @@ codeunit 134916 "ERM Discount On Credit Memo"
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"ERM Discount On Credit Memo");
         LibraryERMCountryData.CreateVATData();
-        LibraryERMCountryData.UpdateAccountInCustomerPostingGroup;
+        LibraryERMCountryData.UpdateAccountInCustomerPostingGroup();
         LibraryERMCountryData.UpdateSalesReceivablesSetup();
         LibraryERMCountryData.UpdateGeneralLedgerSetup();
         LibraryERMCountryData.UpdateGeneralPostingSetup();
@@ -124,7 +124,7 @@ codeunit 134916 "ERM Discount On Credit Memo"
     begin
         // Test Customer Ledger Entry for Remaining Pmt. Disc. Possible after applying a Invoice on Credit Memo Less Than Invoice Amount.
         Initialize();
-        CurrencyCode := CreateCurrency;
+        CurrencyCode := CreateCurrency();
         Amount := LibraryRandom.RandDec(100, 2);  // Random value used is not important for test.
 
         // Using 1 for Sign Factor.
@@ -143,7 +143,7 @@ codeunit 134916 "ERM Discount On Credit Memo"
     begin
         // Test Customer Ledger Entry for Remaining Pmt. Disc. Possible after applying a Invoice on Credit Memo Greater Than Invoice Amount.
         Initialize();
-        CurrencyCode := CreateCurrency;
+        CurrencyCode := CreateCurrency();
         Amount := LibraryRandom.RandDec(100, 2);  // Random value used is not important for test.
 
         // Using Zero where Invoice applied Fully to Credit Memo and 1 for Sign Factor..
@@ -167,7 +167,7 @@ codeunit 134916 "ERM Discount On Credit Memo"
         // Using Zero where Invoice applied Fully to Credit Memo and 1 for Sign Factor.
         ApplySalesDocuments(
           Amount, -Amount * 2, GenJournalLine."Document Type"::Invoice, GenJournalLine."Document Type"::"Credit Memo",
-          CreateCurrency, CreateCurrency, 0, -Amount, 1);
+          CreateCurrency(), CreateCurrency(), 0, -Amount, 1);
     end;
 
     [Test]
@@ -196,7 +196,7 @@ codeunit 134916 "ERM Discount On Credit Memo"
     begin
         // Test Customer Ledger Entry for Remaining Pmt. Disc. Possible after applying a Refund on Credit Memo Less Than Refund Amount.
         Initialize();
-        CurrencyCode := CreateCurrency;
+        CurrencyCode := CreateCurrency();
         Amount := LibraryRandom.RandDec(100, 2); // Random value used is not important for test.
 
         // Using Zero where Refund is applied to Credit Memo and 1 for Sign Factor.
@@ -215,7 +215,7 @@ codeunit 134916 "ERM Discount On Credit Memo"
     begin
         // Test Customer Ledger Entry for Remaining Pmt. Disc. Possible after applying a Refund on Credit Memo Greater Than Refund Amount.
         Initialize();
-        CurrencyCode := CreateCurrency;
+        CurrencyCode := CreateCurrency();
         Amount := LibraryRandom.RandDec(100, 2); // Random value used is not important for test.
 
         // Using -1 for Sign Factor.
@@ -239,7 +239,7 @@ codeunit 134916 "ERM Discount On Credit Memo"
         // Using -1 for Sign Factor.
         ApplySalesDocuments(
           Amount, -Amount * 2, GenJournalLine."Document Type"::Refund, GenJournalLine."Document Type"::"Credit Memo",
-          CreateCurrency, CreateCurrency, Amount, Amount, -1);
+          CreateCurrency(), CreateCurrency(), Amount, Amount, -1);
     end;
 
     [Test]
@@ -269,7 +269,7 @@ codeunit 134916 "ERM Discount On Credit Memo"
         // Test Customer Ledger Entry for Remaining Pmt. Disc. Possible after applying a Credit Memo on Invoice Less Than Credit
         // Memo Amount.
         Initialize();
-        CurrencyCode := CreateCurrency;
+        CurrencyCode := CreateCurrency();
         Amount := LibraryRandom.RandDec(100, 2);  // Random value used is not important for test.
 
         // Using 1 for Sign Factor.
@@ -289,7 +289,7 @@ codeunit 134916 "ERM Discount On Credit Memo"
         // Test Customer Ledger Entry for Remaining Pmt. Disc. Possible after applying a Credit Memo on Invoice Greater Than Credit
         // Memo Amount.
         Initialize();
-        CurrencyCode := CreateCurrency;
+        CurrencyCode := CreateCurrency();
         Amount := LibraryRandom.RandDec(100, 2);  // Random value used is not important for test.
 
         // Using Zero where Credit Memo applied Fully to Invoice and 1 for Sign Factor.
@@ -313,7 +313,7 @@ codeunit 134916 "ERM Discount On Credit Memo"
         // Using Zero where Credit Memo applied Fully to Invoice and 1 for Sign Factor.
         ApplySalesDocuments(
           -Amount, Amount * 2, GenJournalLine."Document Type"::"Credit Memo", GenJournalLine."Document Type"::Invoice,
-          CreateCurrency, CreateCurrency, 0, Amount, 1);
+          CreateCurrency(), CreateCurrency(), 0, Amount, 1);
     end;
 
     [Test]
@@ -342,7 +342,7 @@ codeunit 134916 "ERM Discount On Credit Memo"
     begin
         // Test Customer Ledger Entry for Remaining Pmt. Disc. Possible after applying a Refund on Payment Less Than Refund Amount.
         Initialize();
-        CurrencyCode := CreateCurrency;
+        CurrencyCode := CreateCurrency();
         Amount := LibraryRandom.RandDec(100, 2); // Random value used is not important for test.
 
         // Using Zero where Refund is applied to Payment and 1 for Sign Factor.
@@ -361,7 +361,7 @@ codeunit 134916 "ERM Discount On Credit Memo"
     begin
         // Test Customer Ledger Entry for Remaining Pmt. Disc. Possible after applying a Refund on Payment Greater Than Refund Amount.
         Initialize();
-        CurrencyCode := CreateCurrency;
+        CurrencyCode := CreateCurrency();
         Amount := LibraryRandom.RandDec(100, 2); // Random value used is not important for test.
 
         // Using Zero where Refund is applied to Payment and 1 for Sign Factor.
@@ -385,7 +385,7 @@ codeunit 134916 "ERM Discount On Credit Memo"
         // Using Zero where Refund is applied to Payment and 1 for Sign Factor.
         ApplySalesDocuments(
           Amount, -Amount * 2, GenJournalLine."Document Type"::Refund, GenJournalLine."Document Type"::Payment,
-          CreateCurrency, CreateCurrency, 0, 0, 1);
+          CreateCurrency(), CreateCurrency(), 0, 0, 1);
     end;
 
     [Test]
@@ -403,7 +403,7 @@ codeunit 134916 "ERM Discount On Credit Memo"
         // Using Zero where Refund is applied to Payment and 1 for Sign Factor.
         ApplySalesDocuments(
           Amount, -Amount / 2, GenJournalLine."Document Type"::Refund, GenJournalLine."Document Type"::Payment,
-          CreateCurrency, CreateCurrency, 0, 0, 1);
+          CreateCurrency(), CreateCurrency(), 0, 0, 1);
     end;
 
     [Test]
@@ -432,7 +432,7 @@ codeunit 134916 "ERM Discount On Credit Memo"
     begin
         // Test Customer Ledger Entry for Remaining Pmt. Disc. Possible after applying a Credit Memo on Refund Less Than Refund Amount.
         Initialize();
-        CurrencyCode := CreateCurrency;
+        CurrencyCode := CreateCurrency();
         Amount := LibraryRandom.RandDec(100, 2); // Random value used is not important for test.
 
         // Using Zero where Credit Memo is applied to Refund and 1 for Sign Factor.
@@ -451,7 +451,7 @@ codeunit 134916 "ERM Discount On Credit Memo"
     begin
         // Test Customer Ledger Entry for Remaining Pmt. Disc. Possible after applying a Credit Memo on Refund Greater Than Refund Amount.
         Initialize();
-        CurrencyCode := CreateCurrency;
+        CurrencyCode := CreateCurrency();
         Amount := LibraryRandom.RandDec(100, 2); // Random value used is not important for test.
 
         // Using Zero where Credit Memo is applied to Refund and 1 for Sign Factor.
@@ -475,7 +475,7 @@ codeunit 134916 "ERM Discount On Credit Memo"
         // Using Zero where Credit Memo is applied to Refund and 1 for Sign Factor.
         ApplySalesDocuments(
           -Amount, Amount * 2, GenJournalLine."Document Type"::"Credit Memo", GenJournalLine."Document Type"::Refund,
-          CreateCurrency, CreateCurrency, 0, 0, 1);
+          CreateCurrency(), CreateCurrency(), 0, 0, 1);
     end;
 
     [Normal]
@@ -531,7 +531,7 @@ codeunit 134916 "ERM Discount On Credit Memo"
         Amount := LibraryRandom.RandDec(100, 2); // Random value used is not important for test.
 
         // Exercise: Create Update and Post General Journal Line.
-        CreateGeneralJournalLine(GenJournalLine, GenJournalLine."Document Type"::"Credit Memo", CustomerNo, CreateCurrency, -Amount);
+        CreateGeneralJournalLine(GenJournalLine, GenJournalLine."Document Type"::"Credit Memo", CustomerNo, CreateCurrency(), -Amount);
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
         CreateGeneralJournalLine(GenJournalLine, GenJournalLine."Document Type"::Refund, CustomerNo, GenJournalLine."Currency Code", Amount);
         UpdateGenJournalLine(
@@ -574,7 +574,7 @@ codeunit 134916 "ERM Discount On Credit Memo"
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::"Credit Memo", SalesLine."Sell-to Customer No.");
         UpdateAppliesToDocNoSales(SalesHeader, AppliesToDocNo);
         LibrarySales.CreateSalesLine(
-          SalesLine2, SalesHeader, SalesLine2.Type::Item, SalesLine."No.", SalesLine.Quantity * LibraryUtility.GenerateRandomFraction);
+          SalesLine2, SalesHeader, SalesLine2.Type::Item, SalesLine."No.", SalesLine.Quantity * LibraryUtility.GenerateRandomFraction());
         LibrarySales.PostSalesDocument(SalesHeader, false, false);
     end;
 
@@ -712,7 +712,7 @@ codeunit 134916 "ERM Discount On Credit Memo"
         GLEntry.SetRange("G/L Account No.", GLAccountNo);
         GLEntry.FindFirst();
         Assert.AreNearlyEqual(
-          Amount, GLEntry.Amount, LibraryERM.GetAmountRoundingPrecision,
+          Amount, GLEntry.Amount, LibraryERM.GetAmountRoundingPrecision(),
           StrSubstNo(AmountError, GLEntry.FieldCaption(Amount), Amount, GLEntry.TableCaption()));
     end;
 
@@ -728,7 +728,7 @@ codeunit 134916 "ERM Discount On Credit Memo"
         until CustLedgerEntry.Next() = 0;
 
         Assert.AreNearlyEqual(
-          RemainingPmtDiscPossible, ActualRemainingPmtDiscPossible, LibraryERM.GetAmountRoundingPrecision,
+          RemainingPmtDiscPossible, ActualRemainingPmtDiscPossible, LibraryERM.GetAmountRoundingPrecision(),
           StrSubstNo(AmountError, CustLedgerEntry.FieldCaption("Remaining Pmt. Disc. Possible"),
             RemainingPmtDiscPossible, CustLedgerEntry.TableCaption()));
     end;

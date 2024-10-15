@@ -301,7 +301,7 @@ codeunit 226 "CustEntry-Apply Posted Entries"
     begin
         IsHandled := false;
         OnBeforeUnApplyCustomer(DtldCustLedgEntry, IsHandled);
-        If IsHandled then
+        if IsHandled then
             exit;
 
         DtldCustLedgEntry.TestField("Entry Type", DtldCustLedgEntry."Entry Type"::Application);
@@ -583,30 +583,26 @@ codeunit 226 "CustEntry-Apply Posted Entries"
     var
         CustLedgEntry3: Record "Cust. Ledger Entry";
     begin
-        with CustLedgEntry3 do begin
-            SetCurrentKey("Applies-to ID", "Document Type");
-            SetRange("Applies-to ID", CustLedgEntry2."Applies-to ID");
-            SetRange("Document Type", CustLedgEntry2."Document Type"::Bill);
-            if not IsEmpty() then
-                exit(true);
-            exit(false);
-        end;
+        CustLedgEntry3.SetCurrentKey("Applies-to ID", "Document Type");
+        CustLedgEntry3.SetRange("Applies-to ID", CustLedgEntry2."Applies-to ID");
+        CustLedgEntry3.SetRange("Document Type", CustLedgEntry2."Document Type"::Bill);
+        if not CustLedgEntry3.IsEmpty() then
+            exit(true);
+        exit(false);
     end;
 
     local procedure BeAppliedToInvoiceToCartera(CustLedgEntry2: Record "Cust. Ledger Entry"): Boolean
     var
         CustLedgEntry3: Record "Cust. Ledger Entry";
     begin
-        with CustLedgEntry3 do begin
-            SetCurrentKey("Applies-to ID", "Document Type", "Document Situation", "Document Status");
-            SetRange("Applies-to ID", CustLedgEntry2."Applies-to ID");
-            SetRange("Document Type", CustLedgEntry2."Document Type"::Invoice);
-            SetRange("Document Situation", "Document Situation"::"Closed BG/PO");
-            SetRange("Document Status", "Document Status"::Rejected);
-            if not IsEmpty() then
-                exit(true);
-            exit(false);
-        end;
+        CustLedgEntry3.SetCurrentKey("Applies-to ID", "Document Type", "Document Situation", "Document Status");
+        CustLedgEntry3.SetRange("Applies-to ID", CustLedgEntry2."Applies-to ID");
+        CustLedgEntry3.SetRange("Document Type", CustLedgEntry2."Document Type"::Invoice);
+        CustLedgEntry3.SetRange("Document Situation", CustLedgEntry3."Document Situation"::"Closed BG/PO");
+        CustLedgEntry3.SetRange("Document Status", CustLedgEntry3."Document Status"::Rejected);
+        if not CustLedgEntry3.IsEmpty() then
+            exit(true);
+        exit(false);
     end;
 
     local procedure IsToSetIDBillSettlement(CustLedgEntry2: Record "Cust. Ledger Entry"): Boolean

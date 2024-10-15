@@ -13,6 +13,7 @@ codeunit 134776 "Document Attachment Tests"
         LibraryERM: Codeunit "Library - ERM";
         LibrarySales: Codeunit "Library - Sales";
         LibraryPurchase: Codeunit "Library - Purchase";
+        LibraryService: Codeunit "Library - Service";
         LibraryInventory: Codeunit "Library - Inventory";
         LibraryResource: Codeunit "Library - Resource";
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
@@ -25,6 +26,7 @@ codeunit 134776 "Document Attachment Tests"
         Assert: Codeunit Assert;
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         ReportSelectionUsage: Enum "Report Selection Usage";
+        RecallNotifications: Boolean;
         NoContentErr: Label 'The selected file has no content. Please choose another file.';
         DuplicateErr: Label 'This file is already attached to the document. Please choose another file.';
         PrintedToAttachmentTxt: Label 'The document has been printed to attachments.';
@@ -32,7 +34,7 @@ codeunit 134776 "Document Attachment Tests"
         isInitialized: Boolean;
         ConfirmConvertToOrderQst: Label 'Do you want to convert the quote to an order?';
         DeleteAttachmentsConfirmQst: Label 'Do you want to delete the attachments for this document?';
-        ConfirmOpeningNewOrderAfterQuoteToOrder: Label 'Do you want to open the new order?';
+        ConfirmOpeningNewOrderAfterQuoteToOrderQst: Label 'Do you want to open the new order?';
         AttachedDateInvalidErr: Label 'Attached date is invalid';
 
     [Test]
@@ -87,7 +89,7 @@ codeunit 134776 "Document Attachment Tests"
         Assert.AreEqual('Image', Format(DocumentAttachment."File Type"::Image), 'File type is not equal to image.');
 
         // Verify user security id
-        Assert.AreEqual(UserSecurityId, DocumentAttachment."Attached By", 'AttachedBy is not eqal to USERSECURITYID');
+        Assert.AreEqual(UserSecurityId(), DocumentAttachment."Attached By", 'AttachedBy is not eqal to USERSECURITYID');
 
         // Verify file type
         Assert.AreEqual(1, DocumentAttachment."File Type", 'File type is not image.');
@@ -108,7 +110,9 @@ codeunit 134776 "Document Attachment Tests"
         Assert.IsTrue(DocumentAttachment."Document Reference ID".HasValue, 'Document reference ID is null.');
 
         // Verify doc flow
-        Assert.IsFalse(DocumentAttachment."Document Flow Sales", 'Document flow is true.');
+        Assert.IsFalse(DocumentAttachment."Document Flow Sales", 'Document flow Sales is true.');
+
+        Assert.IsFalse(DocumentAttachment."Document Flow Service", 'Document flow Service is true.');
     end;
 
     [Test]
@@ -342,8 +346,8 @@ codeunit 134776 "Document Attachment Tests"
         Customer: Record Customer;
         SalesHeaderQuote: Record "Sales Header";
         DocumentAttachment: Record "Document Attachment";
-        SalesQuotes: TestPage "Sales Quotes";
         RecRef: RecordRef;
+        SalesQuotes: TestPage "Sales Quotes";
         FinalDocAttachedAcount: Integer;
     begin
         // [SCENARIO] Ensure that Documents Attachment factbox shows blank when quote is converted to order
@@ -361,10 +365,9 @@ codeunit 134776 "Document Attachment Tests"
 
         // [WHEN] The sales quotes list is open- navigate to the created quote 
         SalesQuotes.OpenView();
-        while SalesQuotes."No.".Value() <> SalesHeaderQuote."No." do begin
+        while SalesQuotes."No.".Value() <> SalesHeaderQuote."No." do
             if not SalesQuotes.Next() then
                 break;
-        end;
 
         // [THEN] The number of attachments is shown as 2
         Assert.AreEqual(2, SalesQuotes."Attached Documents".Documents.AsInteger(), '2 attachments should have been visible.');
@@ -628,7 +631,7 @@ codeunit 134776 "Document Attachment Tests"
         // Assert quote is converted to order
         SalesHeaderQuote.SetRange("Bill-to Customer No.", Customer."No.");
         SalesHeaderQuote.SetRange("Quote No.", QuoteNo);
-        Assert.IsTrue(SalesHeaderQuote.FindFirst, 'Sales order was created from quote.');
+        Assert.IsTrue(SalesHeaderQuote.FindFirst(), 'Sales order was created from quote.');
         Assert.AreEqual(SalesHeaderQuote."Document Type"::Order, SalesHeaderQuote."Document Type",
           'Sales quote is not converted to sales order');
         Assert.AreEqual(QuoteNo, SalesHeaderQuote."Quote No.", 'Sales order does not have expected quote number.');
@@ -682,7 +685,7 @@ codeunit 134776 "Document Attachment Tests"
         // Assert sales quote is converted to sales invoice
         SalesHeader.SetRange("Sell-to Customer No.", Customer."No.");
         SalesHeader.SetRange("Quote No.", QuoteNo);
-        Assert.IsTrue(SalesHeader.FindFirst, 'Sales Invoice was not created from Sales Quote.');
+        Assert.IsTrue(SalesHeader.FindFirst(), 'Sales Invoice was not created from Sales Quote.');
         Assert.AreEqual(SalesHeader."Document Type"::Invoice, SalesHeader."Document Type",
           'Sales quote is not converted to sales invoice');
         Assert.AreEqual(QuoteNo, SalesHeader."Quote No.", 'Sales Invoice does not have expected Sales Quote number.');
@@ -860,7 +863,7 @@ codeunit 134776 "Document Attachment Tests"
         // Assert quote is converted to order
         PurchaseHeader.SetRange("Buy-from Vendor No.", Vendor."No.");
         PurchaseHeader.SetRange("Quote No.", QuoteNo);
-        Assert.IsTrue(PurchaseHeader.FindFirst, 'Purch order was not created from quote.');
+        Assert.IsTrue(PurchaseHeader.FindFirst(), 'Purch order was not created from quote.');
         Assert.AreEqual(PurchaseHeader."Document Type"::Order, PurchaseHeader."Document Type",
           'Purch quote is not converted to purch order');
         Assert.AreEqual(QuoteNo, PurchaseHeader."Quote No.", 'Purch order does not have expected quote number.');
@@ -956,13 +959,13 @@ codeunit 134776 "Document Attachment Tests"
 
         // Assert purchase header is created with the expected vendor No. and Document Type as Invoice.
         PurchaseHeader.SetRange("Buy-from Vendor No.", Vendor."No.");
-        Assert.IsTrue(PurchaseHeader.FindFirst, 'Purch invoice was not created with the expected vendor No.');
+        Assert.IsTrue(PurchaseHeader.FindFirst(), 'Purch invoice was not created with the expected vendor No.');
         Assert.AreEqual(PurchaseHeader."Document Type"::Invoice, PurchaseHeader."Document Type",
           'Unexpected Document Type for Purchase Header');
 
         // Assert purchase line is created with the expected Purchase header Document No. and Item No.
         PurchaseLine.SetRange("Document No.", PurchaseHeader."No.");
-        Assert.IsTrue(PurchaseLine.FindFirst, 'Purchase line not created for Purchase header');
+        Assert.IsTrue(PurchaseLine.FindFirst(), 'Purchase line not created for Purchase header');
         Assert.AreEqual(PurchaseLine."Document Type"::Invoice, PurchaseLine."Document Type", 'Unexpected Document Type for Purchase Line');
         Assert.AreEqual(Item."No.", PurchaseLine."No.", 'Unexpected Item No. in Purchase Line');
 
@@ -1017,8 +1020,8 @@ codeunit 134776 "Document Attachment Tests"
         Item: Record Item;
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
-        RecRef: RecordRef;
         GLAccount: Record "G/L Account";
+        RecRef: RecordRef;
     begin
         // [SCENARIO] Ensure that documents from the item do not flow to the sales line if a GL account with the same no as the item is used
 
@@ -1059,19 +1062,19 @@ codeunit 134776 "Document Attachment Tests"
         Initialize();
 
         // [GIVEN] Posted Sales Invoice
-        SalesInvoiceHeader.Get(CreatePostSalesInvoice(LibrarySales.CreateCustomerNo));
+        SalesInvoiceHeader.Get(CreatePostSalesInvoice(LibrarySales.CreateCustomerNo()));
 
         // [GIVEN] Add attachment to Sales invoice
         CreateSalesInvoiceHeaderDocumentAttachment(DocumentAttachment, SalesInvoiceHeader);
 
         // [WHEN] Customer Ledger Entries page is being opened for posted sales invoice
         FindCustLedgEntry(CustLedgerEntry, SalesInvoiceHeader."No.", SalesInvoiceHeader."Sell-to Customer No.");
-        CustomerLedgerEntries.OpenView;
+        CustomerLedgerEntries.OpenView();
         CustomerLedgerEntries.FILTER.SetFilter("Entry No.", Format(CustLedgerEntry."Entry No."));
 
         // [THEN] Action "Show Posted Document Attachment" is enabled
         Assert.IsTrue(
-          CustomerLedgerEntries.ShowDocumentAttachment.Enabled,
+          CustomerLedgerEntries.ShowDocumentAttachment.Enabled(),
           'Action must be enabled');
     end;
 
@@ -1090,23 +1093,23 @@ codeunit 134776 "Document Attachment Tests"
         Initialize();
 
         // [GIVEN] Posted Sales Invoice
-        SalesInvoiceHeader.Get(CreatePostSalesInvoice(LibrarySales.CreateCustomerNo));
+        SalesInvoiceHeader.Get(CreatePostSalesInvoice(LibrarySales.CreateCustomerNo()));
 
         // [GIVEN] Add attachment to sales invoice with file name "FILE"
         CreateSalesInvoiceHeaderDocumentAttachment(DocumentAttachment, SalesInvoiceHeader);
 
         // [GIVEN] Open Customer Ledger Entries page with posted sales invoice entry
         FindCustLedgEntry(CustLedgerEntry, SalesInvoiceHeader."No.", SalesInvoiceHeader."Sell-to Customer No.");
-        CustomerLedgerEntries.OpenView;
+        CustomerLedgerEntries.OpenView();
         CustomerLedgerEntries.FILTER.SetFilter("Entry No.", Format(CustLedgerEntry."Entry No."));
 
         // [WHEN] Action "Show Posted Document Attachment" is being choosen
-        CustomerLedgerEntries.ShowDocumentAttachment.Invoke;
+        CustomerLedgerEntries.ShowDocumentAttachment.Invoke();
 
         // [THEN] Page Document Attachment Details opened with file name = "FILE"
         Assert.AreEqual(
           DocumentAttachment."File Name",
-          LibraryVariableStorage.DequeueText,
+          LibraryVariableStorage.DequeueText(),
           'Invalid file name');
     end;
 
@@ -1126,7 +1129,7 @@ codeunit 134776 "Document Attachment Tests"
         Initialize();
 
         // [GIVEN] Posted Sales Invoice
-        SalesInvoiceHeader.Get(CreatePostSalesInvoice(LibrarySales.CreateCustomerNo));
+        SalesInvoiceHeader.Get(CreatePostSalesInvoice(LibrarySales.CreateCustomerNo()));
 
         // [GIVEN] Add attachment to sales invoice
         CreateSalesInvoiceHeaderDocumentAttachment(DocumentAttachment, SalesInvoiceHeader);
@@ -1136,15 +1139,15 @@ codeunit 134776 "Document Attachment Tests"
 
         // [GIVEN] Open Customer Ledger Entries page for posted credit memo
         FindCustLedgEntry(CustLedgerEntry, SalesCrMemoHeader."No.", SalesInvoiceHeader."Sell-to Customer No.");
-        CustomerLedgerEntries.OpenView;
+        CustomerLedgerEntries.OpenView();
         CustomerLedgerEntries.FILTER.SetFilter("Entry No.", Format(CustLedgerEntry."Entry No."));
 
         // [WHEN] Choose Apply Entries
-        CustomerLedgerEntries."Apply Entries".Invoke;
+        CustomerLedgerEntries."Apply Entries".Invoke();
 
         // [THEN] Action "Show Posted Document Attachment" for sales invoice is enabled
         Assert.IsTrue(
-          LibraryVariableStorage.DequeueBoolean,
+          LibraryVariableStorage.DequeueBoolean(),
           'Action must be enabled');
     end;
 
@@ -1164,7 +1167,7 @@ codeunit 134776 "Document Attachment Tests"
         Initialize();
 
         // [GIVEN] Posted Sales Invoice
-        SalesInvoiceHeader.Get(CreatePostSalesInvoice(LibrarySales.CreateCustomerNo));
+        SalesInvoiceHeader.Get(CreatePostSalesInvoice(LibrarySales.CreateCustomerNo()));
 
         // [GIVEN] Add attachment to sales invoice with file name "FILE"
         CreateSalesInvoiceHeaderDocumentAttachment(DocumentAttachment, SalesInvoiceHeader);
@@ -1174,19 +1177,19 @@ codeunit 134776 "Document Attachment Tests"
 
         // [GIVEN] Open Customer Ledger Entries page for posted credit memo
         FindCustLedgEntry(CustLedgerEntry, SalesInvoiceHeader."No.", SalesInvoiceHeader."Sell-to Customer No.");
-        CustomerLedgerEntries.OpenView;
+        CustomerLedgerEntries.OpenView();
         CustomerLedgerEntries.FILTER.SetFilter("Entry No.", Format(CustLedgerEntry."Entry No."));
 
         // [GIVEN] Choose Apply Entries
-        CustomerLedgerEntries."Apply Entries".Invoke;
+        CustomerLedgerEntries."Apply Entries".Invoke();
 
         // [WHEN] Action "Show Posted Document Attachment" is being choosen
-        CustomerLedgerEntries.ShowDocumentAttachment.Invoke;
+        CustomerLedgerEntries.ShowDocumentAttachment.Invoke();
 
         // [THEN] Page Document Attachment Details opened with file name = "FILE"
         Assert.AreEqual(
           DocumentAttachment."File Name",
-          LibraryVariableStorage.DequeueText,
+          LibraryVariableStorage.DequeueText(),
           'Invalid file name');
     end;
 
@@ -1206,7 +1209,7 @@ codeunit 134776 "Document Attachment Tests"
         Initialize();
 
         // [GIVEN] Posted Sales Invoice
-        SalesInvoiceHeader.Get(CreatePostSalesInvoice(LibrarySales.CreateCustomerNo));
+        SalesInvoiceHeader.Get(CreatePostSalesInvoice(LibrarySales.CreateCustomerNo()));
 
         // [GIVEN] Add attachment to sales invoice
         CreateSalesInvoiceHeaderDocumentAttachment(DocumentAttachment, SalesInvoiceHeader);
@@ -1223,15 +1226,15 @@ codeunit 134776 "Document Attachment Tests"
 
         // [GIVEN] Open Customer Ledger Entries page with posted credit memo
         FindCustLedgEntry(CustLedgerEntry, SalesCrMemoHeader."No.", SalesCrMemoHeader."Sell-to Customer No.");
-        CustomerLedgerEntries.OpenView;
+        CustomerLedgerEntries.OpenView();
         CustomerLedgerEntries.FILTER.SetFilter("Entry No.", Format(CustLedgerEntry."Entry No."));
 
         // [WHEN] Open applied entries page
-        CustomerLedgerEntries.AppliedEntries.Invoke;
+        CustomerLedgerEntries.AppliedEntries.Invoke();
 
         // [THEN] Action "Show Posted Document Attachment" for sales invoice is enabled
         Assert.IsTrue(
-          LibraryVariableStorage.DequeueBoolean,
+          LibraryVariableStorage.DequeueBoolean(),
           'Action must be enabled');
     end;
 
@@ -1251,7 +1254,7 @@ codeunit 134776 "Document Attachment Tests"
         Initialize();
 
         // [GIVEN] Posted Sales Invoice
-        SalesInvoiceHeader.Get(CreatePostSalesInvoice(LibrarySales.CreateCustomerNo));
+        SalesInvoiceHeader.Get(CreatePostSalesInvoice(LibrarySales.CreateCustomerNo()));
 
         // [GIVEN] Add attachment to sales invoice
         CreateSalesInvoiceHeaderDocumentAttachment(DocumentAttachment, SalesInvoiceHeader);
@@ -1268,16 +1271,16 @@ codeunit 134776 "Document Attachment Tests"
 
         // [GIVEN] Open Customer Ledger Entries page with posted credit memo
         FindCustLedgEntry(CustLedgerEntry, SalesCrMemoHeader."No.", SalesCrMemoHeader."Sell-to Customer No.");
-        CustomerLedgerEntries.OpenView;
+        CustomerLedgerEntries.OpenView();
         CustomerLedgerEntries.FILTER.SetFilter("Entry No.", Format(CustLedgerEntry."Entry No."));
 
         // [WHEN] Open applied entries page and action "Show Posted Document Attachment" is being choosen
-        CustomerLedgerEntries.AppliedEntries.Invoke;
+        CustomerLedgerEntries.AppliedEntries.Invoke();
 
         // [THEN] Page Document Attachment Details opened with file name = "FILE"
         Assert.AreEqual(
           DocumentAttachment."File Name",
-          LibraryVariableStorage.DequeueText,
+          LibraryVariableStorage.DequeueText(),
           'Invalid file name');
     end;
 
@@ -1295,19 +1298,19 @@ codeunit 134776 "Document Attachment Tests"
         Initialize();
 
         // [GIVEN] Posted Purchase Invoice
-        PurchInvHeader.Get(CreatePostPurchaseInvoice(LibraryPurchase.CreateVendorNo));
+        PurchInvHeader.Get(CreatePostPurchaseInvoice(LibraryPurchase.CreateVendorNo()));
 
         // [GIVEN] Add attachment to purchase invoice
         CreatePurchaseInvoiceHeaderDocumentAttachment(DocumentAttachment, PurchInvHeader);
 
         // [WHEN] Vendor Ledger Entries page is being opened for posted purchase invoice
         FindVendLedgEntry(VendorLedgerEntry, PurchInvHeader."No.", PurchInvHeader."Buy-from Vendor No.");
-        VendorLedgerEntries.OpenView;
+        VendorLedgerEntries.OpenView();
         VendorLedgerEntries.FILTER.SetFilter("Entry No.", Format(VendorLedgerEntry."Entry No."));
 
         // [THEN] Action "Show Posted Document Attachment" is enabled
         Assert.IsTrue(
-          VendorLedgerEntries.ShowDocumentAttachment.Enabled,
+          VendorLedgerEntries.ShowDocumentAttachment.Enabled(),
           'Action must be enabled');
     end;
 
@@ -1326,23 +1329,23 @@ codeunit 134776 "Document Attachment Tests"
         Initialize();
 
         // [GIVEN] Posted Purchase Invoice
-        PurchInvHeader.Get(CreatePostPurchaseInvoice(LibraryPurchase.CreateVendorNo));
+        PurchInvHeader.Get(CreatePostPurchaseInvoice(LibraryPurchase.CreateVendorNo()));
 
         // [GIVEN] Add attachment to purchase invoice
         CreatePurchaseInvoiceHeaderDocumentAttachment(DocumentAttachment, PurchInvHeader);
 
         // [WHEN] Vendor Ledger Entries page is being opened for posted purchase invoice
         FindVendLedgEntry(VendorLedgerEntry, PurchInvHeader."No.", PurchInvHeader."Buy-from Vendor No.");
-        VendorLedgerEntries.OpenView;
+        VendorLedgerEntries.OpenView();
         VendorLedgerEntries.FILTER.SetFilter("Entry No.", Format(VendorLedgerEntry."Entry No."));
 
         // [WHEN] Action "Show Posted Document Attachment" is being choosen
-        VendorLedgerEntries.ShowDocumentAttachment.Invoke;
+        VendorLedgerEntries.ShowDocumentAttachment.Invoke();
 
         // [THEN] Page Document Attachment Details opened with file name = "FILE"
         Assert.AreEqual(
           DocumentAttachment."File Name",
-          LibraryVariableStorage.DequeueText,
+          LibraryVariableStorage.DequeueText(),
           'Invalid file name');
     end;
 
@@ -1362,7 +1365,7 @@ codeunit 134776 "Document Attachment Tests"
         Initialize();
 
         // [GIVEN] Posted Purchase Invoice
-        PurchInvHeader.Get(CreatePostPurchaseInvoice(LibraryPurchase.CreateVendorNo));
+        PurchInvHeader.Get(CreatePostPurchaseInvoice(LibraryPurchase.CreateVendorNo()));
 
         // [GIVEN] Add attachment to purchase invoice
         CreatePurchaseInvoiceHeaderDocumentAttachment(DocumentAttachment, PurchInvHeader);
@@ -1372,15 +1375,15 @@ codeunit 134776 "Document Attachment Tests"
 
         // [GIVEN] Open Vendor Ledger Entries page for posted credit memo
         FindVendLedgEntry(VendorLedgerEntry, PurchCrMemoHdr."No.", PurchInvHeader."Buy-from Vendor No.");
-        VendorLedgerEntries.OpenView;
+        VendorLedgerEntries.OpenView();
         VendorLedgerEntries.FILTER.SetFilter("Entry No.", Format(VendorLedgerEntry."Entry No."));
 
         // [WHEN] Choose Apply Entries
-        VendorLedgerEntries.ActionApplyEntries.Invoke;
+        VendorLedgerEntries.ActionApplyEntries.Invoke();
 
         // [THEN] Action "Show Posted Document Attachment" for purchase invoice is enabled
         Assert.IsTrue(
-          LibraryVariableStorage.DequeueBoolean,
+          LibraryVariableStorage.DequeueBoolean(),
           'Action must be enabled');
     end;
 
@@ -1400,7 +1403,7 @@ codeunit 134776 "Document Attachment Tests"
         Initialize();
 
         // [GIVEN] Posted Purchase Invoice
-        PurchInvHeader.Get(CreatePostPurchaseInvoice(LibraryPurchase.CreateVendorNo));
+        PurchInvHeader.Get(CreatePostPurchaseInvoice(LibraryPurchase.CreateVendorNo()));
 
         // [GIVEN] Add attachment to purchase invoice
         CreatePurchaseInvoiceHeaderDocumentAttachment(DocumentAttachment, PurchInvHeader);
@@ -1410,19 +1413,19 @@ codeunit 134776 "Document Attachment Tests"
 
         // [GIVEN] Open Vendor Ledger Entries page for posted credit memo
         FindVendLedgEntry(VendorLedgerEntry, PurchCrMemoHdr."No.", PurchInvHeader."Buy-from Vendor No.");
-        VendorLedgerEntries.OpenView;
+        VendorLedgerEntries.OpenView();
         VendorLedgerEntries.FILTER.SetFilter("Entry No.", Format(VendorLedgerEntry."Entry No."));
 
         // [WHEN] Choose Apply Entries
-        VendorLedgerEntries.ActionApplyEntries.Invoke;
+        VendorLedgerEntries.ActionApplyEntries.Invoke();
 
         // [WHEN] Action "Show Posted Document Attachment" is being choosen
-        VendorLedgerEntries.ShowDocumentAttachment.Invoke;
+        VendorLedgerEntries.ShowDocumentAttachment.Invoke();
 
         // [THEN] Page Document Attachment Details opened with file name = "FILE"
         Assert.AreEqual(
           DocumentAttachment."File Name",
-          LibraryVariableStorage.DequeueText,
+          LibraryVariableStorage.DequeueText(),
           'Invalid file name');
     end;
 
@@ -1442,7 +1445,7 @@ codeunit 134776 "Document Attachment Tests"
         Initialize();
 
         // [GIVEN] Posted Purchase Invoice
-        PurchInvHeader.Get(CreatePostPurchaseInvoice(LibraryPurchase.CreateVendorNo));
+        PurchInvHeader.Get(CreatePostPurchaseInvoice(LibraryPurchase.CreateVendorNo()));
 
         // [GIVEN] Add attachment to purchase invoice
         CreatePurchaseInvoiceHeaderDocumentAttachment(DocumentAttachment, PurchInvHeader);
@@ -1459,15 +1462,15 @@ codeunit 134776 "Document Attachment Tests"
 
         // [GIVEN] Open Vendor Ledger Entries page with posted credit memo
         FindVendLedgEntry(VendorLedgerEntry, PurchCrMemoHdr."No.", PurchInvHeader."Buy-from Vendor No.");
-        VendorLedgerEntries.OpenView;
+        VendorLedgerEntries.OpenView();
         VendorLedgerEntries.FILTER.SetFilter("Entry No.", Format(VendorLedgerEntry."Entry No."));
 
         // [WHEN] Open applied entries page
-        VendorLedgerEntries.AppliedEntries.Invoke;
+        VendorLedgerEntries.AppliedEntries.Invoke();
 
         // [THEN] Action "Show Posted Document Attachment" for purchase invoice is enabled
         Assert.IsTrue(
-          LibraryVariableStorage.DequeueBoolean,
+          LibraryVariableStorage.DequeueBoolean(),
           'Action must be enabled');
     end;
 
@@ -1487,7 +1490,7 @@ codeunit 134776 "Document Attachment Tests"
         Initialize();
 
         // [GIVEN] Posted Purchase Invoice
-        PurchInvHeader.Get(CreatePostPurchaseInvoice(LibraryPurchase.CreateVendorNo));
+        PurchInvHeader.Get(CreatePostPurchaseInvoice(LibraryPurchase.CreateVendorNo()));
 
         // [GIVEN] Add attachment to purchase invoice
         CreatePurchaseInvoiceHeaderDocumentAttachment(DocumentAttachment, PurchInvHeader);
@@ -1504,16 +1507,16 @@ codeunit 134776 "Document Attachment Tests"
 
         // [GIVEN] Open Vendor Ledger Entries page with posted credit memo
         FindVendLedgEntry(VendorLedgerEntry, PurchCrMemoHdr."No.", PurchInvHeader."Buy-from Vendor No.");
-        VendorLedgerEntries.OpenView;
+        VendorLedgerEntries.OpenView();
         VendorLedgerEntries.FILTER.SetFilter("Entry No.", Format(VendorLedgerEntry."Entry No."));
 
         // [WHEN] Open applied entries page and action "Show Posted Document Attachment" is being choosen
-        VendorLedgerEntries.AppliedEntries.Invoke;
+        VendorLedgerEntries.AppliedEntries.Invoke();
 
         // [THEN] Page Document Attachment Details opened with file name = "FILE"
         Assert.AreEqual(
           DocumentAttachment."File Name",
-          LibraryVariableStorage.DequeueText,
+          LibraryVariableStorage.DequeueText(),
           'Invalid file name');
     end;
 
@@ -1539,7 +1542,7 @@ codeunit 134776 "Document Attachment Tests"
 
         // [THEN] No errors. Verfiy document attachments are retained with all the properties
         DocumentAttachment.Init();
-        DocumentAttachment.SetRange("Table ID", RecRef.Number);
+        DocumentAttachment.SetRange("Table ID", RecRef.Number());
         DocumentAttachment.SetRange("No.", 'T');
         Assert.AreEqual(2, DocumentAttachment.Count, 'Two attachments were expected for this record.');
         DocumentAttachment.FindFirst();
@@ -1574,7 +1577,7 @@ codeunit 134776 "Document Attachment Tests"
 
         // [THEN] No errors. Verfiy document attachments are retained with all the properties
         DocumentAttachment.Init();
-        DocumentAttachment.SetRange("Table ID", RecRef.Number);
+        DocumentAttachment.SetRange("Table ID", RecRef.Number());
         DocumentAttachment.SetRange("No.", 'T');
         Assert.AreEqual(2, DocumentAttachment.Count, 'Two attachments were expected for this record.');
         DocumentAttachment.FindFirst();
@@ -1609,7 +1612,7 @@ codeunit 134776 "Document Attachment Tests"
 
         // [THEN] No errors. Verfiy document attachments are retained with all the properties
         DocumentAttachment.Init();
-        DocumentAttachment.SetRange("Table ID", RecRef.Number);
+        DocumentAttachment.SetRange("Table ID", RecRef.Number());
         DocumentAttachment.SetRange("No.", 'T');
         Assert.AreEqual(2, DocumentAttachment.Count, 'Two attachments were expected for this record.');
         DocumentAttachment.FindFirst();
@@ -1644,7 +1647,7 @@ codeunit 134776 "Document Attachment Tests"
 
         // [THEN] No errors. Verfiy document attachments are retained with all the properties
         DocumentAttachment.Init();
-        DocumentAttachment.SetRange("Table ID", RecRef.Number);
+        DocumentAttachment.SetRange("Table ID", RecRef.Number());
         DocumentAttachment.SetRange("No.", 'T');
         Assert.AreEqual(2, DocumentAttachment.Count, 'Two attachments were expected for this record.');
         DocumentAttachment.FindFirst();
@@ -1679,7 +1682,7 @@ codeunit 134776 "Document Attachment Tests"
 
         // [THEN] No errors. Verfiy document attachments are retained with all the properties
         DocumentAttachment.Init();
-        DocumentAttachment.SetRange("Table ID", RecRef.Number);
+        DocumentAttachment.SetRange("Table ID", RecRef.Number());
         DocumentAttachment.SetRange("No.", 'T');
         Assert.AreEqual(2, DocumentAttachment.Count, 'Two attachments were expected for this record.');
         DocumentAttachment.FindFirst();
@@ -1714,7 +1717,7 @@ codeunit 134776 "Document Attachment Tests"
 
         // [THEN] No errors. Verfiy document attachments are retained with all the properties
         DocumentAttachment.Init();
-        DocumentAttachment.SetRange("Table ID", RecRef.Number);
+        DocumentAttachment.SetRange("Table ID", RecRef.Number());
         DocumentAttachment.SetRange("No.", 'T');
         Assert.AreEqual(2, DocumentAttachment.Count, 'Two attachments were expected for this record.');
         DocumentAttachment.FindFirst();
@@ -1749,7 +1752,7 @@ codeunit 134776 "Document Attachment Tests"
 
         // [THEN] No errors. Verfiy document attachments are retained with all the properties
         DocumentAttachment.Init();
-        DocumentAttachment.SetRange("Table ID", RecRef.Number);
+        DocumentAttachment.SetRange("Table ID", RecRef.Number());
         DocumentAttachment.SetRange("No.", 'T');
         Assert.AreEqual(2, DocumentAttachment.Count, 'Two attachments were expected for this record.');
         DocumentAttachment.FindFirst();
@@ -1887,7 +1890,6 @@ codeunit 134776 "Document Attachment Tests"
     var
         PurchaseHeader: Record "Purchase Header";
         DocumentAttachment: Record "Document Attachment";
-        ReportSelectionUsage: Enum "Report Selection Usage";
         PurchaseQuote: TestPage "Purchase Quote";
     begin
         // [FEATURE] [UI] [Print to Attachment] [Purchase Quote]
@@ -2328,7 +2330,6 @@ codeunit 134776 "Document Attachment Tests"
     var
         PurchaseHeader: Record "Purchase Header";
         RecRef: RecordRef;
-        PurchaseDocumentType: Enum "Purchase Document Type";
     begin
         // [SCENARIO 395462] Changing vendor on a purchase document with attachments produces a confirm. Choosing YES deletes attachments.
         Initialize();
@@ -2354,7 +2355,6 @@ codeunit 134776 "Document Attachment Tests"
     var
         PurchaseHeader: Record "Purchase Header";
         RecRef: RecordRef;
-        PurchaseDocumentType: Enum "Purchase Document Type";
     begin
         // [SCENARIO 395462] Changing vendor on a purchase document with attachments produces a confirm. Choosing NO saves attachments.
         Initialize();
@@ -2524,10 +2524,9 @@ codeunit 134776 "Document Attachment Tests"
     var
         Customer: Record Customer;
         SalesHeaderQuote: Record "Sales Header";
-        SalesHaderOrder: Record "Sales Header";
         DocumentAttachment: Record "Document Attachment";
-        SalesQuotes: TestPage "Sales Quotes";
         RecRef: RecordRef;
+        SalesQuotes: TestPage "Sales Quotes";
         SalesQuoteAttachedDate: DateTime;
         SalesHeaderQuoteNo: Code[20];
     begin
@@ -2545,10 +2544,9 @@ codeunit 134776 "Document Attachment Tests"
 
         // [GIVEN] The sales quotes list is open- navigate to the created quote 
         SalesQuotes.OpenView();
-        while SalesQuotes."No.".Value() <> SalesHeaderQuote."No." do begin
+        while SalesQuotes."No.".Value() <> SalesHeaderQuote."No." do
             if not SalesQuotes.Next() then
                 break;
-        end;
 
         DocumentAttachment.Reset();
         DocumentAttachment.SetRange("Table ID", Database::"Sales Header");
@@ -2616,7 +2614,7 @@ codeunit 134776 "Document Attachment Tests"
     var
         DocumentAttachment: Record "Document Attachment";
         ImageBlob: Codeunit "Temp Blob";
-        ImageFormatLabel: Label 'image/png';
+        ImageFormatLbl: Label 'image/png';
         FileName: Text;
     begin
         // [GIVEN] image is created
@@ -2627,8 +2625,831 @@ codeunit 134776 "Document Attachment Tests"
         DocumentAttachment.ImportFromStream(ImageBlob.CreateInStream(), FileName);
 
         // [THEN] check if it has the correct attachment
-        Assert.IsTrue(DocumentAttachment.GetContentType() = ImageFormatLabel, 'Procedure GetContentType failed.');
+        Assert.IsTrue(DocumentAttachment.GetContentType() = ImageFormatLbl, 'Procedure GetContentType failed.');
     end;
+
+    #region [Service Management]
+    [Test]
+    [HandlerFunctions('ListServiceItemFlow')]
+    procedure DocAttachServiceItem()
+    var
+        ServiceItem: Record "Service Item";
+        DocumentAttachmentDetails: Page "Document Attachment Details";
+        RecordRef: RecordRef;
+    begin
+        // [SCENARIO 332151] "Document Flow Service" is visible and editable for attachments of Service Item.
+        Initialize();
+
+        // [GIVEN] An Service Item Recordis created
+        ServiceItem.Init();
+        ServiceItem."No." := 'SRVITEM1';
+        ServiceItem.Insert();
+
+        // [WHEN] The DocumentAttachmentDetails window opens
+        RecordRef.GetTable(ServiceItem);
+        DocumentAttachmentDetails.OpenForRecRef(RecordRef);
+        DocumentAttachmentDetails.RunModal();
+
+        // [THEN] "Document Flow Service" is visible and editable
+        // Handled by ListServiceItemFlow
+
+        ServiceItem.Delete(true);
+    end;
+
+    [Test]
+    procedure EnsureAttachmentsAreRetainedWhenServiceItemIsRenamed()
+    var
+        ServiceItem: Record "Service Item";
+        DocumentAttachment: Record "Document Attachment";
+        RecordRef: RecordRef;
+    begin
+        // [SCENARIO 332151] Test to ensure that attachments for a Service Item are kept after change in [No.] which is a primary key.
+        Initialize();
+
+        // [GIVEN] A Service Item record is created
+        LibraryService.CreateServiceItem(ServiceItem, '');
+
+        // [GIVEN] Add attachments to the Service Item
+        RecordRef.GetTable(ServiceItem);
+        CreateDocAttachService(RecordRef, 'ServiceItem1.jpeg', true);
+        CreateDocAttachService(RecordRef, 'ServiceItem2.jpeg', false);
+
+        // [WHEN] No. is changed
+        ServiceItem.Rename('T');
+
+        // [THEN] No errors. Verfiy document attachments are retained with all the properties
+        DocumentAttachment.Init();
+        DocumentAttachment.SetRange("Table ID", RecordRef.Number());
+        DocumentAttachment.SetRange("No.", ServiceItem."No.");
+        Assert.AreEqual(2, DocumentAttachment.Count, 'Two attachments were expected for this record.');
+        DocumentAttachment.FindFirst();
+        Assert.AreEqual(DocumentAttachment."File Name", 'ServiceItem1', 'First file name not equal to saved attachment.');
+        Assert.IsTrue(DocumentAttachment."Document Flow Service", 'Flow sales value not equal for first attachment.');
+        DocumentAttachment.FindLast();
+        Assert.AreEqual(DocumentAttachment."File Name", 'ServiceItem2', 'Second file name not equal to saved attachment.');
+        Assert.IsFalse(DocumentAttachment."Document Flow Service", 'Flow sales value not equal for second attachment.');
+    end;
+
+    [Test]
+    procedure DocAttachFlowFromItemToServiceItem()
+    var
+        Item: array[2] of Record Item;
+        ServiceItem: Record "Service Item";
+        DocumentAttachment: Record "Document Attachment";
+        RecordRef: RecordRef;
+    begin
+        // [SCENARIO 332151] Item attachments with "Document Flow Service" are copied to Service Item attachments and refreshed on Item change.
+        Initialize();
+
+        // [GIVEN] An Item[1] with 4 attacments, 2 marked with "Document Flow Service"
+        LibraryInventory.CreateItem(Item[1]);
+        RecordRef.GetTable(Item[1]);
+        CreateDocAttachService(RecordRef, 'Item1_1.jpeg', false);
+        CreateDocAttachService(RecordRef, 'Item1_2.jpeg', true);
+        CreateDocAttachService(RecordRef, 'Item1_3.jpeg', true);
+        CreateDocAttachService(RecordRef, 'Item1_4.jpeg', false);
+
+        // [GIVEN] An Item[2] with 5 attacments, 3 marked with "Document Flow Service"
+        LibraryInventory.CreateItem(Item[2]);
+        RecordRef.GetTable(Item[2]);
+        CreateDocAttachService(RecordRef, 'Item2_1.jpeg', false);
+        CreateDocAttachService(RecordRef, 'Item2_2.jpeg', true);
+        CreateDocAttachService(RecordRef, 'Item2_3.jpeg', true);
+        CreateDocAttachService(RecordRef, 'Item2_4.jpeg', false);
+        CreateDocAttachService(RecordRef, 'Item2_5.jpeg', true);
+
+        // [WHEN] A Service Item is created with the Item[1]
+        LibraryService.CreateServiceItem(ServiceItem, '');
+        ServiceItem.Validate("Item No.", Item[1]."No.");
+        ServiceItem.Modify(true);
+
+        // [THEN] The Service Item has 2 attachments, all marked with "Document Flow Service"
+        DocumentAttachment.SetRange("Table ID", Database::"Service Item");
+        DocumentAttachment.SetRange("No.", ServiceItem."No.");
+        Assert.RecordCount(DocumentAttachment, 2);
+        DocumentAttachment.FindFirst();
+        DocumentAttachment.TestField("Document Flow Service", true);
+        DocumentAttachment.TestField("File Name", 'Item1_2');
+        DocumentAttachment.Next();
+        DocumentAttachment.TestField("Document Flow Service", true);
+        DocumentAttachment.TestField("File Name", 'Item1_3');
+
+        // [WHEN] The Item[1] is changed to Item[2]
+        ServiceItem.Validate("Item No.", Item[2]."No.");
+        ServiceItem.Modify(true);
+
+        // [THEN] The Service Item has 3 attachments, all marked with "Document Flow Service"
+        DocumentAttachment.SetRange("Table ID", Database::"Service Item");
+        DocumentAttachment.SetRange("No.", ServiceItem."No.");
+        Assert.RecordCount(DocumentAttachment, 3);
+        DocumentAttachment.FindFirst();
+        DocumentAttachment.TestField("Document Flow Service", true);
+        DocumentAttachment.TestField("File Name", 'Item2_2');
+        DocumentAttachment.Next();
+        DocumentAttachment.TestField("Document Flow Service", true);
+        DocumentAttachment.TestField("File Name", 'Item2_3');
+        DocumentAttachment.Next();
+        DocumentAttachment.TestField("Document Flow Service", true);
+        DocumentAttachment.TestField("File Name", 'Item2_5');
+    end;
+
+    [Test]
+    [HandlerFunctions('ListServiceFlow')]
+    procedure DocAttachServiceLine()
+    var
+        ServiceLine: Record "Service Line";
+        DocumentAttachmentDetails: Page "Document Attachment Details";
+        RecordRef: RecordRef;
+    begin
+        // [SCENARIO 332151] "Document Flow Service" is visible and editable for attachments of Service Line.
+        Initialize();
+
+        // [GIVEN] A Service Line record is created
+        ServiceLine.Init();
+        ServiceLine."Document No." := 'SRVLINE1';
+        ServiceLine."Line No." := 10000;
+        ServiceLine.Insert();
+
+        // [WHEN] The DocumentAttachmentDetails window opens
+        RecordRef.GetTable(ServiceLine);
+        DocumentAttachmentDetails.OpenForRecRef(RecordRef);
+        DocumentAttachmentDetails.RunModal();
+
+        // [THEN] "Document Flow Service" is visible and editable
+        // Handled by ListServiceFlow
+
+        ServiceLine.Delete();
+    end;
+
+    [Test]
+    [HandlerFunctions('ListServiceFlow')]
+    procedure DocAttachServiceContractLine()
+    var
+        ServiceContractLine: Record "Service Contract Line";
+        DocumentAttachmentDetails: Page "Document Attachment Details";
+        RecordRef: RecordRef;
+    begin
+        // [SCENARIO 332151] "Document Flow Service" is visible and editable for attachments of Service Contract Line.
+        Initialize();
+
+        // [GIVEN] A Service Contract Line record is created
+        ServiceContractLine.Init();
+        ServiceContractLine."Contract No." := 'SRVLINE1';
+        ServiceContractLine."Line No." := 10000;
+        ServiceContractLine.Insert();
+
+        // [WHEN] The DocumentAttachmentDetails window opens
+        RecordRef.GetTable(ServiceContractLine);
+        DocumentAttachmentDetails.OpenForRecRef(RecordRef);
+        DocumentAttachmentDetails.RunModal();
+
+        // [THEN] "Document Flow Service" is visible and editable
+        // Handled by ListServiceFlow
+
+        ServiceContractLine.Delete();
+    end;
+
+    [Test]
+    [HandlerFunctions('PrintedToAttachmentNotificationHandler')]
+    procedure ServiceQuotePrintToAttachment_AndMakeOrder()
+    var
+        ServiceHeader: Record "Service Header";
+        ServiceLine: Record "Service Line";
+        DocumentAttachment: Record "Document Attachment";
+        ItemJournalTemplate: Record "Item Journal Template";
+        ItemJournalLine: Record "Item Journal Line";
+        RecordRef: RecordRef;
+        ServiceQuoteAttachedDateTime: DateTime;
+        ServiceQuote: TestPage "Service Quote";
+    begin
+        // [FEATURE] [UI] [Print to Attachment] [Service Quote]
+        // [SCENARIO 332151] "Print to attachment" action in Service Quote page makes new "Document Attachment" record.
+        // [SCENARIO 332151] Transfer Service Quote attachments to Service Order on "Make Order" action.
+        Initialize();
+
+        // [GIVEN] Service quote with "Document No." = "1001" opened in the Service Quote page
+        LibraryService.CreateServiceDocumentForCustomerNo(ServiceHeader, ServiceHeader."Document Type"::Quote, LibrarySales.CreateCustomerNo());
+        ServiceQuote.OpenEdit();
+        ServiceQuote.Filter.SetFilter("No.", ServiceHeader."No.");
+        // [WHEN] "Print to attachment" function is called
+        ServiceQuote.AttachAsPDF.Invoke();
+
+        // [THEN] New document attachment created with "Document Flow Service"
+        FindDocumentAttachment(DocumentAttachment, Database::"Service Header", ServiceHeader."No.", ServiceHeader."Document Type".AsInteger());
+        DocumentAttachment.TestField("Document Flow Service", true);
+        Assert.IsSubstring(DocumentAttachment."File Name", ServiceHeader."No.");
+
+        // [THEN] Notification "Document has been printed to attachments." displayed
+        Assert.AreEqual(PrintedToAttachmentTxt, LibraryVariableStorage.DequeueText(), 'Unexpected notification.');
+
+        LibraryNotificationMgt.RecallNotificationsForRecord(ServiceHeader);
+
+        // [GIVEN] Attached date time of the Service Quote
+        DocumentAttachment.Reset();
+        DocumentAttachment.SetRange("Table ID", Database::"Service Header");
+        DocumentAttachment.SetRange("Document Type", ServiceHeader."Document Type"::Quote);
+        DocumentAttachment.SetRange("No.", ServiceHeader."No.");
+        if DocumentAttachment.FindFirst() then
+            ServiceQuoteAttachedDateTime := DocumentAttachment."Attached Date";
+
+        // [GIVEN] Add 2nd attachment to Service Quote
+        RecordRef.GetTable(ServiceHeader);
+        CreateDocAttachService(RecordRef, '2ndAttachment.jpeg', false);
+
+        // [GIVEN] Put "Item" on Inventory
+        ServiceLine.SetRange("Document No.", ServiceHeader."No.");
+        ServiceLine.SetRange(Type, ServiceLine.Type::Item);
+        ServiceLine.FindFirst();
+        LibraryInventory.CreateItemJournalTemplate(ItemJournalTemplate);
+        LibraryInventory.CreateItemJournalLine(ItemJournalLine, ItemJournalTemplate.Name, '', ItemJournalLine."Entry Type"::"Positive Adjmt.", ServiceLine."No.", 10);
+        LibraryInventory.PostItemJournalLine(ItemJournalTemplate.Name, ItemJournalLine."Journal Batch Name");
+
+        // [WHEN] "Make Order" action is executed
+        LibraryService.CreateOrderFromQuote(ServiceHeader);
+
+        // [THEN] Service Quote attachments copied to Service Order attachments
+#pragma warning disable AA0210
+        ServiceHeader.SetRange("Quote No.", ServiceHeader."No.");
+#pragma warning restore AA0210
+        ServiceHeader.FindFirst();
+
+        // [THEN] 2 attachments exist for the Service Order
+        DocumentAttachment.Reset();
+        DocumentAttachment.SetRange("Table ID", Database::"Service Header");
+        DocumentAttachment.SetRange("Document Type", ServiceHeader."Document Type"::Order);
+        DocumentAttachment.SetRange("No.", ServiceHeader."No.");
+        Assert.RecordCount(DocumentAttachment, 2);
+
+        // [THEN] Verify Time stamp change of attachments are equal
+        DocumentAttachment.FindFirst();
+        Assert.AreEqual(ServiceQuoteAttachedDateTime, DocumentAttachment."Attached Date", AttachedDateInvalidErr);
+    end;
+
+    [Test]
+    [HandlerFunctions('PrintedToAttachmentNotificationHandler')]
+    procedure ServiceOrderPrintToAttachment()
+    var
+        ServiceHeader: Record "Service Header";
+        DocumentAttachment: Record "Document Attachment";
+        ServiceOrder: TestPage "Service Order";
+    begin
+        // [FEATURE] [UI] [Print to Attachment] [Service Order]
+        // [SCENARIO 332151] "Print to attachment" action in Service Order page makes new "Document Attachment" record.
+        Initialize();
+
+        // [GIVEN] Service quote with "Document No." = "1001" opened in the Service Order page
+        LibraryService.CreateServiceDocumentForCustomerNo(ServiceHeader, ServiceHeader."Document Type"::Order, LibrarySales.CreateCustomerNo());
+        RecallNotifications := true;
+        ServiceOrder.OpenEdit();
+        ServiceOrder.Filter.SetFilter("No.", ServiceHeader."No.");
+        RecallNotifications := false;
+        // [WHEN] "Print to attachment" function is called
+        ServiceOrder.AttachAsPDF.Invoke();
+
+        // [THEN] New document attachment created with "Document Flow Service"
+        FindDocumentAttachment(DocumentAttachment, Database::"Service Header", ServiceHeader."No.", ServiceHeader."Document Type".AsInteger());
+        DocumentAttachment.TestField("Document Flow Service", true);
+        Assert.IsSubstring(DocumentAttachment."File Name", ServiceHeader."No.");
+
+        // [THEN] Notification "Document has been printed to attachments." displayed
+        Assert.AreEqual(PrintedToAttachmentTxt, LibraryVariableStorage.DequeueText(), 'Unexpected notification.');
+
+        LibraryNotificationMgt.RecallNotificationsForRecord(ServiceHeader);
+    end;
+
+    [Test]
+    [HandlerFunctions('PrintedToAttachmentNotificationHandler,DocumentAttachmentDetailsMPH')]
+    procedure TestDocAttachServiceOrder_ToPostedServiceInvoice_PrintToAttachment_ShowPostedDocAttach()
+    var
+        Customer: Record Customer;
+        Item: Record Item;
+        ItemForServiceItem: Record Item;
+        ServiceItem: Record "Service Item";
+        ServiceHeader: Record "Service Header";
+        ServiceItemLine: Record "Service Item Line";
+        ServiceLine: Record "Service Line";
+        ServiceInvoiceHeader: Record "Service Invoice Header";
+        DocumentAttachment: Record "Document Attachment";
+        CustLedgerEntry: Record "Cust. Ledger Entry";
+        RecordRef: RecordRef;
+        CustomerLedgerEntries: TestPage "Customer Ledger Entries";
+        PostedServiceInvoice: TestPage "Posted Service Invoice";
+    begin
+        // [SCENARIO 332151] Ensure that document attachments from the Customer/Item/Service Item flow to the Service Order.
+        // [SCENARIO 332151] Ensure that document attachments from the Service Order flow to Posted Service Invoice.
+        // [SCENARIO 332151] Document attachment can be added in Posted Service Invoice.
+        // [SCENARIO 332151] "Print to attachment" action in Posted Service Invoice page makes new "Document Attachment" record.
+        // [SCENARIO 332151] Action "Show Posted Document Attachment" on the page Customer Ledger Entries opens Attached Document page for Posted Service Invoice.
+        Initialize();
+
+        // [GIVEN] A Customer with 2 attachments, 1 marked to flow
+        LibrarySales.CreateCustomer(Customer);
+        RecordRef.GetTable(Customer);
+        CreateDocAttachService(RecordRef, 'Cust1.jpeg', true);
+        CreateDocAttachService(RecordRef, 'Cust2.jpeg', false);
+
+        // [GIVEN] Item with 2 attacments, 1 marked to flow
+        LibraryInventory.CreateItem(Item);
+        RecordRef.GetTable(Item);
+        CreateDocAttachService(RecordRef, 'Item1.jpeg', true);
+        CreateDocAttachService(RecordRef, 'Item2.jpeg', false);
+
+        // [GIVEN] Service Item with 2 attacments, 1 marked to flow
+        LibraryInventory.CreateItem(ItemForServiceItem);
+        RecordRef.GetTable(ItemForServiceItem);
+        CreateDocAttachService(RecordRef, 'ServiceItem1.jpeg', true);
+        CreateDocAttachService(RecordRef, 'ServiceItem2.jpeg', false);
+        LibraryService.CreateServiceItem(ServiceItem, Customer."No.");
+        ServiceItem.Validate("Item No.", ItemForServiceItem."No.");
+        ServiceItem.Modify(true);
+
+        // [WHEN] Service order is created
+        LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Order, Customer."No.");
+        LibraryService.CreateServiceItemLine(ServiceItemLine, ServiceHeader, ServiceItem."No.");
+        LibraryService.CreateServiceLineWithQuantity(ServiceLine, ServiceHeader, ServiceLine.Type::Item, Item."No.", LibraryRandom.RandIntInRange(5, 10));
+        ServiceLine.Validate("Service Item Line No.", ServiceItemLine."Line No.");
+        ServiceLine.Validate("Unit Price", LibraryRandom.RandIntInRange(3, 5));
+        ServiceLine.Modify(true);
+
+        // [THEN] Ensure that document attachments from the Customer/Item/Service Item flow to the Service Order. Service order header has 1 attachment
+        CheckDocAttachments(Database::"Service Header", 1, ServiceHeader."No.", ServiceHeader."Document Type".AsInteger(), 'Cust1');
+
+        // [THEN] Ensure that document attachments from the Customer/Item/Service Item flow to the Service Order. Service order line has 2 attachments
+        CheckDocAttachments(Database::"Service Line", 2, ServiceLine."Document No.", ServiceLine."Document Type".AsInteger(), 'Item1');
+
+        // [WHEN] Post Service Invoice from Service Order
+        LibraryService.PostServiceOrder(ServiceHeader, true, false, true);
+
+        // [THEN] Ensure that document attachments from the Service Order flow to Posted Service Invoice. Posted service invoice header has 1 attachment
+        ServiceInvoiceHeader.SetRange("Order No.", ServiceHeader."No.");
+        ServiceInvoiceHeader.FindFirst();
+        CheckDocAttachmentsForPostedDocsCount(Database::"Service Invoice Header", 1, ServiceInvoiceHeader."No.");
+
+        // [THEN] Ensure that document attachments from the Service Order flow to Posted Service Invoice. Posted service invoice line has 2 attachments
+        CheckDocAttachmentsForPostedDocsCount(Database::"Service Invoice Line", 2, ServiceInvoiceHeader."No.");
+
+        // [WHEN] Add attachment to posted service invoice with file name "FILE"
+        DocumentAttachment."Table ID" := Database::"Service Invoice Header";
+        DocumentAttachment."No." := ServiceInvoiceHeader."No.";
+        DocumentAttachment."File Name" := CopyStr(Format(CreateGuid()), 1, MaxStrLen(DocumentAttachment."File Name"));
+        DocumentAttachment.Insert();
+
+        // [THEN] Document attachment can be added in Posted Service Invoice. Posted service invoice header now has 2 attachments
+        CheckDocAttachmentsForPostedDocsCount(Database::"Service Invoice Header", 2, ServiceInvoiceHeader."No.");
+
+        // [WHEN] "Print to attachment" function is called
+        PostedServiceInvoice.OpenView();
+        PostedServiceInvoice.Filter.SetFilter("No.", ServiceInvoiceHeader."No.");
+        PostedServiceInvoice.AttachAsPDF.Invoke();
+
+        // [THEN] "Print to attachment" action in Service Contract page makes new "Document Attachment" record. Posted service invoice header now has 3 attachments
+        CheckDocAttachmentsForPostedDocsCount(Database::"Service Invoice Header", 3, ServiceInvoiceHeader."No.");
+
+        // [THEN] New document attachment created
+        DocumentAttachment.Reset();
+        DocumentAttachment.SetRange("Table ID", Database::"Service Invoice Header");
+        DocumentAttachment.SetRange("No.", ServiceInvoiceHeader."No.");
+        DocumentAttachment.FindLast();
+        Assert.IsSubstring(DocumentAttachment."File Name", ServiceInvoiceHeader."No.");
+
+        // [THEN] Notification "Document has been printed to attachments." displayed
+        Assert.AreEqual(PrintedToAttachmentTxt, LibraryVariableStorage.DequeueText(), 'Unexpected notification.');
+
+        LibraryNotificationMgt.RecallNotificationsForRecord(ServiceInvoiceHeader);
+        PostedServiceInvoice.Close();
+
+        // [WHEN] Open Customer Ledger Entries page with posted service invoice entry
+        FindCustLedgEntry(CustLedgerEntry, ServiceInvoiceHeader."No.", ServiceInvoiceHeader."Customer No.");
+        CustomerLedgerEntries.OpenView();
+        CustomerLedgerEntries.Filter.SetFilter("Entry No.", Format(CustLedgerEntry."Entry No."));
+
+        // [THEN] Action "Show Posted Document Attachment" on the page Customer Ledger Entries opens Attached Document page for Posted Service Invoice. Action "Show Posted Document Attachment" is enabled
+        Assert.IsTrue(CustomerLedgerEntries.ShowDocumentAttachment.Enabled(), 'Action must be enabled');
+
+        // [WHEN] Action "Show Posted Document Attachment" is being choosen
+        CustomerLedgerEntries.ShowDocumentAttachment.Invoke();
+
+        // [THEN] Page Document Attachment Details opened with the first attachment
+        DocumentAttachment.FindFirst();
+        Assert.AreEqual(DocumentAttachment."File Name", LibraryVariableStorage.DequeueText(), 'Invalid file name');
+    end;
+
+    [Test]
+    [HandlerFunctions('PrintedToAttachmentNotificationHandler,DocumentAttachmentDetailsMPH')]
+    procedure TestDocAttachServiceCreditMemo_ToPostedServiceCreditMemo_PrintToAttachment_ShowPostedDocAttach()
+    var
+        Customer: Record Customer;
+        Item: Record Item;
+        ServiceHeader: Record "Service Header";
+        ServiceLine: Record "Service Line";
+        ServiceCrMemoHeader: Record "Service Cr.Memo Header";
+        DocumentAttachment: Record "Document Attachment";
+        CustLedgerEntry: Record "Cust. Ledger Entry";
+        RecordRef: RecordRef;
+        CustomerLedgerEntries: TestPage "Customer Ledger Entries";
+        PostedServiceCreditMemo: TestPage "Posted Service Credit Memo";
+    begin
+        // [SCENARIO 332151] Ensure that document attachments from the Customer/Item/Service Item flow to the Service Credit Memo.
+        // [SCENARIO 332151] Ensure that document attachments from the Service Credit Memo flow to Posted Service Credit Memo.
+        // [SCENARIO 332151] Document attachment can be added in Posted Service Credit Memo.
+        // [SCENARIO 332151] "Print to attachment" action in Posted Service Credit Memo page makes new "Document Attachment" record.
+        // [SCENARIO 332151] Action "Show Posted Document Attachment" on the page Customer Ledger Entries opens Attached Document page for Posted Service Credit Memo.
+        Initialize();
+
+        // [GIVEN] A Customer with 2 attachments, 1 marked to flow
+        LibrarySales.CreateCustomer(Customer);
+        RecordRef.GetTable(Customer);
+        CreateDocAttachService(RecordRef, 'Cust1.jpeg', true);
+        CreateDocAttachService(RecordRef, 'Cust2.jpeg', false);
+
+        // [GIVEN] Item with 2 attacments, 2 marked to flow
+        LibraryInventory.CreateItem(Item);
+        RecordRef.GetTable(Item);
+        CreateDocAttachService(RecordRef, 'Item1.jpeg', true);
+        CreateDocAttachService(RecordRef, 'Item2.jpeg', true);
+
+        // [WHEN] Service credit memo is created
+        LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::"Credit Memo", Customer."No.");
+        LibraryService.CreateServiceLineWithQuantity(ServiceLine, ServiceHeader, ServiceLine.Type::Item, Item."No.", LibraryRandom.RandIntInRange(5, 10));
+        ServiceLine.Validate("Unit Price", LibraryRandom.RandIntInRange(3, 5));
+        ServiceLine.Modify(true);
+
+        // [THEN] Ensure that document attachments from the Customer/Item/Service Item flow to the Service Credit Memo. Service credit memo header has 1 attachment
+        CheckDocAttachments(Database::"Service Header", 1, ServiceHeader."No.", ServiceHeader."Document Type".AsInteger(), 'Cust1');
+
+        // [THEN] Ensure that document attachments from the Customer/Item/Service Item flow to the Service Credit Memo. Service credit memo line has 2 attachments
+        CheckDocAttachments(Database::"Service Line", 2, ServiceLine."Document No.", ServiceLine."Document Type".AsInteger(), 'Item1');
+
+        // [WHEN] Post Service Credit Memo from Service Credit Memo
+        LibraryService.PostServiceOrder(ServiceHeader, false, false, false);
+
+        // [THEN] Ensure that document attachments from the Service Credit Memo flow to Posted Service Credit Memo. Posted service credit memo header has 1 attachment
+        ServiceCrMemoHeader.SetRange("Customer No.", ServiceHeader."Customer No.");
+        ServiceCrMemoHeader.FindLast();
+        CheckDocAttachmentsForPostedDocsCount(Database::"Service Cr.Memo Header", 1, ServiceCrMemoHeader."No.");
+
+        // [THEN] Ensure that document attachments from the Service Service Credit flow to Posted Service Credit Memo. Posted service credit memo line has 2 attachments
+        CheckDocAttachmentsForPostedDocsCount(Database::"Service Cr.Memo Line", 2, ServiceCrMemoHeader."No.");
+
+        // [WHEN] Add attachment to posted service credit memo with file name "FILE"
+        DocumentAttachment."Table ID" := Database::"Service Cr.Memo Header";
+        DocumentAttachment."No." := ServiceCrMemoHeader."No.";
+        DocumentAttachment."File Name" := CopyStr(Format(CreateGuid()), 1, MaxStrLen(DocumentAttachment."File Name"));
+        DocumentAttachment.Insert();
+
+        // [THEN] Document attachment can be added in Posted Service Credit Memo. Posted service credit memo header now has 2 attachments
+        CheckDocAttachmentsForPostedDocsCount(Database::"Service Cr.Memo Header", 2, ServiceCrMemoHeader."No.");
+
+        // [WHEN] "Print to attachment" function is called
+        PostedServiceCreditMemo.OpenView();
+        PostedServiceCreditMemo.Filter.SetFilter("No.", ServiceCrMemoHeader."No.");
+        PostedServiceCreditMemo.AttachAsPDF.Invoke();
+
+        // [THEN] "Print to attachment" action in Service Contract page makes new "Document Attachment" record. Posted service credit memo header now has 3 attachments
+        CheckDocAttachmentsForPostedDocsCount(Database::"Service Cr.Memo Header", 3, ServiceCrMemoHeader."No.");
+
+        // [THEN] New document attachment created
+        DocumentAttachment.Reset();
+        DocumentAttachment.SetRange("Table ID", Database::"Service Cr.Memo Header");
+        DocumentAttachment.SetRange("No.", ServiceCrMemoHeader."No.");
+        DocumentAttachment.FindLast();
+        Assert.IsSubstring(DocumentAttachment."File Name", ServiceCrMemoHeader."No.");
+
+        // [THEN] Notification "Document has been printed to attachments." displayed
+        Assert.AreEqual(PrintedToAttachmentTxt, LibraryVariableStorage.DequeueText(), 'Unexpected notification.');
+
+        LibraryNotificationMgt.RecallNotificationsForRecord(ServiceCrMemoHeader);
+        PostedServiceCreditMemo.Close();
+
+        // [WHEN] Open Customer Ledger Entries page with posted service credit memo entry
+        FindCustLedgEntry(CustLedgerEntry, ServiceCrMemoHeader."No.", ServiceCrMemoHeader."Customer No.");
+        CustomerLedgerEntries.OpenView();
+        CustomerLedgerEntries.Filter.SetFilter("Entry No.", Format(CustLedgerEntry."Entry No."));
+
+        // [THEN] Action "Show Posted Document Attachment" on the page Customer Ledger Entries opens Attached Document page for Posted Service Credit Memo. Action "Show Posted Document Attachment" is enabled
+        Assert.IsTrue(CustomerLedgerEntries.ShowDocumentAttachment.Enabled(), 'Action must be enabled');
+
+        // [WHEN] Action "Show Posted Document Attachment" is being choosen
+        CustomerLedgerEntries.ShowDocumentAttachment.Invoke();
+
+        // [THEN] Page Document Attachment Details opened with the first attachment
+        DocumentAttachment.FindFirst();
+        Assert.AreEqual(DocumentAttachment."File Name", LibraryVariableStorage.DequeueText(), 'Invalid file name');
+    end;
+
+    [Test]
+    [HandlerFunctions('GetServiceShipmentLinesPageHandler')]
+    procedure EnsureDocAttachFlowFromServiceOrderToServiceInvoice()
+    var
+        Customer: Record Customer;
+        Item: Record Item;
+        ServiceHeaderOrder: Record "Service Header";
+        ServiceLineOrder: Record "Service Line";
+        RecordRef: RecordRef;
+        ServiceInvoicePage: TestPage "Service Invoice";
+        InvoiceNo: Code[20];
+    begin
+        // [SCENARIO 332151] Ensuring attached docs on Posted Service Shipment/Service Order flow to Service Invoice when using 'Get Shipment Lines'.
+        Initialize();
+
+        // [GIVEN] Create Customer
+        LibrarySales.CreateCustomer(Customer);
+        RecordRef.GetTable(Customer);
+
+        // [GIVEN] Create Service Order with Item line
+        LibraryInventory.CreateItem(Item);
+        LibraryService.CreateServiceDocumentForCustomerNo(ServiceHeaderOrder, ServiceHeaderOrder."Document Type"::Order, Customer."No.");
+        ServiceLineOrder.SetRange("Document Type", ServiceHeaderOrder."Document Type");
+        ServiceLineOrder.SetRange("Document No.", ServiceHeaderOrder."No.");
+        ServiceLineOrder.FindFirst();
+
+        // [GIVEN] Attach document to Service Order header
+        Clear(RecordRef);
+        RecordRef.GetTable(ServiceHeaderOrder);
+        CreateDocAttach(RecordRef, 'ServiceOrder.jpeg', false, false);
+
+        // [GIVEN] Attach document to 1st Service Order line 
+        Clear(RecordRef);
+        RecordRef.GetTable(ServiceLineOrder);
+        CreateDocAttach(RecordRef, 'ServiceLine.jpeg', false, false);
+
+        // [GIVEN] Post Service Shipment from Service Order
+        LibraryService.PostServiceOrder(ServiceHeaderOrder, true, false, false);
+
+        // [GIVEN] Create Service Invoice
+        ServiceInvoicePage.OpenNew();
+        ServiceInvoicePage."Customer No.".SetValue(Customer."No.");
+        Evaluate(InvoiceNo, ServiceInvoicePage."No.".Value);
+
+        // [WHEN] Use 'Get Shipment Lines' to insert lines
+        ServiceInvoicePage.ServLines.GetShipmentLines.Invoke(); // opens modal page "Get Shipment Lines", and handler clicks OK
+
+        // [WHEN] Repeat use 'Get Shipment Lines' to check it will run multiple times - inserts new line with attachment
+        ServiceInvoicePage.ServLines.GetShipmentLines.Invoke(); // opens modal page "Get Shipment Lines", and handler clicks OK
+
+        // [THEN] Assert attached documents are flown to Service Invoice (one attachment)
+        CheckDocAttachments(Database::"Service Header", 1, InvoiceNo, ServiceHeaderOrder."Document Type"::Invoice.AsInteger(), 'ServiceOrder');
+
+        // [THEN] Assert Service Invoice lines have two document attachments (one per each line inserted from Service Order)
+        CheckDocAttachments(Database::"Service Line", 2, InvoiceNo, ServiceHeaderOrder."Document Type"::Invoice.AsInteger(), 'ServiceLine');
+    end;
+
+    [Test]
+    [HandlerFunctions('ServiceConfirmHandler,PrintedToAttachmentNotificationHandler')]
+    procedure ServiceContractQuotePrintToAttachment_AndMakeContract()
+    var
+        ServiceItem: Record "Service Item";
+        ServiceContractHeader: Record "Service Contract Header";
+        ServiceContractLine: Record "Service Contract Line";
+        DocumentAttachment: Record "Document Attachment";
+        SignServContractDoc: Codeunit SignServContractDoc;
+        RecordRef: RecordRef;
+        ServiceContractQuoteAttachedDateTime: DateTime;
+        ServiceContractQuote: TestPage "Service Contract Quote";
+    begin
+        // [FEATURE] [UI] [Print to Attachment] [Service Contract Quote]
+        // [SCENARIO 332151] "Print to attachment" action in Service Contract Quote page makes new "Document Attachment" record.
+        // [SCENARIO 332151] Transfer Service Contract Quote attachments to Service Contract on "Make Contract" action.
+        Initialize();
+
+        // [GIVEN] Service contract quote opened in the Service Contract Quote page
+        LibraryService.CreateServiceContractHeader(ServiceContractHeader, ServiceContractHeader."Contract Type"::Quote, LibrarySales.CreateCustomerNo());
+        LibraryService.CreateServiceItem(ServiceItem, ServiceContractHeader."Customer No.");
+        LibraryService.CreateServiceContractLine(ServiceContractLine, ServiceContractHeader, ServiceItem."No.");
+        ServiceContractLine.Validate("Line Cost", 1000 * LibraryRandom.RandDec(10, 2));  // Use Random because value is not important.
+        ServiceContractLine.Validate("Line Value", 10000000 * LibraryRandom.RandDec(10, 2));  // Use Random because value is not important.
+        ServiceContractLine.Validate("Service Period", ServiceContractHeader."Service Period");
+        ServiceContractLine.Modify(true);
+
+        ServiceContractHeader.CalcFields("Calcd. Annual Amount");
+        ServiceContractHeader.Validate("Annual Amount", ServiceContractHeader."Calcd. Annual Amount");
+        ServiceContractHeader.Validate("Starting Date", WorkDate());
+        ServiceContractHeader.Validate("Price Update Period", ServiceContractHeader."Service Period");
+        ServiceContractHeader.Modify(true);
+
+        ServiceContractQuote.OpenEdit();
+        ServiceContractQuote.Filter.SetFilter("Contract No.", ServiceContractHeader."Contract No.");
+        // [WHEN] "Print to attachment" function is called
+        ServiceContractQuote.AttachAsPDF.Invoke();
+
+        // [THEN] New document attachment created with "Document Flow Service"
+        FindDocumentAttachment(DocumentAttachment, Database::"Service Contract Header", ServiceContractHeader."Contract No.", DocumentAttachment."Document Type"::"Service Contract Quote".AsInteger());
+        DocumentAttachment.TestField("Document Flow Service", true);
+        Assert.IsSubstring(DocumentAttachment."File Name", ServiceContractHeader."Contract No.");
+
+        // [THEN] Notification "Document has been printed to attachments." displayed
+        Assert.AreEqual(PrintedToAttachmentTxt, LibraryVariableStorage.DequeueText(), 'Unexpected notification.');
+
+        LibraryNotificationMgt.RecallNotificationsForRecord(ServiceContractHeader);
+
+        // [GIVEN] Attached date time of the Service Contract Quote
+        DocumentAttachment.Reset();
+        DocumentAttachment.SetRange("Table ID", Database::"Service Contract Header");
+        DocumentAttachment.SetRange("No.", ServiceContractHeader."Contract No.");
+        if DocumentAttachment.FindFirst() then
+            ServiceContractQuoteAttachedDateTime := DocumentAttachment."Attached Date";
+
+        // [GIVEN] Add 2nd attachment to Service Contract Quote
+        RecordRef.GetTable(ServiceContractHeader);
+        CreateDocAttachService(RecordRef, '2ndAttachment.jpeg', false);
+
+        // [WHEN] "Make Contract" action is executed
+        SignServContractDoc.SetHideDialog(true);
+        SignServContractDoc.SignContractQuote(ServiceContractHeader);
+
+        // [THEN] Service Contract Quote attachments copied to Service Contract attachments
+        ServiceContractHeader.SetRange("Customer No.", ServiceContractHeader."Customer No.");
+        ServiceContractHeader.SetRange("Contract Type", ServiceContractHeader."Contract Type"::Contract);
+        ServiceContractHeader.FindFirst();
+
+        // [THEN] 2 attachments exist for the Service Contract
+        DocumentAttachment.Reset();
+        DocumentAttachment.SetRange("Table ID", Database::"Service Contract Header");
+        DocumentAttachment.SetRange("No.", ServiceContractHeader."Contract No.");
+        Assert.RecordCount(DocumentAttachment, 2);
+
+        // [THEN] Verify Time stamp change of attachments are equal
+        DocumentAttachment.FindFirst();
+        Assert.AreEqual(ServiceContractQuoteAttachedDateTime, DocumentAttachment."Attached Date", AttachedDateInvalidErr);
+    end;
+
+    [Test]
+    [HandlerFunctions('ServiceConfirmHandler,PrintedToAttachmentNotificationHandler')]
+    procedure ServiceContractPrintToAttachment()
+    var
+        ServiceItem: Record "Service Item";
+        ServiceContractHeader: Record "Service Contract Header";
+        ServiceContractLine: Record "Service Contract Line";
+        DocumentAttachment: Record "Document Attachment";
+        ServiceContract: TestPage "Service Contract";
+    begin
+        // [FEATURE] [UI] [Print to Attachment] [Service Contract]
+        // [SCENARIO 332151] "Print to attachment" action in Service Contract page makes new "Document Attachment" record.
+        Initialize();
+
+        // [GIVEN] Service contract opened in the Service Contract page
+        LibraryService.CreateServiceContractHeader(ServiceContractHeader, ServiceContractHeader."Contract Type"::Contract, LibrarySales.CreateCustomerNo());
+        LibraryService.CreateServiceItem(ServiceItem, ServiceContractHeader."Customer No.");
+        LibraryService.CreateServiceContractLine(ServiceContractLine, ServiceContractHeader, ServiceItem."No.");
+        ServiceContract.OpenEdit();
+        ServiceContract.Filter.SetFilter("Contract No.", ServiceContractHeader."Contract No.");
+        // [WHEN] "Print to attachment" function is called
+        ServiceContract.AttachAsPDF.Invoke();
+
+        // [THEN] New document attachment created with "Document Flow Service"
+        FindDocumentAttachment(DocumentAttachment, Database::"Service Contract Header", ServiceContractHeader."Contract No.", DocumentAttachment."Document Type"::"Service Contract".AsInteger());
+        DocumentAttachment.TestField("Document Flow Service", true);
+        Assert.IsSubstring(DocumentAttachment."File Name", ServiceContractHeader."Contract No.");
+
+        // [THEN] Notification "Document has been printed to attachments." displayed
+        Assert.AreEqual(PrintedToAttachmentTxt, LibraryVariableStorage.DequeueText(), 'Unexpected notification.');
+
+        LibraryNotificationMgt.RecallNotificationsForRecord(ServiceContractHeader);
+    end;
+
+    [Test]
+    [HandlerFunctions('ServiceConfirmHandler')]
+    procedure TestDocAttachServiceContract()
+    var
+        Customer: Record Customer;
+        Item: Record Item;
+        ItemForServiceItem: Record Item;
+        ServiceItem: Record "Service Item";
+        ServiceContractHeader: Record "Service Contract Header";
+        ServiceContractLine: Record "Service Contract Line";
+        DocumentAttachment: Record "Document Attachment";
+        RecordRef: RecordRef;
+    begin
+        // [SCENARIO 332151] Ensure that document attachments from the Customer/Item/Service Item flow to the Service Contract.
+        Initialize();
+
+        // [GIVEN] A Customer with 2 attachments, 1 marked to flow
+        LibrarySales.CreateCustomer(Customer);
+        RecordRef.GetTable(Customer);
+        CreateDocAttachService(RecordRef, 'Cust1.jpeg', true);
+        CreateDocAttachService(RecordRef, 'Cust2.jpeg', false);
+
+        // [GIVEN] Item with 2 attacments, 1 marked to flow
+        LibraryInventory.CreateItem(Item);
+        RecordRef.GetTable(Item);
+        CreateDocAttachService(RecordRef, 'Item1.jpeg', true);
+        CreateDocAttachService(RecordRef, 'Item2.jpeg', false);
+
+        // [GIVEN] Service Item with 2 attacments, 1 marked to flow
+        LibraryInventory.CreateItem(ItemForServiceItem);
+        RecordRef.GetTable(ItemForServiceItem);
+        CreateDocAttachService(RecordRef, 'ServiceItem1.jpeg', true);
+        CreateDocAttachService(RecordRef, 'ServiceItem2.jpeg', false);
+        LibraryService.CreateServiceItem(ServiceItem, Customer."No.");
+        ServiceItem.Validate("Item No.", ItemForServiceItem."No.");
+        ServiceItem.Modify(true);
+
+        // [WHEN] Service Contract is created
+        LibraryService.CreateServiceContractHeader(ServiceContractHeader, ServiceContractHeader."Contract Type"::Contract, Customer."No.");
+        // 1st line with Service Item
+        LibraryService.CreateServiceContractLine(ServiceContractLine, ServiceContractHeader, ServiceItem."No.");
+        // 2nd line with Item
+        ServiceContractLine.Init();
+        ServiceContractLine.Validate("Contract Type", ServiceContractHeader."Contract Type");
+        ServiceContractLine.Validate("Contract No.", ServiceContractHeader."Contract No.");
+        ServiceContractLine.Validate("Line No.", 20000);
+        ServiceContractLine.Validate("Customer No.", ServiceContractHeader."Customer No.");
+        ServiceContractLine.Validate("Item No.", Item."No.");
+        ServiceContractLine.Insert(true);
+
+        // [THEN] Ensure that document attachments from the Customer/Item/Service Item flow to the Service Order. Service contract header has 1 attachment
+        CheckDocAttachments(Database::"Service Contract Header", 1, ServiceContractHeader."Contract No.", DocumentAttachment."Document Type"::"Service Contract".AsInteger(), 'Cust1');
+
+        // [THEN] Ensure that document attachments from the Customer/Item/Service Item flow to the Service Order. Service contract lines have 2 attachments
+        CheckDocAttachments(Database::"Service Contract Line", 2, ServiceContractLine."Contract No.", DocumentAttachment."Document Type"::"Service Contract".AsInteger(), 'ServiceItem1');
+    end;
+
+    [Test]
+    [HandlerFunctions('ServiceConfirmHandler')]
+    procedure TestDocAttachServiceContract_Copy()
+    var
+        Customer: Record Customer;
+        ItemForServiceItem: Record Item;
+        ServiceItem: Record "Service Item";
+        ServiceContractHeaderFrom: Record "Service Contract Header";
+        ServiceContractLineFrom: Record "Service Contract Line";
+        ServiceContractHeaderTo: Record "Service Contract Header";
+        ServiceContractLineTo: Record "Service Contract Line";
+        DocumentAttachment: Record "Document Attachment";
+        CopyServiceContractMgt: Codeunit "Copy Service Contract Mgt.";
+        RecordRef: RecordRef;
+    begin
+        // [SCENARIO 332151] Transfer document attachments from Service Contract lines when copying Service Contract.
+        Initialize();
+
+        // [GIVEN] A Customer with 2 attachments, 1 marked to flow
+        LibrarySales.CreateCustomer(Customer);
+        RecordRef.GetTable(Customer);
+        CreateDocAttachService(RecordRef, 'Cust1.jpeg', true);
+        CreateDocAttachService(RecordRef, 'Cust2.jpeg', false);
+
+        // [GIVEN] Service Item with 2 attacments, 1 marked to flow
+        LibraryInventory.CreateItem(ItemForServiceItem);
+        RecordRef.GetTable(ItemForServiceItem);
+        CreateDocAttachService(RecordRef, 'ServiceItem1.jpeg', true);
+        CreateDocAttachService(RecordRef, 'ServiceItem2.jpeg', false);
+        LibraryService.CreateServiceItem(ServiceItem, Customer."No.");
+        ServiceItem.Validate("Item No.", ItemForServiceItem."No.");
+        ServiceItem.Modify(true);
+
+        // [GIVEN] Service Contract is created
+        LibraryService.CreateServiceContractHeader(ServiceContractHeaderFrom, ServiceContractHeaderFrom."Contract Type"::Contract, Customer."No.");
+        LibraryService.CreateServiceContractLine(ServiceContractLineFrom, ServiceContractHeaderFrom, ServiceItem."No.");
+        ServiceContractLineFrom.Validate("Line Cost", 1000 * LibraryRandom.RandDec(10, 2));  // Use Random because value is not important.
+        ServiceContractLineFrom.Validate("Line Value", 10000000 * LibraryRandom.RandDec(10, 2));  // Use Random because value is not important.
+        ServiceContractLineFrom.Validate("Service Period", ServiceContractHeaderFrom."Service Period");
+        ServiceContractLineFrom.Modify(true);
+
+        ServiceContractHeaderFrom.CalcFields("Calcd. Annual Amount");
+        ServiceContractHeaderFrom.Validate("Annual Amount", ServiceContractHeaderFrom."Calcd. Annual Amount");
+        ServiceContractHeaderFrom.Validate("Starting Date", WorkDate());
+        ServiceContractHeaderFrom.Validate("Price Update Period", ServiceContractHeaderFrom."Service Period");
+        ServiceContractHeaderFrom.Modify(true);
+
+        // [WHEN] Add attachment to Service Contract header
+        RecordRef.GetTable(ServiceContractHeaderFrom);
+        CreateDocAttachService(RecordRef, 'ServiceContractHeader.jpeg', false);
+
+        // [WHEN] Add attachment to Service Contract line
+        RecordRef.GetTable(ServiceContractLineFrom);
+        CreateDocAttachService(RecordRef, 'ServiceContractLine.jpeg', false);
+
+        // [THEN] Service contract header has 2 attachments
+        CheckDocAttachments(Database::"Service Contract Header", 2, ServiceContractHeaderFrom."Contract No.", DocumentAttachment."Document Type"::"Service Contract".AsInteger(), 'Cust1');
+
+        // [THEN] Service contract line has 2 attachments
+        CheckDocAttachments(Database::"Service Contract Line", 2, ServiceContractLineFrom."Contract No.", DocumentAttachment."Document Type"::"Service Contract".AsInteger(), 'ServiceItem1');
+
+        // [GIVEN] Create Service Contract to copy to and execute "Copy Document" action
+        LibraryService.CreateServiceContractHeader(ServiceContractHeaderTo, ServiceContractHeaderTo."Contract Type"::Contract, ServiceContractHeaderFrom."Customer No.");
+        ServiceContractHeaderTo.CalcFields("Calcd. Annual Amount");
+        ServiceContractHeaderTo.Validate("Annual Amount", ServiceContractHeaderTo."Calcd. Annual Amount");
+        ServiceContractHeaderTo.Validate("Starting Date", WorkDate());
+        ServiceContractHeaderTo.Validate("Price Update Period", ServiceContractHeaderTo."Service Period");
+        ServiceContractHeaderTo.Modify(true);
+
+        // [WHEN] Copy Service Contract lines
+        CopyServiceContractMgt.CopyServiceContractLines(
+            ServiceContractHeaderTo, ServiceContractHeaderFrom."Contract Type",
+            ServiceContractHeaderFrom."Contract No.", ServiceContractLineTo);
+
+        // [THEN] Check that Service Contract Line fields are same after Copy Document.
+        ServiceContractLineTo.TestField("Service Item No.", ServiceContractLineFrom."Service Item No.");
+        ServiceContractLineTo.TestField("Line Value", ServiceContractLineFrom."Line Value");
+        ServiceContractLineTo.TestField("New Line", true);
+
+        // [THEN] Service contract header has 1 attachment (from Customer)
+        CheckDocAttachments(Database::"Service Contract Header", 1, ServiceContractHeaderTo."Contract No.", DocumentAttachment."Document Type"::"Service Contract".AsInteger(), 'Cust1');
+
+        // [THEN] Service contract line has 2 attachments (copied from source Service Contract line)
+        CheckDocAttachments(Database::"Service Contract Line", 2, ServiceContractLineTo."Contract No.", DocumentAttachment."Document Type"::"Service Contract".AsInteger(), 'ServiceItem1');
+    end;
+    #endregion [Service Management]
 
     local procedure Initialize()
     var
@@ -2636,6 +3457,7 @@ codeunit 134776 "Document Attachment Tests"
     begin
         LibraryTestInitialize.OnTestInitialize(Codeunit::"Document Attachment Tests");
 
+        LibraryVariableStorage.Clear();
         LibrarySetupStorage.Restore();
         if isInitialized then
             exit;
@@ -2647,19 +3469,22 @@ codeunit 134776 "Document Attachment Tests"
         LibraryERMCountryData.UpdatePurchasesPayablesSetup();
         LibraryERMCountryData.UpdateGeneralLedgerSetup();
         LibraryERMCountryData.SetupReportSelections();
+        LibraryService.SetupServiceMgtNoSeries();
+        AtLeastOneServiceContractTemplateMustExist();
         SetAllowBlankPaymentInfo();
         isInitialized := true;
         Commit();
         LibrarySetupStorage.Save(DATABASE::"General Ledger Setup");
         LibrarySetupStorage.Save(DATABASE::"Inventory Setup");
         LibrarySetupStorage.Save(DATABASE::"Sales & Receivables Setup");
+        LibrarySetupStorage.Save(Database::"Service Mgt. Setup");
         LibrarySetupStorage.Save(DATABASE::"Company Information");
     end;
 
     local procedure CreateTempBLOBWithText(var TempBlob: Codeunit "Temp Blob"; Content: Text)
     var
-        OStream: OutStream;
         BigStr: BigText;
+        OStream: OutStream;
     begin
         Clear(BigStr);
         Clear(TempBlob);
@@ -2691,14 +3516,11 @@ codeunit 134776 "Document Attachment Tests"
     var
         CustomReportSelection: Record "Custom Report Selection";
     begin
-        with CustomReportSelection do begin
-            "Source Type" := SourceType;
-            "Source No." := SourceNo;
-            Usage := ReportUsage;
-            "Report ID" := ReportID;
-            Insert();
-        end;
-
+        CustomReportSelection."Source Type" := SourceType;
+        CustomReportSelection."Source No." := SourceNo;
+        CustomReportSelection.Usage := ReportUsage;
+        CustomReportSelection."Report ID" := ReportID;
+        CustomReportSelection.Insert();
     end;
 
     [Scope('OnPrem')]
@@ -2710,8 +3532,8 @@ codeunit 134776 "Document Attachment Tests"
         DocumentAttachment.SetRange("Table ID", TableId);
         DocumentAttachment.SetRange("No.", RecNo);
         DocumentAttachment.SetRange("Document Type", DocType);
-        Assert.AreEqual(RecCount, DocumentAttachment.Count, 'Unexpected document count.');
-        Assert.IsTrue(DocumentAttachment.FindFirst, 'Expected record missing');
+        Assert.AreEqual(RecCount, DocumentAttachment.Count(), 'Unexpected document count.');
+        Assert.IsTrue(DocumentAttachment.FindFirst(), 'Expected record missing');
         Assert.AreEqual(FileName, DocumentAttachment."File Name", 'Unexpected file attached.');
     end;
 
@@ -2723,9 +3545,19 @@ codeunit 134776 "Document Attachment Tests"
         DocumentAttachment.Reset();
         DocumentAttachment.SetRange("Table ID", TableId);
         DocumentAttachment.SetRange("No.", RecNo);
-        Assert.AreEqual(RecCount, DocumentAttachment.Count, 'Unexpected document count.');
-        Assert.IsTrue(DocumentAttachment.FindFirst, 'Expected record missing');
+        Assert.AreEqual(RecCount, DocumentAttachment.Count(), 'Unexpected document count.');
+        Assert.IsTrue(DocumentAttachment.FindFirst(), 'Expected record missing');
         Assert.AreEqual(FileName, DocumentAttachment."File Name", 'Unexpected file attached.');
+    end;
+
+    procedure CheckDocAttachmentsForPostedDocsCount(TableId: Integer; RecCount: Integer; RecNo: Code[20])
+    var
+        DocumentAttachment: Record "Document Attachment";
+    begin
+        DocumentAttachment.Reset();
+        DocumentAttachment.SetRange("Table ID", TableId);
+        DocumentAttachment.SetRange("No.", RecNo);
+        Assert.AreEqual(RecCount, DocumentAttachment.Count(), 'Unexpected document count.');
     end;
 
     local procedure AssertNoAttachmentsExist(TableId: Integer; RecNo: Code[20]; DocumentType: Enum "Attachment Document Type")
@@ -2765,6 +3597,19 @@ codeunit 134776 "Document Attachment Tests"
         DocumentAttachment.Modify();
     end;
 
+    local procedure CreateDocAttachService(RecRef: RecordRef; FileName: Text[250]; FlowService: Boolean)
+    var
+        DocumentAttachment: Record "Document Attachment";
+        TempBlob: Codeunit "Temp Blob";
+    begin
+        Clear(DocumentAttachment);
+        CreateTempBLOBWithImageOfType(TempBlob, 'jpeg');
+        DocumentAttachment.Init();
+        DocumentAttachment.SaveAttachment(RecRef, FileName, TempBlob);
+        DocumentAttachment."Document Flow Service" := FlowService;
+        DocumentAttachment.Modify();
+    end;
+
     local procedure CopyGLAccountToNewNo(OldGLAccountNo: Code[20]; NewGLAccountNo: Code[20]; var GLAccount: Record "G/L Account")
     var
         OldGLAccount: Record "G/L Account";
@@ -2798,7 +3643,7 @@ codeunit 134776 "Document Attachment Tests"
     var
         SalesLine: Record "Sales Line";
     begin
-        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo, 1);
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo(), 1);
         SalesLine.Validate(Quantity, LibraryRandom.RandDec(100, 2));
         SalesLine.Validate("Unit Price", LibraryRandom.RandDec(100, 2));
         SalesLine.Modify(true);
@@ -2835,7 +3680,7 @@ codeunit 134776 "Document Attachment Tests"
     var
         PurchaseLine: Record "Purchase Line";
     begin
-        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, LibraryInventory.CreateItemNo, 1);
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, LibraryInventory.CreateItemNo(), 1);
         PurchaseLine.Validate(Quantity, LibraryRandom.RandDec(100, 2));
         PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandDec(100, 2));
         PurchaseLine.Modify(true);
@@ -2852,30 +3697,24 @@ codeunit 134776 "Document Attachment Tests"
 
     local procedure FindCustLedgEntry(var CustLedgerEntry: Record "Cust. Ledger Entry"; DocumentNo: Code[20]; CustomerNo: Code[20])
     begin
-        with CustLedgerEntry do begin
-            SetRange("Document No.", DocumentNo);
-            SetRange("Customer No.", CustomerNo);
-            FindFirst();
-        end;
+        CustLedgerEntry.SetRange("Document No.", DocumentNo);
+        CustLedgerEntry.SetRange("Customer No.", CustomerNo);
+        CustLedgerEntry.FindFirst();
     end;
 
     local procedure FindVendLedgEntry(var VendorLedgerEntry: Record "Vendor Ledger Entry"; DocumentNo: Code[20]; CustomerNo: Code[20])
     begin
-        with VendorLedgerEntry do begin
-            SetRange("Document No.", DocumentNo);
-            SetRange("Vendor No.", CustomerNo);
-            FindFirst();
-        end;
+        VendorLedgerEntry.SetRange("Document No.", DocumentNo);
+        VendorLedgerEntry.SetRange("Vendor No.", CustomerNo);
+        VendorLedgerEntry.FindFirst();
     end;
 
     local procedure FindDocumentAttachment(var DocumentAttachment: Record "Document Attachment"; TableId: Integer; DocumentNo: Code[20]; DocumentType: Option)
     begin
-        with DocumentAttachment do begin
-            SetRange("Table ID", TableId);
-            SetRange("No.", DocumentNo);
-            SetRange("Document Type", DocumentType);
-            FindFirst();
-        end;
+        DocumentAttachment.SetRange("Table ID", TableId);
+        DocumentAttachment.SetRange("No.", DocumentNo);
+        DocumentAttachment.SetRange("Document Type", DocumentType);
+        DocumentAttachment.FindFirst();
     end;
 
     local procedure GetReportCaption(ReportID: Integer): Text
@@ -2894,14 +3733,12 @@ codeunit 134776 "Document Attachment Tests"
     local procedure MockDocumentAttachment(var DocumentAttachment: Record "Document Attachment"; TableId: Integer; DocumentNo: Code[20]; DocumentType: Enum "Attachment Document Type"; FileName: Text; FileExtension: Text)
     begin
         Clear(DocumentAttachment);
-        with DocumentAttachment do begin
-            "Table ID" := TableId;
-            "No." := DocumentNo;
-            "Document Type" := DocumentType;
-            "File Name" := CopyStr(FileName, 1, MaxStrLen("File Name"));
-            "File Extension" := CopyStr(FileExtension, 1, MaxStrLen("File Extension"));
-            Insert();
-        end;
+        DocumentAttachment."Table ID" := TableId;
+        DocumentAttachment."No." := DocumentNo;
+        DocumentAttachment."Document Type" := DocumentType;
+        DocumentAttachment."File Name" := CopyStr(FileName, 1, MaxStrLen(DocumentAttachment."File Name"));
+        DocumentAttachment."File Extension" := CopyStr(FileExtension, 1, MaxStrLen(DocumentAttachment."File Extension"));
+        DocumentAttachment.Insert();
     end;
 
     local procedure SetAllowBlankPaymentInfo()
@@ -2920,7 +3757,9 @@ codeunit 134776 "Document Attachment Tests"
     begin
         SalesHaderOrder.Reset();
         SalesHaderOrder.SetRange("Document Type", SalesHaderOrder."Document Type"::Order);
+#pragma warning disable AA0210
         SalesHaderOrder.SetRange("Quote No.", SalesQuoteNo);
+#pragma warning restore AA0210
         SalesHaderOrder.FindFirst();
 
         DocumentAttachment.Reset();
@@ -2955,6 +3794,17 @@ codeunit 134776 "Document Attachment Tests"
         Base64Convert.FromBase64(ImageAsBase64Txt, OutStream);
     end;
 
+    local procedure AtLeastOneServiceContractTemplateMustExist()
+    var
+        ServiceContractTemplate: Record "Service Contract Template";
+    begin
+        if not ServiceContractTemplate.IsEmpty() then
+            exit;
+
+        ServiceContractTemplate.Init();
+        ServiceContractTemplate.Insert(true);
+    end;
+
     [ModalPageHandler]
     procedure RelatedAttachmentsHandler(var RelatedAttachmentsPage: TestPage "Email Related Attachments")
     begin
@@ -2968,36 +3818,59 @@ codeunit 134776 "Document Attachment Tests"
     [Scope('OnPrem')]
     procedure ListSalesFlow(var DocumentAttachmentDetails: TestPage "Document Attachment Details")
     begin
-        Assert.IsTrue(DocumentAttachmentDetails."Document Flow Sales".Visible, 'Expected field not visible');
-        Assert.IsFalse(DocumentAttachmentDetails."Document Flow Sales".Editable, 'Field should be disabled');
-        Assert.IsFalse(DocumentAttachmentDetails."Document Flow Purchase".Visible, 'Unexpected field visible');
+        Assert.IsTrue(DocumentAttachmentDetails."Document Flow Sales".Visible(), 'Expected field not visible');
+        Assert.IsFalse(DocumentAttachmentDetails."Document Flow Sales".Editable(), 'Field should be disabled');
+        Assert.IsFalse(DocumentAttachmentDetails."Document Flow Purchase".Visible(), 'Unexpected field visible');
+        Assert.IsFalse(DocumentAttachmentDetails."Document Flow Service".Visible(), 'Unexpected field visible');
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure ListItemFlow(var DocumentAttachmentDetails: TestPage "Document Attachment Details")
     begin
-        Assert.IsTrue(DocumentAttachmentDetails."Document Flow Sales".Visible, 'Expected field not visible');
-        Assert.IsTrue(DocumentAttachmentDetails."Document Flow Sales".Editable, 'Expected field not editable');
-        Assert.IsTrue(DocumentAttachmentDetails."Document Flow Purchase".Visible, 'Expected field not visible');
-        Assert.IsTrue(DocumentAttachmentDetails."Document Flow Purchase".Editable, 'Expected field not editable');
+        Assert.IsTrue(DocumentAttachmentDetails."Document Flow Sales".Visible(), 'Expected field not visible');
+        Assert.IsTrue(DocumentAttachmentDetails."Document Flow Sales".Editable(), 'Expected field not editable');
+        Assert.IsTrue(DocumentAttachmentDetails."Document Flow Purchase".Visible(), 'Expected field not visible');
+        Assert.IsTrue(DocumentAttachmentDetails."Document Flow Purchase".Editable(), 'Expected field not editable');
+        Assert.IsTrue(DocumentAttachmentDetails."Document Flow Service".Visible(), 'Expected field not visible');
+        Assert.IsTrue(DocumentAttachmentDetails."Document Flow Service".Editable(), 'Expected field not editable');
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure ListPurchFlow(var DocumentAttachmentDetails: TestPage "Document Attachment Details")
     begin
-        Assert.IsFalse(DocumentAttachmentDetails."Document Flow Sales".Visible, 'Unexpected field visible');
-        Assert.IsTrue(DocumentAttachmentDetails."Document Flow Purchase".Visible, 'Expected field not visible');
-        Assert.IsFalse(DocumentAttachmentDetails."Document Flow Purchase".Editable, 'Expected field should be disabled.');
+        Assert.IsFalse(DocumentAttachmentDetails."Document Flow Sales".Visible(), 'Unexpected field visible');
+        Assert.IsTrue(DocumentAttachmentDetails."Document Flow Purchase".Visible(), 'Expected field not visible');
+        Assert.IsFalse(DocumentAttachmentDetails."Document Flow Purchase".Editable(), 'Expected field should be disabled.');
+        Assert.IsFalse(DocumentAttachmentDetails."Document Flow Service".Visible(), 'Unexpected field visible');
+    end;
+
+    [ModalPageHandler]
+    procedure ListServiceItemFlow(var DocumentAttachmentDetails: TestPage "Document Attachment Details")
+    begin
+        Assert.IsFalse(DocumentAttachmentDetails."Document Flow Sales".Visible(), 'Expected field visible');
+        Assert.IsFalse(DocumentAttachmentDetails."Document Flow Purchase".Visible(), 'Expected field visible');
+        Assert.IsTrue(DocumentAttachmentDetails."Document Flow Service".Visible(), 'Expected field not visible');
+        Assert.IsTrue(DocumentAttachmentDetails."Document Flow Service".Editable(), 'Expected field not editable');
+    end;
+
+    [ModalPageHandler]
+    procedure ListServiceFlow(var DocumentAttachmentDetails: TestPage "Document Attachment Details")
+    begin
+        Assert.IsTrue(DocumentAttachmentDetails."Document Flow Service".Visible(), 'Expected field not visible');
+        Assert.IsFalse(DocumentAttachmentDetails."Document Flow Service".Editable(), 'Field should be disabled');
+        Assert.IsFalse(DocumentAttachmentDetails."Document Flow Sales".Visible(), 'Unexpected field visible');
+        Assert.IsFalse(DocumentAttachmentDetails."Document Flow Purchase".Visible(), 'Unexpected field visible');
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure ListResourceFlow(var DocumentAttachmentDetails: TestPage "Document Attachment Details")
     begin
-        Assert.IsFalse(DocumentAttachmentDetails."Document Flow Sales".Visible, 'Unexpected field visible');
-        Assert.IsFalse(DocumentAttachmentDetails."Document Flow Purchase".Visible, 'Unexpected field visible');
+        Assert.IsFalse(DocumentAttachmentDetails."Document Flow Sales".Visible(), 'Unexpected field visible');
+        Assert.IsFalse(DocumentAttachmentDetails."Document Flow Purchase".Visible(), 'Unexpected field visible');
+        Assert.IsFalse(DocumentAttachmentDetails."Document Flow Service".Visible(), 'Unexpected field visible');
     end;
 
     [ModalPageHandler]
@@ -3005,77 +3878,87 @@ codeunit 134776 "Document Attachment Tests"
     procedure DocumentAttachmentDetailsMPH(var DocumentAttachmentDetails: TestPage "Document Attachment Details")
     begin
         LibraryVariableStorage.Enqueue(Format(DocumentAttachmentDetails.Name));
-        DocumentAttachmentDetails.OK.Invoke;
+        DocumentAttachmentDetails.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure ApplyCustomerEntryCheckShowDocAttachMPH(var ApplyCustomerEntries: TestPage "Apply Customer Entries")
     begin
-        LibraryVariableStorage.Enqueue(ApplyCustomerEntries.ShowDocumentAttachment.Enabled);
-        ApplyCustomerEntries.OK.Invoke;
+        LibraryVariableStorage.Enqueue(ApplyCustomerEntries.ShowDocumentAttachment.Enabled());
+        ApplyCustomerEntries.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure ApplyCustomerEntryChooseShowDocAttachMPH(var ApplyCustomerEntries: TestPage "Apply Customer Entries")
     begin
-        ApplyCustomerEntries.ShowDocumentAttachment.Invoke;
-        ApplyCustomerEntries.OK.Invoke;
+        ApplyCustomerEntries.ShowDocumentAttachment.Invoke();
+        ApplyCustomerEntries.OK().Invoke();
     end;
 
     [PageHandler]
     [Scope('OnPrem')]
     procedure AppliedCustomerEntriesCheckShowDocAttachPH(var AppliedCustomerEntries: TestPage "Applied Customer Entries")
     begin
-        LibraryVariableStorage.Enqueue(AppliedCustomerEntries.ShowDocumentAttachment.Enabled);
-        AppliedCustomerEntries.OK.Invoke;
+        LibraryVariableStorage.Enqueue(AppliedCustomerEntries.ShowDocumentAttachment.Enabled());
+        AppliedCustomerEntries.OK().Invoke();
     end;
 
     [PageHandler]
     [Scope('OnPrem')]
     procedure AppliedCustomerEntriesChooseShowDocAttachPH(var AppliedCustomerEntries: TestPage "Applied Customer Entries")
     begin
-        AppliedCustomerEntries.ShowDocumentAttachment.Invoke;
-        AppliedCustomerEntries.OK.Invoke;
+        AppliedCustomerEntries.ShowDocumentAttachment.Invoke();
+        AppliedCustomerEntries.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure ApplyVendorEntryCheckShowDocAttachMPH(var ApplyVendorEntries: TestPage "Apply Vendor Entries")
     begin
-        LibraryVariableStorage.Enqueue(ApplyVendorEntries.ShowDocumentAttachment.Enabled);
-        ApplyVendorEntries.OK.Invoke;
+        LibraryVariableStorage.Enqueue(ApplyVendorEntries.ShowDocumentAttachment.Enabled());
+        ApplyVendorEntries.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure ApplyVendorEntryChooseShowDocAttachMPH(var ApplyVendorEntries: TestPage "Apply Vendor Entries")
     begin
-        ApplyVendorEntries.ShowDocumentAttachment.Invoke;
-        ApplyVendorEntries.OK.Invoke;
+        ApplyVendorEntries.ShowDocumentAttachment.Invoke();
+        ApplyVendorEntries.OK().Invoke();
+    end;
+
+    [ModalPageHandler]
+    procedure GetServiceShipmentLinesPageHandler(var GetServiceShipmentLines: TestPage "Get Service Shipment Lines")
+    begin
+        GetServiceShipmentLines.OK().Invoke();
     end;
 
     [PageHandler]
     [Scope('OnPrem')]
     procedure AppliedVendorEntriesCheckShowDocAttachPH(var AppliedVendorEntries: TestPage "Applied Vendor Entries")
     begin
-        LibraryVariableStorage.Enqueue(AppliedVendorEntries.ShowDocumentAttachment.Enabled);
-        AppliedVendorEntries.OK.Invoke;
+        LibraryVariableStorage.Enqueue(AppliedVendorEntries.ShowDocumentAttachment.Enabled());
+        AppliedVendorEntries.OK().Invoke();
     end;
 
     [PageHandler]
     [Scope('OnPrem')]
     procedure AppliedVendorEntriesChooseShowDocAttachPH(var AppliedVendorEntries: TestPage "Applied Vendor Entries")
     begin
-        AppliedVendorEntries.ShowDocumentAttachment.Invoke;
-        AppliedVendorEntries.OK.Invoke;
+        AppliedVendorEntries.ShowDocumentAttachment.Invoke();
+        AppliedVendorEntries.OK().Invoke();
     end;
 
     [SendNotificationHandler]
     [Scope('OnPrem')]
     procedure PrintedToAttachmentNotificationHandler(var Notification: Notification): Boolean
     begin
+        if RecallNotifications then begin
+            Notification.Recall();
+            exit(true);
+        end;
         LibraryVariableStorage.Enqueue(Notification.Message);
     end;
 
@@ -3090,7 +3973,7 @@ codeunit 134776 "Document Attachment Tests"
     [Scope('OnPrem')]
     procedure SalesOrderMenuHandler(Option: Text[1024]; var Choice: Integer; Instruction: Text[1024])
     begin
-        Choice := LibraryVariableStorage.DequeueInteger;
+        Choice := LibraryVariableStorage.DequeueInteger();
     end;
 
     [MessageHandler]
@@ -3120,7 +4003,6 @@ codeunit 134776 "Document Attachment Tests"
             Reply := true;
     end;
 
-
     [ConfirmHandler]
     [Scope('OnPrem')]
     procedure QuoteToOrderConfirmHandler(Question: Text[1024]; var Reply: Boolean)
@@ -3131,13 +4013,19 @@ codeunit 134776 "Document Attachment Tests"
                     Reply := true;
                     exit;
                 end;
-            StrPos(Question, ConfirmOpeningNewOrderAfterQuoteToOrder) > 0:
+            StrPos(Question, ConfirmOpeningNewOrderAfterQuoteToOrderQst) > 0:
                 begin
                     Reply := false;
                     exit;
                 end;
         end;
         Assert.Fail('Wrong question: ' + Question);
+    end;
+
+    [ConfirmHandler]
+    procedure ServiceConfirmHandler(ConfirmMessage: Text[1024]; var Result: Boolean)
+    begin
+        Result := false; // Do not use Template
     end;
 }
 

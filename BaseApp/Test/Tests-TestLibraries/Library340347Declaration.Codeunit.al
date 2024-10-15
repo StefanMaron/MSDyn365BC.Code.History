@@ -6,7 +6,7 @@ codeunit 143305 "Library - 340 347 Declaration"
     end;
 
     var
-        NoSeriesManagement: Codeunit NoSeriesManagement;
+        NoSeriesBatch: Codeunit "No. Series - Batch";
         LibraryERM: Codeunit "Library - ERM";
         LibraryUtility: Codeunit "Library - Utility";
         LibraryRandom: Codeunit "Library - Random";
@@ -48,7 +48,7 @@ codeunit 143305 "Library - 340 347 Declaration"
                 GenJournalLine.Validate("Document Type", GenJournalLine."Document Type"::Refund);
         end;
         if GenJournalBatch."No. Series" <> '' then
-            GenJournalLine."Document No." := NoSeriesManagement.GetNextNo(GenJournalBatch."No. Series", PostingDate, false)
+            GenJournalLine."Document No." := NoSeriesBatch.GetNextNo(GenJournalBatch."No. Series", PostingDate)
         else
             GenJournalLine."Document No." := 'PMT' + PadStr(DocumentNo, 17);
 
@@ -98,7 +98,7 @@ codeunit 143305 "Library - 340 347 Declaration"
                 GenJournalLine.Validate("Document Type", GenJournalLine."Document Type"::Refund);
         end;
         if GenJournalBatch."No. Series" <> '' then
-            GenJournalLine."Document No." := NoSeriesManagement.GetNextNo(GenJournalBatch."No. Series", PostingDate, false)
+            GenJournalLine."Document No." := NoSeriesBatch.GetNextNo(GenJournalBatch."No. Series", PostingDate)
         else
             GenJournalLine."Document No." := 'PMT' + PadStr(DocumentNo, 17);
         GenJournalLine.Validate("Account Type", GenJournalLine."Account Type"::Customer);
@@ -289,7 +289,7 @@ codeunit 143305 "Library - 340 347 Declaration"
         InventorySetup: Record "Inventory Setup";
     begin
         InventorySetup.Get();
-        InventorySetup.Validate("Item Nos.", LibraryUtility.GetGlobalNoSeriesCode);
+        InventorySetup.Validate("Item Nos.", LibraryUtility.GetGlobalNoSeriesCode());
         InventorySetup.Modify(true);
         ItemCode := LibraryInventory.CreateItem(Item);
         Item.Validate("VAT Prod. Posting Group", VATProdPostingGroupCode);

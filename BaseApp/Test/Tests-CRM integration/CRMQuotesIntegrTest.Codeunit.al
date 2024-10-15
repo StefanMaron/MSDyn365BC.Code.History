@@ -40,10 +40,10 @@ codeunit 139172 "CRM Quotes Integr.Test"
         // [FEATURE] [Currency]
         // [SCENARIO 144800] CRM Quote in FCY can be created in NAV
         Initialize();
-        ClearCRMData;
+        ClearCRMData();
 
         // [GIVEN]  CRM Quote in 'X' currency
-        FCYCurrencyCode := GetFCYCurrencyCode;
+        FCYCurrencyCode := GetFCYCurrencyCode();
         CreateCRMQuoteWithCurrency(CRMQuote, FCYCurrencyCode);
 
         // [WHEN] The user clicks 'Create in NAV' CRM Sales Quotes page
@@ -64,10 +64,10 @@ codeunit 139172 "CRM Quotes Integr.Test"
         // [FEATURE] [Currency]
         // [SCENARIO 144800] CRM Quote in FCY cannot be created in NAV if Currency not exists
         Initialize();
-        ClearCRMData;
+        ClearCRMData();
 
         // [GIVEN]  CRM Quote in 'X' currency, Currency not exists in NAV
-        FCYCurrencyCode := GetFCYCurrencyCode;
+        FCYCurrencyCode := GetFCYCurrencyCode();
         DeleteCurrencyInNAV(FCYCurrencyCode);
         CreateCRMQuoteWithCurrency(CRMQuote, FCYCurrencyCode);
 
@@ -89,7 +89,7 @@ codeunit 139172 "CRM Quotes Integr.Test"
         // [FEATURE] [Currency]
         // [SCENARIO 144800] CRM Sales Quote in LCY can be created in NAV
         Initialize();
-        ClearCRMData;
+        ClearCRMData();
 
         // [GIVEN] CRM Quote in local currency
         CreateCRMQuoteInLCY(CRMQuote);
@@ -117,7 +117,7 @@ codeunit 139172 "CRM Quotes Integr.Test"
         // [FEATURE] [Freight]
         // [SCENARIO 172256] Error expected when create NAV Sales Quote from CRM Sales Quote with freight amount, if "Sales & Receivables Setup"."G/L Freight Account No." is empty
         Initialize();
-        ClearCRMData;
+        ClearCRMData();
 
         // [GIVEN] "G/L Freight Account No." is empty in Sales & Receivables Setup
         SalesReceivablesSetup.Get();
@@ -271,7 +271,7 @@ codeunit 139172 "CRM Quotes Integr.Test"
     begin
         // [SCENARIO 211535] Long CRM Product (resource) description causes creating additional sales lines with Description field containing trancated product description part
         Initialize();
-        ClearCRMData;
+        ClearCRMData();
 
         // [GIVEN] CRM Quote in local currency with resource
         CreateCRMQuoteInLCY(CRMQuote);
@@ -389,14 +389,14 @@ codeunit 139172 "CRM Quotes Integr.Test"
     begin
         // [SCENARIO 211593] Job queue entry "Process submitted Sales Quotes" makes NAV Sales Quote from Submitted CRM Sales Quote
         Initialize();
-        ClearCRMData;
+        ClearCRMData();
 
         // [GIVEN] CRM Quote in local currency with item
         CreateCRMQuoteInLCY(CRMQuote);
         LibraryCRMIntegration.CreateCRMQuoteLine(CRMQuote, CRMQuotedetail);
 
         // [WHEN] Job queue entry "Process submitted Sales Quotes" is being run
-        RunCodeunitProcessActivatedCRMQuotes;
+        RunCodeunitProcessActivatedCRMQuotes();
 
         // [THEN] Nav Sales Quote created
         Assert.IsTrue(CRMIntegrationRecord.FindByCRMID(CRMQuote.QuoteId), 'Coupled sales header not found');
@@ -413,7 +413,7 @@ codeunit 139172 "CRM Quotes Integr.Test"
     begin
         // [SCENARIO 211593] Job queue entry "Process submitted Sales Quotes" should not stop processing quotes after first fail
         Initialize();
-        ClearCRMData;
+        ClearCRMData();
 
         // [GIVEN] CRM Quote 1 for customer 1 in local currency with item
         CreateCRMQuoteInLCY(CRMQuote[1]);
@@ -428,7 +428,7 @@ codeunit 139172 "CRM Quotes Integr.Test"
         LibraryCRMIntegration.CreateCRMQuoteLine(CRMQuote[2], CRMQuotedetail[2]);
 
         // [WHEN] Job queue entry "Process submitted Sales Quotes" is being run
-        RunCodeunitProcessActivatedCRMQuotes;
+        RunCodeunitProcessActivatedCRMQuotes();
 
         // [THEN] Nav Sales Quote 1 is not created
         Assert.IsFalse(CRMIntegrationRecord.FindByCRMID(CRMQuote[1].QuoteId), 'Sales Quote 1 should not be created');
@@ -481,8 +481,8 @@ codeunit 139172 "CRM Quotes Integr.Test"
     begin
         // [SCENARIO] When releasing a CRM quote that gets created in Business Central, when the CRM Quote is "Won", the Sales Quote is deleted, a sales quote archieve is created
         Initialize();
-        ClearCRMData;
-        ClearSalesTables;
+        ClearCRMData();
+        ClearSalesTables();
 
         // [GIVEN] Create CRM Quote in local currency and a CRM Quotedetail
         CreateCRMQuoteInLCY(CRMQuote);
@@ -506,7 +506,7 @@ codeunit 139172 "CRM Quotes Integr.Test"
         SalesHeader.Reset();
         SalesHeader.SetRange("Document Type", ProcessedSalesHeader."Document Type"::Order);
         SalesHeader.SetRange("Your Reference", CRMQuote.QuoteNumber);
-        Assert.IsTrue(SalesHeader.FindFirst, StrSubstNo(SalesOrderCreateErr, CRMQuote.QuoteId));
+        Assert.IsTrue(SalesHeader.FindFirst(), StrSubstNo(SalesOrderCreateErr, CRMQuote.QuoteId));
     end;
 
     [Test]
@@ -522,8 +522,8 @@ codeunit 139172 "CRM Quotes Integr.Test"
     begin
         // [SCENARIO] When releasing a CRM quote and the CRM Quote is "Won" before the Sales Quote has been created, a sales quote archieve is created
         Initialize();
-        ClearCRMData;
-        ClearSalesTables;
+        ClearCRMData();
+        ClearSalesTables();
 
         // [GIVEN] Create CRM Quote in local currency and a CRM Quotedetail
         CreateCRMQuoteInLCY(CRMQuote);
@@ -542,7 +542,7 @@ codeunit 139172 "CRM Quotes Integr.Test"
         SalesHeader.Reset();
         SalesHeader.SetRange("Document Type", SalesHeader."Document Type"::Order);
         SalesHeader.SetRange("Your Reference", CRMQuote.QuoteNumber);
-        Assert.IsTrue(SalesHeader.FindFirst, StrSubstNo(SalesOrderCreateErr, CRMQuote.QuoteId));
+        Assert.IsTrue(SalesHeader.FindFirst(), StrSubstNo(SalesOrderCreateErr, CRMQuote.QuoteId));
     end;
 
     [Test]
@@ -559,8 +559,8 @@ codeunit 139172 "CRM Quotes Integr.Test"
     begin
         // [SCENARIO] When releasing a CRM quote that gets created in Business Central, when the CRM Quote is "Won", the Sales Quote is deleted, a sales quote archieve is created
         Initialize();
-        ClearCRMData;
-        ClearSalesTables;
+        ClearCRMData();
+        ClearSalesTables();
 
         // [GIVEN] Create CRM Quote in local currency and a CRM Quotedetail
         CreateCRMQuoteInLCY(CRMQuote);
@@ -592,7 +592,7 @@ codeunit 139172 "CRM Quotes Integr.Test"
         SalesHeader.Reset();
         SalesHeader.SetRange("Document Type", SalesHeader."Document Type"::Order);
         SalesHeader.SetRange("Your Reference", CRMQuote.QuoteNumber);
-        Assert.IsTrue(SalesHeader.FindFirst, StrSubstNo(SalesOrderCreateErr, CRMQuote.QuoteId));
+        Assert.IsTrue(SalesHeader.FindFirst(), StrSubstNo(SalesOrderCreateErr, CRMQuote.QuoteId));
     end;
 
     local procedure Initialize()
@@ -608,20 +608,20 @@ codeunit 139172 "CRM Quotes Integr.Test"
         if isInitialized then
             exit;
 
-        LibraryPatterns.SETNoSeries;
+        LibraryPatterns.SetNoSeries();
         LibraryERMCountryData.CreateVATData();
         LibraryERMCountryData.UpdateGeneralLedgerSetup();
         LibraryERMCountryData.UpdateGeneralPostingSetup();
         LibraryERMCountryData.UpdateSalesReceivablesSetup();
-        LibraryCRMIntegration.ResetEnvironment;
-        LibraryCRMIntegration.ConfigureCRM;
+        LibraryCRMIntegration.ResetEnvironment();
+        LibraryCRMIntegration.ConfigureCRM();
         CRMConnectionSetup.Get();
         CRMConnectionSetup."Is S.Order Integration Enabled" := true;
         CRMConnectionSetup."Is Enabled" := true;
         CRMConnectionSetup."Unit Group Mapping Enabled" := false;
         CRMConnectionSetup.Modify();
         isInitialized := true;
-        MyNotifications.InsertDefault(UpdateCurrencyExchangeRates.GetMissingExchangeRatesNotificationID, '', '', false);
+        MyNotifications.InsertDefault(UpdateCurrencyExchangeRates.GetMissingExchangeRatesNotificationID(), '', '', false);
         Commit();
         LibrarySetupStorage.Save(DATABASE::"Sales & Receivables Setup");
     end;

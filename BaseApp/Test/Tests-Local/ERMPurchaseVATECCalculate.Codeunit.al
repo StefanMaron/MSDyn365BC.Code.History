@@ -68,13 +68,17 @@ codeunit 144122 "ERM Purchase VAT EC Calculate"
         Assert: Codeunit Assert;
         LibraryERM: Codeunit "Library - ERM";
         LibraryInventory: Codeunit "Library - Inventory";
-        LibraryPriceCalculation: Codeunit "Library - Price Calculation";
         LibraryPurchase: Codeunit "Library - Purchase";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryUtility: Codeunit "Library - Utility";
         LibraryReportDataset: Codeunit "Library - Report Dataset";
+#if not CLEAN23
         LibraryCosting: Codeunit "Library - Costing";
+#endif
         LibraryRandom: Codeunit "Library - Random";
+#if CLEAN23
+        LibraryPriceCalculation: Codeunit "Library - Price Calculation";
+#endif
         ValueMustBeSameMsg: Label 'Value must be same.';
         TotalFromSevPrepmtAmtErr: Label 'Total amount from several prepayments must be equal to original document amount';
 
@@ -97,7 +101,7 @@ codeunit 144122 "ERM Purchase VAT EC Calculate"
 
         // Setup.
         Initialize();
-        GeneralJournalReverseChargeVAT(CreateCurrencyAndExchangeRate);
+        GeneralJournalReverseChargeVAT(CreateCurrencyAndExchangeRate());
     end;
 
     local procedure GeneralJournalReverseChargeVAT(CurrencyCode: Code[10])
@@ -148,7 +152,7 @@ codeunit 144122 "ERM Purchase VAT EC Calculate"
 
         // Setup.
         Initialize();
-        GeneralJournalNormalVAT(CreateCurrencyAndExchangeRate);
+        GeneralJournalNormalVAT(CreateCurrencyAndExchangeRate());
     end;
 
     local procedure GeneralJournalNormalVAT(CurrencyCode: Code[10])
@@ -192,7 +196,7 @@ codeunit 144122 "ERM Purchase VAT EC Calculate"
         // Setup: Update VAT Posting Setup VAT Calculation Type - Normal VAT.
         Initialize();
         UpdateVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
-        PurchCrMemoVATCalculationType(VATPostingSetup, CreateCurrencyAndExchangeRate, VATPostingSetup."VAT %", VATPostingSetup."EC %");
+        PurchCrMemoVATCalculationType(VATPostingSetup, CreateCurrencyAndExchangeRate(), VATPostingSetup."VAT %", VATPostingSetup."EC %");
     end;
 
     [Test]
@@ -206,7 +210,7 @@ codeunit 144122 "ERM Purchase VAT EC Calculate"
         // Setup: Update VAT Posting Setup VAT Calculation Type - Reverse Charge VAT.
         Initialize();
         UpdateVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Reverse Charge VAT");
-        PurchCrMemoVATCalculationType(VATPostingSetup, CreateCurrencyAndExchangeRate, 0, 0);  // VAT % and EC % - 0.
+        PurchCrMemoVATCalculationType(VATPostingSetup, CreateCurrencyAndExchangeRate(), 0, 0);  // VAT % and EC % - 0.
     end;
 
     [Test]
@@ -270,7 +274,7 @@ codeunit 144122 "ERM Purchase VAT EC Calculate"
         Initialize();
         UpdateVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
         PostedPurchCrMemoVATCalculationType(
-          VATPostingSetup, CreateCurrencyAndExchangeRate, VATPostingSetup."VAT %", VATPostingSetup."EC %");
+          VATPostingSetup, CreateCurrencyAndExchangeRate(), VATPostingSetup."VAT %", VATPostingSetup."EC %");
     end;
 
     [Test]
@@ -284,7 +288,7 @@ codeunit 144122 "ERM Purchase VAT EC Calculate"
         // Setup: Update VAT Posting Setup VAT Calculation Type - Reverse Charge VAT.
         Initialize();
         UpdateVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Reverse Charge VAT");
-        PostedPurchCrMemoVATCalculationType(VATPostingSetup, CreateCurrencyAndExchangeRate, 0, 0);  // VAT % and EC % - 0.
+        PostedPurchCrMemoVATCalculationType(VATPostingSetup, CreateCurrencyAndExchangeRate(), 0, 0);  // VAT % and EC % - 0.
     end;
 
     [Test]
@@ -716,7 +720,7 @@ codeunit 144122 "ERM Purchase VAT EC Calculate"
         ItemNo :=
           CreateItemWithPurchasePrice(
             PurchasePrice, GeneralPostingSetup."Gen. Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group", VendorNo);
-#if not CLEAN21
+#if not CLEAN23
         CopyPurchPrices();
 #endif
 
@@ -765,7 +769,7 @@ codeunit 144122 "ERM Purchase VAT EC Calculate"
         ItemNo :=
           CreateItemWithPurchasePrice(
             PurchasePrice, GeneralPostingSetup."Gen. Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group", VendorNo);
-#if not CLEAN21
+#if not CLEAN23
         CopyPurchPrices();
 #endif
 
@@ -775,7 +779,7 @@ codeunit 144122 "ERM Purchase VAT EC Calculate"
           VendorNo, PurchaseLine.Type::Item, ItemNo, true, 0);
 
         // [WHEN] Open Purchase Statistics Page
-        PurchaseInvoice.OpenEdit;
+        PurchaseInvoice.OpenEdit();
         PurchaseInvoice.FILTER.SetFilter("No.", PurchaseHeader."No.");
 
         // [THEN] "Line Amount" = 122, "VAT Amount" = 18, "EC Amount" = 4
@@ -786,7 +790,7 @@ codeunit 144122 "ERM Purchase VAT EC Calculate"
         LibraryVariableStorage.Enqueue(
           PurchasePrice * PurchaseLine.Quantity * (VATPostingSetup."EC %" / 100));
 
-        PurchaseInvoice.Statistics.Invoke;
+        PurchaseInvoice.Statistics.Invoke();
         PurchaseInvoice.Close();
     end;
 
@@ -807,19 +811,14 @@ codeunit 144122 "ERM Purchase VAT EC Calculate"
         Initialize();
 
         // [GIVEN] VAT Posting Setup with EC % = 4 and VAT % = 18 specified
-        PrepmtGLAccNo :=
-          LibraryPurchase.CreatePrepaymentVATSetup(LineGLAccount, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
+        PrepmtGLAccNo := LibraryPurchase.CreatePrepaymentVATSetup(LineGLAccount, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
         VATPostingSetup.Get(LineGLAccount."VAT Bus. Posting Group", LineGLAccount."VAT Prod. Posting Group");
         VATPostingSetup.Validate("EC %", LibraryRandom.RandDecInRange(5, 10, 2));
         VATPostingSetup.Modify(true);
-        VendorNo :=
-          CreateVendorWithPostingGroup(
-            LineGLAccount."Gen. Bus. Posting Group", LineGLAccount."VAT Bus. Posting Group");
+        VendorNo := CreateVendorWithPostingGroup(LineGLAccount."Gen. Bus. Posting Group", LineGLAccount."VAT Bus. Posting Group");
 
         // [GIVEN] Purchase Order with Prices Including VAT = TRUE, "Amount Including VAT" = 100, Prepayment = 50%
-        CreatePurchaseDocumentWithPriceInclVAT(
-          PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Order,
-          VendorNo, PurchaseLine.Type::"G/L Account", LineGLAccount."No.", true, LibraryRandom.RandIntInRange(20, 50));
+        CreatePurchaseDocumentWithPriceInclVAT(PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Order, VendorNo, PurchaseLine.Type::"G/L Account", LineGLAccount."No.", true, LibraryRandom.RandIntInRange(20, 50));
         PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandDecInRange(100, 200, 2));
         PurchaseLine.Modify(true);
 
@@ -827,18 +826,17 @@ codeunit 144122 "ERM Purchase VAT EC Calculate"
         PostPurchasePrepaymentInvoice(PurchaseHeader);
 
         // [WHEN] Post Purchase Order
+        PurchaseHeader.Validate("Vendor Invoice No.", LibraryUtility.GenerateGUID());
+        PurchaseHeader.Modify();
         DocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
 
         // [THEN] Purchase Account GL Entry Amount = 100
-        VerifyGLEntry(
-          DocumentNo, LineGLAccount."No.", PurchaseLine.Amount);
+        VerifyGLEntry(DocumentNo, LineGLAccount."No.", PurchaseLine.Amount);
         // [THEN] VAT GL Entry Amount = 22 (= 100 * (18 + 4) / 100)
-        VerifyGLEntry(
-          DocumentNo, VATPostingSetup."Purchase VAT Account",
+        VerifyGLEntry(DocumentNo, VATPostingSetup."Purchase VAT Account",
           PurchaseLine.Amount * (VATPostingSetup."VAT %" + VATPostingSetup."EC %") / 100);
         // [THEN] Prepayment GL Entry Amount = -50 (= -100 * 50%)
-        VerifyGLEntry(
-          DocumentNo, PrepmtGLAccNo, -PurchaseLine.Amount * PurchaseHeader."Prepayment %" / 100);
+        VerifyGLEntry(DocumentNo, PrepmtGLAccNo, -PurchaseLine.Amount * PurchaseHeader."Prepayment %" / 100);
     end;
 
     local procedure Initialize()
@@ -854,8 +852,8 @@ codeunit 144122 "ERM Purchase VAT EC Calculate"
         LibraryERM.CreateGenBusPostingGroup(GenBusinessPostingGroup);
         LibraryERM.CreateGenProdPostingGroup(GenProductPostingGroup);
         LibraryERM.CreateGeneralPostingSetup(GeneralPostingSetup, GenBusinessPostingGroup.Code, GenProductPostingGroup.Code);
-        GeneralPostingSetup.Validate("Purch. Account", LibraryERM.CreateGLAccountNo);
-        GeneralPostingSetup.Validate("Direct Cost Applied Account", LibraryERM.CreateGLAccountNo);
+        GeneralPostingSetup.Validate("Purch. Account", LibraryERM.CreateGLAccountNo());
+        GeneralPostingSetup.Validate("Direct Cost Applied Account", LibraryERM.CreateGLAccountNo());
         GeneralPostingSetup.Modify(true);
     end;
 
@@ -869,7 +867,7 @@ codeunit 144122 "ERM Purchase VAT EC Calculate"
         LibraryERM.CreateVATPostingSetup(VATPostingSetup, VATBusinessPostingGroup.Code, VATProductPostingGroup.Code);
         with VATPostingSetup do begin
             Validate("VAT Calculation Type", "VAT Calculation Type"::"Normal VAT");
-            Validate("Purchase VAT Account", LibraryERM.CreateGLAccountNo);
+            Validate("Purchase VAT Account", LibraryERM.CreateGLAccountNo());
             Validate("VAT %", LibraryRandom.RandDec(10, 2));
             Validate("EC %", LibraryRandom.RandDec(10, 2));
             Modify(true);
@@ -976,7 +974,7 @@ codeunit 144122 "ERM Purchase VAT EC Calculate"
     local procedure CreateItemWithPurchasePrice(UnitCost: Decimal; GenProdPostingGroup: Code[20]; VATProdPostingGroup: Code[20]; VendorNo: Code[20]): Code[20]
     var
         Item: Record Item;
-#if not CLEAN21
+#if not CLEAN23
         PurchasePrice: Record "Purchase Price";
 #else
         PriceListLine: Record "Price List Line";
@@ -986,7 +984,7 @@ codeunit 144122 "ERM Purchase VAT EC Calculate"
         Item.Validate("Gen. Prod. Posting Group", GenProdPostingGroup);
         Item.Validate("VAT Prod. Posting Group", VATProdPostingGroup);
         Item.Modify(true);
-#if not CLEAN21
+#if not CLEAN23
         LibraryCosting.CreatePurchasePrice(PurchasePrice, VendorNo, Item."No.", WorkDate(), '', '', Item."Base Unit of Measure", 0);
         PurchasePrice.Validate("Direct Unit Cost", UnitCost);
         PurchasePrice.Modify(true);
@@ -1002,7 +1000,7 @@ codeunit 144122 "ERM Purchase VAT EC Calculate"
         exit(Item."No.");
     end;
 
-#if not CLEAN21
+#if not CLEAN23
     local procedure CopyPurchPrices()
     var
         PurchasePrice: record "Purchase Price";
@@ -1053,13 +1051,11 @@ codeunit 144122 "ERM Purchase VAT EC Calculate"
 
     local procedure CreatePurchaseDocumentWithPriceInclVAT(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; DocumentType: Enum "Purchase Document Type"; VendorNo: Code[20]; LineType: Enum "Purchase Line Type"; LineNo: Code[20]; PricesInclVAT: Boolean; PrepmtPct: Decimal)
     begin
-        LibraryPurchase.CreatePurchHeader(
-          PurchaseHeader, DocumentType, VendorNo);
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, DocumentType, VendorNo);
         PurchaseHeader.Validate("Prices Including VAT", PricesInclVAT);
         PurchaseHeader.Validate("Prepayment %", PrepmtPct);
         PurchaseHeader.Modify(true);
-        LibraryPurchase.CreatePurchaseLine(
-          PurchaseLine, PurchaseHeader, LineType, LineNo, LibraryRandom.RandDec(10, 2));
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, LineType, LineNo, LibraryRandom.RandDec(10, 2));
     end;
 
     local procedure CreatePurchaseLine(var PurchaseLine: Record "Purchase Line"; DocumentType: Enum "Purchase Document Type"; DocumentNo: Code[20]; VATBusPostingGroup: Code[20]; VATProdPostingGroup: Code[20])
@@ -1161,7 +1157,7 @@ codeunit 144122 "ERM Purchase VAT EC Calculate"
             FindSet();
             repeat
                 Result += GetPrepaymentInvoiceAmt("No.");
-            until Next = 0;
+            until Next() = 0;
         end;
     end;
 
@@ -1174,7 +1170,7 @@ codeunit 144122 "ERM Purchase VAT EC Calculate"
             FindSet();
             repeat
                 Result += "Amount Including VAT";
-            until Next = 0;
+            until Next() = 0;
         end;
     end;
 
@@ -1185,9 +1181,9 @@ codeunit 144122 "ERM Purchase VAT EC Calculate"
         LibraryVariableStorage.Enqueue(PurchaseStatisticsOption);
         LibraryVariableStorage.Enqueue(MaxVATDifferenceAllowed);
         LibraryVariableStorage.Enqueue(VATPct);
-        PurchaseInvoice.OpenEdit;
+        PurchaseInvoice.OpenEdit();
         PurchaseInvoice.FILTER.SetFilter("No.", No);
-        PurchaseInvoice.Statistics.Invoke;  // Opens PurchaseStatisticsModalPageHandler.
+        PurchaseInvoice.Statistics.Invoke();  // Opens PurchaseStatisticsModalPageHandler.
         PurchaseInvoice.Close();
     end;
 
@@ -1240,7 +1236,7 @@ codeunit 144122 "ERM Purchase VAT EC Calculate"
         GLEntry.SetRange("Document No.", DocumentNo);
         GLEntry.SetRange("G/L Account No.", GLAccountNo);
         GLEntry.FindFirst();
-        Assert.AreNearlyEqual(Amount, GLEntry.Amount, LibraryERM.GetAmountRoundingPrecision, ValueMustBeSameMsg);
+        Assert.AreNearlyEqual(Amount, GLEntry.Amount, LibraryERM.GetAmountRoundingPrecision(), ValueMustBeSameMsg);
     end;
 
     local procedure VerifyGLEntryAmountAndVATAmount(DocumentNo: Code[20]; GLAccountNo: Code[20]; DebitAmount: Decimal; CreditAmount: Decimal; VATAmount: Decimal)
@@ -1250,20 +1246,20 @@ codeunit 144122 "ERM Purchase VAT EC Calculate"
         GLEntry.SetRange("Document No.", DocumentNo);
         GLEntry.SetRange("G/L Account No.", GLAccountNo);
         GLEntry.FindFirst();
-        Assert.AreNearlyEqual(DebitAmount, GLEntry."Debit Amount", LibraryERM.GetInvoiceRoundingPrecisionLCY, ValueMustBeSameMsg);
-        Assert.AreNearlyEqual(CreditAmount, GLEntry."Credit Amount", LibraryERM.GetInvoiceRoundingPrecisionLCY, ValueMustBeSameMsg);
-        Assert.AreNearlyEqual(VATAmount, GLEntry."VAT Amount", LibraryERM.GetInvoiceRoundingPrecisionLCY, ValueMustBeSameMsg);
+        Assert.AreNearlyEqual(DebitAmount, GLEntry."Debit Amount", LibraryERM.GetInvoiceRoundingPrecisionLCY(), ValueMustBeSameMsg);
+        Assert.AreNearlyEqual(CreditAmount, GLEntry."Credit Amount", LibraryERM.GetInvoiceRoundingPrecisionLCY(), ValueMustBeSameMsg);
+        Assert.AreNearlyEqual(VATAmount, GLEntry."VAT Amount", LibraryERM.GetInvoiceRoundingPrecisionLCY(), ValueMustBeSameMsg);
     end;
 
     local procedure VerifyVATAmountLine(VATAmountLine: Record "VAT Amount Line"; VATPct: Decimal; ECPct: Decimal; Amount: Decimal)
     begin
         VATAmountLine.TestField("VAT %", VATPct);
         VATAmountLine.TestField("EC %", ECPct);
-        Assert.AreNearlyEqual(Amount, VATAmountLine."Line Amount", LibraryERM.GetInvoiceRoundingPrecisionLCY, ValueMustBeSameMsg);
-        Assert.AreNearlyEqual(Amount, VATAmountLine."VAT Base", LibraryERM.GetInvoiceRoundingPrecisionLCY, ValueMustBeSameMsg);
-        Assert.AreNearlyEqual(VATPct / 100 * Amount, VATAmountLine."VAT Amount", LibraryERM.GetInvoiceRoundingPrecisionLCY,
+        Assert.AreNearlyEqual(Amount, VATAmountLine."Line Amount", LibraryERM.GetInvoiceRoundingPrecisionLCY(), ValueMustBeSameMsg);
+        Assert.AreNearlyEqual(Amount, VATAmountLine."VAT Base", LibraryERM.GetInvoiceRoundingPrecisionLCY(), ValueMustBeSameMsg);
+        Assert.AreNearlyEqual(VATPct / 100 * Amount, VATAmountLine."VAT Amount", LibraryERM.GetInvoiceRoundingPrecisionLCY(),
           ValueMustBeSameMsg);
-        Assert.AreNearlyEqual(ECPct / 100 * Amount, VATAmountLine."EC Amount", LibraryERM.GetInvoiceRoundingPrecisionLCY,
+        Assert.AreNearlyEqual(ECPct / 100 * Amount, VATAmountLine."EC Amount", LibraryERM.GetInvoiceRoundingPrecisionLCY(),
           ValueMustBeSameMsg);
     end;
 
@@ -1310,15 +1306,15 @@ codeunit 144122 "ERM Purchase VAT EC Calculate"
         VATEntry.SetRange("Bill-to/Pay-to No.", BillToPayToNo);
         VATEntry.SetRange("Document Type", DocumentType);
         VATEntry.FindFirst();
-        Assert.AreNearlyEqual(VATAmount, VATEntry.Amount, LibraryERM.GetInvoiceRoundingPrecisionLCY, ValueMustBeSameMsg);
+        Assert.AreNearlyEqual(VATAmount, VATEntry.Amount, LibraryERM.GetInvoiceRoundingPrecisionLCY(), ValueMustBeSameMsg);
         Assert.AreNearlyEqual(
-          AdditionalCurrencyAmount, VATEntry."Additional-Currency Amount", LibraryERM.GetInvoiceRoundingPrecisionLCY, ValueMustBeSameMsg);
+          AdditionalCurrencyAmount, VATEntry."Additional-Currency Amount", LibraryERM.GetInvoiceRoundingPrecisionLCY(), ValueMustBeSameMsg);
     end;
 
     local procedure VerifyPurchPrepmtDocTestReportECAmount(ExpectedECAmount: Decimal)
     begin
-        LibraryReportDataset.LoadDataSetFile;
-        LibraryReportDataset.GetLastRow;
+        LibraryReportDataset.LoadDataSetFile();
+        LibraryReportDataset.GetLastRow();
         LibraryReportDataset.AssertCurrentRowValueEquals('VATAmountLine__EC_Amount__Control1100007', ExpectedECAmount)
     end;
 
@@ -1400,11 +1396,11 @@ codeunit 144122 "ERM Purchase VAT EC Calculate"
         // Update VAT Amount on Purchase Statistics page.
         if PurchaseStatisticsOptionValues = PurchaseStatisticsOptionValues::Update then begin
             VATAmountValue := VATAmount;
-            PurchaseStatistics.SubForm."VAT Amount".SetValue(PurchaseStatistics.SubForm."VAT Amount".AsDEcimal + VATAmountValue);
-            LibraryVariableStorage.Enqueue(PurchaseStatistics.SubForm."VAT Amount".AsDEcimal);
+            PurchaseStatistics.SubForm."VAT Amount".SetValue(PurchaseStatistics.SubForm."VAT Amount".AsDecimal() + VATAmountValue);
+            LibraryVariableStorage.Enqueue(PurchaseStatistics.SubForm."VAT Amount".AsDecimal());
         end else  // Verify Updated VAT Amount on Purchase Statistics page.
             PurchaseStatistics.SubForm."VAT Amount".AssertEquals(VATAmount);
-        PurchaseStatistics.OK.Invoke;
+        PurchaseStatistics.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -1419,11 +1415,11 @@ codeunit 144122 "ERM Purchase VAT EC Calculate"
         LibraryVariableStorage.Dequeue(VATAmount);
         LibraryVariableStorage.Dequeue(ECAmount);
         Assert.AreNearlyEqual(
-          LineAmount, PurchaseStatistics.SubForm."Line Amount".AsDEcimal, LibraryERM.GetAmountRoundingPrecision, ValueMustBeSameMsg);
+          LineAmount, PurchaseStatistics.SubForm."Line Amount".AsDecimal(), LibraryERM.GetAmountRoundingPrecision(), ValueMustBeSameMsg);
         Assert.AreNearlyEqual(
-          VATAmount, PurchaseStatistics.SubForm."VAT Amount".AsDEcimal, LibraryERM.GetAmountRoundingPrecision, ValueMustBeSameMsg);
+          VATAmount, PurchaseStatistics.SubForm."VAT Amount".AsDecimal(), LibraryERM.GetAmountRoundingPrecision(), ValueMustBeSameMsg);
         Assert.AreNearlyEqual(
-          ECAmount, PurchaseStatistics.SubForm."EC Amount".AsDEcimal, LibraryERM.GetAmountRoundingPrecision, ValueMustBeSameMsg);
+          ECAmount, PurchaseStatistics.SubForm."EC Amount".AsDecimal(), LibraryERM.GetAmountRoundingPrecision(), ValueMustBeSameMsg);
     end;
 
     [RequestPageHandler]
@@ -1431,7 +1427,7 @@ codeunit 144122 "ERM Purchase VAT EC Calculate"
     procedure PurchasePrepmtDocTestRPH(var PurchasePrepmtDocTest: TestRequestPage "Purchase Prepmt. Doc. - Test")
     begin
         PurchasePrepmtDocTest.ShowDimensions.SetValue(true);
-        PurchasePrepmtDocTest.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        PurchasePrepmtDocTest.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 }
 

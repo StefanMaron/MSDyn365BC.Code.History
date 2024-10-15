@@ -41,8 +41,8 @@ codeunit 147591 "VAT on Change Log Statistics 2"
         Initialize();
         OldVATDifferenceAllowed := UpdateGeneralLedgerSetup(LibraryRandom.RandDec(0, 1));
         AllowVATDifference := UpdatePurchasesPayablesSetup(true);
-        UpdateVendorPostingGroup;
-        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, CreateVendor);
+        UpdateVendorPostingGroup();
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, CreateVendor());
         CreateMultiplePurchaseLines(PurchaseHeader);
         OpenPurchaseOrderStatisticsPage(PurchaseHeader."No.");  // Open Purchase Order Statistics Page to Change VAT Amount on VAT Amount Lines using VATAmountLinesHandler.
 
@@ -73,8 +73,8 @@ codeunit 147591 "VAT on Change Log Statistics 2"
         Initialize();
         OldVATDifferenceAllowed := UpdateGeneralLedgerSetup(LibraryRandom.RandDec(0, 1));
         AllowVATDifference := UpdateSalesReceivableSetup(true);
-        UpdateCustomerPostingGroup;
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, CreateCustomer);
+        UpdateCustomerPostingGroup();
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, CreateCustomer());
         CreateMultipleSalesLines(SalesHeader);
         OpenSalesOrderStatisticsPage(SalesHeader."No.");  // Open Sales Order Statistics Page to Change VAT Amount on VAT Amount Lines using VATAmountLinesHandler.
 
@@ -196,18 +196,18 @@ codeunit 147591 "VAT on Change Log Statistics 2"
     var
         PurchaseOrder: TestPage "Purchase Order";
     begin
-        PurchaseOrder.OpenView;
+        PurchaseOrder.OpenView();
         PurchaseOrder.FILTER.SetFilter("No.", No);
-        PurchaseOrder.Statistics.Invoke;
+        PurchaseOrder.Statistics.Invoke();
     end;
 
     local procedure OpenSalesOrderStatisticsPage(No: Code[20])
     var
         SalesOrder: TestPage "Sales Order";
     begin
-        SalesOrder.OpenView;
+        SalesOrder.OpenView();
         SalesOrder.FILTER.SetFilter("No.", No);
-        SalesOrder.Statistics.Invoke;
+        SalesOrder.Statistics.Invoke();
     end;
 
     local procedure UpdateCustomerPostingGroup()
@@ -273,13 +273,13 @@ codeunit 147591 "VAT on Change Log Statistics 2"
         // Verify VAT Amount on VAT Amount lines in Statistics of Posted Purchase Invoice.
         PurchInvHeader.SetRange("No.", No);
         PurchInvHeader.FindFirst();
-        PurchaseInvoiceStatistics.Trap;
+        PurchaseInvoiceStatistics.Trap();
 
-        PostedPurchaseInvoice.OpenView;
+        PostedPurchaseInvoice.OpenView();
         PostedPurchaseInvoice.GotoRecord(PurchInvHeader);
-        PostedPurchaseInvoice.Statistics.Invoke;
+        PostedPurchaseInvoice.Statistics.Invoke();
 
-        PurchaseInvoiceStatistics.SubForm.First;
+        PurchaseInvoiceStatistics.SubForm.First();
         PurchaseInvoiceStatistics.SubForm.FILTER.SetFilter("VAT Amount", '>0');
         LibraryVariableStorage.Dequeue(VATAmount);
         PurchaseInvoiceStatistics.SubForm."VAT Amount".AssertEquals(VATAmount);
@@ -295,13 +295,13 @@ codeunit 147591 "VAT on Change Log Statistics 2"
         // Verify VAT Amount on VAT Amount lines in Statistics of Posted Sales Invoice.
         SalesInvoiceHeader.SetRange("No.", No);
         SalesInvoiceHeader.FindFirst();
-        SalesInvoiceStatistics.Trap;
+        SalesInvoiceStatistics.Trap();
 
-        PostedSalesInvoice.OpenView;
+        PostedSalesInvoice.OpenView();
         PostedSalesInvoice.GotoRecord(SalesInvoiceHeader);
-        PostedSalesInvoice.Statistics.Invoke;
+        PostedSalesInvoice.Statistics.Invoke();
 
-        SalesInvoiceStatistics.Subform.First;
+        SalesInvoiceStatistics.Subform.First();
         SalesInvoiceStatistics.Subform.FILTER.SetFilter("VAT Amount", '>0');
         LibraryVariableStorage.Dequeue(VATAmount);
         SalesInvoiceStatistics.Subform."VAT Amount".AssertEquals(VATAmount);
@@ -312,7 +312,7 @@ codeunit 147591 "VAT on Change Log Statistics 2"
     procedure PurchaseOrderStatisticsHandler(var PurchaseOrderStatistics: TestPage "Purchase Order Statistics")
     begin
         // Modal Page Handler used to open VAT Amount Lines Page.
-        PurchaseOrderStatistics.NoOfVATLines_Invoicing.DrillDown;
+        PurchaseOrderStatistics.NoOfVATLines_Invoicing.DrillDown();
     end;
 
     [ModalPageHandler]
@@ -320,7 +320,7 @@ codeunit 147591 "VAT on Change Log Statistics 2"
     procedure SalesOrderStatisticsHandler(var SalesOrderStatistics: TestPage "Sales Order Statistics")
     begin
         // Modal Page Handler used to open VAT Amount Lines Page.
-        SalesOrderStatistics.NoOfVATLines_Invoicing.DrillDown;
+        SalesOrderStatistics.NoOfVATLines_Invoicing.DrillDown();
     end;
 
     [ModalPageHandler]
@@ -333,8 +333,8 @@ codeunit 147591 "VAT on Change Log Statistics 2"
         // Modal Page Handler used to change VAT Amount on VAT Amount Lines.
         LibraryVariableStorage.Dequeue(OldVATDifferenceAllowed);
         OldVATDifferenceAllowed2 := OldVATDifferenceAllowed;
-        LibraryVariableStorage.Enqueue(VATAmountLine."VAT Amount".AsDEcimal + OldVATDifferenceAllowed2);
-        VATAmountLine."VAT Amount".SetValue(VATAmountLine."VAT Amount".AsDEcimal + OldVATDifferenceAllowed2);
+        LibraryVariableStorage.Enqueue(VATAmountLine."VAT Amount".AsDecimal() + OldVATDifferenceAllowed2);
+        VATAmountLine."VAT Amount".SetValue(VATAmountLine."VAT Amount".AsDecimal() + OldVATDifferenceAllowed2);
     end;
 }
 

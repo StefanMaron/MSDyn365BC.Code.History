@@ -11,6 +11,7 @@ table 5969 "Contract Gain/Loss Entry"
     DrillDownPageID = "Contract Gain/Loss Entries";
     LookupPageID = "Contract Gain/Loss Entries";
     Permissions = TableData "Contract Gain/Loss Entry" = rimd;
+    DataClassification = CustomerContent;
 
     fields
     {

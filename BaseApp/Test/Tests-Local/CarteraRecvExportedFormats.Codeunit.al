@@ -82,7 +82,7 @@ codeunit 147532 "Cartera Recv. Exported Formats"
         Line := LibraryTextFileValidation.ReadLine(FileName, 5);
         ValidateN19ExportFooter(Line, Suffix, CarteraDoc."Remaining Amount");
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
 #if not CLEAN22
@@ -146,7 +146,7 @@ codeunit 147532 "Cartera Recv. Exported Formats"
         Line := LibraryTextFileValidation.ReadLine(FileName, 6);
         ValidateN58ExportFooter(Line, Suffix, CarteraDoc."Remaining Amount");
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 #endif
 
@@ -207,7 +207,7 @@ codeunit 147532 "Cartera Recv. Exported Formats"
         Line := LibraryTextFileValidation.ReadLine(FileName, 7);
         ValidateN32ExportTotalAmountInformation(Line, CarteraDoc."Remaining Amount");
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     local procedure Initialize()
@@ -238,26 +238,26 @@ codeunit 147532 "Cartera Recv. Exported Formats"
     [Scope('OnPrem')]
     procedure BillGroupExportN19RequestPageHandler(var BillGroupExportN19TestRequestPage: TestRequestPage "Bill group - Export N19")
     begin
-        BillGroupExportN19TestRequestPage.BankSuffix.Lookup;
+        BillGroupExportN19TestRequestPage.BankSuffix.Lookup();
         BillGroupExportN19TestRequestPage.CheckErrors.SetValue(true);
-        BillGroupExportN19TestRequestPage.OK.Invoke;
+        BillGroupExportN19TestRequestPage.OK().Invoke();
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure BillGroupExportN32RequestPageHandler(var BillGroupExportN32TestRequestPage: TestRequestPage "Bill group - Export N32")
     begin
-        BillGroupExportN32TestRequestPage.BankSuffix.Lookup;
-        BillGroupExportN32TestRequestPage.OK.Invoke;
+        BillGroupExportN32TestRequestPage.BankSuffix.Lookup();
+        BillGroupExportN32TestRequestPage.OK().Invoke();
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure BillGroupExportN58RequestPageHandler(var BillGroupExportN58TestRequestPage: TestRequestPage "Bill group - Export N58")
     begin
-        BillGroupExportN58TestRequestPage.BankSuffix.Lookup;
+        BillGroupExportN58TestRequestPage.BankSuffix.Lookup();
         BillGroupExportN58TestRequestPage.CheckErrors.SetValue(true);
-        BillGroupExportN58TestRequestPage.OK.Invoke;
+        BillGroupExportN58TestRequestPage.OK().Invoke();
     end;
 
     local procedure ValidateN19ExportHeader(Line: Text[1024]; SuffixValue: Code[3]; CompanyBankAccount: Record "Bank Account")

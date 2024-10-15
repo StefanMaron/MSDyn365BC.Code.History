@@ -287,7 +287,7 @@ page 634 "Chart of Accounts Overview"
         if GLAcc.Find('-') then
             repeat
                 Rec := GLAcc;
-                if GLAcc."Account Type" = 3 then
+                if GLAcc."Account Type" = GLAcc."Account Type"::"Begin-Total" then
                     Rec.Totaling := GetEndTotal(GLAcc);
                 Rec.Insert();
             until GLAcc.Next() = 0;

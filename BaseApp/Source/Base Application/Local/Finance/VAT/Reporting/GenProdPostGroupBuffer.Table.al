@@ -11,6 +11,7 @@ table 10730 "Gen. Prod. Post. Group Buffer"
     Caption = 'Gen. Prod. Post. Group Buffer';
     DataCaptionFields = "Code", Description;
     LookupPageID = "Gen. Product Posting Groups";
+    DataClassification = CustomerContent;
 
     fields
     {

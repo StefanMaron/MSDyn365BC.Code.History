@@ -6,6 +6,7 @@ table 24 "Vendor Invoice Disc."
 {
     Caption = 'Vendor Invoice Disc.';
     LookupPageID = "Vend. Invoice Discounts";
+    DataClassification = CustomerContent;
 
     fields
     {

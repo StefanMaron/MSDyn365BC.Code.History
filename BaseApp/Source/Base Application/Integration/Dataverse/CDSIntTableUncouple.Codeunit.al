@@ -17,7 +17,7 @@ codeunit 5337 "CDS Int. Table Uncouple"
         Handled: Boolean;
     begin
         OnBeforeRun(Rec, Handled);
-        If Handled then
+        if Handled then
             exit;
 
         ConnectionName := CRMIntegrationTableSynch.InitConnection();

@@ -622,36 +622,34 @@ report 7000097 "Reject Docs."
     begin
         GenJnlLineNextNo := GenJnlLineNextNo + 10000;
 
-        with GenJnlLine do begin
-            Clear(GenJnlLine);
-            Init();
-            "Line No." := GenJnlLineNextNo;
-            "Posting Date" := PostingDate;
-            if UseJournal = UseJournal::AuxJournal then begin
-                "Journal Template Name" := TemplName;
-                "Journal Batch Name" := BatchName;
-            end;
-            "Document No." := CurrDocNo;
-            "Bill No." := CurrDocNo2;
-            Validate("Account Type", AccType);
-            Validate("Account No.", AccNo);
-            Description := CopyStr(CurrDescription, 1, MaxStrLen(Description));
-            Validate("Currency Code", CustLedgEntry."Currency Code");
-            Validate(Amount, Amount2);
-            if AccType = "Account Type"::"G/L Account" then begin
-                "Source No." := CustLedgEntry."Customer No.";
-                "Source Type" := "Source Type"::Customer;
-            end;
-            "Source Code" := SourceCode;
-            "Reason Code" := ReasonCode;
-            "Dimension Set ID" :=
-              CarteraManagement.GetCombinedDimSetID(GenJnlLine, DimSetID);
-            if UseJournal = UseJournal::AuxJournal then
-                "System-Created Entry" := false
-            else
-                "System-Created Entry" := true;
-            Insert();
+        Clear(GenJnlLine);
+        GenJnlLine.Init();
+        GenJnlLine."Line No." := GenJnlLineNextNo;
+        GenJnlLine."Posting Date" := PostingDate;
+        if UseJournal = UseJournal::AuxJournal then begin
+            GenJnlLine."Journal Template Name" := TemplName;
+            GenJnlLine."Journal Batch Name" := BatchName;
         end;
+        GenJnlLine."Document No." := CurrDocNo;
+        GenJnlLine."Bill No." := CurrDocNo2;
+        GenJnlLine.Validate("Account Type", AccType);
+        GenJnlLine.Validate("Account No.", AccNo);
+        GenJnlLine.Description := CopyStr(CurrDescription, 1, MaxStrLen(GenJnlLine.Description));
+        GenJnlLine.Validate("Currency Code", CustLedgEntry."Currency Code");
+        GenJnlLine.Validate(Amount, Amount2);
+        if AccType = GenJnlLine."Account Type"::"G/L Account" then begin
+            GenJnlLine."Source No." := CustLedgEntry."Customer No.";
+            GenJnlLine."Source Type" := GenJnlLine."Source Type"::Customer;
+        end;
+        GenJnlLine."Source Code" := SourceCode;
+        GenJnlLine."Reason Code" := ReasonCode;
+        GenJnlLine."Dimension Set ID" :=
+          CarteraManagement.GetCombinedDimSetID(GenJnlLine, DimSetID);
+        if UseJournal = UseJournal::AuxJournal then
+            GenJnlLine."System-Created Entry" := false
+        else
+            GenJnlLine."System-Created Entry" := true;
+        GenJnlLine.Insert();
     end;
 
     local procedure PostGenJournal()

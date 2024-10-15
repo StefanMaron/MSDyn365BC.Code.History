@@ -5,6 +5,7 @@
 namespace Microsoft.RoleCenters;
 
 using System.Environment.Configuration;
+using System.Environment;
 using System.Reflection;
 
 page 1486 "Role Center Overview"
@@ -16,7 +17,7 @@ page 1486 "Role Center Overview"
     {
         area(content)
         {
-            usercontrol("ControlAddin"; "Microsoft.Dynamics.Nav.Client.RoleCenterSelector")
+            usercontrol("ControlAddin"; RoleCenterSelector)
             {
                 ApplicationArea = All;
 
@@ -111,16 +112,14 @@ page 1486 "Role Center Overview"
 
         UserPersonalization.Get(UserSecurityId());
 
-        with SessionSet do begin
-            Init();
-            ProfileId := NewAllProfile."Profile ID";
-            ProfileAppId := NewAllProfile."App ID";
-            ProfileSystemScope := NewAllProfile.Scope = NewAllProfile.Scope::System;
-            LanguageId := UserPersonalization."Language ID";
-            LocaleId := UserPersonalization."Locale ID";
-            Timezone := UserPersonalization."Time Zone";
-            RequestSessionUpdate(true);
-        end;
+        SessionSet.Init();
+        SessionSet.ProfileId := NewAllProfile."Profile ID";
+        SessionSet.ProfileAppId := NewAllProfile."App ID";
+        SessionSet.ProfileSystemScope := NewAllProfile.Scope = NewAllProfile.Scope::System;
+        SessionSet.LanguageId := UserPersonalization."Language ID";
+        SessionSet.LocaleId := UserPersonalization."Locale ID";
+        SessionSet.Timezone := UserPersonalization."Time Zone";
+        SessionSet.RequestSessionUpdate(true);
     end;
 
     local procedure SendJsonToControlAddIn()

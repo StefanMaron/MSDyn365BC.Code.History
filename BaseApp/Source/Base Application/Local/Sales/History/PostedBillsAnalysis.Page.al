@@ -10,7 +10,7 @@ using Microsoft.Foundation.AuditCodes;
 page 7000068 "Posted Bills Analysis"
 {
     Caption = 'Posted Bills Analysis';
-    DataCaptionExpression = Caption();
+    DataCaptionExpression = Rec.Caption();
     DeleteAllowed = false;
     InsertAllowed = false;
     ModifyAllowed = false;

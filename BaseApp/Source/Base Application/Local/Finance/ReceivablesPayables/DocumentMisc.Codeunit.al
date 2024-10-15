@@ -43,25 +43,23 @@ codeunit 7000007 "Document-Misc"
     var
         Doc: Record "Cartera Doc.";
     begin
-        with CustLedgEntry do begin
-            if "Document Situation" = "Document Situation"::" " then
-                exit;
-            case "Document Situation" of
-                "Document Situation"::"BG/PO", "Document Situation"::Cartera:
-                    begin
-                        Doc.Get(Doc.Type::Receivable, "Entry No.");
-                        Doc.Validate("Due Date", "Due Date");
-                        Doc.Modify();
-                    end;
-                "Document Situation"::"Posted BG/PO":
-                    Error(
-                      Text1100000,
-                      FieldCaption("Due Date"));
-                "Document Situation"::"Closed BG/PO", "Document Situation"::"Closed Documents":
-                    Error(
-                      Text1100001,
-                      FieldCaption("Due Date"));
-            end;
+        if CustLedgEntry."Document Situation" = CustLedgEntry."Document Situation"::" " then
+            exit;
+        case CustLedgEntry."Document Situation" of
+            CustLedgEntry."Document Situation"::"BG/PO", CustLedgEntry."Document Situation"::Cartera:
+                begin
+                    Doc.Get(Doc.Type::Receivable, CustLedgEntry."Entry No.");
+                    Doc.Validate("Due Date", CustLedgEntry."Due Date");
+                    Doc.Modify();
+                end;
+            CustLedgEntry."Document Situation"::"Posted BG/PO":
+                Error(
+                  Text1100000,
+                  CustLedgEntry.FieldCaption("Due Date"));
+            CustLedgEntry."Document Situation"::"Closed BG/PO", CustLedgEntry."Document Situation"::"Closed Documents":
+                Error(
+                  Text1100001,
+                  CustLedgEntry.FieldCaption("Due Date"));
         end;
     end;
 
@@ -69,25 +67,23 @@ codeunit 7000007 "Document-Misc"
     var
         Doc: Record "Cartera Doc.";
     begin
-        with VendLedgEntry do begin
-            if "Document Situation" = "Document Situation"::" " then
-                exit;
-            case "Document Situation" of
-                "Document Situation"::"BG/PO", "Document Situation"::Cartera:
-                    begin
-                        Doc.Get(Doc.Type::Payable, "Entry No.");
-                        Doc."Due Date" := "Due Date";
-                        Doc.Modify();
-                    end;
-                "Document Situation"::"Posted BG/PO":
-                    Error(
-                      Text1100002,
-                      FieldCaption("Due Date"));
-                "Document Situation"::"Closed BG/PO", "Document Situation"::"Closed Documents":
-                    Error(
-                      Text1100001,
-                      FieldCaption("Due Date"));
-            end;
+        if VendLedgEntry."Document Situation" = VendLedgEntry."Document Situation"::" " then
+            exit;
+        case VendLedgEntry."Document Situation" of
+            VendLedgEntry."Document Situation"::"BG/PO", VendLedgEntry."Document Situation"::Cartera:
+                begin
+                    Doc.Get(Doc.Type::Payable, VendLedgEntry."Entry No.");
+                    Doc."Due Date" := VendLedgEntry."Due Date";
+                    Doc.Modify();
+                end;
+            VendLedgEntry."Document Situation"::"Posted BG/PO":
+                Error(
+                  Text1100002,
+                  VendLedgEntry.FieldCaption("Due Date"));
+            VendLedgEntry."Document Situation"::"Closed BG/PO", VendLedgEntry."Document Situation"::"Closed Documents":
+                Error(
+                  Text1100001,
+                  VendLedgEntry.FieldCaption("Due Date"));
         end;
     end;
 
@@ -95,18 +91,16 @@ codeunit 7000007 "Document-Misc"
     var
         PaymentMethod: Record "Payment Method";
     begin
-        with PaymentMethod do begin
-            Get(PmtMethodCode);
-            case "Bill Type" of
-                "Bill Type"::"Bill of Exchange":
-                    exit('1');
-                "Bill Type"::Receipt:
-                    exit('2');
-                "Bill Type"::IOU:
-                    exit('3');
-                else
-                    Error(Text1100003, PmtMethodCode);
-            end;
+        PaymentMethod.Get(PmtMethodCode);
+        case PaymentMethod."Bill Type" of
+            PaymentMethod."Bill Type"::"Bill of Exchange":
+                exit('1');
+            PaymentMethod."Bill Type"::Receipt:
+                exit('2');
+            PaymentMethod."Bill Type"::IOU:
+                exit('3');
+            else
+                Error(Text1100003, PmtMethodCode);
         end;
     end;
 
@@ -114,16 +108,14 @@ codeunit 7000007 "Document-Misc"
     var
         PaymentMethod: Record "Payment Method";
     begin
-        with PaymentMethod do begin
-            Get(PmtMethodCode);
-            case "Bill Type" of
-                "Bill Type"::Check:
-                    exit('4');
-                "Bill Type"::Transfer:
-                    exit('5');
-                else
-                    Error(Text1100004, PmtMethodCode);
-            end;
+        PaymentMethod.Get(PmtMethodCode);
+        case PaymentMethod."Bill Type" of
+            PaymentMethod."Bill Type"::Check:
+                exit('4');
+            PaymentMethod."Bill Type"::Transfer:
+                exit('5');
+            else
+                Error(Text1100004, PmtMethodCode);
         end;
     end;
 
@@ -216,38 +208,34 @@ codeunit 7000007 "Document-Misc"
     var
         Description2: Text[50];
     begin
-        with GLEntry do begin
-            SetCurrentKey("G/L Account No.", Description);
-            SetRange("G/L Account No.", AccNo);
-            if TypeDoc = TypeDoc::Bill then
+        GLEntry.SetCurrentKey("G/L Account No.", Description);
+        GLEntry.SetRange("G/L Account No.", AccNo);
+        if TypeDoc = TypeDoc::Bill then
+            Description2 := CopyStr(
+                StrSubstNo(Text1100007, DocNo, BillNo),
+                1, MaxStrLen(GLEntry.Description))
+        else
+            if CustAccNo <> '' then
                 Description2 := CopyStr(
-                    StrSubstNo(Text1100007, DocNo, BillNo),
-                    1, MaxStrLen(Description))
+                    StrSubstNo(Text1100008,
+                      DocNo,
+                      CustAccNo), 1, MaxStrLen(GLEntry.Description))
             else
-                if CustAccNo <> '' then
-                    Description2 := CopyStr(
-                        StrSubstNo(Text1100008,
-                          DocNo,
-                          CustAccNo), 1, MaxStrLen(Description))
-                else
-                    Description2 := CopyStr(
-                        StrSubstNo(Text1100009, DocNo),
-                        1, MaxStrLen(Description));
-            SetRange(Description, Description2);
-        end;
+                Description2 := CopyStr(
+                    StrSubstNo(Text1100009, DocNo),
+                    1, MaxStrLen(GLEntry.Description));
+        GLEntry.SetRange(Description, Description2);
     end;
 
     procedure GetRegisterCode(CurrCode: Code[10]; var RegisterCode: Integer; var RegisterString: Text[2]): Boolean
     var
         CarteraSetup: Record "Cartera Setup";
     begin
-        with CarteraSetup do begin
-            Get();
-            if CurrCode = "Euro Currency Code" then begin
-                RegisterCode := 50;
-                RegisterString := '65';
-                exit(true);
-            end;
+        CarteraSetup.Get();
+        if CurrCode = CarteraSetup."Euro Currency Code" then begin
+            RegisterCode := 50;
+            RegisterString := '65';
+            exit(true);
         end;
     end;
 

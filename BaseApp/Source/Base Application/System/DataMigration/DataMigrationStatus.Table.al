@@ -4,6 +4,7 @@ table 1799 "Data Migration Status"
 {
     Caption = 'Data Migration Status';
     ReplicateData = false;
+    DataClassification = CustomerContent;
 
     fields
     {

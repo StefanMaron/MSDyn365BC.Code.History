@@ -20,6 +20,7 @@ table 10721 "Historic G/L Account"
     ObsoleteReason = 'Obsolete feature';
     ObsoleteState = Pending;
     ObsoleteTag = '15.0';
+    DataClassification = CustomerContent;
 
     fields
     {

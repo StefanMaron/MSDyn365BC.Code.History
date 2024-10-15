@@ -117,7 +117,7 @@ codeunit 144001 "ERM Partial Pmt Customer ES"
         LibraryERM.ClearGenJournalLines(GenJournalBatch);
         LibraryERM.CreateGeneralJnlLine(
           GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, GenJournalLine."Document Type"::Invoice,
-          GenJournalLine."Account Type"::"G/L Account", CreateGLAccountWithVATPostingGroup, LibraryRandom.RandDecInRange(100, 1000, 2));
+          GenJournalLine."Account Type"::"G/L Account", CreateGLAccountWithVATPostingGroup(), LibraryRandom.RandDecInRange(100, 1000, 2));
     end;
 
     local procedure CreateGLAccountWithVATPostingGroup(): Code[20]

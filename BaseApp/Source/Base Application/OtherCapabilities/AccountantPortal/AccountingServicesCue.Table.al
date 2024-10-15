@@ -7,6 +7,7 @@ using System.Automation;
 table 9070 "Accounting Services Cue"
 {
     Caption = 'Accounting Services Cue';
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -16,7 +17,7 @@ table 9070 "Accounting Services Cue"
         }
         field(2; "Requests to Approve"; Integer)
         {
-            CalcFormula = Count("Approval Entry" where(Status = const(Open),
+            CalcFormula = count("Approval Entry" where(Status = const(Open),
                                                         "Approver ID" = const('USERID')));
             Caption = 'Requests to Approve';
             Editable = false;
@@ -24,13 +25,13 @@ table 9070 "Accounting Services Cue"
         }
         field(4; "Ongoing Sales Invoices"; Integer)
         {
-            CalcFormula = Count("Sales Header" where("Document Type" = filter(Invoice)));
+            CalcFormula = count("Sales Header" where("Document Type" = filter(Invoice)));
             Caption = 'Ongoing Sales Invoices';
             FieldClass = FlowField;
         }
         field(5; "My Incoming Documents"; Integer)
         {
-            CalcFormula = Count("Incoming Document");
+            CalcFormula = count("Incoming Document");
             Caption = 'My Incoming Documents';
             FieldClass = FlowField;
         }

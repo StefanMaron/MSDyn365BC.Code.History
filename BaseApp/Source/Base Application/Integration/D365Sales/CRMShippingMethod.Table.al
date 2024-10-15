@@ -13,6 +13,7 @@ table 7205 "CRM Shipping Method"
     Description = 'Shipping agent';
     Access = Internal;
     TableType = Temporary;
+    DataClassification = CustomerContent;
 
     fields
     {

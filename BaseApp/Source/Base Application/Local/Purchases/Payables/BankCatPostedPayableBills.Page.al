@@ -5,6 +5,7 @@
 namespace Microsoft.Purchases.Payables;
 
 using Microsoft.Bank.BankAccount;
+using Microsoft.Foundation.Enums;
 using Microsoft.Finance.Analysis;
 using Microsoft.Foundation.AuditCodes;
 using System.Utilities;
@@ -48,7 +49,6 @@ page 7000071 "Bank Cat. Posted Payable Bills"
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'View By';
-                    OptionCaption = 'Day,Week,Month,Quarter,Year,Accounting Period';
                     ToolTip = 'Specifies by which period amounts are displayed.';
 
                     trigger OnValidate()
@@ -145,7 +145,7 @@ page 7000071 "Bank Cat. Posted Payable Bills"
         MatrixRecords: array[32] of Record Date;
         CategoryFilter: Code[20];
         StatusFilterOption: Option Open,Honored,Rejected,All;
-        PeriodType: Option Day,Week,Month,Quarter,Year,"Accounting Period";
+        PeriodType: Enum "Analysis Period Type";
         SetWanted: Option Initial,Previous,Same,Next;
         MatrixColumnCaptions: array[32] of Text[1024];
         ColumnSet: Text[1024];

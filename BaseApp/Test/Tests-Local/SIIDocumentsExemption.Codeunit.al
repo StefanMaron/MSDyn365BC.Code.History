@@ -52,7 +52,7 @@ codeunit 147525 "SII Documents Exemption"
         CustLedgerEntry.CalcFields(Amount);
         LibrarySII.VerifyOneNodeWithValueByXPath(
           XMLDoc, XPathSalesExentaTok, 'sii:BaseImponible', SIIXMLCreator.FormatNumber(CustLedgerEntry.Amount));
-        LibrarySII.AssertLibraryVariableStorage;
+        LibrarySII.AssertLibraryVariableStorage();
     end;
 
     [Test]
@@ -82,7 +82,7 @@ codeunit 147525 "SII Documents Exemption"
         LibrarySII.VerifyOneNodeWithValueByXPath(
           XMLDoc, XPathSalesExentaTok, 'sii:BaseImponible', SIIXMLCreator.FormatNumber(CustLedgerEntry.Amount));
 
-        LibrarySII.AssertLibraryVariableStorage;
+        LibrarySII.AssertLibraryVariableStorage();
     end;
 
     [Test]
@@ -114,7 +114,7 @@ codeunit 147525 "SII Documents Exemption"
         LibrarySII.VerifyOneNodeWithValueByXPath(
           XMLDoc, XPathSalesExentaTok, 'sii:BaseImponible', SIIXMLCreator.FormatNumber(-CustLedgerEntry.Amount));
 
-        LibrarySII.AssertLibraryVariableStorage;
+        LibrarySII.AssertLibraryVariableStorage();
     end;
 
     [Test]
@@ -153,7 +153,7 @@ codeunit 147525 "SII Documents Exemption"
         LibrarySII.VerifyOneNodeWithValueByXPath(
           XMLDoc, XPathPurchBaseImponibleTok, 'sii:BaseImponible', SIIXMLCreator.FormatNumber(-VendorLedgerEntry.Amount));
 
-        LibrarySII.AssertLibraryVariableStorage;
+        LibrarySII.AssertLibraryVariableStorage();
     end;
 
     [Test]
@@ -192,7 +192,7 @@ codeunit 147525 "SII Documents Exemption"
         LibrarySII.VerifyOneNodeWithValueByXPath(
           XMLDoc, XPathPurchBaseImponibleTok, 'sii:BaseImponible', SIIXMLCreator.FormatNumber(-VendorLedgerEntry.Amount));
 
-        LibrarySII.AssertLibraryVariableStorage;
+        LibrarySII.AssertLibraryVariableStorage();
     end;
 
     [Test]
@@ -233,7 +233,7 @@ codeunit 147525 "SII Documents Exemption"
         LibrarySII.VerifyOneNodeWithValueByXPath(
           XMLDoc, XPathPurchBaseImponibleTok, 'sii:BaseImponible', SIIXMLCreator.FormatNumber(-VendorLedgerEntry.Amount));
 
-        LibrarySII.AssertLibraryVariableStorage;
+        LibrarySII.AssertLibraryVariableStorage();
     end;
 
     [Test]
@@ -273,7 +273,7 @@ codeunit 147525 "SII Documents Exemption"
         LibrarySII.ValidateElementByName(
           XMLDoc, 'sii:CuotaDeducible', SIIXMLCreator.FormatNumber(VATEntry.Amount));
 
-        LibrarySII.AssertLibraryVariableStorage;
+        LibrarySII.AssertLibraryVariableStorage();
     end;
 
     [Test]
@@ -313,7 +313,7 @@ codeunit 147525 "SII Documents Exemption"
         LibrarySII.ValidateElementByName(
           XMLDoc, 'sii:CuotaDeducible', SIIXMLCreator.FormatNumber(VATEntry.Amount));
 
-        LibrarySII.AssertLibraryVariableStorage;
+        LibrarySII.AssertLibraryVariableStorage();
     end;
 
     [Test]
@@ -353,7 +353,7 @@ codeunit 147525 "SII Documents Exemption"
         LibrarySII.ValidateElementByName(
           XMLDoc, 'sii:CuotaDeducible', SIIXMLCreator.FormatNumber(VATEntry.Amount));
 
-        LibrarySII.AssertLibraryVariableStorage;
+        LibrarySII.AssertLibraryVariableStorage();
     end;
 
     [Test]
@@ -393,7 +393,7 @@ codeunit 147525 "SII Documents Exemption"
         LibrarySII.ValidateElementByName(
           XMLDoc, 'sii:CuotaDeducible', SIIXMLCreator.FormatNumber(VATEntry.Amount));
 
-        LibrarySII.AssertLibraryVariableStorage;
+        LibrarySII.AssertLibraryVariableStorage();
     end;
 
     [Test]
@@ -621,13 +621,13 @@ codeunit 147525 "SII Documents Exemption"
             exit;
 
         LibrarySII.InitSetup(true, false);
-        LibrarySII.BindSubscriptionJobQueue;
+        LibrarySII.BindSubscriptionJobQueue();
         LibrarySetupStorage.Save(DATABASE::"Purchases & Payables Setup");
 
         IsInitialized := true;
     end;
 
-    local procedure PostSalesDocWithMultipleClauses(var CustLedgerEntry: Record "Cust. Ledger Entry"; DocType: Option; CorrectionType: Option)
+    local procedure PostSalesDocWithMultipleClauses(var CustLedgerEntry: Record "Cust. Ledger Entry"; DocType: Enum "Sales Document Type"; CorrectionType: Option)
     var
         SalesHeader: Record "Sales Header";
         VATClause: Record "VAT Clause";
@@ -662,7 +662,7 @@ codeunit 147525 "SII Documents Exemption"
             VATBusinessPostingGroup.Code, VATClause."SII Exemption Code"::"E1 Exempt on account of Article 20"));
         VATPostingSetup.Validate("VAT %", VATRate);
         VATPostingSetup.Validate("VAT Calculation Type", VATCalculationType);
-        VATPostingSetup.Validate("Reverse Chrg. VAT Acc.", LibraryERM.CreateGLAccountNo);
+        VATPostingSetup.Validate("Reverse Chrg. VAT Acc.", LibraryERM.CreateGLAccountNo());
         VATPostingSetup.Modify(true);
     end;
 
@@ -726,7 +726,7 @@ codeunit 147525 "SII Documents Exemption"
     begin
         LibraryERM.CreateVATProductPostingGroup(VATProductPostingGroup);
         LibraryERM.CreateVATPostingSetup(VATPostingSetup, SalesHeader."VAT Bus. Posting Group", VATProductPostingGroup.Code);
-        VATPostingSetup.Validate("Sales VAT Account", LibraryERM.CreateGLAccountNo);
+        VATPostingSetup.Validate("Sales VAT Account", LibraryERM.CreateGLAccountNo());
         VATPostingSetup.Validate("VAT %", VATRate);
         VATPostingSetup.Modify(true);
         LibrarySII.CreateSalesLineWithUnitPrice(

@@ -11,7 +11,7 @@ using Microsoft.Finance.ReceivablesPayables;
 page 7000009 "Bill Groups"
 {
     Caption = 'Bill Groups';
-    DataCaptionExpression = Caption();
+    DataCaptionExpression = Rec.Caption();
     PageType = Document;
     RefreshOnActivate = true;
     SourceTable = "Bill Group";

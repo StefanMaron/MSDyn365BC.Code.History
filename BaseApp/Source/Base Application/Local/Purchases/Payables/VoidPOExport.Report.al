@@ -109,13 +109,10 @@ report 7000061 "Void PO - Export"
     trigger OnPreReport()
     begin
         "Payment Order".Get("Payment Order"."No.");
-        with BankAccount do begin
-            Get("Payment Order"."Bank Account No.");
-            TestField("Currency Code", '');  // local currency
-
-            if not Confirm(Text1100000, false, "Payment Order"."No.", TableCaption(), "No.") then
-                CurrReport.Quit();
-        end;
+        BankAccount.Get("Payment Order"."Bank Account No.");
+        BankAccount.TestField("Currency Code", '');
+        if not Confirm(Text1100000, false, "Payment Order"."No.", BankAccount.TableCaption(), BankAccount."No.") then
+            CurrReport.Quit();
     end;
 
     var

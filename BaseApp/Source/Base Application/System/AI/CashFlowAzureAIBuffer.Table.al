@@ -3,6 +3,7 @@ namespace System.AI;
 table 852 "Cash Flow Azure AI Buffer"
 {
     Caption = 'Cash Flow Azure AI Buffer';
+    DataClassification = CustomerContent;
 
     fields
     {

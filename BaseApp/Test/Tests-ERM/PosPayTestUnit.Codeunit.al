@@ -315,7 +315,7 @@ codeunit 134800 "Pos. Pay Test Unit"
         CheckLedgerEntry."Bal. Account Type" := CheckLedgerEntry."Bal. Account Type"::Employee;
         CheckLedgerEntry."Bal. Account No." := Employee."No.";
 
-        Assert.AreEqual('A B C', CheckLedgerEntry.GetPayee, 'Invalid GetPayee function resuly');
+        Assert.AreEqual('A B C', CheckLedgerEntry.GetPayee(), 'Invalid GetPayee function resuly');
         Assert.AreEqual('A B C', Employee.FullName(), 'Employee name must not be blank');
     end;
 }

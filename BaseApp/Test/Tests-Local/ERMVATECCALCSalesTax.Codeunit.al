@@ -214,8 +214,8 @@ codeunit 144126 "ERM VATECCALC Sales Tax"
         TaxJurisdiction: Record "Tax Jurisdiction";
     begin
         LibraryERM.CreateTaxJurisdiction(TaxJurisdiction);
-        TaxJurisdiction.Validate("Tax Account (Purchases)", CreateGLAccount);
-        TaxJurisdiction.Validate("Tax Account (Sales)", CreateGLAccount);
+        TaxJurisdiction.Validate("Tax Account (Purchases)", CreateGLAccount());
+        TaxJurisdiction.Validate("Tax Account (Sales)", CreateGLAccount());
         TaxJurisdiction.Modify(true);
         LibraryERM.CreateTaxArea(TaxArea);
         LibraryERM.CreateTaxAreaLine(TaxAreaLine, TaxArea.Code, TaxJurisdiction.Code);
@@ -275,7 +275,7 @@ codeunit 144126 "ERM VATECCALC Sales Tax"
         GLEntry.SetRange("Document No.", DocumentNo);
         GLEntry.SetRange("Gen. Posting Type", GenPostingType);
         GLEntry.CalcSums(Amount);
-        Assert.AreNearlyEqual(Amount, GLEntry.Amount, LibraryERM.GetAmountRoundingPrecision, ValueMustEqualMsg);
+        Assert.AreNearlyEqual(Amount, GLEntry.Amount, LibraryERM.GetAmountRoundingPrecision(), ValueMustEqualMsg);
     end;
 }
 

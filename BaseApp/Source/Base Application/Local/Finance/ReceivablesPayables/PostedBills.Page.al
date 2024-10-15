@@ -14,7 +14,7 @@ using Microsoft.Sales.Receivables;
 page 7000067 "Posted Bills"
 {
     Caption = 'Posted Bills';
-    DataCaptionExpression = Caption();
+    DataCaptionExpression = Rec.Caption();
     DataCaptionFields = Type;
     DeleteAllowed = false;
     InsertAllowed = false;

@@ -635,7 +635,7 @@ codeunit 99000832 "Sales Line-Reserve"
             exit;
 
         ItemTrackingManagement.DeleteInvoiceSpecFromHeader(
-          Database::"Sales Line", SalesHeader."Document Type", SalesHeader."No.");
+          Database::"Sales Line", SalesHeader."Document Type".AsInteger(), SalesHeader."No.");
     end;
 
     local procedure DeleteInvoiceSpecFromLine(var SalesLine: Record "Sales Line")
@@ -690,7 +690,7 @@ codeunit 99000832 "Sales Line-Reserve"
         if not WarehouseShipmentLine.ReadPermission then
             exit(false);
 
-        WarehouseShipmentLine.SetSourceFilter(Database::"Sales Line", SalesLine."Document Type", SalesLine."Document No.", SalesLine."Line No.", false);
+        WarehouseShipmentLine.SetSourceFilter(Database::"Sales Line", SalesLine."Document Type".AsInteger(), SalesLine."Document No.", SalesLine."Line No.", false);
         WarehouseShipmentLine.SetRange(Status, WarehouseShipmentLine.Status::"Partially Picked");
         exit
             (WarehouseShipmentLine.FindFirst() and NewReservationEntry.Get(OldReservationEntry."Entry No.", not OldReservationEntry.Positive) and
@@ -1321,7 +1321,7 @@ codeunit 99000832 "Sales Line-Reserve"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnCallItemTrackingSecondSourceOnBeforeOpenItemTrackingLines(var SalesLine: Record "Sales Line"; TrackingSpecification: Record "Tracking Specification"; SecondSourceQuantityArray: Array[3] of Decimal; var IsHandled: Boolean)
+    local procedure OnCallItemTrackingSecondSourceOnBeforeOpenItemTrackingLines(var SalesLine: Record "Sales Line"; TrackingSpecification: Record "Tracking Specification"; SecondSourceQuantityArray: array[3] of Decimal; var IsHandled: Boolean)
     begin
     end;
 

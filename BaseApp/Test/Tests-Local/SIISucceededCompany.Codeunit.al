@@ -145,7 +145,7 @@ codeunit 147556 "SII Succeeded Company"
         // [GIVEN] Purchase invoice posted from journal with "Succeeded Company" = "X" and "Succeeded VAT Registration No." = "Y"
         PostGenJnlLine(
           GenJournalLine, GenJournalLine."Account Type"::Vendor, GenJournalLine."Document Type"::Invoice,
-          LibraryPurchase.CreateVendorNo, -LibraryRandom.RandDec(100, 2));
+          LibraryPurchase.CreateVendorNo(), -LibraryRandom.RandDec(100, 2));
         LibraryERM.FindVendorLedgerEntry(VendorLedgerEntry, VendorLedgerEntry."Document Type"::Invoice, GenJournalLine."Document No.");
 
         // [WHEN] Export posted purchase invoice to SII
@@ -177,7 +177,7 @@ codeunit 147556 "SII Succeeded Company"
         // [GIVEN] Sales invoice posted from journal with "Succeeded Company" = "X" and "Succeeded VAT Registration No." = "Y"
         PostGenJnlLine(
           GenJournalLine, GenJournalLine."Account Type"::Customer, GenJournalLine."Document Type"::Invoice,
-          LibrarySales.CreateCustomerNo, LibraryRandom.RandDec(100, 2));
+          LibrarySales.CreateCustomerNo(), LibraryRandom.RandDec(100, 2));
         LibraryERM.FindCustomerLedgerEntry(CustLedgerEntry, CustLedgerEntry."Document Type"::Invoice, GenJournalLine."Document No.");
 
         // [WHEN] Export posted sales invoice to SII
@@ -267,7 +267,7 @@ codeunit 147556 "SII Succeeded Company"
         // [GIVEN] Purchase credit memo posted from journal with "Succeeded Company" = "X" and "Succeeded VAT Registration No." = "Y"
         PostGenJnlLine(
           GenJournalLine, GenJournalLine."Account Type"::Vendor,
-          GenJournalLine."Document Type"::"Credit Memo", LibraryPurchase.CreateVendorNo, LibraryRandom.RandDec(100, 2));
+          GenJournalLine."Document Type"::"Credit Memo", LibraryPurchase.CreateVendorNo(), LibraryRandom.RandDec(100, 2));
         LibraryERM.FindVendorLedgerEntry(
           VendorLedgerEntry, VendorLedgerEntry."Document Type"::"Credit Memo", GenJournalLine."Document No.");
 
@@ -300,7 +300,7 @@ codeunit 147556 "SII Succeeded Company"
         // [GIVEN] Sales credit memo posted from journal with "Succeeded Company" = "X" and "Succeeded VAT Registration No." = "Y"
         PostGenJnlLine(
           GenJournalLine, GenJournalLine."Account Type"::Customer,
-          GenJournalLine."Document Type"::"Credit Memo", LibrarySales.CreateCustomerNo, -LibraryRandom.RandDec(100, 2));
+          GenJournalLine."Document Type"::"Credit Memo", LibrarySales.CreateCustomerNo(), -LibraryRandom.RandDec(100, 2));
         LibraryERM.FindCustomerLedgerEntry(CustLedgerEntry, CustLedgerEntry."Document Type"::"Credit Memo", GenJournalLine."Document No.");
 
         // [WHEN] Export posted sales credit memo to SII
@@ -381,7 +381,7 @@ codeunit 147556 "SII Succeeded Company"
             exit;
 
         LibrarySII.InitSetup(true, false);
-        LibrarySII.BindSubscriptionJobQueue;
+        LibrarySII.BindSubscriptionJobQueue();
         IsInitialized := true;
     end;
 
@@ -389,13 +389,13 @@ codeunit 147556 "SII Succeeded Company"
     var
         PurchaseLine: Record "Purchase Line";
     begin
-        LibraryPurchase.CreatePurchHeader(PurchaseHeader, DocType, LibraryPurchase.CreateVendorNo);
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, DocType, LibraryPurchase.CreateVendorNo());
         PurchaseHeader.Validate("Succeeded Company Name", LibraryUtility.GenerateGUID());
         PurchaseHeader.Validate("Succeeded VAT Registration No.", LibraryUtility.GenerateGUID());
         PurchaseHeader.Modify(true);
         LibraryPurchase.CreatePurchaseLine(
           PurchaseLine, PurchaseHeader, PurchaseLine.Type::"G/L Account",
-          LibraryERM.CreateGLAccountWithPurchSetup, LibraryRandom.RandInt(100));
+          LibraryERM.CreateGLAccountWithPurchSetup(), LibraryRandom.RandInt(100));
         PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandDec(100, 2));
         PurchaseLine.Modify(true);
     end;
@@ -419,12 +419,12 @@ codeunit 147556 "SII Succeeded Company"
     var
         SalesLine: Record "Sales Line";
     begin
-        LibrarySales.CreateSalesHeader(SalesHeader, DocType, LibrarySales.CreateCustomerNo);
+        LibrarySales.CreateSalesHeader(SalesHeader, DocType, LibrarySales.CreateCustomerNo());
         SalesHeader.Validate("Succeeded Company Name", LibraryUtility.GenerateGUID());
         SalesHeader.Validate("Succeeded VAT Registration No.", LibraryUtility.GenerateGUID());
         SalesHeader.Modify(true);
         LibrarySales.CreateSalesLine(
-          SalesLine, SalesHeader, SalesLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithSalesSetup, LibraryRandom.RandInt(100));
+          SalesLine, SalesHeader, SalesLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithSalesSetup(), LibraryRandom.RandInt(100));
         SalesLine.Validate("Unit Price", LibraryRandom.RandDec(100, 2));
         SalesLine.Modify(true);
     end;
@@ -444,7 +444,7 @@ codeunit 147556 "SII Succeeded Company"
         ServiceItemLine: Record "Service Item Line";
         ServiceLine: Record "Service Line";
     begin
-        LibrarySII.CreateServiceHeader(ServiceHeader, DocType, LibrarySales.CreateCustomerNo, '');
+        LibrarySII.CreateServiceHeader(ServiceHeader, DocType, LibrarySales.CreateCustomerNo(), '');
         ServiceHeader.Validate("Succeeded Company Name", LibraryUtility.GenerateGUID());
         ServiceHeader.Validate("Succeeded VAT Registration No.", LibraryUtility.GenerateGUID());
         ServiceHeader.Modify(true);

@@ -273,7 +273,7 @@ codeunit 144012 "ERM Transaction No."
         // Verify: Verify values on GL Register Report.
         VerifyReportValues(GLEntryDebitAmtCap, GenJournalLine."Debit Amount", GLEntryPostDateCap, Format(GenJournalLine."Posting Date"));
         LibraryReportDataset.SetRange(GLEntryCreditAmtCap, GenJournalLine."Credit Amount");
-        LibraryReportDataset.GetNextRow;
+        LibraryReportDataset.GetNextRow();
     end;
 
     [Test]
@@ -345,7 +345,7 @@ codeunit 144012 "ERM Transaction No."
         // [SCENARIO 266203] Report 10700 "Set Period Trans. Nos." in case of different "Transaction No." within the same "Posting Date"
         // [SCENARIO 266203] and different "Posting Date" within the same "Transaction No."
         Initialize();
-        TransactionNo := GetLastTransactionNo;
+        TransactionNo := GetLastTransactionNo();
 
         // [GIVEN] GLEntry1:  "Entry No." = 1  "Posting Date" = 03-01-2018, "Transaction No." = 3
         // [GIVEN] GLEntry2:  "Entry No." = 2  "Posting Date" = 02-01-2018, "Transaction No." = 3
@@ -357,19 +357,19 @@ codeunit 144012 "ERM Transaction No."
         // [GIVEN] GLEntry8:  "Entry No." = 8  "Posting Date" = 03-01-2018, "Transaction No." = 3
         // [GIVEN] GLEntry9:  "Entry No." = 9  "Posting Date" = 03-01-2018, "Transaction No." = 1
         // [GIVEN] GLEntry10: "Entry No." = 10 "Posting Date" = 01-01-2018, "Transaction No." = 1
-        MockGLEntry(GLEntry[1], WorkDate + 3, TransactionNo + 3);
-        MockGLEntry(GLEntry[2], WorkDate + 2, TransactionNo + 3);
-        MockGLEntry(GLEntry[3], WorkDate + 1, TransactionNo + 2);
-        MockGLEntry(GLEntry[4], WorkDate + 1, TransactionNo + 1);
-        MockGLEntry(GLEntry[5], WorkDate + 1, TransactionNo + 3);
-        MockGLEntry(GLEntry[6], WorkDate + 2, TransactionNo + 2);
-        MockGLEntry(GLEntry[7], WorkDate + 2, TransactionNo + 3);
-        MockGLEntry(GLEntry[8], WorkDate + 3, TransactionNo + 3);
-        MockGLEntry(GLEntry[9], WorkDate + 3, TransactionNo + 1);
-        MockGLEntry(GLEntry[10], WorkDate + 1, TransactionNo + 1);
+        MockGLEntry(GLEntry[1], WorkDate() + 3, TransactionNo + 3);
+        MockGLEntry(GLEntry[2], WorkDate() + 2, TransactionNo + 3);
+        MockGLEntry(GLEntry[3], WorkDate() + 1, TransactionNo + 2);
+        MockGLEntry(GLEntry[4], WorkDate() + 1, TransactionNo + 1);
+        MockGLEntry(GLEntry[5], WorkDate() + 1, TransactionNo + 3);
+        MockGLEntry(GLEntry[6], WorkDate() + 2, TransactionNo + 2);
+        MockGLEntry(GLEntry[7], WorkDate() + 2, TransactionNo + 3);
+        MockGLEntry(GLEntry[8], WorkDate() + 3, TransactionNo + 3);
+        MockGLEntry(GLEntry[9], WorkDate() + 3, TransactionNo + 1);
+        MockGLEntry(GLEntry[10], WorkDate() + 1, TransactionNo + 1);
 
         // [WHEN] Run report 10700 "Set Period Trans. Nos." using Date Filter = 01-01-2018..03-01-2018
-        SetPeriodTransNos(StrSubstNo('%1..%2', WorkDate + 1, WorkDate + 3));
+        SetPeriodTransNos(StrSubstNo('%1..%2', WorkDate() + 1, WorkDate() + 3));
         for i := 1 to ArrayLen(GLEntry) do
             GLEntry[i].Find();
 
@@ -408,7 +408,7 @@ codeunit 144012 "ERM Transaction No."
         // [FEATURE] [Period Transaction No.] [Set Period Trans. Nos.] [UT]
         // [SCENARIO 266203] Report 10700 "Set Period Trans. Nos." in case of several G/L Entries with the same "Transaction No." and different "Posting Date" for several years
         Initialize();
-        TransactionNo := GetLastTransactionNo + 1;
+        TransactionNo := GetLastTransactionNo() + 1;
         for i := 1 to ArrayLen(PostingDate) do begin
             LibraryFiscalYear.CreateFiscalYear();
             PostingDate[i] := LibraryFiscalYear.GetFirstPostingDate(false);
@@ -452,21 +452,21 @@ codeunit 144012 "ERM Transaction No."
         Initialize();
         LibraryApplicationArea.EnableFoundationSetup();
 
-        MockGLEntry(GLEntry, WorkDate + 1, GetLastTransactionNo + 1);
+        MockGLEntry(GLEntry, WorkDate() + 1, GetLastTransactionNo() + 1);
 
-        GeneralLedgerEntries.OpenEdit;
+        GeneralLedgerEntries.OpenEdit();
         GeneralLedgerEntries.GotoRecord(GLEntry);
-        Assert.IsTrue(GeneralLedgerEntries."Period Trans. No.".Enabled, '');
-        Assert.IsTrue(GeneralLedgerEntries."Period Trans. No.".Visible, '');
-        Assert.IsTrue(GeneralLedgerEntries.SetPeriodTransNos.Enabled, '');
-        Assert.IsTrue(GeneralLedgerEntries.SetPeriodTransNos.Visible, '');
+        Assert.IsTrue(GeneralLedgerEntries."Period Trans. No.".Enabled(), '');
+        Assert.IsTrue(GeneralLedgerEntries."Period Trans. No.".Visible(), '');
+        Assert.IsTrue(GeneralLedgerEntries.SetPeriodTransNos.Enabled(), '');
+        Assert.IsTrue(GeneralLedgerEntries.SetPeriodTransNos.Visible(), '');
         GeneralLedgerEntries."Period Trans. No.".AssertEquals(0);
         GeneralLedgerEntries.Close();
 
-        SetPeriodTransNos(Format(WorkDate + 1));
+        SetPeriodTransNos(Format(WorkDate() + 1));
         GLEntry.Find();
 
-        GeneralLedgerEntries.OpenEdit;
+        GeneralLedgerEntries.OpenEdit();
         GeneralLedgerEntries.GotoRecord(GLEntry);
         GeneralLedgerEntries."Period Trans. No.".AssertEquals(GLEntry."Period Trans. No.");
         GeneralLedgerEntries.Close();
@@ -486,7 +486,7 @@ codeunit 144012 "ERM Transaction No."
         // [GIVEN] Recurring Journal Line with "Account Type" = "G/L Account" and empty "Gen. Posting Type".
         // [GIVEN] Allocation Line with "Gen. Posting Type" = Sale.
         // [WHEN] Post Recurring Journal Line.
-        asserterror CreateAndPostRecurringJnlLineWithAllocation(GenJournalLine, GenJnlAllocation, LibraryERM.CreateGLAccountWithSalesSetup);
+        asserterror CreateAndPostRecurringJnlLineWithAllocation(GenJournalLine, GenJnlAllocation, LibraryERM.CreateGLAccountWithSalesSetup());
 
         // [THEN] Error "There must be one invoice, credit memo, or finance charge memo with the same Document No." is thrown.
         Assert.ExpectedError(OneDocSameNoErr);
@@ -507,7 +507,7 @@ codeunit 144012 "ERM Transaction No."
         // [GIVEN] Recurring Journal Line with "Account Type" = "G/L Account" and empty "Gen. Posting Type".
         // [GIVEN] Allocation Line with "Gen. Posting Type" = Purchase.
         // [WHEN] Post Recurring Journal Line.
-        asserterror CreateAndPostRecurringJnlLineWithAllocation(GenJournalLine, GenJnlAllocation, LibraryERM.CreateGLAccountWithPurchSetup);
+        asserterror CreateAndPostRecurringJnlLineWithAllocation(GenJournalLine, GenJnlAllocation, LibraryERM.CreateGLAccountWithPurchSetup());
 
         // [THEN] Error "There must be one invoice, credit memo, or finance charge memo with the same Document No." is thrown.
         Assert.ExpectedError(OneDocSameNoErr);
@@ -661,7 +661,7 @@ codeunit 144012 "ERM Transaction No."
 
     local procedure VerifyReportValues(Caption: Text; Value: Variant; Caption2: Text; Value2: Variant)
     begin
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(Caption, Value);
         LibraryReportDataset.AssertElementWithValueExists(Caption2, Value2);
     end;
@@ -674,7 +674,7 @@ codeunit 144012 "ERM Transaction No."
     begin
         LibraryVariableStorage.Dequeue(JournalBatchName);
         GeneralJournalTest."Gen. Journal Line".SetFilter("Journal Batch Name", JournalBatchName);
-        GeneralJournalTest.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        GeneralJournalTest.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -686,18 +686,18 @@ codeunit 144012 "ERM Transaction No."
     begin
         GLRegister.FindLast();
         GLEntry.Get(GLRegister."From Entry No.");
-        GLEntry.TestField("Period Trans. No.", LibraryVariableStorage.DequeueInteger);
+        GLEntry.TestField("Period Trans. No.", LibraryVariableStorage.DequeueInteger());
 
         GLRegisterPage."G/L Register".SetFilter("No.", Format(GLRegister."No."));
-        GLRegisterPage.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        GLRegisterPage.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure SetPeriodTransNosRequestPageHandler(var SetPeriodTransNos: TestRequestPage "Set Period Trans. Nos.")
     begin
-        SetPeriodTransNos."G/L Entry".SetFilter("Posting Date", LibraryVariableStorage.DequeueText);
-        SetPeriodTransNos.OK.Invoke;
+        SetPeriodTransNos."G/L Entry".SetFilter("Posting Date", LibraryVariableStorage.DequeueText());
+        SetPeriodTransNos.OK().Invoke();
     end;
 
     [ConfirmHandler]

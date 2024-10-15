@@ -9,7 +9,7 @@ using Microsoft.Finance.ReceivablesPayables;
 page 7000031 "Bill Groups Maturity"
 {
     Caption = 'Bill Groups Maturity';
-    DataCaptionExpression = Caption();
+    DataCaptionExpression = Rec.Caption();
     DeleteAllowed = false;
     InsertAllowed = false;
     ModifyAllowed = false;

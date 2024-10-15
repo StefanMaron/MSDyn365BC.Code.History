@@ -248,7 +248,7 @@ codeunit 147305 "Cartera Posting"
         UpdateGenLedgVATSetup(true);
         LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
         UpdateUnrealVATPostingSetup(
-          VATPostingSetup, VATPostingSetup."Unrealized VAT Type"::Percentage, LibraryERM.CreateGLAccountNo, LibraryERM.CreateGLAccountNo);
+          VATPostingSetup, VATPostingSetup."Unrealized VAT Type"::Percentage, LibraryERM.CreateGLAccountNo(), LibraryERM.CreateGLAccountNo());
 
         CreatePostPairedGenJnlLine(GenJnlLine, DocType, AccType, VATPostingSetup);
 
@@ -707,7 +707,7 @@ codeunit 147305 "Cartera Posting"
         Initialize();
 
         // Setup
-        ClearAddReportingCurrency;
+        ClearAddReportingCurrency();
         CreateCustomer(Customer);
         LibraryERM.FindCurrency(Currency);
         Customer.Validate("Currency Code", Currency.Code);
@@ -740,7 +740,7 @@ codeunit 147305 "Cartera Posting"
         Initialize();
 
         // Setup
-        ClearAddReportingCurrency;
+        ClearAddReportingCurrency();
         CreateVendor(Vendor);
         LibraryERM.FindCurrency(Currency);
         Vendor.Validate("Currency Code", Currency.Code);
@@ -786,7 +786,7 @@ codeunit 147305 "Cartera Posting"
 
         SetupBillGroupWithBankAccDimension(BillGroup, BankAccNo, BillGroup."Dealing Type"::Discount);
         Commit();
-        EnqueueCarteraGenJnlBatch;
+        EnqueueCarteraGenJnlBatch();
         LibraryCarteraReceivables.PostCarteraBillGroup(BillGroup);
         VerifyDefDimOfBankAccExistInGLEntry(BankAccNo);
     end;
@@ -838,8 +838,7 @@ codeunit 147305 "Cartera Posting"
 
         DocumentNo :=
           CreateAndPostPurchaseDocument(
-            PurchaseLine, PurchaseLine."Document Type"::Invoice,
-            CreateVendWithPaymentTermsAndVATGroup(PaymentTerms."VAT distribution"::Proportional, VATBusinessPostingGroup.Code),
+            PurchaseLine, CreateVendWithPaymentTermsAndVATGroup(PaymentTerms."VAT distribution"::Proportional, VATBusinessPostingGroup.Code),
             CreateItemWithVATGroup(CreateVATPostingSetup(VATBusinessPostingGroup.Code)));
         AppliedDocumentNo := ApplyPostPurchaseCreditMemoToInvoice(PurchaseLine, DocumentNo);
 
@@ -910,7 +909,7 @@ codeunit 147305 "Cartera Posting"
 
         SetupBillGroupWithBankAccDimension(BillGroup, BankAccNo, BillGroup."Dealing Type"::Discount);
         Commit();
-        EnqueueCarteraGenJnlBatch;
+        EnqueueCarteraGenJnlBatch();
         LibraryCarteraReceivables.PostCarteraBillGroup(BillGroup);
         RejectDocument(GetCustVendLedgerEntryNoWithPostedCarteraDoc(GetPostedCarteraDocNo(BankAccNo)));
         VerifyDefDimOfBankAccExistInGLEntry(BankAccNo);
@@ -929,7 +928,7 @@ codeunit 147305 "Cartera Posting"
         SetupBillGroupWithBankAccDimension(BillGroup, BankAccNo, BillGroup."Dealing Type"::Discount);
         AddInvoiceToBillGroup(BillGroup);
         Commit();
-        EnqueueCarteraGenJnlBatch;
+        EnqueueCarteraGenJnlBatch();
         LibraryCarteraReceivables.PostCarteraBillGroup(BillGroup);
         RejectDocument(GetCustVendLedgerEntryNoWithPostedCarteraDoc(GetPostedCarteraDocNo(BankAccNo)));
         RedrawDocument(GetCustVendLedgerEntryNoWithPostedCarteraDoc(GetPostedCarteraDocNo(BankAccNo)));
@@ -948,7 +947,7 @@ codeunit 147305 "Cartera Posting"
 
         SetupBillGroupWithBankAccDimension(BillGroup, BankAccNo, BillGroup."Dealing Type"::Discount);
         Commit();
-        EnqueueCarteraGenJnlBatch;
+        EnqueueCarteraGenJnlBatch();
         LibraryCarteraReceivables.PostCarteraBillGroup(BillGroup);
         SettleDocument(BankAccNo);
         RedrawDocument(GetCustVendLedgerEntryNoWithClosedCarteraDoc(GetClosedCarteraDocNo(BankAccNo)));
@@ -1028,7 +1027,7 @@ codeunit 147305 "Cartera Posting"
         LibraryVariableStorage.Enqueue(GenJournalBatch.Name);
 
         // [GIVEN] Posted Receivable Bill Group "Y" on Sales Invoice
-        CustLedgerEntryNo := PostReceivablesBillGroupOnSalesInvoice;
+        CustLedgerEntryNo := PostReceivablesBillGroupOnSalesInvoice();
 
         // [WHEN] Run Redraw Recaivable Bill job with General Journal Batch "X" and Cust. Ledg. Entry "Y"
         RedrawDocument(CustLedgerEntryNo);
@@ -1169,13 +1168,13 @@ codeunit 147305 "Cartera Posting"
     begin
         // [SCENARIO 378220] Bill Group with 'Dealing Type' Discount uses selected Journal Batch name when posting
         Initialize();
-        UpdateCarteraSetup;
+        UpdateCarteraSetup();
 
         // [GIVEN] Saved Batch Name for Cartera Journal is "A"
         LibraryCarteraReceivables.CreateCarteraJournalBatch(GenJournalBatchA);
-        CarteraJournal.OpenView;
+        CarteraJournal.OpenView();
         CarteraJournal.CurrentJnlBatchName.SetValue(GenJournalBatchA.Name);
-        CarteraJournal.OK.Invoke;
+        CarteraJournal.OK().Invoke();
 
         // [GIVEN] Cartera Bill Group with "Dealing Type" = Discount
         LibraryCarteraReceivables.CreateCarteraCustomer(Customer, '');
@@ -1320,7 +1319,7 @@ codeunit 147305 "Cartera Posting"
         DocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
 
         // [GIVEN] Payment Order is created and posted for the Purchase Invoice
-        CreatePaymentOrderWithSpecificBankAccount(PaymentOrder, LibraryERM.CreateBankAccountNo);
+        CreatePaymentOrderWithSpecificBankAccount(PaymentOrder, LibraryERM.CreateBankAccountNo());
         AddDocToBillGroup(PaymentOrder."No.", DocumentNo);
         LibraryCarteraPayables.PostCarteraPaymentOrder(PaymentOrder);
 
@@ -1409,7 +1408,6 @@ codeunit 147305 "Cartera Posting"
         Vendor: Record Vendor;
         BankAccount: Record "Bank Account";
         PaymentOrder: Record "Payment Order";
-        PurchHeader: Record "Purchase Header";
         POPostAndPrint: Codeunit "BG/PO-Post and Print";
         GLEntry: Record "G/L Entry";
         BankAccountLedgerEntry: Record "Bank Account Ledger Entry";
@@ -1589,11 +1587,11 @@ codeunit 147305 "Cartera Posting"
         end;
     end;
 
-    local procedure SetupBillGroupWithBankAccDimension(var BillGroup: Record "Bill Group"; var BankAccNo: Code[20]; DealingType: Option)
+    local procedure SetupBillGroupWithBankAccDimension(var BillGroup: Record "Bill Group"; var BankAccNo: Code[20]; DealingType: Enum "Cartera Dealing Type")
     begin
         Initialize();
-        UpdateCarteraSetup;
-        BankAccNo := CreateBankAccountWithDimension;
+        UpdateCarteraSetup();
+        BankAccNo := CreateBankAccountWithDimension();
         LibraryCarteraReceivables.CreateBillGroup(BillGroup, BankAccNo, DealingType);
         AddInvoiceToBillGroup(BillGroup);
     end;
@@ -1621,8 +1619,8 @@ codeunit 147305 "Cartera Posting"
     local procedure SetupPaymentOrderWithBankAccDimension(var PaymentOrder: Record "Payment Order"; var BankAccNo: Code[20])
     begin
         Initialize();
-        UpdateCarteraSetup;
-        BankAccNo := CreateBankAccountWithDimension;
+        UpdateCarteraSetup();
+        BankAccNo := CreateBankAccountWithDimension();
         CreatePaymentOrderWithSpecificBankAccount(PaymentOrder, BankAccNo);
         AddInvoiceToPaymentOrder(PaymentOrder);
     end;
@@ -1636,7 +1634,7 @@ codeunit 147305 "Cartera Posting"
     begin
         LibraryERM.CreateBankAccount(BankAccount);
         BankAccPostingGroup.Get(BankAccount."Bank Acc. Posting Group");
-        BankAccPostingGroup.Validate("Liabs. for Disc. Bills Acc.", LibraryERM.CreateGLAccountNo);
+        BankAccPostingGroup.Validate("Liabs. for Disc. Bills Acc.", LibraryERM.CreateGLAccountNo());
         BankAccPostingGroup.Modify(true);
 
         CreateDimValue(DimValue);
@@ -1663,7 +1661,7 @@ codeunit 147305 "Cartera Posting"
         LibraryCarteraReceivables.CreateBillGroup(BillGroup, BankAccount."No.", BillGroup."Dealing Type"::Collection);
     end;
 
-    local procedure CreateBillGroupWithSpecificBankAccount(var BillGroup: Record "Bill Group"; BankAccNo: Code[20]; DealingType: Option)
+    local procedure CreateBillGroupWithSpecificBankAccount(var BillGroup: Record "Bill Group"; BankAccNo: Code[20]; DealingType: Enum "Cartera Dealing Type")
     begin
         BillGroup.Init();
         BillGroup.Validate("Bank Account No.", BankAccNo);
@@ -1691,8 +1689,8 @@ codeunit 147305 "Cartera Posting"
             Validate("VAT Identifier", "VAT Prod. Posting Group");
             Validate("VAT Calculation Type", "VAT Calculation Type"::"Normal VAT");
             Validate("VAT %", LibraryRandom.RandInt(10));
-            Validate("Sales VAT Account", LibraryERM.CreateGLAccountNo);
-            Validate("Purchase VAT Account", LibraryERM.CreateGLAccountNo);
+            Validate("Sales VAT Account", LibraryERM.CreateGLAccountNo());
+            Validate("Purchase VAT Account", LibraryERM.CreateGLAccountNo());
             Modify(true);
         end;
     end;
@@ -1801,7 +1799,7 @@ codeunit 147305 "Cartera Posting"
         with SettleDocsInPostedPO do begin
             SetHidePrintDialog(true);
             SetTableView(PostedCarteraDoc);
-            Run;
+            Run();
         end;
     end;
 
@@ -1943,7 +1941,7 @@ codeunit 147305 "Cartera Posting"
         LibraryERM.CreateVATPostingSetup(VATPostingSetup, VATBusPostingGroupCode, VATProductPostingGroup.Code);
         UpdateVATPostingSetup(VATPostingSetup);
         UpdateUnrealVATPostingSetup(
-          VATPostingSetup, VATPostingSetup."Unrealized VAT Type"::Percentage, LibraryERM.CreateGLAccountNo, LibraryERM.CreateGLAccountNo);
+          VATPostingSetup, VATPostingSetup."Unrealized VAT Type"::Percentage, LibraryERM.CreateGLAccountNo(), LibraryERM.CreateGLAccountNo());
         exit(VATPostingSetup."VAT Prod. Posting Group");
     end;
 
@@ -1954,7 +1952,7 @@ codeunit 147305 "Cartera Posting"
         LibrarySales.CreateCustomer(Customer);
         LibraryERM.FindPaymentTerms(PaymentTerms);
         Customer.Validate("Payment Terms Code", PaymentTerms.Code);
-        Customer.Validate("Payment Method Code", GetPaymentMethodCartera);
+        Customer.Validate("Payment Method Code", GetPaymentMethodCartera());
         Customer.Modify(true);
     end;
 
@@ -1965,7 +1963,7 @@ codeunit 147305 "Cartera Posting"
         LibraryPurchase.CreateVendor(Vendor);
         LibraryERM.FindPaymentTerms(PaymentTerms);
         Vendor.Validate("Payment Terms Code", PaymentTerms.Code);
-        Vendor.Validate("Payment Method Code", GetPaymentMethodCartera);
+        Vendor.Validate("Payment Method Code", GetPaymentMethodCartera());
         Vendor.Modify(true);
     end;
 
@@ -2058,12 +2056,12 @@ codeunit 147305 "Cartera Posting"
     begin
         DocumentNo :=
           CreateAndPostPurchaseDocument(
-            PurchaseLine, PurchaseLine."Document Type"::Invoice, VendorNo, CreateItemWithVATGroup(VATProductPostingGroupCode));
+            PurchaseLine, VendorNo, CreateItemWithVATGroup(VATProductPostingGroupCode));
         TotalAmount := PurchaseLine."Amount Including VAT";
         exit(DocumentNo);
     end;
 
-    local procedure CreateAndPostPurchaseDocument(var PurchaseLine: Record "Purchase Line"; DocumentType: Enum "Purchase Document Type"; VendorNo: Code[20]; ItemNo: Code[20]): Code[20]
+    local procedure CreateAndPostPurchaseDocument(var PurchaseLine: Record "Purchase Line"; VendorNo: Code[20]; ItemNo: Code[20]): Code[20]
     var
         PurchaseHeader: Record "Purchase Header";
         ReleasePurchDocument: Codeunit "Release Purchase Document";
@@ -2462,10 +2460,10 @@ codeunit 147305 "Cartera Posting"
             if "Document Type" = "Document Type"::Bill then begin
                 Validate(
                   "Bill No.", LibraryUtility.GenerateRandomCode(FieldNo("Bill No."), DATABASE::"Gen. Journal Line"));
-                Validate("Payment Method Code", GetPaymentMethodCartera);
+                Validate("Payment Method Code", GetPaymentMethodCartera());
             end;
             Validate("Bal. Account Type", "Bal. Account Type"::"G/L Account");
-            Validate("Bal. Account No.", LibraryERM.CreateGLAccountNo);
+            Validate("Bal. Account No.", LibraryERM.CreateGLAccountNo());
             if ApplyFromGenJnlLine then begin
                 Validate("Applies-to Doc. Type", ApplDocType);
                 Validate("Applies-to Doc. No.", ApplDocNo);
@@ -2484,7 +2482,7 @@ codeunit 147305 "Cartera Posting"
             if "Document Type" = "Document Type"::Bill then begin
                 Validate(
                   "Bill No.", LibraryUtility.GenerateRandomCode(FieldNo("Bill No."), DATABASE::"Gen. Journal Line"));
-                Validate("Payment Method Code", GetPaymentMethodCartera);
+                Validate("Payment Method Code", GetPaymentMethodCartera());
             end;
             Modify(true);
         end;
@@ -2526,7 +2524,7 @@ codeunit 147305 "Cartera Posting"
     var
         GenJournalTemplate: Record "Gen. Journal Template";
     begin
-        RemoveExistingCarteraTemplates; // to have one cartera template and avoid passing of template name in handler
+        RemoveExistingCarteraTemplates(); // to have one cartera template and avoid passing of template name in handler
         LibraryERM.CreateGenJournalTemplate(GenJournalTemplate);
         GenJournalTemplate.Validate("Force Doc. Balance", false);
         GenJournalTemplate.Validate(Type, GenJournalTemplate.Type::Cartera);
@@ -2771,7 +2769,7 @@ codeunit 147305 "Cartera Posting"
               GenJnlLine, "Journal Template Name", "Journal Batch Name",
               GetAppliedDocType(DocType), AccType, AccNo, EntryAmount);
             Validate("Bal. Account Type", "Bal. Account Type"::"G/L Account");
-            Validate("Bal. Account No.", LibraryERM.CreateGLAccountNo);
+            Validate("Bal. Account No.", LibraryERM.CreateGLAccountNo());
             Validate("Applies-to Doc. Type", ApplDocType);
             Validate("Applies-to Doc. No.", ApplDocNo);
             Modify(true);
@@ -2808,7 +2806,7 @@ codeunit 147305 "Cartera Posting"
         UpdateGenLedgVATSetup(true);
         LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
         UpdateUnrealVATPostingSetup(
-          VATPostingSetup, VATPostingSetup."Unrealized VAT Type"::Percentage, LibraryERM.CreateGLAccountNo, LibraryERM.CreateGLAccountNo);
+          VATPostingSetup, VATPostingSetup."Unrealized VAT Type"::Percentage, LibraryERM.CreateGLAccountNo(), LibraryERM.CreateGLAccountNo());
 
         CustNo :=
           CreateCustWithPaymentTermsAndVATGroup(VATDistributionType, VATPostingSetup."VAT Bus. Posting Group");
@@ -2840,7 +2838,7 @@ codeunit 147305 "Cartera Posting"
         UpdateGenLedgVATSetup(true);
         LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
         UpdateUnrealVATPostingSetup(
-          VATPostingSetup, VATPostingSetup."Unrealized VAT Type"::Percentage, LibraryERM.CreateGLAccountNo, LibraryERM.CreateGLAccountNo);
+          VATPostingSetup, VATPostingSetup."Unrealized VAT Type"::Percentage, LibraryERM.CreateGLAccountNo(), LibraryERM.CreateGLAccountNo());
 
         VendNo :=
           CreateVendWithPaymentTermsAndVATGroup(VATDistributionType, VATPostingSetup."VAT Bus. Posting Group");
@@ -2874,7 +2872,7 @@ codeunit 147305 "Cartera Posting"
         UpdateGenLedgVATSetup(true);
         LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
         UpdateUnrealVATPostingSetup(
-          VATPostingSetup, VATPostingSetup."Unrealized VAT Type"::Percentage, LibraryERM.CreateGLAccountNo, LibraryERM.CreateGLAccountNo);
+          VATPostingSetup, VATPostingSetup."Unrealized VAT Type"::Percentage, LibraryERM.CreateGLAccountNo(), LibraryERM.CreateGLAccountNo());
 
         CustNo :=
           CreateCustWithPaymentTermsAndVATGroup(PaymentTerms."VAT distribution"::Proportional, VATPostingSetup."VAT Bus. Posting Group");
@@ -2909,7 +2907,7 @@ codeunit 147305 "Cartera Posting"
         UpdateGenLedgVATSetup(true);
         LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
         UpdateUnrealVATPostingSetup(
-          VATPostingSetup, VATPostingSetup."Unrealized VAT Type"::Percentage, LibraryERM.CreateGLAccountNo, LibraryERM.CreateGLAccountNo);
+          VATPostingSetup, VATPostingSetup."Unrealized VAT Type"::Percentage, LibraryERM.CreateGLAccountNo(), LibraryERM.CreateGLAccountNo());
 
         VendNo :=
           CreateVendWithPaymentTermsAndVATGroup(PaymentTerms."VAT distribution"::Proportional, VATPostingSetup."VAT Bus. Posting Group");
@@ -2944,7 +2942,7 @@ codeunit 147305 "Cartera Posting"
         UpdateGenLedgVATSetup(true);
         LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
         UpdateUnrealVATPostingSetup(
-          VATPostingSetup, VATPostingSetup."Unrealized VAT Type"::Percentage, LibraryERM.CreateGLAccountNo, LibraryERM.CreateGLAccountNo);
+          VATPostingSetup, VATPostingSetup."Unrealized VAT Type"::Percentage, LibraryERM.CreateGLAccountNo(), LibraryERM.CreateGLAccountNo());
 
         CustNo :=
           CreateCustWithPaymentTermsAndVATGroup(PaymentTerms."VAT distribution"::Proportional, VATPostingSetup."VAT Bus. Posting Group");
@@ -2979,7 +2977,7 @@ codeunit 147305 "Cartera Posting"
         UpdateGenLedgVATSetup(true);
         LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
         UpdateUnrealVATPostingSetup(
-          VATPostingSetup, VATPostingSetup."Unrealized VAT Type"::Percentage, LibraryERM.CreateGLAccountNo, LibraryERM.CreateGLAccountNo);
+          VATPostingSetup, VATPostingSetup."Unrealized VAT Type"::Percentage, LibraryERM.CreateGLAccountNo(), LibraryERM.CreateGLAccountNo());
 
         VendNo :=
           CreateVendWithPaymentTermsAndVATGroup(PaymentTerms."VAT distribution"::Proportional, VATPostingSetup."VAT Bus. Posting Group");
@@ -3014,7 +3012,7 @@ codeunit 147305 "Cartera Posting"
         UpdateGenLedgVATSetup(true);
         LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
         UpdateUnrealVATPostingSetup(
-          VATPostingSetup, VATPostingSetup."Unrealized VAT Type"::Percentage, LibraryERM.CreateGLAccountNo, LibraryERM.CreateGLAccountNo);
+          VATPostingSetup, VATPostingSetup."Unrealized VAT Type"::Percentage, LibraryERM.CreateGLAccountNo(), LibraryERM.CreateGLAccountNo());
 
         CustNo :=
           CreateCustWithPaymentTermsAndVATGroup(PaymentTerms."VAT distribution"::Proportional, VATPostingSetup."VAT Bus. Posting Group");
@@ -3050,7 +3048,7 @@ codeunit 147305 "Cartera Posting"
         UpdateGenLedgVATSetup(true);
         LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
         UpdateUnrealVATPostingSetup(
-          VATPostingSetup, VATPostingSetup."Unrealized VAT Type"::Percentage, LibraryERM.CreateGLAccountNo, LibraryERM.CreateGLAccountNo);
+          VATPostingSetup, VATPostingSetup."Unrealized VAT Type"::Percentage, LibraryERM.CreateGLAccountNo(), LibraryERM.CreateGLAccountNo());
 
         VendNo :=
           CreateVendWithPaymentTermsAndVATGroup(PaymentTerms."VAT distribution"::Proportional, VATPostingSetup."VAT Bus. Posting Group");
@@ -3079,7 +3077,7 @@ codeunit 147305 "Cartera Posting"
 
     local procedure GetAmountPart(Amount: Decimal): Decimal
     begin
-        exit(Round(Amount / 7, GetAmountRoundingPrecision));
+        exit(Round(Amount / 7, GetAmountRoundingPrecision()));
     end;
 
     local procedure GetAmountRoundingPrecision(): Decimal
@@ -3113,7 +3111,7 @@ codeunit 147305 "Cartera Posting"
     begin
         exit(
           Round(GetUnrealVATBase(InvAmount, PayAmount) * VATPostingSetup."VAT %" / (100 + VATPostingSetup."VAT %"),
-            GetAmountRoundingPrecision));
+            GetAmountRoundingPrecision()));
     end;
 
     local procedure FindBillCustLedgEntry(var CustLedgEntry: Record "Cust. Ledger Entry"; InvoiceNo: Code[20]; BillNo: Code[20])
@@ -3229,7 +3227,7 @@ codeunit 147305 "Cartera Posting"
     [Scope('OnPrem')]
     procedure RejectDocsHandler(var RejectDocs: TestRequestPage "Reject Docs.")
     begin
-        RejectDocs.OK.Invoke;
+        RejectDocs.OK().Invoke();
     end;
 
     [ConfirmHandler]
@@ -3256,7 +3254,7 @@ codeunit 147305 "Cartera Posting"
         RedrawReceivableBills.NewDueDate.SetValue(CalcDate(StrSubstNo('<%1M>', Format(LibraryRandom.RandInt(5))), WorkDate()));
         RedrawReceivableBills.AuxJnlTemplateName.SetValue(GenJournalBatch."Journal Template Name");
         RedrawReceivableBills.AuxJnlBatchName.SetValue(GenJournalBatch.Name);
-        RedrawReceivableBills.OK.Invoke;
+        RedrawReceivableBills.OK().Invoke();
     end;
 
     [RequestPageHandler]
@@ -3276,7 +3274,7 @@ codeunit 147305 "Cartera Posting"
         RedrawReceivableBills.NewDueDate.SetValue(DueDate);
         RedrawReceivableBills.AuxJnlTemplateName.SetValue(GenJournalTemplate.Name);
         RedrawReceivableBills.AuxJnlBatchName.SetValue(BatchName);
-        RedrawReceivableBills.OK.Invoke;
+        RedrawReceivableBills.OK().Invoke();
 
         LibraryVariableStorage.Enqueue(BatchName);
     end;
@@ -3285,7 +3283,7 @@ codeunit 147305 "Cartera Posting"
     [Scope('OnPrem')]
     procedure CarteraJournalHandler(var CarteraJournal: TestPage "Cartera Journal")
     begin
-        CarteraJournal.Post.Invoke;
+        CarteraJournal.Post.Invoke();
     end;
 
     [ConfirmHandler]
@@ -3312,14 +3310,14 @@ codeunit 147305 "Cartera Posting"
     [Scope('OnPrem')]
     procedure SettleDocsInPostedBillGroupRequestPageHandler(var SettleDocsInPostedBillGroup: TestRequestPage "Settle Docs. in Post. Bill Gr.")
     begin
-        SettleDocsInPostedBillGroup.OK.Invoke;
+        SettleDocsInPostedBillGroup.OK().Invoke();
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure SettleDocsInPostedPaymentOrderRequestPageHandler(var SettleDocsInPostedPO: TestRequestPage "Settle Docs. in Posted PO")
     begin
-        SettleDocsInPostedPO.OK.Invoke;
+        SettleDocsInPostedPO.OK().Invoke();
     end;
 
     [RequestPageHandler]
@@ -3327,8 +3325,8 @@ codeunit 147305 "Cartera Posting"
     procedure PartialSettlReceivableRequestPageHandler(var PartialSettlReceivableRequestPage: TestRequestPage "Partial Settl.- Receivable")
     begin
         PartialSettlReceivableRequestPage.SettledAmount.SetValue(
-          PartialSettlReceivableRequestPage.SettledAmount.AsDEcimal / 2); // Settled Amt
-        PartialSettlReceivableRequestPage.OK.Invoke;
+          PartialSettlReceivableRequestPage.SettledAmount.AsDecimal() / 2); // Settled Amt
+        PartialSettlReceivableRequestPage.OK().Invoke();
     end;
 
     [RequestPageHandler]
@@ -3336,8 +3334,8 @@ codeunit 147305 "Cartera Posting"
     procedure PartialSettlPayableRequestPageHandler(var PartialSettlPayableRequestPage: TestRequestPage "Partial Settl. - Payable")
     begin
         PartialSettlPayableRequestPage.AppliedAmt.SetValue(
-          PartialSettlPayableRequestPage.AppliedAmt.AsDEcimal / 2); // Settled Amt
-        PartialSettlPayableRequestPage.OK.Invoke;
+          PartialSettlPayableRequestPage.AppliedAmt.AsDecimal() / 2); // Settled Amt
+        PartialSettlPayableRequestPage.OK().Invoke();
     end;
 
     [RequestPageHandler]
@@ -3352,7 +3350,7 @@ codeunit 147305 "Cartera Posting"
         FindCarteraGenJnlBatch(GenJournalBatch);
         RedrawReceivableBillsRequestPage.AuxJnlTemplateName.SetValue(GenJournalBatch."Journal Template Name");
         RedrawReceivableBillsRequestPage.AuxJnlBatchName.SetValue(GenJournalBatch.Name);
-        RedrawReceivableBillsRequestPage.OK.Invoke;
+        RedrawReceivableBillsRequestPage.OK().Invoke();
     end;
 
     [RequestPageHandler]
@@ -3363,23 +3361,23 @@ codeunit 147305 "Cartera Posting"
     begin
         LibraryVariableStorage.Dequeue(DueDateVar);
         RedrawPayableBillsRequestPage.NewDueDate.SetValue(DueDateVar);
-        RedrawPayableBillsRequestPage.OK.Invoke;
+        RedrawPayableBillsRequestPage.OK().Invoke();
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure PostBillGroupRequestPageHandler(var PostBillGroup: TestRequestPage "Post Bill Group")
     begin
-        PostBillGroup.TemplName.SetValue(LibraryVariableStorage.DequeueText);
-        PostBillGroup.BatchName.SetValue(LibraryVariableStorage.DequeueText);
-        PostBillGroup.OK.Invoke;
+        PostBillGroup.TemplName.SetValue(LibraryVariableStorage.DequeueText());
+        PostBillGroup.BatchName.SetValue(LibraryVariableStorage.DequeueText());
+        PostBillGroup.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure CarteraJournalModalPageHandler(var CarteraJournal: TestPage "Cartera Journal")
     begin
-        CarteraJournal.Post.Invoke;
+        CarteraJournal.Post.Invoke();
     end;
 
     [ModalPageHandler]
@@ -3390,10 +3388,10 @@ codeunit 147305 "Cartera Posting"
     begin
         LibraryVariableStorage.Dequeue(BatchName);
         CarteraJournal.CurrentJnlBatchName.AssertEquals(BatchName);
-        CarteraJournal.Post.Invoke; // post in order to close the page
+        CarteraJournal.Post.Invoke(); // post in order to close the page
     end;
 
-    local procedure VerifyCustomerLedgerEntry(Customer: Record Customer; DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20]; DocumentStatus: Option; Amount: Decimal; RemainingAmount: Decimal)
+    local procedure VerifyCustomerLedgerEntry(Customer: Record Customer; DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20]; DocumentStatus: Enum "ES Document Status"; Amount: Decimal; RemainingAmount: Decimal)
     var
         CustomerLedgerEntry: Record "Cust. Ledger Entry";
     begin
@@ -3642,11 +3640,11 @@ codeunit 147305 "Cartera Posting"
     procedure ApplyCustEntriesHandler(var ApplyCustEntries: TestPage "Apply Customer Entries")
     begin
         with ApplyCustEntries do begin
-            Last;
+            Last();
             repeat
-                "Set Applies-to ID".Invoke;
-            until Previous = false;
-            OK.Invoke;
+                "Set Applies-to ID".Invoke();
+            until Previous() = false;
+            OK().Invoke();
         end;
     end;
 
@@ -3655,11 +3653,11 @@ codeunit 147305 "Cartera Posting"
     procedure ApplyVendEntriesHandler(var ApplyVendEntries: TestPage "Apply Vendor Entries")
     begin
         with ApplyVendEntries do begin
-            Last;
+            Last();
             repeat
-                ActionSetAppliesToID.Invoke;
-            until Previous = false;
-            OK.Invoke;
+                ActionSetAppliesToID.Invoke();
+            until Previous() = false;
+            OK().Invoke();
         end;
     end;
 }

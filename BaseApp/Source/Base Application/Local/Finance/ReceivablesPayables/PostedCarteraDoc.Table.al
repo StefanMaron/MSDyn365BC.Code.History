@@ -19,6 +19,7 @@ table 7000003 "Posted Cartera Doc."
     Caption = 'Posted Cartera Doc.';
     DrillDownPageID = "Posted Cartera Documents";
     LookupPageID = "Posted Cartera Documents";
+    DataClassification = CustomerContent;
 
     fields
     {

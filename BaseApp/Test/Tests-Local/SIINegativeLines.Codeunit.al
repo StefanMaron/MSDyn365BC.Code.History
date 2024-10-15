@@ -732,7 +732,7 @@ codeunit 147563 "SII Negative Lines"
         SIISetup.Modify(true);
     end;
 
-    local procedure PostSalesDocWithPositiveAndNegativeLine(var CustLedgerEntry: Record "Cust. Ledger Entry"; var PositiveSalesLine: Record "Sales Line"; DocType: Option; CorrType: Option)
+    local procedure PostSalesDocWithPositiveAndNegativeLine(var CustLedgerEntry: Record "Cust. Ledger Entry"; var PositiveSalesLine: Record "Sales Line"; DocType: Enum "Sales Document Type"; CorrType: Option)
     var
         SalesHeader: Record "Sales Header";
     begin
@@ -741,8 +741,8 @@ codeunit 147563 "SII Negative Lines"
           CustLedgerEntry, SalesHeader."Document Type",
           LibrarySales.PostSalesDocument(SalesHeader, true, true));
     end;
-    
-    local procedure PostSalesDocWithPositiveAndNegativeNoTaxableLine(var CustLedgerEntry: Record "Cust. Ledger Entry"; var PositiveSalesLine: Record "Sales Line"; DocType: Option; CorrType: Option)
+
+    local procedure PostSalesDocWithPositiveAndNegativeNoTaxableLine(var CustLedgerEntry: Record "Cust. Ledger Entry"; var PositiveSalesLine: Record "Sales Line"; DocType: Enum "Sales Document Type"; CorrType: Option)
     var
         SalesHeader: Record "Sales Header";
     begin
@@ -752,7 +752,7 @@ codeunit 147563 "SII Negative Lines"
           LibrarySales.PostSalesDocument(SalesHeader, true, true));
     end;
 
-    local procedure PostPurchDocWithPositiveAndNegativeLine(var VendorLedgerEntry: Record "Vendor Ledger Entry"; var PositivePurchaseLine: Record "Purchase Line"; DocType: Option; CorrType: Option)
+    local procedure PostPurchDocWithPositiveAndNegativeLine(var VendorLedgerEntry: Record "Vendor Ledger Entry"; var PositivePurchaseLine: Record "Purchase Line"; DocType: Enum "Purchase Document Type"; CorrType: Option)
     var
         PurchaseHeader: Record "Purchase Header";
     begin
@@ -762,7 +762,7 @@ codeunit 147563 "SII Negative Lines"
           LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true));
     end;
 
-    local procedure PostPurchDocWithPositiveAndNegativeNoTaxableLine(var VendorLedgerEntry: Record "Vendor Ledger Entry"; var PositivePurchaseLine: Record "Purchase Line"; DocType: Option; CorrType: Option)
+    local procedure PostPurchDocWithPositiveAndNegativeNoTaxableLine(var VendorLedgerEntry: Record "Vendor Ledger Entry"; var PositivePurchaseLine: Record "Purchase Line"; DocType: Enum "Purchase Document Type"; CorrType: Option)
     var
         PurchaseHeader: Record "Purchase Header";
     begin
@@ -772,7 +772,7 @@ codeunit 147563 "SII Negative Lines"
           LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true));
     end;
 
-    local procedure CreateSalesDoc(var SalesHeader: Record "Sales Header"; var PositiveSalesLine: Record "Sales Line"; DocType: Option; CorrType: Option)
+    local procedure CreateSalesDoc(var SalesHeader: Record "Sales Header"; var PositiveSalesLine: Record "Sales Line"; DocType: Enum "Sales Document Type"; CorrType: Option)
     var
         SalesLine: Record "Sales Line";
     begin
@@ -787,7 +787,7 @@ codeunit 147563 "SII Negative Lines"
         LibrarySII.UpdateUnitPriceSalesLine(SalesLine, LibraryRandom.RandDec(100, 2));
     end;
 
-    local procedure CreateSalesDocWithNegativeNoTaxableLine(var SalesHeader: Record "Sales Header"; var PositiveSalesLine: Record "Sales Line"; DocType: Option; CorrType: Option)
+    local procedure CreateSalesDocWithNegativeNoTaxableLine(var SalesHeader: Record "Sales Header"; var PositiveSalesLine: Record "Sales Line"; DocType: Enum "Sales Document Type"; CorrType: Option)
     var
         SalesLine: Record "Sales Line";
     begin
@@ -805,7 +805,7 @@ codeunit 147563 "SII Negative Lines"
         LibrarySII.UpdateUnitPriceSalesLine(SalesLine, LibraryRandom.RandDec(100, 2));
     end;
 
-    local procedure CreatePurchDoc(var PurchaseHeader: Record "Purchase Header"; var PositivePurchaseLine: Record "Purchase Line"; DocType: Option; CorrType: Option)
+    local procedure CreatePurchDoc(var PurchaseHeader: Record "Purchase Header"; var PositivePurchaseLine: Record "Purchase Line"; DocType: Enum "Purchase Document Type"; CorrType: Option)
     var
         PurchaseLine: Record "Purchase Line";
     begin
@@ -820,14 +820,14 @@ codeunit 147563 "SII Negative Lines"
         LibrarySII.UpdateDirectUnitCostPurchaseLine(PurchaseLine, LibraryRandom.RandDec(100, 2));
     end;
 
-    local procedure CreatePurchDocWithNegativeNoTaxableLine(var PurchaseHeader: Record "Purchase Header"; var PositivePurchaseLine: Record "Purchase Line"; DocType: Option; CorrType: Option)
+    local procedure CreatePurchDocWithNegativeNoTaxableLine(var PurchaseHeader: Record "Purchase Header"; var PositivePurchaseLine: Record "Purchase Line"; DocType: Enum "Purchase Document Type"; CorrType: Option)
     var
         PurchaseLine: Record "Purchase Line";
     begin
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, DocType, LibraryPurchase.CreateVendorNo());
         PurchaseHeader.Validate("Correction Type", CorrType);
         PurchaseHeader.Modify(true);
-        LibrarySII.CreatePurchLineWithUnitCost(PurchaseHeader, LibraryInventory.CreateItemNo);
+        LibrarySII.CreatePurchLineWithUnitCost(PurchaseHeader, LibraryInventory.CreateItemNo());
         LibraryPurchase.FindFirstPurchLine(PositivePurchaseLine, PurchaseHeader);
         LibraryPurchase.CreatePurchaseLine(
           PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item,

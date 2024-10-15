@@ -11,6 +11,7 @@ table 10727 "Selected G/L Accounts"
     Caption = 'Selected G\L Accounts';
     DataCaptionFields = "No.", Name;
     LookupPageID = "G/L Account List";
+    DataClassification = CustomerContent;
 
     fields
     {

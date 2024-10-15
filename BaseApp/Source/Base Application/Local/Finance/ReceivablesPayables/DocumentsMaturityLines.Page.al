@@ -5,6 +5,7 @@
 namespace Microsoft.Finance.ReceivablesPayables;
 
 using Microsoft.Foundation.Period;
+using Microsoft.Foundation.Enums;
 using System.Utilities;
 
 page 7000030 "Documents Maturity Lines"
@@ -78,8 +79,8 @@ page 7000030 "Documents Maturity Lines"
     var
         Doc: Record "Cartera Doc.";
         PeriodPageManagement: Codeunit PeriodPageManagement;
-        PeriodLength: Option Day,Week,Month,Quarter,Year,Period;
-        AmountType: Option "Net Change","Balance at Date";
+        PeriodLength: Enum "Analysis Period Type";
+        AmountType: Enum "Analysis Amount Type";
 
     [Scope('OnPrem')]
     procedure Set(var NewDoc: Record "Cartera Doc."; NewPeriodLength: Integer; NewAmountType: Option "Net Change","Balance at Date")
@@ -88,8 +89,8 @@ page 7000030 "Documents Maturity Lines"
         NewDoc.CopyFilter("Bill Gr./Pmt. Order No.", Doc."Bill Gr./Pmt. Order No.");
         NewDoc.CopyFilter("Category Code", Doc."Category Code");
         NewDoc.CopyFilter("Currency Code", Doc."Currency Code");
-        PeriodLength := NewPeriodLength;
-        AmountType := NewAmountType;
+        PeriodLength := "Analysis Period Type".FromInteger(NewPeriodLength);
+        AmountType := "Analysis Amount Type".FromInteger(NewAmountType);
         CurrPage.Update(false);
     end;
 

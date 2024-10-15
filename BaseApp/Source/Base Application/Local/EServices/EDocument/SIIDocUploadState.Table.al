@@ -17,6 +17,7 @@ using System.Security.AccessControl;
 table 10752 "SII Doc. Upload State"
 {
     Caption = 'SII Doc. Upload States';
+    DataClassification = CustomerContent;
 
     fields
     {

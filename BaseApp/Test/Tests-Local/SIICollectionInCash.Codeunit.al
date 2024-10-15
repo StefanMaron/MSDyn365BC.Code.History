@@ -330,7 +330,7 @@ codeunit 147554 "SII Collection In Cash"
         if IsInitialized then
             exit;
 
-        LibrarySII.BindSubscriptionJobQueue;
+        LibrarySII.BindSubscriptionJobQueue();
         IsInitialized := true;
         Commit();
     end;
@@ -488,7 +488,7 @@ codeunit 147554 "SII Collection In Cash"
         Make347Declaration.FiscalYear.SetValue(FiscalYear);
         Make347Declaration.MinAmountInCash.SetValue(MinAmountInCash);
         Make347Declaration.GLAccForPaymentsInCash.SetValue(GLAccForPaymentsInCash);
-        Make347Declaration.OK.Invoke;
+        Make347Declaration.OK().Invoke();
     end;
 
     [MessageHandler]

@@ -64,12 +64,12 @@ codeunit 144046 "ERM Employee Name"
 
         // Setup: Create Employee. Open Employee Card.
         LibraryHumanResource.CreateEmployee(Employee);
-        EmployeeCard.OpenEdit;
+        EmployeeCard.OpenEdit();
         EmployeeCard.FILTER.SetFilter("No.", Employee."No.");
-        EmployeeRelatives.Trap;
+        EmployeeRelatives.Trap();
 
         // Exercise.
-        EmployeeCard."&Relatives".Invoke;
+        EmployeeCard."&Relatives".Invoke();
 
         // Verify.
         Assert.AreEqual(StrSubstNo(FirstFamilyNameCap), EmployeeRelatives."First Family Name".Caption, CaptionMustBeSameMsg);
@@ -89,7 +89,7 @@ codeunit 144046 "ERM Employee Name"
 
         // Setup.
         CreateEmployee(Employee);
-        EmployeeCard.OpenEdit;
+        EmployeeCard.OpenEdit();
 
         // Exercise.
         EmployeeCard.FILTER.SetFilter("No.", Employee."No.");
@@ -177,7 +177,7 @@ codeunit 144046 "ERM Employee Name"
 
     local procedure GetImagePath(): Text
     begin
-        exit(LibraryUtility.GetInetRoot + ImagePathTxt);
+        exit(LibraryUtility.GetInetRoot() + ImagePathTxt);
     end;
 
     [ConfirmHandler]

@@ -40,7 +40,7 @@ codeunit 398 "Sales Tax Calculate"
         TaxAmount := 0;
         IsHandled := false;
         OnBeforeCalculateTaxProcedure(TaxAreaCode, TaxGroupCode, TaxLiable, Date, Amount, Quantity, ExchangeRate, TaxAmount, IsHandled);
-        If IsHandled then
+        if IsHandled then
             exit;
 
         if not TaxLiable or (TaxAreaCode = '') or (TaxGroupCode = '') or

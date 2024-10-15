@@ -44,7 +44,7 @@ codeunit 147527 "SII Intracommunitary"
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, '');
 
         // [WHEN] Update "Buy-from Vendor No." with intracommunitary vendor
-        PurchaseHeader.Validate("Buy-from Vendor No.", LibrarySII.CreateVendor(CreateCountryRegionEU));
+        PurchaseHeader.Validate("Buy-from Vendor No.", LibrarySII.CreateVendor(CreateCountryRegionEU()));
         PurchaseHeader.Modify(true);
 
         // [THEN] "Special Scheme Code" has value "09 Intra-Community Acquisition"
@@ -67,7 +67,7 @@ codeunit 147527 "SII Intracommunitary"
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, '');
 
         // [WHEN] Update "Sell-to Customer No." with export customer
-        SalesHeader.Validate("Sell-to Customer No.", LibrarySII.CreateCustomer(CreateCountryRegionEU));
+        SalesHeader.Validate("Sell-to Customer No.", LibrarySII.CreateCustomer(CreateCountryRegionEU()));
         SalesHeader.Modify(true);
 
         // [THEN] "Special Scheme Code" has value "02 Export"
@@ -92,7 +92,7 @@ codeunit 147527 "SII Intracommunitary"
 
         // [GIVEN] Posted Purchase Invoice with Intracommunitary Vendor, Reverse Charge VAT and Amount = 21
         LibrarySII.CreatePurchDocWithReverseChargeVAT(
-          PurchaseHeader, VATRate, Amount, PurchaseHeader."Document Type"::Invoice, CreateCountryRegionEU);
+          PurchaseHeader, VATRate, Amount, PurchaseHeader."Document Type"::Invoice, CreateCountryRegionEU());
         PurchInvHeader.Get(LibraryPurchase.PostPurchaseDocument(PurchaseHeader, false, true));
         LibraryERM.FindVendorLedgerEntry(VendorLedgerEntry, VendorLedgerEntry."Document Type"::Invoice, PurchInvHeader."No.");
 
@@ -122,7 +122,7 @@ codeunit 147527 "SII Intracommunitary"
 
         // [GIVEN] Posted Purchase Credit Memo with Intracommunitary Vendor, Reverse Charge VAT and Amount = 21
         LibrarySII.CreatePurchDocWithReverseChargeVAT(
-          PurchaseHeader, VATRate, Amount, PurchaseHeader."Document Type"::"Credit Memo", CreateCountryRegionEU);
+          PurchaseHeader, VATRate, Amount, PurchaseHeader."Document Type"::"Credit Memo", CreateCountryRegionEU());
         PurchCrMemoHdr.Get(LibraryPurchase.PostPurchaseDocument(PurchaseHeader, false, true));
         LibraryERM.FindVendorLedgerEntry(VendorLedgerEntry, VendorLedgerEntry."Document Type"::"Credit Memo", PurchCrMemoHdr."No.");
 
@@ -377,7 +377,7 @@ codeunit 147527 "SII Intracommunitary"
             exit;
 
         LibrarySII.InitSetup(true, false);
-        LibrarySII.BindSubscriptionJobQueue;
+        LibrarySII.BindSubscriptionJobQueue();
 
         IsInitialized := true;
     end;
@@ -397,7 +397,7 @@ codeunit 147527 "SII Intracommunitary"
         Customer: Record Customer;
         SalesHeader: Record "Sales Header";
     begin
-        Customer.Get(LibrarySII.CreateCustomer(CreateCountryRegionEU));
+        Customer.Get(LibrarySII.CreateCustomer(CreateCountryRegionEU()));
         LibrarySales.CreateSalesHeader(SalesHeader, DocType, Customer."No.");
         LibrarySII.CreateSalesLineWithUnitPrice(SalesHeader,
           LibrarySII.CreateItemWithSpecificVATSetup(Customer."VAT Bus. Posting Group", LibraryRandom.RandIntInRange(10, 25)));
@@ -411,7 +411,7 @@ codeunit 147527 "SII Intracommunitary"
         Vendor: Record Vendor;
         PurchaseHeader: Record "Purchase Header";
     begin
-        Vendor.Get(LibrarySII.CreateVendor(CreateCountryRegionEU));
+        Vendor.Get(LibrarySII.CreateVendor(CreateCountryRegionEU()));
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, DocType, Vendor."No.");
         LibrarySII.CreatePurchLineWithUnitCost(
           PurchaseHeader, LibrarySII.CreateItemWithSpecificVATSetup(Vendor."VAT Bus. Posting Group", LibraryRandom.RandIntInRange(10, 25)));
@@ -428,7 +428,7 @@ codeunit 147527 "SII Intracommunitary"
         ServiceItemLine: Record "Service Item Line";
         ServiceLine: Record "Service Line";
     begin
-        LibrarySII.CreateServiceHeader(ServiceHeader, DocType, LibrarySII.CreateCustomer(CreateCountryRegionEU), '');
+        LibrarySII.CreateServiceHeader(ServiceHeader, DocType, LibrarySII.CreateCustomer(CreateCountryRegionEU()), '');
         LibraryService.CreateServiceItem(ServiceItem, ServiceHeader."Customer No.");
         LibraryService.CreateServiceItemLine(ServiceItemLine, ServiceHeader, ServiceItem."No.");
         LibraryService.CreateServiceLineWithQuantity(

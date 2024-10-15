@@ -88,10 +88,12 @@ report 5208 "Employee - Relatives"
     end;
 
     var
-        Employee: Record Employee;
         RelativeFilter: Text;
         EmployeeRelativesCaptionLbl: Label 'Employee - Relatives';
         PageNoCaptionLbl: Label 'Page';
         BirthDateCaptionLbl: Label 'Birth Date';
+
+    protected var
+        Employee: Record Employee;
 }
 

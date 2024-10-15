@@ -7,6 +7,7 @@ namespace Microsoft.Finance.ReceivablesPayables;
 table 7000011 "Doc. Post. Buffer"
 {
     Caption = 'Doc. Post. Buffer';
+    DataClassification = CustomerContent;
 
     fields
     {

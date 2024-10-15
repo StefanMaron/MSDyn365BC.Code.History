@@ -175,8 +175,15 @@ page 357 Companies
     }
 
     trigger OnOpenPage()
+    var
+        CompanyInformationMgt: Codeunit "Company Information Mgt.";
+        DeprecationNotification: Notification;
     begin
         PageInEditmode := CurrPage.Editable;
+
+        DeprecationNotification.Message := CompanyInformationMgt.GetCompanyNameClassificationWarning();
+        DeprecationNotification.Scope := NotificationScope::LocalScope;
+        DeprecationNotification.Send();
     end;
 
     trigger OnAfterGetRecord()
@@ -214,8 +221,8 @@ page 357 Companies
             if not ConfirmManagement.GetResponseOrDefault(StrSubstNo(DeleteCompanyAuditQst, CompanyInformationMgt.GetCompanyDisplayNameDefaulted(Rec)), false) then
                 exit(false)
             else begin
-                Session.LogMessage('0000BEH', StrSubstNo(UsenCompanyTok, UserSecurityId(), CompanyName()), Verbosity::Normal, DataClassification::EndUserPseudonymousIdentifiers, TelemetryScope::ExtensionPublisher, 'Category', ALCompanyActivityCategoryTok);
-                Session.LogMessage('0000BEI', StrSubstNo(CompanyTok, CompanyName()), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', ALCompanyActivityCategoryTok);
+                Session.LogMessage('0000BEH', StrSubstNo(UsenCompanyTok, UserSecurityId(), Rec.Name), Verbosity::Normal, DataClassification::EndUserPseudonymousIdentifiers, TelemetryScope::ExtensionPublisher, 'Category', ALCompanyActivityCategoryTok);
+                Session.LogMessage('0000BEI', StrSubstNo(CompanyTok, Rec.Name), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', ALCompanyActivityCategoryTok);
             end;
 
         exit(true);
@@ -251,7 +258,6 @@ page 357 Companies
         IsFoundation: Boolean;
         CompanyNameVar: Text[30];
         CompanyCreatedDateTime: DateTime;
-
         DeleteCompanyQst: Label 'Do you want to delete the company %1?\All company data will be deleted.\\Do you want to continue?', Comment = '%1 = Company Name';
         DeleteCompanyAuditQst: Label 'You are about to permanently delete the company %1.\\Do you want to continue?', Comment = '%1 = Company Name';
         ALCompanyActivityCategoryTok: Label 'AL Company Activity', Locked = true;

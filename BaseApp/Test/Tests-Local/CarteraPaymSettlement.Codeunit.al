@@ -69,7 +69,7 @@ codeunit 147501 "Cartera Paym. Settlement"
         VendorLedgerEntry.TestField(Amount, PostedPaymentOrder.Amount);
 
         // Teardown
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -98,7 +98,7 @@ codeunit 147501 "Cartera Paym. Settlement"
         VerifyPartialSettlementOnPaymentOrder(CarteraDoc, InitialAmount, SettledAmount, PaymentOrder);
 
         // Teardown
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -131,7 +131,7 @@ codeunit 147501 "Cartera Paym. Settlement"
         VerifyPartialSettlementOnPaymentOrder(CarteraDoc, InitialAmount, SettledAmount, PaymentOrder);
 
         // Teardown
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -153,7 +153,7 @@ codeunit 147501 "Cartera Paym. Settlement"
         PostPaymentOrderLCY(PaymentOrder);
 
         // Setup - Open Posted Payment Orders page, from Cartera - Periodic Activities section and invoke 'Batch Settlement' action
-        PostedPaymentOrdersTestPage.OpenView;
+        PostedPaymentOrdersTestPage.OpenView();
 
         PostedPaymentOrder.Get(PaymentOrder."No.");
         PostedPaymentOrdersTestPage.GotoRecord(PostedPaymentOrder);
@@ -161,10 +161,10 @@ codeunit 147501 "Cartera Paym. Settlement"
         LibraryVariableStorage.Enqueue(StrSubstNo(BatchSettlementPOMsg, 1, 1, CarteraDoc."Remaining Amt. (LCY)"));
 
         // Exercise - Verify
-        PostedPaymentOrdersTestPage.BatchSettlement.Invoke;
+        PostedPaymentOrdersTestPage.BatchSettlement.Invoke();
         VerifyCarteraDocIsClosedAsHonored(CarteraDoc);
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -188,17 +188,17 @@ codeunit 147501 "Cartera Paym. Settlement"
         PostPaymentOrderNonLCY(PaymentOrder."No.");
 
         // Setup - Open Posted Payment Orders page, from Cartera - Periodic Activities section and invoke 'Batch Settlement' action
-        PostedPaymentOrdersTestPage.OpenView;
+        PostedPaymentOrdersTestPage.OpenView();
         PostedPaymentOrder.Get(PaymentOrder."No.");
         PostedPaymentOrdersTestPage.GotoRecord(PostedPaymentOrder);
 
         LibraryVariableStorage.Enqueue(StrSubstNo(BatchSettlementPOMsg, 1, 1, CarteraDoc."Remaining Amt. (LCY)"));
 
         // Exercise - Verify
-        PostedPaymentOrdersTestPage.BatchSettlement.Invoke;
+        PostedPaymentOrdersTestPage.BatchSettlement.Invoke();
         VerifyCarteraDocIsClosedAsHonored(CarteraDoc);
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -228,7 +228,7 @@ codeunit 147501 "Cartera Paym. Settlement"
 
         // Exercise - Invoke partial settlement
         InvokePartialSettlementOnPaymentOrder(PostedPaymentOrdersTestPage, PaymentOrder."No.", CarteraDoc, SettledAmount, InitialAmount, 0);
-        ExpectedVATAmount := Round(ExpectedVATAmount * SettledAmount / InitialAmount, LibraryERM.GetAmountRoundingPrecision);
+        ExpectedVATAmount := Round(ExpectedVATAmount * SettledAmount / InitialAmount, LibraryERM.GetAmountRoundingPrecision());
 
         // Verify
         VerifyPartialSettlementOnPaymentOrder(CarteraDoc, InitialAmount, SettledAmount, PaymentOrder);
@@ -237,7 +237,7 @@ codeunit 147501 "Cartera Paym. Settlement"
           CarteraDoc."Bill Gr./Pmt. Order No.", PurchUnrVATAccount, InitialAmount, ExpectedVATAmount, SettledAmount);
 
         // Teardown
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -267,21 +267,21 @@ codeunit 147501 "Cartera Paym. Settlement"
         LibraryCarteraPayables.ValidatePostedInvoiceUnrVATGLEntries(DocumentNo, PurchUnrVATAccount, TotalAmount);
 
         // Setup - Open Posted Payment Orders page, from Cartera - Periodic Activities section and invoke 'Batch Settlement' action
-        PostedPaymentOrdersTestPage.OpenView;
+        PostedPaymentOrdersTestPage.OpenView();
         PostedPaymentOrder.Get(PaymentOrder."No.");
         PostedPaymentOrdersTestPage.GotoRecord(PostedPaymentOrder);
 
         LibraryVariableStorage.Enqueue(StrSubstNo(BatchSettlementPOMsg, 1, 1, CarteraDoc."Remaining Amt. (LCY)"));
 
         // Exercise - Verify
-        PostedPaymentOrdersTestPage.BatchSettlement.Invoke;
+        PostedPaymentOrdersTestPage.BatchSettlement.Invoke();
 
         VerifyCarteraDocIsClosedAsHonored(CarteraDoc);
 
         LibraryCarteraPayables.ValidatePaymentUnrVATGLEntries(
           CarteraDoc."Bill Gr./Pmt. Order No.", PurchUnrVATAccount, TotalAmount, ExpectedVATAmount, TotalAmount);
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -321,14 +321,14 @@ codeunit 147501 "Cartera Paym. Settlement"
         // Excercise - Settle Remaining part
         LibraryVariableStorage.Enqueue(RemainingAmount);
         LibraryVariableStorage.Enqueue(StrSubstNo(PartialSettlementPOMsg, 1, RemainingAmount, PaymentOrder."No.", RemainingAmount));
-        PostedPaymentOrdersTestPage.Docs.PartialSettlement.Invoke;
+        PostedPaymentOrdersTestPage.Docs.PartialSettlement.Invoke();
 
         VerifyGLEntriesForPartialSettlementsWithDiscount(
           PaymentOrder."No.", DiscountAmount, InitialAmount, SettledAmount, false, 0);
         VerifyCarteraDocIsClosedAsHonored(CarteraDoc);
 
         // Teardown
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -374,14 +374,14 @@ codeunit 147501 "Cartera Paym. Settlement"
         LibraryVariableStorage.Enqueue(RemainingAmount);
         LibraryVariableStorage.Enqueue(StrSubstNo(PartialSettlementPOMsg, 1, RemainingAmount, PaymentOrder."No.", RemainingAmount));
 
-        PostedPaymentOrdersTestPage.Docs.PartialSettlement.Invoke;
+        PostedPaymentOrdersTestPage.Docs.PartialSettlement.Invoke();
 
         VerifyGLEntriesForPartialSettlementsWithDiscount(
           PaymentOrder."No.", DiscountAmount, InitialAmount, SettledAmount, true, ExpectedVATAmount);
         VerifyCarteraDocIsClosedAsHonored(CarteraDoc);
 
         // Teardown
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -412,7 +412,7 @@ codeunit 147501 "Cartera Paym. Settlement"
         VerifyCarteraDocIsClosedAsHonored(CarteraDoc);
 
         // Teardown
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -449,7 +449,7 @@ codeunit 147501 "Cartera Paym. Settlement"
         VerifyCarteraDocIsClosedAsHonored(CarteraDoc);
 
         // Teardown
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -763,7 +763,6 @@ codeunit 147501 "Cartera Paym. Settlement"
         GenJournalLine: array[4] of Record "Gen. Journal Line";
         CarteraDoc: Record "Cartera Doc.";
         VATEntry: Record "VAT Entry";
-        VendorLedgerEntry: Record "Vendor Ledger Entry";
         BGPOPostAndPrint: Codeunit "BG/PO-Post and Print";
         TotalAmount: Decimal;
         PostedSalesInvoiceWithBillNo: Code[20];
@@ -795,7 +794,7 @@ codeunit 147501 "Cartera Paym. Settlement"
         BGPOPostAndPrint.ReceivablePostOnly(BillGroup);
 
         LibraryVariableStorage.Enqueue(StrSubstNo(RejectBillTxt, 1)); // Reject bill
-        InvokeRejectOnBillGroup(Customer."No.", PostedSalesInvoiceWithBillNo, BillGroup."No.", TotalAmount, WorkDate());
+        InvokeRejectOnBillGroup(Customer."No.", PostedSalesInvoiceWithBillNo, BillGroup."No.", TotalAmount);
 
         // [GIVEN] Two Purchase Invoices with Unrealized VAT (without Bills)
         UpdateVATCashRegimeOnGLSetup(true);
@@ -894,7 +893,6 @@ codeunit 147501 "Cartera Paym. Settlement"
         GenJournalLine: array[4] of Record "Gen. Journal Line";
         CarteraDoc: Record "Cartera Doc.";
         VATEntry: Record "VAT Entry";
-        VendorLedgerEntry: Record "Vendor Ledger Entry";
         BGPOPostAndPrint: Codeunit "BG/PO-Post and Print";
         TotalAmount: Decimal;
         PostedSalesInvoiceWithBillNo: Code[20];
@@ -926,7 +924,7 @@ codeunit 147501 "Cartera Paym. Settlement"
         BGPOPostAndPrint.ReceivablePostOnly(BillGroup);
 
         LibraryVariableStorage.Enqueue(StrSubstNo(RejectBillTxt, 1)); // reject Bill
-        InvokeRejectOnBillGroup(Customer[1]."No.", PostedSalesInvoiceWithBillNo, BillGroup."No.", TotalAmount, WorkDate());
+        InvokeRejectOnBillGroup(Customer[1]."No.", PostedSalesInvoiceWithBillNo, BillGroup."No.", TotalAmount);
 
         // [GIVEN] Two Sales Invoices with Unrealized VAT (without Bills)
 
@@ -1070,7 +1068,7 @@ codeunit 147501 "Cartera Paym. Settlement"
         PaymentJournal.Trap();
 
         VendorLedgerEntries."Create Payment".Invoke();
-        PaymentJournal.OK.Invoke();
+        PaymentJournal.OK().Invoke();
 
         VendorLedgerEntries.Close();
 
@@ -1118,9 +1116,9 @@ codeunit 147501 "Cartera Paym. Settlement"
         LibraryVariableStorage.Enqueue(StrSubstNo(NotPrintedPaymentOrderQst, PaymentOrder.TableCaption()));
         LibraryVariableStorage.Enqueue(StrSubstNo(PaymentOrderSuccessfullyPostedMsg, PaymentOrder.TableCaption(), PaymentOrderNo));
 
-        PaymentOrders.OpenEdit;
+        PaymentOrders.OpenEdit();
         PaymentOrders.GotoKey(PaymentOrderNo);
-        PaymentOrders.Post.Invoke;
+        PaymentOrders.Post.Invoke();
     end;
 
     local procedure PostPaymentOrderWithUnrealizedVAT(var Vendor: Record Vendor; var BankAccount: Record "Bank Account"; var CarteraDoc: Record "Cartera Doc."; var PaymentOrder: Record "Payment Order"; var TotalAmount: Decimal; var ExpectedVATAmount: Decimal; var DocumentNo: Code[20]; CurrencyCode: Code[10])
@@ -1163,7 +1161,7 @@ codeunit 147501 "Cartera Paym. Settlement"
           -1 * LibraryCarteraPayables.GetPostedPurchaseInvoiceAmount(Vendor."No.", DocumentNo, VendorLedgerEntry."Document Type"::Invoice);
         CalculateExpectedVATAmount(DocumentNo, TotalAmount, ExpectedVATAmount);
 
-        DiscountAmount := Round(TotalAmount * DiscountPct / 100, LibraryERM.GetAmountRoundingPrecision);
+        DiscountAmount := Round(TotalAmount * DiscountPct / 100, LibraryERM.GetAmountRoundingPrecision());
 
         CreatePaymentOrder(BankAccount, PaymentOrder, CarteraDoc, DocumentNo, Vendor, LocalCurrencyCode);
         PostPaymentOrderLCY(PaymentOrder);
@@ -1185,7 +1183,7 @@ codeunit 147501 "Cartera Paym. Settlement"
         CreatePaymentOrder(BankAccount, PaymentOrder, CarteraDoc, DocumentNo, Vendor, LocalCurrencyCode);
 
         TotalAmount := CarteraDoc."Remaining Amount";
-        DiscountAmount := Round(TotalAmount * DiscountPct / 100, LibraryERM.GetAmountRoundingPrecision);
+        DiscountAmount := Round(TotalAmount * DiscountPct / 100, LibraryERM.GetAmountRoundingPrecision());
     end;
 
     local procedure PreparePaymentOrder(var Vendor: Record Vendor; var BankAccount: Record "Bank Account"; var CarteraDoc: Record "Cartera Doc."; var PaymentOrder: Record "Payment Order"; CurrencyCode: Code[10])
@@ -1266,16 +1264,16 @@ codeunit 147501 "Cartera Paym. Settlement"
         PaymentOrders.OpenNew();
 
         LibraryVariableStorage.Enqueue(CurrencyCode);
-        PaymentOrders."Currency Code".Activate;
-        PaymentOrders."Currency Code".Lookup;
+        PaymentOrders."Currency Code".Activate();
+        PaymentOrders."Currency Code".Lookup();
 
         LibraryVariableStorage.Enqueue(BankAccountNo);
-        PaymentOrders."Bank Account No.".Activate;
-        PaymentOrders."Bank Account No.".Lookup;
+        PaymentOrders."Bank Account No.".Activate();
+        PaymentOrders."Bank Account No.".Lookup();
 
-        PaymentOrderNo := PaymentOrders."No.".Value;
+        PaymentOrderNo := PaymentOrders."No.".Value();
 
-        PaymentOrders.OK.Invoke;
+        PaymentOrders.OK().Invoke();
 
         PaymentOrder.Get(PaymentOrderNo);
     end;
@@ -1329,7 +1327,7 @@ codeunit 147501 "Cartera Paym. Settlement"
 
     local procedure CreateFADepreciationBook(var FADepreciationBook: Record "FA Depreciation Book"; FixedAsset: Record "Fixed Asset")
     begin
-        LibraryFixedAsset.CreateFADepreciationBook(FADepreciationBook, FixedAsset."No.", LibraryFixedAsset.GetDefaultDeprBook);
+        LibraryFixedAsset.CreateFADepreciationBook(FADepreciationBook, FixedAsset."No.", LibraryFixedAsset.GetDefaultDeprBook());
         FADepreciationBook.Validate("Depreciation Starting Date", WorkDate());
 
         // Random Number Generator for Ending date.
@@ -1365,7 +1363,7 @@ codeunit 147501 "Cartera Paym. Settlement"
 
         VATPostingSetup.Get(PurchInvLine."VAT Bus. Posting Group", PurchInvLine."VAT Prod. Posting Group");
         ExpectedVATAmount :=
-          Round(TotalAmount - TotalAmount * 100 / (VATPostingSetup."VAT %" + 100), LibraryERM.GetAmountRoundingPrecision);
+          Round(TotalAmount - TotalAmount * 100 / (VATPostingSetup."VAT %" + 100), LibraryERM.GetAmountRoundingPrecision());
     end;
 
     local procedure AddDiscountToPaymentTerms(var PaymentTerms: Record "Payment Terms"; Vendor: Record Vendor; var DiscountPct: Decimal)
@@ -1377,7 +1375,7 @@ codeunit 147501 "Cartera Paym. Settlement"
         PaymentTerms.Modify(true);
     end;
 
-    local procedure InvokeRejectOnBillGroup(CustomerNo: Code[20]; DocumentNo: Code[20]; BillGroupNo: Code[20]; var TotalAmount: Decimal; SettlePostingDate: Date)
+    local procedure InvokeRejectOnBillGroup(CustomerNo: Code[20]; DocumentNo: Code[20]; BillGroupNo: Code[20]; var TotalAmount: Decimal)
     var
         PostedBillGroup: Record "Posted Bill Group";
         CustLedgerEntry: Record "Cust. Ledger Entry";
@@ -1405,20 +1403,20 @@ codeunit 147501 "Cartera Paym. Settlement"
     var
         PostedPaymentOrderTestPage: TestPage "Posted Payment Orders";
     begin
-        PostedPaymentOrderTestPage.OpenEdit;
+        PostedPaymentOrderTestPage.OpenEdit();
         PostedPaymentOrderTestPage.FILTER.SetFilter("No.", PostedPaymentOrderNo);
 
         LibraryVariableStorage.Enqueue(
-          StrSubstNo(SettlementCompletedSuccessfullyMsg, 1, PostedPaymentOrderTestPage.Docs."Remaining Amount".AsDEcimal));
+          StrSubstNo(SettlementCompletedSuccessfullyMsg, 1, PostedPaymentOrderTestPage.Docs."Remaining Amount".AsDecimal()));
 
-        PostedPaymentOrderTestPage.Docs.TotalSettlement.Invoke;
+        PostedPaymentOrderTestPage.Docs.TotalSettlement.Invoke();
     end;
 
     local procedure InvokePartialSettlementOnPaymentOrder(var PostedPaymentOrdersTestPage: TestPage "Posted Payment Orders"; PostedPaymentOrderNo: Code[20]; CarteraDoc: Record "Cartera Doc."; var SettledAmount: Decimal; var InitialAmount: Decimal; DiscountAmount: Decimal)
     var
         GLSetup: Record "General Ledger Setup";
     begin
-        PostedPaymentOrdersTestPage.OpenView;
+        PostedPaymentOrdersTestPage.OpenView();
         PostedPaymentOrdersTestPage.GotoKey(PostedPaymentOrderNo);
 
         GLSetup.Get();
@@ -1430,7 +1428,7 @@ codeunit 147501 "Cartera Paym. Settlement"
         LibraryVariableStorage.Enqueue(
           StrSubstNo(PartialSettlementPOMsg, 1, InitialAmount - DiscountAmount, PostedPaymentOrderNo, SettledAmount));
 
-        PostedPaymentOrdersTestPage.Docs.PartialSettlement.Invoke;
+        PostedPaymentOrdersTestPage.Docs.PartialSettlement.Invoke();
     end;
 
     local procedure UpdateVATCashRegimeOnGLSetup(VATCashRegime: Boolean)
@@ -1451,7 +1449,7 @@ codeunit 147501 "Cartera Paym. Settlement"
         PostedCarteraDoc.SetFilter(Type, Format(CarteraDoc.Type));
         PostedCarteraDoc.FindFirst();
 
-        Assert.AreNearlyEqual(InitialAmount - SettledAmount, PostedCarteraDoc."Remaining Amount", LibraryERM.GetAmountRoundingPrecision,
+        Assert.AreNearlyEqual(InitialAmount - SettledAmount, PostedCarteraDoc."Remaining Amount", LibraryERM.GetAmountRoundingPrecision(),
           UnexpectedPartSettledCartDocRemAmountErr);
         Assert.AreEqual(PostedCarteraDoc.Status::Open, PostedCarteraDoc.Status, InvalidStatusPartiallySettledCarteraDocErr);
 
@@ -1481,63 +1479,63 @@ codeunit 147501 "Cartera Paym. Settlement"
         GLEntry.SetRange("Document No.", DocumentNo);
 
         GLEntry.Find('-');
-        Assert.AreNearlyEqual(InitialAmount, GLEntry."Credit Amount", LibraryERM.GetAmountRoundingPrecision, 'Wrong amount on G/L Line');
+        Assert.AreNearlyEqual(InitialAmount, GLEntry."Credit Amount", LibraryERM.GetAmountRoundingPrecision(), 'Wrong amount on G/L Line');
 
         GLEntry.Next();
-        Assert.AreNearlyEqual(InitialAmount, GLEntry."Debit Amount", LibraryERM.GetAmountRoundingPrecision, 'Wrong amount on G/L Line');
+        Assert.AreNearlyEqual(InitialAmount, GLEntry."Debit Amount", LibraryERM.GetAmountRoundingPrecision(), 'Wrong amount on G/L Line');
 
         if HasUnrealizedVAT then begin
             FirstSettlementVATAmount := ExpectedVATamount * SettledAmount / InitialAmount;
 
             GLEntry.Next();
             Assert.AreNearlyEqual(
-              FirstSettlementVATAmount, GLEntry."Credit Amount", LibraryERM.GetAmountRoundingPrecision,
+              FirstSettlementVATAmount, GLEntry."Credit Amount", LibraryERM.GetAmountRoundingPrecision(),
               'Wrong amount for Unrealized VAT Amount');
 
             GLEntry.Next();
             Assert.AreNearlyEqual(
-              FirstSettlementVATAmount, GLEntry."Debit Amount", LibraryERM.GetAmountRoundingPrecision,
+              FirstSettlementVATAmount, GLEntry."Debit Amount", LibraryERM.GetAmountRoundingPrecision(),
               'Wrong amount for Unrealized VAT Amount');
         end;
 
         // Check Settlement Amount
         GLEntry.Next();
         Assert.AreNearlyEqual(
-          SettledAmount, GLEntry."Debit Amount", LibraryERM.GetAmountRoundingPrecision, 'Wrong amount on G/L Line for Settlement Amount');
+          SettledAmount, GLEntry."Debit Amount", LibraryERM.GetAmountRoundingPrecision(), 'Wrong amount on G/L Line for Settlement Amount');
 
         GLEntry.Next();
         Assert.AreNearlyEqual(
-          SettledAmount, GLEntry."Credit Amount", LibraryERM.GetAmountRoundingPrecision, 'Wrong amount on G/L Line for Settlement Amount');
+          SettledAmount, GLEntry."Credit Amount", LibraryERM.GetAmountRoundingPrecision(), 'Wrong amount on G/L Line for Settlement Amount');
 
         if HasUnrealizedVAT then begin
             FirstSettlementVATAmount := ExpectedVATamount * SettledAmount / InitialAmount;
 
             GLEntry.Next();
             Assert.AreNearlyEqual(
-              ExpectedVATamount - FirstSettlementVATAmount, GLEntry."Credit Amount", LibraryERM.GetAmountRoundingPrecision,
+              ExpectedVATamount - FirstSettlementVATAmount, GLEntry."Credit Amount", LibraryERM.GetAmountRoundingPrecision(),
               'Wrong amount for Unrealized VAT Amount');
 
             GLEntry.Next();
             Assert.AreNearlyEqual(
-              ExpectedVATamount - FirstSettlementVATAmount, GLEntry."Debit Amount", LibraryERM.GetAmountRoundingPrecision,
+              ExpectedVATamount - FirstSettlementVATAmount, GLEntry."Debit Amount", LibraryERM.GetAmountRoundingPrecision(),
               'Wrong amount for Unrealized VAT Amount');
         end;
 
         // Check invoice Discount Amount
         GLEntry.Next();
         Assert.AreNearlyEqual(
-          DiscountAmount, GLEntry."Credit Amount", LibraryERM.GetAmountRoundingPrecision, 'Wrong amount on G/L Line for Settlement Amount');
+          DiscountAmount, GLEntry."Credit Amount", LibraryERM.GetAmountRoundingPrecision(), 'Wrong amount on G/L Line for Settlement Amount');
 
         // Check Remaining Amount with Discount
         GLEntry.Next();
         Assert.AreNearlyEqual(
-          InitialAmount - SettledAmount, GLEntry."Debit Amount", LibraryERM.GetAmountRoundingPrecision,
+          InitialAmount - SettledAmount, GLEntry."Debit Amount", LibraryERM.GetAmountRoundingPrecision(),
           'Wrong amount on G/L Line for Remaining Amount');
 
         // Check remainging amount without discount
         GLEntry.Next();
         Assert.AreNearlyEqual(
-          InitialAmount - SettledAmount - DiscountAmount, GLEntry."Credit Amount", LibraryERM.GetAmountRoundingPrecision,
+          InitialAmount - SettledAmount - DiscountAmount, GLEntry."Credit Amount", LibraryERM.GetAmountRoundingPrecision(),
           'Wrong amount on G/L line without discount');
 
         Assert.IsTrue(GLEntry.Next() = 0, 'There should not be any more G/L Entries');
@@ -1588,7 +1586,7 @@ codeunit 147501 "Cartera Paym. Settlement"
     [Scope('OnPrem')]
     procedure SettleDocsInPostedPOModalPageHandler(var SettleDocsInPostedPOModalPageHandler: TestRequestPage "Settle Docs. in Posted PO")
     begin
-        SettleDocsInPostedPOModalPageHandler.OK.Invoke();
+        SettleDocsInPostedPOModalPageHandler.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -1598,7 +1596,7 @@ codeunit 147501 "Cartera Paym. Settlement"
         CreatePayment."Template Name".SetValue(LibraryVariableStorage.DequeueText());
         CreatePayment."Batch Name".SetValue(LibraryVariableStorage.DequeueText());
         CreatePayment."Starting Document No.".SetValue(LibraryVariableStorage.DequeueText());
-        CreatePayment.OK.Invoke();
+        CreatePayment.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -1609,7 +1607,7 @@ codeunit 147501 "Cartera Paym. Settlement"
     begin
         LibraryVariableStorage.Dequeue(CurrencyCode);
         Currencies.GotoKey(CurrencyCode);
-        Currencies.OK.Invoke();
+        Currencies.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -1620,7 +1618,7 @@ codeunit 147501 "Cartera Paym. Settlement"
     begin
         LibraryVariableStorage.Dequeue(BankAccountNo);
         BankAccountList.GotoKey(BankAccountNo);
-        BankAccountList.OK.Invoke();
+        BankAccountList.OK().Invoke();
     end;
 
     [ConfirmHandler]
@@ -1648,7 +1646,7 @@ codeunit 147501 "Cartera Paym. Settlement"
     [Scope('OnPrem')]
     procedure BatchSettlementRequestPageHandler(var BatchSettlPostedPO: TestRequestPage "Batch Settl. Posted POs")
     begin
-        BatchSettlPostedPO.OK.Invoke();
+        BatchSettlPostedPO.OK().Invoke();
     end;
 
     [RequestPageHandler]
@@ -1661,7 +1659,7 @@ codeunit 147501 "Cartera Paym. Settlement"
 
         // Set applied amount
         PartialSettlPayable.AppliedAmt.SetValue(SettledAmount);
-        PartialSettlPayable.OK.Invoke();
+        PartialSettlPayable.OK().Invoke();
     end;
 
     [RequestPageHandler]
@@ -1670,7 +1668,7 @@ codeunit 147501 "Cartera Paym. Settlement"
     begin
         SettleDocsinPostedPO.PostingDate.SetValue(WorkDate());
 
-        SettleDocsinPostedPO.OK.Invoke();
+        SettleDocsinPostedPO.OK().Invoke();
     end;
 
     [RequestPageHandler]

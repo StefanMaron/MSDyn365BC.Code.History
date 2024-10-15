@@ -8,7 +8,7 @@ page 7000025 "BG/PO Comment Sheet"
 {
     AutoSplitKey = true;
     Caption = 'BG/PO Comment Sheet';
-    DataCaptionExpression = Caption();
+    DataCaptionExpression = Rec.Caption();
     MultipleNewLines = true;
     PageType = List;
     SourceTable = "BG/PO Comment Line";

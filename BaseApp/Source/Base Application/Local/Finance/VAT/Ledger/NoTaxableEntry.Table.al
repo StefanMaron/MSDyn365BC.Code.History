@@ -23,6 +23,7 @@ table 10740 "No Taxable Entry"
     DrillDownPageID = "No Taxable Entries";
     LookupPageID = "No Taxable Entries";
     Permissions = TableData "No Taxable Entry" = rim;
+    DataClassification = CustomerContent;
 
     fields
     {

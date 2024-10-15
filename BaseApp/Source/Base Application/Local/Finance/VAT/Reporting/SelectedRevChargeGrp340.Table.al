@@ -11,6 +11,7 @@ table 10734 "Selected Rev. Charge Grp. 340"
     Caption = 'Selected Rev. Charge Grp. 340';
     DataCaptionFields = "Code", Description;
     LookupPageID = "Gen. Product Posting Groups";
+    DataClassification = CustomerContent;
 
     fields
     {

@@ -127,7 +127,7 @@ codeunit 139178 "CRM Connection String"
         // [WHEN] Open CRM Connection Setup Page
         CRMConnectionSetupPage.OpenView();
         // [THEN] "Authentication Type" is not visible
-        asserterror CRMConnectionSetupPage."Authentication Type".Activate;
+        asserterror CRMConnectionSetupPage."Authentication Type".Activate();
         Assert.ExpectedError(IsNotFoundOnThePageErr);
     end;
 
@@ -148,7 +148,7 @@ codeunit 139178 "CRM Connection String"
         // [WHEN] Open CRM Connection Setup Page
         CRMConnectionSetupPage.OpenView();
         // [THEN] "Authentication Type" is not visible
-        Assert.IsTrue(CRMConnectionSetupPage."Authentication Type".Visible, 'Authentication Type is not visible.')
+        Assert.IsTrue(CRMConnectionSetupPage."Authentication Type".Visible(), 'Authentication Type is not visible.')
     end;
 
     [Test]
@@ -166,7 +166,7 @@ codeunit 139178 "CRM Connection String"
         LibraryApplicationArea.DisableApplicationAreaSetup();
         CRMConnectionSetupPage.OpenEdit();
         // [THEN] "Authentication Type" is not editable
-        Assert.IsFalse(CRMConnectionSetupPage."Authentication Type".Editable, 'Authentication Type is editable.')
+        Assert.IsFalse(CRMConnectionSetupPage."Authentication Type".Editable(), 'Authentication Type is editable.')
     end;
 
     [Test]
@@ -278,7 +278,7 @@ codeunit 139178 "CRM Connection String"
         // [WHEN] Open CRM Connection Setup Page
         CRMConnectionSetupPage.OpenView();
         // [THEN] "Domain" is not visible
-        asserterror CRMConnectionSetupPage.Domain.Activate;
+        asserterror CRMConnectionSetupPage.Domain.Activate();
         Assert.ExpectedError(IsNotFoundOnThePageErr);
     end;
 
@@ -299,7 +299,7 @@ codeunit 139178 "CRM Connection String"
         // [WHEN] Open CRM Connection Setup Page
         CRMConnectionSetupPage.OpenView();
         // [THEN] "Domain" is visible
-        Assert.IsTrue(CRMConnectionSetupPage.Domain.Visible, 'Domain is not visible.')
+        Assert.IsTrue(CRMConnectionSetupPage.Domain.Visible(), 'Domain is not visible.')
     end;
 
     [Test]
@@ -316,7 +316,7 @@ codeunit 139178 "CRM Connection String"
         LibraryApplicationArea.DisableApplicationAreaSetup();
         CRMConnectionSetupPage.OpenEdit();
         // [THEN] "Domain" is not editable
-        Assert.IsFalse(CRMConnectionSetupPage.Domain.Editable, 'Domain is editable.')
+        Assert.IsFalse(CRMConnectionSetupPage.Domain.Editable(), 'Domain is editable.')
     end;
 
     [Test]
@@ -335,7 +335,7 @@ codeunit 139178 "CRM Connection String"
         // [WHEN] Open CRM Connection Setup Page
         CRMConnectionSetupPage.OpenView();
         // [THEN] "Connection String" is not visible
-        asserterror CRMConnectionSetupPage."Connection String".Activate;
+        asserterror CRMConnectionSetupPage."Connection String".Activate();
         Assert.ExpectedError(IsNotFoundOnThePageErr);
     end;
 
@@ -356,7 +356,7 @@ codeunit 139178 "CRM Connection String"
         // [WHEN] Open CRM Connection Setup Page
         CRMConnectionSetupPage.OpenView();
         // [THEN] "Connection String" is visible
-        Assert.IsTrue(CRMConnectionSetupPage."Connection String".Visible, 'Connection String is not visible.')
+        Assert.IsTrue(CRMConnectionSetupPage."Connection String".Visible(), 'Connection String is not visible.')
     end;
 
     [Test]
@@ -380,8 +380,8 @@ codeunit 139178 "CRM Connection String"
         // [WHEN] Open CRM Connection Setup Page
         CRMConnectionSetupPage.OpenEdit();
         // [THEN] "Authentication Type" and "Connection String" are not editable
-        Assert.IsFalse(CRMConnectionSetupPage."Connection String".Editable, 'Connection String is editable.');
-        Assert.IsFalse(CRMConnectionSetupPage."Authentication Type".Editable, 'Authentication Type is editable.');
+        Assert.IsFalse(CRMConnectionSetupPage."Connection String".Editable(), 'Connection String is editable.');
+        Assert.IsFalse(CRMConnectionSetupPage."Authentication Type".Editable(), 'Authentication Type is editable.');
     end;
 
     [Test]
@@ -405,8 +405,8 @@ codeunit 139178 "CRM Connection String"
         // [WHEN] Open CRM Connection Setup Page
         CRMConnectionSetupPage.OpenEdit();
         // [THEN] "Authentication Type" and "Connection String" are not editable
-        Assert.IsFalse(CRMConnectionSetupPage."Connection String".Editable, 'Connection String is editable.');
-        Assert.IsFalse(CRMConnectionSetupPage."Authentication Type".Editable, 'Authentication Type is editable.');
+        Assert.IsFalse(CRMConnectionSetupPage."Connection String".Editable(), 'Connection String is editable.');
+        Assert.IsFalse(CRMConnectionSetupPage."Authentication Type".Editable(), 'Authentication Type is editable.');
     end;
 
     [Test]
@@ -430,8 +430,8 @@ codeunit 139178 "CRM Connection String"
         // [WHEN] Open CRM Connection Setup Page
         CRMConnectionSetupPage.OpenEdit();
         // [THEN] "Authentication Type" and "Connection String" are not editable
-        Assert.IsFalse(CRMConnectionSetupPage."Connection String".Editable, 'Connection String is editable.');
-        Assert.IsFalse(CRMConnectionSetupPage."Authentication Type".Editable, 'Authentication Type is editable.');
+        Assert.IsFalse(CRMConnectionSetupPage."Connection String".Editable(), 'Connection String is editable.');
+        Assert.IsFalse(CRMConnectionSetupPage."Authentication Type".Editable(), 'Authentication Type is editable.');
     end;
 
     [Test]
@@ -456,13 +456,13 @@ codeunit 139178 "CRM Connection String"
         CRMConnectionSetupPage."Authentication Type".Value(Format(CRMConnectionSetup."Authentication Type"));
         // [THEN] "Connection String" is not editable
         Assert.IsFalse(
-          CRMConnectionSetupPage."Connection String".Editable, 'Connection String is editable for O365.');
+          CRMConnectionSetupPage."Connection String".Editable(), 'Connection String is editable for O365.');
         // [WHEN] "Auth Type" is 'AD'
         CRMConnectionSetup."Authentication Type" := CRMConnectionSetup."Authentication Type"::AD;
         CRMConnectionSetupPage."Authentication Type".Value(Format(CRMConnectionSetup."Authentication Type"));
         // [THEN] "Connection String" is not editable
         Assert.IsFalse(
-          CRMConnectionSetupPage."Connection String".Editable, 'Connection String is editable for AD.')
+          CRMConnectionSetupPage."Connection String".Editable(), 'Connection String is editable for AD.')
     end;
 
     [Test]
@@ -487,13 +487,13 @@ codeunit 139178 "CRM Connection String"
         CRMConnectionSetupPage."Authentication Type".Value(Format(CRMConnectionSetup."Authentication Type"));
         // [THEN] "Connection String" is not editable
         Assert.IsFalse(
-          CRMConnectionSetupPage."Connection String".Editable, 'Connection String is editable for OAuth.');
+          CRMConnectionSetupPage."Connection String".Editable(), 'Connection String is editable for OAuth.');
         // [WHEN] "Auth Type" is 'IFD'
         CRMConnectionSetup."Authentication Type" := CRMConnectionSetup."Authentication Type"::IFD;
         CRMConnectionSetupPage."Authentication Type".Value(Format(CRMConnectionSetup."Authentication Type"));
         // [THEN] "Connection String" is not editable
         Assert.IsFalse(
-          CRMConnectionSetupPage."Connection String".Editable, 'Connection String is editable for IFD.');
+          CRMConnectionSetupPage."Connection String".Editable(), 'Connection String is editable for IFD.');
     end;
 
     [Test]
@@ -645,7 +645,7 @@ codeunit 139178 "CRM Connection String"
         CRMConnectionSetup.SetConnectionString(ConnectionStringValue);
         CRMConnectionSetup.Find();
         // [THEN] No error appear and the value is saved
-        Assert.AreEqual('', CRMConnectionSetup.GetConnectionString, 'Wrong connection string value');
+        Assert.AreEqual('', CRMConnectionSetup.GetConnectionString(), 'Wrong connection string value');
     end;
 
     [Test]
@@ -805,7 +805,7 @@ codeunit 139178 "CRM Connection String"
     local procedure CreateUser(var User: Record User; AuthEmail: Text[250])
     begin
         CODEUNIT.Run(CODEUNIT::"Users - Create Super User");
-        User.SetRange("Windows Security ID", Sid);
+        User.SetRange("Windows Security ID", Sid());
         User.FindFirst();
         User.Validate("Authentication Email", AuthEmail);
         User.Modify();

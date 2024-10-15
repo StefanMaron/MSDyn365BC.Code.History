@@ -26,87 +26,83 @@ report 6562 "Calc. Invt. Doc. Whse. Adjmt."
 
                 trigger OnAfterGetRecord()
                 begin
-                    with TempInventoryBuffer do begin
-                        WhseEntry.SetRange("Location Code", InvtDocHeader."Location Code");
-                        WhseEntry.SetRange("Bin Code", InvtDocHeader."Whse. Adj. Bin Code");
-                        if WhseEntry.FindSet() then
-                            repeat
-                                if WhseEntry."Qty. (Base)" <> 0 then begin
-                                    Reset();
-                                    SetRange("Item No.", WhseEntry."Item No.");
-                                    SetRange("Variant Code", WhseEntry."Variant Code");
-                                    SetRange("Location Code", WhseEntry."Location Code");
-                                    SetRange("Bin Code", WhseEntry."Bin Code");
-                                    if WhseEntry."Lot No." <> '' then
-                                        SetRange("Lot No.", WhseEntry."Lot No.");
-                                    if WhseEntry."Serial No." <> '' then
-                                        SetRange("Serial No.", WhseEntry."Serial No.");
-                                    if FindFirst() then begin
-                                        Quantity := Quantity + WhseEntry."Qty. (Base)";
-                                        Modify();
-                                    end else begin
-                                        "Item No." := WhseEntry."Item No.";
-                                        "Variant Code" := WhseEntry."Variant Code";
-                                        "Location Code" := WhseEntry."Location Code";
-                                        "Bin Code" := WhseEntry."Bin Code";
-                                        "Lot No." := WhseEntry."Lot No.";
-                                        "Serial No." := WhseEntry."Serial No.";
-                                        Quantity := WhseEntry."Qty. (Base)";
-                                        Insert();
-                                    end;
+                    WhseEntry.SetRange("Location Code", InvtDocHeader."Location Code");
+                    WhseEntry.SetRange("Bin Code", InvtDocHeader."Whse. Adj. Bin Code");
+                    if WhseEntry.FindSet() then
+                        repeat
+                            if WhseEntry."Qty. (Base)" <> 0 then begin
+                                TempInventoryBuffer.Reset();
+                                TempInventoryBuffer.SetRange("Item No.", WhseEntry."Item No.");
+                                TempInventoryBuffer.SetRange("Variant Code", WhseEntry."Variant Code");
+                                TempInventoryBuffer.SetRange("Location Code", WhseEntry."Location Code");
+                                TempInventoryBuffer.SetRange("Bin Code", WhseEntry."Bin Code");
+                                if WhseEntry."Lot No." <> '' then
+                                    TempInventoryBuffer.SetRange("Lot No.", WhseEntry."Lot No.");
+                                if WhseEntry."Serial No." <> '' then
+                                    TempInventoryBuffer.SetRange("Serial No.", WhseEntry."Serial No.");
+                                if TempInventoryBuffer.FindFirst() then begin
+                                    TempInventoryBuffer.Quantity := TempInventoryBuffer.Quantity + WhseEntry."Qty. (Base)";
+                                    TempInventoryBuffer.Modify();
+                                end else begin
+                                    TempInventoryBuffer."Item No." := WhseEntry."Item No.";
+                                    TempInventoryBuffer."Variant Code" := WhseEntry."Variant Code";
+                                    TempInventoryBuffer."Location Code" := WhseEntry."Location Code";
+                                    TempInventoryBuffer."Bin Code" := WhseEntry."Bin Code";
+                                    TempInventoryBuffer."Lot No." := WhseEntry."Lot No.";
+                                    TempInventoryBuffer."Serial No." := WhseEntry."Serial No.";
+                                    TempInventoryBuffer.Quantity := WhseEntry."Qty. (Base)";
+                                    TempInventoryBuffer.Insert();
                                 end;
-                            until WhseEntry.Next() = 0;
-                    end;
+                            end;
+                        until WhseEntry.Next() = 0;
                 end;
 
                 trigger OnPostDataItem()
                 begin
-                    with TempInventoryBuffer do begin
-                        Reset();
-                        SetCurrentKey("Location Code", "Variant Code", Quantity);
-                        if FindSet() then
-                            repeat
-                                if "Location Code" <> '' then
-                                    SetRange("Location Code", "Location Code");
-                                SetRange("Variant Code", "Variant Code");
+                    TempInventoryBuffer.Reset();
+                    TempInventoryBuffer.SetCurrentKey("Location Code", "Variant Code", Quantity);
+                    if TempInventoryBuffer.FindSet() then
+                        repeat
+                            if TempInventoryBuffer."Location Code" <> '' then
+                                TempInventoryBuffer.SetRange("Location Code", TempInventoryBuffer."Location Code");
+                            TempInventoryBuffer.SetRange("Variant Code", TempInventoryBuffer."Variant Code");
 
-                                case InvtDocHeader."Document Type" of
-                                    InvtDocHeader."Document Type"::Receipt:
-                                        begin
-                                            SetFilter(Quantity, '>0');
-                                            CalcSums(Quantity);
-                                            WhseQty := -Quantity;
-                                            if WhseQty <> 0 then begin
-                                                FindFirst();
-                                                InsertInvtDocLine(
-                                                  "Item No.", "Variant Code", "Location Code",
-                                                  WhseQty, Item."Base Unit of Measure",
-                                                  InvtDocLine."Document Type"::Shipment);
-                                            end;
+                            case InvtDocHeader."Document Type" of
+                                InvtDocHeader."Document Type"::Receipt:
+                                    begin
+                                        TempInventoryBuffer.SetFilter(Quantity, '>0');
+                                        TempInventoryBuffer.CalcSums(Quantity);
+                                        WhseQty := -TempInventoryBuffer.Quantity;
+                                        if WhseQty <> 0 then begin
+                                            TempInventoryBuffer.FindFirst();
+                                            InsertInvtDocLine(
+                                              TempInventoryBuffer."Item No.", TempInventoryBuffer."Variant Code", TempInventoryBuffer."Location Code",
+                                              WhseQty, Item."Base Unit of Measure",
+                                              InvtDocLine."Document Type"::Shipment);
                                         end;
-                                    InvtDocHeader."Document Type"::Shipment:
-                                        begin
-                                            SetFilter(Quantity, '<0');
-                                            CalcSums(Quantity);
-                                            WhseQty := -Quantity;
-                                            if WhseQty <> 0 then begin
-                                                FindFirst();
-                                                InsertInvtDocLine(
-                                                  "Item No.", "Variant Code", "Location Code",
-                                                  WhseQty, Item."Base Unit of Measure",
-                                                  InvtDocLine."Document Type"::Shipment);
-                                            end;
+                                    end;
+                                InvtDocHeader."Document Type"::Shipment:
+                                    begin
+                                        TempInventoryBuffer.SetFilter(Quantity, '<0');
+                                        TempInventoryBuffer.CalcSums(Quantity);
+                                        WhseQty := -TempInventoryBuffer.Quantity;
+                                        if WhseQty <> 0 then begin
+                                            TempInventoryBuffer.FindFirst();
+                                            InsertInvtDocLine(
+                                              TempInventoryBuffer."Item No.", TempInventoryBuffer."Variant Code", TempInventoryBuffer."Location Code",
+                                              WhseQty, Item."Base Unit of Measure",
+                                              InvtDocLine."Document Type"::Shipment);
                                         end;
-                                end;
+                                    end;
+                            end;
 
-                                SetRange(Quantity);
-                                FindLast();
-                                SetRange("Location Code");
-                                SetRange("Variant Code");
-                            until Next() = 0;
-                        Reset();
-                        DeleteAll();
-                    end;
+                            TempInventoryBuffer.SetRange(Quantity);
+                            TempInventoryBuffer.FindLast();
+                            TempInventoryBuffer.SetRange("Location Code");
+                            TempInventoryBuffer.SetRange("Variant Code");
+                        until TempInventoryBuffer.Next() = 0;
+                    TempInventoryBuffer.Reset();
+                    TempInventoryBuffer.DeleteAll();
                 end;
 
                 trigger OnPreDataItem()
@@ -205,83 +201,81 @@ report 6562 "Calc. Invt. Doc. Whse. Adjmt."
         ReservEntry: Record "Reservation Entry";
         CreateReservEntry: Codeunit "Create Reserv. Entry";
     begin
-        with InvtDocLine do begin
-            if NextLineNo = 0 then begin
-                LockTable();
-                SetRange("Document Type", "Document Type");
-                SetRange("Document No.", "Document No.");
-                if FindLast() then
-                    NextLineNo := "Line No.";
+        if NextLineNo = 0 then begin
+            InvtDocLine.LockTable();
+            InvtDocLine.SetRange("Document Type", InvtDocLine."Document Type");
+            InvtDocLine.SetRange("Document No.", InvtDocLine."Document No.");
+            if InvtDocLine.FindLast() then
+                NextLineNo := InvtDocLine."Line No.";
 
-                SourceCodeSetup.Get();
-            end;
-            NextLineNo := NextLineNo + 10000;
+            SourceCodeSetup.Get();
+        end;
+        NextLineNo := NextLineNo + 10000;
 
-            if Quantity2 <> 0 then begin
-                Init();
-                "Line No." := NextLineNo;
-                Validate("Posting Date", InvtDocHeader."Posting Date");
-                Validate("Document Type", InvtDocHeader."Document Type");
-                Validate("Document No.", InvtDocHeader."No.");
-                Validate("Item No.", ItemNo);
-                Validate("Variant Code", VariantCode2);
-                Validate("Location Code", LocationCode2);
-                if InvtDocHeader."Document Type" = InvtDocHeader."Document Type"::Receipt then
-                    Validate("Source Code", SourceCodeSetup."Invt. Receipt")
-                else
-                    Validate("Source Code", SourceCodeSetup."Invt. Shipment");
-                Validate("Unit of Measure Code", UOM2);
-                if LocationCode2 <> '' then
-                    Location2.Get(LocationCode2);
-                Validate(Quantity, Abs(Quantity2));
-                Insert(true);
+        if Quantity2 <> 0 then begin
+            InvtDocLine.Init();
+            InvtDocLine."Line No." := NextLineNo;
+            InvtDocLine.Validate("Posting Date", InvtDocHeader."Posting Date");
+            InvtDocLine.Validate("Document Type", InvtDocHeader."Document Type");
+            InvtDocLine.Validate("Document No.", InvtDocHeader."No.");
+            InvtDocLine.Validate("Item No.", ItemNo);
+            InvtDocLine.Validate("Variant Code", VariantCode2);
+            InvtDocLine.Validate("Location Code", LocationCode2);
+            if InvtDocHeader."Document Type" = InvtDocHeader."Document Type"::Receipt then
+                InvtDocLine.Validate("Source Code", SourceCodeSetup."Invt. Receipt")
+            else
+                InvtDocLine.Validate("Source Code", SourceCodeSetup."Invt. Shipment");
+            InvtDocLine.Validate("Unit of Measure Code", UOM2);
+            if LocationCode2 <> '' then
+                Location2.Get(LocationCode2);
+            InvtDocLine.Validate(Quantity, Abs(Quantity2));
+            InvtDocLine.Insert(true);
 
-                if Location2.Code <> '' then
-                    if Location2."Directed Put-away and Pick" then begin
-                        WhseEntry2.SetCurrentKey(
-                          "Item No.", "Bin Code", "Location Code", "Variant Code", "Unit of Measure Code",
-                          "Lot No.", "Serial No.", "Entry Type");
-                        WhseEntry2.SetRange("Item No.", "Item No.");
-                        WhseEntry2.SetRange("Bin Code", Location2."Adjustment Bin Code");
-                        WhseEntry2.SetRange("Location Code", "Location Code");
-                        WhseEntry2.SetRange("Variant Code", "Variant Code");
-                        WhseEntry2.SetRange("Unit of Measure Code", "Unit of Measure Code");
-                        WhseEntry2.SetRange("Entry Type", EntryType2);
-                        if WhseEntry2.FindSet() then
-                            repeat
-                                WhseEntry2.SetRange("Lot No.", WhseEntry2."Lot No.");
-                                WhseEntry2.SetRange("Serial No.", WhseEntry2."Serial No.");
-                                WhseEntry2.CalcSums("Qty. (Base)");
+            if Location2.Code <> '' then
+                if Location2."Directed Put-away and Pick" then begin
+                    WhseEntry2.SetCurrentKey(
+                      "Item No.", "Bin Code", "Location Code", "Variant Code", "Unit of Measure Code",
+                      "Lot No.", "Serial No.", "Entry Type");
+                    WhseEntry2.SetRange("Item No.", InvtDocLine."Item No.");
+                    WhseEntry2.SetRange("Bin Code", Location2."Adjustment Bin Code");
+                    WhseEntry2.SetRange("Location Code", InvtDocLine."Location Code");
+                    WhseEntry2.SetRange("Variant Code", InvtDocLine."Variant Code");
+                    WhseEntry2.SetRange("Unit of Measure Code", InvtDocLine."Unit of Measure Code");
+                    WhseEntry2.SetRange("Entry Type", EntryType2);
+                    if WhseEntry2.FindSet() then
+                        repeat
+                            WhseEntry2.SetRange("Lot No.", WhseEntry2."Lot No.");
+                            WhseEntry2.SetRange("Serial No.", WhseEntry2."Serial No.");
+                            WhseEntry2.CalcSums("Qty. (Base)");
 
-                                WhseEntry3.SetCurrentKey(
-                                  "Item No.", "Bin Code", "Location Code", "Variant Code", "Unit of Measure Code",
-                                  "Lot No.", "Serial No.", "Entry Type");
-                                WhseEntry3.CopyFilters(WhseEntry2);
-                                case EntryType2 of
-                                    EntryType2::Receipt:
-                                        WhseEntry3.SetRange("Entry Type", WhseEntry3."Entry Type"::"Negative Adjmt.");
-                                    EntryType2::Shipment:
-                                        WhseEntry3.SetRange("Entry Type", WhseEntry3."Entry Type"::"Positive Adjmt.");
-                                end;
-                                WhseEntry3.CalcSums("Qty. (Base)");
-                                if Abs(WhseEntry3."Qty. (Base)") > Abs(WhseEntry2."Qty. (Base)") then
-                                    WhseEntry2."Qty. (Base)" := 0
-                                else
-                                    WhseEntry2."Qty. (Base)" := WhseEntry2."Qty. (Base)" + WhseEntry3."Qty. (Base)";
+                            WhseEntry3.SetCurrentKey(
+                              "Item No.", "Bin Code", "Location Code", "Variant Code", "Unit of Measure Code",
+                              "Lot No.", "Serial No.", "Entry Type");
+                            WhseEntry3.CopyFilters(WhseEntry2);
+                            case EntryType2 of
+                                EntryType2::Receipt:
+                                    WhseEntry3.SetRange("Entry Type", WhseEntry3."Entry Type"::"Negative Adjmt.");
+                                EntryType2::Shipment:
+                                    WhseEntry3.SetRange("Entry Type", WhseEntry3."Entry Type"::"Positive Adjmt.");
+                            end;
+                            WhseEntry3.CalcSums("Qty. (Base)");
+                            if Abs(WhseEntry3."Qty. (Base)") > Abs(WhseEntry2."Qty. (Base)") then
+                                WhseEntry2."Qty. (Base)" := 0
+                            else
+                                WhseEntry2."Qty. (Base)" := WhseEntry2."Qty. (Base)" + WhseEntry3."Qty. (Base)";
 
-                                if WhseEntry2."Qty. (Base)" <> 0 then begin
-                                    ReservEntry.CopyTrackingFromWhseEntry(WhseEntry2);
-                                    CreateReservEntry.CreateReservEntryFor(
-                                      Database::"Item Journal Line", "Document Type".AsInteger(), "Document No.", '', 0, "Line No.",
-                                      "Qty. per Unit of Measure", Abs(WhseEntry2.Quantity), Abs(WhseEntry2."Qty. (Base)"), ReservEntry);
-                                    CreateReservEntry.CreateEntry(
-                                      "Item No.", "Variant Code", "Location Code", Description, 0D, 0D, 0, "Reservation Status"::Prospect);
-                                end;
-                                WhseEntry2.FindLast();
-                                WhseEntry2.ClearTrackingFilter();
-                            until WhseEntry2.Next() = 0;
-                    end;
-            end;
+                            if WhseEntry2."Qty. (Base)" <> 0 then begin
+                                ReservEntry.CopyTrackingFromWhseEntry(WhseEntry2);
+                                CreateReservEntry.CreateReservEntryFor(
+                                  Database::"Item Journal Line", InvtDocLine."Document Type".AsInteger(), InvtDocLine."Document No.", '', 0, InvtDocLine."Line No.",
+                                  InvtDocLine."Qty. per Unit of Measure", Abs(WhseEntry2.Quantity), Abs(WhseEntry2."Qty. (Base)"), ReservEntry);
+                                CreateReservEntry.CreateEntry(
+                                  InvtDocLine."Item No.", InvtDocLine."Variant Code", InvtDocLine."Location Code", InvtDocLine.Description, 0D, 0D, 0, "Reservation Status"::Prospect);
+                            end;
+                            WhseEntry2.FindLast();
+                            WhseEntry2.ClearTrackingFilter();
+                        until WhseEntry2.Next() = 0;
+                end;
         end;
     end;
 

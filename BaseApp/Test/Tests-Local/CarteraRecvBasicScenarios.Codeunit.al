@@ -20,7 +20,6 @@
         LibraryERM: Codeunit "Library - ERM";
         LibraryUtility: Codeunit "Library - Utility";
         LibraryRandom: Codeunit "Library - Random";
-        CarteraRecvBasicScenarios: Codeunit "Cartera Recv. Basic Scenarios";
         LibraryDimension: Codeunit "Library - Dimension";
         LibraryInventory: Codeunit "Library - Inventory";
         RecordNotFoundErr: Label '%1 was not found.', Comment = '%1=TableCaption';
@@ -31,7 +30,9 @@
         CustomerNoElementNameTxt: Label 'Cust__Ledger_Entry__Customer_No__';
         RemainingAmountElementNameTxt: Label 'Cust__Ledger_Entry__Remaining_Amount_';
         PaymentMethodCodeModifyErr: Label 'For Cartera-based bills and invoices, you cannot change the Payment Method Code to this value.';
+#if not CLEAN23
         ExchRateWasAdjustedTxt: Label 'One or more currency exchange rates have been adjusted.';
+#endif
         CheckBillSituationGroupErr: Label '%1 cannot be applied because it is included in a bill group. To apply the document, remove it from the bill group and try again.', Comment = '%1 - document type and number';
         CheckBillSituationPostedErr: Label '%1 cannot be applied because it is included in a posted bill group.', Comment = '%1 - document type and number';
         PostDocumentAppliedToBillInGroupErr: Label 'A grouped document cannot be settled from a journal.\Remove Document %1/1 from Group/Pmt. Order %2 and try again.';
@@ -282,7 +283,7 @@
         SettleDocsInPostBillGrPage(PostedBillGroup, BillGroup."No.");
 
         asserterror PostedBillGroup.FindFirst();
-        Assert.AssertNothingInsideFilter;
+        Assert.AssertNothingInsideFilter();
     end;
 
     [Test]
@@ -312,7 +313,7 @@
         SettleDocsInPostBillGrPage(PostedBillGroup, BillGroupNo);
 
         asserterror PostedBillGroup.FindFirst();
-        Assert.AssertNothingInsideFilter;
+        Assert.AssertNothingInsideFilter();
     end;
 
     [Test]
@@ -338,7 +339,7 @@
         SettleDocsInPostBillGrPage(PostedBillGroup, BillGroup."No.");
 
         asserterror PostedBillGroup.FindFirst();
-        Assert.AssertNothingInsideFilter;
+        Assert.AssertNothingInsideFilter();
     end;
 
     [Test]
@@ -379,7 +380,7 @@
         RejectDocsInPostBillGrPage(PostedBillGroup, BillGroup."No.");
 
         asserterror PostedBillGroup.FindFirst();
-        Assert.AssertNothingInsideFilter;
+        Assert.AssertNothingInsideFilter();
 
         VerifyClosedCarteraDocStatus(BillGroup."No.", DocumentNo);
     end;
@@ -426,7 +427,7 @@
         RejectDocsInPostBillGrPage(PostedBillGroup, BillGroup."No.");
 
         asserterror PostedBillGroup.FindFirst();
-        Assert.AssertNothingInsideFilter;
+        Assert.AssertNothingInsideFilter();
 
         VerifyClosedCarteraDocStatus(BillGroup."No.", DocumentNo);
     end;
@@ -463,7 +464,7 @@
         SettleDocsInPostBillGrPage(PostedBillGroup, BillGroup."No.");
 
         asserterror PostedBillGroup.FindFirst();
-        Assert.AssertNothingInsideFilter;
+        Assert.AssertNothingInsideFilter();
     end;
 
     [Test]
@@ -732,7 +733,7 @@
         Initialize();
 
         // [GIVEN] Currency with Currency Factor on Date1 (1.0487), Date3 (1.223), Date4 (1.0788)
-        CurrencyCode := CreateCurrencyForBillGroup;
+        CurrencyCode := CreateCurrencyForBillGroup();
         SetScenarioRatesDates(CurrencyExchRate, PostingDate);
         LibraryERM.CreateExchangeRate(CurrencyCode, PostingDate[1], CurrencyExchRate[1], CurrencyExchRate[1]);
         LibraryERM.CreateExchangeRate(CurrencyCode, PostingDate[3], CurrencyExchRate[3], CurrencyExchRate[3]);
@@ -786,7 +787,7 @@
         Initialize();
 
         // [GIVEN] Currency with Currency Factor on Date1 (1.0487), Date3 (1.223), Date4 (1.0788)
-        CurrencyCode := CreateCurrencyForBillGroup;
+        CurrencyCode := CreateCurrencyForBillGroup();
         SetScenarioRatesDates(CurrencyExchRate, PostingDate);
         LibraryERM.CreateExchangeRate(CurrencyCode, PostingDate[1], CurrencyExchRate[1], CurrencyExchRate[1]);
         LibraryERM.CreateExchangeRate(CurrencyCode, PostingDate[3], CurrencyExchRate[3], CurrencyExchRate[3]);
@@ -840,7 +841,7 @@
         Initialize();
 
         // [GIVEN] Currency with Currency Factor on Date1 (1.0487), Date3 (1.223), Date4 (1.0788)
-        CurrencyCode := CreateCurrencyForBillGroup;
+        CurrencyCode := CreateCurrencyForBillGroup();
         SetScenarioRatesDates(CurrencyExchRate, PostingDate);
         LibraryERM.CreateExchangeRate(CurrencyCode, PostingDate[1], CurrencyExchRate[1], CurrencyExchRate[1]);
         LibraryERM.CreateExchangeRate(CurrencyCode, PostingDate[3], CurrencyExchRate[3], CurrencyExchRate[3]);
@@ -895,7 +896,7 @@
         Initialize();
 
         // [GIVEN] Currency with Currency Factor on Date1 (1.0487), Date3 (1.223), Date4 (1.0788)
-        CurrencyCode := CreateCurrencyForBillGroup;
+        CurrencyCode := CreateCurrencyForBillGroup();
         SetScenarioRatesDates(CurrencyExchRate, PostingDate);
         LibraryERM.CreateExchangeRate(CurrencyCode, PostingDate[1], CurrencyExchRate[1], CurrencyExchRate[1]);
         LibraryERM.CreateExchangeRate(CurrencyCode, PostingDate[3], CurrencyExchRate[3], CurrencyExchRate[3]);
@@ -1152,7 +1153,7 @@
         Initialize();
 
         // [GIVEN] Currency with Currency Factor = "X" on Date1 (1.0487), Date2 (1.112), Date3 (1.223)
-        CurrencyCode := CreateCurrencyForBillGroup;
+        CurrencyCode := CreateCurrencyForBillGroup();
         SetScenarioRatesDates(CurrencyExchRate, PostingDate);
         LibraryERM.CreateExchangeRate(CurrencyCode, PostingDate[1], CurrencyExchRate[1], CurrencyExchRate[1]);
         LibraryERM.CreateExchangeRate(CurrencyCode, PostingDate[2], CurrencyExchRate[2], CurrencyExchRate[2]);
@@ -1206,7 +1207,7 @@
         Initialize();
 
         // [GIVEN] Currency with Currency Factor = "X" on Date1 (1.0487), Date2 (1.112), Date3 (1.223)
-        CurrencyCode := CreateCurrencyForBillGroup;
+        CurrencyCode := CreateCurrencyForBillGroup();
         SetScenarioRatesDates(CurrencyExchRate, PostingDate);
         LibraryERM.CreateExchangeRate(CurrencyCode, PostingDate[1], CurrencyExchRate[1], CurrencyExchRate[1]);
         LibraryERM.CreateExchangeRate(CurrencyCode, PostingDate[2], CurrencyExchRate[2], CurrencyExchRate[2]);
@@ -1313,10 +1314,10 @@
         Initialize();
 
         // [GIVEN] Currency with different exchange rates on "Posting Date" = 01.01 and "Posting Date" = 02.01
-        CurrencyCode := CreateCurrencyForBillGroup;
+        CurrencyCode := CreateCurrencyForBillGroup();
         for i := 0 to 1 do begin
             ExchRateAmount := LibraryRandom.RandDecInDecimalRange(1, 2, 2);
-            LibraryERM.CreateExchangeRate(CurrencyCode, WorkDate + i, ExchRateAmount, ExchRateAmount);
+            LibraryERM.CreateExchangeRate(CurrencyCode, WorkDate() + i, ExchRateAmount, ExchRateAmount);
         end;
 
         // [GIVEN] Posted Sales Invoice with "Posting Date" = 01.01
@@ -1324,12 +1325,12 @@
         CreateAndPostInvoiceWOutVAT(Customer, InvoiceNo, SettleAmount, WorkDate());
 
         // [GIVEN] Posted Bill Group with "Posting Date" = 02.01
-        CreateBillGroupAndAddDocument(BillGroup, CurrencyCode, WorkDate + 1, InvoiceNo);
+        CreateBillGroupAndAddDocument(BillGroup, CurrencyCode, WorkDate() + 1, InvoiceNo);
         LibraryCarteraReceivables.PostCarteraBillGroup(BillGroup);
 
         // [WHEN] Run Total Settlement of Posted Bill Group on "Posting Date" = 02.01
         LibraryVariableStorage.Enqueue(StrSubstNo(SettlementCompletedSuccessfullyMsg, 1, SettleAmount));
-        LibraryVariableStorage.Enqueue(WorkDate + 1);
+        LibraryVariableStorage.Enqueue(WorkDate() + 1);
         SettleDocsInPostBillGr(BillGroup."No.");
 
         // [THEN] Two G/L Entries are created (one for original amount and one for currency exch. difference) with "G/L Account No." = "Bills on Collection Acc."
@@ -1606,7 +1607,7 @@
         SalesHeader.Validate("Salesperson Code", SalespersonPurchaser.Code);
         SalesHeader.Modify(true);
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader,
-          SalesLine.Type::Item, LibraryInventory.CreateItemNo, LibraryRandom.RandDec(1000, 2));
+          SalesLine.Type::Item, LibraryInventory.CreateItemNo(), LibraryRandom.RandDec(1000, 2));
         SalesLine.Validate("Unit Price", LibraryRandom.RandDec(100, 2));
         SalesLine.Modify(true);
         DocumentNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
@@ -1773,9 +1774,9 @@
         Currency: Record Currency;
     begin
         with Currency do begin
-            Get(LibraryERM.CreateCurrencyWithGLAccountSetup);
-            Validate("Unrealized Gains Acc.", LibraryERM.CreateGLAccountNo);
-            Validate("Unrealized Losses Acc.", LibraryERM.CreateGLAccountNo);
+            Get(LibraryERM.CreateCurrencyWithGLAccountSetup());
+            Validate("Unrealized Gains Acc.", LibraryERM.CreateGLAccountNo());
+            Validate("Unrealized Losses Acc.", LibraryERM.CreateGLAccountNo());
             Validate("Invoice Rounding Precision", "Amount Rounding Precision");
             Validate("Bill Groups - Collection", true);
             Modify(true);
@@ -1787,7 +1788,7 @@
     var
         i: Integer;
     begin
-        CurrencyCode := CreateCurrencyForBillGroup;
+        CurrencyCode := CreateCurrencyForBillGroup();
         SetScenarioRatesDates(CurrencyExchRate, PostingDate);
         for i := 1 to ArrayLen(PostingDate) do
             LibraryERM.CreateExchangeRate(CurrencyCode, PostingDate[i], CurrencyExchRate[i], CurrencyExchRate[i]);
@@ -1837,10 +1838,10 @@
         BillGroup.SetRange("No.", BillGroupNo);
         BillGroup.FindFirst();
 
-        BillGroupsTestPage.OpenEdit;
+        BillGroupsTestPage.OpenEdit();
         BillGroupsTestPage.GotoRecord(BillGroup);
-        BillGroupsTestPage.Docs.Insert.Invoke;
-        BillGroupsTestPage.OK.Invoke;
+        BillGroupsTestPage.Docs.Insert.Invoke();
+        BillGroupsTestPage.OK().Invoke();
     end;
 
     local procedure ApplyHeaderToBill(var SalesHeader: Record "Sales Header"; DocumentNo: Code[20]; BillNo: Code[20])
@@ -1859,21 +1860,21 @@
         BillGroup.SetRange("No.", BillGroupNo);
         BillGroup.FindFirst();
 
-        BillGroupsTestPage.OpenEdit;
+        BillGroupsTestPage.OpenEdit();
         BillGroupsTestPage.GotoRecord(BillGroup);
-        BillGroupsTestPage.Docs.Remove.Invoke;
-        BillGroupsTestPage.OK.Invoke;
+        BillGroupsTestPage.Docs.Remove.Invoke();
+        BillGroupsTestPage.OK().Invoke();
     end;
 
     local procedure RunPostPaymentFromPaymentRegistrationPage(CustomerNo: Code[20]; DocumentNo: Code[20]; AmountToPost: Decimal)
     var
         PaymentRegistration: TestPage "Payment Registration";
     begin
-        PaymentRegistration.OpenEdit;
+        PaymentRegistration.OpenEdit();
         PaymentRegistration.FILTER.SetFilter("Source No.", CustomerNo);
         PaymentRegistration.FILTER.SetFilter("Document No.", DocumentNo);
         PaymentRegistration."Amount Received".SetValue(AmountToPost);
-        PaymentRegistration.PostPayments.Invoke;
+        PaymentRegistration.PostPayments.Invoke();
     end;
 
 #if not CLEAN23
@@ -1907,12 +1908,12 @@
         PostedBillGroup.SetFilter("No.", BillGroupNo);
         PostedBillGroup.FindFirst();
 
-        PostedBillGroupsPage.OpenEdit;
+        PostedBillGroupsPage.OpenEdit();
         PostedBillGroupsPage.GotoRecord(PostedBillGroup);
 
         Evaluate(RemainingAmount, PostedBillGroupsPage.Docs."Remaining Amount".Value);
 
-        PostedBillGroupsPage.Docs."Total Settlement".Invoke;
+        PostedBillGroupsPage.Docs."Total Settlement".Invoke();
     end;
 
     local procedure RejectDocsInPostBillGrPage(var PostedBillGroup: Record "Posted Bill Group"; BillGroupNo: Code[20])
@@ -1922,12 +1923,12 @@
         PostedBillGroup.SetFilter("No.", BillGroupNo);
         PostedBillGroup.FindFirst();
 
-        PostedBillGroupsPage.OpenEdit;
+        PostedBillGroupsPage.OpenEdit();
         PostedBillGroupsPage.GotoRecord(PostedBillGroup);
 
         LibraryVariableStorage.Enqueue(StrSubstNo(SuccessfulDocumentRejectMsg, 1));
 
-        PostedBillGroupsPage.Docs.Reject.Invoke;
+        PostedBillGroupsPage.Docs.Reject.Invoke();
     end;
 
     local procedure SetScenarioRatesDates(var ExchRate: array[4] of Decimal; var PostDate: array[4] of Date)
@@ -1940,7 +1941,7 @@
         ExchRate[4] := 1.0788;
 
         for i := 1 to ArrayLen(PostDate) do
-            PostDate[i] := WorkDate + (i - 1) * 2;
+            PostDate[i] := WorkDate() + (i - 1) * 2;
     end;
 
     local procedure VerifyBillGroupGLEntryExists(DocumentNo: Code[20]; CustomerPostingGroupCode: Code[20]; VerifyAmount: Decimal)
@@ -1991,7 +1992,7 @@
         end;
     end;
 
-    local procedure CreateBillGroup(CurrencyCode: Code[10]; BankAccountNo: Code[20]; DealingType: Option) BillGroupNo: Code[20]
+    local procedure CreateBillGroup(CurrencyCode: Code[10]; BankAccountNo: Code[20]; DealingType: Enum "Cartera Dealing Type") BillGroupNo: Code[20]
     var
         BillGroups: TestPage "Bill Groups";
     begin
@@ -2000,16 +2001,16 @@
         BillGroups."Dealing Type".SetValue(DealingType);
 
         LibraryVariableStorage.Enqueue(CurrencyCode);
-        BillGroups."Currency Code".Activate;
-        BillGroups."Currency Code".Lookup;
+        BillGroups."Currency Code".Activate();
+        BillGroups."Currency Code".Lookup();
 
         LibraryVariableStorage.Enqueue(BankAccountNo);
-        BillGroups."Bank Account No.".Activate;
-        BillGroups."Bank Account No.".Lookup;
+        BillGroups."Bank Account No.".Activate();
+        BillGroups."Bank Account No.".Lookup();
 
-        BillGroupNo := BillGroups."No.".Value;
+        BillGroupNo := BillGroups."No.".Value();
 
-        BillGroups.OK.Invoke;
+        BillGroups.OK().Invoke();
     end;
 
     local procedure CreateAndPostInvoiceWOutVAT(var Customer: Record Customer; var InvoiceNo: Code[20]; var InvAmount: Decimal; PostingDate: Date)
@@ -2067,21 +2068,21 @@
     var
         BillGroups: TestPage "Bill Groups";
     begin
-        BillGroups.OpenEdit;
+        BillGroups.OpenEdit();
         BillGroups.GotoKey(BillGroupNo);
-        BillGroups.Post.Invoke;
+        BillGroups.Post.Invoke();
     end;
 
     local procedure PostBillGroupFromList(BillGroupNo: Code[20])
     var
         BillGroupsList: TestPage "Bill Groups List";
     begin
-        BillGroupsList.OpenEdit;
+        BillGroupsList.OpenEdit();
         BillGroupsList.GotoKey(BillGroupNo);
-        BillGroupsList.Post.Invoke;
+        BillGroupsList.Post.Invoke();
     end;
 
-    local procedure UpdateCustLedgerEntriesDocumentSituation(DocumentNo: Code[20]; CustomerNo: Code[20]; DocumentSituation: Option)
+    local procedure UpdateCustLedgerEntriesDocumentSituation(DocumentNo: Code[20]; CustomerNo: Code[20]; DocumentSituation: Enum "ES Document Situation")
     var
         CustLedgerEntry: Record "Cust. Ledger Entry";
     begin
@@ -2100,7 +2101,7 @@
         CustLedgerEntry.FindLast();
         CustLedgerEntry.CalcFields("Remaining Amount");
 
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.Reset();
         LibraryReportDataset.AssertElementWithValueExists(CustomerNoElementNameTxt, Customer."No.");
 
@@ -2122,7 +2123,7 @@
         VerifyClosedCarteraDocWithStatus(BillGroupNo, DocumentNo, ClosedCarteraDoc.Status::Honored);
     end;
 
-    local procedure VerifyClosedCarteraDocWithStatus(BillGroupNo: Code[20]; DocumentNo: Code[20]; Status: Option)
+    local procedure VerifyClosedCarteraDocWithStatus(BillGroupNo: Code[20]; DocumentNo: Code[20]; Status: Enum "Cartera Document Status")
     var
         DummyClosedBillGroup: Record "Closed Bill Group";
         ClosedCarteraDoc: Record "Closed Cartera Doc.";
@@ -2343,21 +2344,21 @@
     [Scope('OnPrem')]
     procedure SettleDocsInPostedBillGroupsRequestPageHandler(var SettleDocsInPostedBillGroupsPage: TestRequestPage "Settle Docs. in Post. Bill Gr.")
     begin
-        SettleDocsInPostedBillGroupsPage.OK.Invoke;
+        SettleDocsInPostedBillGroupsPage.OK().Invoke();
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure ConfirmRejectingInvoiceRequestPageHandler(var RejectDocsTestRequestPage: TestRequestPage "Reject Docs.")
     begin
-        RejectDocsTestRequestPage.OK.Invoke;
+        RejectDocsTestRequestPage.OK().Invoke();
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure CustomerDueRequestPageHandler(var CustomerDuePayments: TestRequestPage "Customer - Due Payments")
     begin
-        CustomerDuePayments.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        CustomerDuePayments.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [ModalPageHandler]
@@ -2368,7 +2369,7 @@
     begin
         LibraryVariableStorage.Dequeue(CurrencyCode);
         Currencies.GotoKey(CurrencyCode);
-        Currencies.OK.Invoke;
+        Currencies.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -2379,14 +2380,14 @@
     begin
         LibraryVariableStorage.Dequeue(BankAccountNo);
         BankAccountSelection.GotoKey(BankAccountNo);
-        BankAccountSelection.OK.Invoke;
+        BankAccountSelection.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure PaymentRegistrationSetupMPH(var PaymentRegistrationSetup: TestPage "Payment Registration Setup")
     begin
-        PaymentRegistrationSetup.OK.Invoke;
+        PaymentRegistrationSetup.OK().Invoke();
     end;
 }
 

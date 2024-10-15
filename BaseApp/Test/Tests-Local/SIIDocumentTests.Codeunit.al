@@ -199,7 +199,7 @@ codeunit 147520 SIIDocumentTests
         // [THEN] "FechaRegContable" node has value "09.01.2017" in XML file
         VerifyFechaRegContableIsRequestDateOfSIIHistory(VendorLedgerEntry, XMLDoc);
 
-        LibrarySII.AssertLibraryVariableStorage;
+        LibrarySII.AssertLibraryVariableStorage();
     end;
 
     [Test]
@@ -233,7 +233,7 @@ codeunit 147520 SIIDocumentTests
 
         // [THEN] Vendor related fields must be used from "Pay-to Vendor No." in purchase order
         LibrarySII.VerifyXml(XMLDoc, VendorLedgerEntry, XmlType::Invoice, false, false);
-        LibrarySII.AssertLibraryVariableStorage;
+        LibrarySII.AssertLibraryVariableStorage();
     end;
 
     [Test]
@@ -267,7 +267,7 @@ codeunit 147520 SIIDocumentTests
 
         // [THEN] Vendor related fields must be used from "Pay-to Vendor No." in purchase credit memo
         LibrarySII.VerifyXml(XMLDoc, VendorLedgerEntry, XmlType::Invoice, false, false);
-        LibrarySII.AssertLibraryVariableStorage;
+        LibrarySII.AssertLibraryVariableStorage();
     end;
 
     [Test]
@@ -302,7 +302,7 @@ codeunit 147520 SIIDocumentTests
 
         // [THEN] Vendor related fields must be used from "Pay-to Vendor No." in purchase credit memo
         LibrarySII.VerifyXml(XMLDoc, VendorLedgerEntry, XmlType::Invoice, false, false);
-        LibrarySII.AssertLibraryVariableStorage;
+        LibrarySII.AssertLibraryVariableStorage();
     end;
 
     [Test]
@@ -339,7 +339,7 @@ codeunit 147520 SIIDocumentTests
 
         // [THEN] Assert that the values in the xml are valid
         LibrarySII.VerifyXml(XMLDoc, VendorLedgerEntry, XmlType::Invoice, true, false);
-        LibrarySII.AssertLibraryVariableStorage;
+        LibrarySII.AssertLibraryVariableStorage();
 
         // [GIVEN] Creation of a Payment for the previous Sales Invoice for a local vendor, cash based
         DocumentNo := Library340347Declaration.CreateAndPostPaymentForPI(
@@ -394,7 +394,7 @@ codeunit 147520 SIIDocumentTests
 
         // [THEN] There is following nodes structure in XML file: TipoDesglose -> DesgloseTipoOperacion -> Entrega -> Sujeta
         VerifyXMLStructureCorrDoc(XMLDoc);
-        LibrarySII.AssertLibraryVariableStorage;
+        LibrarySII.AssertLibraryVariableStorage();
 
         // [THEN] Node "sii:ImporteTotal" contains value -100
         CustLedgerEntry.CalcFields("Amount (LCY)");
@@ -451,7 +451,7 @@ codeunit 147520 SIIDocumentTests
 
         // [THEN] There is following nodes structure in XML file: TipoDesglose -> DesgloseTipoOperacion -> Entrega -> Sujeta
         VerifyXMLStructureCorrDoc(XMLDoc);
-        LibrarySII.AssertLibraryVariableStorage;
+        LibrarySII.AssertLibraryVariableStorage();
 
         // [THEN] Node "sii:ImporteTotal" contains value 50 (Credit Memo Amount - Invoice Amount = 150 - 100)
         LibraryERM.FindCustomerLedgerEntry(
@@ -494,7 +494,7 @@ codeunit 147520 SIIDocumentTests
 
         // [THEN] Assert that the values in the xml are valid
         LibrarySII.VerifyXml(XMLDoc, CustLedgerEntry, XmlType::Invoice, false, false);
-        LibrarySII.AssertLibraryVariableStorage;
+        LibrarySII.AssertLibraryVariableStorage();
     end;
 
     [Test]
@@ -678,7 +678,7 @@ codeunit 147520 SIIDocumentTests
 
         // [THEN] Assert that the values in the xml are valid
         LibrarySII.VerifyXml(XMLDoc, VendorLedgerEntry, XmlType::Invoice, false, false);
-        LibrarySII.AssertLibraryVariableStorage;
+        LibrarySII.AssertLibraryVariableStorage();
     end;
 
     [Test]
@@ -795,7 +795,7 @@ codeunit 147520 SIIDocumentTests
         // [THEN] XML files has two nodes for each VAT Entry with correct "VAT %"
         LibrarySII.VerifyXml(XMLDoc, CustLedgerEntry, XmlType::Invoice, false, false);
 
-        LibrarySII.AssertLibraryVariableStorage;
+        LibrarySII.AssertLibraryVariableStorage();
     end;
 
     [Test]
@@ -820,7 +820,7 @@ codeunit 147520 SIIDocumentTests
         // [THEN] XML files has two nodes for each VAT Entry with correct "VAT %"
         LibrarySII.VerifyXml(XMLDoc, VendorLedgerEntry, XmlType::Invoice, false, false);
 
-        LibrarySII.AssertLibraryVariableStorage;
+        LibrarySII.AssertLibraryVariableStorage();
     end;
 
     [Test]
@@ -1296,7 +1296,7 @@ codeunit 147520 SIIDocumentTests
         // [THEN] XML files has two nodes for each VAT Entry with correct "VAT %"
         LibrarySII.VerifyXml(XMLDoc, CustLedgerEntry, XmlType::Invoice, false, false);
 
-        LibrarySII.AssertLibraryVariableStorage;
+        LibrarySII.AssertLibraryVariableStorage();
     end;
 
     [Test]
@@ -1320,7 +1320,7 @@ codeunit 147520 SIIDocumentTests
         // [THEN] XML files has two nodes for each VAT Entry with correct "VAT %"
         LibrarySII.VerifyXml(XMLDoc, VendorLedgerEntry, XmlType::Invoice, false, false);
 
-        LibrarySII.AssertLibraryVariableStorage;
+        LibrarySII.AssertLibraryVariableStorage();
     end;
 
     [Test]
@@ -1338,11 +1338,11 @@ codeunit 147520 SIIDocumentTests
         Initialize();
 
         // [GIVEN] Sales Credit Memo with "Special Scheme Code" = "02 Export"
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::"Credit Memo", LibrarySales.CreateCustomerNo);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::"Credit Memo", LibrarySales.CreateCustomerNo());
         SalesHeader.Validate("Special Scheme Code", SalesHeader."Special Scheme Code"::"02 Export");
         SalesHeader.Modify(true);
         LibrarySales.CreateSalesLine(
-          SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo, LibraryRandom.RandInt(100));
+          SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo(), LibraryRandom.RandInt(100));
         CustLedgerEntry.SetRange("Customer No.", SalesHeader."Bill-to Customer No.");
         LibraryERM.FindCustomerLedgerEntry(
           CustLedgerEntry, CustLedgerEntry."Document Type"::"Credit Memo",
@@ -1370,11 +1370,11 @@ codeunit 147520 SIIDocumentTests
         Initialize();
 
         // [GIVEN] Purchase Credit Memo with "Special Scheme Code" = "02 Special System Activities"
-        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::"Credit Memo", LibraryPurchase.CreateVendorNo);
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::"Credit Memo", LibraryPurchase.CreateVendorNo());
         PurchaseHeader.Validate("Special Scheme Code", PurchaseHeader."Special Scheme Code"::"02 Special System Activities");
         PurchaseHeader.Modify(true);
         LibraryPurchase.CreatePurchaseLine(
-          PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, LibraryInventory.CreateItemNo, LibraryRandom.RandInt(100));
+          PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, LibraryInventory.CreateItemNo(), LibraryRandom.RandInt(100));
         VendorLedgerEntry.SetRange("Vendor No.", PurchaseHeader."Pay-to Vendor No.");
         LibraryERM.FindVendorLedgerEntry(
           VendorLedgerEntry, VendorLedgerEntry."Document Type"::"Credit Memo",
@@ -1443,8 +1443,8 @@ codeunit 147520 SIIDocumentTests
         // [GIVEN] Purchase Invoice "X" with blank "External Document No."
         LibraryPurchase.CreatePurchaseDocumentWithItem(
           PurchaseHeaderInvoice, PurchaseLine,
-          PurchaseHeaderInvoice."Document Type"::Invoice, LibraryPurchase.CreateVendorNo,
-          LibraryInventory.CreateItemNo, LibraryRandom.RandInt(100), '', WorkDate());
+          PurchaseHeaderInvoice."Document Type"::Invoice, LibraryPurchase.CreateVendorNo(),
+          LibraryInventory.CreateItemNo(), LibraryRandom.RandInt(100), '', WorkDate());
         PurchaseHeaderInvoice.Validate("Vendor Invoice No.", '');
         PurchaseHeaderInvoice.Modify(true);
         LibrarySII.UpdateDirectUnitCostPurchaseLine(PurchaseLine, LibraryRandom.RandDec(100, 2));
@@ -1621,7 +1621,7 @@ codeunit 147520 SIIDocumentTests
         Initialize();
 
         // [GIVEN] Sales invoice with two lines: first with Amount = 100, second with amount = -150
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo());
         UnitPrice := LibraryRandom.RandDec(100, 2);
         CreateSalesLineWithNewProductGroupAndSpecificSign(SalesLine, SalesHeader, 1, UnitPrice + LibraryRandom.RandIntInRange(3, 5));
         CreateSalesLineWithNewProductGroupAndSpecificSign(SalesLine, SalesHeader, -1, UnitPrice);
@@ -1655,7 +1655,7 @@ codeunit 147520 SIIDocumentTests
         Initialize();
 
         // [GIVEN] Purchase invoice with two lines: first with Amount = 100, second with amount = -150
-        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, LibraryPurchase.CreateVendorNo);
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, LibraryPurchase.CreateVendorNo());
         UnitCost := LibraryRandom.RandDec(100, 2);
         CreatePurchLineWithNewProductGroupAndSpecificSign(PurchaseLine, PurchaseHeader, 1, UnitCost + LibraryRandom.RandIntInRange(3, 5));
         CreatePurchLineWithNewProductGroupAndSpecificSign(PurchaseLine, PurchaseHeader, -1, UnitCost);
@@ -1993,7 +1993,7 @@ codeunit 147520 SIIDocumentTests
 
         // [GIVEN] Posted Sales Invoice with No 100000 and Amount 1000.0
         // [GIVEN] Posted Sales Credit Memo for the same Customer with No 100000 and Amount 200.0
-        CustLedgerEntry.SetRange("Document No.", CreateSalesDocument(false, false, CreateCountryRegionCode, GlobalCreditMemoType::" ", true));
+        CustLedgerEntry.SetRange("Document No.", CreateSalesDocument(false, false, CreateCountryRegionCode(), GlobalCreditMemoType::" ", true));
         CustLedgerEntry.SetRange("Document Type", CustLedgerEntry."Document Type"::"Credit Memo");
         CustLedgerEntry.FindFirst();
         CustLedgerEntry.CalcFields("Amount (LCY)");
@@ -2025,7 +2025,7 @@ codeunit 147520 SIIDocumentTests
 
         // [GIVEN] Posted Purchase Invoice with No 100000 and Amount 1000.0
         // [GIVEN] Posted Purchase Credit Memo for the same Vendor with No 100000 and Amount 200.0
-        VendorLedgerEntry.SetRange("Document No.", CreatePurchDocument(false, CreateCountryRegionCode, GlobalCreditMemoType::" ", true));
+        VendorLedgerEntry.SetRange("Document No.", CreatePurchDocument(false, CreateCountryRegionCode(), GlobalCreditMemoType::" ", true));
         VendorLedgerEntry.SetRange("Document Type", VendorLedgerEntry."Document Type"::"Credit Memo");
         VendorLedgerEntry.FindFirst();
         VendorLedgerEntry.CalcFields("Amount (LCY)");
@@ -2057,7 +2057,7 @@ codeunit 147520 SIIDocumentTests
           CreateNoSeriesWithStartingNo(StartingNo), CreateNoSeriesWithStartingNo(StartingNo));
 
         // [GIVEN] Posted Service Invoice with No 100000 and Amount 1000.0
-        CreateServiceDocument(ServiceHeader, ServiceHeader."Document Type"::Invoice, CreateCustomerNoSII);
+        CreateServiceDocument(ServiceHeader, ServiceHeader."Document Type"::Invoice, CreateCustomerNoSII());
         LibraryService.PostServiceOrder(ServiceHeader, true, false, true);
         FindCustLedgerEntryByDocTypeAndCustNo(CustLedgerEntry, CustLedgerEntry."Document Type"::Invoice, ServiceHeader."Customer No.");
 
@@ -3237,7 +3237,7 @@ codeunit 147520 SIIDocumentTests
             exit;
 
         LibrarySII.InitSetup(true, false);
-        LibrarySII.BindSubscriptionJobQueue;
+        LibrarySII.BindSubscriptionJobQueue();
         LibrarySetupStorage.Save(DATABASE::"Purchases & Payables Setup");
         LibrarySetupStorage.Save(DATABASE::"SII Setup");
 
@@ -3309,7 +3309,7 @@ codeunit 147520 SIIDocumentTests
     var
         Customer: Record Customer;
     begin
-        LibrarySII.CreateCustWithCountryAndVATReg(Customer, CreateCountryRegionCode, 'B80833593');
+        LibrarySII.CreateCustWithCountryAndVATReg(Customer, CreateCountryRegionCode(), 'B80833593');
         exit(Customer."No.");
     end;
 
@@ -3319,7 +3319,7 @@ codeunit 147520 SIIDocumentTests
     begin
         LibraryService.CreateServiceHeader(ServiceHeader, DocType, CustNo);
         LibraryService.CreateServiceLineWithQuantity(
-          ServiceLine, ServiceHeader, ServiceLine.Type::Item, LibraryInventory.CreateItemNo, LibraryRandom.RandInt(10));
+          ServiceLine, ServiceHeader, ServiceLine.Type::Item, LibraryInventory.CreateItemNo(), LibraryRandom.RandInt(10));
         ServiceLine.Validate("Unit Price", LibraryRandom.RandDecInRange(1000, 2000, 2));
         ServiceLine.Modify(true);
     end;
@@ -3352,7 +3352,7 @@ codeunit 147520 SIIDocumentTests
         end;
 
         if IsInvoice then
-            exit(CreateAndPostSalesInvoice(SellToCustomerNo, BillToCustomerNo, LibraryInventory.CreateItemNo));
+            exit(CreateAndPostSalesInvoice(SellToCustomerNo, BillToCustomerNo, LibraryInventory.CreateItemNo()));
 
         LibraryInventory.CreateItem(Item);
         exit(LibrarySII.CreateAndPostSalesCrMemo(SellToCustomerNo, CreditMemoType, Item."No.", AddCorrectedInvoiceNo));
@@ -3381,7 +3381,7 @@ codeunit 147520 SIIDocumentTests
         SalesHeader.Validate("Corrected Invoice No.", InvNo);
         SalesHeader.Modify(true);
         LibrarySales.CreateSalesLine(
-          SalesLine, SalesHeader, SalesLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithSalesSetup, LibraryRandom.RandInt(100));
+          SalesLine, SalesHeader, SalesLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithSalesSetup(), LibraryRandom.RandInt(100));
         exit(LibrarySales.PostSalesDocument(SalesHeader, false, false));
     end;
 
@@ -3396,7 +3396,7 @@ codeunit 147520 SIIDocumentTests
         SalesHeader.Validate("Correction Type", CorrectionType);
         SalesHeader.Modify(true);
         LibrarySales.CreateSalesLine(
-          SalesLine, SalesHeader, SalesLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithSalesSetup, LibraryRandom.RandInt(100));
+          SalesLine, SalesHeader, SalesLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithSalesSetup(), LibraryRandom.RandInt(100));
         exit(LibrarySales.PostSalesDocument(SalesHeader, false, false));
     end;
 
@@ -3454,7 +3454,7 @@ codeunit 147520 SIIDocumentTests
         PurchHeader.Validate("Corrected Invoice No.", InvNo);
         PurchHeader.Modify(true);
         LibraryPurchase.CreatePurchaseLine(
-          PurchaseLine, PurchHeader, PurchaseLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithPurchSetup, LibraryRandom.RandInt(100));
+          PurchaseLine, PurchHeader, PurchaseLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithPurchSetup(), LibraryRandom.RandInt(100));
         exit(LibraryPurchase.PostPurchaseDocument(PurchHeader, false, false));
     end;
 
@@ -3464,7 +3464,7 @@ codeunit 147520 SIIDocumentTests
     begin
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, CustomerNo);
         LibrarySales.CreateSalesLineWithShipmentDate(
-          SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo, ShipDate, 1);
+          SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo(), ShipDate, 1);
         LibrarySales.PostSalesDocument(SalesHeader, true, false);
     end;
 
@@ -3472,12 +3472,12 @@ codeunit 147520 SIIDocumentTests
     var
         SalesLine: Record "Sales Line";
     begin
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo());
         LibrarySales.CreateSalesLineWithShipmentDate(
-          SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo, WorkDate() - 1, 1);
+          SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo(), WorkDate() - 1, 1);
         ShipmentDate := SalesLine."Shipment Date";
         LibrarySales.CreateSalesLineWithShipmentDate(
-          SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo, WorkDate - LibraryRandom.RandIntInRange(3, 5), 1);
+          SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo(), WorkDate() - LibraryRandom.RandIntInRange(3, 5), 1);
         SalesLine.Validate("Qty. to Ship", 0);
         SalesLine.Modify(true);
     end;
@@ -3488,14 +3488,14 @@ codeunit 147520 SIIDocumentTests
     begin
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, VendorNo);
         PurchaseHeader.Validate("Posting Date", RcptDate);
-        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, LibraryInventory.CreateItemNo, 1);
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, LibraryInventory.CreateItemNo(), 1);
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false);
     end;
 
     local procedure CreateSalesLineWithNewProductGroupAndSpecificSign(var SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header"; Sign: Integer; UnitPrice: Decimal)
     begin
         LibrarySales.CreateSalesLine(
-          SalesLine, SalesHeader, SalesLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithSalesSetup, Sign);
+          SalesLine, SalesHeader, SalesLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithSalesSetup(), Sign);
         SalesLine.Validate("VAT Prod. Posting Group",
           CreateVATProductGroupConsistentWithVATBusPostingGroup(SalesHeader."VAT Bus. Posting Group"));
         SalesLine.Validate("Unit Price", UnitPrice);
@@ -3505,7 +3505,7 @@ codeunit 147520 SIIDocumentTests
     local procedure CreatePurchLineWithNewProductGroupAndSpecificSign(var PurchaseLine: Record "Purchase Line"; PurchaseHeader: Record "Purchase Header"; Sign: Integer; UnitCost: Decimal)
     begin
         LibraryPurchase.CreatePurchaseLine(
-          PurchaseLine, PurchaseHeader, PurchaseLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithPurchSetup, Sign);
+          PurchaseLine, PurchaseHeader, PurchaseLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithPurchSetup(), Sign);
         PurchaseLine.Validate("VAT Prod. Posting Group",
           CreateVATProductGroupConsistentWithVATBusPostingGroup(PurchaseHeader."VAT Bus. Posting Group"));
         PurchaseLine.Validate("Direct Unit Cost", UnitCost);
@@ -3535,8 +3535,8 @@ codeunit 147520 SIIDocumentTests
         VATPostingSetup.Validate("VAT %", LibraryRandom.RandIntInRange(10, 25));
         VATPostingSetup.Validate(
           "VAT Identifier", CopyStr('VAT' + Format(VATPostingSetup."VAT %"), 1, MaxStrLen(VATPostingSetup."VAT Identifier")));
-        VATPostingSetup.Validate("Sales VAT Account", LibraryERM.CreateGLAccountNo);
-        VATPostingSetup.Validate("Purchase VAT Account", LibraryERM.CreateGLAccountNo);
+        VATPostingSetup.Validate("Sales VAT Account", LibraryERM.CreateGLAccountNo());
+        VATPostingSetup.Validate("Purchase VAT Account", LibraryERM.CreateGLAccountNo());
         VATPostingSetup.Modify(true);
         exit(VATPostingSetup."VAT Prod. Posting Group");
     end;

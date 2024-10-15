@@ -31,7 +31,7 @@ codeunit 147534 "Cartera Cust. Overdue Payment"
         Customer: Record Customer;
     begin
         Customer.Init();
-        SaveReportToXml(Customer."No.", WorkDate(), WorkDate + 1, ShowPayments::All);
+        SaveReportToXml(Customer."No.", WorkDate(), WorkDate() + 1, ShowPayments::All);
     end;
 
     [Test]
@@ -55,7 +55,7 @@ codeunit 147534 "Cartera Cust. Overdue Payment"
     [Scope('OnPrem')]
     procedure RequestPage_StartDateAboveEndDate_ErrorOccurs()
     begin
-        RunRequestPageTest(StartDateAboveEndDateErr, WorkDate + 1, WorkDate());
+        RunRequestPageTest(StartDateAboveEndDateErr, WorkDate() + 1, WorkDate());
     end;
 
     [Test]
@@ -67,7 +67,7 @@ codeunit 147534 "Cartera Cust. Overdue Payment"
     begin
         GenerateReportWithSingleApplication(Amount, false, CalcDate('<2M>', WorkDate()), CalcDate('<2M>', WorkDate()) + 1);
 
-        Assert.IsFalse(Exists(LibraryReportDataset.GetFileName), ValueExistsErr);
+        Assert.IsFalse(Exists(LibraryReportDataset.GetFileName()), ValueExistsErr);
     end;
 
     [Test]
@@ -111,7 +111,7 @@ codeunit 147534 "Cartera Cust. Overdue Payment"
         PmtAmount: Decimal;
     begin
         GenerateReportWithPartialAppl(InvAmount, PmtAmount, CalcDate('<-CY>', WorkDate()), CalcDate('<CY>', WorkDate()));
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(ABSAmountElementNameTxt, InvAmount - PmtAmount);
     end;
 
@@ -133,7 +133,7 @@ codeunit 147534 "Cartera Cust. Overdue Payment"
         GenerateReportWithSingleApplication(
           Amount, ApplyToPayment, CalcDate('<CY-1Y>', WorkDate()), CalcDate('<CY+1Y>', WorkDate()));
 
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(TotalPaymentWithinDueDateElementNameTxt, Amount);
     end;
 
@@ -151,7 +151,7 @@ codeunit 147534 "Cartera Cust. Overdue Payment"
     var
         Customer: Record Customer;
     begin
-        Amount := GetAmount;
+        Amount := GetAmount();
         MakeSimpleInvoicePaymentAndApplication(Amount, Amount, Customer, ApplyToPayment);
         SaveReportToXml(
           Customer."No.", ReportStartingDate, ReportEndingDate, ShowPayments::All);
@@ -171,7 +171,7 @@ codeunit 147534 "Cartera Cust. Overdue Payment"
         MakeInvoicePaymentAndApplication(InvoicesCount, InvoiceAmounts, PaymentsCount, PaymentAmounts, Customer, ApplyToPayment);
         SaveReportToXml(
           Customer."No.", CalcDate('<CY-1Y>', WorkDate()), CalcDate('<CY+1Y>', WorkDate()), ShowPayments::All);
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
 
         if not ApplyToPayment then
             CopyArrayAndSize(InvoiceAmounts, InvoicesCount, GeneratedAmounts, GeneratedAmountsCount)
@@ -180,7 +180,7 @@ codeunit 147534 "Cartera Cust. Overdue Payment"
 
         I := 1;
 
-        while LibraryReportDataset.GetNextRow do
+        while LibraryReportDataset.GetNextRow() do
             if LibraryReportDataset.CurrentRowHasElement(ABSAmountElementNameTxt) then begin
                 LibraryReportDataset.FindCurrentRowValue(ABSAmountElementNameTxt, ReportValueVariant);
                 ReportValues[I] := Format(ReportValueVariant);
@@ -331,7 +331,7 @@ codeunit 147534 "Cartera Cust. Overdue Payment"
     begin
         Count := LibraryRandom.RandIntInRange(MinCount, ArraySize);
         for I := 1 to Count do begin
-            AmountsArray[I] := GetAmount;
+            AmountsArray[I] := GetAmount();
             TotalAmount += AmountsArray[I];
         end;
     end;
@@ -367,7 +367,7 @@ codeunit 147534 "Cartera Cust. Overdue Payment"
     var
         CustomerNo: Code[20];
     begin
-        InvAmount := GetAmount;
+        InvAmount := GetAmount();
         PmtAmount := Round(InvAmount / 2);
 
         CustomerNo := MakeInvPmtAndAppl(InvAmount, PmtAmount);
@@ -426,7 +426,7 @@ codeunit 147534 "Cartera Cust. Overdue Payment"
     [Scope('OnPrem')]
     procedure CustomerOverduePaymentsRequestPageHandler(var CustomerOverduePayments: TestRequestPage "Customer - Overdue Payments")
     begin
-        CustomerOverduePayments.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        CustomerOverduePayments.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 }
 

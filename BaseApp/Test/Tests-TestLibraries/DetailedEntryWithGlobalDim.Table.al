@@ -1,6 +1,7 @@
 table 134485 "Detailed Entry With Global Dim"
 {
     ReplicateData = false;
+    DataClassification = CustomerContent;
 
     fields
     {

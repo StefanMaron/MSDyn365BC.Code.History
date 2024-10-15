@@ -7,7 +7,7 @@ namespace Microsoft.Sales.Receivables;
 page 7000063 "Customer Ratings"
 {
     Caption = 'Customer Ratings';
-    DataCaptionExpression = Caption();
+    DataCaptionExpression = Rec.Caption();
     PageType = List;
     SourceTable = "Customer Rating";
 

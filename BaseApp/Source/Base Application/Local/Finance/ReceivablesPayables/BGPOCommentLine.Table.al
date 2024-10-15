@@ -14,6 +14,7 @@ table 7000008 "BG/PO Comment Line"
     Caption = 'BG/PO Comment Line';
     DrillDownPageID = "BG/PO Comment List";
     LookupPageID = "BG/PO Comment List";
+    DataClassification = CustomerContent;
 
     fields
     {

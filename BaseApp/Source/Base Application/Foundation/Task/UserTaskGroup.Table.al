@@ -6,6 +6,7 @@ table 1175 "User Task Group"
     DataCaptionFields = "Code", Description;
     LookupPageID = "User Task Group";
     ReplicateData = false;
+    DataClassification = CustomerContent;
 
     fields
     {
