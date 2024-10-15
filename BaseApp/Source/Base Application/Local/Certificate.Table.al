@@ -74,6 +74,7 @@ table 11014 Certificate
         RenameNotAllowedErr: Label 'Modification of %1 is not allowed.', Comment = '%1=Field name';
 
     [Scope('OnPrem')]
+    [NonDebuggable]
     procedure SavePassword(PasswordText: Text; FieldNo: Integer)
     var
         TempBlob: Codeunit "Temp Blob";
@@ -83,6 +84,7 @@ table 11014 Certificate
     end;
 
     [Scope('OnPrem')]
+    [NonDebuggable]
     procedure GetPassword(FieldNo: Integer): Text
     var
         TempBlob: Codeunit "Temp Blob";
@@ -109,6 +111,7 @@ table 11014 Certificate
         RecordRef.Modify();
     end;
 
+    [NonDebuggable]
     local procedure EncriptPassword(var TempBlob: Codeunit "Temp Blob"; PasswordText: Text[215])
     var
         OutStream: OutStream;

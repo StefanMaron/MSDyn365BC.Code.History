@@ -1959,6 +1959,54 @@ codeunit 136318 "Whse. Pick On Job Planning"
         Assert.ExpectedError(Location.FieldCaption(Location."Directed Put-away and Pick"));
     end;
 
+    [Test]
+    [HandlerFunctions('WhseSrcCreateDocReqHandler,MessageHandler')]
+    procedure CreateAndRegisterPickForReservedJobPlanningLine()
+    var
+        Item: Record Item;
+        Job: Record Job;
+        JobTask: Record "Job Task";
+        JobPlanningLine: Record "Job Planning Line";
+        WarehouseActivityHeader: Record "Warehouse Activity Header";
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+    begin
+        // [FEATURE] [Reservation]
+        // [SCENARIO 446213] Create pick from reserved job planning line.
+        Initialize();
+
+        // [GIVEN] Post inventory to a location with required shipment and pick.
+        LibraryInventory.CreateItem(Item);
+        CreateAndPostInvtAdjustmentWithUnitCost(
+          Item."No.", LocationWithWhsePick.Code, SourceBin.Code, LibraryRandom.RandIntInRange(20, 40), 0);
+
+        // [GIVEN] Create job, job task, and job planning line.
+        // [GIVEN] Auto reserve the job planning line from the inventory.
+        CreateJobWithJobTask(JobTask);
+        CreateJobPlanningLineWithData(
+          JobPlanningLine, JobTask, "Job Planning Line Line Type"::Budget,
+          JobPlanningLine.Type::Item, Item."No.", LocationWithWhsePick.Code, DestinationBin.Code, LibraryRandom.RandInt(10));
+        JobPlanningLine.AutoReserve();
+
+        // [WHEN] Create warehouse pick.
+        Job.Get(JobPlanningLine."Job No.");
+        OpenJobAndCreateWarehousePick(Job);
+
+        // [THEN] The pick has been created.
+        JobPlanningLine.Find();
+        JobPlanningLine.CalcFields("Pick Qty.");
+        JobPlanningLine.TestField("Pick Qty.", JobPlanningLine.Quantity);
+
+        // [THEN] The pick can be successfully registered.
+        WarehouseActivityLine.SetRange("Item No.", Item."No.");
+        WarehouseActivityLine.FindFirst();
+        WarehouseActivityHeader.Get(WarehouseActivityLine."Activity Type", WarehouseActivityLine."No.");
+        LibraryWarehouse.AutoFillQtyHandleWhseActivity(WarehouseActivityHeader);
+        LibraryWarehouse.RegisterWhseActivity(WarehouseActivityHeader);
+
+        JobPlanningLine.Find();
+        JobPlanningLine.TestField("Qty. Picked", JobPlanningLine.Quantity);
+    end;
+
     procedure AssignSNWhsePickLines(JobPlanningLine: Record "Job Planning Line")
     var
         WarehouseActivityLinePick: Record "Warehouse Activity Line";

@@ -243,7 +243,7 @@
         field(29; "Salesperson Code"; Code[20])
         {
             Caption = 'Salesperson Code';
-            TableRelation = "Salesperson/Purchaser";
+            TableRelation = "Salesperson/Purchaser" where(Blocked = const(false));
 
             trigger OnValidate()
             begin
@@ -769,7 +769,7 @@
             begin
                 IsHandled := false;
                 OnBeforeValidatePostCode(Rec, PostCode, CurrFieldNo, IsHandled);
-                if not IsHandled then;
+                if not IsHandled then
                     PostCode.ValidatePostCode(City, "Post Code", County, "Country/Region Code", (CurrFieldNo <> 0) and GuiAllowed);
 
                 OnAfterValidatePostCode(Rec, xRec);

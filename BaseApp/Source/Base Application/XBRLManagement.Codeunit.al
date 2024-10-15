@@ -166,6 +166,7 @@ codeunit 420 "XBRL Management"
                                             Amount := Amount + "Credit Amount";
                                         end;
                                 end;
+                                OnCalcAmountOnAfterGLAccLoopIteration(GLAcc, XBRLGLMapLine, Amount);
                             until Next() = 0;
                     end;
                 until Next() = 0;
@@ -308,6 +309,11 @@ codeunit 420 "XBRL Management"
         else
             PeriodStartDate := StartingDate;
         XBRLTaxonomyLine.SetRange("Date Filter", PeriodStartDate, PeriodEndDate);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalcAmountOnAfterGLAccLoopIteration(var GLAccount: Record "G/L Account"; var XBRLGLMapLine: Record "XBRL G/L Map Line"; var Amount: Decimal)
+    begin
     end;
 
     [IntegrationEvent(false, false)]

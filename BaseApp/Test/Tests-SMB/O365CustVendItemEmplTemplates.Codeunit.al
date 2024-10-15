@@ -3006,6 +3006,32 @@ codeunit 138008 "Cust/Vend/Item/Empl Templates"
         ItemTempl.TestField(Type, ItemTempl.Type::Service);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure VerifyItemDimensionFromItemTemplate()
+    var
+        Item: Record Item;
+        ItemTempl: Record "Item Templ.";
+        ItemTemplMgt: Codeunit "Item Templ. Mgt.";
+        CustVendItemEmplTemplates: Codeunit "Cust/Vend/Item/Empl Templates";
+    begin
+        // [SCENARIO 453082] Create new item with one template
+        Initialize();
+        ItemTempl.DeleteAll();
+        CustVendItemEmplTemplates.SetItemTemplateFeatureEnabled(true);
+
+        // [GIVEN] Template with data and dimensions
+        CreateItemTemplateWithDataAndDimensions(ItemTempl);
+
+        // [WHEN] Create new Item
+        ItemTemplMgt.InsertItemFromTemplate(Item);
+
+        // [THEN] Item inserted with data from template
+        VerifyItem(Item, ItemTempl);
+        // [THEN] Item dimensions inserted from template dimensions
+        VerifyItemDimensions(Database::Item, Item."No.", Database::"Item Templ.", ItemTempl.Code);
+    end;
+
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(Codeunit::"Cust/Vend/Item/Empl Templates");
@@ -3372,6 +3398,25 @@ codeunit 138008 "Cust/Vend/Item/Empl Templates"
         repeat
             DestDefaultDimension.SetRange("Dimension Code", SourceDefaultDimension."Dimension Code");
             DestDefaultDimension.SetRange("Dimension Value Code", SourceDefaultDimension."Dimension Value Code");
+            Assert.RecordIsNotEmpty(DestDefaultDimension);
+        until SourceDefaultDimension.Next() = 0;
+    end;
+
+    local procedure VerifyItemDimensions(DestTableId: Integer; DestNo: Code[20]; SourceTableid: Integer; SourceNo: Code[20])
+    var
+        SourceDefaultDimension: Record "Default Dimension";
+        DestDefaultDimension: Record "Default Dimension";
+    begin
+        DestDefaultDimension.SetRange("Table ID", DestTableId);
+        DestDefaultDimension.SetRange("No.", DestNo);
+
+        SourceDefaultDimension.SetRange("Table ID", SourceTableid);
+        SourceDefaultDimension.SetRange("No.", SourceNo);
+        SourceDefaultDimension.FindSet();
+        repeat
+            DestDefaultDimension.SetRange("Dimension Code", SourceDefaultDimension."Dimension Code");
+            DestDefaultDimension.SetRange("Dimension Value Code", SourceDefaultDimension."Dimension Value Code");
+            DestDefaultDimension.SetRange("Value Posting", SourceDefaultDimension."Value Posting");
             Assert.RecordIsNotEmpty(DestDefaultDimension);
         until SourceDefaultDimension.Next() = 0;
     end;

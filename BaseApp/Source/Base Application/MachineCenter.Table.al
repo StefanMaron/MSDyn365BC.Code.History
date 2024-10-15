@@ -716,7 +716,7 @@ table 99000758 "Machine Center"
     end;
 #endif
 
-    procedure GetBinCodeForFlushingMethod(UseFlushingMethod: Boolean; FlushingMethod: Enum "Flushing Method"): Code[20]
+    procedure GetBinCodeForFlushingMethod(UseFlushingMethod: Boolean; FlushingMethod: Enum "Flushing Method") Result: Code[20]
     begin
         if not UseFlushingMethod then
             exit("From-Production Bin Code");
@@ -730,6 +730,7 @@ table 99000758 "Machine Center"
           FlushingMethod::Backward:
                 exit("Open Shop Floor Bin Code");
         end;
+        OnAfterGetBinCodeForFlushingMethod(Rec, FlushingMethod, Result);
     end;
 
     local procedure CheckRoutingWithMachineCenterExists()
@@ -740,6 +741,11 @@ table 99000758 "Machine Center"
         RoutingLine.SetRange("No.", "No.");
         if not RoutingLine.IsEmpty() then
             Error(Text007, TableCaption(), "No.", RoutingLine.TableCaption());
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterGetBinCodeForFlushingMethod(MachineCenter: Record "Machine Center"; FlushingMethod: Enum "Flushing Method"; var Result: Code[20])
+    begin
     end;
 
     [IntegrationEvent(false, false)]

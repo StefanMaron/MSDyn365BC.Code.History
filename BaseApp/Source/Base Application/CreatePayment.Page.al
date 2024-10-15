@@ -201,14 +201,17 @@
     var
         GenJnlLine: Record "Gen. Journal Line";
         Vendor: Record Vendor;
+#if not CLEAN22
         TempPaymentBuffer: Record "Payment Buffer" temporary;
+#endif
+        TempVendorPaymentBuffer: Record "Vendor Payment Buffer" temporary;
         PaymentAmt: Decimal;
         SummarizePerVend: Boolean;
         VendorLedgerEntryView: Text;
         ThereAreNoPaymentsToProccesErr: Label 'There are no payments to process for the selected entries . They might be included in another payment process. If so, the Applies-to ID field will contain a value. You might need to use Page Inspection (Ctrl+Alt+F1) to find the field.';
     begin
-        TempPaymentBuffer.Reset();
-        TempPaymentBuffer.DeleteAll();
+        TempVendorPaymentBuffer.Reset();
+        TempVendorPaymentBuffer.DeleteAll();
 
         VendorLedgerEntryView := VendorLedgerEntry.GetView();
         VendorLedgerEntry.SetCurrentKey("Entry No.");
@@ -218,61 +221,68 @@
                     Error(EarlierPostingDateErr, VendorLedgerEntry."Document Type", VendorLedgerEntry."Document No.");
                 if VendorLedgerEntry."Applies-to ID" = '' then begin
                     VendorLedgerEntry.CalcFields("Remaining Amount");
-                    TempPaymentBuffer."Vendor No." := VendorLedgerEntry."Vendor No.";
-                    TempPaymentBuffer."Currency Code" := VendorLedgerEntry."Currency Code";
+                    TempVendorPaymentBuffer."Vendor No." := VendorLedgerEntry."Vendor No.";
+                    TempVendorPaymentBuffer."Currency Code" := VendorLedgerEntry."Currency Code";
 
                     if VendorLedgerEntry."Payment Method Code" = '' then begin
                         if Vendor.Get(VendorLedgerEntry."Vendor No.") then
-                            TempPaymentBuffer."Payment Method Code" := Vendor."Payment Method Code";
+                            TempVendorPaymentBuffer."Payment Method Code" := Vendor."Payment Method Code";
                     end else
-                        TempPaymentBuffer."Payment Method Code" := VendorLedgerEntry."Payment Method Code";
+                        TempVendorPaymentBuffer."Payment Method Code" := VendorLedgerEntry."Payment Method Code";
 
-                    TempPaymentBuffer.CopyFieldsFromVendorLedgerEntry(VendorLedgerEntry);
-
+                    TempVendorPaymentBuffer.CopyFieldsFromVendorLedgerEntry(VendorLedgerEntry);
+                    OnUpdateVendorPaymentBufferFromVendorLedgerEntry(TempVendorPaymentBuffer, VendorLedgerEntry);
+#if not CLEAN22
+                    TempPaymentBuffer.CopyFieldsFromVendorPaymentBuffer(TempVendorPaymentBuffer);
                     OnUpdateTempBufferFromVendorLedgerEntry(TempPaymentBuffer, VendorLedgerEntry);
-                    TempPaymentBuffer."Dimension Entry No." := 0;
-                    TempPaymentBuffer."Global Dimension 1 Code" := '';
-                    TempPaymentBuffer."Global Dimension 2 Code" := '';
-                    TempPaymentBuffer."Dimension Set ID" := VendorLedgerEntry."Dimension Set ID";
-                    TempPaymentBuffer."Vendor Ledg. Entry No." := VendorLedgerEntry."Entry No.";
-                    TempPaymentBuffer."Vendor Ledg. Entry Doc. Type" := VendorLedgerEntry."Document Type";
-                    TempPaymentBuffer."Remit-to Code" := VendorLedgerEntry."Remit-to Code";
+                    TempVendorPaymentBuffer.CopyFieldsFromPaymentBuffer(TempPaymentBuffer);
+#endif
+                    TempVendorPaymentBuffer."Dimension Entry No." := 0;
+                    TempVendorPaymentBuffer."Global Dimension 1 Code" := '';
+                    TempVendorPaymentBuffer."Global Dimension 2 Code" := '';
+                    TempVendorPaymentBuffer."Dimension Set ID" := VendorLedgerEntry."Dimension Set ID";
+                    TempVendorPaymentBuffer."Vendor Ledg. Entry No." := VendorLedgerEntry."Entry No.";
+                    TempVendorPaymentBuffer."Vendor Ledg. Entry Doc. Type" := VendorLedgerEntry."Document Type";
+                    TempVendorPaymentBuffer."Remit-to Code" := VendorLedgerEntry."Remit-to Code";
 
                     if CheckCalcPmtDiscGenJnlVend(VendorLedgerEntry."Remaining Amount", VendorLedgerEntry, 0, false) then
                         PaymentAmt := -(VendorLedgerEntry."Remaining Amount" - VendorLedgerEntry."Remaining Pmt. Disc. Possible")
                     else
                         PaymentAmt := -VendorLedgerEntry."Remaining Amount";
 
-                    TempPaymentBuffer.Reset();
-                    TempPaymentBuffer.SetRange("Vendor No.", VendorLedgerEntry."Vendor No.");
-                    TempPaymentBuffer.SetRange("Vendor Ledg. Entry Doc. Type", TempPaymentBuffer."Vendor Ledg. Entry Doc. Type");
-                    if TempPaymentBuffer.Find('-') then begin
-                        TempPaymentBuffer.Amount += PaymentAmt;
+                    TempVendorPaymentBuffer.Reset();
+                    TempVendorPaymentBuffer.SetRange("Vendor No.", VendorLedgerEntry."Vendor No.");
+                    TempVendorPaymentBuffer.SetRange("Vendor Ledg. Entry Doc. Type", TempVendorPaymentBuffer."Vendor Ledg. Entry Doc. Type");
+                    if TempVendorPaymentBuffer.Find('-') then begin
+                        TempVendorPaymentBuffer.Amount += PaymentAmt;
                         SummarizePerVend := true;
-                        TempPaymentBuffer.Modify();
+                        TempVendorPaymentBuffer.Modify();
                     end else begin
-                        TempPaymentBuffer."Document No." := NextDocNo;
+                        TempVendorPaymentBuffer."Document No." := NextDocNo;
                         NextDocNo := IncStr(NextDocNo);
-                        TempPaymentBuffer.Amount := PaymentAmt;
-                        TempPaymentBuffer.Insert();
+                        TempVendorPaymentBuffer.Amount := PaymentAmt;
+                        TempVendorPaymentBuffer.Insert();
                     end;
-                    VendorLedgerEntry."Applies-to ID" := TempPaymentBuffer."Document No.";
+                    VendorLedgerEntry."Applies-to ID" := TempVendorPaymentBuffer."Document No.";
 
                     VendorLedgerEntry."Amount to Apply" := VendorLedgerEntry."Remaining Amount";
                     CODEUNIT.Run(CODEUNIT::"Vend. Entry-Edit", VendorLedgerEntry);
                 end;
             until VendorLedgerEntry.Next() = 0;
-        if TempPaymentBuffer.IsEmpty() then
+        if TempVendorPaymentBuffer.IsEmpty() then
             error(ThereAreNoPaymentsToProccesErr);
-        CopyTempPaymentBufferToGenJournalLines(TempPaymentBuffer, GenJnlLine, SummarizePerVend);
+        CopyTempPaymentBufferToGenJournalLines(TempVendorPaymentBuffer, GenJnlLine, SummarizePerVend);
         VendorLedgerEntry.SetView(VendorLedgerEntryView);
     end;
 
-    local procedure CopyTempPaymentBufferToGenJournalLines(var TempPaymentBuffer: Record "Payment Buffer" temporary; var GenJnlLine: Record "Gen. Journal Line"; SummarizePerVend: Boolean)
+    local procedure CopyTempPaymentBufferToGenJournalLines(var TempVendorPaymentBuffer: Record "Vendor Payment Buffer" temporary; var GenJnlLine: Record "Gen. Journal Line"; SummarizePerVend: Boolean)
     var
         Vendor: Record Vendor;
         GenJournalTemplate: Record "Gen. Journal Template";
         GenJournalBatch: Record "Gen. Journal Batch";
+#if not CLEAN22
+        TempPaymentBuffer: Record "Payment Buffer" temporary;
+#endif
         LastLineNo: Integer;
     begin
         GenJnlLine.LockTable();
@@ -285,12 +295,12 @@
             GenJnlLine.Init();
         end;
 
-        TempPaymentBuffer.Reset();
-        TempPaymentBuffer.SetCurrentKey("Document No.");
-        TempPaymentBuffer.SetFilter(
-          "Vendor Ledg. Entry Doc. Type", '<>%1&<>%2', TempPaymentBuffer."Vendor Ledg. Entry Doc. Type"::Refund,
-          TempPaymentBuffer."Vendor Ledg. Entry Doc. Type"::Payment);
-        if TempPaymentBuffer.Find('-') then
+        TempVendorPaymentBuffer.Reset();
+        TempVendorPaymentBuffer.SetCurrentKey("Document No.");
+        TempVendorPaymentBuffer.SetFilter(
+          "Vendor Ledg. Entry Doc. Type", '<>%1&<>%2', TempVendorPaymentBuffer."Vendor Ledg. Entry Doc. Type"::Refund,
+          TempVendorPaymentBuffer."Vendor Ledg. Entry Doc. Type"::Payment);
+        if TempVendorPaymentBuffer.Find('-') then
             repeat
                 with GenJnlLine do begin
                     Init();
@@ -298,56 +308,61 @@
                     Validate("Journal Batch Name", JournalBatchName);
                     LastLineNo += 10000;
                     "Line No." := LastLineNo;
-                    if TempPaymentBuffer."Vendor Ledg. Entry Doc. Type" = TempPaymentBuffer."Vendor Ledg. Entry Doc. Type"::Invoice then
+                    if TempVendorPaymentBuffer."Vendor Ledg. Entry Doc. Type" = TempVendorPaymentBuffer."Vendor Ledg. Entry Doc. Type"::Invoice then
                         "Document Type" := "Document Type"::Payment
                     else
                         "Document Type" := "Document Type"::Refund;
                     "Posting No. Series" := GenJournalBatch."Posting No. Series";
-                    "Document No." := TempPaymentBuffer."Document No.";
+                    "Document No." := TempVendorPaymentBuffer."Document No.";
                     "Account Type" := "Account Type"::Vendor;
 
                     SetHideValidation(true);
                     Validate("Posting Date", PostingDate);
-                    Validate("Account No.", TempPaymentBuffer."Vendor No.");
+                    Validate("Account No.", TempVendorPaymentBuffer."Vendor No.");
 
-                    if Vendor."No." <> TempPaymentBuffer."Vendor No." then
-                        Vendor.Get(TempPaymentBuffer."Vendor No.");
+                    if Vendor."No." <> TempVendorPaymentBuffer."Vendor No." then
+                        Vendor.Get(TempVendorPaymentBuffer."Vendor No.");
                     Description := Vendor.Name;
 
                     "Bal. Account Type" := "Bal. Account Type"::"Bank Account";
                     Validate("Bal. Account No.", BalAccountNo);
-                    Validate("Currency Code", TempPaymentBuffer."Currency Code");
+                    Validate("Currency Code", TempVendorPaymentBuffer."Currency Code");
 
-                    "Message to Recipient" := GetMessageToRecipient(SummarizePerVend, TempPaymentBuffer);
+                    "Message to Recipient" := GetMessageToRecipient(SummarizePerVend, TempVendorPaymentBuffer);
                     "Bank Payment Type" := BankPaymentType;
                     "Applies-to ID" := "Document No.";
 
                     "Source Code" := GenJournalTemplate."Source Code";
                     "Reason Code" := GenJournalBatch."Reason Code";
-                    "Source Line No." := TempPaymentBuffer."Vendor Ledg. Entry No.";
-                    "Shortcut Dimension 1 Code" := TempPaymentBuffer."Global Dimension 1 Code";
-                    "Shortcut Dimension 2 Code" := TempPaymentBuffer."Global Dimension 2 Code";
-                    "Dimension Set ID" := TempPaymentBuffer."Dimension Set ID";
+                    "Source Line No." := TempVendorPaymentBuffer."Vendor Ledg. Entry No.";
+                    "Shortcut Dimension 1 Code" := TempVendorPaymentBuffer."Global Dimension 1 Code";
+                    "Shortcut Dimension 2 Code" := TempVendorPaymentBuffer."Global Dimension 2 Code";
+                    "Dimension Set ID" := TempVendorPaymentBuffer."Dimension Set ID";
 
-                    Validate(Amount, TempPaymentBuffer.Amount);
+                    Validate(Amount, TempVendorPaymentBuffer.Amount);
 
-                    "Applies-to Doc. Type" := TempPaymentBuffer."Vendor Ledg. Entry Doc. Type";
-                    "Applies-to Doc. No." := TempPaymentBuffer."Vendor Ledg. Entry Doc. No.";
+                    "Applies-to Doc. Type" := TempVendorPaymentBuffer."Vendor Ledg. Entry Doc. Type";
+                    "Applies-to Doc. No." := TempVendorPaymentBuffer."Vendor Ledg. Entry Doc. No.";
 
-                    Validate("Payment Method Code", TempPaymentBuffer."Payment Method Code");
+                    Validate("Payment Method Code", TempVendorPaymentBuffer."Payment Method Code");
 
-                    "Remit-to Code" := TempPaymentBuffer."Remit-to Code";
+                    "Remit-to Code" := TempVendorPaymentBuffer."Remit-to Code";
 
-                    TempPaymentBuffer.CopyFieldsToGenJournalLine(GenJnlLine);
+                    TempVendorPaymentBuffer.CopyFieldsToGenJournalLine(GenJnlLine);
 
+                    OnBeforeUpdateGnlJnlLineDimensionsFromVendorPayment(GenJnlLine, TempVendorPaymentBuffer);
+#if not CLEAN22
+                    TempPaymentBuffer.CopyFieldsFromVendorPaymentBuffer(TempVendorPaymentBuffer);
                     OnBeforeUpdateGnlJnlLineDimensionsFromTempBuffer(GenJnlLine, TempPaymentBuffer);
-                    UpdateDimensions(GenJnlLine, TempPaymentBuffer);
+                    TempVendorPaymentBuffer.CopyFieldsFromPaymentBuffer(TempPaymentBuffer);
+#endif
+                    UpdateDimensions(GenJnlLine, TempVendorPaymentBuffer);
                     Insert();
                 end;
-            until TempPaymentBuffer.Next() = 0;
+            until TempVendorPaymentBuffer.Next() = 0;
     end;
 
-    local procedure UpdateDimensions(var GenJnlLine: Record "Gen. Journal Line"; TempPaymentBuffer: Record "Payment Buffer" temporary)
+    local procedure UpdateDimensions(var GenJnlLine: Record "Gen. Journal Line"; TempVendorPaymentBuffer: Record "Vendor Payment Buffer" temporary)
     var
         DimBuf: Record "Dimension Buffer";
         TempDimSetEntry: Record "Dimension Set Entry" temporary;
@@ -363,7 +378,7 @@
 
                 DimBuf.Reset();
                 DimBuf.DeleteAll();
-                DimBufMgt.GetDimensions(TempPaymentBuffer."Dimension Entry No.", DimBuf);
+                DimBufMgt.GetDimensions(TempVendorPaymentBuffer."Dimension Entry No.", DimBuf);
                 if DimBuf.FindSet() then
                     repeat
                         DimVal.Get(DimBuf."Dimension Code", DimBuf."Dimension Value Code");
@@ -396,16 +411,6 @@
         GenJournalLine."Dimension Set ID" := DimensionManagement.GetCombinedDimensionSetID(DimSetIDArr, GenJournalLine."Shortcut Dimension 1 Code", GenJournalLine."Shortcut Dimension 2 Code");
 
         OnAfterAssignCombinedDimensionSetID(GenJournalLine, DimSetIDArr);
-    end;
-
-    [IntegrationEvent(false, false)]
-    local procedure OnUpdateTempBufferFromVendorLedgerEntry(var TempPaymentBuffer: Record "Payment Buffer" temporary; VendorLedgerEntry: Record "Vendor Ledger Entry")
-    begin
-    end;
-
-    [IntegrationEvent(false, false)]
-    local procedure OnBeforeUpdateGnlJnlLineDimensionsFromTempBuffer(var GenJournalLine: Record "Gen. Journal Line"; TempPaymentBuffer: Record "Payment Buffer" temporary)
-    begin
     end;
 
     local procedure SetNextNo(GenJournalBatchNoSeries: Code[20]; KeepSavedDocumentNo: Boolean)
@@ -442,7 +447,7 @@
             NewCVLedgEntryBuf, OldCVLedgEntryBuf2, ApplnRoundingPrecision, false, CheckAmount));
     end;
 
-    local procedure GetMessageToRecipient(SummarizePerVend: Boolean; TempPaymentBuffer: Record "Payment Buffer" temporary): Text[140]
+    local procedure GetMessageToRecipient(SummarizePerVend: Boolean; TempVendorPaymentBuffer: Record "Vendor Payment Buffer" temporary): Text[140]
     var
         VendorLedgerEntry: Record "Vendor Ledger Entry";
         CompanyInformation: Record "Company Information";
@@ -452,15 +457,15 @@
             exit(CompanyInformation.Name);
         end;
 
-        VendorLedgerEntry.Get(TempPaymentBuffer."Vendor Ledg. Entry No.");
+        VendorLedgerEntry.Get(TempVendorPaymentBuffer."Vendor Ledg. Entry No.");
         if VendorLedgerEntry."Message to Recipient" <> '' then
             exit(VendorLedgerEntry."Message to Recipient");
 
         exit(
           StrSubstNo(
             MessageToRecipientMsg,
-            TempPaymentBuffer."Vendor Ledg. Entry Doc. Type",
-            TempPaymentBuffer."Applies-to Ext. Doc. No."));
+            TempVendorPaymentBuffer."Vendor Ledg. Entry Doc. Type",
+            TempVendorPaymentBuffer."Applies-to Ext. Doc. No."));
     end;
 
     local procedure BatchSelection(CurrentJnlTemplateName: Code[10]; var CurrentJnlBatchName: Code[10]; KeepSaveDocumentNo: Boolean)
@@ -470,6 +475,32 @@
         GenJnlManagement.CheckTemplateName(CurrentJnlTemplateName, CurrentJnlBatchName);
         GenJournalBatch.Get(CurrentJnlTemplateName, CurrentJnlBatchName);
         SetNextNo(GenJournalBatch."No. Series", KeepSaveDocumentNo);
+    end;
+
+#if not CLEAN22
+    [Obsolete('Replaced by OnUpdateVendorPaymentBufferFromVendorLedgerEntry.', '22.0')]
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateTempBufferFromVendorLedgerEntry(var TempPaymentBuffer: Record "Payment Buffer" temporary; VendorLedgerEntry: Record "Vendor Ledger Entry")
+    begin
+    end;
+#endif
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateVendorPaymentBufferFromVendorLedgerEntry(var TempVendorPaymentBuffer: Record "Vendor Payment Buffer" temporary; VendorLedgerEntry: Record "Vendor Ledger Entry")
+    begin
+    end;
+
+#if not CLEAN22
+    [Obsolete('Replaced by OnBeforeUpdateGnlJnlLineDimensionsFromVendorPayment.', '22.0')]
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdateGnlJnlLineDimensionsFromTempBuffer(var GenJournalLine: Record "Gen. Journal Line"; TempPaymentBuffer: Record "Payment Buffer" temporary)
+    begin
+    end;
+#endif
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdateGnlJnlLineDimensionsFromVendorPayment(var GenJournalLine: Record "Gen. Journal Line"; TempVendorPaymentBuffer: Record "Vendor Payment Buffer" temporary)
+    begin
     end;
 
     [IntegrationEvent(false, false)]
@@ -482,4 +513,3 @@
     begin
     end;
 }
-

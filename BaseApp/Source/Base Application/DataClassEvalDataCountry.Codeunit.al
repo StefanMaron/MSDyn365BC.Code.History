@@ -67,7 +67,10 @@ codeunit 1752 "Data Class. Eval. Data Country"
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"LSV Journal");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"LSV Journal Line");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Sales Header Archive");
+#if not CLEAN22
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Payment Buffer");
+#endif
+        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Vendor Payment Buffer");
         OnAfterClassifyCountrySpecificTables();
     end;
 

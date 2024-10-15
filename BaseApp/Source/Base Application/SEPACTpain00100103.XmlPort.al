@@ -629,7 +629,13 @@ xmlport 1000 "SEPA CT pain.001.001.03"
                             trigger OnBeforePassVariable()
                             var
                                 SeparatorText: Text;
+                                IsHandled: Boolean;
                             begin
+                                IsHandled := false;
+                                OnBeforePassVariableRmtInf(PaymentExportData, RemittanceText1, IsHandled);
+                                if IsHandled then
+                                    exit;
+
                                 RemittanceText1 := '';
                                 RemittanceText2 := '';
                                 CdtrRefInf_CdOrPrtry_Prtry := '';
@@ -810,6 +816,11 @@ xmlport 1000 "SEPA CT pain.001.001.03"
 
     [IntegrationEvent(false, false)]
     local procedure OnSpecifyRemittanceTextSeparatorText(var SeparatorText: Text)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforePassVariableRmtInf(PaymentExportData: Record "Payment Export Data"; var RemittanceText: Text; var IsHandled: Boolean)
     begin
     end;
 }

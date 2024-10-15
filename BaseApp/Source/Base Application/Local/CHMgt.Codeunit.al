@@ -348,34 +348,34 @@ codeunit 11503 CHMgt
         exit(50);
     end;
 
-    [EventSubscriber(ObjectType::Report, Report::"Suggest Vendor Payments", 'OnBeforeUpdateGnlJnlLineDimensionsFromTempBuffer', '', false, false)]
-    local procedure SuggestVendorPaymentUpdatePaymentLine(var GenJournalLine: Record "Gen. Journal Line"; TempPaymentBuffer: Record "Payment Buffer" temporary)
+    [EventSubscriber(ObjectType::Report, Report::"Suggest Vendor Payments", 'OnBeforeUpdateGnlJnlLineDimensionsFromVendorPaymentBuffer', '', false, false)]
+    local procedure SuggestVendorPaymentFromBufferUpdatePaymentLine(var GenJournalLine: Record "Gen. Journal Line"; TempVendorPaymentBuffer: Record "Vendor Payment Buffer" temporary)
     begin
         // NewDescription = Description + ', ' + ExternalDocNo, where Description is truncated to fit full ExternalDocNo value
-        if TempPaymentBuffer."Applies-to Ext. Doc. No." <> '' then
+        if TempVendorPaymentBuffer."Applies-to Ext. Doc. No." <> '' then
             GenJournalLine.Description :=
               Format(
                 CopyStr(
                   GenJournalLine.Description,
-                  1, MaxStrLen(GenJournalLine.Description) - StrLen(TempPaymentBuffer."Applies-to Ext. Doc. No.") - 2) +
-                ', ' + TempPaymentBuffer."Applies-to Ext. Doc. No.",
+                  1, MaxStrLen(GenJournalLine.Description) - StrLen(TempVendorPaymentBuffer."Applies-to Ext. Doc. No.") - 2) +
+                ', ' + TempVendorPaymentBuffer."Applies-to Ext. Doc. No.",
                 -MaxStrLen(GenJournalLine.Description));
     end;
 
-    [EventSubscriber(ObjectType::Table, Database::"Payment Buffer", 'OnCopyFieldsFromVendorLedgerEntry', '', false, false)]
-    local procedure HandleOnCopyFieldsFromVendorLedgerEntry(VendorLedgerEntrySource: Record "Vendor Ledger Entry"; var PaymentBufferTarget: Record "Payment Buffer")
+    [EventSubscriber(ObjectType::Table, Database::"Vendor Payment Buffer", 'OnCopyFieldsFromVendorLedgerEntry', '', false, false)]
+    local procedure HandleOnCopyFieldsFromVendorLedgerEntryFromBuffer(VendorLedgerEntrySource: Record "Vendor Ledger Entry"; var VendorPaymentBufferTarget: Record "Vendor Payment Buffer")
     begin
-        PaymentBufferTarget."Reference No." := VendorLedgerEntrySource."Reference No.";
+        VendorPaymentBufferTarget."Reference No." := VendorLedgerEntrySource."Reference No.";
     end;
 
-    [EventSubscriber(ObjectType::Table, Database::"Payment Buffer", 'OnCopyFieldsToGenJournalLine', '', false, false)]
-    local procedure HandleOnCopyFieldsToGenJournalLine(PaymentBufferSource: Record "Payment Buffer"; var GenJournalLineTarget: Record "Gen. Journal Line")
+    [EventSubscriber(ObjectType::Table, Database::"Vendor Payment Buffer", 'OnCopyFieldsToGenJournalLine', '', false, false)]
+    local procedure HandleOnCopyFieldsToGenJournalLineFromBuffer(VendorPaymentBufferSource: Record "Vendor Payment Buffer"; var GenJournalLineTarget: Record "Gen. Journal Line")
     var
         VendorLedgerEntry: Record "Vendor Ledger Entry";
     begin
-        if PaymentBufferSource."Vendor Ledg. Entry No." <> 0 then begin
-            GenJournalLineTarget."Reference No." := PaymentBufferSource."Reference No.";
-            VendorLedgerEntry.Get(PaymentBufferSource."Vendor Ledg. Entry No.");
+        if VendorPaymentBufferSource."Vendor Ledg. Entry No." <> 0 then begin
+            GenJournalLineTarget."Reference No." := VendorPaymentBufferSource."Reference No.";
+            VendorLedgerEntry.Get(VendorPaymentBufferSource."Vendor Ledg. Entry No.");
             if VendorLedgerEntry."Recipient Bank Account" <> '' then
                 GenJournalLineTarget.Validate("Recipient Bank Account", VendorLedgerEntry."Recipient Bank Account");
         end;

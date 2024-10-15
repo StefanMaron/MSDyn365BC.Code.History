@@ -65,7 +65,7 @@ table 91 "User Setup"
         field(10; "Salespers./Purch. Code"; Code[20])
         {
             Caption = 'Salespers./Purch. Code';
-            TableRelation = "Salesperson/Purchaser";
+            TableRelation = "Salesperson/Purchaser" where(Blocked = const(false));
 
             trigger OnValidate()
             begin

@@ -274,7 +274,7 @@ codeunit 7307 "Whse.-Activity-Register"
             WhseJnlLine."Location Code" := "Location Code";
             WhseJnlLine."Item No." := "Item No.";
             WhseJnlLine."Registering Date" := WorkDate();
-            WhseJnlLine."User ID" := UserId;
+            WhseJnlLine."User ID" := CopyStr(UserId(), 1, MaxStrLen(WhseJnlLine."User ID"));
             WhseJnlLine."Variant Code" := "Variant Code";
             WhseJnlLine."Entry Type" := WhseJnlLine."Entry Type"::Movement;
             if "Action Type" = "Action Type"::Take then begin
@@ -994,6 +994,7 @@ codeunit 7307 "Whse.-Activity-Register"
                     TempWhseActivLine.SetRange("Item No.", TempWhseActivLine."Item No.");
                     if ItemTrackingMgt.GetWhseItemTrkgSetup(TempWhseActivLine."Item No.", WhseItemTrackingSetup) then
                         repeat
+                            OnCheckWhseItemTrkgLineOnBeforeTestTracking(TempWhseActivLine, WhseItemTrackingSetup);
                             TempWhseActivLine.TestNonSpecificItemTracking();
                             TempWhseActivLine.TestTrackingIfRequired(WhseItemTrackingSetup);
                         until TempWhseActivLine.Next() = 0
@@ -1072,7 +1073,7 @@ codeunit 7307 "Whse.-Activity-Register"
                  ["Whse. Document Type"::Shipment, "Whse. Document Type"::"Internal Pick",
                   "Whse. Document Type"::Production, "Whse. Document Type"::Assembly, "Whse. Document Type"::"Internal Put-away", "Whse. Document Type"::Job]) and
                 ("Action Type" <> "Action Type"::Take) and ("Breakbulk No." = 0)) or
-               (("Whse. Document Type" = "Whse. Document Type"::Receipt) and ("Action Type" <> "Action Type"::Place))
+               (("Whse. Document Type" = "Whse. Document Type"::Receipt) and ("Action Type" <> "Action Type"::Place) and ("Breakbulk No." = 0))
             then
                 NeedRegisterWhseItemTrkgLine := true;
 
@@ -2631,6 +2632,11 @@ codeunit 7307 "Whse.-Activity-Register"
 
     [IntegrationEvent(false, false)]
     local procedure OnCheckWhseItemTrkgLineOnAfterTempWhseActivLineFind(var TempWhseActivLine: Record "Warehouse Activity Line" temporary; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCheckWhseItemTrkgLineOnBeforeTestTracking(WarehouseActivityLine: Record "Warehouse Activity Line"; var WhseItemTrackingSetup: Record "Item Tracking Setup")
     begin
     end;
 

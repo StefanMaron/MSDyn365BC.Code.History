@@ -352,10 +352,20 @@ table 950 "Time Sheet Header"
         SetCurrentKey("Resource No.", "Starting Date");
 
         TimeSheetMgt.FilterTimeSheets(Rec, FilterFieldNo);
+        if Rec.IsEmpty then
+        Error(Text002);
+        
         SetFilter("Starting Date", '..%1', WorkDate());
         if FindLast() then
             exit("No.");
-        Error(Text002);
+    end;
+
+    procedure FindTimeSheetList(FilterFieldNo: Integer): Code[20]
+    begin
+        Reset();
+        SetCurrentKey("Resource No.", "Starting Date");
+
+        TimeSheetMgt.FilterTimeSheets(Rec, FilterFieldNo);
     end;
 
     local procedure AddToMyTimeSheets(UserID: Code[50])
