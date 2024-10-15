@@ -5,10 +5,11 @@ codeunit 1305 "Sales-Quote to Invoice"
     trigger OnRun()
     var
         Cust: Record Customer;
+        SalesQuoteLine: Record "Sales Line";
+        SalesCommentLine: Record "Sales Comment Line";
         SalesInvoiceLine: Record "Sales Line";
-        SalesSetup: Record "Sales & Receivables Setup";
-        ArchiveManagement: Codeunit ArchiveManagement;
         CustCheckCrLimit: Codeunit "Cust-Check Cr. Limit";
+        IsHandled: Boolean;
     begin
         OnBeforeOnRun(Rec);
 
@@ -37,11 +38,11 @@ codeunit 1305 "Sales-Quote to Invoice"
         SalesInvoiceLine.LockTable();
 
         CreateSalesInvoiceHeader(SalesInvoiceHeader, Rec);
-        CreateSalesInvoiceLines(SalesInvoiceHeader, Rec);
+        CreateSalesInvoiceLines(SalesInvoiceHeader, Rec, SalesQuoteLine);
         OnAfterInsertAllSalesInvLines(SalesInvoiceLine, Rec);
 
         SalesSetup.Get();
-        ArchiveManagement.AutoArchiveSalesDocument(Rec);
+        ArchiveSalesQuote(Rec);
 
         if SalesSetup."Default Posting Date" = SalesSetup."Default Posting Date"::"No Date" then begin
             SalesInvoiceHeader."Posting Date" := 0D;
@@ -50,10 +51,14 @@ codeunit 1305 "Sales-Quote to Invoice"
         UpdateEmailParameters(SalesInvoiceHeader);
         UpdateCouponClaims(SalesInvoiceHeader);
 
-        OnBeforeDeletionOfQuote(Rec, SalesInvoiceHeader);
-
-        DeleteLinks();
-        Delete();
+        IsHandled := false;
+        OnBeforeDeletionOfQuote(Rec, SalesInvoiceHeader, IsHandled, SalesQuoteLine);
+        if not IsHandled then begin
+            SalesCommentLine.DeleteComments("Document Type".AsInteger(), "No.");
+            DeleteLinks();
+            Delete();
+            SalesQuoteLine.DeleteAll();
+        end;
 
         Commit();
         Clear(CustCheckCrLimit);
@@ -62,10 +67,29 @@ codeunit 1305 "Sales-Quote to Invoice"
     end;
 
     var
+        SalesSetup: Record "Sales & Receivables Setup";
         SalesInvoiceHeader: Record "Sales Header";
         SpecifyCustomerErr: Label 'You must select a customer before you can convert a quote to an invoice.';
         SpecifyBillToCustomerNoErr: Label 'You must specify the %1 before you can convert a quote to an invoice.', Comment = '%1 is Bill-To Customer No.';
         CannotConvertAssembleToOrderItemErr: Label 'You can not convert sales quote to sales invoice because one or more lines is linked to assembly quote. Change the %1 to zero or convert the quote to order instead.', Comment = '%1 = field name';
+
+    local procedure ArchiveSalesQuote(var SalesHeader: Record "Sales Header")
+    var
+        ArchiveManagement: Codeunit ArchiveManagement;
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeArchiveSalesQuote(SalesHeader, SalesInvoiceHeader, IsHandled);
+        if IsHandled then
+            exit;
+
+        case SalesSetup."Archive Quotes" of
+            SalesSetup."Archive Quotes"::Always:
+                ArchiveManagement.ArchSalesDocumentNoConfirm(SalesHeader);
+            SalesSetup."Archive Quotes"::Question:
+                ArchiveManagement.ArchiveSalesDocument(SalesHeader);
+        end;
+    end;
 
     procedure GetSalesInvoiceHeader(var SalesHeader2: Record "Sales Header")
     begin
@@ -95,9 +119,8 @@ codeunit 1305 "Sales-Quote to Invoice"
         end;
     end;
 
-    local procedure CreateSalesInvoiceLines(SalesInvoiceHeader: Record "Sales Header"; SalesQuoteHeader: Record "Sales Header")
+    local procedure CreateSalesInvoiceLines(SalesInvoiceHeader: Record "Sales Header"; SalesQuoteHeader: Record "Sales Header"; var SalesQuoteLine: Record "Sales Line")
     var
-        SalesQuoteLine: Record "Sales Line";
         SalesInvoiceLine: Record "Sales Line";
         IsHandled: Boolean;
     begin
@@ -125,7 +148,7 @@ codeunit 1305 "Sales-Quote to Invoice"
 
             MoveLineCommentsToSalesInvoice(SalesInvoiceHeader, SalesQuoteHeader);
 
-            SalesQuoteLine.DeleteAll();
+            OnCreateSalesInvoiceLinesOnBeforeSalesQuoteLineDeleteAll(SalesQuoteHeader, SalesInvoiceHeader, SalesQuoteLine);
         end;
     end;
 
@@ -196,7 +219,11 @@ codeunit 1305 "Sales-Quote to Invoice"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterSalesQuoteLineSetFilters(var SalesQuoteLine: Record "Sales Line");
+    begin
+    end;
 
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeArchiveSalesQuote(var SalesHeader: Record "Sales Header"; var SalesInvoiceHeader: Record "Sales Header"; var IsHandled: Boolean)
     begin
     end;
 
@@ -216,12 +243,17 @@ codeunit 1305 "Sales-Quote to Invoice"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeDeletionOfQuote(var SalesHeader: Record "Sales Header"; var SalesInvoiceHeader: Record "Sales Header")
+    local procedure OnBeforeDeletionOfQuote(var SalesHeader: Record "Sales Header"; var SalesInvoiceHeader: Record "Sales Header"; var IsHandled: Boolean; var SalesQuoteLine: Record "Sales Line")
     begin
     end;
 
     [IntegrationEvent(false, false)]
     local procedure OnCreateSalesInvoiceHeaderOnBeforeSalesInvoiceHeaderInsert(var SalesInvoiceHeader: Record "Sales Header"; SalesQuoteHeader: Record "Sales Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateSalesInvoiceLinesOnBeforeSalesQuoteLineDeleteAll(QuoteSalesHeader: Record "Sales Header"; InvoiceSalesHeader: Record "Sales Header"; var QuoteSalesLine: Record "Sales Line")
     begin
     end;
 }

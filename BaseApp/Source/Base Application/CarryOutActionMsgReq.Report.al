@@ -62,7 +62,6 @@ report 493 "Carry Out Action Msg. - Req."
         begin
             PurchOrderHeader."Order Date" := WorkDate;
             PurchOrderHeader."Posting Date" := WorkDate;
-            PurchOrderHeader."Expected Receipt Date" := WorkDate;
             if ReqWkshTmpl.Recurring then
                 EndOrderDate := WorkDate
             else

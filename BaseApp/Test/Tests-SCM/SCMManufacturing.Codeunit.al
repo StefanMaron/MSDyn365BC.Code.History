@@ -1437,7 +1437,7 @@ codeunit 137404 "SCM Manufacturing"
         DueDate := SetupForCalculateWaitingTimeWithMultipleCalendars(Item, WorkCenter, WaitTime);
 
         // Exercise: Create Released Production Order, set Due Date and Refresh Production Order
-        CreateAndRefreshProdOrderWithSpecificDueDate(ProductionOrder, Item."No.", DueDate);
+        CreateAndRefreshProdOrderWithSpecificDueDate(ProductionOrder, Item."No.", DueDate, LibraryRandom.RandDec(10, 2), false);
 
         // Verify: Find the routing line with Monday ~ Friday working days and check the start Date-Time and Ending Date-time,
         // because WaitTime >= 5 DAYS, then duration between starting date and ending date will include weekend
@@ -1466,7 +1466,7 @@ codeunit 137404 "SCM Manufacturing"
         DueDate := SetupForCalculateWaitingTimeWithMultipleCalendars(Item, WorkCenter, WaitTime);
 
         // Exercise: Create Released Production Order, set Due Date and Refresh Production Order
-        CreateAndRefreshProdOrderWithSpecificDueDate(ProductionOrder, Item."No.", DueDate);
+        CreateAndRefreshProdOrderWithSpecificDueDate(ProductionOrder, Item."No.", DueDate, LibraryRandom.RandDec(10, 2), false);
 
         // Verify: Find the routing line with Monday ~ Friday working days and check the start Date-Time and Ending Date-time,
         VerifyDateTimeOnProdOrderRoutingLine(ProductionOrder, Item."Routing No.", WorkCenter."No.", WaitTime);
@@ -3596,6 +3596,112 @@ codeunit 137404 "SCM Manufacturing"
         Assert.ExpectedError(StrSubstNo(CircularRefInBOMErr, ProductionBOMHeader."No.", ProductionBOMHeader."No."));
     end;
 
+    [Test]
+    procedure NoErrorOnSameBOMInDifferentBranchesInBOMTree()
+    var
+        Item: Record Item;
+        ProductionBOMHeader: array[3] of Record "Production BOM Header";
+        ProductionBOMLine: array[2] of Record "Production BOM Line";
+    begin
+        // [FEATURE] [Production BOM]
+        // [SCENARIO 425674] No error when the same production BOM no. is present in unrelated branches in BOM tree.
+        Initialize();
+
+        UpdateDynamicLowLevelCodeInMfgSetup(false);
+
+        // [GIVEN] Certified production BOM "A", component type = Item, component no. = <some item>.
+        LibraryInventory.CreateItem(Item);
+        LibraryManufacturing.CreateProductionBOMHeader(ProductionBOMHeader[1], Item."Base Unit of Measure");
+        LibraryManufacturing.CreateProductionBOMLine(
+          ProductionBOMHeader[1], ProductionBOMLine[1], '', ProductionBOMLine[1].Type::Item, Item."No.", 1);
+        LibraryManufacturing.UpdateProductionBOMStatus(ProductionBOMHeader[1], ProductionBOMHeader[1].Status::Certified);
+
+        // [GIVEN] Certified production BOM "B", component type = Production BOM, component no. = BOM "A".
+        LibraryManufacturing.CreateProductionBOMHeader(ProductionBOMHeader[2], Item."Base Unit of Measure");
+        LibraryManufacturing.CreateProductionBOMLine(
+          ProductionBOMHeader[2], ProductionBOMLine[1], '', ProductionBOMLine[1].Type::"Production BOM", ProductionBOMHeader[1]."No.", 1);
+        LibraryManufacturing.UpdateProductionBOMStatus(ProductionBOMHeader[2], ProductionBOMHeader[2].Status::Certified);
+
+        // [GIVEN] Production BOM "C" with two lines:
+        // [GIVEN] Line 1. Type = Production BOM, No. = BOM "A".
+        // [GIVEN] Line 2. Type = Production BOM, No. = BOM "B" (whose component is BOM "A")
+        LibraryManufacturing.CreateProductionBOMHeader(ProductionBOMHeader[3], Item."Base Unit of Measure");
+        LibraryManufacturing.CreateProductionBOMLine(
+          ProductionBOMHeader[3], ProductionBOMLine[1], '', ProductionBOMLine[1].Type::"Production BOM", ProductionBOMHeader[1]."No.", 1);
+        LibraryManufacturing.CreateProductionBOMLine(
+          ProductionBOMHeader[3], ProductionBOMLine[2], '', ProductionBOMLine[2].Type::"Production BOM", ProductionBOMHeader[2]."No.", 1);
+
+        // [WHEN] Certify production BOM "C".
+        LibraryManufacturing.UpdateProductionBOMStatus(ProductionBOMHeader[3], ProductionBOMHeader[3].Status::Certified);
+
+        // [THEN] BOM "C" is certified successfully.
+        ProductionBOMHeader[3].TestField(Status, ProductionBOMHeader[3].Status::Certified);
+    end;
+
+    [Test]
+    procedure ConsideringAbsenceForConstrainedCapacityCalculateForward()
+    var
+        RoutingHeader: Record "Routing Header";
+        RoutingLine: Record "Routing Line";
+        Item: Record Item;
+        ProductionOrder: Record "Production Order";
+        ProdOrderCapacityNeed: Record "Prod. Order Capacity Need";
+    begin
+        // [FEATURE] [Capacity] [Absence] [Capacity Constrained Resource]
+        // [SCENARIO 437415] Respect absence period when calculating capacity need with direction = "Forward" for a constrained resource.
+        Initialize();
+
+        // [GIVEN] Work center "W" with calendar.
+        // [GIVEN] Register absence on WorkDate from 8AM till 12AM.
+        // [GIVEN] Make the work center "W" a constrained resource with maximum load = 90%.
+        // [GIVEN] Create routing with "W".
+        CreateRoutingWithCapacityConstrainedWorkCenterAndAbsence(RoutingHeader, RoutingLine, 120000T);
+
+        // [GIVEN] Create item and select the routing.
+        CreateItemWithRouting(Item, RoutingHeader."No.");
+
+        // [WHEN] Create and refresh production order with Due Date = "WorkDate" and Scheduling Direction = "Forward".
+        CreateAndRefreshProdOrderWithSpecificDueDate(
+          ProductionOrder, Item."No.", WorkDate, LibraryRandom.RandIntInRange(1000, 2000), true);
+
+        // [THEN] No Prod. Order Capacity Need for the absence period is created.
+        FilteringOnProdOrderCapacityNeed(ProdOrderCapacityNeed, RoutingLine."No.", WorkDate());
+        ProdOrderCapacityNeed.FindFirst();
+        Assert.IsTrue(ProdOrderCapacityNeed."Starting Time" >= 120000T, '');
+    end;
+
+    [Test]
+    procedure ConsideringAbsenceForConstrainedCapacityCalculateBackward()
+    var
+        RoutingHeader: Record "Routing Header";
+        RoutingLine: Record "Routing Line";
+        Item: Record Item;
+        ProductionOrder: Record "Production Order";
+        ProdOrderCapacityNeed: Record "Prod. Order Capacity Need";
+    begin
+        // [FEATURE] [Capacity] [Absence] [Capacity Constrained Resource]
+        // [SCENARIO 437415] Respect absence period when calculating capacity need with direction = "Backward" for a constrained resource.
+        Initialize();
+
+        // [GIVEN] Work center "W" with calendar.
+        // [GIVEN] Register absence on WorkDate from 8AM till 12AM.
+        // [GIVEN] Make the work center "W" a constrained resource with maximum load = 90%.
+        // [GIVEN] Create routing with "W".
+        CreateRoutingWithCapacityConstrainedWorkCenterAndAbsence(RoutingHeader, RoutingLine, 120000T);
+
+        // [GIVEN] Create item and select the routing.
+        CreateItemWithRouting(Item, RoutingHeader."No.");
+
+        // [WHEN] Create and refresh production order with Due Date = "WorkDate" and Scheduling Direction = "Backward".
+        CreateAndRefreshProdOrderWithSpecificDueDate(
+          ProductionOrder, Item."No.", WorkDate + 1, LibraryRandom.RandIntInRange(1000, 2000), false);
+
+        // [THEN] No Prod. Order Capacity Need for the absence period is created.
+        FilteringOnProdOrderCapacityNeed(ProdOrderCapacityNeed, RoutingLine."No.", WorkDate());
+        ProdOrderCapacityNeed.FindFirst();
+        Assert.IsTrue(ProdOrderCapacityNeed."Starting Time" >= 120000T, '');
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -3782,13 +3888,13 @@ codeunit 137404 "SCM Manufacturing"
         ProductionOrder.Find;
     end;
 
-    local procedure CreateAndRefreshProdOrderWithSpecificDueDate(var ProductionOrder: Record "Production Order"; ItemNo: Code[20]; DueDate: Date)
+    local procedure CreateAndRefreshProdOrderWithSpecificDueDate(var ProductionOrder: Record "Production Order"; ItemNo: Code[20]; DueDate: Date; Qty: Decimal; Forward: Boolean)
     var
         RlsdProdOrder: TestPage "Released Production Order";
     begin
         // Create Released Production Order
         LibraryManufacturing.CreateProductionOrder(ProductionOrder,
-          ProductionOrder.Status::Released, ProductionOrder."Source Type"::Item, ItemNo, LibraryRandom.RandDec(10, 2));
+          ProductionOrder.Status::Released, ProductionOrder."Source Type"::Item, ItemNo, Qty);
 
         // Set Due Date and Refresh Production Order
         // Use page to modify Due Date of Production Order, since using Validate method on Production Order Record cannot work
@@ -3796,7 +3902,7 @@ codeunit 137404 "SCM Manufacturing"
         RlsdProdOrder.FILTER.SetFilter("No.", ProductionOrder."No.");
         RlsdProdOrder."Due Date".SetValue(DueDate);
         ProductionOrder.Get(ProductionOrder.Status, ProductionOrder."No.");
-        LibraryManufacturing.RefreshProdOrder(ProductionOrder, false, true, true, true, false);
+        LibraryManufacturing.RefreshProdOrder(ProductionOrder, Forward, true, true, true, false);
     end;
 
     local procedure CreateBOMComponent(ParentItemNo: Code[20]; ItemNo: Code[20]; QuantityPer: Decimal)
@@ -4505,6 +4611,34 @@ codeunit 137404 "SCM Manufacturing"
         RoutingHeader.Validate(Status, RoutingHeader.Status::Certified);
         RoutingHeader.Modify(true);
         exit(RoutingHeader."No.");
+    end;
+
+    local procedure CreateRoutingWithCapacityConstrainedWorkCenterAndAbsence(var RoutingHeader: Record "Routing Header"; var RoutingLine: Record "Routing Line"; AbsenceEndingTime: Time)
+    var
+        WorkCenter: Record "Work Center";
+        ShopCalendarWorkingDays: Record "Shop Calendar Working Days";
+        CalendarAbsenceEntry: Record "Calendar Absence Entry";
+        CapacityConstrainedResource: Record "Capacity Constrained Resource";
+    begin
+        CreateWorkCenterWithWorkCenterGroup(WorkCenter, CreateShopCalendarCodeWithAllDaysWorking(ShopCalendarWorkingDays));
+
+        LibraryManufacturing.CreateCalendarAbsenceEntry(
+          CalendarAbsenceEntry, CalendarAbsenceEntry."Capacity Type"::"Work Center", WorkCenter."No.", WorkDate(),
+          ShopCalendarWorkingDays."Starting Time", AbsenceEndingTime, 1);
+        CalendarAbsenceManagement.UpdateAbsence(CalendarAbsenceEntry);
+        LibraryManufacturing.CalculateWorkCenterCalendar(WorkCenter, CalcDate('<-CY>', WorkDate()), CalcDate('<CY>', WorkDate()));
+
+        LibraryManufacturing.CreateCapacityConstrainedResource(
+          CapacityConstrainedResource, CapacityConstrainedResource."Capacity Type"::"Work Center", WorkCenter."No.");
+        CapacityConstrainedResource.Validate("Critical Load %", LibraryRandom.RandIntInRange(90, 99));
+        CapacityConstrainedResource.Modify(true);
+
+        LibraryManufacturing.CreateRoutingHeader(RoutingHeader, RoutingHeader.Type::Serial);
+        LibraryManufacturing.CreateRoutingLine(RoutingHeader, RoutingLine, '', Format(1), RoutingLine.Type::"Work Center", WorkCenter."No.");
+        RoutingLine.Validate("Run Time", LibraryRandom.RandInt(10));
+        RoutingLine.Modify(true);
+        RoutingHeader.Validate(Status, RoutingHeader.Status::Certified);
+        RoutingHeader.Modify(true);
     end;
 
     local procedure CreateMultipleProductionBOMLines(ItemNo: Code[20]; ItemNo2: Code[20]; UnitOfMeasureCode: Code[10]; Quantity: Decimal): Code[20]
