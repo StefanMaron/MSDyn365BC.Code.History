@@ -280,6 +280,8 @@ table 12182 "Vendor Bill Line"
     var
         Vend: Record Vendor;
         CompWithhTax: Record "Computed Withholding Tax";
+        VendorLedgerEntry: Record "Vendor Ledger Entry";
+        WithholdCodeLine: Record "Withhold Code Line";
     begin
         if Vend.Get("Vendor No.") then
             if not "Manual Line" and (Vend."Withholding Tax Code" = '') then
@@ -324,9 +326,36 @@ table 12182 "Vendor Bill Line"
                 VendBillWithhTax.Insert();
             OnCreateVendBillWithhTaxOnAfterVendBillWithhTaxInsert(VendBillWithhTax);
         end;
-        "Withholding Tax Amount" := VendBillWithhTax."Withholding Tax Amount";
+
+        if "Vendor Entry No." <> 0 then begin
+            VendorLedgerEntry.Get("Vendor Entry No.");
+            WithholdCodeLine.SetRange("Withhold Code", VendBillWithhTax."Withholding Tax Code");
+            if WithholdCodeLine.FindFirst() then
+                if VendorLedgerEntry."Purchase (LCY)" <> 0 then
+                    "Withholding Tax Amount" := -Round(
+                        (VendorLedgerEntry."Purchase (LCY)" *
+                        WithholdCodeLine."Taxable Base %" *
+                        VendBillWithhTax."Withholding Tax %") / 10000,
+                        GetCurrencyAmtRoundingPrecision(VendBillWithhTax."Currency Code"));
+        end;
+
+        if "Withholding Tax Amount" = 0 then
+            "Withholding Tax Amount" := VendBillWithhTax."Withholding Tax Amount";
+
         "Social Security Amount" := VendBillWithhTax."Total Social Security Amount";
         "Amount to Pay" := "Remaining Amount" - "Withholding Tax Amount" - VendBillWithhTax."Free-Lance Amount";
+    end;
+
+    local procedure GetCurrencyAmtRoundingPrecision(CurrencyCode: Code[20]): Decimal
+    var
+        Currency: Record Currency;
+    begin
+        if CurrencyCode = '' then
+            Currency.InitRoundingPrecision()
+        else
+            Currency.Get(CurrencyCode);
+
+        exit(Currency."Amount Rounding Precision");
     end;
 
     [Scope('OnPrem')]

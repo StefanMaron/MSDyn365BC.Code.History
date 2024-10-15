@@ -2180,9 +2180,9 @@ codeunit 144090 "ERM Withhold"
 
         // [WHEN] Create and Post Payment Journal with applies to Posted Invoice.
         CreateAndPostGenJnlLineWithAppliesToDoc(
-            GenJournalLine."Document Type"::Payment, 
-            PostedDocumentNo, 
-            GenJournalLine."Applies-to Doc. Type"::Invoice, 
+            GenJournalLine."Document Type"::Payment,
+            PostedDocumentNo,
+            GenJournalLine."Applies-to Doc. Type"::Invoice,
             WorkDate());
 
         // [GIVEN] Create Another Purchase Invoice of same vendor.
@@ -2195,6 +2195,50 @@ codeunit 144090 "ERM Withhold"
 
         // [VERIFY] Verify Payable Amount is calculated on Page -Withhold Taxes-Contribution Card.
         VerifyValueOnWithholdTaxesContributionCardPage(WithhTaxesContributionCard);
+    end;
+
+    [Test]
+    [HandlerFunctions('GrossAmountShowComputedWithhContriModalPageHandler')]
+    [Scope('OnPrem')]
+    procedure VerifyWithholdingTaxesPayableAccountOnPaymentJournal()
+    var
+        GenJournalLine, GenJournalLine1, GenJournalLine2 : Record "Gen. Journal Line";
+        GenJournalTemplate: Record "Gen. Journal Template";
+        GenJournalBatch: Record "Gen. Journal Batch";
+        WithholdCodeRec: Record "Withhold Code";
+        VendorNo: Code[20];
+        WithholdCode: Code[20];
+    begin
+        // [SCENARIO 459394] The Payment Journal Test report shows unbalanced calculated withholding tax entries in the Italian version..
+        Initialize();
+
+        // [GIVEN] Withholding Tax setup with "Withholding Tax %" = 20, "Taxable Base %" = 100
+        WithholdCode := CreateWithholdCodeWithLineAndRates(100, 20);
+        WithholdCodeRec.Get(WithholdCode);
+        WithholdCodeRec.Validate("Withholding Taxes Payable Acc.", LibraryERM.CreateGLAccountNo);
+        WithholdCodeRec.Validate("Tax Code", Format(LibraryRandom.RandIntInRange(1000, 9999)));
+        WithholdCodeRec.Modify(true);
+
+        // [GIVEN] Vendor Exist with "With holding Tax Code"
+        VendorNo := CreateVendorWithSocSecAndWithholdCodes(WithholdCode, '', '');
+
+        // [GIVEN] Create Payment Journal with Credit Amount
+        CreateGenJournalBatch(GenJournalBatch);
+        LibraryJournals.CreateGenJournalLine(GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name,
+                  "Gen. Journal Document Type"::Payment, GenJournalLine."Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo, "Gen. Journal Account Type"::"G/L Account", '', LibraryRandom.RandDec(500, 0));
+
+        // [GIVEN] Create Payment Journal with Debit Amount
+        LibraryJournals.CreateGenJournalLine(GenJournalLine1, GenJournalBatch."Journal Template Name", GenJournalBatch.Name,
+          "Gen. Journal Document Type"::Payment, GenJournalLine."Account Type"::Vendor, VendorNo, "Gen. Journal Account Type"::"G/L Account", '', GenJournalLine.Amount);
+        LibraryVariableStorage.Clear();
+        LibraryVariableStorage.Enqueue(GenJournalLine.Amount);
+
+        // [WHEN] Execute page "Withh.Tax-Soc.Sec."
+        ShowComputedWithholdContributionOnPayment(GenJournalBatch.Name);
+
+        // [VERIFY] "Withholding Taxes Payable Acc." on Payment Journal
+        FindWithHoldingTaxGenJournalLine(GenJournalLine2, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, "Gen. Journal Account Type"::"G/L Account", WithholdCodeRec."Withholding Taxes Payable Acc.");
+        Assert.AreEqual(GenJournalLine2."Account No.", WithholdCodeRec."Withholding Taxes Payable Acc.", '');
     end;
 
     local procedure Initialize()
@@ -2872,14 +2916,14 @@ codeunit 144090 "ERM Withhold"
     local procedure VerifyVendorBillLineAmtToPayAndSocSecAmtWhtManual(PurchWithhContribution: Record "Purch. Withh. Contribution"; VendorBillHeaderNo: Code[20]; TotalAmtInclVAT: Decimal)
     var
         VendorBillLine: Record "Vendor Bill Line";
+        VendorBillWithholdingTax: Record "Vendor Bill Withholding Tax";
     begin
         VendorBillLine.SetRange("Vendor Bill List No.", VendorBillHeaderNo);
         VendorBillLine.FindFirst();
-        VendorBillLine.TestField(
-          "Amount to Pay",
-          TotalAmtInclVAT - PurchWithhContribution."WHT Amount Manual" - PurchWithhContribution."Free-Lance Amount");
+        VendorBillLine.TestField("Gross Amount to Pay", TotalAmtInclVAT);
         VendorBillLine.TestField("Social Security Amount", PurchWithhContribution."Total Social Security Amount");
-        VendorBillLine.TestField("Withholding Tax Amount", PurchWithhContribution."WHT Amount Manual")
+        VendorBillWithholdingTax.Get(VendorBillLine."Vendor Bill List No.", VendorBillLine."Line No.");
+        VendorBillWithholdingTax.TestField("Withholding Tax Amount", PurchWithhContribution."WHT Amount Manual");
     end;
 
     local procedure VerifyContributions(SocialSecurityCode: Code[20]; INAILCode: Code[20]; SocialSecurityPct: Decimal; INAILFreeLancePct: Decimal)
@@ -3245,6 +3289,25 @@ codeunit 144090 "ERM Withhold"
         CreatePayment."Starting Document No.".SetValue(LibraryUtility.GenerateGUID());
         CreatePayment."Bank Account".SetValue(LibraryERM.CreateBankAccountNo());
         CreatePayment.OK().Invoke();
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure GrossAmountShowComputedWithhContriModalPageHandler(var ShowComputedWithhContrib: TestPage "Show Computed Withh. Contrib.")
+    begin
+        ShowComputedWithhContrib."Total Amount".SetValue(LibraryVariableStorage.PeekDecimal(1));
+        ShowComputedWithhContrib.OK.Invoke;
+    end;
+
+    local procedure FindWithHoldingTaxGenJournalLine(var GenJournalLine: Record "Gen. Journal Line"; JournalTemplateName: Code[10]; JournalBatchName: Code[10]; AccountType: enum "Gen. Journal Account Type"; AccountNo: Code[20])
+    begin
+        with GenJournalLine do begin
+            SetRange("Journal Template Name", JournalTemplateName);
+            SetRange("Journal Batch Name", JournalBatchName);
+            SetRange("Account Type", AccountType);
+            SetRange("Account No.", AccountNo);
+            FindFirst();
+        end;
     end;
 }
 

@@ -55,7 +55,7 @@ codeunit 1596 "Email Installer"
         exit('MS-434130-DefaultEmailViewPolicyChanged-20220905');
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, Codeunit::"System Initialization", 'OnAfterInitialization', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"System Initialization", 'OnAfterLogin', '', false, false)]
     local procedure AddAllowedTablesOnAfterSystemInitialization()
     begin
         AddRetentionPolicyAllowedTables();

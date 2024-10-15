@@ -10589,6 +10589,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Planning - NTF tests - NamedType WrongSerialNoTxt)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 1981732821 - NamedType 2632635105" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Bin Codes are not equal.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Planning And Manufacturing - NamedType BinCodesNotEqualErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 1981732821 - NamedType 2922193226" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[The change will not affect existing entries]]></Val>

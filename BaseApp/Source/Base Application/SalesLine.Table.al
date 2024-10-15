@@ -5305,7 +5305,7 @@ table 37 "Sales Line"
         "Dimension Set ID" :=
           DimMgt.GetRecDefaultDimID(
             Rec, CurrFieldNo, DefaultDimSource, SourceCodeSetup.Sales,
-            "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code", SalesHeader."Dimension Set ID", 0);
+            "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code", SalesHeader."Dimension Set ID", Database::Customer);
 
         OnCreateDimOnBeforeUpdateGlobalDimFromDimSetID(Rec);
         DimMgt.UpdateGlobalDimFromDimSetID("Dimension Set ID", "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
