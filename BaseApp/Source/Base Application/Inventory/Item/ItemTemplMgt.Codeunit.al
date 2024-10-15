@@ -146,7 +146,7 @@ codeunit 1336 "Item Templ. Mgt."
         InitFromTemplate(Item, ItemTempl, UpdateExistingValues);
 
         IsHandled := false;
-        OnApplyTemplateOnBeforeItemModify(Item, ItemTempl, IsHandled);
+        OnApplyTemplateOnBeforeItemModify(Item, ItemTempl, IsHandled, UpdateExistingValues);
         if not IsHandled then
             Item.Modify(true);
     end;
@@ -533,7 +533,7 @@ codeunit 1336 "Item Templ. Mgt."
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnApplyTemplateOnBeforeItemModify(var Item: Record Item; ItemTempl: Record "Item Templ."; var IsHandled: Boolean)
+    local procedure OnApplyTemplateOnBeforeItemModify(var Item: Record Item; ItemTempl: Record "Item Templ."; var IsHandled: Boolean; UpdateExistingValues: Boolean)
     begin
     end;
 

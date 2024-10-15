@@ -2,6 +2,7 @@
 
 using Microsoft.Inventory.Item;
 using Microsoft.Inventory.Ledger;
+using Microsoft.Inventory.Location;
 using Microsoft.Inventory.Planning;
 using Microsoft.Inventory.Tracking;
 
@@ -15,6 +16,7 @@ codeunit 99000835 "Item Jnl. Line-Reserve"
 
     var
         FromTrackingSpecification: Record "Tracking Specification";
+        TempSKU: Record "Stockkeeping Unit" temporary;
         ReservationManagement: Codeunit "Reservation Management";
         CreateReservEntry: Codeunit "Create Reserv. Entry";
         ReservationEngineMgt: Codeunit "Reservation Engine Mgt.";
@@ -93,6 +95,13 @@ codeunit 99000835 "Item Jnl. Line-Reserve"
     procedure ReservEntryExist(ItemJournalLine: Record "Item Journal Line"): Boolean
     begin
         exit(ItemJournalLine.ReservEntryExist());
+    end;
+
+    procedure ReservEntryExist(ItemJournalLine: Record "Item Journal Line"; var ReservationEntry: Record "Reservation Entry"): Boolean
+    begin
+        ReservationEntry.InitSortingAndFilters(false);
+        ItemJournalLine.SetReservationFilters(ReservationEntry);
+        exit(not ReservationEntry.IsEmpty());
     end;
 
     procedure VerifyChange(var NewItemJournalLine: Record "Item Journal Line"; var OldItemJournalLine: Record "Item Journal Line")
@@ -244,10 +253,10 @@ codeunit 99000835 "Item Jnl. Line-Reserve"
         SkipThisRecord: Boolean;
         IsHandled: Boolean;
     begin
-        if not FindReservEntry(ItemJournalLine, OldReservationEntry) then
+        if not ReservEntryExist(ItemJournalLine, OldReservationEntry) then
             exit(false);
 
-        OldReservationEntry.Lock();
+        LockReservationEntry(ItemJournalLine);
 
         ItemLedgerEntry.TestField("Item No.", ItemJournalLine."Item No.");
         ItemLedgerEntry.TestField("Variant Code", ItemJournalLine."Variant Code");
@@ -584,6 +593,20 @@ codeunit 99000835 "Item Jnl. Line-Reserve"
         ItemJournalLine.SetRange("Line No.", ReservationEntry."Source Ref. No.");
         ItemJournalLine.SetRange("Entry Type", ReservationEntry."Source Subtype");
         PAGE.RunModal(PAGE::"Item Journal Lines", ItemJournalLine);
+    end;
+
+    local procedure LockReservationEntry(ItemJournalLine: Record "Item Journal Line")
+    var
+        ReservationEntry: Record "Reservation Entry";
+    begin
+        ReservationEntry.SetItemData(ItemJournalLine."Item No.", '', ItemJournalLine."Location Code", ItemJournalLine."Variant Code", 0);
+        TempSKU."Location Code" := ReservationEntry."Location Code";
+        TempSKU."Item No." := ReservationEntry."Item No.";
+        TempSKU."Variant Code" := ReservationEntry."Variant Code";
+        if not TempSKU.Find() then begin
+            TempSKU.Insert();
+            ReservationEntry.Lock();
+        end;        
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Reservation Management", 'OnGetSourceRecordValue', '', false, false)]

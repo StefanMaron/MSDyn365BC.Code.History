@@ -26,6 +26,7 @@ codeunit 7001 "Price Calculation Mgt."
         UseCustomizedLookupTxt: Label 'Use Customized Lookup', Locked = true;
         SubscriptionsTxt: Label 'Subscriptions', Locked = true;
         ExtendedPriceFeatureIdTok: Label 'SalesPrices', Locked = true;
+        ExtendedPriceFeatureTelemetryNameLbl: Label 'New Sales Pricing', Locked = true;
         UsedCustomLookupTxt: Label 'Used custom lookup in table %1.', Comment = '%1 = table id', Locked = true;
         NotImplementedMethodErr: Label 'Method %1 does not have active implementations for %2 price type.', Comment = '%1 - method name, %2 - price type name';
 #if not CLEAN21
@@ -157,6 +158,11 @@ codeunit 7001 "Price Calculation Mgt."
     procedure GetFeatureKey(): Text[50]
     begin
         exit(ExtendedPriceFeatureIdTok);
+    end;
+
+    procedure GetFeatureTelemetryName(): Text[50]
+    begin
+        exit(ExtendedPriceFeatureTelemetryNameLbl);
     end;
 
 #if not CLEAN21

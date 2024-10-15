@@ -13,6 +13,7 @@ using System.Reflection;
 #endif
 #if not CLEAN21
 using System.Feedback;
+using Microsoft.Pricing.Calculation;
 #endif
 
 codeunit 265 "Feature Key Management"
@@ -171,6 +172,23 @@ codeunit 265 "Feature Key Management"
             if CustomerExperienceSurvey.RegisterEventAndGetEligibility('modernactionbar_event', 'modernactionbar', FormsProId, FormsProEligibilityId, IsEligible) then
                 if IsEligible then
                     CustomerExperienceSurvey.RenderSurvey('modernactionbar', FormsProId, FormsProEligibilityId);
+        end;
+    end;
+#endif
+
+#if not CLEAN21
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Feature Management Facade", 'OnAfterUpdateData', '', false, false)]
+    local procedure HandleOnAfterUpdateData(var FeatureDataUpdateStatus: Record "Feature Data Update Status")
+    var
+        FeatureTelemetry: Codeunit "Feature Telemetry";
+        PriceCalculationMgt: Codeunit "Price Calculation Mgt.";
+    begin
+        // Log feature uptake
+        if FeatureDataUpdateStatus."Feature Status" <> FeatureDataUpdateStatus."Feature Status"::Complete then
+            exit;
+        case FeatureDataUpdateStatus."Feature Key" of
+            PriceCalculationMgt.GetFeatureKey():
+                FeatureTelemetry.LogUptake('0000LLR', PriceCalculationMgt.GetFeatureTelemetryName(), Enum::"Feature Uptake Status"::Discovered);
         end;
     end;
 #endif
