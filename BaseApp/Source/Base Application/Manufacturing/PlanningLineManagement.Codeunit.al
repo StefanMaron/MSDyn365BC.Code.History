@@ -213,6 +213,7 @@
                                             end else begin
                                                 PlanningComponent.Reset();
                                                 PlanningComponent.BlockDynamicTracking(Blocked);
+                                                PlanningComponent.SetRequisitionLine(ReqLine);
                                                 PlanningComponent.Validate(
                                                   "Quantity per",
                                                   PlanningComponent."Quantity per" + ProdBOMLine[Level]."Quantity per" * LineQtyPerUOM / ItemQtyPerUOM);
@@ -289,6 +290,7 @@
                                 PlanningComponent.Reset();
                                 PlanningComponent.Init();
                                 PlanningComponent.BlockDynamicTracking(Blocked);
+                                PlanningComponent.SetRequisitionLine(ReqLine);
                                 PlanningComponent."Worksheet Template Name" := ReqLine."Worksheet Template Name";
                                 PlanningComponent."Worksheet Batch Name" := ReqLine."Journal Batch Name";
                                 PlanningComponent."Worksheet Line No." := ReqLine."Line No.";
@@ -328,6 +330,7 @@
                             end else begin
                                 PlanningComponent.Reset();
                                 PlanningComponent.BlockDynamicTracking(Blocked);
+                                PlanningComponent.SetRequisitionLine(ReqLine);
                                 PlanningComponent.Validate(
                                   "Quantity per",
                                   PlanningComponent."Quantity per" +
@@ -584,6 +587,7 @@
             Reset();
             Init();
             BlockDynamicTracking(Blocked);
+            SetRequisitionLine(ReqLine);
             "Worksheet Template Name" := ReqLine."Worksheet Template Name";
             "Worksheet Batch Name" := ReqLine."Journal Batch Name";
             "Worksheet Line No." := ReqLine."Line No.";

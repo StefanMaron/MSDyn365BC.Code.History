@@ -658,6 +658,7 @@
         ReserveInvtDocLine.VerifyQuantity(Rec, xRec);
         LockTable();
         InvtDocHeader."No." := '';
+        Rec.Validate("Source Code", GetSourceCode());
     end;
 
     trigger OnModify()
@@ -1134,6 +1135,18 @@
         DimMgt.AddDimSource(DefaultDimSource, Database::Location, Rec."Location Code", FieldNo = Rec.FieldNo("Location Code"));
 
         OnAfterInitDefaultDimensionSources(Rec, DefaultDimSource, FieldNo);
+    end;
+
+    local procedure GetSourceCode(): Code[10]
+    var
+        SourceCodeSetup: Record "Source Code Setup";
+    begin
+        SourceCodeSetup.Get();
+        if "Document Type" = "Document Type"::Receipt then
+            exit(SourceCodeSetup."Invt. Receipt");
+
+        if "Document Type" = "Document Type"::Shipment then
+            exit(SourceCodeSetup."Invt. Shipment");
     end;
 
     [IntegrationEvent(false, false)]
