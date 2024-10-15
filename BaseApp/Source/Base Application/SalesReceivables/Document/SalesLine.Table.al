@@ -3344,7 +3344,6 @@
             trigger OnValidate()
             begin
                 NorwegianVATTools.InitPostingGrps_SalesLine(Rec);
-                "VAT Number" := "VAT Code";
             end;
 #endif
         }
@@ -10676,6 +10675,6 @@
     [IntegrationEvent(false, false)]
     local procedure OnBeforeDeleteChargeChargeAssgnt(SalesDocumentType: Enum "Sales Document Type"; DocNo: Code[20]; DocLineNo: Integer; var SalesLine: Record "Sales Line"; var xSalesLine: Record "Sales Line"; CurrentFieldNo: Integer; var IsHandled: Boolean)
     begin
-    end;    
+    end;
 }
 

@@ -2936,7 +2936,6 @@
             trigger OnValidate()
             begin
                 NorwegianVATTools.InitPostingGrps_GenJnlLine(Rec, false);
-                "VAT Number" := "VAT Code";
             end;
 #endif
         }
@@ -2955,7 +2954,6 @@
             trigger OnValidate()
             begin
                 NorwegianVATTools.InitPostingGrps_GenJnlLine(Rec, true);
-                "Bal. VAT Number" := "Bal. VAT Code";
             end;
 #endif
         }

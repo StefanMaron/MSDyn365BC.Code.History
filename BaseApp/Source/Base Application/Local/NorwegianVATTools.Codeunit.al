@@ -302,7 +302,6 @@ codeunit 10600 "Norwegian VAT Tools"
                 VATEntry."Base Amount Type" := VATEntry."Base Amount Type"::"Without VAT";
         end;
         VATEntry."VAT Code" := GenJournalLine."VAT Code";
-        VATEntry."VAT Number" := GenJournalLine."VAT Number";
 
         // Test the Gen. Posting Type against the setup
         if VATEntry."VAT Code" <> '' then begin
@@ -327,27 +326,21 @@ codeunit 10600 "Norwegian VAT Tools"
             if UseBalanceFields then begin
                 if VATPostingSetup.Get("Bal. VAT Bus. Posting Group", "Bal. VAT Prod. Posting Group") then begin
                     "Bal. VAT Code" := VATPostingSetup."VAT Code";
-                    "Bal. VAT Number" := VATPostingSetup."VAT Number";
                     if VATPostingSetup."VAT Code" <> '' then begin
                         VATCode.Get(VATPostingSetup."VAT Code");
                         "Bal. Gen. Posting Type" := VATCode."Gen. Posting Type";
                     end;
-                end else begin
+                end else
                     "Bal. VAT Code" := '';
-                    "Bal. VAT Number" := '';
-                end;
             end else
                 if VATPostingSetup.Get("VAT Bus. Posting Group", "VAT Prod. Posting Group") then begin
                     "VAT Code" := VATPostingSetup."VAT Code";
-                    "VAT Number" := VATPostingSetup."VAT Number";
                     if VATPostingSetup."VAT Code" <> '' then begin
                         VATCode.Get(VATPostingSetup."VAT Code");
                         "Gen. Posting Type" := VATCode."Gen. Posting Type";
                     end;
-                end else begin
+                end else
                     "VAT Code" := '';
-                    "VAT Number" := '';
-                end;
     end;
 
     [Scope('OnPrem')]
@@ -359,13 +352,10 @@ codeunit 10600 "Norwegian VAT Tools"
     begin
         if VATPostingSetup.Get(SalesLine."VAT Bus. Posting Group", SalesLine."VAT Prod. Posting Group") then begin
             SalesLine."VAT Code" := VATPostingSetup."VAT Code";
-            SalesLine."VAT Number" := VATPostingSetup."VAT Number";
             if VATPostingSetup."VAT Code" <> '' then
                 VATCode.Get(VATPostingSetup."VAT Code");
-        end else begin
+        end else
             SalesLine."VAT Code" := '';
-            SalesLine."VAT Number" := '';
-        end;
     end;
 
     [Scope('OnPrem')]
@@ -377,13 +367,10 @@ codeunit 10600 "Norwegian VAT Tools"
     begin
         if VATPostingSetup.Get(PurchaseLine."VAT Bus. Posting Group", PurchaseLine."VAT Prod. Posting Group") then begin
             PurchaseLine."VAT Code" := VATPostingSetup."VAT Code";
-            PurchaseLine."VAT Number" := VATPostingSetup."VAT Number";
             if VATPostingSetup."VAT Code" <> '' then
                 VATCode.Get(VATPostingSetup."VAT Code");
-        end else begin
+        end else
             PurchaseLine."VAT Code" := '';
-            PurchaseLine."VAT Number" := '';
-        end;
     end;
 
     [Scope('OnPrem')]

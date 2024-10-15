@@ -3550,7 +3550,6 @@
             trigger OnValidate()
             begin
                 NorwegianVATTools.InitPostingGrps_PurchaseLine(Rec);
-                "VAT Number" := "VAT Code";
             end;
 #endif
         }
@@ -10629,7 +10628,7 @@
     local procedure OnAfterIsInbound(PurchaseLine: Record "Purchase Line"; var IsInboundDocument: Boolean)
     begin
     end;
-    
+
     [IntegrationEvent(false, false)]
     local procedure OnAfterUpdatePrePaymentAmounts(var PurchaseLine: Record "Purchase Line")
     begin
